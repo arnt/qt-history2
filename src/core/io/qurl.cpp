@@ -30,9 +30,8 @@
 
     For the convenience of generating encoded URL strings or query
     strings, there are two static functions called
-    fromPercentageEncodingThenUtf8() and
-    toUtf8ThenPercentageEncoding() which deal with percent encoding
-    and decoding of QStrings.
+    fromPercentEncoding() and toPercentEncoding() which deal with
+    percent encoding and decoding of QStrings.
 
     Calling isRelative() will tell whether or not the URL is
     relative. A relative URL can be resolved by passing it as argument
@@ -60,15 +59,22 @@
 #include <qstringlist.h>
 #include <qstack.h>
 #include <qstringlist.h>
-#ifndef QT_NO_TEXTCODEC
-# include <qtextcodec.h>
-#endif
 #include <qvarlengtharray.h>
 #include "qurl.h"
 
 //#define Q4URL_DEBUG
 
 Q_CORE_EXPORT bool qt_resolve_symlinks = true; //### this can sit here for now but needs to go some where else
+
+// needed by the punycode encoder/decoder
+#define MAXINT ((uint)((uint)(-1)>>1))
+static const uint base = 36;
+static const uint tmin = 1;
+static const uint tmax = 26;
+static const uint skew = 38;
+static const uint damp = 700;
+static const uint initial_bias = 72;
+static const uint initial_n = 128;
 
 class QUrlPrivate
 {
@@ -1126,13 +1132,13 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
     // parse() is called in ParseOnly mode; we don't want to set all
     // the members over again.
     if (parseOptions == ParseAndSet) {
-        that->scheme = QUrl::fromPercentageEncodingThenUtf8(__scheme);
-        that->setUserInfo(QUrl::fromPercentageEncodingThenUtf8(__userInfo));
-        that->host = QUrl::fromPercentageEncodingThenUtf8(__host);
+        that->scheme = QUrl::fromPercentEncoding(__scheme);
+        that->setUserInfo(QUrl::fromPercentEncoding(__userInfo));
+        that->host = QUrl::fromPercentEncoding(__host);
         that->port = __port;
-        that->path = QUrl::fromPercentageEncodingThenUtf8(__path);
-        that->query = QUrl::fromPercentageEncodingThenUtf8(__query).ascii();
-        that->fragment = QUrl::fromPercentageEncodingThenUtf8(__fragment).ascii();
+        that->path = QUrl::fromPercentEncoding(__path);
+        that->query = QUrl::fromPercentEncoding(__query).ascii();
+        that->fragment = QUrl::fromPercentEncoding(__fragment).ascii();
     }
 
     that->isValid = true;
@@ -1140,13 +1146,13 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
     that->isParsed = true;
 
 #if defined (Q4URL_DEBUG)
-    qDebug("QUrl::setUrl(), scheme = %s", QUrl::fromPercentageEncodingThenUtf8(__scheme).latin1());
-    qDebug("QUrl::setUrl(), userInfo = %s", QUrl::fromPercentageEncodingThenUtf8(__userInfo).latin1());
-    qDebug("QUrl::setUrl(), host = %s", QUrl::fromPercentageEncodingThenUtf8(__host).latin1());
+    qDebug("QUrl::setUrl(), scheme = %s", QUrl::fromPercentEncoding(__scheme).latin1());
+    qDebug("QUrl::setUrl(), userInfo = %s", QUrl::fromPercentEncoding(__userInfo).latin1());
+    qDebug("QUrl::setUrl(), host = %s", QUrl::fromPercentEncoding(__host).latin1());
     qDebug("QUrl::setUrl(), port = %i", __port);
-    qDebug("QUrl::setUrl(), path = %s", QUrl::fromPercentageEncodingThenUtf8(__path).latin1());
-    qDebug("QUrl::setUrl(), query = %s", QUrl::fromPercentageEncodingThenUtf8(__query).ascii());
-    qDebug("QUrl::setUrl(), fragment = %s", QUrl::fromPercentageEncodingThenUtf8(__fragment).latin1());
+    qDebug("QUrl::setUrl(), path = %s", QUrl::fromPercentEncoding(__path).latin1());
+    qDebug("QUrl::setUrl(), query = %s", QUrl::fromPercentEncoding(__query).ascii());
+    qDebug("QUrl::setUrl(), fragment = %s", QUrl::fromPercentEncoding(__fragment).latin1());
 #endif
 }
 
@@ -1169,32 +1175,23 @@ QByteArray QUrlPrivate::toEncoded() const
         url += "//";
 
         if (!userName.isEmpty()) {
-            url += QUrl::toUtf8ThenPercentageEncoding(userName, ":");
+            url += QUrl::toPercentEncoding(userName, ":");
             if (!password.isEmpty())
-                url += ":" + QUrl::toUtf8ThenPercentageEncoding(password, ":");
+                url += ":" + QUrl::toPercentEncoding(password, ":");
             url += "@";
         }
 
-#ifndef QT_NO_TEXTCODEC
         // IDNA / rfc3490 describes these four delimiters used for
         // separating labels in unicode international domain
         // names.
         const unsigned short delimiters[] = {0x2e, 0x3002, 0xff0e, 0xff61, 0};
-        QTextCodec *codec = QTextCodec::codecForName("Punycode");
-
-        if (!codec)
-            return QByteArray();
-
         QStringList labels = host.split(QRegExp("[" + QString::fromUtf16(delimiters) + "]"));
         for (int i = 0; i < labels.count(); ++i) {
             if (i != 0) url += '.';
 
             QString label = QUnicodeTables::normalize(labels.at(i), QUnicodeTables::NormalizationMode_KC, QChar::Unicode_3_1);
-            url += codec->fromUnicode(label);
+            url += QUrl::toPunycode(label);
         }
-#else
-        url += host;
-#endif
 
         if (port != -1) {
             url += ":";
@@ -1202,19 +1199,19 @@ QByteArray QUrlPrivate::toEncoded() const
         }
     }
 
-    url += QUrl::toUtf8ThenPercentageEncoding(path, " \t");
+    url += QUrl::toPercentEncoding(path, " \t");
 
     if (!query.isEmpty())
         url += "?" + query;
     if (!fragment.isEmpty())
-        url += "#" + QUrl::toUtf8ThenPercentageEncoding(fragment, " \t");
+        url += "#" + QUrl::toPercentEncoding(fragment, " \t");
 
     return url;
 }
 
 /*!
     Constructs a URL by parsing \a url. \a url is assumed to be in
-    human readable representation, with no percentage encoding. Any
+    human readable representation, with no percent encoding. Any
     percent symbols '%' will be interpreted as they are.
 
     \code
@@ -1300,13 +1297,13 @@ void QUrl::clear()
 */
 void QUrl::setUrl(const QString &url)
 {
-    setEncodedUrl(QUrl::toUtf8ThenPercentageEncoding(url, " \t"));
+    setEncodedUrl(QUrl::toPercentEncoding(url, " \t"));
 }
 
 /*!
     Constructs a URL by parsing the contents of \a url.
 
-    \a encodedUrl is assumed to be a URL string in percentage encoded
+    \a encodedUrl is assumed to be a URL string in percent encoded
     form, containing only ASCII characters.
 
     Calling isValid() will tell whether or not a valid URL was
@@ -1619,7 +1616,7 @@ QString QUrl::path() const
     and \a pairDelimiter will be used to separate key-value pairs.
     Any occurrances of these delimiting characters in the encoded
     representation of the keys and values of the query string are
-    percentage encoded.
+    percent encoded.
 
     If \a valueDelimiter is set to '-' and \a pairDelimiter is '/',
     the above query string would instead be represented like this:
@@ -1702,9 +1699,9 @@ void QUrl::setQueryItems(const QMap<QString, QString> &query)
         if (first) first = false;
         else queryTmp += d->pairDelimiter;
 
-        queryTmp += QUrl::toUtf8ThenPercentageEncoding(i.key(), alsoEncode.ascii());
+        queryTmp += QUrl::toPercentEncoding(i.key(), alsoEncode.ascii());
         queryTmp += d->valueDelimiter;
-        queryTmp += QUrl::toUtf8ThenPercentageEncoding(i.value(), alsoEncode.ascii());
+        queryTmp += QUrl::toPercentEncoding(i.value(), alsoEncode.ascii());
         ++i;
     }
 
@@ -1725,8 +1722,8 @@ QMap<QString, QString> QUrl::queryItems() const
     QList<QByteArray> items = d->query.split(d->pairDelimiter);
     for (int i = 0; i < items.count(); ++i) {
         QList<QByteArray> keyValuePair = items.at(i).split(d->valueDelimiter);
-        itemMap.insert(QUrl::fromPercentageEncodingThenUtf8(keyValuePair.at(0)),
-                       QUrl::fromPercentageEncodingThenUtf8(keyValuePair.at(1)));
+        itemMap.insert(QUrl::fromPercentEncoding(keyValuePair.at(0)),
+                       QUrl::fromPercentEncoding(keyValuePair.at(1)));
     }
 
     return itemMap;
@@ -1748,9 +1745,9 @@ void QUrl::addQueryItem(const QString &key, const QString &value)
     if (!d->query.isEmpty())
         d->query += d->pairDelimiter;
 
-    d->query += QUrl::toUtf8ThenPercentageEncoding(key, alsoEncode.ascii());
+    d->query += QUrl::toPercentEncoding(key, alsoEncode.ascii());
     d->query += d->valueDelimiter;
-    d->query += QUrl::toUtf8ThenPercentageEncoding(value, alsoEncode.ascii());
+    d->query += QUrl::toPercentEncoding(value, alsoEncode.ascii());
 }
 
 /*!
@@ -1771,7 +1768,7 @@ void QUrl::removeQueryItem(const QString &key)
 }
 
 /*!
-    Returns the query string of the URL in percentage encoded form.
+    Returns the query string of the URL in percent encoded form.
 */
 QByteArray QUrl::encodedQuery() const
 {
@@ -1802,7 +1799,7 @@ void QUrl::setFragment(const QString &fragment)
     detach();
     d->isValidated = false;
 
-    d->fragment = QUrl::toUtf8ThenPercentageEncoding(fragment);
+    d->fragment = QUrl::toPercentEncoding(fragment);
 }
 
 /*!
@@ -1942,7 +1939,7 @@ QString QUrl::toString(int formattingOptions) const
     otherwise QByteArray::null is returned.
 
     The user info, path and fragment are all converted to UTF-8, and
-    all non-ASCII characters are then percentageencoded. The host name
+    all non-ASCII characters are then percent encoded. The host name
     is encoded using Punycode.
 */
 QByteArray QUrl::toEncoded() const
@@ -1963,9 +1960,9 @@ QUrl QUrl::fromEncoded(const QByteArray &input)
 
 /*!
     Returns a decoded copy of \a input. \a input is first decoded from
-    percentageencoding, then converted from UTF-8 to unicode.
+    percent encoding, then converted from UTF-8 to unicode.
 */
-QString QUrl::fromPercentageEncodingThenUtf8(const QByteArray &input)
+QString QUrl::fromPercentEncoding(const QByteArray &input)
 {
     QVarLengthArray<char> tmp(input.size());
 
@@ -2001,7 +1998,7 @@ QString QUrl::fromPercentageEncodingThenUtf8(const QByteArray &input)
     *data = '\0';
 
 #if defined Q4URL_DEBUG
-    qDebug("QUrl::fromPercentageEncodingThenUtf8(\"%s\") == \"%s\"", input.data(), QString::fromUtf8(tmp.data()).latin1());
+    qDebug("QUrl::fromPercentEncoding(\"%s\") == \"%s\"", input.data(), QString::fromUtf8(tmp.data()).latin1());
 #endif
 
     return QString::fromUtf8(tmp.data());
@@ -2026,9 +2023,9 @@ inline char toHex(char c)
 /*!
     Returns an encoded copy of \a input. \a input is first converted
     to UTF-8, and then all non-ASCII characters, including any
-    characters in \a alsoEncode, are percentage encoded.
+    characters in \a alsoEncode, are percent encoded.
 */
-QByteArray QUrl::toUtf8ThenPercentageEncoding(const QString &input, const char alsoEncode[])
+QByteArray QUrl::toPercentEncoding(const QString &input, const char alsoEncode[])
 {
     QByteArray tmp = input.toUtf8();
     QVarLengthArray<char> output(tmp.size() * 3);
@@ -2038,7 +2035,7 @@ QByteArray QUrl::toUtf8ThenPercentageEncoding(const QString &input, const char a
     const char *inputData = tmp.constData();
     int length = 0;
 
-    if (alsoEncode[0] == '\0') {
+    if (!alsoEncode || alsoEncode[0] == '\0') {
         for (int i = 0; i < len; ++i) {
             unsigned char c = *inputData++;
             if (c < 0x80 && c != '%') {
@@ -2063,10 +2060,201 @@ QByteArray QUrl::toUtf8ThenPercentageEncoding(const QString &input, const char a
     }
 
 #if defined Q4URL_DEBUG
-    qDebug("QUrl::toUtf8ThenPercentageEncoding(\"%s\") == \"%s\"", input.latin1(), QByteArray(output.data(), length).data());
+    qDebug("QUrl::toPercentEncoding(\"%s\") == \"%s\"", input.latin1(), QByteArray(output.data(), length).data());
 #endif
 
     return QByteArray(output.data(), length);
+}
+
+
+inline uint adapt(uint delta, uint numpoints, bool firsttime)
+{
+    delta /= (firsttime ? damp : 2);
+    delta += (delta / numpoints);
+
+    uint k = 0;
+    for (; delta > ((base - tmin) * tmax) / 2; k += base)
+        delta /= (base - tmin);
+
+    return k + (((base - tmin + 1) * delta) / (delta + skew));
+}
+
+inline char encodeDigit(uint digit)
+{
+  return digit + 22 + 75 * (digit < 26);
+}
+
+/*!
+
+*/
+QByteArray QUrl::toPunycode(const QString &uc)
+{
+    uint n = initial_n;
+    uint delta = 0;
+    uint bias = initial_bias;
+
+    // assume that the size of output will be smaller than the number
+    // of input characters.
+    QByteArray output;
+
+    int ucLength = uc.length();
+
+    // copy all basic code points verbatim to output.
+    for (uint j = 0; j < (uint) ucLength; ++j) {
+        ushort js = uc.at(j).unicode();
+        if (js < 0x80)
+            output += js;
+    }
+
+    // if there were only basic code points, just return them
+    // directly; don't do any encoding.
+    if (output.size() == ucLength)
+        return output;
+
+    // h and b now contain the number of basic code points in input.
+    uint b = output.size();
+    uint h = output.size();
+
+    // if basic code points were copied, add the delimiter character.
+    if (h > 0) output += 0x2d;
+
+    // while there are still unprocessed non-basic code points left in
+    // the input string...
+    while (h < (uint) ucLength) {
+
+        // find the character in the input string with the lowest
+        // unicode value.
+        uint m = MAXINT;
+        uint j;
+        for (j = 0; j < (uint) ucLength; ++j) {
+            if (uc.at(j).unicode() >= n && uc.at(j).unicode() < m)
+                m = (uint) uc.at(j).unicode();
+        }
+
+        // reject out-of-bounds unicode characters
+        if (m - n > (MAXINT - delta) / (h + 1))
+            return ""; // punycode_overflow
+
+        delta += (m - n) * (h + 1);
+        n = m;
+
+        // for each code point in the input string
+        for (j = 0; j < (uint) ucLength; ++j) {
+
+            // increase delta until we reach the character with the
+            // lowest unicode code. fail if delta overflows.
+            if (uc.at(j).unicode() < n) {
+                ++delta;
+                if (!delta)
+                    return ""; // punycode_overflow
+            }
+
+            // if j is the index of the character with the lowest
+            // unicode code...
+            if (uc.at(j).unicode() == n) {
+                uint qq;
+                uint k;
+                uint t;
+
+                // insert the variable length delta integer; fail on
+                // overflow.
+                for (qq = delta, k = base;; k += base) {
+                    // stop generating digits when the threshold is
+                    // detected.
+                    t = (k <= bias) ? tmin : (k >= bias + tmax) ? tmax : k - bias;
+                    if (qq < t) break;
+
+                    output += encodeDigit(t + (qq - t) % (base - t));
+                    qq = (qq - t) / (base - t);
+                }
+
+                output += encodeDigit(qq);
+                bias = adapt(delta, h + 1, h == b);
+                delta = 0;
+                ++h;
+            }
+        }
+
+        ++delta;
+        ++n;
+    }
+
+    // prepend ACE prefix
+    output.prepend("xn--");
+    return output;
+
+}
+
+/*!
+
+*/
+QString QUrl::fromPunycode(const QByteArray &pc)
+{
+    uint n = initial_n;
+    uint i = 0;
+    uint bias = initial_bias;
+
+    // strip any ACE prefix
+    QByteArray inputTrimmed = (pc.startsWith("xn--") ? pc.mid(4) : pc);
+
+    // find the last delimiter character '-' in the input array. copy
+    // all data before this delimiter directly to the output array.
+    int delimiterPos = inputTrimmed.lastIndexOf(0x2d);
+    QString output = delimiterPos == -1 ? QString("") : inputTrimmed.left(delimiterPos);
+
+    // if a delimiter was found, skip to the position after it;
+    // otherwise start at the front of the input string. everything
+    // before the delimiter is assumed to be basic code points.
+    uint cnt = delimiterPos ? delimiterPos + 1 : 0;
+
+    // loop through the rest of the input string, inserting non-basic
+    // characters into output as we go.
+    while (cnt < (uint) inputTrimmed.size()) {
+        uint oldi = i;
+        uint w = 1;
+
+        // find the next index for inserting a non-basic character.
+        for (uint k = base; cnt < (uint) inputTrimmed.length(); k += base) {
+            // grab a character from the punycode input and find its
+            // delta digit (each digit code is part of the
+            // variable-length integer delta)
+            uint digit = inputTrimmed.at(cnt++);
+            if (digit - 48 < 10) digit -= 22;
+            else if (digit - 65 < 26) digit -= 65;
+            else if (digit - 97 < 26) digit -= 97;
+            else digit = base;
+
+            // reject out of range digits
+            if (digit >= base || digit > (MAXINT - i) / w)
+                return "";
+
+            i += (digit * w);
+
+            // detect threshold to stop reading delta digits
+            uint t;
+            if (k <= bias) t = tmin;
+            else if (k >= bias + tmax) t = tmax;
+            else t = k - bias;
+            if (digit < t) break;
+
+            w *= (base - t);
+        }
+
+        // find new bias and calculate the next non-basic code
+        // character.
+        bias = adapt(i - oldi, output.length() + 1, oldi == 0);
+        n += i / (output.length() + 1);
+
+        // allow the deltas to wrap around
+        i %= (output.length() + 1);
+
+        // insert the character n at position i
+        output.insert((uint) i, QChar((ushort) n));
+
+        ++i;
+    }
+
+    return output;
 }
 
 /*!

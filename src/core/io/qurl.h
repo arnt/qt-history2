@@ -79,6 +79,7 @@ public:
     QUrl resolved(const QUrl &relative) const; // ### name!
 
     bool isRelative() const;
+    bool isParentOf(const QUrl &url) const;
 
     bool isLocalFile() const;
     static QUrl fromLocalFile(const QString &localfile);
@@ -89,9 +90,6 @@ public:
     QByteArray toEncoded() const;
     static QUrl fromEncoded(const QByteArray &url);
 
-    static QString fromPercentageEncodingThenUtf8(const QByteArray &);
-    static QByteArray toUtf8ThenPercentageEncoding(const QString &, const char alsoEncode[] = "");
-
     void detach();
 
     bool operator <(const QUrl &url) const;
@@ -99,7 +97,10 @@ public:
     bool operator !=(const QUrl &url) const;
     QUrl &operator =(const QUrl &copy);
 
-    bool isParentOf(const QUrl &url) const;
+    static QString fromPercentEncoding(const QByteArray &);
+    static QByteArray toPercentEncoding(const QString &, const char *alsoEncode = 0);
+    static QString fromPunycode(const QByteArray &);
+    static QByteArray toPunycode(const QString &);
 
 protected:
     QUrl(QUrlPrivate &d);
