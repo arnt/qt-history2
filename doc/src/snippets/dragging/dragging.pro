@@ -1,5 +1,5 @@
 CONFIG      = qt
-HEADERS     = window.h
+HEADERS     = mainwindow.h
 RESOURCES   = images.qrc
 SOURCES     = main.cpp \
-              window.cpp
+              mainwindow.cpp

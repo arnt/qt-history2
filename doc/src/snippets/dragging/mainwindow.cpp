@@ -1,30 +1,33 @@
 #include <QtGui>
 
-#include "window.h"
+#include "mainwindow.h"
 
-Window::Window(QWidget *parent)
-    : QWidget(parent)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
 {
-    QLabel *nameLabel = new QLabel(tr("Comment:"), this);
-    commentEdit = new QTextEdit(this);
+    QFrame *centralFrame = new QFrame(this);
 
+    QLabel *nameLabel = new QLabel(tr("Comment:"), centralFrame);
+    commentEdit = new QTextEdit(centralFrame);
     QLabel *dragLabel = new QLabel(tr("<p>Drag the icon to a filer "
                                       "window or the desktop background:</p>"),
-                                      this);
-    iconLabel = new QLabel(this);
+                                      centralFrame);
+    iconLabel = new QLabel(centralFrame);
     iconPixmap.load(":/images/file.png");
     iconLabel->setPixmap(iconPixmap);
 
-    QGridLayout *grid = new QGridLayout(this);
+    QGridLayout *grid = new QGridLayout(centralFrame);
     grid->addWidget(nameLabel, 0, 0);
     grid->addWidget(commentEdit, 1, 0, 1, 2);
     grid->addWidget(dragLabel, 2, 0);
     grid->addWidget(iconLabel, 2, 1);
 
+    statusBar();
+    setCentralWidget(centralFrame);
     setWindowTitle(tr("Dragging"));
 }
 
-void Window::mousePressEvent(QMouseEvent *event)
+void MainWindow::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton
         && iconLabel->geometry().contains(event->pos())) {
@@ -55,7 +58,6 @@ void Window::mousePressEvent(QMouseEvent *event)
                 actionText = tr("Unknown action.");
                 break;
         }
-        (void) QMessageBox::information(this, tr("Information About The Drag"),
-            actionText, QMessageBox::Ok);
+        statusBar()->message(actionText);
     }
 }

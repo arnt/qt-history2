@@ -1,20 +1,20 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
+#include <QMainWindow>
 #include <QPixmap>
-#include <QWidget>
 
 class QLabel;
 class QLineEdit;
 class QMouseEvent;
 class QTextEdit;
 
-class Window : public QWidget
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    Window(QWidget *parent = 0);
+    MainWindow(QWidget *parent = 0);
 
 protected:
     void mousePressEvent(QMouseEvent *event);
