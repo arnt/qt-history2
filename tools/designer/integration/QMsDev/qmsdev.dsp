@@ -8,12 +8,12 @@ CFG=QMsDev - Win32 Debug
 !MESSAGE Dies ist kein gültiges Makefile. Zum Erstellen dieses Projekts mit NMAKE
 !MESSAGE verwenden Sie den Befehl "Makefile exportieren" und führen Sie den Befehl
 !MESSAGE 
-!MESSAGE NMAKE /f "QMsDev.mak".
+!MESSAGE NMAKE /f "qmsdev.mak".
 !MESSAGE 
 !MESSAGE Sie können beim Ausführen von NMAKE eine Konfiguration angeben
 !MESSAGE durch Definieren des Makros CFG in der Befehlszeile. Zum Beispiel:
 !MESSAGE 
-!MESSAGE NMAKE /f "QMsDev.mak" CFG="QMsDev - Win32 Debug"
+!MESSAGE NMAKE /f "qmsdev.mak" CFG="QMsDev - Win32 Debug"
 !MESSAGE 
 !MESSAGE Für die Konfiguration stehen zur Auswahl:
 !MESSAGE 
@@ -79,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 $(QTDIR)\lib\qt220.lib $(QTDIR)\lib\qtmain.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept
 
 !ENDIF 
 
@@ -188,7 +188,6 @@ SOURCE=.\qmsdev.h
 # Begin Source File
 
 SOURCE=.\ReadMe.txt
-
 # End Source File
 # End Target
 # End Project
