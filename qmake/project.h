@@ -97,6 +97,7 @@ public:
 
     QString expand(const QString &v);
     bool test(const QString &v);
+    bool test(const QString &func, const QStringList &args);
     bool isActiveConfig(const QString &x, bool regex=false,
                         QMap<QString, QStringList> *place=NULL);
 

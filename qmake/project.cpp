@@ -2171,6 +2171,13 @@ QMakeProject::test(const QString &v)
     return doProjectTest(v, tmp);
 }
 
+bool
+QMakeProject::test(const QString &func, const QStringList &args)
+{
+    QMap<QString, QStringList> tmp = vars;
+    return doProjectTest(func, args, tmp);
+}
+
 QString
 QMakeProject::expand(const QString &str)
 {

@@ -500,19 +500,23 @@ MakefileGenerator::init()
             if(tmp_out.indexOf("$") == -1) {
                 if(!verifyExtraCompiler((*it), QString::null)) //verify
                     continue;
+                QStringList *out_list = 0;
                 if(project->variables().contains((*it) + ".variable_out")) {
                     const QStringList &var_out = project->variables().value((*it) + ".variable_out");
                     for(int i = 0; i < var_out.size(); ++i) {
                         QString v = var_out.at(i);
                         if(v == QLatin1String("SOURCES"))
                             v = "GENERATED_SOURCES";
-                        project->variables()[v] += Option::fixPathToTargetOS(tmp_out, false);
+                        out_list = &project->variables()[v];
                     }
                 } else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1) {
-                    project->variables()["OBJECTS"] += tmp_out; //auto link it in
+                    out_list = &project->variables()["OBJCTS"];
                 } else {
-                    project->variables()["UNUSED_SOURCES"] += tmp_out;
+                    out_list = &project->variables()["UNUSED_SOURCES"];
                 }
+                QString out = Option::fixPathToTargetOS(tmp_out, false);
+                if(out_list && !out_list->contains(out))
+                    out_list->append(out);
             }
         } else {
             QStringList &tmp = project->variables()[(*it) + ".input"];
@@ -526,6 +530,7 @@ MakefileGenerator::init()
                     QString in = fileFixify(Option::fixPathToTargetOS((*input), false));
                     if(!verifyExtraCompiler((*it), in)) //verify
                         continue;
+                    QStringList *out_list = 0;
                     QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
                     if(project->variables().contains((*it) + ".variable_out")) {
                         const QStringList &var_out = project->variables().value((*it) + ".variable_out");
@@ -533,13 +538,16 @@ MakefileGenerator::init()
                             QString v = var_out.at(i);
                             if(v == QLatin1String("SOURCES"))
                                 v = "GENERATED_SOURCES";
-                            project->variables()[v] += Option::fixPathToTargetOS(out, false);
+                            out_list = &project->variables()[v];
                         }
                     } else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1) {
-                        project->variables()["OBJECTS"] += out; //auto link it in
+                        out_list = &project->variables()["OBJCTS"];
                     } else {
-                        project->variables()["UNUSED_SOURCES"] += out;
+                        out_list = &project->variables()["UNUSED_SOURCES"];
                     }
+                    out = Option::fixPathToTargetOS(out, false);
+                    if(out_list && !out_list->contains(out))
+                        out_list->append(out);
                 }
             }
         }
@@ -1415,13 +1423,64 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
 bool
 MakefileGenerator::verifyExtraCompiler(const QString &comp, const QString &file)
 {
+#if 0
     if(!file.isNull() && !QFile::exists(file))
         return false;
+#endif
     if(project->values(comp + ".CONFIG").indexOf("moc_verify") != -1) {
         if(!file.isNull()) {
             QMakeSourceFileInfo::addSourceFile(file, QMakeSourceFileInfo::SEEK_MOCS);
             if(!mocable(file))
                 return false;
+        }
+    } else if(project->values(comp + ".CONFIG").indexOf("function_verify") != -1) {
+        QString tmp_out = project->variables()[comp + ".output"].first();
+        if(tmp_out.isEmpty())
+            return false;
+        QStringList verify_function = project->variables()[comp + ".verify_function"];
+        if(verify_function.isEmpty())
+            return false;
+
+        for(int i = 0; i < verify_function.size(); ++i) {
+            bool invert = false;
+            QString verify = verify_function.at(i);
+            if(verify.at(0) == QLatin1Char('!')) {
+                invert = true;
+                verify = verify.mid(1);
+            }
+
+            bool pass = false;
+            if(project->values(comp + ".CONFIG").indexOf("combine") != -1) {
+                QStringList args;
+                args << tmp_out << file;
+                bool pass = project->test(verify, args);
+                if(invert)
+                    pass = !pass;
+                if(!pass)
+                    return false;
+            } else {
+                QStringList &tmp = project->variables()[comp + ".input"];
+                for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it) {
+                    QStringList &inputs = project->variables()[(*it)];
+                    for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
+                        if((*input).isEmpty())
+                            continue;
+                        if(QFile::exists((*input)))
+                            (*input) = fileFixify((*input));
+                        QString in = fileFixify(Option::fixPathToTargetOS((*input), false));
+                        if(in == file) {
+                            QStringList args;
+                            args << replaceExtraCompilerVariables(tmp_out, (*input), QString::null) << file;
+                            bool pass = project->test(verify, args);
+                            if(invert)
+                                pass = !pass;
+                            if(!pass)
+                                return false;
+                            break;
+                        }
+                    }
+                }
+            }
         }
     } else if(project->values(comp + ".CONFIG").indexOf("verify") != -1) {
         QString tmp_out = project->variables()[comp + ".output"].first();
