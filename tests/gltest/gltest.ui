@@ -1,11 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>GLTest</class>
-<include location="local" impldecl="in implementation">glinfo.h</include>
-<include location="local" impldecl="in implementation">gldouble.h</include>
-<include location="local" impldecl="in implementation">glstencil.h</include>
-<include location="local" impldecl="in implementation">glalpha.h</include>
-<include location="local" impldecl="in implementation">gldepth.h</include>
-<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>GLTest</cstring>
@@ -25,6 +19,8 @@
         <sizepolicy>
             <hsizetype>1</hsizetype>
             <vsizetype>1</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
         </sizepolicy>
     </property>
     <property name="minimumSize">
@@ -100,6 +96,8 @@
                                 <sizepolicy>
                                     <hsizetype>7</hsizetype>
                                     <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
                                 </sizepolicy>
                             </property>
                             <property name="minimumSize">
@@ -363,6 +361,8 @@ Some information should be included...</string>
                                 <sizepolicy>
                                     <hsizetype>5</hsizetype>
                                     <vsizetype>1</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
                                 </sizepolicy>
                             </property>
                             <property name="minimumSize">
@@ -370,6 +370,12 @@ Some information should be included...</string>
                                     <width>0</width>
                                     <height>80</height>
                                 </size>
+                            </property>
+                            <property name="selectionMode">
+                                <enum>Extended</enum>
+                            </property>
+                            <property name="allColumnsShowFocus">
+                                <bool>true</bool>
                             </property>
                         </widget>
                     </widget>
@@ -420,6 +426,8 @@ Some information should be included...</string>
                                     <sizepolicy>
                                         <hsizetype>5</hsizetype>
                                         <vsizetype>5</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
                                     </sizepolicy>
                                 </property>
                                 <property name="cursor">
@@ -475,6 +483,8 @@ Some information should be included...</string>
                                     <sizepolicy>
                                         <hsizetype>5</hsizetype>
                                         <vsizetype>5</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
                                     </sizepolicy>
                                 </property>
                             </widget>
@@ -527,6 +537,8 @@ Some information should be included...</string>
                                     <sizepolicy>
                                         <hsizetype>5</hsizetype>
                                         <vsizetype>5</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
                                     </sizepolicy>
                                 </property>
                                 <property name="minimumSize">
@@ -700,6 +712,8 @@ Some information should be included...</string>
         <sizepolicy>
             <hordata>0</hordata>
             <verdata>0</verdata>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
         </sizepolicy>
         <pixmap>image0</pixmap>
     </customwidget>
@@ -714,6 +728,8 @@ Some information should be included...</string>
         <sizepolicy>
             <hordata>0</hordata>
             <verdata>0</verdata>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
         </sizepolicy>
         <pixmap>image0</pixmap>
     </customwidget>
@@ -728,6 +744,8 @@ Some information should be included...</string>
         <sizepolicy>
             <hordata>0</hordata>
             <verdata>0</verdata>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
         </sizepolicy>
         <pixmap>image0</pixmap>
     </customwidget>
@@ -742,6 +760,8 @@ Some information should be included...</string>
         <sizepolicy>
             <hordata>5</hordata>
             <verdata>5</verdata>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
         </sizepolicy>
         <pixmap>image0</pixmap>
     </customwidget>
@@ -756,6 +776,8 @@ Some information should be included...</string>
         <sizepolicy>
             <hordata>5</hordata>
             <verdata>5</verdata>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
         </sizepolicy>
         <pixmap>image0</pixmap>
     </customwidget>
@@ -766,36 +788,24 @@ Some information should be included...</string>
     </image>
 </images>
 <connections>
-    <connection language="C++">
+    <connection>
         <sender>buttonExit</sender>
         <signal>clicked()</signal>
         <receiver>GLTest</receiver>
         <slot>accept()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
 </connections>
-<functions>
-    <function name="init()" >{
-    int i;
-    QListViewItem *item;
-    QStringList list, listItem;
-    GLInfo info(this,"info");
-    infoView-&gt;setText(info.getText());
-    list = info.getViewList();
-    for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
-	i = 0;
-	item = new QListViewItem(infoList);
-	listItem = QStringList::split(" ", (*it).latin1());
-	for ( QStringList::Iterator ti = listItem.begin(); ti != listItem.end(); ++ti ) {
-	    item-&gt;setText(i, (*ti).latin1());
-	    i++;
-	}
-	infoList-&gt;insertItem(item);	
-    }  
-}</function>
-    <function name="destroy()" >{
-
-}</function>
-</functions>
+<includes>
+    <include location="local" impldecl="in implementation">glinfo.h</include>
+    <include location="local" impldecl="in implementation">gldouble.h</include>
+    <include location="local" impldecl="in implementation">glstencil.h</include>
+    <include location="local" impldecl="in implementation">glalpha.h</include>
+    <include location="local" impldecl="in implementation">gldepth.h</include>
+    <include location="local" impldecl="in implementation">gltest.ui.h</include>
+</includes>
+<slots>
+    <slot>init()</slot>
+    <slot>destroy()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>

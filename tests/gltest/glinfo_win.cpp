@@ -148,8 +148,8 @@ void GLInfo::VisualInfo(HDC hDC)
 	    str.sprintf("%scolor_index ", (const char*)str);
 
 	str.sprintf("%s%c %c ", (const char*)str, 
-		    pfd.dwFlags & PFD_DOUBLEBUFFER ? 'y' : '0',
-		    pfd.dwFlags & PFD_STEREO ? 'y' : '0');
+		    pfd.dwFlags & PFD_DOUBLEBUFFER ? 'y' : 'n',
+		    pfd.dwFlags & PFD_STEREO ? 'y' : 'n');
 		
 	if(pfd.cRedBits && pfd.iPixelType == PFD_TYPE_RGBA)
 	    str.sprintf("%s%d ", (const char*)str, pfd.cRedBits);
