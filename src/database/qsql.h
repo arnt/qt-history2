@@ -52,6 +52,7 @@ public:
     const QSqlDriver*   driver() const;
     bool	    operator<< ( const QString& query );
     QVariant 	    operator[] ( int i );
+    QVariant        value( int i );
     bool	    seek( int i, bool relative = FALSE );
     bool    	    next();
     bool    	    previous();

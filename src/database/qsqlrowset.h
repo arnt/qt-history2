@@ -16,24 +16,19 @@
 
 class QSqlDatabase;
 
-class QSqlRowset : public QSqlFieldList
+class QSqlRowset : public QSqlFieldList, public QSql
 {
 public:
     QSqlRowset( QSqlDatabase * db, const QString & table );
     QSqlRowset( const QSqlRowset & s );
 
+    QVariant& operator[]( int i );
+    QVariant& operator[]( const QString& name );
+    
     bool select( const QString & filter = QString::null, const QSqlIndex & sort = QSqlIndex() );
     bool select( const QSqlIndex & filter, const QSqlIndex & sort = QSqlIndex() );
-
-    bool seek( int i, bool relative = FALSE);
-    bool next();
-    bool previous();
-    bool first();
-    bool last();
-    QSqlError lastError() const { return r ? r->lastError() : QSqlError() ; }
-    int  affectedRows();
     QString name() const { return tableName; }
-    
+
     void dumpRecords();
 
 protected:
@@ -42,12 +37,9 @@ protected:
     QString whereClause( const QSqlIndex & i );
 
 private:
-    void updateFieldValues();
-
-    QSqlDatabase * db;
-    QString   tableName;    
-    QSql *    r;
-    QSqlIndex pk;
+    void      updateFieldValues();
+    int       lastAt;
+    QString   tableName;
 };
 
 #endif // QT_NO_SQL
