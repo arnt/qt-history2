@@ -1067,11 +1067,9 @@ void Doc::printHtmlIncludeHeader( HtmlWriter& out, const QString& fileName )
 QString Doc::href( const QString& name, const QString& text )
 {
     QString t = text;
-
+    QString y = res->href( name, t );
     if ( t.isEmpty() )
 	t = name;
-
-    QString y = res->href( name, t );
     if ( y.length() == t.length() ) {
 	QString k = keywordLinks[t];
 	if ( !k.isEmpty() )
@@ -1501,8 +1499,7 @@ QString Doc::htmlSeeAlso() const
 		    QStringList::split( QChar(' '),
 					name.mid(5).stripWhiteSpace() );
 	    if ( toks.count() < 2 ) {
-		warning( 2, location(),
-			 "Bad '\\link ... \\endlink' syntax in '\\sa'" );
+		warning( 2, location(), "Bad '\\link' syntax in '\\sa'" );
 	    } else {
 		name = toks.first();
 		toks.remove( toks.begin() );

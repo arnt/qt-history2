@@ -2360,10 +2360,10 @@ void QListView::setTreeStepSize( int l )
 
 
 /*!  Inserts \a i into the list view as a top-level item.  You do not
-  need to call this unless you've called takeItem( \a i ) or
-  QListViewItem::takeItem( i ) and need to reinsert \a i elsewhere.
+  need to call this unless you've called takeItem(\a i) or
+  QListViewItem::takeItem(\a i) and need to reinsert \a i elsewhere.
 
-  \sa QListViewItem::takeItem() (important) takeItem()
+  \sa QListViewItem::takeItem() takeItem()
 */
 
 void QListView::insertItem( QListViewItem * i )
@@ -5320,10 +5320,10 @@ int QListViewItem::itemPos() const
 */
 
 /*!  Removes \a i from the list view; \a i must be a top-level item.
-  The warnings regarding QListViewItem::takeItem( i ) apply to this
+  The warnings regarding QListViewItem::takeItem() apply to this
   function, too.
 
-  \sa QListViewItem::takeItem() (important) insertItem()
+  \sa insertItem()
 */
 void QListView::takeItem( QListViewItem * i )
 {

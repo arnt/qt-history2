@@ -922,7 +922,7 @@ void ClassDecl::fillInDocsThis()
 	int overloadNo = 2;
 
 	/*
-	  First pass: Fill in the candidate lists.  Among the
+	  First pass:  Fill in the candidate lists.  Among the
 	  candidates, we'll choose a canonical version and make sure
 	  all the others are '\overload's
 

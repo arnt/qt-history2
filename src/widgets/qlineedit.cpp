@@ -1600,7 +1600,7 @@ void QLineEdit::insert( const QString &newText )
 
 
 /*!
-  \fn void QLineEdit::repaintArea( int, int )
+  \fn void QLineEdit::repaintArea( int from, int to )
   \obsolete
   Repaints all characters from \a from to \a to.  If cursorPos is
   between from and to, ensures that cursorPos is visible.
