@@ -436,7 +436,7 @@ void MainWindow::setupToolActions()
     actionOrderTool->setStatusTip( tr("Selects the tab order tool") );
     actionOrderTool->setWhatsThis( whatsThisFrom( "Tools|Tab Order" ) );
 
-    actionBuddyTool = new QAction( tr( "Set Buddy" ), createIconSet( "setbuddy.png" ),
+    actionBuddyTool = new QAction( tr( "Set Buddy" ), createIconSet( "designer_setbuddy.png" ),
 				   tr( "Set &Buddy" ), Key_F12,
 				   actionGroupTools, QString::number( BUDDY_TOOL ).latin1(),
 				   TRUE );
