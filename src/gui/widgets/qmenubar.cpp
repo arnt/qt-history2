@@ -227,7 +227,6 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
     const int hmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, 0, q),
               vmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, 0, q);
     int x = start == -1 ? hmargin : start + itemSpacing, y = vmargin;
-    qDebug("attemping to calc the rects... %d [%d]", max_width, separator_start);
     for(int i = 0; i < actionList.count(); i++) {
         QAction *action = actionList.at(i);
         QRect &rect = actionRects[action];
@@ -241,7 +240,6 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
                 separator_start = x = hmargin;
                 y += max_item_height;
             }
-            qDebug("Placing %s %d", action->text().latin1(), left);
             rect.moveLeft(left);
         } else {
             if(x+rect.width() >= max_width-vmargin) { //wrap
