@@ -14,6 +14,8 @@
 #define COMMAND_QUICKPROPERTY       Doc::alias( "quickproperty" )
 #define COMMAND_REPLACE             Doc::alias( "replace" )
 
+static QString balancedParentheses = "(?:[^()]+|\\([^()]*\\))*";
+
 int QsCodeParser::tabSize;
 
 QsCodeParser::QsCodeParser( Tree *cppTree )
@@ -383,10 +385,19 @@ QString QsCodeParser::quickifiedDataType( const QString& leftType,
 
 QString QsCodeParser::quickifiedCode( const QString& code )
 {
+    QRegExp funcRegExp(
+	    "^([ \t]*)(?:[\\w<>,&*]+[ \t]+)+((?:\\w+::)*\\w+)\\((" +
+	    balancedParentheses + ")\\)(?:[ \t]*const)?(?=[ \n\t]*\\{)" );
+    QRegExp paramRegExp(
+	     "\\s*(const\\s+)?([^\\s=]+)\\b[^=]*\\W(\\w+)\\s*(?:=.*)?" );
+    QRegExp qtVarRegExp(
+	     "^([ \t]*)(const[ \t]+)?Q([A-Z][A-Za-z_0-9]*)\\s+"
+	     "([a-z][A-Za-z_0-9]*)\\s*(?:\\((" + balancedParentheses +
+	     ")\\))?\\s*;" );
     QString result;
-    int i = 0;
     bool inString = FALSE;
     QChar quote;
+    int i = 0;
 
     while ( i < (int) code.length() ) {
 	if ( inString ) {
@@ -400,26 +411,84 @@ QString QsCodeParser::quickifiedCode( const QString& code )
 		result += code[i++];
 	    }
 	} else {
-	    if ( code[i] == '"' || code[i] == '\'' ) {
+	    bool newLine = ( i == 0 || code[i - 1] == '\n' );
+
+	    if ( newLine && funcRegExp.search(code.mid(i)) != -1 ) {
+		QString indent = funcRegExp.cap( 1 );
+		QString name = funcRegExp.cap( 2 );
+		name.replace( "::", "." );
+		QStringList params =
+			QStringList::split( ",", funcRegExp.cap(3) );
+		QStringList::Iterator p = params.begin();
+		while ( p != params.end() ) {
+		    if ( paramRegExp.exactMatch(*p) ) {
+#if 0
+			bool isVar = paramRegExp.cap( 1 ).isEmpty();
+#endif
+			QString qtDataType = paramRegExp.cap( 2 );
+			QString name = paramRegExp.cap( 3 );
+			*p = "var " + name + " : " +
+			     quickifiedDataType( qtDataType );
+		    }
+		    ++p;
+		}
+		result += indent + "function " + name + "( " +
+			  params.join(", ") + " )";
+		i += funcRegExp.matchedLength();
+	    } else if ( newLine && qtVarRegExp.search(code.mid(i)) != -1 ) {
+		QString indent = qtVarRegExp.cap( 1 );
+		bool isVar = qtVarRegExp.cap( 2 ).isEmpty();
+		QString quickClass = qtVarRegExp.cap( 3 );
+		QString name = qtVarRegExp.cap( 4 );
+		QString initializer = qtVarRegExp.cap( 5 ).simplifyWhiteSpace();
+		result += indent + ( isVar ? "var " : "const " ) + name;
+		if ( initializer.isEmpty() ) {
+		    result += " = new " + quickClass + ";";
+		} else {
+		    result += " = new " + quickClass + "( " + initializer +
+			      " );";
+		}
+		i += qtVarRegExp.matchedLength();
+	    } else if ( code[i] == '"' || code[i] == '\'' ) {
 		quote = code[i];
 		result += code[i++];
 		inString = TRUE;
 	    } else if ( code[i] == 'Q' && leftWordBoundary(code, i) ) {
 		if ( code.mid(i - 4, 3) == "new" ) {
 		    if ( code[i + 1].lower() == code[i + 1] ) {
-			result += code[i++];		
+			result += code[i++];
 		    } else {
 			i++;
 		    }
 		} else {
-		    result += "var";
-		    i = code.find( QRegExp("[^A-Za-z0-9_]|$"), i );
+		    result += "var ";
+		    while ( i < (int) code.length() &&
+			    code[i].isLetterOrNumber() )
+			i++;
+		    while ( i < (int) code.length() &&
+			    !code[i].isLetterOrNumber() && code[i] != '\n' )
+			i++;
 		}
+	    } else if ( code[i] == 'T' && leftWordBoundary(code, i) &&
+			code.mid(i, 4) == "TRUE" &&
+			rightWordBoundary(code, i + 4) ) {
+		result += "true";
+		i += 4;
+	    } else if ( code[i] == 'F' && leftWordBoundary(code, i) &&
+			code.mid(i, 5) == "FALSE" &&
+			rightWordBoundary(code, i + 5) ) {
+		result += "false";
+		i += 5;
 	    } else if ( code[i] == '/' && code[i + 1] == '/' ) {
 		int numSpaces = columnForIndex( code, i ) -
 				columnForIndex( result, result.length() );
-		while ( numSpaces-- > 0 )
-		    result += " ";
+		if ( numSpaces > 0 ) {
+		    while ( numSpaces-- > 0 )
+			result += " ";
+		} else if ( numSpaces < 0 ) {
+		    while ( numSpaces++ < 0 && result.right(1) == " " )
+			result.truncate( result.length() - 1 );
+		}
 		while ( i < (int) code.length() && code[i] != '\n' )
 		    result += code[i++];
 	    } else if ( (code[i] == ':' && code[i + 1] == ':') ||
@@ -540,8 +609,8 @@ bool QsCodeParser::makeFunctionNode( const QString& synopsis,
       This is a quick and dirty implementation. It will be rewritten
       when the rest of the class is implemented for real.
     */
-    QRegExp funcRegExp( "\\s*([A-Za-z0-9_]+)\\.([A-Za-z0-9_]+)\\s*\\(([^)]*)\\)"
-			"\\s*" );
+    QRegExp funcRegExp( "\\s*([A-Za-z0-9_]+)\\.([A-Za-z0-9_]+)\\s*\\((" +
+			balancedParentheses + ")\\)\\s*" );
     QRegExp paramRegExp( "\\s*([A-Za-z0-9_]+)(\\s+[A-Za-z0-9_]+)?\\s*" );
 
     if ( !funcRegExp.exactMatch(synopsis) )
