@@ -716,6 +716,24 @@ bool QProcess::start( QStringList *env )
 #endif
 	i++;
     }
+#ifdef Q_OS_MACX
+    if(i) {
+	QCString arg_bundle = arglistQ[0];
+	QFileInfo fi(arg_bundle);
+	if(fi.exists() && fi.isDir() && arg_bundle.right(4) == ".app") {
+	    QCString exe = arg_bundle;
+	    int lslash = exe.findRev('/');
+	    if(lslash != -1)
+		exe = exe.mid(lslash+1);
+	    exe = QCString(arg_bundle + "/Contents/MacOS/" + exe);
+	    exe = exe.left(exe.length() - 4); //chop off the .app
+	    if(QFile::exists(exe)) {
+		arglistQ[0] = exe;
+		arglist[0] = arglistQ[0];
+	    }
+	}
+    }
+#endif
     arglist[i] = 0;
 
     // Must make sure signal handlers are installed before exec'ing
