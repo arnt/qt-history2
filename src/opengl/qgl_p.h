@@ -50,4 +50,36 @@ public:
 #endif
 };
 
+class QGLContextPrivate
+{
+    Q_DECLARE_PUBLIC(QGLContext)
+	public:
+    QGLContextPrivate() {}
+    ~QGLContextPrivate() {}
+
+#if  defined(Q_WS_WIN)
+    HGLRC rc;
+    HDC dc;
+    WId        win;
+    int pixelFormatId;
+    QGLCmap* cmap;
+#elif defined(Q_WS_X11) || defined(Q_WS_MAC)
+    void* vi;
+    void* cx;
+#if defined(Q_WS_X11)
+    Q_UINT32 gpm;
+#endif
+#endif
+    QGLFormat glFormat;
+    QGLFormat reqFormat;
+
+    uint valid : 1;
+    uint sharing : 1;
+    uint initDone : 1;
+    uint crWin : 1;
+    QPaintDevice* paintDevice;
+    QColor transpColor;
+
+    QGLContext *q_ptr;
+};
 #endif

@@ -53,6 +53,7 @@ class QPixmap;
 class QGLOverlayWidget;
 #endif
 class QGLWidgetPrivate;
+class QGLContextPrivate;
 
 // Namespace class:
 class QM_EXPORT_OPENGL QGL
@@ -137,6 +138,7 @@ QM_EXPORT_OPENGL bool operator!=(const QGLFormat&, const QGLFormat&);
 
 class QM_EXPORT_OPENGL QGLContext : public QGL
 {
+    Q_DECLARE_PRIVATE(QGLContext)
 public:
     QGLContext(const QGLFormat& format, QPaintDevice* device);
     QGLContext(const QGLFormat& format);
@@ -191,35 +193,11 @@ protected:
     void setDevice(QPaintDevice *pDev);
 
 protected:
-#if  defined(Q_WS_WIN)
-    HGLRC rc;
-    HDC dc;
-    WId        win;
-    int pixelFormatId;
-    QGLCmap* cmap;
-#elif defined(Q_WS_X11) || defined(Q_WS_MAC)
-    void* vi;
-    void* cx;
-#if defined(Q_WS_X11)
-    Q_UINT32 gpm;
-#endif
-#endif
-    QGLFormat glFormat;
-    QGLFormat reqFormat;
-    static QGLContext*        currentCtx;
+    static QGLContext* currentCtx;
 
 private:
-    void init(QPaintDevice *dev = 0);
-    class Private {
-    public:
-        uint valid : 1;
-        uint sharing : 1;
-        uint initDone : 1;
-        uint crWin : 1;
-        QPaintDevice* paintDevice;
-        QColor transpColor;
-    };
-    Private* d;
+    void init(QPaintDevice *dev, const QGLFormat &format);
+    QGLContextPrivate* d_ptr;
 
     friend class QGLWidget;
     friend class QGLWidgetPrivate;
@@ -378,71 +356,5 @@ inline bool QGLFormat::directRendering() const
 inline bool QGLFormat::hasOverlay() const
 {
     return testOption(HasOverlay);
-}
-
-//
-// QGLContext inline functions
-//
-
-inline bool QGLContext::isValid() const
-{
-    return d->valid;
-}
-
-inline void QGLContext::setValid(bool valid)
-{
-    d->valid = valid;
-}
-
-inline bool QGLContext::isSharing() const
-{
-    return d->sharing;
-}
-
-inline QGLFormat QGLContext::format() const
-{
-    return glFormat;
-}
-
-inline QGLFormat QGLContext::requestedFormat() const
-{
-    return reqFormat;
-}
-
-inline QPaintDevice* QGLContext::device() const
-{
-    return d->paintDevice;
-}
-
-inline bool QGLContext::deviceIsPixmap() const
-{
-    return d->paintDevice->devType() == QInternal::Pixmap;
-}
-
-
-inline bool QGLContext::windowCreated() const
-{
-    return d->crWin;
-}
-
-
-inline void QGLContext::setWindowCreated(bool on)
-{
-    d->crWin = on;
-}
-
-inline bool QGLContext::initialized() const
-{
-    return d->initDone;
-}
-
-inline void QGLContext::setInitialized(bool on)
-{
-    d->initDone = on;
-}
-
-inline const QGLContext* QGLContext::currentContext()
-{
-    return currentCtx;
 }
 #endif

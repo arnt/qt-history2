@@ -261,57 +261,59 @@ bool QGLFormat::hasOpenGLOverlays()
 /*****************************************************************************
   QGLContext UNIX/GLX-specific code
  *****************************************************************************/
+#define d d_func()
+#define q q_func()
 
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
     const QX11Info *xinfo = qt_x11Info(d->paintDevice);
 
     Display* disp = xinfo->display();
-    vi = chooseVisual();
-    if (!vi)
+    d->vi = chooseVisual();
+    if (!d->vi)
         return false;
 
     if (deviceIsPixmap() &&
-         (((XVisualInfo*)vi)->depth != xinfo->depth() ||
-          ((XVisualInfo*)vi)->screen != xinfo->screen()))
+         (((XVisualInfo*)d->vi)->depth != xinfo->depth() ||
+          ((XVisualInfo*)d->vi)->screen != xinfo->screen()))
     {
-        XFree(vi);
+        XFree(d->vi);
         XVisualInfo appVisInfo;
         memset(&appVisInfo, 0, sizeof(XVisualInfo));
         appVisInfo.visualid = XVisualIDFromVisual((Visual *) xinfo->visual());
         appVisInfo.screen = xinfo->screen();
         int nvis;
-        vi = XGetVisualInfo(disp, VisualIDMask | VisualScreenMask, &appVisInfo, &nvis);
-        if (!vi)
+        d->vi = XGetVisualInfo(disp, VisualIDMask | VisualScreenMask, &appVisInfo, &nvis);
+        if (!d->vi)
             return false;
 
         int useGL;
-        glXGetConfig(disp, (XVisualInfo*)vi, GLX_USE_GL, &useGL);
+        glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_USE_GL, &useGL);
         if (!useGL)
             return false;        //# Chickening out already...
     }
     int res;
-    glXGetConfig(disp, (XVisualInfo*)vi, GLX_LEVEL, &res);
-    glFormat.setPlane(res);
-    glXGetConfig(disp, (XVisualInfo*)vi, GLX_DOUBLEBUFFER, &res);
-    glFormat.setDoubleBuffer(res);
-    glXGetConfig(disp, (XVisualInfo*)vi, GLX_DEPTH_SIZE, &res);
-    glFormat.setDepth(res);
-    glXGetConfig(disp, (XVisualInfo*)vi, GLX_RGBA, &res);
-    glFormat.setRgba(res);
-    glXGetConfig(disp, (XVisualInfo*)vi, GLX_ALPHA_SIZE, &res);
-    glFormat.setAlpha(res);
-    glXGetConfig(disp, (XVisualInfo*)vi, GLX_ACCUM_RED_SIZE, &res);
-    glFormat.setAccum(res);
-    glXGetConfig(disp, (XVisualInfo*)vi, GLX_STENCIL_SIZE, &res);
-    glFormat.setStencil(res);
-    glXGetConfig(disp, (XVisualInfo*)vi, GLX_STEREO, &res);
-    glFormat.setStereo(res);
+    glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_LEVEL, &res);
+    d->glFormat.setPlane(res);
+    glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_DOUBLEBUFFER, &res);
+    d->glFormat.setDoubleBuffer(res);
+    glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_DEPTH_SIZE, &res);
+    d->glFormat.setDepth(res);
+    glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_RGBA, &res);
+    d->glFormat.setRgba(res);
+    glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_ALPHA_SIZE, &res);
+    d->glFormat.setAlpha(res);
+    glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_ACCUM_RED_SIZE, &res);
+    d->glFormat.setAccum(res);
+    glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_STENCIL_SIZE, &res);
+    d->glFormat.setStencil(res);
+    glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_STEREO, &res);
+    d->glFormat.setStereo(res);
 
     Bool direct = format().directRendering() ? True : False;
 
     if (shareContext &&
-         (!shareContext->isValid() || !shareContext->cx)) {
+         (!shareContext->isValid() || !shareContext->d->cx)) {
             qWarning("QGLContext::chooseContext(): Cannot share with invalid context");
             shareContext = 0;
     }
@@ -321,31 +323,31 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     // 3. Pixmaps cannot share contexts that are set up for direct rendering.
     if (shareContext && (format().rgba() != shareContext->format().rgba() ||
                           (deviceIsPixmap() &&
-                           glXIsDirect(disp, (GLXContext)shareContext->cx))))
+                           glXIsDirect(disp, (GLXContext)shareContext->d->cx))))
         shareContext = 0;
 
-    cx = 0;
+    d->cx = 0;
     if (shareContext) {
-        cx = glXCreateContext(disp, (XVisualInfo *)vi,
-                               (GLXContext)shareContext->cx, direct);
-        if (cx)
+        d->cx = glXCreateContext(disp, (XVisualInfo *)d->vi,
+                               (GLXContext)shareContext->d->cx, direct);
+        if (d->cx)
             d->sharing = true;
     }
-    if (!cx)
-        cx = glXCreateContext(disp, (XVisualInfo *)vi, NULL, direct);
-    if (!cx)
+    if (!d->cx)
+        d->cx = glXCreateContext(disp, (XVisualInfo *)d->vi, NULL, direct);
+    if (!d->cx)
         return false;
-    glFormat.setDirectRendering(glXIsDirect(disp, (GLXContext)cx));
+    d->glFormat.setDirectRendering(glXIsDirect(disp, (GLXContext)d->cx));
     if (deviceIsPixmap()) {
 #if defined(GLX_MESA_pixmap_colormap) && defined(QGL_USE_MESA_EXT)
-        gpm = glXCreateGLXPixmapMESA(disp, (XVisualInfo *)vi,
-                                      qt_x11Handle(d->paintDevice),
-                                      choose_cmap(disp, (XVisualInfo *)vi));
+        d->gpm = glXCreateGLXPixmapMESA(disp, (XVisualInfo *)d->vi,
+					qt_x11Handle(d->paintDevice),
+					choose_cmap(disp, (XVisualInfo *)d->vi));
 #else
-        gpm = (Q_UINT32)glXCreateGLXPixmap(disp, (XVisualInfo *)vi,
-                                            qt_x11Handle(d->paintDevice));
+        d->gpm = (Q_UINT32)glXCreateGLXPixmap(disp, (XVisualInfo *)d->vi,
+					      qt_x11Handle(d->paintDevice));
 #endif
-        if (!gpm)
+        if (!d->gpm)
             return false;
     }
     return true;
@@ -415,7 +417,7 @@ void *QGLContext::chooseVisual()
         }
         fail = true;
     }
-    glFormat = fmt;
+    d->glFormat = fmt;
     return vis;
 }
 
@@ -526,14 +528,14 @@ void QGLContext::reset()
         return;
     const QX11Info *xinfo = qt_x11Info(d->paintDevice);
     doneCurrent();
-    if (gpm)
-        glXDestroyGLXPixmap(xinfo->display(), (GLXPixmap)gpm);
-    gpm = 0;
-    glXDestroyContext(xinfo->display(), (GLXContext)cx);
-    if (vi)
-        XFree(vi);
-    vi = 0;
-    cx = 0;
+    if (d->gpm)
+        glXDestroyGLXPixmap(xinfo->display(), (GLXPixmap)d->gpm);
+    d->gpm = 0;
+    glXDestroyContext(xinfo->display(), (GLXContext)d->cx);
+    if (d->vi)
+        XFree(d->vi);
+    d->vi = 0;
+    d->cx = 0;
     d->crWin = false;
     d->sharing = false;
     d->valid = false;
@@ -551,11 +553,11 @@ void QGLContext::makeCurrent()
     const QX11Info *xinfo = qt_x11Info(d->paintDevice);
     bool ok = true;
     if (deviceIsPixmap())
-        ok = glXMakeCurrent(xinfo->display(), (GLXPixmap)gpm, (GLXContext)cx);
+        ok = glXMakeCurrent(xinfo->display(), (GLXPixmap)d->gpm, (GLXContext)d->cx);
 
     else
         ok = glXMakeCurrent(xinfo->display(), ((QWidget *)d->paintDevice)->winId(),
-                             (GLXContext)cx);
+                             (GLXContext)d->cx);
     if (!ok)
         qWarning("QGLContext::makeCurrent(): Failed.");
     if (ok)
@@ -584,8 +586,8 @@ QColor QGLContext::overlayTransparentColor() const
         if (!trans_colors_init)
             find_trans_colors();
 
-        VisualID myVisualId = ((XVisualInfo*)vi)->visualid;
-        int myScreen = ((XVisualInfo*)vi)->screen;
+        VisualID myVisualId = ((XVisualInfo*)d->vi)->visualid;
+        int myScreen = ((XVisualInfo*)d->vi)->screen;
         for (int i = 0; i < (int)trans_colors.size(); i++) {
             if (trans_colors[i].vis == myVisualId &&
                  trans_colors[i].screen == myScreen) {
@@ -594,9 +596,9 @@ QColor QGLContext::overlayTransparentColor() const
                 col.red = col.green = col.blue = 0;
                 col.flags = 0;
                 Display *dpy = qt_x11Info(d->paintDevice)->display();
-                if (col.pixel > (uint) ((XVisualInfo *)vi)->colormap_size - 1)
-                    col.pixel = ((XVisualInfo *)vi)->colormap_size - 1;
-                XQueryColor(dpy, choose_cmap(dpy, (XVisualInfo *) vi), &col);
+                if (col.pixel > (uint) ((XVisualInfo *)d->vi)->colormap_size - 1)
+                    col.pixel = ((XVisualInfo *)d->vi)->colormap_size - 1;
+                XQueryColor(dpy, choose_cmap(dpy, (XVisualInfo *) d->vi), &col);
                 uchar r = (uchar)((col.red / 65535.0) * 255.0 + 0.5);
                 uchar g = (uchar)((col.green / 65535.0) * 255.0 + 0.5);
                 uchar b = (uchar)((col.blue / 65535.0) * 255.0 + 0.5);
@@ -610,17 +612,17 @@ QColor QGLContext::overlayTransparentColor() const
 
 uint QGLContext::colorIndex(const QColor& c) const
 {
-    int screen = ((XVisualInfo *)vi)->screen;
+    int screen = ((XVisualInfo *)d->vi)->screen;
     QColormap colmap = QColormap::instance(screen);
     if (isValid()) {
         if (format().plane()
              && colmap.pixel(c) == colmap.pixel(overlayTransparentColor()))
             return colmap.pixel(c);                // Special; don't look-up
-        if (((XVisualInfo*)vi)->visualid ==
+        if (((XVisualInfo*)d->vi)->visualid ==
              XVisualIDFromVisual((Visual *) QX11Info::appVisual(screen)))
             return colmap.pixel(c);                // We're using QColor's cmap
 
-        XVisualInfo *info = (XVisualInfo *) vi;
+        XVisualInfo *info = (XVisualInfo *) d->vi;
         CMapEntryHash *hash = cmap_hash();
         CMapEntryHash::ConstIterator it = hash->find((long) info->visualid + (info->screen * 256));
         CMapEntry *x = 0;
@@ -772,6 +774,7 @@ void qgl_use_font(QFontEngineXft *engine, int first, int count, int listBase)
 }
 #endif
 
+#undef d
 void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 {
     QFont f(fnt);
@@ -789,7 +792,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
     if (f.handle() && engine->type() == QFontEngine::XLFD)
         glXUseXFont((Font) f.handle(), 0, 256, listBase);
 }
-
+#define d d_func()
 
 /*!
     Returns a function pointer to the GL extension function passed in
@@ -817,9 +820,6 @@ void *QGLContext::getProcAddress(const QString &proc) const
 /*****************************************************************************
   QGLOverlayWidget (Internal overlay class for X11)
  *****************************************************************************/
-
-#define d d_func()
-#define q q_func()
 
 class QGLOverlayWidget : public QGLWidget
 {
@@ -907,7 +907,7 @@ void QGLWidget::init(QGLContext *context, const QGLWidget *shareWidget)
         else {
             delete d->olw;
             d->olw = 0;
-            d->glcx->glFormat.setOverlay(false);
+            d->glcx->d->glFormat.setOverlay(false);
         }
     }
 }
@@ -1009,7 +1009,7 @@ void QGLWidget::setContext(QGLContext *context,
     if (visible)
         hide();
 
-    XVisualInfo *vi = (XVisualInfo*)d->glcx->vi;
+    XVisualInfo *vi = (XVisualInfo*)d->glcx->d->vi;
     XSetWindowAttributes a;
 
     QColormap colmap = QColormap::instance(vi->screen);
@@ -1074,7 +1074,7 @@ void QGLWidget::setContext(QGLContext *context,
 
 bool QGLWidget::renderCxPm(QPixmap* pm)
 {
-    if (((XVisualInfo*)d->glcx->vi)->depth != pm->depth())
+    if (((XVisualInfo*)d->glcx->d->vi)->depth != pm->depth())
         return false;
 
     GLXPixmap glPm;
@@ -1086,11 +1086,11 @@ bool QGLWidget::renderCxPm(QPixmap* pm)
                                                 (XVisualInfo*)d->glcx->vi));
 #else
     glPm = (Q_UINT32)glXCreateGLXPixmap(X11->display,
-                                         (XVisualInfo*)d->glcx->vi,
+                                         (XVisualInfo*)d->glcx->d->vi,
                                          (Pixmap)pm->handle());
 #endif
 
-    if (!glXMakeCurrent(X11->display, glPm, (GLXContext)d->glcx->cx)) {
+    if (!glXMakeCurrent(X11->display, glPm, (GLXContext)d->glcx->d->cx)) {
         glXDestroyGLXPixmap(X11->display, glPm);
         return false;
     }

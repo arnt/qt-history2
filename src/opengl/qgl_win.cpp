@@ -452,6 +452,9 @@ static QGLFormat pfdToQGLFormat(const PIXELFORMATDESCRIPTOR* pfd)
     return fmt;
 }
 
+#define d d_func()
+#define q q_func()
+
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
     // workaround for matrox driver:
@@ -466,14 +469,14 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     HDC myDc;
 
     if (deviceIsPixmap()) {
-        if (glFormat.plane())
+        if (d->glFormat.plane())
             return false;                // Pixmaps can't have overlay
-        win = 0;
+        d->win = 0;
         myDc = d->paintDevice->getDC();
     }
     else {
-        win = ((QWidget*)d->paintDevice)->winId();
-        myDc = GetDC(win);
+        d->win = ((QWidget*)d->paintDevice)->winId();
+        myDc = GetDC(d->win);
     }
 
     if (!myDc) {
@@ -482,33 +485,33 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         goto end;
     }
 
-    if (glFormat.plane()) {
-        pixelFormatId = ((QGLWidget*)d->paintDevice)->context()->pixelFormatId;
-        if (!pixelFormatId) {                // I.e. the glwidget is invalid
+    if (d->glFormat.plane()) {
+        d->pixelFormatId = ((QGLWidget*)d->paintDevice)->context()->d->pixelFormatId;
+        if (!d->pixelFormatId) {                // I.e. the glwidget is invalid
             qWarning("QGLContext::chooseContext(): Cannot create overlay context for invalid widget");
             result = false;
             goto end;
         }
 
-        rc = wglCreateLayerContext(myDc, glFormat.plane());
-        if (!rc) {
+        d->rc = wglCreateLayerContext(myDc, d->glFormat.plane());
+        if (!d->rc) {
             qwglError("QGLContext::chooseContext()", "CreateLayerContext");
             result = false;
             goto end;
         }
 
         LAYERPLANEDESCRIPTOR lpfd;
-        wglDescribeLayerPlane(myDc, pixelFormatId, glFormat.plane(), sizeof(LAYERPLANEDESCRIPTOR), &lpfd);
-        glFormat.setDoubleBuffer(lpfd.dwFlags & LPD_DOUBLEBUFFER);
-        glFormat.setDepth(lpfd.cDepthBits);
-        glFormat.setRgba(lpfd.iPixelType == PFD_TYPE_RGBA);
-        glFormat.setAlpha(lpfd.cAlphaBits);
-        glFormat.setAccum(lpfd.cAccumBits);
-        glFormat.setStencil(lpfd.cStencilBits);
-        glFormat.setStereo(lpfd.dwFlags & LPD_STEREO);
-        glFormat.setDirectRendering(false);
+        wglDescribeLayerPlane(myDc, d->pixelFormatId, d->glFormat.plane(), sizeof(LAYERPLANEDESCRIPTOR), &lpfd);
+        d->glFormat.setDoubleBuffer(lpfd.dwFlags & LPD_DOUBLEBUFFER);
+        d->glFormat.setDepth(lpfd.cDepthBits);
+        d->glFormat.setRgba(lpfd.iPixelType == PFD_TYPE_RGBA);
+        d->glFormat.setAlpha(lpfd.cAlphaBits);
+        d->glFormat.setAccum(lpfd.cAccumBits);
+        d->glFormat.setStencil(lpfd.cStencilBits);
+        d->glFormat.setStereo(lpfd.dwFlags & LPD_STEREO);
+        d->glFormat.setDirectRendering(false);
 
-        if (glFormat.rgba()) {
+        if (d->glFormat.rgba()) {
             if (lpfd.dwFlags & LPD_TRANSPARENT)
                 d->transpColor = QColor(lpfd.crTransparent & 0xff,
                                         (lpfd.crTransparent >> 8) & 0xff,
@@ -522,29 +525,29 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
             else
                 d->transpColor = QColor(qRgb(1, 2, 3));//, 0);
 
-            cmap = new QGLCmap(1 << lpfd.cColorBits);
-            cmap->setEntry(lpfd.crTransparent, qRgb(1, 2, 3));//, QGLCmap::Reserved);
+            d->cmap = new QGLCmap(1 << lpfd.cColorBits);
+            d->cmap->setEntry(lpfd.crTransparent, qRgb(1, 2, 3));//, QGLCmap::Reserved);
         }
 
         if (shareContext && shareContext->isValid())
-            d->sharing = (wglShareLists(shareContext->rc, rc) != 0);
+            d->sharing = (wglShareLists(shareContext->d->rc, d->rc) != 0);
 
         goto end;
     }
     {
         PIXELFORMATDESCRIPTOR pfd;
         PIXELFORMATDESCRIPTOR realPfd;
-        pixelFormatId = choosePixelFormat(&pfd, myDc);
-        if (pixelFormatId == 0) {
+        d->pixelFormatId = choosePixelFormat(&pfd, myDc);
+        if (d->pixelFormatId == 0) {
             qwglError("QGLContext::chooseContext()", "ChoosePixelFormat");
             result = false;
             goto end;
         }
-        DescribePixelFormat(myDc, pixelFormatId, sizeof(PIXELFORMATDESCRIPTOR),
+        DescribePixelFormat(myDc, d->pixelFormatId, sizeof(PIXELFORMATDESCRIPTOR),
                              &realPfd);
-        bool overlayRequested = glFormat.hasOverlay();
-        glFormat = pfdToQGLFormat(&realPfd);
-        glFormat.setOverlay(glFormat.hasOverlay() && overlayRequested);
+        bool overlayRequested = d->glFormat.hasOverlay();
+        d->glFormat = pfdToQGLFormat(&realPfd);
+        d->glFormat.setOverlay(d->glFormat.hasOverlay() && overlayRequested);
 
         if (deviceIsPixmap() && !(realPfd.dwFlags & PFD_DRAW_TO_BITMAP)) {
             qWarning("QGLContext::chooseContext(): Failed to get pixmap rendering context.");
@@ -559,20 +562,20 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
             goto end;
         }
 
-        if (!SetPixelFormat(myDc, pixelFormatId, &realPfd)) {
+        if (!SetPixelFormat(myDc, d->pixelFormatId, &realPfd)) {
             qwglError("QGLContext::chooseContext()", "SetPixelFormat");
             result = false;
             goto end;
         }
 
-        if (!(rc = wglCreateLayerContext(myDc, 0))) {
+        if (!(d->rc = wglCreateLayerContext(myDc, 0))) {
             qwglError("QGLContext::chooseContext()", "wglCreateContext");
             result = false;
             goto end;
         }
 
         if (shareContext && shareContext->isValid())
-            d->sharing = (wglShareLists(shareContext->rc, rc) != 0);
+            d->sharing = (wglShareLists(shareContext->d->rc, d->rc) != 0);
 
         if(!deviceIsPixmap()) {
             QRgb* pal = qgl_create_rgb_palette(&realPfd);
@@ -586,8 +589,8 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     }
 
 end:
-    if (win)
-        ReleaseDC(win, myDc);
+    if (d->win)
+        ReleaseDC(d->win, myDc);
     else if (deviceIsPixmap())
         d->paintDevice->releaseDC(myDc);
     return result;
@@ -633,15 +636,15 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
         p->dwFlags |= PFD_DRAW_TO_BITMAP;
     else
         p->dwFlags |= PFD_DRAW_TO_WINDOW;
-    if (glFormat.doubleBuffer() && !deviceIsPixmap())
+    if (d->glFormat.doubleBuffer() && !deviceIsPixmap())
         p->dwFlags |= PFD_DOUBLEBUFFER;
-    if (glFormat.stereo())
+    if (d->glFormat.stereo())
         p->dwFlags |= PFD_STEREO;
-    if (glFormat.depth() && !deviceIsPixmap())
+    if (d->glFormat.depth() && !deviceIsPixmap())
         p->cDepthBits = 32;
     else
         p->dwFlags |= PFD_DEPTH_DONTCARE;
-    if (glFormat.rgba()) {
+    if (d->glFormat.rgba()) {
         p->iPixelType = PFD_TYPE_RGBA;
         if (deviceIsPixmap())
             p->cColorBits = pmDepth;
@@ -651,11 +654,11 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
         p->iPixelType = PFD_TYPE_COLORINDEX;
         p->cColorBits = 8;
     }
-    if (glFormat.alpha())
+    if (d->glFormat.alpha())
         p->cAlphaBits = 8;
-    if (glFormat.accum())
+    if (d->glFormat.accum())
         p->cAccumBits = p->cColorBits + p->cAlphaBits;
-    if (glFormat.stencil())
+    if (d->glFormat.stencil())
         p->cStencilBits = 4;
     p->iLayerType = PFD_MAIN_PLANE;
     int chosenPfi = ChoosePixelFormat(pdc, p);
@@ -674,16 +677,16 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
         DescribePixelFormat(pdc, chosenPfi, sizeof(PIXELFORMATDESCRIPTOR),
                              &pfd);
         fmt = pfdToQGLFormat(&pfd);
-        if (glFormat.hasOverlay() && !fmt.hasOverlay())
+        if (d->glFormat.hasOverlay() && !fmt.hasOverlay())
             doSearch = true;
-        else if (!qLogEq(glFormat.directRendering(), fmt.directRendering()))
+        else if (!qLogEq(d->glFormat.directRendering(), fmt.directRendering()))
             doSearch = true;
         else if (deviceIsPixmap() && (!(pfd.dwFlags & PFD_DRAW_TO_BITMAP) ||
                                         pfd.cColorBits != pmDepth))
             doSearch = true;
         else if (!deviceIsPixmap() && !(pfd.dwFlags & PFD_DRAW_TO_WINDOW))
             doSearch = true;
-        else if (!qLogEq(glFormat.rgba(), fmt.rgba()))
+        else if (!qLogEq(d->glFormat.rgba(), fmt.rgba()))
             doSearch = true;
     }
 
@@ -702,25 +705,25 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
                 continue;
 
             fmt = pfdToQGLFormat(&pfd);
-            if (glFormat.hasOverlay() && !fmt.hasOverlay())
+            if (d->glFormat.hasOverlay() && !fmt.hasOverlay())
                 continue;
 
             int score = pfd.cColorBits;
-            if (qLogEq(glFormat.depth(), fmt.depth()))
+            if (qLogEq(d->glFormat.depth(), fmt.depth()))
                 score += pfd.cDepthBits;
-            if (qLogEq(glFormat.alpha(), fmt.alpha()))
+            if (qLogEq(d->glFormat.alpha(), fmt.alpha()))
                 score += pfd.cAlphaBits;
-            if (qLogEq(glFormat.accum(), fmt.accum()))
+            if (qLogEq(d->glFormat.accum(), fmt.accum()))
                 score += pfd.cAccumBits;
-            if (qLogEq(glFormat.stencil(), fmt.stencil()))
+            if (qLogEq(d->glFormat.stencil(), fmt.stencil()))
                 score += pfd.cStencilBits;
-            if (qLogEq(glFormat.doubleBuffer(), fmt.doubleBuffer()))
+            if (qLogEq(d->glFormat.doubleBuffer(), fmt.doubleBuffer()))
                 score += 1000;
-            if (qLogEq(glFormat.stereo(), fmt.stereo()))
+            if (qLogEq(d->glFormat.stereo(), fmt.stereo()))
                 score += 2000;
-            if (qLogEq(glFormat.directRendering(), fmt.directRendering()))
+            if (qLogEq(d->glFormat.directRendering(), fmt.directRendering()))
                 score += 4000;
-            if (qLogEq(glFormat.rgba(), fmt.rgba()))
+            if (qLogEq(d->glFormat.rgba(), fmt.rgba()))
                 score += 8000;
             if (score > bestScore) {
                 bestScore = score;
@@ -749,19 +752,19 @@ void QGLContext::reset()
     if (!d->valid)
         return;
     doneCurrent();
-    if (rc)
-        wglDeleteContext(rc);
-    rc  = 0;
-    if (win && dc)
-        ReleaseDC(win, dc);
-    dc  = 0;
-    win = 0;
-    pixelFormatId = 0;
+    if (d->rc)
+        wglDeleteContext(d->rc);
+    d->rc  = 0;
+    if (d->win && d->dc)
+        ReleaseDC(d->win, d->dc);
+    d->dc  = 0;
+    d->win = 0;
+    d->pixelFormatId = 0;
     d->sharing = false;
     d->valid = false;
     d->transpColor = QColor();
-    delete cmap;
-    cmap = 0;
+    delete d->cmap;
+    d->cmap = 0;
     d->initDone = false;
 }
 
@@ -775,22 +778,22 @@ void QGLContext::reset()
 
 void QGLContext::makeCurrent()
 {
-    if (rc == wglGetCurrentContext() || !d->valid)        // already current
+    if (d->rc == wglGetCurrentContext() || !d->valid)        // already current
         return;
-    if (win)
-        dc = GetDC(win);
+    if (d->win)
+        d->dc = GetDC(d->win);
     else
-        dc = d->paintDevice->getDC();
+        d->dc = d->paintDevice->getDC();
     HPALETTE hpal = QColormap::hPal();
     if (hpal) {
-        SelectPalette(dc, hpal, false);
-        RealizePalette(dc);
+        SelectPalette(d->dc, hpal, false);
+        RealizePalette(d->dc);
     }
-    if (glFormat.plane()) {
-        wglRealizeLayerPalette(dc, glFormat.plane(), true);
+    if (d->glFormat.plane()) {
+        wglRealizeLayerPalette(d->dc, d->glFormat.plane(), true);
     }
 
-    if (!wglMakeCurrent(dc, rc))
+    if (!wglMakeCurrent(d->dc, d->rc))
         qwglError("QGLContext::makeCurrent()", "wglMakeCurrent");
     currentCtx = this;
 }
@@ -802,23 +805,23 @@ void QGLContext::doneCurrent()
         return;
     currentCtx = 0;
     wglMakeCurrent(0, 0);
-    if (win && dc)
-        ReleaseDC(win, dc);
-    else if (dc)
-        d->paintDevice->releaseDC(dc);
-    dc = 0;
+    if (d->win && d->dc)
+        ReleaseDC(d->win, d->dc);
+    else if (d->dc)
+        d->paintDevice->releaseDC(d->dc);
+    d->dc = 0;
 }
 
 void QGLContext::swapBuffers() const
 {
-    if (dc && glFormat.doubleBuffer() && !deviceIsPixmap()) {
-        if (glFormat.plane())
-            wglSwapLayerBuffers(dc, WGL_SWAP_OVERLAY1);
+    if (d->dc && d->glFormat.doubleBuffer() && !deviceIsPixmap()) {
+        if (d->glFormat.plane())
+            wglSwapLayerBuffers(d->dc, WGL_SWAP_OVERLAY1);
         else {
-            if (glFormat.hasOverlay())
-                wglSwapLayerBuffers(dc, WGL_SWAP_MAIN_PLANE);
+            if (d->glFormat.hasOverlay())
+                wglSwapLayerBuffers(d->dc, WGL_SWAP_MAIN_PLANE);
             else
-                SwapBuffers(dc);
+                SwapBuffers(d->dc);
         }
     }
 }
@@ -834,20 +837,20 @@ uint QGLContext::colorIndex(const QColor& c) const
 {
     if (!isValid())
         return 0;
-    if (cmap) {
-        int idx = cmap->find(c.rgb());
+    if (d->cmap) {
+        int idx = d->cmap->find(c.rgb());
         if (idx >= 0)
             return idx;
-        if (dc && glFormat.plane()) {
-            idx = cmap->allocate(c.rgb());
+        if (d->dc && d->glFormat.plane()) {
+            idx = d->cmap->allocate(c.rgb());
             if (idx >= 0) {
                 COLORREF r = RGB(qRed(c.rgb()),qGreen(c.rgb()),qBlue(c.rgb()));
-                wglSetLayerPaletteEntries(dc, glFormat.plane(), idx, 1, &r);
-                wglRealizeLayerPalette(dc, glFormat.plane(), true);
+                wglSetLayerPaletteEntries(d->dc, d->glFormat.plane(), idx, 1, &r);
+                wglRealizeLayerPalette(d->dc, d->glFormat.plane(), true);
                 return idx;
             }
         }
-        return cmap->findNearest(c.rgb());
+        return d->cmap->findNearest(c.rgb());
     }
     return c.pixel() & 0x00ffffff;                // Assumes standard palette
 }
@@ -883,9 +886,6 @@ void *QGLContext::getProcAddress(const QString &proc) const
   QGLWidget Win32/WGL-specific code
  *****************************************************************************/
 
-#define d d_func()
-#define q q_func()
-
 void QGLWidget::init(QGLContext *ctx, const QGLWidget* shareWidget)
 {
     d->glcx = 0;
@@ -906,7 +906,7 @@ void QGLWidget::init(QGLContext *ctx, const QGLWidget* shareWidget)
         if (!d->olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
             delete d->olcx;
             d->olcx = 0;
-            d->glcx->glFormat.setOverlay(false);
+            d->glcx->d->glFormat.setOverlay(false);
         }
     } else {
         d->olcx = 0;
@@ -996,7 +996,7 @@ void QGLWidget::setContext(QGLContext *context,
     d->glcx = context;
 
     bool doShow = false;
-    if (oldcx && oldcx->win == winId() && !d->glcx->deviceIsPixmap()) {
+    if (oldcx && oldcx->d->win == winId() && !d->glcx->deviceIsPixmap()) {
         // We already have a context and must therefore create a new
         // window since Windows does not permit setting a new OpenGL
         // context for a window that already has one set.

@@ -708,6 +708,8 @@ bool operator!=(const QGLFormat& a, const QGLFormat& b)
 }
 
 
+#define d d_func()
+#define q q_func()
 
 /*****************************************************************************
   QGLContext implementation
@@ -840,9 +842,8 @@ struct DDSFormat {
 */
 
 QGLContext::QGLContext(const QGLFormat &format, QPaintDevice *device)
-    : glFormat(format), reqFormat(format)
 {
-    init(device);
+    init(device, format);
 }
 
 /*!
@@ -850,9 +851,8 @@ QGLContext::QGLContext(const QGLFormat &format, QPaintDevice *device)
     \internal
 */
 QGLContext::QGLContext(const QGLFormat &format)
-    : glFormat(format), reqFormat(format)
 {
-    init();
+    init(0, format);
 }
 
 /*!
@@ -1152,7 +1152,7 @@ void QGLContext::deleteTexture(GLuint id)
 void QGLContext::setFormat(const QGLFormat &format)
 {
     reset();
-    glFormat = reqFormat = format;
+    d->glFormat = d->reqFormat = format;
 }
 
 /*!
@@ -1169,19 +1169,20 @@ void QGLContext::setDevice(QPaintDevice *pDev)
     }
 }
 
-void QGLContext::init(QPaintDevice *dev)
+void QGLContext::init(QPaintDevice *dev, const QGLFormat &format)
 {
-    d = new Private;
+    d_ptr = new QGLContextPrivate;
+    d->glFormat = d->reqFormat = format;
     d->valid = false;
     setDevice(dev);
 #if defined(Q_WS_X11)
-    gpm = 0;
+    d->gpm = 0;
 #endif
 #if defined(Q_WS_WIN)
-    dc = 0;
-    win = 0;
-    pixelFormatId = 0;
-    cmap = 0;
+    d->dc = 0;
+    d->win = 0;
+    d->pixelFormatId = 0;
+    d->cmap = 0;
 #endif
     d->crWin = false;
     d->initDone = false;
@@ -1331,7 +1332,67 @@ bool QGLContext::create(const QGLContext* shareContext)
     return d->valid;
 }
 
+bool QGLContext::isValid() const
+{
+    return d->valid;
+}
 
+void QGLContext::setValid(bool valid)
+{
+    d->valid = valid;
+}
+
+bool QGLContext::isSharing() const
+{
+    return d->sharing;
+}
+
+QGLFormat QGLContext::format() const
+{
+    return d->glFormat;
+}
+
+QGLFormat QGLContext::requestedFormat() const
+{
+    return d->reqFormat;
+}
+
+ QPaintDevice* QGLContext::device() const
+{
+    return d->paintDevice;
+}
+
+bool QGLContext::deviceIsPixmap() const
+{
+    return d->paintDevice->devType() == QInternal::Pixmap;
+}
+
+
+bool QGLContext::windowCreated() const
+{
+    return d->crWin;
+}
+
+
+void QGLContext::setWindowCreated(bool on)
+{
+    d->crWin = on;
+}
+
+bool QGLContext::initialized() const
+{
+    return d->initDone;
+}
+
+void QGLContext::setInitialized(bool on)
+{
+    d->initDone = on;
+}
+
+const QGLContext* QGLContext::currentContext()
+{
+    return currentCtx;
+}
 
 /*!
     \fn bool QGLContext::chooseContext(const QGLContext* shareContext = 0)
@@ -1560,9 +1621,6 @@ bool QGLContext::create(const QGLContext* shareContext)
 
     \sa QGLFormat::defaultFormat()
 */
-
-#define d d_func()
-#define q q_func()
 
 QGLWidget::QGLWidget(QWidget *parent, const char *name,
                       const QGLWidget* shareWidget, Qt::WFlags f)
