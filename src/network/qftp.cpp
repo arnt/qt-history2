@@ -593,6 +593,12 @@ void QFtp::okGoOn( int code, const QCString &data )
 	QCString s = data;
 	int i = s.find( "(" );
 	int i2 = s.find( ")" );
+	if ( i<0 || i2<0 ) {
+#if defined(QFTP_DEBUG)
+	    qDebug( "QFtp: bad 227 response -- address and port information missing" );
+#endif
+	    break;
+	}
 	s = s.mid( i + 1, i2 - i - 1 );
 	if ( dataSocket->isOpen() )
 	    dataSocket->close();
