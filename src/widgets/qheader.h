@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#30 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#31 $
 **
 ** Definition of QHeader widget class (table header)
 **
@@ -75,7 +75,6 @@ signals:
     void	moved( int from, int to );
 
 protected:
-    void	resizeEvent( QResizeEvent * );
     void	paintEvent( QPaintEvent * );
     QRect	sRect( int i );
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#73 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -392,7 +392,9 @@ int QHeader::findLine( int c )
 
 void QHeader::moveCell( int fromIdx, int toIdx )
 {
-    if ( fromIdx == toIdx )
+    if ( fromIdx == toIdx ||
+	 fromIdx < 0 || fromIdx > count() ||
+	 toIdx < 0 || toIdx > count() )
 	return;
     int i;
     if ( (fromIdx < cachedIdx) != (toIdx < cachedIdx ) ) {
@@ -585,7 +587,9 @@ void QHeader::handleColumnResize( int index, int s, bool final )
 
 QRect QHeader::sRect( int i )
 {
-    if ( orient == Horizontal )
+    if ( i < 0 || i >= count() )
+	return rect(); // ### eeeeevil
+    else if ( orient == Horizontal )
 	return QRect( pPos( i ), 0, pSize( i ), height() );
     else
 	return QRect( 0, pPos( i ), width(), pSize( i ) );
@@ -599,6 +603,8 @@ QRect QHeader::sRect( int i )
 
 void QHeader::setLabel( int i, const QString &s, int size )
 {
+    if ( i < 0 || i >= count() )
+	return;
     if ( i >= 0 && i < count() ) {
 	if ( data->labels[i] )
 	    delete data->labels[i];
@@ -616,6 +622,8 @@ void QHeader::setLabel( int i, const QString &s, int size )
 */
 QString QHeader::label( int i )
 {
+    if ( i < 0 || i >= count() )
+	return QString::null;
     if ( data->labels[i] )
 	return *(data->labels[i]);
     else
@@ -663,20 +671,6 @@ int QHeader::addLabel( const QString &s, int size )
     return n - 1;
 }
 
-
-/*!
-  Handles resize events.
-*/
-
-void QHeader::resizeEvent( QResizeEvent * )
-{
-#if 0
-    if ( orient == Horizontal )
-        setCellHeight( height() );
-    else
-        setCellWidth( width() );
-#endif
-}
 
 /*!
   Returns the recommended size of the QHeader.
@@ -738,6 +732,9 @@ void QHeader::setOffset( int x )
  */
 int QHeader::pPos( int i ) const
 {
+    if ( i < 0 || i >= count() )
+	return 0;
+
     return cellPos( i ) - offset();
 }
 
@@ -747,6 +744,9 @@ int QHeader::pPos( int i ) const
  */
 int QHeader::pSize( int i ) const
 {
+    if ( i < 0 || i >= count() )
+	return 0;
+
     return data->sizes[mapToLogical(i)];
 }
 
@@ -808,11 +808,10 @@ void QHeader::setCellSize( int i, int s )
 
 void QHeader::setResizeEnabled( bool enable, int i )
 {
-    if ( i < 0 ) {
+    if ( i < 0 )
 	data->resize.fill( enable );
-    } else {
+    else if ( i < count() )
 	data->resize[i] = enable;
-    }
 }
 
 
@@ -840,11 +839,10 @@ void QHeader::setMovingEnabled( bool enable )
 
 void QHeader::setClickEnabled( bool enable, int i )
 {
-    if ( i < 0 ) {
+    if ( i < 0 )
 	data->clicks.fill( enable );
-    } else {
+    else if ( i < count() )
 	data->clicks[i] = enable;
-    }
 }
 
 
@@ -861,6 +859,8 @@ void QHeader::paintSection( QPainter *p, int id, QRect fr )
     style().drawBevelButton(p, fr.x(), fr.y(), fr.width(), fr.height(), colorGroup(), down);
 
     int logIdx = mapToLogical(id);
+    if ( logIdx < 0 )
+	return;
 
     QString s;
     if ( data->labels[logIdx] )
@@ -889,7 +889,9 @@ void QHeader::paintEvent( QPaintEvent *e )
 {
     QPainter p( this );
     p.setPen( colorGroup().buttonText() );
-    int id = cellAt( orient == Horizontal ? e->rect().left() : e->rect().top() );
+    int id = cellAt( orient == Horizontal 
+		     ? e->rect().left() 
+		     : e->rect().top() );
 
     for ( int i = id; i < count(); i++ ) {
 	QRect r = sRect( i );
