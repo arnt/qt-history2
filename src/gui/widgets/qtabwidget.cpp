@@ -526,8 +526,6 @@ void QTabWidgetPrivate::removeTab(int index)
 /*
     Set up the layout.
 */
-
-#include <qdebug.h>
 void QTabWidget::setUpLayout(bool onlyCheck)
 {
     if (onlyCheck && !d->dirty)
