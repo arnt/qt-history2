@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#45 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -758,6 +758,7 @@ public:
     QOleDropSource( QWidget* w ) :
 	src(w)
     {
+	m_refs = 1;
     }
 
     /* IUnknown methods */
