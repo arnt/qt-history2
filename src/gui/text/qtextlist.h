@@ -4,8 +4,7 @@
 #ifndef QT_H
 #include <qsharedpointer.h>
 #include <qtextformat.h>
-
-#include "qtextpiecetable_p.h"
+#include <qobject.h>
 #endif // QT_H
 
 class QTextListPrivate;
