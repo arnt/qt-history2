@@ -403,14 +403,16 @@ QString QLibraryPrivate::findLib(const QString &fileName)
         lib += ".dll";
 #else
     QStringList filters;
-#ifdef Q_OS_MAC
+# ifdef Q_OS_MAC
     filters << ".so" << ".bundle" << ".dylib"; //the last one is also the default one..
-#elif defined(Q_OS_HPUX)
+# elif defined(Q_OS_HPUX)
     filters << ".sl";
-#else
+# else
     filters << ".so";
+# endif
 #endif
     bool found = QFile::exists(lib);
+#ifndef Q_WS_WIN
     if(!found) {
         for (int i = 0; i < filters.count(); ++i) {
             const QString filter(filters.at(i));
@@ -437,6 +439,7 @@ QString QLibraryPrivate::findLib(const QString &fileName)
             }
         }
     }
+#endif
 #ifdef Q_OS_MAC
     if(!found) {
         if(QCFType<CFBundleRef> bundle = CFBundleGetBundleWithIdentifier(QCFString(lib))) {
@@ -446,7 +449,6 @@ QString QLibraryPrivate::findLib(const QString &fileName)
             lib = str;
         }
     }
-#endif
 #endif
 
     if (found)

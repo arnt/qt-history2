@@ -470,7 +470,6 @@ QSettingsPrivate::QSettingsPrivate(QSettings::Format format)
         defPath = QString::fromUtf16(path);
 #else
     QLibrary library("shell32");
-    library.setAutoUnload(false);
     QT_WA({
         typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, LPTSTR, int, BOOL);
         GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve("SHGetSpecialFolderPathW");

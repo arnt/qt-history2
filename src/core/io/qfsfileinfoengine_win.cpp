@@ -75,8 +75,6 @@ static void resolveLibs()
         triedResolve = true;
         if (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) {
             QLibrary lib("advapi32");
-            lib.setAutoUnload(false);
-
             ptrGetNamedSecurityInfoW = (PtrGetNamedSecurityInfoW) lib.resolve("GetNamedSecurityInfoW");
             ptrLookupAccountSidW = (PtrLookupAccountSidW) lib.resolve("LookupAccountSidW");
             ptrAllocateAndInitializeSid = (PtrAllocateAndInitializeSid) lib.resolve("AllocateAndInitializeSid");
