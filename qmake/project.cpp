@@ -1489,6 +1489,8 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		replacement = "#";
 	    else if(val == "PWD") //current working dir (of _FILE_)
 		replacement = QDir::currentDirPath();
+	    else if(val == "DIR_SEPARATOR")
+		replacement = Option::dir_sep;
 	    else if(val == "_LINE_") //parser line number
 		replacement = QString::number(parser.line_no);
 	    else if(val == "_FILE_") //parser file
