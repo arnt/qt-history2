@@ -305,7 +305,42 @@
 */
 
 static QPluginManager<QAccessibleFactoryInterface> *qAccessibleManager = 0;
-static QHash<QObject*,QAccessibleInterface*> *qAccessibleInterface = 0;
+class InterfaceCache : public QObject, public QHash<QObject*,QAccessibleInterface*>
+{
+    Q_OBJECT
+public:
+    InterfaceCache() {}
+
+    void insert(QObject *object, QAccessibleInterface *iface);
+    void remove(QObject *object);
+
+private slots:
+    void objectDestroyed(QObject *object)
+    {
+	QHash<QObject*, QAccessibleInterface*>::remove(object);
+    }
+
+};
+
+inline void InterfaceCache::insert(QObject *object, QAccessibleInterface *iface)
+{
+    if (!object || !iface)
+	return;
+    connect(object, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
+    QHash<QObject*, QAccessibleInterface*>::insert(object, iface);
+}
+
+inline void InterfaceCache::remove(QObject *object)
+{
+    if(object) {
+	object->disconnect(this);
+	QHash<QObject*, QAccessibleInterface*>::remove(object);
+    }
+}
+
+#include "qaccessible.moc"
+
+static InterfaceCache *qInterfaceCache = 0;
 static QList<void*> *qAccessibleFactories;
 static bool cleanupAdded = FALSE;
 
@@ -314,11 +349,11 @@ QAccessible::RootObjectHandler QAccessible::rootObjectHandler = 0;
 
 static void qAccessibleCleanup()
 {
-    if ( qAccessibleInterface && qAccessibleInterface->count() && qAccessibleManager )
+    if (qInterfaceCache && qInterfaceCache->count() && qAccessibleManager)
 	qAccessibleManager->setAutoUnload( FALSE );
 
-    delete qAccessibleInterface;
-    qAccessibleInterface = 0;
+    delete qInterfaceCache;
+    qInterfaceCache = 0;
     delete qAccessibleManager;
     qAccessibleManager = 0;
     delete qAccessibleFactories;
@@ -327,24 +362,25 @@ static void qAccessibleCleanup()
 
 void qInsertAccessibleObject(QObject *object, QAccessibleInterface *iface)
 {
-    if ( !qAccessibleInterface ) {
-	qAccessibleInterface = new QHash<QObject*,QAccessibleInterface*>();
+    if ( !qInterfaceCache ) {
+	qInterfaceCache = new InterfaceCache();
 	if (!cleanupAdded) {
 	    qAddPostRoutine(qAccessibleCleanup);
 	    cleanupAdded = TRUE;
 	}
     }
 
-    qAccessibleInterface->insert(object, iface);
+    qInterfaceCache->insert(object, iface);
 }
 
 void qRemoveAccessibleObject(QObject *object)
 {
-    if ( qAccessibleInterface ) {
-	qAccessibleInterface->remove(object);
-	if (!qAccessibleInterface->count()) {
-	    delete qAccessibleInterface;
-	    qAccessibleInterface = 0;
+    if ( qInterfaceCache ) {
+	qInterfaceCache->remove(object);
+	Q_ASSERT(!qInterfaceCache->value(object));
+	if (!qInterfaceCache->count()) {
+	    delete qInterfaceCache;
+	    qInterfaceCache = 0;
 	}
     }
 }
@@ -463,8 +499,8 @@ bool QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInterfac
     QEvent e(QEvent::Accessibility);
     QApplication::sendEvent(object, &e);
 
-    if ( qAccessibleInterface ) {
-	*iface = qAccessibleInterface->value(object);
+    if ( qInterfaceCache ) {
+	*iface = qInterfaceCache->value(object);
 	if ( *iface ) {
 	    if ((*iface)->isValid()) {
 		(*iface)->addRef();
