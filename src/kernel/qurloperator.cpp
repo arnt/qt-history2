@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#26 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -445,9 +445,6 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
     QList<QNetworkOperation> ops;
     ops.setAutoDelete( FALSE );
 
-    if ( !checkValid() )
-	return ops;
-
     QUrlOperator *u = new QUrlOperator( *this, from );
     QString frm = *u;
 
@@ -455,6 +452,10 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
     file.prepend( "/" );
 
     QNetworkProtocol *gProt = QNetworkProtocol::getNetworkProtocol( u->protocol() );
+
+    if ( !gProt || !QNetworkProtocol::getNetworkProtocol( QUrl( to ).protocol() ) )
+	return ops;
+    
     gProt->setUrl( u );
 
     if ( gProt && ( gProt->supportedOperations() & QNetworkProtocol::OpGet ) &&
