@@ -29,10 +29,10 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    TableModel *model = new TableModel(4, 2, &app);
+    TableModel *model = new TableModel(4, 2);
 
-    QTableView *tableView = new QTableView(0);
-    SpinBoxDelegate *delegate = new SpinBoxDelegate(0);
+    QTableView *tableView = new QTableView;
+    SpinBoxDelegate *delegate = new SpinBoxDelegate;
 
     tableView->setModel(model);
     tableView->setItemDelegate(delegate);
@@ -40,8 +40,7 @@ int main(int argc, char *argv[])
     for (int row = 0; row < 4; ++row) {
         for (int column = 0; column < 2; ++column) {
             QModelIndex index = model->index(row, column, QModelIndex());
-            model->setData(index, QAbstractItemModel::EditRole,
-                QVariant((row+1) * (column+1)));
+            model->setData(index, QVariant((row+1) * (column+1)));
         }
     }
 

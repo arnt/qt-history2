@@ -32,7 +32,7 @@ public:
                         int role = DisplayRole) const;
 
     ItemFlags flags(const QModelIndex &index) const;
-    bool setData(const QModelIndex &index, int role, const QVariant &value);
+    bool setData(const QModelIndex &index, const QVariant &value, int role = EditRole);
 
     bool insertRows(int position, int rows, const QModelIndex &parent = QModelIndex());
     bool insertColumns(int position, int columns, const QModelIndex &parent = QModelIndex());

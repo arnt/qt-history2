@@ -24,7 +24,8 @@ MainWindow::MainWindow()
     QTextCharFormat plainCharFormat;
     QTextCharFormat boldCharFormat;
     boldCharFormat.setFontWeight(QFont::Bold);
-/*
+/*  main frame
+    QTextFrame *mainFrame = cursor.currentFrame();
     cursor.insertText(...);
 */
     cursor.insertText("Text documents are represented by the "
@@ -43,7 +44,8 @@ MainWindow::MainWindow()
     frameFormat.setBorder(4);
     cursor.insertFrame(frameFormat);
 
-/*
+/*  insert frame
+    cursor.insertFrame(frameFormat);
     cursor.insertText(...);
 */
     cursor.insertText("Documents are either converted from external sources "
@@ -52,7 +54,8 @@ MainWindow::MainWindow()
                       "explicit calls to the Scribe API.", boldCharFormat);
 
     cursor = mainFrame->lastCursorPosition();
-/*
+/*  last cursor
+    cursor = mainFrame->lastCursorPosition();
     cursor.insertText(...);
 */
     cursor.insertText("There are two complementary ways to visualize the "
