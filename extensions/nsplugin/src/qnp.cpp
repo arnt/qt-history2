@@ -278,6 +278,16 @@ void np_event_proc( XEvent* e )
 #endif
 
 #ifdef Q_WS_WIN
+static HHOOK hhook = 0;
+
+LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
+{
+    if ( qApp )
+	qApp->sendPostedEvents();
+
+    return CallNextHookEx( hhook, nCode, wParam, lParam );
+}
+
 class PluginSDK_QApplication : public QApplication {
 #endif
 
@@ -305,6 +315,19 @@ public:
     PluginSDK_QApplication() :
 	QApplication(argc, argv)
     {
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    hhook = SetWindowsHookExW( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+	else
+#endif
+	    hhook = SetWindowsHookExA( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+    }
+
+    ~PluginSDK_QApplication()
+    {
+	if ( hhook )
+	    UnhookWindowsHookEx( hhook );
+	hhook = 0;
     }
 
     void checkFocussedWidget()
@@ -1116,22 +1139,7 @@ BOOL   WINAPI   DllMain (HANDLE hInst,
 			ULONG ul_reason_for_call,
 			LPVOID lpReserved)
 {
-    switch ( ul_reason_for_call ) {
-	case DLL_PROCESS_ATTACH:
-	case DLL_THREAD_ATTACH:
-	    WinMain( (HINSTANCE)hInst, 0, "", SW_SHOW );
-	    break;
-	case DLL_PROCESS_DETACH:
-	case DLL_THREAD_DETACH:
-	    break;
-    }
-
     return TRUE;
-}
-
-int main(int argc, char** argv)
-{
-    return 0;
 }
 
 #endif
@@ -1196,12 +1204,6 @@ QNPWidget::QNPWidget() :
     setWindow(TRUE);
 
     piApp->addQNPWidget(this);
-
-#ifdef Q_WS_WIN
-    // Communicator and explorer give us an unshown
-    // widget.  Navigator gives us a shown one.
-    QWidget::show();
-#endif
 }
 
 /*!
