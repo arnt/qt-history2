@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#76 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#75 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#76 $")
 
 
 /*----------------------------------------------------------------------------
@@ -523,7 +523,7 @@ void QPainter::setTabArray( int *ta )
   Enables view transformations if \e enable is TRUE, or disables view
   transformations if \e enable is FALSE.
   \sa hasViewXForm(), setWindow(), setViewport(), setWorldMatrix(),
-  setWorldXForm()
+  setWorldXForm() xform()
  ----------------------------------------------------------------------------*/
 
 void QPainter::setViewXForm( bool enable )
@@ -546,8 +546,8 @@ void QPainter::setViewXForm( bool enable )
 /*----------------------------------------------------------------------------
   \fn bool QPainter::hasViewXForm() const
   Returns TRUE if view transformation is enabled, otherwise FALSE.
-  \sa setViewXForm()
- ----------------------------------------------------------------------------*/
+  \sa setViewXForm() xform()
+  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Returns the window rectangle.
@@ -586,8 +586,8 @@ QRect QPainter::window() const
   World transformations are applied after the view transformations.
 
   \sa window(), setViewport(), setViewXForm(), setWorldMatrix(),
-  setWorldXForm()
- ----------------------------------------------------------------------------*/
+  setWorldXForm() xform()
+  ----------------------------------------------------------------------------*/
 
 void QPainter::setWindow( int x, int y, int w, int h )
 {
@@ -613,7 +613,7 @@ void QPainter::setWindow( int x, int y, int w, int h )
 
 /*----------------------------------------------------------------------------
   Returns the viewport rectangle.
-  \sa setViewport(), setViewXForm()
+  \sa setViewport(), setViewXForm() xform()
  ----------------------------------------------------------------------------*/
 
 QRect QPainter::viewport() const		// get viewport
@@ -648,8 +648,8 @@ QRect QPainter::viewport() const		// get viewport
   World transformations are applied after the view transformations.
 
   \sa viewport(), setWindow(), setViewXForm(), setWorldMatrix(),
-  setWorldXForm()
- ----------------------------------------------------------------------------*/
+  setWorldXForm() xform()
+  ----------------------------------------------------------------------------*/
 
 void QPainter::setViewport( int x, int y, int w, int h )
 {
@@ -676,8 +676,11 @@ void QPainter::setViewport( int x, int y, int w, int h )
 /*----------------------------------------------------------------------------
   Enables world transformations if \e enable is TRUE, or disables
   world transformations if \e enable is FALSE.
+
   \sa setWorldMatrix(), setWindow(), setViewport(), setViewXForm()
- ----------------------------------------------------------------------------*/
+  xform()
+  ----------------------------------------------------------------------------*/
+  
 
 void QPainter::setWorldXForm( bool enable )
 {
@@ -699,12 +702,12 @@ void QPainter::setWorldXForm( bool enable )
 /*----------------------------------------------------------------------------
   \fn bool QPainter::hasWorldXForm() const
   Returns TRUE if world transformation is enabled, otherwise FALSE.
-  \sa setWorldXForm()
- ----------------------------------------------------------------------------*/
+  \sa setWorldXForm() xform()
+  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Returns the world transformation matrix.
-  \sa setWorldMatrix()
+  \sa setWorldMatrix() xform()
  ----------------------------------------------------------------------------*/
 
 const QWMatrix &QPainter::worldMatrix() const
@@ -747,8 +750,8 @@ const QWMatrix &QPainter::worldMatrix() const
   discussion on coordinate system transformations.
 
   \sa worldMatrix(), setWorldXForm(), setWindow(), setViewport(),
-  setViewXForm()
- ----------------------------------------------------------------------------*/
+  setViewXForm() xform()
+  ----------------------------------------------------------------------------*/
 
 void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 {
@@ -776,7 +779,8 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 /*----------------------------------------------------------------------------
   Translates the coordinate system by \e (dx,dy).
   \sa scale(), shear(), rotate(), resetXForm(), setWorldMatrix(), QWMatrix
- ----------------------------------------------------------------------------*/
+   xform()
+   ----------------------------------------------------------------------------*/
 
 void QPainter::translate( float dx, float dy )
 {
@@ -786,8 +790,9 @@ void QPainter::translate( float dx, float dy )
 
 /*----------------------------------------------------------------------------
   Scales the coordinate system by \e (sx,sy).
-  \sa translate(), shear(), rotate(), resetXForm(), setWorldMatrix(), QWMatrix
- ----------------------------------------------------------------------------*/
+  \sa translate(), shear(), rotate(), resetXForm(), setWorldMatrix()
+  QWMatrix xform()
+  ----------------------------------------------------------------------------*/
 
 void QPainter::scale( float sx, float sy )
 {
@@ -797,8 +802,9 @@ void QPainter::scale( float sx, float sy )
 
 /*----------------------------------------------------------------------------
   Shears the coordinate system \e (sh,sv).
-  \sa translate(), scale(), rotate(), resetXForm(), setWorldMatrix(), QWMatrix
- ----------------------------------------------------------------------------*/
+  \sa translate(), scale(), rotate(), resetXForm(), setWorldMatrix()
+  QWMatrix xform()
+  ----------------------------------------------------------------------------*/
 
 void QPainter::shear( float sh, float sv )
 {
@@ -809,7 +815,7 @@ void QPainter::shear( float sh, float sv )
 /*----------------------------------------------------------------------------
   Rotates the coordinate system \e a degrees.
   \sa translate(), scale(), shear(), resetXForm(), setWorldMatrix(), QWMatrix
- ----------------------------------------------------------------------------*/
+  ----------------------------------------------------------------------------*/
 
 void QPainter::rotate( float a )
 {
@@ -820,7 +826,7 @@ void QPainter::rotate( float a )
 /*----------------------------------------------------------------------------
   Resets any transformations that were made using translate(), scale(),
   shear(), rotate() and setWorldMatrix()
- ----------------------------------------------------------------------------*/
+  ----------------------------------------------------------------------------*/
 
 void QPainter::resetXForm()
 {
