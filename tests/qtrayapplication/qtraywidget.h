@@ -9,11 +9,9 @@ class QPixmap;
 class QTrayWidget : public QWidget
 {
     Q_OBJECT
-/*    
-    Q_PROPERTY( bool isInTray READ isInTray WRITE showInTray )
-    Q_PROPERTY( QPixmap trayIcon READ trayIcon WRITE setTrayIcon )
+
     Q_PROPERTY( QString toolTip READ toolTip WRITE setToolTip )
-*/
+
 public:
     QTrayWidget( QWidget *parent = 0, const char *name = 0 );
     ~QTrayWidget();
