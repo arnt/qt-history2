@@ -1101,7 +1101,6 @@ QString QFileDialog::getOpenFileName(const QString &startWith,
 {
     bool save_qt_resolve_symlinks = qt_resolve_symlinks;
     qt_resolve_symlinks = resolveSymlinks;
-
     QString initialSelection;
     qt_get_dir_and_selection(startWith, &qt_working_dir, &initialSelection);
 
@@ -1112,7 +1111,7 @@ QString QFileDialog::getOpenFileName(const QString &startWith,
         return qt_win_get_open_file_name(initialSelection, filter, &qt_working_dir,
                                          parent, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
-    if (qApp->style().inherits("QMacStyle")) {
+    if (::qt_cast<QMacStyle*>(qApp->style())) {
         QStringList files = qt_mac_get_open_file_names(filter, &qt_working_dir, parent,
                                                        caption, selectedFilter, false, false);
         return files.isEmpty() ? QString::null : files.first();
@@ -1200,7 +1199,7 @@ QString QFileDialog::getSaveFileName(const QString &startWith,
         return qt_win_get_save_file_name(initialSelection, filter, &qt_working_dir,
 					 parent, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
-    if (qApp->style().inherits("QMacStyle"))
+    if (::qt_cast<QMacStyle*>(qApp->style()))
         return qt_mac_get_save_file_name(initialSelection, filter, &qt_working_dir, parent, caption, selectedFilter);
 #endif
 
@@ -1276,7 +1275,7 @@ QString QFileDialog::getExistingDirectory(const QString &dir,
     if (qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle && dirOnly)
         return qt_win_get_existing_directory(initialDir, parent, caption);
 #elif defined(Q_WS_MAC)
-    if (qApp->style().inherits("QMacStyle"))
+    if (::qt_cast<QMacStyle*>(qApp->style()))
         return qt_mac_get_open_file_names("", 0, parent, caption, NULL, false, true).first();
 #endif
 
@@ -1365,14 +1364,13 @@ QStringList QFileDialog::getOpenFileNames(const QString &filter,
 {
     bool save_qt_resolve_symlinks = qt_resolve_symlinks;
     qt_resolve_symlinks = resolveSymlinks;
-
     qt_get_dir_and_selection(dir, &qt_working_dir, 0);
 
 #if defined(Q_WS_WIN)
     if (qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)
         return qt_win_get_open_file_names(filter, &qt_working_dir, parent, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
-    if (qApp->style().inherits("QMacStyle"))
+    if (::qt_cast<QMacStyle*>(qApp->style()))
         return qt_mac_get_open_file_names(filter, &qt_working_dir, parent, caption, selectedFilter, true, false);
 #endif
 
