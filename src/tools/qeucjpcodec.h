@@ -1,3 +1,32 @@
+/****************************************************************************
+** $Id: //depot/qt/main/src/tools/qeucjpcodec.h#2 $
+**
+** Definition of QEucJpCodec class
+**
+** Created : 990225
+**
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees with valid Qt Professional Edition licenses may distribute and
+** use this file in accordance with the Qt Professional Edition License
+** provided at sale or upon request.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
+
+// Most of the code here was originally written by Serika Kurusugawa
+// a.k.a. Takagi Junji, and is include in Qt with the authors permission,
+// and the grateful thanks of the Troll Tech team.
+
 /*
  * Copyright (c) 1999 Serika Kurusugawa, All rights reserved.
  *

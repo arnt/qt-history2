@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qsjiscodec.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qsjiscodec.cpp#2 $
 **
-** Implementation of QEucJpCodec class
+** Implementation of QSjisCodec class
 **
 ** Created : 990225
 **
