@@ -10,7 +10,7 @@
 
     \section1 Architecture
 
-    The Qt 4 Paint Subsystem is primarly based on the classes
+    The Qt 4 Paint Subsystem is primarily based on the classes
     QPainter, QPaintDevice and QPaintEngine. QPainter is the
     class used to perform drawing operations, for example,
     drawLine() and drawRect(). QPaintDevice is an object that
@@ -43,7 +43,7 @@
     \section2 How Painting is Done in Qt 4
 
     In Qt 4 we have introduced the abstract class QPaintEngine.
-    Implementations of this class provide the concrete functionallity
+    Implementations of this class provide the concrete functionality
     needed to draw to a specific device type. The class QPaintEngine
     is only used internally by QPainter and QPaintDevice and is hidden
     from application programmers, unless they reimplement their own
@@ -234,7 +234,7 @@
 
     In Qt 4, all widgets are double-buffered by default.
 
-    In previous versions of Qt double-buffereing was achieved by
+    In previous versions of Qt double-buffering was achieved by
     painting to an off-screen pixmap then copying the pixmap to the
     screen. e.g.
 
