@@ -3518,12 +3518,17 @@ static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base
 __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 #endif /* LIBC_SCCS and not lint */
 
+/*
 #if defined(__m68k__)    || defined(__sparc__) || defined(__i386__) || \
      defined(__mips__)    || defined(__ns32k__) || defined(__alpha__) || \
      defined(__powerpc__) || defined(Q_OS_WIN) || defined(Q_OS_DARWIN) || defined(Q_OS_MACX) || \
      defined(mips) || defined(Q_OS_AIX) || defined(Q_OS_SOLARIS)
 #   	define IEEE_BIG_OR_LITTLE_ENDIAN 1
 #endif
+*/
+
+// *All* of our architectures have IEEE arithmetic, don't they?
+#define IEEE_BIG_OR_LITTLE_ENDIAN 1
 
 #ifdef __arm32__
 /*
