@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#11 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#12 $
 **
 ** Implementation of Network Extension Library
 **
@@ -350,6 +350,11 @@ bool QSocketDevice::connect( const QHostAddress &addr, uint port )
     if ( !isValid() )
 	return FALSE;
 
+    if ( !addr.isIp4Addr() ) {
+	qWarning( "QSocketDevice: IPv6 is not supported by this version" );
+	e = Impossible;
+	return FALSE;
+    }
     struct sockaddr_in a;
     memset( &a, 0, sizeof(a) );
     a.sin_family = AF_INET;
@@ -413,6 +418,11 @@ bool QSocketDevice::bind( const QHostAddress &address, uint port )
     if ( !isValid() )
 	return FALSE;
 
+    if ( !address.isIp4Addr() ) {
+	qWarning( "QSocketDevice: IPv6 is not supported by this version" );
+	e = Impossible;
+	return FALSE;
+    }
     struct sockaddr_in a;
     memset( &a, 0, sizeof(a) );
     a.sin_family = AF_INET;
@@ -765,6 +775,11 @@ int QSocketDevice::writeBlock( const char * data, uint len,
 	qWarning( "QSocketDevice::sendBlock: Write operation not permitted" );
 #endif
 	return -1;
+    }
+    if ( !host.isIp4Addr() ) {
+	qWarning( "QSocketDevice: IPv6 is not supported by this version" );
+	e = Impossible;
+	return FALSE;
     }
     struct sockaddr_in a;
     memset( &a, 0, sizeof(a) );
