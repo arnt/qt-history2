@@ -3922,7 +3922,7 @@ void QFileDialog::selectDirectoryOrFile( QListBoxItem * newItem )
 void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint &p,
 				    int )
 {
-    if ( d->mode == ExistingFiles )
+    if ( item && d->mode == ExistingFiles )
 	return;
     if ( item ) {
 	files->setCurrentItem( item );
@@ -3965,7 +3965,7 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint &p,
 
 void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
 {
-    if ( d->mode == ExistingFiles )
+    if ( item && d->mode == ExistingFiles )
 	return;
 
     PopupAction action;
