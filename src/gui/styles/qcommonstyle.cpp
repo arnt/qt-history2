@@ -1642,7 +1642,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (sb->subControls & SC_SpinBoxFrame) {
                 QRect r = visualRect(opt->direction, opt->rect,
                                      subControlRect(CC_SpinBox, sb, SC_SpinBoxFrame, widget));
-                qDrawWinPanel(p, r, sb->palette, true); //cstyle == Sunken);
+                qDrawWinPanel(p, r, sb->palette, true);
             }
 
             if (sb->subControls & SC_SpinBoxUp) {
@@ -1655,18 +1655,18 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
                 copy.palette = pal2;
 
-                if (sb->activeSubControls == SC_SpinBoxUp) {
+                if (sb->activeSubControls == SC_SpinBoxUp && (sb->state & State_Down)) {
                     copy.state |= State_On;
                     copy.state |= State_Sunken;
                 } else {
                     copy.state |= State_Raised;
+                    copy.state &= ~State_Down;
                 }
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinPlus
                                                                        : PE_IndicatorSpinUp);
 
                 copy.rect = visualRect(opt->direction, opt->rect,
-                                       subControlRect(CC_SpinBox, sb, SC_SpinBoxUp,
-                                                              widget));
+                                       subControlRect(CC_SpinBox, sb, SC_SpinBoxUp, widget));
                 drawPrimitive(PE_PanelButtonBevel, &copy, p, widget);
                 copy.rect.adjust(3, 0, -4, 0);
                 drawPrimitive(pe, &copy, p, widget);
@@ -1682,18 +1682,18 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 }
                 copy.palette = pal2;
 
-                if (sb->activeSubControls == SC_SpinBoxDown) {
+                if (sb->activeSubControls == SC_SpinBoxDown && (sb->state & State_Down)) {
                     copy.state |= State_On;
                     copy.state |= State_Sunken;
                 } else {
                     copy.state |= State_Raised;
+                    copy.state &= ~State_Down;
                 }
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinMinus
                                                                        : PE_IndicatorSpinDown);
 
                 copy.rect = visualRect(opt->direction, opt->rect,
-                                       subControlRect(CC_SpinBox, sb, SC_SpinBoxDown,
-                                                              widget));
+                                       subControlRect(CC_SpinBox, sb, SC_SpinBoxDown, widget));
                 drawPrimitive(PE_PanelButtonBevel, &copy, p, widget);
                 copy.rect.adjust(3, 0, -4, 0);
                 drawPrimitive(pe, &copy, p, widget);
