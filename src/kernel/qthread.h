@@ -49,6 +49,8 @@
 #endif
 #endif // QT_H
 
+#include <limits.h>
+
 class QThreadPrivate;
 
 class Q_EXPORT QThread : public Qt
