@@ -20,8 +20,6 @@
 //    }
 //   - qWinProcessConfigRequests?
 
-#define PLUGIN_TRACE
-
 
 // Qt stuff
 #include <qapp.h>
@@ -55,9 +53,21 @@ extern "C" {
 
 #include "npapi.h"
 
-
-
 #ifdef _WS_X11_
+/* ### debugging in ns3 needs a REAL stderr */
+#if 0
+static
+FILE* out()
+{
+    static FILE* f = 0;
+    if (!f)
+	f = fdopen(4,"w"); // 2>&4 needed on cmd line for this
+    return f;
+}
+#define PLUGIN_TRACE
+#endif
+
+#undef XP_UNIX
 #include "npunix.c"
 #endif
 
@@ -112,19 +122,6 @@ struct _NPInstance
 };
 
 
-/* ### debugging in ns3 needs a REALLY stderr */
-#if 0
-static
-FILE* out()
-{
-return stderr;
-    static FILE* f = 0;
-    if (!f)
-	//f = stderr;
-	f = fdopen(4,"w"); // 2>&4 needed on cmd line for this
-    return f;
-}
-#endif
 
 //struct AA { AA() { fprintf(stderr,"AAAA\n"); } } aa;
 
@@ -264,7 +261,7 @@ public:
     ~PluginSDK_QApplication()
     {
 	piApp = 0;
-if (npwidgets.count()) abort();
+//if (npwidgets.count()) abort();
     }
 
 #endif
@@ -1019,11 +1016,15 @@ static
 void leave_event_handler(Widget, XtPointer, XEvent*, Boolean* cont)
 {
     if (piApp) {
-	if ( focussedWidget ) {
-	    focussedWidget->leaveInstance();
-	    focussedWidget = 0;
+	if ( !QApplication::activePopupWidget()
+	  && !QApplication::activeModalWidget() )
+	{
+	    if ( focussedWidget ) {
+		focussedWidget->leaveInstance();
+		focussedWidget = 0;
+	    }
+	    removeXtEventFilters(Dangerous);
 	}
-	removeXtEventFilters(Dangerous);
     }
     *cont = FALSE;
 }

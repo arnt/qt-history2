@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#3 $
 **
 ** Low-level support for Netscape Plugins.
 ** This has to go in the dynamic library, because otherwise it may
@@ -18,7 +18,7 @@
 #include <X11/Xos.h>
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qnpsupport.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qnpsupport.cpp#3 $");
 
 
 void            qt_reset_color_avail();       // defined in qcol_x11.cpp
@@ -32,20 +32,6 @@ int		qt_np_count = 0;
 unsigned long   qt_np_timerid = 0;
 bool		qt_np_filters_installed[3]={FALSE,FALSE,FALSE};
 void		(*qt_np_leave_cb)(XLeaveWindowEvent*) = 0;
-
-/* ### debugging in ns3 needs a REALLY stderr */
-#if 0
-#include <stdio.h>
-static
-FILE* out()
-{
-    static FILE* f = 0;
-    if (!f)
-        //f = stderr;
-        f = fdopen(4,"w"); // 2>&4 needed on cmd line for this
-    return f;
-}
-#endif
 
 typedef void (*IntervalSetter)(int);
 
@@ -125,15 +111,12 @@ void qt_np_remove_timeoutcb( SameAsXtTimerCallbackProc cb )
 int qt_event_handler( XEvent* event )
 {
     qt_x11SendPostedEvents();
-    if ( qApp->x11ProcessEvent( event ) == -1 ) {
+    if ( qApp->x11ProcessEvent( event ) == -1
+	&& !QApplication::activePopupWidget()
+	&& !QApplication::activePopupWidget()
+    ) {
         // Qt did not recognize the event
-	if ( !QApplication::activePopupWidget()
-	  && !QApplication::activeModalWidget() )
-	{
-	    return qt_np_cascade_event_handler[event->type]( event );
-	} else {
-	    return True;
-	}
+	return qt_np_cascade_event_handler[event->type]( event );
     } else {
         // Qt recognized the event (it may not have actually used it
         // in a widget, but that is irrelevant here).

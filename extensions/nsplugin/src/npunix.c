@@ -23,16 +23,6 @@
  * messages to fd 3 or 4 (cannot use stderr - ns3 grabs that)
  * whenever they are called.
  */
-#if 0
-static
-FILE* out()
-{
-    static FILE* f = 0;
-    if (!f)
-	f = fdopen(3/*4*/,"w");
-    return f;
-}
-#endif
 
 #ifdef PLUGIN_TRACE
 #include <stdio.h>

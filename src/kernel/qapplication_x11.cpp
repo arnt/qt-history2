@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#245 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#246 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -59,7 +59,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#245 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#246 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -1508,8 +1508,16 @@ int QApplication::x11ProcessEvent( XEvent* event )
     }
 
     if ( !widget ) {				// don't know this window
-	void qt_np_process_foreign_event(XEvent*); // in qnpsupport.cpp
-	qt_np_process_foreign_event( event );
+	if ( (widget=(QETWidget*)QApplication::activePopupWidget()) )
+	{
+	    if ( event->type == ButtonRelease ) {
+		widget->hide();
+		return 1;
+	    }
+	} else {
+	    void qt_np_process_foreign_event(XEvent*); // in qnpsupport.cpp
+	    qt_np_process_foreign_event( event );
+	}
 	return -1;
     }
 
@@ -1531,7 +1539,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	}
     }
 
-    if ( widget->x11Event(event) )		// send trough widget filter
+    if ( widget->x11Event(event) )		// send through widget filter
 	return 1;
 
     switch ( event->type ) {
