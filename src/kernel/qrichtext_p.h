@@ -77,8 +77,6 @@
 
 #ifndef QT_NO_RICHTEXT
 
-//#define DEBUG_COLLECTION
-
 class QTextDocument;
 class QTextString;
 class QTextPreProcessor;
@@ -1595,7 +1593,6 @@ public:
     virtual void remove( QTextFormat *f );
     virtual QTextFormat *createFormat( const QTextFormat &f ) { return new QTextFormat( f ); }
     virtual QTextFormat *createFormat( const QFont &f, const QColor &c ) { return new QTextFormat( f, c, this ); }
-    void debug();
 
     void updateDefaultFormat( const QFont &font, const QColor &c, QStyleSheet *sheet );
     QDict<QTextFormat> dict() const { return cKey; }
@@ -1900,9 +1897,6 @@ inline QTextFormatCollection *QTextFormat::parent() const
 inline void QTextFormat::addRef()
 {
     ref++;
-#ifdef DEBUG_COLLECTION
-    qDebug( "add ref of '%s' to %d (%p)", k.latin1(), ref, this );
-#endif
 }
 
 inline void QTextFormat::removeRef()
@@ -1912,9 +1906,6 @@ inline void QTextFormat::removeRef()
 	return;
     if ( this == collection->defFormat )
 	return;
-#ifdef DEBUG_COLLECTION
-    qDebug( "remove ref of '%s' to %d (%p)", k.latin1(), ref, this );
-#endif
     if ( ref == 0 )
 	collection->remove( this );
 }

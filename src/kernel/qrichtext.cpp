@@ -64,18 +64,11 @@
 
 #include <stdlib.h>
 
-//#define PARSER_DEBUG
-//#define DEBUG_COLLECTION// ---> also in qrichtext_p.h
-//#define DEBUG_TABLE_RENDERING
 
 class QTextFormatCollection;
 
 static QPtrDict<QTextFormatCollection> *qFormatCollectionDict = 0;
 const int border_tolerance = 2;
-
-#if defined(PARSER_DEBUG)
-static QString debug_indent;
-#endif
 
 #ifdef Q_WS_WIN
 #include "qt_windows.h"
@@ -6045,27 +6038,18 @@ void QTextFormatCollection::setPaintDevice( QPaintDevice *pd )
 QTextFormat *QTextFormatCollection::format( QTextFormat *f )
 {
     if ( f->parent() == this || f == defFormat ) {
-#ifdef DEBUG_COLLECTION
-	qDebug( "need '%s', best case!", f->key().latin1() );
-#endif
 	lastFormat = f;
 	lastFormat->addRef();
 	return lastFormat;
     }
 
     if ( f == lastFormat || ( lastFormat && f->key() == lastFormat->key() ) ) {
-#ifdef DEBUG_COLLECTION
-	qDebug( "need '%s', good case!", f->key().latin1() );
-#endif
 	lastFormat->addRef();
 	return lastFormat;
     }
 
     QTextFormat *fm = cKey.find( f->key() );
     if ( fm ) {
-#ifdef DEBUG_COLLECTION
-	qDebug( "need '%s', normal case!", f->key().latin1() );
-#endif
 	lastFormat = fm;
 	lastFormat->addRef();
 	return lastFormat;
@@ -6074,9 +6058,6 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *f )
     if ( f->key() == defFormat->key() )
 	return defFormat;
 
-#ifdef DEBUG_COLLECTION
-    qDebug( "need '%s', worst case!", f->key().latin1() );
-#endif
     lastFormat = createFormat( *f );
     lastFormat->collection = this;
     cKey.insert( lastFormat->key(), lastFormat );
@@ -6086,9 +6067,6 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *f )
 QTextFormat *QTextFormatCollection::format( QTextFormat *of, QTextFormat *nf, int flags )
 {
     if ( cres && kof == of->key() && knf == nf->key() && cflags == flags ) {
-#ifdef DEBUG_COLLECTION
-	qDebug( "mix of '%s' and '%s, best case!", of->key().latin1(), nf->key().latin1() );
-#endif
 	cres->addRef();
 	return cres;
     }
@@ -6121,15 +6099,9 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *of, QTextFormat *nf, in
 
     QTextFormat *fm = cKey.find( cres->key() );
     if ( !fm ) {
-#ifdef DEBUG_COLLECTION
-	qDebug( "mix of '%s' and '%s, worst case!", of->key().latin1(), nf->key().latin1() );
-#endif
 	cres->collection = this;
 	cKey.insert( cres->key(), cres );
     } else {
-#ifdef DEBUG_COLLECTION
-	qDebug( "mix of '%s' and '%s, good case!", of->key().latin1(), nf->key().latin1() );
-#endif
 	delete cres;
 	cres = fm;
 	cres->addRef();
@@ -6141,9 +6113,6 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *of, QTextFormat *nf, in
 QTextFormat *QTextFormatCollection::format( const QFont &f, const QColor &c )
 {
     if ( cachedFormat && cfont == f && ccol == c ) {
-#ifdef DEBUG_COLLECTION
-	qDebug( "format of font and col '%s' - best case", cachedFormat->key().latin1() );
-#endif
 	cachedFormat->addRef();
 	return cachedFormat;
     }
@@ -6154,9 +6123,6 @@ QTextFormat *QTextFormatCollection::format( const QFont &f, const QColor &c )
     ccol = c;
 
     if ( cachedFormat ) {
-#ifdef DEBUG_COLLECTION
-	qDebug( "format of font and col '%s' - good case", cachedFormat->key().latin1() );
-#endif
 	cachedFormat->addRef();
 	return cachedFormat;
     }
@@ -6169,9 +6135,6 @@ QTextFormat *QTextFormatCollection::format( const QFont &f, const QColor &c )
     cKey.insert( cachedFormat->key(), cachedFormat );
     if ( cachedFormat->key() != key )
 	qWarning("ASSERT: keys for format not identical: '%s '%s'", cachedFormat->key().latin1(), key.latin1() );
-#ifdef DEBUG_COLLECTION
-    qDebug( "format of font and col '%s' - worst case", cachedFormat->key().latin1() );
-#endif
     return cachedFormat;
 }
 
@@ -6184,19 +6147,6 @@ void QTextFormatCollection::remove( QTextFormat *f )
     if ( cachedFormat == f )
 	cachedFormat = 0;
     cKey.remove( f->key() );
-}
-
-void QTextFormatCollection::debug()
-{
-#ifdef DEBUG_COLLECTION
-    qDebug( "------------ QTextFormatCollection: debug --------------- BEGIN" );
-    QDictIterator<QTextFormat> it( cKey );
-    for ( ; it.current(); ++it ) {
-	qDebug( "format '%s' (%p): refcount: %d", it.current()->key().latin1(),
-		it.current(), it.current()->ref );
-    }
-    qDebug( "------------ QTextFormatCollection: debug --------------- END" );
-#endif
 }
 
 #define UPDATE( up, lo, rest ) \
@@ -6810,9 +6760,6 @@ QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, 
 	    if (hasPrefix(doc, length, pos+1, QChar('/'))) {
 		tagname = parseCloseTag( doc, length, pos );
 		if ( tagname == "table" ) {
-#if defined(PARSER_DEBUG)
-		    debug_indent.remove( debug_indent.length() - 3, 2 );
-#endif
 		    return table;
 		}
 	    } else {
@@ -6885,9 +6832,6 @@ QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, 
 	    ++pos;
 	}
     }
-#if defined(PARSER_DEBUG)
-    debug_indent.remove( debug_indent.length() - 3, 2 );
-#endif
     return table;
 }
 #endif // QT_NO_TEXTCUSTOMITEM
@@ -7718,12 +7662,6 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	}
     }
 
-#if defined(DEBUG_TABLE_RENDERING)
-    p->save();
-    p->setPen( Qt::red );
-    p->drawRect( x, y, width, height );
-    p->restore();
-#endif
 }
 
 int QTextTable::minimumWidth() const
