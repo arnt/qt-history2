@@ -877,11 +877,11 @@ void FormDefinitionView::renamed( QListViewItem *i )
 
 void FormDefinitionView::save( QListViewItem *p, QListViewItem *i )
 {
+    if ( i->text( 0 ).isEmpty() ) {
+	delete i;
+	return;
+    }
     if ( i && i->rtti() == HierarchyItem::Slot ) {
-	if ( i->text( 0 ).isEmpty() ) {
-	    delete i;
-	    return;
-	}
 	MetaDataBase::addSlot( formWindow, i->text( 0 ).latin1(), "virtual", p->text( 0 ),
 			       formWindow->project()->language(), "void" );
 	MainWindow::self->editFunction( i->text( 0 ).left( i->text( 0 ).find( "(" ) ),

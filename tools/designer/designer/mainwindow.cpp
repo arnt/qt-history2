@@ -1320,11 +1320,6 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	QApplication::sendPostedEvents( qworkspace, QEvent::ChildInserted );
 	showEvent( (QShowEvent*)e );
-/*###	This is BAD code, and it breaks on Windows if there are no toolbar settings saved.
-
-	if ( !tbSettingsRead)
-	    ( (QDockWindow*)qWorkspace()->parentWidget()->parentWidget() )->setFixedExtentHeight( 150 );
-*/
 	checkTempFiles();
 	return TRUE;
     case QEvent::Wheel:
@@ -1332,25 +1327,39 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	return TRUE;
     case QEvent::FocusIn:
+	if ( !o->inherits( "FormWindow" ) && isAFormWindowChild( o ) )
+	    return TRUE;
+	if ( o->inherits( "Editor" ) || o->inherits( "FormWindow" ) ) {
+	    // QCustomEvent( 9999 ) is used by QListView to end in-place
+	    // editing. In the case that one edits e.g. a class variable in
+	    // the form definition view and clicks on another form in the
+	    // designer, the in-place editor receives a focus out event. This
+	    // event posts a QCustomEvent( 9999 ) to QListView to end in-place
+	    // editing, which triggers a FormDefinitionView::save(). To make
+	    // sure that we save() before the new active formwindow is set,
+	    // post queued custom events of that type now.
+	    if ( hierarchyView->formDefinitionView()->isRenaming() )
+		QApplication::sendPostedEvents( hierarchyView->formDefinitionView()->
+						child( 0, "QLineEdit" ) , 9999 );
+	}
+	if ( o->inherits( "Editor" ) ) {
+	    QWidget *w = (QWidget*)o;
+	    while ( w ) {
+		if ( w->inherits( "SourceEditor" ) )
+		    break;
+		w = w->parentWidget( TRUE );
+	    }
+	    if ( w && w->inherits( "SourceEditor" ) )
+		( (SourceEditor*)w )->checkTimeStamp();
+	} else if ( o->inherits( "FormWindow" ) ) {
+	    FormWindow *fw = (FormWindow*)o;
+	    if ( fw->formFile() && fw->formFile()->editor() )
+		fw->formFile()->editor()->checkTimeStamp();
+	}
+	break;
     case QEvent::FocusOut:
 	if ( !o->inherits( "FormWindow" ) && isAFormWindowChild( o ) )
 	    return TRUE;
-	if ( e->type() == QEvent::FocusIn ) {
-	    if ( o->inherits( "Editor" ) ) {
-		QWidget *w = (QWidget*)o;
-		while ( w ) {
-		    if ( w->inherits( "SourceEditor" ) )
-			break;
-		    w = w->parentWidget( TRUE );
-		}
-		if ( w && w->inherits( "SourceEditor" ) )
-		    ( (SourceEditor*)w )->checkTimeStamp();
-	    } else if ( o->inherits( "FormWindow" ) ) {
-		FormWindow *fw = (FormWindow*)o;
-		if ( fw->formFile() && fw->formFile()->editor() )
-		    fw->formFile()->editor()->checkTimeStamp();
-	    }
-	}
 	break;
     default:
 	return QMainWindow::eventFilter( o, e );
