@@ -238,7 +238,10 @@ const QPixmap TrWindow::pageCurl()
 TrWindow::TrWindow()
     : QMainWindow( 0, "translation window", WType_TopLevel | WDestructiveClose )
 {
+
+#ifndef Q_WS_MACX
     setIcon( QPixmap::fromMimeSource( "icon.png" ) );
+#endif
 
     // Create the application global listview symbols
     pxOn  = new QPixmap( QPixmap::fromMimeSource( "check_on.xpm" ) );

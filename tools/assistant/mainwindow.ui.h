@@ -30,6 +30,10 @@ QPtrList<MainWindow> *MainWindow::windows = 0;
 
 void MainWindow::init()
 {
+#ifndef Q_WS_MACX
+    setIcon( QPixmap::fromMimeSource( "icon.png" ) );
+#endif
+
     if ( !windows )
 	windows = new QPtrList<MainWindow>;
     windows->append( this );
