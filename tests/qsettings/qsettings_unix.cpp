@@ -2066,7 +2066,7 @@ static QSettingsNode *load(QIODevice *device)
 static QSettingsNode *load(const QString &filename)
 {
     if (filename.isEmpty()) {
-	return FALSE;
+	return 0;
     }
 
     QSettingsNode *n = 0;
