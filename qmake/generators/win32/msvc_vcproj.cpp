@@ -665,26 +665,6 @@ void VcprojGenerator::initCustomBuildTool()
 
 void VcprojGenerator::initPreBuildEventTools()
 {
-    VCConfiguration &RConf = vcProject.Configuration[0];
-    QString collectionName = project->first("QMAKE_IMAGE_COLLECTION");
-    if(!collectionName.isEmpty()) {
-        QStringList& list = project->variables()["IMAGES"];
-	RConf.preBuild.Description = "Generate imagecollection";
-	//RConf.preBuild.AdditionalDependencies += list;
-
-	QFile imgs(".imgcol");
-	imgs.open(IO_WriteOnly);
-	QTextStream s(&imgs);
-	QStringList::ConstIterator it = list.begin();
-	while(it!=list.end()) {
-	    s << *it << " ";
-	    it++;
-	}
-
-	RConf.preBuild.CommandLine = project->first("QMAKE_UIC") + " -embed " + project->first("QMAKE_ORIG_TARGET") + " -f .imgcol -o " + collectionName;
-	//RConf.preBuild.Outputs = collectionName;
-
-    }
 }
 
 void VcprojGenerator::initPostBuildEventTools()
@@ -908,7 +888,7 @@ void VcprojGenerator::initResourceFiles()
 			   vcProject.ResourceFiles.flat_files );
     vcProject.ResourceFiles.Project = this;
     vcProject.ResourceFiles.Config = &(vcProject.Configuration);
-    vcProject.ResourceFiles.CustomBuild = none;
+    vcProject.ResourceFiles.CustomBuild = resource;
 }
 
 /* \internal

@@ -39,7 +39,8 @@ enum customBuildCheck {
     mocSrc,
     mocHdr,
     uic,
-    lexyacc
+    lexyacc,
+    resource
 };
 enum triState {
     unset = -1,
@@ -710,6 +711,7 @@ public:
     ~VCFilter(){}
     void addMOCstage( QTextStream &strm, QString str );
     void addUICstage( QTextStream &strm, QString str );
+    bool addIMGstage( QTextStream &strm, QString str );
     void modifyPCHstage( QTextStream &strm, QString str );
 
     // Variables

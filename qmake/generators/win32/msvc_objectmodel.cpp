@@ -1904,6 +1904,58 @@ void VCFilter::modifyPCHstage(QTextStream &, QString str)
     CompilerTool.ForcedIncludeFiles       = "$(NOINHERIT)";
 }
 
+bool VCFilter::addIMGstage( QTextStream &strm, QString str )
+{
+    bool isCorH = FALSE;
+    if (str.endsWith(".c"))
+	isCorH = TRUE;
+    QStringList::Iterator it;
+    for(it = Option::cpp_ext.begin(); it != Option::cpp_ext.end(); ++it)
+	if(str.endsWith(*it))
+	    isCorH = TRUE;
+    for(it = Option::h_ext.begin(); it != Option::h_ext.end(); ++it)
+	if(str.endsWith(*it))
+	    isCorH = TRUE;
+
+    QString collectionName = Project->project->first("QMAKE_IMAGE_COLLECTION");
+    if (str.isEmpty() || isCorH || collectionName.isEmpty())
+	return FALSE;
+
+    CustomBuildTool = VCCustomBuildTool();
+    useCustomBuildTool = TRUE;
+
+    // Some projects (like designer core) may have too many images to
+    // call uic directly. Therefor we have to create a temporary
+    // file, with the image list, and call uic with the -f option.
+    QString tmpFileCmd = "echo ";
+    QString tmpImageFilename = ".imgcol";
+    QStringList& list = Project->project->variables()["IMAGES"];
+    bool firstOutput = TRUE;
+    it = list.begin();
+    while( it!=list.end() ) {
+	tmpFileCmd += (*it) + " ";
+	++it;
+	if (tmpFileCmd.length()>250 || it==list.end()) {
+	    CustomBuildTool.CommandLine += tmpFileCmd 
+					  + (firstOutput?"> ":">> ")
+					  + tmpImageFilename;
+	    tmpFileCmd = "echo ";
+	    firstOutput = FALSE;
+	}
+    }
+
+    QString uicApp = Project->var("QMAKE_UIC");
+    CustomBuildTool.Description = ("Generate imagecollection");
+    CustomBuildTool.CommandLine +=
+	uicApp + " -embed " + Project->project->first("QMAKE_ORIG_TARGET") 
+	+ " -f .imgcol -o " + collectionName;
+    CustomBuildTool.AdditionalDependencies += uicApp;
+    CustomBuildTool.AdditionalDependencies += list;
+    CustomBuildTool.Outputs = collectionName;
+    CustomBuildTool.Outputs += tmpImageFilename;
+    return TRUE;
+}
+
 QTextStream &operator<<(QTextStream &strm, VCFilter &tool)
 {
     if(tool.Files.count() == 0)
@@ -1915,6 +1967,7 @@ QTextStream &operator<<(QTextStream &strm, VCFilter &tool)
     strm << SPair(_Filter, tool.Filter);
     strm << ">";
 
+    bool resourceBuild = FALSE;
     int currentLevels = 0;
     QStringList currentDirs;
     for(QStringList::Iterator it = tool.Files.begin(); it != tool.Files.end(); ++it) {
@@ -1958,6 +2011,9 @@ QTextStream &operator<<(QTextStream &strm, VCFilter &tool)
 	    tool.addMOCstage(strm, *it);
 	} else if(tool.CustomBuild == uic) {
 	    tool.addUICstage(strm, *it);
+	} else if (tool.CustomBuild == resource) {
+	    if (!resourceBuild)
+		resourceBuild = tool.addIMGstage(strm, *it);
 	}
 	if(tool.Project->usePCH)
 	    tool.modifyPCHstage(strm, *it);
