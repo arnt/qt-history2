@@ -84,7 +84,7 @@ void PictureDisplay::paintEvent( QPaintEvent * )
 {
     QPainter paint( this );			// paint widget
     if ( pict )
-    	paint.drawPicture( *pict );		// draw picture
+    	paint.drawPicture( 0, 0, *pict );		// draw picture
     else
 	paint.drawText( rect(), AlignCenter, name );
 }
