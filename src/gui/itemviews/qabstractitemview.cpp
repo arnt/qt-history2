@@ -134,7 +134,7 @@ void QAbstractItemViewPrivate::init()
     currentEditor(), whilst others are keyboard and mouse event
     handlers.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink.
+    \sa \link model-view-programming.html Model/View Programming\endlink
 */
 
 /*!
