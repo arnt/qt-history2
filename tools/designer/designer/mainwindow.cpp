@@ -1185,7 +1185,8 @@ void MainWindow::fileOpen()
 			break;
 		    }
 		}
-		FilterInterface* iface = manager[filter];
+
+		FilterInterface* iface = manager.queryInterface( filter );
 		if ( !iface ) {
 		    statusBar()->message( tr( "No import filter available for %1").arg( filename ), 3000 );
 		    return;
