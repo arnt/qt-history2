@@ -731,6 +731,8 @@ void QListViewItem::setVisible( bool b )
     QListView *lv = listView();
     if ( !lv )
 	return;
+    if ( b && parent() && !parent()->isVisible() )
+	return;
     visible = b;
     configured = FALSE;
     setHeight( 0 );
