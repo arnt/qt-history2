@@ -205,8 +205,8 @@ int QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, 
 
         pos = d->hitTest(it, relative, accuracy);
 
-        if (pos == -1)
-            pos = p;
+        if (pos == -1 && p > 0)
+            pos = p - 1;
     }
 
     return pos;
