@@ -155,6 +155,10 @@ SyntaxHighlighter_CPP::SyntaxHighlighter_CPP()
     }
 }
 
+SyntaxHighlighter_CPP::~SyntaxHighlighter_CPP()
+{
+}
+
 static int string2Id( const QString &s )
 {
     if ( s == "Standard" )

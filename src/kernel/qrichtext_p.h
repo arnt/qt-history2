@@ -104,7 +104,8 @@ class Q_EXPORT QTextStringChar
 public:
     // this is never called, initialize variables in QTextString::insert()!!!
     QTextStringChar() : lineStart( 0 ), type( Regular ), startOfRun( 0 ) {d.format=0;}
-    ~QTextStringChar();
+    virtual ~QTextStringChar();
+
     QChar c;
     enum Type { Regular, Custom, Mark, Shaped };
     uint lineStart : 1;
@@ -182,7 +183,7 @@ public:
 
     QTextString();
     QTextString( const QTextString &s );
-    ~QTextString();
+    virtual ~QTextString();
 
     QString toString() const;
     static QString toString( const QMemArray<QTextStringChar> &data );
@@ -255,6 +256,8 @@ public:
     QTextCursor();
     QTextCursor( const QTextCursor &c );
     QTextCursor &operator=( const QTextCursor &c );
+	virtual ~QTextCursor() {};
+
     bool operator==( const QTextCursor &c ) const;
     bool operator!=( const QTextCursor &c ) const { return !(*this == c); }
 
@@ -337,6 +340,7 @@ public:
 
     QTextCommand( QTextDocument *d ) : doc( d ), cursor( d ) {}
     virtual ~QTextCommand();
+
     virtual Commands type() const;
 
     virtual QTextCursor *execute( QTextCursor *c ) = 0;
@@ -358,7 +362,7 @@ class Q_EXPORT QTextCommandHistory
 {
 public:
     QTextCommandHistory( int s ) : current( -1 ), steps( s ) { history.setAutoDelete( TRUE ); }
-    ~QTextCommandHistory() { clear(); }
+    virtual ~QTextCommandHistory() { clear(); }
 
     void clear() { history.clear(); current = -1; }
 
@@ -435,7 +439,7 @@ class Q_EXPORT QTextImage : public QTextCustomItem
 public:
     QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, const QString& context,
 		QMimeSourceFactory &factory);
-    ~QTextImage();
+    virtual ~QTextImage();
 
     Placement placement() const { return place; }
     void adjustToPainter( QPainter* );
@@ -460,7 +464,8 @@ class Q_EXPORT QTextHorizontalLine : public QTextCustomItem
 {
 public:
     QTextHorizontalLine( QTextDocument *p );
-    ~QTextHorizontalLine();
+    virtual ~QTextHorizontalLine();
+
     void adjustToPainter( QPainter* );
     void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected );
     QString richText() const;
@@ -532,8 +537,8 @@ public:
 		    const QTextFormat& fmt, const QString& context,
 		    QMimeSourceFactory &factory, QStyleSheet *sheet, const QString& doc );
     QTextTableCell( QTextTable* table, int row, int column );
+    virtual ~QTextTableCell();
 
-    ~QTextTableCell();
     QSize sizeHint() const ;
     QSize minimumSize() const ;
     QSize maximumSize() const ;
@@ -594,7 +599,8 @@ class Q_EXPORT QTextTable: public QTextCustomItem
 
 public:
     QTextTable( QTextDocument *p, const QMap<QString, QString> &attr );
-    ~QTextTable();
+    virtual ~QTextTable();
+
     void adjustToPainter( QPainter *p );
     void verticalBreak( int  y, QTextFlow* flow );
     void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
@@ -685,7 +691,8 @@ public:
 
     QTextDocument( QTextDocument *p );
     QTextDocument( QTextDocument *d, QTextFormatCollection *f );
-    ~QTextDocument();
+    virtual ~QTextDocument();
+
     QTextDocument *parent() const { return par; }
     QTextParag *parentParag() const { return parParag; }
 
@@ -916,7 +923,8 @@ public:
 			const QValueList<QStyleSheetItem::ListStyle> &ols,
 			const QMemArray<int> &oas );
     QTextDeleteCommand( QTextParag *p, int idx, const QMemArray<QTextStringChar> &str );
-    ~QTextDeleteCommand();
+    virtual ~QTextDeleteCommand();
+
     Commands type() const { return Delete; };
     QTextCursor *execute( QTextCursor *c );
     QTextCursor *unexecute( QTextCursor *c );
@@ -938,9 +946,11 @@ public:
 			const QValueList< QPtrVector<QStyleSheetItem> > &os,
 			const QValueList<QStyleSheetItem::ListStyle> &ols,
 			const QMemArray<int> &oas )
-	: QTextDeleteCommand( d, i, idx, str, os, ols, oas ) {}
+	: QTextDeleteCommand( d, i, idx, str, os, ols, oas ) {};
     QTextInsertCommand( QTextParag *p, int idx, const QMemArray<QTextStringChar> &str )
-	: QTextDeleteCommand( p, idx, str ) {}
+	: QTextDeleteCommand( p, idx, str ) {};
+	virtual ~QTextInsertCommand() {};
+
     Commands type() const { return Insert; };
     QTextCursor *execute( QTextCursor *c ) { return QTextDeleteCommand::unexecute( c ); }
     QTextCursor *unexecute( QTextCursor *c ) { return QTextDeleteCommand::execute( c ); }
@@ -951,7 +961,8 @@ class Q_EXPORT QTextFormatCommand : public QTextCommand
 {
 public:
     QTextFormatCommand( QTextDocument *d, int sid, int sidx, int eid, int eidx, const QMemArray<QTextStringChar> &old, QTextFormat *f, int fl );
-    ~QTextFormatCommand();
+    virtual ~QTextFormatCommand();
+
     Commands type() const { return Format; }
     QTextCursor *execute( QTextCursor *c );
     QTextCursor *unexecute( QTextCursor *c );
@@ -968,6 +979,8 @@ class Q_EXPORT QTextAlignmentCommand : public QTextCommand
 {
 public:
     QTextAlignmentCommand( QTextDocument *d, int fParag, int lParag, int na, const QMemArray<int> &oa );
+	virtual ~QTextAlignmentCommand() {};
+
     Commands type() const { return Alignment; }
     QTextCursor *execute( QTextCursor *c );
     QTextCursor *unexecute( QTextCursor *c );
@@ -985,6 +998,8 @@ public:
     QTextParagTypeCommand( QTextDocument *d, int fParag, int lParag, bool l,
 			   QStyleSheetItem::ListStyle s, const QValueList< QPtrVector<QStyleSheetItem> > &os,
 			   const QValueList<QStyleSheetItem::ListStyle> &ols );
+	virtual ~QTextParagTypeCommand() {};
+
     Commands type() const { return ParagType; }
     QTextCursor *execute( QTextCursor *c );
     QTextCursor *unexecute( QTextCursor *c );
@@ -1011,8 +1026,9 @@ struct Q_EXPORT QTextParagLineStart
     QTextParagLineStart( ushort y_, ushort bl, ushort h_ ) : y( y_ ), baseLine( bl ), h( h_ ),
 	w( 0 ), bidicontext( 0 )  {  }
     QTextParagLineStart( QBidiContext *c, QBidiStatus s ) : y(0), baseLine(0), h(0),
-	status( s ), bidicontext( c ) { if ( bidicontext ) bidicontext->ref();  }
-    ~QTextParagLineStart() { if ( bidicontext && bidicontext->deref() ) delete bidicontext;  }
+	status( s ), bidicontext( c ) { if ( bidicontext ) bidicontext->ref(); }
+    virtual ~QTextParagLineStart() { if ( bidicontext && bidicontext->deref() ) delete bidicontext; }
+
     void setContext( QBidiContext *c ) {
 	if ( c == bidicontext )
 	    return;
@@ -1262,6 +1278,7 @@ class Q_EXPORT QTextFormatter
 public:
     QTextFormatter();
     virtual ~QTextFormatter();
+
     virtual int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParagLineStart*> &oldLineStarts ) = 0;
 
     bool isWrapEnabled( QTextParag *p ) const { if ( !wrapEnabled ) return FALSE; if ( p && !p->isBreakable() ) return FALSE; return TRUE;}
@@ -1297,6 +1314,8 @@ class Q_EXPORT QTextFormatterBreakInWords : public QTextFormatter
 {
 public:
     QTextFormatterBreakInWords();
+	virtual ~QTextFormatterBreakInWords() {};
+
     int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParagLineStart*> &oldLineStarts );
 
 };
@@ -1307,6 +1326,8 @@ class Q_EXPORT QTextFormatterBreakWords : public QTextFormatter
 {
 public:
     QTextFormatterBreakWords();
+    virtual ~QTextFormatterBreakWords() {};
+
     int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParagLineStart*> &oldLineStarts );
 
 };
@@ -1317,6 +1338,8 @@ class Q_EXPORT QTextIndent
 {
 public:
     QTextIndent();
+	virtual ~QTextIndent() {};
+
     virtual void indent( QTextDocument *doc, QTextParag *parag, int *oldIndent = 0, int *newIndent = 0 ) = 0;
 
 };
@@ -1331,6 +1354,8 @@ public:
     };
 
     QTextPreProcessor();
+    virtual ~QTextPreProcessor() {};
+
     virtual void process( QTextDocument *doc, QTextParag *, int, bool = TRUE ) = 0;
     virtual QTextFormat *format( int id ) = 0;
 
@@ -1360,7 +1385,8 @@ public:
     enum VerticalAlignment { AlignNormal, AlignSubScript, AlignSuperScript };
 
     QTextFormat();
-    virtual ~QTextFormat() {}
+    virtual ~QTextFormat() {};
+
     QTextFormat( const QStyleSheetItem *s );
     QTextFormat( const QFont &f, const QColor &c, QTextFormatCollection *parent = 0 );
     QTextFormat( const QTextFormat &fm );

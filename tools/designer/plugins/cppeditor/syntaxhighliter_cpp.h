@@ -38,7 +38,7 @@ public:
     };
 
     SyntaxHighlighter_CPP();
-    virtual ~SyntaxHighlighter_CPP() {}
+    virtual ~SyntaxHighlighter_CPP();
     void process( QTextDocument *doc, QTextParag *string, int start, bool invalidate = TRUE );
     void updateStyles( const QMap<QString, ConfigStyle> &styles );
 
