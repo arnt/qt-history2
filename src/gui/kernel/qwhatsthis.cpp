@@ -32,7 +32,6 @@
 #include "qtooltip.h"
 #include "qtextdocument.h"
 #include "../text/qtextdocumentlayout_p.h"
-#include "qstylesheet.h"
 #include "qtoolbutton.h"
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
@@ -177,7 +176,7 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
     QRect r;
 #ifndef QT_NO_RICHTEXT
     doc = 0;
-    if (QStyleSheet::mightBeRichText(text)) {
+    if (QText::mightBeRichText(text)) {
         QFont f = QApplication::font(this);
         doc = new QTextDocument();
         doc->setUndoRedoEnabled(false);

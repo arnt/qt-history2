@@ -101,6 +101,8 @@ public:
 
     void parse(const QString &text);
 
+    static int lookupElement(const QString &element);
+
     static QTextCodec *codecForStream(const QByteArray &ba);
 protected:
     QTextHtmlParserNode *newNode(int parent);

@@ -21,6 +21,9 @@ namespace QText
 {
     enum HitTestAccuracy { ExactHit, FuzzyHit };
     enum ChangeOperation { Insert, Remove };
+
+    bool mightBeRichText(const QString&);
+
 }
 
 class Q_GUI_EXPORT QAbstractUndoItem

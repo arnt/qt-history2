@@ -20,6 +20,7 @@
 #include "qlayout.h"
 #include "qpainter.h"
 #include "qcleanuphandler.h"
+#include <qtextdocument.h>
 
 #include <stdio.h>
 
@@ -1469,37 +1470,7 @@ QString QStyleSheet::escape(const QString& plain)
 */
 bool QStyleSheet::mightBeRichText(const QString& text)
 {
-    if (text.isEmpty())
-        return false;
-    int start = 0;
-
-    while (start < int(text.length()) && text[start].isSpace())
-        ++start;
-    if (text.mid(start, 5).toLower() == "<!doc")
-        return true;
-    int open = start;
-    while (open < int(text.length()) && text[open] != '<'
-            && text[open] != '\n') {
-        if (text[open] == '&' &&  text.mid(open+1,3) == "lt;")
-            return true; // support desperate attempt of user to see <...>
-        ++open;
-    }
-    if (open < (int)text.length() && text[open] == '<') {
-        int close = text.indexOf('>', open);
-        if (close > -1) {
-            QString tag;
-            for (int i = open+1; i < close; ++i) {
-                if (text[i].isDigit() || text[i].isLetter())
-                    tag += text[i];
-                else if (!tag.isEmpty() && text[i].isSpace())
-                    break;
-                else if (!text[i].isSpace() && (!tag.isEmpty() || text[i] != '!'))
-                    return false; // that's not a tag
-            }
-            return defaultSheet()->item(tag.toLower()) != 0;
-        }
-    }
-    return false;
+    return QText::mightBeRichText(text);
 }
 
 

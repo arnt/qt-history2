@@ -296,6 +296,135 @@ static QChar resolveEntity(const QString &entity)
     return e->code;
 }
 
+enum HTMLElements {
+    Html_qt,
+    Html_body,
+
+    Html_a,
+    Html_em,
+    Html_i,
+    Html_big,
+    Html_small,
+    Html_strong,
+    Html_b,
+
+    Html_h1,
+    Html_h2,
+    Html_h3,
+    Html_h4,
+    Html_h5,
+    Html_h6,
+    Html_p,
+    Html_center,
+
+    Html_font,
+
+    Html_ul,
+    Html_ol,
+    Html_li,
+
+    Html_code,
+    Html_tt,
+
+    Html_img,
+    Html_br,
+    Html_hr,
+
+    Html_sub,
+    Html_sup,
+
+    Html_pre,
+    Html_blockquote,
+    Html_head,
+    Html_div,
+    Html_span,
+    Html_dl,
+    Html_dt,
+    Html_dd,
+    Html_u,
+    Html_s,
+    Html_nobr,
+
+    // tables
+    Html_table,
+    Html_tr,
+    Html_td,
+    Html_th,
+    Html_html,
+    Html_NumElements
+};
+
+static const struct QTextHtmlElement { const char *name; Q_UINT16 code; } elements[Html_NumElements+1]= {
+    { "a", Html_a },
+    { "b", Html_b },
+    { "big", Html_big },
+    { "body", Html_body },
+    { "blockquote", Html_blockquote },
+    { "br", Html_br },
+    { "center", Html_center },
+    { "code", Html_code },
+    { "dd", Html_dd },
+    { "div", Html_div },
+    { "dl", Html_dl },
+    { "dt", Html_dt },
+    { "em", Html_em },
+    { "font", Html_font },
+    { "h1", Html_h1 },
+    { "h2", Html_h2 },
+    { "h3", Html_h3 },
+    { "h4", Html_h4 },
+    { "h5", Html_h5 },
+    { "h6", Html_h6 },
+    { "head", Html_head },
+    { "hr", Html_hr },
+    { "html", Html_html },
+    { "i", Html_i },
+    { "img", Html_img },
+    { "li", Html_li },
+    { "nobr", Html_nobr },
+    { "ol", Html_ol },
+    { "p", Html_p },
+    { "pre", Html_pre },
+    { "qt", Html_qt },
+    { "s", Html_s },
+    { "small", Html_small },
+    { "span", Html_span },
+    { "strong", Html_strong },
+    { "sub", Html_sub },
+    { "sup", Html_sup },
+    { "table", Html_table },
+    { "td", Html_td },
+    { "th", Html_th },
+    { "tr", Html_tr },
+    { "tt", Html_tt },
+    { "u", Html_u },
+    { "ul", Html_ul },
+    { 0,  0 }
+};
+
+
+static bool operator<(const QString &str, const QTextHtmlElement &e)
+{
+    return str < QLatin1String(e.name);
+}
+
+static bool operator<(const QTextHtmlElement &e, const QString &str)
+{
+    return QLatin1String(e.name) < str;
+}
+
+int QTextHtmlParser::lookupElement(const QString &element)
+{
+    QString elem = element.toLower();
+    const QTextHtmlElement *start = &elements[0];
+    const QTextHtmlElement *end = &elements[Html_NumElements];
+    const QTextHtmlElement *e = qBinaryFind(start, end, elem);
+    if (!e->name)
+        return -1;
+    return e->code;
+}
+
+
 static int scaleFontPointSize(int fontPointSize, int logicalFontSize, int logicalFontSizeStep = 0)
 {
     if (logicalFontSize != -1 || logicalFontSizeStep) {

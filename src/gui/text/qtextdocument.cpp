@@ -5,10 +5,56 @@
 #include "qtexttable.h"
 #include "qtextlist.h"
 #include <qdebug.h>
+#include "qtexthtmlparser_p.h"
 
 #include "qtextdocument_p.h"
 #define d d_func()
 #define q q_func()
+
+/*!
+    Returns true if the string \a text is likely to be rich text;
+    otherwise returns false.
+
+    This function uses a fast and therefore simple heuristic. It
+    mainly checks whether there is something that looks like a tag
+    before the first line break. Although the result may be correct
+    for common cases, there is no guarantee.
+*/
+bool QText::mightBeRichText(const QString& text)
+{
+    if (text.isEmpty())
+        return false;
+    int start = 0;
+
+    while (start < int(text.length()) && text.at(start).isSpace())
+        ++start;
+    if (text.mid(start, 5).toLower() == QLatin1String("<!doc"))
+        return true;
+    int open = start;
+    while (open < int(text.length()) && text.at(open) != '<'
+            && text.at(open) != '\n') {
+        if (text.at(open) == '&' &&  text.mid(open+1,3) == "lt;")
+            return true; // support desperate attempt of user to see <...>
+        ++open;
+    }
+    if (open < (int)text.length() && text.at(open) == '<') {
+        int close = text.indexOf('>', open);
+        if (close > -1) {
+            QString tag;
+            for (int i = open+1; i < close; ++i) {
+                if (text[i].isDigit() || text[i].isLetter())
+                    tag += text[i];
+                else if (!tag.isEmpty() && text[i].isSpace())
+                    break;
+                else if (!text[i].isSpace() && (!tag.isEmpty() || text[i] != '!'))
+                    return false; // that's not a tag
+            }
+            return QTextHtmlParser::lookupElement(tag) != -1;
+        }
+    }
+    return false;
+}
+
 
 /*!
     \class QTextDocument qtextdocument.h

@@ -23,7 +23,6 @@
 #include "qpicture.h"
 #include "qapplication.h"
 #include "qtextdocument.h"
-#include "qstylesheet.h"
 #include "qstyle.h"
 #include "qframe_p.h"
 #include <limits.h>
@@ -317,7 +316,7 @@ void QLabel::setText(const QString &text)
     d->ltext = text;
 #ifndef QT_NO_RICHTEXT
     bool useRichText = (d->textformat == RichText ||
-      ((d->textformat == AutoText) && QStyleSheet::mightBeRichText(d->ltext)));
+      ((d->textformat == AutoText) && QText::mightBeRichText(d->ltext)));
 #else
     bool useRichText = true;
 #endif
