@@ -1131,7 +1131,7 @@ void QHttpClient::slotReadyRead()
 
 	    // Handle data that was already read
 	    m_bytesRead = m_buffer.size() - i - 4;
-	    if ( !m_response.hasAutoContentLength() )
+	    if ( m_response.hasContentLength() )
 		m_bytesRead = QMIN( m_response.contentLength(), m_bytesRead );
 
 	    if ( m_device ) {
@@ -1145,10 +1145,10 @@ void QHttpClient::slotReadyRead()
 		// Copy the data to the beginning of a new buffer.
 		QByteArray tmp;
 		// Resize the array. Do we know the size of the data a priori ?
-		if ( m_response.hasAutoContentLength() )
-		    tmp.resize( m_bytesRead );
-		else
+		if ( m_response.hasContentLength() )
 		    tmp.resize( m_response.contentLength() );
+		else
+		    tmp.resize( m_bytesRead );
 		memcpy( tmp.data(), m_buffer.data() + i + 4, m_bytesRead );
 		m_buffer = tmp;
 
@@ -1162,7 +1162,7 @@ void QHttpClient::slotReadyRead()
     if ( !m_readHeader ) {
 	uint n = m_socket->bytesAvailable();
 	if ( n > 0 ) {
-	    if ( !m_response.hasAutoContentLength() )
+	    if ( m_response.hasContentLength() )
 		n = QMIN( m_response.contentLength() - m_bytesRead, n );
 
 	    if ( m_device ) {
@@ -1173,8 +1173,7 @@ void QHttpClient::slotReadyRead()
 		arr.resize( n );
 		emit responseChunk( m_response, arr );
 	    } else {
-		if ( m_response.hasAutoContentLength() )
-		    m_buffer.resize( m_buffer.size() + n );
+		m_buffer.resize( m_buffer.size() + n );
 		n = m_socket->readBlock( m_buffer.data() + m_bytesRead, n );
 
 		QByteArray tmp( n );
@@ -1185,9 +1184,9 @@ void QHttpClient::slotReadyRead()
 	}
 
 	// Read everything ?
-	// We can only know that is the content length was given in advance.
+	// We can only know that if the content length was given in advance.
 	// Otherwise we emit the signal in closed().
-	if ( !m_response.hasAutoContentLength() && m_bytesRead == m_response.contentLength() ) {
+	if ( m_response.hasContentLength() && m_bytesRead == m_response.contentLength() ) {
 	    if ( m_device )
 		emit response( m_response, m_device );
 	    else
