@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#89 $
 **
 ** Implementation of QMenuData class
 **
@@ -1115,9 +1115,49 @@ void QMenuData::setId( int index, int id )
 
 
 /*!
+  Sets the parameter of the activation signal of item \a id to \a
+  param.
+
+  If any receiver takes an integer parameter, this value is passed.
+  
+  \sa connectItem(), disconnectItem(), itemParameter()
+ */
+bool QMenuData::setItemParameter( int id, int param ) {
+    QMenuItem *mi = findItem( id );
+    if ( !mi )					// no such identifier
+	return FALSE;
+    if ( !mi->signal_data ) {			// create new signal
+	mi->signal_data = new QSignal;
+	CHECK_PTR( mi->signal_data );
+    }
+    mi->signal_data->setParameter( param );
+    return TRUE;
+}
+
+
+/*!
+  Returns the parameter of the activation signal of item \a id.
+  
+  If no parameter has been specified for this item with
+  setItemParameter(), the value defaults to \a id.
+  
+  \sa connectItem(), disconnectItem(), setItemParameter()
+ */
+int QMenuData::itemParameter( int id ) const
+{
+    QMenuItem *mi = findItem( id );
+    if ( !mi || !mi->signal_data )
+	return id;
+    return mi->signal_data->parameter();
+}
+
+
+/*!
   Connects a menu item to a receiver and a slot or signal.
 
   The receiver's slot/signal is activated when the menu item is activated.
+
+  \sa disconnectItem(), setItemParameter()
 */
 
 bool QMenuData::connectItem( int id, const QObject *receiver,
@@ -1129,14 +1169,18 @@ bool QMenuData::connectItem( int id, const QObject *receiver,
     if ( !mi->signal_data ) {			// create new signal
 	mi->signal_data = new QSignal;
 	CHECK_PTR( mi->signal_data );
+	mi->signal_data->setParameter( id );
     }
     return mi->signal_data->connect( receiver, member );
 }
+
 
 /*!
   Disconnects a receiver/member from a menu item.
 
   All connections are removed when the menu data object is destroyed.
+  
+  \sa connectItem(), setItemParameter()
 */
 
 bool QMenuData::disconnectItem( int id, const QObject *receiver,

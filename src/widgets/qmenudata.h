@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#73 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#74 $
 **
 ** Definition of QMenuData class
 **
@@ -201,6 +201,9 @@ public:
     bool	disconnectItem( int id,
 				const QObject *receiver, const char* member );
 
+    bool	setItemParameter( int id, int param );
+    int	itemParameter( int id ) const;
+    
     QMenuItem  *findItem( int id )	const;
     QMenuItem  *findItem( int id, QMenuData ** parent )	const;
 
