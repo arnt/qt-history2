@@ -1580,7 +1580,7 @@ void QPainter::resetXForm()
 #endif // QT_NO_TRANSFORMATIONS
 
 
-Q_KERNEL_EXPORT bool qt_old_transformations;
+extern Q_KERNEL_EXPORT bool qt_old_transformations;
 
 /*!
   \internal
