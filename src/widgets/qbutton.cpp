@@ -741,9 +741,10 @@ void QButton::mousePressEvent( QMouseEvent *e )
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
 #endif
+	QGuardedPtr<QTimer> t = timer();
 	emit pressed();
-	if ( repeat )
-	    timer()->start( autoRepeatDelay, TRUE );
+	if ( repeat && t )
+	    t->start( autoRepeatDelay, TRUE );
     }
 }
 
@@ -838,12 +839,14 @@ void QButton::focusOutEvent( QFocusEvent * e )
 void QButton::autoRepeatTimeout()
 {
     if ( mlbDown && isEnabled() && autoRepeat() ) {
+	QGuardedPtr<QTimer> t = timer();
 	if ( buttonDown ) {
 	    emit released();
 	    emit clicked();
 	    emit pressed();
 	}
-	timer()->start( autoRepeatPeriod, TRUE );
+	if ( t )
+	    t->start( autoRepeatPeriod, TRUE );
     }
 }
 
