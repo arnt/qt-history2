@@ -16,7 +16,7 @@
 
 int main( int argc, char ** argv )
 {
-    QApplication::setColorSpec( QApplication::CustomColor );
+    QApplication::setColorSpec( QApplication::ManyColor );
     QApplication a( argc, argv );
 
     Themes themes;
