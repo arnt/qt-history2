@@ -6504,8 +6504,10 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 	    table->selections.append( table->currentSel );
 	    if ( orientation() == Vertical ) {
 		table->currentSel->init( secAt, 0 );
+		table->setCurrentCell( secAt, 0 );
 	    } else {
 		table->currentSel->init( 0, secAt );
+		table->setCurrentCell( 0, secAt );
 	    }
 	}
     }
