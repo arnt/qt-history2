@@ -28,9 +28,9 @@ icons for which compression is not a great gain.
 <h2>Output</h2>
 The output from QEmbed is a C++ header file which you should
 include in a C++ source file. In that file, you should make a wrapper
-function that suites your application. Two inline functions are provided,
+function that suites your application. Two functions are provided,
 and your wrapper function could just call one of these, or you can
-implement your own. To use the inline functions in the simplest way:
+implement your own. To use the functions in the simplest way:
 
 <pre>
     #include "generated_qembed_file.h"

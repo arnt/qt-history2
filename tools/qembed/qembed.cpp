@@ -232,7 +232,7 @@ int main( int argc, char **argv )
 	out << "    { 0, 0, 0, 0, 0, 0, 0, 0 }\n};\n";
 
 	out << "\n"
-	    "inline const QImage& qembed_findImage(const char* name)\n"
+	    "static const QImage& qembed_findImage(const char* name)\n"
 	    "{\n"
 	    "    static QDict<QImage> dict;\n"
 	    "    QImage* img = dict.find(name);\n"
