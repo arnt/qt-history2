@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#59 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#59 $");
 
 
 /*****************************************************************************
@@ -447,6 +447,11 @@ uint QColor::alloc()
 	int rx, gx, bx, dist;
 	int i, maxi = QMIN(QPaintDevice::x11Cells(),256);
 	register XColor *xc;
+	if ( current_alloc_context != 0 ) {
+	    // Cannot use optimization
+	    // #### Haavard, can you explain why not?
+	    qt_reset_color_avail();
+	}
 	colorAvail = FALSE;			// no more avail colors
 	if ( !g_carr ) {			// get colors in colormap
 	    g_carr = new XColor[maxi];
