@@ -5117,11 +5117,13 @@ QString QTextParag::richText() const
 	    }
 	}
 	if ( !formatChar ) {
-	    s += c->format()->makeFormatChangeTags( 0, QString::null, c->anchorHref() );
+	    s += c->format()->makeFormatChangeTags( formatCollection()->defaultFormat(),
+						    0, QString::null, c->anchorHref() );
 	    formatChar = c;
 	} else if ( ( formatChar->format()->key() != c->format()->key() ) ||
 		  (c->anchorHref() != formatChar->anchorHref() ) )  {
-	    s += c->format()->makeFormatChangeTags( formatChar->format() , formatChar->anchorHref(), c->anchorHref() );
+	    s += c->format()->makeFormatChangeTags( formatCollection()->defaultFormat(),
+						    formatChar->format() , formatChar->anchorHref(), c->anchorHref() );
 	    formatChar = c;
 	}
 	if ( c->c == '<' ) {
@@ -5138,7 +5140,7 @@ QString QTextParag::richText() const
 	    s += c->c;
     }
     if ( formatChar )
-	s += formatChar->format()->makeFormatEndTags( formatChar->anchorHref() );
+	s += formatChar->format()->makeFormatEndTags( formatCollection()->defaultFormat(), formatChar->anchorHref() );
     return s;
 }
 
@@ -6399,28 +6401,21 @@ static int makeLogicFontSize( int s )
     return 7;
 }
 
-static QTextFormat *defaultFormat = 0;
-
-QString QTextFormat::makeFormatChangeTags( QTextFormat *f, const QString& oldAnchorHref, const QString& anchorHref  ) const
+QString QTextFormat::makeFormatChangeTags( QTextFormat* defaultFormat, QTextFormat *f,
+			   const QString& oldAnchorHref, const QString& anchorHref  ) const
 {
-    if ( !defaultFormat ) // #### wrong, use the document's default format instead
-	defaultFormat = new QTextFormat( QApplication::font(),
-					     QApplication::palette().color( QPalette::Active, QColorGroup::Text ) );
-
     QString tag;
     if ( f ) {
-	if ( f->font() != defaultFormat->font() ) {
-	    if ( f->font().family() != defaultFormat->font().family()
-		 || f->font().pointSize() != defaultFormat->font().pointSize()
-		 || f->color().rgb() != defaultFormat->color().rgb() )
-		tag += "</font>";
-	    if ( f->font().underline() && f->font().underline() != defaultFormat->font().underline() )
-		tag += "</u>";
-	    if ( f->font().italic() && f->font().italic() != defaultFormat->font().italic() )
-		tag += "</i>";
-	    if ( f->font().bold() && f->font().bold() != defaultFormat->font().bold() )
-		tag += "</b>";
-	}
+	if ( f->font().family() != defaultFormat->font().family()
+	     || f->font().pointSize() != defaultFormat->font().pointSize()
+	     || f->color().rgb() != defaultFormat->color().rgb() )
+	    tag += "</font>";
+	if ( f->font().underline() && f->font().underline() != defaultFormat->font().underline() )
+	    tag += "</u>";
+	if ( f->font().italic() && f->font().italic() != defaultFormat->font().italic() )
+	    tag += "</i>";
+	if ( f->font().bold() && f->font().bold() != defaultFormat->font().bold() )
+	    tag += "</b>";
 	if ( !oldAnchorHref.isEmpty() )
 	    tag += "</a>";
     }
@@ -6454,25 +6449,19 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat *f, const QString& oldAnc
     return tag;
 }
 
-QString QTextFormat::makeFormatEndTags( const QString& anchorHref ) const
+QString QTextFormat::makeFormatEndTags( QTextFormat* defaultFormat, const QString& anchorHref ) const
 {
-    if ( !defaultFormat )
-	defaultFormat = new QTextFormat( QApplication::font(),
-					     QApplication::palette().color( QPalette::Active, QColorGroup::Text ) );
-
     QString tag;
-    if ( font() != defaultFormat->font() ) {
-	if ( font().family() != defaultFormat->font().family()
-	     || font().pointSize() != defaultFormat->font().pointSize()
-	     || color().rgb() != defaultFormat->color().rgb() )
-	    tag += "</font>";
-	if ( font().underline() && font().underline() != defaultFormat->font().underline() )
-	    tag += "</u>";
-	if ( font().italic() && font().italic() != defaultFormat->font().italic() )
-	    tag += "</i>";
-	if ( font().bold() && font().bold() != defaultFormat->font().bold() )
-	    tag += "</b>";
-    }
+    if ( font().family() != defaultFormat->font().family()
+	 || font().pointSize() != defaultFormat->font().pointSize()
+	 || color().rgb() != defaultFormat->color().rgb() )
+	tag += "</font>";
+    if ( font().underline() && font().underline() != defaultFormat->font().underline() )
+	tag += "</u>";
+    if ( font().italic() && font().italic() != defaultFormat->font().italic() )
+	tag += "</i>";
+    if ( font().bold() && font().bold() != defaultFormat->font().bold() )
+	tag += "</b>";
     if ( !anchorHref.isEmpty() )
 	tag += "</a>";
     return tag;

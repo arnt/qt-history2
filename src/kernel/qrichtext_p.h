@@ -1530,8 +1530,8 @@ public:
     void addRef();
     void removeRef();
 
-    QString makeFormatChangeTags( QTextFormat *f, const QString& oldAnchorHref, const QString& anchorHref ) const;
-    QString makeFormatEndTags( const QString& anchorHref ) const;
+    QString makeFormatChangeTags( QTextFormat* defaultFormat, QTextFormat *f, const QString& oldAnchorHref, const QString& anchorHref ) const;
+    QString makeFormatEndTags( QTextFormat* defaultFormat, const QString& anchorHref ) const;
 
     static void setPainter( QPainter *p );
     static QPainter* painter();
