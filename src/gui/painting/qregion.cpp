@@ -15,7 +15,10 @@
 #include "qpointarray.h"
 #include "qbuffer.h"
 #include "qdatastream.h"
-#include "qdebug.h"
+
+#ifndef QT_NO_DEBUG
+#include <qdebug.h>
+#endif
 
 /*!
     \class QRegion
@@ -271,9 +274,9 @@ QDataStream &operator>>(QDataStream &s, QRegion &r)
 QDebug operator<<(QDebug s, const QRegion &r)
 {
     QVector<QRect> rects = r.rects();
-    s.nospace() << "QRegion(size=" << rects.size() << ")" << endl;
+    s.nospace() << "QRegion(size=" << rects.size() << ")\n";
     for (int i=0; i<rects.size(); ++i)
-        s << " - " << rects.at(i) << endl;
+        s << " - " << rects.at(i) << "\n";
     return s;
 }
 #endif
