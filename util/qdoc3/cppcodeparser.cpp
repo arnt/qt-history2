@@ -939,9 +939,11 @@ bool CppCodeParser::matchTypedefDecl( InnerNode *parent )
     if ( !match(Tok_Semicolon) )
 	return false;
 
-    TypedefNode *typedeffe = new TypedefNode( parent, name );
-    typedeffe->setAccess( access );
-    typedeffe->setLocation( location() );
+    if (parent && !parent->findNode(name, Node::Typedef)) {
+        TypedefNode *typedeffe = new TypedefNode( parent, name );
+        typedeffe->setAccess( access );
+        typedeffe->setLocation( location() );
+    }
     return true;
 }
 

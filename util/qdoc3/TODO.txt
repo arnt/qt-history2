@@ -21,7 +21,6 @@ From Matthias:
   * try italics
   * merge read-only/writable properties
   * list properties
-  * flags ___
 
 --
 

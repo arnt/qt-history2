@@ -70,6 +70,7 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
     const FunctionNode *func;
     const PropertyNode *property;
     const EnumNode *enume;
+    const TypedefNode *typedeff;
     QString synopsis;
     QString extra;
     QString name;
@@ -166,7 +167,7 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
                 }
             } else {
                 for (int i = 0; i < documentedItems.size(); ++i) {
-		    if (i < MaxEnumValues - 1 || i == documentedItems.size() - 1) {
+		    if (i < MaxEnumValues - 2 || i == documentedItems.size() - 1) {
 	                if (i != 0)
 		            synopsis += ", ";
 		        synopsis += documentedItems.at(i);
@@ -181,7 +182,12 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
 	}
 	break;
     case Node::Typedef:
-        synopsis = "typedef " + name;
+        typedeff = static_cast<const TypedefNode *>(node);
+        if (typedeff->associatedEnum()) {
+            synopsis = "flags " + name;
+        } else {
+            synopsis = "typedef " + name;
+        }
 	break;
     case Node::Property:
 	property = static_cast<const PropertyNode *>(node);

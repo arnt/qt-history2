@@ -1757,9 +1757,9 @@ void HtmlGenerator::generateDetailedMember(const Node *node, const InnerNode *re
     } else if (node->type() == Node::Enum) {
         const EnumNode *enume = static_cast<const EnumNode *>(node);
         if (enume->flagsType()) {
-            out() << "<p>The <b>" << protect(enume->flagsType()->name())
-                  << "</b> typedef can store a combination of <b>" << protect(enume->name())
-                  << "</b> values.</p>\n";
+            out() << "<p>The <tt>" << protect(enume->flagsType()->name())
+                  << "</tt> type stores an OR combination of <tt>" << protect(enume->name())
+                  << "</tt> values.</p>\n";
         }
     }
     generateAlsoList( node, marker );
