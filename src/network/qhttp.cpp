@@ -459,8 +459,9 @@ QTextStream& operator<<( QTextStream& stream, const QHttpReplyHeader& header )
 }
 
 /*!
-  Returns TRUE if the HTTP relply header has no entry \c content-length,
-  otherwise FALSE.
+  Returns TRUE if the server did not specify a size of the reply data, This is
+  only possible if the server set the connection mode to Close. Otherwise this
+  function returns FALSE.
 */
 bool QHttpReplyHeader::hasAutoContentLength() const
 {
@@ -683,7 +684,9 @@ QHttpClient::~QHttpClient()
 }
 
 /*!
-  Closes the connection. ### more details?
+  Closes the connection. This will abort a running request.
+
+  Do not call request() in response to this signal. Instead wait for idle().
 */
 void QHttpClient::close()
 {
@@ -709,7 +712,9 @@ void QHttpClient::close()
     }
 }
 
-/*! \overload
+/*!
+  Sends a GET request to the server \a hostname at port \a port. Use the \a
+  header as the HTTP request header.
 */
 bool QHttpClient::request( const QString& hostname, int port, const QHttpRequestHeader& header )
 {
@@ -731,9 +736,13 @@ bool QHttpClient::request( const QString& hostname, int port, const QHttpRequest
 }
 
 /*!
-  Send a HTTP request to the server \a hostname at port \a port. Use the \a
+  Sends a POST request to the server \a hostname at port \a port. Use the \a
   header as the HTTP request header. \a data is a char array of size \a size;
-  it is used as the content data of the request.
+  it is used as the content data of the POST request.
+
+  Call this function after the client was created or after the idle() signal
+  was emitted.  On other occasions the function returns FALSE to indicate that
+  it can not issue an request currently.
 */
 bool QHttpClient::request( const QString& hostname, int port, const QHttpRequestHeader& header, const char* data, uint size )
 {
@@ -763,9 +772,13 @@ bool QHttpClient::request( const QString& hostname, int port, const QHttpRequest
 }
 
 /*!
-  Send a HTTP request to the server \a hostname at port \a port. Use the \a
-  header as the HTTP request header. The conent data is read from \a device
-  (the device must be already open for reading).
+  Send a POST request to the server \a hostname at port \a port. Use the \a
+  header as the HTTP request header. The content data is read from \a device
+  (the device must be opened for reading).
+
+  Call this function after the client was created or after the idle() signal
+  was emitted.  On other occasions the function returns FALSE to indicate that
+  it can not issue an request currently.
 */
 bool QHttpClient::request( const QString& hostname, int port, const QHttpRequestHeader& header, QIODevice* device )
 {
@@ -1005,13 +1018,19 @@ void QHttpClient::readyRead()
 /*!
   \enum QHttpClient::State
 
+  This enum is used to specify the state the client is in. The possible values
+  are:
   <ul>
-  <li> Closed
-  <li> Connecting
-  <li> Sending
-  <li> Reading
-  <li> Alive
-  <li> Idle
+  <li> Closed: The connection was just closed, but still one can not make new
+       requests using this client. Better wait for Idle.
+  <li> Connecting: A request was issued and the client is looking up IP
+       addresses or connecting to the remote host.
+  <li> Sending: The client is sending its request to the server.
+  <li> Reading: The client has sent its request and is reading the servers
+       response.
+  <li> Alive: The connection to the host is open. It is possible to make new
+       requests.
+  <li> Idle: There is no open connection. It is possible to make new requests.
   </ul>
 */
 /*!
@@ -1049,7 +1068,16 @@ void QHttpClient::killIdleTimer()
 
 /*!
   Sets the device of the HTTP client to \a d.
-### what is the use of this device?
+
+  If a device is set, then all data read by the QHttpClient - but not the HTTP
+  headers - are written to this device.
+
+  The device must be opened for writing.
+
+  Setting the device to 0 means that subsequently read data will be read into
+  memory. By default QHttpClient reads into memory.
+
+  Setting a device makes sense when downloading very big chunks of data.
 */
 void QHttpClient::setDevice( QIODevice* d )
 {
@@ -1086,11 +1114,14 @@ QIODevice* QHttpClient::device()
 
 /*!
   \class QHttpServer qhttp.h
-  \brief The QHttpServer class provides a HTTP server.
+  \brief The QHttpServer class provides a class that accepts connections.
 
   \module network
 
-  fnord
+  You must overload the newConnection() function.
+
+  Usually your implementation will create a derived object of QHttpConnection
+  to handle the connection.
 */
 
 /*!
