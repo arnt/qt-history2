@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#106 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#105 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#106 $";
 #endif
 
 
@@ -311,6 +311,7 @@ void QPainter::setFont( const QFont &font )
     if ( cfont.d != font.d ) {
 	setf( DirtyFont );
 	cfont = font;
+	cfont.handle();				// load font now!
     }
 }
 
@@ -655,9 +656,11 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	setf(ExtDev);
     else if ( pdev->devType() == PDT_PIXMAP )	// device is a pixmap
 	((QPixmap*)pdev)->detach();		// will modify pixmap
+
     dpy = pdev->dpy;				// get display variable
     hd = pdev->hd;				// get handle to drawable
-    if ( testf(ExtDev) ) {
+
+    if ( testf(ExtDev) ) {			// external device
 	gc = 0;
 	if ( !pdev->cmd( PDC_BEGIN, 0 ) ) {	// could not begin painting
 	    pdev = 0;
@@ -668,6 +671,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	if ( tabarray )				// update tabarray for device
 	    setTabArray( tabarray );
     }
+
     setf( IsActive );				// painter becomes active
     pdev->devFlags |= PDF_PAINTACTIVE;		// also tell paint device
     gc_brush = 0;
@@ -677,6 +681,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	wxmat.reset();				// reset world xform matrix
     }
     wx = wy = vx = vy = 0;			// default view origins
+
     if ( pdev->devType() == PDT_WIDGET ) {	// device is a widget
 	QWidget *w = (QWidget*)pdev;
 	gc = alloc_painter_gc( dpy, w->handle() );
@@ -684,7 +689,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	bg_col = w->backgroundColor();		// use widget bg color
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
-	cpen = QPen( w->foregroundColor() );	// use widget fg color
+	cpen = QPen( w->foregroundColor() );	// use widget fg color	
 	if ( reinit ) {
 	    cbrush = QBrush( NoBrush );
 	}
@@ -717,7 +722,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	}
 	if ( mono ) {
 	    bg_col = color0;
-	    cpen.setColor( color1 );		// changes gc directly!
+	    cpen.setColor( color1 );
 	}
     }
     else
@@ -768,8 +773,14 @@ bool QPainter::end()				// end painting
 }
 
 /*!
-Sets the background  color of the painter to \e c.
-\sa backgroundColor().
+  Sets the background color of the painter to \e c.
+
+  The background color is the color that is filled in when drawing
+  opaque text, stippled lines and bitmaps.
+  The background color has no effect when transparent background mode
+  is set.
+
+  \sa backgroundColor(), setBackgroundMode()
 */
 
 void QPainter::setBackgroundColor( const QColor &c )
@@ -789,14 +800,19 @@ void QPainter::setBackgroundColor( const QColor &c )
 }
 
 /*!
-Sets the background mode of the painter to \e m, which must be either
+  Sets the background mode of the painter to \e m, which must be either
 
-The \e m parameter must be one of:
-<ul>
-<li> \c TransparentMode
-<li> \c OpaqueMode
-</ul>
-\sa backgroundMode().
+  The \e m parameter must be one of:
+  <ul>
+  <li> \c TransparentMode (default)
+  <li> \c OpaqueMode
+  </ul>
+
+  Transparent mode draws stippled lines, text and bitmaps without setting
+  the background pixels. Opaque mode fills these space with the current
+  background color.
+
+  \sa backgroundMode(), setBackgroundColor()
 */
 
 void QPainter::setBackgroundMode( BGMode m )	// set background mode
@@ -866,6 +882,7 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
 	XSetFunction( dpy, gc_brush, ropCodes[rop] );
 }
 
+
 /*!
   Sets the brush origin to \e (x,y).
 */
@@ -883,163 +900,6 @@ void QPainter::setBrushOrigin( int x, int y )	// set brush origin
     }
     if ( gc_brush )
 	XSetTSOrigin( dpy, gc_brush, x, y );
-}
-
-/*!
-  Enables view transformations if \e enable is TRUE, or disables view
-  transformations if \e enable is FALSE.
-  \sa setWindow(), setViewport(), setWorldMatrix(), setWorldXForm()
-*/
-
-void QPainter::setViewXForm( bool enable )	// set xform
-{
-    if ( !isActive() || enable == testf(VxF) )
-	return;
-    setf( VxF, enable );
-    if ( testf(ExtDev) ) {
-	QPDevCmdParam param[1];
-	param[0].ival = enable;
-	pdev->cmd( PDC_SETVXFORM, param );
-    }
-    updateXForm();
-}
-
-/*!
-  Returns the window rectangle.
-  \sa setWindow()
-*/
-
-QRect QPainter::window() const			// get window
-{
-    return QRect( wx, wy, ww, wh );
-}
-
-/*!
-  Sets the window rectangle view transformation for the painter and
-  enables view transformation.
-
-  The window rectangle is part of the view transformation.
-  View transformations can be combined with world transformations.
-  \sa window(), setViewport(), setViewXForm(), setWorldMatrix(),
-  setWorldXForm()
-*/
-
-void QPainter::setWindow( int x, int y, int w, int h )
-{						// set window
-    if ( !isActive() )
-	return;
-    wx = x;
-    wy = y;
-    ww = w;
-    wh = h;
-    if ( testf(ExtDev) ) {
-	QRect r( x, y, w, h );
-	QPDevCmdParam param[1];
-	param[0].rect = (QRect*)&r;
-	pdev->cmd( PDC_SETWINDOW, param );
-	return;
-    }
-    if ( testf(VxF) )
-	updateXForm();
-    else
-	setViewXForm( TRUE );
-}
-
-/*!
-  Returns the viewport rectangle.
-  \sa setViewport()
-*/
-
-QRect QPainter::viewport() const		// get viewport
-{
-    return QRect( vx, vy, vw, vh );
-}
-
-/*!
-  Sets the viewport rectangle view transformation for the painter and
-  enables view transformation.
-
-  The viewport rectangle is part of the view transformation.
-  View transformations can be combined with world transformations.
-  \sa viewport(), setWindow(), setViewXForm(), setWorldMatrix(),
-  setWorldXForm()
-*/
-
-void QPainter::setViewport( int x, int y, int w, int h )
-{						// set viewport
-    vx = x;
-    vy = y;
-    vw = w;
-    vh = h;
-    if ( testf(ExtDev) ) {
-	QRect r( x, y, w, h );
-	QPDevCmdParam param[1];
-	param[0].rect = (QRect*)&r;
-	pdev->cmd( PDC_SETVIEWPORT, param );
-	return;
-    }
-    if ( testf(VxF) )
-	updateXForm();
-    else
-	setViewXForm( TRUE );
-}
-
-/*!
-  Enables world transformations if \e enable is TRUE, or disables
-  world transformations if \e enable is FALSE.
-  \sa setWorldMatrix(), setWindow(), setViewport(), setViewXForm()
-*/
-
-void QPainter::setWorldXForm( bool enable )	// set world transform
-{
-    if ( !isActive() || enable == testf(WxF) )
-	return;
-    setf( WxF, enable );
-    if ( testf(ExtDev) ) {
-	QPDevCmdParam param[1];
-	param[0].ival = enable;
-	pdev->cmd( PDC_SETWXFORM, param );
-    }
-    updateXForm();
-}
-
-/*!
-  Returns the world transformation matrix.
-*/
-
-const Q2DMatrix &QPainter::worldMatrix() const	// get world xform matrix
-{
-    return wxmat;
-}
-
-/*!
-  Sets the world transformation matrix to \e m and enables world
-  transformation.
-
-  If \e combine is TRUE, then \e m is combined with the
-  current transformation matrix, otherwise \e m will replace
-  the current transformation matrix.
-  \sa worldMatrix(), setWorldXForm(), setWindow(), setViewport(),
-  setViewXForm()
-*/
-
-void QPainter::setWorldMatrix( const Q2DMatrix &m, bool combine )
-{						// set world xform matrix
-    if ( combine )
-	wxmat = m * wxmat;			// combines
-    else
-	wxmat = m;				// set new matrix
-    if ( testf(ExtDev) ) {
-	QPDevCmdParam param[2];
-	param[0].matrix = &wxmat;
-	param[1].ival = combine;
-	pdev->cmd( PDC_SETWMATRIX, param );
-	return;
-    }
-    if ( !testf(WxF) )
-	setWorldXForm( TRUE );
-    else
-	updateXForm();
 }
 
 
@@ -1127,8 +987,8 @@ QPoint QPainter::xForm( const QPoint &pv ) const
   Returns the rectangle \e rv transformed from user coordinates to device
   coordinates.
 
-  If world transformation is enabled and rotation or shearing is used,
-  then the bounding rectangle will be returned.
+  If world transformation is enabled and rotation or shearing has been
+  specified, then the bounding rectangle will be returned.
 */
 
 QRect QPainter::xForm( const QRect &rv ) const
@@ -1411,7 +1271,7 @@ void QPainter::lineTo( int x, int y )		// draw line from current point
 }
 
 /*!
-Draws a line from \e (x1,y2) to \e (x2,y2).
+  Draws a line from \e (x1,y2) to \e (x2,y2).
 */
 
 void QPainter::drawLine( int x1, int y1, int x2, int y2 )
@@ -1457,11 +1317,12 @@ static void fix_neg_rect( int *x, int *y, int *w, int *h )
     }
 }
 
-/*!
-Draws a rectangle with upper left corner at \e (x,y) and with
-width \e w and height \e h.
 
-The width and height include both lines.
+/*!
+  Draws a rectangle with upper left corner at \e (x,y) and with
+  width \e w and height \e h.
+
+  The width and height include both lines.
 */
 
 void QPainter::drawRect( int x, int y, int w, int h )
@@ -1511,13 +1372,13 @@ void QPainter::drawRect( int x, int y, int w, int h )
 }
 
 /*!
-Draws a rectangle with round corners at \e (x,y), with width \e w
-and height \e h.
+  Draws a rectangle with round corners at \e (x,y), with width \e w
+  and height \e h.
 
-The \e xRnd and \e yRnd arguments indicate how rounded the corners
-should be.  0 is angled corners, 99 is maximum roundedness.
+  The \e xRnd and \e yRnd arguments specify how rounded the corners
+  should be.  0 is angled corners, 99 is maximum roundedness.
 
-The width and height include both lines.
+  The width and height include both lines.
 */
 
 void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
@@ -1592,8 +1453,9 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	else if ( testf(VxF) )
 	    VXFORM_R( x, y, w, h );
     }
-    if ( w <= 0 || h <= 0 )
+    if ( w <= 0 || h <= 0 ) {
 	fix_neg_rect( &x, &y, &w, &h );
+    }
     else {
 	w--;
 	h--;
@@ -1659,8 +1521,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 }
 
 /*!
-Draws an ellipse with center at \e (x+w/2,y+h/2) and size \e
-(w,h).
+  Draws an ellipse with center at \e (x+w/2,y+h/2) and size \e (w,h).
 */
 
 void QPainter::drawEllipse( int x, int y, int w, int h )
@@ -2368,9 +2229,9 @@ void QPainter::drawText( int x, int y, const char *str, int len )
     if ( len == 0 )				// empty string
 	return;
 
-    if ( cfont.dirty() || testf(DirtyFont) )
-	updateFont();
-    if ( testf(DirtyPen|ExtDev|VxF|WxF) ) {
+    if ( testf(DirtyFont|DirtyPen|ExtDev|VxF|WxF) ) {
+	if ( testf(DirtyFont) )
+	    updateFont();
 	if ( testf(DirtyPen) )
 	    updatePen();
 	if ( testf(ExtDev) ) {
@@ -2541,9 +2402,9 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     if ( len == 0 )				// empty string
 	return;
 
-    if ( cfont.dirty() || testf(DirtyFont) )
-	updateFont();
-    if ( testf(DirtyPen|ExtDev) ) {
+    if ( testf(DirtyFont|DirtyPen|ExtDev) ) {
+	if ( testf(DirtyFont) )
+	    updateFont();
 	if ( testf(DirtyPen) )
 	    updatePen();
 	if ( testf(ExtDev) && (tf & DontPrint) == 0 ) {
@@ -2957,7 +2818,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
   <li> \c AlignTop aligns to the top border.
   <li> \c AlignBottom aligns to the bottom border.
   <li> \c AlignVCenter aligns vertically centered
-  <li> \c AlignCenter (= \c AlignHCenter | AlignVCenter)
+  <li> \c AlignCenter (= \c AlignHCenter | \c AlignVCenter)
   <li> \c SingleLine ignores newline characters in the text.
   <li> \c ExpandTabs expands tabulators.
   <li> \c ShowPrefix displays "&x" as "x" underlined.
