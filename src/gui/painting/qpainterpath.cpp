@@ -522,7 +522,7 @@ static QLineF::IntersectType qt_path_stroke_join(QPainterSubpath *sp,
 {
     // Check for overlap
     QLineF pline(sp->lastCurrent(), QPointF(prev->lineData.x, prev->lineData.y));
-    QLineF miterLine(prev->lineData.x, prev->lineData.y, ml.startX(), ml.startY());
+    QLineF bevelLine(prev->lineData.x, prev->lineData.y, ml.startX(), ml.startY());
 
     QPointF isect;
     QLineF::IntersectType type = pline.intersect(ml, &isect);
@@ -532,10 +532,9 @@ static QLineF::IntersectType qt_path_stroke_join(QPainterSubpath *sp,
         prev->lineData.y = isect.y();
         sp->currentPoint = isect;
     } else {
-        if (pline.angle(miterLine) > 90) {
-            printf(" -> broken segment...\n");
+        if (pline.angle(bevelLine) > 90) {
             sp->brokenSegments.append(sp->elements.size());
-            joinStyle = Qt::MiterJoin;
+            joinStyle = Qt::BevelJoin;
         }
         switch (joinStyle) {
         case Qt::MiterJoin:
@@ -584,7 +583,7 @@ static void qt_path_stroke_line(const QPointF &toPoint,
 
     if (!sp->elements.isEmpty()) {
         QPainterPathElement &prev = sp->elements.last();
-        if (sp->currentPoint != ml.start() && joinStyle != QT_PATH_NO_JOIN) {
+        if (sp->currentPoint != ml.start()) {
             qt_path_stroke_join(sp, &prev, ml, joinStyle);
         }
     } else {
@@ -697,9 +696,6 @@ QPainterPath QPainterPathPrivate::createStroke(int width,
                                                 &dsegs, dLastPt, penWidth, joinStyle);
         }
         PM_MEASURE("iteration");
-
-        qt_path_debug_subpath(usegs);
-        qt_path_debug_subpath(dsegs);
 
         usegs.removeBrokenSegments();
         dsegs.removeBrokenSegments();
