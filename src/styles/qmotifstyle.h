@@ -111,9 +111,7 @@ public:
 
     QPixmap stylePixmap(StylePixmap, const QWidget * = 0, const QStyleOption& = QStyleOption::Default) const;
 
-    int styleHint(StyleHint hint,
-		  const QWidget *widget = 0,
-		  void ***returnData = 0) const;
+    int styleHint(StyleHint sh, const QWidget *, QStyleHintReturn* =0) const;
 
 
 private:

@@ -1804,7 +1804,7 @@ are drawn.</td>
 */
 
 /*!
-  \fn int QStyle::styleHint( StyleHint stylehint, const QWidget *widget = 0, void ***returnData = 0 ) const;
+  \fn int QStyle::styleHint( StyleHint stylehint, const QWidget *widget = 0, QStyleHintReturn *returnData = 0 ) const;
 
   Returns the style hint \a stylehint for \a widget.  Currently, \a
   widget and \a returnData are unused, and are provided only for

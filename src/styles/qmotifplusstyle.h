@@ -100,9 +100,7 @@ public:
 
     int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
 
-    int styleHint(StyleHint hint,
-		  const QWidget *widget = 0,
-		  void ***returnData = 0) const;
+    int styleHint(StyleHint sh, const QWidget *, QStyleHintReturn *) const;
 
 
 protected:

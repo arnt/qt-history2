@@ -1607,7 +1607,7 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 /*!
   \reimp
 */
-int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, void ***d) const
+int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, QStyleHintReturn *d) const
 {
     int ret = 0;
     switch(sh) {

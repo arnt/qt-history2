@@ -103,7 +103,7 @@ public:
 
     virtual QRect subRect( SubRect, const QWidget *w ) const;
 
-    virtual int styleHint(StyleHint sh, const QWidget *, void ***) const;
+    virtual int styleHint(StyleHint sh, const QWidget *, QStyleHintReturn *) const;
 
     virtual void drawItem( QPainter *p, const QRect &r,
 			   int flags, const QColorGroup &g, bool enabled,

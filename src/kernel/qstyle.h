@@ -90,13 +90,20 @@ public:
     Qt::ArrowType arrowType() const { return (Qt::ArrowType)i1; }
 
 private:
+    // NOTE: none of these components have constructors.
     bool def;
+    bool b1,b2,b3; // reserved
     QMenuItem* mi;
     QTab* tb;
     QListViewItem* li;
     const QColor* cl;
     int i1, i2, i3, i4;
+    int i5, i6; // reserved
+    void *p1, *p2, *p3, *p4, *p5; // reserved
+    // (padded to 64 bytes on some architectures)
 };
+
+class QStyleHintReturn; // not defined yet
 
 class Q_EXPORT QStyle: public QObject
 {
@@ -510,7 +517,7 @@ public:
 
     virtual int styleHint( StyleHint stylehint,
 			   const QWidget *widget = 0,
-			   void ***returnData = 0 // ########### use something like QStyleOption here too
+			    QStyleHintReturn* returnData = 0
 			) const = 0;
 
 

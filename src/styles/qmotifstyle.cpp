@@ -2170,7 +2170,7 @@ QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
 /*! \reimp */
 int QMotifStyle::styleHint(StyleHint hint,
 			   const QWidget *widget,
-			   void ***returnData) const
+			   QStyleHintReturn *returnData) const
 {
     int ret;
 
