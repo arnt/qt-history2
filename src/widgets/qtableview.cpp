@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#101 $
 **
 ** Implementation of QTableView class
 **
@@ -256,6 +256,8 @@ void QTableView::repaint( int x, int y, int w, int h, bool erase )
     if ( h < 0 )
 	h = height() - y;
     QPaintEvent e( QRect(x,y,w,h) );
+//     if (erase)
+// 	debug("qtablevw:: repaint erase with %d %d %d %d", x, y, w, h);
     if ( erase && backgroundMode() != NoBackground )
 	eraseInPaint = TRUE;			// erase when painting
     paintEvent( &e );
@@ -300,7 +302,7 @@ void QTableView::setNumRows( int rows )
 	nRows = rows;
 	if ( autoUpdate() && isVisible() &&
 	     ( oldLastVisible != lastRowVisible() || oldTopCell != topCell() ) )
-		repaint();
+		repaint( oldTopCell != topCell() );
     } else {
 	// Be more careful - if destructing, bad things might happen.
 	nRows = rows;
@@ -1371,21 +1373,30 @@ void QTableView::paintEvent( QPaintEvent *e )
 	yPos = nextY;
     }
 
-    if ( eraseInPaint ) {
-	// If we are erasing while painting any areas in the view that
-	// are not covered by cells but are covered by the paint event
-	// rectangle these must be erased. We know that xPos is the last
-	// x pixel updated + 1 and that yPos is the last y pixel updated + 1.
-	if ( xPos > maxX + 1 )
-	    xPos = maxX + 1;
-	if ( yPos > maxY + 1 )
-	    yPos = maxY + 1;
-	if ( xPos <= maxX )	// erase to the right along full view
-	    paint.eraseRect( xPos, frameWidth(),
-			     maxX - xPos + 1, maxY - frameWidth() + 1 );
-	if ( yPos <= maxY )	// erase under cells updated above
-	    paint.eraseRect( frameWidth(), yPos,
-			     maxX - frameWidth() + 1, maxY - yPos + 1 );
+    // while painting we have to erase any areas in the view that
+    // are not covered by cells but are covered by the paint event
+    // rectangle these must be erased. We know that xPos is the last
+    // x pixel updated + 1 and that yPos is the last y pixel updated + 1.
+    
+    // Note that this needs to be done regardless whether we do
+    // eraseInPaint or not. Reason: a subclass (for example
+    // QMultiLineEdit) may implement flicker-freeness and encourage
+    // the use of repaint(FALSE). The subclass, however, cannot draw
+    // all pixels, just the once in the cells. So QTableView is
+    // reponsible for all pixels outside the cells.
+    
+    QRect viewR = viewRect();
+    
+    if ( xPos < maxX ) {
+	QRect r = viewR;
+	r.setLeft( xPos );
+	r.setBottom( yPos<maxY?yPos:maxY );
+	paint.eraseRect( r.intersect( updateR ) );
+    }
+    if ( yPos < maxY ) {
+	QRect r = viewR;
+	r.setTop( yPos );
+	paint.eraseRect( r.intersect( updateR ) );
     }
 }
 

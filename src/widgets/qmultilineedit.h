@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#1 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#2 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -129,9 +129,9 @@ protected:
     int		lineLength( int row ) const;
     QString	*getString( int row ) const;
 
-protected:    
+protected:
     bool	cursorOn;	
-    
+
 private slots:
     void	clipboardChanged();
 
@@ -162,16 +162,17 @@ private:
     int		mapFromView( int xPos, int row );
     int		mapToView( int xIndex, int row );
 
-    virtual void	setWidth( int );
+    void	setWidth( int );
     void	updateCellWidth();
     bool 	partiallyInvisible( int row );
     void	makeVisible();
-    virtual void	setBottomCell( int row );
+    void	setBottomCell( int row );
 
     void 	newMark( int posx, int posy, bool copy=TRUE );
     void 	markWord( int posx, int posy );
     int 	charClass( char );
     void	turnMarkOff();
+    void    repaintDelayed( bool erase = TRUE );
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#5 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -685,7 +685,7 @@ void QMultiLineEdit::selectAll()
     markDragY = numLines() - 1;
     markDragX = lineLength( markDragY );
     markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
-    repaint( TRUE );
+    repaintDelayed();
 }
 
 
@@ -820,6 +820,7 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	 (!e->ascii() || e->ascii()>=32)
 	 ) {
 	insert( e->text() );
+	//QApplication::sendPostedEvents( this, QEvent::Paint );
 	if ( textDirty )
 	    emit textChanged();
 	mlData->isHandlingEvent = FALSE;
@@ -963,7 +964,7 @@ void QMultiLineEdit::pageDown( bool mark )
     if ( oldAuto )
 	if ( mark ) {
 	    setAutoUpdate( TRUE );
-	    repaint( FALSE );
+	    repaintDelayed( FALSE );
 	} else {
 	    updateCell( oldY, 0, FALSE );
 	}
@@ -1016,7 +1017,7 @@ void QMultiLineEdit::pageUp( bool mark )
     if ( oldAuto )
 	if ( mark ) {
 	    setAutoUpdate( TRUE );
-	    repaint( FALSE );
+	    repaintDelayed( FALSE );
 	} else {
 	    updateCell( oldY, 0, FALSE );
 	}
@@ -1076,6 +1077,8 @@ void QMultiLineEdit::insertAt( const QString &txt, int line, int col )
 	setWidth( QMAX( maxLineWidth(), w ) );
 	if ( onLineAfter )
 	    cursorX += textLine.length();
+	if (autoUpdate() )
+	    updateCell( line, 0, FALSE);
     } else {
 	int w = maxLineWidth();
 	QString newString = oldLine->mid( col, oldLine->length() );
@@ -1102,9 +1105,9 @@ void QMultiLineEdit::insertAt( const QString &txt, int line, int col )
 	w = QMAX( textWidth( textLine ), w );
 	insertLine( newString, line );
 	setWidth( w );
+	if ( autoUpdate() )
+	    repaintDelayed( FALSE );
     }
-    if ( autoUpdate() )
-	repaint( FALSE );
     textDirty = TRUE;
 }
 
@@ -1127,7 +1130,7 @@ void QMultiLineEdit::insertLine( const QString &txt, int line )
     if ( line < 0 || line >= numLines() )
 	line = numLines();
     QString textLine;
-    int w = maxLineWidth();
+    int w = 0;
     uint i = 0;
     do {
 	textLine = getOneLine( txt, i );
@@ -1135,15 +1138,11 @@ void QMultiLineEdit::insertLine( const QString &txt, int line )
 	int nw = textWidth( textLine );
 	if ( nw > w ) w = nw;
     } while ( i );
-    mlData->maxLineWidth = w;
-
     setNumRows( contents->count() );
-    // do not use setWidth(...) because we _definitely_ need the check in
-    // QTableView, otherwise we cannot react on a new vertical scrollbar.
-    setCellWidth( QMAX( contentsRect().width(), mlData->maxLineWidth ) );
+    setWidth( QMAX( maxLineWidth(), w ) );
 
     if ( autoUpdate() ) //### && visibleChanges
-	repaint( FALSE );
+	repaintDelayed( FALSE );
 
     ASSERT( numLines() != 0 );
     makeVisible();
@@ -1174,9 +1173,8 @@ void QMultiLineEdit::removeLine( int line )
     if ( recalc )
 	updateCellWidth();
     makeVisible();
-    bool clear = numLines() < viewHeight() / cellHeight() || recalc;
-    if ( updt )
-	repaint( clear );
+    if (updt)
+	repaintDelayed( FALSE );
     textDirty = TRUE;
 }
 
@@ -1206,6 +1204,7 @@ void QMultiLineEdit::insert( const QString& str )
     if ( overWrite && !wasMarkedText && cursorX < (int)s->length() )
 	del();                                 // ## Will flicker
     insertAt(str, cursorY, cursorX );
+    makeVisible();
 }
 
 /*!
@@ -1242,7 +1241,7 @@ void QMultiLineEdit::killLine()
     } else {
 	bool recalc = textWidth( *s ) == maxLineWidth();
 	s->remove( cursorX, s->length() );
-	updateCell( cursorY, 0, TRUE ); //Quick fix; whole line needs update
+	updateCell( cursorY, 0, FALSE );
 	if ( recalc )
 	    updateCellWidth();
 	textDirty = TRUE;
@@ -1411,7 +1410,7 @@ void QMultiLineEdit::turnMarkOff()
 {
     if ( markIsOn ) {
 	markIsOn = FALSE;
-	repaint( FALSE );
+	repaintDelayed( FALSE );
     }
 }
 
@@ -1452,7 +1451,6 @@ void QMultiLineEdit::del()
     int markEndX, markEndY;
     if ( getMarkedRegion( &markBeginY, &markBeginX, &markEndY, &markEndX ) ) {
 	textDirty = TRUE;
-	setAutoUpdate( FALSE );
 	if ( markBeginY == markEndY ) { //just one line
 	    QString *s  = getString( markBeginY );
 	    ASSERT(s);
@@ -1461,7 +1459,11 @@ void QMultiLineEdit::del()
 	    cursorY  = markBeginY;
 	    markIsOn    = FALSE;
 	    updateCellWidth();
+	    if (autoUpdate() )
+		updateCell( cursorY, 0, FALSE );
 	} else { //multiline
+	    bool oldAuto = autoUpdate();
+	    setAutoUpdate( FALSE );
 	    ASSERT( markBeginY >= 0);
 	    ASSERT( markEndY < (int)contents->count() );
 
@@ -1484,10 +1486,11 @@ void QMultiLineEdit::del()
 	    curXPos  = 0;
 
 	    setNumRows( contents->count() );
+	    updateCellWidth();
+	    setAutoUpdate( oldAuto );
+	    if ( autoUpdate() )
+		repaintDelayed( FALSE );
 	}
-	updateCellWidth();
-	setAutoUpdate( TRUE );
-	repaint();
     } else {
 	if ( !atEnd() ) {
 	    textDirty = TRUE;
@@ -1601,7 +1604,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	markIsOn       = FALSE;
 	if ( markWasOn ) {
 	    cursorY = newY;
-	    repaint( FALSE );
+	    repaintDelayed( FALSE );
 	    mlData->isHandlingEvent = FALSE;
 	    return;
 	}	
@@ -1765,14 +1768,11 @@ void QMultiLineEdit::makeVisible()
 	    setTopCell( cursorY );
     }
     int xPos = mapToView( cursorX, cursorY );
-    //debug( "xpos %d, offset %d, width %d", xPos, xOffset(), viewWidth() );
     if ( xPos < xOffset() ) {
 	int of = xPos - 10; //###
-	//debug( "left: new offset = %d", of );
 	setXOffset( of );
     } else if ( xPos > xOffset() + viewWidth() ) {
 	int of = xPos - viewWidth() + 10; //###
-	//debug( "right: new offset = %d", of );
 	setXOffset( of );
     }
 }
@@ -1887,7 +1887,7 @@ void QMultiLineEdit::clear()
     dummy = TRUE;
     markIsOn = FALSE;
     if ( autoUpdate() )
-	repaint( TRUE );
+	repaintDelayed();
     if ( !mlData->isHandlingEvent ) //# && not already empty
 	emit textChanged();
 }
@@ -2016,7 +2016,7 @@ void QMultiLineEdit::clipboardChanged()
     disconnect( QApplication::clipboard(), SIGNAL(dataChanged()),
 		this, SLOT(clipboardChanged()) );
     markIsOn = FALSE;
-    repaint( FALSE );
+    repaintDelayed( FALSE );
 #endif
 }
 
@@ -2129,7 +2129,7 @@ bool QMultiLineEdit::autoUpdate() const
   view when auto-update is off, strange things can happen.
 
   Setting auto-update to TRUE does not repaint the view, you must call
-  repaint() to do this.
+  repaint() to do this (preferable repaint(FALSE) to avoid flicker).
 
   \sa autoUpdate() repaint()
 */
@@ -2208,15 +2208,19 @@ QSize QMultiLineEdit::sizeHint() const
 }
 
 /*!
-  Reimplemented to set the column width, so that repaint(FALSE) is safe.
+  Reimplemented for internal purposes
 */
 
 void QMultiLineEdit::resizeEvent( QResizeEvent *e )
 {
-    bool u = autoUpdate();
-    setAutoUpdate( FALSE );
-    setCellWidth( mlData->maxLineWidth );
-    setCellWidth( QMAX( contentsRect().width(), mlData->maxLineWidth ) );
-    setAutoUpdate( u );
     QTableView::resizeEvent( e );
+}
+
+/*!
+  Post a paint event 
+ */
+void  QMultiLineEdit::repaintDelayed( bool erase)
+{
+    QApplication::postEvent( this, new QPaintEvent( viewRect(), erase ) );
+
 }
