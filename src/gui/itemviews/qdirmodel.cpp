@@ -35,10 +35,10 @@ static bool qt_copy_file(const QString &from, const QString &to)
     char buffer[4096];
     Q_LONG len = 0;
     while (!src.atEnd()) {
-        len = src.readBlock(buffer, 4096);
+        len = src.read(buffer, 4096);
         if (len < 0)
             return false;
-        len = dst.writeBlock(buffer, len);
+        len = dst.write(buffer, len);
     }
     return true;
 }
