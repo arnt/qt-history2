@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#73 $
 **
 ** Implementation of QScrollView class
 **
@@ -1180,21 +1180,27 @@ void QScrollView::repaintContents( int x, int y, int w, int h, bool erase )
 
 
 /*!
-  \fn void QScrollView::drawContentsOffset(QPainter* p, int offsetx, int offsety, int clipx, int clipy, int clipw, int cliph)
+  For backward compatibility only.
+  It is easier to use drawContents(QPainter*,int,int,int,int).
+
+  The default implementation translates the painter appropriately
+  and calls drawContents(QPainter*,int,int,int,int).
+*/
+void QScrollView::drawContentsOffset(QPainter* p, int offsetx, int offsety, int clipx, int clipy, int clipw, int cliph)
+{
+    p->translate(-offsetx,-offsety);
+    drawContents(p, clipx, clipy, clipw, cliph);
+}
+
+/*!
+  \fn void QScrollView::drawContents(QPainter* p, int clipx, int clipy, int clipw, int cliph)
 
   Reimplement this method if you are viewing a drawing area rather
   than a widget.
 
-  Draws the rectangle (\a clipx, \a clipy, \a clipw, \a cliph ) of the
-  contents, offset by (\a offsetx, \a offsety ) using painter \a p.
-  All four are given in the scroll views's coordinates.  All of
-  \a clipx, \a clipy, \a offsetx and \a offsety are typically large
-  positive numbers.
-
-  Note that the final coordinates you give to QPainter methods must be
-  within the range supported by the underlying window systems - about
-  +/- 32000 at most, often much less - +/- 4000 or so is all you should
-  really expect.
+  The function should draw the rectangle (\a clipx, \a clipy, \a clipw, \a
+  cliph ) of the contents, using painter \a p.  The clip rectangle is
+  in the scroll views's coordinates.  
 
   For example:
   \code
@@ -1211,30 +1217,19 @@ void QScrollView::repaintContents( int x, int y, int w, int h, bool erase )
     if (x2 > clipx+clipw-1) x2=clipx+clipw-1;
     if (y2 > clipy+cliph-1) y2=clipy+cliph-1;
 
-    // Translate to scrolled coordinates...
-    x1 -= ox;
-    x2 -= ox;
-    y1 -= oy;
-    y2 -= oy;
-
-    // Paint using the new small coordinates...
+    // Paint using the small coordinates...
     if ( x2 >= x1 && y2 >= y1 )
 	p->fillRect(x1, y1, x2-x1+1, y2-y1+1, red);
   }
   \endcode
 
-  The clip rectangle of the painter \a p is already set appropriately.
-
-  Note that QPainter::translate() is not sufficient.
+  The clip rectangle and translation of the painter \a p is already set
+  appropriately.  
 
   The default implementation does nothing.
 */
-void QScrollView::drawContentsOffset(QPainter*, int, int, int, int, int, int)
+void QScrollView::drawContents(QPainter*, int, int, int, int)
 {
-    // If QPainter could handle large translations...
-    //
-    // p->translate(offsetx,offsety);
-    // drawContents(p, clipx, clipy, clipw, cliph);
 }
 
 /*!

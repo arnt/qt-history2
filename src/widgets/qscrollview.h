@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#29 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#30 $
 **
 ** Definition of QScrollView class
 **
@@ -109,6 +109,7 @@ protected:
 
     virtual void drawContentsOffset(QPainter*, int ox, int oy,
 		    int cx, int cy, int cw, int ch);
+    virtual void drawContents(QPainter*, int cx, int cy, int cw, int ch);
     void	frameChanged();
 
     virtual void setMargins(int left, int top, int right, int bottom);
