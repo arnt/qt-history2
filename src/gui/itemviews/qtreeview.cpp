@@ -768,6 +768,7 @@ void QTreeView::reset()
 {
     d->opened.clear();
     d->items.clear();
+    d->hidden.clear();
     QAbstractItemView::reset();
 }
 
@@ -1346,53 +1347,53 @@ int QTreeViewPrivate::indentation(int i) const
 
 int QTreeViewPrivate::coordinate(int item) const
 {
-    // FIXME: clean code
     QStyleOptionViewItem option = q->viewOptions();
-    int v = q->verticalScrollBar()->value();
-    int i = itemAt(v); // first item (may start above the page)
-    int ih = delegate->sizeHint(option, model, items.at(i).index).height();
-    int y = coordinateAt(v, ih); // the part of the item above the page
-    int h = viewport->height();
-    if (i <= item) {
-        while (y < h && i < items.count()) {
-            if (i == item)
+    int scrollbarValue = q->verticalScrollBar()->value();
+    int viewItemIndex = itemAt(scrollbarValue); // first item (may start above the page)
+    QModelIndex index = items.at(viewItemIndex).index;
+    int viewItemHeight = delegate->sizeHint(option, model, index).height();
+    int viewportHeight = viewport->height();
+    int y = coordinateAt(scrollbarValue, viewItemHeight); // the part of the item above the page
+    if (viewItemIndex <= item) {
+        while (y < viewportHeight && viewItemIndex < items.count()) {
+            if (viewItemIndex == item)
                 return y; // item is visible - actual y in viewport
-            y += delegate->sizeHint(option, model, items.at(i).index).height();
-            ++i;
+            index = items.at(viewItemIndex).index;
+            y += delegate->sizeHint(option, model, index).height();
+            ++viewItemIndex;
         }
         // item is below the viewport - estimated y
-        return y + (itemHeight * (item - itemAt(v)));
+        return y + (itemHeight * (item - itemAt(scrollbarValue)));
     }
     // item is above the viewport - estimated y
-    return y - (itemHeight * (i - item));
+    return y - (itemHeight * (viewItemIndex - item));
 }
 
 int QTreeViewPrivate::item(int coordinate) const
 {
-    // FIXME: clean code
     QStyleOptionViewItem option = q->viewOptions();
-
-    int v = q->verticalScrollBar()->value();
-    int i = itemAt(v);
-    if (i >= items.count())
+    int scrollbarValue = q->verticalScrollBar()->value();
+    int viewItemIndex = itemAt(scrollbarValue);
+    if (viewItemIndex >= items.count())
         return -1;
-
-    int s = delegate->sizeHint(option, model, items.at(i).index).height();
-    int y = coordinateAt(v, s);
-    int h = viewport->height();
+    QModelIndex index = items.at(viewItemIndex).index;
+    int viewItemHeight = delegate->sizeHint(option, model, index).height();
+    int viewportHeight = viewport->height();
+    int y = coordinateAt(scrollbarValue, viewItemHeight);
     if (coordinate >= y) {
         // search for item in viewport
-        while (y < h && i < items.count()) {
-            y += delegate->sizeHint(option, model, items.at(i).index).height();
+        while (y < viewportHeight && viewItemIndex < items.count()) {
+            index = items.at(viewItemIndex).index;
+            y += delegate->sizeHint(option, model, index).height();
             if (coordinate < y)
-                return i;
-            ++i;
+                return viewItemIndex;
+            ++viewItemIndex;
         }
-        // item is below viewport - give estimated coordinates
+        // item is below viewport - give estimated coordinate
     }
-    // item is above the viewport - give estimated coordinates
-    int idx = i + ((coordinate - y) / itemHeight);
-    return idx < 0 || idx >= items.count() ? -1 : idx;
+    // item is above the viewport - give estimated coordinate
+    int i = viewItemIndex + ((coordinate - y) / itemHeight);
+    return i < 0 || i >= items.count() ? -1 : i;
 }
 
 int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
@@ -1448,14 +1449,13 @@ void QTreeViewPrivate::relayout(const QModelIndex &parent)
     }
     // do a local relayout of the items
     if (parent.isValid()) {
-        int p = viewIndex(parent);
-        if (p > -1 && items.at(p).open) {
-            close(p, false);
-            open(p, false);
+        int parentViewIndex = viewIndex(parent);
+        if (parentViewIndex > -1 && items.at(parentViewIndex).open) {
+            close(parentViewIndex, false);
+            open(parentViewIndex, false);
             q->updateGeometries();
             viewport->update();
         }
-
     } else {
         items.clear();
         q->doItemsLayout();
@@ -1555,11 +1555,13 @@ int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
     int column = header->sectionAt(x);
     int position = header->sectionPosition(column);
     int cx = reverse ? position + header->sectionSize(column) - x : x - position;
-    int vi = item(pos.y());
-    int ind = indentation(vi);
-    if (!modelIndex(vi).isValid() || column != 0 || cx < ind - indent  || cx > ind)
+    int viewItemIndex = item(pos.y());
+    int itemIndentation = indentation(viewItemIndex);
+    QModelIndex index = modelIndex(viewItemIndex);
+    if (!index.isValid() || column != 0
+        || cx < (itemIndentation - indent) || cx > itemIndentation)
         return -1; // pos is outside the decoration rect
-    return vi;
+    return viewItemIndex;
 }
 
 void QTreeViewPrivate::select(int start, int stop, QItemSelectionModel::SelectionFlags command)
