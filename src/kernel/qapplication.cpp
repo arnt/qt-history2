@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#156 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#157 $
 **
 ** Implementation of QApplication class
 **
@@ -411,6 +411,7 @@ void QApplication::setStyle( QStyle *style )
 {
     delete app_style;
     app_style = style;
+    app_style->initialize( this );
 }
 
 
