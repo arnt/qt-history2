@@ -85,7 +85,7 @@ public:
     Q_DECLARE_FLAGS(MouseButtons, MouseButton)
 
 #if defined(QT_COMPAT)
-    enum {
+    enum ButtonState_enum {
         ShiftButton     = Qt::ShiftModifier,
         ControlButton   = Qt::ControlModifier,
         AltButton       = Qt::AltModifier,

@@ -25,7 +25,6 @@ Q_CORE_EXPORT QString qt_library_config_file;
 /*! \class QLibraryInfo
     \brief The QLibraryInfo class provides information about the Qt library.
 
-    \ingroup global
     \ingroup misc
     \mainclass
 
