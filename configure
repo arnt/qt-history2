@@ -114,7 +114,7 @@ else
     touch .test.qt.
     if [ '!' -f ${QTDIR}/.test.qt. ]
     then
-	rm .test.qt.
+	rm -f .test.qt.
 	echo
 	echo
 	echo '   The environment variable $QTDIR is not set correctly. It is currently'
@@ -128,7 +128,7 @@ else
 	echo
 	exit 1
     fi
-    rm .test.qt.
+    rm -f .test.qt.
 fi
 
 if [ -f $outpath/include/qconfig.h ]
@@ -337,7 +337,7 @@ fi
 
 
 # Remove the build options file
-[ -f $outpath/.qmake.cache ] && rm $outpath/.qmake.cache
+[ -f $outpath/.qmake.cache ] && rm -f $outpath/.qmake.cache
 
 fi # help
 
