@@ -401,6 +401,13 @@
   next emitted.
  */
 
+/*! \fn void QTextEdit::modificationChanged( bool m )
+
+  This signal is emitted when the modification of the document
+  changed. If \a m is TRUE, the document got modified, else the
+  modification state has been reset to unmodified.
+ */
+
 /*! \fn void QTextEdit::redoAvailable( bool yes )
 
   This signal is emitted when the availability of redo changes.  If \a

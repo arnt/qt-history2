@@ -103,6 +103,7 @@ signals:
     void currentAlignmentChanged( int a );
     void cursorPositionChanged( QTextCursor *c );
     void returnPressed();
+    void modificationChanged( bool m );
 
 protected:
     enum KeyboardAction { // keep in sync with QTextView
@@ -141,6 +142,7 @@ private:
     void emitCurrentAlignmentChanged( int a ) { emit currentAlignmentChanged( a ); }
     void emitCursorPositionChanged( QTextCursor *c ) { emit cursorPositionChanged( c ); }
     void emitReturnPressed() { emit returnPressed(); }
+    void emitModificationChanged( bool m ) { emit modificationChanged( m ); }
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

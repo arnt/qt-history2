@@ -273,6 +273,7 @@ private: // these are functions which actually do editing stuff, but
     virtual void emitReturnPressed() {}
     virtual void emitHighlighted( const QString & ) {}
     virtual void emitLinkClicked( const QString & ) {}
+    virtual void emitModificationChanged( bool ) {}
 
     void getCursorPosition( int &parag, int &index ) const;
     bool isModified() const;

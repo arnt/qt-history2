@@ -1971,6 +1971,8 @@ int QTextView::lineOfChar( int parag, int chr )
 
 void QTextView::setModified( bool m )
 {
+    if ( modified != m )
+	emitModificationChanged( m );
     modified = m;
     if ( modified ) {
 	disconnect( this, SIGNAL( textChanged() ),
