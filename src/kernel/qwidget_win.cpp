@@ -999,7 +999,7 @@ void QWidget::showMaximized()
 
 void QWidget::showNormal()
 {
-    topData()->showMode = 0;
+    d->topData()->showMode = 0;
     if ( isTopLevel() ) {
 #ifndef Q_OS_TEMP
 	if ( d->topData()->fullscreen ) {
