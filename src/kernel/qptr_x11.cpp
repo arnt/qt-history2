@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#24 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#24 $";
 #endif
 
 
@@ -223,7 +223,7 @@ bool QBrush::operator==( const QBrush &b ) const
 // The advantage is that you don't have to link in the math library.
 //
 
-const double Q_PI   = 3.14159265358979323846;	// pi                      
+const double Q_PI   = 3.14159265358979323846;	// pi
 const double Q_2PI  = 6.28318530717958647693;	// 2*pi
 const double Q_PI2  = 1.57079632679489661923;	// pi/2
 const double Q_3PI2 = 4.71238898038468985769;	// 3*pi/2
@@ -568,6 +568,10 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	    pdev = 0;
 	    return FALSE;
 	}
+	if ( tabstops )				// update tabstops for device
+	    setTabStops( tabstops );
+	if ( tabarray )				// update tabarray for device
+	    setTabArray( tabarray );
     }
     else if ( pdev->devType() != PDT_WIDGET ) {	// i.e. pixmap device
 	if ( reinit ) {
@@ -823,7 +827,7 @@ void QPainter::setWorldMatrix( const QWorldMatrix &m, bool concat )
     if ( concat )
 	wxmat = m * wxmat;			// concatenate
     else
-	wxmat = m;				// set    
+	wxmat = m;				// set new matrix
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[2];
 	param[0].matrix = &wxmat;
@@ -1713,7 +1717,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 	}
     }
     bool quickwxf = testf(SafePolygon);
-    
+
     if ( winding && !quickwxf )			// set to winding fill rule
 	XSetFillRule( dpy, gc_brush, WindingRule );
     if ( cbrush.style() != NoBrush ) {		// draw filled polygon
@@ -1746,7 +1750,7 @@ void QPainter::drawPixMap( int x, int y, const QPixMap &pixmap )
 	if ( testf(WxF) )			// no scaling or rotation ;-(
 	    WXFORM_P( x, y );
 	if ( testf(VxF) )
-	    VXFORM_P( x, y );	    
+	    VXFORM_P( x, y );
     }
     if ( pixmap.bitPlanes == 1 ) {		// bitmap
 	if ( testf(DirtyPen) )			// bitmap gets pen color
@@ -1818,7 +1822,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
     if ( testf(DirtyPen|DirtyFont|ExtDev|VxF|WxF) ) {
 	if ( testf(DirtyPen) )
 	    updatePen();
-	if ( testf(DirtyFont) )	    
+	if ( testf(DirtyFont) )
 	    updateFont();
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[2];
@@ -1933,17 +1937,17 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     if ( testf(DirtyPen|DirtyFont|ExtDev) ) {
 	if ( testf(DirtyPen) )
 	    updatePen();
-	if ( testf(DirtyFont) )	    
+	if ( testf(DirtyFont) )
 	    updateFont();
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[3];
 	    QRect r( x, y, w, h );
 	    QString newstr = str;
 	    if ( len >= 0 )
-		newstr.resize( len );
+		newstr.resize( len+1 );
 	    param[0].rect = &r;
-	    param[1].str = newstr.data();
-	    param[2].ival = flags;
+	    param[1].ival = tf;
+	    param[2].str = newstr.data();
 	    pdev->cmd( PDC_DRAWTEXTFRMT, param );
 	    return;
 	}
@@ -2105,39 +2109,12 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     codes[index++] = 0;
     codelen = index;
 
-#if 0
-    QString s;
-    QString n;
-    for ( index=0; index<codelen; index++ ) {
-	cc = codes[index];
-	if ( (cc & BEGLINE) == BEGLINE ) {
-	    if ( index > 0 )
-		s += '\n';
-	    n.sprintf( "[%d]", cc & WIDTHBITS );
-	    s += n;
-	}
-	else if ( (cc & TABSTOP) == TABSTOP ) {
-	    n.setNum( cc & WIDTHBITS );
-	    s += "<\\t:";
-	    s += n;
-	    s += ">";
-	}
-	else if ( (cc & PREFIX) == PREFIX ) {
-	    s += "<";
-	    s += (char)(cc & 0xff);
-	    s += ">";
-	}
-	else
-	    s += (char)(cc & 0xff);
-    }
-    debug( s );
-    debug( "NLINES = %d", nlines );
-#endif
-
     int fascent  = fm.ascent();			// get font measurements
     int fdescent = fm.descent();
     int fheight  = fm.height();
-    QRegion save_rgn = crgn;			// save the current region
+    QRegion save_rgn   = crgn;			// save the current region
+    QPen    save_pen   = cpen;			// save the current pen
+    QBrush  save_brush = cbrush;		// save the current brush
     int xp, yp;
     p = new char[len];				// buffer for printable string
 
@@ -2175,6 +2152,13 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	}
     }
 
+    if ( (tf & GrayText) == GrayText ) {	// prepare to draw gray text
+	setPen( QPen(cpen.color(), 0, NoPen ) );
+	updatePen();
+	setBrush( QBrush(bg_col, Pix1Pattern) );
+	updateBrush();
+    }
+
     if ( (tf & AlignVCenter) == AlignVCenter )	// vertically centered text
 	yp = h/2 - nlines*fheight/2;
     else if ( (tf & AlignBottom) == AlignBottom)// bottom aligned
@@ -2183,17 +2167,15 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	yp = 0;
     yp += fascent;
 
-    index = 0;
-    while ( index < codelen ) {			// finally, draw the text
+    register ushort *cp = codes;
 
-	if ( codes[index] == 0 )		// end of text
-	    break;
+    while ( *cp ) {				// finally, draw the text
 
-	tw = codes[index++] & WIDTHBITS;		// text width
+	tw = *cp++ & WIDTHBITS;			// text width
 
 	if ( tw == 0 ) {			// ignore empty line
-	    while ( codes[index] && (codes[index] & BEGLINE) != BEGLINE )
-		index++;
+	    while ( *cp && (*cp & BEGLINE) != BEGLINE )
+		cp++;
 	    yp += fheight;
 	    continue;
 	}
@@ -2207,26 +2189,31 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
 	int bx = xp;				// base x position
 	while ( TRUE ) {
-	    ushort *ci = &codes[index];
 	    k = 0;
-	    while ( *ci && (*ci & (BEGLINE|TABSTOP)) == 0 ) {
-		if ( (*ci & PREFIX) == PREFIX ) {
+	    while ( *cp && (*cp & (BEGLINE|TABSTOP)) == 0 ) {
+		if ( (*cp & PREFIX) == PREFIX ) {
 		    int xcpos = fm.width( p, k );
 		    drawLine( x+xp+xcpos, y+yp+2,
-			      x+xp+xcpos+CWIDTH( *ci&0xff ), y+yp+2 );
+			      x+xp+xcpos+CWIDTH( *cp&0xff ), y+yp+2 );
 		}
-		p[k++] = (char)*ci++;
+		p[k++] = (char)*cp++;
 		index++;
 	    }
 	    drawText( x+xp, y+yp, p, k );	// draw the text
-	    if ( (*ci & BEGLINE) == BEGLINE || *ci == 0 )
+	    if ( (*cp & TABSTOP) == TABSTOP )
+		xp = bx + (*cp++ & WIDTHBITS);
+	    else				// *cp == 0 || *cp == BEGLINE
 		break;
-	    else if ( (*ci & TABSTOP) == TABSTOP ) {
-		xp = bx + (*ci & WIDTHBITS);
-		index++;
-	    }
 	}
+	if ( (tf & GrayText) == GrayText )	// draw filled rectangle
+	    drawRect( x+bx, y+yp-fascent, tw, fheight );
+
 	yp += fheight;
+    }
+
+    if ( (tf & GrayText) == GrayText ) {	// restore pen and brush
+	setPen( save_pen );
+	setBrush( save_brush );
     }
 
     if ( (tf & DontClip) == 0 ) {		// restore clipping
