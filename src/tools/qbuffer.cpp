@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#27 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#28 $
 **
 ** Implementation of QBuffer class
 **
@@ -12,7 +12,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#28 $");
 
 
 /*!
@@ -390,9 +390,8 @@ int QBuffer::putch( int ch )
     if ( (uint)index + 1 >= a_len ) {		// overflow
 	char buf[1];
 	buf[0] = (char)ch;
-	writeBlock( buf, 1 );
-    }
-    else {
+	return writeBlock( buf, 1 ) == 1 ? ch : -1;
+    } else {					// ### bug?
 	*(a.data() + index++) = (char)ch;
 	if ( a.shd->len < (uint)index )
 	    a.shd->len = (uint)index;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.cpp#26 $
+** $Id: //depot/qt/main/src/tools/qdstream.cpp#27 $
 **
 ** Implementation of QDataStream class
 **
@@ -20,7 +20,7 @@
 #include <netinet/in.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#27 $");
 
 
 /*!
@@ -294,9 +294,9 @@ QDataStream &QDataStream::operator>>( INT8 &i )
 	    dev->readBlock( buf, 3 );
 	    i = (buf[2] & 0x07)+((buf[1] & 0x07) << 3)+((buf[0] & 0x07) << 6);
 	}
-    }
-    else					// data or text
+    } else {					// data or text
 	i = (INT8)dev->getch();
+    }
     return *this;
 }
 
@@ -504,7 +504,7 @@ QDataStream &QDataStream::readRawBytes( char *s, uint len )
 
 /*!
   \fn QDataStream &QDataStream::operator<<( UINT8 i )
-  Writen an unsigned byte to the stream and returns a reference to
+  Writes an unsigned byte to the stream and returns a reference to
   the stream.
 */
 
@@ -524,8 +524,9 @@ QDataStream &QDataStream::operator<<( INT8 i )
 	buf[4] = '\0';
 	dev->writeBlock( buf, 4 );
     }
-    else
+    else {
 	dev->putch( i );
+    }
     return *this;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#80 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#81 $
 **
 ** Global type declarations and definitions
 **
@@ -111,6 +111,9 @@
 #define _CC_GNU_
 #elif defined(__xlC__)
 #define _CC_XLC_
+#elif defined(como40)
+#define _CC_EDG_
+#define _CC_COMEAU_
 #elif defined(__EDG) || defined(__EDG__)
 // one observed on SGI DCC, the other documented
 #define _CC_EDG_
@@ -180,6 +183,8 @@
 #elif __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 6)
 #define HAS_BOOL_TYPE
 #elif __BORLANDC__ >= 0x500
+#define HAS_BOOL_TYPE
+#elif defined(_CC_COMEAU_)
 #define HAS_BOOL_TYPE
 #endif
 
@@ -334,7 +339,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #define RCSTAG(string)
 #elif __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
 #define RCSTAG(string) static char ident[] __attribute__ ((unused)) = string
-#elif defined(_CC_DEC_)
+#elif defined(_CC_DEC_) || defined(_CC_COMEAU_)
 #define RCSTAG(string) typedef int QUnusedSemicolon
 #else
 #define RCSTAG(string)
