@@ -24,7 +24,6 @@ TabDialog::TabDialog(QWidget *parent, const QString &fileName)
     buttonLayout->addWidget(cancelButton);
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->setResizeMode(QLayout::Fixed);
     mainLayout->addWidget(tabWidget);
     mainLayout->addLayout(buttonLayout);
 
@@ -67,6 +66,7 @@ GeneralTab::GeneralTab(QWidget *parent, const QFileInfo &fileInfo)
     mainLayout->addWidget(lastReadValueLabel);
     mainLayout->addWidget(lastModLabel);
     mainLayout->addWidget(lastModValueLabel);
+    mainLayout->addStretch(1);
 }
 
 PermissionsTab::PermissionsTab(QWidget *parent, const QFileInfo &fileInfo)
@@ -110,6 +110,7 @@ PermissionsTab::PermissionsTab(QWidget *parent, const QFileInfo &fileInfo)
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(permissionsGroup);
     mainLayout->addWidget(ownerGroup);
+    mainLayout->addStretch(1);
 }
 
 ApplicationsTab::ApplicationsTab(QWidget *parent, const QFileInfo &fileInfo)
@@ -120,9 +121,8 @@ ApplicationsTab::ApplicationsTab(QWidget *parent, const QFileInfo &fileInfo)
     QListWidget *applicationsListBox = new QListWidget(this);
     QStringList applications;
 
-    for (int i = 1; i <= 30; ++i) {
+    for (int i = 1; i <= 30; ++i)
         applications.append(tr("Application %1").arg(i));
-    }
     applicationsListBox->insertItems(0, applications);
 
     QCheckBox *alwaysCheckBox;
