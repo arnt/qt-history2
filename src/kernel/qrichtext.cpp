@@ -4713,8 +4713,8 @@ void QTextParagraph::setColorForSelection( QColor &color, QPainter &painter,
 	color.setHsv( h1, s1, ( v1 + v2 ) / 2 );
 	painter.setPen( pal.color( QPalette::Text ) );
     } else if ( selection == QTextDocument::IMSelectionText ) {
-	color = pal.color( QPalette::Foreground );
-	painter.setPen( pal.color( QPalette::HighlightedText ) );
+ 	color = pal.color( QPalette::Dark );
+	painter.setPen( pal.color( QPalette::BrightText ) );
     } else if ( !hasdoc || document()->invertSelectionText( selection ) ) {
 	painter.setPen( pal.color( QPalette::HighlightedText ) );
     }
