@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#35 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#36 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -62,16 +62,18 @@
 // you just define _BSD for AIX.
 #endif
 #include <sys/types.h>
-#if defined(BSD4_4)
-// BSDs use <sys/ioctl.h> and FIONREAD.
+
+#if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_)
+// Needed for FIONREAD.
+// FIONREAD is #defined in <sys/filio.h>.
+// Have <sys/ioctl.h> include <sys/filio.h>.
+#  define BSD_COMP
 #  include <sys/ioctl.h>
-#  define QT_NREAD FIONREAD
+#  undef BSD_COMP
 #else
-// XPG4v2 use <stropts.h> and I_NREAD.
-// ### Caution, this may not work on pre-XPG4v2 systems.
-#  include <stropts.h>
-#  define QT_NREAD I_NREAD
+#  include <sys/ioctl.h>
 #endif
+
 #include <sys/file.h>
 #include <sys/time.h>
 #include <fcntl.h>
@@ -106,7 +108,9 @@
 
 // ### Mmmmh... Which system has TIOCINQ but not FIONREAD?
 #if !defined(FIONREAD) && defined(TIOCINQ)
-#  define FIONREAD TIOCINQ
+#  define QT_NREAD TIOCINQ
+#else
+#  define QT_NREAD FIONREAD
 #endif
 
 // ### Undefine this if you have problems with missing FNDELAY.
