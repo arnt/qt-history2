@@ -18,13 +18,15 @@
 **
 **********************************************************************/
 
+#include <qprocess.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <qtimer.h>
 #include <qapplication.h>
 
-#include "qprocess.h"
+extern Qt::WindowsVersion qt_winver;
 
 QProcessPrivate::QProcessPrivate( QProcess *proc )
 {
@@ -108,22 +110,39 @@ bool QProcess::start()
     }
 
     // CreateProcess()
-    char *argsC = new char[args.length()+1];
-    strcpy( argsC, args.latin1() );
-
-    //### this has to be CreateProcessA and CreateProcessW when moved to the core lib
-    STARTUPINFO startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
-	CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-	0, 0, 0,
-	STARTF_USESTDHANDLES,
-	0, 0, 0,
-	d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1] };
-    if  ( !CreateProcess( 0, (TCHAR*)argsC, 0, 0, TRUE, 0, 0, (TCHAR*)d->workingDir.absPath().latin1(), &startupInfo, &d->pid ) ) {
-	delete[] argsC;
+    bool success;
+#if defined(UNICODE)
+    if ( qt_winver & WV_NT_based ) {
+	STARTUPINFO startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
+	    CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+	    0, 0, 0,
+	    STARTF_USESTDHANDLES,
+	    0, 0, 0,
+	    d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1] };
+	TCHAR *commandLine = (TCHAR*)qt_winTchar_new( args );
+	success = CreateProcess( 0, commandLine,
+		0, 0, TRUE, 0, 0,
+		(TCHAR*)qt_winTchar(d->workingDir.absPath(),TRUE),
+		&startupInfo, &d->pid );
+	delete[] commandLine;
+    } else
+#endif
+    {
+	STARTUPINFOA startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
+	    CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+	    0, 0, 0,
+	    STARTF_USESTDHANDLES,
+	    0, 0, 0,
+	    d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1] };
+	success = CreateProcessA( 0, args.local8Bit().data(),
+		0, 0, TRUE, 0, 0,
+		(const char*)d->workingDir.absPath().local8Bit(),
+		&startupInfo, &d->pid );
+    }
+    if  ( !success ) {
 	return FALSE;
     }
 
-    delete[] argsC;
     CloseHandle( d->pipeStdin[0] );
     CloseHandle( d->pipeStdout[1] );
     CloseHandle( d->pipeStderr[1] );
