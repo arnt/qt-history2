@@ -1223,8 +1223,9 @@ void QApplication::polish( QWidget *w )
     if ( qdevel && w->isTopLevel() )
 	qdevel->addTopLevelWidget(tlw);
 #endif
-
+#if QT_FEATURE_WIDGETS
     w->style().polish( w );
+#endif
 }
 
 
