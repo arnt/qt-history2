@@ -417,16 +417,16 @@ QImage QPixmap::convertToImage() const
     int	w = width();
     int	h = height();
     const QBitmap *m = data->realAlphaBits ? 0 : mask();
-
-#ifdef Q_OS_TEMP
+#ifndef Q_OS_TEMP
+    int	d = depth();
+    int	ncols = 2;
+#else
     DIBSECTION      ds;
     DWORD dwSize = GetObject( DATA_HBM, sizeof(DIBSECTION), &ds );
     Q_ASSERT( dwSize == sizeof(ds) ); // Failing means HBitmap
     int d = ds.dsBmih.biBitCount;
     int ncols = ds.dsBmih.biClrUsed;
-#else
-    int	d = depth();
-    int	ncols = 2;
+#endif
 
     if ( d > 1 && d <= 8 || d == 1 && m ) {	// set to nearest valid depth
 	d = 8;					//   2..7 ==> 8
@@ -435,8 +435,6 @@ QImage QPixmap::convertToImage() const
 	d = 32;					//   > 8  ==> 32
 	ncols = 0;
     }
-#endif
-
 
     QImage image( w, h, d, ncols, QImage::BigEndian );
     if ( data->realAlphaBits ) {
@@ -490,10 +488,7 @@ QImage QPixmap::convertToImage() const
     bmh->biClrUsed	  = ncols;
     bmh->biClrImportant	  = 0;
     QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
-#ifdef Q_OS_TEMP
-    memcpy( image.bits(), data->ppvBits, image.numBytes() );
-    GetDIBColorTable( hdc, ds, 0, ncols, (RGBQUAD*)coltbl );
-#else
+#ifndef Q_OS_TEMP
     bool mcp = data->mcp;
     if ( mcp )					// disable multi cell
 	((QPixmap*)this)->freeCell();
@@ -502,6 +497,9 @@ QImage QPixmap::convertToImage() const
 
     if ( mcp )
 	((QPixmap*)this)->allocCell();
+#else
+    memcpy( image.bits(), data->ppvBits, image.numBytes() );
+    GetDIBColorTable( hdc, &ds, 0, ncols, (RGBQUAD*)coltbl );
 #endif
 
     for ( int i=0; i<ncols; i++ ) {		// copy color table
@@ -571,7 +569,7 @@ QImage QPixmap::convertToImage() const
 	  } break;
 	}
     }
-
+#ifndef Q_OS_TEMP
     if ( d == 1 ) {
 	// Make image bit 0 come from color0, image bit 1 come form color1
 	image.invertPixels();
@@ -579,6 +577,7 @@ QImage QPixmap::convertToImage() const
 	image.setColor(0,image.color(1));
 	image.setColor(1,c0);
     }
+#endif
     delete [] bmi_data;
     return image;
 }

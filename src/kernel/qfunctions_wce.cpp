@@ -338,22 +338,22 @@ BOOL GetWindowExtEx( HDC hdc, LPSIZE lpSize )
     return TRUE;
 }
 
-UINT GetDIBColorTable( HDC hdc, DIBSECTION &ds, UINT uStartIndex, UINT cEntries, RGBQUAD *pColors )
+UINT GetDIBColorTable( HDC hdc, DIBSECTION *ds, UINT uStartIndex, UINT cEntries, RGBQUAD *pColors )
 {
     if ( pColors == NULL ||	    // No place for palette
-	 ds.dsBmih.biBitCount > 8 ) // Not Palettized
+	 ds->dsBmih.biBitCount > 8 ) // Not Palettized
 	return 0;
 
-    LPBYTE pBits = (LPBYTE)ds.dsBm.bmBits;
+    LPBYTE pBits = (LPBYTE)ds->dsBm.bmBits;
     BYTE OldPalIndex = *pBits;
 
     // Create a mask for the palette index bits for 1, 2, 4, and 8 bpp
-    WORD wIndexMask = ( 0xFF << (8 - ds.dsBmih.biBitCount) ) & 0x00FF;
+    WORD wIndexMask = ( 0xFF << (8 - ds->dsBmih.biBitCount) ) & 0x00FF;
 
     UINT TestPixelY = 0;		   // We always use Top-down DIBs
     // ...and the following check fails...
-   // TestPixelY = ds.dsBmih.biHeight <= 0 ? 0 :	//  Top-down DIB
-		 //ds.dsBm.bmHeight-1;		// Bottom-up DIB
+   // TestPixelY = ds->dsBmih.biHeight <= 0 ? 0 :	//  Top-down DIB
+		 //ds->dsBm.bmHeight-1;		// Bottom-up DIB
 
     // Debug level 1 only output
     QCE_DEBUG( 1, {
@@ -361,28 +361,28 @@ UINT GetDIBColorTable( HDC hdc, DIBSECTION &ds, UINT uStartIndex, UINT cEntries,
 	qDebug( "     wIndexMask               = 0x%X", wIndexMask );
 	qDebug( "     TestPixelY               = %d", TestPixelY );
 	qDebug( "   DIBSECTION:" );
-	qDebug( "     dsBmih.biWidth       (W) = %d", ds.dsBmih.biWidth );
-	qDebug( "     dsBmih.biHeight      (H) = %d", ds.dsBmih.biHeight );
-	qDebug( "     dsBmih.biBitCount    (D) = %d", ds.dsBmih.biBitCount );
-	qDebug( "     dsBmih.biClrUsed         = %d", ds.dsBmih.biClrUsed );
-	qDebug( "     dsBmih.biClrImportant    = %d", ds.dsBmih.biClrImportant );
-	qDebug( "     dsBmih.biXPelsPerMeter   = %d", ds.dsBmih.biXPelsPerMeter );
-	qDebug( "     dsBmih.biYPelsPerMeter   = %d", ds.dsBmih.biYPelsPerMeter );
-	qDebug( "     dsBmih.biCompression     = %d", ds.dsBmih.biCompression );
-	qDebug( "     dsBmih.biPlanes          = %d", ds.dsBmih.biPlanes );
-	qDebug( "     dsBmih.biSize   (struct) = %d", ds.dsBmih.biSize );
-	qDebug( "     dsBmih.biSizeImage (img) = %d", ds.dsBmih.biSizeImage );
-	qDebug( "     dsBm.bmType              = %d", ds.dsBm.bmType );
-	qDebug( "     dsBm.bmBits       (data) = 0x%p", ds.dsBm.bmBits  );
+	qDebug( "     dsBmih.biWidth       (W) = %d", ds->dsBmih.biWidth );
+	qDebug( "     dsBmih.biHeight      (H) = %d", ds->dsBmih.biHeight );
+	qDebug( "     dsBmih.biBitCount    (D) = %d", ds->dsBmih.biBitCount );
+	qDebug( "     dsBmih.biClrUsed         = %d", ds->dsBmih.biClrUsed );
+	qDebug( "     dsBmih.biClrImportant    = %d", ds->dsBmih.biClrImportant );
+	qDebug( "     dsBmih.biXPelsPerMeter   = %d", ds->dsBmih.biXPelsPerMeter );
+	qDebug( "     dsBmih.biYPelsPerMeter   = %d", ds->dsBmih.biYPelsPerMeter );
+	qDebug( "     dsBmih.biCompression     = %d", ds->dsBmih.biCompression );
+	qDebug( "     dsBmih.biPlanes          = %d", ds->dsBmih.biPlanes );
+	qDebug( "     dsBmih.biSize   (struct) = %d", ds->dsBmih.biSize );
+	qDebug( "     dsBmih.biSizeImage (img) = %d", ds->dsBmih.biSizeImage );
+	qDebug( "     dsBm.bmType              = %d", ds->dsBm.bmType );
+	qDebug( "     dsBm.bmBits       (data) = 0x%p", ds->dsBm.bmBits  );
     } )
 
-    UINT cColors = ds.dsBmih.biClrUsed ? ds.dsBmih.biClrUsed :
-		   1 << (ds.dsBmih.biBitCount*ds.dsBmih.biPlanes);
+    UINT cColors = ds->dsBmih.biClrUsed ? ds->dsBmih.biClrUsed :
+		   1 << (ds->dsBmih.biBitCount*ds->dsBmih.biPlanes);
     cColors = QMIN( cColors, cEntries );
 
     QCE_DEBUG( 2, qDebug( "   ColorTable:" ) );
     for ( UINT iColor = uStartIndex; iColor < cColors; iColor++ ) {
-	*pBits = (iColor << (8 - ds.dsBmih.biBitCount)) |
+	*pBits = (iColor << (8 - ds->dsBmih.biBitCount)) |
 		 (*pBits & ~wIndexMask);
 
 	COLORREF rgbColor = GetPixel( hdc, 0, TestPixelY );

@@ -188,7 +188,7 @@ BOOL GetViewportExtEx( HDC hdc, LPSIZE lpSize );
 BOOL GetWindowOrgEx( HDC hdc, LPPOINT lpPoint );
 BOOL GetWindowExtEx( HDC hdc, LPSIZE lpSize );
 
-UINT GetDIBColorTable( HDC hdc, DIBSECTION &ds, UINT uStartIndex, UINT cEntries, RGBQUAD *pColors );
+UINT GetDIBColorTable( HDC hdc, DIBSECTION *ds, UINT uStartIndex, UINT cEntries, RGBQUAD *pColors );
 
 
 // Other stuff ------------------------------------------------------
