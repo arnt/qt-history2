@@ -1156,7 +1156,7 @@ bool QPicture::QPicturePrivate::checkFormat()
 /*!
     \relates QPicture
 
-    Writes picture, \a r to the stream \a s and returns a reference to
+    Writes picture \a r to the stream \a s and returns a reference to
     the stream.
 */
 
