@@ -178,28 +178,12 @@ public:
 
     int supportedOperations() const;
 
-protected:
-    void operationGet( QNetworkOperation *op );
-    void operationPut( QNetworkOperation *op );
-
-private slots:
-    void clientReply( const QHttpResponseHeader &rep );
-    void clientDone( bool );
-    void clientStateChanged( int );
-
-private:
-    QHttpPrivate *d;
-    void *unused; // ### Qt 4.0: remove this (in for binary compatibility)
-    int bytesRead;
-
-    // new API
-public:
     enum State { Unconnected, HostLookup, Connecting, Sending, Reading, Connected, Closing };
     enum Error {
 	NoError,
 	UnknownError,
-	ConnectionRefused,
 	HostNotFound,
+	ConnectionRefused,
 	UnexpectedClose,
 	InvalidResponseHeader,
 	WrongContentLength
@@ -245,9 +229,16 @@ signals:
     void done( bool );
 
 protected:
+    void operationGet( QNetworkOperation *op );
+    void operationPut( QNetworkOperation *op );
+
     void timerEvent( QTimerEvent * );
 
 private slots:
+    void clientReply( const QHttpResponseHeader &rep );
+    void clientDone( bool );
+    void clientStateChanged( int );
+
     void startNextRequest();
     void slotReadyRead();
     void slotConnected();
@@ -256,6 +247,10 @@ private slots:
     void slotBytesWritten( int );
 
 private:
+    QHttpPrivate *d;
+    void *unused; // ### Qt 4.0: remove this (in for binary compatibility)
+    int bytesRead;
+
     int addRequest( QHttpRequest * );
     void sendRequest();
     void finishedWithSuccess();

@@ -1213,10 +1213,10 @@ void QFtp::init()
 
     \value NoError No error occurred.
     \value UnknownError An error that does not fit in another category.
-    \value NotConnected Tried to send a command, but there is no connection to
-    a server.
     \value HostNotFound The host name lookup failed.
     \value ConnectionRefused The server refused the connection.
+    \value NotConnected Tried to send a command, but there is no connection to
+    a server.
 
     \sa error()
 */

@@ -79,9 +79,9 @@ public:
     enum Error {
 	NoError,
 	UnknownError,
-	NotConnected,
 	HostNotFound,
-	ConnectionRefused
+	ConnectionRefused,
+	NotConnected
     };
     enum Command {
 	None,

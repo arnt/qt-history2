@@ -1175,18 +1175,34 @@ QHttp::~QHttp()
 
 /*!  \enum QHttp::State
 
-    This enum is used to specify the state the client is in.
+    This enum is used to specify the state the client is in:
 
-    \value Unconnected if there is no open connection
-    \value HostLookup if the client is doing a host name lookup
-    \value Connecting if the client is trying to connect to the host
-    \value Sending when the client is sending its request to the server
-    \value Reading when the client has sent its request and is reading the
-    server's response
-    \value Connected when the connection to the host is open, but the client is
-    neither sending a request, nor waiting for a response
-    \value Closing if the connection is closing down, but is not yet
-    unconnected
+    \value Unconnected There is no connection to the host.
+    \value HostLookup The client started a host name lookup.
+    \value Connecting The client tries to connect to the host.
+    \value Sending The client is sending its request to the server.
+    \value Reading The client has sent its request and is reading the server's
+    response.
+    \value Connected The connection to the host is open, but the client is
+    neither sending a request, nor waiting for a response.
+    \value Closing The connection is closing down, but is not yet closed.
+
+    \sa stateChanged() state()
+*/
+/*!  \enum QHttp::Error
+
+    This enum defines the detail of the error cause:
+
+    \value NoError No error occurred.
+    \value UnknownError An error that does not fit in another category.
+    \value HostNotFound The host name lookup failed.
+    \value ConnectionRefused The server refused the connection.
+    \value UnexpectedClose The server closed the connection unexpectedly.
+    \value InvalidResponseHeader The server sent an invalid response header.
+    \value WrongContentLength The client could not read the content correctly
+    because an error in respect to the content length occurred.
+
+    \sa error()
 */
 /*!  \fn void QHttp::stateChanged( int state )
 
