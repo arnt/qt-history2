@@ -117,8 +117,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qwidgetlist.h \
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwmatrix.h \
-		  $$KERNEL_H/qxml.h \
-		  $$KERNEL_H/qdom.h \
 		  $$KERNEL_H/qvariant.h \
 		  $$TOOLS_H/qarray.h \
 		  $$TOOLS_H/qasciicache.h \
@@ -291,8 +289,6 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  tools/qtextstream.cpp \
 		  tools/qutfcodec.cpp \
 		  kernel/qvariant.cpp \
-		  kernel/qxml.cpp \
-		  kernel/qdom.cpp \
 		  kernel/qabstractlayout.cpp \
 		  kernel/qaccel.cpp \
 		  kernel/qapplication.cpp \
