@@ -699,8 +699,12 @@ void qmotif_dialog_change_managed( Widget w )
 	( (QMotifDialogWidget) w )->qmotifdialog.dialog;
     if ( ! dialog )
 	return;
-    dialog->setGeometry( dialog->d->shell->core.x,
-			 dialog->d->shell->core.y,
-			 dialog->d->shell->core.width,
-			 dialog->d->shell->core.height );
+    QRect r( dialog->d->shell->core.x,
+	     dialog->d->shell->core.y,
+	     dialog->d->shell->core.width,
+	     dialog->d->shell->core.height ),
+	d = dialog->geometry();
+    if ( d != r ) {
+	dialog->setGeometry( r );
+    }
 }

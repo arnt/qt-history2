@@ -367,8 +367,12 @@ void qmotif_widget_shell_change_managed( Widget w )
 	( (QMotifWidgetShellWidget) w )->qmotifwidgetshell.widget;
     if ( ! widget )
 	return;
-    widget->setGeometry( widget->d->shell->core.x,
- 			 widget->d->shell->core.y,
- 			 widget->d->shell->core.width,
- 			 widget->d->shell->core.height );
+    QRect r( widget->d->shell->core.x,
+	     widget->d->shell->core.y,
+	     widget->d->shell->core.width,
+	     widget->d->shell->core.height ),
+	d = widget->geometry();
+    if ( d != r ) {
+	widget->setGeometry( r );
+    }
 }
