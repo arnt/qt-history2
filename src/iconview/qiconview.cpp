@@ -1186,8 +1186,6 @@ void QIconViewItem::setPixmap( const QPixmap &icon, bool recalc, bool redraw )
     else
 	itemIcon = new QPixmap( icon );
 
-    if ( recalc )
-	calcRect();
     if ( redraw ) {
 	if ( recalc ) {
 	    QRect oR = rect();
@@ -1199,11 +1197,13 @@ void QIconViewItem::setPixmap( const QPixmap &icon, bool recalc, bool redraw )
 			    view->visibleWidth(), view->visibleHeight() ).
 		     intersects( oR ) )
 		    view->repaintContents( oR.x() - 1, oR.y() - 1,
-				       oR.width() + 2, oR.height() + 2, FALSE );
+					   oR.width() + 2, oR.height() + 2, FALSE );
 	    }
 	} else {
 	    repaint();
 	}
+    } else if ( recalc ) {
+	calcRect();
     }
 }
 
