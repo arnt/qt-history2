@@ -1,6 +1,6 @@
 #include "main.h"
 
-#include <qxmlparser.h>
+#include <qresource.h>
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qstring.h>
@@ -15,18 +15,18 @@ struct Object
   QString className;
 };
 
-QValueList<Object> findObjects( QXMLIterator t )
+QValueList<Object> findObjects( const QResourceItem* t )
 {
   QValueList<Object> lst;
 
-  QXMLIterator it = t->begin();
-  for( ; it != t->end(); ++it )
+  const QResourceItem* it = t->firstChild();
+  for( ; it; it = it->nextSibling() )
   {
     if ( it->hasAttrib( "name" ) )
     {
       Object o;
       o.name = it->attrib( "name" );
-      o.className = it->tagName();
+      o.className = it->type();
       lst.append( o );
     }
     lst += findObjects( it );
@@ -35,7 +35,7 @@ QValueList<Object> findObjects( QXMLIterator t )
   return lst;
 }
 
-void generateHeader( QFile& out, QXMLIterator it )
+void generateHeader( QFile& out, const QResourceItem* it )
 {
   QString name = it->attrib( "name" );
 
@@ -51,8 +51,8 @@ void generateHeader( QFile& out, QXMLIterator it )
       done.append( oit->className );
     }
 
-  str << endl << "#include <" << it->tagName().lower() << ".h>" << endl << endl;
-  str << "class " << name << "_skel : public " << it->tagName() << endl << "{" << endl;
+  str << endl << "#include <" << it->type().lower() << ".h>" << endl << endl;
+  str << "class " << name << "_skel : public " << it->type() << endl << "{" << endl;
   str << "  Q_OBJECT" << endl << "public:" << endl << "  " << name << "_skel( QWidget* parent, const QResource& resource );" << endl;
   str << "  ~" << name << "_skel();" << endl << endl << "protected:" << endl;
 
@@ -61,28 +61,28 @@ void generateHeader( QFile& out, QXMLIterator it )
     str << "  " << oit->className << "*  " << oit->name << ";" << endl;
 
   str << endl << "protected slots:" << endl;
-  QXMLIterator t = it->begin();
-  for( ; t != it->end(); ++t )
-    if ( t->tagName() == "CustomSlot" )
+  const QResourceItem* t = it->firstChild();
+  for( ; t; t = t->nextSibling() )
+    if ( t->type() == "CustomSlot" )
       str << "  virtual void " << t->attrib("signature" ) << " = 0;" << endl;
 
   str << endl << "signals:" << endl;
-  t = it->begin();
-  for( ; t != it->end(); ++t )
-    if ( t->tagName() == "CustomSignal" )
+  t = it->firstChild();
+  for( ; t; t = t->nextSibling() )
+    if ( t->type() == "CustomSignal" )
       str << "  void " << t->attrib("signature" ) << ";" << endl;
 
   str << "};" << endl << endl;
 }
 
-void generateImpl( QFile& out, QXMLIterator it, const QString& basename )
+void generateImpl( QFile& out, QResourceItem* it, const QString& basename )
 {
   QString name = it->attrib( "name" );
 
   QTextStream str( &out );
   str << "#include \"" << basename << "_skel.h\"" << endl << endl;
   str << name << "_skel::" << name << "_skel( QWidget* parent, const QResource& resource )" << endl;
-  str << "  : " << it->tagName() << "( parent, resource )" << endl << "{" << endl;
+  str << "  : " << it->type() << "( parent, resource )" << endl << "{" << endl;
   str << "  configure( resource );" << endl << endl;
   QValueList<Object> objects = findObjects( it );
   QValueList<Object>::Iterator oit = objects.begin();
@@ -101,13 +101,9 @@ int main( int argc, char **argv )
   if ( argc != 2 )
     qFatal( "Syntax: qgenerator resourcefile\n" );
 
-  QXMLParseTree tree;
-  QFile file( argv[1] );
-  if ( !file.open( IO_ReadOnly ) )
+  QResource resource( argv[1] );
+  if ( resource.isEmpty() )
     qFatal( "Could not open file %s\n", argv[1] );
-
-  QTextStream str( &file );
-  str >> tree;
 
   QString basename = argv[1];
   int i = basename.findRev( "." );
@@ -129,20 +125,14 @@ int main( int argc, char **argv )
     str << "class QResource;" << endl << endl;;
   }
 
-  QXMLTag* r = tree.rootTag();
-  QXMLIterator it = r->begin();
-  for( ; it != r->end(); ++it )
+  QResourceItem* r = resource.tree();
+  QString name = r->name();
+  if ( !name.isEmpty() )
   {
-    QString name;
-    if ( it->hasAttrib( "name" ) )
-      name = it->attrib( "name" );
-    if ( !name.isEmpty() )
-    {
-      printf("Writing class %s\n", name.ascii() );
-      generateHeader( outh, it );
-
-      generateImpl( outc, it, basename );
-    }
+    printf("Writing class %s\n", name.ascii() );
+    generateHeader( outh, r );
+    
+    generateImpl( outc, r, basename );
   }
 
   {
@@ -152,6 +142,4 @@ int main( int argc, char **argv )
 
   outh.close();
   outc.close();
-
-  file.close();
 }

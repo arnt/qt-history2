@@ -19,6 +19,8 @@
 // Needed since they require special treatment from the builder
 #include <qgroupbox.h>
 #include <qtabwidget.h>
+#include <qwizard.h>
+#include <qpushbutton.h>
 
 DFormEditor* DFormEditor::s_pLoadingInstance = 0;
 
@@ -38,27 +40,49 @@ DFormEditor::DFormEditor( QWidget* _parent, const char* _name )
   DWindowManager* frame = new DWindowManager( this );
   grid->addWidget( frame, 0, 0 );
 
-  // frame->setFrameStyle( QFrame::Panel | QFrame::Raised );
-  // frame->setLineWidth( 2 );
-
   // HACK
   QDialog *dlg = new QDialog( frame );
   m_topLevelWidget = dlg;
 
   addWidget( dlg );
   QGridLayout* g = new QGridLayout( dlg, 1, 1, 0, 0 );
-  m_form = new DFormWidget( DFormWidget::TopMost, this, dlg );
-  g->addWidget( m_form, 0, 0 );
+  DFormWidget* form = new DFormWidget( DFormWidget::Container, this, dlg );
+  g->addWidget( form, 0, 0 );
   dlg->reparent( frame, 0, QPoint( 0, 0 ), TRUE );
-
-  // m_form = new DFormWidget( DFormWidget::TopMost, this, frame );
 
   QVBoxLayout *vbox = new QVBoxLayout( frame, 2, 0 );
   vbox->addSpacing( 20 );
   vbox->addWidget( dlg );
 
-  // m_form = new DFormWidget( DFormWidget::TopMost, this, this );
-  //   grid->addWidget( m_form, 0, 0 );
+  qApp->installEventFilter( this );
+}
+
+DFormEditor::DFormEditor( const QResource& _resource, QWidget* _parent, const char* _name )
+  : QWidget( _parent, _name )
+{
+  m_pPopupWidget = 0;
+  m_pConnectWidget = 0;
+  
+  s_pLoadingInstance = this;
+
+  QGridLayout* grid = new QGridLayout( this, 1, 1, 6, 0 );
+  DWindowManager* frame = new DWindowManager( this );
+  grid->addWidget( frame, 0, 0 );
+
+  m_topLevelWidget = _resource.createWidget( this );
+  if ( !m_topLevelWidget )
+    return;
+
+  addWidget( m_topLevelWidget, _resource.tree() );
+  m_topLevelWidget->reparent( frame, 0, QPoint( 0, 0 ), TRUE );
+
+  QVBoxLayout *vbox = new QVBoxLayout( frame, 2, 0 );
+  vbox->addSpacing( 20 );
+  vbox->addWidget( m_topLevelWidget );
+
+  QObject* o = m_topLevelWidget->child( 0, "QMenuBar" );
+  if ( o )
+    addWidget( (QWidget*)o );
 
   qApp->installEventFilter( this );
 }
@@ -69,53 +93,30 @@ DFormEditor::~DFormEditor()
 
 QResourceItem* DFormEditor::save()
 {
-  if ( !m_form )
-    return 0;
+  // Write the widgets and layouts
+  QResourceItem* t =  qObjectToXML( findInfo( m_topLevelWidget ) );
 
-  // TODO: Handle QBuilder_MainWindow and QBuilder_Dialog here, too.
-  if ( m_form->inherits( "DFormWidget" ) )
-    return ((DFormWidget*)m_form)->save();
-  else
-    ASSERT( 0 );
-
-  // never reached
-  return 0;
-}
-
-bool DFormEditor::load( const QResource& _resource )
-{
-  QString type = _resource.type();
-  /* if ( type != "QBuilder_MainWindow" && type != "DFormWidget" && type != "QBuilder_Dialog" )
+  // Save connections of all widgets
+  QPtrDictIterator<DObjectInfo> pit( m_widgets );
+  for( ; pit.current(); ++pit )
   {
-    // TODO: error message
-    ASSERT( 0 );
-  } */
+    QValueList<DObjectInfo::Connection>::Iterator it = pit.current()->connectionsBegin();
+    QValueList<DObjectInfo::Connection>::Iterator end = pit.current()->connectionsEnd();
+    for( ; it != end; ++it )
+    {
+      QResourceItem* c = new QResourceItem( "Connection" );
+      c->insertAttrib( "sender", it->senderName );
+      c->insertAttrib( "signal", it->signal );
+      c->insertAttrib( "receiver", it->receiverName );
+      if ( it->slotIsSignal )
+	c->insertAttrib( "transmitter", it->slot );
+      else
+	c->insertAttrib( "slot", it->slot );
+      t->append( c );
+    }
+  }
 
-  if ( m_form )
-    delete m_form;
-  m_form = 0;
-
-  m_widgets.clear();
-  
-  s_pLoadingInstance = this;
-
-  QWidget* w = _resource.createWidget( this );
-  if ( !w )
-    return FALSE;
-
-  if ( layout() )
-    delete layout();
-
-  m_form = w;
-  m_form->show();
-  QGridLayout* grid = new QGridLayout( this, 1, 1, 12, 0 );
-  grid->addWidget( m_form, 0, 0 );
-
-  // TODO: Call addWidget for all child widgets of m_form
-
-  s_pLoadingInstance = 0;
-
-  return TRUE;
+  return t;
 }
 
 void DFormEditor::addWidget( QWidget* _w )
@@ -123,6 +124,13 @@ void DFormEditor::addWidget( QWidget* _w )
   ASSERT( m_widgets[ _w ] == 0 );
 
   m_widgets.insert( _w, new DObjectInfo( _w ) );
+}
+
+void DFormEditor::addWidget( QWidget* _w, const QResourceItem* item )
+{
+  ASSERT( m_widgets[ _w ] == 0 );
+
+  m_widgets.insert( _w, new DObjectInfo( _w, item ) );
 }
 
 DObjectInfo* DFormEditor::info( const QString& _obj_name )
@@ -165,6 +173,8 @@ bool DFormEditor::eventFilter( QObject* _obj, QEvent* _ev )
       m_pConnectWidget = 0;
     }
 
+    QMouseEvent* me = (QMouseEvent*)_ev;
+
     /**
      * Look at the destination of this event
      */
@@ -173,7 +183,12 @@ bool DFormEditor::eventFilter( QObject* _obj, QEvent* _ev )
     if ( _obj->inherits( "DSizeHandle" ) || _obj->inherits( "QPopupMenu" ) )
       return FALSE;
 
-    QMouseEvent* me = (QMouseEvent*)_ev;
+    // Special hack for the wizard. We want to allow the buttons
+    // "back" and "next" to work.
+    if ( _obj->parent() && _obj->parent()->inherits("QWizard") )
+      if ( _obj == ((QWizard*)_obj->parent())->backButton() ||
+	   _obj == ((QWizard*)_obj->parent())->nextButton() )
+	return FALSE;
 
     // Find info about this widget
     DObjectInfo* info = m_widgets.find( _obj );
@@ -212,6 +227,10 @@ bool DFormEditor::eventFilter( QObject* _obj, QEvent* _ev )
     /**
      * Ok, we know this widget.
      */
+
+    // HACK
+    if ( info->widget()->inherits( "DListView" ) && me->button() == RightButton )
+      return FALSE;
 
     // Mouse pressed ?
     if ( _ev->type() == QEvent::MouseButtonPress && _obj->inherits( "QWidget" ) )
@@ -453,37 +472,36 @@ DObjectInfo::DObjectInfo( QWidget* _widget )
   m_widget = _widget;
   m_selected = FALSE;
 
-  // TODO: If object is loaded we have to find
-  // another way to get the default properties.
+  // Initialize all size handles
+  for( int i = 0; i < 8; ++i )
+    m_sizeHandles[i] = 0;
+}
 
-  if ( !_widget->inherits("DFormWidget") )
-  {
-    // Get a list of all properties
-    QMetaObject* m = _widget->metaObject();
-    if ( m )
-    {
-      QStringList props = m->propertyNames();
-  
-      QStringList::Iterator it = props.begin();
-      for( ; it != props.end(); ++it )
-      { 
-	QMetaProperty* p = m->property( *it, TRUE );
-	if ( p && !p->readonly )
-        {
-	  if ( strcmp( p->name, "geometry" ) != 0 )
-	  {
-	    QProperty prop;
-	    _widget->property( p->name, &prop );
-	    m_defaultProps.insert( p->name, prop );
-	  }
-	}
-      }
-    }
-  }
+DObjectInfo::DObjectInfo( QWidget* _widget, const QResourceItem* item )
+{
+  m_widget = _widget;
+  m_selected = FALSE;
 
   // Initialize all size handles
   for( int i = 0; i < 8; ++i )
     m_sizeHandles[i] = 0;
+
+  if ( !item )
+    return;
+
+  // Find out which custom properties are set
+  QStringList props = m_widget->metaObject()->propertyNames();
+  QStringList::Iterator it = props.begin();
+  for( ; it != props.end(); ++it )
+  {
+    QMetaProperty* p = m_widget->metaObject()->property( *it, TRUE );
+    if ( p && !p->readonly )
+    {
+      QProperty prop = item->property( p );
+      if ( !prop.isEmpty() )
+	m_props.insert( p->name, prop );
+    }
+  }
 }
 
 DObjectInfo::~DObjectInfo()
@@ -646,11 +664,6 @@ void DObjectInfo::updateSizeHandles()
   m_sizeHandles[7]->move( x - 3, y + m_widget->height() / 2 - 3 );
 }
 
-const QProperty& DObjectInfo::defaultProperty( const QString& name ) const
-{
-  return m_defaultProps[ name ];
-}
-
 QProperty* DObjectInfo::property( const QString& name )
 {
   QMap<QString,QProperty>::Iterator it = m_props.find( name );
@@ -658,6 +671,12 @@ QProperty* DObjectInfo::property( const QString& name )
     return &it.data();
   
   return 0;
+}
+
+void DObjectInfo::removeProperty( const QString& name )
+{
+  m_props.remove( name );
+  m_widget->setProperty( name, DWidgetInfo::defaultProperty( m_widget->className(), name ) );
 }
 
 /**********************************************
@@ -754,6 +773,8 @@ DFormWidget::DFormWidget( QWidget* parent, const QResource& _resource )
       m_mode = DFormWidget::Container;
     else if ( str == "TopMost" )
       m_mode = DFormWidget::TopMost;
+    else if ( str == "ToolBar" )
+      m_mode = DFormWidget::ToolBarHelper;
     else
       ASSERT( 0 );
   }
@@ -763,7 +784,8 @@ DFormWidget::DFormWidget( QWidget* parent, const QResource& _resource )
   m_gridLayout = 0;
   m_layout = DFormWidget::NoLayout;
 
-  setBackgroundColor( bgcolor() );
+  setPalettePropagation( SamePalette );
+  setColor();
 
   setAcceptDrops( TRUE );
 }
@@ -777,7 +799,8 @@ DFormWidget::DFormWidget( DFormWidget::Mode _mode, DFormEditor* _editor, QWidget
   m_gridLayout = 0;
   m_layout = DFormWidget::NoLayout;
 
-  setBackgroundColor( bgcolor() );
+  setPalettePropagation( SamePalette );
+  setColor();
 
   setAcceptDrops( TRUE );
 }
@@ -799,7 +822,7 @@ void DFormWidget::dragEnterEvent( QDragEnterEvent *_ev )
       _ev->ignore();
     else
     {
-      setBackgroundColor( bgcolor().light( 120 ) );
+      setColor( TRUE );
       QRect rect = m_gridLayout->insertRect( ins, r, c );
       drawDragShadow( rect );
       _ev->accept();
@@ -807,8 +830,7 @@ void DFormWidget::dragEnterEvent( QDragEnterEvent *_ev )
   }
   else
   {    
-    setBackgroundColor( bgcolor().light( 120 ) );
-
+    setColor( TRUE );
     QPoint pos( _ev->pos().x() - m_dragInfo.sizeHint.width() / 2,
 		_ev->pos().y() - m_dragInfo.sizeHint.height() / 2 );
     drawDragShadow( QRect( pos, m_dragInfo.sizeHint ) );
@@ -826,12 +848,12 @@ void DFormWidget::dragMoveEvent( QDragMoveEvent *_ev )
     DGridLayout::Insert ins = m_gridLayout->insertTest( _ev->pos(), &r, &c );
     if ( ins == DGridLayout::InsertNone )
     {
-      setBackgroundColor( bgcolor() );
+      setColor();
       _ev->ignore();
     }
     else
     {
-      setBackgroundColor( bgcolor().light( 120 ) );
+      setColor( TRUE );
       QRect rect = m_gridLayout->insertRect( ins, r, c );
       drawDragShadow( rect );
       _ev->accept();
@@ -849,9 +871,8 @@ void DFormWidget::dragMoveEvent( QDragMoveEvent *_ev )
 void DFormWidget::dragLeaveEvent( QDragLeaveEvent * )
 {
   clearDragShadow();
-  // m_drag = FALSE;
 
-  setBackgroundColor( bgcolor() );
+  setColor();
 }
 
 void DFormWidget::dropEvent( QDropEvent *_ev ) 
@@ -896,6 +917,13 @@ void DFormWidget::dropEvent( QDropEvent *_ev )
     m_editor->addWidget( f );
     ((QTabWidget*)w)->addTab( f, tr("Tab1") );
   }
+  else if ( w->inherits( "QListView" ) )
+  {
+    ((QListView*)w)->addColumn( "Column1" );
+    ((QListView*)w)->setRootIsDecorated( TRUE );
+    ((QListView*)w)->setSorting( -1 );
+    new QListViewItem( ((QListView*)w), "Item" );
+  }
 
   // Make a good inital size
   if ( w->sizeHint().width() < 1 || w->sizeHint().height() < 1 )
@@ -919,7 +947,12 @@ void DFormWidget::dropEvent( QDropEvent *_ev )
     DGridLayout::Insert ins = m_gridLayout->insertTest( _ev->pos(), &r, &c );
     DGridLayout::Matrix matrix( m_gridLayout->matrix() );
     DGridLayout::Mode m = m_gridLayout->mode();
-    if ( ins == DGridLayout::InsertCol )
+    if ( ins == DGridLayout::InsertFirst )
+    {
+      matrix.insertColumn( c );
+      matrix.insertRow( r );
+    }
+    else if ( ins == DGridLayout::InsertCol )
       matrix.insertColumn( c );
     else if ( ins == DGridLayout::InsertRow )
       matrix.insertRow( r );
@@ -1105,7 +1138,7 @@ void DFormWidget::setLayout( DFormWidget::Layout _l, bool _force )
 
   m_layout = _l;
 
-  setBackgroundColor( bgcolor() );
+  setColor();
   
   // Now order the widgets
   switch( _l )
@@ -1242,7 +1275,7 @@ void DFormWidget::slotNoAlign()
 void DFormWidget::slotCreateContainer()
 {
   m_mode = LayoutHelper;
-  setBackgroundColor( bgcolor() );
+  setColor();
 }
 
 void DFormWidget::slotDeleteContainer()
@@ -1250,7 +1283,7 @@ void DFormWidget::slotDeleteContainer()
   setLayout( DFormWidget::NoLayout );
   // TODO: May have children
   m_mode = GridHelper;
-  setBackgroundColor( bgcolor() );
+  setColor();
 }
 
 QSizePolicy DFormWidget::sizePolicy() const
@@ -1277,6 +1310,16 @@ QColor DFormWidget::bgcolor() const
     }
 
   return Qt::black;
+}
+
+void DFormWidget::setColor( bool highlight )
+{
+  if ( m_mode == ToolBarHelper )
+    setBackgroundMode( PaletteBackground );
+  else if ( highlight )
+    setPalette( bgcolor().light( 120 ) );
+  else
+    setPalette( bgcolor() );
 }
 
 void DFormWidget::paintEvent( QPaintEvent* _ev )
@@ -1358,6 +1401,7 @@ QResourceItem* DFormWidget::save()
   qDebug("Saving Form");
   switch( m_layout )
   {
+  // Save the form if it does not have a layout yet.
   case NoLayout:
     {
       QResourceItem *res = 0;
@@ -1371,16 +1415,20 @@ QResourceItem* DFormWidget::save()
       else
 	res = w = new QResourceItem( "QWidget" );
 
+      // Iterate over all children
       const QObjectList *list = children();
       if ( list )
       {
 	QObjectListIt it( *list );
 	for( ; it.current(); ++it )
         {
+	  // An embedded DFormWidget ?
 	  if ( it.current()->inherits( "DFormWidget" ) )
 	  {
 	    QProperty prop( ((DFormWidget*)it.current())->geometry() );
 	    QResourceItem* f = ((DFormWidget*)it.current())->save();
+	    // Its it layouted ?
+	    // -> Insert intermediate widget with the correct geometry
 	    if ( f->type() == "Layout" )
 	    {
 	      QResourceItem *t1 = new QResourceItem( "Widget" );
@@ -1390,88 +1438,92 @@ QResourceItem* DFormWidget::save()
 	      t1->append( t2 );
 	      t2->append( f );
 	    }
+	    // Is it a widget ?
+	    // -> Write the geometry in the resource
 	    else if ( f->type() == "Widget" )
 	      f->firstChild()->setProperty( "geometry", prop );
+	    else
+	      ASSERT(0);
 	    w->append( f );
 	  }
+	  // Dont write this ones!
 	  else if ( it.current()->inherits( "DSizeHandle" ) )
 	  {
 	  }
+	  // An embedded widget ?
 	  else if ( it.current()->inherits( "QWidget" ) )
 	  {
 	    QResourceItem* t = new QResourceItem( "Widget" );
 	    w->append( t );
-	    // FALSE means that we write geometry information, too
-	    // t->append( qObjectToXML( it.current(), FALSE ) );
 	    DObjectInfo* info = m_editor->findInfo( it.current() );
+	    // Is it a widget we know ?
+	    // Dont save child that we did not construct in the builder
 	    if ( info )
-	      t->append( qObjectToXML( info, FALSE ) );
+	    {
+	      // Save the widget
+	      QResourceItem* w = qObjectToXML( info );
+	      // Save geometry
+	      QProperty prop( ((QWidget*)it.current())->geometry() );
+	      w->setProperty( "geometry", prop );
+	      // Append to the resource tree
+	      t->append( w );
+	    }
 	  }
 	}
       }
       return res;
     }
     break;
+  /**
+   * Since all layouts are realized with DGridLayout, we need only
+   * one saving code here for all layouts.
+   */
   case HBoxLayout:
   case VBoxLayout:
-    {
-      QResourceItem *res = 0;
-      QResourceItem *w = 0;
-      if ( isTopMostForm() )
-      {
-	res = new QResourceItem( "QWidget" );
-	w = new QResourceItem( "Layout" );
-	res->append( w );
-      }
-      else
-	res = w = new QResourceItem( "Layout" );
-
-      QResourceItem* l;
-      if ( m_layout == HBoxLayout )
-	l = new QResourceItem( "QHBoxLayout" );
-      else
-	l = new QResourceItem( "QVBoxLayout" );
-      w->append( l );
-
-      const QObjectList *list = children();
-      if ( list )
-      {
-	QObjectListIt it( *list );
-	for( ; it.current(); ++it )
-        {
-	  if ( it.current()->inherits( "DFormWidget" ) )
-	  {
-	    l->append( ((DFormWidget*)it.current())->save() );
-	  }
-	  else if ( it.current()->inherits( "DSizeHandle" ) )
-	  {
-	  }
-	  else if ( it.current()->inherits( "QWidget" ) )
-	  {
-	    QResourceItem* t = new QResourceItem( "Widget" );
-	    l->append( t );
-	    DObjectInfo* info = m_editor->findInfo( it.current() );
-	    if ( info )
-	      t->append( qObjectToXML( info, FALSE ) );
-	  }
-	}
-      }
-      return res;
-    }
-    break;
   case GridLayout:
     {
       QResourceItem* res = 0;
-      QResourceItem* l = 0;
-      if ( isTopMostForm() )
+
+      // Save as toolbar
+      if ( m_mode == ToolBarHelper )
       {
-	res = new QResourceItem( "QWidget" );
-	l = new QResourceItem( "Layout" );
-	res->append( l );
+	ASSERT( m_layout == HBoxLayout );
+	res = new QResourceItem( "QToolBar" );
+
+	// Iterate over all columns
+	for( uint x = 0; x < m_gridLayout->matrix().cols(); ++x )
+	{
+	  DGridLayout::Cell cell = m_gridLayout->matrix().cell( 0, x );
+	  if ( cell.w && cell.w->inherits( "DFormWidget" ) )
+	    res->append( ((DFormWidget*)cell.w)->save() );
+	  else if ( cell.w && cell.w->inherits( "DSeparator" ) )
+	    res->append( new QResourceItem( "Separator" ) );
+	  else if ( cell.w && strcmp( cell.w->name(), "whatsthis button" ) == 0 )
+	    res->append( new QResourceItem( "WhatsThis" ) );
+	  else if ( cell.w )
+          {
+	    QResourceItem* w = new QResourceItem( "Widget" );
+	    res->append( w );
+	    DObjectInfo* info = m_editor->findInfo( cell.w );
+	    if ( info )
+	      w->append( qObjectToXML( info ) );
+	  }
+	}
       }
+      // Save usually
       else
-	res = l = new QResourceItem( "Layout" );
-      l->append( m_gridLayout->save( m_editor ) );
+      {
+	QResourceItem* l = 0;
+	if ( isTopMostForm() )
+        {
+	  res = new QResourceItem( "QWidget" );
+	  l = new QResourceItem( "Layout" );
+	  res->append( l );
+        }
+	else
+	  res = l = new QResourceItem( "Layout" );
+	l->append( m_gridLayout->save( m_editor ) );
+      }
 
       return res;
     }
@@ -1493,8 +1545,14 @@ bool DFormWidget::configure( const QResource& _resource )
       QWidget* w = QResource::createWidget( this, r->firstChild() );
       if ( w == 0 )
 	return FALSE;
-      m_editor->addWidget( w );
+      m_editor->addWidget( w, r->firstChild() );
     }
+  /* else if ( r->type() == "WhatsThis" )
+    {
+      QWidget* w = QWhatsThis::whatsThisButton( this );
+      w->setName( "whatsthis button" );
+      m_editor->addWidget( w );
+      } */
     else if ( r->type() == "Layout" )
     {
       // try to create the layout with all child widgets
@@ -1532,7 +1590,7 @@ bool DFormWidget::configure( const QResource& _resource )
 
   // Do that after the QWidget::configure to enshure that we
   // overwrite properties in ever case.
-  setBackgroundColor( bgcolor() );
+  setColor();
   
   return TRUE;
 }

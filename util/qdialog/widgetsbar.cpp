@@ -173,13 +173,38 @@ DWidgetsPage::DWidgetsPage( QWidget* _parent, const char* _name )
   DWidgetInfo info6( "DStretch", pixmap6, "A stretch" );
   b = new DWidgetButton( info6, this );
   m_layout->addWidget( b );
+
+  QPixmap pixmap7( "qpushbutton.xpm" );
+  DWidgetInfo info7( "QRadioButton", pixmap7, "A radiobutton" );
+  b = new DWidgetButton( info7, this );
+  m_layout->addWidget( b );
+
+  QPixmap pixmap8( "qmultilineedit.xpm" );
+  DWidgetInfo info8( "QLabel", pixmap8, "A label" );
+  b = new DWidgetButton( info8, this );
+  m_layout->addWidget( b );
+
+  QPixmap pixmap9( "qpushbutton.xpm" );
+  DWidgetInfo info9( "QToolButton", pixmap9, "A button for toolbars" );
+  b = new DWidgetButton( info9, this );
+  m_layout->addWidget( b );
+
+  QPixmap pixmap10( "dseparator.xpm" );
+  DWidgetInfo info10( "DSeparator", pixmap10, "A separator for toolbars" );
+  b = new DWidgetButton( info10, this );
+  m_layout->addWidget( b );
+
+  QPixmap pixmap11( "qmultilineedit.xpm" );
+  DWidgetInfo info11( "DListView", pixmap11, "A list view" );
+  b = new DWidgetButton( info11, this );
+  m_layout->addWidget( b );
     
-  for( int i = 0; i < 5; i++ )
+  /* for( int i = 0; i < 5; i++ )
   {
     DWidgetInfo info( "QPushButton", pixmap, "A push button" );
     DWidgetButton* b = new DWidgetButton( info, this );
     m_layout->addWidget( b );
-  }
+    } */
 
   m_layout->addStretch( 1 );
 }

@@ -22,6 +22,8 @@ public:
   DMainWindow();
   ~DMainWindow();
 
+  void addResource( const QString& name, QResource& templ );
+
 public slots:
   void slotOpen();
   void slotOpen( const QString& _name );

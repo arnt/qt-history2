@@ -3,6 +3,7 @@
 
 #include <qstring.h>
 #include <qpixmap.h>
+#include <qproperty.h>
 
 class DWidgetInfo
 {
@@ -13,6 +14,10 @@ public:
   QString toolTip() const { return m_toolTip; }
   QString className() const { return m_className; }
   QSize sizeHint() const;
+
+  QProperty defaultProperty( const QString& name ) const { return defaultProperty( m_className, name ); }
+
+  static QProperty defaultProperty( const QString& classname, const QString& name );
 
 private:
   QString m_className;

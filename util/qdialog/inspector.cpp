@@ -1,5 +1,6 @@
 #include "inspector.h"
 #include "formeditor.h"
+#include "dmenudlg.h"
 
 #include <qlabel.h>
 #include <qlayout.h>
@@ -10,6 +11,7 @@
 #include <qscrollbar.h>
 #include <qmetaobject.h>
 #include <qpushbutton.h>
+#include <qresource.h>
 
 /**************************************************
  *
@@ -28,6 +30,10 @@ DInspector::DInspector( QWidget* _parent, const char* _name )
   connects = new DConnectionInspector( w );
   hbox->addWidget( connects );
   addTab( w, tr("Connections") );
+
+  m_editor = new QWidget( this );
+  addTab( m_editor, tr("Editor") );
+  m_editorChild = 0;
 }
 
 DInspector::~DInspector()
@@ -36,8 +42,26 @@ DInspector::~DInspector()
 
 void DInspector::inspect( DFormEditor* _editor, DObjectInfo* _info )
 {
+  // No properties for form widgets since they are not saved anyway.
+  if ( _info->widget()->inherits("DFormEditor") )
+    return;
+
   props->inspect( _editor, _info );
   connects->inspect( _editor, _info );
+
+  if ( m_editor->layout() )
+    delete m_editor->layout();
+  if ( m_editorChild )
+    delete m_editorChild;
+
+  if ( _info->widget()->inherits( "QMenuBar" ) )
+  {
+    QHBoxLayout* hbox = new QHBoxLayout( m_editor, 6, 6 );
+    QResource resource( "dmenudlg.qdl" );
+    m_editorChild = new DMenuDlg( (QMenuBar*)_info->widget(), m_editor, resource );
+    m_editorChild->show();
+    hbox->addWidget( m_editorChild  );
+  }
 }
 
 /**************************************************
@@ -198,7 +222,10 @@ void DStringPropEditor::slotUpdate()
 {
   DPropertyEditor::slotUpdate();
   if ( isValid() )
+  {
+    printf("Setting %s\n",property().stringValue().ascii());
     lineedit->setText( property().stringValue() );
+  }
 }
 
 void DStringPropEditor::returnPressed()

@@ -22,9 +22,23 @@ protected slots:
   void slotMainWindow( bool );
   void slotVertical( bool );
   void slotHorizontal( bool );
+  void slotNameChanged( const QString&);
+  void slotFinished();
+  void slotSimple(bool);
+  void slotFullFeatured(bool);
 
 private:
   DMainWindow* m_pMainWindow;
+
+  enum Type { Dialog, Wizard, MainWindow };
+  enum DialogType { Dialog_VerticalButtons, Dialog_HorizontalButtons };
+  enum MainWindowType { MainWindow_FullFeatured, MainWindow_Simple };
+
+  Type m_type;
+  DialogType m_dialogType;
+  MainWindowType m_mainWindowType;
+
+  QString m_name;
 };
 
 #endif

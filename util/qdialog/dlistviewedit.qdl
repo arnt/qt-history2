@@ -1,0 +1,67 @@
+<QDialog name="DListViewEdit" modal="true">
+ <Layout>
+  <QVBoxLayout>
+   <Layout>
+    <QGridLayout>
+     <Row>
+      <Cell>
+       <Widget>
+        <QLabel>
+         <text>
+          Pixmap
+         </text>
+        </QLabel>
+       </Widget>
+      </Cell>
+      <Cell>
+       <Widget>
+        <QLabel name="lb_pixmap">
+         <text>
+          None
+         </text>
+        </QLabel>
+       </Widget>
+      </Cell>
+     </Row>
+     <Row>
+      <Cell>
+       <Widget>
+        <QLabel>
+         <text>
+          Text
+         </text>
+        </QLabel>
+       </Widget>
+      </Cell>
+      <Cell>
+       <Widget>
+        <QLineEdit name="lb_text"/>
+       </Widget>
+      </Cell>
+     </Row>
+    </QGridLayout>
+   </Layout>
+   <Layout>
+    <QHBoxLayout>
+     <Stretch factor="1"/>
+     <Widget>
+      <QPushButton name="ok">
+       <text>
+        Ok
+       </text>
+      </QPushButton>
+     </Widget>
+     <Widget>
+      <QPushButton name="cancel">
+       <text>
+        Cancel
+       </text>
+      </QPushButton>
+     </Widget>
+    </QHBoxLayout>
+   </Layout>
+  </QVBoxLayout>
+ </Layout>
+ <Connection receiver="DListViewEdit" sender="ok" signal="clicked()" slot="accept()"/>
+ <Connection receiver="DListViewEdit" sender="cancel" signal="clicked()" slot="reject()"/>
+</QDialog>

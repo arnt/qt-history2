@@ -2,6 +2,7 @@
 #define DLAYOUT_H
 
 #include <qwidget.h>
+#include <qframe.h>
 
 class QResource;
 
@@ -51,6 +52,15 @@ q_properties:
 private:
   int m_spacing;
   Qt::Orientation m_orientation;
+};
+
+class DSeparator : public QFrame
+{
+  Q_OBJECT
+  Q_BUILDER( "A separator for toolbars", "dseparator.xpm" )
+public:
+  DSeparator( QWidget* _parent, const QResource& _resource );
+  ~DSeparator() { }
 };
 
 #endif

@@ -193,13 +193,15 @@ void DConnectDlg::slotConnect()
   if ( con.receiverName == "unnamed" || con.receiverName.isEmpty() )
   {
     con.receiverName = DIntegerServer::name();
-    m_pReceiver->widget()->setName( con.receiverName );
+    m_pReceiver->setProperty( "name", QProperty( con.receiverName ) );
+    // m_pReceiver->widget()->setName( con.receiverName );
     // TODO: emit signal so that the property inspector can update
   }
   if ( con.senderName == "unnamed" || con.senderName.isEmpty() )
   {
     con.senderName = DIntegerServer::name();
-    m_pSender->widget()->setName( con.senderName );
+    // m_pSender->widget()->setName( con.senderName );
+    m_pSender->setProperty( "name", QProperty( con.senderName ) );
     // TODO: emit signal so that the property inspector can update
   }
 

@@ -14,7 +14,12 @@ HEADERS		= mainwindow.h \
 		  windowmanager.h \
 		  linedlg.h \
 		  createdlg.h \
-		  wizard_skel.h
+		  wizard_skel.h \
+		  dlistview.h \
+		  dlistviewedit.h \
+		  dlistviewedit_skel.h \
+		  dmenudlg.h \
+		  dmenudlg_skel.h
 SOURCES		= mainwindow.cpp \
 		  inspector.cpp \
 		  widgetsbar.cpp \
@@ -29,6 +34,11 @@ SOURCES		= mainwindow.cpp \
 		  windowmanager.cpp \
 		  linedlg.cpp \
 		  createdlg.cpp \
-		  wizard_skel.cpp
+		  wizard_skel.cpp \
+		  dlistview.cpp \
+		  dlistviewedit.cpp \
+		  dlistviewedit_skel.cpp \
+		  dmenudlg.cpp \
+		  dmenudlg_skel.cpp
 TARGET		= qdialog
 TMAKE_CXXFLAGS   += -DQT_FATAL_ASSERT

@@ -187,7 +187,9 @@ public:
   ConstRowIterator rowBegin() const { return sh->row_list.begin(); }
   RowIterator rowEnd() { return sh->row_list.end(); }
   ConstRowIterator rowEnd() const { return sh->row_list.end(); }
-  
+
+  bool isEmpty() const { return ( sh->col_count == 0 && sh->row_count == 0 ); }
+
   uint cols() const { return sh->col_count; }
   uint rows() const { return sh->row_count; }
 

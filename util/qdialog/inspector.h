@@ -147,6 +147,9 @@ public slots:
 private:
   DPropertyInspector *props;
   DConnectionInspector* connects;
+
+  QWidget* m_editor;
+  QWidget* m_editorChild;
 };
 
 #endif

@@ -1,0 +1,120 @@
+<QWizard name="DCreateWizard" modal="true">
+	<caption>GUI wizard</caption>
+	<CustomSlot signature="slotDialog(bool)"/>
+	<CustomSlot signature="slotMainWindow(bool)"/>
+	<CustomSlot signature="slotVertical(bool)"/>
+	<CustomSlot signature="slotHorizontal(bool)"/>
+	<CustomSlot signature="slotSimple(bool)"/>
+	<CustomSlot signature="slotFullFeatured(bool)"/>
+	<CustomSlot signature="slotNameChanged( const QString&)"/>
+	<Page><title>GUI type</title>
+		<Layout>
+			<QGridLayout name="first">
+				<Row stretch="0">
+					<Cell halign="left">
+						<Widget>
+							<QLabel><text>Bild1</text></QLabel>
+						</Widget>
+					</Cell>
+					<Cell halign="left">
+						<Widget>
+							<QRadioButton name="rb_dialog"><text>Dialog</text></QRadioButton>
+						</Widget>
+					</Cell>
+				</Row>
+				<Row stretch="1">
+					<Cell halign="left">
+						<Widget>
+							<QLabel><text>Bild1</text></QLabel>
+						</Widget>
+					</Cell>
+					<Cell halign="left">
+						<Widget>
+							<QRadioButton name="rb_mainwindow"><text>Mainwindow</text></QRadioButton>
+						</Widget>
+					</Cell>
+				</Row>
+			</QGridLayout>
+		</Layout>
+	</Page>
+	<Page><title>Dialog Template</title>
+		<Layout>
+			<QGridLayout name="dlgtmpl">
+				<Row stretch="0">
+					<Cell halign="left">
+						<Widget>
+							<QLabel><text>Bild3</text></QLabel>
+						</Widget>
+					</Cell>
+					<Cell halign="left">
+						<Widget>
+							<QRadioButton name="rb_horizontal"><text>Horizontal buttons</text></QRadioButton>
+						</Widget>
+					</Cell>
+				</Row>
+				<Row stretch="1">
+					<Cell halign="left">
+						<Widget>
+							<QLabel><text>Bild4</text></QLabel>
+						</Widget>
+					</Cell>
+					<Cell halign="left">
+						<Widget>
+							<QRadioButton name="rb_vertical"><text>Vertical buttons</text></QRadioButton>
+						</Widget>
+					</Cell>
+				</Row>
+			</QGridLayout>
+		</Layout>
+	</Page>
+	<Page><title>Mainwindow Template</title>
+		<Layout>
+			<QGridLayout name="mwtmpl">
+				<Row stretch="0">
+					<Cell halign="left">
+						<Widget>
+							<QLabel><text>Bild3</text></QLabel>
+						</Widget>
+					</Cell>
+					<Cell halign="left">
+						<Widget>
+							<QRadioButton name="rb_mainwindow_simple"><text>Simple application</text></QRadioButton>
+						</Widget>
+					</Cell>
+				</Row>
+				<Row stretch="1">
+					<Cell halign="left">
+						<Widget>
+							<QLabel><text>Bild4</text></QLabel>
+						</Widget>
+					</Cell>
+					<Cell halign="left">
+						<Widget>
+							<QRadioButton name="rb_mainwindow_full"><text>Full featured application</text></QRadioButton>
+						</Widget>
+					</Cell>
+				</Row>
+			</QGridLayout>
+		</Layout>
+	</Page>
+	<Page><title>Names</title>
+		<Layout>
+			<QVBoxLayout name="last">
+				<Widget>
+					<QLabel><text>Dialog name</text></QLabel>
+				</Widget>
+				<Widget>
+					<QLineEdit name="le_name"/>
+				</Widget>
+				<Stretch factor="1"/>
+			</QVBoxLayout>
+		</Layout>
+	</Page>
+	<Connection sender="rb_dialog" signal="toggled(bool)" receiver="" slot="slotDialog(bool)"/>
+	<Connection sender="rb_mainwindow" signal="toggled(bool)" receiver="" slot="slotMainWindow(bool)"/>
+	<Connection sender="rb_vertical" signal="toggled(bool)" receiver="" slot="slotVertical(bool)"/>
+	<Connection sender="rb_horizontal" signal="toggled(bool)" receiver="" slot="slotHorizontal(bool)"/>
+	<Connection sender="rb_mainwindow_simple" signal="toggled(bool)" receiver="" slot="slotSimple(bool)"/>
+	<Connection sender="rb_mainwindow_full" signal="toggled(bool)" receiver="" slot="slotFullFeatured(bool)"/>
+	<Connection sender="le_name" signal="textChanged( const QString& )" receiver="" slot="slotNameChanged( const QString& )"/>
+</QWizard>

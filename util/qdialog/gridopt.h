@@ -91,9 +91,9 @@ public:
 
   typedef QTable<Row,Col,Cell> Matrix;
 
-  enum Insert { InsertCol, InsertRow, InsertNone };
+  enum Insert { InsertCol, InsertRow, InsertFirst, InsertNone };
   
-  DGridLayout( QWidget* _parent, Mode _mode, int _rows = 1, int _cols = 1, int _outborder = 6, int _innerspace = 6 );
+  DGridLayout( QWidget* _parent, Mode _mode, int _rows = 0, int _cols = 0, int _outborder = 6, int _innerspace = 6 );
   DGridLayout( QWidget* _parent, const QResource& _resource );
   DGridLayout( QWidget* _parent, Mode _mode, const Matrix& _m, int _outborder = 6, int _innerspace = 6 );
 

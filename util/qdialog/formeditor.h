@@ -35,6 +35,7 @@ public:
   };
 
   DObjectInfo( QWidget* _widget );
+  DObjectInfo( QWidget* _widget, const QResourceItem* );
   ~DObjectInfo();
 
   bool isSelected() const { return m_selected; }
@@ -65,10 +66,6 @@ public:
   const QStringList& customSlots() const { return m_customSlots; }
 
   /**
-   * @retrun the widgets default property settings.
-   */
-  const QProperty& defaultProperty( const QString& name ) const;
-  /**
    * @return 0 if there is no such custom property set.
    */
   QProperty* property( const QString& name );
@@ -79,7 +76,7 @@ public:
   /**
    * Removes a custom property and updates the widget with the default value.
    */
-  void removeProperty( const QString& name ) { m_props.remove( name ); m_widget->setProperty( name, defaultProperty( name ) ); }
+  void removeProperty( const QString& name );
   /**
    * @return TRUE if there is a custom property value stored.
    */
@@ -105,7 +102,6 @@ private:
   QStringList m_customSlots;
 
   QMap<QString,QProperty> m_props;
-  QMap<QString,QProperty> m_defaultProps;
 };
 
 class DSizeHandle : public QWidget
@@ -136,7 +132,7 @@ class DFormWidget : public QWidget
 
 public:
   enum Layout { NoLayout, VBoxLayout, HBoxLayout, GridLayout };
-  enum Mode { TopMost, Container, LayoutHelper, GridHelper };
+  enum Mode { TopMost, Container, LayoutHelper, GridHelper, ToolBarHelper };
 
   DFormWidget( Mode _mode, DFormEditor* _editor, QWidget* _parent = 0, const char* _name = 0 );
   DFormWidget( QWidget* parent, const QResource& _resource );
@@ -193,6 +189,7 @@ protected slots:
 private:
   void replace( int _row, int _col, QWidget* _w );
 
+  void setColor( bool highlight = FALSE );
   QColor bgcolor() const;
   
   QPoint m_mousePress;
@@ -214,9 +211,11 @@ class DFormEditor : public QWidget
   Q_OBJECT
 public:
   DFormEditor( QWidget* _parent = 0, const char* _name = 0 );
+  DFormEditor( const QResource&, QWidget* _parent = 0, const char* _name = 0 );
   ~DFormEditor();  
 
   void addWidget( QWidget* _w );
+  void addWidget( QWidget* _w, const QResourceItem* );
 
   void unselectAll() { selectObjectExclusive( 0 ); }
   void updateSizeHandles();
@@ -225,7 +224,6 @@ public:
   DObjectInfo* info( const QString& _obj_name );
 
   QResourceItem* save();
-  bool load( const QResource& _resource );
 
   bool isTopLevelWidget( QWidget* _widget ) { return _widget == m_topLevelWidget; }
 
@@ -263,7 +261,6 @@ protected:
   void simpleArrange( DFormWidget::Layout _l );
 
 private:
-  QWidget* m_form;
   QWidget* m_topLevelWidget;
   QPtrDict<DObjectInfo> m_widgets;
   DObjectInfo* m_pPopupWidget;

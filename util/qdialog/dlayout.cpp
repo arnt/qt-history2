@@ -120,3 +120,9 @@ void DSpacing::setOrientation( Qt::Orientation _o )
   setSpacing( m_spacing );
 }
 
+DSeparator::DSeparator( QWidget* _parent, const QResource& _resource )
+  : QFrame( _parent, _resource )
+{
+  setFrameStyle( QFrame::VLine );
+  setFrameShadow( QFrame::Sunken );
+}

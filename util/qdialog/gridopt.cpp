@@ -1,10 +1,15 @@
 #include "gridopt.h"
 #include "formeditor.h"
 #include "xml.h"
+#include "dlayout.h"
 
 #include <qmap.h>
 #include <qtl.h>
 #include <qresource.h>
+
+// Needed since they require special treatment from the builder
+#include <qwhatsthis.h>
+#include <qtoolbutton.h>
 
 void DRange::setGeometry( int _left, int _width )
 {
@@ -424,6 +429,13 @@ void DGridLayout::updateGeometry()
 
 DGridLayout::Insert DGridLayout::insertTest( const QPoint& _p, int *_row, int *_col )
 {
+  if ( m_matrix.isEmpty() )
+  {
+    *_row = 0;
+    *_col = 0;
+    return InsertFirst;
+  }
+
   for( uint r = 0; r <= m_matrix.rows(); ++r )
   {
     int top, bottom;
@@ -483,6 +495,9 @@ DGridLayout::Insert DGridLayout::insertTest( const QPoint& _p, int *_row, int *_
 
 QRect DGridLayout::insertRect( DGridLayout::Insert ins, uint r, uint c )
 {
+  if ( ins == InsertFirst )
+    return QRect( 0, 0, mainWidget()->width(), mainWidget()->height() );
+
   if ( ins == InsertRow )
   {    
     uint top, bottom;
@@ -535,20 +550,32 @@ QResourceItem* DGridLayout::save( DFormEditor* _editor ) const
         {
 	  t->append( ((DFormWidget*)cell.w)->save() );
         }
+	else if ( cell.w && cell.w->inherits( "DStretch" ) )
+	{
+	  QResourceItem* s = new QResourceItem( "Stretch" );
+	  s->insertAttrib( "factor", ((DStretch*)cell.w)->stretch() );
+	  t->append( s );
+	}
+	else if ( cell.w && cell.w->inherits( "DSpacing" ) )
+	{
+	  QResourceItem* s = new QResourceItem( "Space" );
+	  s->insertAttrib( "size", ((DSpacing*)cell.w)->spacing() );
+	  t->append( s );
+	}
 	else if ( cell.w )
         {
 	  QResourceItem* w = new QResourceItem( "Widget" );
 	  t->append( w );
 	  DObjectInfo* info = _editor->findInfo( cell.w );
 	  if ( info )
-	    w->append( qObjectToXML( info, TRUE ) );
+	    w->append( qObjectToXML( info ) );
 	}
     }
     return t;
   }
   else if ( mode() == Horizontal )
   {
-    QResourceItem* t = new QResourceItem( "QVBoxLayout" );
+    QResourceItem* t = new QResourceItem( "QHBoxLayout" );
 
     for( uint x = 0; x < m_matrix.cols(); ++x )
     {
@@ -557,13 +584,25 @@ QResourceItem* DGridLayout::save( DFormEditor* _editor ) const
         {
 	  t->append( ((DFormWidget*)cell.w)->save() );
         }
+	else if ( cell.w && cell.w->inherits( "DStretch" ) )
+	{
+	  QResourceItem* s = new QResourceItem( "Stretch" );
+	  s->insertAttrib( "factor", ((DStretch*)cell.w)->stretch() );
+	  t->append( s );
+	}
+	else if ( cell.w && cell.w->inherits( "DSpacing" ) )
+	{
+	  QResourceItem* s = new QResourceItem( "Space" );
+	  s->insertAttrib( "size", ((DSpacing*)cell.w)->spacing() );
+	  t->append( s );
+	}
 	else if ( cell.w )
         {
 	  QResourceItem* w = new QResourceItem( "Widget" );
 	  t->append( w );
 	  DObjectInfo* info = _editor->findInfo( cell.w );
 	  if ( info )
-	    w->append( qObjectToXML( info, TRUE ) );
+	    w->append( qObjectToXML( info ) );
 	}
     }
     return t;
@@ -601,123 +640,275 @@ QResourceItem* DGridLayout::save( DFormEditor* _editor ) const
 	  c->append( w );
 	  DObjectInfo* info = _editor->findInfo( cell.w );
 	  if ( info )
-	    w->append( qObjectToXML( info, TRUE ) );
+	    w->append( qObjectToXML( info ) );
 	}
       }
     }
     return t;
   }
-  
+  else
+    ASSERT( 0 );
+
   // Never reached
   return 0;
 }
 
 bool DGridLayout::configure( const QResource& _resource )
 {
-  const QResourceItem* irow = _resource.tree()->firstChild();
-  uint r = 0;
+  // TODO: Handle border/space
 
   QString m = _resource.tree()->attrib( "__mode" );
-  if ( m == "__grid" )
-    m_mode = Grid;
-  else if ( m == "__vertical" )
-    m_mode = Vertical;
-  else if ( m == "__horizontal" )
-    m_mode = Horizontal;
-  else
-    ASSERT( 0 );
-
-  for( ; irow; irow = irow->nextSibling() )
+  /**
+   * Load a QVBoxLayout
+   */
+  if ( m == "vertical" )
   {
-    if ( irow->type() == "Row" )
+    m_mode = Vertical;
+    uint r = 0;
+
+    const QResourceItem* cell = _resource.tree()->firstChild();
+    for( ; cell; cell = cell->nextSibling() )
     {
-      if ( irow->hasAttrib( "size" ) )
-	addRowSpacing( r, irow->intAttrib( "size" ) );
-      if ( irow->hasAttrib( "stretch" ) )
-	setRowStretch( r, irow->intAttrib( "stretch" ) );
-
-      const QResourceItem* icol = irow->firstChild();
-      int c = 0;
-      while( icol )
+      if ( cell->type() == "Widget" || cell->type() == "Layout" )
       {
-	if ( icol->type() == "Cell" )
+	int stretch = 0;
+	int align = 0;
+	if ( cell->hasAttrib( "stretch" ) )
+	stretch = cell->intAttrib( "stretch" );
+	int x,y;
+	if ( stringToAlign( cell->attrib( "valign" ), &y ) )
 	{
-	  qDebug("QGridLayout child at %i %i", r, c );
-
-	  int multicol = 1;
-	  int multirow = 1;
-	  if ( icol->hasAttrib( "multicol" ) )
-	    multicol = icol->intAttrib( "multicol" );
-	  if ( multicol < 1 )
-	    return FALSE;
-	  if ( icol->hasAttrib( "multirow" ) )
-	    multirow = icol->intAttrib( "multirow" );
-	  if ( multirow < 1 )
-	    return FALSE;
-	  int align = 0;
-	  int x,y;
-	  if ( stringToAlign( icol->attrib( "valign" ), &y ) )
-	  {
-	    if ( y == Qt::AlignCenter )
-	      y = Qt::AlignVCenter;
-	    align |= y & ( Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop );
-	  }
-	  if ( stringToAlign( icol->attrib( "halign" ), &x ) )
-	  {
-	    if ( x == Qt::AlignCenter )
-	      x = Qt::AlignHCenter;
-	    align |= x & ( Qt::AlignHCenter | Qt::AlignLeft | Qt::AlignRight );
-	  }
-
-	  const QResourceItem* cell = icol->firstChild();
-	  QWidget *w = 0;
-	  if ( cell && cell->type() == "Widget" )
-	  {
-	    w = QResource::createWidget( mainWidget(), cell->firstChild() );
-	    if ( w == 0 )
-	      return FALSE;
-	    DFormEditor::loadingInstance()->addWidget( w );
-	  }
-	  else if ( cell && cell->type() == "Layout" )
-	  {
-	    // This should never happen since we replace that construct
-	    // with a "Widget" tag in the parse tree.
-	    ASSERT( 0 );
-	  }
-	  // Unknown tag ?
-	  else if ( cell )
-	    return FALSE;
-
-	  // #### QGridLayout does not like empty cells
-	  // if ( !w )
-	  // w = new QWidget( mainWidget() );
-
-	  if ( w )
-	  {
-	    if ( multicol != 1 || multirow != 1 )
-	      addMultiCellWidget2( w, r, r + multirow - 1, c, c + multicol - 1, align );
-	    else
-	      addWidget2( w, r, c, align );
-	  }
-
-	  if ( icol->hasAttrib( "size" ) )
-	    addColSpacing( c, icol->intAttrib( "size" ) );
-	  if ( icol->hasAttrib( "stretch" ) )
-	  {
-	    qDebug("Setting stretch of col %i to %i",c,icol->intAttrib( "stretch" ) );
-	    setColStretch( c, icol->intAttrib( "stretch" ) );
-	  }
-	  
-	  icol = icol->nextSibling();
-	  ++c;
+	  if ( y == Qt::AlignCenter )
+	    y = Qt::AlignVCenter;
+	  align |= y & ( Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop );
 	}
-	else
-	  return FALSE;
+	if ( stringToAlign( cell->attrib( "halign" ), &x ) )
+        {
+	  if ( x == Qt::AlignCenter )
+	    x = Qt::AlignHCenter;
+	  align |= x & ( Qt::AlignHCenter | Qt::AlignLeft | Qt::AlignRight );
+	}
+      
+	if ( cell->type() == "Widget" )
+        {
+	  QWidget* w = QResource::createWidget( mainWidget(), cell->firstChild() );
+	  if ( !w )
+	    return FALSE;
+	  addWidget2( w, r, 0, align );
+	  DFormEditor::loadingInstance()->addWidget( w, cell->firstChild() );
+	}
+	else // Layout
+	  // Should not happen since the XML tree is manipulated to avoid this
+	  ASSERT( 0 );
+
+	// TODO: The stretch/spacing stuff is not handled
+	if ( stretch )
+	  setRowStretch( r, stretch );
+	++r;
       }
-      ++r;
+      else if ( cell->type() == "Space" && cell->hasAttrib( "size" ) )
+      {
+	DSpacing* w = new DSpacing( mainWidget() );
+	w->setSpacing( cell->intAttrib( "size" ) );
+	addWidget2( w, r, 0, align );
+	addRowSpacing( r, w->spacing() );
+	DFormEditor::loadingInstance()->addWidget( w, cell );
+	++r;
+      }
+      else if ( cell->type() == "Stretch" && cell->hasAttrib( "factor" ) )
+      {
+	DStretch* w = new DStretch( mainWidget() );
+	w->setStretch( cell->intAttrib( "factor" ) );
+	addWidget2( w, r, 0, align );
+	setRowStretch( r, w->stretch() );
+	DFormEditor::loadingInstance()->addWidget( w, cell );
+	++r;
+      }
+      else
+	return FALSE;
     }
   }
+  /**
+   * Load a QHBoxLayout
+   */
+  else if ( m == "horizontal" )
+  {
+    m_mode = Horizontal;
+    uint c = 0;
 
+    const QResourceItem* cell = _resource.tree()->firstChild();
+    for( ; cell; cell = cell->nextSibling() )
+    {
+      if ( cell->type() == "Widget" || cell->type() == "Layout" )
+      {
+	int stretch = 0;
+	int align = 0;
+	if ( cell->hasAttrib( "stretch" ) )
+	stretch = cell->intAttrib( "stretch" );
+	int x,y;
+	if ( stringToAlign( cell->attrib( "valign" ), &y ) )
+	{
+	  if ( y == Qt::AlignCenter )
+	    y = Qt::AlignVCenter;
+	  align |= y & ( Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop );
+	}
+	if ( stringToAlign( cell->attrib( "halign" ), &x ) )
+        {
+	  if ( x == Qt::AlignCenter )
+	    x = Qt::AlignHCenter;
+	  align |= x & ( Qt::AlignHCenter | Qt::AlignLeft | Qt::AlignRight );
+	}
+      
+	if ( cell->type() == "Widget" )
+        {
+	  QWidget* w = QResource::createWidget( mainWidget(), cell->firstChild() );
+	  if ( !w )
+	    return FALSE;
+	  addWidget2( w, 0, c, align );
+	  DFormEditor::loadingInstance()->addWidget( w, cell->firstChild() );
+	}
+	else // Layout
+	  // Should not happen since the XML tree is manipulated to avoid this
+	  ASSERT( 0 );
+
+	// TODO: The stretch/spacing stuff is not handled
+	if ( stretch )
+	  setColStretch( c, stretch );
+	++c;
+      }
+      // Since the horizontal layout is used in a ToolBar, we have to deal with
+      // WhatsThis here
+      else if ( cell->type() == "WhatsThis" )
+      {
+	QWidget* w = QWhatsThis::whatsThisButton( mainWidget() );
+	w->setName( "whatsthis button" );
+	DFormEditor::loadingInstance()->addWidget( w, cell->firstChild() );
+	addWidget2( w, 0, c, align );
+	++c;
+      }
+      else if ( cell->type() == "Space" && cell->hasAttrib( "size" ) )
+      {
+	DSpacing* w = new DSpacing( mainWidget() );
+	w->setSpacing( cell->intAttrib( "size" ) );
+	addWidget2( w, 0, c, align );
+	addColSpacing( c, w->spacing() );
+	DFormEditor::loadingInstance()->addWidget( w, cell );
+	++c;
+      }
+      else if ( cell->type() == "Stretch" && cell->hasAttrib( "factor" ) )
+      {
+	DStretch* w = new DStretch( mainWidget() );
+	w->setStretch( cell->intAttrib( "factor" ) );
+	addWidget2( w, 0, c, align );
+	setColStretch( c, w->stretch() );
+	DFormEditor::loadingInstance()->addWidget( w, cell );
+	++c;
+      }
+      else
+	return FALSE;
+    }
+  }
+  /**
+   * Load a QGridLayout
+   */
+  else if ( m == "grid" )
+  {
+    m_mode = Grid;
+
+    const QResourceItem* irow = _resource.tree()->firstChild();
+    uint r = 0;
+
+    for( ; irow; irow = irow->nextSibling() )
+    {
+      if ( irow->type() == "Row" )
+      {
+	if ( irow->hasAttrib( "size" ) )
+	  addRowSpacing( r, irow->intAttrib( "size" ) );
+	if ( irow->hasAttrib( "stretch" ) )
+	  setRowStretch( r, irow->intAttrib( "stretch" ) );
+	
+	const QResourceItem* icol = irow->firstChild();
+	int c = 0;
+	while( icol )
+	{
+	  if ( icol->type() == "Cell" )
+	  {
+	    debug("QGridLayout child at %i %i", r, c );
+	    
+	    int multicol = 1;
+	    int multirow = 1;
+	    if ( icol->hasAttrib( "multicol" ) )
+	      multicol = icol->intAttrib( "multicol" );
+	    if ( multicol < 1 )
+	      return FALSE;
+	    if ( icol->hasAttrib( "multirow" ) )
+	      multirow = icol->intAttrib( "multirow" );
+	    if ( multirow < 1 )
+	      return FALSE;
+	    int align = 0;
+	    int x,y;
+	    if ( stringToAlign( icol->attrib( "valign" ), &y ) )
+	    {
+	      if ( y == Qt::AlignCenter )
+		y = Qt::AlignVCenter;
+	      align |= y & ( Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop );
+	    }
+	    if ( stringToAlign( icol->attrib( "halign" ), &x ) )
+	    {
+	      if ( x == Qt::AlignCenter )
+		x = Qt::AlignHCenter;
+	      align |= x & ( Qt::AlignHCenter | Qt::AlignLeft | Qt::AlignRight );
+	    }
+	    
+	    const QResourceItem* cell = icol->firstChild();
+	    QWidget *w = 0;
+	    if ( cell && cell->type() == "Widget" )
+	    {
+	      w = QResource::createWidget( mainWidget(), cell->firstChild() );
+	      if ( w == 0 )
+		return FALSE;
+	      DFormEditor::loadingInstance()->addWidget( w, cell->firstChild() );
+	    }
+	    else if ( cell && cell->type() == "Layout" )
+	    {
+	      // This should never happen since we replace that construct
+	      // with a "Widget" tag in the parse tree.
+	      ASSERT( 0 );
+	    }
+	    // Unknown tag ?
+	    else if ( cell )
+	      return FALSE;
+
+	    if ( w )
+	    {
+	      if ( multicol != 1 || multirow != 1 )
+		addMultiCellWidget2( w, r, r + multirow - 1, c, c + multicol - 1, align );
+	      else
+		addWidget2( w, r, c, align );
+	    }
+
+	    if ( icol->hasAttrib( "size" ) )
+	      addColSpacing( c, icol->intAttrib( "size" ) );
+	    if ( icol->hasAttrib( "stretch" ) )
+	    {
+	      qDebug("Setting stretch of col %i to %i",c,icol->intAttrib( "stretch" ) );
+	      setColStretch( c, icol->intAttrib( "stretch" ) );
+	    }
+	  
+	    icol = icol->nextSibling();
+	    ++c;
+	  }
+	  else
+	    return FALSE;
+	}
+	++r;
+      }
+    }
+  }
+  else
+    { printf("Instead got %s\n",m.ascii());
+    ASSERT( 0 );
+    }
   fillWithForms( DFormEditor::loadingInstance() );
 
   return TRUE;
