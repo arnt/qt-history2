@@ -5,6 +5,10 @@
 #include <qmap.h>
 #include <qstring.h>
 
+#if !defined QT_NO_COMPAT
+#include <qfileinfo.h>
+#endif
+
 class QByteArray;
 class QUrlPrivate;
 
@@ -101,7 +105,81 @@ public:
     static QString fromPunycode(const QByteArray &);
     static QByteArray toPunycode(const QString &);
 
+#if !defined QT_NO_COMPAT
+    inline QT_COMPAT QString protocol() const { return scheme(); }
+    inline QT_COMPAT void setProtocol(const QString &s) { setScheme(s); }
+    inline QT_COMPAT void setUser(const QString &s) { setUserName(s); }
+    inline QT_COMPAT QString user() const { return userName(); }
+    inline QT_COMPAT bool hasUser() const { return !userName().isEmpty(); }
+    inline QT_COMPAT bool hasPassword() const { return !password().isEmpty(); }
+    inline QT_COMPAT bool hasHost() const { return !host().isEmpty(); }
+    inline QT_COMPAT bool hasPort() const { return port() != -1; }
+    inline QT_COMPAT bool hasPath() const { return !path().isEmpty(); }
+    inline QT_COMPAT void setEncodedPathAndQuery(const QString &enc)
+    {
+        int offset = enc.indexOf('/');
+        if (offset != -1) {
+            setPath(fromPercentEncoding(enc.left(offset).toLatin1()));
+            setEncodedQuery(enc.mid(offset + 1).toLatin1());
+        } else {
+            setPath(fromPercentEncoding(enc.toLatin1()));
+        }
+    }
+    inline QT_COMPAT QString encodedPathAndQuery() const
+    {
+        return toPercentEncoding(path()) + "/" + encodedQuery();
+    }
+    inline QT_COMPAT void setQuery(const QString &txt)
+    {
+        setEncodedQuery(toPercentEncoding(txt));
+    }
+    inline QT_COMPAT QString query() const
+    {
+        return fromPercentEncoding(encodedQuery());
+    }
+    inline QT_COMPAT QString ref() const { return fragment(); }
+    inline QT_COMPAT void setRef(const QString &txt) { setFragment(txt); }
+    inline QT_COMPAT bool hasRef() const { return !fragment().isEmpty(); }
+    inline QT_COMPAT void addPath(const QString &p) { setPath(path() + "/" + p); }
+    inline QT_COMPAT void setFileName(const QString &txt)
+    {
+        QFileInfo fileInfo(path());
+        fileInfo.setFile(txt);
+        setPath(fileInfo.filePath());
+    }
+    inline QT_COMPAT QString fileName() const
+    {
+        QFileInfo fileInfo(path());
+        return fileInfo.fileName();
+    }
+    inline QT_COMPAT QString dirPath() const
+    {
+        QFileInfo fileInfo(path());
+        if (fileInfo.isAbsolute())
+            return fileInfo.absolutePath();
+        return fileInfo.path();
+    }
+    static inline QT_COMPAT void decode(QString &url)
+    {
+        url = QUrl::fromPercentEncoding(url.toLatin1());
+    }
+    static inline QT_COMPAT void encode(QString &url)
+    {
+        url = QUrl::toPercentEncoding(url);
+    }
+    inline QT_COMPAT operator QString() const { return toString(); }
+    inline QT_COMPAT bool cdUp() { *this = resolved(QUrl("..")); return true; }
+    static inline QT_COMPAT bool isRelativeUrl(const QString &url)
+    {
+        return QUrl(url).isRelative();
+    }
+#endif
+
 protected:
+#if !defined (QT_NO_COMPAT)
+    inline QT_COMPAT void reset() { clear(); }
+#endif
+
     QUrl(QUrlPrivate &d);
 
 private:
