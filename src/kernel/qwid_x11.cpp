@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#4 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -13,6 +13,7 @@
 #include "qview.h"
 #include "qapp.h"
 #include "qcolor.h"
+#include "qpixmap.h"
 #include "qwininfo.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
@@ -20,13 +21,15 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#4 $";
 #endif
 
 
 // --------------------------------------------------------------------------
 // QWidget member functions
 //
+
+extern Atom q_wm_delete_window;			// defined in qapp_x11.cpp
 
 bool QWidget::create()				// create widget
 {
@@ -63,8 +66,7 @@ bool QWidget::create()				// create widget
 			      border,
 			      BlackPixel(dpy,screen),
 			      WhitePixel(dpy,screen) );
-    set_id( id );				// set widget id/handle
-    hd = id;					// set paint device drawable
+    set_id( id );				// set widget id/handle + hd
     setDevType( PDT_WIDGET );
 
     XSizeHints size_hints;
@@ -86,7 +88,7 @@ bool QWidget::create()				// create widget
 	wm_hints.flags = InputHint | StateHint;
 	XSetWMHints( dpy, id, &wm_hints );
 	Atom protocols[1];
-	protocols[0] = qXDelWinProtocol();	// support del window protocol
+	protocols[0] = q_wm_delete_window;	// support del window protocol
 	XSetWMProtocols( dpy, id, protocols, 1 );
     }
     setMouseMoveEvents( FALSE );
@@ -248,9 +250,11 @@ static void do_size_hints( Display *dpy, WId ident, QWExtra *x, XSizeHints *s )
 	    s->max_height = x->maxh;
 	}
 	if ( x->incw >= 0 && x->inch >= 0 ) {	// add resize increment hints
-	    s->flags |= PResizeInc;
+	    s->flags |= PResizeInc | PBaseSize;
 	    s->width_inc = x->incw;
 	    s->height_inc = x->inch;
+	    s->base_width = 0;
+	    s->base_height = 0;
 	}
     }
     s->flags |= PWinGravity;
@@ -427,14 +431,28 @@ bool QWidget::drawText( int x, int y, const char *str )
 // QView member functions
 //
 
-void QView::setCaption( const char *s )			// set caption text
+void QView::setCaption( const char *s )		// set caption text
 {
     ctext = s;
     XStoreName( dpy, id(), (const char *)ctext );
 }
 
-void QView::setIconText( const char *s )		// set icon text
+void QView::setIconText( const char *s )	// set icon text
 {
     itext = s;
     XSetIconName( dpy, id(), (const char *)itext );
+}
+
+void QView::setIcon( QPixMap *pm )		// set icon pixmap
+{
+    CHECK_NULL( pm );
+    if ( ipm != pm ) {
+	delete ipm;
+	ipm = pm;
+    }
+    XWMHints wm_hints;				// window manager hints
+    wm_hints.input = True;
+    wm_hints.icon_pixmap = ipm->handle();
+    wm_hints.flags = IconPixmapHint;
+    XSetWMHints( display(), id(), &wm_hints );    
 }
