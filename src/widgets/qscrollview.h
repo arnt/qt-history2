@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#4 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#5 $
 **
 ** Definition of QScrollView class
 **
@@ -38,9 +38,6 @@ public:
 
     QScrollBar*  horizontalScrollBar();
     QScrollBar*  verticalScrollBar();
-
-    void	setBackgroundColor(const QColor&);
-    void	setBackgroundPixmap(const QPixmap&);
 
     void	viewResize( int w, int h );
     int		viewWidth() const;

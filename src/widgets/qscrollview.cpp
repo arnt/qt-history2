@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#9 $
 **
 ** Implementation of QScrollView class
 **
@@ -468,28 +468,6 @@ QScrollBar* QScrollView::horizontalScrollBar() { return &d->hbar; }
  It should not be otherwise manipulated.
 */
 QScrollBar* QScrollView::verticalScrollBar() { return &d->vbar; }
-
-/*!
- Sets the background color of the area \e behind the scrolling widget,
- which is only visible if that widget is smaller than the scrollview.
- If the scrollview is not viewing a widget, this color is the background
- for the drawing area.
-*/
-void QScrollView::setBackgroundColor(const QColor& c)
-{
-    d->viewport.setBackgroundColor(c);
-}
-
-/*!
- Sets the background pixmap of the area \e behind the scrolling widget,
- which is only visible if that widget is smaller than the scrollview.
- Do \e not use this function if the scrollview is not viewing a widget,
- as in that case you will need to have the pixmap drawn offset.
-*/
-void QScrollView::setBackgroundPixmap(const QPixmap& pm)
-{
-    d->viewport.setBackgroundPixmap(pm);
-}
 
 /*!
  Moves the scrolled widget or area so that the point (x, y) is visible
