@@ -252,6 +252,9 @@ QDataStream::QDataStream(QIODevice *d)
     \a mode is a QIODevice::mode(), usually either \c IO_ReadOnly or
     \c IO_WriteOnly. Use QDataStream(const QByteArray&, int) if you
     just want to read from a byte array.
+
+    Since QByteArray is not a QIODevice subclass, internally a QBuffer
+    is created to wrap the byte array.
 */
 
 QDataStream::QDataStream(QByteArray *a, int mode)
@@ -272,6 +275,9 @@ QDataStream::QDataStream(QByteArray *a, int mode)
     QDataStream(QByteArray*, int) if you want to write to a byte
     array. The \a mode is a QIODevice::mode() and should normally be
     \c IO_ReadOnly.
+
+    Since QByteArray is not a QIODevice subclass, internally a QBuffer
+    is created to wrap the byte array.
 */
 QDataStream::QDataStream(const QByteArray &a, int mode)
 {
