@@ -415,13 +415,17 @@ QString QSqlCursor::fieldEqualsValue( QSqlRecord* rec, const QString& prefix, co
 }
 
 /*!  Returns a pointer to the internal record buffer used for
-  inserting records.  If \a clearValues is TRUE, the insert record
-  buffer values are cleared.  If \a prime is TRUE, the buffer is
-  primed using primeInsert().
+  inserting records.  All previous pointers returned by insertBuffer()
+  are invalidated.  If \a clearValues is TRUE (the default), the
+  insert record buffer values are cleared, otherwise the buffer will
+  contain the field values of the current cursor buffer.  If \a prime
+  is TRUE (the default), the buffer is primed using primeInsert().
 
 */
 QSqlRecord* QSqlCursor::insertBuffer( bool clearValues, bool prime )
 {
+    d->editBuffer.clear();
+    d->editBuffer = *((QSqlRecord*)this);
     if ( clearValues )
 	d->editBuffer.clearValues();
     if ( prime )
@@ -477,18 +481,19 @@ int QSqlCursor::insert( bool invalidate )
 }
 
 /*!  Returns a pointer to the internal record buffer used for updating
-  record.  If \a copyCursor is TRUE, the value of the current cursor
-  buffer is copied into the update buffer.  If \a prime is TRUE, the
-  buffer is primed using primeUpdate().
+  record.  All previous pointers returned by updateBuffer() are
+  invalidated.  If \a copyCursor is TRUE, the value of the current
+  cursor buffer is copied into the update buffer.  If \a prime is
+  TRUE, the buffer is primed using primeUpdate().
 
 */
 
 QSqlRecord* QSqlCursor::updateBuffer( bool copyCursor, bool prime )
 {
-    if ( copyCursor ) {
-	d->editBuffer.clear();
-	d->editBuffer = *((QSqlRecord*)this);
-    }
+    d->editBuffer.clear();    
+    d->editBuffer = *((QSqlRecord*)this);    
+    if ( !copyCursor ) 
+	d->editBuffer.clearValues();
     if ( prime )
 	primeUpdate( &d->editBuffer );
     return &d->editBuffer;
