@@ -114,12 +114,12 @@ static void exitHandler( int )
 static void crashHandler()
 #else
 static void crashHandler( int )
+#endif
 {
     if ( MainWindow::self )
 	MainWindow::self->saveAllTemp();
     ::exit( -1 );
 }
-#endif
 #endif
 
 #if defined(Q_C_CALLBACKS)
