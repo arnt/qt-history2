@@ -44,7 +44,7 @@ public:
     QScrollBar( int minValue, int maxValue, int LineStep, int PageStep,
 		int value, Orientation,
 		QWidget *parent, const char *name=0 );
-qproperties:
+    //qproperties:
     virtual void setOrientation( Orientation );
     Orientation orientation() const;
     virtual void setTracking( bool enable );

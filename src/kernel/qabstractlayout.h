@@ -168,13 +168,13 @@ qproperties:
     virtual void setSpacing( int );
 public:
     enum { unlimited = QWIDGETSIZE_MAX };
-    enum ResizeMode { FreeResize, Minimum, Fixed };
 #if 1 //OBSOLETE
     int defaultBorder() const { return insideSpacing; }
     void freeze( int w, int h );
     void freeze() { setResizeMode( Fixed ); }
 #endif
 qproperties:    
+    enum ResizeMode { FreeResize, Minimum, Fixed };
     void setResizeMode( ResizeMode );
     ResizeMode resizeMode() const;
 public:

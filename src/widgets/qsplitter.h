@@ -43,7 +43,7 @@ public:
     QSplitter( QWidget *parent=0, const char *name=0 );
     QSplitter( Orientation, QWidget *parent=0, const char *name=0 );
     ~QSplitter();
-qproperties:
+    //qproperties:
     virtual void setOrientation( Orientation );
     Orientation orientation() const { return orient; }
 public:

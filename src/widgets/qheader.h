@@ -49,7 +49,7 @@ public:
     virtual void setLabel( int, const QIconSet&, const QString &, int size = -1 );
     QString 	label( int ) const;
     QIconSet* 	iconSet( int ) const;
-qproperties:
+    //qproperties:
     virtual void setOrientation( Orientation );
     Orientation orientation() const;
     virtual void setTracking( bool enable );

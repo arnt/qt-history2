@@ -39,15 +39,15 @@ struct QSliderData;
 class Q_EXPORT QSlider : public QWidget, public QRangeControl
 {
     Q_OBJECT
-public:
+qproperties:
     enum TickSetting { NoMarks = 0, Above = 1, Left = Above,
 		       Below = 2, Right = Below, Both = 3 };
-
+public:
     QSlider( QWidget *parent, const char *name=0 );
     QSlider( Orientation, QWidget *parent, const char *name=0 );
     QSlider( int minValue, int maxValue, int pageStep, int value, Orientation,
 	     QWidget *parent, const char *name=0 );
-qproperties:
+    //qproperties:
     virtual void	setOrientation( Orientation );
     Orientation orientation() const;
     virtual void	setTracking( bool enable );
