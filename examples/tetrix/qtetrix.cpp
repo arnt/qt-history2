@@ -15,9 +15,8 @@
 
 
 void drawTetrixButton( QPainter *p, int x, int y, int w, int h,
-		       const QColor *color )
+		       const QColor *color, QWidget *widg)
 {
-    QColor fc;
     if ( color ) {
         QPointArray a;
 	a.setPoints( 3,  x,y+h-1, x,y, x+w-1,y );
@@ -30,19 +29,19 @@ void drawTetrixButton( QPainter *p, int x, int y, int w, int h,
 	y++;
 	w -= 2;
 	h -= 2;
-	fc = *color;
+	p->fillRect( x, y, w, h, *color );
     }
-    else
-	fc = p->backgroundColor();
-    p->fillRect( x, y, w, h, fc );
+    else if(widg) {
+	widg->erase(x, y, w, h);
+    } else {
+	p->fillRect(x, y, w, h, p->backgroundColor());
+    }
 }
 
 
 ShowNextPiece::ShowNextPiece( QWidget *parent, const char *name )
     : QFrame( parent, name )
 {
-    setBackgroundColor(gray);
-
     setFrameStyle( QFrame::Panel | QFrame::Sunken );
     xOffset = -1;     // -1 until first resizeEvent.
 }
@@ -74,7 +73,7 @@ void ShowNextPiece::drawNextSquare(int x, int y,QColor *color)
     QPainter paint;
     paint.begin(this);
     drawTetrixButton( &paint, xOffset+x*blockWidth, yOffset+y*blockHeight,
-		      blockWidth, blockHeight, color );
+		      blockWidth, blockHeight, color, this );
     paint.end();
 }
 

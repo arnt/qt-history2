@@ -19,10 +19,9 @@ const int waitAfterLineTime = 500;
 QTetrixBoard::QTetrixBoard( QWidget *p, const char *name )
     : QFrame( p, name )
 {
-    setBackgroundColor(gray);
-
     setFrameStyle( QFrame::Panel | QFrame::Sunken );
     paint = 0;
+    paint_widget = 0;
     timer = new QTimer(this);
     connect( timer, SIGNAL(timeout()), SLOT(timeout()) );
 
@@ -79,12 +78,16 @@ void QTetrixBoard::drawSquare(int x,int y,int value)
 
     bool localPainter = paint == 0;
     QPainter *p;
-    if ( localPainter )
+    QWidget *w;
+    if ( localPainter ) {
 	p = new QPainter( this );    
-    else
+	w = this;
+    } else {
 	p = paint;
+	w = paint_widget;
+    }
     drawTetrixButton( p, X, Y, blockWidth, blockHeight,
-		      value == 0 ? 0 : &colors[value-1] );
+		      value == 0 ? 0 : &colors[value-1], w);
     /*
     if ( value != 0 ) {
 	QColor tc, bc;

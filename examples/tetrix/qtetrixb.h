@@ -64,6 +64,7 @@ private:
 
     QColor    colors[7];
     QPainter *paint;
+    QWidget *paint_widget;
 };
 
 #endif

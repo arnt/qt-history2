@@ -69,7 +69,7 @@ private:
 
 
 void drawTetrixButton( QPainter *, int x, int y, int w, int h,
-		       const QColor *color );
+		       const QColor *color, QWidget *widg);
 
 
 #endif
