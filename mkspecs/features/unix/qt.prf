@@ -34,4 +34,9 @@ for(QTLIB, QT) {
       }
    }
 }
+
+# make sure that the Qt includes are before all others... this
+# prevents us from picking up "stale" includes
+INCLUDEPATH = $$QMAKE_INCDIR_QT $$INCLUDEPATH
+
 plugin:DEFINES += QT_PLUGIN
