@@ -303,13 +303,12 @@ UnixMakefileGenerator::init()
 	    project->variables()["QMAKE_LINK_SHLIB_CMD"].append(
 		"$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)");
     }
-    if ( project->variables()["QMAKE_APP_FLAG"].isEmpty() &&
-	 project->isActiveConfig("dll") ) {
+    if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
+	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SHAPP"];
+    } else if ( project->isActiveConfig("dll") ) {
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_SHLIB"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_SHLIB"];
-	if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
-	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SHAPP"];
-	} else if( project->isActiveConfig("plugin") ) {
+	if( project->isActiveConfig("plugin") ) {
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_PLUGIN"];
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SONAME"];
 	} else {
