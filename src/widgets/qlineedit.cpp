@@ -597,23 +597,19 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		unknown++;
 	    break;
 #endif
-	case Key_Undo:
+	case Key_F14: // Undo key on Sun keyboards
 	    if ( !d->readonly )
 		undoInternal();
 	    break;
-	case Key_Redo:
-	    if ( !d->readonly )
-		redoInternal();
-	    break;
 #ifndef QT_NO_CLIPBOARD
-	case Key_Copy:
+	case Key_F16: // Copy key on Sun keyboards
 	    copy();
 	    break;
-	case Key_Paste:
+	case Key_F18: // Paste key on Sun keyboards
 	    if ( !d->readonly )
 		insert( QApplication::clipboard()->text() );
 	    break;
-	case Key_Cut:
+	case Key_F20: // Cut key on Sun keyboards
 	    if ( !d->readonly && hasMarkedText() && echoMode() == Normal ) {
 		copy();
 		del();

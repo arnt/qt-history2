@@ -1125,7 +1125,7 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	    else
 		unknown++;
 	    break;
-	case Key_Copy:
+	case Key_F16: // Copy key on Sun keyboards
 	    if ( echoMode() == Normal )
 		copy();
 	    else
@@ -1283,21 +1283,18 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 		unknown++;
 	    break;
 #endif
-	case Key_Undo:
+	case Key_F14: // Undo key on Sun keyboards
 	    undo();
 	    break;
-	case Key_Redo:
-	    redo();
-	    break;
 #ifndef QT_NO_CLIPBOARD
-	case Key_Copy:
+	case Key_F16: // Copy key on Sun keyboards
 	    if ( echoMode() == Normal )
 		copy();
 	    break;
-	case Key_Paste:
+	case Key_F18: // Paste key on Sun keyboards
 	    paste();
 	    break;
-	case Key_Cut:
+	case Key_F20: // Paste key on Sun keyboards
 	    cut();
 	    break;
 #endif

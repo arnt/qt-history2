@@ -913,7 +913,7 @@ void QTextView::keyPressEvent( QKeyEvent * e)
 	scrollBy( 0, visibleHeight() );
 	break;
 #ifndef QT_NO_DRAGANDDROP
-    case Key_Copy:
+    case Key_F16: // Copy key on Sun keyboards
 	copy();
 	break;
 #if defined (_WS_WIN_)
