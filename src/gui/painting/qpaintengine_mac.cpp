@@ -790,6 +790,7 @@ QQuickDrawPaintEngine::setupQDPen()
     f.blue = d->current.pen.color().blue()*256;
     PixPatHandle pixpat = NewPixPat();
     MakeRGBPat(pixpat, &f);
+    RGBForeColor(&f);
     PenPixPat(pixpat);
 
     //backcolor
@@ -836,6 +837,7 @@ QQuickDrawPaintEngine::setupQDBrush()
     if(bs == SolidPattern) {
         PixPatHandle pixpat = NewPixPat();
         MakeRGBPat(pixpat, &f);
+        RGBForeColor(&f);
         PenPixPat(pixpat);
     } else {
         Pattern pat;
