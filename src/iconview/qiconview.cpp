@@ -2457,6 +2457,7 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 
 void QIconView::slotUpdate()
 {
+    qDebug("slotupdate");
     d->updateTimer->stop();
     d->fullRedrawTimer->stop();
 
@@ -2471,13 +2472,16 @@ void QIconView::slotUpdate()
 	QIconViewItem *item = d->firstItem;
 	int w = 0, h = 0;
 	while ( item ) {
-	    item = makeRowLayout( item, y );
+	    QIconViewItem *next = makeRowLayout( item, y );
 
-	    if ( !item || !item->next )
+	    if ( !next || !next->next )
 		break;
 
+	    if( !QApplication::reverseLayout() ) 
+		item = next;
 	    w = QMAX( w, item->x() + item->width() );
 	    h = QMAX( h, item->y() + item->height() );
+	    item = next;
 	    if ( d->arrangement == LeftToRight )
 		h = QMAX( h, y );
 
@@ -2923,6 +2927,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
 void QIconView::arrangeItemsInGrid( bool update )
 {
+    qDebug("arrangeIconsInGrid");
     if ( !d->firstItem || !d->lastItem )
 	return;
 
@@ -2932,9 +2937,12 @@ void QIconView::arrangeItemsInGrid( bool update )
 
     QIconViewItem *item = d->firstItem;
     while ( item ) {
-	item = makeRowLayout( item, y );
+	QIconViewItem *next = makeRowLayout( item, y );
+	if( !QApplication::reverseLayout() )
+	    item = next;
 	w = QMAX( w, item->x() + item->width() );
 	h = QMAX( h, item->y() + item->height() );
+	item = next;
 	if ( d->arrangement == LeftToRight )
 	    h = QMAX( h, y );
 
@@ -2963,6 +2971,7 @@ void QIconView::arrangeItemsInGrid( bool update )
     else
 	h += d->spacing;
 
+    qDebug("new width=%d, visible=%d", w, visibleWidth());
     viewport()->setUpdatesEnabled( FALSE );
     int vw = visibleWidth();
     int vh = visibleHeight();
@@ -4857,6 +4866,8 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 {
     QIconViewItem *end = 0;
 
+    bool reverse = QApplication::reverseLayout();
+    
     if ( d->arrangement == LeftToRight ) {
 
 	if ( d->rastX == -1 ) {
@@ -4891,11 +4902,19 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	    item = begin;
 	    while ( TRUE ) {
 		item->dirty = FALSE;
-		if ( item == begin )
-		    item->move( d->spacing, y + ih - item->pixmapRect().height() );
-		else
-		    item->move( item->prev->x() + item->prev->width() + d->spacing,
-				y + ih - item->pixmapRect().height() );
+		int x;
+		if ( item == begin ) {
+		    if ( reverse )
+			x = visibleWidth() - d->spacing - item->width();
+		    else
+			x = d->spacing;
+		} else {
+		    if ( reverse ) 
+			x = item->prev->x() - item->width() - d->spacing;
+		    else
+			x = item->prev->x() + item->prev->width() + d->spacing;
+		}
+		item->move( x, y + ih - item->pixmapRect().height() );
 		if ( y + h < item->y() + item->height() )
 		    h = QMAX( h, ih + item->textRect().height() );
 		if ( item == end )
