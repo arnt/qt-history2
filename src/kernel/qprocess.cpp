@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#27 $
 **
 ** Implementation of QProcess class
 **
@@ -78,32 +78,33 @@
   with the Qt Designer) and make some operations on the output (the \c uic
   outputs the code it generates to standard output by default). Consider the
   case, that you want to start it with the command line options "-tr i18n" on
-  the file "help dialog.ui" (notice the space in the filename). On the command
+  the file "small dialog.ui" (notice the space in the filename). On the command
   line you would do that with
   \code
-  uic -tr i18n "help dialog.ui"
+  uic -tr i18n "small dialog.ui"
   \endcode
+
+  \dontinclude process/process.cpp
 
   A code snippet for this with the QProcess class could look like this:
 
-  \code
-  UicManager::UicManager()
-  {
-      proc = new QProcess( this );
-      proc->addArgument( "uic" );
-      proc->addArgument( "-tr" );
-      proc->addArgument( "i18n" );
-      proc->addArgument( "help dialog.ui" );
-      connect( proc, SIGNAL(readyReadStdout()), this, SLOT(readFromStdout()) );
-      proc->start();
-  }
-
-  void UicManager::readFromStdout()
-  {
-      // Do some processing.
-      // Keep in mind that the data might be reported in chunks.
-  }
-  \endcode
+  \skipto UicManager::UicManager()
+  \printline UicManager::UicManager()
+  \printline {
+  \skipto proc = new QProcess( this );
+  \printline proc = new QProcess( this );
+  \skipto proc->addArgument( "uic" );
+  \printuntil this, SLOT(readFromStdout()) );
+  \skipto if ( !proc->start() ) {
+  \printuntil // error handling
+  \skipto }
+  \printline }
+  \printline }
+  
+  \skipto void UicManager::readFromStdout()
+  \printuntil // Keep in mind that the data might be reported in chunks.
+  \skipto }
+  \printline }
 
   The readyReadStdout() signal is emitted when there is new data on standard
   output. This happens asynchronous: you don't know if more data will arrive
