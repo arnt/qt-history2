@@ -116,12 +116,11 @@ qdb::Program* QDb::program()
 
 */
 
-bool QDb::parse( const QString& /*commands*/, bool verbose )
+bool QDb::parse( const QString& commands, bool verbose )
 {
-    //## jasmin todo
     if ( verbose )
-	output() << "parsing..." << endl;;
-    return TRUE;
+	output() << "parsing..." << endl;
+    return Parser().parse( commands, this );
 }
 
 /*! Executes the program produced by parse(). If an error is

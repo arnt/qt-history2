@@ -93,6 +93,73 @@ private:
 
 class Parser : public qdb::Parser
 {
+public:
+    Parser();
+    virtual ~Parser();
+
+    bool parse( const QString& commands, qdb::Environment *env );
+
+private:
+    QString yyIn;
+    int yyPos;
+    int yyCurPos;
+    char yyLex[4096];
+    int yyLexLen;
+    int yyLineNo;
+    int yyCurLineNo;
+    int yyColumnNo;
+    int yyCurColumnNo;
+    int yyCh;
+    QString yyStr;
+    double yyNum;
+
+    void readChar();
+    void startTokenizer( const QString& in );
+    void error( const char *format, ... );
+    void readTrailingGarbage();
+    int readExponent();
+    int getToken();
+
+    int yyTok;
+    qdb::Environment *yyEnv;
+    qdb::Program *yyProg;
+    bool yyOK;
+
+    void matchOrInsert( int target, const QString& targetStr );
+    void matchOrSkip( int target, const QString& targetStr );
+    QString matchName();
+    QString matchTable();
+    QStringList matchColumnRef();
+    void matchFunctionRefArguments();
+    void matchPrimaryExp();
+    void matchMultiplicativeExp();
+    void matchScalarExp();
+    void matchAtom();
+    void matchAtomList();
+    void matchPredicate();
+    void matchPrimarySearchCondition();
+    void matchAndSearchCondition();
+    void matchSearchCondition();
+    void matchOptWhereClause();
+    void matchCommitStatement();
+    void matchDataType();
+    void matchColumnList();
+    void matchTableConstraintDef();
+    void matchBaseTableElement();
+    void matchBaseTableElementList();
+    void matchCreateStatement();
+    void matchDeleteStatement();
+    void matchInsertAtom();
+    void matchInsertAtomList();
+    void matchInsertStatement();
+    void matchRollbackStatement();
+    void matchFromClause();
+    void matchWhereClause();
+    void matchOrderByClause();
+    void matchSelectStatement();
+    void matchUpdateStatementSearched();
+    void matchManipulativeStatement();
+    void matchSql();
 };
 
 class Program : public qdb::Program

@@ -18,8 +18,11 @@ namespace qdb {
     typedef QMap< QVariant, QValueList<int> > ColumnKey;
     typedef QValueStack<QVariant> Stack;
 
-    struct Parser {
-	//## todo
+    class Environment;
+
+    struct Parser
+    {
+	virtual bool parse( const QString& commands, Environment* env ) = 0;
     };
 
     struct ResultSet
@@ -65,8 +68,6 @@ namespace qdb {
 	virtual bool clearMarked() = 0;
     };
 
-    class Environment;
-
     class Op
     {
     public:
@@ -108,8 +109,5 @@ namespace qdb {
     };
 
 };
-
-
-
 
 #endif
