@@ -33,11 +33,21 @@ public:
     {
 	setOpen(TRUE);
 	label = text(0);
+	avl = TRUE;
     }
 
     // We reverse the logic
     void setDefined(bool y) { setOn(!y); }
     bool isDefined() const { return !isOn(); }
+
+    void setAvailable(bool y)
+    {
+	if ( avl != y ) {
+	    avl = y;
+	    repaint();
+	}
+    }
+    bool isAvailable() const { return avl; }
 
     virtual void setOn(bool y)
     {
@@ -65,6 +75,10 @@ public:
 	    QColorGroup c = cg;
 	    c.setColor(QColorGroup::Text, gray);
 	    QCheckListItem::paintCell(p,c,column,width,align);
+	} else if ( !isAvailable() ) {
+	    QColorGroup c = cg;
+	    c.setColor(QColorGroup::Text, darkGray);
+	    QCheckListItem::paintCell(p,c,column,width,align);
 	} else {
 	    QCheckListItem::paintCell(p,cg,column,width,align);
 	}
@@ -86,6 +100,7 @@ public:
 
 private:
     QString doc;
+    bool avl;
 };
 
 Main::Main()
@@ -111,8 +126,10 @@ Main::Main()
     horizontal->setStretchFactor(info,2);
 #endif
 
-    connect(lv,SIGNAL(selectionChanged(QListViewItem*)),
-	  this,SLOT(showInfo(QListViewItem*)));
+    connect(lv, SIGNAL(pressed(QListViewItem*)),
+	    this, SLOT(updateAvailability(QListViewItem*)));
+    connect(lv, SIGNAL(selectionChanged(QListViewItem*)),
+	    this, SLOT(showInfo(QListViewItem*)));
 
     setCentralWidget(horizontal);
 
@@ -144,12 +161,27 @@ void Main::testAll()
     QString c;
     for (QStringList::ConstIterator it = choices.begin(); it != choices.end(); ++it)
     {
-	c += (*it);
-	c += " ";
+	c += "Feature: ";
+	c += *it;
+	c += "\n";
+
+	c += "Section: ";
+	c += section[*it];
+	c += "\n";
+
+	c += "Requires: ";
 	c += dependencies[*it].join(" ");
 	c += "\n";
+
+	c += "Name: ";
+	c += label[*it];
+	c += "\n";
+
+	c += "SeeAlso: ???\n";
+
+	c += "\n";
     }
-    QFile f("featurelist");
+    QFile f("features.txt");
     f.open(IO_WriteOnly);
     f.writeBlock(c.ascii(),c.length());
     f.close();
@@ -196,15 +228,69 @@ void Main::loadFeatures(const QString& filename)
     }
     QTextStream s(&file);
     QRegExp qt_no_xxx("QT_NO_[A-Z_0-9]*");
-    QStringList deps;
+    QStringList sections;
+
+#if 1
+    QString line = s.readLine();
+    QString feature, lab, sec;
+    QStringList deps, seealso;
+    QMap<QString,QStringList> sectioncontents;
+    while (!s.atEnd()) {
+	if ( line.length() <= 1 ) {
+	    if ( !feature.isEmpty() ) {
+		dependencies[feature] = deps;
+		for (QStringList::ConstIterator it = deps.begin(); it!=deps.end(); ++it)
+		    rdependencies[*it].append(feature);
+		label[feature] = lab;
+		links[feature] = seealso;
+		section[feature] = sec;
+		sectioncontents[sec].append(feature);
+		choices.append(feature);
+	    } else {
+		qDebug("Unparsed text");
+	    }
+
+	    feature = lab = sec = QString::null;
+	    deps.clear(); seealso.clear();
+	    line = s.readLine();
+	    continue;
+	}
+
+	QString nextline = s.readLine();
+	while ( nextline[0] == ' ' ) {
+	    line += nextline;
+	    nextline = s.readLine();
+	}
+
+	int colon = line.find(':');
+	if ( colon < 0 ) {
+	    qDebug("Cannot parse: %s",line.ascii());
+	} else {
+	    QString tag = line.left(colon);
+	    QString value = line.mid(colon+1).stripWhiteSpace();
+	    if ( tag == "Feature" )
+		feature = value;
+	    else if ( tag == "Requires" )
+		deps = QStringList::split(QChar(' '),value);
+	    else if ( tag == "Name" )
+		lab = value;
+	    else if ( tag == "Section" )
+		sec = value;
+	    else if ( tag == "SeeAlso" )
+		seealso = QStringList::split(QChar(' '),value);
+	}
+
+	line = nextline;
+    }
+    sections = keys(sectioncontents);
+
+#else
     QString sec;
     QString lab;
     QString doc;
     bool on = FALSE;
     bool docmode = FALSE;
-    QMap<QString,QString> label;
-    QMap<QString,QString> documentation;
-    QStringList sections;
+    QStringList deps;
 
     do {
 	QString line = s.readLine();
@@ -258,6 +344,7 @@ void Main::loadFeatures(const QString& filename)
 	    on = TRUE;
 	}
     } while (!s.atEnd());
+#endif
 
     lv->clear();
     sections.sort();
@@ -266,20 +353,36 @@ void Main::loadFeatures(const QString& filename)
 	sectionitem[*se] = new QListViewItem(lv,*se);
     }  
     for (QStringList::Iterator ch = choices.begin(); ch != choices.end(); ++ch) {
-	QStringList deps = dependencies[*ch];
-	QListViewItem* parent = deps.isEmpty() ? 0 : item[deps[0]];
-	if ( !parent ) {
-	    parent = sectionitem[section[*ch]];
-	}
-	ChoiceItem* ci = new ChoiceItem(*ch,parent);
-	item[*ch] = ci;
-	if ( !label[*ch].isEmpty() )
-	    ci->setInfo(label[*ch],documentation[*ch]);
+	createItem(*ch);
     }
 
 #ifdef FIXED_LAYOUT
     lv->setFixedWidth(lv->sizeHint().width());
 #endif
+}
+
+void Main::createItem(const QString& ch)
+{
+    if ( !item[ch] ) {
+	QStringList deps = dependencies[ch];
+	QString sec = section[ch];
+	QListViewItem* parent = 0;
+	for (QStringList::Iterator dp = deps.begin(); dp != deps.end(); ++dp) {
+	    QString dsec = section[*dp];
+	    if ( dsec.isEmpty() )
+		qDebug("No section for %s",(*dp).latin1());
+	    if ( !parent && dsec == sec ) {
+		createItem(*dp);
+		parent = item[*dp];
+	    }
+	}
+	if ( !parent )
+	    parent = sectionitem[section[ch]];
+	ChoiceItem* ci = new ChoiceItem(ch,parent);
+	item[ch] = ci;
+	if ( !label[ch].isEmpty() )
+	    ci->setInfo(label[ch],documentation[ch]);
+    }
 }
 
 void Main::loadConfig(const QString& filename)
@@ -303,12 +406,42 @@ void Main::loadConfig(const QString& filename)
 	    ChoiceItem* i = item[token[1]];
 	    if ( i )
 		i->setDefined(TRUE);
-	    else {
-		QMessageBox::warning(this,"Warning",
-		    "The item " + token[1] + " is not used by qfeatures.h");
-	    }
+	    else
+		qDebug("The item %s is not used by qfeatures.h", token[1].latin1());
 	}
     } while (!s.atEnd());
+}
+
+void Main::updateAvailability(QListViewItem* i)
+{
+    if ( !i->parent() ) {
+        // section. do nothing for now
+    } else {
+        ChoiceItem* choice = (ChoiceItem*)i;
+	QStringList deps = rdependencies[choice->id];
+	for (QStringList::ConstIterator it = deps.begin();
+		it != deps.end(); ++it)
+	{
+	    ChoiceItem* d = item[*it];
+	    QStringList ddeps = dependencies[d->id];
+	    bool av = TRUE;
+	    for (QStringList::ConstIterator dit = ddeps.begin();
+		    av && dit != ddeps.end(); ++dit)
+	    {
+		ChoiceItem* dd = item[*dit];
+		if ( dd ) {
+		    if ( dd->isDefined() || !dd->isAvailable() )
+			av = FALSE;
+		} else
+		    qDebug("%s ???",(*dit).latin1());
+	    }
+	    if ( d->isAvailable() != av ) {
+		d->setAvailable(av);
+		updateAvailability(d);
+	    }
+	}
+qDebug("%s: %d",choice->id.latin1(),choice->isAvailable());
+    }
 }
 
 void Main::showInfo(QListViewItem* i)
@@ -325,8 +458,13 @@ void Main::showInfo(QListViewItem* i)
 		    it != deps.end(); ++it)
 	    {
 		ChoiceItem* d = item[*it];
-		if ( d )
-		    i += "<li>"+d->label;
+		if ( d ) {
+		    bool got = d->isAvailable() && !d->isDefined();
+		    i += "<li>";
+		    if ( !got ) i += "<font color=red>";
+		    i += d->label;
+		    if ( !got ) i += "</font>";
+		}
 	    }
 	    i += "</ul>";
 	}
@@ -352,7 +490,8 @@ int main(int argc, char** argv)
     QApplication app(argc,argv);
     Main m;
     QString qtdir = getenv("QTDIR");
-    QString qfeatures = qtdir + "/include/qfeatures.h";
+    QString qfeatures = qtdir + "/src/tools/qfeatures.txt";
+    //QString qfeatures = qtdir + "/include/qfeatures.h";
     QString qconfig = qtdir + "/include/qconfig.h";
     for (int i=1; i<argc; i++) {
 	QString arg = argv[i];

@@ -13,7 +13,12 @@ public:
     Main();
     void loadFeatures(const QString& filename);
     void loadConfig(const QString& filename);
+
 private:
+    void createItem(const QString& ch);
+    QMap<QString,QString> label;
+    QMap<QString,QString> documentation;
+    QMap<QString,QStringList> links;
     QMap<QString,QStringList> dependencies;
     QMap<QString,QStringList> rdependencies;
     QMap<QString,QString> section;
@@ -24,6 +29,7 @@ private:
     QLabel* info;
 
 private slots:
+    void updateAvailability(QListViewItem* i);
     void showInfo(QListViewItem* i);
     void open();
     void save();
