@@ -21,6 +21,12 @@ Editing of Slots (Reggie)
 
 Support for the database classes/widgets to build database forms (Dave, Reggie)
 
+Dynamic creating of dialogs from XML (Reggie, Volker)
+    Loading XML files and creating dialogs dynamically from that. This is exactly
+    what we do in the designer when preview, so it is basically using that code
+    and getting the designer dependencies out there. Also we need to have to dynamic 
+    customwidget stuff ready for that, so that customwidgets can be used. Access to
+    the widgets by name is available through QObject::child( const char * ).
 
 Extending existing functionality
 --------------------------------
