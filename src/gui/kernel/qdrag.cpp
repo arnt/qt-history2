@@ -24,8 +24,8 @@ QDrag::QDrag(QWidget *dragSource)
     d->target = 0;
     d->data = 0;
     d->hotspot = QPoint(-10, -10);
-    d->operations = QDrag::DefaultDrag;
-    d->executed_op = QDrag::NoDrag;
+    d->request_action = QDrag::AskAction;
+    d->executed_action = QDrag::NoAction;
 }
 
 QDrag::~QDrag()
@@ -72,16 +72,6 @@ QPoint QDrag::hotSpot() const
     return d->hotspot;
 };
 
-void QDrag::setAllowedOperations(DragOperations actions)
-{
-    d->operations = actions;
-}
-
-QDrag::DragOperations QDrag::allowedOperations() const
-{
-    return d->operations;
-}
-
 QWidget *QDrag::source() const
 {
     return d->source;
@@ -92,10 +82,11 @@ QWidget *QDrag::target() const
     return 0; // ########### d->target;
 }
 
-QDrag::DragOperation QDrag::start()
+QDrag::DropAction QDrag::start(QDrag::DropAction request)
 {
     QDragManager *manager = QDragManager::self();
+    d->request_action = request;
     if (manager)
-        d->executed_op = manager->drag(d, d->operations);
-    return d->executed_op;
+        d->executed_action = manager->drag(d, d->request_action);
+    return d->executed_action;
 }

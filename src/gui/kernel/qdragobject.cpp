@@ -334,27 +334,24 @@ bool QDragObject::drag(DragMode mode)
     drag.setPixmap(d->pixmap);
     drag.setHotSpot(d->hot);
 
-    QDrag::DragOperation op;
+    QDrag::DropAction op;
     switch(mode) {
     case DragDefault:
-        op = QDrag::DefaultDrag;
+    case DragCopyOrMove:
+        op = QDrag::AskAction;
         break;
     case DragCopy:
-        op = QDrag::CopyDrag;
+        op = QDrag::CopyAction;
         break;
     case DragMove:
-        op = QDrag::MoveDrag;
+        op = QDrag::MoveAction;
         break;
     case DragLink:
-        op = QDrag::LinkDrag;
-        break;
-    case DragCopyOrMove:
-        op = QDrag::CopyOrMoveDrag;
+        op = QDrag::LinkAction;
         break;
     }
-    drag.setAllowedOperations(op);
-    switch(drag.start()) {
-    case QDrag::MoveDrag:
+    switch(drag.start(op)) {
+    case QDrag::MoveAction:
         return true;
     default:
         return false;

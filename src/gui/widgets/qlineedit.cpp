@@ -1939,8 +1939,8 @@ void QLineEditPrivate::drag()
     data->setText(q->selectedText());
     QDrag drag(q);
     drag.setMimeData(data);
-    QDrag::DragOperation op = drag.start();
-    if (op == QDrag::MoveDrag && !readOnly && drag.target() != q) {
+    QDrag::DropAction action = drag.start();
+    if (action == QDrag::MoveAction && !readOnly && drag.target() != q) {
         int priorState = undoState;
         removeSelectedText();
         finishChange(priorState);

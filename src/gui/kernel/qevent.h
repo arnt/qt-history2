@@ -361,7 +361,7 @@ public:
     inline void accept(bool y = TRUE) { accpt = y; }
     inline void ignore() { accpt = FALSE; }
 
-    enum Action { Copy, Link, Move, Private, UserAction = 100 };
+    enum Action { Ask, Copy, Link, Move, Private, UserAction = Private };
     inline bool isActionAccepted() const { return accptact; }
     inline void acceptAction(bool y = TRUE)  { accptact = y; }
     inline void setAction(Action a) { act = uint(a); }

@@ -402,11 +402,10 @@ void QTextEditPrivate::startDrag()
     QDrag drag(q);
     drag.setMimeData(data);
 
-    drag.setAllowedOperations(readOnly ? QDrag::CopyDrag : QDrag::DefaultDrag);
-    QDrag::DragOperation op = drag.start();
+    QDrag::DropAction action = drag.start(readOnly ? QDrag::CopyAction : QDrag::DefaultAction);
 
-    if (op == QDrag::MoveDrag && drag.target() != q)
-            cursor.removeSelectedText();
+    if (action == QDrag::MoveAction && drag.target() != q)
+        cursor.removeSelectedText();
 }
 
 void QTextEditPrivate::paste(const QMimeData *source)

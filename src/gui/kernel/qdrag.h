@@ -29,15 +29,15 @@ public:
     QDrag(QWidget *dragSource);
     ~QDrag();
 
-    enum DragOperation {
-        NoDrag = 0,
-        CopyDrag = 0x1,
-        MoveDrag = 0x2,
-        LinkDrag = 0x4,
-        CopyOrMoveDrag = 0x3,
-        DefaultDrag = 0xffff
+    enum DropAction {
+        DefaultAction,
+        AskAction,
+        CopyAction,
+        MoveAction,
+        LinkAction,
+        PrivateAction,
+        NoAction
     };
-    Q_DECLARE_FLAGS(DragOperations, DragOperation)
 
     void setMimeData(QMimeData *data);
     QMimeData *mimeData() const;
@@ -48,13 +48,10 @@ public:
     void setHotSpot(const QPoint& hotspot);
     QPoint hotSpot() const;
 
-    void setAllowedOperations(DragOperations actions);
-    DragOperations allowedOperations() const;
-
     QWidget *source() const;
     QWidget *target() const;
 
-    DragOperation start();
+    DropAction start(DropAction request = DefaultAction);
 
 private:
     QDragPrivate *d;

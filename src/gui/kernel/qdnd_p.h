@@ -30,8 +30,8 @@ public:
     QMimeData *data;
     QPixmap pixmap;
     QPoint hotspot;
-    QDrag::DragOperations operations;
-    QDrag::DragOperation executed_op;
+    QDrag::DropAction request_action;
+    QDrag::DropAction executed_action;
 };
 
 class QDropData : public QMimeData
@@ -62,7 +62,7 @@ class Q_GUI_EXPORT QDragManager: public QObject {
     void timerEvent(QTimerEvent*);
 
 public:
-    QDrag::DragOperation drag(QDragPrivate *, QDrag::DragOperations);
+    QDrag::DropAction drag(QDragPrivate *, QDrag::DropAction request);
 
     void cancel(bool deleteSource = true);
     void move(const QPoint &);

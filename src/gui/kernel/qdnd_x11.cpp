@@ -162,7 +162,7 @@ bool qt_motifdnd_active = false;
 static bool dndCancelled = false;
 
 // Shift/Ctrl handling, and final drop status
-static QDrag::DragOperations drag_mode;
+static QDrag::DropAction drag_mode;
 static QDropEvent::Action global_requested_action = QDropEvent::Copy;
 static QDropEvent::Action global_accepted_action = QDropEvent::Copy;
 
@@ -852,14 +852,16 @@ void QDragManager::updateMode(Qt::KeyboardModifiers newstate)
         global_requested_action = QDropEvent::Link;
     } else {
         bool local = qt_xdnd_source_object != 0;
-        if (drag_mode == QDrag::MoveDrag)
+        if (drag_mode == QDrag::MoveAction)
             global_requested_action = QDropEvent::Move;
-        else if (drag_mode == QDrag::CopyDrag)
+        else if (drag_mode == QDrag::CopyAction)
             global_requested_action = QDropEvent::Copy;
-        else if (drag_mode == QDrag::LinkDrag)
+        else if (drag_mode == QDrag::LinkAction)
             global_requested_action = QDropEvent::Link;
+        else if (drag_mode == QDrag::AskAction)
+            global_requested_action = QDropEvent::Ask;
         else {
-            if (drag_mode == QDrag::DefaultDrag && local)
+            if (drag_mode == QDrag::DefaultAction && local)
                 global_requested_action = QDropEvent::Move;
             else
                 global_requested_action = QDropEvent::Copy;
@@ -1357,10 +1359,10 @@ bool qt_dnd_enable(QWidget* w, bool on)
     return qt_xdnd_enable(w, on);
 }
 
-QDrag::DragOperation QDragManager::drag(QDragPrivate * o, QDrag::DragOperations mode)
+QDrag::DropAction QDragManager::drag(QDragPrivate * o, QDrag::DropAction mode)
 {
     if (object == o || !o || !o->source)
-        return QDrag::NoDrag;
+        return QDrag::NoAction;
 
     if (object) {
         cancel();
@@ -1445,16 +1447,17 @@ QDrag::DragOperation QDragManager::drag(QDragPrivate * o, QDrag::DragOperations 
     qt_xdnd_dragging = false;
 
     if (dndCancelled)
-        return QDrag::NoDrag;
+        return QDrag::NoAction;
     switch(global_accepted_action) {
     case QDropEvent::Copy:
-        return QDrag::CopyDrag;
+        return QDrag::CopyAction;
     case QDropEvent::Move:
-        return QDrag::MoveDrag;
+        return QDrag::MoveAction;
     case QDropEvent::Link:
-        return QDrag::LinkDrag;
+        return QDrag::LinkAction;
+    case QDropEvent::Private:
     default:
-        return QDrag::DefaultDrag;
+        return QDrag::PrivateAction;
     }
     // qt_xdnd_source_object persists until we get an xdnd_finish message
 }
