@@ -11,6 +11,10 @@
 # endif
 #endif /* QT_POINTER_SIZE */
 
+#ifndef QT_NO_THREAD
+# define THREADSAFE
+#endif
+
 #define SQLITE_PTR_SZ QT_POINTER_SIZE
 
 #ifdef UNICODE
