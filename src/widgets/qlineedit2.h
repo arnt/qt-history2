@@ -126,7 +126,6 @@ public:
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
 
-
 #ifndef QT_NO_COMPAT
     bool hasMarkedText() const { return hasSelectedText(); }
     QString markedText() const { return selectedText(); }
@@ -139,6 +138,8 @@ public:
     int characterAt( int xpos, QChar *chr ) const;
 
     bool isValidInput();
+    void setMask( const QString & );
+    bool hasMask() const;
 
 public slots:
     virtual void setText( const QString &);
@@ -226,6 +227,7 @@ private:
     bool isValidInput( QChar key, QChar mask );
     QString maskString( uint pos, const QString &str );
     QString clearString( uint pos, uint len );
+    QString stripString( const QString &str ) const;
 
     QLineEditPrivate * d;
 
