@@ -246,8 +246,10 @@ void QCheckBox::nextCheckState()
 {
     if (d->tristate)
         setCheckState((Qt::CheckState)((checkState() + 1) % 3));
-    else
+    else {
         QAbstractButton::nextCheckState();
+        QCheckBox::checkStateSet();
+    }
 }
 
 #ifdef QT3_SUPPORT
