@@ -983,8 +983,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    dirtyChildren.translate( x, y );
 		    dirtyChildren |= upd;
 		    paint_children( p, dirtyChildren );
-		    QApplication::postEvent( p, new QPaintEvent(upd,
-			!p->testWFlags(QWidget::WRepaintNoErase)) );
+		    QApplication::postEvent( p, new QPaintEvent(upd, TRUE) );
 		}
 	    } else {
 		QApplication::postEvent( this, new QPaintEvent(rect(),
