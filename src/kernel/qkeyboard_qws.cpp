@@ -41,6 +41,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -145,6 +146,7 @@ private:
     int shift;
     int alt;
     int ctrl;
+    bool caps;
     bool extended;
     int modifiers;
     int prevuni;
@@ -278,6 +280,7 @@ QWSPC101KeyboardHandler::QWSPC101KeyboardHandler()
     extended = false;
     prevuni = 0;
     prevkey = 0;
+    caps = FALSE;
 #ifdef QT_QWS_IPAQ
     repeatdelay = 400;
     repeatperiod = 80;
@@ -441,12 +444,12 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 
     if (keyCode == Qt::Key_Alt) {
 	alt = release ? 0 : AltButton;
-    }
-    else if (keyCode == Qt::Key_Control) {
+    } else if (keyCode == Qt::Key_Control) {
 	ctrl = release ? 0 : ControlButton;
-    }
-    else if (keyCode == Qt::Key_Shift) {
+    } else if (keyCode == Qt::Key_Shift) {
 	shift = release ? 0 : ShiftButton;
+    } else if ( keyCode == Qt::Key_CapsLock && release ) {
+	caps = !caps;
     }
     if (keyCode != Qt::Key_unknown) {
 	int unicode = 0;
@@ -464,6 +467,9 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 		    unicode = '/';
 	    }
 	}
+
+	if ( caps && unicode < 256 )
+	    unicode = toupper( unicode ); //### Latin1-centric
 
 	modifiers = alt | ctrl | shift | keypad;
 
