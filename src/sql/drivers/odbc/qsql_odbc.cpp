@@ -183,8 +183,8 @@ QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull, 
     if ( unicode ) {
 	colSize *= 2;
     }
-    if ( colSize > 1048576 ) { // limit fields larger than 1 MB
-    	colSize = 1048576;
+    if ( colSize > 65536 ) { // limit buffer size to 64 KB 
+	colSize = 65536;
     }
     char* buf = new char[ colSize ];
     while ( TRUE ) {
