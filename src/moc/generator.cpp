@@ -150,7 +150,7 @@ Generator::Generator(FILE *outfile, ClassDef *classDef) :out(outfile), cdef(clas
       want non-MSVC users to have a working generated files.
     */
     if (cdef->superclassList.size()) {
-        purestSuperClass = cdef->superclassList.first();
+        purestSuperClass = cdef->superclassList.first().first;
         /*
           Make sure qualified template arguments (e.g., foo<bar::baz>)
           don't interfere.
@@ -159,7 +159,7 @@ Generator::Generator(FILE *outfile, ClassDef *classDef) :out(outfile), cdef(clas
         if (pos != -1) {
             purestSuperClass = purestSuperClass.mid(pos + 2);
             if (purestSuperClass == cdef->classname)
-                purestSuperClass = cdef->superclassList.first();
+                purestSuperClass = cdef->superclassList.first().first;
         }
     }
 }
@@ -349,7 +349,9 @@ void Generator::generateCode()
                   "\treturn static_cast<void*>(const_cast<%s*>(this));\n",
             qualifiedClassNameIdentifier.constData(),  cdef->qualified.constData());
     for (int i = 1; i < cdef->superclassList.size(); ++i) { // for all superclasses but the first one
-        const char *cname = cdef->superclassList.at(i);
+        if (cdef->superclassList.at(i).second == FunctionDef::Private)
+            continue;
+        const char *cname = cdef->superclassList.at(i).first;
         fprintf(out, "    if (!strcmp(_clname, \"%s\"))\n\treturn static_cast<%s*>(const_cast<%s*>(this));\n",
                 cname, cname,   cdef->qualified.constData());
     }

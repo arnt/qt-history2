@@ -17,6 +17,7 @@
 #include "scanner.h"
 #include <qstringlist.h>
 #include <qmap.h>
+#include <qpair.h>
 #include <ctype.h>
 #include <stdio.h>
 
@@ -82,7 +83,7 @@ struct ClassDef {
         hasQObject(false), hasQGadget(false){}
     QByteArray classname;
     QByteArray qualified;
-    QList<QByteArray> superclassList;
+    QList<QPair<QByteArray, FunctionDef::Access> > superclassList;
     QList<QList<QByteArray> >interfaceList;
 
     bool hasQObject;

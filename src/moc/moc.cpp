@@ -254,14 +254,15 @@ bool Moc::parseClassHead(ClassDef *def)
     if (test(COLON)) {
         do {
             test(VIRTUAL);
-            bool priv = test(PRIVATE);
-            if (!priv)
-                test(PUBLIC) || test(PROTECTED); 
-            test(VIRTUAL);
-            if (!priv)
-                def->superclassList += parseType();
+            FunctionDef::Access access = FunctionDef::Public;
+            if (test(PRIVATE))
+                access = FunctionDef::Private;
+            else if (test(PROTECTED))
+                access = FunctionDef::Protected;
             else
-                parseType();
+                test(PUBLIC);
+            test(VIRTUAL);
+            def->superclassList += qMakePair(parseType(), access);
         } while (test(COMMA));
     }
     next(LBRACE);
