@@ -38,7 +38,7 @@
 #include <private/qsqlextension_p.h>
 
 #include <qdatetime.h>
-#include <qmap.h>
+#include <qvaluevector.h>
 #include <qsqlrecord.h>
 
 #define QMYSQL_DRIVER_NAME "QMYSQL3"
@@ -86,7 +86,7 @@ public:
     QMYSQLResultPrivate() : QMYSQLDriverPrivate(), result(0) {}
     MYSQL_RES* result;
     MYSQL_ROW  row;
-    QMap< int, int > fieldTypes;
+    QValueVector<QVariant::Type> fieldTypes;
 };
 
 QSqlError qMakeError( const QString& err, int type, const QMYSQLDriverPrivate* p )
@@ -94,7 +94,7 @@ QSqlError qMakeError( const QString& err, int type, const QMYSQLDriverPrivate* p
     return QSqlError(QMYSQL_DRIVER_NAME ": " + err, QString(mysql_error( p->mysql )), type, mysql_errno( p->mysql ));
 }
 
-QVariant::Type qDecodeMYSQLType( int mysqltype )
+QVariant::Type qDecodeMYSQLType( int mysqltype, uint flags )
 {
     QVariant::Type type;
     switch ( mysqltype ) {
@@ -102,11 +102,13 @@ QVariant::Type qDecodeMYSQLType( int mysqltype )
     case FIELD_TYPE_SHORT :
     case FIELD_TYPE_LONG :
     case FIELD_TYPE_INT24 :
+	type = (flags & UNSIGNED_FLAG) ? QVariant::UInt : QVariant::Int;
+	break;
     case FIELD_TYPE_YEAR :
 	type = QVariant::Int;
 	break;
     case FIELD_TYPE_LONGLONG :
-	type = QVariant::LongLong;
+	type = (flags & UNSIGNED_FLAG) ? QVariant::ULongLong : QVariant::LongLong;
 	break;
     case FIELD_TYPE_DECIMAL :
     case FIELD_TYPE_FLOAT :
@@ -227,8 +229,7 @@ QVariant QMYSQLResult::data( int field )
     }
     
     QString val( d->row[field] );
-    QVariant::Type type = qDecodeMYSQLType( d->fieldTypes[ field ] );
-    switch ( type ) {
+    switch ( d->fieldTypes.at( field ) ) {
     case QVariant::LongLong:
 	if ( val[0] == '-' ) // signed or unsigned?
 	    return QVariant( val.toLongLong() );
@@ -237,9 +238,6 @@ QVariant QMYSQLResult::data( int field )
     case QVariant::Int: 
 	return QVariant( val.toInt() );
     case QVariant::Double:
-	if ( d->fieldTypes[ field ] == FIELD_TYPE_DECIMAL )
-	    // keep these as strings so that we don't loose precision
-	    return QVariant( val );
 	return QVariant( val.toDouble() );
     case QVariant::Date:
 	if ( val.isEmpty() ) {
@@ -254,20 +252,14 @@ QVariant QMYSQLResult::data( int field )
 	    return QVariant( QTime::fromString( val, Qt::ISODate ) );
 	}
     case QVariant::DateTime:
-	if ( d->fieldTypes[ field ] == FIELD_TYPE_TIMESTAMP ) {
+	if ( val.isEmpty() )
+	    return QVariant( QDateTime() );
+	if ( val.length() == 14u )
 	    // TIMESTAMPS have the format yyyyMMddhhmmss
 	    val.insert(4, "-").insert(7, "-").insert(10, 'T').insert(13, ':').insert(16, ':');
-	}
-	if ( val.isEmpty() ) {
-	    return QVariant( QDateTime() );
-	} else {
-	    return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
-	}
+	return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
     case QVariant::ByteArray: {
-	MYSQL_FIELD* f = mysql_fetch_field_direct( d->result, field );
-	if ( ! ( f->flags & BLOB_FLAG ) )
-	    return QVariant( QByteArray() );
-	unsigned long * fl = mysql_fetch_lengths( d->result );
+	unsigned long* fl = mysql_fetch_lengths( d->result );
 	QByteArray ba;
 	ba.duplicate( d->row[field], fl[field] );
 	return QVariant( ba );
@@ -313,11 +305,14 @@ bool QMYSQLResult::reset ( const QString& query )
     }
     int numFields = mysql_field_count( d->mysql );
     setSelect( !( numFields == 0) );
-    d->fieldTypes.clear();
+    d->fieldTypes.resize( numFields );
     if ( isSelect() ) {
 	for( int i = 0; i < numFields; i++) {
 	    MYSQL_FIELD* field = mysql_fetch_field_direct( d->result, i );
-	    d->fieldTypes[i] = field->type;
+	    if ( field->type == FIELD_TYPE_DECIMAL )
+		d->fieldTypes[i] = QVariant::String;
+	    else
+		d->fieldTypes[i] = qDecodeMYSQLType( field->type, field->flags );
 	}
     }
     setActive( TRUE );
@@ -577,7 +572,7 @@ QSqlRecord QMYSQLDriver::record( const QString& tablename ) const
     }
     MYSQL_FIELD* field;
     while ( (field = mysql_fetch_field( r ))) {
-	QSqlField f ( QString( field->name ) , qDecodeMYSQLType( (int)field->type ) );
+	QSqlField f ( QString( field->name ) , qDecodeMYSQLType( (int)field->type, field->flags ) );
 	fil.append ( f );
     }
     mysql_free_result( r );
@@ -596,7 +591,7 @@ QSqlRecord QMYSQLDriver::record( const QSqlQuery& query ) const
 	    for ( ;; ) {
 		MYSQL_FIELD* f = mysql_fetch_field( p->result );
 		if ( f ) {
-		    QSqlField fi( QString((const char*)f->name), qDecodeMYSQLType( f->type ) );
+		    QSqlField fi( QString((const char*)f->name), qDecodeMYSQLType( f->type, f->flags ) );
 		    fil.append( fi  );
 		} else
 		    break;
@@ -619,7 +614,7 @@ QSqlRecordInfo QMYSQLDriver::recordInfo( const QString& tablename ) const
     MYSQL_FIELD* field;
     while ( (field = mysql_fetch_field( r ))) {
 	info.append ( QSqlFieldInfo( QString( field->name ),
-				qDecodeMYSQLType( (int)field->type ),
+				qDecodeMYSQLType( (int)field->type, field->flags ),
 				IS_NOT_NULL( field->flags ),
 				(int)field->length,
 				(int)field->decimals,
@@ -643,7 +638,7 @@ QSqlRecordInfo QMYSQLDriver::recordInfo( const QSqlQuery& query ) const
 		MYSQL_FIELD* field = mysql_fetch_field( p->result );
 		if ( field ) {
 		    info.append ( QSqlFieldInfo( QString( field->name ),
-				qDecodeMYSQLType( (int)field->type ),
+				qDecodeMYSQLType( (int)field->type, field->flags ),
 				IS_NOT_NULL( field->flags ),
 				(int)field->length,
 				(int)field->decimals,
