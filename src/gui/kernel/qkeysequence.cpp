@@ -42,9 +42,9 @@
     optionally combined with modifiers, such as \c SHIFT, \c CTRL, \c
     ALT or \c META. For example, \c{CTRL + Key_P}
     might be a sequence used as a shortcut for printing a document.
-    The key codes are listed in \c{qnamespace.h}. As an alternative,
-    use the unicode code point of the character.
-    For example, \c{'A'} gives the same key sequence
+    Valid codes for keys and modifiers are listed in Qt::Key and
+    Qt::Modifier. As an alternative, use the unicode code point of the
+    character; for example, \c{'A'} gives the same key sequence
     as \c Key_A.
 
     Key sequences can be constructed either from an integer key code,
@@ -53,15 +53,19 @@
     obtain a human readable translated version of the sequence.
     Translations are done in the "QShortcut" context.
 
+    In code that does not inherit the Qt namespace class, you must
+    include the namespace when writing keycodes; for example,
+    instead of ALT+Key_Q you would write Qt::ALT+Qt::Key_Q.
+
     \sa QShortcut
 */
 
 /*!
     \enum Qt::SequenceMatch
 
-    \value NoMatch Sequences have nothing in common
-    \value PartialMatch Sequences match partially, but are not complete
-    \value Identical Sequences do not differ
+    \value NoMatch The sequences have nothing in common.
+    \value PartialMatch The sequences match partially, but are not complete.
+    \value Identical The sequences do not differ.
 */
 
 static struct {
@@ -184,14 +188,14 @@ QKeySequence::QKeySequence()
 }
 
 /*!
-    Creates a key sequence from the string \a key. For example
+    Creates a key sequence from the \a key string. For example
     "Ctrl+O" gives CTRL+'O'. The strings "Ctrl",
     "Shift", "Alt" and "Meta" are recognized, as well as their
     translated equivalents in the "QShortcut" context (using
     QObject::tr()).
 
-    Multiple key codes (up to four) may be entered by separating them
-    with commas, e.g. "Alt+X,Ctrl+S,Q".
+    Up to four key codes may be entered by separating them with
+    commas, e.g. "Alt+X,Ctrl+S,Q".
 
     This contructor is typically used with \link QObject::tr() tr
     \endlink(), so that shortcut keys can be replaced in
@@ -216,9 +220,9 @@ QKeySequence::QKeySequence(const QString &key)
     Constructs a key sequence with up to 4 keys \a k1, \a k2,
     \a k3 and \a k4.
 
-    The key codes are listed in \c{qnamespace.h} and can be
-    combined with modifiers, e.g. with \c SHIFT, \c CTRL, \c
-    ALT or \c META.
+    The key codes are listed in Qt::Key and can be combined with
+    modifiers (see Qt::Modifier) such as \c SHIFT, \c CTRL, \c ALT
+    or \c META.
 */
 QKeySequence::QKeySequence(int k1, int k2, int k3, int k4)
 {
@@ -292,12 +296,11 @@ bool QKeySequence::isEmpty() const
 
 /*!
     Returns the shortcut key sequence for the mnemonic in \a text,
-    or an empty key sequence if \a str has no mnemonics.
+    or an empty key sequence if no mnemonics are found.
 
     For example, mnemonic("E&amp;xit") returns ALT+Key_X,
-    mnemonic("&amp;Quit") returns ALT+Key_Q and mnemonic("Quit")
-    returns an empty QKeySequence. (In code that does not inherit
-    the Qt namespace class, you must write e.g. Qt::ALT+Qt::Key_Q.)
+    mnemonic("&amp;Quit") returns ALT+Key_Q, and mnemonic("Quit")
+    returns an empty QKeySequence.
 
     We provide a \link accelerators.html list of common mnemonics
     \endlink in English. At the time of writing, Microsoft and Open
@@ -324,10 +327,12 @@ QKeySequence QKeySequence::mnemonic(const QString &text)
 }
 
 /*!
-    Adds the string \a ks to the key sequence. \a ks may
-    contain up to four key codes, provided they are seperated by a
-    comma, e.g. "Alt+X,Ctrl+S,Z"). The return value is the number of
-    key codes added.
+    \fn int QKeySequence::assign(const QString &keys)
+
+    Adds the given \a keys to the key sequence. \a keys may
+    contain up to four key codes, provided they are separated by a
+    comma; for example, "Alt+X,Ctrl+S,Z". The return value is the
+    number of key codes added.
 */
 int QKeySequence::assign(const QString &ks)
 {
@@ -531,7 +536,7 @@ QString QKeySequence::encodeString(int key)
 
 /*!
     Matches the sequence with \a seq. Returns \c Qt::Identical if
-    successful, \c Qt::PartialMatch for matching but incomplete \a seq,
+    successful, \c Qt::PartialMatch if \a seq matches incompletely,
     and \c Qt::NoMatch if the sequences have nothing in common.
     Returns \c Qt::NoMatch if \a seq is shorter.
 */
@@ -559,11 +564,14 @@ Qt::SequenceMatch QKeySequence::matches(const QKeySequence &seq) const
 
 /*!
     Creates a shortcut string for the key sequence.
-    For instance CTRL+Key_O gives "Ctrl+O". If the key sequence has
-    multiple key codes they are returned comma-separated, e.g.
-    "Alt+X, Ctrl+Y, Z". The strings, "Ctrl", "Shift", etc. are
-    translated (using QObject::tr()) in the "QShortcut" scope. If the
-    key sequence has no keys, QString::null is returned.
+
+    For example, the value CTRL+Key_O results in "Ctrl+O".
+    If the key sequence has multiple key codes, each is separated
+    by commas in the string returned, such as "Alt+X, Ctrl+Y, Z".
+    The strings, "Ctrl", "Shift", etc. are translated using
+    QObject::tr() in the "QShortcut" scope.
+
+    If the key sequence has no keys, QString::null is returned.
 
     On Mac OS X, the string returned resembles the sequence that is
     shown in the menubar.
@@ -608,7 +616,7 @@ int QKeySequence::operator[](uint index) const
 
 
 /*!
-    Assignment operator. Assigns \a other key sequence to this
+    Assignment operator. Assigns the \a other key sequence to this
     object.
  */
 QKeySequence &QKeySequence::operator=(const QKeySequence &other)
@@ -619,8 +627,8 @@ QKeySequence &QKeySequence::operator=(const QKeySequence &other)
 
 
 /*!
-    Returns true if this key sequence is equal to \a other;
-    otherwise returns false.
+    Returns true if this key sequence is equal to the \a other
+    key sequence; otherwise returns false.
  */
 bool QKeySequence::operator==(const QKeySequence &other) const
 {
@@ -634,7 +642,7 @@ bool QKeySequence::operator==(const QKeySequence &other) const
 /*!
     Provides an arbitrary comparison of this key sequence and
     \a other key sequence. All that is guaranteed is that the
-    operator returns FALSE if both key sequences are equal and
+    operator returns false if both key sequences are equal and
     that (ks1 \< ks2) == !( ks2 \< ks1) if the key sequences
     are not equal.
 
@@ -654,22 +662,27 @@ bool QKeySequence::operator< (const QKeySequence &other) const
 /*!     
     \fn bool QKeySequence::operator> (const QKeySequence &other) const
 
-    Returns true if this key sequence is larger than \a other key
+    Returns true if this key sequence is larger than the \a other key
     sequence; otherwise returns false.
+
     \sa operator==() operator!=() operator<() operator<=() operator>=()
 */
 
-/*! \fn bool QKeySequence::operator<= (const QKeySequence &other) const
-    Returns true if this key sequence is smaller or equal to \a other
-    key sequence; otherwise returns false.
+/*! 
+    \fn bool QKeySequence::operator<= (const QKeySequence &other) const
+
+    Returns true if this key sequence is smaller or equal to the
+    \a other key sequence; otherwise returns false.
+
     \sa operator==() operator!=() operator<() operator>() operator>=()
 */
 
 /*!     
     \fn bool QKeySequence::operator>= (const QKeySequence &other) const
 
-    Returns true if this key sequence is larger or equal to \a other
-    key sequence; otherwise returns false.
+    Returns true if this key sequence is larger or equal to the
+    \a other key sequence; otherwise returns false.
+
     \sa operator==() operator!=() operator<() operator>() operator<=()
 */
 
@@ -678,9 +691,10 @@ bool QKeySequence::operator< (const QKeySequence &other) const
  *****************************************************************************/
 #if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
 /*!
+    \fn QDataStream &operator<<(QDataStream &stream, const QKeySequence &sequence)
     \relates QKeySequence
 
-    Writes the key sequence \a keysequence to the stream \a s.
+    Writes the key \a sequence to the \a stream.
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -700,10 +714,10 @@ QDataStream &operator<<(QDataStream &s, const QKeySequence &keysequence)
 
 
 /*!
+    \fn QDataStream &operator>>(QDataStream &stream, QKeySequence &sequence)
     \relates QKeySequence
 
-    Reads a key sequence from the stream \a s into the key sequence \a
-    keysequence.
+    Reads a key sequence from the \a stream into the key \a sequence.
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
