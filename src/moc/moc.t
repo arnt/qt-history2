@@ -27,7 +27,7 @@ MOCGEN  =	#$ Expand("MOCGEN");
 ####### Process lex/yacc files
 
 $(LEXOUT): $(LEXIN)
-	$(LEX) moc.l
+	$(LEX) $(LEXIN)
 
 $(MOCGEN): moc.y $(LEXOUT)
 	$(YACC) moc.y
