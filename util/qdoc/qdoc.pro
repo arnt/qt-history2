@@ -83,6 +83,7 @@ SOURCES		= binarywriter.cpp \
 		  $$QT_SOURCE_TREE/src/core/tools/qstring.cpp \
 		  $$QT_SOURCE_TREE/src/core/tools/qstringlist.cpp \
                   $$QT_SOURCE_TREE/src/core/tools/qunicodetables.cpp \
+                  $$QT_SOURCE_TREE/src/core/tools/qstringmatcher.cpp \
                   $$QT_SOURCE_TREE/src/core/tools/qvector.cpp
 unix:SOURCES	+= $$QT_SOURCE_TREE/src/core/io/qdir_unix.cpp \
 		  $$QT_SOURCE_TREE/src/core/io/qfile_unix.cpp \
