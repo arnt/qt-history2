@@ -48,7 +48,7 @@ QWSCommand::QWSCommand( QWSServer *s, QWSClient *c )
 QWSCommand::~QWSCommand()
 {
 }
-  
+
 void QWSCommand::readData()
 {
     qFatal( "reimplement QWSCommand::readData!" );
@@ -58,7 +58,7 @@ void QWSCommand::execute()
 {
     qFatal( "reimplement QWSCommand::execute!" );
 }
-    
+
 void QWSCommand::registerCommand( int cmd, QWSCommandFactoryBase *commandFactory )
 {
     if ( !qwsCommandRegister )
@@ -78,7 +78,7 @@ QWSCommand *QWSCommand::getCommand( int cmd, QWSServer *server, QWSClient *clien
 	if ( factory )
 	    return factory->createCommand( server, client );
     }
-    
+
     return 0;
 }
 
@@ -96,7 +96,7 @@ QWSNewWindowCommand::QWSNewWindowCommand( QWSServer *s, QWSClient *c )
 QWSNewWindowCommand::~QWSNewWindowCommand()
 {
 }
-  
+
 void QWSNewWindowCommand::readData()
 {
     qFatal( "QWSNewWindowCommand::readData not implemented" );
@@ -113,6 +113,17 @@ void QWSNewWindowCommand::execute()
  *
  *********************************************************************/
 
+/*
+  The format of a set property command is:
+  A,B,C,D:data
+  
+  A .... winId
+  B .... property
+  C .... mode
+  D .... length of data
+  data .... D bytes of data
+*/
+
 QWSSetPropertyCommand::QWSSetPropertyCommand( QWSServer *s, QWSClient *c )
     : QWSCommand( s, c )
 {
@@ -121,7 +132,7 @@ QWSSetPropertyCommand::QWSSetPropertyCommand( QWSServer *s, QWSClient *c )
 QWSSetPropertyCommand::~QWSSetPropertyCommand()
 {
 }
-  
+
 void QWSSetPropertyCommand::readData()
 {
     QString s;
@@ -137,19 +148,19 @@ void QWSSetPropertyCommand::readData()
 	s += c;
     }
     lst.append( s );
-    
+
     if ( lst.count() != 4 )
 	qFatal( "QWSSetPropertyCommand::readData: Protocol error" );
-    
+
     int len = -1;
 
     winId = lst[ 0 ].toInt();
     property = lst[ 1 ].toInt();
     mode = lst[ 2 ].toInt();
     len = lst[ 3 ].toInt();
-    
+
     qDebug( "%d %d %d %d", winId, property, mode, len );
-    
+
     if ( len > 0 ) {
 	data.resize( len );
 	client->readBlock( data.data(), len );
