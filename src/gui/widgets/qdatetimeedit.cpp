@@ -128,7 +128,7 @@ QDateTimeEdit::QDateTimeEdit(QWidget *parent)
 {
     d->minimum = QCoreVariant(DATETIME_MIN);
     d->maximum = QCoreVariant(DATETIME_MAX);
-    d->value = d->minimum;
+    d->value = QCoreVariant(QDateTime(QDate(1753, 1, 1), TIME_MIN));
     if (!setFormat("yyyy.MM.dd hh:mm:ss"))
 	qFatal("Could not parse format 'yyyy.MM.dd hh:mm:ss'");
 }
@@ -144,7 +144,8 @@ QDateTimeEdit::QDateTimeEdit(const QDateTime &datetime, QWidget *parent)
 {
     d->minimum = QCoreVariant(DATETIME_MIN);
     d->maximum = QCoreVariant(DATETIME_MAX);
-    d->value = datetime.isValid() ? QCoreVariant(datetime) : d->getZeroVariant();
+    d->value = datetime.isValid() ? QCoreVariant(datetime) 
+				  : QCoreVariant(QDateTime(QDate(1753, 1, 1), TIME_MIN));
     if (!setFormat("yyyy.MM.dd hh:mm:ss"))
 	qFatal("Could not parse format 'yyyy.MM.dd hh:mm:ss'");
 }
@@ -161,7 +162,7 @@ QDateTimeEdit::QDateTimeEdit(const QDate &date, QWidget *parent)
 {
     d->minimum = QCoreVariant(DATETIME_MIN);
     d->maximum = QCoreVariant(DATETIME_MAX);
-    d->value = QCoreVariant(QDateTime(date, QTime()));
+    d->value = QCoreVariant(QDateTime(date.isValid() ? date : QDate(1753, 1, 1), TIME_MIN));
     if (!setFormat("yyyy.MM.dd"))
 	qFatal("Could not parse format 'yyyy.MM.dd");
 }
@@ -178,9 +179,7 @@ QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent)
 {
     d->minimum = QCoreVariant(DATETIME_MIN);
     d->maximum = QCoreVariant(DATETIME_MAX);
-    QDateTime dt = d->getZeroVariant().toDateTime();
-    dt.setTime(time.isValid() ? time : QTime());
-    d->value = QCoreVariant(dt);
+    d->value = QCoreVariant(QDateTime(QDate(1753, 1, 1), time.isValid() ? time : TIME_MIN));
     if (!setFormat("hh:mm:ss"))
 	qFatal("Could not parse format 'hh:mm:ss'");
 }
