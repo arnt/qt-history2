@@ -131,7 +131,11 @@ static inline void qt_socket_getPortAndAddress(struct sockaddr *sa, Q_UINT16 *po
 bool QSocketLayerPrivate::createNewSocket(Qt::SocketType socketType,
                                          Qt::NetworkLayerProtocol socketProtocol)
 {
+#ifndef QT_NO_IPV6
     int protocol = (socketProtocol == Qt::IPv6Protocol) ? AF_INET6 : AF_INET;
+#else
+    int protocol = AF_INET;
+#endif
     int type = (socketType == Qt::UdpSocket) ? SOCK_DGRAM : SOCK_STREAM;
     int socket = qt_socket_socket(protocol, type, 0);
 
