@@ -1074,7 +1074,7 @@ void QLineEdit::doDrag()
 	return;
     d->dnd_primed = FALSE;
     QTextDrag *tdo = new QTextDrag( selectedText(), this );
-    if ( tdo->drag() )
+    if ( tdo->drag() && !isReadOnly() )
 	del();
 #ifndef QT_NO_CURSOR
     setCursor( ibeamCursor );
