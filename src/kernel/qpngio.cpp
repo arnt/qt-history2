@@ -409,11 +409,11 @@ bool QPNGImageWriter::writeImage(const QImage& image, int off_x, int off_y)
     return writeImage(image, -1, off_x, off_y);
 }
 
-bool QPNGImageWriter::writeImage(const QImage& image, int quality, int off_x, int off_y)
+bool QPNGImageWriter::writeImage(const QImage& image, int quality_in, int off_x_in, int off_y_in)
 {
     QPoint offset = image.offset();
-    off_x += offset.x();
-    off_y += offset.y();
+    int off_x = off_x_in + offset.x();
+    int off_y = off_y_in + offset.y();
 
     png_structp png_ptr;
     png_infop info_ptr;
@@ -437,6 +437,7 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality, int off_x, in
 	return FALSE;
     }
 
+    int quality = quality_in;
     if (quality >= 0) {
 	if (quality > 9) {
 #if defined(QT_CHECK_RANGE)
@@ -798,8 +799,8 @@ public:
     void row(png_structp png_ptr, png_bytep new_row,
 		png_uint_32 row_num, int pass);
     void end(png_structp png_ptr, png_infop info);
-#ifdef PNG_USER_CHUNK_SUPPORTED
-    int user_chunk(png_structp png_ptr, png_infop info,
+#ifdef PNG_USER_CHUNKS_SUPPORTED
+    int user_chunk(png_structp png_ptr,
 	    png_bytep data, png_uint_32 length);
 #endif
 
@@ -923,13 +924,13 @@ CALLBACK_CALL_TYPE end_callback(png_structp png_ptr, png_infop info)
     that->end(png_ptr,info);
 }
 
-#ifdef PNG_USER_CHUNK_SUPPORTED
+#ifdef PNG_USER_CHUNKS_SUPPORTED
 static int
-CALLBACK_CALL_TYPE user_chunk_callback(png_structp png_ptr, png_infop info,
-	    png_bytep data, png_uint_32 length)
+CALLBACK_CALL_TYPE user_chunk_callback(png_structp png_ptr,
+         png_unknown_chunkp chunk)
 {
     QPNGFormat* that = (QPNGFormat*)png_get_progressive_ptr(png_ptr);
-    return that->user_chunk(png_ptr,info,data,length);
+    return that->user_chunk(png_ptr,chunk->data,chunk->size);
 }
 #endif
 
@@ -1000,8 +1001,11 @@ int QPNGFormat::decode(QImage& img, QImageConsumer* cons,
 	png_set_progressive_read_fn(png_ptr, (void *)this,
 	                            info_callback, row_callback, end_callback);
 
-#ifdef PNG_USER_CHUNK_SUPPORTED
-	png_set_user_chunk_fn(png_ptr, user_chunk_callback);
+#ifdef PNG_USER_CHUNKS_SUPPORTED
+	// Can't do this yet. libpng has a crash bug with unknown (user) chunks.
+	// Warwick has sent them a patch.
+	// png_set_read_user_chunk_fn(png_ptr, 0, user_chunk_callback);
+	// png_set_keep_unknown_chunks(png_ptr, 2/*HANDLE_CHUNK_IF_SAFE*/, 0, 0);
 #endif
 
 	if ( state != MovieStart && *buffer != 0211 ) {
@@ -1078,8 +1082,9 @@ void QPNGFormat::end(png_structp png, png_infop info)
     unused_data = (int)png->buffer_size; // Since libpng doesn't tell us
 }
 
-#ifdef PNG_USER_CHUNK_SUPPORTED
+#ifdef PNG_USER_CHUNKS_SUPPORTED
 
+/*
 #ifndef QT_NO_IMAGE_TEXT
 static bool skip(png_uint_32& max, png_bytep& data)
 {
@@ -1094,8 +1099,9 @@ static bool skip(png_uint_32& max, png_bytep& data)
     return TRUE;
 }
 #endif
+*/
 
-int QPNGFormat::user_chunk(png_structp png, png_infop,
+int QPNGFormat::user_chunk(png_structp png,
 	    png_bytep data, png_uint_32 length)
 {
 #if 0 // NOT SUPPORTED: experimental PNG animation.
@@ -1120,6 +1126,11 @@ int QPNGFormat::user_chunk(png_structp png, png_infop,
 #endif
 
 #ifndef QT_NO_IMAGE_TEXT
+    /*
+
+    libpng now supports this chunk.
+
+
     if ( 0==qstrcmp((char*)png->chunk_name, "iTXt") && length>=6 ) {
 	const char* keyword = (const char*)data;
 	if ( !skip(length,data) ) return 0;
@@ -1140,6 +1151,7 @@ int QPNGFormat::user_chunk(png_structp png, png_infop,
 	    return 1;
 	}
     }
+    */
 #endif
 
     return 0;
