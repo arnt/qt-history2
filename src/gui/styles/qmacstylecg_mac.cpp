@@ -27,7 +27,7 @@
 /*****************************************************************************
   External functions
  *****************************************************************************/
-QPixmap qt_mac_convert_iconref(IconRef, int, int); //qpixmap_mac.cpp
+extern QPixmap qt_mac_convert_iconref(IconRef, int, int); //qpixmap_mac.cpp
 extern CGContextRef qt_macCGHandle(const QPaintDevice *pd); // qpaintdevice_mac.cpp
 
 /*****************************************************************************
@@ -59,6 +59,15 @@ static inline HIRect qt_hirectForQRect(const QRect &convertRect, QPainter *p = 0
         --offset;
     return CGRectMake(x + rect.x(), y + rect.y(), convertRect.width() - offset - rect.width(),
                       convertRect.height() - offset - rect.height());
+}
+
+static inline CGContextRef qt_hiGetContext(QPainter *p)
+{
+    //this must be done another way, I will talk to gunnar..
+    p->save();
+    p->restore();
+    //the CGContext
+    return qt_macCGHandle(p->device());
 }
 
 static inline QWidget *qt_abuse_painter_for_widget(QPainter *p)
@@ -197,7 +206,7 @@ void QMacStyleCGFocusWidget::drawFocusRect(QPainter *p) const
 {
     int fo = focusOutset();
     HIRect rect = CGRectMake(fo, fo, width() - 2 * fo, height() - 2 * fo);
-    HIThemeDrawFocusRect(&rect, true, qt_macCGHandle(p->device()), kHIThemeOrientationNormal);
+    HIThemeDrawFocusRect(&rect, true, qt_hiGetContext(p), kHIThemeOrientationNormal);
 }
 
 class QMacStyleCGPrivate : public QAquaAnimate
@@ -569,7 +578,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
                                 const QWidget *w) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
-    CGContextRef cg = qt_macCGHandle(p->device());
+    CGContextRef cg = qt_hiGetContext(p);
     switch (pe) {
     case PE_CheckListExclusiveIndicator:
     case PE_ExclusiveIndicatorMask:
@@ -824,7 +833,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                               const QWidget *w) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
-    CGContextRef cg = qt_macCGHandle(p->device());
+    CGContextRef cg = qt_hiGetContext(p);
     switch (ce) {
     case CE_PushButton:
         if (const QStyleOptionButton *btn = ::qt_cast<const QStyleOptionButton *>(opt)) {
@@ -1209,7 +1218,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                                      QPainter *p, const QWidget *widget) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
-    CGContextRef cg = qt_macCGHandle(p->device());
+    CGContextRef cg = qt_hiGetContext(p);
     switch (cc) {
     case CC_Slider:
     case CC_ScrollBar:
