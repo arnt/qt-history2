@@ -194,7 +194,11 @@ Be able to traverse from one popup menu to another when you are within a popup m
 QMenuData  
   bool isPopup( int id ) - check to see if a menu item is a QPopupMenu or just a plain QMenuItem.  
 
-
+QWidget::setIcon() need second parameter
+  QWidget::setIcon() needs an extra parameter to specify the size of the icon
+  (large/small) at least for the Windows platform.  The small icon is for the
+  caption bar.  The large icon is for the task manager when you hit ALT + TAB. 
+  (qt-bugs/arc-08/17124)
 
 
 New functionality
