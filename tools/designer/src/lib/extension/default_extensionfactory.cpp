@@ -29,6 +29,7 @@ QObject *DefaultExtensionFactory::extension(QObject *object, const QString &iid)
     QPair<QString, QObject*> key = qMakePair(iid, object);
     if (!m_extensions.contains(key)) {
         if (QObject *ext = createExtension(object, iid, const_cast<DefaultExtensionFactory*>(this))) {
+            connect(ext, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
             m_extensions.insert(key, ext);
         }
     }
@@ -49,7 +50,6 @@ void DefaultExtensionFactory::objectDestroyed(QObject *object)
 
         QObject *o = it.key().second;
         if (o == object || object == it.value()) {
-            qDebug() << "released:" << object;
             it.remove();
         }
     }
