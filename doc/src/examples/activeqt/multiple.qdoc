@@ -1,89 +1,47 @@
 /*! \page qaxserver-demo-multiple.html
 
-  \title Two simple Qt widgets
+    \title Two simple Qt widgets
 
-\raw html
-<script language=javascript>
-function setColor( form )
-{
-    Ax1.fillColor = form.colorEdit.value;
-}
-
-function setWidth( form )
-{
-    Ax2.lineWidth = form.widthEdit.value;
-}
-</script>
-
-<p>
-This is one QWidget subclass:<br>
-<object ID="Ax1" CLASSID="CLSID:1D9928BD-4453-4bdd-903D-E525ED17FDE5"
-CODEBASE=http://www.trolltech.com/demos/multipleax.cab>
-[Object not available! Did you forget to build and register the server?]
-</object><br>
-<form>
-Fill Color: <input type="edit" ID="colorEdit" value = "red">
-<input type="button" value = "Set" onClick="setColor(this.form)">
-<input type="button" value = "Hide" onClick="Ax1.hide()">
-<input type="button" value = "Show" onClick="Ax1.show()">
-</form>
-
-<p>
-This is another QWidget subclass:<br>
-<object ID="Ax2" CLASSID="CLSID:58139D56-6BE9-4b17-937D-1B1EDEDD5B71"
-CODEBASE=http://www.trolltech.com/demos/multipleax.cab>
-[Object not available! Did you forget to build and register the server?]
-</object><br>
-<form>
-Line width: <input type="edit" ID="widthEdit" value = "1">
-<input type="button" value = "Set" onClick="setWidth(this.form)">
-</form>
-\endraw
+    \input multiple-demo.qdocinc
 */
 
 /*! \page qaxserver-example-multiple.html
     \ingroup qaxserver-examples
-  \title Two simple Qt widgets (in-process)
+    \title Two simple Qt widgets (in-process)
 
 
-  The ActiveX controls in this example are simple QWidget
-  subclasses reimplementing the paintEvent() method.
+    The ActiveX controls in this example are simple QWidget
+    subclasses reimplementing the paintEvent() method.
 
-  It demonstrates the implementation of a QAxFactory to provide multiple
-  ActiveX controls in a single in process ActiveX server, and the use of
-  the QAXFACTORY_EXPORT macro.
+    It demonstrates the implementation of a QAxFactory to provide multiple
+    ActiveX controls in a single in process ActiveX server, and the use of
+    the QAXFACTORY_EXPORT macro.
 
-  \quotefile multiple/ax1.h
-  \skipto class
-  \printuntil };
-  The first control draws a filled rectangle. The fill color is exposed
-  as a property. \c Q_CLASSINFO is used to specify the COM identifiers.
+    \quotefile multiple/ax1.h
+    \skipto class
+    \printuntil };
+    The first control draws a filled rectangle. The fill color is exposed
+    as a property. \c Q_CLASSINFO is used to specify the COM identifiers.
 
-  \quotefile multiple/ax2.h
-  \skipto class
-  \printuntil };
-  The second control draws a circle. The linewith is exposed as a property.
-  \c Q_CLASSINFO is used to specify the COM identifiers, and to set the
-  attributes \e ToSuperClass and \e StockEvents to expose only the API of
-  the class itself, and to add COM stock events to the ActiveX control.
+    \quotefile multiple/ax2.h
+    \skipto class
+    \printuntil };
+    The second control draws a circle. The linewith is exposed as a property.
+    \c Q_CLASSINFO is used to specify the COM identifiers, and to set the
+    attributes \e ToSuperClass and \e StockEvents to expose only the API of
+    the class itself, and to add COM stock events to the ActiveX control.
 
-  \quotefile multiple/main.cpp
-  \skipto #include
-  \printuntil QAXFACTORY_END
-  The classes are exported from the server using the QAxFactory macros.
+    \quotefile multiple/main.cpp
+    \skipto #include
+    \printuntil QAXFACTORY_END
+    The classes are exported from the server using the QAxFactory macros.
 
-  To build the example you must first build the \link qaxserver.html
-  QAxServer \endlink library. Then run qmake and your make tool in 
-  \c examples/multiple.
+    To build the example you must first build the \link qaxserver.html
+    QAxServer \endlink library. Then run qmake and your make tool in 
+    \c examples/multiple.
 
-  \raw html
-  <hr>
-  \endraw
+    The \link qaxserver-demo-multiple.html demonstration \endlink requires your
+    WebBrowser to support ActiveX controls, and scripting to be enabled.
 
-  The \link qaxserver-demo-multiple.html demonstration \endlink requires your
-  WebBrowser to support ActiveX controls, and scripting to be enabled.
-
-  \quotefile multiple/multiple.qdoc
-  \skipuntil raw html
-  \printto endraw
+    \input multiple-demo.qdocinc
 */

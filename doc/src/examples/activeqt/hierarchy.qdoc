@@ -1,47 +1,8 @@
 /*! \page qaxserver-demo-hierarchy.html
 
-  \title Qt Widget Hierarchy
+    \title Qt Widget Hierarchy
 
-\raw html
-<script language=javascript>
-function createSubWidget( form )
-{
-    ParentWidget.createSubWidget( form.nameEdit.value );
-}
-
-function renameSubWidget( form )
-{
-    var SubWidget = ParentWidget.subWidget( form.nameEdit.value );
-    if ( !SubWidget ) {
-        alert( "No such widget " + form.nameEdit.value + "!" );
-        return;
-    }
-    SubWidget.label = form.labelEdit.value;
-    form.nameEdit.value = SubWidget.label;
-}
-
-function setFont( form )
-{
-    ParentWidget.font = form.fontEdit.value;
-}
-</script>
-
-<p>
-This widget can have many children!<br>
-<object ID="ParentWidget" CLASSID="CLSID:d574a747-8016-46db-a07c-b2b4854ee75c"
-CODEBASE=http://www.trolltech.com/demos/hierarchy.cab>
-[Object not available! Did you forget to build and register the server?]
-</object><br>
-<form>
-<input type="edit" ID="nameEdit" value = "<enter object name>">
-<input type="button" value = "Create" onClick="createSubWidget(this.form)">
-<input type="edit" ID="labelEdit">
-<input type="button" value = "Rename" onClick="renameSubWidget(this.form)">
-<br>
-<input type="edit" ID="fontEdit" value = "MS Sans Serif">
-<input type="button" value = "Set Font" onClick="setFont(this.form)">
-</form>
-\endraw
+    \input hierarchy-demo.qdocinc
 */
 
 /*! \page qaxserver-example-hierarchy.html
@@ -102,14 +63,8 @@ CODEBASE=http://www.trolltech.com/demos/hierarchy.cab>
   QAxServer \endlink library. Then run qmake and your make tool in 
   \c examples/multiple.
 
-  \raw html
-  <hr>
-  \endraw
-
   The \link qaxserver-demo-hierarchy.html demonstration \endlink requires your
   WebBrowser to support ActiveX controls, and scripting to be enabled.
 
-  \quotefile hierarchy/hierarchy.qdoc
-  \skipuntil raw html
-  \printto endraw
+    \input hierarchy-demo.qdocinc
 */
