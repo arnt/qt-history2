@@ -1630,7 +1630,7 @@ QByteArray QByteArray::toUpper() const
 /*!
     \fn void QByteArray::clear()
 
-    Clears the contents of the byte array and makes it empty.
+    Clears the contents of the byte array and makes it null.
 */
 
 void QByteArray::clear()
@@ -1653,6 +1653,10 @@ void QByteArray::clear()
 
 QDataStream &operator<<( QDataStream &s, const QByteArray &a )
 {
+    if (a.isNull() && s.version() >= 6) {
+        s << (Q_UINT32)0xffffffff;
+        return s;
+    }
     return s.writeBytes( a, a.size() );
 }
 
@@ -1667,14 +1671,18 @@ QDataStream &operator<<( QDataStream &s, const QByteArray &a )
 
 QDataStream &operator>>( QDataStream &s, QByteArray &a )
 {
-    Q_INT32 len;
+    Q_UINT32 len;
     s >> len;					// read size of array
-    if ( len == 0 || s.eof() ) {		// end of file reached
+    if ( len == 0xffffffff || s.eof() ) {	// end of file reached
 	a.clear();
 	return s;
     }
-    a.resize( len );
-    if (a.size() != len) {
+    if ((int)len <= 0) {
+        a = QByteArray("");
+        return s;
+    }
+    a.resize( (int)len );
+    if (a.size() != (int)len) {
 	qWarning( "QDataStream: Not enough memory to read QByteArray" );
 	len = 0;
     }
