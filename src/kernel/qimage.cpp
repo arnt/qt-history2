@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#116 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#115 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#116 $");
 
 
 /*!
@@ -794,8 +794,8 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 		// Find in table...
 		int hash = *p % tablesize;
 		for (;;) {
-		    if (table[hash].used()) {
-			if (table[hash].rgb == *p & 0x00ffffff) {
+		    if ( table[hash].used() ) {
+			if ( table[hash].rgb == (*p & 0x00ffffff) ) {
 			    // Found previous insertion - use it
 			    break;
 			} else {
