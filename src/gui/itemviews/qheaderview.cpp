@@ -525,7 +525,7 @@ int QHeaderView::sectionPosition(int section) const
 */
 
 /*!
-  \fn QHeaderView::sectionAt(const QPoint pos) const
+  \fn QHeaderView::sectionAt(const QPoint &pos) const
 
   Returns the section at the position given in \a pos.
   If the header is horizontal \a x will be used, otherwise \a y

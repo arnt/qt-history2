@@ -53,7 +53,7 @@ public:
 
     inline int sectionAt(int x, int y) const
         { return orientation() == Qt::Horizontal ? sectionAt(x) : sectionAt(y); }
-    inline int sectionAt(QPoint pos) const
+    inline int sectionAt(const QPoint &pos) const
         { return sectionAt(pos.x(), pos.y()); }
 
     void moveSection(int from, int to);
