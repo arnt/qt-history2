@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#16 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#16 $";
 #endif
 
 
@@ -68,7 +68,7 @@ inline ulong _RGB( uint r, uint g, uint b )
 
 static int highest_bit( ulong v )
 {
-  ulong b = 1 << 31;				// get pos of highest bit in v
+  ulong b = (uint)1 << 31;			// get pos of highest bit in v
   for ( int i=31; ((b & v) == 0) && i>=0;  i-- )
       b >>= 1;
   return i;

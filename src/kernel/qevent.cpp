@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#3 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#3 $";
 #endif
 
 
@@ -23,7 +23,7 @@ void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
 void QEvent::peErrMsg()				// posted event error message
 {
 #if defined(CHECK_STATE)
-    char *n = 0;
+    const char *n = 0;
     switch ( t ) {				// convert type to msg string
 	case Event_Timer:
 	    n = "Timer";

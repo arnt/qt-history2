@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#52 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -29,7 +29,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#51 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#52 $";
 #endif
 
 
@@ -123,8 +123,8 @@ int main( int argc, char **argv )
 {
     int i;
 #if defined(DEBUG)
-    int mcBufSize   = 100000;			// default memchk settings
-    char *mcLogFile = "MEMCHK.LOG";
+    int mcBufSize = 100000;			// default memchk settings
+    const char *mcLogFile = "MEMCHK.LOG";
     for ( i=1; i<argc; i++ ) {			// look for -memchk argument
 	if ( *argv[i] != '-' )
 	    break;
