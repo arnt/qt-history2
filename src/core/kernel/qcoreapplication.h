@@ -62,8 +62,8 @@ public:
     static void postEvent(QObject *receiver, QEvent *event);
     static void sendPostedEvents(QObject *receiver, int event_type);
     static void sendPostedEvents();
-
     static void removePostedEvents(QObject *receiver);
+    static bool hasPendingEvents();
 
     virtual bool notify(QObject *, QEvent *);
 
@@ -71,8 +71,8 @@ public:
     static bool closingDown();
 
 #ifndef QT_NO_DIR
-    QString   applicationDirPath();
-    QString   applicationFilePath();
+    QString applicationDirPath();
+    QString applicationFilePath();
 #endif
 
 #ifndef QT_NO_COMPONENT
@@ -102,7 +102,6 @@ public:
 
     static inline QT3_SUPPORT void processOneEvent()
     { processEvents(QEventLoop::WaitForMoreEvents); }
-    static QT3_SUPPORT bool hasPendingEvents();
     static QT3_SUPPORT int enter_loop();
     static QT3_SUPPORT void exit_loop();
     static QT3_SUPPORT int loopLevel();

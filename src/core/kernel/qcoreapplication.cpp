@@ -1458,6 +1458,21 @@ bool QCoreApplication::filterEvent(void *message, long *result)
 #endif
 }
 
+/*!
+    This function returns true if there are pending events; otherwise
+    returns false. Pending events can be either from the window system
+    or posted events using QApplication::postEvent().
+
+    \sa QAbstractEventDispatcher::hasPendingEvents()
+*/
+bool QCoreApplication::hasPendingEvents()
+{
+    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance();
+    if (eventDispatcher)
+        return eventDispatcher->hasPendingEvents();
+    return false;
+}
+
 #ifdef QT3_SUPPORT
 /*! \fn void QCoreApplication::lock()
 
@@ -1488,7 +1503,7 @@ bool QCoreApplication::filterEvent(void *message, long *result)
     This function does nothing. It is there to keep old code working.
     It always returns false.
 
-    See \l lock() for details.
+    See lock() for details.
 */
 
 /*! \fn bool QCoreApplication::tryLock()
@@ -1496,7 +1511,7 @@ bool QCoreApplication::filterEvent(void *message, long *result)
     This function does nothing. It is there to keep old code working.
     It always returns false.
 
-    See \l lock() for details.
+    See lock() for details.
 */
 
 /*! \fn void QCoreApplication::processOneEvent()
@@ -1512,21 +1527,6 @@ bool QCoreApplication::filterEvent(void *message, long *result)
 
     \sa processEvents(), exec(), QTimer
 */
-
-
-/*! \obsolete
-
-    This function returns true if there are pending events; otherwise
-    returns false. Pending events can be either from the window system
-    or posted events using QApplication::postEvent().
-*/
-bool QCoreApplication::hasPendingEvents()
-{
-    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance();
-    if (eventDispatcher)
-        return eventDispatcher->hasPendingEvents();
-    return false;
-}
 
 /*! \obsolete
 
