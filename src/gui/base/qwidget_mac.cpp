@@ -254,10 +254,10 @@ static HIObjectClassRef widget_class = NULL;
 static CFStringRef kObjectQWidget = CFSTR("com.trolltech.qt.widget");
 static EventTypeSpec widget_events[] = {
     { kEventClassHIObject, kEventHIObjectConstruct },
-    { kEventClassHIObject, kEventControlInitialize },
     { kEventClassHIObject, kEventHIObjectDestruct },
 
     { kEventClassControl, kEventControlDraw },
+    { kEventClassControl, kEventControlInitialize },
     { kEventClassControl, kEventControlGetPartRegion },
 };
 static EventHandlerUPP mac_widget_eventUPP = 0;
@@ -287,12 +287,6 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
 		HIViewChangeFeatures(view, kHIViewAllowsSubviews|kHIViewIsOpaque, 0); //all opaque for now..
 #endif
 	    }
-	} else if(ekind == kEventControlInitialize) {
-#if QT_MACOSX_VERSION < 0x1030
-	    UInt32 features = kControlSupportsEmbedding;
-	    SetEventParameter(event, kEventControlInitialize, typeUInt32, 
-			      sizeof(features), &features);
-#endif
 	} else if(ekind == kEventHIObjectDestruct) {
 	    //nothing to really do.. or is there?
 	} else {
@@ -369,6 +363,11 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
 		widget->d->clp = QRegion();
 		widget->cg_hd = 0;
 		widget->hd = 0;
+	} else if(ekind == kEventControlInitialize) {
+#if QT_MACOSX_VERSION < 0x1030
+	    UInt32 features = kControlSupportsEmbedding;
+	    SetEventParameter(event, kEventControlInitialize, typeUInt32, sizeof(features), &features);
+#endif
 	    } else {
 		handled_event = false;
 	    }
