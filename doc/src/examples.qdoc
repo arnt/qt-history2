@@ -24,14 +24,14 @@
 
     \list
     \o \l{widgets/analogclock}{Analog Clock}\raisedaster
-    \o \l{widgets/calculator}{Calculator}
+    \o \l{widgets/calculator}{Calculator}\raisedaster
     \o \l{widgets/charactermap}{Character Map}\raisedaster
     \o \l{widgets/digitalclock}{Digital Clock}\raisedaster
     \o \l{widgets/groupbox}{Group Box}\raisedaster
     \o \l{widgets/lineedits}{Line Edits}
     \o \l{widgets/sliders}{Sliders}
     \o \l{widgets/spinboxes}{Spin Boxes}
-    \o \l{widgets/styles}{Styles}
+    \o \l{widgets/styles}{Styles}\raisedaster
     \o \l{widgets/tetrix}{Tetrix}
     \o \l{widgets/wiggly}{Wiggly}
     \endlist

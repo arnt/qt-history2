@@ -143,7 +143,7 @@ void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
             int x3 = x + width - radius;
             int x4 = x + width;
 
-            if (QApplication::isRightToLeft()) {
+            if (option->direction == Qt::RightToLeft) {
                 qSwap(x1, x4);
                 qSwap(x2, x3);
             }
@@ -161,7 +161,7 @@ void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
             painter->drawPath(roundRect);
 
             QPolygon bottomHalf = topHalf;
-            bottomHalf[0] = QPoint(x4, y + width);
+            bottomHalf[0] = QPoint(x4, y + height);
 
             painter->setClipPath(roundRect);
             painter->setClipRegion(bottomHalf, Qt::IntersectClip);
