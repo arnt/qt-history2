@@ -2393,9 +2393,10 @@ void QTable::paintCell( QPainter *p, int row, int col,
     QTableItem *itm = item( row, col );
     if ( itm ) {
 	p->save();
+	QColorGroup cg2( cg );
 	if ( !itm->isEnabled() )
-	    cg = palette().disabled();
-	itm->paint( p, cg, cr, selected );
+	    cg2 = palette().disabled();
+	itm->paint( p, cg2, cr, selected );
 	p->restore();
     } else {
 	p->fillRect( 0, 0, w, h, selected ? cg.brush( QColorGroup::Highlight ) : viewport()->backgroundBrush() );
