@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#63 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#62 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#63 $")
 
 
 /*----------------------------------------------------------------------------
@@ -2082,8 +2082,8 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 	image.setColor( 0, qRgb(255,255,255) ); // white
 	image.setColor( 1, qRgb(0,0,0) );	// black
     } else if ( nbits == 8 ) {			// graymap
-	image.setNumColors( mcc );
-	for ( int i=0; i<mcc; i++ )
+	image.setNumColors( mcc+1 );
+	for ( int i=0; i<=mcc; i++ )
 	    image.setColor( i, qRgb(i*255/mcc,i*255/mcc,i*255/mcc) );
     }
 
