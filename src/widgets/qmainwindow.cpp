@@ -1287,6 +1287,7 @@ void QMainWindow::addDockWindow( QDockWindow * dockWindow, const QString &label,
 
 void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge )
 {
+    Orientation oo = dockWindow->orientation();
     switch ( edge ) {
     case DockTop:
 	if ( dockWindow->area() != d->topDock )
@@ -1321,10 +1322,9 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge )
     case DockUnmanaged:
 	break;
     }
-#ifndef QT_NO_TOOLBAR
-    if ( dockWindow->inherits( "QToolBar" ) )
-	( (QToolBar*)dockWindow )->setOrientation( dockWindow->orientation() );
-#endif
+
+    if ( oo != dockWindow->orientation() )
+	dockWindow->setOrientation( dockWindow->orientation() );
 }
 
 /*!
@@ -1353,6 +1353,8 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge )
 
 void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge, bool nl, int index, int extraOffset )
 {
+    Orientation oo = dockWindow->orientation();
+
     dockWindow->setNewLine( nl );
     dockWindow->setOffset( extraOffset );
     switch ( edge ) {
@@ -1385,10 +1387,9 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge, bool nl, 
     case DockUnmanaged:
 	break;
     }
-#ifndef QT_NO_TOOLBAR
-    if ( dockWindow->inherits( "QToolBar" ) )
-	( (QToolBar*)dockWindow )->setOrientation( dockWindow->orientation() );
-#endif
+
+    if ( oo != dockWindow->orientation() )
+	dockWindow->setOrientation( dockWindow->orientation() );
 }
 
 /*!
