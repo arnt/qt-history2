@@ -400,8 +400,7 @@ Open(Widget /*unused*/, XtPointer client_data,
 void ShowPrintDialog(Widget, XtPointer client_data,
 		     XmPushButtonCallbackStruct *)
 {
-    QMotifWidget *toplevel = (QMotifWidget *) client_data;
-    QMotifDialog dialog( toplevel->motifWidget() );
+    QMotifDialog dialog( (QWidget *) client_data );
     (void) XtCreateWidget( "print dialog", xmdPrintWidgetClass,
 			   dialog.shell(), NULL, 0 );
 
