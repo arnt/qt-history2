@@ -575,7 +575,7 @@ bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
 void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e)
 {
     bool inWhatsThisMode = QWhatsThis::inWhatsThisMode();
-    if (!action || !q->isEnabled() 
+    if (!action || !q->isEnabled()
         || (action_e == QAction::Trigger && !inWhatsThisMode && !action->isEnabled()))
         return;
 
@@ -2048,7 +2048,7 @@ void QMenu::internalDelayedPopup()
                 pts[1] = QPoint(pos.x() + menuSize.width(), pos.y());
                 pts[2] = QPoint(pos.x() + menuSize.width(), pos.y() + menuSize.height());
             }
-            QPointArray points(4);
+            QPolygon points(4);
             for(int i = 0; i < 4; i++)
                 points.setPoint(i, mapFromGlobal(pts[i]));
             d->sloppyRegion = QRegion(points);

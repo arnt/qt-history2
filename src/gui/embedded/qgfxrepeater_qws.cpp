@@ -85,14 +85,14 @@ public:
     virtual void setOpaqueBackground (bool);
     virtual void setBackgroundColor (QColor);
     virtual void drawPoint (int, int);
-    virtual void drawPoints (const QPointArray &, int, int);
+    virtual void drawPoints (const QPolygon &, int, int);
     virtual void moveTo (int, int);
     virtual void lineTo (int, int);
     virtual void drawLine (int, int, int, int);
-    virtual void drawPolyline (const QPointArray &, int, int);
+    virtual void drawPolyline (const QPolygon &, int, int);
     virtual QPoint pos () const;
     virtual void fillRect (int, int, int, int);
-    virtual void drawPolygon (const QPointArray &, bool, int, int);
+    virtual void drawPolygon (const QPolygon &, bool, int, int);
     virtual void setLineStep (int);
     virtual void blt (int, int, int, int, int, int);
     virtual void scroll (int, int, int, int, int, int);
@@ -331,10 +331,10 @@ void QRepeaterGfx::drawPoint (int x, int y)
     }
 }
 
-void QRepeaterGfx::drawPoints (const QPointArray & a, int b, int c)
+void QRepeaterGfx::drawPoints (const QPolygon & a, int b, int c)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-        QPointArray d=a;
+        QPolygon d=a;
         //d.translate(-(walker->xoffs),-(walker->yoffs));
         walker->gfx->drawPoints(d,b,c);
     }
@@ -361,10 +361,10 @@ void QRepeaterGfx::drawLine (int x1, int y1, int x2, int y2)
     }
 }
 
-void QRepeaterGfx::drawPolyline (const QPointArray & a, int b, int c)
+void QRepeaterGfx::drawPolyline (const QPolygon & a, int b, int c)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-        QPointArray d=a;
+        QPolygon d=a;
         //d.translate(-(walker->xoffs),-(walker->yoffs));
         walker->gfx->drawPolyline(d,b,c);
     }
@@ -382,10 +382,10 @@ void QRepeaterGfx::fillRect (int x, int y, int w, int h)
     }
 }
 
-void QRepeaterGfx::drawPolygon (const QPointArray & a, bool b, int c, int d)
+void QRepeaterGfx::drawPolygon (const QPolygon & a, bool b, int c, int d)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-        QPointArray e=a;
+        QPolygon e=a;
         //e.translate(-(walker->xoffs),-(walker->yoffs));
         walker->gfx->drawPolygon(e,b,c,d);
     }

@@ -107,8 +107,8 @@ public:
         GA_2DStateFuncs &state2d,GA_2DRenderFuncs &draw2d);
 
 //    virtual void drawPoint(int,int);
-//    virtual void drawPoints(const QPointArray &,int,int);
-//    virtual void drawPolyline(const QPointArray &,int,int);
+//    virtual void drawPoints(const QPolygon &,int,int);
+//    virtual void drawPolyline(const QPolygon &,int,int);
     virtual void fillRect(int,int,int,int);
     virtual void blt(int,int,int,int,int,int);
     virtual void scroll(int,int,int,int,int,int);

@@ -1177,7 +1177,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
     case PE_IndicatorArrowDown:
     case PE_IndicatorArrowRight:
     case PE_IndicatorArrowLeft: {
-        QPointArray a;
+        QPolygon a;
         switch (pe) {
             case PE_IndicatorArrowUp:
                 a.setPoints(7, -4, 1, 2, 1, -3, 0, 1, 0, -2, -1, 0, -1, -1, -2);
@@ -1254,7 +1254,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             p->drawRect(opt->rect.x() + 1, opt->rect.y() + 1, 11, 11);
         }
         if (!(opt->state & Style_Off)) {
-            QPointArray a(7 * 2);
+            QPolygon a(7 * 2);
             int i, xx, yy;
             xx = opt->rect.x() + 3;
             yy = opt->rect.y() + 5;
@@ -1344,7 +1344,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             bool down = opt->state & Style_Down;
             bool enabled = opt->state & Style_Enabled;
             bool on = opt->state & Style_On;
-            QPointArray a;
+            QPolygon a;
             a.setPoints(INTARRLEN(pts1), pts1);
             a.translate(ir.x(), ir.y());
             p->setPen(opt->palette.dark().color());
@@ -1992,7 +1992,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                     else
                         dir = SlRight;
 
-                QPointArray a;
+                QPolygon a;
 
                 int d = 0;
                 switch (dir) {
@@ -2115,7 +2115,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 int y = lv->rect.y();
                 int c;
                 int dotoffset = 0;
-                QPointArray dotlines;
+                QPolygon dotlines;
                 if ((lv->activeSubControls & SC_All) && (lv->subControls & SC_ListViewExpand)) {
                     c = 2;
                     dotlines.resize(2);
@@ -2198,7 +2198,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                     // drawing the right sort of lines.
                     verticalLine = new QBitmap(1, 129, true);
                     horizontalLine = new QBitmap(128, 1, true);
-                    QPointArray a(64);
+                    QPolygon a(64);
                     QPainter p;
                     p.begin(verticalLine);
                     for(i = 0; i < 64; ++i)

@@ -175,7 +175,7 @@ static bool qt_clipLine(int &x1, int &y1, int &x2, int &y2, const QRect &clip)
 
 
 // Based on lines_intersect from Graphics Gems II, author: Mukesh Prasad
-static QPoint intersection(const QPointArray& pa, const QPoint& p0, int p, int q)
+static QPoint intersection(const QPolygon& pa, const QPoint& p0, int p, int q)
 {
     int x1 = p0.x();
     int x2 = pa[p+1].x();
@@ -208,7 +208,7 @@ static QPoint intersection(const QPointArray& pa, const QPoint& p0, int p, int q
     return QPoint(x,y);
 }
 
-static void fix_mitre(QPointArray& pa, QPoint& pp, int i1, int i2, int i3, int penwidth)
+static void fix_mitre(QPolygon& pa, QPoint& pp, int i1, int i2, int i3, int penwidth)
 {
     QPoint inter = intersection(pa, pp, i1, i3);
     pp = pa[i3];
@@ -224,10 +224,10 @@ static void fix_mitre(QPointArray& pa, QPoint& pp, int i1, int i2, int i3, int p
 
 // Converts a thick polyline into a polygon which can be painted with
 // the winding rule.
-static QPointArray convertThickPolylineToPolygon(const QPointArray &points,int index, int npoints,
+static QPolygon convertThickPolylineToPolygon(const QPolygon &points,int index, int npoints,
                                                  int penwidth, Qt::PenJoinStyle join, bool close)
 {
-    QPointArray pa(npoints*4+(close?2:-4));
+    QPolygon pa(npoints*4+(close?2:-4));
 
     int cw=0; // clockwise cursor in pa
     int acw=pa.count()-1; // counterclockwise cursor in pa
@@ -1445,14 +1445,14 @@ void QGfxRaster<depth,type>::drawPoint(int x, int y)
 }
 
 /*!
-    \fn void QGfxRaster<depth,type>::drawPoints(const QPointArray &pa, int index, int npoints)
+    \fn void QGfxRaster<depth,type>::drawPoints(const QPolygon &pa, int index, int npoints)
 
     \internal
 
     Draw \a npoints points from position \a index in the array of points \a pa.
 */
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::drawPoints(const QPointArray &pa, int index, int npoints)
+void QGfxRaster<depth,type>::drawPoints(const QPolygon &pa, int index, int npoints)
 {
     if (!ncliprect)
         return;
@@ -1794,14 +1794,14 @@ void QGfxRaster<depth,type>::vline(int x, int y1, int y2) //screen coordinates, 
 template <const int depth, const int type>
 void QGfxRaster<depth, type>::drawThickLine(int x1, int y1, int x2, int y2)
 {
-    QPointArray pa(2);
+    QPolygon pa(2);
     pa.setPoint(0,x1,y1);
     pa.setPoint(1,x2,y2);
     drawThickPolyline(pa,0,2);
 }
 
 /*!
-    \fn void QGfxRaster<depth,type>::drawThickPolyline(const QPointArray &points, int index, int npoints)
+    \fn void QGfxRaster<depth,type>::drawThickPolyline(const QPolygon &points, int index, int npoints)
 
     \internal
 
@@ -1811,12 +1811,12 @@ void QGfxRaster<depth, type>::drawThickLine(int x1, int y1, int x2, int y2)
     is the number of points to use.
 */
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::drawThickPolyline(const QPointArray &points, int index, int npoints)
+void QGfxRaster<depth,type>::drawThickPolyline(const QPolygon &points, int index, int npoints)
 {
     if (npoints < 2)
         return;
     bool close = points[index] == points[index+npoints-1];
-    QPointArray pa = convertThickPolylineToPolygon(points, index,
+    QPolygon pa = convertThickPolylineToPolygon(points, index,
         close ? npoints-1 : npoints,
         cpen.width(), cpen.joinStyle(), close);
 
@@ -3182,7 +3182,7 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h) //widget coordi
 }
 
 /*!
-    \fn void QGfxRaster<depth,type>::drawPolyline(const QPointArray &a,int index, int npoints)
+    \fn void QGfxRaster<depth,type>::drawPolyline(const QPolygon &a,int index, int npoints)
 
     \internal
 
@@ -3190,7 +3190,7 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h) //widget coordi
     starting from \a index in the array.
 */
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::drawPolyline(const QPointArray &a,int index, int npoints)
+void QGfxRaster<depth,type>::drawPolyline(const QPolygon &a,int index, int npoints)
 {
     if (!ncliprect)
         return;
@@ -3283,7 +3283,7 @@ void QGfxRaster<depth,type>::drawPolyline(const QPointArray &a,int index, int np
 }
 
 /*!
-    \fn void QGfxRaster<depth,type>::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
+    \fn void QGfxRaster<depth,type>::drawPolygon(const QPolygon &pa, bool winding, int index, int npoints)
 
     \internal
 
@@ -3293,7 +3293,7 @@ void QGfxRaster<depth,type>::drawPolyline(const QPointArray &a,int index, int np
     or the even-odd (alternative) fill algorithm.
 */
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::drawPolygon(const QPointArray &pa, bool winding, int index,
+void QGfxRaster<depth,type>::drawPolygon(const QPolygon &pa, bool winding, int index,
                                          int npoints)
 {
     if (!ncliprect)

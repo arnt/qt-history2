@@ -99,7 +99,7 @@ private:
     QPoint oldmouse;
     QPoint oldTotalMousePos;
     bool waspressed;
-    QPointArray samples;
+    QPolygon samples;
     unsigned int currSample;
     unsigned int lastSample;
     unsigned int numSamples;

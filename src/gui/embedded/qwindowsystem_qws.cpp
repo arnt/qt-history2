@@ -22,7 +22,7 @@
 
 #include "qapplication.h"
 #include "qsocketnotifier.h"
-#include "qpointarray.h" //cursor test code
+#include "qpolygon.h"
 #include "qimage.h"
 #include "qcursor.h"
 #include <private/qpaintengine_qws_p.h>

@@ -438,7 +438,7 @@ static void drawPanel(QPainter *p, int x, int y, int w, int h,
     ASSERT(w > 0 && h > 0 && lineWidth >= 0);
 #endif
     QPen oldPen = p->pen();                        // save pen
-    QPointArray a(4*lineWidth);
+    QPolygon a(4*lineWidth);
     if (sunken)
         p->setPen(pal.dark());
     else
@@ -623,7 +623,7 @@ void QSGIStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             drawPrimitive(PE_ButtonCommand, p, QRect(x+1, y+1, w-2, h-2), pal, flags, opt);
 
             QPen oldPen = p->pen();
-            QPointArray a;
+            QPolygon a;
 
             // draw twocolored rectangle
             p->setPen(sunken ? pal.light().color() : pal.dark().color().dark(200));
@@ -642,7 +642,7 @@ void QSGIStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
     case PE_ArrowLeft:
     case PE_ArrowRight:
         {
-            QPointArray a;                                // arrow polygon
+            QPolygon a;                                // arrow polygon
             switch (pe) {
             case PE_ArrowUp:
                 a.setPoints(3, 0,-5, -5,4, 4,4);
@@ -703,8 +703,8 @@ void QSGIStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
                         7,4,  1,4,  6,5,  1,5,        6,6,  3,6,  5,7,  4,7,
                         5,8,  5,8,  4,3,  2,3,        3,2,  3,2 };
 
-                QPointArray amark;
-                amark = QPointArray(sizeof(check_mark)/(sizeof(int)*2), check_mark);
+                QPolygon amark;
+                amark = QPolygon(sizeof(check_mark)/(sizeof(int)*2), check_mark);
                 amark.translate(er.x()+1, er.y()+1);
                 p->drawLineSegments(amark);
                 amark.translate(-1, -1);
@@ -725,8 +725,8 @@ void QSGIStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
 
             QPen oldPen = p->pen();
 
-            QPointArray amark;
-            amark = QPointArray(sizeof(check_mark)/(sizeof(int)*2), check_mark);
+            QPolygon amark;
+            amark = QPolygon(sizeof(check_mark)/(sizeof(int)*2), check_mark);
             amark.translate(x+1, y+1);
 
             if (flags & Style_On) {
@@ -754,7 +754,7 @@ void QSGIStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
 
             p->setPen(pal.button());
             p->setBrush(hot ? pal.midlight() : pal.button());
-            QPointArray a;
+            QPolygon a;
             a.setPoints(4, 5,0, 11,6, 6,11, 0,5);
             p->drawPolygon(a);
 
@@ -793,7 +793,7 @@ void QSGIStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
 
             p->setPen(Qt::color1);
             p->setBrush(Qt::color1);
-            QPointArray a;
+            QPolygon a;
             a.setPoints(8, 0,5, 5,0, 6,0, 11,5, 11,6, 6,11, 5,11, 0,6);
             a.translate(x, y);
             p->drawPolygon(a);
@@ -951,7 +951,7 @@ void QSGIStyle::drawControl(ControlElement element, const QStyleOption *opt, QPa
                 y2 -= diw;
             }
 
-            QPointArray a;
+            QPolygon a;
             if (btn->isDefault()) {
                 if (diw == 0) {
                     a.setPoints(9,

@@ -55,7 +55,7 @@ static void drawMotifPlusShade(QPainter *p, const QRect &r,
                                const QBrush *fill = 0)
 {
     QPen oldpen = p->pen();
-    QPointArray a(4);
+    QPolygon a(4);
     QColor button = mouseover ? pal.midlight() : pal.button();
     QBrush brush = mouseover ? pal.brush(QPalette::Midlight) : pal.brush(QPalette::Button);
     int x, y, w, h;
@@ -314,8 +314,8 @@ void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
     case PE_ExclusiveIndicator:
         {
             QPen oldpen =  p->pen();
-            QPointArray thick(8);
-            QPointArray thin(4);
+            QPolygon thick(8);
+            QPolygon thin(4);
             QColor button = ((flags & Style_MouseOver) ? pal.midlight() : pal.button());
             QBrush brush = ((flags & Style_MouseOver) ?
                             pal.brush(QPalette::Midlight) :
@@ -413,7 +413,7 @@ void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
         {
             QPen oldpen = p->pen();
             QBrush oldbrush = p->brush();
-            QPointArray poly(3);
+            QPolygon poly(3);
             QColor button = (flags & Style_MouseOver) ? pal.midlight() : pal.button();
             bool down = (flags & Style_Down);
             int x, y, w, h;

@@ -376,7 +376,7 @@ void QWSPaintEngine::drawRect(const QRectF &r)
 
     if (state->pen.style() != Qt::NoPen) {
         if (state->pen.width() > 1) {
-            QPointArray a(QRect(x1,y1,w,h), true);
+            QPolygon a(QRect(x1,y1,w,h), true);
             drawPolyInternal(a);
             return;
         }
@@ -414,11 +414,11 @@ void QWSPaintEngine::drawPoints(const QPolygonF &p)
     if (state->pen.style() == Qt::NoPen)
         return;
 
-    QPointArray pa(p.toPointArray());
+    QPolygon pa(p.toPolygon());
     d->gfx->drawPoints(pa, 0, pa.size());
 }
 
-void QWSPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
+void QWSPaintEngine::drawPolyInternal(const QPolygon &a, bool close)
 {
     if (a.size() < 2 || !d->gfx)
         return;
@@ -451,19 +451,19 @@ void QWSPaintEngine::drawEllipse(const QRectF &r)
         QPen savePen = state->pen;
         updatePen(QPen(state->brush.color()));
         path.addEllipse(r.x(), r.y(), r.width()-1, r.height()-1);
-        drawPolyInternal(path.toSubpathPolygons().at(0).toPointArray());
+        drawPolyInternal(path.toSubpathPolygons().at(0).toPolygon());
         updatePen(savePen);
     } else
 #endif
     {
     path.addEllipse(r.x(), r.y(), r.width(), r.height());
-    drawPolyInternal(path.toSubpathPolygons().at(0).toPointArray());
+    drawPolyInternal(path.toSubpathPolygons().at(0).toPolygon());
     }
 }
 
 void QWSPaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
 {
-    QPointArray pa(p.toPointArray());
+    QPolygon pa(p.toPolygon());
     if (mode == PolylineMode) {
         if (state->pen.style() != Qt::NoPen)
             d->gfx->drawPolyline(pa, 0, pa.size());

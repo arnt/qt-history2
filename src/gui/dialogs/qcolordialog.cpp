@@ -737,7 +737,7 @@ void QColorLuminancePicker::paintEvent(QPaintEvent *)
     qDrawShadePanel(&p, r, g, true);
     p.setPen(g.foreground().color());
     p.setBrush(g.foreground());
-    QPointArray a;
+    QPolygon a;
     int y = val2y(val);
     a.setPoints(3, w, y, w+5, y+5, w+5, y-5);
     p.eraseRect(w, 0, 5, height());

@@ -2174,7 +2174,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 int y = r.y();
                 int c;
                 int dotoffset;
-                QPointArray dotlines;
+                QPolygon dotlines;
                 if (subActive == SC_All && sub == SC_ListViewExpand) {
                     c = 2;
                     dotlines.resize(2);
@@ -2249,7 +2249,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     // drawing the right sort of lines.
                     verticalLine = new QBitmap(1, 129, true);
                     horizontalLine = new QBitmap(128, 1, true);
-                    QPointArray a(64);
+                    QPolygon a(64);
                     QPainter p;
                     p.begin(verticalLine);
                     int i;

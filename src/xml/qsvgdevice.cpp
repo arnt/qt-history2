@@ -397,7 +397,7 @@ bool QSvgDevice::cmd (int c, QPainter *painter, QPDevCmdParam *p)
     QDomElement e;
     QString str;
     QRect rect;
-    QPointArray a;
+    QPolygon a;
     int i, width, height, x, y;
     switch (c) {
     case PdcNOP:
@@ -835,7 +835,7 @@ bool QSvgDevice::play(const QDomNode &node)
             QString pts = attr.namedItem("points").nodeValue();
             pts = pts.simplified();
             QStringList sl = QStringList::split(QRegExp(QString::fromLatin1("[,]")), pts);
-            QPointArray ptarr((uint)sl.count() / 2);
+            QPolygon ptarr((uint)sl.count() / 2);
             for (int i = 0; i < (int)sl.count() / 2; i++) {
                 double dx = sl[2*i].toDouble();
                 double dy = sl[2*i+1].toDouble();
@@ -1268,9 +1268,9 @@ void QSvgDevice::drawPath(const QString &data)
     double x0 = 0, y0 = 0;                // starting point
     double x = 0, y = 0;                // current point
     double controlX = 0, controlY = 0;        // last control point for curves
-    QPointArray path(500);                // resulting path
+    QPolygon path(500);                // resulting path
     QList<int> subIndex;                // start indices for subpaths
-    QPointArray quad(4), bezier;        // for curve calculations
+    QPolygon quad(4), bezier;        // for curve calculations
     int pcount = 0;                        // current point array index
     int idx = 0;                        // current data position
     int mode = 0, lastMode = 0;                // parser state

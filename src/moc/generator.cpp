@@ -74,7 +74,7 @@ static const char* const type_map[ntypes] =
     "bool",
     "double",
     "",
-    "QPointArray",
+    "QPolygon",
     "QRegion",
     "QBitmap",
     "QCursor",

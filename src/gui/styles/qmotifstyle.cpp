@@ -169,9 +169,9 @@ void QMotifStyle::polish(QApplication* a)
     QStyle::polish(a);
 }
 
-static void rot(QPointArray& a, int n)
+static void rot(QPolygon& a, int n)
 {
-    QPointArray r(a.size());
+    QPolygon r(a.size());
     for (int i = 0; i < (int)a.size(); i++) {
         switch (n) {
             case 1: r.setPoint(i,-a[i].y(),a[i].x()); break;
@@ -209,7 +209,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
             p->setPen(QPen(pal.text()));
         else
             p->setPen(QPen(lv->palette().color(QPalette::Disabled, QPalette::Text)));
-        QPointArray a;
+        QPolygon a;
 
         int cx = r.width()/2 - 1;
         int cy = r.height()/2;
@@ -302,7 +302,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
             bool on = flags & Style_On;
             bool down = flags & Style_Down;
             bool showUp = !(down ^ on);
-            QPointArray a(INTARRLEN(inner_pts), inner_pts);
+            QPolygon a(INTARRLEN(inner_pts), inner_pts);
             p->setPen(Qt::NoPen);
             p->setBrush(showUp ? pal.brush(QPalette::Button) :
                          pal.brush(QPalette::Mid));
@@ -329,7 +329,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
                 r.width()-1,r.height()/2,
                 r.width()/2,r.height()-1
             };
-            QPointArray a(INTARRLEN(inner_pts), inner_pts);
+            QPolygon a(INTARRLEN(inner_pts), inner_pts);
             p->setPen(Qt::color1);
             p->setBrush(Qt::color1);
             a.translate(r.x(), r.y());
@@ -343,10 +343,10 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
     case PE_ArrowLeft:
         {
             QRect rect = r;
-            QPointArray bFill;
-            QPointArray bTop;
-            QPointArray bBot;
-            QPointArray bLeft;
+            QPolygon bFill;
+            QPolygon bTop;
+            QPolygon bBot;
+            QPolygon bLeft;
             bool vertical = pe == PE_ArrowUp || pe == PE_ArrowDown;
             bool horizontal = !vertical;
             int dim = rect.width() < rect.height() ? rect.width() : rect.height();
@@ -562,7 +562,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
             int sx = x + w / 2 - sw / 2 - 1;
             int sy = y + h / 2 - sh / 2 - 1;
 
-            QPointArray a;
+            QPolygon a;
             if (pe == PE_SpinBoxDown)
                 a.setPoints(3,  0, 1,  sw-1, 1,  sh-2, sh-1);
             else
@@ -594,7 +594,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
                 if (h > 6) {
                     if (flags & Style_On)
                         p->fillRect(1, 1, 8, h - 2, pal.highlight());
-                    QPointArray a(2 * ((h-6)/3));
+                    QPolygon a(2 * ((h-6)/3));
                     int y = 3 + (h%3)/2;
                     p->setPen(dark);
                     p->drawLine(8, 1, 8, h-2);
@@ -621,7 +621,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
                 if (w > 6) {
                     if (flags & Style_On)
                         p->fillRect(1, 1, w - 2, 9, pal.highlight());
-                    QPointArray a(2 * ((w-6)/3));
+                    QPolygon a(2 * ((w-6)/3));
 
                     int x = 3 + (w%3)/2;
                     p->setPen(dark);
@@ -692,7 +692,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
 
             if (dfw < 2) {
                 // Could do with some optimizing/caching...
-                QPointArray a(7*2);
+                QPolygon a(7*2);
                 int i, xx, yy;
                 xx = posX;
                 yy = 3 + posY;
@@ -794,7 +794,7 @@ void QMotifStyle::drawControl(ControlElement element,
             }
             if (btn->isDefault()) {
                 if (diw == 0) {
-                    QPointArray a;
+                    QPolygon a;
                     a.setPoints(9,
                                  x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
                                  x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1);
@@ -1507,7 +1507,7 @@ void QMotifStyle::drawComplexControl(ComplexControl control,
 
                 int y = r.y();
                 int c;
-                QPointArray dotlines;
+                QPolygon dotlines;
                 if (subActive == SC_All && sub == SC_ListViewExpand) {
                     c = 2;
                     dotlines.resize(2);
@@ -1545,7 +1545,7 @@ void QMotifStyle::drawComplexControl(ComplexControl control,
                                 // needs a box
                                 p->setPen(pal.text());
                                 p->drawRect(bx-4, linebot-4, 9, 9);
-                                QPointArray a;
+                                QPolygon a;
                                 if (child->isOpen())
                                     a.setPoints(3, bx-2, linebot-2,
                                                  bx, linebot+2,

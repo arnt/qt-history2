@@ -30,7 +30,7 @@ class QColorGroup;
 class QIcon;
 class QTextLength;
 class QDataStream;
-class QPointArray;
+class QPolygon;
 class QRegion;
 class QBitmap;
 class QCursor;
@@ -64,7 +64,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     QVariant(const QIcon &icon);
 #endif
     QVariant(const QTextLength &length);
-    QVariant(const QPointArray &pointarray);
+    QVariant(const QPolygon &pointarray);
     QVariant(const QRegion &region);
     QVariant(const QBitmap &bitmap);
 #ifndef QT_NO_CURSOR
@@ -126,7 +126,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
 #endif
     QIcon toIcon() const;
     QTextLength toTextLength() const;
-    const QPointArray toPointArray() const;
+    const QPolygon toPolygon() const;
     QBitmap toBitmap() const;
     QRegion toRegion() const;
 #ifndef QT_NO_CURSOR
@@ -151,7 +151,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
 #ifndef QT_NO_ICON
     inline QT_COMPAT QIcon &asIconSet() { return *reinterpret_cast<QIcon *>(castOrDetach(IconSet)); }
 #endif
-    inline QT_COMPAT QPointArray& asPointArray() { return *reinterpret_cast<QPointArray *>(castOrDetach(PointArray)); }
+    inline QT_COMPAT QPolygon& asPointArray() { return *reinterpret_cast<QPolygon *>(castOrDetach(PointArray)); }
     inline QT_COMPAT QBitmap& asBitmap() { return *reinterpret_cast<QBitmap *>(castOrDetach(Bitmap)); }
     inline QT_COMPAT QRegion& asRegion() { return *reinterpret_cast<QRegion *>(castOrDetach(Region)); }
 #ifndef QT_NO_CURSOR
@@ -224,7 +224,7 @@ template<> QColor QVariant_to_helper<QColor>(const QCoreVariant &v, const QColor
 template<> QPalette QVariant_to_helper<QPalette>(const QCoreVariant &v, const QPalette*);
 template<> QIcon QVariant_to_helper<QIcon>(const QCoreVariant &v, const QIcon*);
 template<> QTextLength QVariant_to_helper<QTextLength>(const QCoreVariant &v, const QTextLength*);
-template<> QPointArray QVariant_to_helper<QPointArray>(const QCoreVariant &v, const QPointArray*);
+template<> QPolygon QVariant_to_helper<QPolygon>(const QCoreVariant &v, const QPolygon*);
 template<> QBitmap QVariant_to_helper<QBitmap>(const QCoreVariant &v, const QBitmap*);
 template<> QRegion QVariant_to_helper<QRegion>(const QCoreVariant &v, const QRegion*);
 #ifndef QT_NO_CURSOR
@@ -246,7 +246,7 @@ template<> QColor QVariant_to<QColor>(const QCoreVariant &v);
 template<> QPalette QVariant_to<QPalette>(const QCoreVariant &v);
 template<> QIcon QVariant_to<QIcon>(const QCoreVariant &v);
 template<> QTextLength QVariant_to<QTextLength>(const QCoreVariant &v);
-template<> QPointArray QVariant_to<QPointArray>(const QCoreVariant &v);
+template<> QPolygon QVariant_to<QPolygon>(const QCoreVariant &v);
 template<> QBitmap QVariant_to<QBitmap>(const QCoreVariant &v);
 template<> QRegion QVariant_to<QRegion>(const QCoreVariant &v);
 #ifndef QT_NO_CURSOR

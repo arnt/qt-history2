@@ -283,7 +283,7 @@ void QSVGPaintEngine::drawPoint(const QPoint &p)
     drawLine(p, p);
 }
 
-void QSVGPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
+void QSVGPaintEngine::drawPoints(const QPolygon &pa, int index, int npoints)
 {
     for (int i = index; i < npoints; ++i)
         drawLine(pa[i], pa[i]); // should be drawPoint(), but saves one fu call
@@ -410,7 +410,7 @@ void QSVGPaintEngine::drawChord(const QRect &r, int _a, int alen)
     d->appendChild(e, PdcDrawChord);
 }
 
-void QSVGPaintEngine::drawLineSegments(const QPointArray &pa, int /* index */, int /* nlines */)
+void QSVGPaintEngine::drawLineSegments(const QPolygon &pa, int /* index */, int /* nlines */)
 {
     QDomElement e;
     uint end = pa.size() / 2; // ### use index and nlines instead - they are verified by QPainter
@@ -425,7 +425,7 @@ void QSVGPaintEngine::drawLineSegments(const QPointArray &pa, int /* index */, i
     }
 }
 
-void QSVGPaintEngine::drawPolyline(const QPointArray &a, int index, int npoints)
+void QSVGPaintEngine::drawPolyline(const QPolygon &a, int index, int npoints)
 {
     QString str;
     QDomElement e = d->doc.createElement("polyline");
@@ -438,7 +438,7 @@ void QSVGPaintEngine::drawPolyline(const QPointArray &a, int index, int npoints)
     d->appendChild(e, PdcDrawPolyline);
 }
 
-void QSVGPaintEngine::drawPolygon(const QPointArray &a, bool, int index, int npoints)
+void QSVGPaintEngine::drawPolygon(const QPolygon &a, bool, int index, int npoints)
 {
     QString str;
     QDomElement e = d->doc.createElement("polygon");
@@ -451,12 +451,12 @@ void QSVGPaintEngine::drawPolygon(const QPointArray &a, bool, int index, int npo
     d->appendChild(e, PdcDrawPolygon);
 }
 
-void QSVGPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
+void QSVGPaintEngine::drawConvexPolygon(const QPolygon &pa, int index, int npoints)
 {
     drawPolygon(pa, false, index, npoints);
 }
 
-void QSVGPaintEngine::drawCubicBezier(const QPointArray &a, int /* index */)
+void QSVGPaintEngine::drawCubicBezier(const QPolygon &a, int /* index */)
 {
 #ifndef QT_NO_BEZIER
     QString str;
@@ -946,7 +946,7 @@ bool QSVGPaintEnginePrivate::play(const QDomNode &node, QPainter *pt)
             QString pts = attr.namedItem("points").nodeValue();
             pts = pts.simplified();
             QStringList sl = pts.split(QRegExp(QString::fromLatin1("[,]")));
-            QPointArray ptarr((uint) sl.count() / 2);
+            QPolygon ptarr((uint) sl.count() / 2);
             for (int i = 0; i < (int) sl.count() / 2; i++) {
                 double dx = sl[2*i].toDouble();
                 double dy = sl[2*i+1].toDouble();
@@ -1343,9 +1343,9 @@ void QSVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
     double x0 = 0, y0 = 0;                // starting point
     double x = 0, y = 0;                // current point
     double controlX = 0, controlY = 0;        // last control point for curves
-    QPointArray path(500);                // resulting path
+    QPolygon path(500);                // resulting path
     QList<int> subIndex;                // start indices for subpaths
-    QPointArray quad(4), bezier;        // for curve calculations
+    QPolygon quad(4), bezier;        // for curve calculations
     int pcount = 0;                        // current point array index
     int idx = 0;                        // current data position
     int mode = 0, lastMode = 0;                // parser state

@@ -20,7 +20,7 @@
 #include "qcolor.h"
 #include "qevent.h"
 #include "qpainter.h"
-#include "qpointarray.h"
+#include "qpolygon.h"
 #include "qregion.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
@@ -48,7 +48,7 @@ public:
     }
 
     QRect eraseArea;
-    QPointArray lines;
+    QPolygon lines;
     double target;
     uint eraseAreaValid : 1;
     uint showNotches : 1;
@@ -58,7 +58,7 @@ public:
 
     int valueFromPoint(const QPoint &) const;
     double angle(const QPoint &, const QPoint &) const;
-    QPointArray calcArrow(double &a) const;
+    QPolygon calcArrow(double &a) const;
     QRect calcDial() const;
     int calcBigLineSize() const;
     void calcLines();
@@ -134,7 +134,7 @@ void QDialPrivate::repaintScreen(const QRect &cr)
     p.drawArc(te, 240 * 16, 180 * 16);
 
     double a;
-    QPointArray arrow(calcArrow(a));
+    QPolygon arrow(calcArrow(a));
     QRect ea(arrow.boundingRect());
     d->eraseArea = ea;
     d->eraseAreaValid = true;
@@ -202,7 +202,7 @@ void QDialPrivate::repaintScreen(const QRect &cr)
     p.end();
 }
 
-QPointArray QDialPrivate::calcArrow(double &a) const
+QPolygon QDialPrivate::calcArrow(double &a) const
 {
     int width = q->width();
     int height = q->height();
@@ -224,7 +224,7 @@ QPointArray QDialPrivate::calcArrow(double &a) const
     if (back < 1)
         back = 1;
 
-    QPointArray arrow(3);
+    QPolygon arrow(3);
     arrow[0] = QPoint((int)(0.5 + xc + len * cos(a)),
                       (int)(0.5 + yc - len * sin(a)));
     arrow[1] = QPoint((int)(0.5 + xc + back * cos(a + m_pi * 5 / 6)),

@@ -1150,7 +1150,7 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     depends on the type (see the function documentation for details).
 
     Note that two data types supported by QCoreVariant are explicitly
-    shared, namely QImage and QPointArray, and in these
+    shared, namely QImage and QPolygon, and in these
     cases the toT() methods return a shallow copy. In almost all cases
     you must make a deep copy of the returned values before modifying
     them.
@@ -1229,7 +1229,7 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     \value Pen  a QPen
     \value Pixmap  a QPixmap
     \value Point  a QPoint
-    \value PointArray  a QPointArray
+    \value Polygon a QPolygon
     \value Rect  a QRect
     \value Region  a QRegion
     \value Size  a QSize
@@ -1658,7 +1658,7 @@ static const char* const type_map[ntypes] =
     "bool",
     "double",
     "",
-    "QPointArray",
+    "QPolygon",
     "QRegion",
     "QBitmap",
     "QCursor",

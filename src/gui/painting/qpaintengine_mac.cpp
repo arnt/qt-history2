@@ -365,7 +365,7 @@ QQuickDrawPaintEngine::drawPoints(const QPolygonF &p)
         if(d->clip.paintable.isEmpty())
             return;
         setupQDPen();
-        QPointArray pa = p.toPointArray();
+        QPolygon pa = p.toPolygon();
         for(int i=0; i < pa.size(); i++) {
             MoveTo(pa[i].x()+d->offx, pa[i].y()+d->offy);
             Line(0, 0);
@@ -452,7 +452,7 @@ QQuickDrawPaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
 {
     Q_ASSERT(isActive());
     if (mode == PolylineMode) {
-        QPointArray pa = p.toPointArray();
+        QPolygon pa = p.toPolygon();
         if(pa.isEmpty())
             return;
         setupQDPort();
@@ -486,7 +486,7 @@ QQuickDrawPaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
         if(d->clip.paintable.isEmpty())
             return;
 
-        QPointArray pa = p.toPointArray();
+        QPolygon pa = p.toPolygon();
         PolyHandle polyHandle = OpenPoly();
         MoveTo(pa[0].x()+d->offx, pa[0].y()+d->offy);
         for(int x = 1; x < pa.size(); x++)
@@ -1311,7 +1311,7 @@ QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperatio
         if(!testf(ClipOn))
             op = Qt::ReplaceClip;
         setf(ClipOn);
-        QRegion clipRegion(p.toFillPolygon().toPointArray(), p.fillRule());
+        QRegion clipRegion(p.toFillPolygon().toPolygon(), p.fillRule());
         if(op == Qt::ReplaceClip) {
             d->current.clip = clipRegion;
             d->setClip(0);

@@ -16,7 +16,6 @@
 
 #include "qline.h"
 #include "qpoint.h"
-#include "qpointarray.h"
 #include "qpolygon.h"
 #include "qrect.h"
 #include "qregion.h"
@@ -53,10 +52,10 @@ public:
     QPointF map(const QPointF&p) const;
     QLineF map(const QLineF &l) const;
     QPolygonF map(const QPolygonF &a) const;
-    QPointArray map(const QPointArray &a) const;
+    QPolygon map(const QPolygon &a) const;
     QRegion map(const QRegion &r) const;
     QPainterPath map(const QPainterPath &p) const;
-    QPointArray mapToPolygon(const QRect &r) const;
+    QPolygon mapToPolygon(const QRect &r) const;
 
     void reset();
     inline bool isIdentity() const;
@@ -98,7 +97,7 @@ inline Q_GUI_EXPORT QPointF operator*(const QPointF &p, const QMatrix &m)
 { return m.map(p); }
 inline Q_GUI_EXPORT QLineF operator*(const QLineF &l, const QMatrix &m)
 { return m.map(l); }
-inline Q_GUI_EXPORT QPointArray operator *(const QPointArray &a, const QMatrix &m)
+inline Q_GUI_EXPORT QPolygon operator *(const QPolygon &a, const QMatrix &m)
 { return m.map(a); }
 inline Q_GUI_EXPORT QPolygonF operator *(const QPolygonF &a, const QMatrix &m)
 { return m.map(a); }

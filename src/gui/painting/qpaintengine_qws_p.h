@@ -94,7 +94,7 @@ public:
 protected:
     QWSPaintEngine(QPaintEnginePrivate &dptr);
 
-    void drawPolyInternal(const QPointArray &a, bool close=true);
+    void drawPolyInternal(const QPolygon &a, bool close=true);
 
     void copyQWSData(const QWSPaintEngine *);
     void cloneQWSData(const QWSPaintEngine *);

@@ -13,7 +13,7 @@
 
 #include "qregion.h"
 #include "qpainterpath.h"
-#include "qpointarray.h"
+#include "qpolygon.h"
 #include "qbuffer.h"
 #include "qimage.h"
 #include "qbitmap.h"
@@ -2203,7 +2203,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
         } else if (t == Ellipse) {
             QPainterPath path;
             path.addEllipse(r.x(), r.y(), r.width(), r.height());
-            QPointArray a = path.toSubpathPolygons().at(0).toPointArray();
+            QPolygon a = path.toSubpathPolygons().at(0).toPolygon();
             d->qt_rgn = PolygonRegion(a.constData(), a.size(), EvenOddRule);
         }
     }
@@ -2221,7 +2221,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
     slow down painting when used.
 */
 
-QRegion::QRegion(const QPointArray &a, Qt::FillRule fillRule)
+QRegion::QRegion(const QPolygon &a, Qt::FillRule fillRule)
 {
     if (a.count() > 2) {
         d =  new QRegionData;

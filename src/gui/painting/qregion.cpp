@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qregion.h"
-#include "qpointarray.h"
+#include "qpolygon.h"
 #include "qbuffer.h"
 #include "qdatastream.h"
 
@@ -110,7 +110,7 @@ QRegion::QRegion(int x, int y, int w, int h, RegionType t)
 }
 
 #ifdef QT_COMPAT
-QRegion::QRegion(const QPointArray &pa, bool winding)
+QRegion::QRegion(const QPolygon &pa, bool winding)
 {
     new (this) QRegion(pa, winding ? Qt::WindingFill : Qt::OddEvenFill);
 }
@@ -182,7 +182,7 @@ void QRegion::exec(const QByteArray &buffer, int ver)
             s >> r;
             rgn = QRegion(r, id == QRGN_SETRECT ? Rectangle : Ellipse);
         } else if (id == QRGN_SETPTARRAY_ALT || id == QRGN_SETPTARRAY_WIND) {
-            QPointArray a;
+            QPolygon a;
             s >> a;
             rgn = QRegion(a, id == QRGN_SETPTARRAY_WIND ? Qt::WindingFill : Qt::OddEvenFill);
         } else if (id == QRGN_TRANSLATE) {

@@ -26,7 +26,7 @@
 #include "qpalette.h"
 #include "qpen.h"
 #include "qpixmap.h"
-#include "qpointarray.h"
+#include "qpolygon.h"
 #include "qregion.h"
 #include "qsizepolicy.h"
 #include "qtextformat.h"
@@ -61,7 +61,7 @@ static void construct(QVariant::Private *x, const void *v)
             break;
         case QVariant::PointArray:
             x->data.shared = new QCoreVariant::PrivateShared(
-                    new QPointArray(*static_cast<const QPointArray *>(v)));
+                    new QPolygon(*static_cast<const QPolygon *>(v)));
             break;
         case QVariant::Font:
             x->data.shared = new QCoreVariant::PrivateShared(
@@ -136,7 +136,7 @@ static void construct(QVariant::Private *x, const void *v)
             x->data.shared = new QCoreVariant::PrivateShared(new QRegion);
             break;
         case QVariant::PointArray:
-            x->data.shared = new QCoreVariant::PrivateShared(new QPointArray);
+            x->data.shared = new QCoreVariant::PrivateShared(new QPolygon);
             break;
         case QVariant::Font:
             x->data.shared = new QCoreVariant::PrivateShared(new QFont);
@@ -212,7 +212,7 @@ static void clear(QVariant::Private *p)
         delete static_cast<QRegion *>(p->data.shared->value.ptr);
         break;
     case QVariant::PointArray:
-        delete static_cast<QPointArray *>(p->data.shared->value.ptr);
+        delete static_cast<QPolygon *>(p->data.shared->value.ptr);
         break;
     case QVariant::Font:
         delete static_cast<QFont *>(p->data.shared->value.ptr);
@@ -278,7 +278,7 @@ static bool isNull(const QVariant::Private *d)
     case QVariant::Region:
         return static_cast<QRegion *>(d->data.shared->value.ptr)->isEmpty();
     case QVariant::PointArray:
-        return static_cast<QPointArray *>(d->data.shared->value.ptr)->isEmpty();
+        return static_cast<QPolygon *>(d->data.shared->value.ptr)->isEmpty();
     case QVariant::Pixmap:
         return static_cast<QPixmap *>(d->data.shared->value.ptr)->isNull();
     case QVariant::Image:
@@ -329,7 +329,7 @@ static void load(QVariant::Private *d, QDataStream &s)
         s >> *static_cast<QRegion *>(d->data.shared->value.ptr);
         break;
     case QVariant::PointArray:
-        s >> *static_cast<QPointArray *>(d->data.shared->value.ptr);
+        s >> *static_cast<QPolygon *>(d->data.shared->value.ptr);
         break;
     case QVariant::Font:
         s >> *static_cast<QFont *>(d->data.shared->value.ptr);
@@ -408,7 +408,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
 #endif
         break;
     case QVariant::PointArray:
-        s << *static_cast<QPointArray *>(d->data.shared->value.ptr);
+        s << *static_cast<QPolygon *>(d->data.shared->value.ptr);
         break;
     case QVariant::Region:
         s << *static_cast<QRegion *>(d->data.shared->value.ptr);
@@ -486,8 +486,8 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
         return static_cast<QBitmap *>(a->data.shared->value.ptr)->serialNumber()
             == static_cast<QBitmap *>(b->data.shared->value.ptr)->serialNumber();
     case QVariant::PointArray:
-        return *static_cast<QPointArray *>(a->data.shared->value.ptr)
-            == *static_cast<QPointArray *>(b->data.shared->value.ptr);
+        return *static_cast<QPolygon *>(a->data.shared->value.ptr)
+            == *static_cast<QPolygon *>(b->data.shared->value.ptr);
     case QVariant::Region:
         return *static_cast<QRegion *>(a->data.shared->value.ptr)
             == *static_cast<QRegion *>(b->data.shared->value.ptr);
@@ -782,12 +782,12 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
-  \fn QVariant::QVariant(const QPointArray &val)
+  \fn QVariant::QVariant(const QPolygon &val)
 
     Constructs a new variant with a point array value of \a val.
 
-    Because QPointArray is explicitly shared, you may need to pass a
-    deep copy to the variant using QPointArray::copy(), e.g. if you
+    Because QPolygon is explicitly shared, you may need to pass a
+    deep copy to the variant using QPolygon::copy(), e.g. if you
     intend changing the point array you've passed later on.
 */
 
@@ -959,7 +959,7 @@ QVariant::QVariant(const QColorGroup &val) { create(ColorGroup, &val); }
 QVariant::QVariant(const QIcon &val) { create(Icon, &val); }
 #endif //QT_NO_ICON
 QVariant::QVariant(const QTextLength &val) { create(TextLength, &val); }
-QVariant::QVariant(const QPointArray &val) { create(PointArray, &val); }
+QVariant::QVariant(const QPolygon &val) { create(PointArray, &val); }
 QVariant::QVariant(const QRegion &val) { create(Region, &val); }
 QVariant::QVariant(const QBitmap& val) { create(Bitmap, &val); }
 #ifndef QT_NO_CURSOR
@@ -1025,10 +1025,10 @@ QVariant::QVariant(const QSizePolicy &val) { create(SizePolicy, &val); }
 */
 
 /*!
-    \fn QPointArray QVariant::toPointArray() const
+    \fn QPolygon QVariant::toPolygon() const
 
-    Returns the variant as a QPointArray if the variant has type()
-    PointArray; otherwise returns a null QPointArray.
+    Returns the variant as a QPolygon if the variant has type()
+    PointArray; otherwise returns a null QPolygon.
 */
 
 /*!
@@ -1165,12 +1165,12 @@ QBitmap QVariant::toBitmap() const
 
 }
 
-const QPointArray QVariant::toPointArray() const
+const QPolygon QVariant::toPolygon() const
 {
     if (d.type != PointArray)
-        return QPointArray();
+        return QPolygon();
 
-    return *static_cast<QPointArray *>(d.data.shared->value.ptr);
+    return *static_cast<QPolygon *>(d.data.shared->value.ptr);
 }
 
 #ifndef QT_NO_ICON
@@ -1238,7 +1238,7 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
 //        dbg.nospace() << v.toBitmap(); //FIXME
         break;
     case QVariant::PointArray:
-        dbg.nospace() << v.toPointArray();
+        dbg.nospace() << v.toPolygon();
         break;
     case QVariant::Region:
         dbg.nospace() << v.toRegion();
@@ -1319,8 +1319,8 @@ template<> QIcon QVariant_to_helper<QIcon>(const QCoreVariant &v, const QIcon*)
 { return static_cast<const QVariant &>(v).toIcon(); }
 template<> QTextLength QVariant_to_helper<QTextLength>(const QCoreVariant &v, const QTextLength*)
 { return static_cast<const QVariant &>(v).toTextLength(); }
-template<> QPointArray QVariant_to_helper<QPointArray>(const QCoreVariant &v, const QPointArray*)
-{ return static_cast<const QVariant &>(v).toPointArray(); }
+template<> QPolygon QVariant_to_helper<QPolygon>(const QCoreVariant &v, const QPolygon*)
+{ return static_cast<const QVariant &>(v).toPolygon(); }
 template<> QBitmap QVariant_to_helper<QBitmap>(const QCoreVariant &v, const QBitmap*)
 { return static_cast<const QVariant &>(v).toBitmap(); }
 template<> QRegion QVariant_to_helper<QRegion>(const QCoreVariant &v, const QRegion*)
@@ -1356,8 +1356,8 @@ template<> QIcon QVariant_to<QIcon>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toIcon(); }
 template<> QTextLength QVariant_to<QTextLength>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toTextLength(); }
-template<> QPointArray QVariant_to<QPointArray>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toPointArray(); }
+template<> QPolygon QVariant_to<QPolygon>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toPolygon(); }
 template<> QBitmap QVariant_to<QBitmap>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toBitmap(); }
 template<> QRegion QVariant_to<QRegion>(const QCoreVariant &v)
@@ -1429,9 +1429,9 @@ template<> QSizePolicy QVariant_to<QSizePolicy>(const QCoreVariant &v)
 */
 
 /*!
-    \fn QPointArray& QVariant::asPointArray()
+    \fn QPolygon& QVariant::asPointArray()
 
-    Use toPointArray() instead.
+    Use toPolygon() instead.
 */
 
 /*!

@@ -158,7 +158,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
         qDrawShadePanel(p, r, pal, !showUp, pixelMetric(PM_DefaultFrameWidth), &pal.brush(QPalette::Button));
 
         if (!(flags & Style_Off)) {
-            QPointArray a(7 * 2);
+            QPolygon a(7 * 2);
             int i, xx, yy;
             xx = r.x() + 3;
             yy = r.y() + 5;
@@ -194,7 +194,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
                 4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
             bool down = flags & Style_Down;
             bool on = flags & Style_On;
-            QPointArray a(INTARRLEN(pts1), pts1);
+            QPolygon a(INTARRLEN(pts1), pts1);
             a.translate(r.x(), r.y());
             p->setPen((down || on) ? pal.dark() : pal.light());
             p->drawPolyline(a);
@@ -220,7 +220,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
                 // bottom right  lines
                 10,2, 10,3, 11,4, 11,7, 10,8, 10,9, 9,10, 8,10, 7,11, 4,11, 3,10, 2,10
             };
-            QPointArray a(INTARRLEN(pts1), pts1);
+            QPolygon a(INTARRLEN(pts1), pts1);
             a.translate(r.x(), r.y());
             p->setPen(Qt::color1);
             p->setBrush(Qt::color1);
@@ -232,10 +232,10 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
     case PE_ArrowRight:
     case PE_ArrowLeft: {
         QRect rect = r;
-        QPointArray bFill;                          // fill polygon
-        QPointArray bTop;                           // top shadow.
-        QPointArray bBot;                           // bottom shadow.
-        QPointArray bLeft;                          // left shadow.
+        QPolygon bFill;                          // fill polygon
+        QPolygon bTop;                           // top shadow.
+        QPolygon bBot;                           // bottom shadow.
+        QPolygon bLeft;                          // left shadow.
         QMatrix    matrix;                         // xform matrix
         bool vertical = pe == PE_ArrowUp || pe == PE_ArrowDown;
         bool horizontal = !vertical;

@@ -55,7 +55,7 @@
     QPoints can be compared for equality or inequality, and they can
     be written to and read from a QStream.
 
-    \sa QPointArray QSize, QRect
+    \sa QPolygon QSize, QRect
 */
 
 

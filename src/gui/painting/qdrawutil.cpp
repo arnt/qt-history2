@@ -68,7 +68,7 @@ void qDrawShadeLine(QPainter *p, int x1, int y1, int x2, int y2,
         p->setPen(pal.color(QPalette::Dark));
     else
         p->setPen(pal.light().color());
-    QPointArray a;
+    QPolygon a;
     int i;
     if (y1 == y2) {                                // horizontal line
         int y = y1 - tlw/2;
@@ -188,7 +188,7 @@ void qDrawShadeRect(QPainter *p, int x, int y, int w, int h,
     else
         p->setPen(pal.light().color());
     int x1=x, y1=y, x2=x+w-1, y2=y+h-1;
-    QPointArray a;
+    QPolygon a;
 
     if (lineWidth == 1 && midLineWidth == 0) {// standard shade rectangle
         p->drawRect(x1, y1, w-2, h-2);
@@ -288,7 +288,7 @@ void qDrawShadePanel(QPainter *p, int x, int y, int w, int h,
             light = pal.midlight().color();
     }
     QPen oldPen = p->pen();                        // save pen
-    QPointArray a(4*lineWidth);
+    QPolygon a(4*lineWidth);
     if (sunken)
         p->setPen(shade);
     else
@@ -365,7 +365,7 @@ static void qDrawWinShades(QPainter *p,
     if (w < 2 || h < 2)                        // can't do anything with that
         return;
     QPen oldPen = p->pen();
-    QPointArray a(3);
+    QPolygon a(3);
     a.setPoints(3, x, y+h-2, x, y, x+w-2, y);
     p->setPen(c1);
     p->drawPolyline(a);
@@ -611,7 +611,7 @@ static void qDrawWinArrow(QPainter *p, Qt::ArrowType type, bool down,
                            int x, int y, int w, int h,
                            const QPalette &pal, bool enabled)
 {
-    QPointArray a;                                // arrow polygon
+    QPolygon a;                                // arrow polygon
     switch (type) {
     case Qt::UpArrow:
         a.setPoints(7, -3,1, 3,1, -2,0, 2,0, -1,-1, 1,-1, 0,-2);
@@ -672,10 +672,10 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
                              int x, int y, int w, int h,
                              const QPalette &pal, bool)
 {
-    QPointArray bFill;                                // fill polygon
-    QPointArray bTop;                                // top shadow.
-    QPointArray bBot;                                // bottom shadow.
-    QPointArray bLeft;                                // left shadow.
+    QPolygon bFill;                                // fill polygon
+    QPolygon bTop;                                // top shadow.
+    QPolygon bBot;                                // bottom shadow.
+    QPolygon bLeft;                                // left shadow.
 #ifndef QT_NO_TRANSFORMATIONS
     QMatrix        matrix;                                // xform matrix
 #endif

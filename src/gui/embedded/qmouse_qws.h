@@ -15,7 +15,7 @@
 #define QMOUSE_QWS_H
 
 #include "qobject.h"
-#include "qpointarray.h"
+#include "qpolygon.h"
 
 class QWSPointerCalibrationData
 {
@@ -69,7 +69,7 @@ private:
     int a, b, c;
     int d, e, f;
     int s;
-    QPointArray samples;
+    QPolygon samples;
     int currSample;
     int numSamples;
 };

@@ -20,7 +20,7 @@
 #include "qbrush.h"
 #include "qpen.h"
 #include "q3valuelist.h"
-#include "qpointarray.h"
+#include "q3pointarray.h"
 
 
 class Q3CanvasSprite;
@@ -143,7 +143,7 @@ private:
     friend class Q3CanvasText;
     friend class Q3CanvasLine;
 
-    virtual QPointArray chunks() const;
+    virtual Q3PointArray chunks() const;
     virtual void addToChunks();
     virtual void removeFromChunks();
     virtual void changeChunks();
@@ -241,7 +241,7 @@ public:
     Q3CanvasItemList allItems();
     Q3CanvasItemList collisions(const QPoint&) const;
     Q3CanvasItemList collisions(const QRect&) const;
-    Q3CanvasItemList collisions(const QPointArray& pa, const Q3CanvasItem* item,
+    Q3CanvasItemList collisions(const Q3PointArray& pa, const Q3CanvasItem* item,
 				bool exact) const;
 
     void drawArea(const QRect&, QPainter* p, bool double_buffer=false);
@@ -390,7 +390,7 @@ public:
     // this form is deprecated
     Q3CanvasPixmapArray(Q3PtrList<QPixmap>, Q3PtrList<QPoint> hotspots);
 
-    Q3CanvasPixmapArray(Q3ValueList<QPixmap>, QPointArray hotspots = QPointArray());
+    Q3CanvasPixmapArray(Q3ValueList<QPixmap>, Q3PointArray hotspots = Q3PointArray());
     ~Q3CanvasPixmapArray();
 
 #ifndef QT_NO_IMAGEIO
@@ -513,8 +513,8 @@ public:
     QBrush brush() const
 	{ return br; }
 
-    virtual QPointArray areaPoints() const=0;
-    virtual QPointArray areaPointsAdvanced() const;
+    virtual Q3PointArray areaPoints() const=0;
+    virtual Q3PointArray areaPointsAdvanced() const;
     QRect boundingRect() const;
 
     int rtti() const;
@@ -532,9 +532,9 @@ protected:
 	{ return (bool)val; }
 
 private:
-    void scanPolygon(const QPointArray& pa, int winding,
+    void scanPolygon(const Q3PointArray& pa, int winding,
 		      QPolygonalProcessor& process) const;
-    QPointArray chunks() const;
+    Q3PointArray chunks() const;
 
     bool collidesWith(const Q3CanvasSprite*,
 		       const Q3CanvasPolygonalItem*,
@@ -562,7 +562,7 @@ public:
     void setSize(int w, int h);
     QSize size() const
 	{ return QSize(w,h); }
-    QPointArray areaPoints() const;
+    Q3PointArray areaPoints() const;
     QRect rect() const
 	{ return QRect(int(x()),int(y()),w,h); }
 
@@ -573,7 +573,7 @@ public:
 
 protected:
     void drawShape(QPainter &);
-    QPointArray chunks() const;
+    Q3PointArray chunks() const;
 
 private:
     bool collidesWith(  const Q3CanvasSprite*,
@@ -591,18 +591,18 @@ class Q_COMPAT_EXPORT Q3CanvasPolygon : public Q3CanvasPolygonalItem
 public:
     Q3CanvasPolygon(Q3Canvas* canvas);
     ~Q3CanvasPolygon();
-    void setPoints(QPointArray);
-    QPointArray points() const;
+    void setPoints(Q3PointArray);
+    Q3PointArray points() const;
     void moveBy(double dx, double dy);
 
-    QPointArray areaPoints() const;
+    Q3PointArray areaPoints() const;
 
     int rtti() const;
     static int RTTI;
 
 protected:
     void drawShape(QPainter &);
-    QPointArray poly;
+    Q3PointArray poly;
 };
 
 
@@ -612,8 +612,8 @@ public:
     Q3CanvasSpline(Q3Canvas* canvas);
     ~Q3CanvasSpline();
 
-    void setControlPoints(QPointArray, bool closed=true);
-    QPointArray controlPoints() const;
+    void setControlPoints(Q3PointArray, bool closed=true);
+    Q3PointArray controlPoints() const;
     bool closed() const;
 
     int rtti() const;
@@ -621,7 +621,7 @@ public:
 
 private:
     void recalcPoly();
-    QPointArray bez;
+    Q3PointArray bez;
     bool cl;
 };
 
@@ -646,7 +646,7 @@ public:
 
 protected:
     void drawShape(QPainter &);
-    QPointArray areaPoints() const;
+    Q3PointArray areaPoints() const;
 
 private:
     int x1,y1,x2,y2;
@@ -672,7 +672,7 @@ public:
 	{ return a1; }
     int angleLength() const
 	{ return a2; }
-    QPointArray areaPoints() const;
+    Q3PointArray areaPoints() const;
 
     bool collidesWith(const Q3CanvasItem*) const;
 

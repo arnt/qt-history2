@@ -31,7 +31,7 @@ class QCursor;
 class QPoint;
 class QSize;
 class QRect;
-class QPointArray;
+class QPolygon;
 class QPainter;
 class QRegion;
 class QFont;

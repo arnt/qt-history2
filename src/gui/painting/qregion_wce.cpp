@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qregion.h"
-#include "qpointarray.h"
+#include "qpolygon.h"
 #include "qbuffer.h"
 #include "qbitmap.h"
 #include "qimage.h"
@@ -90,7 +90,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
             data->rgn = CreateRectRgn(r.left(),         r.top(),
                                        r.right()+1, r.bottom()+1);
         } else if (t == Ellipse) {                // elliptic region
-            QPointArray a;
+            QPolygon a;
             a.makeEllipse(r.x(), r.y(), r.width(), r.height());
             QRegionPrivate *rp = PolygonRegion((QPoint*)a.data(), a.size(),
                                                 EvenOddRule);
@@ -100,7 +100,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
     }
 }
 
-QRegion::QRegion(const QPointArray &a, bool winding)
+QRegion::QRegion(const QPolygon &a, bool winding)
 {
     if (a.size() > 0) {
         data = new QRegionData;

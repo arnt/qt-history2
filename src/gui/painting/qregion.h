@@ -34,9 +34,9 @@ public:
     QRegion();
     QRegion(int x, int y, int w, int h, RegionType t = Rectangle);
     QRegion(const QRect &r, RegionType t = Rectangle);
-    QRegion(const QPointArray &pa, Qt::FillRule fillRule = Qt::OddEvenFill);
+    QRegion(const QPolygon &pa, Qt::FillRule fillRule = Qt::OddEvenFill);
 #ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QRegion(const QPointArray &pa, bool winding);
+    QT_COMPAT_CONSTRUCTOR QRegion(const QPolygon &pa, bool winding);
 #endif
     QRegion(const QRegion &region);
     QRegion(const QBitmap &bitmap);

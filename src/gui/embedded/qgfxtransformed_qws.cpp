@@ -553,11 +553,11 @@ public:
 
     virtual void setSource(const QImage * i);
     virtual void drawPoint(int,int);
-    virtual void drawPoints(const QPointArray &,int,int);
+    virtual void drawPoints(const QPolygon &,int,int);
     virtual void drawLine(int,int,int,int);
     virtual void fillRect(int,int,int,int);
-    virtual void drawPolygon(const QPointArray &,bool,int,int);
-    virtual void drawPolyline(const QPointArray &,int,int);
+    virtual void drawPolygon(const QPolygon &,bool,int,int);
+    virtual void drawPolyline(const QPolygon &,int,int);
     virtual void blt(int,int,int,int,int,int);
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
     virtual void stretchBlt(int rx,int ry,int w,int h, int sw,int sh);
@@ -646,9 +646,9 @@ void QGfxTransformedRaster<depth,type>::drawPoint(int x, int y)
 }
 
 template <const int depth, const int type>
-void QGfxTransformedRaster<depth,type>::drawPoints(const QPointArray &a, int idx, int num)
+void QGfxTransformedRaster<depth,type>::drawPoints(const QPolygon &a, int idx, int num)
 {
-    QPointArray na(num);
+    QPolygon na(num);
 
     for (int i = 0; i < num; i++) {
         int x, y;
@@ -686,7 +686,7 @@ void QGfxTransformedRaster<depth,type>::fillRect(int x, int y, int w, int h)
 }
 
 template <const int depth, const int type>
-void QGfxTransformedRaster<depth,type>::drawPolygon(const QPointArray &a, bool w, int idx, int num)
+void QGfxTransformedRaster<depth,type>::drawPolygon(const QPolygon &a, bool w, int idx, int num)
 {
     // Because of stitchedges, we cannot transform first. However, if
     // we draw an outline, edges do not matter and we can do a fastpath
@@ -698,7 +698,7 @@ void QGfxTransformedRaster<depth,type>::drawPolygon(const QPointArray &a, bool w
         QT_TRANS_GFX_BASE<depth,type>::drawPolygon(a, w, idx, num);
     } else {
         inDraw = true;
-        QPointArray na(num);
+        QPolygon na(num);
 
         for (int i = 0; i < num; i++) {
             int x, y;
@@ -755,13 +755,13 @@ void QGfxTransformedRaster<depth,type>::processSpans(int n, QPoint* point, int* 
 
 
 template <const int depth, const int type>
-void QGfxTransformedRaster<depth,type>::drawPolyline(const QPointArray &a, int idx, int num)
+void QGfxTransformedRaster<depth,type>::drawPolyline(const QPolygon &a, int idx, int num)
 {
     if (inDraw) {
         QT_TRANS_GFX_BASE<depth,type>::drawPolyline(a, idx, num);
     } else {
         inDraw = true;
-        QPointArray na(num);
+        QPolygon na(num);
 
         for (int i = 0; i < num; i++) {
             int x, y;

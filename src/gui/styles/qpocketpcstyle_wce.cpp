@@ -1684,7 +1684,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
                                    const QStyleOption &opt) const
 {
     // CE Shapes  ### Might be faster to use pixmaps instead
-    #define CreateQPointArray(pts)        QPointArray(sizeof(pts)/(sizeof(int)*2), pts)
+    #define CreateQPolygon(pts)        QPolygon(sizeof(pts)/(sizeof(int)*2), pts)
     static const int radioOutline[] = {  1, 3,    3, 1,    4, 1,    5, 0,    9, 0,   10, 1,   11, 1,   13, 3,   13, 4,   14, 5,   14, 9,   13,10,   13,11,   11,13,   10,13,   9,14,    5,14,    4,13,    3,13,    1,11,    1,10,    0, 9,    0, 5,    1,4,     1, 3 };
     static const int radioDot[]     = {  6, 3,    8, 3,    4, 4,   10, 4,    4, 5,   10, 5,    3, 6,   11, 6,    3, 7,   11, 7,    3, 8,   11, 8,    4, 9,   10, 9,    4,10,  10,10,    6,11,    8,11 };
     static const int tick[18]       = {  3, 6,    6, 9,   11, 4,   11, 5,    6,10,    3, 7,    3, 8,    6,11,   11,6  };
@@ -1862,16 +1862,16 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
             p->setPen(pal.foreground());
             p->drawRect(r);                                        // Draw the box around the control
             if (flags & Style_On)
-                p->drawPolyline(CreateQPointArray(tick));   // Draw the tick if it is on
+                p->drawPolyline(CreateQPolygon(tick));   // Draw the tick if it is on
             break;
         }
 
     case PE_ExclusiveIndicator:
         {
             p->setPen(pal.foreground());
-            p->drawPolyline(CreateQPointArray(radioOutline));
+            p->drawPolyline(CreateQPolygon(radioOutline));
             if (flags & Style_On)                                    // Radio button dot shown when it is selected
-                p->drawPolyline(CreateQPointArray(radioDot));
+                p->drawPolyline(CreateQPolygon(radioDot));
             break;
         }
 
@@ -1926,7 +1926,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
         arrow--; // Fall-through intended
     case PE_ArrowLeft:
         {
-            QPointArray a(8, arrows[arrow]);
+            QPolygon a(8, arrows[arrow]);
             a.translate(r.x() + r.width() / 2, r.y() + r.height() / 2);
             p->setPen((flags & Style_Down) ? pal.base() : pal.foreground());
             p->drawLineSegments(a);         // draw arrow
@@ -1936,7 +1936,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 	{
 	    p->save();
 	    if (flags & Style_Up) { // invert logic to follow Windows style guide
-		QPointArray pa(3);
+		QPolygon pa(3);
 		p->setPen(pal.light());
 		p->drawLine(r.x() + r.width(), r.y(), r.x() + r.width() / 2, r.height());
 		p->setPen(pal.dark());
@@ -1945,7 +1945,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 		pa.setPoint(2, r.x() + r.width(), r.y());
 		p->drawPolyline(pa);
 	    } else {
-		QPointArray pa(3);
+		QPolygon pa(3);
 		p->setPen(pal.light());
 		pa.setPoint(0, r.x(), r.height());
 		pa.setPoint(1, r.x() + r.width(), r.height());
@@ -1978,7 +1978,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
             p->drawRect(r.x()+1, r.y()+1, 11, 11);
 
             if (! (flags & Style_Off)) {
-                QPointArray a(7*2);
+                QPolygon a(7*2);
                 int i, xx, yy;
                 xx = r.x() + 3;
                 yy = r.y() + 5;
@@ -2029,7 +2029,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
                 p->setPen(pal.text());
             else
                 p->setPen(QPen(lv->palette().color(QPalette::Disabled, QPalette::Text)));
-            QPointArray a(INTARRLEN(pts1), pts1);
+            QPolygon a(INTARRLEN(pts1), pts1);
             a.translate(x, y);
             p->drawPolyline(a);
             a.setPoints(INTARRLEN(pts2), pts2);
@@ -2153,7 +2153,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
             int posY = r.y() + (r.height() - markH)/2;
 
             // Could do with some optimizing/caching...
-            QPointArray a(markH*2);
+            QPolygon a(markH*2);
             int i, xx, yy;
             xx = posX;
             yy = 3 + posY;
@@ -3119,7 +3119,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                 int linetop = 0, linebot = 0, y = r.y();
                 // each branch needs at most two lines, ie. four end points
                 int dotoffset = (item->itemPos() + item->height() - y) %2;
-                QPointArray dotlines(item->childCount() * 4);
+                QPolygon dotlines(item->childCount() * 4);
                 int c = 0;
 
                 // skip the stuff above the exposed rectangle
@@ -3179,7 +3179,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                     // drawing the right sort of lines.
                     verticalLine = new QBitmap(1, 129, true);
                     horizontalLine = new QBitmap(128, 1, true);
-                    QPointArray a(64);
+                    QPolygon a(64);
                     QPainter p;
                     p.begin(verticalLine);
                     int i;
@@ -3379,7 +3379,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                     else
                         dir = SlRight;
 
-                QPointArray a;
+                QPolygon a;
 
                 int d = 0;
                 switch (dir) {

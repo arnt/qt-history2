@@ -482,7 +482,7 @@ QLineF QMatrix::map(const QLineF &line) const
 }
 
 /*!
-    \fn QPointArray operator*(const QPointArray &a, const QMatrix &m)
+    \fn QPolygon operator*(const QPolygon &a, const QMatrix &m)
 
     \relates QMatrix
 
@@ -494,7 +494,7 @@ QLineF QMatrix::map(const QLineF &line) const
 
     Returns the point array \a a transformed by calling map for each point.
 */
-QPointArray QMatrix::map(const QPointArray &a) const
+QPolygon QMatrix::map(const QPolygon &a) const
 {
     int size = a.size();
     int i;
@@ -543,7 +543,7 @@ QPointArray QMatrix::map(const QPointArray &a) const
     w = qMax(xmax - xmin, 1.);
     h = qMax(ymax - ymin, 1.);
 
-    QPointArray result(size);
+    QPolygon result(size);
     QPoint *dr = result.data();
     for(i = 0; i < size; i++) {
         dr[i].setX(qRound(dp[i].xp - (dp[i].xp - dp[xminp].xp)/w));
@@ -599,7 +599,7 @@ QRegion QMatrix::map(const QRegion &r) const
     QPainterPath p;
     p.addRegion(r);
     p = map(p);
-    return p.toFillPolygon().toPointArray();
+    return p.toFillPolygon().toPolygon();
 }
 
 /*
@@ -667,12 +667,12 @@ QRegion QMatrix::mapToRegion(const QRect &rect) const
 
     Polygons and rectangles behave slightly differently
     when transformed (due to integer rounding), so
-    \c{matrix.map(QPointArray(rect))} is not always the same as
+    \c{matrix.map(QPolygon(rect))} is not always the same as
     \c{matrix.mapToPolygon(rect)}.
 */
-QPointArray QMatrix::mapToPolygon(const QRect &rect) const
+QPolygon QMatrix::mapToPolygon(const QRect &rect) const
 {
-    QPointArray a(4);
+    QPolygon a(4);
     double x[4], y[4];
     if (_m12 == 0.0F && _m21 == 0.0F) {
         x[0] = _m11*rect.x() + _dx;

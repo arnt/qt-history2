@@ -57,11 +57,11 @@ public:
 
     // Drawing operations
     virtual void drawPoint(int,int)=0;
-    virtual void drawPoints(const QPointArray &,int,int)=0;
+    virtual void drawPoints(const QPolygon &,int,int)=0;
     virtual void moveTo(int,int)=0;
     virtual void lineTo(int,int)=0;
     virtual void drawLine(int,int,int,int)=0;
-    virtual void drawPolyline(const QPointArray &,int,int)=0;
+    virtual void drawPolyline(const QPolygon &,int,int)=0;
 
     // current position
     virtual QPoint pos() const = 0;
@@ -69,7 +69,7 @@ public:
     // Fill operations - these use the current source (pixmap,
     // color, etc), and draws outline
     virtual void fillRect(int,int,int,int)=0;
-    virtual void drawPolygon(const QPointArray &,bool,int,int)=0;
+    virtual void drawPolygon(const QPolygon &,bool,int,int)=0;
 
     virtual void setLineStep(int)=0;
 

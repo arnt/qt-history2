@@ -21,7 +21,7 @@
 #include "qimage.h"
 
 #ifndef QT_INCLUDE_COMPAT
-#include "qpointarray.h"
+#include "qpolygon.h"
 #include "qpen.h"
 #include "qbrush.h"
 #include "qmatrix.h"
@@ -36,7 +36,7 @@ class QPaintDevice;
 class QPainterPath;
 class QPainterPrivate;
 class QPen;
-class QPointArray;
+class QPolygon;
 class QTextItem;
 class QMatrix;
 
@@ -169,7 +169,7 @@ public:
     inline void drawPoint(int x, int y);
 
     void drawPoints(const QList<QPointF> &points);
-    void drawPoints(const QPointArray &points);
+    void drawPoints(const QPolygon &points);
 
     void drawArc(const QRectF &rect, int a, int alen);
     inline void drawArc(const QRect &, int a, int alen);
@@ -184,18 +184,18 @@ public:
     inline void drawChord(const QRect &, int a, int alen);
 
     void drawLines(const QList<QLineF> lines, int index = 0, int nlines = -1);
-    void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1);
+    void drawLineSegments(const QPolygon &, int index = 0, int nlines = -1);
 
     void drawPolyline(const QPolygonF &polyline, int index = 0, int npoints = -1);
-    void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1);
+    void drawPolyline(const QPolygon &pa, int index = 0, int npoints = -1);
 
     void drawPolygon(const QPolygonF &polygon, Qt::FillRule fillRule = Qt::OddEvenFill,
                      int index = 0,int npoints = -1);
-    void drawPolygon(const QPointArray &pa, Qt::FillRule fillRule = Qt::OddEvenFill,
+    void drawPolygon(const QPolygon &pa, Qt::FillRule fillRule = Qt::OddEvenFill,
                      int index = 0, int npoints = -1);
 
     void drawConvexPolygon(const QPolygonF &polygon, int index = 0, int npoints = -1);
-    void drawConvexPolygon(const QPointArray &pa, int index = 0, int npoints = -1);
+    void drawConvexPolygon(const QPolygon &pa, int index = 0, int npoints = -1);
 
     void drawTiledPixmap(const QRectF &rect, const QPixmap &pm, const QPointF &offset = QPointF(),
                          Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
@@ -298,10 +298,10 @@ public:
         { drawText(p, s.left(len), dir); }
     inline QT_COMPAT bool begin(QPaintDevice *pdev, const QWidget *init)
         { bool ret = begin(pdev); initFrom(init); return ret; }
-    QT_COMPAT void drawPoints(const QPointArray &pa, int index, int npoints = -1);
-    QT_COMPAT void drawCubicBezier(const QPointArray &pa, int index = 0);
+    QT_COMPAT void drawPoints(const QPolygon &pa, int index, int npoints = -1);
+    QT_COMPAT void drawCubicBezier(const QPolygon &pa, int index = 0);
 
-    inline QT_COMPAT void drawPolygon(const QPointArray &pa, bool winding, int index = 0,
+    inline QT_COMPAT void drawPolygon(const QPolygon &pa, bool winding, int index = 0,
                                       int npoints = -1)
     { drawPolygon(pa, winding ? Qt::WindingFill : Qt::OddEvenFill, index, npoints); }
 
@@ -326,12 +326,12 @@ public:
     QT_COMPAT void map(int x, int y, int *rx, int *ry) const;
     QT_COMPAT QPoint xForm(const QPoint &) const; // map virtual -> deviceb
     QT_COMPAT QRect xForm(const QRect &) const;
-    QT_COMPAT QPointArray xForm(const QPointArray &) const;
-    QT_COMPAT QPointArray xForm(const QPointArray &, int index, int npoints) const;
+    QT_COMPAT QPolygon xForm(const QPolygon &) const;
+    QT_COMPAT QPolygon xForm(const QPolygon &, int index, int npoints) const;
     QT_COMPAT QPoint xFormDev(const QPoint &) const; // map device -> virtual
     QT_COMPAT QRect xFormDev(const QRect &) const;
-    QT_COMPAT QPointArray xFormDev(const QPointArray &) const;
-    QT_COMPAT QPointArray xFormDev(const QPointArray &, int index, int npoints) const;
+    QT_COMPAT QPolygon xFormDev(const QPolygon &) const;
+    QT_COMPAT QPolygon xFormDev(const QPolygon &, int index, int npoints) const;
     QT_COMPAT double translationX() const;
     QT_COMPAT double translationY() const;
 #endif

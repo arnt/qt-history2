@@ -90,14 +90,14 @@ QRect QPainterPrivate::draw_helper_setclip(const void *data, Qt::FillRule fillRu
         clip = QRegion(reinterpret_cast<const QRectF*>(data)->toRect(), QRegion::Ellipse);
         break;
     case PathShape:
-        clip = QRegion(reinterpret_cast<const QPainterPath*>(data)->toFillPolygon().toPointArray(),
+        clip = QRegion(reinterpret_cast<const QPainterPath*>(data)->toFillPolygon().toPolygon(),
                        reinterpret_cast<const QPainterPath*>(data)->fillRule());
         break;
     case RectangleShape:
         clip = QRegion(reinterpret_cast<const QRectF*>(data)->toRect());
         break;
     default:
-        clip = QRegion(reinterpret_cast<const QPolygonF*>(data)->toPointArray(), fillRule);
+        clip = QRegion(reinterpret_cast<const QPolygonF*>(data)->toPolygon(), fillRule);
         break;
     }
     q->setClipRegion(clip, Qt::IntersectClip);
@@ -120,7 +120,7 @@ void QPainterPrivate::draw_helper_fill_lineargradient(const void *data, Qt::Fill
     QRect bounds = draw_helper_setclip(data, fillRule, type);
     QMatrix m = state->matrix;
     q->resetMatrix();
-    bounds = (QPointArray(bounds) * m).boundingRect();
+    bounds = (QPolygon(bounds) * m).boundingRect();
 
     QPointF p1 = state->brush.gradientStart() - bounds.topLeft();
     QPointF p2 = state->brush.gradientStop() - bounds.topLeft();
@@ -1424,22 +1424,22 @@ QRegion QPainter::clipRegion() const
         case QPainterClipInfo::PathClip: {
             QMatrix matrix = (info.matrix * d->invMatrix);
             if (lastWasNothing) {
-                region = QRegion((info.path * matrix).toFillPolygon().toPointArray(),
+                region = QRegion((info.path * matrix).toFillPolygon().toPolygon(),
                                  info.path.fillRule());
                 lastWasNothing = false;
                 continue;
             }
             if (info.operation == Qt::IntersectClip) {
-                region &= QRegion((info.path * matrix).toFillPolygon().toPointArray(),
+                region &= QRegion((info.path * matrix).toFillPolygon().toPolygon(),
                                   info.path.fillRule());
             } else if (info.operation == Qt::UniteClip) {
-                region |= QRegion((info.path * matrix).toFillPolygon().toPointArray(),
+                region |= QRegion((info.path * matrix).toFillPolygon().toPolygon(),
                                   info.path.fillRule());
             } else if (info.operation == Qt::NoClip) {
                 lastWasNothing = true;
                 region = QRegion();
             } else {
-                region = QRegion((info.path * matrix).toFillPolygon().toPointArray(),
+                region = QRegion((info.path * matrix).toFillPolygon().toPolygon(),
                                  info.path.fillRule());
             }
             break;
@@ -2235,7 +2235,7 @@ void QPainter::drawPoint(const QPointF &p)
 
     \sa QPen
 */
-void QPainter::drawPoints(const QPointArray &pa)
+void QPainter::drawPoints(const QPolygon &pa)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -2246,7 +2246,7 @@ void QPainter::drawPoints(const QPointArray &pa)
     Q_D(QPainter);
     d->engine->updateState(d->state);
 
-    QPolygonF a = QPolygonF::fromPointArray(pa);
+    QPolygonF a(pa);
     if (d->engine->emulationSpecifier) {
         if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
@@ -2873,7 +2873,7 @@ void QPainter::drawChord(const QRectF &r, int a, int alen)
     \sa drawPolyline(), drawPolygon(), QPen
 */
 
-void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
+void QPainter::drawLineSegments(const QPolygon &a, int index, int nlines)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -2977,14 +2977,14 @@ void QPainter::drawPolyline(const QPolygonF &a, int index, int npoints)
 
     Draws the polyline defined by the points in the array \a a.
  */
-void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
+void QPainter::drawPolyline(const QPolygon &a, int index, int npoints)
 {
     // ###
-    drawPolyline(QPolygonF::fromPointArray(a), index, npoints);
+    drawPolyline(QPolygonF(a), index, npoints);
 }
 
 
-/*! \fn void QPainter::drawPolygon(const QPointArray &pa, bool winding,
+/*! \fn void QPainter::drawPolygon(const QPolygon &pa, bool winding,
                                    int index = 0, int npoints = -1)
 
     \compat
@@ -3079,9 +3079,9 @@ void QPainter::drawPolygon(const QPolygonF &polygon, Qt::FillRule fillRule,
 
     Draws the polygon defined by the points in \a pa.
 */
-void QPainter::drawPolygon(const QPointArray &pa, Qt::FillRule fillRule, int index, int npoints)
+void QPainter::drawPolygon(const QPolygon &pa, Qt::FillRule fillRule, int index, int npoints)
 {
-    drawPolygon(QPolygonF::fromPointArray(pa), fillRule, index, npoints);
+    drawPolygon(QPolygonF(pa), fillRule, index, npoints);
 }
 
 
@@ -3095,9 +3095,9 @@ void QPainter::drawPolygon(const QPointArray &pa, Qt::FillRule fillRule, int ind
     drawPolygon().
 */
 
-void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
+void QPainter::drawConvexPolygon(const QPolygon &a, int index, int npoints)
 {
-    // Fix when QPainter::drawPolygon(QPointArray, PolyDrawMode) is in place
+    // Fix when QPainter::drawPolygon(QPolygon, PolyDrawMode) is in place
     drawPolygon(a, Qt::WindingFill, index, npoints);
 }
 
@@ -3108,7 +3108,7 @@ void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
 */
 void QPainter::drawConvexPolygon(const QPolygonF &p, int index, int npoints)
 {
-    // Fix when QPainter::drawPolygon(QPointArray, PolyDrawMode) is in place
+    // Fix when QPainter::drawPolygon(QPolygon, PolyDrawMode) is in place
     drawPolygon(p, Qt::WindingFill, index, npoints);
 }
 
@@ -4273,7 +4273,7 @@ QRect QPainter::xForm(const QRect &r) const
     \sa xFormDev(), QMatrix::map()
 */
 
-QPointArray QPainter::xForm(const QPointArray &a) const
+QPolygon QPainter::xForm(const QPolygon &a) const
 {
     Q_D(const QPainter);
 #ifndef QT_NO_TRANSFORMATIONS
@@ -4281,7 +4281,7 @@ QPointArray QPainter::xForm(const QPointArray &a) const
         return a;
     return a * d->state->matrix;
 #else
-    QPointArray p(a);
+    QPolygon p(a);
     p.translate(d->state->xlatex, d->state->xlatey);
     return p;
 #endif
@@ -4301,8 +4301,8 @@ QPointArray QPainter::xForm(const QPointArray &a) const
 
     Example:
     \code
-        QPointArray a(10);
-        QPointArray b;
+        QPolygon a(10);
+        QPolygon b;
         b = painter.xForm(a, 2, 4);  // b.size() == 4
         b = painter.xForm(a, 2, -1); // b.size() == 8
     \endcode
@@ -4310,11 +4310,11 @@ QPointArray QPainter::xForm(const QPointArray &a) const
     \sa xFormDev(), QMatrix::map()
 */
 
-QPointArray QPainter::xForm(const QPointArray &av, int index, int npoints) const
+QPolygon QPainter::xForm(const QPolygon &av, int index, int npoints) const
 {
     Q_D(const QPainter);
     int lastPoint = npoints < 0 ? av.size() : index+npoints;
-    QPointArray a(lastPoint-index);
+    QPolygon a(lastPoint-index);
     memcpy(a.data(), av.data()+index, (lastPoint-index)*sizeof(QPoint));
 #ifndef QT_NO_TRANSFORMATIONS
     return a * d->state->matrix;
@@ -4384,7 +4384,7 @@ QRect QPainter::xFormDev(const QRect &r)  const
     \sa xForm(), QMatrix::map()
 */
 
-QPointArray QPainter::xFormDev(const QPointArray &a) const
+QPolygon QPainter::xFormDev(const QPolygon &a) const
 {
     Q_D(const QPainter);
 #ifndef QT_NO_TRANSFORMATIONS
@@ -4396,7 +4396,7 @@ QPointArray QPainter::xFormDev(const QPointArray &a) const
     }
     return a * d->invMatrix;
 #else
-    QPointArray p(a);
+    QPolygon p(a);
     p.translate(-d->state->xlatex, -d->state->xlatey);
     return p;
 #endif
@@ -4417,8 +4417,8 @@ QPointArray QPainter::xFormDev(const QPointArray &a) const
 
     Example:
     \code
-        QPointArray a(10);
-        QPointArray b;
+        QPolygon a(10);
+        QPolygon b;
         b = painter.xFormDev(a, 1, 3);  // b.size() == 3
         b = painter.xFormDev(a, 1, -1); // b.size() == 9
     \endcode
@@ -4426,11 +4426,11 @@ QPointArray QPainter::xFormDev(const QPointArray &a) const
     \sa xForm(), QMatrix::map()
 */
 
-QPointArray QPainter::xFormDev(const QPointArray &ad, int index, int npoints) const
+QPolygon QPainter::xFormDev(const QPolygon &ad, int index, int npoints) const
 {
     Q_D(const QPainter);
     int lastPoint = npoints < 0 ? ad.size() : index+npoints;
-    QPointArray a(lastPoint-index);
+    QPolygon a(lastPoint-index);
     memcpy(a.data(), ad.data()+index, (lastPoint-index)*sizeof(QPoint));
 #ifndef QT_NO_TRANSFORMATIONS
     if (d->state->txop == QPainterPrivate::TxNone)
@@ -4447,7 +4447,7 @@ QPointArray QPainter::xFormDev(const QPointArray &ad, int index, int npoints) co
 }
 
 /*!
-  \fn void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
+  \fn void QPainter::drawPoints(const QPolygon &pa, int index, int npoints)
 
   \overload
   \obsolete
@@ -4461,7 +4461,7 @@ QPointArray QPainter::xFormDev(const QPointArray &ad, int index, int npoints) co
 
     \sa drawPoints
 */
-void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
+void QPainter::drawPoints(const QPolygon &pa, int index, int npoints)
 {
     if (npoints < 0)
         npoints = pa.size() - index;
@@ -4470,7 +4470,7 @@ void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
     if (!isActive() || npoints < 1 || index < 0)
         return;
 
-    QPointArray a = pa.mid(index, npoints);
+    QPolygon a = pa.mid(index, npoints);
     drawPoints(a);
 }
 
@@ -4481,7 +4481,7 @@ void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
     Control points after \a{a}\e{[index + 3]} are ignored. Nothing happens
     if there aren't enough control points.
 */
-void QPainter::drawCubicBezier(const QPointArray &a, int index)
+void QPainter::drawCubicBezier(const QPolygon &a, int index)
 {
     if (!isActive())
         return;

@@ -1180,7 +1180,7 @@ bool QPainterPath::contains(const QPointF &pt) const
 {
     if (d->containsCache.isEmpty()) {
         const_cast<QPainterPathPrivate*>(d)->containsCache =
-            QRegion(toFillPolygon().toPointArray(), fillRule());
+            QRegion(toFillPolygon().toPolygon(), fillRule());
     }
     return d->containsCache.contains(pt.toPoint());
 }
@@ -1194,7 +1194,7 @@ bool QPainterPath::contains(const QRectF &rect) const
 {
     if (d->containsCache.isEmpty()) {
         const_cast<QPainterPathPrivate*>(d)->containsCache =
-            QRegion(toFillPolygon().toPointArray(), fillRule());
+            QRegion(toFillPolygon().toPolygon(), fillRule());
     }
     return d->containsCache.contains(rect.toRect());
 }

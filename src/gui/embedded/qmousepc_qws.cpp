@@ -20,7 +20,7 @@
 #include "qwsutils_qws.h"
 
 #include "qapplication.h"
-#include "qpointarray.h"
+#include "qpolygon.h"
 #include "qtimer.h"
 #include "qfile.h"
 #include "qtextstream.h"

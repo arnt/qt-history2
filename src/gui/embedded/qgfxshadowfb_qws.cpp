@@ -74,7 +74,7 @@ void QGfxShadow<depth,type>::drawPoint(int x, int y)
 }
 
 template <const int depth, const int type>
-void QGfxShadow<depth,type>::drawPoints(const QPointArray &pa,int x,int y)
+void QGfxShadow<depth,type>::drawPoints(const QPolygon &pa,int x,int y)
 {
     QWSDisplay::grab(true);
     QRect r = pa.boundingRect();
@@ -105,7 +105,7 @@ void QGfxShadow<depth,type>::fillRect(int x,int y,int w,int h)
 }
 
 template <const int depth, const int type>
-void QGfxShadow<depth,type>::drawPolyline(const QPointArray &pa,int x,int y)
+void QGfxShadow<depth,type>::drawPolyline(const QPolygon &pa,int x,int y)
 {
     QWSDisplay::grab(true);
     QRect r = pa.boundingRect();
@@ -116,7 +116,7 @@ void QGfxShadow<depth,type>::drawPolyline(const QPointArray &pa,int x,int y)
 }
 
 template <const int depth, const int type>
-void QGfxShadow<depth,type>::drawPolygon(const QPointArray &pa,bool w,int x,int y)
+void QGfxShadow<depth,type>::drawPolygon(const QPolygon &pa,bool w,int x,int y)
 {
     QWSDisplay::grab(true);
     QRect r = pa.boundingRect();

@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qpolygonscanner_qws.h"
-#include "qpointarray.h"
+#include "qpolygon.h"
 #include <stdlib.h>
 
 
@@ -700,7 +700,7 @@ miInsertionSort(EdgeTableEntry *AET)
 /*!
     \overload
 */
-void QWSPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int npoints)
+void QWSPolygonScanner::scan(const QPolygon& pa, bool winding, int index, int npoints)
 {
     scan(pa, winding, index, npoints, true);
 }
@@ -711,7 +711,7 @@ void QWSPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int
     If \a stitchable is false, the right and bottom edges of the
     polygon are included. This causes adjacent polygons to overlap.
 */
-void QWSPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int npoints, bool stitchable)
+void QWSPolygonScanner::scan(const QPolygon& pa, bool winding, int index, int npoints, bool stitchable)
 {
     scan(pa, winding, index, npoints,
         stitchable ? Edge(Left+Top) : Edge(Left+Right+Top+Bottom));
@@ -736,7 +736,7 @@ void QWSPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int
     \warning The edges feature does not work properly.
 
 */
-void QWSPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int npoints, Edge edges)
+void QWSPolygonScanner::scan(const QPolygon& pa, bool winding, int index, int npoints, Edge edges)
 {
 
 

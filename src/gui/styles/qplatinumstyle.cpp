@@ -453,15 +453,15 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
                     x1++;
                     y1++;
                 }
-                QPointArray amark;
+                QPolygon amark;
                 if (flags & Style_On) {
-                    amark = QPointArray(sizeof(check_mark)/(sizeof(int)*2),
+                    amark = QPolygon(sizeof(check_mark)/(sizeof(int)*2),
                                          check_mark);
                     // ### KLUDGE!!
                     flags ^= Style_On;
                     flags ^= Style_Down;
                 } else if (flags & Style_NoChange) {
-                    amark = QPointArray(sizeof(nochange_mark)
+                    amark = QPolygon(sizeof(nochange_mark)
                                          / (sizeof(int) * 2),
                                          nochange_mark);
                 }
@@ -528,7 +528,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
             p->setPen(Qt::NoPen);
             p->drawEllipse(x, y, 13, 13);
             p->setPen(pal.shadow());
-            QPointArray a(INTARRLEN(pts1), pts1);
+            QPolygon a(INTARRLEN(pts1), pts1);
             a.translate(x, y);
             p->drawPolyline(a);        // draw normal circle
             QColor tc, bc;
@@ -577,7 +577,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
                 13,8, 12,9, 12,10, 11,11, 10,12, 9,12, 8,13,
                 5,13, 4,12, 3,12, 2,11, 1,10, 1,9, 0,8, 0,5,
                 1,4, 1,3, 2,2, 3,1, 4,1 };
-            QPointArray a(INTARRLEN(pts1), pts1);
+            QPolygon a(INTARRLEN(pts1), pts1);
             a.translate(r.x(), r.y());
             p->setPen(Qt::color1);
             p->setBrush(Qt::color1);
@@ -1050,7 +1050,7 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
 
                 // and the arrows
                 p->setPen(pal.foreground());
-                QPointArray a ;
+                QPolygon a ;
                 a.setPoints( 7, -3,1, 3,1, -2,0, 2,0, -1,-1, 1,-1, 0,-2 );
                 a.translate(xx + ww / 2, yy + hh / 2 - 3);
                 p->drawLineSegments(a, 0, 3);                // draw arrow
@@ -1214,7 +1214,7 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
                     QBrush oldBrush = p->brush();
                     p->setBrush(pal.brush(QPalette::Button));
                     p->setPen(Qt::NoPen);
-                    QPointArray a(6);
+                    QPolygon a(6);
                     a.setPoint(0, x1 + 1, y1 + 1);
                     a.setPoint(1, x2 - my + 2, y1 + 1);
                     a.setPoint(2, x2 - 1, y1 + my - 1);
@@ -1251,7 +1251,7 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
                     QBrush oldBrush = p->brush();
                     p->setBrush(pal.brush(QPalette::Button));
                     p->setPen(Qt::NoPen);
-                    QPointArray a(6);
+                    QPolygon a(6);
                     a.setPoint(0, x2 - 1, y1 + 1);
                     a.setPoint(1, x2 - 1, y2 - mx + 2);
                     a.setPoint(2, x2 - mx + 1, y2 - 1);

@@ -16,7 +16,6 @@ HEADERS += \
 	painting/qpainterpath.h \
 	painting/qpainterpath_p.h \
 	painting/qpen.h \
-	painting/qpointarray.h \
 	painting/qpolygon.h \
 	painting/qprinter.h \
 	painting/qprinter_p.h \
@@ -38,7 +37,6 @@ SOURCES += \
 	painting/qpainter.cpp \
 	painting/qpainterpath.cpp \
 	painting/qpen.cpp \
-	painting/qpointarray.cpp \
 	painting/qpolygon.cpp \
 	painting/qprinter.cpp \
         painting/qstylepainter.cpp \

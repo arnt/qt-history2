@@ -422,7 +422,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         int posX = opt->rect.x() + (opt->rect.width() - markW)/2 + 1;
         int posY = opt->rect.y() + (opt->rect.height() - markH)/2;
 
-        QPointArray a(markH * 2);
+        QPolygon a(markH * 2);
         int i, xx, yy;
         xx = posX;
         yy = 3 + posY;
@@ -489,13 +489,13 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 11,4, 10,3, 10,2 };
             // static const int pts5[] = {                // inner fill
             //    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
-            //QPointArray a;
+            //QPolygon a;
 
             if (lv->state & Style_Enabled)
                 p->setPen(lv->palette.text().color());
             else
                 p->setPen(QPen(lv->viewportPalette.color(QPalette::Disabled, QPalette::Text)));
-            QPointArray a(INTARRLEN(pts1), pts1);
+            QPolygon a(INTARRLEN(pts1), pts1);
             a.translate(x, y);
             //p->setPen(pal.dark());
             p->drawPolyline(a);
@@ -555,7 +555,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 ++x;
                 ++y;
                 if (lv->state & Style_On || lv->state & Style_NoChange) {
-                    QPointArray a(7 * 2);
+                    QPolygon a(7 * 2);
                     int i,
                         xx = x + 1 + marg,
                         yy = y + 5;
@@ -615,7 +615,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     case PE_IndicatorHeaderArrow: {
         QPen oldPen = p->pen();
         if (opt->state & Style_Up) {
-            QPointArray pa(3);
+            QPolygon pa(3);
             p->setPen(opt->palette.light().color());
             p->drawLine(opt->rect.x() + opt->rect.width(), opt->rect.y(),
                         opt->rect.x() + opt->rect.width() / 2, opt->rect.height());
@@ -625,7 +625,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             pa.setPoint(2, opt->rect.x() + opt->rect.width(), opt->rect.y());
             p->drawPolyline(pa);
         } else {
-            QPointArray pa(3);
+            QPolygon pa(3);
             p->setPen(opt->palette.light().color());
             pa.setPoint(0, opt->rect.x(), opt->rect.height());
             pa.setPoint(1, opt->rect.x() + opt->rect.width(), opt->rect.height());
@@ -757,7 +757,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         int sx = x + w / 2 - sw / 2 - 1;
         int sy = y + h / 2 - sh / 2 - 1;
 
-        QPointArray a;
+        QPolygon a;
         if (pe == PE_IndicatorSpinDown)
             a.setPoints(3,  0, 1,  sw-1, 1,  sh-2, sh-1);
         else
@@ -1150,7 +1150,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
     case CE_ToolBoxTab:
         if (const QStyleOptionToolBox *tb = qt_cast<const QStyleOptionToolBox *>(opt)) {
             int d = 20 + tb->rect.height() - 3;
-            QPointArray a(7);
+            QPolygon a(7);
             a.setPoint(0, -1, tb->rect.height() + 1);
             a.setPoint(1, -1, 1);
             a.setPoint(2, tb->rect.width() - d, 1);
@@ -1177,7 +1177,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 // triangular, above or below
                 int y;
                 int x;
-                QPointArray a(10);
+                QPolygon a(10);
                 a.setPoint(0, 0, -1);
                 a.setPoint(1, 0, 0);
                 y = tab->rect.height() - 2;

@@ -1061,15 +1061,15 @@ void Q3Canvas::drawViewArea(Q3CanvasView* view, QPainter* p, const QRect& vr, bo
 	// For translation-only transformation, it is safe to include the right
 	// and bottom edges, but otherwise, these must be excluded since they
 	// are not precisely defined (different bresenham paths).
-	QPointArray a;
+	Q3PointArray a;
 	if (wm.m12()==0.0 && wm.m21()==0.0 && wm.m11() == 1.0 && wm.m22() == 1.0)
-	    a = QPointArray(QRect(all.x(),all.y(),all.width()+1,all.height()+1));
+	    a = Q3PointArray(QRect(all.x(),all.y(),all.width()+1,all.height()+1));
 	else
-	    a = QPointArray(all);
+	    a = Q3PointArray(all);
 
 	a = (wm*twm).map(a);
 #else
-	QPointArray a(QRect(all.x(),all.y(),all.width()+1,all.height()+1));
+	Q3PointArray a(QRect(all.x(),all.y(),all.width()+1,all.height()+1));
 #endif
 	if (view->viewport()->backgroundMode() == NoBackground) {
 	    QRect cvr = vr; cvr.moveBy(tl.x(),tl.y());
@@ -2295,9 +2295,9 @@ static bool collision_double_dispatch(const Q3CanvasSprite* s1,
 	return xd*xd+yd*yd <= rd*rd;
     } else if (p1 && (p2 || s2 || t2)) {
 	// d
-	QPointArray pa1 = p1->areaPointsAdvanced();
-	QPointArray pa2 = p2 ? p2->areaPointsAdvanced()
-			  : QPointArray(i2->boundingRectAdvanced());
+	Q3PointArray pa1 = p1->areaPointsAdvanced();
+	Q3PointArray pa2 = p2 ? p2->areaPointsAdvanced()
+			  : Q3PointArray(i2->boundingRectAdvanced());
 	bool col= !(QRegion(pa1) & QRegion(pa2,true)).isEmpty();
 
 	return col;
@@ -2538,7 +2538,7 @@ Q3CanvasItemList Q3Canvas::collisions(const QRect& r) const
     This is a utility function mainly used to implement the simpler
     Q3CanvasItem::collisions() function.
 */
-Q3CanvasItemList Q3Canvas::collisions(const QPointArray& chunklist,
+Q3CanvasItemList Q3Canvas::collisions(const Q3PointArray& chunklist,
 	    const Q3CanvasItem* item, bool exact) const
 {
     Q3PtrDict<void> seen;
@@ -2570,7 +2570,7 @@ Q3CanvasItemList Q3Canvas::collisions(const QPointArray& chunklist,
 void Q3CanvasItem::addToChunks()
 {
     if (isVisible() && canvas()) {
-	QPointArray pa = chunks();
+	Q3PointArray pa = chunks();
 	for (int i=0; i<(int)pa.count(); i++)
 	    canvas()->addItemToChunk(this,pa[i].x(),pa[i].y());
 	val=(uint)true;
@@ -2584,7 +2584,7 @@ void Q3CanvasItem::addToChunks()
 void Q3CanvasItem::removeFromChunks()
 {
     if (isVisible() && canvas()) {
-	QPointArray pa = chunks();
+	Q3PointArray pa = chunks();
 	for (int i=0; i<(int)pa.count(); i++)
 	    canvas()->removeItemFromChunk(this,pa[i].x(),pa[i].y());
     }
@@ -2600,7 +2600,7 @@ void Q3CanvasItem::changeChunks()
     if (isVisible() && canvas()) {
 	if (!val)
 	    addToChunks();
-	QPointArray pa = chunks();
+	Q3PointArray pa = chunks();
 	for (int i=0; i<(int)pa.count(); i++)
 	    canvas()->setChangedChunk(pa[i].x(),pa[i].y());
     }
@@ -2818,7 +2818,7 @@ Q3CanvasPixmapArray::Q3CanvasPixmapArray(const QString& datafilenamepattern,
 
 /*!
   \obsolete
-  Use Q3CanvasPixmapArray::Q3CanvasPixmapArray(Q3ValueList<QPixmap>, QPointArray)
+  Use Q3CanvasPixmapArray::Q3CanvasPixmapArray(Q3ValueList<QPixmap>, Q3PointArray)
   instead.
 
   Constructs a Q3CanvasPixmapArray from the list of QPixmaps \a
@@ -2851,7 +2851,7 @@ Q3CanvasPixmapArray::Q3CanvasPixmapArray(Q3PtrList<QPixmap> list, Q3PtrList<QPoi
 
     If an error occurs, isValid() will return false.
 */
-Q3CanvasPixmapArray::Q3CanvasPixmapArray(Q3ValueList<QPixmap> list, QPointArray hotspots) :
+Q3CanvasPixmapArray::Q3CanvasPixmapArray(Q3ValueList<QPixmap> list, Q3PointArray hotspots) :
     framecount((int)list.size()),
     img(new Q3CanvasPixmap*[list.size()])
 {
@@ -3185,9 +3185,9 @@ QRect Q3CanvasSprite::boundingRect() const
   \internal
   Returns the chunks covered by the item.
 */
-QPointArray Q3CanvasItem::chunks() const
+Q3PointArray Q3CanvasItem::chunks() const
 {
-    QPointArray r;
+    Q3PointArray r;
     int n=0;
     QRect br = boundingRect();
     if (isVisible() && canvas()) {
@@ -3663,11 +3663,11 @@ void Q3CanvasPolygonalItem::invalidate()
     Q3CanvasItem::advance(1) is called, i.e. what the points are when
     advanced by the current xVelocity() and yVelocity().
 */
-QPointArray Q3CanvasPolygonalItem::areaPointsAdvanced() const
+Q3PointArray Q3CanvasPolygonalItem::areaPointsAdvanced() const
 {
     int dx = int(x()+xVelocity())-int(x());
     int dy = int(y()+yVelocity())-int(y());
-    QPointArray r = areaPoints();
+    Q3PointArray r = areaPoints();
     r.detach(); // Explicit sharing is stupid.
     if (dx || dy)
 	r.translate(dx,dy);
@@ -3682,7 +3682,7 @@ static QPainter* dbg_ptr=0;
 
 class QPolygonalProcessor {
 public:
-    QPolygonalProcessor(Q3Canvas* c, const QPointArray& pa) :
+    QPolygonalProcessor(Q3Canvas* c, const Q3PointArray& pa) :
 	canvas(c)
     {
 	QRect pixelbounds = pa.boundingRect();
@@ -3798,16 +3798,16 @@ public:
     }
 
     int pnt;
-    QPointArray result;
+    Q3PointArray result;
     Q3Canvas* canvas;
     QRect bounds;
     QImage bitmap;
 };
 
 
-QPointArray Q3CanvasPolygonalItem::chunks() const
+Q3PointArray Q3CanvasPolygonalItem::chunks() const
 {
-    QPointArray pa = areaPoints();
+    Q3PointArray pa = areaPoints();
 
     if (!pa.size()) {
 	pa.detach(); // Explicit sharing is stupid.
@@ -3823,7 +3823,7 @@ QPointArray Q3CanvasPolygonalItem::chunks() const
 /*!
     Simply calls Q3CanvasItem::chunks().
 */
-QPointArray Q3CanvasRectangle::chunks() const
+Q3PointArray Q3CanvasRectangle::chunks() const
 {
     // No need to do a polygon scan!
     return Q3CanvasItem::chunks();
@@ -3953,7 +3953,7 @@ void Q3CanvasPolygon::drawShape(QPainter & p)
     // ### why can't we draw outlines? We could use drawPolyline for it. Lars
     // ### see other message. Warwick
 
-    p.setPen(NoPen); // since QRegion(QPointArray) excludes outline :-()-:
+    p.setPen(NoPen); // since QRegion(Q3PointArray) excludes outline :-()-:
     p.drawPolygon(poly);
 }
 
@@ -3962,7 +3962,7 @@ void Q3CanvasPolygon::drawShape(QPainter & p)
     their x and y coordinates automatically translated by x(), y() as
     the polygon is moved.
 */
-void Q3CanvasPolygon::setPoints(QPointArray pa)
+void Q3CanvasPolygon::setPoints(Q3PointArray pa)
 {
     removeFromChunks();
     poly = pa;
@@ -4049,7 +4049,7 @@ Q3CanvasSpline::~Q3CanvasSpline()
     the number of points will be truncated to the largest number of
     points that do meet the requirement.
 */
-void Q3CanvasSpline::setControlPoints(QPointArray ctrl, bool close)
+void Q3CanvasSpline::setControlPoints(Q3PointArray ctrl, bool close)
 {
     if ((int)ctrl.count() % 3 != (close ? 0 : 1)) {
 	qWarning("Q3CanvasSpline::setControlPoints(): Number of points doesn't fit.");
@@ -4067,7 +4067,7 @@ void Q3CanvasSpline::setControlPoints(QPointArray ctrl, bool close)
 
     \sa setControlPoints(), closed()
 */
-QPointArray Q3CanvasSpline::controlPoints() const
+Q3PointArray Q3CanvasSpline::controlPoints() const
 {
     return bez;
 }
@@ -4083,11 +4083,11 @@ bool Q3CanvasSpline::closed() const
 
 void Q3CanvasSpline::recalcPoly()
 {
-    Q3PtrList<QPointArray> segs;
+    Q3PtrList<Q3PointArray> segs;
     segs.setAutoDelete(true);
     int n=0;
     for (int i=0; i<(int)bez.count()-1; i+=3) {
-	QPointArray ctrl(4);
+	Q3PointArray ctrl(4);
 	ctrl[0] = bez[i+0];
 	ctrl[1] = bez[i+1];
 	ctrl[2] = bez[i+2];
@@ -4095,13 +4095,13 @@ void Q3CanvasSpline::recalcPoly()
 	    ctrl[3] = bez[(i+3)%(int)bez.count()];
 	else
 	    ctrl[3] = bez[i+3];
-	QPointArray *seg = new QPointArray(ctrl.cubicBezier());
+	Q3PointArray *seg = new Q3PointArray(ctrl.cubicBezier());
 	n += seg->count()-1;
 	segs.append(seg);
     }
-    QPointArray p(n+1);
+    Q3PointArray p(n+1);
     n=0;
-    for (QPointArray* seg = segs.first(); seg; seg = segs.next()) {
+    for (Q3PointArray* seg = segs.first(); seg; seg = segs.next()) {
 	for (int i=0; i<(int)seg->count()-1; i++)
 	    p[n++] = seg->point(i);
 	if (n == (int)p.count()-1)
@@ -4111,7 +4111,7 @@ void Q3CanvasSpline::recalcPoly()
 }
 
 /*!
-    \fn QPointArray Q3CanvasPolygonalItem::areaPoints() const
+    \fn Q3PointArray Q3CanvasPolygonalItem::areaPoints() const
 
     This function must be reimplemented by subclasses. It \e must
     return the points bounding (i.e. outside and not touching) the
@@ -4119,15 +4119,15 @@ void Q3CanvasSpline::recalcPoly()
 */
 
 /*!
-    \fn QPointArray Q3CanvasPolygon::points() const
+    \fn Q3PointArray Q3CanvasPolygon::points() const
 
     Returns the vertices of the polygon, not translated by the position.
 
     \sa setPoints(), areaPoints()
 */
-QPointArray Q3CanvasPolygon::points() const
+Q3PointArray Q3CanvasPolygon::points() const
 {
-    QPointArray pa = areaPoints();
+    Q3PointArray pa = areaPoints();
     pa.translate(int(-x()),int(-y()));
     return pa;
 }
@@ -4138,7 +4138,7 @@ QPointArray Q3CanvasPolygon::points() const
 
     \sa setPoints(), points()
 */
-QPointArray Q3CanvasPolygon::areaPoints() const
+Q3PointArray Q3CanvasPolygon::areaPoints() const
 {
     return poly.copy();
 }
@@ -4231,9 +4231,9 @@ void Q3CanvasLine::drawShape(QPainter &p)
     Note that the area defined by the line is somewhat thicker than
     the line that is actually drawn.
 */
-QPointArray Q3CanvasLine::areaPoints() const
+Q3PointArray Q3CanvasLine::areaPoints() const
 {
-    QPointArray p(4);
+    Q3PointArray p(4);
     int xi = int(x());
     int yi = int(y());
     int pw = pen().width();
@@ -4391,9 +4391,9 @@ void Q3CanvasRectangle::setSize(int width, int height)
 /*!
   \reimp
 */
-QPointArray Q3CanvasRectangle::areaPoints() const
+Q3PointArray Q3CanvasRectangle::areaPoints() const
 {
-    QPointArray pa(4);
+    Q3PointArray pa(4);
     int pw = (pen().width()+1)/2;
     if (pw < 1) pw = 1;
     if (pen() == NoPen) pw = 0;
@@ -4565,9 +4565,9 @@ void Q3CanvasEllipse::setAngles(int start, int length)
 /*!
   \reimp
 */
-QPointArray Q3CanvasEllipse::areaPoints() const
+Q3PointArray Q3CanvasEllipse::areaPoints() const
 {
-    QPointArray r;
+    Q3PointArray r;
     // makeArc at 0,0, then translate so that fixed point math doesn't overflow
     r.makeArc(int(x()-w/2.0+0.5)-1, int(y()-h/2.0+0.5)-1, w+3, h+3, a1, a2);
     r.resize(r.size()+1);
@@ -4585,7 +4585,7 @@ QPointArray Q3CanvasEllipse::areaPoints() const
 */
 void Q3CanvasEllipse::drawShape(QPainter & p)
 {
-    p.setPen(NoPen); // since QRegion(QPointArray) excludes outline :-()-:
+    p.setPen(NoPen); // since QRegion(Q3PointArray) excludes outline :-()-:
     if (!a1 && a2 == 360*16) {
 	p.drawEllipse(int(x()-w/2.0+0.5), int(y()-h/2.0+0.5), w, h);
     } else {
@@ -5131,7 +5131,7 @@ public:
     }
 };
 
-void Q3CanvasPolygonalItem::scanPolygon(const QPointArray& pa, int winding, QPolygonalProcessor& process) const
+void Q3CanvasPolygonalItem::scanPolygon(const Q3PointArray& pa, int winding, QPolygonalProcessor& process) const
 {
     Q3CanvasPolygonScanner scanner(process);
     scanner.scan(pa,winding);

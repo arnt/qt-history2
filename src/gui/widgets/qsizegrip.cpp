@@ -320,7 +320,7 @@ bool QSizeGrip::event(QEvent *e)
         break;
 #endif
     case QEvent::Resize: {
-        QPointArray pa(3);
+        QPolygon pa(3);
         if (isLeftToRight()) {
             pa.setPoint(0, width() + 1, 0);
             pa.setPoint(1, width() + 1, height() + 1);

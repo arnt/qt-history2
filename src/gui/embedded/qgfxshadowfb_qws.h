@@ -39,11 +39,11 @@ public:
     virtual ~QGfxShadow();
 
     virtual void drawPoint(int,int);
-    virtual void drawPoints(const QPointArray &,int,int);
+    virtual void drawPoints(const QPolygon &,int,int);
     virtual void drawLine(int,int,int,int);
     virtual void fillRect(int,int,int,int);
-    virtual void drawPolyline(const QPointArray &,int,int);
-    virtual void drawPolygon(const QPointArray &,bool,int,int);
+    virtual void drawPolyline(const QPolygon &,int,int);
+    virtual void drawPolygon(const QPolygon &,bool,int,int);
     virtual void blt(int,int,int,int,int,int);
     virtual void scroll(int,int,int,int,int,int);
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)

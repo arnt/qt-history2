@@ -15,7 +15,7 @@
 #include "qbitmap.h"
 #include "qbuffer.h"
 #include "qimage.h"
-#include "qpointarray.h"
+#include "qpolygon.h"
 #include "qregion.h"
 #include "qt_windows.h"
 
@@ -69,7 +69,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
     \warning This constructor can be used to create complex regions that will
     slow down painting when used.
 */
-QRegion::QRegion(const QPointArray &a, Qt::FillRule fillRule)
+QRegion::QRegion(const QPolygon &a, Qt::FillRule fillRule)
 {
     if (a.size() < 3) {
         d = &shared_empty;

@@ -234,11 +234,11 @@ public:
     virtual ~QGfxVFb();
 
     virtual void drawPoint(int,int);
-    virtual void drawPoints(const QPointArray &,int,int);
+    virtual void drawPoints(const QPolygon &,int,int);
     virtual void drawLine(int,int,int,int);
     virtual void fillRect(int,int,int,int);
-    virtual void drawPolyline(const QPointArray &,int,int);
-    virtual void drawPolygon(const QPointArray &,bool,int,int);
+    virtual void drawPolyline(const QPolygon &,int,int);
+    virtual void drawPolygon(const QPolygon &,bool,int,int);
     virtual void blt(int,int,int,int,int,int);
     virtual void scroll(int,int,int,int,int,int);
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
@@ -268,7 +268,7 @@ void QGfxVFb<depth,type>::drawPoint(int x, int y)
 }
 
 template <const int depth, const int type>
-void QGfxVFb<depth,type>::drawPoints(const QPointArray &pa,int x,int y)
+void QGfxVFb<depth,type>::drawPoints(const QPolygon &pa,int x,int y)
 {
     QWSDisplay::grab(true);
     ((QVFbScreen *)this->gfx_screen)->setDirty(this->clipbounds);
@@ -297,7 +297,7 @@ void QGfxVFb<depth,type>::fillRect(int x,int y,int w,int h)
 }
 
 template <const int depth, const int type>
-void QGfxVFb<depth,type>::drawPolyline(const QPointArray &pa,int x,int y)
+void QGfxVFb<depth,type>::drawPolyline(const QPolygon &pa,int x,int y)
 {
     QWSDisplay::grab(true);
     ((QVFbScreen *)this->gfx_screen)->setDirty(this->clipbounds);
@@ -306,7 +306,7 @@ void QGfxVFb<depth,type>::drawPolyline(const QPointArray &pa,int x,int y)
 }
 
 template <const int depth, const int type>
-void QGfxVFb<depth,type>::drawPolygon(const QPointArray &pa,bool w,int x,int y)
+void QGfxVFb<depth,type>::drawPolygon(const QPolygon &pa,bool w,int x,int y)
 {
     QWSDisplay::grab(true);
     ((QVFbScreen *)this->gfx_screen)->setDirty(this->clipbounds);

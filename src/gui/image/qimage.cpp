@@ -2592,7 +2592,7 @@ QImage QImage::transform(const QMatrix &matrix, Qt::TransformationMode mode) con
         hd = qAbs(hd);
         wd = qAbs(wd);
     } else {                                        // rotation or shearing
-        QPointArray a(QRect(0, 0, ws, hs));
+        QPolygon a(QRect(0, 0, ws, hs));
         a = mat.map(a);
         QRect r = a.boundingRect().normalize();
         wd = r.width();

@@ -867,7 +867,7 @@ void QLCDNumberPrivate::drawDigit(const QPoint &pos, QPainter &p, int segLen,
 }
 
 
-static void addPoint(QPointArray &a, const QPoint &p)
+static void addPoint(QPolygon &a, const QPoint &p)
 {
     uint n = a.size();
     a.resize(n + 1);
@@ -904,7 +904,7 @@ void QLCDNumberPrivate::drawSegment(const QPoint &pos, char segmentNo, QPainter 
 #define DARK
 
     if (fill) {
-        QPointArray a(0);
+        QPolygon a(0);
         //The following is an exact copy of the switch below.
         //don't make any changes here
         switch (segmentNo) {
