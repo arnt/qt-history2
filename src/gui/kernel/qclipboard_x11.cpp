@@ -47,6 +47,7 @@
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
 #include "qimageio.h"
+#include "qvariant.h"
 
 /*****************************************************************************
   Internal QClipboard functions for X11.
@@ -116,7 +117,7 @@ public:
     virtual bool hasFormat(const QString &mimetype) const;
     virtual QStringList formats() const;
 
-    virtual QVariant retrieveData(const QString &mimetype, QVariant::Type type) const;
+    QCoreVariant retrieveData(const QString &mimetype, QCoreVariant::Type type) const;
     QByteArray getDataInFormat(Atom fmtatom) const;
 
     Atom atom;
@@ -731,9 +732,9 @@ static Atom send_pixmap_selection(QClipboardData *d, Atom target, Window window,
     QPixmap pm;
 
     if (target == XA_PIXMAP) {
-        pm = d->source()->pixmap();
+        pm = qVariant_to<QPixmap>(d->source()->imageData());
     } else if (target == XA_BITMAP) {
-        pm = d->source()->pixmap();
+        pm = qVariant_to<QPixmap>(d->source()->imageData());
         QImage img = pm.toImage();
         if (img.depth() != 1) {
             img = img.convertDepth(1);
@@ -1176,7 +1177,7 @@ bool QClipboardWatcher::hasFormat(const QString &format) const
     return list.contains(format);
 }
 
-QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type) const
+QCoreVariant QClipboardWatcher::retrieveData(const QString &fmt, QCoreVariant::Type type) const
 {
     if (fmt.isEmpty() || empty())
         return QByteArray();
@@ -1242,16 +1243,16 @@ QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type
                 QBitmap qbm(w,h);
                 XCopyArea(dpy,xpm,qbm.handle(),gc,0,0,w,h,0,0);
                 if (type == QVariant::Bitmap)
-                    return qbm;
+                    return QVariant(qbm);
                 if (type == QVariant::Pixmap)
-                    return QPixmap(qbm);
+                    return QVariant(QPixmap(qbm));
                 iio.setFormat("PBMRAW");
                 iio.setImage(qbm.toImage());
             } else {
                 QPixmap qpm(w,h);
                 XCopyArea(dpy,xpm,qpm.handle(),gc,0,0,w,h,0,0);
                 if (type == QVariant::Pixmap)
-                    return qpm;
+                    return QVariant(qpm);
                 iio.setFormat("PPMRAW");
                 iio.setImage(qpm.toImage());
             }

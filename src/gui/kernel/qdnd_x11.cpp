@@ -25,6 +25,7 @@
 #include "qiodevice.h"
 #include "qpointer.h"
 #include "qcursor.h"
+#include "qvariant.h"
 #include "qvector.h"
 
 #include "qdnd_p.h"
@@ -1338,7 +1339,7 @@ void QDragManager::updatePixmap()
     }
 }
 
-QVariant QDropData::retrieveData(const QString &mimetype, QVariant::Type type) const
+QCoreVariant QDropData::retrieveData(const QString &mimetype, QCoreVariant::Type type) const
 {
     QByteArray data = X11->motifdnd_active
                       ? X11->motifdndObtainData(mimetype.toLatin1().data())

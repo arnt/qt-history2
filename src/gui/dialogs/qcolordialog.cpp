@@ -525,7 +525,7 @@ void QColorWell::mouseMoveEvent(QMouseEvent *e)
         int i = rowAt(pressPos.y()) + columnAt(pressPos.x()) * numRows();
         QColor col(values[i]);
         QMimeData *mime = new QMimeData;
-        mime->setColor(col);
+        mime->setColorData(QVariant(col));
         QPixmap pix(cellWidth(), cellHeight());
         pix.fill(col);
         QPainter p(&pix);
@@ -543,7 +543,7 @@ void QColorWell::mouseMoveEvent(QMouseEvent *e)
 #ifndef QT_NO_DRAGANDDROP
 void QColorWell::dragEnterEvent(QDragEnterEvent *e)
 {
-    if (e->mimeData()->color().isValid())
+    if (qVariant_to<QColor>(e->mimeData()->colorData()).isValid())
         e->accept();
     else
         e->ignore();
@@ -557,7 +557,7 @@ void QColorWell::dragLeaveEvent(QDragLeaveEvent *)
 
 void QColorWell::dragMoveEvent(QDragMoveEvent *e)
 {
-    if (e->mimeData()->color().isValid()) {
+    if (qVariant_to<QColor>(e->mimeData()->colorData()).isValid()) {
         setCurrent(rowAt(e->pos().y()), columnAt(e->pos().x()));
         e->accept();
     } else {
@@ -567,7 +567,7 @@ void QColorWell::dragMoveEvent(QDragMoveEvent *e)
 
 void QColorWell::dropEvent(QDropEvent *e)
 {
-    QColor col = e->mimeData()->color();
+    QColor col = qVariant_to<QColor>(e->mimeData()->colorData());
     if (col.isValid()) {
         int i = rowAt(e->pos().y()) + columnAt(e->pos().x()) * numRows();
         values[i] = col.rgb();
@@ -952,7 +952,7 @@ void QColorShowLabel::mouseMoveEvent(QMouseEvent *e)
         return;
     if ((pressPos - e->pos()).manhattanLength() > QApplication::startDragDistance()) {
         QMimeData *mime = new QMimeData;
-        mime->setColor(col);
+        mime->setColorData(QVariant(col));
         QPixmap pix(30, 20);
         pix.fill(col);
         QPainter p(&pix);
@@ -970,7 +970,7 @@ void QColorShowLabel::mouseMoveEvent(QMouseEvent *e)
 #ifndef QT_NO_DRAGANDDROP
 void QColorShowLabel::dragEnterEvent(QDragEnterEvent *e)
 {
-    if (e->mimeData()->color().isValid())
+    if (qVariant_to<QColor>(e->mimeData()->colorData()).isValid())
         e->accept();
     else
         e->ignore();
@@ -982,7 +982,7 @@ void QColorShowLabel::dragLeaveEvent(QDragLeaveEvent *)
 
 void QColorShowLabel::dropEvent(QDropEvent *e)
 {
-    QColor color = e->mimeData()->color();
+    QColor color = qVariant_to<QColor>(e->mimeData()->colorData());
     if (color.isValid()) {
         col = color;
         repaint();

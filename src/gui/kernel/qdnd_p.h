@@ -27,6 +27,7 @@
 
 #include "qobject.h"
 #include "private/qobject_p.h"
+#include "qmap.h"
 #include "qmime.h"
 #include "qdrag.h"
 #include "qpixmap.h"
@@ -57,7 +58,7 @@ public:
     bool hasFormat(const QString &mimetype) const;
     QStringList formats() const;
 protected:
-    QVariant retrieveData(const QString &mimetype, QVariant::Type) const;
+    QCoreVariant retrieveData(const QString &mimetype, QCoreVariant::Type) const;
 
 #if defined(Q_WS_WIN)
 public:

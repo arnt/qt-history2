@@ -14,65 +14,12 @@
 #ifndef QMIME_H
 #define QMIME_H
 
-#include "QtCore/qobject.h"
-#include "QtGui/qvariant.h"
+#include "QtCore/qmimedata.h"
 
 #if defined(Q_WS_WIN)
     #include <windows.h>
     #include <objidl.h>
 #endif
-
-class QUrl;
-class QString;
-class QByteArray;
-class QColor;
-class QPixmap;
-class QImage;
-class QByteArray;
-
-class QMimeDataPrivate;
-class Q_GUI_EXPORT QMimeData : public QObject
-{
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QMimeData)
-public:
-    QMimeData();
-    ~QMimeData();
-
-    QList<QUrl> urls() const;
-    void setUrls(const QList<QUrl> &urls);
-    bool hasUrls() const;
-
-    QString text() const;
-    void setText(const QString &text);
-    bool hasText() const;
-
-    QString html() const;
-    void setHtml(const QString &html);
-    bool hasHtml() const;
-
-    QPixmap pixmap() const;
-    void setPixmap(const QPixmap &pixmap);
-    bool hasPixmap() const;
-
-    QImage image() const;
-    void setImage(const QImage &image);
-    bool hasImage() const;
-
-    QColor color() const;
-    void setColor(const QColor &color);
-    bool hasColor() const;
-
-    QByteArray data(const QString &mimetype) const;
-    void setData(const QString &mimetype, const QByteArray &data);
-    
-    virtual bool hasFormat(const QString &mimetype) const;
-    virtual QStringList formats() const;
-
-    void clear();
-protected:
-    virtual QVariant retrieveData(const QString &mimetype, QVariant::Type preferredType) const;
-};
 
 class Q_GUI_EXPORT QMimeSource
 {
@@ -101,7 +48,7 @@ public:
     virtual bool canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const = 0;
     virtual bool convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const = 0;
     virtual QVector<FORMATETC> formatsForMime(const QString &mimeType, const QMimeData *mimeData) const = 0;
-    
+
     // for converting to Qt
     virtual bool canConvertToMime(const QString &mimeType, struct IDataObject *pDataObj) const = 0;
     virtual QVariant convertToMime(const QString &mimeType, struct IDataObject *pDataObj, QVariant::Type preferredType) const = 0;

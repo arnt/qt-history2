@@ -10,6 +10,7 @@ HEADERS += \
 	kernel/qcorevariant.h \
 	kernel/qmetaobject.h \
 	kernel/qmetatype.h \
+        kernel/qmimedata.h \
 	kernel/qobject.h \
 	kernel/qobjectdefs.h \
 	kernel/qsignal.h \
@@ -33,6 +34,7 @@ SOURCES += \
 	kernel/qcorevariant.cpp \
 	kernel/qmetaobject.cpp \
 	kernel/qmetatype.cpp \
+        kernel/qmimedata.cpp \
 	kernel/qobject.cpp \
 	kernel/qobjectcleanuphandler.cpp \
 	kernel/qsignal.cpp \

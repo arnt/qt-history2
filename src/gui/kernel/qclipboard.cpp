@@ -19,6 +19,7 @@
 #include "qapplication_p.h"
 #include "qpixmap.h"
 #include "qclipboard_p.h"
+#include "qvariant.h"
 
 /*!
     \class QClipboard qclipboard.h
@@ -280,9 +281,7 @@ QImage QClipboard::image(Mode mode) const
     const QMimeData *data = mimeData(mode);
     if (!data)
         return QImage();
-    QPixmap pm = data->pixmap();
-    QImage r = pm.toImage();
-    return r;
+    return qVariant_to<QImage>(data->imageData());
 }
 
 /*!
@@ -297,9 +296,7 @@ QImage QClipboard::image(Mode mode) const
     This is shorthand for:
     \code
         QMimeData *data = new QMimeData;
-        QPixmap pm;
-        pm.fromImage(image);
-        data->setPixmap(pm);
+        data->setPixmap(image);
         setMimeData(data, mode);
     \endcode
 
@@ -308,9 +305,7 @@ QImage QClipboard::image(Mode mode) const
 void QClipboard::setImage(const QImage &image, Mode mode)
 {
     QMimeData *data = new QMimeData;
-    QPixmap pm;
-    pm.fromImage(image);
-    data->setPixmap(pm);
+    data->setImageData(QVariant(image));
     setMimeData(data, mode);
 }
 
@@ -332,7 +327,7 @@ void QClipboard::setImage(const QImage &image, Mode mode)
 QPixmap QClipboard::pixmap(Mode mode) const
 {
     const QMimeData *data = mimeData(mode);
-    return data ? data->pixmap() : QPixmap();
+    return data ? qVariant_to<QPixmap>(data->imageData()) : QPixmap();
 }
 
 /*!
@@ -351,7 +346,7 @@ QPixmap QClipboard::pixmap(Mode mode) const
 void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
 {
     QMimeData *data = new QMimeData;
-    data->setPixmap(pixmap);
+    data->setImageData(QVariant(pixmap));
     setMimeData(data, mode);
 }
 
@@ -462,7 +457,7 @@ QByteArray QMimeDataWrapper::encodedData(const char *format) const
     return data->data(QLatin1String(format));
 }
 
-QVariant QMimeSourceWrapper::retrieveData(const QString &mimetype, QVariant::Type) const
+QCoreVariant QMimeSourceWrapper::retrieveData(const QString &mimetype, QCoreVariant::Type) const
 {
     return source->encodedData(mimetype.toLatin1());
 }
