@@ -18,8 +18,9 @@
 **
 **********************************************************************/
 
-#include "qobjectlist.h"
 #include "previewwidget.h"
+
+#include <qobjectlist.h>
 
 PreviewWidget::PreviewWidget( QWidget *parent, const char *name )
     : PreviewWidgetBase( parent, name )

@@ -18,10 +18,10 @@
 **
 **********************************************************************/
 
+#include "previewframe.h"
+
 #include <qvbox.h>
 #include <qpainter.h>
-
-#include "previewframe.h"
 
 PreviewFrame::PreviewFrame( QWidget *parent, const char *name )
     : QVBox( parent, name )
