@@ -35,12 +35,11 @@
 #include "qapplication.h"
 #include "qtextedit.h"
 #include "qmemarray.h"
-#include "qptrlist.h"
 #include "qvbox.h"
 #include "qtooltip.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"
-#include "qptrdict.h"
+#include "qhash.h"
 #include "qstringlist.h"
 #include "qcleanuphandler.h"
 #include "private/qrichtext_p.h"
@@ -238,7 +237,7 @@ public:
 
     QIconViewToolTip *toolTip;
     QPixmapCache maskCache;
-    QPtrDict<QIconViewItem> selectedItems;
+    QHash<QIconViewItem *, QIconViewItem *> selectedItems;
 
     struct ItemContainer {
 	ItemContainer( ItemContainer *pr, ItemContainer *nx, const QRect &r )
@@ -251,7 +250,7 @@ public:
 	}
 	ItemContainer *p, *n;
 	QRect rect;
-	QPtrList<QIconViewItem> items;
+	QList<QIconViewItem*> items;
     } *firstContainer, *lastContainer;
 
     struct SortableItem {
@@ -261,7 +260,7 @@ public:
 public:
 
     /* finds the containers that intersect with \a searchRect in the direction \a dir relative to \a relativeTo */
-    QPtrList<ItemContainer>* findContainers(
+    QList<ItemContainer* >* findContainers(
 	QIconView:: Direction dir,
 	const QPoint &relativeTo,
 	const QRect &searchRect ) const;
@@ -269,14 +268,14 @@ public:
 };
 
 
-QPtrList<QIconViewPrivate::ItemContainer>* QIconViewPrivate::findContainers(
+QList<QIconViewPrivate::ItemContainer *>* QIconViewPrivate::findContainers(
 	QIconView:: Direction dir,
 	const QPoint &relativeTo,
 	const QRect &searchRect ) const
 {
 
-    QPtrList<QIconViewPrivate::ItemContainer>* list =
-	new QPtrList<QIconViewPrivate::ItemContainer>();
+    QList<QIconViewPrivate::ItemContainer *>* list =
+	new QList<QIconViewPrivate::ItemContainer*>();
 
     if ( arrangement == QIconView::LeftToRight ) {
 	if ( dir == QIconView::DirLeft || dir == QIconView::DirRight ) {
@@ -653,7 +652,7 @@ const char* QIconDrag::format( int i ) const
 
 QByteArray QIconDrag::encodedData( const char* mime ) const
 {
-    if ( d->items.count() <= 0 || QString( mime ) !=
+    if ( d->items.size() <= 0 || QString( mime ) !=
 	 "application/x-qiconlist" )
 	return QByteArray();
 
@@ -3039,9 +3038,9 @@ void QIconView::takeItem( QIconViewItem *item )
 	return;
 
     if ( item->d->container1 )
-	item->d->container1->items.removeRef( item );
+	item->d->container1->items.remove( item );
     if ( item->d->container2 )
-	item->d->container2->items.removeRef( item );
+	item->d->container2->items.remove( item );
     item->d->container2 = 0;
     item->d->container1 = 0;
 
@@ -3271,9 +3270,9 @@ void QIconView::doAutoScroll()
     for ( ; c; c = c->n ) {
 	if ( c->rect.intersects( rubberUnion ) ) {
 	    alreadyIntersected = TRUE;
-	    QIconViewItem *item = c->items.first();
-	    for ( ; item; item = c->items.next() ) {
-		if ( d->selectedItems.find( item ) )
+	    for (int i = 0; i < c->items.size(); ++i) {
+		QIconViewItem *item = c->items.at(i);
+		if ( d->selectedItems.contains( item ) )
 		    continue;
 		if ( !item->intersects( nr ) ) {
 		    if ( item->isSelected() ) {
@@ -3398,7 +3397,6 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    if ( !d->drawActiveSelection )
 		pal.setCurrentColorGroup(QPalette::Inactive);
 
-	    QIconViewItem *item = c->items.first();
 	    // clip items to the container rect by default... this
 	    // prevents icons with alpha channels from being painted
 	    // twice when they are in 2 containers
@@ -3406,7 +3404,8 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    // NOTE: the item could override this cliprect in it's
 	    // paintItem() implementation, which makes this useless
 	    p->setClipRect( QRect( contentsToViewport( r2.topLeft() ), r2.size() ) );
-	    for ( ; item; item = c->items.next() ) {
+	    for (int i = 0; i < c->items.size(); ++i) {
+		QIconViewItem *item = c->items.at(i);
 		if ( item->rect().intersects( r ) && !item->dirty ) {
 		    p->save();
 		    p->setFont( font() );
@@ -3632,12 +3631,10 @@ QIconViewItem *QIconView::findItem( const QPoint &pos ) const
 
     QIconViewPrivate::ItemContainer *c = d->lastContainer;
     for ( ; c; c = c->p ) {
-	if ( c->rect.contains( pos ) ) {
-	    QIconViewItem *item = c->items.last();
-	    for ( ; item; item = c->items.prev() )
-		if ( item->contains( pos ) )
-		    return item;
-	}
+	if ( c->rect.contains( pos ) )
+	    for (int i = c->items.size()-1; i >= 0; --i)
+		if ( c->items.at(i)->contains( pos ) )
+		    return c->items.at(i);
     }
 
     return 0;
@@ -3882,8 +3879,8 @@ QIconViewItem* QIconView::findFirstVisibleItem( const QRect &r ) const
     for ( ; c; c = c->n ) {
 	if ( c->rect.intersects( r ) ) {
 	    alreadyIntersected = TRUE;
-	    QIconViewItem *item = c->items.first();
-	    for ( ; item; item = c->items.next() ) {
+	    for (int j = 0; j < c->items.size(); ++j) {
+		QIconViewItem *item = c->items.at(j);
 		if ( r.intersects( item->rect() ) ) {
 		    if ( !i ) {
 			i = item;
@@ -3923,8 +3920,8 @@ QIconViewItem* QIconView::findLastVisibleItem( const QRect &r ) const
     for ( ; c; c = c->n ) {
 	if ( c->rect.intersects( r ) ) {
 	    alreadyIntersected = TRUE;
-	    QIconViewItem *item = c->items.first();
-	    for ( ; item; item = c->items.next() ) {
+	    for (int j = 0; j < c->items.size(); ++j) {
+		QIconViewItem *item = c->items.at(j);
 		if ( r.intersects( item->rect() ) ) {
 		    if ( !i ) {
 			i = item;
@@ -4435,11 +4432,11 @@ void QIconView::contentsMousePressEventEx( QMouseEvent *e )
 		    for ( ; c; c = c->n ) {
 			if ( c->rect.intersects( r ) ) {
 			    alreadyIntersected = TRUE;
-			    QIconViewItem *i = c->items.first();
-			    for ( ; i; i = c->items.next() ) {
-				if ( r.intersects( i->rect() ) ) {
-				    redraw = redraw.unite( i->rect() );
-				    i->setSelected( select, TRUE );
+			    for (int i = 0; i < c->items.size(); ++i) {
+				QIconViewItem *item = c->items.at(i);
+				if ( r.intersects( item->rect() ) ) {
+				    redraw = redraw.unite( item->rect() );
+				    item->setSelected( select, TRUE );
 				}
 			    }
 			} else {
@@ -4895,9 +4892,9 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	QIconViewItem *item = 0;
 	QIconViewPrivate::ItemContainer *c = d->firstContainer;
 	while ( !item && c ) {
-	    QPtrList<QIconViewItem> &list = c->items;
-	    QIconViewItem *i = list.first();
-	    while ( i ) {
+	    QList<QIconViewItem*> &list = c->items;
+	    for (int j = 0; j < list.size(); ++j) {
+		QIconViewItem *i = list.at(j);
 		if ( !item ) {
 		    item = i;
 		} else {
@@ -4916,7 +4913,6 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 			    item = i;
 		    }
 		}
-		i = list.next();
 	    }
 	    c = c->n;
 	}
@@ -4939,9 +4935,9 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	QIconViewItem *item = 0;
 	QIconViewPrivate::ItemContainer *c = d->lastContainer;
 	while ( !item && c ) {
-	    QPtrList<QIconViewItem> &list = c->items;
-	    QIconViewItem *i = list.first();
-	    while ( i ) {
+	    QList<QIconViewItem*> &list = c->items;
+	    for (int j = 0; j < list.size(); ++j) {
+		QIconViewItem *i = list.at(j);
 		if ( !item ) {
 		    item = i;
 		} else {
@@ -4959,7 +4955,6 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 			    item = i;
 		    }
 		}
-		i = list.next();
 	    }
 	    c = c->p;
 	}
@@ -5187,21 +5182,19 @@ QIconViewItem* QIconView::findItem( Direction dir,
 				    const QPoint &relativeTo,
 				    const QRect &searchRect ) const
 {
-    QIconViewItem *item;
     QIconViewItem *centerMatch = 0;
     int centerMatchML = 0;
 
     // gets list of containers with potential items
-    QPtrList<QIconViewPrivate::ItemContainer>* cList =
-	d->findContainers( dir, relativeTo, searchRect);
+    QList<QIconViewPrivate::ItemContainer * >* cList =
+	d->findContainers(dir, relativeTo, searchRect);
 
-    cList->first();
-    while ( cList->current() && !centerMatch ) {
-	QPtrList<QIconViewItem> &list = (cList->current())->items;
-	for ( item = list.first(); item; item = list.next() ) {
+    for (int i = 0; i < cList->size() && !centerMatch; ++i) {
+	QList<QIconViewItem *> &list = (cList->at(i))->items;
+	for (int j = 0; j < list.size(); ++j) {
+	    QIconViewItem *item = list.at(j);
 	    if ( neighbourItem( dir, relativeTo, item ) &&
-		 searchRect.contains( item->rect().center() ) &&
-		 item != currentItem() ) {
+		 searchRect.contains( item->rect().center() ) && item != currentItem() ) {
  		int ml = (relativeTo - item->rect().center()).manhattanLength();
 		if ( centerMatch ) {
 		    if ( ml < centerMatchML ) {
@@ -5214,7 +5207,6 @@ QIconViewItem* QIconView::findItem( Direction dir,
 		}
 	    }
 	}
-	cList->next();
     }
     return centerMatch;
 }
@@ -5425,17 +5417,16 @@ void QIconView::insertInGrid( QIconViewItem *item )
 	QRegion r( QRect( 0, 0, qMax( contentsWidth(), visibleWidth() ),
 			  qMax( contentsHeight(), visibleHeight() ) ) );
 
-	QIconViewItem *i = d->firstItem;
 	int y = -1;
-	for ( ; i; i = i->next ) {
+	for (QIconViewItem *i = d->firstItem; i; i = i->next) {
 	    r = r.subtract( i->rect() );
 	    y = qMax( y, i->y() + i->height() );
 	}
 
 	QVector<QRect> rects = r.rects();
 	bool foundPlace = FALSE;
-	for (int i = 0; i < rects.size(); ++i) {
-	    const QRect rect = rects.at(i);
+	for (int j = 0; j < rects.size(); ++j) {
+	    const QRect rect = rects.at(j);
 	    if ( rect.width() >= item->width() &&
 		 rect.height() >= item->height() ) {
 		int sx = 0, sy = 0;
@@ -6015,7 +6006,7 @@ void QIconView::updateItemContainer( QIconViewItem *item )
 	if (item->d->container1->items.last() == item)
 	    item->d->container1->items.removeLast();
 	else
-	    item->d->container1->items.removeRef( item );
+	    item->d->container1->items.remove( item );
     }
     item->d->container1 = 0;
     if ( item->d->container2 && d->firstContainer ) {
@@ -6023,7 +6014,7 @@ void QIconView::updateItemContainer( QIconViewItem *item )
 	if (item->d->container2->items.last() == item)
 	    item->d->container2->items.removeLast();
 	else
-	    item->d->container2->items.removeRef( item );
+	    item->d->container2->items.remove( item );
     }
     item->d->container2 = 0;
 
