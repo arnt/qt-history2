@@ -66,7 +66,7 @@ void CannonField::timerEvent( QTimerEvent * )
 	stopShooting();
 	return;
     }	
-    repaint( shotRect(), FALSE );
+    repaint( shotR, FALSE );
 }
 
 void CannonField::paintEvent( QPaintEvent *e )

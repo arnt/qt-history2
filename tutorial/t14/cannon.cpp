@@ -111,7 +111,7 @@ void CannonField::timerEvent( QTimerEvent * )
 	emit missed();
 	return;
     }	
-    repaint( shotRect(), FALSE );
+    repaint( shotR, FALSE );
 }
 
 void CannonField::paintEvent( QPaintEvent *e )
