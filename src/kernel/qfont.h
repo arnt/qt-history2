@@ -220,7 +220,7 @@ public:
     CharSet charSet() const;
     void setCharSet(CharSet);
     static CharSet charSetForLocale();
-    QString encodingName(CharSet);
+    static QString encodingName(CharSet);
 
 #endif // QT_NO_COMPAT
 
