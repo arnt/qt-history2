@@ -980,10 +980,8 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
 	if ( isReadOnly() && linksEnabled() ) {
 	    QTextCursor c = *cursor;
 	    placeCursor( e->pos(), &c );
-#ifndef QT_NO_NETWORKPROTOCOL
 	    if ( c.parag() && c.parag()->at( c.index() ) &&
 		 c.parag()->at( c.index() )->format()->isAnchor() ) {
-#endif
 		pressedLink = c.parag()->at( c.index() )->format()->anchorHref();
 	    }
 	}
