@@ -3090,6 +3090,48 @@
     \skipto defineTest
     \printuntil /^\}/
 
+    \section1 Features
+
+    \c qmake lets you create your own \e features that can be included in
+    project files by adding their names to the list of values specified by
+    the \c CONFIG variable. Features are collections of custom functions and
+    definitions in \c{.prf} files that can reside in one of many standard
+    directories. The locations of these directories are defined in a number
+    of places, and \c qmake checks each of them in the following order when
+    it looks for \c{.prf} files:
+
+    \list 1
+    \o In a directory listed in the \c QMAKEFEATURES environment variable;
+       this contains a colon-separated list of directories.
+    \o In a directory listed in the \c QMAKEFEATURES property variable; this
+       contains a colon-spearated list of directories.
+    \o In the directory defined by \c FEATURES_DIR beneath the project's root
+       directory (where the .qmake.cache file is generated).
+    \o In a directory defined by \c mkspecs/$FEATURES_DIR beneath any of the
+       directories listed in the \c QMAKEPATH environment variable; this
+       contains a colon-separated list of directories.
+    \o In the directory specified by \c $QMAKESPEC/features.
+    \o In the \c data_install/mkspecs/$FEATURES_DIR directory.
+    \o In the \c $QTDIR/mkspecs/$FEATURES_DIR directory.
+    \endlist
+
+    The \c FEATURES_DIR environment variable contains the following values:
+
+    \list 1
+    \o \c{features/unix}, \c{features/win32}, or \c{features/macx}, depending on
+       the platform in use
+    \o \c features/
+    \endlist
+
+    For example, consider the following assignment in a project file:
+
+    \code
+        CONFIG += myfeatures
+    \endcode
+
+    With this addition to the \c CONFIG variable, \c qmake will search the
+    locations listed above for the \c myfeatures.prf file after it has
+    finished parsing your project file.
 */
 
 /*!
