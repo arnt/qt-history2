@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#29 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#29 $";
 #endif
 
 
@@ -149,7 +149,7 @@ void QButton::setText( const char *text )
 
 
 /*----------------------------------------------------------------------------
-  \fn QPixmap *QButton::pixmap() const
+  \fn const QPixmap *QButton::pixmap() const
   Returns the button pixmap.
  ----------------------------------------------------------------------------*/
 
@@ -163,15 +163,30 @@ void QButton::setText( const char *text )
 
 void QButton::setPixmap( const QPixmap &pixmap )
 {
-    if ( !bpixmap )
+    int w, h;
+    if ( bpixmap ) {
+	w = bpixmap->width();
+	h = bpixmap->height();
+    }
+    else {
 	bpixmap = new QPixmap;
+	w = h = -1;
+    }
     *bpixmap = pixmap;
     if ( !btext.isNull() )
 	btext.resize( 0 );
-    if ( autoResize )
+    if ( autoResize &&  (w != bpixmap->width() || h != bpixmap->height()) )
 	adjustSize();
-    else
-	update();
+    else {
+	if ( w >= 0 && w <= bpixmap->width() && h <= bpixmap->height() ) {
+	    QPainter paint;
+	    paint.begin( this );
+	    drawButtonLabel( &paint );
+	    paint.end();
+	}
+	else
+	    update();
+    }
 }
 
 
@@ -309,6 +324,17 @@ bool QButton::hitButton( const QPoint &pos ) const
  ----------------------------------------------------------------------------*/
 
 void QButton::drawButton( QPainter * )
+{
+    return;
+}
+
+/*----------------------------------------------------------------------------
+  Draws the button text or pixmap.  The default implementation does nothing.
+
+  This virtual function is reimplemented by subclasses to draw real buttons.
+ ----------------------------------------------------------------------------*/
+
+void QButton::drawButtonLabel( QPainter * )
 {
     return;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#39 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#38 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#39 $";
 #endif
 
 
@@ -188,11 +188,21 @@ void QPushButton::setDefault( bool enable )
 
 void QPushButton::adjustSize()
 {
-    QFontMetrics fm = fontMetrics();
-    QRect br = fm.boundingRect( text() );
-    int w = br.width()	+ 6;
-    int h = br.height() + 6;
-    resize( w + w/8 + 16, h + h/8 + 4 );
+    int w, h;
+    if ( pixmap() ) {
+	QPixmap *pm = (QPixmap *)pixmap();
+	w = pm->width()  + 6;
+	h = pm->height() + 6;
+    }
+    else {
+	QFontMetrics fm = fontMetrics();
+	QRect br = fm.boundingRect( text() );
+	w = br.width()	+ 6;
+	h = br.height() + 6;
+	w += w/8 + 16;
+	h += h/8 + 4;
+    }
+    resize( w, h );
 }
 
 
@@ -258,8 +268,8 @@ void QPushButton::setGeometry( const QRect &r )
 
 
 /*----------------------------------------------------------------------------
-  Draws the button, but not the button face.
-  \sa drawButtonFace()
+  Draws the pust button, but not the button label.
+  \sa drawButtonLabel()
  ----------------------------------------------------------------------------*/
 
 void QPushButton::drawButton( QPainter *paint )
@@ -282,15 +292,19 @@ void QPushButton::drawButton( QPainter *paint )
     pmkey.sprintf( "$qt_push_%d_%d_%d_%d_%d_%d", gs, palette().serialNumber(),
 		   isDown(), defButton, w, h );
     QPixmap *pm = QPixmapCache::find( pmkey );
+    QPainter pmpaint;
     if ( pm ) {					// pixmap exists
-	p->drawPixmap( 0, 0, *pm );
-	drawButtonFace( p );
+	QPixmap pm_direct = *pm;
+	pmpaint.begin( &pm_direct );
+	pmpaint.drawPixmap( 0, 0, *pm );
+	drawButtonLabel( &pmpaint );
+	pmpaint.end();
+	p->drawPixmap( 0, 0, pm_direct );
 	lastDown = isDown();
 	lastDef = defButton;
 	return;
     }
     bool use_pm = TRUE;
-    QPainter pmpaint;
     if ( use_pm ) {
 	pm = new QPixmap( w, h );		// create new pixmap
 	CHECK_PTR( pm );
@@ -449,23 +463,19 @@ void QPushButton::drawButton( QPainter *paint )
 	QPixmapCache::insert( pmkey, pm );	// save for later use
     }
 #endif
-    drawButtonFace( p );
+    drawButtonLabel( p );
     lastDown = isDown();
     lastDef = defButton;
 }
 
 
 /*----------------------------------------------------------------------------
-  Draws the button face. The default implementation draws the button pixmap
-  or the button text.
-
-  This virtual function can be reimplemented by subclasses.
+  Draws the push button label.
+  \sa drawButton()
  ----------------------------------------------------------------------------*/
 
-void QPushButton::drawButtonFace( QPainter *paint )
+void QPushButton::drawButtonLabel( QPainter *paint )
 {
-    if ( !text() && !pixmap() )
-	return;
     register QPainter *p = paint;
     GUIStyle	gs = style();
     QColorGroup g  = colorGroup();
@@ -492,16 +502,16 @@ void QPushButton::drawButtonFace( QPainter *paint )
     }
     x += 2;  y += 2;  w -= 4;  h -= 4;
     if ( pixmap() ) {
-	QPixmap *pm = pixmap();	
+	QPixmap *pm = (QPixmap *)pixmap();	
 	if ( pm->width() > w || pm->height() > h )
 	    p->setClipRect( x, y, w, h );
-	if ( pm->depth() == 1 )
+	if ( pm->depth() == 1 && isUp() )
 	    p->setBackgroundMode( OpaqueMode );
 	x += w/2 - pm->width()/2;		// center
 	y += h/2 - pm->height()/2;
 	p->drawPixmap( x, y, *pm );
 	p->setClipping( FALSE );
     }
-    else
-	p->drawText( x, y, w, h, AlignCenter|SingleLine|ShowPrefix, text() );
+    else if ( text() )
+	p->drawText( x, y, w, h, AlignCenter|ShowPrefix, text() );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#31 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,23 +16,23 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#31 $";
 #endif
 
 
-/*!
-\class QCheckBox qchkbox.h
-\brief The QCheckBox widget provides a check box with a text label.
+/*----------------------------------------------------------------------------
+  \class QCheckBox qchkbox.h
+  \brief The QCheckBox widget provides a check box with a text label.
 
-\ingroup realwidgets
+  \ingroup realwidgets
 
-QCheckBox and QRadioButton are both toggle buttons, but a check box
-represents an independent switch that can be on (checked) or off
-(unchecked).
-*/
+  QCheckBox and QRadioButton are both toggle buttons, but a check box
+  represents an independent switch that can be on (checked) or off
+  (unchecked).
+ ----------------------------------------------------------------------------*/
 
 
-static void getSizeOfBitmap( GUIStyle gs, int *w, int *h )
+static void getSizeOfBitmap( int gs, int *w, int *h )
 {
     switch ( gs ) {				// calculate coords
 	case MacStyle:
@@ -52,11 +52,11 @@ static void getSizeOfBitmap( GUIStyle gs, int *w, int *h )
 }
 
 
-/*!
-Constructs a check box with no text.
+/*----------------------------------------------------------------------------
+  Constructs a check box with no text.
 
-The \e parent and \e name arguments are sent to the QWidget constructor.
-*/
+  The \e parent and \e name arguments are sent to the QWidget constructor.
+ ----------------------------------------------------------------------------*/
 
 QCheckBox::QCheckBox( QWidget *parent, const char *name )
 	: QButton( parent, name )
@@ -65,11 +65,11 @@ QCheckBox::QCheckBox( QWidget *parent, const char *name )
     setToggleButton( TRUE );
 }
 
-/*!
-Constructs a check box with a text.
+/*----------------------------------------------------------------------------
+  Constructs a check box with a text.
 
-The \e parent and \e name arguments are sent to the QWidget constructor.
-*/
+  The \e parent and \e name arguments are sent to the QWidget constructor.
+ ----------------------------------------------------------------------------*/
 
 QCheckBox::QCheckBox( const char *text, QWidget *parent, const char *name )
 	: QButton( parent, name )
@@ -80,19 +80,17 @@ QCheckBox::QCheckBox( const char *text, QWidget *parent, const char *name )
 }
 
 
-/*!
-\fn bool QCheckBox::isChecked() const
-Returns TRUE if the check box is checked, or FALSE if it is not checked.
+/*----------------------------------------------------------------------------
+  \fn bool QCheckBox::isChecked() const
+  Returns TRUE if the check box is checked, or FALSE if it is not checked.
+  \sa setChecked()
+ ----------------------------------------------------------------------------*/
 
-\sa setChecked().
-*/
-
-/*!
-Checks the check box if \e checked is TRUE, or unchecks it if \e checked
-is FALSE.
-
-\sa isChecked().
-*/
+/*----------------------------------------------------------------------------
+  Checks the check box if \e checked is TRUE, or unchecks it if \e checked
+  is FALSE.
+  \sa isChecked()
+ ----------------------------------------------------------------------------*/
 
 void QCheckBox::setChecked( bool checked )
 {
@@ -103,14 +101,14 @@ void QCheckBox::setChecked( bool checked )
 }
 
 
-/*!
-Adjusts the size of the check box to fit the contents.
+/*----------------------------------------------------------------------------
+  Adjusts the size of the check box to fit the contents.
 
-This function is called automatically whenever the contents change and
-auto-resizing is enabled.
+  This function is called automatically whenever the contents change and
+  auto-resizing is enabled.
 
-\sa setAutoResizing()
-*/
+  \sa setAutoResizing()
+ ----------------------------------------------------------------------------*/
 
 void QCheckBox::adjustSize()
 {
@@ -125,28 +123,21 @@ void QCheckBox::adjustSize()
 }
 
 
-/*!
-Draws the check box.
-*/
+/*----------------------------------------------------------------------------
+  Draws the check box, but not the button label.
+  \sa drawButtonLabel()
+ ----------------------------------------------------------------------------*/
 
-void QCheckBox::drawButton( QPainter *paint )	// draw check box
+void QCheckBox::drawButton( QPainter *paint )
 {
     register QPainter *p = paint;
     GUIStyle	 gs = style();
     QColorGroup	 g  = colorGroup();
-    QSize	 sz = size();
-    QFontMetrics fm = fontMetrics();
     int		 x, y, w, h;
-    int		 wmore = 0;
 
     getSizeOfBitmap( gs, &w, &h );
     x = 0;
-    y = sz.height()/2 - h/2;
-
-    if ( gs == MacStyle || gs == Win3Style )
-	wmore = 1;
-    else if ( gs == MotifStyle )
-	wmore = 2;
+    y = height()/2 - h/2;
 
 #define SAVE_CHECKBOX_PIXMAPS
 #if defined(SAVE_CHECKBOX_PIXMAPS)
@@ -156,11 +147,7 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
     QPixmap *pm = QPixmapCache::find( pmkey );
     if ( pm ) {					// pixmap exists
 	p->drawPixmap( x, y, *pm );
-	if ( text() ) {				// draw text extra
-	    p->setPen( g.text() );
-	    p->drawText( w+6+wmore, sz.height()/2+fm.height()/2-fm.descent(),
-			 text() );
-	}
+	drawButtonLabel( p );
 	return;
     }
     bool use_pm = TRUE;
@@ -301,9 +288,38 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 	QPixmapCache::insert( pmkey, pm );	// save for later use
     }
 #endif
-    if ( text() ) {				// draw check box text
-	p->setPen( g.text() );
-	p->drawText( x+w+6+wmore, sz.height()/2+fm.height()/2-fm.descent(),
-		     text() );
+    drawButtonLabel( p );
+}
+
+
+/*----------------------------------------------------------------------------
+  Draws the check box label.
+  \sa drawButton()
+ ----------------------------------------------------------------------------*/
+
+void QCheckBox::drawButtonLabel( QPainter *p )
+{
+    int x, y, w, h;
+    int gs = style();
+    getSizeOfBitmap( gs, &w, &h );
+    if ( gs == MacStyle || gs == Win3Style )
+	w++;
+    else if ( gs == MotifStyle )
+	w += 2;
+    y = 0;
+    x = w + 6;
+    w = width() - x;
+    h = height();
+
+    p->setPen( colorGroup().text() );
+
+    if ( pixmap() ) {
+	QPixmap *pm = (QPixmap *)pixmap();
+	if ( pm->depth() == 1 )
+	    p->setBackgroundMode( OpaqueMode );
+	y += h/2 - pm->height()/2;
+	p->drawPixmap( x, y, *pm );
     }
+    else if ( text() )
+	p->drawText( x, y, w, h, AlignLeft|AlignVCenter|ShowPrefix, text() );
 }

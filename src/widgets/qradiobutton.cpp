@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#30 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,27 +16,26 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#30 $";
 #endif
 
 
-/*!
-\class QRadioButton qradiobt.h
+/*----------------------------------------------------------------------------
+  \class QRadioButton qradiobt.h
+  \brief The QRadioButton widget provides a radio button with a text label.
 
-\brief The QRadioButton widget provides a radio button with a text label.
+  \ingroup realwidgets
 
-\ingroup realwidgets
+  QRadioButton and QCheckBox are both toggle buttons, that is, they can be
+  switched on (checked) or off (unchecked).  Unlike check boxes, radio
+  buttons are normally organized in groups where only one radio button can be
+  switched on at a time.
 
-QRadioButton and QCheckBox are both toggle buttons, that is, they can be
-switched on (checked) or off (unchecked).  Unlike check boxes, radio
-buttons are normally organized in groups where only one radio button can be
-switched on at a time.
-
-The QButtonGroup widget is very useful for defining groups of radio buttons.
-*/
+  The QButtonGroup widget is very useful for defining groups of radio buttons.
+ ----------------------------------------------------------------------------*/
 
 
-static void getSizeOfBitmap( GUIStyle gs, int *w, int *h )
+static void getSizeOfBitmap( int gs, int *w, int *h )
 {
     switch ( gs ) {
 	case MacStyle:
@@ -58,11 +57,11 @@ static void getSizeOfBitmap( GUIStyle gs, int *w, int *h )
 }
 
 
-/*!
-Constructs a radio button with no text.
+/*----------------------------------------------------------------------------
+  Constructs a radio button with no text.
 
-The \e parent and \e name arguments are sent to the QWidget constructor.
-*/
+  The \e parent and \e name arguments are sent to the QWidget constructor.
+ ----------------------------------------------------------------------------*/
 
 QRadioButton::QRadioButton( QWidget *parent, const char *name )
 	: QButton( parent, name )
@@ -72,11 +71,11 @@ QRadioButton::QRadioButton( QWidget *parent, const char *name )
     noHit = FALSE;
 }
 
-/*!
-Constructs a radio button with a text.
+/*----------------------------------------------------------------------------
+  Constructs a radio button with a text.
 
-The \e parent and \e name arguments are sent to the QWidget constructor.
-*/
+  The \e parent and \e name arguments are sent to the QWidget constructor.
+ ----------------------------------------------------------------------------*/
 
 QRadioButton::QRadioButton( const char *text, QWidget *parent,
 			    const char *name )
@@ -89,22 +88,21 @@ QRadioButton::QRadioButton( const char *text, QWidget *parent,
 }
 
 
-/*!
-\fn bool QRadioButton::isChecked() const
-Returns TRUE if the radio button is checked, or FALSE if it is not checked.
+/*----------------------------------------------------------------------------
+  \fn bool QRadioButton::isChecked() const
+  Returns TRUE if the radio button is checked, or FALSE if it is not checked.
+  \sa setChecked()
+ ----------------------------------------------------------------------------*/
 
-\sa setChecked().
-*/
+/*----------------------------------------------------------------------------
+  Checks the radio button if \e checked is TRUE, or unchecks it if \e checked
+  is FALSE.
 
-/*!
-Checks the radio button if \e checked is TRUE, or unchecks it if \e checked
-is FALSE.
+  Calling this function does not affect other radio buttons unless a radio
+  button group has been defined using the QButtonGroup widget.
 
-Calling this function does not affect other radio buttons unless a radio
-button group has been defined using the QButtonGroup widget.
-
-\sa isChecked().
-*/
+  \sa isChecked()
+ ----------------------------------------------------------------------------*/
 
 void QRadioButton::setChecked( bool checked )
 {
@@ -115,14 +113,14 @@ void QRadioButton::setChecked( bool checked )
 }
 
 
-/*!
-Adjusts the size of the radio button to fit the contents.
+/*----------------------------------------------------------------------------
+  Adjusts the size of the radio button to fit the contents.
 
-This function is called automatically whenever the contents change and
-auto-resizing is enabled.
+  This function is called automatically whenever the contents change and
+  auto-resizing is enabled.
 
-\sa setAutoResizing()
-*/
+  \sa setAutoResizing()
+ ----------------------------------------------------------------------------*/
 
 void QRadioButton::adjustSize()
 {
@@ -137,34 +135,33 @@ void QRadioButton::adjustSize()
 }
 
 
+/*----------------------------------------------------------------------------
+  Reimplements QButton::hitButton().
+  This function is implemented to prevent a radio button that is
+  \link isOn() on\endlink from being switched \link isOff() off\endlink.
+ ----------------------------------------------------------------------------*/
+
 bool QRadioButton::hitButton( const QPoint &pos ) const
 {
     return noHit ? FALSE : rect().contains( pos );
 }
 
 
-/*!
-Draws the radio button.
-*/
+/*----------------------------------------------------------------------------
+  Draws the radio button, but not the button label.
+  \sa drawButtonLabel()
+ ----------------------------------------------------------------------------*/
 
 void QRadioButton::drawButton( QPainter *paint )
 {
     register QPainter *p = paint;
     GUIStyle	 gs = style();
     QColorGroup	 g  = colorGroup();
-    QSize	 sz = size();
-    QFontMetrics fm = fontMetrics();
     int		 x, y, w, h;
-    int		 wless = 0;
 
     getSizeOfBitmap( gs, &w, &h );
     x = 0;
-    y = sz.height()/2 - w/2;
-
-    if ( gs == WindowsStyle )
-	wless = -1;
-    else if ( gs != PMStyle )
-	wless = 1;
+    y = height()/2 - w/2;
 
 #define SAVE_RADIOBUTTON_PIXMAPS
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
@@ -174,11 +171,7 @@ void QRadioButton::drawButton( QPainter *paint )
     QPixmap *pm = QPixmapCache::find( pmkey );
     if ( pm ) {					// pixmap exists
 	p->drawPixmap( x, y, *pm );
-	if ( text() ) {				// draw text extra
-	    p->setPen( g.text() );
-	    p->drawText( w+6-wless, sz.height()/2+fm.height()/2-fm.descent(),
-			 text() );
-	}
+	drawButtonLabel( p );
 	return;
     }
     bool use_pm = TRUE;
@@ -365,14 +358,46 @@ void QRadioButton::drawButton( QPainter *paint )
 	QPixmapCache::insert( pmkey, pm );	// save for later use
     }
 #endif
-    if ( text() ) {
-	QFontMetrics fm = fontMetrics();
-	p->setPen( g.text() );
-	p->drawText( w+6-wless, sz.height()/2+fm.height()/2-fm.descent(),
-		     text() );
-    }
+    drawButtonLabel( p );
 }
 
+
+/*----------------------------------------------------------------------------
+  Draws the radio button label.
+  \sa drawButton()
+ ----------------------------------------------------------------------------*/
+
+void QRadioButton::drawButtonLabel( QPainter *p )
+{
+    int x, y, w, h;
+    int gs = style();
+    getSizeOfBitmap( gs, &w, &h );
+    if ( gs == WindowsStyle )
+	w++;
+    else if ( gs != PMStyle )
+	w--;
+    y = 0;
+    x = w + 6;
+    w = width() - x;
+    h = height();
+
+    p->setPen( colorGroup().text() );
+
+    if ( pixmap() ) {
+	QPixmap *pm = (QPixmap *)pixmap();
+	if ( pm->depth() == 1 )
+	    p->setBackgroundMode( OpaqueMode );
+	y += h/2 - pm->height()/2;
+	p->drawPixmap( x, y, *pm );
+    }
+    else if ( text() )
+	p->drawText( x, y, w, h, AlignLeft|AlignVCenter|ShowPrefix, text() );
+}
+
+
+/*----------------------------------------------------------------------------
+  Handles mouse release events for the radio button.
+ ----------------------------------------------------------------------------*/
 
 void QRadioButton::mouseReleaseEvent( QMouseEvent *e )
 {
