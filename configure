@@ -919,6 +919,7 @@ echo Creating makefiles...
 sepath=`echo $relpath | sed -e 's/\\./\\\\./g'`
 PROCS=1
 PIPE=""
+EXEC=""
 for a in $QMAKE_PROJECTS ; do
     dir=`dirname $a`
     file=`basename $a`
@@ -938,12 +939,13 @@ for a in $QMAKE_PROJECTS ; do
     then
 	EXEC=$PIPE
     else
+	EXEC="$EXEC ($PIPE & ) ;"
 	if [ ! "x$PROCS" = "x$CONCURRENT" ]
 	then
 	    PROCS=`expr $PROCS + 1`
-	    EXEC="$EXEC ($PIPE & ) ;"
 	else
 	    PROCS=1
+	    EXEC="$EXEC wait"
 	fi
     fi
 
@@ -958,10 +960,12 @@ for a in $QMAKE_PROJECTS ; do
 
     if [ "x$PROCS" = "x1" ]
     then
-	(/bin/sh -c "$EXEC")
+	/bin/sh -c "$EXEC"
 	EXEC=""
     fi
 done
+#this is just incase the concurrant task is not a multiple of the number of tasks
+[ ! -z "$EXEC" ] && /bin/sh -c "$EXEC wait"
 
 if echo $LD_LIBRARY_PATH | grep >/dev/null $QTDIR/lib
 then
