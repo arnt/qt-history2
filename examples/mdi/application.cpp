@@ -151,7 +151,7 @@ MDIWindow* ApplicationWindow::newDoc()
     MDIWindow* w = new MDIWindow( ws, 0, WDestructiveClose );
     connect( w, SIGNAL( message(const QString&, int) ), statusBar(), SLOT( message(const QString&, int )) );
     w->setWindowTitle("unnamed document");
-    w->setIcon( QPixmap("document.xpm") );
+    w->setWindowIcon( QPixmap("document.xpm") );
     // show the very first window in maximized mode
     if ( ws->windowList().isEmpty() )
 	w->showMaximized();
@@ -232,7 +232,7 @@ void ApplicationWindow::windowsMenuAboutToShow()
     windowsMenu->insertSeparator();
     QWidgetList windows = ws->windowList();
     for ( int i = 0; i < int(windows.count()); ++i ) {
-	int id = windowsMenu->insertItem(windows.at(i)->caption(),
+	int id = windowsMenu->insertItem(windows.at(i)->windowTitle(),
 					 this, SLOT( windowsMenuActivated( int ) ) );
 	windowsMenu->setItemParameter( id, i );
 	windowsMenu->setItemChecked( id, ws->activeWindow() == windows.at(i) );
@@ -264,7 +264,7 @@ void ApplicationWindow::tileHorizontal()
 	    window->showNormal();
 	}
 	int preferredHeight = window->minimumHeight()+window->parentWidget()->baseSize().height();
-	int actHeight = QMAX(heightForEach, preferredHeight);
+	int actHeight = qMax(heightForEach, preferredHeight);
 
 	window->parentWidget()->setGeometry( 0, y, ws->width(), actHeight );
 	y += actHeight;
@@ -305,7 +305,7 @@ void MDIWindow::closeEvent( QCloseEvent *e )
 {
     if ( medit->isModified() ) {
 	switch( QMessageBox::warning( this, "Save Changes",
-	    tr("Save changes to %1?").arg( caption() ),
+	    tr("Save changes to %1?").arg( windowTitle() ),
 	    tr("Yes"), tr("No"), tr("Cancel") ) ) {
 	case 0:
 	    {
@@ -345,7 +345,7 @@ void MDIWindow::load( const QString& fn )
 #ifdef Q_WS_QWS // temporary speed-test hack
 	qm->setDisplayWidget(tmp);
 #endif
-	tmp->setBackgroundMode(QWidget::NoBackground);
+	tmp->setAttribute(WA_NoSystemBackground, true);
 	tmp->show();
 	mmovie=qm;
     } else {
@@ -422,7 +422,7 @@ void MDIWindow::print( QPrinter* printer)
   	QRect view( body );
 	int page = 1;
 	do {
-	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
+	    richText.draw( &p, body.left(), body.top(), view, palette() );
 	    view.moveBy( 0, body.height() );
 	    p.translate( 0 , -body.height() );
 	    p.drawText( view.right() - p.fontMetrics().width( QString::number( page ) ),
