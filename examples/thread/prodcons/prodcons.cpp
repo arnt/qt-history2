@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 // 50kb buffer
-#define BUFSIZE (100*1000)
+#define BUFSIZE (50*1000)
 #define PRGSTEP (BUFSIZE / 20)
 #define BLKSIZE (8)
 QByteArray bytearray;
@@ -300,8 +300,9 @@ void ProdCons::go()
     QMutexLocker locker(&mutex);
 
     if ( redraw ) {
-	startbutton->setEnabled(FALSE);
 	stopbutton->setEnabled(TRUE);
+	stopbutton->setFocus();
+	startbutton->setEnabled(FALSE);
     }
 
     // start the consumer first
@@ -335,6 +336,7 @@ void ProdCons::stop()
     if ( redraw ) {
 	// no point in repainting these buttons so many times is we are looping...
 	startbutton->setEnabled(TRUE);
+	startbutton->setFocus();
 	stopbutton->setEnabled(FALSE);
     }
 
