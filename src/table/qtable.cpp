@@ -368,44 +368,41 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
   be displayed.
 
   \value Always
-    The cell always looks editable.<sup>1.</sup>
-    <br>
+    The cell always \e looks editable.
+
     Using this EditType ensures that the editor created with
     createEditor() (by default a QLineEdit) is always visible. This has
     implications for the alignment of the content: the default editor
     aligns everything (even numbers) to the left whilst numerical values
     in the cell are by default aligned to the right.
-    <br>
+
     If a cell with the edit type \c Always looks misaligned you could
     reimplement createEditor() for these items.
-    <br><br>
 
   \value WhenCurrent
-    The cell looks editable only when it has keyboard
-    focus (see QTable::setCurrentCell()).<sup>1.</sup>
-    <br><br>
+    The cell \e looks editable only when it has keyboard
+    focus (see QTable::setCurrentCell()).
 
   \value OnTyping
-    The cell only looks editable when the user types in it or
-    double-clicks it.<sup>1.</sup> It resembles the \c WhenCurrent
-    functionality but can look a bit nicer.
-    <br>
+    The cell \e looks editable only when the user types in it or
+    double-clicks it. It resembles the \c WhenCurrent
+    functionality but is, perhaps, nicer.
+
     The \c OnTyping edit type is the default when QTableItem objects
     are created by the convenience functions QTable::setText()
     and QTable::setPixmap().
-    <br><br>
 
   \value Never  The cell is not editable.
 
-  <sup>1.</sup> The cell is editable only if QTable::isRowReadOnly() is
-  FALSE for its row, QTable::isColumnReadOnly() is FALSE for its column,
-  and QTable::isReadOnly() is FALSE.
+  The cell is actually editable only if QTable::isRowReadOnly() is
+  FALSE for its row, QTable::isColumnReadOnly() is FALSE for its
+  column, and QTable::isReadOnly() is FALSE.
 
-  Note that QComboTableItems have an isEditable() property. This
-  property is used to indicate whether the user may enter their own text
-  or are restricted to choosing one of the choices in the list.
-  QComboTableItems may be edited (i.e. interacted with) only if they are
-  editable in accordance with their EditType as described above.
+  QComboTableItems have an isEditable() property. This property is
+  used to indicate whether the user may enter their own text or are
+  restricted to choosing one of the choices in the list.
+  QComboTableItems may be interacted with only if they are editable
+  in accordance with their EditType as described above.
 
 */
 
