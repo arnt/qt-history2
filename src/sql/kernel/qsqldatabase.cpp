@@ -254,23 +254,12 @@ void QSqlDatabasePrivate::disable()
     driver \a type and the connection name \a connectionName.
 
     The database connection is referred to by \a connectionName. The
-    newly added database connection is returned. This pointer is owned
-    by QSqlDatabase and will be deleted on program exit or when
-    removeDatabase() is called. You should only call this once for
-    each database.
+    newly added database connection is returned.
 
     If \a connectionName is not specified, the newly added database
     connection becomes the default database connection for the
     application, and subsequent calls to database() (without a
-    database name parameter) will return a pointer to it. If \a
-    connectionName is given, use \link QSqlDatabase::database()
-    database(connectionName)\endlink to retrieve a pointer to the
-    database connection.
-
-    If \a connectionName is not specified, the newly added database
-    connection becomes the default database connection for the
-    application, and subsequent calls to database() (without a
-    database name parameter) will return a pointer to it. If \a
+    database name parameter) will return a reference to it. If \a
     connectionName is given, use \link QSqlDatabase::database()
     database(connectionName)\endlink to retrieve a pointer to the
     database connection.
@@ -290,9 +279,8 @@ QSqlDatabase QSqlDatabase::addDatabase(const QString& type, const QString& conne
     addDatabase(). If \a open is true (the default) and the database
     connection is not already open it is opened now. If no \a
     connectionName is specified the default connection is used. If \a
-    connectionName does not exist in the list of databases, 0 is
-    returned. The pointer returned is owned by QSqlDatabase and should
-    \e not be deleted.
+    connectionName does not exist in the list of databases, an invalid
+    connection is returned.
 */
 
 QSqlDatabase QSqlDatabase::database(const QString& connectionName, bool open)
@@ -418,6 +406,8 @@ bool QSqlDatabase::contains(const QString& connectionName)
 }
 
 /*!
+    \overload
+
     Creates a QSqlDatabase connection called \a name that uses the
     driver referred to by \a type, with the parent \a parent. If the
     \a type is not recognized, the database connection will have no
@@ -454,9 +444,6 @@ QSqlDatabase::QSqlDatabase(const QString &type)
 
      Creates a database connection using the driver \a driver and with
      the parent \a parent.
-
-     \warning The framework takes ownership of the \a driver pointer,
-     so it should not be deleted.
 */
 
 QSqlDatabase::QSqlDatabase(QSqlDriver *driver)
@@ -464,18 +451,30 @@ QSqlDatabase::QSqlDatabase(QSqlDriver *driver)
     d = new QSqlDatabasePrivate(driver);
 }
 
+/*!
+    Creates an empty, invalid QSqlDatabase object. Note that you should
+    never create QSqlDatabase objects on your own, but rather use
+    addDatabase(), removeDatabase() and database() to get
+    QSqlDatabase objects.
+ */
 QSqlDatabase::QSqlDatabase()
 {
     d = QSqlDatabasePrivate::shared_null();
     ++d->ref;
 }
 
+/*!
+  Creates a copy of \a other.
+ */
 QSqlDatabase::QSqlDatabase(const QSqlDatabase &other)
 {
     d = other.d;
     ++d->ref;
 }
 
+/*!
+  Assigns \a other to this object.
+ */
 QSqlDatabase &QSqlDatabase::operator=(const QSqlDatabase &other)
 {
     qAtomicAssign(d, other.d);
@@ -890,10 +889,11 @@ QSqlRecord QSqlDatabase::record(const QString& tablename) const
 */
 
 /*! \fn QSqlRecord QSqlDatabase::recordInfo(const QString& tablename) const
+    \obsolete use QSqlRecord::record instead
 */
 
 /*! \fn QSqlRecord QSqlDatabase::recordInfo(const QSqlQuery& query) const
-    \obsolete use QSqlRecord::record() instead
+    \obsolete use QSqlQuery::record() instead
 */
 
 /*!
@@ -962,23 +962,23 @@ QSqlRecord QSqlDatabase::record(const QString& tablename) const
     \code
     ...
     // MySQL connection
-    db->setConnectOptions("CLIENT_SSL;CLIENT_IGNORE_SPACE"); // use an SSL connection to the server
-    if (!db->open()) {
-        db->setConnectOptions(); // clears the connect option string
+    db.setConnectOptions("CLIENT_SSL;CLIENT_IGNORE_SPACE"); // use an SSL connection to the server
+    if (!db.open()) {
+        db.setConnectOptions(); // clears the connect option string
         ...
     }
     ...
     // PostgreSQL connection
-    db->setConnectOptions("requiressl=1"); // enable PostgreSQL SSL connections
-    if (!db->open()) {
-        db->setConnectOptions(); // clear options
+    db.setConnectOptions("requiressl=1"); // enable PostgreSQL SSL connections
+    if (!db.open()) {
+        db.setConnectOptions(); // clear options
         ...
     }
     ...
     // ODBC connection
-    db->setConnectOptions("SQL_ATTR_ACCESS_MODE=SQL_MODE_READ_ONLY;SQL_ATTR_TRACE=SQL_OPT_TRACE_ON"); // set ODBC options
-    if (!db->open()) {
-        db->setConnectOptions(); // don't try to set this option
+    db.setConnectOptions("SQL_ATTR_ACCESS_MODE=SQL_MODE_READ_ONLY;SQL_ATTR_TRACE=SQL_OPT_TRACE_ON"); // set ODBC options
+    if (!db.open()) {
+        db.setConnectOptions(); // don't try to set this option
         ...
     }
     \endcode
@@ -996,6 +996,10 @@ void QSqlDatabase::setConnectOptions(const QString& options)
     d->connOptions = options;
 }
 
+/*! Returns the connection options for for this connection
+
+    \sa setConnectOptions()
+ */
 QString QSqlDatabase::connectOptions() const
 {
     return d->connOptions;
@@ -1034,7 +1038,7 @@ bool QSqlDatabase::isDriverAvailable(const QString& name)
     \code
     PGconn* con = PQconnectdb("host=server user=bart password=simpson dbname=springfield");
     QPSQLDriver* drv =  new QPSQLDriver(con);
-    QSqlDatabase* db = QSqlDatabase::addDatabase(drv); // becomes the new default connection
+    QSqlDatabase db = QSqlDatabase::addDatabase(drv); // becomes the new default connection
     QSqlQuery q;
     q.exec("SELECT * FROM people");
     ...
@@ -1113,8 +1117,7 @@ bool QSqlDatabase::isDriverAvailable(const QString& name)
     QSqlQuery/\l{QSqlCursor} objects from blocking each other.
 
     \warning The SQL framework takes ownership of the \a driver pointer,
-    and it should not be deleted. The returned QSqlDatabase object is
-    owned by the framework and must not be deleted. If you want to
+    and it should not be deleted. If you want to
     explicitly remove the connection, use removeDatabase()
 
     \sa drivers()
@@ -1127,6 +1130,9 @@ QSqlDatabase QSqlDatabase::addDatabase(QSqlDriver* driver, const QString& connec
     return db;
 }
 
+/*!
+   Returns true if the QSqlDatabase has a valid driver.
+ */
 bool QSqlDatabase::isValid() const
 {
     return d->driver && d->driver != d->shared_null()->driver;
