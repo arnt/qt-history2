@@ -91,7 +91,6 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
     QString line;
     while ( !xml.eof() ) {
 	line = xml.readLine();
-	qDebug("input ::%s::", line.latin1());
 	while((rep = line.find(QRegExp("\\$\\$[a-zA-Z0-9_-]*"))) != -1) {
 	    QString torep = line.mid(rep, line.find(QRegExp("[^\\$a-zA-Z0-9_-]"), rep) - rep);
 	    QString variable = torep.right(torep.length()-2);
@@ -105,7 +104,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 			t << "\t\t\t\t<FILE>" << endl
 			  << "\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
-			  << "\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
+			  << "\t\t\t\t\t<PATH>" << macifyPath((*it)) << "</PATH>" << endl
 			  << "\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
 			  << "\t\t\t\t\t<FILEKIND>Text</FILEKIND>" << endl
 			  << "\t\t\t\t\t<FILEFLAGS></FILEFLAGS>" << endl
@@ -119,7 +118,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 			t << "\t\t\t\t<FILEREF>" << endl
 			  << "\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
-			  << "\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
+			  << "\t\t\t\t\t<PATH>" << macifyPath((*it)) << "</PATH>" << endl
 			  << "\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
 			  << "\t\t\t\t</FILEREF>" << endl;
 		    }
@@ -132,20 +131,24 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 			t << "\t\t\t\t<FILEREF>" << endl
 			  << "\t\t\t\t\t<TARGETNAME>" << var("TARGET") << "</TARGETNAME>" << endl
 			  << "\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
-			  << "\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
+			  << "\t\t\t\t\t<PATH>" << macifyPath((*it)) << "</PATH>" << endl
 			  << "\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
 			  << "\t\t\t\t</FILEREF>" << endl;
 		    }
 		}
 	    } else if(variable == "CODEWARRIOR_DEPENDPATH" || variable == "CODEWARRIOR_INCLUDEPATH") {
 		QString arg=variable.mid(variable.find('_')+1, variable.length()-variable.findRev('_'));
-		if(!project->variables()[arg].isEmpty()) {
-		    QStringList &list = project->variables()[arg];
+		QStringList list = project->variables()[arg];
+		if(arg == "INCLUDEPATH") {
+		    list << Option::mkfile::qmakespec;
+		    list << Option::output_dir;
+		}
+		if(!list.isEmpty()) {
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 			t << "\t\t\t\t\t<SETTING>" << endl
 			  << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
 			  << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
-			  << "<VALUE>" << (*it) << "</VALUE></SETTING>" << endl
+			  << "<VALUE>" << macifyPath((*it)) << "</VALUE></SETTING>" << endl
 			  << "\t\t\t\t\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
 			  << "\t\t\t\t\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>Absolute</VALUE></SETTING>" << endl
 			  << "\t\t\t\t\t\t</SETTING>" << endl
@@ -224,3 +227,15 @@ MetrowerksMakefileGenerator::findTemplate(QString file)
     return ret;
 }
 
+QString
+MetrowerksMakefileGenerator::macifyPath(QString p) const
+{
+    if(p.right(1) != '/')
+	p += "/";
+    if(QDir::isRelativePath(p))
+	p.prepend(Option::output_dir);
+    QDir::cleanDirPath(p);
+    p.replace(QRegExp("/"), ":");
+    p.prepend("MacOS 9");
+    return p;
+}
