@@ -33,8 +33,6 @@
 **
 **********************************************************************/
 
-// the list is up to an including /local/qt/mail/qt-bugs/1715
-
 /*! \page credits.html
 
 \title Thanks!
@@ -125,8 +123,8 @@ Eric Jansen &lt;jansen <i>at</i> photon.com&gt;<br>
 Erik Norell &lt;erik <i>at</i> Astrakan.HGS.SE&gt;<br>
 Erik Thiele &lt;erik <i>at</i> unterland.de&gt;<br>
 Ernie Pasveer &lt;erniep <i>at</i> vsl.com&gt;<br>
-FRBall &lt;frb <i>at</i> umr.edu&gt;<br>
-FUJIMOTO Koji &lt;kochan <i>at</i> mbox.kyoto-inet.or.jp&gt;<br>
+F R Ball &lt;frb <i>at</i> umr.edu&gt;<br>
+Fujimoto Koji &lt;kochan <i>at</i> mbox.kyoto-inet.or.jp&gt;<br>
 Fergal Mc Carthy &lt;fergal <i>at</i> ilo.dec.com&gt;<br>
 Frank Gockel &lt;gockel <i>at</i> etecs4.uni-duisburg.de&gt;<br>
 Frank Roscher &lt;frank <i>at</i> chemnitz.abs-rz.de&gt;<br>
@@ -222,7 +220,7 @@ Mike Sharkey &lt;msharkey <i>at</i> softarc.com&gt;<br>
 Miroslav Flidr &lt;flidr <i>at</i> kky.zcu.cz&gt;<br>
 Miyata Shigeru &lt;miyata <i>at</i> kusm.kyoto-u.ac.jp&gt;<br>
 Myron Uecker &lt;muecker <i>at</i> csd.net&gt;<br>
-NGOk YUK YAU &lt;zzy <i>at</i> compuserve.com&gt;<br>
+Ngok Yuk Yau &lt;zzy <i>at</i> compuserve.com&gt;<br>
 Neal Sanche &lt;neal <i>at</i> nsdev.org&gt;<br>
 Niclas Anderberg &lt;agony <i>at</i> sparta.lu.se&gt;<br>
 Oliver Eiden &lt;o.eiden <i>at</i> pop.ruhr.de&gt;<br>
@@ -232,7 +230,7 @@ Osku Salerma &lt;osku <i>at</i> iki.fi&gt;<br>
 P. J. Leonard &lt;eespjl <i>at</i> ee.bath.ac.uk&gt;<br>
 Paolo Galatola &lt;paolo <i>at</i> iris.polito.it&gt;<br>
 Pat Dowler &lt;dowler <i>at</i> pt1B1106.FSH.UVic.CA&gt;<br>
-Patrice TROGNON &lt;trognon <i>at</i> apogee-com.fr&gt;<br>
+Patrice Trognon &lt;trognon <i>at</i> apogee-com.fr&gt;<br>
 Patrick Voigt &lt;Patrick.Voigt <i>at</i> Informatik.TU-Chemnitz.DE&gt;<br>
 Paul Bucheit &lt;ptb <i>at</i> k2.cwru.edu&gt;<br>
 Paul Curtis &lt;plc <i>at</i> rowley.co.uk&gt;<br>
@@ -242,11 +240,11 @@ Peter Bender &lt;bender <i>at</i> iib.bauwesen.th-darmstadt.de&gt;<br>
 Peter Klotz &lt;p.klotz <i>at</i> icoserve.com&gt;<br>
 Peter Pletcher &lt;peter <i>at</i> delilah&gt;<br>
 Pierre Rocque &lt;rocque <i>at</i> CRHSC.Umontreal.CA&gt;<br>
-Pohorecki Wladyslaw &lt;POHORECKI <i>at</i> novell.ftj.agh.edu.pl&gt;<br>
-R.S. MALLOZZI, ES-84, 205-544-0887 &lt;MALLOZZI <i>at</i> bowie.msfc.nasa.gov&gt;<br>
-ROHLFS Reiner &lt;Reiner.Rohlfs <i>at</i> obs.unige.ch&gt;<br>
+Pohorecki Wladyslaw &lt;pohorecki <i>at</i> novell.ftj.agh.edu.pl&gt;<br>
+R.S. Mallozzi &lt;mallozzi <i>at</i> bowie.msfc.nasa.gov&gt;<br>
+Rohlfs Reiner &lt;Reiner.Rohlfs <i>at</i> obs.unige.ch&gt;<br>
 Ralf Stanke &lt;ralf <i>at</i> mcshh.hanse.de&gt;<br>
-Reggie Stadlbauer &lt;reggie <i>at</i> kde.org&gt;</br>
+Reggie Stadlbauer &lt;reggie <i>at</i> kde.org&gt;<br>
 Richard D. Jackson &lt;rjackson <i>at</i> bga.com&gt;<br>
 Richard Keech &lt;rkeech <i>at</i> colesmyer.com.au&gt;<br>
 Richard Moore &lt;moorer <i>at</i> cs.man.ac.uk&gt;<br>
