@@ -3018,8 +3018,11 @@ void EventList::setCurrent( QWidget * )
 {
 }
 
-void EventList::objectClicked( QListViewItem * )
+void EventList::objectClicked( QListViewItem *i )
 {
+    if ( !i || !i->parent() )
+	return;
+    formWindow->mainWindow()->editFunction( i->text( 0 ) );
 }
 
 extern QListViewItem *newItem;
