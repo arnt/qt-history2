@@ -1385,7 +1385,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                 p->drawLine(bef_h + 4, bef_v + 2, bef_h + 4, bef_v + 6);
             QPen oldPen = p->pen();
             p->setPen(opt->palette.dark().color());
-            p->drawRect(bef_h, bef_v, decoration_size, decoration_size);
+            p->drawRect(bef_h, bef_v, decoration_size - 1, decoration_size - 1);
             p->setPen(oldPen);
         }
         QBrush brush(opt->palette.dark().color(), Qt::Dense4Pattern);
