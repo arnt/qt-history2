@@ -25,8 +25,7 @@
 const char *qmake_version();
 
 QString qmake_getpwd();
-bool qmake_setpwd(const QString &p
-);
+bool qmake_setpwd(const QString &p);
 
 void fixEnvVariables(QString &x);
 #define debug_msg if(Option::debug_level) debug_msg_internal

@@ -35,7 +35,7 @@
    cached copy because I can control all the times it is set (because Qt never sets the pwd under me).
 */
 static QString pwd;
-QString qmake_getpwd() 
+QString qmake_getpwd()
 {
     if(pwd.isNull())
         pwd = QDir::currentPath();
@@ -44,7 +44,7 @@ QString qmake_getpwd()
 bool qmake_setpwd(const QString &p)
 {
     if(QDir::setCurrent(p)) {
-        pwd = p;
+        pwd = QDir::currentPath();
         return true;
     }
     return false;
