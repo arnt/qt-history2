@@ -24,11 +24,17 @@ mng {
 		  3rdparty/libmng/libmng_write.c \
 		  3rdparty/libmng/libmng_zlib.c
 
-	!jpeg {
+	!jpeg:!system-jpeg {
 		message(Use of mng requires support for jpeg)
 		CONFIG += jpeg
 	}
 }
+
+system-mng:!jpeg:!system-jpeg {
+	message(Use of mng requires support for jpeg)
+	CONFIG += jpeg
+}
+
 system-mng:unix:LIBS += -lmng
 system-mng:mac:LIBS += -lmng
 system-mng:win32:LIBS += libmng.lib
