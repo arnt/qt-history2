@@ -103,6 +103,8 @@ public:
         QTextFrame *currentFrame() const;
         QTextBlock currentBlock() const;
 
+        bool atEnd() const { return !cf && cb == e; }
+
         inline bool operator==(const iterator &o) const { return f == o.f && cf == o.cf && cb == o.cb; }
         inline bool operator!=(const iterator &o) const { return f != o.f || cf != o.cf || cb != o.cb; }
         iterator operator++();
@@ -162,6 +164,8 @@ public:
         iterator(const iterator &o) : p(o.p), b(o.b), e(o.e), n(o.n) {}
 
         QTextFragment fragment() const;
+
+        bool atEnd() const { return n == e; }
 
         inline bool operator==(const iterator &o) const { return p == o.p && n == o.n; }
         inline bool operator!=(const iterator &o) const { return p != o.p || n != o.n; }
