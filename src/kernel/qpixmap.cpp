@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#69 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#69 $");
 
 
 /*!
@@ -142,11 +142,11 @@ QPixmap::QPixmap( const char *fileName, const char *format, ColorMode mode )
 */
 
 QPixmap::QPixmap( const char *fileName, const char *format, ColorMode mode,
-	DitherMode dmode )
+		  DitherMode dmode )
     : QPaintDevice( PDT_PIXMAP )
 {
     init( 0, 0, 0 );
-    load( fileName, format, mode );
+    load( fileName, format, mode, dmode );
 }
 
 /*!
