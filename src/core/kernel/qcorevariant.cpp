@@ -1527,7 +1527,7 @@ void QCoreVariant::clear()
 
    (Search for the word 'Attention' in generator.cpp)
 */
-enum { ntypes = 36 };
+enum { ntypes = 40 };
 static const char* const type_map[ntypes] =
 {
     0,
@@ -1569,7 +1569,11 @@ static const char* const type_map[ntypes] =
     "QPen",
     "Q_LONGLONG",
     "Q_ULONGLONG",
-    "QChar"
+    "QChar",
+    "QUrl",
+    "QTextLength",
+    "QTextFormat",
+    "QLocale"
 };
 
 

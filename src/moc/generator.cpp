@@ -50,7 +50,7 @@ enum MemberFlags {
   Attention!  This table is copied from qcorevariant.cpp. If you
   change one, change both.
 */
-static const int ntypes = 37;
+static const int ntypes = 40;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -89,7 +89,10 @@ static const char* const type_map[ntypes] =
     "Q_LONGLONG",
     "Q_ULONGLONG",
     "QChar",
-    "QUrl"
+    "QUrl",
+    "QTextLength",
+    "QTextFormat",
+    "QLocale"
 };
 
 int qvariant_nameToType(const char* name)
