@@ -271,15 +271,26 @@ protected:
 };
 
 template <typename T>
+inline static int qt_variant_metatype_id(T *t = 0)
+{ return qt_metatype_id<T>(t); }
+
+template <>
+inline static int qt_variant_metatype_id(QDate *) { return QCoreVariant::Date; }
+
+class QBitmap;
+template <>
+inline static int qt_variant_metatype_id(QBitmap *) { return QCoreVariant::Bitmap; }
+
+template <typename T>
 void qVariantSet(QCoreVariant &v, const T &t)
 {
-    v = QCoreVariant(qt_metatype_id<T>(static_cast<T *>(0)), &t);
+    v = QCoreVariant(qt_variant_metatype_id<T>(static_cast<T *>(0)), &t);
 }
 
 template <typename T>
 bool qVariantGet(const QCoreVariant &v, T &t)
 {
-    if (qt_metatype_id<T>(static_cast<T *>(0)) != v.userType())
+    if (qt_variant_metatype_id<T>(static_cast<T *>(0)) != v.userType())
         return false;
     t = *reinterpret_cast<const T *>(v.constData());
     return true;
@@ -343,7 +354,12 @@ inline bool QCoreVariant::isDetached() const
 { return !d.is_shared || d.data.shared->ref == 1; }
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
-template <class T> inline T QVariant_to_helper(const QCoreVariant &v, const T *);
+template <class T> inline T QVariant_to_helper(const QCoreVariant &v, const T *)
+{
+    if (qt_metatype_id<T>(static_cast<T *>(0)) != v.userType())
+        return T();
+    return *reinterpret_cast<const T *>(v.constData());
+}
 
 template <class T>
 inline T QVariant_to(const QCoreVariant &v)
@@ -380,7 +396,13 @@ template<> QUrl QVariant_to_helper<QUrl>(const QCoreVariant &v, const QUrl*);
 
 #else
 
-template<typename T> T QVariant_to(const QCoreVariant &v);
+template<typename T> T QVariant_to(const QCoreVariant &v)
+{
+    if (qt_metatype_id<T>(static_cast<T *>(0)) != v.userType())
+        return T();
+    return *reinterpret_cast<const T *>(v.constData());
+}
+
 template<> inline int QVariant_to<int>(const QCoreVariant &v) { return v.toInt(); }
 template<> inline uint QVariant_to<uint>(const QCoreVariant &v) { return v.toUInt(); }
 template<> inline Q_LONGLONG QVariant_to<Q_LONGLONG>(const QCoreVariant &v)
