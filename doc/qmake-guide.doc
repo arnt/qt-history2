@@ -591,17 +591,18 @@ each time the user runs configure you can guarantee that your whole tree
 will be built using the same config options. The most useful things to put
 in the .qmake.cache are:
 
-CONFIG    - This will tell qmake what CONFIG's are in scope
-QMAKESPEC - This will tell qmake what configuration should be used to
+\list
+\i CONFIG    - This will tell qmake what CONFIG's are in scope
+\i QMAKESPEC - This will tell qmake what configuration should be used to
             create Makefiles. Strictly speaking this isn't necesary since
             the QMAKESPEC environment variable can be used instead, but
             placing it here will remove the necessity for the environment
             variable.
-
-OBJ_DIR
+\i OBJ_DIR
 UI_DIR
 MOC_DIR   - If you want all your files to go to a directory (project-wide)
 	        then specifying them in the .qmake.cache file will help.
+\endlist
 
 After this has been done simply run qmake on the necesary .pro files and
 you are are set. That is all that we'll mention about
