@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#6 $
 **
 ** Implementation of something useful
 **
@@ -16,7 +16,7 @@
 #include "qscrbar.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#6 $");
 
 /*!
   \class QListViewItem qlistview.h
@@ -422,6 +422,10 @@ QListView::QListView( QWidget * parent, const char * name )
 	     this, SIGNAL(sizeChanged()) );
     connect( root->h, SIGNAL(moved( int, int )),
 	     this, SLOT(triggerUpdate()) );
+    connect( horizontalScrollBar(), SIGNAL(sliderMoved(int)),
+	     root->h, SLOT(setOffset(int)) );
+    connect( horizontalScrollBar(), SIGNAL(valueChanged(int)),
+	     root->h, SLOT(setOffset(int)) );
 
     setFocusProxy( viewport() );
 }
