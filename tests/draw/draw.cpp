@@ -26,17 +26,18 @@
 //  menu mappings
 //
 
-static PenStyle menuPenStyles[4] = {		// menu pens
-    NoPen,	SolidLine,	DotLine,	DashLine };
+static Qt::PenStyle menuPenStyles[4] = {		// menu pens
+    Qt::NoPen,	Qt::SolidLine,	Qt::DotLine,	Qt::DashLine };
 
 static int menuLWidths[3] = {			// menu line widths
      0,	     2,		  4 };
 
-static BrushStyle menuBrushStyles[15] = {		// menu brushes
-    NoBrush,      SolidPattern, Dense1Pattern,Dense2Pattern,Dense3Pattern,
-    Dense4Pattern,Dense5Pattern,Dense6Pattern,Dense7Pattern,HorPattern,
-    VerPattern,   CrossPattern, BDiagPattern, FDiagPattern,
-    DiagCrossPattern };
+static Qt::BrushStyle menuBrushStyles[15] = {		// menu brushes
+    Qt::NoBrush, Qt::SolidPattern,
+    Qt::Dense1Pattern, Qt::Dense2Pattern, Qt::Dense3Pattern,
+    Qt::Dense4Pattern, Qt::Dense5Pattern, Qt::Dense6Pattern,
+    Qt::Dense7Pattern,Qt::HorPattern, Qt::VerPattern, Qt::CrossPattern,
+    Qt::BDiagPattern, Qt::FDiagPattern, Qt::DiagCrossPattern };
 
 static QColor menuColors[17] = {		// menu colors
     Qt::black,	Qt::white,	  Qt::darkGray,	Qt::gray,	    Qt::lightGray,
