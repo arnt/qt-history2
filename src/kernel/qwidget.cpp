@@ -2207,6 +2207,7 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
     createExtra();
     if ( (BackgroundMode)extra->bg_mode != m ) {
 	extra->bg_mode = m;
+	extra->bg_mode_visual = m;
 	setBackgroundFromMode();
     }
 }
@@ -2286,7 +2287,7 @@ void QWidget::setBackgroundColor( const QColor &color )
 }
 
 
-/*! 
+/*!
     Returns the widget's background pixmap.
   If the widget has backgroundMode() NoBackground, the
   backgroundPixmap() returns a pixmap for which QPixmap:isNull() is
@@ -5063,14 +5064,14 @@ QWidget  *QWidget::childAt( int x, int y, bool includeThis ) const
     return 0;
 }
 
-/*!\overload 
+/*!\overload
 
     Returns the visible child widget at point \a p in
   the widget's own coordinate system.
 
   If \a includeThis is TRUE, and there is no child visible at \a
   p, the widget itself is returned.
-    
+
 */
 QWidget  *QWidget::childAt( const QPoint & p, bool includeThis ) const
 {

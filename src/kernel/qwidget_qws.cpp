@@ -456,7 +456,6 @@ void QWidget::setFontSys( QFont * )
 
 void QWidget::setBackgroundColorDirect( const QColor &color )
 {
-    QColor old = bg_col;
     bg_col = color;
     if ( extra && extra->bg_pix ) {		// kill the background pixmap
 	delete extra->bg_pix;

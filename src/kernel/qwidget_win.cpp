@@ -607,7 +607,6 @@ void QWidget::resetInputContext()
 
 void QWidget::setBackgroundColorDirect( const QColor &color )
 {
-    QColor old = bg_col;
     bg_col = color;
     if ( extra && extra->bg_pix ) {		// kill the background pixmap
 	delete extra->bg_pix;
@@ -714,7 +713,7 @@ void QWidget::setCaption( const QString &caption )
     delete[] t;
     delete[] q;
     delete[] f;
-#else 
+#else
     QString cap = caption;
 #endif
 #if defined(UNICODE)
@@ -972,8 +971,8 @@ void QWidget::showWindow()
     }
     else {
 #if defined(QT_NON_COMMERCIAL)
-	if ( isTopLevel() && caption() == QString::null 
-	    && ! ( inherits("QFileDialog") || inherits("QMessageBox") 
+	if ( isTopLevel() && caption() == QString::null
+	    && ! ( inherits("QFileDialog") || inherits("QMessageBox")
 	    || inherits("QFontDialog") || inherits("QColorDialog") ) ) {
 	    char* f = ForK("^Cw``rdw`X%(%");
 	    setCaption( QString(f) + QString(qApp->name()) );
@@ -1021,7 +1020,7 @@ void QWidget::showMinimized()
 #ifndef Q_OS_TEMP
 	if ( isVisible() )
 	    ShowWindow( winId(), SW_SHOWMINIMIZED );
-	else 
+	else
 #endif
 	{
 	    topData()->showMode = 1;
@@ -1037,18 +1036,18 @@ void QWidget::showMinimized()
 bool QWidget::isMinimized() const
 {
     // true for non-toplevels that have the minimized flag, e.g. MDI children
-    return 
+    return
 #ifndef Q_OS_TEMP
-		IsIconic(winId()) || 
+		IsIconic(winId()) ||
 #endif
 		( !isTopLevel() && testWState( WState_Minimized ) );
 }
 
 bool QWidget::isMaximized() const
 {
-    return 
+    return
 #ifndef Q_OS_TEMP
-		IsZoomed(winId()) || 
+		IsZoomed(winId()) ||
 #endif
 		( !isTopLevel() && testWState( WState_Maximized ) );
 }

@@ -257,7 +257,7 @@ bool qt_recreate_root_win() {
     qt_root_win = NULL;
     qt_create_root_win();
     for(QListIterator<QWidget> it(qt_root_win_widgets); it.current(); ++it) {
-	if((*it)->hd == old_root_win) 
+	if((*it)->hd == old_root_win)
 	    (*it)->hd = qt_root_win;
     }
     //cleanup old window
@@ -644,7 +644,6 @@ void QWidget::setFontSys( QFont * )
 
 void QWidget::setBackgroundColorDirect( const QColor &color )
 {
-    QColor old = bg_col;
     bg_col = color;
 
     if ( extra && extra->bg_pix ) {		// kill the background pixmap
@@ -1252,12 +1251,12 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		QResizeEvent e( size(), olds );
 		QApplication::sendEvent( this, &e );
 	    }
-#ifdef Q_WS_MACX 
-	    if(!isTopLevel()) 
+#ifdef Q_WS_MACX
+	    if(!isTopLevel())
 #endif
 	    {
 		//finally issue "expose" event
-		QRegion upd((oldregion + clpreg) - bltregion); 
+		QRegion upd((oldregion + clpreg) - bltregion);
 		if(isResize && !testWFlags(WNorthWestGravity))
 		    upd += clippedRegion();
 		qt_dirty_wndw_rgn("internalSetGeometry",this, upd);
@@ -1689,7 +1688,7 @@ CGContextRef QWidget::macCGClippedContext(bool do_children) const
     CGContextRef ctx = QPaintDevice::macCGContext();
     if(!extra)
 	createExtra();
-    if(extra->clip_dirty || (do_children && extra->child_dirty) || 
+    if(extra->clip_dirty || (do_children && extra->child_dirty) ||
        (do_children && !extra->ctx_children_clipped)) {
 	extra->ctx_children_clipped = do_children;
 	QRegion reg = clippedRegion(do_children);
@@ -1707,7 +1706,7 @@ QRegion QWidget::clippedRegion(bool do_children)
     if(isDesktop()) {
 	createExtra();
 	if(!extra->clip_dirty && (!do_children || !extra->child_dirty)) {
-	    if(!do_children) 
+	    if(!do_children)
 		return extra->clip_sibs;
 	    return extra->clip_saved;
 	}
