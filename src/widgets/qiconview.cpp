@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#43 $
 **
 ** Definition of QIconView widget class
 **
@@ -390,21 +390,6 @@ bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
   As the iconview is designed to use DnD, the iconview has methodes for DnD too.
 
   Subclassing QIconViewItem will provide a big flexibility.
-*/
-
-
-/*! \enum QIconView::ResizeMode
-
-  This enum type decides how QIconView should treat the positions of
-  its icons when the widget is resized.  The currently defined modes
-  are: <ul>
-
-  <li> \c Fixed - the icons' positions are not changed.
-
-  <li> \c Adjust - the icons' positions are adjusted to be within the
-  new geometry, if possible.
-
-  </ul>
 */
 
 /*!
@@ -925,6 +910,10 @@ bool QIconViewItem::acceptDrop( QMimeSource *mime )
     return FALSE;
 }
 
+/*!
+  Starts renaming an icon.
+*/
+
 void QIconViewItem::rename()
 {
     renameBox = new QIconViewItemLineEdit( itemText, view->viewport(), this );
@@ -1144,6 +1133,47 @@ void QIconViewItem::dragLeft()
 
 */
 
+/*! \enum QIconView::ResizeMode
+
+  This enum type decides how QIconView should treat the positions of
+  its icons when the widget is resized.  The currently defined modes
+  are: <ul>
+
+  <li> \c Fixed - the icons' positions are not changed.
+
+  <li> \c Adjust - the icons' positions are adjusted to be within the
+  new geometry, if possible.
+
+  </ul>
+*/
+
+
+/*! \enum QIconView::SelectionMode 
+  
+  This enum type specifies the different selection modes of the
+  iconview.
+  <ul>
+  <li>\c Single (only one item can be selected)
+  <li>\c Multi (multiple items can be selected)
+  <li>\c StrictMulti (multiple items can be selected, but only if the user pressed CTRL while selecting them)
+  </ul>
+*/
+  
+/* \enum AlignMode
+   
+   This enum type descides in which direction the items, which do not fit onto the
+   screen anymore flow.
+   
+   <ul>
+   <li> East (Items, which don't fit onto the view, go further down (you get a vertical scrollbar)
+   <li> South (Items, which don't fit onto the view, go further right (you get a horizontal scrollbar)
+   </ul>
+*/
+
+/*!
+  Constructs an empty icon view
+*/
+
 QIconView::QIconView( QWidget *parent, const char *name )
     : QScrollView( parent, name, WNorthWestGravity )
 {
@@ -1269,6 +1299,13 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 
     d->count++;
 }
+
+/*!
+  Because of efficiency, the iconview is not redrawn immediately after inserting a new item,
+  but with a very small delay using a QTimer. The result of this is, that if lots of items
+  are inserted in a short time (e.g. in a loop), the iconview is not redrawn after each inserted
+  item, but after inserting all of them, which makes the operation much faster.
+*/
 
 void QIconView::slotUpdate()
 {
@@ -1772,15 +1809,28 @@ QIconView::ResizeMode QIconView::resizeMode() const
     return d->resizeMode;
 }
 
+/*!
+  Sets the maximum width, which an item may have. If a raster X is set,
+  this value is ignoredm, and the raster X value is used.
+*/
+
 void QIconView::setMaxItemWidth( int w )
 {
     d->maxItemWidth = w;
 }
 
+/*!
+  Sets the maximum length (in characters), which an item text may have.
+*/
+  
 void QIconView::setMaxItemTextLength( int w )
 {
     d->maxItemTextLength = w;
 }
+
+/*!
+  Returns the maximum width, which an item may have.
+*/
 
 int QIconView::maxItemWidth() const
 {
@@ -1789,6 +1839,11 @@ int QIconView::maxItemWidth() const
     else
 	return d->maxItemWidth;
 }
+
+/*!
+  Returns the maximum length (in characters), which the
+  text of an icon may have.
+*/
 
 int QIconView::maxItemTextLength() const
 {
@@ -2080,6 +2135,10 @@ void QIconView::resizeEvent( QResizeEvent* e )
 	d->adjustTimer->start( 400, TRUE );
     }
 }
+
+/*!
+  Adjusts the positions of the items to the geometry of the iconview.
+*/
 
 void QIconView::adjustItems()
 {
@@ -2464,7 +2523,7 @@ void QIconView::startDrag()
     QPoint orig = viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
     d->dragStart = QPoint( orig.x() - d->currentItem->x(),
 			   orig.y() - d->currentItem->y() );
-    
+
     QDragObject *drag = dragObject();
     if ( !drag )
 	return;
@@ -2696,15 +2755,31 @@ void QIconView::initDrag( QDropEvent *e )
 
 }
 
+/*!
+  Using this function it's possible to tell the iconview, that a
+  drag contains known data, which may be encoded to display
+  correct drag shades.
+*/
+
 void QIconView::setDragObjectIsKnown( bool b )
 {
     d->isIconDrag = b;
 }
 
+/*!
+  Sets a list of icondrag items. They are used to draw a correct drag shade.
+*/
+
 void QIconView::setIconDragData( const QValueList<QIconDragItem> &lst )
 {
     d->iconDragData = lst;
 }
+
+/*!
+  If a drag is unknown (you have no information about how to draw the drag shades),
+  it's possible to specify using the function the number of items of the drag (e.g. the number
+  of URLs), so that the iconview can draw some (not totally correcty) drag shades.
+*/
 
 void QIconView::setNumDragItems( int num )
 {
