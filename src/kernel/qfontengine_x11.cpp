@@ -705,6 +705,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str,  int len, gly
     return NoError;
 }
 
+//#define FONTENGINE_DEBUG
 void QFontEngineXft::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 			   const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse )
 {
@@ -735,12 +736,13 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
     col.color.alpha = 0xffff;
     col.pixel = pen.pixel();
 #ifdef FONTENGINE_DEBUG
+    qDebug("===== drawing %d glyphs reverse=%s ======",  numGlyphs, reverse?"true":"false" );
     p->save();
     p->setBrush( Qt::white );
     glyph_metrics_t ci = boundingBox( glyphs, advances, offsets, numGlyphs );
     p->drawRect( x + ci.x, y + ci.y, ci.width, ci.height );
     p->drawRect( x + ci.x, y + 100 + ci.y, ci.width, ci.height );
-//     qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height );
+    qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height );
     p->restore();
     int xp = x;
     int yp = y;
@@ -748,22 +750,21 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
     if ( reverse ) {
 	int i = numGlyphs;
 	while( i-- ) {
-	    advance_t adv = advances[i];
-	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
-	    x += adv;
-	    glyph_metrics_t gi = boundingBox( glyphs[i] );
 #ifdef QT_XFT2
 	    FT_UInt glyph = *(glyphs + i);
-	    XftDrawGlyphs( draw, &col, _font, x-offsets[i].x-gi.xoff,
-			   y+offsets[i].y-gi.yoff, &glyph, 1 );
+	    XftDrawGlyphs( draw, &col, _font, x+offsets[i].x, y+offsets[i].y, &glyph, 1 );
 #else
-	    XftDrawString16 (draw, &col, _font, x-offsets[i].x-gi.xoff,
-			     y+offsets[i].y-gi.yoff, (XftChar16 *) (glyphs+i), 1);
+	    XftDrawString16 (draw, &col, _font, x+offsets[i].x, y+offsets[i].y, (XftChar16 *) (glyphs+i), 1);
 #endif // QT_XFT2
 #ifdef FONTENGINE_DEBUG
-	    p->drawRect( x - offsets[i].x - gi.xoff + gi.x, y + 100 + offsets[i].y - gi.yoff + gi.y, gi.width, gi.height );
-	    p->drawLine( x - offsets[i].x - gi.xoff, y + 150 + 5*i , x - offsets[i].x, y + 150 + 5*i );
+	    glyph_metrics_t gi = boundingBox( glyphs[i] );
+	    p->drawRect( x+offsets[i].x+gi.x, y+offsets[i].y+100+gi.y, gi.width, gi.height );
+	    p->drawLine( x+offsets[i].x, y + 150 + 5*i , x+offsets[i].x+advances[i], y + 150 + 5*i );
+	    p->drawLine( x+offsets[i].x, y + 152 + 5*i , x+offsets[i].x+gi.xoff, y + 152 + 5*i );
+	    qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=%d", i, gi.x, gi.y, gi.width, gi.height,
+		   gi.xoff, gi.yoff, offsets[i].x, offsets[i].y, advances[i]);
 #endif
+	    x += advances[i];
 	}
     } else {
 	int i = 0;
