@@ -98,6 +98,7 @@ private:
     QMap<QString, QString> refMap;
     DcfSection dcfRoot;
     bool inLink;
+    bool inContents;
     bool inTableHeader;
     int numTableRows;
     bool threeColumnEnumValueTable;

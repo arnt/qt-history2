@@ -18,7 +18,7 @@
 static bool showBrokenLinks = false;
 
 HtmlGenerator::HtmlGenerator()
-    : inLink(false), inTableHeader(false), numTableRows(0), threeColumnEnumValueTable(true),
+    : inLink(false), inContents(false), inTableHeader(false), numTableRows(0), threeColumnEnumValueTable(true),
       funcLeftParen("\\S(\\()"), tre(0)
 {
 }
@@ -99,6 +99,7 @@ void HtmlGenerator::generateTree(const Tree *tree, CodeMarker *marker)
 void HtmlGenerator::startText(const Node * /* relative */, CodeMarker * /* marker */)
 {
     inLink = false;
+    inContents = false;
     inTableHeader = false;
     numTableRows = 0;
     threeColumnEnumValueTable = true;
@@ -117,7 +118,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
     case Atom::AbstractRight:
 	break;
     case Atom::AutoLink:
-        if (!inLink) {
+        if (!inLink && !inContents) {
             link = linkForNode(marker->resolveTarget(atom->string(), tre, relative), relative);
 	    if (!link.isEmpty()) {
 	        out() << "<a href=\"" << link << "\">";
@@ -464,7 +465,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
     case Atom::SidebarRight:
 	break;
     case Atom::String:
-	if (inLink) {
+	if (inLink && !inContents) {
             generateLink(atom, relative, marker);
 	} else {
 	    out() << protect( atom->string() );
@@ -561,8 +562,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         }
 	break;
     case Atom::Target:
-        out() << "<a name=\"" << protect(atom->string()) << "\">"
-              << "</a>";
+        out() << "<a name=\"" << protect(atom->string()) << "\"></a>";
 	break;
     case Atom::UnhandledFormat:
 	out() << "<font color=\"red\"><b>&lt;Missing HTML&gt;</b></font>";
@@ -928,6 +928,7 @@ void HtmlGenerator::generateTableOfContents(const Node *node, CodeMarker *marker
     }
 
     // disable nested links in table of contents
+    inContents = true;
     inLink = true;
 
     for (int i = 0; i < toc.size(); ++i) {
@@ -971,6 +972,7 @@ void HtmlGenerator::generateTableOfContents(const Node *node, CodeMarker *marker
     if (numColumns > 1)
         out() << "</td></tr></table>\n";
 
+    inContents = false;
     inLink = false;
 }
 
