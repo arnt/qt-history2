@@ -13937,27 +13937,27 @@ QString& QString::fill( QChar c, int len )
 
 int QString::find( QChar c, int index, bool cs ) const
 {
+    const uint l = length();
     if ( index < 0 )
-	index += length();
-    if ( (uint)index >= length() )
+	index += l;
+    if ( (uint)index >= l )
 	return -1;
-    register const QChar *uc;
-    uc = unicode()+index;
-    int n = length()-index;
+    register const QChar *uc = unicode()+index;
+    const QChar *end = unicode() + l;
     if ( cs ) {
-	while ( n-- && *uc != c )
+	while ( uc < end && *uc != c )
 	    uc++;
     } else {
 	c = ::lower( c );
-	while ( n-- && ::lower( *uc ) != c )
+	while ( uc < end && ::lower( *uc ) != c )
 	    uc++;
     }
-    if ( uint(uc - unicode()) >= length() )
+    if ( uint(uc - unicode()) >= l )
 	return -1;
     return (int)(uc - unicode());
 }
 
-/* an implementation of the Boyle-Moore search algorithm */
+/* an implementation of the Boyer-Moore search algorithm */
 
 /* initializes the skiptable to know haw far ahead we can skip on a wrong match
 */
@@ -13992,62 +13992,65 @@ static void bm_init_skiptable( const QString &pattern, uint *skiptable, bool cs 
 
 static int bm_find( const QString &str, int index, const QString &pattern, uint *skiptable, bool cs )
 {
+    const uint l = str.length();
     if ( pattern.isEmpty() )
-	return index > (int)str.length() ? -1 : index;
+	return index > (int)l ? -1 : index;
 
     const QChar *uc = str.unicode();
     const QChar *puc = pattern.unicode();
-    const uint l = str.length();
-    const uint pl = pattern.length() - 1;
+    const uint pl = pattern.length();
+    const uint pl_minus_one = pl - 1;
 
-    uint pos = index + pl;
+    register const QChar *current = uc + index + pl_minus_one;
+    const QChar *end = uc + l;
     if ( cs ) {
-	while( pos < l ) {
-	    uint skip = skiptable[ uc[pos].cell() ];
+	while( current < end ) {
+	    uint skip = skiptable[ current->cell() ];
 	    if ( !skip ) {
 		// possible match
-		while( skip <= pl ) {
-		    if ( uc[pos-skip] != puc[pl-skip] )
+		while( skip < pl ) {
+		    if ( *(current - skip ) != puc[pl_minus_one-skip] )
 			break;
 		    skip++;
 		}
-		if ( skip > pl ) { // we have a match
-		    return pos - skip + 1;
+		if ( skip > pl_minus_one ) { // we have a match
+		    return (current - uc) - skip + 1;
 		}
 		// in case we don't have a match we are a bit inefficient as we only skip by one
 		// when we have the non matching char in the string.
-		if ( skiptable[ uc[pos-skip].cell() ] == pl+1 )
-		    skip = pl + 1 - skip;
+		if ( skiptable[ (current-skip)->cell() ] == pl )
+		    skip = pl - skip;
 		else
 		    skip = 1;
 	    }
-	    pos += skip;
+	    current += skip;
 	}
     } else {
-	while( pos < l ) {
-	    uint skip = skiptable[ ::lower( uc[pos] ).cell() ];
+	while( current < end ) {
+	    uint skip = skiptable[ ::lower( *current ).cell() ];
 	    if ( !skip ) {
 		// possible match
-		while( skip <= pl ) {
-		    if ( ::lower( uc[pos-skip] ) != ::lower( puc[pl-skip] ) )
+		while( skip < pl ) {
+		    if ( ::lower( *(current - skip) ) != ::lower( puc[pl_minus_one-skip] ) )
 			break;
 		    skip++;
 		}
-		if ( skip > pl ) // we have a match
-		    return pos - skip + 1;
+		if ( skip > pl_minus_one ) // we have a match
+		    return (current - uc) - skip + 1;
 		// in case we don't have a match we are a bit inefficient as we only skip by one
 		// when we have the non matching char in the string.
-		if ( skiptable[ ::lower( uc[pos-skip] ).cell() ] == pl+1 )
-		    skip = pl + 1 - skip;
+		if ( skiptable[ ::lower( (current - skip)->cell() ) ] == pl )
+		    skip = pl - skip;
 		else
 		    skip = 1;
 	    }
-	    pos += skip;
+	    current += skip;
 	}
     }
     // not found
     return -1;
 }
+
 
 // macro used in ::find() and ::findRev(), undefined later
 #define  REHASH( a, b, h ) ((((h)-(a<<(sl_minus_1)))<<1)+(b))
@@ -14080,7 +14083,7 @@ int QString::find( const QString& str, int index, bool cs ) const
     // we use the Boyer-Moore algorithm in cases where the overhead
     // for the hash table should pay off, otherwise we use a simple
     // hash function
-    if ( l > 200 && sl > 5 ) {
+    if ( l > 500 && sl > 5 ) {
 	uint skiptable[0x100];
 	bm_init_skiptable( str, skiptable, cs );
 	return bm_find( *this, index, str, skiptable, cs );
@@ -14091,9 +14094,6 @@ int QString::find( const QString& str, int index, bool cs ) const
       comparing strings, we compare the hash value of str with that of
       a part of this QString. Only if that matches, we call ucstrncmp
       or ucstrnicmp.
-
-      The hash value of a string is the sum of the unicode values of its
-      QChars.
     */
     const QChar* needle = str.unicode();
     const QChar* haystack = unicode() + index;
@@ -14169,8 +14169,22 @@ int QString::find( const QString& str, int index, bool cs ) const
 
 int QString::findRev( QChar c, int index, bool cs ) const
 {
-    QString t( c );
-    return findRev( t, index, cs );
+    const uint l = length();
+    if ( index < 0 )
+	index += l;
+    if ( (uint)index >= l )
+	return -1;
+    const QChar *end = unicode();
+    register const QChar *uc = end + index;
+    if ( cs ) {
+	while ( uc >= end && *uc != c )
+	    uc--;
+    } else {
+	c = ::lower( c );
+	while ( uc >= end && ::lower( *uc ) != c )
+	    uc--;
+    }
+    return uc - end;
 }
 
 /*! \overload
@@ -17436,10 +17450,14 @@ bool QString::endsWith( const QString& s ) const
 #include <windows.h>
 
 /*!
+  \obsolete
+
   Returns a static Windows TCHAR* from a QString, possibly adding NUL.
 
   The lifetime of the return value is until the next call to this function,
   or until the last copy of str is deleted, whatever comes first.
+
+  Please use QString::ucs2() instead.
 */
 const void* qt_winTchar(const QString& str, bool)
 {
