@@ -478,6 +478,7 @@ void VcprojGenerator::initCompilerTool()
 	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS"] );
 	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_RELEASE"] );
 	vcProject.Configuration.compiler.PreprocessorDefinitions += "QT_NO_DEBUG";
+	vcProject.Configuration.compiler.PreprocessorDefinitions += "NDEBUG";
 	if ( project->isActiveConfig("thread") ) {
 	    if ( (projectTarget == Application) || (projectTarget == StaticLib) )
 		vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT"] );
