@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#49 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -553,10 +553,10 @@ bool QProcess::start()
     }
 
     // construct the arguments for exec
-    QCString *arglistQ = new QCString[ arguments.count() + 1 ];
-    const char** arglist = new const char*[ arguments.count() + 1 ];
+    QCString *arglistQ = new QCString[ _arguments.count() + 1 ];
+    const char** arglist = new const char*[ _arguments.count() + 1 ];
     int i = 0;
-    for ( QStringList::Iterator it = arguments.begin(); it != arguments.end(); ++it ) {
+    for ( QStringList::Iterator it = _arguments.begin(); it != _arguments.end(); ++it ) {
 	arglistQ[i] = (*it).local8Bit();
 	arglist[i] = arglistQ[i];
 #if defined(QT_QPROCESS_DEBUG)

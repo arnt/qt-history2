@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#27 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -194,10 +194,10 @@ bool QProcess::start()
 
     // construct the arguments for CreateProcess()
     QString args;
-    QStringList::Iterator it = arguments.begin();
+    QStringList::Iterator it = _arguments.begin();
     args = *it;
     ++it;
-    for ( ; it != arguments.end(); ++it ) {
+    for ( ; it != _arguments.end(); ++it ) {
 	args += QString( " \"" ) + (*it) + QString( "\"" );
     }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#26 $
 **
 ** Implementation of QProcess class
 **
@@ -167,17 +167,29 @@ QProcess::QProcess( const QStringList& args, QObject *parent, const char *name )
 
 
 /*!
+  Returns the list of arguments that are set for the process. Arguments can be
+  specified with the constructor or with the functions setArguments() and
+  addArgument().
+
+  \sa setArguments() addArgument()
+*/
+QStringList QProcess::arguments() const
+{
+    return _arguments;
+}
+
+/*!
   Sets \a args as the arguments for the process. The first element in the list
   is the command to be executed. The other elements in the list are the
   arguments to this command.
 
   Arguments that were previously set, are deleted first.
 
-  \sa addArgument()
+  \sa arguments() addArgument()
 */
 void QProcess::setArguments( const QStringList& args )
 {
-    arguments = args;
+    _arguments = args;
 }
 
 /*!
@@ -186,11 +198,21 @@ void QProcess::setArguments( const QStringList& args )
   The first element in the list of arguments is the command to be executed; the
   following elements are the arguments to this command.
 
-  \sa setArguments()
+  \sa arguments() setArguments()
 */
 void QProcess::addArgument( const QString& arg )
 {
-    arguments.append( arg );
+    _arguments.append( arg );
+}
+
+/*!
+  Returns the working directory that was set with setWorkingDirectory().
+
+  \sa setWorkingDirectory()
+*/
+QDir QProcess::workingDirectory() const
+{
+    return workingDir;
 }
 
 /*!
@@ -200,7 +222,7 @@ void QProcess::addArgument( const QString& arg )
   Setting the working directory is especially useful for processes that try to
   access files with relative filenames.
 
-  \sa start()
+  \sa workingDirectory() start()
 */
 void QProcess::setWorkingDirectory( const QDir& dir )
 {
