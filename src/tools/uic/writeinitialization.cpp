@@ -197,8 +197,8 @@ void WriteInitialization::accept(DomLayout *node)
 
             // special case for group box
             output << option.indent << parent << "->setColumnLayout(0, Qt::Vertical);\n";
-            output << option.indent << parent << "->layout()->setSpacing(" << spacing << ");" << endl;
-            output << option.indent << parent << "->layout()->setMargin(" << margin << ");" << endl;
+            output << option.indent << parent << "->layout()->setSpacing(" << spacing << ");\n";
+            output << option.indent << parent << "->layout()->setMargin(" << margin << ");\n";
         } else if (m_widgetChain.top()->attributeClass() == QLatin1String("QMainWindow")) {
             QString parent = driver->findOrInsertWidget(m_widgetChain.top());
 
@@ -330,12 +330,23 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
     QString propertyName;
     QString propertyValue;
     bool stdset;
+    bool isTopLevel = m_widgetChain.count() == 1;
 
     QString setFunction;
 
     for (int i=0; i<lst.size(); ++i) {
         DomProperty *p = lst.at(i);
         propertyName = p->attributeName();
+
+        // special case for the property `geometry'
+        if (isTopLevel && propertyName == QLatin1String("geometry") && p->elementRect()) {
+            DomRect *r = p->elementRect();
+            int w = r->elementWidth();
+            int h = r->elementHeight();
+            output << option.indent << objName << "->resize(QSize(" << w << ", " << h << ").expandedTo("
+                << objName << "->minimumSizeHint()));\n";
+            continue;
+        }
 
         stdset = m_stdsetdef;
         if (p->hasAttributeStdset())
@@ -346,7 +357,6 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
                           + propertyName.mid(1) + "(";
         else
             setFunction = "->setProperty(\"" + propertyName + "\", QVariant(";
-
 
         switch (p->kind()) {
         case DomProperty::Bool: {
@@ -379,21 +389,21 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
         case DomProperty::Font: {
             DomFont *f = p->elementFont();
             QString fontName = driver->findOrInsertName("font");
-            output << option.indent << "QFont " << fontName << ";" << endl;
+            output << option.indent << "QFont " << fontName << ";\n";
             output << option.indent << fontName << ".setFamily(" << fixString(f->elementFamily())
-                << ");" << endl;
+                << ");\n";
             output << option.indent << fontName << ".setPointSize(" << f->elementPointSize()
-                << ");" << endl;
+                << ");\n";
             output << option.indent << fontName << ".setBold("
-                << (f->elementBold() ? "true" : "false") << ");" << endl;
+                << (f->elementBold() ? "true" : "false") << ");\n";
             output << option.indent << fontName << ".setItalic("
-                <<  (f->elementItalic() ? "true" : "false") << ");" << endl;
+                <<  (f->elementItalic() ? "true" : "false") << ");\n";
             output << option.indent << fontName << ".setUnderline("
-                << (f->elementUnderline() ? "true" : "false") << ");" << endl;
+                << (f->elementUnderline() ? "true" : "false") << ");\n";
             output << option.indent << fontName << ".setWeight("
                 << f->elementWeight() << ");" << endl;
             output << option.indent << fontName << ".setStrikeOut("
-                << (f->elementStrikeOut() ? "true" : "false") << ");" << endl;
+                << (f->elementStrikeOut() ? "true" : "false") << ");\b";
             propertyValue = fontName;
             break;
         }
@@ -410,7 +420,7 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
         case DomProperty::Palette: {
             DomPalette *pal = p->elementPalette();
             QString paletteName = driver->findOrInsertName("palette");
-            output << option.indent << "QPalette " << paletteName << ";" << endl;
+            output << option.indent << "QPalette " << paletteName << ";\b";
 
             writeColorGroup(pal->elementActive(), QLatin1String("QPalette::Active"), paletteName);
             writeColorGroup(pal->elementInactive(), QLatin1String("QPalette::Inactive"), paletteName);
@@ -505,7 +515,7 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
             output << option.indent << objName << setFunction << propertyValue;
             if (!stdset)
                 output << ")";
-            output << ");" << endl;
+            output << ");\n";
         }
     }
 }
@@ -530,7 +540,7 @@ void WriteInitialization::writeColorGroup(DomColorGroup *colorGroup, const QStri
         output << option.indent << paletteName << ".setColor(" << group
             << ", " << "static_cast<QPalette::ColorRole>(" << i << ")"
             << ", " << domColor2QString(color)
-            << ");" << endl;
+            << ");\n";
     }
 }
 
