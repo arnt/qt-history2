@@ -66,7 +66,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 QScreen *QGfxDriverFactory::create(const QString& key, int displayId)
 {
     QString driver = key.toLower();
-#ifndef QT_NO_QWS_VFB
+#ifndef QT_NO_QWS_QVFB
     if (driver == "qvfb" || driver.isEmpty())
         return new QVFbScreen(displayId);
 #endif
@@ -127,7 +127,7 @@ QStringList QGfxDriverFactory::keys()
 {
     QStringList list;
 
-#ifndef QT_NO_QWS_VFB
+#ifndef QT_NO_QWS_QVFB
     if (!list.contains("QVFb"))
         list << "QVFb";
 #endif

@@ -13,7 +13,7 @@
 
 #include "qgfxraster_qws.h"
 
-#ifndef QT_NO_QWS_VFB
+#ifndef QT_NO_QWS_QVFB
 
 #include <stdlib.h>
 #include <sys/types.h>
@@ -559,5 +559,5 @@ QGfx * QVFbScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
 
 #include "qgfxvfb_qws.moc"
 
-#endif
+#endif // QT_NO_QWS_QVFB
 

@@ -133,7 +133,7 @@
 //#define QT_NO_QWS_SHADOWFB
 
 // Virtual frame buffer
-//#define QT_NO_QWS_VFB
+//#define QT_NO_QWS_QVFB
 
 // 4-bit VGA
 //#define QT_NO_QWS_VGA_16

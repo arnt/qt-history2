@@ -504,7 +504,7 @@ Requires:
 Name: Repeater display
 SeeAlso: ???
 
-Feature: QWS_VFB
+Feature: QWS_QVFB
 Section: Qt/Embedded-specific
 Requires:
 Name: Virtual frame buffer

@@ -16,7 +16,7 @@
 
 #include "qgfx_qws.h"
 
-#ifndef QT_NO_QWS_VFB
+#ifndef QT_NO_QWS_QVFB
 
 #include "qvfbhdr.h"
 
@@ -49,6 +49,6 @@ public:
     QVFbKeyboardHandler *keyboardHandler;
 };
 
-#endif
+#endif // QT_NO_QWS_QVFB
 
 #endif // QGFXVFB_QWS_H
