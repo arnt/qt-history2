@@ -87,6 +87,9 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     QPixmap *db = 0;
     QTextEditString::Char *chr = 0;
     QPainter painter;
+    QSize s( doc->firstParag()->rect().size() );
+    db = bufferPixmap( s, colorGroup().color( QColorGroup::Base ) );
+    painter.begin( db );
     while ( parag ) {
 	if ( !parag->isValid() )
 	    parag->format();
@@ -104,9 +107,17 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	}
 	
 	parag->setChanged( FALSE );
-	QSize s( parag->rect().size() );
-	db = bufferPixmap( s, colorGroup().color( QColorGroup::Base ) );
-	painter.begin( db );
+ 	QSize s( parag->rect().size() );
+	if ( s.width() > db->width() ||
+	     s.height() > db->height() ) {
+	    if ( painter.isActive() )
+		painter.end();
+	    db = bufferPixmap( s, colorGroup().color( QColorGroup::Base ) );
+	    painter.begin( db );
+	} else {
+	    painter.fillRect( QRect( 0, 0, s.width(), s.height() ), 
+			      colorGroup().color( QColorGroup::Base ) );
+	}
 	chr = parag->at( 0 );
 	int i = 0;
 	int h = 0;
@@ -203,7 +214,6 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	if ( curx != -1 )
 	    painter.fillRect( QRect( curx, cury, 2, curh ), blue );
 	
-	painter.end();
 	p->drawPixmap( parag->rect().topLeft(), *db, QRect( QPoint( 0, 0 ), s ) );
 	if ( parag->rect().x() + parag->rect().width() < contentsX() + contentsWidth() )
 	    p->fillRect( parag->rect().x() + parag->rect().width(), parag->rect().y(),
@@ -211,6 +221,8 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 			 parag->rect().height(), colorGroup().brush( QColorGroup::Base ) );
 	parag = parag->next();
     }
+    if ( painter.isActive() )
+	painter.end();
 }
 
 void QTextEdit::keyPressEvent( QKeyEvent *e )
