@@ -291,7 +291,7 @@ private:
     Project *proj;
     DesignerFormWindow *iface;
     QWidget* targetContainer;
-    QColor restoreColor;
+    QPalette restorePalette;
     bool hadOwnPalette;
     int defSpacing, defMargin;
 

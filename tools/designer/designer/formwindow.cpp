@@ -538,7 +538,7 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 		if ( w->parentWidget() && !isMainContainer( w->parentWidget() ) && !isCentralWidget( w->parentWidget() ) ) {
 		    targetContainer = w->parentWidget();
 		    hadOwnPalette = w->parentWidget()->ownPalette();
-		    restoreColor = w->parentWidget()->paletteBackgroundColor();
+		    restorePalette = w->parentWidget()->palette();
 		}
 	    } else if ( e->button() == RightButton ) { // RMB menu
 		if ( mainContainer()->inherits( "QMainWindow" ) &&
@@ -720,19 +720,19 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 		    if ( wa != targetContainer ) {
 			if ( targetContainer ) {
 			    if ( hadOwnPalette )
-				targetContainer->setPaletteBackgroundColor( restoreColor );
+				targetContainer->setPalette( restorePalette );
 			    else
 				targetContainer->unsetPalette();
 			}
 			targetContainer = wa;
 			hadOwnPalette = wa->ownPalette();
-			restoreColor = wa->paletteBackgroundColor();
+			restorePalette = wa->palette();
 			wa->setPaletteBackgroundColor( wa->colorGroup().midlight() );
 		    }
 		}
 		else if ( targetContainer ) {
 		    if( hadOwnPalette )
-			targetContainer->setPaletteBackgroundColor( restoreColor );
+			targetContainer->setPalette( restorePalette );
 		    else
 			targetContainer->unsetPalette();
 		    targetContainer = 0;
@@ -809,7 +809,7 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 	    // restore targetContainer
 	    if ( targetContainer ) {
 		if( hadOwnPalette )
-		    targetContainer->setPaletteBackgroundColor( restoreColor );
+		    targetContainer->setPalette( restorePalette );
 		else
 		    targetContainer->unsetPalette();
 	    }
