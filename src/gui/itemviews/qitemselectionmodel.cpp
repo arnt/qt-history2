@@ -625,9 +625,49 @@ void QItemSelectionModel::setCurrentIndex(const QModelIndex &index, SelectionFla
     if (index == d->currentIndex)
         return;
     QModelIndex previous = d->currentIndex;
-    d->currentIndex = QPersistentModelIndex(index, d->model); // set current
+    d->currentIndex = QPersistentModelIndex(index, model()); // set current
     emit currentChanged(index, previous);
 }
+
+/*!
+  Selects all items in the model.
+
+  Note: Can be slow for deep trees.
+*/
+void QItemSelectionModel::selectAll()
+{
+    if (!model()->hasChildren(QModelIndex::Null))
+        return;
+
+    QItemSelection selection;
+    QModelIndex index;
+
+    do {
+        if (model()->hasChildren(index)) {
+            selection.append(QItemSelectionRange(index, 0, 0,
+                                                 model()->rowCount(index) - 1,
+                                                 model()->columnCount(index) - 1));
+            // go to first child
+            index = model()->index(0, 0, index);
+        } else if (index.isValid()) {
+            // go to sibling
+            QModelIndex parent = model()->parent(index);
+            int row = (index.row() + 1) % model()->rowCount(parent);
+            int column = index.column() + (index.row() + 1) / model()->rowCount(parent);
+            index = model()->sibling(row, column, index);
+
+            // go to parent sibling/grandparent sibling etc. if not sibling valid
+            while (!index.isValid() && parent.isValid()) {
+                parent = model()->parent(parent);
+                row = (index.row() + 1) % model()->rowCount(parent);
+                column = index.column() + (index.row() + 1) / model()->rowCount(parent);
+                index = model()->sibling(row, column, index);
+            }
+        }
+    } while(index.isValid());
+    select(selection, ClearAndSelect);
+}
+
 
 /*!
   Returns the model item index for the current item, or an invalid index

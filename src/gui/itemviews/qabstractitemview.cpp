@@ -1063,6 +1063,12 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         if (edit(currentIndex(), EditKeyPressed, e))
             e->accept();
         break;
+    case Qt::Key_A:
+        if (e->state() & Qt::ControlButton) {
+            selectionModel()->selectAll();
+            e->accept();
+        }
+        break;
     default:
         if (!e->text().isEmpty()) {
             if (!edit(currentIndex(), AnyKeyPressed, e))
