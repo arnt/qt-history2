@@ -145,16 +145,17 @@ void QSqlResultShared::slotResultDestroyed()
     also important to know that different databases use different
     placeholder marks for value binding. Oracle uses a \c : character
     followed by a placeholder name, while ODBC only uses a \c ? 
-    character to identify a placeholder. This means that ODBC only
-    supports positional binding - i.e it's not possible to name the
-    different placeholders. You can't mix the different bind styles by
-    binding some values using named placeholders and some using
-    positional placeholders.
+    character to identify a placeholder. In an attempt to make this
+    database independant we substitute the markers if you try to use
+    ODBC markers in a query to an Oracle database and vice versa. Note
+    that you can't mix the different bind styles by binding some
+    values using named placeholders and some using positional
+    placeholders.
     
     Example:
 
     \code
-    // Binding values using named placeholders (e.g. in Oracle)
+    // Named binding using named placeholders
     QSqlQuery q;
     q.prepare( "insert into mytable (id, name, lastname) values (:id, :name, :lname)" );
     q.bindValue( ":id", 0 );
@@ -162,7 +163,15 @@ void QSqlResultShared::slotResultDestroyed()
     q.bindValue( ":lname", "Lastname" );
     q.exec();
 
-    // Binding values using positional placeholders (e.g. in ODBC)
+    // Positional binding using named placeholders
+    QSqlQuery q;
+    q.prepare( "insert into mytable (id, name, lastname) values (:id, :name, :lname)" );
+    q.bindValue( 0, 0 );
+    q.bindValue( 1, "Testname" );
+    q.bindValue( 2, "Lastname" );
+    q.exec();
+
+    // Binding values using positional placeholders
     QSqlQuery q;
     q.prepare( "insert into mytable (id, name, lastname) values (?, ?, ?)" );
     q.bindValue( 0, 0 );
@@ -175,12 +184,6 @@ void QSqlResultShared::slotResultDestroyed()
     q.addBindValue( 0 );
     q.addBindValue( "Testname" );
     q.addBindValue( "Lastname" );
-    q.exec();
-    
-    // and then for repeated runs:
-    q.bindValue( 0, 1 );
-    q.bindValue( 1, "John" );
-    q.bindValue( 2, "Doe" );    
     q.exec();
     \endcode
     
@@ -825,7 +828,7 @@ void QSqlQuery::afterSeek()
 */
 bool QSqlQuery::prepare( const QString& query )
 {
-    if ( !d->sqlResult )
+    if ( !d->sqlResult || !d->sqlResult->extension() )
 	return FALSE;
     d->sqlResult->setActive( FALSE );
     d->sqlResult->setLastError( QSqlError() );
@@ -854,9 +857,37 @@ bool QSqlQuery::prepare( const QString& query )
 #ifdef QT_DEBUG_SQL
     qDebug( "\n QSqlQuery: " + query );
 #endif
-
+    d->sqlResult->extension()->clearIndex();
     if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
-	return d->sqlResult->extension()->prepare( query );
+	// below we substitute Oracle placeholders with ODBC ones and
+	// vice versa to make this db independant
+	QString q = query;
+	int i = 0, cnt = 0;
+	if ( driver()->hasFeature( QSqlDriver::OracleBindingStyle ) ) {
+	    QRegExp rx("'[^']*'|\\?");
+	    while ( (i = rx.search( q, i )) != -1 ) {
+		if ( rx.cap(0) == "?" ) {
+		    q = q.replace( i, 1, ":f" + QString::number(cnt) );
+		    cnt++;
+		}
+		i += rx.matchedLength();
+	    }
+	} else if ( driver()->hasFeature( QSqlDriver::ODBCBindingStyle ) ) {
+	    QRegExp rx("'[^']*'|:([a-zA-Z0-9_]+)");
+	    while ( (i = rx.search( q, i )) != -1 ) {
+		if ( rx.cap(1).isEmpty() ) {
+		    i += rx.matchedLength();
+		} else {
+		    // record the index of the placeholder - needed
+		    // for emulating named bindings with ODBC
+		    d->sqlResult->extension()->index[ cnt ]= rx.cap(0);
+		    q = q.replace( i, rx.matchedLength(), "?" );
+		    i++;
+		    cnt++;
+		}
+	    }
+	}
+	return d->sqlResult->extension()->prepare( q );
     } else {
 	return TRUE; // fake prepares should always succeed
     }
@@ -872,10 +903,11 @@ bool QSqlQuery::prepare( const QString& query )
 */
 bool QSqlQuery::exec()
 {
+    bool ret;
     if ( !d->sqlResult || !d->sqlResult->extension() )
 	return FALSE;
     if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
-	return d->sqlResult->extension()->exec();
+	ret = d->sqlResult->extension()->exec();
     } else {
 	// fake preparation - just replace the placeholders..
 	QString query = d->sqlResult->lastQuery();
@@ -902,17 +934,18 @@ bool QSqlQuery::exec()
 	}
 	// have to retain the original query w/placeholders..
 	QString orig = d->sqlResult->lastQuery();
-	bool ret = exec( query );
+	ret = exec( query );
 	d->sqlResult->setQuery( orig );
-	return ret;
     }
+    d->sqlResult->extension()->clearValues(); // no need for the placeholder values anymore
+    return ret;
 }
 
 /*!
     Set the placeholder \a placeholder to be bound to value \a val in
     the prepared statement. Note that the placeholder mark (e.g \c{:})
     should be included when specifying the placeholder name.
-    Placeholder values are cleared when prepare() is called.
+    Placeholder values are cleared after the query has been executed.
 
     \sa addBindValue(), prepare(), exec()
 */
@@ -928,7 +961,7 @@ void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val )
 
     Set the placeholder in position \a pos to be bound to value \a val
     in the prepared statement. Field numbering starts at 0.
-    Placeholder values are cleared when prepare() is called.
+    Placeholder values are cleared after the query has been executed.
 
     \sa addBindValue(), prepare(), exec()
 */
@@ -943,7 +976,7 @@ void QSqlQuery::bindValue( int pos, const QVariant& val )
     Adds the value \a val to the list of values when using positional
     value binding. The order of the addBindValue() calls determines
     which placeholder a value will be bound to in the prepared query.
-    Placeholder values are cleared when prepare() is called.
+    Placeholder values are cleared after the query has been executed.
 
     \sa bindValue(), prepare(), exec()
 */

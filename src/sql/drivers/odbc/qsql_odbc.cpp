@@ -782,7 +782,6 @@ int QODBCResult::numRowsAffected()
 
 bool QODBCResult::prepare( const QString& query )
 {
-    extension()->clearValues(); // clear any placeholder values
     setActive( FALSE );
     setAt( QSql::BeforeFirst );
     SQLRETURN r;

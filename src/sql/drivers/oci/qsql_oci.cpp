@@ -1177,7 +1177,6 @@ bool QOCIResult::prepare( const QString& query )
 {
     int r = 0;
     
-    extension()->clearValues(); // clear any placeholder values
     if ( cols ) {
 	delete cols;
 	cols = 0;

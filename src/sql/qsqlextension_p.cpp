@@ -48,7 +48,6 @@ QSqlExtension::~QSqlExtension()
 
 bool QSqlExtension::prepare( const QString& /*query*/ )
 {
-    clearValues();
     return FALSE;
 }
 
@@ -60,6 +59,11 @@ bool QSqlExtension::exec()
 void QSqlExtension::bindValue( const QString& placeholder, const QVariant& val )
 {
     bindm = BindByName;
+    // if the index has already been set when doing emulated named
+    // bindings - don't reset it
+    if ( index[ values.count() ].isEmpty() ) {
+	index[ values.count() ] = placeholder;
+    }
     values[ placeholder ] = val;
 }
 
@@ -78,8 +82,12 @@ void QSqlExtension::addBindValue( const QVariant& val )
 
 void QSqlExtension::clearValues()
 {
-    index.clear();
     values.clear();
+}
+
+void QSqlExtension::clearIndex()
+{
+    index.clear();
 }
 
 QSqlExtension::BindMethod QSqlExtension::bindMethod()
