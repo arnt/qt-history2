@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#25 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#26 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -89,19 +89,23 @@ public:
     };
 
     enum Error {
+	// no error
 	NoError = 0,
-	ErrReadDir = -1,
+	// general errors
+	ErrValid = -1,
 	ErrUnknownProtocol = -2,
 	ErrUnsupported = -3,
 	ErrParse = -4,
+	// errors on connect
 	ErrLoginIncorrect = -5,
 	ErrHostNotFound = -6,
-	ErrValid = -7,
-	ErrCreateDir = -8,
+	// protocol errors
+	ErrListChlidren = -7,
+	ErrMkdir = -8,
 	ErrRemove = -9,
 	ErrRename = -10,
-	ErrPut = -11,
-	ErrGet = -12
+	ErrGet = -11,
+	ErrPut = -12
     };
 
     QNetworkProtocol();

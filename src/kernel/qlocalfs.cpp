@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#8 $
 **
 ** Implementation of QLocalFs class
 **
@@ -54,7 +54,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 	QString msg = tr( "Could not read directory\n" + url()->path( FALSE ) );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
-	op->setErrorCode( ErrReadDir );
+	op->setErrorCode( ErrListChlidren );
 	emit finished( op );
 	return;
     }
@@ -64,7 +64,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 	QString msg = tr( "Could not read directory\n" + url()->path( FALSE ) );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
-	op->setErrorCode( ErrReadDir );
+	op->setErrorCode( ErrListChlidren );
 	emit finished( op );
 	return;
     }
@@ -105,7 +105,7 @@ void QLocalFs::operationMkDir( QNetworkOperation *op )
 	QString msg = tr( "Could not create directory\n" + dirname );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
-	op->setErrorCode( ErrCreateDir );
+	op->setErrorCode( ErrMkdir );
 	emit finished( op );
     }
 }
@@ -184,7 +184,7 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 void QLocalFs::operationPut( QNetworkOperation *op )
 {
     QString to = QUrl( op->arg1() ).path();
-    
+
     QFile f( to );
     if ( !f.open( IO_WriteOnly ) ) {
 	QString msg = tr( "Could not write\n%1" ).arg( to );
