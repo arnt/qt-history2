@@ -129,7 +129,7 @@
 */
 
 /*!
-    \fn bool QPointer::operator==(T *p) const
+    \fn bool QPointer::operator==(const T *p) const
 
     \overload
 
@@ -150,7 +150,7 @@
 */
 
 /*!
-    \fn bool QPointer::operator!= (T *p) const
+    \fn bool QPointer::operator!= (const T *p) const
 
     \overload
 
@@ -186,4 +186,21 @@
     Cast operator; implements pointer semantics. Because of this
     function you can pass a QPointer\<T\> to a function where a T*
     is required.
+*/
+
+/*!
+    \fn bool operator==(const T *o, const QPointer<T> &p)
+
+    Equality operator. Returns true if \a o and the guarded
+    pointer \a p are pointing to the same object, otherwise
+    returns false.
+
+*/
+
+/*!
+    \fn bool operator!=(const T *o, const QPointer<T> &p)
+
+    Inequality operator. Returns true if \a o and the guarded
+    pointer \a p are not pointing to the same object, otherwise
+    returns false.
 */

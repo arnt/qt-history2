@@ -35,12 +35,12 @@ public:
 
     inline bool operator==(const QPointer<T> &p) const
         { return o == p.o; }
-    inline bool operator==(T *p) const
-        { return o == static_cast<QObject*>(p); }
+    inline bool operator==(const T *p) const
+        { return o == static_cast<const QObject*>(p); }
     inline bool operator!= (const QPointer<T> &p) const
         { return o != p.o; }
-    inline bool operator!= (T *p) const
-        { return o != static_cast<QObject*>(p); }
+    inline bool operator!= (const T *p) const
+        { return o != static_cast<const QObject*>(p); }
 
     inline bool isNull() const
         { return !o; }
@@ -52,5 +52,14 @@ public:
     inline operator T*() const
         { return static_cast<T*>(const_cast<QObject*>(o)); }
 };
+
+
+template <class T>
+inline bool operator==(const T *o, const QPointer<T> &p)
+{ return p == o; }
+
+template <class T>
+inline bool operator!=(const T *o, const QPointer<T> &p)
+{ return p != o; }
 
 #endif // QPOINTER_H
