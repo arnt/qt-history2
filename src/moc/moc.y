@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#80 $
+** $Id: //depot/qt/main/src/moc/moc.y#81 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#80 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#81 $");
 
 static QString rmWS( const char * );
 
@@ -776,6 +776,7 @@ QString	  fileName;				// file name
 QString	  outputFile;				// output file name
 QString   includeFile;				// name of #include file
 QString	  includePath;				// #include file path
+QString	  qtPath;				// #include qt file path
 bool	  noInclude     = FALSE;		// no #include <filename>
 bool	  generatedCode = FALSE;		// no code generated
 QString	  className;				// name of parsed class
@@ -787,11 +788,13 @@ FILE  *out;					// output file
 
 int yyparse();
 
+void replace( char *s, char c1, char c2 );
 
 int main( int argc, char **argv )
 {
     bool autoInclude = TRUE;
     char *error	     = 0;
+    qtPath = "";
     for ( int n=1; n<argc && error==0; n++ ) {
 	QString arg = argv[n];
 	if ( arg[0] == '-' ) {			// option
@@ -817,12 +820,26 @@ int main( int argc, char **argv )
 	    } else if ( opt[0] == 'p' ) {	// include file path
 		if ( opt[1] == '\0' ) {
 		    if ( !(n < argc-1) ) {
-			error = "Missing path name";
+			error = "Missing path name for the -p option.";
 			break;
 		    }
 		    includePath = argv[++n];
-		} else
+		} else {
 		    includePath = &opt[1];
+		}
+	    } else if ( opt[0] == 'q' ) {	// qt include file path
+		if ( opt[1] == '\0' ) {
+		    if ( !(n < argc-1) ) {
+			error = "Missing path name for the -q option.";
+			break;
+		    }
+		    qtPath = argv[++n];
+		} else {
+		    qtPath = &opt[1];
+		}
+		replace(qtPath.data(),'\\','/');
+		if ( qtPath.right(1) != "/" )
+		    qtPath += '/';
 	    } else if ( opt == "k" ) {		// don't stop on errors
 		errorControl = TRUE;
 	    } else if ( opt == "nw" ) {		// don't display warnings
@@ -915,7 +932,6 @@ int main( int argc, char **argv )
     signals.clear();
     return 0;
 }
-
 
 void replace( char *s, char c1, char c2 )
 {
@@ -1234,7 +1250,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.14 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.15 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1280,7 +1296,7 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "#error Moc format conflict - "
 		 "please regenerate all moc files\n" );
 	fprintf( out, "#endif\n\n" );
-	fprintf( out, "#include <qmetaobj.h>\n" );
+	fprintf( out, "#include <%sqmetaobj.h>\n", (const char*)qtPath );
 	if ( !noInclude )
 	    fprintf( out, "#include \"%s\"\n", (const char*)includeFile );
 	fprintf( out, "\n\n" );
@@ -1387,7 +1403,7 @@ void generateClass()		      // generate C++ source code for a class
 	if ( !predef_call && !included_list_stuff ) {
 	    fprintf( out, "\n#if !defined(Q_MOC_CONNECTIONLIST_DECLARED)\n" );
 	    fprintf( out, "#define Q_MOC_CONNECTIONLIST_DECLARED\n" );
-	    fprintf( out, "#include <qlist.h>\n" );
+	    fprintf( out, "#include <%sqlist.h>\n", (const char*)qtPath );
 	    fprintf( out, "#if defined(Q_DECLARE)\n" );
 	    fprintf( out, "Q_DECLARE(QListM,QConnection);\n" );
 	    fprintf( out, "Q_DECLARE(QListIteratorM,QConnection);\n" );
