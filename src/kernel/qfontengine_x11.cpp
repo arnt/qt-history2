@@ -556,7 +556,7 @@ QFontEngine::Type QFontEngineXLFD::type() const
 // ------------------------------------------------------------------
 // Xft cont engine
 // ------------------------------------------------------------------
-
+// #define FONTENGINE_DEBUG
 
 #ifndef QT_NO_XFTFREETYPE
 class Q_HackPaintDevice : public QPaintDevice
@@ -763,7 +763,6 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 #ifdef FONTENGINE_DEBUG
 	    p->drawRect( x - offsets[i].x - gi.xoff + gi.x, y + 100 + offsets[i].y - gi.yoff + gi.y, gi.width, gi.height );
 	    p->drawLine( x - offsets[i].x - gi.xoff, y + 150 + 5*i , x - offsets[i].x, y + 150 + 5*i );
-
 #endif
 	}
     } else {
@@ -792,11 +791,9 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	for ( int i = 0; i < numGlyphs; i++ ) {
 	    glyph_metrics_t ci = boundingBox( glyphs[i] );
 	    p->drawRect( x + ci.x + offsets[i].x, y + 100 + ci.y + offsets[i].y, ci.width, ci.height );
-	    qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
-		   ci.xoff, ci.yoff, offsets[i].x, offsets[i].y,
-		   advances[i].x, advances[i].y);
-	    x += advances[i].x;
-	    y += advances[i].y;
+	    qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=%d", i, ci.x, ci.y, ci.width, ci.height,
+		   ci.xoff, ci.yoff, offsets[i].x, offsets[i].y, advances[i]);
+	    x += advances[i];
 	}
 	p->restore();
     }
@@ -1408,18 +1405,18 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QSc
 
 	bool reverse = (item->analysis.bidiLevel % 2);
 	// ### is FT_LOAD_DEFAULT the right thing to do?
-	TT_GPOS_Apply_String( face, gpos, FT_LOAD_DEFAULT, out, &positions, FALSE, reverse );
+	TT_GPOS_Apply_String( face, gpos, FT_LOAD_DEFAULT, out, &positions, FALSE, false );
 
 	advance_t *advances = shaped->advances;
 	offset_t *offsets = shaped->offsets;
 
 	float scale = item->fontEngine->scale();
-	//     qDebug("positioned glyphs:" );
+// 	qDebug("positioned glyphs:" );
 	for ( int i = 0; i < shaped->num_glyphs; i++) {
-// 	     	qDebug("    %d:\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
-// 	     	       (int)(positions[i].x_advance >> 6), (int)(positions[i].y_advance >> 6 ),
-// 	    	       (int)(positions[i].x_pos >> 6 ), (int)(positions[i].y_pos >> 6),
-// 	     	       positions[i].back, positions[i].new_advance );
+// 	    qDebug("    %d:\t orig advance: %d\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
+// 		   advances[i], (int)(positions[i].x_advance >> 6), (int)(positions[i].y_advance >> 6 ),
+// 		   (int)(positions[i].x_pos >> 6 ), (int)(positions[i].y_pos >> 6),
+// 		   positions[i].back, positions[i].new_advance );
 	    // ###### fix the case where we have y advances. How do we handle this in Uniscribe?????
 	    if ( positions[i].new_advance ) {
 		advances[i] = (int)((positions[i].x_advance >> 6)*scale);
@@ -1431,14 +1428,16 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QSc
 	    offsets[i].x = (int)((positions[i].x_pos >> 6)*scale);
 	    offsets[i].y = -(int)((positions[i].y_pos >> 6)*scale);
 	    int back = positions[i].back;
-	    while ( back ) {
-		offsets[i].x -= advances[i-back];
-		//offsets[i].y -= advances[i-back].y;
-		back--;
+	    if ( reverse ) {
+		while ( back-- )
+		    offsets[i].x -= advances[i-back];
+	    } else {
+		while ( back )
+		    offsets[i].x -= advances[i-(back--)];
 	    }
 	    item->width += advances[i];
-	    // 	qDebug("   ->\tadv=(%d/%d)\tpos=(%d/%d)",
-	    // 	       advances[i].x, advances[i].y, offsets[i].x, offsets[i].y );
+// 	    qDebug("   ->\tadv=%d\tpos=(%d/%d)",
+// 		   advances[i], offsets[i].x, offsets[i].y );
 	}
 	free( positions );
     } else {
