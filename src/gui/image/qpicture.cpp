@@ -1161,6 +1161,7 @@ bool QPicturePrivate::checkFormat()
     return true;
 }
 
+/*! \internal */
 QPaintEngine *QPicture::engine() const
 {
     if (!d->paintEngine)

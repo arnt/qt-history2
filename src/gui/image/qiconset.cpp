@@ -252,7 +252,7 @@ QIconSetIcon *QIconSetData::icon(const QIconSet *iconSet, QIconSet::Size size,
 
   \img iconset.png QIconSet
 
-  \sa QIconFactory QPixmap QMainWindow::setUsesBigPixmaps()
+  \sa QPixmap QMainWindow::setUsesBigPixmaps()
       \link guibooks.html#fowler GUI Design Handbook: Iconic Label \endlink
 */
 

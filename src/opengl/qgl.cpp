@@ -2230,6 +2230,7 @@ bool QGLWidget::autoBufferSwap() const
     return d->autoSwap;
 }
 
+/*! \internal */
 QPaintEngine *QGLWidget::engine() const
 {
     if (!d->paintEngine)

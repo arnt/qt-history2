@@ -493,7 +493,7 @@ int QToolBox::removeItem( QWidget *item )
 /*!
     \property QToolBox::currentIndex
     \brief the index of the current item, or -1 if the toolbox is empty.
-    \sa currentItem(), indexOf(), item()
+    \sa indexOf(), item()
 */
 
 

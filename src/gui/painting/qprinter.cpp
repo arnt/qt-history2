@@ -631,7 +631,7 @@ QPrinter::ColorMode QPrinter::colorMode() const
     This function is useful mostly to set a default value that the
     user can override in the print dialog when you call setup().
 
-    \sa fromPage(), toPage(), setMinMax(), setup()
+    \sa fromPage(), toPage(), setMinMax()
 */
 
 void QPrinter::setFromTo( int fromPage, int toPage )
@@ -675,7 +675,7 @@ void QPrinter::setFromTo( int fromPage, int toPage )
     select a from page or a to page that are outside the range
     specified by min and max pages.
 
-    \sa minPage(), maxPage(), setFromTo(), setup()
+    \sa minPage(), maxPage(), setFromTo()
 */
 
 void QPrinter::setMinMax( int minPage, int maxPage )
@@ -776,7 +776,7 @@ void QPrinter::setCollateCopies(bool on)
     The printer driver reads this setting and prints the specified
     number of copies.
 
-    \sa numCopies(), setup()
+    \sa numCopies()
 */
 
 void QPrinter::setNumCopies( int numCopies )

@@ -468,17 +468,18 @@ void QLineEdit::setCursorPosition( int pos )
 }
 
 /*!
-    Returns the cursorPostion under the point \a pos.
-    ### What should this do if the point is outside of contentsRect? Currently returns 0.
+    Returns the \c cursorPostion under the point \a pos.
 */
-
+// ### What should this do if the point is outside of contentsRect? Currently returns 0.
 int QLineEdit::cursorPositionAt(const QPoint &pos)
 {
     return d->xToPos(pos.x());
 }
 
 
-/*! \obsolete Use setText(), setCursorPosition() and setSelection() instead.
+/*! \obsolete
+
+    Use setText(), setCursorPosition() and setSelection() instead.
 */
 bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 				 int newMarkAnchor, int newMarkDrag )

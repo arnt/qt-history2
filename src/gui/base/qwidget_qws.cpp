@@ -1741,6 +1741,7 @@ double QWidget::windowOpacity() const
     return 1.0;
 }
 
+/*! \internal */
 QPaintEngine *QWidget::engine() const
 {
     if (!d->paintEngine)

@@ -2103,7 +2103,7 @@ void QWidget::setBaseSize( int basew, int baseh )
     processing of paint events using QApplication::sendPostedEvents()
     when using scroll() and move() in combination).
 
-    \sa QScrollView erase() bitBlt()
+    \sa QScrollView bitBlt()
 */
 
 void QWidget::scroll( int dx, int dy )
@@ -2119,7 +2119,7 @@ void QWidget::scroll( int dx, int dy )
 
     If \a r is empty or invalid, the result is undefined.
 
-    \sa QScrollView erase() bitBlt()
+    \sa QScrollView bitBlt()
 */
 void QWidget::scroll( int dx, int dy, const QRect& r )
 {

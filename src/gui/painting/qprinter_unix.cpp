@@ -627,6 +627,7 @@ void QPrinter::setMargins( uint top, uint left, uint bottom, uint right )
     D->rightMargin = right;
 }
 
+/*! \internal */
 QPaintEngine *QPrinter::engine() const
 {
 //     if (!paintEngine)

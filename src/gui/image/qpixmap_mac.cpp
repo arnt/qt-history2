@@ -814,6 +814,7 @@ QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height)
     return ret;
 }
 
+/*! \internal */
 QPaintEngine *QPixmap::engine() const
 {
     if (!data->paintEngine) {

@@ -196,7 +196,7 @@ QListBoxItem::~QListBoxItem()
     If \a b is FALSE (the default), the list box will draw some
     default highlight indicator before calling paint().
 
-    \sa selected(), paint()
+    \sa isSelected(), paint()
 */
 void QListBoxItem::setCustomHighlighting( bool b )
 {

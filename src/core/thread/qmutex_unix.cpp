@@ -169,7 +169,7 @@ QMutex::~QMutex()
     Attempt to lock the mutex. If another thread has locked the mutex
     then this call will \e block until that thread has unlocked it.
 
-    \sa unlock(), locked()
+    \sa unlock()
 */
 void QMutex::lock()
 {
@@ -209,7 +209,7 @@ void QMutex::lock()
     If the lock was obtained, the mutex must be unlocked with unlock()
     before another thread can successfully lock it.
 
-    \sa lock(), unlock(), locked()
+    \sa lock(), unlock()
 */
 bool QMutex::tryLock()
 {
@@ -254,7 +254,7 @@ bool QMutex::tryLock()
     mutex that is not locked results in undefined behaviour (varies
     between different Operating Systems' thread implementations).
 
-    \sa lock(), locked()
+    \sa lock()
 */
 void QMutex::unlock()
 {

@@ -1011,8 +1011,6 @@ QMovie* QLabel::movie() const
     \brief the label's background mode
 
     Get this property with backgroundMode().
-
-    \sa QWidget::setBackgroundMode()
 */
 
 /*!

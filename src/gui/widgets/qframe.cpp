@@ -176,7 +176,7 @@ QFrame::QFrame(QWidget *parent, const char *name, WFlags f)
     setObjectName(name);
 }
 
-/*
+/*!
   Destroys the frame.
  */
 QFrame::~QFrame()
@@ -489,7 +489,10 @@ void QFrame::paintEvent(QPaintEvent *)
     drawFrame(&paint);
 }
 
-/*\internal, mostly for the sake of Q3Frame
+/*!
+    \internal
+
+    Mostly for the sake of Q3Frame
  */
 void QFrame::drawFrame(QPainter *p)
 {

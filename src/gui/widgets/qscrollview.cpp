@@ -555,6 +555,7 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
     d->init();
 }
 
+/*! \internal */
 QScrollView::QScrollView(QScrollViewPrivate &dd, QWidget* parent, const char* name, WFlags f) :
     QFrame(dd, parent, f & (~WStaticContents) & (~WNoAutoErase))
 {

@@ -938,7 +938,7 @@ void QFocusEvent::resetReason()
     is clipped to region() during processing of a paint event.
 
     \sa QPainter QWidget::update() QWidget::repaint()
-    QWidget::paintEvent() QWidget::backgroundMode() QRegion
+    QWidget::paintEvent() QRegion
 */
 
 /*!
@@ -1113,8 +1113,6 @@ void QFocusEvent::resetReason()
     Icon drag events are sent to widgets when the main icon of a window has been dragged away.
     On Mac OS X this is fired when the proxy icon of a window is dragged off titlebar, in response to
     this event is is normal to begin using drag and drop.
-
-    \sa QDragManager
 */
 
 /*!
@@ -1179,8 +1177,6 @@ void QFocusEvent::resetReason()
     whether the receiver accepted the event. If the event handler does
     not accept the event, then whatever triggered the event will be
     handled as a regular input event if possible.
-
-    \sa Q4Menu
 */
 
 /*!

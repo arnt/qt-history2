@@ -2168,8 +2168,6 @@ void QPopupMenu::changeEvent( QEvent *ev )
     example, on Windows it will use multiple columns).
 
     This functions returns the number of columns necessary.
-
-    \sa sizeHint()
 */
 int QPopupMenu::columns() const
 {
@@ -2379,7 +2377,7 @@ void QPopupMenu::updateRow( int row )
     different. Instead, use sizeHint(). It calculates the proper size
     depending on the menu's current contents.
 
-    \sa popup(), sizeHint()
+    \sa popup()
 */
 
 int QPopupMenu::exec( const QPoint & pos, int indexAtPoint )

@@ -1520,7 +1520,7 @@ void QApplication::setFont( const QFont &font, const char* className )
   Instead, based on meta information like QObject::className() you are
   able to customize any kind of widget.
 
-  \sa QStyle::polish(), QWidget::polish(), setPalette(), setFont()
+  \sa QStyle::polish(), setPalette(), setFont()
 */
 
 void QApplication::polish( QWidget *w )
