@@ -1018,32 +1018,32 @@ void QApplication::restoreOverrideCursor()
 }
 #endif
 
-QWidget *qt_recursive_match(QWidget *widget, int x, int y)
-{
-    HIViewRef child;
-    const HIPoint pt = CGPointMake(x, y);
-    HIViewGetSubviewHit((HIViewRef)widget->winId(), &pt, true, &child);
-    return child ? QWidget::find((WId)child) : widget;
-}
-
 QWidget *QApplication::topLevelAt(int x, int y)
 {
-    //find the tld
     QWidget *widget;
     qt_mac_window_at(x, y, &widget);
     return widget;
 }
 
-QWidget *QApplication::widgetAt_sys(int x, int y)
+static QWidget *qt_mac_widgetAt(int x, int y, EventRef event)
 {
-    QWidget *widget = topLevelAt(x, y);
+    QWidget *widget = QApplication::topLevelAt(x, y);
     if(!widget)
         return 0;
 
-    //find the child
-    QPoint p = widget->mapFromGlobal(QPoint(x, y));
-    widget = qt_recursive_match(widget, p.x(), p.y());
-    return widget;
+    HIViewRef child;
+    const QPoint qpt = widget->mapFromGlobal(QPoint(x, y));
+    const HIPoint pt = CGPointMake(qpt.x(), qpt.y());
+    if(event && HIViewGetViewForMouseEvent((HIViewRef)widget->winId(), event, &child) == noErr && child) 
+        return QWidget::find((WId)child);
+    if(HIViewGetSubviewHit((HIViewRef)widget->winId(), &pt, true, &child) == noErr && child) 
+        return QWidget::find((WId)child);;
+    return 0;
+}
+
+QWidget *QApplication::widgetAt_sys(int x, int y)
+{
+    return qt_mac_widgetAt(x, y, 0);
 }
 
 void QApplication::beep()
@@ -1601,7 +1601,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                     if(qt_button_down)
                         widget = qt_button_down;
                     else
-                        widget = QApplication::widgetAt(where.x(), where.y());
+                        widget = qt_mac_widgetAt(where.x(), where.y(), event);
                 }
                 if(widget) {
                     QPoint plocal(widget->mapFromGlobal(where));
@@ -1641,7 +1641,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
         break;
     case kEventClassMouse:
     {
-       Point where;
+        Point where;
         GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, 0,
                           sizeof(where), 0, &where);
         if(ekind == kEventMouseMoved && qt_mac_app_fullscreen &&
@@ -1722,23 +1722,19 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
         }
         //figure out which widget to send it to
         if(app->inPopupMode()) {
-            QWidget *clt;
-            qt_mac_window_at(where.h, where.v, &clt);
-            if(clt && clt->isPopup())
-                widget = clt;
-            if(!widget)
+            if(QWidget *clt = qt_mac_widgetAt(where.h, where.v, event)) {
+                if(clt && clt->topLevelWidget()->isPopup())
+                    widget = clt;
+            }
+            if(!widget) 
                 widget = activePopupWidget();
-            QMacSavedPortInfo savedInfo(widget);
-            Point gp = where;
-            GlobalToLocal(&gp); //now map it to the window
-            widget = qt_recursive_match(widget, gp.h, gp.v);
         } else {
             if(ekind != kEventMouseDown && qt_button_down) {
                 widget = qt_button_down;
             } else if(mac_mouse_grabber) {
                 widget = mac_mouse_grabber;
             } else {
-                widget = QApplication::widgetAt(where.h, where.v);
+                widget = qt_mac_widgetAt(where.h, where.v, event);
                 if(ekind == kEventMouseUp) {
                     short part = qt_mac_window_at(where.h, where.v);
                     if(part == inDrag) {
@@ -1765,7 +1761,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             QCursor cursor(Qt::ArrowCursor);
             QWidget *cursor_widget = widget;
             if(cursor_widget && cursor_widget == qt_button_down && ekind == kEventMouseUp)
-                cursor_widget = QApplication::widgetAt(where.h, where.v);
+                cursor_widget = qt_mac_widgetAt(where.h, where.v, event);
             if(cursor_widget) { //only over the app, do we set a cursor..
                 if(!qApp->d->cursor_list.isEmpty()) {
                     cursor = qApp->d->cursor_list.first();
