@@ -2892,12 +2892,15 @@ void Resource::loadExtraSource( FormFile *formfile, const QString &currFileName,
     for ( QValueList<LanguageInterface::Function>::Iterator fit = functions.begin();
 	  fit != functions.end(); ++fit ) {
 
-	if ( MetaDataBase::hasFunction( formfile->formWindow() ? formfile->formWindow() : formfile,
+	if ( MetaDataBase::hasFunction( formfile->formWindow() ?
+					(QObject*)formfile->formWindow() :
+					(QObject*)formfile,
 					(*fit).name.latin1() ) ) {
 	    QString access = (*fit).access;
 	    if ( !MainWindow::self || !MainWindow::self->currProject()->isCpp() )
 		MetaDataBase::changeFunction( formfile->formWindow() ?
-					      formfile->formWindow() : formfile,
+					      (QObject*)formfile->formWindow() :
+					      (QObject*)formfile,
 					      (*fit).name,
 					      (*fit).name,
 					      QString::null );
@@ -2908,7 +2911,9 @@ void Resource::loadExtraSource( FormFile *formfile, const QString &currFileName,
 	    QString type = "function";
 	    if ( (*fit).returnType == "void" )
 		type = "slot";
-	    MetaDataBase::addFunction( formfile->formWindow() ? formfile->formWindow() : formfile,
+	    MetaDataBase::addFunction( formfile->formWindow() ?
+				       (QObject*)formfile->formWindow() :
+				       (QObject*)formfile,
 				       (*fit).name.latin1(), "virtual", (*fit).access,
 				       type, lang, (*fit).returnType );
 	}
