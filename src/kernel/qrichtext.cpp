@@ -6471,8 +6471,13 @@ QString QTextImage::richText() const
     QString s;
     s += "<img ";
     QMap<QString, QString>::ConstIterator it = attributes.begin();
-    for ( ; it != attributes.end(); ++it )
-	s += it.key() + "=" + *it + " ";
+    for ( ; it != attributes.end(); ++it ) {
+	s += it.key() + "=";
+	if ( (*it).find( ' ' ) != -1 )
+	    s += "\"" + *it + "\"" + " ";
+	else
+	    s += *it + " ";
+    }
     s += ">";
     return s;
 }
