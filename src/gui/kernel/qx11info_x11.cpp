@@ -43,6 +43,8 @@ QX11Info::QX11Info(const QX11Info &other)
 }
 
 /*!
+    Assigns \a other to this information object and returns a reference to this
+    object.
 */
 
 QX11Info &QX11Info::operator=(const QX11Info &other)
@@ -64,7 +66,7 @@ QX11Info::~QX11Info()
         delete x11data;
 }
 
-/*
+/*!
   \internal
   Makes a shallow copy of the X11-specific data of \a fromDevice, if it is not
   null. Otherwise this function sets it to null.
@@ -82,7 +84,7 @@ void QX11Info::copyX11Data(const QPaintDevice *fromDevice)
     setX11Data(xd);
 }
 
-/*
+/*!
   \internal
   Makes a deep copy of the X11-specific data of \a fromDevice, if it is not
   null. Otherwise this function sets it to null.
@@ -105,7 +107,7 @@ void QX11Info::cloneX11Data(const QPaintDevice *fromDevice)
     setX11Data(d);
 }
 
-/*
+/*!
   \internal
   Makes a shallow copy of the X11-specific data \a d and assigns it to this
   class. This function increments the reference code of \a d.
@@ -121,7 +123,7 @@ void QX11Info::setX11Data(const QX11InfoData* d)
 }
 
 
-/*
+/*!
   \internal
   If \a def is false, returns a deep copy of the x11Data, or 0 if x11Data is 0.
   If \a def is true, makes a QX11Data struct filled with the default
@@ -154,6 +156,11 @@ QX11InfoData* QX11Info::getX11Data(bool def) const
 }
 
 /*!
+    Returns the horizontal resolution of the given \a screen in terms of the
+    number of dots per inch.
+
+    \sa appDpiY() setAppDpiX() setAppDpiY()
+
 */
 
 int QX11Info::appDpiX(int screen)
@@ -168,6 +175,9 @@ int QX11Info::appDpiX(int screen)
 /*!
     Sets the horizontal resolution of the given \a screen to the number of
     dots per inch specified by \a xdpi.
+
+    \sa appDpiX() appDpiY() setAppDpiY()
+
 */
 
 void QX11Info::setAppDpiX(int screen, int xdpi)
@@ -180,6 +190,11 @@ void QX11Info::setAppDpiX(int screen, int xdpi)
 }
 
 /*!
+    Returns the vertical resolution of the given \a screen in terms of the
+    number of dots per inch.
+
+    \sa appDpiX() setAppDpiX() setAppDpiY()
+
 */
 
 int QX11Info::appDpiY(int screen)
@@ -193,7 +208,10 @@ int QX11Info::appDpiY(int screen)
 
 /*!
         Sets the vertical resolution of the given \a screen to the number of
-        dots per inch specified by \a ydpi.*/
+        dots per inch specified by \a ydpi.
+
+        \sa appDpiX() appDpiY() setAppDpiX()
+*/
 
 void QX11Info::setAppDpiY(int screen, int ydpi)
 {
@@ -230,6 +248,7 @@ Qt::HANDLE QX11Info::appColormap(int screen)
 }
 
 /*!
+    Returns the current visual used by the application on the given \a screen.
 */
 
 void *QX11Info::appVisual(int screen)
@@ -246,13 +265,19 @@ Qt::HANDLE QX11Info::appRootWindow(int screen)
 }
 
 /*!
-*/
+    Returns the color depth (bits per pixel) used by the application on the
+    given \a screen.
+
+    \sa depth()*/
 
 int QX11Info::appDepth(int screen)
 {
     return X11->screens[screen == -1 ? X11->defaultScreen : screen].depth; }
 
 /*!
+    Returns the number of cells used by the application on the given \a screen.
+
+    \sa cells()
 */
 
 int QX11Info::appCells(int screen)
@@ -273,19 +298,21 @@ bool QX11Info::appDefaultVisual(int screen)
 { return X11->screens[screen == -1 ? X11->defaultScreen : screen].defaultVisual; }
 
 /*!
+    Returns the number of the screen currently in use.
 */
 
 int QX11Info::screen() const
 { return x11data ? x11data->screen : QX11Info::appScreen(); }
 
 /*!
+    Returns the color depth (bits per pixel) of the X display.
 */
 
 int QX11Info::depth() const
 { return x11data ? x11data->depth : QX11Info::appDepth(); }
 
 /*!
-*/
+    Returns the number of cells.*/
 
 int QX11Info::cells() const
 { return x11data ? x11data->cells : QX11Info::appCells(); }
@@ -303,6 +330,7 @@ bool QX11Info::defaultColormap() const
 { return x11data ? x11data->defaultColormap : QX11Info::appDefaultColormap(); }
 
 /*!
+    Returns the current visual.
 */
 
 void *QX11Info::visual() const
