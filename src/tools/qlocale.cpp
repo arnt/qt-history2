@@ -47,9 +47,6 @@
 #if defined (Q_WS_WIN) && !defined(Q_CC_GNU)
 #   define isnan(d) _isnan(d)
 #   define isinf(d) (!_finite(d) && !_isnan(d))
-#   define ULLONG_MAX _UI64_MAX
-#   define LLONG_MAX _I64_MAX
-#   define LLONG_MIN _I64_MIN
 #endif
 
 // mingw defines NAN and INFINITY to 0/0 and x/0
@@ -118,7 +115,7 @@ static inline double nan()
 #   define LLONG_MIN (-LLONG_MAX - Q_INT64_C(1))
 #endif
 #ifndef ULLONG_MAX
-#   define ULLONG_MAX Q_UINT64_C(18446744073709551615)
+#   define ULLONG_MAX Q_UINT64_C(0xffffffffffffffff)
 #endif
 
 static char *qdtoa(double d, int mode, int ndigits, int *decpt,
