@@ -19,47 +19,6 @@ CComModule _Module;
 #include <qapplication.h>
 
 /*! 
-    Helper classes
-*/
-struct IUnknownInterface : public QUnknownInterface
-{
-    IUnknownInterface( IUnknown *i )
-	: iface( i )
-    {}
-
-    ulong addRef() { return iface->AddRef(); }
-    ulong release() { return iface->Release(); }
-    QRESULT queryInterface( const QUuid &uuid, QUnknownInterface **out )
-    {
-	return iface->QueryInterface( uuid, (void**)out );
-    }
-
-    IUnknown *iface;
-};
-
-struct IDispatchInterface : public QDispatchInterface
-{
-    IDispatchInterface( IDispatch *i )
-	: iface( i )
-    {}
-
-    ulong addRef() { return iface->AddRef(); }
-    ulong release() { return iface->Release(); }
-    QRESULT queryInterface( const QUuid &uuid, QUnknownInterface **out )
-    {
-	return iface->QueryInterface( uuid, (void**)out );
-    }
-
-    const QUInterfaceDescription *interfaceDescription() const { return 0; }
-    const QUInterfaceDescription *eventsDescription() const { return 0; }
-    QRESULT invoke( int, QUObject * ) { return 0; }
-    void installListener( QDispatchInterface* listener ) {}
-    void removeListener( QDispatchInterface* listener ) {}
-
-    IDispatch *iface;
-};
-
-/*! 
     Helper functions 
 */
 static inline QString vartypeToQt( VARTYPE vt )
@@ -507,10 +466,10 @@ static inline void VARIANTToQUObject( VARIANT arg, QUObject *obj )
 	    static_QUType_ptr.set( obj, BSTRToQString( *arg.pbstrVal ) );
 	    break;
 	case VT_UNKNOWN:
-	    //###
+	    static_QUType_ptr.set( obj, *arg.ppunkVal );
 	    break;
 	case VT_DISPATCH:
-	    //###
+	    static_QUType_ptr.set( obj, *arg.ppdispVal );
 	    break;
 	default:
 	    break;
@@ -545,11 +504,11 @@ static inline void VARIANTToQUObject( VARIANT arg, QUObject *obj )
     case VT_BSTR: // bstr -> QString
 	static_QUType_QString.set( obj, BSTRToQString( arg.bstrVal ) );
 	break;
-    case VT_UNKNOWN:  // IUnknown -> QUnknownInterface
-	static_QUType_iface.set( obj, new IUnknownInterface( arg.punkVal ) );
+    case VT_UNKNOWN:  // IUnknown -> void*
+	static_QUType_ptr.set( obj, arg.punkVal );
 	break;
-    case VT_DISPATCH: // IDispatch -> QDispatchInterface
-	static_QUType_idisp.set( obj, new IDispatchInterface( arg.pdispVal ) );
+    case VT_DISPATCH: // IDispatch -> void*
+	static_QUType_ptr.set( obj, arg.pdispVal );
 	break;
     default:
 	break;
@@ -794,23 +753,17 @@ public:
 		    *bstr = QStringToBSTR( *str );
 		    delete str;
 		}
-	    case VT_UNKNOWN:
 	    case VT_UNKNOWN|VT_BYREF:
 		{
-		    IUnknownInterface *iface = (IUnknownInterface*)static_QUType_iface.get( obj );
-		    if ( vt & VT_BYREF )
-			*arg->ppunkVal = iface->iface;
-		    delete iface;
+		    IUnknown *iface = (IUnknown*)static_QUType_ptr.get( obj );
+		    *arg->ppunkVal = iface;
 		}
 		break;
 
-	    case VT_DISPATCH:
 	    case VT_DISPATCH|VT_BYREF:
 		{
-		    IDispatchInterface *iface = (IDispatchInterface*)static_QUType_idisp.get( obj );
-		    if ( vt & VT_BYREF )
-			*arg->ppdispVal = iface->iface;
-		    delete iface;
+		    IDispatch *iface = (IDispatch*)static_QUType_ptr.get( obj );
+		    *arg->ppdispVal = iface;
 		}
 		break;
 
@@ -1284,11 +1237,11 @@ QMetaObject *QActiveX::metaObject() const
 			if ( funcdesc->invkind == INVOKE_FUNC )
 			    ptype = constRefify( ptype );
 
-			paramTypes << ptype;
-			parameters << paramName;
 			prototype += ptype;
 			if ( optional )
-			    prototype += "=0";
+			    ptype += "=0";
+			paramTypes << ptype;
+			parameters << paramName;
 			if ( p < funcdesc->cParams )
 			    prototype += ",";
 		    }
@@ -1334,32 +1287,53 @@ QMetaObject *QActiveX::metaObject() const
 				if ( slotlist.find( prototype ) )
 				    break;
 			    }
-			    QUMethod *slot = new QUMethod;
-			    slot->name = new char[function.length()+1];
-			    slot->name = qstrcpy( (char*)slot->name, function );
-			    slot->count = parameters.count();
-			    QUParameter *params = slot->count ? new QUParameter[slot->count] : 0;
-			    int offset = parameters[0] == "return" ? 1 : 0;
-			    for ( int p = 0; p< slot->count; ++p ) {
-				QString paramName = parameters[p];
-				QString paramType = paramTypes[p];
-				params[p].name = new char[paramName.length()+1];
-				params[p].name = qstrcpy( (char*)params[p].name, paramName );
-				params[p].inOut = 0;
-				if ( !p && paramName == "return" ) {
-				    params[p].inOut = QUParameter::Out;
-				} else if ( funcdesc->lprgelemdescParam + p - offset ) {
-				    ushort inout = funcdesc->lprgelemdescParam[p-offset].paramdesc.wParamFlags;
-				    if ( inout & PARAMFLAG_FIN )
-					params[p].inOut |= QUParameter::In;
-				    if ( inout & PARAMFLAG_FOUT )
-					params[p].inOut |= QUParameter::Out;
+			    bool defargs;
+			    QString defprototype = prototype;
+			    do {
+				defargs = FALSE;
+				QUMethod *slot = new QUMethod;
+				slot->name = new char[function.length()+1];
+				slot->name = qstrcpy( (char*)slot->name, function );
+				slot->count = parameters.count();
+				QUParameter *params = slot->count ? new QUParameter[slot->count] : 0;
+				int offset = parameters[0] == "return" ? 1 : 0;
+				for ( int p = 0; p< slot->count; ++p ) {
+				    QString paramName = parameters[p];
+				    QString paramType = paramTypes[p];
+				    if ( paramType.right( 2 ) == "=0" ) {
+					paramType.truncate( paramType.length()-2 );
+					paramTypes[p] = paramType;
+					defargs = TRUE;
+					slot->count = p;
+					prototype = function + "(";
+					for ( int pp = offset; pp < p; ++pp ) {
+					    prototype += paramTypes[pp];
+					    if ( pp < p-1 )
+						prototype += ",";
+					}
+					prototype += ")";
+					break;
+				    }
+				    params[p].name = new char[paramName.length()+1];
+				    params[p].name = qstrcpy( (char*)params[p].name, paramName );
+				    params[p].inOut = 0;
+				    if ( !p && paramName == "return" ) {
+					params[p].inOut = QUParameter::Out;
+				    } else if ( funcdesc->lprgelemdescParam + p - offset ) {
+					ushort inout = funcdesc->lprgelemdescParam[p-offset].paramdesc.wParamFlags;
+					if ( inout & PARAMFLAG_FIN )
+					    params[p].inOut |= QUParameter::In;
+					if ( inout & PARAMFLAG_FOUT )
+					    params[p].inOut |= QUParameter::Out;
+				    }
+
+				    QStringToQUType( paramType, params + p );
 				}
 
-				QStringToQUType( paramType, params + p );
-			    }
-			    slot->parameters = params;
-			    slotlist.insert( prototype, slot );
+				slot->parameters = params;
+				slotlist.insert( prototype, slot );
+				prototype = defprototype;
+			    } while ( defargs );
 			}
 			break;
 
@@ -1438,7 +1412,6 @@ QMetaObject *QActiveX::metaObject() const
 		    QString prototype = function + "(" + variableType + ")";
 
 		    if ( !slotlist.find( prototype ) ) {
-
 			QUMethod *slot = new QUMethod;
 			slot->name = new char[ function.length() + 1 ];
 			slot->name = qstrcpy( (char*)slot->name, function );
@@ -1605,6 +1578,9 @@ QMetaObject *QActiveX::metaObject() const
 				    }
 				    if ( !!prototype )
 					prototype += ")";
+
+				    if ( signallist.find( prototype ) )
+					continue;
 
 				    QUMethod *signal = new QUMethod;
 				    signal->name = new char[function.length()+1];
@@ -1848,12 +1824,10 @@ bool QActiveX::qt_invoke( int _id, QUObject* _o )
 		arg = QVariantToVARIANT( static_QUType_QVariant.get( obj ) );
 	    } else if ( QUType::isEqual( obj->type, &static_QUType_idisp ) ) {
 		arg.vt = VT_DISPATCH;
-		QDispatchInterface *iface = static_QUType_idisp.get( obj );
-		arg.pdispVal = 0; //###
+		arg.pdispVal = (IDispatch*)static_QUType_ptr.get( obj );
 	    } else if ( QUType::isEqual( obj->type, &static_QUType_iface ) ) {
 		arg.vt = VT_UNKNOWN;
-		QUnknownInterface *iface = static_QUType_iface.get( obj );
-		arg.punkVal = 0; //###
+		arg.punkVal = (IUnknown*)static_QUType_ptr.get( obj );
 	    } else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) ) {
 		const QUParameter *param = slot->parameters + p + ( pret ? 1 : 0 );
 		const char *type = (const char*)param->typeExtra;
@@ -2038,10 +2012,10 @@ bool QActiveX::qt_property( int _id, int _f, QVariant* _v )
 		var = arg.uintVal;
 		break;
 	    case VT_DISPATCH: // IDispatch* -> int ###
-		var = (int)arg.pdispVal;
+		var = (Q_LONG)arg.pdispVal;
 		break;
 	    case VT_UNKNOWN: // IUnkonwn* -> int ###
-		var = (int)arg.punkVal;
+		var = (Q_LONG)arg.punkVal;
 		break;
 	    case VT_EMPTY:
 		// empty VARIANT type return
