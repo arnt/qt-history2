@@ -166,6 +166,8 @@ int QWidgetStack::addWidget( QWidget * w, int id )
     if ( !w || w == invisible )
 	return -1;
 
+    if ( id >= 0 && dict->find( id ) )
+	id = -2;
     if ( id < -1 )
 	id = nseq_no--;
     else if ( id == -1 )
