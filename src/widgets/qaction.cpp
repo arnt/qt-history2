@@ -266,8 +266,9 @@ QString QActionPrivate::statusTip() const
 QAction::QAction( QObject* parent, const char* name, bool toggle )
     : QObject( parent, name )
 {
-    init();
+    d = new QActionPrivate;
     d->toggleaction = toggle;
+    init();
 }
 
 
@@ -286,13 +287,14 @@ QAction::QAction( QObject* parent, const char* name, bool toggle )
 QAction::QAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel, QObject* parent, const char* name, bool toggle )
     : QObject( parent, name )
 {
-    init();
+    d = new QActionPrivate;
     d->toggleaction = toggle;
     if ( !icon.pixmap().isNull() )
 	setIconSet( icon );
     d->text = text;
     d->menutext = menuText;
     setAccel( accel );
+    init();
 }
 
 /*!\overload
@@ -312,17 +314,17 @@ QAction::QAction( const QString& text, const QIconSet& icon, const QString& menu
 QAction::QAction( const QString& text, const QString& menuText, int accel, QObject* parent, const char* name, bool toggle )
     : QObject( parent, name )
 {
-    init();
+    d = new QActionPrivate;
     d->toggleaction = toggle;
     d->text = text;
     d->menutext = menuText;
     setAccel( accel );
+    init();
 }
 
 
 void QAction::init()
 {
-    d = new QActionPrivate;
     if ( parent() && parent()->inherits("QActionGroup") ) {
 	((QActionGroup*) parent())->insert( this );		// insert into action group
     }
@@ -987,6 +989,8 @@ void QActionGroup::insert( QAction* action )
     connect( action, SIGNAL( activated() ), this, SIGNAL( activated() ) );
     connect( action, SIGNAL( toggled( bool ) ), this, SLOT( childToggled( bool ) ) );
 
+    qDebug( "asfafasfas: %s", action->text().latin1() );
+    
     for ( QListIterator<QComboBox> cb( d->comboboxes ); cb.current(); ++cb ) {
 	cb.current()->insertItem( action->iconSet().pixmap(), action->text() );
     }
@@ -1142,7 +1146,7 @@ bool QActionGroup::removeFrom( QWidget* w )
 	}
     } else if ( w->inherits( "QPopupMenu" ) ) {
 	QListIterator<QActionGroupPrivate::MenuItem> pu( d->menuitems );
-	while ( pu.current() ) { 
+	while ( pu.current() ) {
 	    QActionGroupPrivate::MenuItem *mi = pu.current();
 	    ++pu;
 	    delete mi->popup;
