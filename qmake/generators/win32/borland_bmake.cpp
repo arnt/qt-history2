@@ -207,6 +207,8 @@ BorlandMakefileGenerator::init()
     }
     
     QStringList &configs = project->variables()["CONFIG"];
+    if (project->isActiveConfig("shared"))
+	project->variables()["DEFINES"].append("QT_DLL");
     if (project->isActiveConfig("qt_dll"))
 	if(configs.findIndex("qt") == -1) configs.append("qt");
     if ( project->isActiveConfig("qt") ) {
