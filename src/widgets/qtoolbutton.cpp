@@ -62,6 +62,7 @@ public:
     QGuardedPtr<QPopupMenu> popup;
     QTimer* popupTimer;
     int delay;
+    uint instantPopup : 1;
     bool autoraise, repeat;
     Qt::ArrowType arrow;
 };
@@ -169,6 +170,7 @@ void QToolButton::init()
     d->popupTimer = 0;
     d->autoraise = FALSE;
     d->arrow = LeftArrow;
+    d->instantPopup = FALSE;
     bpID = bp.serialNumber();
     spID = sp.serialNumber();
 
@@ -481,12 +483,31 @@ void QToolButton::drawButton( QPainter * p )
  */
 void QToolButton::drawButtonLabel( QPainter * p )
 {
+    ArrowType at = DownArrow;
+    if ( parentWidget() && parentWidget()->isA( "QToolBar" ) ) {
+	QToolBar *tb = (QToolBar*)parentWidget();
+	if ( tb->orientation() == Vertical ) {
+	    if ( mapToGlobal( tb->rect().center() ).x() < topLevelWidget()->rect().center().x() )
+		at = RightArrow;
+	    else
+		at = LeftArrow;
+	} else {
+	    if ( mapToGlobal( tb->rect().center() ).y() < topLevelWidget()->rect().center().y() )
+		at = DownArrow;
+	    else
+		at = UpArrow;
+	}
+    }
+
     int sx = 0;
     int sy = 0;
     int x, y, w, h;
     style().toolButtonRect(0, 0, width(), height() ).rect( &x, &y, &w, &h );
-    if ( d->popup && !d->delay )
+    if ( d->popup && !d->delay ) {
 	w -= 20;
+	if ( at == LeftArrow )
+	    x += 20;
+    }
     if (isDown() || (isOn()&&!son) ) {
 	style().getButtonShift(sx, sy);
 	x+=sx;
@@ -532,14 +553,30 @@ void QToolButton::drawButtonLabel( QPainter * p )
  	} else {
 	    style().drawItem( p, x, y, w, h,
 			      AlignCenter, colorGroup(), TRUE, &pm, QString::null );
-
 	}
     }
     if ( d->popup && !d->delay ) {
-	bool sunken = ( isOn() && !son ) || isDown();
-	if ( sunken || uses3D() )
-	    style().drawSeparator( p, w+5, y+style().defaultFrameWidth(), w+5, y+h-2*style().defaultFrameWidth(), colorGroup() );
-	style().drawArrow( p, Qt::DownArrow, FALSE, w+7, y+style().defaultFrameWidth(), 14, h-2*style().defaultFrameWidth(), colorGroup(), TRUE );
+	if ( uses3D() ) {
+	    bool sunken = ( isOn() && !son ) || isDown() || d->popup->isVisible();
+	    if ( !sunken || d->instantPopup ) {
+		if ( at == LeftArrow ) {
+		    style().drawPanel( p, 0, 0, x-1-sx, height(), colorGroup(), sunken );
+		    if ( !sunken )
+			style().drawSeparator( p, x-1-sx, -1, x-1-sx, height(), colorGroup(), TRUE );
+		} else {
+		    style().drawSeparator( p, width()-20, 0, width()-20, height(), colorGroup(), TRUE );
+		    style().drawPanel( p, width()-20, 0, 20, height(), colorGroup(), sunken );
+		}
+	    }
+	}
+	sx = 0;
+	sy = 0;
+	if ( d->instantPopup )
+	    style().getButtonShift( sx, sy );
+	if ( at == LeftArrow )
+	    style().drawArrow( p, at, FALSE, 0+sx, y+style().defaultFrameWidth()+sy, 20, h-2*style().defaultFrameWidth(), colorGroup(), TRUE );
+	else
+	    style().drawArrow( p, at, FALSE, w+7+sx, y+style().defaultFrameWidth()+sy, 14, h-2*style().defaultFrameWidth(), colorGroup(), TRUE );
     }
 }
 
@@ -570,8 +607,6 @@ void QToolButton::leaveEvent( QEvent * e )
     QButton::leaveEvent( e );
 }
 
-
-
 /*!\reimp
  */
 void QToolButton::moveEvent( QMoveEvent * )
@@ -587,11 +622,22 @@ void QToolButton::moveEvent( QMoveEvent * )
 */
 void QToolButton::mousePressEvent( QMouseEvent *e )
 {
-    if ( !d->delay && d->popup && e->pos().x() > ( width() - 20 ) ) {
-	setDown( TRUE );
+    bool left = FALSE;
+    if ( parentWidget() && parentWidget()->isA( "QToolBar" ) ) {
+	QToolBar *tb = (QToolBar*)parentWidget();
+	if ( tb->orientation() == Vertical && mapToGlobal( tb->rect().center() ).x() > topLevelWidget()->rect().center().x() )
+	    left = TRUE;
+    }
+
+    d->instantPopup = ( ( e->pos().x() < 20 ) && left ) || ( ( e->pos().x() > ( width() - 20 ) ) && !left );
+ 
+    if ( e->button() == LeftButton && !d->delay && d->popup && d->instantPopup ) {
+	d->instantPopup = TRUE;
 	popupTimerDone();
+	repaint( FALSE );
 	return;
     }
+    d->instantPopup = FALSE;
     QButton::mousePressEvent( e );
 }
 
@@ -599,12 +645,9 @@ void QToolButton::mousePressEvent( QMouseEvent *e )
 */
 bool QToolButton::eventFilter( QObject *o, QEvent *e )
 {
-    if ( !d->delay && o == d->popup ) {
-	if ( e->type() == QEvent::MouseButtonRelease ) {
-	    popupReleased();
-	    setDown( FALSE );
-	    return FALSE;
-	}
+    if ( e->type() == QEvent::Hide && !d->delay && o == d->popup ) {
+	d->instantPopup = FALSE;
+	setDown( FALSE );
     }
 
     return QButton::eventFilter( o, e );
@@ -615,7 +658,8 @@ bool QToolButton::eventFilter( QObject *o, QEvent *e )
 
 bool QToolButton::uses3D() const
 {
-    return !autoRaise() || ( threeDeeButton == this && isEnabled() );
+    return !autoRaise() || ( threeDeeButton == this && isEnabled() ) || 
+	( d->popup && d->popup->isVisible() && !d->delay );
 }
 
 
@@ -771,7 +815,6 @@ void QToolButton::setPopup( QPopupMenu* popup )
 {
     if ( popup && !d->popupTimer ) {
 	connect( this, SIGNAL( pressed() ), this, SLOT( popupPressed() ) );
-	connect( this, SIGNAL( released() ), this, SLOT( popupReleased() ) );
 	d->popupTimer = new QTimer( this );
 	connect( d->popupTimer, SIGNAL( timeout() ), this, SLOT( popupTimerDone() ) );
     }
@@ -800,7 +843,7 @@ void QToolButton::popupPressed()
 
 void QToolButton::popupTimerDone()
 {
-    if ( isDown() && d->popup ) {
+    if ( d->popup ) {
 	d->repeat = autoRepeat();
 	setAutoRepeat( FALSE );
 	bool horizontal = TRUE;
@@ -839,19 +882,6 @@ void QToolButton::popupTimerDone()
 	if ( d->repeat )
 	    setAutoRepeat( TRUE );
     }
-}
-
-void QToolButton::popupReleased()
-{
-    if ( !d->delay )
-	QTimer::singleShot( 0, this, SLOT(releaseTimerDone()) );
-}
-
-void QToolButton::releaseTimerDone()
-{
-    if ( d->popup )
-	d->popup->close();
-    setDown( FALSE );
 }
 
 /*!

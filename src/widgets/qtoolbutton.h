@@ -129,8 +129,6 @@ protected:
 private slots:
     void popupTimerDone();
     void popupPressed();
-    void releaseTimerDone();
-    void popupReleased();
 
 private:
     void init();
