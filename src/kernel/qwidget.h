@@ -295,7 +295,7 @@ public:
 	TabFocus = 0x1,
 	ClickFocus = 0x2,
 	StrongFocus = 0x3,
-	WheelFocus = 0x7,
+	WheelFocus = 0x7
     };
 
     bool		isActiveWindow() const;
@@ -900,7 +900,7 @@ inline void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::Size
     setSizePolicy( QSizePolicy( hor, ver, hfw) );
 }
 
-inline bool QWidget::isInputMethodEnabled() const 
+inline bool QWidget::isInputMethodEnabled() const
 {
     return (bool)im_enabled;
 }
