@@ -433,7 +433,7 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
         return;
     }
 
-    QPainter painter(&d->backBuffer);
+    QPainter painter(d->viewport);
 
     d->left = d->header->indexAt(d->header->offset() + area.left());
     d->right = d->header->indexAt(d->header->offset() + area.right() - 1);
@@ -482,10 +482,6 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
         painter.fillRect(bottom, base);
     if (x < w && area.intersects(left))
         painter.fillRect(left, base);
-
-    painter.end();
-    painter.begin(d->viewport);
-    painter.drawPixmap(area.topLeft(), d->backBuffer, area);
 }
 
 /*!

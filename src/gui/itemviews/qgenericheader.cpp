@@ -347,7 +347,7 @@ int QGenericHeader::sectionSizeHint(int section) const
 void QGenericHeader::paintEvent(QPaintEvent *e)
 {
     QStyleOptionViewItem option = viewOptions();
-    QPainter painter(&d->backBuffer);
+    QPainter painter(d->viewport);
     QRect area = e->rect();
 
     int offset = this->offset();
@@ -410,10 +410,6 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
             style().drawPrimitive(QStyle::PE_HeaderSection, &opt, &painter, this);
         }
     }
-
-    painter.end();
-    painter.begin(d->viewport);
-    painter.drawPixmap(area.topLeft(), d->backBuffer, area);
 }
 
 /*!

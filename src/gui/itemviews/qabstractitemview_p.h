@@ -36,7 +36,7 @@ public:
     QModelIndex pressedItem;
     Qt::ButtonState pressedState;
     QPoint pressedPosition;
-    
+
     QAbstractItemView::State state;
     QPoint cursorIndex;
     int beginEditActions;
@@ -56,8 +56,6 @@ public:
     int autoScrollCount;
 
     bool dragEnabled;
-
-    QPixmap backBuffer;
 };
 
 /*

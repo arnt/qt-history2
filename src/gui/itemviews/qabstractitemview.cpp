@@ -72,18 +72,14 @@ void QAbstractItemViewPrivate::init()
 
     q->verticalScrollBar()->setRange(0, 0);
     q->horizontalScrollBar()->setRange(0, 0);
-    
+
     QObject::connect(q->verticalScrollBar(), SIGNAL(actionTriggered(int)),
                      q, SLOT(verticalScrollbarAction(int)));
     QObject::connect(q->horizontalScrollBar(), SIGNAL(actionTriggered(int)),
                      q, SLOT(horizontalScrollbarAction(int)));
 
-    q->setAttribute(Qt::WA_PaintOnScreen);
-    q->setAttribute(Qt::WA_NoBackground);
-
-    viewport->setAttribute(Qt::WA_PaintOnScreen);
+    viewport->setBackgroundRole(QPalette::Base);
     viewport->setAttribute(Qt::WA_NoBackground);
-    viewport->setAttribute(Qt::WA_NoSystemBackground);
 
     q->setHorizontalFactor(256);
     q->setVerticalFactor(256);
@@ -370,7 +366,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
                             this, SLOT(rowsInserted(const QModelIndex&,int,int)));
         QObject::disconnect(d->model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
                             this, SLOT(rowsRemoved(const QModelIndex&,int,int)));
-        
+
 //         if (static_cast<QObject*>(d->model)->parent() == this)
 //             delete d->model;
     }
@@ -1002,7 +998,6 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 */
 void QAbstractItemView::resizeEvent(QResizeEvent *e)
 {
-    d->backBuffer.resize(e->size());
     QViewport::resizeEvent(e);
     updateGeometries();
 }
