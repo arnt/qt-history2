@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#164 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#165 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -909,7 +909,7 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 		exactMatch = FALSE;
 	    break;
 	default:
-	    // ### should not get here
+	    exactMatch = FALSE;
 	    break;
 	}
     } else if ( strcmp( tokens[CharsetRegistry], "iso10646" ) == 0 ) {
