@@ -2869,7 +2869,7 @@ void QFontCache::clear()
 	while ( it != end ) {
 	    QFontEngineData *data = it.value();
 	    if (data->engine)
-                !--d->engine->ref;
+                !--data->engine->ref;
 	    data->engine = 0;
 	    ++it;
 	}
@@ -2878,7 +2878,7 @@ void QFontCache::clear()
     EngineCache::Iterator it = engineCache.begin(),
 			 end = engineCache.end();
     while ( it != end ) {
-	if ( it.value().data->count == 0 ) {
+	if ( it.value().data->ref == 0 ) {
 	    if ( --it.value().data->cache_count == 0 ) {
 		FC_DEBUG("QFontCache::~QFontCache: deleting engine %p key=(%d / %d %d %d %d %d)",
 			 it.value().data, it.key().script, it.key().def.pointSize,
@@ -2888,7 +2888,7 @@ void QFontCache::clear()
 	    }
 	} else {
 	    FC_DEBUG("QFontCache::~QFontCache: engine = %p still has refcount %d",
-		     it.value().data, it.value().data->count);
+		     it.value().data, it.value().data->ref);
 	}
 	++it;
     }
