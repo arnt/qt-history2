@@ -2622,6 +2622,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			      0, sizeof(aeClass), 0, &aeClass);
 	    GetEventParameter(event, kEventParamAEEventID, typeType,
 			      0, sizeof(aeID), 0, &aeID);
+#ifdef DEBUG_EVENTS
+	    qDebug("Qt: internal: Apple event! %c%c%c%c %c%c%c%c", 
+		   char(aeID >> 24), char((aeID >> 16) & 255), char((aeID >> 8) & 255),char(aeID & 255),
+		   char(aeClass >> 24), char((aeClass >> 16) & 255), char((aeClass >> 8) & 255),char(aeClass & 255));
+#endif
 	    if(aeClass == kCoreEventClass) {
 		switch(aeID) {
 		case kAEQuitApplication: {
