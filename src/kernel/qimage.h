@@ -20,7 +20,7 @@
 #include "qstringlist.h"
 #include "qiodevice.h"
 #include "qshared.h"
-#include "qcolor.h" //not part of kernel ###
+#include "qrgb.h"
 #include "qrect.h"
 #endif // QT_H
 
