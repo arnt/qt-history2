@@ -62,7 +62,7 @@ struct QMakeProject::ScopeIterator
     QList<Parse> parser;
     QString variable;
 
-    bool loop_forever, cause_break;
+    bool loop_forever, cause_break, cause_next;
     QStringList list;
 };
 bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
@@ -77,6 +77,7 @@ bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
     parser_info pi = ::parser;
     //do the loop
     while(loop_forever || it != list.end()) {
+        cause_next = cause_break = false;
         if(!loop_forever && (*it).isEmpty()) //ignore empty items
             continue;
 
@@ -103,7 +104,7 @@ bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
             for(QList<Parse>::Iterator parse_it = parser.begin(); parse_it != parser.end();
                 ++parse_it) {
                 ::parser = (*parse_it).pi;
-                if(!(ret = p->parse((*parse_it).text, p->variables())))
+                if(!(ret = p->parse((*parse_it).text, p->variables())) || cause_break || cause_next)
                     break;
             }
         }
@@ -1338,6 +1339,12 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
             fprintf(stderr, "%s:%d unexpected break()",parser.file.latin1(), parser.line_no);
         else
             iterator->cause_break = true;
+        return true;
+    } else if(func == "next") {
+        if(!iterator)
+            fprintf(stderr, "%s:%d unexpected next()",parser.file.latin1(), parser.line_no);
+        else
+            iterator->cause_next = true;
         return true;
     } else if(func == "contains") {
         if(args.count() != 2) {
