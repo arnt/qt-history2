@@ -175,7 +175,7 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
     vbox->addWidget(d->underline);
 
     d->sample = new QGroupBox(tr("Sample"), this, "sample text");
-    QHBoxLayout *hbox = new QHBoxLayout(d->effects);
+    QHBoxLayout *hbox = new QHBoxLayout(d->sample);
     d->sampleEdit = new QLineEdit(d->sample, "r/w sample text");
     d->sampleEdit->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
     d->sampleEdit->setAlignment(Qt::AlignCenter);
