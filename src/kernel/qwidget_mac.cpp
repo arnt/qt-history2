@@ -189,6 +189,8 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
 }
 
 
+void qt_mac_destroy_widget(QWidget *w);
+
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
     deactivateWidgetCleanup();
@@ -230,6 +232,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
     }
     hd=0;
     setWinId( 0 );
+    qt_mac_destroy_widget(this);
 }
 
 void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,

@@ -84,18 +84,27 @@
   Internal variables and functions
  *****************************************************************************/
 
-static Qt::ButtonState mouse_button_state = Qt::NoButton;
+static int mouse_button_state = 0;
 static bool	app_do_modal	= FALSE;	// modal mode
 extern QWidgetList *qt_modal_stack;		// stack of modal widgets
 static char    *appName;                        // application name
 static Cursor *currentCursor;                  //current cursor
 QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
+QWidget        *qt_mouseover = 0;
 
 struct {
     unsigned int when;
     int x, y;
 } qt_last_mouse_down = { 0, 0, 0 };
+
+void qt_mac_destroy_widget(QWidget *w)
+{
+    if(qt_button_down == w)
+	qt_button_down = NULL;
+    if(qt_mouseover == w)
+	qt_mouseover = NULL;
+}
 
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
@@ -381,6 +390,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child)
   p.v=y;
   WindowPtr wp;
   FindWindow(p,&wp);
+  SetPortWindowPort( wp );
 
   //get that widget
   QWidget * widget=QWidget::find((WId)wp);
@@ -1253,7 +1263,13 @@ int QApplication::macProcessEvent(MSG * m)
 	short part = FindWindow( er->where, &wp );
 	if( part == inContent ) {
 	    QEvent::Type etype = QEvent::None;
-	    int button=0, state=0;
+	    int keys = get_modifiers(er->modifiers);
+	    int button, state=0; 
+	    if ( keys & Qt::ControlButton )
+		button = QMouseEvent::RightButton; 
+	    else
+		button = QMouseEvent::LeftButton;
+		
 	    if(er->what == mouseDown) {
 		//check if this is the second click, there must be a way to make the
 		//mac do this for us, FIXME!!
@@ -1273,15 +1289,11 @@ int QApplication::macProcessEvent(MSG * m)
 		    qt_last_mouse_down.x = er->where.h;
 		    qt_last_mouse_down.y = er->where.v;
 		}
-
-		//gross, need to handle more mouse buttons (and modifiers), FIXME
-		button = mouse_button_state = QMouseEvent::LeftButton; 
+		mouse_button_state = button;
 	    } else {
 		etype = QEvent::MouseButtonRelease;
-
-		//gross, need to handle more mouse buttons (and modifiers), FIXME
-		button = state = mouse_button_state;
-		mouse_button_state = Qt::NoButton;
+		state = mouse_button_state;
+		mouse_button_state = 0;
 	    }
 
 	    //handle popup's first
@@ -1368,7 +1380,11 @@ int QApplication::macProcessEvent(MSG * m)
 			n = (Cursor *)arrowCursor.handle(); //I give up..
 		    if(currentCursor != n) 
 			SetCursor(currentCursor = n);
-		
+		    if ( qt_mouseover != widget ) {
+			qt_dispatchEnterLeave( widget, qt_mouseover );
+			qt_mouseover = widget;
+		    }
+
 		    //ship the event
 		    QPoint p( er->where.h, er->where.v );
 		    QPoint plocal(widget->mapFromGlobal( p ));
