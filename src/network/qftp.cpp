@@ -1345,11 +1345,45 @@ void QFtp::piError( const QString &text )
 	return;
     }
 
+    QString msg;
+    switch ( currentCommand() ) {
+	case ConnectToHost:
+	    msg = tr( "Connecting to host failed:\n%1" ).arg( text );
+	    break;
+	case Login:
+	    msg = tr( "Login failed:\n%1" ).arg( text );
+	    break;
+	case List:
+	    msg = tr( "Listing directory failed:\n%1" ).arg( text );
+	    break;
+	case Cd:
+	    msg = tr( "Changing directory failed:\n%1" ).arg( text );
+	    break;
+	case Get:
+	    msg = tr( "Downloading file failed:\n%1" ).arg( text );
+	    break;
+	case Put:
+	    msg = tr( "Uploading file failed:\n%1" ).arg( text );
+	    break;
+	case Remove:
+	    msg = tr( "Removing file failed:\n%1" ).arg( text );
+	    break;
+	case Mkdir:
+	    msg = tr( "Creating directory failed:\n%1" ).arg( text );
+	    break;
+	case Rmdir:
+	    msg = tr( "Removing directory failed:\n%1" ).arg( text );
+	    break;
+	default:
+	    msg = text;
+	    break;
+    }
+
     d->pi.clearPendingCommands();
-    emit finishedError( c->id, text );
+    emit finishedError( c->id, msg );
 
     d->pending.clear();
-    emit doneError( text );
+    emit doneError( msg );
 
 }
 
