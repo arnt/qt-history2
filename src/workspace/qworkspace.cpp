@@ -391,7 +391,17 @@ void QWorkspace::childEvent( QChildEvent * e)
     }
 }
 
-
+/*! \reimp
+*/
+void QWorkspace::wheelEvent( QWheelEvent *e )
+{
+    if ( !scrollBarsEnabled() )
+	return;
+    if ( d->vbar && d->vbar->isVisible() && !( e->state() & AltButton ) )
+	QApplication::sendEvent( d->vbar, e );
+    else if ( d->hbar && d->hbar->isVisible() )
+	QApplication::sendEvent( d->hbar, e );
+}
 
 void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 {

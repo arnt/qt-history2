@@ -91,6 +91,7 @@ protected:
     bool eventFilter( QObject *, QEvent * );
     void showEvent( QShowEvent *e );
     void hideEvent( QHideEvent *e );
+    void wheelEvent( QWheelEvent *e );
 
 private slots:
     void closeActiveWindow();
