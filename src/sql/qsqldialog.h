@@ -96,21 +96,10 @@ public slots:
     virtual void lastRecord();
     virtual void nextRecord();
     virtual void prevRecord();
-    virtual void clearFormValues();
 
     virtual void readFields();
     virtual void writeFields();
-
-protected:
-    void emitCurrentChanged( const QSqlRecord* record );
-    void emitFirstRecordAvailable( bool available );
-    void emitLastRecordAvailable( bool available );
-    void emitNextRecordAvailable( bool available );
-    void emitPrevRecordAvailable( bool available );
-    void emitBeforeInsert( QSqlRecord* buf );
-    void emitBeforeUpdate( QSqlRecord* buf );
-    void emitBeforeDelete( QSqlRecord* buf );
-    void emitCursorChanged( QSqlCursor::Mode mode );
+    virtual void clearFormValues();
 };
 
 #endif // QT_NO_SQL

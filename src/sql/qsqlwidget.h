@@ -67,10 +67,12 @@ public:
     virtual void setFilter( const QString& filter );
     QString filter() const;
 
-    void setCursor( QSqlCursor* cursor, bool autoDelete = FALSE ) { QSqlFormNavigator::setCursor( cursor, autoDelete ); }
+    void setCursor( QSqlCursor* cursor, bool autoDelete = FALSE )
+    { QSqlFormNavigator::setCursor( cursor, autoDelete ); }
     void setCursor ( const QCursor & cursor ) { QWidget::setCursor( cursor ); }
     const QCursor& cursor () const { return QWidget::cursor(); }
-    void setSqlCursor( QSqlCursor* cursor, bool autoDelete = FALSE ) { QSqlFormNavigator::setCursor( cursor, autoDelete ); }
+    void setSqlCursor( QSqlCursor* cursor, bool autoDelete = FALSE )
+    { QSqlFormNavigator::setCursor( cursor, autoDelete ); }
     QSqlCursor* sqlCursor() const { return QSqlFormNavigator::cursor(); }
 
 signals:
@@ -95,21 +97,11 @@ public slots:
     virtual void lastRecord();
     virtual void nextRecord();
     virtual void prevRecord();
-    virtual void clearFormValues();
 
     virtual void readFields();
     virtual void writeFields();
+    virtual void clearFormValues();
 
-protected:
-    void emitCurrentChanged( const QSqlRecord* record );
-    void emitFirstRecordAvailable( bool available );
-    void emitLastRecordAvailable( bool available );
-    void emitNextRecordAvailable( bool available );
-    void emitPrevRecordAvailable( bool available );
-    void emitBeforeInsert( QSqlRecord* buf );
-    void emitBeforeUpdate( QSqlRecord* buf );
-    void emitBeforeDelete( QSqlRecord* buf );
-    void emitCursorChanged( QSqlCursor::Mode mode );
 };
 
 

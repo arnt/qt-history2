@@ -68,9 +68,19 @@ public:
 
     virtual void refresh();
     virtual bool findBuffer( const QSqlIndex& idx, int atHint = 0 );
+    virtual void currentChanged( const QSqlRecord* record );
+
+    virtual void beforeInsert( QSqlRecord* buf );
+    virtual void beforeUpdate( QSqlRecord* buf );
+    virtual void beforeDelete( QSqlRecord* buf );
+    virtual void cursorChanged( QSqlCursor::Mode mode );
+
+    virtual int insert();
+    virtual int update();
+    virtual int del();
 
 protected:
-    virtual void emitCurrentChanged( const QSqlRecord* record );
+    virtual void handleError( const QSqlError& e );
 
 private:
     class QSqlCursorNavigatorPrivate;
@@ -92,14 +102,19 @@ public:
 	AfterEnd
     };
 
-    int insertRecord();
-    int updateRecord();
-    int deleteRecord();
     bool firstRecord();
     bool lastRecord();
     bool nextRecord();
     bool prevRecord();
     void clearValues();
+
+    int insert();
+    int update();
+    int del();
+
+    void readFields();
+    void writeFields();
+    void clearFormValues();
 
     Boundry boundry();
     void setBoundryChecking( bool active );
@@ -108,18 +123,10 @@ public:
     virtual void setForm( QSqlForm* form );
     QSqlForm* form();
 
-protected:
-    virtual void emitFirstRecordAvailable( bool available );
-    virtual void emitLastRecordAvailable( bool available );
-    virtual void emitNextRecordAvailable( bool available );
-    virtual void emitPrevRecordAvailable( bool available );
-
-    virtual void emitBeforeInsert( QSqlRecord* buf );
-    virtual void emitBeforeUpdate( QSqlRecord* buf );
-    virtual void emitBeforeDelete( QSqlRecord* buf );
-    virtual void emitCursorChanged( QSqlCursor::Mode mode );
-
-    virtual void handleError( const QSqlError& e );
+    virtual void firstRecordAvailable( bool available );
+    virtual void lastRecordAvailable( bool available );
+    virtual void nextRecordAvailable( bool available );
+    virtual void prevRecordAvailable( bool available );
 
 private:
     void updateBoundry();

@@ -375,17 +375,150 @@ bool QSqlCursorNavigator::findBuffer( const QSqlIndex& idx, int atHint )
 	}
     }
     QApplication::restoreOverrideCursor();
-    emitCurrentChanged( cur );
+    currentChanged( cur );
     return indexEquals;
 }
 
-/*! \internal
+/*! Virtual function called whenever the position of the current
+  cursor had changed.  The \a record parameter points to the cursor
+  buffer.
 
 */
 
-void QSqlCursorNavigator::emitCurrentChanged( const QSqlRecord* record )
+void QSqlCursorNavigator::currentChanged( const QSqlRecord* )
 {
 
+}
+
+/*! This function is called before a record is inserted using the
+  default cursor.  The \a buf parameter points to the edit buffer
+  about to be inserted. The default implementation does nothing.
+
+  \sa setCursor()
+*/
+void QSqlCursorNavigator::beforeInsert( QSqlRecord* )
+{
+}
+
+
+/*! This function is called before a record is updated using the
+  default cursor.  The \a buf parameter points to the edit buffer
+  about to be updated. The default implementation does nothing.
+
+  \sa setCursor()
+*/
+void QSqlCursorNavigator::beforeUpdate( QSqlRecord* )
+{
+}
+
+/*! This function is called before a record is deleted using the
+  default cursor.  The \a buf parameter points to the edit buffer
+  about to be deleted.  The default implementation does nothing.
+
+  \sa setCursor()
+*/
+void QSqlCursorNavigator::beforeDelete( QSqlRecord* )
+{
+}
+
+/*! This function is called whenever the cursor changes state.  The \a
+  mode parameter describes the change that took place.  The default
+  implementation does nothing.
+*/
+void QSqlCursorNavigator::cursorChanged( QSqlCursor::Mode )
+{
+}
+
+/*!  Performs an insert on the default cursor.  If there is no default
+  cursor, nothing happens and 0 is returned.  Otherwise, returns 1 if
+  the insert was successfull, otherwise 0 is returned.  If an error
+  occurred during the insert into the database, handleError() is
+  called.  If the insert was successfull, the cursor is refreshed and
+  relocated to the newly inserted record, and the cursorChanged()
+  function is called.
+
+  \sa beforeInsert() cursorChanged() setCursor() handleError()
+
+*/
+
+int QSqlCursorNavigator::insert()
+{
+    QSqlCursor* cur = cursor();
+    if ( !cur )
+	return 0;
+    beforeInsert( cur );
+    int ar = cur->insert();
+    if ( !ar || !cur->isActive() )
+	handleError( cur->lastError() );
+    else {
+	refresh();
+	findBuffer( cur->primaryIndex() );
+	cursorChanged( QSqlCursor::Insert );
+    }
+    return ar;
+}
+
+/*!  Performs an update on the default cursor. If there is no default
+  cursor, nothing happens and 0 is returned.  Otherwise, returns 1 if
+  the update was successfull, otherwise 0 is returned.  If the update
+  was successfull, the cursor is refreshed and relocated to the
+  updated record, and the cursorChanged() function is called.  If an
+  error occurred during the update on the database, handleError() is
+  called.
+
+  \sa beforeUpdate() cursorChanged() setCursor() handleError()
+*/
+
+int QSqlCursorNavigator::update()
+{
+    QSqlCursor* cur = cursor();
+    if ( !cur )
+	return 0;
+    beforeUpdate( cur );
+    int ar = cur->update();
+    if ( !ar || !cur->isActive() )
+	handleError( cur->lastError() );
+    else {
+	refresh();
+	findBuffer( cur->primaryIndex() );
+	cursorChanged( QSqlCursor::Update );
+    }
+    return ar;
+}
+
+/*!  Performs a delete on the default cursor.  If there is no default
+  cursor, nothing happens and 0 is returned.  Otherwise, returns 1 if
+  the delete was successfull, otherwise 0 is returned.  If the delete
+  was successful, the cursor is refreshed, but not relocated, and the
+  cursorChanged() function is called. If an error occurred during the
+  delete from the database, handleError() is called.
+
+*/
+
+int QSqlCursorNavigator::del()
+{
+    QSqlCursor* cur = cursor();
+    if ( !cur )
+	return 0;
+    beforeDelete( cur );
+    int ar = cur->del();
+    if ( ar ) {
+	refresh();
+	cursorChanged( QSqlCursor::Delete );
+    } else {
+	if ( !cur->isActive() )
+	    handleError( cur->lastError() );
+    }
+    return ar;
+}
+
+/*!  Virtual function which is called when an error has occurred on
+  the default cursor.  The default implementation does nothing.
+
+*/
+
+void QSqlCursorNavigator::handleError( const QSqlError& )
+{
 }
 
 class QSqlFormNavigator::QSqlFormNavigatorPrivate
@@ -481,96 +614,101 @@ QSqlForm* QSqlFormNavigator::form()
     return d->frm;
 }
 
-/*!  Reads the fields from the default form and performs an insert on
-  the default cursor.  Returns 1 if the insert was successfull,
-  otherwise 0 is returned.  If an error occurred during the insert
-  into the database, handleError() is called.
+/*!  Reads the fields from the default form into the default cursor
+  and performs an insert on the default cursor.  If there is no
+  default form, nothing happens, and 0 is returned. Otherwise, returns
+  1 if the insert was successfull, otherwise 0 is returned.  If an
+  error occurred during the insert into the database, handleError() is
+  called.
 
-  \sa cursor() form() handleError()
+  \sa QSqlCursorNavigator::insert() cursor() form() handleError()
 
 */
 
-int QSqlFormNavigator::insertRecord()
+int QSqlFormNavigator::insert()
 {
-    QSqlCursor* cur = cursor();
     QSqlForm* frm = form();
-    if ( !cur || !frm )
+    if ( !frm )
 	return 0;
     frm->writeFields();
-    emitBeforeInsert( cur );
-    int ar = cur->insert();
-    if ( !ar || !cur->isActive() )
-	handleError( cur->lastError() );
-    else {
-	refresh();
-	findBuffer( cur->primaryIndex() );
-	emitCursorChanged( QSqlCursor::Insert );
+    int ar = QSqlCursorNavigator::insert();
+    if ( ar )
 	updateBoundry();
-    }
     return ar;
 }
 
-/*!  Reads the fields from the default form and performs an update on
-  the default cursor. Returns 1 if the update was successfull,
-  otherwise 0 is returned.  If an error occurred during the update on
-  the database, handleError() is called.
+/*!  Reads the fields from the default form into the default cursor
+  and performs an update on the default cursor. If there is no default
+  form, nothing happens, and 0 is returned.  Otherwise, returns 1 if
+  the update was successfull, otherwise 0 is returned.  If an error
+  occurred during the update on the database, handleError() is called.
+
+  \sa QSqlCursorNavigator::update() cursor() form() handleError()
 
 */
 
-int QSqlFormNavigator::updateRecord()
+int QSqlFormNavigator::update()
 {
-    QSqlCursor* cur = cursor();
     QSqlForm* frm = form();
-    if ( !cur || !frm )
+    if ( !frm )
 	return 0;
     frm->writeFields();
-    emitBeforeUpdate( cur );
-    int ar = cur->update();
-    if ( !ar || !cur->isActive() )
-	handleError( cur->lastError() );
-    else {
-	refresh();
-	findBuffer( cur->primaryIndex() );
-	emitCursorChanged( QSqlCursor::Update );
+    int ar = QSqlCursorNavigator::update();
+    if ( ar ) {
 	updateBoundry();
+	cursor()->editBuffer( TRUE );
 	frm->readFields();
     }
     return ar;
 }
 
-/*!  Performs a delete on the default cursor and updates the default
-  form.  Returns 1 if the delete was successfull, otherwise 0 is
-  returned.  If an error occurred during the delete from the database,
-  handleError() is called.
+/*!  Performs a delete on the default cursor using the values from the
+  default form and updates the default form.  If there is no default
+  form, nothing happens and 0 is returned.  Otherwise, returns 1 if
+  the delete was successfull, otherwise 0 is returned.  If the delete
+  was successful, the cursor is repositioned to the next record. If an
+  error occurred during the delete from the database, handleError() is
+  called.
 
+  \sa QSqlCursorNavigator::del() cursor() form() handleError()
 
 */
 
-int QSqlFormNavigator::deleteRecord()
+int QSqlFormNavigator::del()
 {
     QSqlCursor* cur = cursor();
     QSqlForm* frm = form();
     if ( !cur || !frm )
 	return 0;
     int n = cur->at();
-    emitBeforeDelete( cur );
-    int ar = cur->del();
+    int ar = QSqlCursorNavigator::del();
     if ( ar ) {
-	refresh();
 	if ( !cur->seek( n ) )
 	    lastRecord();
 	else
 	    updateBoundry();
-	cur->primeUpdate();
-	QSqlForm* frm = form();
-	if ( frm )
-	    frm->readFields();
-	emitCursorChanged( QSqlCursor::Delete );
-    } else {
-	if ( !cur->isActive() )
-	    handleError( cur->lastError() );
+	cur->editBuffer();
+	frm->readFields();
     }
     return ar;
+}
+
+void QSqlFormNavigator::readFields()
+{
+    if ( form() )
+	form()->readFields();
+}
+
+void QSqlFormNavigator::writeFields()
+{
+    if ( form() )
+	form()->writeFields();
+}
+
+void QSqlFormNavigator::clearFormValues()
+{
+    if ( form() )
+	form()->clearValues();
 }
 
 /*!  Moves the default cursor to the first record and updates the
@@ -680,15 +818,6 @@ void QSqlFormNavigator::clearValues()
 	frm->clearValues();
 }
 
-/*!  Virtual function which is called when an error has occurred on
-  the default cursor.  The default implementation does nothing.
-
-*/
-
-void QSqlFormNavigator::handleError( const QSqlError& )
-{
-}
-
 /*! Returns an enum indicating the boundry status of the navigator.
 This is done by moving the default cursor and checking the position,
 however the current default form values will not be altered.  After
@@ -700,9 +829,7 @@ position.
 QSqlFormNavigator::Boundry QSqlFormNavigator::boundry()
 {
     QSqlCursor* cur = cursor();
-    if ( !cur )
-	return Unknown;
-    if ( !cur->isActive() )
+    if ( !cur || !cur->isActive() )
 	return Unknown;
     if ( !cur->isValid() ) {
 	if ( cur->at() == QSqlResult::BeforeFirst )
@@ -713,7 +840,6 @@ QSqlFormNavigator::Boundry QSqlFormNavigator::boundry()
     }
     if ( cur->at() == 0 )
 	return Beginning;
-    // otherwise...
     int currentAt = cur->at();
     Boundry b = None;
     if ( !cur->prev() )
@@ -737,8 +863,8 @@ bool QSqlFormNavigator::boundryChecking() const
 }
 
 /*! If boundryChecking() is TRUE, checks the boundry of the current
-default cursor and calls virtual 'emit' functions which derived
-classes can reimplement to emit signals.
+  default cursor and calls virtual functions which indicate the
+  position of the cursor.
 */
 
 void QSqlFormNavigator::updateBoundry()
@@ -748,38 +874,38 @@ void QSqlFormNavigator::updateBoundry()
 	switch ( bound ) {
 	case Unknown:
 	case None:
-	    emitFirstRecordAvailable( TRUE );
-	    emitPrevRecordAvailable( TRUE );
-	    emitNextRecordAvailable( TRUE );
-	    emitLastRecordAvailable( TRUE );
+	    firstRecordAvailable( TRUE );
+	    prevRecordAvailable( TRUE );
+	    nextRecordAvailable( TRUE );
+	    lastRecordAvailable( TRUE );
 	    break;
 
 	case BeforeBeginning:
-	    emitFirstRecordAvailable( TRUE );
-	    emitPrevRecordAvailable( FALSE );
-	    emitNextRecordAvailable( TRUE );
-	    emitLastRecordAvailable( TRUE );
+	    firstRecordAvailable( TRUE );
+	    prevRecordAvailable( FALSE );
+	    nextRecordAvailable( TRUE );
+	    lastRecordAvailable( TRUE );
 	    break;
 
 	case Beginning:
-	    emitFirstRecordAvailable( FALSE );
-	    emitPrevRecordAvailable( FALSE );
-	    emitNextRecordAvailable( TRUE );
-	    emitLastRecordAvailable( TRUE );
+	    firstRecordAvailable( FALSE );
+	    prevRecordAvailable( FALSE );
+	    nextRecordAvailable( TRUE );
+	    lastRecordAvailable( TRUE );
 	    break;
 
 	case End:
-	    emitFirstRecordAvailable( TRUE );
-	    emitPrevRecordAvailable( TRUE );
-	    emitNextRecordAvailable( FALSE );
-	    emitLastRecordAvailable( FALSE );
+	    firstRecordAvailable( TRUE );
+	    prevRecordAvailable( TRUE );
+	    nextRecordAvailable( FALSE );
+	    lastRecordAvailable( FALSE );
 	    break;
 
 	case AfterEnd:
-	    emitFirstRecordAvailable( TRUE );
-	    emitPrevRecordAvailable( TRUE );
-	    emitNextRecordAvailable( FALSE );
-	    emitLastRecordAvailable( TRUE );
+	    firstRecordAvailable( TRUE );
+	    prevRecordAvailable( TRUE );
+	    nextRecordAvailable( FALSE );
+	    lastRecordAvailable( TRUE );
 	    break;
 
 	}
@@ -788,51 +914,25 @@ void QSqlFormNavigator::updateBoundry()
 
 /*! \internal
  */
-void QSqlFormNavigator::emitFirstRecordAvailable( bool )
+void QSqlFormNavigator::firstRecordAvailable( bool )
 {
 }
 
 /*! \internal
  */
-void QSqlFormNavigator::emitLastRecordAvailable( bool )
+void QSqlFormNavigator::lastRecordAvailable( bool )
 {
 }
 
 /*! \internal
  */
-void QSqlFormNavigator::emitNextRecordAvailable( bool )
+void QSqlFormNavigator::nextRecordAvailable( bool )
 {
 }
 
 /*! \internal
  */
-void QSqlFormNavigator::emitPrevRecordAvailable( bool )
-{
-}
-
-
-/*! \internal
-*/
-void QSqlFormNavigator::emitBeforeInsert( QSqlRecord* )
-{
-}
-
-
-/*! \internal
-*/
-void QSqlFormNavigator::emitBeforeUpdate( QSqlRecord* )
-{
-}
-
-/*! \internal
-*/
-void QSqlFormNavigator::emitBeforeDelete( QSqlRecord* )
-{
-}
-
-/*! \internal
-*/
-void QSqlFormNavigator::emitCursorChanged( QSqlCursor::Mode )
+void QSqlFormNavigator::prevRecordAvailable( bool )
 {
 }
 
