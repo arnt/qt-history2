@@ -725,7 +725,7 @@ void QTreeView::mousePressEvent(QMouseEvent *e)
     int i = d->itemDecorationAt(e->pos());
     if (i == -1) {
         QAbstractItemView::mousePressEvent(e);
-    } else {
+    } else if (model()->hasChildren(d->viewItems.at(i).index)) {
         if (d->viewItems.at(i).expanded) {
             setState(QAbstractItemView::ExpandingState);
             d->collapse(i);
@@ -750,15 +750,17 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *e)
         i = d->item(e->y());
         if (i == -1 || state() != NoState)
             return; // the double click triggered editing or we clicked outside the items
-        if (d->viewItems.at(i).expanded) {
-            setState(ExpandingState);
-            d->collapse(i);
-        } else {
-            setState(CollapsingState);
-            d->expand(i);
+        if (model()->hasChildren(d->viewItems.at(i).index)) {
+            if (d->viewItems.at(i).expanded) {
+                setState(ExpandingState);
+                d->collapse(i);
+            } else {
+                setState(CollapsingState);
+                d->expand(i);
+            }
+            updateGeometries();
+            viewport()->update();
         }
-        updateGeometries();
-        viewport()->update();
     }
 }
 
