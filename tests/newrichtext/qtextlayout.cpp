@@ -196,7 +196,18 @@ QTextLayout::~QTextLayout()
 /* add an additional item boundary eg. for style change */
 void QTextLayout::setBoundary( int strPos )
 {
-    d->items.split( strPos );
+    if ( strPos <= 0 || strPos >= (int)d->string.length() )
+	return;
+
+    int itemToSplit = 0;
+    while ( itemToSplit < d->items.size() && d->items[itemToSplit].position <= strPos )
+	itemToSplit++;
+    itemToSplit--;
+    if ( d->items[itemToSplit].position == strPos ) {
+	// already a split at the requested position
+	return;
+    }
+    d->items.split( itemToSplit, strPos - d->items[itemToSplit].position );
 }
 
 
@@ -270,114 +281,131 @@ int QTextLayout::availableWidth() const
 /* returns true if completely added */
 QTextLayout::Result QTextLayout::addCurrentItem()
 {
-    QScriptItem &current = d->items[d->currentItem];
-
-    int width = d->lineWidth - d->widthUsed;
-
-//     qDebug("adding current item %d, size=%d available=%d, itemWidth=%d", d->currentItem, d->items.size(),
-// 	   width, current.width);
-
-    if ( current.width < width ) {
-	// simple case, we can add it as is, there's nothing to do for now
-	d->widthUsed += current.width;
-// 	qDebug("   -> Ok" );
-	if ( d->firstItemInLine == -1 )
-	    d->firstItemInLine = d->currentItem;
-	d->currentItem++;
-	return Ok;
-    }
-
-    // have to split it.
-
-    // line breaks are always done in logical order
-
-    int length = d->length( d->currentItem );
-    // this ensures it's really shaped
-    QShapedItem *shaped = d->shape( d->currentItem );
-
-    int lastBreak = 0;
-    int splitGlyph = 0;
-
-    int lastWidth = 0;
-    int w = 0;
-    int lastCluster = 0;
-    int clusterStart = 0;
-
-    const QCharAttributes *attrs = d->attributes();
-
-    for ( int i = 1; i <= length; i++ ) {
-	int newCluster = i < length ? shaped->logClusters[i] : shaped->num_glyphs;
-	if ( newCluster != lastCluster ) {
-	    // calculate cluster width
-	    int x = 0;
-	    for ( int j = lastCluster; j < newCluster; j++ )
-		x += shaped->advances[j].x;
-	    lastWidth += x;
-	    if ( w + lastWidth > width )
-		break;
-	    lastCluster = newCluster;
-	    clusterStart = i;
-	    if ( attrs[i + current.position].softBreak ) {
-		lastBreak = i;
-		splitGlyph = newCluster;
-		w += lastWidth;
-		lastWidth = 0;
-	    }
-	}
-    }
-
-    bool breakIsWS = FALSE;
-    if ( attrs[lastBreak + current.position].whiteSpace ) {
-	lastBreak++;
-	w += shaped->advances[splitGlyph].x;
-	splitGlyph++;
-	breakIsWS = TRUE;
-    }
-
-    if ( lastBreak == 0 ) {
-// 	qDebug("   -> Error" );
-	return Error;
-    }
-    // we have the break position
-    d->items.split( lastBreak + d->items[d->currentItem].position );
-
-    // split the shapedItem
-    QShapedItem *split = new QShapedItem;
-    split->ownGlyphs = FALSE;
-    split->num_glyphs = shaped->num_glyphs - splitGlyph - 1;
-    split->glyphs = shaped->glyphs + splitGlyph;
-    split->offsets = shaped->offsets + splitGlyph;
-    split->advances = shaped->advances + splitGlyph;
-    split->glyphAttributes = shaped->glyphAttributes + splitGlyph;
-    split->logClusters = shaped->logClusters+lastBreak;
-    for ( int i = 0; i < length-lastBreak; i++ )
-	split->logClusters[i] -= splitGlyph;
-
-    shaped->num_glyphs = splitGlyph;
-
-    d->items[d->currentItem+1].shaped = split;
-    d->items[d->currentItem+1].width = current.width - w;
-    current.width = w;
-
-    d->widthUsed += w;
     if ( d->firstItemInLine == -1 )
 	d->firstItemInLine = d->currentItem;
+    QScriptItem &current = d->items[d->currentItem];
+    if ( !current.shaped )
+	d->shape( d->currentItem );
+    d->widthUsed += current.width;
+    qDebug("trying to add item %d with width %d, remaining %d", d->currentItem, current.width, d->lineWidth-d->widthUsed );
+
     d->currentItem++;
 
-//     qDebug("   -> Split at %d", lastBreak );
-    return Split;
+    return (d->widthUsed > d->lineWidth) ? LineFull : Ok;
 }
 
-bool QTextLayout::lineIsEmpty() const
+QTextLayout::Result QTextLayout::endLine( int x, int y, Qt::AlignmentFlags alignment, int *ascent, int *descent )
 {
-    return d->firstItemInLine == -1;
-}
-
-void QTextLayout::endLine( int x, int y, Qt::AlignmentFlags alignment )
-{
-//     qDebug("endLine x=%d, y=%d, first=%d, current=%d", x,  y, d->firstItemInLine, d->currentItem );
+    qDebug("endLine x=%d, y=%d, first=%d, current=%d", x,  y, d->firstItemInLine, d->currentItem );
     if ( d->firstItemInLine == -1 )
-	return;
+	return LineEmpty;
+
+    if ( d->widthUsed > d->lineWidth ) {
+	// find linebreak
+	const QCharAttributes *attrs = d->attributes();
+	int w = 0;
+	int itemWidth;
+	int breakItem = d->firstItemInLine;
+	int breakPosition = -1;
+	int breakGlyph = 0;
+#if 0
+	// we iterate backwards or forward depending on what we guess is closer
+	if ( d->widthUsed - d->lineWidth < d->lineWidth ) {
+	    // backwards search should be faster
+
+	} else
+#endif
+	{
+	    int tmpWidth = 0;
+	    bool lastWasSpace = FALSE;
+	    // forward search is probably faster
+	    for ( int i = d->firstItemInLine; i < d->currentItem; i++ ) {
+		const QScriptItem &si = d->items[i];
+		int length = d->length( i );
+		const QCharAttributes *itemAttrs = attrs + si.position;
+
+		const QShapedItem *shaped = si.shaped;
+		const offset_t *advances = shaped->advances;
+
+		int lastGlyph = 0;
+		int tmpItemWidth = 0;
+
+		itemWidth = 0;
+// 		qDebug("looking for break in item %d", i );
+
+		for ( int pos = 0; pos < length; pos++ ) {
+// 		    qDebug("advance=%d, tmpWidth=%d, softbreak=%d, whitespace=%d",
+// 			   advances->x, tmpWidth, itemAttrs->softBreak, itemAttrs->whiteSpace );
+		    int glyph = shaped->logClusters[pos];
+		    if ( lastGlyph != glyph ) {
+			while ( lastGlyph < glyph )
+			    tmpItemWidth += advances[lastGlyph++].x;
+			if ( w + tmpWidth + tmpItemWidth > d->lineWidth )
+			    goto found;
+		    }
+		    if ( lastWasSpace || itemAttrs->softBreak ) {
+			breakItem = i;
+			breakPosition = pos;
+// 			qDebug("found possible break at item %d, position %d (absolute=%d)", breakItem, breakPosition, d->items[breakItem].position+breakPosition );
+			breakGlyph = glyph;
+			w += tmpWidth + tmpItemWidth;
+			itemWidth += tmpItemWidth;
+			tmpWidth = 0;
+			tmpItemWidth = 0;
+		    }
+		    lastWasSpace = itemAttrs->whiteSpace;
+		    itemAttrs++;
+		}
+		while ( lastGlyph < shaped->num_glyphs )
+		    tmpItemWidth += advances[lastGlyph++].x;
+		tmpWidth += tmpItemWidth;
+		if ( w + tmpWidth > d->lineWidth )
+		    goto found;
+	    }
+	}
+
+    found:
+	// no valid break point found
+	if ( breakPosition == -1 ) {
+// 	    qDebug("no valid linebreak found, returning empty line");
+	    return LineEmpty;
+	}
+
+//  	qDebug("linebreak at item %d, position %d, glyph %d", breakItem, breakPosition, breakGlyph );
+	// split the line
+	QScriptItem &endItem = d->items[breakItem];
+	if ( breakPosition > 0 ) {
+	    int length = d->length( breakItem );
+
+//  	    qDebug("splitting item, itemWidth=%d", itemWidth);
+	    QShapedItem *shaped = endItem.shaped;
+	    // not a full item, need to break
+	    d->items.split( breakItem, breakPosition );
+// 	    qDebug("new items are at %d (len=%d) and %d (len=%d)", endItem.position, d->length(breakItem),
+// 		   d->items[breakItem+1].position, d->length(breakItem+1) );
+
+	    // split the shapedItem
+	    QShapedItem *split = new QShapedItem;
+	    split->ownGlyphs = FALSE;
+	    split->num_glyphs = shaped->num_glyphs - breakGlyph;
+	    split->glyphs = shaped->glyphs + breakGlyph;
+	    split->offsets = shaped->offsets + breakGlyph;
+	    split->advances = shaped->advances + breakGlyph;
+	    split->glyphAttributes = shaped->glyphAttributes + breakGlyph;
+	    split->logClusters = shaped->logClusters + breakPosition;
+	    for ( int i = 0; i < length-breakPosition; i++ )
+		split->logClusters[i] -= breakGlyph;
+
+	    shaped->num_glyphs = breakGlyph;
+
+	    d->items[breakItem + 1].shaped = split;
+	    d->items[breakItem + 1].width = endItem.width - itemWidth;
+	    endItem.width = itemWidth;
+	    d->currentItem = breakItem+1;
+	} else {
+	    d->currentItem = breakItem;
+	}
+    }
 
     // position the objects in the line
     int available = d->lineWidth - d->widthUsed;
@@ -396,8 +424,11 @@ void QTextLayout::endLine( int x, int y, Qt::AlignmentFlags alignment )
 	visual = new int[numRuns];
     }
     int i;
-    for ( i = 0; i < numRuns; i++ )
-	levels[i] = d->items[i].analysis.bidiLevel;
+//     qDebug("reordering %d runs:", numRuns );
+    for ( i = 0; i < numRuns; i++ ) {
+	levels[i] = d->items[i+d->firstItemInLine].analysis.bidiLevel;
+// 	qDebug("    level = %d", d->items[i+d->firstItemInLine].analysis.bidiLevel );
+    }
     d->bidiReorder( numRuns, levels, visual );
 
     if ( alignment & Qt::AlignJustify ) {
@@ -409,13 +440,30 @@ void QTextLayout::endLine( int x, int y, Qt::AlignmentFlags alignment )
     else if ( alignment & Qt::AlignCenter )
 	x += available/2;
 
+
+    int asc = 0;
+    int desc = 0;
+
     for ( i = 0; i < numRuns; i++ ) {
-// 	qDebug("positioning item %d", d->firstItemInLine+visual[i] );
 	QScriptItem &si = d->items[d->firstItemInLine+visual[i]];
+	asc = QMAX( asc, si.ascent );
+	desc = QMAX( desc, si.descent );
+    }
+
+    for ( i = 0; i < numRuns; i++ ) {
+	QScriptItem &si = d->items[d->firstItemInLine+visual[i]];
+//  	qDebug("positioning item %d with width %d (from=%d/length=%d) at %d", d->firstItemInLine+visual[i], si.width, si.position,
+// 	       d->length(d->firstItemInLine+visual[i]), x );
 	si.x = x;
-	si.y = y;
+	si.y = y + asc;
 	x += si.width;
     }
+
+    if ( ascent )
+	*ascent = asc;
+    if ( descent )
+	*descent = desc;
+    return Ok;
 }
 
 void QTextLayout::endLayout()

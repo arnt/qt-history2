@@ -132,20 +132,26 @@ void EditWidget::recalculate()
 
     int state = QTextLayout::Ok;
     int add = 0;
+    qDebug("\n\nbeginLayout: lw = %d", lw );
     while ( !d->layout->atEnd() ) {
 	d->layout->beginLine( lw + add );
-	int ascent = 0;
-	int descent = 0;
+	qDebug("beginLine( %d )",  lw+add );
+// 	int ascent = 0;
+// 	int descent = 0;
 	int state = QTextLayout::Ok;
 	do {
-	    QTextItem ti = d->layout->currentItem();
-	    ascent = QMAX( ascent, ti.ascent() );
-	    descent = QMAX( descent, ti.descent() );
+// 	    QTextItem ti = d->layout->currentItem();
+// 	    qDebug("current item: (%d/%d) ascent=%d, descent=%d, width=%d", ti.from(),ti.length(), ti.ascent(), ti.descent(), ti.width() );
+// 	    ascent = QMAX( ascent, ti.ascent() );
+// 	    descent = QMAX( descent, ti.descent() );
 	    state = d->layout->addCurrentItem();
 	} while ( state == QTextLayout::Ok && !d->layout->atEnd() );
-	if ( !d->layout->lineIsEmpty() ) {
-// 	    qDebug("finalizing line: ascent = %d, descent=%d", ascent, descent );
-	    d->layout->endLine( x, y+ascent, Qt::AlignLeft );
+
+	int ascent, descent;
+	state = d->layout->endLine( x, y, Qt::AlignLeft, &ascent, &descent );
+
+	if ( state != QTextLayout::LineEmpty ) {
+ 	    qDebug("finalizing line: ascent = %d, descent=%d", ascent, descent );
 	    y += ascent + descent + 2;
 	    add = 0;
 	} else {

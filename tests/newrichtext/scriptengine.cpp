@@ -290,11 +290,12 @@ static void basic_attributes( const QString &text, int from, int len, QCharAttri
 {
     const QChar *uc = text.unicode() + from;
     for ( int i = 0; i < len; i++ ) {
-	// ### remove nbsp?
-	attributes[i].whiteSpace = ::isSpace( uc[i] );
-	attributes[i].softBreak = attributes[i].whiteSpace;
-	attributes[i].charStop = TRUE;
-	attributes[i].wordStop = attributes[i].whiteSpace;
+	attributes->whiteSpace = ::isSpace( *uc ) && (uc->unicode() != 0xa0);
+	attributes->softBreak = FALSE;
+	attributes->charStop = TRUE;
+	attributes->wordStop = FALSE;
+	++uc;
+	++attributes;
     }
 }
 
@@ -870,11 +871,12 @@ static void arabic_attributes( const QString &text, int from, int len, QCharAttr
 {
     const QChar *uc = text.unicode() + from;
     for ( int i = 0; i < len; i++ ) {
-	// ### remove nbsp?
-	attributes[i].whiteSpace = ::isSpace( uc[i] );
-	attributes[i].softBreak = attributes[i].whiteSpace;
-	attributes[i].charStop = TRUE;
-	attributes[i].wordStop = attributes[i].whiteSpace;
+	attributes->whiteSpace = ::isSpace( *uc );
+	attributes->softBreak = FALSE;
+	attributes->charStop = TRUE;
+	attributes->wordStop = FALSE;
+	++uc;
+	++attributes;
     }
 }
 
@@ -942,7 +944,7 @@ enum Form {
     Other,
 };
 
-static unsigned char indicForms[0xe00-0x900] = {
+static const unsigned char indicForms[0xe00-0x900] = {
     // Devangari
     Invalid, VowelMark, VowelMark, VowelMark,
     Invalid, IndependentVowel, IndependentVowel, IndependentVowel,
@@ -1380,7 +1382,7 @@ enum Position {
     Split
 };
 
-static unsigned char indicPosition[0xe00-0x900] = {
+static const unsigned char indicPosition[0xe00-0x900] = {
     // Devanagari
     None, Above, Above, Post,
     None, None, None, None,
@@ -2682,7 +2684,7 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
 //
 // --------------------------------------------------------------------------------------------------------------------------------------------
 
-q_scriptEngine scriptEngines[] = {
+const q_scriptEngine scriptEngines[] = {
 	// Latin,
     { basic_shape, basic_attributes },
 	// Greek,

@@ -3111,7 +3111,8 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	layout.addCurrentItem();
 	end++;
     }
-    layout.endLine( 0, 0, Qt::AlignLeft );
+    int ascent;
+    layout.endLine( 0, 0, Qt::AlignLeft, &ascent, 0 );
 
     // do _not_ call endLayout() here, as it would clean up the shaped items and we would do shaping another time
     // for painting.
@@ -3125,7 +3126,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	assert( shaped );
 
 	int xpos = x + si.x;
-	int ypos = y + si.y;
+	int ypos = y + si.y + ascent;
 
 	bool rightToLeft = si.analysis.bidiLevel % 2;
 

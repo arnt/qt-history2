@@ -232,7 +232,7 @@ public:
     int size() const {
 	return d ? d->size : 0;
     }
-    void split( int pos );
+    void split( int item, int pos );
     QScriptItemArray( const QScriptItemArray & ) {}
     QScriptItemArray &operator = ( const QScriptItemArray & ) { return *this; }
 
@@ -287,11 +287,11 @@ struct QShapedItem
 };
 
 struct QCharAttributes {
-    int softBreak      :1;     // Potential linebreak point
-    int whiteSpace     :1;     // A unicode whitespace character, except NBSP, ZWNBSP
-    int charStop       :1;     // Valid cursor position (for left/right arrow)
-    int wordStop       :1;     // Valid cursor position (for ctrl + left/right arrow)
-    int reserved       :4;
+    uint softBreak      :1;     // Potential linebreak point
+    uint whiteSpace     :1;     // A unicode whitespace character, except NBSP, ZWNBSP
+    uint charStop       :1;     // Valid cursor position (for left/right arrow)
+    uint wordStop       :1;     // Valid cursor position (for ctrl + left/right arrow)
+    uint reserved       :4;
 };
 
 class QTextEngine;
@@ -329,6 +329,7 @@ struct QTextEngine {
     int widthUsed;
     int firstItemInLine;
     int currentItem;
+    QChar::Direction direction;
 #if 0
     QTextMemory memory;
 #endif

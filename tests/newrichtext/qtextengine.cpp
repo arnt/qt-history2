@@ -188,15 +188,11 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
 
 
 // creates the next QScript items.
-static void bidiItemize( const QString &text, QScriptItemArray &items, QChar::Direction dir = QChar::DirON )
+static void bidiItemize( const QString &text, QScriptItemArray &items, bool rightToLeft )
 {
-    if ( dir == QChar::DirON )
-	dir = basicDirection( text );
-#if (BIDI_DEBUG >= 2)
-    qDebug("basicDir = %s", directions[dir] );
-#endif
+    BidiControl control( rightToLeft );
 
-    BidiControl control( dir == QChar::DirR );
+    QChar::Direction dir = rightToLeft ? QChar::DirR : QChar::DirL;
 
     int sor = 0;
     int eor = 0;
@@ -670,31 +666,26 @@ void QScriptItemArray::resize( int s )
     d->alloc = alloc;
 }
 
-void QScriptItemArray::split( int pos )
+void QScriptItemArray::split( int item, int pos )
 {
-    unsigned int itemToSplit;
-    for ( itemToSplit = 0; itemToSplit < d->size && d->items[itemToSplit].position <= pos; itemToSplit++ )
-	;
-    itemToSplit--;
-    if ( d->items[itemToSplit].position == pos )
-	// already a split at the requested position
+    if ( pos <= 0 )
 	return;
 
     if ( d->size == d->alloc )
 	resize( d->size + 1 );
 
-    int numMove = d->size - itemToSplit-1;
+    int numMove = d->size - item-1;
     if ( numMove > 0 )
-	memmove( d->items + itemToSplit+2, d->items +itemToSplit+1, numMove*sizeof( QScriptItem ) );
+	memmove( d->items + item+2, d->items +item+1, numMove*sizeof( QScriptItem ) );
     d->size++;
-    QScriptItem &newItem = d->items[itemToSplit+1];
-    QScriptItem &oldItem = d->items[itemToSplit];
+    QScriptItem &newItem = d->items[item+1];
+    QScriptItem &oldItem = d->items[item];
     newItem = oldItem;
-    d->items[itemToSplit+1].position = pos;
+    d->items[item+1].position += pos;
     if ( newItem.fontEngine )
 	newItem.fontEngine->ref();
 
-//     qDebug("split at position %d itempos=%d", pos, itemToSplit );
+//     qDebug("split at position %d itempos=%d", pos, item );
 }
 
 
@@ -716,7 +707,7 @@ void QTextEngine::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOr
 
 
 QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
-    : string( str ), fnt( f ), charAttributes( 0 )
+    : string( str ), fnt( f ), direction( QChar::DirON ), charAttributes( 0 )
 {
     if ( fnt ) fnt->ref();
 }
@@ -738,7 +729,9 @@ void QTextEngine::itemize( bool /*doBidi*/ )
     }
     items.d->size = 0;
 
-    bidiItemize( string, items, QChar::DirON );
+    if ( direction == QChar::DirON )
+	direction = basicDirection( string );
+    bidiItemize( string, items, direction == QChar::DirR );
 }
 
 

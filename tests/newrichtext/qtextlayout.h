@@ -83,14 +83,14 @@ public:
 
     enum Result {
 	Ok,
-	Split,
+	LineFull,
+	LineEmpty,
 	Error
     };
     /* returns true if completely added */
     Result addCurrentItem();
 
-    bool lineIsEmpty() const;
-    void endLine( int x, int y, Qt::AlignmentFlags alignment );
+    Result endLine( int x, int y, Qt::AlignmentFlags alignment, int *ascent, int *descent );
     void endLayout();
 
 private:
