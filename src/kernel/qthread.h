@@ -1,3 +1,4 @@
+//depot/qt/main/src/kernel/qthread.h#38 - edit change 33249 (text)
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qthread.h#16 $
 **
@@ -44,6 +45,8 @@
 
 #if defined(QT_THREAD_SUPPORT)
 
+class QMutexPrivate; /* Don't touch private classes! */
+
 const int Q_MUTEX_NORMAL = 0;
 const int Q_MUTEX_RECURSIVE = 1;
 
@@ -63,8 +66,7 @@ public:
     bool tryLock();
 
 private:
-    class Private;
-    Private * d;
+    QMutexPrivate * d;
 
 #if defined(Q_DISABLE_COPY)
     QMutex( const QMutex & );
@@ -72,10 +74,11 @@ private:
 #endif
 };
 
-class QThreadPrivate; /* don't touch */
+class QThreadPrivate;
 
 class Q_EXPORT QThread : public Qt
 {
+    friend class QThreadPrivate;
 public:
     static Qt::HANDLE currentThread();
     static void postEvent( QObject *,QEvent * );
@@ -103,7 +106,6 @@ protected:
 
 private:
     QThreadPrivate * d;
-    friend class QThreadPrivate;
 
 #if defined(Q_DISABLE_COPY)
     QThread( const QThread & );
@@ -111,7 +113,7 @@ private:
 #endif
 };
 
-class QWaitConditionPrivate; /* don't touch */
+class QWaitConditionPrivate;
 
 class Q_EXPORT QWaitCondition : public Qt
 {
@@ -135,6 +137,8 @@ private:
 #endif
 };
 
+class QSemaphorePrivate;
+
 class Q_EXPORT QSemaphore : public Qt
 {
 public:
@@ -155,8 +159,7 @@ public:
 
 
 private:
-    class Private;
-    Private *d;
+    QSemaphorePrivate *d;
 
 #if defined(Q_DISABLE_COPY)
     QSemaphore(const QSemaphore &);

@@ -1,3 +1,4 @@
+//depot/qt/main/src/kernel/qfontdatabase.h#27 - edit change 35110 (text)
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#11 $
 **
@@ -48,6 +49,13 @@
 
 
 #ifndef QT_NO_FONTDATABASE
+
+class QFontStylePrivate; /* Don't touch! */
+class QtFontStyle;
+class QtFontFamily;
+class QtFontFoundry;
+
+class QFontDatabasePrivate;
 
 class Q_EXPORT QFontDatabase
 {
@@ -107,8 +115,9 @@ private:
     friend class QtFontStyle;
     friend class QtFontFamily;
     friend class QtFontFoundry;
-    class Private;
-    Private *d;
+    friend class QFontDatabasePrivate;
+
+    QFontDatabasePrivate *d;
 };
 
 

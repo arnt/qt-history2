@@ -1,3 +1,4 @@
+//depot/qt/main/src/kernel/qthread_unix.cpp#46 - integrate change 34886 (text)
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qthread_unix.cpp#4 $
 **
@@ -136,7 +137,7 @@ QMutex::QMutex(bool recursive)
     if ( recursive )
 	d = new QRMutexPrivate();
     else
-	d = new Private();
+	d = new QMutexPrivate();
 }
 
 
@@ -519,7 +520,7 @@ bool QThread::running() const
 /*!
   \class QWaitCondition qthread.h
   \brief The QWaitCondition class allows waiting/waking for conditions
-	 between threads.
+         between threads.
 
   \ingroup environment
 
@@ -723,9 +724,9 @@ void QWaitCondition::wakeAll()
 */
 
 
-class QSemaphore::Private {
+class QSemaphorePrivate {
 public:
-    Private(int);
+    QSemaphorePrivate(int);
 
     QMutex mutex;
     QWaitCondition cond;
@@ -734,7 +735,7 @@ public:
 };
 
 
-QSemaphore::Private::Private(int m)
+QSemaphorePrivate::QSemaphorePrivate(int m)
     : mutex(FALSE), value(0), max(m)
 {
 }
@@ -746,7 +747,7 @@ QSemaphore::Private::Private(int m)
 */
 QSemaphore::QSemaphore(int maxcount)
 {
-    d = new Private(maxcount);
+    d = new QSemaphorePrivate(maxcount);
 }
 
 

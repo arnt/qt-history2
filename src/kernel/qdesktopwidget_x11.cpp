@@ -1,13 +1,14 @@
+//depot/qt/main/src/kernel/qdesktopwidget_x11.cpp#8 - edit change 33511 (text)
 #include "qdesktopwidget.h"
 #include "qt_x11.h"
 
 extern int qt_x11_create_desktop_on_screen; // defined in qwidget_x11.cpp
 
-class QDesktopWidget::Private
+class QDesktopWidgetPrivate
 {
 public:
-    Private();
-    ~Private();
+    QDesktopWidgetPrivate();
+    ~QDesktopWidgetPrivate();
 
     bool use_xinerama;
     int defaultScreen;
@@ -17,7 +18,7 @@ public:
     QArray<QRect> rects;
 };
 
-QDesktopWidget::Private::Private()
+QDesktopWidgetPrivate::QDesktopWidgetPrivate()
     : use_xinerama(FALSE)
 {
 
@@ -72,7 +73,7 @@ QDesktopWidget::Private::Private()
 
 };
 
-QDesktopWidget::Private::~Private()
+QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 {
     if (! screens)
 	return;
@@ -92,7 +93,7 @@ QDesktopWidget::Private::~Private()
 QDesktopWidget::QDesktopWidget()
 : QWidget( 0, "desktop", WType_Desktop )
 {
-    d = new Private;
+    d = new QDesktopWidgetPrivate;
 }
 
 QDesktopWidget::~QDesktopWidget()

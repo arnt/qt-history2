@@ -1,9 +1,12 @@
+//depot/qt/main/src/kernel/qdesktopwidget.h#4 - edit change 33507 (text)
 #ifndef QDESKTOPWIDGET_H
 #define QDESKTOPWIDGET_H
 
 #ifndef QT_H
 #include "qwidget.h"
 #endif // QT_H
+
+class QDesktopWidgetPrivate; /* Don't touch! */
 
 class Q_EXPORT QDesktopWidget : public QWidget
 {
@@ -19,12 +22,11 @@ public:
     int screenNumber( const QPoint & ) const;
 
     QWidget *screen( int screen = -1 );
-
+    
     const QRect& screenGeometry( int screen = -1 ) const;
 
 private:
-    class Private;
-    Private *d;
+    QDesktopWidgetPrivate *d;
 };
 
 #endif //QDESKTOPWIDGET_H
