@@ -32,7 +32,7 @@ class QMenu;
 class QMenuBar;
 class QVariant;
 class QToolBar;
-class Q3Workspace;
+class QWorkspace;
 class QCloseEvent;
 
 class AbstractFormEditor;
@@ -148,7 +148,7 @@ private:
     QList<QDesignerToolWindow*> m_toolWindows;
     QList<QDesignerFormWindow*> m_formWindows;
 
-    Q3Workspace *m_workspace;
+    QWorkspace *m_workspace;
     QHash<QWidget*, bool> m_visibilities;
     QHash<QWidget*, QRect> m_geometries;
 

@@ -76,11 +76,11 @@ void QDesigner::initialize()
 
     for (int i = 1; i < argc(); ++i)
     {
-        if (QString::fromLocal8Bit(argv()[i]) == "-server") {
+        if (QString::fromLocal8Bit(argv()[i]) == QLatin1String("-server")) {
             m_server = new QDesignerServer();
             printf("%d\n", m_server->serverPort());
             fflush(stdout);
-        } else if (QString::fromLocal8Bit(argv()[i]) == "-resourcedir") {
+        } else if (QString::fromLocal8Bit(argv()[i]) == QLatin1String("-resourcedir")) {
             if (i + 1 < argc()) {
                 resourceDir = QFile::decodeName(argv()[++i]);
             } else {
@@ -93,10 +93,10 @@ void QDesigner::initialize()
 
     QTranslator *translator = new QTranslator;
     QTranslator *qtTranslator = new QTranslator;
-    translator->load(QLatin1String("designer_") + QLatin1String(QLocale::system().name().toLower()), resourceDir);
-    qtTranslator->load(QLatin1String("qt_") + QLatin1String(QLocale::system().name().toLower()), resourceDir);
-    QApplication::instance()->installTranslator(translator);
-    QApplication::instance()->installTranslator(qtTranslator);
+    translator->load(QLatin1String("designer_") + QLocale::system().name().toLower(), resourceDir);
+    qtTranslator->load(QLatin1String("qt_") + QLocale::system().name().toLower(), resourceDir);
+    installTranslator(translator);
+    installTranslator(qtTranslator);
 
     m_session = new QDesignerSession();
     m_workbench = new QDesignerWorkbench();

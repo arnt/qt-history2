@@ -19,7 +19,7 @@
 #include <QtCore/QEvent>
 #include <QtGui/QAction>
 #include <QtGui/QCloseEvent>
-#include <Qt3Support/Q3Workspace>
+#include <QtGui/QWorkspace>
 
 QDesignerToolWindow::QDesignerToolWindow(QDesignerWorkbench *workbench, QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags),
@@ -94,8 +94,7 @@ void QDesignerToolWindow::closeEvent(QCloseEvent *ev)
     if (m_saveSettings) {
         ev->setAccepted(workbench()->handleClose());
         if (ev->isAccepted() && qDesigner->mainWindow() == this) {
-            QList<Q3Workspace *> list = qFindChildren<Q3Workspace *>(this);
-            if (!list.isEmpty()) {
+            if (qFindChild<QWorkspace *>(this)) {
                 QDesignerSettings settings;
                 settings.saveGeometryFor(this);
                 settings.setValue(objectName() + QLatin1String("/visible"), false);
@@ -105,7 +104,6 @@ void QDesignerToolWindow::closeEvent(QCloseEvent *ev)
     } else {
         QMainWindow::closeEvent(ev);
     }
-
 }
 
 bool QDesignerToolWindow::saveSettingsOnClose() const

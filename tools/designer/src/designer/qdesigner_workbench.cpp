@@ -20,7 +20,6 @@
 #include "qdesigner_widgetbox.h"
 #include "qdesigner_propertyeditor.h"
 #include "qdesigner_objectinspector.h"
-#include <qdesigner_integration.h>
 
 // components
 #include <formeditor/formeditor.h>
@@ -30,8 +29,9 @@
 #include <abstractformeditorplugin.h>
 #include <abstractformwindowmanager.h>
 #include <abstractwidgetbox.h>
+#include <qdesigner_integration.h>
 
-#include <Qt3Support/Q3Workspace>
+#include <QtGui/QWorkspace>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QLabel>
@@ -41,8 +41,8 @@
 #include <QtGui/QActionGroup>
 #include <QtGui/QMessageBox>
 #include <QtGui/QHeaderView>
-#include <QtCore/QVariant>
 
+#include <QtCore/QVariant>
 #include <QtCore/QPluginLoader>
 #include <QtCore/qdebug.h>
 
@@ -155,7 +155,7 @@ void QDesignerWorkbench::initialize()
     m_toolMenu->addSeparator();
 
     QAction *bigAction = m_actionManager->useBigIconsAction();
-    connect(bigAction, SIGNAL(toggled(bool)), this, SLOT(setUseBigIcons(bool)));
+    connect(bigAction, SIGNAL(checked(bool)), this, SLOT(setUseBigIcons(bool)));
     m_toolMenu->addAction(bigAction);
 
     m_windowMenu = m_globalMenuBar->addMenu(tr("&Window"));
@@ -317,7 +317,7 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     mw->setSaveSettingsOnClose(true);
     mw->setObjectName("MDIWindow");
     mw->setWindowTitle(tr("Qt Designer"));
-    m_workspace = new Q3Workspace(mw);
+    m_workspace = new QWorkspace(mw);
     m_workspace->setScrollBarsEnabled(true);
     connect(m_workspace, SIGNAL(windowActivated(QWidget*)),
             this, SLOT(activateWorkspaceChildWindow(QWidget* )));
@@ -344,7 +344,8 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     qDesigner->setMainWindow(mw);
 
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
-        tw->setParent(magicalParent(), Qt::Tool | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
+        tw->setParent(magicalParent());
+        m_workspace->addWindow(tw, Qt::Tool | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
         if (m_geometries.isEmpty()) {
             settings.setGeometryFor(tw, tw->geometryHint());
             QHeaderView *header = qFindChild<QHeaderView*>(tw);
@@ -360,6 +361,7 @@ void QDesignerWorkbench::switchToWorkspaceMode()
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
         fw->setParent(magicalParent());
+        m_workspace->addWindow(fw, Qt::Window | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
         QRect g = m_geometries.value(fw, fw->geometryHint());
         fw->resize(g.size());
         fw->move(g.topLeft());
@@ -416,8 +418,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
         tw->setParent(magicalParent(), Qt::Window);
         if (m_geometries.isEmpty()) {
             settings.setGeometryFor(tw, tw->geometryHint());
-            QHeaderView *header = qFindChild<QHeaderView*>(tw);
-            if (header != 0)
+            if (QHeaderView *header = qFindChild<QHeaderView*>(tw))
                 settings.setHeaderSizesFor(header);
         } else {
             QRect g = m_geometries.value(tw, tw->geometryHint());
@@ -441,13 +442,11 @@ QDesignerFormWindow *QDesignerWorkbench::createFormWindow()
 {
     QDesignerFormWindow *formWindow = new QDesignerFormWindow(/*formWindow=*/ 0, this);
 
-    Qt::WFlags flags = 0;
-
-    if (m_mode == QDesignerWorkbench::TopLevelMode)
-        flags = Qt::Window;
-
-    formWindow->setParent(magicalParent(), flags);
+    formWindow->setParent(magicalParent(), Qt::Window);
     formWindow->setAttribute(Qt::WA_DeleteOnClose, true);
+
+    if (m_workspace)
+        m_workspace->addWindow(formWindow, Qt::Window | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
 
     addFormWindow(formWindow);
 

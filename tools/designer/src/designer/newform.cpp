@@ -145,7 +145,7 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
         QPixmap pix = QPixmap::grabWidget(widget);
         QImage image = pix.toImage();
         image = image.scaled(256, 256, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        pix = image;
+        pix = QPixmap::fromImage(image);
 
         fake->deleteLater();
 
