@@ -185,8 +185,8 @@ the started program as for example redirection of input and output of console
 applications.
 
 
-Accessibility
--------------
+Accessibility (not part of the beta1)
+-------------------------------------
 
 Accessibility means making software usable and accessible to a wide range of
 users, including those with disabilities. In Qt 3.0, most widgets provide
@@ -199,6 +199,9 @@ by using Qt 3.0.
 Qt uses the Active Accessibility infrastructure on Windows, and needs the MSAA SDK,
 which is part of most Platform SDKs. With improving standardization of accessibility
 on other platforms, Qt will support assistive technologies on other systems, too.
+
+The accessibility API in Qt is not yet stable, which is why we decided not to make
+it a part of the beta1 release.
 
 
 XML Improvements
