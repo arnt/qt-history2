@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#39 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#40 $
 **
 ** Implementation of QDns class.
 **
@@ -2024,8 +2024,6 @@ static void doResInit()
 }
 
 #elif defined(Q_OS_WIN32)
-
-#include <windows.h>
 
 // the following typedefs are needed for GetNetworkParams() API call
 #ifndef IP_TYPES_INCLUDED
