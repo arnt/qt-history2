@@ -11,7 +11,7 @@ OUTDIR=$4
 
 # build a test program
 test -d $OUTDIR/config.tests/unix/getaddrinfo || mkdir -p $OUTDIR/config.tests/unix/getaddrinfo
-$OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" $SRCDIR/config.tests/unix/getaddrinfo/getaddrinfo.pro -o $OUTDIR/config.tests/unix/getaddrinfo/Makefile >/dev/null 2>&1
+$OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" $SRCDIR/config.tests/unix/getaddrinfo/getaddrinfotest.pro -o $OUTDIR/config.tests/unix/getaddrinfo/Makefile >/dev/null 2>&1
 cd $OUTDIR/config.tests/unix/getaddrinfo
 
 if [ "$VERBOSE" = "yes" ]; then

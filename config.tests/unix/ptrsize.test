@@ -1,6 +1,5 @@
-#/bin/sh
+#!/bin/sh
 
-LARGEFILE=0
 QMKSPEC=$1
 VERBOSE=$2
 SRCDIR=$3

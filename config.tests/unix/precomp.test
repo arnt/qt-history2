@@ -17,6 +17,6 @@ if [ "$PRECOMP_SUPPORT" != "yes" ]; then
     [ "$VERBOSE" = "yes" ] && echo "Precompiled-headers support disabled."
     exit 0
 else
-    [ "$VERBOSE" = "yes" ] && echo "Precompiled-headers support  enabled."
+    [ "$VERBOSE" = "yes" ] && echo "Precompiled-headers support enabled."
     exit 1
 fi
