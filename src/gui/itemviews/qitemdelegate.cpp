@@ -197,7 +197,7 @@ QItemDelegate::EditorType QItemDelegate::editorType(const QAbstractItemModel *,
 QWidget *QItemDelegate::editor(QWidget *parent,
                                const QStyleOptionViewItem &,
                                const QAbstractItemModel *,
-                               const QModelIndex &index)
+                               const QModelIndex &)
 {
     QLineEdit *lineEdit = new QLineEdit(parent);
     lineEdit->setFrame(false);

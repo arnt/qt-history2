@@ -1459,6 +1459,7 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
 */
 void QAbstractItemView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
+    Q_UNUSED(start);
     QModelIndex index = model()->index(end, 0, parent);
     QRect rect = itemViewportRect(index);
     if (d->viewport->rect().contains(rect))

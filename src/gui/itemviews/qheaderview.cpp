@@ -392,7 +392,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int section
 
     style().drawPrimitive(QStyle::PE_HeaderSection, &opt, painter, this);
     opt.rect = style().subRect(QStyle::SR_HeaderLabel, &opt, fontMetrics(), this);
-    style().drawControl(QStyle::CE_HeaderLabel, &opt, painter, this);   
+    style().drawControl(QStyle::CE_HeaderLabel, &opt, painter, this);
 
     if (sortIndicatorSection() == section) {
         opt.rect = style().subRect(QStyle::SR_HeaderArrow, &opt, fontMetrics(), this);
@@ -409,7 +409,7 @@ QSize QHeaderView::sectionSizeFromContents(int section) const
     opt.text = d->model->headerData(section, orientation(),
                                     QAbstractItemModel::DisplayRole).toString();
     opt.icon = d->model->headerData(section, orientation(),
-                                    QAbstractItemModel::DecorationRole).toIconSet();    
+                                    QAbstractItemModel::DecorationRole).toIconSet();
     size = style().sizeFromContents(QStyle::CT_HeaderSection, &opt, size, fontMetrics(), this);
 
     if (sortIndicatorSection() == section) {
@@ -903,7 +903,7 @@ void QHeaderView::moveSection(int from, int to)
 */
 
 void QHeaderView::resizeSection(int section, int size)
-{   
+{
     int oldSize = sectionSize(section);
     if (oldSize == size)
         return;
@@ -992,7 +992,7 @@ bool QHeaderView::isSectionHidden(int section) const
     contents coordinates..
 */
 
-QModelIndex QHeaderView::itemAt(int x, int y) const
+QModelIndex QHeaderView::itemAt(int, int) const
 {
     return QModelIndex::Null;
 }
@@ -1050,7 +1050,7 @@ QModelIndex QHeaderView::moveCursor(QAbstractItemView::CursorAction, Qt::ButtonS
     \internal
 */
 
-QRect QHeaderView::itemViewportRect(const QModelIndex &index) const
+QRect QHeaderView::itemViewportRect(const QModelIndex &) const
 {
     return QRect();
 }
