@@ -1,35 +1,12 @@
-// TestWidget.h: interface for the CTestWidget class.
-//
-//////////////////////////////////////////////////////////////////////
+#ifndef TESTWIDGET_H
+#define TESTWIDGET_H
 
-#if !defined(AFX_TESTWIDGET_H__DA4969C1_5578_42FE_AD7E_8E6924794EBB__INCLUDED_)
-#define AFX_TESTWIDGET_H__DA4969C1_5578_42FE_AD7E_8E6924794EBB__INCLUDED_
+#include <qwidget.h>
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-
-#include "QActiveXBase.h"
-#include <QSlider.h>
-#include <QLCDNumber.h>
-#include <QMultiLineEdit.h>
-
-class QActiveX;
-
-class CTestWidget : public QActiveXBase 
+class TestWidget : public QWidget
 {
 public:
-    CTestWidget();
-    ~CTestWidget();
-
-    void resizeEvent( QResizeEvent* pEvent );
-
-private:
-    QSlider* m_pSlider;
-    QLCDNumber* m_pLCD;
-    QMultiLineEdit* m_pEdit;
-    QMultiLineEdit* m_pEdit2;
-
+    TestWidget( QWidget *parent = 0, const char *name = 0 );
 };
 
-#endif // !defined(AFX_TESTWIDGET_H__DA4969C1_5578_42FE_AD7E_8E6924794EBB__INCLUDED_)
+#endif //TESTWIDGET_H

@@ -5,7 +5,9 @@
 
 #include "resource.h"       // main symbols
 #include <atlctl.h>
+#include <qvbox.h>
 #include "testwidget.h"
+#include "resource.h"
 
 Q_EXPORT LRESULT QtWndProcGate( HWND, UINT, WPARAM, LPARAM );
 
@@ -30,24 +32,14 @@ class ATL_NO_VTABLE QActiveX :
 {
 public:
     QActiveX()
+	: m_pWidget( 0 )
     {
-	m_bWindowOnly = true;
-	m_pWidget = NULL;
     }
 
     virtual ~QActiveX()
     {
 	if ( m_pWidget )
 	    delete m_pWidget;
-    }
-
-    IUnknown* GetControllingUnknown( )
-    {
-	void* iu = 0;
-	HRESULT hr = QueryInterface( IID_IUnknown, &iu);
-	IUnknown* ip = (IUnknown *)iu;
-	ip->Release();
-	return ip;
     }
 
 DECLARE_REGISTRY_RESOURCEID(IDR_QEXETEST)
@@ -95,17 +87,24 @@ BEGIN_MSG_MAP(QActiveX)
     MESSAGE_HANDLER(WM_CHAR, ForwardMessage)
     MESSAGE_HANDLER(WM_SETFOCUS, ForwardFocusMessage )
     MESSAGE_HANDLER(WM_KILLFOCUS, ForwardFocusMessage )
+    MESSAGE_HANDLER(WM_ACTIVATE, ForwardMessage )
 END_MSG_MAP()
 
 // IViewObjectEx
     DECLARE_VIEW_STATUS(VIEWSTATUS_SOLIDBKGND | VIEWSTATUS_OPAQUE)
 
+protected:
+    virtual void setupWidgets( QWidget *parent )
+    {
+	new TestWidget( parent );
+    }
+
 private:
-    QActiveXBase* m_pWidget;
+    QVBox* m_pWidget;
 
     LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
-	m_pWidget = new CTestWidget();
+	m_pWidget = new QVBox( 0, 0, Qt::WStyle_Customize );
 	::SetParent( m_pWidget->winId(), m_hWnd );
 	::SetWindowLong( m_pWidget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
 
@@ -113,8 +112,10 @@ private:
 	    m_pWidget->raise();
 	    m_pWidget->move( 0, 0 );
 	}
+
+	setupWidgets( m_pWidget );
+
 	return 0;
-	
     }
     LRESULT OnShowWindow( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
     {

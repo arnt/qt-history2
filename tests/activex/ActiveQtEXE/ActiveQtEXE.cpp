@@ -12,6 +12,7 @@
 
 #include "ActiveQtEXE_i.c"
 #include "qActivex.h"
+#include <qapplication.h>
 
 
 const DWORD dwTimeOut = 5000; // time for EXE to be idle before shutting down
@@ -91,8 +92,6 @@ LPCTSTR FindOneOf(LPCTSTR p1, LPCTSTR p2)
     return NULL;
 }
 
-QApplication* pGlobalApp;
-
 /////////////////////////////////////////////////////////////////////////////
 //
 extern "C" int WINAPI _tWinMain(HINSTANCE hInstance, 
@@ -133,19 +132,15 @@ extern "C" int WINAPI _tWinMain(HINSTANCE hInstance,
     {
 	int tmp( 0 );
 		// Create our QApplication object before starting our monitor.
-	pGlobalApp = new QApplication( tmp, NULL );
+	QApplication app( tmp, NULL );
         _Module.StartMonitor();
         hRes = _Module.RegisterClassObjects(CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE);
         _ASSERTE(SUCCEEDED(hRes));
 
-        pGlobalApp->exec();
+        app.exec();
 
         _Module.RevokeClassObjects();
         Sleep(dwPause); //wait for any threads to finish
-
-	// Delete the application object should be the last thing
-	// we do.
-	delete pGlobalApp;
     }
 
     _Module.Term();
