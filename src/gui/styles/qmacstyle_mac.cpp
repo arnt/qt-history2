@@ -53,6 +53,7 @@
 #include <private/qaquatabpix_mac_p.h>
 
 extern QRegion qt_mac_convert_mac_region(RgnHandle); //qregion_mac.cpp
+extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
 
 static inline bool isQDPainter(const QPainter *p)
 {
@@ -206,8 +207,6 @@ void QAquaFocusWidget::setFocusedWidget(QWidget *widget)
         mFocusedWidget->parentWidget()->installEventFilter(this); //we do this so we can trap the ChildAdded event
         QPoint p(widget->mapTo(parentWidget(), QPoint(0, 0)));
         int focusWidgetWidth = widget->width();
-        if (qt_cast<QLineEdit *>(widget) && qt_cast<QComboBox *>(widget->parentWidget()))
-            focusWidgetWidth += 16 ; // This is a cheat/optimization, really should query for it.
         setGeometry(p.x() - focusOutset(), p.y() - focusOutset(),
                     focusWidgetWidth + (focusOutset() * 2), widget->height() + (focusOutset() * 2));
         setPalette(widget->palette());
@@ -610,10 +609,8 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
                 ret = QSize(r.right - r.left, r.bottom - r.top);
         }
     } else if(ct == QStyle::CT_ComboBox) {
-        const QComboBox *cmb = ::qt_cast<const QComboBox *>(widg);
         if (sz == QAquaSizeLarge ||
-            (sz != QAquaSizeLarge && cmb && cmb->isEditable()
-             && QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)) {
+            (sz != QAquaSizeLarge && QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)) {
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricPopupButtonHeight) + 1);
         } else if (sz == QAquaSizeSmall) {
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallPopupButtonHeight) + 1);
@@ -701,7 +698,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         else if(sz == QAquaSizeSmall)
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricNormalProgressBarThickness));
     } else if(ct == QStyle::CT_LineEdit) {
-        if(!widg || !widg->parentWidget() || !widg->parentWidget()->inherits("QComboBox")) {
+        if(!widg || !qt_cast<QComboBox *>(widg->parentWidget())) {
             //should I take into account the font dimentions of the lineedit? -Sam
             if(sz == QAquaSizeLarge)
                 ret = QSize(-1, 22);
@@ -1049,10 +1046,12 @@ bool QMacStylePrivate::focusable(const QWidget *w) const
         return true;
     else if (fp == QMacStyle::FocusDisabled)
         return false;
+    const QLineEdit *le = qt_cast<const QLineEdit *>(w);
     return (w && !w->isTopLevel() && w->parentWidget() &&
-            (qt_cast<const QAbstractSpinBox *>(w) || qt_cast<const QComboBox *>(w)
-             || qt_cast<const QLineEdit *>(w))
-             || (qt_cast<const QTextEdit *>(w) && static_cast<const QTextEdit *>(w)->isReadOnly())
+            (qt_cast<const QAbstractSpinBox *>(w))
+             || (le && qt_cast<const QAbstractSpinBox*>(le->parentWidget()))
+             || (le && !qt_cast<const QComboBox *>(le->parentWidget()))
+             || (qt_cast<const QTextEdit *>(w) && !static_cast<const QTextEdit *>(w)->isReadOnly())
 #ifdef QT_COMPAT
              || w->inherits("QListBox") || w->inherits("QListView")
 #endif
@@ -1078,14 +1077,8 @@ void QMacStylePrivate::focusOnWidget(QWidget *w)
             }
         }
 #endif
-        if (top && (w->width() < top->width() - 30 || w->height() < top->height() - 40)) {
-            if (QComboBox *cmb = qt_cast<QComboBox *>(w)) {
-                if (cmb->isEditable())
-                    w = cmb->lineEdit();
-            }
-        } else {
+        if (!(top && (w->width() < top->width() - 30 || w->height() < top->height() - 40)))
             w = 0;
-        }
     }
     if (w == animationFocusWidget)
         return;
@@ -1508,6 +1501,10 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
                               kHIThemeOrientationNormal);
     }
 
+    if (QLineEdit *lined = qt_cast<QLineEdit*>(w)) {
+        if (qt_cast<QComboBox*>(w->parentWidget()) && !lined->testAttribute(Qt::WA_SetFont))
+            lined->setFont(*qt_app_fonts_hash()->find("QComboLineEdit"));
+    }
     if (::qt_cast<QMenu*>(w)) {
         px.resize(200, 200);
         HIThemeMenuDrawInfo mtinfo;
@@ -2030,7 +2027,6 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                                  | Qt::TextSingleLine;
                 p->save();
                 if (t >= 0) {
-                    extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
                     p->setFont(qt_app_fonts_hash()->value("QMenuItem", p->font()));
                     int xp = contentRect.right() - tabwidth - macRightBorder
                              - macItemHMargin - macItemFrame + 1;
@@ -2488,52 +2484,46 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
         }
         break;
     case QStyle::CC_ComboBox:
-        if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
+        if (const QStyleOptionComboBox *combo = qt_cast<const QStyleOptionComboBox *>(opt)) {
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
-            QRect comborect(cmb->rect);
-            bdi.adornment = opt->state & QStyle::State_HasFocus ? kThemeAdornmentFocus
-                                                                : kThemeAdornmentNone;
+            bdi.adornment = kThemeAdornmentArrowLeftArrow;
+            if (opt->state & QStyle::State_HasFocus)
+                bdi.adornment = kThemeAdornmentFocus;
             bdi.state = opt->activeSubControls & QStyle::SC_ComboBoxArrow
                                 ? ThemeDrawState(kThemeStatePressed) : tds;
-            if (cmb->editable) {
-                bdi.adornment |= kThemeAdornmentArrowDownArrow;
-                comborect = q->subControlRect(QStyle::CC_ComboBox, cmb,
-                                                      QStyle::SC_ComboBoxArrow ,widget);
-                QAquaWidgetSize aSize = qt_aqua_size_constrain(widget);
-                switch (aSize) {
-                    case QAquaSizeUnknown:
-                    case QAquaSizeLarge:
-                        bdi.kind = kThemeArrowButton;
-                        break;
-                    case QAquaSizeMini:
-                    case QAquaSizeSmall:
+
+            QAquaWidgetSize aSize = qt_aqua_size_constrain(widget);
+            switch (aSize) {
+            case QAquaSizeMini:
+            case QAquaSizeSmall:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-                            if (aSize == QAquaSizeMini)
-                                bdi.kind = kThemeArrowButtonMini;
-                            else
-                                bdi.kind = kThemeArrowButtonSmall;
-                        } else {
-                            bdi.kind = kThemeArrowButton;
-                        }
-                        break;
-#endif
+                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
+                    if (aSize == QAquaSizeMini)
+                        bdi.kind = combo->editable ? ThemeButtonKind(kThemeComboBoxMini)
+                                                   : ThemeButtonKind(kThemePopupButtonMini);
+                    else
+                        bdi.kind = combo->editable ? ThemeButtonKind(kThemeComboBoxSmall)
+                                                   : ThemeButtonKind(kThemePopupButtonSmall);
+                } else {
+                    bdi.kind = combo->editable ? kThemeComboBox : kThemePopupButton;
                 }
-                QRect lineeditRect(cmb->rect);
-                lineeditRect.setWidth(cmb->rect.width() - comborect.width());
-                QStyleOptionFrame lineedit;
-                lineedit.rect = lineeditRect;
-                lineedit.palette = cmb->palette;
-                lineedit.state = cmb->state;
-                lineedit.lineWidth = 0;
-                lineedit.midLineWidth = 0;
-                q->drawPrimitive(QStyle::PE_FrameLineEdit, &lineedit, p, widget);
-            } else {
-                bdi.adornment |= kThemeAdornmentArrowLeftArrow;
-                bdi.kind = kThemePopupButton;
+                break;
+#endif
+            case QAquaSizeUnknown:
+            case QAquaSizeLarge:
+                bdi.kind = combo->editable ? kThemeComboBox : kThemePopupButton;
+                break;
             }
-            HIRect hirect = qt_hirectForQRect(comborect, p);
+            HIRect hirect = qt_hirectForQRect(combo->rect, p);
+            QRect off_rct;
+            HIRect outRect;
+            HIThemeGetButtonBackgroundBounds(&hirect, &bdi, &outRect);
+            off_rct.setRect(int(hirect.origin.x - outRect.origin.x),
+                            int(hirect.origin.y - outRect.origin.y),
+                            int(outRect.size.width - hirect.size.width),
+                            int(outRect.size.height - hirect.size.height));
+            hirect = qt_hirectForQRect(combo->rect, p, false, off_rct);
             HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
         }
         break;
@@ -2842,6 +2832,7 @@ QStyle::SubControl QMacStylePrivate::HIThemeHitTestComplexControl(QStyle::Comple
 #endif
 }
 
+
 QRect QMacStylePrivate::HIThemeSubControlRect(QStyle::ComplexControl cc,
                                                       const QStyleOptionComplex *opt,
                                                       QStyle::SubControl sc,
@@ -3031,6 +3022,8 @@ void QMacStylePrivate::HIThemeAdjustButtonSize(QStyle::ContentsType ct, QSize &s
     if (qt_aqua_size_constrain(widget) == QAquaSizeSmall) {
         if(bkind == kThemeBevelButton)
             bkind = kThemeSmallBevelButton;
+    } else if (ct == QStyle::CT_ComboBox) {
+        bkind = kThemePopupButton;
     }
     HIThemeButtonDrawInfo bdi;
     bdi.version = qt_mac_hitheme_version;
@@ -3038,6 +3031,7 @@ void QMacStylePrivate::HIThemeAdjustButtonSize(QStyle::ContentsType ct, QSize &s
     bdi.kind = bkind;
     bdi.value = kThemeButtonOff;
     bdi.adornment = kThemeAdornmentNone;
+    bdi.adornment |= kThemeAdornmentFocus;
     HIRect macRect, myRect;
     myRect = CGRectMake(0, 0, sz.width(), sz.height());
     HIThemeGetButtonBackgroundBounds(&myRect, &bdi, &macRect);
@@ -3081,23 +3075,11 @@ void QMacStylePrivate::AppManPolish(QWidget *w)
         if(qt_cast<QGroupBox*>(w))
             w->setAttribute(Qt::WA_ContentsPropagated, true);
     }
-    if(QLineEdit *lined = qt_cast<QLineEdit*>(w)) {
-#if 0
-        if(qt_cast<QComboBox*>(w->parentWidget()))
-            lined->setFrameStyle(QFrame::LineEditPanel | QFrame::Sunken);
-        SInt32 frame_size;
-        GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
-        lined->setLineWidth(frame_size);
-#else
-        Q_UNUSED(lined);
-//# warning "Do we need to replace this with something else for the new QLineEdit? --Sam"
-#endif
 	/*
     } else if(QDialogButtons *btns = qt_cast<QDialogButtons*>(w)) {
         if(btns->buttonText(QDialogButtons::Help).isNull())
             btns->setButtonText(QDialogButtons::Help, "?");
 	    */
-    }
 #ifndef QT_NO_MAINWINDOW
     else if(QToolBar *bar = qt_cast<QToolBar*>(w)) {
         QLayout *layout = bar->layout();
@@ -3693,7 +3675,6 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 p->save();
                 if (t >= 0) {                         // draw tab text
                     int xp;
-                    extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
                     p->setFont(qt_app_fonts_hash()->value("QMenuItem", p->font()));
                     if (reverse)
                         xp = x + macRightBorder + macItemHMargin + macItemFrame - 1;
@@ -4130,47 +4111,51 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
         }
         break;
     case QStyle::CC_ComboBox:
-        if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt) ) {
+        if (const QStyleOptionComboBox *combo = qt_cast<const QStyleOptionComboBox *>(opt)) {
             ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-            if (cmb->state & QStyle::State_HasFocus)
+            if (combo->state & QStyle::State_HasFocus)
                 info.adornment |= kThemeAdornmentFocus;
-            if (cmb->activeSubControls & QStyle::SC_ComboBoxArrow)
+            if (combo->activeSubControls & QStyle::SC_ComboBoxArrow)
                 info.state = kThemeStatePressed;
-            p->fillRect(cmb->rect, cmb->palette.brush(QPalette::Button)); //make sure it is filled
-            if (cmb->editable) {
-                info.adornment |= kThemeAdornmentArrowDownArrow;
-                QRect buttonR = q->subControlRect(QStyle::CC_ComboBox, cmb,
-                                                          QStyle::SC_ComboBoxArrow, widget);
-                qt_mac_set_port(p);
-                ThemeButtonKind bkind = kThemeArrowButton;
-                switch (qt_aqua_size_constrain(widget)) {
-                    case QAquaSizeMini:
+            p->fillRect(combo->rect, combo->palette.brush(QPalette::Button)); //make sure it is filled
+            ThemeButtonKind bkind;
+            QAquaWidgetSize aSize = qt_aqua_size_constrain(widget);
+            switch (aSize) {
+            case QAquaSizeMini:
+            case QAquaSizeSmall:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-                            bkind = kThemeArrowButtonMini;
-                            break;
-                        }
-#endif
-                    case QAquaSizeSmall:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-                            bkind = kThemeArrowButtonSmall;
-                            break;
-                        }
-#endif
-                    case QAquaSizeUnknown:
-                    case QAquaSizeLarge:
-                        bkind = kThemeArrowButton;
-                        break;
+                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
+                    if (aSize == QAquaSizeMini)
+                        bkind = combo->editable ? ThemeButtonKind(kThemeComboBoxMini)
+                                                : ThemeButtonKind(kThemePopupButtonMini);
+                    else
+                        bkind = combo->editable ? ThemeButtonKind(kThemeComboBoxSmall)
+                                                : ThemeButtonKind(kThemePopupButtonSmall);
+                } else {
+                    bkind = combo->editable ? kThemeComboBox : kThemePopupButton;
                 }
-                DrawThemeButton(qt_glb_mac_rect(buttonR, p, true, QRect(1, 0, 0, 0)),
-                                bkind, &info, 0, 0, 0, 0);
-            } else {
-                info.adornment |= kThemeAdornmentArrowLeftArrow;
-                qt_mac_set_port(p);
-                DrawThemeButton(qt_glb_mac_rect(cmb->rect, p, true, QRect(1, 0, 0, 0)),
-                                kThemePopupButton, &info, 0, 0, 0, 0);
+                break;
+#endif
+            case QAquaSizeUnknown:
+            case QAquaSizeLarge:
+                bkind = combo->editable ? kThemeComboBox : kThemePopupButton;
+                break;
             }
+            info.adornment |= kThemeAdornmentArrowLeftArrow;
+
+            QRect off_rct;
+            { //The AppManager draws outside my rectangle, so account for that difference..
+                Rect macRect, myRect;
+                SetRect(&myRect, combo->rect.x(), combo->rect.y(), combo->rect.width(),
+                        combo->rect.height());
+                GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
+                off_rct.setRect(myRect.left - macRect.left, myRect.top - macRect.top,
+                                (myRect.left - macRect.left) + (macRect.right - myRect.right),
+                                (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
+            }
+            qt_mac_set_port(p);
+            DrawThemeButton(qt_glb_mac_rect(combo->rect, p, true, off_rct), bkind, &info,
+                            0, 0, 0, 0);
         }
         break;
     case QStyle::CC_TitleBar:
@@ -4561,11 +4546,13 @@ void QMacStylePrivate::AppManAdjustButtonSize(QStyle::ContentsType ct, QSize &sz
     ThemeButtonKind bkind = kThemePushButton;
     if (ct == QStyle::CT_ToolButton)
         bkind = kThemeBevelButton;
+    else if (ct == QStyle::CT_ComboBox)
+        bkind = kThemePopupButton;
     if (qt_aqua_size_constrain(widget) == QAquaSizeSmall) {
         if (bkind == kThemeBevelButton)
             bkind = kThemeSmallBevelButton;
     }
-    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
+    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentFocus };
     Rect macRect, myRect;
     SetRect(&myRect, 0, 0, sz.width(), sz.height());
     GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
@@ -5383,29 +5370,10 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                                 const QWidget *w) const
 {
     QRect ret;
-    switch (cc) {
-    case CC_ComboBox:
-        if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
-            if (cmb->editable) {
-                if (sc == SC_ComboBoxEditField)
-                    ret.setRect(0, 0, cmb->rect.width() - 20, cmb->rect.height());
-                else if (sc == SC_ComboBoxArrow)
-                    ret.setRect(cmb->rect.width() - 24, 0, 24, cmb->rect.height());
-            } else {
-                if (d->useHITheme)
-                    ret = d->HIThemeSubControlRect(cc, opt, sc, w);
-                else
-                    ret = d->AppManSubControlRect(cc, opt, sc, w);
-            }
-        }
-        break;
-    default:
-        if (d->useHITheme)
-            ret = d->HIThemeSubControlRect(cc, opt, sc, w);
-        else
-            ret = d->AppManSubControlRect(cc, opt, sc, w);
-        break;
-    }
+    if (d->useHITheme)
+        ret = d->HIThemeSubControlRect(cc, opt, sc, w);
+    else
+        ret = d->AppManSubControlRect(cc, opt, sc, w);
     return ret;
 }
 
@@ -5508,7 +5476,11 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             sz.setHeight(macsz.height());
     }
     // Adjust size to within Aqua guidelines
-    if (ct == QStyle::CT_PushButton || ct == QStyle::CT_ToolButton) {
+    if (ct == QStyle::CT_PushButton || ct == QStyle::CT_ToolButton || ct == QStyle::CT_ComboBox) {
+        if (const QStyleOptionComboBox *combo = qt_cast<const QStyleOptionComboBox *>(opt)) {
+            if (combo->editable)
+                return sz;
+        }
         if (d->useHITheme)
             d->HIThemeAdjustButtonSize(ct, sz, widget);
         else
