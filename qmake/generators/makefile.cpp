@@ -1501,7 +1501,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
             }
             deps = replaceExtraCompilerVariables(deps, QString::null, tmp_out);
             t << tmp_out << ": " << inputs << " " << deps << "\n\t"
-              << cmd << " " << inputs << endl << endl;
+              << cmd.replace("${QMAKE_FILE_IN}", inputs) << endl << endl;
             continue;
         }
         QStringList &tmp = project->variables()[(*it) + ".input"];
