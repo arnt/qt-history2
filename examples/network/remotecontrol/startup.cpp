@@ -6,7 +6,7 @@
 #include <qsocket.h>
 #include <qlabel.h>
 
-#define IPC_PORT 54923
+static const Q_UINT16 ipcPort = 54923;
 
 StartUp::StartUp()
 {
@@ -16,7 +16,7 @@ StartUp::StartUp()
     socket = new QSocket( this );
     connect( socket, SIGNAL(connected()), SLOT(startRemoteCtrl()) );
     connect( socket, SIGNAL(error(int)), SLOT(startMainDialog()) );
-    socket->connectToHost( "localhost", IPC_PORT );
+    socket->connectToHost( "localhost", ipcPort );
 }
 
 StartUp::~StartUp()
@@ -36,7 +36,7 @@ void StartUp::startMainDialog()
     mainDialog = new MainDialog();
     mainDialog->show();
 
-    IpcServer *server = new IpcServer( IPC_PORT, this );
+    IpcServer *server = new IpcServer( ipcPort, this );
 
     connect( server, SIGNAL(receivedText(const QString&)),
 	    mainDialog->description, SLOT(setText(const QString&)) );
