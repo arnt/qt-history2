@@ -48,7 +48,8 @@ Page custom SetEnvPage SetEnvVariables
 !insertmacro MUI_PAGE_INSTFILES
 
 ; Finish page
-!define MUI_FINISHPAGE_SHOWREADME "%PACKAGEDIR%\README"
+!define MUI_FINISHPAGE_SHOWREADME
+!define MUI_FINISHPAGE_SHOWREADME_FUNCTION "ShowReadMe"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -177,6 +178,10 @@ FunctionEnd
 Function ShowNonUSLicense
   strcmp $DISPLAY_US_LICENSE "0" +2
   Abort
+FunctionEnd
+
+Function ShowReadMe
+  Exec 'notepad.exe "$INSTDIR\README"'
 FunctionEnd
 
 Function un.onUninstSuccess
