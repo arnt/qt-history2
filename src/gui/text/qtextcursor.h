@@ -141,7 +141,7 @@ public:
     void insertImage(const QString &name);
 
     void beginEditBlock();
-    void joinLastEditBlock();
+    void joinPreviousEditBlock();
     void endEditBlock();
 
     bool operator!=(const QTextCursor &rhs) const;

@@ -804,7 +804,7 @@ void QTextDocumentPrivate::enableUndoRedo(bool enable)
     undoEnabled = enable;
 }
 
-void QTextDocumentPrivate::joinLastEditBlock()
+void QTextDocumentPrivate::joinPreviousEditBlock()
 {
     beginEditBlock();
 

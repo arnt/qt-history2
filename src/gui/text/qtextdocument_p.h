@@ -151,7 +151,7 @@ public:
     inline void redo() { undoRedo(false); }
     void appendUndoItem(QAbstractUndoItem *);
     inline void beginEditBlock() { editBlock++; }
-    void joinLastEditBlock();
+    void joinPreviousEditBlock();
     void endEditBlock();
     void enableUndoRedo(bool enable);
     inline bool isUndoRedoEnabled() const { return undoEnabled; }

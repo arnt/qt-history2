@@ -1567,8 +1567,8 @@ void QTextCursor::beginEditBlock()
 /*!
     Like beginEditBlock() indicates the start of a block of editing operations
     that should appear as a single operation for undo/redo. However unlike
-    beginEditBlock() it does not start a new block but reverses the last endEditBlock()
-    and therefore makes following operations part of the last edit block created.
+    beginEditBlock() it does not start a new block but reverses the previous call to 
+    endEditBlock() and therefore makes following operations part of the previous edit block created.
 
     For example:
 
@@ -1581,7 +1581,7 @@ void QTextCursor::beginEditBlock()
 
     ...
 
-    cursor.joinLastEditBlock();
+    cursor.joinPreviousEditBlock();
     cursor.insertText("Hey");
     cursor.endEditBlock();
 
@@ -1592,12 +1592,12 @@ void QTextCursor::beginEditBlock()
  
     \sa beginEditBlock(), endEditBlock()
  */
-void QTextCursor::joinLastEditBlock()
+void QTextCursor::joinPreviousEditBlock()
 {
     if (!d || !d->priv)
         return;
 
-    d->priv->joinLastEditBlock();
+    d->priv->joinPreviousEditBlock();
 }
 
 /*!
