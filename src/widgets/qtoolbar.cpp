@@ -117,7 +117,7 @@ private:
 class QToolBarExtensionWidget : public QWidget
 {
     Q_OBJECT
-	
+
 public:
     QToolBarExtensionWidget( QWidget *w );
     void setOrientation( Orientation o );
@@ -207,16 +207,16 @@ QSize QToolBarSeparator::sizeHint() const
 
   \ingroup application
 
-  A toolbar is a panel that contains a set of controls, usually
+  A tool bar is a panel that contains a set of controls, usually
   represented by small icons.  It's purpose is to provide quick access
   to frequently used commands or options. Within a main window, the
-  user can drag toolbars freely around and hide them with a click on
-  the toolbar handle.
+  user can drag tool bars freely around and hide them with a click on
+  the tool bar handle.
 
   A QToolBar is a special QDockWindow, and so provides also all
   functionality of a QDockWindow. For example, within a QMainWindow the
   user can drag tool bars freely around.
-  
+
   To use QToolBar you simply create a QToolBar as child of a
   QMainWindow, create a number of QToolButton widgets (or other
   widgets) in left to right (or top to bottom) order, call
@@ -237,7 +237,7 @@ QSize QToolBarSeparator::sizeHint() const
   button at its right or bottom end. Clicking on on that button pops up a
   menu that shows the "overflowing" items.
 
-  Usually a toolbar gets just the space it needs. However, with
+  Usually a tool bar gets just the space it needs. However, with
   setHorizontalStretchable()/setVerticalStretchable() or
   setStretchableWidget() you can advise the main window to expand
   the tool bar to fill all available width in the specified orientation.
@@ -440,9 +440,9 @@ bool QToolBar::event( QEvent * e )
 
 /*!  Sets the label of this tool bar to \a label.
 
-Whenever a user drags the toolbar and drops it elsewhere
-on the desktop, the toolbar becomes a window on its own with
-\a label as caption.
+Whenever a user drags the toolbar and drops it elsewhere on the
+desktop, the tool bar becomes a window on its own with \a label as
+caption.
 
 \sa label()
 */
@@ -626,47 +626,47 @@ void QToolBar::setupArrowMenu()
 
 /* from chaunsee:
 
-1.  Toolbars should contain only high-frequency functions.  Avoid putting
-things like About and Exit on a toolbar unless they are frequent functions.
+1.  Tool Bars should contain only high-frequency functions.  Avoid putting
+things like About and Exit on a tool bar unless they are frequent functions.
 
-2.  All toolbar buttons must have some keyboard access method (it can be a
+2.  All tool bar buttons must have some keyboard access method (it can be a
 menu or shortcut key or a function in a dialog box that can be accessed
 through the keyboard).
 
-3.  Make toolbar functions as efficient as possible (the common example is to
+3.  Make tool bar functions as efficient as possible (the common example is to
 Print in Microsoft applications, it doesn't bring up the Print dialog box, it
 prints immediately to the default printer).
 
-4.  Avoid turning toolbars into graphical menu bars.  To me, a toolbar should
-be efficient. Once you make almost all the items in a toolbar into graphical
+4.  Avoid turning tool bars into graphical menu bars.  To me, a tool bar should
+be efficient. Once you make almost all the items in a tool bar into graphical
 pull-down menus, you start to lose efficiency.
 
-5.  Make sure that adjacent icons are distinctive. There are some toolbars
+5.  Make sure that adjacent icons are distinctive. There are some tool bars
 where you see a group of 4-5 icons that represent related functions, but they
-are so similar that you can't differentiate among them.  These toolbars are
+are so similar that you can't differentiate among them.  These tool bars are
 often a poor attempt at a "common visual language".
 
 6.  Use any de facto standard icons of your platform (for windows use the
 cut, copy and paste icons provided in dev kits rather than designing your
 own).
 
-7.  Avoid putting a highly destructive toolbar button (delete database) by a
+7.  Avoid putting a highly destructive tool bar button (delete database) by a
 safe, high-frequency button (Find) -- this will yield 1-0ff errors).
 
 8.  Tooltips in many Microsoft products simply reiterate the menu text even
 when that is not explanatory.  Consider making your tooltips slightly more
 verbose and explanatory than the corresponding menu item.
 
-9.  Keep the toolbar as stable as possible when you click on different
-objects. Consider disabling toolbar buttons if they are used in most, but not
+9.  Keep the tool bar as stable as possible when you click on different
+objects. Consider disabling tool bar buttons if they are used in most, but not
 all contexts.
 
-10.  If you have multiple toolbars (like the Microsoft MMC snap-ins have),
-put the most stable toolbar to at the left with less stable ones to the
-right. This arrangement (stable to less stable) makes the toolbar somewhat
+10.  If you have multiple tool bars (like the Microsoft MMC snap-ins have),
+put the most stable tool bar to at the left with less stable ones to the
+right. This arrangement (stable to less stable) makes the tool bar somewhat
 more predictable.
 
-11.  Keep a single toolbar to fewer than 20 items divided into 4-7 groups of
+11.  Keep a single tool bar to fewer than 20 items divided into 4-7 groups of
 items.
 */
 #endif
