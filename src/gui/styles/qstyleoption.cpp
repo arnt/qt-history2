@@ -1060,12 +1060,12 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \property QStyleOptionViewItem::displayAlignment
-    \brief The display alignment for the item.
+    \brief The alignment of the display value for the item.
 */
 
 /*!
     \property QStyleOptionViewItem::decorationAlignment
-    \brief The decoration alignment for the item.
+    \brief The alignment of the decoration for the item.
 */
 
 /*!
