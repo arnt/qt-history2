@@ -177,7 +177,6 @@
 #include <qlayout.h>
 #include <qsjiscodec.h>
 #include <qslider.h>
-#include <qsmartptr.h>
 #include <qsocketnotifier.h>
 #include <qsortedlist.h>
 #include <qsound.h>

@@ -675,15 +675,14 @@ network:SOURCES    += $$NETWORK_SOURCES
 embedded:PRECOMPH=kernel/qt.h
 embedded:INCLUDEPATH += 3rdparty/freetype2/include 3rdparty/libpng 3rdparty/zlib
 QWSSUBLIBS = freetype
-zlib:QWSSUBLIBS += z
 png:QWSSUBLIBS += png
 mng:QWSSUBLIBS += mng
+zlib:QWSSUBLIBS += z
 jpeg:QWSSUBLIBS += jpeg
 embedded:SUBLIBS = $$QWSSUBLIBS
 embedded:MAKELIBz = $(MAKE) -C 3rdparty/zlib -f Makefile$$DASHMIPS; \
 			cp 3rdparty/zlib/libz.a tmp
-embedded:MAKELIBfreetype = $(MAKE) -C 3rdparty/freetype2 \
-			    CONFIG_MK=config$$DASHMIPS.mk OBJ_DIR=../../tmp \
+embedded:MAKELIBfreetype = $(MAKE) -C 3rdparty/freetype2 CONFIG_MK=config$$DASHMIPS.mk OBJ_DIR=../../tmp \
 			    ../../tmp/libfreetype.a
 embedded:MAKELIBpng = $(MAKE) -C 3rdparty/libpng \
 			    -f scripts/makefile.linux$$DASHMIPS; \

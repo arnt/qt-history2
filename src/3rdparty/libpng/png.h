@@ -1595,7 +1595,7 @@ extern PNG_EXPORT(void,png_set_compression_method) PNGARG((png_structp png_ptr,
 
 #if !defined(PNG_NO_STDIO)
 /* Initialize the input/output for the PNG file to the default functions. */
-extern PNG_EXPORT(void,png_init_io) PNGARG((png_structp png_ptr, png_FILE_p fp));
+extern PNG_EXPORT(void,png_init_io) PNGARG((png_structp png_ptr, FILE* fp));
 #endif
 
 /* Replace the (error and abort), and warning functions with user
