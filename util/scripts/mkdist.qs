@@ -996,6 +996,11 @@ function binaryFile(fileName)
     if (File.exists(fileName) && File.isFile(fileName)) {
 	var file = new File(fileName);
 	if (file.executable) {
+	    file.open(File.ReadOnly);
+	    var isScript = file.readLine().lower().startsWith("#!");
+	    file.close();
+	    if (isScript)
+		return false;
 	    return true;
 	} else {
 	    for (var i in binaryExtensions)
@@ -1019,7 +1024,7 @@ function execute(command, stdin) {
     if (error != 0) {
 	throw "Error runnning: %1 stderr: %2".arg(command).arg(Process.stderr.left(200));
     } else if (Process.stderr.length > 0
-	       && Process.stderr.left(200).toLowerCase().find(/warning|error/) != -1) {
+	       && Process.stderr.left(200).lower().find(/warning|error/) != -1) {
 	warning("Running %1 stderr: %2".arg(command).arg(Process.stderr.left(200)));
     }
 }
