@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#19 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#19 $";
 #endif
 
 
@@ -182,6 +182,7 @@ bool QWidget::destroy()				// destroy widget
 void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt )
 {
+    extern void qPRCreate( const QWidget *, Window, Window );
     WId old_ident = ident;
     if ( testFlag(WType_Desktop) )
 	old_ident = 0;
@@ -198,6 +199,7 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
     clearFlag( WState_Created );
     clearFlag( WState_Visible );
     create();
+    qPRCreate( this, old_ident, ident );
     setBackgroundColor( bgc );			// restore colors
     setForegroundColor( fgc );
     resize( s );				// restore size
