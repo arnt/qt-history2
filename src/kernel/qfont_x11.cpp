@@ -2370,12 +2370,14 @@ void QFont::initialize()
 
     setlocale(LC_TIME, (const char *) oldlctime);
 
+#ifndef QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
     (void) new QFontJis0208Codec;
     (void) new QFontKsc5601Codec;
     (void) new QFontGB2312Codec;
     (void) new QFontBig5Codec;
 #endif // QT_NO_BIG_CODECS
+#endif // QT_NO_CODECS
 
     // create font cache and name dict
     QFontPrivate::fontCache = new QFontCache();
