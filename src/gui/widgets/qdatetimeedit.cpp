@@ -2295,9 +2295,7 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
                    tmp.toString().toLatin1().constData(), stateName(state).toLatin1().constData());
     }
 end:
-    if (state != QValidator::Invalid && (tmp < minimum || tmp > maximum)) {
-        if (!tmp.toDateTime().isValid())
-            QDTEDEBUG << "invalid tmp is invalid";
+    if (state != QValidator::Invalid && tmp < minimum && tmp.toDateTime().isValid()) {
         state = checkIntermediate(tmp.toDateTime(), input);
     } else {
         QDTEDEBUG << "not checking intermediate because tmp is" << tmp << minimum << maximum;
@@ -2595,9 +2593,7 @@ void QDateTimeEditPrivate::calculateSizeHints() const
 QValidator::State QDateTimeEditPrivate::checkIntermediate(const QDateTime &dt,
                                                           const QString &s) const
 {
-    const bool tooSmall = dt < minimum;
-    const bool tooLarge = dt > maximum;
-    Q_ASSERT(tooSmall || tooLarge);
+    Q_ASSERT(dt < minimum);
 
     bool found = false;
     for (int i=0; i<sections.size(); ++i) {
@@ -2611,10 +2607,6 @@ QValidator::State QDateTimeEditPrivate::checkIntermediate(const QDateTime &dt,
             found = true;
             switch (sn.section) {
             case MonthShortNameSection: {
-                if (tooLarge) {
-                    QDTEDEBUG << "Invalid because tooLarge and MonthShortNameSection";
-                    return QValidator::Invalid;
-                }
                 int tmp = dt.date().month();
                 // I know the first possible month makes the date too early
                 while ((tmp = findMonth(t, tmp + 1)) != -1) {
@@ -2627,70 +2619,63 @@ QValidator::State QDateTimeEditPrivate::checkIntermediate(const QDateTime &dt,
             }
             case AmPmSection:
             case AmPmLowerCaseSection:
-                if (tooSmall && (t.count(space) == 2 || t.contains('m'))) {
+                if (t.count(space) == 2 || t.contains('m')) {
                     const QVariant copy(dt.addSecs(12 * 60 * 60));
                     if (copy >= minimum && copy <= maximum)
                         break;
                 }
                 return QValidator::Invalid;
-            default:
-                if (tooSmall) {
-                    int toMin;
-                    int toMax;
-                    int multi = multiplier(sn.section);
+            default: {
+                int toMin;
+                int toMax;
+                int multi = multiplier(sn.section);
 
-                    if (sn.section & TimeSectionMask) {
-                        if (dt.daysTo(minimum.toDateTime()) != 0) {
-                            QDTEDEBUG << "if (dt.daysTo(minimum.toDateTime()) != 0)" << dt.daysTo(minimum.toDateTime());
-                            return QValidator::Invalid;
-                        }
-                        toMin = dt.time().msecsTo(minimum.toDateTime().time());
-                        if (dt.daysTo(maximum.toDateTime()) > 0) {
-                            toMax = -1; // can't get to max
-                        } else {
-                            toMax = dt.time().msecsTo(maximum.toDateTime().time());
-                        }
-                    } else {
-                        toMin = dt.daysTo(minimum.toDateTime());
-                        toMax = dt.daysTo(maximum.toDateTime());
-                    }
-                    int maxChange = QDateTimeEditPrivate::maxChange(sn.section);
-                    int maxChangeUnits = maxChange * multi;
-                    if (toMin > maxChangeUnits) {
-                        QDTEDEBUG << "invalid because toMin > maxChangeUnits" << toMin << maxChangeUnits << t << dt << minimum.toDateTime()
-                                  << multi;
-
+                if (sn.section & TimeSectionMask) {
+                    if (dt.daysTo(minimum.toDateTime()) != 0) {
+                        QDTEDEBUG << "if (dt.daysTo(minimum.toDateTime()) != 0)" << dt.daysTo(minimum.toDateTime());
                         return QValidator::Invalid;
-                    } else if (toMax > maxChangeUnits) {
+                    }
+                    toMin = dt.time().msecsTo(minimum.toDateTime().time());
+                    if (dt.daysTo(maximum.toDateTime()) > 0) {
                         toMax = -1; // can't get to max
-                    }
-
-                    int min = getDigit(minimum, sn.section);
-                    int max = toMax != -1 ? getDigit(maximum, sn.section) : -1;
-                    int tmp = potentialValue(t, min, max, sn.section);
-                    QDTEDEBUG << tmp << t << min << max << sectionName(sn.section)  << minimum.toDate() << maximum.toDate();
-                    if (tmp == -1) {
-                        QDTEDEBUG << "invalid because potentialValue(" << t << min << max
-                                  << sectionName(sn.section) << "returned" << tmp;
-                        return QValidator::Invalid;
-                    }
-
-                    QVariant var(dt);
-                    setDigit(var, sn.section, tmp);
-                    if (var > maximum) {
-                        QDTEDEBUG << "invalid because" << var.toString() << ">" << maximum.toString();
-                        return QValidator::Invalid;
+                    } else {
+                        toMax = dt.time().msecsTo(maximum.toDateTime().time());
                     }
                 } else {
-                    // This has no meaning unless setYMD() is automagical about the year parameter.
-                    if (sn.section & TimeSectionMask)
-                        Q_ASSERT(maximum.toDateTime().daysTo(dt) == 0);
+                    toMin = dt.daysTo(minimum.toDateTime());
+                    toMax = dt.daysTo(maximum.toDateTime());
+                }
+                int maxChange = QDateTimeEditPrivate::maxChange(sn.section);
+                int maxChangeUnits = maxChange * multi;
+                if (toMin > maxChangeUnits) {
+                    QDTEDEBUG << "invalid because toMin > maxChangeUnits" << toMin << maxChangeUnits << t << dt << minimum.toDateTime()
+                              << multi;
+
+                    return QValidator::Invalid;
+                } else if (toMax > maxChangeUnits) {
+                    toMax = -1; // can't get to max
+                }
+
+                int min = getDigit(minimum, sn.section);
+                int max = toMax != -1 ? getDigit(maximum, sn.section) : -1;
+                int tmp = potentialValue(t, min, max, sn.section);
+                QDTEDEBUG << tmp << t << min << max << sectionName(sn.section)  << minimum.toDate() << maximum.toDate();
+                if (tmp == -1) {
+                    QDTEDEBUG << "invalid because potentialValue(" << t << min << max
+                              << sectionName(sn.section) << "returned" << tmp;
                     return QValidator::Invalid;
                 }
+
+                QVariant var(dt);
+                setDigit(var, sn.section, tmp);
+                if (var > maximum) {
+                    QDTEDEBUG << "invalid because" << var.toString() << ">" << maximum.toString();
+                    return QValidator::Invalid;
+                }
+                break; }
             }
         }
     }
-
     return found ? QValidator::Intermediate : QValidator::Invalid;
 }
 
