@@ -4685,7 +4685,7 @@ bool QWidget::autoMask() const
   \c WindowOrigin.
 
   This makes a difference only if the widget has a background pixmap
-  where the positioning matters. In such case, using \c ParentOrigin
+  where the positioning matters. In such case, using \c WindowOrigin
   for several neighboring widgets makes the background blend together
   seamlessly.
 
