@@ -7,6 +7,10 @@
 #include "qlist.h"
 #endif // QT_H
 
+#ifndef QT_NO_STL
+#include <iterator>
+#endif
+
 class QByteArray;
 class QString;
 
@@ -45,8 +49,8 @@ struct Q_CORE_EXPORT QHashData
     void *autoDelete;
 
     QHashData *detach_helper(Node *(*node_duplicate)(Node *));
-    void grow();
-    void shrink();
+    void growByOne();
+    void shrinkByOne();
     void rehash(int hint);
     Node *first_node();
     static Node *next_node(Node *node);
@@ -57,14 +61,14 @@ struct Q_CORE_EXPORT QHashData
     static QHashData shared_null;
 };
 
-inline void QHashData::grow()
+inline void QHashData::growByOne()
 {
     ++size;
     if (size > numBuckets)
 	rehash(numBits + 1);
 }
 
-inline void QHashData::shrink()
+inline void QHashData::shrinkByOne()
 {
     --size;
     if (size == (numBuckets >> 3) && numBits > userNumBits)
@@ -148,8 +152,7 @@ struct QHashNode
 
     inline QHashNode(const Key &key0, const T &value0)
 	: key(key0), value(value0) { }
-    inline bool same_key(ulong h0, const Key &key0)
-    { return h0 == h && key0 == key; }
+    inline bool same_key(ulong h0, const Key &key0) { return h0 == h && key0 == key; }
 };
 
 #ifndef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
@@ -241,7 +244,7 @@ public:
         typedef T &reference;
 
 	inline operator Node *() const { return i; }
-	inline ConstIterator(const Iterator &o) { i = ((ConstIterator&) o).i; }
+	inline ConstIterator(const Iterator &o) { i = ((ConstIterator &)o).i; }
 	explicit inline ConstIterator(void *node = 0) { i = (Node *)node; }
 
 	inline const Key &key() const { return i->key; }
@@ -295,8 +298,12 @@ public:
     int erase(const Key &key);
     Iterator erase(Iterator it);
 #ifdef QT_COMPAT
-    inline int remove(const Key &key) { return erase(key); }
+    inline QT_COMPAT int remove(const Key &key) { return erase(key); }
     inline QT_COMPAT Iterator remove(Iterator it) { return erase(it); }
+#endif
+
+#ifdef QT_COMPAT
+    inline QT_COMPAT Iterator replace(const Key &key, const T &value) { return insert(key, value); }
 #endif
 
     bool contains(const Key &key) const;
@@ -330,7 +337,6 @@ public:
 
     inline int capacity() const { return d->numBuckets; }
     void reserve(int size);
-    // ### void squeeze()?
 
     inline bool ensure_constructed()
     { if (!d) { d = &QHashData::shared_null; ++d->ref; return false; } return true; }
@@ -484,7 +490,7 @@ Q_INLINE_TEMPLATE T &QHash<Key, T>::operator[](const Key &key)
     ulong h;
     Node *node = node_find(key, &h);
     if (node == e) {
-	d->grow();
+	d->growByOne();
 	node = node_create(h, key, T());
     }
     return node->value;
@@ -499,7 +505,7 @@ Q_INLINE_TEMPLATE typename QHash<Key, T>::Iterator QHash<Key, T>::insert(const K
     ulong h;
     Node *node = node_find(key, &h);
     if (node == e) {
-	d->grow();
+	d->growByOne();
 	node = node_create(h, key, value);
     } else {
 	if (d->autoDelete == this)
@@ -516,7 +522,7 @@ Q_INLINE_TEMPLATE typename QHash<Key, T>::Iterator QHash<Key, T>::insertMulti(co
     detach();
 
     ulong h;
-    d->grow();
+    d->growByOne();
     Node * &nextNode = node_find(key, &h);
     return Iterator(node_create(h, key, value, nextNode));
 }
@@ -526,20 +532,19 @@ Q_OUTOFLINE_TEMPLATE int QHash<Key, T>::erase(const Key &key)
 {
     detach();
 
-    int cnt = 0;
+    int oldSize = d->size;
     Node * &node = node_find(key);
     if (node != e) {
 	do {
-	    ++cnt;
 	    if (d->autoDelete == this)
 	        qDelete(node->value);
 	    Node *next = node->next;
 	    delete node;
 	    node = next;
-	    d->shrink();
+	    d->shrinkByOne();
 	} while (node != e && node->key == key);
     }
-    return cnt;
+    return oldSize - d->size;
 }
 
 template <class Key, class T>
@@ -554,7 +559,7 @@ Q_OUTOFLINE_TEMPLATE T QHash<Key, T>::take(const Key &key)
 	Node *next = node->next;
 	delete node;
 	node = next;
-	d->shrink();
+	d->shrinkByOne();
     } else {
 	qInit(t);
     }
@@ -575,7 +580,7 @@ Q_OUTOFLINE_TEMPLATE typename QHash<Key, T>::Iterator QHash<Key, T>::erase(Itera
     if (d->autoDelete == this)
 	qDelete(node->value);
     delete node;
-    d->shrink();
+    d->shrinkByOne();
     return ret;
 }
 
