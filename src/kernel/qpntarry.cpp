@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#49 $
 **
 ** Implementation of QPointArray class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#48 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#49 $");
 
 /*!
   \class QPointVal qpntarry.h
@@ -410,6 +410,18 @@ QPoint QPointArray::at( uint index ) const
   \fn QPointVal QPointArray::operator[]( uint index )
 
   Returns a reference to the point at position \e index in the array.
+*/
+
+/*!
+  \fn QPoint QPointArray::operator[] (int i) const
+
+  Returns the point at position \e index in the array.
+*/
+
+/*!
+  \fn QPoint QPointArray::operator[] (uint i) const
+
+  Returns the point at position \e index in the array.
 */
 
 
