@@ -965,6 +965,8 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 	    p->setPen( oldPen );
 	    break;
 	}
+	
+	// I'm leaving these here, but they aren't working.
     case PE_ScrollBarAddLine:
 	if ( flags & Style_Horizontal )
 	    drawSemicircleButton( p, r, PointRight, flags & Style_Down, cg );
@@ -976,7 +978,7 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 	    drawSemicircleButton( p, r, PointLeft, flags & Style_Down, cg );
 	else
 	    drawSemicircleButton( p, r, PointUp, flags & Style_Down, cg );
-	break;	
+	break;
     default:
 	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags );
 	break;
@@ -1151,80 +1153,84 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl cc,
 
 	    break;
 	}
-    case CC_ScrollBar:
-	{
-	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
-	    QRect addline, subline, addpage, subpage, slider, first, last;
-	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
+	
+	// Scroll bar is FooBar'd just use the windows style one, for
+	// now
+//     case CC_ScrollBar:
+// 	{
+// 	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
+// 	    QRect addline, subline, addpage, subpage, slider, first, last;
+// 	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
 
-	    subline = querySubControlMetrics(cc, widget, SC_ScrollBarSubLine, data);
-	    addline = querySubControlMetrics(cc, widget, SC_ScrollBarAddLine, data);
-	    subpage = querySubControlMetrics(cc, widget, SC_ScrollBarSubPage, data);
-	    addpage = querySubControlMetrics(cc, widget, SC_ScrollBarAddPage, data);
-	    slider  = querySubControlMetrics(cc, widget, SC_ScrollBarSlider,  data);
-	    first   = querySubControlMetrics(cc, widget, SC_ScrollBarFirst,   data);
-	    last    = querySubControlMetrics(cc, widget, SC_ScrollBarLast,    data);
+// 	    subline = querySubControlMetrics(cc, widget, SC_ScrollBarSubLine, data);
+// 	    addline = querySubControlMetrics(cc, widget, SC_ScrollBarAddLine, data);
+// 	    subpage = querySubControlMetrics(cc, widget, SC_ScrollBarSubPage, data);
+// 	    addpage = querySubControlMetrics(cc, widget, SC_ScrollBarAddPage, data);
+// 	    slider  = querySubControlMetrics(cc, widget, SC_ScrollBarSlider,  data);
+// 	    first   = querySubControlMetrics(cc, widget, SC_ScrollBarFirst,   data);
+// 	    last    = querySubControlMetrics(cc, widget, SC_ScrollBarLast,    data);
 
-       	    if ((sub & SC_ScrollBarSubLine) && subline.isValid())
-		drawPrimitive(PE_ScrollBarSubLine, p, subline, cg,
-			      ((maxedOut) ? Style_Default : Style_Enabled) |
-			      ((subActive == SC_ScrollBarSubLine) ?
-			       Style_Down : Style_Default) |
-			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : 0));
-	    if ((sub & SC_ScrollBarAddLine) && addline.isValid())
-		drawPrimitive(PE_ScrollBarAddLine, p, addline, cg,
-			      ((maxedOut) ? Style_Default : Style_Enabled) |
-			      ((subActive == SC_ScrollBarAddLine) ?
-			       Style_Down : Style_Default) |
-			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : 0));
-	    if ((sub & SC_ScrollBarSubPage) && subpage.isValid())
-		drawPrimitive(PE_ScrollBarSubPage, p, subpage, cg,
-			      ((maxedOut) ? Style_Default : Style_Enabled) |
-			      ((subActive == SC_ScrollBarSubPage) ?
-			       Style_Down : Style_Default) |
-			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : 0));
-	    if ((sub & SC_ScrollBarAddPage) && addpage.isValid())
-		drawPrimitive(PE_ScrollBarAddPage, p, addpage, cg,
-			      ((maxedOut) ? Style_Default : Style_Enabled) |
-			      ((subActive == SC_ScrollBarAddPage) ?
-			       Style_Down : Style_Default) |
-			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : 0));
-       	    if ((sub & SC_ScrollBarFirst) && first.isValid())
-		drawPrimitive(PE_ScrollBarFirst, p, first, cg,
-			      ((maxedOut) ? Style_Default : Style_Enabled) |
-			      ((subActive == SC_ScrollBarFirst) ?
-			       Style_Down : Style_Default) |
-			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : 0));
-	    if ((sub & SC_ScrollBarLast) && last.isValid())
-		drawPrimitive(PE_ScrollBarLast, p, last, cg,
-			      ((maxedOut) ? Style_Default : Style_Enabled) |
-			      ((subActive == SC_ScrollBarLast) ?
-			       Style_Down : Style_Default) |
-			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : 0));
-	    if ((sub & SC_ScrollBarSlider) && slider.isValid()) {
-		drawPrimitive(PE_ScrollBarSlider, p, slider, cg,
-			      ((maxedOut) ? Style_Default : Style_Enabled) |
-			      ((subActive == SC_ScrollBarSlider) ?
-			       Style_Down : Style_Default) |
-			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : 0));
+// 	    if ((sub & SC_ScrollBarSubPage) && subpage.isValid())
+// 		drawPrimitive(PE_ScrollBarSubPage, p, subpage, cg,
+// 			      ((maxedOut) ? Style_Default : Style_Enabled) |
+// 			      ((subActive == SC_ScrollBarSubPage) ?
+// 			       Style_Down : Style_Default) |
+// 			      ((scrollbar->orientation() == Qt::Horizontal) ?
+// 			       Style_Horizontal : 0));
+// 	    if ((sub & SC_ScrollBarAddPage) && addpage.isValid())
+// 		drawPrimitive(PE_ScrollBarAddPage, p, addpage, cg,
+// 			      ((maxedOut) ? Style_Default : Style_Enabled) |
+// 			      ((subActive == SC_ScrollBarAddPage) ?
+// 			       Style_Down : Style_Default) |
+// 			      ((scrollbar->orientation() == Qt::Horizontal) ?
+// 			       Style_Horizontal : 0));
+//        	    if ((sub & SC_ScrollBarFirst) && first.isValid())
+// 		drawPrimitive(PE_ScrollBarFirst, p, first, cg,
+// 			      ((maxedOut) ? Style_Default : Style_Enabled) |
+// 			      ((subActive == SC_ScrollBarFirst) ?
+// 			       Style_Down : Style_Default) |
+// 			      ((scrollbar->orientation() == Qt::Horizontal) ?
+// 			       Style_Horizontal : 0));
+// 	    if ((sub & SC_ScrollBarLast) && last.isValid())
+// 		drawPrimitive(PE_ScrollBarLast, p, last, cg,
+// 			      ((maxedOut) ? Style_Default : Style_Enabled) |
+// 			      ((subActive == SC_ScrollBarLast) ?
+// 			       Style_Down : Style_Default) |
+// 			      ((scrollbar->orientation() == Qt::Horizontal) ?
+// 			       Style_Horizontal : 0));
+// 	    if ((sub & SC_ScrollBarSubLine) && subline.isValid())
+// 		drawPrimitive(PE_ScrollBarSubLine, p, subline, cg,
+// 			      ((maxedOut) ? Style_Default : Style_Enabled) |
+// 			      ((subActive == SC_ScrollBarSubLine) ?
+// 			       Style_Down : Style_Default) |
+// 			      ((scrollbar->orientation() == Qt::Horizontal) ?
+// 			       Style_Horizontal : 0));
+// 	    if ((sub & SC_ScrollBarAddLine) && addline.isValid())
+// 		drawPrimitive(PE_ScrollBarAddLine, p, addline, cg,
+// 			      ((maxedOut) ? Style_Default : Style_Enabled) |
+// 			      ((subActive == SC_ScrollBarAddLine) ?
+// 			       Style_Down : Style_Default) |
+// 			      ((scrollbar->orientation() == Qt::Horizontal) ?
+// 			       Style_Horizontal : 0));
 
-		// ### perhaps this should not be able to accept focus if maxedOut?
-		if (scrollbar->hasFocus()) {
-		    QRect fr(slider.x() + 2, slider.y() + 2,
-			     slider.width() - 5, slider.height() - 5);
-		    drawPrimitive(PE_FocusRect, p, fr, cg, Style_Default);
-		}
-	    }
+// 	    if ((sub & SC_ScrollBarSlider) && slider.isValid()) {
+// 		drawPrimitive(PE_ScrollBarSlider, p, slider, cg,
+// 			      ((maxedOut) ? Style_Default : Style_Enabled) |
+// 			      ((subActive == SC_ScrollBarSlider) ?
+// 			       Style_Down : Style_Default) |
+// 			      ((scrollbar->orientation() == Qt::Horizontal) ?
+// 			       Style_Horizontal : 0));
 
-	    break;
-	}
+// 		// ### perhaps this should not be able to accept focus if maxedOut?
+// 		if (scrollbar->hasFocus()) {
+// 		    QRect fr(slider.x() + 2, slider.y() + 2,
+// 			     slider.width() - 5, slider.height() - 5);
+// 		    drawPrimitive(PE_FocusRect, p, fr, cg, Style_Default);
+// 		}
+// 	    }
+
+// 	    break;
+// 	}
 	
     default:
 	QWindowsStyle::drawComplexControl( cc, p, widget, r, cg, how,
