@@ -290,8 +290,10 @@ void QDialPrivate::calcLines()
 
 int QDialPrivate::valueFromPoint(const QPoint &p) const
 {
-    double a = atan2((double)q->height() / 2.0 - p.y(),
-                     (double)p.x() - q->width() / 2.0);
+    double yy = (double)q->height()/2.0 - p.y();
+    double xx = (double)p.x() - q->width()/2.0;
+    double a = (xx || yy) ? atan2(yy, xx) : 0;
+
     if (a < m_pi / -2)
         a = a + m_pi * 2;
 
