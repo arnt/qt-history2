@@ -1,3 +1,4 @@
+//depot/qt/3/src/tools/qlibrary.cpp#9 - edit change 123005 (text)
 /****************************************************************************
 **
 ** Implementation of QLibrary class.
@@ -13,7 +14,6 @@
 ****************************************************************************/
 
 #include "qplatformdefs.h"
-#include "qstringlist.h"
 #include <private/qlibrary_p.h>
 #include <qfile.h>
 
@@ -373,38 +373,29 @@ QString QLibrary::library() const
     if ( filename.lastIndexOf( '.' ) <= filename.lastIndexOf( '/' ) )
 	filename += ".dll";
 #else
-#ifdef Q_OS_DARWIN
-    QStringList filters = ".dylib";
-    filters << ".so";
-    filters << ".bundle";
+#ifdef Q_OS_MACX
     QString filter = ".dylib";
 #elif defined(Q_OS_HPUX)
-    QStringList filters = ".sl";
+    QString filter = ".sl";
 #else
-    QStringList filters = ".so";
+    QString filter = ".so";
 #endif
-    if( !QFile::exists(filename) ) {
-	for(QStringList::Iterator it = filters.begin(); it != filters.end(); ++it) {
-	    QString tmpfile = filename;
-	    if(QFile::exists(tmpfile + (*it))) {
-		tmpfile += (*it);
+    if ( filename.find(filter) == -1 ) {
+	if(QFile::exists(filename + filter)) {
+	    filename += filter;
+	} else {
+	    const int x = filename.findRev( "/" );
+	    if ( x != -1 ) {
+		QString path = filename.left( x + 1 );
+		QString file = filename.right( filename.length() - x - 1 );
+		filename = QString( "%1lib%2%3" ).arg( path ).arg( file ).arg( filter );
 	    } else {
-		const int x = tmpfile.lastIndexOf("/");
-		if ( x != -1 ) {
-		    QString path = tmpfile.left( x + 1 );
-		    QString file = tmpfile.right( tmpfile.length() - x - 1 );
-		    tmpfile = QString( "%1lib%2%3" ).arg( path ).arg( file ).arg( (*it) );
-		} else {
-		    tmpfile = QString( "lib%1%2" ).arg( tmpfile ).arg( (*it) );
-		}
-	    }
-	    if(QFile::exists(tmpfile)) {
-		filename = tmpfile;
-		break;
+		filename = QString( "lib%1%2" ).arg( filename ).arg( filter );
 	    }
 	}
     }
 #endif
+
     return filename;
 }
 #endif //QT_NO_LIBRARY
