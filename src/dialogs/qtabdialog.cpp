@@ -561,10 +561,13 @@ bool QTabDialog::isTabEnabled( const char* name ) const
 		l->next();
 	    w = (QWidget *)(l->current());
 	    if ( w ) {
-		return d->tw->isTabEnabled( w );
+		bool enabled = d->tw->isTabEnabled( w );
+		delete l;
+		return enabled;
 	    }
 	}
     }
+    delete l;
     return FALSE;
 }
 
@@ -603,6 +606,7 @@ void QTabDialog::setTabEnabled( const char* name, bool enable )
 		d->tw->setTabEnabled( (QWidget*)o, enable );
 	}
     }
+    delete l;
 }
 
 

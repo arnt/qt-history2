@@ -295,6 +295,7 @@ void QDialog::hideDefault()
 	++it;
 	pb->setDefault( FALSE );
     }
+    delete list;
 #endif
 }
 
