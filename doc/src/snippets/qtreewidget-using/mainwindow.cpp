@@ -11,7 +11,7 @@ MainWindow::MainWindow()
 
     QMenu *itemsMenu = new QMenu(tr("&Items"));
 
-    QAction *insertAction = itemsMenu->addAction(tr("&Insert Item"));
+    insertAction = itemsMenu->addAction(tr("&Insert Item"));
     removeAction = itemsMenu->addAction(tr("&Remove Item"));
     removeAction->setEnabled(false);
     itemsMenu->addSeparator();
@@ -40,10 +40,11 @@ MainWindow::MainWindow()
     connect(insertAction, SIGNAL(triggered()), this, SLOT(insertItem()));
     connect(removeAction, SIGNAL(triggered()), this, SLOT(removeItem()));
     connect(treeWidget,
-            SIGNAL(currentChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
+            SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
             this, SLOT(updateMenus(QTreeWidgetItem *)));
 
     setupTreeItems();
+    updateMenus(treeWidget->currentItem());
 
     setCentralWidget(treeWidget);
     setWindowTitle(tr("Tree Widget"));
@@ -101,13 +102,18 @@ void MainWindow::findItems()
 
 void MainWindow::insertItem()
 {
+    QTreeWidgetItem *currentItem = treeWidget->currentItem();
+
+    if (!currentItem)
+        return;
+
     QString itemText = QInputDialog::getText(this, tr("Insert Item"),
         tr("Input text for the new item:"));
 
     if (itemText.isEmpty())
         return;
 
-    QTreeWidgetItem *parent = treeWidget->currentItem()->parent();
+    QTreeWidgetItem *parent = currentItem->parent();
     QTreeWidgetItem *newItem;
     if (parent)
         newItem = new QTreeWidgetItem(parent, treeWidget->currentItem());
@@ -119,7 +125,12 @@ void MainWindow::insertItem()
 
 void MainWindow::removeItem()
 {
-    QTreeWidgetItem *parent = treeWidget->currentItem()->parent();
+    QTreeWidgetItem *currentItem = treeWidget->currentItem();
+
+    if (!currentItem)
+        return;
+
+    QTreeWidgetItem *parent = currentItem->parent();
     int index;
 
     if (parent) {
@@ -143,6 +154,7 @@ void MainWindow::sortDescending()
 
 void MainWindow::updateMenus(QTreeWidgetItem *current)
 {
+    insertAction->setEnabled(current != 0);
     removeAction->setEnabled(current != 0);
 }
 

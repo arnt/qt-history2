@@ -29,6 +29,7 @@ private:
     QAction *ascendingAction;
     QAction *autoSortAction;
     QAction *descendingAction;
+    QAction *insertAction;
     QAction *removeAction;
     QTreeWidget *treeWidget;
 };
