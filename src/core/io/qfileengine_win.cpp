@@ -775,8 +775,9 @@ QFSFileEnginePrivate::getLink() const
 #endif // QT_NO_COMPONENT
 }
 
-bool QFSFileEngine::link(const QString &  newName)
+bool QFSFileEngine::link(const QString &newName)
 {
+#if !defined(QT_NO_COMPONENT)
     bool ret = false;
     
     QString linkName = newName;
@@ -838,6 +839,9 @@ bool QFSFileEngine::link(const QString &  newName)
                 CoUninitialize();
     });
     return ret;
+#else
+    return false;
+#endif // QT_NO_COMPONENT
 }
 
 uint
