@@ -63,7 +63,7 @@ class Q_GUI_EXPORT QVariant : public QKernelVariant
     inline QVariant();
 
     inline QVariant(const QFont &font);
-    inline QVariant(const QPixmap &pixmap);
+    QVariant(const QPixmap &pixmap);
     inline QVariant(const QImage &image);
     inline QVariant(const QBrush &brush);
     inline QVariant(const QColor &color);
