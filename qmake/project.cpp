@@ -1441,12 +1441,12 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         place.remove(args[0]);
         return true;
     } else if(func == "eval") {
-        if(args.count() < 1) {
+        if(args.count() < 1 && 0) {
             fprintf(stderr, "%s:%d: eval(project) requires one argument.\n", parser.file.latin1(),
                     parser.line_no);
             return false;
         }
-        QString project = args.first();
+        QString project = args.join(" ");
         parser_info pi = parser;
         parser.from_file = false;
         parser.file = "(eval)";
@@ -2019,7 +2019,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     }
                 }
             } else if(val.toLower() == "system") {
-                if(arg_list.count() != 1) {
+                if(arg_list.count() < 1 || arg_list.count() > 2) {
                     fprintf(stderr, "%s:%d system(execut) requires one argument\n",
                             parser.file.latin1(), parser.line_no);
                 } else {
@@ -2030,14 +2030,18 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                             putenv(const_cast<char*>(QString(Option::sysenv_mod + it.key() + '=' + it.value().join(" ")).ascii()));
                     }
 #endif
+
                     char buff[256];
-                    FILE *proc = QT_POPEN(arg_list.join(" ").latin1(), "r");
+                    FILE *proc = QT_POPEN(arg_list[0].latin1(), "r");
+                    bool singleLine = true;
+                    if(arg_list.count() > 1) 
+                        singleLine = (arg_list[1].toLower() == "true");
                     while(proc && !feof(proc)) {
                         int read_in = (int)fread(buff, 1, 255, proc);
                         if(!read_in)
                             break;
                         for(int i = 0; i < read_in; i++) {
-                            if(buff[i] == '\n' || buff[i] == '\t')
+                            if((singleLine && buff[i] == '\n') || buff[i] == '\t')
                                 buff[i] = ' ';
                         }
                         buff[read_in] = '\0';
