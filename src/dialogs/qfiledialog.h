@@ -320,11 +320,11 @@ private:
 #if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
     static QString macGetSaveFileName( const QString &, const QString &,
 				       QString *, QWidget *, const char*,
-				       const QString&, const QString *);
+				       const QString&, QString *);
     static QStringList macGetOpenFileNames( const QString &, QString*,
 					    QWidget *, const char *,
-					    const QString&, bool = TRUE,
-					    bool = FALSE );
+					    const QString&, QString *,
+					    bool = TRUE, bool = FALSE );
 #endif
 
 

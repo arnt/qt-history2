@@ -3459,11 +3459,8 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 	return winGetOpenFileName( initialSelection, filter, workingDirectory,
 				   parent, name, caption, selectedFilter );
 #elif defined(Q_WS_MAC)
-    if( qt_use_native_dialogs && ( qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle") ) ) {
-	QString f = macGetOpenFileNames(filter, workingDirectory,
-					parent, name, caption, FALSE).first();
-	return f;
-    }
+    if( qt_use_native_dialogs && ( qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle") ) )
+	return macGetOpenFileNames(filter, workingDirectory, parent, name, caption, selectedFilter, FALSE).first();
 #endif
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gofn", TRUE );
@@ -4477,8 +4474,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 #endif
 #if defined(Q_WS_MAC)
     if( qt_use_native_dialogs && ( qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle") ) )
-	return macGetOpenFileNames("", 0,
-				   parent, name, caption, FALSE, TRUE).first();
+	return macGetOpenFileNames("", 0, parent, name, caption, NULL, FALSE, TRUE).first();
 #endif
 
     QFileDialog *dlg = new QFileDialog( parent, name ? name : "qt_filedlg_ged", TRUE );
@@ -5587,7 +5583,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 	return winGetOpenFileNames( filter, workingDirectory, parent, name, caption, selectedFilter );
 #elif defined(Q_WS_MAC)
     if( qt_use_native_dialogs && ( qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle") ) )
-	return macGetOpenFileNames(filter, workingDirectory, parent, name, caption );
+	return macGetOpenFileNames(filter, workingDirectory, parent, name, caption, selectedFilter );
 #endif
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gofns", TRUE );
