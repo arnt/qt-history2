@@ -273,6 +273,7 @@ CFG_STL=auto
 CFG_NAS=no
 CFG_QWS_DEPTHS=prompted
 CFG_USER_BUILD_KEY=
+CFG_ACCESSIBILITY=auto
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -441,6 +442,13 @@ while [ "$#" -gt 0 ]; do
 
     UNKNOWN_OPT=no
     case $VAR in
+    accessiblity)
+       	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_ACCESSIBILITY="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+        fi
+	;;
     prefix)
 	QT_INSTALL_PREFIX="$VAL"
 	;;
@@ -1067,6 +1075,15 @@ if [ "$CFG_MNG" = "auto" ]; then
 	CFG_MNG=plugin
     else
 	CFG_MNG=yes
+    fi
+fi
+
+#detect accessiblity
+if [ "$CFG_ACCESSIBILITY" = "auto" ]; then
+    if [ "$PLATFORM_MAC" = "yes" ]; then
+	CFG_ACCESSIBILITY=yes
+    else
+	CFG_ACCESSIBILITY=no
     fi
 fi
 
@@ -2488,6 +2505,11 @@ if [ -n "$CFG_QWS_DEPTHS" -a "$PLATFORM_QWS" = "yes" ]; then
     fi
 fi
 
+# enable accessibility
+if [ "$CFG_ACCESSIBILITY" = "yes" ]; then
+   QMAKE_CONFIG="$QMAKE_CONFIG accessibility"
+fi
+
 # update QMAKE_CONFIG to show our current predefined configuration
 case "$CFG_QCONFIG" in
 minimal|small|medium|large|full)
@@ -3139,6 +3161,8 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     echo "XRender support ..... $CFG_XRENDER"
     echo "Xft support ......... $CFG_FREETYPE"
     echo "XKB Support ......... $CFG_XKB"
+elif [ "$PLATFORM_MAC" = "yes" ]; then
+    echo "Accessibility ....... $CFG_ACCESSIBILITY"
 fi
 
 # complain about not being able to use plugins if we are using a static build
