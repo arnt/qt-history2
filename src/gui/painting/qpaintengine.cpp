@@ -795,7 +795,10 @@ void QPaintEngine::drawRect(const QRectF &rf)
 */
 void QPaintEngine::drawPoint(const QPointF &pf)
 {
+    updateBrush(QBrush(state->pen.color()), QPointF());
+    updatePen(QPen(Qt::NoPen));
     drawRect(QRectF(pf.x(), pf.y(), 1, 1));
+    setDirty(DirtyPen|DirtyBrush);
 }
 
 
