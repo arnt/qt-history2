@@ -1152,24 +1152,16 @@ bool QFSFileEngine::setSize(QIODevice::Offset size)
 {
     if (d->fd != -1) {
         // resize open file
-        if (size > this->size()) {
-            QIODevice::Offset currentPos = at();
-            seek(this->size());
-            QByteArray ba(size - this->size(), char(0));
-            if (write(ba.data(), ba.size()) == ba.size()) {
-                seek(currentPos);
-                return true;
-            }
-        } else {
-            long fh = _get_osfhandle(d->fd);
-            if (fh != -1) {
-                QIODevice::Offset currentPos = at();
-                seek(size);
-                if (SetEndOfFile((HANDLE)fh))
-                    return true;
-                seek(currentPos);
-            }
+        HANDLE fh = (HANDLE)_get_osfhandle(d->fd);
+        if (fh == INVALID_HANDLE_VALUE)
+            return false;
+
+        QIODevice::Offset currentPos = at();
+        if (seek(size) && SetEndOfFile(fh)) {
+            seek(qMin(currentPos, size));
+            return true;
         }
+        seek(currentPos);
     } else {
         // resize file on disk
         QFile file1(QFile::encodeName(d->file));
