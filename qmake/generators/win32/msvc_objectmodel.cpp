@@ -1,37 +1,82 @@
 #include "msvc_objectmodel.h"
+#include "msvc_vcproj.h"
 #include <qtextstream.h>
+#include <qstringlist.h>
+#include <quuid.h>
 
-// Property strings for the XML output ------------------------------
-/*
-   All string have the newline and indentation incorporated
-   to keep preserve speen during project generation..
-*/
+#if defined(Q_OS_WIN32)
+#include <objbase.h>
+#ifndef GUID_DEFINED
+#define GUID_DEFINED
+typedef struct _GUID
+{
+    ulong   Data1;
+    ushort  Data2;
+    ushort  Data3;
+    uchar   Data4[8];
+} GUID;
+#endif
+#endif
+
+// XML Tags ---------------------------------------------------------
+const char* _xmlInit				= "<?xml version=\"1.0\" encoding = \"Windows-1252\"?>";
+const char* _begConfiguration			= "\n\t\t<Configuration";
+const char* _begConfigurations			= "\n\t<Configurations>";
+const char* _begFile				= "\n\t\t\t<File";
+const char* _begFileConfiguration		= "\n\t\t\t\t<FileConfiguration";
+const char* _begFiles				= "\n\t<Files>";
+const char* _begFilter				= "\n\t\t<Filter";
+const char* _begGlobals				= "\n\t<Globals>";
+const char* _begPlatform			= "\n\t\t<Platform";
+const char* _begPlatforms			= "\n\t<Platforms>";
+const char* _begTool3				= "\n\t\t\t<Tool";
+const char* _begTool5				= "\n\t\t\t\t\t<Tool";
+const char* _begVisualStudioProject		= "\n<VisualStudioProject";
+const char* _endConfiguration			= "\n\t\t</Configuration>";
+const char* _endConfigurations			= "\n\t</Configurations>";
+const char* _endFile				= "\n\t\t\t</File>";
+const char* _endFileConfiguration		= "\n\t\t\t\t</FileConfiguration>";
+const char* _endFiles				= "\n\t</Files>";
+const char* _endFilter				= "\n\t\t</Filter>";
+const char* _endGlobals				= "\n\t</Globals>";
+const char* _endPlatforms			= "\n\t</Platforms>";
+const char* _endVisualStudioProject		= "\n</VisualStudioProject>";
+
+// XML Properties ---------------------------------------------------
 const char* _AddModuleNamesToAssembly 		= "\n\t\t\t\tAddModuleNamesToAssembly=\"";
-const char* _AdditionalDependencies 		= "\n\t\t\t\tAdditionalDependencies=\"";
+const char* _AdditionalDependencies4 		= "\n\t\t\t\tAdditionalDependencies=\"";
+const char* _AdditionalDependencies6 		= "\n\t\t\t\t\t\tAdditionalDependencies=\"";
 const char* _AdditionalIncludeDirectories 	= "\n\t\t\t\tAdditionalIncludeDirectories=\"";
 const char* _AdditionalLibraryDirectories 	= "\n\t\t\t\tAdditionalLibraryDirectories=\"";
 const char* _AdditionalOptions 			= "\n\t\t\t\tAdditionalOptions=\"";
 const char* _AdditionalUsingDirectories 	= "\n\t\t\t\tAdditionalUsingDirectories=\"";
 const char* _AssemblerListingLocation 		= "\n\t\t\t\tAssemblerListingLocation=\"";
 const char* _AssemblerOutput 			= "\n\t\t\t\tAssemblerOutput=\"";
+const char* _ATLMinimizesCRunTimeLibraryUsage	= "\n\t\t\tATLMinimizesCRunTimeLibraryUsage=\"";
 const char* _BaseAddress 			= "\n\t\t\t\tBaseAddress=\"";
 const char* _BasicRuntimeChecks 		= "\n\t\t\t\tBasicRuntimeChecks=\"";
 const char* _BrowseInformation 			= "\n\t\t\t\tBrowseInformation=\"";
 const char* _BrowseInformationFile 		= "\n\t\t\t\tBrowseInformationFile=\"";
 const char* _BufferSecurityCheck 		= "\n\t\t\t\tBufferSecurityCheck=\"";
+const char* _BuildBrowserInformation		= "\n\t\t\tBuildBrowserInformation=\"";
 const char* _CPreprocessOptions 		= "\n\t\t\t\tCPreprocessOptions=\"";
 const char* _CallingConvention 			= "\n\t\t\t\tCallingConvention=\"";
-const char* _CommandLine 			= "\n\t\t\t\tCommandLine=\"";
+const char* _CharacterSet			= "\n\t\t\tCharacterSet=\"";
+const char* _CommandLine4 			= "\n\t\t\t\tCommandLine=\"";
+const char* _CommandLine6 			= "\n\t\t\t\t\t\tCommandLine=\"";
 const char* _CompileAs 				= "\n\t\t\t\tCompileAs=\"";
 const char* _CompileAsManaged 			= "\n\t\t\t\tCompileAsManaged=\"";
 const char* _CompileOnly 			= "\n\t\t\t\tCompileOnly=\"";
+const char* _ConfigurationType			= "\n\t\t\tConfigurationType=\"";
 const char* _Culture				= "\n\t\t\t\tCulture=\"";
 const char* _DLLDataFileName 			= "\n\t\t\t\tDLLDataFileName=\"";
 const char* _DebugInformationFormat 		= "\n\t\t\t\tDebugInformationFormat=\"";
 const char* _DefaultCharIsUnsigned 		= "\n\t\t\t\tDefaultCharIsUnsigned=\"";
 const char* _DefaultCharType 			= "\n\t\t\t\tDefaultCharType=\"";
 const char* _DelayLoadDLLs	 		= "\n\t\t\t\tDelayLoadDLLs=\"";
-const char* _Description 			= "\n\t\t\t\tDescription=\"";
+const char* _DeleteExtensionsOnClean		= "\n\t\t\tDeleteExtensionsOnClean=\"";
+const char* _Description4 			= "\n\t\t\t\tDescription=\"";
+const char* _Description6 			= "\n\t\t\t\t\t\tDescription=\"";
 const char* _Detect64BitPortabilityProblems 	= "\n\t\t\t\tDetect64BitPortabilityProblems=\"";
 const char* _DisableLanguageExtensions 		= "\n\t\t\t\tDisableLanguageExtensions=\"";
 const char* _DisableSpecificWarnings 		= "\n\t\t\t\tDisableSpecificWarnings=\"";
@@ -50,6 +95,7 @@ const char* _ExceptionHandling 			= "\n\t\t\t\tExceptionHandling=\"";
 const char* _ExcludedFromBuild 			= "\n\t\t\t\tExcludedFromBuild=\"";
 const char* _ExpandAttributedSource 		= "\n\t\t\t\tExpandAttributedSource=\"";
 const char* _FavorSizeOrSpeed 			= "\n\t\t\t\tFavorSizeOrSpeed=\"";
+const char* _Filter				= "\n\t\t\tFilter=\"";
 const char* _ForceConformanceInForLoopScope 	= "\n\t\t\t\tForceConformanceInForLoopScope=\"";
 const char* _ForceSymbolReferences 		= "\n\t\t\t\tForceSymbolReferences=\"";
 const char* _ForcedIncludeFiles 		= "\n\t\t\t\tForcedIncludeFiles=\"";
@@ -74,6 +120,7 @@ const char* _ImportLibrary 			= "\n\t\t\t\tImportLibrary=\"";
 const char* _ImproveFloatingPointConsistency 	= "\n\t\t\t\tImproveFloatingPointConsistency=\"";
 const char* _InlineFunctionExpansion 		= "\n\t\t\t\tInlineFunctionExpansion=\"";
 const char* _InterfaceIdentifierFileName 	= "\n\t\t\t\tInterfaceIdentifierFileName=\"";
+const char* _IntermediateDirectory		= "\n\t\t\tIntermediateDirectory=\"";
 const char* _KeepComments 			= "\n\t\t\t\tKeepComments=\"";
 const char* _LargeAddressAware 			= "\n\t\t\t\tLargeAddressAware=\"";
 const char* _LinkDLL 				= "\n\t\t\t\tLinkDLL=\"";
@@ -89,6 +136,11 @@ const char* _MidlCommandFile 			= "\n\t\t\t\tMidlCommandFile=\"";
 const char* _MinimalRebuild 			= "\n\t\t\t\tMinimalRebuild=\"";
 const char* _MkTypLibCompatible			= "\n\t\t\t\tMkTypLibCompatible=\"";
 const char* _ModuleDefinitionFile 		= "\n\t\t\t\tModuleDefinitionFile=\"";
+const char* _Name1				= "\n\tName=\"";
+const char* _Name2				= "\n\t\tName=\"";
+const char* _Name3				= "\n\t\t\tName=\"";
+const char* _Name4				= "\n\t\t\t\tName=\"";
+const char* _Name5				= "\n\t\t\t\t\tName=\"";
 const char* _ObjectFile 			= "\n\t\t\t\tObjectFile=\"";
 const char* _OmitFramePointers 			= "\n\t\t\t\tOmitFramePointers=\"";
 const char* _Optimization 			= "\n\t\t\t\tOptimization =\"";
@@ -96,21 +148,31 @@ const char* _OptimizeForProcessor 		= "\n\t\t\t\tOptimizeForProcessor=\"";
 const char* _OptimizeForWindows98 		= "\n\t\t\t\tOptimizeForWindows98=\"";
 const char* _OptimizeForWindowsApplication 	= "\n\t\t\t\tOptimizeForWindowsApplication=\"";
 const char* _OptimizeReferences 		= "\n\t\t\t\tOptimizeReferences=\"";
-const char* _OutputDirectory 			= "\n\t\t\t\tOutputDirectory=\"";
+const char* _OutputDirectory3			= "\n\t\t\tOutputDirectory=\"";
+const char* _OutputDirectory4			= "\n\t\t\t\tOutputDirectory=\"";
 const char* _OutputFile 			= "\n\t\t\t\tOutputFile=\"";
-const char* _Outputs 				= "\n\t\t\t\tOutputs=\"";
+const char* _Outputs4 				= "\n\t\t\t\tOutputs=\"";
+const char* _Outputs6 				= "\n\t\t\t\t\t\tOutputs=\"";
+const char* _ParseFiles				= "\n\t\t\tParseFiles=\"";
 const char* _PrecompiledHeaderFile 		= "\n\t\t\t\tPrecompiledHeaderFile=\"";
 const char* _PrecompiledHeaderThrough 		= "\n\t\t\t\tPrecompiledHeaderThrough=\"";
 const char* _PreprocessorDefinitions 		= "\n\t\t\t\tPreprocessorDefinitions=\"";
+const char* _PrimaryOutput			= "\n\t\t\tPrimaryOutput=\"";
+const char* _ProjectGUID			= "\n\tProjectGUID=\"";
+const char* _ProjectType			= "\n\tProjectType=\"Visual C++\"";
+const char* _ProgramDatabase			= "\n\t\t\tProgramDatabase=\"";
 const char* _ProgramDataBaseFileName 		= "\n\t\t\t\tProgramDataBaseFileName=\"";
 const char* _ProgramDatabaseFile 		= "\n\t\t\t\tProgramDatabaseFile=\"";
 const char* _ProxyFileName 			= "\n\t\t\t\tProxyFileName=\"";
 const char* _RedirectOutputAndErrors 		= "\n\t\t\t\tRedirectOutputAndErrors=\"";
 const char* _RegisterOutput 			= "\n\t\t\t\tRegisterOutput=\"";
+const char* _RelativePath			= "\n\t\t\t\tRelativePath=\"";
 const char* _ResourceOnlyDLL 			= "\n\t\t\t\tResourceOnlyDLL=\"";
 const char* _ResourceOutputFileName 		= "\n\t\t\t\tResourceOutputFileName=\"";
 const char* _RuntimeLibrary 			= "\n\t\t\t\tRuntimeLibrary=\"";
 const char* _RuntimeTypeInfo 			= "\n\t\t\t\tRuntimeTypeInfo=\"";
+const char* _SccProjectName			= "\n\tSccProjectName=\"";
+const char* _SccLocalPath			= "\n\tSccLocalPath=\"";
 const char* _SetChecksum 			= "\n\t\t\t\tSetChecksum=\"";
 const char* _ShowIncludes 			= "\n\t\t\t\tShowIncludes=\"";
 const char* _ShowProgress 			= "\n\t\t\t\tShowProgress=\"";
@@ -137,9 +199,17 @@ const char* _TypeLibraryName			= "\n\t\t\t\tTypeLibraryName=\"";
 const char* _TypeLibraryResourceID 		= "\n\t\t\t\tTypeLibraryResourceID=\"";
 const char* _UndefineAllPreprocessorDefinitions = "\n\t\t\t\tUndefineAllPreprocessorDefinitions=\"";
 const char* _UndefinePreprocessorDefinitions 	= "\n\t\t\t\tUndefinePreprocessorDefinitions=\"";
+const char* _UseOfATL				= "\n\t\t\tUseOfATL=\"";
+const char* _UseOfMfc				= "\n\t\t\tUseOfMfc=\"";
 const char* _UsePrecompiledHeader 		= "\n\t\t\t\tUsePrecompiledHeader=\"";
 const char* _ValidateParameters 		= "\n\t\t\t\tValidateParameters=\"";
-const char* _Version 				= "\n\t\t\t\tVersion=\"";
+const char* _VCCLCompilerToolName		= "\n\t\t\t\tName=\"VCCLCompilerTool\"";
+const char* _VCCustomBuildTool			= "\n\t\t\t\t\t\tName=\"VCCustomBuildTool\"";
+const char* _VCLinkerToolName			= "\n\t\t\t\tName=\"VCLinkerTool\"";
+const char* _VCResourceCompilerToolName		= "\n\t\t\t\tName=\"VCResourceCompilerTool\"";
+const char* _VCMIDLToolName			= "\n\t\t\t\tName=\"VCMIDLTool\"";
+const char* _Version1 				= "\n\tVersion=\"";
+const char* _Version4 				= "\n\t\t\t\tVersion=\"";
 const char* _WarnAsError 			= "\n\t\t\t\tWarnAsError=\"";
 const char* _WarnLevel 				= "\n\t\t\t\tWarnLevel=\"";
 const char* _WarningLevel 			= "\n\t\t\t\tWarningLevel=\"";
@@ -167,10 +237,14 @@ struct SPair {
     const QString& value; 
 };
 struct XPair { 
-    XPair( const char* n, const QStringList& v ) : name(n), value(v) {};
+    XPair( const char* n, const QStringList& v, const char* s = "," ) : name(n), value(v), sep(s) {};
     const char* name; 
     const QStringList& value;
+    const char* sep;
 };
+
+// void streamSPair( QTextStream &strm, const char *n, const QString &s )
+
 
 // Streaming operators for property Pairs ---------------------------
 QTextStream &operator<<( QTextStream &strm, const TPair &prop )
@@ -208,52 +282,70 @@ QTextStream &operator<<( QTextStream &strm, const LPair &prop )
 QTextStream &operator<<( QTextStream &strm, const SPair &prop )
 {
     if ( !prop.value.isEmpty() )
-	strm << prop.name << prop.value << "\"";
+	strm << prop.name << prop.value.latin1() << "\"";
     return strm;
 }
 
 QTextStream &operator<<( QTextStream &strm, const XPair &prop )
 {
     if ( !prop.value.isEmpty() )
-	strm << prop.name << prop.value.join(",") << "\"";
+	strm << prop.name << prop.value.join(prop.sep).latin1() << "\"";
     return strm;
 }
 
 // VCCLCompilerTool -------------------------------------------------
 VCCLCompilerTool::VCCLCompilerTool()
-    :	BufferSecurityCheck( unset ), 
-	CompileOnly( unset ), 
+    :	AssemblerOutput( asmListingNone ),
+	BasicRuntimeChecks( runtimeBasicCheckNone ),
+	BrowseInformation( brInfoNone ),
+	BufferSecurityCheck( unset ),
+	CallingConvention( callConventionDefault ),
+	CompileAs( compileAsDefault ),
+	CompileAsManaged( managedDefault ),
+	CompileOnly( unset ),
+	DebugInformationFormat( debugDisabled ),
 	DefaultCharIsUnsigned( unset ),
-	Detect64BitPortabilityProblems( unset ), 
+	Detect64BitPortabilityProblems( unset ),
 	DisableLanguageExtensions( unset ),
-	EnableFiberSafeOptimizations( unset ), 
+	EnableFiberSafeOptimizations( unset ),
 	EnableFunctionLevelLinking( unset ),
-	EnableIntrinsicFunctions( unset ), 
-	ExceptionHandling( unset ), 
-	ExpandAttributedSource( unset ), 
+	EnableIntrinsicFunctions( unset ),
+	ExceptionHandling( unset ),
+	ExpandAttributedSource( unset ),
+	FavorSizeOrSpeed( favorNone ),
 	ForceConformanceInForLoopScope( unset ),
-	GlobalOptimizations( unset ), 
+	GeneratePreprocessedFile( preprocessNo ),
+	GlobalOptimizations( unset ),
 	IgnoreStandardIncludePath( unset ),
-	ImproveFloatingPointConsistency( unset ), 
-	KeepComments( unset ), 
-	MinimalRebuild( unset ), 
-	OmitFramePointers( unset ), 
-	OptimizeForWindowsApplication( unset ), 
-	RuntimeTypeInfo( unset ), 
+	ImproveFloatingPointConsistency( unset ),
+	InlineFunctionExpansion( expandOnlyInline ),
+	KeepComments( unset ),
+	MinimalRebuild( unset ),
+	OmitFramePointers( unset ),
+	Optimization( optimizeDisabled ),
+	OptimizeForProcessor( procOptimizeBlended ),
+	OptimizeForWindowsApplication( unset ),
+	RuntimeLibrary( rtMultiThreaded ),
+	RuntimeTypeInfo( unset ),
 	ShowIncludes( unset ),
-	SmallerTypeCheck( unset ), 
-	StringPooling( unset ), 
+	SmallerTypeCheck( unset ),
+	StringPooling( unset ),
+	StructMemberAlignment( alignNotSet ),
 	SuppressStartupBanner( unset ),
-	TreatWChar_tAsBuiltInType( unset ), 
+	TreatWChar_tAsBuiltInType( unset ),
 	TurnOffAssemblyGeneration( unset ),
-	UndefineAllPreprocessorDefinitions( unset ), 
+	UndefineAllPreprocessorDefinitions( unset ),
+	UsePrecompiledHeader( pchGenerateAuto ),
 	WarnAsError( unset ),
+	WarningLevel( warningLevel_0 ),
 	WholeProgramOptimization( unset )
 {
 }
 
 QTextStream &operator<<( QTextStream &strm, const VCCLCompilerTool &tool )
 {
+    strm << _begTool3;
+    strm << _VCCLCompilerToolName;
     strm << XPair( _AdditionalIncludeDirectories, tool.AdditionalIncludeDirectories );
     strm << XPair( _AdditionalOptions, tool.AdditionalOptions );
     strm << XPair( _AdditionalUsingDirectories, tool.AdditionalUsingDirectories );
@@ -314,7 +406,8 @@ QTextStream &operator<<( QTextStream &strm, const VCCLCompilerTool &tool )
 	strm << EPair( _UsePrecompiledHeader, tool.UsePrecompiledHeader );
     strm << TPair( _WarnAsError, tool.WarnAsError );
     strm << EPair( _WarningLevel, tool.WarningLevel );
-    strm << TPair( _WholeProgramOptimization, tool.WholeProgramOptimization );                 
+    strm << TPair( _WholeProgramOptimization, tool.WholeProgramOptimization ); 
+    strm << "/>";
 return strm;
 }
 
@@ -325,6 +418,8 @@ bool VCCLCompilerTool::parseOption( const char* option )
     char second = option[2];
     char third  = option[3];
     char fourth = option[4];
+
+    printf ( "Parsing option: %s\n", option );
 
     switch ( first ) {
     case '?':
@@ -578,6 +673,7 @@ bool VCCLCompilerTool::parseOption( const char* option )
 	default:
 	    return FALSE;
 	}
+	break;
     case 'P':
 	GeneratePreprocessedFile = preprocessYes;
 	break;
@@ -810,24 +906,35 @@ bool VCCLCompilerTool::parseOption( const char* option )
 
 // VCLinkerTool -----------------------------------------------------
 VCLinkerTool::VCLinkerTool()
-    :	GenerateDebugInformation( unset ),
+    :	EnableCOMDATFolding( optFoldingDefault ),
+	GenerateDebugInformation( unset ),
 	GenerateMapFile( unset ),
+	HeapCommitSize( -1 ),
+	HeapReserveSize( -1 ),
 	IgnoreAllDefaultLibraries( unset ),
 	IgnoreEmbeddedIDL( unset ),
 	IgnoreImportLibrary( unset ),
+	LargeAddressAware( addrAwareDefault ),
 	LinkDLL( unset ),
+	LinkIncremental( linkIncrementalYes ),
 	LinkTimeCodeGeneration( unset ),
 	MapExports( unset ),
 	MapLines( unset ),
+	OptimizeForWindows98( optWin98Default ),
+	OptimizeReferences( optReferencesDefault ),
 	RegisterOutput( unset ),
 	ResourceOnlyDLL( unset ),
 	SetChecksum( unset ),
-	StackCommitSize( 0 ),
-	StackReserveSize( 0 ),
+	ShowProgress( linkProgressNotSet ),
+	StackCommitSize( -1 ),
+	StackReserveSize( -1 ),
+	SubSystem( subSystemNotSet ),
 	SupportUnloadOfDelayLoadedDLL( unset ),
 	SuppressStartupBanner( unset ),
 	SwapRunFromCD( unset ),
 	SwapRunFromNet( unset ),
+	TargetMachine( machineNotSet ),
+	TerminalServerAware( termSvrAwareDefault ),
 	TurnOffAssemblyGeneration( unset ),
 	TypeLibraryResourceID( 0 )
 {
@@ -835,7 +942,9 @@ VCLinkerTool::VCLinkerTool()
 
 QTextStream &operator<<( QTextStream &strm, const VCLinkerTool &tool )
 {
-    strm << XPair( _AdditionalDependencies, tool.AdditionalDependencies );
+    strm << _begTool3;
+    strm << _VCLinkerToolName;
+    strm << XPair( _AdditionalDependencies4, tool.AdditionalDependencies, " " );
     strm << XPair( _AdditionalLibraryDirectories, tool.AdditionalLibraryDirectories );
     strm << XPair( _AdditionalOptions, tool.AdditionalOptions );
     strm << XPair( _AddModuleNamesToAssembly, tool.AddModuleNamesToAssembly );
@@ -847,8 +956,8 @@ QTextStream &operator<<( QTextStream &strm, const VCLinkerTool &tool )
     strm << SPair( _FunctionOrder, tool.FunctionOrder );
     strm << TPair( _GenerateDebugInformation, tool.GenerateDebugInformation );
     strm << TPair( _GenerateMapFile, tool.GenerateMapFile );
-    strm << LPair( _HeapCommitSize, tool.HeapCommitSize );
-    strm << LPair( _HeapReserveSize, tool.HeapReserveSize );
+    if ( tool.HeapCommitSize != -1 )			    strm << LPair( _HeapCommitSize, tool.HeapCommitSize );
+    if ( tool.HeapReserveSize != -1 )			    strm << LPair( _HeapReserveSize, tool.HeapReserveSize );
     strm << TPair( _IgnoreAllDefaultLibraries, tool.IgnoreAllDefaultLibraries );
     strm << XPair( _IgnoreDefaultLibraryNames, tool.IgnoreDefaultLibraryNames );
     strm << TPair( _IgnoreEmbeddedIDL, tool.IgnoreEmbeddedIDL );
@@ -874,8 +983,8 @@ QTextStream &operator<<( QTextStream &strm, const VCLinkerTool &tool )
     strm << TPair( _ResourceOnlyDLL, tool.ResourceOnlyDLL );
     strm << TPair( _SetChecksum, tool.SetChecksum );
     if ( tool.ShowProgress != linkProgressNotSet )	    strm << EPair( _ShowProgress, tool.ShowProgress );
-    strm << LPair( _StackCommitSize, tool.StackCommitSize );
-    strm << LPair( _StackReserveSize, tool.StackReserveSize );
+    if ( tool.StackCommitSize != -1 )			    strm << LPair( _StackCommitSize, tool.StackCommitSize );
+    if ( tool.StackReserveSize != -1 )			    strm << LPair( _StackReserveSize, tool.StackReserveSize );
     strm << SPair( _StripPrivateSymbols, tool.StripPrivateSymbols );
     strm << EPair( _SubSystem, tool.SubSystem );
     strm << TPair( _SupportUnloadOfDelayLoadedDLL, tool.SupportUnloadOfDelayLoadedDLL );
@@ -886,14 +995,339 @@ QTextStream &operator<<( QTextStream &strm, const VCLinkerTool &tool )
     if ( tool.TerminalServerAware != termSvrAwareDefault )  strm << EPair( _TerminalServerAware, tool.TerminalServerAware );
     strm << TPair( _TurnOffAssemblyGeneration, tool.TurnOffAssemblyGeneration );
     strm << SPair( _TypeLibraryFile, tool.TypeLibraryFile );
-    strm << LPair( _TypeLibraryResourceID, tool.TypeLibraryResourceID );
-    strm << SPair( _Version, tool.Version );
+    if ( tool.TypeLibraryResourceID != rcUseDefault ) strm << LPair( _TypeLibraryResourceID, tool.TypeLibraryResourceID );
+    strm << SPair( _Version4, tool.Version );
+    strm << "/>";
     return strm;
+}
+
+// Hashing routine to do fast option lookups ----
+// Slightly rewritten to stop on ':' ',' and '\0'
+// Original routine in qtranslator.cpp ----------
+static uint elfHash( const char* name )
+{
+    const uchar *k;
+    uint h = 0;
+    uint g;
+
+    if ( name ) {
+	k = (const uchar *) name;
+	while ( (*k) && 
+		(*k)!= ':' && 
+		(*k)!=',' ) {
+	    h = ( h << 4 ) + *k++;
+	    if ( (g = (h & 0xf0000000)) != 0 )
+		h ^= g >> 24;
+	    h &= ~g;
+	}
+    }
+    if ( !h )
+	h = 1;
+    return h;
+}
+static void displayHash( const char* str )
+{
+    printf( "case 0x%07x: // %s\n    break;\n", elfHash(str), str );
 }
 
 bool VCLinkerTool::parseOption( const char* option )
 {
-    return FALSE;
+#if 0
+    // Main options
+    displayHash( "/ALIGN" ); displayHash( "/ALLOWBIND" ); displayHash( "/ASSEMBLYMODULE" ); 
+    displayHash( "/ASSEMBLYRESOURCE" ); displayHash( "/BASE" ); displayHash( "/DEBUG" ); 
+    displayHash( "/DEF" ); displayHash( "/DEFAULTLIB" ); displayHash( "/DELAY" ); 
+    displayHash( "/DELAYLOAD" ); displayHash( "/DLL" ); displayHash( "/DRIVER" ); 
+    displayHash( "/ENTRY" ); displayHash( "/EXETYPE" ); displayHash( "/EXPORT" ); 
+    displayHash( "/FIXED" ); displayHash( "/FORCE" ); displayHash( "/HEAP" ); 
+    displayHash( "/IDLOUT" ); displayHash( "/IGNOREIDL" ); displayHash( "/IMPLIB" ); 
+    displayHash( "/INCLUDE" ); displayHash( "/INCREMENTAL" ); displayHash( "/LARGEADDRESSAWARE" ); 
+    displayHash( "/LIBPATH" ); displayHash( "/LTCG" ); displayHash( "/MACHINE" ); 
+    displayHash( "/MAP" ); displayHash( "/MAPINFO" ); displayHash( "/MERGE" ); 
+    displayHash( "/MIDL" ); displayHash( "/NOASSEMBLY" ); displayHash( "/NODEFAULTLIB" ); 
+    displayHash( "/NOENTRY" ); displayHash( "/NOLOGO" ); displayHash( "/OPT" ); 
+    displayHash( "/ORDER" ); displayHash( "/OUT" ); displayHash( "/PDB" ); 
+    displayHash( "/PDBSTRIPPED" ); displayHash( "/RELEASE" ); displayHash( "/SECTION" ); 
+    displayHash( "/STACK" ); displayHash( "/STUB" ); displayHash( "/SUBSYSTEM" ); 
+    displayHash( "/SWAPRUN" ); displayHash( "/TLBID" ); displayHash( "/TLBOUT" ); 
+    displayHash( "/TSAWARE" ); displayHash( "/VERBOSE" ); displayHash( "/VERSION" ); 
+    displayHash( "/VXD" ); displayHash( "/WS " );
+#endif
+#if 0
+    // Sub options
+    displayHash( "UNLOAD" ); displayHash( "NOBIND" ); displayHash( "no" ); displayHash( "NOSTATUS" ); displayHash( "STATUS" );
+    displayHash( "AM33" ); displayHash( "ARM" ); displayHash( "CEE" ); displayHash( "IA64" ); displayHash( "X86" ); displayHash( "M32R" ); 
+    displayHash( "MIPS" ); displayHash( "MIPS16" ); displayHash( "MIPSFPU" ); displayHash( "MIPSFPU16" ); displayHash( "MIPSR41XX" ); displayHash( "PPC" ); 
+    displayHash( "SH3" ); displayHash( "SH4" ); displayHash( "SH5" ); displayHash( "THUMB" ); displayHash( "TRICORE" ); displayHash( "EXPORTS" ); 
+    displayHash( "LINES" ); displayHash( "REF" ); displayHash( "NOREF" ); displayHash( "ICF" ); displayHash( "WIN98" ); displayHash( "NOWIN98" ); 
+    displayHash( "CONSOLE" ); displayHash( "EFI_APPLICATION" ); displayHash( "EFI_BOOT_SERVICE_DRIVER" ); displayHash( "EFI_ROM" ); displayHash( "EFI_RUNTIME_DRIVER" ); displayHash( "NATIVE" ); 
+    displayHash( "POSIX" ); displayHash( "WINDOWS" ); displayHash( "WINDOWSCE" ); displayHash( "NET" ); displayHash( "CD" ); displayHash( "NO" ); 
+#endif
+
+    switch ( elfHash(option) ) {
+    case 0x3360dbe: // /ALIGN[:number]
+    case 0x1485c34: // /ALLOWBIND[:NO]
+    case 0x6b21972: // /DEFAULTLIB:library
+    case 0x396ea92: // /DRIVER[:UPONLY | :WDM]
+    case 0xaca9d75: // /EXETYPE[:DYNAMIC | :DEV386]
+    case 0x3ad5444: // /EXPORT:entryname[,@ordinal[,NONAME]][,DATA]
+    case 0x33aec94: // /FIXED[:NO]
+    case 0x33b4675: // /FORCE:[MULTIPLE|UNRESOLVED]
+    case 0x7988f7e: // /SECTION:name,[E][R][W][S][D][K][L][P][X][,ALIGN=#]
+    case 0x0348992: // /STUB:filename
+    case 0x0034bc4: // /VXD
+    case 0x0034c50: // /WS
+	AdditionalOptions += option;
+	break;
+    case 0x679c075: // /ASSEMBLYMODULE:filename
+	AddModuleNamesToAssembly += option+15;
+	break;
+    case 0x062d065: // /ASSEMBLYRESOURCE:filename
+	LinkToManagedResourceFile = option+18;
+	break;
+    case 0x0336675: // /BASE:{address | @filename,key}
+	// Do we need to do a manual lookup when '@filename,key'?
+	// Seems BaseAddress only can contain the location...
+	// We don't use it in Qt, so keep it simple for now
+	BaseAddress = option+6;
+	break;
+    case 0x3389797: // /DEBUG
+	GenerateDebugInformation = _True;
+	break;
+    case 0x0033896: // /DEF:filename
+	ModuleDefinitionFile = option+5;
+	break;
+    case 0x338a069: // /DELAY:{UNLOAD | NOBIND}
+	// MS documentation does not specify what to do with
+	// this option, so we'll put it in AdditionalOptions
+	AdditionalOptions += option;
+	break;
+    case 0x06f4bf4: // /DELAYLOAD:dllname
+	DelayLoadDLLs += option+11;
+	break;
+    // case 0x003390c: // /DLL
+    // This option is not used for vcproj files 
+    //	break;
+    case 0x33a3979: // /ENTRY:function
+	EntryPointSymbol = option+7;
+	break;
+    case 0x033c960: // /HEAP:reserve[,commit]
+	{
+	    QStringList both = QStringList::split( ",", option+6 );
+	    HeapReserveSize = both[0].toLong();
+	    if ( both.count() == 2 )
+		HeapCommitSize = both[1].toLong();
+	}
+	break;
+    case 0x3d91494: // /IDLOUT:[path\]filename
+	MergedIDLBaseFileName = option+8;
+	break;
+    case 0x345a04c: // /IGNOREIDL
+	IgnoreEmbeddedIDL = _True;
+	break;
+    case 0x3e250e2: // /IMPLIB:filename
+	ImportLibrary = option+8;
+	break;
+    case 0xe281ab5: // /INCLUDE:symbol
+	ForceSymbolReferences += option+9;
+	break;
+    case 0xb28103c: // /INCREMENTAL[:no]
+	if ( *(option+12) == ':' &&
+	     *(option+13) == 'n' )
+	    LinkIncremental = linkIncrementalNo;
+	else
+	    LinkIncremental = linkIncrementalYes;
+	break;
+    case 0x26e4675: // /LARGEADDRESSAWARE[:no]
+	if ( *(option+18) == ':' &&
+	     *(option+19) == 'n' )
+	    LargeAddressAware = addrAwareNoLarge;
+	else
+	    LargeAddressAware = addrAwareLarge;
+	break;
+    case 0x0d745c8: // /LIBPATH:dir
+	AdditionalLibraryDirectories += option+9;
+	break;
+    case 0x0341877: // /LTCG[:NOSTATUS|:STATUS]
+	config->WholeProgramOptimization = _True;
+	LinkTimeCodeGeneration = _True;
+	if ( *(option+5) == ':' &&
+	     *(option+6) == 'S' )
+	     ShowProgress = linkProgressAll;
+	break;
+    case 0x157cf65: // /MACHINE:{AM33|ARM|CEE|IA64|X86|M32R|MIPS|MIPS16|MIPSFPU|MIPSFPU16|MIPSR41XX|PPC|SH3|SH4|SH5|THUMB|TRICORE}
+	switch ( elfHash(option+9) ) {
+	    // Very limited documentation on all options but X86, 
+	    // so we put the others in AdditionalOptions...
+	case 0x0046063: // AM33
+	case 0x000466d: // ARM
+	case 0x0004795: // CEE
+	case 0x004d494: // IA64
+	case 0x0050672: // M32R
+	case 0x0051e53: // MIPS
+	case 0x51e5646: // MIPS16
+	case 0x1e57b05: // MIPSFPU
+	case 0x57b09a6: // MIPSFPU16
+	case 0x5852738: // MIPSR41XX
+	case 0x0005543: // PPC
+	case 0x00057b3: // SH3
+	case 0x00057b4: // SH4
+	case 0x00057b5: // SH5
+	case 0x058da12: // THUMB
+	case 0x96d8435: // TRICORE
+	    AdditionalOptions += option;
+	    break;
+	case 0x0005bb6: // X86
+	    TargetMachine = machineX86;
+	    break;
+	default:
+	    return FALSE;
+	}
+	break;
+    case 0x0034160: // /MAP[:filename]
+	GenerateMapFile = _True;
+	MapFileName = option+5;
+	break;
+    case 0x164e1ef: // /MAPINFO:{EXPORTS|LINES}
+	if ( *(option+9) == 'E' )
+	    MapExports = _True;
+	else if ( *(option+9) == 'L' )
+	    MapLines = _True;
+	break;
+    case 0x341a6b5: // /MERGE:from=to
+	MergeSections = option+7;
+	break;
+    case 0x0341d8c: // /MIDL:@file
+	MidlCommandFile = option+7;
+	break;
+    case 0x84e2679: // /NOASSEMBLY
+	TurnOffAssemblyGeneration = _True;
+	break;
+    case 0x2b21942: // /NODEFAULTLIB[:library]
+	if ( *(option+13) == '\0' )
+	    IgnoreAllDefaultLibraries = _True;
+	else
+	    IgnoreDefaultLibraryNames += option+14;
+	break;
+    case 0x33a3a39: // /NOENTRY
+	ResourceOnlyDLL = _True;
+	break;
+    case 0x434138f: // /NOLOGO
+	SuppressStartupBanner = _True;
+	break;
+    case 0x0034454: // /OPT:{REF | NOREF | ICF[=iterations] | NOICF | WIN98 | NOWIN98}
+	{
+	    char third = *(option+7);
+	    switch ( third ) {
+	    case 'F': // REF
+		if ( *(option+5) == 'R' ) {
+		    OptimizeReferences = optReferences;
+		} else { // ICF[=iterations]
+		    EnableCOMDATFolding = optFolding;
+		    // [=iterations] case is not documented
+		}
+		break;
+	    case 'R': // NOREF
+		OptimizeReferences = optNoReferences;
+		break;
+	    case 'I': // NOICF
+		EnableCOMDATFolding = optNoFolding;
+		break;
+	    case 'N': // WIN98
+		OptimizeForWindows98 = optWin98Yes;
+		break;
+	    case 'W': // NOWIN98
+		OptimizeForWindows98 = optWin98No;
+		break;
+	    default:
+		return FALSE;
+	    }
+	}
+	break;
+    case 0x34468a2: // /ORDER:@filename
+	FunctionOrder = option+8;
+	break;
+    case 0x00344a4: // /OUT:filename
+	OutputFile = option+5;
+	break;
+    case 0x0034482: // /PDB:filename
+	ProgramDatabaseFile = option+5;
+	break;
+    case 0xa2ad314: // /PDBSTRIPPED:pdb_file_name
+	StripPrivateSymbols = option+13;
+	break;
+    case 0x6a09535: // /RELEASE
+	SetChecksum = _True;
+	break;
+    case 0x348857b: // /STACK:reserve[,commit]
+	{
+	    QStringList both = QStringList::split( ",", option+7 );
+	    StackReserveSize = both[0].toLong();
+	    if ( both.count() == 2 )
+		StackCommitSize = both[1].toLong();
+	}
+	break;
+    case 0x78dc00d: // /SUBSYSTEM:{CONSOLE|EFI_APPLICATION|EFI_BOOT_SERVICE_DRIVER|EFI_ROM|EFI_RUNTIME_DRIVER|NATIVE|POSIX|WINDOWS|WINDOWSCE}[,major[.minor]]
+	{
+	    // Split up in subsystem, and version number
+	    QStringList both = QStringList::split( ",", option+11 );
+	    switch ( elfHash(both[0].latin1()) ) {
+	    case 0x8438445: // CONSOLE
+		SubSystem = subSystemConsole;
+		break;
+	    case 0xbe29493: // WINDOWS
+		SubSystem = subSystemWindows;
+		break;
+	    // The following are undocumented, so add them to AdditionalOptions
+	    case 0x240949e: // EFI_APPLICATION
+	    case 0xe617652: // EFI_BOOT_SERVICE_DRIVER
+	    case 0x9af477d: // EFI_ROM
+	    case 0xd34df42: // EFI_RUNTIME_DRIVER
+	    case 0x5268ea5: // NATIVE
+	    case 0x05547e8: // POSIX
+	    case 0x2949c95: // WINDOWSCE
+		AdditionalOptions += option;
+		break;
+	    default:
+		return FALSE;
+	    }
+	}
+	break;
+    case 0x8b654de: // /SWAPRUN:{NET | CD}
+	if ( *(option+9) == 'N' )
+	    SwapRunFromNet = _True;
+	else if ( *(option+9) == 'C' )
+	    SwapRunFromCD = _True;
+	else
+	    return FALSE;
+	break;
+    case 0x34906d4: // /TLBID:id
+	TypeLibraryResourceID = QString( option+7 ).toLong();
+	break;
+    case 0x4907494: // /TLBOUT:[path\]filename
+	TypeLibraryFile = option+8;
+	break;
+    case 0x976b525: // /TSAWARE[:NO]
+	if ( *(option+8) == ':' )
+	    TerminalServerAware = termSvrAwareNo;
+	else
+	    TerminalServerAware = termSvrAwareYes;
+	break;
+    case 0xaa67735: // /VERBOSE[:lib]
+	if ( *(option+9) == ':' ) {
+	    ShowProgress = linkProgressLibs;
+	    AdditionalOptions += option;
+	} else {
+	    ShowProgress = linkProgressAll;
+	}
+	break;
+    case 0xaa77f7e: // /VERSION:major[.minor]
+	Version = option+9;
+	break;
+    default:
+	return FALSE;
+    }
+    return TRUE;
 }
 
 // VCMIDLTool -------------------------------------------------------
@@ -912,7 +1346,7 @@ VCMIDLTool::VCMIDLTool()
 	MkTypLibCompatible( unset ),
 	StructMemberAlignment( alignNotSet ),
 	SuppressStartupBanner( unset ),
-	TargetEnvironment( midlTargetWin32 ),
+	TargetEnvironment( midlTargetNotSet ),
 	ValidateParameters( unset ),
 	WarnAsError( unset ),
 	WarningLevel( midlWarningLevel_0 )
@@ -921,6 +1355,8 @@ VCMIDLTool::VCMIDLTool()
 
 QTextStream &operator<<( QTextStream &strm, const VCMIDLTool &tool )
 {
+    strm << _begTool3;
+    strm << _VCMIDLToolName;
     strm << XPair( _AdditionalIncludeDirectories, tool.AdditionalIncludeDirectories );
     strm << XPair( _AdditionalOptions, tool.AdditionalOptions );
     strm << XPair( _CPreprocessOptions, tool.CPreprocessOptions );
@@ -939,7 +1375,7 @@ QTextStream &operator<<( QTextStream &strm, const VCMIDLTool &tool )
     strm << TPair( _IgnoreStandardIncludePath, tool.IgnoreStandardIncludePath );
     strm << TPair( _InterfaceIdentifierFileName, tool.InterfaceIdentifierFileName );
     strm << TPair( _MkTypLibCompatible, tool.MkTypLibCompatible );
-    strm << SPair( _OutputDirectory, tool.OutputDirectory );
+    strm << SPair( _OutputDirectory4, tool.OutputDirectory );
     strm << XPair( _PreprocessorDefinitions, tool.PreprocessorDefinitions );
     strm << SPair( _ProxyFileName, tool.ProxyFileName );
     strm << SPair( _RedirectOutputAndErrors, tool.RedirectOutputAndErrors );
@@ -951,6 +1387,7 @@ QTextStream &operator<<( QTextStream &strm, const VCMIDLTool &tool )
     strm << TPair( _ValidateParameters, tool.ValidateParameters );
     strm << TPair( _WarnAsError, tool.WarnAsError );
     strm << EPair( _WarningLevel, tool.WarningLevel );
+    strm << "/>";
     return strm;
 }
 
@@ -962,17 +1399,20 @@ bool VCMIDLTool::parseOption( const char* option )
 // VCCustomBuildTool ------------------------------------------------
 VCCustomBuildTool::VCCustomBuildTool()
 {
+    ToolName = "VCCustomBuildTool";
 }
 
 QTextStream &operator<<( QTextStream &strm, const VCCustomBuildTool &tool )
 {
-    strm << XPair( _AdditionalDependencies, tool.AdditionalDependencies );
-    strm << SPair( _CommandLine, tool.CommandLine );
-    strm << SPair( _Description, tool.Description );
-    strm << SPair( _Outputs, tool.Outputs );
+    strm << _begTool3;
     strm << SPair( _ToolName, tool.ToolName );
+    strm << XPair( _AdditionalDependencies4, tool.AdditionalDependencies, ";" );
+    strm << SPair( _CommandLine4, tool.CommandLine );
+    strm << SPair( _Description4, tool.Description );
+    strm << SPair( _Outputs4, tool.Outputs );
     strm << SPair( _ToolPath, tool.ToolPath );
-    return strm;
+    strm << "/>";
+   return strm;
 }
 
 // VCResourceCompilerTool -------------------------------------------
@@ -980,13 +1420,15 @@ VCResourceCompilerTool::VCResourceCompilerTool()
     :   Culture( rcUseDefault ),
 	IgnoreStandardIncludePath( unset ),
 	ShowProgress( linkProgressNotSet )
-
 {
     PreprocessorDefinitions = "NDEBUG";
 }
 
 QTextStream &operator<<( QTextStream &strm, const VCResourceCompilerTool &tool )
 {
+    strm << _begTool3;
+    strm << _VCResourceCompilerToolName;
+    strm << SPair( _ToolPath, tool.ToolPath );
     strm << XPair( _AdditionalIncludeDirectories, tool.AdditionalIncludeDirectories );
     strm << XPair( _AdditionalOptions, tool.AdditionalOptions );
     if ( tool.Culture != rcUseDefault )			    strm << EPair( _Culture, tool.Culture );
@@ -995,19 +1437,20 @@ QTextStream &operator<<( QTextStream &strm, const VCResourceCompilerTool &tool )
     strm << XPair( _PreprocessorDefinitions, tool.PreprocessorDefinitions );
     strm << SPair( _ResourceOutputFileName, tool.ResourceOutputFileName );
     if ( tool.ShowProgress != linkProgressNotSet )	    strm << EPair( _ShowProgress, tool.ShowProgress );
-    strm << SPair( _ToolName, tool.ToolName );
-    strm << SPair( _ToolPath, tool.ToolPath );
+    strm << "/>";
     return strm;
 }
 
 // VCEventTool -------------------------------------------------
 QTextStream &operator<<( QTextStream &strm, const VCEventTool &tool )
 {
-    strm << SPair( _CommandLine, tool.CommandLine );
-    strm << SPair( _Description, tool.Description );
-    strm << TPair( _ExcludedFromBuild, tool.ExcludedFromBuild );
+    strm << _begTool3;
     strm << SPair( _ToolName, tool.ToolName );
     strm << SPair( _ToolPath, tool.ToolPath );
+    strm << SPair( _CommandLine4, tool.CommandLine );
+    strm << SPair( _Description4, tool.Description );
+    strm << TPair( _ExcludedFromBuild, tool.ExcludedFromBuild );
+    strm << "/>";
     return strm;
 }
 
@@ -1027,4 +1470,199 @@ VCPreBuildEventTool::VCPreBuildEventTool()
 VCPreLinkEventTool::VCPreLinkEventTool()
 {
     ToolName = "VCPreLinkEventTool";
+}
+
+// VCConfiguration --------------------------------------------------
+
+VCConfiguration::VCConfiguration()
+    :	ATLMinimizesCRunTimeLibraryUsage( unset ),
+	BuildBrowserInformation( unset ),
+	CharacterSet( charSetNotSet ),
+	ConfigurationType( typeApplication ),
+	RegisterOutput( unset ),
+	UseOfATL( useATLNotSet ),
+	UseOfMfc( useMfcStdWin ),
+	WholeProgramOptimization( unset )
+{
+    compiler.config = this;
+    linker.config = this;
+    idl.config = this;
+}
+
+QTextStream &operator<<( QTextStream &strm, const VCConfiguration &tool )
+{
+    strm << _begConfiguration;
+    strm << SPair( _Name3, tool.Name );
+    strm << SPair( _OutputDirectory3, tool.OutputDirectory );
+    strm << TPair( _ATLMinimizesCRunTimeLibraryUsage, tool.ATLMinimizesCRunTimeLibraryUsage );
+    strm << TPair( _BuildBrowserInformation, tool.BuildBrowserInformation );
+    if ( tool.CharacterSet != charSetNotSet)	strm << EPair( _CharacterSet, tool.CharacterSet );
+    strm << EPair( _ConfigurationType, tool.ConfigurationType );
+    strm << SPair( _DeleteExtensionsOnClean, tool.DeleteExtensionsOnClean );
+    strm << SPair( _ImportLibrary, tool.ImportLibrary );
+    strm << SPair( _IntermediateDirectory, tool.IntermediateDirectory );
+    strm << SPair( _PrimaryOutput, tool.PrimaryOutput );
+    strm << SPair( _ProgramDatabase, tool.ProgramDatabase );
+    strm << TPair( _RegisterOutput, tool.RegisterOutput );
+    if ( tool.UseOfATL != useATLNotSet)		strm << EPair( _UseOfATL, tool.UseOfATL );
+    strm << EPair( _UseOfMfc, tool.UseOfMfc );
+    strm << TPair( _WholeProgramOptimization, tool.WholeProgramOptimization );
+    strm << ">";
+    strm << tool.compiler;
+    strm << tool.custom;
+    strm << tool.linker;
+    strm << tool.idl;
+    strm << tool.postBuild;
+    strm << tool.preBuild;
+    strm << tool.preLink;
+    strm << tool.resource;
+    strm << _endConfiguration;
+    return strm;
+}
+// VCFilter ---------------------------------------------------------
+VCFilter::VCFilter()
+    :   ParseFiles( unset )
+{
+}
+
+void VCFilter::generateMOC( QTextStream &strm, QString str ) const
+{
+    QString mocOutput = Project->findMocDestination( str );
+    QString mocApp = Project->var( "QMAKE_MOC" );
+
+    if( mocOutput.isEmpty() ) {
+        // In specialcases we DO moc .cpp files
+	// when the result is an .moc file
+	if ( !str.endsWith(".moc") )
+	    return;
+	mocOutput = str;
+	str = Project->findMocSource( mocOutput );
+    }
+
+    strm << _begFileConfiguration;
+    strm << _Name5;
+    strm << Config->Name;
+    strm << "\">";
+    strm << _begTool5;
+    strm << _VCCustomBuildTool;
+    strm << _Description6;
+    strm << "Moc'ing " << str << "...\"";
+    strm << _CommandLine6;
+    strm << mocApp;
+    strm << " " << str << " -o " << mocOutput << "\"";
+    strm << _AdditionalDependencies6;
+    strm << mocApp << "\"";
+    strm << _Outputs6;
+    strm << mocOutput << "\"";
+    strm << "/>";
+    strm << _endFileConfiguration;
+}
+
+void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
+{
+    QString uicApp = Project->var("QMAKE_UIC");
+    QString mocApp = Project->var( "QMAKE_MOC" );
+    QString fname = str.section( '\\', -1 );
+    QString mocDir = Project->var( "MOC_DIR" );
+    int dot = fname.findRev( '.' );
+    if( dot != -1 ) 
+	fname.truncate( dot );
+
+    int slash = str.findRev( '\\' );  
+    QString pname = ( slash != -1 ) ? str.left( slash+1 ) : ".\\";
+
+    strm << _begFileConfiguration;
+    strm << _Name5;
+    strm << Config->Name;
+    strm << "\">";
+    strm << _begTool5;
+    strm << _VCCustomBuildTool;
+    strm << _Description6;
+    strm << "Uic'ing " << str << "...\"";
+    strm << _CommandLine6;
+    strm << uicApp << " " << str << " -o " << pname << fname << ".h &amp;&amp; ";				// Create .h from .ui file
+    strm << uicApp << " " << str << " -i " << fname << ".h -o " << pname << fname << ".cpp &amp;&amp; ";	// Create .cpp from .ui file
+    strm << mocApp << " " << pname << fname << ".h -o " << mocDir << "moc_" << fname << ".cpp\"";
+    strm << _AdditionalDependencies6;
+    strm << mocApp << ";" << uicApp << "\"";
+    strm << _Outputs6;
+    strm << pname << fname << ".h;" << pname << fname << ".cpp;" << mocDir << "moc_" << fname << ".cpp\"";
+    strm << "/>";
+    strm << _endFileConfiguration;
+}
+
+QTextStream &operator<<( QTextStream &strm, const VCFilter &tool )
+{
+    if ( tool.Files.count() == 0 )
+	return strm;
+
+    strm << _begFilter;
+    strm << SPair( _Name3, tool.Name );
+    strm << TPair( _ParseFiles, tool.ParseFiles );
+    strm << SPair( _Filter, tool.Filter );
+    strm << ">";
+    for ( QStringList::ConstIterator it = tool.Files.begin(); it != tool.Files.end(); ++it ) {
+	strm << _begFile;
+	strm << SPair( _RelativePath, *it );
+	strm << ">";
+	if ( tool.CustomBuild == moc )
+	    tool.generateMOC( strm, *it );
+	else if ( tool.CustomBuild == uic )
+	    tool.generateUIC( strm, *it );
+	strm << _endFile;
+    }
+
+    strm << _endFilter;
+    return strm;
+}
+
+// VCProject --------------------------------------------------------
+VCProject::VCProject()
+{
+    QUuid uniqueId;
+#if defined(Q_WS_WIN32)
+    GUID guid;
+    HRESULT h = CoCreateGuid( &guid );
+    if ( h == S_OK )
+	uniqueId = QUuid( guid );
+    ProjectGUID = uniqueId.toString();
+#else
+    // Qt doesn't support GUID on other platforms yet
+    ProjectGUID = "";
+#endif
+}
+
+QTextStream &operator<<( QTextStream &strm, const VCProject &tool )
+{
+    strm << _xmlInit;
+    strm << _begVisualStudioProject;
+    strm << _ProjectType;
+    strm << SPair( _Version1, tool.Version );
+    strm << SPair( _Name1, tool.Name );
+    strm << SPair( _ProjectGUID, tool.ProjectGUID );
+    strm << SPair( _SccProjectName, tool.SccProjectName );
+    strm << SPair( _SccLocalPath, tool.SccLocalPath );
+    strm << ">";
+    strm << _begPlatforms;
+    strm << _begPlatform;
+    strm << SPair( _Name3, tool.PlatformName );
+    strm << "/>";
+    strm << _endPlatforms;
+    strm << _begConfigurations;
+    strm << tool.Configuration;
+    strm << _endConfigurations;
+    strm << _begFiles;
+    strm << tool.SourceFiles;
+    strm << tool.HeaderFiles;
+    strm << tool.MOCFiles;
+    strm << tool.UICFiles;
+    strm << tool.FormFiles;
+    strm << tool.TranslationFiles;
+    strm << tool.LexYaccFiles;
+    strm << tool.ResourceFiles;
+    strm << _endFiles;
+    strm << _begGlobals;
+    strm << _endGlobals;
+    strm << _endVisualStudioProject;
+    return strm;
 }

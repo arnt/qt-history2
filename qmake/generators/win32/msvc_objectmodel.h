@@ -1,5 +1,9 @@
 #include <qstring.h>
 #include <qstringlist.h>
+#include "project.h"
+
+#ifndef __MSVC_OBJECTMODEL_H__
+#define __MSVC_OBJECTMODEL_H__
 
 /* \internal
     This Object model is of course VERY simplyfied, 
@@ -14,6 +18,12 @@
     forcing the tool to utilize default values. 
     False/True values will be in the output...
 */
+enum customBuildCheck {
+    none,
+    moc,
+    uic,
+    lexyacc
+};
 enum triState {
     unset = -1,
     _False = 0,
@@ -347,7 +357,17 @@ protected:
     VCToolBase(){};
     ~VCToolBase(){};
     virtual bool parseOption( const char* option ) = 0;
+public:
+    bool parseOptions( QStringList& options ) {
+	bool result = true;
+	for ( QStringList::ConstIterator it=options.begin(); (it!=options.end()) && result; it++ )
+	    result = parseOption( (*it).latin1() );
+	return result;
+    }
 };
+
+class VCConfiguration;
+class VCProject;
 
 class VCCLCompilerTool : public VCToolBase
 {
@@ -417,6 +437,7 @@ public:
     triState		    WarnAsError;
     warningLevelOption	    WarningLevel;
     triState		    WholeProgramOptimization;
+    VCConfiguration*	    config;
 };
 
 class VCLinkerTool : public VCToolBase
@@ -481,6 +502,7 @@ public:
     QString		    TypeLibraryFile;
     long		    TypeLibraryResourceID;
     QString		    Version;
+    VCConfiguration*	    config;
 };
 
 class VCMIDLTool : public VCToolBase
@@ -488,7 +510,7 @@ class VCMIDLTool : public VCToolBase
 public:
     // Functions
     VCMIDLTool();
-    ~VCMIDLTool();
+    ~VCMIDLTool(){};
     virtual bool parseOption( const char* option );
 
     // Variables
@@ -522,6 +544,7 @@ public:
     triState		    ValidateParameters;
     triState		    WarnAsError;
     midlWarningLevelOption  WarningLevel;
+    VCConfiguration*	    config;
 };
 
 class VCCustomBuildTool : public VCToolBase
@@ -558,7 +581,6 @@ public:
     QStringList		    PreprocessorDefinitions;
     QString		    ResourceOutputFileName;
     linkProgressOption	    ShowProgress;
-    QString		    ToolName;
     QString		    ToolPath;
 };
 
@@ -600,9 +622,97 @@ public:
     ~VCPreLinkEventTool(){};
 };
 
+class VCConfiguration
+{
+public:
+    // Functions
+    VCConfiguration();
+    ~VCConfiguration(){};
+
+    // Variables
+    triState		ATLMinimizesCRunTimeLibraryUsage;
+    triState		BuildBrowserInformation;
+    charSet		CharacterSet;
+    ConfigurationTypes	ConfigurationType;
+    QString		DeleteExtensionsOnClean;
+    QString		ImportLibrary;
+    QString		IntermediateDirectory;
+    QString		Name;
+    QString		OutputDirectory;
+    QString		PrimaryOutput;
+    QString		ProgramDatabase;
+    triState		RegisterOutput;
+    useOfATL		UseOfATL;
+    useOfMfc		UseOfMfc;
+    triState		WholeProgramOptimization;
+
+    // XML sub-parts
+    VCCLCompilerTool	    compiler;
+    VCLinkerTool	    linker;
+    VCCustomBuildTool	    custom;
+    VCMIDLTool		    idl;
+    VCPostBuildEventTool    postBuild;
+    VCPreBuildEventTool	    preBuild;
+    VCPreLinkEventTool	    preLink;
+    VCResourceCompilerTool  resource;
+};
+
+class VCConfiguration;
+class VcprojGenerator;
+class VCFilter
+{
+public:
+    // Functions
+    VCFilter();
+    ~VCFilter(){};
+    void generateMOC( QTextStream &strm, QString str ) const;
+    void generateUIC( QTextStream &strm, const QString& str ) const;
+
+    // Variables
+    QString		Name;
+    QString		Filter;
+    triState		ParseFiles;
+    QStringList		Files;
+    VcprojGenerator*	Project;
+    VCConfiguration*	Config;
+    customBuildCheck	CustomBuild;
+};
+
+class VCProject
+{
+public:
+    // Functions
+    VCProject();
+    ~VCProject(){};
+
+    // Variables
+    QString		Name;
+    QString		Version;
+    QString		ProjectGUID;
+    QString		SccProjectName;
+    QString		SccLocalPath;
+    QString		PlatformName;
+
+    // XML sub-parts
+    VCConfiguration	Configuration;
+    VCFilter		SourceFiles;
+    VCFilter		HeaderFiles;
+    VCFilter		MOCFiles;
+    VCFilter		UICFiles;
+    VCFilter		FormFiles;
+    VCFilter		TranslationFiles;
+    VCFilter		LexYaccFiles;
+    VCFilter		ResourceFiles;
+};
+
 QTextStream &operator<<( QTextStream &, const VCCLCompilerTool & );
 QTextStream &operator<<( QTextStream &, const VCLinkerTool & );
 QTextStream &operator<<( QTextStream &, const VCMIDLTool & );
 QTextStream &operator<<( QTextStream &, const VCCustomBuildTool & );
 QTextStream &operator<<( QTextStream &, const VCResourceCompilerTool & );
 QTextStream &operator<<( QTextStream &, const VCEventTool & );
+QTextStream &operator<<( QTextStream &, const VCConfiguration & );
+QTextStream &operator<<( QTextStream &, const VCFilter & );
+QTextStream &operator<<( QTextStream &, const VCProject & );
+
+#endif //__MSVC_OBJECTMODEL_H__

@@ -38,6 +38,13 @@
 #define __VCPROJMAKE_H__
 
 #include "winmakefile.h"
+#include "msvc_objectmodel.h"
+
+enum target {
+    Application,
+    SharedLib,
+    StaticLib
+};
 
 class VcprojGenerator : public Win32MakefileGenerator
 {
@@ -55,9 +62,33 @@ public:
     QString defaultMakefile() const;
 
 protected:
+    virtual bool openOutput(QFile &file) const;
     virtual void processPrlVariable(const QString &, const QStringList &);
     virtual bool findLibraries();
+    virtual void outputVariables();
     
+    void initOld();
+    void initProject();
+    void initConfiguration();
+    void initCompilerTool();
+    void initLinkerTool();
+    void initIDLTool();
+    void initCustomBuildTool();
+    void initPreBuildEventTools();
+    void initPostBuildEventTools();
+    void initPreLinkEventTools();
+    void initSourceFiles();
+    void initHeaderFiles();
+    void initMOCFiles();
+    void initUICFiles();
+    void initFormsFiles();
+    void initTranslationFiles();
+    void initLexYaccFiles();
+    void initResourceFiles();
+
+    /*
+    void writeGuid( QTextStream &t );
+    void writeAdditionalOptions( QTextStream &t );
     void writeHeaders( QTextStream &t );
     void writeSources( QTextStream &t );
     void writeMocs( QTextStream &t );
@@ -71,6 +102,12 @@ protected:
     void writeFormsSourceHeaders( QString &variable, QTextStream &t );
     void writeTranslations( QTextStream &t );
     void writeStrippedTranslations( QTextStream &t );
+    */
+
+    VCProject vcProject;
+    target projectTarget;
+
+    friend class VCFilter;
 };
 
 inline VcprojGenerator::~VcprojGenerator()

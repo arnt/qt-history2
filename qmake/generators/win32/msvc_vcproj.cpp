@@ -39,15 +39,21 @@
 #include "option.h"
 #include <qdir.h>
 #include <qregexp.h>
-#include <stdlib.h>
-#include <time.h>
 
+#if defined(Q_OS_WIN32)
+#include <objbase.h>
+#endif
 
 VcprojGenerator::VcprojGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(FALSE)
 {
-
 }
 
+/* \internal
+    Generates a project file for the given profile.
+    Options are either a Visual Studio projectfiles, or
+    recursive projectfiles.. Maybe we can make .sln files
+    someday?
+*/
 bool VcprojGenerator::writeMakefile(QTextStream &t)
 {
     // Check if all requirements are fullfilled
@@ -60,309 +66,369 @@ bool VcprojGenerator::writeMakefile(QTextStream &t)
     // Generate full project file
     if(project->first("TEMPLATE") == "vcapp" ||
        project->first("TEMPLATE") == "vclib") {
-	return writeVcprojParts(t);
+        debug_msg(1, "Generator: MSVC.NET: Writing project file" );
+	t << vcProject;
+	return TRUE;
     }
-    
+
     // Generate recursive project
     else if(project->first("TEMPLATE") == "subdirs") {
+        debug_msg(1, "Generator: MSVC.NET: Writing subdirs file" );
 	writeHeader(t);
 	writeSubDirs(t);
 	return TRUE;
     }
     return FALSE;
+    
 }
 
-bool VcprojGenerator::writeVcprojParts(QTextStream &t)
+// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
+
+void VcprojGenerator::init()
 {
-    // Find proper template to use, either default or specified
-    QString vcprojfile;
-    if ( !project->variables()["VCPROJ_TEMPLATE"].isEmpty() ) {
-	vcprojfile = project->first("VCPROJ_TEMPLATE");
+    if( init_flag )
+	return;
+    debug_msg(1, "Generator: MSVC.NET: Initializing variables" );
+
+/*
+    // Once to be nice and clean code...
+    // Wouldn't life be great?
+
+    // Are we building Qt?
+    bool is_qt =
+	( project->first("TARGET") == "qt"QTDLL_POSTFIX ||
+	  project->first("TARGET") == "qt-mt"QTDLL_POSTFIX );
+
+    // Are we using Qt?
+    bool isQtActive = project->isActiveConfig("qt");
+
+    if ( isQtActive ) {
+	project->variables()["CONFIG"] += "moc";
+	project->variables()["CONFIG"] += "windows";
+	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QT"];
+	project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LIBDIR_QT"];
+
+	if( projectTarget == SharedLib ) 
+	    project->variables()["DEFINES"] += "QT_DLL";
+
+	if( project->isActiveConfig("accessibility" ) )
+	    project->variables()["DEFINES"] += "QT_ACCESSIBILITY_SUPPORT";
+
+	if ( project->isActiveConfig("plugin")) {
+	    project->variables()["DEFINES"] += "QT_PLUGIN";
+	    project->variables()["CONFIG"] += "dll";
+	}	    
+
+	if( project->isActiveConfig("thread") ) {
+	    project->variables()["DEFINES"] += "QT_THREAD_SUPPORT";
+	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
+	} else {
+	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
+	}
+    }
+
+    if ( project->isActiveConfig("opengl") ) {
+	project->variables()["CONFIG"] += "windows"; // <-- Also in 'qt' above
+	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
+	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_OPENGL"];
+
+    }
+*/
+    initOld();	   // Currently calling old DSP code to set variables. CLEAN UP!
+
+    // Figure out what we're trying to build
+    if ( project->first("TEMPLATE") == "vcapp" ) {
+	projectTarget = Application;
     } else {
-	vcprojfile = project->first("MSVCPROJ_TEMPLATE");
+	if ( project->isActiveConfig( "staticlib" ) )
+	    projectTarget = StaticLib;
+	else
+	    projectTarget = SharedLib;
     }
 
-    // Search current, mkspecs and ~/.tmake for correct template file
-    QString vcprojfile_loc = findTemplate(vcprojfile);
+    initProject(); // Fills the whole project with proper data
+}
 
-    // Open the template file
-    QFile file(vcprojfile_loc);
-    if(!file.open(IO_ReadOnly)) {
-	fprintf(stderr, "Cannot open vcproj file: %s\n", vcprojfile.latin1());
-	return FALSE;
+void VcprojGenerator::initProject()
+{
+    // Initialize XML sub elements
+    // - Do this first since project elements may need
+    // - to know of certain configuration options
+    initConfiguration();
+    initSourceFiles();
+    initHeaderFiles();
+    initMOCFiles();
+    initUICFiles();
+    initFormsFiles();
+    initTranslationFiles();
+    initLexYaccFiles();
+    initResourceFiles();
+
+    // Own elements -----------------------------
+    vcProject.Name = project->first("QMAKE_ORIG_TARGET");
+    vcProject.Version = "7.00";
+    vcProject.PlatformName = ( vcProject.Configuration.idl.TargetEnvironment == midlTargetWin64 ? "Win64" : "Win32" );
+    // These are not used by Qt, but may be used by customers
+    vcProject.SccProjectName = project->first("SCCPROJECTNAME");
+    vcProject.SccLocalPath = project->first("SCCLOCALPATH");
+}
+
+void VcprojGenerator::initConfiguration()
+{
+    // Initialize XML sub elements
+    // - Do this first since main configuration elements may need
+    // - to know of certain compiler/linker options
+    initCompilerTool();
+    initLinkerTool();
+    initIDLTool();
+    initCustomBuildTool();
+    initPreBuildEventTools();
+    initPostBuildEventTools();
+    initPreLinkEventTools();
+
+    // Own elements -----------------------------
+    QString temp = project->first("BuildBrowserInformation");
+    switch ( projectTarget ) {
+    case SharedLib:
+        vcProject.Configuration.ConfigurationType = typeDynamicLibrary;
+	break;
+    case StaticLib:
+        vcProject.Configuration.ConfigurationType = typeStaticLibrary;
+	break;
+    case Application:
+    default:
+        vcProject.Configuration.ConfigurationType = typeApplication;
+	break;
     }
-    QTextStream vcproj(&file);
+    vcProject.Configuration.Name =  ( project->isActiveConfig( "release" ) ? "Release|" : "Debug|" );
+    vcProject.Configuration.Name += ( vcProject.Configuration.idl.TargetEnvironment == midlTargetWin64 ? "Win64" : "Win32" );
+    vcProject.Configuration.ATLMinimizesCRunTimeLibraryUsage = ( project->first("ATLMinimizesCRunTimeLibraryUsage").isEmpty() ? _False : _True );
+    vcProject.Configuration.BuildBrowserInformation = triState( temp.isEmpty() ? unset : temp.toShort() );
+    temp = project->first("CharacterSet");
+    vcProject.Configuration.CharacterSet = charSet( temp.isEmpty() ? charSetNotSet : temp.toShort() );
+    vcProject.Configuration.DeleteExtensionsOnClean = project->first("DeleteExtensionsOnClean");
+    vcProject.Configuration.ImportLibrary = vcProject.Configuration.linker.ImportLibrary;
+    vcProject.Configuration.IntermediateDirectory = project->first("OBJECTS_DIR");
+    temp = (projectTarget == StaticLib) ? project->first("DESTDIR"):project->first("DLLDESTDIR");
+    vcProject.Configuration.OutputDirectory = ( temp.isEmpty() ? "." : temp );
+    vcProject.Configuration.PrimaryOutput = project->first("PrimaryOutput");
+    vcProject.Configuration.WholeProgramOptimization = vcProject.Configuration.compiler.WholeProgramOptimization;
+    temp = project->first("UseOfATL");
+    if ( !temp.isEmpty() )
+	vcProject.Configuration.UseOfATL = useOfATL( temp.toShort() );
+    temp = project->first("UseOfMfc");
+    if ( !temp.isEmpty() )
+        vcProject.Configuration.UseOfMfc = useOfMfc( temp.toShort() );
+}
 
+void VcprojGenerator::initCompilerTool()
+{
+    QString placement = project->first("OBJECTS_DIR");
+    if ( placement.isEmpty() )
+	placement = project->isActiveConfig( "release" )? ".\\Release\\":".\\Debug\\";
 
-    int rep;
-    QString line;
-    while ( !vcproj.eof() ) {
-	line = vcproj.readLine();
-	while((rep = line.find(QRegExp("\\$\\$[a-zA-Z0-9_-]*"))) != -1) {
-	    QString torep = line.mid(rep, line.find(QRegExp("[^\\$a-zA-Z0-9_-]"), rep) - rep);
-	    QString variable = torep.right(torep.length()-2);
-	    t << line.left(rep); //output the left side
-	    line = line.right(line.length() - (rep + torep.length())); //now past the variable
+    vcProject.Configuration.compiler.AssemblerListingLocation = placement ;
+    vcProject.Configuration.compiler.ProgramDataBaseFileName = placement ;
+    vcProject.Configuration.compiler.ObjectFile = placement ;
+    vcProject.Configuration.compiler.PrecompiledHeaderFile = placement + project->first("QMAKE_ORIG_TARGET") + ".pch";
 
-	    // Replacing variables in the template file...
-	    if( variable == "MSVCPROJ_HEADERS" &&
-	       !project->variables()["HEADERS"].isEmpty() ) {
-		writeHeaders( t );
-	    }
-	    else if( variable == "MSVCPROJ_SOURCES" &&
-		    !project->variables()["SOURCES"].isEmpty()) {
-		writeSources( t );
-	    }
-	    else if( variable == "MSVCPROJ_MOCSOURCES" && project->isActiveConfig("moc") &&
-		    !project->variables()["SRCMOC"].isEmpty() ) {
-		writeMocs( t );
-	    }
-	    else if( variable == "MSVCPROJ_LEXSOURCES" &&
-		    !project->variables()["LEXSOURCES"].isEmpty() ) {
-		writeLexs( t );
-	    } 
-	    else if( variable == "MSVCPROJ_YACCSOURCES" &&
-		    !project->variables()["YACCSOURCES"].isEmpty() ) {
-		writeYaccs( t );
-	    } 
-	    else if( variable == "MSVCPROJ_PICTURES" &&
-		    !project->variables()["IMAGES"].isEmpty() ) {
-		writePictures( t );
-	    }
-	    else if( variable == "MSVCPROJ_IMAGES" &&
-		    !project->variables()["IMAGES"].isEmpty()) {
-		writeImages( t );
-	    }
-	    else if( variable == "MSVCPROJ_IDLSOURCES" ) {
-	    	writeIDLs( t );
-	    }
-	    else if( variable == "MSVCPROJ_FORMS" &&
-		    !project->variables()["FORMS"].isEmpty() ) {
-		writeForms( t );
-	    } 
-	    else if( (variable == "MSVCPROJ_FORMSOURCES" || variable == "MSVCPROJ_FORMHEADERS" ) &&
-		    !project->variables()["FORMS"].isEmpty() ) {
-		writeFormsSourceHeaders( variable, t );		
-	    }
-	    else if( variable == "MSVCPROJ_TRANSLATIONS" &&
-		    !project->variables()["TRANSLATIONS"].isEmpty() ) {
-		writeTranslations( t );
-	    }
-	    /*else if( variable == "MSVCPROJ_STRIPPEDTRANSLATIONS" &&
-		      !project->variables()["TRANSLATIONS"].isEmpty() ) {
-		writeStrippedTranslations( t );
-	    }*/
-	    else if( variable == "MSVCPROJ_CONFIGMODE" ) {
-		if( project->isActiveConfig( "release" ) )
-		    t << "Release";
-		else
-		    t << "Debug";
-	    } 
-	    // Unknown variable, so look for it in default Project Variables
-	    else {
-	        qDebug( "Unknown variable hit! ( %s )", variable.latin1() );
-		t << var(variable);
-	    }
+    if ( project->isActiveConfig("release") ){
+	// Release version
+	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS"] );
+	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_RELEASE"] );
+	vcProject.Configuration.compiler.PreprocessorDefinitions += "QT_NO_DEBUG";
+	if ( project->isActiveConfig("thread") ) {
+	    if ( (projectTarget == Application) || (projectTarget == StaticLib) ) 
+		vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT"] );
+	    else
+		vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT_DLL"] );
+	} else {
+	    vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_ST"] );
+	}
 
-	} // No more variables?
-	// Then output the remaining text on the line...
-	t << line << endl;
+    } else {
+	// Debug version
+	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS"] );
+	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_DEBUG"] );
+	if ( project->isActiveConfig("thread") ) {
+	    if ( (projectTarget == Application) || (projectTarget == StaticLib) )
+		vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT_DBG"] );
+	    else
+		vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"] );
+	} else {
+	    vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_ST_DBG"] );
+	}
+
+    }
+
+    // Common for both release and debug
+    if ( project->isActiveConfig("warn_off") )
+	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_WARN_OFF"] );
+    else
+	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_WARN_ON"] );
+    if ( project->isActiveConfig("stl") )
+	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_STL"] );
+    if ( project->isActiveConfig("windows") )
+	vcProject.Configuration.compiler.PreprocessorDefinitions += project->variables()["MSVCPROJ_WINCONDEF"];
+
+    // Can this be set for ALL configs?
+    // If so, use qmake.conf!
+    if ( projectTarget == SharedLib )
+	vcProject.Configuration.compiler.PreprocessorDefinitions += "_WINDOWS";
+
+    vcProject.Configuration.compiler.PreprocessorDefinitions += project->variables()["DEFINES"];
+    vcProject.Configuration.compiler.PreprocessorDefinitions += project->variables()["PRL_EXPORT_DEFINES"];
+    vcProject.Configuration.compiler.parseOptions( project->variables()["MSVCPROJ_INCPATH"] );
+}
+
+void VcprojGenerator::initLinkerTool()
+{
+    vcProject.Configuration.linker.parseOptions( project->variables()["MSVCPROJ_LFLAGS"] );
+    vcProject.Configuration.linker.AdditionalDependencies += project->variables()["MSVCPROJ_LIBS"];
+    vcProject.Configuration.linker.OutputFile = project->first("MSVCPROJ_TARGET");
+    vcProject.Configuration.linker.ProgramDatabaseFile = project->first("OBJECTS_DIR") + project->first("QMAKE_ORIG_TARGET") + ".pdb";
+
+    if ( project->isActiveConfig("release") ){
+        vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_RELEASE"] );
+    } else {
+	vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_DEBUG"] );
     }
     
-    t << endl;
-    file.close();
-    return TRUE;
+    if ( project->isActiveConfig("dll") ){
+	vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_QT_DLL"] );
+    }
+
+    if ( project->isActiveConfig("console") ){
+	vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_CONSOLE"] );
+    } else {
+	vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_WINDOWS"] );
+    }
+    
 }
 
-// $$MSVCPROJ_HEADERS ------------------------------------------------
-void VcprojGenerator::writeHeaders( QTextStream &t )
+void VcprojGenerator::initIDLTool()
 {
-	QStringList &list = project->variables()["HEADERS"];
-	for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-	    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl << endl;
-	    if ( project->isActiveConfig("moc") && !findMocDestination((*it)).isEmpty()) {
-		QString base = (*it);
-		base.replace(QRegExp("\\..*$"), "").upper();
-		base.replace(QRegExp("[^a-zA-Z]"), "_");
-
-		QString mocpath = var( "QMAKE_MOC" );
-		mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
-
-		QString build = "\n\n# Begin Custom Build - Moc'ing " + (*it) +
-				"...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + findMocDestination((*it)) +
-				"\"" " : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
-				"\t" + mocpath + (*it)  + " -o " +
-				findMocDestination((*it)) + "\n\n" "# End Custom Build\n\n";
-
-		t << "USERDEP_" << base << "=\"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
-
-		t << "!IF  \"$(CFG)\" == \"" << var("MSVCPROJ_PROJECT") << " - Win32 Release\"" << build
-		  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCPROJ_PROJECT") << " - Win32 Debug\""
-		  << build << "!ENDIF " << endl << endl;
-	    }
-	    t << "# End Source File" << endl;
-	}
 }
-	
-// $$MSVCPROJ_SOURCES ------------------------------------------------
-void VcprojGenerator::writeSources( QTextStream &t )
+
+void VcprojGenerator::initCustomBuildTool()
 {
-	QString mocpath = var( "QMAKE_MOC" );
-	mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
-	
-	QStringList &list = project->variables()["SOURCES"];
-	QStringList::Iterator it;
-	for( it = list.begin(); it != list.end(); ++it) {
-	    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
-	    if ( project->isActiveConfig("moc") &&
-		 (*it).right(qstrlen(Option::moc_ext)) == Option::moc_ext) {
-		QString base = (*it);
-		base.replace(QRegExp("\\..*$"), "").upper();
-		base.replace(QRegExp("[^a-zA-Z]"), "_");
-	
-		QString build = "\n\n# Begin Custom Build - Moc'ing " + findMocSource((*it)) +
-				"...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
-				" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
-				"\t" + mocpath + findMocSource((*it)) + " -o " +
-				(*it) + "\n\n" "# End Custom Build\n\n";
-	
-		t << "USERDEP_" << base << "=\"" << findMocSource((*it)) << "\" \"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
-	
-		t << "!IF  \"$(CFG)\" == \"" << var("MSVCPROJ_PROJECT") << " - Win32 Release\"" << build
-		  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCPROJ_PROJECT") << " - Win32 Debug\""
-		  << build << "!ENDIF " << endl << endl;
-	    }
-	    t << "# End Source File" << endl;
-	}
-	list = project->variables()["DEF_FILE"];
-	for( it = list.begin(); it != list.end(); ++it ) {
-	    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
-	    t << "# End Source File" << endl;
-	}
 }
 
-// $$MSVCPROJ_MOCSOURCES ---------------------------------------------
-void VcprojGenerator::writeMocs( QTextStream &t )
+void VcprojGenerator::initPreBuildEventTools()
 {
-	QString mocpath = var( "QMAKE_MOC" );
-	mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
+    QString collectionName = project->first("QMAKE_IMAGE_COLLECTION");
+    if( !collectionName.isEmpty() ) {
+        QStringList& list = project->variables()["IMAGES"];
+	vcProject.Configuration.preBuild.Description = "Generate imagecollection";
+	//vcProject.Configuration.preBuild.AdditionalDependencies += list;
+	vcProject.Configuration.preBuild.CommandLine = project->first("QMAKE_UIC") + " -embed " + project->first("QMAKE_ORIG_TARGET") + list.join(" ") + " -o " + collectionName;
+	//vcProject.Configuration.preBuild.Outputs = collectionName;
 
-	QStringList &list = project->variables()["SRCMOC"];
-	for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-	    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
-	    if ( project->isActiveConfig("moc") &&
-		 (*it).right(qstrlen(Option::moc_ext)) == Option::moc_ext) {
-		QString base = (*it);
-		base.replace(QRegExp("\\..*$"), "").upper();
-		base.replace(QRegExp("[^a-zA-Z]"), "_");
-
-		QString build = "\n\n# Begin Custom Build - Moc'ing " + findMocSource((*it)) +
-				"...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
-				" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
-				"\t" + mocpath + findMocSource((*it)) + " -o " +
-				(*it) + "\n\n" "# End Custom Build\n\n";
-
-		t << "USERDEP_" << base << "=\"" << findMocSource((*it)) << "\" \"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
-
-		t << "!IF  \"$(CFG)\" == \"" << var("MSVCPROJ_PROJECT") << " - Win32 Release\"" << build
-		  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCPROJ_PROJECT") << " - Win32 Debug\""
-		  << build << "!ENDIF " << endl << endl;
-	    }
-	    t << "# End Source File" << endl;
-	}
+    }
 }
 
-// $$MSVCPROJ_LEXSOURCES ---------------------------------------------
-void VcprojGenerator::writeLexs( QTextStream &t )
+void VcprojGenerator::initPostBuildEventTools()
 {
-	t << "# Begin Group \"Lexables\"\n";
-	t << "# Prop Default_Filter \"l\"\n";
-
-	QString lexpath = var("QMAKE_LEX") + varGlue("QMAKE_LEXFLAGS", " ", " ", "") + " ";
-
-	QStringList &l = project->variables()["LEXSOURCES"];
-	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	    t <<  "# Begin Source File\n\nSOURCE=" << (*it) << endl;
-
-	    QString fname = (*it);
-	    fname.replace(QRegExp("\\.l"), Option::lex_mod + Option::cpp_ext.first());
-
-	    QString build = "\n\n# Begin Custom Build - Lex'ing " + (*it) + "...\n"
-		"InputPath=.\\" + (*it) + "\n\n"
-		"\"" + fname + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
-		"\t" + lexpath + (*it) + "\\\n"
-		"\tdel " + fname + "\\\n"
-		"\tcopy lex.yy.c " + fname + "\n\n" +
-		"# End Custom Build\n\n";
-
-
-	    t << "!IF  \"$(CFG)\" == \"" << var("MSVCPROJ_PROJECT") << " - Win32 Release\"" << build
-	      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCPROJ_PROJECT") << " - Win32 Debug\"" << build
-	      << "!ENDIF \n\n" << build
-	
-	      << "# End Source File" << endl;
-	}
-
-	t << "\n# End Group\n";
 }
 
-// $$MSVCPROJ_YACCSOURCES --------------------------------------------
-void VcprojGenerator::writeYaccs( QTextStream &t )
+void VcprojGenerator::initPreLinkEventTools()
 {
-	t << "# Begin Group \"Yaccables\"\n";
-	t << "# Prop Default_Filter \"y\"\n";
-
-	QString yaccpath = var("QMAKE_YACC") + varGlue("QMAKE_YACCFLAGS", " ", " ", "") + " ";
-
-	QStringList &l = project->variables()["YACCSOURCES"];
-	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	    t <<  "# Begin Source File\n\nSOURCE=" << (*it) << endl;
-
-	    QString fname = (*it);
-	    fname.replace(QRegExp("\\.y"), Option::yacc_mod);
-
-	    QString build = "\n\n# Begin Custom Build - Yacc'ing " + (*it) + "...\n"
-		"InputPath=.\\" + (*it) + "\n\n"
-		"\"" + fname + Option::cpp_ext.first() + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
-		"\t" + yaccpath + (*it) + "\\\n"
-		"\tdel " + fname + Option::h_ext.first() + "\\\n"
-		"\tmove y.tab.h " + fname + Option::h_ext.first() + "\n\n" +
-		"\tdel " + fname + Option::cpp_ext.first() + "\\\n"
-		"\tmove y.tab.c " + fname + Option::cpp_ext.first() + "\n\n" +
-		"# End Custom Build\n\n";
-
-	    t << "!IF  \"$(CFG)\" == \"" << var("MSVCPROJ_PROJECT") << " - Win32 Release\"" << build
-	      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCPROJ_PROJECT") << " - Win32 Debug\"" << build
-	      << "!ENDIF \n\n"
-	      << "# End Source File" << endl;
-	}
-
-	t << "\n# End Group\n";
 }
 
-// $$MSVCPROJ_PICTURES -----------------------------------------------
-void VcprojGenerator::writePictures( QTextStream &t )
+void VcprojGenerator::initSourceFiles()
 {
-	t << "# Begin Group \"Images\"\n";
-	t << "# Prop Default_Filter \"png jpeg bmp xpm\"\n";
-	
-	QStringList &list = project->variables()["IMAGES"];
-	for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-	    QString base = (*it);
-	    t << "# Begin Source File\n\nSOURCE=" << base << endl;
-	    t << "# End Source File" << endl;
-	}
-
-	t << "\n# End Group\n";
+    vcProject.SourceFiles.Name = "Source Files";
+    vcProject.SourceFiles.Filter = "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat";
+    vcProject.SourceFiles.Files += project->variables()["SOURCES"];
+    vcProject.SourceFiles.Files.sort();
+    vcProject.SourceFiles.Project = this;
+    vcProject.SourceFiles.Config = &(vcProject.Configuration);
+    vcProject.SourceFiles.CustomBuild = none;
 }
 
-// $$MSVCPROJ_IMAGES -------------------------------------------------
-void VcprojGenerator::writeImages( QTextStream &t )
+void VcprojGenerator::initHeaderFiles()
 {
-	t << "# Begin Source File\n\nSOURCE=" << project->first("QMAKE_IMAGE_COLLECTION") << endl;
-	t << "# End Source File" << endl;
+    vcProject.HeaderFiles.Name = "Header Files";
+    vcProject.HeaderFiles.Filter = "h;hpp;hxx;hm;inl";
+    vcProject.HeaderFiles.Files += project->variables()["HEADERS"];
+    vcProject.HeaderFiles.Files.sort();
+    vcProject.HeaderFiles.Project = this;
+    vcProject.HeaderFiles.Config = &(vcProject.Configuration);
+    vcProject.HeaderFiles.CustomBuild = moc;
 }
 
+void VcprojGenerator::initMOCFiles()
+{
+    vcProject.MOCFiles.Name = "Generated MOC Files";
+    vcProject.MOCFiles.Filter = "cpp;c;cxx;moc";
+    vcProject.MOCFiles.Files += project->variables()["SRCMOC"];
+    vcProject.MOCFiles.Files.sort();
+    vcProject.MOCFiles.Project = this;
+    vcProject.MOCFiles.Config = &(vcProject.Configuration);
+    vcProject.MOCFiles.CustomBuild = moc;
+}
+
+void VcprojGenerator::initUICFiles()
+{
+    vcProject.UICFiles.Name = "Generated UI Files";
+    vcProject.UICFiles.Filter = "cpp;c;cxx;h;hpp;hxx;";
+    vcProject.UICFiles.Project = this;
+    vcProject.UICFiles.Files += project->variables()["UICDECLS"];
+    vcProject.UICFiles.Files += project->variables()["UICIMPLS"];
+    vcProject.UICFiles.Files.sort();
+    vcProject.UICFiles.Config = &(vcProject.Configuration);
+    vcProject.UICFiles.CustomBuild = none;
+}
+
+void VcprojGenerator::initFormsFiles()
+{
+    vcProject.FormFiles.Name = "Forms";
+    vcProject.FormFiles.ParseFiles = _False;
+    vcProject.FormFiles.Filter = "ui";
+    vcProject.FormFiles.Files += project->variables()["FORMS"];
+    vcProject.FormFiles.Files.sort();
+    vcProject.FormFiles.Project = this;
+    vcProject.FormFiles.Config = &(vcProject.Configuration);
+    vcProject.FormFiles.CustomBuild = uic;
+}
+
+void VcprojGenerator::initTranslationFiles()
+{
+    vcProject.TranslationFiles.Name = "Translations Files";
+    vcProject.TranslationFiles.ParseFiles = _False;
+    vcProject.TranslationFiles.Filter = "ts";
+    vcProject.TranslationFiles.Files += project->variables()["TRANSLATIONS"];
+    vcProject.TranslationFiles.Files.sort();
+    vcProject.TranslationFiles.Project = this;
+    vcProject.TranslationFiles.Config = &(vcProject.Configuration);
+    vcProject.TranslationFiles.CustomBuild = none;
+}
+
+void VcprojGenerator::initLexYaccFiles()
+{
+    vcProject.LexYaccFiles.Name = "Lex / Yacc Files";
+    vcProject.LexYaccFiles.ParseFiles = _False;
+    vcProject.LexYaccFiles.Filter = "l;y";
+    vcProject.LexYaccFiles.Files += project->variables()["LEXSOURCES"];
+    vcProject.LexYaccFiles.Files += project->variables()["YACCSOURCES"];
+    vcProject.LexYaccFiles.Project = this;
+    vcProject.LexYaccFiles.CustomBuild = lexyacc;
+}
+
+void VcprojGenerator::initResourceFiles()
+{
+    vcProject.ResourceFiles.Name = "Resources";
+    vcProject.ResourceFiles.ParseFiles = _False;
+    vcProject.ResourceFiles.Filter = "cpp;ico;png;jpg;jpeg;gif;xpm;bmp;rc;ts";
+    vcProject.ResourceFiles.Files += project->variables()["RC_FILE"];
+    vcProject.ResourceFiles.Files += project->variables()["QMAKE_IMAGE_COLLECTION"];
+    vcProject.ResourceFiles.Files += project->variables()["IMAGES"];
+    vcProject.ResourceFiles.Project = this;
+    vcProject.ResourceFiles.CustomBuild = none;
+}
+
+/*
 // $$MSVCPROJ_IDLSOURCES ---------------------------------------------
 void VcprojGenerator::writeIDLs( QTextStream &t )
 {
@@ -373,226 +439,19 @@ void VcprojGenerator::writeIDLs( QTextStream &t )
 	    t << "# PROP Exclude_From_Build 1" << endl;
 	    t << "# End Source File" << endl << endl;
 	}
+    debug_msg(3, "Generator: MSVC.NET: Added IDLs" );
 }
+*/
 
-// $$MSVCPROJ_FORMS --------------------------------------------------
-void VcprojGenerator::writeForms( QTextStream &t )
-{
-	t << "# Begin Group \"Forms\"\n";
-	t << "# Prop Default_Filter \"ui\"\n";
+/* \internal
+    Sets up all needed variables from the environment and all the different caches and .conf files
+*/
 
-	bool imagesBuildDone = FALSE;	    // Dirty hack to make it not create an output step for images more than once
-
-	QString uicpath = var("QMAKE_UIC");
-	uicpath = uicpath.replace(QRegExp("\\..*$"), "") + " ";
-	QString mocpath = var( "QMAKE_MOC" );
-	mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
-
-	QStringList &list = project->variables()["FORMS"];
-	for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-	    QString base = (*it);
-	    t <<  "# Begin Source File\n\nSOURCE=" << base << endl;
-
-	    QString fname = base;
-	    fname.replace(QRegExp("\\.ui"), "");
-	    int lbs = fname.findRev( "\\" );
-	    QString fpath; 
-	    if ( lbs != -1 )
-		fpath = fname.left( lbs + 1 );
-	    fname = fname.right( fname.length() - lbs - 1 );
-
-	    QString mocFile;
-	    if(!project->variables()["MOC_DIR"].isEmpty())
-		mocFile = project->first("MOC_DIR");
-	    else
-		mocFile = fpath;
-
-	    QString uiSourcesDir;
-	    QString uiHeadersDir;
-	    if(!project->variables()["UI_DIR"].isEmpty()) {
-		uiSourcesDir = project->first("UI_DIR");
-		uiHeadersDir = project->first("UI_DIR");
-	    } else {
-		if ( !project->variables()["UI_SOURCES_DIR"].isEmpty() )
-		    uiSourcesDir = project->first("UI_SOURCES_DIR");
-		else
-		    uiSourcesDir = fpath;
-		if ( !project->variables()["UI_HEADERS_DIR"].isEmpty() )
-		    uiHeadersDir = project->first("UI_HEADERS_DIR");
-		else
-		    uiHeadersDir = fpath;
-	    }
-
-	    t << "USERDEP_" << base << "=\"$(QTDIR)\\bin\\moc.exe\" \"$(QTDIR)\\bin\\uic.exe\"" << endl << endl;
-
-	    QString build = "\n\n# Begin Custom Build - Uic'ing " + base + "...\n"
-		"InputPath=.\\" + base + "\n\n" "BuildCmds= \\\n\t" + uicpath + base +
-		" -o " + uiHeadersDir + fname + ".h \\\n" "\t" + uicpath  + base +
-		" -i " + fname + ".h -o " + uiSourcesDir + fname + ".cpp \\\n"
-		"\t" + mocpath + uiHeadersDir + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n";
-	    
-	    if ( !imagesBuildDone && !project->variables()["IMAGES"].isEmpty() ) {
-		QString imagesBuild;
-		QStringList &list = project->variables()["IMAGES"];
-		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-		    imagesBuild.append(" " + *it );
-		}
-		build.append("\t" + uicpath + "-embed " + project->first("QMAKE_ORIG_TARGET") + imagesBuild + " -o "
-		    + project->first("QMAKE_IMAGE_COLLECTION") + " \\\n"); 
-	    } 
-	    
-	    build.append("\n\"" + uiHeadersDir + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
-		"\t$(BuildCmds)\n\n"
-		"\"" + uiSourcesDir + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
-		"\t$(BuildCmds)\n\n"
-		"\"" + mocFile + "moc_" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
-		"\t$(BuildCmds)\n\n");
-	    
-	    if ( !imagesBuildDone && !project->variables()["IMAGES"].isEmpty() ) {
-		build.append("\"" + project->first("QMAKE_IMAGE_COLLECTION") + "\"" + " : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" 
-		    "\n" "\t$(BuildCmds)\n\n");
-	    }
-	    
-	    build.append("# End Custom Build\n\n");
-
-	    t << "!IF  \"$(CFG)\" == \"" << var("MSVCPROJ_PROJECT") << " - Win32 Release\"" << build
-	      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCPROJ_PROJECT") << " - Win32 Debug\"" << build
-	      << "!ENDIF \n\n" << "# End Source File" << endl;
-	    if ( !imagesBuildDone )
-		imagesBuildDone = TRUE;
-	}
-
-	t << "\n# End Group\n";
-}
-
-// $$MSVCPROJ_FORMSOURCES / $$MSVCPROJ_FORMHEADERS -------------------
-void VcprojGenerator::writeFormsSourceHeaders( QString &variable, QTextStream &t )
-{
-	QString uiSourcesDir;
-	QString uiHeadersDir;
-	if(!project->variables()["UI_DIR"].isEmpty()) {
-	    uiSourcesDir = project->first("UI_DIR");
-	    uiHeadersDir = project->first("UI_DIR");
-	} else {
-	    if ( !project->variables()["UI_SOURCES_DIR"].isEmpty() )
-		uiSourcesDir = project->first("UI_SOURCES_DIR");
-	    else
-		uiSourcesDir = "";
-	    if ( !project->variables()["UI_HEADERS_DIR"].isEmpty() )
-		uiHeadersDir = project->first("UI_HEADERS_DIR");
-	    else
-		uiHeadersDir = "";
-	}
-
-	QStringList &list = project->variables()["FORMS"];
-	QString ext = variable == "MSVCPROJ_FORMSOURCES" ? ".cpp" : ".h";
-	for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-	    QString base = (*it);
-	    int dot = base.findRev(".");
-	    base.replace( dot, base.length() - dot, ext );
-	    QString fname = base;
-
-	    int lbs = fname.findRev( "\\" );
-	    QString fpath; 
-	    if ( lbs != -1 )
-		fpath = fname.left( lbs + 1 );
-	    fname = fname.right( fname.length() - lbs - 1 );
-
-	    t << "# Begin Source File\n\nSOURCE=";
-	    if ( ext == ".cpp" && !uiSourcesDir.isEmpty() )
-		t << uiSourcesDir << fname;
-	    else if ( ext == ".h" && !uiHeadersDir.isEmpty() )
-		t << uiHeadersDir << fname;
-	    else
-		t << base;
-	    t << "\n# End Source File" << endl;
-	}
-}
-
-// $$MSVCPROJ_TRANSLATIONS -------------------------------------------
-void VcprojGenerator::writeTranslations( QTextStream &t )
-{
-	t << "# Begin Group \"Translations\"\n";
-	t << "# Prop Default_Filter \"ts\"\n";
-
-	QStringList &list = project->variables()["TRANSLATIONS"];
-	for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-	    QString sify = *it;
-	    sify.replace(QRegExp("/"), "\\" );
-	    QString base = (*it);
-	    base.replace(QRegExp("\\..*$"), "").upper();
-	    base.replace(QRegExp("[^a-zA-Z]"), "_");
-
-	    t << "# Begin Source File\n\nSOURCE=" << sify << endl;
-
-	    /*
-	    QString userdep = "USERDEP_" + base + "=";
-	    QStringList forms = project->variables()["FORMS"];
-	    for ( QStringList::Iterator form = forms.begin(); form != forms.end();++form )
-		userdep += "\"" + (*form) + "\"\t";
-	    QStringList sources = project->variables()["SOURCES"];
-	    for ( QStringList::Iterator source = sources.begin(); source != sources.end();++source )
-		userdep += "\"" + (*source) + "\"\t";
-	    userdep += "\n\n";
-
-	    QString build = userdep + 
-			    "# Begin Custom Build - lupdate'ing " + sify + "...\n"
-			    "InputPath=.\\" + sify + "\n\n"
-			    "\"tmp\\" + sify + "\" : $(SOURCE) \"$(INTDIR)\" \"$(QUTDIR)\"\n"
-			    "\t$(QTDIR)\\bin\\lupdate -ts " + sify + " " + project->projectFile() + "\n"
-			    "\tcopy " + sify +" tmp\\" + sify + "\n"
-			    "# End Custom Build\n\n";
-
-	    t << "USERDEP_" << base << "=\"$(QTDIR)\\bin\\lupdate.exe\" \"$(QTDIR)\\bin\\lrelease.exe\"" << endl << endl;
-
-	    t << "!IF  \"$(CFG)\" == \"" << var("MSVCPROJ_PROJECT") << " - Win32 Release\"\n" << build
-	      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCPROJ_PROJECT") << " - Win32 Debug\"\n" << build 
-	      << "!ENDIF " << endl << endl;
-	    */
-
-	    t << "\n# End Source File" << endl;
-	}
-
-	t << "\n# End Group\n";
-}
-
-// $$MSVCPROJ_STRIPPEDTRANSLATIONS -----------------------------------
-void VcprojGenerator::writeStrippedTranslations( QTextStream &t )
-{
-	QStringList &list = project->variables()["TRANSLATIONS"];
-	for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-	    QString sify = *it;
-	    sify.replace( QRegExp("/"), "\\" );
-	    QString qmfile = sify;
-	    qmfile.replace( QRegExp("\\..*$"), ".qm" );
-	    QString base = sify;
-	    base.replace(QRegExp("\\..*$"), "").upper();
-	    base.replace(QRegExp("[^a-zA-Z]"), "_");
-
-	    QString build = "USERDEP_" + base + "=\"" + sify + "\"\t\"tmp\\" + sify + "\"\n\n" 
-			    "# Begin Custom Build - lrelease'ing " + sify + "...\n"
-			    "InputPath=.\\" + qmfile + "\n\n"
-			    "\"" + qmfile + "\" : $(SOURCE) \"$(INTDIR)\" \"$(QUTDIR)\"\n"
-			    "\t$(QTDIR)\\bin\\lrelease " + sify + "\n\n"
-			    "# End Custom Build\n\n";
-	    
-	    t << "# Begin Source File\n\nSOURCE=.\\" << qmfile << endl;
-	    t << "!IF  \"$(CFG)\" == \"" << var("MSVCPROJ_PROJECT") << " - Win32 Release\"\n" << build
-	      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCPROJ_PROJECT") << " - Win32 Debug\"\n" << build 
-	      << "!ENDIF " << endl << endl;
-	    t << "\n# End Source File" << endl;
-	}
-}
-
-
-
-
-
-
-void VcprojGenerator::init()
+void VcprojGenerator::initOld()
 {
     if( init_flag )
 	return;
+
     init_flag = TRUE;
     QStringList::Iterator it;
 
@@ -602,13 +461,13 @@ void VcprojGenerator::init()
     else if(project->first("TEMPLATE") == "vclib")
 	project->variables()["QMAKE_LIB_FLAG"].append("1");
 
-    // If QMakeSpec is not set in the .pro file, 
+    // If QMakeSpec is not set in the .pro file,
     // grab it from the environment
     if ( project->variables()["QMAKESPEC"].isEmpty() )
 	project->variables()["QMAKESPEC"].append( getenv("QMAKESPEC") );
 
-    bool is_qt = 
-	( project->first("TARGET") == "qt"QTDLL_POSTFIX || 
+    bool is_qt =
+	( project->first("TARGET") == "qt"QTDLL_POSTFIX ||
 	  project->first("TARGET") == "qt-mt"QTDLL_POSTFIX );
 
    QStringList &configs = project->variables()["CONFIG"];
@@ -647,7 +506,7 @@ void VcprojGenerator::init()
     if ( project->isActiveConfig( "qt" ) || project->isActiveConfig( "opengl" ) ) {
 	project->variables()["CONFIG"].append( "windows" );
     }
-    
+
     // Decode version, and add it to $$MSVCPROJ_VERSION --------------
     if ( !project->variables()["VERSION"].isEmpty() ) {
 	QString version = project->variables()["VERSION"][0];
@@ -667,7 +526,7 @@ void VcprojGenerator::init()
 	if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
-		project->variables()["QMAKE_LFLAGS"].append("/base:\"0x39D00000\"");
+		project->variables()["QMAKE_LFLAGS"].append("/BASE:0x39D00000");
 	    }
 	} else {
 	    if(project->isActiveConfig("thread"))
@@ -697,15 +556,15 @@ void VcprojGenerator::init()
     }
 
     // Set target directories ----------------------------------------
-    if ( !project->first("OBJECTS_DIR").isEmpty() )
-	project->variables()["MSVCPROJ_OBJECTSDIR"] = project->first("OBJECTS_DIR");
-    else
-	project->variables()["MSVCPROJ_OBJECTSDIR"] = project->isActiveConfig( "release" )?"Release":"Debug";
-    if ( !project->first("DESTDIR").isEmpty() )
-	project->variables()["MSVCPROJ_TARGETDIR"] = project->first("DESTDIR");
-    else
-	project->variables()["MSVCPROJ_TARGETDIR"] = project->isActiveConfig( "release" )?"Release":"Debug";
-    
+ //   if ( !project->first("OBJECTS_DIR").isEmpty() )
+	//project->variables()["MSVCPROJ_OBJECTSDIR"] = project->first("OBJECTS_DIR");
+ //   else
+	//project->variables()["MSVCPROJ_OBJECTSDIR"] = project->isActiveConfig( "release" )?"Release":"Debug";
+ //   if ( !project->first("DESTDIR").isEmpty() )
+	//project->variables()["MSVCPROJ_TARGETDIR"] = project->first("DESTDIR");
+ //   else
+	//project->variables()["MSVCPROJ_TARGETDIR"] = project->isActiveConfig( "release" )?"Release":"Debug";
+
     // OPENGL --------------------------------------------------------
     if ( project->isActiveConfig("opengl") ) {
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
@@ -716,18 +575,9 @@ void VcprojGenerator::init()
     if ( project->isActiveConfig("thread") ) {
 	if(project->isActiveConfig("qt"))
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_THREAD_SUPPORT" );
-        if ( project->isActiveConfig("dll") || project->first("TARGET") == "qtmain"
-            || !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
-	    project->variables()["MSVCPROJ_MTDEFD"] += project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"];
-	    project->variables()["MSVCPROJ_MTDEF"] += project->variables()["QMAKE_CXXFLAGS_MT_DLL"];
-	} else {
-	    // YES we want to use the DLL even in a static build
-	    project->variables()["MSVCPROJ_MTDEFD"] += project->variables()["QMAKE_CXXFLAGS_MT_DBG"];
-	    project->variables()["MSVCPROJ_MTDEF"] += project->variables()["QMAKE_CXXFLAGS_MT"];
-	}
 	if ( !project->variables()["DEFINES"].contains("QT_DLL") && is_qt
 	     && project->first("TARGET") != "qtmain" )
-	    project->variables()["QMAKE_LFLAGS"].append("/NODEFAULTLIB:\"libc\"");
+	    project->variables()["QMAKE_LFLAGS"].append("/NODEFAULTLIB:libc");
     }
 
     // STL -----------------------------------------------------------
@@ -751,16 +601,16 @@ void VcprojGenerator::init()
 	} else {
 	    project->variables()["TARGET_EXT"].append(".dll");
 	}
-    } 
+    }
     // EXE / LIB -----------------------------------------------------
     else {
-	if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) 
+	if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() )
 	    project->variables()["TARGET_EXT"].append(".exe");
-	else 
+	else
 	    project->variables()["TARGET_EXT"].append(".lib");
     }
 
-    project->variables()["MSVCPROJ_VER"] = "6.00";
+    project->variables()["MSVCPROJ_VER"] = "7.00";
     project->variables()["MSVCPROJ_DEBUG_OPT"] = "/GZ /ZI";
 
     // INCREMENTAL:NO ------------------------------------------------
@@ -771,12 +621,12 @@ void VcprojGenerator::init()
     }
 
     // MOC -----------------------------------------------------------
-    if ( project->isActiveConfig("moc") ) 
+    if ( project->isActiveConfig("moc") )
 	setMocAware(TRUE);
 
 
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
-    
+
     // Run through all variables containing filepaths, and -----------
     // slash-slosh them correctly depending on current OS  -----------
     project->variables()["QMAKE_FILETAGS"] += QStringList::split(' ', "HEADERS SOURCES DEF_FILE RC_FILE TARGET QMAKE_LIBS DESTDIR DLLDESTDIR INCLUDEPATH");
@@ -788,7 +638,7 @@ void VcprojGenerator::init()
     }
 
      // Get filename w/o extention -----------------------------------
-    QString msvcproj_project = ""; 
+    QString msvcproj_project = "";
     QString targetfilename = "";
     if ( project->variables()["TARGET"].count() ) {
 	msvcproj_project = project->variables()["TARGET"].first();
@@ -803,8 +653,8 @@ void VcprojGenerator::init()
 
     // Init base class too -------------------------------------------
     MakefileGenerator::init();
-    
-    
+
+
     if ( msvcproj_project.isEmpty() )
 	msvcproj_project = Option::output.name();
 
@@ -822,15 +672,15 @@ void VcprojGenerator::init()
     if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
 	    project->variables()["MSVCPROJ_TEMPLATE"].append("win32app" + project->first( "VCPROJ_EXTENSION" ) );
 	    if ( project->isActiveConfig("console") ) {
-		project->variables()["MSVCPROJ_CONSOLE"].append("Console");
+		project->variables()["MSVCPROJ_CONSOLE"].append("CONSOLE");
 		project->variables()["MSVCPROJ_WINCONDEF"].append("_CONSOLE");
 		project->variables()["MSVCPROJ_VCPROJTYPE"].append("0x0103");
-		project->variables()["MSVCPROJ_SUBSYSTEM"].append("console");
+		project->variables()["MSVCPROJ_SUBSYSTEM"].append("CONSOLE");
 	    } else {
 		project->variables()["MSVCPROJ_CONSOLE"].clear();
 		project->variables()["MSVCPROJ_WINCONDEF"].append("_WINDOWS");
 		project->variables()["MSVCPROJ_VCPROJTYPE"].append("0x0101");
-		project->variables()["MSVCPROJ_SUBSYSTEM"].append("windows");
+		project->variables()["MSVCPROJ_SUBSYSTEM"].append("WINDOWS");
 	    }
     } else {
         if ( project->isActiveConfig("dll") ) {
@@ -845,24 +695,21 @@ void VcprojGenerator::init()
     project->variables()["MSVCPROJ_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
     project->variables()["MSVCPROJ_LFLAGS" ] += project->variables()["QMAKE_LFLAGS"];
     if ( !project->variables()["QMAKE_LIBDIR"].isEmpty() )
-	project->variables()["MSVCPROJ_LFLAGS" ].append(varGlue("QMAKE_LIBDIR","/LIBPATH:\"","\" /LIBPATH:\"","\""));
+	project->variables()["MSVCPROJ_LFLAGS" ].append(varGlue("QMAKE_LIBDIR","/LIBPATH:"," /LIBPATH:",""));
     project->variables()["MSVCPROJ_CXXFLAGS" ] += project->variables()["QMAKE_CXXFLAGS"];
-    project->variables()["MSVCPROJ_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
-    project->variables()["MSVCPROJ_DEFINES"].append(varGlue("PRL_EXPORT_DEFINES","/D ","" " /D ",""));
+    // We don't use this... Direct manipulation of compiler object
+    //project->variables()["MSVCPROJ_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
+    //project->variables()["MSVCPROJ_DEFINES"].append(varGlue("PRL_EXPORT_DEFINES","/D ","" " /D ",""));
     QStringList &incs = project->variables()["INCLUDEPATH"];
     for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
 	QString inc = (*incit);
 	inc.replace(QRegExp("\""), "");
-	project->variables()["MSVCPROJ_INCPATH"].append("/I \"" + inc + "\"");
+	project->variables()["MSVCPROJ_INCPATH"].append("/I" + inc );
     }
-    project->variables()["MSVCPROJ_INCPATH"].append("/I \"" + specdir() + "\"");
-    if ( project->isActiveConfig("qt") ) {
-	project->variables()["MSVCPROJ_RELDEFS"].append("/D \"QT_NO_DEBUG\"");
-    } else {
-	project->variables()["MSVCPROJ_RELDEFS"].clear();
-    }
+    project->variables()["MSVCPROJ_INCPATH"].append("/I" + specdir());
 
     QString dest;
+    project->variables()["MSVCPROJ_TARGET"] = project->first("TARGET");
     if ( !project->variables()["DESTDIR"].isEmpty() ) {
 	project->variables()["TARGET"].first().prepend(project->first("DESTDIR"));
 	Option::fixPathToTargetOS(project->first("TARGET"));
@@ -870,14 +717,14 @@ void VcprojGenerator::init()
         if ( project->first("TARGET").startsWith("$(QTDIR)") )
 	    dest.replace( QRegExp("\\$\\(QTDIR\\)"), getenv("QTDIR") );
 	project->variables()["MSVCPROJ_TARGET"].append(
-	    QString("/out:\"") + dest + "\"");
+	    QString("/OUT:") + dest );
 	if ( project->isActiveConfig("dll") ) {
 	    QString imp = dest;
 	    imp.replace(QRegExp("\\.dll"), ".lib");
-	    project->variables()["MSVCPROJ_TARGET"].append(QString(" /implib:\"") + imp + "\"");
+	    project->variables()["MSVCPROJ_TARGET"].append(QString(" /IMPLIB:") + imp );
 	}
     }
-    
+
     // DLL COPY ------------------------------------------------------
     if ( project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty() ) {
 	QStringList dlldirs = project->variables()["DLLDESTDIR"];
@@ -895,7 +742,7 @@ void VcprojGenerator::init()
 	project->variables()["MSVCPROJ_COPY_DLL_REL"].append( copydll );
 	project->variables()["MSVCPROJ_COPY_DLL_DBG"].append( copydll );
     }
-    
+
     // ACTIVEQT ------------------------------------------------------
     if ( project->isActiveConfig("activeqt") ) {
 	QString idl = project->variables()["QMAKE_IDL"].first();
@@ -921,7 +768,7 @@ void VcprojGenerator::init()
 
 	    QString executable = project->variables()["MSVCPROJ_TARGETDIRREL"].first() + "\\" + project->variables()["TARGET"].first();
 	    project->variables()["MSVCPROJ_COPY_DLL_REL"].append( regcmd.arg(executable).arg(executable).arg(executable) );
-	    
+
 	    executable = project->variables()["MSVCPROJ_TARGETDIRDEB"].first() + "\\" + project->variables()["TARGET"].first();
 	    project->variables()["MSVCPROJ_COPY_DLL_DBG"].append( regcmd.arg(executable).arg(executable).arg(executable) );
 	} else {
@@ -938,50 +785,87 @@ void VcprojGenerator::init()
 
 	    QString executable = project->variables()["MSVCPROJ_TARGETDIRREL"].first() + "\\" + project->variables()["TARGET"].first();
 	    project->variables()["MSVCPROJ_REGSVR_REL"].append( regcmd.arg(executable).arg(executable).arg(executable) );
-	    
+
 	    executable = project->variables()["MSVCPROJ_TARGETDIRDEB"].first() + "\\" + project->variables()["TARGET"].first();
 	    project->variables()["MSVCPROJ_REGSVR_DBG"].append( regcmd.arg(executable).arg(executable).arg(executable) );
 	}
-	
+
     }
 
-    // RC_FILE -------------------------------------------------------
-    if ( !project->variables()["SOURCES"].isEmpty() || !project->variables()["RC_FILE"].isEmpty() ) {
-	project->variables()["SOURCES"] += project->variables()["RC_FILE"];
-    }
-    
     // FORMS ---------------------------------------------------------
     QStringList &list = project->variables()["FORMS"];
     for( it = list.begin(); it != list.end(); ++it ) {
 	if ( QFile::exists( *it + ".h" ) )
 	    project->variables()["SOURCES"].append( *it + ".h" );
     }
-    
+
     project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "MSVCPROJ_LIBS";
+
+    // Verbose output if "-d -d"...
+    outputVariables();
 }
 
+// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
+
+bool VcprojGenerator::openOutput(QFile &file) const
+{
+    QString outdir;
+    if(!file.name().isEmpty()) {
+	QFileInfo fi(file);
+	if(fi.isDir())
+	    outdir = file.name() + QDir::separator();
+    }
+    if(!outdir.isEmpty() || file.name().isEmpty())
+	file.setName(outdir + project->first("TARGET") + project->first("VCPROJ_EXTENSION"));
+    if(QDir::isRelativePath(file.name())) {
+	QString ofile;
+	ofile = file.name();
+	int slashfind = ofile.findRev('\\');
+	if (slashfind == -1) {
+	    ofile = ofile.replace("-", "_");
+	} else { 
+	    int hypenfind = ofile.find('-', slashfind);
+	    while (hypenfind != -1 && slashfind < hypenfind) {
+		ofile = ofile.replace(hypenfind, 1, "_");
+		hypenfind = ofile.find('-', hypenfind + 1);
+	    }
+	}
+	file.setName(Option::fixPathToLocalOS(QDir::currentDirPath() + Option::dir_sep + ofile));
+    }
+    return Win32MakefileGenerator::openOutput(file);
+}
 
 QString VcprojGenerator::findTemplate(QString file)
 {
     QString ret;
     if(!QFile::exists((ret = file)) &&
        !QFile::exists((ret = QString(Option::mkfile::qmakespec + "/" + file))) &&
-       !QFile::exists((ret = QString(getenv("QTDIR")) + "/mkspecs/win32-msvc.NET/" + file)) &&
+       !QFile::exists((ret = QString(getenv("QTDIR")) + "/mkspecs/win32-msvc.net/" + file)) &&
        !QFile::exists((ret = (QString(getenv("HOME")) + "/.tmake/" + file))))
 	return "";
+    debug_msg(1, "Generator: MSVC.NET: Found template \'%s\'", ret.latin1() );
     return ret;
 }
 
 
-void VcprojGenerator::processPrlVariable(const QString &var, const QStringList &l) 
+void VcprojGenerator::processPrlVariable(const QString &var, const QStringList &l)
 {
     if(var == "QMAKE_PRL_DEFINES") {
 	QStringList &out = project->variables()["MSVCPROJ_DEFINES"];
 	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
 	    if(out.findIndex((*it)) == -1)
-		out.append((" /D \"" + *it + "\""));
+		out.append((" /D " + *it ));
 	}
     } else {
 	MakefileGenerator::processPrlVariable(var, l);
+    }
+}
+
+void VcprojGenerator::outputVariables()
+{
+    debug_msg(3, "Generator: MSVC.NET: List of current variables:" );
+    for ( QMap<QString, QStringList>::ConstIterator it = project->variables().begin(); it != project->variables().end(); ++it) {
+	debug_msg(3, "Generator: MSVC.NET: %s => %s", it.key().latin1(), it.data().join(" | ").latin1() );
     }
 }
