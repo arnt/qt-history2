@@ -28,7 +28,7 @@ class Remote;
 class RemoteSocket;
 class QTime;
 
-class Ball : public QObject, public QCanvasEllipse 
+class Ball : public QObject, public QCanvasEllipse
 {
     Q_OBJECT
 public:
@@ -66,7 +66,7 @@ private:
     static double minBallSpeed;
 };
 
-class Pad : public QObject, public QCanvasRectangle 
+class Pad : public QObject, public QCanvasRectangle
 {
     Q_OBJECT
 public:
@@ -254,7 +254,7 @@ protected:
 };
 
 
-class TableView : public QCanvasView 
+class TableView : public QCanvasView
 {
 public:
     TableView( GameMain *parent = 0, const char *name = 0, WFlags f = 0 );
@@ -266,11 +266,10 @@ protected:
     void focusOutEvent( QFocusEvent * e );
 private:
     GameMain *game;
-    bool mouseTaken;
 };
 
 
-class GameMain : public QMainWindow 
+class GameMain : public QMainWindow
 {
     Q_OBJECT
 public:
