@@ -202,6 +202,7 @@ OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
     // spaces and Borland has problems with "-" in the filenames -- I don't
     // think that there is a need for this on Mac (rms)
     QString base("QtMac-");
+    base = QDir::homeDirPath() + QDir::separator() + base;
 #if defined(EVAL)
     base += "Eval-";
 #elif defined(EDU)
