@@ -25,8 +25,8 @@
 /*****************************************************************************
   External functions
  *****************************************************************************/
+extern CGContextRef qt_macCreateCGHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern QPixmap qt_mac_convert_iconref(IconRef, int, int); //qpixmap_mac.cpp
-extern CGContextRef qt_macCGHandle(const QPaintDevice *pd); // qpaintdevice_mac.cpp
 
 /*****************************************************************************
   QMacCGStyle globals
@@ -62,15 +62,6 @@ static inline HIRect qt_hirectForQRect(const QRect &convertRect, QPainter *p = 0
     HIRect retRect = CGRectMake(x + rect.x(), y + rect.y(), convertRect.width() - offset - rect.width(),
                                 convertRect.height() - offset - rect.height());
     return retRect;
-}
-
-static inline CGContextRef qt_hiGetContext(QPainter *p)
-{
-    //this must be done another way, I will talk to gunnar..
-    p->save();
-    p->restore();
-    //the CGContext
-    return qt_macCGHandle(p->device());
 }
 
 static inline QWidget *qt_abuse_painter_for_widget(QPainter *p)
@@ -209,7 +200,7 @@ void QMacStyleCGFocusWidget::drawFocusRect(QPainter *p) const
 {
     int fo = focusOutset();
     HIRect rect = CGRectMake(fo, fo, width() - 2 * fo, height() - 2 * fo);
-    HIThemeDrawFocusRect(&rect, true, qt_hiGetContext(p), kHIThemeOrientationNormal);
+    HIThemeDrawFocusRect(&rect, true, QMacCGContext(p), kHIThemeOrientationNormal);
 }
 
 class QMacStyleCGPrivate : public QAquaAnimate
@@ -255,27 +246,25 @@ void QMacStyleCG::polish(QWidget *w)
     QPixmap px(0, 0, 32);
     if (qt_mac_is_metal(w)) {
         px.resize(200, 200);
-        QPainter p(&px);
         HIThemeBackgroundDrawInfo bginfo;
         bginfo.version = qt_mac_hitheme_version;
         bginfo.state = kThemeStateActive;
         bginfo.kind = kThemeBackgroundMetal;
         HIRect rect = CGRectMake(0, 0, px.width(), px.height());
-        HIThemeDrawBackground(&rect, &bginfo, static_cast<CGContextRef>(px.macCGHandle()),
-                              kHIThemeOrientationNormal);
-        p.end();
+        CGContextRef context = qt_macCreateCGHandle(&px);
+        HIThemeDrawBackground(&rect, &bginfo, context, kHIThemeOrientationNormal);
+        CGContextRelease(context);
     }
 
     if (::qt_cast<QMenu*>(w)) {
         px.resize(200, 200);
-        QPainter p(&px);
         HIThemeMenuDrawInfo mtinfo;
         mtinfo.version = qt_mac_hitheme_version;
         mtinfo.menuType = kThemeMenuTypePopUp;
         HIRect rect = CGRectMake(0, 0, px.width(), px.height());
-        HIThemeDrawMenuBackground(&rect, &mtinfo, static_cast<CGContextRef>(px.macCGHandle()),
-                                  kHIThemeOrientationNormal);
-        p.end();
+        CGContextRef context = qt_macCreateCGHandle(&px);
+        HIThemeDrawMenuBackground(&rect, &mtinfo, context, kHIThemeOrientationNormal);
+        CGContextRelease(context);
         w->setWindowOpacity(0.95);
     }
     if (!px.isNull()) {
@@ -672,7 +661,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
                                 const QWidget *w) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
-    CGContextRef cg = qt_hiGetContext(p);
+    QMacCGContext cg(p);
     switch (pe) {
     case PE_CheckListExclusiveIndicator:
     case PE_ExclusiveIndicatorMask:
@@ -927,7 +916,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                               const QWidget *w) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
-    CGContextRef cg = qt_hiGetContext(p);
+    QMacCGContext cg(p);
     switch (ce) {
     case CE_PushButton:
         if (const QStyleOptionButton *btn = ::qt_cast<const QStyleOptionButton *>(opt)) {
@@ -1362,7 +1351,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                                      QPainter *p, const QWidget *widget) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
-    CGContextRef cg = qt_hiGetContext(p);
+    QMacCGContext cg(p);
     switch (cc) {
     case CC_Slider:
     case CC_ScrollBar:

@@ -293,6 +293,7 @@ private:
     friend class QFontEngineXLFD;
     friend class QFontEngineXft;
     friend class QMacStyleQDPainter;
+    friend class QMacCGContext;
     friend class QWSManager;
     friend class QPaintEngine;
     friend class QX11PaintEngine;

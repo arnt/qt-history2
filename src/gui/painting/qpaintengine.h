@@ -214,6 +214,7 @@ private:
     friend class QWin32PaintEngine;
     friend class QWin32PaintEnginePrivate;
     friend class QWrapperPaintEngine;
+    friend class QMacCGContext;
 };
 
 class QWrapperPaintEngine : public QPaintEngine

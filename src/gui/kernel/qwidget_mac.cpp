@@ -67,7 +67,6 @@ enum {
 extern void qt_set_paintevent_clipping(QPaintDevice*, const QRegion&); //qpaintengine_mac.cpp
 extern void qt_clear_paintevent_clipping(QPaintDevice *); //qpaintengine_mac.cpp
 extern QSize qt_naturalWidgetSize(QWidget *); //qwidget.cpp
-extern void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QPoint &, bool); //qpaintdevice_mac.cpp
 extern void qt_mac_unicode_reset_input(QWidget *); //qapplication_mac.cpp
 extern void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
 extern void qt_mac_unicode_cleanup(QWidget *); //qapplication_mac.cpp
@@ -117,7 +116,7 @@ static QSize qt_initial_size(QWidget *w) {
     return s + w->contentsMarginSize();    //account for the margins
 }
 
-QPoint posInWindow(QWidget *w)
+QPoint posInWindow(const QWidget *w)
 {
     QPoint ret = w->data->wrect.topLeft();
     while (w && !w->isTopLevel()) {
@@ -362,29 +361,16 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
                     widget->d->clp.translate(pt.x(), pt.y());
                 }
 
-                //update cg context
-                CGContextRef cgref;
-                GetEventParameter(event, kEventParamCGContextRef, typeCGContextRef, NULL, sizeof(cgref), NULL, &cgref);
-                widget->d->cg_hd = cgref;
-#if 0
-                for(QWidget *w = widget; w && !w->isTopLevel(); w = w->parentWidget()) {
-                    if(w->inherits("QWorkspaceChild")) {
-                        CGContextSetAlpha(cgref, 0.2);
-                        break;
-                    }
-                }
-#endif
-
                 //update qd port
-                GrafPtr qdref = 0;
-                if(GetEventParameter(event, kEventParamGrafPort, typeGrafPtr, NULL, sizeof(qdref), NULL, &qdref) != noErr)
-                    GetGWorld(&qdref, 0); //just use the global port..
-                if(qdref)
-                    widget->d->hd = qdref;
+                GrafPtr old_qdref = 0;
+                if(GetEventParameter(event, kEventParamGrafPort, typeGrafPtr, NULL, sizeof(old_qdref), NULL, &old_qdref) != noErr)
+                    GetGWorld(&old_qdref, 0); //just use the global port..
+                if(old_qdref)
+                    widget->d->hd = old_qdref;
 
 #if 0
-                qDebug("asked to draw %p [%s::%s] %p (%p/%p)", hiview, widget->metaObject()->className(), widget->objectName().local8Bit(),
-                       (HIViewRef)(widget->parentWidget() ? widget->parentWidget()->winId() : (WId)-1), widget->hd, widget->cg_hd);
+                qDebug("asked to draw %p [%s::%s] %p (%p)", hiview, widget->metaObject()->className(), widget->objectName().local8Bit(),
+                       (HIViewRef)(widget->parentWidget() ? widget->parentWidget()->winId() : (WId)-1), widget->hd);
                 QVector<QRect> region_rects = qrgn.rects();
                 qDebug("Region! %d", region_rects.count());
                 for(int i = 0; i < region_rects.count(); i++)
@@ -435,12 +421,11 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
                     if(widget->paintingActive())
                         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
                 }
-                SetPort(qdref); //restore the state..
+                SetPort(old_qdref); //restore the state..
 
-                //remove the old pointers, not necessary long-term, but short term it simplies things --Sam
+                //remove the old pointers, not necessary long-term, but short term it simplifies things --Sam
                 widget->d->clp_serial++;
                 widget->d->clp = QRegion();
-                widget->d->cg_hd = 0;
                 widget->d->hd = 0;
             }
         } else if(ekind == kEventControlInitialize) {
@@ -2097,10 +2082,3 @@ QPaintEngine *QWidget::paintEngine() const
     return qt_widget_paintengine;
 }
 
-/*!
-    \internal
-*/
-Qt::HANDLE QWidget::macCGHandle() const
-{
-    return d->cg_hd;
-}

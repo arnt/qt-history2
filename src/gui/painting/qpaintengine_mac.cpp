@@ -45,15 +45,12 @@
 /*****************************************************************************
   External functions
  *****************************************************************************/
-extern QPoint posInWindow(QWidget *w); //qwidget_mac.cpp
-extern QRegion make_region(RgnHandle handle);
+extern QPoint posInWindow(const QWidget *w); //qwidget_mac.cpp
 extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
-extern void qt_mac_clip_cg(CGContextRef, const QRegion &, const QPoint *); //qpaintdevice_mac.cpp
-extern void qt_mac_clip_cg_reset(CGContextRef); //qpaintdevice_mac.cpp
 extern GrafPtr qt_macQDHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
-extern CGContextRef qt_macCGHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
+extern CGContextRef qt_macCreateCGHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
-CGImageRef qt_mac_create_cgimage(const QPixmap &, bool); //qpixmap_mac.cpp
+extern CGImageRef qt_mac_create_cgimage(const QPixmap &, bool); //qpixmap_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 extern const uchar *qt_patternForBrush(int, bool); //qbrush.cpp
 extern QPixmap qt_pixmapForBrush(int, bool); //qbrush.cpp
@@ -91,10 +88,20 @@ void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region)
 void qt_clear_paintevent_clipping(QPaintDevice *dev)
 {
     if(paintevents.isEmpty() || !((*paintevents.top()) == dev)) {
-        qDebug("Qt: internal: WH0A, qt_clear_paintevent_clipping mismatch.");
+        qWarning("Qt: internal: WH0A, qt_clear_paintevent_clipping mismatch.");
         return;
     }
     delete paintevents.pop();
+}
+
+//Implemented for qt_mac_p.h
+QMacCGContext::QMacCGContext(QPainter *p)
+{
+    QPaintEngine *pe = p->d->engine;
+    Q_ASSERT(pe->type() == QPaintEngine::CoreGraphics);
+    pe->updateState(p->d->state); //be sure to sync
+    context = static_cast<QCoreGraphicsPaintEngine*>(pe)->handle();
+    CGContextRetain(context);
 }
 
 /*****************************************************************************
@@ -120,27 +127,23 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
     if(isActive()) {                         // already active painting
         qWarning("QQuickDrawPaintEngine::begin: Painter is already active."
                   "\n\tYou must end() the painter before a second begin()");
-//        return false;
+        return false;
     }
 
-    //save the gworld now, we'll reset it in end()
-    d->saved = new QMacSavedPortInfo;
-
+    d->saved = new QMacSavedPortInfo;     //save the gworld now, we'll reset it in end()
     d->pdev = pdev;
     setActive(true);
     assignf(IsActive | DirtyFont);
-
-    if(d->pdev->devType() == QInternal::Pixmap)         // device is a pixmap
-        ((QPixmap*)d->pdev)->detach();             // will modify it
 
     d->clip.serial = 0;
     d->paintevent = 0;
     d->clip.dirty = false;
     d->offx = d->offy = 0;
-
     bool unclipped = false;
-    if(d->pdev->devType() == QInternal::Widget) {                    // device is a widget
-        QWidget *w = (QWidget*)d->pdev;
+    if(d->pdev->devType() == QInternal::Pixmap) { 
+        static_cast<QPixmap*>(d->pdev)->detach();  //detach it
+    } else if(d->pdev->devType() == QInternal::Widget) { 
+        QWidget *w = static_cast<QWidget*>(d->pdev);
         { //offset painting in widget relative the tld
             QPoint wp = posInWindow(w);
             d->offx = wp.x();
@@ -161,7 +164,7 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
             qWarning("QQuickDrawPaintEngine::begin: Does not support unclipped painting");
         }
     } else if(d->pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
-        QPixmap *pm = (QPixmap*)d->pdev;
+        QPixmap *pm = static_cast<QPixmap*>(d->pdev);
         if(pm->isNull()) {
             qWarning("QQuickDrawPaintEngine::begin: Cannot paint null pixmap");
             end();
@@ -187,7 +190,7 @@ QQuickDrawPaintEngine::end()
 
     delete d->saved;
     d->saved = 0;
-    if(d->pdev->devType() == QInternal::Widget && ((QWidget*)d->pdev)->isDesktop())
+    if(d->pdev->devType() == QInternal::Widget && static_cast<QWidget*>(d->pdev)->isDesktop())
         HideWindow(qt_mac_window_for(static_cast<QWidget*>(d->pdev)));
 
     d->pdev = 0;
@@ -690,7 +693,7 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
     const BitMap *dstbitmap=0;
     switch(d->pdev->devType()) {
     case QInternal::Widget: {
-        QWidget *w = (QWidget *)d->pdev;
+        QWidget *w = static_cast<QWidget*>(d->pdev);
         dstbitmap = GetPortBitMapForCopyBits(GetWindowPort(qt_mac_window_for(w)));
         break; }
     case QInternal::Printer:
@@ -966,18 +969,73 @@ static void qt_mac_color_gradient_function(void *info, const float *in, float *o
     out[3] = 1; //100%
 }
 
+//clipping handling
+static void qt_mac_clip_cg_reset(CGContextRef hd)
+{
+    //setup xforms
+    CGAffineTransform old_xform = CGContextGetCTM(hd);
+    CGContextConcatCTM(hd, CGAffineTransformInvert(old_xform));
+    CGContextConcatCTM(hd, CGAffineTransformIdentity);
+
+    //do the clip reset
+    QRect qrect = QRect(0, 0, 99999, 999999);
+    Rect qdr; SetRect(&qdr, qrect.left(), qrect.top(), qrect.right()+QRect::rectangleMode(), 
+                      qrect.bottom()+QRect::rectangleMode());
+    ClipCGContextToRegion(hd, &qdr, QRegion(qrect).handle(true));
+
+    //reset xforms
+    CGContextConcatCTM(hd, CGAffineTransformInvert(CGContextGetCTM(hd)));
+    CGContextConcatCTM(hd, old_xform); 
+}
+
+static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt, CGAffineTransform *orig_xform)
+{
+    CGAffineTransform old_xform = CGContextGetCTM(hd);
+    if(orig_xform) { //setup xforms
+        CGContextConcatCTM(hd, CGAffineTransformInvert(old_xform));
+        CGContextConcatCTM(hd, *orig_xform);
+    }
+
+    //do the clipping
+    CGContextBeginPath(hd);
+    if(rgn.isEmpty()) {
+        CGContextAddRect(hd, CGRectMake(0, 0, 0, 0));
+    } else {
+        QVector<QRect> rects = rgn.rects();
+        const int count = rects.size();
+        for(int i = 0; i < count; i++) {
+            const QRect &r = rects[i];
+            CGRect mac_r = CGRectMake(r.x(), r.y(), r.width()-(!QRect::rectangleMode()), 
+                                      r.height()-(!QRect::rectangleMode()));
+            if(pt) {
+                mac_r.origin.x -= pt->x();
+                mac_r.origin.y -= pt->y();
+            }
+            CGContextAddRect(hd, mac_r);
+        }
+    }
+    CGContextClip(hd);
+
+    if(orig_xform) {//reset xforms
+        CGContextConcatCTM(hd, CGAffineTransformInvert(CGContextGetCTM(hd)));
+        CGContextConcatCTM(hd, old_xform); 
+    }
+}
+
 /*****************************************************************************
   QCoreGraphicsPaintEngine member functions
  *****************************************************************************/
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine()
     : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate),
-                            PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PainterPaths|PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill))
+                            PaintEngineFeatures(CoordTransform|PenWidthTransform|PixmapTransform|PainterPaths
+                                                |PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill))
 {
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr)
-    : QQuickDrawPaintEngine(dptr, PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PainterPaths|PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill))
+    : QQuickDrawPaintEngine(dptr, PaintEngineFeatures(CoordTransform|PenWidthTransform|PixmapTransform|PainterPaths
+                                                      |PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill))
 {
 }
 
@@ -991,21 +1049,20 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     if(isActive()) {                         // already active painting
         qWarning("QCoreGraphicsPaintEngine::begin: Painter is already active."
                   "\n\tYou must end() the painter before a second begin()");
-//        return false;
+        return false;
     }
 
+    //initialization
+    d->offx = d->offy = 0; // (quickdraw compat!!)
     d->pdev = pdev;
-    d->hd = qt_macCGHandle(d->pdev);
+    d->hd = qt_macCreateCGHandle(pdev);
+    d->orig_xform = CGContextGetCTM(d->hd);
     if(d->shading) {
         CGShadingRelease(d->shading);
         d->shading = 0;
     }
-#if 0
-    CGContextSetShadowWithColor(d->hd, CGSizeMake(0, 0), 0, 0);
-#endif
-    d->offx = d->offy = 0; // (quickdraw compat!!)
+    d->setClip(0);  //clear the context's cliping
 
-    setupCGClip(0); //get handle to drawable
     setActive(true);
     assignf(IsActive | DirtyFont);
 
@@ -1046,11 +1103,6 @@ bool
 QCoreGraphicsPaintEngine::end()
 {
     setActive(false);
-    if(d->hd) {
-        CGContextSynchronize(d->hd);
-        qt_mac_clip_cg_reset(d->hd);
-        d->hd = 0;
-    }
     if(d->pdev->devType() == QInternal::Widget && ((QWidget*)d->pdev)->isDesktop())
         HideWindow(qt_mac_window_for(static_cast<QWidget*>(d->pdev)));
     if(d->shading) {
@@ -1058,6 +1110,11 @@ QCoreGraphicsPaintEngine::end()
         d->shading = 0;
     }
     d->pdev = 0;
+    if(d->hd) {
+        CGContextSynchronize(d->hd);
+        CGContextRelease(d->hd);
+        d->hd = 0;
+    }
     return true;
 }
 
@@ -1212,16 +1269,7 @@ void
 QCoreGraphicsPaintEngine::updateXForm(const QWMatrix &matrix)
 {
     Q_ASSERT(isActive());
-#if 0
-    CGAffineTransform xf = CGAffineTransformInvert(CGContextGetCTM(d->hd));
-    xf = CGAffineTransformConcat(xf, CGAffineTransformMake(matrix.m11(), matrix.m12(),
-                                                           matrix.m21(), matrix.m22(),
-                                                           matrix.dx(),  matrix.dy()));
-    CGContextConcatCTM(d->hd, xf);
-//    CGContextSetTextMatrix(d->hd, xf);
-#else
-    Q_UNUSED(matrix);
-#endif
+    d->setTransform(matrix.isIdentity() ? 0 : &matrix);
 }
 
 void
@@ -1236,7 +1284,7 @@ QCoreGraphicsPaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipE
         clearf(ClipOn);
     }
     if(clipEnabled || old_clipEnabled)
-        setupCGClip(clipEnabled ? &clipRegion : 0);
+        d->setClip(clipEnabled ? &clipRegion : 0);
 }
 
 void
@@ -1533,7 +1581,7 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
                                  qt_mac_convert_color_to_cg(col.alpha()));
     }
     QRegion rgn(r);
-    qt_mac_clip_cg(d->hd, rgn, 0);
+    qt_mac_clip_cg(d->hd, rgn, 0, 0);
 
     const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();
     CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy), pm.width()*sx, pm.height()*sy);
@@ -1554,25 +1602,11 @@ QCoreGraphicsPaintEngine::cleanup()
 {
 }
 
-void QCoreGraphicsPaintEngine::setupCGClip(const QRegion *rgn)
+CGContextRef 
+QCoreGraphicsPaintEngine::handle() const
 {
-    if(d->hd) {
-        qt_mac_clip_cg_reset(d->hd);
-        QPoint mp(0, 0);
-        if(d->pdev->devType() == QInternal::Widget) {
-            QWidget *w = static_cast<QWidget*>(d->pdev);
-            mp = posInWindow(w);
-            qt_mac_clip_cg(d->hd, w->d->clippedRegion(), &mp);
-        }
-        if(paintevent_item *pevent = qt_mac_get_paintevent()) {
-            if((*pevent) == d->pdev)
-                qt_mac_clip_cg(d->hd, pevent->region(), &mp);
-        }
-        if(rgn)
-            qt_mac_clip_cg(d->hd, *rgn, 0); //already widget relative
-    }
+    return d->hd;
 }
-
 
 void
 QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p)
@@ -1615,6 +1649,25 @@ void QCoreGraphicsPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     CGContextSetShouldAntialias(d->hd, hints & QPainter::LineAntialiasing);
     CGContextSetShouldSmoothFonts(d->hd, hints & QPainter::TextAntialiasing);
+}
+
+void QCoreGraphicsPaintEnginePrivate::setClip(const QRegion *rgn)
+{
+    if(hd) {
+        qt_mac_clip_cg_reset(hd);
+        QPoint mp(0, 0);
+        if(d->pdev->devType() == QInternal::Widget) {
+            QWidget *w = static_cast<QWidget*>(pdev);
+            mp = posInWindow(w);
+            qt_mac_clip_cg(hd, w->d->clippedRegion(), &mp, &orig_xform);
+        }
+        if(paintevent_item *pevent = qt_mac_get_paintevent()) {
+            if((*pevent) == pdev)
+                qt_mac_clip_cg(hd, pevent->region(), &mp, &orig_xform);
+        }
+        if(rgn)
+            qt_mac_clip_cg(hd, *rgn, 0, &orig_xform); //already widget relative
+    }
 }
 
 void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)

@@ -23,7 +23,6 @@
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
-QPaintDevice *g_cur_paintdev = 0;
 
 
 /*****************************************************************************
@@ -36,7 +35,7 @@ QPaintDevice *g_cur_paintdev = 0;
  *****************************************************************************/
 QPaintDevice::QPaintDevice(uint devflags)
 {
-    if(!qApp) {                                // global constructor
+    if(!qApp) {
         qFatal("QPaintDevice: Must construct a QApplication before a "
                 "QPaintDevice");
         return;
@@ -57,53 +56,6 @@ int QPaintDevice::metric(int) const
     return 0;
 }
 
-void qt_mac_clip_cg_reset(CGContextRef hd)
-{
-    QRect qrect = QRect(0, 0, 99999, 999999);
-    Rect qdr; SetRect(&qdr, qrect.left(), qrect.top(), qrect.right()+QRect::rectangleMode(), 
-                      qrect.bottom()+QRect::rectangleMode());
-    ClipCGContextToRegion(hd, &qdr, QRegion(qrect).handle(true));
-}
-
-void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt)
-{
-    CGContextBeginPath(hd);
-    if(rgn.isEmpty()) {
-        CGContextAddRect(hd, CGRectMake(0, 0, 0, 0));
-    } else {
-        QVector<QRect> rects = rgn.rects();
-        const int count = rects.size();
-        for(int i = 0; i < count; i++) {
-            const QRect &r = rects[i];
-            CGRect mac_r = CGRectMake(r.x(), r.y(), r.width()-(!QRect::rectangleMode()), 
-                                      r.height()-(!QRect::rectangleMode()));
-            if(pt) {
-                mac_r.origin.x -= pt->x();
-                mac_r.origin.y -= pt->y();
-            }
-            CGContextAddRect(hd, mac_r);
-        }
-    }
-    CGContextClip(hd);
-}
-
-/*! \internal
-
-    Returns the CoreGraphics CGContextRef of the paint device. 0 is returned if it
-    can't be obtained.
-*/
-
-CGContextRef qt_macCGHandle(const QPaintDevice *pd)
-{
-    if (pd->devType() == QInternal::Widget)
-        return static_cast<CGContextRef>(static_cast<const QWidget *>(pd)->macCGHandle());
-    else if (pd->devType() == QInternal::Pixmap)
-        return static_cast<CGContextRef>(static_cast<const QPixmap *>(pd)->macCGHandle());
-    return 0;
-}
-
-
-
 /*! \internal
 
     Returns the QuickDraw CGrafPtr of the paint device. 0 is returned if it
@@ -116,6 +68,33 @@ GrafPtr qt_macQDHandle(const QPaintDevice *pd)
         return static_cast<GrafPtr>(static_cast<const QWidget *>(pd)->handle());
     else if (pd->devType() == QInternal::Pixmap)
         return static_cast<GrafPtr>(static_cast<const QPixmap *>(pd)->handle());
+    return 0;
+}
+
+/*! \internal
+
+    Returns the CoreGraphics CGContextRef of the paint device. 0 is
+    returned if it can't be established. It is the caller's
+    responsiblity to CGContextRelease the context when finished using
+    it.
+*/
+
+CGContextRef qt_macCreateCGHandle(const QPaintDevice *pdev)
+{
+    if(pdev->devType() == QInternal::Pixmap || pdev->devType() == QInternal::Widget) {
+        CGContextRef ret = 0;
+        GrafPtr port = qt_macQDHandle(pdev);
+        if(OSStatus err = CreateCGContextForPort(port, &ret)) {
+            qWarning("Unable to create CGContext for port %p [%ld]", port, err);
+            return 0;
+        }
+        SyncCGContextOriginWithPort(ret, port);
+        Rect port_rect;
+        GetPortBounds(port, &port_rect);
+        CGContextTranslateCTM(ret, 0, (port_rect.bottom - port_rect.top));        
+        CGContextScaleCTM(ret, 1, -1);
+        return ret;
+    }
     return 0;
 }
 

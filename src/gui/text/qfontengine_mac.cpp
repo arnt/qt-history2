@@ -26,10 +26,8 @@
 #include <ApplicationServices/ApplicationServices.h>
 
 //Externals
-void qstring2pstring(QString s, Str255 str, TextEncoding encoding=0, int len=-1); //qglobal.cpp
-QByteArray pstring2qstring(const unsigned char *c); //qglobal.cpp
-extern CGContextRef qt_macCGHandle(const QPaintDevice *pd); // qpaintdevice_mac.pp
-unsigned char * p_str(const QString &); //qglobal.cpp
+extern void qstring2pstring(QString s, Str255 str, TextEncoding encoding=0, int len=-1); //qglobal.cpp
+extern QByteArray pstring2qstring(const unsigned char *c); //qglobal.cpp
 
 //Generic engine
 QFontEngine::~QFontEngine()
@@ -102,7 +100,7 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
     int txop = pState->txop;
     QWMatrix xmat = pState->matrix;
 
-    if(!p->hasFeature(QPaintEngine::CoordTransform)) {
+    if(/*true ||*/ !p->hasFeature(QPaintEngine::CoordTransform)) {
         if(txop >= QPainter::TxScale) {
             int aw = si.width, ah = si.ascent + si.descent + 1;
             if(aw == 0 || ah == 0)
@@ -150,7 +148,7 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
     bool textAA = p->renderHints() & QPainter::TextAntialiasing;
     bool lineAA = p->renderHints() & QPainter::LineAntialiasing;
     if(p->type() == QPaintEngine::CoreGraphics && textAA != lineAA)
-        CGContextSetShouldAntialias(qt_macCGHandle(p->painter()->device()), textAA);
+        CGContextSetShouldAntialias(QMacCGContext(p->painter()), textAA);
 
     int w = 0;
     uchar task = DRAW;
@@ -182,7 +180,7 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
         p->painter()->setBrush(oldBrush);
     }
     if(p->type() == QPaintEngine::CoreGraphics && textAA != lineAA)
-        CGContextSetShouldAntialias(qt_macCGHandle(p->painter()->device()), !textAA);
+        CGContextSetShouldAntialias(QMacCGContext(p->painter()), !textAA);
 }
 
 glyph_metrics_t
@@ -388,15 +386,6 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         }
         if(fontDef.stretch != 100)
             tf = CGAffineTransformScale(tf, fontDef.stretch/100, 1);
-#if 0 //grr this just doesn't work, how frustrating..
-        if(pState) {
-            CGAffineTransform xf = CGAffineTransformMake(pState->matrix.m11(), pState->matrix.m12(),
-                                                         pState->matrix.m21(), pState->matrix.m22(),
-                                                         pState->matrix.dx(),  pState->matrix.dy());
-            tf = CGAffineTransformConcat(xf, tf);
-        }
-#endif
-
 
         const ATSUAttributeTag tag = kATSUFontMatrixTag;
         ByteCount size = sizeof(tf);
@@ -465,16 +454,20 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     arr++;
 
     tags[arr] = kATSUCGContextTag;
-    CGContextRef ctx = NULL;
-    CGrafPtr ctx_port = 0; //only set if the ctx is a ctx created from a port
+    CGContextRef ctx = 0;
+    CGrafPtr ctx_port = 0; //only set if the ctx is created from a port
     if(p && p->type() == QPaintEngine::CoreGraphics) {
         if(p && device) {
-            ctx = qt_macCGHandle(p->painter()->device());
+            QMacCGContext q_ctx(p->painter());
+            ctx = (CGContextRef)q_ctx;
+            CGContextRetain(ctx);
         } else {
             static QPixmap *pixmap = NULL;
             if(!pixmap)
                 pixmap = new QPixmap(1, 1, 32);
-            ctx = qt_macCGHandle(pixmap);
+            QMacCGContext q_ctx(pixmap);
+            ctx = (CGContextRef)q_ctx;
+            CGContextRetain(ctx);
         }
     } else {
         QRegion rgn;
@@ -486,22 +479,26 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
             ATSUFontID fond;
             ATSUFONDtoFontID(fontref, NULL, &fond);
             TextFont(fond);
+
+            GetGWorld(&ctx_port, 0);
+            if(OSStatus err = QDBeginCGContext(ctx_port, &ctx)) {
+                qWarning("Qt: internal: WH0A, QDBeginCGContext(%ld) failed. %s:%d", err, __FILE__, __LINE__);
+                return 0;
+            }
+            if(task & DRAW) {
+                Rect clipr;
+                GetPortBounds(ctx_port, &clipr);
+                ClipCGContextToRegion(ctx, &clipr, rgn.handle(true));
+            }
         } else {
+            Q_ASSERT(!(task & DRAW));
             static QPixmap *pixmap = 0;
             if(!pixmap)
                 pixmap = new QPixmap(1, 1, 32);
             QMacSavedPortInfo::setPaintDevice(pixmap);
-        }
-
-        GetGWorld(&ctx_port, 0);
-        if(OSStatus err = QDBeginCGContext(ctx_port, &ctx)) {
-            qWarning("Qt: internal: WH0A, QDBeginCGContext(%ld) failed. %s:%d", err, __FILE__, __LINE__);
-            return 0;
-        }
-        if(task & DRAW) {
-            Rect clipr;
-            GetPortBounds(ctx_port, &clipr);
-            ClipCGContextToRegion(ctx, &clipr, rgn.handle(true));
+            QMacCGContext q_ctx(pixmap);
+            ctx = (CGContextRef)q_ctx;
+            CGContextRetain(ctx);
         }
     }
     valueSizes[arr] = sizeof(ctx);

@@ -115,10 +115,6 @@ public:
     HBITMAP hbm()                const;
 #endif
 
-#if defined(Q_WS_MAC)
-    virtual Qt::HANDLE macCGHandle() const;
-#endif
-
     int serialNumber()        const;
 
     Optimization optimization() const;

@@ -49,6 +49,40 @@ public:
     ~QMacMouseEvent() { Q_ASSERT(events.top() == event); events.pop(); ReleaseEvent(event); event = 0; }
 };
 
+class QMacCGContext
+{
+    CGContextRef context;
+public:
+    QMacCGContext(QPainter *p); //qpaintengine_mac.cpp
+    inline QMacCGContext() { context = 0; }
+    inline QMacCGContext(const QPaintDevice *pdev) {
+        extern CGContextRef qt_macCreateCGHandle(const QPaintDevice *);
+        context = qt_macCreateCGHandle(pdev);
+    }
+    inline QMacCGContext(CGContextRef cg, bool takeOwnership=false) {
+        context = cg;
+        if(!takeOwnership)
+            CGContextRetain(context);
+    }
+    inline QMacCGContext(const QMacCGContext &copy) {
+        context = copy.context;
+        CGContextRetain(context);
+    }
+    inline ~QMacCGContext() {
+        if(context) 
+            CGContextRelease(context);
+    }
+    bool isNull() const { return context; }
+    inline operator CGContextRef() { return context; }
+    inline QMacCGContext &operator=(CGContextRef cg) { 
+        if(context) 
+            CGContextRelease(context);
+        context = cg; 
+        CGContextRetain(context); //we do not take ownership
+        return *this; 
+    }
+};
+
 #include "qpaintdevice.h"
 extern WindowPtr qt_mac_window_for(const QWidget*); //qwidget_mac.cpp
 extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp

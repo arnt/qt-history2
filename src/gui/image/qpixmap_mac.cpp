@@ -686,20 +686,6 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     return pm;
 }
 
-/*!
-    \internal
-*/
-Qt::HANDLE QPixmap::macCGHandle() const
-{
-    if(!data->cg_hd && data->hd) {
-        CreateCGContextForPort(static_cast<CGrafPtr>(data->hd), reinterpret_cast<CGContextRef*>(&data->cg_hd));
-        SyncCGContextOriginWithPort(static_cast<CGContextRef>(data->cg_hd), static_cast<CGrafPtr>(data->hd));
-        CGContextTranslateCTM(static_cast<CGContextRef>(data->cg_hd), 0, height());
-        CGContextScaleCTM(static_cast<CGContextRef>(data->cg_hd), 1, -1);
-    }
-    return data->cg_hd;
-}
-
 bool QPixmap::hasAlpha() const
 {
     return data->alphapm || data->mask;

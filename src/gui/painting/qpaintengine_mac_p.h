@@ -74,8 +74,9 @@ public:
     }
 
     //state info (shared with QD)
+    CGAffineTransform orig_xform;
 
-    //cg strucutres
+    //cg structures
     CGContextRef hd;
     CGShadingRef shading;
 
@@ -83,10 +84,23 @@ public:
     enum { CGStroke=0x01, CGEOFill=0x02, CGFill=0x04 };
     void drawPath(uchar ops, CGMutablePathRef path = 0);
     inline CGRect adjustedRect(const QRect &r) {
-        int adjustment = (current.pen.style() != Qt::NoPen
-                            && !(renderhints & QPainter::LineAntialiasing)) ? 1 : 0;
+        const int adjustment = (current.pen.style() != Qt::NoPen 
+                                && !(renderhints & QPainter::LineAntialiasing)) ? 1 : 0;
         return CGRectMake(r.x(), r.y() + adjustment,
                           r.width() - adjustment, r.height() - adjustment);
+    }
+    void setClip(const QRegion *rgn=0);
+    inline void setTransform(const QWMatrix *matrix=0)
+    {
+        CGContextConcatCTM(hd, CGAffineTransformInvert(CGContextGetCTM(hd)));
+        CGContextConcatCTM(hd, orig_xform);
+        if(matrix) {
+            CGAffineTransform xform = CGAffineTransformMake(matrix->m11(), matrix->m12(),
+                                                            matrix->m21(), matrix->m22(),
+                                                            matrix->dx(),  matrix->dy());
+            CGContextConcatCTM(hd, xform);
+        }
+        CGContextSetTextMatrix(hd, CGContextGetCTM(hd));
     }
 };
 
