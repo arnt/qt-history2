@@ -1,7 +1,9 @@
 TEMPLATE = app
 TARGET	 = openglax
 
-CONFIG	+= qt opengl warn_off release activeqt
+CONFIG	+= qt warn_off release activeqt
+
+QCONFIG += opengl
 
 HEADERS	 = glbox.h \
 	   globjwin.h

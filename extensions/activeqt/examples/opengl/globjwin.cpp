@@ -17,7 +17,6 @@
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 #include <qapplication.h>
-#include <qkeycode.h>
 #include "globjwin.h"
 #include "glbox.h"
 
@@ -27,13 +26,12 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
 {
 
     // Create a menu
-    QPopupMenu *file = new QPopupMenu( this );
-    file->insertItem( "Exit",  qApp, SLOT(quit()), CTRL+Key_Q );
+    QMenu *file = new QPopupMenu( this );
+    file->addAction( "Exit",  qApp, SLOT(quit())/*, CTRL+Key_Q*/);
 
     // Create a menu bar
     QMenuBar *m = new QMenuBar( this );
-    m->setSeparator( QMenuBar::InWindowsStyle );
-    m->insertItem("&File", file );
+    m->addMenu("&File", file );
 
     // Create a nice frame to put around the OpenGL widget
     QFrame* f = new QFrame( this, "frame" );
@@ -44,15 +42,21 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
     GLBox* c = new GLBox( f, "glbox");
 
     // Create the three sliders; one for each rotation axis
-    QSlider* x = new QSlider ( 0, 360, 60, 0, QSlider::Vertical, this, "xsl" );
+    QSlider* x = new QSlider(QSlider::Vertical, this);
+    x->setMaximum(360);
+    x->setPageStep(60);
     x->setTickmarks( QSlider::Left );
     QObject::connect( x, SIGNAL(valueChanged(int)),c,SLOT(setXRotation(int)) );
 
-    QSlider* y = new QSlider ( 0, 360, 60, 0, QSlider::Vertical, this, "ysl" );
+    QSlider* y = new QSlider(QSlider::Vertical, this);
+    y->setMaximum(360);
+    y->setPageStep(60);
     y->setTickmarks( QSlider::Left );
     QObject::connect( y, SIGNAL(valueChanged(int)),c,SLOT(setYRotation(int)) );
 
-    QSlider* z = new QSlider ( 0, 360, 60, 0, QSlider::Vertical, this, "zsl" );
+    QSlider* z = new QSlider(QSlider::Vertical, this);
+    z->setMaximum(360);
+    z->setPageStep(60);
     z->setTickmarks( QSlider::Left );
     QObject::connect( z, SIGNAL(valueChanged(int)),c,SLOT(setZRotation(int)) );
 
