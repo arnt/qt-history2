@@ -693,7 +693,6 @@ DesignerFormInterfaceImpl::DesignerFormInterfaceImpl( FormListItem *fw, QUnknown
     : DesignerFormInterface(), item( fw ), appIface( ai ), ref( 0 )
 {
     appIface->addRef();
-
     if ( !item ) {
 	FormList *fl = 0;
 	QWidget *mw = qApp ? qApp->mainWidget() : 0;
@@ -736,9 +735,9 @@ bool DesignerFormInterfaceImpl::setProperty( const QCString& p, const QVariant& 
 
 void DesignerFormInterfaceImpl::addWidget( QWidget *w )
 {
-    if ( !item || !item->formWindow() )
+    if ( !MainWindow::self || !MainWindow::self->activeForm() )
 	return;
-    item->formWindow()->insertWidget( w, TRUE );
+    MainWindow::self->activeForm()->insertWidget( w, TRUE );
 }
 
 void DesignerFormInterfaceImpl::save() const

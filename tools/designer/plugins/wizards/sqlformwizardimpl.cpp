@@ -207,7 +207,7 @@ void SqlFormWizard::accept()
 	editorDummy = f->createEditor( widget, field );
 	editor = wfIface->create( editorDummy->className(), widget, QString( QString( editorDummy->className() ) + field->name()) );
 	delete editorDummy;
-	editor->setGeometry( col+SPACING, row+SPACING, SPACING*3, SPACING );
+	editor->setGeometry( col+ SPACING * 5, row+SPACING, SPACING*3, SPACING );
 	mdbIface->setPropertyChanged( editor, "geometry", TRUE );
 	fIface->addWidget( editor );
 

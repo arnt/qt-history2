@@ -117,6 +117,8 @@ public:
 
     Project *currProject() const { return currentProject; }
 
+    FormWindow *activeForm() const { return lastActiveFormWindow; }
+
 public slots:
     void showProperties( QObject *w );
     void updateProperties( QObject *w );
