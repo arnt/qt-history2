@@ -3123,6 +3123,7 @@ void MainWindow::finishedRun()
 	    e->editorInterface()->setMode( EditorInterface::Editing );
 	e->clearStackFrame();
     }
+    emit runFinished();
 }
 
 void MainWindow::enableAll( bool enable )

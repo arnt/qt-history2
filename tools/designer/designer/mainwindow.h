@@ -195,6 +195,7 @@ signals:
     void projectChanged();
     void editorChanged();
     void runtimeError( const QString &message );
+    void runFinished();
 
 protected:
     bool eventFilter( QObject *o, QEvent *e );
