@@ -551,6 +551,8 @@ public:
 
     void clear() { if ( sh->count == 1 ) sh->clear(); else { sh->deref(); sh = new QMapPrivate<Key,T>; } }
 
+    bool operator==( const QMap& ) const;
+
 protected:
     /**
      * Helpers
