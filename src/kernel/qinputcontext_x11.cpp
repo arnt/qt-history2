@@ -427,7 +427,7 @@ void QInputContext::setComposePosition(int x, int y)
 	XVaNestedList preedit_attr =
 	    XVaCreateNestedList(0,
 				XNSpotLocation, &point,
-				XNFontSet, fontset,
+
 				(char *) 0);
 	XSetICValues((XIC) ic, XNPreeditAttributes, preedit_attr, (char *) 0);
 	XFree(preedit_attr);
@@ -448,7 +448,7 @@ void QInputContext::setComposeArea(int x, int y, int w, int h)
 
 	XVaNestedList preedit_attr = XVaCreateNestedList(0,
 							 XNArea, &rect,
-							 XNFontSet, fontset,
+
 							 (char *) 0);
 	XSetICValues((XIC) ic, XNPreeditAttributes, preedit_attr, (char *) 0);
 	XFree(preedit_attr);
@@ -490,10 +490,16 @@ void QInputContext::setFocus()
 void QInputContext::setXFontSet(const QFont &f)
 {
 #if !defined(QT_NO_XIM)
-    if ( font == f ) // nothing to do
-	return;
+    if (font == f) return; // nothing to do
+    font = f;
 
-    fontset = getFontSet( f );
+    XFontSet fs = getFontSet(font);
+    if (fontset == fs) return; // nothing to do
+    fontset = fs;
+
+    XVaNestedList preedit_attr = XVaCreateNestedList(0, XNFontSet, fontset, (char *) 0);
+    XSetICValues((XIC) ic, XNPreeditAttributes, preedit_attr, (char *) 0);
+    XFree(preedit_attr);
 #else
     Q_UNUSED( f );
 #endif
