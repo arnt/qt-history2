@@ -91,9 +91,6 @@ void EditSlots::okClicked()
 	QPtrList<Command> commands;
 	QListViewItemIterator it( slotListView );
 	QStrList lst;
-	lst.append( "accept()" );
-	lst.append( "reject()" );
-	lst.append( "done(int)" );
 	for ( ; it.current(); ++it ) {
 	    MetaDataBase::Slot slot;
 	    slot.slot = it.current()->text( 0 );
