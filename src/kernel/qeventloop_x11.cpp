@@ -223,23 +223,18 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 		   d->sn_vec[2].list ? &d->sn_vec[2].select_fds : 0,
 		   tm );
 
-    if ( nsel == -1 ) {
-	if ( errno == EINTR || errno == EAGAIN ) {
-	    errno = 0;
-	    return (nevents > 0);
-	} else {
-	    qDebug( "QEventLoop::processNextEvent: select error" );
-	    perror( "select" );
-	    ; // select error
-	}
-    }
-
-#undef FDCAST
-
     // relock the GUI mutex before processing any pending events
 #if defined(QT_THREAD_SUPPORT)
     locker.mutex()->lock();
 #endif
+
+    if ( nsel == -1 ) {
+	if ( errno != EINTR && errno != EAGAIN )
+	    perror( "select" );
+	return (nevents > 0);
+    }
+
+#undef FDCAST
 
     // some other thread woke us up... consume the data on the thread pipe so that
     // select doesn't immediately return next time
