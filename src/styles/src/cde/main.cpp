@@ -15,6 +15,7 @@ public:
     QStyle *create( const QString& );
 
     bool init();
+    void cleanup();
     bool canUnload() const;
 
 private:
@@ -75,6 +76,11 @@ QStyle* CDEStyle::create( const QString& s )
 bool CDEStyle::init()
 {
     return TRUE;
+}
+
+void CDEStyle::cleanup() 
+{
+    delete style;
 }
 
 bool CDEStyle::canUnload() const
