@@ -1560,7 +1560,7 @@ void QWidget::showMinimized()
 bool QWidget::isMinimized() const
 {
     // true for non-toplevels that have the minimized flag, e.g. MDI children
-    return qt_wstate_iconified( winId() ) || ( !isTopLevel() && testWState( WState_Minimized ) );
+    return (isTopLevel() && qt_wstate_iconified( winId() )) || ( !isTopLevel() && testWState( WState_Minimized ) );
 }
 
 bool QWidget::isMaximized() const
