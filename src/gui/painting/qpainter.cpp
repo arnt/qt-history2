@@ -24,7 +24,9 @@
 #include "qpolygon.h"
 #include "qtextlayout.h"
 #include "qwidget.h"
+
 #include <private/qfontengine_p.h>
+#include <private/qpaintengine_p.h>
 #include <private/qpainterpath_p.h>
 #include <private/qtextengine_p.h>
 #include <private/qwidget_p.h>
@@ -280,12 +282,28 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const void *data, ShapeType s
         path.addPolygon(*reinterpret_cast<const QPolygon*>(data));
         break;
     }
+
+    bool doRestore = false;
+    int width = state->pen.width();
+    if (state->pen.width() == 0) {
+        if (state->txop != TxNone && state->pen.width() == 0) {
+            path = path * state->matrix;
+            q->save();
+            q->resetMatrix();
+        }
+        width = 1;
+    }
+
     QPainterPathStroker stroker;
-    stroker.setWidth(state->pen.width());
+    stroker.setWidth(width);
     stroker.setStyle(state->pen.style());
     stroker.setCapStyle(state->pen.capStyle());
     stroker.setJoinStyle(state->pen.joinStyle());
+
     q->fillPath(stroker.createStroke(path), QBrush(state->pen.color()));
+
+    if (doRestore)
+        q->restore();
 }
 
 
@@ -337,7 +355,8 @@ void QPainterPrivate::draw_helper(const void *data, Qt::FillRule fillRule, Shape
     // Creates an outline path to handle the stroking.
     if ((op & StrokeDraw)
         && (emulationSpecifier & QPaintEngine::PenWidthTransform
-            || emulationSpecifier & QPaintEngine::AlphaStroke))
+            || emulationSpecifier & QPaintEngine::AlphaStroke
+            || emulationSpecifier & QPaintEngine::LineAntialiasing))
         outlineMode = PathBased;
 
     if (op & FillDraw) {

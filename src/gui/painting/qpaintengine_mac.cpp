@@ -1013,14 +1013,16 @@ QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine()
     : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate),
                             PaintEngineFeatures(CoordTransform|PenWidthTransform|PatternTransform|PixmapTransform|PainterPaths
                                                 |PixmapScale|UsesFontEngine|LinearGradients
-                                                |ClipTransform|AlphaStroke|AlphaFill|AlphaPixmap))
+                                                |ClipTransform|AlphaStroke|AlphaFill|AlphaPixmap
+                                                |FillAntialiasing|LineAntialiasing))
 {
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr)
     : QQuickDrawPaintEngine(dptr, PaintEngineFeatures(CoordTransform|PenWidthTransform|PatternTransform|PixmapTransform|PainterPaths
                                                       |PixmapScale|UsesFontEngine|LinearGradients
-                                                      |ClipTransform|AlphaStroke|AlphaFill|AlphaPixmap))
+                                                      |ClipTransform|AlphaStroke|AlphaFill|AlphaPixmap
+                                                      |FillAntialiasing|LineAntialiasing))
 {
 }
 
@@ -1273,7 +1275,7 @@ QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperatio
         d->setClip(0);
     } else {
         setf(ClipOn);
-        QRegion clipRegion(p.toFillPolygon().toPointArray(), 
+        QRegion clipRegion(p.toFillPolygon().toPointArray(),
                            p.fillRule() == Qt::WindingFill);
         if(op == Qt::ReplaceClip) {
             d->current.clip = clipRegion;

@@ -830,6 +830,7 @@ QX11PaintEngine::QX11PaintEngine()
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
                    | AlphaFillPolygon
                    | AlphaPixmap
+                   | FillAntialiasing
 #endif
         )
 {
@@ -849,6 +850,7 @@ QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
                    | AlphaFillPolygon
                    | AlphaPixmap
+                   | FillAntialiasing
 #endif
         )
 {

@@ -1687,6 +1687,8 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
         commonFeatures |= QPaintEngine::AlphaFill | QPaintEngine::AlphaStroke;
 #endif
 
+    if (qt_gdiplus_support)
+        commonFeatures |= QPaintEngine::FillAntialiasing | QPaintEngine::LineAntialiasing;
 
     return commonFeatures;
 }
@@ -2083,6 +2085,10 @@ bool QGdiplusPaintEngine::end()
 
 void QGdiplusPaintEngine::updatePen(const QPen &pen)
 {
+#ifdef QT_DEBUG_DRAW
+    printf(" - QGdiplusPaintEngine::updatePen(), style=%d, color=%p, width=%d\n",
+           pen.style(), pen.color().rgb(), pen.width());
+#endif
 //     d->pen->SetWidth(ps->pen.width());
 //     d->pen->SetColor(conv(ps->pen.color()));
     d->penColor = pen.color();

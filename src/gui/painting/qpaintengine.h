@@ -66,6 +66,8 @@ public:
         AlphaPixmap               = 0x0800,               // Can draw pixmaps with alpha channels
         PainterPaths              = 0x1000,               // Can fill, outline and clip paths
         ClipTransform             = 0x2000,               // Can transform clip regions.
+        LineAntialiasing          = 0x4000,               // Can antialias lines
+        FillAntialiasing          = 0x8000,               // Can antialias fills
         UsesFontEngine            = 0x10000000,           // Internal use, QWidget and QPixmap
         PaintOutsidePaintEvent    = 0x20000000            // Engine is capable of painting outside paint events
     };
