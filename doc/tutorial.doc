@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.0 1996/09/24 10:15:17 agulbra Exp $
+** $Id: tutorial.doc,v 2.1 1996/09/24 12:29:41 eiriken Exp $
 **
 ** Tutorial
 **
@@ -13,7 +13,7 @@
 
 <h1 align=center>
 <img src="tutorial.gif" align=right width=48 height=48>
-The 14 Steps
+Qt Tutorial: The 14 Steps
 </h1>
 
 This tutorial gives an introduction to GUI programming using the Qt
