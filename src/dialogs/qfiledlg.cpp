@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#34 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#35 $
 **
 ** Implementation of QFileDialog class
 **
@@ -27,7 +27,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#35 $");
 
 
 /*!
@@ -68,11 +68,12 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#34 $");
 QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
     : QDialog( parent, name, modal )
 {
+    QFontMetrics fm = fontMetrics();
+    resize( fm.width("x")*50 , fm.height()*23 );
     init();
     filterEdit->setText( "*" );
     d.convertToAbs();
     rereadDir();
-    resize( 300, 300 );
 }
 
 /*!
@@ -85,6 +86,8 @@ QFileDialog::QFileDialog( const char *dirName, const char *filter,
 			  QWidget *parent, const char *name, bool modal )
     : QDialog( parent, name, modal )
 {
+    QFontMetrics fm = fontMetrics();
+    resize( fm.width("x")*50 , fm.height()*23 );
     init();
     if ( filter )
 	d.setNameFilter( filter );
@@ -93,7 +96,6 @@ QFileDialog::QFileDialog( const char *dirName, const char *filter,
 	d.setPath( dirName );
     d.convertToAbs();
     rereadDir();
-    resize( 300, 300 );
 }
 
 /*!
@@ -122,9 +124,9 @@ void QFileDialog::init()
     dirL   ->setAutoResize( TRUE );
     fileL  ->setAutoResize( TRUE );
 
-    okB	   ->resize( 50, 25 );
-    filterB->resize( 50, 25 );
-    cancelB->resize( 50, 25 );
+    okB	   ->resize( width()/6, height()/12 );
+    filterB->resize( width()/6, height()/12 );
+    cancelB->resize( width()/6, height()/12 );
 
     connect( files,	SIGNAL(selected(int)),	 SLOT(fileSelected(int)) );
     connect( files,	SIGNAL(highlighted(int)),SLOT(fileHighlighted(int)) );
@@ -554,11 +556,12 @@ void QFileDialog::resizeEvent( QResizeEvent * )
     filterL->move( 10, 10 );
 
     wTmp = filterL->width();
-    filterEdit->setGeometry( wTmp + 15, 10, w - wTmp - 15 - 10, 20 );
+    filterEdit->setGeometry( wTmp + 15, 10, w - wTmp - 15 - 10,
+	filterEdit->sizeHint().height() );
 
     rTmp = filterL->geometry();
     wTmp = pathBox->width();
-    pathBox->move( (w - wTmp)/2, rTmp.bottom() + 10 );
+    pathBox->move( (w - wTmp)/2, rTmp.bottom() + 12 );
 
     rTmp = pathBox->geometry();
     dirL->move( 10, rTmp.bottom() + 5 );
@@ -566,30 +569,32 @@ void QFileDialog::resizeEvent( QResizeEvent * )
     rTmp = dirL->geometry();
     fileL->move( w / 2 + 5, rTmp.y() );
 
-    rTmp = dirL->geometry();
-    dirs->setGeometry(10, rTmp.bottom() + 5,
-		      w/2 - 15, h - rTmp.bottom() - 10 - 25 - 10 - 20 - 10 );
-
-    rTmp = dirs->geometry();
-    files->setGeometry( rTmp.right() + 10, rTmp.y(),
-			rTmp.width(), rTmp.height() );
-
-    rTmp = dirs->geometry();
-    nameL->move( 10, rTmp.bottom() + 10 );
-
-    wTmp = nameL->width();
-    nameEdit->setGeometry( wTmp + 15, rTmp.bottom() + 10,
-			     w - wTmp - 15 - 10, 20 );
-
-    rTmp = nameEdit->geometry();
-    okB->move( 10, rTmp.bottom() + 10 );
-
     rTmp = okB->geometry();
+    rTmp.moveBottomRight( QPoint(rTmp.right(), h-7 ) ) ;
+    okB->move( 10, rTmp.y() );
+
     wTmp = cancelB->width();
     cancelB->move( w - 10 - wTmp, rTmp.y() );
 
     wTmp = filterB->width();
     filterB->move( (w - wTmp)/2, rTmp.y() );
+
+    int neh = nameEdit->sizeHint().height();
+    rTmp.moveBottomRight( QPoint( rTmp.right(), rTmp.y() - 5 ) );
+    wTmp = nameL->width();
+    nameEdit->setGeometry( wTmp + 15, rTmp.y(),
+			     w - wTmp - 15 - 10, neh );
+    int net = nameEdit->geometry().top();
+
+    nameL->move( 10, rTmp.y() );
+
+    rTmp = dirL->geometry();
+    dirs->setGeometry(10, rTmp.bottom() + 5,
+		      w/2 - 15, net - 9 - rTmp.bottom() - 5 );
+
+    rTmp = dirs->geometry();
+    files->setGeometry( rTmp.right() + 10, rTmp.y(),
+			rTmp.width(), rTmp.height() );
 }
 
 /*!
