@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#41 $
 **
 ** Implementation of some Qt private functions.
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#165 $
 **
 ** Implementation of QToolBar class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/main/main/src/kernel/qpainter_qws.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpainter_qws.cpp#44 $
 **
 ** Implementation of QPainter class for FB
 **

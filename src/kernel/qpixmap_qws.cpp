@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_qws.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_qws.cpp#40 $
 **
 ** Implementation of QPixmap class for FB
 **

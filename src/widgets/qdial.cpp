@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#77 $
 **
 ** Implementation of the dial widget
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_mac.cpp#316 $
+** $Id: //depot/qt/main/src/kernel/qpainter_mac.cpp#123 $
 **
 ** Implementation of QPainter class for Mac
 **

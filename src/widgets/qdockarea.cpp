@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdockarea.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qdockarea.cpp#67 $
 **
 ** Implementation of the QDockArea class
 **

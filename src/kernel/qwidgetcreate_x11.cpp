@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidgetcreate_x11.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qwidgetcreate_x11.cpp#15 $
 **
 ** Implementation of Qt calls to X11
 **

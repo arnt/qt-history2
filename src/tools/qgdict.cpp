@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#88 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#107 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **

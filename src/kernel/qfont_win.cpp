@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#175 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qwidgetresizehandler.cpp#17 $
 **
 ** Implementation of the QWidgetResizeHandler class
 **

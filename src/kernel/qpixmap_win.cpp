@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#126 $
 **
 ** Implementation of QPixmap class for Win32
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#171 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#213 $
 **
 ** Implementation of QPainter class for Win32
 **

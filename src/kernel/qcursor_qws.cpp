@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_qws.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qcursor_qws.cpp#19 $
 **
 ** Implementation of QCursor class for FB
 **

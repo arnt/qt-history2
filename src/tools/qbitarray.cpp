@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#52 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#75 $
 **
 ** Implementation of QBitArray class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwshydrodecoration_qws.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qwshydrodecoration_qws.cpp#2 $
 **
 ** Implementation of Qt/Embedded Hydro decoration
 **

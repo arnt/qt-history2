@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#155 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **

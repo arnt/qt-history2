@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qdockwindow.cpp#65 $
 **
 ** Implementation of the QDockWindow class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvbox.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qvbox.cpp#28 $
 **
 ** Implementation of vertical box layout widget class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_mac.cpp $
+** $Id: //depot/qt/main/src/kernel/qwidget_mac.cpp#255 $
 **
 ** Implementation of QWidget and QWindow classes for mac
 **

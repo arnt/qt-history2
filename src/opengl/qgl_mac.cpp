@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl_mac.cpp#2 $
+** $Id: //depot/qt/main/src/opengl/qgl_mac.cpp#20 $
 **
 ** Implementation of OpenGL classes for Qt
 **

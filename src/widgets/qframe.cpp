@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#94 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#130 $
 **
 ** Implementation of QFrame widget class
 **

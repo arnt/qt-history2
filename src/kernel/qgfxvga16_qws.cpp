@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxvga16_qws.cpp $
+** $Id: //depot/qt/main/src/kernel/qgfxvga16_qws.cpp#13 $
 **
 ** Implementation of QGfxVga16 (graphics context) class for VGA cards
 **

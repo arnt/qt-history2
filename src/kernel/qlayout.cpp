@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#128 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#176 $
 **
 ** Implementation of layout classes
 **

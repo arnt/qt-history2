@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#73 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#124 $
 **
 ** Global functions
 **

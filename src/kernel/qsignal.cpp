@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#63 $
 **
 ** Implementation of QSignal class
 **

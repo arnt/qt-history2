@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcdestyle.cpp#4 $
+** $Id: //depot/qt/main/src/styles/qcdestyle.cpp#10 $
 **
 ** Implementation of CDE-like style class
 **

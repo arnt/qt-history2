@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#134 $
 **
 **  Splitter widget
 **

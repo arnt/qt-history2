@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#51 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#64 $
 **
 ** Implementation of QGArray class
 **

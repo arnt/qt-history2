@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qinternal.cpp $
+** $Id: //depot/qt/main/src/kernel/qinternal.cpp#6 $
 **
 ** Implementation of some internal classes
 **

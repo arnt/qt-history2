@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#25 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#54 $
 **
 ** Implementation of QStringList
 **

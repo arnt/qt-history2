@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#157 $
 **
 ** Implementation of QTab and QTabBar classes
 **

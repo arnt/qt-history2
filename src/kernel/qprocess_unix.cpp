@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#82 $
 **
 ** Implementation of QProcess class for Unix
 **

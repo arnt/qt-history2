@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_qws.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qdnd_qws.cpp#10 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **

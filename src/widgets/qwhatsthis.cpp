@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#115 $
 **
 ** Implementation of QWhatsThis class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#94 $
 **
 ** Implementation of movie classes
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/qws/util/qws/qwsmouse_qws.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.cpp#50 $
 **
 ** Implementation of Qt/Embedded mouse drivers
 **

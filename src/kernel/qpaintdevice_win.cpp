@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#96 $
 **
 ** Implementation of QPaintDevice class for Win32
 **

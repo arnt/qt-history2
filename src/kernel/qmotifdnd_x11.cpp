@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifdnd_x11.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qmotifdnd_x11.cpp#22 $
 **
 ** Implementation of Motif Dynamic Drag and Drop class
 **

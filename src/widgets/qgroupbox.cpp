@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#121 $
 **
 ** Implementation of QGroupBox widget class
 **

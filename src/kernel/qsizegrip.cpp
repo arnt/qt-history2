@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#41 $
 **
 ** Implementation of QSizeGrip class
 **

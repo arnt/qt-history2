@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_qws.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qwsregionmanager_qws.cpp#15 $
 **
 ** Implementation of Qt/Embedded region manager
 **
