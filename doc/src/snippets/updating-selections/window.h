@@ -26,9 +26,9 @@ public:
     MainWindow(QWidget *parent = 0);
 
 public slots:
-    void updateSelection(const QItemSelection &deselected,
-                         const QItemSelection &selected);
-    void changeCurrent(const QModelIndex &oldItem, const QModelIndex &newItem);
+    void updateSelection(const QItemSelection &selected,
+                         const QItemSelection &deselected);
+    void changeCurrent(const QModelIndex &current, const QModelIndex &previous);
 
 private:
     QAbstractItemModel *model;

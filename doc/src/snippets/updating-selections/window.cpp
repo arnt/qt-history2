@@ -64,11 +64,11 @@ void MainWindow::updateSelection(const QItemSelection &selected,
         model->setData(index, QAbstractItemModel::EditRole, "");
 }
 
-void MainWindow::changeCurrent(const QModelIndex &oldItem,
-    const QModelIndex &newItem)
+void MainWindow::changeCurrent(const QModelIndex &current,
+    const QModelIndex &previous)
 {
     statusBar()->message(
-        tr("Moved from (%1,%2) to (%3,%4)").arg(oldItem.row())
-            .arg(oldItem.column()).arg(newItem.row())
-            .arg(newItem.column()));
+        tr("Moved from (%1,%2) to (%3,%4)")
+            .arg(previous.row()).arg(previous.column())
+            .arg(current.row()).arg(current.column()));
 }
