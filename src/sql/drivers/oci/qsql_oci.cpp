@@ -1467,15 +1467,13 @@ bool QOCIResult::prepare( const QString& query )
 	setLastError( qMakeError( "Unable to alloc statement", QSqlError::Statement, d ) );
 	return FALSE;
     }
-    QString cleanQuery ( query );
-    int delim = cleanQuery.findRev( ";" );
-    int len = cleanQuery.length()-1;
-    if ( delim > -1 && delim == len )
-	cleanQuery.replace( cleanQuery.length()-1, 1, "" );
+    QCString cleanQuery( query.local8Bit() );
+    if ( query.endsWith( ";" ) )
+	cleanQuery.resize( cleanQuery.size() - 1 );
     r = OCIStmtPrepare( d->sql,
 			d->err,
-			(unsigned char*)cleanQuery.local8Bit().data(),
-			cleanQuery.length(),
+			(unsigned char*)cleanQuery.data(),
+			cleanQuery.size(),
 			OCI_NTV_SYNTAX,
 			OCI_DEFAULT );
     if ( r != 0 ) {
@@ -2016,15 +2014,18 @@ bool QOCIDriver::open( const QString & db,
 {
     if ( isOpen() )
 	close();
+    QCString user8 = user.local8Bit();
+    QCString password8 = password.local8Bit();
+    QCString db8 = db.local8Bit();
     int r = OCILogon(	d->env,
 			d->err,
 			&d->svc,
-			(unsigned char*)user.local8Bit().data(),
-			user.length(),
-			(unsigned char*)password.local8Bit().data(),
-			password.length(),
-			(unsigned char*)db.local8Bit().data(),
-			db.length() );
+			(unsigned char*)user8.data(),
+			user8.size(),
+			(unsigned char*)password8.data(),
+			password8.size(),
+			(unsigned char*)db8.data(),
+			db8.size() );
     if ( r != 0 ) {
 	setLastError( qMakeError("Unable to logon", QSqlError::Connection, d ) );
 	return FALSE;
