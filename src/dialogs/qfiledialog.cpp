@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#2 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#3 $
 **
 ** Implementation of QFileDialog class
 **
@@ -20,7 +20,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#3 $";
 #endif
 
 
@@ -228,7 +228,7 @@ void QFileDialog::rereadDir()
     dirs ->clear();
     files->clear();
 
-    const QFileInfoList *filist = d.entryInfos();
+    const QFileInfoList *filist = d.entryInfoList();
     QFileInfoIterator 	 it( *filist );
     QFileInfo		*fi = it.current();
     while ( fi && fi->isDir() ) {
