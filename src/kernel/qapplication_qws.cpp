@@ -232,6 +232,7 @@ static bool	    popupGrabOk;
 static QGuardedPtr<QWidget> *mouseInWidget = 0;
 
 static bool sm_blockUserInput = FALSE;		// session management
+static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popu
 
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 WId qt_last_cursor = 0xffffffff;  // Was -1, but WIds are unsigned
@@ -1548,6 +1549,9 @@ void qt_cleanup()
     delete qws_decoration;
 #endif
 
+    delete activeBeforePopup;
+    activeBeforePopup = 0;
+
     delete mouseInWidget;
     mouseInWidget = 0;
 }
@@ -2330,6 +2334,12 @@ void QApplication::openPopup( QWidget *popup )
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
 	Q_CHECK_PTR( popupWidgets );
+       if ( !activeBeforePopup )
+           activeBeforePopup = new QGuardedPtr<QWidget>;
+       (*activeBeforePopup) = active_window;
+
+
+
 	/* only grab if you are the first/parent popup */
 	QPaintDevice::qwsDisplay()->grabMouse(popup,TRUE);
 	QPaintDevice::qwsDisplay()->grabKeyboard(popup,TRUE);
@@ -2369,6 +2379,11 @@ void QApplication::closePopup( QWidget *popup )
 	    popupGrabOk = FALSE;
 	    // XXX ungrab keyboard
 	}
+
+       active_window = (*activeBeforePopup);
+       // restore the former active window immediately, although
+       // we'll get a focusIn later
+
 	if ( active_window ) {
 	    QFocusEvent::setReason( QFocusEvent::Popup );
 	    if ( active_window->focusWidget() )
