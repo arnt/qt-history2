@@ -1179,6 +1179,8 @@ void QDockArea::setFixedExtent( int d, QDockWindow *dw )
     QPtrList<QDockWindow> lst;
     QDockWindow *w;
     for ( w = dockWindows->first(); w; w = dockWindows->next() ) {
+	if ( w->isHidden() )
+	    continue;
 	if ( orientation() == Horizontal ) {
 	    if ( dw->y() != w->y() )
 		continue;
