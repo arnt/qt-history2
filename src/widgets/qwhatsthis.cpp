@@ -340,17 +340,16 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	} else if ( e->type() == QEvent::KeyPress ) {
 	    QKeyEvent* kev = (QKeyEvent*)e;
 
-	    if ( o->isWidgetType() && ((QWidget*)o)->customWhatsThis() ) {
-		if (kev->key() == Qt::Key_Escape) {
-		    leaveWhatsThisMode();
-		    return TRUE;
-		}
+	    if (kev->key() == Qt::Key_Escape) {
+		leaveWhatsThisMode();
+		return TRUE;
 	    }
 	    else if ( kev->key() == Key_Menu ||
 		      ( kev->key() == Key_F10 && kev->state() == ShiftButton ) )
 		return FALSE; // ignore these keys, they are used for context menus
-	    else if ( kev->state() == kev->stateAfter() && kev->key() != Key_Meta ) // not a modifier key
+	    else if ( kev->state() == kev->stateAfter() && kev->key() != Key_Meta )  // not a modifier key
 		leaveWhatsThisMode();
+	    
 	}
 	break;
     case Inactive:
