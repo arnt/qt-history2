@@ -934,6 +934,8 @@ int QPNGFormat::decode(QImage& img, QImageConsumer* cons,
        state = Inside;
     }
 
+    if ( !png_ptr ) return 0;
+    
     if (setjmp(png_ptr->jmpbuf)) {
        png_destroy_read_struct(&png_ptr, &info_ptr, 0);
        image = 0;
@@ -1016,7 +1018,7 @@ int QPNGFormat::user_chunk(png_structp png, png_infop,
 	    png_bytep data, png_uint_32 length)
 {
 #if 0 // NOT SUPPORTED: experimental PNG animation.
-    // debug("Got %ld-byte %s chunk", length, png->chunk_name);
+    // qDebug("Got %ld-byte %s chunk", length, png->chunk_name);
     if ( 0==qstrcmp((char*)png->chunk_name, "gIFg")
 	    && length == 4 ) {
 
