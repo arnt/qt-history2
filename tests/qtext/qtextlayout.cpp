@@ -117,7 +117,7 @@ void QRichTextString::remove( int index, int length )
     cache.remove( index, len );
 }
 
-void QRichTextString::setFormat( int index, QRichTextFormat *f, bool useCollection )
+void QRichTextString::setFormat( int index, QRichTextFormat *f, bool /*useCollection*/ )
 {
     data[ index ].setFormat( f );
 }
@@ -294,13 +294,13 @@ void QTextRow::paint(QPainter &painter, int _x, int _y, QTextAreaCursor *cursor,
 
 	if(!lastFormat) {
 	    lastFormat = chr->format();
-	    int startX = chr->x;
+	    //int startX = chr->x;
 	    QString buffer = chr->c;
 	    bw = cw;
 	}
 	
 	// check for cursor mark
-	if ( cursor && this == cursor->row() && i == cursor->index() ) {
+	if ( cursor && this == cursor->row() && i == cursor->visualIndex() ) {
 	    curx = chr->x;
 	    if(cursor->paragraph()->basicDirection() == QChar::DirR)
 		curx += chr->format()->width(chr->c);
@@ -421,9 +421,17 @@ bool QTextRow::checkComplexText()
 
 int QTextRow::visualPosition(int logicalPosition) const
 {
-    return bidiReorderLine(logicalPosition);
+    int pos = ((QTextRow *)this)->bidiReorderLine(logicalPosition);
+    printf("visualPosition(%d) = %d\n", logicalPosition, pos );
+    return pos;
 }
 
+int QTextRow::logicalPosition(int visualPosition) const
+{
+    int pos = ((QTextRow *)this)->bidiReorderLine(visualPosition, FALSE);
+    printf("logicalPosition(%d) = %d\n", visualPosition, pos );
+    return pos;
+}
 
 struct QBidiRun {
     QBidiRun(int _start, int _stop, QBidiContext *context, QChar::Direction dir) {
@@ -947,30 +955,31 @@ int QTextRow::bidiReorderLine(int posToCheck = -1, bool logicalToVisual)
 #endif
 
     if(posToCheck != -1) {
-	// just want to logical<-->visual mapping
+	// just want to have logical<-->visual mapping
 	r = runs.first();
 	if(logicalToVisual) {
+	    posToCheck += from();
 	    int visual = 0;
 	    while(r) {
-		if(r->start <= posToCheck && r->stop > posToCheck) {
+		if(r->start <= posToCheck && r->stop >= posToCheck) {
 		    if( r->level%2 ) // odd level
 			visual += r->stop - posToCheck;
 		    else
 			visual += posToCheck - r->start;
 		    return visual;
 		}
-		visual += r->stop - r->start;
+		visual += r->stop - r->start + 1;
 		r = runs.next();
 	    }
 	} else {
 	    while(r) {
-		if(r->stop - r->start > posToCheck) {
+		if(r->stop - r->start + 1 >= posToCheck) {
 		    if( r->level%2 )
-			return r->stop - posToCheck;
+			return r->stop - from() - posToCheck;
 		    else
-			return r->start + posToCheck;
+			return r->start - from() + posToCheck;
 		}
-		posToCheck -= r->stop - r->start;
+		posToCheck -= r->stop - r->start +1;
 		r = runs.next();
 	    }
 	}
@@ -1104,18 +1113,11 @@ QParagraph *QTextArea::lastParagraph() const
 QTextAreaCursor::QTextAreaCursor( QTextArea *a )
     : area( a )
 {
-    leftToRight = true;
     parag = area->firstParagraph();
     line = parag->first();
-    if( line->hasComplexText() ) {
-	if( parag->basicDirection() == QChar::DirR ) {
-	    idx = line->length() - 1;
-	    leftToRight = false;
-	} else
-	    idx = 0;
-    } else
-	idx = 0;
+    idx = 0;
     tmpIndex = -1;
+    visual1 = visual2 = line->visualPosition(idx);
 }
 
 void QTextAreaCursor::insert( const QString &s, bool checkNewLine )
@@ -1125,10 +1127,11 @@ void QTextAreaCursor::insert( const QString &s, bool checkNewLine )
     if ( checkNewLine )
 	justInsert = ( s.find( '\n' ) == -1 );
     if ( justInsert ) {
-	idx = parag->insert( idx, s );
+	idx = parag->insert( idx + line->from(), s );
+	idx -= line->from();
 	while( idx > line->length() ) {
-	    idx -= line->length();
 	    line = line->next();
+	    idx -= line->length();
 	}
     } else {
 #if 0
@@ -1159,58 +1162,61 @@ void QTextAreaCursor::insert( const QString &s, bool checkNewLine )
 	}
 #endif
     }
+    visual1 = visual2 = line->visualPosition(idx);
 }
 
 void QTextAreaCursor::gotoLeft()
 {
     tmpIndex = -1;
-    if ( idx > 0 ) {
-	    idx--;
+    if ( visual1 > 0 ) {
+	    visual1--;
     } else if(parag->basicDirection() == QChar::DirL) {
 	if ( line->prev() ) {
 	    line = line->prev();
-	    idx = line->length() - 1;
+	    visual1 = line->length() - 1;
 	} else if ( parag->prev() ) {
 	    parag = parag->prev();
 	    line = parag->last();
-	    idx = line->length() - 1;
+	    visual1 = line->length() - 1;
 	}
     } else {
 	if ( line->next() ) {
 	    line = line->next();
-	    idx = line->length() - 1;
+	    visual1 = line->length() - 1;
 	} else if ( parag->next() ) {
 	    parag = parag->next();
 	    line = parag->first();
-	    idx = line->length() - 1;
+	    visual1 = line->length() - 1;
 	}
     }
+    idx = line->logicalPosition(visual1);
 }
 
 void QTextAreaCursor::gotoRight()
 {
     tmpIndex = -1;
-    if ( idx < line->length() - 1 ) {
-	idx++;
+    if ( visual1 < line->length() - 1 ) {
+	visual1++;
     } else if ( parag->basicDirection() == QChar::DirL ) {
 	if ( line->next() ) {
 	    line = line->next();
-	    idx = 0;
+	    visual1 = 0;
 	} else if ( parag->next() ) {
 	    parag = parag->next();
 	    line = parag->first();
-	    idx = 0;
+	    visual1 = 0;
 	}
     } else {
 	if ( line->prev() ) {
 	    line = line->prev();
-	    idx = 0;
+	    visual1 = 0;
 	} else if ( parag->prev() ) {
 	    parag = parag->prev();
 	    line = parag->last();
-	    idx = 0;
+	    visual1 = 0;
 	}
     }
+    idx = line->logicalPosition(visual1);
 }
 
 void QTextAreaCursor::gotoUp()
@@ -1225,6 +1231,7 @@ void QTextAreaCursor::gotoUp()
     } else
 	return;
     idx = QMIN(line->length()-1, tmpIndex);
+    visual1 = line->visualPosition(idx);
 }
 
 void QTextAreaCursor::gotoDown()
@@ -1239,16 +1246,19 @@ void QTextAreaCursor::gotoDown()
     } else
 	return;
     idx = QMIN(line->length()-1, tmpIndex);
+    visual1 = line->visualPosition(idx);
 }
 
 void QTextAreaCursor::gotoLineEnd()
 {
     idx = line->length() - 1;
+    visual1 = line->visualPosition(idx);
 }
 
 void QTextAreaCursor::gotoLineStart()
 {
     idx = 0;
+    visual1 = line->visualPosition(idx);
 }
 
 void QTextAreaCursor::gotoHome()
@@ -1256,6 +1266,7 @@ void QTextAreaCursor::gotoHome()
     tmpIndex = -1;
     parag = area->firstParagraph();
     idx = 0;
+    visual1 = line->visualPosition(idx);
 }
 
 void QTextAreaCursor::gotoEnd()
@@ -1264,6 +1275,7 @@ void QTextAreaCursor::gotoEnd()
     parag = area->lastParagraph();
     line = parag->last();
     idx = line->length() - 1;
+    visual1 = line->visualPosition(idx);
 }
 
 void QTextAreaCursor::gotoPageUp()
@@ -1634,6 +1646,12 @@ void QTextAreaCursor::setIndex( int i )
     tmpIndex = -1;
     idx = i;
 }
+
+int QTextAreaCursor::visualIndex() const
+{
+    return visual1;
+}
+
 
 bool QTextAreaCursor::checkParens()
 {

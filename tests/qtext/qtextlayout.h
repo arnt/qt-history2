@@ -140,6 +140,7 @@ public:
     bool hasComplexText() const { return complexText; }
 
     int visualPosition(int logicalPosition) const;
+    int logicalPosition(int visualPosition) const;
     
 private:
     bool checkComplexText();
@@ -250,7 +251,6 @@ public:
     QTextAreaCursor( QTextArea *);
 
     QTextRow *row() const { return line; }
-    int index() const;
 
     QParagraph *paragraph() const { return parag; }
     void setParagraph( QParagraph *s );
@@ -276,8 +276,11 @@ public:
     bool atParagStart();
     bool atParagEnd();
 
+    int index() const;
     void setIndex( int i );
 
+    int visualIndex() const;
+    
     bool checkParens();
     void checkIndex();
 
@@ -289,7 +292,7 @@ private:
     QParagraph *parag;
     QTextArea *area;
     int idx, tmpIndex;
-    bool leftToRight;
+    int visual1, visual2;
 };
 
 

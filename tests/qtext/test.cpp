@@ -12,10 +12,11 @@ const char *testStr1 = "This page contains text in many languages, advertising t
 #if 0
 const char *testStr = "أوروبا, برمجيات الحاسوب + انترنيت : some english تصبح عالميا مع يونيكود more english تسجّل الآن لحضور المؤتمر الدولي العاشر ليونيكود, الذي سيعقد في 10-12 آذار 1997 بمدينة ماينتس, ألمانيا. وسيجمع المؤتمر بين خبراء من  كافة قطاعات الصناعة على الشبكة العالمية انترنيت ويونيكود, حيث ستتم, على الصعيدين الدولي والمحلي على حد سواء مناقشة سبل استخدام يونكود  في النظم القائمة وفيما يخص التطبيقات الحاسوبية, الخطوط, تصميم النصوص  والحوسبة متعددة اللغات. english عندما يريد العالم أن يتكلّم, فهو يتحدّث بلغة يونيكود. english... now some hebrew: ";
 #endif
-#if 1
+#if 0
 const char * testStr = "אירופה, תוכנה והאינטרנט: Unicode יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־Unicode, בהתאמה לשוק הבינלאומי והמקומי, ביישום Unicode במערכות הפעלה וביישומים, בגופנים, בפריסת טקסט ובמחשוב רב־לשוני. some english inbetween כאשר העולם רוצה לדבר, הוא מדבר ב־Unicode";
 #else
-const char *testStr = "english אירופה, תוכנה והאינטרנט: english english אירופה, תוכנה והאינטרנט: english english אירופה, תוכנה והאינטרנט: english english אירופה, תוכנה והאינטרנט: english ";
+const char *testStr = "english אירופה";// תוכנה והאינטרנט: english english אירופה, תוכנה והאינטרנט: english english אירופה, תוכנה והאינטרנט: english english אירופה, תוכנה והאינטרנט: english ";
+const char *testStr2 = "אירופה english";// תוכנה והאינטרנט: english english אירופה, תוכנה והאינטרנט: english english אירופה, תוכנה והאינטרנט: english english אירופה, תוכנה והאינטרנט: english ";
 #endif
 
 
@@ -77,6 +78,12 @@ MyView::MyView()
 
     area->appendParagraph( QRichTextString(aStr, f) );
     //   area->appendParagraph(aStr);
+    aStr = QString::fromUtf8(testStr2);
+    aStr.compose();
+    f = new QRichTextFormat(*f);
+    f->setFont(fnt);
+    area->appendParagraph( QRichTextString(aStr, f) );
+
 #endif
     
     cursor = new QTextAreaCursor(area);
