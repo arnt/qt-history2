@@ -2089,7 +2089,11 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
 */
 
 /*!
-  \overload void QObject::activate_signal( int signal, bool )
+  \fn void QObject::activate_signal_bool( int signal, bool )
+  \internal
+
+  Like the above functions, but since bool is sometimes
+  only a typedef it cannot be a simple overload.
 */
 
 #define ACTIVATE_SIGNAL_WITH_PARAM(FNAME,TYPE)				      \

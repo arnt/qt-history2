@@ -788,7 +788,7 @@ void QStyle::drawSliderMask( QPainter *p,
 
 
 
-/*
+/*!
   Draws the mask of a slider groove
 */
 void QStyle::drawSliderGrooveMask( QPainter *p,int x, int y, int w, int h,
@@ -1035,7 +1035,7 @@ const QWidget *qt_style_global_context = NULL;
 /*!
    Returns the global static widget currently requesting a QStyle operations.
    This value will be modified whenever QApplication::style() or QWidget::style()
-   is callled, you may use this pointer to gain information about the widget
+   is called, you may use this pointer to gain information about the widget
    you may be drawing on.
 */
 const QWidget *QStyle::contextWidget()
@@ -1044,6 +1044,79 @@ const QWidget *QStyle::contextWidget()
 }
 
 
+/*!
+  \fn void QStyle::drawHeaderSection ( QPainter * p, int x, int y, int w, int h, const QColorGroup & g, bool down )
+*/
+
+/*!
+  \fn int QStyle::spinBoxFrameWidth () const
+
+  Returns the width of the frame around a spinbox. 
+  If this function returns is 0, the spin buttons are embedded into the spinbox,
+  otherwise they are placed separately next to the edit control.
+*/
+
+/*!
+  \fn void QStyle::drawSpinWidgetButton ( QPainter * p, int x, int y, int w, int h, const QColorGroup & g, QSpinWidget * sw, bool downbtn, bool enabled, bool down )
+
+  Draws the spinbox button of the spin widget \a sw with the painter \a p into the rectangle 
+  (\a x, \a y, \a w, \a h) using colorgroup \a g. The function draws the down button if \a downbtn is TRUE, 
+  otherwise the up button. \a enabled and \a down represent the state of the button.
+*/
+
+/*!
+  \fn void QStyle::drawSpinWidgetSymbol ( QPainter * p, int x, int y, int w, int h, const QColorGroup & g, QSpinWidget * sw, bool downbtn, bool enabled, bool down )
+
+  Draws the spinbox button symbol of the spin widget \a sw with the painter \a p into the rectangle 
+  (\a x, \a y, \a w, \a h) using colorgroup \a g. The function draws the down symbol if \a downbtn is TRUE, 
+  otherwise the up symbol. \a enabled and \a down represent the state of the button.
+*/
+
+/*!
+  \fn void QStyle::drawGroupBoxTitle ( QPainter * p, int x, int y, int w, int h, const QColorGroup & g, const QString & text, bool enabled )
+
+  Draws a groupbox title \a text with painter \a p into the rectangle (\a x, \a y, \a w, \a h) 
+  using colorgroup \a g. \a enabled represents the state of the groupbox.
+*/
+
+/*!
+  \fn void QStyle::drawGroupBoxFrame ( QPainter * p, int x, int y, int w, int h, const QColorGroup & g, const QGroupBox * gb )
+
+  Draws the frame of groupbox \a gb with painter \a p into the rectangle 
+  (\a x, \a y, \a w, \a h) using colorgroup \a g.
+*/
+
+/*!
+  \fn void QStyle::drawStatusBarSection ( QPainter * p, int x, int y, int w, int h, const QColorGroup & g, bool permanent )
+
+  Draws a statusbar section with painter \a p into the rectangle (\a x, \a y, \a w, \a h) using colorgroup \a g.
+  \a permanent represents the type of the section. Permanent sections are usually sunken.
+*/
+
+/*!
+  \fn void QStyle::drawSizeGrip ( QPainter * p, int x, int y, int w, int h, const QColorGroup & g )
+
+  Draws a size grip with painter \a p into the rectangle (\a x, \a y, \a w, \a h) using colorgroup \a g.
+*/
+
+/*!
+  \fn int QStyle::progressChunkWidth () const
+
+  Returns the width of a chunk of a progress bar.
+*/
+
+/*!
+  \fn void QStyle::drawProgressBar ( QPainter * p, int x, int y, int w, int h, const QColorGroup & g )
+
+  Draws a progressbar with painter \a p into the rectangle (\a x, \a y, \a w, \a h) using colorgroup \a g.
+*/
+
+/*!
+  \fn void QStyle::drawProgressChunk ( QPainter * p, int x, int y, int w, int h, const QColorGroup & g )
+
+  Draws a progressbar chunk with painter \a p into the rectangle (\a x, \a y, \a w, \a h) using 
+  colorgroup \a g.
+*/
 
 /*!
   \fn QPixmap QStyle::titleBarPixmap( const QTitleBar *tb, TitleControl ctrl)
