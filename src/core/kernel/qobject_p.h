@@ -41,7 +41,7 @@ struct QSignalSpyCallbackSet
 };
 void Q_CORE_EXPORT qt_register_signal_spy_callbacks(const QSignalSpyCallbackSet &callback_set);
 
-extern QSignalSpyCallbackSet qt_signal_spy_callback_set;
+extern QSignalSpyCallbackSet Q_CORE_EXPORT qt_signal_spy_callback_set;
 
 inline QObjectData::~QObjectData() {}
 
