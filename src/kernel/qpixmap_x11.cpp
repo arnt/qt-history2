@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#140 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#141 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -77,9 +77,8 @@ static void qt_cleanup_mitshm()
 	XFreePixmap( dpy, xshmpm );
 	xshmpm = 0;
     }
-    XShmDetach( dpy, &xshminfo );
-    qSafeXDestroyImage( xshmimg );
-    xshmimg = 0;
+    XShmDetach( dpy, &xshminfo ); xshmimg->data = 0;
+    qSafeXDestroyImage( xshmimg ); xshmimg = 0;
     shmdt( xshminfo.shmaddr );
     shmctl( xshminfo.shmid, IPC_RMID, 0 );
 }
@@ -120,6 +119,7 @@ static bool qt_create_mitshm_buffer( const QPaintDevice* dev, int w, int h )
 	ok = XShmAttach( dpy, &xshminfo );
     if ( !ok ) {
 	qSafeXDestroyImage( xshmimg );
+	xshmimg = 0;
 	if ( xshminfo.shmaddr )
 	    shmdt( xshminfo.shmaddr );
 	if ( xshminfo.shmid != -1 )
