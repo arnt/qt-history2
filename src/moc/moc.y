@@ -172,7 +172,7 @@ QCString uTypeExtra( QCString ctype )
 	if ( idx >= 0 ) {
 	    typeExtra.sprintf( "&enum_tbl[%d]", enumIndex( ctype ) );
 	} else {
-	    typeExtra.sprintf( "(UEnum*)parentObject->enumerator(\"%s\", TRUE )", ctype.data() );
+	    typeExtra.sprintf( "parentObject->enumerator(\"%s\", TRUE )", ctype.data() );
 	}
 	typeExtra =
 	    "\n#ifndef QT_NO_PROPERTIES\n\t  " + typeExtra +
@@ -2757,7 +2757,7 @@ int generateProps()
 		flags |= Override;
 
 	    fprintf( out, "%d, ", flags );
-	    fprintf( out, "&%s::metaObj, ", (const char*) qualifiedClassName() ); 
+	    fprintf( out, "&%s::metaObj, ", (const char*) qualifiedClassName() );
 	    if ( !isVariantType( it.current()->type ) ) {
 		int enumpos = -1;
 		int k = 0;
@@ -3029,7 +3029,7 @@ void generateClass()		      // generate C++ source code for a class
 //
     fprintf( out, "\nvoid* %s::qt_cast( const char* clname )\n{\n",
 	     (const char*)qualifiedClassName() );
-    fprintf( out, "    if ( !qstrcmp( clname, \"%s\" ) ) return (%s*)this;\n", 
+    fprintf( out, "    if ( !qstrcmp( clname, \"%s\" ) ) return (%s*)this;\n",
 	     (const char*) qualifiedClassName(), (const char*) qualifiedClassName() );
     if ( !g->multipleSuperClasses.isEmpty() ) {
 	for ( const char* cname = g->multipleSuperClasses.first(); cname; cname = g->multipleSuperClasses.next() )
@@ -3040,7 +3040,7 @@ void generateClass()		      // generate C++ source code for a class
     else
 	fprintf( out, "    return 0;\n" );
     fprintf( out, "}\n" );
-    
+
 //
 // Generate internal signal functions
 //
@@ -3307,7 +3307,7 @@ void generateClass()		      // generate C++ source code for a class
 	
 	    uint flag_break = 0;
 	    uint flag_propagate = 0;
-	    
+	
 	    if ( it.current()->setfunc ) {
 		fprintf( out, "\tcase 0: %s(", it.current()->setfunc->name.data() );
 		QCString type = it.current()->type.copy(); // detach on purpose
@@ -3406,7 +3406,7 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "    return TRUE;\n" );
 	
 	if ( need_resolve )
-	    fprintf( out, "resolve:\n    return %s::qt_property( staticMetaObject()->resolveProperty(_id), _f, _v );\n", 
+	    fprintf( out, "resolve:\n    return %s::qt_property( staticMetaObject()->resolveProperty(_id), _f, _v );\n",
 		     (const char *) purestSuperClassName() );
 	fprintf( out, "}\n" );
     } else {
