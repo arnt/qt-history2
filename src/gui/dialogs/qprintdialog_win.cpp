@@ -72,7 +72,7 @@ int QPrintDialog::exec()
     if (parent)
         parent = parent->window();
     else
-        parent = qApp->mainWidget();
+        parent = qApp->activeWindow();
 
     if (parent) {
 	QEvent e(QEvent::WindowBlocked);

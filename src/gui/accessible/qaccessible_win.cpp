@@ -127,11 +127,16 @@ void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
             w = qApp->focusWidget();
         if (!w) {
             w = qApp->activeWindow();
-            if (!w) {
-                w = qApp->mainWidget();
-                if (!w)
-                    return;
-            }
+
+            if (!w)
+                return;
+
+// ### Fixme
+//             if (!w) {
+//                 w = qApp->mainWidget();
+//                 if (!w)
+//                     return;
+//             }
         }
     }
 

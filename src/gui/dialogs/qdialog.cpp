@@ -399,7 +399,7 @@ int QDialog::exec()
   last window closed, the QApplication::lastWindowClosed() signal is
   emitted.
 
-  \sa accept(), reject(), QApplication::mainWidget(), QApplication::quit()
+  \sa accept(), reject(), QApplication::activeWindow(), QApplication::quit()
 */
 
 void QDialog::done(int r)

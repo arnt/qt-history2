@@ -160,7 +160,7 @@ OPENFILENAMEA* makeOFNA(QWidget* parent,
     if (parent)
         parent = parent->window();
     else
-        parent = qApp->mainWidget();
+        parent = qApp->activeWindow();
 
     aTitle = title.local8Bit();
     aInitDir = QDir::convertSeparators(initialDirectory).local8Bit();
@@ -225,7 +225,7 @@ OPENFILENAME* makeOFN(QWidget* parent,
     if (parent)
         parent = parent->window();
     else
-        parent = qApp->mainWidget();
+        parent = qApp->activeWindow();
 
     tInitDir = QDir::convertSeparators(initialDirectory);
     tFilters = filters;
@@ -628,7 +628,7 @@ QString Q3FileDialog::winGetExistingDirectory(const QString& initialDirectory,
     if (parent)
         parent = parent->window();
     else
-        parent = qApp->mainWidget();
+        parent = qApp->activeWindow();
     QString title = caption;
     if (title.isNull())
         title = tr("Select a Directory");

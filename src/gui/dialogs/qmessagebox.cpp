@@ -1265,13 +1265,13 @@ int QMessageBox::critical(QWidget *parent,
     if that exists.
     \i If not, it tries the top-level widget containing \a parent.
     \i If that fails, it tries the \link
-    QApplication::mainWidget() main widget. \endlink
+    QApplication::activeWindow() active window. \endlink
     \i As a last resort it uses the Information icon.
     \endlist
 
     The about box has a single button labelled "OK".
 
-    \sa QWidget::windowIcon() QApplication::mainWidget()
+    \sa QWidget::windowIcon() QApplication::activeWindow()
 */
 
 void QMessageBox::about(QWidget *parent, const QString &caption,
