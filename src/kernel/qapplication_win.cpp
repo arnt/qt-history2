@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#227 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#228 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2140,54 +2140,56 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	state |= QMouseEvent::ControlButton;
     if ( GetKeyState(VK_MENU) < 0 )
 	state |= QMouseEvent::AltButton;
+    //TODO: if it is a pure shift/ctrl/alt keydown, invert state logic, like X
 
     if ( msg.message == WM_CHAR ) {
 	// a multi-character key not found by our look-ahead
-	QString text;
-	text += (char)msg.wParam;
-	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab, text );
-	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab, text );
-    } else if ( msg.message == WM_IME_CHAR ) {
-	debug("IME");
+	QString s;
+	s += (char)msg.wParam;
+	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab, s );
+	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab, s );
+    } 
+    else if ( msg.message == WM_IME_CHAR ) {
+	debug("IME"); //###
 	// input method characters not found by our look-ahead
-	QString text;
+	QString s;
 	ushort uc = (ushort)msg.wParam;
-	text += QChar(uc&0xff,(uc>>8)&0xff);
-	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab, text );
-	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab, text );
-    } else {
+	s += QChar(uc&0xff,(uc>>8)&0xff);
+	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab, s );
+	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab, s );
+    }
+    else {
 	int code = translateKeyCode( msg.wParam );
-        if ( msg.message == WM_KEYDOWN ||
-	     msg.message == WM_IME_KEYDOWN ||
-	     msg.message == WM_SYSKEYDOWN )
-	{
+	int t = msg.message;
+        if ( t == WM_KEYDOWN || t == WM_IME_KEYDOWN || t == WM_SYSKEYDOWN ) {
+	    // KEYDOWN
 	    KeyRec* rec = find_key_rec( msg.wParam, FALSE );
-
+	    // Find uch
 	    QChar uch;
-	    { // Find uch
-		MSG wm_char;
-		UINT charType =
-		    msg.message == WM_KEYDOWN ? WM_CHAR :
-				   WM_IME_KEYDOWN ? WM_IME_CHAR
-				   : WM_SYSCHAR;
-		bool foundtext = PeekMessage(&wm_char, 0, charType, charType, PM_REMOVE);
-		if ( foundtext && msg.message != WM_SYSKEYDOWN ) {
-		    uch = QChar(wm_char.wParam & 0xff, wm_char.wParam >> 8);
-		} // Syskeys have no CHARs
-	    }
-	    if ( uch != QChar::null ) {
-		if ( (msg.message == WM_SYSKEYDOWN) &&
-		     isalpha(msg.wParam) &&
-		     (msg.lParam & 0x20000000) ) //See doc of WM_SYSCHAR
-    		    uch = QChar((char)tolower(msg.wParam)); //Alt-letter
+	    MSG wm_char;
+	    UINT charType = ( t == WM_KEYDOWN ? WM_CHAR :
+			      t == WM_IME_KEYDOWN ? WM_IME_CHAR : WM_SYSCHAR );
+	    if ( PeekMessage(&wm_char, 0, charType, charType, PM_REMOVE) ) {
+		// Found a XXX_CHAR
+		uch = QChar(wm_char.wParam & 0xff, (wm_char.wParam>>8) & 0xff);
+		if ( t == WM_SYSKEYDOWN && !uch.row && 
+		     isalpha(uch.cell) && (msg.lParam & KF_ALTDOWN) ) {
+		    // (See doc of WM_SYSCHAR)
+    		    uch = QChar((char)tolower(uch.cell)); //Alt-letter
+		}
 		if ( !code && !uch.row )
 		    code = asciiToKeycode(uch.cell, state);
-	    } else {
+	    }
+	    else {
+		// No XXX_CHAR; deduce uch from XXX_KEYDOWN params
 		if ( msg.wParam == VK_DELETE )
 		    uch = QChar((char)0x7f); // Windows doesn't know this one.
+		else
+		    uch = QChar((char)MapVirtualKey( msg.wParam, 2 ));
 		if ( !code )
-		    code = asciiToKeycode(msg.wParam, state);
+		    code = asciiToKeycode( uch.cell, state);
 	    }
+
 	    if ( rec ) {
 		// it is already down (so it is auto-repeating)
 		if ( code < Key_Shift || code > Key_ScrollLock ) {
@@ -2205,8 +2207,25 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		k0 = sendKeyEvent( QEvent::KeyPress, code, a,
 				   state, grab, text );
 	    }
+	    
+	    if ( state == QMouseEvent::AltButton ) {
+		// Special handling of global Windows hotkeys
+		switch ( code ) {
+		case Qt::Key_Escape:
+		case Qt::Key_Tab:
+		case Qt::Key_Enter:
+		case Qt::Key_F4:
+		case Qt::Key_Space:
+		    k0 = FALSE;		// Send the event on to Windows
+		    k1 = FALSE;
+		    break;
+		default:
+		    break;
+		}
+	    }
+
         } else {
-	    // KEYUP
+	    // Must be KEYUP
 	    KeyRec* rec = find_key_rec( msg.wParam, TRUE );
 	    if ( !rec ) {
 		// Someone ate the key down event
