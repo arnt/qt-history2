@@ -106,6 +106,11 @@ private:
 class Q_EXPORT QDockArea : public QWidget
 {
     Q_OBJECT
+    Q_ENUMS( HandlePosition )
+    Q_PROPERTY( Orientation orientation READ orientation )
+    Q_PROPERTY( int count READ count )
+    Q_PROPERTY( bool empty READ isEmpty )
+    Q_PROPERTY( HandlePosition handlePosition READ handlePosition )
 
     friend class QDockWindow;
     friend class QDockWindowResizeHandle;
@@ -131,10 +136,12 @@ public:
     bool isEmpty() const;
     int count() const;
     QPtrList<QDockWindow> dockWindowList() const;
-    void lineUp( bool keepNewLines );
 
     bool isDockWindowAccepted( QDockWindow *dw );
     void setAcceptDockWindow( QDockWindow *dw, bool accept );
+
+public slots:
+    void lineUp( bool keepNewLines );
 
 private:
     struct DockWindowData
@@ -163,7 +170,7 @@ private:
     HandlePosition hPos;
     QPtrList<QDockWindow> forbiddenWidgets;
     QDockAreaPrivate *d;
-    
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QDockArea( const QDockArea & );

@@ -60,7 +60,7 @@ class QDockWindowPrivate;
 class Q_EXPORT QDockWindow : public QFrame
 {
     Q_OBJECT
-    Q_ENUMS( CloseMode )
+    Q_ENUMS( CloseMode Place )
     Q_PROPERTY( int closeMode READ closeMode  WRITE setCloseMode )
     Q_PROPERTY( bool resizeEnabled READ isResizeEnabled  WRITE setResizeEnabled )
     Q_PROPERTY( bool movingEnabled READ isMovingEnabled  WRITE setMovingEnabled )
@@ -70,6 +70,7 @@ class Q_EXPORT QDockWindow : public QFrame
     Q_PROPERTY( bool newLine READ newLine  WRITE setNewLine )
     Q_PROPERTY( bool opaqueMoving READ opaqueMoving  WRITE setOpaqueMoving )
     Q_PROPERTY( int offset READ offset  WRITE setOffset )
+    Q_PROPERTY( Place place READ place )
 
     friend class QDockWindowHandle;
     friend class QDockWindowTitleBar;
