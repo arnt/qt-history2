@@ -57,8 +57,6 @@ bool QPicturePaintEngine::begin(QPaintDevice *pd)
 
     pic_d = pic->d;
 
-    d->pt = painter();
-    Q_ASSERT(d->pt);
     d->s.setDevice(&pic_d->pictb);
     d->s.setVersion(pic_d->formatMajor);
 
@@ -187,15 +185,15 @@ void QPicturePaintEngine::writeCmdLength(int pos, const QRect &r, bool corr)
 
     if (br.isValid()) {
         if (corr) {                                // widen bounding rect
-            int w2 = d->pt->pen().width() / 2;
+            int w2 = painter()->pen().width() / 2;
             br.setCoords(br.left() - w2, br.top() - w2,
                           br.right() + w2, br.bottom() + w2);
         }
 #ifndef QT_NO_TRANSFORMATIONS
-        br = d->pt->worldMatrix().map(br);
+        br = painter()->worldMatrix().map(br);
 #endif
-        if (d->pt->hasClipping()) {
-            QRect cr = d->pt->clipRegion().boundingRect();
+        if (painter()->hasClipping()) {
+            QRect cr = painter()->clipRegion().boundingRect();
             br &= cr;
         }
         if (br.isValid())
