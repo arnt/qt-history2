@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#54 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#55 $
 **
 ** Definition of QListView widget class
 **
@@ -186,6 +186,8 @@ public:
     QListViewItem * currentItem() const;
 
     QListViewItem * firstChild() const;
+
+    int childCount() const;
 
     virtual void setAllColumnsShowFocus( bool );
     bool allColumnsShowFocus() const;

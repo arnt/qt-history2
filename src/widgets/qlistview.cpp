@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#136 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#137 $
 **
 ** Implementation of QListView widget class
 **
@@ -925,7 +925,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	p->setPen( cg.text() );
     }
 
-    if ( icon && !column ) {
+    if ( icon ) {
 	p->drawPixmap( r, (height()-icon->height())/2, *icon );
 	r += icon->width() + listView()->itemMargin();
     }
@@ -3648,4 +3648,17 @@ V3FIKAEBADs=
 QHeader * QListView::header() const
 {
     return d->h;
+}
+
+
+/*!  Returns the current number of parentless QListViewItem objects in
+  this QListView, like QListViewItem::childCount() returns the number
+  of child items for a QListViewItem.
+  
+  \sa QListViewItem::childCount()
+*/
+
+int QListView::childCount() const
+{
+    return d->r->childCount();
 }
