@@ -491,12 +491,8 @@ bool QMacPrintEnginePrivate::newPage_helper()
     QRect paper = q->paperRect();
     CGContextScaleCTM(hd, 1, -1);
     CGContextTranslateCTM(hd, 0, -paper.height());
-    if (ret) {
-        if (fullPage)
-            CGContextTranslateCTM(hd, paper.x() - page.x(), paper.y() - page.y());
-        else
-            CGContextTranslateCTM(hd, 0, 0);
-    }
+    if (ret && !fullPage)
+        CGContextTranslateCTM(hd, page.x(), page.y());
     return ret;
 }
 
