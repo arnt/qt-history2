@@ -466,8 +466,6 @@ bool QMotifWidget::eventFilter( QObject *object, QEvent *event )
     d->shell->core.x = p.x();
     d->shell->core.y = p.y();
 
-    qDebug( "embedded shell now at %d, %d", p.x(), p.y() );
-
     return FALSE;
 }
 
