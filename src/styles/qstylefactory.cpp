@@ -34,7 +34,7 @@
 **
 **********************************************************************/
 
-#include "qstyleinterface.h" // up here for GCC 2.7.2.3 compatibility
+#include "qstyleinterface.h" // up here for GCC 2.7.* compatibility
 #include "qstylefactory.h"
 
 #include "qinterfacemanager.h"

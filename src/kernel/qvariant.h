@@ -67,8 +67,7 @@ class QSizePolicy;
 class QDate;
 class QTime;
 class QDateTime;
-// Relevant header files rejected after QVariant declaration
-// for GCC 2.7.* compatibility
+// Some headers rejected after QVariant declaration for GCC 2.7.* compatibility
 class QVariant;
 class QVariantPrivate;
 template <class T> class QValueList;
@@ -265,7 +264,7 @@ public:
     } value;
 };
 
-// These header files are down here for GCC 2.7.* compatibility
+// down here for GCC 2.7.* compatibility
 #ifndef QT_H
 #include "qvaluelist.h"
 #include "qstringlist.h"

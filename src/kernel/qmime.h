@@ -82,9 +82,8 @@ private:
 
 #ifdef Q_WS_WIN
 
-// This header file is down here for GCC 2.7.* compatibility
 #ifndef QT_H
-#include "qlist.h"
+#include "qlist.h" // down here for GCC 2.7.* compatibility
 #endif // QT_H
 
 /*
