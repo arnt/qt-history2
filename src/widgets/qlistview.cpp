@@ -241,6 +241,7 @@ struct QListViewPrivate
 
     bool startEdit : 1;
     bool ignoreEditAfterFocus : 1;
+    bool headerResize : 1;
 
     QListView::RenameAction defRenameAction;
 
@@ -2536,6 +2537,7 @@ void QListView::init()
     d->pressedEmptyArea = FALSE;
     d->startEdit = TRUE;
     d->ignoreEditAfterFocus = FALSE;
+    d->headerResize = FALSE;
 
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
@@ -3470,7 +3472,9 @@ void QListView::updateGeometries()
 	horizontalScrollBar()->setValue( d->h->offset() );
 #endif
     verticalScrollBar()->raise();
-    resizeContents( tw, th );
+    // don't call resizeContents if the header is in resize (possible endless loop)
+    if ( !d->headerResize )
+	resizeContents( tw, th );
     if ( d->h->isHidden() ) {
 	setMargins( 0, 0, 0, 0 );
     } else {
@@ -3591,7 +3595,10 @@ void QListView::resizeEvent( QResizeEvent *e )
 void QListView::viewportResizeEvent( QResizeEvent *e )
 {
     QScrollView::viewportResizeEvent( e );
+    bool hResize = d->headerResize;
+    d->headerResize = TRUE;
     d->h->resize( visibleWidth(), d->h->height() );
+    d->headerResize = hResize;
     if ( resizeMode() != NoColumn && currentItem() && currentItem()->renameBox ) {
 	QRect r = itemRect( currentItem() );
 	r = QRect( viewportToContents( r.topLeft() ), r.size() );
