@@ -141,8 +141,6 @@ private:
     uint ubp	    : 1;
     uint hasArrow   : 1;
 
-    friend class QCommonStyle;
-
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QToolButton( const QToolButton & );
