@@ -1,4 +1,5 @@
 Fram til 0.98:
+--------------
 
 1. EE - 1 d
 connect protected/public
@@ -18,8 +19,8 @@ lage en distribusjon checkliste/huskeliste
 6. AG - 1d
 porte til flere plattformer
 
-7. HN - 2d
-makesystem
+7. HN - 1d
+makesystem, X11 templates gjenstår
 
 8. AG - 1d
 automatisk generere distribusjon
@@ -30,9 +31,6 @@ QListBox
 10. HN
 tabbing bug
 
-11. 
-32 bit QImage <-> QPixmap
-
 12.
 pakking, testing, sende ut
 
@@ -41,3 +39,13 @@ doc:
 	QCache
 	QStack
 	QQueue
+
+
+Gjort:
+------
+
+7. HN - 1d
+makesystem for Windows
+
+11. 
+32 bit QImage <-> QPixmap
