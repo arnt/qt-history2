@@ -214,6 +214,100 @@ void debug( const char *msg, ... )
     }
 }
 
+void qWarning( const char *msg, ... )
+{
+    if( !mac_debug ) {
+	mac_debug=fopen( "Mac OS 8.5:debug.txt", "r+" );
+    }
+    if(mac_debug) {
+	char buf[512];
+	va_list ap;
+	va_start( ap, msg );			// use variable arg list
+	if ( handler ) {
+	    vsprintf( buf, msg, ap );
+	    va_end( ap );
+	    (*handler)( QtDebugMsg, buf );
+	} else {
+	    vfprintf( mac_debug, msg, ap );
+	    va_end( ap );
+	    fprintf( mac_debug, "\n" );		// add newline
+	    fflush( mac_debug );
+	}
+    }
+}
+
+// copied... this looks really bad.
+Q_EXPORT
+void warning( const char *msg, ... )
+{
+    if( !mac_debug ) {
+	mac_debug=fopen( "Mac OS 8.5:debug.txt", "r+" );
+    }
+    if(mac_debug) {
+	char buf[512];
+	va_list ap;
+	va_start( ap, msg );			// use variable arg list
+	if ( handler ) {
+	    vsprintf( buf, msg, ap );
+	    va_end( ap );
+	    (*handler)( QtDebugMsg, buf );
+	} else {
+	    vfprintf( mac_debug, msg, ap );
+	    va_end( ap );
+	    fprintf( mac_debug, "\n" );		// add newline
+	    fflush( mac_debug );
+	}
+    }
+}
+
+void qFatal( const char *msg, ... )
+{
+    if( !mac_debug ) {
+	mac_debug=fopen( "Mac OS 8.5:debug.txt", "r+" );
+    }
+    if(mac_debug) {
+	char buf[512];
+	va_list ap;
+	va_start( ap, msg );			// use variable arg list
+	if ( handler ) {
+	    vsprintf( buf, msg, ap );
+	    va_end( ap );
+	    (*handler)( QtDebugMsg, buf );
+	} else {
+	    vfprintf( mac_debug, msg, ap );
+	    va_end( ap );
+	    fprintf( mac_debug, "\n" );		// add newline
+	    fflush( mac_debug );
+	}
+    }
+    exit(0);
+}
+
+// copied... this looks really bad.
+Q_EXPORT
+void fatal( const char *msg, ... )
+{
+    if( !mac_debug ) {
+	mac_debug=fopen( "Mac OS 8.5:debug.txt", "r+" );
+    }
+    if(mac_debug) {
+	char buf[512];
+	va_list ap;
+	va_start( ap, msg );			// use variable arg list
+	if ( handler ) {
+	    vsprintf( buf, msg, ap );
+	    va_end( ap );
+	    (*handler)( QtDebugMsg, buf );
+	} else {
+	    vfprintf( mac_debug, msg, ap );
+	    va_end( ap );
+	    fprintf( mac_debug, "\n" );		// add newline
+	    fflush( mac_debug );
+	}
+    }
+    exit(0);
+}
+
 #else
 
 Q_EXPORT
@@ -250,9 +344,6 @@ void debug( const char *msg, ... )
 	fprintf( stderr, "\n" );		// add newline
     }
 }
-
-#endif
-
 
 /*!
   \relates QApplication
@@ -317,6 +408,7 @@ void warning( const char *msg, ... )
     }
 }
 
+#endif
 
 /*!
   \relates QApplication
