@@ -88,8 +88,8 @@ struct NETRootInfoPrivate {
     Window active;
     Window *clients, *stacking, *virtual_roots, *kde_docking_windows;
     RArray<const char *> desktop_names;
-    CARD32 number_of_desktops;
-    CARD32 current_desktop;
+    int number_of_desktops;
+    int current_desktop;
 
     unsigned long clients_count, stacking_count, virtual_roots_count,
 	kde_docking_windows_count;
@@ -120,9 +120,9 @@ struct NETWinInfoPrivate {
     NETStrut strut, frame_strut;
     NET::WindowType type;
     char *name, *visible_name;
-    CARD32 desktop;
-    CARD32 pid;
-    CARD32 handled_icons;
+    int desktop;
+    int pid;
+    int handled_icons;
     Window kde_dockwin_for;
 
     unsigned long properties;
