@@ -62,4 +62,4 @@ private:
 Q_SQL_EXPORT QDebug operator<<(QDebug, const QSqlError &);
 #endif
 
-#endif
+#endif // QSQLERROR_H

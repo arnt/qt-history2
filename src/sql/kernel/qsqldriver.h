@@ -38,7 +38,7 @@ public:
     enum StatementType { WhereStatement, SelectStatement, UpdateStatement,
                          InsertStatement, DeleteStatement };
 
-    QSqlDriver(QObject *parent=0);
+    explicit QSqlDriver(QObject *parent=0);
     ~QSqlDriver();
     virtual bool isOpen() const;
     bool isOpenError() const;
@@ -87,4 +87,4 @@ private:
     Q_DISABLE_COPY(QSqlDriver)
 };
 
-#endif
+#endif // QSQLDRIVER_H

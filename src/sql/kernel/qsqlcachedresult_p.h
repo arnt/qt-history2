@@ -63,4 +63,4 @@ private:
     QSqlCachedResultPrivate *d;
 };
 
-#endif
+#endif // QSQLCACHEDRESULT_P_H

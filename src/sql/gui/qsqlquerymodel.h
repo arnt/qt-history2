@@ -28,7 +28,7 @@ class Q_SQL_EXPORT QSqlQueryModel: public QAbstractTableModel
     Q_DECLARE_PRIVATE(QSqlQueryModel)
 
 public:
-    QSqlQueryModel(QObject *parent = 0);
+    explicit QSqlQueryModel(QObject *parent = 0);
     virtual ~QSqlQueryModel();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;

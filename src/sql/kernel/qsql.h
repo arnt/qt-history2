@@ -60,4 +60,4 @@ namespace QSql
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QSql::ParamType)
 
-#endif
+#endif // QSQL_H

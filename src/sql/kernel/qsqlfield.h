@@ -76,4 +76,4 @@ private:
 Q_SQL_EXPORT QDebug operator<<(QDebug, const QSqlField &);
 #endif
 
-#endif
+#endif // QSQLFIELD_H

@@ -30,7 +30,7 @@ class Q_SQL_EXPORT QSqlTableModel: public QSqlQueryModel
 public:
     enum EditStrategy {OnFieldChange, OnRowChange, OnManualSubmit};
 
-    QSqlTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
+    explicit QSqlTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
     virtual ~QSqlTableModel();
 
     virtual bool select();

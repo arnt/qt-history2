@@ -19,7 +19,7 @@
 class Q_SQL_EXPORT QSqlRelationalDelegate: public QItemDelegate
 {
 public:
-    QSqlRelationalDelegate(QObject *parent = 0);
+    explicit QSqlRelationalDelegate(QObject *parent = 0);
     ~QSqlRelationalDelegate();
 
     QWidget *editor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
@@ -28,4 +28,4 @@ public:
     void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
 };
 
-#endif
+#endif // QSQLRELATIONALDELEGATE_H

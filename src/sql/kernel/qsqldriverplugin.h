@@ -31,7 +31,7 @@ class Q_SQL_EXPORT QSqlDriverPlugin : public QObject, public QSqlDriverFactoryIn
     Q_OBJECT
     Q_INTERFACES(QSqlDriverFactoryInterface:QFactoryInterface)
 public:
-    QSqlDriverPlugin(QObject *parent = 0);
+    explicit QSqlDriverPlugin(QObject *parent = 0);
     ~QSqlDriverPlugin();
 
     virtual QStringList keys() const = 0;

@@ -104,8 +104,8 @@ public:
     static bool isDriverAvailable(const QString &name);
 
 protected:
-    QSqlDatabase(const QString& type);
-    QSqlDatabase(QSqlDriver* driver);
+    explicit QSqlDatabase(const QString& type);
+    explicit QSqlDatabase(QSqlDriver* driver);
 
 private:
     friend class QSqlDatabasePrivate;
@@ -116,5 +116,5 @@ private:
 Q_SQL_EXPORT QDebug operator<<(QDebug, const QSqlDatabase &);
 #endif
 
-#endif
+#endif // QSQLDATABASE_H
 

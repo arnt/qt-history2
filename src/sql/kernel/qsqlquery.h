@@ -82,4 +82,4 @@ private:
     QSqlQueryPrivate* d;
 };
 
-#endif
+#endif // QSQLQUERY_H

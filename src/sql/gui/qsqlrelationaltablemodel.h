@@ -42,7 +42,8 @@ class Q_SQL_EXPORT QSqlRelationalTableModel: public QSqlTableModel
     Q_OBJECT
 
 public:
-    QSqlRelationalTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
+    explicit QSqlRelationalTableModel(QObject *parent = 0,
+                                      QSqlDatabase db = QSqlDatabase());
     virtual ~QSqlRelationalTableModel();
 
     QVariant data(const QModelIndex &item, int role = DisplayRole) const;
@@ -65,4 +66,4 @@ private:
     Q_DECLARE_PRIVATE(QSqlRelationalTableModel)
 };
 
-#endif
+#endif // QSQLRELATIONALTABLEMODEL_H

@@ -77,5 +77,5 @@ public:
     CacheMap cache;
 };
 
-#endif
+#endif // QSQLTABLEMODEL_P_H
 

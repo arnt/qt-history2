@@ -82,4 +82,4 @@ private:
 Q_SQL_EXPORT QDebug operator<<(QDebug, const QSqlRecord &);
 #endif
 
-#endif
+#endif // QSQLRECORD_H

@@ -51,4 +51,4 @@ private:
     QList<bool> sorts;
 };
 
-#endif
+#endif // QSQLINDEX_H

@@ -44,7 +44,7 @@ protected:
 // #endif
     };
 
-    QSqlResult(const QSqlDriver * db);
+    explicit QSqlResult(const QSqlDriver * db);
     int at() const;
     QString lastQuery() const;
     QSqlError lastError() const;
@@ -102,4 +102,4 @@ private:
     Q_DISABLE_COPY(QSqlResult)
 };
 
-#endif
+#endif // QSQLRESULT_H

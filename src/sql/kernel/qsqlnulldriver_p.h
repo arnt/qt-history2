@@ -33,7 +33,7 @@
 class QSqlNullResult : public QSqlResult
 {
 public:
-    inline QSqlNullResult(const QSqlDriver* d): QSqlResult(d)
+    inline explicit QSqlNullResult(const QSqlDriver* d): QSqlResult(d)
     { QSqlResult::setLastError(
             QSqlError(QLatin1String("Driver not loaded"), QLatin1String("Driver not loaded"))); }
 protected:
@@ -79,4 +79,4 @@ protected:
     inline void setLastError(const QSqlError&) {}
 };
 
-#endif //QSQLNULLDRIVER_P_H
+#endif // QSQLNULLDRIVER_P_H

@@ -38,7 +38,7 @@ class QSqlQueryModelPrivate: public QAbstractItemModelPrivate
 {
     Q_DECLARE_PUBLIC(QSqlQueryModel)
 public:
-    QSqlQueryModelPrivate(): atEnd(false) {}
+    QSqlQueryModelPrivate() : atEnd(false) {}
     ~QSqlQueryModelPrivate();
 
     void prefetch(int);
@@ -52,4 +52,4 @@ public:
     QVarLengthArray<int, 56> colOffsets; // used to calculate indexInQuery of columns
 };
 
-#endif
+#endif // QSQLQUERYMODEL_P_H
