@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#34 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#35 $
 **
 ** Definition of QFrame widget class
 **
@@ -96,9 +96,11 @@ private:
     int		fstyle;
     short	lwidth;
     short	mwidth;
+    short	mlwidth;
     short	fwidth;
     short	lineok;
 
+    void * d;
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QFrame( const QFrame & );
@@ -129,10 +131,10 @@ inline int QFrame::lineWidth() const
 { return lwidth; }
 
 inline int QFrame::midLineWidth() const
-{ return mwidth & 0x00ff; }
+{ return mlwidth; }
 
 inline int QFrame::margin() const
-{ return ((int)mwidth) >> 8; }
+{ return mwidth; }
 
 inline int QFrame::frameWidth() const
 { return fwidth; }
