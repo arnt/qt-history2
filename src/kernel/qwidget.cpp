@@ -4096,6 +4096,30 @@ void QWidget::adjustSize()
     setAttribute(WA_InvalidSize, false);
     ensurePolished();
     QSize s = sizeHint();
+
+    if ( isTopLevel() ) {
+
+#if defined(Q_WS_X11)
+	QRect screen = QApplication::desktop()->screenGeometry( x11Screen() );
+#else // all others
+	QRect screen = QApplication::desktop()->screenGeometry( pos() );
+#endif
+	
+#ifndef QT_NO_LAYOUT
+	if ( layout() ) {
+	    if ( layout()->hasHeightForWidth() ) {
+		s = s.boundedTo( screen.size() );
+		s.setHeight( layout()->totalHeightForWidth( s.width() ) );
+	    }
+	} else
+#endif
+	{
+	    if ( sizePolicy().hasHeightForWidth() ) {
+		s = s.boundedTo( screen.size() );
+		s.setHeight( heightForWidth( s.width() ) );
+	    }
+	}
+    }
     if ( s.isValid() ) {
 	resize( s );
 	return;
