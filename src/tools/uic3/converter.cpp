@@ -189,7 +189,10 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
     if (className.isEmpty())
         className = w.attribute("class");
     if (className == QLatin1String("QLayoutWidget"))
-         className = QLatin1String("QWidget");
+        className = QLatin1String("QWidget");
+    else if (className == QLatin1String("QButtonGroup"))
+        className = QLatin1String("Q3ButtonGroup");
+
     ui_widget->setAttributeClass(className);
 
     QList<DomWidget*> ui_child_list;
