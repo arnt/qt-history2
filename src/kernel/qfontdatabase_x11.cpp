@@ -153,7 +153,10 @@ void QFontDatabase::createDatabase()
 			if (XftPatternGetString (styles->fonts[s],
 						 XFT_STYLE, 0, &value) ==
 			    XftResultMatch) {
-			    QtFontStyle *style = new QtFontStyle (family, value);
+			    QString styleName(value);
+			    if (styleName.lower() == "regular")
+				styleName = "Normal";
+			    QtFontStyle *style = new QtFontStyle (family, styleName);
 			    Q_CHECK_PTR (style);
 
 			    slant_value = XFT_SLANT_ROMAN;
