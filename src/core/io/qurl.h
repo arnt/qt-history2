@@ -115,27 +115,13 @@ public:
     inline QT_COMPAT bool hasHost() const { return !host().isEmpty(); }
     inline QT_COMPAT bool hasPort() const { return port() != -1; }
     inline QT_COMPAT bool hasPath() const { return !path().isEmpty(); }
-    inline QT_COMPAT void setEncodedPathAndQuery(const QString &enc)
-    {
-        int offset = enc.indexOf('/');
-        if (offset != -1) {
-            setPath(fromPercentEncoding(enc.left(offset).toLatin1()));
-            setEncodedQuery(enc.mid(offset + 1).toLatin1());
-        } else {
-            setPath(fromPercentEncoding(enc.toLatin1()));
-        }
-    }
-    inline QT_COMPAT QString encodedPathAndQuery() const
-    {
-        return toPercentEncoding(path()) + "/" + encodedQuery();
-    }
     inline QT_COMPAT void setQuery(const QString &txt)
     {
-        setEncodedQuery(toPercentEncoding(txt));
+        setEncodedQuery(txt.toLatin1());
     }
     inline QT_COMPAT QString query() const
     {
-        return fromPercentEncoding(encodedQuery());
+        return QString::fromLatin1(encodedQuery());
     }
     inline QT_COMPAT QString ref() const { return fragment(); }
     inline QT_COMPAT void setRef(const QString &txt) { setFragment(txt); }
