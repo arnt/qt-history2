@@ -498,6 +498,9 @@ QRegion Connection::region() const
         result = result.unite(r);
     }
     
+    result = result.unite(labelRect(EndPoint::Source));
+    result = result.unite(labelRect(EndPoint::Target));
+    
     return result;
 }
 
@@ -513,8 +516,6 @@ void Connection::update(bool update_widgets) const
     
     m_edit->update(endPointRect(EndPoint::Source));
     m_edit->update(endPointRect(EndPoint::Target));
-    m_edit->update(labelRect(EndPoint::Source));
-    m_edit->update(labelRect(EndPoint::Target));
 }
 
 void Connection::paint(QPainter *p) const
