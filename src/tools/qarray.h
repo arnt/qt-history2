@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qarray.h#26 $
+** $Id: //depot/qt/main/src/tools/qarray.h#27 $
 **
 ** Definition of QArray template/macro class
 **
@@ -31,7 +31,7 @@
 #endif // QT_H
 
 
-template<class type> class QArray : public QGArray
+template<class type> class Q_EXPORT QArray : public QGArray
 {
 protected:
     QArray( int, int ) : QGArray( 0, 0 ) {}
