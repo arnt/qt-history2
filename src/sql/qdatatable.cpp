@@ -1011,6 +1011,7 @@ bool QDataTable::updateCurrent()
 	QApplication::restoreOverrideCursor();
 	if ( ( !b && !sqlCursor()->isActive() ) || !sqlCursor()->isActive() ) {
 	    handleError( sqlCursor()->lastError() );
+	    endUpdate();
 	    refresh();
 	    setCurrentCell( d->editRow, d->editCol );
 	    if ( QTable::beginEdit( d->editRow, d->editCol, FALSE ) )
@@ -1672,8 +1673,9 @@ void QDataTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDele
 	    for ( uint i = 0; i < sqlCursor()->count(); ++i ) {
 		//## need algorithm for better display label
 		addColumn( sqlCursor()->field( i )->name(), sqlCursor()->field( i )->name() );
-		if ( idx.contains( sqlCursor()->field( i )->name() ) )
+		if ( sqlCursor()->field( i )->isReadOnly() || idx.contains( sqlCursor()->field( i )->name() ) ) {
 		    setColumnReadOnly( numCols()-1, TRUE );
+		}
 	    }
 	}
 	if ( sqlCursor()->isReadOnly() )
