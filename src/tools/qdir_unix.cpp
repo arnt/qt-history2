@@ -71,16 +71,9 @@ QString QDir::homeDirPath()
 QString QDir::canonicalPath() const
 {
     QString r;
-    int fd = ::open( ".", O_RDONLY );
-    if ( fd != -1 ) {
-	char tmp[PATH_MAX+1];
-	if( ::realpath(QFile::encodeName(dPath), tmp) ) 
-	    r = QFile::decodeName( tmp );
-    	// always make sure we go back to the current dir
-	::fchdir( fd );
-	::close( fd );
-	slashify( r );
-    }
+    char tmp[PATH_MAX+1];
+    if( ::realpath(QFile::encodeName(dPath), tmp) )
+	r = QFile::decodeName( tmp );
     return r;
 }
 
@@ -93,7 +86,7 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
     int status =
 	::mkdir( QFile::encodeName(filePath(name,acceptAbsPath)), 0777 );
 #else
-    int status = 
+    int status =
 	::mkdir( QFile::encodeName(filePath(dirName,acceptAbsPath)), 0777 );
 #endif
 #if defined(Q_OS_UNIXWARE)
