@@ -368,8 +368,12 @@ static void saveDefaultProperties( QWidget *w, int id )
 {
     QMap< QString, QVariant> propMap;
     QStrList lst = w->metaObject()->propertyNames( TRUE );
-    for ( uint i = 0; i < lst.count(); ++i )
-	propMap.insert( lst.at( i ), w->property( lst.at( i ) ) );
+    for ( uint i = 0; i < lst.count(); ++i ) {
+	QVariant var = w->property( lst.at( i ) );
+	if ( !var.isValid() && qstrcmp( "pixmap", lst.at( i ) ) == 0 )
+	    var = QVariant( QPixmap() );
+	propMap.insert( lst.at( i ), var );
+    }
     defaultProperties->insert( id, propMap );
 }
 
