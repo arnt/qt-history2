@@ -1,19 +1,5 @@
 # Qt graphics 
 
-#mng support
-mng {
-	unix:LIBS	+= -lmng
-	INCLUDEPATH        += 3rdparty/libmng
-	HEADERS += $$KERNEL_H/qmngio.h
-	SOURCES += $$KERNEL_CPP/qmngio.cpp
-
-	!jpeg {
-		message(mng support requires support for jpeg)
-		CONFIG += jpeg
-	}
-}
-!mng:DEFINES += QT_NO_IMAGEIO_MNG
-
 #jpeg support..
 HEADERS += $$KERNEL_H/qjpegio.h 
 SOURCES += $$KERNEL_CPP/qjpegio.cpp
@@ -67,7 +53,21 @@ jpeg {
 		  3rdparty/libjpeg/jmemansi.c
 }
 system-jpeg:LIBS += -ljpeg
-!jpeg:DEFINES += QT_NO_IMAGEIO_JPEG
+!jpeg:!system-jpeg:DEFINES += QT_NO_IMAGEIO_JPEG
+
+#mng support
+mng {
+	unix:LIBS	+= -lmng
+	INCLUDEPATH        += 3rdparty/libmng
+	HEADERS += $$KERNEL_H/qmngio.h
+	SOURCES += $$KERNEL_CPP/qmngio.cpp
+
+	contains(DEFINES, QT_NO_IMAGEIO_JPEG) {
+		message(Use of mng requires support for jpeg)
+		CONFIG += jpeg
+	}
+}
+!mng:DEFINES += QT_NO_IMAGEIO_MNG
 
 #png support
 HEADERS+=$$KERNEL_H/qpngio.h
