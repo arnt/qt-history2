@@ -892,13 +892,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    consume( "obsolete" );
 		    obsolete = TRUE;
 		    yyOut += QString( "<b>This %1 is obsolete.</b> It is"
-				      " provided to keep old source working,"
-				      " and will probably be removed in a"
-				      " future version of %2. We strongly"
-				      " advise against using it in new"
-				      " code.\n" )
-			     .arg( what(kindIs) )
-			     .arg( config->product() );
+				      " provided to keep old source working."
+				      " We strongly advise against using it"
+				      " in new code.\n" )
+			     .arg( what(kindIs) );
 		    metNL = TRUE;
 		} else {
 		    consume( "overload" );

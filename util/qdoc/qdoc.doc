@@ -422,10 +422,9 @@
     See also the \link #class \\class \endlink entry for an example.
 
    \i <a name="obsolete"></a>
-    <b>\\obsolete</b> expands to the following text: "<b>This method
-    is obsolete.</b> It is provided to keep old source working, and
-    will probably be removed in a future version of Qt. We strongly
-    advise against using it in new code." It has other minor
+    <b>\\obsolete</b> expands to the following text: "<b>This function
+    is obsolete.</b> It is provided to keep old source working. We
+    strongly advise against using it in new code." It has other minor
     consequences.
 
    \i <a name="code"></a>
