@@ -18,6 +18,7 @@ defineTest(fixExclusiveOutputDirs) {
             contains($$list($${first($$fix)}), .*/$):eval($$fix = $${first($$fix)}$${firstBuild})
 	    else:eval($$fix = $${first($$fix)}-$${firstBuild})
         }
+        export($$fix)
     }
     return(true)
 }
@@ -44,13 +45,20 @@ defineTest(addExclusiveBuilds) {
             else: permutationName = -$$permutation
             # Makefile target rule
             eval($${firstBuildName}$${permutation}.target  = $${firstBuild}$$lower($${permutationName}))
+	    export($${firstBuildName}$${permuation}.target)
             # IDE name
             eval($${firstBuildName}$${permutation}.name    = $${firstBuildName}$${permutationName})
+	    export($${firstBuildName}$${permuation}.name)
             # Individual CONFIG option
             eval($${firstBuildName}$${permutation}.CONFIG  = $${firstBuild} $${firstBuildName}Build $$eval($${permutation}.CONFIG))
+	    export($${firstBuildName}$${permuation}.CONFIG)
+
             eval($${secondBuildName}$${permutation}.target = $${secondBuild}$$lower($${permutationName}))
+	    export($${secondBuildName}$${permuation}.target)
             eval($${secondBuildName}$${permutation}.name   = $${secondBuildName}$${permutationName})
+	    export($${secondBuildName}$${permuation}.name)
             eval($${secondBuildName}$${permutation}.CONFIG = $${secondBuild} $${secondBuildName}Build $$eval($${permutation}.CONFIG))
+	    export($${secondBuildName}$${permuation}.CONFIG)
  
             first_BUILDS += $${firstBuildName}$${permutation}
             second_BUILDS += $${secondBuildName}$${permutation}
@@ -59,6 +67,7 @@ defineTest(addExclusiveBuilds) {
         # A mutual exclusive block.
         CONFIG($${firstBuild}, $${firstBuild}|$${secondBuild}): BUILDS = $$first_BUILDS  $$second_BUILDS 
         else: BUILDS = $$second_BUILDS $$first_BUILDS
+        export(BUILDS)
     } else {
         eval($${firstBuildName}Build:fixExclusiveOutputDirs($$firstBuild, $$secondBuild, false))
         eval($${secondBuildName}Build:fixExclusiveOutputDirs($$secondBuild, $$firstBuild, false))
