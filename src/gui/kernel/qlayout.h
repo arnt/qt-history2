@@ -190,7 +190,7 @@ public:
     QSize minimumSize() const;
     QSize maximumSize() const;
     void setGeometry(const QRect&) = 0;
-    virtual QLayoutItem *itemAt(int idx) = 0;
+    virtual QLayoutItem *itemAt(int idx) const = 0;
     virtual QLayoutItem *takeAt(int idx) = 0;
     bool isEmpty() const;
 
@@ -304,7 +304,7 @@ public:
 
     void setOrigin(Corner);
     Corner origin() const;
-    QLayoutItem *itemAt(int);
+    QLayoutItem *itemAt(int) const;
     QLayoutItem *takeAt(int);
     void setGeometry(const QRect&);
 
@@ -385,7 +385,7 @@ public:
 
     QSizePolicy::ExpandData expanding() const;
     void invalidate();
-    QLayoutItem *itemAt(int);
+    QLayoutItem *itemAt(int) const;
     QLayoutItem *takeAt(int);
     void setGeometry(const QRect&);
 

@@ -135,7 +135,7 @@ public:
     inline int count() const { return things.count() + multi.count(); }
     QRect cellGeometry(int row, int col) const;
 
-    inline QLayoutItem *itemAt(int idx) {
+    inline QLayoutItem *itemAt(int idx) const {
         if (idx < things.count())
             return things.at(idx)->item();
         else if (idx - things.count() < multi.count())
@@ -1016,7 +1016,7 @@ bool QGridLayout::findWidget(QWidget* w, int *row, int *col)
 /*!
     \reimp
 */
-QLayoutItem *QGridLayout::itemAt(int idx)
+QLayoutItem *QGridLayout::itemAt(int idx) const
 {
     return data->itemAt(idx);
 }
@@ -1678,7 +1678,7 @@ void QBoxLayout::invalidate()
 /*!
     \reimp
 */
-QLayoutItem *QBoxLayout::itemAt(int idx)
+QLayoutItem *QBoxLayout::itemAt(int idx) const
 {
     return idx >= 0 && idx < data->list.count() ? data->list.at(idx)->item : 0;
 }

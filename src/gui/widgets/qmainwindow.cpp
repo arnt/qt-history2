@@ -113,7 +113,7 @@ public:
     bool hasHeightForWidth() const { return false; }
     QSize sizeHint() const;
     QSize minimumSize() const;
-    QLayoutItem *itemAt(int idx) { return 0; } //###
+    QLayoutItem *itemAt(int idx) const { return 0; } //###
     QLayoutItem *takeAt(int) { return 0; } //###
 
     QSizePolicy::ExpandData expanding() const { return QSizePolicy::BothDirections; }

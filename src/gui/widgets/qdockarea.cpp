@@ -68,7 +68,7 @@ void QDockAreaLayout::setGeometry(const QRect &r)
     layoutItems(r);
 }
 
-QLayoutItem *QDockAreaLayout::itemAt(int idx)
+QLayoutItem *QDockAreaLayout::itemAt(int idx) const
 {
     return 0; //###
 }

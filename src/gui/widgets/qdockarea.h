@@ -49,7 +49,7 @@ public:
     int widthForHeight(int) const;
     QSize sizeHint() const;
     QSize minimumSize() const;
-    QLayoutItem *itemAt(int);
+    QLayoutItem *itemAt(int) const;
     QLayoutItem *takeAt(int);
     QSizePolicy::ExpandData expanding() const { return QSizePolicy::NoDirection; }
     void invalidate();
