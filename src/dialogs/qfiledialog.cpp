@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#336 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#337 $
 **
 ** Implementation of QFileDialog class
 **
@@ -458,7 +458,7 @@ struct QFileDialogPrivate {
 
     bool ignoreNextKeyPress;
     QProgressDialog *progressDia;
-    
+
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -711,7 +711,8 @@ void QFileListBox::viewportDragLeaveEvent( QDragLeaveEvent * )
     dragScrollTimer->stop();
     filedialog->drawDragShapes( oldDragPos, TRUE, urls );
     setCurrentDropItem( QPoint( -1, -1 ) );
-    filedialog->setUrl( startDragUrl );
+    if ( startDragDir != filedialog->url().toString() )
+	filedialog->setUrl( startDragUrl );
 }
 
 void QFileListBox::viewportDropEvent( QDropEvent *e )
@@ -1130,7 +1131,8 @@ void QFileListView::viewportDragLeaveEvent( QDragLeaveEvent * )
     dragScrollTimer->stop();
     filedialog->drawDragShapes( oldDragPos, FALSE, urls );
     setCurrentDropItem( QPoint( -1, -1 ) );
-    filedialog->setUrl( startDragUrl );
+    if ( startDragDir != filedialog->url().toString() )
+	filedialog->setUrl( startDragUrl );
 }
 
 void QFileListView::viewportDropEvent( QDropEvent *e )

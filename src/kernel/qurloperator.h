@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.h#16 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.h#17 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -30,6 +30,7 @@
 #include "qobject.h"
 #include "qurl.h"
 #include "qlist.h"
+#include "qvaluelist.h"
 #include "qnetworkprotocol.h"
 #endif // QT_H
 
@@ -56,8 +57,9 @@ public:
     virtual const QNetworkOperation *rename( const QString &oldname, const QString &newname );
     virtual const QNetworkOperation *get();
     virtual const QNetworkOperation *put( const QByteArray &data );
-    virtual const QNetworkOperation *copy( const QString &from, const QString &to, bool move );
-    virtual QList<QNetworkOperation> copy( const QStringList &files, const QString &dest, bool move );
+    virtual QList<QNetworkOperation> copy( const QString &from, const QString &to, bool move = FALSE );
+    virtual QValueList< QList<QNetworkOperation> > copy( const QStringList &files, const QString &dest, 
+							 bool move = FALSE );
     virtual bool isDir();
 
     virtual void setNameFilter( const QString &nameFilter );

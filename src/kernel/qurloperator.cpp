@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#23 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -435,17 +435,20 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
   operation was successful or not.
 */
 
-const QNetworkOperation *QUrlOperator::copy( const QString &from, const QString &to, bool move )
+QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString &to, bool move )
 {
-    if ( !checkValid() )
-	return 0;
+    QList<QNetworkOperation> ops;
+    ops.setAutoDelete( FALSE );
 
-    QUrlOperator *u = new QUrlOperator( *this, from );
+    if ( !checkValid() )
+	return ops;
+
+   QUrlOperator *u = new QUrlOperator( *this, from );
     QString frm = *u;
 
     QString file = u->fileName();
     file.prepend( "/" );
-    
+
     QNetworkProtocol *gProt = QNetworkProtocol::getNetworkProtocol( u->protocol() );
     gProt->setUrl( u );
 
@@ -460,9 +463,11 @@ const QNetworkOperation *QUrlOperator::copy( const QString &from, const QString 
 	gProt->setAutoDelete( TRUE );
 	QNetworkOperation *opGet = new QNetworkOperation( QNetworkProtocol::OpGet,
 							  frm, QString::null, QString::null );
+	ops.append( opGet );
 	gProt->addOperation( opGet );
 	QNetworkOperation *opPut = new QNetworkOperation( QNetworkProtocol::OpPut, to + file,
 							  QString::null, QString::null );
+	ops.append( opPut );
 	QUrlOperator *u2 = new QUrlOperator( to );
 	QNetworkProtocol *pProt = QNetworkProtocol::getNetworkProtocol( u2->protocol() );
 	pProt->setUrl( u2 );
@@ -477,11 +482,12 @@ const QNetworkOperation *QUrlOperator::copy( const QString &from, const QString 
 	if ( move && gProt->supportedOperations() & QNetworkProtocol::OpRemove ) {
 	    QNetworkOperation *opRm = new QNetworkOperation( QNetworkProtocol::OpRemove, frm,
 							     QString::null, QString::null );
+	    ops.append( opRm );
 	    d->getOpRemoveOpMap[ opGet ] = opRm;
 	    gProt->setAutoDelete( FALSE );
 	}	
 
-	return opGet;
+	return ops;
     } else {
 	delete gProt;
 	QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet,
@@ -496,7 +502,7 @@ const QNetworkOperation *QUrlOperator::copy( const QString &from, const QString 
 	delete res;
     }
 
-    return 0;
+    return ops;
 }
 
 /*!
@@ -509,10 +515,11 @@ const QNetworkOperation *QUrlOperator::copy( const QString &from, const QString 
   operation was successful or not.
 */
 
-QList<QNetworkOperation> QUrlOperator::copy( const QStringList &files, const QString &dest, bool move )
+QValueList< QList<QNetworkOperation> > QUrlOperator::copy( const QStringList &files, const QString &dest,
+							   bool move )
 {
     QStringList::ConstIterator it = files.begin();
-    QList<QNetworkOperation> ops;
+    QValueList< QList<QNetworkOperation> > ops;
     for ( ; it != files.end(); ++it )
 	ops.append( copy( *it, dest, move ) );
     return ops;
@@ -802,13 +809,13 @@ void QUrlOperator::finishedGet( QNetworkOperation *op )
 {
     if ( op->operation() != QNetworkProtocol::OpGet )
 	return;
-    
+
     QNetworkOperation *put = d->getOpPutOpMap[ op ];
     QNetworkProtocol *gProt = d->getOpGetProtMap[ op ];
     QNetworkProtocol *pProt = d->getOpPutProtMap[ op ];
     QNetworkOperation *rm = d->getOpRemoveOpMap[ op ];
     d->getOpPutOpMap.remove( op );
-    d->getOpGetProtMap.remove( op ); 
+    d->getOpGetProtMap.remove( op );
     d->getOpPutProtMap.remove( op );
     d->getOpRemoveOpMap.remove( op );
     if ( pProt )
