@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#53 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#54 $
 #
 # this is a massive hack, written very quickly
 #
@@ -275,6 +275,7 @@ sub processdocs {
 	    $seealso = $1;
 	    $seealso =~ s/\.?\s*$//;
 	    $seealso =~ s/,?\s+/, /g;
+	    $seealso =~ s/\s+and\s+/, /gi;
 	    $seealso =~ s/, (\S+)$/ and $1/;
 	    sprintf( "See also: %s.\n", $seealso );
 	}@es;
