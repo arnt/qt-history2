@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#10 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -23,7 +23,7 @@
 #include <X11/Xatom.h> // for XA_STRING and friends
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#10 $");
 
 // this stuff is copied from qapp_x11.cpp
 
@@ -406,7 +406,7 @@ void QDragManager::move( const QPoint & globalPos )
     }
     
     if ( target == 0 )
-	target == qt_xrootwin();
+	target = qt_xrootwin();
     else
 	target = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
 

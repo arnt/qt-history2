@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#48 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -26,7 +26,7 @@
 #include <unistd.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#48 $");
 
 
 // Note: this is comment-stripped and word-wrapped later.
@@ -505,8 +505,10 @@ static struct {
     Q_UINT16 u;
     const char * g;
 } unicodetoglyph[] = {
-// $ grep '^[0-9A-F][0-9A-F][0-9A-F][0-9A-F];' < glyphlist.txt | \
-//    sed -e 's/;/, "/' -e 's/;.*/" },/' -e 's/^/    { 0x/' | sort
+/*
+  $ grep '^[0-9A-F][0-9A-F][0-9A-F][0-9A-F];' < glyphlist.txt | \
+    sed -e 's/;/, "/' -e 's/;.*$/" },/' -e 's/^/    { 0x/' | sort
+*/
     { 0x0020, "space" },
     { 0x0021, "exclam" },
     { 0x0022, "quotedbl" },

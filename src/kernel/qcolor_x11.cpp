@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#72 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#72 $");
 
 
 /*****************************************************************************
@@ -52,8 +52,8 @@ static bool    *g_our_alloc = 0;		// our allocated colors
 static bool	g_truecolor;
 static uint	red_mask , green_mask , blue_mask;
 static int	red_shift, green_shift, blue_shift;
-static const int col_std_dict = 419;
-static const int col_large_dict = 18397;
+static const uint col_std_dict = 419;
+static const uint col_large_dict = 18397;
 
 static bool	color_reduce = FALSE;
 static int	col_div_r;
