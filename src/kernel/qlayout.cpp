@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#35 $
 **
 ** Implementation of layout classes
 **
@@ -1196,7 +1196,7 @@ void QGridLayout::setColStretch( int col, int stretch )
 
 
 /*!
-  Sets the minimum width of \a row to \a minsize pixels.
+  Sets the minimum height of \a row to \a minsize pixels.
  */
 void QGridLayout::addRowSpacing( int row, int minsize )
 {
@@ -1219,7 +1219,7 @@ void QGridLayout::addRowSpacing( int row, int minsize )
 }
 
 /*!
-  Sets the minimum height of \a col to \a minsize pixels.
+  Sets the minimum width of \a col to \a minsize pixels.
  */
 void QGridLayout::addColSpacing( int col, int minsize )
 {

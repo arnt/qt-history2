@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#24 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -201,7 +201,7 @@ QDragObject * QDragObject::alternative() const
 /*! \class QTextDragObject qdragobject.h
 
   \brief The QTextDragObject provides a drag and drop object for
-  tranferring plain text.
+  transferring plain text.
 
   \ingroup kernel
 
