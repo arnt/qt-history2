@@ -9,7 +9,7 @@ DESTDIR = ../../../bin
 HEADERS +=  replacetoken.h            \
             tokenreplacements.h       \
             textreplacement.h         \
-            rulesfromxml.h            \
+            portingrules.h            \
             qtsimplexml.h             \
             projectporter.h           \
             proparser.h               \
@@ -23,7 +23,7 @@ SOURCES += port.cpp                  \
            replacetoken.cpp          \
            tokenreplacements.cpp     \
            textreplacement.cpp       \
-           rulesfromxml.cpp          \
+           portingrules.cpp          \
            qtsimplexml.cpp           \
            projectporter.cpp         \
            proparser.cpp             \

@@ -14,18 +14,19 @@
 #ifndef FILEPORTER_H
 #define FILEPORTER_H
 
-#include "rulesfromxml.h"
-#include "replacetoken.h"
-#include "filewriter.h"
 #include <QString>
 #include <QMap>
+#include "portingrules.h"
+#include "replacetoken.h"
+#include "filewriter.h"
 
 class FilePorter
 {
 public:
     enum FileType {Header, Source};
     FilePorter(QString rulesFileName);
-    void port(QString inBasePath, QString inFilePath, QString outBasePath, QString outFilePath, FileType fileType );
+    void port(QString inBasePath, QString inFilePath, 
+             QString outBasePath, QString outFilePath, FileType fileType );
 private:
     QByteArray noPreprocess(const QString &fileName);
     QByteArray includeAnalyse(QByteArray file, FileType fileType);
