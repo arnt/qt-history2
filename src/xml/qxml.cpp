@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#42 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#43 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2596,7 +2596,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseProlog;
+    ps->function = &QXmlSimpleReader::parseProlog;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -2793,7 +2793,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseElement;
+    ps->function = &QXmlSimpleReader::parseElement;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -3244,7 +3244,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseContent;
+    ps->function = &QXmlSimpleReader::parseContent;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -3373,7 +3373,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseMisc;
+    ps->function = &QXmlSimpleReader::parseMisc;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -3616,7 +3616,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parsePI;
+    ps->function = &QXmlSimpleReader::parsePI;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -3830,7 +3830,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseDoctype;
+    ps->function = &QXmlSimpleReader::parseDoctype;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -4014,7 +4014,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseExternalID;
+    ps->function = &QXmlSimpleReader::parseExternalID;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -4197,7 +4197,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseMarkupdecl;
+    ps->function = &QXmlSimpleReader::parseMarkupdecl;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -4315,7 +4315,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parsePEReference;
+    ps->function = &QXmlSimpleReader::parsePEReference;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -4540,7 +4540,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseAttlistDecl;
+    ps->function = &QXmlSimpleReader::parseAttlistDecl;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -4808,7 +4808,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseAttType;
+    ps->function = &QXmlSimpleReader::parseAttType;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -4934,7 +4934,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseAttValue;
+    ps->function = &QXmlSimpleReader::parseAttValue;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -5178,7 +5178,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseElementDecl;
+    ps->function = &QXmlSimpleReader::parseElementDecl;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -5322,7 +5322,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseNotationDecl;
+    ps->function = &QXmlSimpleReader::parseNotationDecl;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -5461,7 +5461,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseChoiceSeq;
+    ps->function = &QXmlSimpleReader::parseChoiceSeq;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -5750,7 +5750,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseEntityDecl;
+    ps->function = &QXmlSimpleReader::parseEntityDecl;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -5886,7 +5886,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseEntityValue;
+    ps->function = &QXmlSimpleReader::parseEntityValue;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -6006,7 +6006,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseComment;
+    ps->function = &QXmlSimpleReader::parseComment;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -6126,7 +6126,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseAttribute;
+    ps->function = &QXmlSimpleReader::parseAttribute;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -6224,7 +6224,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseName;
+    ps->function = &QXmlSimpleReader::parseName;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -6310,7 +6310,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseNmtoken;
+    ps->function = &QXmlSimpleReader::parseNmtoken;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -6483,7 +6483,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseReference;
+    ps->function = &QXmlSimpleReader::parseReference;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
@@ -6710,7 +6710,7 @@ parseError:
 
 incrementalEnd:
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
-    ps->function = parseString;
+    ps->function = &QXmlSimpleReader::parseString;
     ps->state = state;
     d->parseStack->push( ps );
     return FALSE;
