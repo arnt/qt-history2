@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#84 $
 **
 ** Implementation of font database class.
 **
@@ -1459,6 +1459,83 @@ int main( int argc, char **argv )
     This example gets the list of font families, then the list of styles
     for each family and the point sizes that are available for each
     family/style combination.
+*/
+/*!
+    \obsolete
+    \fn inline QStringList QFontDatabase::families( bool ) const
+*/
+/*!
+    \obsolete
+    \fn inline QStringList QFontDatabase::styles( const QString &family,
+					  const QString & ) const
+*/
+/*!
+    \obsolete
+    \fn inline QValueList<int> QFontDatabase::pointSizes( const QString &family,
+						  const QString &style ,
+						  const QString & )
+*/
+
+/*!
+    \obsolete
+    \fn inline QValueList<int> QFontDatabase::smoothSizes( const QString &family,
+						   const QString &style,
+						   const QString & )
+*/
+/*!
+    \obsolete
+    \fn inline QFont QFontDatabase::font( const QString &familyName,
+				  const QString &style,
+				  int pointSize,
+				  const QString &)
+*/
+/*!
+    \obsolete
+    \fn inline bool QFontDatabase::isBitmapScalable( const QString &family,
+					     const QString &style,
+					     const QString & ) const
+*/
+
+/*!
+    \obsolete
+    \fn inline bool QFontDatabase::isSmoothlyScalable( const QString &family,
+					       const QString &style,
+					       const QString & ) const
+*/
+
+/*!
+    \obsolete
+    \fn inline bool QFontDatabase::isScalable( const QString &family,
+				       const QString &style,
+				       const QString & ) const
+*/
+
+/*!
+    \obsolete
+    \fn inline bool QFontDatabase::isFixedPitch( const QString &family,
+					 const QString &style,
+					 const QString & ) const
+*/
+
+/*!
+    \obsolete
+    \fn inline bool QFontDatabase::italic( const QString &family,
+				   const QString &style,
+				   const QString & ) const
+*/
+
+/*!
+    \obsolete
+    \fn inline bool QFontDatabase::bold( const QString &family,
+				 const QString &style,
+				 const QString & ) const
+*/
+
+/*!
+    \obsolete
+    \fn inline int QFontDatabase::weight( const QString &family,
+				  const QString &style,
+				  const QString & ) const
 */
 
 

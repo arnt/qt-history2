@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#239 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#240 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -55,7 +55,6 @@
 // #define QFONTCACHE_DEBUG
 
 
-// REVISED: brad
 /*! \class QFont qfont.h
 
   \brief The QFont class specifies a font used for drawing text.
@@ -64,96 +63,74 @@
   \ingroup appearance
   \ingroup shared
 
-  More precisely, QFont is a collection of attributes of a font.
-  When Qt needs to draw text, it will look up the closest
-  matching installed font, load it and use it.
-  If a choosen X11 font does not cover all characters to be displayed,
-  QFont blends in the missing characters from other fonts if possible.
+    When you create a QFont object you specify various attributes that
+    you want the font to have. Qt will use the font with the specified
+    attributes, or if no matching font exists, Qt will use the closest
+    matching installed font. The attributes of the font that is actually
+    used are retrievable from a QFontInfo object. If the window system
+    provides an exact match exactMatch() returns TRUE. If you want to
+    find out font metrics use a QFontMetrics object.
 
-  The most important attributes of a QFont are its font family (family()),
-  its size (pointSize()), its boldness (weight()) and
-  whether it is italic() or not. There are
-  QFont constructors that take these attributes as arguments, for example:
+    Use QApplication::setFont() to set the application's default font.
 
-  \walkthrough fonts/simple-qfont-demo/viewer.cpp
-  \skipto defaultButton
-  \printline defaultButton
-  \printuntil times
+    If a choosen X11 font does not include all the characters that need
+    to be displayed, QFont will try to find the characters in the
+    nearest equivalent fonts. When a QPainter draws a character from a
+    font the QFont will report whether or not it has the character; if
+    it does not, QPainter will draw an unfilled square.
 
-  12pt (the default if nothing else is specified) Times, normal weight,
-  roman (i.e. non-italic) is used for the label of the defaultButton push button.
+    Create a QFont like this: 
+    \code 
+    QFont serifFont( "Times", 10, Bold ); 
+    \endcode
 
-  \walkthrough fonts/simple-qfont-demo/viewer.cpp
-  \skipto sansSerifButton
-  \printline sansSerifButton
-  \printuntil Helvetica
+    The attributes set in the constructor can also be set later, e.g.
+    setFamily(), setPointSize(), setWeight() and setItalic(). The
+    remaining attributes must be set after contstruction, e.g.
+    setBold(), setUnderline(), setStrikeOut() and setFixedPitch(). 
+    QFontInfo objects should be created \e after the font's attributes
+    have been set. A QFontInfo object will not change, even if you
+    change the font's attributes. The corresponding "get" functions,
+    e.g. family(), pointSize(), etc., return the values that were set,
+    even though the values used may differ. The actual values are
+    available from a QFontInfo object.
+    
+    If the requested font family is unavailable you can influence the
+    font matching algorithm by choosing a particular
+    \l{QFont::StyleHint} and \l{QFont::StyleStrategy} with
+    setStyleHint(). The default family (corresponding to the current
+    style hint) is returned by defaultFamily(). 
+    
+    The font-matching algorithm has a lastResortFamily() and
+    lastResortFont() in cases where a suitable match cannot be found.
+    You can provide substitutions for font family names using
+    insertSubstitution() and insertSubstitutions(). Substitutions can be
+    removed with removeSubstitution(). Use substitute() to retrieve a
+    family's first substitute, or the family name itself if it has no
+    substitutes. Use substitutes() to retrieve a list of a family's
+    substitutes (which may be empty).
 
-  This button's label is drawn using Helvetica 12pt, non-bold, non-italic.
+    Every QFont has a key() which you can use, for example, as the key
+    in a cache or dictionary. If you want to store a user's font
+    preferences you could use QSettings, writing the font information
+    with toString() and reading it back with fromString().
 
-  \walkthrough fonts/simple-qfont-demo/viewer.cpp
-  \skipto italicsButton
-  \printline italicsButton
-  \printuntil lucida
+    It is possible to set the height of characters shown on the screen
+    to a specified number of pixels with setPixelSize(); however using
+    setPointSize() has a similar effect and provides device
+    independence.
 
-  To draw this button's label 12pt Lucida, bold italic is used.
+    Under the X Window System you can set a font using its system
+    specific name with setRawName().
 
-  (Code taken from \link simple-font-demo-example.html
-  fonts/simple-qfont-demo/viewer.cpp \endlink)
+    Loading fonts can be expensive, especially on X11. QFont contains
+    extensive optimizations to make copying of QFont objects fast, and
+    to cache the results of the slow window system functions it depends
+    upon.
 
-  The default QFont constructor without any arguments
-  keeps a copy of the application's default font, QApplication::font().
 
-  You can change the attributes of an existing QFont object
-  using functions such as setFamily(), setPointSize(), setWeight() and
-  setItalic().
+  <!-- rewrite the crap below -->
 
-  There are also some less-used attributes. setUnderline() decides
-  whether the font is underlined or not; setStrikeOut() can be used to get
-  overstrike (a horizontal line through the middle of the characters);
-  setFixedPitch() determines whether Qt should give preference to
-  fixed-pitch (also known as monospace, fixed-width or typewriter fonts)
-  or variable-pitch (proportional) fonts when it needs to choose an installed font.
-
-  setStyleHint() can be used to offer
-  more general help to the font matching algorithm, and on X11
-  setRawName() can be used to bypass the entire font matching and use an
-  X11 XLFD (X Logical Font Description).
-
-  Of course there is also a reader function for each of the set*()
-  functions. Note that the reader functions return the values
-  previously set, \e not the attributes of the actual window system
-  font that will be used for drawing. Information about
-  the font that will be used for drawing can be obtained by using QFontInfo, but be
-  aware that QFontInfo may be slow and that its results depend on
-  which fonts are installed.
-
-  In general font handling and loading are costly operations,
-  especially on X11.  The QFont class contains extensive optimizations
-  to make copying of QFont objects fast, and to cache the results of
-  the slow window system functions it uses.
-
-  QFont also offers a few static functions, mostly to tune the font
-  matching algorithm: You can control what happens if a font family
-  isn't installed using insertSubstitution(), insertSubstitutions()
-  and removeSubstitution().
-
-  This is especially important when different character sets are
-  used at the same time. As a Times font for example does not include
-  Arabic characters, an Arabic substitution font for Times can
-  be specified and will be used when Arabic characters show up.
-
-  Each QFont can have an entire substitution list so that Unicode
-  characters can be displayed even if no Unicode fonts are available.
-  How good this approximation works depends on the variety
-  of fonts installed.
-
-  You can get a complete list of the fallback families using substitutions().
-
-  Finally, QApplication::setFont() allows you to set the default font.
-  the default default font is chosen at application startup from a set
-  of common installed fonts that support the correct character set for
-  the current locale. Of course, the initialization algorithm has a
-  default, too: The default default default font!
 
   The font matching algorithm works as follows:
   First an available font family is found. If the requested is not
@@ -199,6 +176,8 @@
   \link http://www.nwalsh.com/comp.fonts/FAQ/ comp.fonts FAQ.\endlink
   Information on encodings can be found on
   \link http://czyborra.com/charsets/ Roman Czyborra's respective page.\endlink
+ 
+ <!-- note about QFont, QFontInfo + QFontMetrics goes here -->
 
   \sa QFontMetrics QFontInfo QFontDatabase QApplication::setFont()
   QWidget::setFont() QPainter::setFont() QFont::StyleHint
