@@ -312,9 +312,14 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParag *string, int
 		break;
 	    case ':': {
 		input = InputAlpha;
-		for ( int j = 0; j < i; ++j ) {
-		    if ( string->at( j )->format() == formatStandard )
-			string->setFormat( j, 1, formatLabel, FALSE );
+		QChar nextChar = ' ';
+		if ( i < string->length() - 1 )
+		    nextChar = string->at( i + 1 )->c;
+		if ( lastChar != ':' && nextChar != ':' ) {
+		    for ( int j = 0; j < i; ++j ) {
+			if ( string->at( j )->format() == formatStandard )
+			    string->setFormat( j, 1, formatLabel, FALSE );
+		    }
 		}
 	    } break;
 	    default: {
