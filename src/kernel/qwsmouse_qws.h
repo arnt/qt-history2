@@ -32,6 +32,7 @@
 
 #ifndef QT_H
 #include <qobject.h>
+#include <qpointarray.h>
 #endif // QT_H
 
 class QWSPointerCalibrationData
@@ -69,11 +70,16 @@ protected:
     void readCalibration();
     void writeCalibration();
     QPoint transform( const QPoint & );
+    bool sendFiltered( const QPoint &, int button );
+    void setFilterSize( int );
 
 private:
     int a, b, c;
     int d, e, f;
     int s;
+    QPointArray samples;
+    unsigned int currSample;
+    unsigned int numSamples;
 };
 
 #endif

@@ -799,6 +799,7 @@ QMouseHandlerPrivate::~QMouseHandlerPrivate()
  */
 
 QCalibratedMouseHandler::QCalibratedMouseHandler()
+    : samples(5), currSample(0), numSamples(0)
 {
     clearCalibration();
     readCalibration();
@@ -868,6 +869,64 @@ QPoint QCalibratedMouseHandler::transform( const QPoint &p )
     return tp;
 }
 
+void QCalibratedMouseHandler::setFilterSize( int s )
+{
+    samples.resize( s );
+    numSamples = 0;
+    currSample = 0;
+}
+
+bool QCalibratedMouseHandler::sendFiltered( const QPoint &p, int button )
+{
+    if ( !button ) {
+	if ( numSamples >= samples.count() )
+	    emit mouseChanged( mousePos, 0 );
+	currSample = 0;
+	numSamples = 0;
+	return TRUE;
+    }
+
+    bool sent = FALSE;
+    samples[currSample] = p;
+    numSamples++;
+    if ( numSamples >= samples.count() ) {
+	int maxd = 0;
+	unsigned int ignore = 0;
+	// throw away the "worst" sample
+	for ( unsigned int i = 0; i < samples.count(); i++ ) {
+	    int d = ( mousePos - samples[i] ).manhattanLength();
+	    if ( d > maxd ) {
+		maxd = d;
+		ignore = i;
+	    }
+	}
+	bool first = TRUE;
+	QPoint pos;
+	// average the rest
+	for ( unsigned int i = 0; i < samples.count(); i++ ) {
+	    if ( ignore != i ) {
+		if ( first ) {
+		    pos = samples[i];
+		    first = FALSE;
+		} else {
+		    pos += samples[i];
+		}
+	    }
+	}
+	pos /= (int)(samples.count() - 1);
+	pos = transform( pos );
+	if ( pos != mousePos || numSamples == samples.count() ) {
+	    mousePos = pos;
+	    emit mouseChanged( mousePos, button );
+	    sent = TRUE;
+	}
+    }
+    currSample++;
+    if ( currSample >= samples.count() )
+	currSample = 0;
+
+    return sent;
+}
 
 /*
  * Handler for /dev/tpanel Linux kernel driver
@@ -887,6 +946,8 @@ private slots:
     void readMouseData();
 private:
     QTimer *rtimer;
+    int mouseIdx;
+    uchar mouseBuf[mouseBufSize];
 };
 
 QVrTPanelHandlerPrivate::QVrTPanelHandlerPrivate( MouseProtocol, QString dev ) :
@@ -916,6 +977,8 @@ QVrTPanelHandlerPrivate::QVrTPanelHandlerPrivate( MouseProtocol, QString dev ) :
 
     rtimer = new QTimer( this );
     connect( rtimer, SIGNAL(timeout()), this, SLOT(sendRelease()));
+    mouseIdx = 0;
+    setFilterSize( 3 );
 
     printf("\033[?25l"); fflush(stdout); // VT100 cursor off
 #endif
@@ -929,7 +992,7 @@ QVrTPanelHandlerPrivate::~QVrTPanelHandlerPrivate()
 
 void QVrTPanelHandlerPrivate::sendRelease()
 {
-    emit mouseChanged(mousePos, 0);
+    sendFiltered( mousePos, 0 );
 }
 
 void QVrTPanelHandlerPrivate::readMouseData()
@@ -937,68 +1000,39 @@ void QVrTPanelHandlerPrivate::readMouseData()
 #ifdef QWS_TOUCHPANEL
     if(!qt_screen)
 	return;
-    short data[6];
-    int ret;
-    static int prev_valid=0;
-    static QPoint prev;
-    static int prev_pressure = 0;
     static bool pressed = FALSE;
-    static bool reverse = FALSE;  // = TRUE; Osprey axis reversed
-//    static bool reverse = FALSE;  // = TRUE; Osprey axis reversed
 
-#define EMIT_MOUSE \
-	QPoint q = transform( prev ); \
-	if ( reverse ) { \
-	    q.setX( qt_screen->width()-q.x() ); \
-	    q.setY( qt_screen->height()-q.y() ); \
-	} \
-	if ( q != mousePos ) { \
-	    mousePos = q; \
-	    emit mouseChanged(mousePos, Qt::LeftButton); \
-	} \
-	pressed = TRUE; \
-	rtimer->stop();
-
+    int n;
     do {
-	ret=read(mouseFD,data,sizeof(data));
+	n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx );
+	if ( n > 0 )
+	    mouseIdx += n;
+    } while ( n > 0 && mouseIdx < mouseBufSize );
 
-	if(ret==sizeof(data)) {
-	    // "auto calibrate" for now.
-	    if ( data[0] & 0x8000 ) {
-		if ( data[5] > 795 ) {
-		    if ( prev_pressure - data[5] < 40 ) {
-			QPoint t(data[3]-data[4],data[2]-data[1]);
-			if ( prev_valid ) {
-			    QPoint d = t-prev;
-			    if ( d.manhattanLength() > 450 ) // scan error
-				return;
-			    if ( QABS(d.x()) < 3 && QABS(d.y()) < 3 )   // insignificant change
-				return;
-			    prev = (t+prev)/2;
-			} else {
-			    prev = t;
-			}
-			prev_valid++;
-		    }
-		    prev_pressure = data[5];
-		}
-	    } else {
-		if ( prev_valid ) {
-		    prev_valid = 0;
-		    EMIT_MOUSE
-		}
-		if ( pressed ) {
-		    rtimer->start( 50, TRUE );
-		    pressed = FALSE;
-		}
+    int idx = 0;
+    while ( mouseIdx-idx >= (int)sizeof( short ) * 6 ) {
+	uchar *mb = mouseBuf+idx;
+	ushort *data = (ushort *) mb;
+	if ( data[0] & 0x8000 ) {
+	    if ( data[5] > 750 ) {
+		QPoint t(data[3]-data[4],data[2]-data[1]);
+		if ( sendFiltered( t, Qt::LeftButton ) )
+		    pressed = TRUE;
+		if ( pressed )
+		    rtimer->start( 200, TRUE ); // release unreliable
 	    }
+	} else if ( pressed ) {
+	    rtimer->start( 50, TRUE );
+	    pressed = FALSE;
 	}
-    } while ( ret > 0 );
-
-    if ( prev_valid > 1 ) {
-	prev_valid = 0;
-	EMIT_MOUSE
+	idx += sizeof( ushort ) * 6;
     }
+
+    int surplus = mouseIdx - idx;
+    for ( int i = 0; i < surplus; i++ )
+	mouseBuf[i] = mouseBuf[idx+i];
+    mouseIdx = surplus;
+
 #endif
 }
 
@@ -1043,6 +1077,7 @@ QIpaqHandlerPrivate::QIpaqHandlerPrivate( MouseProtocol, QString )
 					 this );
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
     waspressed=FALSE;
+    mouseIdx = 0;
 #endif
 }
 
