@@ -5878,7 +5878,7 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
   docElem.appendChild( elem );
   \endcode
 
-  Once \c doc and \c elem go out of scode, the whole internal tree representing
+  Once \c doc and \c elem go out of scope, the whole internal tree representing
   the XML document will get deleted.
 
   To create a document using DOM use code like this:
