@@ -1629,7 +1629,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		QWidget *mouseW = QApplication::widgetAt( e->globalPos(), TRUE );
 		if ( mouseW == d->listBox()->viewport() ) { //###
 		    QMouseEvent m( QEvent::MouseMove, e->pos(), e->globalPos(),
-				   0, LeftButton );
+				   LeftButton, LeftButton );
 		    QApplication::sendEvent( object, &m ); //### Evil
 		    return TRUE;
 		}

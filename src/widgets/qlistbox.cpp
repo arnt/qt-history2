@@ -2193,7 +2193,7 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 
     d->scrollPos = QPoint( dx, dy );
 
-    if ( ( dx || dy ) && !d->scrollTimer ) {
+    if ( ( dx || dy ) && !d->scrollTimer && e->state() == LeftButton && e->button() != LeftButton ) {
 	// start autoscrolling if necessary
 	d->scrollTimer = new QTimer( this );
 	connect( d->scrollTimer, SIGNAL(timeout()),
