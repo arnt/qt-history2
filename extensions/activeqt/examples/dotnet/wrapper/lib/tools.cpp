@@ -1,6 +1,8 @@
 #include <qstring.h>
 
 #using <mscorlib.dll>
+#include <vcclr.h>
+
 using namespace System;
 
 String *QStringToString(const QString &qstring)
@@ -10,6 +12,6 @@ String *QStringToString(const QString &qstring)
 
 QString StringToQString(String *string)
 {
-    wchar_t __pin *chars = &string->ToCharArray()[0];
+    wchar_t __pin *chars = PtrToStringChars(string);
     return QString::fromUcs2(chars);
 }
