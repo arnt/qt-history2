@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#21 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -15,7 +15,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#21 $")
 
 
 /*----------------------------------------------------------------------------
@@ -24,24 +24,26 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#20 $")
 
   \ingroup realwidgets
 
-  A button group widget makes it easier to deal with groups of buttons.  A
-  button in a button group can be associated with a unique identifer. The
+  A button group widget makes it easier to deal with groups of buttons.
+  A button in a button group is associated with a unique identifer. The
   button group emits a clicked() signal with this identifier when the
   button is clicked.
 
-  A button group which contains radio buttons (QRadioButton) will switch
-  off all radio buttons except the one that was clicked.
+  An \link setExclusive() exclusive\endlink button group switches off all
+  toggle buttons except the one that was clicked. A button group is by
+  default non-exclusive, however, it automatically becomes an exclusive
+  group when a QRadioButton is \link insert() inserted\endlink.
 
   There are two standard ways of using a button group:
   <ol>
-  <li>A button group can be a normal parent widget for a set of buttons.
-  Because QButtonGroup inherits QGroupBox, it can display a frame and
-  a title. The buttons are assigned identifiers 0, 1, 2 etc. in the order
-  they are inserted.
-  <li>A button group can be an invisible widget and the contained buttons
-  have some other parent widget.
-  A button must be manually inserted using the insert() function with an
-  identifer.
+  <li>The button group is a normal parent widget for a number of buttons,
+  i.e. the button group is the parent argument in the button contructor.
+  The buttons are assigned identifiers 0, 1, 2 etc. in the order they are
+  inserted.  Since QButtonGroup inherits QGroupBox, it can display a frame
+  and a title.
+  <li>The button group is an invisible widget and the contained buttons
+  have some other parent widget.  A button must then be manually inserted
+  using the insert() function with an identifer.
   </ol>
  ----------------------------------------------------------------------------*/
 
@@ -91,6 +93,7 @@ void QButtonGroup::init()
     buttons = new QButtonList;
     CHECK_PTR( buttons );
     buttons->setAutoDelete( TRUE );
+    excl_grp = FALSE;
 }
 
 /*----------------------------------------------------------------------------
@@ -106,20 +109,54 @@ QButtonGroup::~QButtonGroup()
 
 
 /*----------------------------------------------------------------------------
+  Returns TRUE if the button group is exclusive, otherwise FALSE.
+  \sa setExclusive()
+ ----------------------------------------------------------------------------*/
+
+bool QButtonGroup::isExclusive() const
+{
+    return excl_grp;
+}
+
+/*----------------------------------------------------------------------------
+  Sets the button group to be exclusive if \e enable is TRUE,
+  or to be non-exclusive if \e enable is FALSE.
+
+  An exclusive button group switches off all other toggle buttons when
+  one is switched on. This is ideal for groups of \link QRadioButton
+  radio buttons\endlink A non-exclusive group allow many buttons to be
+  swithed on at the same time.
+
+  The default setting is FALSE. A button group automatically becomes an
+  exclusive group when a QRadioButton is \link insert() inserted\endlink.
+
+  \sa isExclusive()
+ ----------------------------------------------------------------------------*/
+
+void QButtonGroup::setExclusive( bool enable )
+{
+    excl_grp = enable;
+}
+
+
+/*----------------------------------------------------------------------------
   Inserts a button with the identifier \e id into the button group.
   Returns the button identifier.
 
   The button is assigned the identifier \e id or an automatically
-  generated identifier.  It works as follows: If \e id >= 0, this
+  generated identifier.	 It works as follows: If \e id >= 0, this
   identifier is assigned.  If \e id == -1 (default), the identifier is
-  equal to the number of buttons in the group.  If \e id is any other
+  equal to the number of buttons in the group.	If \e id is any other
   negative integer, for instance -2, a unique identifier (negative
   integer \<= -2) is generated.
 
   Inserting several buttons with \e id = -1 assigns the identifers 0,
   1, 2, etc.
 
-  \sa remove()
+  This function calls setExclusive(TRUE) if \e button is a
+  QRadioButton.
+
+  \sa find(), remove(), setExclusive()
  ----------------------------------------------------------------------------*/
 
 int QButtonGroup::insert( QButton *button, int id )
@@ -139,8 +176,11 @@ int QButtonGroup::insert( QButton *button, int id )
     connect( button, SIGNAL(pressed()) , SLOT(buttonPressed()) );
     connect( button, SIGNAL(released()), SLOT(buttonReleased()) );
     connect( button, SIGNAL(clicked()) , SLOT(buttonClicked()) );
+    if ( button->inherits("QRadioButton") )
+	setExclusive( TRUE );
     return bi->id;
 }
+
 
 /*----------------------------------------------------------------------------
   Removes a button from the button group.
@@ -149,7 +189,7 @@ int QButtonGroup::insert( QButton *button, int id )
 
 void QButtonGroup::remove( QButton *button )
 {
-    for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() ) {
+    for ( QButtonItem *i=buttons->first(); i; i=buttons->next() ) {
 	if ( i->button == button ) {
 	    buttons->remove();
 	    button->group = 0;
@@ -157,6 +197,23 @@ void QButtonGroup::remove( QButton *button )
 	    break;
 	}
     }
+}
+
+
+/*----------------------------------------------------------------------------
+  Finds and returns a pointer to the button with the specified identifier
+  \e id.
+
+  Returns null if the button was not found.
+ ----------------------------------------------------------------------------*/
+
+QButton *QButtonGroup::find( int id ) const
+{
+    for ( QButtonItem *i=buttons->first(); i; i=buttons->next() ) {
+	if ( i->id == id )
+	    return i->button;
+    }
+    return 0;
 }
 
 
@@ -195,7 +252,7 @@ void QButtonGroup::buttonPressed()
     for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() )
 	if ( sobj == i->button ) {		// button was clicked
 	    id = i->id;
-            break;
+	    break;
 	}
     if ( id != -1 )
 	emit pressed( id );
@@ -214,7 +271,7 @@ void QButtonGroup::buttonReleased()
     for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() )
 	if ( sobj == i->button ) {		// button was clicked
 	    id = i->id;
-            break;
+	    break;
 	}
     if ( id != -1 )
 	emit released( id );
@@ -230,11 +287,10 @@ void QButtonGroup::buttonClicked()
 {
     int id = -1;
     QObject *sobj = sender();			// object that sent the signal
-    bool switch_off = sobj->inherits("QRadioButton");
     for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() ) {
 	if ( sobj == i->button )		// button was clicked
 	    id = i->id;
-	else if ( switch_off && i->button->inherits("QRadioButton") )
+	else if ( excl_grp && i->button->isToggleButton() )
 	    i->button->setOn( FALSE );		// turn other radio buttons off
     }
     if ( id != -1 )

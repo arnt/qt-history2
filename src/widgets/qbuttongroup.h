@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#10 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#11 $
 **
 ** Definition of QButtonGroup class
 **
@@ -28,21 +28,26 @@ public:
     QButtonGroup( const char *title, QWidget *parent=0, const char *name=0 );
    ~QButtonGroup();
 
-    int	 insert( QButton *, int id=-1 );
-    void remove( QButton * );
+    bool	isExclusive() const;
+    void	setExclusive( bool );
+
+    int		insert( QButton *, int id=-1 );
+    void	remove( QButton * );
+    QButton    *find( int id ) const;
 
 signals:
-    void pressed( int id );
-    void released( int id );
-    void clicked( int id );
+    void	pressed( int id );
+    void	released( int id );
+    void	clicked( int id );
 
 protected slots:
-    void buttonPressed();
-    void buttonReleased();
-    void buttonClicked();
+    void	buttonPressed();
+    void	buttonReleased();
+    void	buttonClicked();
 
 private:
     void	init();
+    bool	excl_grp;
     QButtonList *buttons;
 };
 
