@@ -28,6 +28,8 @@
  *****************************************************************************/
 extern const uchar *qt_get_bitflip_array();                // defined in qimage.cpp
 extern GrafPtr qt_macQDHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
+extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
+extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 
 #define QMAC_PIXMAP_ALPHA
 
@@ -766,10 +768,17 @@ QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height)
         PlotIconRef(&rect, kAlignNone, kTransformNone, kIconServicesNormalUsageFlag, icon);
     }
     if(!IsIconRefMaskEmpty(icon)) {
-        QBitmap mask(width, height, true);
-        QMacSavedPortInfo pi(&mask);
-        PlotIconRef(&rect, kAlignNone, kTransformNone, kIconServicesNormalUsageFlag, icon);
-        ret.setMask(mask);
+        QBitmap bitmap(width, height, true);
+        {
+            QPainter p(&bitmap);
+            RgnHandle mask = qt_mac_get_rgn();
+            IconRefToRgn(mask, &rect, kAlignNone, kIconServicesNormalUsageFlag, icon);
+            p.setClipRegion(qt_mac_convert_mac_region(mask));
+            qt_mac_dispose_rgn(mask);
+            p.fillRect(0, 0, width, height, Qt::color1);
+            p.end();
+        }
+        ret.setMask(bitmap);
     }
     return ret;
 }
