@@ -1156,6 +1156,8 @@ QTable::SelectionMode QTable::selectionMode() const
 }
 
 /*!  Returns the top QHeader of the table.
+
+     To modify the header text use QHeader::setLabel()
 */
 
 QHeader *QTable::horizontalHeader() const
@@ -1633,6 +1635,9 @@ QTableItem *QTable::item( int row, int col ) const
   already exists in that position, the old one is deleted.
 
   setItem() also repaints the cell.
+
+  Note that the first row/column is the one with \a row resp. \a col
+  being 0.
 */
 
 void QTable::setItem( int row, int col, QTableItem *item )
@@ -1666,6 +1671,9 @@ void QTable::clearCell( int row, int col )
 
 /*!  Sets the text in cell \a row, \a col to \a text. If no
   QTableItem belongs to the cell yet, an item is created.
+
+  Note that the first row/column is the one with \a row resp. \a col
+  being 0.
 */
 
 void QTable::setText( int row, int col, const QString &text )

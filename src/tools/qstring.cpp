@@ -14169,6 +14169,8 @@ ushort QString::toUShort( bool *ok, int base ) const
   If \a ok is non-null, \a *ok is set to TRUE if there are no
   conceivable errors, and FALSE if the string is not a number at all
   or if it has trailing garbage.
+
+  \sa number()
 */
 
 int QString::toInt( bool *ok, int base ) const
