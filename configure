@@ -389,6 +389,7 @@ FROMMAKE=
 QMAKE_PROJECTS=""
 QMAKE_IGNORE_PROJECTS="tests/*"
 CONCURRENT=0
+OPENGL=no
 
 # qt installs
 QT_INSTALL_PREFIX=/usr/local/qt
@@ -2045,6 +2046,11 @@ then
     echo "QMake switches .. $QMAKE_SWITCHES"
 fi
 
+if echo $MODULES | grep opengl >/dev/null
+then
+    OPENGL=yes
+fi
+
 [ "x$CONCURRENT" != "x0" ] && echo "Concurrent .......... $CONCURRENT"
 [ "x$DO_INCREMENT" = "xyes" ] && [ ! -z "$INCREMENTAL" ] && echo "Incremental ......... $INCREMENTAL"
 echo "Configuration ....... $QMAKE_CONFIG"
@@ -2055,6 +2061,7 @@ echo "GIF support ......... $GIF"
 echo "MNG support ......... $MNG ($LIBMNG)"
 echo "JPEG support ........ $JPEG ($LIBJPEG)"
 echo "PNG support ......... $PNG ($LIBPNG)"
+[ "$QWS_PLATFORM" != "yes" ] && echo "OpenGL support ...... $OPENGL"
 [ "$QWS_PLATFORM" = "yes" ] && echo "Embedded support .... $EMBEDDED"
 if [ "$X11_PLATFORM" = "yes" ]
 then
