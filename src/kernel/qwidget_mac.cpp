@@ -777,8 +777,12 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 			wattr |= kWindowResizableAttribute;
 		}
 		if(testWFlags(WStyle_NormalBorder) || testWFlags(WStyle_DialogBorder)) {
-		    if(wclass == kToolbarWindowClass)
-			wclass = kFloatingWindowClass;
+		    if(wclass == kToolbarWindowClass) {
+			if(!parentWidget() || parentWidget()->isDesktop())
+			    wclass = kDocumentWindowClass;
+			else
+			    wclass = kFloatingWindowClass;
+		    }
 		    if(wclass == kDocumentWindowClass)
 			wattr |= kWindowStandardDocumentAttributes;
 		    if(wclass == kFloatingWindowClass)
