@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#65 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#66 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -58,6 +58,7 @@ class QTimer;
 #define _WS_MAC_
 #elif defined(_OS_MSDOS_)
 #define _WS_WIN16_
+#error "Qt requires Win32 and does not work with Windows 3.x"
 #elif defined(_OS_WIN32_)
 #define _WS_WIN32_
 #elif defined(_OS_OS2_)
