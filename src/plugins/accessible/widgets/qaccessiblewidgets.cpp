@@ -236,7 +236,7 @@ int QAccessibleListBox::state(int child) const
         if (item->isSelected())
             state |= Selected;
     }
-    if (listBox()->focusPolicy() != QWidget::NoFocus) {
+    if (listBox()->focusPolicy() != Qt::NoFocus) {
         state |= Focusable;
         if (item->isCurrent())
             state |= Focused;

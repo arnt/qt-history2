@@ -274,7 +274,7 @@ int QAccessibleToolButton::actionCount(int child) const
     // each subelement has one action
     if (child)
         return isSplitButton() ? 1 : 0;
-    int ac = widget()->focusPolicy() != QWidget::NoFocus ? 1 : 0;
+    int ac = widget()->focusPolicy() != Qt::NoFocus ? 1 : 0;
     // button itself has two actions if a menu button
     return ac + (toolButton()->popup() ? 2 : 1);
 }
