@@ -173,7 +173,7 @@
     Returns the object associated with key \a key, or 0 if the key does
     not exist in the cache.
 
-    This is the same as find().
+    This is the same as object().
 
     \warning The returned object is owned by QCache and may be
     deleted at any time.

@@ -103,7 +103,7 @@ inline T *QCache<Key,T>::object(const Key &key) const
 
 template <class Key, class T>
 inline T *QCache<Key,T>::operator[](const Key &key) const
-{ return find(key); }
+{ return object(key); }
 
 template <class Key, class T>
 inline bool QCache<Key,T>::remove(const Key &key)
