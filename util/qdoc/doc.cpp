@@ -73,7 +73,7 @@ static QString what( Doc::Kind kind )
     case Doc::Class:
 	return QString( "class" );
     default:
-	return QString( "member" );
+	return QString( "documentation" );
     }
 }
 
