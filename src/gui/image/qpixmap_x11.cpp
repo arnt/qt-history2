@@ -1035,10 +1035,6 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
             delete [] tmp_bits;
         pixmap.data->w = w;  pixmap.data->h = h;  pixmap.data->d = 1;
 
-        if (image.hasAlphaBuffer()) {
-            QBitmap m = QBitmap::fromImage(image.createAlphaMask(flags));
-            pixmap.setMask(m);
-        }
         return pixmap;
     }
 
@@ -1075,42 +1071,32 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         switch(cimage.format()) {
         case QImage::Format_Indexed8: {
             QVector<QRgb> colorTable = cimage.colorTable();
-            if (pixmap.data->alpha) {
-                uint *xidata = (uint *)xi->data;
-                for (int y = 0; y < h; ++y) {
-                    const uchar *p = cimage.scanLine(y);
-                    for (int x = 0; x < w; ++x) {
-                        const QRgb rgb = colorTable[p[x]];
-                        const int a = qAlpha(rgb);
-                        if (a == 0xff)
-                            *xidata = rgb;
-                        else
-                            // RENDER expects premultiplied alpha
-                            *xidata = qRgba(qt_div_255(qRed(rgb) * a),
-                                            qt_div_255(qGreen(rgb) * a),
-                                            qt_div_255(qBlue(rgb) * a),
-                                            a);
-                        ++xidata;
-                    }
+            uint *xidata = (uint *)xi->data;
+            for (int y = 0; y < h; ++y) {
+                const uchar *p = cimage.scanLine(y);
+                for (int x = 0; x < w; ++x) {
+                    const QRgb rgb = colorTable[p[x]];
+                    const int a = qAlpha(rgb);
+                    if (a == 0xff)
+                        *xidata = rgb;
+                    else
+                        // RENDER expects premultiplied alpha
+                        *xidata = qRgba(qt_div_255(qRed(rgb) * a),
+                                        qt_div_255(qGreen(rgb) * a),
+                                        qt_div_255(qBlue(rgb) * a),
+                                        a);
+                    ++xidata;
                 }
-            } else {
-                uint *xidata = (uint *)xi->data;
-                for (int y = 0; y < h; ++y) {
-                    const uchar *p = cimage.scanLine(y);
-                    for (int x = 0; x < w; ++x)
-                        *xidata++ = colorTable[p[x]] | 0xff000000;
-                }
-
             }
         }
             break;
         case QImage::Format_RGB32: {
-                uint *xidata = (uint *)xi->data;
-                for (int y = 0; y < h; ++y) {
-                    const QRgb *p = (const QRgb *) cimage.scanLine(y);
-                    for (int x = 0; x < w; ++x)
-                        *xidata++ = p[x] | 0xff000000;
-                }
+            uint *xidata = (uint *)xi->data;
+            for (int y = 0; y < h; ++y) {
+                const QRgb *p = (const QRgb *) cimage.scanLine(y);
+                for (int x = 0; x < w; ++x)
+                    *xidata++ = p[x] | 0xff000000;
+            }
         }
             break;
         case QImage::Format_ARGB32: {
@@ -1348,9 +1334,9 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
 
 #define CYCLE(body)                                             \
         for (int y=0; y<h; y++) {                               \
-            const uchar* src = cimage.scanLine(y);                     \
+            const uchar* src = cimage.scanLine(y);              \
             uchar* dst = newbits + xi->bytes_per_line*y;        \
-            const QRgb* p = (const QRgb *)src;                              \
+            const QRgb* p = (const QRgb *)src;                  \
             body                                                \
                 }
 
