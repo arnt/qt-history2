@@ -878,7 +878,7 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 	// left - skip past any disabled ones
 	if ( d->focus > 0 ) {
 
-	    QTab *t;
+	    QTab *t = 0;
 	    int i;
 	    for (i=d->lstatic.size(); i>=0; --i) {
 		t = d->lstatic.at(i);
