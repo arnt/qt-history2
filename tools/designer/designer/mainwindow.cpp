@@ -429,7 +429,7 @@ void MainWindow::setupToolbox()
     addToolBar( dw, Qt::DockLeft );
     toolBox = new QCategoryWidget( dw );
     dw->setWidget( toolBox );
-    dw->setFixedExtentWidth( 110 );
+    dw->setFixedExtentWidth( 120 );
     dw->setCaption( tr( "Toolbox" ) );
     dw->show();
     setDockEnabled( dw, Qt::DockTop, FALSE );
