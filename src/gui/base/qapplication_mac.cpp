@@ -2724,7 +2724,6 @@ OSStatus QApplication::globalAppleEventProcessor(const AppleEvent *ae, AppleEven
             }
 	    break; }
 	case kAEOpenDocuments: {
-#if 0
 	    AEDescList docs;
 	    if(AEGetParamDesc(ae, keyDirectObject, typeAEList, &docs) == noErr) {
 		long cnt = 0;
@@ -2737,13 +2736,12 @@ OSStatus QApplication::globalAppleEventProcessor(const AppleEvent *ae, AppleEven
 		    if(!str_buffer) 
 			str_buffer = (UInt8 *)malloc(1024);
 		    FSRefMakePath(&ref, str_buffer, 1024);
-		    QString file = QString::fromUtf8((const char *)str_buffer);
-		    qDebug("asked to open %s", file.latin1());
+		    QFileOpenEvent ev(QString::fromUtf8((const char *)str_buffer));
+		    QApplication::sendSpontaneousEvent(app, &ev);
 		}
 		if(str_buffer)
 		    free(str_buffer);
 	    }
-#endif	    
 	    break; }
 	default:
 	    break;

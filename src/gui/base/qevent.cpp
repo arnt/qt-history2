@@ -1882,6 +1882,28 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
   Use QDropEvent::encodedData().
 */
 
+/*!
+    \class QFileOpenEvent qevent.h
+    \brief The QFileOpenEvent class provides an event which will be
+    sent when a file is requested to be opened.
+
+    \ingroup events
+
+    FileOpen events will be sent to the QApplication instance when the
+    operating system is requesting that a file be opened. This is a
+    high level event that can be triggered via different desktop
+    environments (for example double clicking on an file icon on Mac
+    OS X in the Finder). If this even is ignored nothing will happen,
+    it is used only to notify of a request.
+*/
+
+/*!
+    \fn QString QFileOpenEvent::file() const
+
+    Returns the file attempting to be opened.
+*/
+
+
 #if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QEvent *e) {
@@ -1950,6 +1972,9 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
 	break;
     case QEvent::Quit:
 	n = "Quit";
+	break;
+    case QEvent::FileOpen:
+	n = "FileOpen";
 	break;
     default:
 	dbg.nospace() << "QEvent(" << (const void *)e << ", type = " << e->type() << ')';

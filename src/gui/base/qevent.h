@@ -26,6 +26,7 @@
 #include "qcoreevent.h"
 #endif // QT_H
 
+class QAction;
 
 class Q_GUI_EXPORT QInputEvent : public QEvent
 {
@@ -449,13 +450,11 @@ private:
 class Q_GUI_EXPORT QStatusTipEvent : public QEvent
 {
 public:
-    inline QStatusTipEvent(const QString &tip):QEvent(StatusTip), s(tip){}
+    QStatusTipEvent(const QString &tip):QEvent(StatusTip), s(tip){}
     QString tip() const { return s; }
 private:
     QString s;
 };
-
-class QAction;
 
 class Q_GUI_EXPORT QActionEvent : public QEvent
 {
@@ -467,6 +466,14 @@ public:
     QAction *before() const { return bef; }
 };
 
+class Q_GUI_EXPORT QFileOpenEvent : public QEvent
+{
+public:
+    QFileOpenEvent(const QString &file) : QEvent(FileOpen), f(file) { }
+    QString file() const { return f; }
+private:
+    QString f;
+};
 
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug, const QEvent *);

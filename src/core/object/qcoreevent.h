@@ -120,6 +120,8 @@ public:
 	ActionAdded = 116,
 	ActionRemoved = 117,
 
+	FileOpen = 116,                        // file open request
+
 #ifdef QT_COMPAT
 	CaptionChange = WindowTitleChange,
 	IconChange = WindowIconChange,
