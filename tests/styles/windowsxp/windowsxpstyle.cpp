@@ -30,6 +30,18 @@
 	r.top = y;				\
 	r.bottom = y+h;
 
+#ifndef BP_CHECKBOX
+#define BP_CHECKBOX	    3
+#define BP_GROUPBOX	    4
+#define BP_PUSHBUTTON	    1
+#define BP_RADIOBUTTON	    2
+#define BP_USERBUTTON	    5
+
+#define CLP_TIME	    1
+
+#define CP_DROPDOWNBUTTON   1
+#endif
+
 class QWindowsXPStyle::Private
 {
 public:
@@ -386,9 +398,9 @@ void QWindowsXPStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	} else if ( btn->isDefault() ) {
 	    stateId = 5;
 	}
-	DrawThemeBackground( htheme, p->handle(), 1, stateId, &r, 0);
+	DrawThemeBackground( htheme, p->handle(), BP_PUSHBUTTON, stateId, &r, 0);
     } else {
-	DrawThemeBackground( htheme, p->handle(), 1, 4, &r, 0);
+	DrawThemeBackground( htheme, p->handle(), BP_PUSHBUTTON, 4, &r, 0);
     }
 
     CloseThemeData( htheme );
@@ -406,7 +418,7 @@ void QWindowsXPStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p )
     r.left = 0;
     r.right = btn->width();
     r.top = 0;
-    r.bottom = btn->height();
+    r.bottom = 22;
 
     int stateId;
     if ( btn->isEnabled() ) {
@@ -422,8 +434,8 @@ void QWindowsXPStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p )
 	stateId = 4;
     }
 
-    DrawThemeText( htheme, p->handle(), 1, stateId,
-	(TCHAR*)qt_winTchar( btn->text(), FALSE ), btn->text().length(), DT_CENTER | DT_VCENTER | DT_SINGLELINE, 0, &r );
+    DrawThemeText( htheme, p->handle(), BP_PUSHBUTTON, stateId,
+	(TCHAR*)qt_winTchar( btn->text(), TRUE ), -1, DT_CENTER | DT_VCENTER | DT_SINGLELINE, 0, &r );
 
     CloseThemeData( htheme );
 }
@@ -431,7 +443,14 @@ void QWindowsXPStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p )
 // Radio button
 QSize QWindowsXPStyle::exclusiveIndicatorSize() const
 {
-    return QSize( 13, 13 );
+    HTHEME htheme = Private::getThemeData( L"BUTTON" );
+    if ( !htheme ) {
+	return QWindowsStyle::exclusiveIndicatorSize();
+    }
+
+    SIZE size;
+    GetThemePartSize( htheme, NULL, BP_RADIOBUTTON, 1, TS_TRUE, &size );
+    return QSize( size.cx, size.cy );
 }
 
 void QWindowsXPStyle::drawExclusiveIndicator( QPainter* p, int x, int y, int w, int h,
@@ -468,14 +487,53 @@ void QWindowsXPStyle::drawExclusiveIndicator( QPainter* p, int x, int y, int w, 
 	    stateId = 1;
     }
 
-    DrawThemeBackground( htheme, p->handle(), 2, stateId, &r, 0 );
+    QRegion reg = p->clipRegion();
+
+    BOOL pt = IsThemeBackgroundPartiallyTransparent( htheme, BP_RADIOBUTTON, stateId );
+    if ( pt ) 
+	p->fillRect( x, y, w, h, g.background() );
+    DrawThemeBackground( htheme, p->handle(), BP_RADIOBUTTON, stateId, &r, 0 );
+    p->setClipRegion( reg );
 
     CloseThemeData( htheme );
 }
 
+void QWindowsXPStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int h, bool on)
+{
+    HTHEME htheme = Private::getThemeData( L"BUTTON" );
+    if ( !htheme ) {
+	QWindowsStyle::drawExclusiveIndicatorMask( p, x, y, w, h, on );
+	return;
+    }
+
+    int stateId;
+    if ( on )
+	stateId = 5;
+    else
+	stateId = 1;
+
+    BOOL pt = IsThemeBackgroundPartiallyTransparent( htheme, BP_RADIOBUTTON, stateId );
+    if ( pt ) {
+	Q_RECT
+	HRGN region;
+	GetThemeBackgroundRegion( htheme, BP_RADIOBUTTON, stateId, &r, &region );
+	p->fillRect( x, y, w, h, color1 );
+    }
+    p->fillRect( x, y, w, h, color1 );
+    CloseThemeData( htheme );
+}
+
+// CheckBox
 QSize QWindowsXPStyle::indicatorSize() const
 {
-    return QWindowsStyle::indicatorSize();
+    HTHEME htheme = Private::getThemeData( L"BUTTON" );
+    if ( !htheme ) {
+	return QWindowsStyle::indicatorSize();
+    }
+
+    SIZE size;
+    GetThemePartSize( htheme, NULL, BP_CHECKBOX, 1, TS_TRUE, &size );
+    return QSize( size.cx, size.cy );    
 }
 
 void QWindowsXPStyle::drawIndicator( QPainter* p, int x, int y, int w, int h, const QColorGroup &g,
@@ -508,7 +566,7 @@ void QWindowsXPStyle::drawIndicator( QPainter* p, int x, int y, int w, int h, co
     else if ( !g.brightText().isValid() )
 	stateId += 1;
 
-    DrawThemeBackground( htheme, p->handle(), 3, stateId, &r, 0 );
+    DrawThemeBackground( htheme, p->handle(), BP_CHECKBOX, stateId, &r, 0 );
 
     CloseThemeData( htheme );
 }
@@ -538,9 +596,9 @@ void QWindowsXPStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
     r2.bottom = y+h-2;
 
     if ( sunken )
-	DrawThemeBackground( htheme, p->handle(), 1, 3, &r2, 0 );
+	DrawThemeBackground( htheme, p->handle(), CP_DROPDOWNBUTTON, 3, &r2, 0 );
     else
-	DrawThemeBackground( htheme, p->handle(), 1,
+	DrawThemeBackground( htheme, p->handle(), CP_DROPDOWNBUTTON,
 	    enabled ? ( d->hotWidget == p->device() ? 2 : 1 ) : 4, &r2, 0 );
 
     CloseThemeData( htheme );

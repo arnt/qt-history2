@@ -63,6 +63,8 @@ public:
     void drawExclusiveIndicator( QPainter* p, int x, int y, int w, int h,
 		    const QColorGroup &g, bool on, bool down = FALSE, bool enabled = TRUE );
 
+    void drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int h, bool on);
+
     // CheckBox
     QSize indicatorSize() const;
 
