@@ -284,7 +284,6 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
             if (margin != INT_MIN)
                 output << option.indent << parent << "->layout()->setMargin(" << margin << ");\n";
-
         } else if (uic->isMainWindow(parentWidget)) {
             QString parent = driver->findOrInsertWidget(m_widgetChain.top());
 
@@ -315,13 +314,13 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
     if (isGroupBox)
         output << option.indent << varName << "->setAlignment(Qt::AlignTop);\n";
+    else {
+        if (!m_layoutChain.top() && !properties.contains(QLatin1String("margin")) && m_defaultMargin != INT_MIN)
+                output << option.indent << varName << "->setMargin(" << m_defaultMargin << ");\n";
 
-    if (!m_layoutChain.top() && !properties.contains(QLatin1String("margin")) && m_defaultMargin != INT_MIN)
-            output << option.indent << varName << "->setMargin(" << m_defaultMargin << ");\n";
-
-    if (!properties.contains(QLatin1String("spacing")) && m_defaultSpacing != INT_MIN)
-        output << option.indent << varName << "->setSpacing(" << m_defaultSpacing << ");\n";
-
+        if (!properties.contains(QLatin1String("spacing")) && m_defaultSpacing != INT_MIN)
+            output << option.indent << varName << "->setSpacing(" << m_defaultSpacing << ");\n";
+    }
 
     writeProperties(varName, className, node->elementProperty());
 
