@@ -75,7 +75,8 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
 
 	    buffer.resize( varValue.length() * 2 + 2 );
 	    const QChar *data = varValue.unicode();
-	    for ( int i = 0; i < (int)varValue.length(); ++i ) {
+	    int i;
+	    for ( i = 0; i < (int)varValue.length(); ++i ) {
 		buffer[ 2*i ] = data[ i ].cell();
 		buffer[ (2*i)+1 ] = data[ i ].row();
 	    }

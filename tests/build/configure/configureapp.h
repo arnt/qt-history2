@@ -6,7 +6,7 @@
 
 class ConfigureApp : public QApplication
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
     ConfigureApp( int& argc, char** argv );
 

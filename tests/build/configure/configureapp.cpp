@@ -191,7 +191,8 @@ void ConfigureApp::validateArgs()
 
     allConfigs = QStringList::split( ' ', "minimal small medium large full" );
 
-    for( QStringList::Iterator config = allConfigs.begin(); config != allConfigs.end(); ++config ) {
+    QStringList::Iterator config;
+    for( config = allConfigs.begin(); config != allConfigs.end(); ++config ) {
 	configs += (*config) + "-config";
 	if( (*config) == dictionary[ "QCONFIG" ] )
 	    break;
@@ -410,7 +411,7 @@ void ConfigureApp::buildQmake()
     }
     else {
 	dictionary[ "MAKE" ] = "make";
-	dictionary[ "QMAKEMAKEFILE" ] = "Makefile.borland";
+	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
     }
 
     if( dictionary[ "BUILD_QMAKE" ] == "yes" ) {
