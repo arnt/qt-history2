@@ -912,9 +912,13 @@ QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
 	    case QDateTimeEditPrivate::AmPmLowerCaseSection: {
             QString input;
             if (s == QDateTimeEditPrivate::AmPmSection) {
-                input = var.toTime().hour() > 11 ? tr("PM") : tr("AM");
+                input = var.toTime().hour() > 11
+                        ? QDateTimeEdit::tr("PM")
+                        : QDateTimeEdit::tr("AM");
             } else {
-                input = var.toTime().hour() > 11 ? tr("pm") : tr("am");
+                input = var.toTime().hour() > 11 ?
+                        QDateTimeEdit::tr("pm") :
+                        QDateTimeEdit::tr("am");
             }
             input.truncate(l);
 
@@ -1209,7 +1213,11 @@ static QString macParseDateLocale(QVariant::Type type)
 */
 void QDateTimeEditPrivate::readLocaleSettings()
 {
-    Q_Q(QDateTimeEdit);
+    QDTEDEBUG << QDateTimeEdit::tr("PM")
+              << QDateTimeEdit::tr("AM")
+              << QDateTimeEdit::tr("pm")
+              << QDateTimeEdit::tr("am");
+
     // Time
     QString str = QTime(10, 34, 56).toString(Qt::LocalDate);
     int index = str.indexOf(QLatin1String("10"));
@@ -1224,19 +1232,16 @@ void QDateTimeEditPrivate::readLocaleSettings()
     if (index != -1)
         str.replace(index, 2, QLatin1String("ss"));
 
-    QString am(q->tr("am"));
-    const int ampmsize = QDateTimeEditPrivate::sectionSize(AmPmLowerCaseSection);
-    am.truncate(ampmsize);
+    QString am = QLatin1String("am");
     index = str.indexOf(am);
     if (index != -1) {
-        str.replace(index, ampmsize, q->tr("ap"));
+        str.replace(index, am.size(), QLatin1String("ap"));
     } else {
-        am = q->tr("AM");
-        am.truncate(ampmsize);
+        am = QLatin1String("AM");
 
         index = str.indexOf(am);
         if (index != -1)
-            str.replace(index, ampmsize, q->tr("AP"));
+            str.replace(index, am.size(), QLatin1String("AP"));
     }
 
     defaultTimeFormat = str;
@@ -1305,19 +1310,17 @@ void QDateTimeEditPrivate::readLocaleSettings()
     if (index != -1)
         str.replace(index, 2, QLatin1String("ss"));
 
-    am = q->tr("am");
-    am.truncate(ampmsize);
+    am = QLatin1String("am");
 
     index = str.indexOf(am);
     if (index != -1) {
-        str.replace(index, ampmsize, q->tr("ap"));
+        str.replace(index, am.size(), QLatin1String("ap"));
     } else {
-        am = q->tr("AM");
-        am.truncate(ampmsize);
+        am = QLatin1String("AM");
 
         index = str.indexOf(am);
         if (index != -1)
-            str.replace(index, ampmsize, q->tr("AP"));
+            str.replace(index, am.size(), QLatin1String("AP"));
     }
 
     index = str.indexOf(QLatin1String("22"));
@@ -1859,6 +1862,7 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
     displayFormat = newFormat;
     escapedFormat = QString();
     status = QLatin1Char('0');
+    int ampmlength = sectionSize(AmPmSection);
     for (int i = 0; i < newFormat.length(); ++i) {
         if (newFormat.at(i) == quote){
             if (status == quote) {
@@ -1872,10 +1876,22 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
             }
         } else {
             escapedFormat += newFormat.at(i);
+            if (i > 1 && ampmlength != 2
+                && ((newFormat.at(i - 1) == QLatin1Char('a') && newFormat.at(i) == 'p')
+                    || (newFormat.at(i - 1) == QLatin1Char('A') && newFormat.at(i) == 'P'))) {
+                if (ampmlength > 2) {
+                    escapedFormat.append(QString().leftJustified(ampmlength - 2, space));
+                } else if (ampmlength == 1) {
+                    escapedFormat.remove(i, 1);
+                } else {
+                    qWarning("Translating am/pm to an empty string will "
+                             "cause problems for QDateTimeEdit");
+                }
+            }
         }
     }
     separators = newSeparators;
-//     QDTEDEBUGN("escapedFormat = [%s]", escapedFormat.toLatin1().constData());
+    QDTEDEBUGN("escapedFormat = [%s]", escapedFormat.toLatin1().constData());
     QDTEDEBUGN("separators:\n'%s'", separators.join("|").toLatin1().constData());
 
     QDTEDEBUGN("display is [%0x]", (uint)display);
@@ -2006,7 +2022,6 @@ void QDateTimeEditPrivate::clearSection(Section s)
 
 int QDateTimeEditPrivate::sectionSize(Section s) const
 {
-    Q_Q(const QDateTimeEdit);
     switch (s) {
     case FirstSection:
     case NoSection:
@@ -2014,8 +2029,8 @@ int QDateTimeEditPrivate::sectionSize(Section s) const
 
     case AmPmSection:
     case AmPmLowerCaseSection: {
-        int lower = qMin(q->tr("pm").size(), q->tr("am").size());
-        int upper = qMin(q->tr("PM").size(), q->tr("AM").size());
+        int lower = qMin(QDateTimeEdit::tr("pm").size(), QDateTimeEdit::tr("am").size());
+        int upper = qMin(QDateTimeEdit::tr("PM").size(), QDateTimeEdit::tr("AM").size());
         return qMin(4, qMin(lower, upper));
     }
 
@@ -2065,6 +2080,9 @@ int QDateTimeEditPrivate::sectionValue(Section s, QString &text, QValidator::Sta
     state = QValidator::Invalid;
     int num = 0;
     QString st = sectionText(text, s);
+    QDTEDEBUG << "sectionValue for" << sectionName(s)
+              << "with text" << text << "and st" << st;
+
     if (st.trimmed().isEmpty()) {
         state = QValidator::Intermediate;
     } else {
@@ -2092,6 +2110,7 @@ int QDateTimeEditPrivate::sectionValue(Section s, QString &text, QValidator::Sta
                 break;
             case -1:
                 state = QValidator::Invalid;
+                QDTEDEBUG << "invalid because findAmPm(" << st << ") returned -1";
                 break;
             default:
                 QDTEDEBUGN("This should never happen (findAmPm returned %d", ampm);
@@ -2147,7 +2166,7 @@ int QDateTimeEditPrivate::sectionValue(Section s, QString &text, QValidator::Sta
                     state = done ? QValidator::Invalid : QValidator::Intermediate;
                     if (done)
                         QDTEDEBUG << "invalid because" << st << "num is" << num
-				  << "outside absoluteMin and absoluteMax" << absoluteMin(s) << absoluteMax(s);
+                                  << "outside absoluteMin and absoluteMax" << absoluteMin(s) << absoluteMax(s);
 
                 } else {
                     state = QValidator::Acceptable;
@@ -2178,7 +2197,7 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
     SectionNode sn;
     int index = 0;
 
-    QDTEDEBUGN("%s", input.toLatin1().constData());
+    QDTEDEBUG << "validateAndInterpret" << input;
     int diff = input.size() - escapedFormat.size();
     if (diff > 0) {
 	const Section s = closestSection(pos - 1, false);
@@ -2228,9 +2247,9 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
     }
 
     if (sn.pos + sectionSize(sn.section) < input.size()
-	    && input.mid(sn.pos + sectionSize(sn.section)) != separators.last()) {
+        && input.mid(sn.pos + sectionSize(sn.section)) != separators.last()) {
         QDTEDEBUG << "invalid because" << input.mid(sn.pos + sectionSize(sn.section))
-		  << "!=" << separators.last();
+                  << "!=" << separators.last();
 	state = QValidator::Invalid;
 	goto end;
     }
@@ -2257,21 +2276,21 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
 
 	    if (state != QValidator::Invalid) {
 		switch (s) {
-		    case HourSection: hour = num; break;
-		    case MinuteSection: minute = num; break;
-		    case SecondSection: second = num; break;
-		    case MSecSection: msec = num; break;
-		    case YearTwoDigitsSection:
-		    case YearSection: year = (num == 0 ? DATE_INITIAL.year() : num); break;
-		    case MonthSection:
-		    case MonthShortNameSection: month = qMax<int>(1, num); break;
-		    case DaySection: day = qMax<int>(1, num); break;
-		    case AmPmSection:
-		    case AmPmLowerCaseSection: hour = (num == 0 ? hour % 12 : (hour % 12) + 12); break;
-		    default:
-			qFatal("%s found in sections validateAndInterpret. This should never happen",
-				sectionName(s).toLatin1().constData());
-			break;
+                case HourSection: hour = num; break;
+                case MinuteSection: minute = num; break;
+                case SecondSection: second = num; break;
+                case MSecSection: msec = num; break;
+                case YearTwoDigitsSection:
+                case YearSection: year = (num == 0 ? DATE_INITIAL.year() : num); break;
+                case MonthSection:
+                case MonthShortNameSection: month = qMax<int>(1, num); break;
+                case DaySection: day = qMax<int>(1, num); break;
+                case AmPmSection:
+                case AmPmLowerCaseSection: hour = (num == 0 ? hour % 12 : (hour % 12) + 12); break;
+                default:
+                    qFatal("%s found in sections validateAndInterpret. This should never happen",
+                           sectionName(s).toLatin1().constData());
+                    break;
 		}
 	    }
 	}
@@ -2303,7 +2322,7 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
 	    tmp = QVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec)));
 	}
 	QDTEDEBUGN("'%s' => '%s' (%s)", input.toLatin1().constData(),
-		tmp.toString().toLatin1().constData(), stateName(state).toLatin1().constData());
+                   tmp.toString().toLatin1().constData(), stateName(state).toLatin1().constData());
     }
 end:
     if (state != QValidator::Invalid && (tmp < minimum || tmp > maximum)) {
@@ -2347,36 +2366,40 @@ int QDateTimeEditPrivate::findMonth(const QString &str1, int index) const
     \internal
 
   returns
-  0 if str == q->tr("AM")
-  1 if str == q->tr("PM")
-  2 if str can become q->tr("AM")
-  3 if str can become q->tr("PM")
-  4 if str can become q->tr("PM") and can become q->tr("AM")
+  0 if str == QDateTimeEdit::tr("AM")
+  1 if str == QDateTimeEdit::tr("PM")
+  2 if str can become QDateTimeEdit::tr("AM")
+  3 if str can become QDateTimeEdit::tr("PM")
+  4 if str can become QDateTimeEdit::tr("PM") and can become QDateTimeEdit::tr("AM")
   -1 can't become anything sensible
 
 */
 
 int QDateTimeEditPrivate::findAmPm(QString &str, QDateTimeEditPrivate::Section s) const
 {
-    Q_Q(const QDateTimeEdit);
     const int size = sectionSize(AmPmSection);
     Q_ASSERT(str.size() == size);
 
-    static const int pmindex = 0;
-    static const int amindex = 1;
-    QStringList ampm;
+    static const int amindex = 0;
+    static const int pmindex = 1;
+    QString ampm[2];
     if (s == AmPmSection) {
-        ampm << q->tr("AM");
-        ampm << q->tr("PM");
+        ampm[amindex] = QDateTimeEdit::tr("AM");
+        ampm[pmindex] = QDateTimeEdit::tr("PM");
     } else {
-        ampm << q->tr("am");
-        ampm << q->tr("pm");
+        ampm[amindex] = QDateTimeEdit::tr("am");
+        ampm[pmindex] = QDateTimeEdit::tr("pm");
     }
-    if (str.indexOf(ampm.at(amindex), 0, Qt::CaseInsensitive) == 0) {
-        str = ampm.at(amindex);
+    for (int i=0; i<2; ++i)
+        ampm[i].truncate(size);
+
+    QDTEDEBUG << "findAmPm" << str << ampm[0] << ampm[1];
+
+    if (str.indexOf(ampm[amindex], 0, Qt::CaseInsensitive) == 0) {
+        str = ampm[amindex];
         return 0;
-    } else if (str.indexOf(ampm.at(pmindex), 0, Qt::CaseInsensitive) == 0) {
-        str = ampm.at(pmindex);
+    } else if (str.indexOf(ampm[pmindex], 0, Qt::CaseInsensitive) == 0) {
+        str = ampm[pmindex];
         return 1;
     } else if (str.count(space) == 0) {
         return -1;
@@ -2387,20 +2410,28 @@ int QDateTimeEditPrivate::findAmPm(QString &str, QDateTimeEditPrivate::Section s
         if (str.at(i) != space) {
             for (int j=0; j<2; ++j) {
                 if (!broken[j]) {
-                    int index = ampm.at(j).indexOf(str.at(i));
+                    int index = ampm[j].indexOf(str.at(i));
+                    QDTEDEBUG << "looking for" << str.at(i)
+                              << "in" << ampm[j] << "and got" << index;
                     if (index == -1) {
                         if (str.at(i).category() == QChar::Letter_Uppercase) {
-                            index = ampm.at(j).indexOf(str.at(i).toLower());
+                            index = ampm[j].indexOf(str.at(i).toLower());
+                            QDTEDEBUG << "trying with" << str.at(i).toLower()
+                                      << "in" << ampm[j] << "and got" << index;
                         } else if (str.at(i).category() == QChar::Letter_Lowercase) {
-                            index = ampm.at(j).indexOf(str.at(i).toUpper());
+                            index = ampm[j].indexOf(str.at(i).toUpper());
+                            QDTEDEBUG << "trying with" << str.at(i).toUpper()
+                                     << "in" << ampm[j] << "and got" << index;
                         }
                         if (index == -1) {
                             broken[j] = true;
-                            if (broken[amindex] && broken[pmindex])
+                            if (broken[amindex] && broken[pmindex]) {
+                                QDTEDEBUG << str << "didn't make it";
                                 return -1;
+                            }
                             continue;
                         } else {
-                            str[i] = ampm.at(j).at(index); // fix case
+                            str[i] = ampm[j].at(index); // fix case
                         }
                     }
                     ampm[j].remove(index, 1);
