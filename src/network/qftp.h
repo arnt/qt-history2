@@ -81,7 +81,7 @@ public:
 	Login,
 	Close,
 	List,
-//###	Cd,
+	Cd,
 //###	Get,
 //###	Put,
 //###	Copy,
@@ -94,8 +94,9 @@ public:
 
     int connectToHost( const QString &host, Q_UINT16 port=21 );
     int login( const QString &user=QString::null, const QString &password=QString::null );
-    int list( const QString &dir=QString::null );
     int close();
+    int list( const QString &dir=QString::null );
+    int cd( const QString &dir );
 
     int currentId() const;
     Command currentCommand() const;

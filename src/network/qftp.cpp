@@ -862,6 +862,22 @@ int QFtp::list( const QString &dir )
 }
 
 /*!
+  Changes the working directory of the server to \a dir.
+
+  This function returns immediately; it returns a unique identifier for the
+  scheduled command.
+
+  When the command is started the start() signal is emitted. When it is
+  finished, either the finishedSuccess() or finishedError() signal is emitted.
+
+  \sa start() finishedSuccess() finishedError()
+*/
+int QFtp::cd( const QString &dir )
+{
+    return addCommand( Cd, QStringList("CWD "+dir+"\r\n") );
+}
+
+/*!
   Returns the identifier of the FTP command currently executed or 0 if there is
   no command executed.
 
