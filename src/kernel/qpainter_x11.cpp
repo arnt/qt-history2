@@ -3119,19 +3119,16 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
 {
     QTextEngine *engine = ti.engine;
-    QScriptItem &si = engine->items[ti.item];
+    QScriptItem *si = &engine->items[ti.item];
 
     engine->shape( ti.item );
-    QFontEngine *fe = si.fontEngine;
+    QFontEngine *fe = si->fontEngine;
     assert( fe );
 
-    x += si.x;
-    y += si.y;
+    x += si->x;
+    y += si->y;
 
-    bool rightToLeft = si.analysis.bidiLevel % 2;
-
-    fe->draw( this, x,  y, engine->glyphs( &si ), engine->advances( &si ),
-	      engine->offsets( &si ), si.num_glyphs, rightToLeft, textFlags );
+    fe->draw( this, x,  y, engine, si, textFlags );
 }
 
 /*!
