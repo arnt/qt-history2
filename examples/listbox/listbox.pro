@@ -5,4 +5,4 @@ SOURCES		= listbox.cpp \
 		  main.cpp
 TARGET		= listbox
 DEPENDPATH	= ../../include 
-REQUIRES=medium-config
+REQUIRES=large-config

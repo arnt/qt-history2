@@ -4,4 +4,4 @@ HEADERS		= forever.h
 SOURCES		= forever.cpp
 TARGET		= forever
 DEPENDPATH=../../include
-REQUIRES=
+REQUIRES=small-config

@@ -8,3 +8,4 @@ TARGET		= test
 PROJECTNAME	= test
 
 
+REQUIRES=full-config

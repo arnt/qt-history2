@@ -1360,6 +1360,10 @@ if [ -z "$QWS_VNC" -a "$EMBEDDED" != no ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_VNC"
 fi
+if [ "$EMBEDDED" != no ]
+then
+    MODULES=`echo $MODULES | sed -e 's/opengl//'`
+fi
 
 [ -r qconfig.h-hold ] && mv -f qconfig.h-hold $outpath/include/qconfig.h
 

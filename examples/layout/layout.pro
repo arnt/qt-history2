@@ -4,4 +4,4 @@ HEADERS		=
 SOURCES		= layout.cpp
 TARGET		= layout
 DEPENDPATH=../../include
-REQUIRES=medium-config
+REQUIRES=large-config

@@ -5,3 +5,4 @@ HEADERS		= textedit.h
 SOURCES		= textedit.cpp \
 		  main.cpp
 TARGET		= textedit
+REQUIRES=full-config

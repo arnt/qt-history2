@@ -5,4 +5,4 @@ SOURCES		= main.cpp \
 		  outlinetree.cpp
 INTERFACES	=
 TARGET		= outliner
-REQUIRES	= xml
+REQUIRES	= xml large-config

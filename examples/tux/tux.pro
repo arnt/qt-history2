@@ -4,3 +4,4 @@ HEADERS		=
 SOURCES		= tux.cpp
 INTERFACES	= 
 TARGET		= tux
+REQUIRES=small-config

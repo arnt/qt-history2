@@ -4,4 +4,4 @@ HEADERS		= popup.h
 SOURCES		= popup.cpp
 TARGET		= popup
 DEPENDPATH=../../include
-REQUIRES=small-config
+REQUIRES=large-config
