@@ -176,8 +176,8 @@ void ConfigToolboxDialog::currentToolChanged( QListViewItem *i )
 
 void ConfigToolboxDialog::currentCommonToolChanged( QListViewItem *i )
 {
-    buttonUp->setEnabled( i && i->itemAbove() );
-    buttonDown->setEnabled( i && i->itemBelow() );
+    buttonUp->setEnabled( (bool) (i && i->itemAbove()) );
+    buttonDown->setEnabled( (bool) (i && i->itemBelow()) );
 
     bool canRemove = FALSE;
     QListViewItemIterator it = listViewCommon->firstChild();
