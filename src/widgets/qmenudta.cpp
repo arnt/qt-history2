@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#14 $
 **
 ** Implementation of QMenuData class
 **
@@ -16,7 +16,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#14 $";
 #endif
 
 
@@ -279,6 +279,11 @@ QMenuItem *QMenuData::findItem( int id ) const	// find menu item, ident==id
     while ( (mi=it.current()) ) {
 	if ( mi->ident == id )			// this one?
 	    return mi;
+	if ( mi->popup_menu ) {			// recursive search
+	    mi = mi->popup_menu->findItem( id );
+	    if ( mi )
+		return mi;
+	}
 	++it;
     }
     return 0;					// not found

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#10 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#11 $
 **
 ** Definition of QMenuData class
 **
@@ -110,6 +110,8 @@ public:
     bool	disconnectItem( int id,
 				const QObject *receiver, const char *member );
 
+    QMenuItem  *findItem( int id ) const;
+
 protected:
     int		   actItem;			// active menu item
     QMenuItemList *mitems;			// list of menu items
@@ -118,7 +120,6 @@ protected:
     uint	   isMenuBar	: 1;
     uint	   badSize	: 1;
     uint	   mouseBtDn	: 1;
-    QMenuItem     *findItem( int id ) const;
     virtual void   menuContentsChanged();
     virtual void   menuStateChanged();
     virtual void   menuInsPopup( QPopupMenu * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#18 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#18 $";
 #endif
 
 
@@ -95,15 +95,17 @@ void QMenuBar::menuStateChanged()
 void QMenuBar::menuInsPopup( QPopupMenu *popup )
 {
     popup->parentMenu = this;			// set parent menu
-    connect( popup, SIGNAL(activated(int)), SLOT(subActivated(int)) );
-    connect( popup, SIGNAL(selected(int)),  SLOT(subSelected(int)) );
+    connect( popup, SIGNAL(activatedRedirect(int)), SLOT(subActivated(int)) );
+    connect( popup, SIGNAL(selectedRedirect(int)),  SLOT(subSelected(int)) );
 }
 
 void QMenuBar::menuDelPopup( QPopupMenu *popup )
 {
     popup->parentMenu = this;
-    connect( popup, SIGNAL(activated(int)), SLOT(subActivated(int)) );
-    connect( popup, SIGNAL(selected(int)),  SLOT(subSelected(int)) );
+    popup->disconnect( SIGNAL(activatedRedirect(int)), this,
+		       SLOT(subActivated(int)) );
+    popup->disconnect( SIGNAL(selectedRedirect(int)),  this,
+		       SLOT(subSelected(int)) );
 }
 
 
