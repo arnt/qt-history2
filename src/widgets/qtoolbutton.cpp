@@ -180,6 +180,7 @@ QToolButton::QToolButton( const QIconSet& iconSet, const QString &textLabel,
     : QButton( parent, name )
 {
     init();
+    setAutoRaise( TRUE );
     setIconSet( iconSet );
     setTextLabel( textLabel );
     if ( receiver && slot )
