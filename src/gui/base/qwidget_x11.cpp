@@ -1916,7 +1916,7 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
     clearWState(WState_Maximized);
     clearWState(WState_FullScreen);
     if (isTopLevel())
-        topData()->normalGeometry = QRect(0,0,-1,-1);
+        d->topData()->normalGeometry = QRect(0,0,-1,-1);
     if ( d->extra ) {				// any size restrictions?
 	w = qMin(w,d->extra->maxw);
 	h = qMin(h,d->extra->maxh);
