@@ -78,7 +78,7 @@ void QPlugInManager::addPlugInPath( const QString& path )
     }
 }
 
-QWidget* QPlugInManager::createWidget( const QString& classname, QWidget* parent, const char* name, WFlags f )
+QWidget* QPlugInManager::newWidget( const QString& classname, QWidget* parent, const char* name, Qt::WFlags f )
 {
     QPlugIn* plugin = pHnds[ "WIDGET_"+classname ];
     if ( plugin )
@@ -90,7 +90,7 @@ QWidget* QPlugInManager::createWidget( const QString& classname, QWidget* parent
 QStringList QPlugInManager::enumerateWidgets()
 {
     QStringList list;
-    QDictIterator<QPlugIn> it( pHnds );
+    QDictIterator<QPlugIn> it( pLibs );
 
     while( it.current() ) {
 	QStringList widgets = QStringList::split( '\n', it.current()->enumerateWidgets() );
@@ -102,7 +102,7 @@ QStringList QPlugInManager::enumerateWidgets()
     return list;
 }
 
-QAction* QPlugInManager::createAction( const QString& actionname, QObject* parent )
+QAction* QPlugInManager::newAction( const QString& actionname, QObject* parent )
 {
     QPlugIn* plugin = pHnds[ "ACTION_"+actionname ];
     if ( plugin )

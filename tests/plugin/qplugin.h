@@ -1,7 +1,9 @@
 #ifndef QPLUGIN_H
 #define QPLUGIN_H
 
-#include "qstringlist.h"
+#include "qwidgetfactory.h"
+#include "qactionfactory.h"
+
 #include "qdict.h"
 #include "qwindowdefs.h"
 
@@ -17,7 +19,6 @@ class QAction;
 class QPlugIn
 {
     friend class QPlugInManager;
-
 public:
     QPlugIn( HINSTANCE pHnd );
     ~QPlugIn();
@@ -38,7 +39,7 @@ private:
     ENUMERATEACTIONSPROC enumerateActions;
 };
 
-class QPlugInManager : public Qt
+class QPlugInManager : public QDefaultWidgetFactory, public QDefaultActionFactory
 {
 public:
     QPlugInManager();
@@ -47,12 +48,14 @@ public:
     void addPlugInPath( const QString& path );
     bool addPlugIn( const QString& fullname );
 
-    QWidget* createWidget( const QString& classname, QWidget* parent = 0, const char* name = 0, WFlags f = 0 );
+private:
+    QString factoryName() const { return "QPlugInManager"; }
+    QWidget* newWidget( const QString& classname, QWidget* parent = 0, const char* name = 0, Qt::WFlags f = 0 );
     QStringList enumerateWidgets();
-    QAction* createAction( const QString& actionname, QObject* parent = 0 );
+
+    QAction* newAction( const QString& actionname, QObject* parent = 0 );
     QStringList enumerateActions();
 
-private:
     void init();
 
     QDict<QPlugIn> pHnds;

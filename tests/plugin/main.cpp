@@ -1,35 +1,51 @@
 #include <qapplication.h>
 #include <qmainwindow.h>
-#include <qpopupmenu.h>
+#include <qhbox.h>
+#include <qscrollview.h>
 #include <qmenubar.h>
+#include <qpopupmenu.h>
+#include <qtooltip.h>
 #include <qaction.h>
+#include <qlabel.h>
 
 #include "qplugin.h"
 
 int main( int argc, char** argv )
 {
     QApplication app( argc, argv );
-    int ret;
 
-    QPlugInManager pm( "./plugin" );
-    
-    {
-	QMainWindow mw;
-	mw.setCentralWidget( pm.createWidget( pm.enumerateWidgets()[1], &mw ) );
+    QWidgetFactory::installWidgetFactory( new QDefaultWidgetFactory );
+    QPlugInManager* pm = new QPlugInManager("./plugin");
+    QWidgetFactory::installWidgetFactory( pm );
+    QActionFactory::installActionFactory( pm );
 
-	QPopupMenu* p = new QPopupMenu( &mw );
-	QAction* a = pm.createAction( "CustomAction", &mw );
-	if ( a )
-	    a->addTo( p );
+    QMainWindow mw;
+    QScrollView sv( &mw );
+    QHBox b( sv.viewport() );
+    b.setFixedHeight( 200 );
+    sv.addChild( &b );
 
-	mw.menuBar()->insertItem( "&AddIns", p );
-	mw.statusBar();
-
-	app.setMainWidget( &mw );
-	mw.show();
-
-	ret = app.exec();
+    QStringList widgets = QWidgetFactory::widgetList();
+    for ( uint i = 0; i < widgets.count(); i++ ) {
+	QWidget* w = QWidgetFactory::createWidget( widgets[i], &b);
+	if ( w )
+	    QToolTip::add( w, QString(w->className()) + " (" + QWidgetFactory::widgetFactory( w->className() ) + ")" );
     }
 
-    return ret;
+    QPopupMenu pop;
+    QStringList actions = QActionFactory::actionList();
+    for ( uint j = 0; j < actions.count(); j++ ) {
+	QAction* a = QActionFactory::createAction( actions[j], &mw );
+	if ( a )
+	    a->addTo( &pop );
+    }
+    
+    mw.menuBar()->insertItem( "&AddIn", &pop );
+    
+    mw.setCentralWidget( &sv );
+
+    app.setMainWidget( &mw );
+    mw.show();
+
+    return app.exec();
 }

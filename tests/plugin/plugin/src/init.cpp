@@ -2,8 +2,11 @@
 #include "styledbutton.h"
 #include "customaction.h"
 
-#ifndef DLLEXPORT
+#ifdef _OS_WIN32_
+#undef DLLEXPORT
 #define DLLEXPORT __declspec(dllexport)
+#else
+#define DLLEXPORT
 #endif
 
 #if defined(__cplusplus )
