@@ -83,8 +83,7 @@
     setUnderline(), setFamily() (font family), setPointSize(),
     setColor() and setCurrentFont().  The current
     paragraph's style is set with setParagType() and its alignment is
-    set with setAlignment(). All format attributes can be reset to their
-    original state with resetFormat().
+    set with setAlignment(). 
 
     Internally QTextEdit works on paragraphs and characters. A paragraph
     is a formatted string which is word-wrapped to fit into the width of
@@ -516,6 +515,8 @@
 
 /*! \fn void QTextEdit::resetFormat()
 
+    \internal
+
   Resets the current format to the default format.
 */
 
@@ -597,6 +598,8 @@
 */
 
 /*! \fn void QTextEdit::setFormat( QTextFormat *f, int flags )
+
+    \internal
 
   This functions sets the current format to \a f. Only the fields of \a
   f which are specified by the \a flags are used.
