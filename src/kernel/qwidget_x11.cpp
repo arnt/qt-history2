@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#381 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#382 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1815,10 +1815,10 @@ int QWidget::metric( int m ) const
 	int scr = x11Screen();
 	switch ( m ) {
 	    case QPaintDeviceMetrics::PdmDpiX:
-		val = QPaintDevice::x11DpiX();
+		val = QPaintDevice::x11AppDpiX();
 		break;
 	    case QPaintDeviceMetrics::PdmDpiY:
-		val = QPaintDevice::x11DpiY();
+		val = QPaintDevice::x11AppDpiY();
 		break;
 	    case QPaintDeviceMetrics::PdmWidthMM:
 		val = (DisplayWidthMM(dpy,scr)*crect.width())/

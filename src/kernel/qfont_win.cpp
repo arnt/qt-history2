@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#117 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#118 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -66,19 +66,11 @@ QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool scale)
     return qf;
 }
 
-/*!
-  Returns the logical height of characters in the font if shown on
-  the screen.
-*/
 int QFont::pixelSize() const
 {
     return int((float)pointSizeFloat() * GetDeviceCaps(shared_dc,LOGPIXELSY)/(float)720+0.5);
 }
 
-/*!
-  Sets the logical height of characters in the font if shown on
-  the screen.
-*/
 void QFont::setPixelSizeFloat( float pixelSize )
 {
     setPointSizeFloat( pixelSize * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY) );

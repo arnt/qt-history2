@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#159 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#160 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -513,10 +513,10 @@ int QPixmap::metric( int m ) const
 	int scr = x11Screen();
 	switch ( m ) {
 	    case QPaintDeviceMetrics::PdmDpiX:
-		val = QPaintDevice::x11DpiX();
+		val = QPaintDevice::x11AppDpiX();
 		break;
 	    case QPaintDeviceMetrics::PdmDpiY:
-		val = QPaintDevice::x11DpiY();
+		val = QPaintDevice::x11AppDpiY();
 		break;
 	    case QPaintDeviceMetrics::PdmWidthMM:
 		val = (DisplayWidthMM(dpy,scr)*width())/

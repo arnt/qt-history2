@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#101 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -230,7 +230,7 @@ QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
 
   \sa QPaintDeviceMetrics::logicalDpiX();
 */
-int QPaintDevice::x11DpiX()
+int QPaintDevice::x11AppDpiX()
 {
     static int remember = 0;
     if ( !remember ) {
@@ -249,7 +249,7 @@ int QPaintDevice::x11DpiX()
 
   \sa QPaintDeviceMetrics::logicalDpiY();
 */
-int QPaintDevice::x11DpiY()
+int QPaintDevice::x11AppDpiY()
 {
     static int remember = 0;
     if ( !remember ) {

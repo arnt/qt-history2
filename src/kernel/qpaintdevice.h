@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#70 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#71 $
 **
 ** Definition of QPaintDevice class
 **
@@ -91,8 +91,8 @@ public:
     static int	    x11AppScreen();
     static int	    x11AppDepth();
     static int	    x11AppCells();
-    static int	    x11DpiX();
-    static int	    x11DpiY();
+    static int	    x11AppDpiX();
+    static int	    x11AppDpiY();
     static HANDLE   x11AppColormap();
     static bool     x11AppDefaultColormap();
     static void    *x11AppVisual();

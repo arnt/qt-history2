@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#135 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#136 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -437,7 +437,7 @@ float QFont::pointSizeFloat() const
 */
 void QFont::setPixelSize( int pixelSize )
 {
-    setPointSizeFloat( float(pixelSize) );
+    setPixelSizeFloat( float(pixelSize) );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#176 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#177 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -481,13 +481,12 @@ static bool fillFontDef( const QCString &xlfd, QFontDef *fd,
     fd->weight = qFontGetWeight( tokens[Weight_] );
 
 #if 1
-    //qWarning( "Resolution = %s", tokens[ResolutionY] );
-
     int r = atoi(tokens[ResolutionY]);
-    if ( r && QPaintDevice::x11DpiY() && r != QPaintDevice::x11DpiY() ) { // not "0" or "*", or required DPI
-	fd->pointSize = ( 2*fd->pointSize*atoi(tokens[ResolutionY]) + QPaintDevice::x11DpiY())
-			       / (QPaintDevice::x11DpiY() * 2);		// adjust actual pointsize
-	//qWarning( "Adjusted from %i to %i", fett, fd->pointSize  );
+    if ( r && QPaintDevice::x11AppDpiY() && r != QPaintDevice::x11AppDpiY() ) { // not "0" or "*", or required DPI
+	// calculate actual pointsize for display DPI
+	fd->pointSize = ( 2*fd->pointSize*atoi(tokens[ResolutionY])
+			  + QPaintDevice::x11AppDpiY()
+			) / (QPaintDevice::x11AppDpiY() * 2);
     }
 #endif
 
@@ -984,15 +983,15 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
     } else {
 	int rx = atoi(tokens[ResolutionX]);
 	int ry = atoi(tokens[ResolutionY]);
-	if ( rx == QPaintDevice::x11DpiX() && ry == QPaintDevice::x11DpiY() ) {
+	if ( rx == QPaintDevice::x11AppDpiX()
+	  && ry == QPaintDevice::x11AppDpiY() )
+	{
 	    score |= ResolutionScore;
 	} else {
 	    exactMatch = FALSE;
 	    if ( !*scalable ) {
-		// int fett = pSize;
-		pSize = ( 2*pSize*atoi(tokens[ResolutionY]) + QPaintDevice::x11DpiY())
-			/ (QPaintDevice::x11DpiY() * 2);	// adjust actual pointsize
-		//qWarning( "X Adjusted from %i to %i", fett, pSize  );
+		pSize = ( 2*pSize*atoi(tokens[ResolutionY]) + QPaintDevice::x11AppDpiY())
+			/ (QPaintDevice::x11AppDpiY() * 2);	// adjust actual pointsize
 	    }
 	}
     }
@@ -1114,8 +1113,8 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
 	strcpy( matchBuffer.data(), bestScalable.name );
 	if ( qParseXFontName( matchBuffer, tokens ) ) {
 	    // X will scale the font accordingly
-	    int resx = QPaintDevice::x11DpiX();
-	    int resy = QPaintDevice::x11DpiY();
+	    int resx = QPaintDevice::x11AppDpiX();
+	    int resy = QPaintDevice::x11AppDpiY();
 
 	    int pSize = deciPointSize();
 	    bestName.sprintf( "-%s-%s-%s-%s-%s-%s-*-%i-%i-%i-%s-*-%s-%s",
@@ -1350,7 +1349,7 @@ int QFontMetrics::printerAdjusted(int val) const
 	 painter->device()->devType() == QInternal::Printer) {
 	painter->cfont.handle();
 	int xres = painter->cfont.d->fin->xResolution();
-	return qRound( val * 72.0 / xres ); // PostScript is 72dpi
+	return ( val * 72 + 36 ) / xres; // PostScript is 72dpi
     } else {
 	return val;
     }
@@ -1979,19 +1978,20 @@ void QFontInternal::computeLineWidth()
     strcpy( buffer.data(), name() );
     if ( !qParseXFontName(buffer, tokens) ) {
 	lw   = 1;                   // name did not conform to X LFD
-	xres = QPaintDevice::x11DpiX();
+	xres = QPaintDevice::x11AppDpiX();
 	return;
     }
     int weight = qFontGetWeight( tokens[Weight_] );
     int pSize  = atoi( tokens[PointSize] ) / 10;
     int ry = atoi( tokens[ResolutionY] );
-    if ( ry != QPaintDevice::x11DpiY() )
-	pSize = ( 2*pSize*ry + QPaintDevice::x11DpiY() ) / ( QPaintDevice::x11DpiY() * 2 );
+    if ( ry != QPaintDevice::x11AppDpiY() )
+	pSize = ( 2*pSize*ry + QPaintDevice::x11AppDpiY() )
+	    / ( QPaintDevice::x11AppDpiY() * 2 );
     QCString tmp = tokens[ResolutionX];
     bool ok;
     xres = tmp.toInt( &ok );
     if ( !ok || xres == 0 )
-	xres = QPaintDevice::x11DpiX();		
+	xres = QPaintDevice::x11AppDpiX();		
     int score = pSize*weight;		// ad hoc algorithm
     lw = ( score ) / 700;
     if ( lw < 2 && score >= 1050 )	// looks better with thicker line
@@ -2042,22 +2042,20 @@ int qFontGetWeight( const QCString &weightString, bool adjustScore )
 }
 
 /*!
-  Returns the logical height of characters in the font if shown on
+  Returns the logical pixel height of characters in the font if shown on
   the screen.
 */
 int QFont::pixelSize() const
 {
-    // #### needs scaling
-    return pointSize();
+    return ( d->req.pointSize*QPaintDevice::x11AppDpiY() + 360 ) / 720;
 }
 
 /*!
-  Sets the logical height of characters in the font if shown on
+  Sets the logical pixel height of characters in the font if shown on
   the screen.
 */
 void QFont::setPixelSizeFloat( float pixelSize )
 {
-    // #### needs scaling
-    setPointSizeFloat( pixelSize );
+    setPointSizeFloat( pixelSize * 720.0 / QPaintDevice::x11AppDpiY() );
 }
 
