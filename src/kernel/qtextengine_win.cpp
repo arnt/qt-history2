@@ -164,9 +164,7 @@ static void resolveUsp10()
 	ScriptBreak = (fScriptBreak) lib.resolve( "ScriptBreak" );
 	ScriptGetProperties = (fScriptGetProperties) lib.resolve( "ScriptGetProperties" );
 
-	// Using the below features is causing memory corruption,
-	// disable it until Lars comes up with a fix.
-	// if ( !ScriptFreeCache )
+	if ( !ScriptFreeCache )
 	    return;
 
 	hasUsp10 = TRUE;
@@ -552,6 +550,8 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
     if ( usp_items != s_items )
 	free( usp_items );
 
+    ++stop;
+    start = stop;
 }
 // -----------------------------------------------------------------------------------------------------
 //
@@ -598,6 +598,8 @@ void QTextEngine::shape( int item ) const
     int from = si.position;
     int len = length( item );
 
+    assert( len > 0 );
+
     si.glyph_data_offset = used;
 
     if ( !si.fontEngine ) {
@@ -630,6 +632,7 @@ void QTextEngine::shape( int item ) const
 	si.analysis.logicalOrder = TRUE;
 	HRESULT res = E_OUTOFMEMORY;
 	HDC hdc = 0;
+
 	do {
 	    ensureSpace( l );
 
@@ -644,8 +647,8 @@ void QTextEngine::shape( int item ) const
 		hdc = 0;
 	    } else if (res == E_OUTOFMEMORY) {
 		l += 32;
-	    } else {
-		break;
+	    } else if ( res != S_OK ) {
+		assert( FALSE );
 	    }
 	} while( res != S_OK );
 
