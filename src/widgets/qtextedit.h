@@ -1,13 +1,13 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.h#8 $
+** $Id: //depot/qt/main/src/widgets/qtextview.h#6 $
 **
-** Definition of the QSimpleRichText class
+** Definition of the QTextEdit class
 **
 ** Created : 990101
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the kernel module of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Trolltech AS of Norway and appearing in the file
@@ -35,55 +35,37 @@
 **
 **********************************************************************/
 
-#ifndef QSIMPLERICHTEXT_H
-#define QSIMPLERICHTEXT_H
+#ifndef QTEXTEDIT_H
+#define QTEXTEDIT_H
 
 #ifndef QT_H
-#include "qnamespace.h"
-#include "qstring.h"
-#include "qregion.h"
+#include "qlist.h"
+#include "qpixmap.h"
+#include "qcolor.h"
+#include "qtextview.h"
 #endif // QT_H
 
-#ifndef QT_NO_RICHTEXT
+#ifndef QT_NO_TEXTEDIT
 
-class QPainter;
-class QWidget;
-class QStyleSheet;
-class QBrush;
-class QMimeSourceFactory;
-class QSimpleRichTextData;
-
-
-class Q_EXPORT QSimpleRichText
+class QTextEdit : public QTextView
 {
+    Q_OBJECT
+
 public:
-    QSimpleRichText( const QString& text, const QFont& fnt,
-		     const QString& context = QString::null, const QStyleSheet* sheet = 0);
-    QSimpleRichText( const QString& text, const QFont& fnt,
-		     const QString& context,  const QStyleSheet* sheet,
-		     const QMimeSourceFactory* factory, int verticalBreak = -1,
-		     const QColor& linkColor = Qt::blue, bool linkUnderline = TRUE );
-    ~QSimpleRichText();
-
-    void setWidth( int );
-    void setWidth( QPainter*, int );
-    int width() const;
-    int widthUsed() const;
-    int height() const;
-    void adjustSize();
-
-    void draw( QPainter*,  int x, int y, const QRegion& clipRegion,
-	       const QColorGroup& cg, const QBrush* paper = 0) const;
-
-    QString context() const;
-    QString anchorAt( const QPoint& pos ) const;
-
-    bool inText( const QPoint& pos ) const;
+    QTextEdit(QWidget *parent=0, const char *name=0)
+	: QTextView( parent, name ) {}
+    ~QTextEdit() {}
 
 private:
-    QSimpleRichTextData* d;
+    bool isReadOnly() const { return FALSE; }
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QTextEdit( const QTextEdit & );
+    QTextEdit& operator=( const QTextEdit & );
+#endif
 };
 
-#endif // QT_NO_RICHTEXT
+#endif // QT_NO_TEXTEDIT
 
-#endif // QSIMPLERICHTEXT_H
+#endif

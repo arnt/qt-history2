@@ -1,12 +1,9 @@
 High priority:
 -------------
-- Implement proper minimumWidth of documents
 - Implement selection with nested custom items
 - Cleanup formatcollection to make the memory handling of the formats (ownership, etc.) cleaner
 - Fix textflow/dpi stuff for printing (esp. on windows)
 - popup detail stuff in QTextBrowser/html parser
-- fix the problem with #ababab links (somehow the anchors get lost between parsing and
-  building the internal data structure)
 - Links in floating tables/items
 
 Not so high:

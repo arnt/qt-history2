@@ -27,31 +27,6 @@ internal {
 
 ##########################################################
 
-# new rich text stuff
-contains(hacks, oldrichtext) {
-	HEADERS += kernel/qrichtext_p.h \
-			kernel/qsimplerichtext.h \
-			widgets/qtextview.h \
-			widgets/qtextbrowser.h
-	SOURCES += kernel/qrichtext.cpp \
-			kernel/qsimplerichtext.cpp \
-			widgets/qtextview.cpp \
-			widgets/qtextbrowser.cpp
-}
-contains(hacks, newrichtext) {
-	HEADERS += ../tests/qtextedit/qrichtext_p.h \
-			../tests/qtextedit/qsimplerichtext.h \
-			../tests/qtextedit/qtextedit.h \
-			../tests/qtextedit/qtextbrowser.h \
-			../tests/qtextedit/qtextview.h
-	SOURCES += ../tests/qtextedit/qrichtext.cpp \
-			../tests/qtextedit/qsimplerichtext.cpp \
-			../tests/qtextedit/qtextedit.cpp \
-			../tests/qtextedit/qtextbrowser.cpp \
-			../tests/qtextedit/qtextview.cpp
-	DEFINES += QT_NEW_RICHTEXT
-}
-
 unix:!embedded {
 	contains(hacks,oldx11font):SOURCES += kernel/qfont_x11.cpp
 	contains(hacks,newx11font):SOURCES += ../tests/newfont/qfont_newx11.cpp

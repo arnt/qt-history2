@@ -36,1096 +36,1704 @@
 **********************************************************************/
 
 #include "qtextview.h"
-#ifndef QT_NO_TEXTVIEW
-#include "../kernel/qrichtext_p.h"
+#include "qrichtext_p.h"
 
-#include "qapplication.h"
-#include "qlayout.h"
-#include "qcursor.h"
-#include "qpainter.h"
-#include "qstack.h"
-#include "stdio.h"
-#include "qfile.h"
-#include "qtextstream.h"
-#include "qbitmap.h"
-#include "qtimer.h"
-#include "qimage.h"
-#include "qmime.h"
-#include "qdragobject.h"
-#include "qclipboard.h"
-#include "qregexp.h"
+#include <qpainter.h>
+#include <qpen.h>
+#include <qbrush.h>
+#include <qpixmap.h>
+#include <qfont.h>
+#include <qcolor.h>
+#include <qsize.h>
+#include <qevent.h>
+#include <qtimer.h>
+#include <qapplication.h>
+#include <qlistbox.h>
+#include <qvbox.h>
+#include <qapplication.h>
+#include <qclipboard.h>
+#include <qcolordialog.h>
+#include <qfontdialog.h>
+#include <qstylesheet.h>
+#include <qdragobject.h>
+#include <qurl.h>
+#include <qcursor.h>
+#include <qregexp.h>
 
-
-/*!
-  \class QTextView qtextview.h
-  \brief A sophisticated single-page rich text viewer.
-  \ingroup basic
-  \ingroup helpsystem
-
-  Unlike QSimpleRichText, which merely draws small pieces of rich
-  text, a QTextView is a real widget, with scrollbars when necessary,
-  for showing large text documents.
-
-  The rendering style and available tags are defined by a
-  styleSheet(). Currently, a small XML/CSS1 subset including embedded
-  images and tables is supported. See QStyleSheet for
-  details. Possible images within the text document are resolved by
-  using a QMimeSourceFactory.  See setMimeSourceFactory() for details.
-
-  Using QTextView is quite similar to QLabel. It's mainly a call to
-  setText() to set the contents. Setting the background color is
-  slightly different from other widgets, since a text view is a
-  scrollable widget that naturally provides a scrolling background. You
-  can specify the colorgroup of the displayed text with
-  setPaperColorGroup() or directly define the paper background with
-  setPaper(). QTextView supports both plain color and complex pixmap
-  backgrounds.
-
-  Note that we do not intend to add a full-featured web browser widget
-  to Qt (since that would easily double Qt's size and only few
-  applications would benefit from it). In particular, the rich text
-  support in Qt is supposed to provide a fast, portable and sufficient
-  way to add reasonable online help facilities to applications. We
-  will, however, extend it to some degree in future versions of Qt.
-
-  For even more, like hypertext capabilities, see QTextBrowser.
-*/
-
-class QTextViewData
-{
-public:
-    QStyleSheet* sheet_;
-    QRichText* doc_;
-    QMimeSourceFactory* factory_;
-    QString original_txt;
-    QString txt;
-    QString contxt;
-    QColorGroup mypapcolgrp;
-    QColorGroup papcolgrp;
-    QColor mylinkcol;
-    QColor paplinkcol;
-    bool linkunderline;
-    QTimer* resizeTimer;
-#ifndef QT_NO_DRAGANDDROP
-    QTimer* dragTimer;
-#endif
-    QTimer* scrollTimer;
-    Qt::TextFormat textformat;
-    QRichTextFormatter* fcresize;
-    QPoint cursor;
-    QtTriple selorigin;
-    QtTriple selstart;
-    QtTriple selend;
-    uint selection :1;
-    uint dirty :1;
-    uint dragselection :1;
-    uint ownpalette : 1;
-};
-
-
-/*!
-  Constructs an empty QTextView
-  with the standard \a parent and \a name optional arguments.
-*/
-QTextView::QTextView(QWidget *parent, const char *name)
-    : QScrollView( parent, name, WRepaintNoErase )
+QTextView::QTextView( QWidget *parent, const char *name )
+    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase ),
+      doc( new QTextDocument( 0 ) ), undoRedoInfo( doc )
 {
     init();
 }
 
-
-/*!
-  Constructs a QTextView displaying the contents \a text with context
-  \a context, with the standard \a parent and \a name optional
-  arguments.
-*/
 QTextView::QTextView( const QString& text, const QString& context,
 		      QWidget *parent, const char *name)
-    : QScrollView( parent, name, WRepaintNoErase )
+    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase ),
+      doc( new QTextDocument( 0 ) ), undoRedoInfo( doc )
 {
     init();
     setText( text, context );
 }
 
+QTextView::~QTextView()
+{
+    if ( painter.isActive() )
+	painter.end();
+    delete buf_pixmap;
+}
 
 void QTextView::init()
 {
-    d = new QTextViewData;
-    d->mypapcolgrp = palette().active();
-    d->papcolgrp = d->mypapcolgrp;
-    d->mylinkcol = blue;
-    d->paplinkcol = d->mylinkcol;
-    d->linkunderline = TRUE;
-    d->fcresize = 0;
+    connect( doc, SIGNAL( minimumWidthChanged( int ) ),
+	     this, SLOT( setRealWidth( int ) ) );
 
-    setKeyCompression( TRUE );
-    setVScrollBarMode( QScrollView::Auto );
-    setHScrollBarMode( QScrollView::Auto );
+    firstResize = TRUE;
+    buf_pixmap = 0;
+    drawAll = TRUE;
+    mousePressed = FALSE;
+    inDoubleClick = FALSE;
+    modified = FALSE;
+    onLink = QString::null;
 
-    d->doc_ = 0;
-    d->sheet_ = 0;
-    d->factory_ = 0;
-    d->txt = QString::fromLatin1("<p></p>");
-    d->textformat = AutoText;
-    d->dirty = TRUE;
-    d->selection = FALSE;
-    d->dragselection = FALSE;
-    d->ownpalette = FALSE;
+    doc->setFormatter( new QTextFormatterBreakWords( doc ) );
+    currentFormat = doc->formatCollection()->defaultFormat();
+    currentAlignment = Qt::AlignAuto;
 
     viewport()->setBackgroundMode( PaletteBase );
-    viewport()->setFocusProxy( this );
+    viewport()->setAcceptDrops( TRUE );
+    resizeContents( 0, doc->lastParag() ?
+		    ( doc->lastParag()->paragId() + 1 ) * doc->formatCollection()->defaultFormat()->height() : 0 );
+
+    setKeyCompression( TRUE );
+    viewport()->setMouseTracking( TRUE );
+#ifndef QT_NO_CURSOR
+    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
     viewport()->setFocusPolicy( WheelFocus );
 
-    d->resizeTimer = new QTimer( this, "qt_resizetimer" );
-    connect( d->resizeTimer, SIGNAL( timeout() ), this, SLOT( doResize() ));
+    cursor = new QTextCursor( doc );
+
+    formatTimer = new QTimer( this );
+    connect( formatTimer, SIGNAL( timeout() ),
+	     this, SLOT( formatMore() ) );
+    lastFormatted = doc->firstParag();
+
+    scrollTimer = new QTimer( this );
+    connect( scrollTimer, SIGNAL( timeout() ),
+	     this, SLOT( doAutoScroll() ) );
+
+    interval = 0;
+    changeIntervalTimer = new QTimer( this );
+    connect( changeIntervalTimer, SIGNAL( timeout() ),
+	     this, SLOT( doChangeInterval() ) );
+
+    cursorVisible = TRUE;
+    blinkTimer = new QTimer( this );
+    connect( blinkTimer, SIGNAL( timeout() ),
+	     this, SLOT( blinkCursor() ) );
+
 #ifndef QT_NO_DRAGANDDROP
-    d->dragTimer = new QTimer( this );
-    connect( d->dragTimer, SIGNAL( timeout() ), this, SLOT( doStartDrag() ));
-#endif
-    d->scrollTimer = new QTimer( this );
-    connect( d->scrollTimer, SIGNAL( timeout() ), this, SLOT( doAutoScroll() ));
-}
-
-/*!
-  Destructs the view.
-*/
-QTextView::~QTextView()
-{
-    delete d->fcresize;
-    QTextOldFormatCollection* formats = d->doc_?d->doc_->formats:0;
-    delete d->doc_;
-    delete formats; //#### fix inheritance structure in rich text
-    delete d;
-}
-
-/*!
-  Changes the contents of the view to the string \a text and the
-  context to \a context.
-
-  \a text may be interpreted either as plain text or as rich text,
-  depending on the textFormat(). The default setting is \c AutoText,
-  i.e. the text view autodetects the format from \a text.
-
-  The optional \a context is used to resolve references within the
-  text document, for example image sources. It is passed directly to
-  the mimeSourceFactory() when quering data.
-
-  \sa text(), setTextFormat()
-*/
-void QTextView::setText( const QString& text, const QString& context)
-{
-    QTextOldFormatCollection* formats = d->doc_?d->doc_->formats:0;
-    delete d->doc_;
-    delete formats; //#### fix inheritance structure in rich text
-    d->doc_ = 0;
-
-    d->original_txt = text;
-    d->contxt = context;
-
-    if ( text.isEmpty() )
-	d->txt = QString::fromLatin1("<p></p>");
-    else if ( d->textformat == AutoText ) {
-	if ( QStyleSheet::mightBeRichText( text ) )
-	    d->txt = text;
-	else
-	    d->txt = QStyleSheet::convertFromPlainText( text );
-    }
-    else if ( d->textformat == PlainText )
-	d->txt = QStyleSheet::convertFromPlainText( text );
-    else // rich text
-	d->txt = text;
-
-
-    setContentsPos( 0, 0 );
-    richText().invalidateLayout();
-    richText().flow()->initialize( visibleWidth() );
-    updateLayout();
-    viewport()->update();
-}
-
-/*!\overload
-
-  Changes the contents of the view to the string \a text.
-
-  \a text may be interpreted either as plain text or as rich text,
-  depending on the textFormat(). The default setting is \c AutoText,
-  i.e. the text view autodetects the format from \a text.
-
-  This function calls setText( text, QString::null ), i.e. it sets a
-  text without any context.
-
-  \sa text(), setTextFormat()
- */
-void QTextView::setText( const QString& text )
-{
-    setText( text, QString::null );
-}
-
-
-/*!
-  Appends \a text to the current text.
-
-  Useful for log viewers.
-*/
-void QTextView::append( const QString& text )
-{
-    richText().append( text,  mimeSourceFactory(), styleSheet() );
-    int y = contentsHeight();
-    int h = richText().lastChild()->bottomMargin();
-    if ( d->fcresize ) {
-	d->fcresize->updateLayout();
-	doResize();
-    } else
-	updateLayout();
-    updateContents( contentsX(), y-h, visibleWidth(), h );
-    d->original_txt += text;
-}
-
-/*!
-  Returns the contents of the view.
-
-  \sa context(), setText()
-*/
-QString QTextView::text() const
-{
-    return d->original_txt;
-}
-
-/*!
-  Returns the context of the view.
-
-  \sa text(), setText()
-*/
-QString QTextView::context() const
-{
-    return d->contxt;
-}
-
-
-void QTextView::createRichText()
-{
-    if ( d->mypapcolgrp != d->papcolgrp )
-	viewport()->setBackgroundColor( d->mypapcolgrp.base() );
-    d->papcolgrp = d->mypapcolgrp;
-    d->paplinkcol = d->mylinkcol;
-
-    d->doc_ = new QRichText( d->txt, viewport()->font(), d->contxt,
-			     8, mimeSourceFactory(), styleSheet() );
-    if (d->doc_->attributes().contains("bgcolor")){
-	QColor  col ( d->doc_->attributes()["bgcolor"].latin1() );
-	if ( col.isValid() ) {
-	    d->papcolgrp.setColor( QColorGroup::Base, col );
-	    viewport()->setBackgroundColor( col );
-	}
-    }
-    if (d->doc_->attributes().contains("link")){
-	QColor  col ( d->doc_->attributes()["link"].latin1() );
-	if ( col.isValid() )
-	    d->paplinkcol = col;
-    }
-    if (d->doc_->attributes().contains("text")){
-	QColor  col ( d->doc_->attributes()["text"].latin1() );
-	if ( col.isValid() )
-	    d->papcolgrp.setColor( QColorGroup::Text,  col );
-    }
-    if (d->doc_->attributes().contains("background")){
-	QString imageName = d->doc_->attributes()["background"];
-	QPixmap pm;
-	const QMimeSource* m =
-	    context().isNull()
-		? mimeSourceFactory()->data( imageName )
-		: mimeSourceFactory()->data( imageName, context() );
-	if ( m ) {
-	    if ( !QImageDrag::decode( m, pm ) ) {
-		qWarning("QTextOldImage: cannot load %s", imageName.latin1() );
-	    }
-	}
-	if (!pm.isNull())
-	    d->papcolgrp.setBrush( QColorGroup::Base, QBrush(d->papcolgrp.base(), pm) );
-    }
-    d->cursor = QPoint(0,0);
-}
-
-
-/*!
-  Returns the current style sheet of the view.
-
-  \sa setStyleSheet()
-*/
-QStyleSheet* QTextView::styleSheet() const
-{
-    if (!d->sheet_)
-	return QStyleSheet::defaultSheet();
-    else
-	return d->sheet_;
-
-}
-
-/*!
-  Sets the style sheet of the view.
-
-  \sa styleSheet()
-*/
-void QTextView::setStyleSheet( QStyleSheet* styleSheet )
-{
-    d->sheet_ = styleSheet;
-    viewport()->update();
-}
-
-
-/*!
-  Returns the current mime source factory  for the view.
-
-  \sa setMimeSourceFactory()
-*/
-QMimeSourceFactory* QTextView::mimeSourceFactory() const
-{
-    if (!d->factory_)
-	return QMimeSourceFactory::defaultFactory();
-    else
-	return d->factory_;
-
-}
-
-/*!
-  Sets the mime source factory for the view. The factory is used to
-  resolve named references within rich text documents. If no factory
-  has been specified, the text view uses the default factory
-  QMimeSourceFactory::defaultFactory().
-
-  Ownership of \a factory is \e not transferred to make it possible
-  for several text view widgets to share the same mime source.
-
-  \sa mimeSourceFactory()
-*/
-void QTextView::setMimeSourceFactory( QMimeSourceFactory* factory )
-{
-    d->factory_ = factory;
-    viewport()->update();
-}
-
-
-/*!
-  Sets the brush to use as the background to \a pap.
-
-  This may be a nice parchment or marble pixmap or simply another
-  plain color.
-
-  Technically, setPaper() is just a convenience function to set the
-  base brush of the paperColorGroup().
-
-  \sa paper()
-*/
-void QTextView::setPaper( const QBrush& pap)
-{
-    d->mypapcolgrp.setBrush( QColorGroup::Base, pap );
-    d->papcolgrp.setBrush( QColorGroup::Base, pap );
-    d->ownpalette = TRUE;
-    viewport()->setBackgroundColor( pap.color() );
-    viewport()->update();
-}
-
-/*!
-  Sets the full colorgroup of the paper to \a colgrp. If not specified
-  otherwise in the document itself, any text will use
-  QColorGroup::text(). The background will be painted with
-  QColorGroup::brush(QColorGroup::Base).
-
-  \sa paperColorGroup(), setPaper()
-*/
-void QTextView::setPaperColorGroup( const QColorGroup& colgrp)
-{
-    d->mypapcolgrp = colgrp;
-    d->papcolgrp = colgrp;
-    d->ownpalette = TRUE;
-    viewport()->setBackgroundColor( colgrp.base() );
-    viewport()->update();
-}
-
-/*!
-  Returns the colorgroup of the paper.
-
-  \sa setPaperColorGroup(), setPaper()
-*/
-const QColorGroup& QTextView::paperColorGroup() const
-{
-    return d->papcolgrp;
-}
-
-/*!
-  Sets the color used to display links in the document to \c col.
-
-  \sa linkColor()
- */
-void QTextView::setLinkColor( const QColor& col )
-{
-    d->mylinkcol = col;
-    d->paplinkcol = col;
-}
-
-/*!
-  Returns the current link color.
-
-  The color may either have been set with setLinkColor() or stem from
-  the document's body tag.
-
-  \sa setLinkColor()
- */
-const QColor& QTextView::linkColor() const
-{
-    return d->paplinkcol;
-}
-
-/*!
-  Defines wether or not links should be displayed underlined.
- */
-void QTextView::setLinkUnderline( bool u)
-{
-    d->linkunderline = u;
-}
-
-/*!
-  Returns wether or not links should be displayed underlined.
- */
-bool QTextView::linkUnderline() const
-{
-    return d->linkunderline;
-}
-
-
-/*!
-  Returns the document title parsed from the content.
-*/
-QString QTextView::documentTitle() const
-{
-    return richText().attributes()["title"];
-}
-
-/*!
-  Returns the height of the view given a width of \a w.
-*/
-int QTextView::heightForWidth( int w ) const
-{
-    QRichText doc( d->txt, viewport()->font(), d->contxt,
-		   8, mimeSourceFactory(), styleSheet() );
-    doc.doLayout( 0, w );
-    return doc.height;
-}
-
-/*!
-  Returns the document defining the view as drawable and queryable rich
-  text object.  This is not currently useful for applications.
-*/
-QRichText& QTextView::richText() const
-{
-    if (!d->doc_){
-	QTextView* that = (QTextView*) this;
-	that->createRichText();
-    }
-    return *d->doc_;
-}
-
-/*!
-  Returns the brush used to paint the background.
-*/
-const QBrush& QTextView::paper()
-{
-    return d->papcolgrp.brush( QColorGroup::Base );
-}
-
-/*!
-  Returns the brush used to paint the background.
-*/
-const QBrush& QTextView::paper() const
-{
-    return d->papcolgrp.brush( QColorGroup::Base );
-}
-
-/*!
-  \reimp
-*/
-void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
-				 int cx, int cy, int cw, int ch)
-{
-    if ( !d->ownpalette && d->mypapcolgrp == d->papcolgrp ) {
-	d->mypapcolgrp = colorGroup();
-	d->papcolgrp = d->mypapcolgrp;
-    }
-    QTextOptions to(&paper(), d->paplinkcol, d->linkunderline );
-    to.offsetx = ox;
-    to.offsety = oy;
-    if ( d->selection ) {
-	to.selstart = d->selstart;
-	to.selend = d->selend;
-    }
-
-    QRegion r(cx-ox, cy-oy, cw, ch);
-
-    QRichTextFormatter tc( richText() );
-    tc.gotoParagraph( p, richText().getParBefore( cy ) );
-    QTextParagraph* b = tc.paragraph;
-
-    QFontMetrics fm( p->fontMetrics() );
-    while ( b && tc.y() <= cy + ch ) {
-
-	if ( b && b->dirty ) //ensure the paragraph is laid out
-	    tc.updateLayout( p, cy + ch );
-
-	tc.gotoParagraph( p, b );
-
-	if ( tc.y() + tc.paragraph->height > cy ) {
-	    do {
-		tc.makeLineLayout( p );
-		QRect geom( tc.lineGeometry() );
-		if ( geom.bottom() > cy && geom.top() < cy+ch )
-		    tc.drawLine( p, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), to );
-	    }
-	    while ( tc.gotoNextLine( p ) );
-	}
-	b = b->nextInDocument();
-    }
-
-    to.selstart = QtTriple();
-    to.selstart = to.selend;
-    richText().flow()->drawFloatingItems( p, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), to );
-
-    p->setClipRegion(r);
-
-    if ( paper().pixmap() )
-	p->drawTiledPixmap(0, 0, visibleWidth(), visibleHeight(),
-			   *paper().pixmap(), ox, oy);
-    else
-	p->fillRect(0, 0, visibleWidth(), visibleHeight(), paper() );
-
-    p->setClipping( FALSE );
-
-#if 0
-    int pagesize = richText().flow()->pagesize;
-    if ( pagesize > 0 ) {
-	p->setPen( DotLine );
-	for (int page = cy / pagesize; page <= (cy+ch) / pagesize; ++page ) {
-	    p->drawLine( cx-ox, page * pagesize - oy, cx-ox+cw, page*
-			 pagesize - oy );
-	}
-    }
+    dragStartTimer = new QTimer( this );
+    connect( dragStartTimer, SIGNAL( timeout() ),
+	     this, SLOT( startDrag() ) );
 #endif
 
+    resizeTimer = new QTimer( this );
+    connect( resizeTimer, SIGNAL( timeout() ),
+	     this, SLOT( doResize() ) );
+
+    formatMore();
+
+    completionPopup = new QVBox( this, 0, WType_Popup );
+    completionPopup->setFrameStyle( QFrame::Box | QFrame::Plain );
+    completionPopup->setLineWidth( 1 );
+    completionListBox = new QListBox( completionPopup );
+    completionListBox->setFrameStyle( QFrame::NoFrame );
+    completionListBox->installEventFilter( this );
+    completionPopup->installEventFilter( this );
+    completionPopup->setFocusProxy( completionListBox );
+    completionOffset = 0;
+
+    blinkCursorVisible = FALSE;
+
+    mLines = -1;
+
+    connect( this, SIGNAL( textChanged() ),
+	     this, SLOT( setModified() ) );
+
+#if 0 // ### background paper test code
+    QBrush *b = new QBrush( red, QPixmap( "/home/reggie/kde2/share/wallpapers/All-Good-People-1.jpg" ) );
+    doc->setPaper( b );
+    QPalette pal( palette() );
+    pal.setBrush( QColorGroup::Base, *b );
+    setPalette( pal );
+#endif
 }
 
-/*!
-  \reimp
-*/
-void QTextView::viewportResizeEvent(QResizeEvent* )
+void QTextView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
+    bool drawCur = hasFocus() || viewport()->hasFocus();
+    if ( isReadOnly() || !cursorVisible )
+	drawCur = FALSE;
+    QColorGroup g = colorGroup();
+    if ( doc->paper() )
+	g.setBrush( QColorGroup::Base, *doc->paper() );
+
+    if ( contentsY() == 0 ) {
+	p->fillRect( contentsX(), contentsY(), visibleWidth(), doc->y(),
+		     g.brush( QColorGroup::Base ) );
+    }
+
+    p->setBrushOrigin( -contentsX(), -contentsY() );
+
+    lastFormatted = doc->draw( p, cx, cy, cw, ch, g, !drawAll, drawCur, cursor );
+
+    if ( lastFormatted == doc->lastParag() )
+	resizeContents( contentsWidth(), doc->height() );
+
+    if ( contentsHeight() < visibleHeight() && ( !doc->lastParag() || doc->lastParag()->isValid() ) && drawAll )
+	p->fillRect( 0, contentsHeight(), visibleWidth(),
+		     visibleHeight() - contentsHeight(), g.brush( QColorGroup::Base ) );
 }
 
-void QTextView::doResize()
+void QTextView::keyPressEvent( QKeyEvent *e )
 {
-    if ( !d->fcresize->updateLayout( 0, d->fcresize->y() + d->fcresize->paragraph->height + 1000 ) )
-	d->resizeTimer->start( 0, TRUE );
-    QTextOldFlow* flow = richText().flow();
-    resizeContents( QMAX( flow->widthUsed-1, visibleWidth() ), flow->height );
-}
+    changeIntervalTimer->stop();
+    interval = 10;
 
-/*!
-  \reimp
-*/
-void QTextView::resizeEvent( QResizeEvent* e )
-{
-    setUpdatesEnabled( FALSE ); // to hinder qscrollview from showing/hiding scrollbars. Safe since we call resizeContents later!
-    QScrollView::resizeEvent( e );
-    setUpdatesEnabled( TRUE);
-    richText().flow()->initialize( visibleWidth() );
-    updateLayout();
-}
-
-
-/*!
-  \reimp
-*/
-void QTextView::viewportMousePressEvent( QMouseEvent* e )
-{
-    if ( e->button() != LeftButton )
+    if ( isReadOnly() ) {
+	handleReadOnlyKeyEvent( e );
+	changeIntervalTimer->start( 100, TRUE );
 	return;
-    d->cursor = e->pos() + QPoint( contentsX(), contentsY() );
-    QRichTextIterator it( richText() );
-    bool within = it.goTo( d->cursor );
-    bool sel = d->selection && it.position() >= d->selstart && it.position() < d->selend;
-    if ( !sel || !within ) {
-	clearSelection();
-	d->selorigin = it.position();
-	d->selstart = d->selorigin;
-	d->selend = d->selstart;
-	d->dragselection = TRUE;
-#ifndef QT_NO_DRAGANDDROP
-    } else {
-	d->dragTimer->start( QApplication::startDragTime(), TRUE );
-#endif
     }
-}
 
-/*!
-  \reimp
-*/
-void QTextView::viewportMouseReleaseEvent( QMouseEvent* e )
-{
-    if ( e->button() == LeftButton ) {
-	d->scrollTimer->stop();
-#ifndef QT_NO_CLIPBOARD
-	if ( d->dragselection ) {
-	    if ( qApp->clipboard()->supportsSelection() ) {
-		qApp->clipboard()->setSelectionMode(TRUE);
-		copy();
-		qApp->clipboard()->setSelectionMode(FALSE);
-	    }
-	    d->dragselection = FALSE;
-	} else
-#endif
-	    {
-		clearSelection();
-	    }
+
+    bool selChanged = FALSE;
+    for ( int i = 1; i < doc->numSelections; ++i ) // start with 1 as we don't want to remove the Standard-Selection
+	selChanged = doc->removeSelection( i ) || selChanged;
+
+    if ( selChanged ) {
+	cursor->parag()->document()->nextDoubleBuffered = TRUE;
+	repaintChanged();
     }
-}
 
+    bool clearUndoRedoInfo = TRUE;
 
-
-/*!  Returns TRUE if there is any text selected, FALSE otherwise.
-
-  \sa selectedText()
-*/
-bool QTextView::hasSelectedText() const
-{
-    return d->selection;
-}
-
-/*!  Returns a copy of the selected text in plain text format.
-
-  \sa hasSelectedText()
-*/
-QString QTextView::selectedText() const
-{
-    if ( !d->selection )
-	return QString::null;
-
-    QRichTextIterator it( richText() );
-    it.goTo( d->selstart );
-
-    if ( d->selstart.a == d->selend.a && d->selstart.b == d->selend.b )
-	return it.text().mid( d->selstart.c, d->selend.c - d->selstart.c );
-
-    int column = 0;
-    QString txt;
-    QString s = it.text().mid( d->selstart.c );
-    while ( it.position() < d->selend ) {
-	if ( !s.isEmpty() ) {
-	    if ( column + s.length() > 79 ) {
-		txt += '\n';
-		column = 0;
-	    }
-	    if ( s[(int)s.length()-1]== '\n' )
-		column = 0;
-	    txt += s;
-	    column += s.length();
-	}
-	int oldpar = it.position().a;
-	if ( !it.right( FALSE ) )
-	    break;
-	if ( it.position().a != oldpar ) {
-	    txt += '\n';
-	    column = 0;
-	}
-	s = it.text();
-	if ( it.position().a == d->selend.a && it.position().b == d->selend.b )
-	    s = s.left( d->selend.c );
-    }
-    return txt;
-}
-
-static int logicalFontSize( QStyleSheet* style, QFont base, int pt )
-{
-    for (int i=0; i<10; i++) {
-	QFont b = base;
-	style->scaleFont(b,i);
-	if ( b.pointSize() >= pt )
-	    return i;
-    }
-    return 1; // else what?
-}
-
-static QString formatDiff(const QTextView* view, QTextCharFormat* pfmt, QTextCharFormat* nfmt)
-{
-    QString txt;
-    QFont basefont = view->font();
-    if ( pfmt != nfmt ) {
-	QString t,pre,post;
-	if ( pfmt->color() != nfmt->color() ) {
-	    QString c;
-	    t += c.sprintf("color=#%06x ", nfmt->color().rgb());
-	}
-	if ( pfmt->font() != nfmt->font() ) {
-	    int plsz = logicalFontSize( view->styleSheet(), basefont, pfmt->font().pointSize() );
-	    int nlsz = logicalFontSize( view->styleSheet(), basefont, nfmt->font().pointSize() );
-	    if ( nlsz != plsz ) {
-		QString f;
-		t += f.sprintf("size=%d ",nlsz-plsz);
-	    }
-	    if ( pfmt->font().family() != nfmt->font().family() ) {
-		t += "face=";
-		t += nfmt->font().family();
-		t += " ";
-	    }
-	    if ( pfmt->font().italic() != nfmt->font().italic() ) {
-		bool on = nfmt->font().italic();
-		if ( on )
-		    post = post + "<i>";
-		else
-		    pre = "</i>" + pre;
-	    }
-	    if ( pfmt->font().weight() != nfmt->font().weight() ) {
-		bool on = nfmt->font().weight() > 50;
-		if ( on )
-		    post = post + "<b>";
-		else
-		    pre = "</b>" + pre;
-	    }
-	}
-	txt += pre;
-	if ( !t.isEmpty() ) {
-	    t.truncate(t.length()-1); // chop space
-	    txt += "<font " + t + ">";
-	}
-	txt += post;
-    }
-    return txt;
-}
-
-/*!  Returns a copy of the selected text in rich text format (XML).
-
-  \sa hasSelectedText()
-*/
-QString QTextView::selectedRichTextInternal() const
-{
-    if ( !d->selection )
-	return QString::null;
-
-    QRichTextIterator it( richText() );
-    it.goTo( d->selstart );
-    QString txt;
-    QString s = it.text().mid( d->selstart.c );
-    QTextCharFormat ifmt;
-    QTextCharFormat* pfmt = &ifmt;
-    while ( it.position() < d->selend ) {
-	QTextCharFormat* nfmt = it.format();
-	txt += formatDiff(this,pfmt,nfmt);
-	pfmt = nfmt;
-	txt += s;
-	int oldpar = it.position().a;
-	if ( !it.right( FALSE ) )
-	    break;
-	if ( it.position().a != oldpar )
-	    txt += "</p><p>";
-	s = it.text();
-	if ( it.position().a == d->selend.a && it.position().b == d->selend.b )
-	    s = s.left( d->selend.c );
-    }
-    txt += formatDiff(this,pfmt,&ifmt);
-    return txt;
-}
-
-#ifndef QT_NO_CLIPBOARD
-/*!
-  Copies the marked text to the clipboard.
-*/
-void QTextView::copy()
-{
-    disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
-    disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
-    
-    QString t = selectedText();
-    QRegExp nbsp( QChar(0x00a0) );
-    t.replace( nbsp, QChar(' ') );
-#if defined(_OS_WIN32_)
-    // Need to convert NL to CRLF
-    QRegExp nl( QString::fromLatin1("\n") );
-    t.replace( nl, QString::fromLatin1("\r\n") );
-#endif
-    QApplication::clipboard()->setText( t );
-    
-    connect( QApplication::clipboard(), SIGNAL(dataChanged()),
-	     this, SLOT(clipboardChanged()) );
-    connect( QApplication::clipboard(), SIGNAL(selectionChanged()),
-	     this, SLOT(clipboardChanged()) );
-}
-#endif
-
-/*!
-  Selects all text.
-*/
-void QTextView::selectAll()
-{
-    QRichTextIterator it( richText() );
-    d->selstart = it.position();
-    while ( it.right( FALSE ) ) { }
-    d->selend = it.position();
-    viewport()->update();
-    d->selection = TRUE;
-
-    if (qApp->clipboard()->supportsSelection()) {
-	qApp->clipboard()->setSelectionMode(TRUE);
-	copy();
-	qApp->clipboard()->setSelectionMode(FALSE);
-    }
-}
-
-/*!
-  \reimp
-*/
-void QTextView::viewportMouseMoveEvent( QMouseEvent* e)
-{
-    if (e->state() & LeftButton ) {
-	if (d->dragselection ) {
-	    doSelection( e->pos() );
-	    ensureVisible( d->cursor.x(), d->cursor.y() );
-#ifndef QT_NO_DRAGANDDROP
-	} else if ( d->dragTimer->isActive() ) {
-	    d->dragTimer->stop();
-	    doStartDrag();
-#endif
-	}
-    }
-}
-
-/*!
-  Provides scrolling and paging.
-*/
-void QTextView::keyPressEvent( QKeyEvent * e)
-{
-    int unknown = 0;
-    switch (e->key()) {
-    case Key_Right:
-	scrollBy( 10, 0 );
-	break;
+    switch ( e->key() ) {
     case Key_Left:
-	scrollBy( -10, 0 );
+	moveCursor( MoveLeft, e->state() & ShiftButton, e->state() & ControlButton );
+	break;
+    case Key_Right:
+	moveCursor( MoveRight, e->state() & ShiftButton, e->state() & ControlButton );
 	break;
     case Key_Up:
-	scrollBy( 0, -10 );
+	moveCursor( MoveUp, e->state() & ShiftButton, e->state() & ControlButton );
 	break;
     case Key_Down:
-	scrollBy( 0, 10 );
+	moveCursor( MoveDown, e->state() & ShiftButton, e->state() & ControlButton );
 	break;
     case Key_Home:
-	setContentsPos(0,0);
+	moveCursor( MoveHome, e->state() & ShiftButton, e->state() & ControlButton );
 	break;
     case Key_End:
-	setContentsPos(0,contentsHeight()-visibleHeight());
+	moveCursor( MoveEnd, e->state() & ShiftButton, e->state() & ControlButton );
 	break;
-    case Key_PageUp:
-	scrollBy( 0, -visibleHeight() );
+    case Key_Prior:
+	moveCursor( MovePgUp, e->state() & ShiftButton, e->state() & ControlButton );
 	break;
-    case Key_PageDown:
-	scrollBy( 0, visibleHeight() );
+    case Key_Next:
+	moveCursor( MovePgDown, e->state() & ShiftButton, e->state() & ControlButton );
 	break;
-#ifndef QT_NO_DRAGANDDROP
-    case Key_F16: // Copy key on Sun keyboards
-	copy();
+    case Key_Return: case Key_Enter:
+	if ( mLines == 1 )
+	    break;
+	doc->removeSelection( QTextDocument::Standard );
+	clearUndoRedoInfo = FALSE;
+	doKeyboardAction( ActionReturn );
 	break;
-#if defined (_WS_WIN_)
-    case Key_Insert:
-#endif
-    case Key_C:
-	if ( e->state() & ControlButton )
-	    copy();
-	break;
-#endif
-    default:
-	unknown++;
-    }
-    if ( unknown )				// unknown key
-	e->ignore();
-}
-
-/*!
-  \reimp
-*/
-void QTextView::paletteChange( const QPalette & p )
-{
-    QScrollView::paletteChange( p );
-    if ( !d->ownpalette ) {
-	d->mypapcolgrp = palette().active();
-	d->papcolgrp = d->mypapcolgrp;
-    }
-}
-
-
-/*!
-  Returns the current text format.
-
-  \sa setTextFormat()
- */
-Qt::TextFormat QTextView::textFormat() const
-{
-    return d->textformat;
-}
-
-/*!
-  Sets the text format to \a format. Possible choices are
-  <ul>
-  <li> \c PlainText - all characters are displayed verbatim,
-  including all blanks and linebreaks.
-  <li> \c RichText - rich text rendering. The available
-  styles are defined in the default stylesheet
-  QStyleSheet::defaultSheet().
-  <li> \c AutoText - this is also the default. The label
-  autodetects which rendering style suits best, \c PlainText
-  or \c RichText. Technically, this is done by using the
-  QStyleSheet::mightBeRichText() heuristic.
-  </ul>
- */
-void QTextView::setTextFormat( Qt::TextFormat format )
-{
-    d->textformat = format;
-    setText( d->original_txt, d->contxt ); // trigger update
-}
-
-
-/*!\internal
- */
-void QTextView::updateLayout()
-{
-    if ( !isVisible() ) {
-	d->dirty = TRUE;
-	return;
-    }
-
-    QSize cs( viewportSize( contentsWidth(), contentsHeight() ) );
-    int ymax = contentsY() + cs.height() + 1;
-
-    delete d->fcresize;
-    d->fcresize = new QRichTextFormatter( richText() );
-    d->fcresize->initParagraph( 0, &richText() );
-    d->fcresize->updateLayout( 0, ymax );
-
-    QTextOldFlow* flow = richText().flow();
-    QSize vs( viewportSize( flow->widthUsed, flow->height ) );
-
-    if ( vs.width() != visibleWidth() ) {
-	flow->initialize( vs.width() );
-	richText().invalidateLayout();
-	d->fcresize->gotoParagraph( 0, &richText() );
-	d->fcresize->updateLayout( 0, ymax );
-    }
-
-    resizeContents( QMAX( flow->widthUsed-1, vs.width() ), flow->height );
-    d->resizeTimer->start( 0, TRUE );
-    d->dirty = FALSE;
-}
-
-
-/*!\reimp
- */
-void QTextView::showEvent( QShowEvent* )
-{
-    if ( d->dirty )
-	updateLayout();
-}
-
-void QTextView::clearSelection()
-{
-#ifndef QT_NO_DRAGANDDROP
-    d->dragTimer->stop();
-#endif
-    if ( !d->selection )
-	return; // nothing to do
-    d->selection = FALSE;
-    QRichTextIterator it( richText() );
-    it.goTo( d->selend );
-    int y = it.lineGeometry().bottom();
-    it.goTo( d->selstart );
-    if ( y - it.lineGeometry().top()  >= visibleHeight() )
-	viewport()->update();
-    else {
-	QRect r = it.lineGeometry();
-	while ( it.position() < d->selend && it.right() ) {
-	    r = r.unite( it.lineGeometry() );
+    case Key_Delete:
+	if ( doc->hasSelection( QTextDocument::Standard ) ) {
+	    removeSelectedText();
+	    break;
 	}
-	updateContents( r );
+
+	doKeyboardAction( ActionDelete );
+	clearUndoRedoInfo = FALSE;
+	
+	break;
+    case Key_Backspace:
+	if ( doc->hasSelection( QTextDocument::Standard ) ) {
+	    removeSelectedText();
+	    break;
+	}
+
+	if ( !cursor->parag()->prev() &&
+	     cursor->atParagStart() )
+	    break;
+	
+	doKeyboardAction( ActionBackspace );
+	clearUndoRedoInfo = FALSE;
+	
+	break;
+    default: {
+	    if ( e->text().length() && !( e->state() & AltButton ) &&
+		 ( !e->ascii() || e->ascii() >= 32 ) ||
+		 ( e->text() == "\t" && !( e->state() & ControlButton ) ) ) {
+		clearUndoRedoInfo = FALSE;
+		if ( e->key() == Key_Tab ) {
+		    if ( cursor->index() == 0 && cursor->parag()->style() &&
+			 cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayListItem ) {
+			cursor->parag()->incDepth();
+			drawCursor( FALSE );
+			repaintChanged();
+			drawCursor( TRUE );
+			break;
+		    }
+		    if ( doCompletion() )
+			break;
+		}
+		if ( cursor->parag()->style() &&
+		     cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayBlock &&
+		     cursor->index() == 0 && ( e->text() == "-" || e->text() == "*" ) ) {
+		    setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListDisc );
+		} else {
+		    insert( e->text(), TRUE );
+		}
+		break;
+	    }
+	    if ( e->state() & ControlButton ) {
+		switch ( e->key() ) {
+		case Key_C:
+		    copy();
+		    break;
+		case Key_V:
+		    paste();
+		    break;
+		case Key_X: {
+		    cut();
+		} break;
+		case Key_I: case Key_T: case Key_Tab:
+		    indent();
+		    break;
+		case Key_A:
+		    moveCursor( MoveHome, e->state() & ShiftButton, FALSE );
+		    break;
+		case Key_E:
+		    moveCursor( MoveEnd, e->state() & ShiftButton, FALSE );
+		    break;
+		case Key_Z:
+		    undo();
+		    break;
+		case Key_Y:
+		    redo();
+		    break;
+		}
+		break;
+	    }
+	}
+    }
+
+    if ( clearUndoRedoInfo )
+	undoRedoInfo.clear();
+
+    changeIntervalTimer->start( 100, TRUE );
+}
+
+void QTextView::doKeyboardAction( int action )
+{
+    if ( isReadOnly() )
+	return;
+
+    lastFormatted = cursor->parag();
+    drawCursor( FALSE );
+	
+    switch ( action ) {
+    case ActionDelete:
+	checkUndoRedoInfo( UndoRedoInfo::Delete );
+	if ( !undoRedoInfo.valid() ) {
+	    undoRedoInfo.id = cursor->parag()->paragId();
+	    undoRedoInfo.index = cursor->index();
+	    undoRedoInfo.text = QString::null;
+	}
+	undoRedoInfo.text += cursor->parag()->at( cursor->index() )->c;
+	if ( cursor->remove() )
+	    undoRedoInfo.text += "\n";
+	break;
+    case ActionBackspace:
+	if ( cursor->parag()->style() && cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayListItem &&
+	     cursor->index() == 0 ) {
+	    cursor->parag()->decDepth();
+	    lastFormatted = cursor->parag();
+	    repaintChanged();
+	    drawCursor( TRUE );
+	    return;
+	}
+	checkUndoRedoInfo( UndoRedoInfo::Delete );
+	if ( !undoRedoInfo.valid() ) {
+	    undoRedoInfo.id = cursor->parag()->paragId();
+	    undoRedoInfo.index = cursor->index();
+	    undoRedoInfo.text = QString::null;
+	}
+	cursor->gotoLeft();
+	undoRedoInfo.text.prepend( QString( cursor->parag()->at( cursor->index() )->c ) );
+	undoRedoInfo.index = cursor->index();
+	if ( cursor->remove() ) {
+	    undoRedoInfo.text.remove( 0, 1 );
+	    undoRedoInfo.text.prepend( "\n" );
+	    undoRedoInfo.index = cursor->index();
+	    undoRedoInfo.id = cursor->parag()->paragId();
+	}
+	lastFormatted = cursor->parag();
+	break;
+    case ActionReturn:
+	checkUndoRedoInfo( UndoRedoInfo::Return );
+	if ( !undoRedoInfo.valid() ) {
+	    undoRedoInfo.id = cursor->parag()->paragId();
+	    undoRedoInfo.index = cursor->index();
+	    undoRedoInfo.text = QString::null;
+	}
+	undoRedoInfo.text += "\n";
+	cursor->splitAndInsertEmtyParag();
+	if ( cursor->parag()->prev() )
+	    lastFormatted = cursor->parag()->prev();
+	break;
+    }
+
+    formatMore();
+    repaintChanged();
+    ensureCursorVisible();
+    drawCursor( TRUE );
+
+    updateCurrentFormat();
+    emit textChanged();
+}
+
+void QTextView::removeSelectedText()
+{
+    if ( isReadOnly() )
+	return;
+
+    drawCursor( FALSE );
+    checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
+    if ( !undoRedoInfo.valid() ) {
+	doc->selectionStart( QTextDocument::Standard, undoRedoInfo.id, undoRedoInfo.index );
+	undoRedoInfo.text = QString::null;
+    }
+    undoRedoInfo.text = doc->selectedText( QTextDocument::Standard );
+    doc->removeSelectedText( QTextDocument::Standard, cursor );
+    ensureCursorVisible();
+    lastFormatted = cursor->parag();
+    formatMore();
+    repaintChanged();
+    ensureCursorVisible();
+    drawCursor( TRUE );
+    undoRedoInfo.clear();
+    emit textChanged();
+}
+
+void QTextView::moveCursor( int direction, bool shift, bool control )
+{
+    drawCursor( FALSE );
+    if ( shift ) {
+	if ( !doc->hasSelection( QTextDocument::Standard ) )
+	    doc->setSelectionStart( QTextDocument::Standard, cursor );
+	moveCursor( direction, control );
+	if ( doc->setSelectionEnd( QTextDocument::Standard, cursor ) ) {
+	    cursor->parag()->document()->nextDoubleBuffered = TRUE;
+	    repaintChanged();
+	} else {
+	    drawCursor( TRUE );
+	}
+	ensureCursorVisible();
+    } else {
+	bool redraw = doc->removeSelection( QTextDocument::Standard );
+	moveCursor( direction, control );
+	if ( !redraw ) {
+	    ensureCursorVisible();
+	    drawCursor( TRUE );
+	} else {
+	    cursor->parag()->document()->nextDoubleBuffered = TRUE;
+	    repaintChanged();
+	    ensureCursorVisible();
+	    drawCursor( TRUE );
+	}
+    }
+
+    drawCursor( TRUE );
+    updateCurrentFormat();
+}
+
+void QTextView::moveCursor( int direction, bool control )
+{
+    switch ( direction ) {
+    case MoveLeft: {
+	if ( !control )
+	    cursor->gotoLeft();
+	else
+	    cursor->gotoWordLeft();
+    } break;
+    case MoveRight: {
+	if ( !control )
+	    cursor->gotoRight();
+	else
+	    cursor->gotoWordRight();
+    } break;
+    case MoveUp: {
+	if ( !control )
+	    cursor->gotoUp();
+	else
+	    cursor->gotoPageUp( this );
+    } break;
+    case MoveDown: {
+	if ( !control )
+	    cursor->gotoDown();
+	else
+	    cursor->gotoPageDown( this );
+    } break;
+    case MoveHome: {
+	if ( !control )
+	    cursor->gotoLineStart();
+	else
+	    cursor->gotoHome();
+    } break;
+    case MoveEnd: {
+	if ( !control )
+	    cursor->gotoLineEnd();
+	else
+	    cursor->gotoEnd();
+    } break;
+    case MovePgUp:
+	cursor->gotoPageUp( this );
+	break;
+    case MovePgDown:
+	cursor->gotoPageDown( this );
+	break;
+    }
+
+    updateCurrentFormat();
+}
+
+void QTextView::resizeEvent( QResizeEvent *e )
+{
+    if ( !firstResize )
+	resizeTimer->stop();
+    QScrollView::resizeEvent( e );
+    if ( !firstResize ) {
+#if defined(_WS_X11_) // ##### fix the data we get from QResizeEvent on windows!!!
+	if ( e->oldSize().width() != e->size().width() )
+#endif
+	    resizeTimer->start( 0, TRUE );
+    } else {
+#if defined(_WS_X11_) // ##### fix the data we get from QResizeEvent on windows!!!
+	if ( e->oldSize().width() != e->size().width() )
+#endif
+	    doResize();
+    }
+	
+    firstResize = FALSE;
+}
+
+void QTextView::ensureCursorVisible()
+{
+    lastFormatted = cursor->parag();
+    formatMore();
+    QTextString::Char *chr = cursor->parag()->at( cursor->index() );
+    int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+    int x = cursor->parag()->rect().x() + chr->x + cursor->offsetX();
+    int y = 0; int dummy;
+    cursor->parag()->lineHeightOfChar( cursor->index(), &dummy, &y );
+    y += cursor->parag()->rect().y() + cursor->offsetY();
+    int w = 1;
+    ensureVisible( x, y + h / 2, w, h / 2 + 2 );
+}
+
+void QTextView::drawCursor( bool visible )
+{
+    if ( !cursor->parag()->isValid() ||
+	 ( !hasFocus() && !viewport()->hasFocus() ) ||
+	 isReadOnly() )
+	return;
+
+    QPainter p( viewport() );
+    QRect r( cursor->topParag()->rect() );
+    cursor->parag()->setChanged( TRUE );
+    p.translate( -contentsX() + cursor->totalOffsetX(), -contentsY() + cursor->totalOffsetY() );
+    QPixmap *pix = 0;
+    QColorGroup cg( colorGroup() );
+    if ( cursor->parag()->background() )
+	cg.setBrush( QColorGroup::Base, *cursor->parag()->background() );
+    else if ( doc->paper() )
+	cg.setBrush( QColorGroup::Base, *doc->paper() );
+    p.setBrushOrigin( -contentsX(), -contentsY() );
+    cursor->parag()->document()->nextDoubleBuffered = TRUE;
+    doc->drawParag( &p, cursor->parag(), r.x() - cursor->totalOffsetX(),
+		    r.y() - cursor->totalOffsetX(), r.width(), r.height(),
+		    pix, cg, visible, cursor );
+    cursorVisible = visible;
+}
+
+void QTextView::contentsMousePressEvent( QMouseEvent *e )
+{
+    undoRedoInfo.clear();
+    QTextCursor c = *cursor;
+    mousePos = e->pos();
+    mightStartDrag = FALSE;
+
+    if ( e->button() == LeftButton ) {
+	mousePressed = TRUE;
+	drawCursor( FALSE );
+	placeCursor( e->pos() );
+	ensureCursorVisible();
+
+#ifndef QT_NO_DRAGANDDROP
+	if ( doc->inSelection( QTextDocument::Standard, e->pos() ) ) {
+	    mightStartDrag = TRUE;
+	    drawCursor( TRUE );
+	    dragStartTimer->start( QApplication::startDragTime(), TRUE );
+	    dragStartPos = e->pos();
+	    return;
+	}
+#endif
+	
+	bool redraw = FALSE;
+	if ( doc->hasSelection( QTextDocument::Standard ) ) {
+	    if ( !( e->state() & ShiftButton ) ) {
+		redraw = doc->removeSelection( QTextDocument::Standard );
+		doc->setSelectionStart( QTextDocument::Standard, cursor );
+	    } else {
+		redraw = doc->setSelectionEnd( QTextDocument::Standard, cursor ) || redraw;
+	    }
+	} else {
+	    if ( !( e->state() & ShiftButton ) ) {
+		doc->setSelectionStart( QTextDocument::Standard, cursor );
+	    } else {
+		doc->setSelectionStart( QTextDocument::Standard, &c );
+		redraw = doc->setSelectionEnd( QTextDocument::Standard, cursor ) || redraw;
+	    }
+	}
+
+	for ( int i = 1; i < doc->numSelections; ++i ) // start with 1 as we don't want to remove the Standard-Selection
+	    redraw = doc->removeSelection( i ) || redraw;
+
+	if ( !redraw ) {
+	    drawCursor( TRUE );
+	} else {
+	    repaintChanged();
+	}
+    } else if ( e->button() == MidButton ) {
+	paste();
+    }
+    updateCurrentFormat();
+}
+
+void QTextView::contentsMouseMoveEvent( QMouseEvent *e )
+{
+    if ( mousePressed ) {
+#ifndef QT_NO_DRAGANDDROP
+	if ( mightStartDrag ) {
+	    dragStartTimer->stop();
+	    if ( ( e->pos() - dragStartPos ).manhattanLength() > QApplication::startDragDistance() )
+		startDrag();
+	    return;
+	}
+#endif
+	mousePos = e->pos();
+	doAutoScroll();
+	oldMousePos = mousePos;
+    }
+
+    if ( isReadOnly() && linksEnabled() ) {
+	QTextCursor c = *cursor;
+	placeCursor( e->pos(), &c );
+#ifndef QT_NO_NETWORKPROTOCOL
+	if ( c.parag() && c.parag()->at( c.index() ) &&
+	     c.parag()->at( c.index() )->format()->isAnchor() ) {
+#ifndef QT_NO_CURSOR
+	    viewport()->setCursor( pointingHandCursor );
+#endif
+	    onLink = c.parag()->at( c.index() )->format()->anchorHref();
+	    QUrl u( doc->context(), onLink, TRUE );
+	    emit highlighted( u.toString( FALSE, FALSE ) );
+	} else {
+#ifndef QT_NO_CURSOR
+	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
+	    onLink = QString::null;
+	    emit highlighted( QString::null );
+	}
+#endif
     }
 }
 
-#ifndef QT_NO_DRAGANDDROP
-void QTextView::doStartDrag()
+void QTextView::contentsMouseReleaseEvent( QMouseEvent * )
 {
-    QTextDrag* drag = new QTextDrag( selectedText(), this ) ;
-    drag->drag();
+    if ( scrollTimer->isActive() )
+	scrollTimer->stop();
+#ifndef QT_NO_DRAGANDDROP
+    if ( dragStartTimer->isActive() )
+	dragStartTimer->stop();
+    if ( mightStartDrag ) {
+	selectAll( FALSE );
+	mousePressed = FALSE;
+    }
+#endif
+    if ( mousePressed ) {
+	if ( !doc->selectedText( QTextDocument::Standard ).isEmpty() )
+	    doc->copySelectedText( QTextDocument::Standard );
+	mousePressed = FALSE;
+    }
+    if ( cursor->checkParens() ) {
+	repaintChanged();
+    }
+    updateCurrentFormat();
+    inDoubleClick = FALSE;
+
+#ifndef QT_NO_NETWORKPROTOCOL
+    if ( !onLink.isEmpty() && linksEnabled() ) {
+	QUrl u( doc->context(), onLink, TRUE );
+	emit linkClicked( u.toString( FALSE, FALSE ) );
+    }
+#endif
+    drawCursor( TRUE );
 }
+
+void QTextView::contentsMouseDoubleClickEvent( QMouseEvent * )
+{
+    QTextCursor c1 = *cursor;
+    QTextCursor c2 = *cursor;
+    c1.gotoWordLeft();
+    c2.gotoWordRight();
+
+    doc->setSelectionStart( QTextDocument::Standard, &c1 );
+    doc->setSelectionEnd( QTextDocument::Standard, &c2 );
+
+    *cursor = c2;
+
+    repaintChanged();
+
+    inDoubleClick = TRUE;
+    mousePressed = TRUE;
+}
+
+#ifndef QT_NO_DRAGANDDROP
+
+void QTextView::contentsDragEnterEvent( QDragEnterEvent *e )
+{
+    e->acceptAction();
+}
+
+void QTextView::contentsDragMoveEvent( QDragMoveEvent *e )
+{
+    drawCursor( FALSE );
+    placeCursor( e->pos(),  cursor );
+    drawCursor( TRUE );
+    e->acceptAction();
+}
+
+void QTextView::contentsDragLeaveEvent( QDragLeaveEvent * )
+{
+}
+
+void QTextView::contentsDropEvent( QDropEvent *e )
+{
+    e->acceptAction();
+    QString text;
+    int i = -1;
+    while ( ( i = text.find( '\r' ) ) != -1 )
+	text.replace( i, 1, "" );
+    if ( QTextDrag::decode( e, text ) ) {
+	if ( ( e->source() == this ||
+	       e->source() == viewport() ) &&
+	     e->action() == QDropEvent::Move ) {
+	    removeSelectedText();
+	}
+	insert( text, FALSE, TRUE );
+    }
+}
+
 #endif
 
 void QTextView::doAutoScroll()
 {
-    QPoint pos = viewport()->mapFromGlobal( QCursor::pos() );
-    if ( pos.y() < 0 )
-	scrollBy( 0, -32 );
-    else if (pos.y() > visibleHeight() )
-	scrollBy( 0, 32 );
-    doSelection( pos );
-}
+    if ( !mousePressed )
+	return;
 
-void QTextView::doSelection( const QPoint& pos )
-{
-    QPoint to( pos + QPoint( contentsX(), contentsY()  ) );
-    if ( to != d->cursor ) {
-	QRichTextIterator it( richText() );
-	it.goTo( to );
-	d->selection = TRUE;
-	if ( (it.position() != d->selstart) && (it.position()  != d->selend) ) {
-	    if ( it.position() < d->selorigin ) {
-		d->selstart = it.position();
-		d->selend = d->selorigin;
-	    } else {
-		d->selstart = d->selorigin;
-		d->selend = it.position();
-	    }
-	    QRichTextIterator it2( richText() );
-	    it2.goTo( d->cursor );
-	    QRect r = it2.lineGeometry();
-	    r = r.unite( it.lineGeometry() );
-	    while ( it.position() < it2.position() && it.right( FALSE ) )
-		r = r.unite( it.lineGeometry() );
-	    while ( it2.position() < it.position() && it2.right( FALSE ) )
-		r = r.unite( it2.lineGeometry() );
-	    d->cursor = to;
-	    repaintContents( r, FALSE );
-	}
+    QPoint pos( mapFromGlobal( QCursor::pos() ) );
+    drawCursor( FALSE );
+    QTextCursor oldCursor = *cursor;
+    placeCursor( viewportToContents( pos ) );
+    if ( inDoubleClick ) {
+	QTextCursor cl = *cursor;
+	cl.gotoWordLeft();
+	QTextCursor cr = *cursor;
+	cr.gotoWordRight();
+	
+	int diff = QABS( oldCursor.parag()->at( oldCursor.index() )->x - mousePos.x() );
+	int ldiff = QABS( cl.parag()->at( cl.index() )->x - mousePos.x() );
+	int rdiff = QABS( cr.parag()->at( cr.index() )->x - mousePos.x() );
+	
+	
+	if ( cursor->parag()->lineStartOfChar( cursor->index() ) !=
+	     oldCursor.parag()->lineStartOfChar( oldCursor.index() ) )
+	    diff = 0xFFFFFF;
+	
+	if ( rdiff < diff && rdiff < ldiff )
+	    *cursor = cr;
+	else if ( ldiff < diff && ldiff < rdiff )
+	    *cursor = cl;
+	else
+	    *cursor = oldCursor;
+	
+    }
+    ensureCursorVisible();
+
+    bool redraw = FALSE;
+    if ( doc->hasSelection( QTextDocument::Standard ) ) {
+	redraw = doc->setSelectionEnd( QTextDocument::Standard, cursor ) || redraw;
     }
 
-    if ( pos.y() < 0 || pos.y() > visibleHeight() )
-	d->scrollTimer->start( 100, FALSE );
-    else
-	d->scrollTimer->stop();
+    if ( !redraw ) {
+	drawCursor( TRUE );
+    } else {
+	repaintChanged();
+	drawCursor( TRUE );
+    }
+
+    if ( !scrollTimer->isActive() && pos.y() < 0 || pos.y() > height() )
+	scrollTimer->start( 100, FALSE );
+    else if ( scrollTimer->isActive() && pos.y() >= 0 && pos.y() <= height() )
+	scrollTimer->stop();
 }
 
-void QTextView::clipboardChanged()
+void QTextView::placeCursor( const QPoint &pos, QTextCursor *c )
 {
-#if defined(_WS_X11_)
-    disconnect( QApplication::clipboard(), SIGNAL(dataChanged()),
-		this, SLOT(clipboardChanged()) );
-    disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()),
-		this, SLOT(clipboardChanged()) );
-    clearSelection();
+    if ( !c )
+	c = cursor;
+
+    c->restoreState();
+    QTextParag *s = doc->firstParag();
+    c->place( pos,  s );
+}
+
+void QTextView::formatMore()
+{
+    if ( !lastFormatted )
+	return;
+
+    int bottom = contentsHeight();
+    int lastBottom = -1;
+    int to = !sender() ? 2 : 20;
+    bool firstVisible = FALSE;
+    QRect cr( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
+    for ( int i = 0; ( i < to || firstVisible ) && lastFormatted; ++i ) {
+	lastFormatted->format();
+	if ( i == 0 )
+	    firstVisible = lastFormatted->rect().intersects( cr );
+	else if ( firstVisible )
+	    firstVisible = lastFormatted->rect().intersects( cr );
+	bottom = QMAX( bottom, lastFormatted->rect().top() +
+		       lastFormatted->rect().height() );
+	lastBottom = lastFormatted->rect().top() + lastFormatted->rect().height();
+	lastFormatted = lastFormatted->next();
+	if ( lastFormatted )
+	    lastBottom = -1;
+    }
+
+    if ( bottom > contentsHeight() && !cursor->document()->parent() )
+	resizeContents( contentsWidth(), QMAX( doc->height(), bottom ) );
+    else if ( lastBottom != -1 && lastBottom < contentsHeight() && !cursor->document()->parent() )
+	resizeContents( contentsWidth(), QMAX( doc->height(), lastBottom ) );
+
+    if ( lastFormatted )
+	formatTimer->start( interval, TRUE );
+    else
+	interval = QMAX( 0, interval );
+}
+
+void QTextView::doResize()
+{	
+    resizeContents( width() - verticalScrollBar()->width(), contentsHeight() );
+    doc->setWidth( visibleWidth() );
+    doc->invalidate();
+    viewport()->repaint( FALSE );
+    lastFormatted = doc->firstParag();
+    interval = 0;
+    formatMore();
+}
+
+void QTextView::doChangeInterval()
+{
+    if ( cursor->checkParens() )
+	repaintChanged();
+	
+    interval = 0;
+}
+
+bool QTextView::doCompletion()
+{
+    if ( !doc->isCompletionEnabled() )
+	return FALSE;
+
+    int idx = cursor->index();
+    if ( idx == 0 )
+	return FALSE;
+    QChar c = cursor->parag()->at( idx - 1 )->c;
+    if ( !c.isLetter() && !c.isNumber() && c != '_' && c != '#' )
+	return FALSE;
+
+    QString s;
+    idx--;
+    completionOffset = 1;
+    while ( TRUE ) {
+	s.prepend( QString( cursor->parag()->at( idx )->c ) );
+	idx--;
+	if ( idx < 0 )
+	    break;
+	if ( !cursor->parag()->at( idx )->c.isLetter() &&
+	     !cursor->parag()->at( idx )->c.isNumber() &&
+	     cursor->parag()->at( idx )->c != '_' &&
+	     cursor->parag()->at( idx )->c != '#' )
+	    break;
+	completionOffset++;
+    }
+
+    QStringList lst( doc->completionList( s ) );
+    if ( lst.count() > 1 ) {
+	QTextString::Char *chr = cursor->parag()->at( cursor->index() );
+	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+	int x = cursor->parag()->rect().x() + chr->x;
+	int y, dummy;
+	cursor->parag()->lineHeightOfChar( cursor->index(), &dummy, &y );
+	y += cursor->parag()->rect().y();
+	completionListBox->clear();
+	completionListBox->insertStringList( lst );
+	completionListBox->resize( completionListBox->sizeHint() );
+	completionPopup->resize( completionListBox->size() );
+	completionListBox->setCurrentItem( 0 );
+	completionListBox->setFocus();
+	completionPopup->move( mapToGlobal( contentsToViewport( QPoint( x, y + h ) ) ) );
+	completionPopup->show();
+    } else if ( lst.count() == 1 ) {
+	insert( lst.first().mid( completionOffset, 0xFFFFFF ), TRUE );
+    } else {
+	return FALSE;
+    }
+
+    return TRUE;
+}
+
+bool QTextView::eventFilter( QObject *o, QEvent *e )
+{
+    if ( !o || !e )
+	return TRUE;
+
+    if ( o == completionPopup || o == completionListBox ||
+	 o == completionListBox->viewport() ) {
+	if ( e->type() == QEvent::KeyPress ) {
+	    QKeyEvent *ke = (QKeyEvent*)e;
+	    if ( ke->key() == Key_Enter || ke->key() == Key_Return ||
+		 ke->key() == Key_Tab ) {
+		insert( completionListBox->currentText().
+			mid( completionOffset, 0xFFFFFF ), TRUE );
+		completionPopup->close();
+		return TRUE;
+	    } else if ( ke->key() == Key_Left || ke->key() == Key_Right ||
+			ke->key() == Key_Up || ke->key() == Key_Down ||
+			ke->key() == Key_Home || ke->key() == Key_End ||
+			ke->key() == Key_Prior || ke->key() == Key_Next ) {
+		return FALSE;
+	    } else if ( ke->key() != Key_Shift && ke->key() != Key_Control &&
+			ke->key() != Key_Alt ) {
+		completionPopup->close();
+		QApplication::sendEvent( this, e );
+		return TRUE;
+	    }
+	}
+    } else if ( ( o == this || o == viewport() ) ) {
+	if ( e->type() == QEvent::FocusIn ) {
+	    blinkTimer->start( QApplication::cursorFlashTime() / 2 );
+	    return FALSE;
+	} else if ( e->type() == QEvent::FocusOut ) {
+	    blinkTimer->stop();
+	    drawCursor( FALSE );
+	    return TRUE;
+	}
+    }
+		
+
+    return QScrollView::eventFilter( o, e );
+}
+
+void QTextView::insert( const QString &text, bool indent, bool checkNewLine )
+{
+    if ( isReadOnly() )
+	return;
+
+    QString txt( text );
+    if ( mLines == 1 )
+	txt = txt.replace( QRegExp( "\n" ), " " );
+
+    drawCursor( FALSE );
+    if ( doc->hasSelection( QTextDocument::Standard ) ) {
+	checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
+	if ( !undoRedoInfo.valid() ) {
+	    doc->selectionStart( QTextDocument::Standard, undoRedoInfo.id, undoRedoInfo.index );
+	    undoRedoInfo.text = QString::null;
+	}
+	undoRedoInfo.text = doc->selectedText( QTextDocument::Standard );
+	doc->removeSelectedText( QTextDocument::Standard, cursor );
+    }
+    checkUndoRedoInfo( UndoRedoInfo::Insert );
+    if ( !undoRedoInfo.valid() ) {
+	undoRedoInfo.id = cursor->parag()->paragId();
+	undoRedoInfo.index = cursor->index();
+	undoRedoInfo.text = QString::null;
+    }
+    lastFormatted = checkNewLine && cursor->parag()->prev() ?
+		    cursor->parag()->prev() : cursor->parag();
+    int idx = cursor->index();
+    cursor->insert( txt, checkNewLine );
+    if ( doc->useFormatCollection() )
+	cursor->parag()->setFormat( idx, txt.length(), currentFormat, TRUE );
+		
+    if ( indent && ( txt == "{" || txt == "}" ) )
+	cursor->indent();
+    formatMore();
+    repaintChanged();
+    ensureCursorVisible();
+    drawCursor( TRUE );
+    undoRedoInfo.text += txt;
+
+    emit textChanged();
+}
+
+void QTextView::undo()
+{
+    if ( isReadOnly() )
+	return;
+
+    undoRedoInfo.clear();
+    drawCursor( FALSE );
+    QTextCursor *c = doc->undo( cursor );
+    if ( !c ) {
+	drawCursor( TRUE );
+	return;
+    }
+    ensureCursorVisible();
+    repaintChanged();
+    drawCursor( TRUE );
+    emit textChanged();
+}
+
+void QTextView::redo()
+{
+    if ( isReadOnly() )
+	return;
+
+    undoRedoInfo.clear();
+    drawCursor( FALSE );
+    QTextCursor *c = doc->redo( cursor );
+    if ( !c ) {
+	drawCursor( TRUE );
+	return;
+    }
+    ensureCursorVisible();
+    repaintChanged();
+    ensureCursorVisible();
+    drawCursor( TRUE );
+    emit textChanged();
+}
+
+void QTextView::paste()
+{
+#ifndef QT_NO_CLIPBOARD
+    if ( isReadOnly() )
+	return;
+
+    QString s = QApplication::clipboard()->text();
+    if ( !s.isEmpty() )
+	insert( s, FALSE, TRUE );
 #endif
 }
 
-/*!\reimp
- */
-void QTextView::focusInEvent( QFocusEvent * )
+void QTextView::checkUndoRedoInfo( UndoRedoInfo::Type t )
 {
-    setMicroFocusHint(width()/2, 0, 1, height(), FALSE);
+    if ( undoRedoInfo.valid() && t != undoRedoInfo.type )
+	undoRedoInfo.clear();
+    undoRedoInfo.type = t;
 }
 
-/*!\reimp
- */
-void QTextView::focusOutEvent( QFocusEvent * )
+void QTextView::repaintChanged()
 {
+    drawAll = FALSE;
+    viewport()->repaint( FALSE );
+    drawAll = TRUE;
 }
-#endif  // QT_NO_TEXTVIEW
+
+void QTextView::cut()
+{
+    if ( isReadOnly() )
+	return;
+
+    if ( doc->hasSelection( QTextDocument::Standard ) ) {
+	doc->copySelectedText( QTextDocument::Standard );
+	removeSelectedText();
+    }
+}
+
+void QTextView::copy()
+{
+    if ( !doc->selectedText( QTextDocument::Standard ).isEmpty() )
+	doc->copySelectedText( QTextDocument::Standard );
+}
+
+void QTextView::indent()
+{
+    if ( isReadOnly() )
+	return;
+
+    drawCursor( FALSE );
+    if ( !doc->hasSelection( QTextDocument::Standard ) )
+	cursor->indent();
+    else
+	doc->indentSelection( QTextDocument::Standard );
+    repaintChanged();
+    drawCursor( TRUE );
+    emit textChanged();
+}
+
+bool QTextView::focusNextPrevChild( bool n )
+{
+    if ( !isReadOnly() || !linksEnabled() )
+	return FALSE;
+    bool b = doc->focusNextPrevChild( n );
+    if ( b ) {
+	repaintChanged();
+	makeParagVisible( doc->focusIndicator.parag );
+    }
+    return b;
+}
+
+void QTextView::setFormat( QTextFormat *f, int flags )
+{
+    if ( isReadOnly() )
+	return;
+
+    if ( doc->hasSelection( QTextDocument::Standard ) ) {
+	drawCursor( FALSE );
+	doc->setFormat( QTextDocument::Standard, f, flags );
+	repaintChanged();
+	formatMore();
+	drawCursor( TRUE );
+	emit textChanged();
+    }
+    if ( currentFormat && currentFormat->key() != f->key() ) {
+	currentFormat->removeRef();
+	currentFormat = doc->formatCollection()->format( f );
+	if ( currentFormat->isMisspelled() ) {
+	    currentFormat->removeRef();
+	    currentFormat = doc->formatCollection()->format( currentFormat->font(), currentFormat->color() );
+	}
+	emit currentFontChanged( currentFormat->font() );
+	emit currentColorChanged( currentFormat->color() );
+	if ( cursor->index() == cursor->parag()->length() < 1 ) {
+	    currentFormat->addRef();
+	    cursor->parag()->string()->setFormat( cursor->index(), currentFormat, TRUE );
+	}
+    }
+}
+
+void QTextView::setParagType( QStyleSheetItem::DisplayMode dm, int listStyle )
+{
+    if ( isReadOnly() )
+	return;
+
+    drawCursor( FALSE );
+    if ( !doc->hasSelection( QTextDocument::Standard ) ) {
+	cursor->parag()->setList( dm == QStyleSheetItem::DisplayListItem, listStyle );
+	repaintChanged();
+    } else {
+	QTextParag *start = doc->selectionStart( QTextDocument::Standard );
+	QTextParag *end = doc->selectionEnd( QTextDocument::Standard );
+	lastFormatted = start;
+	while ( start ) {
+	    start->setList( dm == QStyleSheetItem::DisplayListItem, listStyle );
+	    if ( start == end )
+		break;
+	    start = start->next();
+	}
+	repaintChanged();
+	formatMore();
+    }
+    drawCursor( TRUE );
+    emit textChanged();
+}
+
+void QTextView::setAlignment( int a )
+{
+    if ( isReadOnly() )
+	return;
+
+    drawCursor( FALSE );
+    if ( !doc->hasSelection( QTextDocument::Standard ) ) {
+	cursor->parag()->setAlignment( a );
+	repaintChanged();
+    } else {
+	QTextParag *start = doc->selectionStart( QTextDocument::Standard );
+	QTextParag *end = doc->selectionEnd( QTextDocument::Standard );
+	lastFormatted = start;
+	while ( start ) {
+	    start->setAlignment( a );
+	    if ( start == end )
+		break;
+	    start = start->next();
+	}
+	repaintChanged();
+	formatMore();
+    }
+    drawCursor( TRUE );
+    if ( currentAlignment != a ) {
+	currentAlignment = a;
+	emit currentAlignmentChanged( currentAlignment );
+    }
+    emit textChanged();
+}
+
+void QTextView::updateCurrentFormat()
+{
+    int i = cursor->index();
+    if ( i > 0 )
+	--i;
+    if ( currentFormat->key() != cursor->parag()->at( i )->format()->key() && doc->useFormatCollection() ) {
+	if ( currentFormat )
+	    currentFormat->removeRef();
+	currentFormat = doc->formatCollection()->format( cursor->parag()->at( i )->format() );
+	if ( currentFormat->isMisspelled() ) {
+	    currentFormat->removeRef();
+	    currentFormat = doc->formatCollection()->format( currentFormat->font(), currentFormat->color() );
+	}
+	emit currentFontChanged( currentFormat->font() );
+	emit currentColorChanged( currentFormat->color() );
+    }
+
+    if ( currentAlignment != cursor->parag()->alignment() ) {
+	currentAlignment = cursor->parag()->alignment();
+	emit currentAlignmentChanged( currentAlignment );
+    }
+}
+
+void QTextView::setItalic( bool b )
+{
+    QTextFormat f( *currentFormat );
+    f.setItalic( b );
+    setFormat( &f, QTextFormat::Italic );
+}
+
+void QTextView::setBold( bool b )
+{
+    QTextFormat f( *currentFormat );
+    f.setBold( b );
+    setFormat( &f, QTextFormat::Bold );
+}
+
+void QTextView::setUnderline( bool b )
+{
+    QTextFormat f( *currentFormat );
+    f.setUnderline( b );
+    setFormat( &f, QTextFormat::Underline );
+}
+
+void QTextView::setFamily( const QString &f_ )
+{
+    QTextFormat f( *currentFormat );
+    f.setFamily( f_ );
+    setFormat( &f, QTextFormat::Family );
+}
+
+void QTextView::setPointSize( int s )
+{
+    QTextFormat f( *currentFormat );
+    f.setPointSize( s );
+    setFormat( &f, QTextFormat::Size );
+}
+
+void QTextView::setColor( const QColor &c )
+{
+    QTextFormat f( *currentFormat );
+    f.setColor( c );
+    setFormat( &f, QTextFormat::Color );
+}
+
+void QTextView::setFont( const QFont &f_ )
+{
+    QTextFormat f( *currentFormat );
+    f.setFont( f_ );
+    setFormat( &f, QTextFormat::Font );
+}
+
+QString QTextView::text() const
+{
+    return doc->text();
+}
+
+QString QTextView::text( int parag, bool formatted ) const
+{
+    return doc->text( parag, formatted );
+}
+
+void QTextView::setText( const QString &txt, const QString &context, bool tabify )
+{
+    lastFormatted = 0;
+    doc->setText( txt, context, tabify );
+    cursor->setParag( doc->firstParag() );
+    cursor->setIndex( 0 );
+    viewport()->repaint( FALSE );
+    emit textChanged();
+    formatMore();
+}
+
+QString QTextView::fileName() const
+{
+    return doc->fileName();
+}
+
+void QTextView::load( const QString &fn, bool tabify )
+{
+    resizeContents( 0, 0 );
+    doc->load( fn, tabify );
+    cursor->setParag( doc->firstParag() );
+    cursor->setIndex( 0 );
+    viewport()->repaint( FALSE );
+    emit textChanged();
+    doResize();
+}
+
+void QTextView::save( const QString &fn, bool untabify )
+{
+    doc->save( fn, untabify );
+}
+
+bool QTextView::find( const QString &expr, bool cs, bool wo, bool forward,
+		      int *parag, int *index )
+{
+    drawCursor( FALSE );
+    doc->removeSelection( QTextDocument::Standard );
+    bool found = doc->find( expr, cs, wo, forward, parag, index, cursor );
+    ensureCursorVisible();
+    drawCursor( TRUE );
+    repaintChanged();
+    return found;
+}
+
+void QTextView::blinkCursor()
+{
+    if ( !cursorVisible )
+	return;
+    bool cv = cursorVisible;
+    blinkCursorVisible = !blinkCursorVisible;
+    drawCursor( blinkCursorVisible );
+    cursorVisible = cv;
+}
+
+void QTextView::setCursorPosition( int parag, int index )
+{
+    QTextParag *p = doc->paragAt( parag );
+    if ( !p )
+	return;
+
+    if ( index > p->length() - 1 )
+	index = p->length() - 1;
+
+    drawCursor( FALSE );
+    cursor->setParag( p );
+    cursor->setIndex( index );
+    ensureCursorVisible();
+    drawCursor( TRUE );
+}
+
+void QTextView::cursorPosition( int &parag, int &index )
+{
+    parag = cursor->parag()->paragId();
+    index = cursor->index();
+}
+
+void QTextView::setSelection( int parag_from, int index_from,
+			      int parag_to, int index_to )
+{
+    QTextParag *p1 = doc->paragAt( parag_from );
+    if ( !p1 )
+	return;
+    QTextParag *p2 = doc->paragAt( parag_to );
+    if ( !p2 )
+	return;
+
+    if ( index_from > p1->length() - 1 )
+	index_from = p1->length() - 1;
+    if ( index_to > p2->length() - 1 )
+	index_to = p2->length() - 1;
+
+    drawCursor( FALSE );
+    QTextCursor c = *cursor;
+    c.setParag( p1 );
+    c.setIndex( index_from );
+    cursor->setParag( p2 );
+    cursor->setIndex( index_to );
+    doc->setSelectionStart( QTextDocument::Standard, &c );
+    doc->setSelectionEnd( QTextDocument::Standard, cursor );
+    repaintChanged();
+    ensureCursorVisible();
+    drawCursor( TRUE );
+}
+
+void QTextView::selection( int &parag_from, int &index_from,
+			   int &parag_to, int &index_to )
+{
+    if ( !doc->hasSelection( QTextDocument::Standard ) ) {
+	parag_from = -1;
+	index_from = -1;
+	parag_to = -1;
+	index_to = -1;
+	return;
+    }
+
+    doc->selectionStart( QTextDocument::Standard, parag_from, index_from );
+    doc->selectionEnd( QTextDocument::Standard, parag_from, index_from );
+}
+
+void QTextView::setTextFormat( Qt::TextFormat f )
+{
+    doc->setTextFormat( f );
+}
+
+Qt::TextFormat QTextView::textFormat() const
+{
+    return doc->textFormat();
+}
+
+int QTextView::paragraphs() const
+{
+    return doc->lastParag()->paragId() + 1;
+}
+
+int QTextView::linesOfParagraph( int parag ) const
+{
+    QTextParag *p = doc->paragAt( parag );
+    if ( !p )
+	return -1;
+    return p->lines();
+}
+
+int QTextView::lines() const
+{
+    qWarning( "WARNING: QTextView::lines() is slow - will be improved later..." );
+    QTextParag *p = doc->firstParag();
+    int l = 0;
+    while ( p ) {
+	l += p->lines();
+	p = p->next();
+    }
+
+    return l;
+}
+
+int QTextView::lineOfChar( int parag, int chr )
+{
+    QTextParag *p = doc->paragAt( parag );
+    if ( !p )
+	return -1;
+
+    int idx, line;
+    QTextString::Char *c = p->lineStartOfChar( chr, &idx, &line );
+    if ( !c )
+	return -1;
+
+    return line;
+}
+
+void QTextView::setModified( bool m )
+{
+    modified = m;
+    if ( modified ) {
+	disconnect( this, SIGNAL( textChanged() ),
+		    this, SLOT( setModified() ) );
+    } else {
+	connect( this, SIGNAL( textChanged() ),
+		 this, SLOT( setModified() ) );
+    }
+}
+
+bool QTextView::isModified() const
+{
+    return modified;
+}
+
+void QTextView::setModified()
+{
+    setModified( TRUE );
+}
+
+bool QTextView::italic() const
+{
+    return currentFormat->font().italic();
+}
+
+bool QTextView::bold() const
+{
+    return currentFormat->font().bold();
+}
+
+bool QTextView::underline() const
+{
+    return currentFormat->font().underline();
+}
+
+QString QTextView::family() const
+{
+    return currentFormat->font().family();
+}
+
+int QTextView::pointSize() const
+{
+    return currentFormat->font().pointSize();
+}
+
+QColor QTextView::color() const
+{
+    return currentFormat->color();
+}
+
+QFont QTextView::font() const
+{
+    return currentFormat->font();
+}
+
+int QTextView::alignment() const
+{
+    return currentAlignment;
+}
+
+void QTextView::startDrag()
+{
+#ifndef QT_NO_DRAGANDDROP
+    mousePressed = FALSE;
+    inDoubleClick = FALSE;
+    QDragObject *drag = new QTextDrag( doc->selectedText( QTextDocument::Standard ), viewport() );
+    if ( isReadOnly() ) {
+	drag->dragCopy();
+    } else {
+	if ( drag->drag() && QDragObject::target() != this ) {
+	    doc->removeSelectedText( QTextDocument::Standard, cursor );
+	    repaintChanged();
+	}
+    }
+#endif
+}
+
+void QTextView::selectAll( bool select )
+{
+    // ############## Implement that!!!
+    if ( !select ) {
+	doc->removeSelection( QTextDocument::Standard );
+	repaintChanged();
+    }
+}
+
+void QTextView::UndoRedoInfo::clear()
+{
+    if ( valid() ) {
+	if ( type == Insert || type == Return )
+	    doc->addCommand( new QTextInsertCommand( doc, id, index, text ) );
+	else if ( type != Invalid )
+	    doc->addCommand( new QTextDeleteCommand( doc, id, index, text ) );
+    }
+    text = QString::null;
+    id = -1;
+    index = -1;
+}
+
+void QTextView::setMaxLines( int l )
+{
+    mLines = l;
+}
+
+int QTextView::maxLines() const
+{
+    return mLines;
+}
+
+void QTextView::resetFormat()
+{
+    setAlignment( Qt::AlignAuto );
+    setParagType( QStyleSheetItem::DisplayBlock, -1 );
+    setFormat( doc->formatCollection()->defaultFormat(), QTextFormat::Format );
+}
+
+QStyleSheet* QTextView::styleSheet() const
+{
+    return (QStyleSheet*)doc->styleSheet();
+}
+
+void QTextView::setStyleSheet( QStyleSheet* styleSheet )
+{
+    doc->setStyleSheet( (const QStyleSheet*)styleSheet );
+}
+
+void QTextView::setPaper( const QBrush& pap )
+{
+    doc->setPaper( new QBrush( pap ) );
+    viewport()->setBackgroundColor( pap.color() );
+    viewport()->update();
+}
+
+QBrush QTextView::paper() const
+{
+    if ( doc->paper() )
+	return *doc->paper();
+    return QBrush();
+}
+
+void QTextView::setLinkColor( const QColor &c )
+{
+    doc->setLinkColor( c );
+}
+
+QColor QTextView::linkColor() const
+{
+    return doc->linkColor();
+}
+
+void QTextView::setLinkUnderline( bool b )
+{
+    doc->setUnderlineLinks( b );
+}
+
+bool QTextView::linkUnderline() const
+{
+    return doc->underlineLinks();
+}
+
+void QTextView::setMimeSourceFactory( QMimeSourceFactory* factory )
+{
+    doc->setMimeSourceFactory( (const QMimeSourceFactory*)factory );
+}
+
+QMimeSourceFactory* QTextView::mimeSourceFactory() const
+{
+    return (QMimeSourceFactory*)doc->mimeSourceFactory();
+}
+
+int QTextView::heightForWidth( int w ) const
+{
+    int oldw = doc->width();
+    doc->doLayout( 0, w );
+    return doc->height();
+    doc->setWidth( oldw );
+    doc->invalidate();
+    ( (QTextView*)this )->formatMore();
+}
+
+void QTextView::append( const QString& text )
+{
+    QTextCursor oldc( *cursor );
+    cursor->gotoEnd();
+    insert( text, FALSE, TRUE );
+    *cursor = oldc;
+}
+
+bool QTextView::hasSelectedText() const
+{
+    return doc->hasSelection( QTextDocument::Standard );
+}
+
+QString QTextView::selectedText() const
+{
+    return doc->selectedText( QTextDocument::Standard );
+}
+
+void QTextView::handleReadOnlyKeyEvent( QKeyEvent *e )
+{
+    switch( e->key() ) {
+    case Key_Down:
+	setContentsPos( contentsX(), contentsY() + 10 );
+	break;
+    case Key_Up:
+	setContentsPos( contentsX(), contentsY() - 10 );
+	break;
+    case Key_Left:
+	setContentsPos( contentsX() - 10, contentsY() );
+	break;
+    case Key_Right:
+	setContentsPos( contentsX() + 10, contentsY() );
+	break;
+    case Key_PageUp:
+	setContentsPos( contentsX(), contentsY() - visibleHeight() );
+	break;
+    case Key_PageDown:
+	setContentsPos( contentsX(), contentsY() + visibleHeight() );
+	break;
+    case Key_Home:
+	setContentsPos( contentsX(), 0 );
+	break;
+    case Key_End:
+	setContentsPos( contentsX(), contentsHeight() - visibleHeight() );
+	break;
+#ifndef QT_NO_NETWORKPROTOCOL
+    case Key_Return:
+    case Key_Enter:
+    case Key_Space: {
+	if ( !doc->focusIndicator.href.isEmpty() ) {
+	    QUrl u( doc->context(), doc->focusIndicator.href, TRUE );
+	    emit linkClicked( u.toString( FALSE, FALSE ) );
+	}
+    } break;
+#endif
+    default:
+	break;
+    }
+}
+
+QString QTextView::context() const
+{
+    return doc->context();
+}
+
+QString QTextView::documentTitle() const
+{
+    return QString::null;
+}
+
+void QTextView::makeParagVisible( QTextParag *p )
+{
+    int h = p->rect().height();
+    ensureVisible( 0, p->rect().y() + h / 2, 0, h / 2 );
+}
+
+void QTextView::scrollToAnchor( const QString& name )
+{
+    if ( name.isEmpty() )
+	return;
+    QTextParag *p = doc->firstParag();
+    while ( p ) {
+	for ( int i = 0; i < p->length(); ++i ) {
+	    if ( p->at( i )->format()->isAnchor() &&
+		 p->at( i )->format()->anchorName() == name ) {
+		makeParagVisible( p );
+		return;
+	    }
+	}
+	p = p->next();
+    }
+}
+
+QString QTextView::anchorAt( const QPoint& pos )
+{
+    QTextCursor c( doc );
+    placeCursor( pos, &c );
+    return c.parag()->at( c.index() )->format()->anchorHref();
+}
+
+void QTextView::setRealWidth( int w )
+{
+    resizeContents( w, contentsHeight() );
+}

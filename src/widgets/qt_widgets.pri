@@ -57,7 +57,10 @@ widgets {
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h \
 		  $$WIDGETS_H/qwindowsstyle.h \
-		  $$WIDGETS_H/qaction.h
+		  $$WIDGETS_H/qaction.h \
+		  $$WIDGETS_H/qtextview.h \
+		  $$WIDGETS_H/qtextbrowser.h \
+		  $$WIDGETS_H/qtextedit.h
 
 	SOURCES += $$WIDGETS_CPP/qbuttongroup.cpp \
 		  $$WIDGETS_CPP/qbutton.cpp \
@@ -114,5 +117,7 @@ widgets {
 		  $$WIDGETS_CPP/qwidgetstack.cpp \
 		  $$WIDGETS_CPP/qwindowsstyle.cpp \
 		  $$WIDGETS_CPP/qaction.cpp \
-		  $$WIDGETS_CPP/qeffects.cpp
+		  $$WIDGETS_CPP/qeffects.cpp \
+		  $$WIDGETS_CPP/qtextview.cpp \
+		  $$WIDGETS_CPP/qtextbrowser.cpp
 }

@@ -37,7 +37,7 @@
 
 #include "qtextbrowser.h"
 #ifndef QT_NO_TEXTBROWSER
-#include "../kernel/qrichtext_p.h"
+#include "qrichtext_p.h"
 
 #include "qapplication.h"
 #include "qlayout.h"
@@ -121,6 +121,8 @@ QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
 
     viewport()->setMouseTracking( TRUE );
 //     viewport()->setAcceptDrops( TRUE );
+    connect( this, SIGNAL( linkClicked( const QString & ) ),
+	     this, SLOT( setSource( const QString & ) ) );
 }
 
 /*!
@@ -184,19 +186,17 @@ void QTextBrowser::setSource(const QString& name)
 		qWarning("QTextBrowser: cannot decode %s", source.latin1() );
 	    }
 	}
-
  	if ( isVisible() ) {
  	    QString firstTag = txt.left( txt.find('>' )+1 );
- 	    QRichText* tmp = new QRichText( firstTag, QApplication::font() );
- 	    static QString s_type = QString::fromLatin1("type");
+ 	    QTextDocument* tmp = new QTextDocument( 0 );
+	    tmp->setRichText( firstTag, context() );
+ 	    static QString s_type = QString::fromLatin1("type"); // ####### stuff in html parser needed for that
  	    static QString s_detail = QString::fromLatin1("detail");
 	    bool doReturn = FALSE;
  	    if ( tmp->attributes().contains(s_type)
 		 && tmp->attributes()[s_type] == s_detail )
 		doReturn = TRUE;
-	    QTextOldFormatCollection* formats = tmp->formats;
 	    delete tmp;
-	    delete formats; //#### fix inheritance structure in rich text
 	    if ( doReturn ) {
  		popupDetail( txt, d->lastClick );
 #ifndef QT_NO_CURSOR
@@ -205,7 +205,7 @@ void QTextBrowser::setSource(const QString& name)
  		return;
  	    }
  	}
-
+	
 	d->curmain = url;
 	dosettext = TRUE;
     }
@@ -359,76 +359,6 @@ void QTextBrowser::keyPressEvent( QKeyEvent * e )
     QTextView::keyPressEvent(e);
 }
 
-/*!
-  \e override to press anchors.
-*/
-void QTextBrowser::viewportMousePressEvent( QMouseEvent* e )
-{
-    if ( e->button() == LeftButton ) {
-	d->buttonDown = anchorAt( e->pos() );
-	d->lastClick = e->globalPos();
-    }
-    QTextView::viewportMousePressEvent( e );
-}
-
-/*!
-  \e override to activate anchors.
-*/
-void QTextBrowser::viewportMouseReleaseEvent( QMouseEvent* e )
-{
-    if ( e->button() == LeftButton ) {
-	if ( !d->buttonDown.isEmpty() && anchorAt( e->pos() ) == d->buttonDown ) {
-	    setSource( d->buttonDown );
-	}
-    }
-    d->buttonDown = QString::null;
-    QTextView::viewportMouseReleaseEvent( e );
-}
-
-/*!
-  Activate to emit highlighted().
-*/
-void QTextBrowser::viewportMouseMoveEvent( QMouseEvent* e)
-{
-#ifndef QT_NO_DRAGANDDROP
-    if ( (e->state() & LeftButton) == LeftButton && !d->buttonDown.isEmpty()  ) {
-	if ( ( e->globalPos() - d->lastClick ).manhattanLength() > QApplication::startDragDistance() ) {
-	    QUrl url ( context(), d->buttonDown, TRUE );
-	    QUriDrag* drag = new QUriDrag( this );
-	    drag->setUnicodeUris( url.toString() );
-	    drag->drag();
-	}
-	return;
-    }
-#endif
-
-    if ( e->state() == 0 ) {
-	QString act = anchorAt( e->pos() );
-	if (d->highlight != act) {
-	    if ( !act.isEmpty() ){
-		emit highlighted( act );
-		d->highlight = act;
-	    }
-	    else if ( !d->highlight.isEmpty() ) {
-		emit highlighted( QString::null );
-		d->highlight = QString::null;
-	    }
-#ifndef QT_NO_CURSOR
-	    viewport()->setCursor( d->highlight.isEmpty()?arrowCursor:pointingHandCursor );
-#endif
-	}
-    }
-
-    QTextView::viewportMouseMoveEvent( e );
-}
-
-
-QString QTextBrowser::anchorAt(const QPoint& pos)
-{
-    return richText().anchorAt( QPoint(contentsX(), contentsY() ) + pos );
-}
-
-
 class QTextDetailPopup : public QWidget
 {
 public:
@@ -486,9 +416,9 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
     // how many window system problems it skirts around.
 
     QPainter p( popup );
-    p.setPen( QApplication::palette().active().foreground() );
+    p.setPen( QApplication::palette().normal().foreground() );
     p.drawRect( 0, 0, w, h );
-    p.setPen( QApplication::palette().active().mid() );
+    p.setPen( QApplication::palette().normal().mid() );
     p.setBrush( QColor( 255, 255, 240 ) );
     p.drawRect( 1, 1, w-2, h-2 );
     p.setPen( black );
@@ -513,37 +443,6 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
 		    i + 5, h + 5 );
 }
 
-
-
-/*!
-  Scrolls the browser so that the part of the document named
-  \a name is at the top of the view (or as close to the top
-  as the size of the document allows).
-*/
-void QTextBrowser::scrollToAnchor(const QString& name)
-{
-    if ( name.isEmpty() )
-	return;
-
-    d->curmark = name;
-
-    QRichTextIterator it( richText() );
-    do {
-	if ( it.format()->anchorName() == name ) {
-	    QTextParagraph* b = it.outmostParagraph();
-	    if ( b->dirty ) { // QTextView layouts delayed in the background, so this may happen
-		QRichTextFormatter tc( richText() );
-		tc.gotoParagraph( 0, &richText() );
-		tc.updateLayout();
-		resizeContents( QMAX( richText().flow()->widthUsed-1, visibleWidth() ),
-				richText().flow()->height );
-	    }
-	    QRect r = it.lineGeometry();
-	    setContentsPos( contentsX(), r.top() );
-	    return;
-	}
-    } while ( it.right( FALSE ) );
-}
 
 
 /*!\reimp

@@ -48,6 +48,7 @@
 
 class QStyleSheet;
 class QStyleSheetItemData;
+class QTextDocument;
 template<class Key, class T> class QMap;
 
 
@@ -158,7 +159,7 @@ template class Q_EXPORT QDict<QStyleSheetItem>;
 // MOC_SKIP_END
 #endif
 
-class QTextOldCustomItem;
+class QTextCustomItem;
 
 class Q_EXPORT QStyleSheet : public QObject
 {
@@ -176,11 +177,11 @@ public:
 
     void insert( QStyleSheetItem* item);
 
-    virtual QTextOldCustomItem* tag( const QString& name,
+    virtual QTextCustomItem* tag( const QString& name,
 			    const QMap<QString, QString> &attr,
 			    const QString& context,
 			    const QMimeSourceFactory& factory,
-			    bool emptyTag = FALSE) const;
+			    bool emptyTag, QTextDocument *doc ) const;
 
     static QString convertFromPlainText( const QString& );
     static bool mightBeRichText( const QString& );

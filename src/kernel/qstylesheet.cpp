@@ -1148,28 +1148,23 @@ const QStyleSheetItem* QStyleSheet::item( const QString& name) const
 
   This function should not (yet) be used in application code.
 */
-QTextOldCustomItem* QStyleSheet::tag( const QString& name,
+QTextCustomItem* QStyleSheet::tag(  const QString& name,
 				   const QMap<QString, QString> &attr,
 				   const QString& context,
 				   const QMimeSourceFactory& factory,
-				   bool /*emptyTag */ ) const
+				   bool /*emptyTag */, QTextDocument *doc ) const
 {
-#if !defined(QT_NEW_RICHTEXT)
     static QString s_img = QString::fromLatin1("img");
     static QString s_hr = QString::fromLatin1("hr");
-    static QString s_br = QString::fromLatin1("br");
-    static QString s_multicol = QString::fromLatin1("multicol");
-    static QString s_font = QString::fromLatin1("font");
 
     const QStyleSheetItem* style = item( name );
     // first some known  tags
     if ( !style )
 	return 0;
     if ( style->name() == s_img )
-	return new QTextOldImage(attr, context, factory);
+	return new QTextImage( doc, attr, context, factory);
     if ( style->name() == s_hr )
-	return new QTextOldHorizontalLine();
-#endif
+ 	return new QTextHorizontalLine( doc );
    return 0;
 }
 

@@ -87,7 +87,9 @@ kernel {
 		  $$KERNEL_H/qwidgetlist.h \
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwmatrix.h \
-		  $$KERNEL_H/qvariant.h
+		  $$KERNEL_H/qvariant.h \
+		  $$KERNEL_H/qrichtext_p.h \
+		  $$KERNEL_H/qsimplerichtext.h
 
 	win32:SOURCES += $$KERNEL_CPP/qapplication_win.cpp \
 		  $$KERNEL_CPP/qclipboard_win.cpp \
@@ -122,7 +124,7 @@ kernel {
 			  $$KERNEL_CPP/qsound_x11.cpp \
 			  $$KERNEL_CPP/qwidget_x11.cpp \
 			  $$KERNEL_CPP/qnpsupport.cpp \
-			  $$KERNEL_CPP/qwidgetcreate_x11.cpp 
+			  $$KERNEL_CPP/qwidgetcreate_x11.cpp
 	}
 
 	unix:SOURCES += $$KERNEL_CPP/qpsprinter.cpp \
@@ -189,7 +191,9 @@ kernel {
 		  $$KERNEL_CPP/qurlinfo.cpp \
 		  $$KERNEL_CPP/qwidget.cpp \
 		  $$KERNEL_CPP/qwmatrix.cpp \
-		  $$KERNEL_CPP/qvariant.cpp
+		  $$KERNEL_CPP/qvariant.cpp \
+		  $$KERNEL_CPP/qrichtext.cpp \
+		  $$KERNEL_CPP/qsimplerichtext.cpp
 
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \
 			  $$KERNEL_H/qfontdatabase.h

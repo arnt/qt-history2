@@ -50,7 +50,7 @@
 
 class QTextBrowserData;
 
-class Q_EXPORT QTextBrowser : public QTextView
+class QTextBrowser : public QTextView
 {
     Q_OBJECT
     Q_PROPERTY( QString source READ source WRITE setSource )
@@ -59,15 +59,12 @@ public:
     QTextBrowser( QWidget *parent=0, const char *name=0 );
     ~QTextBrowser();
 
-    virtual void setSource(const QString& name);
     QString source() const;
 
     void setText( const QString& contents, const QString& context=QString::null );
 
-    void scrollToAnchor(const QString& name);
-
-
 public slots:
+    virtual void setSource(const QString& name);
     virtual void backward();
     virtual void forward();
     virtual void home();
@@ -79,15 +76,12 @@ signals:
     void textChanged();
 
 protected:
-    void viewportMousePressEvent( QMouseEvent* );
-    void viewportMouseReleaseEvent( QMouseEvent* );
-    void viewportMouseMoveEvent( QMouseEvent* );
     void keyPressEvent( QKeyEvent * e);
     void showEvent( QShowEvent* );
 
 private:
     void popupDetail( const QString& contents, const QPoint& pos );
-    QString anchorAt(const QPoint& pos); // public in 3.0
+    bool linksEnabled() const { return TRUE; }
     QTextBrowserData *d;
 
 private:	// Disabled copy constructor and operator=
