@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#55 $
 **
 **  Splitter widget
 **
@@ -133,10 +133,10 @@ void QSplitterHandle::mousePressEvent( QMouseEvent * )
 
 void QSplitterHandle::mouseReleaseEvent( QMouseEvent *e )
 {
-        if ( !opaque() ) {
-	    QCOORD pos = s->pick(parentWidget()->mapFromGlobal(e->globalPos()));
-	    s->setRubberband( -1 );
-	    s->moveSplitter( pos, id() );
+    if ( !opaque() ) {
+	QCOORD pos = s->pick(parentWidget()->mapFromGlobal(e->globalPos()));
+	s->setRubberband( -1 );
+	s->moveSplitter( pos, id() );
     }
 }
 
