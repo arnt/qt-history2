@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#28 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -95,7 +95,7 @@ private:
    cache while the cache is in active use.
 
    When the last pixmap has been deleted from the cache, kill the
-   timer so qt won't keep the CPU from going into sleep mode.
+   timer so Qt won't keep the CPU from going into sleep mode.
 */
 
 void QPMCache::timerEvent( QTimerEvent * )
@@ -222,7 +222,7 @@ bool QPixmapCache::insert( const QString &key, QPixmap *pm )
   Returns TRUE if successful, or FALSE if the pixmap is too big for the cache.
 
   All pixmaps inserted by the Qt library have a key starting with "$qt..".
-  Use something else for you pixmaps.
+  Use something else for your own pixmaps.
 
   When a pixmap is inserted and the cache is about to exceed its limit, it
   removes pixmaps until there is enough room for the pixmap to be inserted.
