@@ -2,6 +2,7 @@
 #include <qglobal.h>
 #include "qt_windows.h"
 #include "qapplication_p.h"
+#include <qpainter.h>
 
 #include <qpaintdevice.h>
 #include <limits.h>
@@ -73,7 +74,7 @@ void QFontEngine::getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyph
 
 QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool stockFont, LOGFONT )
 {
-    qDebug("regular windows font engine created!");
+//    qDebug("regular windows font engine created!");
 
     _name = name;
 
@@ -117,21 +118,28 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
     return NoError;
 }
 
-void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	   const advance_t *advances, const offset_t *, int numGlyphs, bool reverse, int textFlags )
+void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
 {
-    Q_UNUSED( p );
     const unsigned int options = 0;
 
+    glyph_t *glyphs = engine->glyphs( si );
+    advance_t *advances = engine->advances( si );
+    offset_t *offsets = engine->offsets( si );
+
+    // #### fix the other transformations
+    if ( p->txop == QPainter::TxTranslate ) {
+	p->map( x, y, &x, &y );
+    }
+    
     y -= ascent();
 
-    if ( !reverse ) {
+    if ( !(si->analysis.bidiLevel % 2) ) {
 	// fast path
-	ExtTextOutW( hdc, x, y, options, 0, (wchar_t *)glyphs, numGlyphs, advances );
+	ExtTextOutW( hdc, x, y, options, 0, (wchar_t *)glyphs, si->num_glyphs, advances );
     } else {
-	advances += numGlyphs;
-	glyphs += numGlyphs;
-	for( int i = 0; i < numGlyphs; i++ ) {
+	advances += si->num_glyphs;
+	glyphs += si->num_glyphs;
+	for( int i = 0; i < si->num_glyphs; i++ ) {
 	    glyphs--;
 	    advances--;
     	    wchar_t chr = *glyphs;
@@ -229,7 +237,7 @@ QFontEngineBox::QFontEngineBox( int size )
     stockFont = TRUE;
     paintDevice = FALSE;
 
-    qDebug("box font engine created!");
+//    qDebug("box font engine created!");
 }
 
 QFontEngineBox::~QFontEngineBox()
@@ -254,21 +262,27 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *str,  int len, gly
     return NoError;
 }
 
-void QFontEngineBox::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-			  const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags )
+void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
 {
-    Q_UNUSED( p );
+    glyph_t *glyphs = engine->glyphs( si );
+    advance_t *advances = engine->advances( si );
+    offset_t *offsets = engine->offsets( si );
+
+    // #### fix the other transformations
+    if ( p->txop == QPainter::TxTranslate ) {
+	p->map( x, y, &x, &y );
+    }
 
     y -= ascent();
     const unsigned int options = 0;
 
-    if ( !reverse ) {
+    if ( !(si->analysis.bidiLevel %2) ) {
 	// fast path
-	ExtTextOutW( hdc, x, y, options, 0, (wchar_t *)glyphs, numGlyphs, advances );
+	ExtTextOutW( hdc, x, y, options, 0, (wchar_t *)glyphs, si->num_glyphs, advances );
     } else {
-	advances += numGlyphs;
-	glyphs += numGlyphs;
-	for( int i = 0; i < numGlyphs; i++ ) {
+	advances += si->num_glyphs;
+	glyphs += si->num_glyphs;
+	for( int i = 0; i < si->num_glyphs; i++ ) {
 	    glyphs--;
 	    advances--;
     	    wchar_t chr = *glyphs;
