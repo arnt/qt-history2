@@ -796,10 +796,10 @@ QTextCodec* QTextCodec::codecForLocale()
   \link http://www.iana.org/assignments/character-sets
   IANA character-sets encoding file\endlink.
 */
-// QList<QByteArray> QTextCodec::aliases() const
-// {
-//     return QList<QByteArray>();
-// }
+QList<QByteArray> QTextCodec::aliases() const
+{
+    return QList<QByteArray>();
+}
 
 /*!
     Creates a QTextDecoder which stores enough state to decode chunks
