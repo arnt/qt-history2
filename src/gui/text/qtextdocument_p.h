@@ -32,6 +32,7 @@
 #include <private/qobject_p.h>
 #include "qfragmentmap_p.h"
 #include "qtextlayout.h"
+#include "qtextengine_p.h"
 #include "qtextformat_p.h"
 #include "qtextdocument.h"
 #include "qtextobject.h"
@@ -73,16 +74,14 @@ class QTextBlockData : public QFragment
 {
 public:
     inline void initialize()
-    { layout = 0; layoutDirty = true; textDirty = true; }
+    { layout = 0; }
     inline void invalidate() const
-    { layoutDirty = true; textDirty = true; }
+        { if (layout) layout->engine()->invalidate(); }
     inline void free()
-    { if (layoutDirty) delete layout; }
+    { delete layout; }
 
     // ##### probably store a QTextEngine * here!
     mutable QTextLayout *layout;
-    mutable bool layoutDirty;
-    mutable bool textDirty;
     mutable int format;
 };
 

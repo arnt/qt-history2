@@ -463,11 +463,7 @@ void QTextLayout::setLayoutMode(LayoutMode m)
 
 void QTextLayout::beginLayout()
 {
-    if (d->docLayout) {
-        const QTextBlockData *b = d->block.p->blockMap().fragment(d->block.n);
-        if (b->textDirty)
-            d->invalidate();
-    }
+    d->invalidate();
     d->itemize();
 }
 
