@@ -37,7 +37,7 @@ class QOCIPrivate
 public:
     QOCIPrivate()
 	: env(0), err(0), svc(0), sql(0), transaction( FALSE ), serverVersion(-1),
-	  utf8( FALSE ), nutf8( FALSE )
+	  utf8( FALSE ), nutf8( FALSE ), utf16bind( FALSE )
     {
 	rowCache.setAutoDelete( TRUE );
     }
@@ -49,6 +49,7 @@ public:
     int		     serverVersion;
     bool	     utf8;  // db charset
     bool	     nutf8; // national charset
+    bool       utf16bind;
     QString          user;
     
     typedef QPtrVector<QSqlField> RowCache;
@@ -57,6 +58,7 @@ public:
 
     void setCharset( OCIBind* hbnd )
     {
+	return; //####
 	int r = 0;
 
 #ifdef QOCI_USES_VERSION_9
@@ -88,8 +90,30 @@ public:
 #endif
     }
     
+    text* oraText( const QString& str ) const
+    {
+	if ( utf16bind )
+	    return (text*)str.ucs2();
+	return (text*)str.ascii();
+    }
+    
+    sb4 oraTextLength( const QString& str ) const
+    {
+	if ( utf16bind )
+	    return (sb4)((str.length() + 1) * sizeof( QChar ));
+	return (sb4)(str.length() + 1);
+    }
+    
+    sb4 oraByteLength( const QString& str ) const
+    {
+	if ( utf16bind )
+	    return (sb4)((str.length()) * sizeof( QChar ));
+	return (sb4)str.length();
+    }
+    
     int bindValues( QSqlExtension * ext, QPtrList<QVirtualDestructor> & tmpStorage )
     {
+	qDebug( "bindValues()" );
 	int r = OCI_SUCCESS;
 	if ( ext->bindMethod() == QSqlExtension::BindByName ) {
 	    QSqlExtension::ValueMap::Iterator it;
@@ -100,23 +124,27 @@ public:
 		if ( it.data().value.isNull() ) {
 		    *indPtr = -1;
 		}
-		QCString pHolder = it.key().local8Bit();
+		QString pHolder = it.key();
+		qDebug( "%s %d", QVariant::typeToName( it.data().value.type() ), utf16bind );
 		switch ( it.data().value.type() ) {
 		    case QVariant::ByteArray:
+			//qDebug( "Binding ByteArray1" );
 			// this is for RAW, LONG RAW and BLOB fields..
 			r = OCIBindByName( sql, &hbnd, err,
-					   (text *) pHolder.data(),
-					   pHolder.length(),
+					   oraText( pHolder ),
+					   oraByteLength( pHolder ),
 					   (dvoid *) it.data().value.asByteArray().data(),
 					   it.data().value.asByteArray().size(),
 					   SQLT_BIN, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
+/*
 		    case QVariant::CString:
+			qDebug( "Binding CString1" );
 			// ..while this is for CLOB and LONG fields that needs an SQLT_LNG binding
 			r = OCIBindByName( sql, &hbnd, err,
-					   (text *) pHolder.data(),
-					   pHolder.length(),
+					   (text *) pHolder.ucs2(),
+					   pHolder.length() * sizeof( QChar ),
 					   (dvoid *) it.data().value.asCString().data(),
 					   it.data().value.asCString().length(),
 					   SQLT_LNG, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
@@ -124,14 +152,15 @@ public:
 			if ( r == 0 )
 			    setCharset( hbnd );
 			break;
+*/
 		    case QVariant::Time:
 		    case QVariant::Date:
 		    case QVariant::DateTime: {
 			QByteArray * ba = new QByteArray( qMakeOraDate( it.data().value.toDateTime() ) );
 			tmpStorage.append( qAutoDeleter(ba) );
 			r = OCIBindByName( sql, &hbnd, err,
-					   (text *) pHolder.data(),
-					   pHolder.length(),
+					   oraText( pHolder ),
+					   oraByteLength( pHolder ),
 					   (dvoid *) ba->data(),
 					   ba->size(),
 					   SQLT_DAT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
@@ -139,8 +168,8 @@ public:
 			break; }
 		    case QVariant::Int:
 			r = OCIBindByName( sql, &hbnd, err,
-					   (text *) pHolder.data(),
-					   pHolder.length(),
+					   oraText( pHolder ),
+					   oraByteLength( pHolder ),
 					   (dvoid *) &it.data().value.asInt(),
 					   sizeof(int),
 					   SQLT_INT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
@@ -148,34 +177,36 @@ public:
 			break;
 		    case QVariant::Double:
 			r = OCIBindByName( sql, &hbnd, err,
-					   (text *) pHolder.data(),
-					   pHolder.length(),
+					   oraText( pHolder ),
+					   oraByteLength( pHolder ),
 					   (dvoid *) &it.data().value.asDouble(),
 					   sizeof(double),
 					   SQLT_FLT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
 		    case QVariant::String: {
-			QCString * str = new QCString( it.data().value.asString().utf8() );
+			qDebug( "binding String1 " + it.data().value.asString() );
+			QString * str = new QString( it.data().value.asString() );
 			tmpStorage.append( qAutoDeleter( str ) );
 			r = OCIBindByName( sql, &hbnd, err,
-					   (text *) pHolder.data(),
-					   pHolder.length(),
-					   (dvoid *) str->data(),
-					   str->length() + 1, // number of UTF-8 bytes + 0 term. scan limit
+					   oraText( pHolder ),
+					   oraByteLength( pHolder ),
+					   (dvoid *) oraText( *str ),
+					   oraTextLength( *str ),
 					   SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			if ( r == 0 )
 			    setCharset( hbnd );
 			break; }
 		    default: {
-			QCString* str = new QCString( it.data().value.toString().utf8() );
+			//qDebug( "binding Default 1" );
+			QString * str = new QString( it.data().value.toString() );
 			tmpStorage.append( qAutoDeleter( str ) );
 			r = OCIBindByName( sql, &hbnd, err,
-					   (text *) pHolder.data(),
-					   pHolder.length(),
-					   (dvoid *) str->data(),
-					   str->length() + 1,
+					   oraText( pHolder ),
+					   oraByteLength( pHolder ),
+					   (dvoid *) oraText( *str ),
+					   oraTextLength( *str ),
 					   SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			if ( r == 0 )
@@ -189,6 +220,7 @@ public:
 	} else { // ..do positional binding
 	    QMap<int, QString>::Iterator it;
 	    for ( it = ext->index.begin(); it != ext->index.end(); ++it ) {
+		qDebug( "%s %d", QVariant::typeToName( ext->values[ it.data() ].value.type() ), utf16bind );
 		OCIBind * hbnd = 0; // Oracle handles these automatically
 		QVariant val( ext->values[ it.data() ].value );
 		sb2 * indPtr = new sb2(0);
@@ -199,6 +231,7 @@ public:
 		switch ( val.type() ) {
 		    case QVariant::ByteArray:
 			// this is for RAW, LONG RAW and BLOB fields..
+			//qDebug( "Binding ByteArray2" );
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
 					  (dvoid *) val.asByteArray().data(),
@@ -206,8 +239,10 @@ public:
 					  SQLT_BIN, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
+/*
 		    case QVariant::CString:
 			// ..while this is for CLOB and LONG fields that needs an SQLT_LNG binding
+			qDebug( "binding CString2" );
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
 					  (dvoid *) val.asCString().data(),
@@ -217,6 +252,7 @@ public:
 			if ( r == 0 )
 			    setCharset( hbnd );
 			break;
+*/
 		    case QVariant::Time:
 		    case QVariant::Date:
 		    case QVariant::DateTime: {
@@ -246,24 +282,26 @@ public:
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
 		    case QVariant::String: {
-			QCString * str = new QCString( val.asString().utf8() );
+			qDebug( "binding String2 " + val.asString() );
+			QString * str = new QString( val.asString() );
 			tmpStorage.append( qAutoDeleter( str ) );
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
-					  (dvoid *) str->data(),
-					  str->length() + 1, // number of UTF-8 bytes + 0 term. scan limit
+					  (dvoid *) oraText( *str ),
+					  oraTextLength( *str ),
 					  SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			if ( r == 0 )
 			    setCharset( hbnd );
 			break; }
 		    default: {
-			QCString* str = new QCString( val.toString().utf8() );
+			//qDebug( "binding Default2: " + val.toString() );
+			QString * str = new QString( val.toString() );
 			tmpStorage.append( qAutoDeleter( str ) );
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
-					  (dvoid *) str->data(),
-					  str->length() + 1, // oracle uses this as a limit to find the terminating 0..
+					  (dvoid *) oraText( *str ),
+					  oraTextLength( *str ),
 					  SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			if ( r == 0 )
@@ -297,7 +335,7 @@ public:
 
 		switch ( it.data().value.type() ) {
 		    case QVariant::ByteArray:
-		    case QVariant::CString:
+//		    case QVariant::CString:
 		    case QVariant::Int:
 		    case QVariant::Double:
 			break;
@@ -328,7 +366,7 @@ public:
 		    case QVariant::String:
 		    default: {
 			if ( !isNull ) {
-			    QCString* str = qAutoDeleterData( (QAutoDeleter<QCString>*)tmpStorage.getFirst() );
+			    QString* str = qAutoDeleterData( (QAutoDeleter<QString>*)tmpStorage.getFirst() );
 			    if ( !str )
 				return;
 			    it.data().value = *str;
@@ -355,7 +393,7 @@ public:
 
 		switch ( typ ) {
 		    case QVariant::ByteArray:
-		    case QVariant::CString:
+//		    case QVariant::CString:
 		    case QVariant::Int:
 		    case QVariant::Double:
 			break;
@@ -386,7 +424,7 @@ public:
 		    case QVariant::String:
 		    default: {
 			if ( !isNull ) {
-			    QCString* str = qAutoDeleterData( (QAutoDeleter<QCString>*)tmpStorage.getFirst() );
+			    QString* str = qAutoDeleterData( (QAutoDeleter<QString>*)tmpStorage.getFirst() );
 			    if ( !str )
 				return;
 			    ext->values[ it.data() ].value = *str;
@@ -453,16 +491,21 @@ struct OraFieldInfo
 
 QString qOraWarn( const QOCIPrivate* d )
 {
-    unsigned char   errbuf[512];
-    sb4             errcode;
-    OCIErrorGet((dvoid *)d->err,
+    sb4 errcode;
+    text errbuf[1024];
+    
+    QString errBuf;
+    errBuf.setLength( 512 );
+    OCIErrorGet( (dvoid *)d->err,
 		(ub4) 1,
-		(text *) NULL,
+		(text *)NULL,
 		&errcode,
 		errbuf,
-		(ub4) sizeof(errbuf),
+		(ub4)( sizeof(errbuf) ),
 		OCI_HTYPE_ERROR);
-    return QString( (char*)errbuf );
+    if ( d->utf16bind )
+	return QString::fromUcs2( (const unsigned short*)errbuf );
+    return QString::fromLocal8Bit( (const char*)errbuf );
 }
 
 void qOraWarning( const char* msg, const QOCIPrivate* d )
@@ -507,8 +550,8 @@ QVariant::Type qDecodeOCIType( const QString& ocitype, int ocilen, int ociprec, 
 	type = QVariant::Int;
     else if ( ocitype == "FLOAT" )
 	type = QVariant::Double;
-    else if ( ocitype == "LONG" || ocitype == "NCLOB" || ocitype == "CLOB" )
-	type = QVariant::CString;
+//    else if ( ocitype == "LONG" || ocitype == "NCLOB" || ocitype == "CLOB" )
+//	type = QVariant::CString;
     else if ( ocitype == "RAW" || ocitype == "LONG RAW" || ocitype == "ROWID" || ocitype == "CFILE" || ocitype == "BFILE" || ocitype == "BLOB" )
 	type = QVariant::ByteArray;
     else if ( ocitype == "DATE" ||  ocitype.startsWith( "TIME" ) )
@@ -522,7 +565,7 @@ QVariant::Type qDecodeOCIType( const QString& ocitype, int ocilen, int ociprec, 
 	    type = QVariant::Double;
     }
     if ( type == QVariant::Invalid )
-	qWarning("qDecodeOCIType: unknown type: %s", ocitype.local8Bit().data() );
+	qWarning("qDecodeOCIType: unknown type: %s", ocitype.local8Bit() );
     return type;
 }
 
@@ -536,6 +579,7 @@ QVariant::Type qDecodeOCIType( int ocitype )
     case SQLT_AFC:
     case SQLT_VCS:
     case SQLT_AVC:
+    case SQLT_LNG: //???
 #ifdef SQLT_INTERVAL_YM
     case SQLT_INTERVAL_YM:
 #endif
@@ -554,9 +598,9 @@ QVariant::Type qDecodeOCIType( int ocitype )
 	type = QVariant::Double;
 	break;
     case SQLT_CLOB:
-    case SQLT_LNG:
-	type = QVariant::CString;
-	break;
+//    case SQLT_LNG:
+//	type = QVariant::CString;
+//	break;
     case SQLT_VBI:
     case SQLT_BIN:
     case SQLT_LBI:
@@ -593,7 +637,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 {
     OraFieldInfo ofi;
     ub2		colType(0);
-    text        *colName = 0;
+    text		*colName = 0;
     ub4		colNameLen(0);
     sb1		colScale(0);
     ub2		colLength(0);
@@ -704,8 +748,8 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
     if ( colType == SQLT_BLOB )
 	colLength = 0;
 
-    ofi.name = QString((char*)colName);
-    ofi.name.truncate(colNameLen);
+    // colNameLen is length in bytes!!!!
+    ofi.name = QString( (const QChar*)colName, colNameLen / 2 );
     ofi.type = type;
     ofi.oraType = colType;
     ofi.oraFieldLength = colFieldLength;
@@ -811,6 +855,7 @@ public:
 				    (dvoid *) createInd( count-1 ),
 				    0, 0, OCI_DEFAULT );
 		break;
+/*
 	    case QVariant::CString:
 		// LONG fields can't be bound to LOB locators
 		if ( ofi.oraType == SQLT_LNG ) {
@@ -819,12 +864,12 @@ public:
 					d->err,
 					count,
 					0,
-					SB4MAXVAL,/* really big */
+					SB4MAXVAL, // really big
 					SQLT_LNG,
 					(dvoid *) createInd( count-1 ),
 					(ub2 *) 0,
 					(ub2 *) 0,
-					OCI_DYNAMIC_FETCH ); /* piecewise */
+					OCI_DYNAMIC_FETCH ); // piecewise
 		} else {
 		    r = OCIDefineByPos( d->sql,
 					&dfn,
@@ -836,11 +881,12 @@ public:
 					(dvoid *) createInd( count-1 ),
 					(ub2 *) 0,
 					(ub2 *) 0,
-					OCI_DEFAULT ); /* piecewise */
+					OCI_DEFAULT ); // piecewise 
 		    if ( r == 0 )
 			setCharset( dfn );
 		}
 		break;
+*/
 	    case QVariant::ByteArray:
 		// RAW and LONG RAW fields can't be bound to LOB locators
 		if ( ofi.oraType == SQLT_BIN ) {
@@ -875,7 +921,24 @@ public:
 					0, 0, OCI_DEFAULT );
 		}
 		break;
+	    case QVariant::String:
+		dataSize += dataSize + sizeof( QChar );
+		//qDebug( "OCIDefineByPosStr: %d", dataSize );
+		r = OCIDefineByPos( d->sql,
+				    &dfn,
+				    d->err,
+				    count,
+				    create( count-1, dataSize ),
+				    dataSize,
+				    SQLT_STR,
+				    (dvoid *) createInd( count-1 ),
+				    0, 0, OCI_DEFAULT );
+		if ( r == 0 )
+		    setCharset( dfn );
+		break;
 	    default:
+		dataSize += ++dataSize; // REMOVE ME
+		//qDebug( "OCIDefineByPosDef: %d", dataSize );
 		r = OCIDefineByPos( d->sql,
 				    &dfn,
 				    d->err,
@@ -885,8 +948,6 @@ public:
 				    SQLT_STR,
 				    (dvoid *) createInd( count-1 ),
 				    0, 0, OCI_DEFAULT );
-		if ( r == 0 )
-		    setCharset( dfn );
 		break;
 	    }
 #ifdef QT_CHECK_RANGE
@@ -924,6 +985,7 @@ public:
     }
     void setCharset( OCIDefine* dfn )
     {
+	return; // ######
 	int r = 0;
 
 	if ( d->serverVersion > 8 ) {
@@ -999,32 +1061,34 @@ public:
 		break;
 	    }
 	    if ( nullField || !chunkSize ) {
-		if ( res.value( fieldNum ).type() == QVariant::CString ) {
-		    res.setValue( fieldNum, QCString() );
-		} else {
+//		if ( res.value( fieldNum ).type() == QVariant::CString ) {
+//		    res.setValue( fieldNum, QCString() );
+//		} else {
 		    res.setValue( fieldNum, QByteArray() );
-		}
+//		}
 	    } else {
-		QByteArray * ba;
-		if ( res.value( fieldNum ).type() == QVariant::CString ) {
-		    ba = new QCString();
-		    *ba = res.value( fieldNum ).toCString();
-		} else {
-		    ba = new QByteArray();
-		    *ba = res.value( fieldNum ).toByteArray();
-		}
+//		QByteArray * ba;
+//		if ( res.value( fieldNum ).type() == QVariant::CString ) {
+//		    ba = new QCString();
+//		    *ba = res.value( fieldNum ).toCString();
+//		} else {
+//		    ba = new QByteArray();
+//		    *ba = res.value( fieldNum ).toByteArray();
+//		}
 		// NB! not a leak - tmp is deleted by QByteArray/QCString later on
-		char * tmp = (char *)malloc( chunkSize + ba->size() );
-		memcpy( tmp, ba->data(), ba->size() );
-		memcpy( tmp + ba->size(), col, chunkSize );
-		*ba = ba->assign( tmp, chunkSize + ba->size() );
+//		char * tmp = (char *)malloc( chunkSize + ba->size() );
+//		memcpy( tmp, ba->data(), ba->size() );
+//		memcpy( tmp + ba->size(), col, chunkSize );
+//		*ba = ba->assign( tmp, chunkSize + ba->size() );
+
+		res.value( fieldNum ).asByteArray().append( QByteArray( (char*)col, chunkSize ) );
 		
-		if ( res.value( fieldNum ).type() == QVariant::CString ) {
-		    res.setValue( fieldNum, *((QCString *) ba) );
-		} else {
-		    res.setValue( fieldNum, *ba );
-		}
-		delete ba;		
+//		if ( res.value( fieldNum ).type() == QVariant::CString ) {
+//		    res.setValue( fieldNum, *((QCString *) ba) );
+//		} else {
+//		    res.setValue( fieldNum, *ba );
+//		}
+//		delete ba;		
 	    }
 	    if ( status == OCI_SUCCESS_WITH_INFO ||
 		 status == OCI_NEED_DATA ) {
@@ -1051,11 +1115,11 @@ public:
 	    }
 	    if ( amount > 0 ) {
 		QByteArray * buf;
-		if ( res.value( i ).type() == QVariant::CString ) {
-		    buf = new QCString( amount + 1 ); // including terminating zero
-		} else {
+//		if ( res.value( i ).type() == QVariant::CString ) {
+//		    buf = new QCString( amount + 1 ); // including terminating zero
+//		} else {
 		    buf = new QByteArray( amount );
-		}
+//		}
 
 		// get lob charset ID and tell oracle to transform it into UTF8
 		ub1 csfrm = 0;
@@ -1080,20 +1144,20 @@ public:
 		if ( r != 0 ) {
 		    qOraWarning( "OCIResultPrivate::readLOBs: Cannot read LOB:", d );
 		} else {
-		    if ( res.value( i ).type() == QVariant::CString ) {
-			res.setValue( i, *((QCString *) buf) );
-		    } else {
+//		    if ( res.value( i ).type() == QVariant::CString ) {
+//			res.setValue( i, *((QCString *) buf) );
+//		    } else {
 			res.setValue( i, *buf );
-		    }
+//		    }
 		}
 		delete buf;
 	    }
 	    if ( r != 0 || !amount ) {
-		if ( res.value( i ).type() == QVariant::CString ) {
-		    res.setValue( i, QCString() );
-		} else {
+//		if ( res.value( i ).type() == QVariant::CString ) {
+//		    res.setValue( i, QCString() );
+//		} else {
 		    res.setValue( i, QByteArray() );
-		}
+//		}
 		r = 0; // non-fatal error
 	    }
 	}
@@ -1160,15 +1224,17 @@ public:
 	case QVariant::DateTime:
 	    v = QVariant( qMakeDate( at(i) ) );
 	    break;
+//	case QVariant::CString:
+//	    v = QVariant( QCString( at(i), length(i)+1 ) );
+//	    break;
 	case QVariant::String:
-	    v = QVariant( QString::fromUtf8( at(i) ) );
-	    break;
-	case QVariant::CString:
-	    v = QVariant( QCString( at(i), length(i)+1 ) );
-	    break;
-	case QVariant::Int:    // keep these as strings so that we do not loose precision
-        case QVariant::Double: // when converted to strings
-	    v = QVariant( QString( at(i) ) );
+	case QVariant::Double: // when converted to strings
+	case QVariant::Int:    // keep these as strings so that we do not lose precision
+//	    qDebug( "::value(%d): " + QString::fromUcs2( (const short unsigned int*)at(i) ), i );
+	    if ( d->utf16bind )
+		v = QVariant( QString::fromUcs2( (const short unsigned int*)at(i) ) );
+	    else
+		v = QVariant( QString::fromUtf8( at(i) ) );
 	    break;
 	case QVariant::ByteArray: {
 	    QByteArray ba;
@@ -1289,7 +1355,7 @@ bool QOCIResult::cacheNext()
     if( r == OCI_ERROR ) {
 	switch ( qOraErrorNumber( d ) ) {
 	case 1406:
-	    qWarning( "QOCI Warning: data truncated for %s", lastQuery().local8Bit().data() );
+	    qWarning( "QOCI Warning: data truncated for %s", lastQuery().local8Bit() );
 	    r = 0; /* ignore it */
 	    break;
 	default:
@@ -1461,13 +1527,10 @@ bool QOCIResult::prepare( const QString& query )
 	setLastError( qMakeError( "Unable to alloc statement", QSqlError::Statement, d ) );
 	return FALSE;
     }
-    QCString cleanQuery( query.local8Bit() );
-    if ( query.endsWith( ";" ) )
-	cleanQuery.truncate( cleanQuery.length() - 1 );
     r = OCIStmtPrepare( d->sql,
 			d->err,
-			(unsigned char*)cleanQuery.data(),
-			cleanQuery.length(),
+			(OraText*)query.unicode(),
+			query.length() * sizeof( QChar ),
 			OCI_NTV_SYNTAX,
 			OCI_DEFAULT );
     if ( r != 0 ) {
@@ -1619,7 +1682,7 @@ bool QOCI9Result::cacheNext( int r )
     if( r == OCI_ERROR ) {
 	switch ( qOraErrorNumber( d ) ) {
 	case 1406:
-	    qWarning( "QOCI Warning: data truncated for %s", lastQuery().local8Bit().data() );
+	    qWarning( "QOCI Warning: data truncated for %s", lastQuery().local8Bit() );
 	    r = 0; /* ignore it */
 	    break;
 	default:
@@ -1776,6 +1839,8 @@ int QOCI9Result::numRowsAffected()
 
 bool QOCI9Result::prepare( const QString& query )
 {
+//    qDebug( "QOCI9Result::prepare: " + query );
+    
     int r = 0;
     delete cols;
     cols = 0;
@@ -1801,13 +1866,10 @@ bool QOCI9Result::prepare( const QString& query )
 #endif
 	return FALSE;
     }
-    QCString cleanQuery ( query.local8Bit() );
-    if ( query.endsWith( ";" ) )
-	cleanQuery.truncate( cleanQuery.length() - 1 );
     r = OCIStmtPrepare( d->sql,
 			d->err,
-			(unsigned char*)cleanQuery.data(),
-			cleanQuery.length(),
+			(const OraText*)query.unicode(),
+			query.length() * sizeof( QChar ),
 			OCI_NTV_SYNTAX,
 			OCI_DEFAULT );
     if ( r != 0 ) {
@@ -1938,13 +2000,14 @@ void QOCIDriver::init()
     d = new QOCIPrivate();
 #ifdef QOCI_USES_VERSION_9
     int r = OCIEnvCreate( &d->env,
-			    OCI_DEFAULT | OCI_OBJECT,
+			    OCI_UTF16 | OCI_OBJECT,
 			    NULL,
 			    NULL,
 			    NULL,
 			    NULL,
 			    0,
 			    NULL );
+    d->utf16bind = TRUE;
 #else
     // this call is deprecated in Oracle >= 8.1.x, but still works
     int r = OCIInitialize( OCI_DEFAULT | OCI_OBJECT,
@@ -1960,7 +2023,8 @@ void QOCIDriver::init()
 		    OCI_DEFAULT,
 		    0,
 		    NULL );
-#endif
+    d->utf16bind = FALSE;
+#endif  //QOCI_USES_VERSION_9
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
 	qOraWarning( "QOCIDriver: unable to create environment:", d );
@@ -2021,18 +2085,15 @@ bool QOCIDriver::open( const QString & db,
 {
     if ( isOpen() )
 	close();
-    QCString user8 = user.local8Bit();
-    QCString password8 = password.local8Bit();
-    QCString db8 = db.local8Bit();
     int r = OCILogon(	d->env,
 			d->err,
 			&d->svc,
-			(unsigned char*)user8.data(),
-			user8.length(),
-			(unsigned char*)password8.data(),
-			password8.length(),
-			(unsigned char*)db8.data(),
-			db8.length() );
+			(OraText*) user.unicode(),
+			user.length() * sizeof( QChar ),
+			(OraText*)password.unicode(),
+			password.length() * sizeof( QChar ),
+			(OraText*)db.unicode(),
+			db.length() * sizeof( QChar ) );
     if ( r != 0 ) {
 	setLastError( qMakeError("Unable to logon", QSqlError::Connection, d ) );
 	setOpenError( TRUE );
@@ -2040,18 +2101,24 @@ bool QOCIDriver::open( const QString & db,
     }
 
     // get server version
-    QCString c( 512 );
-    r = OCIServerVersion( d->svc, d->err, (text*)(c.data()), c.size(), OCI_HTYPE_SVCCTX );
-#ifdef QT_CHECKRANGE
+    text vertxt[512];
+    r = OCIServerVersion( d->svc,
+			  d->err,
+			  vertxt,
+			  sizeof( vertxt ),
+			  OCI_HTYPE_SVCCTX );
     if ( r != 0 ) {
+#ifdef QT_CHECKRANGE
 	qWarning( "QOCIDriver::open: could not get Oracle server version." );
-    }
 #endif
-    QRegExp vers("([0-9]+)\\.[0-9\\.]+[0-9]");
-    if ( vers.search( c ) >= 0 )
-	d->serverVersion = vers.cap( 1 ).toInt();
-    if ( d->serverVersion == 0 )
-	d->serverVersion = -1;
+    } else {
+	QString versionStr = d->utf16bind ? QString::fromUcs2( (unsigned short*)vertxt ) : QString::fromUtf8( (char*)vertxt, sizeof( vertxt ) );
+	QRegExp vers("([0-9]+)\\.[0-9\\.]+[0-9]");
+	if ( vers.search( versionStr ) >= 0 )
+	    d->serverVersion = vers.cap( 1 ).toInt();
+	if ( d->serverVersion == 0 )
+	    d->serverVersion = -1;
+}
     setOpen( TRUE );
     setOpenError( FALSE );
     d->user = user.upper();
@@ -2062,6 +2129,7 @@ bool QOCIDriver::open( const QString & db,
 		 "where parameter = 'NLS_CHARACTERSET' "
 		 "or parameter = 'NLS_NCHAR_CHARACTERSET'" ) ) {
 	while ( q.next() ) {
+	    // qDebug( "NLS: " + q.value( 0 ).toString() ); // ###
 	    if ( q.value( 0 ).toString() == "NLS_CHARACTERSET" &&
 		 q.value( 1 ).toString().upper().startsWith( "UTF8" ) ) {
 		d->utf8 = TRUE;
@@ -2233,6 +2301,7 @@ void qSplitTableAndOwner( const QString & tname, QString * tbl,
 
 QSqlRecord QOCIDriver::record( const QString& tablename ) const
 {
+//    qDebug( "*** record QString" );
     QSqlRecord fil;
     if ( !isOpen() )
 	return fil;
@@ -2276,6 +2345,7 @@ QSqlRecord QOCIDriver::record( const QString& tablename ) const
 
 QSqlRecord QOCIDriver::record( const QSqlQuery& query ) const
 {
+//    qDebug( "*** record Query" );
     QSqlRecord fil;
     if ( !isOpen() )
 	return fil;
@@ -2299,9 +2369,11 @@ QSqlRecord QOCIDriver::record( const QSqlQuery& query ) const
 
 QSqlRecordInfo QOCIDriver::recordInfo( const QString& tablename ) const
 {
+//    qDebug( "*** recordInfo QString" );
     QSqlRecordInfo fil;
     if ( !isOpen() )
 	return fil;
+    
     QSqlQuery t = createQuery();
     // using two separate queries for this is A LOT faster than using
     // eg. a sub-query on the sys.synonyms table
@@ -2343,7 +2415,7 @@ QSqlRecordInfo QOCIDriver::recordInfo( const QString& tablename ) const
 		prec = t.value( 3 ).toInt();
 	    }
 	    int size = t.value( 2 ).toInt();
-	    if ( d->serverVersion >= 9 && ( ty == QVariant::String || ty == QVariant::CString ) ) {
+	    if ( d->serverVersion >= 9 && ( ty == QVariant::String ) ) {
 		// Oracle9: data_length == size in bytes, char_length == amount of characters
 		size = t.value( 7 ).toInt();
 	    }
@@ -2356,6 +2428,7 @@ QSqlRecordInfo QOCIDriver::recordInfo( const QString& tablename ) const
 
 QSqlRecordInfo QOCIDriver::recordInfo( const QSqlQuery& query ) const
 {
+///    qDebug( "*** recordInfo Query" );
     QSqlRecordInfo inf;
     if ( query.isActive() && query.driver() == this ) {
 #ifdef QOCI_USES_VERSION_9
@@ -2433,7 +2506,7 @@ QString QOCIDriver::formatValue( const QSqlField* field, bool ) const
 	if ( d->serverVersion >= 9 ) {
 	    QString encStr = "UNISTR('";
 	    const QString srcStr = field->value().toString();
-	    for ( uint i = 0; i < srcStr.length(); ++i ) {
+	    for ( int i = 0; i < srcStr.length(); ++i ) {
 		encStr += '\\' + QString::number( srcStr.at( i ).unicode(), 16 ).rightJustify( 4, '0' );
 	    }
 	    encStr += "')";
