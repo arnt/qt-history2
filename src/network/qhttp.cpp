@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qhttp.cpp#29 $
+** $Id: //depot/qt/main/src/network/qhttp.cpp#30 $
 **
 ** Implementation of QHtpp and related classes.
 **
@@ -209,6 +209,7 @@ private:
     QIODevice* m_postDevice;
 };
 
+#include "qhttp.moc"
 
 QTextStream& operator>>( QTextStream&, QHttpRequestHeader& );
 QTextStream& operator<<( QTextStream&, const QHttpRequestHeader& );
