@@ -18,7 +18,6 @@
 #include "qapplication.h"
 #include "qevent.h"
 #include "qlist.h"
-#include "qstatusbar.h"
 
 #define d d_func()
 #define q q_func()
@@ -743,26 +742,9 @@ QAction::eventFilter(QObject *, QEvent *e)
 bool
 QAction::showStatusText(QWidget *widget)
 {
-    QObject *par = widget ? widget : parent(), *lpar = 0;
-    QStatusBar *bar = qt_cast<QStatusBar*>(widget);
-    while (par && !bar) {
-        lpar = par;
-        bar = (QStatusBar*)par->child(0, "QStatusBar", false);
-        par = par->parent();
-    }
-    if (!bar && lpar) {
-        QObjectList l = lpar->queryList("QStatusBar");
-        if (l.isEmpty())
-            return false;
-        // #### hopefully the last one is the one of the mainwindow...
-        bar = static_cast<QStatusBar*>(l.at(l.size()-1));
-    }
-    if (bar) {
-        QString text = statusTip();
-        if (text.isEmpty())
-            bar->clear();
-        else
-            bar->message(text);
+    if(QObject *object = widget ? widget : parent()) {
+        QStatusTipEvent tip(statusTip());
+        QApplication::sendEvent(object, &tip);
         return true;
     }
     return false;
