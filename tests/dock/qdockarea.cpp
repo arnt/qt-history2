@@ -368,7 +368,7 @@ bool QDockArea::eventFilter( QObject *o, QEvent *e )
 	    return TRUE;
 	}
     } else if ( o == this && e->type() == QEvent::Resize ) {
-	if ( orientation() == Vertical )
+	if ( orientation() == Vertical ) // #### as we have no widthForHeight, "emulate" it for now
 	    updateLayout();
     }
     return FALSE;
