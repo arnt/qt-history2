@@ -228,6 +228,10 @@ static bool sm_blockUserInput = FALSE;		// session management
 // one day in the future we will be able to have static objects in libraries....
 static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 
+typedef void  (*VFPTR)();
+typedef QList<void> QVFuncList;
+static QVFuncList *postRList = 0;		// list of post routines
+
 typedef int (*QX11EventFilter) (XEvent*);
 QX11EventFilter qt_set_x11_event_filter (QX11EventFilter filter);
 
@@ -245,9 +249,23 @@ static bool qt_x11EventFilter( XEvent* ev )
     return qApp->x11EventFilter( ev );
 }
 
-typedef void  (*VFPTR)();
-typedef QList<void> QVFuncList;
-static QVFuncList *postRList = 0;		// list of post routines
+VFPTR qt_set_preselect_handler (VFPTR);
+static VFPTR qt_preselect_handler = 0;
+VFPTR qt_set_postselect_handler (VFPTR);
+static VFPTR qt_postselect_handler = 0;
+VFPTR qt_set_preselect_handler (VFPTR handler)
+{
+    VFPTR old_handler = qt_preselect_handler;
+    qt_preselect_handler = handler;
+    return old_handler;
+}
+VFPTR qt_set_postselect_handler (VFPTR handler)
+{
+    VFPTR old_handler = qt_postselect_handler;
+    qt_postselect_handler = handler;
+    return old_handler;
+}
+
 
 static void	initTimers();
 static void	cleanupTimers();
@@ -2084,6 +2102,8 @@ bool QApplication::processNextEvent( bool canWait )
     highest = QMAX( highest, qt_thread_pipe[0] );
 #endif
 
+    if ( qt_preselect_handler )
+	qt_preselect_handler();
 
 #if defined(_OS_WIN32_)
 #define FDCAST (fd_set*)
@@ -2097,6 +2117,9 @@ bool QApplication::processNextEvent( bool canWait )
 		   FDCAST (sn_except ? &app_exceptfds : 0),
 		   tm );
 #undef FDCAST
+
+    if ( qt_postselect_handler )
+	qt_postselect_handler();
 
     if ( nsel == -1 ) {
 	if ( errno == EINTR || errno == EAGAIN ) {
