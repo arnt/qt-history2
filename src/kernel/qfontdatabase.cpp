@@ -44,6 +44,9 @@
 #ifdef Q_WS_QWS
 #include "qfontmanager_qws.h"
 #endif // Q_WS_QWS
+#ifdef Q_WS_MAC
+#include "qt_mac.h"
+#endif
 
 #include "qmap.h"
 #include "qdict.h"
@@ -96,6 +99,11 @@ static void add_style( QtFontFamily *family, const QString& styleName,
 		       bool italic, bool lesserItalic, int weight );
 
 #endif // Q_WS_WIN
+#ifdef Q_WS_MAC
+static void add_style( QtFontFamily *family, const QString& styleName,
+                bool italic, bool lesserItalic, int weight );
+#endif
+
 
 
 
@@ -177,6 +185,12 @@ private:
 
 #endif // Q_WS_WIN
 
+#ifdef Q_WS_MAC
+    friend void add_style( QtFontFamily *family, const QString& styleName,
+                bool italic, bool lesserItalic, int weight );
+#endif
+
+
 };
 
 
@@ -234,6 +248,11 @@ private:
     friend void add_style( QtFontFamily *family, const QString& styleName,
 			   bool italic, bool lesserItalic, int weight );
 #endif
+#ifdef Q_WS_MAC
+    friend void add_style( QtFontFamily *family, const QString& styleName,
+                bool italic, bool lesserItalic, int weight );
+#endif
+
 
 };
 
@@ -1182,8 +1201,139 @@ void QFontDatabase::createDatabase()
 
 #ifdef Q_WS_MAC
 
+static
+void add_style( QtFontFamily *family, const QString& styleName,
+                bool italic, bool lesserItalic, int weight )
+{
+    QString weightString;
+    if ( weight <= QFont::Light ) {
+        weight = QFont::Light;
+        weightString = "Light";
+    } else if ( weight <= QFont::Normal ) {
+        weight = QFont::Normal;
+        weightString = "Regular";
+    } else if ( weight <= QFont::DemiBold ) {
+        weight = QFont::DemiBold;
+        weightString = "DemiBold";
+    } else if ( weight <= QFont::Bold ) {
+        weight = QFont::Bold;
+        weightString = "Bold";
+    } else {
+        weight = QFont::Black;
+        weightString = "Black";
+    }
+
+    QString sn = styleName;
+    if ( sn.isEmpty() ) {
+        // Not TTF, we make the name
+        if ( weight != QFont::Normal || !italic && !lesserItalic ) {
+            sn += weightString;
+            sn += " ";
+        }
+        if ( italic )
+            sn += "Italic ";
+        if ( lesserItalic ) {
+            // Windows doesn't tell the user, so we don't either
+            //  sn += "Oblique ";
+            sn += "Italic ";
+        }
+        sn = sn.left(sn.length()-1); // chomp " "
+    }
+    QtFontStyle *style = family->styleDict.find( sn );
+    if ( !style ) {
+        style = new QtFontStyle( family, sn );
+        Q_CHECK_PTR( style );
+        style->ital         = italic;
+        style->lesserItal   = lesserItalic;
+        style->weightString = weightString;
+        style->weightVal    = weight;
+        style->weightDirty  = FALSE;
+        family->addStyle( style );
+    }
+    style->setSmoothlyScalable();  // cowabunga
+}
+
 void QFontDatabase::createDatabase()
 {
+  if ( db ) return;
+  db = new QFontDatabasePrivate;
+
+  QtFontFoundry *foundry = NULL;
+  if ( !foundry ) {
+    foundry = new QtFontFoundry( "Mac" ); // One foundry on Macintosh
+    db->addFoundry(foundry);        // (and only one db)
+  }
+
+  FMFontFamilyIterator it;
+  if(!FMCreateFontFamilyIterator(NULL, NULL, kFMUseGlobalScopeOption, &it)) {
+    FMFontFamily fam;
+    QString fam_name;
+    while(!FMGetNextFontFamily(&it, &fam)) {
+
+      static Str255 n;
+      if(FMGetFontFamilyName(fam, n))
+	qDebug("Whoa! %s %d", __FILE__, __LINE__);
+      int len = n[0];
+      memcpy(n, n+1, len);
+      n[len] = '\0';
+      fam_name = (char *)n;
+
+      QtFontFamily *family = foundry->familyDict.find( fam_name );
+      if ( !family ) {
+	family = new QtFontFamily( foundry, fam_name );
+	Q_CHECK_PTR(family);
+	foundry->addFamily( family );
+      }
+
+      FMFontFamilyInstanceIterator fit;
+      if(!FMCreateFontFamilyInstanceIterator(fam, &fit)) {
+		
+	FMFont font;
+	FMFontStyle font_style;
+	FMFontSize font_size;
+
+	QString style_nam;
+	bool italic;
+	int weight;
+
+	while(!FMGetNextFontFamilyInstance(&fit, &font, &font_style, &font_size)) {
+
+	  //THESE are all that's left
+	  style_nam = "blah"; //FIXME
+	  italic = TRUE; //FIXME
+	  weight = 0; //FIXME
+
+	  if ( style_nam.isEmpty() ) {
+	    add_style( family, style_nam, FALSE, FALSE, weight );
+	    add_style( family, style_nam, FALSE, TRUE, weight );
+
+	    if ( weight < QFont::DemiBold ) {
+	      add_style( family, style_nam, FALSE, FALSE, QFont::Bold );
+	      add_style( family, style_nam, FALSE, TRUE, QFont::Bold );
+	    }
+	  } else {
+	    if ( italic ) {
+	      add_style( family, style_nam, italic, FALSE, weight );
+	    } else {
+	      add_style( family, style_nam, italic, FALSE, weight );
+	      add_style( family, QString::null, italic, TRUE, weight );
+	    }
+	    if ( weight < QFont::DemiBold ) {
+	      // Can make bolder
+	      if ( italic )
+		add_style( family, QString::null, italic, FALSE, QFont::Bold );
+	      else {
+		add_style( family, QString::null, FALSE, FALSE, QFont::Bold );
+		add_style( family, QString::null, FALSE, TRUE, QFont::Bold );
+	      }
+	    }
+	  }
+	}
+	FMDisposeFontFamilyInstanceIterator(&fit);
+      }
+    }
+    FMDisposeFontFamilyIterator(&it);
+  }
 }
 
 #endif // Q_WS_MAC
