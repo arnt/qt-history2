@@ -693,7 +693,7 @@ sub public {
 	     # all c++, pro, qm, po and xpm files under examples
 	     || $file =~ /^examples\/.*\.((cpp)|h|(pro)|(qm)|(po)|(xpm)|(map)|(txt)|(bmp)|(gif)|(pic)|(ppm)|(png)|(wav)|(any))$/
 	     # all the junk from mpegplay in the kiosk example
-	     || $file =~ /^examples\/kiosk\/.+$/
+	     || $file =~ /^examples\/kiosk\/.+\..+$/
 	     # all the launcher files
 	     || $file =~ /^examples\/launcher\/.*(\.im|\.pl|perpetual_launch|start_demo)$/
 
@@ -701,6 +701,7 @@ sub public {
 	     || $file =~ /^extensions\/.*\/$/
 	     # all c++, pro, qm, po and xpm files under extensions
 	     || $file =~ /^extensions\/.*\.((cpp)|h|(pro)|(qm)|(po)|(xpm)|(map)|(txt)|(bmp)|(gif)|(pic)|(ppm)|(png)|(wav)|(any)|c)$/
+	     || $file =~ /^extensions\/.*\/isdninfo$/
 
 	     # READMEs, NOTICE and such
 	     || $file =~ /^src\/((.*\/)|)[A-Z]+$/
@@ -762,9 +763,9 @@ sub public {
 	     # no configs
 	     || $file =~/configs\//
 
-	     # no makefiles
-	     || $basename eq "GNUmakefile"
-	     || $basename eq "Makefile"
+	     # no makefiles, except freetype2
+	     || $basename eq "GNUmakefile" && $file !~ /src\/3rdparty\/freetype2\//
+	     || $basename eq "Makefile" && $file !~ /src\/3rdparty\/freetype2\//
 	     || $file =~ /src\/Makefile\..*/
 
 	     # no mak files
