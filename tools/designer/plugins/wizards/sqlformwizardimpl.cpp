@@ -378,51 +378,53 @@ void SqlFormWizard::accept()
 	}
 	break;
     case Table:
-	QSqlTable* sqlTable = ((QSqlTable*)widget);
-	if ( checkBoxReadOnly->isChecked() ) {
-	    sqlTable->setReadOnly( TRUE );
-	    mdbIface->setPropertyChanged( sqlTable, "readOnly", TRUE );
-	} else {
-	    if ( checkBoxConfirmInserts->isChecked() ) {
-		sqlTable->setConfirmInsert( TRUE );
-		mdbIface->setPropertyChanged( sqlTable, "confirmInsert", TRUE );
+	{
+	    QSqlTable* sqlTable = ((QSqlTable*)widget);
+	    if ( checkBoxReadOnly->isChecked() ) {
+		sqlTable->setReadOnly( TRUE );
+		mdbIface->setPropertyChanged( sqlTable, "readOnly", TRUE );
+	    } else {
+		if ( checkBoxConfirmInserts->isChecked() ) {
+		    sqlTable->setConfirmInsert( TRUE );
+		    mdbIface->setPropertyChanged( sqlTable, "confirmInsert", TRUE );
+		}
+		if ( checkBoxConfirmUpdates->isChecked() ) {
+		    sqlTable->setConfirmUpdate( TRUE );
+		    mdbIface->setPropertyChanged( sqlTable, "confirmUpdate", TRUE );
+		}
+		if ( checkBoxConfirmDeletes->isChecked() ) {
+		    sqlTable->setConfirmDelete( TRUE );
+		    mdbIface->setPropertyChanged( sqlTable, "confirmDelete", TRUE );
+		}
+		if ( checkBoxConfirmCancels->isChecked() ) {
+		    sqlTable->setConfirmCancels( TRUE );
+		    mdbIface->setPropertyChanged( sqlTable, "confirmCancels", TRUE );
+		}
 	    }
-	    if ( checkBoxConfirmUpdates->isChecked() ) {
-		sqlTable->setConfirmUpdate( TRUE );
-		mdbIface->setPropertyChanged( sqlTable, "confirmUpdate", TRUE );
+	    if ( checkBoxSorting->isChecked() ) {
+		sqlTable->setSorting( TRUE );
+		mdbIface->setPropertyChanged( sqlTable, "sorting", TRUE );
 	    }
-	    if ( checkBoxConfirmDeletes->isChecked() ) {
-		sqlTable->setConfirmDelete( TRUE );
-		mdbIface->setPropertyChanged( sqlTable, "confirmDelete", TRUE );
+
+	    QMap<QString, QString> columnFields;
+	    sqlTable->setNumCols( listBoxSelectedField->count() ); // no need to change property through mdbIface here, since QSqlTable doesn't offer that through Designer
+	    for( j = 0; j < listBoxSelectedField->count(); j++ ){
+
+		QSqlField* field = tab.field( listBoxSelectedField->text( j ) );
+		if ( !field )
+		    continue;
+
+		QString labelName = field->name();
+		labelName = labelName.mid(0,1).upper() + labelName.mid(1);
+		labelName.replace( QRegExp("_"), " " );
+
+		((QTable*)widget)->horizontalHeader()->setLabel( j, labelName );
+
+		columnFields.insert( labelName, field->name() );
 	    }
-	    if ( checkBoxConfirmCancels->isChecked() ) {
-		sqlTable->setConfirmCancels( TRUE );
-		mdbIface->setPropertyChanged( sqlTable, "confirmCancels", TRUE );
-	    }
+	    mdbIface->setColumnFields( widget, columnFields );
+	    break;
 	}
-	if ( checkBoxSorting->isChecked() ) {
-	    sqlTable->setSorting( TRUE );
-	    mdbIface->setPropertyChanged( sqlTable, "sorting", TRUE );
-	}
-
-	QMap<QString, QString> columnFields;
-	sqlTable->setNumCols( listBoxSelectedField->count() ); // no need to change property through mdbIface here, since QSqlTable doesn't offer that through Designer
-	for( j = 0; j < listBoxSelectedField->count(); j++ ){
-
-	    QSqlField* field = tab.field( listBoxSelectedField->text( j ) );
-	    if ( !field )
-		continue;
-
-	    QString labelName = field->name();
-	    labelName = labelName.mid(0,1).upper() + labelName.mid(1);
-	    labelName.replace( QRegExp("_"), " " );
-
-	    ((QTable*)widget)->horizontalHeader()->setLabel( j, labelName );
-
-	    columnFields.insert( labelName, field->name() );
-	}
-	mdbIface->setColumnFields( widget, columnFields );
-	break;
     }
 
     proIface->closeDatabase( editConnection->text() );
