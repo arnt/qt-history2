@@ -46,7 +46,8 @@
 #include <qstatusbar.h>
 #include <qtoolbar.h>
 #include <qwhatsthis.h>
-#include <qprocess.h>
+#include <qassistantclient.h>
+#include <qdesktopwidget.h>
 #include <qassistantclient.h>
 
 #include <stdlib.h>
