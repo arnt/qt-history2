@@ -529,6 +529,8 @@ QPainter::~QPainter()
 {
     if ( isActive() )
 	end();
+    else
+	killPStack();
     if ( tabarray )				// delete tab array
 	delete [] tabarray;
 #ifndef QT_NO_TRANSFORMATIONS
