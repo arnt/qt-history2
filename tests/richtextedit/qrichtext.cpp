@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#7 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#8 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -242,7 +242,7 @@ QtTextRow::QtTextRow( QPainter* p, QFontMetrics &fm,
 	    if ( item->width < 0 )
 		item->width = fm.width( c );
 	    tx += item->width;
-	    
+	
 	    h = fm_height;
 	    a = fm_ascent;
 	    d = h-a;
@@ -390,7 +390,7 @@ void QtTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int
 	
 	if ( format->customItem() ) {
 	    int h = format->customItem()->height;
-	    format->customItem()->draw(p, tx+obx-ox, y+oby-oy+base-h, ox, oy, 
+	    format->customItem()->draw(p, tx+obx, y+oby+base-h, ox, oy,
 				       cx, cy, cw, ch, backgroundRegion, cg, to );
 	    tx += format->customItem()->width;
 	}
@@ -409,7 +409,7 @@ void QtTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int
 QtRichText::QtRichText( const QString &doc, const QFont& font,
 		      const QString& context,
 		      int margin,  const QMimeSourceFactory* factory, const QtStyleSheet* sheet  )
-    :QtBox( 0, new QtTextFormatCollection(), 
+    :QtBox( 0, new QtTextFormatCollection(),
 	    QtTextCharFormat( font, Qt::black ),
 	    (base = new QStyleSheetItem( 0, QString::fromLatin1(""))) )
 {
@@ -439,8 +439,8 @@ void QtRichText::init( const QString& doc, const QFont& font, int margin )
     base->setFontSize( font.pointSize() );
     base->setLogicalFontSize( 3 );
     base->setMargin( QStyleSheetItem::MarginAll, margin );
-    
-    nullstyle = new QStyleSheetItem( sheet_, QString::fromLatin1("")); 
+
+    nullstyle = new QStyleSheetItem( sheet_, QString::fromLatin1(""));
 
     valid = TRUE;
     int pos = 0;
