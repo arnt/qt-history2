@@ -1,0 +1,175 @@
+
+// ### task / request / command
+
+
+/*-*-mode:latex-*-*/
+/*! \page qt4-networking.html
+    \title Qt 4: The Network Module
+
+    \tableofcontents
+
+    \section1 Writing an HTTP / FTP Client with QHttp & QFtp
+
+    HTTP (Hypertext Transfer Protocol) is a network protocol used
+    mainly for transferring HTML and XML files (Hypertext Markup
+    Language, Extensible Markup Language), but it is used also as a
+    high level transport protocol for any type of data. For example,
+    HTTP is often used for transferring purchase orders over the
+    Internet or to download files. FTP (File Transfer Protocol), on
+    the other hand, is a protocol used only for browsing remote file
+    directories and transferring files.
+
+    HTTP is a simpler protocol than FTP in a few ways. It uses only
+    one TCP connection, while FTP uses two: one for commands, and one
+    for transferring data. HTTP is a stateless protocol, and every
+    request and response is completely self-contained. Often, each
+    command is executed with a separate connection. The FTP protocol,
+    on the other and, always uses a persistent connection, and it has
+    a state; the result of any one command depends on the results of
+    earlier commands. HTTP has slightly more overhead and requires
+    more data to be transferred for each request.
+
+    The QHttp and QFtp classes provide client side support for HTTP
+    and FTP. The interfaces are quite different, but there are certain
+    features that are shared by both.
+
+    \list
+
+    \item Asynchronous. QHttp and QFtp are asynchronous. Commands are
+    first scheduled, then performed in sequence when Qt's event loop
+    is entered.
+
+    \item Signals. Each task has a unique numeric identifier, and the
+    status and results of each task are reported with signals. In
+    QFtp, the commandStarted() signal is emitted when a command is
+    about to start, and when the command is finished,
+    commandFinished() is emitted. In QHttp, the requestStarted() and
+    requestFinished() signals are emitted in the same way. Both
+    classes support the done() signal, which is emitted when all
+    scheduled tasks have finished.
+
+    \item QIODevice convenience. Both classes support convenient
+    uploading of and downloading to QIODevices.
+
+    \item Data transfer progress indicators. QHttp and QFtp work well
+    with QProgressBar() when used with the
+    QFtp::dataTransferProgress(), QHttp::dataReadProgress() and
+    QHttp::dataSendProgress() signals. ### ugh
+
+    \endlist
+
+    QHttp defines two classes as part of its mode of operation:
+    QHttpRequestHeader and QHttpResponseHeader. The reason for this is
+    that an HTTP response comes in two steps in QHttp: First, the HTTP
+    header is received, and then the message body. After the header
+    has been received, QHttp emits responseHeaderReceived(). The
+    program can then choose whether to continue downloading the body
+    of the response, or to abort the connection.
+
+    There are two main approaches to working with QHttp and QFtp. The
+    general approach is to keep track of the scheduled tasks' unique
+    identifiers, then have slots connected to commandStarted() and
+    commandFinished() follow the execution of every command. The other
+    is to treat a sequence of tasks as one transaction, and only
+    connect to the done() signal. The latter approach is suited for
+    simple sequences, such as when downloading a file in QHttp or
+    displaying a directory list with QFtp. The more general approach
+    is needed when the application needs more control of individual
+    tasks' execution, or when the outcome of one task depends on the
+    results from another.
+
+    Writing your own HTTP or FTP server is possible by making use of
+    the lower level classes QTcpSocket and QTcpServer.
+
+    See examples/network/http/ and ewamples/network/ftp/ for examples
+    on how to use QHttp and QFtp.
+
+    \section1 Using TCP with QTcpSocket and QTcpServer
+
+    TCP (Transmission Control Protocol) is a low level network
+    protocol, used by HTTP and FTP protocols for data transfer. It is
+    a reliable, stream-oriented, connection-oriented transport
+    protocol, especially well suited for continuous transmission of
+    data.
+
+    The QTcpSocket and QTcpServer classes provide an interface for the
+    TCP protocol. QTcpSocket is used to implement support for other
+    standard network protocols than HTTP and FTP, such as POP3, SMTP
+    or NNTP. It is also useful for non-standard TCP
+    protocols. QTcpServer is used to implement a TCP server.
+
+    QTcpSocket provides a lower level interface than QHttp and QFtp,
+    but the classes still have much in common. QTcpSocket is also an
+    asynchronous class, and status changes and errors that occur are
+    reported with signals. Instead of providing functions for
+    uploading and downloading files, QTcpSocket provides low level
+    functions like read() and write(). While QHttp and QFtp operate on
+    files and documents, QTcpSocket operates on a stream of
+    data. Writing 10 chunks of 10 bytes is equivalent to writing one
+    chunk of 100 bytes, or 50 chunks of two bytes.
+
+    QTcpSocket is connection oriented. This means that a connection
+    must be established to a remote host and port before any data
+    transfer can begin. Once the connection has been established, the
+    IP address and port of the peer are available through
+    peerAddress() and peerPort(). At any time, the peer can close the
+    connection, and data transfer will then stop immediately.
+
+    A common way to use a QTcpSocket is to pass it to QTextStream or
+    QDataStream's constructor. The convenient << and >> operators are
+    then used for reading and writing. The data stream is asynchronous
+    both ways; it is therefore often helpful to think of QTcpSocket's
+    data stream as two streams: one for reading and one for
+    writing. When reading from a QTcpSocket, it is essential to make
+    sure that enough data is available for reading.
+
+    QTcpServer is useful for applications that accept incoming TCP
+    connections. After listen() has been called to set up the server,
+    the newConnection() signal is emitted once for every client that
+    connects. The connection is handled by calling
+    nextPendingConnection(), which returns a preconnected QTcpSocket.
+
+    QTcpSocket and QTcpServer share two related features that differ
+    radically from QHttp and QFtp: The first feature is they both can
+    operate synchronously, the other is that they don't require the Qt
+    event loop to operate.
+
+    By calling QTcpSocket::setBlocking(true), QTcpSocket is set to
+    operate like a synchronous QIODevice, just like QFile. In both
+    cases signals are emitted as usual, but certain functions like
+    connectToHost(), read() and write() will suspend the thread in
+    which they are running until the function finishes. If run in a
+    GUI thread, this means that the user interface will freeze until
+    the socket operation has been completed. For this reason,
+    QTcpSocket should only be used synchronously from a non-GUI
+    thread. (Similarily, QTcpServer::waitForNewConnection() can be
+    called if a synchronous, blocking TCP server is needed.)
+
+    The second distinguishing feature of these classes is that neither
+    QTcpSocket nor QTcpServer require the Qt event loop to
+    operate. This makes the classes useful when no event loop is
+    available, such as in a thread (all classes in the network module
+    are \l{reentrant}). Without an event loop, Qt is unable to notify
+    QTcpSocket of incoming data, and QTcpSocket is unable to
+    automatically flush outgoing data. Calling
+    QTcpSocket::setBlocking(true) is the best way to avoid these
+    problems. Otherwise, whenever bytesToWrite() returns more than 0,
+    flush() must be called manually to write data to the socket, and
+    waitForReadyRead() must be called to get the readyRead()
+    signal. See examples/network/blockingfortuneclient for an example
+    on how to use a synchronous QTcpSocket in a separate thread,
+    without using the event loop.
+
+    \section1 Using UDP with QUdpSocket
+
+    (see examples/network/...)
+
+    why no QUdpServer?
+
+     \- Server (rather sender/receiver) with bind()
+
+    \section1 Resolving host names with QDns
+
+    inline eksempel
+
+*/
