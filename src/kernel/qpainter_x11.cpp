@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#17 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#17 $";
 #endif
 
 
@@ -277,6 +277,8 @@ QPainter::QPainter()
     bg_col = white;				// default background color
     bg_mode = TransparentMode;			// default background mode
     rop = CopyROP;				// default ROP
+    tabstops = 0;				// default tabbing
+    tabarray = 0;
     wxmat  = new QWorldMatrix;			// create wxform matrices
     CHECK_PTR( wxmat );
     wixmat = new QWorldMatrix;
@@ -579,6 +581,8 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     bro = curPt = QPoint( 0, 0 );
     wxmat->reset();				// reset world xform matrix
     sx = sy = tx = ty = 0;			// default view origins
+    tabstops = 0;				// default tabbing
+    tabarray = 0;
     if ( pdev->devType() == PDT_WIDGET ) {	// device is a widget
 	QWidget *w = (QWidget*)pdev;
 	cfont = w->font();			// use widget font
@@ -638,10 +642,10 @@ bool QPainter::end()				// end painting
 
 void QPainter::createOwnGC()			// create our own GC
 {
-    ASSERT( borrowWidgetGC );
     borrowWidgetGC = FALSE;
     gc = XCreateGC( dpy, hd, 0, 0 );
     updatePen();
+    updateFont();
 }
 
 
@@ -913,9 +917,9 @@ QRect QPainter::xForm( const QRect &rv ) const
 
 QPointArray QPainter::xForm( const QPointArray &av ) const
 {						// map point array, v -> d
-    QPointArray a = av.copy();
     if ( !testf(VxF|WxF) )
-	return a;
+	return av;
+    QPointArray a = av.copy();
     int x, y;
     for ( int i=0; i<a.size(); i++ ) {
 	a.point( i, &x, &y );
@@ -974,9 +978,9 @@ QRect QPainter::xFormDev( const QRect &rd ) const
 
 QPointArray QPainter::xFormDev( const QPointArray &ad ) const
 {						// map point array, d -> v
-    QPointArray a = ad.copy();
     if ( !testf(VxF|WxF) )
-	return a;
+	return ad;
+    QPointArray a = ad.copy();
     int x, y;
     for ( int i=0; i<a.size(); i++ ) {
 	a.point( i, &x, &y );
@@ -1791,6 +1795,8 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	return;
     if ( len < 0 )
 	len = strlen( str );
+    if ( len == 0 )				// empty string
+	return;
     if ( testf(DirtyPen|DirtyFont|ExtDev|VxF|WxF) ) {
 	if ( testf(DirtyPen) )
 	    updatePen();
@@ -1894,8 +1900,163 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 }
 
 
-void QPainter::drawText( int x, int y, int w, int h, TextAlignment,
+void QPainter::drawText( int x, int y, int w, int h, int tf,
 			 const char *str, int len )
 {
-    drawText( x, y, str, len ); w=w; h=h;
+    if ( !isActive() )
+	return;
+    if ( len < 0 )
+	len = strlen( str );
+    if ( len == 0 )				// empty string
+	return;
+    if ( testf(DirtyPen|DirtyFont|ExtDev) ) {
+	if ( testf(DirtyPen) )
+	    updatePen();
+	if ( testf(DirtyFont) )	    
+	    updateFont();
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[5];
+	    QPoint p( x, y );
+	    QString newstr = str;
+	    if ( len >= 0 )
+		newstr.resize( len );
+	    param[0].point = &p;
+	    param[1].str = newstr.data();
+	    param[2].ival = flags;
+	    param[3].ival = tabstops;
+	    param[4].ivec = tabarray;		// TO BE CHANGED!!!
+	    pdev->cmd( PDC_DRAWTEXTFRMT, param );
+	    return;
+	}
+    }
+    if ( w <= 0 || h <= 0 ) {
+	if ( w == 0 || h == 0 )
+	    return;
+	fix_neg_rect( &x, &y, &w, &h );
+    }
+    int nlines = 0;				// number of lines
+    int k;
+    register char *p;
+    int xp, yp, tw;
+    QFontMetrics fm( cfont );
+    int fascent  = fm.ascent();			// get font measurements
+    int fdescent = fm.ascent();
+    int fheight  = fm.height();
+    if ( (tf & ClipText) == ClipText ) {	// clip text
+	if ( borrowWidgetGC )
+	    createOwnGC();
+	Region tmprgn;
+	QRect r( x, y, w, h );
+	if ( testf(WxF) && (wm12 != 0 || wm21 != 0) ) {
+	    QPointArray a( r, TRUE );		// complex region
+	    a = xForm( a );
+	    tmprgn = XPolygonRegion( (XPoint*)a.data(), a.size(), EvenOddRule);
+	}
+	else {					// simple region
+	    tmprgn = XCreateRegion();
+	    r = xForm( r );
+	    XRectangle xr;
+	    xr.x = r.x();
+	    xr.y = r.y();
+	    xr.width = r.width();
+	    xr.height = r.height();
+	    XUnionRectWithRegion( &xr, tmprgn, tmprgn );
+	}
+	if ( testf(ClipOn) )			// clipping active
+	    XIntersectRegion( tmprgn, crgn.data->rgn, tmprgn );
+	XSetRegion( dpy, gc, tmprgn );
+	XDestroyRegion( tmprgn );		// no longer needed
+    }
+    if ( (tf & SingleLineText) != SingleLineText ) {
+	k = len;
+	p = (char *)str;
+	while ( k-- && *p ) {			// string contains newline?
+	    if ( *p++ == '\n' )
+		nlines++;
+	}
+    }
+    if ( nlines ) {				// draw multi-line text
+	nlines++;
+	if ( tf & AlignVerCenter )		// vertically centered text
+	    yp = h/2 - nlines*fheight/2;
+	else if ( tf & AlignBottom )		// bottom aligned
+	    yp = h - nlines*fheight;
+	else					// top aligned
+	    yp = 0;
+	yp += fascent;
+	k = len;
+	do {
+	    p = (char *)str;
+	    while ( k-- && *p && *p != '\n' )
+		p++;
+	    int linelen = (int)p - (int)str;
+	    if ( tf & (AlignCenter|AlignRight) ) {
+		tw = fm.width( str, linelen );	// get width of line
+		if ( tf & AlignRight )		// right aligned
+		    xp = w - tw;
+		else				// centered text
+		    xp = w/2 - tw/2;
+	    }
+	    else				// left aligned
+		xp = 0;
+	    drawText( x+xp, y+yp, str, linelen );
+	    yp += fheight;
+	    str = p+1;
+	} while ( k && *p );
+    }
+    else {					// draw single-line text
+	if ( tf & (AlignCenter|AlignRight) ) {
+	    tw = fm.width( str, len );		// get text width
+	    if ( tf & AlignRight )		// right aligned
+		xp = w - tw;
+	    else				// centered text
+		xp = w/2 - tw/2;
+	}
+	else					// left aligned
+	    xp = 0;
+	if ( tf & AlignVerCenter )		// vertically centered text
+	    yp = h/2 + fascent - fheight/2;
+	else if ( tf & AlignBottom )		// bottom aligned
+	    yp = h - fdescent;
+	else					// top aligned
+	    yp = fascent;
+	drawText( xp+x, yp+y, str, len );
+    }
+    if ( (tf & ClipText) == ClipText ) {	// restore clipping
+	if ( testf(ClipOn) )			// set original region
+	    XSetRegion( dpy, gc, crgn.data->rgn );
+	else
+	    XSetClipMask( dpy, gc, None );
+    }
+}
+
+
+QRect QPainter::calcRect( int x, int y, int w, int h, int tf,
+			  const char *str, int len )
+{
+    if ( len < 0 )
+	len = strlen( str );
+    QFontMetrics fm( font() );
+    int fheight = fm.height();
+    if ( tf & SingleLineText ) {
+	w = fm.width( str );
+	h = fheight;
+    }
+    else {
+	register char *p;
+	int n = len;
+	w = 0;
+	h = 0;
+	do {
+	    p = (char *)str;
+	    while ( n-- && *p && *p != '\n' )
+		p++;
+	    int tw = fm.width( str, (int)p-(int)str );
+	    if ( tw > w )
+		w = tw;
+	    h += fheight;
+	    str = p+1;
+	} while ( n && *p );
+    }
+    return QRect( x, y, w, h );
 }
