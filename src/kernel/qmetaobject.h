@@ -44,7 +44,7 @@
 #endif // QT_H
 
 #ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 20
+#define Q_MOC_OUTPUT_REVISION 21
 #endif
 
 class QObject;
@@ -94,9 +94,9 @@ public:
     int keysToValue( const QStrList& keys ) const;
     QStrList valueToKeys( int value ) const;
 
-    bool designable( QObject* ) const;
-    bool scriptable( QObject* ) const;
-    bool stored( QObject* ) const;
+    bool designable( QObject* = 0 ) const;
+    bool scriptable( QObject* = 0 ) const;
+    bool stored( QObject* = 0 ) const;
 
     bool reset( QObject* ) const;
 
@@ -118,6 +118,7 @@ public:
     int id() const; 			// internal
 
     QMetaObject** meta; 		// internal
+    
     const QMetaEnum* enumData;		// internal
     int _id; 				// internal
     void clear(); 			// internal
@@ -143,6 +144,15 @@ public:
 #ifndef QT_NO_PROPERTIES
 		 const QMetaProperty *const prop_data, int n_props,
 		 const QMetaEnum *const enum_data, int n_enums,
+#endif
+		 const QClassInfo *const class_info, int n_info );
+    QMetaObject( const char * const class_name, QMetaObject *superclass,
+		 const QMetaData * const slot_data, int n_slots,
+		 const QMetaData * const signal_data, int n_signals,
+#ifndef QT_NO_PROPERTIES
+		 const QMetaProperty *const prop_data, int n_props,
+		 const QMetaEnum *const enum_data, int n_enums,
+		 bool (*qt_static_property)(QObject*, int, int, QVariant*),
 #endif
 		 const QClassInfo *const class_info, int n_info );
 
@@ -197,6 +207,15 @@ public:
 					const QMetaEnum *const enum_data, int n_enums,
 #endif
 					const QClassInfo *const  class_info, int n_info );
+    static QMetaObject	*new_metaobject( const char *, QMetaObject *,
+					const QMetaData *const, int,
+					const QMetaData *const, int,
+#ifndef QT_NO_PROPERTIES
+					const QMetaProperty *const prop_data, int n_props,
+					const QMetaEnum *const enum_data, int n_enums,
+					 bool (*qt_static_property)(QObject*, int, int, QVariant*),
+#endif
+					const QClassInfo *const  class_info, int n_info );
 #ifndef QT_NO_PROPERTIES
     QStrList		enumeratorNames( bool super = FALSE ) const;
     int numEnumerators( bool super = FALSE ) const;
@@ -221,6 +240,8 @@ private:
     int slotoffset;
 #ifndef QT_NO_PROPERTIES
     int propertyoffset;
+    bool qt_static_property( QObject* o, int id, int f, QVariant* v);
+    friend class QMetaProperty;
 #endif
 
 private:	// Disabled copy constructor and operator=

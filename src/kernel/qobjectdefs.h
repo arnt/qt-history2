@@ -61,7 +61,8 @@
 
 #ifndef QT_NO_PROPERTIES
 # define QT_PROP_FUNCTIONS \
-    virtual bool qt_property( int, int, QVariant* );
+    virtual bool qt_property( int id, int f, QVariant* v) { return qt_static_property(this, id, f, v); } \
+    static bool qt_static_property( QObject* , int, int, QVariant* );
 #else
 # define QT_PROP_FUNCTIONS
 #endif

@@ -540,7 +540,7 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you MUST change it in qmetaobject.h too
-const int formatRevision = 20;		// moc output format revision
+const int formatRevision = 21;		// moc output format revision
 
 // if the flags change, you HAVE to change it in qmetaobject.h too
 enum Flags  {
@@ -3046,6 +3046,7 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "\tenum_tbl, %d,\n", n_enums );
     else
 	fprintf( out, "\t0, 0,\n" );
+    fprintf( out, "\t%s::qt_static_property,\n", (const char*) qualifiedClassName() );
     fprintf( out, "#endif // QT_NO_PROPERTIES\n" );
 
     if ( n_infos )
@@ -3337,44 +3338,48 @@ void generateClass()		      // generate C++ source code for a class
 
     fprintf( out, "#ifndef QT_NO_PROPERTIES\n" );
 //
-// Generate internal qt_property()  function
+// Generate internal qt_property()  and qt_static_property() functions
 //
-    fprintf( out, "\nbool %s::qt_property( int _id, int _f, QVariant* _v)\n{\n", qualifiedClassName().data() );
+
+    fprintf( out, "\nbool %s::qt_static_property( QObject* oo, int id, int f, QVariant* v)\n{\n", qualifiedClassName().data() );
 
     if ( !g->props.isEmpty() ) {
-	fprintf( out, "    switch ( _id - staticMetaObject()->propertyOffset() ) {\n" );
+	
+	fprintf( out, "    %s* o = (%s*) oo;\n", (const char*) g->className,  (const char*) g->className );
+	
+	fprintf( out, "    switch ( id - staticMetaObject()->propertyOffset() ) {\n" );
 	int propindex = -1;
 	bool need_resolve = FALSE;
 	
 	for( QPtrListIterator<Property> it( g->props ); it.current(); ++it ){
 	    propindex ++;
 	    fprintf( out, "    case %d: ", propindex );
-	    fprintf( out, "switch( _f ) {\n" );
+	    fprintf( out, "switch( f ) {\n" );
 	
 	    uint flag_break = 0;
 	    uint flag_propagate = 0;
 	
 	    if ( it.current()->setfunc ) {
-		fprintf( out, "\tcase 0: %s(", it.current()->setfunc->name.data() );
+		fprintf( out, "\tcase 0: o->%s(", it.current()->setfunc->name.data() );
 		QCString type = it.current()->type.copy(); // detach on purpose
 		if ( it.current()->oredEnum )
 		    type = it.current()->enumsettype;
 		if ( type == "uint" )
-		    fprintf( out, "_v->asUInt()" );
+		    fprintf( out, "v->asUInt()" );
 		else if ( type == "unsigned int" )
-		    fprintf( out, "(uint)_v->asUInt()" );
+		    fprintf( out, "(uint)v->asUInt()" );
 		else if ( type == "QMap<QString,QVariant>" )
-		    fprintf( out, "_v->asMap()" );
+		    fprintf( out, "v->asMap()" );
 		else if ( type == "QValueList<QVariant>" )
-		    fprintf( out, "_v->asList()" );
+		    fprintf( out, "v->asList()" );
 		else if ( isVariantType( type ) ) {
 		    if ( type[0] == 'Q' )
 			type = type.mid(1);
 		    else
 			type[0] = toupper( type[0] );
-		    fprintf( out, "_v->as%s()", type.data() );
+		    fprintf( out, "v->as%s()", type.data() );
 		} else {
-		    fprintf( out, "(%s&)_v->asInt()", type.data() );
+		    fprintf( out, "(%s&)v->asInt()", type.data() );
 		}
 		fprintf( out, "); break;\n" );
 
@@ -3383,13 +3388,13 @@ void generateClass()		      // generate C++ source code for a class
 	    }
 	    if ( it.current()->getfunc ) {
 		if ( it.current()->gspec == Property::Pointer )
-		    fprintf( out, "\tcase 1: if ( %s() ) *_v = QVariant( %s*%s()%s ); break;\n",
+		    fprintf( out, "\tcase 1: if ( o->%s() ) *v = QVariant( %s*o->%s()%s ); break;\n",
 			     it.current()->getfunc->name.data(),
 			     !isVariantType( it.current()->type ) ? "(int)" : "",
 			     it.current()->getfunc->name.data(),
 			     it.current()->type == "bool" ? ", 0" : "" );
 		else
-		    fprintf( out, "\tcase 1: *_v = QVariant( %s%s()%s ); break;\n",
+		    fprintf( out, "\tcase 1: *v = QVariant( %so->%s()%s ); break;\n",
 			     !isVariantType( it.current()->type ) ? "(int)" : "",
 			     it.current()->getfunc->name.data(),
 			     it.current()->type == "bool" ? ", 0" : "" );
@@ -3398,28 +3403,28 @@ void generateClass()		      // generate C++ source code for a class
 	    }
 
 	    if ( !it.current()->reset.isEmpty() )
-		fprintf( out, "\tcase 2: %s(); break;\n", it.current()->reset.data() );
+		fprintf( out, "\tcase 2: o->%s(); break;\n", it.current()->reset.data() );
 
 	    if ( it.current()->designable.isEmpty() )
 		flag_propagate |= 1 << (3+1);
 	    else if ( it.current()->designable == "true" )
 		flag_break |= 1 << (3+1);
 	    else if ( it.current()->designable != "false" )
-		fprintf( out, "\tcase 3: return %s();\n", it.current()->designable.data() );
+		fprintf( out, "\tcase 3: return o?o->%s():TRUE;\n", it.current()->designable.data() );
 
 	    if ( it.current()->scriptable.isEmpty() )
 		flag_propagate |= 1 << (4+1);
 	    else if ( it.current()->scriptable == "true" )
 		flag_break |= 1 << (4+1);
 	    else if ( it.current()->scriptable != "false" )
-		fprintf( out, "\tcase 4: return %s();\n", it.current()->scriptable.data() );
+		fprintf( out, "\tcase 4: return o?o->%s():TRUE;\n", it.current()->scriptable.data() );
 
 	    if ( it.current()->stored.isEmpty() )
 		flag_propagate |= 1 << (5+1);
 	    else if ( it.current()->stored == "true" )
 		flag_break |= 1 << (5+1);
 	    else if ( it.current()->stored != "false" )
-		fprintf( out, "\tcase 5: return %s();\n", it.current()->stored.data() );
+		fprintf( out, "\tcase 5: return o?o->%s():TRUE;\n", it.current()->stored.data() );
 	
 	    int i = 0;
 	    if ( flag_propagate != 0 ) {
@@ -3448,7 +3453,7 @@ void generateClass()		      // generate C++ source code for a class
 	}
 	fprintf( out, "    default:\n" );
 	if ( !g->superClassName.isEmpty()  && !isQObject )
-	    fprintf( out, "\treturn %s::qt_property( _id, _f, _v );\n",
+	    fprintf( out, "\treturn %s::qt_static_property( o, id, f, v );\n",
 		     (const char *) purestSuperClassName() );
 	else
 	    fprintf( out, "\treturn FALSE;\n" );
@@ -3456,12 +3461,12 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "    return TRUE;\n" );
 	
 	if ( need_resolve )
-	    fprintf( out, "resolve:\n    return %s::qt_property( staticMetaObject()->resolveProperty(_id), _f, _v );\n",
+	    fprintf( out, "resolve:\n    return %s::qt_static_property( o, staticMetaObject()->resolveProperty(id), f, v );\n",
 		     (const char *) purestSuperClassName() );
 	fprintf( out, "}\n" );
     } else {
 	if ( !g->superClassName.isEmpty() &&  !isQObject )
-	    fprintf( out, "    return %s::qt_property( _id, _f, _v);\n}\n",
+	    fprintf( out, "    return %s::qt_static_property( oo, id, f, v);\n}\n",
 		     (const char *) purestSuperClassName() );
 	else
 	    fprintf( out, "    return FALSE;\n}\n" );

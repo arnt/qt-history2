@@ -54,6 +54,11 @@ class Q_EXPORT QTextBrowser : public QTextEdit
 {
     Q_OBJECT
     Q_PROPERTY( QString source READ source WRITE setSource )
+    Q_OVERRIDE( int undoDepth DESIGNABLE false SCRIPTABLE false )
+    Q_OVERRIDE( bool overwriteMode DESIGNABLE false SCRIPTABLE false )
+    Q_OVERRIDE( bool modified SCRIPTABLE false)
+    Q_OVERRIDE( bool readOnly DESIGNABLE false SCRIPTABLE false )
+    Q_OVERRIDE( bool undoRedoEnabled DESIGNABLE false SCRIPTABLE false )
 
 public:
     QTextBrowser( QWidget* parent=0, const char* name=0 );

@@ -118,6 +118,7 @@ public:
 #ifndef QT_NO_PROPERTIES
 	enumData(0), numEnumData(0),
 	propData(0),numPropData(0),
+	qt_static_property(0),
 #endif
 	classInfo(0), numClassInfo(0) {}
 #ifndef QT_NO_PROPERTIES
@@ -125,10 +126,10 @@ public:
     int		   numEnumData;
     const QMetaProperty *propData;                    // property meta data
     int            numPropData;
+    bool (*qt_static_property)(QObject*, int, int, QVariant*);
 #endif
     const QClassInfo    *classInfo;			// class information
     int            numClassInfo;
-
 };
 
 
@@ -202,6 +203,46 @@ QMetaObject::QMetaObject( const char *const class_name, QMetaObject *super_class
     d->numPropData = n_props;
     d->enumData = enum_data;
     d->numEnumData = n_enums;
+#endif
+    d->classInfo = class_info;
+    d->numClassInfo = n_info;
+
+    signaloffset = superclass ? ( superclass->signalOffset() + superclass->numSignals() ) : 0;
+    slotoffset = superclass ? ( superclass->slotOffset() + superclass->numSlots() ) : 0;
+#ifndef QT_NO_PROPERTIES
+    propertyoffset = superclass ? ( superclass->propertyOffset() + superclass->numProperties() ) : 0;
+#endif
+    if ( !qt_metaobjects )
+	qt_metaobjects = new QAsciiDict<QMetaObject>( 257 );
+    qt_metaobjects->replace( class_name, this );
+}
+/*!\internal
+ */
+QMetaObject::QMetaObject( const char *const class_name, QMetaObject *super_class,
+			  const QMetaData *const slot_data, int n_slots,
+			  const QMetaData *const signal_data, int n_signals,
+#ifndef QT_NO_PROPERTIES
+			  const QMetaProperty *const prop_data, int n_props,
+			  const QMetaEnum *const enum_data, int n_enums,
+			  bool (*qt_static_property)(QObject*, int, int, QVariant*),
+#endif
+			  const QClassInfo *const class_info, int n_info )
+{
+    classname = class_name;			// set meta data
+    superclass = super_class;
+    superclassname = superclass ? superclass->className() : 0;
+    slotDict = init( slotData = slot_data, n_slots );
+    signalDict = init( signalData = signal_data, n_signals );
+
+    d = new QMetaObjectPrivate;
+    reserved = 0;
+
+#ifndef QT_NO_PROPERTIES
+    d->propData = prop_data;
+    d->numPropData = n_props;
+    d->enumData = enum_data;
+    d->numEnumData = n_enums;
+    d->qt_static_property = qt_static_property;
 #endif
     d->classInfo = class_info;
     d->numClassInfo = n_info;
@@ -398,6 +439,29 @@ QMetaObject *QMetaObject::new_metaobject( const char *classname,
 #ifndef QT_NO_PROPERTIES
 			    prop_data, n_props,
 			    enum_data, n_enums,
+#endif
+			    class_info, n_info );
+}
+
+/*!\internal
+ */
+QMetaObject *QMetaObject::new_metaobject( const char *classname,
+					  QMetaObject *superclassobject,
+					  const QMetaData * const slot_data, int n_slots,
+					  const QMetaData * const signal_data, int n_signals,
+#ifndef QT_NO_PROPERTIES
+					  const QMetaProperty * const prop_data, int n_props,
+					  const QMetaEnum * const enum_data, int n_enums,
+					  bool (*qt_static_property)(QObject*, int, int, QVariant*),
+#endif
+					  const QClassInfo * const class_info, int n_info )
+{
+    return new QMetaObject( classname, superclassobject, slot_data, n_slots,
+			    signal_data, n_signals,
+#ifndef QT_NO_PROPERTIES
+			    prop_data, n_props,
+			    enum_data, n_enums,
+			    qt_static_property,
 #endif
 			    class_info, n_info );
 }
@@ -701,6 +765,17 @@ QMetaObject *QMetaObject::metaObject( const char *class_name )
     return qt_metaobjects->find( class_name );
 }
 
+/*! \internal */
+
+bool QMetaObject::qt_static_property( QObject* o, int id, int f, QVariant* v)
+{
+    if ( d->qt_static_property )
+	return d->qt_static_property( o, id, f, v );
+    else if ( o ) // compatibility
+	return o->qt_property( id, f, v );
+    return FALSE;
+}
+
 
 #ifndef QT_NO_PROPERTIES
 /*!
@@ -770,7 +845,7 @@ int QMetaProperty::keyToValue( const char* key ) const
 }
 
 /*!
-  Converts the enumeration value \a value to its literal key.
+  Converts the enumberation value \a value to its literal key.
 
   For set types, use valueToKeys().
 
@@ -956,7 +1031,7 @@ bool QMetaProperty::designable( QObject* o ) const
     int idx = _id >= 0 ? _id : (*meta)->indexOfProperty( this, TRUE );
     if ( idx < 0 )
 	return 0;
-    return o->qt_property( idx, 3, 0 );
+    return (*meta)->qt_static_property( o, idx, 3, 0 );
 }
 
 /*!
@@ -970,7 +1045,7 @@ bool QMetaProperty::scriptable( QObject* o ) const
     int idx = _id >= 0 ? _id : (*meta)->indexOfProperty( this, TRUE );
     if ( idx < 0 )
 	return 0;
-    return o->qt_property( idx, 4, 0 );
+    return (*meta)->qt_static_property( o, idx, 4, 0 );
 }
 
 /*!
@@ -984,7 +1059,7 @@ bool QMetaProperty::stored( QObject* o ) const
     int idx = _id >= 0 ? _id : (*meta)->indexOfProperty( this, TRUE );
     if ( idx < 0 )
 	return 0;
-    return o->qt_property( idx, 5, 0 );
+    return (*meta)->qt_static_property( o, idx, 5, 0 );
 }
 
 
