@@ -60,6 +60,12 @@ public:
 public slots:
     virtual void stepUp() = 0;
     virtual void stepDown() = 0;
+
+private:
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QDateTimeEditBase( const QDateTimeEditBase & );
+    QDateTimeEditBase &operator=( const QDateTimeEditBase & );
+#endif
 };
 
 class QDateEditPrivate;
@@ -136,6 +142,11 @@ private:
     int sectionLength( int sec ) const;
     QString sectionText( int sec ) const;
     QDateEditPrivate* d;
+
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QDateEdit( const QDateEdit & );
+    QDateEdit &operator=( const QDateEdit & );
+#endif
 };
 
 class QTimeEditPrivate;
@@ -211,6 +222,11 @@ private:
     void init();
     QString sectionText( int sec );
     QTimeEditPrivate* d;
+
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QTimeEdit( const QTimeEdit & );
+    QTimeEdit &operator=( const QTimeEdit & );
+#endif
 };
 
 
@@ -258,6 +274,11 @@ private:
     QDateEdit* de;
     QTimeEdit* te;
     QDateTimeEditPrivate* d;
+
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QDateTimeEdit( const QDateTimeEdit & );
+    QDateTimeEdit &operator=( const QDateTimeEdit & );
+#endif
 };
 
 #endif

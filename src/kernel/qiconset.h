@@ -108,6 +108,12 @@ public:
 
     static QIconFactory *defaultFactory();
     static void installDefaultFactory( QIconFactory *factory );
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QIconFactory( const QIconFactory & );
+    QIconFactory &operator=( const QIconFactory & );
+#endif
 };
 
 #endif // QT_NO_ICONSET

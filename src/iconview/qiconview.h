@@ -108,6 +108,10 @@ private:
 
     friend class QIconView;
     friend class QIconViewPrivate;
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QIconDrag( const QIconDrag & );
+    QIconDrag &operator=( const QIconDrag & );
+#endif
 };
 
 #endif

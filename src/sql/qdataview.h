@@ -75,6 +75,10 @@ public slots:
 private:
     QDataViewPrivate* d;
 
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QDataView( const QDataView & );
+    QDataView &operator=( const QDataView & );
+#endif
 };
 
 

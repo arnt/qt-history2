@@ -204,6 +204,10 @@ private:
     bool shademode	    :1;
     bool snappedRight	    :1;
     bool snappedDown	    :1;
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QWorkspaceChild( const QWorkspaceChild & );
+    QWorkspaceChild &operator=( const QWorkspaceChild & );
+#endif
 };
 
 class QWorkspacePrivate {

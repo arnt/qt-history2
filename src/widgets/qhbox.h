@@ -61,6 +61,10 @@ protected:
 
 private:
     QBoxLayout *lay;
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QHBox( const QHBox & );
+    QHBox &operator=( const QHBox & );
+#endif
 };
 
 #endif // QT_NO_HBOX

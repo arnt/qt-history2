@@ -432,6 +432,12 @@ public:
     QHBoxLayout( int spacing = -1, const char *name = 0 );
 
     ~QHBoxLayout();
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QHBoxLayout( const QHBoxLayout & );
+    QHBoxLayout &operator=( const QHBoxLayout & );
+#endif
 };
 
 class Q_EXPORT QVBoxLayout : public QBoxLayout
@@ -445,6 +451,12 @@ public:
     QVBoxLayout( int spacing = -1, const char *name = 0 );
 
     ~QVBoxLayout();
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QVBoxLayout( const QVBoxLayout & );
+    QVBoxLayout &operator=( const QVBoxLayout & );
+#endif
 };
 
 #endif // QT_NO_LAYOUT

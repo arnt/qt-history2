@@ -447,8 +447,8 @@ private:
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QListView( const QWidget & );
-    QListView &operator=( const QWidget & );
+    QListView( const QListView & );
+    QListView &operator=( const QListView & );
 #endif
 };
 

@@ -133,6 +133,10 @@ private:
     friend class QActionGroup;
     QActionPrivate* d;
 
+#if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
+    QAction( const QAction & );
+    QAction &operator=( const QAction & );
+#endif
 };
 
 class Q_EXPORT QActionGroup : public QAction
@@ -186,6 +190,11 @@ public:
     void insert( QAction* a ) { add( a ); }
 #endif
 
+private:
+#if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
+    QActionGroup( const QActionGroup & );
+    QActionGroup &operator=( const QActionGroup & );
+#endif
 };
 
 #endif

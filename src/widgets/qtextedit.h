@@ -549,6 +549,12 @@ private:
     bool readonly : 1;
     bool undoEnabled : 1;
     bool overWrite : 1;
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QTextEdit( const QTextEdit & );
+    QTextEdit &operator=( const QTextEdit & );
+#endif
 };
 
 inline QTextDocument *QTextEdit::document() const

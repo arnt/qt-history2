@@ -101,7 +101,10 @@ private:
     QWidget *parentWidget;
     QValueList<QRect> lines;
     QPtrList<QDockWindow> ls;
-
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QDockAreaLayout( const QDockAreaLayout & );
+    QDockAreaLayout &operator=( const QDockAreaLayout & );
+#endif
 };
 
 class Q_EXPORT QDockArea : public QWidget

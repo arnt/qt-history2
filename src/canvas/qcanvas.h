@@ -351,6 +351,11 @@ private:
     bool dblbuf;
 
     friend void qt_unview(QCanvas* c);
+
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QCanvas( const QCanvas & );
+    QCanvas &operator=( const QCanvas & );
+#endif
 };
 
 class QCanvasViewData;
@@ -385,6 +390,12 @@ private:
 private slots:
     void cMoving(int,int);
     void updateContentsSize();
+
+private:
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QCanvasView( const QCanvasView & );
+    QCanvasView &operator=( const QCanvasView & );
+#endif
 };
 
 

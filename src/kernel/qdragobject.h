@@ -83,6 +83,10 @@ protected:
 
 private:
     QDragObjectData * d;
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QDragObject( const QDragObject & );
+    QDragObject &operator=( const QDragObject & );
+#endif
 };
 
 class Q_EXPORT QStoredDrag: public QDragObject {
@@ -98,6 +102,12 @@ public:
 
     const char * format(int i) const;
     virtual QByteArray encodedData(const char*) const;
+
+private:
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QStoredDrag( const QStoredDrag & );
+    QStoredDrag &operator=( const QStoredDrag & );
+#endif
 };
 
 class Q_EXPORT QTextDrag: public QDragObject {
@@ -118,6 +128,12 @@ public:
     static bool canDecode( const QMimeSource* e );
     static bool decode( const QMimeSource* e, QString& s );
     static bool decode( const QMimeSource* e, QString& s, QCString& subtype );
+
+private:
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QTextDrag( const QTextDrag & );
+    QTextDrag &operator=( const QTextDrag & );
+#endif
 };
 
 class Q_EXPORT QImageDrag: public QDragObject {
@@ -139,6 +155,12 @@ public:
     static bool canDecode( const QMimeSource* e );
     static bool decode( const QMimeSource* e, QImage& i );
     static bool decode( const QMimeSource* e, QPixmap& i );
+
+private:
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QImageDrag( const QImageDrag & );
+    QImageDrag &operator=( const QImageDrag & );
+#endif
 };
 
 
@@ -163,6 +185,12 @@ public:
     static bool decode( const QMimeSource* e, QStrList& i );
     static bool decodeToUnicodeUris( const QMimeSource* e, QStringList& i );
     static bool decodeLocalFiles( const QMimeSource* e, QStringList& i );
+
+private:
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QUriDrag( const QUriDrag & );
+    QUriDrag &operator=( const QUriDrag & );
+#endif
 };
 
 class Q_EXPORT QColorDrag : public QStoredDrag
@@ -177,6 +205,12 @@ public:
 
     static bool canDecode( QMimeSource * );
     static bool decode( QMimeSource *, QColor &col );
+
+private:
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QColorDrag( const QColorDrag & );
+    QColorDrag &operator=( const QColorDrag & );
+#endif
 };
 
 #ifndef QT_NO_COMPAT
@@ -224,6 +258,10 @@ private:
 
     QPixmap *pm_cursor;
     int n_cursor;
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QDragManager( const QDragManager & );
+    QDragManager &operator=( const QDragManager & );
+#endif
 };
 
 #endif

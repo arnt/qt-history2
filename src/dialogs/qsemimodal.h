@@ -50,6 +50,12 @@ class Q_EXPORT QSemiModal : public QDialog
 public:
     QSemiModal( QWidget* parent=0, const char* name=0, bool modal=FALSE, WFlags f=0 )
 	: QDialog( parent, name, modal, f ) { }
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QSemiModal( const QSemiModal & );
+    QSemiModal &operator=( const QSemiModal & );
+#endif
 };
 #endif
 #endif

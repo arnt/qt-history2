@@ -537,6 +537,10 @@ private:
     FocusStyle focusStl;
     QSize unused_cachedSizeHint; // ### remove in 4.0
 
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QTable( const QTable & );
+    QTable &operator=( const QTable & );
+#endif
 };
 
 #endif // QT_NO_TABLE

@@ -111,6 +111,11 @@ private:
     void                deref();
     bool                checkDetach();
     QSqlResultShared*   d;
+
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QSqlQuery( const QSqlQuery & );
+    QSqlQuery &operator=( const QSqlQuery & );
+#endif
 };
 
 

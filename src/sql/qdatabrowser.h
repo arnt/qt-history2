@@ -161,6 +161,11 @@ private:
     void postNav( bool primeUpd );
     void nav( Nav nav );
     QDataBrowserPrivate* d;
+
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QDataBrowser( const QDataBrowser & );
+    QDataBrowser &operator=( const QDataBrowser & );
+#endif
 };
 
 

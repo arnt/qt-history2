@@ -119,7 +119,6 @@ private:
     void deleteOperation( QNetworkOperation *op );
 
     QUrlOperatorPrivate *d;
-
 };
 
 #endif // QT_NO_NETWORKPROTOCOL

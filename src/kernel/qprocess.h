@@ -166,6 +166,11 @@ private:
     friend class QProcessManager;
     friend class QProc;
 #endif
+
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QProcess( const QProcess & );
+    QProcess &operator=( const QProcess & );
+#endif
 };
 
 #endif // QT_NO_PROCESS

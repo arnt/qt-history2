@@ -57,6 +57,10 @@ private slots:
 
 private:
     QObject* obj;
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QGuardedPtrPrivate( const QGuardedPtrPrivate & );
+    QGuardedPtrPrivate &operator=( const QGuardedPtrPrivate & );
+#endif
 };
 
 template <class T>

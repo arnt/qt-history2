@@ -61,6 +61,12 @@ public:
 
     static QSqlEditorFactory * defaultFactory();
     static void installDefaultFactory( QSqlEditorFactory * factory );
+
+private:
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QSqlEditorFactory( const QSqlEditorFactory & );
+    QSqlEditorFactory &operator=( const QSqlEditorFactory & );
+#endif
 };
 
 #endif // QT_NO_SQL

@@ -980,6 +980,10 @@ private:
     double scaleFontsFactor;
 
     short list_tm,list_bm, list_lm, li_tm, li_bm, par_tm, par_bm;
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QTextDocument( const QTextDocument & );
+    QTextDocument &operator=( const QTextDocument & );
+#endif
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

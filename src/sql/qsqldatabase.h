@@ -132,6 +132,11 @@ protected:
 private:
     void	init( const QString& type, const QString& name );
     QSqlDatabasePrivate* d;
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QSqlDatabase( const QSqlDatabase & );
+    QSqlDatabase &operator=( const QSqlDatabase & );
+#endif
+
 };
 
 #endif // QT_NO_SQL

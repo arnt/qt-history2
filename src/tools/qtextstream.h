@@ -203,6 +203,12 @@ public:
 	QTextStream(ba,IO_ReadOnly) { }
     QTextIStream( FILE *f ) :
 	QTextStream(f,IO_ReadOnly) { }
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QTextIStream( const QTextIStream & );
+    QTextIStream &operator=( const QTextIStream & );
+#endif
 };
 
 class Q_EXPORT QTextOStream : public QTextStream {
@@ -213,6 +219,12 @@ public:
 	QTextStream(ba,IO_WriteOnly) { }
     QTextOStream( FILE *f ) :
 	QTextStream(f,IO_WriteOnly) { }
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QTextOStream( const QTextOStream & );
+    QTextOStream &operator=( const QTextOStream & );
+#endif
 };
 
 /*****************************************************************************

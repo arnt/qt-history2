@@ -93,6 +93,11 @@ protected:
 private:
     virtual void sync();
     QSqlFormPrivate* d;
+
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QSqlForm( const QSqlForm & );
+    QSqlForm &operator=( const QSqlForm & );
+#endif
 };
 
 #endif // QT_NO_SQL

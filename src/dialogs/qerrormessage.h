@@ -74,6 +74,11 @@ private:
     QDict<int> * doNotShow;
 
     bool nextPending();
+
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QErrorMessage( const QErrorMessage & );
+    QErrorMessage &operator=( const QErrorMessage & );
+#endif
 };
 
 #endif //QT_NO_ERRORMESSAGE

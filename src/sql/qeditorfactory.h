@@ -60,6 +60,12 @@ public:
     
     static QEditorFactory * defaultFactory();
     static void installDefaultFactory( QEditorFactory * factory);
+
+private:
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QEditorFactory( const QEditorFactory & );
+    QEditorFactory &operator=( const QEditorFactory & );
+#endif
 }; 
 
 #endif // QT_NO_SQL

@@ -80,6 +80,11 @@ protected:
 
 private:
     QDesktopWidgetPrivate *d;
+
+#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+    QDesktopWidget( const QDesktopWidget & );
+    QDesktopWidget &operator=( const QDesktopWidget & );
+#endif
 };
 
 #endif //QDESKTOPWIDGET_H
