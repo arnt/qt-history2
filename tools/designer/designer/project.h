@@ -195,7 +195,8 @@ public:
     QObject *objectForFakeForm( FormWindow *fw ) const;
     QObject *objectForFakeFormFile( FormFile *ff ) const;
 
-    void addAndEditFunction( const QString &function );
+    void addAndEditFunction( const QString &functionName, const QString &functionBody,
+			     bool openDeveloper );
 
 signals:
     void projectModified();

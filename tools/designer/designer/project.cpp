@@ -1286,7 +1286,7 @@ void Project::removeTempProject()
     }
 }
 
-void Project::addAndEditFunction( const QString &function )
+void Project::addAndEditFunction( const QString &function, const QString &functionBody, bool openDeveloper )
 {
     for ( SourceFile *f = sourcefiles.first(); f; f = sourcefiles.next() ) {
 	if ( QFileInfo( f->fileName() ).baseName() == "main" ) {
@@ -1311,14 +1311,20 @@ void Project::addAndEditFunction( const QString &function )
 	
 	    if ( !found ) {
 		QString code = f->text();
-		code += "\n\n" + iface->createFunctionStart( "", func, "", "" ) + "()\n{\n\n}\n";
+		if ( functionBody.isEmpty() )
+		    code += "\n\n" + iface->createFunctionStart( "", func, "", "" ) + "()\n{\n\n}\n";
+		else
+		    code += "\n\n" + iface->createFunctionStart( "", func, "", "" ) +
+			    "()\n" + functionBody + "\n";
 		f->setText( code );
 		if ( f->editor() )
 		    f->editor()->refresh( FALSE );
 	    }
 	
-	    MainWindow::self->editSource( f );
-	    f->editor()->setFunction( func, "" );
+	    if ( openDeveloper ) {
+		MainWindow::self->editSource( f );
+		f->editor()->setFunction( func, "" );
+	    }
 	
 	    break;
 	}
