@@ -81,20 +81,21 @@ SYSCONF_LINK_LIB_SHARED	= #${
 #   - Place target in $(DESTDIR) - which has a trailing /
 #
 SYSCONF_AR		= #$ Expand('TMAKE_AR');
+SYSCONF_LINK_TARGET_STATIC = lib$(TARGET).sl
 SYSCONF_LINK_LIB_STATIC	= #${
         if ( $project{"TMAKE_AR_CMD"} ) {
             $project{"TMAKE_AR_CMD"} =~ s/\$\(TARGETA\)/\$(DESTDIR)$targ/g;
         } else {
             $project{"TMAKE_AR_CMD"} =
-                '$(SYSCONF_AR) $(DESTDIR)$(SYSCONF_LINK_LIB_STATIC) $(OBJECTS) $(OBJMOC)';
+                '$(SYSCONF_AR) $(DESTDIR)$(SYSCONF_LINK_TARGET_STATIC) $(OBJECTS) $(OBJMOC)';
         }
-	$text .= 'rm -f $(DESTDIR)$(SYSCONF_LINK_LIB_STATIC); ';
+	$text .= 'rm -f $(DESTDIR)$(SYSCONF_LINK_TARGET_STATIC); ';
 	if ( $project{"TMAKE_AR_CMD"} ) {
 	    $text .= " \\\n\t\t\t\t";
 	    Expand("TMAKE_AR_CMD");
 	}
 	if ( $project{"TMAKE_RANLIB"} ) {
 	    $text .= " \\\n\t\t\t\t";
-	    ExpandGlue("TMAKE_RANLIB","",""," \$(DESTDIR)$(SYSCONF_LINK_LIB_STATIC)");
+	    ExpandGlue("TMAKE_RANLIB","",""," \$(DESTDIR)$(SYSCONF_LINK_TARGET_STATIC)");
 	}
 #$}
