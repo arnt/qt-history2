@@ -677,8 +677,10 @@ QString QSqlTableModel::selectStatement() const
         return query;
     }
     if (!d->filter.isEmpty())
-        query.append(QLatin1String(" WHERE ")).append(d->filter).append(QLatin1Char(' '));
-    query.append(orderByStatement());
+        query.append(QLatin1String(" WHERE ")).append(d->filter);
+    QString orderBy(orderByStatement());
+    if (!orderBy.isEmpty())
+        query.append(QLatin1Char(' ')).append(orderBy);
 
     return query;
 }
