@@ -25,6 +25,18 @@
 
 #include <math.h>
 
+static QWidgetList childWidgets(const QWidget *widget)
+{
+    QObjectList list = widget->children();
+    QWidgetList widgets;
+    for (int i = 0; i < list.size(); ++i) {
+        QWidget *w = qt_cast<QWidget *>(list.at(i));
+        if (w)
+            widgets.append(w);
+    }
+    return widgets;
+}
+
 static QString buddyString(const QWidget *widget)
 {
     if (!widget)
@@ -32,10 +44,10 @@ static QString buddyString(const QWidget *widget)
     const QWidget *parent = widget->parentWidget();
     if (!parent)
         return QString();
-    QObjectList ol = parent->queryList("QLabel", 0, false, false);
+    QObjectList ol = parent->children();
     for (int i = 0; i < ol.size(); ++i) {
-        QLabel *label = static_cast<QLabel*>(ol.at(i));
-        if (label->buddy() == widget)
+        QLabel *label = qt_cast<QLabel*>(ol.at(i));
+        if (label && label->buddy() == widget)
             return label->text();
     }
 
@@ -171,7 +183,7 @@ int QAccessibleWidget::childAt(int x, int y) const
     if (!QRect(gp.x(), gp.y(), w->width(), w->height()).contains(x, y))
         return -1;
 
-    QObjectList list = w->queryList("QWidget", 0, false, false);
+    QWidgetList list = childWidgets(w);
     int ccount = childCount();
 
     // a complex child
@@ -184,9 +196,8 @@ int QAccessibleWidget::childAt(int x, int y) const
     }
 
     QPoint rp = w->mapFromGlobal(QPoint(x, y));
-    QWidget *child = 0;
     for (int i = 0; i<list.size(); ++i) {
-        child = static_cast<QWidget *>(list.at(i));
+        QWidget *child = list.at(i);
         if (!child->isTopLevel() && !child->isHidden() && child->geometry().contains(rp)) {
             return i + 1;
         }
@@ -423,7 +434,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
     *target = 0;
     QObject *targetObject = 0;
 
-    QObjectList childList = widget()->queryList("QWidget", 0, false, false);
+    QWidgetList childList = childWidgets(widget());
     bool complexWidget = childList.size() < childCount();
 
     switch (relation) {
@@ -728,15 +739,15 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 /*! \reimp */
 int QAccessibleWidget::childCount() const
 {
-    QObjectList cl = widget()->queryList("QWidget", 0, false, false);
+    QWidgetList cl = childWidgets(widget());
     return cl.size();
 }
 
 /*! \reimp */
 int QAccessibleWidget::indexOfChild(const QAccessibleInterface *child) const
 {
-    QObjectList cl = widget()->queryList("QWidget", 0, false, false);
-    int index = cl.indexOf(child->object());
+    QWidgetList cl = childWidgets(widget());
+    int index = cl.indexOf(qt_cast<QWidget *>(child->object()));
     if (index != -1)
         ++index;
     return index;

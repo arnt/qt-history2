@@ -36,7 +36,7 @@ QList<QByteArray> QAccessibleObjectPrivate::actionList() const
 
     if (!object)
         return actionList;
-    
+
     const QMetaObject *mo = object->metaObject();
     Q_ASSERT(mo);
 
@@ -134,7 +134,7 @@ bool QAccessibleObject::doAction(int, int, const QVariantList &)
     return false;
 }
 
-static const char * const action_text[][5] = 
+static const char * const action_text[][5] =
 {
     // Name, Description, Value, Help, Accelerator
     { "Press", "", "", "", "Space" },
@@ -244,7 +244,7 @@ int QAccessibleApplication::relationTo(int child, const QAccessibleInterface *ot
 
     for (int i = 0; i < tlw.count(); ++i) {
         QWidget *w = tlw.at(i);
-        QObjectList cl(w->queryList());
+        QObjectList cl = w->findChildren(QString());
         if (cl.contains(o))
             return Ancestor;
     }
