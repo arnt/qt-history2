@@ -6,24 +6,26 @@ Severe
 ------
 
 static usage of QFileDialog on Borland (Win32)
-    API-call doesn't seem to work, so use Qt dialog as workaround</DD>
+    API-call doesn't seem to work, so use Qt dialog as workaround
 
 QApplication::widgetAt (Win32)
-    This function does not work as expected (support/arc-07/14942 ff.)</DD>
+    This function does not work as expected (support/arc-07/14942 ff.)
 
 drawText() on a printer (Win32)
-    Text produces garbage (Win98) and is not scaled correctly (support/arc-07/15339)</DD>
+    Text produces garbage (Win98) and is not scaled correctly (support/arc-07/15339)
 
 
 Small
 -----
 
 QPopupMenu
-    Fix <CODE>updateItem()</CODE> (qt-bugs/arc-06/13748).
+    Fix updateItem() (qt-bugs/arc-06/13748).
 
 Dual Monitor support (Win32)
-    TLW-Widgets with WType_Popup appear on main-screen</DD>
+    TLW-Widgets with WType_Popup appear on main-screen
 
+QFileDialog
+    Heed the ExistingFile flag (#if 0ed out for 2.2)
 
 Cosmetic
 --------
