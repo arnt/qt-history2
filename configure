@@ -4,7 +4,7 @@
 #
 # Configures to build the Qt library
 #
-# Copyright (C) 1999-2002 Trolltech AS.  All rights reserved.
+# Copyright (C) 1999-2003 Trolltech AS.  All rights reserved.
 #
 
 
@@ -908,7 +908,7 @@ done
 [ -z "$QT_INSTALL_DATA" ]    && QT_INSTALL_DATA=$QT_INSTALL_PREFIX
 
 # generate qconfig.cpp
-[ '!' -d $outpath/src/tools ] && mkdir -p $outpath/src/tools
+[ -d $outpath/src/tools ] || mkdir -p $outpath/src/tools
 cat > $outpath/src/tools/qconfig.cpp.new <<EOF
 /* Install paths from configure */
 
@@ -951,7 +951,7 @@ WHICH=$unixtests/which.test
 if [ "$OPT_HELP" != "yes" ]; then
 
 # create the include and include/qmake directory (for qconfig.h and qmodules.h)
-mkdir -p $outpath/include/qmake
+[ -d $outpath/include/qmake ] || mkdir -p $outpath/include/qmake
 
 # create temporary qconfig.h for compiling qmake
 # when building qmake, we use #defines for the install paths,
@@ -1006,7 +1006,7 @@ fi
 # symlink or copy part of the sources
 if [ "$OPT_SHADOW" = "yes" ]; then
     echo "Preparing build tree..."
-    mkdir -p $outpath/bin
+    [ -d $outpath/bin ] ||  -p $outpath/bin
 
     # need a top level makefile, prefer gnu internally
     if [ -f $relpath/GNUmakefile ]; then
