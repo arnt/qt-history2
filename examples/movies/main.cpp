@@ -250,4 +250,4 @@ int main(int argc, char **argv)
     return a.exec();
 }
 
-#include ".moc/debug/main.moc"
+#include "main.moc"
