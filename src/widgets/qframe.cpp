@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#13 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#13 $";
 #endif
 
 
@@ -63,6 +63,7 @@ QFrame::QFrame( QWidget *parent, const char *name ) : QWidget( parent, name )
     fstyle = NoFrame;				// set default frame style
     lwidth = 1;
     mwidth = 0;
+    updateFrameWidth();
 }
 
 /*!
@@ -146,7 +147,6 @@ Returns the width of the middle line.
 
 /*!
 Sets the width of the middle line to \e mw.
-
 \sa midLineWidth().
 */
 
