@@ -348,9 +348,9 @@ QStringList parse_multiline_part( const QString &contents, const QString &key, i
 		if ( !hadEqual && c != '=' )
 		    continue;
 		hadEqual = TRUE;
-		if ( ( c.isLetter() || c.isDigit() || c == '.' || c == '/' || c == '_' ||
+		if ( ( c.isLetter() || c.isDigit() || c == '.' || c == '/' || c == '_' || c == '\\' ||
 		       c == '$' || c == '-' || c == '(' || c == ')' || c == ':'  || c == '+' || c == ',' ) &&
-		     c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\' ) {
+		     c != ' ' && c != '\t' && c != '\n' && c != '=' ) {
 		    if ( !inName )
 			currName = QString::null;
 		    currName += c;
@@ -358,7 +358,8 @@ QStringList parse_multiline_part( const QString &contents, const QString &key, i
 		} else {
 		    if ( inName ) {
 			inName = FALSE;
-			lst.append( currName );
+			if ( currName.simplifyWhiteSpace() != "\\" )
+			    lst.append( currName );
 		    }
 		    if ( c == '\n' && i > 0 && contents[ (int)i - 1 ] != '\\' )
 			break;
