@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "model.h"
-#include <qiconset.h>
+#include <qicon.h>
 #include <qpixmap.h>
 #include <private/qabstractitemmodel_p.h>
 
@@ -71,7 +71,7 @@ int Model::columnCount(const QModelIndex &parent) const
 
 QVariant Model::data(const QModelIndex &index, int role) const
 {
-    static QIconSet folder(QPixmap("folder.png"));
+    static QIcon folder(QPixmap("folder.png"));
 
     if (role == DisplayRole)
 	return "Item " + QString::number(index.row()) + ":" + QString::number(index.column());
@@ -82,7 +82,7 @@ QVariant Model::data(const QModelIndex &index, int role) const
 
 QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    static QIconSet service(QPixmap("services.png"));
+    static QIcon service(QPixmap("services.png"));
 
     if (role == DisplayRole)
         return QString::number(section);
