@@ -138,7 +138,7 @@ public:
 	if ( n >= 0 ) {
 	    if ( OpenClipboard( clipboardOwner()->winId() ) ) {
 		int cf = 0;
-		while (cf = EnumClipboardFormats(cf)) {
+		while ((cf = EnumClipboardFormats(cf))) {
 		    if ( cf == CF_TEXT ) {
 			sawSBText = TRUE;
 		    } else {
@@ -283,7 +283,8 @@ static void setClipboardData( int cf, const char *mime, QWindowsMime *c, QMimeSo
     HANDLE h = GlobalAlloc( GHND, len );
     char *d = (char *)GlobalLock( h );
     memcpy( d, md.data(), len );
-    HANDLE res = SetClipboardData( cf, h );
+    HANDLE res = 0;
+    res = SetClipboardData( cf, h );
 #ifndef QT_NO_DEBUG
     if ( !res )
 	qSystemWarning( "QClipboard: Failed to write data" );
@@ -339,7 +340,7 @@ static void renderAllFormats()
 
     const char* mime;
     QList<QWindowsMime*> all = QWindowsMime::all();
-    for (int i = 0; mime = s->format(i); i++) {
+    for (int i = 0; (mime = s->format(i)); i++) {
 	for (int pos = 0; pos<all.size(); ++pos) {
 	    QWindowsMime* c = all[pos];
 	    if ( c->cfFor(mime) ) {
@@ -449,7 +450,8 @@ void QClipboard::setData( QMimeSource* src, Mode mode )
     d->setSource( src );
 
     ignore_empty_clipboard = TRUE;
-    int res = EmptyClipboard();
+    int res = 0;
+    res = EmptyClipboard();
     ignore_empty_clipboard = FALSE;
 #ifndef QT_NO_DEBUG
     if ( !res )
@@ -459,7 +461,7 @@ void QClipboard::setData( QMimeSource* src, Mode mode )
     // Register all the formats of src that we can render.
     const char* mime;
     QList<QWindowsMime*> all = QWindowsMime::all();
-    for (int i = 0; mime = src->format(i); i++) {
+    for (int i = 0; (mime = src->format(i)); i++) {
 	for (int pos=0; pos<all.size(); ++pos) {
 	    QWindowsMime* c = all[pos];
 	    if ( c->cfFor(mime) ) {

@@ -451,7 +451,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     DWORD result_effect;
     QOleDropSource *src = new QOleDropSource(dragSource);
     QOleDataObject *obj = new QOleDataObject(o);
-    DWORD allowed_effects;
+    DWORD allowed_effects = 0;
     current_mode = mode;
     switch (mode) {
       case QDragObject::DragDefault:

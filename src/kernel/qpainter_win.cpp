@@ -445,6 +445,11 @@ void QPainter::updatePen()
 	    case FlatCap:
 		pst |= PS_ENDCAP_FLAT;
 		break;
+            case MPenCapStyle:
+#if defined(QT_CHECK_STATE)
+	        qWarning("QPainter::updatePen: MPenCapStyle used as a value. It is a mask!");
+#endif
+                break;
 	}
 	switch ( cpen.joinStyle() ) {
 	    case BevelJoin:
@@ -456,6 +461,11 @@ void QPainter::updatePen()
 	    case MiterJoin:
 		pst |= PS_JOIN_MITER;
 		break;
+            case MPenJoinStyle:
+#if defined(QT_CHECK_STATE)
+	        qWarning("QPainter::updatePen: MPenJoinStyle used as a value. It is a mask!");
+#endif
+                break;
 	}
 	hpen = ExtCreatePen( pst, cpen.width(), &lb, 0, 0 );
     }

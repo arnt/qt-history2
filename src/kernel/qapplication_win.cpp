@@ -678,7 +678,7 @@ void qt_init( QApplicationPrivate *priv, int )
     HRESULT r;
     r = OleInitialize(0);
     if ( r != S_OK && r != S_FALSE ) {
-	qWarning( "Qt: Could not initialize OLE (error %x)", r );
+	qWarning( "Qt: Could not initialize OLE (error %x)", (unsigned int)r );
     }
 #endif
 
@@ -1801,7 +1801,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WM_GETOBJECT:
 	    {
 		// Ignoring all requests while starting up
-		if ( qApp->startingUp() || !qApp->loopLevel() || lParam != OBJID_CLIENT ) {
+		if ( qApp->startingUp() || !qApp->loopLevel() || (DWORD)lParam != OBJID_CLIENT ) {
 		    result = FALSE;
 		    break;
 		}

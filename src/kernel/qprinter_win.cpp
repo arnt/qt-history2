@@ -677,7 +677,7 @@ static void setDefaultPrinterW(const QString &printerName, HANDLE *hmode, HANDLE
     // Open the printer by name, to get a HANDLE
     HANDLE hPrinter;
     if ( !OpenPrinter( (TCHAR *)printerName.ucs2(), &hPrinter, NULL ) ) {
-	qDebug("OpenPrinter(%s) failed, error %d",printerName.latin1(),GetLastError());
+	qSystemWarning(QString("OpenPrinter(%1) failed").arg(printerName).latin1());
 	return;
     }
     // Obtain PRINTER_INFO_2 and close printer afterwords
@@ -687,7 +687,7 @@ static void setDefaultPrinterW(const QString &printerName, HANDLE *hmode, HANDLE
     BOOL callOk = GetPrinter(hPrinter,2,(LPBYTE)pinf2,nbytes,&rbytes);
     ClosePrinter(hPrinter);
     if (! callOk) {
-	qDebug("GetPrinter() failed, error %d",GetLastError());
+	qSystemWarning("GetPrinter() failed");
 	GlobalFree(pinf2);
 	return;
     }
@@ -782,7 +782,7 @@ static void setDefaultPrinterA(const QString &printerName, HANDLE *hmode, HANDLE
     HANDLE hPrinter;
     QByteArray pName = printerName.toLocal8Bit();
     if ( !OpenPrinterA( pName.data(), &hPrinter,NULL ) ) {
-	qDebug( "OpenPrinterA(%s) failed, error %d", pName.data(), GetLastError() );
+	qSystemWarning(QString("OpenPrinterA(%1) failed").arg(printerName).latin1());
 	return;
     }
     // Obtain PRINTER_INFO_2 and close printer afterwords
@@ -792,7 +792,7 @@ static void setDefaultPrinterA(const QString &printerName, HANDLE *hmode, HANDLE
     BOOL callOk = GetPrinterA( hPrinter, 2, (LPBYTE)pinf2, nbytes, &rbytes);
     ClosePrinter( hPrinter );
     if (! callOk) {
-	qDebug("GetPrinter() failed, error %d",GetLastError());
+	qSystemWarning("GetPrinter() failed");
 	GlobalFree( pinf2 );
 	return;
     }

@@ -66,9 +66,7 @@ static QWidget *qt_tablet_widget = 0;
 #endif
 
 typedef BOOL    ( WINAPI *PtrSetLayeredWindowAttributes )(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
-typedef BOOL    ( WINAPI *PtrGetLayeredWindowAttributes )(HWND hwnd, COLORREF *crKey, BYTE *bAlpha, DWORD *dwFlags);
 static PtrSetLayeredWindowAttributes ptrSetLayeredWindowAttributes = 0;
-static PtrGetLayeredWindowAttributes ptrGetLayeredWindowAttributes = 0;
 #define Q_WS_EX_LAYERED           0x00080000 // copied from WS_EX_LAYERED in winuser.h
 #define Q_LWA_ALPHA               0x00000002 // copied from LWA_ALPHA in winuser.h
 
