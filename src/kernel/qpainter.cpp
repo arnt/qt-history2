@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#95 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -19,7 +19,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#94 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#95 $");
 
 
 /*!
@@ -832,6 +832,18 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 
 /*!
   Translates the coordinate system by \e (dx,dy).
+
+  For example, the following code draws a single vertical line 20 pixels high.
+  \code
+    void MyWidget::paintEvent()
+    {
+	QPainter paint( this );
+	paint.drawLine(10,0,10,20);
+	paint.translate(100.0,100.0);
+	paint.drawLine(-90,-80,-90,-70);
+    }
+  \endcode
+
   \sa scale(), shear(), rotate(), resetXForm(), setWorldMatrix(), xForm()
 */
 
