@@ -1141,15 +1141,9 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
   flexible approach involves combining a QTreeView with a standard item model.
   This allows the storage of data to be separated from its representation.
 
-  \omit
   In its simplest form, a tree widget can be constructed and populated in
-  the familiar way:
+  the following way:
 
-  \code
-    QTreeWidget *view = new QTreeWidget(parent);
-
-  \endcode
-  \endomit
 
   \sa \link model-view-programming.html Model/View Programming\endlink QTreeWidgetItem
 */
