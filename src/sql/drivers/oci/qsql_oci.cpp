@@ -1815,11 +1815,11 @@ void QOCIDriver::close()
 void QOCIDriver::cleanup()
 {
     if ( isOpen() ) {
-	int r = 0;
-	r = OCILogoff( d->svc, d->err );
-	r = OCIHandleFree( (dvoid *) d->svc, OCI_HTYPE_SVCCTX );
-	r = OCIHandleFree( (dvoid *) d->err, OCI_HTYPE_ERROR );
+	OCILogoff( d->svc, d->err );
     }
+    OCIHandleFree( (dvoid *) d->svc, OCI_HTYPE_SVCCTX );
+    OCIHandleFree( (dvoid *) d->err, OCI_HTYPE_ERROR );
+    OCIHandleFree( (dvoid *) d->env, OCI_HTYPE_ENV );
 }
 
 QSqlQuery QOCIDriver::createQuery() const
