@@ -957,7 +957,7 @@ enum Form {
     StressMark,
     IndependentVowel,
     LengthMark,
-    Other,
+    Other
 };
 
 static const unsigned char indicForms[0xe00-0x900] = {
@@ -1807,7 +1807,7 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
-    None, None, None, None,
+    None, None, None, None
 };
 
 static inline Position indic_position( const QChar &ch ) {
@@ -1821,7 +1821,7 @@ static inline Position indic_position( const QChar &ch ) {
 enum IndicScriptProperties {
     HasReph = 0x01,
     MovePreToFront = 0x02,
-    HasSplit = 0x04,
+    HasSplit = 0x04
 };
 
 const uchar scriptProperties[10] = {
@@ -1844,6 +1844,7 @@ const uchar scriptProperties[10] = {
     // Malayalam,
     0,
     // Sinhala,
+    0
 };
 
 /* syllables are of the form:
