@@ -5,6 +5,11 @@
 <!DOCTYPE a [
     <!-- the DoctypeDecl part... -->
     <?foo bar?>
+    <!ENTITY gnorf PUBLIC "gnorf_p" "gnorf_s">
+    <!ENTITY snarf SYSTEM "snarf"            >
+    <!NOTATION n1 PUBLIC "n1_p" "n1_s">
+    <!NOTATION n2 SYSTEM "n2_s"       >
+    <!NOTATION n3 PUBLIC "n3_p"       >
 ]>
 
 <!-- You like PIs? -->
