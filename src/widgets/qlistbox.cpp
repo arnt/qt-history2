@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#4 $
 **
 ** Implementation of QListBox class
 **
 ** Author  : Eirik Eng
 ** Created : 941121
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#4 $";
 #endif
 
 #include "qstring.h"
@@ -578,7 +578,7 @@ QLBItem *QListBox::newAny( const char *s, const QBitMap *bm )
             tmp->string = s;
         tmp->type = LBI_String;
     } else {
-        tmp->bitmap = bm;
+        tmp->bitmap = (QListBox *)bm;
         tmp->type   = LBI_BitMap;
     }
 }
