@@ -148,6 +148,7 @@ void run_test( const char *funcName )
 	int t = 0;
 	while ( TRUE ) {
 	    i += (*e->funcPtr)();
+	    QApplication::syncX();
 	    t = time.elapsed();
 	    if ( max_iter && i >= max_iter )
 		break;
