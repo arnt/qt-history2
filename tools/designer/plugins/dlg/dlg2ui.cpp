@@ -22,20 +22,18 @@
 **********************************************************************/
 
 #include "dlg2ui.h"
-#include <qcombobox.h>
 #include <qfile.h>
-#include <qiconview.h>
-#include <qlayout.h>
-#include <qlcdnumber.h>
-#include <qlineedit.h>
-#include <qlistbox.h>
+#include <qframe.h>
 #include <qmessagebox.h>
 #include <qregexp.h>
-#include <qscrollview.h>
-#include <qslider.h>
-#include <qspinbox.h>
-#include <qtabbar.h>
 #include <qtextstream.h>
+
+/*
+  Possible improvements:
+
+  1.  A user widget that has a Stretch property of 1 should have
+      Expanding as size policy, not Preferred.
+*/
 
 /*
   These big tables could be more or less eliminated by using Qt's
@@ -128,7 +126,6 @@ static const struct {
     { "IconView", "SelectionMode", "selectionMode", "enum" },
     { "IconView", "ShowToolTips", "showToolTips", "boolean" },
     { "IconView", "SortAscending", "sortDirection", "bool" },
-    { "IconView", "Sorting", "sorting", "boolean" },
     { "IconView", "Spacing", "spacing", "integer" },
     { "IconView", "WordWrapIconText", "wordWrapIconText", "boolean" },
     { "LCDNumber", "Digits", "numDigits", "integer" },
@@ -147,10 +144,8 @@ static const struct {
     { "ListBox", "AutoScroll", 0, 0 },
     { "ListBox", "AutoUpdate", 0, 0 },
     { "ListBox", "ColumnMode", "columnMode", "enum" },
-    { "ListBox", "ColumnModeNum", "numColumns", "integer" },
     { "ListBox", "DragSelect", 0, 0 },
     { "ListBox", "RowMode", "rowMode", "enum" },
-    { "ListBox", "RowModeNum", "numRows", "integer" },
     { "ListBox", "SelectionMode", "selectionMode", "enum" },
     { "ListBox", "SmoothScrolling", 0, 0 },
     { "ListView", "AllColumnsShowFocus", "allColumnsShowFocus", "boolean" },
@@ -577,6 +572,67 @@ QString Dlg2Ui::filteredFlags( const QString& flags, const QRegExp& filter )
     return splitted.grep( filter ).join( QChar('|') );
 }
 
+void Dlg2Ui::emitFrameStyleProperty( int style )
+{
+    QString shape;
+    QString shadow;
+
+    switch ( style & QFrame::MShape ) {
+    case QFrame::Box:
+	shape = QString( "Box" );
+	break;
+    case QFrame::Panel:
+	shape = QString( "Panel" );
+	break;
+    case QFrame::WinPanel:
+	shape = QString( "WinPanel" );
+	break;
+    case QFrame::HLine:
+	shape = QString( "HLine" );
+	break;
+    case QFrame::VLine:
+	shape = QString( "VLine" );
+	break;
+    case QFrame::StyledPanel:
+	shape = QString( "StyledPanel" );
+	break;
+    case QFrame::PopupPanel:
+	shape = QString( "PopupPanel" );
+	break;
+    case QFrame::MenuBarPanel:
+	shape = QString( "MenuBarPanel" );
+	break;
+    case QFrame::ToolBarPanel:
+	shape = QString( "ToolBarPanel" );
+	break;
+    case QFrame::LineEditPanel:
+	shape = QString( "LineEditPanel" );
+	break;
+    case QFrame::TabWidgetPanel:
+	shape = QString( "TabWidgetPanel" );
+	break;
+    case QFrame::GroupBoxPanel:
+	shape = QString( "GroupBoxPanel" );
+	break;
+    default:
+	shape = QString( "NoFrame" );
+    }
+
+    switch ( style & QFrame::MShadow ) {
+    case QFrame::Raised:
+	shadow = QString( "Raised" );
+	break;
+    case QFrame::Sunken:
+	shadow = QString( "Sunken" );
+	break;
+    default:
+	shadow = QString( "Plain" );
+    }
+
+    emitProperty( QString("frameShape"), shape, QString("enum") );
+    emitProperty( QString("frameShadow"), shadow, QString("enum") );
+}
+
 void Dlg2Ui::emitWidgetBody( const QDomElement& e, bool layouted )
 {
     QRegExp align( QString("^(?:Align|WordBreak$)") );
@@ -689,17 +745,9 @@ void Dlg2Ui::emitWidgetBody( const QDomElement& e, bool layouted )
 			}
 		    } else if ( parentTagName == QString("Frame") ) {
 			if ( tagName == QString("Style") ) {
-			    QString flags = getValue( n.toElement(), tagName )
-					    .toString();
-			    QString shape = filteredFlags( flags, frameShape );
-			    QString shadow = filteredFlags( flags,
-							    frameShadow );
-			    if ( !shape.isEmpty() )
-				emitProperty( QString("frameShape"), shape,
-					      QString("set") );
-			    if ( !shadow.isEmpty() )
-				emitProperty( QString("frameShadow"), shadow,
-					      QString("set") );
+			    int style = getValue( n.toElement(), tagName,
+						  QString("integer") ).toInt();
+			    emitFrameStyleProperty( style );
 			}
 		    } else if ( parentTagName == QString("LCDNumber") ) {
 			if ( tagName == QString("Value") ) {
@@ -754,7 +802,8 @@ void Dlg2Ui::emitWidgetBody( const QDomElement& e, bool layouted )
 		    }
 		} else {
 		    /*
-		      These properties have a direct Qt equivalent.
+		      These properties are in the propertyDefs table;
+		      they have a direct Qt equivalent.
 		    */
 		    QString type( propertyDefs[*p].type );
 		    QVariant val = getValue( n.toElement(), tagName, type );
@@ -1303,10 +1352,9 @@ void Dlg2Ui::matchWidgetLayoutCommon( const QDomElement& widgetLayoutCommon )
     /*
       Since we do not respect the spacing and margins specified in
       the .dlg file, the specified geometry is slightly wrong (too
-      small). It's better to let Qt Designer determine the geometry
-      itself.
+      small). It still seems to be better to take it in.
     */
-#if 0
+#if 1
     QPoint initialPos = getValue( children, QString("InitialPos"),
 				  QString("qpoint") ).toPoint();
     QSize size = getValue( children, QString("Size"), QString("qsize") )
@@ -1317,7 +1365,7 @@ void Dlg2Ui::matchWidgetLayoutCommon( const QDomElement& widgetLayoutCommon )
     QSize maxSize = getValue( children, QString("MaxSize"), QString("qsize") )
 		    .toSize();
 
-#if 0
+#if 1
     if ( initialPos == QPoint(-1, -1) )
 	initialPos = QPoint( 0, 0 );
 

@@ -81,6 +81,7 @@ private:
     bool isWidgetType( const QDomElement& e );
     void emitSpacer( int spacing, int stretch );
     QString filteredFlags( const QString& flags, const QRegExp& filter );
+    void emitFrameStyleProperty( int style );
     void emitWidgetBody( const QDomElement& e, bool layouted );
     bool checkTagName( const QDomElement& e, const QString& tagName );
     QString normalizeType( const QString& type );
