@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#47 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#48 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -463,7 +463,7 @@ QCollection::Item QGCache::take_other( const char *key )
 
 void QGCache::clear()
 {
-    register QCacheItem *ci;
+    QCacheItem *ci;
     while ( (ci = lruList->first()) ) {
 	switch ( keytype ) {
 	    case StringKey:

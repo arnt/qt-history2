@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#106 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -209,7 +209,7 @@ void QFont::initialize()
     shared_dc_font = 0;
     fontCache = new QFontCache( fontCacheSize, 29 );
     CHECK_PTR( fontCache );
-    fontDict  = new QFontDict();
+    fontDict = new QFontDict( 29 );
     CHECK_PTR( fontDict );
     if ( !defFont )
 	defFont = new QFont( QFI0 );		// create the default font

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#78 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#79 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -763,6 +763,7 @@ void QGDict::clear()
 			QStringBucket *n=(QStringBucket *)vec[j];
 			while ( n ) {
 			    QStringBucket *next = (QStringBucket*)n->getNext();
+			    deleteItem( n->getData() );
 			    delete n;
 			    n = next;
 			}
@@ -775,6 +776,7 @@ void QGDict::clear()
 			    QAsciiBucket *next = (QAsciiBucket*)n->getNext();
 			    if ( copyk )
 				delete [] (char *)n->getKey();
+			    deleteItem( n->getData() );
 			    delete n;
 			    n = next;
 			}
@@ -785,16 +787,18 @@ void QGDict::clear()
 			QIntBucket *n=(QIntBucket *)vec[j];
 			while ( n ) {
 			    QIntBucket *next = (QIntBucket*)n->getNext();
+			    deleteItem( n->getData() );
 			    delete n;
 			    n = next;
 			}
 		    }
 		    break;
-	    case PtrKey:
+		case PtrKey:
 		    {
 			QPtrBucket *n=(QPtrBucket *)vec[j];
 			while ( n ) {
 			    QPtrBucket *next = (QPtrBucket*)n->getNext();
+			    deleteItem( n->getData() );
 			    delete n;
 			    n = next;
 			}
