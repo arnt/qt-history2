@@ -292,19 +292,20 @@ void QTabBarPrivate::makeVisible(int index)
         return;
     QRect tabRect = tabList.at(index).rect;
 
+    int oldScrollOffset = scrollOffset;
     int availableWidth = q->width() - extraWidth();
-    if (tabRect.left() - scrollOffset < 0) // too far left
+    if (tabRect.left() < scrollOffset) // too far left
         scrollOffset = tabRect.left() - (index?8:0);
-    else if (tabRect.right() - scrollOffset > availableWidth) // too far right
+    else if (tabRect.right() > scrollOffset + availableWidth) // too far right
         scrollOffset = tabRect.right() - availableWidth + 1;
-    else if (!scrollOffset) // no change
-        return;
-    else
+
+    if (scrollOffset && tabRect.right() < availableWidth)  // need scrolling at all?
         scrollOffset = 0;
 
     d->leftB->setEnabled(scrollOffset > 0);
     d->rightB->setEnabled(tabList.last().rect.right() - scrollOffset >= availableWidth);
-    q->update();
+    if (oldScrollOffset != scrollOffset)
+        q->update();
 
 }
 
@@ -615,7 +616,7 @@ QSize QTabBar::sizeHint() const
  */
 QSize QTabBar::minimumSizeHint() const
 {
-    if(style()->styleHint(QStyle::SH_TabBar_PreferNoArrows, 0, this))
+    if (style()->styleHint(QStyle::SH_TabBar_PreferNoArrows, 0, this))
         return sizeHint();
     return QSize(d->rightB->sizeHint().width() * 2 + 75, sizeHint().height());
 }
@@ -628,11 +629,11 @@ QSize QTabBar::tabSizeHint(int index) const
     if (const QTabBarPrivate::Tab *tab = d->at(index)) {
         QSize iconSize = tab->icon.isNull() ? QSize()
                                             : tab->icon.pixmapSize(Qt::SmallIconSize);
-        const QFontMetrics fm = fontMetrics();
         QStyleOptionTab opt = d->getStyleOption(index);
         int hframe  = style()->pixelMetric(QStyle::PM_TabBarTabHSpace, &opt, this);
         int vframe  = style()->pixelMetric(QStyle::PM_TabBarTabVSpace, &opt, this);
-        QSize csz(fm.width(tab->text) + iconSize.width() + hframe,
+        const QFontMetrics fm = fontMetrics();
+        QSize csz(fm.size(Qt::TextShowMnemonic, tab->text).width() + iconSize.width() + hframe,
                   qMax(fm.height(), iconSize.height()) + vframe);
         return style()->sizeFromContents(QStyle::CT_TabBarTab, &opt, csz, this);
     }
@@ -751,7 +752,7 @@ void QTabBar::mousePressEvent (QMouseEvent *e)
     }
     d->pressedIndex = d->indexAtPos(e->pos());
     if (d->pressedIndex >= 0) {
-        if(e->type() == style()->styleHint(QStyle::SH_TabBar_SelectMouseType, 0, this))
+        if (e->type() == style()->styleHint(QStyle::SH_TabBar_SelectMouseType, 0, this))
             setCurrentIndex(d->pressedIndex);
         else
             repaint(tabRect(d->pressedIndex));
@@ -766,10 +767,10 @@ void QTabBar::mouseMoveEvent (QMouseEvent *e)
         e->ignore();
         return;
     }
-    if(style()->styleHint(QStyle::SH_TabBar_SelectMouseType, 0, this)
+    if (style()->styleHint(QStyle::SH_TabBar_SelectMouseType, 0, this)
             == QEvent::MouseButtonRelease) {
         int i = d->indexAtPos(e->pos());
-        if(i != d->pressedIndex) {
+        if (i != d->pressedIndex) {
             if (d->pressedIndex >= 0)
                 repaint(tabRect(d->pressedIndex));
             if ((d->pressedIndex = i) >= 0)
