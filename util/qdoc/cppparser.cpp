@@ -518,7 +518,8 @@ static bool matchTypedefDecl( Decl *context )
 
 static bool matchProperty( ClassDecl *classDecl )
 {
-    if ( !match(Tok_Q_PROPERTY) && !match(Tok_Q_OVERRIDE) )
+    if ( !match(Tok_Q_PROPERTY) && !match(Tok_QDOC_PROPERTY) &&
+	 !match(Tok_Q_OVERRIDE) )
 	return FALSE;
     if ( !match(Tok_LeftParen) )
 	return FALSE;
@@ -626,6 +627,7 @@ static bool matchDeclList( Decl *context )
 	    break;
 	case Tok_Q_OVERRIDE:
 	case Tok_Q_PROPERTY:
+	case Tok_QDOC_PROPERTY:
 	    if ( context->kind() == Decl::Class )
 		matchProperty( (ClassDecl *) context);
 	    else
