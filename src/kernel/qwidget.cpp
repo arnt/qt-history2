@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#451 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#452 $
 **
 ** Implementation of QWidget class
 **
@@ -3325,8 +3325,10 @@ QSize QWidget::minimumSizeHint() const
   <dt>WPaintDesktop<dd> The widget wants desktop paint events.
   <dt>WPaintUnclipped<dd> Paint without clipping child widgets.
   <dt>WPaintClever<dd> The widget wants every update rectangle.
-  <dt>WResizeNoErase<dd> Widget resizing should not erase the widget.
-			This allows smart-repainting to avoid flicker.
+  <dt>WPaintAllPixels<dd> The Widget paints all its pixels. Resizing, scrolling
+			 and focus changes should therefore not erase the widget. 
+			 This allows smart-repainting to avoid flicker.
+  <dt>WResizeNoErase<dd> Same as WPaintAllPixels.
   <dt>WMouseNoMask<dd> Even if the widget has a mask, mouse events
 			are delivered for the entire rectangle.
   <dt>WNorthWestGravity<dd> Indicates that the widget contents is
@@ -3703,10 +3705,9 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
   order to receive focus events.
 
   The default implementation calls repaint() since the widget's \link
-  QColorGroup color group\endlink changes from normal to active.  You
-  may want to call repaint(FALSE) to reduce flicker in any reimplementation.
-  It also calls setMicroFocusHint(), hinting any system-specific input tools about
-  the focus of the user's attention.
+  QColorGroup color group\endlink changes from normal to active. It
+  also calls setMicroFocusHint(), hinting any system-specific input
+  tools about the focus of the user's attention.
 
   As a special case to support applications not utilizing focus,
   \link isTopLevel() Top-level widgets \endlink that have
@@ -3720,7 +3721,7 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
 void QWidget::focusInEvent( QFocusEvent * )
 {
     if ( focusPolicy() != NoFocus || !isTopLevel() ) {
-	repaint( visibleRect() );
+	repaint( visibleRect(), !testWFlags(WResizeNoErase) );
 	if ( testWState(WState_AutoMask) )
 	    updateMask();
 	setMicroFocusHint(width()/2, 0, 1, height(), FALSE);
@@ -3736,8 +3737,7 @@ void QWidget::focusInEvent( QFocusEvent * )
 
   The default implementation calls repaint( visibleRect() ) since the
   widget's \link QColorGroup color group\endlink changes from active
-  to normal.  You may want to call repaint( visibleRect(), FALSE) to
-  reduce flicker in any reimplementation.
+  to normal.  
 
   \sa focusInEvent(), setFocusPolicy(),
   keyPressEvent(), keyReleaseEvent(), event(), QFocusEvent
@@ -3746,7 +3746,7 @@ void QWidget::focusInEvent( QFocusEvent * )
 void QWidget::focusOutEvent( QFocusEvent * )
 {
     if ( focusPolicy() != NoFocus || !isTopLevel() ){
-	repaint( visibleRect() );
+	repaint( visibleRect(), !testWFlags(WResizeNoErase) );
 	if ( testWState(WState_AutoMask) )
 	    updateMask();
     }
