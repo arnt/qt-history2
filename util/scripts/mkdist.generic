@@ -124,8 +124,7 @@ export QTDIR
 echo "Create symlinks for Qt header files.." >&2
 ${QTDIR}/bin/syncqt
 ###${curdir}/make_qt_dot_h > ${QTDIR}/include/qt.h
-[ -f ${QTDIR}/include/qt.h ] && rm ${QTDIR}/include/qt.h
-
+rm -f ${QTDIR}/include/qt.h
 if [ "$nodoc" = "yes" ]; then
   echo "Documentation won't be generated" >& 2
 else
@@ -197,7 +196,7 @@ if [ "${platform}" = "win" ]; then
   echo "Converting Unix text files to DOS..." >&2
   cd ${DISTDIR}
   find qt -type f -print | fmt -1 | \
-	egrep -v '\.(gif|bmp|any|exe)$' | xargs ${curdir}/unix_to_dos
+	egrep -v '\.(gif|jpg|bmp|any|exe)$' | xargs ${curdir}/unix_to_dos
 
   cd ${DISTDIR}/qt
   mkdir mkfiles
