@@ -170,11 +170,10 @@ void QBitArray::pad0()
   \sa resize()
 */
 
-/*!
-  Resizes the bit array to \a size bits.
-  Returns TRUE if the bit array could be resized.
+/*!  Resizes the bit array to \a size bits and returns TRUE if the bit
+  array could be resized, and FALSE otherwise.
 
-  When expanding the bit array, the new bits will be uninitialized.
+  If the array is expanded, the new bits are set to 0.
 
   \sa size()
 */
