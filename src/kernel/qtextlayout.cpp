@@ -653,8 +653,7 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
     line.ascent = 0;
     line.descent = 0;
 
-    // ######
-    // Readd tab support. Add explicit newlines
+    // ########## Readd tab support.
     bool breakany = d->textFlags & Qt::BreakAnywhere;
 
     // add to the line until it's filled up.
@@ -670,6 +669,7 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
     const QCharAttributes *attributes = d->attributes();
 
 //     qDebug("from: %d:   item=%d, total %d width available %d", from, item, d->items.size(), line.width);
+    int spacew = 0;
     while (item < d->items.size()) {
 	d->shape(item);
 	const QScriptItem &current = d->items[item];
@@ -706,30 +706,31 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 		tmpw += glyphs[gp].advance;
 		++gp;
 	    }
-	    int spacew = 0;
+	    int nextspacew = 0;
 	    while (gp <= ge) {
-		spacew += glyphs[gp].advance;
+		nextspacew += glyphs[gp].advance;
 		++gp;
 	    }
-// 	    qDebug("possible break at %d, chars (%d-%d): width %d, spacew=%d",
-// 		   current.position + next, pos, next, tmpw, spacew);
+//  	    qDebug("possible break at %d, chars (%d-%d): width %d, spacew=%d, nextspacew=%d",
+//  		   current.position + next, pos, next, tmpw, spacew,  nextspacew);
 
-	    if (line.length && line.textWidth + tmpw > line.width) {
-// 		qDebug("found break");
+	    if (line.length && line.textWidth + tmpw > line.width && !(d->textFlags & Qt::SingleLine))
 		goto found;
-	    }
+
 	    line.textWidth += tmpw + spacew;
+	    spacew = nextspacew;
 	    line.length += next - pos + 1;
-	    if (d->string[current.position+pos] == QChar_linesep) {
-// 		qDebug("found hard break");
+
+	    if (d->string[current.position+pos] == QChar_linesep)
 		goto found;
-	    }
+
 	    pos = next + 1;
     } while (pos < length);
 	++item;
     }
  found:
-//     qDebug("line length = %d, ascent=%d, descent=%d", line.length, line.ascent, line.descent);
+//     qDebug("line length = %d, ascent=%d, descent=%d, textWidth=%d", line.length, line.ascent, line.descent, line.textWidth);
+//     qDebug("        : '%s'", d->string.mid(line.from, line.length).utf8());
 
     int l = d->lines.size();
     d->lines.append(line);
@@ -805,11 +806,15 @@ void QTextLine::draw( QPainter *p, int x, int y )
     if (!line.length)
 	return;
 
-    int firstItem = eng->findItem(line.from);
-    int lastItem = eng->findItem(line.from + line.length - 1);
-    int nItems = lastItem-firstItem+1;
-
     int lineEnd = line.from + line.length;
+    // don't draw trailing spaces or take them into the layout.
+    const QCharAttributes *attributes = eng->attributes();
+    while (lineEnd > line.from && attributes[lineEnd-1].whiteSpace)
+	--lineEnd;
+
+    int firstItem = eng->findItem(line.from);
+    int lastItem = eng->findItem(lineEnd - 1);
+    int nItems = lastItem-firstItem+1;
 
     x += line.x;
     y += line.y;
