@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#53 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#54 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -501,7 +501,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
 	horiz->addStretch( 1 );
 
     QPushButton * ok = new QPushButton( this, "ok" );
-    ok->setText( "Ok" );
+    ok->setText( tr("Ok") );
     ok->setAutoDefault( TRUE );
     ok->setDefault( TRUE );
     horiz->addWidget( ok );
@@ -510,7 +510,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     horiz->addSpacing( 6 );
 
     QPushButton * cancel = new QPushButton( this, "cancel" );
-    cancel->setText( "Cancel" );
+    cancel->setText( tr("Cancel") );
     cancel->setAutoDefault( TRUE );
     horiz->addWidget( cancel );
 
@@ -583,9 +583,9 @@ QGroupBox * QPrintDialog::setupDestination()
 
     d->printers = new QListView( g, "list of printers" );
     d->printers->setAllColumnsShowFocus( TRUE );
-    d->printers->addColumn( "Printer", 125 );
-    d->printers->addColumn( "Host", 125 );
-    d->printers->addColumn( "Comment", 150 );
+    d->printers->addColumn( tr("Printer"), 125 );
+    d->printers->addColumn( tr("Host"), 125 );
+    d->printers->addColumn( tr("Comment"), 150 );
     d->printers->setFrameStyle( QFrame::WinPanel + QFrame::Sunken );
 
 #if defined(UNIX)
@@ -864,7 +864,8 @@ QGroupBox * QPrintDialog::setupPaper()
 	     this, SLOT(paperSizeSelected(int)) );
 
     // page orientation
-    QRadioButton * rb = new QRadioButton( "Portrait", g, "portrait format" );
+    QRadioButton * rb = new QRadioButton( tr("Portrait"),
+					  g, "portrait format" );
     rb->setMinimumSize( rb->sizeHint() );
     d->orient->insert( rb, (int)QPrinter::Portrait );
     tll->addWidget( rb );
@@ -872,7 +873,7 @@ QGroupBox * QPrintDialog::setupPaper()
     rb->setChecked( TRUE );
     d->orientation = QPrinter::Portrait;
 
-    rb = new QRadioButton( "Landscape", g, "landscape format" );
+    rb = new QRadioButton( tr("Landscape"), g, "landscape format" );
     rb->setMinimumSize( rb->sizeHint() );
     d->orient->insert( rb, (int)QPrinter::Landscape );
     tll->addWidget( rb );
