@@ -1342,8 +1342,7 @@ static void err_info_about_candidates( int code,
 
 /*!
     Returns a pointer to the object that sent the signal, if called in
-    a slot before any function call or signal emission. Returns an
-    undefined value in all other cases.
+    a slot activated by a signal; otherwise the return value is undefined.
 
     \warning This function will return something apparently correct in
     other cases as well. However, its value may change during any
@@ -2046,10 +2045,11 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
 
     QObject *object;
     QConnection *c;
+    QObject *previousSender = sigSender;
+    sigSender = this;
     if ( clist->count() == 1 ) { // save iterator
 	c = clist->first();
 	object = c->object();
-	sigSender = this;
 	if ( c->memberType() == QSIGNAL_CODE )
 	    object->qt_emit( c->member(), o );
 	else
@@ -2059,13 +2059,13 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
 	while ( (c=it.current()) ) {
 	    ++it;
 	    object = c->object();
-	    sigSender = this;
 	    if ( c->memberType() == QSIGNAL_CODE )
 		object->qt_emit( c->member(), o );
 	    else
 		object->qt_invoke( c->member(), o );
 	}
     }
+    sigSender = previousSender;
 }
 
 /*!
