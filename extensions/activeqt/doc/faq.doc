@@ -97,9 +97,32 @@
     but you might have to use the task manager to kill the process (e.g. when a
     client doesn't release the controls properly).
 
+    \section2 Postprocessing and runtime errors
+
+    \section3 "Unable to Locate DLL"
+
+    The build system needs to run the server executable to generate the interface
+    definition, and to register the server. If a dynamic link library the server links
+    against is not in the path this might fail (e.g. Visual Studio calls the server using
+    the enivronment settings specified in the "Directories" option). Make sure that all
+    DLLs required by your server are located in a directory that is listed in the path
+    as printed in the error message box.
+
+    \section3 The server does not respond
+
+    If the system is unable to start the server (check with the task manager whether the
+    server runs a process). Make sure that no DLL is missing from the system path.
+
+    If the server runs (e.g. the task manager lists a process), see the following section
+    to debug your server.
+
     \section1 Debugging runtime errors
 
-    To debug the server, run the application in a debugger and start with the
+    To debug an inprocess server, set the server project as the active project, and specify
+    a client "executable for debug session" in the project settings. You can set breakpoints
+    in your code, and also step into ActiveQt and Qt code if you installed the debug version.
+
+    To debug an executable server, run the application in a debugger and start with the
     commandline parameter "-activex". COM will use the existing process for the 
     next client trying to create an ActiveX control.
 */

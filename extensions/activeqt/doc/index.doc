@@ -90,6 +90,9 @@
     \i register the server
     \endlist
 
+    See the \link qaxserver-compiler.html QAxServer FAQ \endlink for a list of
+    common problems when building the ActiveX server.
+
     \section2 Out-of-process vs. In-process
 
     Whether your ActiveX server should run as a stand alone executable or as a 
