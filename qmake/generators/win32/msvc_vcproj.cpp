@@ -772,7 +772,9 @@ void VcprojGenerator::addMocArguments(VCFilter &filter)
     filter.customMocArguments.clear();
     // Add Defines
     filter.customMocArguments += 
-	varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") + varGlue("DEFINES"," -D"," -D","");
+	varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") + 
+        varGlue("DEFINES"," -D"," -D","") +
+        varGlue("QMAKE_COMPILER_DEFINES"," -D"," -D","");
     // Add Includes
     filter.customMocArguments += " -I" + specdir();
     filter.customMocArguments += varGlue("INCLUDEPATH"," -I", " -I", "");

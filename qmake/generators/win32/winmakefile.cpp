@@ -437,10 +437,15 @@ void Win32MakefileGenerator::processVars()
         project->variables()["VER_MAJ"].append(l[0]);
         project->variables()["VER_MIN"].append(l[1]);
     }
+    if(project->isEmpty("QMAKE_COPY_FILE"))
+        project->variables()["QMAKE_COPY_FILE"].append("$(COPY)");
+    if(project->isEmpty("QMAKE_COPY_DIR"))
+        project->variables()["QMAKE_COPY_DIR"].append("xcopy /s /q /y /i");
     if(project->isEmpty("QMAKE_INSTALL_FILE"))
         project->variables()["QMAKE_INSTALL_FILE"].append("$(COPY_FILE)");
     if(project->isEmpty("QMAKE_INSTALL_DIR"))
         project->variables()["QMAKE_INSTALL_DIR"].append("$(COPY_DIR)");
+
     fixTargetExt();
     processLibsVar();
     processRcFileVar();
@@ -630,11 +635,12 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
                               Option::fixPathToTargetOS(var("QMAKE_IDC"), false)) << endl;
     t << "IDL                =        " << (project->isEmpty("QMAKE_IDL") ? QString("midl") :
                               Option::fixPathToTargetOS(var("QMAKE_IDL"), false)) << endl;
-    t << "ZIP        =        " << var("QMAKE_ZIP") << endl;
+    t << "ZIP      =        " << var("QMAKE_ZIP") << endl;
     t << "DEF_FILE =        " << varList("DEF_FILE") << endl;
     t << "RES_FILE =        " << varList("RES_FILE") << endl; // Not on mingw, can't see why not though...
-    t << "COPY_FILE  =       " << var("QMAKE_COPY") << endl;
-    t << "COPY_DIR  =       " << var("QMAKE_COPY") << endl;
+    t << "COPY     =       " << var("QMAKE_COPY") << endl;
+    t << "COPY_FILE  =       " << var("QMAKE_COPY_FILE") << endl;
+    t << "COPY_DIR  =       " << var("QMAKE_COPY_DIR") << endl;
     t << "DEL_FILE   =       " << var("QMAKE_DEL_FILE") << endl;
     t << "DEL_DIR    =       " << var("QMAKE_DEL_DIR") << endl;
     t << "MOVE  =       " << var("QMAKE_MOVE") << endl;
