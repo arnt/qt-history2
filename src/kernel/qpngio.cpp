@@ -73,23 +73,26 @@ void iod_read_fn(png_structp png_ptr, png_bytep data, png_size_t length)
 
 
 static
-void qpiw_write_fn(png_structp png_ptr, png_bytep data, png_size_t length)
+void qpiw_write_fn( png_structp png_ptr, png_bytep data, png_size_t length )
 {
-    QPNGImageWriter* qpiw = (QPNGImageWriter*)png_get_io_ptr(png_ptr);
+    QPNGImageWriter* qpiw = (QPNGImageWriter*)png_get_io_ptr( png_ptr );
     QIODevice* out = qpiw->device();
 
-    uint nr = out->writeBlock((char*)data, length);
-    if (nr != length) {
-	png_error(png_ptr, "Write Error");
+    uint nr = out->writeBlock( (char*)data, length );
+    if ( nr != length ) {
+	png_error( png_ptr, "Write Error" );
 	return;
     }
 }
 
+
 static
-void qpiw_flush_fn(png_structp /*png_ptr*/)
+void qpiw_flush_fn( png_structp png_ptr )
 {
-    // ### add something sensible here!
-    // ### if a file is used for output, flush the file
+    QPNGImageWriter* qpiw = (QPNGImageWriter*)png_get_io_ptr( png_ptr );
+    QIODevice* out = qpiw->device();
+
+    out->flush();
 }
 
 #if defined(Q_C_CALLBACKS)
