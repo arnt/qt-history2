@@ -136,7 +136,6 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
     item.ascent = -1;
     item.descent = -1;
     item.shaped = 0;
-    item.charAttributes = 0;
 
     items.append( item );
     for ( int i = start+1; i <= stop; i++ ) {

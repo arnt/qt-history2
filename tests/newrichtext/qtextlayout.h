@@ -5,6 +5,7 @@
 #include <qnamespace.h>
 
 struct QTextEngine;
+class QFont;
 
 class Q_EXPORT QTextItem
 {
@@ -29,6 +30,8 @@ public:
     void setAscent( int a );
     void setDescent( int d );
     void setBaselineAdjustment( int adjust );
+
+    void setFont( const QFont & f );
 
 private:
     friend class QTextLayout;

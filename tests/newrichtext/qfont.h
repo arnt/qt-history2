@@ -304,6 +304,8 @@ private:
     friend class QApplication;
     friend class QWidget;
     friend class QTextFormatCollection;
+    friend class QTextLayout;
+    friend class QTextItem;
 
 #ifndef QT_NO_DATASTREAM
     friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QFont & );

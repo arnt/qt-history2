@@ -78,7 +78,7 @@ void QTextEngine::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOr
 
 
 QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
-    : string( str ), fnt( f )
+    : string( str ), fnt( f ), charAttributes( 0 )
 {
     if ( !scriptEngines ) initialize();
     if ( fnt ) fnt->ref();
@@ -88,6 +88,7 @@ QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
 QTextEngine::~QTextEngine()
 {
     if ( fnt ) fnt->deref();
+    delete charAttributes;
 }
 
 
@@ -127,16 +128,20 @@ QFontEngine *QTextEngine::font( int item )
     return items[item].fontEngine;
 }
 
-const QCharAttributes *QTextEngine::attributes( int item )
+const QCharAttributes *QTextEngine::attributes()
 {
-    QScriptItem &si = items[item];
-    int from = si.position;
-    item++;
-    int len = ( item < items.size() ? items[item].position : string.length() ) - from;
+    if ( charAttributes )
+	return charAttributes;
 
-    si.charAttributes = (QCharAttributes *)realloc( si.charAttributes, sizeof(QCharAttributes)*len );
-    scriptEngines[si.analysis.script]->charAttributes( string, from, len, si.charAttributes );
-    return si.charAttributes;
+
+    charAttributes = (QCharAttributes *)malloc( sizeof(QCharAttributes)*string.length() );
+    for ( int i = 0; i < items.size(); i++ ) {
+	QScriptItem &si = items[i];
+	int from = si.position;
+	int len = length( i );
+	scriptEngines[si.analysis.script]->charAttributes( string, from, len, charAttributes+from );
+    }
+    return charAttributes;
 }
 
 const QShapedItem *QTextEngine::shape( int item ) const
@@ -159,92 +164,6 @@ const QShapedItem *QTextEngine::shape( int item ) const
 	scriptEngines[script]->shape( string, from, len, &si );
     }
     return si.shaped;
-}
-
-int QTextEngine::cursorToX( int item, int cpos, Edge edge ) const
-{
-    QShapedItem *shaped = items[item].shaped;
-    if ( !shaped ) {
-	shape( item );
-	shaped = items[item].shaped;
-    }
-
-    int l = length( item );
-    if ( cpos > l )
-	cpos = l;
-    if ( cpos < 0 )
-	cpos = 0;
-
-    int glyph_pos = cpos == l ? shaped->num_glyphs : shaped->logClusters[cpos];
-    if ( edge == Trailing ) {
-	// trailing edge is leading edge of next cluster
-	while ( glyph_pos < shaped->num_glyphs && !shaped->glyphAttributes[glyph_pos].clusterStart )
-	    glyph_pos++;
-    }
-
-    int x = 0;
-    bool reverse = items[item].analysis.bidiLevel % 2;
-
-    if ( reverse ) {
-	for ( int i = shaped->num_glyphs-1; i >= glyph_pos; i-- )
-	    x += shaped->advances[i].x;
-    } else {
-	for ( int i = 0; i < glyph_pos; i++ )
-	    x += shaped->advances[i].x;
-    }
-//     qDebug("cursorToX: cpos=%d, gpos=%d x=%d", cpos, glyph_pos, x );
-    return x;
-}
-
-int QTextEngine::xToCursor( int item, int x ) const
-{
-    QShapedItem *shaped = items[item].shaped;
-    if ( !shaped ) {
-	shape( item );
-	shaped = items[item].shaped;
-    }
-
-    int l = length( item );
-    bool reverse = items[item].analysis.bidiLevel % 2;
-    if ( x < 0 )
-	return reverse ? l : 0;
-
-
-    if ( reverse ) {
-	int width = 0;
-	for ( int i = 0; i < shaped->num_glyphs; i++ ) {
-	    width += shaped->advances[i].x;
-	}
-	x = -x + width;
-    }
-    int cp_before = 0;
-    int cp_after = 0;
-    int x_before = 0;
-    int x_after = 0;
-
-    int lastCluster = 0;
-    for ( int i = 1; i <= l; i++ ) {
-	int newCluster = i < l ? shaped->logClusters[i] : shaped->num_glyphs;
-	if ( newCluster != lastCluster ) {
-	    // calculate cluster width
-	    cp_before = cp_after;
-	    x_before = x_after;
-	    cp_after = i;
-	    for ( int j = lastCluster; j < newCluster; j++ )
-		x_after += shaped->advances[j].x;
-	    // 		qDebug("cluster boundary: lastCluster=%d, newCluster=%d, x_before=%d, x_after=%d",
-	    // 		       lastCluster, newCluster, x_before, x_after );
-	    if ( x_after > x )
-		break;
-	    lastCluster = newCluster;
-	}
-    }
-
-    bool before = (x - x_before) < (x_after - x);
-//     qDebug("got cursor position for %d: %d/%d, x_ba=%d/%d using %d",
-// 	   x, cp_before,cp_after,  x_before, x_after,  before ? cp_before : cp_after );
-
-    return before ? cp_before : cp_after;
 }
 
 int QTextEngine::width( int item ) const

@@ -200,7 +200,6 @@ struct QScriptItem
     short descent;
     QFontEngine *fontEngine;
     QShapedItem *shaped;
-    QCharAttributes *charAttributes;
 };
 
 struct QScriptItemArrayPrivate
@@ -307,7 +306,7 @@ struct QTextEngine {
     void setFont( int item, QFontPrivate *f );
     QFontEngine *font( int item );
 
-    const QCharAttributes *attributes( int item );
+    const QCharAttributes *attributes();
     const QShapedItem *shape( int item ) const;
 
     // ### we need something for justification
@@ -321,20 +320,13 @@ struct QTextEngine {
     int width( int charFrom, int numChars ) const;
     QGlyphMetrics boundingBox( int from,  int len ) const;
 
-    int cursorToX( int item, int cpos, Edge edge = Leading ) const;
-    int xToCursor( int item, int x ) const;
-
-#if 0
-    bool split( int item, QShapedItem &, QCharAttributesArray &,
-		int width, QShapedItem *splitoff = 0 );
-#endif
-
 //    static QScriptProperties scriptProperties( int script );
 
     QScriptItemArray items;
     QString string;
     QFontPrivate *fnt;
     QTextMemory memory;
+    QCharAttributes *charAttributes;
 
     int length( int item ) const {
 	const QScriptItem &si = items[item];
