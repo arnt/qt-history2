@@ -34,6 +34,12 @@ struct DlgConnection
     QString sender;
     QString signal;
     QString slot;
+
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const DlgConnection& ) const {
+        return sender == sender && signal == signal && slot == slot;
+    }
+#endif
 };
 
 class Dlg2Ui

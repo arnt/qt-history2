@@ -53,6 +53,10 @@ public:
     int openingBraceLineNum() const { return lineno1; }
     int closingBraceLineNum() const { return lineno2; }
 
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const CppFunction& ) const { return FALSE; }
+#endif
+
 private:
     QString ret;
     QString nam;
