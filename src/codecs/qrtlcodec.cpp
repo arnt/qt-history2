@@ -41,28 +41,6 @@
 #ifndef QT_NO_CODECS
 
 // NOT REVISED
-/*! \class QHebrewCodec qrtlcodec.h
-
-  \brief The QHebrewCodec class provides conversion to and from visually ordered Hebrew.
-
-  Hebrew as a semitic language is written from right to left. As older computer systems
-  couldn't handle reordering a string so that the first letter appears on the right, many older documents
-  were encoded in visual order, so that the first letter of a line is the rightmost one in the string.
-  
-  Opposed to this, Unicode defines characters to be in logical order (the order you would read the string).
-  This codec tries to convert visually ordered Hebrew (8859-8) to Unicode. This might not always be 100%,
-  as reversing the bidi algorithm that transforms from logical to visual order is non trivial.
-  
-  Transformation from Unicode to visual Hebrew (8859-8) is done using the BiDi algorithm in Qt, and will
-  produce correct results, as long as you feed one paragraph of text to the codec at a time. Places where newlines
-  are supposed to start can be indicated by a newline character ('\n'). Please be aware, that these newline characters
-  change the reordering behaviour of the algorithm, as the BiDi reordering only takes place within one line of text, whereas
-  linebreaks are determined in visual order.
-  
-  Visually ordered Hebrew is still used quite often in some places, mainly in email communication (as most email programs still
-  don't understand logically ordered hebrew) and on web pages. The use on web pages is strongly decreasing however,
-  as there are nowadays a few browsers available that correctly support logically ordered hebrew.
-*/
 
 static const uchar unkn = '?'; // BLACK SQUARE (94) would be better
 
@@ -99,257 +77,7 @@ static const uchar unicode_to_heb_05[32] = {
     0xF8, 0xF9, 0xFA, unkn, unkn, unkn, unkn, unkn
 };
 
-/* this function assuems the QString is still visually ordered.
- * Finding the basic direction of the text is not easy in this case, since
- * a string like "my friend MOLAHS" could (in logical order) mean aswell
- * "SHALOM my friend" or "my friend SHALOM", depending on the basic direction
- * one assumes for the text.
- *
- * So this function uses some heuristics to find the right answer...
- */
-static QChar::Direction findBasicDirection(QString str)
-{
-    unsigned int pos;
-    unsigned int len = str.length();
-    QChar::Direction dir1 = QChar::DirON;
-    QChar::Direction dir2 = QChar::DirON;
-
-    // If the visual representation of the first line starts and ends with the same
-    // directionality, we know the answer.
-    pos = 0;
-    while (pos < len) {
-	if (str.at(pos).direction() < 2) { // DirR or DirL 
-	    dir1 = str.at(pos).direction();
-	    break;
-	}
-	pos++;
-    }
-
-    if( pos == len ) // no directional chars, assume QChar::DirL
-	return QChar::DirL;
-
-    pos = len;
-    while (pos > 0) {
-	if (str.at(pos).direction() < 2) { // DirR or DirL
-	    dir2 = str.at(pos).direction();
-	    break;
-	}
-	pos--;
-    }
-
-    // both are the same, so we have the direction!
-    if ( dir1 == dir2 ) return dir1;
-
-    // guess with the help of punktuation marks...
-    // if the sentence ends with a punktuation, we should have a mark
-    // at one side of the text...
-
-    pos = 0;
-    while (pos < len-1 && str.at(pos).direction() < 2 ) {
-	if(str.at(pos).category() == QChar::Punctuation_Other) {
-	    if( str.at(pos+1).direction() < 2 ) return QChar::DirR;
-	    else break; // no letter next to the mark... don't know
-	}
-	pos++;
-    }
-
-    pos = len;
-    while (pos < 1 && str.at(pos).direction() < 2 ) {
-	if(str.at(pos).category() == QChar::Punctuation_Other) {
-	    if( str.at(pos-1).direction() < 2 ) return QChar::DirL;
-	    else break; // no letter next to the mark... don't know
-	}
-	pos--;
-    }
-
-    // don't know try DirR...
-    return QChar::DirR;
-}
-
-int QHebrewCodec::mibEnum() const
-{
-    return 11;
-}
-
-const char* QHebrewCodec::name() const
-{
-    return "ISO 8859-8";
-}
-
-QString QHebrewCodec::toUnicode(const char* chars, int len) const
-{
-    return toUnicode(chars, len, heb_to_unicode);
-}
-
-static void reverse(QString &input, unsigned int a, unsigned int b)
-{
-    QChar *chars = (QChar *)input.unicode();
-
-    QChar temp;
-    while (a < b) {
-	temp = chars[a];
-	chars[a] = chars[b];
-	chars[b] = temp;
-
-	a++; b--;
-    }
-}
-
-static void reverse(QString &str, unsigned int a, unsigned int b,
-		    QChar::Direction dir)
-{
-    // first reverse....
-    if(a != 0 || b != str.length()-1 || dir != QChar::DirL)
-	reverse(str, a, b);
-
-    // now, go through it, to see if there is some substring
-    // we need to reverse again...
-    QChar::Direction opposite = (dir==QChar::DirL ? QChar::DirR : QChar::DirL);
-    while(a <= b) {
-	QChar::Direction d = str.at(a).direction();
-	if( d == opposite ) {
-	    // found something to reverse...
-	    uint c = a;
-	    while( c < b && str.at(c).direction() == opposite )
-		c++;
-	    c--;
-	    if( c > a ) {
-		reverse(str, a, c, opposite);
-		a = c;
-	    }
-	} else if ( dir == QChar::DirR &&
-		    d == QChar::DirEN ||
-		    d == QChar::DirAN ) {
-	    uint c = a;
-	    while( c < b) {
-		d = str.at(c).direction();
-		if ( d != QChar::DirEN && d != QChar::DirES &&
-		     d != QChar::DirET && d != QChar::DirCS &&
-		     d != QChar::DirAN ) {
-		    c--;
-		    break;
-		}
-		c++;
-	    }
-	    if( c > a ) {
-		reverse(str, a, c, opposite);
-		a = c;
-	    }
-	}
-	a++;
-    }
-}
-
-/*!
-  Since hebrew (aswell as arabic) are written from left to right,
-  but iso8859-8 assumes visual ordering (as opposed to the
-  logical ordering of Unicode, we have to reverse the order of the
-  input string to get it into logical order.
-
-  One problem is, that the basic text direction is unknown. So this
-  function uses some heuristics to find it, and if it can't guess the
-  right one, it assumes, the basic text direction is right to left.
-
-  This behaviour can be overwritten, by putting a control char
-  at the beginning of the text telling the function which basic text
-  direction to use. If the basic text direction is left-to-right, the
-  control char is (uchar) 0xfe, for right-to-left it is 0xff. Both chars
-  are undefined in the iso 8859-8 charset.
-
-  Example: A visually ordered string "english WERBEH english2" would
-  be recognizes as having a basic left to right direction. so the logically
-  ordered QString would be "english HEBREW english2".
-
-  By prepending a (char)0xff before the string, QHebrewCodec::toUnicode would
-  use a basic text direction of left-to-right, and the string would thus
-  become "english2 HEBREW english".
-  */
-QString QHebrewCodec::toUnicode(const char* chars, int len,
-			     const ushort *table) const
-{
-    QString r;
-    const unsigned char * c = (const unsigned char *)chars;
-    QChar::Direction basicDir = QChar::DirON; // neutral, we don't know
-
-    if( len == 0 ) return QString::null;
-
-    // Test, if the user gives us a directionality.
-    // We use 0xFE and 0xFF in ISO8859-8 for that.
-    // These chars are undefined in the charset, and are mapped to
-    // RTL overwrite
-    if( c[0] == 0xfe ) {
-	basicDir = QChar::DirL;
-	c++; // skip directionality hint
-    }
-    if( c[0] == 0xff ) {
-	basicDir = QChar::DirR;
-	c++; // skip directionality hint
-    }
-
-    for( int i=0; i<len; i++ ) {
-	if ( c[i] > 127 )
-	    r[i] = table[c[i]-128];
-	else
-	    r[i] = c[i];
-    }
-
-    // do transformation from visual byte ordering to logical byte
-    // ordering
-    if( basicDir == QChar::DirON )
-	basicDir = findBasicDirection(r);
-
-    reverse(r, 0, r.length()-1, basicDir);
-
-    return r;
-}
-
-/*!
-  Transforms a logically ordered QString into a visually ordered string in the 8859-8
-  encoding. Qt's BiDi algorithm is used to perform this task. Please note, that newline
-  characters do affect the reordering, as reordering is done on a line by line basis.
-  
-  You might however get wrong results if you feed the string line by line to the method, as
-  the algorithm operates on a whole paragraph of text, and the contents of a previous line
-  may affect reordering of the next line.
-  
-  To ensure you get correct results please always call this method with one paragraph of text
-  to reorder.
-*/
-QCString QHebrewCodec::fromUnicode(const QString& uc, int& len_in_out) const
-{
-    // process only len chars...
-    int l;
-    if( len_in_out > 0 )
-	l = QMIN((int)uc.length(),len_in_out);
-    else
-	l = (int)uc.length();
-
-    QCString rstr;
-    if( l == 1 ) {
-	if( !to8bit( uc[0], &rstr ) )
-	    rstr += unkn;
-    } else {
-	QString tmp = uc;
-	tmp.truncate(l);
-	QString vis = QComplexText::bidiReorderString(tmp);
-
-	for (int i=0; i<l; i++) {
-	    const QChar ch = vis[i];
-
-	    if( !to8bit( ch, &rstr ) )
-		rstr += unkn;
-	}
-	// len_in_out = cursor - result;
-    }
-    if( l > 0 && !rstr.length() )
-	rstr += unkn;
-
-    return rstr;
-}
-
-/*! \internal
- */
-bool QHebrewCodec::to8bit(const QChar ch, QCString *rstr) const
+static bool to8bit(const QChar ch, QCString *rstr)
 {
     bool converted = FALSE;
 
@@ -401,6 +129,367 @@ bool QHebrewCodec::to8bit(const QChar ch, QCString *rstr) const
     return converted;
 }
 
+static QString run(const QString &input, unsigned int from, unsigned int to, QChar::Direction runDir)
+{
+    QString out;
+    if ( runDir == QChar::DirR ) {
+	const QChar *ch = input.unicode() + to;
+	int len = to - from + 1;
+	while (len--) {
+	    out += *ch;
+	    ch--;
+	}
+    } else {
+	out = input.mid(from, to - from + 1 );
+    }
+    return out;
+}
+
+/*
+  we might do better here, but I'm currently not sure if it's worth the effort. It will hopefully convert
+  90% of the visually ordered hebrew correctly.
+*/
+static QString reverseLine(const QString &str, unsigned int from, unsigned int to, QChar::Direction dir)
+{
+    QString out;
+
+    // since we don't have embedding marks, we get around with bidi levels up to 2. 
+    
+    // simple case: dir = RTL:
+    // go through the line from right to left, and reverse all continuous hebrew strings.
+    if ( dir == QChar::DirR ) {
+	unsigned int pos = to;
+	to = from;
+	from = pos;
+	QChar::Direction runDir = QChar::DirON;
+    
+	while ( pos > to ) {
+	    QChar::Direction d = str.at(pos).direction();
+	    switch ( d ) {
+		case QChar::DirL:
+		case QChar::DirAN:
+		case QChar::DirEN:
+		    if ( runDir != QChar::DirL ) {
+			out += run( str, pos, from, runDir );
+			from = pos - 1;
+		    }
+		    runDir = QChar::DirL;
+		    break;
+		case QChar::DirON:
+		    if ( runDir == QChar::DirON ) {
+			runDir = QChar::DirR;
+			break;
+		    }
+		    // fall through
+		case QChar::DirR:
+		    if ( runDir != QChar::DirR ) {
+			out += run( str, pos, from, runDir );
+			from = pos - 1;
+		    }
+		    runDir = QChar::DirR;
+		default:
+		    break;
+	    }
+	    pos--;
+	}
+    } else {
+	// basicDir == DirL. A bit more complicated, as we might need to reverse two times for numbers.
+	unsigned int pos = from;
+	QChar::Direction runDir = QChar::DirON;
+
+	// first reversing. Ignore numbers
+	while ( pos < to ) {
+	    QChar::Direction d = str.at(pos).direction();
+	    switch ( d ) {
+		case QChar::DirL:
+		    if ( runDir != QChar::DirL ) {
+			out += run( str, from, pos, runDir );
+			from = pos + 1;
+		    }
+		    runDir = QChar::DirL;
+		    break;
+		case QChar::DirON:
+		    if ( runDir == QChar::DirON ) {
+			runDir = QChar::DirL;
+			break;
+		    }
+		    // fall through
+		case QChar::DirR:
+		case QChar::DirAN:
+		case QChar::DirEN:
+		    if ( runDir != QChar::DirR ) {
+			out += run( str, from, pos, runDir );
+			from = pos + 1;
+		    }
+		    runDir = QChar::DirR;
+		default:
+		    break;
+	    }
+	    pos++;
+	}
+	// second reversing for numbers
+	QString in = out;
+	out = "";
+	pos = 0;
+	from = 0;
+	to = in.length() - 1;
+	while ( pos < to ) {
+	    QChar::Direction d = str.at(pos).direction();
+	    switch ( d ) {
+		case QChar::DirL:
+		case QChar::DirON:
+		case QChar::DirR:
+		    if ( runDir == QChar::DirEN ) {
+			out += run( in, from, pos, QChar::DirR ); //DirR ensures reversing
+			runDir = QChar::DirR;
+			from = pos+1;
+		    }
+		    runDir = QChar::DirL;
+		    break;
+		case QChar::DirAN:
+		case QChar::DirEN:
+		    if ( runDir != QChar::DirEN ) {
+			out += in.mid(from, pos-from+1);
+			from = pos + 1;
+		    }
+		    runDir = QChar::DirEN;
+		default:
+		    break;
+	    }
+	    pos++;
+	}
+	
+    }
+    return out;
+}
+
+/* this function assuems the QString is still visually ordered.
+ * Finding the basic direction of the text is not easy in this case, since
+ * a string like "my friend MOLAHS" could (in logical order) mean aswell
+ * "SHALOM my friend" or "my friend SHALOM", depending on the basic direction
+ * one assumes for the text.
+ *
+ * So this function uses some heuristics to find the right answer...
+ */
+static QChar::Direction findBasicDirection(QString str)
+{
+    unsigned int pos;
+    unsigned int len = str.length();
+    QChar::Direction dir1 = QChar::DirON;
+    QChar::Direction dir2 = QChar::DirON;
+
+    unsigned int startLine = 0;
+    // If the visual representation of the first line starts and ends with the same
+    // directionality, we know the answer.
+    pos = 0;
+    while (pos < len) {
+	if ( str.at(pos) == '\n' )
+	    startLine = pos;
+	if (str.at(pos).direction() < 2) { // DirR or DirL 
+	    dir1 = str.at(pos).direction();
+	    break;
+	}
+	pos++;
+    }
+
+    if( pos == len ) // no directional chars, assume QChar::DirL
+	return QChar::DirL;
+
+    // move to end of line
+    while( pos < len && str.at(pos) != '\n' )
+	pos++;
+    
+    while (pos > startLine) {
+	if (str.at(pos).direction() < 2) { // DirR or DirL
+	    dir2 = str.at(pos).direction();
+	    break;
+	}
+	pos--;
+    }
+
+    // both are the same, so we have the direction!
+    if ( dir1 == dir2 ) return dir1;
+
+    // guess with the help of punktuation marks...
+    // if the sentence ends with a punktuation, we should have a mark
+    // at one side of the text...
+
+    pos = 0;
+    while (pos < len-1 ) {
+	if(str.at(pos).category() == QChar::Punctuation_Other) {
+	    if( str.at(pos) != 0xbf && str.at(pos) != 0xa1 ) // spanish inverted question and exclamation mark
+		if( str.at(pos+1).direction() < 2 ) return QChar::DirR;
+	}
+	pos++;
+    }
+
+    pos = len;
+    while (pos < 1 && str.at(pos).direction() < 2 ) {
+	if(str.at(pos).category() == QChar::Punctuation_Other) {
+	    if( str.at(pos-1).direction() < 2 ) return QChar::DirL;
+	}
+	pos--;
+    }
+
+    // don't know try DirR...
+    return QChar::DirR;
+}
+
+
+/*! \class QHebrewCodec qrtlcodec.h
+
+  \brief The QHebrewCodec class provides conversion to and from visually ordered Hebrew.
+
+  Hebrew as a semitic language is written from right to left. As older computer systems
+  couldn't handle reordering a string so that the first letter appears on the right, many older documents
+  were encoded in visual order, so that the first letter of a line is the rightmost one in the string.
+  
+  Opposed to this, Unicode defines characters to be in logical order (the order you would read the string).
+  This codec tries to convert visually ordered Hebrew (8859-8) to Unicode. This might not always be 100%,
+  as reversing the bidi algorithm that transforms from logical to visual order is non trivial.
+  
+  Transformation from Unicode to visual Hebrew (8859-8) is done using the BiDi algorithm in Qt, and will
+  produce correct results, as long as you feed one paragraph of text to the codec at a time. Places where newlines
+  are supposed to start can be indicated by a newline character ('\n'). Please be aware, that these newline characters
+  change the reordering behaviour of the algorithm, as the BiDi reordering only takes place within one line of text, whereas
+  linebreaks are determined in visual order.
+  
+  Visually ordered Hebrew is still used quite often in some places, mainly in email communication (as most email programs still
+  don't understand logically ordered hebrew) and on web pages. The use on web pages is strongly decreasing however,
+  as there are nowadays a few browsers available that correctly support logically ordered hebrew.
+  
+  This codec has the name "iso8859-8". If you don't want any bidi reordering to happen during conversion, use the
+  "iso8859-8-i" codec, which assumes logical order for the 8bit string.
+*/
+
+/*! \reimp */
+int QHebrewCodec::mibEnum() const
+{
+    return 11;
+}
+
+/*! \reimp */
+const char* QHebrewCodec::name() const
+{
+    return "ISO 8859-8";
+}
+
+
+/*! \reimp
+  Since hebrew (aswell as arabic) are written from left to right,
+  but iso8859-8 assumes visual ordering (as opposed to the
+  logical ordering of Unicode, we have to reverse the order of the
+  input string to get it into logical order.
+
+  One problem is, that the basic text direction is unknown. So this
+  function uses some heuristics to find it, and if it can't guess the
+  right one, it assumes, the basic text direction is right to left.
+
+  This behaviour can be overwritten, by putting a control char
+  at the beginning of the text telling the function which basic text
+  direction to use. If the basic text direction is left-to-right, the
+  control char is (uchar) 0xfe, for right-to-left it is 0xff. Both chars
+  are undefined in the iso 8859-8 charset.
+
+  Example: A visually ordered string "english WERBEH english2" would
+  be recognizes as having a basic left to right direction. so the logically
+  ordered QString would be "english HEBREW english2".
+
+  By prepending a (char)0xff before the string, QHebrewCodec::toUnicode would
+  use a basic text direction of left-to-right, and the string would thus
+  become "english2 HEBREW english".
+  */
+QString QHebrewCodec::toUnicode(const char* chars, int len ) const
+{
+    QString r;
+    const unsigned char * c = (const unsigned char *)chars;
+    QChar::Direction basicDir = QChar::DirON; // neutral, we don't know
+
+    if( len == 0 ) return QString::null;
+
+    // Test, if the user gives us a directionality.
+    // We use 0xFE and 0xFF in ISO8859-8 for that.
+    // These chars are undefined in the charset, and are mapped to
+    // RTL overwrite
+    if( c[0] == 0xfe ) {
+	basicDir = QChar::DirL;
+	c++; // skip directionality hint
+    }
+    if( c[0] == 0xff ) {
+	basicDir = QChar::DirR;
+	c++; // skip directionality hint
+    }
+
+    for( int i=0; i<len; i++ ) {
+	if ( c[i] > 127 )
+	    r[i] = heb_to_unicode[c[i]-128];
+	else
+	    r[i] = c[i];
+    }
+
+    // do transformation from visual byte ordering to logical byte
+    // ordering
+    if( basicDir == QChar::DirON )
+	basicDir = findBasicDirection(r);
+
+    QString out;
+    int lineStart = 0;
+    while( lineStart < len ) {
+	// find line
+	int lineEnd = r.find('\n', lineStart);
+	if ( lineEnd == -1 ) lineEnd = len;
+	out += reverseLine(r, lineStart, lineEnd, basicDir);
+	if ( lineEnd < len )
+	    out += "\n";
+	lineStart = lineEnd + 1;
+    }
+    return out;
+}
+
+/*!
+  Transforms a logically ordered QString into a visually ordered string in the 8859-8
+  encoding. Qt's BiDi algorithm is used to perform this task. Please note, that newline
+  characters do affect the reordering, as reordering is done on a line by line basis.
+  
+  You might however get wrong results if you feed the string line by line to the method, as
+  the algorithm operates on a whole paragraph of text, and the contents of a previous line
+  may affect reordering of the next line.
+  
+  To ensure you get correct results please always call this method with one paragraph of text
+  to reorder.
+*/
+QCString QHebrewCodec::fromUnicode(const QString& uc, int& len_in_out) const
+{
+    // process only len chars...
+    int l;
+    if( len_in_out > 0 )
+	l = QMIN((int)uc.length(),len_in_out);
+    else
+	l = (int)uc.length();
+
+    QCString rstr;
+    if( l == 1 ) {
+	if( !to8bit( uc[0], &rstr ) )
+	    rstr += unkn;
+    } else {
+	QString tmp = uc;
+	tmp.truncate(l);
+	QString vis = QComplexText::bidiReorderString(tmp);
+
+	for (int i=0; i<l; i++) {
+	    const QChar ch = vis[i];
+
+	    if( !to8bit( ch, &rstr ) )
+		rstr += unkn;
+	}
+	// len_in_out = cursor - result;
+    }
+    if( l > 0 && !rstr.length() )
+	rstr += unkn;
+
+    return rstr;
+}
+
 /*! \reimp
  */
 int QHebrewCodec::heuristicContentMatch(const char* chars, int len) const
@@ -409,10 +498,12 @@ int QHebrewCodec::heuristicContentMatch(const char* chars, int len) const
 
     int score = 0;
     for (int i=0; i<len; i++) {
-	if(c[i] > 0x80 && heb_to_unicode[c[i] - 0x80] != 0xFFFD)
-	    score++;
-	else
-	    return -1;
+	if(c[i] > 0x80 ) { 
+	    if ( heb_to_unicode[c[i] - 0x80] != 0xFFFD)
+		score++;
+	    else 
+		return -1;
+	}
     }
     return score;
 }
