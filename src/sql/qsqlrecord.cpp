@@ -49,25 +49,28 @@ QSqlRecord::~QSqlRecord()
 }
 
 
-/*!
-  Returns a reference to the field located at position \a i in the record.
-  It is up to you to check wether this item really exists.
+/*!  Returns a reference to the value of the field located at position
+  \a i in the record.  It is up to you to check wether this item
+  really exists, or wether the field is null before using the field
+  value.
 
 */
 
 QVariant& QSqlRecord::operator[]( int i )
 {
+    findField(i)->setNull( FALSE );
     return findField(i)->val;
 }
 
-/*!
-  Returns a reference to the field named \a name in the record.
-  It is up to you to check wether this item really exists.
+/*!  Returns a reference to the value of the field named \a name in
+  the record.  It is up to you to check wether this item really
+  exists, or wether the field is null before using the field value.
 
 */
 
 QVariant& QSqlRecord::operator[]( const QString& name )
 {
+    findField( name )->setNull( FALSE );    
     return findField( name )->val;
 }
 
@@ -180,17 +183,19 @@ void QSqlRecord::clear()
     fieldList.clear();
 }
 
-/*!
-  Clears the value of all fields in the record.
+/*!  Clears the value of all fields in the record.  If \a nullify is
+  TRUE, each field is set to null.
 
 */
 
-void QSqlRecord::clearValues()
+void QSqlRecord::clearValues( bool nullify )
 {
     for ( uint i = 0; i < count(); ++i ) {
 	QVariant v;
 	v.cast( field( i )->type() );
 	field( i )->setValue( v );
+	if ( nullify )
+	    field( i )->setNull( TRUE );
     }
 }
 

@@ -44,7 +44,7 @@ public:
 
     bool                 isEmpty() const { return fieldList.isEmpty(); }
     void                 clear();
-    void                 clearValues();
+    void                 clearValues( bool nullify = FALSE );
     uint                 count() const;
     virtual QString      toString( const QString& prefix = QString::null ) const;
 
