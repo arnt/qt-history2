@@ -54,10 +54,10 @@ void qmotif_socknot_handler( XtPointer pointer, int *, XtInputId *id )
     eventloop->setSocketNotifierPending( socknot );
 }
 
-void QMotifEventLoop::registerSocketNotifier( QSocketNotifier *not )
+void QMotifEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
 {
     XtInputMask mask;
-    switch ( not->type() ) {
+    switch ( notifier->type() ) {
     case QSocketNotifier::Read:
 	mask = XtInputReadMask;
 	break;
@@ -76,17 +76,17 @@ void QMotifEventLoop::registerSocketNotifier( QSocketNotifier *not )
     }
 
     XtInputId id = XtAppAddInput( d->motif->applicationContext(),
-				  not->socket(), (XtPointer) mask,
+				  notifier->socket(), (XtPointer) mask,
 				  qmotif_socknot_handler, this );
-    d->socknotDict.insert( id, not );
+    d->socknotDict.insert( id, notifier );
 
-    QEventLoop::registerSocketNotifier( not );
+    QEventLoop::registerSocketNotifier( notifier );
 }
 
-void QMotifEventLoop::unregisterSocketNotifier( QSocketNotifier *not )
+void QMotifEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
 {
     QIntDictIterator<QSocketNotifier> it( d->socknotDict );
-    while ( it.current() && not != it.current() )
+    while ( it.current() && notifier != it.current() )
 	++it;
     if ( ! it.current() ) {
 	// this shouldn't happen
@@ -97,7 +97,7 @@ void QMotifEventLoop::unregisterSocketNotifier( QSocketNotifier *not )
     XtRemoveInput( it.currentKey() );
     d->socknotDict.remove( it.currentKey() );
 
-    QEventLoop::unregisterSocketNotifier( not );
+    QEventLoop::unregisterSocketNotifier( notifier );
 }
 
 void qmotif_timeout_handler( XtPointer pointer, XtIntervalId * )
