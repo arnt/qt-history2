@@ -4656,7 +4656,10 @@ QPointArray QCanvasEllipse::areaPoints() const
 */
 void QCanvasEllipse::drawShape(QPainter & p)
 {
-    p.setPen(NoPen); // since QRegion(QPointArray) excludes outline :-(  )-:
+#ifdef Q_WS_WIN
+    if ( w != 2 && h != 2 ) // Windows cannot paint a such an ellipse without a pen
+#endif
+	p.setPen(NoPen); // since QRegion(QPointArray) excludes outline :-(  )-:
     if ( !a1 && a2 == 360*16 ) {
 	p.drawEllipse(int(x()-w/2.0+0.5), int(y()-h/2.0+0.5), w, h);
     } else {
