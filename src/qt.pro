@@ -89,8 +89,6 @@ unix {
 	WORKSPACE_H	= $$WORKSPACE_CPP
 	XML_H		= $$XML_CPP
 	STYLES_H	= $$STYLES_CPP
-
-	DEFINES    += QT_FATAL_ASSERT
 	!mac:CONFIG	   += x11 x11inc
 }
 
