@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#80 $
 **
 ** Implementation of QButton widget class
 **
@@ -18,7 +18,7 @@
 #include "qaccel.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#79 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#80 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -604,7 +604,7 @@ void QButton::keyPressEvent( QKeyEvent *e )
 
 void QButton::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() != LeftButton || mlbDown )
+    if ( e->button() != LeftButton )
 	return;
     bool hit = hitButton( e->pos() );
     if ( hit ) {				// mouse press on button
@@ -624,7 +624,7 @@ void QButton::mousePressEvent( QMouseEvent *e )
 
 void QButton::mouseReleaseEvent( QMouseEvent *e)
 {
-    if ( e->button() != LeftButton || !mlbDown )
+    if ( e->button() != LeftButton )
 	return;
     if ( d )
 	timer()->stop();
