@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#93 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#92 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#93 $")
 
 
 /*----------------------------------------------------------------------------
@@ -873,16 +873,17 @@ void QWidget::setCRect( const QRect &r )	// set crect, update frect
     crect = r;
 }
 
-/*----------------------------------------------------------------------------
-  \fn bool QWidget::acceptFocus() const
-  Returns TRUE if the widget accepts keyboard focus events, or FALSE if
-  it does not.
 
-  Focus events are initially disabled. They can be enabled by calling
-  setAcceptFocus(TRUE).
+/*! \fn bool QWidget::acceptFocus() const
 
-  \sa setAcceptFocus()
- ----------------------------------------------------------------------------*/
+  Returns TRUE if the widget accepts keyboard events, or FALSE if it
+  does not.
+
+  Focus events are initially disabled, so the widget can not receive
+  keyboard input.  They are enabled by calling setAcceptFocus(TRUE).
+
+  \sa setAcceptFocus() focusInEvent() focusOutEvent() keyPressEvent()
+  keyReleaseEvent() */  
 
 /*----------------------------------------------------------------------------
   Enables or disables the keyboard input focus events for the widget.
@@ -1219,8 +1220,8 @@ void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
 /*! This event handler can be reimplemented in a subclass to receive
   key press events for the widget.
 
-  A widget needs to \link acceptFocus() accept focus \endlink
-  initially and \link \link hasFocus() have focus \endlink at the time
+  A widget needs to \link setAcceptFocus() accept focus \endlink
+  initially and \link hasFocus() have focus \endlink at the time
   in order to receive a key press event.
 
   If you reimplement this, it is very important that you \link
@@ -1229,7 +1230,7 @@ void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
 
   The default implementation ignores the event.
 
-  \sa keyReleaseEvent(), QKeyEvent::ignore(), event() acceptFocus()
+  \sa keyReleaseEvent(), QKeyEvent::ignore(), event() setAcceptFocus()
   hasFocus() QKeyEvent() focusInEvent() focusOutEvent() */
 
 void QWidget::keyPressEvent( QKeyEvent *e )
@@ -1241,9 +1242,9 @@ void QWidget::keyPressEvent( QKeyEvent *e )
 /*! This event handler can be reimplemented in a subclass to receive
   key release events for the widget.
 
-  A widget needs to \link acceptFocus() accept focus \endlink
-  initially and \link \link hasFocus() have focus \endlink at the time
-  in order to receive a key release event.
+  A widget needs to \link setAcceptFocus() accept focus \endlink
+  initially and \link hasFocus() have focus \endlink at the time in
+  order to receive a key release event.
 
   If you reimplement this, it is very important that you \link
   QKeyEvent ignore() \endlink the release if you do not understand it,
@@ -1251,7 +1252,7 @@ void QWidget::keyPressEvent( QKeyEvent *e )
 
   The default implementation ignores the event.
 
-  \sa keyPressEvent(), QKeyEvent::ignore(), event() acceptFocus()
+  \sa keyPressEvent(), QKeyEvent::ignore(), event() setAcceptFocus()
   hasFocus() QKeyEvent() focusInEvent() focusOutEvent() */
 
 void QWidget::keyReleaseEvent( QKeyEvent *e )
@@ -1262,9 +1263,9 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
 /* This event handler can be reimplemented in a subclass to receive
   keyboard focus events (focus received) for the widget.
 
-  A widget needs to \link acceptFocus() accept focus \endlink
-  initially and \link \link hasFocus() have focus \endlink at the time
-  in order to receive a focus receive event.
+  A widget needs to \link setAcceptFocus() accept focus \endlink
+  initially and \link hasFocus() have focus \endlink at the time in
+  order to receive a focus receive event.
 
   The default implementation does nothing.
 
@@ -1279,8 +1280,8 @@ void QWidget::focusInEvent( QFocusEvent * )
 /*! This event handler can be reimplemented in a subclass to receive
   keyboard focus events (focus lost) for the widget.
 
-  A widget needs to \link acceptFocus() accept focus \endlink
-  initially and \link \link hasFocus() have focus \endlink at the time
+  A widget needs to \link setAcceptFocus() accept focus \endlink
+  initially and \link hasFocus() have focus \endlink at the time
   in order to receive a focus lost event.
 
   The default implementation does nothing.
@@ -1312,8 +1313,9 @@ void QWidget::focusOutEvent( QFocusEvent * )
 
   \sa event(), repaint(), update(), QPainter, QPixmap */
 
-void QWidget::paintEvent( QPaintEvent * )
+void QWidget::paintEvent( QPaintEvent * e )
 {
+    NOT_USED( e )
 }
 
 
