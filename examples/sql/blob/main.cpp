@@ -10,6 +10,7 @@
 #include <qapplication.h>
 #include <qsqldatabase.h>
 #include <qsqlquery.h>
+#include <qsqlcursor.h>
 #include <qfile.h>
 
 #define DRIVER       "QMYSQL3" 	/* see the Qt SQL documentation for a list of available drivers */
@@ -63,17 +64,41 @@ int main( int argc, char ** argv )
     q.bindValue( 1, binaryData );
     if ( !q.exec() ) {
 	qWarning( "Unable to execute prepared query - exiting" );
+	return 1;
     }
 
     // read the BLOB back from the database
     if ( !q.exec( "SELECT id, binfield FROM blobexample" ) ) {
 	qWarning( "Unable to execute query - exiting" );
+	return 1;
     }
+    qWarning( "\nQSqlQuery:" );
     while ( q.next() ) {
 	qWarning( "BLOB id: %d", q.value( 0 ).toInt() );
 	qWarning( "BLOB size: %d", q.value( 1 ).toByteArray().size() );
     }
 
+    // write another BLOB using QSqlCursor
+    QSqlCursor cur( "blobexample" );
+    QSqlRecord * r = cur.primeInsert();
+    r->setValue( "id", 2 );
+    r->setValue( "binfield", binaryData );
+    if ( !cur.insert() ) {
+	qWarning( "Unable to insert BLOB using QSqlCursor - exiting" );
+	return 1;
+    }
+
+    // read the BLOBs back using QSqlCursor
+    if ( !cur.select() ) {
+	qWarning( "Unable retrieve blobexample table using QSqlCursor - exiting" );
+	return 1;
+    }
+    qWarning( "\nQSqlCursor:" );
+    while ( cur.next() ) {
+	qWarning( "BLOB id: %d", cur.value( "id" ).toInt() );
+	qWarning( "BLOB size: %d", cur.value( "binfield" ).toByteArray().size() );
+    }
+        
     if ( !q.exec( "DROP TABLE blobexample" ) ) {
 	qWarning( "Unable to drop table - exiting" );
 	return 1;
