@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#10 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#10 $")
 
 
 // --------------------------------------------------------------------------
@@ -345,22 +345,31 @@ QImage QPixmap::convertToImage() const
 extern bool qt_image_did_turn_scanlines();	// defined in qpixmap.cpp
 
 
-bool QPixmap::convertFromImage( const QImage &image )
+bool QPixmap::convertFromImage( const QImage &img )
 {
-    if ( image.isNull() ) {
+    if ( img.isNull() ) {
 #if defined(CHECK_NULL)
 	warning( "QPixmap::convertFromImage: Cannot convert a null image" );
 #endif
 	return FALSE;
     }
+    QImage image = img;
     int d = image.depth() == 1 ? 1 : -1;
+
+    if ( isQBitmap() && d != 1 ) {		// force to bitmap
+	image = image.convertDepth( 1 );	// dither
+	d = 1;
+    }
+
+    if ( d == 1 )				// 1 bit pixmap (bitmap)
+	image = image.convertBitOrder( QImage::BigEndian );
+
     int w = image.width();
     int h = image.height();
     QPixmap pm( w, h, d );
     bool tmp_dc = pm.handle() == 0;
     if ( tmp_dc )
 	pm.allocMemDC();
-
     uchar *bits;
     bool   turn = !qt_image_did_turn_scanlines();
     if ( turn ) {				// turn scanlines
