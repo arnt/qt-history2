@@ -155,6 +155,12 @@ public:
     QSNDict sn_except;
 
     HWND sn_win;
+
+#ifdef Q_WIN_EVENT_NOTIFIER
+    QList<QWinEventNotifier*> wen_list;
+    QVector<long> wen_handle_list;
+#endif
+
 #endif
 
     QEventLoop::ProcessEventHandler process_event_handler;

@@ -311,6 +311,10 @@ void QEventLoop::init()
 {
     qt_gui_thread = GetCurrentThreadId();
     d->sn_win = 0;
+
+#ifdef Q_WIN_EVENT_NOTIFIER
+    d->wen_handle_list.reserve(MAXIMUM_WAIT_OBJECTS - 1);
+#endif
 }
 
 void QEventLoop::cleanup()
@@ -522,7 +526,7 @@ bool QEventLoop::winEventFilter(void *message, long *result)
     return false;
 }
 
-#ifdef Q_WIN_EVENT_NOTIFIER
+#ifndef Q_WIN_EVENT_NOTIFIER
 bool QEventLoop::processEvents(ProcessEventsFlags flags)
 {
     MSG         msg;
@@ -683,10 +687,16 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
         
         //### The message sould be empty at this point. This will not return untill
         // a new message comes. This point is not reached so offten so maybe need 
-        // to do a zero timeout version out side of this "canWait" block  
-        DWORD ret = MsgWaitForMultipleObjectsEx(0, 0, INFINITE, QS_ALLEVENTS, MWMO_ALERTABLE);
+        // to do a zero timeout version out side of this "canWait" block 
+        
+        // has enough reserved space so this is cheap
+        d->wen_handle_list.resize(d->wen_list.count());
+        for (int i=0; i<d->wen_list.count(); i++)
+            d->wen_handle_list[i] = d->wen_list.at(i)->handle();
+        
+        DWORD ret = MsgWaitForMultipleObjectsEx(d->wen_handle_list.count(), (LPHANDLE)d->wen_handle_list.data(), INFINITE, QS_ALLEVENTS, MWMO_ALERTABLE);
 
-        if (ret == WAIT_OBJECT_0 + 0 && winPeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
+        if (ret == WAIT_OBJECT_0 + d->wen_handle_list.count() && winPeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
             //### instead of taking this message we should jump out and let the code above
             // take care of the message incase there are some ExcludeUserInput flags
             // or else remove input events from the dwWakeMask.
@@ -695,7 +705,9 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
                 return false;
             }
             winProcessEvent(&msg);
-        } 
+        } else if (ret - WAIT_OBJECT_0 >= 0 && ret - WAIT_OBJECT_0 < d->wen_handle_list.count()) {
+            activateWinEventNotifiers();
+        }
     }
 
     if (!(flags & ExcludeSocketNotifiers))
@@ -742,3 +754,41 @@ int QEventLoop::activateSocketNotifiers()
 
     return n_act;
 }
+
+
+#ifdef Q_WIN_EVENT_NOTIFIER
+
+void QEventLoop::registerWinEventNotifier(QWinEventNotifier * notifier)
+{
+    //### check that it is not in the list already
+    if (d->wen_list.contains(notifier))
+        qWarning("QWinEventNotifier: All ready registered");
+
+    if (d->wen_list.count() >= MAXIMUM_WAIT_OBJECTS - 1)
+        qWarning("QWinEventNotifier: Can not have more then %d enabled at one time", MAXIMUM_WAIT_OBJECTS - 1);
+    
+    d->wen_list.append(notifier);
+}
+
+void QEventLoop::unregisterWinEventNotifier(QWinEventNotifier * notifier)
+{
+    int i = d->wen_list.indexOf(notifier);
+    if (i != -1)
+        d->wen_list.takeAt(i);
+}
+
+// will go throw the entire list an activate any that are set
+int QEventLoop::activateWinEventNotifiers()
+{
+    int n_act = 0;
+    QEvent event(QEvent::SockAct);
+    for (int i=0; i<d->wen_list.count(); i++) {
+        if (WaitForSingleObject((HANDLE)d->wen_list.at(i)->handle(), 0) == WAIT_OBJECT_0) {
+            QCoreApplication::sendEvent(d->wen_list.at(i), &event);
+            ++n_act;
+        }
+    }
+    return n_act;
+}
+
+#endif

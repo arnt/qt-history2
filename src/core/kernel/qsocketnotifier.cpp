@@ -301,12 +301,16 @@ possible to use this class in a similar way to QSocketNotifier. It will enable t
 QWinEventNotifier::QWinEventNotifier(long hEvent, QObject *parent)
 : handleToEvent(hEvent), enabled(false), QObject(parent)
 {
+    QEventLoop *ev = QEventLoop::instance(thread());
+    Q_ASSERT_X(ev, "QWinEventNotifier::QWinEventNotifier()",
+               "Cannot create a win event notifier without an eventloop");
+    ev->registerWinEventNotifier(this);
+    enabled = true;
 }
 
 QWinEventNotifier::~QWinEventNotifier()
 {
-    if (isEnabled())
-        setEnabled(false);
+    setEnabled(false);
 }
 
 long  QWinEventNotifier::handle() const
@@ -321,6 +325,18 @@ bool QWinEventNotifier::isEnabled() const
 
 void QWinEventNotifier::setEnabled(bool enable)
 {
+    if (enabled == enable)                        // no change
+        return;
+    enabled = enable;
+
+    QEventLoop *eventloop = QEventLoop::instance(thread());
+    if (!eventloop) // perhaps application is shutting down
+        return;
+
+    if (enabled)
+        eventloop->registerWinEventNotifier(this);
+    else
+        eventloop->unregisterWinEventNotifier(this);
 }
 
 bool QWinEventNotifier::event(QEvent * e)

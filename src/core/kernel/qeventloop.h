@@ -21,6 +21,11 @@ class QCoreApplication;
 class QSocketNotifier;
 class QTimer;
 
+//#define Q_WIN_EVENT_NOTIFIER
+#ifdef Q_WIN_EVENT_NOTIFIER
+class QWinEventNotifier;
+#endif 
+
 class QEventLoopPrivate;
 
 #ifdef Q_OS_WIN
@@ -54,6 +59,12 @@ public:
     virtual void unregisterSocketNotifier(QSocketNotifier *);
     void setSocketNotifierPending(QSocketNotifier *);
     int activateSocketNotifiers();
+
+#ifdef Q_WIN_EVENT_NOTIFIER
+    void registerWinEventNotifier(QWinEventNotifier *);
+    void unregisterWinEventNotifier(QWinEventNotifier *);
+    int activateWinEventNotifiers();
+#endif
 
     int activateTimers();
     int timeToWait() const;
