@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: debug.doc,v 1.9 1996/02/19 12:36:06 hanord Exp $
+** $Id: debug.doc,v 1.10 1996/07/05 21:33:49 agulbra Exp $
 **
 ** Qt Debugging Techniques
 **
@@ -36,7 +36,7 @@ version of Qt.
 <p>
 (Note that these options are only available in the development
 version of the Qt library, not in the production version.  Currently,
-<a href=troll.html>Troll Tech</a> only supports a development version
+<a href="troll.html">Troll Tech</a> only supports a development version
 of the Qt library.)
 <p>
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 1.15 1996/05/24 14:21:03 eiriken Exp $
+** $Id: tutorial.doc,v 1.16 1996/07/05 21:33:50 agulbra Exp $
 **
 ** Tutorial
 **
@@ -75,7 +75,7 @@ default font and cursor.
 \line qpushbt
 
 This line includes the QPushButton class definition.  The <a
-href=hierarchy.html>reference documentation</a> for each class
+href="hierarchy.html">reference documentation</a> for each class
 mentions at the top which file needs to be included to use that class.
 
 QPushButton is a classical GUI push button, which the user can press and
@@ -286,7 +286,7 @@ and a lone child.
 
 Here we simply create a widget.  Note that we did not have to
 include \c qwidget.h, because we have included qpushbt.h and
-QPushButton is a subclass of QWidget (see <a href=hierarchy.html>
+QPushButton is a subclass of QWidget (see <a href="hierarchy.html">
 Class Hierarchy</a>).
 
 A QWidget does not handle any events, it simply displays itself using
@@ -645,7 +645,7 @@ QLCDNumber, connected together.
 \until }
 
 This is essentially lifted straight from the <a
-href=t5.html#constructor>MyWidget constructor</a> in chapter five.  The
+href="t5.html#constructor">MyWidget constructor</a> in chapter five.  The
 only difference is that \c lcd is now placed at coordinate 0,0 (the top
 left corner of the LCDRange widget) since we're making a new widget and
 don't want a border.  If the widget's user wants a border, he/she can make
@@ -654,7 +654,7 @@ a border around the LCDRange.
 \until }
 
 Since LCDRange doesn't have either a border or quit button, the resize
-event is simpler than <a href=t5.html#resize>the one in MyWidget.</a>
+event is simpler than <a href="t5.html#resize">the one in MyWidget.</a>
 
 \skip private
 \until }
@@ -772,14 +772,14 @@ implementation
 <li>\link t7-main-cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t7-makefile.html Makefile\endlink contains some rules for
 generating the meta object information necessary for <a
-href=metaobjects.html>signal/slot creation.</a>
+href="metaobjects.html">signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
 
 <h3>\link t7-lcdrange-h.html lcdrange.h\endlink</h3>
 
-This file is mainly lifted from <a href=t6.html#main>main.cpp</a> in
+This file is mainly lifted from <a href="t6.html#main">main.cpp</a> in
 chapter 6 and only the changes are noted here.
 
 \dontinclude t7/lcdrange.h
@@ -812,7 +812,7 @@ for the compiler.
 Note the Q_OBJECT.  This macro must be included in \e all classes that
 contain signals and/or slots.  For the curious, it defines the
 functions that are implemented in the <a
-href=metaobjects.html>meta object file</a>.
+href="metaobjects.html">meta object file</a>.
 
 \line value
 \until valueChanged
@@ -835,7 +835,7 @@ by the class they are defined in or by classes inheriting from it.
 
 \dontinclude t7/lcdrange.cpp
 
-This file is mainly lifted from <a href=t6.html#main>t6/main.cpp</a> and
+This file is mainly lifted from <a href="t6.html#main">t6/main.cpp</a> and
 only the changes are noted here.
 
 \skip connect
@@ -995,7 +995,7 @@ implementation
 <li>\link t8-main-cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t8-makefile.html Makefile\endlink contains some rules for
 generating the meta object information necessary for <a
-href=metaobjects.html>signal/slot creation.</a>
+href="metaobjects.html">signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
@@ -1283,7 +1283,7 @@ implementation
 <li>\link t9-main-cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t9-makefile.html Makefile\endlink contains some rules for
 generating the meta object information necessary for <a
-href=metaobjects.html>signal/slot creation.</a>
+href="metaobjects.html">signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
@@ -1472,7 +1472,7 @@ implementation
 <li>\link t10-main-cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t10-makefile.html Makefile\endlink contains some rules for
 generating the meta object information necessary for <a
-href=metaobjects.html>signal/slot creation.</a>
+href="metaobjects.html">signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
@@ -1732,7 +1732,7 @@ implementation
 <li>\link t11-main-cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t11-makefile.html Makefile\endlink contains some rules for
 generating the meta object information necessary for <a
-href=metaobjects.html>signal/slot creation.</a>
+href="metaobjects.html">signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
@@ -2012,7 +2012,7 @@ implementation
 <li>\link t12-main-cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t12-makefile.html Makefile\endlink contains some rules for
 generating the meta object information necessary for <a
-href=metaobjects.html>signal/slot creation.</a>
+href="metaobjects.html">signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
@@ -2414,7 +2414,7 @@ implementation
 <li>\link t13-main-cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t13-makefile.html Makefile\endlink contains some rules for
 generating the meta object information necessary for <a
-href=metaobjects.html>signal/slot creation.</a>
+href="metaobjects.html">signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
@@ -2734,7 +2734,7 @@ implementation
 <li>\link t14-main-cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t14-makefile.html Makefile\endlink contains some rules for
 generating the meta object information necessary for <a
-href=metaobjects.html>signal/slot creation.</a>
+href="metaobjects.html">signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>

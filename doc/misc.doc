@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.20 1996/05/31 17:54:28 agulbra Exp $
+** $Id: misc.doc,v 1.21 1996/07/05 21:33:50 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.20 1996/05/31 17:54:28 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 1.21 1996/07/05 21:33:50 agulbra Exp $";
 #endif
 
 
@@ -218,7 +218,7 @@ Copyright &copy; 1992-1996 Troll Tech AS.  All rights reserved.
 
 <p>
 
-This is the non-commercial license for Qt version 0.97; it covers
+This is the non-commercial license for Qt version \version; it covers
 private use and development of free software for the free software
 community.
 
@@ -275,7 +275,7 @@ AS.  Freely distributable programs may generally use Qt for free, see
 </ul>
 
 
-<h2 align=center>LIMITATIONS OF LIABILITY</h1>
+<h2 align=center>LIMITATIONS OF LIABILITY</h2>
  
 Troll Tech AS makes no obligation under this license to support or upgrade
 Qt, or assist in the use of Qt.
@@ -297,9 +297,9 @@ OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 <p align=center>
 (Qt is also available under other licenses; send mail to <a
-href=mailto:info@troll.no>info@troll.no</a> for details.)
+href="mailto:info@troll.no">info@troll.no</a> for details.)
 <p align=center>
-(The <a href=faq.html>FAQ</a> contains a number of questions related
+(The <a href="faq.html">FAQ</a> contains a number of questions related
 to the license.)
 */
 
@@ -308,25 +308,24 @@ to the license.)
 <title>Troll Tech Contact Information</title>
 </head><body>
 
-<h1>Contact Information for Troll Tech</h1>
+<h1 align=center>Contact Information for Troll Tech</h1>
 
-<h2>Snail mail</h2>
+<h2 align=center>Snail mail</h2>
 
 Troll Tech<br>
 Postboks 6133 Etterstad<br>
 N-0602 Oslo<br>
 Norway<br>
 
-<h2>Electronically</h2>
-
+<p>
 Fax: +47 22 64 69 49.
 
-<p>
+<h2 align=center>Electronically</h2>
 
-E-mail: <a href=mailto:info@troll.no>info@troll.no</a> for general
-enquiries, <a href=mailto:www@troll.no>www@troll.no</a> for comments
+E-mail: <a href="mailto:info@troll.no">info@troll.no</a> for general
+enquiries, <a href="mailto:www@troll.no">www@troll.no</a> for comments
 about our WWW pages, or <a
-href=mailto:qt-bugs@troll.no>qt-bugs@troll.no</a> for Qt bug reports
+href="mailto:qt-bugs@troll.no">qt-bugs@troll.no</a> for Qt bug reports
 and other Qt-related mail. */
 
 /*! \page qt.html
@@ -334,7 +333,7 @@ and other Qt-related mail. */
 <title>Qt toolkit - overview</title>
 </head><body>
 
-<h1>The Qt Application Framework</h1>
+<h1 align=center>The Qt Application Framework</h1>
 
 Qt is a high-performance object-oriented framework for developing graphical
 user interface (GUI) applications.
@@ -342,31 +341,31 @@ user interface (GUI) applications.
 <p>
 
 Qt can be downloaded from <a
-href=http://www.troll.no/>http://www.troll.no/</a>, where you find
+href="http://www.troll.no/">http://www.troll.no/</a>, where you find
 on-line documentation and other Qt-related pages, as well.
 
 <p>
 
-It is also ftp'able from <a href=ftp://ftp.troll.no/>ftp.troll.no</a>
+It is also ftp'able from <a href="ftp://ftp.troll.no/">ftp.troll.no</a>
 nd other places (e.g
-<a href=ftp://sunsite.unc.edu/pub/Linux/>sunsite.unc.edu.</a>)
+<a href="ftp://sunsite.unc.edu/pub/Linux/">sunsite.unc.edu.</a>)
 
 <p>
 
 If you find any bugs, send a report to
-<a href=mailto:qt-bugs@troll.no>qt-bugs@troll.no</a>
+<a href="mailto:qt-bugs@troll.no">qt-bugs@troll.no</a>
 
 <p>
 
 If you create a nice Qt program and want us to distribute it as a
-contrib, send us a line at <a href=mailto:info@troll.no>
+contrib, send us a line at <a href="mailto:info@troll.no">
 info@troll.no</a> or upload it to the /incoming directory of
 ftp.troll.no.
 
 <p>
 
 There is a mailing list for Qt users. Send a message containing the single
-word "subscribe" to <a href=mailto:qt-interest-request@nvg.unit.no>
+word "subscribe" to <a href="mailto:qt-interest-request@nvg.unit.no">
 qt-interest-request@nvg.unit.no</a> to join the list.
 You will receive a receipt from the list server within a few minutes.
 
@@ -375,11 +374,11 @@ You will receive a receipt from the list server within a few minutes.
 Here is some more information about Qt:
 
 <ul>
-<li><a href=http://www.troll.no/intro.html>Introduction to Qt</a>
-<li><a href=index.html>Documentation Home Page</a>
-<li><a href=annotated.html>Annotated Class List</a>
-<li><a href=tutorial.html>Tutorial</a>
-<li><a href=examples.html>Example Programs</a>
+<li><a href="http://www.troll.no/intro.html">Introduction to Qt</a>
+<li><a href="index.html">Documentation Home Page</a>
+<li><a href="annotated.html">Annotated Class List</a>
+<li><a href="tutorial.html">Tutorial</a>
+<li><a href="examples.html">Example Programs</a>
 </ul>
 */
 
@@ -387,7 +386,7 @@ Here is some more information about Qt:
 
 <title>Qt Official Easter Egg</title>
 </head><body>
-<meta http-equiv="refresh" content="60; URL=easteregg2.html">
+<meta http-equiv="refresh" content="60"; URL="easteregg2.html">
 
 <h1>Congratulations!</h1>
 <h2>You've found our easter egg</h2>

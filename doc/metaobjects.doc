@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: metaobjects.doc,v 1.9 1996/03/10 19:15:27 agulbra Exp $
+** $Id: metaobjects.doc,v 1.10 1996/07/05 21:33:49 agulbra Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -17,7 +17,7 @@ Qt toolkit - Meta Object Compiler description
 
 Signals and slots are used for communication between objects.  The
 signal/slot mechanism is a central feature of Qt, and is implemented
-using the <a href=moc.html>moc</a> (Meta Object Compiler) and some
+using the <a href="moc.html">moc</a> (Meta Object Compiler) and some
 preprocessor defines.
 
 All classes that contain signals and/or slots must inherit from
@@ -151,7 +151,7 @@ are more reusable if they do \e not use special types.  If \l
 QScrollBar::valueChanged() were to use a special type such as the
 hypothetical QRangeControl::Range, it could only be connected to slots
 designed specifically for QRangeControl.  Something as simple as the
-program in <a href=t5.html>Tutorial 5</a> would be impossible.
+program in <a href="t5.html">Tutorial 5</a> would be impossible.
 
 <h2>Slots</h2>
 
@@ -219,7 +219,7 @@ declarations.
 Q_OBJECT is expanded by the preprocessor to declare several member
 functions that are implemented by the moc; if you get compiler errors
 along the lines of "virtual function QButton::className not defined"
-you have probably forgotten to <a href=moc.html>run the moc</a> or to
+you have probably forgotten to <a href="moc.html">run the moc</a> or to
 include the moc output in the link command.
 
 \code
