@@ -1908,13 +1908,13 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 		return ir; }
 
 	    case SC_TitleBarCloseButton:
-		return QRect( titlebar->width() - ( controlHeight + controlTop ), 
+		return QRect( titlebar->width() - ( controlHeight + controlTop ),
 			      controlTop, controlHeight, controlHeight );
 
 	    case SC_TitleBarMaxButton:
 	    case SC_TitleBarShadeButton:
 	    case SC_TitleBarUnshadeButton:
-		return QRect( titlebar->width() - ( ( controlHeight + controlTop ) * 2 ), 
+		return QRect( titlebar->width() - ( ( controlHeight + controlTop ) * 2 ),
 			      controlTop, controlHeight, controlHeight );
 
 	    case SC_TitleBarMinButton:
@@ -2337,13 +2337,17 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 
 
 /*! \reimp */
-int QCommonStyle::styleHint(StyleHint sh, const QWidget *, const QStyleOption &, QStyleHintReturn *) const
+int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption &, QStyleHintReturn *) const
 {
     int ret;
 
     switch (sh) {
     case SH_GroupBox_TextLabelVerticalAlignment:
 	ret = Qt::AlignVCenter;
+	break;
+
+    case SH_GroupBox_TextLabelColor:
+	ret = (int) ( w ? w->paletteForegroundColor().rgb() : 0 );
 	break;
 
     case SH_TabBar_SelectMouseType:

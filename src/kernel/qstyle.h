@@ -592,6 +592,9 @@ public:
 	// Center on windows, Auto|VCenter otherwize
 	SH_GroupBox_TextLabelVerticalAlignment,
 
+	// Qt::QRgb - text label color in groupboxes
+	SH_GroupBox_TextLabelColor,
+
 	// bool - popupmenu supports sloppy submenus
 	SH_PopupMenu_SloppySubMenus,
 
