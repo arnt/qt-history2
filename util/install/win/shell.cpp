@@ -98,7 +98,7 @@ static const char* file_xpm []={
     ".......##......."
 };
 
-static const char* info_xpm[] = { 
+static const char* info_xpm[] = {
     "16 16 6 1",
     "# c #0000ff",
     "a c #6868ff",
@@ -132,9 +132,7 @@ static QPixmap* infoImage = NULL;
 WinShell::WinShell()
 {
 #if defined(Q_OS_WIN32)
-    QByteArray buffer( MAX_PATH * 2 );
     HRESULT hr;
-    IEnumIDList* enumerator = NULL;
     LPITEMIDLIST item;
 #endif
 
@@ -144,20 +142,21 @@ WinShell::WinShell()
 
 #if defined(Q_OS_WIN32)
     if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
+	ushort buffer[MAX_PATH];
 	if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_PROGRAMS, &item ) ) ) {
-	    if( SHGetPathFromIDListA( item, buffer.data() ) ) {
-		localProgramsFolderName = buffer.data();
+	    if( SHGetPathFromIDListW( item, buffer ) ) {
+		localProgramsFolderName = QString::fromUcs2( buffer );
 		if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_COMMON_PROGRAMS, &item ) ) ) {
-		    if( SHGetPathFromIDListA( item, buffer.data() ) )
-			commonProgramsFolderName = buffer.data();
+		    if( SHGetPathFromIDListW( item, buffer ) )
+			commonProgramsFolderName = QString::fromUcs2( buffer );
 		    else
 			qDebug( "Could not get name of common programs folder" );
 		}
 		else
 		    qDebug( "Could not get common programs folder location" );
 
-		if( GetWindowsDirectoryA( buffer.data(), buffer.size() ) )
-		    windowsFolderName = buffer.data();
+		if( GetWindowsDirectoryW( buffer, MAX_PATH ) )
+		    windowsFolderName = QString::fromUcs2( buffer );
 		else
 		    qDebug( "Could not get Windows directory" );
 	    }
@@ -168,6 +167,7 @@ WinShell::WinShell()
 	    qDebug( "Could not get programs folder location" );
     }
     else {
+	QByteArray buffer( MAX_PATH );
 	if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_PROGRAMS, &item ) ) ) {
 	    if( SHGetPathFromIDListA( item, buffer.data() ) ) {
 		localProgramsFolderName = buffer.data();
@@ -185,7 +185,7 @@ WinShell::WinShell()
     openImage = new QPixmap( folder_open_xpm );
     fileImage = new QPixmap( file_xpm );
     infoImage = new QPixmap( info_xpm );
-} 
+}
 
 WinShell::~WinShell()
 {
@@ -229,7 +229,7 @@ QString WinShell::createFolder( QString folderName, bool common )
 
 
 #if defined(Q_OS_WIN32)
-HRESULT WinShell::createShortcut( QString folderName, bool common, QString shortcutName, QString target, QString description, QString arguments, QString wrkDir )
+HRESULT WinShell::createShortcut( QString folderName, bool, QString shortcutName, QString target, QString description, QString arguments, QString wrkDir )
 {
     IPersistFile* linkFile;
     HRESULT hr;
@@ -262,7 +262,7 @@ HRESULT WinShell::createShortcut( QString folderName, bool common, QString short
 		    link->SetArguments( (LPOLESTR)qt_winTchar( arguments, true ) );
 
 		hr = linkFile->Save( (LPCOLESTR)qt_winTchar( folderName + QString( "\\" ) + shortcutName, true ), false );
-		
+
 		linkFile->Release();
 	    }
 	    else
@@ -294,7 +294,7 @@ HRESULT WinShell::createShortcut( QString folderName, bool common, QString short
 		    link->SetArguments( arguments.local8Bit() );
 
 		hr = linkFile->Save( (LPCOLESTR)qt_winTchar( folderName + QString( "\\" ) + shortcutName, true ), false );
-		
+
 		linkFile->Release();
 	    }
 	    else
@@ -311,7 +311,7 @@ HRESULT WinShell::createShortcut( QString folderName, bool common, QString short
 #endif
 
 #if defined(Q_OS_WIN32)
-void WinShell::createInternetShortcut( QString folderName, bool common, QString shortcutName, QString url )
+void WinShell::createInternetShortcut( QString folderName, bool, QString shortcutName, QString url )
 {
     // Add .url to shortcut name if needed
     if( shortcutName.right( 4 ) != ".url" )
@@ -367,7 +367,7 @@ QPixmap* WinShell::getInfoImage()
 QString WinShell::OLESTR2QString( LPOLESTR str )
 {
     QString tmp;
-    
+
     for( int i = 0; str[ i ]; i++ )
 	tmp += QChar( str[ i ] );
 
