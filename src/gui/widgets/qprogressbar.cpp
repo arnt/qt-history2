@@ -166,6 +166,12 @@ void QProgressBar::setValue(int value)
     repaint();
 }
 
+void QProgressBar::setRange(int minimum, int maximum)
+{
+    setMinimum(minimum);
+    setMaximum(maximum);
+}
+
 int QProgressBar::value() const
 {
     return d->value;
