@@ -196,6 +196,8 @@ static bool	sm_cancel;
 static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 static bool replayPopupMouseEvent = FALSE; // replay handling when popups close
 
+static bool ignoreNextMouseReleaseEvent = FALSE; // ignore the next release event if 
+						 // return from a modal widget
 #if defined(QT_DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
 #endif
@@ -1840,6 +1842,20 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	if ( QApplication::desktopSettingsAware() )
 	    qt_set_windows_resources();
 	break;
+    case WM_LBUTTONDOWN:
+    case WM_MBUTTONDOWN:
+    case WM_RBUTTONDOWN:
+	if ( ignoreNextMouseReleaseEvent )
+	    ignoreNextMouseReleaseEvent = FALSE;
+	break;
+    case WM_LBUTTONUP:
+    case WM_MBUTTONUP:
+    case WM_RBUTTONUP:
+	if ( ignoreNextMouseReleaseEvent ) {
+	    ignoreNextMouseReleaseEvent = FALSE;
+	    RETURN(0);
+	}
+
     default:
 	break;
     }
@@ -2346,6 +2362,7 @@ void qt_enter_modal( QWidget *widget )
     app_do_modal = TRUE;
     qt_dispatchEnterLeave( 0, QWidget::find( (WId)curWin  ) ); // send synthetic leave event
     curWin = 0;
+    ignoreNextMouseReleaseEvent = FALSE;
 }
 
 
@@ -2363,6 +2380,7 @@ void qt_leave_modal( QWidget *widget )
 	}
     }
     app_do_modal = qt_modal_stack != 0;
+    ignoreNextMouseReleaseEvent = TRUE;
 }
 
 static bool qt_blocked_modal( QWidget *widget )
