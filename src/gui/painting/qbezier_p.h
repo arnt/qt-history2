@@ -29,7 +29,7 @@
 
 class QPolygonF;
 
-class QBezier
+class Q_GUI_EXPORT QBezier
 {
 public:
     QBezier(float p1x, float p1y, float p2x, float p2y,
