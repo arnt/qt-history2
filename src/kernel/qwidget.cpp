@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#437 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#438 $
 **
 ** Implementation of QWidget class
 **
@@ -3082,7 +3082,7 @@ bool QWidget::close( bool alsoDelete )
 
   The QApplication::lastWindowClosed() signal is emitted when the last
   visible top level widget is closed.
-  
+
   \sa close(bool)
 */
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#262 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#263 $
 **
 ** Implementation of QApplication class
 **
@@ -1162,13 +1162,19 @@ void QApplication::quit()
 void QApplication::closeAllWindows()
 {
     QWidgetList *list = QApplication::topLevelWidgets();
-    QWidgetListIt it( *list );		// iterate over the widgets
     bool did_close = TRUE;
-    while ( did_close && it.current() ) {		// for each top level widget...
-	did_close = it.current()->close();
-	++it;
+    QWidget* w = list->first();
+    while ( did_close && w ) {
+	if ( !w->testWState( WState_Withdrawn ) ) {
+	    did_close = w->close();
+	    delete list;
+	    list = QApplication::topLevelWidgets();
+	    w = list->first();
+	}
+	else
+	    w = list->next();
     }
-    delete list;			// delete the list, not the widgets
+    delete list;
 }
 
 
