@@ -648,6 +648,7 @@ void Q3ToolBar::createPopup()
                         s = c->currentText();
                     int maxItems = 0;
                     QPopupMenu *cp = new QPopupMenu(d->extensionPopup);
+                    cp->setEnabled(c->isEnabled());
                     d->extensionPopup->insertItem(s, cp);
                     connect(cp, SIGNAL(activated(int)), c, SLOT(internalActivate(int)));
                     for (int i = 0; i < c->count(); ++i) {
