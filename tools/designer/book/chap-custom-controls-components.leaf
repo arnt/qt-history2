@@ -384,32 +384,108 @@ We have two recommendations that you should consider when creating a
 \index Component!Plugins
     Qt Plugins can be used to provide self-contained software
     components for Qt applications. Qt currently supports the creation
-    of five kinds of plugins: codecs, image formats, database drivers,
+    of five kinds of plugins, codecs, image formats, database drivers,
     styles and custom widgets. In this section we will explain how to
-    convert our filechooser custom widget into a \QD custom widget
+    convert our custom filechooser widget into a \QD custom widget
     plugin.
+\omit
+    A plugin is a software component. Plugins are not specific to \QD;
+    they can be used generally to wrap any number of classes which can
+    then be supplied within a stand-alone component. \QD can load any
+    plugins that provide an interface which it understands: the
+    \Class WidgetInterface is such an interface and the one we'll use
+    for our example. \QD also provides an application interface through
+    which plugins can access its own functionality. We will demonstrate
+    how to wrap a custom widget, (the FileChooser widget we created in
+    the previous section), inside an interface implementation and how to
+    place the interface implementation inside a plugin. Although we will
+    only include one widget in our interface implementation there is no
+    limit to the number of widgets that could be included.
 
+    \sidebar Plugin Terminology
+
+    \index Plugins!Terminology
+\index Terminology!Plugins
+\list
+    \i
+
+    A \e Plugin is a library that is dynamically loaded by
+    applications. A plugin contains any number of interface
+    implementations and possibly other functionality.
+
+    \i
+
+    An \e Interface is an abstract base class which defines the
+    signatures for the functions that a particular type of interface
+    implementation will provide. Applications can query plugins to see
+    if the plugin can provide an implementation of an interface that the
+    application wishes to use.
+
+    \i
+
+    An \e {Interface Implementation} is a class that implements an
+    interface. For example an interface implementation might implement
+    the \Class WidgetInterface interface.
+
+    \endlist
+
+    \endsidebar
+
+    In our example we wish to make a custom widget available through a
+    plugin so we must derive the interface implementation from the
+    \Class WidgetInterface class. We must implement all the
+    \Class {WidgetInterface}'s pure virtual functions. In most cases the
+    implementations are simple and can easily be adapted from the
+    example we present.
+
+    Within the context of the \Class WidgetInterface a \e feature is a
+    widget class that a \Class WidgetInterface implementation makes
+    available to applications. Since a \Class WidgetInterface
+    implementation can include any number of features most of the
+    interface functions take the name of the feature, (the particular
+    widget class we wish to access through the interface), as their
+    first argument to distinguish which feature we are referring to.
+\endomit
     A \QD custom widget plugin is always derived from \Class
     QWidgetPlugin. The amout of code that needs to be written is
     minimal.
 
     To make your own plugin it is probably easiest to start by copying
-    our example \index plugin.h
+    the \index plugin.h
 \File plugin.h and \index plugin.cpp
 \File plugin.cpp files and changing
     'CustomWidgetPlugin' to the name you wish to use for your
-    widget plugin implementation class. Below we provide an
+    widget interface implementation class. Below we provide an
     introduction to the header file although it needs no changes beyond
     class renaming. The implementation file requires simple changes,
     mostly more class renaming; we will review each function in turn and
     explain what you need to do.
 
+\omit
+    \index UUID (Universal Unique Identifier)
+\index Universal Unique Identifier, UUID
+
+    Note that if two different interface implementations, e.g. from two
+    different suppliers, use the same class name there will be no
+    conflict. This is because every interface (i.e. abstract base
+    class) has a unique uuid (\e {universal unique identifier}). When the
+    application wants the functionality of a particular interface it
+    calls \index queryInterface()
+\Func queryInterface() passing the uuid of the interface it is
+    interested in, for example, \c IID_Widget. If the
+    implementation provides the requested interface it returns a
+    pointer to the interface's implementation. The application never
+    uses (or knows) the name of the class that actually provides the
+    implementation so no name conflict can occur.
+
+	\section3 The \Class WidgetInterface Implementation
+\endomit
 	\section3 The \Class CustomWidgetPlugin Implementation
 
 	We have called our header file 
 \index plugin.h
 	\File plugin.h and we've
-	called our plugin class \Class CustomWidgetPlugin since we
+	called our interface class \Class CustomWidgetPlugin since we
 	will be using our plugin class to wrap our custom widgets. We
 	present the entire header file to give you an impression of the
 	scope of the implementation required. Most of the functions
@@ -419,18 +495,30 @@ We have two recommendations that you should consider when creating a
 \skipto #include
 \printuntil };
 \caption From \File qt/tools/designer/examples/filechooser/plugin/plugin.h
+\omit
+	    There are two items of private data, \c objects and
+	    \c ref. The \c ref item is used to store the widget
+	    interface implementation's reference count. The \c objects
+	    item is a guarded cleanup handler that ensures that the
+	    widgets that get instantiated by the interface
+	    implementation are deleted when the plugin is unloaded. (See
+	    the \link http://doc.trolltech.com/qplugin.html Qt Plugin documentation \endlink and the class documentation for
+	    \link http://doc.trolltech.com/qcleanuphandler.html QCleanupHandler \endlink
+	    for more information.)
 
+	\section3 The WidgetInterface Functions
+\endomit
 	\section3 The QWidgetPlugin Functions
 
 	\index plugin.cpp
 	Create your own plugin \c {.cpp} file by copying our
 	\File plugin.cpp file and changing all occurrences of
 	'CustomWidgetPlugin' to the name you wish to use for your
-	widget plugin implementation. Most of the other changes are
+	widget interface implementation. Most of the other changes are
 	simply replacing the name of our custom control, 'FileChooser',
 	with the name of your custom control. You may need to
 	add extra \c {else if} clauses if you have more than one custom
-	control in your plugin implementation.
+	control in your interface implementation.
     
 	    We'll now look at the constructor.
 
@@ -438,23 +526,119 @@ We have two recommendations that you should consider when creating a
 \skipto CustomWidgetPlugin
 \printuntil }
 
-	    The constructor does not have to do anything. Simply copy
-	    ours with the class name you wish to use for your widget
-	    plugin implementation.
+	    The constructor sets the widget interface implementation's
+	    reference count to zero. Simply copy ours with the class
+	    name you wish to use for your widget interface
+	    implementation.
 
-	    No destructor is necessary. 
+	    No destructor is necessary. We defined it in the header
+	    file as follows:
 
-	    \index keys()
-	    The \Func keys function.
+\quotefile filechooser/plugin/plugin.h
+\skipto ~CustomWidgetPlugin
+\printline ~
+
+	    \index plugin.h
+	    If you copied our \File plugin.h, and renamed the widget
+	    interface implementation's class name throughout, your
+	    destructor is finished.
+
+	    \index queryInterface()
+	    The \Func queryInterface() is the most complicated function:
+	    but it can simply be copied into your own widget interface
+	    implementation. Change the class name to whatever class
+	    you've called your widget interface implementation. (It
+	    isn't implemented for us in the \Class WidgetInterface
+	    class because some types of plugin need to specialise it.)
 
 \quotefile filechooser/plugin/plugin.cpp
-\skipto ::keys
+\skipto ::queryInterface
+\printuntil QS_OK
+\printline }
+
+	    \index UUID (Universal Unique Identifier)
+	    \index Universal Unique Identifier, UUID
+	    \index Globally Unique Identifier
+	    \index queryInterface()
+	    The \Func queryInterface() function is called by programs that
+	    load a plugin so that they can determine whether the plugin
+	    provides an implementation for a particular interface. Every
+	    interface has a unique uuid
+	    (\e {universal unique identifier}, also known as a
+	    \e {globally unique identifier}), which is passed to the
+	    function as \c uuid. The function also takes a pointer to a
+	    pointer to an
+	    \Class QUnknownInterface object, \c iface, and tries
+	    to assign a matching interface to it. If the interface
+	    implementation supports the requested interface the
+	    interface's reference count is incremented.
+
+	    \sidebar Why we need \Func addRef() and \Func release()
+
+	    \index addRef()
+	    \index release()
+	    Plugins are different from most other Qt classes with
+	    regards to memory management. In Qt programming we often pass
+	    on responsibility for memory management to the containing
+	    widgets and ultimately to \c {QApplication} itself by
+	    parenting our widgets. Plugins are different because they
+	    wrap interfaces which are not \Class {QObject}s, so we cannot
+	    predict what their memory handling requirements are. This
+	    means that when you get a reference to a widget interface
+	    implementation object a reference count is incremented, and
+	    when you have no further use for the reference \e you must
+	    call \Func release(). The reference counting prevents the
+	    unloading of a library (plugin) that is still in use. If all
+	    of a plugin's reference counts are zero the library can be
+	    automatically unloaded.
+
+	    Since we are writing a widget interface implementation for
+	    \QD, all we need to do is provide the \Func addRef() and
+	    \Func release() functions. \QD (or any other application using
+	    our plugin) is responsible for calling these functions when
+	    appropriate.
+
+	    \index Macros!Q_REFCOUNT
+	    \index Q_REFCOUNT
+	    You don't have to implement these functions yourself. Just
+	    add the \c {Q_REFCOUNT} macro to your
+	    \index .h
+	    \File .h file and they will be created for you.
+
+	    \endsidebar
+
+	    \index Macros!Q_EXPORT_COMPONENT
+	    \index Q_EXPORT_COMPONENT
+	    The \Func Q_EXPORT_COMPONENT macro.
+
+\skipto Q_EXPORT_COMPONENT
 \printuntil }
 
-	    For each widget class that you want to wrap in the plugin
-	    implementation you should supply a key, (often the
+	    This macro is the only code that identifies your module as a
+	    plugin -- all the other code simply implements the relevant
+	    interface, i.e. wraps the classes you wish to make
+	    available.
+
+	    This macro must appear once in your plugin. It should be
+	    copied with the class name changed to the name of your
+	    interface's class. (See the
+	    \link http://doc.trolltech.com/qplugin.html
+	    Qt Plugin documentation \endlink
+	    for more information on the plugin entry point.)
+
+	    Each widget you wrap in a widget interface implementation
+	    becomes a feature that the interface implementation offers.
+	    There is no limit to the number of features that you may
+	    include in an interface implementation.
+
+\quotefile filechooser/plugin/plugin.cpp
+\skipto ::featureList
+\printuntil }
+
+	    For each widget class that you want to wrap in the interface
+	    implementation you should supply a feature name, (often the
 	    class name), by which the class can be identified. In our
-	    example we add a single key, 'FileChooser'.
+	    example we add a single feature, 'FileChooser'.
 
 	    \index create()
 	    The \Func create() function.
@@ -463,13 +647,12 @@ We have two recommendations that you should consider when creating a
 \printuntil }
 
 	    In this function we create an instance of the requested
-	    class and return a QWidget pointer to the newly created
-	    widget.  Copy this function changing the class name and
-	    the feature name and create an instance of your widget
-	    just as we've done here.
-	    (See the \link
-	    http://doc.trolltech.com/plugins.html Qt Plugin
-	    documentation \endlink for more information.)
+	    feature, register it with the cleanup handler, with
+	    the \c {objects.add( w )} call, and return a pointer to the
+	    widget for the caller to use. Copy this function changing
+	    the class name and the feature name and create an instance
+	    of your widget just as we've done here with
+	    \c {w = new FileChooser( parent, name);}. (See the \link http://doc.trolltech.com/qplugin.html Qt Plugin documentation \endlink for more information on cleanup handling.)
 
 	    \index includeFile()
 	    The \Func includeFile() function.
@@ -479,37 +662,38 @@ We have two recommendations that you should consider when creating a
 
 	    This function returns the name of the include file for the
 	    custom widget. Copy this function changing the class name,
-	    key and include filename to suit your own custom widget.
+	    feature name and filename to suit your own custom widget.
 
 	    \index group()
 	    \index iconSet()
 	    \index includeFile()
 	    \index toolTip()
 	    \index whatsThis()
-	    The \Func group(), \Func iconSet(), 
+	    The \Func group(), \Func iconSet(), \Func includeFile(),
 	    \Func toolTip() and \Func whatsThis() functions.
 
 \quotefile filechooser/plugin/plugin.cpp
 \skipto ::group
 \printuntil ::iconSet
+\printuntil ::includeFile
 \printuntil ::toolTip
 \printuntil ::whatsThis
 \printuntil }
 
 	    We use the \Func group() function to identify which \QD toolbar
-	    group this custom widget should be part of. If we
+	    group this feature (custom widget) should be part of. If we
 	    use a name that is not in use \QD will create a new toolbar
 	    group with the given name. Copy this function, changing the
-	    class name, key and group name to suit your own
-	    widget plugin implementation.
+	    class name, feature name and group name to suit your own
+	    widget interface implementation.
 
 	    The \Func iconSet() function returns the pixmap to
 	    use in the toolbar to represent the custom widget. The
 	    \Func toolTip() function returns the tooltip text and the
 	    \Func whatsThis() function returns the Whats This text. Copy
-	    each of these functions changing the class name, key and
-	    the string you return to suit your own widget plugin
-	    implementation.
+	    each of these functions changing the class name, feature
+	    name and the string you return to suit your own widget
+	    interface implementation.
 
 	    \index isContainer()
 	    The \Func isContainer() function.
@@ -518,34 +702,10 @@ We have two recommendations that you should consider when creating a
 \printuntil }
 
 	    Copy this function changing the class name to suit your
-	    widget plugin implementation. It should return \c {TRUE}
+	    widget interface implementation. It should return \c {TRUE}
 	    if your custom widget can contain other widgets, e.g. like
 	    \Class QFrame, or \c {FALSE} if it must not contain other
 	    widgets, e.g. like \Class QPushButton.
-
-	    \index Macros!Q_EXPORT_PLUGIN
-	    \index Q_EXPORT_PLUGIN
-	    The \Func Q_EXPORT_PLUGIN macro.
-
-\skipto Q_EXPORT_PLUGIN
-\printline Q_EXPORT_PLUGIN
-
-	    This macro identifies the module as a
-	    plugin -- all the other code simply implements the relevant
-	    interface, i.e. wraps the classes you wish to make
-	    available.
-
-	    This macro must appear once in your plugin. It should be
-	    copied with the class name changed to the name of your
-	    plugin's class. (See the
-	    \link http://doc.trolltech.com/plugins.html
-	    Qt Plugin documentation \endlink
-	    for more information on the plugin entry point.)
-
-	    Each widget you wrap in a widget plugin implementation
-	    becomes a class that the plugin implementation offers.
-	    There is no limit to the number of classes that you may
-	    include in an plugin implementation.
 
 	\section3 The Project File
 
@@ -564,4 +724,3 @@ We have two recommendations that you should consider when creating a
 	placed in a directory where \QD can find it. The next time you
 	run \QD it will detect your new plugin and load it
 	automatically, displaying its icon in the toolbar you specified.
-

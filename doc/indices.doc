@@ -203,10 +203,6 @@ related classes together. Some classes may appear in more than one group.
 \i \link basic.html   Basic Widgets \endlink
 \i Basic GUI widgets such as buttons, comboboxes and scrollbars.
 
-\row
-\i \link plugins.html Plugins\endlink
-\i Plugin related classes.
-
 \omit
 \row 
 \i \link componentmodel.html   Component Model \endlink
@@ -241,11 +237,6 @@ related classes together. Some classes may appear in more than one group.
 with other classes that can be used without needing QApplication.
 
 \row 
-\i \link geomanagement.html   Geometry (Layout) Management \endlink
-\i Classes handling automatic resizing and moving of widgets, for
-        composing complex dialogs.
-
-\row 
 \i \link graphics.html   Graphics and Printing \endlink
 \i Classes providing drawing (and printing) primitives, including
 OpenGL. (See also \link images.html Image Processing\endlink and \link
@@ -260,6 +251,16 @@ multimedia.html Multimedia\endlink)
 \i Digital image encoding, decoding and manipulation.
 (See also \link graphics.html Graphics and Printing\endlink and \link
 multimedia.html Multimedia\endlink)
+
+\row 
+\i \link geomanagement.html   Layout Management \endlink
+\i Classes handling automatic resizing and moving of widgets, for
+        composing complex dialogs.
+
+\row
+\i \link plugin-classes.html Plugin Classes\endlink
+\i Plugin related classes.
+
 
 \row
 \i \link shared.html	Implicitly and Explicitly Shared
@@ -297,6 +298,10 @@ images.html Image Processing\endlink)
 \row 
 \i \link dialogs.html   Standard Dialogs \endlink
 \i Ready-made dialogs for file, font, color selection and more.
+
+\row
+\i \link qtl.html Template Library\endlink
+\i Qt's template library container classes.
 
 \row
 \i \link text.html Text Related Classes\endlink 
@@ -531,7 +536,7 @@ These classes and interfaces form the basis of the \link component.html Qt Compo
 
 */
 
-/*! \defgroup plugins
+/*! \defgroup plugin
 
 \title Plugins
 
@@ -634,7 +639,7 @@ a statusbar, etc.
 
 /*! \defgroup geomanagement
 
-\title Geometry (Layout) Management
+\title Layout Management
 
 These classes provide automatic geometry (layout) management of widgets.
 
@@ -701,6 +706,16 @@ and \link signalsandslots.html Signals and Slots\endlink.
 \title Multimedia Classes
 
 These classes provide support for graphics, sound, animation etc.
+*/
+
+/*! \defgroup qtl
+
+\title Qt Template Library Classes
+
+The Qt Template Library (QTL) is a set of templates that provide
+object containers. See the \link qt-template-lib.html Qt Template
+Library\endlink.
+
 */
 
 

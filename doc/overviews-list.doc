@@ -30,6 +30,7 @@
 \i \link session.html Session Management \endlink
 \i \link shclass.html Shared Classes \endlink
 \i \link customstyles.html Style overview \endlink
+\i \link qt-template-lib.html Qt Template Library\endlink
 \i \link threads.html Thread Support in Qt \endlink
 \i \link timers.html Timers \endlink
 \i \link pictures.html Pictures of Most Qt Widgets \endlink

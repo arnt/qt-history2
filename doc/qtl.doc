@@ -33,12 +33,14 @@
 **
 **********************************************************************/
 
-/*! \defgroup qtl
+/*! 
+
+\page qt-template-lib.html
 
 \title Qt Template Library
 
-The Qt Template Library (QTL) is a set of templates within Qt dealing
-with containers of objects.  If a suitable STL implementation is not
+The Qt Template Library (QTL) is a set of templates that provide
+object containers.  If a suitable STL implementation is not
 available for your compiler, the QTL can be used instead.  It
 provides a list of objects, a vector (dynamic array) of objects, a map
 (or dictionary) from one type to another, and associated <a
@@ -78,15 +80,18 @@ If you have objects that implement value semantics, and the STL is not
 available on your target platform, the Qt Template Library can be used
 instead.  Value semantics require at least 
 
-<ul> 
-	<li>a copy constructor, 
-	<li>an assignment operator and 
-	<li> a defaultconstructor, i.e. a constructor that does not take any arguments.
-</ul>
+\list 
+	\i a copy constructor, 
+	\i an assignment operator and 
+	\i a defaultconstructor, i.e. a constructor that does not take any arguments.
+\endlist
 
 Note that a fast copy constructor is absolutely crucial for a good
 overall performance of the container, since many copy operations are
 going to happen.
+
+If you intend sorting your data you must implement \c{operator<()} for
+your data's class.
 
 Good candidates for value based classes are QRect, QPoint, QSize,
 QString and all simple C++ types, such as int, bool or double.
@@ -175,6 +180,9 @@ The first example sorts the entire list. The second one sorts all
 elements enclosed in the two iterators, namely 100, 1234 and 12.  The
 third example shows that iterators act like pointers and can be
 treated as such.
+
+If using your own data types you must implement \c{operator<()} for
+your data's class.
 
 Naturally, the sorting templates won't work with const iterators.
 
@@ -355,6 +363,5 @@ The container can be read in again with:
 
 The same applies to QStringList, QValueStack and QMap.
 
-\section1 Class List
 
 */
