@@ -61,7 +61,7 @@ bool QMakeProject::ParsableBlock::eval(QMakeProject *p)
     bool ret = true;
     for(QList<Parse>::Iterator parse_it = parser.begin(); parse_it != parser.end(); ++parse_it) {
         ::parser = (*parse_it).pi;
-        if(!(ret = p->parse((*parse_it).text, p->variables())) || continueBlock())
+        if(!(ret = p->parse((*parse_it).text, p->variables())) || !continueBlock())
             break;
     }
     return ret;
