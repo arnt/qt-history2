@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qbitarry.cpp#3 $
 **
 ** Implementation of QBitArray class
 **
@@ -16,7 +16,7 @@
 #include "qbitarry.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#3 $";
 #endif
 
 
@@ -24,7 +24,7 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#2 $";
 // QBitArray class
 //
 
-#define BA_SIZE	  *((UINT32)data())
+#define BA_SIZE	  *((UINT32*)data())
 #define SZ_SIZE	  sizeof(UINT32)
 #define BA_DATA	  (data()+SZ_SIZE)
 
@@ -222,7 +222,7 @@ QStream &operator<<( QStream &s, const QBitArray &a )
     UINT32 len = a.size();
     s << len;					// write size of array
     if ( len )					// write data
-	s.writeBytes( a.data()+SZ_SIZE, QByteArray::size()-SZ_SIZE );
+	s.writeBytes( a.data()+SZ_SIZE, a.QByteArray::size()-SZ_SIZE );
     return s;
 }
 
@@ -237,6 +237,6 @@ QStream &operator>>( QStream &s, QBitArray &a )
 	len = 0;
     }
     if ( len > 0 )				// read data
-	s.readBytes( a.data()+SZ_SIZE, QByteArray::size()-SZ_SIZE );
+	s.readBytes( a.data()+SZ_SIZE, a.QByteArray::size()-SZ_SIZE );
     return s;
 }
