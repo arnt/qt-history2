@@ -11,7 +11,7 @@
 	QHttpRequest::*;
 	QHttpResponseHeader::*;
 	QMainWindowLayout::*;
-	Q*Private::*;
+#	Q*Private::*;    # breaks with QGuardedPtrPrivate and QMapPrivateBase
 	QPSPrinter*;
 	Q*RegExpEngine::*;
 	Q*SvgDevice::*;
