@@ -21,5 +21,6 @@ win32:LIBS	+= $(QTDIR)/lib/qutil.lib
 DEFINES 	+= UIC
 DESTDIR		= $(QTDIR)/bin
 
-isEmpty(INSTALLtarget_PATH):INSTALLtarget_PATH=/home/sam/blah/qt/bin
+target.path=$$QT_INSTALL_BINPATH
+isEmpty(target.path):target.path=$$QT_PREFIX/bin
 INSTALLS        += target

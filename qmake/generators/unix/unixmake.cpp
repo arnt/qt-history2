@@ -101,6 +101,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "UIC     = "	<< var("QMAKE_UIC") << endl;
     t << "TAR     = "	<< var("QMAKE_TAR") << endl;
     t << "GZIP    = " << var("QMAKE_GZIP") << endl;
+    t << "COPY    = cp" << endl;
     t << endl;
 
     /* files */
@@ -558,6 +559,6 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	}
     }
     if(!ret.isEmpty()) 
-	return QString("cp -a ") + ret + QString(" ") + project->variables()["INSTALLtarget_PATH"].first();
+	return QString("$(COPY) -a ") + ret + QString(" ") + project->variables()["target.path"].first();
     return "";
 }

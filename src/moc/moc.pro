@@ -35,5 +35,6 @@ win32:SOURCES	+= ../tools/qfile_win.cpp
 
 TARGET		= moc
 
-isEmpty(INSTALLtarget_PATH):INSTALLtarget_PATH=/home/sam/blah/qt/bin
+target.path=$$QT_INSTALL_BINPATH
+isEmpty(target.path):target.path=$$QT_PREFIX/bin
 INSTALLS       += target

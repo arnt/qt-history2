@@ -1,18 +1,19 @@
 #always install the library
-isEmpty(INSTALLtarget_PATH):INSTALLtarget_PATH=/home/sam/blah/qt/lib
+target.path=$$QT_INSTALL_LIBPATH
+isEmpty(target.path):target.path=$$QT_PREFIX/lib
 INSTALLS += target
 
 #headers
-isEmpty(INSTALLheaders_PATH):INSTALLheaders_PATH=$$INSTALLtarget_PATH/../headers
-INSTALLheaders = ../include/*.h
+isEmpty(headers.path):headers.path=$$QT_PREFIX/headers
+headers.files = ../include/*.h
 INSTALLS += headers
 
 #plugins
-isEmpty(INSTALLplugins_PATH):INSTALLplugins_PATH=$$INSTALLtarget_PATH/../plugins
-INSTALLplugins = $(QTDIR)/plugins/*
+isEmpty(plugins.path):plugins.path=$$QT_PREFIX/plugins
+plugins.files = $(QTDIR)/plugins/*
 INSTALLS += plugins
 
 #docs
-isEmpty(INSTALLdocs_PATH):INSTALLdocs_PATH=$$INSTALLtarget_PATH/../docs
-INSTALLdocs = ../doc/*
+isEmpty(docs.path):docs.path=$$QT_PREFIX/docs
+docs.files = ../doc/*
 INSTALLS += docs

@@ -759,7 +759,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
     QString all_installs;
     QStringList &l = project->variables()[installs];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	QString pvar = QString("INSTALL") + (*it) + "_PATH";
+	QString pvar = (*it) + ".path";
 	if(project->variables()[pvar].isEmpty()) {
 	    fprintf(stderr, "%s is not defined: install target not created\n", pvar.latin1());
 	    continue;
@@ -768,15 +768,15 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	QString target;
 	QStringList tmp;
 	//masks
-	tmp = project->variables()[QString("INSTALL") + (*it)];
+	tmp = project->variables()[(*it) + ".files"];
 	if(!tmp.isEmpty()) {
 	    if(Option::mode == Option::WIN_MODE) {
 	    } else if(Option::mode == Option::UNIX_MODE) {
-		target += QString("cp -pR ") + tmp.join(" ") + QString(" ") + project->variables()[pvar].first();
+		target += QString("$(COPY) -pR ") + tmp.join(" ") + QString(" ") + project->variables()[pvar].first();
 	    }
 	}
 	//other
-	tmp = project->variables()[QString("INSTALL") + (*it) + "_EXTRA"];
+	tmp = project->variables()[(*it) + ".extra"];
 	if(!tmp.isEmpty()) {
 	    if(!target.isEmpty())
 		target += "\n\t";

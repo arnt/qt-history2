@@ -238,7 +238,6 @@ fi
 fi # help
 
 # Defaults
-
 QCONFIG=full
 EMBEDDED=no
 KDE=no
@@ -265,9 +264,35 @@ QT_CXX=""
 QMAKE_PROJECTS=""
 CONCURRENT=0
 
+QT_INSTALL_PREFIX=/usr/local/qt
+QT_INSTALL_DOCS=
+QT_INSTALL_HEADERS=
+QT_INSTALL_LIBS=
+QT_INSTALL_BINS=
+
 # Parse the arguments, setting things to "yes" or "no".
 while [ -n "$1" ]; do
    case $1 in
+   -prefix)
+        shift
+	QT_INSTALL_PREFIX=$1
+	;;
+   -docdir)
+	shift
+	QT_INSTALL_DOCS=$1
+	;;
+   -headerdir)
+	shift
+	QT_INSTALL_HEADERS=$1
+	;;
+   -libdir)
+	shift
+	QT_INSTALL_LIBS=$1
+	;;
+   -bindir)
+	shift
+	QT_INSTALL_BINS=$1
+	;;
    -frommake)
 	FROMMAKE=yes
 	;;
@@ -772,14 +797,33 @@ if [ "$HELP" = "yes" ]; then
     fi
 
     cat <<EOF
-Usage:  $relconf [-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm] \\
+Usage:  $relconf [-prefix dir] [-docdir dir] [-headerdir dir] [-libdir dir] [-bindir dir] \\
+        [-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm] \\
 	[-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng] \\
 	[-no-jpeg] [-system-jpeg] [-no-thread] [-thread] [-enable-kde2] \\
 	[-Istring] [-lstring] [-Lstring] [-Rstring] [-enable-<module>] \\
 	[-disable-<module>] \\
 
-The defaults (*) are usually acceptable.  Here is a short explanation of
-each option:
+Installation options:
+ 
+ These are optional, but you may specify install directories. 
+
+    -prefix dir ........ This will install everything relative dir 
+                          (default $QT_PREFIX_DIR) 
+    
+ You may use these to separate different parts of the install:
+   
+    -bindir dir ........ Executables will be installed to dir
+                          (default PREFIX/bin)
+    -libdir dir ........ Libraries will be installed to dir
+                          (default PREFIX/lib)
+    -docdir dir ........ Documentation will be installed to dir
+                          (default PREFIX/doc)
+    -headerdir dir ..... Headers will be installed to dir
+                          (default PREFIX/headers)
+
+ The defaults (*) are usually acceptable.  Here is a short explanation of
+ each option:
 
  *  -release ........... Compile and link Qt with debugging turned off.
     -debug ............. Compile and link Qt with debugging turned on.
@@ -853,6 +897,7 @@ each option:
     -with-<module setting> .... This will activate a setting as described below.
     -without-<module setting> . This will deactivate a setting for any enabled module,
 				consult each Qt module for their specific settings.
+
 EOF
 
    [ "x$ERROR" = "xyes" ] && exit 1
@@ -922,6 +967,13 @@ then
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=$I_FLAGS\""
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=$I_FLAGS\""
 fi
+
+#install things
+QMAKE_VARS="$QMAKE_VARS \"QT_PREFIX=${QT_INSTALL_PREFIX}\""
+[ '!' -z "$QT_INSTALL_DOCS" ] && QMAKE_VARS="$QMAKE_VARS \"docs.path=${QT_INSTALL_DOCS}\""
+[ '!' -z "$QT_INSTALL_HEADERS" ] && QMAKE_VARS="$QMAKE_VARS \"headers.path=${QT_INSTALL_HEADERS}\""
+[ '!' -z "$QT_INSTALL_LIBS" ] && QMAKE_VARS="$QMAKE_VARS \"QT_INSTALL_LIBPATH=${QT_INSTALL_LIBS}\""
+[ '!' -z "$QT_INSTALL_BINS" ] && QMAKE_VARS="$QMAKE_VARS \"QT_INSTALL_BINPATH=${QT_INSTALL_BINS}\""
 
 #do modules.h
 [ ! -d $outpath/src/tools ] && mkdir -p $outpath/src/tools
