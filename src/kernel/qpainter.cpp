@@ -1547,8 +1547,9 @@ void QPainter::updateXForm()
 {
     QWMatrix m;
     if ( testf(VxF) ) {
-	double scale = (double)vw/(double)ww;
-	m.setMatrix( scale, 0,  0,  scale, vx - wx*scale, vy - wy*scale );
+	double scaleW = (double)vw/(double)ww;
+	double scaleH = (double)vh/(double)wh;
+	m.setMatrix( scaleW, 0,  0,  scaleH, vx - wx*scaleW, vy - wy*scaleH );
     }
     if ( testf(WxF) ) {
 	if ( testf(VxF) )
