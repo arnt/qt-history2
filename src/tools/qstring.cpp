@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#267 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#268 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -11481,7 +11481,7 @@ QString QString::leftJustify( uint width, QChar fill, bool truncate ) const
   If the length of the string exceeds \a width and \a truncate is FALSE,
   then the returned string is a copy of the string.
   If the length of the string exceeds \a width and \a truncate is TRUE,
-  then the returned string is a right(\a width).
+  then the returned string is a left(\a width).
 
   Example:
   \code
