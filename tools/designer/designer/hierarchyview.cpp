@@ -960,7 +960,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 
     const int EDIT = 1;
     const int NEW = 2;
-    const int DELETE = 3;
+    const int DEL = 3;
     const int PROPS = 4;
     const int GOIMPL = 5;
 
@@ -987,7 +987,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	 i->rtti() == HierarchyItem::Function || i->rtti() == HierarchyItem::Slot ||
 	 i->rtti() == HierarchyItem::Definition ) {
 	menu.insertSeparator();
-	menu.insertItem( QPixmap::fromMimeSource( "editcut.png" ), tr( "Delete..." ), DELETE );
+	menu.insertItem( QPixmap::fromMimeSource( "editcut.png" ), tr( "Delete..." ), DEL );
     }
     popupOpen = TRUE;
     int res = menu.exec( pos );
@@ -1056,7 +1056,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
     	default:
 	    insertEntry( i );
 	}
-    } else if ( res == DELETE ) {
+    } else if ( res == DEL ) {
 	if ( i->rtti() == HierarchyItem::Slot || i->rtti() == HierarchyItem::Function ) {
 
 	    QCString funct( MetaDataBase::normalizeFunction( i->text( 0 ) ).latin1() );
