@@ -34,7 +34,7 @@
 #include "images/options_verticalbarchart.xpm"
 
 
-const QString WINDOWS_REGISTRY = "/QtExamples";
+const QString WINDOWS_REGISTRY = "/Trolltech/QtExamples";
 const QString APP_KEY = "/Chart/";
 
 
