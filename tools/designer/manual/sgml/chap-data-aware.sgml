@@ -11,8 +11,6 @@
 <chapter id="using-data-aware-widgets">
 <title>Using Data-Aware Widgets</>
 
-<note><para>@@@@@ TODO Insert Screenshots @@@@@</para></note>
-
 <para>
 This chapter shows you how to use Qt's data-aware widgets from within
 &qd;. If you wish to run the examples or
@@ -56,6 +54,9 @@ recreate the example database on your own system.
 	<title>Setting Up &qd;'s Connections</>
 
 	<para>
+	<screenshot>
+	<graphic format="jpg" fileref="images/database-connections-dialog.jpg"></graphic>
+	</screenshot>
 	Choose <guimenuitem>Edit|Database Connections</> from the menu
 	bar. The Database Connections dialog will appear. Click
 	<guibutton>New Connection</>. For applications that use a single
@@ -295,6 +296,9 @@ int main( int argc, char *argv[] )
 
 	<sidebar><title>Using the Table Editor</>
 	<para>
+	<screenshot>
+	<graphic format="jpg" fileref="images/edit-table-dialog.jpg"></graphic>
+	</screenshot>
 	The table editor is invoked by right clicking the
 	&st; and left clicking the
 	<guimenuitem>Edit</> menu item. The right hand half of the Edit
