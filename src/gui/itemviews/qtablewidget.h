@@ -188,15 +188,15 @@ protected:
     void setup();
 
 private:
-    Q_PRIVATE_SLOT(d, void emitPressed(const QModelIndex &index, Qt::ButtonState button));
-    Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, Qt::ButtonState button));
-    Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, Qt::ButtonState button));
-    Q_PRIVATE_SLOT(d, void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state));
-    Q_PRIVATE_SLOT(d, void emitReturnPressed(const QModelIndex &index));
-    Q_PRIVATE_SLOT(d, void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current));
-    Q_PRIVATE_SLOT(d, void emitItemEntered(const QModelIndex &index, Qt::ButtonState state));
-    Q_PRIVATE_SLOT(d, void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index));
-    Q_PRIVATE_SLOT(d, void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &&bottomRight));
+    Q_PRIVATE_SLOT(d, void emitPressed(const QModelIndex &index, Qt::ButtonState button))
+    Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, Qt::ButtonState button))
+    Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, Qt::ButtonState button))
+    Q_PRIVATE_SLOT(d, void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state))
+    Q_PRIVATE_SLOT(d, void emitReturnPressed(const QModelIndex &index))
+    Q_PRIVATE_SLOT(d, void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current))
+    Q_PRIVATE_SLOT(d, void emitItemEntered(const QModelIndex &index, Qt::ButtonState state))
+    Q_PRIVATE_SLOT(d, void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index))
+    Q_PRIVATE_SLOT(d, void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &&bottomRight))
 };
 
 #endif
