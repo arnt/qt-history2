@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#26 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#26 $";
 #endif
 
 
@@ -62,12 +62,13 @@ void qt_init( int *, char ** );			// defined in qapp_???.cpp
 void qt_cleanup();
 
 QApplication *qApp = 0;				// global application object
-QWidget *QApplication::main_widget = 0;		// main application widget
-QCursor *QApplication::appCursor   = 0;		// default application cursor
-QPalette *QApplication::appPal	   = 0;		// default application palette
-QFont   *QApplication::appFont     = 0;		// default application font
-bool	 QApplication::starting_up = TRUE;	// app starting up
-bool	 QApplication::closing_down  = FALSE;	// app closing down
+QWidget  *QApplication::main_widget   = 0;	// main application widget
+QWidget  *QApplication::focus_widget  = 0;	// has keyboard input focus
+QCursor  *QApplication::appCursor     = 0;	// default application cursor
+QPalette *QApplication::appPal	      = 0;	// default application palette
+QFont    *QApplication::appFont       = 0;	// default application font
+bool	  QApplication::starting_up   = TRUE;	// app starting up
+bool	  QApplication::closing_down  = FALSE;	// app closing down
 
 
 #if defined(_WS_MAC_)

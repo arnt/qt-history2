@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#61 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#60 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#61 $";
 #endif
 
 
@@ -176,10 +176,13 @@ bool QWidget::create()				// create widget
 
 bool QWidget::destroy()				// destroy widget
 {
-    if ( this == activeWidget )
-	activeWidget = 0;
+    if ( qApp->focus_widget == this )
+	qApp->focus_widget = 0;			// reset focus widget
+    if ( parentWidget() && parentWidget()->focusChild == this )
+	parentWidget()->focusChild = 0;
     if ( testFlag(WState_Created) ) {
 	clearFlag( WState_Created );
+	focusChild = 0;
 	if ( children() ) {
 	    QObjectListIt it(*children());
 	    register QObject *object;
@@ -453,42 +456,66 @@ void QWidget::releaseKeyboard()
 /*! Does nothing at all, right now. \sa getFocus(), grabKeyboard(),
   releaseKeyboard(). */
 
-void QWidget::setFocus()			// set keyboard focus
+void QWidget::setFocus()			// set keyboard input focus
 {
-/*
-    if ( activeWidget == this ) {		// is active widget
-	if ( !testFlag(WState_FocusA) ) {
-	    QFocusEvent e( Event_FocusOut );
-	    if ( QApplication::sendEvent( this, &e ) )
-		setFlag( (WState_FocusA | WState_FocusP) );
-	}
+    if ( this == qApp->focus_widget )		// has already focus
 	return;
+    QWidget *oldFocus = qApp->focus_widget;
+    if ( oldFocus ) {				// goodbye to old focus widget
+	qApp->focus_widget = 0;
+	QFocusEvent out( Event_FocusOut );
+	QApplication::sendEvent( oldFocus, &out );
     }
-    else if ( activeWidget ) {			// send focus-out
-	activeWidget->clearFlag( WState_FocusA );
-	if ( activeWidget->parent && activeWidget->parent == parent )
-	    activeWidget->clearFlag( WState_FocusP );
-	QFocusEvent e( Event_FocusOut );
-	QApplication::sendEvent( activeWidget, &e );
+    QWidget *top, *w, *p;
+    top = this;
+    while ( top->parentWidget() )		// find top level widget
+	top = top->parentWidget();
+    w = top;
+    while ( w->focusChild )			// reset focus chain
+	w = w->focusChild;
+    w = w->parentWidget();
+    while ( w ) {
+	w->focusChild = 0;
+	w = w->parentWidget();
     }
-    setFlag( WState_FocusA );
-    activeWidget = this;
+    w = this;
+    while ( (p=w->parentWidget()) ) {		// build new focus chain
+	p->focusChild = w;
+	w = p;
+    }
+    qApp->focus_widget = this;
+    QFocusEvent in( Event_FocusIn );
+    QApplication::sendEvent( this, &in );
+}
+
+bool QWidget::focusNextChild()
+{
+    debug( "focusNextChild" );
+    QWidget *p = parentWidget();
+    if ( p ) {
+	QObjectList *c = (QObjectList *)p->children();
+	if ( c->findRef(this) >= 0 ) {
+	    c->next();
+	    if ( c->current()->isWidgetType() ) {
+		QWidget *w = (QWidget*)c->current();
+		w->setFocus();
+	    }
+	}
+    }
+    return TRUE;
+}
+
+bool QWidget::focusPrevChild()
+{
+    debug( "focusPrevChild" );
+    return TRUE;
+}
+
+
+/*!
+Enables or disables updates of this widget.  If updates are
+disabled, the widget will not receive repaint events.
 */
-}
-
-/*! Returns a pointer to the widget which currently has the keyboard
-  focus; if the focus isn't currently in the Qt application, NULL is
-  returned.  It's not clear whether NULL may be returned even when the
-  cursor is inside the window but the in-focus widget as just been
-  destroyed. */
-
-QWidget *QWidget::widgetInFocus() // get focus widget
-{ 
-    return activeWidget;
-}
-
-/*! Enables or disables updates of this widget.  If updates are
-  disabled, the widget will not receive repaint events. */
 
 bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
 {
@@ -568,6 +595,10 @@ void QWidget::hide()				// hide widget
 	setFlag( WExplicitHide );
 	return;
     }
+    if ( qApp->focus_widget == this )
+	qApp->focus_widget = 0;			// reset focus widget
+    if ( parentWidget() && parentWidget()->focusChild == this )
+	parentWidget()->focusChild = 0;
     if ( testFlag(WType_Modal) )
 	qt_leave_modal( this );
     else if ( testFlag(WType_Popup) )

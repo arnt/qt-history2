@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#64 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#63 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#64 $";
 #endif
 
 
@@ -696,12 +696,18 @@ int QApplication::enter_loop()			// local event loop
 		case ButtonPress:		// mouse event
 		case ButtonRelease:
 		case MotionNotify:
-		    if ( !widget->isDisabled() )
+		    if ( !widget->isDisabled() ) {
+			if ( event.type == ButtonPress &&
+			     event.xbutton.button == Button1 )
+			    widget->setFocus();
 			widget->translateMouseEvent( &event );
+		    }
 		    break;
 
 		case KeyPress:			// keyboard event
 		case KeyRelease:
+		    if ( focus_widget )
+			widget = (QETWidget*)focus_widget;
 		    if ( !widget->isDisabled() )
 			widget->translateKeyEvent( &event );
 		    break;
@@ -720,14 +726,24 @@ int QApplication::enter_loop()			// local event loop
 		    break;
 
 		case FocusIn: {			// got focus
-		    QFocusEvent focusEvent( Event_FocusIn );
-		    QApplication::sendEvent( widget, &focusEvent );
+		    QWidget *w = widget;
+		    while ( w->parentWidget() )	// go to the top
+			w = w->parentWidget();
+		    while ( w->focusChild )	// go down focus chain
+			w = w->focusChild;
+		    focus_widget = w;
+		    QFocusEvent in( Event_FocusIn );
+		    QApplication::sendEvent( w, &in );
 		    }
 		    break;
 
 		case FocusOut: {		// lost focus
-		    QFocusEvent focusEvent( Event_FocusOut );
-		    QApplication::sendEvent( widget, &focusEvent );
+		    if ( focus_widget ) {
+			QFocusEvent out( Event_FocusOut );
+			QWidget *w = focus_widget;
+			focus_widget = 0;
+			QApplication::sendEvent( w, &out );
+		    }
 		    }
 		    break;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#36 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#37 $
 **
 ** Definition of QWidget class
 **
@@ -89,11 +89,10 @@ public:
 
     bool    setMouseTracking( bool enable );
 
-  // Keyboard focus functions
+  // Keyboard input focus functions
 
-    bool    hasFocus() const { return testFlag(WState_Focus); }
+    bool    hasFocus() const;
     void    setFocus();				// set keyboard focus
-    static QWidget *widgetInFocus();		// get widget in focus
 
   // Grab functions
 
@@ -148,7 +147,8 @@ protected:
     virtual void mouseMoveEvent( QMouseEvent * );
     virtual void keyPressEvent( QKeyEvent * );
     virtual void keyReleaseEvent( QKeyEvent * );
-    virtual void focusChangeEvent( QFocusEvent * );
+    virtual void focusInEvent( QFocusEvent * );
+    virtual void focusOutEvent( QFocusEvent * );
     virtual void paintEvent( QPaintEvent * );
     virtual void moveEvent( QMoveEvent * );
     virtual void resizeEvent( QResizeEvent * );
@@ -188,10 +188,13 @@ protected:
     long	metric( int )	 const;		// get metric information
     const QFont &fontRef()	 const	{ return fnt; }
 
+    virtual bool focusNextChild();
+    virtual bool focusPrevChild();
+    
 #if defined(_WS_PM_)
-    int	    convertYPos( int );
-    void    reposChildren();
-    WId	    frm_wnd;
+    int		convertYPos( int );
+    void	reposChildren();
+    WId		frm_wnd;
 #endif
 
 private:
@@ -208,10 +211,10 @@ private:
     QFont	fnt;				// widget font
     QCursor	curs;				// widget cursor
     QWExtra    *extra;				// extra widget data
+    QWidget    *focusChild;			// child widget in focus
     static void createMapper();			// create widget mapper
     static void destroyMapper();		// destroy widget mapper
     static QWidgetMapper *mapper;		// maps identifier to widget
-    static QWidget *activeWidget;		// widget in keyboard focus
 };
 
 
