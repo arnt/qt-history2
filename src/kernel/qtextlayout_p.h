@@ -122,6 +122,7 @@ class QTextFormatCollection;
 
 struct QTextInlineObjectInterface
 {
+    virtual ~QTextInlineObjectInterface() = 0;
     virtual void layoutItem(QTextItem item) = 0;
     virtual void drawItem(QPainter *painter, const QPoint &position, QTextItem item) = 0;
 };
