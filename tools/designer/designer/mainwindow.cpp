@@ -143,6 +143,7 @@ MainWindow::MainWindow( bool asClient )
       docPath( "$QTDIR/doc/html" ), fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
       previewing( FALSE )
 {
+    appInterface = new DesignerApplicationInterfaceImpl;
 
     // ### we need a better test to find if we have Quick installed or not
     QString dir = getenv( "QTDIR" );
@@ -2382,7 +2383,7 @@ FormWindow* MainWindow::insertFormWindow( int type )
 		dbConnections.append( c );
 	    }
 	}
-	iface->setup( fw->mainContainer()->className(), fw->mainContainer(), dbConnections );
+	iface->setup( fw->mainContainer()->className(), fw->mainContainer(), dbConnections, appInterface );
 	iface->release();
     }
 
@@ -3645,7 +3646,6 @@ void MainWindow::setupActionManager()
 {
     QString dir = getenv( "QTDIR" );
     dir += "/plugins";
-    QUnknownInterface *appInterface = new DesignerApplicationInterfaceImpl;
     actionPluginManager = new QInterfaceManager<ActionInterface>( IID_ActionInterface, dir, "*.dll; *.so" );
 
     QStringList lst = actionPluginManager->featureList();

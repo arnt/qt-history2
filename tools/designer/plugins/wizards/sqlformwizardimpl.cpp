@@ -10,9 +10,10 @@
 #include <qlayout.h>
 #include <qsqleditorfactory.h>
 
-SqlFormWizard::SqlFormWizard( QWidget *w, const QValueList<TemplateWizardInterface::DatabaseConnection> &conns,
+SqlFormWizard::SqlFormWizard( QComponentInterface *aIface, QWidget *w,
+			      const QValueList<TemplateWizardInterface::DatabaseConnection> &conns,
 			      QWidget* parent,  const char* name, bool modal, WFlags fl )
-    : SqlFormWizardBase( parent, name, modal, fl ), widget( w ), dbConnections( conns )
+    : SqlFormWizardBase( parent, name, modal, fl ), widget( w ), dbConnections( conns ), appIface( aIface )
 {
     for ( QValueList<TemplateWizardInterface::DatabaseConnection>::Iterator it = dbConnections.begin();
 	  it != dbConnections.end(); ++it )

@@ -301,6 +301,8 @@ private:
     QInterfaceManager<TemplateWizardInterface> *templateWizardPluginManager;
     QList<SourceEditor> sourceEditors;
     bool previewing;
+    QComponentInterface *appInterface;
+
 };
 
 #endif

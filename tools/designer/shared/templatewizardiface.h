@@ -23,7 +23,8 @@ public:
     };
 
     virtual QStringList featureList() const = 0;
-    virtual void setup( const QString &templ, QWidget *widget, const QValueList<DatabaseConnection> &dbConnections ) = 0;
+    virtual void setup( const QString &templ, QWidget *widget,
+			const QValueList<DatabaseConnection> &dbConnections, QComponentInterface *appIface ) = 0;
 
 };
 
