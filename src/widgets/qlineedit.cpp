@@ -823,26 +823,24 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	id[ IdClear ] = popup->insertItem( tr( "Clear" ) );
 	popup->insertSeparator();
 	id[ IdSelectAll ] = popup->insertItem( tr( "Select All" ) );
- 	popup->setItemEnabled( id[ IdUndo ],
- 				  !d->readonly && d->parag->commands()->isUndoAvailable() );
- 	popup->setItemEnabled( id[ IdRedo ],
- 				  !d->readonly && d->parag->commands()->isRedoAvailable() );
+	bool enableUndo = !d->readonly && d->parag->commands()->isUndoAvailable();
+ 	popup->setItemEnabled( id[ IdUndo ], enableUndo );
+	bool enableRedo = !d->readonly && d->parag->commands()->isRedoAvailable();
+ 	popup->setItemEnabled( id[ IdRedo ], enableRedo );
 #ifndef QT_NO_CLIPBOARD
-	popup->setItemEnabled( id[ IdCut ],
-				  !d->readonly && hasMarkedText() );
+	bool enableCut = !d->readonly && hasMarkedText();
+	popup->setItemEnabled( id[ IdCut ], enableCut );
 	popup->setItemEnabled( id[ IdCopy ], hasMarkedText() );
-	popup->setItemEnabled( id[ IdPaste ],
-				  !d->readonly
-				  && !QApplication::clipboard()->text().isEmpty() );
+	bool enablePaste = !d->readonly && !QApplication::clipboard()->text().isEmpty();
+	popup->setItemEnabled( id[ IdPaste ], enablePaste );
 #endif
-	popup->setItemEnabled( id[ IdClear ],
-				  !d->readonly && !text().isEmpty() );
+	bool enableClear = !d->readonly && !text().isEmpty();
+	popup->setItemEnabled( id[ IdClear ], enableClear );
 	bool allSelected = (d->parag->selectionStart( 0 ) == 0 && d->parag->selectionEnd( 0 ) == (int)text().length() );
-	popup->setItemEnabled( id[ IdSelectAll ],
-				  (bool)text().length() && !allSelected );
+	popup->setItemEnabled( id[ IdSelectAll ], (bool)text().length() && !allSelected );
 
 	int r = popup->exec( e->globalPos() );
-	delete popup;
+	delete (QPopupMenu *) popup;
 
 	if ( r == id[ IdClear ] )
 	    clear();

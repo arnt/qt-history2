@@ -54,6 +54,10 @@ struct DockData
     DockData( QDockWindow *dw, const QRect &r ) : w( dw ), rect( r ) {}
     QDockWindow *w;
     QRect rect;
+
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const DockData& ) const { return FALSE; }
+#endif
 };
 
 
