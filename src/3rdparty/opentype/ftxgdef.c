@@ -1169,10 +1169,9 @@
        * the attachment type specified."
        */
       desired_attachment_class = flags & IGNORE_SPECIAL_MARKS;
-      if ( desired_attachment_class )
+      if ( desired_attachment_class && (*property & IGNORE_SPECIAL_MARKS) )
       {
-	if ( basic_glyph_class == TTO_MARK &&
-	     *property != desired_attachment_class )
+	if ( *property != desired_attachment_class )
 	  return TTO_Err_Not_Covered;
       }
     } else {
