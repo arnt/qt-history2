@@ -1,3 +1,5 @@
+#the textview/textedit stays in until all internal
+#usage of it is removed
 HEADERS += \
 	../compat/text/qsyntaxhighlighter.h \
 	../compat/text/qsyntaxhighlighter_p.h \
@@ -8,8 +10,6 @@ HEADERS += \
 	../compat/text/qrichtext_p.h \
 	../compat/text/qsimplerichtext.h \
 	../compat/text/qstylesheet.h
-
-
 SOURCES += \
 	../compat/text/qsyntaxhighlighter.cpp \
 	../compat/text/qtextview.cpp \
@@ -20,3 +20,18 @@ SOURCES += \
 	../compat/text/qrichtext_p.cpp \
 	../compat/text/qsimplerichtext.cpp \
 	../compat/text/qstylesheet.cpp
+
+
+#the menu/menubar stuff stays in until the menu
+#combobox and mainwindow
+HEADERS += \
+        ../compat/widgets/q3menudata.h \
+        ../compat/widgets/q3menubar.h \
+        ../compat/widgets/q3popupmenu.h
+SOURCES += \
+        ../compat/widgets/q3menudata.cpp \
+        ../compat/widgets/q3menubar.cpp \
+        ../compat/widgets/q3popupmenu.cpp
+mac:SOURCES += ../compat/widgets/q3menubar_mac.cpp
+       
+         
