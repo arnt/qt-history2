@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#5 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#6 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -116,8 +116,6 @@ struct QXFontStruct;
 Display *qXDisplay();
 int	 qXScreen();
 Window	 qXRootWin();
-Atom	 qXDelWinProtocol();
-int	 qXEnterModal( QWidget * );
 
 #endif // _WS_X11_
 
