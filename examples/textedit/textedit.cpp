@@ -225,7 +225,7 @@ QTextEdit *TextEdit::currentEditor() const
     if ( tabWidget->currentPage() &&
 	 tabWidget->currentPage()->inherits( "QTextEdit" ) )
 	return (QTextEdit*)tabWidget->currentPage();
-    return 0;	
+    return 0;
 }
 
 void TextEdit::doConnections( QTextEdit *e )
@@ -288,19 +288,17 @@ void TextEdit::filePrint()
     if ( !currentEditor() )
 	return;
 #ifndef QT_NO_PRINTER
-    QPrinter printer;
+    QPrinter printer( QPrinter::HighResolution );
     printer.setFullPage(TRUE);
     if ( printer.setup( this ) ) {
 	QPainter p( &printer );
 	// Check that there is a valid device to print to.
-	if ( !p.device() ) return;  	
+	if ( !p.device() ) return;
 	QPaintDeviceMetrics metrics( p.device() );
 	int dpix = metrics.logicalDpiX();
 	int dpiy = metrics.logicalDpiY();
-	const int margin = 72; // pt
-	QRect body( margin * dpix / 72, margin * dpiy / 72,
-		    metrics.width() - margin * dpix / 72 * 2,
-		    metrics.height() - margin * dpiy / 72 * 2 );
+	int margin = (int) ( (2/2.54)*dpiy ); // 2 cm margins
+	QRect body( margin, margin, metrics.width() - 2*margin, metrics.height() - 2*margin );
 	QFont font( currentEditor()->QWidget::font() );
  	font.setPointSize( 10 ); // we define 10pt to be a nice base size for printing
 
@@ -310,7 +308,7 @@ void TextEdit::filePrint()
 				  currentEditor()->mimeSourceFactory(),
 				  body.height() );
 	richText.setWidth( &p, body.width() );
-	QRect view( body );
+  	QRect view( body );
 	int page = 1;
 	do {
 	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
@@ -332,7 +330,7 @@ void TextEdit::fileClose()
 {
     delete currentEditor();
     if ( currentEditor() )
-	currentEditor()->viewport()->setFocus();				
+	currentEditor()->viewport()->setFocus();
 }
 
 void TextEdit::fileExit()
