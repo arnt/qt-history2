@@ -2802,39 +2802,39 @@ bool QLineEdit::isValidInput(QChar key, QChar mask) const
 {
     switch ( mask ) {
     case 'L':
-	if ( key.isLetter() )
+	if ( key.isLetter() && key != d->blank )
 	    return TRUE;
 	break;
     case 'l':
-	if ( key.isLetter() || ( key == d->blank ) )
+	if ( key.isLetter() || key == d->blank )
 	    return TRUE;
 	break;
     case '0':
-	if ( key.isNumber() )
+	if ( key.isNumber() && key != d->blank )
 	    return TRUE;
 	break;
     case '9':
-	if ( key.isNumber() || ( key == d->blank ) )
+	if ( key.isNumber() || key == d->blank )
 	    return TRUE;
 	break;
     case 'A':
-	if ( key.isLetterOrNumber() )
+	if ( key.isLetterOrNumber() && key != d->blank )
 	    return TRUE;
 	break;
     case 'a':
-	if ( key.isLetterOrNumber() || ( key == d->blank ) )
+	if ( key.isLetterOrNumber() || key == d->blank )
 	    return TRUE;
 	break;
     case 'C':
-	if ( key.isPrint() )
+	if ( key.isPrint() && key != d->blank )
 	    return TRUE;
 	break;
     case 'c':
-	if ( key.isPrint() || ( key == d->blank ) )
+	if ( key.isPrint() || key == d->blank )
 	    return TRUE;
 	break;
     case '#':
-	if ( ( key.isNumber() ) || ( key == '+' ) || ( key == '-' ) )
+	if ( key.isNumber() || key == '+' || key == '-' || key == d->blank )
 	    return TRUE;
 	break;
     default:
