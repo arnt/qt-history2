@@ -401,7 +401,7 @@ NETRootInfo::NETRootInfo(Display *dp, Window sw, const char *nm,
     p->clients_count = p->stacking_count = p->virtual_roots_count = 0;
 
     role = WindowManager;
-    
+
     if (! atoms_created) create_atoms(p->display);
 }
 
@@ -426,7 +426,7 @@ NETRootInfo::NETRootInfo(Display *d, unsigned long pr, int s) {
     p->clients_count = p->stacking_count = p->virtual_roots_count = 0;
 
     role = Client;
-    
+
     if (! atoms_created) create_atoms(p->display);
 }
 
@@ -568,7 +568,7 @@ void NETRootInfo::setDesktopName(CARD32 desk, const char *name) {
 	if (p->desktop_names[i]) {
 	    strcpy(propp, p->desktop_names[i]);
 	    propp += strlen(p->desktop_names[i]) + 1;
-	} else	   
+	} else	
 	    *propp++ = '\0';
 
 #ifdef    DEBUG
@@ -579,16 +579,16 @@ void NETRootInfo::setDesktopName(CARD32 desk, const char *name) {
 
     for (i = 0; i < num; i++)
 	fprintf(stderr, "\t'%s'\n", p->desktop_names[i]);
-    
+
     for (i = 0; i < proplen; i++)
 	if (prop[i] == '\0') fprintf(stderr, ".");
 	else fprintf(stderr, "%c", prop[i]);
     fprintf(stderr, "\n");
 #endif
-    
+
     XChangeProperty(p->display, p->root, net_desktop_names, XA_STRING, 8,
 		    PropModeReplace, (unsigned char *) prop, proplen);
-    
+
     delete [] prop;
 }
 
@@ -1207,9 +1207,11 @@ NETWinInfo::NETWinInfo(Display *d, Window win, Window rwin,
 
     role = rl;
 
+    if (! atoms_created) create_atoms(p->display);
+    
     update(p->properties);
 
-    if (! atoms_created) create_atoms(p->display);
+    
 }
 
 
@@ -1242,6 +1244,11 @@ void NETWinInfo::setIcon(NETIcon icon, Bool replace) {
     }
 
     p->icons[p->icon_count++] = icon;
+    
+    // do a deep copy, we want to own the data
+    NETIcon& ni = p->icons[ p->icon_count - 1 ];
+    ni.data = new CARD32[ ni.size.width * ni.size.height * 4 ];
+    (void) memcpy( icon.data, ni.data, ni.size.width * ni.size.height * 4 );
 
     int proplen, i;
     for (i = 0, proplen = 0; i < p->icon_count; i++)
