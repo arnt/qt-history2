@@ -3394,6 +3394,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case EnterNotify: {			// enter window
 	qt_x_time = event->xcrossing.time;
+
+	// check PointerRoot focus
+	if ( event->xcrossing.focus && 
+	     widget->isTopLevel() && !widget->isDesktop () &&
+	     event->xcrossing.detail != NotifyInferior &&!inPopupMode() ) 
+	    setActiveWindow (widget);
+	
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
 	    break;
 	if ( inPopupMode() && widget->topLevelWidget() != activePopupWidget() )
@@ -3410,6 +3417,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case LeaveNotify: {			// leave window
 	qt_x_time = event->xcrossing.time;
+	
+	// check PointerRoot focus
+	if ( event->xcrossing.focus && 
+	     widget->isTopLevel() && !widget->isDesktop () &&
+	     event->xcrossing.detail != NotifyInferior &&!inPopupMode() ) 
+	    setActiveWindow ( 0 );
+	
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
 	    break;
 	if ( widget->winId() != curWin )
