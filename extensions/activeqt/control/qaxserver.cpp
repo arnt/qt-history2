@@ -861,7 +861,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     
     if (qstricmp(mo->classInfo(mo->indexOfClassInfo("Aggregatable")).value(), "no"))
         out << "\t\taggregatable," << endl;
-    if (qstricmp(mo->classInfo(mo->indexOfClassInfo("RegisterObject")).value(), "yes"))
+    if (!qstricmp(mo->classInfo(mo->indexOfClassInfo("RegisterObject")).value(), "yes"))
         out << "\t\tappobject," << endl;
     if (mo->classInfo(mo->indexOfClassInfo("LicenseKey")).value())
         out << "\t\tlicensed," << endl;
