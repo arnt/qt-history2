@@ -1142,4 +1142,9 @@ void ConnectionEdit::updateLines()
         con->checkWidgets();
 }
 
+void ConnectionEdit::resizeEvent(QResizeEvent *e)
+{
+    updateBackground();
+}
+
 #include "connectionedit.moc"
