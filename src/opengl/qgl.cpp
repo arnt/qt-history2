@@ -2095,8 +2095,8 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
 	base = d->displayListCache[ key ];
     } else {
 	int maxBase = listBase - 256;
-	QMap<QString,int>::Iterator it;
-	for ( it = d->displayListCache.begin(); it != d->displayListCache.end(); ++it ) {
+	QMap<QString,int>::ConstIterator it;
+	for ( it = d->displayListCache.constBegin(); it != d->displayListCache.constEnd(); ++it ) {
 	    if ( maxBase < it.data() ) {
 		maxBase = it.data();
 	    }
