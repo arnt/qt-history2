@@ -16,10 +16,12 @@ htmldocs.path = $$docs.path/html
 INSTALLS += htmldocs
 
 macx { #mac framework
-    framework.path = /System/Library/Frameworks/Qt.framework
-    framework.extra  = -cp -rf $$docs.path /Developer/Documentation/Qt;
-    framework.extra += cp -rf $$target.path/$(TARGET) $$framework.path/Qt;
-    framework.extra += cp -rf $$headers.path $$framework.path/Headers;
-    framework.extra += cp -rf $$headers_p.path $$framework.path/Headers/private
+    QtFramework = /System/Library/Frameworks/Qt.framework
+    QtDocs      = /Developer/Documentation/Qt
+    framework.path = $$QtFramework/Headers/private $$QtDocs
+    framework.extra  = -cp -rf $$htmldocs.files $$QtDocs;
+    framework.extra += cp -rf $$target.path/$(TARGET) $$QtFramework/Qt;
+    framework.extra += cp -rf $$headers.files $$QtFramework/Headers;
+    framework.extra += cp -rf $$headers_p.files $$QtFramework/Headers/private
     INSTALLS += framework
 }
