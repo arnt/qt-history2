@@ -14,9 +14,6 @@
 #include "qbuffer.h"
 #include "private/qiodevice_p.h"
 
-#define d d_func()
-#define q q_func()
-
 /** QBufferPrivate **/
 class QBufferPrivate : public QIODevicePrivate
 {
@@ -78,6 +75,7 @@ public:
 
 QBuffer::QBuffer() : QIODevice(*new QBufferPrivate)
 {
+    Q_D(QBuffer);
     d->buf = &d->defaultBuf;
     setFlags(QIODevice::Direct);
 }
@@ -106,6 +104,7 @@ QBuffer::QBuffer() : QIODevice(*new QBufferPrivate)
 
 QBuffer::QBuffer(QByteArray *a) : QIODevice(*new QBufferPrivate)
 {
+    Q_D(QBuffer);
     d->buf = a;
     setFlags(QIODevice::Direct);
 }
@@ -136,6 +135,7 @@ QBuffer::~QBuffer()
 
 void QBuffer::setBuffer(QByteArray *a)
 {
+    Q_D(QBuffer);
     if (isOpen()) {
         qWarning("QBuffer::setBuffer: Buffer is open");
         return;
@@ -164,6 +164,7 @@ void QBuffer::setBuffer(QByteArray *a)
 */
 void QBuffer::setData(const QByteArray &data)
 {
+    Q_D(QBuffer);
     if (isOpen()) {
         qWarning("QBuffer::setData: Buffer is open");
         return;
@@ -176,6 +177,7 @@ void QBuffer::setData(const QByteArray &data)
 */
 bool QBuffer::open(int mode)
 {
+    Q_D(QBuffer);
     if(mode & (Append|WriteOnly)) //append implies write
         mode |= WriteOnly;
     setFlags(QIODevice::Direct);
@@ -200,6 +202,7 @@ bool QBuffer::open(int mode)
 */
 bool QBuffer::isOpen() const
 {
+    Q_D(const QBuffer);
     return d->isOpen;
 }
 
@@ -211,6 +214,7 @@ bool QBuffer::isOpen() const
 
 QByteArray &QBuffer::buffer()
 {
+    Q_D(QBuffer);
     return *d->buf;
 }
 
@@ -219,6 +223,7 @@ QByteArray &QBuffer::buffer()
 */
 const QByteArray &QBuffer::buffer() const
 {
+    Q_D(const QBuffer);
     return *d->buf;
 }
 
@@ -228,6 +233,7 @@ const QByteArray &QBuffer::buffer() const
 
 void QBuffer::close()
 {
+    Q_D(QBuffer);
     if(!isOpen())
         return;
     d->isOpen = false;
@@ -243,6 +249,7 @@ void QBuffer::close()
 
 Q_LONGLONG QBuffer::at() const
 {
+    Q_D(const QBuffer);
     if (!isOpen())
         return 0;
     return d->ioIndex;
@@ -254,6 +261,7 @@ Q_LONGLONG QBuffer::at() const
 
 Q_LONGLONG QBuffer::size() const
 {
+    Q_D(const QBuffer);
     return (Q_LONGLONG)d->buf->size();
 }
 
@@ -263,6 +271,7 @@ Q_LONGLONG QBuffer::size() const
 
 bool QBuffer::seek(Q_LONGLONG pos)
 {
+    Q_D(QBuffer);
     if (!isOpen()) {
         qWarning("QBuffer::seek: IODevice is not open");
         return false;
@@ -283,6 +292,7 @@ bool QBuffer::seek(Q_LONGLONG pos)
 
 Q_LONGLONG QBuffer::read(char *data, Q_LONGLONG len)
 {
+    Q_D(QBuffer);
     if (len <= 0) // nothing to do
         return 0;
     Q_CHECK_PTR(data);
@@ -313,6 +323,7 @@ Q_LONGLONG QBuffer::read(char *data, Q_LONGLONG len)
 
 Q_LONGLONG QBuffer::write(const char *data, Q_LONGLONG len)
 {
+    Q_D(QBuffer);
     if (len <= 0) // nothing to do
         return 0;
     Q_CHECK_PTR(data);
@@ -343,6 +354,7 @@ Q_LONGLONG QBuffer::write(const char *data, Q_LONGLONG len)
 
 int QBuffer::getch()
 {
+    Q_D(QBuffer);
     if ( !isOpen() ) {                          // buffer not open
         qWarning( "QBuffer::getch: Buffer not open" );
         return -1;
@@ -363,6 +375,7 @@ int QBuffer::getch()
 
 int QBuffer::putch(int character)
 {
+    Q_D(QBuffer);
     if ( !isOpen() ) {                          // buffer not open
         qWarning( "QBuffer::putch: Buffer not open" );
         return -1;
@@ -389,6 +402,7 @@ int QBuffer::putch(int character)
 
 int QBuffer::ungetch(int character)
 {
+    Q_D(QBuffer);
     if ( !isOpen() ) {                          // buffer not open
         qWarning( "QBuffer::ungetch: Buffer not open" );
         return -1;
