@@ -2185,13 +2185,16 @@ int QFontMetrics::width( const QString &str, int len ) const
 #ifndef Q_WS_MAC
     const QChar *ch = str.unicode();
 
-    while ( pos < len && ch->unicode() < QFontEngineData::widthCacheSize ) {
+    while (pos < len) {
 	unsigned short uc = ch->unicode();
-	if ( d->engineData && d->engineData->widthCache[ uc ] )
-	    width += d->engineData->widthCache[ uc ];
+	if (uc < QFontEngineData::widthCacheSize && d->engineData && d->engineData->widthCache[uc])
+	    width += d->engineData->widthCache[uc];
 	else if ( ::category( *ch ) != QChar::Mark_NonSpacing ) {
 	    QFont::Script script;
 	    SCRIPT_FOR_CHAR( script, *ch );
+
+	    if (script >= QFont::Arabic && script <= QFont::Khmer)
+		break;
 
 	    QFontEngine *engine = d->engineForScript( script );
 #ifdef QT_CHECK_STATE
