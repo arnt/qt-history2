@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#204 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#205 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12870,6 +12870,7 @@ void QString::compose()
     {
 	code = at(index);
 	
+/*
 	QLigature ligature(code);
 	ligature.first();
 	while(ligature.current())
@@ -12889,6 +12890,7 @@ void QString::compose()
 	    }
 	    ligature.next();
 	}
+*/
 	
 	index++;
     }
@@ -12992,6 +12994,9 @@ public:
   */
 QString QString::visual(int index, int len)
 {
+    // #### This needs much more optimizing - it is called for
+    // #### every text operation.
+
     unsigned char *level;
     QChar::Direction *dir;
     unsigned char base = 0;
@@ -13014,9 +13019,10 @@ QString QString::visual(int index, int len)
 	   (at(pos).direction() > 1)) // not R and not L
 	pos++;
 	
-    if ((at(pos).direction() == QChar::DirR) ||
-	(at(pos) == RLE) ||
-	(at(pos) == RLO))
+    if ((pos < length()) &&
+	    ((at(pos).direction() == QChar::DirR) ||
+	    (at(pos) == RLE) ||
+	    (at(pos) == RLO)))
 	base = 1;
 
     // is there any BiDi char at all?
