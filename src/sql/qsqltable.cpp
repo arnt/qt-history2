@@ -342,11 +342,23 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 
 */
 
+void QSqlTable::resizeEvent ( QResizeEvent * e )
+{
+    
+    if ( d->view && !d->view->driver()->hasQuerySizeSupport() ) 
+	loadNextPage();
+    QTable::resizeEvent( e );
+}
+
+/*
+  \reimpl
+
+*/
+
 void QSqlTable::contentsMousePressEvent( QMouseEvent* e )
 {
     //    qDebug("QSqlTable::contentsMousePressEvent( QMouseEvent* e )");
     if ( d->mode != QSqlTable::None ) {
-	qDebug("contentsMousePressEvent ending edit");
 	endEdit( d->editRow, d->editCol, TRUE, FALSE );
     }
     if ( !d->view ) {
@@ -1191,7 +1203,7 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 	    if ( d->view->seek( row - 1 ) )
 		paintField( p, d->view->field( indexOf( col ) ), cr, selected );
 	} else {
-	    //	    //qDebug("seeking in update mode");
+	    //	    qDebug("seeking in update mode");
 	    if ( d->view->seek( row ) )
 		paintField( p, d->view->field( indexOf( col ) ), cr, selected );
 	}
@@ -1284,7 +1296,10 @@ void QSqlTable::setSize( const QSql* sql )
 /*!
 
   Displays the \a view in the table.  If autopopulate is TRUE, columns
-  are automatically created based upon the fields in the \a view.
+  are automatically created based upon the fields in the \a view.  If
+  the \a view is read only, the table becomes read only.
+
+  \sa isReadOnly() setReadOnly()
 
 */
 
@@ -1305,13 +1320,14 @@ void QSqlTable::setView( QSqlView* view, bool autoPopulate )
 
 /*!
 
-  Protected virtual function which is called when an error occurred on
-  the current view().  The default implementation displays a message to the user.
+  Protected virtual function which is called when an error has
+  occurred on the current view().  The default implementation displays
+  a warning message to the user with information about the error.
 
 */
 void QSqlTable::handleError( const QSqlError& e )
 {
-    QMessageBox::warning ( this, "Warning", e.driverText() + "\n" + e.databaseText(), 0, 1 );
+    QMessageBox::warning ( this, "Warning", e.driverText() + "\n" + e.databaseText(), 0, 0 );
 }
 
 /*!
@@ -1390,6 +1406,12 @@ void QSqlTable::setPixmap ( int , int , const QPixmap &  )
 void QSqlTable::takeItem ( QTableItem * )
 {
 
+}
+
+void QSqlTable::refresh( bool seekPrimary = FALSE )
+{
+    if ( d->view )
+	refresh( d->view, seekPrimary );
 }
 
 /*!

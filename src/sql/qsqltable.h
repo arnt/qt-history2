@@ -82,12 +82,12 @@ protected:
 	Update,
 	Delete
     };
-    
+
     virtual Confirm confirmEdit( QSqlTable::Mode m );
     virtual Confirm confirmCancel( QSqlTable::Mode m );
-    
+
     virtual void handleError( const QSqlError& e );
-        
+
     virtual bool beginInsert();
     virtual QWidget* beginUpdate ( int row, int col, bool replace );
     virtual bool primeInsert( QSqlView* view );
@@ -95,11 +95,12 @@ protected:
     virtual bool primeDelete( QSqlView* view );
 
     bool         eventFilter( QObject *o, QEvent *e );
+    void         resizeEvent ( QResizeEvent * );
     void         contentsMousePressEvent( QMouseEvent* e );
     void         endEdit( int row, int col, bool accept, bool replace );
     QWidget *    createEditor( int row, int col, bool initFromCell ) const;
-    //    void         setCurrentCell( int row, int col );    
-    void         activateNextCell();    
+    //    void         setCurrentCell( int row, int col );
+    void         activateNextCell();
     int          indexOf( uint i ) const;
     void         reset();
     void         setSize( const QSql* sql );
@@ -111,6 +112,7 @@ protected:
     int          fieldAlignment( const QSqlField* field );
     void         columnClicked ( int col );
     void         resizeData ( int len );
+    void         refresh( bool seekPrimary = FALSE );    
 
     QTableItem * item ( int row, int col ) const;
     void         setItem ( int row, int col, QTableItem * item );
