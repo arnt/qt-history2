@@ -73,8 +73,8 @@ extern IAccessible *qt_createWindowsAccessible(QAccessibleInterface *object);
 #include <sipapi.h>
 #endif
 
-#define PACKETDATA  (PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | \
-                      PK_ORIENTATION | PK_CURSOR)
+#define PACKETDATA  (PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | PK_TANGENT_PRESSURE \
+                     | PK_ORIENTATION | PK_CURSOR | PK_Z)
 #define PACKETMODE  0
 
 extern bool qt_tabletChokeMouse;
@@ -3112,6 +3112,10 @@ static void tabletInit(UINT wActiveCsr, HCTX hTab)
         tdd.minPressure = int(np.axMin);
         tdd.maxPressure = int(np.axMax);
 
+        ptrWTInfo(WTI_DEVICES + lc.lcDevice, DVC_TPRESSURE, &np);
+        tdd.minTanPressure = int(np.axMin);
+        tdd.maxTanPressure = int(np.axMax);
+
         ptrWTInfo(WTI_DEVICES + lc.lcDevice, DVC_X, &np);
         tdd.minX = int(np.axMin);
         tdd.maxX = int(np.axMax);
@@ -3119,6 +3123,11 @@ static void tabletInit(UINT wActiveCsr, HCTX hTab)
         ptrWTInfo(WTI_DEVICES + lc.lcDevice, DVC_Y, &np);
         tdd.minY = int(np.axMin);
         tdd.maxY = int(np.axMax);
+
+        ptrWTInfo(WTI_DEVICES + lc.lcDevice, DVC_Z, &np);
+        tdd.minZ = int(np.axMin);
+        tdd.maxZ = int(np.axMax);
+
         tCursorInfo()->insert(wActiveCsr, tdd);
     }
 }
@@ -3129,25 +3138,59 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
     Q_UNUSED(msg);
     POINT ptNew;
     static DWORD btnNew, btnOld, btnChange;
-    UINT prsNew;
+    qreal prsNew;
     ORIENTATION ort;
     static bool button_pressed = false;
     int i,
         dev,
+        pointerType,
         tiltX,
         tiltY;
     bool sendEvent = false;
     QEvent::Type t;
+    int z = 0;
+    qreal rotation = 0.0;
+    qreal tangentalPressure;
 
     // the most common event that we get...
     t = QEvent::TabletMove;
     for (i = 0; i < numPackets; i++) {
-        if (localPacketBuf[i].pkCursor == 2) {
-            dev = QTabletEvent::Eraser;
-        } else if (localPacketBuf[i].pkCursor == 1) {
+        // get the unique ID of the device...
+        int csr_type,
+            csr_physid;
+        ptrWTInfo(WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_TYPE, &csr_type);
+        ptrWTInfo(WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_PHYSID, &csr_physid);
+        qint64 llId = csr_type;
+        llId = (llId << 24) | csr_physid;
+        switch (csr_type & 0x0F06) {
+        case 0x0802:
             dev = QTabletEvent::Stylus;
-        } else {
+            break;
+        case 0x0902:
+            dev = QTabletEvent::Airbrush;
+            break;
+        case 0x0004:
+            dev = QTabletEvent::FourDMouse;
+            break;
+        case 0x0006:
+            dev = QTabletEvent::Puck;
+            break;
+        default:
             dev = QTabletEvent::NoDevice;
+        }
+
+        switch (localPacketBuf[i].pkCursor) {
+        case 2:
+            pointerType = QTabletEvent::Eraser;
+            break;
+        case 1:
+            pointerType = QTabletEvent::Pen;
+            break;
+        case 0:
+            pointerType = QTabletEvent::Cursor;
+            break;
+        default:
+            pointerType = QTabletEvent::UnknownPointer;
         }
         btnOld = btnNew;
         btnNew = localPacketBuf[i].pkButtons;
@@ -3160,15 +3203,23 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
         ptNew.x = UINT(localPacketBuf[i].pkX);
         ptNew.y = UINT(localPacketBuf[i].pkY);
 
-        prsNew = 0;
+        z = (dev == QTabletEvent::FourDMouse) ? UINT(localPacketBuf[i].pkZ) : 0;
+
+        prsNew = 0.0;
         if (!tCursorInfo()->contains(localPacketBuf[i].pkCursor))
             tabletInit(localPacketBuf[i].pkCursor, qt_tablet_context);
         TabletDeviceData tdd = tCursorInfo()->value(localPacketBuf[i].pkCursor);
         QSize desktopSize = qt_desktopWidget->screenGeometry().size();
         QPointF hiResGlobal = tdd.scaleCoord(ptNew.x, ptNew.y, 0, desktopSize.width(),
-                                    0, desktopSize.height());
+                                             0, desktopSize.height());
         if (btnNew) {
-            prsNew = localPacketBuf[i].pkNormalPressure;
+            // I'm not sure what is going on here. It could be the driver or it could be something else
+            // But as near as I can figure, the pressure is being reported in the Z_AXIS now instead of in
+            // the normal pressure area. So that that into account...
+            if (pointerType == QTabletEvent::Pen || pointerType == QTabletEvent::Eraser)
+                prsNew = localPacketBuf[i].pkZ / qreal(tdd.maxPressure - tdd.minPressure);
+            else
+                prsNew = 0;
         } else if (button_pressed) {
             // One button press, should only give one button release
             t = QEvent::TabletRelease;
@@ -3182,9 +3233,17 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
         if (!w)
             w = this;
         QPoint localPos = w->mapFromGlobal(globalPos);
-        if (!qt_tablet_tilt_support)
+        if (dev == QTabletEvent::Airbrush) {
+            tangentalPressure = localPacketBuf[i].pkTangentPressure
+                                / qreal(tdd.maxTanPressure - tdd.minTanPressure);
+        } else {
+            tangentalPressure = 0.0;
+        }
+
+        if (!qt_tablet_tilt_support) {
             tiltX = tiltY = 0;
-        else {
+            rotation = 0.0;
+        } else {
             ort = localPacketBuf[i].pkOrientation;
             // convert from azimuth and altitude to x tilt and y tilt
             // what follows is the optimized version.  Here are the equations
@@ -3202,17 +3261,12 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
             double degY = atan(cos(radAzim) / tanAlt);
             tiltX = int(degX * (180 / Q_PI));
             tiltY = int(-degY * (180 / Q_PI));
+            rotation = ort.orTwist;
         }
-        // get the unique ID of the device...
-        int csr_type,
-            csr_physid;
-        ptrWTInfo(WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_TYPE, &csr_type);
-        ptrWTInfo(WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_PHYSID, &csr_physid);
-        qint64 llId = csr_type;
-        llId = (llId << 24) | csr_physid;
-        QTabletEvent e(t, localPos, globalPos, hiResGlobal, dev,
-                       qreal(prsNew / qreal(tdd.maxPressure - tdd.minPressure)),
-                       tiltX, tiltY, 0, llId);
+
+        QTabletEvent e(t, localPos, globalPos, hiResGlobal, dev, pointerType,
+                       prsNew, tiltX, tiltY, tangentalPressure,
+                       rotation, z, 0, llId);
         sendEvent = QApplication::sendSpontaneousEvent(w, &e);
     }
     return sendEvent;

@@ -1489,8 +1489,20 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
     \value NoDevice    No device, or an unknown device.
     \value Puck    A Puck (a device that is similar to a flat mouse with
     a transparent circle with cross-hairs).
-    \value Stylus  A Stylus (the narrow end of the pen).
-    \value Eraser  An Eraser (the broad end of the pen).
+    \value Stylus  A Stylus.
+    \value AirBrush An airbrush
+    \value FourDMouse A 4D Mouse.
+*/
+
+/*!
+    \enum QTabletEvent::PointerType
+
+    This enum defines what type of point is generating the event.
+
+    \value UnknownPointer    An unknown device.
+    \value Pen    Tip end of a stylus-like device (the narrow end of the pen).
+    \value Cursor  Any puck-like device.
+    \value Eraser  Eraser end of a stylus-like device (the broad end of the pen).
 */
 
 /*!
@@ -1507,23 +1519,39 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
   \a keyState specifies which keyboard modifiers are pressed (e.g.,
   \key{Ctrl}).
 
-  The \a unique parameter contains the unique ID for the current device.
+  The \a uniqueID parameter contains the unique ID for the current device.
 
-  \sa pos() globalPos() device() pressure() xTilt() yTilt() uniqueId()
+  The \a z parameter contains the coordinate of the device on the tablet, this
+  is usually given by a wheel on 4D mouse. If the device does not support a
+  Z-axis, pass zero here.
+
+  The \a tangentalPressure paramater contins the tangential pressure of an air
+  brush. If the device does not support tangential pressure, pass 0 here.
+
+  \a rotation contains the device's rotation in degrees. 4D mice support
+  rotation. If the device does not support rotation, pass 0 here.
+
+  \sa pos() globalPos() device() pressure() xTilt() yTilt() uniqueId(), rotation(), tangentialPressure(), z()
 */
 
-QTabletEvent::QTabletEvent(Type type, const QPoint &pos, const QPoint &globalPos, const QPointF &hiResGlobalPos,
-                           int device, qreal pressure, int xTilt, int yTilt, Qt::KeyboardModifiers keyState,
-                           qint64 unique)
+QTabletEvent::QTabletEvent(Type type, const QPoint &pos,  const QPoint &globalPos,
+                           const QPointF &hiResGlobalPos, int device, int pointerType,
+                           qreal pressure, int xTilt, int yTilt, qreal tangentalPressure,
+                           qreal rotation, int z, Qt::KeyboardModifiers keyState, qint64 uniqueID)
     : QInputEvent(type, keyState),
       mPos(pos),
       mGPos(globalPos),
       mHiResGlobalPos(hiResGlobalPos),
       mDev(device),
+      mPointerType(pointerType),
       mXT(xTilt),
       mYT(yTilt),
+      mZ(z),
       mPress(pressure),
-      mUnique(unique)
+      mTangental(tangentalPressure),
+      mRot(rotation),
+      mUnique(uniqueID),
+      mExtra(0)
 {
 }
 
@@ -1546,10 +1574,33 @@ QTabletEvent::~QTabletEvent()
 */
 
 /*!
+    \fn qreal QTabletEvent::tangentalPressure() const
+
+    Returns the tangental pressure for the device.  This is typically given by a finger
+    wheel on an airbrush tool.  The range is from -1.0 to 1.0. 0.0 indicates a
+    neutral position.  Current airbrushes can only move in the positive
+    direction from the neutrual position. If the device does not support
+    tangental pressure, this value is always 0.0.
+
+    \sa pressure()
+*/
+
+/*!
+    \fn qreal QTabletEvent::rotation() const
+
+    Returns the rotation of the current device in degress. This is usually
+    given by a 4D Mouse. If the device doesn't support rotation this value is
+    always 0.0.
+
+*/
+
+/*!
     \fn qreal QTabletEvent::pressure() const
 
     Returns the pressure for the device. 0.0 indicates that the stylus is not
     on the tablet, 1.0 indicates the maximum amount of pressure for the stylus.
+
+    \sa tangentialPressure()
 */
 
 /*!
@@ -1604,6 +1655,16 @@ QTabletEvent::~QTabletEvent()
     received the event.
 
     \sa x() pos()
+*/
+
+/*!
+    \fn int QTabletEvent::z() const
+
+    Returns the z position of the device. Typically this is represented by a
+    wheel on a 4D Mouse. If the device does not support a Z-axis, this value is
+    always zero. This is <em>not</em> the same as pressure.
+
+    \sa pressure()
 */
 
 /*!

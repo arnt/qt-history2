@@ -67,7 +67,9 @@ struct TabletDeviceData
 {
     int minPressure;
     int maxPressure;
-    int minX, maxX, minY, maxY;
+    int minTanPressure;
+    int maxTanPressure;
+    int minX, maxX, minY, maxY, minZ, maxZ;
     inline QPointF scaleCoord(int coordX, int coordY, int outOriginX, int outExtentX,
                               int outOriginY, int outExtentY) const;
 #ifdef Q_WS_X11

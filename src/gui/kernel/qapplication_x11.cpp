@@ -1148,9 +1148,6 @@ static void qt_check_focus_model()
 }
 
 #ifndef QT_NO_TABLET_SUPPORT
-#ifdef Q_OS_IRIX
-static bool sgi_extension_exists = false;
-#endif
 static bool isXInputSupported(Display *dpy)
 {
     Bool exists;
@@ -1163,10 +1160,6 @@ static bool isXInputSupported(Display *dpy)
     if (!version || version == reinterpret_cast<XExtensionVersion *>(NoSuchExtension))
         return false;
 
-#ifdef Q_OS_IRIX
-    int tmp;
-    sgi_extension_exists = XSGIMiscQueryExtension(dpy, &tmp, &tmp);
-#endif
     XFree(version);
     return true;
 }
@@ -1736,7 +1729,7 @@ void qt_init(QApplicationPrivate *priv, int,
                     deviceType = QTabletEvent::Stylus;
                     gotStylus = true;
                 } else if (devName.startsWith(XFREENAMEERASER)) {
-                    deviceType = QTabletEvent::Eraser;
+                    deviceType = QTabletEvent::XFreeEraser;
                     gotEraser = true;
                 }
 #endif
@@ -1807,7 +1800,8 @@ void qt_init(QApplicationPrivate *priv, int,
                             // axis.  So we'll try to parse it from this
                             // string. --tws
                             char returnString[SGIDeviceRtrnLen];
-                            if (sgi_extension_exists
+                            int tmp;
+                            if (XSGIMiscQueryExtension(X11->display, &tmp, &tmp)
                                 && XSGIDeviceQuery(X11->display, devs->id,
                                                    "dimensions", returnString)) {
                                 QString str = QLatin1String(returnString);
@@ -1824,6 +1818,10 @@ void qt_init(QApplicationPrivate *priv, int,
                             }
                             device_data.minPressure = a[WAC_PRESSURE_I].min_value;
                             device_data.maxPressure = a[WAC_PRESSURE_I].max_value;
+                            device_data.minTanPressure = a[WAC_TAN_PRESSURE_I].min_value;
+                            device_data.maxTanPressure = a[WAC_TAN_PRESSURE_I].max_value;
+                            device_data.minZ = a[WAC_ZCOORD_I].min_value;
+                            device_data.maxZ = a[WAC_ZCOORD_I].max_value;
 #else
                             device_data.minX = a[0].min_value;
                             device_data.maxX = a[0].max_value;
@@ -1831,6 +1829,10 @@ void qt_init(QApplicationPrivate *priv, int,
                             device_data.maxY = a[1].max_value;
                             device_data.minPressure = a[2].min_value;
                             device_data.maxPressure = a[2].max_value;
+                            device_data.minTanPressure = 0;
+                            device_data.maxTanPressure = 0;
+                            device_data.minZ = 0;
+                            device_data.maxZ = 0;
 #endif
 
                             // got the max pressure no need to go further...
@@ -2061,9 +2063,24 @@ QString qAppName()                                // get application name
     return QString::fromLatin1(appName);
 }
 
-const char *QX11Info::appClass()
+const char *qAppClass()                                // get application class
 {
-    return ::appClass;
+    return appClass;
+}
+
+Display *qt_xdisplay()                                // get current X display
+{
+    return X11->display;
+}
+
+int qt_xscreen()                                // get current X screen
+{
+    return X11->defaultScreen;
+}
+
+WId qt_xrootwin(int scrn)                        // get X root window for screen
+{
+    return QX11Info::appRootWindow(scrn);
 }
 
 bool qt_nograb()                                // application no-grab option
@@ -3610,10 +3627,14 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
     QPoint global,
         curr;
     QPointF hiRes;
-    static int pressure = 0;
-    static int xTilt = 0,
-               yTilt = 0;
+    qreal pressure = 0;
+    int xTilt = 0,
+        yTilt = 0,
+        z = 0;
+    qreal tangentalPressure = 0;
+    qreal rotation;
     int deviceType = QTabletEvent::NoDevice;
+    int pointerType = QTabletEvent::UnknownPointer;
     XEvent xinputMotionEvent;
     XEvent mouseMotionEvent;
     const XDeviceMotionEvent *motion = 0;
@@ -3622,7 +3643,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
     Qt::KeyboardModifiers modifiers = 0;
 
     if (ev->type == tablet->xinput_motion) {
-        motion = (const XDeviceMotionEvent*)ev;
+        motion = reinterpret_cast<const XDeviceMotionEvent*>(ev);
         for (;;) {
             if (!XCheckTypedWindowEvent(X11->display, winId(), MotionNotify, &mouseMotionEvent))
                 break;
@@ -3633,9 +3654,9 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
             if (mouseMotionEvent.xmotion.time != motion->time) {
                 XPutBackEvent(X11->display, &mouseMotionEvent);
                 XPutBackEvent(X11->display, &xinputMotionEvent);
-                break;
+
             }
-            motion = ((const XDeviceMotionEvent*)&xinputMotionEvent);
+            motion = (reinterpret_cast<const XDeviceMotionEvent*>(&xinputMotionEvent));
         }
         t = QEvent::TabletMove;
         global = QPoint(motion->x_root, motion->y_root);
@@ -3667,25 +3688,49 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
                 switch (vs->valuators[WAC_TRANSDUCER_I]
                          & WAC_TRANSDUCER_MSK) {
                 case WAC_PUCK_ID:
-                    deviceType = QTabletEvent::Puck;
+                    pointerType = QTabletEvent::Puck;
                     break;
                 case WAC_STYLUS_ID:
-                    deviceType = QTabletEvent::Stylus;
+                    pointerType = QTabletEvent::Pen;
                     break;
                 case WAC_ERASER_ID:
-                    deviceType = QTabletEvent::Eraser;
+                    pointerType = QTabletEvent::Eraser;
                     break;
                 }
                 // Get a Unique Id for the device, Wacom gives us this ability
                 uid = vs->valuators[WAC_TRANSDUCER_I] & WAC_TRANSDUCER_ID_MSK;
                 uid = (uid << 24) | vs->valuators[WAC_SERIAL_NUM_I];
+                switch (WAC_TRANSDUCER_I & 0x0F0600) {
+                case 0x080200:
+                    deviceType = QTabletEvent::Stylus;
+                    break;
+                case 0x090200:
+                    deviceType = QTabletEvent::Airbrush;
+                    break;
+                case 0x000400:
+                    deviceType = QTabletEvent::FourDMouse;
+                    break;
+                case 0x000600:
+                    deviceType = QTabletEvent::Puck;
+                    break;
+                }
             } else {
+                pointerType = QTabletEvent::UnknownPointer;
                 deviceType = QTabletEvent::NoDevice;
+                uid = 0;
             }
+
             // apparently Wacom needs a cast for the +/- values to make sense
             xTilt = short(vs->valuators[WAC_XTILT_I]);
             yTilt = short(vs->valuators[WAC_YTILT_I]);
             pressure = vs->valuators[WAC_PRESSURE_I];
+            if (deviceType == QTabletEvent::FourDMouse) {
+                rotation = vs->valuators[WAC_ROTATION_I] / 64.0;
+                z = vs->valuators[WAC_ZCOORD_I];
+            } else if (deviceType == QTabletEvent::Airbrush) {
+                tangentalPressure = vs->valuators[WAC_TAN_PRESSURE_I]
+                                        / qreal(tablet->maxTanPressure - tablet->minTanPressure);
+            }
 
             QRect screenArea = qApp->desktop()->screenGeometry(global);
             hiRes = tablet->scaleCoord(vs->valuators[WAC_XCOORD_I], vs->valuators[WAC_YCOORD_I],
@@ -3703,6 +3748,10 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
         const TabletDeviceData &t = tablet_list->at(i);
         if (device_id == static_cast<XDevice *>(t.device)->device_id) {
             deviceType = t.deviceType;
+            if (deviceType == QTabletEvent::XFreeEraser) {
+                deviceType = QTabletEvent::Stylus;
+                pointerType = QTabletEvent::Eraser;
+            }
             // qDebug() << ((XDevice*)t.device)->device_id;
             break;
         }
@@ -3725,8 +3774,9 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
     uid = -1;
 #endif
     QTabletEvent e(t, curr, global, hiRes,
-                   deviceType, qreal(pressure / qreal(tablet->maxPressure - tablet->minPressure)),
-                   xTilt, yTilt, modifiers, uid);
+                   deviceType, pointerType,
+                   qreal(pressure / qreal(tablet->maxPressure - tablet->minPressure)),
+                   xTilt, yTilt, tangentalPressure, rotation, z, modifiers, uid);
     QApplication::sendSpontaneousEvent(w, &e);
     return true;
 }
@@ -4643,8 +4693,6 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
         if (static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(this, &a))
             return true;
     }
-#else
-    Q_UNUSED(grab)
 #endif
 
     long save = 0;
@@ -5395,7 +5443,7 @@ static void sm_performSaveYourself(QSessionManagerPrivate* smd)
     // generate a restart and discard command that makes sense
     QStringList restart;
     restart  << qApp->argv()[0] << "-session" << smd->sessionId + "_" + smd->sessionKey;
-    if (qstricmp(appName, QX11Info::appClass()) != 0)
+    if (qstricmp(appName, qAppClass()) != 0)
         restart << "-name" << qAppName();
     sm->setRestartCommand(restart);
     QStringList discard;

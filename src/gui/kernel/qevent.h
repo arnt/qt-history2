@@ -128,15 +128,15 @@ protected:
 class Q_GUI_EXPORT QTabletEvent : public QInputEvent
 {
 public:
-    enum TabletDevice { NoDevice = -1, Puck, Stylus, Eraser };
+    enum TabletDevice { NoDevice, Puck, Stylus, Airbrush, FourDMouse,
+                        XFreeEraser /*internal*/ };
+    enum PointerType { UnknownPointer, Pen, Cursor, Eraser };
     QTabletEvent(Type t, const QPoint &pos,  const QPoint &globalPos, const QPointF &hiResGlobalPos,
-                 int device, qreal pressure, int xTilt, int yTilt,
+                 int device, int pointerType, qreal pressure, int xTilt, int yTilt,
+                 qreal tangentalPressure, qreal rotation, int z,
                  Qt::KeyboardModifiers keyState, qint64 uniqueID);
     ~QTabletEvent();
 
-    inline qreal pressure() const { return mPress; }
-    inline int xTilt() const { return mXT; }
-    inline int yTilt() const { return mYT; }
     inline const QPoint &pos() const { return mPos; }
     inline const QPoint &globalPos() const { return mGPos; }
     inline const QPointF &hiResGlobalPos() const { return mHiResGlobalPos; }
@@ -147,14 +147,27 @@ public:
     inline qreal hiResGlobalX() const { return mHiResGlobalPos.x(); }
     inline qreal hiResGlobalY() const { return mHiResGlobalPos.y(); }
     inline TabletDevice device() const { return TabletDevice(mDev); }
+    inline PointerType pointerType() const { return PointerType(mPointerType); }
     inline qint64 uniqueId() const { return mUnique; }
+    inline qreal pressure() const { return mPress; }
+    inline int z() const { return mZ; }
+    inline qreal tangentalPressure() const { return mTangental; }
+    inline qreal rotation() const { return mRot; }
+    inline int xTilt() const { return mXT; }
+    inline int yTilt() const { return mYT; }
 
 protected:
     QPoint mPos, mGPos;
     QPointF mHiResGlobalPos;
-    int mDev, mXT, mYT;
-    qreal mPress;
+    int mDev, mPointerType, mXT, mYT, mZ;
+    qreal mPress, mTangental, mRot;
     qint64 mUnique;
+
+    // I don't know what the future holds for tablets but there could be some
+    // new devices coming along, and there seem to be "holes" in the
+    // OS-specific events for this.
+    void *mExtra;
+
 };
 
 

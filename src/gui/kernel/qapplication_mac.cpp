@@ -98,8 +98,10 @@ static struct {
 static bool qt_mac_use_qt_scroller_lines = false;
 
 // tablet structure
+static QTabletEvent::PointerType currPointerType = QTabletEvent::UnknownPointer;
 static QTabletEvent::TabletDevice currTabletDevice = QTabletEvent::NoDevice;
 static qint64 tabletUniqueID = 0;
+static UInt32 tabletCaps = 0;
 
 static int tablet_button_state = 0;
 bool qt_mac_eat_unicode_key = false;
@@ -1731,27 +1733,45 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
     case kEventClassTablet:
         switch (ekind) {
         case kEventTabletProximity:
-            // Get the current point of the device and its unique idea.
+            // Get the current point of the device and its unique ID.
             TabletProximityRec proxRec;
             GetEventParameter(event, kEventParamTabletProximityRec, typeTabletProximityRec, 0,
                               sizeof(proxRec), 0, &proxRec);
             tabletUniqueID = proxRec.uniqueID;
-            // Defined in some non-existent wacom.h
+            tabletCaps = proxRec.capabilityMask;
+            // Defined in some non-existent Wacom.h
             // EUnknown = 0, EPen = 1, ECursor = 2, EEraser = 3
             switch (proxRec.pointerType) {
                 case 0:
                 default:
-                    currTabletDevice = QTabletEvent::NoDevice;
+                    currPointerType = QTabletEvent::UnknownPointer;
                     break;
                 case 1:
-                    currTabletDevice = QTabletEvent::Stylus;
+                    currPointerType = QTabletEvent::Pen;
                     break;
                 case 2:
-                    currTabletDevice = QTabletEvent::Puck;
+                    currPointerType = QTabletEvent::Cursor;
                     break;
                 case 3:
-                    currTabletDevice = QTabletEvent::Eraser;
+                    currPointerType = QTabletEvent::Eraser;
                     break;
+            }
+
+            // Defined in the "EN0056-NxtGenImpGuideX"
+            // on Wacom's Developer Website (www.wacomeng.com)
+            switch (proxRec.vendorPointerType & 0x0006) {
+            case 0x0002:
+                if ((proxRec.vendorPointerType & 0x0F06) != 0x902)
+                    currTabletDevice = QTabletEvent::Stylus;
+                else
+                    currTabletDevice = QTabletEvent::Airbrush;
+                break;
+            case 0x0004:
+                currTabletDevice = QTabletEvent::FourDMouse;
+                break;
+            case 0x0006:
+                currTabletDevice = QTabletEvent::Puck;
+                break;
             }
         }
         break;
@@ -1949,12 +1969,24 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 HIPoint hiPoint;
                 GetEventParameter(event, kEventParamMouseLocation, typeHIPoint, 0, sizeof(HIPoint), 0, &hiPoint);
                 QPointF hiRes(hiPoint.x, hiPoint.y);
-                QPoint p(where.h, where.v);
-                QPoint plocal(widget->mapFromGlobal(p));
-                // ### Fix the tilt values.
-                QTabletEvent e(t, plocal, p, hiRes, currTabletDevice,
-                               qreal(tabletPointRec.pressure / qreal(0xffff)), tiltX, tiltY, modifiers,
-                               tabletUniqueID);
+                QPoint global(where.h, where.v);
+                QPoint local(widget->mapFromGlobal(global));
+                int z = 0;
+                qreal rotation = 0.0;
+                qreal tp = 0.0;
+                // Again from the Wacom.h header
+                if (tabletCaps & 0x0200)     // Z-axis
+                    z = tabletPointRec.absZ;
+
+                if (tabletCaps & 0x0800)  // Tangental pressure
+                    tp = tabletPointRec.tangentialPressure / 32767.0;
+
+                if (tabletCaps & 0x2000) // Rotation
+                    rotation = qreal(tabletPointRec.rotation) / 64.0;
+
+                QTabletEvent e(t, local, global, hiRes, currTabletDevice, currPointerType,
+                               qreal(tabletPointRec.pressure / qreal(0xffff)), tiltX, tiltY,
+                               tp, rotation, z, modifiers, tabletUniqueID);
                 QApplication::sendSpontaneousEvent(widget, &e);
                 if (e.isAccepted())
                     break;
