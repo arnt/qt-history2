@@ -885,8 +885,9 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             return FALSE;
         }
         if ( c == PdcDrawPixmap || c == PdcDrawImage ) {
-            QPoint  pos    = *p[0].point;
-            QPixmap pixmap;
+            QRect rect    = *p[0].rect;
+	    QPoint  pos( rect.x(), rect.y() );
+	    QPixmap pixmap;
             QImage  image;
 
             int w;
