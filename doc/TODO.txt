@@ -308,6 +308,10 @@ QListViewItem::setColor()
   Be able to set the color of the listviewitem(such as the text etc), though
   I think making everyone reimplement paintCell() is better.
 
+QDir
+  A function to remove a directory and all sub-directories/files within (a bit like
+  deltree on Windows (except Win 2000).
+
 New functionality
 -----------------
 
