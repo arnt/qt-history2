@@ -2199,6 +2199,24 @@ bool QMacStyle::event(QEvent *e)
     return QWindowsStyle::event(e);
 }
 
+/*!
+    \enum QMacStyle::FocusRectPolicy
+
+    This type is used to signify a widget's focus rectangle policy.
+
+    \value Enabled  show a focus rectangle when the widget has focus.
+    \value Disabled  never show a focus rectangle for the widget.
+    \value Default  show a focus rectangle when the widget has focus and the widget is a or is derived from a QSpinWidget, QDateTimeEditor, QLineEdit, QListBox, QListView or editable QTextEdit.
+*/
+
+/*!
+    \fn void QMacStyle::setFocusRectPolicy( QWidget *w, FocusRectPolicy policy )
+
+    Sets the focus rectangle policy of \a w. The \a policy can be one of 
+    \l{QMacStyle::FocusRectPolicy}.
+
+    \sa focusRectPolicy()
+*/
 void QMacStyle::setFocusRectPolicy( QWidget *w, FocusRectPolicy policy )
 {
     d->focusMap.replace( w, policy );
@@ -2209,6 +2227,15 @@ void QMacStyle::setFocusRectPolicy( QWidget *w, FocusRectPolicy policy )
     }
 }
 
+/*!
+    \fn void QMacStyle::focusRectPolicy( QWidget *w )
+
+    Returns the focus rectangle policy for the widget /a w.
+
+    The focus rectangle policy can be one of \l{QMacStyle::FocusRectPolicy}.
+
+    \sa setFocusRectPolicy()
+*/
 QMacStyle::FocusRectPolicy QMacStyle::focusRectPolicy( QWidget *w )
 {
     if (d->focusMap.contains(w))
