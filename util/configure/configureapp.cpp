@@ -1159,32 +1159,32 @@ void Configure::generateMakefiles()
 	if( dictionary[ "QMAKESPEC" ] != "win32-msvc.net" )
 	    dictionary[ "VCPROJFILES" ] = "no";
 
+	makeList += dictionary[ "QT_SOURCE_TREE" ] + "/src";
+	makeList += "qt.pro";
+	makeList += "Makefile";
+	if( dictionary[ "DSPFILES" ] == "yes" ) {
 	    makeList += dictionary[ "QT_SOURCE_TREE" ] + "/src";
 	    makeList += "qt.pro";
-	    makeList += "Makefile";
-	    if( dictionary[ "DSPFILES" ] == "yes" ) {
-		makeList += dictionary[ "QT_SOURCE_TREE" ] + "/src";
-		makeList += "qt.pro";
-		makeList += "qt.dsp";
-	    }
-	    if( dictionary[ "VCPROJFILES" ] == "yes" ) {
-		makeList += dictionary[ "QT_SOURCE_TREE" ] + "/src";
-		makeList += "qt.pro";
-		makeList += "qt.vcproj";
-	    }
+	    makeList += "qt.dsp";
+	}
+	if( dictionary[ "VCPROJFILES" ] == "yes" ) {
+	    makeList += dictionary[ "QT_SOURCE_TREE" ] + "/src";
+	    makeList += "qt.pro";
+	    makeList += "qt.vcproj";
+	}
+	makeList += dictionary[ "QT_SOURCE_TREE" ] + "/src";
+	makeList += "qtmain.pro";
+	makeList += "Makefile.main";
+	if( dictionary[ "DSPFILES" ] == "yes" ) {
 	    makeList += dictionary[ "QT_SOURCE_TREE" ] + "/src";
 	    makeList += "qtmain.pro";
-	    makeList += "Makefile.main";
-	    if( dictionary[ "DSPFILES" ] == "yes" ) {
-		makeList += dictionary[ "QT_SOURCE_TREE" ] + "/src";
-		makeList += "qtmain.pro";
-		makeList += "qtmain.dsp";
-	    }
-	    if( dictionary[ "VCPROJFILES" ] == "yes" ) {
-		makeList += dictionary[ "QT_SOURCE_TREE" ] + "/src";
-		makeList += "qtmain.pro";
-		makeList += "qtmain.vcproj";
-	    }
+	    makeList += "qtmain.dsp";
+	}
+	if( dictionary[ "VCPROJFILES" ] == "yes" ) {
+	    makeList += dictionary[ "QT_SOURCE_TREE" ] + "/src";
+	    makeList += "qtmain.pro";
+	    makeList += "qtmain.vcproj";
+	}
 	if( dictionary[ "LEAN" ] == "no" )
 	    findProjects( dictionary[ "QT_SOURCE_TREE" ] );
 
@@ -1223,8 +1223,6 @@ void Configure::generateMakefiles()
 	    else
 		cout << "For " << projectName.latin1() << endl;
 
-
-
 	    QDir::setCurrent( QDir::convertSeparators( dirPath ) );
 	    if ( !( qmakeTemplate == "subdirs" &&
 	          ( makefileName.right( 4 ) == ".dsp" || makefileName.right( 7 ) == ".vcproj") ) ) {
@@ -1233,7 +1231,6 @@ void Configure::generateMakefiles()
 		    dictionary[ "DONE" ] = "yes";
 		}
 	    }
-
 	}
 	QDir::setCurrent( pwd );
     } else {
