@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.h#29 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.h#30 $
 **
 ** Definition of QMenuData class
 **
@@ -38,7 +38,7 @@ public:
     int		key()		const	{ return accel_key; }
     QSignal    *signal()	const	{ return signal_data; }
     bool	isSeparator()	const	{ return is_separator; }
-    bool	isDisabled()	const	{ return is_disabled; }
+    bool	isEnabled()	const	{ return is_enabled; }
     bool	isChecked()	const	{ return is_checked; }
     bool	isDirty()	const	{ return is_dirty; }
 
@@ -53,7 +53,7 @@ private:
     int		accel_key;			// accelerator key
     QSignal    *signal_data;			// connection
     uint	is_separator : 1;		// separator flag
-    uint	is_disabled  : 1;		// disabled flag
+    uint	is_enabled   : 1;		// disabled flag
     uint	is_checked   : 1;		// checked flag
     uint	is_dirty     : 1;		// dirty (update) flag
 };
@@ -111,16 +111,20 @@ public:
     void	changeItem( const char *text, int id );
     void	changeItem( const QPixmap &pixmap, int id );
 
-    bool	isItemDisabled( int id ) const;
-    bool	isItemEnabled( int id )	 const	{ return !isItemDisabled(id); }
+    bool	isItemEnabled( int id ) const;
     void	setItemEnabled( int id, bool enable );
-    void	enableItem( int id )		{ setItemEnabled( id, TRUE ); }
-    void	disableItem( int id )		{ setItemEnabled( id, FALSE );}
+#if defined(OBSOLETE)
+    bool	isItemDisabled( int id ) const;
+    void	enableItem( int id );
+    void	disableItem( int id );
+#endif
 
     bool	isItemChecked( int id ) const;
     void	setItemChecked( int id, bool check );
-    void	checkItem( int id )		{ setItemChecked( id, TRUE ); }
-    void	uncheckItem( int id )		{ setItemChecked( id, FALSE );}
+#if defined(OBSOLETE)
+    void	checkItem( int id );
+    void	uncheckItem( int id );
+#endif
 
     virtual void updateItem( int id );
 
@@ -154,6 +158,39 @@ private:
     void	removePopup( QPopupMenu * );
     void	setAllDirty( bool );
 };
+
+
+#if defined(OBSOLETE)
+bool QMenuData::isItemDisabled( int id ) const
+{
+    qObsolete("QMenuData","isItemDisabled","!isItemEnabled()" );
+    return !isItemEnabled(id);
+}
+
+void QMenuData::enableItem( int id )
+{
+    qObsolete("QMenuData","enableITem","setItemEnabled(id,TRUE)" );
+    setItemEnabled( id, TRUE );
+}
+
+void QMenuData::disableItem( int id )
+{
+    qObsolete("QMenuData","disableItem","setItemEnabled(id,FALSE)" );
+    setItemEnabled( id, FALSE );
+}
+
+void QMenuData::checkItem( int id )
+{
+    qObsolete("QMenuData","checkItem","setItemChecked(id,TRUE)" );
+    setItemChecked( id, TRUE );
+}
+
+void QMenuData::uncheckItem( int id )
+{
+    qObsolete("QMenuData","uncheckItem","setItemChecked(id,FALSE)" );
+    setItemChecked( id, FALSE );
+}
+#endif
 
 
 #endif // QMENUDTA_H

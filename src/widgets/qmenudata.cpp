@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#42 $
 **
 ** Implementation of QMenuData class
 **
@@ -15,7 +15,7 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#41 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#42 $")
 
 
 /*----------------------------------------------------------------------------
@@ -42,7 +42,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#41 $")
 QMenuItem::QMenuItem()
 {
     ident	 = -1;
-    is_separator = is_disabled = is_checked = FALSE;
+    is_separator = is_checked = FALSE;
+    is_enabled   = TRUE;
     is_dirty 	 = TRUE;
     pixmap_data	 = 0;
     popup_menu	 = 0;
@@ -563,36 +564,28 @@ void QMenuData::changeItem( const QPixmap &pixmap, int id )
 
 
 /*----------------------------------------------------------------------------
-  \fn bool QMenuData::isItemEnabled( int id ) const
   Returns TRUE if the item with identifier \e id is enabled or FALSE if
-  the item is disabled.
-  \sa isItemDisabled(), setItemEnabled()
+  it is disabled.
+  \sa setItemEnabled()
  ----------------------------------------------------------------------------*/
 
-/*----------------------------------------------------------------------------
-  Returns TRUE if the item with identifier \e id is disabled or FALSE if
-  the item is enabled.
-  \sa isItemEnabled(), setItemEnabled()
- ----------------------------------------------------------------------------*/
-
-bool QMenuData::isItemDisabled( int id ) const
+bool QMenuData::isItemEnabled( int id ) const
 {
     QMenuItem *mi = findItem( id );
-    return mi ? mi->isDisabled() : FALSE;
+    return mi ? mi->isEnabled() : FALSE;
 }
 
 /*----------------------------------------------------------------------------
   Enables the menu item with identifier \e id if \e enable is TRUE, or
   disables the item if \e enable is FALSE.
-  \sa enableItem(), disableItem(), isItemEnabled(), isItemIDisabled()
+  \sa isItemEnabled()
  ----------------------------------------------------------------------------*/
 
 void QMenuData::setItemEnabled( int id, bool enable )
 {
     QMenuItem *mi = findItem( id );
-    bool disable = !enable;
-    if ( mi && (bool)mi->is_disabled != disable ) {
-	mi->is_disabled = disable;
+    if ( mi && (bool)mi->is_enabled != enable ) {
+	mi->is_enabled = enable;
 	if ( mi->popup() )
 	    mi->popup()->enableAccel( enable );
 	menuStateChanged();
