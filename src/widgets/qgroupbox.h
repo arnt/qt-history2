@@ -40,6 +40,9 @@ class QSpacerItem;
 class Q_EXPORT QGroupBox : public QFrame
 {
     Q_OBJECT
+    Q_PROPERTY( QString, "title", title, setTitle )
+    Q_PROPERTY( int, "alignment", alignment, setAlignment )
+	
 public:
     QGroupBox( QWidget *parent=0, const char *name=0 );
     QGroupBox( const QString &title, QWidget *parent=0, const char* name=0 );
@@ -47,7 +50,7 @@ public:
     QGroupBox( int columns, Orientation o, const QString &title, QWidget *parent=0, const char* name=0 );
 
     virtual void setColumnLayout(int columns, Orientation o);
-    
+
     QString title() const { return str; }
     virtual void setTitle( const QString &);
 

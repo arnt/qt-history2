@@ -37,6 +37,11 @@ struct QHeaderData;
 class Q_EXPORT QHeader : public QWidget
 {
     Q_OBJECT
+    // #### Orientation is missing
+    Q_PROPERTY( bool, "tracking", tracking, setTracking )
+    Q_PROPERTY( int, "count", count, 0 )
+    Q_PROPERTY( int, "offset", offset, setOffset )
+	
 public:
     QHeader( QWidget *parent=0, const char *name=0 );
     QHeader( int, QWidget *parent=0, const char *name=0 );
@@ -54,7 +59,7 @@ public:
     Orientation orientation() const;
     virtual void setTracking( bool enable );
     bool	tracking() const;
-    
+
     virtual void setClickEnabled( bool, int logIdx = -1 );
     virtual void setResizeEnabled( bool, int logIdx = -1 );
     virtual void setMovingEnabled( bool );

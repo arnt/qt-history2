@@ -138,7 +138,23 @@ class Q_EXPORT QIconViewItem : public QObject
     friend class QIconViewItemLineEdit;
 
     Q_OBJECT
-
+    Q_PROPERTY( bool, "renameEnabled", renameEnabled, setRenameEnabled )
+    Q_PROPERTY( bool, "dragEnabled", dragEnabled, setDragEnabled )
+    Q_PROPERTY( bool, "dropEnabled", dropEnabled, setDropEnabled )
+    Q_PROPERTY( QString, "text", text, setText )
+    Q_PROPERTY( QPixmap, "pixmap", pixmap, setPixmap )
+    Q_PROPERTY( QString, "key", key, setKey )
+    Q_PROPERTY( int, "index", index, 0 )
+    // #### Does not work: default param Q_PROPERTY( bool, "selected", isSelected, setSelected )
+    Q_PROPERTY( bool, "selectable", isSelectable, setSelectable )
+    Q_PROPERTY( QRect, "rect", rect, 0 )
+    Q_PROPERTY( int, "x", x, 0 )
+    Q_PROPERTY( int, "y", y, 0 )
+    Q_PROPERTY( int, "width", width, 0 )
+    Q_PROPERTY( int, "height", height, 0 )
+    Q_PROPERTY( QSize, "size", size, 0 )
+    Q_PROPERTY( QPoint, "pos", pos, 0 )
+	
 public:
     QIconViewItem( QIconView *parent );
     QIconViewItem( QIconView *parent, QIconViewItem *after );
@@ -258,7 +274,24 @@ class Q_EXPORT QIconView : public QScrollView
     friend struct QIconViewPrivate;
 
     Q_OBJECT
-
+    // #### count does not work
+    // #### sorting and soring direction dont work
+    Q_PROPERTY( bool, "sorting", sorting, 0 )
+    Q_PROPERTY( bool, "sortDirection", sortDirection, 0 )
+    Q_PROPERTY( SelectionMode, "selectionMode", selectionMode, setSelectionMode )
+    Q_PROPERTY( int, "gridX", gridX, setGridX )
+    Q_PROPERTY( int, "gridY", gridY, setGridY )
+    Q_PROPERTY( int, "spacing", spacing, setSpacing )
+    Q_PROPERTY( ItemTextPos, "itemTextPos", itemTextPos, setItemTextPos )
+    Q_PROPERTY( QBrush, "itemTextBackground", itemTextBackground, setItemTextBackground )
+    Q_PROPERTY( Arrangement, "arrangement", arrangement, setArrangement )
+    Q_PROPERTY( ResizeMode, "resizeMode", resizeMode, setResizeMode )
+    Q_PROPERTY( int, "maxItemWidth", maxItemWidth, setMaxItemWidth )
+    Q_PROPERTY( int, "maxItemTextLength", maxItemTextLength, setMaxItemTextLength )
+    Q_PROPERTY( bool, "autoArrange", autoArrange, setAutoArrange )
+    Q_PROPERTY( bool, "moveItemsEnabled", enableMoveItems, setEnableMoveItems )
+    Q_PROPERTY( bool, "wordWrapIconText", wordWrapIconText, setWordWrapIconText )
+	
 public:
     enum SelectionMode {
 	Single = 0,

@@ -38,6 +38,12 @@ class QDialPrivate;
 class Q_EXPORT QDial: public QWidget, public QRangeControl
 {
     Q_OBJECT
+    Q_PROPERTY( bool, "tracking", tracking, setTracking )
+    Q_PROPERTY( bool, "wrapping", wrapping, setWrapping )
+    Q_PROPERTY( int, "notchSize", notchSize, 0 )
+    Q_PROPERTY( double, "notchTarget", notchTarget, setNotchTarget )
+    Q_PROPERTY( bool, "showNotches", showNotches, setShowNotches )
+	
 public:
     QDial( QWidget *parent=0, const char *name=0 );
     QDial( int minValue, int maxValue, int pageStep, int value,
@@ -61,7 +67,7 @@ public:
     QSize minimumSize() const;
     QSize sizeHint() const;
     QSizePolicy sizePolicy() const;
-    
+
 public slots:
     virtual void setValue( int );
     void addLine();
@@ -101,7 +107,7 @@ private:
     QRect calcDial() const;
     int calcBigLineSize() const;
     void calcLines();
-    
+
 private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QDial( const QDial & );

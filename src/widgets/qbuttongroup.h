@@ -38,6 +38,9 @@ class QButtonList;
 class Q_EXPORT QButtonGroup : public QGroupBox
 {
     Q_OBJECT
+    Q_PROPERTY( bool, "exclusive", exclusive, setExclusive )
+    Q_PROPERTY( bool, "radioButtonExclusive", isRadioButtonExclusive, setRadioButtonExclusive )
+	
 public:
     QButtonGroup( QWidget *parent=0, const char *name=0 );
     QButtonGroup( const QString &title,
@@ -52,7 +55,7 @@ public:
     bool	isRadioButtonExclusive() const { return radio_excl; }
     virtual void setExclusive( bool );
     virtual void setRadioButtonExclusive( bool );
-    
+
 public:
     int		insert( QButton *, int id=-1 );
     void	remove( QButton * );
