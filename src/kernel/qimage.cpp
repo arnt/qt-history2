@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#241 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#242 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -774,6 +774,7 @@ void QImage::setNumColors( int numColors )
 		    (numColors-data->ncols)*sizeof(QRgb) );
     } else {					// create new color table
 	data->ctbl = (QRgb*)calloc( numColors*sizeof(QRgb), 1 );
+	data->ctbl_mine = TRUE;
     }
     data->ncols = data->ctbl == 0 ? 0 : numColors;
 }
