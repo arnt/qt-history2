@@ -898,8 +898,8 @@ QDockWindow::QDockWindow( QWidget* parent, const char* name, WFlags f )
     parent is a QMainWindow the dock window will be docked in the main
     window's \c Top dock area.
 
-    If \a p is \c OutsideDock, the parent \e must be 0 and the dock
-    window is created as a floating window.
+    If \a p is \c OutsideDock, the dock window is created as a floating
+    window.
 
     We recommend creating the dock area \c InDock with a QMainWindow
     as parent then calling QMainWindow::moveDockWindow() to move the
