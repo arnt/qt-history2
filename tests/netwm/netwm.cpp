@@ -60,7 +60,7 @@ static Atom net_wm_icon_geometry     = 0;
 static Atom net_wm_icon              = 0;
 static Atom net_wm_pid               = 0;
 static Atom net_wm_handled_icons     = 0;
-static Atom net_wm_kde_docking_window_for = 0;
+static Atom net_kde_docking_window_for = 0;
 static Atom net_wm_kde_frame_strut   = 0;
 
 // application protocols
@@ -175,12 +175,12 @@ static void create_atoms(Display *d) {
 	    "_NET_WM_HANDLED_ICONS",
 	    "_NET_WM_PING",
 	    "_NET_KDE_DOCKING_WINDOWS",
-	    "_NET_WM_KDE_DOCKING_WINDOW_FOR",
+	    "_NET_KDE_DOCKING_WINDOW_FOR",
 	    "WM_STATE",
 	    "_NET_WM_KDE_FRAME_STRUT"
 	    };
 
-    Atom atoms[29], *atomsp[29] = 
+    Atom atoms[29], *atomsp[29] =
     {
 	&net_supported,
 	    &net_supporting_wm_check,
@@ -208,7 +208,7 @@ static void create_atoms(Display *d) {
 	    &net_wm_handled_icons,
 	    &net_wm_ping,
 	    &net_kde_docking_windows,
-	    &net_wm_kde_docking_window_for,
+	    &net_kde_docking_window_for,
 	    &xa_wm_state,
 	    &net_wm_kde_frame_strut
 	    };
@@ -708,8 +708,8 @@ void NETRootInfo::setSupported(unsigned long pr) {
 	atoms[pnum++] = net_wm_ping;
 
     if (p->protocols & WMKDEDockWinFor)
-	atoms[pnum++] = net_wm_kde_docking_window_for;
-    
+	atoms[pnum++] = net_kde_docking_window_for;
+
     if (p->protocols & WMKDEFrameStrut)
 	atoms[pnum++] = net_wm_kde_frame_strut;
 
@@ -1013,6 +1013,10 @@ void NETRootInfo::update(unsigned long dirty) {
 			}
 
 			delete [] p->kde_docking_windows;
+		    } else {
+			unsigned long n;
+			for (n = 0; n < nitems_ret; n++)
+			    addDockWin(wins[n]);
 		    }
 
 		    p->kde_docking_windows_count = nitems_ret;
@@ -1235,6 +1239,7 @@ NETWinInfo::NETWinInfo(Display *d, Window win, Window rwin,
     p->visible_name = (char *) 0;
     p->desktop = p->pid = p->handled_icons = 0;
     p->strut.left = p->strut.right = p->strut.top = p->strut.bottom = 0;
+    p->kde_dockwin_for = 0;
 
     p->properties = pr;
     p->icon_count = 0;
@@ -1341,7 +1346,7 @@ void NETWinInfo::setStrut(NETStrut strut) {
 
 void NETWinInfo::setState(unsigned long st, unsigned long msk) {
     if (p->mapping_state_dirty) update(XAWMState);
-    
+
     if (role == Client && p->mapping_state != Withdrawn) {
 	XEvent e;
 
@@ -1400,7 +1405,7 @@ void NETWinInfo::setVisibleName(const char *vname) {
 
 void NETWinInfo::setDesktop(CARD32 desk) {
     if (p->mapping_state_dirty) update(XAWMState);
-    
+
     if (role == Client && p->mapping_state != Withdrawn) {
 	// we only send a ClientMessage if we are 1) a client and 2) managed
 
@@ -1461,23 +1466,23 @@ void NETWinInfo::setKDEDockWinFor(Window win) {
     if (role != Client) return;
 
     p->kde_dockwin_for = win;
-    XChangeProperty(p->display, p->window, net_wm_kde_docking_window_for,
-		    XA_CARDINAL, 32, PropModeReplace,
+    XChangeProperty(p->display, p->window, net_kde_docking_window_for,
+		    XA_WINDOW, 32, PropModeReplace,
 		    (unsigned char *) &(p->kde_dockwin_for), 1);
 }
 
 
 void NETWinInfo::setKDEFrameStrut(NETStrut strut) {
     if (role != WindowManager) return;
-    
+
     p->frame_strut = strut;
-    
+
     CARD32 d[4];
     d[0] = strut.left;
     d[1] = strut.right;
     d[2] = strut.top;
     d[3] = strut.bottom;
-    
+
     XChangeProperty(p->display, p->window, net_wm_kde_frame_strut, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) d, 4);
 }
@@ -1496,14 +1501,12 @@ void NETWinInfo::kdeGeometry(NETRect& frame, NETRect& window) {
     p->win_geom.size.width = w;
     p->win_geom.size.height = h;
 	
-    printf("window geomerty: %d, %d, %u %u\n", x, y, w, h);
-    
     p->frame_geom.pos.x = x - p->frame_strut.left;
     p->frame_geom.pos.y = y - p->frame_strut.top;
-    
+
     p->frame_geom.size.width = w + p->frame_strut.left + p->frame_strut.right;
     p->frame_geom.size.height = h + p->frame_strut.top + p->frame_strut.bottom;
-    
+
     frame = p->frame_geom;
     window = p->win_geom;
 }
@@ -1580,7 +1583,7 @@ unsigned long NETWinInfo::event(XEvent *e) {
 		dirty |= WMDesktop;
 	    else if (pe.xproperty.atom == net_wm_kde_frame_strut)
 		dirty |= WMKDEFrameStrut;
-	    else if (pe.xproperty.atom == net_wm_kde_docking_window_for)
+	    else if (pe.xproperty.atom == net_kde_docking_window_for)
 		dirty |= WMKDEDockWinFor;
 	    else {
 		if ( compaction )
@@ -1629,13 +1632,13 @@ void NETWinInfo::update(unsigned long dirty) {
 			p->mapping_state = Visible;
 
 		    }
-		    
+		
 		    p->mapping_state_dirty = False;
 		}
 
 		XFree(data_ret);
 	    }
-    
+
     // we do this here because we *always* want to update WM_STATE
     dirty &= p->properties;
 
@@ -1774,19 +1777,24 @@ void NETWinInfo::update(unsigned long dirty) {
     if (dirty & WMIcon)
 	readIcon(p);
 
-    if (dirty & WMKDEDockWinFor)
-	if (XGetWindowProperty(p->display, p->window, net_wm_kde_docking_window_for,
-			       0l, 1l, False, XA_CARDINAL, &type_ret, &format_ret,
+    if (dirty & WMKDEDockWinFor) {
+	p->kde_dockwin_for = 0;
+	if (XGetWindowProperty(p->display, p->window, net_kde_docking_window_for,
+			       0l, 1l, False, XA_WINDOW, &type_ret, &format_ret,
 			       &nitems_ret, &unused, &data_ret)
 	    == Success)
 	    if (data_ret) {
-		if (type_ret == XA_CARDINAL && format_ret == 32 &&
-		    nitems_ret == 1)
-		    p->kde_dockwin_for = *((CARD32 *) data_ret);
+		if (type_ret == XA_WINDOW && format_ret == 32 &&
+		    nitems_ret == 1) {
+		    p->kde_dockwin_for = *((Window *) data_ret);
+		    if ( p->kde_dockwin_for == 0 )
+			p->kde_dockwin_for = p->root;
+		}
 
 		XFree(data_ret);
 	    }
-    
+    }
+
     if (dirty & WMKDEFrameStrut)
 	if (XGetWindowProperty(p->display, p->window, net_wm_kde_frame_strut,
 			       0l, 4l, False, XA_CARDINAL, &type_ret, &format_ret,
@@ -1799,7 +1807,7 @@ void NETWinInfo::update(unsigned long dirty) {
 		p->frame_strut.top    = d[2];
 		p->frame_strut.bottom = d[3];
 	    }
-	    
+	
 	    XFree(data_ret);
 	}
 }
