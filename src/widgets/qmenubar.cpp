@@ -685,22 +685,20 @@ void QMenuBar::show()
 #ifndef QT_NO_ACCEL
     setupAccelerators();
 #endif
-    if ( parentWidget() )
-	resize( parentWidget()->width(), height() );
-    calculateRects();
-
     //If all elements are invisible no reason for me to be visible either
     bool all_hidden = TRUE;
     if(irects) {
 	for(int i = 0; all_hidden && i < (int)mitems->count(); i++)
 	    all_hidden = irects[i].isEmpty();
     }
-    if(all_hidden) {
+    if(all_hidden) 
 	QWidget::hide();
-    } else {
+    else
 	QWidget::show();
-    }
 
+    if ( parentWidget() )
+	resize( parentWidget()->width(), height() );
+    calculateRects();
 #ifndef QT_NO_MAINWINDOW
     if ( parent() && parent()->inherits( "QMainWindow" ) ) //### ugly workaround
 	( (QMainWindow*)parent() )->triggerLayout();
