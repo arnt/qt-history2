@@ -413,7 +413,7 @@ public:
 
 #if defined( Q_WS_MAC )
     void macSetFont(QPaintDevice *);
-    void drawText(int x, int y, QString s, int len, QPaintDevice *dev, const QRegion *rgn);
+    void drawText(int x, int y, const QString &s, int len, QPaintDevice *dev, const QRegion *rgn);
     void computeLineWidth();
     void load();
     QFontStruct *fin;

@@ -607,7 +607,7 @@ MetrowerksMakefileGenerator::init()
 
 
 QString
-MetrowerksMakefileGenerator::findTemplate(QString file)
+MetrowerksMakefileGenerator::findTemplate(const QString &file)
 {
     QString ret;
     if(!QFile::exists(ret = file) && 

@@ -34,8 +34,8 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef __DSPMAKE_H__
-#define __DSPMAKE_H__
+#ifndef __MSVC_DSP_H__
+#define __MSVC_DSP_H__
 
 #include "winmakefile.h"
 #include <qvaluestack.h>
@@ -50,7 +50,7 @@ class DspMakefileGenerator : public Win32MakefileGenerator
     bool writeDspParts(QTextStream &);
 
     bool writeMakefile(QTextStream &);
-    QString findTemplate(QString file);
+    QString findTemplate(const QString &file);
     void init();
 
 public:
@@ -70,4 +70,4 @@ inline DspMakefileGenerator::~DspMakefileGenerator()
 inline bool DspMakefileGenerator::findLibraries()
 { return Win32MakefileGenerator::findLibraries("MSVCDSP_LIBS"); }
 
-#endif /* __DSPMAKE_H__ */
+#endif /* __MSVC_DSP_H__ */

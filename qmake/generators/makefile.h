@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -68,16 +68,16 @@ protected:
 
     class MakefileDependDir {
     public:
-	MakefileDependDir(QString r, QString l) : real_dir(r), local_dir(l) { }
+	MakefileDependDir(const QString &r, const QString &l) : real_dir(r), local_dir(l) { }
 	QString real_dir, local_dir;
     };
-    bool generateDependencies(QPtrList<MakefileDependDir> &dirs, QString x, bool recurse);
+    bool generateDependencies(QPtrList<MakefileDependDir> &dirs, const QString &x, bool recurse);
 
     QString buildArgs();
 
     QString specdir();
     QString cleanFilePath(const QString &file) const;
-    bool generateMocList(QString fn);
+    bool generateMocList(const QString &fn);
 
     QString findMocSource(const QString &moc_file) const;
     QString findMocDestination(const QString &src_file) const;

@@ -408,7 +408,7 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
 }
 
 bool
-QMakeProject::read(const QString &project, QString)
+QMakeProject::read(const QString &project, const QString &)
 {
     if(cfile.isEmpty()) {
 	// hack to get the Option stuff in there

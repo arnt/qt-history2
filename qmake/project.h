@@ -57,7 +57,7 @@ class QMakeProject
 public:
     QMakeProject();
 
-    bool read(const QString &project, QString pwd);
+    bool read(const QString &project, const QString &pwd);
     QString projectFile();
     QString configFile();
 

@@ -844,7 +844,7 @@ DspMakefileGenerator::init()
 
 
 QString
-DspMakefileGenerator::findTemplate(QString file)
+DspMakefileGenerator::findTemplate(const QString &file)
 {
     QString ret;
     if(!QFile::exists((ret = file)) &&

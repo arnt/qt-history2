@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of ________ class.
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -34,8 +34,8 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef __PBUILDERMAKE_H__
-#define __PBUILDERMAKE_H__
+#ifndef __PBUILDER_PBX_H__
+#define __PBUILDER_PBX_H__
 
 #include "unixmake.h"
 
@@ -47,10 +47,10 @@ class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
     bool writeMakefile(QTextStream &);
 
     QMap<QString, QString> keys;
-    QString keyFor(QString file);
-    QString fixEnvs(QString file);
-    QString fixEnvsList(QString where);
-    QString reftypeForFile(QString file);
+    QString keyFor(const QString &file);
+    QString fixEnvs(const QString &file);
+    QString fixEnvsList(const QString &where);
+    QString reftypeForFile(const QString &where);
 
 public:
     ProjectBuilderMakefileGenerator(QMakeProject *p);
@@ -65,4 +65,4 @@ inline ProjectBuilderMakefileGenerator::~ProjectBuilderMakefileGenerator()
 { }
 
 
-#endif /* __PBUILDERMAKE_H__ */
+#endif /* __PBUILDER_PBX_H__ */

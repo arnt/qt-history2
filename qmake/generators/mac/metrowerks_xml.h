@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of ________ class.
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -34,8 +34,8 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef __METROWERKSMAKE_H__
-#define __METROWERKSMAKE_H__
+#ifndef __METROWERKS_XML_H__
+#define __METROWERKS_XML_H__
 
 #include "makefile.h"
 
@@ -50,7 +50,7 @@ class MetrowerksMakefileGenerator : public MakefileGenerator
     bool writeSubDirs(QTextStream &);
 
     bool writeMakefile(QTextStream &);
-    QString findTemplate(QString file);
+    QString findTemplate(const QString &file);
     void init();
 public:
     MetrowerksMakefileGenerator(QMakeProject *p);
@@ -66,4 +66,4 @@ protected:
 inline MetrowerksMakefileGenerator::~MetrowerksMakefileGenerator()
 { }
 
-#endif /* __METROWERKSMAKE_H__ */
+#endif /* __METROWERKS_XML_H__ */

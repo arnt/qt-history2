@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of ________ class.
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -34,8 +34,8 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef __NMAKEMAKE_H__
-#define __NMAKEMAKE_H__
+#ifndef __MSVC_NMAKE_H__
+#define __MSVC_NMAKE_H__
 
 #include "winmakefile.h"
 
@@ -56,4 +56,4 @@ public:
 inline NmakeMakefileGenerator::~NmakeMakefileGenerator()
 { }
 
-#endif /* __NMAKEMAKE_H__ */
+#endif /* __MSVC_NMAKE_H__ */

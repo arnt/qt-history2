@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of ________ class.
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -830,7 +830,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 }
 
 QString
-ProjectBuilderMakefileGenerator::fixEnvs(QString file)
+ProjectBuilderMakefileGenerator::fixEnvs(const QString &file)
 {
     QRegExp reg_var("\\$\\((.*)\\)");
     for(int rep = 0; (rep = reg_var.search(file, rep)) != -1; ) {
@@ -842,7 +842,7 @@ ProjectBuilderMakefileGenerator::fixEnvs(QString file)
 }
 
 QString
-ProjectBuilderMakefileGenerator::fixEnvsList(QString where)
+ProjectBuilderMakefileGenerator::fixEnvsList(const QString &where)
 {
     QString ret;
     const QStringList &l = project->variables()[where];
@@ -856,7 +856,7 @@ ProjectBuilderMakefileGenerator::fixEnvsList(QString where)
 }
 
 QString
-ProjectBuilderMakefileGenerator::keyFor(QString block)
+ProjectBuilderMakefileGenerator::keyFor(const QString &block)
 {
 #if 0 //This make this code much easier to debug..
     return block;
@@ -975,7 +975,7 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
 }
 
 QString
-ProjectBuilderMakefileGenerator::reftypeForFile(QString where)
+ProjectBuilderMakefileGenerator::reftypeForFile(const QString &where)
 {
     if(QDir::isRelativePath(where))
 	return "4"; //relative

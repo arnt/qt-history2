@@ -877,7 +877,7 @@ void QFontPrivate::computeLineWidth()
 	lineWidth = nlw;
 }
 
-void QFontPrivate::drawText(int x, int y, QString s, int len, QPaintDevice *dev, const QRegion *rgn)
+void QFontPrivate::drawText(int x, int y, const QString &s, int len, QPaintDevice *dev, const QRegion *rgn)
 {
     MoveTo(x, y);
     if(len < 1)
