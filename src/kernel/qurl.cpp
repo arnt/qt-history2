@@ -1196,7 +1196,7 @@ static uchar hex_to_int( uchar c )
 
     \code
 	QString url = "http%3A//www%20trolltech%20com"
-	QUrl::encode( url );
+	QUrl::decode( url );
 	// url is now "http//www.trolltech.com"
     \endcode
 
