@@ -232,27 +232,23 @@ void ABCentralWidget::setupListView()
 
 void ABCentralWidget::setupOutlook()
 {
-    if ( !outlook ) {
-	outlook = new QAxObject( "Outlook.Application", this );
+    outlook = new QAxObject( "Outlook.Application", this );
 
-	// Get a session object
-	outlookSession = outlook->querySubObject( "Session" );
-	if ( !outlookSession )
-	    return;
-	// Login; doesn't hurt if you are already running and logged on...
-	outlookSession->dynamicCall( "Logon()" );
+    // Get a session object
+    outlookSession = outlook->querySubObject( "Session" );
+    if ( !outlookSession )
+	return;
+    // Login; doesn't hurt if you are already running and logged on...
+    outlookSession->dynamicCall( "Logon()" );
 
-	// Get the default folder for contacts
-	QAxObject *defFolder = outlookSession->querySubObject( "GetDefaultFolder(OlDefaultFolders)", "olFolderContacts" );
-	if ( !defFolder )
-	    return;
+    // Get the default folder for contacts
+    QAxObject *defFolder = outlookSession->querySubObject( "GetDefaultFolder(OlDefaultFolders)", "olFolderContacts" );
 
-	// Get all items
-	contactItems = defFolder->querySubObject( "Items" );
-	connect( contactItems, SIGNAL(ItemAdd(IDispatch*)), this, SLOT(updateOutloo()) );
-	connect( contactItems, SIGNAL(ItemChange(IDispatch*)), this, SLOT(updateOutloo()) );
-	connect( contactItems, SIGNAL(ItemRemove()), this, SLOT(updateOutloo()) );    
-    }
+    // Get all items
+    contactItems = defFolder->querySubObject( "Items" );
+    connect( contactItems, SIGNAL(ItemAdd(IDispatch*)), this, SLOT(updateOutloo()) );
+    connect( contactItems, SIGNAL(ItemChange(IDispatch*)), this, SLOT(updateOutloo()) );
+    connect( contactItems, SIGNAL(ItemRemove()), this, SLOT(updateOutloo()) );    
 
     updateOutlook();
 }
