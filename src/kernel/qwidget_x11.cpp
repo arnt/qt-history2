@@ -611,6 +611,13 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( testWFlags(WType_Desktop) )
 	old_winid = 0;
     setWinId( 0 );
+
+    // hide and reparent our own window away. Otherwise we might get
+    // destroyed when emitting the child remove event below. See QWorkspace.
+    XUnmapWindow( x11Display(), old_winid );
+    XReparentWindow( x11Display(), old_winid,
+		     RootWindow( x11Display(), x11Screen() ), 0, 0 );
+
     if ( isTopLevel() )
 	topData()->parentWinId = 0;
 
