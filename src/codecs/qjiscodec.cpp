@@ -342,7 +342,7 @@ int QJisCodec::heuristicNameMatch(const char* hint) const
     if (p) {
 	if ((qstricmp(p, "JIS") == 0) ||
 	    (qstricmp(p, "JIS7") == 0) ||
-	    (qstricmp(p, "ISO-2022-JP") == 0)) {
+	    (simpleHeuristicNameMatch("ISO-2022-JP", p) > 0)) {
 	    return score + 4;
 	}
     }

@@ -308,7 +308,9 @@ int QEucJpCodec::heuristicNameMatch(const char* hint) const
     if (p) {
 	if ((qstricmp(p, "AJEC") == 0) ||
 	    (qstricmp(p, "eucJP") == 0) ||
-	    (qstricmp(p, "ujis") == 0)) {
+	    (qstricmp(p, "ujis") == 0) ||
+	    (simpleHeuristicNameMatch(p, "eucJP") > 0) ||
+	    (simpleHeuristicNameMatch(p, "x-euc-jp") > 0)) {
 	    return score + 4;
 	}
 	// there exists ja_JP.EUC, ko_KR.EUC, zh_CN.EUC and zh_TW.EUC
