@@ -349,9 +349,9 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &index)
     }
 
     // horizontal
-    if (rect.left() < area.left()) { // left of
+    if (rect.right() < area.left()) { // left of
         horizontalScrollBar()->setValue(index.column() * horizontalFactor());
-    } else if (rect.right() > area.right()) { // right of
+    } else if (rect.left() > area.right()) { // right of
         int c = index.column();
         int x = area.width();
         while (x > 0 && c > 0)
@@ -359,6 +359,7 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &index)
         int a = (-x * horizontalFactor()) / columnWidth(c);
         horizontalScrollBar()->setValue(++c * horizontalFactor() + a);
     }
+
 }
 
 /*!
