@@ -437,7 +437,7 @@ void MainWindow::setupToolActions()
     actionOrderTool->setWhatsThis( whatsThisFrom( "Tools|Tab Order" ) );
 
     actionBuddyTool = new QAction( tr( "Set Buddy" ), createIconSet( "setbuddy.png" ),
-				   tr( "Set &Buddy" ), 0,
+				   tr( "Set &Buddy" ), Key_F12,
 				   actionGroupTools, QString::number( BUDDY_TOOL ).latin1(),
 				   TRUE );
     actionBuddyTool->setStatusTip( tr( "Sets a buddy to a label" ) );
