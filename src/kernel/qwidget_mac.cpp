@@ -157,7 +157,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
 
     parentw = topLevel ? root_win : parentWidget()->winId();
 
-    SetRect( &boundsRect, crect.left(), crect.top(), 
+    SetRect( &boundsRect, crect.left(), crect.top(),
 	     crect.right(), crect.bottom());
 
     char title[2];
@@ -177,7 +177,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
     if( !parentWidget() || (popup || modal) ) {
 	mytop = this;
 	SetRect( &boundsRect, 50, 50, 600, 200 );
-	id = (WId)NewCWindow( nil, &boundsRect, (const unsigned char*)title, 
+	id = (WId)NewCWindow( nil, &boundsRect, (const unsigned char*)title,
 			      visible, procid, behind, goaway, 0);
 	hd = (void *)id;
 	SetPortWindowPort((WindowPtr)hd);
@@ -459,23 +459,6 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
     }
 }
 
-void show_children( QWidget * w, int show )
-{
-    const QObjectList *children = w->children();
-    if( children ) {
-	for(QObjectListIt it( *children ); it.current(); ++it) {
-	    if((*it)->isWidgetType()) {
-		QWidget *childwidg = (QWidget *)(*it);
-		if(!childwidg->isTopLevel()) {
-		    if (show)
-			childwidg->show();
-		    else
-			childwidg->hide();
-		}
-	    }
-	} 
-    }
-}
 
 /*!
   Sets the window-system background of the widget to nothing.
@@ -735,7 +718,7 @@ void QWidget::setActiveWindow()
 
 void QWidget::update()
 {
-    update( 0, 0, width(), height() );    
+    update( 0, 0, width(), height() );
 }
 
 /*!
@@ -861,16 +844,11 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 
 void QWidget::showWindow()
 {
-    setWState( WState_Visible );
-    clearWState( WState_ForceHide );
-    QShowEvent e( FALSE );
-    QApplication::sendEvent( this, &e );
     if ( isTopLevel() ) {
 	ShowHide( (WindowPtr)winid, 1 );
 	setActiveWindow();
     }
     update();
-    show_children( this, 1 );
 }
 
 
@@ -881,13 +859,12 @@ void QWidget::showWindow()
 
 void QWidget::hideWindow()
 {
-    if(isTopLevel()) 
+    if(isTopLevel())
 	ShowHide((WindowPtr)winid,0);
     clearWState(WState_Visible);
     setWState( WState_ForceHide );
-    if(parentWidget()) 
+    if(parentWidget())
 	parentWidget()->update();
-    show_children(this,0);
 }
 
 
@@ -1049,20 +1026,20 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     QSize  olds = size();
 
     QRect  r( x, y, w, h );
-    if ( r.size() == olds && oldp == r.topLeft() && (isTopLevel() == FALSE ) ) 
+    if ( r.size() == olds && oldp == r.topLeft() && (isTopLevel() == FALSE ) )
 	return;
     setCRect( r );
 
     if ( isTopLevel() && isMove && winid )
-	MoveWindow((WindowPtr)winid,x,y,1);
+	MoveWindow( (WindowPtr)winid, x, y, 1);
 
-    bool isResize = olds != r.size();
+    bool isResize = olds != size();
     if ( isTopLevel() && winid )
-	SizeWindow((WindowPtr)winid,w,h,1);
+	SizeWindow( (WindowPtr)winid, w, h, 1);
 
     if ( isVisible() ) {
 	if ( isMove ) {
-	    QMoveEvent e( r.topLeft(), oldp );
+	    QMoveEvent e( pos(), oldp );
 	    QApplication::sendEvent( this, &e );
 	    QApplication::postEvent( this, new QPaintEvent(rect(), TRUE) );
 	}
@@ -1074,9 +1051,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     } else {
 	if ( isMove )
-	    QApplication::postEvent( this,new QMoveEvent( r.topLeft(), oldp ) );
+	    QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
 	if ( isResize )
-	    QApplication::postEvent( this,new QResizeEvent( r.size(), olds ) );
+	    QApplication::postEvent( this, new QResizeEvent( size(), olds ) );
     }
 }
 
@@ -1487,7 +1464,7 @@ void QWidget::setMask( const QRegion &region )
 {
     createExtra();
     extra->mask = region;
-    if ( isVisible() && !isTopLevel() ) 
+    if ( isVisible() && !isTopLevel() )
 	update( geometry() );
 }
 
@@ -1541,7 +1518,7 @@ void QWidget::propagateUpdates(int , int , int w, int h)
     QPaintEvent e( paintRect );
     QApplication::sendEvent( this, &e );
     clearWState( WState_InPaintEvent );
-    
+
     QWidget *childWidget;
     const QObjectList *childList = children();
     if ( childList ) {
@@ -1588,7 +1565,7 @@ QRegion QWidget::clippedRegion()
 		    QWidget *sw = (QWidget *)(*it);
 		    tmp = posInWindow(sw);
 		    QRect sr(tmp.x(), tmp.y(), sw->width(), sw->height());
-		    if(sw->isVisible() && mr.contains(sr)) 
+		    if(sw->isVisible() && mr.contains(sr))
 			clippedRgn += sr;
 		}
 	    }
