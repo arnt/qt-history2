@@ -29,6 +29,7 @@
 #include <qsignal.h>
 #include <qtoolbutton.h>
 #include <qmessagebox.h>
+#include <qwindowsstyle.h>
 #ifdef Q_WS_MAC
 #include <qmacstyle_mac.h>
 #endif
