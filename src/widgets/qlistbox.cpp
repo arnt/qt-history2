@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#76 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#75 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#76 $");
 
 
 declare(QListM, QListBoxItem);
@@ -306,7 +306,7 @@ int QListBoxPixmap::height( const QListBox * ) const
 
 int QListBoxPixmap::width( const QListBox * ) const
 {
-    return pm.width() + 3;
+    return pm.width() + 6;
 }
 
 
@@ -568,9 +568,6 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
     }
     QListBoxPixmap *tmp = new QListBoxPixmap( pixmap );
     insertDangerously( tmp, index, TRUE );
-    int w = pixmap.width() + 6;
-    if ( w > cellWidth() )
-	setCellWidth( w );
     updateNumRows( FALSE );
     if ( autoUpdate() && itemVisible(index) ) {
 	int x, y;
@@ -1151,9 +1148,15 @@ void QListBox::paintCell( QPainter *p, int row, int col )
     }
     lbi->paint( p );
     if ( current == row && hasFocus() ) {
-	p->setPen( g.base() );
-	p->setBrush( NoBrush );
-	p->drawRect( 1, 1, viewWidth()-2 , cellHeight(row)-2 );
+	if ( style() == WindowsStyle ) {
+	    p->setPen( QPen( yellow, 0, DotLine ) );	// !!!hardcoded
+	    p->setBrush( NoBrush );
+	    p->drawRect( 1, 1, viewWidth()-2 , cellHeight(row)-2 );
+	} else {
+	    p->setPen( g.base() );
+	    p->setBrush( NoBrush );
+	    p->drawRect( 1, 1, viewWidth()-2 , cellHeight(row)-2 );
+	}
     }
     p->setBackgroundColor( g.base() );
     p->setPen( g.text() );
