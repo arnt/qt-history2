@@ -1545,7 +1545,11 @@ void QComboBox::popup()
 	lb->raise();
 	bool block = lb->signalsBlocked();
 	lb->blockSignals( TRUE );
-	lb->setCurrentItem( lb->item( d->current ) );
+	QListBoxItem *currentLBItem = lb->item( d->current );
+	lb->setCurrentItem( currentLBItem );
+	// set the current item to also be the selected item if it isn't already
+	if ( currentLBItem && currentLBItem->isSelectable() && !currentLBItem->isSelected() )
+	    lb->setSelected( currentLBItem, TRUE );
 	lb->blockSignals( block );
 	lb->setVScrollBarMode(QScrollView::Auto);
 
