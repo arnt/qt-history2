@@ -93,6 +93,8 @@ int QGuiEventLoop::registerTimer(int interval, QObject *obj)
         d->macTimerList->last().pending = false;
     } else {
         d->zero_timer_count++;
+        if(d->zero_timer_count == 1)
+            qt_event_request_wakeup(); //if we are blocking we need to come out of that state
         d->macTimerList->prepend(t); //zero timers come first
         d->macTimerList->first().pending = false;
     }
