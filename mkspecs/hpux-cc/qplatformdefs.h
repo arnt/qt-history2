@@ -22,6 +22,8 @@
 #include <grp.h>
 #include <pwd.h>
 #include <signal.h>
+#include <dl.h>
+#define QT_HPUX_LD
 
 #include <sys/types.h>
 #include <sys/ioctl.h>

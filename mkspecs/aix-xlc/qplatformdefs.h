@@ -22,6 +22,8 @@
 #include <grp.h>
 #include <pwd.h>
 #include <signal.h>
+#include <dlfcn.h>
+#define QT_RTLD_FLAGS	RTLD_LAZY
 #include <strings.h> // AIX X11 headers define FD_ZERO using bzero()
 
 #include <sys/types.h>
@@ -40,7 +42,7 @@
 // included by <resolv.h>. Note that <arpa/nameser.h> must be included
 // before <resolv.h>.
 #include <netinet/in.h>
-#define class c_class // AIX 4.3.1.0
+#define class nsrr_class // AIX 4.3.1.0
 #include <arpa/nameser.h>
 #undef class
 #include <resolv.h>

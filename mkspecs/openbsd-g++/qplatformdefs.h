@@ -22,6 +22,9 @@
 #include <grp.h>
 #include <pwd.h>
 #include <signal.h>
+#include <dlfcn.h>
+// RTLD_GLOBAL not documented in OpenBSD 3.0
+#define QT_RTLD_FLAGS	RTLD_LAZY
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
