@@ -471,8 +471,8 @@ void QDockWindowHandle::minimize()
     if ( dockWindow->area() && dockWindow->area()->parentWidget() &&
 	 dockWindow->area()->parentWidget()->inherits( "QMainWindow" ) ) {
 	QMainWindow *mw = (QMainWindow*)dockWindow->area()->parentWidget();
-	if ( mw->isDockEnabled( dockWindow, Qt::Minimized ) )
-	    mw->moveDockWindow( dockWindow, Qt::Minimized );
+	if ( mw->isDockEnabled( dockWindow, Qt::DockMinimized ) )
+	    mw->moveDockWindow( dockWindow, Qt::DockMinimized );
     }
 }
 
@@ -884,7 +884,7 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
     }
     if ( mw && mw->inherits( "QMainWindow" ) ) {
 	if ( place() == InDock )
-	    ( (QMainWindow*)mw )->addDockWindow( this, Qt::Top );
+	    ( (QMainWindow*)mw )->addDockWindow( this, Qt::DockTop );
 	moveEnabled = ((QMainWindow*)mw)->dockWindowsMovable();
 	opaque = ((QMainWindow*)mw)->opaqueMoving();
     }
@@ -1160,7 +1160,8 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 	if ( dockArea ) {
 	    QMainWindow *mw = (QMainWindow*)dockArea->parentWidget();
 	    if ( mw && mw->inherits( "QMainWindow" ) &&
-		 ( !mw->isDockEnabled( QMainWindow::TornOff ) || !mw->isDockEnabled( this, QMainWindow::TornOff ) ) )
+		 ( !mw->isDockEnabled( QMainWindow::DockTornOff ) ||
+		   !mw->isDockEnabled( this, QMainWindow::DockTornOff ) ) )
 		return;
 	    delete (QDockArea::DockWindowData*)dockWindowData;
 	    dockWindowData = dockArea->dockWindowData( this );

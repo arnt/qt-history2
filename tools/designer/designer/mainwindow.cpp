@@ -304,7 +304,7 @@ void MainWindow::setupPropertyEditor()
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     propertyEditor = new PropertyEditor( dw );
-    addToolBar( dw, Qt::Left );
+    addToolBar( dw, Qt::DockLeft );
     dw->setWidget( propertyEditor );
     dw->setFixedExtentWidth( 300 );
     dw->setCaption( tr( "Property Editor/Signal Handlers" ) );
@@ -329,7 +329,7 @@ void MainWindow::setupOutputWindow()
     QDockWindow *dw = new QDockWindow;
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
-    addToolBar( dw, Qt::Bottom );
+    addToolBar( dw, Qt::DockBottom );
     oWindow = new OutputWindow( dw );
     dw->setWidget( oWindow );
     dw->setFixedExtentHeight( 200 );
@@ -345,7 +345,7 @@ void MainWindow::setupHierarchyView()
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     hierarchyView = new HierarchyView( dw );
-    addToolBar( dw, Qt::Left );
+    addToolBar( dw, Qt::DockLeft );
     dw->setWidget( hierarchyView );
 
     dw->setCaption( tr( "Object Explorer" ) );
@@ -372,7 +372,7 @@ void MainWindow::setupWorkspace()
     wspace = new Workspace( vbox, this );
     wspace->setBufferEdit( edit );
     wspace->setCurrentProject( currentProject );
-    addToolBar( dw, Qt::Left );
+    addToolBar( dw, Qt::DockLeft );
     dw->setWidget( vbox );
 
     dw->setCaption( tr( "File Overview" ) );
@@ -386,7 +386,7 @@ void MainWindow::setupWorkspace()
 void MainWindow::setupActionEditor()
 {
     QDockWindow *dw = new QDockWindow( QDockWindow::OutsideDock, this, 0 );
-    addDockWindow( dw, Qt::TornOff );
+    addDockWindow( dw, Qt::DockTornOff );
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     actionEditor = new ActionEditor( dw );

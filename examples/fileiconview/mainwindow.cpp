@@ -124,8 +124,8 @@ void FileMainWindow::setup()
     connect( fileview, SIGNAL( readDirDone() ),
 	     this, SLOT( slotReadDirDone() ) );
 
-    setDockEnabled( Left, FALSE );
-    setDockEnabled( Right, FALSE );
+    setDockEnabled( DockLeft, FALSE );
+    setDockEnabled( DockRight, FALSE );
 
     label = new QLabel( statusBar() );
     statusBar()->addWidget( label, 2, TRUE );

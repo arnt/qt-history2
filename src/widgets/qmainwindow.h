@@ -85,10 +85,10 @@ public:
     bool isDockEnabled( QDockWindow *tb, Dock dock ) const;
     bool isDockEnabled( QDockWindow *tb, QDockArea *area ) const;
 
-    virtual void addDockWindow( QDockWindow *, Dock = Top, bool newLine = FALSE );
+    virtual void addDockWindow( QDockWindow *, Dock = DockTop, bool newLine = FALSE );
     virtual void addDockWindow( QDockWindow *, const QString &label,
-				Dock = Top, bool newLine = FALSE );
-    virtual void moveDockWindow( QDockWindow *, Dock = Top );
+				Dock = DockTop, bool newLine = FALSE );
+    virtual void moveDockWindow( QDockWindow *, Dock = DockTop );
     virtual void moveDockWindow( QDockWindow *, Dock, bool nl, int index, int extraOffset = -1 );
     virtual void removeDockWindow( QDockWindow * );
 
@@ -115,10 +115,10 @@ public:
     // compatibility stuff
     bool hasDockWindow( QDockWindow *dw );
 #ifndef QT_NO_TOOLBAR
-    void addToolBar( QDockWindow *, Dock = Top, bool newLine = FALSE );
+    void addToolBar( QDockWindow *, Dock = DockTop, bool newLine = FALSE );
     void addToolBar( QDockWindow *, const QString &label,
-		     Dock = Top, bool newLine = FALSE );
-    void moveToolBar( QDockWindow *, Dock = Top );
+		     Dock = DockTop, bool newLine = FALSE );
+    void moveToolBar( QDockWindow *, Dock = DockTop );
     void moveToolBar( QDockWindow *, Dock, bool nl, int index, int extraOffset = -1 );
     void removeToolBar( QDockWindow * );
 

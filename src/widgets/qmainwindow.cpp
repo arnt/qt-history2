@@ -76,12 +76,12 @@ public:
 	:  mb(0), sb(0), ttg(0), mc(0), tll(0), ubp( FALSE ), utl( FALSE ),
 	   justify( FALSE ), movable( TRUE ), opaque( FALSE ), dockMenu( TRUE )
     {
-	docks.insert( Qt::Top, TRUE );
-	docks.insert( Qt::Bottom, TRUE );
-	docks.insert( Qt::Left, TRUE );
-	docks.insert( Qt::Right, TRUE );
-	docks.insert( Qt::Minimized, TRUE );
-	docks.insert( Qt::TornOff, TRUE );
+	docks.insert( Qt::DockTop, TRUE );
+	docks.insert( Qt::DockBottom, TRUE );
+	docks.insert( Qt::DockLeft, TRUE );
+	docks.insert( Qt::DockRight, TRUE );
+	docks.insert( Qt::DockMinimized, TRUE );
+	docks.insert( Qt::DockTornOff, TRUE );
     }
 
     ~QMainWindowPrivate()
@@ -780,22 +780,22 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 
   Each dock window can be in one of the following positions:
 
-  \value Top  above the central widget, below the menu bar.
+  \value DockTop  above the central widget, below the menu bar.
 
-  \value Bottom  below the central widget, above the status bar.
+  \value DockBottom  below the central widget, above the status bar.
 
-  \value Left  to the left of the central widget.
+  \value DockLeft  to the left of the central widget.
 
-  \value Right to the right of the central widget.
+  \value DockRight to the right of the central widget.
 
-  \value Minimized the dock window is not shown (this is effectively a
+  \value DockMinimized the dock window is not shown (this is effectively a
   'hidden' dock area); the handles of all minimized dock windows are drawn
   in one row below the menu bar.
 
-  \value TornOff the dock window floats as its own top level window
+  \value DockTornOff the dock window floats as its own top level window
   which always stays on top of the main window.
 
-  \value Unmanaged not managed by a QMainWindow.
+  \value DockUnmanaged not managed by a QMainWindow.
 */
 
 /*!
@@ -1090,13 +1090,13 @@ bool QMainWindow::isDockEnabled( QDockArea *area ) const
 {
 
     if ( area == d->leftDock )
-	return d->docks[ Left ];
+	return d->docks[ DockLeft ];
     if ( area == d->rightDock )
-	return d->docks[ Right ];
+	return d->docks[ DockRight ];
     if ( area == d->topDock )
-	return d->docks[ Top ];
+	return d->docks[ DockTop ];
     if ( area == d->bottomDock )
-	return d->docks[ Bottom ];
+	return d->docks[ DockBottom ];
     return FALSE;
 }
 
@@ -1127,16 +1127,16 @@ void QMainWindow::setDockEnabled( QDockWindow *dw, Dock dock, bool enable )
     else if ( d->disabledDocks.find( s ) == d->disabledDocks.end() )
 	d->disabledDocks << s;
     switch ( dock ) {
-	case Top:
+	case DockTop:
 	    topDock()->setAcceptDockWindow( dw, enable );
 	    break;
-	case Left:
+	case DockLeft:
 	    leftDock()->setAcceptDockWindow( dw, enable );
 	    break;
-	case Right:
+	case DockRight:
 	    rightDock()->setAcceptDockWindow( dw, enable );
 	    break;
-	case Bottom:
+	case DockBottom:
 	    bottomDock()->setAcceptDockWindow( dw, enable );
 	    break;
 	default:
@@ -1158,13 +1158,13 @@ bool QMainWindow::isDockEnabled( QDockWindow *dw, QDockArea *area ) const
 	return FALSE;
     Dock dock;
     if ( area == d->leftDock )
-	dock = Left;
+	dock = DockLeft;
     else if ( area == d->rightDock )
-	dock = Right;
+	dock = DockRight;
     else if ( area == d->topDock )
-	dock = Top;
+	dock = DockTop;
     else if ( area == d->bottomDock )
-	dock = Bottom;
+	dock = DockBottom;
     else
 	return FALSE;
     return isDockEnabled( dw, dock );
@@ -1254,29 +1254,29 @@ void QMainWindow::addDockWindow( QDockWindow * dockWindow, const QString &label,
 void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge )
 {
     switch ( edge ) {
-    case Top:
+    case DockTop:
 	dockWindow->removeFromDock( FALSE );
 	d->topDock->moveDockWindow( dockWindow );
 	break;
-    case Bottom:
+    case DockBottom:
 	dockWindow->removeFromDock( FALSE );
 	d->bottomDock->moveDockWindow( dockWindow );
 	break;
-    case Right:
+    case DockRight:
 	dockWindow->removeFromDock( FALSE );
 	d->rightDock->moveDockWindow( dockWindow );
 	break;
-    case Left:
+    case DockLeft:
 	dockWindow->removeFromDock( FALSE );
 	d->leftDock->moveDockWindow( dockWindow );
 	break;
-    case TornOff:
+    case DockTornOff:
 	dockWindow->undock();
 	break;
-    case Minimized:
+    case DockMinimized:
 	dockWindow->undock( d->hideDock );
 	break;
-    case Unmanaged:
+    case DockUnmanaged:
 	break;
     }
 #ifndef QT_NO_TOOLBAR
@@ -1312,29 +1312,29 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge, bool nl, 
     dockWindow->setNewLine( nl );
     dockWindow->setOffset( extraOffset );
     switch ( edge ) {
-    case Top:
+    case DockTop:
 	dockWindow->removeFromDock( FALSE );
 	d->topDock->moveDockWindow( dockWindow, index );
 	break;
-    case Bottom:
+    case DockBottom:
 	dockWindow->removeFromDock( FALSE );
 	d->bottomDock->moveDockWindow( dockWindow, index );
 	break;
-    case Right:
+    case DockRight:
 	dockWindow->removeFromDock( FALSE );
 	d->rightDock->moveDockWindow( dockWindow, index );
 	break;
-    case Left:
+    case DockLeft:
 	dockWindow->removeFromDock( FALSE );
 	d->leftDock->moveDockWindow( dockWindow, index );
 	break;
-    case TornOff:
+    case DockTornOff:
 	dockWindow->undock();
 	break;
-    case Minimized:
+    case DockMinimized:
 	dockWindow->undock( d->hideDock );
 	break;
-    case Unmanaged:
+    case DockUnmanaged:
 	break;
     }
 #ifndef QT_NO_TOOLBAR
@@ -1773,18 +1773,18 @@ void QMainWindow::styleChange( QStyle& old )
 
 bool QMainWindow::getLocation( QDockWindow *dw, Dock &dock, int &index, bool &nl, int &extraOffset ) const
 {
-    dock = TornOff;
+    dock = DockTornOff;
     if ( d->topDock->hasDockWindow( dw, &index ) )
-	dock = Top;
+	dock = DockTop;
     else if ( d->bottomDock->hasDockWindow( dw, &index ) )
-	dock = Bottom;
+	dock = DockBottom;
     else if ( d->leftDock->hasDockWindow( dw, &index ) )
-	dock = Left;
+	dock = DockLeft;
     else if ( d->rightDock->hasDockWindow( dw, &index ) )
-	dock = Right;
+	dock = DockRight;
     else if ( dw->parentWidget() == d->hideDock ) {
 	index = 0;
-	dock = Minimized;
+	dock = DockMinimized;
     } else {
 	index = 0;
     }
@@ -1826,22 +1826,22 @@ QPtrList<QDockWindow> QMainWindow::dockWindows( Dock dock ) const
 {
     QPtrList<QDockWindow> lst;
     switch ( dock ) {
-    case Top:
+    case DockTop:
 	return d->topDock->dockWindowList();
-    case Bottom:
+    case DockBottom:
 	return d->bottomDock->dockWindowList();
-    case Left:
+    case DockLeft:
 	return d->leftDock->dockWindowList();
-    case Right:
+    case DockRight:
 	return d->rightDock->dockWindowList();
-    case TornOff: {
+    case DockTornOff: {
 	for ( QDockWindow *w = d->dockWindows.first(); w; w = d->dockWindows.next() ) {
 	    if ( !w->area() && w->place() == QDockWindow::OutsideDock )
 		lst.append( w );
 	}
     }
     return lst;
-    case Minimized: {
+    case DockMinimized: {
 	if ( d->hideDock->children() ) {
 	    QObjectListIt it( *d->hideDock->children() );
 	    QObject *o;
@@ -2307,7 +2307,7 @@ static void saveDockArea( QTextStream &ts, QDockArea *a )
 
 QTextStream &operator<<( QTextStream &ts, const QMainWindow &mainWindow )
 {
-    QPtrList<QDockWindow> l = mainWindow.dockWindows( Qt::Minimized );
+    QPtrList<QDockWindow> l = mainWindow.dockWindows( Qt::DockMinimized );
     QDockWindow *dw = 0;
     for ( dw = l.first(); dw; dw = l.next() ) {
 	ts << dw->caption();
@@ -2315,7 +2315,7 @@ QTextStream &operator<<( QTextStream &ts, const QMainWindow &mainWindow )
     }
     ts << endl;
 
-    l = mainWindow.dockWindows( Qt::TornOff );
+    l = mainWindow.dockWindows( Qt::DockTornOff );
     for ( dw = l.first(); dw; dw = l.next() ) {
 	ts << dw->caption();
 	ts << ",";
@@ -2350,7 +2350,7 @@ static void loadDockArea( const QStringList &names, QDockArea *a, Qt::Dock d, QP
     }
     if ( a ) {
 	ts >> *a;
-    } else if ( d == Qt::TornOff ) {
+    } else if ( d == Qt::DockTornOff ) {
 	QString s = ts.readLine();
 	enum State { Pre, Name, X, Y, Width, Height, Visible, Post };
 	int state = Pre;
@@ -2428,15 +2428,15 @@ QTextStream &operator>>( QTextStream &ts, QMainWindow &mainWindow )
 
     QString s = ts.readLine();
     QStringList names = QStringList::split( ',', s );
-    loadDockArea( names, 0, Qt::Minimized, l, &mainWindow, ts );
+    loadDockArea( names, 0, Qt::DockMinimized, l, &mainWindow, ts );
 
     s = ts.readLine();
     names = QStringList::split( ',', s );
-    loadDockArea( names, 0, Qt::TornOff, l, &mainWindow, ts );
+    loadDockArea( names, 0, Qt::DockTornOff, l, &mainWindow, ts );
 
     int i = 0;
     QDockArea *areas[] = { mainWindow.topDock(), mainWindow.bottomDock(), mainWindow.rightDock(), mainWindow.leftDock() };
-    for ( int d = (int)Qt::Top; d != (int)Qt::Minimized; ++d, ++i ) {
+    for ( int d = (int)Qt::DockTop; d != (int)Qt::DockMinimized; ++d, ++i ) {
 	s = ts.readLine();
 	names = QStringList::split( ',', s );
 	loadDockArea( names, areas[ i ], (Qt::Dock)d, l, &mainWindow, ts );

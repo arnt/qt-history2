@@ -425,7 +425,7 @@ void MainWindow::setupToolActions()
 #endif
     QWhatsThis::add( tb, tr( "<b>The Tools toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
 
-    addToolBar( tb, tr( "Tools" ), QMainWindow::Top, TRUE );
+    addToolBar( tb, tr( "Tools" ), QMainWindow::DockTop, TRUE );
     actionPointerTool->addTo( tb );
     actionConnectTool->addTo( tb );
     actionOrderTool->addTo( tb );

@@ -2400,7 +2400,7 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
     indent++;
 
     QPtrList<QToolBar> tbList;
-    for ( int i = 0; i <= (int)Qt::Minimized; ++i ) {
+    for ( int i = 0; i <= (int)Qt::DockMinimized; ++i ) {
 	tbList = mw->toolBars( (Qt::Dock)i );
 	if ( tbList.isEmpty() )
 	    continue;

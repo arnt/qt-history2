@@ -809,7 +809,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return l;
     } else if ( className == "QMainWindow" ) {
 	QMainWindow *mw = new QMainWindow( parent, name, 0 );
-	mw->setDockEnabled( Qt::Minimized, FALSE );
+	mw->setDockEnabled( Qt::DockMinimized, FALSE );
 	QDesignerWidget *dw = new QDesignerWidget( (FormWindow*)parent, mw, "central widget" );
 	mw->setDockMenuEnabled( FALSE );
 	MetaDataBase::addEntry( dw );

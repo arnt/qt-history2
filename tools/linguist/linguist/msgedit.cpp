@@ -192,7 +192,7 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     setFrameStyle( QFrame::Box | QFrame::Plain );
 
     // Use white explicitly as the background color for the editor page.
-    QPalette p = palette();    
+    QPalette p = palette();
     p.setColor( QPalette::Active, QColorGroup::Base, QColor( white ) );
     p.setColor( QPalette::Inactive, QColorGroup::Base, QColor( white ) );
 
@@ -400,10 +400,10 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
 				  "top dock window" );
     QMainWindow *mw = (QMainWindow*)topLevelWidget();
     if ( mw ) {
-	mw->setDockEnabled( topDockWnd, Qt::Top, TRUE );
-	mw->setDockEnabled( topDockWnd, Qt::Left, TRUE );
-	mw->setDockEnabled( topDockWnd, Qt::Right, TRUE );
-	mw->setDockEnabled( topDockWnd, Qt::Bottom, TRUE );
+	mw->setDockEnabled( topDockWnd, Qt::DockTop, TRUE );
+	mw->setDockEnabled( topDockWnd, Qt::DockLeft, TRUE );
+	mw->setDockEnabled( topDockWnd, Qt::DockRight, TRUE );
+	mw->setDockEnabled( topDockWnd, Qt::DockBottom, TRUE );
     }
 
     topDockWnd->setCloseMode( QDockWindow::Always );
@@ -449,10 +449,10 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
     bottomDockWnd = new QDockWindow( QDockWindow::InDock, bottomDock,
 				     "bottom dock window" );
     if ( mw ) {
-	mw->setDockEnabled( bottomDockWnd, Qt::Top, TRUE );
-	mw->setDockEnabled( bottomDockWnd, Qt::Left, TRUE );
-	mw->setDockEnabled( bottomDockWnd, Qt::Right, TRUE );
-	mw->setDockEnabled( bottomDockWnd, Qt::Bottom, TRUE );
+	mw->setDockEnabled( bottomDockWnd, Qt::DockTop, TRUE );
+	mw->setDockEnabled( bottomDockWnd, Qt::DockLeft, TRUE );
+	mw->setDockEnabled( bottomDockWnd, Qt::DockRight, TRUE );
+	mw->setDockEnabled( bottomDockWnd, Qt::DockBottom, TRUE );
     }
     bottomDockWnd->setCloseMode( QDockWindow::Always );
     bottomDockWnd->setResizeEnabled( TRUE );
@@ -531,7 +531,7 @@ void MessageEditor::toggleFinished()
 bool MessageEditor::eventFilter( QObject * o, QEvent * e )
 {
     static uchar doFocusChange = FALSE;
-    
+
     // Handle keypresses in the message editor - scroll the view if the current
     // line is hidden.
     if ( o->inherits("QMultiLineEdit") ) {
@@ -573,7 +573,7 @@ bool MessageEditor::eventFilter( QObject * o, QEvent * e )
     }
     if ( o->inherits("QListView") ) {
 	// handle the ESC key in the list views
-	if ( e->type() == QEvent::KeyRelease && 
+	if ( e->type() == QEvent::KeyRelease &&
 	     ((QKeyEvent *) e)->key() == Key_Escape )
 	    editorPage->translationMed->setFocus();
     }

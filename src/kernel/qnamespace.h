@@ -150,7 +150,7 @@ public:
 	WState_Minimized	= 0x00100000,
 	WState_ForceDisabled	= 0x00200000,
 	WState_Exposed		= 0x00400000,
-	WState_HasMouse		= 0x00800000    
+	WState_HasMouse		= 0x00800000
     };
 
     // Widget flags2; documented in qwidget.cpp
@@ -671,7 +671,24 @@ public:
     };
 
     // Documented in qmainwindow.cpp
-    enum Dock { Unmanaged, TornOff, Top, Bottom, Right, Left, Minimized };
+    enum Dock {
+	DockUnmanaged,
+	DockTornOff,
+	DockTop,
+	DockBottom,
+	DockRight,
+	DockLeft,
+	DockMinimized,
+#ifndef QT_NO_COMPAT
+	Unmanaged = DockUnmanaged,
+	TornOff = DockTornOff,
+	Top = DockTop,
+	Bottom = DockBottom,
+	Right = DockRight,
+	Left = DockLeft,
+	Minimized = DockMinimized
+#endif
+    };
     // compatibility
     typedef Dock ToolBarDock;
 

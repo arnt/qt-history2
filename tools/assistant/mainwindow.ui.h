@@ -22,7 +22,7 @@ void MainWindow::init()
     helpDock = new HelpDialog( dw, this, browser );
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
-    addDockWindow( dw, Left );
+    addDockWindow( dw, DockLeft );
     dw->setWidget( helpDock );
     dw->setCaption( "Sidebar" );
     dw->setFixedExtentWidth( 250 );

@@ -63,7 +63,7 @@ public:
 	      bool newLine, const char* Q_NAME, WFlags f = 0 );
 #else
     QToolBar( const QString &label,
-	      QMainWindow *, ToolBarDock = Top,
+	      QMainWindow *, ToolBarDock = DockTop,
 	      bool newLine = FALSE, const char* Q_NAME );
     QToolBar( const QString &label, QMainWindow *, QWidget *,
 	      bool newLine = FALSE, const char* Q_NAME, WFlags f = 0 );

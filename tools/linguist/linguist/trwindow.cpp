@@ -510,7 +510,7 @@ TrWindow::TrWindow()
 					     "context");
     dwScope->setResizeEnabled( TRUE );
     dwScope->setCloseMode( QDockWindow::Always );
-    addDockWindow( dwScope, tr("Context"), Qt::Left );
+    addDockWindow( dwScope, tr("Context"), Qt::DockLeft );
     dwScope->setCaption( tr("Context") );
     dwScope->setFixedExtentWidth( 200 );
     lv = new QListView( dwScope, "context list view" );
@@ -1175,7 +1175,7 @@ void TrWindow::showNewScope( QListViewItem *item )
 	    slv->insertItem( tmp );
 	    tmp->updateTranslationText();
 	}
-	    
+	
 	slv->setUpdatesEnabled( upe );
 	if( upe )
 	    slv->triggerUpdate();
@@ -1814,7 +1814,7 @@ void TrWindow::setupMenuBar()
 			       this, SLOT(toggleGuessing()) );
     doGuessesAct->setToggleAction( TRUE );
     doGuessesAct->setOn( TRUE );
-    
+
     // Help
     manualAct = new Action( helpp, tr("&Manual..."), this, SLOT(manual()),
 			    Key_F1 );
@@ -1917,7 +1917,7 @@ void TrWindow::setupToolBars()
     replaceAct->addToToolbar( editt, tr("Replace"), "replace" );
 #endif
 
-    // beginFromSourceAct->addToToolbar( translationst, 
+    // beginFromSourceAct->addToToolbar( translationst,
     //                                tr("Begin from Source"), "searchfind" );
     prevAct->addToToolbar( translationst, tr("Prev"), "prev" );
     nextAct->addToToolbar( translationst, tr("Next"), "next" );
@@ -1982,7 +1982,7 @@ bool TrWindow::savePhraseBook( QString& name, const PhraseBook& pb )
 {
     if ( !name.contains( ".qph" ) && !name.contains(".") )
 	name += ".qph";
-    
+
     if ( !pb.save(name) ) {
 	QMessageBox::warning( this, tr("Qt Linguist"),
 			      tr("Cannot create phrase book '%1'.")

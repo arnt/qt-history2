@@ -57,7 +57,7 @@ ApplicationWindow::ApplicationWindow()
     QPixmap openIcon, saveIcon;
 
     fileTools = new QToolBar( this, "file operations" );
-    addToolBar( fileTools, tr( "File Operations" ), Top, TRUE );
+    addToolBar( fileTools, tr( "File Operations" ), DockTop, TRUE );
 
     openIcon = QPixmap( fileopen );
     QToolButton * fileOpen

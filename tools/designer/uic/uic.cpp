@@ -356,19 +356,19 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 QString get_dock( const QString &d )
 {
     if ( d == "0" )
-	return "Unmanaged";
+	return "DockUnmanaged";
     if ( d == "1" )
-	return "TornOff";
+	return "DockTornOff";
     if ( d == "2" )
-	return "Top";
+	return "DockTop";
     if ( d == "3" )
-	return "Bottom";
+	return "DockBottom";
     if ( d == "4" )
-	return "Right";
+	return "DockRight";
     if ( d == "5" )
-	return "Left";
+	return "DockLeft";
     if ( d == "6" )
-	return "Minimized";
+	return "DockMinimized";
     return "";
 }
 

@@ -333,7 +333,7 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
 
 
     if ( mainWindow )
-	mainWindow->addToolBar( this, label, QMainWindow::Unmanaged, newLine );
+	mainWindow->addToolBar( this, label, QMainWindow::DockUnmanaged, newLine );
 }
 
 
@@ -352,7 +352,7 @@ QToolBar::QToolBar( QMainWindow * parent, const char * name )
     init();
 
     if ( parent )
-	parent->addToolBar( this, QString::null, QMainWindow::Top );
+	parent->addToolBar( this, QString::null, QMainWindow::DockTop );
 }
 
 /*!

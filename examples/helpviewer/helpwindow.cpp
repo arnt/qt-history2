@@ -139,8 +139,8 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path,
 	     this, SLOT( pathSelected( const QString & ) ) );
     toolbar->setStretchableWidget( pathCombo );
     setRightJustification( TRUE );
-    setDockEnabled( Left, FALSE );
-    setDockEnabled( Right, FALSE );
+    setDockEnabled( DockLeft, FALSE );
+    setDockEnabled( DockRight, FALSE );
 
     pathCombo->insertItem( home_ );
     browser->setFocus();

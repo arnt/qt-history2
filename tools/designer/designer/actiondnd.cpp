@@ -158,7 +158,7 @@ QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
     installEventFilter( this );
     widgetInserting = FALSE;
     findFormWindow();
-    mw->setDockEnabled( TornOff, FALSE );
+    mw->setDockEnabled( DockTornOff, FALSE );
 }
 
 QDesignerToolBar::QDesignerToolBar( QMainWindow *mw, Dock dock )
@@ -173,7 +173,7 @@ QDesignerToolBar::QDesignerToolBar( QMainWindow *mw, Dock dock )
     installEventFilter( this );
     widgetInserting = FALSE;
     findFormWindow();
-    mw->setDockEnabled( TornOff, FALSE );
+    mw->setDockEnabled( DockTornOff, FALSE );
 }
 
 void QDesignerToolBar::findFormWindow()
