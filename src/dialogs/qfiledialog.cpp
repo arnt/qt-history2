@@ -5655,7 +5655,7 @@ static bool isRoot( const QUrl &u )
 }
 
 #if defined(Q_WS_WIN)
-extern bool qt_ntfs_permission_lookup;
+extern int qt_ntfs_permission_lookup;
 #endif
 
 void QFileDialog::urlStart( QNetworkOperation *op )
@@ -5664,7 +5664,7 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	return;
 
 #if defined(Q_WS_WIN)
-    qt_ntfs_permission_lookup = FALSE;
+    qt_ntfs_permission_lookup--;
 #endif
     if ( op->operation() == QNetworkProtocol::OpListChildren ) {
 #ifndef QT_NO_CURSOR
@@ -5785,7 +5785,7 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
     }
 
 #if defined(Q_WS_WIN)
-    qt_ntfs_permission_lookup = TRUE;
+    qt_ntfs_permission_lookup++;
 #endif
 }
 
