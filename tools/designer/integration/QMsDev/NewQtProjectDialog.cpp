@@ -23,10 +23,6 @@ NewQtProjectDialog::NewQtProjectDialog(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(NewQtProjectDialog)
 	m_mdi = FALSE;
 	m_dialog = TRUE;
-#if defined(QT_NON_COMMERCIAL)
-	m_shared = TRUE;
-	m_static = FALSE;
-#endif
 	m_name = _T("NewProject");
 	m_location = _T("");
 	//}}AFX_DATA_INIT	
@@ -35,19 +31,6 @@ NewQtProjectDialog::NewQtProjectDialog(CWnd* pParent /*=NULL*/)
 void NewQtProjectDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-#ifndef QT_NON_COMMERCIAL
-	//{{AFX_DATA_MAP(NewQtProjectDialog)
-	DDX_Control(pDX, IDC_PROJECTLOCATION, c_location);
-	DDX_Control(pDX, IDC_PROJECTNAME, c_name);
-	DDX_Control(pDX, IDC_APPMDI, c_mdi);
-	DDX_Check(pDX, IDC_APPMDI, m_mdi);
-	DDX_Text(pDX, IDC_PROJECTLOCATION, m_location);
-	DDX_Text(pDX, IDC_PROJECTNAME, m_name);
-	DDX_Check(pDX, IDC_APPDIALOG, m_dialog);
-	DDX_Check(pDX, IDC_QTSHARED, m_shared);
-	DDX_Check(pDX, IDC_QTSTATIC, m_static);
-	//}}AFX_DATA_MAP
-#else
 	//{{AFX_DATA_MAP(NewQtProjectDialog)
 	DDX_Control(pDX, IDC_PROJECTLOCATION, c_location);
 	DDX_Control(pDX, IDC_PROJECTNAME, c_name);
@@ -57,37 +40,24 @@ void NewQtProjectDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_PROJECTNAME, m_name);
 	DDX_Check(pDX, IDC_APPDIALOG, m_dialog);
 	//}}AFX_DATA_MAP
-#endif
 }
 
 
 BEGIN_MESSAGE_MAP(NewQtProjectDialog, CDialog)
-#if defined(QT_NON_COMMERCIAL)
-	//{{AFX_MSG_MAP(NewQtProjectDialog)
-	ON_BN_CLICKED(IDC_QTSHARED, OnQtShared)
-	ON_BN_CLICKED(IDC_QTSTATIC, OnQtStatic)
-	ON_BN_CLICKED(IDC_PROJECTLOOKUP, OnProjectLookup)
-	ON_BN_CLICKED(IDC_APPDIALOG, OnAppDialog)
-	ON_BN_CLICKED(IDC_APPMAIN, OnAppMain)
-	ON_EN_CHANGE(IDC_PROJECTNAME, OnProjectNameChange)
-	//}}AFX_MSG_MAP
-#else
 	//{{AFX_MSG_MAP(NewQtProjectDialog)
 	ON_BN_CLICKED(IDC_PROJECTLOOKUP, OnProjectLookup)
 	ON_BN_CLICKED(IDC_APPDIALOG, OnAppDialog)
 	ON_BN_CLICKED(IDC_APPMAIN, OnAppMain)
 	ON_EN_CHANGE(IDC_PROJECTNAME, OnProjectNameChange)
 	//}}AFX_MSG_MAP
-#endif
 END_MESSAGE_MAP()
 
-extern bool getGlobalQtSettings( CString &, bool & );
+extern bool getGlobalQtSettings( bool & );
 
 BOOL NewQtProjectDialog::OnInitDialog()
 {
-    CString libname;
     bool shared;
-    bool threaded = getGlobalQtSettings( libname, shared );
+    bool threaded = getGlobalQtSettings( shared );
     m_shared = shared;
     m_static = !shared;
 
@@ -105,20 +75,6 @@ BOOL NewQtProjectDialog::OnInitDialog()
 
 /////////////////////////////////////////////////////////////////////////////
 // Behandlungsroutinen für Nachrichten NewQtProjectDialog 
-
-#if defined(QT_NON_COMMERCIAL)
-void NewQtProjectDialog::OnQtShared()
-{
-    m_shared = TRUE;
-    m_static = FALSE;
-}
-
-void NewQtProjectDialog::OnQtStatic()
-{
-    m_shared = FALSE;
-    m_static = TRUE;
-}
-#endif
 
 void NewQtProjectDialog::OnProjectLookup() 
 {

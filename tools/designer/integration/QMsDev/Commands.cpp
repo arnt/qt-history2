@@ -290,83 +290,67 @@ int CCommands::getConfigurations(CComQIPtr<IBuildProject, &IID_IBuildProject> pr
     return S_OK;
 }
 
-bool getGlobalQtSettings( CString &libname, bool &shared )
+bool getGlobalQtSettings( bool &shared )
 {
-    CFileFind qtLib;
-    CString qtFile = "";
-    CString qtThread = "";
-    CString filever = "";
-    CString threadver = "";
-    CString libver;
-
-    BOOL bWorking = qtLib.FindFile( _T(getenv("QTDIR") + CString("\\lib\\qt*.lib" ) ) );
-    bool useThreads;
-
-    while ( bWorking ) {
-	bWorking = qtLib.FindNextFile();
-	if ( !bWorking ) 
-	    break;
-	if ( (LPCTSTR)qtLib.GetFileName().Left(5).Compare( "qt-mt" )==0 ) {
-	    qtThread = (LPCTSTR)qtLib.GetFileName();
-	    threadver = qtThread.Mid( 5, 3 );
-	    if ( threadver.Left(1) == "." ) {
-		shared = FALSE;
-		threadver.Empty();
-	    } else {
+    shared = FALSE; 
+    bool thread = FALSE;
+    try {
+	CStdioFile file( CString(_T(getenv("QTDIR")) + CString("\\.qtwinconfig")), CFile::modeRead );
+	CString line;
+	BOOL eof;
+	do {
+	    eof = !file.ReadString( line );
+	    if ( eof )
+		break;
+	    if ( line.Find( "shared" ) != -1 ) {
 		shared = TRUE;
 	    }
-	} else if ( !(qtLib.GetFileName().Compare( "qtmain.lib" ) == 0) ) {
-	    qtFile = (LPCTSTR)qtLib.GetFileName();
-	    filever = qtFile.Mid( 2, 3 );
-	    if ( filever.Left(1) == "." ) {
-		shared = FALSE;
-		filever.Empty();
-	    } else {
-		shared = TRUE;
+	    if ( line.Find( "thread" ) != -1 ) {
+		thread = TRUE;
 	    }
-	}
-	
-	if ( threadver.Compare( filever ) > 0 && threadver.Compare( libver ) > 0 ) {
-	    libname = qtThread;
-	    libver = threadver;
-	    useThreads = TRUE;
-	} else if ( threadver.Compare( filever ) < 0 && filever.Compare( libver ) > 0 ) {
-	    libname = qtFile;
-	    libver = filever;
-	    useThreads = FALSE;
-	} else if ( threadver.Compare( filever ) == 0 && !(qtThread.Right(6).Compare("nc.lib")==0) && threadver.Compare( libver ) > 0 ) {
-	    libname = qtThread;
-	    libver = threadver;
-	    useThreads = TRUE;
-	} else if ( filever.Compare( libver ) > 0 ) {
-	    libname = qtFile;
-	    libver = filever;
-	    useThreads = FALSE;
-	} else if ( filever.Compare( libver ) == 0 && libname.Right(6).Compare("nc.lib")==0 ) {
-	    libname = qtFile;
-	    libver = filever;
-	    useThreads = FALSE;
-	}
+	} while ( !eof );
     }
-    return useThreads;
+    catch ( CFileException* e ) {
+	char err[256];
+	e->GetErrorMessage( (char*)&err, 255, NULL );
+	::MessageBox( NULL, err, "Error", MB_OK );
+    }
+    return thread;
 }
-void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig )
+void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig, bool useThreads )
 {
-    CString libname;
-    bool shared;
-    bool useThreads = getGlobalQtSettings( libname, shared );
-    
     const CComBSTR compiler("cl.exe");
     const CComBSTR linker("link.exe");
     LPCTSTR dllDefs;
-    if ( useThreads )
-	dllDefs = "/D QT_DLL /D QT_THREAD_SUPPORT";
-    else
-	dllDefs = "/D QT_DLL";
+    dllDefs = "/D QT_DLL";
 
     const CComBSTR dllDefine( dllDefs );
     const CComBSTR incPath(" /I$(QTDIR)\\include");
-    CString sharedLibText = CString("$(QTDIR)\\lib\\") + libname;
+    CString version;
+    try {
+	CStdioFile file( CString(_T(getenv("QTDIR")) + CString("\\.qmake.cache")), CFile::modeRead );
+	CString line;
+	BOOL eof;
+	do {
+	    eof = !file.ReadString( line );
+	    if ( eof )
+		break;
+	    if ( line.Find( "QMAKE_QT_VERSION_OVERRIDE=" ) != -1 ) {
+		version = line.Right(3);
+		break;
+	    }
+	} while ( !eof );
+    }
+    catch ( CFileException* e ) {
+	char err[256];
+	e->GetErrorMessage( (char*)&err, 255, NULL );
+	::MessageBox( NULL, err, "Error", MB_OK );
+    }
+    CString sharedLibText;
+    if ( useThreads )
+	sharedLibText = CString("$(QTDIR)\\lib\\qt-mt") + version + CString(".lib");
+    else
+	sharedLibText = CString("$(QTDIR)\\lib\\qt") + version + CString(".lib");
     const CComBSTR sharedLib(sharedLibText + CString(" $(QTDIR)\\lib\\qtmain.lib") );
     const CComBSTR defLibs( "kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib" );
     const CComBSTR sysLibs( "kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib wsock32.lib" );
@@ -376,6 +360,8 @@ void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig )
     const CComBSTR correctLibR("/MD");
 
     VERIFY_OK(pConfig->AddToolSettings( compiler, dllDefine, CComVariant(VARIANT_FALSE) ));
+    if ( useThreads )
+	VERIFY_OK(pConfig->AddToolSettings( compiler, CComBSTR("/D QT_THREAD_SUPPORT"), CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->AddToolSettings( compiler, incPath, CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->RemoveToolSettings( linker, defLibs, CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->AddToolSettings( linker, sysLibs, CComVariant(VARIANT_FALSE) ));    
@@ -389,29 +375,48 @@ void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig )
     m_pApplication->PrintToOutputWindow( CComBSTR("\t\tadded Qt shared library") );
 }
 
-void CCommands::addStaticSettings( CComPtr<IConfiguration> pConfig )
+void CCommands::addStaticSettings( CComPtr<IConfiguration> pConfig, bool useThreads )
 {
-    CString libname;
-    bool shared;
-    bool useThreads = getGlobalQtSettings( libname, shared );
-
     const CComBSTR compiler("cl.exe");
     const CComBSTR linker("link.exe");
     LPCTSTR dllDefs;
-    if ( useThreads )
-	dllDefs = "/D QT_DLL /D QT_THREAD_SUPPORT";
-    else
-	dllDefs = "/D QT_DLL";
+    dllDefs = "/D QT_DLL";
 
     const CComBSTR dllDefine( dllDefs );
     const CComBSTR incPath(" /I$(QTDIR)\\include");
     CComBSTR staticLib = useThreads ? "$(QTDIR)\\lib\\qt-mt.lib" : "$(QTDIR)\\lib\\qt.lib";
-    CString sharedLibText = CString("$(QTDIR)\\lib\\") + libname;
+    CString version;
+    try {
+	CStdioFile file( CString(_T(getenv("QTDIR")) + CString("\\.qmake.cache")), CFile::modeRead );
+	CString line;
+	BOOL eof;
+	do {
+	    eof = !file.ReadString( line );
+	    if ( eof )
+		break;
+	    if ( line.Find( "QMAKE_QT_VERSION_OVERRIDE=" ) != -1 ) {
+		version = line.Right(3);
+		break;
+	    }
+	} while ( !eof );
+    }
+    catch ( CFileException* e ) {
+	char err[256];
+	e->GetErrorMessage( (char*)&err, 255, NULL );
+	::MessageBox( NULL, err, "Error", MB_OK );
+    }
+    CString sharedLibText;
+    if ( useThreads )
+	sharedLibText = CString("$(QTDIR)\\lib\\qt-mt") + version + CString(".lib");
+    else
+	sharedLibText = CString("$(QTDIR)\\lib\\qt") + version + CString(".lib");
     const CComBSTR sharedLib(sharedLibText + CString(" $(QTDIR)\\lib\\qtmain.lib") );
     const CComBSTR defLibs( "kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib" );
     const CComBSTR sysLibs( "kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib wsock32.lib" );
 
     VERIFY_OK(pConfig->RemoveToolSettings( compiler, dllDefine, CComVariant(VARIANT_FALSE) ));
+    if ( useThreads )
+	VERIFY_OK(pConfig->AddToolSettings( compiler, CComBSTR("/D QT_THREAD_SUPPORT"), CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->AddToolSettings( compiler, incPath, CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->RemoveToolSettings( linker, defLibs, CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->AddToolSettings( linker, sysLibs, CComVariant(VARIANT_FALSE) ));    
@@ -667,9 +672,8 @@ STDMETHODIMP CCommands::QMsDevUseQt()
 	return S_FALSE;
     }
 
-    CString libname;
     bool shared;
-    bool threaded = getGlobalQtSettings( libname, shared );
+    bool threaded = getGlobalQtSettings( shared );
 
     // Get the list of configurations in the active project
     CComQIPtr<IConfigurations, &IID_IConfigurations> pConfigs;
@@ -690,9 +694,9 @@ STDMETHODIMP CCommands::QMsDevUseQt()
 	VERIFY_OK(pConfigs->Item(Varc, &pConfig));
 	VERIFY_OK(pConfig->AddToolSettings( compiler, ipath, CComVariant(VARIANT_FALSE) ));
 	if ( shared )
-	    addSharedSettings( pConfig );
+	    addSharedSettings( pConfig, threaded );
 	else
-	    addStaticSettings( pConfig );
+	    addStaticSettings( pConfig, threaded );
     }
 
     return S_OK;
@@ -974,17 +978,15 @@ STDMETHODIMP CCommands::QMsDevNewQtProject()
 	VERIFY_OK(pConfigs->Item(Varc, &pConfig));
 	BSTR bstr;
 	pConfig->get_Name(&bstr);
-#ifndef QT_NON_COMMERCIAL
-	if ( dialog.m_shared ) {
-#endif
+	bool shared;
+        bool useThreads = getGlobalQtSettings( shared );
+	if ( shared ) {
 	    m_pApplication->PrintToOutputWindow( CComBSTR("\tadding Qt shared library to "+ CString(bstr) + "...") );
-	    addSharedSettings( pConfig );
-#ifndef QT_NON_COMMERCIAL
+	    addSharedSettings( pConfig, useThreads );
 	} else {
 	    m_pApplication->PrintToOutputWindow( CComBSTR("\tadding Qt static library to "+ CString(bstr) + "...") );
-	    addStaticSettings( pConfig );
+	    addStaticSettings( pConfig, useThreads );
 	}
-#endif      
     }
 
     CString projectName = dialog.m_name;

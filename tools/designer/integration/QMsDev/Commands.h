@@ -17,8 +17,8 @@ protected:
 	CString getActiveFileName();
 	int getActiveProject(CComQIPtr<IBuildProject, &IID_IBuildProject>&);
 	int getConfigurations(CComQIPtr<IBuildProject, &IID_IBuildProject>, CComQIPtr<IConfigurations, &IID_IConfigurations>&);
-	void addSharedSettings( CComPtr<IConfiguration> );
-	void addStaticSettings( CComPtr<IConfiguration> );
+	void addSharedSettings( CComPtr<IConfiguration>, bool useThreads );
+	void addStaticSettings( CComPtr<IConfiguration>, bool useThreads );
 	void addMOC( CComQIPtr<IBuildProject, &IID_IBuildProject> pProject, CString file );
 	void addUIC( CComQIPtr<IBuildProject, &IID_IBuildProject> pProject, CString file );
 	CString replaceTemplateStrings( const CString& t, const CString& classheader, 

@@ -146,7 +146,7 @@ END
 // Dialog
 //
 
-IDD_NEWQTPROJECT_DIALOG DIALOG DISCARDABLE  0, 0, 227, 162
+IDD_NEWQTPROJECT_DIALOG DIALOG DISCARDABLE  0, 0, 227, 121
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "New Project"
 FONT 8, "MS Sans Serif"
@@ -154,23 +154,17 @@ BEGIN
     EDITTEXT        IDC_PROJECTNAME,50,20,165,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_PROJECTLOCATION,50,40,145,14,ES_AUTOHSCROLL
     PUSHBUTTON      "&...",IDC_PROJECTLOOKUP,200,40,14,14
-    CONTROL         "Sha&red Library (DLL)",IDC_QTSHARED,"Button",
-                    BS_AUTORADIOBUTTON | WS_GROUP,21,95,81,10
-    CONTROL         "S&tatic Library (LIB)",IDC_QTSTATIC,"Button",
-                    BS_AUTORADIOBUTTON,21,110,73,10
     CONTROL         "&Dialog",IDC_APPDIALOG,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP,131,81,36,10
+                    WS_GROUP,20,80,36,10
     CONTROL         "Main &Window",IDC_APPMAIN,"Button",BS_AUTORADIOBUTTON,
-                    131,95,59,10
+                    75,80,59,10
     CONTROL         "&MDI Support",IDC_APPMDI,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,141,110,56,10
-    PUSHBUTTON      "Cancel",IDCANCEL,110,140,50,14
-    DEFPUSHBUTTON   "OK",IDOK,170,140,50,14
-    LTEXT           "Use Qt in a",IDC_STATIC,15,80,36,8
-    GROUPBOX        "&Application Type",IDC_STATIC,115,65,105,65
+                    WS_TABSTOP,85,95,56,10
+    PUSHBUTTON      "Cancel",IDCANCEL,170,100,50,14
+    DEFPUSHBUTTON   "OK",IDOK,170,80,50,14
+    GROUPBOX        "&Application Type",IDC_STATIC,5,65,150,50
     LTEXT           "&Project:",IDC_STATIC,15,22,25,8
     LTEXT           "&Location:",IDC_STATIC,15,42,30,8
-    GROUPBOX        "&Qt",IDC_STATIC,5,65,105,65
     GROUPBOX        "Project &Settings",IDC_STATIC,5,5,215,55
 END
 
@@ -188,7 +182,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 220
         TOPMARGIN, 7
-        BOTTOMMARGIN, 155
+        BOTTOMMARGIN, 114
     END
 END
 #endif    // APSTUDIO_INVOKED
