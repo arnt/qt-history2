@@ -2352,6 +2352,7 @@ FormWindow* MainWindow::insertFormWindow( int type )
     QString n = tr( "Form%1" ).arg( ++forms );
     FormWindow *fw = 0;
     fw = new FormWindow( this, workspace, n );
+    MetaDataBase::addEntry( fw );
     if ( type == NewForm::Widget ) {
 	QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QWidget" ), fw, n.latin1() );
 	fw->setMainContainer( w );

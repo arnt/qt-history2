@@ -282,6 +282,8 @@ public:
     QVariant fakeProperty( QObject * o, const QString &property );
     void setPropertyChanged( QObject *o, const QString &property, bool changed );
     bool isPropertyChanged( QObject *o, const QString &property );
+    void addConnection( QObject *o, QObject *sender, const QCString &signal,
+			QObject *receiver, const QCString &slot );
 
 private:
     QUnknownInterface *appIface;

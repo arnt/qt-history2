@@ -1116,6 +1116,11 @@ bool DesignerMetaDatabaseInterfaceImpl::isPropertyChanged( QObject *o, const QSt
     return MetaDataBase::isPropertyChanged( o, property );
 }
 
+void DesignerMetaDatabaseInterfaceImpl::addConnection( QObject *o, QObject *sender, const QCString &signal,
+						       QObject *receiver, const QCString &slot )
+{
+    MetaDataBase::addConnection( o, sender, signal, receiver, slot );
+}
 
 
 

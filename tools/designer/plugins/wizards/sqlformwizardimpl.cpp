@@ -11,6 +11,7 @@
 #include <qsqlindex.h>
 #include <qsqlcursor.h>
 #include <qregexp.h>
+#include <qpushbutton.h>
 
 #include "../designerinterface.h"
 
@@ -19,7 +20,7 @@ SqlFormWizard::SqlFormWizard( QComponentInterface *aIface, QWidget *w,
     : SqlFormWizardBase( parent, name, modal, fl ), widget( w ), appIface( aIface )
 {
     setFinishEnabled( databasePage, FALSE );
-    setFinishEnabled( populatePage, TRUE );
+    setFinishEnabled( navigPage, TRUE );
 
     connect( checkBoxAutoPopulate, SIGNAL( toggled(bool) ), this, SLOT( autoPopulate(bool) ) );
     setupPage1();
@@ -146,6 +147,20 @@ void SqlFormWizard::setupPage1()
     QStringList lst = proIface->databaseConnectionList();
     listBoxConnection->insertStringList( lst );
 }
+
+static QPushButton *create_widget( QWidget *parent, const char *name,
+				   const QString &txt, const QRect &r, DesignerMetaDatabaseInterface *mdbIface,
+				   DesignerFormInterface *fIface, DesignerWidgetFactoryInterface *wfIface )
+{
+    QPushButton *pb = (QPushButton*)wfIface->create( "QPushButton", parent, name );
+    pb->setText( txt );
+    pb->setGeometry( r );
+    mdbIface->setPropertyChanged( pb, "text", TRUE );
+    mdbIface->setPropertyChanged( pb, "geometry", TRUE );
+    fIface->addWidget( pb );
+    return pb;
+}
+
 void SqlFormWizard::accept()
 {
     if ( !appIface )
@@ -185,7 +200,7 @@ void SqlFormWizard::accept()
     if( (visibleFields % columns) > 0)
 	numPerColumn++;
 
-    int row = 0, col = 0;
+    int row = 0;
     const int SPACING = 25;
 
     for( uint j = 0; j < listBoxSelectedField->count(); j++ ){
@@ -199,7 +214,7 @@ void SqlFormWizard::accept()
 	labelName.replace( QRegExp("_"), " " );
 	label = (QLabel*)wfIface->create( "QLabel", widget, QString( "label" + field->name() ) );
 	label->setText( labelName );
-	label->setGeometry( col+SPACING, row+SPACING, SPACING*3, SPACING );
+	label->setGeometry( SPACING, row+SPACING, SPACING*3, SPACING );
 	mdbIface->setPropertyChanged( label, "text", TRUE );
 	mdbIface->setPropertyChanged( label, "geometry", TRUE );
 	fIface->addWidget( label );
@@ -207,7 +222,7 @@ void SqlFormWizard::accept()
 	editorDummy = f->createEditor( widget, field );
 	editor = wfIface->create( editorDummy->className(), widget, QString( QString( editorDummy->className() ) + field->name()) );
 	delete editorDummy;
-	editor->setGeometry( col+ SPACING * 5, row+SPACING, SPACING*3, SPACING );
+	editor->setGeometry( SPACING * 5, row+SPACING, SPACING*3, SPACING );
 	mdbIface->setPropertyChanged( editor, "geometry", TRUE );
 	fIface->addWidget( editor );
 
@@ -216,10 +231,44 @@ void SqlFormWizard::accept()
 	mdbIface->setFakeProperty( editor, "database", lst );
 	mdbIface->setPropertyChanged( editor, "database", TRUE );
 	
-	row += 25;
+	row += SPACING + 5;
 
     }
 
+    qDebug( "%s", widget->parentWidget()->className() );
+    if ( checkBoxNavig->isChecked() ) {
+	if ( checkBoxFirst->isChecked() ) {
+	    QPushButton *pb = create_widget( widget, "PushButtonFirst", "|< &First", QRect( SPACING * 10, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
+	    mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "firstRecord()" );
+	}
+	if ( checkBoxPrev->isChecked() ) {
+	    QPushButton *pb = create_widget( widget, "PushButtonPrev", "<< &Prev", QRect( SPACING * 13, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
+	    mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "prevRecord()" );
+	}
+	if ( checkBoxNext->isChecked() ) {
+	    QPushButton *pb = create_widget( widget, "PushButtonNext", "&Next >>", QRect( SPACING * 16, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
+	    mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "nextRecord()" );
+	}
+	if ( checkBoxLast->isChecked() ) {
+	    QPushButton *pb = create_widget( widget, "PushButtonLast", "&Last >|", QRect( SPACING * 19, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
+	    mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "lastRecord()" );
+	}
+    }
+
+    if ( checkBoxEdit->isChecked() ) {
+	if ( checkBoxInsert->isChecked() ) {
+	    QPushButton *pb = create_widget( widget, "PushButtonInsert", "&Insert", QRect( SPACING * 10, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
+	    mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "insertRecord()" );
+	}
+	if ( checkBoxUpdate->isChecked() ) {
+	    QPushButton *pb = create_widget( widget, "PushButtonUpdate", "&Update", QRect( SPACING * 13, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
+	    mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "updateRecord()" );
+	}
+	if ( checkBoxDelete->isChecked() ) {
+	    QPushButton *pb = create_widget( widget, "PushButtonDelete", "&Delete", QRect( SPACING * 16, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
+	    mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "deleteRecord()" );
+	}
+    }
 
     proIface->closeDatabase( editConnection->text() );
 

@@ -219,6 +219,8 @@ interface DesignerMetaDatabaseInterface : public QUnknownInterface
     virtual QVariant fakeProperty( QObject * o, const QString &property ) = 0;
     virtual void setPropertyChanged( QObject *o, const QString &property, bool changed ) = 0;
     virtual bool isPropertyChanged( QObject *o, const QString &property ) = 0;
+    virtual void addConnection( QObject *o, QObject *sender, const QCString &signal,
+				QObject *receiver, const QCString &slot ) = 0;
 
 };
 
