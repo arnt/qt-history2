@@ -86,6 +86,7 @@ public:
     void resize(int size);
 
     bool operator!() const;
+    operator bool() const;
 
     QByteArray &fill(char c, int size = -1);
 
@@ -158,10 +159,23 @@ public:
     QByteArray &replace(char before, const QByteArray &after);
     QByteArray &replace(const char *before, const char *after);
     QByteArray &replace(const QByteArray &before, const QByteArray &after);
+    QByteArray &replace(const QByteArray &before, const char *after);
     QByteArray &replace(char before, char after);
     QByteArray &operator+=(char c);
     QByteArray &operator+=(const char *s);
     QByteArray &operator+=(const QByteArray &a);
+
+#ifndef QT_NO_CAST_TO_ASCII
+    QByteArray &append(const QString &s);
+    QByteArray &insert(int i, const QString &s);
+    QByteArray &replace(const QString &before, const char *after);
+    QByteArray &replace(char c, const QString &after);
+    inline QByteArray &replace(const QString &before, const QByteArray &after)
+	{ return replace(before, after.constData()); }
+    QByteArray &operator+=(const QString &s);
+    int indexOf(const QString &s, int from = 0) const;
+    int lastIndexOf(const QString &s, int from = -1) const;
+#endif
 
     typedef char *Iterator;
     typedef const char *ConstIterator;
@@ -203,13 +217,20 @@ public:
     inline QT_COMPAT QByteArray simplifyWhiteSpace() const { return simplified(); }
     inline QT_COMPAT int find(char c, int from = 0) const { return indexOf(c, from); }
     inline QT_COMPAT int find(const char *c, int from = 0) const { return indexOf(c, from); }
+    inline QT_COMPAT int find(const QByteArray &ba, int from = 0) const { return indexOf(ba, from); }
     inline QT_COMPAT int findRev(char c, int from = -1) const { return lastIndexOf(c, from); }
     inline QT_COMPAT int findRev(const char *c, int from = -1) const { return lastIndexOf(c, from); }
+    inline QT_COMPAT int findRev(const QByteArray &ba, int from = -1) const { return lastIndexOf(ba, from); }
+#ifndef QT_NO_CAST_TO_ASCII
+    inline QT_COMPAT int find(const QString &s, int from = 0) const { return indexOf(s, from); }
+    inline QT_COMPAT int findRev(const QString &s, int from = -1) const { return lastIndexOf(s, from); }
+#endif
 #endif
 
     bool ensure_constructed();
 
 private:
+    operator QNoImplicitIntegralCast() const;
     struct Data {
 	QAtomic ref;
 	int alloc, size;
@@ -245,6 +266,8 @@ inline bool QByteArray::isEmpty() const
 { return d->size == 0; }
 inline bool QByteArray::operator!() const
 { return d->size == 0; }
+inline QByteArray::operator bool() const
+{ return d->size != 0; }
 inline QByteArray::operator const char *() const
 { return d->data; }
 inline QByteArray::operator const void *() const
@@ -402,6 +425,8 @@ inline QByteArray &QByteArray::replace(int index, int len, const char *s)
 { QConstByteArray cb(s, strlen(s)); return replace(index, len, cb); }
 inline QByteArray &QByteArray::replace(char before, const char *after)
 { QConstByteArray cb(after, strlen(after)); return replace(before, cb); }
+inline QByteArray &QByteArray::replace(const QByteArray &before, const char *after)
+{ QConstByteArray cb(after, strlen(after)); return replace(before, after); }
 inline QByteArray &QByteArray::replace(const char *before, const char *after)
 { QConstByteArray cb(before, strlen(before)); QConstByteArray ca(after, strlen(after)); return replace(cb, ca); }
 

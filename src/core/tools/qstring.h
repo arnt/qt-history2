@@ -54,11 +54,12 @@ public:
 
     inline int size() const { return d->size; }
     inline int count() const { return d->size; }
-    inline int length() const;
-    inline bool isEmpty() const;
+    int length() const;
+    bool isEmpty() const;
     void resize(int size);
 
-    inline bool operator!() const;
+    bool operator!() const;
+    operator bool() const;
 
     QString &fill(QChar c, int size = -1);
     void truncate(int maxSize);
@@ -378,6 +379,7 @@ private:
 #ifdef QT_NO_CAST_TO_ASCII
     operator const char *() const;
 #endif
+    operator QNoImplicitIntegralCast() const;
     struct Data {
 	QAtomic ref;
 	int alloc, size;
@@ -425,6 +427,8 @@ inline bool QString::isEmpty() const
 { return d->size == 0; }
 inline bool QString::operator!() const
 { return d->size == 0; }
+inline QString::operator bool() const
+{ return d->size != 0; }
 inline const QChar *QString::unicode() const
 { return (const QChar*) d->data; }
 inline QString::operator const QChar*() const
@@ -614,6 +618,18 @@ Q_CORE_EXPORT bool operator<(const char *s1, const QString &s2);
 Q_CORE_EXPORT bool operator<=(const char *s1, const QString &s2);
 Q_CORE_EXPORT bool operator>(const char *s1, const QString &s2);
 Q_CORE_EXPORT bool operator>=(const char *s1, const QString &s2);
+inline bool operator==(const QString &s1, const QByteArray &s2) { return (s1 == s2.constData()); }
+inline bool operator==(const QByteArray &s1, const QString &s2) { return (s2 == s1.constData()); }
+inline bool operator!=(const QString &s1, const QByteArray &s2) { return !(s1==s2.constData()); }
+inline bool operator!=(const QByteArray &s1, const QString &s2) { return !(s2==s1.constData()); }
+inline bool operator<(const QString &s1, const QByteArray &s2) { return s1 < s2.constData();}
+inline bool operator<=(const QString &s1, const QByteArray &s2) { return s1 < s2.constData();}
+inline bool operator>(const QString &s1, const QByteArray &s2) { return s1 < s2.constData();}
+inline bool operator>=(const QString &s1, const QByteArray &s2) { return s1 < s2.constData();}
+inline bool operator<(const QByteArray &s1, const QString &s2) { return s1.constData() < s2;}
+inline bool operator<=(const QByteArray &s1, const QString &s2) { return s1.constData() < s2;}
+inline bool operator>(const QByteArray &s1, const QString &s2) { return s1.constData() < s2;}
+inline bool operator>=(const QByteArray &s1, const QString &s2) { return s1.constData() < s2;}
 #endif
 
 inline const QString operator+(const QString &s1, const QString &s2)

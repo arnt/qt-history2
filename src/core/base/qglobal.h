@@ -646,7 +646,7 @@ typedef unsigned long long	Q_UINT64;	// 64 bit unsigned
 typedef Q_INT64			Q_LLONG;	// signed long long
 typedef Q_UINT64		Q_ULLONG;	// unsigned long long
 
-typedef void * QNoImplicitBoolCast;
+typedef int QNoImplicitIntegralCast;
 
 //
 // Warnings and errors when sing deprecated methods

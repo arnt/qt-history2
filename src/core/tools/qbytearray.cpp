@@ -14,6 +14,7 @@
 
 #include "qbytearray.h"
 #include "qtools_p.h"
+#include "qstring.h"
 #ifndef QT_NO_DATASTREAM
 #include <qdatastream.h>
 #endif
@@ -1784,3 +1785,10 @@ QByteArray QByteArray::rightJustified(int width, char fill, bool truncate) const
 
 bool QByteArray::isNull() const { return d == &shared_null; }
 
+#ifndef QT_NO_CAST_TO_ASCII
+QByteArray &QByteArray::append(const QString &s) { return append(s.toAscii()); }
+QByteArray &QByteArray::insert(int i, const QString &s){ return insert(i, s.toAscii()); }
+QByteArray &QByteArray::replace(char c, const QString &after) { return replace(c, after.toAscii()); }
+QByteArray &QByteArray::replace(const QString &before, const char *after){ return replace(before.toAscii(), after); }
+QByteArray &QByteArray::operator+=(const QString &s) { return operator+=(s.toAscii()); }
+#endif // QT_NO_CAST_TO_ASCII
