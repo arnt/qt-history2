@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#54 $
 **
 ** Implementation of QDialog class
 **
@@ -117,6 +117,9 @@ QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
 
 QDialog::~QDialog()
 {
+    // Need to hide() here, as our (to-be) overridden hide() 
+    // will not be called in ~QWidget.
+    hide();
 }
 
 
