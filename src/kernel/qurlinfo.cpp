@@ -42,8 +42,9 @@
 #include "qurloperator.h"
 #include "qdir.h"
 
-struct QUrlInfoPrivate
+class QUrlInfo::Private
 {
+public:
     QString name;
     int permissions;
     QString owner;
@@ -78,7 +79,7 @@ struct QUrlInfoPrivate
 
 QUrlInfo::QUrlInfo()
 {
-    d = new QUrlInfoPrivate;
+    d = new Private;
     d->isDir = FALSE;
     d->isFile = TRUE;
     d->isReadable = TRUE;
@@ -98,7 +99,7 @@ QUrlInfo::QUrlInfo( const QUrlOperator &path, const QString &file )
     QString file_ = file;
     if ( file_.isEmpty() )
 	file_ = ".";
-    d = new QUrlInfoPrivate;
+    d = new Private;
     QUrlInfo inf = path.info( file_ );
     *d = *inf.d;
 }
@@ -109,7 +110,7 @@ QUrlInfo::QUrlInfo( const QUrlOperator &path, const QString &file )
 
 QUrlInfo::QUrlInfo( const QUrlInfo &ui )
 {
-    d = new QUrlInfoPrivate;
+    d = new Private;
     *d = *ui.d;
 }
 
@@ -122,7 +123,7 @@ QUrlInfo::QUrlInfo( const QString &name, int permissions, const QString &owner,
 		    const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
 		    bool isWritable, bool isReadable, bool isExecutable )
 {
-    d = new QUrlInfoPrivate;
+    d = new Private;
     d->name = name;
     d->permissions = permissions;
     d->owner = owner;
@@ -148,7 +149,7 @@ QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
 		    const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
 		    bool isWritable, bool isReadable, bool isExecutable )
 {
-    d = new QUrlInfoPrivate;
+    d = new Private;
     d->name = QFileInfo( url.path() ).fileName();
     d->permissions = permissions;
     d->owner = owner;
@@ -244,7 +245,7 @@ void QUrlInfo::setSize( uint s )
 
 // ### reggie - what's the permission type? As in Unix?
 
-/*! Specifies that the URL has access permision \a p. 
+/*! Specifies that the URL has access permision \a p.
 
 */
 

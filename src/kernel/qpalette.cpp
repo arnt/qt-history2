@@ -213,16 +213,16 @@ Such long lists of arguments are rather error-prone.
 {
     br = new QBrush[NColorRoles];
     br[Foreground]      = foreground;
-    br[Button] 	 	= button;
-    br[Light] 		= light;
-    br[Dark] 		= dark;
-    br[Mid] 		= mid;
-    br[Text] 		= text;
-    br[BrightText] 	= bright_text;
-    br[ButtonText] 	= text;
-    br[Base] 		= base;
-    br[Background] 	= background;
-    br[Midlight] 	= qt_mix_colors( br[Button].color(), br[Light].color() );
+    br[Button]		= button;
+    br[Light]		= light;
+    br[Dark]		= dark;
+    br[Mid]		= mid;
+    br[Text]		= text;
+    br[BrightText]	= bright_text;
+    br[ButtonText]	= text;
+    br[Base]		= base;
+    br[Background]	= background;
+    br[Midlight]	= qt_mix_colors( br[Button].color(), br[Light].color() );
     br[Shadow]          = Qt::black;
     br[Highlight]       = Qt::darkBlue;
     br[HighlightedText] = Qt::white;
@@ -251,7 +251,7 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &background,
     br[ButtonText]      = br[Text];
     br[Base]            = QBrush(base);
     br[Background]      = QBrush(background);
-    br[Midlight] 	= qt_mix_colors( br[Button].color(), br[Light].color() );
+    br[Midlight]	= qt_mix_colors( br[Button].color(), br[Light].color() );
     br[Shadow]          = Qt::black;
     br[Highlight]       = Qt::darkBlue;
     br[HighlightedText] = Qt::white;

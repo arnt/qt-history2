@@ -77,23 +77,23 @@
   \code
     void MyWidget::paintEvent( QPaintEvent * )
     {
-        QPainter p( this );
+	QPainter p( this );
 
-        // times, 12pt, normal
-        p.setFont( QFont( "times" ) );
-        p.drawText( 10, 20, "Text1" );
+	// times, 12pt, normal
+	p.setFont( QFont( "times" ) );
+	p.drawText( 10, 20, "Text1" );
 
-        // helvetica, 18pt, normal
-        p.setFont( QFont( "helvetica", 18 ) );
-        p.drawText( 10, 120, "Text2" );
+	// helvetica, 18pt, normal
+	p.setFont( QFont( "helvetica", 18 ) );
+	p.drawText( 10, 120, "Text2" );
 
-        // courier, 24pt, bold
-        p.setFont( QFont( "courier", 24, QFont::Bold ) );
-        p.drawText( 10, 220, "Text3" );
+	// courier, 24pt, bold
+	p.setFont( QFont( "courier", 24, QFont::Bold ) );
+	p.drawText( 10, 220, "Text3" );
 
-        // lucida, 36pt, bold, italic
-        p.setFont( QFont( "lucida", 36, QFont::Bold, TRUE ) );
-        p.drawText( 10, 320, "Text4" );
+	// lucida, 36pt, bold, italic
+	p.setFont( QFont( "lucida", 36, QFont::Bold, TRUE ) );
+	p.drawText( 10, 320, "Text4" );
     }
   \endcode
 
@@ -755,14 +755,14 @@ QFont::StyleHint QFont::styleHint() const
 
     int main( int argc, char **argv )
     {
-        QApplication app( argc, argv );
-        QPushButton  push("Push me");
+	QApplication app( argc, argv );
+	QPushButton  push("Push me");
 
-        QFont font( "Bavaria", 18 );        // preferred family is Bavaria
-        font.setStyleHint( QFont::Serif )    // can also use any serif font
+	QFont font( "Bavaria", 18 );        // preferred family is Bavaria
+	font.setStyleHint( QFont::Serif )    // can also use any serif font
 
-        push.setFont( font );
-        return app.exec( &push );
+	push.setFont( font );
+	return app.exec( &push );
     }
   \endcode
 
@@ -952,16 +952,16 @@ static void initFontSubst()
     static const char *initTbl[] = {
 
 #if defined(Q_WS_X11)
-        "arial",        "helvetica",
-        "helv",         "helvetica",
-        "tms rmn",      "times",
+	"arial",        "helvetica",
+	"helv",         "helvetica",
+	"tms rmn",      "times",
 #elif defined(Q_WS_WIN)
-        "times",        "Times New Roman",
-        "courier",      "Courier New",
-        "helvetica",    "Arial",
+	"times",        "Times New Roman",
+	"courier",      "Courier New",
+	"helvetica",    "Arial",
 #endif
 
-        0,              0
+	0,              0
     };
 
     if (fontSubst) return;
@@ -1005,7 +1005,7 @@ QString QFont::substitute( const QString &familyName )
 
     QStringList *list = fontSubst->find(familyName);
     if (list && list->count() > 0) {
-        return *(list->at(0));
+	return *(list->at(0));
     }
 
     return familyName;
@@ -1039,7 +1039,7 @@ QStringList QFont::substitutes(const QString &familyName)
   \sa removeSubstitution(), substitutions(), substitute()
 */
 void QFont::insertSubstitution(const QString &familyName,
-                                const QString &substituteName)
+				const QString &substituteName)
 {
     initFontSubst();
 
@@ -1104,17 +1104,17 @@ static Q_UINT8 get_font_bits( const QFontDef &f )
 {
     Q_UINT8 bits = 0;
     if ( f.italic )
-        bits |= 0x01;
+	bits |= 0x01;
     if ( f.underline )
-        bits |= 0x02;
+	bits |= 0x02;
     if ( f.strikeOut )
-        bits |= 0x04;
+	bits |= 0x04;
     if ( f.fixedPitch )
-        bits |= 0x08;
+	bits |= 0x08;
     if ( f.hintSetByUser )
-        bits |= 0x10;
+	bits |= 0x10;
     if ( f.rawMode )
-        bits |= 0x20;
+	bits |= 0x20;
     return bits;
 }
 
@@ -1324,8 +1324,8 @@ QCleanupHandler<QFontMetricsList> qfont_cleanup_fontmetricslist;
 
 static void insertFontMetrics( QFontMetrics *fm ) {
     if ( !fm_list ) {
-        fm_list = new QFontMetricsList;
-        Q_CHECK_PTR( fm_list );
+	fm_list = new QFontMetricsList;
+	Q_CHECK_PTR( fm_list );
 	qfont_cleanup_fontmetricslist.add( fm_list );
     }
     fm_list->append( fm );
@@ -1335,9 +1335,9 @@ static void removeFontMetrics( QFontMetrics *fm )
 {
     if ( !fm_list ) {
 #if defined(CHECK_NULL)
-        qWarning( "QFontMetrics::~QFontMetrics: Internal error" );
+	qWarning( "QFontMetrics::~QFontMetrics: Internal error" );
 #endif
-        return;
+	return;
     }
     fm_list->removeRef( fm );
 }
@@ -1350,15 +1350,15 @@ static void removeFontMetrics( QFontMetrics *fm )
 void QFontMetrics::reset( const QPainter *painter )
 {
     if ( fm_list ) {
-        QListIterator<QFontMetrics> it( *fm_list );
-        QFontMetrics * fm;
-        while( (fm=it.current()) != 0 ) {
-            ++it;
-            if ( fm->painter == painter ) {
-                fm->painter = 0;                // detach from painter
-                removeFontMetrics( fm );
-            }
-        }
+	QListIterator<QFontMetrics> it( *fm_list );
+	QFontMetrics * fm;
+	while( (fm=it.current()) != 0 ) {
+	    ++it;
+	    if ( fm->painter == painter ) {
+		fm->painter = 0;                // detach from painter
+		removeFontMetrics( fm );
+	    }
+	}
     }
 }
 
@@ -1484,7 +1484,7 @@ QFontMetrics::QFontMetrics( const QFontMetrics &fm )
 {
     d->ref();
     if ( painter )
-        insertFontMetrics( this );
+	insertFontMetrics( this );
 }
 
 
@@ -1494,7 +1494,7 @@ QFontMetrics::QFontMetrics( const QFontMetrics &fm )
 QFontMetrics::~QFontMetrics()
 {
     if ( painter )
-        removeFontMetrics( this );
+	removeFontMetrics( this );
     if ( d->deref() )
 	delete d;
 }
@@ -1506,7 +1506,7 @@ QFontMetrics::~QFontMetrics()
 QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
 {
     if ( painter )
-        removeFontMetrics( this );
+	removeFontMetrics( this );
     if ( d != fm.d ) {
 	if ( d->deref() )
 	    delete d;
@@ -1516,7 +1516,7 @@ QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
     painter = fm.painter;
     flags = fm.flags;
     if ( painter )
-        insertFontMetrics( this );
+	insertFontMetrics( this );
     return *this;
 }
 
@@ -1600,21 +1600,21 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
   \sa width(), QPainter::boundingRect(), Qt::AlignmentFlags
 */
 QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
-                                  const QString& str, int len, int tabstops,
-                                  int *tabarray, QTextParag **intern ) const
+				  const QString& str, int len, int tabstops,
+				  int *tabarray, QTextParag **intern ) const
 {
     if ( len < 0 )
-        len = str.length();
+	len = str.length();
 
     int tabarraylen=0;
     if (tabarray)
-        while (tabarray[tabarraylen])
-            tabarraylen++;
+	while (tabarray[tabarraylen])
+	    tabarraylen++;
 
     QRect rb;
     QRect r(x, y, w, h);
     qt_format_text( QFont( d, FALSE ), r, flgs, str, len, &rb,
-                    tabstops, tabarray, tabarraylen, intern, 0 );
+		    tabstops, tabarray, tabarraylen, intern, 0 );
 
     return rb;
 }
@@ -1650,7 +1650,7 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
   \sa boundingRect()
 */
 QSize QFontMetrics::size( int flgs, const QString &str, int len, int tabstops,
-                          int *tabarray, QTextParag **intern ) const
+			  int *tabarray, QTextParag **intern ) const
 {
     return boundingRect(0,0,1,1,flgs,str,len,tabstops,tabarray,intern).size();
 }
@@ -1672,8 +1672,8 @@ QCleanupHandler<QFontInfoList> qfont_cleanup_fontinfolist;
 static void insertFontInfo( QFontInfo *fi )
 {
     if ( !fi_list ) {
-        fi_list = new QFontInfoList;
-        Q_CHECK_PTR( fi_list );
+	fi_list = new QFontInfoList;
+	Q_CHECK_PTR( fi_list );
 	qfont_cleanup_fontinfolist.add( fi_list );
     }
     fi_list->append( fi );
@@ -1683,9 +1683,9 @@ static void removeFontInfo( QFontInfo *fi )
 {
     if ( !fi_list ) {
 #if defined(CHECK_NULL)
-        qWarning( "QFontInfo::~QFontInfo: Internal error" );
+	qWarning( "QFontInfo::~QFontInfo: Internal error" );
 #endif
-        return;
+	return;
     }
     fi_list->removeRef( fi );
 }
@@ -1698,15 +1698,15 @@ static void removeFontInfo( QFontInfo *fi )
 void QFontInfo::reset( const QPainter *painter )
 {
     if ( fi_list ) {
-        QListIterator<QFontInfo> it( *fi_list );
-        QFontInfo * fi;
-        while( (fi=it.current()) != 0 ) {
-            ++it;
-            if ( fi->painter == painter ) {
-                fi->painter = 0;                // detach from painter
-                removeFontInfo( fi );
-            }
-        }
+	QListIterator<QFontInfo> it( *fi_list );
+	QFontInfo * fi;
+	while( (fi=it.current()) != 0 ) {
+	    ++it;
+	    if ( fi->painter == painter ) {
+		fi->painter = 0;                // detach from painter
+		removeFontInfo( fi );
+	    }
+	}
     }
 }
 
@@ -1814,7 +1814,7 @@ QFontInfo::QFontInfo( const QFontInfo &fi )
 {
     d->ref();
     if ( painter )
-        insertFontInfo( this );
+	insertFontInfo( this );
 }
 
 
@@ -1824,7 +1824,7 @@ QFontInfo::QFontInfo( const QFontInfo &fi )
 QFontInfo::~QFontInfo()
 {
     if ( painter )
-        removeFontInfo( this );
+	removeFontInfo( this );
     if (d->deref())
 	delete d;
 }
@@ -1836,7 +1836,7 @@ QFontInfo::~QFontInfo()
 QFontInfo &QFontInfo::operator=( const QFontInfo &fi )
 {
     if ( painter )
-        removeFontInfo( this );
+	removeFontInfo( this );
     if (d != fi.d) {
 	if (d->deref())
 	    delete d;
@@ -1846,7 +1846,7 @@ QFontInfo &QFontInfo::operator=( const QFontInfo &fi )
     painter = fi.painter;
     flags = fi.flags;
     if ( painter )
-        insertFontInfo( this );
+	insertFontInfo( this );
     return *this;
 }
 
@@ -2077,7 +2077,7 @@ void QFontCache::deleteItem(Item d)
 	qDebug("QFC::deleteItem: removing %s from cache", (const char *) qfs->name);
 #endif // QFONTCACHE_DEBUG
 
-    	delete qfs;
+	delete qfs;
     }
 }
 

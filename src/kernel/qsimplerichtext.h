@@ -51,8 +51,6 @@ class QWidget;
 class QStyleSheet;
 class QBrush;
 class QMimeSourceFactory;
-class QSimpleRichTextData;
-
 
 class Q_EXPORT QSimpleRichText
 {
@@ -82,7 +80,8 @@ public:
     bool inText( const QPoint& pos ) const;
 
 private:
-    QSimpleRichTextData* d;
+    class Data;
+    Data* d;
 };
 
 #endif // QT_NO_RICHTEXT

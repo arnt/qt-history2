@@ -45,7 +45,6 @@
 #include "qstringlist.h"
 #endif // QT_H
 #ifndef QT_NO_SESSIONMANAGER
-class QSessionManagerData;
 
 class Q_EXPORT  QSessionManager : public QObject
 {
@@ -87,7 +86,8 @@ public:
 private:
     friend class QApplication;
     friend class QBaseApplication;
-    QSessionManagerData* d;
+    class Data;
+    Data* d;
 };
 
 #endif // QT_NO_SESSIONMANAGER

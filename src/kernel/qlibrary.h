@@ -74,8 +74,8 @@ public:
     QUnknownInterface *queryInterface( const QUuid& );
 
 private:
-    class QLibraryPrivate;
-    QLibraryPrivate *d;
+    class Private;
+    Private *d;
 
     QString libfile;
     Policy libPol;
@@ -91,4 +91,3 @@ private:	// Disabled copy constructor and operator=
 #endif //QT_NO_COMPONENT
 
 #endif //QLIBRARY_H
-

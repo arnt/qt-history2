@@ -52,8 +52,9 @@ extern Q_EXPORT QNetworkProtocolDict *qNetworkProtocolRegister;
 
 QNetworkProtocolDict *qNetworkProtocolRegister = 0;
 
-struct QNetworkProtocolPrivate
+class QNetworkProtocol::Private
 {
+public:
     QUrlOperator *url;
     QQueue< QNetworkOperation > operationQueue;
     QNetworkOperation *opInProgress;
@@ -234,7 +235,7 @@ struct QNetworkProtocolPrivate
   This signal is emitted whenever the state of the connection of
   the network protocol is changed. \a state describes the new state,
   which is one of
-  	ConHostFound,
+	ConHostFound,
 	ConConnected and
 	ConClosed.
   \a data is a message text.
@@ -345,7 +346,7 @@ QNetworkProtocol::QNetworkProtocol()
     : QObject()
 {
 
-    d = new QNetworkProtocolPrivate;
+    d = new Private;
     d->url = 0;
     d->opInProgress = 0;
     d->opStartTimer = new QTimer( this );
@@ -895,8 +896,9 @@ void QNetworkProtocol::emitNewChildren( const QUrlInfo &i, QNetworkOperation *op
     emit newChildren( lst, op );
 }
 
-struct QNetworkOperationPrivate
+class QNetworkOperation::Private
 {
+public:
     QNetworkProtocol::Operation operation;
     QNetworkProtocol::State state;
     QMap<int, QString> args;
@@ -935,7 +937,7 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
 				      const QString &arg0, const QString &arg1,
 				      const QString &arg2 )
 {
-    d = new QNetworkOperationPrivate;
+    d = new Private;
     d->deleteTimer = new QTimer( this );
     connect( d->deleteTimer, SIGNAL( timeout() ),
 	     this, SLOT( deleteMe() ) );
@@ -962,7 +964,7 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
 				      const QByteArray &arg0, const QByteArray &arg1,
 				      const QByteArray &arg2 )
 {
-    d = new QNetworkOperationPrivate;
+    d = new Private;
     d->deleteTimer = new QTimer( this );
     connect( d->deleteTimer, SIGNAL( timeout() ),
 	     this, SLOT( deleteMe() ) );

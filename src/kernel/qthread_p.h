@@ -131,7 +131,7 @@
 #  undef Q_HAS_CONDATTR
 #  undef Q_HAS_RECURSIVE_MUTEX
 #  undef  Q_USE_PTHREAD_MUTEX_SETKIND
-#  undef Q_NORMAL_MUTEX_TYPE 
+#  undef Q_NORMAL_MUTEX_TYPE
 #  undef Q_RECURSIVE_MUTEX_TYPE
 #else
 // Fall through for systems we don't know about
@@ -160,11 +160,11 @@ extern "C" { static void * start_thread(void * t); }
 #include <thread.h>
 
 
-class QMutexPrivate {
+class QMutex::Private {
 public:
     mutex_t mutex;
 
-    QMutexPrivate(bool recursive = FALSE)
+    Private(bool recursive = FALSE)
     {
 #ifdef QT_CHECK_RANGE
 	int ret =
@@ -177,7 +177,7 @@ public:
 #endif
     }
 
-    virtual ~QMutexPrivate()
+    virtual ~Private()
     {
 #ifdef QT_CHECK_RANGE
 	int ret =
@@ -254,7 +254,7 @@ public:
 };
 
 
-class QRMutexPrivate : public QMutexPrivate
+class QRMutexPrivate : public QMutex::Private
 {
 public:
     int count;
@@ -262,7 +262,7 @@ public:
     mutex_t mutex2;
 
     QRMutexPrivate()
-	: QMutexPrivate(TRUE)
+	: Private(TRUE)
     {
 #ifdef QT_CHECK_RANGE
 	int ret =
@@ -299,7 +299,7 @@ public:
 	    count++;
 	} else {
 	    mutex_unlock(&mutex2);
-	    QMutexPrivate::lock();
+	    Private::lock();
 	    mutex_lock(&mutex2);
 
 	    count = 1;
@@ -327,7 +327,7 @@ public:
 	// do nothing if the count is already 0... to reflect the behaviour described
 	// in the docs
 	if (count && (--count) < 1) {
-	    QMutexPrivate::unlock();
+	    Private::unlock();
 	    count=0;
 	}
 
@@ -337,7 +337,7 @@ public:
     bool locked()
     {
 	mutex_lock(&mutex2);
-	bool ret = QMutexPrivate::locked();
+	bool ret = Private::locked();
 	mutex_unlock(&mutex2);
 
 	return ret;
@@ -346,7 +346,7 @@ public:
     bool trylock()
     {
 	mutex_lock(&mutex2);
-	bool ret = QMutexPrivate::trylock();
+	bool ret = Private::trylock();
 
 	if (ret)
 	    count++;
@@ -433,7 +433,7 @@ public:
 };
 
 
-class QWaitConditionPrivate {
+class QWaitCondition::QWaitConditionPrivate {
 public:
     cond_t cond;
     QMutex mutex;
@@ -592,11 +592,11 @@ public:
 #include <pthread.h>
 
 
-class QMutexPrivate {
+class QMutex::Private {
 public:
     pthread_mutex_t mutex;
 
-    QMutexPrivate(bool recursive = FALSE)
+    Private(bool recursive = FALSE)
     {
 	pthread_mutexattr_t attr;
 	pthread_mutexattr_init(&attr);
@@ -640,7 +640,7 @@ public:
 #endif
     }
 
-    virtual ~QMutexPrivate()
+    virtual ~Private()
     {
 #ifdef QT_CHECK_RANGE
 	int ret =
@@ -718,7 +718,7 @@ public:
 };
 
 
-class QRMutexPrivate : public QMutexPrivate
+class QRMutexPrivate : public QMutex::Private
 {
 public:
 #ifndef Q_HAS_RECURSIVE_MUTEX
@@ -748,7 +748,7 @@ public:
 	    count++;
 	} else {
 	    pthread_mutex_unlock(&mutex2);
-	    QMutexPrivate::lock();
+	    Private::lock();
 	    pthread_mutex_lock(&mutex2);
 
 	    count = 1;
@@ -776,7 +776,7 @@ public:
 	// do nothing if the count is already 0... to reflect the behaviour described
 	// in the docs
 	if (count && (--count) < 1) {
-	    QMutexPrivate::unlock();
+	    Private::unlock();
 	    count=0;
 	}
 
@@ -786,7 +786,7 @@ public:
     bool locked()
     {
 	pthread_mutex_lock(&mutex2);
-	bool ret = QMutexPrivate::locked();
+	bool ret = Private::locked();
 	pthread_mutex_unlock(&mutex2);
 
 	return ret;
@@ -795,7 +795,7 @@ public:
     bool trylock()
     {
 	pthread_mutex_lock(&mutex2);
-	bool ret = QMutexPrivate::trylock();
+	bool ret = Private::trylock();
 
 	if (ret)
 	    count++;
@@ -807,7 +807,7 @@ public:
 #endif
 
     QRMutexPrivate()
-	: QMutexPrivate(TRUE)
+	: Private(TRUE)
     {
 #ifndef Q_HAS_RECURSIVE_MUTEX
 	pthread_mutexattr_t attr;

@@ -36,8 +36,6 @@
 #ifndef QDRAGOBJECT_H
 #define QDRAGOBJECT_H
 
-struct QDragData;
-struct QStoredDragData;
 class QWidget;
 
 #ifndef QT_H
@@ -79,12 +77,14 @@ protected:
 #endif
 
 private:
-    QDragData * d;
+    class Data;
+    Data * d;
 };
 
 class Q_EXPORT QStoredDrag: public QDragObject {
     Q_OBJECT
-    QStoredDragData * d;
+    class Data;
+    Data * d;
 
 public:
     QStoredDrag( const char * mimeType,
@@ -97,11 +97,10 @@ public:
     virtual QByteArray encodedData(const char*) const;
 };
 
-class QTextDragPrivate;
-
 class Q_EXPORT QTextDrag: public QDragObject {
     Q_OBJECT
-    QTextDragPrivate* d;
+    class Private;
+    Private* d;
 public:
     QTextDrag( const QString &,
 	       QWidget * dragSource = 0, const char * name = 0 );
@@ -119,13 +118,12 @@ public:
     static bool decode( const QMimeSource* e, QString& s, QCString& subtype );
 };
 
-class QImageDragData;
-
 class Q_EXPORT QImageDrag: public QDragObject {
     Q_OBJECT
     QImage img;
     QStrList ofmts;
-    QImageDragData* d;
+    class Data;
+    Data* d;
 
 public:
     QImageDrag( QImage image, QWidget * dragSource = 0, const char * name = 0 );

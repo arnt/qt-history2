@@ -50,7 +50,6 @@
 class QNetworkProtocol;
 class QNetworkOperation;
 class QTimer;
-struct QNetworkProtocolPrivate;
 class QUrlOperator;
 template <class T> class QValueList;
 
@@ -167,7 +166,8 @@ protected:
     virtual bool checkConnection( QNetworkOperation *op );
 
 private:
-    QNetworkProtocolPrivate *d;
+    class Private;
+    Private *d;
 
 private slots:
     void processNextOperation( QNetworkOperation *old );
@@ -178,7 +178,6 @@ private slots:
 
 };
 
-struct QNetworkOperationPrivate;
 class Q_EXPORT QNetworkOperation : public QObject
 {
     Q_OBJECT
@@ -213,8 +212,8 @@ private slots:
 
 private:
     QByteArray &raw( int num ) const;
-
-    QNetworkOperationPrivate *d;
+    class Private;
+    Private *d;
 
 };
 

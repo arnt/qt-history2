@@ -164,10 +164,10 @@ extern "C" void dumpmem(const char* m)
     fscanf(f,"%*[^M]Mem: %d %d %d %d %d %d",&total,&used,&free,&shared,&buffers,&cached);
     used -= buffers + cached;
     if (!init) {
-        init=used;
+	init=used;
     } else {
-        printf("%40s: %+8d = %8d\n",m,used-init-prev,used-init);
-        prev = used-init;
+	printf("%40s: %+8d = %8d\n",m,used-init-prev,used-init);
+	prev = used-init;
     }
     fclose(f);
 }
@@ -283,9 +283,9 @@ void qt_server_enqueue( const QWSCommand *command )
     outgoing.enqueue( copy );
 }
 
-class QWSDisplayData {
+class QWSDisplay::Data {
 public:
-    QWSDisplayData( QObject* parent, bool singleProcess = FALSE )
+    Data( QObject* parent, bool singleProcess = FALSE )
     {
 #ifndef QT_NO_QWS_MULTIPROCESS
 	if ( singleProcess )
@@ -296,7 +296,7 @@ public:
 	init();
     }
 
-    ~QWSDisplayData()
+    ~Data()
     {
 	delete rgnMan; rgnMan = 0;
 	delete memorymanager; memorymanager = 0;
@@ -418,7 +418,7 @@ public:
 
 
 
-void QWSDisplayData::init()
+void QWSDisplay::Data::init()
 {
     connected_event = 0;
     region_ack = 0;
@@ -533,7 +533,7 @@ void QWSDisplayData::init()
 }
 
 
-QWSEvent* QWSDisplayData::readMore()
+QWSEvent* QWSDisplay::Data::readMore()
 {
 #ifdef QT_NO_QWS_MULTIPROCESS
     return incoming.dequeue();
@@ -564,7 +564,7 @@ QWSEvent* QWSDisplayData::readMore()
 }
 
 
-void QWSDisplayData::fillQueue()
+void QWSDisplay::Data::fillQueue()
 {
     QWSServer::processEventQueue();
     QWSEvent *e = readMore();
@@ -572,7 +572,7 @@ void QWSDisplayData::fillQueue()
 	if ( e->type == QWSEvent::Connected ) {
 	    connected_event = (QWSConnectedEvent *)e;
 	    return;
-  	} else if ( e->type == QWSEvent::Creation ) {
+	} else if ( e->type == QWSEvent::Creation ) {
 	    QWSCreationEvent *ce = (QWSCreationEvent*)e;
 	    unused_identifiers.append(ce->simpleData.objectid);
 	    delete e;
@@ -648,7 +648,7 @@ void QWSDisplayData::fillQueue()
     }
 }
 
-void QWSDisplayData::waitForConnection()
+void QWSDisplay::Data::waitForConnection()
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
     if ( csocket )
@@ -674,7 +674,7 @@ void QWSDisplayData::waitForConnection()
 }
 
 
-void QWSDisplayData::waitForRegionAck()
+void QWSDisplay::Data::waitForRegionAck()
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
     if ( csocket )
@@ -693,7 +693,7 @@ void QWSDisplayData::waitForRegionAck()
     region_ack = 0;
 }
 
-void QWSDisplayData::waitForCreation()
+void QWSDisplay::Data::waitForCreation()
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
     if ( csocket )
@@ -710,7 +710,7 @@ void QWSDisplayData::waitForCreation()
 }
 
 #ifndef QT_NO_COP
-void QWSDisplayData::waitForQCopResponse()
+void QWSDisplay::Data::waitForQCopResponse()
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
     if ( csocket )
@@ -733,7 +733,7 @@ void QWSDisplayData::waitForQCopResponse()
 
 QWSDisplay::QWSDisplay()
 {
-    d = new QWSDisplayData( 0, qws_single_process );
+    d = new Data( 0, qws_single_process );
 }
 
 QWSDisplay::~QWSDisplay()
@@ -1074,7 +1074,7 @@ static void qt_set_qws_resources()
 	QApplication::setFont( QFont(appFont) );
 
     if ( appBGCol || appBTNCol || appFGCol ) {
-    	QColor btn;
+	QColor btn;
 	QColor bg;
 	QColor fg;
 	if ( appBGCol )
@@ -1462,7 +1462,7 @@ static int parseGeometry( const char* string,
 
 	if ((*strind == '+') || (*strind == '-')) {
 		if (*strind == '-') {
-  			strind++;
+			strind++;
 			tempX = -ReadInteger(strind, &nextCharacter);
 			if (strind == nextCharacter)
 			    return (0);
@@ -1483,7 +1483,7 @@ static int parseGeometry( const char* string,
 				strind++;
 				tempY = -ReadInteger(strind, &nextCharacter);
 				if (strind == nextCharacter)
-			    	    return(0);
+				    return(0);
 				strind = nextCharacter;
 				mask |= YNegative;
 
@@ -1493,7 +1493,7 @@ static int parseGeometry( const char* string,
 				strind++;
 				tempY = ReadInteger(strind, &nextCharacter);
 				if (strind == nextCharacter)
-			    	    return(0);
+				    return(0);
 				strind = nextCharacter;
 			}
 			mask |= YValue;
@@ -1507,12 +1507,12 @@ static int parseGeometry( const char* string,
 
 	if (mask & XValue)
 	    *x = tempX;
- 	if (mask & YValue)
+	if (mask & YValue)
 	    *y = tempY;
 	if (mask & WidthValue)
-            *width = tempWidth;
+	    *width = tempWidth;
 	if (mask & HeightValue)
-            *height = tempHeight;
+	    *height = tempHeight;
 	return (mask);
 }
 
@@ -1680,7 +1680,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 		--it;
 		continue;
 	    }
-	    if ( w->isVisible() && w->geometry().contains(pos) 
+	    if ( w->isVisible() && w->geometry().contains(pos)
 		 && w->allocatedRegion().contains( w->mapToGlobal(w->mapFromParent(pos)) ) ) {
 		if ( !child )
 		    return w;
@@ -2902,7 +2902,7 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 			    type = QEvent::MouseButtonPress;
 			    mouseButtonPressTime = mouse.time;
 			}
-			mouseButtonPressed = button; 	// save event params for
+			mouseButtonPressed = button;	// save event params for
 			mouseXPos = globalPos.x();		// future double click tests
 			mouseYPos = globalPos.y();
 		    } else {				// mouse button released
@@ -3254,7 +3254,7 @@ int QApplication::doubleClickInterval()
  *****************************************************************************/
 #ifndef QT_NO_SESSIONMANAGER
 
-class QSessionManagerData
+class QSessionManager::Data
 {
 public:
     QStringList restartCommand;
@@ -3266,7 +3266,7 @@ public:
 QSessionManager::QSessionManager( QApplication * app, QString &session )
     : QObject( app, "session manager" )
 {
-    d = new QSessionManagerData;
+    d = new Data;
     d->sessionId = session;
     d->restartHint = RestartIfRunning;
 }
@@ -3419,7 +3419,7 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 
 #ifndef QT_NO_COP
 
-class QCopChannelPrivate
+class QCopChannel::Private
 {
 public:
     QCString channel;
@@ -3450,7 +3450,7 @@ public:
 
 QCopChannel::QCopChannel( const QCString& channel )
 {
-    d = new QCopChannelPrivate;
+    d = new Private;
     d->channel = channel;
 
     if ( !qt_fbdpy ) {

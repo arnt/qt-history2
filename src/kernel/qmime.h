@@ -85,7 +85,6 @@ private:
 inline int QMimeSource::serialNumber() const
 { return ser_no; }
 
-class QMimeSourceFactoryData;
 class QStringList;
 
 class Q_EXPORT QMimeSourceFactory {
@@ -114,7 +113,8 @@ public:
 
 private:
     QMimeSource *dataInternal(const QString& abs_name, const QMap<QString, QString> &extensions ) const;
-    QMimeSourceFactoryData* d;
+    class Data;
+    Data* d;
 };
 
 #ifdef Q_WS_WIN

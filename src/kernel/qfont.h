@@ -44,11 +44,10 @@
 #endif // QT_H
 
 
+class QFontPrivate;                                     /* don't touch */
 class QStringList;
-class QFontPrivate;
 
-
-class Q_EXPORT QFont					// font class
+class Q_EXPORT QFont
 {
 public:
     enum StyleHint {
@@ -230,7 +229,7 @@ public:
 
 	// To get Latin Extended-A characters from various ISO-8859-* encodings
 	// Extended Latin from ISO-8859-2
-      	LatinExtendedA_2 = LatinExtendedA,
+	LatinExtendedA_2 = LatinExtendedA,
 	// Extended Latin from ISO-8859-3
 	LatinExtendedA_3 = UnifiedHanX11 + 1,
 	// Extended Latin from ISO-8859-4
@@ -295,7 +294,6 @@ private:
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QFont & );
 #endif
 
-    // private data
     QFontPrivate *d;
 };
 

@@ -5,8 +5,6 @@
 #include "qwidget.h"
 #endif // QT_H
 
-class QDesktopWidgetPrivate;
-
 class Q_EXPORT QDesktopWidget : public QWidget
 {
     Q_OBJECT
@@ -21,11 +19,12 @@ public:
     int screenNumber( const QPoint & ) const;
 
     QWidget *screen( int screen = -1 );
-    
+
     const QRect& screenGeometry( int screen = -1 ) const;
 
 private:
-    QDesktopWidgetPrivate *d;
+    class Private;
+    Private *d;
 };
 
 #endif //QDESKTOPWIDGET_H

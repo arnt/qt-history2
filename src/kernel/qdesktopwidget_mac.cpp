@@ -2,10 +2,10 @@
 #include <qapplication.h>
 #include "qt_mac.h"
 
-class QDesktopWidgetPrivate
+class QDesktopWidget::Private
 {
 public:
-    QDesktopWidgetPrivate();
+    Private();
 
     int appScreen;
     int screenCount;
@@ -13,7 +13,7 @@ public:
     QArray<QRect> rects;
 };
 
-QDesktopWidgetPrivate::QDesktopWidgetPrivate()
+QDesktopWidget::Private::Private()
 {
     appScreen = 0;
     screenCount = 1;
@@ -21,7 +21,7 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
     rects.resize( screenCount );
     QRect wiggle(0, 0, 1024, 768);
     GDHandle g = GetMainDevice();
-	if(g) 
+	if(g)
 		wiggle = QRect(0, 0,(*g)->gdRect.right,(*g)->gdRect.bottom);
     rects[0] = wiggle;
     //### Get the rects for the different screens and put them into rects
@@ -30,7 +30,7 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 QDesktopWidget::QDesktopWidget()
 : QWidget( 0, "desktop", WType_Desktop )
 {
-    d = new QDesktopWidgetPrivate;
+    d = new Private;
 }
 
 QDesktopWidget::~QDesktopWidget()

@@ -796,189 +796,189 @@ static bool qt_set_desktop_properties()
 	    pal.setColor(QPalette::Active,
 			 QColorGroup::Foreground,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/activeButton");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Active,
 			 QColorGroup::Button,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/activeText");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Active,
 			 QColorGroup::Text,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/activeBrightText");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Active,
 			 QColorGroup::BrightText,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/activeButtonText");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Active,
 			 QColorGroup::ButtonText,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/activeBase");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Active,
 			 QColorGroup::Base,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/activeBackground");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Active,
 			 QColorGroup::Background,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/activeHighlight");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Active,
 			 QColorGroup::Highlight,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/activeHighlightedText");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Active,
 			 QColorGroup::HighlightedText,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/inactiveForeground");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Inactive,
 			 QColorGroup::Foreground,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/inactiveButton");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Inactive,
 			 QColorGroup::Button,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/inactiveText");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Inactive,
 			 QColorGroup::Text,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/inactiveBrightText");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Inactive,
 			 QColorGroup::BrightText,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/inactiveButtonText");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Inactive,
 			 QColorGroup::ButtonText,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/inactiveBase");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Inactive,
 			 QColorGroup::Base,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/inactiveBackground");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Inactive,
 			 QColorGroup::Background,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/inactiveHighlight");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Inactive,
 			 QColorGroup::Highlight,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/inactiveHighlightedText");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Inactive,
 			 QColorGroup::HighlightedText,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/disabledForeground");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Disabled,
 			 QColorGroup::Foreground,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/disabledButton");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Disabled,
 			 QColorGroup::Button,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/disabledText");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Disabled,
 			 QColorGroup::Text,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/disabledBrightText");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Disabled,
 			 QColorGroup::BrightText,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/disabledButtonText");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Disabled,
 			 QColorGroup::ButtonText,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/disabledBase");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Disabled,
 			 QColorGroup::Base,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/disabledBackground");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Disabled,
 			 QColorGroup::Background,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/disabledHighlight");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Disabled,
 			 QColorGroup::Highlight,
 			 QColor(v));
-       	}
+	}
 
 	v = QApplication::settings()->readEntry("/qt/Palette/disabledHighlightedText");
 	if (! v.isNull() && ! v.isEmpty()) {
 	    pal.setColor(QPalette::Disabled,
 			 QColorGroup::HighlightedText,
 			 QColor(v));
-       	}
+	}
 
 	if (pal != *qt_std_pal && pal != QApplication::palette()) {
 	    QApplication::setPalette(pal, TRUE);
@@ -1933,7 +1933,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "_NET_WM_STATE_MODAL", &qt_net_wm_state_modal );
 	qt_x11_intern_atom( "_NET_WM_STATE_MAXIMIZED_VERT", &qt_net_wm_state_max_v );
 	qt_x11_intern_atom( "_NET_WM_STATE_MAXIMIZED_HORIZ", &qt_net_wm_state_max_h );
-     	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE", &qt_net_wm_window_type );
+	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE", &qt_net_wm_window_type );
 	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_NORMAL",
 			    &qt_net_wm_window_type_normal );
 	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_DIALOG",
@@ -2880,7 +2880,7 @@ void qPRCleanup( QWidget *widget )
 	if ( w == etw ) {                       // found widget
 	    etw->clearWState( Qt::WState_Reparented ); // clear flag
 	    wPRmapper->remove( key );// old window no longer needed
- 	    if ( wPRmapper->count() == 0 ) {	// became empty
+	    if ( wPRmapper->count() == 0 ) {	// became empty
 		delete wPRmapper;		// then reset alt mapper
 		wPRmapper = 0;
 		return;
@@ -3442,7 +3442,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    qt_set_desktop_properties();
 	    }
 	} else if ( widget) {
- 	    if (event->xproperty.window == widget->winId()) { // widget properties
+	    if (event->xproperty.window == widget->winId()) { // widget properties
 		if (widget->isTopLevel()) { // top level properties
 		    Atom ret;
 		    int format, e;
@@ -5680,7 +5680,7 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 
 #ifdef QT_NO_SM_SUPPORT
 
-class QSessionManagerData
+class QSessionManager::Data
 {
 public:
     QStringList restartCommand;
@@ -5692,7 +5692,7 @@ public:
 QSessionManager::QSessionManager( QApplication * app, QString &session )
     : QObject( app, "qt_sessionmanager" )
 {
-    d = new QSessionManagerData;
+    d = new Data;
     d->sessionId = session;
     d->restartHint = RestartIfRunning;
 }
@@ -6032,7 +6032,7 @@ void QSmSocketReceiver::socketActivated(int)
 
 #include "qapplication_x11.moc"
 
-class QSessionManagerData
+class QSessionManager::Data
 {
 public:
     QStringList restartCommand;
@@ -6044,7 +6044,7 @@ public:
 QSessionManager::QSessionManager( QApplication * app, QString &session )
     : QObject( app, "session manager" )
 {
-    d = new QSessionManagerData;
+    d = new Data;
     d->sessionId = session;
     d->restartHint = RestartIfRunning;
 
@@ -6237,5 +6237,3 @@ void QSessionManager::requestPhase2()
 
 
 #endif // QT_NO_SM_SUPPORT
-
-

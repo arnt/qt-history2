@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#36 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -53,13 +53,13 @@ extern Qt::WindowsVersion qt_winver;
 
 /***********************************************************************
  *
- * QProcessPrivate
+ * Private
  *
  **********************************************************************/
-class QProcessPrivate
+class QProcess::Private
 {
 public:
-    QProcessPrivate( QProcess *proc )
+    Private( QProcess *proc )
     {
 	stdinBufRead = 0;
 	pipeStdin[0] = 0;
@@ -77,7 +77,7 @@ public:
 	memset( &pid, 0, sizeof(PROCESS_INFORMATION) );
     }
 
-    ~QProcessPrivate()
+    ~Private()
     {
 	cleanup();
     }
@@ -131,7 +131,7 @@ public:
  **********************************************************************/
 void QProcess::init()
 {
-    d = new QProcessPrivate( this );
+    d = new Private( this );
     exitStat = 0;
     exitNormal = FALSE;
 }
@@ -278,7 +278,7 @@ bool QProcess::isRunning() const
 	    DWORD exitCode;
 	    if ( GetExitCodeProcess( d->pid.hProcess, &exitCode ) ) {
 		if ( exitCode != STILL_ACTIVE ) { // this should ever be true?
-		    QProcess *that = (QProcess*)this; // mutable 
+		    QProcess *that = (QProcess*)this; // mutable
 		    that->exitNormal = TRUE;
 		    that->exitStat = exitCode;
 		}
@@ -287,7 +287,7 @@ bool QProcess::isRunning() const
 	}
 	return FALSE;
     } else {
-        return TRUE;
+	return TRUE;
     }
 }
 

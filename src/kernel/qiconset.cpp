@@ -45,8 +45,9 @@
 #include "qpainter.h"
 
 
-struct QIconSetPrivate: public QShared
+class QIconSet::Private: public QShared
 {
+public:
     struct Variant {
 	Variant(): pm(0), generated(0) {}
 	~Variant()
@@ -370,7 +371,7 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
 	    d->on_largeActive.clearGenerate();
 	}
     } else {
-	d = new QIconSetPrivate;
+	d = new Private;
     }
     if ( size == Large || (size == Automatic && pm.width() > 22)) {
 	switch( mode ) {
@@ -485,7 +486,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
     }
 
     QImage i;
-    QIconSetPrivate * p = ((QIconSet *)this)->d;
+    Private * p = ((QIconSet *)this)->d;
     QPixmap * pm = 0;
     if ( state == Off ) {
 	if ( size == Large ) {
@@ -633,8 +634,8 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 			painter.drawPixmap( 0, 0, tmp );
 		    }
 		    if ( !p->smallDisabled.pm->mask() ) {
- 			if ( !tmp.mask() )
- 			    tmp.setMask( tmp );
+			if ( !tmp.mask() )
+			    tmp.setMask( tmp );
 			QBitmap mask( d->smallDisabled.pm->size() );
 			mask.fill( Qt::color0 );
 			QPainter painter( &mask );
@@ -806,8 +807,8 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 			painter.drawPixmap( 0, 0, tmp );
 		    }
 		    if ( !p->on_smallDisabled.pm->mask() ) {
- 			if ( !tmp.mask() )
- 			    tmp.setMask( tmp );
+			if ( !tmp.mask() )
+			    tmp.setMask( tmp );
 			QBitmap mask( d->on_smallDisabled.pm->size() );
 			mask.fill( Qt::color0 );
 			QPainter painter( &mask );
@@ -912,14 +913,14 @@ void QIconSet::detach()
 {
     if ( !d )
     {
-	d = new QIconSetPrivate;
+	d = new Private;
 	return;
     }
 
     if ( d->count == 1 )
 	return;
 
-    QIconSetPrivate * p = new QIconSetPrivate;
+    Private * p = new Private;
     p->vsmall.pm = d->vsmall.pm;
     p->vsmall.generated = d->vsmall.generated;
     p->smallActive.pm = d->smallActive.pm;

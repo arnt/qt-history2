@@ -45,7 +45,6 @@
 #ifndef QT_NO_MOVIE
 
 class QDataSource;
-class QMovieFilePrivate;
 class QObject;
 
 class Q_EXPORT QMovie {
@@ -99,18 +98,18 @@ public:
 #endif
 
     enum Status { SourceEmpty=-2,
-	          UnrecognizedFormat=-1,
-	          Paused=1,
-	          EndOfFrame=2,
-	          EndOfLoop=3,
-	          EndOfMovie=4,
-	          SpeedChanged=5 };
+		  UnrecognizedFormat=-1,
+		  Paused=1,
+		  EndOfFrame=2,
+		  EndOfLoop=3,
+		  EndOfMovie=4,
+		  SpeedChanged=5 };
     void connectStatus(QObject* receiver, const char *member);
     void disconnectStatus(QObject* receiver, const char *member=0);
 
 private:
-    friend class QMoviePrivate;
-    QMovieFilePrivate *d;
+    class Private;
+    Private *d;
 };
 
 #endif	// QT_NO_MOVIE

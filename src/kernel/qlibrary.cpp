@@ -53,15 +53,15 @@
   and does the unload magic using a QTimer.
 */
 #ifndef QT_LITE_COMPONENT
-class QLibrary::QLibraryPrivate : public QObject
+class QLibrary::Private : public QObject
 {
     Q_OBJECT
 public:
-    QLibraryPrivate( QLibrary *lib ) 
+    Private( QLibrary *lib )
 	: QObject( 0, lib->library().latin1() ), pHnd( 0 ), libIface( 0 ), unloadTimer( 0 ), library( lib )
     {}
 
-    ~QLibraryPrivate()
+    ~Private()
     {
 	if ( libIface )
 	    libIface->release();
@@ -95,10 +95,10 @@ public:
 
 public slots:
     /*
-      Only components that implement the QLibraryInterface can 
+      Only components that implement the QLibraryInterface can
       be unloaded automatically.
     */
-    void tryUnload() 
+    void tryUnload()
     {
 	if ( library->policy() == Manual || !pHnd || !libIface )
 	    return;
@@ -121,10 +121,10 @@ private:
 
 #include "qlibrary.moc"
 #else
-class QLibrary::QLibraryPrivate
+class QLibrary::Private
 {
 public:
-    QLibraryPrivate( QLibrary *lib )
+    Private( QLibrary *lib )
 	: pHnd( 0 ), libIface( 0 ), library( lib )
     {}
 
@@ -164,7 +164,7 @@ private:
 // Windows
 #include "qt_windows.h"
 
-bool QLibrary::QLibraryPrivate::loadLibrary()
+bool QLibrary::Private::loadLibrary()
 {
     if ( pHnd )
 	return TRUE;
@@ -183,7 +183,7 @@ bool QLibrary::QLibraryPrivate::loadLibrary()
     return pHnd != 0;
 }
 
-bool QLibrary::QLibraryPrivate::freeLibrary()
+bool QLibrary::Private::freeLibrary()
 {
     if ( !pHnd )
 	return TRUE;
@@ -198,7 +198,7 @@ bool QLibrary::QLibraryPrivate::freeLibrary()
     return ok;
 }
 
-void* QLibrary::QLibraryPrivate::resolveSymbol( const char* f )
+void* QLibrary::Private::resolveSymbol( const char* f )
 {
     if ( !pHnd )
 	return NULL;
@@ -216,7 +216,7 @@ void* QLibrary::QLibraryPrivate::resolveSymbol( const char* f )
 // for HP-UX < 11.x and 32 bit
 #include <dl.h>
 
-bool QLibrary::QLibraryPrivate::loadLibrary()
+bool QLibrary::Private::loadLibrary()
 {
     if ( pHnd )
 	return TRUE;
@@ -231,7 +231,7 @@ bool QLibrary::QLibraryPrivate::loadLibrary()
     return pHnd != 0;
 }
 
-bool QLibrary::QLibraryPrivate::freeLibrary()
+bool QLibrary::Private::freeLibrary()
 {
     if ( !pHnd )
 	return TRUE;
@@ -245,7 +245,7 @@ bool QLibrary::QLibraryPrivate::freeLibrary()
     return FALSE;
 }
 
-void* QLibrary::QLibraryPrivate::resolveSymbol( const char* symbol )
+void* QLibrary::Private::resolveSymbol( const char* symbol )
 {
     if ( !pHnd )
 	return NULL;
@@ -286,7 +286,7 @@ enum DYLD_BOOL { DYLD_TRUE=1, DYLD_FALSE=0 };
 static QDict<void> *glibs_loaded = NULL;
 
 // Mac
-bool QLibrary::QLibraryPrivate::loadLibrary()
+bool QLibrary::Private::loadLibrary()
 {
     if ( pHnd )
 	return TRUE;
@@ -311,7 +311,7 @@ bool QLibrary::QLibraryPrivate::loadLibrary()
 #endif
 }
 
-bool QLibrary::QLibraryPrivate::freeLibrary()
+bool QLibrary::Private::freeLibrary()
 {
     if ( !pHnd )
 	return TRUE;
@@ -333,7 +333,7 @@ bool QLibrary::QLibraryPrivate::freeLibrary()
 #endif
 }
 
-void* QLibrary::QLibraryPrivate::resolveSymbol( const char *symbol )
+void* QLibrary::Private::resolveSymbol( const char *symbol )
 {
     if ( !pHnd )
 	return NULL;
@@ -349,17 +349,17 @@ void* QLibrary::QLibraryPrivate::resolveSymbol( const char *symbol )
 
 #elif defined(Q_OS_MAC9)
 
-bool QLibrary::QLibraryPrivate::loadLibrary()
+bool QLibrary::Private::loadLibrary()
 {
     return FALSE;
 }
 
-bool QLibrary::QLibraryPrivate::freeLibrary()
+bool QLibrary::Private::freeLibrary()
 {
     return FALSE;
 }
 
-void* QLibrary::QLibraryPrivate::resolveSymbol( const char *symbol )
+void* QLibrary::Private::resolveSymbol( const char *symbol )
 {
     return NULL;
 }
@@ -369,7 +369,7 @@ void* QLibrary::QLibraryPrivate::resolveSymbol( const char *symbol )
 // Something else, assuming POSIX
 #include <dlfcn.h>
 
-bool QLibrary::QLibraryPrivate::loadLibrary()
+bool QLibrary::Private::loadLibrary()
 {
     if ( pHnd )
 	return TRUE;
@@ -382,7 +382,7 @@ bool QLibrary::QLibraryPrivate::loadLibrary()
     return pHnd != 0;
 }
 
-bool QLibrary::QLibraryPrivate::freeLibrary()
+bool QLibrary::Private::freeLibrary()
 {
     if ( !pHnd )
 	return TRUE;
@@ -400,7 +400,7 @@ bool QLibrary::QLibraryPrivate::freeLibrary()
     return pHnd == 0;
 }
 
-void* QLibrary::QLibraryPrivate::resolveSymbol( const char* f )
+void* QLibrary::Private::resolveSymbol( const char* f )
 {
     if ( !pHnd )
 	return 0;
@@ -446,13 +446,13 @@ void* QLibrary::QLibraryPrivate::resolveSymbol( const char* f )
 QLibrary::QLibrary( const QString& filename, Policy pol )
     : libfile( filename ), libPol( pol ), entry( 0 )
 {
-    d = new QLibraryPrivate( this );
+    d = new Private( this );
     if ( pol == Immediately )
 	d->loadLibrary();
 }
 
 /*!
-  Deletes the QLibrary object. 
+  Deletes the QLibrary object.
   The library will be unloaded if the policy is not Manual.
 
   \sa unload(), setPolicy()
@@ -470,12 +470,12 @@ QLibrary::~QLibrary()
 
 /*!
   Loads the shared library and initializes the connection to the component server.
-  Returns a pointer to the QUnknownInterface provided by the component server if the 
-  library was loaded successfully, otherwise unloades the library again and returns 
+  Returns a pointer to the QUnknownInterface provided by the component server if the
+  library was loaded successfully, otherwise unloades the library again and returns
   null.
   If the component implements the QLibraryInterface, the init() function will
-  be called and the loading canceled if this function returns FALSE. 
-  If the policy is not Manual, the system will call the canUnload() function of 
+  be called and the loading canceled if this function returns FALSE.
+  If the policy is not Manual, the system will call the canUnload() function of
   this interface and try to unload the library in regular intervalls.
 
   \warning
@@ -585,12 +585,12 @@ bool QLibrary::isLoaded() const
   function of this interface will be called. The unloading will be
   cancelled if the subsequent call to canUnload() returns FALSE.
 
-  This function gets called automatically in the destructor if 
+  This function gets called automatically in the destructor if
   the policy is not Manual.
 
   \warning
-  If \a force is set to TRUE, the library gets unloaded at any cost, 
-  which is in most cases a segmentation fault, so you should know what 
+  If \a force is set to TRUE, the library gets unloaded at any cost,
+  which is in most cases a segmentation fault, so you should know what
   you're doing!
 
   \sa queryInterface, resolve

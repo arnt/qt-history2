@@ -47,8 +47,9 @@
 
 //#define QURLOPERATOR_DEBUG
 
-struct QUrlOperatorPrivate
+class QUrlOperator::Private
 {
+public:
     QMap<QString, QUrlInfo> entryMap;
     QNetworkProtocol *networkProtocol;
     QString nameFilter;
@@ -237,7 +238,7 @@ struct QUrlOperatorPrivate
 QUrlOperator::QUrlOperator()
     : QUrl()
 {
-    d = new QUrlOperatorPrivate;
+    d = new Private;
     d->oldOps.setAutoDelete( FALSE );
     d->networkProtocol = 0;
     d->nameFilter = "*";
@@ -251,7 +252,7 @@ QUrlOperator::QUrlOperator()
 QUrlOperator::QUrlOperator( const QString &url )
     : QUrl( url )
 {
-    d = new QUrlOperatorPrivate;
+    d = new Private;
     d->oldOps.setAutoDelete( FALSE );
     d->networkProtocol = 0;
     getNetworkProtocol();
@@ -266,7 +267,7 @@ QUrlOperator::QUrlOperator( const QString &url )
 QUrlOperator::QUrlOperator( const QUrlOperator& url )
     : QObject(), QUrl( url )
 {
-    d = new QUrlOperatorPrivate;
+    d = new Private;
     *d = *url.d;
     d->oldOps.setAutoDelete( FALSE );
     d->networkProtocol = 0;
@@ -282,7 +283,7 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url )
 QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl, bool checkSlash )
     : QUrl( url, relUrl, checkSlash )
 {
-    d = new QUrlOperatorPrivate;
+    d = new Private;
     if ( relUrl == "." )
 	*d = *url.d;
     d->oldOps.setAutoDelete( FALSE );
@@ -919,7 +920,7 @@ void QUrlOperator::reset()
 {
     QUrl::reset();
     if ( d->networkProtocol )
- 	delete d->networkProtocol;
+	delete d->networkProtocol;
     d->networkProtocol = 0;
     d->nameFilter = "*";
 }
@@ -933,7 +934,7 @@ bool QUrlOperator::parse( const QString &url )
     // ######
     bool b = QUrl::parse( url );
     if ( !b ) {
-// 	emit error( ErrParse, tr( "Error in parsing `%1'" ).arg( url ) );
+//	emit error( ErrParse, tr( "Error in parsing `%1'" ).arg( url ) );
 	return b;
     }
 
@@ -1059,7 +1060,7 @@ void QUrlOperator::continueCopy( QNetworkOperation *op )
     if ( gProt )
 	gProt->setAutoDelete( TRUE );
     if ( rm && gProt )
- 	gProt->addOperation( rm );
+	gProt->addOperation( rm );
     disconnect( gProt, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
 		this, SLOT( copyGotData( const QByteArray &, QNetworkOperation * ) ) );
     disconnect( gProt, SIGNAL( finished( QNetworkOperation * ) ),

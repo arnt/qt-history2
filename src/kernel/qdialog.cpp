@@ -102,11 +102,11 @@
 
 
 
-class QDialogPrivate : public Qt
+class QDialog::Private : public Qt
 {
 public:
 
-    QDialogPrivate()
+    Private()
 	: mainDef(0), orientation(Horizontal),extension(0)
 #ifndef QT_NO_SIZEGRIP
 	,resizer(0)
@@ -149,7 +149,7 @@ QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     did_move = FALSE;
     did_resize = FALSE;
     in_loop = FALSE;
-    d = new QDialogPrivate;
+    d = new Private;
 }
 
 /*!
@@ -233,7 +233,7 @@ void QDialog::hideDefault()
   A dialog started with exec() is always modal, i.e. the user \e has
   to finish interacting with the dialog and close it before resuming
   work with the other window(s).
-  
+
   If you want to show a non-modal dialog, call show().
 
   \sa show(), result()
@@ -458,12 +458,12 @@ void QDialog::show()
 	    extrah = QMAX( extrah, h );
 	}
 	delete list;
-	
+
 	// sanity check for decoration frames. With embedding, we
 	// might get extraordinary values
 	if ( extraw >= 10 || extrah >= 40 )
 	    extraw = extrah = 0;
-	
+
 	if ( w ) {
 	    // Use mapToGlobal rather than geometry() in case w might
 	    // be embedded in another application

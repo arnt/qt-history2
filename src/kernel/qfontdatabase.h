@@ -49,13 +49,6 @@
 
 #ifndef QT_NO_FONTDATABASE
 
-class QFontStylePrivate;
-class QtFontStyle;
-class QtFontFamily;
-class QtFontFoundry;
-
-class QFontDatabasePrivate;
-
 class Q_EXPORT QFontDatabase
 {
 public:
@@ -114,9 +107,8 @@ private:
     friend class QtFontStyle;
     friend class QtFontFamily;
     friend class QtFontFoundry;
-    friend class QFontDatabasePrivate;
-
-    QFontDatabasePrivate *d;
+    class Private;
+    Private *d;
 };
 
 

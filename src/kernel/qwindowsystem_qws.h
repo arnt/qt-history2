@@ -116,6 +116,7 @@ public:
 #ifndef QT_NO_SOUND
 class QWSSoundServer;
 #ifdef QT_USE_OLD_QWS_SOUND
+class QWSSoundServerData;
 
 class QWSSoundServer : public QObject {
     Q_OBJECT
@@ -159,9 +160,9 @@ public:
 		       DisableMouse = 0x02,
 		       DisableAccel = 0x04 };
 
-    
+
     enum GUIMode { NoGui = FALSE, NormalGUI = TRUE, Server };
-    
+
     static void sendKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
 			     bool autoRepeat);
     static void processKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
@@ -176,16 +177,16 @@ public:
 
 
     static const KeyMap *keyMap();
-#ifndef QT_NO_QWS_KEYBOARD    
+#ifndef QT_NO_QWS_KEYBOARD
     class KeyboardFilter
     {
     public:
 	virtual bool filter(int unicode, int keycode, int modifiers, bool isPress,
 		      bool autoRepeat)=0;
     };
-    
+
     static void setKeyboardFilter( KeyboardFilter *f );
-#endif    
+#endif
     static void setDefaultMouse( const char * );
     static void setDefaultKeyboard( const char * );
     static void setMaxWindowRect(const QRect&);
@@ -215,7 +216,7 @@ public:
 
     void openMouse();
     void closeMouse();
-#ifndef QT_NO_QWS_KEYBOARD    
+#ifndef QT_NO_QWS_KEYBOARD
     void openKeyboard();
     void closeKeyboard();
 #endif
@@ -231,14 +232,14 @@ public:
     static void closedown( int display_id );
 
     static void emergency_cleanup();
-    
+
     static QPoint mousePosition;
 
 private:
     static QWSServer *qwsServer; //there can be only one
     static QColor *bgColor;
     static QImage *bgImage;
-    
+
 private:
     void invokeCreate( QWSCreateCommand *cmd, QWSClient *client );
     void invokeRegion( QWSRegionCommand *cmd, QWSClient *client );
@@ -273,7 +274,7 @@ private:
 #endif
 
     QMouseHandler* newMouseHandler(const QString& spec);
-#ifndef QT_NO_QWS_KEYBOARD    
+#ifndef QT_NO_QWS_KEYBOARD
     QWSKeyboardHandler* newKeyboardHandler(const QString& spec);
 #endif
     void openDisplay();
@@ -331,7 +332,7 @@ private:
     QRegion dirtyBackground;
     bool disablePainting;
     QList<QMouseHandler> mousehandlers;
-#ifndef QT_NO_QWS_KEYBOARD    
+#ifndef QT_NO_QWS_KEYBOARD
     QList<QWSKeyboardHandler> keyboardhandlers;
 #endif
 

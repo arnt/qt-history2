@@ -43,10 +43,6 @@
 
 #ifndef QT_NO_SOUND
 
-class QSoundData;
-class QAuServer;
-class QAuBucket;
-
 class Q_EXPORT QSound : public QObject {
     Q_OBJECT
 public:
@@ -70,7 +66,8 @@ public slots:
     void play();
 
 private:
-    QSoundData* d;
+    class Data;
+    Data* d;
 };
 
 
@@ -82,6 +79,9 @@ private:
 
   QAuBucket is whatever you want.
 */
+
+class QAuBucket;
+
 class QAuServer : public QObject {
     Q_OBJECT
 

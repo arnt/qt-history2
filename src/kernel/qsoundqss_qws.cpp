@@ -254,11 +254,11 @@ void QWSSoundServerSocket::newConnection(int s)
 }
 #endif
 
-class QWSSoundServerData : public QObject {
+class QWSSoundServer::Data : public QObject {
     Q_OBJECT
 
 public:
-    QWSSoundServerData(QObject* parent=0, const char* name=0) :
+    Data(QObject* parent=0, const char* name=0) :
 	QObject(parent, name)
     {
 #ifndef QT_NO_NETWORK
@@ -428,7 +428,7 @@ private:
 QWSSoundServer::QWSSoundServer(QObject* parent) :
     QObject(parent)
 {
-    d = new QWSSoundServerData(this);
+    d = new Data(this);
 }
 
 void QWSSoundServer::playFile( const QString& filename )

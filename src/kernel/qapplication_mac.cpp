@@ -101,7 +101,7 @@ QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 QWidget        *qt_mouseover = 0;
 
-//special case popup handlers - look where these are used, they are very hacky, 
+//special case popup handlers - look where these are used, they are very hacky,
 //and very special case, if you plan on using these variables be VERY careful!!
 static bool qt_closed_popup = FALSE;
 EventRef qt_replay_event = NULL;
@@ -194,11 +194,11 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
     appName = p ? p + 1 : argv[0];
 
     if ( qt_is_gui_used ) {
-        qApp->setName( appName );
-        QColor::initialize();
-        QFont::initialize();
-        QCursor::initialize();
-        QPainter::initialize();
+	qApp->setName( appName );
+	QColor::initialize();
+	QFont::initialize();
+	QCursor::initialize();
+	QPainter::initialize();
 
 	QWidget *tlw = new QWidget(NULL, "empty_widget", Qt::WDestructiveClose);
 	tlw->hide();
@@ -480,7 +480,7 @@ static void cleanupTimers()			// cleanup timer data structure
     }
 }
 
-static int activateNullTimers() 
+static int activateNullTimers()
 {
     if(!zero_timer_count)
 	return 0;
@@ -534,7 +534,7 @@ bool qKillTimer( int id )
     register TimerInfo *t = timerList->first();
     while ( t && (t->id != id) ) // find timer info in list
 	t = timerList->next();
-    if ( t ) { 					// id found
+    if ( t ) {					// id found
 	if(t->type == TimerInfo::TIMER_MAC)
 	    RemoveEventLoopTimer(t->mac_timer);
 	else
@@ -771,7 +771,7 @@ bool QApplication::processNextEvent( bool  )
 	EventRecord ev;
 	EventAvail(everyEvent, &ev);
 
-	if(qt_replay_event) { 	//ick
+	if(qt_replay_event) {	//ick
 	    EventRef ev = qt_replay_event;
 	    qt_replay_event = NULL;
 	    SendEventToApplication(ev);
@@ -877,7 +877,7 @@ bool QApplication::processNextEvent( bool  )
 #else
 //#warning "need to implement sockets on mac9"
 #endif
-    
+
 #if defined(QT_THREAD_SUPPORT)
     qApp->unlock( FALSE );
 #endif
@@ -907,7 +907,7 @@ static key_sym modifier_syms[] = {
 { controlKey, MAP_KEY(Qt::ControlButton) },
 { rightControlKey, MAP_KEY(Qt::ControlButton) },
 { cmdKey, MAP_KEY(Qt::ControlButton) },
-{ optionKey, MAP_KEY(Qt::AltButton) }, 
+{ optionKey, MAP_KEY(Qt::AltButton) },
 { rightOptionKey, MAP_KEY(Qt::AltButton) },
 {   0, MAP_KEY(0) } };
 static int get_modifiers(int key)
@@ -1000,7 +1000,7 @@ static int get_key(int key)
 #endif
 	    return key_syms[i].qt_code;
 	}
-    } 
+    }
 
     //general cases..
     if(key >= '0' && key <= '9') {
@@ -1015,7 +1015,7 @@ static int get_key(int key)
 	qDebug("General case Qt::Key_%c %d", tup, (tup - 'A') + Qt::Key_A);
 #endif
 	return (tup - 'A') + Qt::Key_A;
-    } 
+    }
 
 #ifdef DEBUG_KEY_MAPS
     qDebug("Unknown case.. %s:%d %d", __FILE__, __LINE__, key);
@@ -1248,7 +1248,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    if(mb == kEventMouseButtonPrimary)
 		button = QMouseEvent::LeftButton;
 	    else if(mb == kEventMouseButtonSecondary)
-	        button = QMouseEvent::RightButton;
+		button = QMouseEvent::RightButton;
 	    else
 		button = QMouseEvent::MidButton;
 	}
@@ -1328,11 +1328,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    }
 
 	    if(etype == QEvent::MouseButtonPress && app->activePopupWidget() != popupwidget &&
-	       qt_closed_popup) 
+	       qt_closed_popup)
 		special_close = TRUE;
 	}
 
-	if(ekind == kEventMouseDown && !app->do_mouse_down( &where )) 
+	if(ekind == kEventMouseDown && !app->do_mouse_down( &where ))
 	    return 0;
 
 	if(special_close) {
@@ -1431,17 +1431,17 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		QApplication::sendEvent( widget, &qwe);
 	    } else {
 #ifdef QMAC_SPEAK_TO_ME
-	        if(etype == QMouseEvent::MouseButtonDblClick && (keys & Qt::AltButton)) {
-	            QVariant v = widget->property("text");
-	            if(!v.isValid()) v = widget->property("caption");
-	            if(v.isValid()) {
-	                QString s = v.toString();
+		if(etype == QMouseEvent::MouseButtonDblClick && (keys & Qt::AltButton)) {
+		    QVariant v = widget->property("text");
+		    if(!v.isValid()) v = widget->property("caption");
+		    if(v.isValid()) {
+			QString s = v.toString();
 			s.replace(QRegExp("(\\&|\\<[^\\>]*\\>)"), "");
-	                SpeechChannel ch;
-	                NewSpeechChannel(NULL, &ch);
-	                SpeakText(ch, s.latin1(), s.length());
-	            }
-	        }
+			SpeechChannel ch;
+			NewSpeechChannel(NULL, &ch);
+			SpeakText(ch, s.latin1(), s.length());
+		    }
+		}
 #endif
 		QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
 		QApplication::sendEvent( widget, &qme );
@@ -1458,7 +1458,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	UInt32 keyc;
 	GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
 	const UInt32 state = 0L;
-	char chr = KeyTranslate((void *)GetScriptManagerVariable(smKCHRCache), 
+	char chr = KeyTranslate((void *)GetScriptManagerVariable(smKCHRCache),
 				(modif & shiftKey) | keyc, &state);
 	int mychar=get_key(chr);
 	QString mystr = QChar(chr);
@@ -1485,7 +1485,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 				mystr.length());
 		    a.ignore();
 		    QApplication::sendEvent( widget->topLevelWidget(), &a );
-		    if ( a.isAccepted() ) 
+		    if ( a.isAccepted() )
 			isAccel = TRUE;
 #ifdef QMAC_QMENUBAR_NATIVE //In native menubar mode we offer the event to the menubar...
 		    if( !isAccel ) {
@@ -1494,7 +1494,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 			if(IsMenuKeyEvent(NULL, event, kNilOptions, &menu, &idx)) {
 			    QMenuBar::activate(menu, idx);
 			    isAccel = TRUE;
-			} 
+			}
 		    }
 #endif
 		}
@@ -1559,7 +1559,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		app->setActiveWindow(NULL);
 	    while(app->inPopupMode())
 		app->activePopupWidget()->close();
-	} 
+	}
 	break;
     case kEventClassApplication:
 	if(ekind == kEventAppActivated)
@@ -1584,10 +1584,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	if(ekind == kEventCommandProcess) {
 	    HICommand cmd;
 	    GetEventParameter(event, kEventParamDirectObject, typeHICommand, NULL, sizeof(cmd), NULL, &cmd);
-	    if(cmd.commandID == kHICommandQuit) 
+	    if(cmd.commandID == kHICommandQuit)
 		qApp->closeAllWindows();
 #ifdef QMAC_QMENUBAR_NATIVE //offer it to the menubar..
-	    else 
+	    else
 		QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex);
 #endif
 	}
@@ -1613,7 +1613,7 @@ extern uint qGlobalPostedEventsCount();
 bool QApplication::hasPendingEvents()
 {
     if(qGlobalPostedEventsCount())
-        return TRUE;
+	return TRUE;
 
 	EventRef event;
 	OSStatus ret = ReceiveNextEvent( 0, 0, 0.01, FALSE, &event );
@@ -1803,7 +1803,7 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 
 #ifdef QT_NO_SM_SUPPORT
 
-class QSessionManagerData
+class QSessionManager::Data
 {
 public:
     QStringList restartCommand;
@@ -1815,7 +1815,7 @@ public:
 QSessionManager::QSessionManager( QApplication * app, QString &session )
     : QObject( app, "qt_sessionmanager" )
 {
-    d = new QSessionManagerData;
+    d = new Data;
     d->sessionId = session;
     d->restartHint = RestartIfRunning;
 }
@@ -1929,7 +1929,7 @@ void QSmSocketReceiver::socketActivated(int)
 {
 }
 
-class QSessionManagerData
+class QSessionManager::Data
 {
 public:
     QStringList restartCommand;
@@ -1941,7 +1941,7 @@ public:
 QSessionManager::QSessionManager( QApplication * app, QString &session )
     : QObject( app, "session manager" )
 {
-    d = new QSessionManagerData;
+    d = new Data;
     d->sessionId = session;
     d->restartHint = RestartIfRunning;
 }

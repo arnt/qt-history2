@@ -69,7 +69,6 @@ class QTime;
 class QDateTime;
 // Some headers rejected after QVariant declaration for GCC 2.7.* compatibility
 class QVariant;
-class QVariantPrivate;
 template <class T> class QValueList;
 template <class T> class QValueListConstIterator;
 template <class T> class QValueListNode;
@@ -241,15 +240,16 @@ public:
 private:
     void detach();
 
-    QVariantPrivate* d;
+    class Private;
+    Private* d;
 };
 
-class QVariantPrivate : public QShared
+class QVariant::Private : public QShared
 {
 public:
-    QVariantPrivate();
-    QVariantPrivate( QVariantPrivate* );
-    ~QVariantPrivate();
+    Private();
+    Private( Private* );
+    ~Private();
 
     void clear();
 

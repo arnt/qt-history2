@@ -40,7 +40,6 @@
 #include "qlist.h"
 
 // Class forward definitions
-class QWSDisplayData;
 class QWSRegionManager;
 class QWSEvent;
 class QGfx;
@@ -61,7 +60,6 @@ public:
 
 #ifndef QT_NO_COP
 
-class QCopChannelPrivate;
 class QWSClient;
 
 class QCopChannel
@@ -87,7 +85,8 @@ private:
     // client side
     static void processEvent(  const QCString &ch, const QCString &msg,
 			       const QByteArray &data );
-    QCopChannelPrivate* d;
+    class Private;
+    Private* d;
 
     friend class QWSServer;
     friend class QApplication;
@@ -150,7 +149,8 @@ public:
 private:
     friend class QApplication;
     friend class QCopChannel;
-    QWSDisplayData *d;
+    class Data;
+    Data *d;
 
     int getPropertyLen;
     char *getPropertyData;
@@ -160,4 +160,3 @@ private:
 extern QWSDisplay *qt_fbdpy;
 
 #endif // QWSDISPLAY_H
-

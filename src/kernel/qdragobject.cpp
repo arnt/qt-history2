@@ -49,8 +49,10 @@
 // both a struct for storing stuff in and a wrapper to avoid polluting
 // the name space
 
-struct QDragData {
-    QDragData(): hot(0,0) {}
+class QDragObject::Data
+{
+public:
+    Data(): hot(0,0) {}
     QPixmap pixmap;
     QPoint hot;
 };
@@ -79,8 +81,10 @@ void QDragObject::setTarget(QWidget* t)
     last_target = t;
 }
 
-struct QStoredDragData {
-    QStoredDragData() {}
+class QStoredDrag::Data
+{
+public:
+    Data() {}
     const char* fmt;
     QByteArray enc;
 };
@@ -93,10 +97,10 @@ static const char * const move_xpm[] = {
 "11 20 3 1",
 ".	c None",
 #if defined(Q_WS_WIN)
-" 	c #000000", // Windows cursor is traditionally white
+"	c #000000", // Windows cursor is traditionally white
 "X	c #FFFFFF",
 #else
-" 	c #FFFFFF", // X11 cursor is traditionally white
+"	c #FFFFFF", // X11 cursor is traditionally white
 "X	c #000000",
 #endif
 "  .........",
@@ -124,7 +128,7 @@ static const char * const move_xpm[] = {
 static const char * const copy_xpm[] = {
 "24 30 3 1",
 ".	c None",
-" 	c #000000",
+"	c #000000",
 "X	c #FFFFFF",
 #if defined(Q_WS_WIN) // Windows cursor is traditionally white
 "  ......................",
@@ -184,7 +188,7 @@ static const char * const copy_xpm[] = {
 static const char * const link_xpm[] = {
 "24 30 3 1",
 ".	c None",
-" 	c #000000",
+"	c #000000",
 "X	c #FFFFFF",
 #if defined(Q_WS_WIN) // Windows cursor is traditionally white
 "  ......................",
@@ -287,7 +291,7 @@ QDragManager::~QDragManager()
 QDragObject::QDragObject( QWidget * dragSource, const char * name )
     : QObject( dragSource, name )
 {
-    d = new QDragData();
+    d = new Data();
 #ifndef QT_NO_DRAGANDDROP
     if ( !manager && qApp )
 	(void)new QDragManager();
@@ -509,9 +513,9 @@ const char * staticCharset(int i)
 }
 
 
-class QTextDragPrivate {
+class QTextDrag::Private {
 public:
-    QTextDragPrivate()
+    Private()
     {
 	setSubType("plain");
     }
@@ -572,7 +576,7 @@ QTextDrag::QTextDrag( const QString &text,
 		      QWidget * dragSource, const char * name )
     : QDragObject( dragSource, name )
 {
-    d = new QTextDragPrivate;
+    d = new Private;
     setText( text );
 }
 
@@ -584,7 +588,7 @@ QTextDrag::QTextDrag( const QString &text,
 QTextDrag::QTextDrag( QWidget * dragSource, const char * name )
     : QDragObject( dragSource, name )
 {
-    d = new QTextDragPrivate;
+    d = new Private;
 }
 
 
@@ -737,7 +741,7 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str, QCString& subtype )
 			m->cacheType = QMimeSource::Text;
 			m->cache.txt.str = new QString( str );
 			m->cache.txt.subtype = new QCString( subtype );
-			
+
 			return TRUE;
 		    }
 		}
@@ -765,7 +769,8 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str )
   and QImages rather than always converting to raw data.  This is available
   for that purpose and others.  It is not currently used.
 */
-class QImageDragData {
+class QImageDrag::Data
+{
 public:
 };
 
@@ -959,7 +964,7 @@ bool QImageDrag::decode( const QMimeSource* e, QPixmap& pm )
 	if ( !pm.convertFromImage( img, AvoidDither ) )
 	    return FALSE;
 	// decode initialized the cache for us
-	
+
 	QMimeSource *m = (QMimeSource*)e;
 	m->cache.gfx.pix = new QPixmap( pm );
 	return TRUE;
@@ -989,7 +994,7 @@ bool QImageDrag::decode( const QMimeSource* e, QPixmap& pm )
 QStoredDrag::QStoredDrag( const char* mimeType, QWidget * dragSource, const char * name ) :
     QDragObject(dragSource,name)
 {
-    d = new QStoredDragData();
+    d = new Data();
     d->fmt = qstrdup(mimeType);
 }
 

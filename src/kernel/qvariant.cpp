@@ -68,7 +68,7 @@ int qv_count = 0;
 int get_qv_count() { return qv_count; }
 #endif
 
-QVariantPrivate::QVariantPrivate()
+QVariant::Private::Private()
 {
 #ifdef QVARIANT_DEBUG
     qv_count++;
@@ -76,7 +76,7 @@ QVariantPrivate::QVariantPrivate()
     typ = QVariant::Invalid;
 }
 
-QVariantPrivate::QVariantPrivate( QVariantPrivate* d )
+QVariant::Private::Private( Private* d )
 {
 #ifdef QVARIANT_DEBUG
     qv_count++;
@@ -181,7 +181,7 @@ QVariantPrivate::QVariantPrivate( QVariantPrivate* d )
     typ = d->typ;
 }
 
-QVariantPrivate::~QVariantPrivate()
+QVariant::Private::~Private()
 {
 #ifdef QVARIANT_DEBUG
     qv_count--;
@@ -189,7 +189,7 @@ QVariantPrivate::~QVariantPrivate()
     clear();
 }
 
-void QVariantPrivate::clear()
+void QVariant::Private::clear()
 {
     switch( typ )
 	{
@@ -392,7 +392,7 @@ void QVariantPrivate::clear()
 */
 QVariant::QVariant()
 {
-    d = new QVariantPrivate;
+    d = new Private;
 }
 
 /*!
@@ -415,7 +415,7 @@ QVariant::~QVariant()
 */
 QVariant::QVariant( const QVariant& p )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     *this = p;
 }
 
@@ -424,7 +424,7 @@ QVariant::QVariant( const QVariant& p )
 */
 QVariant::QVariant( QDataStream& s )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     s >> *this;
 }
 
@@ -433,7 +433,7 @@ QVariant::QVariant( QDataStream& s )
 */
 QVariant::QVariant( const QString& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = String;
     d->value.ptr = new QString( val );
 }
@@ -447,7 +447,7 @@ QVariant::QVariant( const QString& val )
 */
 QVariant::QVariant( const QCString& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = CString;
     d->value.ptr = new QCString( val );
 }
@@ -460,7 +460,7 @@ QVariant::QVariant( const QCString& val )
 */
 QVariant::QVariant( const char* val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     if ( val == 0 )
 	return;
     d->typ = CString;
@@ -472,7 +472,7 @@ QVariant::QVariant( const char* val )
 */
 QVariant::QVariant( const QStringList& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = StringList;
     d->value.ptr = new QStringList( val );
 }
@@ -482,7 +482,7 @@ QVariant::QVariant( const QStringList& val )
 */
 QVariant::QVariant( const QMap<QString,QVariant>& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Map;
     d->value.ptr = new QMap<QString,QVariant>( val );
 }
@@ -492,7 +492,7 @@ QVariant::QVariant( const QMap<QString,QVariant>& val )
 */
 QVariant::QVariant( const QFont& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Font;
     d->value.ptr = new QFont( val );
 }
@@ -502,7 +502,7 @@ QVariant::QVariant( const QFont& val )
 */
 QVariant::QVariant( const QPixmap& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Pixmap;
     d->value.ptr = new QPixmap( val );
 }
@@ -516,7 +516,7 @@ QVariant::QVariant( const QPixmap& val )
 */
 QVariant::QVariant( const QImage& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Image;
     d->value.ptr = new QImage( val );
 }
@@ -526,7 +526,7 @@ QVariant::QVariant( const QImage& val )
 */
 QVariant::QVariant( const QBrush& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Brush;
     d->value.ptr = new QBrush( val );
 }
@@ -536,7 +536,7 @@ QVariant::QVariant( const QBrush& val )
 */
 QVariant::QVariant( const QPoint& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Point;
     d->value.ptr = new QPoint( val );
 }
@@ -546,7 +546,7 @@ QVariant::QVariant( const QPoint& val )
 */
 QVariant::QVariant( const QRect& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Rect;
     d->value.ptr = new QRect( val );
 }
@@ -556,7 +556,7 @@ QVariant::QVariant( const QRect& val )
 */
 QVariant::QVariant( const QSize& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Size;
     d->value.ptr = new QSize( val );
 }
@@ -566,7 +566,7 @@ QVariant::QVariant( const QSize& val )
 */
 QVariant::QVariant( const QColor& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Color;
     d->value.ptr = new QColor( val );
 }
@@ -576,7 +576,7 @@ QVariant::QVariant( const QColor& val )
 */
 QVariant::QVariant( const QPalette& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Palette;
     d->value.ptr = new QPalette( val );
 }
@@ -586,7 +586,7 @@ QVariant::QVariant( const QPalette& val )
 */
 QVariant::QVariant( const QColorGroup& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = ColorGroup;
     d->value.ptr = new QColorGroup( val );
 }
@@ -596,7 +596,7 @@ QVariant::QVariant( const QColorGroup& val )
 */
 QVariant::QVariant( const QIconSet& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = IconSet;
     d->value.ptr = new QIconSet( val );
 }
@@ -606,7 +606,7 @@ QVariant::QVariant( const QIconSet& val )
 */
 QVariant::QVariant( const QRegion& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Region;
     // ## Force a detach
     d->value.ptr = new QRegion( val );
@@ -618,7 +618,7 @@ QVariant::QVariant( const QRegion& val )
 */
 QVariant::QVariant( const QBitmap& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Bitmap;
     d->value.ptr = new QBitmap( val );
 }
@@ -628,7 +628,7 @@ QVariant::QVariant( const QBitmap& val )
 */
 QVariant::QVariant( const QCursor& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Cursor;
     d->value.ptr = new QCursor( val );
 }
@@ -641,7 +641,7 @@ QVariant::QVariant( const QCursor& val )
 */
 QVariant::QVariant( const QPointArray& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = PointArray;
     d->value.ptr = new QPointArray( val );
 }
@@ -651,7 +651,7 @@ QVariant::QVariant( const QPointArray& val )
 */
 QVariant::QVariant( const QDate& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Date;
     d->value.ptr = new QDate( val );
 }
@@ -661,7 +661,7 @@ QVariant::QVariant( const QDate& val )
 */
 QVariant::QVariant( const QTime& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Time;
     d->value.ptr = new QTime( val );
 }
@@ -671,7 +671,7 @@ QVariant::QVariant( const QTime& val )
 */
 QVariant::QVariant( const QDateTime& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = DateTime;
     d->value.ptr = new QDateTime( val );
 }
@@ -681,7 +681,7 @@ QVariant::QVariant( const QDateTime& val )
 */
 QVariant::QVariant( const QByteArray& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = ByteArray;
     d->value.ptr = new QByteArray( val );
 }
@@ -691,7 +691,7 @@ QVariant::QVariant( const QByteArray& val )
 */
 QVariant::QVariant( int val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Int;
     d->value.i = val;
 }
@@ -701,7 +701,7 @@ QVariant::QVariant( int val )
 */
 QVariant::QVariant( uint val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = UInt;
     d->value.u = val;
 }
@@ -713,7 +713,7 @@ QVariant::QVariant( uint val )
 */
 QVariant::QVariant( bool val, int )
 { // this is the comment that does NOT name said compiler.
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Bool;
     d->value.b = val;
 }
@@ -724,7 +724,7 @@ QVariant::QVariant( bool val, int )
 */
 QVariant::QVariant( double val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = Double;
     d->value.d = val;
 }
@@ -734,7 +734,7 @@ QVariant::QVariant( double val )
 */
 QVariant::QVariant( const QValueList<QVariant>& val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = List;
     d->value.ptr = new QValueList<QVariant>( val );
 }
@@ -744,7 +744,7 @@ QVariant::QVariant( const QValueList<QVariant>& val )
 */
 QVariant::QVariant( QSizePolicy val )
 {
-    d = new QVariantPrivate;
+    d = new Private;
     d->typ = SizePolicy;
     d->value.ptr = new QSizePolicy( val );
 }
@@ -778,7 +778,7 @@ void QVariant::detach()
 	return;
 
     d->deref();
-    d = new QVariantPrivate( d );
+    d = new Private( d );
 }
 
 /*!
@@ -800,7 +800,7 @@ void QVariant::clear()
     if ( d->count > 1 )
     {
 	d->deref();
-	d = new QVariantPrivate;
+	d = new Private;
 	return;
     }
 

@@ -40,8 +40,6 @@
 
 #ifndef QT_NO_SOUND
 
-class QWSSoundServerData;
-
 class QWSSoundServer : public QObject {
     Q_OBJECT
 public:
@@ -50,7 +48,8 @@ public:
     void playFile( const QString& filename );
 
 private:
-    QWSSoundServerData* d;
+    class Data;
+    Data* d;
 };
 
 #ifndef QT_NO_NETWORK

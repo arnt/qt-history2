@@ -46,7 +46,6 @@
 Q_OBJECT
 #endif
 
-class QDialogPrivate;
 class QPushButton;
 
 class Q_EXPORT QDialog : public QWidget			// dialog widget
@@ -98,16 +97,17 @@ protected:
     void	mousePressEvent( QMouseEvent * );
     void	keyPressEvent( QKeyEvent * );
     void	closeEvent( QCloseEvent * );
-    void 	resizeEvent( QResizeEvent * );
-    
+    void	resizeEvent( QResizeEvent * );
+
 private:
     void	setDefault( QPushButton * );
     void		hideDefault();
     int		rescode;
     uint	did_move   : 1;
     uint	did_resize : 1;
-    uint 	in_loop: 1;
-    QDialogPrivate* d;
+    uint	in_loop: 1;
+    class Private;
+    Private* d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

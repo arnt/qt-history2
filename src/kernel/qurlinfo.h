@@ -44,7 +44,6 @@
 #endif // QT_H
 
 class QUrlOperator;
-struct QUrlInfoPrivate;
 class QUrl;
 
 class Q_EXPORT QUrlInfo
@@ -99,7 +98,8 @@ public:
 
     bool operator==( const QUrlInfo &i ) const;
 private:
-    QUrlInfoPrivate *d;
+    class Private;
+    Private *d;
 
 };
 

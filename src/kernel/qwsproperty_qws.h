@@ -45,8 +45,6 @@
 
 #ifndef QT_NO_QWS_PROPERTIES
 
-class QWSPropertyManagerData;
-
 class QWSPropertyManager
 {
 public:
@@ -60,7 +58,7 @@ public:
     enum Atom {
 	PropSelection = 0
     };
-    
+
     QWSPropertyManager();
     ~QWSPropertyManager();
 
@@ -72,7 +70,8 @@ public:
     bool removeProperties( int winId );
 
 private:
-    QWSPropertyManagerData* d;
+    class Data;
+    Data* d;
 };
 
 #endif //QT_NO_QWS_PROPERTIES

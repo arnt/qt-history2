@@ -46,8 +46,6 @@
 #endif // QT_H
 
 #ifndef QT_NO_PALETTE
-class QColorGroupPrivate;
-
 
 class Q_EXPORT QColorGroup
 {
@@ -68,8 +66,8 @@ public:
 
     // Do not change the order, the serialization format depends on it
     enum ColorRole { Foreground, Button, Light, Midlight, Dark, Mid,
-                     Text, BrightText, ButtonText, Base, Background, Shadow,
-                     Highlight, HighlightedText,
+		     Text, BrightText, ButtonText, Base, Background, Shadow,
+		     Highlight, HighlightedText,
 		     NColorRoles };
 
     const QColor &color( ColorRole ) const;
@@ -99,7 +97,8 @@ public:
 
 private:
     QBrush *br;
-    QColorGroupPrivate * d;
+    class Private;
+    Private * d;
 
     friend class QPalette;
 };
@@ -152,7 +151,7 @@ public:
 
 private:
     void	detach();
-    QBrush 	&directBrush( ColorGroup, QColorGroup::ColorRole ) const;
+    QBrush	&directBrush( ColorGroup, QColorGroup::ColorRole ) const;
 
     struct QPalData : public QShared {
 	QColorGroup disabled;

@@ -49,7 +49,6 @@
 #ifndef QT_NO_RICHTEXT
 
 class QStyleSheet;
-class QStyleSheetItemData;
 class QTextDocument;
 template<class Key, class T> class QMap;
 
@@ -151,7 +150,8 @@ public:
 
 private:
     void init();
-    QStyleSheetItemData* d;
+    class Data;
+    Data* d;
 };
 
 

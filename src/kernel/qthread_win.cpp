@@ -73,16 +73,16 @@ private:
 };
 
 /*
-  QMutexPrivate - implements a recursive mutex
+  Private - implements a recursive mutex
 */
 
-class QMutexPrivate
+class QMutex::Private
 {
 public:
     Qt::HANDLE handle;
 
-    QMutexPrivate();
-    virtual ~QMutexPrivate();
+    Private();
+    virtual ~Private();
     virtual void lock();
     virtual void unlock();
     virtual bool locked();
@@ -92,7 +92,7 @@ public:
 #endif
 };
 
-QMutexPrivate::QMutexPrivate()
+QMutex::Private::Private()
 {
     if ( qWinVersion() & Qt::WV_NT_based )
 	handle = CreateMutex( NULL, FALSE, NULL );
@@ -105,7 +105,7 @@ QMutexPrivate::QMutexPrivate()
 
 }
 
-QMutexPrivate::~QMutexPrivate()
+QMutex::Private::~Private()
 {
     if ( !CloseHandle( handle ) ) {
 #ifdef QT_CHECK_RANGE
@@ -114,7 +114,7 @@ QMutexPrivate::~QMutexPrivate()
     }
 }
 
-void QMutexPrivate::lock()
+void QMutex::Private::lock()
 {
     switch ( WaitForSingleObject( handle, INFINITE ) ) {
     case WAIT_TIMEOUT:
@@ -133,7 +133,7 @@ void QMutexPrivate::lock()
     }
 }
 
-void QMutexPrivate::unlock()
+void QMutex::Private::unlock()
 {
     if ( !ReleaseMutex( handle ) ) {
 #ifdef QT_CHECK_RANGE
@@ -142,7 +142,7 @@ void QMutexPrivate::unlock()
     }
 }
 
-bool QMutexPrivate::locked()
+bool QMutex::Private::locked()
 {
     switch ( WaitForSingleObject( handle, 0) ) {
     case WAIT_TIMEOUT:
@@ -165,7 +165,7 @@ bool QMutexPrivate::locked()
     return TRUE;
 }
 
-bool QMutexPrivate::trylock()
+bool QMutex::Private::trylock()
 {
     switch ( WaitForSingleObject( handle, 0) ) {
     case WAIT_FAILED:
@@ -188,7 +188,7 @@ bool QMutexPrivate::trylock()
   QNonRecursiveMutexPrivate - implements a non-recursive mutex
 */
 
-class QNonRecursiveMutexPrivate : public QMutexPrivate
+class QNonRecursiveMutexPrivate : public QMutex::Private
 {
 public:
     QNonRecursiveMutexPrivate();
@@ -204,7 +204,7 @@ public:
 };
 
 QNonRecursiveMutexPrivate::QNonRecursiveMutexPrivate()
-    : QMutexPrivate()
+    : Private()
 {
     threadID = 0;
 }
@@ -243,7 +243,7 @@ void QNonRecursiveMutexPrivate::lock()
 void QNonRecursiveMutexPrivate::unlock()
 {
     protect.enter();
-    QMutexPrivate::unlock();
+    Private::unlock();
     threadID = 0;
     protect.leave();
 }
@@ -285,7 +285,7 @@ bool QNonRecursiveMutexPrivate::trylock()
 QMutex::QMutex(bool recursive)
 {
     if ( recursive )
-	d = new QMutexPrivate();
+	d = new Private();
     else
 	d = new QNonRecursiveMutexPrivate();
 }
@@ -359,7 +359,7 @@ void QThreadEventsPrivate::sendEvents()
     protect.enter();
     QThreadQtEvent * qte;
     for( qte = events.first(); qte != 0; qte = events.next() )
-        qApp->postEvent( qte->object, qte->event );
+	qApp->postEvent( qte->object, qte->event );
     events.clear();
     protect.leave();
 }
@@ -407,7 +407,7 @@ QWaitConditionPrivate::~QWaitConditionPrivate()
 {
     if ( !CloseHandle( handle ) || !CloseHandle( single ) ) {
 #ifdef QT_CHECK_RANGE
-        qSystemWarning( "Condition destroy failure" );
+	qSystemWarning( "Condition destroy failure" );
 #endif
     }
 }
@@ -416,7 +416,7 @@ int QWaitConditionPrivate::wait( unsigned long time , bool countWaiter )
 {
     s.enter();
     if ( countWaiter )
-        waitersCount++;
+	waitersCount++;
     Qt::HANDLE hnds[2] = { handle, single };
     s.leave();
     int ret = WaitForMultipleObjects( 2, hnds, FALSE, time );
@@ -477,11 +477,11 @@ bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
     bool lastWaiter = ( (result == WAIT_OBJECT_0 )  && d->waitersCount == 0 ); // last waiter on waitAll?
     d->s.leave();
     if ( lastWaiter ) {
-        if ( !ResetEvent ( d->handle ) ) {
+	if ( !ResetEvent ( d->handle ) ) {
     #ifdef QT_CHECK_RANGE
-        qSystemWarning( "Condition could not be reset" );
+	qSystemWarning( "Condition could not be reset" );
     #endif
-        }
+	}
     }
     return TRUE;
 }
@@ -491,11 +491,11 @@ void QWaitCondition::wakeOne()
     d->s.enter();
     bool haveWaiters = (d->waitersCount > 0);
     if ( haveWaiters ) {
-        if ( !SetEvent( d->single ) ) {
+	if ( !SetEvent( d->single ) ) {
     #ifdef QT_CHECK_RANGE
 	    qSystemWarning( "Condition could not be set" );
     #endif
-        }
+	}
     }
     d->s.leave();
 }
@@ -505,17 +505,17 @@ void QWaitCondition::wakeAll()
     d->s.enter();
     bool haveWaiters = (d->waitersCount > 0);
     if ( haveWaiters ) {
-        if ( !PulseEvent( d->handle ) ) {
+	if ( !PulseEvent( d->handle ) ) {
     #ifdef QT_CHECK_RANGE
-        qSystemWarning( "Condition could not be set" );
+	qSystemWarning( "Condition could not be set" );
     #endif
-        }
+	}
     }
     d->s.leave();
 }
 
 /*
-  QThreadPrivate
+  Private
 */
 
 class QThreadPrivate
@@ -523,8 +523,8 @@ class QThreadPrivate
 public:
     static void internalRun( QThread* );
 
-    QThreadPrivate();
-    ~QThreadPrivate();
+    Private();
+    ~Private();
 
     Qt::HANDLE handle;
     unsigned int id;
@@ -581,7 +581,7 @@ Qt::HANDLE QThread::currentThread()
 void QThread::postEvent( QObject *o,QEvent *e )
 {
     if( !qthreadEventsPrivate )
-        qthreadEventsPrivate = new QThreadEventsPrivate();
+	qthreadEventsPrivate = new QThreadEventsPrivate();
     qthreadEventsPrivate->protect.enter();
     qthreadEventsPrivate->add( new QThreadQtEvent(o,e)  );
     qthreadEventsPrivate->protect.leave();
@@ -685,7 +685,7 @@ bool QThread::running() const
   QSemaphore implementation
 */
 
-class QSemaphorePrivate
+class QSemaphore::Private
 {
 public:
     Qt::HANDLE handle;
@@ -697,7 +697,7 @@ public:
 
 QSemaphore::QSemaphore( int maxcount )
 {
-    d = new QSemaphorePrivate;
+    d = new Private;
     d->maxCount = maxcount;
     if ( qWinVersion() & Qt::WV_NT_based ) {
 	d->handle = CreateSemaphore( NULL, maxcount, maxcount, NULL );

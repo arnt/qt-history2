@@ -159,7 +159,7 @@
 #endif
 
 #ifndef QT_NO_IMAGE_TEXT
-class QImageDataMisc {
+class QImage::QImageDataMisc {
 public:
     QImageDataMisc() { }
     QImageDataMisc( const QImageDataMisc& o ) :
@@ -309,8 +309,8 @@ static void read_xpm_image_or_array( QImageIO *, const char **, QImage & );
 
   \code
     static const char * const start_xpm[]={
-        "16 15 8 1",
-        "a c #cec6bd",
+	"16 15 8 1",
+	"a c #cec6bd",
     ....
   \endcode
 
@@ -398,7 +398,7 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
 	data->ctbl_mine = FALSE;
     } else {
 	// calloc since we realloc, etc. later (ick)
-        data->ctbl = (QRgb*)calloc( numColors*sizeof(QRgb), numColors );
+	data->ctbl = (QRgb*)calloc( numColors*sizeof(QRgb), numColors );
 	data->ctbl_mine = TRUE;
     }
     uchar** jt = (uchar**)malloc(h*sizeof(uchar*));
@@ -437,7 +437,7 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
 	data->ctbl_mine = FALSE;
     } else {
 	// calloc since we realloc, etc. later (ick)
-        data->ctbl = (QRgb*)calloc( numColors*sizeof(QRgb), numColors );
+	data->ctbl = (QRgb*)calloc( numColors*sizeof(QRgb), numColors );
 	data->ctbl_mine = TRUE;
     }
     uchar** jt = (uchar**)malloc(h*sizeof(uchar*));
@@ -544,7 +544,7 @@ QImage QImage::copy() const
   Returns a
   \link shclass.html deep copy\endlink of a sub-area of the image.
 
-  The returned image is always \a w by \a h pixels in size. 
+  The returned image is always \a w by \a h pixels in size.
   In areas beyond this image pixels are filled with pixel 0.
 
   \sa bitBlt()
@@ -570,11 +570,11 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
 /*! \fn QImage QImage::copy(const QRect& r) const
 
-  \overload 
+  \overload
 
   Returns a
   \link shclass.html deep copy\endlink of a sub-area of the image.
- 
+
   The returned image has always the size of the rectangle \a r.
   In areas beyond this image pixels are filled with pixel 0.
 */
@@ -2149,7 +2149,7 @@ bool QImage::isGrayscale() const
 	    if (data->ctbl[i] != qRgb(i,i,i))
 		return FALSE;
 	return TRUE;
-        }
+	}
     }
     return FALSE;
 }
@@ -2408,11 +2408,11 @@ void pnmscale(const QImage& src, QImage& dst)
 #endif
 
 /*! \enum QImage::ScaleMode
- 
+
   The functions scale() and smoothScale() use different modes for scaling the
   image. The purpose of those modes is to retain the ratio of the image if
   wanted.
- 
+
   \value ScaleFree the image is scaled freely: the resulting image fits exactly
     into the specified size.
   \value ScaleMin the ratio of the image is preserved and the resulting image
@@ -2433,7 +2433,7 @@ void pnmscale(const QImage& src, QImage& dst)
   \a h (it is a big as possible within the constraints); if \a mode is
   ScaleMax, the returned image fits at least into the specified rectangle (it
   is a small as possible within the constraints).
-  
+
   For 32-bpp images and 1-bpp/8-bpp color images the result will be 32-bpp,
   whereas \link allGray() all-gray \endlink images (including black-and-white
   1-bpp) will produce 8-bit \link isGrayscale() grayscale \endlink images with
@@ -2508,7 +2508,7 @@ QImage QImage::smoothScale( const QSize& s, ScaleMode mode ) const
 
   This function uses a quite simple algorithm for doing this task; if you need
   a better quality, use smoothScale() instead.
- 
+
   \sa scaleWidth() scaleHeight() smoothScale() xForm()
 */
 QImage QImage::scale( int w, int h, ScaleMode mode ) const
@@ -2637,7 +2637,7 @@ QSize QImage::scaleSize( const QSize &size, ScaleMode mode ) const
 
   The transformation matrix \a matrix is internally adjusted to compensate for
   unwanted translation, i.e., xForm() returns the smallest image containing all
-  transformed points of the original image. 
+  transformed points of the original image.
 
   \sa scale() QPixmap::xForm() QPixmap::trueMatrix() QWMatrix
 */
@@ -3003,7 +3003,7 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
     int w = width();
     int h = height();
     if (w <= 1 && h <= 1 || (!horizontal && !vertical))
-        return *this;
+	return *this;
 
     // Create result image, copy colormap
     QImage result(w, h, depth(), numColors(), bitOrder());
@@ -3011,7 +3011,7 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
     result.setAlphaBuffer(hasAlphaBuffer());
 
     if (depth() == 1)
-        w = (w+7)/8;
+	w = (w+7)/8;
     int dxi = horizontal ? -1 : 1;
     int dxs = horizontal ? w-1 : 0;
     int dyi = vertical ? -1 : 1;
@@ -3019,71 +3019,71 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
 
     // 1 bit, 8 bit
     if (depth() == 1 || depth() == 8) {
-        for (int sy = 0; sy < h; sy++, dy += dyi) {
-            Q_UINT8* ssl = (Q_UINT8*)(data->bits[sy]);
-            Q_UINT8* dsl = (Q_UINT8*)(result.data->bits[dy]);
-            int dx = dxs;
-            for (int sx = 0; sx < w; sx++, dx += dxi)
-                dsl[dx] = ssl[sx];
-        }
+	for (int sy = 0; sy < h; sy++, dy += dyi) {
+	    Q_UINT8* ssl = (Q_UINT8*)(data->bits[sy]);
+	    Q_UINT8* dsl = (Q_UINT8*)(result.data->bits[dy]);
+	    int dx = dxs;
+	    for (int sx = 0; sx < w; sx++, dx += dxi)
+		dsl[dx] = ssl[sx];
+	}
     }
 #ifndef QT_NO_IMAGE_TRUECOLOR
 #ifndef QT_NO_IMAGE_16_BIT
     // 16 bit
     else if (depth() == 16) {
-        for (int sy = 0; sy < h; sy++, dy += dyi) {
-            Q_UINT16* ssl = (Q_UINT16*)(data->bits[sy]);
-            Q_UINT16* dsl = (Q_UINT16*)(result.data->bits[dy]);
-            int dx = dxs;
-            for (int sx = 0; sx < w; sx++, dx += dxi)
-                dsl[dx] = ssl[sx];
-        }
+	for (int sy = 0; sy < h; sy++, dy += dyi) {
+	    Q_UINT16* ssl = (Q_UINT16*)(data->bits[sy]);
+	    Q_UINT16* dsl = (Q_UINT16*)(result.data->bits[dy]);
+	    int dx = dxs;
+	    for (int sx = 0; sx < w; sx++, dx += dxi)
+		dsl[dx] = ssl[sx];
+	}
     }
 #endif
     // 32 bit
     else if (depth() == 32) {
-        for (int sy = 0; sy < h; sy++, dy += dyi) {
-            Q_UINT32* ssl = (Q_UINT32*)(data->bits[sy]);
-            Q_UINT32* dsl = (Q_UINT32*)(result.data->bits[dy]);
-            int dx = dxs;
-            for (int sx = 0; sx < w; sx++, dx += dxi)
-                dsl[dx] = ssl[sx];
-        }
+	for (int sy = 0; sy < h; sy++, dy += dyi) {
+	    Q_UINT32* ssl = (Q_UINT32*)(data->bits[sy]);
+	    Q_UINT32* dsl = (Q_UINT32*)(result.data->bits[dy]);
+	    int dx = dxs;
+	    for (int sx = 0; sx < w; sx++, dx += dxi)
+		dsl[dx] = ssl[sx];
+	}
     }
 #endif
 
     // special handling of 1 bit images for horizontal mirroring
     if (horizontal && depth() == 1) {
-        int shift = width() % 8;
-        for (int y = h-1; y >= 0; y--) {
-            Q_UINT8* a0 = (Q_UINT8*)(result.data->bits[y]);
-            // Swap bytes
-            Q_UINT8* a = a0+dxs;
-            while (a >= a0) {
-                *a = bitflip[*a];
-                a--;
-            }
-            // Shift bits if unaligned
-            if (shift != 0) {
-                a = a0+dxs;
-                Q_UINT8 c = 0;
-                if (bitOrder() == QImage::LittleEndian) {
-                    while (a >= a0) {
-                        Q_UINT8 nc = *a << shift;
-                        *a = (*a >> (8-shift)) | c;
+	int shift = width() % 8;
+	for (int y = h-1; y >= 0; y--) {
+	    Q_UINT8* a0 = (Q_UINT8*)(result.data->bits[y]);
+	    // Swap bytes
+	    Q_UINT8* a = a0+dxs;
+	    while (a >= a0) {
+		*a = bitflip[*a];
+		a--;
+	    }
+	    // Shift bits if unaligned
+	    if (shift != 0) {
+		a = a0+dxs;
+		Q_UINT8 c = 0;
+		if (bitOrder() == QImage::LittleEndian) {
+		    while (a >= a0) {
+			Q_UINT8 nc = *a << shift;
+			*a = (*a >> (8-shift)) | c;
 			--a;
-                        c = nc;
-                    }
-                } else {
-                    while (a >= a0) {
-                        Q_UINT8 nc = *a >> shift;
-                        *a = (*a << (8-shift)) | c;
+			c = nc;
+		    }
+		} else {
+		    while (a >= a0) {
+			Q_UINT8 nc = *a >> shift;
+			*a = (*a << (8-shift)) | c;
 			--a;
-                        c = nc;
-                    }
-                }
-            }
-        }
+			c = nc;
+		    }
+		}
+	    }
+	}
     }
 
     return result;
@@ -3451,8 +3451,9 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   \sa QImage, QPixmap, QFile, QMovie
 */
 
-struct QImageIOData
+class QImageIO::Data
 {
+public:
     const char *parameters;
     int quality;
 };
@@ -3493,7 +3494,7 @@ QImageIO::QImageIO( const QString &fileName, const char* format )
 
 void QImageIO::init()
 {
-    d = new QImageIOData();
+    d = new Data();
     d->parameters = 0;
     d->quality = -1; // default quality of the current format
     iostat = 0;
@@ -5418,8 +5419,8 @@ static void write_xpm_image( QImageIO * iio )
     for ( int k = 64; ncolors > k; k *= 64 ) {
 	++cpp;
 	// limit to 4 characters per pixel
- 	// 64^4 colors is enough for a 4096x4096 image
-         if ( cpp > 4)
+	// 64^4 colors is enough for a 4096x4096 image
+	 if ( cpp > 4)
 	    break;
     }
 
@@ -5773,7 +5774,7 @@ void QImage::setOffset(const QPoint& p)
 /*!
     Returns the internal QImageDataMisc object, possibly creating it.
 */
-QImageDataMisc& QImage::misc() const
+QImage::QImageDataMisc& QImage::misc() const
 {
     if ( !data->misc ) {
 	QImage* that = (QImage*)this;

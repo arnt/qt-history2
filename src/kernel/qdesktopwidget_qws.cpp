@@ -1,9 +1,9 @@
 #include "qdesktopwidget.h"
 
-class QDesktopWidgetPrivate
+class QDesktopWidget::Private
 {
 public:
-    QDesktopWidgetPrivate();
+    Private();
 
     int appScreen;
     int screenCount;
@@ -11,7 +11,7 @@ public:
     QArray<QRect> rects;
 };
 
-QDesktopWidgetPrivate::QDesktopWidgetPrivate()
+QDesktopWidget::Private::Private()
 {
     appScreen = 0;
     screenCount = 1;
@@ -23,7 +23,7 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 QDesktopWidget::QDesktopWidget()
 : QWidget( 0, "desktop", WType_Desktop )
 {
-    d = new QDesktopWidgetPrivate;
+    d = new Private;
 }
 
 QDesktopWidget::~QDesktopWidget()

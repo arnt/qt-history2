@@ -40,9 +40,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-class QWSPropertyManagerData {
+class QWSPropertyManager::Data {
 public:
-    QWSPropertyManagerData()
+    Data()
     {
 	properties.setAutoDelete( TRUE );
     }
@@ -70,7 +70,7 @@ public:
 
 QWSPropertyManager::QWSPropertyManager()
 {
-    d = new QWSPropertyManagerData;
+    d = new Data;
 }
 
 QWSPropertyManager::~QWSPropertyManager()
@@ -84,7 +84,7 @@ QWSPropertyManager::~QWSPropertyManager()
 
 bool QWSPropertyManager::setProperty( int winId, int property, int mode, const char *data, int len )
 {
-    QWSPropertyManagerData::Property* prop = d->find(winId,property);
+    Data::Property* prop = d->find(winId,property);
     if ( !prop ) return FALSE;
 
     switch ( mode ) {
@@ -133,7 +133,7 @@ bool QWSPropertyManager::setProperty( int winId, int property, int mode, const c
 
 bool QWSPropertyManager::hasProperty( int winId, int property )
 {
-    QWSPropertyManagerData::Property* prop = d->find(winId,property);
+    Data::Property* prop = d->find(winId,property);
     return !!prop;
 }
 
@@ -141,10 +141,10 @@ bool QWSPropertyManager::removeProperty( int winId, int property )
 {
 #ifdef QWS_PROPERTY_DEBUG
     qDebug( "QWSPropertyManager::removeProperty %d %d (%s)", winId, property, key );
-#endif    
-    QIntDict<QWSPropertyManagerData::Property>* wp = d->properties.find(winId);
+#endif
+    QIntDict<Data::Property>* wp = d->properties.find(winId);
     if ( !wp ) return FALSE;
-    QWSPropertyManagerData::Property* prop = wp->find(property);
+    Data::Property* prop = wp->find(property);
     if ( !prop ) return FALSE;
     wp->remove(property);
     if ( wp->count() == 0 )
@@ -154,14 +154,14 @@ bool QWSPropertyManager::removeProperty( int winId, int property )
 
 bool QWSPropertyManager::addProperty( int winId, int property )
 {
-    QIntDict<QWSPropertyManagerData::Property>* wp = d->properties.find(winId);
+    QIntDict<Data::Property>* wp = d->properties.find(winId);
     if ( !wp ) {
-	d->properties.insert(winId,wp = new QIntDict<QWSPropertyManagerData::Property>);
+	d->properties.insert(winId,wp = new QIntDict<Data::Property>);
 	wp->setAutoDelete(TRUE);
     }
-    QWSPropertyManagerData::Property* prop = wp->find(property);
+    Data::Property* prop = wp->find(property);
     if ( prop ) return FALSE;
-    wp->insert(property, prop = new QWSPropertyManagerData::Property);
+    wp->insert(property, prop = new Data::Property);
 
     prop->len = -1;
     prop->data = 0;
@@ -173,7 +173,7 @@ bool QWSPropertyManager::addProperty( int winId, int property )
 
 bool QWSPropertyManager::getProperty( int winId, int property, char *&data, int &len )
 {
-    QWSPropertyManagerData::Property* prop = d->find(winId,property);
+    Data::Property* prop = d->find(winId,property);
     if ( !prop ) {
 	data = 0;
 	len = -1;
@@ -183,14 +183,14 @@ bool QWSPropertyManager::getProperty( int winId, int property, char *&data, int 
     len = prop->len;
     data = prop->data;
 #ifdef QWS_PROPERTY_DEBUG
-    qDebug( "QWSPropertyManager::getProperty: %d %d (%s) %d", winId, property, 
+    qDebug( "QWSPropertyManager::getProperty: %d %d (%s) %d", winId, property,
 	    key, len );
     if ( len > 0 ) {
 	for ( int i = 0; i < len; i++ )
 	    printf( "%c",data[i] );
 	printf( "\n" );
     }
-#endif    
+#endif
 
     return TRUE;
 }

@@ -58,11 +58,11 @@ struct QMetaData				// - member function meta data
 };
 
 
-struct QMetaEnum 				// enumerator meta data
+struct QMetaEnum				// enumerator meta data
 {						//  for properties
     const char *name;				// - enumerator name
     uint count;					// - number of values
-    struct Item 				// - a name/value pair
+    struct Item				// - a name/value pair
     {
 	const char *key;
 	int value;
@@ -72,13 +72,13 @@ struct QMetaEnum 				// enumerator meta data
 };
 
 #ifndef QT_NO_PROPERTIES
-class Q_EXPORT QMetaProperty 			// property meta data
+class Q_EXPORT QMetaProperty			// property meta data
 {
 public:
     QMetaProperty();
     ~QMetaProperty();
 
-    const char* 	type() const { return t; }	// type of the property
+    const char*	type() const { return t; }	// type of the property
     const char*	name() const { return n; }	// name of the property
 
     bool writable() const;
@@ -88,7 +88,7 @@ public:
     bool isEnumType() const;
     QStrList enumKeys() const;			// enumeration names
 
-    int keyToValue( const char* key ) const; 	// enum and set conversion functions
+    int keyToValue( const char* key ) const;	// enum and set conversion functions
     const char* valueToKey( int value ) const;
     int keysToValue( const QStrList& keys ) const;
     QStrList valueToKeys( int value ) const;
@@ -98,11 +98,11 @@ public:
 
     const char* t;
     const char* n;
-    QMember 	get;				// get-function or 0 ( 0 indicates an error )
-    QMember 	set;				// set-function or 0
-    QMember 	store;				// store-function or 0
+    QMember	get;				// get-function or 0 ( 0 indicates an error )
+    QMember	set;				// set-function or 0
+    QMember	store;				// store-function or 0
     QMember     reset;                          // reset-function or 0
-    const QMetaEnum *enumData; 			// a pointer to the enum specification or 0
+    const QMetaEnum *enumData;			// a pointer to the enum specification or 0
 
     enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
     Specification gspec;			// specification of the get-function
@@ -116,7 +116,7 @@ public:
 	UnresolvedDesignable = 0x00000010,
 	NotDesignable        = 0x00000020,
 	NotStored            = 0x00000040,
-	StdSet 	             = 0x00000080
+	StdSet	             = 0x00000080
     };
 
     bool testFlags( uint f ) const;
@@ -128,13 +128,11 @@ private:
 };
 #endif // QT_NO_PROPERTIES
 
-struct QClassInfo 				// class info meta data
+struct QClassInfo				// class info meta data
 {
     const char* name;				// - name of the info
     const char* value;				// - value of the info
 };
-
-class QMetaObjectPrivate;
 
 class Q_EXPORT QMetaObject			// meta object class
 {
@@ -156,13 +154,13 @@ public:
 
     QMetaObject *superClass()		const { return superclass; }
 
-    bool 	inherits( const char* clname ) const;
+    bool	inherits( const char* clname ) const;
 
-    int  	numSlots( bool super = FALSE ) const;
+    int	numSlots( bool super = FALSE ) const;
     int		numSignals( bool super = FALSE ) const;
 
-    int 		findSlot( const char *, bool super = FALSE ) const;
-    int 		findSignal( const char *, bool super = FALSE ) const;
+    int		findSlot( const char *, bool super = FALSE ) const;
+    int		findSignal( const char *, bool super = FALSE ) const;
 
     QMetaData	*slot( int index, bool super = FALSE ) const;
     QMetaData	*signal( int index, bool super = FALSE ) const;
@@ -170,12 +168,12 @@ public:
     QStrList	slotNames( bool super = FALSE ) const;
     QStrList	signalNames( bool super = FALSE ) const;
 
-    int 		slotOffset() const;
-    int 		signalOffset() const;
+    int		slotOffset() const;
+    int		signalOffset() const;
 
     int		numClassInfo( bool super = FALSE ) const;
-    const QClassInfo 	*classInfo( int index, bool super = FALSE ) const;
-    const char 	*classInfo( const char* name, bool super = FALSE ) const;
+    const QClassInfo	*classInfo( int index, bool super = FALSE ) const;
+    const char	*classInfo( const char* name, bool super = FALSE ) const;
 
 #ifndef QT_NO_PROPERTIES
     const QMetaProperty	*property( const char* name, bool super = FALSE ) const;
@@ -196,7 +194,7 @@ public:
 					const QClassInfo * class_info, int n_info );
     static QMetaData		*new_metadata( int );
 #ifndef QT_NO_PROPERTIES
-    static QMetaProperty 	*new_metaproperty( int );
+    static QMetaProperty	*new_metaproperty( int );
 #endif
 
 private:
@@ -204,13 +202,14 @@ private:
 
     const char		*classname;			// class name
     const char		*superclassname;		// super class name
-    QMetaObject 	*superclass;			// super class meta object
-    QMetaObjectPrivate	*d;				// private data for...
-    void        	*reserved;			// ...binary compatibility
+    QMetaObject	*superclass;			// super class meta object
+    class Private;
+    Private	*d;				// private data for...
+    void	*reserved;			// ...binary compatibility
     QMetaData		*slotData;			// slot meta data
-    QMemberDict 	*slotDict;			// slot dictionary
+    QMemberDict	*slotDict;			// slot dictionary
     QMetaData		*signalData;			// signal meta data
-    QMemberDict 	*signalDict;			// signal dictionary
+    QMemberDict	*signalDict;			// signal dictionary
     const QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;
     int signaloffset;
     int slotoffset;

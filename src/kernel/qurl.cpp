@@ -44,8 +44,9 @@
 
 #include <stdlib.h>
 
-struct QUrlPrivate
+class QUrl::Private
 {
+public:
     QString protocol;
     QString user;
     QString pass;
@@ -74,10 +75,10 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 	    continue;
 	}
 	if ( s[ i ] == '\\' )
-	    s[ i ] = '/';	    
+	    s[ i ] = '/';
 #if defined (Q_WS_MAC9)
-        if ( s[ i ] == ':' && (i == (int)s.length()-1 || s[ i + 1 ] != '/' ) ) //mac colon's go away, unless after a protocol
-		s[ i ] = '/';	
+	if ( s[ i ] == ':' && (i == (int)s.length()-1 || s[ i + 1 ] != '/' ) ) //mac colon's go away, unless after a protocol
+		s[ i ] = '/';
 #endif
 	if ( s[ i ] == '/' )
 	    justHadSlash = TRUE;
@@ -146,7 +147,7 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 
 QUrl::QUrl()
 {
-    d = new QUrlPrivate;
+    d = new Private;
     d->isValid = FALSE;
     d->port = -1;
     d->cleanPathDirty = TRUE;
@@ -161,7 +162,7 @@ QUrl::QUrl()
 
 QUrl::QUrl( const QString& url )
 {
-    d = new QUrlPrivate;
+    d = new Private;
     d->protocol = "file";
     d->port = -1;
     parse( url );
@@ -173,7 +174,7 @@ QUrl::QUrl( const QString& url )
 
 QUrl::QUrl( const QUrl& url )
 {
-    d = new QUrlPrivate;
+    d = new Private;
     *d = *url.d;
 }
 
@@ -229,7 +230,7 @@ bool QUrl::isRelativeUrl( const QString &url )
 
 QUrl::QUrl( const QUrl& url, const QString& relUrl, bool checkSlash )
 {
-    d = new QUrlPrivate;
+    d = new Private;
     QString rel = relUrl;
     slashify( rel );
 
@@ -518,25 +519,25 @@ bool QUrl::parse( const QString& url )
     QString oldProtocol = d->protocol;
     d->protocol = QString::null;
 
-    const int Init 	= 0;
-    const int Protocol 	= 1;
+    const int Init	= 0;
+    const int Protocol	= 1;
     const int Separator1= 2; // :
     const int Separator2= 3; // :/
     const int Separator3= 4; // :// or more slashes
-    const int User 	= 5;
-    const int Pass 	= 6;
-    const int Host 	= 7;
-    const int Path 	= 8;
-    const int Ref 	= 9;
-    const int Query 	= 10;
-    const int Port 	= 11;
-    const int Done 	= 12;
+    const int User	= 5;
+    const int Pass	= 6;
+    const int Host	= 7;
+    const int Path	= 8;
+    const int Ref	= 9;
+    const int Query	= 10;
+    const int Port	= 11;
+    const int Done	= 12;
 
     const int InputAlpha= 1;
     const int InputDigit= 2;
     const int InputSlash= 3;
     const int InputColon= 4;
-    const int InputAt 	= 5;
+    const int InputAt	= 5;
     const int InputHash = 6;
     const int InputQuery= 7;
 
@@ -643,7 +644,7 @@ bool QUrl::parse( const QString& url )
 	    input = InputAlpha;
 	}
 
-    	state = table[ state ][ input ];
+	state = table[ state ][ input ];
 
 	switch ( state ) {
 	case Protocol:
@@ -902,7 +903,7 @@ QString QUrl::path( bool correct ) const
 		 d->path.length() > 1 ) {
 		d->cleanPath = d->path;
 		bool share = d->cleanPath[ 1 ] == '\\' || d->cleanPath[ 1 ] == '/';
- 		slashify( d->cleanPath, FALSE );
+		slashify( d->cleanPath, FALSE );
 		d->cleanPath = QDir::cleanDirPath( d->cleanPath );
 		if ( share ) {
 		    check = FALSE;
@@ -1001,7 +1002,7 @@ QString QUrl::dirPath() const
 {
     if ( path().isEmpty() )
 	return QString::null;
-    
+
     QString s = path();
     // ### Why add a slash to the path before calling dirPath()??!
     // s += "/";

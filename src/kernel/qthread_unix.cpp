@@ -136,7 +136,7 @@ QMutex::QMutex(bool recursive)
     if ( recursive )
 	d = new QRMutexPrivate();
     else
-	d = new QMutexPrivate();
+	d = new Private();
 }
 
 
@@ -519,7 +519,7 @@ bool QThread::running() const
 /*!
   \class QWaitCondition qthread.h
   \brief The QWaitCondition class allows waiting/waking for conditions
-         between threads.
+	 between threads.
 
   \ingroup environment
 
@@ -723,9 +723,9 @@ void QWaitCondition::wakeAll()
 */
 
 
-class QSemaphorePrivate {
+class QSemaphore::Private {
 public:
-    QSemaphorePrivate(int);
+    Private(int);
 
     QMutex mutex;
     QWaitCondition cond;
@@ -734,7 +734,7 @@ public:
 };
 
 
-QSemaphorePrivate::QSemaphorePrivate(int m)
+QSemaphore::Private::Private(int m)
     : mutex(FALSE), value(0), max(m)
 {
 }
@@ -746,7 +746,7 @@ QSemaphorePrivate::QSemaphorePrivate(int m)
 */
 QSemaphore::QSemaphore(int maxcount)
 {
-    d = new QSemaphorePrivate(maxcount);
+    d = new Private(maxcount);
 }
 
 

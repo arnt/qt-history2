@@ -71,7 +71,7 @@ void QAuServer::play(const QString& filename)
 
 extern QAuServer* qt_new_audio_server();
 
-class QSoundData {
+class QSound::Data {
 public:
     static QAuServer& server()
     {
@@ -79,12 +79,12 @@ public:
 	return *servers->first();
     }
 
-    QSoundData(const QString& fname) :
+    Data(const QString& fname) :
 	filename(fname), bucket(0)
     {
     }
 
-    ~QSoundData()
+    ~Data()
     {
 	if ( bucket )
 	    server().deleteBucket(bucket);
@@ -128,7 +128,7 @@ public:
   on the underlying platform audio facilities.
 
   On Microsoft Windows the underlying multimedia system is used; only WAVE
-  format sound files are supported. On X11 the 
+  format sound files are supported. On X11 the
   <a href="ftp://ftp.x.org/contrib/audio/nas/">Network Audio System</a>
   is used if available, otherwise all operations work silently. NAS
   supports WAVE and AU files.
@@ -146,7 +146,7 @@ public:
 */
 void QSound::play(const QString& filename)
 {
-    QSoundData::server().play(filename);
+    Data::server().play(filename);
 }
 
 /*!
@@ -160,7 +160,7 @@ void QSound::play(const QString& filename)
 */
 QSound::QSound(const QString& filename, QObject* parent, const char* name) :
     QObject(parent,name),
-    d(new QSoundData(filename))
+    d(new Data(filename))
 {
 }
 
@@ -196,7 +196,7 @@ void QSound::play()
 */
 bool QSound::available()
 {
-    return QSoundData::server().okay();
+    return Data::server().okay();
 }
 
 #endif // QT_NO_SOUND

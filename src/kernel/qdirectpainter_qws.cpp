@@ -51,9 +51,9 @@ public:
 };
 
 
-class QDirectPainterPrivate {
+class QDirectPainter::Private {
 public:
-    QDirectPainterPrivate()
+    Private()
     {
 	paintOk = TRUE;
 	image = 0;
@@ -126,7 +126,7 @@ public:
 QDirectPainter::QDirectPainter( const QWidget* w ) :
     QPainter(w,w)
 {
-    d = new QDirectPainterPrivate;
+    d = new Private;
     d->gfx = (QDirectPainterGfx*)internalGfx();
     d->offset = w->mapToGlobal(QPoint(0,0));
     d->w = w->width();

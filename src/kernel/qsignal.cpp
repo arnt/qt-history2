@@ -109,7 +109,7 @@ QSignal::QSignal( QObject *parent, const char *name )
     : QObject( parent, name )
 {
     isSignal = TRUE;
-    d = 0;
+    //    d = 0; //### ???
     val = 0;
 }
 

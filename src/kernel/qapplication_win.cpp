@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#442 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#443 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -500,8 +500,8 @@ static void qt_set_windows_resources()
 	    icg.setColor( QColorGroup::ButtonText, icg.dark() );
 	}
 	QPalette menu(cg, dcg, icg);
- 	QApplication::setPalette( menu, TRUE, "QPopupMenu");
- 	QApplication::setPalette( menu, TRUE, "QMenuBar");
+	QApplication::setPalette( menu, TRUE, "QPopupMenu");
+	QApplication::setPalette( menu, TRUE, "QMenuBar");
     }
 
     QColor ttip(qt_colorref2qrgb(GetSysColor(COLOR_INFOBK)));
@@ -1312,7 +1312,7 @@ bool QApplication::processNextEvent( bool canWait )
 	}
     } else {					// no-wait mode
 	if ( !winPeekMessage(&msg,0,0,0,PM_REMOVE) ) { // no pending events
-	    if ( numZeroTimers > 0 ) { 		// there are 0-timers
+	    if ( numZeroTimers > 0 ) {		// there are 0-timers
 #if defined(QT_THREAD_SUPPORT)
 		qApp->lock();
 #endif
@@ -1465,7 +1465,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    qt_set_windows_resources();
 	break;
     default:
- 	break;
+	break;
     }
 
     widget = (QETWidget*)QWidget::find( hwnd );
@@ -1570,7 +1570,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    qt_dispatchEnterLeave( 0, QWidget::find(curWin) );
 		    curWin = 0;
 		}
-	        break;
+		break;
 
 	    case WM_SYSCOMMAND:
 		if ( wParam == SC_CONTEXTHELP ) {
@@ -2308,7 +2308,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	gpos.x = GET_X_LPARAM(ol_pos);
 	gpos.y = GET_Y_LPARAM(ol_pos);
 
- 	pos = mapFromGlobal( QPoint(gpos.x, gpos.y) );
+	pos = mapFromGlobal( QPoint(gpos.x, gpos.y) );
 
 	if ( type == QEvent::MouseButtonPress ) {	// mouse button pressed
 	    // Magic for masked widgets
@@ -2800,7 +2800,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 
     int delta;
     if ( msg.message == WM_MOUSEWHEEL )
-        delta = (short) HIWORD ( msg.wParam );
+	delta = (short) HIWORD ( msg.wParam );
     else
 	delta = (int) msg.wParam;
 
@@ -3102,10 +3102,10 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	break;
 	}
 	BOOL onoff = enable;
-        if ( qt_winver & WV_NT_based )
+	if ( qt_winver & WV_NT_based )
 	    SystemParametersInfo( api, 0, &onoff, 0 );
-        else
-            SystemParametersInfoA( api, 0, &onoff, 0 );
+	else
+	    SystemParametersInfoA( api, 0, &onoff, 0 );
     }
 }
 
@@ -3128,10 +3128,10 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    api = SPI_GETCOMBOBOXANIMATION;
 	    break;
 	case UI_AnimateTooltip:
-            if ( qt_winver != WV_2000 )
-                api = SPI_GETMENUANIMATION;
-            else
-	        api = SPI_GETTOOLTIPANIMATION;
+	    if ( qt_winver != WV_2000 )
+		api = SPI_GETMENUANIMATION;
+	    else
+		api = SPI_GETTOOLTIPANIMATION;
 	    break;
 	case UI_FadeTooltip:
 	    if ( qt_winver != WV_2000 )
@@ -3142,10 +3142,10 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    api = SPI_GETUIEFFECTS;
 	    break;
 	}
-        if ( qt_winver & WV_NT_based )
+	if ( qt_winver & WV_NT_based )
 	    SystemParametersInfo( api, 0, &enabled, 0 );
-        else
-            SystemParametersInfoA( api, 0, &enabled, 0 );
+	else
+	    SystemParametersInfoA( api, 0, &enabled, 0 );
 	return enabled;
     } else {
 	switch( effect ) {
@@ -3170,7 +3170,7 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
  *****************************************************************************/
 
 
-class QSessionManagerData
+class QSessionManager::Data
 {
 public:
     QStringList restartCommand;
@@ -3182,7 +3182,7 @@ public:
 QSessionManager::QSessionManager( QApplication *app, QString &session )
     : QObject( app, "session manager")
 {
-    d = new QSessionManagerData;
+    d = new Data;
     d->sessionId = session;
     win_session_manager = this;
 }

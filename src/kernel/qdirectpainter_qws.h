@@ -39,8 +39,6 @@
 
 #ifdef _WS_QWS_
 
-class QDirectPainterPrivate;
-
 class QDirectPainter : public QPainter {
 public:
     QDirectPainter( const QWidget* );
@@ -63,7 +61,8 @@ public:
     QSize size() const;
 
 private:
-    QDirectPainterPrivate* d;
+    class Private;
+    Private* d;
 };
 
 #endif

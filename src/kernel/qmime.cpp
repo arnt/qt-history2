@@ -106,7 +106,7 @@ QMimeSource::~QMimeSource()
 #ifdef QT_CHECK_RANGE
 	qWarning("QMimeSource::~QMimeSource: clipboard data deleted!");
 #endif
-#if defined(Q_WS_X11)	
+#if defined(Q_WS_X11)
 	QApplication::clipboard()->clobber();
 #endif
     }
@@ -152,14 +152,14 @@ bool QMimeSource::provides(const char* mimeType) const
 
 
 
-class QMimeSourceFactoryData {
+class QMimeSourceFactory::Data {
 public:
-    QMimeSourceFactoryData() :
+    Data() :
 	last(0)
     {
     }
 
-    ~QMimeSourceFactoryData()
+    ~Data()
     {
 	QMap<QString, QMimeSource*>::Iterator it = stored.begin();
 	while ( it != stored.end() ) {
@@ -238,7 +238,7 @@ public:
   content.
 */
 QMimeSourceFactory::QMimeSourceFactory() :
-    d(new QMimeSourceFactoryData)
+    d(new Data)
 {
     // add some reasonable defaults
     setExtensionType("htm", "text/html;charset=iso8859-1");
@@ -288,7 +288,7 @@ QMimeSource* QMimeSourceFactory::dataInternal(const QString& abs_name, const QMa
 		return r;
 	}
     }
-	
+
     return r;
 }
 

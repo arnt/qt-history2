@@ -3,11 +3,11 @@
 #include "qapplication_p.h"
 #include "qarray.h"
 
-class QDesktopWidgetPrivate
+class QDesktopWidget::Private
 {
 public:
-    QDesktopWidgetPrivate();
-    ~QDesktopWidgetPrivate();
+    Private();
+    ~Private();
 
     static int screenCount;
     static int primaryScreen;
@@ -31,41 +31,41 @@ public:
     static HMODULE user32hnd;
 };
 
-int QDesktopWidgetPrivate::screenCount = 1;
-int QDesktopWidgetPrivate::primaryScreen = 0;
-QDesktopWidgetPrivate::EnumFunc QDesktopWidgetPrivate::enumDisplayMonitors = 0;
-QDesktopWidgetPrivate::InfoFunc QDesktopWidgetPrivate::getMonitorInfo = 0;
-HMODULE QDesktopWidgetPrivate::user32hnd = 0;
-QArray<QRect> QDesktopWidgetPrivate::rects = QArray<QRect>();
+int QDesktopWidget::Private::screenCount = 1;
+int QDesktopWidget::Private::primaryScreen = 0;
+QDesktopWidget::Private::EnumFunc QDesktopWidget::Private::enumDisplayMonitors = 0;
+QDesktopWidget::Private::InfoFunc QDesktopWidget::Private::getMonitorInfo = 0;
+HMODULE QDesktopWidget::Private::user32hnd = 0;
+QArray<QRect> QDesktopWidget::Private::rects = QArray<QRect>();
 
 BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
 {
     static int sn = 0;
 
     // Get the MONITORINFO block
-    QDesktopWidgetPrivate::MONITORINFO info;
-    memset( &info, 0, sizeof(QDesktopWidgetPrivate::MONITORINFO) );
-    info.cbSize = sizeof(QDesktopWidgetPrivate::MONITORINFO);
-    BOOL res = QDesktopWidgetPrivate::getMonitorInfo( hMonitor, &info );
+    QDesktopWidget::Private::MONITORINFO info;
+    memset( &info, 0, sizeof(QDesktopWidget::Private::MONITORINFO) );
+    info.cbSize = sizeof(QDesktopWidget::Private::MONITORINFO);
+    BOOL res = QDesktopWidget::Private::getMonitorInfo( hMonitor, &info );
     if ( !res ) {
-	QDesktopWidgetPrivate::rects.at( sn ) = QRect();
+	QDesktopWidget::Private::rects.at( sn ) = QRect();
 	return TRUE;
     }
 
     // Fill list of rects
     RECT r = info.rcMonitor;
     QRect qr( QPoint( r.left, r.top ), QPoint( r.right - 1, r.bottom - 1 ) );
-    QDesktopWidgetPrivate::rects.at( sn ) = qr;
+    QDesktopWidget::Private::rects.at( sn ) = qr;
 
     if ( info.dwFlags & 0x00000001 ) //MONITORINFOF_PRIMARY
-	QDesktopWidgetPrivate::primaryScreen = sn;
+	QDesktopWidget::Private::primaryScreen = sn;
 
     ++sn;
     // Stop the enumeration if we have them all
-    return ( sn != QDesktopWidgetPrivate::screenCount );
+    return ( sn != QDesktopWidget::Private::screenCount );
 }
 
-QDesktopWidgetPrivate::QDesktopWidgetPrivate()
+QDesktopWidget::Private::Private()
 {
     if ( qt_winver & Qt::WV_98 || qt_winver & Qt::WV_2000 ) {
 	screenCount = GetSystemMetrics( 80 );  // SM_CMONITORS
@@ -94,7 +94,7 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
     }
 }
 
-QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
+QDesktopWidget::Private::~Private()
 {
 }
 
@@ -111,7 +111,7 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 QDesktopWidget::QDesktopWidget()
 : QWidget( 0, "desktop", WType_Desktop )
 {
-    d = new QDesktopWidgetPrivate;
+    d = new Private;
 }
 
 /*!
@@ -168,7 +168,7 @@ QWidget *QDesktopWidget::screen( int screen )
 	screen = d->primaryScreen;
 
     if ( !d->screens )
-    	memset( ( screens = new QWidget*[screenCount] ), 0, screenCount * sizeof( QWidget*) );
+	memset( ( screens = new QWidget*[screenCount] ), 0, screenCount * sizeof( QWidget*) );
 
     if ( !d->screens[ screen ] ) {
 	QWidget *w= new QWidget();

@@ -44,8 +44,6 @@
 
 #if defined(QT_THREAD_SUPPORT)
 
-class QMutexPrivate;
-
 const int Q_MUTEX_NORMAL = 0;
 const int Q_MUTEX_RECURSIVE = 1;
 
@@ -65,7 +63,8 @@ public:
     bool tryLock();
 
 private:
-    QMutexPrivate * d;
+    class Private;
+    Private * d;
 
 #if defined(Q_DISABLE_COPY)
     QMutex( const QMutex & );
@@ -73,11 +72,10 @@ private:
 #endif
 };
 
-class QThreadPrivate;
+class QThreadPrivate; /* don't touch */
 
 class Q_EXPORT QThread : public Qt
 {
-    friend class QThreadPrivate;
 public:
     static Qt::HANDLE currentThread();
     static void postEvent( QObject *,QEvent * );
@@ -105,6 +103,7 @@ protected:
 
 private:
     QThreadPrivate * d;
+    friend class QThreadPrivate;
 
 #if defined(Q_DISABLE_COPY)
     QThread( const QThread & );
@@ -112,7 +111,7 @@ private:
 #endif
 };
 
-class QWaitConditionPrivate;
+class QWaitConditionPrivate; /* don't touch */
 
 class Q_EXPORT QWaitCondition : public Qt
 {
@@ -136,8 +135,6 @@ private:
 #endif
 };
 
-class QSemaphorePrivate;
-
 class Q_EXPORT QSemaphore : public Qt
 {
 public:
@@ -158,7 +155,8 @@ public:
 
 
 private:
-    QSemaphorePrivate *d;
+    class Private;
+    Private *d;
 
 #if defined(Q_DISABLE_COPY)
     QSemaphore(const QSemaphore &);

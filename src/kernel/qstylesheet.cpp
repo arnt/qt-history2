@@ -46,7 +46,7 @@
 
 #include <stdio.h>
 
-class QStyleSheetItemData
+class QStyleSheetItem::Data
 {
 public:
     QStyleSheetItem::DisplayMode disp;
@@ -118,7 +118,7 @@ public:
 */
 QStyleSheetItem::QStyleSheetItem( QStyleSheet* parent, const QString& name )
 {
-    d = new QStyleSheetItemData;
+    d = new Data;
     d->stylename = name.lower();
     d->sheet = parent;
     init();
@@ -132,7 +132,7 @@ QStyleSheetItem::QStyleSheetItem( QStyleSheet* parent, const QString& name )
  */
 QStyleSheetItem::QStyleSheetItem( const QStyleSheetItem & other )
 {
-    d = new QStyleSheetItemData;
+    d = new Data;
     *d = *other.d;
 }
 
@@ -215,7 +215,7 @@ QStyleSheetItem::DisplayMode QStyleSheetItem::displayMode() const
 
   \value DisplayBlock  elements are displayed as a rectangular block (e.g.,
     &lt;P&gt; ... &lt;/P&gt;).
-  
+
   \value DisplayInline  elements are displayed in a horizontally flowing
      sequence (e.g., &lt;EM&gt; ... &lt;/EM&gt;).
 
@@ -1158,7 +1158,7 @@ QTextCustomItem* QStyleSheet::tag(  const QString& name,
     if ( style->name() == s_img )
 	return new QTextImage( doc, attr, context, (QMimeSourceFactory&)factory);
     if ( style->name() == s_hr )
- 	return new QTextHorizontalLine( doc );
+	return new QTextHorizontalLine( doc );
    return 0;
 }
 
@@ -1219,7 +1219,7 @@ QString QStyleSheet::convertFromPlainText( const QString& plain)
 
   \value RichText The text string is interpreted as a rich text
   according to the current QStyleSheet::defaultSheet().
-  
+
   \value AutoText The text string is interpreted as for \c RichText if
   QStyleSheet::mightBeRichText() returns TRUE, otherwise as for \c
   PlainText.

@@ -38,8 +38,8 @@
 #include "qsignalmapper.h"
 #include "qptrdict.h"
 
-struct QSignalMapperRec {
-    QSignalMapperRec()
+struct QSignalMapper::MapperRec {
+    MapperRec()
     {
 	has_int = 0;
 	str_id = QString::null;
@@ -52,14 +52,14 @@ struct QSignalMapperRec {
     // extendable to other types of identification
 };
 
-class QSignalMapperData {
+class QSignalMapper::Data {
 public:
-    QSignalMapperData()
+    Data()
     {
 	dict.setAutoDelete( TRUE );
     }
 
-    QPtrDict<QSignalMapperRec> dict;
+    QPtrDict<MapperRec> dict;
 };
 
 // NOT REVISED
@@ -79,7 +79,7 @@ public:
 QSignalMapper::QSignalMapper( QObject* parent, const char* name ) :
     QObject( parent, name )
 {
-    d = new QSignalMapperData;
+    d = new Data;
 }
 
 /*!
@@ -98,7 +98,7 @@ QSignalMapper::~QSignalMapper()
 */
 void QSignalMapper::setMapping( const QObject* sender, int identifier )
 {
-    QSignalMapperRec* rec = getRec(sender);
+    MapperRec* rec = getRec(sender);
     rec->int_id = identifier;
     rec->has_int = 1;
 }
@@ -112,7 +112,7 @@ void QSignalMapper::setMapping( const QObject* sender, int identifier )
 */
 void QSignalMapper::setMapping( const QObject* sender, const QString &identifier )
 {
-    QSignalMapperRec* rec = getRec(sender);
+    MapperRec* rec = getRec(sender);
     rec->str_id = identifier;
 }
 
@@ -137,7 +137,7 @@ void QSignalMapper::removeMapping()
 void QSignalMapper::map()
 {
     const QObject* s = sender();
-    QSignalMapperRec* rec = d->dict.find( (void*)s );
+    MapperRec* rec = d->dict.find( (void*)s );
     if ( rec ) {
 	if ( rec->has_int )
 	    emit mapped( rec->int_id );
@@ -146,11 +146,11 @@ void QSignalMapper::map()
     }
 }
 
-QSignalMapperRec* QSignalMapper::getRec( const QObject* sender )
+QSignalMapper::MapperRec* QSignalMapper::getRec( const QObject* sender )
 {
-    QSignalMapperRec* rec = d->dict.find( (void*)sender );
+    MapperRec* rec = d->dict.find( (void*)sender );
     if (!rec) {
-	rec = new QSignalMapperRec;
+	rec = new MapperRec;
 	d->dict.insert( (void*)sender, rec );
 	connect( sender, SIGNAL(destroyed()), this, SLOT(removeMapping()) );
     }

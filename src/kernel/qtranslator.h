@@ -46,9 +46,6 @@
 
 #ifndef QT_NO_TRANSLATION
 
-class QTranslatorPrivate;
-
-
 class Q_EXPORT QTranslatorMessage
 {
 public:
@@ -71,7 +68,7 @@ public:
     QString translation() const { return tn; }
 
     enum Prefix { NoPrefix, Hash, HashContext, HashContextSourceText,
-    		  HashContextSourceTextComment };
+		  HashContextSourceTextComment };
     void write( QDataStream & s, bool strip,
 		Prefix prefix = HashContextSourceTextComment ) const;
     Prefix commonPrefix( const QTranslatorMessage& ) const;
@@ -108,7 +105,7 @@ public:
     ~QTranslator();
 
     QString find( const char *context, const char *sourceText, const char * comment = 0 ) const {
-	return findMessage( context, sourceText, comment ).translation(); 
+	return findMessage( context, sourceText, comment ).translation();
     }
     virtual QTranslatorMessage findMessage( const char *, const char *,
 				    const char * ) const;
@@ -125,12 +122,12 @@ public:
     void clear();
 
     void insert( const QTranslatorMessage& );
-    void insert( const char *context, const char *sourceText, const QString &translation ) { 
-	insert( QTranslatorMessage(context, sourceText, "", translation) ); 
+    void insert( const char *context, const char *sourceText, const QString &translation ) {
+	insert( QTranslatorMessage(context, sourceText, "", translation) );
     }
     void remove( const QTranslatorMessage& );
-    void remove( const char *context, const char *sourceText ) { 
-	remove( QTranslatorMessage(context, sourceText, "") ); 
+    void remove( const char *context, const char *sourceText ) {
+	remove( QTranslatorMessage(context, sourceText, "") );
     }
     bool contains( const char *, const char *, const char * comment = 0 ) const;
 
@@ -140,7 +137,8 @@ public:
     QValueList<QTranslatorMessage> messages() const;
 
 private:
-    QTranslatorPrivate * d;
+    class Private;
+    Private * d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

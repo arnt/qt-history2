@@ -43,8 +43,6 @@
 #endif // QT_H
 
 #ifndef QT_NO_ICONSET
-struct QIconSetPrivate;
-
 
 class Q_EXPORT QIconSet
 {
@@ -77,7 +75,8 @@ public:
     QIconSet &operator=( const QIconSet & );
 
 private:
-    QIconSetPrivate * d;
+    class Private;
+    Private * d;
 };
 
 #endif // QT_NO_ICONSET
