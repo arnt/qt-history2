@@ -1290,6 +1290,8 @@ QGLWidget::QGLWidget( QWidget *parent, const char *name,
 		      const QGLWidget* shareWidget, WFlags f )
     : QWidget( parent, name, f | Qt::WWinOwnDC | Qt::WNoAutoErase )
 {
+    setAttribute(WA_PaintOnScreen);
+    setAttribute(WA_NoBackground);
     init( new QGLContext(QGLFormat::defaultFormat(), this), shareWidget );
 }
 
