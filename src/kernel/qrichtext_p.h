@@ -935,7 +935,6 @@ private:
     QTextDocument *par;
     QTextParagraph *parentPar;
     QTextTableCell *tc;
-    QTextCursor *tmpCursor;
     QBrush *backBrush;
     QPixmap *buf_pixmap;
     Focus focusIndicator;

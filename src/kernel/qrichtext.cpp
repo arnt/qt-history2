@@ -1320,7 +1320,6 @@ void QTextDocument::init()
 	withoutDoubleBuffer = FALSE;
 
     lParag = fParag = createParagraph( this, 0, 0 );
-    tmpCursor = 0;
 
     cx = 0;
     cy = 2;
@@ -3169,7 +3168,6 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
 	buf_pixmap = 0;
     }
 
-    tmpCursor = 0;
     return lastFormatted;
 }
 
@@ -7836,15 +7834,12 @@ void QTextTableCell::draw( QPainter* p, int x, int y, int cx, int cy, int cw, in
     p->translate( horizontalAlignmentOffset(), verticalAlignmentOffset() );
 
     QRegion r;
-    QTextCursor *c = 0;
-    if ( richtext->parent()->tmpCursor )
-	c = richtext->parent()->tmpCursor;
     if ( cx >= 0 && cy >= 0 )
 	richtext->draw( p, cx - ( x + horizontalAlignmentOffset() + geom.x() ),
 			cy - ( y + geom.y() + verticalAlignmentOffset() ),
-			cw, ch, g, FALSE, (c != 0), c );
+			cw, ch, g, FALSE, FALSE, 0 );
     else
-	richtext->draw( p, -1, -1, -1, -1, g, FALSE, (c != 0), c );
+	richtext->draw( p, -1, -1, -1, -1, g, FALSE, FALSE, 0 );
 
     p->restore();
 }
