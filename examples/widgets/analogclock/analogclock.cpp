@@ -20,13 +20,12 @@ void AnalogClock::paintEvent(QPaintEvent *)
     static QCOORD minuteHand[8] = { 1, 0, 0, 1, -1, 0, 0, -40 };
 
     int side = qMin(width(), height());
+    QTime time = QTime::currentTime();
 
     QPainter painter(this);
+    painter.setBrush(painter.pen().color());
     painter.translate(width() / 2, height() / 2);
     painter.scale(side / 100.0, side / 100.0);
-    painter.setBrush(painter.pen().color());
-
-    QTime time = QTime::currentTime();
 
     painter.save();
     painter.rotate(30 * (time.hour() % 12) + time.minute() / 2);
