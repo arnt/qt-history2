@@ -23,7 +23,7 @@ static const char *kwords[] = {
     "char", "class", "const", "double", "enum", "friend", "int", "long", "operator", "private",
     "protected", "public", "short", "signals", "signed", "slots", "static", "struct", "template",
     "typedef", "union", "unsigned", "virtual", "void", "volatile", "Q_ENUMS", "Q_OBJECT",
-    "Q_OVERRIDE", "Q_PROPERTY"
+    "Q_OVERRIDE", "Q_PROPERTY", "Q_DECLARE_ITERATOR", "Q_DECLARE_ASSOCIATIVE_ITERATOR"
 };
 
 static const int KwordHashTableSize = 2048;
@@ -49,7 +49,7 @@ static int hashKword(const char *s, int len)
 	     (((uchar) s[len - 1]) << 3) ) % KwordHashTableSize;
 }
 
-static int insertKwordIntoHash(const char *s, int number)
+static void insertKwordIntoHash(const char *s, int number)
 {
     int k = hashKword(s, strlen(s));
     while (kwordHashTable[k]) {
@@ -92,7 +92,6 @@ int Tokenizer::getToken()
 		} else if ( i == -1 ) {
 		    if (ignoredTokens->contains(yyLex))
 			break;
-		    return Tok_Ident;
 		} else if ( strcmp(yyLex, kwords[i - 1]) == 0 ) {
 		    return (int) Tok_FirstKeyword + i - 1;
 		}

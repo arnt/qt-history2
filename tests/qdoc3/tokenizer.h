@@ -29,9 +29,9 @@ enum { Tok_Eoi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen, Tok_Lef
        Tok_operator, Tok_private, Tok_protected, Tok_public, Tok_short, Tok_signals, Tok_signed,
        Tok_slots, Tok_static, Tok_struct, Tok_template, Tok_typedef, Tok_union, Tok_unsigned,
        Tok_virtual, Tok_void, Tok_volatile, Tok_Q_ENUMS, Tok_Q_OBJECT, Tok_Q_OVERRIDE,
-       Tok_Q_PROPERTY,
+       Tok_Q_PROPERTY, Tok_Q_DECLARE_ITERATOR, Tok_Q_DECLARE_ASSOCIATIVE_ITERATOR,
 
-       Tok_FirstKeyword = Tok_char, Tok_LastKeyword = Tok_Q_PROPERTY };
+       Tok_FirstKeyword = Tok_char, Tok_LastKeyword = Tok_Q_DECLARE_ASSOCIATIVE_ITERATOR };
 
 /*
   The Tokenizer class implements lexical analysis of C++ source

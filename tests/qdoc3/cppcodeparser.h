@@ -69,8 +69,11 @@ private:
     bool matchProperty( InnerNode *parent );
     bool matchDeclList( InnerNode *parent );
     bool matchDocsAndStuff();
-    bool makeFunctionNode( const QString& synopsis, QStringList *parentPathPtr,
-			   FunctionNode **funcPtr );
+    bool makeFunctionNode(const QString &synopsis, QStringList *parentPathPtr,
+			  FunctionNode **funcPtr);
+    void parseQiteratorDotH(const Location &location, const QString &filePath, Tree *tree);
+    void instantiateIteratorMacro(const QString &container, const QString &includeFile,
+				  const QString &macroDef, Tree *tree);
 
     QMap<QString, Node::Type> nodeTypeMap;
     Tree *tre;
@@ -81,6 +84,10 @@ private:
     QStringList lastPath;
     QRegExp varComment;
     QRegExp sep;
+    QString linearIteratorDefinition;
+    QString associativeIteratorDefinition;
+    QMap<QString, QString> linearIteratorClasses;
+    QMap<QString, QString> associativeIteratorClasses;
 };
 
 #endif

@@ -90,6 +90,9 @@ void CppCodeParser::parseHeaderFile( const Location& location,
     if (!fileTokenizer.version().isEmpty())
 	tree->setVersion(fileTokenizer.version());
     fclose(in);
+
+    if (fileLocation.fileName() == "qiterator.h")
+	parseQiteratorDotH(location, filePath, tree);
 }
 
 void CppCodeParser::parseSourceFile( const Location& location,
@@ -114,6 +117,21 @@ void CppCodeParser::doneParsingHeaderFiles( Tree *tree )
 {
     tree->resolveInheritance();
     tree->resolveProperties();
+
+    QMapIterator<QString, QString> i(linearIteratorClasses);
+    while (i.hasNext()) {
+	i.next();
+	instantiateIteratorMacro(i.key(), i.value(), linearIteratorDefinition, tree);
+    }
+    i = associativeIteratorClasses;
+    while (i.hasNext()) {
+	i.next();
+	instantiateIteratorMacro(i.key(), i.value(), associativeIteratorDefinition, tree);
+    }
+    linearIteratorDefinition.clear();
+    associativeIteratorDefinition.clear();
+    linearIteratorClasses.clear();
+    associativeIteratorClasses.clear();
 }
 
 void CppCodeParser::doneParsingSourceFiles( Tree *tree )
@@ -870,6 +888,18 @@ bool CppCodeParser::matchDeclList( InnerNode *parent )
 	case Tok_Q_PROPERTY:
 	    matchProperty( parent );
 	    break;
+	case Tok_Q_DECLARE_ITERATOR:
+	    readToken();
+            if (match(Tok_LeftParen) && match(Tok_Ident))
+		linearIteratorClasses.insert(previousLexeme(), location().fileName());
+            match(Tok_RightParen);
+	    break;
+        case Tok_Q_DECLARE_ASSOCIATIVE_ITERATOR:
+	    readToken();
+            if (match(Tok_LeftParen) && match(Tok_Ident))
+		associativeIteratorClasses.insert(previousLexeme(), location().fileName());
+            match(Tok_RightParen);
+	    break;
 	default:
 	    if ( !matchFunctionDecl(parent) ) {
 		while ( tok != Tok_Eoi &&
@@ -997,4 +1027,40 @@ bool CppCodeParser::makeFunctionNode(const QString& synopsis, QStringList *paren
     tok = outerTok;
 
     return ok;
+}
+
+void CppCodeParser::parseQiteratorDotH(const Location &location, const QString &filePath,
+				       Tree * /* tree */)
+{
+    QFile file(filePath);
+    if (!file.open(IO_ReadOnly))
+	return;
+
+    QString text = file.readAll();
+    text.remove("\r");
+    text.replace("\\\n", "");
+    QStringList lines = text.split("\n");
+    lines = lines.find("Q_DECLARE");
+    lines.replace(QRegExp("#define Q[A-Z_]*\\(C\\)"), "");
+
+    if (lines.size() == 2) {
+        linearIteratorDefinition = lines[0];
+        associativeIteratorDefinition = lines[1];
+    } else {
+	location.warning(tr("The qiterator.h hack failed"));
+    }
+}
+
+void CppCodeParser::instantiateIteratorMacro(const QString &container, const QString &includeFile,
+					     const QString &macroDef, Tree *tree)
+{
+    QString resultingCode = macroDef;
+    resultingCode.replace(QRegExp("\\bC\\b"), container);
+    resultingCode.replace(QRegExp("\\s*##\\s*"), "");
+
+    Location loc(includeFile);   // hack to get the include file for free
+    StringTokenizer stringTokenizer(loc, resultingCode.latin1(), resultingCode.length());
+    tokenizer = &stringTokenizer;
+    readToken();
+    matchDeclList(tree->root());
 }
