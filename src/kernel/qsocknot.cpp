@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocknot.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qsocknot.cpp#12 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -22,12 +22,15 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
 
   \ingroup kernel
 
-  This class makes it possible to write asynchronous TCP/IP socket-based
-  code in Qt.  Using synchronous socket operations blocks the program,
-  which is clearly not acceptable for an event-based GUI program.
+  This class makes it possible to write e.g. asynchronous TCP/IP
+  socket-based code in Qt.  Using synchronous socket operations blocks
+  the program, which is clearly not acceptable for an event-based GUI
+  program.
 
-  If you have opened a socket, you can create a socket notifier to monitor
-  the socket.  Then connect the activated() signal to the slot you want to
+  Once you have opened a non-blocking socket (either for TCP, UDP, a
+  unix-domain socket, or any other protocol family your operating
+  system supports), you can create a socket notifier to monitor the
+  socket.  Then connect the activated() signal to the slot you want to
   be called when a socket event occurs.
 
   There are three types of socket notifiers (read, write and exception)
@@ -48,7 +51,8 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   \code
     int sockfd;					// socket identifier
     struct sockaddr_in sa;			// should contain host address
-    sockfd = socket( AF_INET, SOCK_STREAM, 0 ); // create socket
+    sockfd = socket( AF_INET, SOCK_STREAM, 0 ); // create TCP socket
+    // make the socket non-blocking here, usually using fcntl( O_NONBLOCK )
     ::connect( sockfd, (struct sockaddr*)&sa,	// connect to host
 	       sizeof(sa) );			//   NOT QObject::connect()!
     QSocketNotifier sn( sockfd, QSocketNotifier::Read );
