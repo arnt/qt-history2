@@ -26,7 +26,8 @@ public:
         : state(NoState),
           offset(0),
           sortIndicatorOrder(Qt::AscendingOrder),
-          sortIndicatorSection(-1),
+          sortIndicatorSection(0),
+          sortIndicatorShown(false),
           movableSections(false),
           clickableSections(false),
           highlightCurrent(false),
@@ -47,6 +48,7 @@ public:
     Qt::Orientation orientation;
     Qt::SortOrder sortIndicatorOrder;
     int sortIndicatorSection;
+    bool sortIndicatorShown;
 
     struct HeaderSection {
         int position;

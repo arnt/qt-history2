@@ -1073,6 +1073,10 @@ QVariant QAbstractItemModel::headerData(int section, Qt::Orientation, int role) 
 bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation, int role,
                                        const QVariant &value)
 {
+    Q_UNUSED(section);
+    Q_UNUSED(orientation);
+    Q_UNUSED(role);
+    Q_UNUSED(value);
     return false;
 }
 

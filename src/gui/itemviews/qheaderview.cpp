@@ -394,7 +394,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int section
     opt.rect = style().subRect(QStyle::SR_HeaderLabel, &opt, fontMetrics(), this);
     style().drawControl(QStyle::CE_HeaderLabel, &opt, painter, this);
 
-    if (sortIndicatorSection() == section) {
+    if (isSortIndicatorShown() && sortIndicatorSection() == section) {
         opt.rect = style().subRect(QStyle::SR_HeaderArrow, &opt, fontMetrics(), this);
         opt.state = (sortIndicatorOrder() == Qt::AscendingOrder
                      ? QStyle::Style_Down : QStyle::Style_Up) | QStyle::Style_Off;
@@ -412,7 +412,7 @@ QSize QHeaderView::sectionSizeFromContents(int section) const
                                     QAbstractItemModel::DecorationRole).toIconSet();
     size = style().sizeFromContents(QStyle::CT_HeaderSection, &opt, size, fontMetrics(), this);
 
-    if (sortIndicatorSection() == section) {
+    if (isSortIndicatorShown() && sortIndicatorSection() == section) {
         int margin = style().pixelMetric(QStyle::PM_HeaderMargin);
         if (orientation() == Qt::Horizontal)
             size.rwidth() += size.height() + margin;
@@ -1269,6 +1269,25 @@ int QHeaderView::stretchSectionCount() const
 }
 
 /*!
+  \property QHeaderView::showSortIndicator
+  \brief whether the sort indicator is shown
+*/
+
+void QHeaderView::showSortIndicator(bool show)
+{
+    d->sortIndicatorShown = show;
+    if (d->sections.at(sortIndicatorSection()).mode == Custom) {
+        resizeSections();
+        d->viewport->update();
+    }
+}
+
+bool QHeaderView::isSortIndicatorShown() const
+{
+    return d->sortIndicatorShown;
+}
+
+/*!
     Sets the sort indicator for the given \a section in the direction
     specified by \a order, and removes the sort indicator from any
     other section that was showing it.
@@ -1285,12 +1304,11 @@ void QHeaderView::setSortIndicator(int section, Qt::SortOrder order)
     if (section >= d->sections.count())
         return; // nothing to do
 
-    if (d->sections.at(section).mode == Custom
-        || (old > -1 && d->sections.at(old).mode == Custom)) {
+    if (old != section && d->sections.at(section).mode == Custom) {
         resizeSections();
         d->viewport->update();
     } else {
-        if (old > -1 && old != section)
+        if (old != section)
             updateSection(old);
         updateSection(section);
     }
