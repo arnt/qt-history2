@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#74 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -292,7 +292,8 @@ static QPixmap *getCacheBuffer( QSize sz )
     }
     if ( ++freeNext == 3 )
 	freeNext = 0;
-    buffer[freeNext]->resize( sz );
+    delete buffer[freeNext];
+    buffer[freeNext] = new QPixmap( sz );
     return buffer[freeNext];
 }
 
@@ -361,9 +362,15 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 	p.setClipping( TRUE );
 	p.setClipRect( fillxpos1 - updateR.left(), 0, 
 		       fillxpos2 - fillxpos1, cellHeight(row) );
-	p.fillRect( fillxpos1, 0, fillxpos2 - fillxpos1, 
-		    cellHeight(row), g.text() );
-	p.setPen( g.base() );
+	if ( style() == WindowsStyle ) {
+	    p.fillRect( fillxpos1, 0, fillxpos2 - fillxpos1, cellHeight(row), 
+			QApplication::winStyleHighlightColor() );
+	    p.setPen( white );	    
+	} else {
+	    p.fillRect( fillxpos1, 0, fillxpos2 - fillxpos1, cellHeight(row),
+			g.text() );
+	    p.setPen( g.base() );
+	}
 	p.drawText( BORDER, yPos, xpos2 - BORDER, cellHeight( row ),
 		    ExpandTabs, s->data() );
 	p.setClipping( FALSE );
