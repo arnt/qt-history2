@@ -1,5 +1,5 @@
 TARGET=stltest
-CONFIG+=no_resource_fork
 CONFIG-=qt opengl x11sm dylib
+mac:CONFIG -= resource_fork
 TEMPLATE=app
 SOURCES=stltest.cpp

@@ -1,5 +1,5 @@
 TARGET=ipv6test
 CONFIG+=no_resource_fork
-CONFIG-=qt opengl x11sm dylib
+mac:CONFIG -= resource_fork
 TEMPLATE=app
 SOURCES=ipv6test.cpp
