@@ -1,0 +1,1 @@
+grep -s $QTDIR $QTDIR/doc/html/$1*
