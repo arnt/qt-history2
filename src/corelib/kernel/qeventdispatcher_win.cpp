@@ -34,8 +34,15 @@ struct TimerInfo {                              // internal timer info
     int     ind;                                // - Qt timer identifier - 1
     uint     id;                                // - Windows timer identifier
     QObject *obj;                               // - object to receive events
-    bool    fast;                               // fast multimedia timer
+    int    type;                                // GDI timer, fast multimedia timer or zero timer
     QEventDispatcherWin32Private *dispatcher;
+
+    enum TimerType
+    {
+        Normal,
+        Fast,
+        Off
+    };
 };
 typedef QList<TimerInfo*>  TimerVec;            // vector of TimerInfo structs
 typedef QHash<int,TimerInfo*> TimerDict;        // fast dict of timers
@@ -194,7 +201,7 @@ void WINAPI CALLBACK qt_fast_timer_proc(uint timerId, uint /*reserved*/, DWORD_P
     TimerInfo *t = (TimerInfo*)user;
     Q_ASSERT(t);
     EnterCriticalSection(&t->dispatcher->fastTimerCriticalSection);
-    if (!t->fast) { // timer stopped
+    if (t->type == TimerInfo::Off) { // timer stopped
         qtimeKillEvent(timerId);
         LeaveCriticalSection(&t->dispatcher->fastTimerCriticalSection);
         delete t;
@@ -532,17 +539,19 @@ int QEventDispatcherWin32::registerTimer(int interval, QObject *object)
     t->ind  = d->timerVec.isEmpty() ? 1 : d->timerVec.last()->ind + 1;
     t->obj  = object;
     t->dispatcher = 0;
-    t->fast = false;
+    t->type = TimerInfo::Normal;
 
     if (interval > 10 || !interval || !qtimeSetEvent) {
+        if (!interval) // optimization for single-shot-zero-timer
+            PostThreadMessage(GetCurrentThreadId(), WM_TIMER, WPARAM(t->id), LPARAM(qt_timer_proc));
         t->id = SetTimer(0, 0, (uint) interval, (TIMERPROC) qt_timer_proc);
     } else {
         t->dispatcher = d;
-        t->fast = true;
+        t->type = TimerInfo::Fast;
         t->id = qtimeSetEvent(interval, 1, qt_fast_timer_proc, (DWORD_PTR)t, TIME_CALLBACK_FUNCTION|TIME_PERIODIC);
         if (!t->id) { // fall back to normal timer if no more multimedia timers avaiable
             t->dispatcher = 0;
-            t->fast = false;
+            t->type = TimerInfo::Normal;
             t->id = SetTimer(0, 0, (uint)interval, (TIMERPROC) qt_timer_proc);            
         }
     }
@@ -554,7 +563,7 @@ int QEventDispatcherWin32::registerTimer(int interval, QObject *object)
     }
 
     d->timerVec.append(t);                      // store in timer vector
-    if (!t->fast)
+    if (t->type != TimerInfo::Fast)
         d->timerDict.insert(t->id, t);          // store regular timers in dict
     return t->ind;                              // return index in vector
 }
@@ -575,16 +584,19 @@ bool QEventDispatcherWin32::unregisterTimer(int timerId)
     if (!t)
         return false;
 
-    if (t->fast) {
+    switch (t->type) {
+    case TimerInfo::Fast:
         EnterCriticalSection(&d->fastTimerCriticalSection);
         d->timerVec.removeAll(t);
-        t->fast = false; // kill timer (and delete t) from callback
+        t->type = TimerInfo::Off; // kill timer (and delete t) from callback
         LeaveCriticalSection(&d->fastTimerCriticalSection);
-    } else {
+        break;
+    case TimerInfo::Normal:
         KillTimer(0, t->id);
         d->timerDict.remove(t->id);
         d->timerVec.removeAll(t);
         delete t;
+        break;
     }
 
     return true;
@@ -599,16 +611,19 @@ bool QEventDispatcherWin32::unregisterTimers(QObject *object)
     for (int i=0; i<d->timerVec.size(); i++) {
         t = d->timerVec.at(i);
         if (t && t->obj == object) {                // object found
-            if (t->fast) {
+            switch (t->type) {
+            case TimerInfo::Fast:
                 EnterCriticalSection(&d->fastTimerCriticalSection);
                 d->timerVec.removeAt(i);
-                t->fast = false; // kill timer (and delete t) from callback
+                t->type = TimerInfo::Off; // kill timer (and delete t) from callback
                 LeaveCriticalSection(&d->fastTimerCriticalSection);
-            } else {
+                break;
+            case TimerInfo::Normal:
                 KillTimer(0, t->id);
                 d->timerDict.remove(t->id);
                 d->timerVec.removeAt(i);
                 delete t;
+                break;
             }
 
             --i;
