@@ -69,6 +69,7 @@
 #include "qmap.h"
 #include "qfontdatabase.h"
 #include "qregexp.h"
+#include <private/qunicodetables_p.h>
 
 #if defined(Q_OS_WIN32)
 #include <io.h>
@@ -177,15 +178,16 @@ static const char *const ps_header =
 "dict begin{1 i/FID ne{d}{pop pop}ifelse}forall/Encoding ED currentdict end\n"
 "definefont pop}D/DF{findfont/fs 3 -1 roll d[fs 0 0 fs -1 mul 0 0]makefont d}\n"
 "D/ty 0 d/Y{/ty ED}D/Tl{gsave SW PCol SC NP 1 i exch MT 1 i 0 RL S grestore}D\n"
-"/T{PCol SC ty MT/languagelevel where{pop languagelevel 2 ge}{false}ie{pop\n"
+"/XYT{PCol SC ty MT/languagelevel where{pop languagelevel 2 ge}{false}ie{pop\n"
 "xyshow}{exch pop 1 i dup length 2 div exch stringwidth pop 3 -1 roll exch\n"
-"sub exch div exch 0 exch ashow}ie}D/QI{/C save d pageinit/Cx 0 d/Cy 0 d/OMo\n"
-"false d}D/QP{C restore showpage}D/SPD{/setpagedevice where{1 DB 3 1 roll d\n"
-"end setpagedevice}{pop pop}ie}D/SV{BSt LWi PSt Cx Cy WFi OMo BCol PCol BkCol\n"
-"/nS nS 1 add d gsave}D/RS{nS 0 gt{grestore/BkCol ED/PCol ED/BCol ED/OMo ED\n"
-"/WFi ED/Cy ED/Cx ED/PSt ED/LWi ED/BSt ED/nS nS 1 sub d}if}D/CLSTART{/clipTmp\n"
-"matrix CM d defM SM NP}D/CLEND{clip NP clipTmp SM}D/CLO{grestore gsave defM\n"
-"SM}D\n";
+"sub exch div exch 0 exch ashow}ie}D/AT{PCol SC ty MT 1 i dup length 2 div\n"
+"exch stringwidth pop 3 -1 roll exch sub exch div exch 0 exch ashow}D/QI{/C\n"
+"save d pageinit/Cx 0 d/Cy 0 d/OMo false d}D/QP{C restore showpage}D/SPD{\n"
+"/setpagedevice where{1 DB 3 1 roll d end setpagedevice}{pop pop}ie}D/SV{BSt\n"
+"LWi PSt Cx Cy WFi OMo BCol PCol BkCol/nS nS 1 add d gsave}D/RS{nS 0 gt{\n"
+"grestore/BkCol ED/PCol ED/BCol ED/OMo ED/WFi ED/Cy ED/Cx ED/PSt ED/LWi ED\n"
+"/BSt ED/nS nS 1 sub d}if}D/CLSTART{/clipTmp matrix CM d defM SM NP}D/CLEND{\n"
+"clip NP clipTmp SM}D/CLO{grestore gsave defM SM}D\n";
 
 // the next table is derived from a list provided by Adobe on its web
 // server: http://partners.adobe.com/asn/developer/typeforum/glyphlist.txt
@@ -1704,11 +1706,7 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, const QPoint &p, QTex
                                  const QString &text, QPSPrinterPrivate *d, QPainter *paint)
 {
     int len = engine->length( item );
-    if ( !len )
-        return;
-
     QScriptItem &si = engine->items[item];
-    QShapedItem *shaped = engine->shape( item );
 
     int x = p.x() + si.x;
     int y = p.y() + si.y;
@@ -1717,38 +1715,15 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, const QPoint &p, QTex
     d->textY = y;
 
     stream << "<";
-    int i;
-    QCString xyarray;
-    int xo = 0;
-    int yo = 0;
     if ( si.analysis.bidiLevel % 2 ) {
-	for ( i = len-1; i >= 0; i-- ) {
-	    ushort u = mapUnicode(text.unicode()[i+si.position].unicode());
-	    stream << toHex( u );
-	    //printf("i=%d high=%02x low=%02x unicode=%04x\n",i,high,low,u);
-	    xyarray += toInt( xo + shaped->advances[i] );
-	    xyarray += " ";
-	    xyarray += toInt( yo );
-	    xyarray += " ";
-	    xo = -xo + shaped->offsets[i].x;
-	    yo = -xo + shaped->offsets[i].y;
-	}
+	for ( int i = len-1; i >=0; i-- )
+	    stream << toHex( mapUnicode(text.unicode()[i+si.position].unicode()) );
     } else {
-	for ( i = 0; i < len; i++ ) {
-	    ushort u = mapUnicode(text.unicode()[i+si.position].unicode());
-	    stream << toHex( u );
-	    //printf("i=%d high=%02x low=%02x unicode=%04x\n",i,high,low,u);
-	    xyarray += toInt( xo + shaped->advances[i] );
-	    xyarray += " ";
-	    xyarray += toInt( yo );
-	    xyarray += " ";
-	    xo = -xo + shaped->offsets[i].x;
-	    yo = -xo + shaped->offsets[i].y;
-	}
+	for ( int i = 0; i < len; i++ )
+	    stream << toHex( mapUnicode(text.unicode()[i+si.position].unicode()) );
     }
     stream << ">";
 
-    stream << "[" << xyarray << "]";
     stream << si.width << " " << x;
 
     if ( paint->font().underline() )
@@ -1757,7 +1732,7 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, const QPoint &p, QTex
     if ( paint->font().strikeOut() )
         stream << ' ' << y + d->fm.strikeOutPos()
                << " " << d->fm.lineWidth() << " Tl";
-    stream << " T\n";
+    stream << " AT\n";
 
 }
 
@@ -2361,8 +2336,6 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
     QScriptItem &si = engine->items[item];
     QShapedItem *shaped = engine->shape( item );
     int len = shaped->num_glyphs;
-    if ( !len )
-        return;
 
     int x = p.x() + si.x;
     int y = p.y() + si.y;
@@ -2379,23 +2352,27 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
 	for ( int i = len-1; i >=0; i-- ) {
 	    // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
 	    stream << toHex( mapUnicode( shaped->glyphs[i] ) );
-	    xyarray += toInt( xo + shaped->advances[i] );
-	    xyarray += " ";
-	    xyarray += toInt( yo );
-	    xyarray += " ";
-	    xo = -xo + shaped->offsets[i].x;
-	    yo = -xo + shaped->offsets[i].y;
+	    if ( i != len-1 ) {
+		xyarray += toInt( xo + shaped->offsets[i].x + shaped->advances[i+1] );
+		xyarray += " ";
+		xyarray += toInt( yo + shaped->offsets[i].y );
+		xyarray += " ";
+		xo = -shaped->offsets[i].x;
+		yo = -shaped->offsets[i].y;
+	    }
 	}
     } else {
 	for ( int i = 0; i < len; i++ ) {
 	    // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
 	    stream << toHex( mapUnicode( shaped->glyphs[i] ) );
-	    xyarray += toInt( xo + shaped->advances[i] );
-	    xyarray += " ";
-	    xyarray += toInt( yo );
-	    xyarray += " ";
-	    xo = -xo + shaped->offsets[i].x;
-	    yo = -xo + shaped->offsets[i].y;
+	    if ( i ) {
+		xyarray += toInt( xo + shaped->offsets[i].x + shaped->advances[i-1] );
+		xyarray += " ";
+		xyarray += toInt( yo + shaped->offsets[i].y );
+		xyarray += " ";
+		xo = -shaped->offsets[i].x;
+		yo = -shaped->offsets[i].y;
+	    }
 	}
     }
     stream << ">";
@@ -2409,7 +2386,7 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
     if ( paint->font().strikeOut() )
         stream << ' ' << y + d->fm.strikeOutPos()
                << " " << d->fm.lineWidth() << " Tl";
-    stream << " T\n";
+    stream << " XYT\n";
 
 }
 
@@ -4239,10 +4216,7 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, const QPoint &p, QTextE
 				    const QString &text, QPSPrinterPrivate *d, QPainter *paint)
 {
     int len = engine->length( item );
-    if ( !len )
-	return;
     QScriptItem &si = engine->items[item];
-    QShapedItem *shaped = engine->shape( item );
 
     int x = p.x() + si.x;
     int y = p.y() + si.y;
@@ -4260,10 +4234,6 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, const QPoint &p, QTextE
     QCString mb;
     QCString out;
     QString dummy( QChar(0x20) );
-
-    QCString xyarray;
-    int xo = 0;
-    int yo = 0;
 
     if ( si.analysis.bidiLevel % 2 ) {
 	for ( int i = len-1; i >= 0; i-- ) {
@@ -4283,12 +4253,6 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, const QPoint &p, QTextE
 		    out += mb.at(j);
 		}
 	    }
-	    xyarray += toInt( xo + shaped->advances[i] );
-	    xyarray += " ";
-	    xyarray += toInt( yo );
-	    xyarray += " ";
-	    xo = -xo + shaped->offsets[i].x;
-	    yo = -xo + shaped->offsets[i].y;
 	}
     } else {
 	for ( int i = 0; i < len; i++ ) {
@@ -4308,15 +4272,9 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, const QPoint &p, QTextE
 		    out += mb.at(j);
 		}
 	    }
-	    xyarray += toInt( xo + shaped->advances[i] );
-	    xyarray += " ";
-	    xyarray += toInt( yo );
-	    xyarray += " ";
-	    xo = -xo + shaped->offsets[i].x;
-	    yo = -xo + shaped->offsets[i].y;
 	}
     }
-    stream << "(" << out << ")" << '[' << xyarray << ']' << si.width << " " << x << mdf << " T\n";
+    stream << "(" << out << ")" << si.width << " " << x << mdf << " AT\n";
 }
 
 // ----------- Japanese --------------
@@ -6316,6 +6274,16 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	QTextEngine *engine = layout.d;
 	for ( int i = 0; i < layout.numItems(); i++ ) {
 	    QScriptItem &si = engine->items[i];
+	    int len = engine->length( i );
+	    bool allSpace = TRUE;
+	    for ( int j = 0; j < len; j++ )
+		if ( !::isSpace( tmp.unicode()[j+si.position] ) ) {
+		    allSpace = FALSE;
+		    break;
+		}
+
+	    if ( allSpace )
+		continue;
 	    si.y -= ascent;
 
 	    if ( d->currentSet != d->currentUsed || d->scriptUsed != si.analysis.script || !d->currentFontFile ) {
@@ -6324,10 +6292,6 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    }
 	    if( d->currentFontFile ) // better not crash in case somethig goes wrong.
 		d->currentFontFile->drawText( d->pageStream, *p[0].point, engine, i, tmp, d, paint);
-#if 0
-	    fe->draw( this, xpos,  ypos, shaped->glyphs, shaped->advances,
-		      shaped->offsets, shaped->num_glyphs, rightToLeft );
-#endif
 	}
         break;
     }

@@ -704,7 +704,7 @@
   grestore
 } D
 
-/T {  % [string [x/y displacement array] width x]
+/XYT {  % [string [x/y displacement array] width x]
   PCol SC % really need to kill these SCs
   ty MT % pops x
 
@@ -725,6 +725,18 @@
     exch 0 exch % extraperchar 0 string
     ashow
   } ifelse
+} D
+
+/AT {
+  PCol SC % really need to kill these SCs
+  ty MT % pops x
+  1 index % string cwidth string
+  dup length 2 div exch % string cwidth length string     !have to divide by 2 since we use unicode!
+  stringwidth pop % string cwidth length pwidth
+  3 -1 roll % string length pwidth cwidth
+  exch sub exch div % string extraperchar
+  exch 0 exch % extraperchar 0 string
+  ashow
 } D
 
 %% start of page
