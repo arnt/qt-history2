@@ -203,6 +203,9 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f )
     setTabBar( new QTabBar( this, "tab control" ) );
 
     d->stack->setFrameStyle( QFrame::TabWidgetPanel | QFrame::Raised );
+#ifdef Q_OS_TEMP
+    d->pos = Bottom;
+#endif
 
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
     setFocusPolicy( TabFocus );
