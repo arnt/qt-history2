@@ -3,6 +3,8 @@ CONFIG		+= qt warn_on release
 HEADERS		= qplugin.h \
 		  qpluginmanager.h \
 		  qplugininterface.h \
+		  qapplicationinterface.h \
+		  qdualinterface.h \
 		  qactionfactory.h \
 		  qactionplugin.h \
 		  qactioninterface.h \
@@ -10,7 +12,6 @@ HEADERS		= qplugin.h \
 		  qwidgetplugin.h \
 		  qwidgetinterface.h \
 		  plugmainwindow.h \
-		  qapplicationinterfaces.h \
 		  qcleanuphandler.h
 		  
 SOURCES		= main.cpp \
