@@ -438,11 +438,33 @@ public:
     bool isAccepted() const { return a; }
     void accept() { a = TRUE; }
     void ignore() { a = FALSE; }
+    int selectionLength() const;
+
 private:
     QString txt;
     int cpos;
     bool a;
 };
+
+class Q_EXPORT QIMComposeEvent : public QIMEvent
+{
+public:
+    QIMComposeEvent( Type type, const QString &text, int cursorPosition,
+		     int selLength )
+	: QIMEvent( type, text, cursorPosition ), selLen( selLength ) { }
+
+private:
+    int selLen;
+
+    friend class QIMEvent;
+};
+
+inline int QIMEvent::selectionLength() const
+{
+    if ( type() != IMCompose ) return 0;
+    QIMComposeEvent *that = (QIMComposeEvent *) this;
+    return that->selLen;
+}
 
 
 #ifndef QT_NO_DRAGANDDROP
