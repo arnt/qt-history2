@@ -318,7 +318,7 @@ void QRadioButton::resizeEvent( QResizeEvent* e )
 }
 
 
-/*!
+/*!\reimp
  */
 void QRadioButton::updateMask()
 {
