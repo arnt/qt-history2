@@ -192,6 +192,13 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
         return true;
     }
 
+    // Set up the polygon clipper.
+    const int BUFFERZONE = 100;
+    d->polygonClipper.setBoundingRect(QRect(-BUFFERZONE,
+                                            -BUFFERZONE,
+                                            pdev->width() + 2*BUFFERZONE,
+                                            pdev->height() + 2 * BUFFERZONE));
+
     // Store old features set since we change it when switching to GDI+.
     d->oldFeatureSet = gccaps;
 
@@ -199,8 +206,6 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
     d->forceGdi = false;
     d->ellipseHack = false;
     d->advancedMode = false;
-
-    d->polygonClipper.setBoundingRect(QRect(0, 0, pdev->width(), pdev->height()));
 
     setActive(true);
 
