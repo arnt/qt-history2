@@ -35,7 +35,7 @@ public:
     explicit QVector(int size);
     QVector(int size, const T &t);
     inline QVector(const QVector &v) : d(v.d) { ++d->ref; }
-    inline ~QVector() { if (!--d->ref) free(d); }
+    inline ~QVector() { if (!d) return; if (!--d->ref) free(d); }
     QVector &operator=(const QVector  &a);
     bool operator== (const QVector &v) const;
     inline bool operator!= (const QVector &v) const { return !(*this == v); }

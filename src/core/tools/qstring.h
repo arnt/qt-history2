@@ -51,7 +51,7 @@ public:
     explicit QString(QChar c);
     QString(const QLatin1String &latin1);
     QString(const QString &);
-    ~QString() { if (!--d->ref) free(d); }
+    ~QString() { if (!d) return; if (!--d->ref) free(d); }
     QString &operator=(QChar c);
     inline QString &operator=(const QString &);
     inline QString &operator=(const QLatin1String &);

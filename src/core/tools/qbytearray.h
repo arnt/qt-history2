@@ -322,7 +322,7 @@ inline void QByteArray::detach()
 inline bool QByteArray::isDetached() const
 { return d->ref == 1; }
 inline QByteArray::~QByteArray()
-{ if (!--d->ref) qFree(d); }
+{ if (!d) return; if (!--d->ref) qFree(d); }
 inline QByteArray::QByteArray(const QByteArray &a) : d(a.d)
 { ++d->ref; }
 #ifdef QT_COMPAT

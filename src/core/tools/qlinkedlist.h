@@ -176,6 +176,8 @@ private:
 template <typename T>
 inline QLinkedList<T>::~QLinkedList()
 {
+    if (!d)
+        return;
     if (!--d->ref)
         free(d);
 }

@@ -74,7 +74,7 @@ class QMap
 public:
     inline QMap() : d(&QMapData::shared_null) { ++d->ref; }
     inline QMap(const QMap<Key, T> &other) : d(other.d) { ++d->ref; }
-    inline ~QMap() { if (!--d->ref) freeData(d); }
+    inline ~QMap() { if (!d) return; if (!--d->ref) freeData(d); }
 
     QMap<Key, T> &operator=(const QMap<Key, T> &other);
 #ifndef QT_NO_STL
