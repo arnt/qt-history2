@@ -1769,12 +1769,9 @@ const QGLContext* QGLContext::currentContext()
     \sa QGLFormat::defaultFormat()
 */
 
-QGLWidget::QGLWidget(QWidget *parent, const char *name,
-                      const QGLWidget* shareWidget, Qt::WFlags f)
+QGLWidget::QGLWidget(QWidget *parent, const QGLWidget* shareWidget, Qt::WFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC)
 {
-    if (name)
-        setObjectName(name);
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
     d->init(new QGLContext(QGLFormat::defaultFormat(), this), shareWidget);
@@ -1809,13 +1806,10 @@ QGLWidget::QGLWidget(QWidget *parent, const char *name,
     \sa QGLFormat::defaultFormat(), isValid()
 */
 
-QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
-                      const char *name, const QGLWidget* shareWidget,
-                      Qt::WFlags f)
+QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent, const QGLWidget* shareWidget,
+                     Qt::WFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC)
 {
-    if (name)
-        setObjectName(name);
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
     d->init(new QGLContext(format, this), shareWidget);
@@ -1846,12 +1840,10 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
 
     \sa QGLFormat::defaultFormat(), isValid()
 */
-QGLWidget::QGLWidget(QGLContext *context, QWidget *parent,
-                      const char *name, const QGLWidget *shareWidget, Qt::WFlags f)
+QGLWidget::QGLWidget(QGLContext *context, QWidget *parent, const QGLWidget *shareWidget,
+                     Qt::WFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC)
 {
-    if (name)
-        setObjectName(name);
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
     d->init(context, shareWidget);
@@ -2826,6 +2818,56 @@ QPaintEngine *QGLWidget::paintEngine() const
     }
     return qt_widget_paintengine;
 }
+
+#ifdef QT_COMPAT
+/*!
+    \overload
+    \obsolete
+ */
+QGLWidget::QGLWidget(QWidget *parent, const char *name,
+                      const QGLWidget* shareWidget, Qt::WFlags f)
+    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC)
+{
+    if (name)
+        setObjectName(name);
+    setAttribute(Qt::WA_PaintOnScreen);
+    setAttribute(Qt::WA_NoSystemBackground);
+    d->init(new QGLContext(QGLFormat::defaultFormat(), this), shareWidget);
+}
+
+/*!
+    \overload
+    \obsolete
+ */
+QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
+                      const char *name, const QGLWidget* shareWidget,
+                      Qt::WFlags f)
+    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC)
+{
+    if (name)
+        setObjectName(name);
+    setAttribute(Qt::WA_PaintOnScreen);
+    setAttribute(Qt::WA_NoSystemBackground);
+    d->init(new QGLContext(format, this), shareWidget);
+}
+
+/*!
+    \overload
+    \obsolete
+ */
+QGLWidget::QGLWidget(QGLContext *context, QWidget *parent,
+                      const char *name, const QGLWidget *shareWidget, Qt::WFlags f)
+    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC)
+{
+    if (name)
+        setObjectName(name);
+    setAttribute(Qt::WA_PaintOnScreen);
+    setAttribute(Qt::WA_NoSystemBackground);
+    d->init(context, shareWidget);
+}
+
+#endif // QT_COMPAT
+
 
 /*****************************************************************************
   QGL classes overview documentation.

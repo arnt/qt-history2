@@ -232,12 +232,19 @@ class Q_OPENGL_EXPORT QGLWidget : public QWidget, public QGL
     Q_OBJECT
     Q_DECLARE_PRIVATE(QGLWidget)
 public:
-    QGLWidget(QWidget* parent=0, const char* name=0,
-               const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
-    QGLWidget(QGLContext *context, QWidget* parent=0, const char* name=0,
-               const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
-    QGLWidget(const QGLFormat& format, QWidget* parent=0, const char* name=0,
-               const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
+    QGLWidget(QWidget* parent=0, const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
+    QGLWidget(QGLContext *context, QWidget* parent=0, const QGLWidget* shareWidget = 0,
+              Qt::WFlags f=0);
+    QGLWidget(const QGLFormat& format, QWidget* parent=0, const QGLWidget* shareWidget = 0,
+              Qt::WFlags f=0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QGLWidget(QWidget* parent=0, const char* name=0,
+                                    const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
+    QT_COMPAT_CONSTRUCTOR QGLWidget(QGLContext *context, QWidget* parent=0, const char* name=0,
+                                    const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
+    QT_COMPAT_CONSTRUCTOR QGLWidget(const QGLFormat& format, QWidget* parent=0, const char* name=0,
+                                    const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
+#endif
     ~QGLWidget();
 
     void qglColor(const QColor& c) const;

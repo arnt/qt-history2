@@ -826,8 +826,7 @@ class QGLOverlayWidget : public QGLWidget
 {
     Q_OBJECT
 public:
-    QGLOverlayWidget(const QGLFormat& format, QGLWidget* parent,
-                      const char* name=0, const QGLWidget* shareWidget=0);
+    QGLOverlayWidget(const QGLFormat& format, QGLWidget* parent, const QGLWidget* shareWidget=0);
 
 protected:
     void                initializeGL();
@@ -843,9 +842,8 @@ private:
 
 
 QGLOverlayWidget::QGLOverlayWidget(const QGLFormat& format, QGLWidget* parent,
-                                    const char* name,
-                                    const QGLWidget* shareWidget)
-    : QGLWidget(format, parent, name, shareWidget ? shareWidget->d->olw : 0)
+                                   const QGLWidget* shareWidget)
+    : QGLWidget(format, parent, shareWidget ? shareWidget->d->olw : 0)
 {
     realWidget = parent;
 }
@@ -898,8 +896,7 @@ void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget *shareWidget)
     if (q->isValid() && context->format().hasOverlay()) {
         QString olwName = q->objectName();
         olwName += "-QGL_internal_overlay_widget";
-        olw = new QGLOverlayWidget(QGLFormat::defaultOverlayFormat(),
-                                   q, 0, shareWidget);
+        olw = new QGLOverlayWidget(QGLFormat::defaultOverlayFormat(), q, shareWidget);
         olw->setObjectName(olwName);
         if (olw->isValid()) {
             olw->setAutoBufferSwap(false);
