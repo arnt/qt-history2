@@ -24,6 +24,14 @@ var distDir;		// directory for P4 checkout
 var p4Port;
 var p4Command;
 
+
+/************************************************************
+ * Purging filters that will be moved into files later
+ */
+
+var preRemove = [ /doc/ ];
+var preKeep = [ /./ ];
+
 /*******************************************************************************
  * Here we go
  */
@@ -37,12 +45,10 @@ System.println("Building qdoc...");
 buildQdoc();
 // System.println("Building qpkg...");
 // buildQpkg();
-System.println("Checkin out from P4...");
+System.println("Checkout from P4...");
 checkout();
-var start = Date().getTime();
-var list = getFileList(distDir);
-var end = Date().getTime();
-System.println("getFileList(%1) took: %2 milliseconds count: %3".arg(qtDir).arg(end-start).arg(list.length));
+System.println("Purging before packaging...");
+purgeFiles(getFileList(distDir), preRemove, preKeep);
 // cleanup();
 
 /************************************************************
@@ -209,12 +215,16 @@ function checkout()
  */
 function purgeFiles(fileList, remove, keep)
 {
-    var doRemove = false;
-    var doKeep = false;
+    var doRemove;
+    var doKeep;
     for (var i in fileList) {
+	doRemove = false;
+	doKeep = false;
 	// check if the file should be removed
+	fileName = fileList[i];
 	for (var r in remove) {
-	    if (fileList[i].find(remove[r]) != -1) {
+	    if (fileName.find(remove[r]) != -1) {
+		System.println( "remove hit, regexp: %1 string: %2".arg(remove[r]).arg(fileName));
 		doRemove = true;
 		break;
 	    }
@@ -222,14 +232,22 @@ function purgeFiles(fileList, remove, keep)
 
 	// remove file
 	if (doRemove) {
-	    if (File.exists[fileList[i]])
-		File.remove(fileList[i]);
+	    if (File.exists(fileName)) {
+		if (File.isFile(fileName)) {
+		    File.remove(fileName);
+		    System.println("removed" + fileName);
+		} else if (File.isDir(fileName)) {
+		    var dir = new Dir(fileName);
+		    dir.rmdirs();
+		    System.println("removed" + fileName);
+		}
+	    }
 	    continue;
 	}
 
 	// check if the file should be kept
 	for (var k in keep) {
-	    if (fileList[i].find(keep[k]) != -1) {
+	    if (fileName.find(keep[k]) != -1) {
 		doKeep = true;
 		break;
 	    }
