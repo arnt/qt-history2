@@ -8,6 +8,11 @@
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 
+var KEY1
+var KEY2
+var KEY3
+var DISPLAY_US_LICENSE
+
 ; MUI 1.67 compatible ------
 !include "MUI.nsh"
 
@@ -18,12 +23,26 @@
 
 ; Welcome page
 !insertmacro MUI_PAGE_WELCOME
-; License page
+
+; License check
+Page custom CheckQtLicense ValidateKey
+
+!define MUI_LICENSEPAGE_RADIOBUTTONS
+
+; US License page
+!define MUI_PAGE_CUSTOMFUNCTION_PRE ShowUSLicense
+!insertmacro MUI_PAGE_LICENSE "%PACKAGEDIR%\.LICENSE-US"
+
+; NON-US License page
+!define MUI_PAGE_CUSTOMFUNCTION_PRE ShowNonUSLicense
 !insertmacro MUI_PAGE_LICENSE "%PACKAGEDIR%\.LICENSE"
+
 ; Directory page
 !insertmacro MUI_PAGE_DIRECTORY
+
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
+
 ; Finish page
 !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\README"
 !insertmacro MUI_PAGE_FINISH
@@ -33,6 +52,9 @@
 
 ; Language files
 !insertmacro MUI_LANGUAGE "English"
+
+ReserveFile "checkqtlicense.ini"
+!insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
 
 ; MUI end ------
 
@@ -56,6 +78,7 @@ Section -AdditionalIcons
 SectionEnd
 
 Section -Post
+  call PatchQt
   WriteUninstaller "$INSTDIR\uninst.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
@@ -63,6 +86,58 @@ Section -Post
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
 SectionEnd
+
+Function .onInit
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "checkqtlicense.ini"
+  strcpy $DISPLAY_US_LICENSE "1"
+FunctionEnd
+
+Function CheckQtLicense
+  !insertmacro MUI_HEADER_TEXT "$(TEXT_IO_TITLE)" "$(TEXT_IO_SUBTITLE)"
+  !insertmacro MUI_INSTALLOPTIONS_DISPLAY "checkqtlicense.ini"
+FunctionEnd
+
+Function PatchQt
+  qtnsisext::PatchBinary "$INSTDIR\bin\qmake.exe" $INSTDIR
+FunctionEnd
+
+Function ValidateKey
+  !insertmacro MUI_INSTALLOPTIONS_READ $KEY1 "checkqtlicense.ini" "Field 2" "State"
+  !insertmacro MUI_INSTALLOPTIONS_READ $KEY2 "checkqtlicense.ini" "Field 4" "State"
+  !insertmacro MUI_INSTALLOPTIONS_READ $KEY3 "checkqtlicense.ini" "Field 6" "State"
+  push $1
+  qtnsisext::IsValidLicense $KEY1 $KEY2 $KEY3
+  pop $1
+  strcmp $1 "0" 0 checkForUS
+    goto wrongKey
+
+  checkForUS:
+    push $1
+    qtnsisext::UsesUsLicense $KEY1 $KEY2 $KEY3
+    pop $1
+    strcmp $1 "1" 0 nonUS
+      strcpy $DISPLAY_US_LICENSE "1"
+      goto end
+  nonUS:
+    strcpy $DISPLAY_US_LICENSE "0"
+  goto end
+  wrongKey:
+    MessageBox MB_ICONEXCLAMATION|MB_RETRYCANCEL "The license key you entered is not valid! Do you want to try it again?" IDRETRY tryAgain 0
+    Quit
+  tryAgain:
+    Abort
+  end:
+FunctionEnd
+
+Function ShowUSLicense
+  strcmp $DISPLAY_US_LICENSE "1" +2
+  Abort
+FunctionEnd
+
+Function ShowNonUSLicense
+  strcmp $DISPLAY_US_LICENSE "0" +2
+  Abort
+FunctionEnd
 
 Function un.onUninstSuccess
   HideWindow
