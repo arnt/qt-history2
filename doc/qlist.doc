@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.30 1999/10/13 17:24:18 aavit Exp $
+** $Id: qlist.doc,v 2.31 1999/10/16 23:48:19 warwick Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -219,6 +219,18 @@
 */
 
 /*!
+  \fn void QList::prepend( const type *item )
+  Inserts the \e item at the start of the list.
+
+  The inserted item becomes the current list item.
+  This is equivalent to \c insert(0,item).
+
+  The \e item must not be a null pointer.
+
+  \sa append(), insert(), current()
+*/
+
+/*!
   \fn void QList::append( const type *item )
   Inserts the \e item at the end of the list.
 
@@ -226,7 +238,7 @@
 
   The \e item must not be a null pointer.
 
-  \sa insert(), current()
+  \sa prepend(), insert(), current()
 */
 
 /*!
