@@ -434,7 +434,7 @@ void QGLWidget::setContext( QGLContext *context,
     const QPaintDevice *me = this;
     if(macInternalDoubleBuffer()) {
 	me = gl_pix;
-    } else if ( context->device() != me ) {
+    } else if ( !context->deviceIsPixmap() && context->device() != me ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QGLWidget::setContext: Context must refer to this widget" );
 #endif
