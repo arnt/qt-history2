@@ -1,4 +1,4 @@
-#include "sqlinterpreter.h"
+#include <sqlinterpreter.h>
 #include <qsql.h>
 #include <qcleanuphandler.h>
 #include <qdatetime.h>
