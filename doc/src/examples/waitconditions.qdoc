@@ -44,9 +44,9 @@
 
     To synchronize the producer and the consumer, we need two wait
     conditions and one mutex. The \c bufferNotEmpty condition is
-    signaled when the producer has generated some data, telling the
+    signalled when the producer has generated some data, telling the
     consumer that it can start reading it. The \c bufferNotFull
-    condition is signaled when the consumer has read some data,
+    condition is signalled when the consumer has read some data,
     telling the producer that it can generate more. The \c numUsedBytes
     is the number of bytes in the buffer that contain data.
 
@@ -68,7 +68,7 @@
     If the buffer is full, the thread waits on the \c bufferNotFull
     condition.
 
-    At the end, the producer increments \c numUsedBytes and signals
+    At the end, the producer increments \c numUsedBytes and signalls
     that the condition \c bufferNotEmpty is true, since \c
     numUsedBytes is necessarily greater than 0.
 
@@ -105,9 +105,9 @@
     So what happens when we run the program? Initially, the producer
     thread is the only one that can do anything; the consumer is
     blocked waiting for the \c bufferNotEmpty condition to be
-    signaled (\c numUsedBytes is 0). Once the producer has put one
+    signalled (\c numUsedBytes is 0). Once the producer has put one
     byte in the buffer, \c numUsedBytes is \c BufferSize - 1 and the
-    \c bufferNotEmpty condition is signaled. At that point, two
+    \c bufferNotEmpty condition is signalled. At that point, two
     things can happen: Either the consumer thread takes over and
     reads that byte, or the consumer gets to produce a second byte.
 

@@ -23,7 +23,6 @@
 
     \ingroup thread
     \ingroup environment
-    \mainclass
 
     A semaphore is a generalization of a mutex. While a mutex can
     only be locked once, it's possible to acquire a semaphore
@@ -73,7 +72,7 @@
     seated (taking the available seats to 5, making the party of 10
     people wait longer).
 
-    \sa QMutex, QWaitCondition
+    \sa QMutex, QWaitCondition, QThread
 */
 
 class QSemaphorePrivate {

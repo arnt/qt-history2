@@ -35,92 +35,100 @@ struct QWaitConditionPrivate {
 
 
 /*!
-    \class QWaitCondition qwaitcondition.h
+    \class QWaitCondition
     \threadsafe
-    \brief The QWaitCondition class allows waiting/waking for conditions between threads.
+    \brief The QWaitCondition class provides a condition variable for
+    synchronizing threads.
 
     \ingroup thread
     \ingroup environment
 
     QWaitConditions allow a thread to tell other threads that some
-    sort of condition has been met; one or many threads can block
+    sort of condition has been met. One or many threads can block
     waiting for a QWaitCondition to set a condition with wakeOne() or
     wakeAll(). Use wakeOne() to wake one randomly selected event or
-    wakeAll() to wake them all. For example, say we have three tasks
-    that should be performed every time the user presses a key; each
-    task could be split into a thread, each of which would have a
-    run() body like this:
+    wakeAll() to wake them all. For example, let's suppose that we
+    have three tasks that should be performed whenever the user
+    presses a key. Each task could be split into a thread, each of
+    which would have a \l{QThread::run()}{run()} body like this:
 
     \code
-    QWaitCondition key_pressed;
-
-    for (;;) {
-        key_pressed.wait(); // This is a QWaitCondition global variable
-        // Key was pressed, do something interesting
-        do_something();
-    }
+        forever {
+            keyPressed.wait();
+            do_something();
+        }
     \endcode
+
+    Here, the \c keyPressed variable is a global variable of type
+    QWaitCondition.
 
     A fourth thread would read key presses and wake the other three
     threads up every time it receives one, like this:
 
     \code
-    QWaitCondition key_pressed;
-
-    for (;;) {
-        getchar();
-        // Causes any thread in key_pressed.wait() to return from
-        // that method and continue processing
-        key_pressed.wakeAll();
-    }
+        forever {
+            getchar();
+            keyPressed.wakeAll();
+        }
     \endcode
 
-    Note that the order the three threads are woken up in is
-    undefined, and that if some or all of the threads are still in
-    do_something() when the key is pressed, they won't be woken up
-    (since they're not waiting on the condition variable) and so the
-    task will not be performed for that key press. This can be
-    avoided by, for example, doing something like this:
+    The order the three threads are woken up in is undefined. Also,
+    if some or all of the threads are still in \c do_something() when
+    the key is pressed, they won't be woken up (since they're not
+    waiting on the condition variable) and so the task will not be
+    performed for that key press. This issue can be solve using a
+    counter and a QMutex to guard it. For example, here's the new
+    code for the worker threads:
 
     \code
-    QMutex mymutex;
-    QWaitCondition key_pressed;
-    int mycount=0;
+        forever {
+            keyPressed.wait();
 
-    // Worker thread code
-    for (;;) {
-        key_pressed.wait(); // This is a QWaitCondition global variable
-        mymutex.lock();
-        mycount++;
-        mymutex.unlock();
-        do_something();
-        mymutex.lock();
-        mycount--;
-        mymutex.unlock();
-    }
+            mutex.lock();
+            ++count;
+            mutex.unlock();
 
-    // Key reading thread code
-    for (;;) {
-        getchar();
-        mymutex.lock();
-        // Sleep until there are no busy worker threads
-        while(mycount > 0) {
-            mymutex.unlock();
-            sleep(1);
-            mymutex.lock();
+            do_something();
+
+            mutex.lock();
+            --count;
+            mutex.unlock();
         }
-        mymutex.unlock();
-        key_pressed.wakeAll();
-    }
     \endcode
 
-    The mutexes are necessary because the results of two threads
-    attempting to change the value of the same variable simultaneously
-    are unpredictable.
+    Here's the code for the fourth thread:
+
+    \code
+        forever {
+            getchar();
+
+            mutex.lock();
+            // Sleep until there are no busy worker threads
+            while (count > 0) {
+                mutex.unlock();
+                sleep(1);
+                mutex.lock();
+            }
+            mutex.unlock();
+            keyPressed.wakeAll();
+        }
+    \endcode
+
+    The mutex is necessary because the results of two threads
+    attempting to change the value of the same variable
+    simultaneously are unpredictable.
+
+    Wait conditions are a powerful thread synchronization primitive.
+    The \l{threads/waitconditions}{Wait Conditions} example shows how
+    to use QWaitCondition as an alternative to QSemaphore for
+    controlling access to a circular buffer shared by a producer
+    thread and a consumer thread.
+
+    \sa QMutex, QSemaphore, QThread
 */
 
 /*!
-    Constructs a new event signalling, i.e. wait condition, object.
+    Constructs a new wait condition object.
 */
 QWaitCondition::QWaitCondition()
 {
@@ -131,7 +139,7 @@ QWaitCondition::QWaitCondition()
 
 
 /*!
-    Deletes the event signalling, i.e. wait condition, object.
+    Destroys the wait condition object.
 */
 QWaitCondition::~QWaitCondition()
 {
@@ -141,9 +149,13 @@ QWaitCondition::~QWaitCondition()
 }
 
 /*!
-    This wakes one thread waiting on the QWaitCondition. The thread
-    that is woken up depends on the operating system's scheduling
+    Wakes one thread waiting on the wait condition. The thread that
+    is woken up depends on the operating system's scheduling
     policies, and cannot be controlled or predicted.
+
+    If you want to wake up a specific thread, the solution is
+    typically to use different wait conditions and have different
+    threads wait on different conditions.
 
     \sa wakeAll()
 */
@@ -155,9 +167,9 @@ void QWaitCondition::wakeOne()
 }
 
 /*!
-    This wakes all threads waiting on the QWaitCondition. The order in
+    Wakes all threads waiting on the wait condition. The order in
     which the threads are woken up depends on the operating system's
-    scheduling policies, and cannot be controlled or predicted.
+    scheduling policies and cannot be controlled or predicted.
 
     \sa wakeOne()
  */
@@ -169,24 +181,26 @@ void QWaitCondition::wakeAll()
 }
 
 /*!
-    Release the locked \a mutex and wait on the thread event object.
-    The \a mutex must be initially locked by the calling thread. If \a
-    mutex is not in a locked state, this function returns immediately.
-    If \a mutex is a recursive mutex, this function returns
-    immediately. The \a mutex will be unlocked, and the calling thread
-    will block until either of these conditions is met:
+    Releases the locked \a mutex and wait on the thread event object.
+    The \a mutex must be initially locked by the calling thread. If
+    \a mutex is not in a locked state, this function returns
+    immediately. If \a mutex is a recursive mutex, this function
+    returns immediately. The \a mutex will be unlocked, and the
+    calling thread will block until either of these conditions is
+    met:
+
     \list
-    \i Another thread signals it using wakeOne() or wakeAll(). This
-    function will return true in this case.
-    \i \a time milliseconds has elapsed. If \a time is ULONG_MAX (the
-    default), then the wait will never timeout (the event must be
-    signalled). This function will return false if the wait timed
-    out.
+    \o Another thread signals it using wakeOne() or wakeAll(). This
+       function will return true in this case.
+    \o \a time milliseconds has elapsed. If \a time is \c ULONG_MAX
+       (the default), then the wait will never timeout (the event
+       must be signalled). This function will return false if the
+       wait timed out.
     \endlist
 
-    The mutex will be returned to the same locked state. This funtion
-    is provided to allow the atomic transition from the locked state
-    to the wait state.
+    The mutex will be returned to the same locked state. This
+    function is provided to allow the atomic transition from the
+    locked state to the wait state.
 
     \sa wakeOne(), wakeAll()
  */

@@ -60,7 +60,7 @@ static Rec &getRec(QObject *signalMapper, QHash<const QObject *, Rec> &hash, con
     with particular objects using setMapping(). The objects' signals
     can then be connected to the map() slot which will emit the
     mapped() signal with the string or integer associated with the
-    original signaling object. Mappings can be removed later using
+    original signalling object. Mappings can be removed later using
     removeMappings().
 
     Example:
@@ -128,7 +128,7 @@ QSignalMapper::~QSignalMapper()
 }
 
 /*!
-    Adds a mapping so that when map() is signaled from the given \a
+    Adds a mapping so that when map() is signalled from the given \a
     sender, the signal mapped(\a id) is emitted.
 
     There may be at most one integer ID for each object.
@@ -147,7 +147,7 @@ void QSignalMapper::setMapping(const QObject *sender, int id)
 /*!
     \overload
 
-    Adds a mapping so that when map() is signaled from the given \a
+    Adds a mapping so that when map() is signalled from the given \a
     sender, the signal mapper(\a id) is emitted.
 
     There may be at most one string ID for each object, and it
@@ -240,7 +240,7 @@ void QSignalMapper::map()
 /*!
     \fn void QSignalMapper::mapped(int i)
 
-    This signal is emitted when map() is signaled from an object that
+    This signal is emitted when map() is signalled from an object that
     has an integer mapping set. The object's mapped integer is passed
     in \a i.
 
@@ -251,7 +251,7 @@ void QSignalMapper::map()
     \fn void QSignalMapper::mapped(const QString &text)
     \overload
 
-    This signal is emitted when map() is signaled from an object that
+    This signal is emitted when map() is signalled from an object that
     has a string mapping set. The object's mapped string is passed in
     \a text.
 
