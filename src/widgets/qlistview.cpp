@@ -2788,7 +2788,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	int cs;
 
 	// need to paint current?
-	if ( ih > 0 && current.y < cy+ch && current.y+ih >= cy ) {
+	if ( ih > 0 && current.y < cy+ch && current.y+ih > cy ) {
 	    if ( fx < 0 ) {
 		// find first interesting column, once
 		x = 0;
@@ -7854,15 +7854,14 @@ void QListView::adjustColumn( int col )
 	w += d->h->iconSet( col )->pixmap().width();
     w = qMax( w, 20 );
     QFontMetrics fm( fontMetrics() );
-    QListViewItemIterator it( this );
+    QListViewItem* item = firstChild();
     int rootDepth = rootIsDecorated() ? treeStepSize() : 0;
-    while ( it.current() ) {
-	QListViewItem *item = it.current();
-	++it;
+    while ( item ) {
 	int iw = item->width( fm, this, col );
 	if ( 0 == col )
 	    iw += itemMargin() + rootDepth + item->depth()*treeStepSize() - 1;
 	w = qMax( w, iw );
+	item = item->itemBelow();
     }
     w = QMAX( w, QApplication::globalStrut().width() );
 
