@@ -527,18 +527,16 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
     case PdcDrawPixmap:
     case PdcDrawImage:
 	e = doc.createElement( "image" );
-	e.setAttribute( "x", p[0].point->x() );
-	e.setAttribute( "y", p[0].point->y() );
+	e.setAttribute( "x", p[0].rect->x() );
+	e.setAttribute( "y", p[0].rect->y() );
+	e.setAttribute( "width", p[0].rect->width() );
+	e.setAttribute( "height", p[0].rect->height() );
 	if ( c == PdcDrawImage ) {
-	    e.setAttribute( "width", p[1].image->width() );
-	    e.setAttribute( "height", p[1].image->height() );
 	    ImgElement ie;
 	    ie.element = e;
 	    ie.image = *p[1].image;
 	    d->images.append( ie );
 	} else {
-	    e.setAttribute( "width", p[1].pixmap->width() );
-	    e.setAttribute( "height", p[1].pixmap->height() );
 	    PixElement pe;
 	    pe.element = e;
 	    pe.pixmap = *p[1].pixmap;
@@ -751,14 +749,7 @@ bool QSvgDevice::play( const QDomNode &node )
 		    qWarning( "QSvgDevice::play: Couldn't load image "+href );
 		    break;
 		}
-		if ( pix.width() == w && pix.height() == h ) {
-		    pt->drawPixmap( x1, y1, pix );
-#ifndef QT_NO_IMAGE_SMOOTHSCALE
-		} else {
-		    QImage img = pix.convertToImage();
-		    pt->drawImage( x1, y1, img.smoothScale( w, h ) );
-#endif
-		}
+		pt->drawPixmap( QRect( x1, y1, w, h ), pix );
 	    }
 	    break;
 	case DescElement:
