@@ -6655,7 +6655,9 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 	    table->repaintSelections( oldSelection, table->currentSel,
 				      orientation() == Horizontal,
 				      orientation() == Vertical );
-	    startPos = -1; // avoid calling updateSelections
+	    if ( sectionAt( p ) != -1 )
+		endPos = p;
+	    return TRUE;
 	}
     }
     if ( sectionAt( p ) != -1 )
