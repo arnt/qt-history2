@@ -9,6 +9,11 @@
   will log information about events and property changes as well
   as debug output in the log window.
 
+  The example GUI has been implemented utilizing the Qt Designer integration
+  of the QAxContainer module. Parts of the code use internals of the Qt
+  meta object and ActiveQt framework and are not recommended to be used in
+  application code.
+
   Use the application to view the slots, signals and porperties 
   available through the QAxWidget class when instantiated with a 
   certain ActiveX, and to test ActiveX controls you implement.
