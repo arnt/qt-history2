@@ -66,6 +66,9 @@ rcs:: ./RCS/$$@,v
 showfiles:
 	@echo $(HEADERS) $(SOURCES)
 
+include:
+	ln -s `echo $(HEADERS) | fmt -1 | sed 's-^-../src/kernel/-'` $(INCDIR)
+
 showheaders:
 	@echo $(HEADERS)
 
