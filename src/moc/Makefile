@@ -6,7 +6,7 @@
 
 BASEDIR =	$(QTDIR)
 INCDIR	=	../tools
-LIBDIR	=	$(BASEDIR)\lib
+LIBDIR	=	$(BASEDIR)/lib
 
 ####### Compiler
 
