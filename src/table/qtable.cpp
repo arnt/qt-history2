@@ -708,7 +708,13 @@ int QTableItem::col() const
   Whenever a selection changes, this signal is emitted.
 */
 
-/*!  Constructs a table of 10 * 10 cells.
+/*!
+  Constructs a table of 10 * 10 cells.
+
+  Performance is boosted by modifying the widget flags so that only part of
+  the QTableItem children is redrawn.  This may be unsuitable for custom
+  QTableItem classes, in which case the widget flags should be reset using
+  QWidget::setWFlags().
 */
 
 QTable::QTable( QWidget *parent, const char *name )
@@ -719,7 +725,13 @@ QTable::QTable( QWidget *parent, const char *name )
     init( 0, 0 );
 }
 
-/*!  Constructs a table with a range of \a numRows * \a numCols cells.
+/*!
+  Constructs a table with a range of \a numRows * \a numCols cells.
+
+  Performance is boosted by modifying the widget flags so that only part of
+  the QTableItem children is redrawn.  This may be unsuitable for custom
+  QTableItem classes, in which case the widget flags should be reset using
+  QWidget::setWFlags().
 */
 
 QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )

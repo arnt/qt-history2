@@ -271,12 +271,12 @@
   If not, it will be a child of \e parent, and be constrained by \e
   parent's geometry (Unless you specify \c WType_TopLevel as
   widget flag).
-  <li><code>const char * name = 0</code> is the widget name of the new
-  widget.  The widget name is little used at the moment - the
-  dumpObjectTree() debugging function uses it, and you can access it using
-  name().  It will become more important when our visual GUI builder is
-  ready (you can name a a widget in the builder, and connect() to it by
-  name in your code).
+  <li><code>const char *name = 0</code> is the widget name of the new
+  widget.  You can access it using name().  The widget name is little
+  used by programmers but is quite useful with GUI builders such as the
+  Qt Designer (you can name a widget in the builder, and connect() to
+  it by name in your code).  The dumpObjectTree() debugging function also
+  uses it.
   <li><code>WFlags f = 0</code> (where available) sets the <a
   href="qt.html#WidgetFlags">widget flags</a>; the default is good for almost
   all widgets, but to get e.g. top-level widgets without a window
@@ -1067,7 +1067,7 @@ QWidget *QWidget::find( WId id )
 
   Returns the widget flags for this this widget.
 
-  Widget flags are internal, not meant for public use.
+  Widget flags are a combination of Qt::WidgetFlags.
 
   \sa testWFlags(), setWFlags(), clearWFlags()
 */
@@ -1077,7 +1077,7 @@ QWidget *QWidget::find( WId id )
 
   Sets the widget flags \a f.
 
-  Widget flags are internal, not meant for public use.
+  Widget flags are a combination of Qt::WidgetFlags.
 
   \sa testWFlags(), getWFlags(), clearWFlags()
 */
@@ -1087,7 +1087,7 @@ QWidget *QWidget::find( WId id )
 
   Clears the widget flags \a f.
 
-  Widget flags are internal, not meant for public use.
+  Widget flags are a combination of Qt::WidgetFlags.
 
   \sa testWFlags(), getWFlags(), setWFlags()
 */
@@ -3807,33 +3807,32 @@ QSize QWidget::minimumSizeHint() const
 */
 
 /*!
-  \fn bool QWidget::testWFlags( WFlags n ) const
+  \fn bool QWidget::testWFlags( WFlags f ) const
 
-  Returns TRUE if any of the widget flags in \e n are set. The
-  widget flags are listed in qnamespace.h, and are strictly for
-  internal use.
+  Returns TRUE if any of the widget flags in \f n are set.
 
-  Widget flags are internal, not meant for public use.
+  Widget flags are a combination of Qt::WidgetFlags.
+
   \sa getWFlags(), setWFlags(), clearWFlags()
 */
 
 /*!
-  \fn bool QWidget::testWState (uint n) const
+  \fn bool QWidget::testWState( uint n ) const
   \internal
   Tests the widget states \a n, returning TRUE if any are set.
 */
 /*!
-  \fn uint QWidget::getWState () const
+  \fn uint QWidget::getWState() const
   \internal
   Returns the current widget state.
 */
 /*!
-  \fn void QWidget::clearWState (uint n)
+  \fn void QWidget::clearWState( uint n )
   \internal
   Clears the widgets states \a n.
 */
 /*!
-  \fn void QWidget::setWState(uint n)
+  \fn void QWidget::setWState( uint n )
   \internal
   Sets the widgets states \a n.
 */

@@ -1754,8 +1754,14 @@ void QListViewPrivate::Root::setup()
   need to say stuff about the mouse and keyboard interface.
 */
 
-/*!  Constructs a new empty list view, with \a parent as a parent and \a
-  name as object name.
+/*!
+  Constructs a new empty list view, with \a parent as a parent and \a name
+  as object name.
+  
+  Performance is boosted by modifying the widget flags \a f so that only part
+  of the QListViewItem children is redrawn.  This may be unsuitable for custom
+  QListViewItem classes, in which case the widget flags should be reset using
+  QWidget::setWFlags().
 */
 QListView::QListView( QWidget * parent, const char *name, WFlags f )
     : QScrollView( parent, name, f | WNorthWestGravity | WRepaintNoErase )

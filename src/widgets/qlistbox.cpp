@@ -727,9 +727,13 @@ int QListBoxPixmap::width( const QListBox* lb ) const
 
 
 /*!
-  Constructs a list box.  The arguments are passed directly to the
-  QScrollView constructor.
-
+  Constructs a new empty list box, with \a parent as a parent and \a name
+  as object name.
+  
+  Performance is boosted by modifying the widget flags \a f so that only part
+  of the QListBoxItem children is redrawn.  This may be unsuitable for custom
+  QListBoxItem classes, in which case the widget flags should be reset using
+  QWidget::setWFlags().
 */
 
 QListBox::QListBox( QWidget *parent, const char *name, WFlags f )

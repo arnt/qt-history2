@@ -404,7 +404,7 @@ public:
 
     QWidget *		parentWidget( bool sameWindow = FALSE ) const;
     bool		testWState( uint n ) const;
-    bool		testWFlags( WFlags n ) const;
+    bool		testWFlags( WFlags f ) const;
     static QWidget *	find( WId );
     static QWidgetMapper *wmapper();
     
