@@ -1415,8 +1415,11 @@ void QTextEdit::removeSelectedText( int selNum )
     if ( c1.nestedDepth() || c2.nestedDepth() )
 	return;
 
-    for ( int i = 1; i < (int)doc->numSelections(); ++i )
+    for ( int i = 0; i < (int)doc->numSelections(); ++i ) {
+	if ( i == selNum )
+	    continue;
 	doc->removeSelection( i );
+    }
 
     drawCursor( FALSE );
     checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
