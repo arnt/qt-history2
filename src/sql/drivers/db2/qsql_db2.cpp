@@ -117,22 +117,22 @@ static QString qDB2Warn( const QDB2ResultPrivate* d )
 
 static void qSqlWarning( const QString& message, const QDB2DriverPrivate* d )
 {
-    qWarning( message + "\tError:" + qDB2Warn( d ) );
+    qWarning("%s\tError: %s", message.local8Bit(), qDB2Warn(d).local8Bit());
 }
 
 static void qSqlWarning( const QString& message, const QDB2ResultPrivate* d )
 {
-    qWarning( message + "\tError:" + qDB2Warn( d ) );
+    qWarning("%s\tError: %s", message.local8Bit(), qDB2Warn(d).local8Bit());
 }
 
 static QSqlError qMakeError( const QString& err, int type, const QDB2DriverPrivate* p )
 {
-    return QSqlError( "QDB2: " + err, qDB2Warn(p), type );
+    return QSqlError( QLatin1String("QDB2: ") + err, qDB2Warn(p), type );
 }
 
 static QSqlError qMakeError( const QString& err, int type, const QDB2ResultPrivate* p )
 {
-    return QSqlError( "QDB2: " + err, qDB2Warn(p), type );
+    return QSqlError( QLatin1String("QDB2: ") + err, qDB2Warn(p), type );
 }
 
 static QCoreVariant::Type qDecodeDB2Type( SQLSMALLINT sqltype )
@@ -348,7 +348,7 @@ static QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengt
 			&colScale,
 			&nullable );
     if ( r != SQL_SUCCESS )
-	qWarning( QString( "qGetBinaryData: Unable to describe column %1" ).arg( column ) );
+	qWarning("qGetBinaryData: Unable to describe column %d", column);
     // SQLDescribeCol may return 0 if size cannot be determined
     if ( !colSize )
 	colSize = 255;
@@ -713,7 +713,7 @@ bool QDB2Result::exec()
 		break; }
 	}
 	if ( r != SQL_SUCCESS ) {
-	    qWarning( "QDB2Result::exec: unable to bind variable: " + qDB2Warn( d ) );
+	    qWarning("QDB2Result::exec: unable to bind variable: %s", qDB2Warn(d).local8Bit());
 	    setLastError( qMakeError( "Unable to bind variable", QSqlError::Statement, d ) );
 	    qDeleteAll(tmpStorage);
 	    return FALSE;
@@ -722,7 +722,7 @@ bool QDB2Result::exec()
 
     r = SQLExecute( d->hStmt );
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
-	qWarning( "QDB2Result::exec: Unable to execute statement: " + qDB2Warn( d ) );
+	qWarning("QDB2Result::exec: Unable to execute statement: %s", qDB2Warn(d).local8Bit());
 	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	qDeleteAll(tmpStorage);
 	return FALSE;
