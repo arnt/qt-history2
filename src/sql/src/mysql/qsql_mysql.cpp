@@ -293,7 +293,7 @@ QSqlIndex QMySQLDriver::primaryIndex( const QString& tablename ) const
     i.exec( stmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
 	if ( i.value(2).toString() == "PRIMARY" ) {
-	    QSqlRecord fil = fields( tablename );
+	    QSqlRecord fil = record( tablename );
 	    idx.append( *fil.field( i.value(3).toInt()-1 ) );
 	    break;
 	}
