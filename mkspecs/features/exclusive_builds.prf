@@ -3,6 +3,8 @@
 defineTest(fixExclusiveOutputDirs) {
     firstBuild = $$1
     secondBuild = $$2
+    count(ARGS, 2, greaterThan):isEqual($$list($$lower($$3)), false):appendFirstBuild = false
+    else:appendFirstBuild = true
 
     isEmpty(QMAKE_DIR_REPLACE):QMAKE_DIR_REPLACE += OBJECTS_DIR MOC_DIR
     lessThan(firstBuild, $$secondBuild):eval($${firstBuild}_and_$${secondBuild}_target:QMAKE_DIR_REPLACE += DESTDIR)
@@ -12,7 +14,7 @@ defineTest(fixExclusiveOutputDirs) {
             eval($$fix = $${firstBuild})
         } else:contains($$list($$first($$fix)), .*$${secondBuild}.*) {
             eval($$fix ~= s/$${secondBuild}/$${firstBuild}/gi)
-        } else:!contains($$list($$first($$fix)), .*$${firstBuild}.*) {
+        } else:isEqual(appendFirstBuild, true):!contains($$list($$first($$fix)), .*$${firstBuild}.*) {
             contains($$list($${first($$fix)}), .*/$):eval($$fix = $${first($$fix)}$${firstBuild})
 	    else:eval($$fix = $${first($$fix)}-$${firstBuild})
         }
@@ -58,8 +60,8 @@ defineTest(addExclusiveBuilds) {
         CONFIG($${firstBuild}, $${firstBuild}|$${secondBuild}): BUILDS = $$first_BUILDS  $$second_BUILDS 
         else: BUILDS = $$second_BUILDS $$first_BUILDS
     } else {
-        eval($${firstBuildName}Build:fixExclusiveOutputDirs($$firstBuild, $$secondBuild))
-        eval($${secondBuildName}Build:fixExclusiveOutputDirs($$secondBuild, $$firstBuild))
+        eval($${firstBuildName}Build:fixExclusiveOutputDirs($$firstBuild, $$secondBuild, false))
+        eval($${secondBuildName}Build:fixExclusiveOutputDirs($$secondBuild, $$firstBuild, false))
     }
     return(true)
 }
