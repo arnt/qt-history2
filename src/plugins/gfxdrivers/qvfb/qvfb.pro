@@ -3,7 +3,7 @@ include(../../qpluginbase.pri)
 
 DESTDIR	 = $$QT_BUILD_TREE/plugins/gfxdrivers
 
-DEFINES	+= QT_QWS_VFB
+DEFINES	+= QT_QWS_QVFB
 
 HEADERS		= ../../../../include/Qt/qgfxvfb_qws.h
 SOURCES		= main.cpp \
