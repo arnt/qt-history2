@@ -875,7 +875,7 @@ class QDataStream;
 
 #ifndef QT_H
 #  include "qfeatures.h"
-#endif // QT_H
+#endif /* QT_H */
 
 
 //
@@ -1177,12 +1177,14 @@ public:
     inline operator bool() const { return b; }
 };
 
-// compilers which follow outdated template instantiation rules
-// require a class to have a comparison operator to exist when
-// a QList of this type is instantiated. It's not actually
-// used in the list, though. Hence the dummy implementation.
-// Just in case other code relies on it we better trigger a warning
-// mandating a real implementation.
+/*
+ compilers which follow outdated template instantiation rules
+ require a class to have a comparison operator to exist when
+ a QList of this type is instantiated. It's not actually
+ used in the list, though. Hence the dummy implementation.
+ Just in case other code relies on it we better trigger a warning
+ mandating a real implementation.
+*/
 #ifdef Q_FULL_TEMPLATE_INSTANTIATION
 #  define Q_DUMMY_COMPARISON_OPERATOR(C) \
     bool operator==( const C& ) const { \
@@ -1386,11 +1388,11 @@ Q_CORE_EXPORT void *qMemCopy(void *dest, const void *src, size_t n);
 Q_CORE_EXPORT void *qMemSet(void *dest, int c, size_t n);
 
 
-//
-// Avoid some particularly useless warnings from some stupid compilers.
-// To get ALL C++ compiler warnings, define QT_CC_WARNINGS or comment out
-// the line "#define QT_NO_WARNINGS"
-//
+/*
+ Avoid some particularly useless warnings from some stupid compilers.
+ To get ALL C++ compiler warnings, define QT_CC_WARNINGS or comment out
+ the line "#define QT_NO_WARNINGS"
+*/
 
 #if !defined(QT_CC_WARNINGS)
 #  define QT_NO_WARNINGS
@@ -1552,6 +1554,7 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
 #endif
 
 
-#endif // __cplusplus
+#endif /* __cplusplus */
 
-#endif // QGLOBAL_H
+#endif /* QGLOBAL_H */
+
