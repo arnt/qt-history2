@@ -1045,7 +1045,7 @@ void LightStyleV2::drawComplexControl(ComplexControl control,
 	{
 	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
 	    QRect addline, subline, subline2, addpage, subpage, slider, first, last;
-	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
+	    bool maxedOut = (scrollbar->minimum() == scrollbar->maximum());
 
 	    subline = querySubControlMetrics(control, widget, SC_ScrollBarSubLine, data);
 	    addline = querySubControlMetrics(control, widget, SC_ScrollBarAddLine, data);
@@ -1186,15 +1186,15 @@ QRect LightStyleV2::querySubControlMetrics(ComplexControl control,
     case CC_ScrollBar:
 	{
 	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
-	    int sliderstart = scrollbar->sliderStart();
+	    int sliderstart = scrollbar->sliderPosition();
 	    int sbextent = pixelMetric(PM_ScrollBarExtent, widget);
 	    int maxlen = ((scrollbar->orientation() == Qt::Horizontal) ?
 			  scrollbar->width() : scrollbar->height()) - (sbextent * 3);
 	    int sliderlen;
 
 	    // calculate slider length
-	    if (scrollbar->maxValue() != scrollbar->minValue()) {
-		uint range = scrollbar->maxValue() - scrollbar->minValue();
+	    if (scrollbar->maximum() != scrollbar->minimum()) {
+		uint range = scrollbar->maximum() - scrollbar->minimum();
 		sliderlen = (scrollbar->pageStep() * maxlen) /
 			    (range + scrollbar->pageStep());
 
