@@ -12,7 +12,8 @@
 **
 ****************************************************************************/
 
-#include "private/qpainter_p.h"
+#include <private/qpainter_p.h>
+#include <private/qpaintengine_p.h>
 #include "qfile.h"
 #include "qimage.h"
 #include "qlist.h"
@@ -999,15 +1000,15 @@ int QSVGPaintEngine::lenToInt(const QDomNamedNodeMap &map, const QString &attr, 
     return def;
 }
 
-double QSVGPaintEngine::lenToDouble(const QDomNamedNodeMap &map, const QString &attr, int def) const
+double QSVGPaintEngine::lenToDouble(const QDomNamedNodeMap &map, const QString &attr,
+				    int def) const
 {
     if (map.contains(attr)) {
 	bool ok;
-	double d = parseLen(map.namedItem(attr).nodeValue(), &ok);
-	if (ok)
-	    return d;
+	double x = parseLen(map.namedItem(attr).nodeValue(), &ok);
+	if (ok) return x;
     }
-    return def;
+    return static_cast<double>(def);
 }
 
 void QSVGPaintEngine::setTransform(const QString &tr, QPainter *pt)
