@@ -19,7 +19,7 @@
 #define BUFSIZE (100*1000)
 #define PRGSTEP (BUFSIZE / 50)
 #define BLKSIZE (8)
-QByteArray bytearray;
+QByteArray bytearray(0, '\0');
 
 
 class ProdEvent : public QCustomEvent
@@ -97,7 +97,7 @@ void ProdThread::run()
 	    done = TRUE;
 	}
 
-	while (! bytearray.isNull() && ! stop) {
+	while (! bytearray.isEmpty() && ! stop) {
             condition->wakeOne();
             condition->wait(mutex);
 
@@ -189,7 +189,7 @@ void ConsThread::run()
     while (! stop) {
 	mutex->lock();
 
-	while (bytearray.isNull() && ! stop) {
+	while (bytearray.isEmpty() && ! stop) {
             condition->wakeOne();
             condition->wait(mutex);
 
