@@ -32,6 +32,9 @@ public:
     ~Win32MakefileGenerator();
 protected:
     virtual void writeSubDirs(QTextStream &t);
+    virtual void writeExtraCompilerParts(QTextStream &t);
+    virtual void writeExtraTargetParts(QTextStream &t);
+    virtual void writeCleanParts(QTextStream &t);
     int findHighestVersion(const QString &dir, const QString &stem);
     bool findLibraries(const QString &);
     QString findDependency(const QString &);

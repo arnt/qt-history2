@@ -582,3 +582,110 @@ void Win32MakefileGenerator::processFileTagsVar()
 	    (*it) = Option::fixPathToTargetOS((*it), FALSE);
     }
 }
+
+void Win32MakefileGenerator::writeExtraCompilerParts(QTextStream &t)
+{
+    QStringList::Iterator it;
+    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+    for(it = quc.begin(); it != quc.end(); ++it) {
+	QString tmp_out = project->variables()[(*it) + ".output"].first();
+	QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
+	QString tmp_dep = project->variables()[(*it) + ".depends"].join(" ");
+	QStringList &vars = project->variables()[(*it) + ".variables"];
+	if(tmp_out.isEmpty() || tmp_cmd.isEmpty())
+	    continue;
+	QStringList &tmp = project->variables()[(*it) + ".input"];
+	for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+	    QStringList &inputs = project->variables()[(*it2)];
+	    for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
+		QFileInfo fi(Option::fixPathToLocalOS((*input)));
+		QString in = Option::fixPathToTargetOS((*input), FALSE),
+		       out = tmp_out, cmd = tmp_cmd, deps;
+		out.replace("${QMAKE_FILE_BASE}", fi.baseName());
+		out.replace("${QMAKE_FILE_NAME}", fi.fileName());
+		cmd.replace("${QMAKE_FILE_BASE}", fi.baseName());
+		cmd.replace("${QMAKE_FILE_OUT}", out);
+		cmd.replace("${QMAKE_FILE_NAME}", fi.fileName());
+		for(QStringList::Iterator it3 = vars.begin(); it3 != vars.end(); ++it3)
+		    cmd.replace("$(" + (*it3) + ")", "$(QMAKE_COMP_" + (*it3)+")");
+		if(!tmp_dep.isEmpty()) {
+		    char buff[256];
+		    QString dep_cmd = tmp_dep;
+		    dep_cmd.replace("${QMAKE_FILE_NAME}", fi.fileName());
+		    if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+			while(!feof(proc)) {
+			    int read_in = fread(buff, 1, 255, proc);
+			    if(!read_in)
+				break;
+			    int l = 0;
+			    for(int i = 0; i < read_in; i++) {
+				if(buff[i] == '\n' || buff[i] == ' ') {
+				    deps += " " + QString::fromLatin1(buff+l, (i - l) + 1);
+				    l = i;
+				}
+			    }
+			}
+			fclose(proc);
+		    }
+		}
+		t << out << ": " << in << deps << "\n\t"
+		  << cmd << endl << endl;
+	    }
+	}
+    }
+    t << endl;
+}
+
+void Win32MakefileGenerator::writeExtraTargetParts(QTextStream &t)
+{
+    QStringList::Iterator it;
+    QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
+    for(it = qut.begin(); it != qut.end(); ++it) {
+	QString targ = var((*it) + ".target"),
+		 cmd = var((*it) + ".commands"), deps;
+	if(targ.isEmpty())
+	    targ = (*it);
+	QStringList &deplist = project->variables()[(*it) + ".depends"];
+	for(QStringList::Iterator dep_it = deplist.begin(); dep_it != deplist.end(); ++dep_it) {
+	    QString dep = var((*dep_it) + ".target");
+	    if(dep.isEmpty())
+		dep = (*dep_it);
+	    deps += " " + dep;
+	}
+	if(!project->variables()["QMAKE_NOFORCE"].isEmpty() &&
+	   project->variables()[(*it) + ".CONFIG"].indexOf("phony") != -1)
+	    deps += QString(" ") + "FORCE";
+	t << "\n\n" << targ << ":" << deps << "\n\t"
+	  << cmd;
+    }
+    t << endl << endl;
+}
+
+void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
+{
+    t << "uiclean:"
+      << varGlue("UICDECLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
+      << varGlue("UICIMPLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") << endl;
+    
+    t << "mocclean:"
+      << varGlue("SRCMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
+      << varGlue("OBJMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") << endl;
+    
+    t << "clean: uiclean mocclean"
+      << varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
+      << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
+      << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");
+
+    if(project->isActiveConfig("activeqt")) {
+	t << ("\n\t-$(DEL_FILE) " + var("OBJECTS_DIR") + project->variables()["TARGET"].first() + ".idl");
+	t << ("\n\t-$(DEL_FILE) " + var("OBJECTS_DIR") + project->variables()["TARGET"].first() + ".tlb");
+    }
+    
+    if(!project->isEmpty("IMAGES"))
+	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-$(DEL_FILE) ", "\n\t-$(DEL_FILE) ", "");
+    t << endl;
+
+    t << "distclean: clean"
+      << "\n\t-$(DEL_FILE) $(TARGET)"
+      << endl << endl;
+}
