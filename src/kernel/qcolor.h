@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#16 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#17 $
 **
 ** Definition of QColor class
 **
@@ -45,7 +45,7 @@ class QColor					// color class
 public:
     QColor();					// default RGB=0,0,0
     QColor( int r, int g, int b );		// specify RGB
-    QColor( ulong rgb, ulong pix=0xffffffff) ;	// specify RGB and/or pixel
+    QColor( ulong rgb, ulong pixel=0xffffffff); // specify RGB and/or pixel
     QColor( const char *name );			// load color from database
     QColor( const QColor & );			// copy color
 
@@ -56,20 +56,20 @@ public:
 
     void   setNamedColor( const char *name );	// load color from database
 
-    void   getRGB( int *r, int *g, int *b ) const; // get RGB value
-    ulong  getRGB() const { return rgb & RGB_MASK; }
-    void   setRGB( int r, int g, int b );	// set RGB value
-    void   setRGB( ulong rgb );
+    void   rgb( int *r, int *g, int *b ) const; // get RGB value
+    ulong  rgb() const { return rgbVal & RGB_MASK; }
+    void   setRgb( int r, int g, int b );	// set RGB value
+    void   setRgb( ulong rgb );
 
-    int	   red()    const { return QRED(rgb); }
-    int	   green()  const { return QGREEN(rgb); }
-    int	   blue()   const { return QBLUE(rgb); }
+    int	   red()    const { return QRED(rgbVal); }
+    int	   green()  const { return QGREEN(rgbVal); }
+    int	   blue()   const { return QBLUE(rgbVal); }
 
-    void   getHSV( int *h, int *s, int *v ) const; // get HSV value
-    void   setHSV( int h, int s, int v );	// set HSV value
+    void   hsv( int *h, int *s, int *v ) const; // get HSV value
+    void   setHsv( int h, int s, int v );	// set HSV value
 
-    bool   isValid()const { return (rgb & RGB_INVALID) == 0; }
-    bool   isDirty()const { return (rgb & RGB_DIRTY) == RGB_DIRTY; }
+    bool   isValid()const { return (rgbVal & RGB_INVALID) == 0; }
+    bool   isDirty()const { return (rgbVal & RGB_DIRTY) == RGB_DIRTY; }
 
     QColor light( int f = 112 ) const;		// get lighter color
     QColor dark( int f = 200 )	const;		// get darker color
@@ -93,7 +93,7 @@ private:
     static HANDLE hpal;
 #endif
     ulong  pix;
-    ulong  rgb;					// RGB value
+    ulong  rgbVal;				// RGB value
 };
 
 
@@ -114,12 +114,12 @@ inline ulong QColor::pixel() const
 
 inline bool QColor::operator==( const QColor &c ) const
 {
-    return rgb == c.rgb;
+    return rgbVal == c.rgbVal;
 }
 
 inline bool QColor::operator!=( const QColor &c ) const
 {
-    return rgb != c.rgb;
+    return rgbVal != c.rgbVal;
 }
 
 

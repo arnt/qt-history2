@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#25 $
 **
 ** Implementation of QColor class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#25 $";
 #endif
 
 
@@ -161,14 +161,14 @@ The hue defines the color. It is between 0 and 360 inclusive in the chromatic
 case, and -1 if the color is achromatic.
 The saturation and value vary between 0 and 255 inclusive.
 
-\sa setHSV().
+\sa setHsv().
 */
 
-void QColor::getHSV( int *h, int *s, int *v ) const
+void QColor::hsv( int *h, int *s, int *v ) const
 {						// get HSV value
-    int r = (int)(rgb & 0xff);
-    int g = (int)((rgb >> 8) & 0xff);
-    int b = (int)((rgb >> 16) & 0xff);
+    int r = (int)(rgbVal & 0xff);
+    int g = (int)((rgbVal >> 8) & 0xff);
+    int b = (int)((rgbVal >> 16) & 0xff);
     uint max = r;				// maximum RGB component
     int whatmax = 0;				// r=>0, g=>1, b=>2
     if ( (uint)g > max ) {
@@ -218,15 +218,15 @@ Sets a HSV color value.
 \arg \e s, saturation (0..255).
 \arg \e v, value (0..255).
 
-\sa getHSV().
+\sa hsv().
 */
 
-void QColor::setHSV( int h, int s, int v )	// set HSV value
+void QColor::setHsv( int h, int s, int v )	// set HSV value
 {
     int r, g, b;
 #if defined(CHECK_RANGE)
     if ( h < -1 || (uint)s > 255 || (uint)v > 255 ) {
-	warning( "QColor::setHSV:  HSV parameters out of range" );
+	warning( "QColor::setHsv:  HSV parameters out of range" );
 	return;
     }
 #endif
@@ -252,33 +252,33 @@ void QColor::setHSV( int h, int s, int v )	// set HSV value
 	    case 5: r=(int)v; g=(int)p, b=(int)q; break;
 	}
     }
-    setRGB( r, g, b );
+    setRgb( r, g, b );
 }
 
 
 /*!
-\fn ulong QColor::getRGB() const
+\fn ulong QColor::rgb() const
 Returns the RGB value.
 */
 
 /*!
 Gets the red, green and blue components of the RGB value.
 
-\sa setRGB().
+\sa setRgb().
 */
 
-void QColor::getRGB( int *r, int *g, int *b ) const
+void QColor::rgb( int *r, int *g, int *b ) const
 {						// get RGB value
-    *r = (int)(rgb & 0xff);
-    *g = (int)((rgb >> 8) & 0xff);
-    *b = (int)((rgb >> 16) & 0xff);
+    *r = (int)(rgbVal & 0xff);
+    *g = (int)((rgbVal >> 8) & 0xff);
+    *b = (int)((rgbVal >> 16) & 0xff);
 }
 
 /*!
-\fn void QColor::setRGB( int r, int g, int b )
+\fn void QColor::setRgb( int r, int g, int b )
 Sets the RGB value to (\e r, \e g, \e b).
 
-\sa getRGB().
+\sa rgb().
 */
 
 /*!
@@ -286,15 +286,15 @@ Sets the RGB value to \e rgb.
 
 Bits 0-7 = red, bits 8-15 = green, bits 16-23 = blue.
 
-\sa getRGB().
+\sa rgb().
 */
 
-void QColor::setRGB( ulong rgb )		// set RGB value directly
+void QColor::setRgb( ulong rgb )		// set RGB value directly
 {
     int r = (int)(rgb & 0xff);
     int g = (int)((rgb >> 8) & 0xff);
     int b = (int)((rgb >> 16) & 0xff);
-    setRGB( r, g, b );
+    setRgb( r, g, b );
 }
 
 
@@ -344,7 +344,7 @@ QColor QColor::light( int factor ) const	// get light color
     else if ( factor < 100 )			// makes color darker
 	return dark( 10000/factor );
     int h, s, v;
-    getHSV( &h, &s, &v );
+    hsv( &h, &s, &v );
     v = (int)(((long)factor*v)/100L);
     if ( v > 255 ) {				// overflow
 	s -= (int)(((long)factor*106L)/100L);	// adjust saturation
@@ -353,7 +353,7 @@ QColor QColor::light( int factor ) const	// get light color
 	v = 255;
     }
     QColor c;
-    c.setHSV( h, s, v );
+    c.setHsv( h, s, v );
     return c;
 }
 
@@ -378,10 +378,10 @@ QColor QColor::dark( int factor ) const		// get dark color
     else if ( factor < 100 )			// makes color lighter
 	return light( 10000/factor );
     int h, s, v;
-    getHSV( &h, &s, &v );
+    hsv( &h, &s, &v );
     v = (v*100)/factor;
     QColor c;
-    c.setHSV( h, s, v );
+    c.setHsv( h, s, v );
     return c;
 }
 
@@ -416,7 +416,7 @@ or FALSE if they have equal RGB values.
 
 QDataStream &operator<<( QDataStream &s, const QColor &c )
 {
-    return s << c.getRGB();
+    return s << c.rgb();
 }
 
 /*! Reads a color object from the stream. \related QColor */
@@ -425,6 +425,6 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
 {
     ulong rgb;
     s >> rgb;
-    c.setRGB( rgb );
+    c.setRgb( rgb );
     return s;
 }
