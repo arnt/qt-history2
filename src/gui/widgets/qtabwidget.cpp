@@ -196,17 +196,14 @@ QTabWidget::QTabWidget(QWidget *parent)
     d->init();
 }
 
-
-/*!
-    Constructs a tabbed widget called \a name with parent \a parent,
-    and widget flags \a f.
-*/
+#ifdef QT_COMPAT
 QTabWidget::QTabWidget(QWidget *parent, const char *name, Qt::WFlags f)
     : QWidget(*new QTabWidgetPrivate, parent, f)
 {
     setObjectName(name);
     d->init();
 }
+#endif
 
 /*!
     Destroys the tabbed widget.
@@ -498,10 +495,12 @@ QTabBar* QTabWidget::tabBar() const
 
 void QTabWidgetPrivate::showTab(int index)
 {
-    if (QWidget *w = stack->widget(index)) {
+    if (index < stack->count() && index >= 0) {
         stack->setCurrentIndex(index);
         emit q->currentChanged(index);
-        emit q->currentChanged(w);
+#ifdef QT_COMPAT
+        emit q->currentChanged(stack->widget(index));
+#endif
     }
 }
 

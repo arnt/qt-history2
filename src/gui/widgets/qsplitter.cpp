@@ -958,7 +958,10 @@ bool QSplitter::event(QEvent *e)
             break;
         d->firstShow = false;
         // fall through
+    case QEvent::LayoutRequest:
+#ifdef QT_COMPAT
     case QEvent::LayoutHint:
+#endif
         d->recalc(isVisible());
         break;
     default:

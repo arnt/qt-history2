@@ -503,7 +503,11 @@ void QStatusBar::resizeEvent(QResizeEvent * e)
 
 bool QStatusBar::event(QEvent *e)
 {
-    if (e->type() == QEvent::LayoutHint) {
+    if (e->type() == QEvent::LayoutRequest
+#ifdef QT_COMPAT
+        || e->type() == QEvent::LayoutHint
+#endif
+        ) {
         // Calculate new strut height and call reformat() if it has changed
         int maxH = fontMetrics().height();
 

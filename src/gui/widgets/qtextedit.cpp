@@ -924,10 +924,10 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
     if (e->state() & Qt::ControlButton) {
         switch( e->key() ) {
         case Qt::Key_Z:
-            undo();
+            document()->undo();
             break;
         case Qt::Key_Y:
-            redo();
+            document()->redo();
             break;
         case Qt::Key_X:
         case Qt::Key_F20:  // Cut key on Sun keyboards
@@ -1494,6 +1494,7 @@ bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options)
     return true;
 }
 
+#ifdef QT_COMPAT
 void QTextEdit::moveCursor(CursorAction action, QTextCursor::MoveMode mode)
 {
     if (action == MovePageUp) {
@@ -1522,8 +1523,6 @@ void QTextEdit::moveCursor(CursorAction action, QTextCursor::MoveMode mode)
     ensureCursorVisible();
     d->updateCurrentCharFormatAndSelection();
 }
-
-#ifdef QT_COMPAT
 
 void QTextEdit::doKeyboardAction(KeyboardAction action)
 {
@@ -1707,8 +1706,8 @@ void QTextEdit::setParagraphBackgroundColor(int parag, const QColor &col)
     c.mergeBlockFormat(fmt);
 }
 */
+#endif // QT_COMPAT
 
-#endif
 
 /*!
     Appends a new paragraph with \a text to the end of the text edit.
