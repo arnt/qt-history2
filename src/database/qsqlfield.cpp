@@ -1,4 +1,5 @@
 #include "qsqlfield.h"
+#include "qregexp.h"
 
 #ifndef QT_NO_SQL
 

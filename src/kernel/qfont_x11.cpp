@@ -41,7 +41,6 @@
 #include "qpainter.h"
 #include "qfontdata_p.h"
 #include "qfontdatabase.h"
-#include "qstrlist.h"
 #include "qcache.h"
 #include "qdict.h"
 #include "qtextcodec.h"
@@ -49,6 +48,8 @@
 #include "qfile.h"
 #include "qtextstream.h"
 #include "qdir.h" // Font Guessing
+#include "qstringlist.h"
+#include "qregexp.h"
 #include <ctype.h>
 #include <locale.h>
 #include <stdio.h>

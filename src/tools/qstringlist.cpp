@@ -38,6 +38,7 @@
 #include "qstringlist.h"
 
 #ifndef QT_NO_STRINGLIST
+#include "qregexp.h"
 #include "qstrlist.h"
 #include "qdatastream.h"
 #include "qtl.h"

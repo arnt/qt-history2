@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.h#27 $
+** $Id: //depot/qt/main/src/tools/qstringlist.h#28 $
 **
 ** Definition of QStringList class
 **
@@ -76,11 +76,6 @@ public:
 class QDataStream;
 extern Q_EXPORT QDataStream &operator>>( QDataStream &, QStringList& );
 extern Q_EXPORT QDataStream &operator<<( QDataStream &, const QStringList& );
-#endif
-
-#ifndef QT_H
-// ### for Qt 2.x source file compatibility (consider removing in Qt 3 or 4)
-#include "qregexp.h"
 #endif
 
 #endif // QT_NO_STRINGLIST

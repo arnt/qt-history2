@@ -53,6 +53,7 @@
 #include "qmime.h"
 #include "qdragobject.h"
 #include "qclipboard.h"
+#include "qregexp.h"
 
 
 /*!

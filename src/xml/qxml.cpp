@@ -38,6 +38,7 @@
 #include "qxml.h"
 #include "qtextcodec.h"
 #include "qbuffer.h"
+#include "qregexp.h"
 
 #ifndef QT_NO_XML
 // NOT REVISED
