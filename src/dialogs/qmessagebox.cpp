@@ -31,7 +31,6 @@
 #if defined QT_NON_COMMERCIAL
 #include "qnc_win.h"
 #endif
-#include <qcstring.h>
 
 // Internal class - don't touch
 
@@ -634,7 +633,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
         if ( i >= mbd->numButtons ) {
             mbd->pb[i] = 0;
         } else {
-            QCString buttonName;
+            QString buttonName;
             buttonName.sprintf( "button%d", i+1 );
             mbd->pb[i] = new QPushButton(
                 tr(mb_texts[mbd->button[i]]),

@@ -26,7 +26,6 @@
 class QListBoxPrivate;
 class QListBoxItem;
 class QString;
-class QStrList;
 class QStringList;
 
 
@@ -60,8 +59,11 @@ public:
     uint count() const;
 
     void insertStringList( const QStringList&, int index=-1 );
+// ### fix before Qt 4.0
+#if !defined(QT_NO_COMPAT) && 0
     void insertStrList( const QStrList *, int index=-1 );
     void insertStrList( const QStrList &, int index=-1 );
+#endif
     void insertStrList( const char **,
 			int numStrings=-1, int index=-1 );
 

@@ -18,7 +18,6 @@
 #ifndef QT_H
 #include "qstring.h"
 #include "qlist.h"
-#include "qptrvector.h"
 #include "qhash.h"
 #include "qobject.h"
 #include "qmime.h"

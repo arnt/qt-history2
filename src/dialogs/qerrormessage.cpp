@@ -18,7 +18,6 @@
 
 #include "qapplication.h"
 #include "qcheckbox.h"
-#include "qdict.h"
 #include "qlabel.h"
 #include "qlayout.h"
 #include "qmessagebox.h"

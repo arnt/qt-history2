@@ -25,7 +25,6 @@
 
 #include "qwidget.h"
 #include "qpainter.h"
-#include "qdict.h"
 #include <limits.h>
 #include "qt_windows.h"
 #include "qapplication_p.h"

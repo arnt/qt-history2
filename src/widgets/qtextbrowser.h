@@ -16,7 +16,6 @@
 #define QTEXTBROWSER_H
 
 #ifndef QT_H
-#include "qptrlist.h"
 #include "qpixmap.h"
 #include "qcolor.h"
 #include "qtextedit.h"

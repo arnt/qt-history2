@@ -22,7 +22,7 @@
 #include "qpainter.h"
 #include "qpainter_p.h"
 #include "qmap.h"
-#include "qptrstack.h"
+#include "qlist.h"
 #include "qregexp.h"
 #include "qtextlayout_p.h"
 #include "qwidget.h"
@@ -35,7 +35,7 @@
 #include <limits.h>
 
 #ifndef QT_NO_TRANSFORMATIONS
-typedef QPtrStack<QWMatrix> QWMatrixStack;
+typedef QList<QWMatrix*> QWMatrixStack;
 #endif
 
 // POSIX Large File Support redefines truncate -> truncate64
@@ -649,7 +649,7 @@ struct QPState {				// painter state
 
 //TODO lose the worldmatrix stack
 
-typedef QPtrStack<QPState> QPStateStack;
+typedef QList<QPState*> QPStateStack;
 
 
 void QPainter::killPStack()
@@ -682,7 +682,7 @@ void QPainter::save()
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 ) {
-	pss = new QPtrStack<QPState>;
+	pss = new QPStateStack;
 	pss->setAutoDelete( TRUE );
 	ps_stack = pss;
     }
@@ -711,7 +711,7 @@ void QPainter::save()
     ps->ta    = tabarray;
     ps->wm_stack = wm_stack;
     wm_stack = 0;
-    pss->push( ps );
+    pss->push_back( ps );
 }
 
 /*!
@@ -733,7 +733,8 @@ void QPainter::restore()
 	qWarning( "QPainter::restore: Empty stack error" );
 	return;
     }
-    QPState *ps = pss->pop();
+    QPState *ps = pss->back();
+    pss->pop_back();
     bool hardRestore = testf(VolatileDC);
 
     if ( ps->font != cfont || hardRestore )
@@ -1363,12 +1364,12 @@ void QPainter::saveWorldMatrix()
 {
     QWMatrixStack *stack = (QWMatrixStack *)wm_stack;
     if ( stack == 0 ) {
-	stack  = new QPtrStack<QWMatrix>;
+	stack  = new QList<QWMatrix*>;
 	stack->setAutoDelete( TRUE );
 	wm_stack = stack;
     }
 
-    stack->push( new QWMatrix( wxmat ) );
+    stack->push_back( new QWMatrix( wxmat ) );
 
 }
 
@@ -1383,7 +1384,8 @@ void QPainter::restoreWorldMatrix()
 	qWarning( "QPainter::restoreWorldMatrix: Empty stack error" );
 	return;
     }
-    QWMatrix* m = stack->pop();
+    QWMatrix* m = stack->back();
+    stack->pop_back();
     setWorldMatrix( *m );
     delete m;
 }
@@ -1581,7 +1583,7 @@ void QPainter::resetXForm()
 #endif // QT_NO_TRANSFORMATIONS
 
 
-extern Q_KERNEL_EXPORT bool qt_old_transformations;
+extern bool qt_old_transformations;
 
 /*!
   \internal

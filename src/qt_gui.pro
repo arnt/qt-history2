@@ -8,17 +8,12 @@ QCONFIG = kernel
 !nis:DEFINES += QT_NO_NIS
 DEFINES += QT_BUILD_GUI_LIB
 
-# Temporarly build compat into gui, hence the export logics...
-DEFINES += QT_BUILD_COMPAT_LIB 
-win32:DEFINES += QT_BUILD_NETWORK_LIB
-
 #platforms
 x11:include($$KERNEL_CPP/qt_x11.pri)
 mac:include($$KERNEL_CPP/qt_mac.pri)
 embedded:include($$KERNEL_CPP/qt_qws.pri)
 
 #modules
-win32:include($$NETWORK_CPP/qt_network.pri)
 include($$KERNEL_CPP/qt_gui.pri)
 include($$CANVAS_CPP/qt_canvas.pri)
 include($$TABLE_CPP/qt_table.pri)
@@ -50,8 +45,3 @@ qt_one_lib { #for compat
    include($$CODECS_CPP/qt_codecs.pri)
    include($$KERNEL_CPP/qt_gfx.pri)
 }
-
-#qcompat, once the 4.0 removing of the compat stuff is complete, get this out of here.. (qt.pro too)
-message("Move compat/* files into libqt3compat")
-include($$COMPAT_CPP/qt_compat.pri)
-QCONFIG  += network

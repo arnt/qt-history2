@@ -24,7 +24,6 @@
 #include "qdragobject.h"
 #include "qpopupmenu.h"
 #include "qtimer.h"
-#include "qdict.h"
 #include "../kernel/qrichtext_p.h"
 
 

@@ -22,7 +22,6 @@
 #ifndef QT_NO_COMBOBOX
 
 
-class QStrList;
 class QStringList;
 class QLineEdit;
 class QValidator;
@@ -54,8 +53,10 @@ public:
     int		count() const;
 
     void	insertStringList( const QStringList &, int index=-1 );
+#if !defined(QT_NO_COMPAT) && 0 // ### probably take out for Qt 4.0
     void	insertStrList( const QStrList &, int index=-1 );
     void	insertStrList( const QStrList *, int index=-1 );
+#endif
     void	insertStrList( const char **, int numStrings=-1, int index=-1);
 
     void	insertItem( const QString &text, int index=-1 );

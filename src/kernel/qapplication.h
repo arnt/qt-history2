@@ -16,7 +16,6 @@
 #define QAPPLICATION_H
 
 #ifndef QT_H
-#include "qasciidict.h"
 #include "qpalette.h"
 #include "qstringlist.h"
 #include "qkernelapplication.h"

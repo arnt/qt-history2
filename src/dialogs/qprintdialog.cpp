@@ -16,7 +16,10 @@
 
 #ifndef QT_NO_PRINTDIALOG
 
+// ### Fix before 4.0
+#if 0
 #include "qfiledialog.h"
+#endif
 #include "qdesktopwidget.h"
 #include "qfile.h"
 #include "qtextstream.h"
@@ -1425,7 +1428,7 @@ void QPrintDialog::setNumCopies( int copies )
 
 void QPrintDialog::browseClicked()
 {
-#ifndef QT_NO_FILEDIALOG
+#ifndef QT_NO_FILEDIALOG && 0 // ### Fix before 4.0
     QString fn = QFileDialog::getSaveFileName( d->fileName->text(), tr( "PostScript Files (*.ps);;All Files (*)" ), this );
     if ( !fn.isNull() )
 	d->fileName->setText( fn );

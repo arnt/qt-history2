@@ -18,7 +18,6 @@
 #include "qevent.h"
 #include "qhash.h"
 #include "qstack.h"
-#include "qptrdict.h"
 #include "qcursor.h"
 #include "qpixmap.h"
 #include "qapplication.h"

@@ -22,7 +22,7 @@
 #include "qlayout.h"
 #include "qpainter.h"
 
-#include "qvaluestack.h"
+#include "qstack.h"
 #include "stdio.h"
 #include "qfile.h"
 #include "qtextstream.h"
@@ -94,8 +94,8 @@ class QTextBrowserData
 public:
     QTextBrowserData():textOrSourceChanged(FALSE) {}
 
-    QValueStack<QString> stack;
-    QValueStack<QString> forwardStack;
+    QStack<QString> stack;
+    QStack<QString> forwardStack;
     QString home;
     QString curmain;
     QString curmark;

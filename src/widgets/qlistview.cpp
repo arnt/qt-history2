@@ -7320,7 +7320,7 @@ QListViewItemIterator &QListViewItemIterator::operator=( const QListViewItemIter
 QListViewItemIterator::~QListViewItemIterator()
 {
     if ( listView )
-	if (listView->d->iterators.remove(this));
+	listView->d->iterators.remove(this);
 }
 
 /*!

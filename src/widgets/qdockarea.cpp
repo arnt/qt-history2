@@ -18,7 +18,6 @@
 #include "qsplitter.h"
 #include "qevent.h"
 #include "qlayout.h"
-#include "qptrvector.h"
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qmap.h"

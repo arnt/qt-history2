@@ -34,7 +34,6 @@
 #include "qcursor.h"
 #include "qapplication.h"
 #include "qtextedit.h"
-#include "qmemarray.h"
 #include "qvbox.h"
 #include "qtooltip.h"
 #include "qbitmap.h"

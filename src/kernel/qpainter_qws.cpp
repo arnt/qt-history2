@@ -43,8 +43,8 @@ void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 
 #ifdef QWS_EXTRA_DEBUG
     qDebug( "qt_set_paintevent_clipping" );
-    QMemArray<QRect> ar = region.rects();
-    for ( int i=0; i<int(ar.size()); i++ ) {
+    QVector<QRect> ar = region.rects();
+    for ( int i=0; i<ar.size(); i++ ) {
 	QRect r = ar[i];
         qDebug( "   r[%d]:  %d,%d %dx%d", i,
 		r.x(), r.y(), r.width(), r.height() );
@@ -275,7 +275,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	qWarning( "QPainter::begin: Paint device cannot be null" );
 	return FALSE;
     }
-    if(pd->devType() == QInternal::Widget && 
+    if(pd->devType() == QInternal::Widget &&
        !static_cast<const QWidget*>(pd)->testWState(WState_InPaintEvent)) {
 	qWarning("QPainter::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");

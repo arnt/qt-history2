@@ -24,7 +24,6 @@
 #include "qvector.h"
 #include "qfontmetrics.h"
 #include "qpainter.h"
-#include "qstrlist.h"
 #include "qpixmap.h"
 #include "qapplication.h"
 #include "qtimer.h"
@@ -1221,7 +1220,8 @@ uint QListBox::count() const
     return d->count;
 }
 
-
+// ### fix before Qt 4.0
+#if !defined(QT_NO_COMPAT) && 0
 /*!
     Inserts the string list \a list into the list at position \a
     index.
@@ -1249,7 +1249,7 @@ void QListBox::insertStrList( const QStrList *list, int index )
     }
     insertStrList( *list, index );
 }
-
+#endif
 
 
 /*!
@@ -1274,7 +1274,8 @@ void QListBox::insertStringList( const QStringList & list, int index )
 }
 
 
-
+// ### fix before Qt 4.0
+#if !defined(QT_NO_COMPAT) && 0
 /*!
     \overload
 
@@ -1295,7 +1296,6 @@ void QListBox::insertStringList( const QStringList & list, int index )
 
     \sa insertItem(), insertStringList()
 */
-
 void QListBox::insertStrList( const QStrList & list, int index )
 {
     QStrListIterator it( list );
@@ -1310,6 +1310,7 @@ void QListBox::insertStrList( const QStrList & list, int index )
     if ( hasFocus() && !d->current )
 	setCurrentItem( d->head );
 }
+#endif
 
 
 /*!

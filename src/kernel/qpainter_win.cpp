@@ -18,7 +18,6 @@
 #include "qbitmap.h"
 #include "qpaintdevicemetrics.h"
 #include "qpixmapcache.h"
-#include "qptrlist.h"
 #include "qprinter.h"
 #include <stdlib.h>
 #include <math.h>

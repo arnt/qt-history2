@@ -2,6 +2,7 @@
 
 compat {
 	COMPAT_P	= compat
+
 	HEADERS += $$COMPAT_H/qasciicache.h \
 		  $$COMPAT_H/qasciidict.h \
 		  $$COMPAT_H/q3signal.h \
@@ -30,7 +31,8 @@ compat {
 		  $$COMPAT_H/qvaluevector.h \
 		  $$COMPAT_H/qurloperator.h \
 		  $$COMPAT_H/qlocalfs.h \
-		  $$COMPAT_H/qnetworkprotocol.h 
+		  $$COMPAT_H/qnetworkprotocol.h \
+		  $$DIALOGS_H/qfiledialog.h 
 
 	SOURCES += $$COMPAT_CPP/qcstring.cpp \
 		  $$COMPAT_CPP/q3signal.cpp \
@@ -42,5 +44,9 @@ compat {
 		  $$COMPAT_CPP/qptrcollection.cpp \
 		  $$COMPAT_CPP/qurloperator.cpp \
 		  $$COMPAT_CPP/qlocalfs.cpp \
-		  $$COMPAT_CPP/qnetworkprotocol.cpp 
+		  $$COMPAT_CPP/qnetworkprotocol.cpp \
+		  $$DIALOGS_CPP/qfiledialog.cpp 
+	
+	win32:SOURCES += $$DIALOGS_CPP/qfiledialog_win.cpp
+        !embedded:mac:SOURCES  += $$DIALOGS_CPP/qfiledialog_mac.cpp
 }

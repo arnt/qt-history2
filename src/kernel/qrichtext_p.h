@@ -33,7 +33,6 @@
 #include "qhash.h"
 #include "qfont.h"
 #include "qfontmetrics.h"
-#include "qintdict.h"
 #include "qlayout.h"
 #include "qmap.h"
 #include "qvector.h"

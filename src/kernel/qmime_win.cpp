@@ -16,7 +16,6 @@
 
 #ifndef QT_NO_MIME
 
-#include "qstrlist.h"
 #include "qimage.h"
 #include "qdatastream.h"
 #include "qdragobject.h"

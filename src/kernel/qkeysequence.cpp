@@ -361,28 +361,36 @@ int QKeySequence::decodeString(const QString& str)
 
     // ############ FIXME: We should not need to construct a valuelist with 20 entries for every
     // key decode operation. There _is_ a way to do this more intelligent.
-    QValueList<ModifKeyName> modifs;
+    static QList<ModifKeyName> modifs;
+    modifs.ensure_constructed();
+    if (modifs.isEmpty()) {
 #ifdef QMAC_CTRL
-    modifs << ModifKeyName(CTRL, QMAC_CTRL);
+	modifs << ModifKeyName(CTRL, QMAC_CTRL);
 #endif
 #ifdef QMAC_ALT
-    modifs << ModifKeyName(ALT, QMAC_ALT);
+	modifs << ModifKeyName(ALT, QMAC_ALT);
 #endif
 #ifdef QMAC_META
-    modifs << ModifKeyName(META, QMAC_META);
+	modifs << ModifKeyName(META, QMAC_META);
 #endif
 #ifdef QMAC_SHIFT
-    modifs << ModifKeyName(SHIFT, QMAC_SHIFT);
+	modifs << ModifKeyName(SHIFT, QMAC_SHIFT);
 #endif
-    modifs << ModifKeyName(CTRL, "ctrl+") << ModifKeyName(CTRL, QAccel::tr("Ctrl").lower().append('+'));
-    modifs << ModifKeyName(SHIFT, "shift+") << ModifKeyName(SHIFT, QAccel::tr("Shift").lower().append('+'));
-    modifs << ModifKeyName(ALT, "alt+") << ModifKeyName(ALT, QAccel::tr("Alt").lower().append('+'));
-    modifs << ModifKeyName(META, "meta+") << ModifKeyName(ALT, QAccel::tr("Meta").lower().append('+'));
+	modifs << ModifKeyName(CTRL, "ctrl+")
+	       << ModifKeyName(CTRL, QAccel::tr("Ctrl").lower().append('+'))
+	       << ModifKeyName(SHIFT, "shift+")
+	       << ModifKeyName(SHIFT, QAccel::tr("Shift").lower().append('+'))
+	       << ModifKeyName(ALT, "alt+")
+	       << ModifKeyName(ALT, QAccel::tr("Alt").lower().append('+'))
+	       << ModifKeyName(META, "meta+")
+	       << ModifKeyName(ALT, QAccel::tr("Meta").lower().append('+'));
+    }
     QString sl = accel;
-    for(QValueList<ModifKeyName>::iterator it = modifs.begin(); it != modifs.end(); ++it) {
-	if (sl.contains((*it).name)) {
-	    ret |= (*it).qt_key;
-	    accel.remove((*it).name);
+    for (int i = 0; i < modifs.size(); ++i) {
+	const ModifKeyName &mkf = modifs.at(i);
+	if (sl.contains(mkf.name)) {
+	    ret |= mkf.qt_key;
+	    accel.remove(mkf.name);
 	    sl = accel;
 	}
     }
@@ -432,7 +440,7 @@ QString QKeySequence::encodeString(int key)
 	if ( plus_next && !s.isEmpty() )
 	    s += QAccel::tr( "+" );
 	plus_next = TRUE;
-	QString meta = QAccel::tr( "Meta" ); 
+	QString meta = QAccel::tr( "Meta" );
 #ifdef QMAC_META
 	if(meta == "Meta") {
 	    plus_next = FALSE;
@@ -663,7 +671,7 @@ bool QKeySequence::operator!= (const QKeySequence& keysequence) const
 */
 QDataStream &operator<<(QDataStream &s, const QKeySequence &keysequence)
 {
-    QValueList<int> list;
+    QList<int> list;
     list += keysequence.d->key[0];
     list += keysequence.d->key[1];
     list += keysequence.d->key[2];
@@ -684,7 +692,7 @@ QDataStream &operator<<(QDataStream &s, const QKeySequence &keysequence)
 */
 QDataStream &operator>>(QDataStream &s, QKeySequence &keysequence)
 {
-    QValueList<int> list;
+    QList<int> list;
     s >> list;
 
     if (1 != list.count() && 4 != list.count()) {
@@ -692,16 +700,16 @@ QDataStream &operator>>(QDataStream &s, QKeySequence &keysequence)
 	return s;
     }
 
-    if (1 == list.count()) {
-	keysequence.d->key[0] = *list.at(0);
+    if (1 == list.size()) {
+	keysequence.d->key[0] = list.at(0);
 	keysequence.d->key[1] =
 	    keysequence.d->key[2] =
 	    keysequence.d->key[3] = 0;
     } else {
-	keysequence.d->key[0] = *list.at(0);
-	keysequence.d->key[1] = *list.at(1);
-	keysequence.d->key[2] = *list.at(2);
-	keysequence.d->key[3] = *list.at(3);
+	keysequence.d->key[0] = list.at(0);
+	keysequence.d->key[1] = list.at(1);
+	keysequence.d->key[2] = list.at(2);
+	keysequence.d->key[3] = list.at(3);
     }
     return s;
 }

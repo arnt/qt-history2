@@ -20,7 +20,6 @@
 #include "qlistbox.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
-#include "qstrlist.h"
 #include "qpixmap.h"
 #include "qtimer.h"
 #include "qapplication.h"
@@ -555,7 +554,7 @@ int QComboBox::count() const
 	return d->popup()->count();
 }
 
-
+#if !defined(QT_NO_COMPAT) && 0 // ### probably take out for Qt 4.0
 /*!
     \overload
 
@@ -609,7 +608,7 @@ void QComboBox::insertStrList( const QStrList *list, int index )
     if ( index != count() )
 	reIndex();
 }
-
+#endif
 /*!
     Inserts the \a list of strings at position \a index in the
     combobox.
