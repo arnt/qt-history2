@@ -1937,7 +1937,6 @@ QPoint QStyle::visualPos( const QPoint &logical, const QWidget *w )
 {
     if ( !QApplication::reverseLayout() )
 	return logical;
-    QRect boundingRect = w->rect();
     return QPoint( w->rect().right() - logical.x(), logical.y());
 }
 
