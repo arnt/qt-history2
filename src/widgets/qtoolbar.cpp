@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#2 $
 **
 ** Implementation of something useful.
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#2 $");
 
 
 
@@ -125,8 +125,8 @@ void QToolBar::setUpGM()
 		}
 	    }
 	    b->addWidget( (QWidget *)o, 0 );
-	    QWidget * dbg = (QWidget *)o;
-	    
+	    //QWidget * dbg = (QWidget *)o;
+	
 	    //debug( "%s/%s: %d,%d %d,%d", o->name(), o->className(),
 	    //	   dbg->width(), dbg->height(),
 	    //	   dbg->minimumSize().width(), dbg->minimumSize().height() );
