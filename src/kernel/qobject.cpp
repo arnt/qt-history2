@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#81 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#80 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#81 $")
 
 
 /*----------------------------------------------------------------------------
@@ -248,7 +248,8 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
 	    if ( strcmp(name,obj->name()) == 0 ) {
 #if defined(CHECK_RANGE)
 		if ( !obj->inherits(type) )
-		    warning( "CHILD: Object %s does not inherit", name, type );
+		    warning( "CHILD: Object %s does not inherit %s",
+			     name, type );
 #endif
 		return obj;
 	    }
