@@ -249,7 +249,7 @@ bool QDesignerToolBar::eventFilter( QObject *o, QEvent *e )
 	     de->provides( "application/x-designer-separator" ) )
 	    de->accept();
     }
-	
+
     return QToolBar::eventFilter( o, e );
 }
 
@@ -282,11 +282,11 @@ void QDesignerToolBar::mousePressEvent( QMouseEvent *e )
 	 MainWindow::self->currentTool() != ORDER_TOOL ) {
 
 	if ( MainWindow::self->currentTool() == CONNECT_TOOL ) {
-	
+
 	} else {
 	    widgetInserting = TRUE;
 	}
-	
+
 	return;
     }
 }
@@ -363,11 +363,11 @@ void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
 	 MainWindow::self->currentTool() != ORDER_TOOL ) {
 
 	if ( MainWindow::self->currentTool() == CONNECT_TOOL ) {
-	
+
 	} else {
 	    widgetInserting = TRUE;
 	}
-	
+
 	return;
     }
 
@@ -377,7 +377,7 @@ void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
 
 void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
 {
-    if ( widgetInserting )
+    if ( widgetInserting || ( e->state() & LeftButton ) == 0 )
 	return;
     if ( QABS( QPoint( dragStartPos - e->pos() ).manhattanLength() ) < QApplication::startDragDistance() )
 	return;
@@ -611,7 +611,7 @@ void QDesignerToolBar::doInsertWidget( const QPoint &p )
     formWindow->commandHistory()->addCommand( cmd );
     cmd->execute();
     MainWindow::self->resetTool();
-}	
+}
 
 void QDesignerToolBar::clear()
 {
