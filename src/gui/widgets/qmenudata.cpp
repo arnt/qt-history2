@@ -18,6 +18,7 @@
 #include <private/qaction_p.h>
 #define d d_func()
 
+struct QActionAccessor { QActionPrivate *d_ptr; };
 class QMenuItemEmitter : public QObject
 {
     Q_OBJECT
@@ -32,7 +33,7 @@ public:
     inline QSignalEmitter *signal() const { return sig; }
  private slots:
     void doSignalEmit() {
-        int value = menuitem->signalValue();
+        int value = reinterpret_cast<QActionAccessor*>(menuitem)->d_ptr->param;
         sig->activate(&value);
     }
 };
@@ -41,7 +42,7 @@ public:
 QMenuItem::QMenuItem() : QAction((QWidget*)0)
 {
 }
- 
+
 void QMenuItem::setId(int id)
 {
     d->param = d->id = id;

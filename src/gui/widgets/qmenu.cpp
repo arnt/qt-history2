@@ -341,7 +341,7 @@ QString QMenu::title() const
 
 void QMenu::setTitle(const QString &text)
 {
-    d->menuAction->setMenuText(text);
+    d->menuAction->setText(text);
 }
 
 /*!
@@ -1911,7 +1911,7 @@ int QMenu::insertAny(const QIconSet *icon, const QString *text, const QObject *r
     if(icon)
         act->setIcon(*icon);
     if(text)
-        act->setMenuText(*text);
+        act->setText(*text);
     if(shortcut)
         act->setShortcut(*shortcut);
     if(receiver && member)
