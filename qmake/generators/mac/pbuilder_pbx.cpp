@@ -1301,7 +1301,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             debug_msg(1, "pbuilder: Creating file: %s", mkwrap.latin1());
             QTextStream mkwrapt(&mkwrapf);
             writeHeader(mkwrapt);
-            const char *cleans = "mocclean preprocess_clean ";
+            const char cleans[] = "mocclean preprocess_clean ";
             mkwrapt << "#This is a makefile wrapper for PROJECT BUILDER\n"
                     << "all:" << "\n\t"
                     << "cd " << project->first("QMAKE_ORIG_TARGET") << projectSuffix() << "/ && " << pbxbuild() << "\n"

@@ -52,14 +52,14 @@ CWPLUGIN_ENTRY(CWPlugin_GetDropInFlags)(const DropInFlags** flags, long* flagsSi
 
 CWPLUGIN_ENTRY(CWPlugin_GetDropInName)(const char** dropinName)
 {
-        static const char* sDropInName = "McMoc";
+        static const char sDropInName[] = "McMoc";
         *dropinName = sDropInName;
         return cwNoErr;
 }
 
 CWPLUGIN_ENTRY(CWPlugin_GetDisplayName)(const char** displayName)
 {
-        static const char* sDisplayName = "McMoc";
+        static const char sDisplayName[] = "McMoc";
         *displayName = sDisplayName;
         return cwNoErr;
 }

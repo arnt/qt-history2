@@ -25,14 +25,14 @@
 //#define DEBUG_PROJECT_GEN
 
 // Filter GUIDs (Do NOT change these!) ------------------------------
-const char* _GUIDSourceFiles           = "{4FC737F1-C7A5-4376-A066-2A32D752A2FF}";
-const char* _GUIDHeaderFiles           = "{93995380-89BD-4b04-88EB-625FBE52EBFB}";
-const char* _GUIDGeneratedFiles        = "{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}";
-const char* _GUIDResourceFiles         = "{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}";
-const char* _GUIDLexYaccFiles          = "{E12AE0D2-192F-4d59-BD23-7D3FA58D3183}";
-const char* _GUIDTranslationFiles      = "{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}";
-const char* _GUIDFormFiles             = "{99349809-55BA-4b9d-BF79-8FDBB0286EB3}";
-const char* _GUIDExtraCompilerFiles    = "{E0D8C965-CC5F-43d7-AD63-FAEF0BBC0F85}";
+const char _GUIDSourceFiles[]          = "{4FC737F1-C7A5-4376-A066-2A32D752A2FF}";
+const char _GUIDHeaderFiles[]          = "{93995380-89BD-4b04-88EB-625FBE52EBFB}";
+const char _GUIDGeneratedFiles[]       = "{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}";
+const char _GUIDResourceFiles[]        = "{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}";
+const char _GUIDLexYaccFiles[]         = "{E12AE0D2-192F-4d59-BD23-7D3FA58D3183}";
+const char _GUIDTranslationFiles[]     = "{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}";
+const char _GUIDFormFiles[]            = "{99349809-55BA-4b9d-BF79-8FDBB0286EB3}";
+const char _GUIDExtraCompilerFiles[]   = "{E0D8C965-CC5F-43d7-AD63-FAEF0BBC0F85}";
 
 enum DotNET {
     NETUnknown = 0,
@@ -234,9 +234,9 @@ DotNET which_dotnet_version()
 };
 
 // Flatfile Tags ----------------------------------------------------
-const char* _slnHeader70        = "Microsoft Visual Studio Solution File, Format Version 7.00";
-const char* _slnHeader71        = "Microsoft Visual Studio Solution File, Format Version 8.00";
-const char* _slnHeader80        = "Microsoft Visual Studio Solution File, Format Version 9.00";
+const char _slnHeader70[]       = "Microsoft Visual Studio Solution File, Format Version 7.00";
+const char _slnHeader71[]       = "Microsoft Visual Studio Solution File, Format Version 8.00";
+const char _slnHeader80[]       = "Microsoft Visual Studio Solution File, Format Version 9.00";
                                   // The following UUID _may_ change for later servicepacks...
                                   // If so we need to search through the registry at
                                   // HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\7.0\Projects
@@ -244,25 +244,25 @@ const char* _slnHeader80        = "Microsoft Visual Studio Solution File, Format
                                   // containing "vcproj"...
                                   // Use the hardcoded value for now so projects generated on other
                                   // platforms are actually usable.
-const char* _slnMSVCvcprojGUID  = "{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}";
-const char* _slnProjectBeg        = "\nProject(\"";
-const char* _slnProjectMid        = "\") = ";
-const char* _slnProjectEnd        = "\nEndProject";
-const char* _slnGlobalBeg        = "\nGlobal";
-const char* _slnGlobalEnd        = "\nEndGlobal";
-const char* _slnSolutionConf        = "\n\tGlobalSection(SolutionConfiguration) = preSolution"
+const char _slnMSVCvcprojGUID[] = "{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}";
+const char _slnProjectBeg[]     = "\nProject(\"";
+const char _slnProjectMid[]     = "\") = ";
+const char _slnProjectEnd[]     = "\nEndProject";
+const char _slnGlobalBeg[]      = "\nGlobal";
+const char _slnGlobalEnd[]      = "\nEndGlobal";
+const char _slnSolutionConf[]   = "\n\tGlobalSection(SolutionConfiguration) = preSolution"
                                   "\n\t\tConfigName.0 = Debug"
                                   "\n\t\tConfigName.1 = Release"
                                   "\n\tEndGlobalSection";
-const char* _slnProjDepBeg        = "\n\tGlobalSection(ProjectDependencies) = postSolution";
-const char* _slnProjDepEnd        = "\n\tEndGlobalSection";
-const char* _slnProjConfBeg        = "\n\tGlobalSection(ProjectConfiguration) = postSolution";
-const char* _slnProjRelConfTag1        = ".Release.ActiveCfg = Release|Win32";
-const char* _slnProjRelConfTag2        = ".Release.Build.0 = Release|Win32";
-const char* _slnProjDbgConfTag1        = ".Debug.ActiveCfg = Debug|Win32";
-const char* _slnProjDbgConfTag2        = ".Debug.Build.0 = Debug|Win32";
-const char* _slnProjConfEnd        = "\n\tEndGlobalSection";
-const char* _slnExtSections        = "\n\tGlobalSection(ExtensibilityGlobals) = postSolution"
+const char _slnProjDepBeg[]     = "\n\tGlobalSection(ProjectDependencies) = postSolution";
+const char _slnProjDepEnd[]     = "\n\tEndGlobalSection";
+const char _slnProjConfBeg[]    = "\n\tGlobalSection(ProjectConfiguration) = postSolution";
+const char _slnProjRelConfTag1[]= ".Release.ActiveCfg = Release|Win32";
+const char _slnProjRelConfTag2[]= ".Release.Build.0 = Release|Win32";
+const char _slnProjDbgConfTag1[]= ".Debug.ActiveCfg = Debug|Win32";
+const char _slnProjDbgConfTag2[]= ".Debug.Build.0 = Debug|Win32";
+const char _slnProjConfEnd[]    = "\n\tEndGlobalSection";
+const char _slnExtSections[]    = "\n\tGlobalSection(ExtensibilityGlobals) = postSolution"
                                   "\n\tEndGlobalSection"
                                   "\n\tGlobalSection(ExtensibilityAddIns) = postSolution"
                                   "\n\tEndGlobalSection";

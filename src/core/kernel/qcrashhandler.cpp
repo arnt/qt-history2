@@ -335,7 +335,7 @@ static void print_backtrace(FILE *outb)
                          globalProgName, (int)getpid()))
         return;
 #endif
-    const char *debug_err = "No debugger found\n";
+    const char debug_err[] = "No debugger found\n";
     fwrite(debug_err, strlen(debug_err), 1, outb);
 }
 /* end of copied code */

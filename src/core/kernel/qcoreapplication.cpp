@@ -111,7 +111,7 @@ Q_GLOBAL_STATIC(QThreadData, mainData)
 QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
     : QObjectPrivate(), argc(aargc), argv(aargv), eventFilter(0)
 {
-    static const char *empty = "";
+    static const char empty[] = "";
     if (argc == 0 || argv == 0) {
         argc = 0;
         argv = (char **)&empty; // ouch! careful with QApplication::argv()!

@@ -19,7 +19,7 @@
 enum MouseProtocol { Unknown = -1, MouseMan = 0, IntelliMouse = 1 };
 
 typedef struct {
-    char *name;
+    const char *name;
     MouseProtocol id;
 } MouseConfig;
 
@@ -38,7 +38,7 @@ static const MouseData mouseData[] = {
     { 4 }   // intelliMouse
 };
 
-static const char *mouseDev = "/dev/mouse";
+static const char mouseDev[] = "/dev/mouse";
 static const int mouseBufSize = 100;
 
 static int mouseFD = -1;
@@ -53,8 +53,7 @@ void QWSServer::openMouse()
 	closeMouse();
 
     if ((mouseFD = open( mouseDev, O_RDWR | O_NDELAY)) < 0) {
-	printf( "Cannot open %s (%s)\n", (const char*)mouseDev,
-		strerror(errno));
+	printf( "Cannot open %s (%s)\n", mouseDev, strerror(errno));
 	exit(1);
     }
 

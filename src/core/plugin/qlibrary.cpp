@@ -317,7 +317,7 @@ static bool qt_unix_query(const QString &library, uint *version, bool *debug, QB
 #endif // USE_MMAP
 
     // verify that the pattern is present in the plugin
-    const char *pattern = "pattern=QT_PLUGIN_VERIFICATION_DATA";
+    const char pattern[] = "pattern=QT_PLUGIN_VERIFICATION_DATA";
     const ulong plen = qstrlen(pattern);
     long pos = qt_find_pattern(filedata, fdlen, pattern, plen);
 

@@ -26,7 +26,7 @@
 
 #define VTSWITCHSIG SIGUSR2
 
-static const char *terminalName = "/dev/tty0";
+static const char terminalName[] = "/dev/tty0";
 
 static int kbdFD = -1;
 static struct termios origTermData;
@@ -173,7 +173,7 @@ void QWSServer::openKeyboard()
 
     if ((kbdFD = open(terminalName, O_RDWR | O_NDELAY, 0)) < 0)
     {
-	printf("Cannot open %s\n", terminalName);
+	printf("Cannot open %s (%s)\n", terminalName, strerror(errno));
     }
 
     // save for restore.
@@ -361,4 +361,3 @@ void QWSServer::readKeyboardData()
 	extended = FALSE;
     }
 }
-

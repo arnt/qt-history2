@@ -299,9 +299,9 @@ void QProcessPrivate::execChild()
         // not in the environment list passed by the programmer, then
         // copy it over.
 #if defined(Q_OS_MACX)
-        static const char *libraryPath = "DYLD_LIBRARY_PATH";
+        static const char libraryPath[] = "DYLD_LIBRARY_PATH";
 #else
-        static const char *libraryPath = "LD_LIBRARY_PATH";
+        static const char libraryPath[] = "LD_LIBRARY_PATH";
 #endif
         QStringList matches = environment.filter(QRegExp("^" + QByteArray(libraryPath) + "="));
         char *envLibraryPath = ::getenv(libraryPath);

@@ -3959,7 +3959,7 @@ void QPSPrintEngineFontPFB::download(QTextStream& s, bool global)
             }
         }
         if (typ==2) {
-            static const char *hexchar = "0123456789abcdef";
+            static const char hexchar[] = "0123456789abcdef";
             while (pos < end) {
                 /* trim hexadecimal lines to line_length columns */
                 if (hexcol >= line_length) {
@@ -5417,7 +5417,7 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     outStream << "\n%%EndComments\n";
 
     outStream << "%%BeginProlog\n";
-    const char * const prologLicense = "% Prolog copyright 1994-2003 Trolltech. "
+    const char prologLicense[] = "% Prolog copyright 1994-2003 Trolltech. "
                                  "You may copy this prolog in any way\n"
                                  "% that is directly related to this "
                                  "document. For other use of this prolog,\n"
