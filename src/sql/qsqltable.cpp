@@ -168,7 +168,7 @@ void QSqlTable::setColumn( uint col, const QSqlField* field )
 
   Sets the table's readonly flag to \a b.  Note that if the underlying view cannot
   be edited, this function will have no effect.
-  
+
   \sa setView()
 
 */
@@ -220,7 +220,7 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
     switch ( e->type() ) {
     case QEvent::KeyPress: {
 	QKeyEvent *ke = (QKeyEvent*)e;
-	if ( ke->key() == Key_Escape && d->insertMode ) 
+	if ( ke->key() == Key_Escape && d->insertMode )
 	    endInsert();
 	if ( ke->key() == Key_Insert ) {
 	    beginInsert();
@@ -247,7 +247,7 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 
 /*
   \internal
-  
+
 */
 
 void QSqlTable::endInsert()
@@ -255,8 +255,8 @@ void QSqlTable::endInsert()
     d->insertMode = FALSE;
     updateRow( d->insertRow );
     for ( int i = d->insertRow; i < d->insertRowLast; ++i )
-	verticalHeader()->setLabel( i, verticalHeader()->label( i+1 ) );	
-    verticalHeader()->setLabel( d->insertRowLast, d->insertHeaderLabelLast );	
+	verticalHeader()->setLabel( i, verticalHeader()->label( i+1 ) );
+    verticalHeader()->setLabel( d->insertRowLast, d->insertHeaderLabelLast );
     d->insertRow = -1;
     d->insertRowLast = -1;
     d->insertHeaderLabelLast = QString::null;
@@ -267,13 +267,11 @@ bool QSqlTable::beginInsert()
     QSqlView* vw = d->view;
     if ( !vw || isReadOnly() || ! numCols() )
 	return FALSE;
-    
     vw->clearValues();
     if ( !primeInsert( vw ) )
 	return FALSE;
-    
     int row = currentRow();
-    ensureCellVisible( row, 0 );            
+    ensureCellVisible( row, 0 );
     d->insertRow = row;
     d->insertMode = TRUE;
     int lastRow = row;
@@ -289,11 +287,11 @@ bool QSqlTable::beginInsert()
     d->insertRowLast = lastRow;
     d->insertHeaderLabelLast = verticalHeader()->label( d->insertRowLast );
     for ( i = lastRow; i > row; --i )
-	verticalHeader()->setLabel( i, verticalHeader()->label( i-1 ) );	
+	verticalHeader()->setLabel( i, verticalHeader()->label( i-1 ) );
     verticalHeader()->setLabel( row, "*" );
-    
+
     updateRow( row );
-    if ( beginEdit( row, 0, FALSE ) ) 
+    if ( beginEdit( row, 0, FALSE ) )
 	setEditMode( Editing, row, 0 );
     return TRUE;
 }
@@ -326,15 +324,9 @@ bool QSqlTable::insertCurrent()
     QSqlView* vw = d->view;
     if ( !vw || isReadOnly() || ! numCols() )
 	return FALSE;
-    if ( vw->primaryIndex().count() == 0 ) {
-#ifdef CHECK_RANGE	
-	qWarning("QSqlTable::insertCurrent: no primary index for " + vw->name() );
-#endif	
-	return FALSE;
-    }
     if ( !vw->canInsert() )
 	return FALSE;
-    bool b = d->view->insert();    
+    bool b = d->view->insert();
     endInsert();
     refresh( vw );
     setCurrentSelection( currentRow(), currentColumn() );
@@ -343,7 +335,7 @@ bool QSqlTable::insertCurrent()
 
 void QSqlTable::updateRow( int row )
 {
-    for ( int i = 0; i < numCols(); ++i ) 
+    for ( int i = 0; i < numCols(); ++i )
 	updateCell( row, i );
 }
 
@@ -385,9 +377,9 @@ bool QSqlTable::updateCurrent()
     if ( !vw || isReadOnly() )
 	return FALSE;
     if ( vw->primaryIndex().count() == 0 ) {
-#ifdef CHECK_RANGE	
+#ifdef CHECK_RANGE
 	qWarning("QSqlTable::updateCurrent: no primary index for " + vw->name() );
-#endif	
+#endif
 	return FALSE;
     }
     if ( !vw->canUpdate() )
@@ -432,7 +424,7 @@ bool QSqlTable::deleteCurrent()
     if ( vw->primaryIndex().count() == 0 ) {
 #ifdef CHECK_RANGE
 	qWarning("QSqlTable::deleteCurrent: no primary index " + vw->name() );
-#endif	
+#endif
 	return FALSE;
     }
     if ( !vw->canDelete() )
@@ -476,7 +468,7 @@ void QSqlTable::setCellContentFromEditor( int row, int col )
     //    if ( vw->seek( row ) ) {
     vw->setValue( indexOf( col ),  d->propertyMap->property( editor ) );
     if ( !d->continuousEdit ) {
-	if ( d->insertMode ) 
+	if ( d->insertMode )
 	    insertCurrent();
 	else
 	    updateCurrent();
@@ -802,7 +794,7 @@ void QSqlTable::columnClicked ( int col )
 /*!
 
   \reimpl
-  
+
   This function is reimplemented to render the cell at \a row, \a col
   with the value of the corresponding view field.  Otherwise,
   paintField() is called for the appropriate view field.
@@ -819,7 +811,7 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
     QSqlView* sql = d->view;
     if ( !sql )
 	return;
-    if ( sql->seek( row ) ) 
+    if ( sql->seek( row ) )
 	paintField( p, sql->field( indexOf( col ) ), cr, selected );
 }
 
@@ -839,7 +831,7 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 void QSqlTable::paintField( QPainter * p, const QSqlField* field, const QRect & cr,
 			     bool selected )
 {
-    // ###    
+    // ###
 //     QColorGroup cg = colorGroup();
 //     p->fillRect( 0, 0, cr.width(), cr.height(),
 // 		 selected ? cg.brush( QColorGroup::Highlight )
@@ -847,7 +839,7 @@ void QSqlTable::paintField( QPainter * p, const QSqlField* field, const QRect & 
     if ( !field )
 	return;
     QString text;
-    if ( field->isNull() ) 
+    if ( field->isNull() )
 	text = nullText();
     else {
 	const QVariant val = field->value();
