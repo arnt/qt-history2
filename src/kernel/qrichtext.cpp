@@ -36,7 +36,6 @@
 **********************************************************************/
 
 #include "qrichtext_p.h"
-#include "qtextedit.h"
 #include "qstringlist.h"
 #include "qfont.h"
 #include "qtextstream.h"
@@ -670,11 +669,11 @@ void QTextCursor::gotoEnd()
     idx = string->length() - 1;
 }
 
-void QTextCursor::gotoPageUp( QTextView *view )
+void QTextCursor::gotoPageUp( int visibleHeight )
 {
     tmpIndex = -1;
     QTextParag *s = string;
-    int h = view->visibleHeight();
+    int h = visibleHeight;
     int y = s->rect().y();
     while ( s ) {
 	if ( y - s->rect().y() >= h )
@@ -689,11 +688,11 @@ void QTextCursor::gotoPageUp( QTextView *view )
     idx = 0;
 }
 
-void QTextCursor::gotoPageDown( QTextView *view )
+void QTextCursor::gotoPageDown( int visibleHeight )
 {
     tmpIndex = -1;
     QTextParag *s = string;
-    int h = view->visibleHeight();
+    int h = visibleHeight;
     int y = s->rect().y();
     while ( s ) {
 	if ( s->rect().y() - y >= h )

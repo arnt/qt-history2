@@ -67,7 +67,6 @@
 
 class QTextDocument;
 class QTextCommand;
-class QTextView;
 class QTextString;
 class QTextPreProcessor;
 class QTextCommandHistory;
@@ -135,8 +134,8 @@ public:
     void gotoLineStart();
     void gotoHome();
     void gotoEnd();
-    void gotoPageUp( QTextView *view );
-    void gotoPageDown( QTextView *view );
+    void gotoPageUp( int visibleHeight );
+    void gotoPageDown( int visibleHeight );
     void gotoWordLeft();
     void gotoWordRight();
 
@@ -1103,7 +1102,7 @@ public:
     virtual void updateHeight( QTextCustomItem *i );
 
     void clear();
-    
+
 private:
     int width;
     int height;

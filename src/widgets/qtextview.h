@@ -313,7 +313,6 @@ private:
     int currentAlignment;
     bool inDoubleClick;
     QPoint oldMousePos, mousePos;
-    QPixmap *buf_pixmap;
     bool cursorVisible, blinkCursorVisible;
     bool readOnly, modified, mightStartDrag;
     QPoint dragStartPos;

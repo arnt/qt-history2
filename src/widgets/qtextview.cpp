@@ -177,7 +177,6 @@ QTextView::~QTextView()
 {
     delete cursor;
     delete doc;
-    delete buf_pixmap;
 }
 
 void QTextView::init()
@@ -186,7 +185,6 @@ void QTextView::init()
 	     this, SLOT( setRealWidth( int ) ) );
 
     firstResize = TRUE;
-    buf_pixmap = 0;
     drawAll = TRUE;
     mousePressed = FALSE;
     inDoubleClick = FALSE;
@@ -697,13 +695,13 @@ void QTextView::moveCursor( MoveDirectionPrivate direction, bool control )
 	if ( !control )
 	    cursor->gotoUp();
 	else
-	    cursor->gotoPageUp( this );
+	    cursor->gotoPageUp( visibleHeight() );
     } break;
     case MoveDown: {
 	if ( !control )
 	    cursor->gotoDown();
 	else
-	    cursor->gotoPageDown( this );
+	    cursor->gotoPageDown( visibleHeight() );
     } break;
     case MoveHome: {
 	if ( !control )
@@ -718,10 +716,10 @@ void QTextView::moveCursor( MoveDirectionPrivate direction, bool control )
 	    cursor->gotoEnd();
     } break;
     case MovePgUp:
-	cursor->gotoPageUp( this );
+	cursor->gotoPageUp( visibleHeight() );
 	break;
     case MovePgDown:
-	cursor->gotoPageDown( this );
+	cursor->gotoPageDown( visibleHeight() );
 	break;
     }
 
