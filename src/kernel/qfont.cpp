@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#47 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#46 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#47 $")
 
 
 /*----------------------------------------------------------------------------
@@ -382,25 +382,26 @@ void QFont::setWeight( int weight )
     }
 }
 
-/*!
+/*----------------------------------------------------------------------------
   \fn bool QFont::bold() const
 
-  Returns TRUE if weight() would return a greater than
-  \c QFont::Normal, and FALSE otherwise.
+  Returns TRUE if weight() is a value greater than \c QFont::Normal,
+  otherwise FALSE.
 
   \sa weight(), setBold(), QFontInfo::bold()
-  */
+ ----------------------------------------------------------------------------*/
 
-/*!
-  \fn void QFont::setBold( bool b )
+/*----------------------------------------------------------------------------
+  \fn void QFont::setBold( bool enable )
 
-  Sets the weight to \c QFont::Bold if \e b is TRUE, and to \c
-  QFont::Normal if \e b is FALSE.
+  Sets the weight to \c QFont::Bold if \e enable is TRUE, or to
+  \c QFont::Normal if \e enable is FALSE.
 
   Use setWeight() to set the weight to other values.
 
   \sa bold(), setWeight()
-  */
+ ----------------------------------------------------------------------------*/
+
 
 /*----------------------------------------------------------------------------
   Returns the value set by setUnderline().
@@ -709,9 +710,9 @@ bool QFont::operator!=( const QFont &f ) const
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Returns the system default font.
-*/
+ ----------------------------------------------------------------------------*/
 
 const QFont &QFont::defaultFont()
 {
@@ -720,9 +721,9 @@ const QFont &QFont::defaultFont()
     return *defFont;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Sets the system default font.
-*/
+ ----------------------------------------------------------------------------*/
 
 void  QFont::setDefaultFont( const QFont &f )
 {
@@ -1350,14 +1351,14 @@ int QFontInfo::weight() const
     return (int)f.d->act.weight;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   \fn bool QFontInfo::bold() const
 
   Returns TRUE if weight() would return a greater than
   \c QFont::Normal, and FALSE otherwise.
 
   \sa weight(), QFont::bold()
-  */
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Returns the underline value of the matched window system font.
