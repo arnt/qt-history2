@@ -186,18 +186,18 @@ static int space_left( const QRect &r, int pos, Qt::Orientation o )
     }
 }
 
-static int dock_extent( QDockWindow *w, Qt::Orientation o )
+static int dock_extent( QDockWindow *w, Qt::Orientation o, int maxsize )
 {
     if ( o == Qt::Horizontal ) {
 	int wid;
 	if ( ( wid = w->fixedExtent().width() ) != -1 )
-	    return wid;
-	return w->sizeHint().width();
+	    return QMIN( maxsize, wid );
+	return QMIN( maxsize, w->sizeHint().width() );
     } else {
 	int hei;
 	if ( ( hei = w->fixedExtent().height() ) != -1 )
-	    return hei;
-	return w->sizeHint().height();
+	    return QMIN( maxsize, hei );
+	return QMIN( maxsize, w->sizeHint().height() );
     }
 }
 
@@ -253,7 +253,7 @@ static void shrink_extend( QDockWindow *dw, int &dockExtend, int /*spaceLeft*/, 
     }
 }
 
-static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextent, int tbstrut )
+static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextent, int tbstrut, int maxsize )
 {
     QDockWindow *last = 0;
     QRect lastRect;
@@ -265,21 +265,27 @@ static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int l
 	    lastRect = (*it).rect;
 	    continue;
 	}
-	if ( !last->isStretchable() )
-	    set_geometry( last, lastRect.x(), lastRect.y(), lastRect.width(), lastRect.height(), o );
-	else
-	    set_geometry( last, lastRect.x(), lastRect.y(), (*it).rect.x() - lastRect.x(),
+	if ( !last->isStretchable() ) {
+	    int w = QMIN( lastRect.width(), maxsize );
+	    set_geometry( last, lastRect.x(), lastRect.y(), w, lastRect.height(), o );
+	} else {
+	    int w = QMIN( (*it).rect.x() - lastRect.x(), maxsize );
+	    set_geometry( last, lastRect.x(), lastRect.y(), w,
 			  last->isResizeEnabled() ? linestrut : lastRect.height(), o );
+	}
 	last = (*it).w;
 	lastRect = (*it).rect;
     }
     if ( !last )
 	return;
-    if ( !last->isStretchable() )
-	set_geometry( last, lastRect.x(), lastRect.y(), lastRect.width(), lastRect.height(), o );
-    else
-	set_geometry( last, lastRect.x(), lastRect.y(), fullextent - lastRect.x() - ( o == Qt::Vertical ? 1 : 0 ),
+    if ( !last->isStretchable() ) {
+	int w = QMIN( lastRect.width(), maxsize );
+	set_geometry( last, lastRect.x(), lastRect.y(), w, lastRect.height(), o );
+    } else {
+	int w = QMIN( fullextent - lastRect.x() - ( o == Qt::Vertical ? 1 : 0 ), maxsize );
+	set_geometry( last, lastRect.x(), lastRect.y(), w,
 		      last->isResizeEnabled() ? linestrut : lastRect.height(), o );
+    }
 }
 
 int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
@@ -302,6 +308,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
     int linestrut = 0;
     QValueList<DockData> lastLine;
     int tbstrut = -1;
+    int maxsize = size_extent( rect.size(), orientation() );
 
     // go through all widgets in the dock
     while ( ( dw = it.current() ) != 0 ) {
@@ -313,7 +320,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	// the position + the width of the widget dosn't fit into the
 	// dock, try moving it a bit back, if possible.
 	int op = pos;
-	int dockExtend = dock_extent( dw, orientation() );
+	int dockExtend = dock_extent( dw, orientation(), maxsize );
 	if ( !dw->isStretchable() ) {
 	    pos = QMAX( pos, dw->offset() );
 	    if ( pos + dockExtend > size_extent( r.size(), orientation() ) - 1 )
@@ -325,7 +332,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	if ( !lastLine.isEmpty() &&
 	     ( space_left( rect, pos, orientation() ) < dockExtend || dw->newLine() ) ) {
 	    if ( !testonly ) // place the last line, if not in test mode
-		place_line( lastLine, orientation(), linestrut, size_extent( r.size(), orientation() ), tbstrut );
+		place_line( lastLine, orientation(), linestrut, size_extent( r.size(), orientation() ), tbstrut, maxsize );
 	    // remember the line coordinats of the last line
 	    if ( orientation() == Horizontal )
 		lines.append( QRect( 0, sectionpos, r.width(), linestrut ) );
@@ -359,7 +366,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 
     // if some stuff was not placed/stored yet, do it now
     if ( !testonly )
-	place_line( lastLine, orientation(), linestrut, size_extent( r.size(), orientation() ), tbstrut );
+	place_line( lastLine, orientation(), linestrut, size_extent( r.size(), orientation() ), tbstrut, maxsize );
     if ( orientation() == Horizontal )
 	lines.append( QRect( 0, sectionpos, r.width(), linestrut ) );
     else

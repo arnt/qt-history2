@@ -82,6 +82,16 @@ public:
     QSize minimumSize() const;
     QSize minimumSizeHint() const;
 
+    void setOrientation( Orientation o );
+
+protected:
+    void resizeEvent( QResizeEvent *e );
+
+private slots:
+    void popupSelected( int id );
+    void emulateButtonClicked();
+    void setupArrowMenu();
+
 private:
     void init();
 

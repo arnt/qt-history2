@@ -52,14 +52,48 @@
 #include "qtoolbutton.h"
 #include "qpopupmenu.h"
 #include "qtimer.h"
+#include "qwidgetlist.h"
 
+static const char * arrow_v_xpm[] = {
+"7 9 3 1",
+" 	c None",
+".	c #000000",
+"+	c none",
+".+++++.",
+"..+++..",
+"+..+..+",
+"++...++",
+".++.++.",
+"..+++..",
+"+..+..+",
+"++...++",
+"+++.+++"};
+
+static const char * arrow_h_xpm[] = {
+"9 7 3 1",
+" 	c None",
+".	c #000000",
+"+	c none",
+"..++..+++",
+"+..++..++",
+"++..++..+",
+"+++..++..",
+"++..++..+",
+"+..++..++",
+"..++..+++"};
+
+class QToolBarExtensionWidget;
 
 class QToolBarPrivate
 {
 public:
-    QToolBarPrivate() : moving( FALSE ) {}
+    QToolBarPrivate() : moving( FALSE ), button( 0 ) {}
 
     bool moving;
+    QToolBarExtensionWidget *extension;
+    QPopupMenu *extensionPopup;
+    QIntDict<QButton> hiddenItems;
+    QButton *button;
 
 };
 
@@ -80,9 +114,54 @@ private:
     Orientation orient;
 };
 
+class QToolBarExtensionWidget : public QWidget
+{
+    Q_OBJECT
+	
+public:
+    QToolBarExtensionWidget( QWidget *w );
+    void setOrientation( Orientation o );
+    QToolButton *button() const { return tb; }
+
+protected:
+    void resizeEvent( QResizeEvent *e ) {
+	QWidget::resizeEvent( e );
+	layOut();
+    }
+
+private:
+    void layOut();
+    QToolButton *tb;
+    Orientation orient;
+
+};
+
+QToolBarExtensionWidget::QToolBarExtensionWidget( QWidget *w )
+    : QWidget( w, "qt_dockwidget_internal" )
+{
+    tb = new QToolButton( this );
+    tb->setAutoRaise( TRUE );
+    setOrientation( Horizontal );
+}
+
+void QToolBarExtensionWidget::setOrientation( Orientation o )
+{
+    orient = o;
+    if ( orient == Horizontal )
+	tb->setPixmap( QPixmap( arrow_h_xpm ) );
+    else
+	tb->setPixmap( QPixmap( arrow_v_xpm ) );
+    layOut();
+}
+
+void QToolBarExtensionWidget::layOut()
+{
+    tb->setGeometry( 2, 2, width() - 4, height() - 4 );
+}
+
 QToolBarSeparator::QToolBarSeparator(Orientation o , QToolBar *parent,
 				     const char* name )
-    :QFrame( parent, name )
+    : QFrame( parent, name )
 {
     connect( parent, SIGNAL(orientationChanged(Orientation)),
 	     this, SLOT(setOrientation(Orientation)) );
@@ -243,6 +322,15 @@ QToolBar::QToolBar( QMainWindow * parent, const char * name )
 void QToolBar::init()
 {
     d = new QToolBarPrivate;
+    d->extension = new QToolBarExtensionWidget( this );
+    d->extension->hide();
+    d->extensionPopup = new QPopupMenu( this, "qt_dockwidget_internal" );
+    connect( d->extensionPopup, SIGNAL( activated( int ) ),
+	     this, SLOT( popupSelected( int ) ) );
+    connect( d->extensionPopup, SIGNAL( aboutToShow() ),
+	     this, SLOT( setupArrowMenu() ) );
+    d->extension->button()->setPopup( d->extensionPopup );
+    d->extension->button()->setPopupDelay( -1 );
     sw = 0;
 
 #if defined(QT_CHECK_NULL)
@@ -261,6 +349,13 @@ QToolBar::~QToolBar()
     d = 0;
 }
 
+/*! \reimp */
+
+void QToolBar::setOrientation( Orientation o )
+{
+    QDockWindow::setOrientation( o );
+    d->extension->setOrientation( o );
+}
 
 /*!  Adds a separator to the end of the toolbar. */
 
@@ -408,6 +503,129 @@ QSize QToolBar::minimumSizeHint() const
     if ( orientation() == Horizontal )
 	return QSize( 0, QDockWindow::minimumSizeHint().height() );
     return QSize( QDockWindow::minimumSizeHint().width(), 0 );
+}
+
+/*!
+  \reimp
+*/
+
+void QToolBar::resizeEvent( QResizeEvent *e )
+{
+    bool tooSmall;
+    if ( orientation() ==  Horizontal )
+	tooSmall = e->size().width() < sizeHint().width();
+    else
+	tooSmall = e->size().height() < sizeHint().height();
+    if ( tooSmall ) {
+	QObjectListIt it( *children() );
+	bool hide = FALSE;
+	bool doHide = FALSE;
+	d->extensionPopup->clear();
+	d->hiddenItems.clear();
+	while ( it.current() ) {
+	    if ( !it.current()->isWidgetType() ||
+		 qstrcmp( "qt_dockwidget_internal", it.current()->name() ) == 0 ) {
+		++it;
+		continue;
+	    }
+	    QWidget *w = (QWidget*)it.current();
+	    hide = FALSE;
+	    if ( orientation() == Horizontal ) {
+		if ( w->x() + w->width() > e->size().width() )
+		    hide = TRUE;
+	    } else {
+		if ( w->y() + w->height() > e->size().height() )
+		    hide = TRUE;
+	    }
+	    if ( hide ) {
+		doHide = TRUE;
+		if ( w->inherits( "QToolButton" ) ) {
+		    QToolButton *b = (QToolButton*)w;
+		    QString s = b->textLabel();
+		    if ( s.isEmpty() )
+			s = "";
+		    int id = d->extensionPopup->insertItem( b->iconSet(), s );
+		    d->hiddenItems.insert( id, b );
+		    if ( b->isToggleButton() )
+			d->extensionPopup->setItemChecked( id, b->isOn() );
+		    if ( !b->isEnabled() )
+			d->extensionPopup->setItemEnabled( id, FALSE );
+		} else if ( w->inherits( "QButton" ) ) {
+		    QButton *b = (QButton*)w;
+		    QString s = b->text();
+		    if ( s.isEmpty() )
+			s = "";
+		    int id = -1;
+		    if ( b->pixmap() )
+			id = d->extensionPopup->insertItem( *b->pixmap(), s );
+		    else
+			id = d->extensionPopup->insertItem( s );
+		    d->hiddenItems.insert( id, b );
+		    if ( b->isToggleButton() )
+			d->extensionPopup->setItemChecked( id, b->isOn() );
+		    if ( !b->isEnabled() )
+			d->extensionPopup->setItemEnabled( id, FALSE );
+		}
+	    }
+	    ++it;
+	}
+	if ( doHide ) {
+	    if ( orientation() == Horizontal )
+		d->extension->setGeometry( width() - 20, 1, 19, height() - 2 );
+	    else
+		d->extension->setGeometry( 1, height() - 20, width() - 2, 19 );
+	    d->extension->show();
+	    d->extension->raise();
+	} else {
+	    d->extension->hide();
+	}
+    } else {
+	d->extension->hide();
+    }
+}
+
+void QToolBar::popupSelected( int id )
+{
+    QButton *b = d->hiddenItems.find( id );
+    d->button = b;
+    if ( d->button )
+	QTimer::singleShot( 0, this, SLOT( emulateButtonClicked() ) );
+}
+
+void QToolBar::emulateButtonClicked()
+{
+    if ( !d->button )
+	return;
+
+    if ( d->button->inherits( "QPushButton" ) &&
+	 ( (QPushButton*)d->button )->popup() ) {
+	( (QPushButton*)d->button )->popup()->exec( QCursor::pos() );
+    } else if ( d->button->inherits( "QToolButton" ) &&
+	   ( (QToolButton*)d->button )->popup() ) {
+	( (QToolButton*)d->button )->popup()->exec( QCursor::pos() );
+    } else if ( d->button->isToggleButton() ) {
+	d->button->setOn( !d->button->isOn() );
+	emit d->button->pressed();
+	emit d->button->released();
+	emit d->button->clicked();
+	if ( d->button->inherits( "QWhatsThisButton" ) )
+	    d->button->setOn( FALSE );
+    } else {
+	emit d->button->pressed();
+	emit d->button->released();
+	emit d->button->clicked();
+    }
+    d->button = 0;
+}
+
+void QToolBar::setupArrowMenu()
+{
+    QIntDictIterator<QButton> it( d->hiddenItems );
+    while ( it.current() ) {
+	d->extensionPopup->setItemEnabled( it.currentKey(), it.current()->isEnabled() );
+	d->extensionPopup->setItemChecked( it.currentKey(), it.current()->isOn() );
+	++it;
+    }
 }
 
 /* from chaunsee:

@@ -596,8 +596,8 @@ void QToolButton::mousePressEvent( QMouseEvent *e )
     }
 
     d->instantPopup = ( ( e->pos().x() < 20 ) && left ) || ( ( e->pos().x() > ( width() - 20 ) ) && !left );
- 
-    if ( e->button() == LeftButton && !d->delay && d->popup && d->instantPopup ) {
+
+    if ( e->button() == LeftButton && d->delay <= 0 && d->popup && d->instantPopup ) {
 	d->instantPopup = TRUE;
 	popupTimerDone();
 	repaint( FALSE );
@@ -611,7 +611,7 @@ void QToolButton::mousePressEvent( QMouseEvent *e )
 */
 bool QToolButton::eventFilter( QObject *o, QEvent *e )
 {
-    if ( e->type() == QEvent::Hide && !d->delay && o == d->popup ) {
+    if ( e->type() == QEvent::Hide && d->delay <= 0 && o == d->popup ) {
 	d->instantPopup = FALSE;
 	setDown( FALSE );
     }
@@ -624,8 +624,8 @@ bool QToolButton::eventFilter( QObject *o, QEvent *e )
 
 bool QToolButton::uses3D() const
 {
-    return !autoRaise() || ( threeDeeButton == this && isEnabled() ) || 
-	( d->popup && d->popup->isVisible() && !d->delay );
+    return !autoRaise() || ( threeDeeButton == this && isEnabled() ) ||
+	( d->popup && d->popup->isVisible() && d->delay <= 0 );
 }
 
 
@@ -804,7 +804,7 @@ QPopupMenu* QToolButton::popup() const
 
 void QToolButton::popupPressed()
 {
-    if ( d->popupTimer && d->delay )
+    if ( d->popupTimer && d->delay > 0 )
 	d->popupTimer->start( d->delay, TRUE );
 }
 
