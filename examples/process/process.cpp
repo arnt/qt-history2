@@ -74,7 +74,7 @@ UicManager::UicManager()
 void UicManager::readFromStdout()
 {
     // Read and process the data.
-    // Keep in mind that the data might be reported in chunks.
+    // Bear in mind that the data might be output in chunks.
     output->append( proc->readStdout() );
 }
 
