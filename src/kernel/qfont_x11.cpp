@@ -795,6 +795,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 
     // for non-spacing marks
     QPointArray markpos;
+    bool markexists;
     int nmarks = 0;
 
     QFontStruct *qfs = 0;
@@ -923,6 +924,8 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 		} else
 		    qfs = 0;
 
+		markexists = inFont(*chars);
+
 		QPoint p = markpos[n];
 
 		// advance one character
@@ -930,15 +933,18 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 		lastlen++;
 
 		if (last && lastlen) {
-		    if (qfs && qfs != (QFontStruct *) -1 && qfs->codec)
-			cache->mapped =
-			    qfs->codec->fromUnicode(str, pos + i - lastlen, lastlen);
-		    // set the position for the mark
-		    cache->setParams(pw + p.x(), p.y(), w, last, lastlen, tmp);
+		    if (markexists) {
+			if (qfs && qfs != (QFontStruct *) -1 && qfs->codec)
+			    cache->mapped =
+				qfs->codec->fromUnicode(str, pos + i - lastlen, lastlen);
+			// set the position for the mark
+			cache->setParams(pw + p.x(), p.y(), w, last, lastlen, tmp);
 
-		    // advance to the next mark/character
-		    cache->next = new QFontPrivate::TextRun();
-		    cache = cache->next;
+			// advance to the next mark/character
+			cache->next = new QFontPrivate::TextRun();
+			cache = cache->next;
+		    }
+
 		    pw = w;
 		}
 
@@ -972,6 +978,7 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 
     // for non-spacing marks
     QPointArray markpos;
+    bool markexists;
     int nmarks = 0;
 
     QFontStruct *qfs = 0;
@@ -1057,12 +1064,16 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 		} else
 		    qfs = 0;
 
+		markexists = inFont(*chars);
+
 		QPoint p = markpos[n];
 
-		// yes, really do both, this makes sure that marks that rise
-		// above the box expand it up, and marks below the box expand it down
-		overall->ascent = QMAX(overall->ascent, p.y());
-		overall->descent = QMAX(overall->descent, p.y());
+		if (markexists) {
+		    // yes, really do both, this makes sure that marks that rise above
+		    // the box expand it up, and marks below the box expand it down
+		    overall->ascent = QMAX(overall->ascent, p.y());
+		    overall->descent = QMAX(overall->descent, p.y());
+		}
 
 		// advance one character
 		chars++;
@@ -1098,6 +1109,7 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 #endif // QT_NO_XFTFREETYPE
 
     	if ( cache->script < QFont::LastPrivateScript &&
+	     cache->length > 0 &&
 	     qfs && qfs != (QFontStruct *) -1 ) {
 	    xfs = (XFontStruct *) qfs->handle;
 
@@ -1233,6 +1245,7 @@ bool QFontPrivate::inFont( const QChar &ch )
 // be found
 XftPattern *QFontPrivate::findXftFont(const QChar &sample) const
 {
+    // look for foundry/family
     QString familyName;
     QString foundryName;
     QFontDatabase::parseFontName(request.family, foundryName, familyName);
@@ -1261,7 +1274,7 @@ XftPattern *QFontPrivate::findXftFont(const QChar &sample) const
 	return match;
 
     // try font substitutions
-    QStringList list = QFont::substitutes(familyName);
+    QStringList list = QFont::substitutes(request.family);
     QStringList::Iterator sit = list.begin();
 
     while (sit != list.end() && ! match) {
@@ -1291,8 +1304,67 @@ XftPattern *QFontPrivate::findXftFont(const QChar &sample) const
 	}
     }
 
-    // if (match)
-    return match;
+    if (match)
+	return match;
+
+    // try again, without the foundry
+    QFontDatabase::parseFontName(request.family, foundryName, familyName);
+    match = bestXftPattern(familyName, QString::null);
+
+    if (sample.unicode() != 0 && match) {
+	// check if the character is actually in the font - this does result in
+	// a font being loaded, but since Xft is completely client side, we can
+	// do this efficiently
+	XftFontStruct *xftfs = XftFreeTypeOpen(QPaintDevice::x11AppDisplay(),
+					       match);
+
+	if (xftfs) {
+	    if (! XftFreeTypeGlyphExists(QPaintDevice::x11AppDisplay(), xftfs,
+					 sample.unicode())) {
+		XftPatternDestroy(match);
+		match = 0;
+	    }
+
+	    XftFreeTypeClose(QPaintDevice::x11AppDisplay(), xftfs);
+	}
+    }
+
+    if (match)
+	return match;
+
+    // try font substitutions
+    list = QFont::substitutes(familyName);
+    sit = list.begin();
+
+    while (sit != list.end() && ! match) {
+	familyName = *sit++;
+
+	if (request.family != familyName) {
+	    QFontDatabase::parseFontName(familyName, foundryName, familyName);
+	    match = bestXftPattern(familyName, QString::null);
+
+	    if (sample.unicode() != 0 && match) {
+		// check if the character is actually in the font - this does result in
+		// a font being loaded, but since Xft is completely client side, we can
+		// do this efficiently1
+		XftFontStruct *xftfs = XftFreeTypeOpen(QPaintDevice::x11AppDisplay(),
+						       match);
+
+		if (xftfs) {
+		    if (! XftFreeTypeGlyphExists(QPaintDevice::x11AppDisplay(), xftfs,
+						 sample.unicode())) {
+			XftPatternDestroy(match);
+			match = 0;
+		    }
+
+		    XftFreeTypeClose(QPaintDevice::x11AppDisplay(), xftfs);
+		}
+	    }
+	}
+    }
+
+    if (match)
+	return match;
 
     match = bestXftPattern(QString::null, QString::null);
 
