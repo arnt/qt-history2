@@ -185,7 +185,7 @@ public:
     void createConnections(DomConnections *connections, QWidget *parent);
 
     void updateOrderIndicators();
-
+    
 signals:
     void showContextMenu(QWidget *w, const QPoint &pos);
     void editModeChanged(EditMode);

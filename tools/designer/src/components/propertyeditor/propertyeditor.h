@@ -48,9 +48,7 @@ private:
     IProperty *propertyByName(IProperty *p, const QString &name);
     void clearDirty(IProperty *p);
 
-    static void createPropertySheet(PropertyCollection *root,
-            QExtensionManager *m,
-            QObject *object);
+    void createPropertySheet(PropertyCollection *root, QObject *object);
 
     static IProperty *createSpecialProperty(const QVariant &value,
             const QString &name);

@@ -17,11 +17,15 @@
 #include <qextensionmanager.h>
 #include <propertysheet.h>
 #include <container.h>
+#include <abstractpixmapcache.h>
 
 #include <QVBoxLayout>
 #include <QMetaObject>
 #include <QMetaProperty>
 #include <qdebug.h>
+#include <QHBoxWidget>
+#include <QLineEdit>
+#include <QToolButton>
 
 using namespace QPropertyEditor;
 
@@ -35,10 +39,136 @@ IProperty *PropertyEditor::createSpecialProperty(const QVariant &value,
     return 0;
 }
 
-void PropertyEditor::createPropertySheet(PropertyCollection *root,
-        QExtensionManager *m,
-        QObject *object)
+// ---------------------------------------------------------------------------------
+
+class PixmapProperty : public AbstractProperty<QPixmap>
 {
+public:
+    PixmapProperty(AbstractFormEditor *core, const QPixmap &value, const QString &name);
+    
+    void setValue(const QVariant &value);
+    QString toString() const;
+    
+    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver);
+    void updateEditorContents(QWidget *editor);
+    void updateValue(QWidget *editor);
+private:
+    AbstractFormEditor *m_core;
+};
+
+class PixmapPropertyEditor : public QHBoxWidget
+{
+    Q_OBJECT
+public:
+    PixmapPropertyEditor(AbstractFormEditor *core, const QPixmap &pm, QWidget *parent);
+
+    QString path() const { return m_edit->text(); }
+    void setPixmap(const QPixmap &pm);
+    QPixmap pixmap() const { return m_button->pixmap() == 0 ? QPixmap() : *m_button->pixmap(); }
+
+signals:
+    void pixmapChanged(const QPixmap &pm);
+
+public slots:
+    void setPath(const QString &path);
+
+private:
+    QToolButton *m_button;
+    QLineEdit *m_edit;
+    AbstractFormEditor *m_core;
+};
+
+PixmapPropertyEditor::PixmapPropertyEditor(AbstractFormEditor *core, const QPixmap &pm, 
+                                                QWidget *parent)
+    : QHBoxWidget(parent)
+{
+    m_core = core;
+    m_button = new QToolButton(this);
+    m_button->setText("...");
+    m_edit = new QLineEdit(this);
+    
+    setPixmap(pm);
+    
+    connect(m_edit, SIGNAL(textChanged(const QString&)), this, SLOT(setPath(const QString&)));
+}
+
+void PixmapPropertyEditor::setPath(const QString &path)
+{
+    qDebug() << "setPath: ..." << path;
+
+    m_edit->blockSignals(true);
+    m_edit->setText(path);
+    m_edit->blockSignals(false);
+    
+    QPixmap pm = m_core->pixmapCache()->nameToPixmap(path);
+    
+    qDebug() << "setPath:" << pm.isNull() << pm.serialNumber();
+    
+    if (pm.isNull() && (m_button->pixmap() == 0 || m_button->pixmap()->isNull()))
+        return;
+    if (m_button->pixmap() != 0 && pm.serialNumber() == m_button->pixmap()->serialNumber())
+        return;
+    
+    m_button->setPixmap(pm);
+    emit pixmapChanged(pm);
+}
+
+void PixmapPropertyEditor::setPixmap(const QPixmap &pm)
+{
+    qDebug() << "setPixmap:" << pm.isNull() << pm.serialNumber();
+    setPath(m_core->pixmapCache()->pixmapToName(pm));
+}
+
+PixmapProperty::PixmapProperty(AbstractFormEditor *core, const QPixmap &value, const QString &name)
+    : AbstractProperty<QPixmap>(value, name)
+{
+    m_core = core;
+}
+
+void PixmapProperty::setValue(const QVariant &value)
+{
+    m_value = value.toPixmap();
+}
+
+QString PixmapProperty::toString() const
+{
+    return m_core->pixmapCache()->pixmapToName(m_value);
+}
+
+QWidget *PixmapProperty::createEditor(QWidget *parent, QObject *target, 
+                                        const char *receiver)
+{
+    PixmapPropertyEditor *editor = new PixmapPropertyEditor(m_core, m_value, parent);
+
+    QObject::connect(editor, SIGNAL(pixmapChanged(const QPixmap&)), target, receiver);
+    
+    return editor;
+}
+
+void PixmapProperty::updateEditorContents(QWidget *editor)
+{
+    if (PixmapPropertyEditor *ed = qt_cast<PixmapPropertyEditor*>(editor)) {
+        ed->setPixmap(m_value);
+    }
+}
+
+void PixmapProperty::updateValue(QWidget *editor)
+{
+    if (PixmapPropertyEditor *ed = qt_cast<PixmapPropertyEditor*>(editor)) {
+        QPixmap newValue = ed->pixmap();
+
+        if (newValue.serialNumber() != m_value.serialNumber()) {
+            m_value = newValue;
+            setChanged(true);
+        }
+    }
+}
+
+// -------------------------------------------------------------------------------------
+
+void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *object)
+{
+    QExtensionManager *m = m_core->extensionManager();
     IPropertySheet *sheet = qt_cast<IPropertySheet*>(m->extension(object, Q_TYPEID(IPropertySheet)));
     QHash<QString, PropertyCollection*> g;
     for (int i=0; i<sheet->count(); ++i) {
@@ -84,7 +214,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root,
                 p = new RectProperty(value.toRect(), pname);
                 break;
             case QVariant::Pixmap:
-                p = new PixmapProperty(value.toString(), pname);
+                p = new PixmapProperty(m_core, value.toPixmap(), pname);
                 break;
             case QVariant::Font:
                 p = new FontProperty(value.toFont(), pname);
@@ -229,9 +359,11 @@ void PropertyEditor::setObject(QObject *object)
 
     if (m_object) {
         PropertyCollection *collection = new PropertyCollection("<root>");
-        createPropertySheet(collection, core()->extensionManager(), object);
+        createPropertySheet(collection, object);
         m_properties = collection;
     }
 
     m_editor->setInitialInput(m_properties);
 }
+
+#include "propertyeditor.moc"

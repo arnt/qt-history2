@@ -222,20 +222,7 @@ void QDesignerPropertySheet::setProperty(int index, const QVariant &value)
         setFakeProperty(index, value);
     } else {
         QMetaProperty p = meta->property(index);
-        if (value.type() == QVariant::String && p.type() == QVariant::Pixmap) {
-            QVariant real_value;
-            QImage image(value.toString());
-            if (!image.isNull()) {
-                QPixmap pm;
-                pm.fromImage(image);
-                real_value = pm;
-            } else {
-                real_value = QPixmap();
-            }
-            p.write(m_object, resolvePropertyValue(real_value));
-        } else {
-            p.write(m_object, resolvePropertyValue(value));
-        }
+        p.write(m_object, resolvePropertyValue(value));
     }
 }
 

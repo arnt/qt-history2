@@ -21,6 +21,7 @@
 #include "default_layoutdecoration.h"
 #include "qlayoutwidget_propertysheet.h"
 #include "spacer_propertysheet.h"
+#include "pixmapcache.h"
 
 #include <signalsloteditor.h>
 
@@ -55,6 +56,8 @@ FormEditor::FormEditor(QObject *parent)
     // load the plugins
     widgetDatabase->loadPlugins();
     widgetFactory->loadPlugins();
+    
+    setPixmapCache(new PixmapCache(this));
 }
 
 FormEditor::~FormEditor()

@@ -39,7 +39,8 @@ HEADERS += qdesigner_widget.h \
            spacer_propertysheet.h \
            default_container.h \
            layoutdecoration.h \
-           default_layoutdecoration.h
+           default_layoutdecoration.h \
+           pixmapcache.h
 
 SOURCES += qdesigner_widget.cpp \
            qdesigner_tabwidget.cpp \
@@ -62,7 +63,8 @@ SOURCES += qdesigner_widget.cpp \
            qlayoutwidget_propertysheet.cpp \
            spacer_propertysheet.cpp \
            default_container.cpp \
-           default_layoutdecoration.cpp
+           default_layoutdecoration.cpp \
+           pixmapcache.cpp
 
 
 MOCABLE += formwindow.cpp

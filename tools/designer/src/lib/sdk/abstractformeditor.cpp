@@ -23,6 +23,7 @@
 #include <abstractwidgetdatabase.h>
 #include <abstractobjectinspector.h>
 #include <qextensionmanager.h>
+#include <abstractpixmapcache.h>
 
 AbstractFormEditor::AbstractFormEditor(QObject *parent)
     : QObject(parent),
@@ -95,3 +96,9 @@ AbstractObjectInspector *AbstractFormEditor::objectInspector() const
 
 void AbstractFormEditor::setObjectInspector(AbstractObjectInspector *objectInspector)
 { m_objectInspector = objectInspector; }
+
+AbstractPixmapCache *AbstractFormEditor::pixmapCache() const
+{ return m_pixmapCache; }
+
+void AbstractFormEditor::setPixmapCache(AbstractPixmapCache *cache)
+{ m_pixmapCache = cache; }
