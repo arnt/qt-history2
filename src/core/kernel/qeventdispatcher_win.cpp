@@ -114,8 +114,14 @@ void CALLBACK qt_timer_proc(HWND hwnd, UINT message, UINT timerId, DWORD)
     msg.lParam = LPARAM(qt_timer_proc);
 
     QCoreApplication *app = QCoreApplication::instance();
+    Q_ASSERT_X(app, "qt_timer_proc", "Timer fired, but no QCoreApplication");
+    if (!app) {
+        KillTimer(0, timerId);
+        return;
+    }
+
     long result;
-    if (app && app->filterEvent(&msg, &result))
+    if (app->filterEvent(&msg, &result))
         return;
 
     QEventDispatcherWin32 *eventDispatcher =
