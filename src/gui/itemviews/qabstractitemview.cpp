@@ -77,7 +77,6 @@ void QAbstractItemViewPrivate::init()
                      q, SLOT(horizontalScrollbarValueChanged(int)));
 
     viewport->setBackgroundRole(QPalette::Base);
-    viewport->setAttribute(Qt::WA_NoBackground);
 
     q->setHorizontalStepsPerItem(64);
     q->setVerticalStepsPerItem(64);

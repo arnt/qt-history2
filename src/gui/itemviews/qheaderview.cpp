@@ -179,6 +179,7 @@ void QHeaderView::initialize()
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setFrameStyle(NoFrame);
     d->viewport->setMouseTracking(true);
+    d->viewport->setBackgroundRole(QPalette::Button);
     delete d->delegate;
 }
 
