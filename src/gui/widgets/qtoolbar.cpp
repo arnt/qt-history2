@@ -586,21 +586,29 @@ void QToolBar::actionEvent(QActionEvent *event)
                 d->items.append(item);
                 qt_cast<QBoxLayout *>(layout())->insertWidget(d->items.size(), item.widget);
             }
-            if (isShown())
-                item.widget->show();
+            item.widget->setShown(item.action->isVisible());
             break;
         }
 
     case QEvent::ActionChanged:
-        action->disconnect(this, SLOT(actionTriggered()));
-        QObject::connect(action, SIGNAL(triggered()),
-                         this, SLOT(actionTriggered()));
-        if (action->menu()) {
-            action->menu()->disconnect(this, SIGNAL(actionTriggered(QAction *)));
-            QObject::connect(action->menu(), SIGNAL(activated(QAction *)),
-                             this, SIGNAL(actionTriggered(QAction *)));
+        {
+            int index = d->indexOf(action);
+            Q_ASSERT_X(index >= 0 && index < d->items.size(),
+                       "QToolBar::actionEvent", "internal error");
+            const QToolBarItem &item = d->items.at(index);
+            item.widget->setShown(item.action->isVisible());
+
+            // reconnect the action
+            action->disconnect(this, SLOT(actionTriggered()));
+            QObject::connect(item.action, SIGNAL(triggered()),
+                             this, SLOT(actionTriggered()));
+            if (action->menu()) {
+                action->menu()->disconnect(this, SIGNAL(actionTriggered(QAction *)));
+                QObject::connect(item.action->menu(), SIGNAL(activated(QAction *)),
+                                 this, SIGNAL(actionTriggered(QAction *)));
+            }
+            break;
         }
-	break;
 
     case QEvent::ActionRemoved:
         {
@@ -630,7 +638,7 @@ void QToolBar::childEvent(QChildEvent *event)
     QWidget *widget = qt_cast<QWidget *>(event->child());
     if (widget) {
 #if !defined(QT_NO_DEBUG)
-        if (event->type() == QEvent::ChildPolished) {
+        if (!widget->isTopLevel() && event->type() == QEvent::ChildPolished) {
             bool found = (d->handle == widget || d->extension == widget);
             for (int i = 0; !found && i < d->items.size(); ++i) {
                 const QToolBarItem &item = d->items.at(i);
