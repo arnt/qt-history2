@@ -342,7 +342,9 @@ bool QSqlQuery::isNull(int field) const
 bool QSqlQuery::exec(const QString& query)
 {
     if (d->ref != 1) {
+        bool fo = isForwardOnly();
         *this = driver()->createQuery();
+        setForwardOnly(fo);
     } else {
         d->sqlResult->clear();
         d->sqlResult->setActive(false);
@@ -867,7 +869,9 @@ void QSqlQuery::clear()
 bool QSqlQuery::prepare(const QString& query)
 {
     if (d->ref != 1) {
+        bool fo = isForwardOnly();
         *this = driver()->createQuery();
+        setForwardOnly(fo);
     } else {
         d->sqlResult->setActive(false);
         d->sqlResult->setLastError(QSqlError());
