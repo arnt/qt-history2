@@ -26,7 +26,9 @@ protected:
     void initializeGL();
     void paintEvent(QPaintEvent *);
     void timerEvent(QTimerEvent *);
-
+    void mousePressEvent(QMouseEvent *) { dw->stopAnimation(); }
+    void mouseReleaseEvent(QMouseEvent *) { dw->startAnimation(); }
+    
 private:
     DemoWidget *dw;
     int step;
