@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#45 $
 **
 ** Implementation of QListView widget class
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#45 $");
 
 
 const int Unsorted = 32767;
@@ -1651,8 +1651,16 @@ void QListView::mouseDoubleClickEvent( QMouseEvent * e )
     d->buttonDown = FALSE;
 
     QListViewItem * i = itemAt( e->pos() );
-    if ( i )
+    if ( i ) {
+	if (  !i->isOpen() && (i->isExpandable() || i->children()) ) {
+	    i->setOpen( TRUE );
+	    triggerUpdate();
+	} else if ( i->isOpen() && i->childItem ) {
+	    i->setOpen( FALSE );
+	    triggerUpdate();
+	}
 	emit doubleClicked( i );
+    }
 }
 
 
