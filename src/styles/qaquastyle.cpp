@@ -9264,36 +9264,47 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 
         QPixmap act_down( (const char **) aqua_sldr_act_pty_xpm );
 	act_down.setMask(mask);
+	if(size < act_down.height()) {
+	    im = act_down;
+	    im = im.smoothScale( im.width(), size);
+	    act_down = im;
+	}
+
         QPixmap dis_down( (const char **) aqua_sldr_dis_pty_xpm );
 	dis_down.setMask(mask);
+	if(size < dis_down.height()) {
+	    im = dis_down;
+	    im = im.smoothScale( im.width(), size);
+	    dis_down = im;
+	}
 
 	// Down
-        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_down", act_down );
-        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_down", dis_down );
+        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_down_" + sizestr, act_down );
+        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_down_" + sizestr, dis_down );
 	
 	// Up
 	QWMatrix wm;
 	wm.rotate( 180.0 );
 	px = act_down.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_up", px );
+        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_up_" + sizestr, px );
 	px = dis_down.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_up", px );
+        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_up_" + sizestr, px );
 	
 	// Left
 	wm.reset();
 	wm.rotate( 90.0 );
 	px = act_down.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_left", px );
+        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_left_" + sizestr, px );
 	px = dis_down.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_left", px );
+        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_left_" + sizestr, px );
 	
 	// Right
 	wm.reset();
 	wm.rotate( -90.0 );
 	px = act_down.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_right", px );
+        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_right_" + sizestr, px );
 	px = dis_down.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_right", px );
+        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_right_" + sizestr, px );
     }
     
     if( s.contains("sldr_grv") ){
@@ -9720,7 +9731,7 @@ void QAquaStyle::timerEvent( QTimerEvent * te )
 	    d->defaultButton->repaint( FALSE );
     } else if( te->timerId() == d->progressTimerId ) {
 	if( !d->progressBars.isEmpty() ) {
-	    d->progressOff+=5;
+	    d->progressOff+=2;
 	    for( QListIterator<QProgressBar> it(d->progressBars); it.current(); ++it)
 		(*it)->repaint( FALSE );
 	}
@@ -10615,9 +10626,9 @@ void QAquaStyle::drawSlider( QPainter *p, int x, int y, int /*w*/, int h,
 	    dir = "right";
     }
     if( qAquaActive( g ) ) {
-	qAquaPixmap( "sldr_act_pty_" + dir, px );
+	qAquaPixmap( "sldr_act_pty_" + dir + "_" + hstr, px );
     } else {
-	qAquaPixmap( "sldr_dis_pty_" + dir, px );
+	qAquaPixmap( "sldr_dis_pty_" + dir + "_" + hstr, px );
     }
     if(contextWidget())
 	((QWidget *)contextWidget())->erase(x, y, px.width(), px.height());
