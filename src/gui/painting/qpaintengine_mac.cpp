@@ -1535,13 +1535,10 @@ QCoreGraphicsPaintEngine::drawArc(const QRect &r, int a, int alen)
     Q_ASSERT(isActive());
 
     CGMutablePathRef path = CGPathCreateMutable();
-    CGAffineTransform transform;
-    if(r.width() != r.height())
-        transform = CGAffineTransformMakeScale(((float)r.width())/r.height(), 1);
-    float begin_radians = ((float)(a/16)+180) * (M_PI/180), end_radians = ((float)((a+alen)/16)+180) * (M_PI/180);
-    CGPathAddArc(path, r.width() == r.height() ? 0 : &transform,
-                 (r.x()+(r.width()/2))/((float)r.width()/r.height()), r.y() + (r.height()/2),
-                 r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
+    CGAffineTransform transform = CGAffineTransformMake(((float)r.width())/r.height(), 0, 0, -1, 1, (r.y()*2)+r.height());
+    float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)((a+alen)/16)) * (M_PI/180);
+    CGPathAddArc(path, &transform, (r.x()+(r.width()/2))/((float)r.width()/r.height()), r.y() + (r.height()/2),
+		 r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGContextBeginPath(d->hd);
     CGContextAddPath(d->hd, path);
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
@@ -1554,13 +1551,10 @@ QCoreGraphicsPaintEngine::drawPie(const QRect &r, int a, int alen)
     Q_ASSERT(isActive());
 
     CGMutablePathRef path = CGPathCreateMutable();
-    CGAffineTransform transform;
-    if(r.width() != r.height())
-        transform = CGAffineTransformMakeScale(((float)r.width())/r.height(), 1);
-    float begin_radians = ((float)(a/16)+180) * (M_PI/180), end_radians = ((float)((a+alen)/16)+180) * (M_PI/180);
+    CGAffineTransform transform = CGAffineTransformMake(((float)r.width())/r.height(), 0, 0, -1, 1, (r.y()*2)+r.height());
+    float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)((a+alen)/16)) * (M_PI/180);
     CGPathMoveToPoint(path, 0, r.x() + (r.width()/2), r.y() + (r.height()/2));
-    CGPathAddArc(path, (r.width() == r.height()) ? 0 : &transform,
-                 (r.x()+(r.width()/2))/((float)r.width()/r.height()),
+    CGPathAddArc(path, &transform, (r.x()+(r.width()/2))/((float)r.width()/r.height()),
                  r.y() + (r.height()/2), r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGPathAddLineToPoint(path, 0, r.x() + (r.width()/2), r.y() + (r.height()/2));
     CGContextBeginPath(d->hd);
@@ -1588,14 +1582,11 @@ QCoreGraphicsPaintEngine::drawChord(const QRect &r, int a, int alen)
     Q_ASSERT(isActive());
 
     CGMutablePathRef path = CGPathCreateMutable();
-    CGAffineTransform transform;
-    if(r.width() != r.height())
-        transform = CGAffineTransformMakeScale(((float)r.width())/r.height(), 1);
-    float begin_radians = ((float)(a/16)+180) * (M_PI/180), end_radians = ((float)((a+alen)/16)+180) * (M_PI/180);
+    CGAffineTransform transform = CGAffineTransformMake(((float)r.width())/r.height(), 0, 0, -1, 1, (r.y()*2)+r.height());
+    float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)((a+alen)/16)) * (M_PI/180);
     //We draw twice because the first draw will set the point to the end of arc, and the second pass will draw the line to the first point
     for(int i = 0; i < 2; i++)
-        CGPathAddArc(path, r.width() == r.height() ? 0 : &transform,
-                     (r.x()+(r.width()/2))/((float)r.width()/r.height()),
+        CGPathAddArc(path, &transform, (r.x()+(r.width()/2))/((float)r.width()/r.height()),
                      r.y()+(r.height()/2), r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGContextBeginPath(d->hd);
     CGContextAddPath(d->hd, path);
