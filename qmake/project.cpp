@@ -544,7 +544,7 @@ QMakeProject::doProjectTest(QString func, const QString &params, QMap<QString, Q
     QStringList args;
     int last = 0;
     QChar quote = 0;
-    for(int x = 0; x < params.length(); x++) {
+    for(int x = 0; x < (int)params.length(); x++) {
 	if(params[x] == quote) {
 	    quote = 0;
 	} else if(params[x] == '\'' || params[x] == '"') {
@@ -554,7 +554,7 @@ QMakeProject::doProjectTest(QString func, const QString &params, QMap<QString, Q
 	    last = x+1;
 	}
     }
-    if(last != params.length()) 
+    if(last != (int)params.length()) 
 	args << params.mid(last);
     for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
 	QString tmp = (*arit).stripWhiteSpace(); 

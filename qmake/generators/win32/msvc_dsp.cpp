@@ -125,11 +125,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\""
 			  << build << "!ENDIF " << endl << endl;
-		    } else if ( project->isActiveConfig("activeqt") &&
-			(*it).right(4).lower() == ".idl" ) {
-			QString sourcefile = (*it).left( (*it).length()-4 );
-			t << "# ADD MTL /nologo /tlb \"./" << sourcefile << ".tlb\" /iid \"./" << sourcefile << "iface.c\" /Oicf" << endl;
-			t << "# SUBTRACT MTL /mktyplib203" << endl;
 		    }
 		    t << "# End Source File" << endl;
 		}
@@ -445,8 +440,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
-		      << "!ENDIF \n\n" << build
-
+		      << "!ENDIF \n\n"
 		      << "# End Source File" << endl;
 		}
 
@@ -455,20 +449,31 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		QStringList &l = project->variables()["IDLOUTPUT"];
 		if ( l.isEmpty() )
 		    continue;
+		QStringList &ax = project->variables()["_ACTIVEQT"];
+		if ( ax.isEmpty() )
+		    continue;
 		
-		QString axFile = "main.cpp";
+		QString axFile = ax.first();
 		for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
 		    QString sourcefile = *it;
 		    t << "# Begin Source File\n\nSOURCE=" << sourcefile << endl;
 		    if ( sourcefile.right( 4 ).lower() == ".tlb" ) {
-			QString output = sourcefile.left( sourcefile.length()-4) + ".idl";
-			t << "USERDEP_" << sourcefile << "=\"" << axFile << "\"" << endl;
-			t << "# Begin Custom Build - Generating IDL from " << axFile << "..." << endl;
-			t << "# InputPath=" << sourcefile << endl << endl;
-			t << "\"" << output << "\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"" << endl;
-			t << "\t$(QTDIR)\\bin\\idc " << axFile << " -o " << output << endl << endl;
-			t << "# End Custom Build" << endl << endl;
-		    } else if ( sourcefile.right( 7 ).lower() == "iface.c" ) {
+			QString idcoutput = sourcefile.left( sourcefile.length()-4) + ".idl";
+			QString rcoutput = sourcefile.left( sourcefile.length()-4) + ".rc";
+			t << "USERDEP_" + sourcefile + "=\"" + axFile + "\"" << endl << endl;
+
+			QString build = "\n\n# Begin Custom Build - Generating IDL from " + axFile + "...\n"
+					"# InputPath=" + sourcefile + "\n\n"
+					"\"" + sourcefile + "\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
+					"\t$(QTDIR)\\bin\\idc " + axFile + " -o " + idcoutput + " -rc " + rcoutput + "\n"
+					"\tmidl " + idcoutput + " /tlb " + sourcefile + " /iid tmp\\iid_i.c"
+					" /dlldata tmp\\dlldata.c /cstub tmp\\cstub.c /header tmp\\cstub.h /proxy tmp\\proxy.c /sstub tmp\\sstub.c\n\n"
+					"# End Custom Build\n\n";
+
+			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
+			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
+			  << "!ENDIF \n\n";
+		    } else if ( sourcefile.right( 4 ).lower() == ".idl" ) {
 			t << "# PROP Exclude_From_Build 1" << endl;
 		    }
 		    t << "# End Source File" << endl;
@@ -710,29 +715,9 @@ DspMakefileGenerator::init()
     }
 
     if ( project->isActiveConfig("activeqt") ) {
-	if ( !project->variables()["APPID"].isEmpty() )
-	    project->variables()["DEFINES"].append( "QT_ACTIVEQT_APPID=\"" + project->variables()["APPID"].first() + "\"" );
 	project->variables()["QMAKE_LIBS"].append( "$(QTDIR)\\lib\\activeqt.lib" );
-	project->variables()["SOURCES"].append( targetfilename + ".rc" );
-	if ( !QFile::exists( targetfilename + ".rc" ) ) {
-	    QFile rcFile( targetfilename + ".rc" );
-	    if ( rcFile.open( IO_WriteOnly ) ) {
-		QTextStream rc( &rcFile );
-		rc << "1 TYPELIB \"" + targetfilename + ".tlb\"" << endl;;
-	    }
-	}
-	project->variables()["SOURCES"].append( targetfilename + ".idl" );
-	if ( !QFile::exists( targetfilename + ".idl" ) ) {
-	    QFile idlFile( targetfilename + ".idl" );
-	    if ( idlFile.open( IO_WriteOnly ) ) {
-		QTextStream idl( &idlFile );
-		idl << "import \"oaidl.idl\";" << endl;
-		idl << "import \"ocidl.idl\";" << endl;
-		idl << "#include \"olectl.h\"" << endl;
-	    }
-	}
-	project->variables()["IDLOUTPUT"].append( targetfilename + ".tlb" );
-	project->variables()["IDLOUTPUT"].append( targetfilename + "iface.c" );
+	project->variables()["IDLOUTPUT"].append( "tmp\\" + targetfilename + ".rc" );
+	project->variables()["IDLOUTPUT"].append( "tmp\\" + targetfilename + ".tlb" );
     }
 
     project->variables()["MSVCDSP_LIBS"] += project->variables()["QMAKE_LIBS"];

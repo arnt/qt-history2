@@ -184,9 +184,13 @@ MakefileGenerator::generateMocList(QString fn_target)
 		}
 		break;
 	    }
+#define AQT_LEN 16 //strlen("public QActiveQt")
+	} else if ( *(big_buffer+x) == 'p' && !strncmp(big_buffer+x, "public QActiveQt", AQT_LEN)) {
+	    project->variables()["_ACTIVEQT"].append(fn_target);
 	}
-	    while(x < total_size_read && SYMBOL_CHAR(*(big_buffer+x)))
-		x++;
+
+	while(x < total_size_read && SYMBOL_CHAR(*(big_buffer+x)))
+	    x++;
 	if(*(big_buffer+x) == '\n')
 	    line_count++;
     }
