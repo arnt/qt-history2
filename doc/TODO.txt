@@ -245,7 +245,8 @@ QListView
   Have a property which will cause all the children of an item to be deleted if the parent is closed.
   If the user shift-clicks on an item, it opens all the branches in the listview from that item.
   (see qt-bugs/arc-12/25570 for the above two).
-
+  Be able to change the style of the branches easily, using something like setBranchStyle().  A
+  possible new style is one like the HTML help browser by Microsoft.
 QString::vsprintf()
   An user requested we add a function that takes a format string and va list.
   (support/arc-11/23705)  
