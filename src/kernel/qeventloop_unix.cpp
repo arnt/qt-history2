@@ -493,10 +493,6 @@ int QEventLoop::timeToWait() const
     return (tm->tv_sec*1000) + (tm->tv_usec/1000);
 }
 
-/*!
-  Activates the timer events that have expired. Returns the number of timers
-  (not 0-timer) that were activated.
-*/
 int QEventLoop::activateTimers()
 {
     if ( !timerList || !timerList->count() )	// no timers
@@ -530,10 +526,6 @@ int QEventLoop::activateTimers()
     return n_act;
 }
 
-/*!
-  Activates pending socket notifiers.  Returns the number of socket notifiers
-  that were activated.
-*/
 int QEventLoop::activateSocketNotifiers()
 {
     if ( d->sn_pending_list.isEmpty() )

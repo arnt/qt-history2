@@ -41,6 +41,50 @@ static QEventLoop *INSTANCE = 0;
 
 
 /*!
+    \class QEventLoop
+    \brief The QEventLoop class manages the event queue.
+
+    \ingroup application
+    \ingroup events
+
+    The QEventLoop class manages the main event loop.  It receives
+    events from the window system and other sources.  It then sends
+    them to QApplication for prcoessing and delivery.
+
+    QEventLoop allows the application programmer to have more control
+    over event delivery.  Programs that perform long operations can
+    call either processOneEvent() or processEvents() with various
+    ProcessEvent values OR'ed together to control which events should
+    be delivered.
+
+    QEventLoop also allows the integration of an external event loop with
+    the Qt event loop.  The QMotif Extension included with Qt includes
+    a reimplementation of QEventLoop for merging Qt and Motif events
+    together.
+*/
+
+/*! \enum QEventLoop::ProcessEvents
+
+    This enum controls the types of events processed by the
+    processOneEvent(), processEvents() and processNextEvent()
+    functions.
+
+    \value AllEvents - All events are processed
+    \value ExcludeUserInput - Do not process user input events.
+           ( ButtonPress, KeyPress, etc. )
+    \value ExcludeSocketNotifiers - Do not process socket notifier
+           events.
+    \value ExcludePOSIXSignals - Do not process POSIX signal events
+           ( Only available on UNIX ).
+
+    \sa processOneEvent(), processEvents(), processNextEvent()
+*/
+
+/*! \enum QEventLoop::ProcessEventsFlags
+    \internal
+*/
+
+/*!
     Creates a QEventLoop object.
 */
 QEventLoop::QEventLoop( QObject *parent, const char *name )
@@ -70,9 +114,24 @@ QEventLoop::~QEventLoop()
 }
 
 /*!
-    Enters the main event loop and waits until exit() is called or the
-    main widget is destroyed, and returns the value that was passed to
-    exit() (which is zero if exit() is called via quit()).
+    Enters the main event loop and waits until exit() is called, and
+    returns the value that was set to exit().
+
+    It is necessary to call this function to start event handling. The
+    main event loop receives events from the window system and
+    dispatches these to the application widgets.
+
+    Generally speaking, no user interaction can take place before
+    calling exec(). As a special case, modal widgets like QMessageBox
+    can be used before calling exec(), because modal widgets call
+    exec() to start a local event loop.
+
+    To make your application perform idle processing, i.e. executing a
+    special function whenever there are no pending events, use a
+    QTimer with 0 timeout. More advanced idle processing schemes can
+    be achieved using processEvents().
+
+    \sa QApplication::quit(), exit(), processEvents()
 */
 int QEventLoop::exec()
 {
@@ -89,9 +148,22 @@ int QEventLoop::exec()
     return d->quitcode;
 }
 
-/*!
+/*! \fn void QEventLoop::exit( int retcode = 0 )
+
     Tells the event loop to exit with a return code.
- */
+
+    After this function has been called, the event loop returns from
+    the call to exec(). The exec() function returns \a retcode.
+
+    By convention, a \a retcode of 0 means success, and any non-zero
+    value indicates an error.
+
+    Note that unlike the C library function of the same name, this
+    function \e does return to the caller -- it is event processing that
+    stops.
+
+    \sa QApplication::quit(), exec()
+*/
 void QEventLoop::exit( int retcode )
 {
     if ( d->quitnow ) // preserve existing quitcode
@@ -101,9 +173,11 @@ void QEventLoop::exit( int retcode )
     d->exitloop = true;
 }
 
-/*!
-    This function enters the event loop (recursively).  Do not call
-    this function unless you really know what you are doing.
+
+/*! \fn int QEventLoop::enterLoop()
+
+    This function enters the main event loop (recursively). Do not call
+    it unless you really know what you are doing.
  */
 int QEventLoop::enterLoop()
 {
@@ -123,27 +197,30 @@ int QEventLoop::enterLoop()
     return d->looplevel;
 }
 
-/*!
-    This function exits from a recursive call to the event loop.  Do
-    not call this function unless you really know what you are doing.
- */
+/*! \fn void QEventLoop::exitLoop()
+
+    This function exits from a recursive call to the main event loop.
+    Do not call it unless you really know what you are doing.
+*/
 void QEventLoop::exitLoop()
 {
     d->exitloop = TRUE;
 }
 
-/*!
+/*! \fn void QEventLoop::loopLevel() const
 
- */
+    Returns the current loop level.
+*/
 int QEventLoop::loopLevel() const
 {
     return d->looplevel;
 }
 
 /*!
-  process one, and exactly one event, waiting for an event if necessary
+    Process one, and exactly one event, that matches \a flags, waiting
+    for an event if necessary
 
-  calls processNextEvent( flags, TRUE );
+    \sa processEvents()
 */
 void QEventLoop::processOneEvent( ProcessEventsFlags flags )
 {
@@ -151,13 +228,11 @@ void QEventLoop::processOneEvent( ProcessEventsFlags flags )
 }
 
 /*!
-
-   process pending events that match \a eventTypes for a maximum of \a
-   maxtime milliseconds, or until there are no more events to process,
-   which ever is shorter. if this function is called without any
-   arguments, then all event types are processed for a maximum of 3
-   seconds (3000 milliseconds).
-
+    Process pending events that match \a flags for a maximum of \a
+    maxTime milliseconds, or until there are no more events to
+    process, which ever is shorter. If this function is called without
+    any arguments, then all event types are processed for a maximum of
+    3 seconds (3000 milliseconds).
 */
 void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
 {
@@ -170,110 +245,56 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
     }
 }
 
-/*! \fn bool QEventLoop::hasPendingEvents()
+/*! \fn bool QEventLoop::hasPendingEvents() const
 
     Returns true if there is an event waiting, otherwise it returns false.
 */
 
 /*! \fn void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
 
-    registers the given socket notifier with the event loop.  subclasses
-    need to reimplement this method to tie a socket notifier into another
-    event loop.  reimplementations MUST call the base implementation.
+    Registers \a notifier with the event loop.  Subclasses need to
+    reimplement this method to tie a socket notifier into another
+    event loop.  Reimplementations \e MUST call the base
+    implementation.
 */
 
 /*! \fn void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
 
-    unregisters the given socket notifier from the event loop.  subclasses
-    need to reimplement this method to tie a socket notifier into another
-    event loop.  reimplementations MUST call the base implementation.
+    Unregisters \a notifier from the event loop.  Subclasses need to
+    reimplement this method to tie a socket notifier into another
+    event loop.  Reimplementations \e MUST call the base
+    implementation.
 */
 
 /*! \fn void QEventLoop::setSocketNotifierPending( QSocketNotifier *notifier )
 
-    marks the given socket notifier as pending.  the socket notifier will
-    be activated the next time activateSocketNotifiers() is called.
+    Marks \a notifier as pending.  The socket notifier will be
+    activated the next time activateSocketNotifiers() is called.
 */
 
 /*! \fn int QEventLoop::activateSocketNotifiers()
 
-    Activates all pending socket notifiers and returns the number of socket
-    notifiers that were activated.
+    Activates all pending socket notifiers and returns the number of
+    socket notifiers that were activated.
 */
 
 /*! \fn int QEventLoop::activateTimers()
 
-    Activates all Qt timers and returns the number of timers that were activated.
+    Activates all Qt timers and returns the number of timers that were
+    activated.
 
-    QEventLoop subclasses that do their own timer handling need to call
-    this after the time returned by timeToWait() has elapsed.
+    QEventLoop subclasses that do their own timer handling need to
+    call this after the time returned by timeToWait() has elapsed.
 */
 
 /*! \fn int QEventLoop::timeToWait() const
 
-    Returns the number of milliseconds that Qt needs to handle its timers or
-    -1 if there are no timers running.
+    Returns the number of milliseconds that Qt needs to handle its
+    timers or -1 if there are no timers running.
 
-    QEventLoop subclasses that do their own timer handling need to
-    use this to make sure that Qt's timers continue to work. returns
+    QEventLoop subclasses that do their own timer handling need to use
+    this to make sure that Qt's timers continue to work. returns
 */
-
-/*! \fn int QEventLoop::exec()
-
-    Enters the main event loop and waits until exit() is called, and
-    returns the value that was set to exit().
-
-    It is necessary to call this function to start event handling. The
-    main event loop receives events from the window system and
-    dispatches these to the application widgets.
-
-    Generally speaking, no user interaction can take place before
-    calling exec(). As a special case, modal widgets like QMessageBox
-    can be used before calling exec(), because modal widgets call
-    exec() to start a local event loop.
-
-    To make your application perform idle processing, i.e. executing a
-    special function whenever there are no pending events, use a
-    QTimer with 0 timeout. More advanced idle processing schemes can
-    be achieved using processEvents().
-
-    \sa quit(), exit(), processEvents()
-*/
-
-/*! \fn void QEventLoop::exit( int retcode = 0 )
-
-    Tells the event loop to exit with a return code.
-
-    After this function has been called, the event loop returns from
-    the call to exec(). The exec() function returns \a retcode.
-
-    By convention, a \a retcode of 0 means success, and any non-zero
-    value indicates an error.
-
-    Note that unlike the C library function of the same name, this
-    function \e does return to the caller -- it is event processing that
-    stops.
-
-    \sa quit(), exec()
-*/
-
-/*! \fn int QEventLoop::enterLoop()
-
-    This function enters the main event loop (recursively). Do not call
-    it unless you really know what you are doing.
- */
-
-/*! \fn void QEventLoop::exitLoop()
-
-    This function exits from a recursive call to the main event loop.
-    Do not call it unless you really know what you are doing.
-*/
-
-/*! \fn void QEventLoop::loopLevel() const
-
-    Returns the current loop level.
-*/
-
 
 /*! \fn void QEventLoop::wakeUp()
 
@@ -283,8 +304,8 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
 
 /*! \fn void QEventLoop::awake()
 
-    This signal is emitted just before the event loop begins processing
-    newly arrived events.
+    This signal is emitted just before the event loop begins
+    processing newly arrived events.
 */
 
 /*! \fn void QEventLoop::aboutToBlock()
