@@ -188,19 +188,24 @@ bool QMySQLResult::reset ( const QString& query )
     return TRUE;
 }
 
-QSqlFieldList QMySQLResult::fields() const
+QSqlFieldList QMySQLResult::fields()
 {
     QSqlFieldList fil;
-    if ( !mysql_errno( d->mysql ) ) {
-	int count = 0;
-    	for ( ;; ) {
-	    MYSQL_FIELD* f = mysql_fetch_field( d->result );
-	    if ( f )
-		fil.append( qMakeField( f , count ) );
-	    else
-            	break;
-	    count++;
-    	}
+    if ( isActive() ) {
+	if ( !mysql_errno( d->mysql ) ) {
+	    int count = 0;
+	    for ( ;; ) {
+		MYSQL_FIELD* f = mysql_fetch_field( d->result );
+		if ( f ) {
+		    QSqlField fi = qMakeField( f , count );
+		    if ( isValid() )
+			fi.value() = data( count );
+		    fil.append( fi  );
+		} else
+		    break;
+		count++;
+	    }
+	}
     }
     return fil;
 }

@@ -789,7 +789,7 @@ bool QODBCResult::isNull( int field ) const
     return nullCache[ field ];
 }
 
-QSqlFieldList QODBCResult::fields() const
+QSqlFieldList QODBCResult::fields()
 {
     QSqlFieldList fil;
     SQLRETURN r;
@@ -801,7 +801,10 @@ QSqlFieldList QODBCResult::fields() const
 #endif
     if ( count > 0 && r == SQL_SUCCESS ) {
 	for ( int i = 0; i < count; ++i ) {
-            fil.append( qMakeField( d, i ) );
+	    QSqlField fi = qMakeField( d, i );
+	    if ( isActive() )
+		fi.value() = data( i );
+            fil.append( fi );
         }
     }
     return fil;

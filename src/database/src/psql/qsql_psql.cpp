@@ -332,12 +332,15 @@ bool QPSQLResult::reset ( const QString& query )
     return FALSE;
 }
 
-QSqlFieldList QPSQLResult::fields() const
+QSqlFieldList QPSQLResult::fields()
 {
     QSqlFieldList fil;
     int count = PQnfields ( d->result );
     for ( int i = 0; i < count; ++i ) {
-	fil.append( qMakeField( d, i ) );
+	QSqlField fi = qMakeField( d, i );
+	if ( isActive() )
+	    fi.value() = data( i );
+	fil.append( fi  );
     }
     return fil;
 }

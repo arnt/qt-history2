@@ -615,7 +615,7 @@ bool QOCIResult::isNull( int field ) const
     return cols->isNull( field );
 }
 
-QSqlFieldList QOCIResult::fields() const
+QSqlFieldList QOCIResult::fields()
 {
     QSqlFieldList fil;
     ub4 numCols = 0;
@@ -629,8 +629,12 @@ QSqlFieldList QOCIResult::fields() const
     if ( r != 0 )
 	qWarning( "QOCIResult::fields: " + qOraWarn( d ) );
 #endif
-    for ( ub4 i = 0; i < numCols; ++i )
-	fil.append( qMakeField( d, i ) );
+    for ( ub4 i = 0; i < numCols; ++i ) {
+	QSqlField fi = qMakeField( d, i );
+	if ( isActive() )
+	    fi.value() = data( i );
+	fil.append( fi );
+    }
     return fil;
 }
 
