@@ -719,16 +719,16 @@ void QToolBar::resizeEvent(QResizeEvent *event)
     // hidden buttons/tb items
     int i = 0;
     QSize real_sh(0, 0);
-    while (layout()->itemAt(i))
-	real_sh += layout()->itemAt(i++)->widget()->sizeHint();
-    real_sh += QSize(layout()->spacing()*i + margin*2, layout()->spacing()*i + margin*2);
+    while (box->itemAt(i))
+	real_sh += box->itemAt(i++)->widget()->sizeHint();
+    real_sh += QSize(box->spacing()*i + margin*2, box->spacing()*i + margin*2);
 
     int extension_size = 0;
     int hidden_count = 0;
     int max_item_extent = 0;
     i = d->items.size(); // note: the toolbar handle is not counted
     while (i > 0) {
-	QWidget *w = layout()->itemAt(i)->widget();
+	QWidget *w = box->itemAt(i)->widget();
 	if (pick(orientation, w->pos()) + pick(orientation, w->size())
             >= pick(orientation, size()) - extension_size)
         {
@@ -748,10 +748,14 @@ void QToolBar::resizeEvent(QResizeEvent *event)
             max_item_extent = qMax(max_item_extent, w->width());
 	--i;
     }
-    if (orientation == Qt::Horizontal)
-        setMinimumHeight(max_item_extent + margin*2);
-    else
-        setMinimumWidth(max_item_extent + margin*2);
+
+    if (orientation == Qt::Horizontal) {
+        setMinimumSize(d->handle->sizeHint().width() + box->spacing() + extension_size + margin*2,
+                       max_item_extent + margin*2);
+    } else {
+        setMinimumSize(max_item_extent + margin*2,
+                       d->handle->sizeHint().height() + box->spacing() + extension_size + margin*2);
+    }
 
     if (hidden_count > 0) {
 	if (orientation == Qt::Horizontal) {
