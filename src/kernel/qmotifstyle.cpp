@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#32 $
 **
 ** Implementation of Motif-like style class
 **
@@ -37,6 +37,7 @@
 #include "qrangecontrol.h"
 #include "qscrollbar.h"
 #include "qtabbar.h"
+#include "qpopupmenu.h"
 #include <limits.h>
 
 /*!
@@ -766,4 +767,85 @@ void QMotifStyle::drawSplitter( QPainter *p, int x, int y, int w, int h,
 			    w, yPos, g );
 	}
 
+}
+
+/*! \reimp
+*/
+void QMotifStyle::polishPopupMenu( QPopupMenu* p)
+{
+    p->setFrameStyle( QFrame::Panel | QFrame::Raised );
+    p->setLineWidth( defaultFrameWidth() );
+    p->setMouseTracking( FALSE );
+
+}
+
+
+static const int motifItemFrame		= 2;	// menu item frame width
+static const int motifSepHeight		= 2;	// separator item height
+static const int motifItemHMargin	= 3;	// menu item hor text margin
+static const int motifItemVMargin	= 2;	// menu item ver text margin
+static const int motifArrowHMargin	= 6;	// arrow horizontal margin
+static const int motifArrowVMargin	= 2;	// arrow vertical margin
+static const int motifTabSpacing	= 12;	// space between text and tab
+static const int motifCheckMarkHMargin	= 2;	// horiz. margins of check mark
+
+/*! \reimp
+*/
+int QMotifStyle::widthOfPopupCheckColumn( int maxpm )
+{
+    int cmw = 7;   // check mark width
+    int w = QMAX( maxpm, cmw );
+    w += 2;
+    w += motifItemFrame + 2 * motifCheckMarkHMargin;
+    return w;
+}
+
+/*! \reimp
+*/
+void QMotifStyle::drawPopupCheckMark( QPainter *p, int x, int y, int w, int h,
+					   const QColorGroup &g,
+					   bool act, bool dis )
+{
+    const int markW = 6;
+    const int markH = 6;
+    int posX = x + ( w - markW )/2 - 1;
+    int posY = y + ( h - markH )/2;
+
+    if ( defaultFrameWidth() < 2) {
+	// Could do with some optimizing/caching...
+	QPointArray a( 7*2 );
+	int i, xx, yy;
+	xx = posX;
+	yy = 3 + posY;
+	for ( i=0; i<3; i++ ) {
+	    a.setPoint( 2*i,   xx, yy );
+	    a.setPoint( 2*i+1, xx, yy+2 );
+	    xx++; yy++;
+	}
+	yy -= 2;
+	for ( i=3; i<7; i++ ) {
+	    a.setPoint( 2*i,   xx, yy );
+	    a.setPoint( 2*i+1, xx, yy+2 );
+	    xx++; yy--;
+	}
+	if ( dis && !act ) {
+	    uint pnt;
+	    p->setPen( g.highlightedText() );
+	    QPoint offset(1,1);
+	    for ( pnt = 0; pnt < a.size(); pnt++ )
+		a[pnt] += offset;
+	    p->drawLineSegments( a );
+	    for ( pnt = 0; pnt < a.size(); pnt++ )
+		a[pnt] -= offset;
+	}
+	p->setPen( g.text() );
+	p->drawLineSegments( a );
+	
+	qDrawShadePanel( p, posX-2, posY-2, markW+4, markH+6, g, TRUE,
+			 defaultFrameWidth());
+    }
+    else {
+	qDrawShadePanel( p, posX, posY, markW, markH, g, TRUE,
+		    defaultFrameWidth(), &g.brush( QColorGroup::Mid ) );
+    }
 }

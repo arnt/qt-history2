@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#12 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#13 $
 **
 ** Definition of something or other
 **
@@ -62,7 +62,7 @@ public:
     void tabbarMetrics( const QTabBar*, int&, int&, int& );
     void drawTab( QPainter*, const QTabBar*, QTab*, bool selected );
     void drawTabMask( QPainter*, const QTabBar*, QTab*, bool selected );
-    
+
     void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&);
     void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
 
@@ -85,6 +85,13 @@ public:
     int splitterWidth() const;
     void drawSplitter( QPainter *p, int x, int y, int w, int h,
 			     const QColorGroup &g, Orientation);
+    
+    void polishPopupMenu( QPopupMenu* );
+    int widthOfPopupCheckColumn( int maxpm );
+    void drawPopupCheckMark( QPainter *p, int x, int y, int w, int h,
+			     const QColorGroup &g,
+			     bool act, bool dis );
+
 
 protected:
     void drawWinShades( QPainter *p,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#26 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#27 $
 **
 ** Definition of QStyle class
 **
@@ -22,6 +22,7 @@ class QPushButton;
 class QScrollBar;
 class QTabBar;
 class QTab;
+class QPopupMenu;
 
 class Q_EXPORT QStyle: public QObject
 {
@@ -141,7 +142,7 @@ public:
 
     // frame
     virtual int defaultFrameWidth() const;
-    
+
     // tabbars
     virtual void tabbarMetrics( const QTabBar*, int&, int&, int& );
     virtual void drawTab( QPainter*, const QTabBar*, QTab*, bool selected );
@@ -181,6 +182,12 @@ public:
 			     int x, int y, int w, int h,
 			     const QColorGroup &g,
 			     Orientation) = 0;
+    
+    virtual void polishPopupMenu( QPopupMenu* ) = 0;
+    virtual int widthOfPopupCheckColumn( int maxpm ) = 0;
+    virtual void drawPopupCheckMark( QPainter *p, int x, int y, int w, int h,
+				     const QColorGroup &g,
+				     bool act, bool dis ) = 0;
 
 };
 

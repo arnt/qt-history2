@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#30 $
 **
 ** Implementation of Windows-like style class
 **
@@ -37,6 +37,7 @@
 #include "qrangecontrol.h"
 #include "qscrollbar.h"
 #include "qtabbar.h"
+#include "qpopupmenu.h"
 #include <limits.h>
 
 /*!
@@ -976,4 +977,68 @@ void QWindowsStyle::drawSplitter( QPainter *p,  int x, int y, int w, int h,
 				  const QColorGroup &g,  Orientation)
 {
 	qDrawWinPanel( p, x, y, w, h, g );
+}
+
+
+/*! \reimp
+*/
+void QWindowsStyle::polishPopupMenu( QPopupMenu* p)
+{
+    p->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
+    p->setMouseTracking( TRUE );
+
+}
+
+
+/*! \reimp
+*/
+int QWindowsStyle::widthOfPopupCheckColumn( int maxpm )
+{
+    int cmw = 7;   // check mark width
+    int w = QMAX( maxpm, cmw );
+    w += 4;
+    return w;
+}
+
+
+
+/*! \reimp
+*/
+void QWindowsStyle::drawPopupCheckMark( QPainter *p, int x, int y, int w, int h,
+					const QColorGroup &g,
+					bool act, bool dis )
+{
+    const int markW = 7;
+    const int markH = 7;
+    int posX = x + ( w - markW )/2 - 1;
+    int posY = y + ( h - markH )/2;
+
+    // Could do with some optimizing/caching...
+    QPointArray a( 7*2 );
+    int i, xx, yy;
+    xx = posX;
+    yy = 3 + posY;
+    for ( i=0; i<3; i++ ) {
+	a.setPoint( 2*i,   xx, yy );
+	a.setPoint( 2*i+1, xx, yy+2 );
+	xx++; yy++;
+    }
+    yy -= 2;
+    for ( i=3; i<7; i++ ) {
+	a.setPoint( 2*i,   xx, yy );
+	a.setPoint( 2*i+1, xx, yy+2 );
+	xx++; yy--;
+    }
+    if ( dis && !act ) {
+	uint pnt;
+	p->setPen( g.highlightedText() );
+	QPoint offset(1,1);
+	for ( pnt = 0; pnt < a.size(); pnt++ )
+	    a[pnt] += offset;
+	p->drawLineSegments( a );
+	for ( pnt = 0; pnt < a.size(); pnt++ )
+	    a[pnt] -= offset;
+    }
+    p->setPen( g.text() );
+    p->drawLineSegments( a );
 }

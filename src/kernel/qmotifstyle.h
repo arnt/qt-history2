@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#14 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#15 $
 **
 ** Definition of something or other
 **
@@ -49,11 +49,11 @@ public:
     void drawExclusiveIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
 				 bool on, bool down = FALSE, bool enabled = TRUE );
     void drawExclusiveIndicatorMask( QPainter *p, int x, int y, int, int, bool );
-    
+
     void tabbarMetrics( const QTabBar*, int&, int&, int& );
     void drawTab( QPainter*,  const QTabBar*, QTab*, bool selected );
     void drawTabMask( QPainter*,  const QTabBar*, QTab*, bool selected );
-    
+
     void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&);
     void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
 
@@ -70,6 +70,14 @@ public:
     int splitterWidth() const;
     void drawSplitter( QPainter *p, int x, int y, int w, int h,
 		       const QColorGroup &g, Orientation);
+    
+    
+    void polishPopupMenu( QPopupMenu* );
+    int widthOfPopupCheckColumn( int maxpm );
+    void drawPopupCheckMark( QPainter *p, int x, int y, int w, int h,
+			     const QColorGroup &g,
+			     bool act, bool dis );
+
 private:
     bool highlightCols;
 };
