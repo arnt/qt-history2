@@ -54,16 +54,11 @@ class Q_EXPORT_STYLE_COMPACT QCompactStyle : public QWindowsStyle
 {
 public:
     QCompactStyle();
-    virtual ~QCompactStyle();
-    int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem*,
-				 const QFontMetrics& ) const;
-    int popupMenuItemHeight( bool checkable, QMenuItem*,
-			     const QFontMetrics& ) const;
-    void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
-				       const QPalette& pal,
-				       bool act, bool enabled, int x, int y, int w, int h);
 
-    int buttonMargin() const;
+    int pixelMetric( PixelMetric metric, const QWidget *widget = 0 );
+
+    void drawControl( ControlElement element, QPainter *p, const QWidget *w, const QRect &r, 
+		      const QColorGroup &cg, SFlags how = Style_Default, void **data = 0 );
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

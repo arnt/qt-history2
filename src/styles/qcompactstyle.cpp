@@ -44,19 +44,23 @@
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qmenudata.h"
+#include "qpopupmenu.h"
 
 QCompactStyle::QCompactStyle()
-{
-}
-
-QCompactStyle::~QCompactStyle()
+: QWindowsStyle()
 {
 }
 
 /*! \reimp */
-int QCompactStyle::buttonMargin() const
+int QCompactStyle::pixelMetric( PixelMetric metric, const QWidget *widget )
 {
-    return 2;
+    switch ( metric ) {
+    case PM_ButtonMargin:
+	return 2;
+
+    default:
+	return QWindowsStyle::pixelMetric( metric, widget );
+    }
 }
 
 static const int motifItemFrame		= 0;	// menu item frame width
@@ -69,11 +73,8 @@ static const int motifCheckMarkHMargin	= 1;	// horiz. margins of check mark
 static const int windowsRightBorder	= 8;    // right border on windows
 static const int windowsCheckMarkWidth  = 2;    // checkmarks width on windows
 
-/*! \reimp
-*/
-int QCompactStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& /*fm*/ ) const
+static int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& /*fm*/ )
 {
-#ifndef QT_NO_COMPACTSTYLE
     int w = 2*motifItemHMargin + 2*motifItemFrame; // a little bit of border can never harm
 
     if ( mi->isSeparator() )
@@ -101,14 +102,10 @@ int QCompactStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuIte
     w += windowsRightBorder; // windows has a strange wide border on the right side
 
     return w;
-#endif
 }
 
-/*! \reimp
-*/
-int QCompactStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const QFontMetrics& fm ) const
+static int popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const QFontMetrics& fm )
 {
-#ifndef QT_NO_COMPACTSTYLE    
     int h = 0;
     if ( mi->isSeparator() )			// separator height
 	h = motifSepHeight;
@@ -123,159 +120,191 @@ int QCompactStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const
     if ( mi->custom() )
 	h = QMAX( h, mi->custom()->sizeHint().height() + 2*motifItemVMargin + 2*motifItemFrame ) - 1;
     return h;
-#endif
 }
 
-void QCompactStyle::drawPopupMenuItem( QPainter* p, bool checkable,
-				       int maxpmw, int tab, QMenuItem* mi,
-				       const QPalette& pal, bool act,
-				       bool enabled,
-				       int x, int y, int w, int h)
+void drawPopupMenuItem( QPainter* p, bool checkable,
+			int maxpmw, int tab, QMenuItem* mi,
+			const QPalette& pal, bool act,
+			bool enabled,
+			int x, int y, int w, int h)
 {
-#ifndef QT_NO_COMPACTSTYLE    
-    const QColorGroup & g = pal.active();
-    bool dis	  = !enabled;
-    QColorGroup itemg = dis ? pal.disabled() : pal.active();
 
-    if ( checkable )
-	maxpmw = QMAX( maxpmw, 8 ); // space for the checkmarks
+}
 
-    int checkcol	  =     maxpmw;
+/*! \reimp */
+void QCompactStyle::drawControl( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r,
+		  const QColorGroup &g, SFlags flags, void **data )
+{
+    switch ( element ) {
+    case CE_PopupMenuItem:
+	{
+	    if (! widget || !data)
+		break;
 
-    if ( mi && mi->isSeparator() ) {			// draw separator
-	p->setPen( g.dark() );
-	p->drawLine( x, y, x+w, y );
-	p->setPen( g.light() );
-	p->drawLine( x, y+1, x+w, y+1 );
-	return;
-    }
+	    const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
+	    QMenuItem *mi = (QMenuItem *) data[0];
+	    if ( !mi )
+		break;
 
-    QBrush fill = act? g.brush( QColorGroup::Highlight ) :
-			    g.brush( QColorGroup::Button );
-    p->fillRect( x, y, w, h, fill);
+	    int tab = *((int *) data[1]);
+	    int maxpmw = *((int *) data[2]);
+	    bool dis = ! mi->isEnabled();
+	    bool checkable = popupmenu->isCheckable();
+	    bool act = flags & Style_Active;
+	    int x, y, w, h;
+	    r.rect( &x, &y, &w, &h );
 
-    if ( !mi )
-	return;
+	    QColorGroup itemg = g;
 
-    if ( mi->isChecked() ) {
-	if ( act && !dis ) {
-	    qDrawShadePanel( p, x, y, checkcol, h,
-			     g, TRUE, 1, &g.brush( QColorGroup::Button ) );
-	} else {
-	    qDrawShadePanel( p, x, y, checkcol, h,
-			     g, TRUE, 1, &g.brush( QColorGroup::Midlight ) );
-	}
-    } else if ( !act ) {
-	p->fillRect(x, y, checkcol , h,
-		    g.brush( QColorGroup::Button ));
-    }
+	    if ( checkable )
+		maxpmw = QMAX( maxpmw, 8 ); // space for the checkmarks
 
-    if ( mi->iconSet() ) {		// draw iconset
-	QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
-	if (act && !dis )
-	    mode = QIconSet::Active;
-	QPixmap pixmap;
-	if ( checkable && mi->isChecked() )
-	    pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode, QIconSet::On );
-	else
-	    pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
-	int pixw = pixmap.width();
-	int pixh = pixmap.height();
-	if ( act && !dis ) {
-	    if ( !mi->isChecked() )
-		qDrawShadePanel( p, x, y, checkcol, h, g, FALSE,  1, &g.brush( QColorGroup::Button ) );
-	}
-	QRect cr( x, y, checkcol, h );
-	QRect pmr( 0, 0, pixw, pixh );
-	pmr.moveCenter( cr.center() );
-	p->setPen( itemg.text() );
-	p->drawPixmap( pmr.topLeft(), pixmap );
+	    int checkcol	  =     maxpmw;
 
-	QBrush fill = act? g.brush( QColorGroup::Highlight ) :
-			      g.brush( QColorGroup::Button );
-	p->fillRect( x+checkcol + 1, y, w - checkcol - 1, h, fill);
-    } else  if ( checkable ) {	// just "checking"...
-	int mw = checkcol + motifItemFrame;
-	int mh = h - 2*motifItemFrame;
-	if ( mi->isChecked() ) {
-	    drawCheckMark( p, x + motifItemFrame + 2,
-			   y+motifItemFrame, mw, mh, itemg, act, dis );
-	}
-    }
-
-    p->setPen( act ? g.highlightedText() : g.buttonText() );
-
-    QColor discol;
-    if ( dis ) {
-	discol = itemg.text();
-	p->setPen( discol );
-    }
-
-    int xm = motifItemFrame + checkcol + motifItemHMargin;
-
-    if ( mi->custom() ) {
-	int m = motifItemVMargin;
-	p->save();
-	if ( dis && !act ) {
-	    p->setPen( g.light() );
-	    mi->custom()->paint( p, itemg, act, enabled,
-				 x+xm+1, y+m+1, w-xm-tab+1, h-2*m );
-	    p->setPen( discol );
-	}
-	mi->custom()->paint( p, itemg, act, enabled,
-			     x+xm, y+m, w-xm-tab+1, h-2*m );
-	p->restore();
-    }
-    QString s = mi->text();
-    if ( !s.isNull() ) {			// draw text
-	int t = s.find( '\t' );
-	int m = motifItemVMargin;
-	const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
-	if ( t >= 0 ) {				// draw tab text
-	    if ( dis && !act ) {
+	    if ( mi && mi->isSeparator() ) {			// draw separator
+		p->setPen( g.dark() );
+		p->drawLine( x, y, x+w, y );
 		p->setPen( g.light() );
-		p->drawText( x+w-tab-windowsRightBorder-motifItemHMargin-motifItemFrame+1,
-			     y+m+1, tab, h-2*m, text_flags, s.mid( t+1 ));
+		p->drawLine( x, y+1, x+w, y+1 );
+		return;
+	    }
+
+	    QBrush fill = act? g.brush( QColorGroup::Highlight ) :
+				    g.brush( QColorGroup::Button );
+	    p->fillRect( x, y, w, h, fill);
+
+	    if ( !mi )
+		return;
+
+	    if ( mi->isChecked() ) {
+		if ( act && !dis ) {
+		    qDrawShadePanel( p, x, y, checkcol, h,
+				     g, TRUE, 1, &g.brush( QColorGroup::Button ) );
+		} else {
+		    qDrawShadePanel( p, x, y, checkcol, h,
+				     g, TRUE, 1, &g.brush( QColorGroup::Midlight ) );
+		}
+	    } else if ( !act ) {
+		p->fillRect(x, y, checkcol , h,
+			    g.brush( QColorGroup::Button ));
+	    }
+
+	    if ( mi->iconSet() ) {		// draw iconset
+		QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
+		if (act && !dis )
+		    mode = QIconSet::Active;
+		QPixmap pixmap;
+		if ( checkable && mi->isChecked() )
+		    pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode, QIconSet::On );
+		else
+		    pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
+		int pixw = pixmap.width();
+		int pixh = pixmap.height();
+		if ( act && !dis ) {
+		    if ( !mi->isChecked() )
+			qDrawShadePanel( p, x, y, checkcol, h, g, FALSE,  1, &g.brush( QColorGroup::Button ) );
+		}
+		QRect cr( x, y, checkcol, h );
+		QRect pmr( 0, 0, pixw, pixh );
+		pmr.moveCenter( cr.center() );
+		p->setPen( itemg.text() );
+		p->drawPixmap( pmr.topLeft(), pixmap );
+
+		QBrush fill = act? g.brush( QColorGroup::Highlight ) :
+				      g.brush( QColorGroup::Button );
+		p->fillRect( x+checkcol + 1, y, w - checkcol - 1, h, fill);
+	    } else  if ( checkable ) {	// just "checking"...
+		int mw = checkcol + motifItemFrame;
+		int mh = h - 2*motifItemFrame;
+		if ( mi->isChecked() ) {
+		    
+		    SFlags cflags = Style_Default;
+		    if (! dis)
+			cflags |= Style_Enabled;
+		    if (act)
+			cflags |= Style_On;
+
+		    drawPrimitive( PE_CheckMark, p, QRect(x + motifItemFrame + 2, y + motifItemFrame,
+				    mw, mh), itemg, cflags, data );
+		}
+	    }
+
+	    p->setPen( act ? g.highlightedText() : g.buttonText() );
+
+	    QColor discol;
+	    if ( dis ) {
+		discol = itemg.text();
 		p->setPen( discol );
 	    }
-	    p->drawText( x+w-tab-windowsRightBorder-motifItemHMargin-motifItemFrame,
-			 y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
-	    s = s.left( t );
-	}
-	if ( dis && !act ) {
-	    p->setPen( g.light() );
-	    p->drawText( x+xm+1, y+m+1, w-xm+1, h-2*m, text_flags, s, t );
-	    p->setPen( discol );
-	}
-	p->drawText( x+xm, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
-    } else if ( mi->pixmap() ) {			// draw pixmap
-	QPixmap *pixmap = mi->pixmap();
-	if ( pixmap->depth() == 1 )
-	    p->setBackgroundMode( OpaqueMode );
-	p->drawPixmap( x+xm, y+motifItemFrame, *pixmap );
-	if ( pixmap->depth() == 1 )
-	    p->setBackgroundMode( TransparentMode );
+
+	    int xm = motifItemFrame + checkcol + motifItemHMargin;
+
+	    if ( mi->custom() ) {
+		int m = motifItemVMargin;
+		p->save();
+		if ( dis && !act ) {
+		    p->setPen( g.light() );
+		    mi->custom()->paint( p, itemg, act, !dis,
+					 x+xm+1, y+m+1, w-xm-tab+1, h-2*m );
+		    p->setPen( discol );
+		}
+		mi->custom()->paint( p, itemg, act, !dis,
+				     x+xm, y+m, w-xm-tab+1, h-2*m );
+		p->restore();
+	    }
+	    QString s = mi->text();
+	    if ( !s.isNull() ) {			// draw text
+		int t = s.find( '\t' );
+		int m = motifItemVMargin;
+		const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+		if ( t >= 0 ) {				// draw tab text
+		    if ( dis && !act ) {
+			p->setPen( g.light() );
+			p->drawText( x+w-tab-windowsRightBorder-motifItemHMargin-motifItemFrame+1,
+				     y+m+1, tab, h-2*m, text_flags, s.mid( t+1 ));
+			p->setPen( discol );
+		    }
+		    p->drawText( x+w-tab-windowsRightBorder-motifItemHMargin-motifItemFrame,
+				 y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
+		    s = s.left( t );
+		}
+		if ( dis && !act ) {
+		    p->setPen( g.light() );
+		    p->drawText( x+xm+1, y+m+1, w-xm+1, h-2*m, text_flags, s, t );
+		    p->setPen( discol );
+		}
+		p->drawText( x+xm, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
+	    } else if ( mi->pixmap() ) {			// draw pixmap
+		QPixmap *pixmap = mi->pixmap();
+		if ( pixmap->depth() == 1 )
+		    p->setBackgroundMode( OpaqueMode );
+		p->drawPixmap( x+xm, y+motifItemFrame, *pixmap );
+		if ( pixmap->depth() == 1 )
+		    p->setBackgroundMode( TransparentMode );
+	    }
+	    if ( mi->popup() ) {			// draw sub menu arrow
+		int dim = (h-2*motifItemFrame) / 2;
+		if ( act ) {
+		    if ( !dis )
+			discol = white;
+		    QColorGroup g2( discol, g.highlight(),
+				    white, white,
+				    dis ? discol : white,
+				    discol, white );
+		    drawPrimitive(PE_ArrowRight, p, QRect(x+w - motifArrowHMargin - motifItemFrame - dim, y + h / 2 - dim / 2, dim, dim),
+				  g2, Style_Enabled);
+		} else {
+		    drawPrimitive(PE_ArrowRight, p, QRect(x+w - motifArrowHMargin - motifItemFrame - dim, y + h / 2 - dim / 2, dim, dim),
+				  g, mi->isEnabled() ? Style_Enabled : Style_Default);
+		}
+	    }
+	}	
+	break;
+
+    default:
+	QWindowsStyle::drawControl( element, p, widget, r, g, flags, data );
+	break;
     }
-    if ( mi->popup() ) {			// draw sub menu arrow
-	int dim = (h-2*motifItemFrame) / 2;
-	if ( act ) {
-	    if ( !dis )
-		discol = white;
-	    QColorGroup g2( discol, g.highlight(),
-			    white, white,
-			    dis ? discol : white,
-			    discol, white );
-	    drawArrow( p, RightArrow, FALSE,
-			       x+w - motifArrowHMargin - motifItemFrame - dim,  y+h/2-dim/2,
-			       dim, dim, g2, TRUE );
-	} else {
-	    drawArrow( p, RightArrow,
-			       FALSE,
-			       x+w - motifArrowHMargin - motifItemFrame - dim,  y+h/2-dim/2,
-			       dim, dim, g, mi->isEnabled() );
-	}
-    }
-#endif
 }
 
 #endif
