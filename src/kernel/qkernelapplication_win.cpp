@@ -21,6 +21,11 @@ Q_KERNEL_EXPORT HINSTANCE qWinAppPrevInst()		// get Windows prev app handle
     return appPrevInst;
 }
 
+Q_KERNEL_EXPORT bool qt_winEventFilter(MSG* msg)
+{
+    return QKernelApplication::instance()->winEventFilter( msg );
+}
+
 static void	msgHandler( QtMsgType, const char* );
 
 void set_winapp_name()
@@ -196,4 +201,16 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 		  QString::fromUcs2(uniqueAppID)
 		  .lower().remove('\\').ucs2() );
 #endif
+}
+
+/*!
+    The message procedure calls this function for every message
+    received. Reimplement this function if you want to process window
+    messages \e msg that are not processed by Qt. If you don't want
+    the event to be processed by Qt, then return TRUE; otherwise
+    return FALSE.
+*/
+bool QKernelApplication::winEventFilter( MSG * /*msg*/ )	// Windows event filter
+{
+    return FALSE;
 }

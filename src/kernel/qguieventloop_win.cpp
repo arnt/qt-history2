@@ -22,7 +22,7 @@
 #define d d_func()
 #define q q_func()
 
-extern bool qt_winEventFilter( MSG* msg, long &result );
+extern bool qt_winEventFilter(MSG* msg);
 Q_KERNEL_EXPORT bool activateTimer( uint id );		// activate timer
 Q_KERNEL_EXPORT void activateZeroTimers();
 Q_KERNEL_EXPORT bool winPeekMessage( MSG*, HWND, UINT, UINT, UINT);
@@ -40,14 +40,7 @@ void QGuiEventLoop::cleanup()
 
 }
 
-static bool dispatchTimer( uint timerId, MSG *msg )
-{
-    long res = 0;
-    if ( !msg || !QKernelApplication::instance() || !qt_winEventFilter(msg,res) )
-	return activateTimer( timerId );
-    return TRUE;
-}
-
+extern Q_KERNEL_EXPORT bool qt_dispatch_timer( uint timerId, MSG *msg );
 
 /*****************************************************************************
   Safe configuration (move,resize,setGeometry) mechanism to avoid
@@ -153,11 +146,10 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
 
     bool handled = FALSE;
     if ( msg.message == WM_TIMER ) {		// timer message received
-	if ( dispatchTimer( msg.wParam, &msg ) )
+	if ( qt_dispatch_timer( msg.wParam, &msg ) )
 	    return TRUE;
     } else if ( msg.message && (!msg.hwnd || !QWidget::find(msg.hwnd)) ) {
-	long res = 0;
-	handled = qt_winEventFilter( &msg, res );
+	handled = qt_winEventFilter(&msg);
     }
 
     if ( !handled ) {

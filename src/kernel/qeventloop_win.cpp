@@ -37,11 +37,12 @@ extern Q_KERNEL_EXPORT bool	qt_win_use_simple_timers = TRUE;
 extern Q_KERNEL_EXPORT bool	qt_win_use_simple_timers = FALSE;
 #endif
 void CALLBACK   qt_simple_timer_func( HWND, UINT, UINT, DWORD );
+extern Q_KERNEL_EXPORT bool qt_winEventFilter(MSG* msg);
 
 static TimerVec  *timerVec = 0;
 static TimerDict *timerDict = 0;
 
-static bool	dispatchTimer( uint, MSG * );
+Q_KERNEL_EXPORT bool    qt_dispatch_timer( uint, MSG * );
 Q_KERNEL_EXPORT bool	activateTimer( uint );
 Q_KERNEL_EXPORT void	activateZeroTimers();
 
@@ -83,16 +84,16 @@ Q_KERNEL_EXPORT bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 
 void CALLBACK qt_simple_timer_func( HWND, UINT, UINT idEvent, DWORD )
 {
-    dispatchTimer( idEvent, 0 );
+    qt_dispatch_timer( idEvent, 0 );
 }
 
 
 // Activate a timer, used by both event-loop based and simple timers.
 
-static bool dispatchTimer( uint timerId, MSG *msg )
+bool qt_dispatch_timer( uint timerId, MSG *msg )
 {
-    if ( !msg || !QKernelApplication::instance() )
-	return activateTimer( timerId );
+    if ( !msg || !QKernelApplication::instance() || !qt_winEventFilter(msg))
+	return activateTimer(timerId);
     return TRUE;
 }
 
@@ -533,7 +534,7 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 
     bool handled = FALSE;
     if ( msg.message == WM_TIMER ) {		// timer message received
-	if ( dispatchTimer( msg.wParam, &msg ) )
+	if ( qt_dispatch_timer( msg.wParam, &msg ) )
 	    return TRUE;
     }
 

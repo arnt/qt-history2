@@ -89,6 +89,10 @@ public:
     bool             tryLock();
 #endif
 
+#if defined(Q_WS_WIN)
+    virtual bool     winEventFilter( MSG * );
+#endif
+
 public slots:
     void	     quit();
 

@@ -167,9 +167,6 @@ public:
 #if defined(Q_WS_MAC)
     virtual bool     macEventFilter( EventHandlerCallRef, EventRef );
 #endif
-#if defined(Q_WS_WIN)
-    virtual bool     winEventFilter( MSG * );
-#endif
 #if defined(Q_WS_X11)
     virtual bool     x11EventFilter( XEvent * );
     virtual int	     x11ClientMessage( QWidget*, XEvent*, bool passive_only);

@@ -251,6 +251,7 @@ QRgb qt_colorref2qrgb(COLORREF col)
   Internal variables and functions
  *****************************************************************************/
 
+extern Q_KERNEL_EXPORT bool qt_winEventFilter(MSG* msg);
 extern Q_KERNEL_EXPORT char      appName[];
 extern Q_KERNEL_EXPORT char      appFileName[];
 extern Q_KERNEL_EXPORT HINSTANCE appInst;			// handle to app instance
@@ -290,56 +291,6 @@ extern bool qt_tryAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
 static HWND	autoCaptureWnd = 0;
 static void	setAutoCapture( HWND );		// automatic capture
 static void	releaseAutoCapture();
-
-// ### Remove 4.0 [start] -------------------
-typedef void (*VFPTR)();
-// VFPTR qt_set_preselect_handler( VFPTR );
-static VFPTR qt_preselect_handler = 0;
-// VFPTR qt_set_postselect_handler( VFPTR );
-static VFPTR qt_postselect_handler = 0;
-Q_EXPORT VFPTR qt_set_preselect_handler( VFPTR handler )
-{
-    VFPTR old_handler = qt_preselect_handler;
-    qt_preselect_handler = handler;
-    return old_handler;
-}
-Q_EXPORT VFPTR qt_set_postselect_handler( VFPTR handler )
-{
-    VFPTR old_handler = qt_postselect_handler;
-    qt_postselect_handler = handler;
-    return old_handler;
-}
-
-typedef int (*QWinEventFilter) (MSG*);
-static QWinEventFilter qt_win_event_filter = 0;
-
-Q_EXPORT QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter)
-{
-    QWinEventFilter old_filter = qt_win_event_filter;
-    qt_win_event_filter = filter;
-    return old_filter;
-}
-
-typedef bool (*QWinEventFilterEx)(MSG*,long&);
-static QWinEventFilterEx qt_win_event_filter_ex = 0;
-
-Q_EXPORT QWinEventFilterEx qt_set_win_event_filter_ex( QWinEventFilterEx filter )
-{
-    QWinEventFilterEx old = qt_win_event_filter_ex;
-    qt_win_event_filter_ex = filter;
-    return old;
-}
-
-// ### Remove 4.0 [end] --------------------
-bool qt_winEventFilter( MSG* msg, long &result )
-{
-    result = 0;
-    if ( qt_win_event_filter && qt_win_event_filter( msg )  )
-	return TRUE;
-    if ( qt_win_event_filter_ex && qt_win_event_filter_ex( msg, result ) )
-        return TRUE;
-    return qApp->winEventFilter( msg );
-}
 
 static void     unregWinClasses();
 
@@ -1127,18 +1078,6 @@ void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
 extern uint qGlobalPostedEventsCount();
 
 /*!
-    The message procedure calls this function for every message
-    received. Reimplement this function if you want to process window
-    messages \e msg that are not processed by Qt. If you don't want
-    the event to be processed by Qt, then return TRUE; otherwise
-    return FALSE.
-*/
-bool QApplication::winEventFilter( MSG * /*msg*/ )	// Windows event filter
-{
-    return FALSE;
-}
-
-/*!
     If \a gotFocus is TRUE, \a widget will become the active window.
     Otherwise the active window is reset to NULL.
 */
@@ -1181,7 +1120,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			    LPARAM lParam )
 {
     bool result = TRUE;
-    long filterRes = 0;
     QEvent::Type evt_type = QEvent::None;
     QETWidget *widget = 0;
 
@@ -1226,8 +1164,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     QT_NC_WNDPROC
 #endif
 
-    if ( qt_winEventFilter(&msg, filterRes) )		// send through app filter
-	RETURN(filterRes);
+    if ( qt_winEventFilter(&msg) )		// send through app filter
+	RETURN(true);
 
     switch ( message ) {
 #ifndef Q_OS_TEMP
