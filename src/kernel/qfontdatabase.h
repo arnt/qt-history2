@@ -53,16 +53,19 @@ class QFontDatabasePrivate;
 
 class Q_EXPORT QFontDatabase
 {
-private:
+public:
     QFontDatabase();
 
-    const QStringList &families( bool onlyForLocale = TRUE ) const;
+    QStringList families( bool onlyForLocale = TRUE ) const;
+    QValueList<int> pointSizes( const QString &family,
+				const QString &style = QString::null,
+				const QString &charSet = QString::null );
     QStringList styles( const QString &family,
 			const QString &charSet = QString::null ) const;
-    QValueList<int> pointSizes( const QString &family,
-				const QString &style,
-				const QString &charSet = QString::null );
+    QStringList charSets( const QString &familyName,
+			  bool onlyForLocale = TRUE ) const;
 
+private:
     QFont font( const QString familyName, const QString &style,
 		int pointSize, const QString charSetName = QString::null );
 
@@ -102,9 +105,6 @@ private:
     bool  supportsCharSet( const QString &familyName,
 			   QFont::CharSet charSet ) const;
 #endif
-
-    QStringList charSets( const QString &familyName,
-			  bool onlyForLocale = TRUE ) const;
 
     QString styleString( const QFont &);
 

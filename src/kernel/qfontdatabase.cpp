@@ -1566,25 +1566,56 @@ static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
 
 static QStringList emptyList;
 
+/*!
+  \class QFontDatabase qfontdatabase.h
+  \brief Class which can be used to get information about the
+  available fonts
+  
+  This class can be used to get information about the available
+  fonts. With the 4 public members families(), pointSizes(), styles()
+  and charSets() it should be possible to get the most important 
+  information about the installed fonts.
+  
+  In later Qt releases QFontDatabase will offer event more
+  information about the available fonts.
+*/
+
+/*!
+  Creates a font database object.
+*/
+
 QFontDatabase::QFontDatabase()
 {
     createDatabase();
     d = db;
 }
 
-const QStringList &QFontDatabase::families( bool onlyForLocale ) const
+/*!
+  Retrurns a list of names of all available font families.
+*/
+
+QStringList QFontDatabase::families( bool onlyForLocale ) const
 {
     return d->families( onlyForLocale );
 }
 
+/*!
+  Retruns all available styles of the font \a family in the
+  char set \a charSet.
+*/
 
 QStringList QFontDatabase::styles( const QString &family,
 					  const QString &charSet ) const
 {
+    QString cs( charSet );
+    if ( charSet.isEmpty() ) {
+	QStringList lst = charSets( family );
+	cs = lst.first();
+    }
     const QtFontFamily *fam = d->family( family );
     if ( !fam )
 	return emptyList;
-    const QtFontCharSet * chSet = fam->charSet( charSet );;
+    const QtFontCharSet * chSet = fam->charSet( cs );
     return chSet ? chSet->styles() : emptyList;
 }
 
@@ -1650,11 +1681,26 @@ static const QtFontStyle * getStyle( QFontDatabasePrivate *d,
 
 static QValueList<int> emptySizeList;
 
+/*!
+  Returns a list of all availabe sizes of the font \a family in the
+  style \a style and the char set \a charSet.
+*/
+
 QValueList<int> QFontDatabase::pointSizes( const QString &family,
 						 const QString &style,
 						 const QString &charSet )
 {
-    const QtFontStyle *sty = getStyle( d, family, style, charSet );
+    QString cs( charSet );
+    if ( charSet.isEmpty() ) {
+	QStringList lst = charSets( family );
+	cs = lst.first();
+    }
+    QString s( style );
+    if ( style.isEmpty() ) {
+	QStringList lst = styles( family, cs );
+	s = lst.first();
+    }
+    const QtFontStyle *sty = getStyle( d, family, s, cs );
     return sty ? sty->pointSizes() : emptySizeList;
 }
 
@@ -1715,6 +1761,10 @@ int QFontDatabase::weight( const QString &family,
     const QtFontStyle *sty = getStyle( d, family, style, charSet );
     return sty ? sty->weight() : -1;
 }
+
+/*!
+  Returns a list of all char sets in which the font \a family is available.
+*/
 
 QStringList QFontDatabase::charSets( const QString &family,
 					   bool onlyForLocale ) const
