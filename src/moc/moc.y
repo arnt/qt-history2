@@ -1834,148 +1834,37 @@ void replace( char *s, char c1, char c2 )
 }
 
 /*
-  This function looks at two file names and returns the name of the
-  infile, with a path relative to outfile. Examples:
-    /tmp/abc	/tmp/bcd	->	abc
-    xyz/a/bc	xyz/b/ac	->	../a/bc
-    /tmp/abc	xyz/klm		-)	/tmp/abc
+    This function looks at two file names and returns the name of the
+    infile with a path relative to outfile.
+
+    Examples:
+
+	/tmp/abc, /tmp/bcd -> abc
+	xyz/a/bc, xyz/b/ac -> ../a/bc
+	/tmp/abc, xyz/klm -> /tmp/abc
  */
-
-// Code stolen from QDir::isRelativePath
-bool isRelativePath( const QString &path )
-{
-  int len = path.length();
-  if ( len == 0 )
-    return TRUE;
-
-  int i = 0;
-#ifdef WIN32
-  if ( path[0].isLetter() && path[1] == ':' )		// drive, e.g. a:
-    i = 2;
-#endif
-  return path[i] != '/' && path[i] != '\\';
-}
-
-// Code stolen from QDir::cleanDirPath
-QString cleanDirPath( const QCString &filePath )
-{
-  QString name = filePath;
-  QString newPath;
-
-  if ( name.isEmpty() )
-    return name;
-
-  // already done before calling this function
-  // slashify( name );
-
-  bool addedSeparator;
-  if ( isRelativePath(name) ) {
-    addedSeparator = TRUE;
-    name.insert( 0, '/' );
-  } else {
-    addedSeparator = FALSE;
-  }
-
-  int ePos, pos, upLevel;
-
-  pos = ePos = name.length();
-  upLevel = 0;
-  int len;
-
-  while ( pos && (pos = name.findRev('/',--pos)) != -1 ) {
-    len = ePos - pos - 1;
-    if ( len == 2 && name.at(pos + 1) == '.'
-      && name.at(pos + 2) == '.' ) {
-      upLevel++;
-    } else {
-      if ( len != 0 && (len != 1 || name.at(pos + 1) != '.') ) {
-	if ( !upLevel )
-	  newPath = QString::fromLatin1("/")
-	  + name.mid(pos + 1, len) + newPath;
-	else
-	  upLevel--;
-      }
-    }
-    ePos = pos;
-  }
-  if ( addedSeparator ) {
-    while ( upLevel-- )
-      newPath.insert( 0, QString::fromLatin1("/..") );
-    if ( !newPath.isEmpty() )
-      newPath.remove( 0, 1 );
-    else
-      newPath = QString::fromLatin1(".");
-  } else {
-    if ( newPath.isEmpty() )
-      newPath = QString::fromLatin1("/");
-#if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
-    if ( name[0] == '/' ) {
-      if ( name[1] == '/' )		// "\\machine\x\ ..."
-	newPath.insert( 0, '/' );
-    } else {
-      newPath = name.left(2) + newPath;
-    }
-#endif
-  }
-  return newPath;
-}
-
-#ifndef PATH_MAX
-#define PATH_MAX _MAX_PATH
-#endif
 
 QCString combinePath( const char *infile, const char *outfile )
 {
-    QCString a = infile;  replace(a.data(),'\\','/');
-    QCString b = outfile; replace(b.data(),'\\','/');
-    a = a.stripWhiteSpace();
-    b = b.stripWhiteSpace();
-    QString aDir( cleanDirPath( a ) );
-    a = aDir;
-    QString bDir( cleanDirPath( b ) );
-    b = bDir;
-    int i = 0;
-    int ncommondirs = 0;
-    if ( b.left(3) != "../" ) {
-	while ( a[i] && a[i] == b[i] ) {
-	    if ( a[i] == '/' && i > 0 )
-		ncommondirs++;
-	    i++;
-	}
-    }
-    if ( ncommondirs > 0 ) {			// common base directory
-	while ( i>=0 ) {
-	    if ( a[i] == '/' && b[i] == '/' )
-		break;
-	    --i;
-	}
-	++i;
-	a = &a[i];
-	b = &b[i];
-    } else {
-	if ( (a[0] == '/') || (isalpha(a[0]) && a[1] == ':') )
-	    return a;
-	b = &b[i];
-    }
+    QFileInfo inFileInfo( QDir::current(), QFile::decodeName(infile) );
+    QFileInfo outFileInfo( QDir::current(), QFile::decodeName(outfile) );
 
-    if (b.left(3) == "../") {
-	QCString cdir( QDir::currentDirPath() );
-	replace(cdir.data(),'\\','/');
-	if (isRelativePath(cdir))
-	    fprintf(stderr, "Got relative path from CWD, help!?");
-	while (b.left(3) == "../") {
-	    int l = cdir.findRev('/');
-	    a.prepend(cdir.right(cdir.length() - l - 1) + '/');
-	    cdir = cdir.left(l);
-	    b = b.right(b.length() - 3);
-	}
+    QStringList inSplitted =
+	QStringList::split( '/', inFileInfo.dir().canonicalPath(), TRUE );
+    QStringList outSplitted =
+	QStringList::split( '/', outFileInfo.dir().canonicalPath(), TRUE );
+
+    while ( !inSplitted.isEmpty() && !outSplitted.isEmpty() &&
+	    inSplitted.first() == outSplitted.first() ) {
+	inSplitted.remove( inSplitted.begin() );
+	outSplitted.remove( outSplitted.begin() );
     }
-    QCString r;
-    i = b.contains('/');
-    while ( i-- > 0 )
-	r += "../";
-    r += a;
-    return QCString( cleanDirPath( r ) );
+    while ( !outSplitted.isEmpty() ) {
+	outSplitted.remove( outSplitted.begin() );
+	inSplitted.prepend( ".." );
+    }
+    inSplitted.append( inFileInfo.fileName() );
+    return QFile::encodeName( inSplitted.join("/") );
 }
 
 
