@@ -69,6 +69,7 @@ $(LEXOUT): moc.l
 
 $(TMPCPP): moc.y $(LEXOUT)
 	$(YACC) moc.y
+	-rm -f $(TMPCPP)
 	mv $(YACCOUT) $(TMPCPP)
 
 ####### Compile the .cpp files
