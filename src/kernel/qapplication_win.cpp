@@ -2339,7 +2339,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 // Keyboard event translation
 //
 
-static ushort KeyTbl[] = {			// keyboard mapping table
+static const ushort KeyTbl[] = {		// keyboard mapping table
     VK_ESCAPE,		Qt::Key_Escape,		// misc keys
     VK_TAB,		Qt::Key_Tab,
     VK_BACK,		Qt::Key_Backspace,

@@ -284,7 +284,7 @@ unsigned int qt_UnicodeToJohab(unsigned int unicode)
 }
 
 /* Table including TG(johab) codes */
-static unsigned short KS_table[2350] = {
+static const unsigned short KS_table[2350] = {
 
   0x8861,0x8862,0x8865,0x8868,0x8869,0x886a,0x886b,0x8871,
   0x8873,0x8874,0x8875,0x8876,0x8877,0x8878,0x8879,0x887b,
@@ -714,7 +714,7 @@ static int codecmp( const void *p, const void *q )
 
 #else /* QT_EUCKR_USE_BSEARCH */
 
-static unsigned short * KsSearch( unsigned short code )
+static const unsigned short * KsSearch( unsigned short code )
 {
   unsigned short  c2;
   int		lo, hi, mid;
@@ -745,7 +745,8 @@ static unsigned short * KsSearch( unsigned short code )
 static unsigned short kssmc2ksc ( unsigned short code )
 {
   int		index;
-  unsigned short c1, c2, *p, val1 = 0, val2 = 0;
+  unsigned short c1, c2, val1 = 0, val2 = 0;
+  unsigned short const *p;
 
   if ( (0x8000 & code) == 0 )
     return code;
@@ -755,7 +756,7 @@ static unsigned short kssmc2ksc ( unsigned short code )
   if (c1 >= 0x84 && c1 <= 0xd3)		/* ÇÑ±Û */
   {
 #ifdef QT_EUCKR_USE_BSEARCH
-    p = (unsigned short *) bsearch (&code, KS_table, 
+    p = (const unsigned short *) bsearch (&code, KS_table, 
 	sizeof(KS_table)/sizeof(unsigned short), 
 	sizeof(unsigned short), codecmp);
 #else

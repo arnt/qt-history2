@@ -3587,7 +3587,7 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
 #ifndef XK_ISO_Left_Tab
 #define	XK_ISO_Left_Tab					0xFE20
 #endif
-static KeySym KeyTbl[] = {			// keyboard mapping table
+static const KeySym KeyTbl[] = {		// keyboard mapping table
     XK_Escape,		Qt::Key_Escape,		// misc keys
     XK_Tab,		Qt::Key_Tab,
     XK_ISO_Left_Tab,    Qt::Key_Backtab,

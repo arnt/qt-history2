@@ -513,7 +513,7 @@ static const char *ps_header[] = {
 //   http://www.adobe.com/asn/developer/typeforum/unicodegn.html .
 
 
-static struct {
+static const struct {
     Q_UINT16 u;
     const char * g;
 } unicodetoglyph[] = {
@@ -1574,7 +1574,7 @@ static struct {
 };
 
 
-static struct {
+static const struct {
     QFont::CharSet cs;
     Q_UINT16 values[128];
 } unicodevalues[] = {

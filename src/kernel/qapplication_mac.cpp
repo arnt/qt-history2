@@ -116,7 +116,7 @@ void QApplication::exit_loop()
   app_exit_loop = TRUE;
 }
 
-static int KeyTbl[]={
+static const int KeyTbl[]={
     144667,          Qt::Key_Escape,         // misc keys
     143369,             Qt::Key_Tab,
     144136,       Qt::Key_Backspace,
