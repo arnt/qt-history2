@@ -135,7 +135,7 @@ class PushSeparator : public Op
 {
 public:
     PushSeparator() {}
-    QString name() const { return "pushseparator"; }
+    QString name() const { return "( "; }
     int exec( LocalSQLEnvironment* env )
     {
 	env->stack()->push( QVariant() );
@@ -477,7 +477,7 @@ public:
     int exec( LocalSQLEnvironment* env )
     {
 	QString str = env->stack()->pop().toString();
-	env->stack()->push( (double) str.length() );
+	env->stack()->push( (int) str.length() );
 	return 1;
     }
 };
@@ -648,7 +648,7 @@ class MakeList : public Op
 public:
     MakeList()
 	: Op() {}
-    QString name() const { return "makelist"; }
+    QString name() const { return ")"; }
     int exec( LocalSQLEnvironment* env )
     {
 	if ( !checkStack( env, 1 ) )

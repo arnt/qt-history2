@@ -128,6 +128,14 @@ static QVariant resolvedField( int tableId, const QString& fieldName )
     return f;
 }
 
+#if 0
+static QString fixedColumnName( const QString& name )
+{
+    QString out;
+    bool metLetter = FALSE;
+}
+#endif
+
 #define HASH( first, omitted, last ) \
     ( ((((first) << 5) | (omitted)) << 7) | (last) )
 #define CHECK( target ) \
@@ -745,7 +753,7 @@ QVariant Parser::exprType( const QVariant& expr )
 	  String functions.
 	*/
 	case Node_Length:
-	    return (int) QVariant::Double;
+	    return (int) QVariant::Int;
 	case Node_Lower:
 	case Node_Replace:
 	case Node_Soundex:
@@ -764,7 +772,7 @@ QVariant Parser::exprType( const QVariant& expr )
 	    // type of sum(X) is type of X
 	    return expr.toList()[1];
 	case Node_Count:
-	    return (int) QVariant::Double;
+	    return (int) QVariant::Int;
 	case Node_ResolvedField:
 	    return expr;
 	default:
