@@ -525,9 +525,12 @@ void QPainterPath::arcTo(const QRectF &rect, float startAngle, float sweepLength
         QLineF controlLine1(startPoint, startPoint + SIGN(sweepLength) * QPointF(sdx, sdy));
         QLineF controlLine2(endPoint, endPoint - SIGN(sweepLength) * QPointF(edx, edy));
 
+        // We need to scale down the control lines to match that of the current sweeplength.
+        // QABS because we only want to scale, not change direction.
+        float kappa = KAPPA * QABS(clength) / 90.0;
         // Adjust their length to fit the magic KAPPA length.
-        controlLine1.setLength(controlLine1.length() * KAPPA);
-        controlLine2.setLength(controlLine2.length() * KAPPA);
+        controlLine1.setLength(controlLine1.length() * kappa);
+        controlLine2.setLength(controlLine2.length() * kappa);
 
         if (startPoint != QPointF(elements.last().x, elements.last().y))
             lineTo(startPoint);
