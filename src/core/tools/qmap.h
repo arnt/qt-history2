@@ -65,17 +65,17 @@ struct Q_CORE_EXPORT QMapData
     BoundsChecker.)
 */
 
-template <class Key> inline qMapLessThanKey(const Key &key1, const Key &key2)
+template <class Key> inline bool qMapLessThanKey(const Key &key1, const Key &key2)
 {
     return key1 < key2;
 }
 
-template <class Ptr> inline qMapLessThanKey(Ptr *key1, Ptr *key2)
+template <class Ptr> inline bool qMapLessThanKey(Ptr *key1, Ptr *key2)
 {
     return reinterpret_cast<Q_ULONGLONG>(key1) < reinterpret_cast<Q_ULONGLONG>(key2);
 }
 
-template <class Ptr> inline qMapLessThanKey(const Ptr *key1, const Ptr *key2)
+template <class Ptr> inline bool qMapLessThanKey(const Ptr *key1, const Ptr *key2)
 {
     return reinterpret_cast<Q_ULONGLONG>(key1) < reinterpret_cast<Q_ULONGLONG>(key2);
 }
