@@ -361,4 +361,9 @@
 #include <qpocketpcstyle_wce.h>
 #endif // Q_WS_WCE
 
+#ifdef Q_OS_QNX6
+#include <qwsmouse_qnx6.h>
+#include <qwskeyboard_qnx6.h>
+#endif
+
 #endif // QT_H
