@@ -1342,6 +1342,8 @@ void qt_get_net_supported()
 		offset += nitems;
 	    } else
 		after = 0;
+	    if (data)
+		XFree(data);
 	}
 
 	// compute nitems
@@ -1411,6 +1413,8 @@ void qt_get_net_virtual_roots()
 		offset += nitems;
 	    } else
 		after = 0;
+	    if (data)
+		XFree(data);
 	}
 
 	// compute nitems
@@ -2412,7 +2416,6 @@ void qt_save_rootinfo()				// save new root info
 	    if ( type == XA_PIXMAP && format == 32 && length == 1 &&
 		 after == 0 && data ) {
 		XKillClient( appDpy, *((Pixmap*)data) );
-		XFree( (char *)data );
 	    }
 	    Pixmap dummy = XCreatePixmap( appDpy, QPaintDevice::x11AppRootWindow(),
 					  1, 1, 1 );
@@ -2422,6 +2425,8 @@ void qt_save_rootinfo()				// save new root info
 	    XSetCloseDownMode( appDpy, RetainPermanent );
 	}
     }
+    if ( data )
+	XFree( (char *)data );
 }
 
 void qt_updated_rootinfo()
