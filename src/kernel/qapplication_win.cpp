@@ -747,13 +747,12 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 
     if ( !dllWintabChecked ) {
 	dllWintabChecked = TRUE;
-	QLibrary library( "wintab32.dll", QLibrary::Manual );
 #if defined (UNICODE)
 	if ( qWinVersion() & Qt::WV_NT_based )
-	    ptrWTInfo = (PtrWTInfo)library.resolve( "WTInfoW" );
+	    ptrWTInfo = (PtrWTInfo)QLibrary::resolve( "wintab32.dll", "WTInfoW" );
 	else
 #endif
-	    ptrWTInfo = (PtrWTInfo)library.resolve( "WTInfoA" );
+	    ptrWTInfo = (PtrWTInfo)QLibrary::resolve( "wintab32.dll", "WTInfoA" );
 
     }
 
@@ -851,8 +850,7 @@ void qt_cleanup()
 
     if ( !dllWintabChecked ) {
 	dllWintabChecked = TRUE;
-	QLibrary library( "wintab32.dll", QLibrary::Manual );
-	ptrWTClose = (PtrWTClose)library.resolve( "WTClose" );
+	ptrWTClose = (PtrWTClose)QLibrary::resolve( "wintab32.dll", "WTClose" );
     }
     if ( ptrWTClose )
 	ptrWTClose( hTab );
@@ -1087,13 +1085,12 @@ void QApplication::setMainWidget( QWidget *mainWidget )
     static PtrWTOpen ptrWTOpen = 0;
     if ( !dllWinTabChecked ) {
 	dllWinTabChecked = TRUE;
-	QLibrary library( "wintab32.dll", QLibrary::Manual );
 #if defined(UNICODE)
 	if ( qWinVersion() & WV_NT_based )
-	    ptrWTOpen = (PtrWTOpen)library.resolve( "WTOpenW" );
+	    ptrWTOpen = (PtrWTOpen)QLibrary::resolve( "wintab32.dll", "WTOpenW" );
 	else
 #endif
-	    ptrWTOpen = (PtrWTOpen)library.resolve( "WTOpenA" );
+	    ptrWTOpen = (PtrWTOpen)QLibrary::resolve( "wintab32.dll", "WTOpenA" );
     }
     if ( ptrWTOpen ) {
 	hTab = ptrWTOpen( main_widget->winId(), &lcMine, TRUE );
@@ -2115,9 +2112,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 		    if ( !dllWinTabChecked ) {
 			dllWinTabChecked = TRUE;
-			QLibrary library( "wintab32.dll", QLibrary::Manual );
-			ptrWTEnable = (PtrWTEnable)library.resolve( "WTEnable" );
-			ptrWTOverlap = (PtrWTOverlap)library.resolve( "WTOverlap" );
+			ptrWTEnable = (PtrWTEnable)QLibrary::resolve( "wintab32.dll", "WTEnable" );
+			ptrWTOverlap = (PtrWTOverlap)QLibrary::resolve( "wintab32.dll", "WTOverlap" );
 		    }
 		    if ( ptrWTOverlap && ptrWTEnable ) {
 			// cooperate with other tablet applications, but when
@@ -2322,8 +2318,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		static bool dllWinTabChecked = FALSE;
 		if ( !dllWinTabChecked ) {
 		    dllWinTabChecked = TRUE;
-		    QLibrary library( "wintab32.dll", QLibrary::Manual );
-		    ptrWTPacketsGet = (PtrWTPacketsGet)library.resolve( "WTPacketsGet" );
+		    ptrWTPacketsGet = (PtrWTPacketsGet)QLibrary::resolve( "wintab32.dll", "WTPacketsGet" );
 		}
 		if ( ptrWTPacketsGet ) {
 		    if ( (nPackets = ptrWTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {
@@ -2341,8 +2336,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		static bool dllWinTabChecked = FALSE;
 		if ( !dllWinTabChecked ) {
 		    dllWinTabChecked = TRUE;
-		    QLibrary library( "wintab32.dll", QLibrary::Manual );
-		    ptrWTPacketsGet = (PtrWTPacketsGet)library.resolve( "WTPacketsGet" );
+		    ptrWTPacketsGet = (PtrWTPacketsGet)QLibrary::resolve( "wintab32.dll", "WTPacketsGet" );
 		}
 		if ( ptrWTPacketsGet )
 		    ptrWTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
@@ -3588,15 +3582,14 @@ void prsInit( HCTX hTab)
 
     if ( !dllWinTabChecked ) {
 	dllWinTabChecked = TRUE;
-	QLibrary library( "wintab32.dll", QLibrary::Manual );
 #if defined(UNICODE)
 	if ( qWinVersion() & Qt::WV_NT_based ) {
-	    ptrWTInfo = (PtrWTInfo)library.resolve( "WTInfoW" );
-	    ptrWTGet = (PtrWTGet)library.resolve( "WTGetW" );
+	    ptrWTInfo = (PtrWTInfo)QLibrary::resolve( "wintab32.dll", "WTInfoW" );
+	    ptrWTGet = (PtrWTGet)QLibrary::resolve( "wintab32.dll", "WTGetW" );
 	} else {
 #endif
-	    ptrWTInfo = (PtrWTInfo)library.resolve( "WTInfoA" );
-	    ptrWTGet = (PtrWTGet)library.resolve( "WTGetA" );
+	    ptrWTInfo = (PtrWTInfo)QLibrary::resolve( "wintab32.dll", "WTInfoA" );
+	    ptrWTGet = (PtrWTGet)QLibrary::resolve( "wintab32.dll", "WTGetA" );
 #if defined(UNICODE)
 	}
 #endif	    
