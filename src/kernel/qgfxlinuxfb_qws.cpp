@@ -45,6 +45,7 @@
 
 QLinuxFbScreen::QLinuxFbScreen( int display_id ) : QScreen( display_id )
 {
+    canaccel=false;
 }
 
 QLinuxFbScreen::~QLinuxFbScreen()
@@ -67,7 +68,7 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 
     fd=open( dev.latin1(), O_RDWR );
     if(fd<0) {
-	perror("openning framebuffer device /dev/fb0");
+	perror("opening framebuffer device /dev/fb0");
 	qFatal("Can't open framebuffer device");
     }
 
@@ -107,6 +108,25 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
     if ((int)data == -1) {
 	perror("mapping /dev/fb0");
 	qFatal("Error: failed to map framebuffer device to memory.");
+    }
+
+    if(mapsize-size<8192) {
+	canaccel=false;
+    }
+
+    if(canaccel) {
+	// Figure out position of offscreen memory
+	// Fetch size of pool entries table from memory
+	// Set up pool entries pointer table and 64-bit align it
+	unsigned int pos=(unsigned int)data;
+	pos+=size;
+	pos+=4096;
+	pos+=8;
+	pos&=~0x7;
+	entryp=((int *)pos);
+	lowest=((int *)(pos+sizeof(int)));
+	pos+=(sizeof(int))*2;
+	entries=(QPoolEntry *)pos;
     }
 
     // Now read in palette
@@ -259,7 +279,7 @@ bool QLinuxFbScreen::initCard()
 	fb_cmap cmap;
 	cmap.start=0;
 	int rbits,gbits,bbits;
-	switch (vinfo.bits_per_pixel) { 
+	switch (vinfo.bits_per_pixel) {
 	  case 8:
 		rbits=3;
 		gbits=3;
@@ -301,9 +321,135 @@ bool QLinuxFbScreen::initCard()
 	free(cmap.transp);
     }
 
+    if(mapsize-size<8192) {
+	canaccel=false;
+    }
+
+    if(canaccel) {
+	// Figure out position of offscreen memory
+	// Fetch size of pool entries table from memory
+	// Set up pool entries pointer table and 64-bit align it
+	unsigned int pos=(unsigned int)data;
+	pos+=size;
+	pos+=4096;
+	pos+=8;
+	pos&=~0x7;
+	entryp=((int *)pos);
+	lowest=((int *)(pos+sizeof(int)));
+	pos+=(sizeof(int))*2;
+	entries=(QPoolEntry *)pos;
+	*entryp=0;
+	*lowest=mapsize-8192;
+	qDebug("Initialised entries table");
+    }
+
     initted=true;
 
     return true;
+}
+
+void QLinuxFbScreen::delete_entry(int pos)
+{
+    if(pos>*entryp || pos<0) {
+	qDebug("Attempt to delete odd pos! %d %d",pos,*entryp);
+	return;
+    }
+    QPoolEntry * qpe=&entries[pos];
+    if(qpe->start<=*lowest && pos>0) {
+	// Lowest goes up again
+	*lowest=(entries[pos-1].start);
+    }
+    (*entryp)--;
+    if(pos==*entryp) {
+	return;
+    }
+    memcpy(&entries[pos],&entries[pos+1],(*entryp)-pos);
+}
+
+void QLinuxFbScreen::insert_entry(int pos,int start,int end)
+{
+    if(pos>*entryp) {
+	qDebug("Attempt to insert odd pos! %d %d",pos,*entryp);
+	return;
+    }
+    if(pos==*entryp) {
+	entries[pos].start=start;
+	entries[pos].end=end;
+	(*entryp)++;
+	return;
+    }
+    memcpy(&entries[pos+1],&entries[pos],(*entryp)-pos);
+    entries[pos].start=start;
+    entries[pos].end=end;
+}
+
+uchar * QLinuxFbScreen::cache(int amount,int align)
+{
+    if(!canaccel || entryp==0)
+	return 0;
+
+    qt_fbdpy->grab();
+    align=64;
+    int hold=(*entryp-1);
+    for(int loopc=0;loopc<hold;loopc++) {
+	int freestart=entries[loopc+1].end;
+	int freeend=entries[loopc].start;
+	if(freestart!=freeend) {
+	    while(freestart % align) {
+		freestart++;
+	    }
+	    if((freeend-freestart)>amount) {
+		insert_entry(hold,freestart,freestart+amount);
+		if(freestart % align) {
+		    qDebug("Wah, freed-block return unaligned %lx",freestart);
+		}
+		qt_fbdpy->ungrab();
+		return data+freestart;
+	    }
+	}
+    }
+
+    // No free blocks in already-taken memory; get some more
+    // if we can
+    int stackend=(*entryp)*sizeof(QPoolEntry);
+    int startp=size+(sizeof(int)*2)+stackend;
+    int newlowest=(*lowest)-amount;
+    if(newlowest % align) {
+	newlowest-=align;
+	while(newlowest % align) {
+	    newlowest++;
+	}
+    }
+    if(startp>newlowest) {
+	qDebug("No more memory, %d %d %d %d",startp,stackend,
+	       *lowest,amount);
+	qt_fbdpy->ungrab();
+	return 0;
+    }
+    insert_entry(*entryp,newlowest,*lowest);
+    *lowest=newlowest;
+    if(newlowest % align) {
+	qDebug("Wah, new return is unaligned %lx",newlowest);
+    }
+    qt_fbdpy->ungrab();
+    return data+newlowest;
+}
+
+void QLinuxFbScreen::uncache(uchar * c)
+{
+    qt_fbdpy->grab();
+    unsigned long pos=(unsigned long)c;
+    pos-=((unsigned long)data);
+    unsigned int hold=(*entryp);
+    for(int loopc=0;loopc<hold;loopc++) {
+	if(entries[loopc].start==pos) {
+	    delete_entry(loopc);
+	    qt_fbdpy->ungrab();
+	    return;
+	}
+    }
+    qt_fbdpy->ungrab();
+    qDebug("Attempt to delete unknown offset %d",pos);
 }
 
 void QLinuxFbScreen::shutdownCard()

@@ -616,7 +616,7 @@ QWSServer::~QWSServer()
     closeMouse();
 #ifndef QT_NO_QWS_KEYBOARD
     closeKeyboard();
-#endif    
+#endif
 }
 
 void QWSServer::newConnection( int socket )
@@ -935,6 +935,30 @@ QMouseHandler *QWSServer::mouseHandler()
     return qwsServer->mousehandlers.first();
 }
 
+QList<QWSInternalWindowInfo> QWSServer::windowList()
+{
+    QList<QWSInternalWindowInfo> ret;
+    ret.setAutoDelete(true);
+    QWSWindow * window;
+    for(window=qwsServer->windows.first();window!=0;
+	window=qwsServer->windows.next()) {
+	QWSInternalWindowInfo * qwi=new QWSInternalWindowInfo;
+	qwi->winid=window->winId();
+	qwi->clientid=(unsigned int)window->client();
+#ifndef QT_NO_QWS_PROPERTIES
+	char * name;
+	int len;
+	qwsServer->propertyManager.getProperty(qwi->winid,
+					       QT_QWS_PROPERTY_WINDOWNAME,
+					       name,len);
+	qwi->name=name;
+#else
+	qwi->name="unknown";
+#endif
+	ret.append(qwi);
+    }
+    return ret;
+}
 
 QWSWindow *QWSServer::windowAt( const QPoint& pos )
 {
@@ -1823,7 +1847,7 @@ void QWSServer::closedown(int display_id)
 
 void QWSServer::emergency_cleanup()
 {
-#ifndef QT_NO_QWS_KEYBOARD    
+#ifndef QT_NO_QWS_KEYBOARD
     if ( qwsServer )
 	qwsServer->closeKeyboard();
 #endif

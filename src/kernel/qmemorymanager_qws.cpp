@@ -18,6 +18,8 @@
 #include <unistd.h>
 #endif
 
+#include "qgfx_qws.h"
+
 class QGlyphTree {
     /* Builds up a tree like this:
 
@@ -486,9 +488,15 @@ QMemoryManager::PixmapID QMemoryManager::newPixmap(int w, int h, int d)
 
     int xoffset;
 
+    const int test_offset=0;
+
+    int siz=((w+test_offset)*d+7)/8*h;
+
     // Aggressively find space in vram.
-    if ( 0 ) {
-	data = 0; // XXX
+    
+    data=qt_screen->cache(siz,0);
+    
+    if ( data ) {
 	xoffset = 0; // XXX
 
 	// use an ODD next_pixmap_id
@@ -496,11 +504,8 @@ QMemoryManager::PixmapID QMemoryManager::newPixmap(int w, int h, int d)
 	next_pixmap_id++; // stay even
     } else {
 	// No vram left - use main memory
-
-	const int test_offset=0; // for testing - should be 0
 	xoffset = test_offset; // for testing
 
-	int siz = ((w+test_offset)*d+7)/8*h;
 	data = new uchar[siz];
 
 	// even id
@@ -525,7 +530,11 @@ void QMemoryManager::deletePixmap(PixmapID id)
 {
     if ( !id ) return; // C++-life
     QMap<PixmapID,QMemoryManagerPixmap>::Iterator it = pixmap_map.find(id);
-    delete [] (*it).data;
+    if(id & 1) {
+	qt_screen->uncache((*it).data);
+    } else {
+	delete [] (*it).data;
+    }
     pixmap_map.remove(it);
 }
 

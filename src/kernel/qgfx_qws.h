@@ -91,6 +91,17 @@ extern QScreenCursor * qt_screencursor;
 
 struct fb_cmap;
 
+// A (used) chunk of offscreen memory
+
+class QPoolEntry {
+
+public:
+
+    unsigned int start;
+    unsigned int end;
+
+};
+
 class QScreen {
 
 public:
@@ -121,6 +132,10 @@ public:
     int depth() const { return d; }
     int linestep() const { return lstep; }
     uchar * base() const { return data; }
+    // Ask for memory from card cache with alignment
+    virtual uchar * cache(int,int) { return 0; }
+    virtual void uncache(uchar *) {}
+
     int screenSize() const { return size; }
     int totalSize() const { return mapsize; }
 
@@ -135,6 +150,18 @@ protected:
     bool initted;
 
     uchar * data;
+
+    // Table of allocated lumps, kept in sorted highest-to-lowest order
+    // The table itself is allocated at the bottom of offscreen memory
+    // i.e. it's similar to having a stack (the table) and a heap
+    // (the allocated blocks). Freed space is implicitly described
+    // by the gaps between the allocated lumps (this saves entries and
+    // means we don't need to worry about coalescing freed lumps)
+
+    QPoolEntry * entries;
+    int * entryp;
+    int * lowest;
+
     int w;
     int lstep;
     int h;

@@ -48,12 +48,12 @@ QGfx *QGfx::createGfx( int depth, unsigned char *buffer, int w, int h,
 
 static QScreen * qt_dodriver(char * driver,char * a,unsigned char * b)
 
-{    
+{
     char buf[200];
     strcpy(buf,"/etc/qws/drivers/");
     qstrcpy(buf+17,driver);
     qDebug("Attempting driver %s",driver);
-    
+
     void * handle;
     handle=dlopen(buf,RTLD_LAZY);
     if(handle==0) {
@@ -82,7 +82,7 @@ static QScreen * qt_do_entry(char * entry)
 	return 0;
 
     fclose(f);
-    
+
     unsigned short vendorid=*((unsigned short int *)config);
     unsigned short deviceid=*(((unsigned short int *)config)+1);
     if(config[0xb]!=3)
@@ -112,7 +112,7 @@ QScreen * qt_probe_bus( int display_id, const QString &spec )
     if(!qws_accel) {
 	return qt_dodriver("unaccel.so",0,0);
     }
-    
+
     DIR * dirptr=opendir("/proc/bus/pci");
     if(!dirptr)
 	return qt_dodriver("unaccel.so",0,0);
@@ -152,7 +152,7 @@ QScreen * qt_probe_bus( int display_id, const QString &spec )
 
 #else
 
-char * qt_qws_hardcoded_slot="/proc/bus/pci/01/00.0";
+char * qt_qws_hardcoded_slot="/proc/bus/pci/00/0c.0";
 
 QScreen * qt_probe_bus( int display_id, const char *spec )
 {

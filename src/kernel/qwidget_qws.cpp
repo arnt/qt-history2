@@ -276,8 +276,23 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	    crect.moveBy( crect.x() - br.x(), crect.y() - br.y() );
 	    topData()->qwsManager = new QWSManager(this);
 	}
-#endif	
+#endif
 	// declare the widget's object name as window role
+	
+	qt_fbdpy->addProperty(id,QT_QWS_PROPERTY_WINDOWNAME);
+
+	char * hold=name();
+	
+	if(hold) {
+	    QByteArray tmp(strlen(hold));
+	
+	    for(int loopc=0;loopc<strlen(hold);loopc++) {
+		tmp[loopc]=hold[loopc];
+	    }
+
+	    qt_fbdpy->setProperty(id,QT_QWS_PROPERTY_WINDOWNAME,0,tmp);
+	}
+	
 	// If we are session managed, inform the window manager about it
 	if ( extra && !extra->mask.isNull() ) {
 	    req_region = extra->mask;
@@ -447,7 +462,7 @@ void QWidget::setMicroFocusHint( int /*x*/, int /*y*/, int /*width*/, int /*heig
 	extraData()->micro_focus_hint.setRect( x, y, width, height );
 
     if ( text ) {
-	
+
     }
 #endif
 }
@@ -935,7 +950,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 #ifndef QT_NO_QWS_MANAGER
 	    if (extra && extra->topextra && extra->topextra->qwsManager)
 		QApplication::sendEvent( extra->topextra->qwsManager, &e );
-#endif	
+#endif
 	}
 	if ( isResize ) {
 	    QResizeEvent e( r.size(), olds );
@@ -945,7 +960,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		QResizeEvent e( r.size(), olds );
 		QApplication::sendEvent(topData()->qwsManager, &e);
 	    }
-#endif	
+#endif
 	    if ( !testWFlags( WNorthWestGravity ) ) {
 		QApplication::postEvent(this,new QPaintEvent(visibleRect(),
 					!testWFlags(WResizeNoErase) ) );
@@ -969,7 +984,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 				    new QPaintEvent(visibleRect(),
 				    !testWFlags(WResizeNoErase) ) );
 	}
-#endif	
+#endif
     } else {
 	if ( isMove )
 	    QApplication::postEvent( this,

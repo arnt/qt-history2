@@ -34,7 +34,17 @@ static unsigned char *voodoo_regbase=0;
 
 //#define DEBUG_INIT
 
-#define LASTOP_RECT 0
+#define LASTOP_LINE 1
+#define LASTOP_RECT 2
+#define LASTOP_BLT 3
+#define LASTOP_BLTPEN 4
+#define LASTOP_STRETCHBLT 5
+#define LASTOP_RESET 6
+#define LASTOP_POLYGON 7
+#define LASTOP_TEXT 8
+#define LASTOP_ALPHA 9
+#define LASTOP_TILEDBLT 10
+#define LASTOP_TILEDBLTPEN 11
 
 inline unsigned int voodoo_regr(volatile unsigned int regindex)
 {
@@ -72,12 +82,65 @@ public:
     QGfxVoodoo(unsigned char *,int w,int h);
 
     virtual void drawRect(int,int,int,int);
-    
+    virtual void blt(int,int,int,int);
+    virtual void scroll(int,int,int,int,int,int);
+
 private:
-    
+
+    bool checkSourceDest();
     bool checkDest();
-    
+    void do_scissors(QRect &);
+
 };
+
+template<const int depth,const int type>
+inline void QGfxVoodoo<depth,type>::do_scissors(QRect & r)
+{
+    voodoo_wait_for_fifo(2);
+    voodoo_regw(CLIP0MIN,(r.top()) << 16 | r.left());
+    voodoo_regw(CLIP0MAX,(r.bottom()+1) << 16 | (r.right()+1));
+}
+
+template<const int depth,const int type>
+inline bool QGfxVoodoo<depth,type>::checkSourceDest()
+{
+    if ( !checkDest() ) {
+	return FALSE;
+    }
+
+    ulong src_buffer_offset;
+    if (srctype == SourcePen) {
+	src_buffer_offset = -1;
+    } else {
+	if (!qt_screen->onCard(srcbits,src_buffer_offset)) {
+	    return FALSE;
+	}
+	if(src_buffer_offset & 0x7) {
+	    qDebug("Unaligned offset %lx",src_buffer_offset);
+	    return FALSE;
+	}
+	int srcstep;
+	if (srclinestep==0) {
+	    srcstep=(width*srcdepth)/8;
+	} else {
+	    srcstep=srclinestep;;
+	}
+
+	int d;
+	if(srcdepth==16) {
+	    d=3;
+	} else if(srcdepth==32) {
+	    d=5;
+	} else {
+	    d=0;
+	}
+
+	voodoo_wait_for_fifo(2);
+	voodoo_regw(SRCBASEADDR, src_buffer_offset);
+	voodoo_regw(SRCFORMAT,(srcstep | (d << 16)));
+    }
+    return TRUE;
+}
 
 template<const int depth,const int type>
 inline bool QGfxVoodoo<depth,type>::checkDest()
@@ -86,13 +149,23 @@ inline bool QGfxVoodoo<depth,type>::checkDest()
     if (!qt_screen->onCard(buffer,buffer_offset)) {
 	return FALSE;
     }
-    if (depth!=16) {
+    if (depth!=16 && depth!=32) {
 	return FALSE;
     }
-    voodoo_wait_for_fifo(3);
+
+    int d;
+    if(depth==16) {
+	d=3;
+    } else if(depth==32) {
+	d=5;
+    } else {
+	d=0;
+    }
+
+    voodoo_wait_for_fifo(2);
     voodoo_regw(DSTBASEADDR,buffer_offset);
-    voodoo_regw(DSTFORMAT,linestep() | (3 << 16));
-    voodoo_regw(SRCFORMAT,3 << 16);
+    voodoo_regw(DSTFORMAT,linestep() | (d << 16));
+
     return TRUE;
 }
 
@@ -116,11 +189,13 @@ void QGfxVoodoo<depth,type>::drawRect(int rx,int ry,int w,int h)
 	return;
     }
 
+    qt_fbdpy->grab();
     if(!checkDest()) {
+	qt_fbdpy->ungrab();
 	QGfxRaster::drawRect(rx,ry,w,h);
 	return;
     }
-
+    
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
     // Now draw the lines round the edge if necessary
     if(cpen.style()!=NoPen) {
@@ -135,8 +210,9 @@ void QGfxVoodoo<depth,type>::drawRect(int rx,int ry,int w,int h)
     }
 
     if(optype!=1 || lastop!=LASTOP_RECT) {
-	voodoo_wait_for_fifo(7);
 	lastop=LASTOP_RECT;
+	voodoo_wait_for_fifo(1);
+	voodoo_regw(SRCFORMAT,3 << 16);
     }
 
     if(optype>1)
@@ -161,7 +237,6 @@ void QGfxVoodoo<depth,type>::drawRect(int rx,int ry,int w,int h)
 	int p=rects.size();
 	if(p<8 ) {
 	    // We can wait for all our fifos at once
-	    voodoo_wait_for_fifo(p*2);
 	    for(loopc=0;loopc<p;loopc++) {
 		QRect r=rects[loopc];
 		if(xp<=r.right() && yp<=r.bottom() &&
@@ -191,12 +266,183 @@ void QGfxVoodoo<depth,type>::drawRect(int rx,int ry,int w,int h)
 		    y3=r.top() > yp ? r.top() : yp;
 		    x4=r.right() > x2 ? x2 : r.right();
 		    y4=r.bottom() > y2 ? y2 : r.bottom();
-		    voodoo_wait_for_fifo(2);
+		    int ww=(x4-x3)+1;
+		    int hh=(y4-y3)+1;
+		    voodoo_wait_for_fifo(7);
+		    voodoo_regw(COLORFORE,tmp.alloc());
+		    voodoo_regw(COMMANDEXTRA,0x0);
+		    voodoo_regw(COMMAND,0x5 | (0xcc << 24));
+		    voodoo_regw(CLIP0MIN,0);
+		    voodoo_regw(CLIP0MAX,(1024 << 16) | 1280);
+		    voodoo_regw(DSTSIZE,(hh << 16) | ww);
+		    voodoo_regw(LAUNCHAREA,x3 | (y3 << 16));
 		}
 	    }
 	}
     }
     GFX_END
+    qt_fbdpy->ungrab();
+}
+
+template<const int depth,const int type>
+inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h)
+{
+    QArray<QRect> rects=setrgn.rects();
+    if(rects.size()<1)
+	return;
+
+    if(depth!=16 && depth!=32) {
+	QGfxRaster<depth,type>::blt(rx,ry,w,h);
+	return;
+    }
+
+    bool canaccel=false;
+
+    if(srcdepth==32) {
+	if(alphatype==IgnoreAlpha || alphatype==SolidAlpha ||
+	   alphatype==InlineAlpha) {
+	    canaccel=true;
+	}
+
+	if(alphatype!=IgnoreAlpha) {
+	    // Mach64 requires textures to be these sizes
+	    int p=srclinestep/4;
+	    if(p!=1024 && p!=512 && p!=256 && p!=128 && p!=64 && p!=32 &&
+	       p!=16 && p!=8) {
+		canaccel=false;
+	    }
+	}
+    } else if(srcdepth==16) {
+	if(alphatype==IgnoreAlpha) {
+	    canaccel=true;
+	} else {
+	}
+    }
+
+    if(srctype==SourceImage && canaccel==false) {
+	QGfxRaster<depth,type>::blt(rx,ry,w,h);
+	return;
+    }
+
+    if(srctype==SourcePen /*&& !(alphatype==BigEndianMask ||
+			    alphatype==LittleEndianMask)*/ ) {
+	QGfxRaster<depth,type>::blt(rx,ry,w,h);
+	return;
+    }
+
+    if( (srcdepth!=32) && (srcdepth!=16) ) {
+	QGfxRaster<depth,type>::blt(rx,ry,w,h);
+	return;
+    }
+
+    if( (alphatype==InlineAlpha || alphatype==SolidAlpha)
+	&& checkSourceDest() ) {
+	//int x2=(rx+w)-1;
+	//int y2=(ry+h)-1;
+	//qDebug("Has alpha channel, doing that instead");
+	//drawAlpha(rx,ry,x2,ry,rx,y2,x2,y2);
+	QGfxRaster<depth,type>::blt(rx,ry,w,h);
+	return;
+    }
+
+    qt_fbdpy->grab();
+    
+    if(checkSourceDest()) {
+
+	optype=1;
+	lastop=LASTOP_BLT;
+
+	int xp=xoffs+rx;
+	int yp=yoffs+ry;
+	int xp2=srcoffs.x();
+	int yp2=srcoffs.y();
+
+	QRect cursRect(xp, yp, w+1, h+1);
+
+	GFX_START(cursRect)
+
+        unsigned int dirmask=0;
+
+	if(yp>yp2) {
+	    // Down, reverse
+	    if(xp>xp2) {
+		// Right, reverse
+		xp+=(w-1);
+		xp2+=(w-1);
+		yp+=(h-1);
+		yp2+=(h-1);
+		dirmask|=0x4000 | 0x8000;
+	    } else {
+		// Left, normal
+		yp+=(h-1);
+		yp2+=(h-1);
+		dirmask|=0x8000;
+	    }
+	} else {
+	    // Up, normal
+	    // Down, reverse
+	    if(xp>xp2) {
+		// Right, reverse
+		xp+=(w-1);
+		xp2+=(w-1);
+		dirmask|=0x4000;
+	    } else {
+		// Left, normal
+	    }
+	}
+
+	unsigned int loopc;
+	for(loopc=0;loopc<rects.size();loopc++) {
+
+	    do_scissors(rects[loopc]);
+
+	    voodoo_wait_for_fifo(5);
+	    /*
+	    regw(SRC_WIDTH1,w);
+	    regw(DST_Y_X,(xp << 16) | yp);
+	    regw(DST_HEIGHT_WIDTH,(w << 16) | h);
+	    */
+	    voodoo_regw(COMMAND,0x1 | (0xcc << 24) | dirmask);
+	    voodoo_regw(SRCSIZE,w | (h << 16));
+	    voodoo_regw(DSTSIZE,w | (h << 16));
+	    voodoo_regw(DSTXY,xp | (yp << 16));
+	    voodoo_regw(LAUNCHAREA,xp2 | (yp2 << 16));
+	}
+	voodoo_wait_for_fifo(2);
+	voodoo_regw(CLIP0MIN,0);
+	voodoo_regw(CLIP0MAX,1024 | 1280);
+	GFX_END
+	qt_fbdpy->ungrab();
+	return;
+    } else {
+	qt_fbdpy->ungrab();
+	QGfxRaster<depth,type>::blt(rx,ry,w,h);
+    }
+}
+
+template <const int depth, const int type>
+void QGfxVoodoo<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
+{
+     if (!w || !h)
+	return;
+
+    int dy = sy - ry;
+    int dx = sx - rx;
+
+    if (dx == 0 && dy == 0)
+	return;
+
+    srcbits=buffer;
+
+    srclinestep=linestep();
+    srcdepth=depth;
+    if(srcdepth==0)
+	abort();
+    srctype=SourceImage;
+    alphatype=IgnoreAlpha;
+    ismasking=FALSE;
+    setSourceOffset(sx,sy);
+    blt(rx,ry,w,h);
 }
 
 class QVoodooScreen : public QLinuxFbScreen {
@@ -208,7 +454,7 @@ public:
     virtual bool connect( const QString &spec, char *,unsigned char *);
     virtual bool initCard();
     virtual void shutdownCard();
-    
+
     virtual QGfx * createGfx(unsigned char *,int,int,int,int);
 };
 
@@ -219,8 +465,9 @@ QVoodooScreen::QVoodooScreen( int display_id  )
 
 bool QVoodooScreen::connect( const QString &spec, char *,unsigned char *config )
 {
-    if (!QLinuxFbScreen::connect( spec ))
+    if (!QLinuxFbScreen::connect( spec )) {
 	return FALSE;
+    }
 
     unsigned char * bar=config+0x10;
     unsigned long int * addr=(unsigned long int *)bar;
@@ -264,6 +511,10 @@ bool QVoodooScreen::connect( const QString &spec, char *,unsigned char *config )
 	}
 	voodoo_regbase=membase+0x100000;
     }
+
+    qDebug("Detected Voodoo 3");
+
+    canaccel=true;
 
     return TRUE;
 }
@@ -309,8 +560,9 @@ extern "C" QScreen * qt_get_screen_voodoo3( int display_id, const char *spec,
 {
     if ( !qt_screen && qws_accel && slot!=0 ) {
 	QVoodooScreen * ret=new QVoodooScreen( display_id );
-	if(ret->connect( spec, slot, config ))
+	if(ret->connect( spec, slot, config )) {
 	    qt_screen=ret;
+	}
     }
     if ( !qt_screen ) {
 	qt_screen=new QLinuxFbScreen( display_id );

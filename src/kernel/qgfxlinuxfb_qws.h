@@ -43,8 +43,18 @@ public:
     virtual void save();
     virtual void restore();
     virtual void set(unsigned int,unsigned int,unsigned int,unsigned int);
+    virtual uchar * cache(int,int);
+    virtual void uncache(uchar *);
+
+protected:
+
+    bool canaccel;
 
 private:
+
+    void delete_entry(int);
+    void insert_entry(int,int,int);
+
     int fd;
     int startupw;
     int startuph;

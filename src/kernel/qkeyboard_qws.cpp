@@ -49,107 +49,6 @@
 
 
 
-static const QWSServer::KeyMap keyM[] = {
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Escape,		27      , 27      , 0xffff  },
-    {	Qt::Key_1,		'1'     , '!'     , 0xffff  },
-    {	Qt::Key_2,		'2'     , '@'     , 0xffff  },
-    {	Qt::Key_3,		'3'     , '#'     , 0xffff  },
-    {	Qt::Key_4,		'4'     , '$'     , 0xffff  },
-    {	Qt::Key_5,		'5'     , '%'     , 0xffff  },
-    {	Qt::Key_6,		'6'     , '^'     , 0xffff  },
-    {	Qt::Key_7,		'7'     , '&'     , 0xffff  },
-    {	Qt::Key_8,		'8'     , '*'     , 0xffff  },
-    {	Qt::Key_9,		'9'     , '('     , 0xffff  },	// 10
-    {	Qt::Key_0,		'0'     , ')'     , 0xffff  },
-    {	Qt::Key_Minus,		'-'     , '_'     , 0xffff  },
-    {	Qt::Key_Equal,		'='     , '+'     , 0xffff  },
-    {	Qt::Key_Backspace,	8       , 8       , 0xffff  },
-    {	Qt::Key_Tab,		9       , 9       , 0xffff  },
-    {	Qt::Key_Q,		'q'     , 'Q'     , 'Q'-64  },
-    {	Qt::Key_W,		'w'     , 'W'     , 'W'-64  },
-    {	Qt::Key_E,		'e'     , 'E'     , 'E'-64  },
-    {	Qt::Key_R,		'r'     , 'R'     , 'R'-64  },
-    {	Qt::Key_T,		't'     , 'T'     , 'T'-64  },  // 20
-    {	Qt::Key_Y,		'y'     , 'Y'     , 'Y'-64  },
-    {	Qt::Key_U,		'u'     , 'U'     , 'U'-64  },
-    {	Qt::Key_I,		'i'     , 'I'     , 'I'-64  },
-    {	Qt::Key_O,		'o'     , 'O'     , 'O'-64  },
-    {	Qt::Key_P,		'p'     , 'P'     , 'P'-64  },
-    {	Qt::Key_BraceLeft,	'['     , '{'     , 0xffff  },
-    {	Qt::Key_Escape,		']'     , '}'     , 0xffff  },
-    {	Qt::Key_Return,		13      , 13      , 0xffff  },
-    {	Qt::Key_Control,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_A,		'a'     , 'A'     , 'A'-64  },  // 30
-    {	Qt::Key_S,		's'     , 'S'     , 'S'-64  },
-    {	Qt::Key_D,		'd'     , 'D'     , 'D'-64  },
-    {	Qt::Key_F,		'f'     , 'F'     , 'F'-64  },
-    {	Qt::Key_G,		'g'     , 'G'     , 'G'-64  },
-    {	Qt::Key_H,		'h'     , 'H'     , 'H'-64  },
-    {	Qt::Key_J,		'j'     , 'J'     , 'J'-64  },
-    {	Qt::Key_K,		'k'     , 'K'     , 'K'-64  },
-    {	Qt::Key_L,		'l'     , 'L'     , 'L'-64  },
-    {	Qt::Key_Semicolon,	';'     , ':'     , 0xffff  },
-    {	Qt::Key_Apostrophe,	'\''    , '"'     , 0xffff  },  // 40
-    {	Qt::Key_QuoteLeft,	'`'     , '~'     , 0xffff  },
-    {	Qt::Key_Shift,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Backslash,	'\\'    , '|'     , 0xffff  },
-    {	Qt::Key_Z,		'z'     , 'Z'     , 'Z'-64  },
-    {	Qt::Key_X,		'x'     , 'X'     , 'X'-64  },
-    {	Qt::Key_C,		'c'     , 'C'     , 'C'-64  },
-    {	Qt::Key_V,		'v'     , 'V'     , 'V'-64  },
-    {	Qt::Key_B,		'b'     , 'B'     , 'B'-64  },
-    {	Qt::Key_N,		'n'     , 'N'     , 'N'-64  },
-    {	Qt::Key_M,		'm'     , 'M'     , 'M'-64  },  // 50
-    {	Qt::Key_Comma,		','     , '<'     , 0xffff  },
-    {	Qt::Key_Period,		'.'     , '>'     , 0xffff  },
-    {	Qt::Key_Slash,		'/'     , '?'     , 0xffff  },
-    {	Qt::Key_Shift,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Asterisk,	'*'     , '*'     , 0xffff  },
-    {	Qt::Key_Alt,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Space,		' '     , ' '     , 0xffff  },
-    {	Qt::Key_CapsLock,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F1,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F2,		0xffff  , 0xffff  , 0xffff  },  // 60
-    {	Qt::Key_F3,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F4,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F5,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F6,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F7,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F8,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F9,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F10,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_NumLock,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_ScrollLock,	0xffff  , 0xffff  , 0xffff  },  // 70
-    {	Qt::Key_7,		'7'     , '7'     , 0xffff  },
-    {	Qt::Key_8,		'8'     , '8'     , 0xffff  },
-    {	Qt::Key_9,		'9'     , '9'     , 0xffff  },
-    {	Qt::Key_Minus,		'-'     , '-'     , 0xffff  },
-    {	Qt::Key_4,		'4'     , '4'     , 0xffff  },
-    {	Qt::Key_5,		'5'     , '5'     , 0xffff  },
-    {	Qt::Key_6,		'6'     , '6'     , 0xffff  },
-    {	Qt::Key_Plus,		'+'     , '+'     , 0xffff  },
-    {	Qt::Key_1,		'1'     , '1'     , 0xffff  },
-    {	Qt::Key_2,		'2'     , '2'     , 0xffff  },  // 80
-    {	Qt::Key_3,		'3'     , '3'     , 0xffff  },
-    {	Qt::Key_0,		'0'     , '0'     , 0xffff  },
-    {	Qt::Key_Period,		'.'     , '.'     , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F11,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_F12,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  }	// 90
-};
-
-
-const QWSServer::KeyMap *QWSServer::keyMap()
-{
-    return keyM;
-}
-
-
 #ifndef QT_NO_QWS_KEYBOARD
 
 #define VTSWITCHSIG SIGUSR2
@@ -847,3 +746,104 @@ QWSKeyboardHandler *QWSServer::newKeyboardHandler( const QString &spec )
 #include "qkeyboard_qws.moc"
 
 #endif //QT_NO_QWS_KEYBOARD
+
+
+static const QWSServer::KeyMap keyM[] = {
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Escape,		27      , 27      , 0xffff  },
+    {	Qt::Key_1,		'1'     , '!'     , 0xffff  },
+    {	Qt::Key_2,		'2'     , '@'     , 0xffff  },
+    {	Qt::Key_3,		'3'     , '#'     , 0xffff  },
+    {	Qt::Key_4,		'4'     , '$'     , 0xffff  },
+    {	Qt::Key_5,		'5'     , '%'     , 0xffff  },
+    {	Qt::Key_6,		'6'     , '^'     , 0xffff  },
+    {	Qt::Key_7,		'7'     , '&'     , 0xffff  },
+    {	Qt::Key_8,		'8'     , '*'     , 0xffff  },
+    {	Qt::Key_9,		'9'     , '('     , 0xffff  },	// 10
+    {	Qt::Key_0,		'0'     , ')'     , 0xffff  },
+    {	Qt::Key_Minus,		'-'     , '_'     , 0xffff  },
+    {	Qt::Key_Equal,		'='     , '+'     , 0xffff  },
+    {	Qt::Key_Backspace,	8       , 8       , 0xffff  },
+    {	Qt::Key_Tab,		9       , 9       , 0xffff  },
+    {	Qt::Key_Q,		'q'     , 'Q'     , 'Q'-64  },
+    {	Qt::Key_W,		'w'     , 'W'     , 'W'-64  },
+    {	Qt::Key_E,		'e'     , 'E'     , 'E'-64  },
+    {	Qt::Key_R,		'r'     , 'R'     , 'R'-64  },
+    {	Qt::Key_T,		't'     , 'T'     , 'T'-64  },  // 20
+    {	Qt::Key_Y,		'y'     , 'Y'     , 'Y'-64  },
+    {	Qt::Key_U,		'u'     , 'U'     , 'U'-64  },
+    {	Qt::Key_I,		'i'     , 'I'     , 'I'-64  },
+    {	Qt::Key_O,		'o'     , 'O'     , 'O'-64  },
+    {	Qt::Key_P,		'p'     , 'P'     , 'P'-64  },
+    {	Qt::Key_BraceLeft,	'['     , '{'     , 0xffff  },
+    {	Qt::Key_Escape,		']'     , '}'     , 0xffff  },
+    {	Qt::Key_Return,		13      , 13      , 0xffff  },
+    {	Qt::Key_Control,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_A,		'a'     , 'A'     , 'A'-64  },  // 30
+    {	Qt::Key_S,		's'     , 'S'     , 'S'-64  },
+    {	Qt::Key_D,		'd'     , 'D'     , 'D'-64  },
+    {	Qt::Key_F,		'f'     , 'F'     , 'F'-64  },
+    {	Qt::Key_G,		'g'     , 'G'     , 'G'-64  },
+    {	Qt::Key_H,		'h'     , 'H'     , 'H'-64  },
+    {	Qt::Key_J,		'j'     , 'J'     , 'J'-64  },
+    {	Qt::Key_K,		'k'     , 'K'     , 'K'-64  },
+    {	Qt::Key_L,		'l'     , 'L'     , 'L'-64  },
+    {	Qt::Key_Semicolon,	';'     , ':'     , 0xffff  },
+    {	Qt::Key_Apostrophe,	'\''    , '"'     , 0xffff  },  // 40
+    {	Qt::Key_QuoteLeft,	'`'     , '~'     , 0xffff  },
+    {	Qt::Key_Shift,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Backslash,	'\\'    , '|'     , 0xffff  },
+    {	Qt::Key_Z,		'z'     , 'Z'     , 'Z'-64  },
+    {	Qt::Key_X,		'x'     , 'X'     , 'X'-64  },
+    {	Qt::Key_C,		'c'     , 'C'     , 'C'-64  },
+    {	Qt::Key_V,		'v'     , 'V'     , 'V'-64  },
+    {	Qt::Key_B,		'b'     , 'B'     , 'B'-64  },
+    {	Qt::Key_N,		'n'     , 'N'     , 'N'-64  },
+    {	Qt::Key_M,		'm'     , 'M'     , 'M'-64  },  // 50
+    {	Qt::Key_Comma,		','     , '<'     , 0xffff  },
+    {	Qt::Key_Period,		'.'     , '>'     , 0xffff  },
+    {	Qt::Key_Slash,		'/'     , '?'     , 0xffff  },
+    {	Qt::Key_Shift,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Asterisk,	'*'     , '*'     , 0xffff  },
+    {	Qt::Key_Alt,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_Space,		' '     , ' '     , 0xffff  },
+    {	Qt::Key_CapsLock,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F1,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F2,		0xffff  , 0xffff  , 0xffff  },  // 60
+    {	Qt::Key_F3,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F4,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F5,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F6,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F7,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F8,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F9,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F10,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_NumLock,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_ScrollLock,	0xffff  , 0xffff  , 0xffff  },  // 70
+    {	Qt::Key_7,		'7'     , '7'     , 0xffff  },
+    {	Qt::Key_8,		'8'     , '8'     , 0xffff  },
+    {	Qt::Key_9,		'9'     , '9'     , 0xffff  },
+    {	Qt::Key_Minus,		'-'     , '-'     , 0xffff  },
+    {	Qt::Key_4,		'4'     , '4'     , 0xffff  },
+    {	Qt::Key_5,		'5'     , '5'     , 0xffff  },
+    {	Qt::Key_6,		'6'     , '6'     , 0xffff  },
+    {	Qt::Key_Plus,		'+'     , '+'     , 0xffff  },
+    {	Qt::Key_1,		'1'     , '1'     , 0xffff  },
+    {	Qt::Key_2,		'2'     , '2'     , 0xffff  },  // 80
+    {	Qt::Key_3,		'3'     , '3'     , 0xffff  },
+    {	Qt::Key_0,		'0'     , '0'     , 0xffff  },
+    {	Qt::Key_Period,		'.'     , '.'     , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F11,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_F12,		0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  }	// 90
+};
+
+
+const QWSServer::KeyMap *QWSServer::keyMap()
+{
+    return keyM;
+}

@@ -134,8 +134,10 @@ QFontManager::QFontManager()
     QString fn = qws_topdir() + "/etc/fonts/fontdir";
     FILE* fontdef=fopen(fn.local8Bit(),"r");
     if(!fontdef) {
-	qFatal("Need a fonts definition file - see qfontmanager_qws.cpp"
-	       " for the format");
+	char * temp=fn.local8Bit();
+	qDebug("Need a fonts definition file at %s - see qfontmanager_qws.cpp"
+	       " for the format",temp);
+	return;
     }
     char buf[200]="";
     char name[200]="";

@@ -148,6 +148,8 @@ bool QWSPropertyManager::getProperty( int winId, int property, char *&data, int 
     Property *prop = properties[ key ];
     len = prop->len;
     data = prop->data;
+    qDebug( "QWSPropertyManager::getProperty: %d %d (%s) is %s", winId, property, key,
+	    data );
     delete [] key;
 
     return TRUE;

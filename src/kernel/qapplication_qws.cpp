@@ -634,6 +634,10 @@ void QWSDisplay::removeProperty( int winId, int property )
     d->sendCommand( cmd );
 }
 
+/*!
+  It is the caller's responsibility to delete[] \a data.
+
+ */
 bool QWSDisplay::getProperty( int winId, int property, char *&data, int &len )
 {
     QWSGetPropertyCommand cmd;
@@ -765,14 +769,14 @@ void QWSDisplay::convertSelection( int winId, int selectionProperty, const QStri
 {
 #ifndef QT_NO_QWS_PROPERTIES
     // ### we need the atom/property thingy like in X here
-    addProperty( winId, 999 );
-    setProperty( winId, 999,
+    addProperty( winId, QT_QWS_PROPERTY_CONVERTSELECTION );
+    setProperty( winId, QT_QWS_PROPERTY_CONVERTSELECTION,
 		 (int)QWSPropertyManager::PropReplace, QCString( mimeTypes.latin1() ) );
 #endif
     QWSConvertSelectionCommand cmd;
     cmd.simpleData.requestor = winId;
     cmd.simpleData.selection = selectionProperty;
-    cmd.simpleData.mimeTypes = 999;
+    cmd.simpleData.mimeTypes = QT_QWS_PROPERTY_CONVERTSELECTION;
     d->sendCommand( cmd );
 }
 
@@ -831,6 +835,23 @@ void QWSDisplay::grabMouse( QWidget *w, bool grab )
     d->sendCommand( cmd );
 }
 
+QList<QWSWindowInfo> QWSDisplay::windowList()
+{
+    QList<QWSWindowInfo> ret;
+    ret.setAutoDelete(true);
+    if(d->directServerConnection()) {
+	QList<QWSInternalWindowInfo> qin=QWSServer::windowList();
+	QWSInternalWindowInfo * qwi;
+	for(qwi=qin.first();qwi!=0;qwi=qin.next()) {
+	    QWSWindowInfo * tmp=new QWSWindowInfo;
+	    tmp->winid=qwi->winid;
+	    tmp->clientid=qwi->clientid;
+	    tmp->name=qwi->name;
+	    ret.append(tmp);
+	}
+    }
+    return ret;
+}
 
 static bool	qt_try_modal( QWidget *, QWSEvent * );
 
@@ -1070,11 +1091,11 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 
     if( qt_is_gui_used )
 	init_display();
-    
+
 #if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
     pipe( qt_thread_pipe );
 #endif
-    
+
 }
 
 #if defined(QT_THREAD_SUPPORT)
@@ -1743,12 +1764,12 @@ bool QApplication::processNextEvent( bool canWait )
     int nsel;
 
     int highest=sn_highest;
-    
+
 #if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
     FD_SET( qt_thread_pipe[0], &app_readfds );
     highest = QMAX( highest, qt_thread_pipe[0] );
 #endif
-    
+
 #if defined(_OS_WIN32_)
 #define FDCAST (fd_set*)
 #else
@@ -1758,7 +1779,7 @@ bool QApplication::processNextEvent( bool canWait )
 #if defined(QT_THREAD_SUPPORT)
     qApp->unlock();
 #endif
-    
+
     nsel = select( highest+1,
 		   FDCAST (&app_readfds),
 		   FDCAST (sn_write  ? &app_writefds  : 0),
@@ -1806,8 +1827,11 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	//QWSPropertyNotifyEvent *e = (QWSPropertyNotifyEvent*)event;
     } else if ( event->type == QWSEvent::PropertyReply ) {
 	QWSPropertyReplyEvent *e = (QWSPropertyReplyEvent*)event;
-	QPaintDevice::qwsDisplay()->getPropertyLen = e->simpleData.len;
-	QPaintDevice::qwsDisplay()->getPropertyData = e->data;
+	int len = e->simpleData.len;
+	QPaintDevice::qwsDisplay()->getPropertyLen = len;
+	char *data = new char[len];
+	memcpy( data, e->data, len ) ;
+	QPaintDevice::qwsDisplay()->getPropertyData = data;
     }
 #endif //QT_NO_QWS_PROPERTIES
     QETWidget *widget = (QETWidget*)QWidget::find( (WId)event->window() );

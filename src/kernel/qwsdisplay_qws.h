@@ -32,9 +32,25 @@
 #include "qlock_qws.h"
 #include "qwindowdefs.h"
 
+#include "qlist.h"
+
 // Class forward definitions
 class QWSDisplayData;
 class QWSRegionManager;
+
+class QWSWindowInfo
+{
+
+public:
+
+    int winid;
+    unsigned int clientid;
+    QString name;
+
+};
+
+#define QT_QWS_PROPERTY_CONVERTSELECTION 999
+#define QT_QWS_PROPERTY_WINDOWNAME 998
 
 class QWSDisplay
 {
@@ -59,6 +75,8 @@ public:
     void setProperty( int winId, int property, int mode, const QByteArray &data );
     void removeProperty( int winId, int property );
     bool getProperty( int winId, int property, char *&data, int &len );
+
+    QList<QWSWindowInfo> windowList();
 
     void requestRegion( int winId, QRegion );
     void moveRegion( int winId, int dx, int dy );

@@ -251,8 +251,10 @@ inline void QGfxMach64<depth,type>::setPixWidth(int d,int s,int sc,bool b)
 template<const int depth,const int type>
 inline bool QGfxMach64<depth,type>::checkSourceDest()
 {
-    if ( checkDest() )
+    if ( !checkDest() ) {
+	qDebug("No dest");
 	return FALSE;
+    }
 
     // This is not really needed.
     QArray<QRect> rects=setrgn.rects();
@@ -262,7 +264,7 @@ inline bool QGfxMach64<depth,type>::checkSourceDest()
 	regw(SC_TOP,0);
 	regw(SC_RIGHT,width);
 	regw(SC_BOTTOM,height);
-	//qDebug("No region to paint");
+	qDebug("No region to paint");
 	return FALSE;
     }
 
@@ -271,8 +273,14 @@ inline bool QGfxMach64<depth,type>::checkSourceDest()
     if (srctype == SourcePen) {
 	src_buffer_offset = -1;
     } else {
-	if (!qt_screen->onCard(srcbits,src_buffer_offset))
+	if (!qt_screen->onCard(srcbits,src_buffer_offset)) {
+	    qDebug("Not on card %d",src_buffer_offset);
 	    return FALSE;
+	}
+	if(src_buffer_offset & 0x7) {
+	    qDebug("Unaligned offset %lx",src_buffer_offset);
+	    return FALSE;
+	}
 	if (srclinestep==0) {
 	    sourcepixelpitch=width;
 	} else {
@@ -283,6 +291,7 @@ inline bool QGfxMach64<depth,type>::checkSourceDest()
 	     (src_buffer_offset / 8) );
     }
 
+    qDebug("checkSourceDest passing");
     return TRUE;
 }
 
@@ -294,9 +303,11 @@ inline bool QGfxMach64<depth,type>::checkDest()
 {
     ulong buffer_offset;
     if (!qt_screen->onCard(buffer,buffer_offset)) {
+	qDebug("Dest not on card %d",buffer_offset);
 	return FALSE;
     }
     if (depth!=16) {
+	qDebug("Dest depth not 16");
 	return FALSE;
     }
     int pixelstep=(linestep()*8)/depth;
@@ -518,9 +529,12 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h)
 	return;
     }
 
+    qDebug("Accel blt");
+
     bool canaccel=false;
 
     if(srcdepth==32) {
+	qDebug("Depth 32");
 	if(alphatype==IgnoreAlpha || alphatype==SolidAlpha ||
 	   alphatype==InlineAlpha) {
 	    canaccel=true;
@@ -531,26 +545,33 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h)
 	    int p=srclinestep/4;
 	    if(p!=1024 && p!=512 && p!=256 && p!=128 && p!=64 && p!=32 &&
 	       p!=16 && p!=8) {
+		qDebug("Oops, alpha blending");
 		canaccel=false;
 	    }
 	}
     } else if(srcdepth==16) {
-	if(alphatype==IgnoreAlpha)
+	qDebug("Srcdepth 16");
+	if(alphatype==IgnoreAlpha) {
+	    qDebug("Setting accel to true");
 	    canaccel=true;
+	}
     }
 
     if(srctype==SourceImage && canaccel==false) {
+	qDebug("Oops, can't accel");
 	QGfxRaster<depth,type>::blt(rx,ry,w,h);
 	return;
     }
 
     if(srctype==SourcePen && !(alphatype==BigEndianMask ||
 			       alphatype==LittleEndianMask) ) {
+	qDebug("Oops, pen source");
 	QGfxRaster<depth,type>::blt(rx,ry,w,h);
 	return;
     }
 
     if( (srcdepth!=32) && (srcdepth!=16) ) {
+	qDebug("Oops, source depth %d",srcdepth);
 	QGfxRaster<depth,type>::blt(rx,ry,w,h);
 	return;
     }
@@ -559,11 +580,14 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h)
 	&& checkSourceDest() ) {
 	int x2=(rx+w)-1;
 	int y2=(ry+h)-1;
+	qDebug("Has alpha channel, doing that instead");
 	drawAlpha(rx,ry,x2,ry,rx,y2,x2,y2);
 	return;
     }
 
     if(checkSourceDest()) {
+
+	qDebug("Accel blting");
 
 	int xp=xoffs+rx;
 	int yp=yoffs+ry;
@@ -1525,6 +1549,8 @@ bool QMachScreen::connect( const QString &displaySpec, char *graphics_card_slot,
 	regbase2=membase;
     }
 
+    canaccel=true;
+    
     return TRUE;
 }
 

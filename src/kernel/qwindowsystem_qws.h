@@ -45,6 +45,17 @@ class QWSClient;
 class QWSRegionManager;
 class QGfx;
 
+class QWSInternalWindowInfo
+{
+
+public:
+
+    int winid;
+    unsigned int clientid;
+    QString name;   // Corresponds to QObject name of top-level widget
+
+};
+
 class QWSWindow
 {
     friend class QWSServer;
@@ -163,6 +174,8 @@ public:
     static void sendDesktopRectEvents();
     static void sendMouseEvent(const QPoint& pos, int state);
     static QMouseHandler *mouseHandler();
+    static QList<QWSInternalWindowInfo> windowList();
+
     void sendPropertyNotifyEvent( int property, int state );
 #ifndef QT_NO_QWS_PROPERTIES
     QWSPropertyManager *manager() {
