@@ -1292,11 +1292,11 @@ public:
     void read(const QDomElement &node);
     QDomElement write(QDomDocument &doc, const QString &tagName = QString::null);
 
-    inline QString elementHSizeType() const { return m_eHSizeType; }
-    inline void setElementHSizeType(const QString & a) { m_eHSizeType = a; };
+    inline int elementHSizeType() const { return m_eHSizeType; }
+    inline void setElementHSizeType(int a) { m_eHSizeType = a; };
 
-    inline QString elementVSizeType() const { return m_eVSizeType; }
-    inline void setElementVSizeType(const QString & a) { m_eVSizeType = a; };
+    inline int elementVSizeType() const { return m_eVSizeType; }
+    inline void setElementVSizeType(int a) { m_eVSizeType = a; };
 
     inline int elementHorStretch() const { return m_eHorStretch; }
     inline void setElementHorStretch(int a) { m_eHorStretch = a; };
@@ -1314,8 +1314,8 @@ private:
     // attributes
 
     // elements
-    QString m_eHSizeType;
-    QString m_eVSizeType;
+    int m_eHSizeType;
+    int m_eVSizeType;
     int m_eHorStretch;
     int m_eVerStretch;
 };
@@ -1841,6 +1841,8 @@ inline DomRect::DomRect()
 
 inline DomSizePolicy::DomSizePolicy()
 {
+    m_eHSizeType = 0;
+    m_eVSizeType = 0;
     m_eHorStretch = 0;
     m_eVerStretch = 0;
 }
@@ -2639,8 +2641,8 @@ inline void DomSizePolicy::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == QLatin1String("hsizetype")) { m_eHSizeType = e.firstChild().toText().data(); }
-        else if (tag == QLatin1String("vsizetype")) { m_eVSizeType = e.firstChild().toText().data(); }
+        if (tag == QLatin1String("hsizetype")) { m_eHSizeType = e.firstChild().toText().data().toInt(); }
+        else if (tag == QLatin1String("vsizetype")) { m_eVSizeType = e.firstChild().toText().data().toInt(); }
         else if (tag == QLatin1String("horstretch")) { m_eHorStretch = e.firstChild().toText().data().toInt(); }
         else if (tag == QLatin1String("verstretch")) { m_eVerStretch = e.firstChild().toText().data().toInt(); }
 
@@ -3548,19 +3550,15 @@ inline QDomElement DomSizePolicy::write(QDomDocument &doc, const QString &tagNam
     QDomElement child;
     QDomText t;
 
-    if (m_eHSizeType.size()) {
-        child = doc.createElement(QString("hSizeType").toLower());
-        t = doc.createTextNode(m_eHSizeType);
-        child.appendChild(t);
-        node.appendChild(child);
-    }
+    child = doc.createElement(QString("hSizeType").toLower());
+    t = doc.createTextNode(QString::number(m_eHSizeType));
+    child.appendChild(t);
+    node.appendChild(child);
 
-    if (m_eVSizeType.size()) {
-        child = doc.createElement(QString("vSizeType").toLower());
-        t = doc.createTextNode(m_eVSizeType);
-        child.appendChild(t);
-        node.appendChild(child);
-    }
+    child = doc.createElement(QString("vSizeType").toLower());
+    t = doc.createTextNode(QString::number(m_eVSizeType));
+    child.appendChild(t);
+    node.appendChild(child);
 
     child = doc.createElement(QString("horStretch").toLower());
     t = doc.createTextNode(QString::number(m_eHorStretch));
