@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#288 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#289 $
 **
 ** Implementation of QFileDialog class
 **
@@ -382,7 +382,7 @@ struct QFileDialogPrivate {
     QWidgetStack *preview;
     bool infoPreview, contentsPreview;
     QSplitter *splitter;
-    QUrl url;
+    QUrl url, oldUrl;
     QWidget *infoPreviewWidget, *contentsPreviewWidget;
     bool hadDotDot;
 
@@ -398,10 +398,9 @@ struct QFileDialogPrivate {
     };
 
     QList<WaitForStruct> waitFor;
-
     bool ignoreNextKeyPress;
-
     QProgressDialog *progressDia;
+
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -1524,6 +1523,8 @@ void QFileDialog::init()
     d->waitFor.setAutoDelete( TRUE );
 
     d->url = QUrl( QDir::currentDirPath() );
+    d->oldUrl = d->url;
+    
     connect( &d->url, SIGNAL( start( int ) ),
              this, SLOT( urlStart( int ) ) );
     connect( &d->url, SIGNAL( finished( int ) ),
@@ -1858,7 +1859,7 @@ void QFileDialog::setSelection( const QString & filename )
     wfs->data = filename;
     d->waitFor.append( wfs );
 
-    // #### this may not work
+    d->oldUrl = d->url;
     QString nf = d->url.nameFilter();
     d->url = QUrl( filename );
     d->url.setNameFilter( nf );
@@ -2037,6 +2038,7 @@ const QDir *QFileDialog::dir() const
 
 void QFileDialog::setDir( const QDir &dir )
 {
+    d->oldUrl = d->url;
     QString nf( d->url.nameFilter() );
     d->url = dir.canonicalPath();
     d->url.setNameFilter( nf );
@@ -2052,6 +2054,7 @@ void QFileDialog::setDir( const QDir &dir )
 
 void QFileDialog::setUrl( const QUrl &url )
 {
+    d->oldUrl = d->url;
     QFileDialogPrivate::WaitForStruct *wfs = new QFileDialogPrivate::WaitForStruct;
     wfs->action = QFileDialogPrivate::SetUrl;
     wfs->data = d->url.nameFilter();
@@ -2879,7 +2882,7 @@ void QFileDialog::error( int ecode, const QString &msg )
     if ( ecode == QUrl::ErrReadDir || ecode == QUrl::ErrParse ||
 	 ecode == QUrl::ErrUnknownProtocol || ecode == QUrl::ErrLoginIncorrect ) {
 	// #### todo
-	d->url = QDir::currentDirPath();
+	d->url = d->oldUrl;
 	rereadDir();
     }
 }
