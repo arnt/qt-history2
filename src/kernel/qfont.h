@@ -283,6 +283,7 @@ public:
 	Han_Japanese,
 	Han_SimplifiedChinese,
 	Han_TraditionalChinese,
+	Han_Korean,
 
 	LastPrivateScript
 #endif

@@ -200,48 +200,45 @@ void QFont::initialize()
     // determine the default encoding id using the locale, otherwise
     // fallback to latin1 ( mib == 4 )
     int mib = codec ? codec->mibEnum() : 4;
+
+    // for asian locales, use the mib for the font codec instead of the locale codec
+    switch (mib) {
+    case 38: // eucKR
+	mib = 36;
+	break;
+
+    case 2025: // GB2312
+	mib = 57;
+	break;
+
+    case 113: // GBK
+	mib = -113;
+	break;
+
+    case 114: // GB18030
+	mib = -114;
+	break;
+
+    case 2026: // Big5
+	mib = -2026;
+	break;
+
+    case 2101: // Big5-HKSCS
+	mib = -2101;
+	break;
+
+    case 16: // JIS7
+	mib = 15;
+	break;
+
+    case 17: // SJIS
+    case 18: // eucJP
+	mib = 63;
+	break;
+    }
+
+    // get the default encoding id for the locale encoding...
     QFontPrivate::defaultEncodingID = qt_encoding_id_for_mib( mib );
-
-#if 0
-    // we have a codec for the locale - lets see if it's one of the CJK codecs,
-    // and change the script_table[Han].list to an appropriate list
-    if (codec) {
-	switch (codec->mibEnum()) {
-	case 2025: // GB2312
-	case 57: // gb2312.1980-0
-	case 113: // GBK
-	case -113: // gbk-0
-	case 114: // GB18030
-	case -114: // gb18030-0
-	    script_table[QFont::Han].list = hancn_encodings;
-	    break;
-
-	case 2026: // Big5
-	case -2026: // big5-0, big5-eten.0
-	    script_table[QFont::Han].list = hantw_encodings;
-	    break;
-
-	case 2101: // Big5-HKSCS
-	case -2101: // big5hkscs-0, hkscs-1
-	    script_table[QFont::Han].list = hanhk_encodings;
-	    break;
-
-	case 36: // KS C 5601
-	case 38: // EUC KR
-	    script_table[QFont::Han].list = hankr_encodings;
-	    break;
-
-	case 16: // JIS7
-	case 17: // SJIS
-	case 18: // EUC JP
-	case 63: // JIS X 0208
-	default:
-	    script_table[QFont::Han].list = hanjp_encodings;
-	    break;
-	}
-    } else
-	script_table[QFont::Han].list = hanjp_encodings;
-#endif
 
     // get some sample text based on the users locale. we use this to determine the
     // default script for the font system

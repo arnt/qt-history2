@@ -288,23 +288,33 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 		    flag =  1 << (bit&31);
 		    if ( bit == 127 || signature.fsUsb[index] & flag ) {
 			family->scripts[i] = TRUE;
-			hasScript = true;
+			hasScript = TRUE;
 			// qDebug( "font %s: index=%d, flag=%8x supports script %d", familyName.latin1(), index, flag, i );
 		    }
 		}
 	    }
+	    // ### until we do language detection, it's going to be
+	    // ### hard to figure out which Han_* variant to
+	    // ### use... simply mark all Han_* variants as supporting
+	    // ### Han (like X11)
 	    if( signature.fsCsb[0] & (1 << SimplifiedChineseCsbBit) ) {
 		family->scripts[QFont::Han_SimplifiedChinese] = TRUE;
+		// ###
+		family->scripts[QFont::Han] = TRUE;
 		hasScript = TRUE;
 		//qDebug("font %s supports Simplified Chinese", familyName.latin1() );
 	    }
 	    if( signature.fsCsb[0] & (1 << TraditionalChineseCsbBit) ) {
 		family->scripts[QFont::Han_TraditionalChinese] = TRUE;
+		// ###
+		family->scripts[QFont::Han] = TRUE;
 		hasScript = TRUE;
 		//qDebug("font %s supports Traditional Chinese", familyName.latin1() );
 	    }
 	    if( signature.fsCsb[0] & (1 << JapaneseCsbBit) ) {
 		family->scripts[QFont::Han_Japanese] = TRUE;
+		// ###
+		family->scripts[QFont::Han] = TRUE;
 		hasScript = TRUE;
 		//qDebug("font %s supports Japanese", familyName.latin1() );
 	    }

@@ -559,6 +559,8 @@ static const unsigned short sample_chars[QFont::LastPrivateScript] =
     // Han_SimplifiedChinese,
     0x4e00,
     // Han_TraditionalChinese,
+    0x4e00,
+    // Han_Korean
     0x4e00
 };
 
@@ -773,8 +775,7 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 		// try the default encoding first
 		encoding = size->encodingID( QFontPrivate::defaultEncodingID );
 
-		if ( ! encoding ||
-		     ! scripts_for_xlfd_encoding[encoding->encoding][script] ) {
+		if ( ! encoding || ! scripts_for_xlfd_encoding[encoding->encoding][script] ) {
 		    // find the first encoding that supports the requested script
 		    encoding = 0;
 		    for (int x = 0; !encoding && x < size->count; ++x ) {
@@ -799,8 +800,11 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 
 	unsigned int this_score = 0x0000;
 #ifdef Q_WS_X11
-	if ( encoding->encoding != -1 )
+	if ( encoding->encoding != -1 ) {
 	    this_score += 1;
+	    if ( encoding->encoding != QFontPrivate::defaultEncodingID )
+		this_score += 10;
+	}
 	if ( !( pitch == 'm' && encoding->pitch == 'c' ) && pitch != encoding->pitch )
 	    this_score += 200;
 #endif
@@ -823,6 +827,11 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 	    *best_encoding = encoding;
 #endif // Q_WS_X11
 	}
+#ifdef FONT_MATCH_DEBUG
+	else {
+	    qDebug( "          score %u no better than best %u", this_score, score);
+	}
+#endif
     }
 
     return score;
@@ -1982,6 +1991,22 @@ QString QFontDatabase::scriptName(QFont::Script script)
 
     case QFont::KatakanaHalfWidth:
 	name = QT_TRANSLATE_NOOP( "QFont", "Katakana Half-Width Forms" );
+	break;
+
+    case QFont::Han_Japanese:
+	name = QT_TRANSLATE_NOOP( "QFont", "Han (Japanese)" );
+	break;
+
+    case QFont::Han_SimplifiedChinese:
+	name = QT_TRANSLATE_NOOP( "QFont", "Han (Simplified Chinese)" );
+	break;
+
+    case QFont::Han_TraditionalChinese:
+	name = QT_TRANSLATE_NOOP( "QFont", "Han (Traditional Chinese)" );
+	break;
+
+    case QFont::Han_Korean:
+	name = QT_TRANSLATE_NOOP( "QFont", "Han (Korean)" );
 	break;
 
     default:

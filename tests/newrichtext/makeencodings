@@ -65,7 +65,8 @@ my @qscripts = (
         "NoScript",
         "Han_Japanese",
         "Han_SimplifiedChinese",
-        "Han_TraditionalChinese"
+        "Han_TraditionalChinese",
+	"Han_Korean"
 );
 
 my $num_scripts = @qscripts;

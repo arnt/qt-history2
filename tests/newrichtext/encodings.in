@@ -41,7 +41,7 @@ jisx0201*-0 15 KatakanaHalfWidth
 jisx0208*-0 63 Hiragana,Katakana,Han,Han_Japanese
 #
 # Korea
-ksc5601*-* 36 Hangul,Han
+ksc5601*-* 36 Hangul,Han,Han_Korean
 #
 # Hong Kong
 big5hkscs-0 -2101 Han,Han_TraditionalChinese
