@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qembed/qembed.cpp#1 $
+** $Id: //depot/qt/main/util/qembed/qembed.cpp#2 $
 **
 ** Utility program for embedding binary data into a C/C++ source code.
 **
@@ -75,9 +75,9 @@ int main( int argc, char **argv )
 	}
 
 	QString s;
-	cout << s.sprintf( "static unsigned int  %s_len = %d;\n",
+	cout << s.sprintf( "static const unsigned int  %s_len = %d;\n",
 			   (const char *)e->cname, e->size );
-	cout << s.sprintf( "static unsigned char %s_data[] = {",
+	cout << s.sprintf( "static const unsigned char %s_data[] = {",
 			   (const char *)e->cname );
 	embedData( a, &output );
 	cout << "\n};\n\n";
@@ -87,9 +87,9 @@ int main( int argc, char **argv )
   // Generate summery
 
     if ( list.count() > 0 ) {
-	cout << "struct {\n    unsigned int   size;";
-	cout << "\n    unsigned char *data;";
-	cout << "\n    const char    *name;\n} embed_vec[] = {\n";
+	cout << "struct {\n    unsigned int         size;";
+	cout << "\n    const unsigned char *data;";
+	cout << "\n    const char          *name;\n} embed_vec[] = {\n";
 	Embed *e = list.first();
 	while ( e ) {
 	    cout << "    { " << e->size << ", " << e->cname << "_data, "
@@ -107,7 +107,9 @@ QString convertFileNameToCIdentifier( const char *s )
 {
     QString r = s;
     int len = r.length();
-    for ( int i=0; i<len; i++ ) {
+    if ( len > 0 && !isalpha(r[0]) )
+	r[0] = '_';
+    for ( int i=1; i<len; i++ ) {
 	if ( !isalnum(r[i]) )
 	    r[i] = '_';
     }
