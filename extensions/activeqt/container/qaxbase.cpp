@@ -718,8 +718,8 @@ public:
 
     If you need to access properties or pass parameters of unsupported
     datatypes you must access the COM object directly through its
-    IDispatch or other interfaces. Those interfaces can be retrieved
-    through queryInterface().
+    IDispatch implementation or other interfaces. Those interfaces can be 
+    retrieved through queryInterface().
 
     \code
     IUnknown *iface = 0;
@@ -729,6 +729,12 @@ public:
 	iface->Release();
     }
     \endcode
+
+    To get the definition of the COM interfaces you will have to use the header
+    files provided with the component you want to use. Some compilers can also
+    import type libraries using the #import compiler directive. See the component
+    documentation to find out which type libraries you have to import, and how to use
+    them.
 
     If you need to react to events that pass parameters of unsupported
     datatypes you can use the generic signal that delivers the event
