@@ -504,7 +504,6 @@ Q_EXPORT int qWinVersion();
 #    pragma warning(disable: 4800) // 'type' : forcing value to bool 'true' or 'false' (performance warning)
 #    pragma warning(disable: 4097) // typedef-name 'identifier1' used as synonym for class-name 'identifier2'
 #    pragma warning(disable: 4706) // assignment within conditional expression
-#    pragma warning(disable: 4099) // type name first seen using 'objecttype1' now seen using 'objecttype2'
 #  elif defined(Q_CC_BOR)
 #    pragma option -w-inl
 #    pragma option -w-aus
