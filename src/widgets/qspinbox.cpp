@@ -190,6 +190,7 @@ void QSpinBox::initSpinBox()
     vi->setValidator( validate );
     vi->installEventFilter( this );
     vi->setFrame( FALSE );
+    setFocusProxy( vi );
 
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     setBackgroundMode( PaletteBackground, PaletteBase );
