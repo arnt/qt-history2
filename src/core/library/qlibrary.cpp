@@ -17,6 +17,9 @@
 #include <private/qlibrary_p.h>
 #include <qstringlist.h>
 #include <qfile.h>
+#ifdef Q_OS_MAC
+# include <qcore_mac.h>
+#endif
 
 #ifndef QT_NO_LIBRARY
 
@@ -384,29 +387,43 @@ QString QLibrary::library() const
 #else
     filters << ".so";
 #endif
-    for (int i = 0; i < filters.count(); ++i) {
-        const QString filter(filters.at(i));
-
-        if (QFile::exists(filename + filter)) {
-            filename += filter;
-            break;
-        } else if (!filter.isEmpty()) {
-            QString tmpfilename = filename;
-            const int x = tmpfilename.lastIndexOf("/");
-            if (x != -1) {
-                QString path = tmpfilename.left(x + 1);
-                QString file = tmpfilename.right(tmpfilename.length() - x - 1);
-                tmpfilename = QString("%1lib%2").arg(path).arg(file);
-            } else {
-                tmpfilename = QString("lib%1").arg(filename);
-            }
-            tmpfilename += filter;
-            if (QFile::exists(tmpfilename) || i == filters.count() - 1) {
-                filename = tmpfilename;
+    bool found = QFile::exists(filename);
+    if(!found) {
+        for (int i = 0; i < filters.count(); ++i) {
+            const QString filter(filters.at(i));
+            if (QFile::exists(filename + filter)) {
+                found = true;
+                filename += filter;
                 break;
+            } else if (!filter.isEmpty()) {
+                QString tmpfilename = filename;
+                const int x = tmpfilename.lastIndexOf("/");
+                if (x != -1) {
+                    QString path = tmpfilename.left(x + 1);
+                    QString file = tmpfilename.right(tmpfilename.length() - x - 1);
+                    tmpfilename = QString("%1lib%2").arg(path).arg(file);
+                } else {
+                    tmpfilename = QString("lib%1").arg(filename);
+                }
+                tmpfilename += filter;
+                if (QFile::exists(tmpfilename) || i == filters.count() - 1) {
+                    found = true;
+                    filename = tmpfilename;
+                    break;
+                }
             }
         }
     }
+#ifdef Q_OS_MAC
+    if(!found) {
+        if(QCFType<CFBundleRef> bundle = CFBundleGetBundleWithIdentifier(QCFString(filename))) {
+            found = true;
+            QCFType<CFURLRef> url = CFBundleCopyExecutableURL(bundle);
+            QCFString str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
+            filename = str;
+        }
+    }
+#endif
 #endif
     return filename;
 }
