@@ -571,8 +571,6 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
     // Since we scale the image in the StretchXXX below, we scale the
     // bitmask to make the transparency clip region correct.
     if ( paint && image.hasAlphaBuffer() ) {
-        QWMatrix::TransformationMode tmpMode = QWMatrix::transformationMode();
-        QWMatrix::setTransformationMode( QWMatrix::Areas );
         QImage mask = image.createAlphaMask();
         QBitmap bm;
         bm = mask;
@@ -587,7 +585,6 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
         paint->save();
         oldClip = paint->clipRegion();
         updateClipRegion(r, true);
-        QWMatrix::setTransformationMode( tmpMode );
     }
 
     bits = new uchar[bmh->biSizeImage];
