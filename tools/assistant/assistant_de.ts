@@ -73,11 +73,11 @@
     </message>
     <message>
         <source>Search reached end of the document</source>
-        <translation>Die Suche hat das Dokumentende erreicht</translation>
+        <translation>Die Suche hat das Ende des Dokuments erreicht</translation>
     </message>
     <message>
         <source>Search reached start of the document</source>
-        <translation>Die Suche hat den Dokumentanfang erreicht</translation>
+        <translation>Die Suche hat den Anfang des Dokuments erreicht</translation>
     </message>
     <message>
         <source>Text not found</source>
@@ -120,7 +120,7 @@
     </message>
     <message>
         <source>Open Link in Current Window</source>
-        <translation>Öffne Linke in aktuellen Fenster</translation>
+        <translation>Öffne Link im aktuellen Fenster</translation>
     </message>
     <message>
         <source>Open Link in New Window</source>
@@ -174,7 +174,7 @@ Skipping file.</source>
     </message>
     <message>
         <source>Using a wildcard within phrases is not allowed.</source>
-        <translation>Wildcards innerhalb von Prasen sind nicht zugelassen.</translation>
+        <translation>Wildcards innerhalb von Phrasen sind nicht zugelassen.</translation>
     </message>
     <message>
         <source>The closing quotation mark is missing.</source>
@@ -269,15 +269,15 @@ Skipping file.</source>
     </message>
     <message>
         <source>Displays help topics organized by category, index or bookmarks. Another tab inherits the full text search.</source>
-        <translation>Zeigt Hilfethemen organisiert nach Kategorie, Index oder Lesezeichen an. Ein weiterer Abschnitt enthält die Volltextsuche.</translation>
+        <translation>Zeigt Hilfethemen geordnet nach Kategorie, Index oder Lesezeichen an. Ein weiterer Abschnitt enthält die Volltextsuche.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Help topics organized by category.&lt;/b&gt;&lt;p&gt;Double-click an item to see the topics in that category. To view a topic, just double-click it.&lt;/p&gt;</source>
-        <translation>&lt;b&gt;Hilfethemen organisiert nach Kategorie.&lt;/b&gt;&lt;p&gt;Doppelklicken Sie einen Eintrag, um die Themen dieser Kategorie zu sehen. Doppelklicken Sie ein Thema, um es angezeigt zu bekommen.&lt;/p&gt;</translation>
+        <translation>&lt;b&gt;Hilfethemen geordnet nach Kategorie.&lt;/b&gt;&lt;p&gt;Doppelklicken Sie einen Eintrag, um die Themen dieser Kategorie zu sehen. Doppelklicken Sie ein Thema, um es angezeigt zu bekommen.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;List of available help topics.&lt;/b&gt;&lt;p&gt;Double-click on an item to open its help page. If more than one is found, you must specify which page you want.&lt;/p&gt;</source>
-        <translation>&lt;b&gt;Liste aller verfügbaren Hilfethemen.&lt;/b&gt;&lt;p&gt;Doppelklicken Sie auf einen Eintrag, um die Hilfe zu öffnen. Wenn mehr als eine Seite gefunden wurde, wählen Sie die gewünschte aus.&lt;/p&gt;</translation>
+        <translation>&lt;b&gt;Liste aller verfügbaren Hilfethemen.&lt;/b&gt;&lt;p&gt;Doppelklicken Sie auf einen Eintrag, um die Hilfe zu öffnen. Wenn mehr als eine Seite gefunden wurde, wählen Sie die gewünschte Seite aus.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -309,7 +309,7 @@ Skipping file.</source>
     </message>
     <message>
         <source>&lt;b&gt;Enter search word(s).&lt;/b&gt;&lt;p&gt;Enter here the word(s) you are looking for. The words may contain wildcards (*). For a sequence of words quote them.&lt;/p&gt;</source>
-        <translation>&lt;b&gt;Geben Sie Suchbegriffe ein.&lt;/b&gt;&lt;p&gt;Geben Sie hier die gesuchten Begriffen ein. Die Begriffe können Wildcards (*) enthalten. Eine Phrase muß in Anführungszeichen stehen.&lt;/p&gt;</translation>
+        <translation>&lt;b&gt;Geben Sie Suchbegriffe ein.&lt;/b&gt;&lt;p&gt;Geben Sie hier die gesuchten Begriffe ein. Die Begriffe können Wildcards (*) enthalten. Eine Phrase muß in Anführungszeichen stehen.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Found documents&lt;/b&gt;&lt;p&gt;This list contains all found documents from the last search. The documents are ordered, i.e. the first document has the most matches.&lt;/p&gt;</source>
@@ -358,7 +358,7 @@ Skipping file.</source>
     </message>
     <message>
         <source>Open Link in New Window<byte value="x9"/>Shift+LMB</source>
-        <translation>Öffne Link in neuem Fenster Shift+LMB</translation>
+        <translation>Öffne Link in neuem Fenster</translation>
     </message>
     <message>
         <source>Currently no Web browser is selected.
@@ -501,16 +501,16 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Ctrl+T</source>
-        <translation>Ctrl+T
+        <translation>Strg+T
 </translation>
     </message>
     <message>
         <source>Ctrl+I</source>
-        <translation>Ctrl+I</translation>
+        <translation>Strg+I</translation>
     </message>
     <message>
         <source>Ctrl+B</source>
-        <translation>Ctrl+E</translation>
+        <translation>Strg+E</translation>
     </message>
     <message>
         <source>Qt Assistant</source>
@@ -554,7 +554,7 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Ctrl+P</source>
-        <translation>Ctrl+P</translation>
+        <translation>Strg+P</translation>
     </message>
     <message>
         <source>Quit Qt Assistant.</source>
@@ -562,7 +562,7 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Ctrl+Q</source>
-        <translation>Ctrl+Q</translation>
+        <translation>Strg+Q</translation>
     </message>
     <message>
         <source>Copy the selected text to the clipboard.</source>
@@ -570,7 +570,7 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Ctrl+C</source>
-        <translation>Ctrl+C</translation>
+        <translation>Strg+C</translation>
     </message>
     <message>
         <source>Open the Find dialog. Qt Assistant will search the currently displayed page for the text you enter.</source>
@@ -578,7 +578,7 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Ctrl+F</source>
-        <translation>Ctrl+F</translation>
+        <translation>Strg+F</translation>
     </message>
     <message>
         <source>Go to the home page. Qt Assistant&apos;s home page is the Qt Reference Documentation.</source>
@@ -586,7 +586,7 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Ctrl+Home</source>
-        <translation>Ctrl+Home</translation>
+        <translation>Strg+Pos1</translation>
     </message>
     <message>
         <source>Go to the previous page.</source>
@@ -594,7 +594,7 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Alt+Left</source>
-        <translation>Alt+Left</translation>
+        <translation>Alt+Links</translation>
     </message>
     <message>
         <source>Go to the next page.</source>
@@ -602,7 +602,7 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Alt+Right</source>
-        <translation>Alt+Right</translation>
+        <translation>Alt+Rechts</translation>
     </message>
     <message>
         <source>Display further information about Qt Assistant.</source>
@@ -626,7 +626,7 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Ctrl++</source>
-        <translation>Ctrl++</translation>
+        <translation>Strg++</translation>
     </message>
     <message>
         <source>Zoom out on the document, i.e. decrease the font size.</source>
@@ -634,7 +634,7 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Ctrl+-</source>
-        <translation>Ctrl+-</translation>
+        <translation>Strg+-</translation>
     </message>
     <message>
         <source>Display the Guide to the Qt Translation Tools.</source>
@@ -650,7 +650,7 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Ctrl+N</source>
-        <translation>Ctrl+N</translation>
+        <translation>Strg+N</translation>
     </message>
     <message>
         <source>&amp;Close</source>
@@ -686,11 +686,11 @@ Please use the settings dialog to specify one!
     </message>
     <message>
         <source>Shift+F1</source>
-        <translation>Shift+F1</translation>
+        <translation>Umschalt+F1</translation>
     </message>
     <message>
         <source>Ctrl+S</source>
-        <translation>Ctrl+S</translation>
+        <translation>Strg+S</translation>
     </message>
     <message>
         <source>Initializing Qt Assistant...</source>
@@ -786,7 +786,7 @@ Es müssen zuerst alle Inhalte gelöscht werden.</translation>
     </message>
     <message>
         <source>&amp;Web Browser Application:</source>
-        <translation>&amp;Webbrowser Anwendung.</translation>
+        <translation>&amp;Webbrowser Anwendung:</translation>
     </message>
     <message>
         <source>...</source>
@@ -810,7 +810,7 @@ Es müssen zuerst alle Inhalte gelöscht werden.</translation>
     </message>
     <message>
         <source>Category &amp;Name:</source>
-        <translation>Kategorie &amp;Name:</translation>
+        <translation>Kategorie&amp;name:</translation>
     </message>
     <message>
         <source>&amp;Add</source>
