@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#16 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#16 $";
 #endif
 
 
@@ -69,7 +69,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     pm		= 0;
     cursorPos	= 0;
     offset	= 0;
-    maxLen	= ~0;
+    maxLen	= 32767;
     cursorOn	= TRUE;
     inTextFocus = FALSE;
     t		= "";

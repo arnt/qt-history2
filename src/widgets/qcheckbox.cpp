@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#17 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#17 $";
 #endif
 
 
@@ -158,12 +158,12 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 	pen.setColor( g.background() );
 	p->drawPoint( x1, y2 );
 	p->drawPoint( x2, y1 );
-	static QCOOT check_mark[] = {
+	static QCOORD check_mark[] = {
 	    3,5, 5,5,  4,6, 5,6,  5,7, 6,7,  5,8, 6,8,	6,9, 9,9,
 	    6,10, 8,10,	 7,11, 8,11,  7,12, 7,12,  8,8, 9,8,  8,7, 10,7,
 	    9,6, 10,6,	9,5, 11,5,  10,4, 11,4,	 10,3, 12,3,
 	    11,2, 12,2,	 11,1, 13,1,  12,0, 13,0 };
-	static QCOOT check_mark_pix[] = {
+	static QCOORD check_mark_pix[] = {
 	    3,6, 6,6, 4,7, 7,8, 5,9, 6,11, 8,12, 9,10, 10,8, 8,6,
 	    11,6, 9,4, 12,4, 10,2, 13,2 };
 	if ( isOn() ) {				// draw complex check mark
@@ -173,20 +173,19 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 		x1++;
 		y1++;
 	    }
-	    QPointArray amark( sizeof(check_mark)/(sizeof(QCOOT)*2),
+	    QPointArray amark( sizeof(check_mark)/(sizeof(QCOORD)*2),
 			       check_mark );
 	    amark.move( x1, y1 );
 	    pen.setColor( g.foreground() );
 	    p->drawLineSegments( amark );
 	    pen.setColor( g.dark() );
-	    for ( int i=0; i<sizeof(check_mark_pix)/sizeof(QCOOT); i+=2 )
+	    for ( int i=0; i<sizeof(check_mark_pix)/sizeof(QCOORD); i+=2 )
 		p->drawPoint( x1 + check_mark_pix[i],
 			      y1 + check_mark_pix[i+1] );
 	}
     }
     else if ( gs == MotifStyle ) {		// Motif check box
 	QColor tColor, bColor, fColor;
-	bool down;
 	if ( (isUp() && !isOn()) || (isDown() && isOn()) ) {
 	    tColor = g.light();			// button is up
 	    bColor = g.dark();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.h#9 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.h#10 $
 **
 ** Definition of QScrollBar class
 **
@@ -68,8 +68,8 @@ private:
     uint     	thresholdReached : 1;
     uint     	isTiming	 : 1;
 
-    QCOOT    	sliderPos;
-    QCOOT    	clickOffset;
+    QCOORD    	sliderPos;
+    QCOORD    	clickOffset;
 };
 
 
