@@ -61,7 +61,8 @@ Specific enhancements
 
 QCursor
   Make the pointing hand cursor look like the Windows pointing hand cursor 
- (when you select a web link in Netscape/IE).
+ (when you select a web link in Netscape/IE).  There is a IDC_HAND constant 
+ in LoadCursor (Win2K only?) if this is any use.
 
 QRect
   Make 0x0 rectangles valid and fix any problems that may arise from it.
