@@ -676,8 +676,10 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << "buildRules = (" << "\n"
 	  << "\t\t\t" << ");" << "\n"
 	  << "\t\t\t" << "buildSettings = {" << "\n"
-	  << "\t\t\t\t" << "COPY_PHASE_STRIP = " << (as_debug ? "NO" : "YES") << ";" << "\n"
-	  << "\t\t\t" << "};" << "\n"
+	  << "\t\t\t\t" << "COPY_PHASE_STRIP = " << (as_debug ? "NO" : "YES") << ";" << "\n";
+	if(!as_debug) 
+	    t << "\t\t\t\t" << "DEBUGGING_SYMBOLS = NO;" << "\n";
+	t << "\t\t\t" << "};" << "\n"
 	  << "\t\t\t" << "isa = PBXBuildStyle;" << "\n"
 	  << "\t\t\t" << "name = " << (as_debug ? "Development" : "Deployment") << ";" << "\n"
 	  << "\t\t" << "};" << "\n";
