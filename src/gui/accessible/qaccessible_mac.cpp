@@ -23,6 +23,7 @@
 /*****************************************************************************
   External functions
  *****************************************************************************/
+CFStringRef qstring2cfstring(const QString &s); //qglobal.cpp
 QString cfstring2qstring(CFStringRef); //qglobal.cpp
 
 /*****************************************************************************
@@ -48,10 +49,6 @@ static EventTypeSpec events[] = {
     { kEventClassAccessibility,  kEventAccessiblePerformNamedAction },
     { kEventClassAccessibility,  kEventAccessibleGetNamedActionDescription }
 };
-
-static CFStringRef qstring2cfstring(const QString &s) {
-    return CFStringCreateWithCharacters(0, (UniChar *)s.unicode(), s.length());
-}
 
 static CFStringRef qt_mac_class_str()
 {

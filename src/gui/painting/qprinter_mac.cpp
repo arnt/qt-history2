@@ -35,6 +35,11 @@
 #include <stdlib.h>
 
 /*****************************************************************************
+  External functions
+ *****************************************************************************/
+CFStringRef qstring2cfstring(const QString &); //qglobal.cpp
+
+/*****************************************************************************
   QPrinter member functions
  *****************************************************************************/
 
@@ -201,6 +206,13 @@ QPrinter::prepare(PMPrintSettings *s)
     PMSetLastPage(*s, toPage(), true);
     PMSetColorMode(*s, colorMode() == GrayScale ? kPMGray : kPMColor);
     PMSetCopies(*s, numCopies(), true);
+    if(outputToFile()) {
+	CFStringRef cfstring = qstring2cfstring(outputFileName());
+	CFURLRef outFile = CFURLCreateWithFileSystemPath(kCFAllocatorSystemDefault, cfstring, 
+							 kCFURLPOSIXPathStyle, false);
+	PMSessionSetDestination(psession, *s, kPMDestinationFile, kPMDocumentFormatPDF, outFile);
+	CFRelease(cfstring);
+    }
     return true;
 }
 
@@ -298,7 +310,7 @@ bool QPrinter::printSetup(QWidget *)
         //setup
         if(!prepare(&psettings))
             return false;
-        if(PMSessionPrintDialog(psession, psettings, pformat, &ret) != noErr || !ret )
+        if(!outputToFile() && PMSessionPrintDialog(psession, psettings, pformat, &ret) != noErr || !ret )
             return false;
 	interpret(&psettings);
 	return true;
