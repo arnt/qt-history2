@@ -48,10 +48,10 @@ public:
 
 protected:
     bool event( QEvent* );
+    bool eventFilter( QObject*, QEvent* );
 
 private slots:
     void startThread();
-    void stopThread();
 
 private:
     QGuardedCleanUpHandler<QAction> actions;
@@ -98,7 +98,6 @@ QStringList TestInterface::featureList()
 {
     QStringList list;
     list << "Start...";
-    list << "Stop...";
     return list;
 }
 
@@ -107,11 +106,6 @@ QAction* TestInterface::create( const QString& actionname, QObject* parent )
     if ( actionname == "Start..." ) {
 	QAction* a = new QAction( actionname, QIconSet(), "St&art...", 0, parent, actionname );
 	connect( a, SIGNAL(activated()), this, SLOT(startThread()) );
-	actions.addCleanUp( a );
-	return a;
-    } else     if ( actionname == "Stop..." ) {
-	QAction* a = new QAction( actionname, QIconSet(), "Sto&p...", 0, parent, actionname );
-	connect( a, SIGNAL(activated()), this, SLOT(stopThread()) );
 	actions.addCleanUp( a );
 	return a;
     } 
@@ -133,8 +127,11 @@ bool TestInterface::event( QEvent* e )
 	    QBoxLayout *box = new QHBoxLayout( dialog );
 	    lcd = new QLCDNumber( dialog );
 	    box->insertWidget( 0, lcd, 1 );
-	    dialog->show();
 	    lcd->setSegmentStyle( QLCDNumber::Filled );
+	    dialog->installEventFilter( this );
+	}
+	if ( !dialog->isVisible() && thread->running() ) {
+	    dialog->show();
 	}
 	QString *t = (QString*)((QCustomEvent*)e)->data();
 	if ( t ) {
@@ -147,15 +144,18 @@ bool TestInterface::event( QEvent* e )
     return QObject::event( e );
 }
 
+bool TestInterface::eventFilter( QObject *o, QEvent *e )
+{
+    if ( o == dialog && e->type() == QEvent::Close ) {
+	thread->stop();
+    }
+    return QObject::eventFilter( o, e );
+}
+
 void TestInterface::startThread()
 {
     if ( !thread->running() )
 	thread->start();
-}
-
-void TestInterface::stopThread()
-{
-    thread->stop();
 }
 
 TestThread::TestThread( TestInterface *f )
@@ -185,11 +185,11 @@ void TestThread::run()
 	*t = QDate::currentDate().toString() + " | " + QTime::currentTime().toString();
 	qApp->unlock();
 
-	QThread::postEvent( iface, new QCustomEvent( QEvent::User, (void*)t ) );
-
 	mtx.lock();
 	s = stopped;
 	mtx.unlock();
+	if ( !s )
+	    QThread::postEvent( iface, new QCustomEvent( QEvent::User, (void*)t ) );
     }
 }
 
