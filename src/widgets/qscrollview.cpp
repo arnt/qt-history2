@@ -2042,6 +2042,9 @@ void QScrollView::updateContents( int x, int y, int w, int h )
 
     if ( w < 0 || h < 0 )
         return;
+    if ( x > visibleWidth() || y > visibleHeight() )
+	return;
+
     if ( w > visibleWidth() )
         w = visibleWidth();
     if ( h > visibleHeight() )

@@ -84,6 +84,7 @@ SideDecorationImpl::SideDecorationImpl( QWidget* parent, const char* name, WFlag
     if ( layout()->inherits("QBoxLayout") ) {
 	((QBoxLayout*)layout())->setMargin( 0 );
     }
+    setSizePolicy( QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding) );
     versionLabel->setText( versionLabel->text() + globalInformation.qtVersionStr() );
 #if defined(EVAL)
     editionLabel->setText( "Evaluation Version" );

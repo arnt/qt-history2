@@ -43,6 +43,11 @@
                     <property name="name">
                         <cstring>outputDisplay</cstring>
                     </property>
+                    <property name="font">
+                        <font>
+                            <family>Courier</family>
+                        </font>
+                    </property>
                     <property name="wordWrap">
                         <enum>NoWrap</enum>
                     </property>

@@ -10,9 +10,9 @@ OUTDIR=$4
 [ "$VERBOSE" = "yes" ] && echo "Detecting broken X11 headers... ($*)"
 
 # Detect broken X11 headers when using GCC 2.95 or later
-#   Xsun on Solaris 2.5.1 and 2.6:
-#   	Patches are available for Solaris 7 and Solaris 8 but
-#   	not for Solaris 2.5.1 or 2.6.
+#   Xsun on Solaris 2.5.1:
+#   	Patches are available for Solaris 2.6, 7 and 8 but
+#   	not for Solaris 2.5.1.
 NOTYPE=no
 
 if [ $XPLATFORM = "solaris-g++" ]

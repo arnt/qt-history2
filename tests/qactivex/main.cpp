@@ -47,8 +47,9 @@ public:
 	    }
 	}
 	cbox->listBox()->sort();
-
 	leControl = cbox->lineEdit();
+	leControl->selectAll();
+
 	pbInstantiate = new QPushButton( "Create", hbox );
 
 	connect( pbInstantiate, SIGNAL(clicked()), this, SLOT(instantiate()) );

@@ -8,9 +8,7 @@
 #include "licensepage.h"
 #include "optionspage.h"
 #include "progresspage.h"
-#if defined(Q_OS_WIN32)
 #include "winintropage.h"
-#endif
 #include "../globalinformation.h"
 
 class Page
@@ -139,7 +137,6 @@ public:
     { return "Install files"; }
 };
 
-#if defined(Q_OS_WIN32)
 class WinIntroPageImpl : public WinIntroPage, public Page
 {
     Q_OBJECT
@@ -151,6 +148,5 @@ public:
     QString shortTitle() const
     { return "Introduction"; }
 };
-#endif
 
 #endif // PAGES_H

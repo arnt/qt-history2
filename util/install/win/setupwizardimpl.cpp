@@ -1634,9 +1634,7 @@ void SetupWizardImpl::logFiles( const QString& entry, bool close )
 #if 0
     progressPage->filesDisplay->append( entry + "\n" );
 #else
-    if ( entry.startsWith("Expanding") )
-	// only show the "Expanding" entries to avoid flickering
-	progressPage->filesDisplay->setText( "Installing files...\n" + entry + "\n" );
+    progressPage->filesDisplay->setText( "Installing files...\n" + entry + "\n" );
 #endif
     outstream << ( entry + "\n" );
 
@@ -1671,7 +1669,9 @@ void SetupWizardImpl::archiveMsg( const QString& msg )
     if( msg.right( 7 ) == ".cpp..." || msg.right( 5 ) == ".c..." || msg.right( 7 ) == ".pro..." || msg.right( 6 ) == ".ui..." )
 	filesToCompile++;
     qApp->processEvents();
-    logFiles( msg );
+    if ( msg.startsWith("Expanding") )
+	// only show the "Expanding" entries to avoid flickering
+	logFiles( msg );
 }
 
 bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel )
@@ -1829,10 +1829,10 @@ void SetupWizardImpl::writeLicense( QString filePath )
 	licenseInfo[ "LICENSEE" ] = licensePage->licenseeName->text();
 	if( licensePage->productsString->currentItem() == 0 ) {
 	    licenseInfo[ "PRODUCTS" ] = "qt-professional";
-	    emit editionString( "Enterprise Edition" );
+	    emit editionString( "Professional Edition" );
 	} else {
 	    licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
-	    emit editionString( "Professional Edition" );
+	    emit editionString( "Enterprise Edition" );
 	}
 
 	licenseInfo[ "EXPIRYDATE" ] = licensePage->expiryDate->text();

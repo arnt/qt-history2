@@ -1,7 +1,10 @@
 #include "resource.h"
 #include <qfile.h>
+#include <qfileinfo.h>
 
+#ifdef _Q_OS_WIN32_
 #include <windows.h>
+#endif
 
 /*
    Tries to load the binary resource \a resourceName. If the resource is

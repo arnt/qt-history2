@@ -30,8 +30,8 @@ INTERFACES	= dialogs/folderdlg.ui \
 		  pages/licensepage.ui \
 		  pages/optionspage.ui \
 		  pages/progresspage.ui \
-		  pages/sidedecoration.ui
-win32:INTERFACES += pages/winintropage.ui
+		  pages/sidedecoration.ui \
+		  pages/winintropage.ui
 
 TARGET		= install
 DESTDIR		= ../../../bin

@@ -1,7 +1,7 @@
 # Additional Qt project file for qtmain lib on Windows
 TEMPLATE	= lib
 TARGET		= qtmain
-VERSION		= 3.0.0
+VERSION		= 3.0.1
 DESTDIR		= $$QMAKE_LIBDIR_QT
 
 CONFIG		+= qt staticlib warn_on release

@@ -1012,6 +1012,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	int    ibpl = image.bytesPerLine();
 	if ( image.bitOrder() == QImage::BigEndian || bpl != ibpl ) {
 	    tmp_bits = new uchar[bpl*h];
+	    Q_CHECK_PTR( tmp_bits );
 	    bits = (char *)tmp_bits;
 	    uchar *p, *b, *end;
 	    int y;
@@ -1109,6 +1110,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	xi = XCreateImage( dpy, visual, dd, ZPixmap, 0, 0, w, h, 32, 0 );
 	Q_CHECK_PTR( xi );
 	newbits = (uchar *)malloc( xi->bytes_per_line*h );
+	Q_CHECK_PTR( newbits );
+	if ( !newbits )				// no memory
+	    return FALSE;
 	uchar *src;
 	uchar *dst;
 	QRgb   pixel;
@@ -1307,6 +1311,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	}
 
 	newbits = (uchar *)malloc( nbytes );	// copy image into newbits
+	Q_CHECK_PTR( newbits );
 	if ( !newbits )				// no memory
 	    return FALSE;
 	p = newbits;
@@ -1425,6 +1430,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    int	    p2inc = xi->bytes_per_line/sizeof(ushort);
 	    ushort *newerbits = (ushort *)malloc( xi->bytes_per_line * h );
 	    Q_CHECK_PTR( newerbits );
+	    if ( !newerbits )				// no memory
+		return FALSE;
 	    p = newbits;
 	    for ( int y=0; y<h; y++ ) {		// OOPS: Do right byte order!!
 		p2 = newerbits + p2inc*y;
@@ -1531,6 +1538,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    if (axi) {
 		// the data is deleted by qSafeXDestroyImage
 		axi->data = (char *) malloc(h * axi->bytes_per_line);
+		Q_CHECK_PTR( axi->data );
 
 		char *aptr = axi->data;
 		int *iptr = (int *) image.bits();
@@ -1803,7 +1811,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 		bpp  = axi->bits_per_pixel;
 		dbytes = dbpl * h;
 		dptr = (uchar *) malloc(dbytes);
-		Q_CHECK_PTR(dptr);
+		Q_CHECK_PTR( dptr );
 		memset(dptr, 0, dbytes);
 		if ( axi->bitmap_bit_order == MSBFirst )
 		    type = QT_XFORM_TYPE_MSBFIRST;
