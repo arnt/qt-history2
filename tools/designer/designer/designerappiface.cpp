@@ -175,7 +175,7 @@ QString DesignerProjectImpl::formFileName( const QString &form ) const
 {
     for ( QPtrListIterator<FormFile> forms = project->formFiles();
 	  forms.current(); ++forms ) {
-	if ( QString( forms.current()->formWindow()->name() ) == form )
+	if ( QString( forms.current()->formName() ) == form )
 	    return forms.current()->fileName();
     }
     return QString::null;
