@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#27 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#28 $
 **
 ** Definition of QGArray class
 **
@@ -81,13 +81,12 @@ protected:
     bool	setExpand( uint index, const char *d, uint sz );
 
 protected:
-    virtual array_data *newData()		    { return new array_data; }
-    virtual void	deleteData( array_data *p ) { delete p; }
+    virtual array_data *newData();
+    virtual void deleteData( array_data *p );
 
 private:
     static void msg_index( uint );
     array_data *shd;
-    uint unused_bool_1: 1;
 };
 
 

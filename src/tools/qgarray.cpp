@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#47 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#48 $
 **
 ** Implementation of QGArray class
 **
@@ -409,7 +409,7 @@ void QGArray::store( const char *d, uint len )
   Returns a pointer to the shared array block.
 
   \warning
-  
+
   Do not use this function.  Using it is begging for trouble.  We dare
   not remove it, for fear of breaking code, but we \e strongly
   discourage new use of it.
@@ -421,7 +421,7 @@ void QGArray::store( const char *d, uint len )
   Sets the shared array block to \e p.
 
   \warning
-  
+
   Do not use this function.  Using it is begging for trouble.  We dare
   not remove it, for fear of breaking code, but we \e strongly
   discourage new use of it.
@@ -480,7 +480,7 @@ QGArray &QGArray::setRawData( const char *d, uint len )
   Resets raw data.
 
   The arguments must be the data and length that were passed to
-  setRawData().  This is for consistency checking. 
+  setRawData().  This is for consistency checking.
 */
 
 void QGArray::resetRawData( const char *d, uint len )
@@ -644,19 +644,6 @@ bool QGArray::setExpand( uint index, const char *d, uint sz )
 
 
 /*!
-  \fn array_data *QGArray::newData()
-  \internal
-  Returns a new shared array block.
-*/
-
-/*!
-  \fn void QGArray::deleteData( array_data *p )
-  \internal
-  Deletes the shared array block.
-*/
-
-
-/*!
   \internal
   Prints a warning message if at() or [] is given a bad index.
 */
@@ -668,4 +655,27 @@ void QGArray::msg_index( uint index )
 #else
     Q_UNUSED( index )
 #endif
+}
+
+
+/*!
+  \internal
+  Returns a new shared array block.
+*/
+
+array_data * QGArray::newData()
+{
+    return new array_data;
+}
+
+
+/*!
+  \internal
+  Deletes the shared array block.
+*/
+
+void QGArray::deleteData( array_data *p )
+{
+    delete p;
+    p = 0;
 }
