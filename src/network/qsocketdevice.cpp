@@ -130,7 +130,6 @@ QSocketDevicePrivate::~QSocketDevicePrivate()
 QSocketDevice::QSocketDevice(int socket, Type type)
     : QIODevice(*new QSocketDevicePrivate)
 {
-    d->fd = socket;
     d->t = type;
     d->protocol = QSocketDevice::Unknown;
 #if defined(QSOCKETDEVICE_DEBUG)
