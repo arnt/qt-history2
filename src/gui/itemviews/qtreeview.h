@@ -27,7 +27,7 @@ public:
     QString columnText(int column) const;
     QIconSet columnIconSet(int column) const;
 
-    inline QTreeModel *model() const { return ::qt_cast<QTreeModel*>(model()); }
+    inline QTreeModel *model() const { return ::qt_cast<QTreeModel*>(QAbstractItemView::model()); }
 };
 
 #endif
