@@ -1202,11 +1202,13 @@ void QVariant::load( QDataStream& s )
 	    d->value.ptr = x;
 	}
 	break;
+#ifndef QT_NO_ACCEL
     case KeySequence:
 	QKeySequence* x = new QKeySequence;
  	s >> *x;
 	d->value.ptr = x;
 	break;
+#endif // QT_NO_ACCEL
     }
     d->typ = t;
 }
