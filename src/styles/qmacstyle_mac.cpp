@@ -45,13 +45,14 @@ void QMacStylePainter::callFunc(QMacStylePainter::Func f)
     if(d->gc && (d->gc->type() == QAbstractGC::QuickDraw || d->gc->type() == QAbstractGC::CoreGraphics))
 	mgc = (QQuickDrawGC*)d->gc;
     if(mgc) {
+	mgc->updateState(mgc->state);
 	if(f == SetPort) {
 #ifdef USE_CORE_GRAPHICS
 	    QRegion rgn;
 	    mgc->setupQDPort(true, 0, &rgn);
 	    QMacSavedPortInfo::setClipRegion(rgn);
 #else
-	    mgc->setupQDPort(true, 0);
+	    mgc->setupQDPort(true);
 #endif
 	} else if(f == UpdateFont) {
 	    mgc->setupQDFont();
