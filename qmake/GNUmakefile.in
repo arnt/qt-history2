@@ -28,7 +28,8 @@ uqmake:
 
 qmake: $(OBJS) $(QTOBJS)
 	$(CXX) -o $@ $^ $(LFLAGS)
-	ln -s -f $(shell pwd)/$@ @OUT_QTDIR@/bin/$@
+	rm -f @OUT_QTDIR@/bin/$@
+	ln -s $(shell pwd)/$@ @OUT_QTDIR@/bin/$@
 
 clean::
 	rm -f $(OBJS) $(QTOBJS)
