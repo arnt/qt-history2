@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.19 1999/04/29 19:20:18 warwick Exp $
+** $Id: i18n.doc,v 1.20 1999/05/10 19:17:01 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -95,6 +95,11 @@ in the following stages:
 	    QLabel *label = new QLabel( qApp->translate("LoginWidget", "Password:"), logwid );
 	}
 	\endcode
+	<p>
+	If you disable the const char* to QString automatic conversion by
+	compiling your software with the macro QT_NO_CAST_ASCII defined,
+	you'll be very likely to catch any strings you are missing. See
+	QString::fromLatin1() for more details.
 	</p>
  <li><b>Use QTranslator to load translated text.</b>
 	<p>
