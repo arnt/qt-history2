@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#42 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#43 $
 **
 ** Definition of QWidget class
 **
@@ -32,46 +32,46 @@ public:
     QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
    ~QWidget();
 
-    WId	    id()		const	{ return ident; }
+    WId		 id() const;
 
   // GUI style setting
 
-    GUIStyle style() const;			// get widget GUI style
-    void    setStyle( GUIStyle );		// set widget GUI style
+    GUIStyle 	 style() const;
+    void    	 setStyle( GUIStyle );
 
   // Widget control functions
 
-    void    enable();				// enable events
-    void    disable();				// disable events
-    bool    isDisabled()	const	{ return testFlag(WState_Disabled); }
+    void    	 enable();
+    void    	 disable();
+    bool    	 isDisabled()	const;
 
   // Widget coordinates
 
-    QRect   frameGeometry()	const	{ return frect; }
-    QRect   geometry()		const	{ return crect; }
-    int	    x()			const	{ return crect.x(); }
-    int	    y()			const	{ return crect.y(); }
-    QPoint  pos()		const	{ return crect.topLeft(); }
-    QSize   size()		const	{ return crect.size(); }
-    int	    width()		const	{ return crect.width(); }
-    int	    height()		const	{ return crect.height(); }
-    QRect   rect()		const	{ return QRect(0,0,crect.width(),
-						       crect.height()); }
-    void    setMinimumSize( int w, int h );
-    void    setMaximumSize( int w, int h );
-    void    setSizeIncrement( int w, int h );
+    QRect   	 frameGeometry() const;
+    QRect   	 geometry()	const;
+    int	    	 x()		const;
+    int	    	 y()		const;
+    QPoint  	 pos()		const;
+    QSize   	 size()		const;
+    int	    	 width()	const;
+    int	    	 height()	const;
+    QRect   	 rect()		const;
+
+    void    	 setMinimumSize( int w, int h );
+    void    	 setMaximumSize( int w, int h );
+    void    	 setSizeIncrement( int w, int h );
 
   // Widget coordinate mapping
 
-    QPoint  mapToGlobal( const QPoint & )   const;
-    QPoint  mapFromGlobal( const QPoint & ) const;
-    QPoint  mapToParent( const QPoint & )   const;
-    QPoint  mapFromParent( const QPoint & ) const;
+    QPoint  	 mapToGlobal( const QPoint & )   const;
+    QPoint  	 mapFromGlobal( const QPoint & ) const;
+    QPoint  	 mapToParent( const QPoint & )   const;
+    QPoint  	 mapFromParent( const QPoint & ) const;
 
   // Widget attribute functions
 
-    QColor  backgroundColor() const;
-    QColor  foregroundColor() const;
+    QColor  	 backgroundColor() const;
+    QColor  	 foregroundColor() const;
     virtual void setBackgroundColor( const QColor & );
     virtual void setBackgroundPixmap( const QPixmap & );
 
@@ -79,64 +79,77 @@ public:
     const QPalette    &palette()    const;
     virtual void       setPalette( const QPalette & );
 
-    QFontMetrics fontMetrics()	const { return QFontMetrics(fnt); }
-    QFontInfo	 fontInfo()	const { return QFontInfo(fnt); }
+    QFontMetrics fontMetrics()	const;
+    QFontInfo	 fontInfo()	const;
 
-    QFont	&font();			// get/set font
+    QFont	&font();
     virtual void setFont( const QFont & );
-    QCursor cursor() const;			// get/set cursor
-    void    setCursor( const QCursor & );
+    QCursor 	 cursor() const;
+    void    	 setCursor( const QCursor & );
 
-    bool    setMouseTracking( bool enable );
+    bool    	 setMouseTracking( bool enable );
 
   // Keyboard input focus functions
 
-    bool    hasFocus() const;
-    void    setFocus();				// set keyboard focus
+    bool    	 hasFocus() const;
+    void    	 setFocus();
 
   // Grab functions
 
-    void    grabMouse();
-    void    grabMouse( const QCursor & );
-    void    releaseMouse();
-    void    grabKeyboard();
-    void    releaseKeyboard();
+    void    	 grabMouse();
+    void     	 grabMouse( const QCursor & );
+    void    	 releaseMouse();
+    void    	 grabKeyboard();
+    void    	 releaseKeyboard();
 
   // Update/refresh functions
 
-    bool    enableUpdates( bool enable );	// enable widget update/repaint
-    void    update();				// update widget
-    void    update( int x, int y, int w, int h);// update part of widget
-    void    repaint( bool erase=TRUE );		// repaint widget
-    void    repaint( int x, int y, int w, int h, bool erase=TRUE );
-    void    repaint( const QRect &, bool erase=TRUE );
+    bool    	 enableUpdates( bool enable );
+    void    	 update();
+    void    	 update( int x, int y, int w, int h);
+    void    	 repaint( bool erase=TRUE );
+    void    	 repaint( int x, int y, int w, int h, bool erase=TRUE );
+    void    	 repaint( const QRect &, bool erase=TRUE );
 
   // Widget management functions
 
-    virtual void show();			// show widget
-    virtual void hide();			// hide widget
-    virtual bool close( bool forceKill=FALSE ); // close widget
-    bool    isVisible() const { return testFlag(WState_Visible); }
-    bool    isActive()	const { return testFlag(WState_Active); }
-    void    raise();				// raise widget
-    void    lower();				// lower widget
-    virtual void move( int x, int y );		// move widget
-    void    move( const QPoint & );
-    virtual void resize( int w, int h );	// resize widget
-    void    resize( const QSize & );
+    virtual void show();
+    virtual void hide();
+    virtual bool close( bool forceKill=FALSE );
+    bool    	 isVisible()	const;
+    bool    	 isActive()	const;
+    void    	 raise();
+    void    	 lower();
+    virtual void move( int x, int y );
+    void    	 move( const QPoint & );
+    virtual void resize( int w, int h );
+    void    	 resize( const QSize & );
     virtual void setGeometry( int x, int y, int w, int h );
-    void    setGeometry( const QRect & );	// move and resize
+    void    	 setGeometry( const QRect & );
 
-    void    recreate( QWidget *parent, WFlags f, const QPoint &p,
-		      bool showIt=FALSE );
+    void    	 recreate( QWidget *parent, WFlags f, const QPoint &p,
+			   bool showIt=FALSE );
 
-    void    erase();				// erase widget contents
-    void    scroll( int dx, int dy );		// scroll widget contents
+    void    	 erase();
+    void    	 scroll( int dx, int dy );
 
-    void    drawText( int x, int y, const char * );
-    void    drawText( const QPoint &, const char * );
+    void    	 drawText( int x, int y, const char * );
+    void    	 drawText( const QPoint &, const char * );
 
-  // Widget events
+  // Misc. functions
+
+public:
+    QWidget     *parentWidget() const;
+    bool	 testWFlags( WFlags n ) const;
+    static QWidget	 *find( WId );
+    static QWidgetMapper *wmapper();
+
+  // Signals
+
+signals:
+    void	 destroyed();
+
+  // Event handlers
 
 protected:
     bool	 event( QEvent * );
@@ -164,88 +177,132 @@ protected:
     virtual bool x11Event( XEvent * );		// X11 event
 #endif
 
-  // Signals
-
-signals:
-    void    destroyed();
-
-  // Misc. functions
-
-public:
-    QWidget    *parentWidget() const	{ return (QWidget*)QObject::parent(); }
-    bool	testFlag( WFlags n ) const { return (flags & n) != 0; }
-    static QWidget	 *find( WId );		// find widget by identifier
-    static QWidgetMapper *wmapper()	{ return mapper; }
+  // Misc. protected functions
 
 protected:
-    WFlags	getWFlags() const	{ return flags; }
-    void	setWFlags( WFlags n )	{ flags |= n; }
-    void	clearWFlags( WFlags n )	{ flags &= ~n; }
-    void	setFRect( const QRect & );
-    void	setCRect( const QRect & );
-    bool	acceptFocus() const	{ return testFlag(WState_AcceptFocus);}
-    void	setAcceptFocus( bool );
-    long	metric( int )	 const;		// get metric information
+    bool	 acceptFocus()	const;
+    void	 setAcceptFocus( bool );
+    long	 metric( int )	const;
+
+    WFlags	 getWFlags()	const;
+    void	 setWFlags( WFlags );
+    void	 clearWFlags( WFlags n );
+    void	 setFRect( const QRect & );
+    void	 setCRect( const QRect & );
 
     virtual bool focusNextChild();
     virtual bool focusPrevChild();
 
 #if defined(_WS_PM_)
-    int		convertYPos( int );
-    void	reposChildren();
-    WId		frm_wnd;
+    int		 convertYPos( int );
+    void	 reposChildren();
+    WId		 frm_wnd;
 #endif
 
 private:
-    void	set_id( WId );			// set widget id
-    bool	create();			// create widget
-    bool	destroy();			// destroy widget
-    void	createExtra();			// create extra data
-    WId		ident;				// widget identifier
-    WFlags	flags;				// widget flags
-    QRect	frect;				// widget frame geometry
-    QRect	crect;				// widget client geometry
-    QColor	bg_col;				// background color
-    QPalette	pal;				// widget palette
-    QFont	fnt;				// widget font
-    QCursor	curs;				// widget cursor
-    QWExtra    *extra;				// extra widget data
-    QWidget    *focusChild;			// child widget in focus
-    static void createMapper();			// create widget mapper
-    static void destroyMapper();		// destroy widget mapper
-    static QWidgetMapper *mapper;		// maps identifier to widget
+    void	 set_id( WId );
+    bool	 create();
+    bool	 destroy();
+    void	 createExtra();
+    WId		 ident;
+    WFlags	 flags;
+    QRect	 frect;
+    QRect	 crect;
+    QColor	 bg_col;
+    QPalette	 pal;
+    QFont	 fnt;
+    QCursor	 curs;
+    QWExtra     *extra;
+    QWidget     *focusChild;
+    static void  createMapper();
+    static void  destroyMapper();
+    static QWidgetMapper *mapper;
 };
 
 
+inline bool QWidget::testWFlags( WFlags f ) const
+{ return (flags & f) != 0; }
+
+inline WId QWidget::id() const
+{ return ident; }
+
+inline bool QWidget::isDisabled() const
+{ return testWFlags(WState_Disabled); }
+
+inline QRect QWidget::frameGeometry() const
+{ return frect; }
+
+inline QRect QWidget::geometry() const
+{ return crect; }
+
+inline int QWidget::x()	const
+{ return frect.x(); }
+
+inline int QWidget::y()	const
+{ return frect.y(); }
+
+inline QPoint QWidget::pos() const
+{ return frect.topLeft(); }
+
+inline QSize QWidget::size() const
+{ return crect.size(); }
+
+inline int QWidget::width() const
+{ return crect.width(); }
+
+inline int QWidget::height() const
+{ return crect.height(); }
+
+inline QRect QWidget::rect() const
+{ return QRect(0,0,crect.width(),crect.height()); }
+
+inline QFontMetrics QWidget::fontMetrics() const
+{ return QFontMetrics(fnt); }
+
+inline QFontInfo QWidget::fontInfo() const
+{ return QFontInfo(fnt); }
+
 inline void QWidget::repaint( bool erase )
-{
-    repaint( rect(), erase );
-}
+{ repaint( rect(), erase ); }
 
 inline void QWidget::repaint( int x, int y, int w, int h, bool erase )
-{
-    repaint( QRect(x,y,w,h), erase );
-}
+{ repaint( QRect(x,y,w,h), erase ); }
+
+inline bool QWidget::isVisible() const
+{ return testWFlags(WState_Visible); }
+
+inline bool QWidget::isActive()	const
+{ return testWFlags(WState_Active); }
 
 inline void QWidget::move( const QPoint &p )
-{
-    move( p.x(), p.y() );
-}
+{ move( p.x(), p.y() ); }
 
 inline void QWidget::resize( const QSize &s )
-{
-    resize( s.width(), s.height());
-}
+{ resize( s.width(), s.height()); }
 
 inline void QWidget::setGeometry( const QRect &r )
-{
-    setGeometry( r.left(), r.top(), r.width(), r.height() );
-}
+{ setGeometry( r.left(), r.top(), r.width(), r.height() ); }
 
 inline void QWidget::drawText( const QPoint &p, const char *s )
-{
-    drawText( p.x(), p.y(), s );
-}
+{ drawText( p.x(), p.y(), s ); }
+
+inline QWidget *QWidget::parentWidget() const
+{ return (QWidget *)QObject::parent(); };
+
+inline QWidgetMapper *QWidget::wmapper()
+{ return mapper; }
+
+inline bool QWidget::acceptFocus() const
+{ return testWFlags(WState_AcceptFocus); }
+
+inline WFlags QWidget::getWFlags() const
+{ return flags; }
+
+inline void QWidget::setWFlags( WFlags f )
+{ flags |= f; }
+
+inline void QWidget::clearWFlags( WFlags f )
+{ flags &= ~f; }
 
 
 #endif // QWIDGET_H
