@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>485</width>
-            <height>341</height>
+            <width>473</width>
+            <height>335</height>
         </rect>
     </property>
     <property name="caption">
@@ -67,15 +67,7 @@
                 <property name="vAlign" stdset="0">
                 </property>
             </widget>
-            <widget class="QPushButton" row="1" column="2">
-                <property name="name">
-                    <cstring>rejectButton</cstring>
-                </property>
-                <property name="text">
-                    <string>Reject license</string>
-                </property>
-            </widget>
-            <widget class="QTextView" row="0" column="1" rowspan="1" colspan="2">
+            <widget class="QTextView" row="0" column="1">
                 <property name="name">
                     <cstring>introText</cstring>
                 </property>
@@ -83,18 +75,80 @@
                     <string>Just some introduction text</string>
                 </property>
             </widget>
-            <widget class="QPushButton" row="1" column="1">
+            <widget class="QButtonGroup" row="1" column="1">
                 <property name="name">
-                    <cstring>acceptButton</cstring>
+                    <cstring>licenceButtons</cstring>
                 </property>
-                <property name="font">
-                    <font>
-                        <bold>1</bold>
-                    </font>
+                <property name="frameShape">
+                    <enum>NoFrame</enum>
                 </property>
-                <property name="text">
-                    <string>Accept license</string>
+                <property name="title">
+                    <string></string>
                 </property>
+                <grid>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QRadioButton" row="1" column="1">
+                        <property name="name">
+                            <cstring>rejectLicense</cstring>
+                        </property>
+                        <property name="text">
+                            <string>I reject the license</string>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>1</number>
+                        </property>
+                    </widget>
+                    <widget class="QRadioButton" row="0" column="1">
+                        <property name="name">
+                            <cstring>acceptLicence</cstring>
+                        </property>
+                        <property name="text">
+                            <string>I accept the license</string>
+                        </property>
+                        <property name="buttonGroupId">
+                            <number>0</number>
+                        </property>
+                    </widget>
+                    <spacer row="0" column="0" rowspan="2" colspan="1">
+                        <property name="name" stdset="0">
+                            <cstring>Spacer1_3</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <spacer row="0" column="2" rowspan="2" colspan="1">
+                        <property name="name" stdset="0">
+                            <cstring>Spacer3</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </grid>
             </widget>
         </grid>
     </widget>
@@ -384,7 +438,23 @@
                             </widget>
                         </hbox>
                     </widget>
-                    <widget class="QLayoutWidget" row="1" column="1">
+                    <widget class="QLabel" row="1" column="0">
+                        <property name="name">
+                            <cstring>qtDirLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Set QTDIR</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="2" column="0">
+                        <property name="name">
+                            <cstring>devSysLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>path</string>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget" row="2" column="1">
                         <property name="name">
                             <cstring>Layout3</cstring>
                         </property>
@@ -416,23 +486,7 @@
                             </widget>
                         </hbox>
                     </widget>
-                    <widget class="QLabel" row="1" column="0">
-                        <property name="name">
-                            <cstring>devSysLabel</cstring>
-                        </property>
-                        <property name="text">
-                            <string>path</string>
-                        </property>
-                    </widget>
-                    <widget class="QLabel" row="2" column="0">
-                        <property name="name">
-                            <cstring>groupLabel</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Folder group</string>
-                        </property>
-                    </widget>
-                    <widget class="QLayoutWidget" row="2" column="1">
+                    <widget class="QLayoutWidget" row="3" column="1">
                         <property name="name">
                             <cstring>Layout4</cstring>
                         </property>
@@ -480,85 +534,28 @@
                             </spacer>
                         </hbox>
                     </widget>
-                </grid>
-            </widget>
-        </grid>
-    </widget>
-    <widget class="QWidget">
-        <property name="name">
-            <cstring>progressPage</cstring>
-        </property>
-        <attribute name="title">
-            <string>Installing</string>
-        </attribute>
-        <hbox>
-            <property name="name">
-                <cstring>unnamed</cstring>
-            </property>
-            <property name="margin">
-                <number>11</number>
-            </property>
-            <property name="spacing">
-                <number>6</number>
-            </property>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>page4Pixmap</cstring>
-                </property>
-                <property name="sizePolicy">
-                    <sizepolicy>
-                        <hsizetype>0</hsizetype>
-                        <vsizetype>1</vsizetype>
-                    </sizepolicy>
-                </property>
-                <property name="pixmap">
-                    <pixmap>image1</pixmap>
-                </property>
-                <property name="scaledContents">
-                    <bool>false</bool>
-                </property>
-                <property name="alignment">
-                    <set>AlignAuto|AlignTop</set>
-                </property>
-                <property name="vAlign" stdset="0">
-                </property>
-            </widget>
-            <widget class="QGroupBox">
-                <property name="name">
-                    <cstring>progressBox</cstring>
-                </property>
-                <property name="title">
-                    <string>Copying files</string>
-                </property>
-                <vbox>
-                    <property name="margin">
-                        <number>11</number>
-                    </property>
-                    <property name="spacing">
-                        <number>6</number>
-                    </property>
-                    <widget class="QProgressBar">
+                    <widget class="QCheckBox" row="1" column="1">
                         <property name="name">
-                            <cstring>operationProgress</cstring>
+                            <cstring>qtDirCheck</cstring>
                         </property>
-                        <property name="centerIndicator">
-                            <bool>false</bool>
+                        <property name="text">
+                            <string></string>
                         </property>
-                        <property name="percentageVisible">
-                            <bool>false</bool>
-                        </property>
-                    </widget>
-                    <widget class="QMultiLineEdit">
-                        <property name="name">
-                            <cstring>filesDisplay</cstring>
-                        </property>
-                        <property name="readOnly">
+                        <property name="checked">
                             <bool>true</bool>
                         </property>
                     </widget>
-                </vbox>
+                    <widget class="QLabel" row="3" column="0">
+                        <property name="name">
+                            <cstring>groupLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Folder group</string>
+                        </property>
+                    </widget>
+                </grid>
             </widget>
-        </hbox>
+        </grid>
     </widget>
     <widget class="QWidget">
         <property name="name">
@@ -673,6 +670,82 @@
                         </widget>
                     </hbox>
                 </widget>
+            </widget>
+        </hbox>
+    </widget>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>progressPage</cstring>
+        </property>
+        <attribute name="title">
+            <string>Installing</string>
+        </attribute>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <property name="margin">
+                <number>11</number>
+            </property>
+            <property name="spacing">
+                <number>6</number>
+            </property>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>page4Pixmap</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>0</hsizetype>
+                        <vsizetype>1</vsizetype>
+                    </sizepolicy>
+                </property>
+                <property name="pixmap">
+                    <pixmap>image1</pixmap>
+                </property>
+                <property name="scaledContents">
+                    <bool>false</bool>
+                </property>
+                <property name="alignment">
+                    <set>AlignAuto|AlignTop</set>
+                </property>
+                <property name="vAlign" stdset="0">
+                </property>
+            </widget>
+            <widget class="QGroupBox">
+                <property name="name">
+                    <cstring>progressBox</cstring>
+                </property>
+                <property name="title">
+                    <string>Copying files</string>
+                </property>
+                <vbox>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QProgressBar">
+                        <property name="name">
+                            <cstring>operationProgress</cstring>
+                        </property>
+                        <property name="centerIndicator">
+                            <bool>false</bool>
+                        </property>
+                        <property name="percentageVisible">
+                            <bool>false</bool>
+                        </property>
+                    </widget>
+                    <widget class="QMultiLineEdit">
+                        <property name="name">
+                            <cstring>filesDisplay</cstring>
+                        </property>
+                        <property name="readOnly">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                </vbox>
             </widget>
         </hbox>
     </widget>
@@ -818,18 +891,6 @@
         <slot>clickedSystem(int)</slot>
     </connection>
     <connection>
-        <sender>rejectButton</sender>
-        <signal>clicked()</signal>
-        <receiver>SetupWizard</receiver>
-        <slot>reject()</slot>
-    </connection>
-    <connection>
-        <sender>acceptButton</sender>
-        <signal>clicked()</signal>
-        <receiver>SetupWizard</receiver>
-        <slot>licenseAccepted()</slot>
-    </connection>
-    <connection>
         <sender>installPathButton</sender>
         <signal>clicked()</signal>
         <receiver>SetupWizard</receiver>
@@ -847,19 +908,23 @@
         <receiver>SetupWizard</receiver>
         <slot>clickedDevSysPath()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
-    <slot access="public" language="C++">clickedDevSysPath()</slot>
-    <slot access="public" language="C++">clickedEnvironmentButton()</slot>
-    <slot access="public" language="C++">clickedFolderPath()</slot>
-    <slot access="public" language="C++">clickedPath()</slot>
-    <slot access="public" language="C++">clickedSystem(int)</slot>
-    <slot access="public" language="C++">licenseAccepted()</slot>
+    <connection>
+        <sender>licenceButtons</sender>
+        <signal>clicked(int)</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>licenseAction(int)</slot>
+    </connection>
+    <slot access="public" language="C++" returnType="void">clickedDevSysPath()</slot>
+    <slot access="public" language="C++" returnType="void">clickedEnvironmentButton()</slot>
+    <slot access="public" language="C++" returnType="void">clickedFolderPath()</slot>
+    <slot access="public" language="C++" returnType="void">clickedPath()</slot>
+    <slot access="public" language="C++" returnType="void">clickedSystem(int)</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="public" language="C++" returnType="void">licenseAction(int)</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
 </connections>
 <tabstops>
     <tabstop>introText</tabstop>
-    <tabstop>acceptButton</tabstop>
-    <tabstop>rejectButton</tabstop>
     <tabstop>installPath</tabstop>
     <tabstop>installPathButton</tabstop>
     <tabstop>installDocs</tabstop>

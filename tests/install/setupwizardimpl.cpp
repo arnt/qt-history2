@@ -1,6 +1,5 @@
 #include "setupwizardimpl.h"
 #include "environment.h"
-#include "confirmdlg.h"
 #include <qfiledialog.h>
 #include <qlineedit.h>
 #include <qlabel.h>
@@ -84,9 +83,16 @@ void SetupWizardImpl::clickedSystem( int sys )
     sysID = sys;
 }
 
-void SetupWizardImpl::licenseAccepted( )
+void SetupWizardImpl::licenseAction( int act )
 {
-    setNextEnabled( introPage, true );
+    if( act ) {
+	setFinishEnabled( introPage, true );
+	setNextEnabled( introPage, false );
+    }
+    else {
+	setNextEnabled( introPage, true );
+	setFinishEnabled( introPage, false );
+    }
 }
 
 void SetupWizardImpl::readConfigureOutput()
@@ -440,6 +446,104 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	else
 	    folderGroups->setDisabled( true );
     }
+    else if( newPage == configPage ) {
+	QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++" );
+	QByteArray pathBuffer;
+	QStringList path;
+
+	path = QStringList::split( ';', QEnvironment::getEnv( "PATH" ) );
+	if( path.findIndex( installPath->text() + "\\lib" ) == -1 )
+	    path.prepend( installPath->text() + "\\lib" );
+	if( path.findIndex( installPath->text() + "\\bin" ) == -1 )
+	    path.prepend( installPath->text() + "\\bin" );
+	QEnvironment::putEnv( "PATH", path.join( ";" ) );
+
+	if( qtDirCheck->isChecked() ) {
+	    QEnvironment::putEnv( "QTDIR", installPath->text(), QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
+	    QEnvironment::putEnv( "MKSPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
+
+	    path.clear();
+	    path = QStringList::split( ';', QEnvironment::getEnv( "PATH", QEnvironment::PersistentEnv ) );
+	    if( path.findIndex( "%QTDIR%\\lib" ) == -1 )
+		path.prepend( "%QTDIR%\\lib" );
+	    if( path.findIndex( "%QTDIR%\\bin" ) == -1 )
+		path.prepend( "%QTDIR%\\bin" );
+	    QEnvironment::putEnv( "PATH", path.join( ";" ), QEnvironment::PersistentEnv );
+	}
+	else {
+	    QEnvironment::putEnv( "QTDIR", installPath->text(), QEnvironment::LocalEnv );
+	    QEnvironment::putEnv( "MKSPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv );
+	}
+
+
+	configList->clear();
+	advancedList->clear();
+	configList->setSorting( -1 );
+	advancedList->setSorting( -1 );
+	QCheckListItem* item;
+	connect( &configure, SIGNAL( processExited() ), this, SLOT( configDone() ) );
+	connect( &configure, SIGNAL( readyReadStdout() ), this, SLOT( readConfigureOutput() ) );
+	connect( &configure, SIGNAL( readyReadStderr() ), this, SLOT( readConfigureError() ) );
+
+	QString fromdir = QDir::currentDirPath();
+
+	QString mkspecdir = fromdir + "/mkspecs";
+//	QString mkspecenv = QEnvironment::getEnv( "MKSPEC" );
+//	QFileInfo mkspecenvdirinfo( mkspecenv );
+	QString srcdir = fromdir + "/src";
+	QFileInfo* fi;
+
+	// general
+	modules = new QCheckListItem ( configList, "Modules" );
+	modules->setOpen( TRUE );
+	QDir srcDir( srcdir, QString::null, QDir::Name | QDir::IgnoreCase, QDir::Dirs );
+	const QFileInfoList* srcdirs = srcDir.entryInfoList();
+	QFileInfoListIterator srcDirIterator( *srcdirs );
+	srcDirIterator.toLast();
+	while ( ( fi = srcDirIterator.current() ) ) {
+	    if ( fi->fileName()[0] != '.' && // fi->fileName() != ".." &&
+		 fi->fileName() != "tmp" &&
+		 fi->fileName() != "compat" &&
+		 fi->fileName() != "3rdparty" &&
+		 fi->fileName() != "moc" ) {
+		item = new QCheckListItem( modules, fi->fileName(), QCheckListItem::CheckBox );
+		item->setOn( TRUE );
+	    }
+	    --srcDirIterator;
+	}
+	threadModel = new QCheckListItem ( configList, "Threading" );
+	threadModel->setOpen( TRUE );
+	item = new QCheckListItem( threadModel, "Threaded", QCheckListItem::RadioButton );
+	item = new QCheckListItem( threadModel, "Non-threaded", QCheckListItem::RadioButton );
+	item->setOn( TRUE );
+
+	buildType = new QCheckListItem ( configList, "Build" );
+	buildType->setOpen( TRUE );
+	item = new QCheckListItem( buildType, "Static", QCheckListItem::RadioButton );
+	item = new QCheckListItem( buildType, "Shared", QCheckListItem::RadioButton );
+	item->setOn( TRUE );
+
+	debugMode = new QCheckListItem ( configList, "Mode" );
+	debugMode->setOpen( TRUE );
+	item = new QCheckListItem( debugMode, "Debug", QCheckListItem::RadioButton );
+	item = new QCheckListItem( debugMode, "Release", QCheckListItem::RadioButton );
+	item->setOn( TRUE );
+
+	// advanced
+	sqldrivers = new QCheckListItem ( advancedList, "SQL Drivers" );
+	sqldrivers->setOpen( true );
+	QDir sqlsrcDir( srcdir + "/sql/src", QString::null, QDir::Name | QDir::IgnoreCase, QDir::Dirs );
+	const QFileInfoList* sqlsrcdirs = sqlsrcDir.entryInfoList();
+	QFileInfoListIterator sqlsrcDirIterator( *sqlsrcdirs );
+	sqlsrcDirIterator.toLast();
+	while ( ( fi = sqlsrcDirIterator.current() ) ) {
+	    if ( fi->fileName() != "." && fi->fileName() != ".." && fi->fileName() != "tmp" ) {
+		item = new QCheckListItem( sqldrivers, fi->fileName(), QCheckListItem::CheckBox );
+		item->setOn( TRUE );
+	    }
+	    --sqlsrcDirIterator;
+	}
+    }
     else if( newPage == progressPage ) {
 	int totalSize( 0 );
 	QFileInfo fi;
@@ -516,108 +620,6 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    logFiles( "All files have been copied,\nThis log has been saved to the installation directory.\n", true );
 	}
 	setNextEnabled( progressPage, true );
-    }
-    else if( newPage == configPage ) {
-	QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++" );
-	QByteArray pathBuffer;
-	QStringList path;
-	ConfirmDlg confirm;
-
-	path = QStringList::split( ';', QEnvironment::getEnv( "PATH" ) );
-	if( path.findIndex( installPath->text() + "\\lib" ) == -1 )
-	    path.prepend( installPath->text() + "\\lib" );
-	if( path.findIndex( installPath->text() + "\\bin" ) == -1 )
-	    path.prepend( installPath->text() + "\\bin" );
-	QEnvironment::putEnv( "PATH", path.join( ";" ) );
-
-	confirm.confirmText->setText( "Do you want to set QTDIR to point to the new installation?" );
-	if( confirm.exec() ) {
-	    QEnvironment::putEnv( "QTDIR", installPath->text(), QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
-	    QEnvironment::putEnv( "MKSPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
-
-	    path.clear();
-	    path = QStringList::split( ';', QEnvironment::getEnv( "PATH", QEnvironment::PersistentEnv ) );
-	    if( path.findIndex( "%QTDIR%\\lib" ) == -1 )
-		path.prepend( "%QTDIR%\\lib" );
-	    if( path.findIndex( "%QTDIR%\\bin" ) == -1 )
-		path.prepend( "%QTDIR%\\bin" );
-	    QEnvironment::putEnv( "PATH", path.join( ";" ), QEnvironment::PersistentEnv );
-	}
-	else {
-	    QEnvironment::putEnv( "QTDIR", installPath->text(), QEnvironment::LocalEnv );
-	    QEnvironment::putEnv( "MKSPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv );
-	}
-
-
-	configList->clear();
-	advancedList->clear();
-	configList->setSorting( -1 );
-	advancedList->setSorting( -1 );
-	QCheckListItem* item;
-	connect( &configure, SIGNAL( processExited() ), this, SLOT( configDone() ) );
-	connect( &configure, SIGNAL( readyReadStdout() ), this, SLOT( readConfigureOutput() ) );
-	connect( &configure, SIGNAL( readyReadStderr() ), this, SLOT( readConfigureError() ) );
-
-	QString qtdir = QEnvironment::getEnv( "QTDIR" );
-
-	QString mkspecsdir = qtdir + "/mkspecs";
-	QString mkspecsenv = QEnvironment::getEnv( "MKSPEC" );
-	QFileInfo mkspecsenvdirinfo( mkspecsenv );
-	QString srcdir = qtdir + "/src";
-	QFileInfo* fi;
-
-	// general
-	modules = new QCheckListItem ( configList, "Modules" );
-	modules->setOpen( TRUE );
-	QDir srcDir( srcdir, QString::null, QDir::Name | QDir::IgnoreCase, QDir::Dirs );
-	const QFileInfoList* srcdirs = srcDir.entryInfoList();
-	QFileInfoListIterator srcDirIterator( *srcdirs );
-	srcDirIterator.toLast();
-	while ( ( fi = srcDirIterator.current() ) ) {
-	    if ( fi->fileName()[0] != '.' && // fi->fileName() != ".." &&
-		 fi->fileName() != "tmp" &&
-		 fi->fileName() != "compat" &&
-		 fi->fileName() != "3rdparty" &&
-		 fi->fileName() != "Debug" && // MSVC directory
-		 fi->fileName() != "Release" && // MSVC directory
-		 fi->fileName() != "moc" ) {
-		item = new QCheckListItem( modules, fi->fileName(), QCheckListItem::CheckBox );
-		item->setOn( TRUE );
-	    }
-	    --srcDirIterator;
-	}
-	threadModel = new QCheckListItem ( configList, "Threading" );
-	threadModel->setOpen( TRUE );
-	item = new QCheckListItem( threadModel, "Threaded", QCheckListItem::RadioButton );
-	item = new QCheckListItem( threadModel, "Non-threaded", QCheckListItem::RadioButton );
-	item->setOn( TRUE );
-
-	buildType = new QCheckListItem ( configList, "Build" );
-	buildType->setOpen( TRUE );
-	item = new QCheckListItem( buildType, "Static", QCheckListItem::RadioButton );
-	item = new QCheckListItem( buildType, "Shared", QCheckListItem::RadioButton );
-	item->setOn( TRUE );
-
-	debugMode = new QCheckListItem ( configList, "Mode" );
-	debugMode->setOpen( TRUE );
-	item = new QCheckListItem( debugMode, "Debug", QCheckListItem::RadioButton );
-	item = new QCheckListItem( debugMode, "Release", QCheckListItem::RadioButton );
-	item->setOn( TRUE );
-
-	// advanced
-	sqldrivers = new QCheckListItem ( advancedList, "SQL Drivers" );
-	sqldrivers->setOpen( true );
-	QDir sqlsrcDir( srcdir + "/sql/src", QString::null, QDir::Name | QDir::IgnoreCase, QDir::Dirs );
-	const QFileInfoList* sqlsrcdirs = sqlsrcDir.entryInfoList();
-	QFileInfoListIterator sqlsrcDirIterator( *sqlsrcdirs );
-	sqlsrcDirIterator.toLast();
-	while ( ( fi = sqlsrcDirIterator.current() ) ) {
-	    if ( fi->fileName() != "." && fi->fileName() != ".." && fi->fileName() != "tmp" ) {
-		item = new QCheckListItem( sqldrivers, fi->fileName(), QCheckListItem::CheckBox );
-		item->setOn( TRUE );
-	    }
-	    --sqlsrcDirIterator;
-	}
     }
     else if( newPage == buildPage ) {
 	QStringList args;
@@ -749,6 +751,40 @@ bool SetupWizardImpl::createDir( const QString& fullPath )
     return success;
 }
 
+void SetupWizardImpl::logFiles( const QString& entry, bool close )
+{
+    if( !fileLog.isOpen() ) {
+	fileLog.setName( installPath->text() + "\\install.log" );
+	if( !fileLog.open( IO_WriteOnly ) )
+	    return;
+    }
+    QTextStream outstream( &fileLog );
+
+    filesDisplay->append( entry );
+//    filesDisplay->setText( filesDisplay->text() + entry );
+    outstream << entry;
+
+    if( close )
+	fileLog.close();
+}
+
+void SetupWizardImpl::logOutput( const QString& entry, bool close )
+{
+    QTextStream outstream;
+    if( !outputLog.isOpen() ) {
+	outputLog.setName( installPath->text() + "\\buildlog.txt" );
+	if( !outputLog.open( IO_WriteOnly ) )
+	    return;
+    }
+    outstream.setDevice( &outputLog );
+
+    outputDisplay->append( entry );
+    outstream << entry;
+
+    if( close )
+	outputLog.close();
+}
+
 #if defined (USE_ARCHIVES)
 void SetupWizardImpl::readArchive( const QString& arcname, const QString& installPath )
 {
@@ -861,43 +897,7 @@ void SetupWizardImpl::readArchive( const QString& arcname, const QString& instal
 	inFile.close();
     }
 }
-#endif
-
-void SetupWizardImpl::logFiles( const QString& entry, bool close )
-{
-    if( !fileLog.isOpen() ) {
-	fileLog.setName( installPath->text() + "\\install.log" );
-	if( !fileLog.open( IO_WriteOnly ) )
-	    return;
-    }
-    QTextStream outstream( &fileLog );
-
-    filesDisplay->append( entry );
-//    filesDisplay->setText( filesDisplay->text() + entry );
-    outstream << entry;
-
-    if( close )
-	fileLog.close();
-}
-
-void SetupWizardImpl::logOutput( const QString& entry, bool close )
-{
-    QTextStream outstream;
-    if( !outputLog.isOpen() ) {
-	outputLog.setName( installPath->text() + "\\buildlog.txt" );
-	if( !outputLog.open( IO_WriteOnly ) )
-	    return;
-    }
-    outstream.setDevice( &outputLog );
-
-    outputDisplay->append( entry );
-    outstream << entry;
-
-    if( close )
-	outputLog.close();
-}
-
-#if !defined( USE_ARCHIVES )
+#else
 void SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel )
 {
     QDir dir( sourcePath );
@@ -935,7 +935,7 @@ void SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 		if( app ) {
 		    app->processEvents();
 		    operationProgress->setProgress( operationProgress->progress() + 1 );
-		    logFiles( targetName + "\n" );
+		    logFiles( targetName );
 		}
 		if( ( entryName.right( 4 ) == ".cpp" ) || ( entryName.right( 2 ) == ".h" ) )
 		    filesToCompile++;

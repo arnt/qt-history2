@@ -13,7 +13,7 @@ public:
 
     virtual void clickedPath();
     virtual void clickedSystem( int );
-    virtual void licenseAccepted();
+    virtual void licenseAction( int );
     virtual void clickedFolderPath();
     virtual void clickedDevSysPath();
 //    virtual void clickedEnvironmentButton();
