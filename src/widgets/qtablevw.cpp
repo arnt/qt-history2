@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#25 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#25 $")
 
 
 const int sbDim = 16;
@@ -1496,7 +1496,7 @@ int QTableView::findRawRow( int yPos, int *cellMaxY, int *cellMinY,
     if ( goOutsideView || yPos >= frameWidth() && yPos <= maxViewY() ) {
 	if ( yPos < frameWidth() ) {
 #if defined(CHECK_RANGE)
-	    warning( "QTableView::findRawRow: intermal error: "
+	    warning( "QTableView::findRawRow: internal error: "
 		     "yPos < frameWidth() && goOutsideView "
 		     "not supported. (%d,%d)", yPos, yOffs );
 #endif
@@ -1740,21 +1740,24 @@ void QTableView::scroll( int xPixels, int yPixels )
 	    oldLastMinX += xPixels;
 	    oldLim = oldLastMaxX <= maxX ? oldLastMaxX : oldLastMinX - 1;
 	    newLim = newLastMaxX <= maxX ? newLastMaxX : newLastMinX - 1;
-	    if ( xPixels < 0 )		// move to the right ?
-		width -= maxX - oldLim; // dont't move area we know is blank
+	    width -= maxX - oldLim;
 
+	    bitBlt( this, xStart - xPixels, yStart,
+		    this, xStart, yStart, width, height );
+
+	    if ( xPixels < 0 )
+		repaint( frameWidth(), yStart, -xPixels, height );
+	    else
+		repaint( frameWidth() + width, yStart,
+			 maxX - frameWidht() - width, height );
+	} else {
+	    bitBlt( this, xStart - xPixels, yStart,
+		    this, xStart, yStart, width, height );
+	    if ( xPixels < 0 )
+		repaint( frameWidth(), yStart, -xPixels, height );
+	    else
+		repaint( frameWidth() + width, yStart, xPixels, height );
 	}
-
-	bitBlt( this, xStart - xPixels, yStart,
-		this, xStart, yStart, width, height );
-
-	if ( testTableFlags(Tbl_cutCellsH) && newLim < oldLim )
-	    repaint( newLim + 1, 0, maxViewX() - newLim, viewHeight() );
-
-	if ( xPixels < 0 )
-	    repaint( frameWidth(), yStart, -xPixels, height );
-	else
-	    repaint( frameWidth() + width, yStart, xPixels, height );
     }
 
     if ( yPixels != 0 ) {
@@ -1782,20 +1785,26 @@ void QTableView::scroll( int xPixels, int yPixels )
 	    oldLastMinY += yPixels;
 	    oldLim = oldLastMaxY <= maxY ? oldLastMaxY : oldLastMinY - 1;
 	    newLim = newLastMaxY <= maxY ? newLastMaxY : newLastMinY - 1;
-	    if ( yPixels < 0 )		 // move down ?
-		height -= maxY - oldLim; // dont't move area we know is blank
-	}
+	    height -= maxY - oldLim;
 
-	bitBlt( this, xStart, yStart - yPixels,
-		this, xStart, yStart, width, height );
+	    bitBlt( this, xStart, yStart - yPixels,
+		    this, xStart, yStart, width, height );
 
-	if ( testTableFlags(Tbl_cutCellsV) && newLim < oldLim )
-	    repaint( 0, newLim + 1, viewWidth(), maxViewY() - newLim );
-
-	if ( yPixels < 0 ) {
-	    repaint( xStart, frameWidth(), width, -yPixels );
+	    if ( yPixels < 0 ) {
+		repaint( xStart, frameWidth(), width, -yPixels );
+	    } else {
+		repaint( xStart, frameWidth() + height,
+			 width, maxY - frameWidth() - height );
+	    }
 	} else {
-	    repaint( xStart, frameWidth() + height, width, yPixels );
+	    bitBlt( this, xStart, yStart - yPixels,
+		    this, xStart, yStart, width, height );
+
+	    if ( yPixels < 0 ) {
+		repaint( xStart, frameWidth(), width, -yPixels );
+	    } else {
+		repaint( xStart, frameWidth() + height, width, yPixels );
+	    }
 	}
     }
 }
