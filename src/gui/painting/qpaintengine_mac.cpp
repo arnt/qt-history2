@@ -997,6 +997,9 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
         CGShadingRelease(d->shading);
         d->shading = 0;
     }
+#if 0
+    CGContextSetShadowWithColor(d->hd, CGSizeMake(0, 0), 0, 0);
+#endif
     d->offx = d->offy = 0; // (quickdraw compat!!)
 
     setupCGClip(0); //get handle to drawable
@@ -1238,6 +1241,7 @@ QCoreGraphicsPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 {
     Q_ASSERT(isActive());
 
+    CGContextBeginPath(d->hd);
     CGContextMoveToPoint(d->hd, p1.x(), p1.y());
     CGContextAddLineToPoint(d->hd, p2.x(), p2.y());
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
@@ -1259,6 +1263,7 @@ QCoreGraphicsPaintEngine::drawPoint(const QPoint &p)
 {
     Q_ASSERT(isActive());
 
+    CGContextBeginPath(d->hd);
     CGContextMoveToPoint(d->hd, p.x(), p.y());
     CGContextAddLineToPoint(d->hd, p.x(), p.y()+1);
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
@@ -1269,6 +1274,7 @@ QCoreGraphicsPaintEngine::drawPoints(const QPointArray &pa, int index, int npoin
 {
     Q_ASSERT(isActive());
 
+    CGContextBeginPath(d->hd);
     for(int i=0; i<npoints; i++) {
         float x = pa[index+i].x(), y = pa[index+i].y();
         CGContextMoveToPoint(d->hd, x, y);
