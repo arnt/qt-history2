@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#148 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#149 $
 **
 ** Global type declarations and definitions
 **
@@ -179,6 +179,9 @@
 #define _CC_OC_
 #elif defined(__SUNPRO_CC)
 #define _CC_SUN_
+#if __SUNPRO_CC >= 0x500
+#define HAS_BOOL_TYPE
+#endif
 #elif defined(__DECCXX)
 #define _CC_DEC_
 #elif defined(_OS_HPUX_)
