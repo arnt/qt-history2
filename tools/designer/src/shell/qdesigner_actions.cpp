@@ -336,16 +336,16 @@ void QDesignerActions::updateEditMode(QAction *action)
 
 void QDesignerActions::setWorkbenchVisible(bool visible)
 {
-    if (visible)
+    if (visible) {
         workbench()->switchToWorkspaceMode();
-    else
+    } else {
         workbench()->switchToTopLevelMode();
+    }
 }
 
 void QDesignerActions::createForm()
 {
     QDesignerFormWindow *formWindow = workbench()->createFormWindow();
-    formWindow->setWindowTitle(tr("Untitled"));
     if (AbstractFormWindow *editor = formWindow->editor()) {
         editor->setContents(QString());
     }
@@ -386,7 +386,6 @@ bool QDesignerActions::readInForm(const QString &fileName)
 
 
     QDesignerFormWindow *formWindow = workbench()->createFormWindow();
-    formWindow->setWindowTitle(fileName);
     if (AbstractFormWindow *editor = formWindow->editor()) {
         editor->setContents(&f);
         editor->setFileName(fileName);

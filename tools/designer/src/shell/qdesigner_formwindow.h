@@ -41,6 +41,9 @@ public:
 signals:
     void activated(bool active);
 
+private slots:
+    void updateWindowTitle(const QString &fileName);
+
 protected:
     virtual void changeEvent(QEvent *e);
 

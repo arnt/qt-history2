@@ -31,10 +31,14 @@ QDesignerFormWindow::QDesignerFormWindow(QDesignerWorkbench *workbench, QWidget 
     m_editor = workbench->core()->formWindowManager()->createFormWindow(this);
     setCentralWidget(m_editor);
 
+    connect(m_editor, SIGNAL(fileNameChanged(const QString&)),
+            this, SLOT(updateWindowTitle(const QString&)));
+
     m_action = new QAction(this);
-    m_action->setText(windowTitle());
     m_action->setCheckable(true);
     connect(m_action, SIGNAL(checked(bool)), this, SIGNAL(activated(bool)));
+
+    updateWindowTitle(m_editor->fileName());
 }
 
 QDesignerFormWindow::QDesignerFormWindow(AbstractFormWindow *editor, QDesignerWorkbench *workbench, QWidget *parent, Qt::WFlags flags)
@@ -87,3 +91,14 @@ AbstractFormWindow *QDesignerFormWindow::editor() const
 {
     return m_editor;
 }
+
+void QDesignerFormWindow::updateWindowTitle(const QString &fileName)
+{
+    QString fn = fileName;
+
+    if (fn.isEmpty())
+        fn = tr("Untitled");
+
+    setWindowTitle(tr("%1 - [Design]").arg(fn));
+}
+

@@ -96,6 +96,7 @@ public slots:
     virtual void setContents(const QString &contents) = 0;
 
 signals:
+    void fileNameChanged(const QString &fileName);
     void selectionChanged();
     void changed();
     void widgetManaged(QWidget *widget);

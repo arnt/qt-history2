@@ -348,12 +348,8 @@ void QDesignerWorkbench::activateWorkspaceChildWindow(QWidget *widget)
 
 void QDesignerWorkbench::updateWorkbench(AbstractFormWindow *fw, const QString &name, const QVariant &value)
 {
+    Q_UNUSED(fw);
+    Q_UNUSED(name);
     Q_UNUSED(value);
-
-    if (name == QLatin1String("windowTitle")) {
-        if (QDesignerFormWindow *window = findFormWindow(fw)) {
-            window->setWindowTitle(fw->windowTitle());
-        }
-    }
 }
 

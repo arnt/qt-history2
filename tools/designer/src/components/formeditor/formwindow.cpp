@@ -1245,7 +1245,11 @@ QString FormWindow::fileName() const
 
 void FormWindow::setFileName(const QString &fileName)
 {
+    if (m_fileName == fileName)
+        return;
+
     m_fileName = fileName;
+    emit fileNameChanged(fileName);
 }
 
 QString FormWindow::contents() const
