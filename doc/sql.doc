@@ -67,12 +67,13 @@
 /*! \file sql/overview/subclass5/main.cpp */
 
 /*! \page sql.html
-
+ 
 \title Qt SQL Module
 
 <ul>
 <li><a href="#Introduction">Introduction</a></li>
 <li><a href="#Architecture">SQL Module Architecture</a></li>
+<li><a href="#Plugins">SQL Driver Plugins</a></li>
 <li><a href="#Connecting_to_Databases">Connecting to Databases</a></li> 
     <ul>
     <li><a href="#Connecting_to_a_Single_Database">
@@ -202,6 +203,39 @@ bridge between the database and the SQL classes. This layer is
 documented separately since it is only relevant to driver writers, and
 is rarely used in standard database application programming.
 
+<h1><a name="Plugins">SQL Driver Plugins</a></h1>
+
+The Qt SQL module can dynamically load new drivers at runtime using
+the <a href="component.html">Qt component model</a>.
+
+To compile plugins for a supported database, it may be necessary to
+customize the command line given to <a
+href="qmake.html"><em>qmake</em></a> in order to match the setup on your system.
+
+For example, when building the MySQL plugin on unix:
+
+\code
+cd $QTDIR/src/sql/src/mysql
+qmake -o Makefile "INCLUDEPATH=/usr/local/include" "LIBS=-L/usr/local/libs -lmysql" mysql.pro 
+make
+\endcode
+
+To do the same thing on Windows:
+
+\code
+cd c:\qt\src\sql\src\mysql
+qmake -o Makefile "INCLUDEPATH=c:\path\to\mysql\include" "LIBS=c:\path\to\mysql\lib\libmysql.lib" mysql.pro 
+nmake
+\endcode
+
+The above examples ensures that the proper include and library paths
+are used by <em>qmake</em> when generating the makefile for the MySQL
+plugin.  Of course, you will need the proper development headers and
+libraries for MySQL installed before compiling the plugin.
+
+Once a plugin is built, Qt will automatically load it, and the driver
+will be available for use by QSqlDatabase (see QSqlDatabase::drivers()
+for more information).
 
 <h1><a name="Connecting_to_Databases">Connecting to Databases</a></h1> 
 
