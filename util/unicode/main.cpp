@@ -3,6 +3,7 @@
 #include <qfile.h>
 #include <qstring.h>
 #include <qchar.h>
+#include <private/qunicodetables_p.h>
 
 #if 0
 // accessing properties goes via:
@@ -30,6 +31,7 @@ struct PropertyFlags {
                 && joining == o.joining
                 && age == o.age
                 && mirrorDiff == o.mirrorDiff
+                && line_break_class == o.line_break_class
                 && caseDiff == o.caseDiff
                 && digitValue == o.digitValue);
     }
@@ -46,6 +48,7 @@ struct PropertyFlags {
     QChar::UnicodeVersion age : 4;
     uint digitValue : 4;
     uint unused : 2;
+    uint line_break_class : 5;
 
     int mirrorDiff : 16;
     int caseDiff : 16;
@@ -81,6 +84,7 @@ struct UnicodeData {
         p.mirrorDiff = 0;
         p.caseDiff = 0;
         p.digitValue = 0xf;
+        p.line_break_class = QUnicodeTables::LineBreak_AL;
         propertyIndex = -1;
         excludedComposition = false;
     }
@@ -263,6 +267,7 @@ QHash<ushort, QList<Ligature> > ligatureHashes;
 
 QHash<int, int> combiningClassUsage;
 
+int maxCaseDiff = 0;
 
 static void readUnicodeData()
 {
@@ -322,6 +327,8 @@ static void readUnicodeData()
         }
         if (data.otherCase == 0)
             data.otherCase = codepoint;
+        if (QABS(codepoint - data.otherCase) > maxCaseDiff)
+            maxCaseDiff = QABS(codepoint - data.otherCase);
         if (QABS(codepoint - data.otherCase) >= 0x8000)
             qFatal("case diff not in range at codepoint %x: othercase=%x", codepoint, data.otherCase);
         data.p.caseDiff = data.otherCase - codepoint;
@@ -563,6 +570,83 @@ static void computeUniqueProperties()
     qDebug("    %d unicode properties found", uniqueProperties.size());
 }
 
+
+static void readLineBreak()
+{
+    QFile f("data/LineBreak.txt");
+    if (!f.exists())
+        qFatal("Couldn't find LineBreak.txt");
+
+    f.open(QFile::IO_ReadOnly);
+
+    while (!f.atEnd()) {
+        QByteArray line;
+        line.resize(1024);
+        int len = f.readLine(line.data(), 1024);
+        line.resize(len-1);
+
+        int comment = line.indexOf('#');
+        if (comment >= 0)
+            line = line.left(comment);
+        line.replace(" ", "");
+
+        if (line.isEmpty())
+            continue;
+
+        QList<QByteArray> l = line.split(';');
+        Q_ASSERT(l.size() == 2);
+
+        QByteArray codes = l[0];
+        codes.replace("..", ".");
+        QList<QByteArray> cl = codes.split('.');
+
+        bool ok;
+        int from = cl[0].toInt(&ok, 16);
+        int to = from;
+        if (cl.size() == 2)
+            to = cl[1].toInt(&ok, 16);
+
+        // ### Classes XX and AI are left out and mapped to AL for now
+        QUnicodeTables::LineBreakClass lb = QUnicodeTables::LineBreak_AL;
+        QByteArray ba = l[1];
+
+        if (ba == "OP") lb = QUnicodeTables::LineBreak_OP;
+        else if (ba == "CL") lb = QUnicodeTables::LineBreak_CL;
+        else if (ba == "QU") lb = QUnicodeTables::LineBreak_QU;
+        else if (ba == "GL") lb = QUnicodeTables::LineBreak_GL;
+        else if (ba == "NS") lb = QUnicodeTables::LineBreak_NS;
+        else if (ba == "EX") lb = QUnicodeTables::LineBreak_EX;
+        else if (ba == "SY") lb = QUnicodeTables::LineBreak_SY;
+        else if (ba == "IS") lb = QUnicodeTables::LineBreak_IS;
+        else if (ba == "PR") lb = QUnicodeTables::LineBreak_PR;
+        else if (ba == "PO") lb = QUnicodeTables::LineBreak_PO;
+        else if (ba == "NU") lb = QUnicodeTables::LineBreak_NU;
+        else if (ba == "AL") lb = QUnicodeTables::LineBreak_AL;
+        else if (ba == "ID") lb = QUnicodeTables::LineBreak_ID;
+        else if (ba == "IN") lb = QUnicodeTables::LineBreak_IN;
+        else if (ba == "HY") lb = QUnicodeTables::LineBreak_HY;
+        else if (ba == "BA") lb = QUnicodeTables::LineBreak_BA;
+        else if (ba == "BB") lb = QUnicodeTables::LineBreak_BB;
+        else if (ba == "B2") lb = QUnicodeTables::LineBreak_B2;
+        else if (ba == "ZW") lb = QUnicodeTables::LineBreak_ZW;
+        else if (ba == "CM") lb = QUnicodeTables::LineBreak_CM;
+        else if (ba == "SA") lb = QUnicodeTables::LineBreak_SA;
+        else if (ba == "BK") lb = QUnicodeTables::LineBreak_BK;
+        else if (ba == "CR") lb = QUnicodeTables::LineBreak_CR;
+        else if (ba == "LF") lb = QUnicodeTables::LineBreak_LF;
+        else if (ba == "SG") lb = QUnicodeTables::LineBreak_SG;
+        else if (ba == "CB") lb = QUnicodeTables::LineBreak_CB;
+        else if (ba == "SP") lb = QUnicodeTables::LineBreak_SP;
+
+        for (int codepoint = from; codepoint <= to; ++codepoint) {
+            UnicodeData d = unicodeData.value(codepoint, UnicodeData(codepoint));
+            d.p.line_break_class = lb;
+            unicodeData.insert(codepoint, d);
+        }
+    }
+}
+
+
 static void dump(int from, int to)
 {
     for (int i = from; i <= to; ++i) {
@@ -692,6 +776,10 @@ static QByteArray createPropertyInfo()
         }
     }
 
+    // we reserve one bit more than in the assert below for the sign
+    Q_ASSERT(maxMirroredDiff < (1<<12));
+    Q_ASSERT(maxCaseDiff < (1<<14));
+
     out += "\n};\n\n"
 
            "#define GET_PROP_INDEX(ucs4) \\\n"
@@ -703,16 +791,17 @@ static QByteArray createPropertyInfo()
            " + (ucs4 & 0x" + QByteArray::number(SMP_BLOCKSIZE-1, 16) + ")]))\n\n"
 
            "struct UC_Properties {\n"
-           "    uint category : 8 /* 5 needed */;\n"
-           "    uint combiningClass :8;\n"
+           "    uint category : 5;\n"
+           "    uint line_break_class : 5;"
            "    uint direction : 5;\n"
-           "    uint joining : 2;\n"
            "    uint titleCaseDiffersFromUpper : 1;\n"
+           "    uint combiningClass :8;\n"
            "    uint unicode_version : 4;\n"
            "    uint digit_value : 4;\n"
            "    \n"
-           "    signed short mirrorDiff;\n"
-           "    signed short caseDiff;\n"
+           "    signed short mirrorDiff : 14 /* 13 needed */;\n"
+           "    uint joining : 2;\n"
+           "    signed short caseDiff /* 14 needed */;\n"
            "};\n\n"
 
            "static const UC_Properties uc_properties [] = {\n";
@@ -722,19 +811,21 @@ static QByteArray createPropertyInfo()
         out += "    { ";
         out += QByteArray::number( p.category );
         out += ", ";
-        out += QByteArray::number( p.combiningClass );
+        out += QByteArray::number( p.line_break_class );
         out += ", ";
         out += QByteArray::number( p.direction );
         out += ", ";
-        out += QByteArray::number( p.joining );
-        out += ", ";
         out += p.titleCaseDiffersFromUpper ? "1" : "0";
+        out += ", ";
+        out += QByteArray::number( p.combiningClass );
         out += ", ";
         out += QByteArray::number( p.age );
         out += ", ";
         out += QByteArray::number( p.digitValue );
         out += ", ";
         out += QByteArray::number( p.mirrorDiff );
+        out += ", ";
+        out += QByteArray::number( p.joining );
         out += ", ";
         out += QByteArray::number( p.caseDiff );
         out += "},\n";
@@ -782,6 +873,11 @@ static QByteArray createPropertyInfo()
            "int QUnicodeTables::mirroredChar(uint ucs4)\n"
            "{\n"
            "    return ucs4 + GET_PROP(ucs4)->mirrorDiff;\n"
+           "}\n\n"
+
+           "QUnicodeTables::LineBreakClass QUnicodeTables::lineBreakClass(uint ucs4)\n"
+           "{\n"
+           "    return (QUnicodeTables::LineBreakClass) GET_PROP(ucs4)->line_break_class;\n"
            "}\n\n"
 
            "int QUnicodeTables::upper(uint ucs4)\n"
@@ -1150,6 +1246,7 @@ int main(int, char **)
     readArabicShaping();
     readDerivedAge();
     readCompositionExclusion();
+    readLineBreak();
 
     computeUniqueProperties();
     QByteArray properties = createPropertyInfo();
@@ -1181,6 +1278,7 @@ int main(int, char **)
     f.writeBlock(compositions.data(), compositions.length());
     f.writeBlock(ligatures.data(), ligatures.size());
 
+    qDebug("maxMirroredDiff = %x, maxCaseDiff = %x", maxMirroredDiff, maxCaseDiff);
 #if 0
 //     dump(0, 0x7f);
 //     dump(0x620, 0x640);
