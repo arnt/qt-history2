@@ -34,7 +34,7 @@ public:
     ~QUrl();
 
     // encoding / toString values
-    enum FormattingOptions {
+    enum FormattingOption {
         None = 0x0,
         RemoveScheme = 0x1,
         RemovePassword = 0x2,
@@ -47,6 +47,7 @@ public:
 
         StripTrailingSlash = 0x10000
     };
+    Q_DECLARE_FLAGS(FormattingOptions, FormattingOption)
 
     void setUrl(const QString &url);
     void setEncodedUrl(const QByteArray &url);
@@ -102,9 +103,9 @@ public:
     static QUrl fromLocalFile(const QString &localfile);
     QString toLocalFile() const;
 
-    QString toString(int formattingOptions = None) const;
+    QString toString(FormattingOptions options = None) const;
 
-    QByteArray toEncoded() const;
+    QByteArray toEncoded(FormattingOptions options = None) const;
     static QUrl fromEncoded(const QByteArray &url);
 
     void detach();

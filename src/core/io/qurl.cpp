@@ -126,10 +126,10 @@ public:
 
     bool setUrl(const QString &url);
 
-    QString authority(int formattingOptions = QUrl::None) const;
+    QString authority(QUrl::FormattingOptions options = QUrl::None) const;
     void setAuthority(const QString &auth);
     void setUserInfo(const QString &userInfo);
-    QString userInfo(int formattingOptions = QUrl::None) const;
+    QString userInfo(QUrl::FormattingOptions options = QUrl::None) const;
 
     QString mergePaths(const QString &relativePath) const;
 
@@ -144,7 +144,7 @@ public:
     void parse(ParseOptions parseOptions = ParseAndSet) const;
     void clear();
 
-    QByteArray toEncoded() const;
+    QByteArray toEncoded(QUrl::FormattingOptions options = QUrl::None) const;
 
     QAtomic ref;
 
@@ -942,15 +942,15 @@ QUrlPrivate::QUrlPrivate()
     stateFlags = 0;
 }
 
-QString QUrlPrivate::authority(int formattingOptions) const
+QString QUrlPrivate::authority(QUrl::FormattingOptions options) const
 {
-    if ((formattingOptions & QUrl::RemoveAuthority) == QUrl::RemoveAuthority)
+    if ((options & QUrl::RemoveAuthority) == QUrl::RemoveAuthority)
         return QString();
 
-    QString tmp = userInfo(formattingOptions);
+    QString tmp = userInfo(options);
     if (!tmp.isEmpty()) tmp += QLatin1Char('@');
     tmp += host;
-    if (!(formattingOptions & QUrl::RemovePort) && port != -1)
+    if (!(options & QUrl::RemovePort) && port != -1)
         tmp += QLatin1Char(':') + QString::number(port);
 
     return tmp;
@@ -1016,15 +1016,15 @@ void QUrlPrivate::setUserInfo(const QString &userInfo)
     password = userInfo.right(userInfo.length() - delimIndex - 1);
 }
 
-QString QUrlPrivate::userInfo(int formattingOptions) const
+QString QUrlPrivate::userInfo(QUrl::FormattingOptions options) const
 {
-    if ((formattingOptions & QUrl::RemoveUserInfo) == QUrl::RemoveUserInfo)
+    if ((options & QUrl::RemoveUserInfo) == QUrl::RemoveUserInfo)
         return QString();
 
     QString tmp;
     tmp += userName;
 
-    if (!(formattingOptions & QUrl::RemovePassword) && !password.isEmpty())
+    if (!(options & QUrl::RemovePassword) && !password.isEmpty())
         tmp += QLatin1Char(':') + password;
 
     return tmp;
@@ -1266,26 +1266,28 @@ void QUrlPrivate::clear()
     QURL_UNSETFLAG(stateFlags, Parsed | Validated);
 }
 
-QByteArray QUrlPrivate::toEncoded() const
+QByteArray QUrlPrivate::toEncoded(QUrl::FormattingOptions options) const
 {
     if (!QURL_HASFLAG(stateFlags, Parsed)) parse();
 
     QByteArray url;
 
-    if (!scheme.isEmpty()) {
+    if (!(options & QUrl::RemoveScheme) && !scheme.isEmpty()) {
         url += scheme.ascii();
         url += ":";
     }
     QString auth = authority();
-    if (!auth.isEmpty()) {
+    if ((options & QUrl::RemoveAuthority) != QUrl::RemoveAuthority && !auth.isEmpty()) {
 
 	url += "//";
 
-        if (!userName.isEmpty()) {
-            url += QUrl::toPercentEncoding(userName, ":@#?/");
-            if (!password.isEmpty())
-                url += ":" + QUrl::toPercentEncoding(password, ":@#?/");
-            url += "@";
+        if ((options & QUrl::RemoveUserInfo) != QUrl::RemoveUserInfo) { 
+            if (!userName.isEmpty()) {
+                url += QUrl::toPercentEncoding(userName, ":@#?/");
+                if (!(options & QUrl::RemovePassword) && !password.isEmpty())
+                    url += ":" + QUrl::toPercentEncoding(password, ":@#?/");
+                url += "@";
+            }
         }
 
         // IDNA / rfc3490 describes these four delimiters used for
@@ -1300,20 +1302,22 @@ QByteArray QUrlPrivate::toEncoded() const
             url += QUrl::toPunycode(label);
         }
 
-        if (port != -1) {
+        if (!(options & QUrl::RemovePort) && port != -1) {
             url += ":";
             url += QString::number(port).ascii();
         }
     }
 
+    if (!(options & QUrl::RemovePath)) {
     // check if we need to insert a slash
-    if (!path.isEmpty() && path.at(0) != QLatin1Char('/') && !auth.isEmpty())
-	url += '/';
-    url += QUrl::toPercentEncoding(path, ":#? \t");
+        if (!path.isEmpty() && path.at(0) != QLatin1Char('/') && !auth.isEmpty())
+            url += '/';
+        url += QUrl::toPercentEncoding(path, ":#? \t");
+    }
 
-    if (!query.isEmpty())
+    if (!(options & QUrl::RemoveQuery) && !query.isEmpty())
         url += "?" + query;
-    if (!fragment.isEmpty())
+    if (!(options & QUrl::RemoveFragment) && !fragment.isEmpty())
         url += "#" + QUrl::toPercentEncoding(fragment, " \t");
 
     return url;
@@ -2014,35 +2018,35 @@ bool QUrl::isRelative() const
 /*!
     Returns the human-displayable string representation of the
     URL. The output can be customized by passing flags with \a
-    formattingOptions.
+    options.
 
     \sa FormattingOptions, toEncoded()
 */
-QString QUrl::toString(int formattingOptions) const
+QString QUrl::toString(FormattingOptions options) const
 {
     if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
 
     QString url;
 
-    if (!(formattingOptions & QUrl::RemoveScheme) && !d->scheme.isEmpty())
+    if (!(options & QUrl::RemoveScheme) && !d->scheme.isEmpty())
         url += d->scheme + QLatin1Char(':');
-    if ((formattingOptions & QUrl::RemoveAuthority) != QUrl::RemoveAuthority) {
-        QString tmp = d->authority(formattingOptions);
+    if ((options & QUrl::RemoveAuthority) != QUrl::RemoveAuthority) {
+        QString tmp = d->authority(options);
         if (!tmp.isEmpty()) {
             url += QLatin1String("//");
             url += tmp;
         }
     }
-    if (!(formattingOptions & QUrl::RemovePath)) {
+    if (!(options & QUrl::RemovePath)) {
 	// check if we need to insert a slash
-	if ((formattingOptions & QUrl::RemoveAuthority) != QUrl::RemoveAuthority
-	    && !d->authority(formattingOptions).isEmpty() && !d->path.isEmpty() && d->path.at(0) != QLatin1Char('/'))
+	if ((options & QUrl::RemoveAuthority) != QUrl::RemoveAuthority
+	    && !d->authority(options).isEmpty() && !d->path.isEmpty() && d->path.at(0) != QLatin1Char('/'))
 	    url += QLatin1Char('/');
 	url += d->path;
     }
-    if (!(formattingOptions & QUrl::RemoveQuery) && !d->query.isEmpty())
+    if (!(options & QUrl::RemoveQuery) && !d->query.isEmpty())
         url += QLatin1Char('?') + QLatin1String(d->query);
-    if (!(formattingOptions & QUrl::RemoveFragment) && !d->fragment.isEmpty())
+    if (!(options & QUrl::RemoveFragment) && !d->fragment.isEmpty())
         url += QLatin1Char('#') + d->fragment;
 
     return url;
@@ -2050,15 +2054,16 @@ QString QUrl::toString(int formattingOptions) const
 
 /*!
     Returns the encoded representation of the URL if it's valid;
-    otherwise an empty QByteArray is returned.
+    otherwise an empty QByteArray is returned. The output can be
+    customized by passing flags with \a options.
 
     The user info, path and fragment are all converted to UTF-8, and
     all non-ASCII characters are then percent encoded. The host name
     is encoded using Punycode.
 */
-QByteArray QUrl::toEncoded() const
+QByteArray QUrl::toEncoded(FormattingOptions options) const
 {
-    return d->toEncoded();
+    return d->toEncoded(options);
 }
 
 /*!
