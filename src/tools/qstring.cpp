@@ -243,7 +243,9 @@ QString::QString(const char *s)
 	++d->ref;
 #ifndef QT_NO_TEXTCODEC
     } else if (QTextCodec::codecForCStrings()) {
-	   *this = fromAscii(s);
+	d = &shared_null;
+	++d->ref;
+	*this = fromAscii(s);
 #endif
     } else {
 	int len = strlen(s);
@@ -544,9 +546,11 @@ QString& QString::insert(int i, const QString& s)
 { CLEAR_ASCII_CACHE(d)
     if (i < 0 || s.d->size == 0)
 	return *this;
-    expand(QMAX(d->size, i) + s.d->size - 1);
-    ::memmove(d->data + i + s.d->size, d->data + i, (d->size - i - s.d->size)*sizeof(QChar));
-    memcpy(d->data + i, s.d->data, s.d->size*sizeof(QChar));
+    // protect against s == *this
+    QString t = s;
+    expand(QMAX(d->size, i) + t.d->size - 1);
+    ::memmove(d->data + i + t.d->size, d->data + i, (d->size - i - t.d->size)*sizeof(QChar));
+    memcpy(d->data + i, t.d->data, t.d->size*sizeof(QChar));
     return *this;
 }
 
@@ -2022,7 +2026,7 @@ QString QString::right(int len) const
 
 QString QString::mid(int i, int len) const
 {
-    if (d == &shared_null)
+    if (d == &shared_null || i >= d->size)
 	return QString();
     if (len < 0)
 	len = d->size - i;
@@ -2054,6 +2058,8 @@ QString QString::mid(int i, int len) const
 */
 bool QString::startsWith(const QString& s, QString::CaseSensitivity cs) const
 {
+    if (d == &shared_null)
+	return (s.d == &shared_null);
     if (d->size == 0)
 	return s.d->size == 0;
     if (s.d->size > d->size)
@@ -2087,6 +2093,8 @@ bool QString::startsWith(const QString& s, QString::CaseSensitivity cs) const
 */
 bool QString::endsWith(const QString& s, QString::CaseSensitivity cs) const
 {
+    if (d == &shared_null)
+	return (s.d == &shared_null);
     if (d->size == 0)
 	return s.d->size == 0;
     int pos = d->size - s.d->size;
@@ -3837,7 +3845,7 @@ QString &QString::setNum(Q_LLONG n, int base)
     bool neg;
     if (n < 0) {
 	neg = true;
-	if (n == LONG_MIN) {
+	if (n == LLONG_MIN) {
 	    // Cannot always negate this special case
 	    QString s1, s2;
 	    s1.setNum(n/base, base);

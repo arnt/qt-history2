@@ -872,7 +872,7 @@ int QByteArray::findRev(char c, int i) const
     if (i >= 0) {
 	const char *b = d->data;
 	const char *n = d->data + i + 1;
-	while (--n != b)
+	while (n-- != b)
 	    if (*n == c)
 		return  n - b;
     }
@@ -889,8 +889,10 @@ int QByteArray::find(const QByteArray& a, int i) const
 {
     const int l = d->size;
     const int sl = a.d->size;
-    if (i >= d->size || sl == 0 || sl + i > l)
+    if (i > d->size || sl + i > l)
 	return -1;
+    if (sl == 0)
+	return i;
     if (sl == 1)
 	return find(*a.d->data, i);
     const char *needle = a.d->data;
