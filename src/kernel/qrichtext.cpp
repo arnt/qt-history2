@@ -3950,6 +3950,11 @@ int QTextParag::leftGap() const
 
     int line = 0;
     int x = str->at(0).x;  /* set x to x of first char */
+    if ( str->isBidi() ) {
+	for ( int i = 1; i < str->length(); ++i )
+	    x = QMIN(x, str->at(i).x);
+	return x;
+    }
 
     QMap<int, QTextParagLineStart*>::ConstIterator it = lineStarts.begin();
     while (line < (int)lineStarts.count()) {
