@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#74 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2252,9 +2252,9 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 			WIDTH (p[index].rect->width())	<< ' ' <<	\
 			HEIGHT(p[index].rect->height()) << ' '
 #define INT_ARG(index)	p[index].ival << ' '
-#define COLOR(x)	(x).r()   << ' ' <<	\
-			(x).g() << ' ' <<	\
-			(x).b()  << ' '
+#define COLOR(x)	(x).red()   << ' ' <<	\
+			(x).green() << ' ' <<	\
+			(x).blue()  << ' '
 
 
 bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )

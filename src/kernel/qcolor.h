@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#49 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#50 $
 **
 ** Definition of QColor class
 **
@@ -77,9 +77,9 @@ public:
     void   setRgb( int r, int g, int b );
     void   setRgb( QRgb rgb );
 
-    int	   r()    const;
-    int	   g()  const;
-    int	   b()   const;
+    int	   red()    const;
+    int	   green()  const;
+    int	   blue()   const;
 
     void   hsv( int *h, int *s, int *v ) const;
     void   setHsv( int h, int s, int v );
@@ -140,13 +140,13 @@ inline bool QColor::isDirty() const
 inline QRgb QColor::rgb() const
 { return rgbVal & RGB_MASK; }
 
-inline int QColor::r() const
+inline int QColor::red() const
 { return qRed(rgbVal); }
 
-inline int QColor::g() const
+inline int QColor::green() const
 { return qGreen(rgbVal); }
 
-inline int QColor::b() const
+inline int QColor::blue() const
 { return qBlue(rgbVal); }
 
 inline uint QColor::pixel() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#357 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#358 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -546,9 +546,9 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	    btn = bg;
 	QColorGroup cg( fg, btn, btn.light(),
 			btn.dark(), btn.dark(150), fg, Qt::white, Qt::white, bg );
-	QColor disabled( (fg.r()+btn.r())/2,
-			 (fg.g()+btn.g())/2,
-			 (fg.b()+btn.b())/2);
+	QColor disabled( (fg.red()+btn.red())/2,
+			 (fg.green()+btn.green())/2,
+			 (fg.blue()+btn.blue())/2);
 	QColorGroup dcg( disabled, btn, btn.light( 125 ), btn.dark(), btn.dark(150),
 			 disabled, Qt::white, Qt::white, bg );
 	QPalette pal( cg, dcg, cg );
