@@ -1102,7 +1102,7 @@ void QSvgDevice::setStyleProperty( const QString &prop, const QString &val,
 	else
 	    pt->setBrush( parseColor( val ) );
     } else if ( prop == "font-size" ) {
-	font->setPixelSizeFloat( float(parseLen( val )) );
+	font->setPointSizeFloat( float(parseLen( val )) );
     } else if ( prop == "font-family" ) {
 	font->setFamily( val );
     } else if ( prop == "font-style" ) {
@@ -1376,8 +1376,7 @@ void QSvgDevice::applyStyle( QDomElement *e, int c ) const
 	s += QString( "stroke-width:0;" );
 	QFont f = pt->font();
 	QFontInfo fi( f );
-	s += QString( "font-family:%1;" ).arg( fi.family() );
-	s += QString( "font-size:%1;" ).arg( fi.pixelSize() );
+	s += QString( "font-size:%1;" ).arg( fi.pointSize() );
 	s += QString( "font-style:%1;" )
 	     .arg( f.italic() ? "italic" : "normal" );
 	// not a very scientific distribution
@@ -1397,6 +1396,7 @@ void QSvgDevice::applyStyle( QDomElement *e, int c ) const
 	else
 	    fw = "900";
 	s += QString( "font-weight:%1;" ).arg( fw );
+	s += QString( "font-family:%1;" ).arg( fi.family() );
     } else {
 	s += QString( "stroke:rgb(%1,%2,%3);" )
 	     .arg( pcol.red() ).arg( pcol.green() ).arg( pcol.blue() );
