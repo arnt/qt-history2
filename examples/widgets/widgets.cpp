@@ -49,6 +49,7 @@
 #include <qfiledialog.h>
 #include <qaccel.h>
 #include <qmetaobject.h>
+#include <qerrormessage.h>
 
 #include "widgets.h"
 
@@ -96,15 +97,19 @@ public:
 	: string( s ), font( f ){};
     ~MyMenuItem(){}
 
-    void paint( QPainter* p, const QColorGroup& /*cg*/, bool /*act*/, bool /*enabled*/, int x, int y, int w, int h )
+    void paint( QPainter* p, const QColorGroup& /*cg*/, bool /*act*/,
+		bool /*enabled*/, int x, int y, int w, int h )
     {
 	p->setFont ( font );
-	p->drawText( x, y, w, h, AlignLeft | AlignVCenter | ShowPrefix | DontClip, string );
+	p->drawText( x, y, w, h,
+		     AlignLeft | AlignVCenter | ShowPrefix | DontClip,
+		     string );
     }
 
     QSize sizeHint()
     {
-	return QFontMetrics( font ).size( AlignLeft | AlignVCenter | ShowPrefix | DontClip,  string );
+	return QFontMetrics( font ).size( AlignLeft | AlignVCenter |
+					  ShowPrefix | DontClip,  string );
     }
 private:
     QString string;
@@ -120,6 +125,9 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 {
     QColor col;
 
+    // display error/debug messages in a nicer way
+    QErrorMessage::qtHandler();
+
     // Set the window caption/title
     setCaption( "Qt Widgets Demo Application" );
 
@@ -131,8 +139,9 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     QToolButton * toolb = new QToolButton( openIcon, "toolbutton 1",
 					   QString::null, this, SLOT(open()),
 					   tools, "open file" );
-    QWhatsThis::add( toolb, "This is a <b>QToolButton</b>. It lives in a QToolBar. "
-		     "This particular button doesn't do anything useful." );
+    QWhatsThis::add( toolb, "This is a <b>QToolButton</b>. It lives in a "
+		     "QToolBar. This particular button doesn't do anything "
+		     "useful." );
 
     QPixmap saveIcon( filesave );
     toolb = new QToolButton( saveIcon, "toolbutton 2", QString::null,
@@ -146,14 +155,12 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 			     tools, "print file" );
     QWhatsThis::add( toolb, "This is the third <b>QToolButton</b>.");
 
-
     toolb = QWhatsThis::whatsThisButton( tools );
     QWhatsThis::add( toolb, "This is a <b>What's This</b> button "
 		     "It enables the user to ask for help "
 		     "about widgets on the screen.");
 
-
-    // Install an application-global event filter
+    // Install an application-global event filter to catch control+leftbutton
     qApp->installEventFilter( this );
 
     //make a central widget to contain the other widgets
@@ -226,7 +233,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     // Create a push button.
     QPushButton *pb;
-    pb = new QPushButton( "&Push button 1", central, "button1" );	// create button 1
+    pb = new QPushButton( "&Push button 1", central, "button1" );
     grid->addWidget( pb, 0, 0, AlignVCenter );
     connect( pb, SIGNAL(clicked()), SLOT(button1Clicked()) );
     QToolTip::add( pb, "push button 1" );
@@ -235,7 +242,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 		     "The wonders of modern technology.");
 
     QPixmap pm;
-    bool pix = pm.load("qt.png");		// load pixmap for button 2
+    bool pix = pm.load("qt.png");
     if ( !pix ) {
 	QMessageBox::information( 0, "Qt Widgets Example",
 				  "Could not load the file \"qt.png\", which\n"
@@ -255,7 +262,8 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 			      64+movielabel->frameWidth()*2 );
     grid->addWidget( movielabel, 0, 1, AlignCenter );
     QToolTip::add( movielabel, "movie" );
-    QWhatsThis::add( movielabel, "This is a <b>QLabel</b>  that contains a QMovie." );
+    QWhatsThis::add( movielabel, "This is a <b>QLabel</b> "
+		     "that contains a QMovie." );
 
     // Create a group of check boxes
     bg = new QButtonGroup( central, "checkGroup" );
@@ -349,7 +357,8 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     combo->insertItem( "blue" );
     combo->insertItem( "red" );
     vbox->addWidget( combo );
-    connect( combo, SIGNAL(activated(int)), SLOT(comboBoxItemActivated(int)) );
+    connect( combo, SIGNAL(activated(int)),
+	     this, SLOT(comboBoxItemActivated(int)) );
     QToolTip::add( combo, "read-only combo box" );
 
     // Create an editable combo box
@@ -361,7 +370,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     edCombo->insertItem( "Inconstant" );
     vbox->addWidget( edCombo );
     connect( edCombo, SIGNAL(activated(const QString&)),
-	     SLOT(edComboBoxItemActivated(const QString&)) );
+	     this, SLOT(edComboBoxItemActivated(const QString&)) );
     QToolTip::add( edCombo, "editable combo box" );
 
     edCombo->setAutoCompletion( TRUE );
@@ -429,7 +438,8 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     connect( le, SIGNAL(textChanged(const QString&)),
 	     SLOT(lineEditTextChanged(const QString&)) );
     QToolTip::add( le, "single line editor" );
-    QWhatsThis::add( le, "This is a <b>QLineEdit</b>, you can enter a single line of text in it. "
+    QWhatsThis::add( le, "This is a <b>QLineEdit</b>, you can enter a "
+		     "single line of text in it. "
 		      "It also it accepts text drops." );
 
     grid->setRowStretch(0,0);
@@ -447,10 +457,14 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     split->setOpaqueResize( TRUE );
     topLayout->addWidget( split, 1 );
     QListView *lv = new MyListView( split );
-    connect(lv, SIGNAL(selectionChanged() ), this, SLOT( selectionChanged() ) );
-    connect(lv, SIGNAL(selectionChanged(QListViewItem*) ), this, SLOT( selectionChanged(QListViewItem*) ) );
-    connect(lv, SIGNAL(clicked(QListViewItem*) ), this, SLOT( clicked(QListViewItem*) ) );
-    connect(lv, SIGNAL(mySelectionChanged(QListViewItem*) ), this, SLOT( mySelectionChanged(QListViewItem*) ) );
+    connect(lv, SIGNAL(selectionChanged() ),
+	    this, SLOT( selectionChanged() ) );
+    connect(lv, SIGNAL(selectionChanged(QListViewItem*) ),
+	    this, SLOT( selectionChanged(QListViewItem*) ) );
+    connect(lv, SIGNAL(clicked(QListViewItem*) ),
+	    this, SLOT( clicked(QListViewItem*) ) );
+    connect(lv, SIGNAL(mySelectionChanged(QListViewItem*) ),
+	    this, SLOT( mySelectionChanged(QListViewItem*) ) );
     lv->addColumn( "One" );
     lv->addColumn( "Two" );
     lv->setAllColumnsShowFocus( TRUE );
@@ -465,7 +479,8 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     lvi=  new QListViewItem( lvi, "SubSubText", "Complimentary Text" );
 
     QToolTip::add( lv, "list view" );
-    QWhatsThis::add( lv, "This is a <b>QListView</b>, you can display hierarchical structures of multiple-column data in it." );
+    QWhatsThis::add( lv, "This is a <b>QListView</b>, you can display lists "
+		     "(or outline lists) of multiple-column data in it." );
 
     lv = new QListView( split );
     lv->addColumn( "Choices" );
@@ -486,7 +501,8 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     (void) new QCheckListItem( lit, "Jarlsberg", QCheckListItem::RadioButton );
 
     QToolTip::add( lv, "list view" );
-    QWhatsThis::add( lv, "This is also a <b>QListView</b>, with interactive items." );
+    QWhatsThis::add( lv, "This is also a <b>QListView</b>, with "
+		     "interactive items." );
 
      QTextView *qmlv =  new QTextView( "<hr><h1>QTextView</h1>"
 		      "<p>Qt supports formatted rich text, such "
@@ -507,7 +523,8 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     QToolTip::add( msg, "Message area" );
 
     QAccel* a = new QAccel( this );
-    a->connectItem(  a->insertItem( Key_F9 ), this, SLOT( showProperties() ) );
+    a->connectItem(  a->insertItem( Key_F9 ),
+		     this, SLOT( showProperties() ) );
 
     prog = new QProgressBar( statusBar(), "progress" );
     prog->setTotalSteps( 100 );
@@ -695,7 +712,8 @@ void WidgetView::open()
 
 void WidgetView::dummy()
 {
-    QMessageBox::information( this, "Sorry", "This function is not implemented" );
+    QMessageBox::information( this, "Sorry",
+			      "This function is not implemented" );
 }
 
 void WidgetView::selectionChanged()
@@ -721,15 +739,20 @@ void WidgetView::showProperties()
 {
     if ( !qApp->focusWidget() )
 	return;
-    QStrList properties = qApp->focusWidget()->metaObject()->propertyNames( TRUE );
-    qDebug(" ");
-    qDebug("Properties for class '%s'", qApp->focusWidget()->className() );
-    for ( int i = 0; i < (int) properties.count(); i++ ) {
-	const QMetaProperty* p = qApp->focusWidget()->metaObject()->property( properties.at(i), TRUE );
-	const char* s = "readwrite";
-	if (!p->writeable() )
-	    s = "read-only";
-	qDebug("%d: %s  ( %s, %s )", ++i, p->name(), s, p->type() );
+    QStrList properties 
+	= qApp->focusWidget()->metaObject()->propertyNames( TRUE );
+    QCString output;
+    output.sprintf( "Properties for class '%s'", 
+		    qApp->focusWidget()->className() );
+    int i = 0;
+    while( i < (int) properties.count() ) {
+	const QMetaProperty* p 
+	    = qApp->focusWidget()->metaObject()->property( properties.at(i),
+							   TRUE );
+	QCString tmp;
+	tmp.sprintf( "\n %2d: %s (read-%s, %s)", ++i, p->name(), 
+		     p->writeable() ? "write" : "only", p->type() );
+	output += tmp;
     }
+    qDebug( output );
 }
-
