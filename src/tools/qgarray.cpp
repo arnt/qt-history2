@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#12 $
 **
 ** Implementation of QGArray class
 **
@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#12 $";
 #endif
 
 
@@ -87,7 +87,7 @@ QGArray::QGArray( const QGArray &a )		// shallow copy
 
 QGArray::~QGArray()
 {
-    if ( p->deref() ) {				// delete when last reference
+    if ( p && p->deref() ) {			// delete when last reference
 	if ( p->data )				// is lost
 	    DELETE(p->data);
 	deleteData( p );
