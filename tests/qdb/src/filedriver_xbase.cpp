@@ -726,24 +726,40 @@ bool FileDriver::update( const localsql::List& data )
     return TRUE;
 }
 
-bool FileDriver::rangeMark( const localsql::List& data )
+bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* cols,
+			      localsql::ResultSet* result )
 {
+    if ( !data ) {
+	ERROR_RETURN( "Internal error: no data" );
+    }
+    bool dosave = cols && result;
+    bool domark = !dosave;
 #ifdef DEBUG_XBASE
-    env->output() << "FileDriver::rangeMark..." << flush;
+    env->output() << "FileDriver::rangeAction...";
+    if ( domark )
+	env->output() << "marking...";
+    if ( dosave )
+	env->output() << "saving...";
+    env->output() << flush;
 #endif
     if ( !isOpen() ) {
 	ERROR_RETURN( "Internal error: File not open" );
     }
-    if ( !data.count() ) {
-	ERROR_RETURN( "Internal error: No fields defined");
+    if ( !data->count() ) {
+	ERROR_RETURN( "Internal error: No fields defined" );
     }
-    d->marked.clear();
+    if ( dosave && !cols->count() ) {
+	ERROR_RETURN( "Internal error: No result columns defined" );
+    }
+    if ( domark )
+	d->marked.clear();
     bool forceScan = TRUE;
     xbShort rc = XB_NO_ERROR;
     QString indexDesc;
     uint i = 0;
-    for ( i = 0; i < data.count(); ++i ) {
-	localsql::List rangeMarkFieldData = data[i].toList();
+    /* metadata check and build index string */
+    for ( i = 0; i < data->count(); ++i ) {
+	localsql::List rangeMarkFieldData = (*data)[i].toList();
 	if ( rangeMarkFieldData.count() != 2 ) {
 	    ERROR_RETURN( "Internal error: Bad range data");
 	}
@@ -762,7 +778,6 @@ bool FileDriver::rangeMark( const localsql::List& data )
 	}
 	indexDesc += QString(( indexDesc.length()>0 ? QString("+") : QString::null ) ) +
 		     name;
-
     }
     /* check if index already exists */
     char buf[XB_MAX_NDX_NODE_SIZE];
@@ -777,8 +792,8 @@ bool FileDriver::rangeMark( const localsql::List& data )
 		/* create search value */
 		QString searchValue;
 		bool numeric = TRUE;
-		for ( uint j = 0; j < data.count(); ++j ) {
-		    QVariant val = data[i].toList()[1];
+		for ( uint j = 0; j < data->count(); ++j ) {
+		    QVariant val = (*data)[i].toList()[1];
 		    searchValue += val.toString();
 		    if ( val.type() == QVariant::String ||
 			 val.type() == QVariant::CString )
@@ -795,9 +810,9 @@ bool FileDriver::rangeMark( const localsql::List& data )
 		    rc = XB_NO_ERROR;
 		    /* found a key, now scan until we hit a new key value */
 		    for ( ; rc == XB_NO_ERROR ; ) {
-			bool markOK = TRUE;
-			for ( uint k = 0; k < data.count(); ++k ) {
-			    localsql::List rangeMarkFieldData = data[i].toList();
+			bool actionOK = TRUE;
+			for ( uint k = 0; k < data->count(); ++k ) {
+			    localsql::List rangeMarkFieldData = (*data)[i].toList();
 			    localsql::List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
 			    QString name = rangeMarkFieldDesc[0].toString();
 			    QVariant value = rangeMarkFieldData[1];
@@ -805,13 +820,16 @@ bool FileDriver::rangeMark( const localsql::List& data )
 			    QVariant v;
 			    field( fieldnum, v );
 			    if ( v != value ) {
-				markOK = FALSE;
+				actionOK = FALSE;
 				break;
 			    }
 			}
-			if ( markOK )
-			    mark();
-			else
+			if ( actionOK ) {
+			    if ( domark )
+				mark();
+			    if ( dosave )
+				saveResult( cols, result );
+			} else
 			    break;
 			rc = d->indexes[i]->GetNextKey();
 		    }
@@ -827,9 +845,9 @@ bool FileDriver::rangeMark( const localsql::List& data )
 #endif
 	rc = d->file.GetFirstRecord();
 	while ( rc == XB_NO_ERROR ) {
-	    bool markRecord = FALSE;
-	    for ( i = 0; i < data.count(); ++i ) {
-		localsql::List rangeMarkFieldData = data[i].toList();
+	    bool actionOK = FALSE;
+	    for ( i = 0; i < data->count(); ++i ) {
+		localsql::List rangeMarkFieldData = (*data)[i].toList();
 		localsql::List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
 		QString name = rangeMarkFieldDesc[0].toString();
 		QVariant value = rangeMarkFieldData[1];
@@ -837,14 +855,18 @@ bool FileDriver::rangeMark( const localsql::List& data )
 		QVariant v;
 		field( fieldnum, v );
 		if ( v == value )
-		    markRecord = TRUE;
+		    actionOK = TRUE;
 		else {
-		    markRecord = FALSE;
+		    actionOK = FALSE;
 		    break;
 		}
 	    }
-	    if ( markRecord )
-		mark();
+	    if ( actionOK ) {
+		if ( domark )
+		    mark();
+		if ( dosave )
+		    saveResult( cols, result );
+	    }
 	    rc = d->file.GetNextRecord();
 	}
     }
@@ -852,6 +874,42 @@ bool FileDriver::rangeMark( const localsql::List& data )
      env->output() << "success" << endl;
 #endif
     return TRUE;
+}
+
+bool FileDriver::saveResult( const localsql::List* cols, localsql::ResultSet* result )
+{
+#ifdef DEBUG_XBASE
+    env->output() << "FileDriver::markAll..." << flush;
+#endif
+    if ( !cols || !result ) {
+	ERROR_RETURN( "Internal error: no cols or result" );
+    }
+    /* build a localsql::Record from cols */
+    localsql::Record rec;
+    for ( uint i = 0; i < cols->count(); ++i ) {
+	QVariant v;
+	if ( !field( (*cols)[i].toString(), v ) ) {
+	    ERROR_RETURN( "Unknown column:"+ (*cols)[i].toString() );
+	}
+	rec.append( v );
+    }
+    if ( !result->append( rec ) ) {
+	return FALSE;
+    }
+#ifdef DEBUG_XBASE
+     env->output() << "success" << endl;
+#endif
+    return TRUE;
+}
+
+bool FileDriver::rangeSave( const localsql::List& data, const localsql::List& cols, localsql::ResultSet* result )
+{
+    return rangeAction( &data, &cols, result );
+}
+
+bool FileDriver::rangeMark( const localsql::List& data )
+{
+    return rangeAction( &data, 0 , 0 );
 }
 
 bool FileDriver::markAll()

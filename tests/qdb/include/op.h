@@ -769,6 +769,35 @@ public:
     }
 };
 
+/* Similar to RangeMark, except the list is of the form:
+
+   (rangemark list)
+   (column list)
+
+   Where 'column list' is a list of column names of the same form used
+   by SaveResult.  This list identifies the columns to be used.
+
+   The 'resultid' parameter indicates the result to save the data to.
+*/
+
+class RangeSave : public Op
+{
+public:
+    RangeSave( int id, int resultid )
+	: Op( id, resultid ) {}
+    QString name() const { return "rangesave"; }
+    int exec( localsql::Environment* env )
+    {
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
+	localsql::List list = env->stack()->pop().toList();
+	localsql::List range = list[0].toList();
+	localsql::List columns = list[1].toList();
+	localsql::ResultSet* result = env->resultSet( p2.toInt() );
+	return drv->rangeSave( range, columns, result );
+    }
+};
+
+
 /*  Pop the top of the stack (which must be a list, see MakeList) and
   use it as a description of fields, which must be of the form:
 

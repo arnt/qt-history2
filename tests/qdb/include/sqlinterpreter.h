@@ -61,6 +61,7 @@ public:
     bool nextMarked();
     bool update( const localsql::List& data );
     bool rangeMark( const localsql::List& data );
+    bool rangeSave( const localsql::List& data, const localsql::List& cols, localsql::ResultSet* result );
     bool markAll();
     bool createIndex( const localsql::List& data, bool unique );
     bool drop();
@@ -79,6 +80,9 @@ protected:
     void setAt( int at ) { internalAt = at; }
     int markedAt() const { return internalMarkedAt; }
     void setMarkedAt( int at ) { internalMarkedAt = at; }
+
+    bool rangeAction( const localsql::List* data, const localsql::List* cols, localsql::ResultSet* result );
+    bool saveResult( const localsql::List* cols, localsql::ResultSet* result );
 
 private:
     QString nm;

@@ -136,6 +136,7 @@ namespace localsql {
 	virtual bool nextMarked() = 0;
 	virtual bool update( const List& data ) = 0;
 	virtual bool rangeMark( const List& data ) = 0;
+	virtual bool rangeSave( const List& data, const List& cols, ResultSet* result ) = 0;
 	virtual bool markAll() = 0;
 	virtual bool createIndex( const List& index, bool unique ) = 0;
 	virtual bool drop() = 0;

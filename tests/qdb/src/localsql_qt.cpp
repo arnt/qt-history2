@@ -162,9 +162,10 @@ bool LocalSQLDriver::canEditBinaryFields() const
 }
 
 bool LocalSQLDriver::open( const QString & db,
-			const QString &,
-			const QString &,
-			const QString &)
+			   const QString &,
+			   const QString &,
+			   const QString &,
+			   int )
 {
     if ( isOpen() )
 	close();
