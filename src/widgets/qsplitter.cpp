@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#43 $
 **
 **  Splitter widget
 **
@@ -266,7 +266,7 @@ void QSplitter::setOrientation( Orientation o )
 	return;
     orient = o;
 
-    
+
     QSplitterLayoutStruct *s = data->list.first();
     while ( s ) {
 	if ( s->isSplitter ) {
@@ -548,9 +548,9 @@ void QSplitter::getRange( int id, int *min, int *max )
     }
     QRect r = contentsRect();
     if ( min )
-	*min = pick(r.topLeft()) + QMAX( minB, r.width()-maxA );
+	*min = pick(r.topLeft()) + QMAX( minB, pick(r.size())-maxA );
     if ( max )
-	*max = pick(r.topLeft()) + QMIN( maxB, r.width()-minA );
+	*max = pick(r.topLeft()) + QMIN( maxB, pick(r.size())-minA );
 
 }
 
