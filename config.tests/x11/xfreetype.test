@@ -170,7 +170,7 @@ else
     if [ "$VERBOSE" = "yes" ]
     then
 	echo "XftFreeType enabled."
-	echo "$FREETYPE2_INCDIR" > $x11tests/xfreetype.inc
     fi
+    echo "$FREETYPE2_INCDIR" > $x11tests/xfreetype.inc
     exit 1
 fi
