@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#5 $
 **
 ** Implementation of QFileInfo class
 **
@@ -20,7 +20,7 @@
 
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfileinfo.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfileinfo.cpp#5 $";
 #endif
 
 struct QFileInfoCache 
@@ -114,6 +114,7 @@ QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
         *fic = *fi.fic;    
     }
     cache = fi.cache;
+    return *this;
 }
 
   /*!
