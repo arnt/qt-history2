@@ -111,7 +111,7 @@ rm 	  dialogs/qdeveloper.h \
 	  widgets/qworkspacechild.cpp \
 	  dialogs/qdeveloper.cpp \
 	  dialogs/qtranslatordialog.cpp \
-
+	  tools/qxml*.*
 
 
 # Replace Netscape-owned code with dummies (direct user to PluginSDK)
