@@ -110,13 +110,13 @@ code to this project.
 \index Creating Projects!Projects
 \index Pixmaps!In Projects
 \index Pixmaps!Adding to Forms
-Whenever you create a new application we \e strongly recommend that
-you create a project file and open the project rather than individual
-\index .ui \File .ui files. Using a project has the advantage that
-all the forms you create for the project are available via a single
-mouse click rather than having to be loaded individually through file
-open dialogs. An additional benefit of using project files is that
-they allow you to store all your images in a single file rather than
+Whenever you create a new application we recommend that you create a
+project file and open the project rather than individual \index .ui
+\File .ui files. Using a project has the advantage that all the forms
+you create for the project are available via a single mouse click
+rather than having to be loaded individually through file open
+dialogs. An additional benefit of using project files is that they
+allow you to store all your images in a single file rather than
 duplicate them in each form in which they appear. See
 \link #the-designer-approach The Designer Approach\endlink chapter's
 \l{Project management} section for detailed information on the
@@ -386,7 +386,8 @@ from the \Menu Edit menu).
 \section2 Setting the Form's Properties and Actions
 
 Click the form to make all of its properties appear in the
-Property Editor. Change the form's \Property name to "MainForm" and
+\link #using-the-property-editor-sidebar Property Editor\endlink.
+Change the form's \Property name to "MainForm" and
 its \Property caption to "Color Tool".
 
 Now we'll need to delete some actions that the main window wizard
@@ -430,7 +431,8 @@ Explorer}. The Object Explorer has two tabs, the Objects tab which
 shows the object hierarchy, and the Members tab which shows the
 members you have added to the form. Click the name of a widget in
 the Objects tab to select the widget and show its properties in the
-Property Editor. It is easy to see and select widgets in the Object
+\link #using-the-property-editor-sidebar Property Editor\endlink.
+It is easy to see and select widgets in the Object
 Explorer which is especially useful for forms that have many widgets
 or which use layouts. Multiple widgets can be selected by
 \Key{Click}ing the first one then \Key{Shift+Click}ing the others.
@@ -626,7 +628,9 @@ and \Widget {Line Edit}s.
 \section2 Adding the Options Action
 
 Right click the first action in the Action Editor, then click
-\Menu{New Action}. The Property Editor now shows the new action's
+\Menu{New Action}. The
+\link #using-the-property-editor-sidebar Property Editor\endlink
+now shows the new action's
 properties. Change the action's \Property name property to
 "optionsAction". Click the ellipsis button on the \Property{iconSet}
 property to pop up the \Widget{Choose an Image} dialog. Click the
@@ -706,7 +710,8 @@ to the Add menu item.
 We're going to use "Cut" for deleting colors, so we'll change the
 user-visible name to "Delete" to make its meaning clearer. Click the
 editCutAction in the Action Editor to make its properties appear in
-the Property Editor. Change its \Property{text} property to "Delete"
+the \link #using-the-property-editor-sidebar Property Editor\endlink.
+Change its \Property{text} property to "Delete"
 and change its \Property{menuText} property to "\&Delete".
 
 A side-effect of the above change is that \Key Alt+C (originally used
@@ -738,7 +743,8 @@ details.
 
 Right click an action in the Action Editor, then click \Menu{New
 Action Group}. The action group's properties are now showing in the
-Property Editor. Change the action group's \Property{name} property to
+\link #using-the-property-editor-sidebar Property Editor\endlink.
+Change the action group's \Property{name} property to
 "viewActionGroup", and change its \Property{text} property to "View".
 We want the action group to be \e{exclusive}, i.e. for only one of its
 actions to be "on" at any one time; but there's no need to set the

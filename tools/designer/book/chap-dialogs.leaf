@@ -73,7 +73,9 @@ complex layouts.
 \endlist
 
 When multiple widgets are selected their common properties are shown
-in the Property Editor. Any changes made in the Property Editor will
+in the
+\link #using-the-property-editor-sidebar Property Editor\endlink.
+Any changes made in the Property Editor will
 be applied to \e all the selected widgets. This is particularly useful
 for setting common minimum and maximum sizes, colors, size policies,
 cursors, fonts, etc.
@@ -111,7 +113,8 @@ create that dialog now.
 
 Click \Menu{File|New} to invoke the \Widget{New File} dialog, then
 click "Dialog", then click \OK. Drag a corner of the new form to make
-it a lot smaller. Change the form's name (in the Property Editor) to
+it a lot smaller. Change the form's name (in the
+\link #using-the-property-editor-sidebar Property Editor\endlink) to
 "ColorNameForm", and change its caption to "Color Tool -- Color Name".
 Click \Menu{File|Save}, then click \Button{Save} to save it.
 
@@ -510,7 +513,9 @@ form; it was created automatically by the main window wizard.)
 
 Click \Menu{File|New} to invoke the \Widget{New File} dialog, then
 click "Dialog", then click \OK. Drag a corner of the form to make it
-smaller. Use the Property Editor to change the form's \Property{name}
+smaller. Use the
+\link #using-the-property-editor-sidebar Property Editor\endlink
+to change the form's \Property{name}
 property to "FindForm", and its \Property{caption} property to "Color
 Tool -- Find Color".
 

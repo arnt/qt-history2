@@ -4,7 +4,7 @@ This chapter provides a quick start for users of \QD. The chapter
 takes you step-by-step through the creation of a small dialog-style
 metric conversion application. It introduces adding widgets to a form,
 setting widget properties, making signals and slots connections,
-laying out and adding custom code. This chapter only covers a
+laying out widgets, and adding custom code. This chapter only covers a
 proportion of \QD's functionality and explanations and details are
 mostly left for the more detailed \c colortool tutorial presented in
 chapters two and three.
@@ -19,7 +19,7 @@ chapters two and three.
 \list
 \i To start \QD under Windows click the \Menu Start button
 and click \Menu {Programs|Qt X.x.x|Designer}. (X.x.x is the Qt version
-number, e.g. 3.1.0.)
+number, e.g. 3.2.1.)
 \i If you're running a Unix or Linux operating system you can either
 double click the \QD icon or enter \c{designer &} in an xterm.
 \i Start \QD now. When \QD starts, it shows the \Widget{New/Open}
@@ -62,10 +62,11 @@ See also \link #creating-the-project Creating the Project\endlink.
 \i Click \Menu{File|New} to invoke the \Widget{New File} dialog, then
 click "Dialog", then click \OK. 
 \i Drag a corner of the new form to make it a lot smaller. Change the
-form's name (in the Property Editor) to "ConversionForm", and change
-its caption to "Metric Conversion".
-\i Click \Menu{File|Save}, accept the default form name, and then
-click \Button Save to save it.
+form's name (in the
+\link #using-the-property-editor-sidebar Property Editor\endlink) to
+"ConversionForm", and change its caption to "Metric Conversion". \i
+Click \Menu{File|Save}, accept the default form name, and then click
+\Button Save to save it.
 \endlist
 
 \img qs-newdlg.png 
@@ -123,7 +124,9 @@ toolbar at the left of \QD's main window.
 \i Click the \Button LineEdit button and then click to the right of
 the Enter Number label. Change its \Property name property to
 "numberLineEdit". Change the \Property hAlign property to AlignRight
-and change \Property vAlign to AlignTop. Finally, change \Property wordwrap to False. Note that whenever you click a widget, its properties appear in the \Widget{Property Editor}.
+and change \Property vAlign to AlignTop. Finally, change \Property
+wordwrap to False. Note that whenever you click a widget, its
+properties appear in the \Widget{Property Editor}.
 \i Double click the \Button ComboBox button and click to the right of
 the Convert From label. Now click to the right of the Convert To
 label. Click the \Button Pointer toolbar button to deselect the
@@ -134,7 +137,7 @@ ComboBox. Change the \Property{name} property of the first combobox to
 the "Result" label. Change its \Property{name} property to
 "resultLineEdit". Change the \Property{paletteBackgroundColor} property to
 a shade of yellow (just to make the result stand out). Change \Property hAlign to AlignRight, \Property vAlign to AlignVCenter and \Property wordwrap to False. Now change the \Property{readOnly} property to
-"False", if it isn't already. 
+"True". 
 \i Click the \Button SpinBox button and then click to the right of the
 Decimals label. Place the SpinBox below the right side of the
 resultLineEdit. Change the spinbox's \Property{name} property to
@@ -148,24 +151,21 @@ the \Property{value} to "3".
 Now we need to relate each of the text labels to the corresponding
 widget. We do this by creating "buddies". 
 
-A widget that does not accept focus itself, e.g. a QLabel, can have an
-accelerator that will pass the focus to its "buddy", e.g. a QLineEdit,
-by setting the first widget's \Property{buddy} property to the name of
-the buddy widget.
+A widget that does not accept focus itself, e.g. a \Class QLabel, can
+have an accelerator that will pass the focus to its "buddy", e.g. a
+\Class QLineEdit, by setting the first widget's \Property{buddy} property to
+the name of the buddy widget.
 
 \list
-\i Click the \Button{Set Buddy} button located on the Tools toolbar
-(or press \Key F5). Click the Enter Number label and drag the rubber
-band to the numberLineEdit; then release. 
-\i Click the \Button{Set
-Buddy} button. Click the Convert From label and drag the rubber band
-to the fromComboBox; then release.
-\i Click the \Button{Set Buddy}
-button. Click the Convert To label and drag the rubber band to the
-toComboBox; then release.
-\i Click the \Button{Set Buddy} button.
-Click the Decimals label and drag the rubber band to the
-decimalsSpinBox; then release.
+\i Click the \Button{Set Buddy} toolbar button (or press \Key F5).
+Click the Enter Number label and drag the rubber band to the
+numberLineEdit; then release.
+\i Click the \Button{Set Buddy} toolbar button. Click the Convert From label
+and drag the rubber band to the fromComboBox; then release.
+\i Click the \Button{Set Buddy} toolbar button. Click the Convert To label
+and drag the rubber band to the toComboBox; then release.
+\i Click the \Button{Set Buddy} toolbar button. Click the Decimals label and
+drag the rubber band to the decimalsSpinBox; then release.
 \endlist
 
 \section3 Adding Push Buttons
@@ -174,7 +174,7 @@ decimalsSpinBox; then release.
 \i Click the \Button{Common Widgets} button in the Toolbox.
 \i Double click the \Button Pushbutton button and click towards the
 bottom left of the dialog, below the Decimals label. 
-\i Click to the right of the new push button two more times so that you
+\i Click to the right of the new push button twice more so that you
 have three push buttons horizontally in a row at the bottom of the
 dialog.
 \i Click the \Button Pointer toolbar button to deselect the
@@ -185,12 +185,12 @@ We will change a few properties for each of the push buttons in the
 \Widget{Property Editor} window.
 
 \list
-\i Click the first push button starting from the left of the dialog.
-Change its name to "clearPushButton" and its text to "\&Clear".
-\i Click the second push button and change its name to
+\i Click the left-most push button, and change its name to
+"clearPushButton" and its text to "\&Clear".
+\i Click the middle push button and change its name to
 "calculatePushButton", its text to "Calculate" and its default
 property to "True".
-\i Click the third push button and change its name to "quitPushButton"
+\i Click the right-most push button and change its name to "quitPushButton"
 and its text to "\&Quit".
 \endlist
 
@@ -232,7 +232,7 @@ The fromComboBox:
 context menu.
 \i Click \Button{New Item} and then delete the "New Item" text and type
 "Kilometers". Click \Button{New Item} and change the text to
-"Meters". Repeat this two more times, changing the text to "Centimeters"
+"Meters". Repeat this twice more, changing the text to "Centimeters"
 and to "Millimeters" respectively.
 \i Click \Button OK to close the Edit Listbox dialog.
 \endlist
@@ -244,7 +244,7 @@ The toComboBox:
 \i Right click the toComboBox and then click \Menu Edit from the
 context menu.
 \i Delete the "New Item" text and type "Miles". Click \Button{New
-Item} and change the text to "Yards". Repeat this two more times,
+Item} and change the text to "Yards". Repeat this twice more,
 changing the text to "Feet" and to "Inches".
 \i Click \Button OK to close the Edit Listbox dialog.
 \endlist
@@ -258,11 +258,12 @@ and we'll do the push buttons last.
 \i Click the decimalsSpinBox and press \Key{Shift+Click} on the
 spacer next to it. Click the \Button{Lay Out Horizontally} (\Key
 Ctrl+H) toolbar button.
-\i Click and hold on the form to the left of the text labels and then drag the
-rubber band so that it touches every label and widget and spacer
-except for the push buttons and the spacer between the push buttons
-and the spacer below the spin box. Release the rubberband and notice that the desired widgets are
-selected. Click the \Button{Lay Out in a Grid} (\Key Ctrl+G) toolbar button.
+\i Click the form (to deselect anything that's selected), then click
+the form to the left of the Decimals text label and then drag the
+rubber band so that it touches every label and widget, including the
+decimals spacer, but avoiding the other spacers and the push buttons.
+Release the mouse and notice that the desired widgets are selected.
+Click the \Button{Lay Out in a Grid} (\Key Ctrl+G) toolbar button.
 
 \img qs-laygrid.png
 
@@ -273,9 +274,9 @@ Quit push button and the Spacer between the push buttons. Click the
 
 \img qs-layhoriz.png
 
-\i Click the form to deselect all widgets and layouts and then click
-the \Button{Lay Out Vertically} (\Key Ctrl+L) toolbar button.
-\i Finally, click the dialog and then click the \Button{Adjust Size}
+\i Click the form to deselect all the widgets and layouts and then
+click the \Button{Lay Out Vertically} (\Key Ctrl+L) toolbar button.
+\i Finally, click the form and then click the \Button{Adjust Size}
 (\Key Ctrl+J) toolbar button.
 \endlist
 

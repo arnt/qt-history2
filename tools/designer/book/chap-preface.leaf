@@ -91,15 +91,20 @@
     \endlist
 
     The remaining chapters provide reference material that explains
-    \QD's menu options, toolbars, key bindings and dialogs in detail.
+    \QD's \link #reference-menu-options menu options\endlink,
+    \link #reference-toolbar-buttons toolbars\endlink,
+    \link #reference-key-bindings key bindings\endlink,
+    \link #reference-dialogs dialogs\endlink,
+    \link #reference-wizards wizards\endlink, and
+    \link #reference-windows windows\endlink in detail.
 
 \section1 What You Should Know
 
-    This manual assumes that you have some basic knowledge of C++ and the Qt
-    application development framework. If you need to learn more about
-    C++ or Qt there are a vast number of C++ books available, and a
-    small but increasing number of Qt books. Qt comes with extensive
-    online documentation and many example applications that you can try.
+    This manual assumes that you have some basic knowledge of C++ and
+    the Qt GUI toolkit. If you need to learn more about C++ or Qt
+    there are a vast number of C++ books available, and a small but
+    increasing number of Qt books. Qt comes with extensive online
+    documentation and many example applications that you can try.
 
     The Enterprise Edition of Qt includes the Qt SQL module. In \l
     {Creating Database Applications} we demonstrate how to build SQL
@@ -109,22 +114,22 @@
 \section1 What's New in \QD for Qt 3.0?
 
     This version of \QD has a great deal more functionality than its
-    predecessor. The code for custom slots can be edited directly in
-    \QD; main windows with actions, toolbars and menus can be created;
-    layouts that incorporate splitters can be used; plugins allow you to
-    package any number of custom widgets and make them available to
-    \QD. Many other enhancements have been incorporated,
-    from small improvements in the user interface to improved efficiency,
-    for example the ability to share pixmaps across all the forms in an
-    application.
+    predecessor. For example, the code for custom slots can be edited
+    directly in \QD; main windows with actions, toolbars and menus can
+    be created; layouts that incorporate splitters can be used; and
+    plugins allow you to package any number of custom widgets and make
+    them available to \QD. Many other enhancements have been
+    incorporated, from small improvements in the user interface to
+    improved efficiency, for example the ability to share pixmaps
+    across all the forms in an application.
 
     This version of \QD introduces project files which make it easy to
     switch between all the forms in an application, and to maintain
     a common set of database settings and images. Although subclassing is
     fully supported, writing code directly in \QD offers a number of
-    advantages which are covered in 
+    benefits which are covered in 
     \link #the-designer-approach The Designer Approach\endlink chapter.
-    A new library \File libqui has also been introduced which allows you
+    A new library, \File{libqui}, has also been introduced which allows you
     to load dialogs dynamically at runtime from \QD's \File .ui files.
     This allows you to provide your application's users with considerable
     interface customizability without them needing to use C++.
@@ -160,6 +165,18 @@
 	in the property editor and can be changed collectively.
 	\endlist
 
+    \section2 What's New in \QD for Qt 3.2?
+
+    \list
+    \i The tool box widget used by \QD since Qt 3.1 is now available
+    as a Qt widget for use in your own programs. The widget is called
+    \Class QToolBox.
+    \i The menu editor in \QD has been redesigned to
+    make it easier to visually design application main windows.
+    \i Numerous small improvements to usability have also been
+    incorporated in this version.
+    \endlist
+
 \omit \img designer.png \endomit
 \img qd-preface.png
 \caption Qt Designer
@@ -169,7 +186,8 @@
     If you have any comments, suggestions, criticisms or even praise
     regarding this manual, please let us know at \c {doc@trolltech.com}.
     Bug reports on Qt or \QD should be sent to
-    \c {qt-bugs@trolltech.com}. You might also like to join the
+    \link http://doc.trolltech.com/bughowto.html
+    qt-bugs@trolltech.com\endlink. You might also like to join the
     \e qt-interest mailing list, which \QD's developers read and
     contribute to; see \link http://lists.trolltech.com http://lists.trolltech.com \endlink
     for further details.
