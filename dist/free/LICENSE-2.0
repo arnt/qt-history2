@@ -77,22 +77,22 @@ and development of free software which uses the Software.
 
 <p>
 2. You may copy and distribute the Software provided that the entire
-package is distributed, including this notice.
+   package is distributed, including this notice.
 
 <p>
 3. You may make modifications to the Software.  In order to preserve the
-integrity of the unmodified version of the Software, modifications must
-be distributed in the form of Patches, and the following restrictions
-apply to each Patch: 
+   integrity of the unmodified version of the Software, modifications must
+   be distributed in the form of Patches, and the following restrictions
+   apply to each Patch: 
 
 <blockquote>
 <p>
-  a. Application of the Patch must not modify copyright notices in
-	the Software.
+   a. Application of the Patch must not modify copyright notices in
+      the Software.
 
 <p>
-  b. The Patch must be explicitly licensed by the following clause without
-	additional restriction:
+   b. The Patch must be explicitly licensed by the following clause without
+      additional restriction:
 
 <blockquote>
         Permission is hereby granted, free of charge, to any person
@@ -103,37 +103,35 @@ apply to each Patch:
 </blockquote>
 
 <p>
-  c. The Patch must include an accurate description of the modification,
-     the date of the modification and the author of the modification.
+   c. The Patch must include an accurate description of the modification,
+      the date of the modification and the author of the modification.
 </blockquote>
 
 <p>
-
 4. You may distribute machine-executable forms of the Software or
-machine-executable forms of modified versions of it, provided that you
-accompany this license and a description of where the source code to the
-Software, including any Patches applied, may be downloaded. This
-information must be put in a location where a user of the distribution is
-likely to look for it.
-
+   machine-executable forms of modified versions of the Software,
+   provided that you accompany it with this license and a description of
+   where the source code to the Software, plus any Patches applied, may be
+   downloaded. This information must be put in a location where a user of
+   the distribution is likely to look for it.  
 
 <p>
 5. You may use the original or modified versions of the Software to compile,
-link and run application programs legally developed by third parties.
+   link and run application programs legally developed by third parties.
 
 <p>
-
 6. You may develop application programs, reusable components and other
-software items that link with the original or modified versions of the
-Software under the following restrictions:
+   software items that link with the original or modified versions of the
+   Software under the following restrictions:
 
 <blockquote>
 <p>
-  a. You make your items available in machine-readable Source Code form
+   a. You make your items available in machine-readable Source Code form
       free of charge to all users of those items.  You may charge a
       reasonable fee for the physical act of transferring a copy.
+
 <p>
-  b. You explicitly permit users of your items to freely modify the
+   b. You explicitly permit users of your items to freely modify the
       Source Code (possibly with restrictions on copyright notices,
       attributions and legal responsibility), and freely redistribute
       original or modified versions of the software. 
