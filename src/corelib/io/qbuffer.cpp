@@ -355,7 +355,7 @@ bool QBuffer::seek(qint64 pos)
     }
 
     // #### maybe resize if not readonly?
-    if (pos > qint64(d->buf->size() - 1) || pos < qint64(0)) {
+    if (pos > qint64(d->buf->size()) || pos < qint64(0)) {
         qWarning("QBuffer::seek: Index %lld out of range", pos);
         return false;
     }
