@@ -884,7 +884,7 @@ bool QAction::addTo( QWidget* w )
 	d->comboitems.append( ci );
 
 	d->update( QActionPrivate::State );
-	d->update( QActionPrivate::Everything );
+	d->update( QActionPrivate::EverythingElse );
     } else {
 	qWarning( "QAction::addTo(), unknown object" );
 	return FALSE;
