@@ -1,6 +1,6 @@
 .TH moc 1 "20 November 1997" "Troll Tech AS" \" -*- nroff -*-
 .\"
-.\" $Id: //depot/qt/main/src/moc/moc.1#14 $
+.\" $Id: //depot/qt/main/src/moc/moc.1#15 $
 .\"
 .\" Copyright 1992-1997 Troll Tech AS.  All rights reserved.
 .\" 
@@ -354,26 +354,41 @@ signals:
 .PP
 A #define without arguments works.
 .in -5
-.SS "Nested classes are not supported"
+.SS  "Nested classes cannot be in the signals or slots sections nor have signals or slots"
 Here's an example:
 .PP
 .in +5
     class A {
 .br
-        Q_OBJECT
+	Q_OBJECT
 .br
     public:
 .br
         class B {
 .br
-        [....]
+	public slots:
+.br
+	    void b();       // Nested class with slot
+.br
+	[....]
 .br
         };
+.br
+    signals:
+.br
+        class B {
+.br
+	    void b();       // Nested class in signals:
+.br
+
+.br
+	[....]
+.br
+        }:
 .br
     };
 .in -5
 .PP
-This bug will be fixed in a future release of Qt.
 .SS "Constructors can not be used in signals or slots sections"
 It is a mystery to me why anyone would put a constructor on either the
 .B signals
