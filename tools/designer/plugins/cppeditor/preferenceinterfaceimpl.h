@@ -39,6 +39,7 @@ public:
     void saveProjectSetting( const QString & ) {}
     void loadProjectSetting( const QString & ) {}
     void connectTo( QUnknownInterface *appInterface ) {}
+    void deletePreferenceObject( Preference * );
 
 private:
     ulong ref;

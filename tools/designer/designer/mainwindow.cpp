@@ -4104,7 +4104,7 @@ void MainWindow::setupPluginManagers()
 	    pf = i->projectSetting( *it );
 	    if ( pf )
 		addProjectTab( pf->tab, pf->title, pf->receiver, pf->init_slot, pf->accept_slot );
-	    delete pf;
+	    i->deletePreferenceObject( pf );
 	    i->release();
 	}
     }

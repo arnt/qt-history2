@@ -80,3 +80,7 @@ PreferenceInterface::Preference *PreferenceInterfaceImpl::globalPreference( cons
     return pf;
 }
 
+void PreferenceInterfaceImpl::deletePreferenceObject( Preference *p )
+{ 
+    delete p; 
+}

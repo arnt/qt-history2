@@ -47,7 +47,7 @@ struct PreferenceInterface : public QUnknownInterface
     virtual void saveProjectSetting( const QString &fileContents ) = 0;
     virtual void loadProjectSetting( const QString &fileContents ) = 0;
     virtual void connectTo( QUnknownInterface *appInterface ) = 0;
-
+    virtual void deletePreferenceObject( Preference * ) = 0;
 };
 
 #endif
