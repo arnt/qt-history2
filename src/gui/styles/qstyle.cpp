@@ -1459,11 +1459,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \fn int QStyle::styleHint(StyleHint hint, const QStyleOption *option, \
                               const QWidget *widget, QStyleHintReturn *returnData) const
 
-    Returns the style hint \a hint for \a widget descriped in the
+    Returns the style hint \a hint for \a widget described in the
     QStyleOption \a option. Currently \a returnData and \a widget are
     not used; they are provided for future enhancement. The \a option
-    parameters is used only in SH_ComboBox_Popup and
-    SH_GroupBox_TextLabelColor.
+    parameter is used only in SH_ComboBox_Popup and SH_GroupBox_TextLabelColor.
 
     For an explanation of the return value, see \l StyleHint.
 */

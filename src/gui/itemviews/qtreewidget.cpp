@@ -1315,7 +1315,7 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
   flexible approach involves combining a QTreeView with a standard item model.
   This allows the storage of data to be separated from its representation.
 
- its simplest form, a tree widget can be constructed in the following way:
+  In its simplest form, a tree widget can be constructed in the following way:
 
   \quotefile snippets/qtreewidget-using/mainwindow.h
   \skipto QTreeWidget *
