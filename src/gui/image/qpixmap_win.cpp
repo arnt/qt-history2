@@ -405,9 +405,9 @@ void QPixmap::fill(const QColor &fillColor)
         dc = (HDC)data->hd;
         sy = 0;
     }
-    if (fillColor == black) {
+    if (fillColor == Qt::black) {
         PatBlt(dc, 0, sy, data->w, data->h, BLACKNESS);
-    } else if (fillColor == white) {
+    } else if (fillColor == Qt::white) {
         PatBlt(dc, 0, sy, data->w, data->h, WHITENESS);
     } else {
         HBRUSH hbrush = CreateSolidBrush(fillColor.pixel());
@@ -1086,7 +1086,7 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
     if (depth1)
         memset(dptr, 0xff, dbytes);
     else if (bpp == 8)
-        memset(dptr, QColor(white).pixel(), dbytes);
+        memset(dptr, QColor(Qt::white).pixel(), dbytes);
     else if (data->realAlphaBits)
         memset(dptr, 0x00, dbytes);
     else

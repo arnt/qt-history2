@@ -670,7 +670,7 @@ void QWidget::setWindowIcon(const QPixmap &pixmap)
         QPixmap pm(pixmap.size(), pixmap.depth(), QPixmap::NormalOptim);
         QBitmap mask(pixmap.size(), false, QPixmap::NormalOptim);
         if (pixmap.mask()) {
-            pm.fill(black);                        // make masked area black
+            pm.fill(Qt::black);                        // make masked area black
             bitBlt(&mask, 0, 0, pixmap.mask());
         } else {
             mask.fill(Qt::color1);

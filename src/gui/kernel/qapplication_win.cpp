@@ -2727,8 +2727,8 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
             case Qt::Key_Right:
             case Qt::Key_Up:
             case Qt::Key_Down:
-            case Key_PageUp:
-            case Key_PageDown:
+            case Qt::Key_PageUp:
+            case Qt::Key_PageDown:
             case Qt::Key_Home:
             case Qt::Key_End:
             case Qt::Key_Insert:
@@ -2837,8 +2837,8 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
 
             // map shift+tab to shift+backtab, QShortcutMap knows about it
             // and will handle it
-            if (code == Qt::Key_Tab && (state & Qt::ShiftButton) == ShiftButton)
-                code = Key_BackTab;
+            if (code == Qt::Key_Tab && (state & Qt::ShiftButton) == Qt::ShiftButton)
+                code = Qt::Key_BackTab;
 
             if (rec) {
                 // it is already down (so it is auto-repeating)
@@ -2866,8 +2866,8 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
                                 state);
 
                 // see comment above
-                if (code == Qt::Key_Tab && (state & Qt::ShiftButton) == ShiftButton)
-                    code = Key_BackTab;
+                if (code == Qt::Key_Tab && (state & Qt::ShiftButton) == Qt::ShiftButton)
+                    code = Qt::Key_BackTab;
 
                 k0 = sendKeyEvent(QEvent::KeyRelease, code, state, grab, rec->text);
                 if (code == Qt::Key_Alt)
@@ -2912,7 +2912,7 @@ bool QETWidget::translateWheelEvent(const MSG &msg)
     if (delta == 240 || delta == -240)
         delta /= 2;
 #endif
-       )? Qt::Horizontal:Vertical;
+       ) ? Qt::Horizontal : Qt::Vertical;
 
     QPoint globalPos;
 
