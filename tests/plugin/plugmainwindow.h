@@ -6,7 +6,7 @@
 
 #include <qapplication.h>
 #include <qguardedptr.h>
-#include "qapplicationinterfaces.h"
+#include "qapplicationinterface.h"
 
 class QHBox;
 class QScrollView;
@@ -47,7 +47,7 @@ private:
 class PlugMainWindowInterface : public QApplicationInterface
 {
 public:
-    PlugMainWindow* mainWindow() const;
+    PlugMainWindowInterface( QObject* o );
 
     void requestProperty( const QCString&, QVariant& );
     void requestSetProperty( const QCString&, const QVariant& );

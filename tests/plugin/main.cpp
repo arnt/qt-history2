@@ -1,12 +1,12 @@
 #include "plugmainwindow.h"
 #include "qwidgetfactory.h"
-#include "qapplicationinterfaces.h"
+#include "qapplicationinterface.h"
 #include <qvariant.h>
 
 QApplicationInterface* PlugApplication::requestApplicationInterface( const QCString& request )
 {
     if ( request == "PlugMainWindowInterface" )
-	return mwIface ? mwIface : ( mwIface = new PlugMainWindowInterface );
+	return mwIface ? mwIface : ( mwIface = new PlugMainWindowInterface( qApp->mainWidget() ) );
     else
 	return QApplication::requestApplicationInterface( request );
 }
@@ -19,34 +19,35 @@ QStrList PlugApplication::queryInterfaceList() const
     return list;
 }
 
+PlugMainWindowInterface::PlugMainWindowInterface( QObject *o )
+    : QApplicationInterface( o ) 
+{
+}
+
 void PlugMainWindowInterface::requestSetProperty( const QCString& p, const QVariant& v )
 {
     if ( p == "centralWidget" ) { // fake a property
-	QWidget* w = QWidgetFactory::create( v.toString(), mainWindow() );
-	delete mainWindow()->centralWidget();
+	PlugMainWindow* mw = (PlugMainWindow*)object();
+	QWidget* w = QWidgetFactory::create( v.toString(), mw );
+	delete mw->centralWidget();
 	if ( w ) {
-	    mainWindow()->setCentralWidget( w );
+	    mw->setCentralWidget( w );
 	} else {
-	    QWidget* label = QWidgetFactory::create( "QLabel", mainWindow() );
+	    QWidget* label = QWidgetFactory::create( "QLabel", mw );
 	    label->setProperty( "text", QString("Don't know \"%1\"").arg( v.toString() ) );
-	    mainWindow()->setCentralWidget( label );	    
+	    mw->setCentralWidget( label );
 	}
     } else {
-	mainWindow()->setProperty( p, v );
+	QApplicationInterface::requestSetProperty( p, v );
     }
 }
 
 void PlugMainWindowInterface::requestProperty( const QCString& p, QVariant& v )
 {
     if ( p == "mainWindow" ) // fake a property (hacky and probably unsafe)
-	v = QVariant( (uint)mainWindow() );
+	v = QVariant( (uint)object() );
     else
-	v = mainWindow()->property( p );
-}
-
-PlugMainWindow* PlugMainWindowInterface::mainWindow() const
-{
-    return (PlugMainWindow*)qApp->mainWidget();
+	QApplicationInterface::requestProperty( p, v );
 }
 
 int main( int argc, char** argv )

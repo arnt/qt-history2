@@ -1,6 +1,6 @@
 #include "../../../qactioninterface.h"
 #include "../../../qcleanuphandler.h"
-#include "../../../qapplicationinterfaces.h"
+#include "../../../qdualinterface.h"
 #include "../../../qwidgetfactory.h"
 
 #include <qaction.h>
@@ -43,9 +43,11 @@ public slots:
     void openDialog();
     void toggleText();
     void selectWidget();
+    void changed( bool );
 
 protected:
     QAction* actionTurnOnText;
+    void connectNotify( const QCString& iface );
 
 private:
     QClientInterface* cIface;
@@ -81,15 +83,23 @@ QStrList TestInterface::queryInterfaceList() const
     return list;
 }
 
+void TestInterface::connectNotify( const QCString& iface )
+{
+    qDebug( "Handshake!" );
+    if ( iface == "PlugMainWindowInterface" ) {
+	clientInterface( iface )->requestSignal( SIGNAL(usesTextLabelChanged(bool)), this, SLOT(changed(bool)));
+    }
+}
+
 QAction* TestInterface::create( const QString& actionname, QObject* parent )
 {
     if ( !unknown_icon ) {
 	unknown_icon = new QPixmap( 22, 22 );
-	unknown_icon->fill( Qt::white );
+	unknown_icon->fill( white );
 
 	QPainter paint( unknown_icon );
-	paint.setPen( Qt::black );
-	paint.drawText( 0, 0, 22, 22, Qt::AlignHCenter | AlignVCenter, "?" );
+	paint.setPen( black );
+	paint.drawText( 0, 0, 22, 22, AlignHCenter | AlignVCenter, "?" );
 	paint.end();
 
 	pixmaps.addCleanUp( unknown_icon );
@@ -153,6 +163,11 @@ void TestInterface::selectWidget()
 	    ifc->requestSetProperty( "centralWidget", wc );
 	}
     }
+}
+
+void TestInterface::changed( bool on )
+{
+    qDebug( "Something changed!" );
 }
 
 #if defined(__cplusplus )
