@@ -36,13 +36,16 @@ public slots:
     void setBackground(QWidget *background);
     void updateBackground();
     void widgetRemoved(QWidget*);
+    void initTabOrder();
 
 protected:    
     virtual void paintEvent(QPaintEvent *e);
 
 private:
-    QPointer<AbstractFormWindow> m_formWindow;
+    QPointer<AbstractFormWindow> m_form_window;
 
+    QList<QWidget*> m_tab_order_list;
+    
     QWidget *m_bg_widget;
     QtUndoStack *m_undo_stack;
     QPixmap m_bg_pixmap;
