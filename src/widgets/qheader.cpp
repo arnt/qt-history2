@@ -116,7 +116,7 @@ QHeader::~QHeader()
   actual is the actual index of the clicked section.
 
   In a list view, this signal would typically be connected to a slot
-  which sorts the specified column.
+  which sorts the specified column (or row).
 */
 
 /*!
@@ -130,8 +130,8 @@ QHeader::~QHeader()
 /*!
   \fn void QHeader::moved (int from, int to)
 
-  This signal is emitted when the user has moved column \a from to
-  position \a to. \a from is the actual index of the column before the
+  This signal is emitted when the user has moved section \a from to
+  position \a to. \a from is the actual index of the section before the
   move and \a to is the new actual index.
 */
 
@@ -383,7 +383,8 @@ int QHeader::findLine( int c )
 }
 
 /*!
-  Moves the section at \a fromIdx to the division line at \a toIdx
+  Moves the section with actual index \a fromIdx to the division line
+  at \a toIdx
  */
 void QHeader::moveCell( int fromIdx, int toIdx )
 {
@@ -691,36 +692,49 @@ int QHeader::addLabel( const QIconSet& iconset, const QString &s, int size )
 }
 
 /*!
-  Removes the section at the position \a index.
+  Removes the section with logical index \a index.
 */
-
 void QHeader::removeLabel( int index )
 {
     if ( index < 0 || index > count() - 1 )
-	return;
+        return;
 
-    if ( index < count() - 1 ) {
-	for ( int i = index; i < count() - 1; ++i ) {
-	    int ns = cellSize( i + 1 );
-	    int nh = pHeight( i + 1 );
-	    if ( iconSet( i + 1 ) )
-		setLabel( i, *iconSet( i + 1 ), label( i + 1 ) );
-	    else
-		setLabel( i, label( i + 1 ) );
-	    setCellSize( i, ns );
-	    setPHeight( i, nh );
-	}
+    int aindex = mapToActual( index );
+
+    if ( aindex < cachedIdx ) {
+        cachedIdx--;
+        cachedPos -= pSize( aindex );
     }
 
+    for ( int i = index; i < count() - 1; ++i ) {
+        data->sizes[i] = data->sizes[i+1];
+        data->heights[i] = data->heights[i+1];
+        data->labels.insert( i, data->labels.take( i + 1 ) );
+        data->iconsets.insert( i, data->iconsets.take( i + 1 ) );
+    }
     data->sizes.resize( data->sizes.size() - 1 );
     data->heights.resize( data->heights.size() - 1 );
     data->labels.resize( data->labels.size() - 1 );
     data->iconsets.resize( data->iconsets.size() - 1 );
-    data->a2l.resize( data->a2l.size() - 1 );
+
+    for ( uint i = index; i < data->l2a.size() - 1; ++i )
+        data->l2a[i] = data->l2a[i+1];
     data->l2a.resize( data->l2a.size() - 1 );
+    for ( uint i = 0; i < data->l2a.size() - 1; ++i )
+        if ( data->l2a[i] > aindex )
+            --data->l2a[i];
+
+    for ( uint i = aindex; i < data->a2l.size() - 1; ++i )
+        data->a2l[i] = data->a2l[i+1];
+    data->a2l.resize( data->a2l.size() - 1 );
+    for ( uint i = 0; i < data->a2l.size() - 1; ++i )
+        if ( data->a2l[i] > index )
+            --data->a2l[i];
 
     repaint();
 }
+
+
 
 /*!
   Adds a new section, with label text \a s. Returns the index.
@@ -814,9 +828,9 @@ QSize QHeader::sizeHint() const
 QSizePolicy QHeader::sizePolicy() const
 {
     if ( orient == Horizontal )
-	return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
+	return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
     else
-	return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum );
+	return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
 }
 
 
@@ -926,7 +940,7 @@ int QHeader::mapToActual( int l ) const
 
 
 /*!
-  Sets the size of logical cell \a i to \a s pixels.
+  Sets the size of logical section \a i to \a s pixels.
 
   \warning does not repaint or send out signals at present.
 */
@@ -940,9 +954,9 @@ void QHeader::setCellSize( int i, int s )
 
 
 /*!
-  Enable user resizing of logical column \a i if \a enable is TRUE,
+  Enable user resizing of logical section \a i if \a enable is TRUE,
   disable otherwise.  If \a i is negative (as it is by default),
-  resizing is enabled/disabled for all columns.
+  resizing is enabled/disabled for all sections.
 
   \sa setMovingEnabled(), setClickEnabled()
 */
@@ -957,7 +971,7 @@ void QHeader::setResizeEnabled( bool enable, int i )
 
 
 /*!
-  Enable the user to exchange  columns if \a enable is TRUE,
+  Enable the user to exchange  sections if \a enable is TRUE,
   disable otherwise.
 
   \sa setClickEnabled(), setResizeEnabled()
@@ -970,9 +984,9 @@ void QHeader::setMovingEnabled( bool enable )
 
 
 /*!
-  Enable clicking in logical column \a i if \a enable is TRUE, disable
+  Enable clicking in logical section \a i if \a enable is TRUE, disable
   otherwise.  If \a i is negative (as it is by default), clicking is
-  enabled/disabled for all columns.
+  enabled/disabled for all sectionss.
 
   If enabled, the sectionClicked() signal is emitted when the user clicks.
 
@@ -988,7 +1002,7 @@ void QHeader::setClickEnabled( bool enable, int i )
 }
 
 
-/*! Paints section \a id of the header, inside rectangle \a fr in
+/*! Paints actual section \a id of the header, inside rectangle \a fr in
   widget coordinates.
 */
 
@@ -1007,9 +1021,9 @@ void QHeader::paintSection( QPainter *p, int id, QRect fr )
     if ( data->labels[logIdx] )
 	s = *(data->labels[logIdx]);
     else if ( orient == Horizontal )
-	s.sprintf( "Col %d", logIdx );
+	s = tr("Col %1").arg(logIdx);
     else
-	s.sprintf( "Row %d", logIdx );
+	s = tr("Row %1").arg(logIdx);
 
     int d = 0;
     if ( style() == WindowsStyle  &&
@@ -1091,19 +1105,18 @@ void QHeader::paintEvent( QPaintEvent *e )
 
 /*!
   As most of the time QHeader is used together with a list widget,
-  QHeader can indicate a sort order. This is done using an arrow
-  at the right edge of a section which points up or down. \a column
-  specifies in which column this arrow should be drawn, and \a
-  increasing, if the arrow should point to the bottom (TRUE) or
-  the the top (FALSE).
-  If \a column is -1, no arrow is drawn.
+  QHeader can indicate a sort order. This is done using an arrow at
+  the right edge of a section which points up or down. \a logIdx
+  specifies in which logical section this arrow should be drawn, and \a
+  increasing, if the arrow should point to the bottom (TRUE) or the
+  the top (FALSE).  If \a logIdx is -1, no arrow is drawn.
 
   \sa QListView::setShowSortIndicator()
 */
 
-void QHeader::setSortIndicator( int column, bool increasing )
+void QHeader::setSortIndicator( int logIdx, bool increasing )
 {
-    data->sortColumn = column;
+    data->sortColumn = logIdx;
     data->sortDirection = increasing;
     update();
     updateGeometry();
