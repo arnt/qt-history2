@@ -70,8 +70,10 @@ public:
 
     virtual QString toUnicode(const char* chars, int len) const;
     virtual QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
+    virtual void fromUnicode( const QChar *in, unsigned short *out,  int length );
 
     QByteArray fromUnicode(const QString& uc) const;
+
     QString toUnicode(const QByteArray&, int len) const;
     QString toUnicode(const QByteArray&) const;
     QString toUnicode(const char* chars) const;
@@ -91,7 +93,6 @@ protected:
 private:
     friend class QFont;
     friend class QFontEngineXLFD;
-    void fromUnicodeInternal( const QChar *in, unsigned short *out,  int length );
 
     static QTextCodec *cftr;
     static QTextCodec *cfcs;

@@ -354,7 +354,7 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, gly
 		chars[i] = (str[i].unicode() == 0xa0 ? 0x20 :
 			    (mirrored ? ::mirroredChar(str[i]).unicode() : str[i].unicode()));
 	}
-	_codec->fromUnicodeInternal( chars, glyphs, len );
+	_codec->fromUnicode( chars, glyphs, len );
 	if (chars != str)
 	    free( chars );
     } else {

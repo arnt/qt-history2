@@ -42,10 +42,6 @@
 #include "qfile.h"
 #include "qstring.h"
 
-#if !defined(QT_NO_CODECS) && !defined(QT_NO_BIG_CODECS) && defined(Q_WS_X11)
-#  include "qfontcodecs_p.h"
-#endif
-
 #ifdef QT_THREAD_SUPPORT
 #  include <private/qmutexpool_p.h>
 #endif // QT_THREAD_SUPPORT
@@ -62,7 +58,7 @@
 #    ifdef qDebug
 #        undef qDebug
 #        include <Carbon/Carbon.h>
-#        ifdef QT_NO_DEBUG 
+#        ifdef QT_NO_DEBUG
 #            define qDebug qt_noop(),1?(void)0:qDebug
 #        endif
 #    else
@@ -2854,96 +2850,12 @@ static void realSetup()
 	setupLocaleMapper();
 }
 
-void QTextCodec::fromUnicodeInternal( const QChar *in, unsigned short *out, int length )
+void QTextCodec::fromUnicode( const QChar *in, unsigned short *out, int length )
 {
-    switch( mibEnum() ) {
-#ifndef QT_NO_CODECS
-    case 2084:
-    case 2088:
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-    case 82:
-    case 10:
-    case 85:
-    case 12:
-    case 13:
-    case 109:
-    case 110:
-    case 2004:
-    case 2009:
-    case 2086:
-    case 2250:
-    case 2251:
-    case 2252:
-    case 2253:
-    case 2254:
-    case 2255:
-    case 2256:
-    case 2257:
-    case 2258:
-    case 2259:
-	((QSimpleTextCodec *)this)->fromUnicode( in, out, length );
-	break;
-
-#if !defined(QT_NO_BIG_CODECS) && defined(Q_WS_X11)
-	// the QFont*Codecs are only used on X11
-
-    case 15:
-	((QFontJis0201Codec *) this)->fromUnicode( in, out, length );
-	break;
-
-    case 63:
-	((QFontJis0208Codec *) this)->fromUnicode( in, out, length );
-	break;
-
-    case 36:
-	((QFontKsc5601Codec *) this)->fromUnicode( in, out, length );
-	break;
-
-    case 57:
-	((QFontGb2312Codec *) this)->fromUnicode( in, out, length );
-	break;
-
-    case -113:
-	((QFontGbkCodec *) this)->fromUnicode( in, out, length );
-	break;
-
-    case -114:
-	((QFontGb18030_0Codec *) this)->fromUnicode( in, out, length );
-	break;
-
-    case -2026:
-	((QFontBig5Codec *) this)->fromUnicode( in, out, length );
-	break;
-
-    case -2101:
-	((QFontBig5hkscsCodec *) this)->fromUnicode( in, out, length );
-	break;
-
-    case -4242:
-	((QFontLaoCodec *) this)->fromUnicode( in, out, length );
-	break;
-#endif
-#endif // QT_NO_CODECS
-
-    case 4:
-	((QLatin1Codec *) this)->fromUnicode( in, out, length );
-	break;
-
-    case 111:
-	((QLatin15Codec *) this)->fromUnicode( in, out, length );
-	break;
-
-    default:
-	{
-	    QConstString string( in, length );
-	    QString str = string.string();
-	    for ( int i = 0; i < length; i++ )
-		out[i] = characterFromUnicode( str, i );
-	}
-    }
+    QConstString string( in, length );
+    QString str = string.string();
+    for ( int i = 0; i < length; i++ )
+	out[i] = characterFromUnicode( str, i );
 }
 
 
