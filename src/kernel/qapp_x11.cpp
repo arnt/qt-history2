@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#283 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#284 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#283 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#284 $");
 
 
 /*****************************************************************************
@@ -1803,7 +1803,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 
 	case ReparentNotify:			// window manager reparents
-	    if ( event->xreparent.parent != appRootWin ) {
+	    if ( event->xreparent.parent != appRootWin
+	      && !QWidget::find(event->xreparent.parent) )
+	    {
 		XWindowAttributes a1, a2;
 		while ( XCheckTypedWindowEvent( widget->x11Display(),
 						widget->winId(),
