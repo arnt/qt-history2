@@ -566,10 +566,12 @@ for plat in mac win x11 qws; do
     #handle commandline options
     platformname=$plat
     plat2=$plat
+    plat3=$plat
     case $plat in
     mac)
 	[ "x$DO_MAC" = "xyes" ] || continue
 	plat2=unix
+	plat3=mac9
 	;;
     qws)
 	[ "x$DO_QWS" = "xyes" ] || continue
@@ -763,7 +765,7 @@ for plat in mac win x11 qws; do
 		match=`basename $file | sed "s,.*_,," | cut -d'.' -f1`
 		case $match in
 		unix|win|mac|x11|qws|mac9)
-		    if [ "$match" != "$plat" ] && [ "$match" != "$plat2" ]; then
+		    if [ "$match" != "$plat" ] && [ "$match" != "$plat2" ] && [ "$match" != "$plat3" ]; then
 			rm -f $file
 			echo $file | sed "s,^${PLATDIR},,g" >>$PLAT_RM_FILE
 		    fi
