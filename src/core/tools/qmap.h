@@ -338,9 +338,9 @@ Q_INLINE_TEMPLATE void QMap<Key, T>::clear()
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QMapData::Node *
-QMap<Key, T>::node_create(QMapData *d, QMapData::Node *update[], const Key &key, const T &value)
+QMap<Key, T>::node_create(QMapData *dt, QMapData::Node *update[], const Key &key, const T &value)
 {
-    QMapData::Node *abstractNode = d->node_create(update, Payload);
+    QMapData::Node *abstractNode = dt->node_create(update, Payload);
     Node *concreteNode = concrete(abstractNode);
     new (&concreteNode->key) Key(key);
     new (&concreteNode->value) T(value);

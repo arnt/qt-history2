@@ -121,7 +121,8 @@ public:
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT void rect(int *x, int *y, int *w, int *h) const { getRect(x, y, w, h); }
-    inline QT3_SUPPORT void coords(int *x1, int *y1, int *x2, int *y2) const { getCoords(x1, y1, x2, y2); }
+    inline QT3_SUPPORT void coords(int *ax1, int *ay1, int *ax2, int *ay2) const
+    { getCoords(ax1, ay1, ax2, ay2); }
 #endif
 
 private:
@@ -608,20 +609,20 @@ inline void QRectF::translate(const QPointF &p)
 }
 
 
-inline void QRectF::getRect(qreal *x, qreal *y, qreal *w, qreal *h) const
+inline void QRectF::getRect(qreal *x, qreal *y, qreal *aw, qreal *ah) const
 {
     *x = this->xp;
     *y = this->yp;
-    *w = this->w;
-    *h = this->h;
+    *aw = this->w;
+    *ah = this->h;
 }
 
-inline void QRectF::setRect(qreal x, qreal y, qreal w, qreal h)
+inline void QRectF::setRect(qreal x, qreal y, qreal aw, qreal ah)
 {
     this->xp = x;
     this->yp = y;
-    this->w = w;
-    this->h = h;
+    this->w = aw;
+    this->h = ah;
 }
 
 inline void QRectF::getCoords(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2) const
@@ -651,11 +652,11 @@ inline void QRectF::addCoords(qreal xp1, qreal yp1, qreal xp2, qreal yp2)
 inline QRectF QRectF::adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2) const
 { return QRectF(xp + xp1, yp + yp2, w + xp2 - xp1, h + yp2 - yp1); }
 
-inline void QRectF::setWidth(qreal w)
-{ this->w = w; }
+inline void QRectF::setWidth(qreal aw)
+{ this->w = aw; }
 
-inline void QRectF::setHeight(qreal h)
-{ this->h = h; }
+inline void QRectF::setHeight(qreal ah)
+{ this->h = ah; }
 
 inline void QRectF::setSize(const QSizeF &s)
 {

@@ -32,7 +32,7 @@
 #ifdef Q_CC_SUN // Sun CC piks the wrong overload, so introduce awful hack
 
 template <typename T>
-inline static T *v_cast(const QVariant::Private *nd, T * = 0)
+inline T *v_cast(const QVariant::Private *nd, T * = 0)
 {
     QVariant::Private *d = const_cast<QVariant::Private *>(nd);
     return ((sizeof(T) > sizeof(QVariant::Private::Data))
@@ -44,7 +44,7 @@ inline static T *v_cast(const QVariant::Private *nd, T * = 0)
 #else // every other compiler in this world
 
 template <typename T>
-inline static const T *v_cast(const QVariant::Private *d, T * = 0)
+inline const T *v_cast(const QVariant::Private *d, T * = 0)
 {
     return ((sizeof(T) > sizeof(QVariant::Private::Data))
             // this is really a static_cast, but gcc 2.95 complains about it.
@@ -53,7 +53,7 @@ inline static const T *v_cast(const QVariant::Private *d, T * = 0)
 }
 
 template <typename T>
-inline static T *v_cast(QVariant::Private *d, T * = 0)
+inline T *v_cast(QVariant::Private *d, T * = 0)
 {
     return ((sizeof(T) > sizeof(QVariant::Private::Data))
             // this is really a static_cast, but gcc 2.95 complains about it.
@@ -65,7 +65,7 @@ inline static T *v_cast(QVariant::Private *d, T * = 0)
 
 // constructs a new variant if copy is 0, otherwise copy-constructs
 template <class T>
-inline static void v_construct(QVariant::Private *x, const void *copy, T * = 0)
+inline void v_construct(QVariant::Private *x, const void *copy, T * = 0)
 {
     if (sizeof(T) > sizeof(QVariant::Private::Data)) {
         x->data.shared = copy ? new QVariant::PrivateShared(new T(*static_cast<const T *>(copy)))
@@ -81,7 +81,7 @@ inline static void v_construct(QVariant::Private *x, const void *copy, T * = 0)
 
 // deletes the internal structures
 template <class T>
-inline static void v_clear(QVariant::Private *d, T* = 0)
+inline void v_clear(QVariant::Private *d, T* = 0)
 {
     if (sizeof(T) > sizeof(QVariant::Private::Data)) {
         delete v_cast<T>(d);

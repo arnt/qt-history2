@@ -77,7 +77,7 @@ void qMetaTypeLoadHelper(QDataStream &stream, T *t)
 }
 
 template <typename T>
-static int qRegisterMetaType(const char *typeName, T * = 0)
+int qRegisterMetaType(const char *typeName, T * = 0)
 {
     typedef void*(*ConstructPtr)(const T*);
     ConstructPtr cptr = qMetaTypeConstructHelper<T>;
@@ -89,7 +89,7 @@ static int qRegisterMetaType(const char *typeName, T * = 0)
 }
 
 template <typename T>
-static void qRegisterMetaTypeStreamOperators(const char *typeName, T * = 0)
+void qRegisterMetaTypeStreamOperators(const char *typeName, T * = 0)
 {
     typedef void(*SavePtr)(QDataStream &, const T *);
     typedef void(*LoadPtr)(QDataStream &, T *);

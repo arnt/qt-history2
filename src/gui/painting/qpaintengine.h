@@ -104,7 +104,7 @@ public:
     virtual ~QPaintEngine();
 
     bool isActive() const { return active; }
-    void setActive(bool state) { active = state; }
+    void setActive(bool newState) { active = newState; }
 
     virtual bool begin(QPaintDevice *pdev) = 0;
     virtual bool end() = 0;

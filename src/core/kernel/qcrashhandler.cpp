@@ -74,7 +74,7 @@ static void init_backtrace(char **, int)
 #endif
 
 static char *globalProgName = NULL;
-static bool backtrace_command(FILE *outb, char *format, ...)
+static bool backtrace_command(FILE *outb, const char *format, ...)
 {
 
     bool ret = false;
