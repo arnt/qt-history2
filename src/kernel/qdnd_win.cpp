@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#44 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -711,6 +711,8 @@ void cleanup_mimes()
     {
 	delete wm;
     }
+    mimetypes.setAutoDelete(TRUE);
+    mimetypes.clear();
 }
 
 void qt_init_windows_mime()
@@ -1045,6 +1047,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     QDragResponseEvent e( r == DRAGDROP_S_DROP );
     QApplication::sendEvent( dragSource, &e );
     obj->Release();	// Will delete obj if refcount becomes 0
+    src->Release();	// Will delete src if refcount becomes 0
 
     object = 0;
     updatePixmap();
