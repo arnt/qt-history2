@@ -166,7 +166,7 @@ if [ "${platform}" = "x11" ]; then
   ${curdir}/makearch.sh
   cd ${DISTDIR}/qt/src
   rm -f Makefile* tools/Makefile kernel/Makefile widgets/Makefile dialogs/Makefile
-  cd ${DISTDIR}/qt/lib
+  rmdir ${DISTDIR}/qt/lib ${DISTDIR}/qt/bin
 fi
 
 echo "Copying the README, LICENSE etc. files..." >&2
