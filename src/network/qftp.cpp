@@ -1432,8 +1432,8 @@ int QFtp::connectToHost( const QString &host, Q_UINT16 port )
 int QFtp::login( const QString &user, const QString &password )
 {
     QStringList cmds;
-    cmds << ( "USER " + ( user.isNull() ? QString("anonymous") : user ) + "\r\n" );
-    cmds << ( "PASS " + ( password.isNull() ? QString("anonymous@") : password ) + "\r\n" );
+    cmds << ( QString("USER ") + ( user.isNull() ? QString("anonymous") : user ) + "\r\n" );
+    cmds << ( QString("PASS ") + ( password.isNull() ? QString("anonymous@") : password ) + "\r\n" );
     return addCommand( new QFtpCommand( Login, cmds ) );
 }
 
