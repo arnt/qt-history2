@@ -45,6 +45,7 @@
 #include "qimage.h"
 #include "qapplication.h"
 #include "qstyle.h"
+#include "qguardedptr.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -483,7 +484,7 @@ QMessageBox mb( "Application Name",
 	"Hardware failure.\n\nDisk error detected\nDo you want to stop?",
 	QMessageBox::NoIcon,
 	QMessageBox::Yes | QMessageBox::Default,
-	QMessageBox::No  | QMessageBox::Escape 
+	QMessageBox::No  | QMessageBox::Escape
 	QMessageBox::NoButton );
 if ( mb.exec() == QMessageBox::No )
     // try again
@@ -1011,10 +1012,10 @@ int QMessageBox::information( QWidget *parent,
 {
     QMessageBox *mb = new QMessageBox( caption, text, Information,
                                        button0, button1, button2,
-                                       parent, "qt_msgbox_information" );
+                                       parent, "qt_msgbox_information",
+				       WDestructiveClose);
     Q_CHECK_PTR( mb );
     int reply = mb->exec();
-    delete mb;
     return reply;
 }
 
@@ -1054,10 +1055,10 @@ int QMessageBox::warning( QWidget *parent,
 {
     QMessageBox *mb = new QMessageBox( caption, text, Warning,
                                        button0, button1, button2,
-                                       parent, "qt_msgbox_warning" );
+                                       parent, "qt_msgbox_warning",
+				       WDestructiveClose);
     Q_CHECK_PTR( mb );
     int reply = mb->exec();
-    delete mb;
     return reply;
 }
 
@@ -1097,10 +1098,10 @@ int QMessageBox::critical( QWidget *parent,
 {
     QMessageBox *mb = new QMessageBox( caption, text, Critical,
                                        button0, button1, button2,
-                                       parent, "qt_msgbox_critical" );
+                                       parent, "qt_msgbox_critical",
+				       WDestructiveClose);
     Q_CHECK_PTR( mb );
     int reply = mb->exec();
-    delete mb;
     return reply;
 }
 
@@ -1131,7 +1132,8 @@ void QMessageBox::about( QWidget *parent, const QString &caption,
     QMessageBox *mb = new QMessageBox( caption, text,
                                        Information,
                                        Ok + Default, 0, 0,
-                                       parent, "qt_msgbox_simple_about_box" );
+                                       parent, "qt_msgbox_simple_about_box",
+				       WDestructiveClose);
     Q_CHECK_PTR( mb );
     QPixmap i;
 #ifndef QT_NO_WIDGET_TOPEXTRA
@@ -1147,7 +1149,6 @@ void QMessageBox::about( QWidget *parent, const QString &caption,
     if ( !i.isNull() )
         mb->setIconPixmap( i );
     mb->exec();
-    delete mb;
 }
 
 
@@ -1186,7 +1187,8 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
 
     QMessageBox *mb = new QMessageBox( caption, text, severity,
                                        b[0], b[1], b[2],
-                                       parent, "qt_msgbox_information" );
+                                       parent, "qt_msgbox_information",
+				       Qt::WDestructiveClose);
     Q_CHECK_PTR( mb );
     if ( button0Text.isEmpty() )
         mb->setButtonText( 1, QMessageBox::tr(mb_texts[QMessageBox::Ok]) );
@@ -1201,8 +1203,6 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
     mb->setCursor( Qt::arrowCursor );
 #endif
     int reply = mb->exec();
-
-    delete mb;
     return reply-1;
 }
 
@@ -1339,6 +1339,8 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
     if ( c.isNull() )
         c = "About Qt";
     QMessageBox *mb = new QMessageBox( parent, "qt_msgbox_about_qt" );
+    QGuardedPtr<QMessageBox> ptr = mb;
+
 #ifndef QT_NO_WIDGET_TOPEXTRA
     mb->setCaption( caption.isNull()?QString::fromLatin1("About Qt"):caption );
 #endif
@@ -1369,6 +1371,9 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
         mb->mbd->pb[0]->setFocus();
     }
     mb->exec();
+    // ptr will be zero if mb is deleted
+    mb = ptr;
+    delete mb;
 }
 
 /*!

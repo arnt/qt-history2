@@ -237,7 +237,7 @@ bool QCopChannel::send(const QCString &channel, const QCString &msg )
   \code
     QByteArray ba;
     QDataStream stream( ba, IO_WriteOnly );
-    ba << QString("cat") << QString("file.txt");
+    stream << QString("cat") << QString("file.txt");
     QCopChannel::send( "System/Shell", "execute(QString,QString)", ba );
   \endcode
   Here the channel is "System/Shell". The \a msg is an arbitrary

@@ -432,8 +432,8 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	updateSize();
     }
 
-    QRect screen = QApplication::desktop()->screenGeometry( 
-	QApplication::desktop()->screenNumber( QApplication::reverseLayout() ? pos+QPoint(width(),0) : pos ) 
+    QRect screen = QApplication::desktop()->screenGeometry(
+	QApplication::desktop()->screenNumber( QApplication::reverseLayout() ? pos+QPoint(width(),0) : pos )
 	);
     int sw = screen.width();			// screen width
     int sh = screen.height();			// screen height
@@ -945,10 +945,12 @@ void QPopupMenu::updateSize()
 	max_width = maxWidgetWidth - tab;
 
     if ( ncols == 1 ) {
-	setFixedSize( max_width + tab + 2*frameWidth(), height + 2*frameWidth() );
+	setFixedSize( QMAX( minimumWidth(), max_width + tab + 2*frameWidth() ),
+		      QMAX( minimumHeight() , height + 2*frameWidth() ) );
     }
     else {
-	setFixedSize( (ncols*(max_width + tab)) + 2*frameWidth(), dh );
+	setFixedSize( QMAX( minimumWidth(), (ncols*(max_width + tab)) + 2*frameWidth() ),
+		      QMAX( minimumHeight(), dh ) );
     }
 
     badSize = FALSE;
