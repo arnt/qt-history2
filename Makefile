@@ -46,26 +46,20 @@ sub-examples: sub-src FORCE
 	cd examples; $(MAKE)
 
 clean:
-	-rm .qmake.cache
+	cd qmake; $(MAKE) clean
+	cd tools; $(MAKE) clean
 	cd src/moc; $(MAKE) clean
 	cd src; $(MAKE) clean
 	cd tutorial; $(MAKE) clean
 	cd examples; $(MAKE) clean
 
-depend:
-	cd src; $(MAKE) depend
-	cd tutorial; $(MAKE) depend
-	cd examples; $(MAKE) depend
+distclean: clean
+	-rm .qmake.cache
 
-.qmake.cache: Makefile
+.qmake.cache: 
 	@echo
 	@echo '  Qt must first be configured using the "configure" script.'
 	@echo
-	@echo '  The make process will now run this...'
-	@echo
-	@./configure -frommake
-
-dep: depend
 
 FORCE:
 

@@ -194,10 +194,13 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     t << "moc: $(SRCMOC)" << endl << endl;
 
+    QString ofile = Option::output.name();
+    if(ofile.findRev(Option::dir_sep) != -1)
+	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
     t << "Makefile qmake: " << project->projectFile() << "\n\t"
       << "qmake " << project->projectFile();
-    if (Option::output.name())
-	t << " -o " << Option::output.name();
+    if (!ofile.isEmpty())
+	t << " -o " << ofile;
     t << endl << endl;
 
     t << "dist: " << "\n\t"

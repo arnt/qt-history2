@@ -935,7 +935,7 @@ for a in $QMAKE_PROJECTS ; do
     N=$buildpath/$MFILE
 
     case $a in
-    *qtmain.pro) continue ;;
+    *-kde.pro|*qtmain.pro) continue ;;
     *moc*) CONF=$MKSPEC ;;
     *) CONF=$XMKSPEC
     esac
