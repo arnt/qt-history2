@@ -456,7 +456,7 @@ bool QLibrary::unload()
 	    if ( can ) {
 		d->libIface = 0;
 	    } else {
-#if defined(QT_DEBUG_COMPONENT)
+#if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
 		qWarning( "%s prevents unloading!", library().latin1() );
 #endif
 		d->libIface->addRef();
