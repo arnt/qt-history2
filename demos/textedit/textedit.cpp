@@ -88,9 +88,10 @@ void TextEdit::setupFileActions()
 
     menu->addSeparator();
 
-    a = new QAction(QPixmap(":/images/filesave.png"), tr("&Save..."), this);
+    actionSave = a = new QAction(QPixmap(":/images/filesave.png"), tr("&Save..."), this);
     a->setShortcut(Qt::CTRL + Qt::Key_S);
     connect(a, SIGNAL(triggered()), this, SLOT(fileSave()));
+    a->setEnabled(false);
     tb->addAction(a);
     menu->addAction(a);
 
@@ -153,43 +154,10 @@ void TextEdit::setupTextActions()
 {
     QToolBar *tb = new QToolBar(this);
     tb->setWindowTitle(tr("Format Actions"));
-    addToolBarBreak(Qt::ToolBarAreaTop);
     addToolBar(tb);
 
     QMenu *menu = new QMenu(tr("F&ormat"), this);
     menuBar()->addMenu(menu);
-
-    comboStyle = new QComboBox(tb);
-    tb->addWidget(comboStyle);
-    comboStyle->insertItem("Standard");
-    comboStyle->insertItem("Bullet List (Disc)");
-    comboStyle->insertItem("Bullet List (Circle)");
-    comboStyle->insertItem("Bullet List (Square)");
-    comboStyle->insertItem("Ordered List (Decimal)");
-    comboStyle->insertItem("Ordered List (Alpha lower)");
-    comboStyle->insertItem("Ordered List (Alpha upper)");
-    connect(comboStyle, SIGNAL(activated(int)),
-            this, SLOT(textStyle(int)));
-
-    comboFont = new QComboBox(tb);
-    tb->addWidget(comboFont);
-    comboFont->setEditable(true);
-    QFontDatabase db;
-    comboFont->insertStringList(db.families());
-    connect(comboFont, SIGNAL(activated(const QString &)),
-            this, SLOT(textFamily(const QString &)));
-    comboFont->setEditText(QApplication::font().family());
-
-    comboSize = new QComboBox(tb);
-    tb->addWidget(comboSize);
-    comboSize->setEditable(true);
-
-    foreach(int size, db.standardSizes())
-        comboSize->insertItem(QString::number(size));
-
-    connect(comboSize, SIGNAL(activated(const QString &)),
-            this, SLOT(textSize(const QString &)));
-    comboSize->setCurrentText(QString::number(QApplication::font().pointSize()));
 
     actionTextBold = new QAction(QPixmap(":/images/textbold.png"), tr("&Bold"), this);
     actionTextBold->setShortcut(Qt::CTRL + Qt::Key_B);
@@ -250,6 +218,45 @@ void TextEdit::setupTextActions()
     connect(actionTextColor, SIGNAL(triggered()), this, SLOT(textColor()));
     tb->addAction(actionTextColor);
     menu->addAction(actionTextColor);
+
+
+    tb = new QToolBar(this);
+    tb->setWindowTitle(tr("Format Actions"));
+    addToolBarBreak(Qt::ToolBarAreaTop);
+    addToolBar(tb);
+
+    comboStyle = new QComboBox(tb);
+    tb->addWidget(comboStyle);
+    comboStyle->insertItem("Standard");
+    comboStyle->insertItem("Bullet List (Disc)");
+    comboStyle->insertItem("Bullet List (Circle)");
+    comboStyle->insertItem("Bullet List (Square)");
+    comboStyle->insertItem("Ordered List (Decimal)");
+    comboStyle->insertItem("Ordered List (Alpha lower)");
+    comboStyle->insertItem("Ordered List (Alpha upper)");
+    connect(comboStyle, SIGNAL(activated(int)),
+            this, SLOT(textStyle(int)));
+
+    comboFont = new QComboBox(tb);
+    tb->addWidget(comboFont);
+    comboFont->setEditable(true);
+    QFontDatabase db;
+    comboFont->insertStringList(db.families());
+    connect(comboFont, SIGNAL(activated(const QString &)),
+            this, SLOT(textFamily(const QString &)));
+    comboFont->setEditText(QApplication::font().family());
+
+    comboSize = new QComboBox(tb);
+    tb->addWidget(comboSize);
+    comboSize->setEditable(true);
+
+    foreach(int size, db.standardSizes())
+        comboSize->insertItem(QString::number(size));
+
+    connect(comboSize, SIGNAL(activated(const QString &)),
+            this, SLOT(textSize(const QString &)));
+    comboSize->setCurrentText(QString::number(QApplication::font().pointSize()));
+
 }
 
 bool TextEdit::load(const QString &f)
@@ -300,6 +307,7 @@ void TextEdit::fileSave()
             return;
         QTextStream ts(&file);
         ts << currentEditor->document()->toPlainText();
+        currentEditor->document()->setModified(false);
     }
 }
 
@@ -504,6 +512,8 @@ void TextEdit::alignmentChanged(Qt::Alignment a)
 void TextEdit::editorChanged()
 {
     if (currentEditor) {
+        disconnect(currentEditor->document(), SIGNAL(modificationChanged(bool)),
+                   actionSave, SLOT(setEnabled(bool)));
         disconnect(currentEditor->document(), SIGNAL(undoAvailable(bool)),
                    actionUndo, SLOT(setEnabled(bool)));
         disconnect(currentEditor->document(), SIGNAL(redoAvailable(bool)),
@@ -518,6 +528,7 @@ void TextEdit::editorChanged()
 
         disconnect(currentEditor, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
         disconnect(currentEditor, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
+
     }
 
     currentEditor = qt_cast<QTextEdit *>(tabWidget->currentWidget());
@@ -528,11 +539,14 @@ void TextEdit::editorChanged()
     colorChanged(currentEditor->textColor());
     alignmentChanged(currentEditor->alignment());
 
+    connect(currentEditor->document(), SIGNAL(modificationChanged(bool)),
+            actionSave, SLOT(setEnabled(bool)));
     connect(currentEditor->document(), SIGNAL(undoAvailable(bool)),
             actionUndo, SLOT(setEnabled(bool)));
     connect(currentEditor->document(), SIGNAL(redoAvailable(bool)),
             actionRedo, SLOT(setEnabled(bool)));
 
+    actionSave->setEnabled(currentEditor->document()->isModified());
     actionUndo->setEnabled(currentEditor->document()->isUndoAvailable());
     actionRedo->setEnabled(currentEditor->document()->isRedoAvailable());
 

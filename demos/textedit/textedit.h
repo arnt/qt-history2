@@ -69,14 +69,15 @@ private:
 
     QTextEdit *createNewEditor(const QString &title = QString::null);
 
-    QAction *actionTextBold,
-	*actionTextUnderline,
-	*actionTextItalic,
-	*actionTextColor,
-	*actionAlignLeft,
-	*actionAlignCenter,
-	*actionAlignRight,
-	*actionAlignJustify,
+    QAction *actionSave,
+        *actionTextBold,
+        *actionTextUnderline,
+        *actionTextItalic,
+        *actionTextColor,
+        *actionAlignLeft,
+        *actionAlignCenter,
+        *actionAlignRight,
+        *actionAlignJustify,
         *actionUndo,
         *actionRedo,
         *actionCut,
