@@ -1657,152 +1657,152 @@ QString QFontDatabase::scriptName(QFont::Script script)
 
     switch (script) {
     case QFont::Latin:
-	name = "Latin";
+	name = QT_TRANSLATE_NOOP("QFont",  "Latin");
 	break;
     case QFont::Greek:
-	name = "Greek";
+	name = QT_TRANSLATE_NOOP("QFont",  "Greek" );
 	break;
     case QFont::Cyrillic:
-	name = "Cyrillic";
+	name = QT_TRANSLATE_NOOP("QFont",  "Cyrillic" );
 	break;
     case QFont::Armenian:
-	name = "Armenian";
+	name = QT_TRANSLATE_NOOP("QFont",  "Armenian" );
 	break;
     case QFont::Georgian:
-	name = "Georgian";
+	name = QT_TRANSLATE_NOOP("QFont",  "Georgian" );
 	break;
     case QFont::Runic:
-	name = "Runic";
+	name = QT_TRANSLATE_NOOP("QFont",  "Runic" );
 	break;
     case QFont::Ogham:
-	name = "Ogham";
+	name = QT_TRANSLATE_NOOP("QFont",  "Ogham" );
 	break;
     case QFont::Hebrew:
-	name = "Hebrew";
+	name = QT_TRANSLATE_NOOP("QFont",  "Hebrew" );
 	break;
     case QFont::Arabic:
-	name = "Arabic";
+	name = QT_TRANSLATE_NOOP("QFont",  "Arabic" );
 	break;
     case QFont::Syriac:
-	name = "Syriac";
+	name = QT_TRANSLATE_NOOP("QFont",  "Syriac" );
 	break;
     case QFont::Thaana:
-	name = "Thaana";
+	name = QT_TRANSLATE_NOOP("QFont",  "Thaana" );
 	break;
     case QFont::Devanagari:
-	name = "Devanagari";
+	name = QT_TRANSLATE_NOOP("QFont",  "Devanagari" );
 	break;
     case QFont::Bengali:
-	name = "Bengali";
+	name = QT_TRANSLATE_NOOP("QFont",  "Bengali" );
 	break;
     case QFont::Gurmukhi:
-	name = "Gurmukhi";
+	name = QT_TRANSLATE_NOOP("QFont",  "Gurmukhi" );
 	break;
     case QFont::Gujarati:
-	name = "Gujarati";
+	name = QT_TRANSLATE_NOOP("QFont",  "Gujarati" );
 	break;
     case QFont::Oriya:
-	name = "Oriya";
+	name = QT_TRANSLATE_NOOP("QFont",  "Oriya" );
 	break;
     case QFont::Tamil:
-	name = "Tamil";
+	name = QT_TRANSLATE_NOOP("QFont",  "Tamil" );
 	break;
     case QFont::Telugu:
-	name = "Telugu";
+	name = QT_TRANSLATE_NOOP("QFont",  "Telugu" );
 	break;
     case QFont::Kannada:
-	name = "Kannada";
+	name = QT_TRANSLATE_NOOP("QFont",  "Kannada" );
 	break;
     case QFont::Malayalam:
-	name = "Malayalam";
+	name = QT_TRANSLATE_NOOP("QFont",  "Malayalam" );
 	break;
     case QFont::Sinhala:
-	name = "Sinhala";
+	name = QT_TRANSLATE_NOOP("QFont",  "Sinhala" );
 	break;
     case QFont::Thai:
-	name = "Thai";
+	name = QT_TRANSLATE_NOOP("QFont",  "Thai" );
 	break;
     case QFont::Lao:
-	name = "Lao";
+	name = QT_TRANSLATE_NOOP("QFont",  "Lao" );
 	break;
     case QFont::Tibetan:
-	name = "Tibetan";
+	name = QT_TRANSLATE_NOOP("QFont",  "Tibetan" );
 	break;
     case QFont::Myanmar:
-	name = "Myanmar";
+	name = QT_TRANSLATE_NOOP("QFont",  "Myanmar" );
 	break;
     case QFont::Khmer:
-	name = "Khmer";
+	name = QT_TRANSLATE_NOOP("QFont",  "Khmer" );
 	break;
     case QFont::Han:
-	name = "Han";
+	name = QT_TRANSLATE_NOOP("QFont",  "Han" );
 	break;
     case QFont::Hiragana:
-	name = "Hiragana";
+	name = QT_TRANSLATE_NOOP("QFont",  "Hiragana" );
 	break;
     case QFont::Katakana:
-	name = "Katakana";
+	name = QT_TRANSLATE_NOOP("QFont",  "Katakana" );
 	break;
     case QFont::Hangul:
-	name = "Hangul";
+	name = QT_TRANSLATE_NOOP("QFont",  "Hangul" );
 	break;
     case QFont::Bopomofo:
-	name = "Bopomofo";
+	name = QT_TRANSLATE_NOOP("QFont",  "Bopomofo" );
 	break;
     case QFont::Yi:
-	name = "Yi";
+	name = QT_TRANSLATE_NOOP("QFont",  "Yi" );
 	break;
     case QFont::Ethiopic:
-	name = "Ethiopic";
+	name = QT_TRANSLATE_NOOP("QFont",  "Ethiopic" );
 	break;
     case QFont::Cherokee:
-	name = "Cherokee";
+	name = QT_TRANSLATE_NOOP("QFont",  "Cherokee" );
 	break;
     case QFont::CanadianAboriginal:
-	name = "Canadian Aboriginal";
+	name = QT_TRANSLATE_NOOP("QFont",  "Canadian Aboriginal" );
 	break;
     case QFont::Mongolian:
-	name = "Mongolian";
+	name = QT_TRANSLATE_NOOP("QFont",  "Mongolian" );
 	break;
 
     case QFont::CurrencySymbols:
-	name = "Currency Symbols";
+	name = QT_TRANSLATE_NOOP("QFont",  "Currency Symbols" );
 	break;
 
     case QFont::LetterlikeSymbols:
-	name = "Letterlike Symbols";
+	name = QT_TRANSLATE_NOOP("QFont",  "Letterlike Symbols" );
 	break;
 
     case QFont::NumberForms:
-	name = "Number Forms";
+	name = QT_TRANSLATE_NOOP("QFont",  "Number Forms" );
 	break;
 
     case QFont::MathematicalOperators:
-	name = "Mathematical Operators";
+	name = QT_TRANSLATE_NOOP("QFont",  "Mathematical Operators" );
 	break;
 
     case QFont::TechnicalSymbols:
-	name = "Technical Symbols";
+	name = QT_TRANSLATE_NOOP("QFont",  "Technical Symbols" );
 	break;
 
     case QFont::GeometricSymbols:
-	name = "Geometric Symbols";
+	name = QT_TRANSLATE_NOOP("QFont",  "Geometric Symbols" );
 	break;
 
     case QFont::MiscellaneousSymbols:
-	name = "Miscellaneous Symbols";
+	name = QT_TRANSLATE_NOOP("QFont",  "Miscellaneous Symbols" );
 	break;
 
     case QFont::EnclosedAndSquare:
-	name = "Enclosed and Square";
+	name = QT_TRANSLATE_NOOP("QFont",  "Enclosed and Square" );
 	break;
 
     case QFont::Braille:
-	name = "Braille";
+	name = QT_TRANSLATE_NOOP("QFont",  "Braille" );
 	break;
 
     case QFont::Unicode:
-	name = "Unicode";
+	name = QT_TRANSLATE_NOOP("QFont",  "Unicode" );
 	break;
 
     default:
