@@ -13,6 +13,10 @@
 #include "qcleanuphandler.h"
 #include "qmutex.h"
 
+#ifdef QT_THREAD_SUPPORT
+#  include <private/qmutexpool_p.h>
+#endif // QT_THREAD_SUPPORT
+
 class QLocaleStaticData
 {
 public:
