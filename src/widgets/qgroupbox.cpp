@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#74 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -342,7 +342,8 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
     row = col = 0;
 
     vbox->addLayout( grid );
-
+    vbox->addStretch( 1 );
+    
     // Add all children
     const QObjectList *list = children();
     if ( list )
