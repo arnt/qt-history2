@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id:$
 **
-** Implementation of QImage and QImageIO classes
+** Definition of QSound class and QAuServer internal class
 **
 ** Created : 000117
 **
@@ -25,7 +25,7 @@
 #ifndef QSOUND_H
 #define QSOUND_H
 
-#include <qobject.h>
+#include "qobject.h"
 
 class QSoundData;
 class QAuServer;
@@ -50,7 +50,7 @@ private:
 /*
   QAuServer is an INTERNAL class.  If you wish to provide support for
   additional audio servers, you can make a subclass of QAuServer to do
-  do, HOWEVER, your class may need to be re-engineered to some degree
+  so, HOWEVER, your class may need to be re-engineered to some degree
   with each new Qt release, including minor releases.
 
   QAuBucket is whatever you want.
@@ -68,7 +68,6 @@ public:
     virtual void deleteBucket(QAuBucket* id)=0;
     virtual bool okay()=0;
 };
-
 
 
 #endif

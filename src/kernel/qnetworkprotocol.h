@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#32 $
 **
-** Implementation of QNetworkProtocol class
+** Definition of QNetworkProtocol class
 **
 ** Created : 950429
 **

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qlocalfs.h#6 $
 **
-** Implementation of QLocalFs class
+** Definition of QLocalFs class
 **
 ** Created : 950429
 **

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/dialogs/qinputdialog.cpp#5 $
 **
-** Definition of QInputDialog class
+** Implementation of QInputDialog class
 **
 ** Created : 991212
 **

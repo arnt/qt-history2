@@ -1,6 +1,10 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/widgets/qvbox.cpp#11 $
 **
+** Implementation of vertical box layout widget class
+**
+** Created : 990124
+**
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/widgets/qiconview.cpp#185 $
 **
-** Definition of QIconView widget class
+** Implementation of QIconView widget class
 **
 ** Created : 990707
 **

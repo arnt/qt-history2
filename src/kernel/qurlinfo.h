@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qurlinfo.h#12 $
 **
-** Implementation of QUrlInfo class
+** Definition of QUrlInfo class
 **
 ** Created : 950429
 **

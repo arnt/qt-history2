@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qurloperator.h#21 $
 **
-** Implementation of QUrlOperator class
+** Definition of QUrlOperator class
 **
 ** Created : 950429
 **

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qrichtextintern.cpp#17 $
 **
-** Internal rich text classes
+** Definition of internal rich text classes
 **
 ** Created : 990124
 **

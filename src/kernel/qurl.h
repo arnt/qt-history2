@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qurl.h#24 $
 **
-** Implementation of QUrl class
+** Definition of QUrl class
 **
 ** Created : 950429
 **

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/widgets/qvbox.h#10 $
 **
-** Implementation of vertical box layout widget class.
+** Definition of vertical box layout widget class
 **
 ** Created : 990124
 **

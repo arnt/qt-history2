@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id:$
 **
-** Implementation of QImage and QImageIO classes
+** Implementation of QSound class and QAuServer internal class
 **
 ** Created : 000117
 **
