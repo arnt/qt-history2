@@ -690,26 +690,26 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     }
 
     switch ( ts ) {
-	case QInternal::Widget:
-	case QInternal::Pixmap:
-	case QInternal::System:			// OK, can blt from these
-	    break;
-	default:
+    case QInternal::Widget:
+    case QInternal::Pixmap:
+    case QInternal::System:			// OK, can blt from these
+	break;
+    default:
 #if defined(QT_CHECK_RANGE)
-	    qWarning( "bitBlt: Cannot bitBlt from device type %x", ts );
+	qWarning( "bitBlt: Cannot bitBlt from device type %x", ts );
 #endif
-	    return;
+	return;
     }
     switch ( td ) {
-	case QInternal::Widget:
-	case QInternal::Pixmap:
-	case QInternal::System:			// OK, can blt to these
-	    break;
-	default:
+    case QInternal::Widget:
+    case QInternal::Pixmap:
+    case QInternal::System:			// OK, can blt to these
+	break;
+    default:
 #if defined(QT_CHECK_RANGE)
-	    qWarning( "bitBlt: Cannot bitBlt to device type %x", td );
+	qWarning( "bitBlt: Cannot bitBlt to device type %x", td );
 #endif
-	    return;
+	return;
     }
 
     static short ropCodes[] = {			// ROP translation table
@@ -760,7 +760,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     } else {
 	mono_dst = FALSE;
 	include_inferiors = include_inferiors ||
-	    ((QWidget*)dst)->testWFlags(Qt::WPaintUnclipped);
+			    ((QWidget*)dst)->testWFlags(Qt::WPaintUnclipped);
     }
 
     if ( mono_dst && !mono_src ) {	// dest is 1-bit pixmap, source is not
@@ -769,6 +769,37 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 #endif
 	return;
     }
+
+#ifndef QT_NO_XRENDER
+    if (src_pm && !mono_src && src_pm->data->alphapm) { // use RENDER to do the blit
+	QPixmap *alpha = src_pm->data->alphapm;
+	if (src->x11RenderHandle() &&
+	    alpha->x11RenderHandle() &&
+	    dst->x11RenderHandle()) {
+	    XRenderPictureAttributes pattr;
+	    ulong mask = 0;
+	    if (include_inferiors) {
+		pattr.subwindow_mode = IncludeInferiors;
+		mask |= CPSubwindowMode;
+	    }
+	    if (graphics_exposure) {
+		pattr.graphics_exposures = TRUE;
+		mask |= CPGraphicsExposure;
+	    }
+	    if (mask)
+		XRenderChangePicture(dpy, dst->x11RenderHandle(), mask, &pattr);
+	    XRenderComposite(dpy, PictOpOver, src->x11RenderHandle(),
+			     alpha->x11RenderHandle(), dst->x11RenderHandle(),
+			     sx, sy, sx, sy, dx, dy, sw, sh);
+	    // restore attributes
+	    pattr.subwindow_mode = ClipByChildren;
+	    pattr.graphics_exposures = FALSE;
+	    if (mask)
+		XRenderChangePicture(dpy, dst->x11RenderHandle(), mask, &pattr);
+	    return;
+	}
+    }
+#endif
 
     GC gc;
 

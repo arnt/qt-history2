@@ -1487,11 +1487,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     data->d = dd;
 
     if ( img.hasAlphaBuffer() ) {
-	bool domask = TRUE;
-
 #ifndef QT_NO_XRENDER
 	// ### only support 32bit images at the moment
-	if (qt_use_xrender && img.depth() == 32) {
+	if (qt_use_xrender) {
 	    data->alphapm = new QPixmap; // create a null pixmap
 
 	    // setup pixmap data
@@ -1519,8 +1517,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 				       8, ZPixmap, 0, 0, w, h, 8, 0);
 
 	    if (axi) {
-		domask = FALSE;
-
 		// the data is deleted by qSafeXDestroyImage
 		axi->data = (char *) malloc(h * axi->bytes_per_line);
 
@@ -1538,11 +1534,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	}
 #endif // QT_NO_XRENDER
 
-	if (domask) {
-	    QBitmap m;
-	    m = img.createAlphaMask( conversion_flags );
-	    setMask( m );
-	}
+	QBitmap m;
+	m = img.createAlphaMask( conversion_flags );
+	setMask( m );
     }
 
     return TRUE;
@@ -1666,7 +1660,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     }
 
     bool use_mitshm = xshmimg && !depth1 &&
-		      xshmimg->width >= w && xshmimg->height >= h;
+    xshmimg->width >= w && xshmimg->height >= h;
 #endif
     XImage *xi = (XImage*)data->ximage;		// any cached ximage?
     if ( !xi )
@@ -1710,7 +1704,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     }
 #endif
 
-// #define QT_DEBUG_XIMAGE
+    // #define QT_DEBUG_XIMAGE
 #if defined(QT_DEBUG_XIMAGE)
     qDebug( "----IMAGE--INFO--------------" );
     qDebug( "width............. %d", xi->width );
@@ -1786,12 +1780,9 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	}
 #endif
 
-	bool domask = (data->mask != 0);
-
 #ifndef QT_NO_XRENDER
-	// transform the alpha channel
-	XImage *axi = 0;
-	if ( qt_use_xrender && data->alphapm ) {
+	if ( qt_use_xrender && data->alphapm ) { // xform the alpha channel
+	    XImage *axi = 0;
 	    if ((axi = XGetImage(x11Display(), data->alphapm->handle(),
 				 0, 0, ws, hs, AllPlanes, ZPixmap))) {
 		sbpl = axi->bytes_per_line;
@@ -1808,7 +1799,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 		if (qt_xForm_helper( mat, axi->xoffset, type, bpp, dptr, w,
 				     0, h, sptr, sbpl, ws, hs )) {
-		    domask = FALSE;
 		    delete pm.data->alphapm;
 		    pm.data->alphapm = new QPixmap; // create a null pixmap
 
@@ -1851,7 +1841,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	}
 #endif
 
-	if ( domask )			// xform mask, too
+	if ( data->mask ) // xform mask, too
 	    pm.setMask( data->mask->xForm(matrix) );
 	return pm;
     }

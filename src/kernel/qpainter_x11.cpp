@@ -1117,6 +1117,13 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
             updateBrush();
             XSetSubwindowMode( dpy, gc, IncludeInferiors );
             XSetSubwindowMode( dpy, gc_brush, IncludeInferiors );
+#ifndef QT_NO_XRENDER
+	    if (rendhd) {
+		XRenderPictureAttributes pattr;
+		pattr.subwindow_mode = IncludeInferiors;
+		XRenderChangePicture(dpy, rendhd, CPSubwindowMode, &pattr);
+	    }
+#endif
         }
     } else if ( dt == QInternal::Pixmap ) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)pdev;
@@ -2599,6 +2606,17 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
         map( x, y, &x, &y );
     }
 
+#ifndef QT_NO_XRENDER
+    QPixmap *alpha = pixmap.data->alphapm;
+
+    if (rendhd && pixmap.x11RenderHandle() && alpha && alpha->x11RenderHandle()) {
+	XRenderComposite(dpy, PictOpOver, pixmap.x11RenderHandle(),
+			 alpha->x11RenderHandle(), rendhd,
+			 sx, sy, sx, sy, x, y, sw, sh);
+	return;
+    }
+#endif // QT_NO_XRENDER
+
     QBitmap *mask = (QBitmap *)pixmap.mask();
     bool mono = pixmap.depth() == 1;
 
@@ -2622,19 +2640,8 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
                 XSetClipOrigin( dpy, gc, 0, 0 );
                 if ( pdev == paintEventDevice && paintEventClipRegion ) {
                     XSetRegion( dpy, gc, paintEventClipRegion->handle() );
-#ifndef QT_NO_XRENDER
-		    if (rendhd)
-			XRenderSetPictureClipRegion(dpy, rendhd, paintEventClipRegion->handle());
-#endif // QT_NO_XRENDER
 		} else {
                     XSetClipMask( dpy, gc, None );
-#ifndef QT_NO_XRENDER
-		    if (rendhd) {
-			XRenderPictureAttributes pattr;
-			pattr.clip_mask = None;
-			XRenderChangePicture(dpy, rendhd, CPClipMask, &pattr);
-		    }
-#endif // QT_NO_XRENDER
 		}
             }
         } else {
@@ -2688,18 +2695,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
         XSetTSOrigin( dpy, gc, 0, 0 );
         XSetFillStyle( dpy, gc, FillSolid );
     } else {
-#ifndef QT_NO_XRENDER
-        if (rendhd && pixmap.x11RenderHandle() &&
-            pixmap.data->alphapm &&
-            pixmap.data->alphapm->x11RenderHandle())
-            XRenderComposite(dpy, PictOpOver,
-                             pixmap.x11RenderHandle(),
-                             pixmap.data->alphapm->x11RenderHandle(),
-                             rendhd,
-                             sx, sy, sx, sy, x, y, sw, sh);
-        else
-#endif // QT_NO_XRENDER
-            XCopyArea( dpy, pixmap.handle(), hd, gc, sx, sy, sw, sh, x, y );
+	XCopyArea( dpy, pixmap.handle(), hd, gc, sx, sy, sw, sh, x, y );
     }
 
     if ( mask ) {                               // restore clipping
@@ -2800,36 +2796,9 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
             map( x, y, &x, &y );
 
 #ifndef QT_NO_XRENDER
-        if (rendhd && pixmap.x11RenderHandle() &&
-            pixmap.data->alphapm && pixmap.data->alphapm->x11RenderHandle()) {
+	QPixmap *alpha = pixmap.data->alphapm;
 
-#if 0
-	    // ###
-	    // According to the RENDER protocol spec, this is supposed to work,
-	    // yet for some cases, it doesn't.  So, we have to disable this for
-	    // now and do it a different way.
-
-	    // set the repeat (tile) attribute
-	    XRenderPictureAttributes pattr;
-	    pattr.repeat = TRUE;
-	    XRenderChangePicture(dpy, pixmap.x11RenderHandle(),
-				 CPRepeat, &pattr);
-	    XRenderChangePicture(dpy, pixmap.data->alphapm->x11RenderHandle(),
-				 CPRepeat, &pattr);
-            XRenderComposite(dpy, PictOpOver,
-                             pixmap.x11RenderHandle(),			// src
-                             pixmap.data->alphapm->x11RenderHandle(),	// mask
-                             rendhd,					// dst
-                             sx, sy,					// src offset
-			     sx, sy,					// mask offset
-			     x, y, w, h);				// dst rect
-	    // restore the repeat attribute
-	    pattr.repeat = FALSE;
-	    XRenderChangePicture(dpy, pixmap.x11RenderHandle(),
-				 CPRepeat, &pattr);
-	    XRenderChangePicture(dpy, pixmap.data->alphapm->x11RenderHandle(),
-				 CPRepeat, &pattr);
-#else
+        if (rendhd && pixmap.x11RenderHandle() && alpha && alpha->x11RenderHandle()) {
 	    // this is essentially drawTile() from above, inlined for
 	    // the XRenderComposite call
 	    int yPos, xPos, drawH, drawW, yOff, xOff;
@@ -2845,31 +2814,26 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 		    drawW = pixmap.width() - xOff; // Cropping first column
 		    if ( xPos + drawW > x + w )    // Cropping last column
 			drawW = x + w - xPos;
-		    XRenderComposite(dpy, PictOpOver,
-				     pixmap.x11RenderHandle(),
-				     pixmap.data->alphapm->x11RenderHandle(),
-				     rendhd,
-				     xOff, yOff,
-				     xOff, yOff,
-				     xPos, yPos, drawW, drawH);
+		    XRenderComposite(dpy, PictOpOver, pixmap.x11RenderHandle(),
+				     alpha->x11RenderHandle(), rendhd,
+				     xOff, yOff, xOff, yOff, xPos, yPos, drawW, drawH);
 		    xPos += drawW;
 		    xOff = 0;
 		}
 		yPos += drawH;
 		yOff = 0;
 	    }
+	    return;
+	}
 #endif
-	} else
-#endif
-	    {
-		XSetTile( dpy, gc, pixmap.handle() );
-		XSetFillStyle( dpy, gc, FillTiled );
-		XSetTSOrigin( dpy, gc, x-sx, y-sy );
-		XFillRectangle( dpy, hd, gc, x, y, w, h );
-		XSetTSOrigin( dpy, gc, 0, 0 );
-		XSetFillStyle( dpy, gc, FillSolid );
-	    }
-        return;
+
+	XSetTile( dpy, gc, pixmap.handle() );
+	XSetFillStyle( dpy, gc, FillTiled );
+	XSetTSOrigin( dpy, gc, x-sx, y-sy );
+	XFillRectangle( dpy, hd, gc, x, y, w, h );
+	XSetTSOrigin( dpy, gc, 0, 0 );
+	XSetFillStyle( dpy, gc, FillSolid );
+	return;
     }
 
 #if 0
