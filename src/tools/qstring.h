@@ -40,7 +40,7 @@ class QRegExp;
 class QString;
 class QCharRef;
 
-class Q_EXPORT QChar {
+class Q_EXPORT Q_PACKED QChar {
 public:
     QChar();
     QChar( char c );

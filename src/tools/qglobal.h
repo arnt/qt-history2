@@ -227,8 +227,10 @@
 #define Q_C_CALLBACKS
 #endif
 
-#if defined(_CC_GNU_) && defined(__ARMEL__)
-#define QT_QSTRING_UCS_4
+#if defined(_CC_GNU_) && !defined(QT_MOC_CPP)
+#define Q_PACKED __attribute__ ((packed))
+#else
+#define Q_PACKED
 #endif
 
 // Window system setting
