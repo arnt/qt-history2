@@ -409,8 +409,10 @@ void QTextHTMLImporter::import()
 
             listReferences.append(d->formatCollection.createObjectIndex(listFmt));
         } else if (node->tag == QLatin1String("table")) {
+            QTextTableFormat fmt;
+            fmt.setBorder(1);
             Table t;
-            t.tableIndex = d->formatCollection.createObjectIndex(QTextTableFormat());
+            t.tableIndex = d->formatCollection.createObjectIndex(fmt);
             tables.append(t);
         } else if (node->isTableCell) {
             Q_ASSERT(!tables.isEmpty());
