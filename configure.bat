@@ -38,7 +38,11 @@ set MNG=no
 set QMAKE_VARS=
 set QMAKE_CONFIG=
 set QMAKE_OUTDIR=
-set MAKE=nmake
+if x%MKSPEC%==xwin32-borland (
+	set MAKE=make
+) else (
+	set MAKE=nmake
+)
 set XMKSPEC=
 set MODULES=tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql styles
 set MODULES_UPPER=TOOLS KERNEL WIDGETS DIALOGS ICONVIEW WORKSPACE NETWORK CANVAS TABLE XML OPENGL SQL STYLES
@@ -239,13 +243,14 @@ rem   This is a workaround to avoid library
 rem   confusion
 rem **************************************
 echo Generating src\.qmake.cache
-if x%SHARED%==xyes set QMAKE_CONFIG=%QMAKE_CONFIG% dll
-if x%SHARED%==xno set QMAKE_CONFIG=%QMAKE_CONFIG% staticlib
+set QMAKE_CONFIG_SRC=%QMAKE_CONFIG%
+if x%SHARED%==xyes set QMAKE_CONFIG_SRC=%QMAKE_CONFIG% dll
+if x%SHARED%==xno set QMAKE_CONFIG_SRC=%QMAKE_CONFIG% staticlib
 if exist .qmake.cache del src\.qmake.cache
 for %%v in ( %QMAKE_VARS% ) do (
 	echo %%~v >> src\.qmake.cache
 )
-echo CONFIG=%QMAKE_CONFIG%>>src\.qmake.cache
+echo CONFIG=%QMAKE_CONFIG_SRC%>>src\.qmake.cache
 echo MKSPEC=%XMKSPEC%>>src\.qmake.cache
 
 rem **************************************
