@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#7 $
 **
 ** Implementation of QPoint class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#7 $";
 #endif
 
 /*!
@@ -29,7 +29,11 @@ the two classes aren't equivalent.  There are two main reasons why
 they're not the same class: <ol><li> Structural equivalence doesn't
 imply semantic equivalence, and a point is indeed different from a
 size, and <li> Strict typing allows the compiler to catch more
-errors. </dl>
+errors. </ol>
+
+\todo qpoint/int,int overloading philosophy
+\todo int/QCOOT philosophy
+
 */
 
 // --------------------------------------------------------------------------
