@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#104 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#105 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -124,7 +124,7 @@ QPaintDevice::~QPaintDevice()
     if ( x11Data ) {
 	delete x11Data;
 	x11Data = 0;
-    }	
+    }
 }
 
 
@@ -189,8 +189,10 @@ QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
 
 /*!
   \fn int QPaintDevice::devType() const
-  Returns the device type identifier: \c QInternal::Widget, \c QInternal::Pixmap,
-  \c QInternal::Printer, \c QInternal::Picture or \c QInternal::UndefinedDevice.
+
+  Returns the device type identifier: \c QInternal::Widget, \c
+  QInternal::Pixmap, \c QInternal::Printer, \c QInternal::Picture or
+  \c QInternal::UndefinedDevice.
 */
 
 /*!
