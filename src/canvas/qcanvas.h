@@ -773,6 +773,7 @@ class QM_EXPORT_CANVAS QCanvasItemList : public QList<QCanvasItem*> {
 public:
     void sort();
     void drawUnique( QPainter& painter );
+    QCanvasItemList operator+(const QCanvasItemList& l) const;
 };
 #endif // QT_NO_CANVAS
 
