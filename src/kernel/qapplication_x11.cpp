@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#594 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#595 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -188,6 +188,7 @@ static GC	app_gc_ro_m	= 0;		// read-only GC (monochrome)
 static GC	app_gc_tmp_m	= 0;		// temporary GC (monochrome)
 static Atom	qt_wm_protocols;		// window manager protocols
 Atom		qt_wm_delete_window;		// delete window protocol
+Atom 		qt_wm_take_focus;		// take focus window protocol
 static Atom	qt_qt_scrolldone;		// scroll synchronization
 
 Atom	qt_embedded_window;
@@ -1044,6 +1045,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "_QT_SELECTION", &qt_selection_property );
 	qt_x11_intern_atom( "_QT_SELECTION_SENTINEL", &qt_selection_sentinel );
 	qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
+	qt_x11_intern_atom( "WM_TAKE_FOCUS", &qt_wm_take_focus );
 	qt_x11_intern_atom( "RESOURCE_MANAGER", &qt_resource_manager );
 	qt_x11_intern_atom( "_QT_DESKTOP_PROPERTIES", &qt_desktop_properties );
 	qt_x11_intern_atom( "_QT_SIZEGRIP", &qt_sizegrip );
@@ -2124,10 +2126,20 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
     QETWidget *widget = (QETWidget*)w;
     if ( event->xclient.format == 32 && event->xclient.message_type ) {
 	if ( event->xclient.message_type == qt_wm_protocols ) {
-	    if ( passive_only ) return 0;
-	    long *l = event->xclient.data.l;
-	    if ( *l == (long)qt_wm_delete_window )
+	    Atom a = event->xclient.data.l[0];
+	    if ( a == qt_wm_delete_window ) {
+		if ( passive_only ) return 0;
 		widget->translateCloseEvent(event);
+	    }
+	    else if ( a == qt_wm_take_focus ) {
+		QWidget * amw = activeModalWidget();
+		if ( amw && amw != widget && amw->isActiveWindow() ) {
+		    beep();
+		    amw->raise(); // support broken window managers
+		}
+		XSetInputFocus( appDpy, (amw?amw:widget)->winId(), 
+				RevertToParent, event->xclient.data.l[1] );
+	    }
 	} else if ( event->xclient.message_type == qt_qt_scrolldone ) {
 	    widget->translateScrollDoneEvent(event);
 	} else if ( event->xclient.message_type == qt_xdnd_position ) {
@@ -2720,7 +2732,7 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	return TRUE;
 
     QWidget *modal=0, *top=QApplication::activeModalWidget();
-    
+
     widget = widget->topLevelWidget();
     if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
 	modal = widget;

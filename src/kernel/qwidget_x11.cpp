@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#416 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#417 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -72,6 +72,7 @@ static QWidget *keyboardGrb = 0;
 
 
 extern Atom qt_wm_delete_window;		// defined in qapplication_x11.cpp
+extern Atom qt_wm_take_focus;		// defined in qapplication_x11.cpp
 extern Atom qt_wm_client_leader;		// defined in qapplication_x11.cpp
 extern Atom qt_window_role;			// defined in qapplication_x11.cpp
 extern Atom qt_sm_client_id;			// defined in qapplication_x11.cpp
@@ -288,7 +289,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	size_hints.win_gravity = 1;		// NorthWest
 	char *title = qAppName();
 	XWMHints wm_hints;			// window manager hints
-	wm_hints.input = True;
+	wm_hints.input = False;
 	wm_hints.initial_state = NormalState;
 	wm_hints.flags = InputHint | StateHint;
 	
@@ -304,9 +305,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 			  &class_hint );
 	XResizeWindow( dpy, id, crect.width(), crect.height() );
 	XStoreName( dpy, id, title );
-	Atom protocols[1];
+	Atom protocols[2];
 	protocols[0] = qt_wm_delete_window;	// support del window protocol
-	XSetWMProtocols( dpy, id, protocols, 1 );
+	protocols[1] = qt_wm_take_focus;	// support take focus window protocol
+	XSetWMProtocols( dpy, id, protocols, 2 );
     }
 
     if ( initializeWindow ) {
