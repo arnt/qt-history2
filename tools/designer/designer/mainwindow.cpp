@@ -1382,6 +1382,7 @@ void MainWindow::fileOpen()
     {
 	QString filename;
 	QStringList filterlist;
+	filterlist << tr( "Designer Files (*.ui *.pro)" );
 	filterlist << tr( "Qt User-Interface Files (*.ui)" );
 	filterlist << tr( "QMAKE Project Files (*.pro)" );
 	QStringList list = manager.featureList();
