@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#99 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#100 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#99 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#100 $");
 
 
 // Motif style parameters
@@ -1117,9 +1117,6 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 
 void QPopupMenu::keyPressEvent( QKeyEvent *e )
 {
-    if ( mouseBtDn )				// cannot handle key event
-	return;
-
     QMenuItem  *mi = 0;
     QPopupMenu *popup;
     int d = 0;
