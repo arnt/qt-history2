@@ -151,11 +151,13 @@ public:
     QImage smoothScale( int w, int h, ScaleMode mode=ScaleFree ) const;
     QImage smoothScale( const QSize& s, ScaleMode mode=ScaleFree ) const;
 #endif
+#ifndef QT_NO_TRANSFORMATIONS
     QImage scale( int w, int h, ScaleMode mode=ScaleFree ) const;
     QImage scale( const QSize& s, ScaleMode mode=ScaleFree ) const;
     QImage scaleWidth( int w ) const;
     QImage scaleHeight( int h ) const;
     QImage xForm( const QWMatrix &matrix ) const;
+#endif
 
     QImage	createAlphaMask( int conversion_flags=0 ) const;
     QImage	createHeuristicMask( bool clipTight=TRUE ) const;

@@ -2511,14 +2511,17 @@ QImage QImage::smoothScale( const QSize& s, ScaleMode mode ) const
  
   \sa scaleWidth() scaleHeight() smoothScale() xForm()
 */
+#ifndef QT_NO_TRANSFORMATIONS
 QImage QImage::scale( int w, int h, ScaleMode mode ) const
 {
     return scale( QSize( w, h ), mode );
 }
+#endif
 
 /*! \overload
   The wished size of the image is \a s.
 */
+#ifndef QT_NO_TRANSFORMATIONS
 QImage QImage::scale( const QSize& s, ScaleMode mode ) const
 {
     if ( isNull() ) {
@@ -2543,6 +2546,7 @@ QImage QImage::scale( const QSize& s, ScaleMode mode ) const
 //	img.resize( ss.width(), ss.height() );
     return img;
 }
+#endif
 
 /*!
   Returns scaled a copy of the image. The returned image has a width
@@ -2553,6 +2557,7 @@ QImage QImage::scale( const QSize& s, ScaleMode mode ) const
 
   \sa scale() scaleHeight() smoothScale() xForm()
 */
+#ifndef QT_NO_TRANSFORMATIONS
 QImage QImage::scaleWidth( int w ) const
 {
     if ( isNull() ) {
@@ -2569,6 +2574,7 @@ QImage QImage::scaleWidth( int w ) const
     wm.scale( factor, factor );
     return xForm( wm );
 }
+#endif
 
 /*! Returns a scaled copy of the image. The returned image has a height
   of \a h pixels. This function automatically calculates the width of the
@@ -2586,6 +2592,7 @@ QImage QImage::scaleWidth( int w ) const
 
   \sa scale() scaleWidth() smoothScale() xForm()
 */
+#ifndef QT_NO_TRANSFORMATIONS
 QImage QImage::scaleHeight( int h ) const
 {
     if ( isNull() ) {
@@ -2602,6 +2609,7 @@ QImage QImage::scaleHeight( int h ) const
     wm.scale( factor, factor );
     return xForm( wm );
 }
+#endif
 
 
 /*!
@@ -2641,6 +2649,7 @@ QSize QImage::scaleSize( const QSize &size, ScaleMode mode ) const
 
   \sa scale() QPixmap::xForm() QPixmap::trueMatrix() QWMatrix
 */
+#ifndef QT_NO_TRANSFORMATIONS
 QImage QImage::xForm( const QWMatrix &matrix ) const
 {
     // This function uses the same algorithm (and quite some code) as
@@ -2839,6 +2848,7 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
     }
     return dImage;
 }
+#endif
 
 /*!
   Builds and returns a 1-bpp mask from the alpha buffer in this image.
