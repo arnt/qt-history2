@@ -1172,7 +1172,7 @@ void QObject::setParent_helper(QObject *parent)
 {
     if (parent == d->parent)
         return;
-    if (d->parent && d->parent->d->children.removeAll(this)) {
+    if (d->parent && !d->parent->d->wasDeleted && d->parent->d->children.removeAll(this)) {
         QChildEvent e(QEvent::ChildRemoved, this);
         QCoreApplication::sendEvent(d->parent, &e);
     }
