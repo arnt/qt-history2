@@ -119,7 +119,7 @@ public:
     \a role and \a name are optional parameters for static values
     of the object's respective property.
 */
-QAccessibleWidget::QAccessibleWidget(QWidget *w, Role role, QString name)
+QAccessibleWidget::QAccessibleWidget(QWidget *w, Role role, const QString &name)
 : QAccessibleObject(w)
 {
     Q_ASSERT(widget());

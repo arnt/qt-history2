@@ -37,7 +37,7 @@
 class QSharedMemory {
 public:
 	QSharedMemory(){};
-	QSharedMemory(int, QString, char c = 'Q');
+	QSharedMemory(int, const QString &, char c = 'Q');
 	~QSharedMemory(){};
 
 	bool create();

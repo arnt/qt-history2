@@ -26,7 +26,7 @@ class QAccessibleWidgetPrivate;
 class Q_EXPORT QAccessibleWidget : public QAccessibleObject
 {
 public:
-    QAccessibleWidget(QWidget *o, Role r = Client, QString name = QString());
+    QAccessibleWidget(QWidget *o, Role r = Client, const QString& name = QString());
 
     int		childCount() const;
     int		indexOfChild(const QAccessibleInterface *child) const;

@@ -1505,7 +1505,7 @@ QTextCodec* QTextCodec::loadCharmap(QIODevice* iod)
     A convenience function for loadCharmap() that loads the charmap
     definition from the file \a filename.
 */
-QTextCodec* QTextCodec::loadCharmapFile(QString filename)
+QTextCodec* QTextCodec::loadCharmapFile(const QString& filename)
 {
 #if 0
     QFile f(filename);

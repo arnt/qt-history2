@@ -52,26 +52,26 @@ public:
     QListViewItem( QListViewItem * parent, QListViewItem * after );
 
     QListViewItem( QListView * parent,
-		   QString,     QString = QString::null,
-		   QString = QString::null, QString = QString::null,
-		   QString = QString::null, QString = QString::null,
-		   QString = QString::null, QString = QString::null );
+		   const QString&,                 const QString& = QString::null,
+		   const QString& = QString::null, const QString& = QString::null,
+		   const QString& = QString::null, const QString& = QString::null,
+		   const QString& = QString::null, const QString& = QString::null );
     QListViewItem( QListViewItem * parent,
-		   QString,     QString = QString::null,
-		   QString = QString::null, QString = QString::null,
-		   QString = QString::null, QString = QString::null,
-		   QString = QString::null, QString = QString::null );
+		   const QString&,                 const QString& = QString::null,
+		   const QString& = QString::null, const QString& = QString::null,
+		   const QString& = QString::null, const QString& = QString::null,
+		   const QString& = QString::null, const QString& = QString::null );
 
     QListViewItem( QListView * parent, QListViewItem * after,
-		   QString,     QString = QString::null,
-		   QString = QString::null, QString = QString::null,
-		   QString = QString::null, QString = QString::null,
-		   QString = QString::null, QString = QString::null );
+		   const QString&,                 const QString& = QString::null,
+		   const QString& = QString::null, const QString& = QString::null,
+		   const QString& = QString::null, const QString& = QString::null,
+		   const QString& = QString::null, const QString& = QString::null );
     QListViewItem( QListViewItem * parent, QListViewItem * after,
-		   QString,     QString = QString::null,
-		   QString = QString::null, QString = QString::null,
-		   QString = QString::null, QString = QString::null,
-		   QString = QString::null, QString = QString::null );
+		   const QString&,                 const QString& = QString::null,
+		   const QString& = QString::null, const QString& = QString::null,
+		   const QString& = QString::null, const QString& = QString::null,
+		   const QString& = QString::null, const QString& = QString::null );
     virtual ~QListViewItem();
 
     virtual void insertItem( QListViewItem * );

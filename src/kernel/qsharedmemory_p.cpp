@@ -18,7 +18,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
-QSharedMemory::QSharedMemory (int size, QString filename, char c )
+QSharedMemory::QSharedMemory (int size, const QString &filename, char c )
 {
   shmSize = size;
   shmFile = filename;

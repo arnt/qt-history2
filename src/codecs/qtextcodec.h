@@ -43,7 +43,7 @@ public:
 
 #ifndef QT_NO_CODECS
     static QTextCodec* loadCharmap(QIODevice*);
-    static QTextCodec* loadCharmapFile(QString filename);
+    static QTextCodec* loadCharmapFile(const QString& filename);
 #endif //QT_NO_CODECS
     static QTextCodec* codecForMib(int mib);
     static QTextCodec* codecForName(const char* hint, int accuracy=0);

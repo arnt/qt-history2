@@ -508,14 +508,14 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after )
 */
 
 QListViewItem::QListViewItem( QListView * parent,
-			      QString label1,
-			      QString label2,
-			      QString label3,
-			      QString label4,
-			      QString label5,
-			      QString label6,
-			      QString label7,
-			      QString label8 )
+			      const QString &label1,
+			      const QString &label2,
+			      const QString &label3,
+			      const QString &label4,
+			      const QString &label5,
+			      const QString &label6,
+			      const QString &label7,
+			      const QString &label8 )
 {
     init();
     parent->insertItem( this );
@@ -541,14 +541,14 @@ QListViewItem::QListViewItem( QListView * parent,
 */
 
 QListViewItem::QListViewItem( QListViewItem * parent,
-			      QString label1,
-			      QString label2,
-			      QString label3,
-			      QString label4,
-			      QString label5,
-			      QString label6,
-			      QString label7,
-			      QString label8 )
+			      const QString &label1,
+			      const QString &label2,
+			      const QString &label3,
+			      const QString &label4,
+			      const QString &label5,
+			      const QString &label6,
+			      const QString &label7,
+			      const QString &label8 )
 {
     init();
     parent->insertItem( this );
@@ -577,14 +577,14 @@ QListViewItem::QListViewItem( QListViewItem * parent,
 */
 
 QListViewItem::QListViewItem( QListView * parent, QListViewItem * after,
-			      QString label1,
-			      QString label2,
-			      QString label3,
-			      QString label4,
-			      QString label5,
-			      QString label6,
-			      QString label7,
-			      QString label8 )
+			      const QString &label1,
+			      const QString &label2,
+			      const QString &label3,
+			      const QString &label4,
+			      const QString &label5,
+			      const QString &label6,
+			      const QString &label7,
+			      const QString &label8 )
 {
     init();
     parent->insertItem( this );
@@ -615,14 +615,14 @@ QListViewItem::QListViewItem( QListView * parent, QListViewItem * after,
 */
 
 QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after,
-			      QString label1,
-			      QString label2,
-			      QString label3,
-			      QString label4,
-			      QString label5,
-			      QString label6,
-			      QString label7,
-			      QString label8 )
+			      const QString &label1,
+			      const QString &label2,
+			      const QString &label3,
+			      const QString &label4,
+			      const QString &label5,
+			      const QString &label6,
+			      const QString &label7,
+			      const QString &label8 )
 {
     init();
     parent->insertItem( this );
