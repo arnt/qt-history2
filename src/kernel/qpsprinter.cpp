@@ -278,7 +278,7 @@ static const char * const ps_header[] = {
 "  pop",
 "} D",
 
-"/sl D0", // ## What is this supposed to do?
+"/sl D0",
 "/QCIgray D0 /QCIcolor D0 /QCIindex D0",
 "/QCI {", // as colorimage but without the last two arguments
 "  /colorimage where {",
@@ -5764,7 +5764,7 @@ QByteArray compress( const QImage & image, bool gray ) {
             for( int x=0; x < width; x++ ) {
 		QRgb rgb = (*s++);
 		if ( qAlpha( rgb ) < 0x40 ) // 25% alpha, convert to white -
-		    pixel[i] = qRgb( 0xff, 0xff, 0xff );
+		    rgb = qRgb( 0xff, 0xff, 0xff );
 		if ( gray ) {
 		    pixel[i] = (unsigned char) qGray( rgb );
 		    i++;
@@ -5819,7 +5819,7 @@ QByteArray compress( const QImage & image, bool gray ) {
         mostRecentPixel[i] = None;
     int index = 0;
     int emittedUntil = 0;
-    char *out = (char *)malloc( 256 * sizeof( uchar ) );
+    char *out = (char *)malloc( 256 * sizeof( char ) );
     int outLen = 256;
     int outOffset = 0;
     int outBit = 0;
@@ -5969,7 +5969,7 @@ QByteArray compress( const QImage & image, bool gray ) {
 		sizeUncompressed[x]++;
 #endif
                 int l = QMIN( 8, index - emittedUntil );
-		if ( outOffset + l + 1 >= outLen ) {
+		if ( outOffset + l + 2 >= outLen ) {
 		    outLen *= 2;
 		    out = (char *) realloc( out, outLen );
 		}
@@ -5994,7 +5994,7 @@ QByteArray compress( const QImage & image, bool gray ) {
 	    if ( x > 10 ) x = 10;
 	    sizeCompressed[x]++;
 #endif
-	    if ( outOffset + 3 >= outLen ) {
+	    if ( outOffset + 4 >= outLen ) {
 		outLen *= 2;
 		out = (char *) realloc( out, outLen );
 	    }
@@ -6011,7 +6011,7 @@ QByteArray compress( const QImage & image, bool gray ) {
 		{ 32, 5 },
 		{ 64, 6 },
 		{ 128, 7 },
-		{ /*256*/ 0xffffffff, 8 },
+		{ /*256*/ 0xfffffff, 8 },
 	    };
 
             if ( l < ol_table[0].off ) {
@@ -6168,29 +6168,40 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
 	const char *op;
 	const char *bits;
 	
+#if 0
+	bool hasMask = img.hasAlphaBuffer();
+	if ( hasMask ) {
+	    out = ::compress( img.createAlphaMask(), TRUE );
+	    size = (width*height+7)/8;
+	    pageStream << "/mask " << size << " string d\n"
+		       << "mask uc\n";
+	    ps_r7( pageStream, out, out.size() );
+	    pageStream << "pop\n";
+	}
+#endif
+	
 	if ( img.depth() == 1 ) {
 	    size = (width*height+7)/8;
-	    op = "image";
-	    bits = " 1[";
-            out = ::compress( img, TRUE );
+	    op = "imagemask";
+	    bits = " false[";
+	    gray = TRUE;
 	} else if ( gray ) {
 	    size = width*height;
 	    op = "image";
 	    bits = " 8[";
-            out = ::compress( img.convertDepth( 8 ), TRUE );
         } else {
 	    size = width*height*3;
 	    op = "QCI";
 	    bits = " 8[";
-	    out = ::compress( img, FALSE );
         }
+	out = ::compress( img, gray );
         if ( x || y )
             pageStream << x << " " << y << " TR\n";
-	pageStream << "/sl " << size << " string d\n";
-	pageStream << "sl uc\n";
+	pageStream << "/sl " << size << " string d\n"
+		   << "sl uc\n";
 	ps_r7( pageStream, out, out.size() );
-	pageStream << "pop\n";
-	pageStream << width << ' ' << height << bits << scaleX << " 0 0 " << scaleY << " 0 0]{sl}" << op << "\n";
+	pageStream << "pop\n"
+		   << width << ' ' << height << bits << scaleX << " 0 0 " << scaleY << " 0 0]{sl}" << op << "\n";
         if ( x || y )
             pageStream << -x << " " << -y << " TR\n";
     }
