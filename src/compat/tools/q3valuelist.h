@@ -24,7 +24,8 @@
 #include <list>
 #endif
 
-template <typename T> class QT_COMPAT Q3ValueListIterator : public QLinkedList<T>::iterator
+template <typename T>
+class QT_COMPAT Q3ValueListIterator : public QLinkedList<T>::iterator
 {
 public:
     inline Q3ValueListIterator<T>() :
@@ -35,7 +36,8 @@ public:
         QLinkedList<T>::iterator(o) {}
 };
 
-template <typename T> class QT_COMPAT Q3ValueListConstIterator : public QLinkedList<T>::const_iterator
+template <typename T>
+class QT_COMPAT Q3ValueListConstIterator : public QLinkedList<T>::const_iterator
 {
 public:
     inline Q3ValueListConstIterator<T>() {}
