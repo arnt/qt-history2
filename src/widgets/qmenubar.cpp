@@ -1108,14 +1108,9 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 
 /*!\reimp
 */
-void QMenuBar::resizeEvent( QResizeEvent * )
+void QMenuBar::resizeEvent( QResizeEvent *e )
 {
-    QRect fr = frameRect();
-    if ( !fr.isNull() ) {
-        QRect r( fr.x(), fr.y(), width(), height() );
-        setFrameRect( r );
-    }
-
+    QFrame::resizeEvent( e );
     if ( badSize )
         return;
     badSize = TRUE;
