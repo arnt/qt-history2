@@ -5,7 +5,7 @@
 **
 ** Created : 940112
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -49,8 +49,6 @@
 #include "qt_x11.h"
 
 #include <math.h>
-
-// REVISED: arnt
 
 // paintevent magic to provide Windows semantics on X11
 static QRegion* paintEventClipRegion = 0;
@@ -131,7 +129,7 @@ void qt_erase_rect( QWidget* w, const QRect& r)
 }
 
 #ifdef QT_NO_XRENDER
-typedef unsigned long Picture
+typedef unsigned long Picture;
 static const unsigned long rendhd = 0;
 #endif
 
