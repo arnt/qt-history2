@@ -246,7 +246,7 @@ void QCheckBox::drawButton( QPainter *paint )
     }
     bool use_pm = TRUE;
     QPainter pmpaint;
-    int wx, wy;
+    int wx = 0, wy = 0;
     if ( use_pm ) {
 	pm = new QPixmap( sz );			// create new pixmap
 	CHECK_PTR( pm );

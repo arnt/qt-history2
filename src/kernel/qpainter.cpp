@@ -2248,7 +2248,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     int	   codelen    = 200;
     bool   code_alloc = FALSE;
     uint *codes     = codearray;
-    uint cc;					// character code
+    uint cc = 0;				// character code
     bool   decode     = internal && *internal;	// decode from internal data
     bool   encode     = internal && !*internal; // build internal data
 

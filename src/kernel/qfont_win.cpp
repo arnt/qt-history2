@@ -787,8 +787,8 @@ int QFontMetrics::minRightBearing() const
     QFontDef* def = (QFontDef*)spec();
 
     if ( def->rbearing == SHRT_MIN ) {
-	int ml;
-	int mr;
+	int ml = 0;
+	int mr = 0;
 	if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
 	    ABC *abc;
 	    int n;

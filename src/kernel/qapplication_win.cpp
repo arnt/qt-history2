@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#413 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#414 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -72,7 +72,7 @@ void qt_erase_background( HDC hdc, int x, int y, int w, int h,
 {
     if ( bg_pixmap && bg_pixmap->isNull() )	// empty background
 	return;
-    HPALETTE oldPal;
+    HPALETTE oldPal = 0;
     if ( QColor::hPal() ) {
 	oldPal = SelectPalette( hdc, QColor::hPal(), FALSE );
 	RealizePalette( hdc );
@@ -516,8 +516,6 @@ static void qt_set_windows_resources()
 	QPalette pal(cg, dcg, cg);
 	QApplication::setPalette( pal, TRUE, "QTipLabel");
     }
-
-    BOOL effect = FALSE;
 }
 
 /*****************************************************************************

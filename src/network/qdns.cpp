@@ -2109,7 +2109,7 @@ static QString getWindowsRegString( HKEY key, const char *subKey )
 
 static void doResInit()
 {
-    char separator;
+    char separator = 0;
 
     if ( ns )
 	return;
