@@ -1679,6 +1679,8 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     if [ "$CFG_OPENGL" = "auto" ]; then
 	if $x11tests/opengl.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
 	    CFG_OPENGL=no
+	else
+	    CFG_OPENGL=yes
 	fi
     fi
     # auto-detect Xcursor support
