@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#45 $
 **
 ** Implementation of QButton widget class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#44 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#45 $")
 
 
 /*----------------------------------------------------------------------------
@@ -93,14 +93,14 @@ QButton::~QButton()
   \fn void QButton::pressed()
   This signal is emitted when the button is pressed down.
 
-  \sa released() clicked()
+  \sa released(), clicked()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn void QButton::released()
   This signal is emitted when the button is released.
 
-  \sa clicked() pressed() toggled()
+  \sa pressed(), clicked(), toggled()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -109,13 +109,13 @@ QButton::~QButton()
   pressed down and then released when the mouse cursor is inside the
   button).
 
-  \sa pressed() released() toggled()
+  \sa pressed(), released(), toggled()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn void QButton::toggled( bool on )
-  This signal is emitted whenever a toggle button changes status.  \e
-  on is TRUE if the button is on, or FALSE if the button is off.
+  This signal is emitted whenever a toggle button changes status.
+  \e on is TRUE if the button is on, or FALSE if the button is off.
 
   This may be the result of a user action, toggle() slot activation,
   or because setOn() was called.
@@ -126,7 +126,7 @@ QButton::~QButton()
 
 /*----------------------------------------------------------------------------
   \fn const char *QButton::text() const
-  Returns the button text.
+  Returns the button text, or 0 if the button has no text.
   \sa setText()
  ----------------------------------------------------------------------------*/
 
@@ -156,8 +156,7 @@ void QButton::setText( const char *text )
 
 /*----------------------------------------------------------------------------
   \fn const QPixmap *QButton::pixmap() const
-
-  Returns the button pixmap, or 0 if the button isn't showing a pixmap.
+  Returns the button pixmap, or 0 if the button has no pixmap.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -174,15 +173,14 @@ void QButton::setPixmap( const QPixmap &pixmap )
     if ( bpixmap ) {
 	w = bpixmap->width();
 	h = bpixmap->height();
-    }
-    else {
+    } else {
 	bpixmap = new QPixmap;
 	w = h = -1;
     }
     *bpixmap = pixmap;
     if ( !btext.isNull() )
 	btext.resize( 0 );
-    if ( autoresize &&  (w != bpixmap->width() || h != bpixmap->height()) )
+    if ( autoresize &&	(w != bpixmap->width() || h != bpixmap->height()) )
 	adjustSize();
     else {
 	if ( w >= 0 && w <= bpixmap->width() && h <= bpixmap->height() ) {
@@ -229,9 +227,18 @@ void QButton::setAutoResize( bool enable )
 
 
 /*----------------------------------------------------------------------------
-  Set the state of the button to \e pressed and redraw it if
-  necessary.  If the button is a toggle button, it is \e not toggled,
-  call toggle() as well if you need to do that.
+  \fn bool QButton::isDown() const
+  Returns TRUE if the button pressed down, or FALSE if it is standing up.
+  \sa setDown()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  Sets the state of the button to pressed down if \e enable is TRUE
+  or to standing up if \e enable is FALSE.
+
+  If the button is a toggle button, it is \e not toggled.
+  Call toggle() as well if you need to do that.
+  The pressed() and released() signals are not emitted by this function.
 
   This method is provided in case you need to override the mouse event
   handlers.
@@ -239,10 +246,10 @@ void QButton::setAutoResize( bool enable )
   \sa isDown(), setOn(), toggle(), toggled()
  ----------------------------------------------------------------------------*/
 
-void QButton::setDown( bool pressed )
+void QButton::setDown( bool enable )
 {
-    if ( buttonDown != pressed ) {
-	buttonDown = pressed;
+    if ( (bool)buttonDown != enable ) {
+	buttonDown = enable;
 	repaint( FALSE );
     }
 }
