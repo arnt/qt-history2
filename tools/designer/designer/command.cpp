@@ -1052,6 +1052,34 @@ void SwapWizardPagesCommand::unexecute()
 
 // ------------------------------------------------------------
 
+MoveWizardPageCommand::MoveWizardPageCommand( const QString &n, FormWindow *fw, QWizard *w, int i1, int i2 )
+    : Command( n, fw ), wizard( w ), index1( i1 ), index2( i2 )
+{
+}
+
+void MoveWizardPageCommand::execute()
+{
+    QWidget *page = wizard->page( index1 );
+    QString pageLabel = wizard->title( page );
+    wizard->removePage( page );
+    wizard->insertPage( page, pageLabel, index2 );
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    formWindow()->mainWindow()->objectHierarchy()->pagesChanged( wizard );
+}
+
+void MoveWizardPageCommand::unexecute()
+{
+    // ###FIX: index1 may be the wrong place
+    QWidget *page = wizard->page( index2 );
+    QString pageLabel = wizard->title( page );
+    wizard->removePage( page );
+    wizard->insertPage( page, pageLabel, index1 );
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    formWindow()->mainWindow()->objectHierarchy()->pagesChanged( wizard );
+}
+
+// ------------------------------------------------------------
+
 AddConnectionCommand::AddConnectionCommand( const QString &name, FormWindow *fw,
 					    MetaDataBase::Connection c )
     : Command( name, fw ), connection( c )

@@ -77,6 +77,7 @@ public:
 	AddWizardPage,
 	DeleteWizardPage,
 	SwapWizardPages,
+	MoveWizardPage,
 	RenameWizardPage,
 	AddConnection,
 	RemoveConnection,
@@ -521,6 +522,22 @@ public:
     void execute();
     void unexecute();
     Type type() const { return SwapWizardPages; }
+
+private:
+    QWizard *wizard;
+    int index1, index2;
+
+};
+
+class MoveWizardPageCommand : public Command
+{
+public:
+    MoveWizardPageCommand( const QString &n, FormWindow *fw,
+			      QWizard *w, int index1, int index2 );
+
+    void execute();
+    void unexecute();
+    Type type() const { return MoveWizardPage; }
 
 private:
     QWizard *wizard;

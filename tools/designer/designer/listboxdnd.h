@@ -25,8 +25,6 @@
 #include <qlistbox.h>
 #include "listdnd.h"
 
-class QWidget;
-class QListBox;
 typedef QPtrList<QListBoxItem> ListBoxItemList;
 
 class ListBoxDnd : public ListDnd
@@ -38,6 +36,7 @@ public:
     
 signals:
     void dropped( QListBoxItem * );
+    void dragged( QListBoxItem * );
 
 public slots:
     void confirmDrop( QListBoxItem * );

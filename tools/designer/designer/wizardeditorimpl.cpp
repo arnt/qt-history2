@@ -22,6 +22,7 @@
 #include "formwindow.h"
 #include "mainwindow.h"
 #include "command.h"
+#include "listboxdnd.h"
 #include "listboxrename.h"
 
 #include <qwizard.h>
@@ -30,13 +31,24 @@
 #include <qinputdialog.h>
 
 WizardEditor::WizardEditor( QWidget *parent, QWizard *w, FormWindow *fw )
-    : WizardEditorBase( parent, 0 ), formwindow( fw ), wizard( w )
+    : WizardEditorBase( parent, 0 ), formwindow( fw ), wizard( w ), draggedItem( 0 )
 {
     connect( buttonHelp, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     fillListBox();
 
+    // Add drag and drop
+    ListBoxDnd *listBoxDnd = new ListBoxDnd( listBox );
+    listBoxDnd->setDragMode( ListBoxDnd::Internal | ListBoxDnd::Move );
+    QObject::connect( listBoxDnd, SIGNAL( dropped( QListBoxItem * ) ),
+		      listBoxDnd, SLOT( confirmDrop( QListBoxItem * ) ) );
+
+    QObject::connect( listBoxDnd, SIGNAL( dragged( QListBoxItem * ) ),
+		      this, SLOT( itemDragged( QListBoxItem * ) ) );
+    QObject::connect( listBoxDnd, SIGNAL( dropped( QListBoxItem * ) ),
+		      this, SLOT( itemDropped( QListBoxItem * ) ) );
+
     // Add in-place rename
-    ListBoxRename *listBoxRename = new ListBoxRename( listBox );
+    new ListBoxRename( listBox );
 }
 
 WizardEditor::~WizardEditor()
@@ -169,8 +181,7 @@ void WizardEditor::downClicked()
     listBox->setCurrentItem( index2 );
 
     // schedule swap command
-    SwapWizardPagesCommand *cmd = new SwapWizardPagesCommand( tr( "Swap pages %1 and %2 of %1" ).arg( index1 ).arg( index2 )
-							     .arg( wizard->name() ), formwindow, wizard, index2, index1);
+    SwapWizardPagesCommand *cmd = new SwapWizardPagesCommand( tr( "Swap pages %1 and %2 of %1" ).arg( index1 ).arg( index2 ).arg( wizard->name() ), formwindow, wizard, index2, index1);
     commands.append( cmd );
 
     // update buttons
@@ -213,4 +224,22 @@ void WizardEditor::updateButtons()
 
     if ( listBox->count() < 2 )
 	buttonRemove->setEnabled( FALSE );
+}
+
+void WizardEditor::itemDragged( QListBoxItem * i )
+{
+    // Store item index
+    draggedItem = listBox->index( i );
+}
+
+void WizardEditor::itemDropped( QListBoxItem * i )
+{
+    if ( draggedItem < 0 ) return;
+    // The reorder the pages acording to the listBox list of items
+    // Assumes that only one item has been moved.
+    int droppedItem = listBox->index( i );
+
+    //qDebug( "Moving page %d -> %d", draggedItem, droppedItem );
+    MoveWizardPageCommand *cmd = new MoveWizardPageCommand( tr( "Move page %1 to %2 in %3" ).arg( draggedItem ).arg( droppedItem ).arg( wizard->name() ), formwindow, wizard, draggedItem, droppedItem );
+    commands.append( cmd );
 }

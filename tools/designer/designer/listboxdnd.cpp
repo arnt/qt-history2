@@ -56,11 +56,14 @@ bool ListBoxDnd::dropEvent( QDropEvent * event )
 	}
 	
 	QPoint pos = event->pos();
-	QListBoxItem * item = itemAt( pos );
+	QListBoxItem * after = itemAt( pos );
 
-	if ( ListBoxItemDrag::decode( event, (QListBox *) src, item ) ) {
+	if ( ListBoxItemDrag::decode( event, (QListBox *) src, after ) ) {
 	    event->accept();
-	    emit dropped( 0 ); // Use ID instead of item?
+	    QListBox * src = (QListBox *) this->src;
+	    QListBoxItem * item = ( after ? after->next() : src->firstItem() );
+	    src->setCurrentItem( item );
+	    emit dropped( item ); // ###FIX: Supports only one item!
 	}
     }
 
@@ -78,6 +81,13 @@ bool ListBoxDnd::mouseMoveEvent( QMouseEvent * event )
 	    ListBoxItemList list;
 	    buildList( list );
 	    ListBoxItemDrag * dragobject = new ListBoxItemDrag( list, (dMode & Internal), (QListBox *) src );
+
+	    // Emit signal for all dragged items
+	    QListBoxItem * i = list.first();
+	    while ( i ) {
+		emit dragged( i );
+		i = list.next();
+	    }
 
 	    if ( dMode & Move ) {
 		removeList( list ); // "hide" items

@@ -51,6 +51,9 @@ protected slots:
     void itemHighlighted( int );
     void itemSelected( int );
 
+    void itemDragged( QListBoxItem * );
+    void itemDropped( QListBoxItem * );
+
 private:
     void updateButtons();
     void fillListBox();
@@ -59,6 +62,7 @@ private:
     FormWindow *formwindow;
     QWizard *wizard;
     QPtrList<Command> commands;
+    int draggedItem;
 };
 
 #endif
