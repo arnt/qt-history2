@@ -210,7 +210,6 @@ QColor OLEColorToQColor( uint col )
     Converts \a var to \a arg, and tries to coerce \a arg to \a type.
 
     Used by
-    QUObjectToVARIANT
 
     QAxServerBase:
     - IDispatch::Invoke( PROPERTYGET )
@@ -420,6 +419,26 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 }
 
 /*!
+    Copies the data in \a var into \a data.
+
+    Used by:
+    QAxBase:
+    - internalProperty(ReadProperty)
+*/
+bool QVariantToVoidStar(const QVariant &var, void *data)
+{
+    switch (var.type()) {
+    case QVariant::String:
+	*(QString*)data = var.toString();
+	break;
+    default:
+	return false;
+    }
+
+    return true;
+}
+
+/*!
     God knows why VariantChangeType can't do that...
     Probably because VariantClear does not delete the stuff?
 */
@@ -502,12 +521,12 @@ static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &v
     Used by:
     QAxBase
     - QAxBase::internalInvoke( for slots )
-*/
+*
 bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *param )
 {
     QVariant variant = var;
     const char *vartypename = 0;
-/*
+
     if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 	vartypename = QVariant::typeToName( (QVariant::Type)*(char*)param->typeExtra );
     } else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
@@ -527,9 +546,9 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *pa
 	QVariant::Type exp = QVariant::nameToType(vartypename);
 	variant.cast(exp);
     }
-*/
+
     bool ok = QVariantToVARIANT( variant, res, vartypename );
-/*
+
     // short* and char* are common in OLE controls, and cannot be coerced from int*
     if (variant.type() == QVariant::Int) {
 	if (param->typeExtra == (void*)2)
@@ -551,9 +570,10 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *pa
 	    makeReference( res );
 	}
     }
-*/
+
     return ok;
 }
+*/
 
 /*!
     Converts \a arg to \a obj, and tries to coerce \a obj to the type of \a param.
@@ -1382,99 +1402,6 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
     }
     return var;
 }
-
-/*!
-    Converts \a var to \a obj, and tries to coerce \a obj to the type of \a param.
-
-    Used by
-    QAxBase:
-    - QAxEventSink::OnChanged
-
-    No out-parameter handling necessary.
-*/
-bool QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *param )
-{
-/*
-    if ( QUType::isEqual( param->type, &static_QUType_QVariant ) ) {
-	static_QUType_QVariant.set( &obj, var );
-    } else switch ( var.type() ) {
-    case QVariant::String:
-	static_QUType_QString.set( &obj, var.toString() );
-	break;
-    case QVariant::CString:
-	static_QUType_varptr.set( &obj, new QCString( var.toCString() ) );
-	break;
-    case QVariant::Bool:
-	static_QUType_bool.set( &obj, var.toDouble() );
-	break;
-    case QVariant::Int:
-	static_QUType_int.set( &obj, var.toInt() );
-	break;
-    case QVariant::UInt:
-	static_QUType_varptr.set( &obj, new uint( var.toUInt() ) );
-	break;
-    case QVariant::Double:
-	static_QUType_double.set( &obj, var.toDouble() );
-	break;
-    case QVariant::Color:
-	static_QUType_varptr.set( &obj, new QColor( var.toColor() ) );
-	break;
-    case QVariant::Font:
-	static_QUType_varptr.set( &obj, new QFont( var.toFont() ) );
-	break;
-    case QVariant::Pixmap:
-	static_QUType_varptr.set( &obj, new QPixmap( var.toPixmap() ) );
-	break;
-    case QVariant::Date:
-	static_QUType_varptr.set( &obj, new QDate( var.toDate() ) );
-	break;
-    case QVariant::Time:
-	static_QUType_varptr.set( &obj, new QTime( var.toTime() ) );
-	break;
-    case QVariant::DateTime:
-	static_QUType_varptr.set( &obj, new QDateTime( var.toDateTime() ) );
-	break;
-    case QVariant::List:
-	static_QUType_varptr.set( &obj, new QList<QVariant>( var.toList() ) );
-	break;
-    case QVariant::LongLong:
-	static_QUType_varptr.set( &obj, new Q_LLONG(var.toLongLong() ) );
-	break;
-    case QVariant::ULongLong:
-	static_QUType_varptr.set( &obj, new Q_LLONG(var.toULongLong() ) );
-	break;
-    case QVariant::ByteArray:
-	static_QUType_varptr.set( &obj, new QByteArray(var.toByteArray()) );
-	break;
-    case QVariant::StringList:
-	static_QUType_varptr.set( &obj, new QStringList(var.toStringList()) );
-	break;
-    default:
-	return FALSE;
-    }
-
-    if ( !QUType::isEqual( param->type, obj.type ) ) {
-	if ( param->type->canConvertFrom( &obj, obj.type ) ) {
-	    param->type->convertFrom( &obj, obj.type );
-	} else if ( ( var.type() == QVariant::String || var.type() == QVariant::CString )
-		    && QUType::isEqual( param->type, &static_QUType_enum ) ) {
-	    int value;
-	    if ( enumValue( var.toString(), (const QUEnum *)param->typeExtra, value ) )
-		static_QUType_enum.set( &obj, value );
-	} else {
-#ifndef QT_NO_DEBUG
-	    const char *type = param->type->desc();
-	    if ( QUType::isEqual( param->type, &static_QUType_ptr ) )
-		type = (const char*)param->typeExtra;
-	    qWarning( "Can't coerce QVariant to requested type (%s to %s)", var.typeName(), type );
-#endif
-	    return FALSE;
-	}
-    }
-*/
-    return TRUE;
-}
-
 
 static inline void updateReference( VARIANT &dest, VARIANT &src, bool byref )
 {
