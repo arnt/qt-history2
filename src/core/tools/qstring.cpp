@@ -4898,11 +4898,10 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
     if ( s.version() == 1 ) {
 	QByteArray l( str.latin1() );
 	s << l;
-    }
-    else {
-	int byteOrder = s.byteOrder();
-	const QChar* ub = str.unicode();
+    } else {
 	if ( !str.isNull() || s.version() < 3 ) {
+            int byteOrder = s.byteOrder();
+            const QChar* ub = str.unicode();
 	    static const uint auto_size = 1024;
 	    char t[auto_size];
 	    char *b;
