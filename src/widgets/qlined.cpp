@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#3 $
 **
 ** Implementation of QLineEdit class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#3 $";
 #endif
 
 
@@ -113,6 +113,8 @@ void QLineEdit::keyFocusEvent( bool inFocus )
 
 void QLineEdit::setText( const char *s )
 {
+    if ( t == s )				// no change
+	return;
     t = s;
     if ( t.length() > maxLen )
 	t.resize( maxLen+1 );
