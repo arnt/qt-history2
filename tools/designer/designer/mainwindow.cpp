@@ -151,7 +151,7 @@ MainWindow::MainWindow( bool asClient )
     layoutToolBar = new KToolBar( this );
     ( (KToolBar*)layoutToolBar )->setFullSize( FALSE );
 #else
-    layoutToolBar = new QToolBar( this );
+    layoutToolBar = new QToolBar( this, "Layout" );
 #endif
     addToolBar( layoutToolBar, tr( "Layout" ) );
     setupToolActions();
@@ -336,7 +336,7 @@ void MainWindow::setupEditActions()
     KToolBar *tb = new KToolBar( this );
     tb->setFullSize( FALSE );
 #else
-    QToolBar *tb = new QToolBar( this );
+    QToolBar *tb = new QToolBar( this, "Edit" );
 #endif
     QWhatsThis::add( tb, tr( "<b>The Edit toolbar</b>%1").arg(tr(toolbarHelp).arg("")) );
     addToolBar( tb, tr( "Edit" ) );
@@ -352,7 +352,7 @@ void MainWindow::setupEditActions()
     actionEditRaise->addTo( tb );
 #endif
 
-    QPopupMenu *menu = new QPopupMenu( this );
+    QPopupMenu *menu = new QPopupMenu( this, "Edit" );
     menubar->insertItem( tr( "&Edit" ), menu );
     actionEditUndo->addTo( menu );
     actionEditRedo->addTo( menu );
@@ -454,7 +454,7 @@ void MainWindow::setupLayoutActions()
     layoutToolBar->addSeparator();
     a->addTo( layoutToolBar );
 
-    QPopupMenu *menu = new QPopupMenu( this );
+    QPopupMenu *menu = new QPopupMenu( this, "Layout" );
     menubar->insertItem( tr( "&Layout" ), menu );
     actionEditAdjustSize->addTo( menu );
     menu->insertSeparator();
@@ -506,7 +506,7 @@ void MainWindow::setupToolActions()
     KToolBar *tb = new KToolBar( this );
     tb->setFullSize( FALSE );
 #else
-    QToolBar *tb = new QToolBar( this );
+    QToolBar *tb = new QToolBar( this, "Tools" );
 #endif
     QWhatsThis::add( tb, tr( "<b>The Tools toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
 					
@@ -515,7 +515,7 @@ void MainWindow::setupToolActions()
     actionConnectTool->addTo( tb );
     actionOrderTool->addTo( tb );
 
-    QPopupMenu *mmenu = new QPopupMenu( this );
+    QPopupMenu *mmenu = new QPopupMenu( this, "Tools" );
     menubar->insertItem( tr( "&Tools" ), mmenu );
     actionPointerTool->addTo( mmenu );
     actionConnectTool->addTo( mmenu );
@@ -544,7 +544,7 @@ void MainWindow::setupToolActions()
 	KToolBar *tb = new KToolBar( this );
 	tb->setFullSize( FALSE );
 #else
-	QToolBar *tb = new QToolBar( this );
+	QToolBar *tb = new QToolBar( this, grp.latin1() );
 #endif
 	bool plural = grp[(int)grp.length()-1] == 's';
 	if ( plural ) {
@@ -557,7 +557,7 @@ void MainWindow::setupToolActions()
 						"or double click to insert multiple widgets.") ).arg(grp)) );
 	}
 	addToolBar( tb, grp );
-	QPopupMenu *menu = new QPopupMenu( this );
+	QPopupMenu *menu = new QPopupMenu( this, grp.latin1() );
 	mmenu->insertItem( grp, menu );
 	
 	if ( grp == "Custom" ) {
@@ -600,7 +600,7 @@ void MainWindow::setupToolActions()
 	KToolBar *tb = new KToolBar( this );
 	tb->setFullSize( FALSE );
 #else
-	QToolBar *tb = new QToolBar( this );
+	QToolBar *tb = new QToolBar( this, "Custom Widgets" );
 #endif
 	QWhatsThis::add( tb, tr( "<b>The Custom Widgets toolbar</b>%1"
 				 "<p>Select <b>Edit Custom Widgets...</b> in the <b>Tools->Custom</b> menu to "
@@ -609,7 +609,7 @@ void MainWindow::setupToolActions()
 				 "or double click to insert multiple widgets.") )) );
 	addToolBar( tb, "Custom" );
 	customWidgetToolBar = tb;
-	QPopupMenu *menu = new QPopupMenu( this );
+	QPopupMenu *menu = new QPopupMenu( this, "Custom Widgets" );
 	mmenu->insertItem( "Custom", menu );
 	customWidgetMenu = menu;
 	customWidgetToolBar->hide();
@@ -626,11 +626,11 @@ void MainWindow::setupFileActions()
     KToolBar *tb = new KToolBar( this );
     tb->setFullSize( FALSE );
 #else
-    QToolBar *tb = new QToolBar( this );
+    QToolBar *tb = new QToolBar( this, "File" );
 #endif
     QWhatsThis::add( tb, tr( "<b>The File toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
     addToolBar( tb, tr( "File" ) );
-    QPopupMenu *menu = new QPopupMenu( this );
+    QPopupMenu *menu = new QPopupMenu( this, "File" );
     menubar->insertItem( tr( "&File" ), menu );
 
     QAction *a = 0;
@@ -722,7 +722,7 @@ void MainWindow::setupFileActions()
 void MainWindow::setupPreviewActions()
 {
     QAction* a = 0;
-    QPopupMenu *menu = new QPopupMenu( this );
+    QPopupMenu *menu = new QPopupMenu( this, "Preview" );
     menubar->insertItem( tr( "&Preview" ), menu );
 		
     a = new QAction( tr( "Preview Form" ), createIconSet("previewform.xpm"),
@@ -861,7 +861,7 @@ void MainWindow::setupWindowActions()
     }
 
     if ( !windowMenu ) {
-	windowMenu = new QPopupMenu( this );
+	windowMenu = new QPopupMenu( this, "Window" );
 	menubar->insertItem( tr( "&Window" ), windowMenu );
 	connect( windowMenu, SIGNAL( aboutToShow() ),
 		 this, SLOT( setupWindowActions() ) );
@@ -941,13 +941,13 @@ void MainWindow::setupHelpActions()
     KToolBar *tb = new KToolBar( this );
     tb->setFullSize( FALSE );
 #else
-    QToolBar *tb = new QToolBar( this );
+    QToolBar *tb = new QToolBar( this, "Help" );
 #endif
     QWhatsThis::add( tb, tr( "<b>The Help toolbar</b>%1" ).arg(tr(toolbarHelp).arg("") ));
     addToolBar( tb, tr( "Help" ) );
     actionHelpWhatsThis->addTo( tb );
 
-    QPopupMenu *menu = new QPopupMenu( this );
+    QPopupMenu *menu = new QPopupMenu( this, "Help" );
     menubar->insertSeparator();
     menubar->insertItem( tr( "&Help" ), menu );
     actionHelpContents->addTo( menu );
@@ -3341,22 +3341,31 @@ void MainWindow::setupActionManager()
 
     QStringList lst = actionPluginManager->featureList();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	QAction *a = actionPluginManager->create( *it, this );
+	if ( !a )
+	    continue;
+
 	QString grp = actionPluginManager->group( *it );
-	if ( TRUE ) { // group doesn't exist, create new toolbar/menu
-	    QPopupMenu *m = new QPopupMenu( this );
+	QPopupMenu *menu = 0;
+	QToolBar *tb = 0;
+	if ( TRUE ) { // this action is not known to the mainwindow configuration, so use group hints
+	    if ( ! ( menu = (QPopupMenu*)child( grp.latin1(), "QPopupMenu" ) ) ) {
+		menu = new QPopupMenu( this, grp.latin1() );
+		menubar->insertItem( tr( grp ), menu );
+	    }
+	    if ( ! ( tb = (QToolBar*)child( grp.latin1(), "QToolBar" ) ) ) {
 #if defined(HAVE_KDE)
-	    KToolBar *tb = new KToolBar( this );
-	    tb->setFullSize( FALSE );
+		KToolBar *tb = new KToolBar( this );
+		tb->setFullSize( FALSE );
 #else
-	    QToolBar *tb = new QToolBar( this );
+		tb = new QToolBar( this, grp.latin1() );
 #endif
-	    QAction *a = actionPluginManager->create( *it, this );
-	    if ( !a )
-		continue;
-	    a->addTo( m );
-	    a->addTo( tb );
-	    menubar->insertItem( tr( grp ), m );
+		addToolBar( tb, grp );
+	    }
 	}
+
+	a->addTo( menu );
+	a->addTo( tb );
     }
 }
 
