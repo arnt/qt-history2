@@ -849,8 +849,8 @@ inline bool  QWidget::isFocusEnabled() const
 inline bool QWidget::isUpdatesEnabled() const
 { return !testWState(Qt::WState_BlockUpdates); }
 
-inline void QWidget::update(const QRect &r)
-{ update(r.x(), r.y(), r.width(), r.height()); }
+inline void QWidget::update(int x, int y, int w, int h)
+{ update(QRect(x, y, w, h)); }
 
 inline bool QWidget::isVisible() const
 { return testWState(Qt::WState_Visible); }
@@ -861,14 +861,29 @@ inline bool QWidget::isHidden() const
 inline bool QWidget::isShown() const
 { return !testWState(Qt::WState_Hidden); }
 
-inline void QWidget::move(const QPoint &p)
-{ move(p.x(), p.y()); }
+inline void QWidget::move(int x, int y)
+{ move(QPoint(x, y)); }
 
-inline void QWidget::resize(const QSize &s)
-{ resize(s.width(), s.height()); }
+inline void QWidget::resize(int w, int h)
+{ resize(QSize(w, h)); }
 
-inline void QWidget::setGeometry(const QRect &r)
-{ setGeometry(r.left(), r.top(), r.width(), r.height()); }
+inline void QWidget::setGeometry(int x, int y, int w, int h)
+{ setGeometry(QRect(x, y, w, h)); }
+
+inline QRect QWidget::rect() const
+{ return QRect(0,0,data->crect.width(),data->crect.height()); }
+
+inline const QRect &QWidget::geometry() const
+{ return data->crect; }
+
+inline QSize QWidget::size() const
+{ return data->crect.size(); }
+
+inline int QWidget::width() const
+{ return data->crect.width(); }
+
+inline int QWidget::height() const
+{ return data->crect.height(); }
 
 inline QWidget *QWidget::parentWidget() const
 { return static_cast<QWidget *>(QObject::parent()); }

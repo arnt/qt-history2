@@ -2066,31 +2066,6 @@ QPoint QWidget::pos() const
     \sa size
 */
 
-QRect QWidget::rect() const
-{
-    return QRect(0,0,data->crect.width(),data->crect.height());
-}
-
-
-const QRect &QWidget::geometry() const
-{
-    return data->crect;
-}
-
-QSize QWidget::size() const
-{
-    return data->crect.size();
-}
-
-int QWidget::width() const
-{
-    return data->crect.width();
-}
-
-int QWidget::height() const
-{
-    return data->crect.height();
-}
 
 QRect QWidget::normalGeometry() const
 {
@@ -3474,49 +3449,46 @@ QSize QWidget::frameSize() const
     return data->crect.size();
 }
 
-/*!
+/*! \fn void QWidget::move(int x, int y)
+
     \overload
 
     This corresponds to move(QPoint(\a x, \a y)).
 */
 
-void QWidget::move(int x, int y)
+void QWidget::move(const QPoint &p)
 {
     QPoint oldp = pos();
     setAttribute(Qt::WA_Moved);
-    setGeometry_sys(x + geometry().x() - QWidget::x(),
-                    y + geometry().y() - QWidget::y(),
+    setGeometry_sys(p.x() + geometry().x() - QWidget::x(),
+                    p.y() + geometry().y() - QWidget::y(),
                     width(), height(), true);
     if (oldp != pos())
         d->updateInheritedBackground();
 }
 
-/*!
+/*! \fn void QWidget::resize(int w, int h)
     \overload
 
     This corresponds to resize(QSize(\a w, \a h)).
 */
-void QWidget::resize(int w, int h)
+
+void QWidget::resize(const QSize &s)
 {
     setAttribute(Qt::WA_Resized);
     QSize olds = size();
-    setGeometry_sys(geometry().x(), geometry().y(), w, h, false);
+    setGeometry_sys(geometry().x(), geometry().y(), s.width(), s.height(), false);
     if (testAttribute(Qt::WA_ContentsPropagated) &&  olds != size())
         d->updatePropagatedBackground();
 }
 
-/*!
-    \overload
-
-    This corresponds to setGeometry(QRect(\a x, \a y, \a w, \a h)).
-*/
-void QWidget::setGeometry(int x, int y, int w, int h)
+void QWidget::setGeometry(const QRect &r)
 {
     QPoint oldp = pos();
     QSize olds = size();
     setAttribute(Qt::WA_Resized);
     setAttribute(Qt::WA_Moved);
-    setGeometry_sys(x, y, w, h, true);
+    setGeometry_sys(r.x(), r.y(), r.width(), r.height(), true);
 
     if (testAttribute(Qt::WA_ContentsPropagated) && olds != size())
         d->updatePropagatedBackground();
@@ -3524,6 +3496,12 @@ void QWidget::setGeometry(int x, int y, int w, int h)
         d->updateInheritedBackground();
 }
 
+
+/*!\fn void QWidget::setGeometry(int x, int y, int w, int h)
+    \overload
+
+    This corresponds to setGeometry(QRect(\a x, \a y, \a w, \a h)).
+*/
 
 /*!
     Sets the margins around the contents of the widget to have the

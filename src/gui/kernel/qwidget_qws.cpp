@@ -634,8 +634,9 @@ void QWidget::update(const QRegion &rgn)
          QApplication::postEvent(this, new QWSUpdateEvent(rgn&clipRegion()));
 }
 
-void QWidget::update(int x, int y, int w, int h)
+void QWidget::update(const QRect &r)
 {
+    int x = r.x(), y = r.y(), w = r.width(), h = r.height();
     if (w && h && (data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible) {
         if (w < 0)
             w = data->crect.width()  - x;

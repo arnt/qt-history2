@@ -1389,8 +1389,9 @@ void QWidget::update()
     update(0, 0, width(), height());
 }
 
-void QWidget::update(int x, int y, int w, int h)
+void QWidget::update(const QRect &r)
 {
+    int x = r.x(), y = r.y(), w = r.width(), h = r.height();
     if(!testWState(Qt::WState_BlockUpdates) && isVisible()) {
         if(w < 0)
             w = data->crect.width()  - x;
