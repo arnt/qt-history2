@@ -851,7 +851,7 @@ static void loadXft()
 
         FcCharSet *charset = 0;
         FcResult res = FcPatternGetCharSet(fonts->fonts[i], FC_CHARSET, 0, &charset);
-        if (res == FcResultMatch) {
+	if (res == FcResultMatch && FcCharSetCount(charset) > 1) {
             for (int i = 0; i < QFont::LastPrivateScript; ++i) {
                 QChar ch = sampleCharacter((QFont::Script) i);
 
@@ -863,7 +863,13 @@ static void loadXft()
                 }
             }
             family->xftScriptCheck = true;
-        }
+ 	} else {
+ 	    // we set UnknownScript to supported for symbol fonts. It makes no sense to merge these
+ 	    // with other ones, as they are special in a way.
+ 	    for ( int i = 0; i < QFont::LastPrivateScript; ++i )
+ 		family->scripts[i] |= QtFontFamily::UnSupported_Xft;
+ 	    family->scripts[QFont::UnknownScript] = QtFontFamily::Supported;
+ 	}
 
         QByteArray file(file_value);
         family->fontFilename = file;
@@ -1158,6 +1164,7 @@ static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, 
         // add Euro character
         FcCharSetAddChar(cs, 0x20ac);
     FcPatternAddCharSet(pattern, FC_CHARSET, cs);
+    FcCharSetDestroy(cs);
 
     return scale;
 }
@@ -1213,10 +1220,38 @@ QFontEngine *loadEngine(QFont::Script script,
 
         double scale = addPatternProps(pattern, style->key, style->fakeOblique, fp, request, script);
 
+ 	if (!symbol) {
+ 	    FcCharSet *cs = FcCharSetCreate();
+	    QChar sample = sampleCharacter(script);
+ 	    FcCharSetAddChar(cs, sample.unicode());
+ 	    if (script == QFont::Latin)
+ 		// add Euro character
+ 		FcCharSetAddChar(cs, 0x20ac);
+ 	    FcPatternAddCharSet(pattern, FC_CHARSET, cs);
+ 	    FcCharSetDestroy(cs);
+ 	}
+
         XftResult res;
         XftPattern *result =
             XftFontMatch(QX11Info::appDisplay(), fp->screen, pattern, &res);
-        XftPatternDestroy(pattern);
+
+ 	if (script == QFont::Latin) {
+ 	    // since we added the Euro char on top, check we actually got the family
+ 	    // we requested. If we didn't get it correctly, remove the Euro from the pattern
+	    // and try again.
+ 	    FcChar8 *f;
+ 	    res = FcPatternGetString(result, FC_FAMILY, 0, &f);
+ 	    if (res == FcResultMatch && QString::fromUtf8((char *)f) != family->rawName) {
+ 		FcPatternDel(pattern, FC_CHARSET);
+ 		FcCharSet *cs = FcCharSetCreate();
+ 		QChar sample = sampleCharacter(script);
+ 		FcCharSetAddChar(cs, sample.unicode());
+ 		FcPatternAddCharSet(pattern, FC_CHARSET, cs);
+ 		FcCharSetDestroy(cs);
+ 		result = XftFontMatch( QPaintDevice::x11AppDisplay(), fp->screen, pattern, &res );
+ 	    }
+ 	}
+	XftPatternDestroy(pattern);
 
         // We pass a duplicate to XftFontOpenPattern because either xft font
         // will own the pattern after the call or the pattern will be

@@ -1097,6 +1097,31 @@ QFontEngineXft::QFontEngineXft(XftFont *font, XftPattern *pattern, int cmap)
 {
     _face = XftLockFace(_font);
 
+    int symbol = -1;
+    int charmap = -1;
+    for (int i = 0; i < _face->num_charmaps; ++i) {
+ 	FT_CharMap cm = _face->charmaps[i];
+//  	qDebug("font has charmap %x", cm->encoding);
+ 	if (charmap == -1 && cm->encoding == FT_ENCODING_UNICODE)
+ 	    charmap = i;
+ 	// ####### FIXME: we don't use FT_ENCODING_MS_SYMBOL in 3.3, as it maps to U+0xf0xx. All of the fonts
+ 	// tested also provide a FT_ENCODING_APPLE_ROMAN table that works for the basic range.
+ 	if (symbol == -1
+	    && (/*cm->encoding == FT_ENCODING_MS_SYMBOL ||*/
+ 		cm->encoding == FT_ENCODING_ADOBE_CUSTOM
+ 		|| cm->encoding == FT_ENCODING_APPLE_ROMAN)) {
+ 	    symbol = i;
+	}
+    }
+
+    // symbol font
+    if (symbol != -1 && (charmap == -1 || cmap))
+ 	charmap = symbol;
+    if (charmap != -1) {
+// 	qDebug("using charmap %x", _face->charmaps[charmap]->encoding);
+ 	FT_Set_Charmap(_face, _face->charmaps[charmap]);
+    }
+
     cache_cost = _font->height * _font->max_advance_width *
                  (_face ? _face->num_glyphs : 1024);
 
@@ -1104,8 +1129,8 @@ QFontEngineXft::QFontEngineXft(XftFont *font, XftPattern *pattern, int cmap)
     // 8-bit alpha maps... adjust the cache_cost to reflect this
     Bool antialiased = true;
     if (XftPatternGetBool(pattern, XFT_ANTIALIAS,
-                            0, &antialiased) == XftResultMatch &&
-         ! antialiased) {
+			  0, &antialiased) == XftResultMatch &&
+	! antialiased) {
         cache_cost /= 8;
     }
     lbearing = SHRT_MIN;
