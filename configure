@@ -2464,12 +2464,8 @@ do
 	    [ "x$VERBOSE" = "xyes" ] && echo "  skipping $a"
 	    continue;
 	fi
-	if [ "$SPEC" != "$XQMAKESPEC" ] || [ -z "`ls -l mkspecs/default | grep $BASE_SPEC`" ]
-	then
-	    echo "USING $SPEC FOR QMAKE"
-	    QMAKE_EXTRA_ARGS="-spec $SPEC $QMAKE_EXTRA_ARGS"
-	fi
-
+	QMAKE_SPEC_ARGS= 
+	[ "$SPEC" != "$XQMAKESPEC" ] && QMAKE_SPEC_ARGS="-spec $SPEC"
 	if echo '\c' | grep '\c' >/dev/null
 	then
 	    echo -n "  for $a"
@@ -2492,14 +2488,14 @@ do
 # All changes made to this file will be lost.
 
 all clean install qmake Makefile: FORCE
-	$outpath/bin/qmake $QMAKE_SWITCHES $QMAKE_EXTRA_ARGS -o $N $a
+	$outpath/bin/qmake $QMAKE_SWITCHES $QMAKE_SPEC_ARGS -o $N $a
 	\$(MAKE) -f $N \$@
 
 FORCE:
 
 EOF
 	else
-	    PIPE="$outpath/bin/qmake $QMAKE_SWITCHES $QMAKE_EXTRA_ARGS -o $N $a"
+	    PIPE="$outpath/bin/qmake $QMAKE_SWITCHES $QMAKE_SPEC_ARGS -o $N $a"
 	    if [ "x$VERBOSE" = "xyes" ]
 	    then
 		echo " (`basename $SPEC`)"
