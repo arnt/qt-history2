@@ -102,8 +102,8 @@ public:
 			    float *pointSizeDiff, int *weightDiff,
 			    bool *scalable, bool *smoothScalable );
     QCString bestMatch( const char *pattern, int *score );
-    QCString bestFamilyMember( const char *foundry,
-			       const char *family, int *score );
+    QCString bestFamilyMember( const QString& foundry,
+			       const QString& family, int *score );
     QCString findFont( bool *exact );
     bool needsSet() const { return (charSet() >= Set_1 && charSet() <= Set_N)
 	    || charSet() == Set_GBK || charSet() == Set_Big5; }
@@ -1174,29 +1174,42 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
 }
 
 
-QCString QFont_Private::bestFamilyMember( const char *foundry,
-					  const char *family, int *score )
+QCString QFont_Private::bestFamilyMember( const QString& foundry,
+					  const QString& family, int *score )
 {
     const int prettyGoodScore = CharSetScore | SizeScore |
 				WeightScore | SlantScore | WidthScore;
 
-    char pattern[256];
     int testScore = 0;
     QCString testResult;
     int bestScore = 0;
     QCString result;
 
-    if ( foundry && foundry[0] ) {
-	sprintf( pattern, "-%s-%s-*-*-*-*-*-*-*-*-*-*-*-*", foundry, family );
-	result = bestMatch( pattern, &bestScore );
+    if ( !foundry.isEmpty() ) {
+	QString pattern =
+	    "-" + foundry + "-" + family + "-*-*-*-*-*-*-*-*-*-*-*-*";
+	result = bestMatch( pattern.latin1(), &bestScore );
     }
 
     if ( bestScore < prettyGoodScore ) {
-	sprintf( pattern, "-*-%s-*-*-*-*-*-*-*-*-*-*-*-*", family );
-	testResult = bestMatch( pattern, &testScore );
-	if ( testScore > bestScore ) {
-	    bestScore = testScore;
-	    result = testResult;
+	QRegExp alt("[,;]");
+	int alternator = 0;
+	int next;
+	int bias = 0;
+	while ( alternator < family.length() ) {
+	    next = family.find(alt,alternator);
+	    if ( next < alternator ) next = family.length();
+	    QString fam = family.mid(alternator,next-alternator);
+	    QString pattern = "-*-" + fam + "-*-*-*-*-*-*-*-*-*-*-*-*";
+	    testResult = bestMatch( pattern.latin1(), &testScore );
+	    bestScore -= bias;
+	    if ( testScore > bestScore ) {
+		bestScore = testScore;
+		result = testResult;
+	    }
+	    if ( family[next] == ';' )
+		bias += 1;
+	    alternator = next + 1;
 	}
     }
 
@@ -1281,8 +1294,7 @@ QCString QFont_Private::findFont( bool *exact )
 	return s;
     } else {
 	int score;
-	QCString bestName = bestFamilyMember( foundry.ascii(),
-					      familyName.ascii(), &score );
+	QCString bestName = bestFamilyMember( foundry, familyName, &score );
 	if ( score < exactScore )
 	    *exact = FALSE;
 
@@ -1293,23 +1305,20 @@ QCString QFont_Private::findFont( bool *exact )
 	    QString f = substitute( family() );
 	    if( familyName != f ) {
 		familyName = f;                     // try substitution
-		bestName = bestFamilyMember( foundry.ascii(),
-					     familyName.ascii(), &score );
+		bestName = bestFamilyMember( foundry, familyName, &score );
 	    }
 	}
 	if ( score < CharSetScore ) {
 	    QString f = defaultFamily();
 	    if( familyName != f ) {
 		familyName = f;			// try default family for style
-		bestName = bestFamilyMember( foundry.ascii(),
-					     familyName.ascii(), &score );
+		bestName = bestFamilyMember( foundry, familyName, &score );
 	    }
 	    if ( score < CharSetScore ) {
 		f = lastResortFamily();
 		if ( familyName != f ) {
 		    familyName = f;			// try system default family
-		    bestName = bestFamilyMember( foundry.ascii(),
-						 familyName.ascii(), &score );
+		    bestName = bestFamilyMember( foundry, familyName, &score );
 		}
 	    }
 	}
