@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#292 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#293 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3647,6 +3647,10 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
 	
 	i->i = i2;
     } else {
+	if ( !bShowHiddenFiles && inf.name() != ".." && 
+	     inf.name() [ 0 ] == QChar( '.' ) )
+	    return;
+	
 	QFileDialogPrivate::File * i = 0;
 	QFileDialogPrivate::MCItem *i2 = 0;
 
