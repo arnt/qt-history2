@@ -1714,7 +1714,7 @@ void QListViewItem::setSelected( bool s )
 	    selected = FALSE;
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	if ( old != selected ) {
+	if ( old != (bool)selected ) {
 	    int ind = indexOfItem( this );
 	    QAccessible::updateAccessibility( listView()->viewport(), ind, QAccessible::StateChanged );
 	    QAccessible::updateAccessibility( listView()->viewport(), ind, selected ? QAccessible::SelectionAdd : QAccessible::SelectionRemove );
