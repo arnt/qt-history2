@@ -520,7 +520,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	c = d->editCol;
     }
 
-    bool insertCancelled = FALSE;
+    bool cancelInsert = FALSE;
     QWidget *editorWidget = cellWidget( r, c );
     switch ( e->type() ) {
     case QEvent::KeyPress: {
@@ -533,8 +533,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 		d->cancelMode = FALSE;
 	    }
 	    if ( conf == QSql::Yes ) {
-		insertCancelled = TRUE;
-		endInsert();
+		cancelInsert = TRUE;
 	    } else {
 		editorWidget->setActiveWindow();
 		editorWidget->setFocus();
@@ -579,8 +578,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	if ( !d->cancelMode && editorWidget && o == editorWidget &&
 	     ( d->dat.mode() == QSql::Insert) && !d->continuousEdit) {
 	    setCurrentCell( r, c );
-	    endEdit( r, c, autoEdit(), FALSE );
-	    return TRUE;
+	    cancelInsert = TRUE;
 	}
 	break;
     case QEvent::FocusIn:
@@ -590,11 +588,8 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	break;
     }
     bool b = QTable::eventFilter( o, e );
-    if ( insertCancelled ) {
-	setNumRows( d->insertPreRows );
-	d->insertPreRows = -1;
-	viewport()->setFocus();
-    }
+    if ( cancelInsert )
+	endInsert();
     return b;
 }
 
@@ -692,12 +687,6 @@ void QDataTable::endEdit( int row, int col, bool accept, bool )
 	return;
     if ( d->cancelMode )
 	return;
-    if ( !accept ) {
-	setEditMode( NotEditing, -1, -1 );
-	clearCellWidget( row, col );
-	updateCell( row, col );
-	return;
-    }
     if ( d->dat.mode() != QSql::None && d->editBuffer ) {
 	QSqlPropertyMap * m = (d->propertyMap == 0) ?
 			      QSqlPropertyMap::defaultMap() : d->propertyMap;
@@ -706,10 +695,16 @@ void QDataTable::endEdit( int row, int col, bool accept, bool )
 	if ( !d->continuousEdit ) {
 	    switch ( d->dat.mode() ) {
 	    case QSql::Insert:
-		insertCurrent();
+		if ( accept )
+		    insertCurrent();
+		else
+		    endInsert();
 		break;
 	    case QSql::Update:
-		updateCurrent();
+		if ( accept )
+		    updateCurrent();
+		else
+		    endUpdate();
 		break;
 	    default:
 		break;
@@ -718,9 +713,8 @@ void QDataTable::endEdit( int row, int col, bool accept, bool )
     } else {
 	setEditMode( NotEditing, -1, -1 );
     }
-    if ( d->dat.mode() == QSql::None ) {
+    if ( d->dat.mode() == QSql::None )
 	viewport()->setFocus();
-    }
     updateCell( row, col );
     emit valueChanged( row, col );
 }
@@ -738,6 +732,8 @@ void QDataTable::activateNextCell()
 
 void QDataTable::endInsert()
 {
+    if ( d->dat.mode() != QSql::Insert )
+	return;
     d->dat.setMode( QSql::None );
     int i;
     d->editBuffer = 0;
@@ -750,6 +746,10 @@ void QDataTable::endInsert()
     d->editCol = -1;
     d->insertRowLast = -1;
     d->insertHeaderLabelLast = QString::null;
+    setEditMode( NotEditing, -1, -1 );
+    setNumRows( d->insertPreRows );
+    d->insertPreRows = -1;
+    viewport()->setFocus();
 }
 
 /*! \internal
@@ -768,7 +768,7 @@ void QDataTable::endUpdate()
    a new record.  If the table is read-only, or the cursor does not
    allow inserts, nothing happens.
 
-   Editing takes place using the cursor's edit buffer (see
+   Editing takes place using the cursor's edit buffer(see
    QSqlCursor::editBuffer()).
 
    When editing begins, a new row is created in the table marked with
@@ -880,19 +880,17 @@ bool QDataTable::insertCurrent()
 	    if ( QTable::beginEdit( currentRow(), currentColumn(), FALSE ) )
 		setEditMode( Editing, currentRow(), currentColumn() );
 	} else {
-	    QSqlIndex idx = sqlCursor()->primaryIndex( TRUE );
+	    endInsert();
 	    refresh();
+	    QSqlIndex idx = sqlCursor()->primaryIndex( TRUE );
 	    findBuffer( idx, d->lastAt );
 	    emit cursorChanged( QSql::Insert );
-	    endInsert();
-	    setEditMode( NotEditing, -1, -1 );
 	    setCurrentCell( currentRow(), currentColumn() );
 	}
 	break;
     }
     case QSql::No:
 	endInsert();
-	setEditMode( NotEditing, -1, -1 );
 	break;
     case QSql::Cancel:
 	if ( QTable::beginEdit( currentRow(), currentColumn(), FALSE ) )
