@@ -1947,6 +1947,17 @@ QListBox * QComboBox::listBox() const
     return d && d->usingListBox() ? d->listBox() : 0;
 }
 
+/*! 
+  Returns the line editor, or 0 if there is no line editor currently.
+  
+  Only editable listboxes have a line editor.
+ */
+QLineEdit* QComboBox::lineEdit() const
+{
+    return d->ed;
+}
+
+
 
 /*!  Clears the line edit without changing the combo's contents.  Does
   nothing if the combo isn't editable.

@@ -110,6 +110,8 @@ public:
 
     virtual void	setListBox( QListBox * );
     QListBox * 	listBox() const;
+    
+    QLineEdit*	lineEdit() const;
 
     virtual void	setAutoCompletion( bool );
     bool	autoCompletion() const;
