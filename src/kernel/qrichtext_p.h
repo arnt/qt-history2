@@ -1155,11 +1155,13 @@ public:
     int wused;
 };
 
-//nase
+class QSyntaxHighlighter;
+
 class Q_EXPORT QTextParagraph
 {
     friend class QTextDocument;
     friend class QTextCursor;
+    friend class QSyntaxHighlighter;
 
 public:
     QTextParagraph( QTextDocument *d, QTextParagraph *pr = 0, QTextParagraph *nx = 0, bool updateIds = TRUE );

@@ -4008,8 +4008,6 @@ void QTextParagraph::invalidate( int chr )
     }
 #endif
     invalidateStyleCache();
-    needPreProcess = TRUE;
-    state = -1;
 }
 
 void QTextParagraph::invalidateStyleCache()

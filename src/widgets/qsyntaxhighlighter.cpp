@@ -53,13 +53,15 @@ public:
 	highlighter->para = p;
 	QString text = p->string()->toString();
 	int endState = p->prev() ? p->prev()->endState() : -2;
+	int oldEndState = p->endState();
 	p->setEndState( highlighter->highlightParagraph( text, endState ) );
 	highlighter->para = 0;
 
 	p->setFirstPreProcess( FALSE );
-	if ( invalidate && p->next() &&
-	     !p->next()->firstPreProcess() && p->next()->endState() != -1 ) {
-	    p = p->next();
+	QTextParagraph *op = p;
+	p = p->next();
+	if ( (!!oldEndState || !!op->endState()) && oldEndState != op->endState() &&
+	     invalidate && p && !p->firstPreProcess() && p->endState() != -1 ) {
 	    while ( p ) {
 		if ( p->endState() == -1 )
 		    return;
@@ -224,7 +226,13 @@ void QSyntaxHighlighter::setFormat( int start, int count, const QFont &font )
 
 void QSyntaxHighlighter::rehighlight()
 {
-    edit->document()->invalidate();
+    QTextParagraph *s = edit->document()->firstParagraph();
+    while ( s ) {
+	s->invalidate( 0 );
+	s->state = -1;
+	s->needPreProcess = TRUE;
+	s = s->next();
+    }
     edit->repaintContents( FALSE );
 }
 

@@ -270,7 +270,7 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParagraph *string,
     QChar lastChar;
     for (;;) {
 	QChar c = string->at( i )->c;
-	
+
 	if ( lastWasBackSlash ) {
 	    input = InputSep;
 	} else {
@@ -349,12 +349,12 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParagraph *string,
 	    } break;
 	    }
 	}
-	
+
 	lastWasBackSlash = !lastWasBackSlash && c == '\\';
-	
+
 	if ( input == InputAlpha )
 	    buffer += c;
-	
+
     	state = table[ state ][ input ];
 
 	switch ( state ) {
@@ -488,6 +488,7 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParagraph *string,
 
     string->setExtraData( paragData );
 
+    int oldEndState = string->endState();
     if ( state == StateCComment ||
 	 state == StateCCommentEnd1 ) {
 	string->setEndState( StateCComment );
@@ -501,9 +502,9 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParagraph *string,
 
     string->setFirstPreProcess( FALSE );
 
-    if ( invalidate && string->next() &&
-	 !string->next()->firstPreProcess() && string->next()->endState() != -1 ) {
-	QTextParagraph *p = string->next();
+    QTextParagraph *p = string->next();
+    if ( (!!oldEndState || !!string->endState()) && oldEndState != string->endState() &&
+	 invalidate && p && !p->firstPreProcess() && p->endState() != -1 ) {
 	while ( p ) {
 	    if ( p->endState() == -1 )
 		return;
