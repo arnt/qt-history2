@@ -35,6 +35,7 @@
 #include <qtooltip.h>
 #include <qwhatsthis.h>
 #include <qstatusbar.h>
+#include <qobjectlist.h>
 
 
 /*!
@@ -600,19 +601,17 @@ bool QAction::addTo( QWidget* w )
 	d->update( QActionPrivate::Everything );
 	connect( btn, SIGNAL( clicked() ), this, SIGNAL( activated() ) );
 	connect( btn, SIGNAL( toggled(bool) ), this, SLOT( toolButtonToggled(bool) ) );
-	QObject* par = 0;
-	if ( parent() ) {
-	    if ( parent()->inherits( "QActionGroup" ) )
-		par = parent()->parent();
-	    else
-		par = parent();
-	}
-	if ( par->inherits( "QMainWindow" ) 
-	    && ((QMainWindow*)par)->statusBar() ) {
-	    QStatusBar* s = ((QMainWindow*)par)->statusBar();
-
-	    connect( d->tipGroup, SIGNAL(showTip(const QString&)), s, SLOT(message(const QString&)) );
-	    connect( d->tipGroup, SIGNAL(removeTip()), s, SLOT(clear()) );
+	QObject* par = parent();
+	while ( par && !par->inherits("QMainWindow") )
+	    par = par->parent();
+	if ( par ) {
+	    QObjectList* l = par->queryList("QStatusBar");
+	    if ( l->count() ) {
+		QStatusBar* s = ((QMainWindow*)par)->statusBar();
+		connect( d->tipGroup, SIGNAL(showTip(const QString&)), s, SLOT(message(const QString&)) );
+		connect( d->tipGroup, SIGNAL(removeTip()), s, SLOT(clear()) );
+	    }
+	    delete l;
 	}
     } else if ( w->inherits( "QPopupMenu" ) ) {
 	QActionPrivate::MenuItem* mi = new QActionPrivate::MenuItem;
@@ -627,16 +626,16 @@ bool QAction::addTo( QWidget* w )
 	d->update( QActionPrivate::State );
 	d->update( QActionPrivate::Everything );
 	w->topLevelWidget()->className();
-	QObject* par = 0;
-	if ( parent() ) {
-	    if ( parent()->inherits( "QActionGroup" ) )
-		par = parent()->parent();
-	    else
-		par = parent();
-	}
-	if ( par && par->inherits( "QMainWindow") && ((QMainWindow*)par)->statusBar() ) {
-	    connect( mi->popup, SIGNAL(highlighted( int )), this, SLOT(menuStatusText( int )) );
-	    connect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
+	QObject* par = parent();
+	while ( par && !par->inherits("QMainWindow") )
+	    par = par->parent();
+	if ( par ) {
+	    QObjectList* l = par->queryList("QStatusBar");
+	    if ( l->count() ) {
+		connect( mi->popup, SIGNAL(highlighted( int )), this, SLOT(menuStatusText( int )) );
+		connect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
+	    }
+	    delete l;
 	}
     } else {
 	qWarning( "QAction::addTo(), unknown object" );
@@ -651,27 +650,27 @@ bool QAction::addTo( QWidget* w )
 */
 void QAction::menuStatusText( int id )
 {
-    QObject* par = 0;
-    if ( parent() ) {
-	if ( parent()->inherits( "QActionGroup" ) )
-	    par = parent()->parent();
-	else
-	    par = parent();
-    }
-    if ( par && par->inherits( "QMainWindow") && ((QMainWindow*)par)->statusBar() ) {
-    	QListIterator<QActionPrivate::MenuItem> it( d->menuitems);
-	QActionPrivate::MenuItem* mi;
-	while ( ( mi = it.current() ) ) {
-	    ++it;
-	    if ( mi->id == id ) {
-		QStatusBar* s = ((QMainWindow*)par)->statusBar();
-		if ( !statusTip().isEmpty() )
-		    s->message( statusTip() );
-		else
-		    s->clear();
-		break;
+    QObject* par = parent();
+    while ( par && !par->inherits("QMainWindow") )
+	par = par->parent();
+    if ( par ) {
+	QObjectList* l = par->queryList("QStatusBar");
+	if ( l->count() ) {
+    	    QListIterator<QActionPrivate::MenuItem> it( d->menuitems);
+	    QActionPrivate::MenuItem* mi;
+	    while ( ( mi = it.current() ) ) {
+		++it;
+		if ( mi->id == id ) {
+		    QStatusBar* s = ((QMainWindow*)par)->statusBar();
+		    if ( !statusTip().isEmpty() )
+			s->message( statusTip() );
+		    else
+			s->clear();
+		    break;
+		}
 	    }
 	}
+	delete l;
     }
 }
 
@@ -680,15 +679,16 @@ void QAction::menuStatusText( int id )
 */
 void QAction::clearStatusText()
 {
-    QObject* par = 0;
-    if ( parent() ) {
-	if ( parent()->inherits( "QActionGroup" ) )
-	    par = parent()->parent();
-	else
-	    par = parent();
+    QObject* par = parent();
+    while ( par && !par->inherits("QMainWindow") )
+	par = par->parent();
+    
+    if ( par ) {
+	QObjectList* l = par->queryList("QStatusBar");
+	if ( l->count() )
+	    ((QMainWindow*)par)->statusBar()->clear();
+	delete l;
     }
-    if ( par && par->inherits( "QMainWindow") && ((QMainWindow*)par)->statusBar() )
-	((QMainWindow*)par)->statusBar()->clear();
 }
 
 /*!
