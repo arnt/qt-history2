@@ -70,16 +70,20 @@ static void create_current_thread_key()
 
 void *QThreadPrivate::start(void *arg)
 {
+    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
+
     pthread_once(&current_thread_key_once, create_current_thread_key);
     pthread_setspecific(current_thread_key, arg);
     pthread_cleanup_push(QThreadPrivate::finish, arg);
-    pthread_testcancel();
 
     QThread *thr = reinterpret_cast<QThread *>(arg);
     QThreadData::setCurrent(&thr->d->data);
 
     emit thr->started();
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    pthread_testcancel();
     thr->run();
+
     pthread_cleanup_pop(1);
     return 0;
 }
@@ -334,6 +338,14 @@ void QThread::start(Priority priority)
     can be terminated while modifying data.  There is no chance for
     the thread to cleanup after itself, unlock any held mutexes, etc.
     In short, use this function only if \e absolutely necessary.
+
+    Termination can be explicitly enabled or disabled by calling
+    QThread::setTerminationEnabled().  Calling this function while
+    termination is disabled results in the termination being deferred,
+    until termination is re-enabled.  See the documentation of
+    QThread::setTerminationEnabled() for more information.
+
+    \sa QThread::setTerminationEnabled()
 */
 void QThread::terminate()
 {
@@ -380,4 +392,31 @@ bool QThread::wait(unsigned long time)
         return true;
 
     return d->thread_done.wait(locker.mutex(), time);
+}
+
+/*!
+    Enables or disables termination of the current thread based on the
+    \a enabled parameter.  The thread must have been started by
+    QThread.
+
+    When \a enabled is false, termination is disabled.  Future calls
+    to QThread::terminate() will return immediately without effect.
+    Instead, the termination is deferred until termination is enabled.
+
+    When \a enabled is true, termination is enabled.  Future calls to
+    QThread::terminate() will terminate the thread normally.  If
+    termination has been deferred (i.e. QThread::terminate() was
+    called with termination disabled), this function will terminate
+    the calling thread \e immediately.  Note that this function will
+    not return in this case.
+
+    \sa QThread::terminate()
+*/
+void QThread::setTerminationEnabled(bool enabled)
+{
+    Q_ASSERT_X(currentQThread != 0, "QThread::setTerminationEnabled()",
+               "Current thread was not started with QThread.");
+    pthread_setcancelstate(enabled ? PTHREAD_CANCEL_ENABLE : PTHREAD_CANCEL_DISABLE, NULL);
+    if (enabled)
+        pthread_testcancel();
 }

@@ -78,9 +78,12 @@ signals:
 protected:
     virtual void run() = 0;
 
+    static void setTerminationEnabled(bool enabled = true);
+
     static void sleep(unsigned long);
     static void msleep(unsigned long);
     static void usleep(unsigned long);
+
 #ifdef QT_COMPAT
 public:
     inline QT_COMPAT bool finished() const { return isFinished(); }
