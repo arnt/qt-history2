@@ -1827,13 +1827,23 @@ void QPSPrinterFontTTF::drawText(QTextStream &stream, const QPoint &p, QTextEngi
     Q26Dot6 yo;
 
     QGlyphLayout *glyphs = engine->glyphs(&si);
-    bool glyphIndices = engine->fontEngine(si)->type() == QFontEngine::Xft;
+    QFontEngine *fe = engine->fontEngine(si);
+    int type = fe->type();
+    bool glyphIndices = (type == QFontEngine::Xft);
+    // This helps us get arabic for XLFD fonts working. In that case we have a Unicode
+    // cmap (== 0), and the glyphs array contains the shaped string.
+    bool useGlyphAsUnicode = (type == QFontEngine::XLFD && fe->cmap() == 0);
 
     stream << "<";
     if (si.analysis.bidiLevel % 2) {
         for (int i = len-1; i >=0; i--) {
             // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
-            stream << toHex(mapUnicode(glyphIndices ? glyphs[i].glyph : glyph_for_unicode(text.unicode()[i].unicode())));
+            unsigned short glyph;
+            if (glyphIndices)
+                glyph = glyphs[i].glyph;
+            else
+                glyph = glyph_for_unicode(useGlyphAsUnicode ? glyphs[i].glyph : text.unicode()[i].unicode());
+	    stream << toHex(mapUnicode(glyph));
             if (i != len-1) {
                 xyarray += (xo + glyphs[i].offset.x + glyphs[i+1].advance.x).toDouble();
                 xyarray += " ";
@@ -1846,13 +1856,18 @@ void QPSPrinterFontTTF::drawText(QTextStream &stream, const QPoint &p, QTextEngi
     } else {
         for (int i = 0; i < len; i++) {
             // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
-            stream << toHex(mapUnicode(glyphIndices ? glyphs[i].glyph : glyph_for_unicode(text.unicode()[i].unicode())));
+            unsigned short glyph;
+            if (glyphIndices)
+                glyph = glyphs[i].glyph;
+            else
+                glyph = glyph_for_unicode(useGlyphAsUnicode ? glyphs[i].glyph : text.unicode()[i].unicode());
+	    stream << toHex(mapUnicode(glyph));
             if (i) {
-                xyarray += (xo - glyphs[i].offset.x + glyphs[i-1].advance.x).toDouble();
+                xyarray += (xo + glyphs[i].offset.x + glyphs[i-1].advance.x).toDouble();
                 xyarray += " ";
                 xyarray += (yo + glyphs[i].offset.y).toDouble();
                 xyarray += " ";
-                xo = glyphs[i].offset.x;
+                xo = -glyphs[i].offset.x;
                 yo = -glyphs[i].offset.y;
             }
         }
