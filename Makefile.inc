@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/Makefile.inc#8 $
+# $Id: //depot/qt/main/Makefile.inc#9 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -157,8 +157,8 @@ qtx11.pro: qt.pro qtinternal.pro
 	@echo # Generated project file for building Qt/X11 on Windows > qtx11.pro
 	@echo TEMPLATE = lib >> qtx11.pro
 	@echo MOC_DIR = tmp >> qtx11.pro
-	@tmake -unix qt.pro -p qtinternal.pro -e "print 'HEADERS = '; Expand('HEADERS')" >> qtx11.pro
-	@tmake -unix qt.pro -p qtinternal.pro -e "print 'SOURCES = '; Expand('SOURCES')" >> qtx11.pro
+	@tmake -unix qt.pro qtinternal.pro -e "print 'HEADERS = '; Expand('HEADERS')" >> qtx11.pro
+	@tmake -unix qt.pro qtinternal.pro -e "print 'SOURCES = '; Expand('SOURCES')" >> qtx11.pro
 	@echo TARGET = qtx11 >> qtx11.pro
 	@echo DESTDIR = ../lib >> qtx11.pro
 	@echo DLLDESTDIR = ../bin >> qtx11.pro
