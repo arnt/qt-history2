@@ -120,7 +120,9 @@ static int defaultDpi()
     dpi = GetDeviceCaps(shared_dc,LOGPIXELSY);
 #elif defined(Q_WS_MAC)
     short hr;
-    ScreenRes(&hr, &dpi);
+    short mdpi;
+    ScreenRes(&hr, &mdpi);
+    dpi = int(mdpi);
 #elif defined(Q_WS_QWS)
     dpi = 72;
 #endif // Q_WS_X11
