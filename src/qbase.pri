@@ -4,7 +4,7 @@ TEMPLATE	= lib
 VERSION		= 4.0.0
 
 #exported symbol table (for linux only now)
-sam_version_map:dll:linux-g++ {
+sam_version_map:shared:linux-g++ {
    0:exists($(QTDIR)/src/libqt.map) {
        QMAKE_LFLAGS += -Wl,--version-script=$(QTDIR)/src/libqt.map
        TARGETDEPS += $(QTDIR)/src/libqt.map
@@ -42,7 +42,7 @@ DESTDIR		= $$QMAKE_LIBDIR_QT
 DLLDESTDIR	= $$QT_INSTALL_PREFIX/bin
 
 CONFIG		+= qt warn_on depend_includepath
-CONFIG          += qmake_cache target_qt
+CONFIG          += qmake_cache target_qt debug_and_release
 
 mac {
    #QMAKE_LFLAGS += -undefined suppress -flat_namespace
@@ -56,12 +56,12 @@ mac {
 win32:!shared:CONFIG += staticlib
 
 win32-borland {
-	mng:QMAKE_CFLAGS_WARN_ON	+= -w-par
-	mng:QMAKE_CXXFLAGS_WARN_ON	+= -w-par
-	# Keep the size of the .tds file for the Qt library smaller than
-	# 34 Mbytes to avoid linking problems
-	QMAKE_CFLAGS_DEBUG += -vi -y-
-	QMAKE_CXXFLAGS_DEBUG += -vi -y-
+    mng:QMAKE_CFLAGS_WARN_ON	+= -w-par
+    mng:QMAKE_CXXFLAGS_WARN_ON	+= -w-par
+    # Keep the size of the .tds file for the Qt library smaller than
+    # 34 Mbytes to avoid linking problems
+    QMAKE_CFLAGS_DEBUG += -vi -y-
+    QMAKE_CXXFLAGS_DEBUG += -vi -y-
 }
 
 linux-*:version_script {
@@ -70,22 +70,22 @@ linux-*:version_script {
 }
 
 win32 {
-	CONFIG	+= zlib
-	INCLUDEPATH += tmp
-	!staticlib {
-	    DEFINES+=QT_MAKEDLL
-	    exists(../qt.rc):RC_FILE = ../qt.rc
-	}
+    CONFIG += zlib
+    INCLUDEPATH += tmp
+    !staticlib {
+         DEFINES+=QT_MAKEDLL
+         exists(../qt.rc):RC_FILE = ../qt.rc
+    }
 }
 win32-borland:INCLUDEPATH += kernel
 
 aix-g++* {
-	QMAKE_CFLAGS   += -mminimal-toc
-	QMAKE_CXXFLAGS += -mminimal-toc
+     QMAKE_CFLAGS   += -mminimal-toc
+     QMAKE_CXXFLAGS += -mminimal-toc
 }
 
 embedded {
-	EMBEDDED_H	= $$EMBEDDED_CPP
+     EMBEDDED_H = $$EMBEDDED_CPP
 }
 
 DEPENDPATH += ;$$NETWORK_H;$$KERNEL_H;$$WIDGETS_H;$$SQL_H;$$TABLE_H;$$DIALOGS_H;
