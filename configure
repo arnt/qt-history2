@@ -21,7 +21,7 @@ relpath=`(cd $relpath; /bin/pwd)`
 outpath=`/bin/pwd`
 
 # later cache the command line in config.status
-OPT_CMDLINE=`echo $@ | sed "s,-v,,g"`
+OPT_CMDLINE=`echo $@ | sed "s,-v ,,g"`
 
 # initialize global variables
 QMAKE_SWITCHES=
