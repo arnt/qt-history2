@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#13 $
+** $Id: //depot/qt/main/src/tools/qstring.h#14 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -174,7 +174,8 @@ public:
 		  { QString tmp( (const char *)this->data() ); return tmp; }
 
     QString    &sprintf( const char *format, ... );
-    bool	stripWhiteSpace();		// removes white space
+    void	stripWhiteSpace();		// removes white space
+    void	simplifyWhiteSpace();		// removes more white space
 
     int		find( char c, int index=0, bool cs=TRUE ) const;
     int		find( const char *str, int index=0, bool cs=TRUE ) const;

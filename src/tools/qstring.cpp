@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#14 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,8 +21,22 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#14 $";
 #endif
+
+
+/*!
+\class QString qstring.h
+
+This class implements strings in a slightly more sane manner than does
+the C library.
+
+Strings are still implemented as pointers to a zero-terminated list of
+characters, so as not to surprise application programmers too much,
+but it's possible to use =, == and so on, and a detach() is provided
+to detach a string from any other pointers to this string, so it can
+be modified without surprising anyone.
+*/
 
 
 // --------------------------------------------------------------------------
@@ -176,6 +190,10 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 // QString member functions
 //
 
+/*!
+This constructor preallocates \e size bytes for the string.
+*/
+
 QString::QString( int size ) : QByteArray( size )
 {						// allocate size incl. \0
     if ( size ) {
@@ -184,17 +202,30 @@ QString::QString( int size ) : QByteArray( size )
     }
 }
 
+/*!
+This constructor creates a deep copy of \e str.
+*/
+
 QString::QString( const char *str )		// deep copy
 {
     duplicate( str, strlen(str)+1 );
 }
 
+/*!
+Returns the length of the string, excluding the final \0.
+*/
 
 uint QString::length() const			// length of string excl. \0
 {
     uint len = QByteArray::size();
     return len ? len - 1 : 0;			// subtract for terminating \0
 }						// (if not empty)
+
+/*!
+Extends or shrinks the string to \e len bytes, including the final \0.
+If the string is extended, it will have the same value but operations
+that extend its length will be faster.
+*/
 
 bool QString::resize( uint len )		// resize incl. \0 terminator
 {
@@ -204,6 +235,20 @@ bool QString::resize( uint len )		// resize incl. \0 terminator
 	at(len-1) = '\0';
     return TRUE;
 }
+
+/*!
+Implemented as a call to the native vsprintf() (see your C-library
+manual).
+
+Most vsprintf() implementations have some sort of arbitrary and
+undocumented limit (32k is common), some crash your program when you
+exceed it.  If your string is shorter than 256 characters, Qt
+sprintf() calls resize(256) to decrease the chance of crashing
+slightly.
+
+\todo Proper protection against sprintf() overflowing the string.
+*/
+
 
 
 QString &QString::sprintf( const char *format, ... )
@@ -218,28 +263,86 @@ QString &QString::sprintf( const char *format, ... )
     return *this;
 }
 
-bool QString::stripWhiteSpace()			// strip white space
+/*!
+Strips white space from the beginning and the end of the string.  See
+also simplifyWhiteSpace().
+*/
+
+void QString::stripWhiteSpace()			// strip white space
 {
     if ( isEmpty() )				// nothing to do
-	return FALSE;
+	return;
     register char *s = data();
     if ( !isspace(s[0]) && !isspace(s[length()-1]) )
-	return FALSE;
+	return;
     int start = 0;
     int end = length()-1;
     while ( isspace(s[start]) )			// skip white space from start
 	start++;
     if ( s[start] == '\0' ) {			// only white space
 	resize( 1 );
-	return TRUE;
+	return;
     }
     while ( end && isspace(s[end]) )		// skip white space from end
 	end--;
     end -= start - 1;
     memmove( data(), &s[start], end );
     resize( end + 1 );
-    return TRUE;
+    return;
 }
+
+
+/*!
+Strip white space away from the start and end of the string, and
+change all internal white space (any sequence of ASCII codes 9, 10,
+12, 13 and 32) into a single space.  See also stripWhiteSpace().
+
+This function allows simple parsers to use code like this:
+\code {{
+int a,b;
+QString c;
+c = ...
+
+a = 0;
+c.detach();
+c.simplifyWhiteSpace();
+do {
+    b = a;
+    a = c.find(' ', b);
+    ... \/ do something with c.mid(b, a>=0 ? a-b : c.length())
+} while (a >= 0);
+}}
+
+If you don't want other references to the this string to be moved,
+detach() it first.
+*/
+
+void QString::simplifyWhiteSpace()
+{
+    char *from;
+    char *to;
+    bool finalspace;
+
+    if ( isEmpty() )
+	return;
+    from = to = data();
+    finalspace = FALSE;
+
+    while ( *from ) {
+	while (*from && isspace(*from))
+	    from++;
+	while (*from && !isspace(*from))
+	    *to++ = *from++;
+	*to++ = ' ';
+	finalspace = TRUE;
+    }
+    if (finalspace)
+	to--;
+
+    *to = '\0';
+    resize( (long)to + 1 - (long)(data()) );
+}
+
 
 bool QString::fill( char c, int len )		// fill string with c
 {
