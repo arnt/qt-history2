@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#314 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#315 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1218,12 +1218,10 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     QSize  olds = size();
     QRect  r( x, y, w, h );
 
-    if ( isMove ) {
-	if ( (!isTopLevel() || usposition )  &&
-	     oldp == r.topLeft() && r.size() == olds)
-	    return;
-    }
-    else if ( r.size() == olds )
+    // we only care about stuff that changes the geometry, or may
+    // cause the window manager to change its state
+    if ( r.size() == olds && oldp == r.topLeft() &&
+	( isTopLevel() == FALSE || usposition == TRUE ) )
 	return;
 
     setCRect( r );
