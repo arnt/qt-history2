@@ -3050,7 +3050,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
     // this is actually what beginLayout does. Inlined here, so we can
     // avoid the bidi algorithm if we don't need it.
-    engine.itemize( simple ? QTextEngine::NoBidi : QTextEngine::Full );
+    engine.itemize( simple ? QTextEngine::NoBidi|QTextEngine::SingleLine : QTextEngine::Full|QTextEngine::SingleLine );
     engine.currentItem = 0;
     engine.firstItemInLine = -1;
 

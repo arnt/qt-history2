@@ -2259,7 +2259,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	return QRect();
 
     QTextEngine layout( str, d );
-    layout.itemize( QTextEngine::NoBidi );
+    layout.itemize( QTextEngine::NoBidi|QTextEngine::SingleLine );
     glyph_metrics_t gm = layout.boundingBox( 0, len );
     return QRect( gm.x, gm.y, gm.width, gm.height );
 }

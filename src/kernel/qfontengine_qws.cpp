@@ -58,6 +58,9 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
 	p->gfx->setBrush( p->cbrush );
     }
 
+    if ( si->isSpace )
+	return;
+
     glyph_t *glyphs = engine->glyphs( si );
     advance_t *advances = engine->advances( si );
     offset_t *offsets = engine->offsets( si );
