@@ -23,11 +23,11 @@ related classes together. Some classes may appear in more than one group.
 \o Description
 
 \row 
-\o \l{Abstract Widgets}
+\o \l{Abstract Widget Classes}
 \o Abstract widget classes usable through subclassing.
 
 \row 
-\o \l{Accessibility}
+\o \l{Accessibility Classes}
 \o Classes that provide support for accessibility.
 
 \row 
@@ -45,7 +45,7 @@ related classes together. Some classes may appear in more than one group.
 \endomit
 
 \row
-\o \l{Database}
+\o \l{Database Classes}
 \o Database related classes, e.g. for SQL databases.
 
 \row 
@@ -58,12 +58,12 @@ related classes together. Some classes may appear in more than one group.
    encoding and decoding.
 
 \row 
-\o \l{Environment}
+\o \l{Environment Classes}
 \o Classes providing various global services such as
    event handling, access to system settings and internationalization.
 
 \row
-\o \link events.html Events\endlink
+\o \l{Event Classes}
 \o Classes used to create and handle events.
 
 \row 
@@ -96,12 +96,12 @@ printing, etc.
 network handling.
 
 \row 
-\o \l{MainWindow and Related Classes}
+\o \l{Main Window and Related Classes}
 \o Everything you need for a typical modern main application window,
 including menus, toolbars, workspace, etc.
 
 \row 
-\o \l{Miscellaneous}
+\o \l{Miscellaneous Classes}
 \o Various other useful classes.
 
 \row
@@ -117,11 +117,11 @@ including menus, toolbars, workspace, etc.
 \o User interface organizers such as splitters, tab bars, button groups, etc.
 
 \row
-\o \link plugins.html Plugin Classes\endlink
+\o \l{Plugin Classes}
 \o Plugin related classes.
 
 \row 
-\o \l{Standard Dialogs}
+\o \l{Standard Dialog Classes}
 \o Ready-made dialogs for file, font, color selection and more.
 
 \row
@@ -131,22 +131,22 @@ including menus, toolbars, workspace, etc.
 \row
 \o \l{Text Related Classes}
 \o Classes for text
-processing. (See also \link xml-tools.html XML Classes\endlink.)
+processing. (See also \l{XML Classes}.)
 
 \row
-\o \link thread.html Threading Classes\endlink
+\o \l{Threading Classes}
 \o Classes that provide threading support.
 
 \row 
-\o \l{Widget Appearance}
+\o \l{Widget Appearance and Style}
 \o Appearance customization with styles, fonts, colors etc.
 
 \row
-\o \link xml-tools.html XML Classes\endlink
+\o \l{XML Classes}
 \o Classes that support XML, via, for example DOM and SAX.
 
 \row
-\o \link qws.html Qt/Embedded Classes\endlink
+\o \l{Qt/Embedded Classes}
 \o Classes that are specific to Qt/Embedded.
 
 \endtable
@@ -205,7 +205,9 @@ these classes.
 
 /*! \defgroup accessibility
 
-\title Classes that provide support for accessibility
+\title Accessibility Classes
+
+Classes that provide support for accessibility.
 
 Accessible applications are able to be used by users who cannot use
 conventional means of interaction. These classes provide support for
@@ -231,7 +233,7 @@ These classes and interfaces form the basis of the \l{Qt Component Model}.
 
 /*! \defgroup plugins
 
-\title Plugins
+\title Plugin Classes
 
 These classes deal with shared libraries, (e.g. .so and DLL files),
 and with Qt plugins. 
@@ -256,7 +258,7 @@ complex applications or dialogs.
 
 /*! \defgroup dialogs
 
-\title Dialog Classes
+\title Standard Dialog Classes
 
 These classes are complex widgets, composed of simpler widgets; dialog
 boxes, generally.
@@ -265,7 +267,7 @@ boxes, generally.
 
 /*! \defgroup multimedia
 
-\title Multimedia, Graphics, and Printing Classes
+\title Multimedia, Graphics, and Printing
 
 These classes provide support for graphics (2D, and with OpenGL, 3D),
 image encoding, decoding, and manipulation, sound, animation, printing
@@ -311,7 +313,7 @@ seem heavyweight.
 
 /*! \defgroup time
 
-\title Time and Date
+\title Date and Time
 
 These classes provide system-independent date and time abstractions.
 
@@ -412,7 +414,7 @@ These classes provide access to SQL databases.
 
 /*! \defgroup thread
 
-\title Threading
+\title Threading Classes
 
 These classes are relevant to threaded applications.
 */
@@ -420,7 +422,7 @@ These classes are relevant to threaded applications.
 
 /*! \defgroup xml-tools
 
-\title XML
+\title XML Classes
 
 These classes are relevant to XML users.
 */

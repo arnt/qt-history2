@@ -1,6 +1,6 @@
 /*!
 \page richtext.html
-\nextpage richtext-structure.html Rich Text Document Structure
+\nextpage Rich Text Document Structure
 
 \title Rich Text Processing
 
@@ -23,24 +23,24 @@ such as searching and document export.
 This document is divided up into chapters for convenient reference:
 
 \list
-\i \l{richtext-structure.html}{Rich Text Document Structure} outlines
+\i \l{Rich Text Document Structure} outlines
    the different kinds of elements in a QTextDocument, and describes how
    they are arranged in a document structure.
-\i \l{richtext-cursor.html}{The QTextCursor Interface} explains how rich
+\i \l{The QTextCursor Interface} explains how rich
    text documents can be edited using the cursor-based interface.
-\i \l{richtext-common-tasks.html}{Common Editing Tasks} examines some
+\i \l{Common Rich Text Editing Tasks} examines some
    common tasks that involve reading or manipulating rich text documents.
 \endlist
 
-See also the list of \l{text.html}{Text Related Classes}.
+See also the list of \l{Text Related Classes}.
 
 */
 
 /*!
 \page richtext-structure.html
 \contentspage richtext.html Contents
-\previouspage richtext.html Rich Text Processing
-\nextpage richtext-cursor.html The QTextCursor Interface
+\previouspage Rich Text Processing
+\nextpage The QTextCursor Interface
 
 \title Rich Text Document Structure
 
@@ -304,8 +304,8 @@ the fragments in the text block that contains the image.
 /*!
 \page richtext-cursor.html
 \contentspage richtext.html Contents
-\previouspage richtext-structure.html Rich Text Document Structure
-\nextpage richtext-common-tasks.html Common Editing Tasks
+\previouspage Rich Text Document Structure
+\nextpage Common Rich Text Editing Tasks
 
 \title The QTextCursor Interface
 
@@ -587,9 +587,9 @@ The method used to derive this name is described in
 /*!
 \page richtext-common-tasks.html
 \contentspage richtext.html Contents
-\previouspage richtext-cursor.html The QTextCursor Interface
+\previouspage The QTextCursor Interface
 
-\title Common Editing Tasks
+\title Common Rich Text Editing Tasks
 
 \tableofcontents
 
