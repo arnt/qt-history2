@@ -28,7 +28,6 @@
 
 class QTextCharFormat;
 class QStyleSheet;
-class QMimeSourceFactory;
 class QTextDocument;
 class QTextCursor;
 class QTextBlockFormat;
