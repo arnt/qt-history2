@@ -2212,11 +2212,10 @@ static void setupBuiltinCodecs()
 #endif // QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
     (void)new QBig5Codec;
-    (void)new QEucJpCodec;    
+    (void)new QEucJpCodec;
     (void)new QEucKrCodec;
     (void)new QGbkCodec;
     (void)new QJisCodec;
-    (void)new QJpUnicode;
     (void)new QSjisCodec;
 #endif // QT_NO_BIG_CODECS
 }
