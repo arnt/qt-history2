@@ -245,7 +245,7 @@ void QDesignerMenuBar::setItemText( const QString &s )
 {
     if ( itemNum < 0 || itemNum >= (int)count() )
 	return;
-    return changeItem( idAt( itemNum ), s );
+    changeItem( idAt( itemNum ), s );
 }
 
 QString QDesignerMenuBar::itemText() const
