@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#102 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -758,6 +758,11 @@ int QFontMetrics::width( const QString &str, int len ) const
 {
     if ( len < 0 )
 	len = str.length();
+
+    // Japanese win95 fails without this
+    if ( len == 0 )
+	return 0;
+
     SIZE s;
     const TCHAR* tc = (const TCHAR*)qt_winTchar(str,FALSE);
     GetTextExtentPoint32( hdc(), tc, len, &s );
