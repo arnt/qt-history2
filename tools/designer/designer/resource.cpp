@@ -2243,6 +2243,7 @@ void Resource::loadToolBars( const QDomElement &e )
 		    QDesignerAction *a = new QDesignerAction( w, tb );
 		    a->addTo( tb );
 		    tb->addAction( a );
+		    tb->installEventFilters( w );
 		}
 		n2 = n2.nextSibling().toElement();
 	    }

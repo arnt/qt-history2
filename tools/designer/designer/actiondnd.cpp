@@ -43,6 +43,7 @@ void QDesignerAction::remove()
 {
     if ( !widgetToInsert )
 	return;
+    MainWindow::self->formWindow()->selectWidget( widgetToInsert, FALSE );
     widgetToInsert->reparent( 0, QPoint( 0, 0 ), FALSE );
 }
 
@@ -302,8 +303,10 @@ void QDesignerToolBar::buttonMouseReleaseEvent( QMouseEvent *e, QObject *w )
 {
     if ( widgetInserting )
 	doInsertWidget( mapFromGlobal( e->globalPos() ) );
-    else if ( w->isWidgetType() && formWindow->widgets()->find( w ) )
+    else if ( w->isWidgetType() && formWindow->widgets()->find( w ) ) {
+	formWindow->clearSelection( FALSE );
 	formWindow->selectWidget( w );
+    }
     widgetInserting = FALSE;
 }
 
