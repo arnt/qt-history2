@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#49 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#50 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -1892,10 +1892,10 @@ private:
     QXmlSimpleReader::EntityRecognitionContext parsePEReference_context;
     QString parseString_s;
 
-    typedef bool (QXmlSimpleReader::*parseFunction) ();
+    typedef bool (QXmlSimpleReader::*ParseFunction) ();
     // for incremental parsing
     struct ParseState {
-	parseFunction function;
+	ParseFunction function;
 	int state;
     };
     QStack<ParseState> *parseStack;
@@ -2303,7 +2303,9 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input )
   the end of the \a input without reaching the end of the XML file. It rather
   stores the state of the parser so that parsing can be continued at a later
   state when more data is available. You can use the function parseContinue()
-  to continue with parsing.
+  to continue with parsing. If \a incremental is TRUE and the class was used
+  before to do incremental parsing, the state of that parsing session is lost:
+  this function will always start a new parsing session.
 
   If \a incremental is FALSE, this function behaves like the normal parse
   function, i.e. it returns FALSE when the end of input is reached without
@@ -2457,6 +2459,60 @@ bool QXmlSimpleReader::parseProlog()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case DocType:
+		if ( doctype_read ) {
+		    reportParseError( XMLERR_MORETHANONEDOCTYPE );
+		    return FALSE;
+		} else {
+		    doctype_read = FALSE;
+		}
+		break;
+	    case Comment:
+		if ( lexicalHnd ) {
+		    if ( !lexicalHnd->comment( string() ) ) {
+			reportParseError( lexicalHnd->errorString() );
+			return FALSE;
+		    }
+		}
+		break;
+	    case PI:
+		// call the handler
+		if ( contentHnd ) {
+		    if ( xmldecl_possible && !d->xmlVersion.isEmpty() ) {
+			QString value( "version = '" );
+			value += d->xmlVersion;
+			value += "'";
+			if ( !d->encoding.isEmpty() ) {
+			    value += " encoding = '";
+			    value += d->encoding;
+			    value += "'";
+			}
+			if ( d->standalone == QXmlSimpleReaderPrivate::Yes ) {
+			    value += " standalone = 'yes'";
+			} else if ( d->standalone == QXmlSimpleReaderPrivate::No ) {
+			    value += " standalone = 'no'";
+			}
+			if ( !contentHnd->processingInstruction( "xml", value ) ) {
+			    reportParseError( contentHnd->errorString() );
+			    return FALSE;
+			}
+		    } else {
+			if ( !contentHnd->processingInstruction( name(), string() ) ) {
+			    reportParseError( contentHnd->errorString() );
+			    return FALSE;
+			}
+		    }
+		}
+		// XML declaration only on first position possible
+		xmldecl_possible = FALSE;
+		break;
+	    case Done:
+		return TRUE;
+	    case -1:
+		reportParseError( XMLERR_ERRORPARSINGELEMENT );
+		return FALSE;
+	}
 
 	// read input
 	if ( atEnd() ) {
@@ -2519,62 +2575,6 @@ bool QXmlSimpleReader::parseProlog()
 		}
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case DocType:
-		if ( doctype_read ) {
-		    reportParseError( XMLERR_MORETHANONEDOCTYPE );
-		    return FALSE;
-		} else {
-		    doctype_read = FALSE;
-		}
-		break;
-	    case Comment:
-		if ( lexicalHnd ) {
-		    if ( !lexicalHnd->comment( string() ) ) {
-			reportParseError( lexicalHnd->errorString() );
-			return FALSE;
-		    }
-		}
-		break;
-	    case PI:
-		// call the handler
-		if ( contentHnd ) {
-		    if ( xmldecl_possible && !d->xmlVersion.isEmpty() ) {
-			QString value( "version = '" );
-			value += d->xmlVersion;
-			value += "'";
-			if ( !d->encoding.isEmpty() ) {
-			    value += " encoding = '";
-			    value += d->encoding;
-			    value += "'";
-			}
-			if ( d->standalone == QXmlSimpleReaderPrivate::Yes ) {
-			    value += " standalone = 'yes'";
-			} else if ( d->standalone == QXmlSimpleReaderPrivate::No ) {
-			    value += " standalone = 'no'";
-			}
-			if ( !contentHnd->processingInstruction( "xml", value ) ) {
-			    reportParseError( contentHnd->errorString() );
-			    return FALSE;
-			}
-		    } else {
-			if ( !contentHnd->processingInstruction( name(), string() ) ) {
-			    reportParseError( contentHnd->errorString() );
-			    return FALSE;
-			}
-		    }
-		}
-		// XML declaration only on first position possible
-		xmldecl_possible = FALSE;
-		break;
-	    case Done:
-		return TRUE;
-	    case -1:
-		reportParseError( XMLERR_ERRORPARSINGELEMENT );
-		return FALSE;
-	}
-
     }
 }
 
@@ -2629,6 +2629,33 @@ bool QXmlSimpleReader::parseElement()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case ReadName:
+		// store it on the stack
+		d->tags.push( name() );
+		// empty the attributes
+		d->attList.qnameList.clear();
+		d->attList.uriList.clear();
+		d->attList.localnameList.clear();
+		d->attList.valueList.clear();
+		if ( d->useNamespaces ) {
+		    d->namespaceSupport.pushContext();
+		}
+		break;
+	    case ETagBegin2:
+		if ( !processElementETagBegin2() )
+		    return FALSE;
+		break;
+	    case Attribute:
+		if ( !processElementAttribute() )
+		    return FALSE;
+		break;
+	    case Done:
+		return TRUE;
+	    case -1:
+		reportParseError( XMLERR_ERRORPARSINGELEMENT );
+		return FALSE;
+	}
 
 	// read input
 	if ( atEnd() ) {
@@ -2720,35 +2747,6 @@ bool QXmlSimpleReader::parseElement()
 		next();
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case ReadName:
-		// store it on the stack
-		d->tags.push( name() );
-		// empty the attributes
-		d->attList.qnameList.clear();
-		d->attList.uriList.clear();
-		d->attList.localnameList.clear();
-		d->attList.valueList.clear();
-		if ( d->useNamespaces ) {
-		    d->namespaceSupport.pushContext();
-		}
-		break;
-	    case ETagBegin2:
-		if ( !processElementETagBegin2() )
-		    return FALSE;
-		break;
-	    case Attribute:
-		if ( !processElementAttribute() )
-		    return FALSE;
-		break;
-	    case Done:
-		return TRUE;
-	    case -1:
-		reportParseError( XMLERR_ERRORPARSINGELEMENT );
-		return FALSE;
-	}
-
     }
 }
 /*
@@ -2983,6 +2981,82 @@ bool QXmlSimpleReader::parseContent()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case PI:
+		if ( contentHnd ) {
+		    if ( !contentHnd->processingInstruction(name(),string()) ) {
+			reportParseError( contentHnd->errorString() );
+			return FALSE;
+		    }
+		}
+		break;
+	    case Com:
+		if ( lexicalHnd ) {
+		    if ( !lexicalHnd->comment( string() ) ) {
+			reportParseError( lexicalHnd->errorString() );
+			return FALSE;
+		    }
+		}
+		break;
+	    case CDS:
+		// empty string
+		stringClear();
+		break;
+	    case CDS2:
+		if (c != ']') {
+		    stringAddC( ']' );
+		}
+		break;
+	    case CDS3:
+		// test if this skipping was legal
+		if        ( c == '>' ) {
+		    // the end of the CDSect
+		    if ( lexicalHnd ) {
+			if ( !lexicalHnd->startCDATA() ) {
+			    reportParseError( lexicalHnd->errorString() );
+			    return FALSE;
+			}
+		    }
+		    if ( contentHnd ) {
+			if ( !contentHnd->characters( string() ) ) {
+			    reportParseError( contentHnd->errorString() );
+			    return FALSE;
+			}
+		    }
+		    if ( lexicalHnd ) {
+			if ( !lexicalHnd->endCDATA() ) {
+			    reportParseError( lexicalHnd->errorString() );
+			    return FALSE;
+			}
+		    }
+		} else if (c == ']') {
+		    // three or more ']'
+		    stringAddC( ']' );
+		} else {
+		    // after ']]' comes another character
+		    stringAddC( ']' );
+		    stringAddC( ']' );
+		}
+		break;
+	    case Done:
+		// call the handler for CharData
+		if ( contentHnd ) {
+		    if ( charDataRead ) {
+			if ( d->reportWhitespaceCharData || !string().simplifyWhiteSpace().isEmpty() ) {
+			    if ( !contentHnd->characters( string() ) ) {
+				reportParseError( contentHnd->errorString() );
+				return FALSE;
+			    }
+			}
+		    }
+		}
+		// Done
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_ERRORPARSINGCONTENT );
+		return FALSE;
+	}
 
 	// get input (use lookup-table instead of nested ifs for performance
 	// reasons)
@@ -3101,84 +3175,6 @@ bool QXmlSimpleReader::parseContent()
 		next();
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case PI:
-		if ( contentHnd ) {
-		    if ( !contentHnd->processingInstruction(name(),string()) ) {
-			reportParseError( contentHnd->errorString() );
-			return FALSE;
-		    }
-		}
-		break;
-	    case Com:
-		if ( lexicalHnd ) {
-		    if ( !lexicalHnd->comment( string() ) ) {
-			reportParseError( lexicalHnd->errorString() );
-			return FALSE;
-		    }
-		}
-		break;
-	    case CDS:
-		// empty string
-		stringClear();
-		break;
-	    case CDS2:
-		if (c != ']') {
-		    stringAddC( ']' );
-		}
-		break;
-	    case CDS3:
-		// test if this skipping was legal
-		if        ( c == '>' ) {
-		    // the end of the CDSect
-		    if ( lexicalHnd ) {
-			if ( !lexicalHnd->startCDATA() ) {
-			    reportParseError( lexicalHnd->errorString() );
-			    return FALSE;
-			}
-		    }
-		    if ( contentHnd ) {
-			if ( !contentHnd->characters( string() ) ) {
-			    reportParseError( contentHnd->errorString() );
-			    return FALSE;
-			}
-		    }
-		    if ( lexicalHnd ) {
-			if ( !lexicalHnd->endCDATA() ) {
-			    reportParseError( lexicalHnd->errorString() );
-			    return FALSE;
-			}
-		    }
-		} else if (c == ']') {
-		    // three or more ']'
-		    stringAddC( ']' );
-		} else {
-		    // after ']]' comes another character
-		    stringAddC( ']' );
-		    stringAddC( ']' );
-		}
-		break;
-	    case Done:
-		// call the handler for CharData
-		if ( contentHnd ) {
-		    if ( charDataRead ) {
-			if ( d->reportWhitespaceCharData || !string().simplifyWhiteSpace().isEmpty() ) {
-			    if ( !contentHnd->characters( string() ) ) {
-				reportParseError( contentHnd->errorString() );
-				return FALSE;
-			    }
-			}
-		    }
-		}
-		// Done
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_ERRORPARSINGCONTENT );
-		return FALSE;
-	}
-
     }
 }
 
@@ -3217,6 +3213,30 @@ bool QXmlSimpleReader::parseMisc()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case eatWS:
+		return TRUE;
+	    case PI:
+		if ( contentHnd ) {
+		    if ( !contentHnd->processingInstruction(name(),string()) ) {
+			reportParseError( contentHnd->errorString() );
+			return FALSE;
+		    }
+		}
+		return TRUE;
+	    case Comment2:
+		if ( lexicalHnd ) {
+		    if ( !lexicalHnd->comment( string() ) ) {
+			reportParseError( lexicalHnd->errorString() );
+			return FALSE;
+		    }
+		}
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_UNEXPECTEDCHARACTER );
+		return FALSE;
+	}
 
 	// get input
 	if ( atEnd() ) {
@@ -3234,7 +3254,6 @@ bool QXmlSimpleReader::parseMisc()
 	} else {
 	    input = InpUnknown;
 	}
-
 	// set state according to input
 	state = table[state][input];
 
@@ -3263,32 +3282,6 @@ bool QXmlSimpleReader::parseMisc()
 		}
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case eatWS:
-		return TRUE;
-	    case PI:
-		if ( contentHnd ) {
-		    if ( !contentHnd->processingInstruction(name(),string()) ) {
-			reportParseError( contentHnd->errorString() );
-			return FALSE;
-		    }
-		}
-		return TRUE;
-	    case Comment2:
-		if ( lexicalHnd ) {
-		    if ( !lexicalHnd->comment( string() ) ) {
-			reportParseError( lexicalHnd->errorString() );
-			return FALSE;
-		    }
-		}
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		return FALSE;
-	}
-
     }
 }
 
@@ -3359,86 +3352,6 @@ bool QXmlSimpleReader::parsePI()
     }
 
     while ( TRUE ) {
-
-	// get input
-	if ( atEnd() ) {
-	    unexpectedEof( &QXmlSimpleReader::parsePI, state );
-	    return FALSE;
-	}
-	if        ( is_S(c) ) {
-	    input = InpWs;
-	} else if ( is_NameBeginning(c) ) {
-	    input = InpNameBe;
-	} else if ( c == '>' ) {
-	    input = InpGt;
-	} else if ( c == '?' ) {
-	    input = InpQm;
-	} else {
-	    input = InpUnknown;
-	}
-
-	// set state according to input
-	state = table[state][input];
-
-	// do some actions according to state
-	switch ( state ) {
-	    case QmI:
-		next();
-		break;
-	    case Name:
-		d->parseName_useRef = FALSE;
-		if ( !parseName() ) {
-		    parseFailed( &QXmlSimpleReader::parsePI, state );
-		    return FALSE;
-		}
-		break;
-	    case Ws1:
-	    case Ws2:
-	    case Ws3:
-	    case Ws4:
-	    case Ws5:
-		eat_ws();
-		break;
-	    case Version:
-		if ( !parseAttribute() ) {
-		    parseFailed( &QXmlSimpleReader::parsePI, state );
-		    return FALSE;
-		}
-		break;
-	    case EorSD:
-		if ( !parseAttribute() ) {
-		    parseFailed( &QXmlSimpleReader::parsePI, state );
-		    return FALSE;
-		}
-		break;
-	    case SD:
-		// get the SDDecl (syntax like an attribute)
-		if ( d->standalone != QXmlSimpleReaderPrivate::Unknown ) {
-		    // already parsed the standalone declaration
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-		if ( !parseAttribute() ) {
-		    parseFailed( &QXmlSimpleReader::parsePI, state );
-		    return FALSE;
-		}
-		break;
-	    case ADone:
-		next();
-		break;
-	    case Char:
-		stringAddC();
-		next();
-		break;
-	    case Qm:
-		// skip the '?'
-		next();
-		break;
-	    case Done:
-		next();
-		break;
-	}
-	// no input is read after this
 	switch ( state ) {
 	    case Name:
 		// test what name was read and determine the next state
@@ -3511,6 +3424,83 @@ bool QXmlSimpleReader::parsePI()
 		return FALSE;
 	}
 
+	// get input
+	if ( atEnd() ) {
+	    unexpectedEof( &QXmlSimpleReader::parsePI, state );
+	    return FALSE;
+	}
+	if        ( is_S(c) ) {
+	    input = InpWs;
+	} else if ( is_NameBeginning(c) ) {
+	    input = InpNameBe;
+	} else if ( c == '>' ) {
+	    input = InpGt;
+	} else if ( c == '?' ) {
+	    input = InpQm;
+	} else {
+	    input = InpUnknown;
+	}
+	// set state according to input
+	state = table[state][input];
+
+	// do some actions according to state
+	switch ( state ) {
+	    case QmI:
+		next();
+		break;
+	    case Name:
+		d->parseName_useRef = FALSE;
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parsePI, state );
+		    return FALSE;
+		}
+		break;
+	    case Ws1:
+	    case Ws2:
+	    case Ws3:
+	    case Ws4:
+	    case Ws5:
+		eat_ws();
+		break;
+	    case Version:
+		if ( !parseAttribute() ) {
+		    parseFailed( &QXmlSimpleReader::parsePI, state );
+		    return FALSE;
+		}
+		break;
+	    case EorSD:
+		if ( !parseAttribute() ) {
+		    parseFailed( &QXmlSimpleReader::parsePI, state );
+		    return FALSE;
+		}
+		break;
+	    case SD:
+		// get the SDDecl (syntax like an attribute)
+		if ( d->standalone != QXmlSimpleReaderPrivate::Unknown ) {
+		    // already parsed the standalone declaration
+		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
+		    return FALSE;
+		}
+		if ( !parseAttribute() ) {
+		    parseFailed( &QXmlSimpleReader::parsePI, state );
+		    return FALSE;
+		}
+		break;
+	    case ADone:
+		next();
+		break;
+	    case Char:
+		stringAddC();
+		next();
+		break;
+	    case Qm:
+		// skip the '?'
+		next();
+		break;
+	    case Done:
+		next();
+		break;
+	}
     }
 }
 
@@ -3579,6 +3569,32 @@ bool QXmlSimpleReader::parseDoctype()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case Doctype:
+		if ( !is_S(c) ) {
+		    reportParseError( XMLERR_ERRORPARSINGDOCTYPE );
+		    return FALSE;
+		}
+		break;
+	    case Doctype2:
+		d->doctype = name();
+		break;
+	    case MP:
+		if ( !startDTDwasReported && lexicalHnd  ) {
+		    startDTDwasReported = TRUE;
+		    if ( !lexicalHnd->startDTD( d->doctype, d->publicId, d->systemId ) ) {
+			reportParseError( lexicalHnd->errorString() );
+			return FALSE;
+		    }
+		}
+		break;
+	    case Done:
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_ERRORPARSINGDOCTYPE );
+		return FALSE;
+	}
 
 	// get input
 	if ( atEnd() ) {
@@ -3670,34 +3686,6 @@ bool QXmlSimpleReader::parseDoctype()
 		next();
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case Doctype:
-		if ( !is_S(c) ) {
-		    reportParseError( XMLERR_ERRORPARSINGDOCTYPE );
-		    return FALSE;
-		}
-		break;
-	    case Doctype2:
-		d->doctype = name();
-		break;
-	    case MP:
-		if ( !startDTDwasReported && lexicalHnd  ) {
-		    startDTDwasReported = TRUE;
-		    if ( !lexicalHnd->startDTD( d->doctype, d->publicId, d->systemId ) ) {
-			reportParseError( lexicalHnd->errorString() );
-			return FALSE;
-		    }
-		}
-		break;
-	    case Done:
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_ERRORPARSINGDOCTYPE );
-		return FALSE;
-	}
-
     }
 }
 
@@ -3764,6 +3752,22 @@ bool QXmlSimpleReader::parseExternalID()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case PDone:
+		if ( d->parseExternalID_allowPublicID ) {
+		    d->publicId = string();
+		    return TRUE;
+		} else {
+		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
+		    return FALSE;
+		}
+	    case Done:
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_UNEXPECTEDCHARACTER );
+		return FALSE;
+	}
 
 	// get input
 	if ( atEnd() ) {
@@ -3783,7 +3787,6 @@ bool QXmlSimpleReader::parseExternalID()
 	} else {
 	    input = InpUnknown;
 	}
-
 	// set state according to input
 	state = table[state][input];
 
@@ -3841,24 +3844,6 @@ bool QXmlSimpleReader::parseExternalID()
 		next();
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case PDone:
-		if ( d->parseExternalID_allowPublicID ) {
-		    d->publicId = string();
-		    return TRUE;
-		} else {
-		    reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		    return FALSE;
-		}
-	    case Done:
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		return FALSE;
-	}
-
     }
 }
 
@@ -3907,6 +3892,38 @@ bool QXmlSimpleReader::parseMarkupdecl()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case Qm:
+		if ( contentHnd ) {
+		    if ( !contentHnd->processingInstruction(name(),string()) ) {
+			reportParseError( contentHnd->errorString() );
+			return FALSE;
+		    }
+		}
+		return TRUE;
+	    case Dash:
+		if ( lexicalHnd ) {
+		    if ( !lexicalHnd->comment( string() ) ) {
+			reportParseError( lexicalHnd->errorString() );
+			return FALSE;
+		    }
+		}
+		return TRUE;
+	    case CA:
+		return TRUE;
+	    case CEL:
+		return TRUE;
+	    case CEN:
+		return TRUE;
+	    case CN:
+		return TRUE;
+	    case Done:
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_LETTEREXPECTED );
+		return FALSE;
+	}
 
 	// get input
 	if ( atEnd() ) {
@@ -3985,40 +4002,6 @@ bool QXmlSimpleReader::parseMarkupdecl()
 		}
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case Qm:
-		if ( contentHnd ) {
-		    if ( !contentHnd->processingInstruction(name(),string()) ) {
-			reportParseError( contentHnd->errorString() );
-			return FALSE;
-		    }
-		}
-		return TRUE;
-	    case Dash:
-		if ( lexicalHnd ) {
-		    if ( !lexicalHnd->comment( string() ) ) {
-			reportParseError( lexicalHnd->errorString() );
-			return FALSE;
-		    }
-		}
-		return TRUE;
-	    case CA:
-		return TRUE;
-	    case CEL:
-		return TRUE;
-	    case CEN:
-		return TRUE;
-	    case CN:
-		return TRUE;
-	    case Done:
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_LETTEREXPECTED );
-		return FALSE;
-	}
-
     }
 }
 
@@ -4053,40 +4036,6 @@ bool QXmlSimpleReader::parsePEReference()
     }
 
     while ( TRUE ) {
-
-	// get input
-	if ( atEnd() ) {
-	    unexpectedEof( &QXmlSimpleReader::parsePEReference, state );
-	    return FALSE;
-	}
-	if        ( c == ';' ) {
-	    input = InpSemi;
-	} else if ( c == '%' ) {
-	    input = InpPer;
-	} else {
-	    input = InpUnknown;
-	}
-
-	// set state according to input
-	state = table[state][input];
-
-	// do some actions according to state
-	switch ( state ) {
-	    case Next:
-		next();
-		break;
-	    case Name:
-		d->parseName_useRef = TRUE;
-		if ( !parseName() ) {
-		    parseFailed( &QXmlSimpleReader::parsePEReference, state );
-		    return FALSE;
-		}
-		break;
-	    case Done:
-		next();
-		break;
-	}
-	// no input is read after this
 	switch ( state ) {
 	    case Name:
 		if ( d->parameterEntities.find( ref() ) == d->parameterEntities.end() ) {
@@ -4119,6 +4068,37 @@ bool QXmlSimpleReader::parsePEReference()
 		return FALSE;
 	}
 
+	// get input
+	if ( atEnd() ) {
+	    unexpectedEof( &QXmlSimpleReader::parsePEReference, state );
+	    return FALSE;
+	}
+	if        ( c == ';' ) {
+	    input = InpSemi;
+	} else if ( c == '%' ) {
+	    input = InpPer;
+	} else {
+	    input = InpUnknown;
+	}
+	// set state according to input
+	state = table[state][input];
+
+	// do some actions according to state
+	switch ( state ) {
+	    case Next:
+		next();
+		break;
+	    case Name:
+		d->parseName_useRef = TRUE;
+		if ( !parseName() ) {
+		    parseFailed( &QXmlSimpleReader::parsePEReference, state );
+		    return FALSE;
+		}
+		break;
+	    case Done:
+		next();
+		break;
+	}
     }
 }
 
@@ -4185,6 +4165,20 @@ bool QXmlSimpleReader::parseAttlistDecl()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case Name:
+		d->attDeclEName = name();
+		break;
+	    case Attdef:
+		d->attDeclAName = name();
+		break;
+	    case Done:
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_LETTEREXPECTED );
+		return FALSE;
+	}
 
 	// get input
 	if ( atEnd() ) {
@@ -4291,22 +4285,6 @@ bool QXmlSimpleReader::parseAttlistDecl()
 		next();
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case Name:
-		d->attDeclEName = name();
-		break;
-	    case Attdef:
-		d->attDeclAName = name();
-		break;
-	    case Done:
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_LETTEREXPECTED );
-		return FALSE;
-	}
-
     }
 }
 
@@ -4385,6 +4363,16 @@ bool QXmlSimpleReader::parseAttType()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case ADone:
+		return TRUE;
+	    case Done:
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_LETTEREXPECTED );
+		return FALSE;
+	}
 
 	// get input
 	if ( atEnd() ) {
@@ -4519,18 +4507,6 @@ bool QXmlSimpleReader::parseAttType()
 		next();
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case ADone:
-		return TRUE;
-	    case Done:
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_LETTEREXPECTED );
-		return FALSE;
-	}
-
     }
 }
 
@@ -4581,6 +4557,14 @@ bool QXmlSimpleReader::parseAttValue()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case Done:
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_UNEXPECTEDCHARACTER );
+		return FALSE;
+	}
 
 	// get input
 	if ( atEnd() ) {
@@ -4598,7 +4582,6 @@ bool QXmlSimpleReader::parseAttValue()
 	} else {
 	    input = InpUnknown;
 	}
-
 	// set state according to input
 	state = table[state][input];
 
@@ -4626,16 +4609,6 @@ bool QXmlSimpleReader::parseAttValue()
 		next();
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case Done:
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		return FALSE;
-	}
-
     }
 }
 
@@ -4713,6 +4686,13 @@ bool QXmlSimpleReader::parseElementDecl()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case Done:
+		return TRUE;
+	    case -1:
+		reportParseError( XMLERR_UNEXPECTEDCHARACTER );
+		return FALSE;
+	}
 
 	// read input
 	if ( atEnd() ) {
@@ -4833,15 +4813,6 @@ bool QXmlSimpleReader::parseElementDecl()
 		next();
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case Done:
-		return TRUE;
-	    case -1:
-		reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		return FALSE;
-	}
-
     }
 }
 
@@ -4888,6 +4859,23 @@ bool QXmlSimpleReader::parseNotationDecl()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case ExtID:
+		// call the handler
+		if ( dtdHnd ) {
+		    if ( !dtdHnd->notationDecl( name(), d->publicId, d->systemId ) ) {
+			reportParseError( dtdHnd->errorString() );
+			return FALSE;
+		    }
+		}
+		break;
+	    case Done:
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_UNEXPECTEDCHARACTER );
+		return FALSE;
+	}
 
 	// get input
 	if ( atEnd() ) {
@@ -4943,25 +4931,6 @@ bool QXmlSimpleReader::parseNotationDecl()
 		next();
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case ExtID:
-		// call the handler
-		if ( dtdHnd ) {
-		    if ( !dtdHnd->notationDecl( name(), d->publicId, d->systemId ) ) {
-			reportParseError( dtdHnd->errorString() );
-			return FALSE;
-		    }
-		}
-		break;
-	    case Done:
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		return FALSE;
-	}
-
     }
 }
 
@@ -5011,6 +4980,14 @@ bool QXmlSimpleReader::parseChoiceSeq()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case Done:
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_UNEXPECTEDCHARACTER );
+		return FALSE;
+	}
 
 	// get input
 	if ( atEnd() ) {
@@ -5068,16 +5045,6 @@ bool QXmlSimpleReader::parseChoiceSeq()
 		next();
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case Done:
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		return FALSE;
-	}
-
     }
 }
 
@@ -5149,6 +5116,69 @@ bool QXmlSimpleReader::parseEntityDecl()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case EValue:
+		if (  !entityExist( name() ) ) {
+		    d->entities.insert( name(), string() );
+		    if ( declHnd ) {
+			if ( !declHnd->internalEntityDecl( name(), string() ) ) {
+			    reportParseError( declHnd->errorString() );
+			    return FALSE;
+			}
+		    }
+		}
+		break;
+	    case NNam:
+		if (  !entityExist( name() ) ) {
+		    d->externEntities.insert( name(), QXmlSimpleReaderPrivate::ExternEntity( d->publicId, d->systemId, ref() ) );
+		    if ( dtdHnd ) {
+			if ( !dtdHnd->unparsedEntityDecl( name(), d->publicId, d->systemId, ref() ) ) {
+			    reportParseError( declHnd->errorString() );
+			    return FALSE;
+			}
+		    }
+		}
+		break;
+	    case PEVal:
+		if (  !entityExist( name() ) ) {
+		    d->parameterEntities.insert( name(), string() );
+		    if ( declHnd ) {
+			if ( !declHnd->internalEntityDecl( QString("%")+name(), string() ) ) {
+			    reportParseError( declHnd->errorString() );
+			    return FALSE;
+			}
+		    }
+		}
+		break;
+	    case PEEID:
+		if (  !entityExist( name() ) ) {
+		    d->externParameterEntities.insert( name(), QXmlSimpleReaderPrivate::ExternParameterEntity( d->publicId, d->systemId ) );
+		    if ( declHnd ) {
+			if ( !declHnd->externalEntityDecl( QString("%")+name(), d->publicId, d->systemId ) ) {
+			    reportParseError( declHnd->errorString() );
+			    return FALSE;
+			}
+		    }
+		}
+		break;
+	    case EDDone:
+		if (  !entityExist( name() ) ) {
+		    d->externEntities.insert( name(), QXmlSimpleReaderPrivate::ExternEntity( d->publicId, d->systemId, QString::null ) );
+		    if ( declHnd ) {
+			if ( !declHnd->externalEntityDecl( name(), d->publicId, d->systemId ) ) {
+			    reportParseError( declHnd->errorString() );
+			    return FALSE;
+			}
+		    }
+		}
+		return TRUE;
+	    case Done:
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_LETTEREXPECTED );
+		return FALSE;
+	}
 
 	// get input
 	if ( atEnd() ) {
@@ -5168,7 +5198,6 @@ bool QXmlSimpleReader::parseEntityDecl()
 	} else {
 	    input = InpUnknown;
 	}
-
 	// set state according to input
 	state = table[state][input];
 
@@ -5266,71 +5295,6 @@ bool QXmlSimpleReader::parseEntityDecl()
 		next();
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case EValue:
-		if (  !entityExist( name() ) ) {
-		    d->entities.insert( name(), string() );
-		    if ( declHnd ) {
-			if ( !declHnd->internalEntityDecl( name(), string() ) ) {
-			    reportParseError( declHnd->errorString() );
-			    return FALSE;
-			}
-		    }
-		}
-		break;
-	    case NNam:
-		if (  !entityExist( name() ) ) {
-		    d->externEntities.insert( name(), QXmlSimpleReaderPrivate::ExternEntity( d->publicId, d->systemId, ref() ) );
-		    if ( dtdHnd ) {
-			if ( !dtdHnd->unparsedEntityDecl( name(), d->publicId, d->systemId, ref() ) ) {
-			    reportParseError( declHnd->errorString() );
-			    return FALSE;
-			}
-		    }
-		}
-		break;
-	    case PEVal:
-		if (  !entityExist( name() ) ) {
-		    d->parameterEntities.insert( name(), string() );
-		    if ( declHnd ) {
-			if ( !declHnd->internalEntityDecl( QString("%")+name(), string() ) ) {
-			    reportParseError( declHnd->errorString() );
-			    return FALSE;
-			}
-		    }
-		}
-		break;
-	    case PEEID:
-		if (  !entityExist( name() ) ) {
-		    d->externParameterEntities.insert( name(), QXmlSimpleReaderPrivate::ExternParameterEntity( d->publicId, d->systemId ) );
-		    if ( declHnd ) {
-			if ( !declHnd->externalEntityDecl( QString("%")+name(), d->publicId, d->systemId ) ) {
-			    reportParseError( declHnd->errorString() );
-			    return FALSE;
-			}
-		    }
-		}
-		break;
-	    case EDDone:
-		if (  !entityExist( name() ) ) {
-		    d->externEntities.insert( name(), QXmlSimpleReaderPrivate::ExternEntity( d->publicId, d->systemId, QString::null ) );
-		    if ( declHnd ) {
-			if ( !declHnd->externalEntityDecl( name(), d->publicId, d->systemId ) ) {
-			    reportParseError( declHnd->errorString() );
-			    return FALSE;
-			}
-		    }
-		}
-		return TRUE;
-	    case Done:
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_LETTEREXPECTED );
-		return FALSE;
-	}
-
     }
 }
 
@@ -5379,6 +5343,14 @@ bool QXmlSimpleReader::parseEntityValue()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case Done:
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_LETTEREXPECTED );
+		return FALSE;
+	}
 
 	// get input
 	if ( atEnd() ) {
@@ -5432,16 +5404,6 @@ bool QXmlSimpleReader::parseEntityValue()
 		next();
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case Done:
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_LETTEREXPECTED );
-		return FALSE;
-	}
-
     }
 }
 
@@ -5488,6 +5450,23 @@ bool QXmlSimpleReader::parseComment()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case Dash2:
+		stringClear();
+		break;
+	    case Com2:
+		// if next character is not a dash than don't skip it
+		if ( c != '-' ) {
+		    stringAddC( '-' );
+		}
+		break;
+	    case Done:
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_ERRORPARSINGCOMMENT );
+		return FALSE;
+	}
 
 	// get input
 	if ( atEnd() ) {
@@ -5527,25 +5506,6 @@ bool QXmlSimpleReader::parseComment()
 		next();
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case Dash2:
-		stringClear();
-		break;
-	    case Com2:
-		// if next character is not a dash than don't skip it
-		if ( c != '-' ) {
-		    stringAddC( '-' );
-		}
-		break;
-	    case Done:
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_ERRORPARSINGCOMMENT );
-		return FALSE;
-	}
-
     }
 }
 
@@ -5591,6 +5551,15 @@ bool QXmlSimpleReader::parseAttribute()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case Quotes:
+		// Done
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_UNEXPECTEDCHARACTER );
+		return FALSE;
+	}
 
 	// get input
 	if ( atEnd() ) {
@@ -5634,17 +5603,6 @@ bool QXmlSimpleReader::parseAttribute()
 		}
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case Quotes:
-		// Done
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_UNEXPECTEDCHARACTER );
-		return FALSE;
-	}
-
     }
 }
 
@@ -5679,6 +5637,14 @@ bool QXmlSimpleReader::parseName()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case Done:
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_LETTEREXPECTED );
+		return FALSE;
+	}
 
 	// get input
 	if ( atEnd() ) {
@@ -5717,16 +5683,6 @@ bool QXmlSimpleReader::parseName()
 		next();
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case Done:
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_LETTEREXPECTED );
-		return FALSE;
-	}
-
     }
 }
 
@@ -5760,6 +5716,14 @@ bool QXmlSimpleReader::parseNmtoken()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case Done:
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_LETTEREXPECTED );
+		return FALSE;
+	}
 
 	// get input
 	if ( atEnd() ) {
@@ -5771,7 +5735,6 @@ bool QXmlSimpleReader::parseNmtoken()
 	} else {
 	    input = InpUnknown;
 	}
-
 	// set state according to input
 	state = table[state][input];
 
@@ -5787,16 +5750,6 @@ bool QXmlSimpleReader::parseNmtoken()
 		next();
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case Done:
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_LETTEREXPECTED );
-		return FALSE;
-	}
-
     }
 }
 
@@ -5858,6 +5811,18 @@ bool QXmlSimpleReader::parseReference()
     }
 
     while ( TRUE ) {
+	switch ( state ) {
+	    case DoneD:
+		return TRUE;
+	    case DoneH:
+		return TRUE;
+	    case DoneN:
+		return TRUE;
+	    case -1:
+		// Error
+		reportParseError( XMLERR_ERRORPARSINGREFERENCE );
+		return FALSE;
+	}
 
 	// get input
 	if ( atEnd() ) {
@@ -5940,20 +5905,6 @@ bool QXmlSimpleReader::parseReference()
 		next();
 		break;
 	}
-	// no input is read after this
-	switch ( state ) {
-	    case DoneD:
-		return TRUE;
-	    case DoneH:
-		return TRUE;
-	    case DoneN:
-		return TRUE;
-	    case -1:
-		// Error
-		reportParseError( XMLERR_ERRORPARSINGREFERENCE );
-		return FALSE;
-	}
-
     }
 }
 
@@ -6137,6 +6088,10 @@ bool QXmlSimpleReader::parseString()
     }
 
     while ( TRUE ) {
+	if ( state == Done ) {
+	    return TRUE;
+	}
+
 
 	// get input
 	if ( atEnd() ) {
@@ -6148,7 +6103,6 @@ bool QXmlSimpleReader::parseString()
 	} else {
 	    input = InpUnknown;
 	}
-
 	// set state according to input
 	if ( input == InpCharExpected ) {
 	    state++;
@@ -6160,11 +6114,6 @@ bool QXmlSimpleReader::parseString()
 
 	// do some actions according to state
 	next();
-	// no input is read after this
-	if ( state == Done ) {
-	    return TRUE;
-	}
-
     }
 }
 
@@ -6230,7 +6179,7 @@ void QXmlSimpleReader::reportParseError( const QString& error )
   not). \a where is a pointer to the function where the error occured and \a
   state is the parsing state in this function.
 */
-void QXmlSimpleReader::unexpectedEof( parseFunction where, int state )
+void QXmlSimpleReader::unexpectedEof( ParseFunction where, int state )
 {
     if ( d->parseStack == 0 ) {
 	reportParseError( XMLERR_UNEXPECTEDEOF );
@@ -6246,7 +6195,7 @@ void QXmlSimpleReader::unexpectedEof( parseFunction where, int state )
   function where the error occured and \a state is the parsing state in this
   function.
 */
-void QXmlSimpleReader::parseFailed( parseFunction where, int state )
+void QXmlSimpleReader::parseFailed( ParseFunction where, int state )
 {
     if ( d->parseStack!=0 && d->error.isNull() ) {
 	pushParseState( where, state );
@@ -6260,7 +6209,7 @@ void QXmlSimpleReader::parseFailed( parseFunction where, int state )
 
   Only call this function when d->parseStack!=0.
 */
-void QXmlSimpleReader::pushParseState( parseFunction function, int state )
+void QXmlSimpleReader::pushParseState( ParseFunction function, int state )
 {
     QXmlSimpleReaderPrivate::ParseState *ps = new QXmlSimpleReaderPrivate::ParseState;
     ps->function = function;
