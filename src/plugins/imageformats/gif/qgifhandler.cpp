@@ -298,7 +298,7 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
                     sheight = newtop + height;
 
                 if (image->isNull()) {
-                    image->create(swidth, sheight, 32);
+                    (*image) = QImage(swidth, sheight, 32);
                     memset(image->bits(), 0, image->numBytes());
 
                     // ### size of the upcoming frame, should rather
@@ -370,9 +370,9 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
                     if (backingstore.width() < w
                         || backingstore.height() < h) {
                         // We just use the backing store as a byte array
-                        backingstore.create(qMax(backingstore.width(), w),
-                                             qMax(backingstore.height(), h),
-                                             32);
+                        backingstore = QImage(qMax(backingstore.width(), w),
+                                              qMax(backingstore.height(), h),
+                                              32);
                         memset(image->bits(), 0, image->numBytes());
                     }
                     for (int ln=0; ln<h; ln++) {
