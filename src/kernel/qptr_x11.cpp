@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#151 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#152 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#151 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#152 $")
 
 
 /*****************************************************************************
@@ -2301,15 +2301,22 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     if ( !isActive() || pixmap.isNull() )
 	return;
     if ( sw < 0 )
-	sw = pixmap.width();
+	sw = pixmap.width() - sx;
     if ( sh < 0 )
-	sh = pixmap.height();
+	sh = pixmap.height() - sy;
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev|WxF) ) {
 	    if ( sx != 0 || sy != 0 ||
 		 sw != pixmap.width() || sh != pixmap.height() ) {
 		QPixmap tmp( sw, sh, pixmap.depth() );
 		bitBlt( &tmp, 0, 0, &pixmap, sx, sy, sw, sh );
+#if 0
+		if ( pixmap.mask() ) {
+		    QBitmap mask( sw, sh );
+		    bitBlt( &mask, 0, 0, pixmap.mask(), sx, sy, sw, sh );
+		    tmp.setMask( mask );
+		}
+#endif
 		drawPixmap( x, y, tmp );
 		return;
 	    }
@@ -2374,9 +2381,9 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 
     bool do_clip  = hasClipping();
     bool depth1	  = pixmap.depth() == 1;
-    bool has_mask = pixmap.mask() != 0;
+    QBitmap *mask = (QBitmap *)pixmap.mask();
 
-    if ( has_mask && !depth1 && !do_clip && rop == CopyROP ) {
+    if ( mask && !depth1 && !do_clip && rop == CopyROP ) {
 	bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh );
 	return;
     }
@@ -2384,32 +2391,37 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     if ( depth1 )				// bitmap
 	XSetBackground( dpy, gc, bg_col.pixel() );
 
-    if ( has_mask ) {				// pixmap has clip mask
-	QBitmap mask = *pixmap.mask();
+    if ( mask ) {				// pixmap has clip mask
 	if ( do_clip ) {			// combine with region
-	    QBitmap comb( mask.size() );
-	    comb.detach();
-	    GC cgc = qt_xget_temp_gc( TRUE );
-	    XSetRegion( dpy, cgc, crgn.handle() );
+	    QBitmap *comb = new QBitmap( mask->size() );
+	    comb->detach();
+	    GC cgc = qt_xget_temp_gc( TRUE );	// get temporary GC
+	    XSetForeground( dpy, cgc, color0.pixel() );
+	    XFillRectangle( dpy, comb->handle(), cgc, 0, 0,
+			    comb->width(), comb->height() );
+	    XSetBackground( dpy, cgc, color0.pixel() );
 	    XSetForeground( dpy, cgc, color1.pixel() );
-	    XFillRectangle( dpy, comb.handle(), cgc, 0, 0,
-			    comb.width(), comb.height() );
-	    //	    XCopyPlane( dpy, mask.handle(), comb.handle(), cgc, 0, 0,
-	    //		mask.width(), mask.height(), 0, 0, 1 );
+	    XSetRegion( dpy, cgc, crgn.handle() );
+	    XSetClipOrigin( dpy, cgc, -x+sx, -y+sy );
+	    XCopyPlane( dpy, mask->handle(), comb->handle(), cgc, 0, 0,
+			mask->width(), mask->height(), 0, 0, 1 );
 	    XSetClipMask( dpy, cgc, None );
-	    mask = comb;
+	    XSetClipOrigin( dpy, cgc, 0, 0 );	// restore tmp GC
+	    mask = comb;			// it's deleted below
 	}
-	XSetClipMask( dpy, gc, mask.handle() );
+	XSetClipMask( dpy, gc, mask->handle() );
 	XSetClipOrigin( dpy, gc, x-sx, y-sy );
     }
     if ( depth1 )
 	XCopyPlane( dpy, pixmap.handle(), hd, gc, sx, sy, sw, sh, x, y, 1 );
     else
 	XCopyArea( dpy, pixmap.handle(), hd, gc, sx, sy, sw, sh, x, y );
-    if ( has_mask ) {				// restore clipping
+    if ( mask ) {				// restore clipping
 	XSetClipOrigin( dpy, gc, 0, 0 );
-	if ( do_clip )
+	if ( do_clip ) {
 	    XSetRegion( dpy, gc, crgn.handle() );
+	    delete mask;
+	}
 	else
 	    XSetClipMask( dpy, gc, None );
     }
