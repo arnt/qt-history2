@@ -97,7 +97,7 @@ MakefileGenerator::generateMocList(QString fn_target)
     if(!findMocDestination(fn_target).isEmpty())
 	return TRUE;
 
-    QString fn_local = Option::fixPathToLocalOS(fn_target);
+    QString fn_local = Option::fixPathToLocalOS(fileFixify(fn_target, QDir::currentDirPath(), Option::output_dir));
 
     int file = open(fn_local.latin1(), O_RDONLY);
     if(file == -1)
@@ -517,20 +517,6 @@ MakefileGenerator::initOutPaths()
 		}
 	    }
 	}
-#if 0 //Don't try to detect this
-	if(!v.contains("QMAKE_ABSOLUTE_SOURCE_PATH")) {
-	    QString absolute_dir = Option::output_dir;
-	    if(absolute_dir == ".") {
-		absolute_dir = QDir::currentDirPath();
-	    } else if(QDir::isRelativePath(absolute_dir)) {
-		QFileInfo fi(absolute_dir);
-		if(!fi.convertToAbs())
-		    absolute_dir = fi.filePath();
-	    }
-	    if(absolute_dir != QDir::currentDirPath())
-		v.insert("QMAKE_ABSOLUTE_SOURCE_PATH", absolute_dir);
-	}
-#endif
 	if(!v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty()) {
 	    QString &asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first();
 	    asp = Option::fixPathToTargetOS( asp );
@@ -543,17 +529,17 @@ MakefileGenerator::initOutPaths()
 			   QString("SUBLIBS_DIR"), QString::null };
 	for(int x = 0; dirs[x] != QString::null; x++) {
 	    if ( !v[dirs[x]].isEmpty() ) {
+		QString orig_path = v[dirs[x]].first();
 		{
 		    QString &path = v[dirs[x]].first();
-		    fixEnvVariables(path);
-		    if(QDir::isRelativePath(path) && !v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
-			path.prepend(Option::output_dir + Option::dir_sep);
-		    path = fileFixify(path);
+		    path = fileFixify(path, Option::output_dir, Option::output_dir);
 		    if(path.right(Option::dir_sep.length()) != Option::dir_sep)
 			path += Option::dir_sep;
 		}
 		QString path = project->first(dirs[x]); //not to be changed any further
 		path = Option::fixPathToTargetOS(fileFixify(path, QDir::currentDirPath(), Option::output_dir));
+		debug_msg(3, "Fixed output_dir %s (%s) into %s (%s)", dirs[x].latin1(), orig_path.latin1(),
+			  v[dirs[x]].join("::").latin1(), path.latin1());
 
 		QDir d;
 		if(path.left(1) == Option::dir_sep) {
@@ -834,7 +820,7 @@ MakefileGenerator::init()
 		}
 	    }
 	}
-	if(write_cache || !read_cache) {
+	if(project->isActiveConfig("qmake_cache") && (write_cache || !read_cache)) {
 	    QFile cachef(cache_file);
 	    if(cachef.open(IO_WriteOnly | IO_Translate)) {
 		debug_msg(2, "Writing internal cache information: %s", cache_file.latin1());
@@ -878,6 +864,9 @@ MakefileGenerator::init()
 	    QFileInfo fi((*it));
 	    if(fi.dirPath() != ".")
 		dir = fi.dirPath() + Option::dir_sep;
+	    dir = fileFixify(dir, QDir::currentDirPath(), Option::output_dir);
+	    if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
+		dir += Option::dir_sep;
 	    QString impl = dir + fi.baseName(TRUE) + Option::lex_mod + Option::cpp_ext.first();
 	    logicWarn(impl, "SOURCES");
 	    logicWarn(impl, "SOURCES");
@@ -906,6 +895,9 @@ MakefileGenerator::init()
 	    QFileInfo fi((*it));
 	    if(fi.dirPath() != ".")
 		dir = fi.dirPath() + Option::dir_sep;
+	    dir = fileFixify(dir, QDir::currentDirPath(), Option::output_dir);
+	    if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
+		dir += Option::dir_sep;
 	    QString impl = dir + fi.baseName(TRUE) + Option::yacc_mod + Option::cpp_ext.first();
 	    logicWarn(impl, "SOURCES");
 	    QString decl = dir + fi.baseName(TRUE) + Option::yacc_mod + Option::h_ext.first();
@@ -928,12 +920,7 @@ MakefileGenerator::init()
 		if(fi.dirPath() != ".")
 		    lexsrc.prepend(fi.dirPath() + Option::dir_sep);
 		if(v["LEXSOURCES"].findIndex(lexsrc) != -1) {
-		    QString trg;
-		    if(fi.dirPath() != ".")
-			trg = fi.dirPath() + Option::dir_sep + fi.baseName(TRUE) +
-			      Option::lex_mod + Option::cpp_ext.first();
-		    else
-			trg = fi.baseName(TRUE) + Option::lex_mod + Option::cpp_ext.first();
+		    QString trg = dir + fi.baseName(TRUE) + Option::lex_mod + Option::cpp_ext.first();
 		    impldeps.append(trg);
 		    impldeps += findDependencies(lexsrc);
 		    depends[lexsrc].clear();
@@ -1377,8 +1364,11 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 		 "This can lead to link problems.\n");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
-	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName(TRUE) + Option::yacc_mod + Option::cpp_ext.first();
-	QString decl = fi.dirPath() + Option::dir_sep + fi.baseName(TRUE) + Option::yacc_mod + Option::h_ext.first();
+	QString dir = fileFixify(Option::output_dir);
+	if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
+	    dir += Option::dir_sep;
+	QString impl = dir + fi.baseName(TRUE) + Option::yacc_mod + Option::cpp_ext.first();
+	QString decl = dir + fi.baseName(TRUE) + Option::yacc_mod + Option::h_ext.first();
 
 	QString yaccflags = "$(YACCFLAGS)";
 	if(!project->isActiveConfig("yacc_no_name_mangle"))
@@ -1401,7 +1391,10 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 		 "This can lead to link problems.\n");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
-	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName(TRUE) + Option::lex_mod + Option::cpp_ext.first();
+	QString dir = fileFixify(Option::output_dir);
+	if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
+	    dir += Option::dir_sep;
+	QString impl = dir + fi.baseName(TRUE) + Option::lex_mod + Option::cpp_ext.first();
 
 	QString lexflags = "$(LEXFLAGS)", stub="yy";
 	if(!project->isActiveConfig("yacc_no_name_mangle")) {
