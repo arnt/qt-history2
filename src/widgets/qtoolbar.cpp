@@ -334,7 +334,6 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
     clearWFlags( WType_Dialog | WStyle_Customize | WStyle_NoBorder );
     reparent( parent, QPoint( 0, 0 ), FALSE );
 
-
     if ( mainWindow )
 	mainWindow->addToolBar( this, label, QMainWindow::DockUnmanaged, newLine );
 }
@@ -509,7 +508,7 @@ bool QToolBar::event( QEvent * e )
 	if ( child && child->isWidgetType() && !((QWidget*)child)->isTopLevel() &&
 	     child->parent() == this && qstrcmp( "qt_dockwidget_internal", child->name() ) != 0 ) {
 	    boxLayout()->addWidget( (QWidget*)child );
-	    if ( isVisibleTo(0) ) {
+	    if ( isVisibleTo(0) && !((QWidget*)child)->isHidden() ) {
 		( (QWidget*)child )->show();
 		// We resize the toolbar in case it is too small to show all the icons
 		resize( sizeHint() );
