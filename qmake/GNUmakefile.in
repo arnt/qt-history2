@@ -12,6 +12,17 @@ CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I@OUT_QTDIR@/incl
 	-I@OUT_QTDIR@/src/tools -DQT_NO_CODECS -DUSE_GROSS_BIG_BUFFER_THING
 LFLAGS=
 
+#if cc isn't gcc I need to use the bad makefile
+ifeq ($(CC),gcc)
+TOBUILD=qmake
+else
+TOBUILD=uqmake
+endif
+all: $(TOBUILD)
+
+uqmake:
+	$(MAKE) -f Makefile qmake
+
 qmake: $(OBJS) $(QTOBJS)
 	$(CXX) -o $@ $^ $(LFLAGS)
 	ln -s -f $(shell pwd)/$@ @OUT_QTDIR@/bin/$@
