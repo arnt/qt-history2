@@ -1712,6 +1712,8 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
 
     bool isResize = (olds != size());
     if(isTopLevel() && winid && own_id) {
+	if(isResize && isMaximized())
+	    clearWState(WState_Maximized);
 	if(isResize && isMove && visible) {
 	    Rect r;
 	    SetRect(&r, x, y, x + w, y + h);
