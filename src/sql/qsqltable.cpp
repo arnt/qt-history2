@@ -340,7 +340,7 @@ QString QSqlTable::filter() const
 {
     if ( cursor() )
 	return cursor()->filter();
-    return QString::null;
+    return d->ftr;
 }
 
 /*! Sets the filter to be used on the displayed data to \a filter.  To
