@@ -207,7 +207,6 @@ static Atom     qt_settings_timestamp	= 0;    // Qt >=3 settings timestamp
 static Atom	qt_desktop_properties	= 0;	// Qt desktop properties
 static Atom	qt_input_encoding	= 0;	// Qt desktop properties
 static Atom	qt_resource_manager	= 0;	// X11 Resource manager
-static Atom	qt_4dwm_desks_manager	= 0;	// 4Dwm detection
 Atom		qt_sizegrip		= 0;	// sizegrip
 Atom		qt_wm_client_leader	= 0;
 Atom		qt_window_role		= 0;
@@ -217,7 +216,7 @@ Atom		qt_kwin_running	= 0;
 Atom		qt_kwm_running	= 0;
 Atom		qt_gbackground_properties	= 0;
 Atom		qt_x_incr		= 0;
-bool		qt_detected_4dwm	= FALSE;
+bool		qt_broken_wm		= FALSE;
 
 // NET WM support
 Atom		qt_net_supported	= 0;
@@ -731,7 +730,7 @@ static void qt_x11_process_intern_atoms()
 
 static bool ignore_settings_change = FALSE;
 
-// read the _QT_SETTINGS_CACHE_3 property and apply the settings to the application
+// apply the settings to the application
 bool QApplication::x11_apply_settings()
 {
     if (! qt_std_pal)
@@ -934,6 +933,9 @@ bool QApplication::x11_apply_settings()
 	}
     }
 
+    qt_broken_wm =
+	settings.readBoolEntry("/qt/brokenWindowManager", FALSE);
+
     if (update_timestamp) {
 	QBuffer stamp;
 	QDataStream s(stamp.buffer(), IO_WriteOnly);
@@ -948,25 +950,6 @@ bool QApplication::x11_apply_settings()
     }
 
     return TRUE;
-}
-
-
-static void qt_x11_detect_4dwm()
-{
-    Atom type;
-    int format;
-    ulong  nitems, after;
-    uchar *data;
-
-    if (XGetWindowProperty(appDpy, appRootWin, qt_4dwm_desks_manager, 0, 1,
-			   FALSE, AnyPropertyType, &type, &format,
-			   &nitems, &after, &data) == Success && nitems) {
-	// detected SGI's 4dwm
-	qt_detected_4dwm = TRUE;
-
-	if (data)
-	    XFree(data);
-    }
 }
 
 
@@ -1650,7 +1633,6 @@ void qt_init_internal( int *argcptr, char **argv,
 	qt_x11_intern_atom( "KWIN_RUNNING", &qt_kwin_running );
 	qt_x11_intern_atom( "KWM_RUNNING", &qt_kwm_running );
 	qt_x11_intern_atom( "GNOME_BACKGROUND_PROPERTIES", &qt_gbackground_properties );
-	qt_x11_intern_atom( "_SGI_DESKS_MANAGER", &qt_4dwm_desks_manager );
 	qt_x11_intern_atom( "_QT_SETTINGS_TIMESTAMP", &qt_settings_timestamp );
 
 	qt_x11_intern_atom( "_NET_SUPPORTED", &qt_net_supported );
@@ -1678,9 +1660,6 @@ void qt_init_internal( int *argcptr, char **argv,
 
 	// Finally create all atoms
 	qt_x11_process_intern_atoms();
-
-	// try to detect 4Dwm to work around a bug...
-	qt_x11_detect_4dwm();
 
 	// initialize NET lists
 	qt_get_net_supported();

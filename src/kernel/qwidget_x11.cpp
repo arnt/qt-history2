@@ -50,7 +50,7 @@
 // NOT REVISED
 
 // defined in qapplication_x11.cpp
-void qt_insert_sip( QWidget*, int, int ); 
+void qt_insert_sip( QWidget*, int, int );
 int  qt_sip_count( QWidget* );
 bool qt_wstate_iconified( WId );
 void qt_updated_rootinfo();
@@ -106,7 +106,7 @@ extern Atom qt_net_wm_window_type_toolbar;
 extern Atom qt_net_wm_window_type_override;
 extern Atom qt_enlightenment_desktop;
 extern Atom qt_net_virtual_roots;
-extern bool qt_detected_4dwm;
+extern bool qt_broken_wm;
 
 // defined in qapplication_x11.cpp
 extern bool qt_net_supports(Atom);
@@ -1748,7 +1748,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     }
 
     if ( isMove ) {
-	if (! qt_detected_4dwm)
+	if (! qt_broken_wm)
 	    // pos() is right according to ICCCM 4.1.5
 	    XMoveResizeWindow( dpy, winid, pos().x(), pos().y(), w, h );
 	else
