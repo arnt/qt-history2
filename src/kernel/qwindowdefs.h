@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#124 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#125 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -222,43 +222,6 @@ const uint WExportFontMetrics	= 0x10000000;
 const uint WExportFontInfo	= 0x20000000;
 const uint WFocusSet		= 0x40000000; // not used any more
 const uint WState_TabToFocus	= 0x80000000;
-
-
-class QFocusData;
-#if defined(_WS_WIN_)
-class QOleDropTarget;
-#endif
-
-// Extra QWidget data
-//  - to minimize memory usage for members that are seldom used.
-
-struct QWExtra {
-    Qt::GUIStyle guistyle;			// GUI Style
-    short    minw, minh;			// minimum size
-    short    maxw, maxh;			// maximum size
-    short    incw, inch;			// size increments
-    QString  caption;				// widget caption
-    QString  iconText;				// widget icon text
-    QPixmap *icon;				// widget icon
-#if defined(_WS_WIN_)
-    HANDLE   winIcon;				// internal Windows icon
-    QOleDropTarget *dropTarget;			// drop target
-#endif
-    QPixmap *bg_pix;				// background pixmap
-    QFocusData *focusData;			// focus data (for TLW)
-#if defined(_WS_X11_)
-    void * xic;
-#endif
-    char     bg_mode;				// background mode
-
-#if defined(_WS_X11_)
-    uint dnd : 1;				// drop enable
-#endif
-    uint sizegrip : 1;				// size grip
-    uint propagateFont: 2;
-    uint propagatePalette: 2;
-};
-
 
 // Raster operations
 

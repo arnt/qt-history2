@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#295 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#296 $
 **
 ** Implementation of QWidget class
 **
@@ -622,15 +622,16 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
     flags = f;
-    focus_proxy = 0;
     extra = 0;					// no extra widget info
     automask = 0;
     polished = 0;
+    propagateFont = 0;
+    propagatePalette = 0;
     lay_out = 0;
     if ( !deferredMoves )			// do it only once
 	initDeferredDicts();
     create();					// platform-dependent init
-    deferMove( frect.topLeft() );
+    deferMove( fpos );
     deferResize( crect.size() );
     if ( isTopLevel() ||			// kludge alert
 	 testWFlags(WState_TabToFocus) ) {	// focus was set using WFlags
@@ -808,6 +809,19 @@ QWExtra *QWidget::extraData()
     return extra;
 }
 
+void QWidget::createTLExtra()
+{
+    if ( !extra )
+	createExtra();
+    if ( !extra->topextra ) {
+	extra->topextra = new QTLWExtra;
+	extra->topextra->icon = 0;
+	extra->topextra->focusData = 0;
+	extra->topextra->fsize = crect.size();
+	extra->topextra->incw = extra->topextra->inch = 0;
+    }
+}
+
 /*!
   \internal
   Creates the widget extra data.
@@ -820,17 +834,16 @@ void QWidget::createExtra()
 	CHECK_PTR( extra );
 	extra->minw = extra->minh = 0;
 	extra->maxw = extra->maxh = QCOORD_MAX;
-	extra->incw = extra->inch = 0;
-	extra->caption = extra->iconText = 0;
-	extra->icon = extra->bg_pix = 0;
+	extra->bg_pix = 0;
+	extra->focus_proxy = 0;
+	extra->curs = 0;
+	extra->topextra = 0;
 	extra->bg_mode = PaletteBackground;
-	extra->focusData = 0;
 	extra->sizegrip = 0;
-	extra->propagateFont = 0;
-	extra->propagatePalette = 0;
 	createSysExtra();
     }
 }
+
 
 /*!
   \internal
@@ -840,10 +853,13 @@ void QWidget::createExtra()
 void QWidget::deleteExtra()
 {
     if ( extra ) {				// if exists
-	delete extra->icon;
 	delete extra->bg_pix;
-	delete extra->focusData;
+	delete extra->curs;
 	deleteSysExtra();
+	if ( extra->topextra ) {
+	    delete extra->topextra->icon;
+	    delete extra->topextra->focusData;
+	}
 	delete extra;
 	// extra->xic destroyed in QWidget::destroy()
 	extra = 0;
@@ -1247,7 +1263,9 @@ QSize QWidget::maximumSize() const
 
 QSize QWidget::sizeIncrement() const
 {
-    return extra ? QSize(extra->incw,extra->inch) : QSize(0,0);
+    return extra && extra->topextra
+	? QSize(extra->topextra->incw,extra->topextra->inch)
+	: QSize(0,0);
 }
 
 
@@ -1823,7 +1841,9 @@ void QWidget::fontChange( const QFont & )
 
 const QCursor &QWidget::cursor() const
 {
-    return curs;
+    return extra && extra->curs
+	? *extra->curs
+	: arrowCursor;
 }
 
 
@@ -1834,7 +1854,9 @@ const QCursor &QWidget::cursor() const
 
 QString QWidget::caption() const
 {
-    return extra ? extra->caption : QString::null;
+    return extra && extra->topextra
+	? extra->topextra->caption
+	: QString::null;
 }
 
 /*!
@@ -1844,7 +1866,9 @@ QString QWidget::caption() const
 
 const QPixmap *QWidget::icon() const
 {
-    return extra ? extra->icon : 0;
+    return extra && extra->topextra
+	? extra->topextra->icon
+	: 0;
 }
 
 /*!
@@ -1854,7 +1878,9 @@ const QPixmap *QWidget::icon() const
 
 QString QWidget::iconText() const
 {
-    return extra ? extra->iconText : QString::null;
+    return extra && extra->topextra
+	? extra->topextra->iconText
+	: QString::null;
 }
 
 
@@ -1907,20 +1933,25 @@ void QWidget::setMouseTracking( bool enable )
 
 void QWidget::setFocusProxy( QWidget * w )
 {
-    if ( focus_proxy )
-	disconnect( focus_proxy, SIGNAL(destroyed()),
+    if ( !w && !extra )
+	return;
+
+    createExtra();
+
+    if ( extra->focus_proxy )
+	disconnect( extra->focus_proxy, SIGNAL(destroyed()),
 		    this, SLOT(focusProxyDestroyed()) );
 
     if ( w ) {
 	w->setFocusPolicy( focusPolicy() );
-	focus_proxy = 0;
+	extra->focus_proxy = 0;
 	setFocusPolicy( NoFocus );
-	focus_proxy = w;
-	connect( focus_proxy, SIGNAL(destroyed()),
+	extra->focus_proxy = w;
+	connect( extra->focus_proxy, SIGNAL(destroyed()),
 		 this, SLOT(focusProxyDestroyed()) );
     } else {
-	QWidget * pfc = focus_proxy;
-	focus_proxy = 0;
+	QWidget * pfc = extra->focus_proxy;
+	extra->focus_proxy = 0;
 	if ( pfc )
 	    setFocusPolicy( pfc->focusPolicy() );
     }
@@ -1934,7 +1965,7 @@ void QWidget::setFocusProxy( QWidget * w )
 
 QWidget * QWidget::focusProxy() const
 {
-    return focus_proxy; // ### watch out for deletes
+    return extra ? extra->focus_proxy : 0; // ### watch out for deletes
 }
 
 
@@ -1944,7 +1975,8 @@ QWidget * QWidget::focusProxy() const
 
 void QWidget::focusProxyDestroyed()
 {
-    focus_proxy = 0;
+    if ( extra )
+	extra->focus_proxy = 0;
     setFocusPolicy( NoFocus );
 }
 
@@ -2156,14 +2188,16 @@ QFocusData * QWidget::focusData( bool create )
 {
     QWidget * tlw = topLevelWidget();
     QWExtra * ed = tlw->extraData();
-    if ( create && !ed ) {
-	tlw->createExtra();
+    if ( !ed || !ed->topextra ) {
+	if ( !create )
+	    return 0;
+	tlw->createTLExtra();
 	ed = tlw->extraData();
     }
-    if ( create && !ed->focusData ) {
-	ed->focusData = new QFocusData;
+    if ( create && !ed->topextra->focusData ) {
+	ed->topextra->focusData = new QFocusData;
     }
-    return ed ? ed->focusData : 0;
+    return ed->topextra->focusData;
 }
 
 /*!
@@ -2249,8 +2283,9 @@ void QWidget::reparentFocusWidgets( QWidget * parent )
 	if ( parent ) {
 	    to = parent->focusData( TRUE );
 	} else {
-	    createExtra();
-	    to = extra->focusData = new QFocusData;
+	    // ################ NOT CURRECT - need focusdata of a TLW!
+	    createTLExtra();
+	    to = extra->topextra->focusData = new QFocusData;
 	}
 
 	do {
@@ -2272,8 +2307,8 @@ void QWidget::reparentFocusWidgets( QWidget * parent )
 	if ( parentObj == 0 ) {
 	    // this widget is no longer a top-level widget, so get rid
 	    // of old focus data
-	    delete extra->focusData;
-	    extra->focusData = 0;
+	    delete extra->topextra->focusData;
+	    extra->topextra->focusData = 0;
 	}
     }
 }
@@ -2285,6 +2320,16 @@ void QWidget::reparentFocusWidgets( QWidget * parent )
 
   The function recreate is renamed to reparent in Qt 2.0.
 */
+
+/*!
+  Returns the size of the window system frame (for top level widgets).
+*/
+QSize QWidget::frameSize() const
+{
+    return extra && extra->topextra
+	? extra->topextra->fsize
+	: crect.size();
+}
 
 /*!
   \internal
@@ -2299,11 +2344,19 @@ void QWidget::reparentFocusWidgets( QWidget * parent )
 
 void QWidget::setFRect( const QRect &r )
 {
-    crect.setLeft( crect.left() + r.left() - frect.left() );
-    crect.setTop( crect.top() + r.top() - frect.top() );
-    crect.setRight( crect.right() + r.right() - frect.right() );
-    crect.setBottom( crect.bottom() + r.bottom() - frect.bottom() );
-    frect = r;
+    if ( extra && extra->topextra ) {
+	QRect frect = frameGeometry();
+	crect.setLeft( crect.left() + r.left() - frect.left() );
+	crect.setTop( crect.top() + r.top() - frect.top() );
+	crect.setRight( crect.right() + r.right() - frect.right() );
+	crect.setBottom( crect.bottom() + r.bottom() - frect.bottom() );
+	fpos = r.topLeft();
+	extra->topextra->fsize = frect.size();
+    } else {
+	// One rect is both the same.
+	fpos = r.topLeft();
+	crect = r;
+    }
 }
 
 /*!
@@ -2319,10 +2372,18 @@ void QWidget::setFRect( const QRect &r )
 
 void QWidget::setCRect( const QRect &r )
 {
-    frect.setLeft( frect.left() + r.left() - crect.left() );
-    frect.setTop( frect.top() + r.top() - crect.top() );
-    frect.setRight( frect.right() + r.right() - crect.right() );
-    frect.setBottom( frect.bottom() + r.bottom() - crect.bottom() );
+    if ( extra && extra->topextra ) {
+	QRect frect;
+	frect.setLeft( frect.left() + r.left() - crect.left() );
+	frect.setTop( frect.top() + r.top() - crect.top() );
+	frect.setRight( frect.right() + r.right() - crect.right() );
+	frect.setBottom( frect.bottom() + r.bottom() - crect.bottom() );
+	fpos = frect.topLeft();
+	extra->topextra->fsize = frect.size();
+    } else {
+	// One rect is both the same.
+	fpos = r.topLeft();
+    }
     crect = r;
 }
 
@@ -3511,7 +3572,7 @@ bool QWidget::x11Event( XEvent * )
 
 QWidget::PropagationMode QWidget::fontPropagation() const
 {
-    return extra ? (PropagationMode)extra->propagateFont : NoChildren;
+    return (PropagationMode)propagateFont;
 }
 
 
@@ -3528,8 +3589,7 @@ QWidget::PropagationMode QWidget::fontPropagation() const
 
 void QWidget::setFontPropagation( PropagationMode m )
 {
-    createExtra();
-    extra->propagateFont = (int)m;
+    propagateFont = (int)m;
 }
 
 
@@ -3542,7 +3602,7 @@ void QWidget::setFontPropagation( PropagationMode m )
 
 QWidget::PropagationMode QWidget::palettePropagation() const
 {
-    return extra ? (PropagationMode)extra->propagatePalette : NoChildren;
+    return (PropagationMode)propagatePalette;
 }
 
 
@@ -3559,8 +3619,7 @@ QWidget::PropagationMode QWidget::palettePropagation() const
 
 void QWidget::setPalettePropagation( PropagationMode m )
 {
-    createExtra();
-    extra->propagatePalette = (int)m;
+    propagatePalette = (int)m;
 }
 
 

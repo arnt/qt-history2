@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#279 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#280 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -165,13 +165,13 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( desktop ) {				// desktop widget
 	modal = popup = FALSE;			// force these flags off
-	frect.setRect( 0, 0, sw, sh );
+	crect.setRect( 0, 0, sw, sh );
     } else if ( topLevel ) {			// calc pos/size from screen
-	frect.setRect( sw/4, 3*sh/10, sw/2, 4*sh/10 );
+	crect.setRect( sw/4, 3*sh/10, sw/2, 4*sh/10 );
     } else {					// child widget
-	frect.setRect( 0, 0, 100, 30 );
+	crect.setRect( 0, 0, 100, 30 );
     }
-    crect = frect;				// default client rect
+    fpos = crect.topLeft();			// default frame rect
 
     parentw = topLevel ? root_win : parentWidget()->winId();
 
@@ -195,8 +195,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     } else {
 	if ( x11DefaultVisual() && x11DefaultColormap() ) {
 	    id = (WId)qt_XCreateSimpleWindow( this, dpy, parentw,
-					 frect.left(), frect.top(),
-					 frect.width(), frect.height(),
+					 crect.left(), crect.top(),
+					 crect.width(), crect.height(),
 					 0,
 					 black.pixel(),
 					 bg_col.pixel() );
@@ -205,8 +205,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    wsa.border_pixel = black.pixel();		
 	    wsa.colormap = (Colormap)x11Colormap();
 	    id = (WId)qt_XCreateWindow( this, dpy, parentw,
-				   frect.left(), frect.top(),
-				   frect.width(), frect.height(),
+				   crect.left(), crect.top(),
+				   crect.width(), crect.height(),
 				   0, x11Depth(), InputOutput,
 				   (Visual*)x11Visual(),
 				   CWBackPixel|CWBorderPixel|CWColormap,
@@ -297,15 +297,15 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     } else if ( topLevel ) {			// set X cursor
 	QCursor *oc = QApplication::overrideCursor();
 	if ( initializeWindow )
-	    XDefineCursor( dpy, winid, oc ? oc->handle() : curs.handle() );
+	    XDefineCursor( dpy, winid, oc ? oc->handle() : cursor().handle() );
 	setWFlags( WCursorSet );
     }
 
     if ( window ) {				// got window from outside
 	XWindowAttributes a;
 	XGetWindowAttributes( dpy, window, &a );
-	frect.setRect( a.x, a.y, a.width, a.height );
-	crect = frect;
+	crect.setRect( a.x, a.y, a.width, a.height );
+	fpos = crect.topLeft();
 	if ( a.map_state == IsUnmapped )
 	    clearWFlags( WState_Visible );
 	else
@@ -314,6 +314,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( destroyw )
 	qt_XDestroyWindow( this, dpy, destroyw );
+
+    dnd = FALSE;
 }
 
 
@@ -446,8 +448,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	XSetWindowBackground( dpy, winid, bgc.pixel() );
     setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
-    if ( capt ) {
-	extra->caption = 0;
+    if ( !capt.isNull() ) {
+	extra->topextra->caption = QString::null;
 	setCaption( capt );
     }
     if ( showIt )
@@ -627,9 +629,12 @@ void QWidget::setBackgroundEmpty()
 
 void QWidget::setCursor( const QCursor &cursor )
 {
-    curs = cursor;
+    if ( !extra && cursor.handle() == arrowCursor.handle() )
+	return;
+    createExtra();
+    extra->curs = new QCursor(cursor);
     QCursor *oc = QApplication::overrideCursor();
-    XDefineCursor( dpy, winid, oc ? oc->handle() : curs.handle() );
+    XDefineCursor( dpy, winid, oc ? oc->handle() : cursor.handle() );
     setWFlags( WCursorSet );
     XFlush( dpy );
 }
@@ -642,11 +647,11 @@ void QWidget::setCursor( const QCursor &cursor )
 
 void QWidget::setCaption( const QString &caption )
 {
-    if ( extra && extra->caption == caption )
+    if ( extra && extra->topextra && extra->topextra->caption == caption )
 	return; // for less flicker
-    createExtra();
-    extra->caption = caption;
-    XStoreName( dpy, winId(), extra->caption );
+    createTLExtra();
+    extra->topextra->caption = caption;
+    XStoreName( dpy, winId(), caption );
 }
 
 /*!
@@ -656,11 +661,11 @@ void QWidget::setCaption( const QString &caption )
 
 void QWidget::setIcon( const QPixmap &pixmap )
 {
-    if ( extra ) {
-	delete extra->icon;
-	extra->icon = 0;
+    if ( extra && extra->topextra ) {
+	delete extra->topextra->icon;
+	extra->topextra->icon = 0;
     } else {
-	createExtra();
+	createTLExtra();
     }
     Pixmap icon_pixmap;
     Pixmap mask_pixmap;
@@ -669,7 +674,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	icon_pixmap = 0;
 	mask_pixmap = 0;
     } else {
-	extra->icon = new QPixmap( pixmap );
+	extra->topextra->icon = new QPixmap( pixmap );
 	icon_pixmap = pixmap.handle();
 	mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
 	mask_pixmap = mask.handle();
@@ -697,9 +702,9 @@ void QWidget::setIcon( const QPixmap &pixmap )
 
 void QWidget::setIconText( const QString &iconText )
 {
-    createExtra();
-    extra->iconText = iconText;
-    XSetIconName( dpy, winId(), extra->iconText );
+    createTLExtra();
+    extra->topextra->iconText = iconText;
+    XSetIconName( dpy, winId(), iconText );
 }
 
 
@@ -1119,10 +1124,12 @@ static void do_size_hints( Display *dpy, WId winid, QWExtra *x, XSizeHints *s )
 	    s->max_width  = x->maxw;
 	    s->max_height = x->maxh;
 	}
-	if ( x->incw > 0 || x->inch > 0 ) {	// add resize increment hints
+	if ( x->topextra &&
+	   (x->topextra->incw > 0 || x->topextra->inch > 0) )
+	{					// add resize increment hints
 	    s->flags |= PResizeInc | PBaseSize;
-	    s->width_inc = x->incw;
-	    s->height_inc = x->inch;
+	    s->width_inc = x->topextra->incw;
+	    s->height_inc = x->topextra->inch;
 	    s->base_width = 0;
 	    s->base_height = 0;
 	}
@@ -1162,15 +1169,21 @@ void QWidget::move( int x, int y )
     QPoint oldp = pos();
     if ( oldp == p )
 	return;
-    QRect  r = frect;
-    r.moveTopLeft( p );
-    setFRect( r );
+    if ( extra && extra->topextra ) {
+	QRect  r = frameGeometry();
+	r.moveTopLeft( p );
+	setFRect( r );
+    } else {
+	// Simple - no frame
+	crect.moveTopLeft(p);
+	fpos = p;
+    }
     internalMove( x, y );
     if ( !isVisible() ) {
 	deferMove( oldp );
     } else {
 	cancelMove();
-	QMoveEvent e( r.topLeft(), oldp );
+	QMoveEvent e( fpos, oldp );
 	QApplication::sendEvent( this, &e );	// send move event immediately
     }
 }
@@ -1440,11 +1453,12 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 
 void QWidget::setSizeIncrement( int w, int h )
 {
-    createExtra();
-    if ( extra->incw == w && extra->inch == h )
+    createTLExtra();
+    QTLWExtra* x = extra->topextra;
+    if ( x->incw == w && x->inch == h )
 	return;
-    extra->incw = w;
-    extra->inch = h;
+    x->incw = w;
+    x->inch = h;
     if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
 	size_hints.flags = 0;
@@ -1642,7 +1656,6 @@ int QWidget::metric( int m ) const
 void QWidget::createSysExtra()
 {
     extra->xic = 0;
-    extra->dnd = FALSE;
 }
 
 void QWidget::deleteSysExtra()
@@ -1660,10 +1673,8 @@ void QWidget::deleteSysExtra()
 
 void QWidget::setAcceptDrops( bool on )
 {
-    createExtra();
-
-    if ( extra->dnd != on ) {
-	extra->dnd = on;
+    if ( dnd != on ) {
+	dnd = on;
 
 	if ( on ) {
 	    QWidget * tlw = topLevelWidget();
@@ -1684,7 +1695,7 @@ void QWidget::setAcceptDrops( bool on )
 */
 bool QWidget::acceptDrops() const
 {
-    return ( extra && extra->dnd );
+    return dnd;
 }
 
 /*!

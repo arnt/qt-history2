@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#176 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#177 $
 **
 ** Definition of QWidget class
 **
@@ -39,6 +39,8 @@
 #endif // QT_H
 
 class QLayout;
+class QWExtra;
+class QFocusData;
 
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {
@@ -69,11 +71,12 @@ public slots:
   // Widget coordinates
 
 public:
-    const QRect &frameGeometry() const;
+    QRect	 frameGeometry() const;
     const QRect &geometry()	const;
     int		 x()		const;
     int		 y()		const;
     QPoint	 pos()		const;
+    QSize	 frameSize()    const;
     QSize	 size()		const;
     int		 width()	const;
     int		 height()	const;
@@ -349,6 +352,7 @@ private:
     virtual void setWinId( WId );
     void	 showWindow();
     void	 hideWindow();
+    void	 createTLExtra();
     void	 createExtra();
     void	 createSysExtra();
     void	 deleteExtra();
@@ -370,18 +374,19 @@ private:
 
     WId		 winid;
     WFlags	 flags;
-    QRect	 frect;
+    QPoint	 fpos;
     QRect	 crect;
     QColor	 bg_col;
     QPalette	 pal;
     QFont	 fnt;
-    QCursor	 curs;
+    QLayout 	*lay_out;
     QWExtra	*extra;
     uint automask : 1;
     uint polished : 1;
+    uint propagateFont: 2;
+    uint propagatePalette: 2;
+    uint dnd : 1; // drop enable
 
-    QWidget	*focus_proxy;
-    QLayout 	*lay_out;
     static void	 createMapper();
     static void	 destroyMapper();
     static QWidgetList	 *wList();
@@ -426,20 +431,20 @@ inline bool QWidget::isDesktop() const
 inline bool QWidget::isEnabled() const
 { return !testWFlags(WState_Disabled); }
 
-inline const QRect &QWidget::frameGeometry() const
-{ return frect; }
+inline QRect QWidget::frameGeometry() const
+{ return QRect(fpos,frameSize()); }
 
 inline const QRect &QWidget::geometry() const
 { return crect; }
 
 inline int QWidget::x() const
-{ return frect.x(); }
+{ return fpos.x(); }
 
 inline int QWidget::y() const
-{ return frect.y(); }
+{ return fpos.y(); }
 
 inline QPoint QWidget::pos() const
-{ return frect.topLeft(); }
+{ return fpos; }
 
 inline QSize QWidget::size() const
 { return crect.size(); }
@@ -549,6 +554,44 @@ inline void QWidget::setWFlags( WFlags f )
 
 inline void QWidget::clearWFlags( WFlags f )
 { flags &= ~f; }
+
+
+// Extra QWidget data
+//  - to minimize memory usage for members that are seldom used.
+//  - top-level widgets have extra extra data to reduce cost further
+
+class QFocusData;
+#if defined(_WS_WIN_)
+class QOleDropTarget;
+#endif
+
+struct QTLWExtra {
+    QString  caption;				// widget caption
+    QString  iconText;				// widget icon text
+    QPixmap *icon;				// widget icon
+    QFocusData *focusData;			// focus data (for TLW)
+    QSize    fsize;				// rect of frame
+    short    incw, inch;			// size increments
+};
+
+struct QWExtra {
+    short    minw, minh;			// minimum size
+    short    maxw, maxh;			// maximum size
+    QPixmap *bg_pix;				// background pixmap
+    QWidget *focus_proxy;
+    QCursor *curs;
+    QTLWExtra *topextra;			// only useful for TLWs
+#if defined(_WS_WIN_)
+    HANDLE   winIcon;				// internal Windows icon
+    QOleDropTarget *dropTarget;			// drop target
+#endif
+#if defined(_WS_X11_)
+    void    *xic;				// XIM Input Context
+#endif
+    char     bg_mode;				// background mode
+    uint sizegrip : 1;				// size grip
+};
+
 
 
 #endif // QWIDGET_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#362 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#363 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2255,7 +2255,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		if (qt_badwindow())
 		    break;
 		
-		QRect *r = &widget->crect;
+		QRect& r = widget->crect;
 		XWindowAttributes *a;
 		if ( a1.x == 0 && a1.y == 0 && (a2.x + a2.y > 0) )
 		    a = &a2;			// typical for mwm, fvwm
@@ -2263,10 +2263,14 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    a = &a1;			// typical for twm, olwm
 		a->x += a2.border_width;
 		a->y += a2.border_width;
-		widget->frect = QRect(QPoint(r->left()	 - a->x,
-					     r->top()	 - a->y),
-				      QPoint(r->right()	 + a->x,
-					     r->bottom() + a->x) );
+		
+	        QRect frect(QPoint(r.left()	- a->x,
+				     r.top()	- a->y),
+			      QPoint(r.right()	+ a->x,
+				     r.bottom() + a->x) );
+		widget->createTLExtra();
+		widget->fpos = frect.topLeft();
+		widget->extra->topextra->fsize = frect.size();
 	    }
 	break;
 
