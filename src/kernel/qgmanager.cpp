@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#16 $
 **
 ** Implementation of QGGeometry class
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#16 $");
 
 
 
@@ -280,7 +280,9 @@ QSerChain::~QSerChain()
 	delete chain.at(i);
     }
     for ( i = 0; i < (int)branches.count(); i++ ) {
-	delete branches.at(i);
+	QBranchData *bd = branches.at(i);
+	delete bd->chain;
+	delete bd;
     }
 }
 
