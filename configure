@@ -1944,6 +1944,11 @@ then
     QTDIR=$relpath $relpath/bin/syncqt -inc $relpath/include
     # when doing shadow builds, make sure we symlink includes there too
     [ "$OPT_SHADOW" = "yes" ] && QTDIR=$relpath $relpath/bin/syncqt -inc $outpath/include
+elif [ "$OPT_SHADOW" = "yes" ]
+then
+    # syncqt doesn't exist, but we are doing a shadow build, so we need to use
+    # the includes from $relpath/include
+    I_FLAGS="$I_FLAGS -I${relpath}/include"
 fi
 
 # build qmake
