@@ -2552,12 +2552,12 @@ void QWSServer::openKeyboard()
     closeKeyboard();
     if ( keyboards == "None" )
 	return;
+    QString device;
+    QString type;
 #ifndef QT_NO_STRINGLIST
     QStringList keyboard = QStringList::split(" ",keyboards);
     for (QStringList::Iterator k=keyboard.begin(); k!=keyboard.end(); ++k) {
 	QString spec = *k;
-	QString device;
-	QString type;
 	int colon=spec.find(':');
 	if ( colon>=0 ) {
 	    type = spec.left(colon-1);
@@ -2569,7 +2569,14 @@ void QWSServer::openKeyboard()
 	keyboardhandlers.append(kh);
     }
 #else
-    QWSKeyboardHandler* kh = QKbdDriverFactory::create(keyboards); //assume only one
+    int colon=keyboards.find(':');
+    if ( colon>=0 ) {
+	type = keyboards.left(colon-1);
+	device = keyboards.mid(colon);
+    } else {
+	type = keyboards;
+    }
+    QWSKeyboardHandler* kh = QKbdDriverFactory::create(type, device); //assume only one
     keyboardhandlers.append(kh);
 #endif
 }
