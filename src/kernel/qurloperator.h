@@ -30,7 +30,6 @@
 #include "qobject.h"
 #include "qurl.h"
 #include "qlist.h"
-#include "qvaluelist.h"
 #include "qnetworkprotocol.h"
 #endif // QT_H
 
@@ -58,7 +57,7 @@ public:
     virtual const QNetworkOperation *get( const QString &location = QString::null );
     virtual const QNetworkOperation *put( const QByteArray &data, const QString &location = QString::null  );
     virtual QList<QNetworkOperation> copy( const QString &from, const QString &to, bool move = FALSE );
-    virtual QValueList< QList<QNetworkOperation> > copy( const QStringList &files, const QString &dest,
+    virtual QList<QNetworkOperation> copy( const QStringList &files, const QString &dest,
 							 bool move = FALSE );
     virtual bool isDir( bool *ok = 0 );
 
@@ -69,16 +68,6 @@ public:
 
     QUrlOperator& operator=( const QUrlOperator &url );
     QUrlOperator& operator=( const QString &url );
-
-public slots:
-    void emitNewChild( const QUrlInfo &, QNetworkOperation *res );
-    void emitFinished( QNetworkOperation *res );
-    void emitStart( QNetworkOperation *res );
-    void emitCreatedDirectory( const QUrlInfo &, QNetworkOperation *res );
-    void emitRemoved( QNetworkOperation *res );
-    void emitItemChanged( QNetworkOperation *res );
-    void emitData( const QByteArray &, QNetworkOperation *res );
-    void emitDataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *res );
 
 signals:
     void newChild( const QUrlInfo &, QNetworkOperation *res );
@@ -100,54 +89,12 @@ protected:
     void deleteNetworkProtocol();
 
 private slots:
-    void getGotData( const QByteArray &data, QNetworkOperation *op );
-    void finishedGet( QNetworkOperation *op );
+    void copyGotData( const QByteArray &data, QNetworkOperation *op );
+    void continueCopy( QNetworkOperation *op );
 
 private:
     QUrlOperatorPrivate *d;
 
 };
-
-inline void QUrlOperator::emitNewChild( const QUrlInfo &i, QNetworkOperation *res )
-{
-    addEntry( i );
-    emit newChild( i, res );
-}
-
-inline void QUrlOperator::emitStart( QNetworkOperation *res )
-{
-    emit start( res );
-}
-
-inline void QUrlOperator::emitCreatedDirectory( const QUrlInfo &i, QNetworkOperation *res )
-{
-    emit createdDirectory( i, res );
-}
-
-inline void QUrlOperator::emitRemoved( QNetworkOperation *res )
-{
-    emit removed( res );
-}
-
-inline void QUrlOperator::emitItemChanged( QNetworkOperation *res )
-{
-    emit itemChanged( res );
-}
-
-inline void QUrlOperator::emitDataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *res )
-{
-    emit dataTransferProgress( bytesDone, bytesTotal, res );
-}
-
-inline void QUrlOperator::emitFinished( QNetworkOperation *res )
-{
-    emit finished( res );
-}
-
-
-inline void QUrlOperator::emitData( const QByteArray &dat, QNetworkOperation *res )
-{
-    emit data( dat, res );
-}
 
 #endif

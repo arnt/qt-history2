@@ -190,54 +190,6 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrlOperator::emitNewChild( const QUrlInfo &, QNetworkOperation *op );
-
-  Emits the signal newChild()
-*/
-
-/*!
-  \fn void QUrlOperator::emitStart( QNetworkOperation *op )
-
-  Emits the signal start()
-*/
-
-/*!
-  \fn void QUrlOperator::emitCreatedDirectory( const QUrlInfo &, QNetworkOperation *op )
-
-  Emits the signal createdDirectory()
-*/
-
-/*!
-  \fn void QUrlOperator::emitRemoved( QNetworkOperation *op )
-
-  Emits the signal removed()
-*/
-
-/*!
-  \fn void QUrlOperator::emitItemChanged( QNetworkOperation *op )
-
-  Emits the signal itemChanged()
-*/
-
-/*!
-  \fn void QUrlOperator::emitDataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation * )
-
-  Emits the signal dataTransferProgress()
-*/
-
-/*!
-  \fn void QUrlOperator::emitFinished( QNetworkOperation * )
-
-  Emits the signal finished()
-*/
-
-/*!
-  \fn void QUrlOperator::emitData( const QByteArray &, QNetworkOperation * )
-
-  Emits the signal data()
-*/
-
-/*!
   \reimp
 */
 
@@ -535,13 +487,13 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
     if ( gProt && ( gProt->supportedOperations() & QNetworkProtocol::OpGet ) &&
 	 ( gProt->supportedOperations() & QNetworkProtocol::OpPut ) ) {
 	connect( gProt, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
-		 this, SLOT( getGotData( const QByteArray &, QNetworkOperation * ) ) );
+		 this, SLOT( copyGotData( const QByteArray &, QNetworkOperation * ) ) );
 	connect( gProt, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
-		 this, SLOT( emitDataTransferProgress( int, int, QNetworkOperation * ) ) );
+		 this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
 	connect( gProt, SIGNAL( finished( QNetworkOperation * ) ),
-		 this, SLOT( finishedGet( QNetworkOperation * ) ) );
+		 this, SLOT( continueCopy( QNetworkOperation * ) ) );
 	connect( gProt, SIGNAL( finished( QNetworkOperation * ) ),
-		 this, SLOT( emitFinished( QNetworkOperation * ) ) );
+		 this, SIGNAL( finished( QNetworkOperation * ) ) );
 	gProt->setAutoDelete( TRUE );
 	QNetworkOperation *opGet = new QNetworkOperation( QNetworkProtocol::OpGet,
 							  frm, QString::null, QString::null );
@@ -555,9 +507,9 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
 	pProt->setUrl( u2 );
 	
 	connect( pProt, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
-		 this, SLOT( emitDataTransferProgress( int, int, QNetworkOperation * ) ) );
+		 this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
 	connect( pProt, SIGNAL( finished( QNetworkOperation * ) ),
-		 this, SLOT( emitFinished( QNetworkOperation * ) ) );
+		 this, SIGNAL( finished( QNetworkOperation * ) ) );
 
 	d->getOpPutProtMap.insert( (void*)opGet, pProt );
 	d->getOpGetProtMap.insert( (void*)opGet, gProt );
@@ -597,16 +549,21 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
   operation was successful or not.
 
   Each single copy operation returns a list of network operations (see above for details)
-  So this method returns a value list of all lists of copy operations.
+  So this method returns a list which is concatenation of all these lists.
 */
 
-QValueList< QList<QNetworkOperation> > QUrlOperator::copy( const QStringList &files, const QString &dest,
+QList<QNetworkOperation> QUrlOperator::copy( const QStringList &files, const QString &dest,
 							   bool move )
 {
     QStringList::ConstIterator it = files.begin();
-    QValueList< QList<QNetworkOperation> > ops;
-    for ( ; it != files.end(); ++it )
-	ops.append( copy( *it, dest, move ) );
+    QList<QNetworkOperation> ops;
+    ops.setAutoDelete( FALSE );
+    for ( ; it != files.end(); ++it ) {
+	QList<QNetworkOperation> lst = copy( *it, dest, move );
+	lst.setAutoDelete( FALSE );
+	for ( QNetworkOperation *op = lst.first(); op; op = lst.next() )
+	    ops.append( op );
+    }
     return ops;
 }
 
@@ -777,7 +734,7 @@ const QNetworkOperation *QUrlOperator::put( const QByteArray &data, const QStrin
 
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpPut,
 						    u, QString::null, QString::null );
-    res->setRawArg2( data );
+    res->setRawArg( 1, data );
 
     if ( d->networkProtocol &&
 	 d->networkProtocol->supportedOperations() & QNetworkProtocol::OpGet ) {
@@ -989,24 +946,24 @@ bool QUrlOperator::checkValid()
   \internal
 */
 
-void QUrlOperator::getGotData( const QByteArray &data, QNetworkOperation *op )
+void QUrlOperator::copyGotData( const QByteArray &data_, QNetworkOperation *op )
 {
     QNetworkOperation *put = d->getOpPutOpMap[ (void*)op ];
     if ( put ) {
 	QByteArray s;
-	s.resize( put->rawArg2().size() + data.size() );
-	memcpy( s.data(), put->rawArg2().data(), put->rawArg2().size() );
-	memcpy( s.data() + put->rawArg2().size(), data.data(), data.size() );
- 	put->setRawArg2( s );
+	s.resize( put->rawArg( 1 ).size() + data_.size() );
+	memcpy( s.data(), put->rawArg( 1 ).data(), put->rawArg( 1 ).size() );
+	memcpy( s.data() + put->rawArg( 1 ).size(), data_.data(), data_.size() );
+ 	put->setRawArg( 1, s );
     }
-    emitData( data, op );
+    emit data( data_, op );
 }
 
 /*!
   \internal
 */
 
-void QUrlOperator::finishedGet( QNetworkOperation *op )
+void QUrlOperator::continueCopy( QNetworkOperation *op )
 {
     if ( op->operation() != QNetworkProtocol::OpGet )
 	return;
@@ -1028,7 +985,7 @@ void QUrlOperator::finishedGet( QNetworkOperation *op )
     if ( rm && gProt )
  	gProt->addOperation( rm );
     disconnect( gProt, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
-		this, SLOT( getGotData( const QByteArray &, QNetworkOperation * ) ) );
+		this, SLOT( copyGotData( const QByteArray &, QNetworkOperation * ) ) );
     disconnect( gProt, SIGNAL( finished( QNetworkOperation * ) ),
-		this, SLOT( finishedGet( QNetworkOperation * ) ) );
+		this, SLOT( continueCopy( QNetworkOperation * ) ) );
 }

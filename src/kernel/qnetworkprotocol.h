@@ -93,22 +93,22 @@ public:
 	// no error
 	NoError = 0,
 	// general errors
-	ErrValid = -1,
-	ErrUnknownProtocol = -2,
-	ErrUnsupported = -3,
-	ErrParse = -4,
+	ErrValid,
+	ErrUnknownProtocol,
+	ErrUnsupported,
+	ErrParse,
 	// errors on connect
-	ErrLoginIncorrect = -5,
-	ErrHostNotFound = -6,
+	ErrLoginIncorrect,
+	ErrHostNotFound,
 	// protocol errors
-	ErrListChlidren = -7,
-	ErrMkdir = -8,
-	ErrRemove = -9,
-	ErrRename = -10,
-	ErrGet = -11,
-	ErrPut = -12,
-	ErrFileNotExisting = -13,
-	ErrPermissionDenied = -14
+	ErrListChlidren,
+	ErrMkdir,
+	ErrRemove,
+	ErrRename,
+	ErrGet,
+	ErrPut,
+	ErrFileNotExisting,
+	ErrPermissionDenied
     };
 
     QNetworkProtocol();
@@ -159,14 +159,6 @@ private slots:
     void processNextOperation( QNetworkOperation *old );
     void startOps();
 
-    void emitNewChild( const QUrlInfo &, QNetworkOperation *res );
-    void emitFinished( QNetworkOperation *res );
-    void emitStart( QNetworkOperation *res );
-    void emitCreatedDirectory( const QUrlInfo &, QNetworkOperation *res );
-    void emitRemoved( QNetworkOperation *res );
-    void emitItemChanged( QNetworkOperation *res );
-    void emitData( const QByteArray &, QNetworkOperation *res );
-    void emitDataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *res );
     void removeMe();
 
 };
@@ -176,31 +168,23 @@ class Q_EXPORT QNetworkOperation
 {
 public:
     QNetworkOperation( QNetworkProtocol::Operation operation,
-		    const QString &arg1, const QString &arg2,
-		    const QString &arg3 );
+		    const QString &arg0, const QString &arg1,
+		    const QString &arg2 );
     QNetworkOperation( QNetworkProtocol::Operation operation,
-		    const QByteArray &arg1, const QByteArray &arg2,
-		    const QByteArray &arg3 );
+		    const QByteArray &arg0, const QByteArray &arg1,
+		    const QByteArray &arg2 );
     ~QNetworkOperation();
 
     void setState( QNetworkProtocol::State state );
     void setProtocolDetail( const QString &detail );
     void setErrorCode( int ec );
-    void setArg1( const QString &arg );
-    void setArg2( const QString &arg );
-    void setArg3( const QString &arg );
-    void setRawArg1( const QByteArray &arg );
-    void setRawArg2( const QByteArray &arg );
-    void setRawArg3( const QByteArray &arg );
+    void setArg( int num, const QString &arg );
+    void setRawArg( int num, const QByteArray &arg );
 
     QNetworkProtocol::Operation operation() const;
     QNetworkProtocol::State state() const;
-    QString arg1() const;
-    QString arg2() const;
-    QString arg3() const;
-    QByteArray rawArg1() const;
-    QByteArray rawArg2() const;
-    QByteArray rawArg3() const;
+    QString arg( int num ) const;
+    QByteArray rawArg( int num ) const;
     QString protocolDetail() const;
     int errorCode() const;
 

@@ -127,9 +127,9 @@ void QFtp::operationListChildren( QNetworkOperation *op )
 void QFtp::operationMkDir( QNetworkOperation *op )
 {
     op->setState( StInProgress );
-    QString cmd( "MKD " + op->arg1() + "\r\n" );
-    if ( QUrl::isRelativeUrl( op->arg1() ) )
-	cmd = "MKD " + QUrl( *url(), op->arg1() ).path() + "\r\n";
+    QString cmd( "MKD " + op->arg( 0 ) + "\r\n" );
+    if ( QUrl::isRelativeUrl( op->arg( 0 ) ) )
+	cmd = "MKD " + QUrl( *url(), op->arg( 0 ) ).path() + "\r\n";
     commandSocket->writeBlock( cmd, cmd.length() );
 }
 
@@ -408,7 +408,7 @@ void QFtp::readyRead()
 #ifdef QFTP_DEBUG
     qDebug( "QFtp: readyRead; %s", s.data() );
 #endif
-    
+
     if ( s.left( 1 ) == "1" )
 	okButTryLater( code, s );
     else if ( s.left( 1 ) == "2" )
@@ -463,7 +463,7 @@ void QFtp::okGoOn( int code, const QCString &data )
 		startGetOnFail = TRUE;
 		getTotalSize = -1;
 		getDoneSize = 0;
-		QString cmd = "SIZE "+ QUrl( operationInProgress()->arg1() ).path() + "\r\n";
+		QString cmd = "SIZE "+ QUrl( operationInProgress()->arg( 0 ) ).path() + "\r\n";
 		commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 	    }
 	}
@@ -520,8 +520,8 @@ void QFtp::okGoOn( int code, const QCString &data )
 		    operationInProgress()->operation() == OpRename ) { // rename successfull
 	    if ( operationInProgress()->state() == StWaiting ) {
 		operationInProgress()->setState( StInProgress );
-		QString oldname = operationInProgress()->arg1();
-		QString newname = operationInProgress()->arg2();
+		QString oldname = operationInProgress()->arg( 0 );
+		QString newname = operationInProgress()->arg( 1 );
 		QString cmd( "RNFR " + oldname + "\r\n" );
 		commandSocket->writeBlock( cmd, cmd.length() );
 		cmd = "RNTO " + newname + "\r\n";
@@ -535,7 +535,7 @@ void QFtp::okGoOn( int code, const QCString &data )
 		    operationInProgress()->operation() == OpRemove ) { // remove or cwd successful
 	    if ( operationInProgress()->state() == StWaiting ) {
 		operationInProgress()->setState( StInProgress );
-		QString name = QUrl( operationInProgress()->arg1() ).path();
+		QString name = QUrl( operationInProgress()->arg( 0 ) ).path();
 		QString cmd( "DELE " + name + "\r\n" );
 		commandSocket->writeBlock( cmd, cmd.length() );
 	    } else {
@@ -551,7 +551,7 @@ void QFtp::okGoOn( int code, const QCString &data )
 	if ( operationInProgress() && operationInProgress()->operation() == OpMkdir ) {
 	    operationInProgress()->setState( StDone );
 	    // ######## todo get correct info
-	    QUrlInfo inf( operationInProgress()->arg1(), 0, "", "", 0, QDateTime(),
+	    QUrlInfo inf( operationInProgress()->arg( 0 ), 0, "", "", 0, QDateTime(),
 			  QDateTime(), TRUE, FALSE, FALSE, TRUE, TRUE, TRUE );
 	    emit newChild( inf, operationInProgress() );
 	    emit createdDirectory( inf, operationInProgress() );
@@ -679,30 +679,30 @@ void QFtp::dataConnected()
 	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
     } break;
     case OpGet: { // retrieve file
-	if ( !operationInProgress() || operationInProgress()->arg1().isEmpty() ) {
+	if ( !operationInProgress() || operationInProgress()->arg( 0 ).isEmpty() ) {
 	    qWarning( "no filename" );
 	    break;
 	}
-	QString cmd = "RETR " + QUrl( operationInProgress()->arg1() ).path() + "\r\n";
+	QString cmd = "RETR " + QUrl( operationInProgress()->arg( 0 ) ).path() + "\r\n";
 	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 	emit dataTransferProgress( 0, getTotalSize, operationInProgress() );
     } break;
     case OpPut: { // upload file
-	if ( !operationInProgress() || operationInProgress()->arg1().isEmpty() ) {
+	if ( !operationInProgress() || operationInProgress()->arg( 0 ).isEmpty() ) {
 	    qWarning( "no filename" );
 	    break;
 	}
-	QString cmd = "STOR " + QUrl( operationInProgress()->arg1() ).path() + "\r\n";
+	QString cmd = "STOR " + QUrl( operationInProgress()->arg( 0 ) ).path() + "\r\n";
 	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
-	if ( operationInProgress()->rawArg2().size() <= QFTP_MAX_BYTES ) {
+	if ( operationInProgress()->rawArg( 1 ).size() <= QFTP_MAX_BYTES ) {
 	    if ( dataSocket && dataSocket->isOpen() ) {
-		putToWrite = operationInProgress()->rawArg2().size();
+		putToWrite = operationInProgress()->rawArg( 1 ).size();
 		putWritten = 0;
 		putOffset = 0;
-		emit dataTransferProgress( 0, operationInProgress()->rawArg2().size(),
+		emit dataTransferProgress( 0, operationInProgress()->rawArg( 1 ).size(),
 					   operationInProgress() );
-		dataSocket->writeBlock( operationInProgress()->rawArg2(),
-					operationInProgress()->rawArg2().size() );
+		dataSocket->writeBlock( operationInProgress()->rawArg( 1 ),
+					operationInProgress()->rawArg( 1 ).size() );
 		putOffset += putToWrite;
 	    }
 	} else {
@@ -710,9 +710,9 @@ void QFtp::dataConnected()
 		putOffset = 0;
 		putToWrite = QFTP_MAX_BYTES;
 		putWritten = 0;
-		emit dataTransferProgress( 0, operationInProgress()->rawArg2().size(),
+		emit dataTransferProgress( 0, operationInProgress()->rawArg( 1 ).size(),
 					   operationInProgress() );
-		dataSocket->writeBlock( operationInProgress()->rawArg2(), QFTP_MAX_BYTES );
+		dataSocket->writeBlock( operationInProgress()->rawArg( 1 ), QFTP_MAX_BYTES );
 		putOffset += QFTP_MAX_BYTES;
 	    }
 	}
@@ -795,7 +795,7 @@ void QFtp::dataBytesWritten( int nbytes )
 	    return;
 
 	putWritten = 0;
-	QByteArray ba( operationInProgress()->rawArg2() );
+	QByteArray ba( operationInProgress()->rawArg( 1 ) );
 	if ( putOffset + QFTP_MAX_BYTES < ba.size() - 1 ) {
 	    emit dataTransferProgress( putOffset, ba.size(), operationInProgress() );
 	    dataSocket->writeBlock( &ba.data()[ putOffset ], QFTP_MAX_BYTES );

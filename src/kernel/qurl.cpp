@@ -103,10 +103,10 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 
   \code
   QUrl u( "http://www.troll.no" );
-  QString trollHome = u;
+  QString s = u;
   // or
-  QString trollHome( "http://www.troll.no" );
-  QUrl u( trollHome );
+  QString s( "http://www.troll.no" );
+  QUrl u( s );
   \endcode
 
   If you want to use an URL to work on a hirarchical structures
@@ -145,7 +145,7 @@ QUrl::QUrl( const QString& url )
 }
 
 /*!
-  Copy constructor. Copies the data or \url.
+  Copy constructor. Copies the data or \a url.
 */
 
 QUrl::QUrl( const QUrl& url )
@@ -669,8 +669,8 @@ bool QUrl::parse( const QString& url )
 #if defined(_OS_WIN32_)
     // hack for windows file://machine/path syntax
     if ( d->protocol == "file" ) { 	
-	if ( url.left( 7 ) == "file://" && 
-	     ( d->path.length() < 8 || d->path[ 7 ] != '/' ) && 
+	if ( url.left( 7 ) == "file://" &&
+	     ( d->path.length() < 8 || d->path[ 7 ] != '/' ) &&
 	     d->path[ 1 ] != '/' )
 	    d->path.prepend( "/" );
     }

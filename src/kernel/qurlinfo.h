@@ -39,6 +39,8 @@ class Q_EXPORT QUrlInfo
 {
 public:
     QUrlInfo();
+    QUrlInfo( const QUrlOperator &path, const QString &file );
+    QUrlInfo( const QUrlInfo &ui );
     QUrlInfo( const QString &name, int permissions, const QString &owner,
 	      const QString &group, uint size, const QDateTime &lastModified,
 	      const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
@@ -47,8 +49,6 @@ public:
 	      const QString &group, uint size, const QDateTime &lastModified,
 	      const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
 	      bool isWritable, bool isReadable, bool isExecutable );
-    QUrlInfo( const QUrlOperator &path, const QString &file );
-    QUrlInfo( const QUrlInfo &ui );
     QUrlInfo &operator=( const QUrlInfo &ui );
     virtual ~QUrlInfo();
 
@@ -63,7 +63,7 @@ public:
     virtual void setReadable( bool b );
     virtual void setPermissions( int p );
     virtual void setLastModified( const QDateTime &dt );
-    
+
     QString name() const;
     int permissions() const;
     QString owner() const;

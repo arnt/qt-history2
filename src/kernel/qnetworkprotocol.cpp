@@ -27,6 +27,7 @@
 #include "qlocalfs.h"
 #include "qurloperator.h"
 #include "qtimer.h"
+#include "qmap.h"
 
 QNetworkProtocolDict *qNetworkProtocolRegister = 0;
 
@@ -257,21 +258,21 @@ struct QNetworkProtocolPrivate
   of the operation returns an error code, which is one of following values:
 
   <ul>
-  <li>\c NoError (0) - No error occured
-  <li>\c ErrValid (-1) - The URL you are operating on is not valid
-  <li>\c ErrUnknownProtocol (-2) - There is no protocol implementation available for the protocol of the URL you are operating on (e.g. if the protocol is http and no http implementation has been registered)
-  <li>\c ErrUnsupported (-3) - The operation is not supported by the protocol
-  <li>\c ErrParse (-4) - Parse error of the URL
-  <li>\c ErrLoginIncorrect (-5) - You needed to login but the username and or password are wrong
-  <li>\c ErrHostNotFound (-6) - The specified host (in the URL) couldn´t be found
-  <li>\c ErrListChlidren (-7) - An error occured while listing the children
-  <li>\c ErrMkdir (-8) - An error occured when creating a directory
-  <li>\c ErrRemove (-9) -An error occured while removing a child
-  <li>\c ErrRename (-10) - An error occured while renaming a child
-  <li>\c ErrGet (-11) - An error occured while getting (retrieving) data
-  <li>\c ErrPut (-12) - An error occured while putting (uploading) data
-  <li>\c ErrFileNotExisting (-13) - A file which is needed by the operation doesn't exist
-  <li>\c ErrPermissionDenied (-14) - The permission for doing the operation has been denied
+  <li>\c NoError - No error occured
+  <li>\c ErrValid - The URL you are operating on is not valid
+  <li>\c ErrUnknownProtocol - There is no protocol implementation available for the protocol of the URL you are operating on (e.g. if the protocol is http and no http implementation has been registered)
+  <li>\c ErrUnsupported - The operation is not supported by the protocol
+  <li>\c ErrParse - Parse error of the URL
+  <li>\c ErrLoginIncorrect - You needed to login but the username and or password are wrong
+  <li>\c ErrHostNotFound - The specified host (in the URL) couldn´t be found
+  <li>\c ErrListChlidren - An error occured while listing the children
+  <li>\c ErrMkdir - An error occured when creating a directory
+  <li>\c ErrRemove - An error occured while removing a child
+  <li>\c ErrRename  - An error occured while renaming a child
+  <li>\c ErrGet - An error occured while getting (retrieving) data
+  <li>\c ErrPut - An error occured while putting (uploading) data
+  <li>\c ErrFileNotExisting - A file which is needed by the operation doesn't exist
+  <li>\c ErrPermissionDenied - The permission for doing the operation has been denied
   </ul>
 
   When implementing custom network protocols, you should also use these
@@ -302,23 +303,25 @@ QNetworkProtocol::QNetworkProtocol()
     connect( d->removeTimer, SIGNAL( timeout() ),
 	     this, SLOT( removeMe() ) );
 
-    connect( this, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
-	     this, SLOT( emitData( const QByteArray &, QNetworkOperation * ) ) );
-    connect( this, SIGNAL( finished( QNetworkOperation * ) ),
-	     this, SLOT( emitFinished( QNetworkOperation * ) ) );
-    connect( this, SIGNAL( start( QNetworkOperation * ) ),
-	     this, SLOT( emitStart( QNetworkOperation * ) ) );
-    connect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
-	     this, SLOT( emitNewChild( const QUrlInfo &, QNetworkOperation * ) ) );
-    connect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
-	     this, SLOT( emitCreatedDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
-    connect( this, SIGNAL( removed( QNetworkOperation * ) ),
-	     this, SLOT( emitRemoved( QNetworkOperation * ) ) );
-    connect( this, SIGNAL( itemChanged( QNetworkOperation * ) ),
-	     this, SLOT( emitItemChanged( QNetworkOperation * ) ) );
-    connect( this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
-	     this, SLOT( emitDataTransferProgress( int, int, QNetworkOperation * ) ) );
-
+    if ( url() ) {
+	connect( this, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
+		 url(), SIGNAL( data( const QByteArray &, QNetworkOperation * ) ) );
+	connect( this, SIGNAL( finished( QNetworkOperation * ) ),
+		 url(), SIGNAL( finished( QNetworkOperation * ) ) );
+	connect( this, SIGNAL( start( QNetworkOperation * ) ),
+		 url(), SIGNAL( start( QNetworkOperation * ) ) );
+	connect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
+		 url(), SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ) );
+	connect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
+		 url(), SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
+	connect( this, SIGNAL( removed( QNetworkOperation * ) ),
+		 url(), SIGNAL( removed( QNetworkOperation * ) ) );
+	connect( this, SIGNAL( itemChanged( QNetworkOperation * ) ),
+		 url(), SIGNAL( itemChanged( QNetworkOperation * ) ) );
+	connect( this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
+		 url(), SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
+    }
+    
     connect( this, SIGNAL( finished( QNetworkOperation * ) ),
 	     this, SLOT( processNextOperation( QNetworkOperation * ) ) );
 
@@ -353,7 +356,46 @@ QNetworkProtocol::~QNetworkProtocol()
 
 void QNetworkProtocol::setUrl( QUrlOperator *u )
 {
+    if ( url() ) {
+	disconnect( this, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
+		    url(), SIGNAL( data( const QByteArray &, QNetworkOperation * ) ) );
+	disconnect( this, SIGNAL( finished( QNetworkOperation * ) ),
+		    url(), SIGNAL( finished( QNetworkOperation * ) ) );
+	disconnect( this, SIGNAL( start( QNetworkOperation * ) ),
+		    url(), SIGNAL( start( QNetworkOperation * ) ) );
+	disconnect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
+		    url(), SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ) );
+	disconnect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
+		    url(), SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
+	disconnect( this, SIGNAL( removed( QNetworkOperation * ) ),
+		    url(), SIGNAL( removed( QNetworkOperation * ) ) );
+	disconnect( this, SIGNAL( itemChanged( QNetworkOperation * ) ),
+		    url(), SIGNAL( itemChanged( QNetworkOperation * ) ) );
+	disconnect( this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
+		    url(), SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
+    }
+
     d->url = u;
+    
+    if ( url() ) {
+	connect( this, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
+		 url(), SIGNAL( data( const QByteArray &, QNetworkOperation * ) ) );
+	connect( this, SIGNAL( finished( QNetworkOperation * ) ),
+		 url(), SIGNAL( finished( QNetworkOperation * ) ) );
+	connect( this, SIGNAL( start( QNetworkOperation * ) ),
+		 url(), SIGNAL( start( QNetworkOperation * ) ) );
+	connect( this, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
+		 url(), SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ) );
+	connect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
+		 url(), SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
+	connect( this, SIGNAL( removed( QNetworkOperation * ) ),
+		 url(), SIGNAL( removed( QNetworkOperation * ) ) );
+	connect( this, SIGNAL( itemChanged( QNetworkOperation * ) ),
+		 url(), SIGNAL( itemChanged( QNetworkOperation * ) ) );
+	connect( this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
+		 url(), SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
+    }
+
     if ( !d->opInProgress && !d->operationQueue.isEmpty() )
 	d->opStartTimer->start( 1, TRUE );
 }
@@ -752,94 +794,12 @@ void QNetworkProtocol::removeMe()
     }
 }
 
-/*!
-  Emits the signal newChild()
-*/
-
-void QNetworkProtocol::emitNewChild( const QUrlInfo &i, QNetworkOperation *res )
-{
-    if ( url() )
-	url()->emitNewChild( i, res );
-}
-
-/*!
-  Emits the signal finished()
-*/
-
-void QNetworkProtocol::emitFinished( QNetworkOperation *res )
-{
-    if ( url() )
-	url()->emitFinished( res );
-}
-
-/*!
-  Emits the signal start()
-*/
-
-void QNetworkProtocol::emitStart( QNetworkOperation *res )
-{
-    if ( url() )
-	url()->emitStart( res );
-}
-
-/*!
-  Emits the signal createdDirectory()
-*/
-
-void QNetworkProtocol::emitCreatedDirectory( const QUrlInfo &i, QNetworkOperation *res )
-{
-    if ( url() )
-	url()->emitCreatedDirectory( i, res );
-}
-
-/*!
-  Emits the signal removed()
-*/
-
-void QNetworkProtocol::emitRemoved( QNetworkOperation *res )
-{
-    if ( url() )
-	url()->emitRemoved( res );
-}
-
-/*!
-  Emits the signal itemChanged()
-*/
-
-void QNetworkProtocol::emitItemChanged( QNetworkOperation *res )
-{
-    if ( url() )
-	url()->emitItemChanged( res );
-}
-
-/*!
-  Emits the signal data()
-*/
-
-void QNetworkProtocol::emitData( const QByteArray &d, QNetworkOperation *res )
-{
-    if ( url() )
-	url()->emitData( d, res );
-}
-
-/*!
-  Emits the signal dataTransferProgress()
-*/
-
-void QNetworkProtocol::emitDataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *res )
-{
-    if ( url() )
-	url()->emitDataTransferProgress( bytesDone, bytesTotal, res );
-}
-
-
-
 struct QNetworkOperationPrivate
 {
     QNetworkProtocol::Operation operation;
     QNetworkProtocol::State state;
-    QString arg1, arg2, arg3;
-    QByteArray rawArg1, rawArg2, rawArg3;
+    QMap<int, QString> args;
+    QMap<int, QByteArray> rawArgs;
     QString protocolDetail;
     int errorCode;
 };
@@ -859,48 +819,48 @@ struct QNetworkOperationPrivate
 
 /*!
   Creates a network operation object. \a operation is the type
-  of the operation, \a arg1, \a arg2 and  \a arg3 are the arguments
-  of the operation.
+  of the operation, \a arg0, \a arg1 and  \a arg2 are the
+  first three arguments of the operation.
   The state is initialized to QNetworkProtocol::StWaiting.
 */
 
 QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
-				      const QString &arg1, const QString &arg2,
-				      const QString &arg3 )
+				      const QString &arg0, const QString &arg1,
+				      const QString &arg2 )
 {
     d = new QNetworkOperationPrivate;
     d->operation = operation;
     d->state = QNetworkProtocol::StWaiting;
-    d->arg1 = arg1;
-    d->arg2 = arg2;
-    d->arg3 = arg3;
-    d->rawArg1 = 0;
-    d->rawArg2 = 0;
-    d->rawArg3 = 0;
+    d->args[ 0 ] = arg0;
+    d->args[ 1 ] = arg1;
+    d->args[ 2 ] = arg2;
+    d->rawArgs[ 0 ] = 0;
+    d->rawArgs[ 1 ] = 0;
+    d->rawArgs[ 2 ] = 0;
     d->protocolDetail = QString::null;
     d->errorCode = (int)QNetworkProtocol::NoError;
 }
 
 /*!
   Creates a network operation object. \a operation is the type
-  of the operation, \a arg1, \a arg2 and  \a arg3 are the arguments
-  of the operation in raw data.
+  of the operation, \a arg0, \a arg1 and  \a arg2 are the first three
+  raw data arguments of the operation.
   The state is initialized to QNetworkProtocol::StWaiting.
 */
 
 QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
-				      const QByteArray &arg1, const QByteArray &arg2,
-				      const QByteArray &arg3 )
+				      const QByteArray &arg0, const QByteArray &arg1,
+				      const QByteArray &arg2 )
 {
     d = new QNetworkOperationPrivate;
     d->operation = operation;
     d->state = QNetworkProtocol::StWaiting;
-    d->arg1 = QString::null;
-    d->arg2 = QString::null;
-    d->arg3 = QString::null;
-    d->rawArg1 = arg1;
-    d->rawArg2 = arg2;
-    d->rawArg3 = arg3;
+    d->args[ 0 ] = QString::null;
+    d->args[ 1 ] = QString::null;
+    d->args[ 2 ] = QString::null;
+    d->rawArgs[ 0 ] = arg0;
+    d->rawArgs[ 1 ] = arg1;
+    d->rawArgs[ 2 ] = arg2;
     d->protocolDetail = QString::null;
     d->errorCode = (int)QNetworkProtocol::NoError;
 }
@@ -918,7 +878,7 @@ QNetworkOperation::~QNetworkOperation()
 /*!
   Sets the \a state of the operation object. This should be done
   by the network protocol during processing it, and at the end
-  it should be set to QNetworkProtocol::StDone or QNetworkProtocol::StFailed 
+  it should be set to QNetworkProtocol::StDone or QNetworkProtocol::StFailed
   depending on success or failure.
 */
 
@@ -948,60 +908,22 @@ void QNetworkOperation::setErrorCode( int ec )
 }
 
 /*!
-  Sets the first argument of the network operation to \a arg.
+  Sets the argument \a num of the network operation to \a arg.
 */
 
-void QNetworkOperation::setArg1( const QString &arg )
+void QNetworkOperation::setArg( int num, const QString &arg )
 {
-    d->arg1 = arg;
+    d->args[ num ] = arg;
 }
 
 /*!
-  Sets the second argument of the network operation to \a arg.
+  Sets the raw data argument \a num of the network operation to \a arg.
 */
 
-void QNetworkOperation::setArg2( const QString &arg )
+void QNetworkOperation::setRawArg( int num, const QByteArray &arg )
 {
-    d->arg2 = arg;
+    d->rawArgs[ num ] = arg;
 }
-
-/*!
-  Sets the third argument of the network operation to \a arg.
-*/
-
-void QNetworkOperation::setArg3( const QString &arg )
-{
-    d->arg3 = arg;
-}
-
-
-/*!
-  Sets the first raw data argument of the network operation to \a arg.
-*/
-
-void QNetworkOperation::setRawArg1( const QByteArray &arg )
-{
-    d->rawArg1 = arg;
-}
-
-/*!
-  Sets the second raw data argument of the network operation to \a arg.
-*/
-
-void QNetworkOperation::setRawArg2( const QByteArray &arg )
-{
-    d->rawArg2 = arg;
-}
-
-/*!
-  Sets the third raw data argument of the network operation to \a arg.
-*/
-
-void QNetworkOperation::setRawArg3( const QByteArray &arg )
-{
-    d->rawArg3 = arg;
-}
-
 
 /*!
   Returns the type of the operation.
@@ -1024,57 +946,23 @@ QNetworkProtocol::State QNetworkOperation::state() const
 }
 
 /*!
-  Returns the first argument of the operation.
+  Returns the argument \a num of the operation. If this argument was
+  not set already, an empty string is returned.
 */
 
-QString QNetworkOperation::arg1() const
+QString QNetworkOperation::arg( int num ) const
 {
-    return d->arg1;
+    return d->args[ num ];
 }
 
 /*!
-  Returns the second argument of the operation.
+  Returns the raw data argument \a num of the operation. If this argument was
+  not set already, an empty bytearray is returned.
 */
 
-QString QNetworkOperation::arg2() const
+QByteArray QNetworkOperation::rawArg( int num ) const
 {
-    return d->arg2;
-}
-
-/*!
-  Returns the third argument of the operation.
-*/
-
-QString QNetworkOperation::arg3() const
-{
-    return d->arg3;
-}
-
-/*!
-  Returns the first raw data argument of the operation.
-*/
-
-QByteArray QNetworkOperation::rawArg1() const
-{
-    return d->rawArg1;
-}
-
-/*!
-  Returns the second raw data argument of the operation.
-*/
-
-QByteArray QNetworkOperation::rawArg2() const
-{
-    return d->rawArg2;
-}
-
-/*!
-  Returns the third raw data argument of the operation.
-*/
-
-QByteArray QNetworkOperation::rawArg3() const
-{
-    return d->rawArg3;
+    return d->rawArgs[ num ];
 }
 
 /*!

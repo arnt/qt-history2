@@ -55,6 +55,46 @@ struct QUrlInfoPrivate
 */
 
 /*!
+  Creates an empty QUrlInfo object with default values.
+*/
+
+QUrlInfo::QUrlInfo()
+{
+    d = new QUrlInfoPrivate;
+    d->isDir = FALSE;
+    d->isFile = TRUE;
+    d->isReadable = TRUE;
+    d->size = 0;
+}
+
+/*!
+  Creates a QUrlInfo object with information about the file \a file
+  in the \a path. This constructor tries to find the infos about
+  \a file, which should be stored in the QUrlOperator \a path.
+  If this is not the case, an empty QUrlInfo object is created.
+*/
+
+QUrlInfo::QUrlInfo( const QUrlOperator &path, const QString &file )
+{
+    QString file_ = file;
+    if ( file_.isEmpty() )
+	file_ = ".";
+    d = new QUrlInfoPrivate;
+    QUrlInfo inf = path.info( file_ );
+    *d = *inf.d;
+}
+
+/*!
+  Copy constructor.
+*/
+
+QUrlInfo::QUrlInfo( const QUrlInfo &ui )
+{
+    d = new QUrlInfoPrivate;
+    *d = *ui.d;
+}
+
+/*!
   Constructs a QUrlInfo object by specifying all information of the URL.
 */
 
@@ -103,46 +143,6 @@ QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
     d->isWritable = isWritable;
     d->isReadable = isReadable;
     d->isExecutable = isExecutable;
-}
-
-/*!
-  Creates an empty QUrlInfo object with default values.
-*/
-
-QUrlInfo::QUrlInfo()
-{
-    d = new QUrlInfoPrivate;
-    d->isDir = FALSE;
-    d->isFile = TRUE;
-    d->isReadable = TRUE;
-    d->size = 0;
-}
-
-/*!
-  Creates a QUrlInfo object with information about the file \a file
-  in the \a path. This constructor tries to find the infos about
-  \a file, which should be stored in the QUrlOperator \a path.
-  If this is not the case, an empty QUrlInfo object is created.
-*/
-
-QUrlInfo::QUrlInfo( const QUrlOperator &path, const QString &file )
-{
-    QString file_ = file;
-    if ( file_.isEmpty() )
-	file_ = ".";
-    d = new QUrlInfoPrivate;
-    QUrlInfo inf = path.info( file_ );
-    *d = *inf.d;
-}
-
-/*!
-  Copy constructor.
-*/
-
-QUrlInfo::QUrlInfo( const QUrlInfo &ui )
-{
-    d = new QUrlInfoPrivate;
-    *d = *ui.d;
 }
 
 /*!
@@ -389,11 +389,6 @@ bool QUrlInfo::isExecutable() const
 bool QUrlInfo::greaterThan( const QUrlInfo &i1, const QUrlInfo &i2,
 			    int sortBy )
 {
-    if ( i1.name() == ".." )
-	return FALSE;
-    if ( i2.name() == ".." )
-	return TRUE;
-
     switch ( sortBy ) {
     case QDir::Name:
 	return i1.name() > i2.name();
@@ -417,23 +412,7 @@ bool QUrlInfo::greaterThan( const QUrlInfo &i1, const QUrlInfo &i2,
 bool QUrlInfo::lessThan( const QUrlInfo &i1, const QUrlInfo &i2,
 			 int sortBy )
 {
-    if ( i1.name() == ".." )
-	return TRUE;
-    if ( i2.name() == ".." )
-	return FALSE;
-
-    switch ( sortBy ) {
-    case QDir::Name:
-	return i1.name() < i2.name();
-    case QDir::Time:
-	return i1.lastModified() < i2.lastModified();
-    case QDir::Size:
-	return i1.size() < i2.size();
-    default:
-	return FALSE;
-    }
-
-    return FALSE;
+    return !greaterThan( i1, i2, sortBy );
 }
 
 /*!

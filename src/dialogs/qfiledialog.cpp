@@ -482,6 +482,11 @@ struct QFileDialogPrivate {
 	    if ( !i1->isDir() && i2->isDir() )
 		return 1;
 	
+	    if ( i1->name() == ".." )
+		return -1;
+	    if ( i2->name() == ".." )
+		return 1;
+
 	    if ( QUrlInfo::equal( *i1, *i2, sortFilesBy ) )
 		return 0;
 	    else if ( QUrlInfo::greaterThan( *i1, *i2, sortFilesBy ) )
@@ -3976,7 +3981,7 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
 	return;
     if ( !d->progressDia ) {
 	if ( bytesDone < bytesTotal) {
-	    d->progressDia = new QProgressDialog( tr( "Read: %1" ).arg( op->arg1() ), QString::null,
+	    d->progressDia = new QProgressDialog( tr( "Read: %1" ).arg( op->arg( 0 ) ), QString::null,
 						  bytesTotal, this, 0, TRUE );
 	    d->progressDia->show();
 	    d->progressDia->setProgress( 0 );
@@ -3990,9 +3995,9 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
 	    d->progressDia->setTotalSteps( bytesTotal );
 
 	if ( op->operation() == QNetworkProtocol::OpGet )
-	    d->progressDia->setLabelText( tr( "Read: %1" ).arg( op->arg1() ) );
+	    d->progressDia->setLabelText( tr( "Read: %1" ).arg( op->arg( 0 ) ) );
 	else if ( op->operation() == QNetworkProtocol::OpPut )
-	    d->progressDia->setLabelText( tr( "Write: %1" ).arg( op->arg1() ) );
+	    d->progressDia->setLabelText( tr( "Write: %1" ).arg( op->arg( 0 ) ) );
 	else
 	    return;
 
@@ -4042,12 +4047,12 @@ void QFileDialog::removeEntry( QNetworkOperation *op )
     QListViewItemIterator it( files );
     bool ok1 = FALSE, ok2 = FALSE;
     for ( i = d->sortedList.first(); it.current(); ++it, i = d->sortedList.next() ) {
-	if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() == op->arg1() ) {
+	if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() == op->arg( 0 ) ) {
 	    delete ( (QFileDialogPrivate::File*)it.current() )->i;
 	    delete it.current();
 	    ok1 = TRUE;
 	}
-	if ( i && i->name() == op->arg1() ) {
+	if ( i && i->name() == op->arg( 0 ) ) {
 	    d->sortedList.removeRef( i );
 	    i = d->sortedList.prev();
 	    ok2 = TRUE;
@@ -4066,12 +4071,12 @@ void QFileDialog::itemChanged( QNetworkOperation *op )
     QListViewItemIterator it( files );
     bool ok1 = FALSE, ok2 = FALSE;
     for ( i = d->sortedList.first(); it.current(); ++it, i = d->sortedList.next() ) {
-	if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() == op->arg1() ) {
-	    ( (QFileDialogPrivate::File*)it.current() )->info.setName( op->arg2() );
+	if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() == op->arg( 0 ) ) {
+	    ( (QFileDialogPrivate::File*)it.current() )->info.setName( op->arg( 1 ) );
 	    ok1 = TRUE;
 	}
-	if ( i && i->name() == op->arg1() ) {
-	    i->setName( op->arg2() );
+	if ( i && i->name() == op->arg( 0 ) ) {
+	    i->setName( op->arg( 1 ) );
 	    ok2 = TRUE;
 	}
 	if ( ok1 && ok2 )

@@ -72,7 +72,7 @@ void Nntp::operationGet( QNetworkOperation *op )
 
     // get the dirPath of the URL (this is our news group)
     // and the filename (which is the article we want to read)
-    QUrl u( op->arg1() );
+    QUrl u( op->arg( 0 ) );
     QString dirPath = u.dirPath(), file = u.fileName();
     dirPath = dirPath.replace( QRegExp( "/" ), "" );
 

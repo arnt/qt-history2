@@ -95,7 +95,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 	QUrlInfo inf( fi->fileName(), 0/*permissions*/, fi->owner(), fi->group(),
 		      fi->size(), fi->lastModified(), fi->lastRead(), fi->isDir(), fi->isFile(),
 		      fi->isSymLink(), fi->isWritable(), fi->isReadable(), fi->isExecutable() );
-	url()->emitNewChild( inf, op );
+	emit newChild( inf, op );
     }
     op->setState( StDone );
     emit finished( op );
@@ -108,7 +108,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 void QLocalFs::operationMkDir( QNetworkOperation *op )
 {
     op->setState( StInProgress );
-    QString dirname = op->arg1();
+    QString dirname = op->arg( 0 );
 
     dir = QDir( url()->path() );
     if ( dir.mkdir( dirname ) ) {
@@ -136,7 +136,7 @@ void QLocalFs::operationMkDir( QNetworkOperation *op )
 void QLocalFs::operationRemove( QNetworkOperation *op )
 {
     op->setState( StInProgress );
-    QString name = QUrl( op->arg1() ).path();
+    QString name = QUrl( op->arg( 0 ) ).path();
 
     dir = QDir( url()->path() );
     if ( dir.remove( name ) ) {
@@ -159,8 +159,8 @@ void QLocalFs::operationRemove( QNetworkOperation *op )
 void QLocalFs::operationRename( QNetworkOperation *op )
 {
     op->setState( StInProgress );
-    QString oldname = op->arg1();
-    QString newname = op->arg2();
+    QString oldname = op->arg( 0 );
+    QString newname = op->arg( 1 );
 
     dir = QDir( url()->path() );
     if ( dir.rename( oldname, newname ) ) {
@@ -183,7 +183,7 @@ void QLocalFs::operationRename( QNetworkOperation *op )
 void QLocalFs::operationGet( QNetworkOperation *op )
 {
     op->setState( StInProgress );
-    QString from = QUrl( op->arg1() ).path();
+    QString from = QUrl( op->arg( 0 ) ).path();
 
     QFile f( from );
     if ( !f.open( IO_ReadOnly ) ) {
@@ -234,7 +234,7 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 void QLocalFs::operationPut( QNetworkOperation *op )
 {
     op->setState( StInProgress );
-    QString to = QUrl( op->arg1() ).path();
+    QString to = QUrl( op->arg( 0 ) ).path();
 
     QFile f( to );
     if ( !f.open( IO_WriteOnly ) ) {
@@ -246,7 +246,7 @@ void QLocalFs::operationPut( QNetworkOperation *op )
 	return;
     }
 
-    QByteArray ba( op->rawArg2() );
+    QByteArray ba( op->rawArg( 1 ) );
     emit dataTransferProgress( 0, ba.size(), op );
     if ( ba.size() < QLOCALFS_MAX_BYTES ) {
 	f.writeBlock( ba.data(), ba.size() );
