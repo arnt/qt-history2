@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#177 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#178 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1827,9 +1827,6 @@ void QListBox::setSelected( int index, bool select )
 	}
 	return;
     }
-
-    if ( currentItem() < 0 )
-	return;
 
     QListBoxItem *lbi = item( index );
     if ( !lbi || lbi->selected == select )
