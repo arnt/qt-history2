@@ -111,7 +111,7 @@
         </ui>
     </category>
 
-    <category name="Item Views">
+    <category name="Item Views (Model-Based)">
         <ui version="4.0" >
             <widget class="QListView" name="List View" widgetboxicon="designer_listbox.png">
                     <property name="geometry">
@@ -154,7 +154,11 @@
                         <string notr="true">tableView</string>
                     </property>
             </widget>
-                            
+        </ui>
+    </category>
+
+    <category name="Item Widgets (Item-Based)">
+        <ui version="4.0" >
             <widget class="QListWidget" name="List Widget" widgetboxicon="designer_listbox.png">
                     <property name="geometry">
                         <rect>
