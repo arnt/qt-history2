@@ -41,12 +41,37 @@
 #include <tchar.h>
 
 
+static QString currentDirOfDrive( char ch )
+{
+    QString result;
+
+    if ( qt_winunicode ) {
+	TCHAR currentName[PATH_MAX];
+	if ( _tgetdcwd( toupper( ch ) - 'A' + 1, currentName, PATH_MAX ) >= 0 ) {
+	    result = qt_winQString(currentName);
+	}
+    } else {
+	char currentName[PATH_MAX];
+	if ( _getdcwd( toupper( ch ) - 'A' + 1, currentName, PATH_MAX ) >= 0 ) {
+	    result = QString::fromLatin1(currentName);
+	}
+    }
+    return result;
+}
+
 
 void QFileInfo::slashify( QString &s )
 {
     for (int i=0; i<(int)s.length(); i++) {
 	if ( s[i] == '\\' )
 	    s[i] = '/';
+    }
+    if ( s[ (int)s.length() - 1 ] == '/' && s.length() > 3 )
+	s.remove( (int)s.length() - 1, 1 );
+    if ( s[ 1 ] == ':' && s.length() > 3 && s[ 2 ] != '/' ) {
+  	QString d = currentDirOfDrive( (char)s[ 0 ].latin1() );
+  	slashify( d );
+  	s = d + "/" + s.mid( 2, 0xFFFFFF );
     }
 }
 
