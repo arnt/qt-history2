@@ -1099,6 +1099,7 @@ void PopupMenuEditor::focusOutEvent( QFocusEvent * )
     if ( !w || ( !( w->inherits( "PopupMenuEditor" ) ||
 		    w->inherits( "MenuBarEditor" ) ) &&
 		 w != lineEdit ) ) {
+	qDebug( "FocusOutEvent" );
 	hideCurrentItemMenu();
 	hide();
     }
@@ -1636,8 +1637,8 @@ void PopupMenuEditor::enterEditMode( QKeyEvent * e )
 
 void PopupMenuEditor::leaveEditMode( QKeyEvent * e )
 {
-    lineEdit->hide();
     setFocus();
+    lineEdit->hide();
 
     if ( e->key() == Qt::Key_Escape ) {
 	return;
