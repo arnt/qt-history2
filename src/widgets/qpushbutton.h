@@ -31,13 +31,15 @@
 #include "qiconset.h"
 #endif // QT_H
 
-#if 0
-Q_OBJECT
-#endif
-
 class Q_EXPORT QPushButton : public QButton
 {
     Q_OBJECT
+    Q_PROPERTY( bool, "toggleButton", 0, setToggleButton )
+    Q_PROPERTY( bool, "autoDefault", autoDefault, setAutoDefault )
+    Q_PROPERTY( bool, "default", isDefault, setDefault )
+    Q_PROPERTY( bool, "menuButton", isMenuButton, setIsMenuButton )
+    Q_PROPERTY( bool, "on", 0, setOn )
+    Q_PROPERTY( QIconSet, "iconSet", iconSet, setIconSet )
 public:
     QPushButton( QWidget *parent, const char *name=0 );
     QPushButton( const QString &text, QWidget *parent, const char* name=0 );
@@ -69,7 +71,7 @@ public:
 
     void setPopup( QPopupMenu* popup );
     QPopupMenu* popup() const;
-    
+
     void setIconSet( const QIconSet& );
     QIconSet* iconSet() const;
 

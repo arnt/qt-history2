@@ -40,7 +40,7 @@ Q_OBJECT
 class Q_EXPORT QLabel : public QFrame
 {
     Q_OBJECT
-    Q_PROPERTY( QString, "text", setText, text )
+    Q_PROPERTY( QString, "text", text, setText )
 public:
     QLabel( QWidget *parent, const char *name=0, WFlags f=0 );
     QLabel( const QString &text, QWidget *parent, const char *name=0,
