@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qeucjpcodec.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qeucjpcodec.cpp#4 $
 **
 ** Implementation of QEucJpCodec class
 **
@@ -322,7 +322,7 @@ public:
 		if ( ch < 0x80 ) {
 		    // ASCII
 		    result += QChar(ch);
-		} else if ( ch == Ss2 && ch == Ss3 ) {
+		} else if ( ch == Ss2 || ch == Ss3 ) {
 		    // JIS X 0201 Kana or JIS X 0212
 		    buf[0] = ch;
 		    nbuf = 1;
