@@ -42,6 +42,16 @@
 #include "qtextedit.h"
 #include "qtimer.h"
 
+class QSyntaxHighlighterPrivate
+{
+public:
+    QSyntaxHighlighterPrivate() :
+	currentParagraph( -1 )
+	{}
+
+    int currentParagraph;
+};
+
 class QSyntaxHighlighterInternal : public QTextPreProcessor
 {
 public:
@@ -54,7 +64,9 @@ public:
 	QString text = p->string()->toString();
 	int endState = p->prev() ? p->prev()->endState() : -2;
 	int oldEndState = p->endState();
+	highlighter->d->currentParagraph = p->paragId();
 	p->setEndState( highlighter->highlightParagraph( text, endState ) );
+	highlighter->d->currentParagraph = -1;
 	highlighter->para = 0;
 
 	p->setFirstPreProcess( FALSE );
@@ -75,10 +87,6 @@ public:
 private:
     QSyntaxHighlighter *highlighter;
 
-};
-
-class QSyntaxHighlighterPrivate
-{
 };
 
 /*!
@@ -112,7 +120,7 @@ class QSyntaxHighlighterPrivate
 */
 
 QSyntaxHighlighter::QSyntaxHighlighter( QTextEdit *textEdit )
-    : para( 0 ), edit( textEdit ), d( 0 )
+    : para( 0 ), edit( textEdit ), d( new QSyntaxHighlighterPrivate )
 {
     textEdit->document()->setPreProcessor( new QSyntaxHighlighterInternal( this ) );
     textEdit->document()->invalidate();
@@ -125,6 +133,7 @@ QSyntaxHighlighter::QSyntaxHighlighter( QTextEdit *textEdit )
 
 QSyntaxHighlighter::~QSyntaxHighlighter()
 {
+    delete d;
     textEdit()->document()->setPreProcessor( 0 );
 }
 
@@ -159,6 +168,9 @@ QSyntaxHighlighter::~QSyntaxHighlighter()
     affect the following paragraph), or a positive integer (to signify
     that this paragraph has ended in the middle of a paragraph
     spanning construct).
+
+    To find out which paragraph is highlighted, call
+    currentParagraph().
 
     For example, if you're writing a simple C++ syntax highlighter,
     you might designate 1 to signify "in comment". For a paragraph
@@ -234,6 +246,17 @@ void QSyntaxHighlighter::rehighlight()
 	s = s->next();
     }
     edit->repaintContents( FALSE );
+}
+
+/*! Returns the id of the paragraph which is highlighted at the
+  moment, or -1 of no paragraph is highlighted currently.
+
+  Usually this function is called from within highlightParagraph().
+*/
+
+int QSyntaxHighlighter::currentParagraph() const
+{
+    return d->currentParagraph;
 }
 
 #endif

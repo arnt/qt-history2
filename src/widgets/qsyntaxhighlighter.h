@@ -66,6 +66,8 @@ public:
 
     void rehighlight();
 
+    int currentParagraph() const;
+
 private:
     QTextParagraph *para;
     QTextEdit *edit;
