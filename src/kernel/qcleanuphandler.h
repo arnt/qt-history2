@@ -10,17 +10,7 @@ template<class Type>
 class Q_EXPORT QGuardedCleanupHandler
 {
 public:
-    ~QGuardedCleanupHandler()
-    {
-	QListIterator<QGuardedPtr<Type> > it( cleanupObjects );
-	it.toLast();
-	while ( it.current() ) {
-	    QGuardedPtr<Type>* guard = it.current();
-	    --it;
-	    delete (Type*)*guard;
-	    delete guard;
-	}
-    }
+    ~QGuardedCleanupHandler() { clear(); }
 
     void add( Type* object )
     {
@@ -53,6 +43,18 @@ public:
 	return TRUE;
     }
 
+    void clear() {
+	QListIterator<QGuardedPtr<Type> > it( cleanupObjects );
+	it.toLast();
+	while ( it.current() ) {
+	    QGuardedPtr<Type>* guard = it.current();
+	    --it;
+	    cleanupObjects.removeRef( guard );
+	    delete (Type*)*guard;
+	    delete guard;
+	}
+    }
+
 private:
     QList<QGuardedPtr<Type> > cleanupObjects;
 };
@@ -61,16 +63,7 @@ template<class Type>
 class Q_EXPORT QCleanupHandler
 {
 public:
-    ~QCleanupHandler()
-    {
-	QListIterator<Type> it( cleanupObjects );
-	it.toLast();
-	while ( it.current() ) {
-	    Type* object = it.current();
-	    --it;
-	    delete object;
-	}
-    }
+    ~QCleanupHandler() { clear(); }
 
     void add( Type* object )
     {
@@ -87,6 +80,18 @@ public:
     bool isEmpty() const
     {
 	return cleanupObjects.isEmpty();
+    }
+
+    void clear()
+    {
+	QListIterator<Type> it( cleanupObjects );
+	it.toLast();
+	while ( it.current() ) {
+	    Type* object = it.current();
+	    --it;
+	    cleanupObjects.removeRef( object );
+	    delete object;
+	}
     }
 
 private:
