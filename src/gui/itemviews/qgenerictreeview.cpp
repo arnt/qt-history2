@@ -22,36 +22,6 @@
   on a QAbstractItemModel.
 */
 
-template <typename T>
-inline void expand(QVector<T> &vec, int after, size_t n)
-{
-    size_t m = vec.size() - after - 1;
-    vec.resize(vec.size() + n);
-    T *b = static_cast<T *>(vec.data());
-    T *src = b + after + 1;
-    T *dst = src + n;
-    memmove(dst, src, m * sizeof(T));
-}
-
-template <typename T>
-inline void collapse(QVector<T> &vec, int after, size_t n)
-{
-    if (after + 1 + n < (size_t)vec.size()) {
-        T *b = vec.data();
-        T *dst = b + after + 1;
-        T *src = dst + n;
-        size_t m = vec.size() - n - after - 1;
-        memmove(dst, src, m * sizeof(T));
-    }
-    vec.resize(vec.size() - n);
-}
-/*
-template<typename T>
-inline void insertSorted(QVector<T> &vec, const T &item)
-{
-
-}
-*/
 /*!
   \class QGenericTreeViewItem qgenerictreeview.cpp
 
@@ -556,7 +526,7 @@ void QGenericTreeView::contentsRemoved(const QModelIndex &parent,
         int count = bottomRight.row() - topLeft.row();
         updateGeometries();
         // FIXME: this won't work if there are open branches
-        collapse<QGenericTreeViewItem>(d->items, bottomRight.row() - 1, count);
+        qCollapse<QGenericTreeViewItem>(d->items, bottomRight.row() - 1, count);
         d->viewport->update();
     }
 }
@@ -585,7 +555,7 @@ bool QGenericTreeView::doItemsLayout(int num)
     if (d->layout_from_index == -1)
         d->items.resize(count);
     else
-        expand<QGenericTreeViewItem>(d->items, d->layout_from_index, count);
+        qExpand<QGenericTreeViewItem>(d->items, d->layout_from_index, count);
     QGenericTreeViewItem *items = d->items.data();
     int level = d->layout_parent_index >= 0 ? items[d->layout_parent_index].level + 1 : 0;
     int first = d->layout_from_index + 1;
@@ -806,7 +776,7 @@ void QGenericTreeViewPrivate::close(int i)
         parent = model->parent(parent);
         idx = viewIndex(parent, v);
     }
-    collapse<QGenericTreeViewItem>(items, i, total);
+    qCollapse<QGenericTreeViewItem>(items, i, total);
 #endif
     q->updateGeometries();
     q->d->viewport->update();
@@ -898,7 +868,10 @@ int QGenericTreeViewPrivate::item(int coordinate, int value) const
     QAbstractItemDelegate *delegate = q->itemDelegate();
 
     int i = itemAt(value);
-    int y = coordinateAt(value, delegate->sizeHint(fontMetrics, options, items[i].index).height());
+    if (i >= items.count())
+        return -1;
+
+    int y = coordinateAt(value, delegate->sizeHint(fontMetrics, options, items.at(i).index).height());
     int h = q->viewport()->height();
     if (coordinate >= y) {
         // search for item in viewport

@@ -12,20 +12,6 @@
 #define d d_func()
 #define q q_func()
 
-template <typename T>
-int qBinarySearch(const QVector<T> &vec, const T &item, int start, int end)
-{
-    int idx = (start + end + 1) / 2;
-    while (end - start > 0) {
-        if (vec.at(idx) > item)
-            end = idx - 1;
-        else
-            start = idx;
-        idx = (start + end + 1) / 2;
-    }
-    return idx;
-}
-
 template <class T>
 void BinTree<T>::climbTree(const QRect &rect, callback *function, void *data)
 {
