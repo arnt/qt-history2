@@ -105,6 +105,8 @@ QMenuItem::~QMenuItem()
     delete pixmap_data;
     delete signal_data;
     delete widget_item;
+    if ( d )
+	delete d->custom_item;
     delete d;
 }
 
