@@ -26,7 +26,6 @@ private slots:
     void closeAssistant();
     void displayPage();
     void showAssistantErrors( const QString &err );
-    void installExampleDocs();
     void assistantOpened();
     void assistantClosed();
 

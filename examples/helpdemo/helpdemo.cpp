@@ -82,7 +82,8 @@ void HelpDemo::setAssistantArguments()
     if ( checkHide->isChecked() )
 	cmdLst << "-hideSidebar";
     if ( checkOnlyExampleDoc->isChecked() )
-        cmdLst << "-profile" << "HelpExample";
+        cmdLst << "-profile"
+	       << QString("doc") + QDir::separator() + QString("helpdemo.dcf");
     assistant->setArguments( cmdLst );
 }
 
@@ -98,49 +99,6 @@ void HelpDemo::closeAssistant()
 	assistant->closeAssistant();
 }
 
-class ProcessListener : public QObject {
-    Q_OBJECT
-public:
-    ProcessListener( QProcess *pr, QWidget *w ) : p( pr ), widget( w ) { }
-    ~ProcessListener() {
-	delete p;
-    }
-
-public slots:
-    void processExited() {
-	deleteLater();
-	QMessageBox::information( widget,
-				  "HelpDemo documentation installed",
-				  "The HelpDemo documentation was successfully installed" );
-    }
-
-private:
-    QProcess *p;
-    QWidget *widget;
-};
-
-
-void HelpDemo::installExampleDocs()
-{
-
-    QStringList lst;
-    lst << QDir::convertSeparators( QString( qInstallPathBins() ) + "//assistant" )
-	<< "-addProfile"
-	<< "helpdemo.adp"
-	<< ".";
-
-    QProcess *proc = new QProcess( lst );
-
-    ProcessListener *l = new ProcessListener( proc, this );
-
-    QObject::connect( proc, SIGNAL( processExited() ), l, SLOT( processExited() ) );
-
-    if( !proc->start() ) {
-	delete l;
-	showAssistantErrors( "Failed to install documentation profile\n" );
-    }
-}
-
 void HelpDemo::displayPage()
 {
     assistant->showPage( leFileName->text() );
@@ -148,17 +106,6 @@ void HelpDemo::displayPage()
 
 void HelpDemo::showAssistantErrors( const QString &err )
 {
-    if ( err.startsWith( "Profile" ) ) {
-	QString errorMsg =
-	    "The documentation for the HelpDemo example has not yet\n"
-	    "been installed. Press the 'Install Example Documentation'\n"
-	    "button to install the documentation and retry.\n\n"
-	    "If you want to see how the installation of the documentation\n"
-	    "works, check out the HelpDemo::installExampleDocs()\n"
-	    "function in the file helpdemo.cpp";
-	QMessageBox::information( this, "Documentation not installed", errorMsg );
-	return;
-    }
     QMessageBox::critical( this, "Assistant Error", err );
 
 }
@@ -174,5 +121,3 @@ void HelpDemo::assistantClosed()
     closeQAButton->setEnabled( FALSE );
     openQAButton->setEnabled( TRUE );
 }
-
-#include "helpdemo.moc"

@@ -22,16 +22,6 @@
 	    </li>
 	</ul>
 
-	<br><br><br>
-	<p><a name="installdocs"><h3>Install Example Documentation</h3></a></p>
-	<p>
-	Pressing this button will install the profile for the HelpDemo application.
-	When the profile is installed and Qt Assistant is later run with the 
-	button <i>Run Qt Assistant customized for HelpDemo</i> checked, 
-	Qt Assistant will have a different application icon, customized toolbar,
-	a special about option etc. 
-	</p>
-
 	<br><br><br><br><br><br>
 	<p><a name="openqabutton"><h3>Open Assistant Button</h3></a></p>
 	<p>Click this button to open Qt Assistant. If it is already open nothing
@@ -47,10 +37,9 @@
 	<p>Check this item in order to run Qt Assistant as a customized help tool for
 	the HelpDemo example. Checking or unchecking has no effect if Qt
 	Assistant is already running. To apply changes you have to restart
-	Qt Assistant.
+	Qt Assistant. Please see the <code>HelpDemo::setAssistantArguments()</code>
+	function to see how Qt Assistant can be started in customized mode.
 	</p>
-	<p>NOTE: Before you can use this option, the profile has to be installed. 
-	This is done by pressing the <i>Install Example Documentation</i> button.</p>
 
 	<br><br><br><br><br><br>
 	<p><a name="hide"><h3>Hide Sidebar on Startup</h3></a></p>

@@ -18,29 +18,20 @@
 	</p>
 	
 	<p>
-	In order to run Qt Assistant properly you have to install the
-	documentation profile for this example. Without the profile Qt
-	Assistant will run with the default profile, which contains the
-	documentation for Qt. It can still display arbitrary pages with
-	the <i>Display</i> button or using the context help (F1), but Qt
-	Assistant won't be customized for this example application.
+	In order to run Qt Assistant as a custom help tool for this
+	application properly you have to specify a profile. A profile
+	is a file format similar to the documentation content files
+	that assistant used up to Qt 3.1. Once such a profile has been
+	specified Qt Assistant can be run with the option <code>-profile</code>
+	and then the filename of the profile. The HelpDemo example does
+	this for you if you press the <i>Run Qt Assistant customized for
+	HelpDemo</i>. 
 	</p>
 
-	<p>
-	Installing the documentation profile for this example is done
-	by pressing the 'Install example documentation' button in
-	the Help Example application. This will call the function
-	<code>HelpDemo::installExampleDocs()</code> in the
-	<code>helpdemo.cpp</code> file. This function shows how
-	assistant can be run with the <code>-addProfile</code> option
-	which will install the profile. If the user then checks the
-	<i>Run Qt Assistant customized for HelpExample</i> button, assistant will
-	be run with the option <code>-profile HelpExample</code> which
-	will tell Qt Assistant to display only the documentation specified
-	in that profile and to be customized according to the profile. 
-	At the enduser, the installation procedure will most likely
-	perform the installing of the profile and the application will
-	always call assistant with the <code>-profile</code> option.
+	<p>	
+	Qt Assistant can also display arbitrary pages with the
+	<i>Display</i> button or using the context help (F1), but Qt
+	Assistant won't be customized for this example application.
 	</p>
 
 	<ul>

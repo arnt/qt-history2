@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>271</width>
-            <height>334</height>
+            <width>315</width>
+            <height>346</height>
         </rect>
     </property>
     <property name="caption">
@@ -154,14 +154,6 @@
                         <string></string>
                     </property>
                 </widget>
-                <widget class="QPushButton" row="0" column="0" rowspan="1" colspan="4">
-                    <property name="name">
-                        <cstring>installDocsButton</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Install Example Documentation</string>
-                    </property>
-                </widget>
             </grid>
         </widget>
         <widget class="QTextEdit" row="0" column="0">
@@ -170,11 +162,7 @@
             </property>
             <property name="text">
                 <string>&lt;p&gt;
-This example demonstrates how to use Qt Assistant as help 
-system for your own application. When run for the first time
-the example documentation will not yet be installed. This is
-done when pressing the 'Install Example Documentation' button
-below. 
+This example demonstrates how Qt Assistant can be used as a help system for your application. If the button &lt;i&gt;"Run Qt Assistant customized for HelpDemo"&lt;/i&gt; is checked Qt Assistant will be customized for this application.
 &lt;/p&gt;</string>
             </property>
             <property name="wordWrap">
@@ -240,19 +228,12 @@ below.
         <receiver>HelpDemoBase</receiver>
         <slot>setAssistantArguments()</slot>
     </connection>
-    <connection>
-        <sender>installDocsButton</sender>
-        <signal>clicked()</signal>
-        <receiver>HelpDemoBase</receiver>
-        <slot>installExampleDocs()</slot>
-    </connection>
 </connections>
 <slots>
     <slot>displayPage()</slot>
     <slot>openAssistant()</slot>
     <slot>closeAssistant()</slot>
     <slot>setAssistantArguments()</slot>
-    <slot>installExampleDocs()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
