@@ -1789,6 +1789,7 @@ void QWorkspaceChild::moveEvent(QMoveEvent *)
 
 void QWorkspaceChild::resizeEvent(QResizeEvent *)
 {
+    bool wasMax = isMaximized();
     QRect r = contentsRect();
     QRect cr;
 
@@ -1813,6 +1814,11 @@ void QWorkspaceChild::resizeEvent(QResizeEvent *)
     windowSize = cr.size();
     childWidget->setGeometry(cr);
     ((QWorkspace*)parentWidget())->d->updateWorkspace();
+
+    if (wasMax) {
+        setWState(Qt::WState_Maximized);
+        ((QWorkspaceChild*)childWidget)->setWState(Qt::WState_Maximized);
+    }
 }
 
 QSize QWorkspaceChild::baseSize() const
