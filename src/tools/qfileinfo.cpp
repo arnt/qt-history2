@@ -41,6 +41,9 @@
 #include "qdatetime.h"
 #include "qdir.h"
 #include "qfiledefs_p.h"
+#if defined(QT_LARGEFILE_SUPPORT) && !defined(QT_NEWABI)
+#include <limits.h>
+#endif
 
 
 extern bool qt_file_access( const QString& fn, int t );
@@ -530,8 +533,8 @@ bool QFileInfo::convertToAbs()
 #endif
 
 /*!
-  Returns the file size in bytes, or 0 if the file does not exist or if
-  the size is 0 or if the size cannot be fetched.
+  Returns the file size in bytes, or 0 if the file does not exist or if the
+  size cannot be fetched.
 */
 #if defined(QT_NEWABI)
 QIODevice::Offset QFileInfo::size() const
