@@ -169,7 +169,7 @@ public:
     Joining joining() const;
     bool mirrored() const;
     QChar mirroredChar() const;
-    QString decomposition() const;
+    const QString &decomposition() const;
     Decomposition decompositionTag() const;
     unsigned char combiningClass() const;
 
@@ -642,7 +642,7 @@ public:
     QChar::Joining joining() const { return s.constref(p).joining(); }
     bool mirrored() const { return s.constref(p).mirrored(); }
     QChar mirroredChar() const { return s.constref(p).mirroredChar(); }
-    QString decomposition() const { return s.constref(p).decomposition(); }
+    const QString &decomposition() const { return s.constref(p).decomposition(); }
     QChar::Decomposition decompositionTag() const { return s.constref(p).decompositionTag(); }
     unsigned char combiningClass() const { return s.constref(p).combiningClass(); }
 

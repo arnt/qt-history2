@@ -11785,7 +11785,10 @@ QChar QChar::mirroredChar() const
   Decomposes a character into its parts. Returns QString::null if
   no decomposition exists.
 */
-QString QChar::decomposition() const
+#ifndef QT_NO_UNICODETABLES
+static QString shared_decomp;
+#endif
+const QString &QChar::decomposition() const
 {
 #ifndef QT_NO_UNICODETABLES
     const Q_UINT16 *r = decomposition_info[row()];
@@ -11795,11 +11798,11 @@ QString QChar::decomposition() const
     if(!pos) return QString::null;
     pos+=2;
 
-    QString s;
+    QString s; 
     Q_UINT16 c;
     while((c = decomposition_map[pos++]) != 0) s += QChar(c);
-
-    return s;
+    shared_decomp = s;
+    return shared_decomp;
 #else
     return null;
 #endif
