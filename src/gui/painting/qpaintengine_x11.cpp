@@ -1073,8 +1073,8 @@ void QX11PaintEngine::drawRects(const QRectF *rects, int rectCount)
         return;
     }
 
-    QVarLengthArray<XRectangle> xrects(rects.size());
-    for (int i = 0; i < rectsCount; ++i) {
+    QVarLengthArray<XRectangle> xrects(rectCount);
+    for (int i = 0; i < rectCount; ++i) {
 	xrects[i].x = short(rects[i].x());
 	xrects[i].y = short(rects[i].y());
 	xrects[i].width = ushort(rects[i].width());
@@ -1082,11 +1082,10 @@ void QX11PaintEngine::drawRects(const QRectF *rects, int rectCount)
     }
 
     if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() == Qt::NoPen) {
-	XFillRectangles(d->dpy, d->hd, d->gc_brush, xrects.data(), rects.size());
-	return;
+	XFillRectangles(d->dpy, d->hd, d->gc_brush, xrects.data(), rectCount);
+    } else if (d->cpen.style() != Qt::NoPen && d->cbrush.style() == Qt::NoBrush) {
+        XDrawRectangles(d->dpy, d->hd, d->gc, xrects.data(), rectCount);
     }
-    if (d->cpen.style() != Qt::NoPen && d->cbrush.style() == Qt::NoBrush)
-        XDrawRectangles(d->dpy, d->hd, d->gc, xrects.data(), rects.size());
 }
 
 void QX11PaintEngine::drawPoint(const QPointF &p)
