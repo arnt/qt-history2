@@ -2046,7 +2046,6 @@ QString qt_makePSFontName( const QFont &f, int *listpos, int *ftype)
   QFontDatabase::parseFontName( familyName, foundry, family );
   family = family.lower();
 
-
   // try to make a "good" postscript name
   ps = family.simplifyWhiteSpace();
   i = 0;
@@ -2067,8 +2066,9 @@ QString qt_makePSFontName( const QFont &f, int *listpos, int *ftype)
 
   // see if the table has a better name
   i = 0;
+  QString lowerName = ps.lower();
   while( postscriptFonts[i].input &&
-         postscriptFonts[i].input != ps )
+         postscriptFonts[i].input != lowerName )
     i++;
   const psfont *psf = postscriptFonts[i].ps;
 
