@@ -79,6 +79,8 @@ public:
     bool starDescription( QVariant& v );
     QValueList<uint> columnSizes() const;
     QValueList<uint> columnPrecs() const;
+    bool isNull( uint i, bool& v );
+    bool isNull( const QString& name, bool& v );
 
 protected:
     virtual void setName( const QString& name ) { nm = name; }
@@ -127,6 +129,8 @@ public:
     bool setGroupSet( const QVariant& v );
     bool nextGroupSet();
     bool groupSetAction( GroupSetAction action, uint i, QVariant& v );
+    bool isNull( uint i, bool& v );
+    bool isNull( const QString& name, bool& v );
 
 private:
     class Header;

@@ -360,6 +360,24 @@ bool ResultSet::field( uint i, QVariant& v )
     return TRUE;
 }
 
+bool ResultSet::isNull( uint i, bool& v )
+{
+    QVariant var;
+    if ( !field( i, var ) )
+	return FALSE;
+    v = ( var.type() == QVariant::Invalid );
+    return TRUE;
+}
+
+bool ResultSet::isNull( const QString& name, bool& v )
+{
+    QVariant var;
+    if ( !field( name, var ) )
+	return FALSE;
+    v = ( var.type() == QVariant::Invalid );
+    return TRUE;
+}
+
 /*!
 
 */
@@ -408,7 +426,7 @@ bool ResultSet::append( const Record& buf )
 	return FALSE;
     }
     for ( uint j = 0; j < buf.count(); ++j ) {
-	if ( buf[j].type() != head->fields[j].type ) {
+	if ( buf[j].type() != head->fields[j].type && buf[j].type() != QVariant::Invalid ) {
 	    QVariant v;
 	    v.cast( head->fields[j].type );
 	    env->setLastError( "Unable to save result data, incorrect field type: " +

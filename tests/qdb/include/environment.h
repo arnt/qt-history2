@@ -98,6 +98,10 @@ struct LocalSQLDataSet : public localsql
     virtual bool field( uint i, QVariant& v ) = 0;
     /*! Returns the value of field named \a name */
     virtual bool field( const QString& name, QVariant& v ) = 0;
+    /* Returns TRUE if the field is currently NULL */
+    virtual bool isNull( uint i, bool& v ) = 0;
+    /*! Returns the value of field named \a name */
+    virtual bool isNull( const QString& name, bool& v ) = 0;
 };
 
 /*! \struct ResultSet

@@ -207,23 +207,41 @@ public:
 	char buf[ len ];
 	int r = file.GetField( i, buf );
 	switch ( file.GetFieldType(i) ) {
-	case 'N': /* numeric */
-	    v = QString(buf).toInt();
+	case 'N': { /* numeric */
+	    QString d( buf );
+	    if ( d.simplifyWhiteSpace().length() == 0 ) /* null? */
+		v = QVariant();
+	    else
+		v = d.toInt();
 	    break;
-	case 'F': /* float */
-	    v = QString(buf).toDouble();
+	}
+	case 'F': { /* float */
+	    QString d( buf );
+	    if ( d.simplifyWhiteSpace().length() == 0 ) /* null? */
+		v = QVariant();
+	    else
+		v = d.toDouble();
 	    break;
+	}
 	case 'D': { /* date */
 	    QString date( buf );
 	    int y = date.mid( 0, 4 ).toInt();
 	    int m = date.mid( 4, 2 ).toInt();
 	    int d = date.mid( 6, 2 ).toInt();
-	    v = QDate( y, m, d );
+	    if ( !QDate::isValid( y, m, d ) ) /* null? */
+		v = QVariant();
+	    else
+		v = QDate( y, m, d );
 	    break;
 	}
-	case 'L': /* logical */
-	    v = QVariant( QString(buf).toInt(), 1 );
+	case 'L': { /* logical */
+	    QString d(buf);
+	    if ( d == "?" ) /* null? */
+		v = QVariant();
+	    else
+		v = QVariant( QString(buf).toInt(), 1 );
 	    break;
+	}
 	case 'C': /* character */
 	default:
 	    QString utf8 = QString::fromUtf8( buf ).simplifyWhiteSpace();
@@ -1292,5 +1310,23 @@ bool FileDriver::starDescription( QVariant& v )
 #ifdef DEBUG_XBASE
      env->output() << "success" << endl;
 #endif
+    return TRUE;
+}
+
+bool FileDriver::isNull( uint i, bool& v )
+{
+    QVariant var;
+    if ( !field( i, var ) )
+	return FALSE;
+    v = ( var.type() == QVariant::Invalid );
+    return TRUE;
+}
+
+bool FileDriver::isNull( const QString& name, bool& v )
+{
+    QVariant var;
+    if ( !field( name, var ) )
+	return FALSE;
+    v = ( var.type() == QVariant::Invalid );
     return TRUE;
 }
