@@ -3522,12 +3522,12 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			// qDebug( "invalid keypress, reseting input context" );
 			if ( qic ) qic->reset();
 		    }
-		} else 
-#endif // QT_NO_XIM
-		{
-		    // qDebug( "sending key event" );
-		    keywidget->translateKeyEvent( event, grabbed );
-		}
+		} else
+#endif // !QT_NO_XIM
+		    {
+			// qDebug( "sending key event" );
+			keywidget->translateKeyEvent( event, grabbed );
+		    }
 	    }
 	    break;
 	}
