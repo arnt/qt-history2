@@ -6,7 +6,6 @@
 
 #include <QPaintEvent>
 #include <QPainter>
-#include <QPixmap>
 
 #include "cannonfield.h"
 
@@ -46,21 +45,13 @@ void CannonField::paintEvent(QPaintEvent *event)
     if (!event->rect().intersects(cannonRect()))
         return;
 
-    QRect rect = cannonRect();
-    QPixmap pixmap(rect.size());
-    pixmap.fill(this, rect.topLeft());
-
-    QPainter painter(&pixmap);
-    painter.setBrush(Qt::blue);
+    QPainter painter(this);
     painter.setPen(Qt::NoPen);
-    painter.translate(0, pixmap.height() - 1);
+    painter.setBrush(Qt::blue);
+    painter.translate(rect().bottomLeft());
     painter.drawPie(QRect(-35, -35, 70, 70), 0, 90 * 16);
     painter.rotate(-ang);
     painter.drawRect(QRect(33, -4, 15, 8));
-    painter.end();
-
-    painter.begin(this);
-    painter.drawPixmap(rect.topLeft(), pixmap);
 }
 
 QRect CannonField::cannonRect() const

@@ -31,10 +31,8 @@ Also see the "deployment" articles in
 Deploying Applications on Mac OS X\endlink
 \i \link http://doc.trolltech.com/qq/qq10-windows-deployment.html
 Deploying Applications on Windows\endlink
-\omit
-\i \link http://doc.trolltech.com/qq/qq11-x11-deployment.html
+\i \link http://doc.trolltech.com/qq/qq11-unix-deployment.html
 Deploying Applications on X11\endlink
-\endomit
 \endlist
 
 \section1 Static Qt Applications

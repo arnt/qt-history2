@@ -21,7 +21,8 @@
 
     The best way to learn Qt is to read the official Qt book,
     \l{http://www.amazon.com/exec/obidos/ASIN/0131240722/trolltech/}{C++
-    GUI Programming with Qt 3} (ISBN 0-13-124072-2).
+    GUI Programming with Qt 3} (ISBN 0-13-124072-2). This book is also
+    available \l{http://phptr.com/content/images/0131240722/downloads/blanchette_book.pdf}{online (PDF, 21.8 MB)}.
     This book provides comprehensive coverage of Qt programming all the
     way from "Hello Qt" to advanced features like multithreading, 2D and
     3D graphics, networking, and XML. The book covers Qt 3; a Qt 4 version
@@ -29,36 +30,24 @@
     \l{http://www.trolltech.com/developer/books.html}{Qt Programming Books}
     for a complete list of Qt books, including translations.
 
-    If you can't get hold of the official book, or if you can't wait for
-    it to arrive, then here is our suggested learning program.
-
-    Read the \link http://www.trolltech.com/products/qt/whitepaper.html
-    Qt Whitepaper\endlink first. This provides an overview of Qt's
-    facilities and has snippets of code which demonstrate the Qt approach
-    to programming. It gives you the big picture.
-
-    If you want to program purely in C++, designing your interfaces in
-    code without the aid of any design tools, read the tutorials. \link
-    tutorial.html Tutorial #1\endlink is designed to get you into Qt
-    programming, with the emphasis on working code rather than being a
-    tour of features. \link tutorial2.html Tutorial #2\endlink presents a
-    more realistic example, demonstrating how to code menus, toolbars,
-    file loading and saving, dialogs, etc.
+    If you want to program purely in C++, designing your interfaces
+    in code without the aid of any design tools, read the
+    \l{tutorial.html}{tutorial}. The tutorial is designed to get you
+    into Qt programming, with the emphasis on working code rather
+    than being a tour of features.
 
     If you want to design your user interfaces using a design tool, then
     read at least the first few chapters of the \link designer-manual.html
-    Qt Designer manual\endlink. After this, it is still worthwhile trying
-    the pure C++ Tutorials (\link tutorial.html Tutorial #1\endlink and
-    \link tutorial2.html Tutorial #2\endlink) mentioned above.
+    Qt Designer manual\endlink.
 
     By now you'll have produced some small working applications and have a
     broad feel for Qt programming. You could start work on your own
     projects straight away, but we recommend reading a couple of key
     overviews to deepen your understanding of Qt: the \link
     object.html Qt Object Model \endlink and \link signalsandslots.html
-    Signals and Slots\endlink. 
+    Signals and Slots\endlink.
 
-    At this point we recommend looking at the \link overviews-list.html
+    At this point, we recommend looking at the \link index.html
     overviews\endlink and reading those that are relevant to your
     projects. You may also find it useful to browse the source code of the
     \link examples.html examples\endlink that have things in common with
@@ -80,5 +69,5 @@
     http://www.trolltech.com/developer/books.html Qt
     books\endlink.
 
-    You should now be ready to ground-break: Good luck, and have fun!
+    Good luck, and have fun!
 */

@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QMenu *file = new QMenu(this);
     QAction *exitAction = file->addAction( tr("E&xit"), qApp, SLOT(quit()));
-    exitAction->setShortcut(QKeySequence("Ctrl+Q"));
+    exitAction->setShortcut(tr("Ctrl+Q", "Quit"));
     QMenu *help = new QMenu(this);
     QAction *aboutAction = help->addAction(tr("&About"), this, SLOT(about()));
     aboutAction->setShortcut(Qt::Key_F1);

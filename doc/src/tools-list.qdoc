@@ -27,7 +27,7 @@
          \o Create forms visually.
     \row \o \l{assistant-manual.html}{Qt Assistant}
          \o Quickly find the help you need.
-    \row \o \l{linguist-manual.html}{Qt Linguist, lupdate, lrelease}\endlink
+    \row \o \l{linguist-manual.html}{Qt Linguist, lupdate, lrelease}
          \o Translate applications to reach international markets.
     \row \o \l{qmake-manual.html}{qmake}
          \o Create makefiles from simple platform-independent project files (\c .pro files).

@@ -13,9 +13,11 @@ LCDRange::LCDRange(QWidget *parent)
     : QVBoxWidget(parent)
 {
     QLCDNumber *lcd = new QLCDNumber(2, this);
+
     slider = new QSlider(Qt::Horizontal, this);
     slider->setRange(0, 99);
     slider->setValue(0);
+
     connect(slider, SIGNAL(valueChanged(int)),
             lcd, SLOT(display(int)));
     connect(slider, SIGNAL(valueChanged(int)),

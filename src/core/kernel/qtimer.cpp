@@ -38,7 +38,6 @@
     \printline = new
     \printline connect
     \printline start(5000)
-    \endcode
 
     From then on, the \c update() slot is called every five seconds.
 

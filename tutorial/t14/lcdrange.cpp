@@ -26,12 +26,14 @@ LCDRange::LCDRange(const QString &text, QWidget *parent)
 void LCDRange::init()
 {
     QLCDNumber *lcd = new QLCDNumber(2, this);
+
     slider = new QSlider(Qt::Horizontal, this);
     slider->setRange(0, 99);
     slider->setValue(0);
 
     label = new QLabel(this);
-    label->setAlignment(Qt::AlignCenter);
+    label->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
+    label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     connect(slider, SIGNAL(valueChanged(int)),
             lcd, SLOT(display(int)));

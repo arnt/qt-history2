@@ -36,11 +36,11 @@
 
     \list
     \o  Rename classes that are now part of the Qt 3 compatibility
-        library (e.g., replace QFileDialog with Q3FileDialog).
+        library (e.g., replace \c QFileDialog with \c{Q3FileDialog}).
     \o  Prefix or rename enum values that have been moved or
-        renamed (e.g., replace QButton::On with QCheckBox::On) or
-        members of the Qt namespace (e.g., replace QWidget::red with
-        Qt::red).
+        renamed (e.g., replace \c QButton::On with \c{QCheckBox::On}) or
+        members of the Qt namespace (e.g., replace \c QWidget::red with
+        \c{Qt::red}).
     \o  Add \c #include directives that might be needed in Qt 4.
     \o  Perform miscellaneous trivial changes (e.g., replace \c TRUE
         with \c true).
@@ -76,8 +76,8 @@
         file depending on witch classes are used. The
         \c compat library is added if it's not already specified.
 
-    \o  Porting of designer .ui files is incomplete and might require
-	some manual work.
+    \o  \e{Porting of designer \c .ui files is incomplete and might require
+	some manual work.}
 
     \o  \e{The \c rules.xml file isn't complete.}
     \endlist

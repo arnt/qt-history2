@@ -30,8 +30,6 @@
     executed in the thread where the receiver object lives. See
     QObject::connect() for details.
 
-    \image threadsandobjects.png Threads, objects, and event loops
-
     Qt 4 also introduces a new synchronization class: QReadWriteLock.
     It is similar to QMutex, except that it distinguishes between
     "read" and "write" access to shared data and allows multiple

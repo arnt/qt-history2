@@ -16,9 +16,10 @@ exampledirs		= $QTDIR/doc/src \
                           $QTDIR/doc/src/snippets \
 			  $QTDIR/examples \
 			  $QTDIR/demos \
-			  $QTDIR/tutorial \
+			  $QTDIR \
                           $QTDIR/extensions/activeqt/examples \
-			  $QTDIR/qmake/examples
+			  $QTDIR/qmake/examples \
+			  $QTDIR/tools/linguist/tutorial
 imagedirs		= $QTDIR/doc/src/images \
 			  $QTDIR/doc/src/examples/images
 outputdir		= $QTDIR/doc/html

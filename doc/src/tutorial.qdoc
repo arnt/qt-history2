@@ -12,2615 +12,2310 @@
 
 /*! \page tutorial.html
 
-\title Qt Tutorial #1 - The 14 Steps
+    \startpage tutorial-t1.html Chapter 1
+    \nextpage tutorial-t1.html Chapter 1
 
-This tutorial gives an introduction to GUI programming using the Qt
-toolkit. It doesn't cover everything: the emphasis is on teaching the
-programming philosophy of GUI programming, and Qt's features are
-introduced as needed. Some commonly used features are never used in
-this tutorial.
+    \title Qt Tutorial
 
-Chapter one starts with a ten-line hello-world and each subsequent
-chapter introduces one or a few more concepts. By Chapter 14, the ten
-lines from Chapter 1 have turned into a 650-line game.
+    This tutorial gives an introduction to GUI programming using the Qt
+    toolkit. It doesn't cover everything; the emphasis is on teaching the
+    programming philosophy of GUI programming, and Qt's features are
+    introduced as needed. Some commonly used features are never used in
+    this tutorial.
 
-If you're completely new to Qt, please read \link how-to-learn-qt.html
-How to Learn Qt\endlink if you haven't already done so.
+    Chapter one starts with a minimal "Hello world" program and the
+    following chapters introduce new concepts. By Chapter 14, the
+    "Hello world" program from Chapter 1 will have turned into a
+    650-line game.
 
-Tutorial chapters:
-\list 1
-\i \link tutorial1-01.html Hello, World!\endlink
-\i \link tutorial1-02.html Calling it Quits\endlink
-\i \link tutorial1-03.html Family Values\endlink
-\i \link tutorial1-04.html Let There Be Widgets\endlink
-\i \link tutorial1-05.html Building Blocks\endlink
-\i \link tutorial1-06.html Building Blocks Galore!\endlink
-\i \link tutorial1-07.html One Thing Leads to Another\endlink
-\i \link tutorial1-08.html Preparing for Battle\endlink
-\i \link tutorial1-09.html With Cannon You Can\endlink
-\i \link tutorial1-10.html Smooth as Silk\endlink
-\i \link tutorial1-11.html Giving It a Shot\endlink
-\i \link tutorial1-12.html Hanging in the Air the Way Bricks Don't\endlink
-\i \link tutorial1-13.html Game Over\endlink
-\i \link tutorial1-14.html Facing the Wall\endlink
-\endlist
+    If you're completely new to Qt, please read
+    \l{how-to-learn-qt.html}{How to Learn Qt} if you haven't already
+    done so.
 
-This little game doesn't look much like a modern GUI application. It
-uses a some GUI techniques, but after you've worked through
-it, we recommend reading \link tutorial2.html Tutorial #2\endlink. The
-second tutorial is a little more formal and covers the features of
-a typical application including menubars, toolbars, loading and saving,
-dialogs, etc.
+    Tutorial chapters:
 
-*/
+    \list 1
+    \o \l{tutorial/t1}{Hello World!}
+    \o \l{tutorial/t2}{Calling it Quits}
+    \o \l{tutorial/t3}{Family Values}
+    \o \l{tutorial/t4}{Let There Be Widgets}
+    \o \l{tutorial/t5}{Building Blocks}
+    \o \l{tutorial/t6}{Building Blocks Galore!}
+    \o \l{tutorial/t7}{One Thing Leads to Another}
+    \o \l{tutorial/t8}{Preparing for Battle}
+    \o \l{tutorial/t9}{With Cannon You Can}
+    \o \l{tutorial/t10}{Smooth as Silk}
+    \o \l{tutorial/t11}{Giving It a Shot}
+    \o \l{tutorial/t12}{Hanging in the Air the Way Bricks Don't}
+    \o \l{tutorial/t13}{Game Over}
+    \o \l{tutorial/t14}{Facing the Wall}
+    \endlist
 
-/*! \page tutorial1-01.html
-
-\title Qt Tutorial - Chapter 1: Hello, World!
-
-\img t1.png Screenshot of tutorial one
-
-This first program is a simple hello-world example. It contains only
-the bare minimum you need to get a Qt application up and running.
-The picture above is a snapshot of this program.
-
-\include t1/main.cpp
-
-\section1 Line-by-line Walkthrough
-
-\quotefile t1/main.cpp
-
-\skipto include
-\printline qapp
-
-This line includes the QApplication class definition. There has to be
-exactly one QApplication object in every application that uses Qt.
-QApplication manages various application-wide resources, such as the
-default font and cursor.
-
-\printline qpushbutton
-
-This line includes the QPushButton class definition. The
-\link hierarchy.html reference documentation \endlink for each class
-mentions at the top which file needs to be included to use that class.
-
-QPushButton is a classical GUI push button that the user can press
-and release. It manages its own look and feel, like every other \l
-QWidget. A widget is a user interface object that can process user
-input and draw graphics. The programmer can change both the overall
-\link QApplication::setStyle() look and feel\endlink and many minor
-properties of it (such as color), as well as the widget's content. A
-QPushButton can show either a text or a \l QPixmap.
-
-\printline main
-\printline {
-
-The main() function is the entry point to the program. Almost always
-when using Qt, main() only needs to perform some kind of initialization
-before passing the control to the Qt library, which then tells the
-program about the user's actions via events.
-
-\c argc is the number of command-line arguments and \c argv is the
-array of command-line arguments. This is a C/C++ feature. It is not
-specific to Qt; however, Qt needs to process these arguments (see
-following).
-
-\printline QApplication
-
-\c a is this program's QApplication. Here it is created and processes
-some of the command-line arguments (such as -display under X Window).
-Note that all command-line arguments recognized by Qt are removed from
-\c argv (and \c argc is decremented accordingly). See the \l
-QApplication::argv() documentation for details.
-
-\bold{Note:} It is essential that the QApplication object be
-created before any window-system parts of Qt are used.
-
-\printline QPushButton
-
-Here, \e after the QApplication, comes the first window-system code: A
-push button is created.
-
-The button is set up to display the text "Hello world!" and be a
-window of its own (because the constructor specifies 0 for the parent
-window, inside which the button should be located).
-
-\printline resize
-
-The button is set up to be 100 pixels wide and 30 pixels high (plus the
-window system frame). In this case we don't care about the button's
-position, and we accept the default value.
-
-\printline setMainWidget
-
-The push button is chosen as the main widget for the application. If
-the user closes a main widget, the application exits.
-
-You don't have to have a main widget, but most programs do have one.
-
-\printline show
-
-A widget is never visible when you create it. You must call show() to
-make it visible.
-
-\printline exec
-
-This is where main() passes control to Qt, and exec() will return when
-the application exits.
-
-In exec(), Qt receives and processes user and system events and passes
-these on to the appropriate widgets.
-
-\printline }
-
-You should now try to compile and run this program.
-
-\target compiling
-\section1 Compiling
-
-To compile a C++ application you need to create a makefile. The
-easiest way to create a makefile for Qt is to use the \link
-qmake-manual.html qmake\endlink build tool supplied with Qt. If you've
-saved \c main.cpp in its own directory, all you have to do is:
-\code
-qmake -project
-qmake
-\endcode
-
-The first command tells \link qmake-manual.html qmake\endlink to
-create a \c .pro (project) file. The second command tells it to create
-a (platform-specific) makefile based on the project file. You should
-now be able to type \c make (or \c nmake if you're using Visual
-Studio) and then run your first Qt application!
-
-\section1 Behavior
-
-When you run it, you will see a small window filled with a single
-button, and on it you can read the famous words, Hello World!
-
-\section1 Exercises
-
-Try to resize the window. Press the button. If you're running X
-Window, try running the program with the -geometry option
-(for example, \c {-geometry 100x200+10+20}).
-
-You're now ready for \link tutorial1-02.html Chapter 2.\endlink
-
-[\link tutorial1-02.html Next tutorial\endlink]
-[\link tutorial.html Main tutorial page\endlink]
+    This little game doesn't look much like a modern GUI application.
+    It uses a some GUI techniques, but after you've worked through
+    it, we recommend checking out the \l mainwindows/application
+    example, which presents a small GUI application, with menus, tool
+    bars, a status bar, and so on.
 
 */
 
-/*! \page tutorial1-02.html
+/*! \example tutorial/t1
 
-\title Qt Tutorial - Chapter 2: Calling it Quits
+    \contentspage tutorial.html Qt Tutorial
+    \previouspage tutorial.html Qt Tutorial
+    \nextpage tutorial-t2.html Chapter 2
 
-\img t2.png Screenshot of tutorial two
+    \title Qt Tutorial 1 - Hello World!
 
-Having created a window in \link tutorial1-01.html Chapter 1, \endlink we will
-now go on to make the application quit properly when the user tells it to.
+    This first program is a simple "Hello world" example. It contains only
+    the bare minimum you need to get a Qt application up and running.
+    The picture below is a screenshot of this program.
 
-We will also use a font that is more exciting than the default one.
+    \image t1.png Screenshot of chapter 1
 
-\include t2/main.cpp
-\quotefile t2/main.cpp
+    Here's the complete source code for the application:
 
-\section1 Line-by-line Walkthrough
+    \include tutorial/t1/main.cpp
 
-\skipto qfont
-\printline qfont
+    \section1 Line by Line Walkthrough
 
-Since this program uses QFont, it needs to include qfont.h. Qt's font
-abstraction is rather different from the horror provided by X, and
-loading and using fonts has been highly optimized.
+    \quotefromfile tutorial/t1/main.cpp
 
-\skipto QPushButton
-\printline QPushButton
+    \skipto include
+    \printline QApp
 
-This time, the button says "Quit" and that's exactly what the program
-will do when the user clicks the button. This is not a coincidence.
-We still pass 0 as the parent, since the button is a top-level window.
+    This line includes the QApplication class definition. There has
+    to be exactly one QApplication object in every GUI application
+    that uses Qt. QApplication manages various application-wide
+    resources, such as the default font and cursor.
 
-\printline resize
+    \printline QPushButton
 
-We've chosen another size for the button since the text is a bit
-shorter than "Hello world!". We could also have used \l QFontMetrics
-to set right size.
+    This line includes the QPushButton class definition. For each
+    class that's part of the public Qt API, there exists a header
+    file of the same name that contains its definition.
 
-\printline setFont
+    QPushButton is a classical GUI push button that the user can
+    press and release. It manages its own look and feel, like every
+    other QWidget. A widget is a user interface object that can
+    process user input and draw graphics. The programmer can change
+    both the overall look and feel and many minor properties of it
+    (such as color), as well as the widget's content. A QPushButton
+    can show either a text or a QIcon.
 
-Here we choose a new font for the button, an 18-point bold font from
-the Times family. Note that we create the font on the spot.
+    \printline main
+    \printline {
 
-It is also possible to change the default font (using \l
-QApplication::setFont()) for the whole application.
+    The \c main() function is the entry point to the program. Almost
+    always when using Qt, \c main() only needs to perform some kind
+    of initialization before passing the control to the Qt library,
+    which then tells the program about the user's actions via events.
 
-\printline connect
+    The \c argc parameter is the number of command-line arguments and
+    \c argv is the array of command-line arguments. This is a
+    standard C++ feature.
 
-connect() is perhaps \e the most central feature of Qt.
-Note that connect() is a static function in QObject. Do not confuse it
-with the connect() function in the socket library.
+    \printline QApplication
 
-This line establishes a one-way connection between two Qt objects (objects
-that inherit QObject, directly or indirectly). Every Qt object can have
-both \c signals (to send messages) and \c slots (to receive messages). All
-widgets are Qt objects. They inherit QWidget which in turn inherits
-QObject.
+    The \c app object is this program's QApplication instance. Here
+    it is created. We pass \c argc and \c argv to the QApplication
+    constructor so that it can process certain standard command-line
+    arguments (such as \c -display under X11). All command-line
+    arguments recognized by Qt are removed from \c argv, and \c argc
+    is decremented accordingly. See the QApplication::argv()
+    documentation for details.
 
-Here, the \e clicked() signal of \e quit is connected to the \e
-quit() slot of \e a, so that when the button is clicked, the
-application quits.
+    The QApplication object must be created before any GUI-related
+    features of Qt are used.
 
-The \link signalsandslots.html Signals and Slots\endlink documentation
-describes this topic in detail.
+    \printline QPushButton
 
-\section1 Behavior
+    Here, after the QApplication, comes the first GUI-related code: A
+    push button is created.
 
-When you run this program, you will see an even smaller window than in
-Chapter 1, filled with an even smaller button.
+    The button is set up to display the text "Hello world!". Because
+    we don't specify a parent window (as second argument to the
+    QPushButton constructor), the button will be a window of its own,
+    with its own window frame and title bar.
 
-(See \link tutorial1-01.html#compiling Compiling\endlink for how to create a
-makefile and build the application.)
+    \printline resize
 
-\section1 Exercises
+    The button is set up to be 100 pixels wide and 30 pixels high
+    (excluding the window frame, which is provided by the windowing
+    system). We could call QWidget::move() to assign a specific
+    screen position to the widget, but instead we let the windowing
+    system choose a position.
 
-Try to resize the window. Press the button. Oops!  That connect()
-would seem to make some difference.
+    \printline setMainWidget
 
-Are there any other signals in QPushButton you can connect to quit?
-Hint: The QPushButton inherits most of its behavior from QButton.
+    The push button is chosen as the main widget for the application.
+    When the user closes the main widget, the application exits.
 
-You're now ready for \link tutorial1-03.html Chapter 3.\endlink
+    \printline show
 
-[\link tutorial1-01.html Previous tutorial\endlink]
-[\link tutorial1-03.html Next tutorial\endlink]
-[\link tutorial.html Main tutorial page\endlink]
+    A widget is never visible when you create it. You must call
+    QWidget::show() to make it visible.
 
+    \printline exec
+    \printline }
+
+    This is where \c main() passes control to Qt.
+    QApplication::exec() will return when the application exits.
+
+    In QApplication::exec(), Qt receives and processes user and
+    system events and passes these on to the appropriate widgets.
+
+    You should now try to compile and run this program.
+
+    The tutorial examples are located in Qt's \c tutorial directory.
+    They are automatically built when you build Qt.
+
+    If you have typed in the source code manually, you will need to
+    follow these instructions: To compile a C++ application, you need
+    to create a makefile. The easiest way to create a makefile for Qt
+    is to use the \l{qmake-manual.html}{qmake} build tool supplied
+    with Qt. If you've saved \c main.cpp in its own otherwise empty
+    directory, all you need to do is:
+
+    \code
+        qmake -project
+        qmake
+    \endcode
+
+    The first command tells \l{qmake-manual.html}{qmake} to create a
+    project file (a \c .pro file). The second command tells it to
+    create a platform-specific makefile based on the project file.
+    You should now be able to type \c make (or \c nmake if you're
+    using Visual Studio) and then run your first Qt application!
+
+    \section1 Running the Application
+
+    When you run the application, you will see a small window filled
+    with a single button, and on it you can read the famous words:
+    "Hello world!"
+
+    \section1 Exercises
+
+    Try to resize the window. Click the button. If you're running
+    X11, try running the program with the \c -geometry option (for
+    example, \c {-geometry 100x200+10+20}).
 */
 
-/*! \page tutorial1-03.html
+/*! \example tutorial/t2
 
-\title Qt Tutorial - Chapter 3: Family Values
+    \contentspage tutorial.html Qt Tutorial
+    \previouspage tutorial-t1.html Chapter 1
+    \nextpage tutorial-t3.html Chapter 3
 
-\img t3.png Screenshot of tutorial three
+    \title Qt Tutorial 2 - Calling it Quits
 
-This example shows how to create parent and child widgets.
+    \image t2.png Screenshot of tutorial two
 
-We'll keep it simple and use just a single parent and a lone child.
+    Having created a window in \l{tutorial/t1}{Chapter 1,} we will
+    now go on to make the application quit properly when the user tells it to.
 
-\include t3/main.cpp
-\quotefile t3/main.cpp
+    We will also use a font that is more exciting than the default one.
 
-\section1 Line-by-line Walkthrough
+    \include tutorial/t2/main.cpp
+    \quotefromfile tutorial/t2/main.cpp
 
-\skipto qvbox.h
-\printline qvbox.h
+    \section1 Line by Line Walkthrough
 
-We add an include of qvbox.h to get the layout class we'll use.
+    \skipto <QFont>
+    \printline QFont
 
-\skipto QVBox
-\printline QVBox
+    Since this program uses QFont, it needs to include \c{<QFont>}.
 
-Here we simply create a vertical box container. The QVBox arranges
-its child widgets in a vertical row, one above the other, handing out
-space according to each child's \l QWidget::sizePolicy().
+    \skipto QPushButton quit
+    \printline QPushButton
 
-\printline resize
+    This time, the button says \gui{Quit} and that's exactly what the
+    program will do when the user clicks the button.
 
-We set its width to 200 pixels and the height to 120 pixels.
+    \printline resize
 
-\printline quit
+    We've chosen another size for the button since the text is a bit
+    shorter than "Hello world!". We could also have used QFontMetrics
+    to set right size, or let QPushButton choose a reasonable
+    default.
 
-A child is born.
+    \printline setFont
 
-This QPushButton is created with both a text ("Quit") and a parent
-(box). A child widget is always on top of its parent. When
-displayed, it is clipped by its parent's bounds.
+    Here we choose a new font for the button, an 18-point bold font
+    from the Times family. It is also possible to change the default
+    font for the entire application, using QApplication::setFont().
 
-The parent widget, the QVBox, automatically adds the child centered in
-its box. Because nothing else is added, the button gets all the space
-the parent has.
+    \printline connect
 
-\skipto show
-\printline show
+    QObject::connect() is perhaps \e the most central feature of Qt.
+    Note that \l{QObject::connect()}{connect()} is a static function
+    in QObject. Do not confuse it with the \c connect() function in
+    the Berkeley socket library.
 
-When a parent widget is shown, it will call show for all its children
-(except those on which you have done an explicit \l QWidget::hide()).
+    This \l{QObject::connect()}{connect()} call establishes a one-way
+    connection between two Qt objects (objects that inherit QObject,
+    directly or indirectly). Every Qt object can have both \c signals
+    (to send messages) and \c slots (to receive messages). All
+    widgets are Qt objects, since they inherit QWidget, which in turn
+    inherits QObject.
 
-\section1 Behavior
+    Here, the \l{QPushButton::clicked()}{clicked()} signal of \c quit
+    is connected to the \l{QApplication::quit()}{quit()} slot of \c
+    app, so that when the button is clicked, the application quits.
 
-The button no longer fills the entire widget. Instead, it gets a
-"natural" size. This is because there is now a new top-level widget,
-which uses the button's size hint and size change policy to set the
-button's size and position. (See \l QWidget::sizeHint() and \l
-QWidget::setSizePolicy() for more information about these functions.)
+    The \l{signalsandslots.html}{Signals and Slots} documentation
+    describes this topic in detail.
 
-(See \link tutorial1-01.html#compiling Compiling\endlink for how to create a
-makefile and build the application.)
+    \section1 Running the Application
 
-\section1 Exercises
+    When you run this program, you will see an even smaller window than in
+    Chapter 1, filled with an even smaller button.
 
-Try resizing the window. How does the button change?  What is the
-button's size-change policy?  What happens to the button's height if
-you run the program with a bigger font?  What happens if you try to
-make the window \e really small?
+    See \l{tutorial/t1}{Chapter 1} for how to create a makefile and
+    build the application.
 
-You're now ready for \link tutorial1-04.html Chapter 4.\endlink
+    \section1 Exercises
 
-[\link tutorial1-02.html Previous tutorial\endlink]
-[\link tutorial1-04.html Next tutorial\endlink]
-[\link tutorial.html Main tutorial page\endlink]
+    Try to resize the window. Press the button. Oops! That
+    \l{QObject::connect()}{connect()} would seem to make some
+    difference.
 
+    Are there any other signals in QPushButton you can connect to
+    quit? [Hint: The QPushButton inherits most of its functionality
+    from QAbstractButton.]
 */
 
-/*! \page tutorial1-04.html
+/*! \example tutorial/t3
 
-\title Qt Tutorial - Chapter 4: Let There Be Widgets
+    \contentspage tutorial.html Qt Tutorial
+    \previouspage tutorial-t2.html Chapter 2
+    \nextpage tutorial-t4.html Chapter 4
 
-\img t4.png Screenshot of tutorial four
+    \title Qt Tutorial 3 - Family Values
 
-This example shows how to create your own widget, describes how to control the
-minimum and maximum sizes of a widget, and introduces widget names.
+    \image t3.png Screenshot of tutorial three
 
-\include t4/main.cpp
-\quotefile t4/main.cpp
+    This example shows how to create parent and child widgets.
 
-\section1 Line-by-line Walkthrough
+    We'll keep it simple and use just a single parent and a lone child.
 
-\skipto MyWidget
-\printuntil }
+    \include tutorial/t3/main.cpp
+    \quotefromfile tutorial/t3/main.cpp
 
-Here we create a new class. Because this class inherits from QWidget,
-the new class is a widget and may be a top level window or a child
-widget (like the push button in Chapter 3).
+    \section1 Line by Line Walkthrough
 
-This class has only one member, a constructor (in addition to the
-members it inherits from QWidget). The constructor is a standard Qt
-widget constructor; you should always include a similar constructor
-when you create widgets.
+    \skipto <QVBoxWidget>
+    \printline QVBoxWidget
 
-The first argument is its parent widget. To create a top-level window
-you specify a null pointer as the parent. As you can see, this widget
-defaults to be a top-level window.
+    We add an include of <QVBoxWidget> to get the layout class we'll
+    use.
 
-The second argument is the widget's name. This is \e not the text
-that appears in the window's title bar or in the button. It is a name
-associated with a widget to make it possible to \link
-QObject::queryList() look up \endlink this widget later, and there is
-also a \link QObject::dumpObjectTree() handy debugging function
-\endlink that will list a complete widget hierarchy.
+    \skipto QVBoxWidget vbox
+    \printline vbox
 
-\printline MyWidget
-\printline QWidget
+    Here we simply create a vertical box container. The QVBoxWidget
+    arranges its child widgets in a vertical row, one above the
+    other, handing out space according to each child's
+    size policy (QWidget::sizePolicy()) and size hint (QWidget::sizeHint()).
 
-The implementation of the constructor starts here. Like most widgets,
-it just passes on the \c parent and \c name to the QWidget
-constructor.
+    \printline resize
 
-\printuntil setMaximumSize
+    We set the widget's width to 200 pixels and the height to 120
+    pixels.
 
-Because this widget doesn't know how to handle resizing, we fix its size
-by setting the minimum and maximum to be equal. In the next chapter
-we will show how a widget can respond to resize event from the user.
+    \printline quit
 
-\printuntil setFont
+    A child is born.
 
-Here we create and set up a child widget of this widget (the new widget's
-parent is \c this) which has the widget name "quit". The widget
-name has nothing to do with the button text; it just happens to be
-similar in this case.
+    This QPushButton is created with a parent widget (\c vbox). A
+    child widget is always displayed within its parent's area. When
+    displayed, it is clipped by its parent's bounds.
 
-Note that \c quit is a local variable in the constructor. MyWidget
-does not keep track of it, but Qt does, and will by default delete it
-when MyWidget is deleted. This is why MyWidget doesn't need a
-destructor. (On the other hand, there is no harm in deleting a child
-when you choose to, the child will automatically tell Qt about its
-imminent death.)
+    The parent widget, the QVBoxWidget, automatically adds the child
+    centered in its box. Because nothing else is added, the button
+    gets all the space the parent has. Since the QVBoxWidget has no
+    parent, it is a top-level window, with its own window frame and
+    taskbar entry.
 
-The setGeometry() call does the same as move() and resize() did in the
-previous chapters.
+    \skipto show
+    \printline show
 
-\printline qApp
-\printline }
+    When a parent widget is shown, it will call show for all its
+    children (except those that were explicitly hidden using
+    QWidget::hide()).
 
-Because the MyWidget class doesn't know about the application object, it
-has to connect to Qt's pointer to it, \c qApp.
+    \section1 Running the Application
 
-A widget is a software component and should know as little as possible
-about its environment in order to be as general and reusable as
-possible.
+    The button no longer fills the entire widget. Instead, it gets a
+    "natural" size. This is because there is now a new top-level widget,
+    which uses the button's size hint and size change policy to set the
+    button's size and position. (See QWidget::sizeHint() and \l
+    QWidget::setSizePolicy() for more information about these functions.)
 
-Knowing the name of the application object would break this principle,
-so Qt offers an alias, qApp, for the cases in which a component such as
-MyWidget needs to talk to the application object.
+    \section1 Exercises
 
-\printuntil }
-
-Here we instantiate our new child, set it to be the main widget, and
-execute the application.
-
-\section1 Behavior
-
-This program is very similar in behavior to the previous one. The
-difference lies in the way we have implemented it. It does behave
-slightly differently, however. Just try to resize it to see.
-
-(See \link tutorial1-01.html#compiling Compiling\endlink for how to create a
-makefile and build the application.)
-
-\section1 Exercises
-
-Try to create another MyWidget object in main(). What happens?
-
-Try to add more buttons or put in widgets other than QPushButton.
-
-You're now ready for \link tutorial1-05.html Chapter 5.\endlink
-
-[\link tutorial1-03.html Previous tutorial\endlink]
-[\link tutorial1-05.html Next tutorial\endlink]
-[\link tutorial.html Main tutorial page\endlink]
-
+    Try resizing the window. How does the button change? What is the
+    button's size-change policy? What happens to the button's height
+    if you run the program with a bigger font? What happens if you
+    try to make the window really small?
 */
 
-/*! \page tutorial1-05.html
+/*! \example tutorial/t4
 
-\title Qt Tutorial - Chapter 5: Building Blocks
+    \contentspage tutorial.html Qt Tutorial
+    \previouspage tutorial-t3.html Chapter 3
+    \nextpage tutorial-t5.html Chapter 5
 
-\img t5.png Screenshot of tutorial five
+    \title Qt Tutorial 4 - Let There Be Widgets
 
-This example shows how to create and connect together several widgets
-by using signals and slots, and how to handle resize events.
+    \image t4.png Screenshot of tutorial four
 
-\include t5/main.cpp
-\quotefile t5/main.cpp
+    This example shows how to create your own widget, describes how to control the
+    minimum and maximum sizes of a widget, and introduces widget names.
 
-\section1 Line-by-line Walkthrough
+    \include tutorial/t4/main.cpp
+    \quotefromfile tutorial/t4/main.cpp
 
-\skipto qapp
-\printuntil qvbox
+    \section1 Line by Line Walkthrough
 
-Three new include files are shown here. qslider.h and qlcdnumber.h are there
-because we use two new widgets, QSlider and QLCDNumber. qvbox.h is
-here because we use Qt's automatic layout support.
+    \skipto MyWidget
+    \printuntil }
 
-\skipto MyWidget
-\printuntil }
+    Here we create a new class. Because this class inherits from QWidget,
+    the new class is a widget and may be a top-level window or a child
+    widget (like the QPushButton in the previous chapter).
 
-\target constructor
-\printuntil {
+    This class has only one member, a constructor (in addition to the
+    members it inherits from QWidget). The constructor is a standard Qt
+    widget constructor; you should always include a similar constructor
+    when you create widgets.
 
-MyWidget is now derived from QVBox instead of QWidget. That way we use
-the layout of the QVBox (which places all of its children vertically
-inside itself). Resizes are now handled automatically by the QBVox and
-therefore by MyWidget, too.
+    The first argument is its parent widget. To create a top-level window
+    you specify a null pointer as the parent. As you can see, this widget
+    defaults to be a top-level window.
 
-\skipto lcd
-\printline lcd
+    The second argument is the widget's name. This is not the text
+    that appears in the window's title bar or in the button. It is a
+    name associated with a widget to make it possible to look up this
+    widget later, and there is also a handy debugging function called
+    QObject::dumpObjectTree() that will list a complete widget
+    hierarchy.
 
-\c lcd is a QLCDNumber, a widget that displays numbers in an LCD-like
-fashion. This instance is set up to display two digits and to be a child of
-\e this. It is named "lcd".
+    \printline MyWidget
+    \printline QWidget
 
-\printline QSlider
-\printline slider
-\printline slider
+    The implementation of the constructor starts here. Like most widgets,
+    it just passes on the \c parent and \c name to the QWidget
+    constructor.
 
-QSlider is a classical slider; the user can use the widget to drag
-something to adjust an integer value in a range. Here we create a
-horizontal one, set its range to 0-99 (inclusive, see the \l
-QSlider::setRange() documentation) and its initial value to 0.
+    \printuntil setFixedSize
 
-\printline connect
+    Because this widget doesn't know how to handle resizing, we fix
+    its size. In the next chapter, we will show how a widget can
+    respond to resize event from the user.
 
-Here we use the \link signalsandslots.html signal/slot mechanism \endlink
-to connect the slider's valueChanged() signal to the LCD number's
-display() slot.
+    \printuntil setFont
 
-Whenever the slider's value changes it broadcasts the new value by
-emitting the valueChanged() signal. Because that signal is connected to
-the LCD number's display() slot, the slot is called when the signal is
-broadcast. Neither of the objects knows about the other. This is
-essential in component programming.
+    Here we create and set up a child widget of this widget (the new
+    widget's parent is \c this, i.e. the \c MyWidget instance).
 
-Slots are otherwise normal C++ member functions and follow the normal
-C++ access rules.
+    Note that \c quit is a local variable in the constructor.
+    \c MyWidget does not keep track of it; Qt does, and will
+    automatically delete it when the \c MyWidget object is deleted.
+    This is why \c MyWidget doesn't need a destructor. (On the other
+    hand, there is no harm in deleting a child when you choose to.
+    The child will automatically tell Qt about its imminent death.)
 
-\section1 Behavior
+    The QObject::setGeometry() call sets both the widget's screen
+    position and the size. It is equivalent to calling
+    QWidget::move() followed by QWidget::resize().
 
-The LCD number reflects everything you do to the slider, and the
-widget handles resizing well. Notice that the LCD number widget
-changes in size when the window is resized (because it can), but the
-others stay about the same (because otherwise they would look stupid).
+    \printline qApp
+    \printline }
 
-(See \link tutorial1-01.html#compiling Compiling\endlink for how to create a
-makefile and build the application.)
+    The \c qApp pointer is a global variable declared in the \c
+    <QApplication> header file. It points to the application's unique
+    QApplication instance.
 
-\section1 Exercises
+    \printline int main
+    \printuntil }
 
-Try changing the LCD number to add more digits or \link
-QLCDNumber::setMode() to change mode.\endlink You can even add four push
-buttons to set the number base.
+    Here we instantiate our new child, set it to be the main widget, and
+    execute the application.
 
-You can also change the slider's range.
+    \section1 Running the Application
 
-Perhaps it would have been better to use \l QSpinBox than a slider?
+    This program is very similar in behavior to the previous one. The
+    difference lies in the way we have implemented it. It does behave
+    slightly differently, however. Just try to resize it to see.
 
-Try to make the application quit when the LCD number overflows.
+    \section1 Exercises
 
-You're now ready for \link tutorial1-06.html Chapter 6.\endlink
+    Try to create another \c MyWidget object in \c main(). What happens?
 
-[\link tutorial1-04.html Previous tutorial\endlink]
-[\link tutorial1-06.html Next tutorial\endlink]
-[\link tutorial.html Main tutorial page\endlink]
-
+    Try to add more buttons or put in widgets other than QPushButton.
 */
 
-/*! \page tutorial1-06.html
+/*! \example tutorial/t5
 
-\title Qt Tutorial - Chapter 6: Building Blocks Galore!
+    \contentspage tutorial.html Qt Tutorial
+    \previouspage tutorial-t4.html Chapter 4
+    \nextpage tutorial-t6.html Chapter 6
 
-\img t6.png Screenshot of tutorial six
+    \title Qt Tutorial 5 - Building Blocks
 
-This example shows how to encapsulate two widgets into a new component and
-how easy it is to use many widgets. For the first time, we use a custom
-widget as a child widget.
+    \image t5.png Screenshot of tutorial five
 
-\target main
-\include t6/main.cpp
-\quotefile t6/main.cpp
+    This example shows how to create and connect together several widgets
+    by using signals and slots, and how to handle resize events.
 
-\section1 Line-by-line Walkthrough
+    \include tutorial/t5/main.cpp
+    \quotefromfile tutorial/t5/main.cpp
 
-\skipto LCDRange
-\printuntil };
+    \section1 Line by Line Walkthrough
 
-The LCDRange widget is a widget without any API. It just has a
-constructor. This sort of widget is not very useful, so we'll add some API later.
+    \skipto MyWidget
+    \printuntil }
 
-\printuntil }
+    \target constructor
+    \printuntil {
 
-This is lifted straight from the
-\link tutorial1-05.html#constructor MyWidget constructor \endlink in Chapter 5.
-The only differences are that the button is left out and the class
-is renamed.
+    \c MyWidget now derives from QVBoxWidget instead of QWidget. That
+    way we use the QVBoxWidget's layout capabilities (which places
+    all of its children vertically inside itself).
 
-\printline MyWidget
-\printuntil }
+    \skipto lcd
+    \printline lcd
 
-MyWidget, too, contains no API except a constructor.
+    \c lcd is a QLCDNumber, a widget that displays numbers in an LCD-like
+    fashion. This instance is set up to display two digits and to be a child of
+    \c this.
 
-\printline MyWidget
-\printuntil connect
+    \printline QSlider
+    \printline slider
+    \printline slider
 
-The push button that used to be in what is now LCDRange has been
-separated so that we can have one "Quit" button and many LCDRange
-objects.
+    QSlider is a classical slider; the user can use the widget to
+    drag something to adjust an integer value in a range. Here we
+    create a horizontal one, set its minimum value to 0, its maximum
+    value to 99, and its initial value to 0.
 
-\printline grid
+    \printline connect
+    \printline SLOT
 
-We create a QGrid object with four columns. The QGRid widget
-automatically arranges its children in rows and columns; you can
-specify the number of rows or of columns, and QGrid will discover its
-new children and fit them into the grid.
+    Here we use the \l{signalsandslots.html}{signals and slots
+    mechanism} to connect the slider's
+    \l{QSlider::valueChanged()}{valueChanged()} signal to the LCD
+    number's \l{QLCDNumber::display()}{display()} slot.
 
-\printline for
-\printline for
-\printline LCDRange
+    Whenever the slider's value changes it broadcasts the new value
+    by emitting the \l{QSlider::valueChanged()}{valueChanged()}
+    signal. Because that signal is connected to the LCD number's
+    \l{QLCDNumber::display()}{display()} slot, the slot is called
+    when the signal is broadcast. Neither of the objects knows about
+    the other. This is essential in component programming.
 
-Four columns, four rows.
+    Slots are otherwise normal C++ member functions and follow the normal
+    C++ access rules.
 
-We create 4*4 LCDRanges, all of which are children of the grid object.
-The QGrid widget will arrange them.
+    \section1 Running the Application
 
-\printline }
+    The LCD number reflects everything you do to the slider, and the
+    widget handles resizing well. Notice that the LCD number widget
+    changes in size when the window is resized (because it can), but the
+    others stay about the same (because otherwise they would look stupid).
 
-That's all.
+    \section1 Exercises
 
-\section1 Behavior
+    Try changing the LCD number to add more digits or to change mode
+    (QLCDNumber::setMode()). You can even add four push buttons to
+    set the number base.
 
-This program shows how easy it is to use many widgets at a time. Each
-one behaves like the slider and LCD number in the previous
-chapter. Again, the difference lies in the implementation.
+    You can also change the slider's range.
 
-(See \link tutorial1-01.html#compiling Compiling\endlink for how to create a
-makefile and build the application.)
+    Perhaps it would have been better to use QSpinBox than a slider?
 
-\section1 Exercises
-
-Initialize each slider with a different/random value on startup.
-
-The source contains three occurrences of "4". What happens if you
-change the one in the \l QGrid constructor call?  What about the other
-two?  Why is this?
-
-You're now ready for \link tutorial1-07.html Chapter 7.\endlink
-
-[\link tutorial1-05.html Previous tutorial\endlink]
-[\link tutorial1-07.html Next tutorial\endlink]
-[\link tutorial.html Main tutorial page\endlink]
-
+    Try to make the application quit when the LCD number overflows.
 */
 
-/*! \file t7/lcdrange.h */
-/*! \file t7/lcdrange.cpp */
-/*! \file t7/main.cpp */
+/*! \example tutorial/t6
 
-/*! \page tutorial1-07.html
+    \contentspage tutorial.html Qt Tutorial
+    \previouspage tutorial-t5.html Chapter 5
+    \nextpage tutorial-t7.html Chapter 7
 
-\title Qt Tutorial - Chapter 7: One Thing Leads to Another
+    \title Qt Tutorial 6 - Building Blocks Galore!
 
-\img t7.png Screenshot of tutorial seven
+    \image t6.png Screenshot of tutorial six
 
-This example shows how to create custom widgets with signals and
-slots, and how to connect them together in more complex ways. For the
-first time, the source is split among several files which we've placed
-in the \c t7 subdirectory.
+    This example shows how to encapsulate two widgets into a new component and
+    how easy it is to use many widgets. For the first time, we use a custom
+    widget as a child widget.
 
-\list
-\i \l t7/lcdrange.h contains the LCDRange class definition.
-\i \l t7/lcdrange.cpp contains the LCDRange implementation.
-\i \l t7/main.cpp contains MyWidget and main.
-\endlist
+    \target main
+    \include tutorial/t6/main.cpp
+    \quotefromfile tutorial/t6/main.cpp
 
-\section1 Line-by-line Walkthrough
+    \section1 Line by Line Walkthrough
 
-\section2 \l t7/lcdrange.h
+    \skipto LCDRange
+    \printuntil };
 
-This file is mainly lifted from \link tutorial1-06.html#main main.cpp \endlink in
-Chapter 6; only the changes are noted here.
+    The \c LCDRange widget is a widget without any API. It just has a
+    constructor. This sort of widget is not very useful, so we'll add
+    some API later.
 
-\quotefile t7/lcdrange.h
+    \printuntil }
 
-\skipto ifndef
-\printuntil define
+    This is lifted straight from the \c MyWidget constructor in
+    Chapter 5. The only differences are that the \gui{Quit} button is
+    left out and the class is renamed.
 
-This is the classic C construction to avoid errors if a header file
-happens to be included more than once. If you don't use it already,
-it is a very good habit to develop. The #ifndef should enclose \e all of the
-header file.
+    \printline MyWidget
+    \printuntil }
 
-\printline include
+    \c MyWidget, too, contains no API except a constructor.
 
-\c qvbox.h is included. LCDRange inherits QVBox, and the header file
-of a parent class must always be included. We cheated a bit in the
-previous chapters, and we let \c qwidget.h be included indirectly via
-other header files such as \c qpushbutton.h.
+    \printline MyWidget
+    \printuntil connect
 
-\printline QSlider
+    The push button that used to be in what is now \c LCDRange has been
+    separated so that we can have one \gui{Quit} button and many \c LCDRange
+    objects.
 
-This is another classic trick, but one that's much less used often. Because
-we don't need QSlider in the \e interface of the class, only in the
-implementation, we use a forward declaration of the class in the
-header file and include the header file for QSlider in the .cpp
-file.
+    \printline grid
 
-This makes the compilation of big projects much faster, because when a
-header file has changed, fewer files need to be recompiled. It can
-often speed up big compilations by a factor of two or more.
+    We create a QGridWidget object with four columns. The QGridWidget
+    automatically arranges its children in rows and columns; you can
+    specify the number of rows or of columns, and QGridWidget will
+    discover its new children and fit them into the grid.
 
-\skipto LCDRange
-\printuntil parent=0
+    \printline for
+    \printline for
+    \printline LCDRange
+    \printline }
+    \printline }
 
-Note the Q_OBJECT. This macro must be included in \e all classes that
-contain signals and/or slots. If you are curious, it defines the
-functions that are implemented in the
-\link metaobjects.html meta object file \endlink.
+    We create 16 \c LCDRange widgets, all of which are children of
+    the grid object. The QGridWidget will arrange them in four
+    columns.
 
-\printline value
-\printuntil valueChanged
+    \printline }
 
-These three members make up an interface between this widget and other
-components in a program. Until now, LCDRange didn't really have an
-interface at all.
+    That's all.
 
-value() is a public function for accessing the value of the LCDRange.
-setValue() is our first custom slot and valueChanged() is our first
-custom signal.
+    \section1 Running the Application
 
-Slots must be implemented in the normal way (remember that a slot is also
-a C++ member function). Signals are automatically implemented in the
-\link signalsandslots.html meta object\endlink file. Signals follow the
-access rules of protected C++ functions (i.e., they can be emitted only
-by the class they are defined in or by classes inheriting from it).
+    This program shows how easy it is to use many widgets at a time. Each
+    one behaves like the slider and LCD number in the previous
+    chapter. Again, the difference lies in the implementation.
 
-The signal valueChanged() is used when the LCDRange's value has
-changed - just as you guessed from the name. This is not the last
-signal you'll see called <i>something</i>Changed().
+    \section1 Exercises
 
-\section2 \l t7/lcdrange.cpp
+    Initialize each slider with a different/random value on startup.
 
-\quotefile t7/lcdrange.cpp
-
-This file is mainly lifted from \link tutorial1-06.html#main t6/main.cpp \endlink, and
-only the changes are noted here.
-
-\skipto connect
-\printline connect
-\printline display
-\printline connect
-\printline valueChanged
-
-This code is from the LCDRange constructor.
-
-The first connect is the same that you have seen in the previous chapter.
-The second is new; it connects slider's valueChanged() signal to this
-object's valueChanged \e signal. Connect() with 3 arguments always
-connects to signals or slots in \c this object.
-
-Yes, that's right. Signals can be connected to other signals. When
-the first is emitted, the second signal is also emitted.
-
-Let's look at what happens when the user operates the slider. The
-slider sees that its value has changed and emits the valueChanged()
-signal. That signal is connected both to the display() slot of the
-QLCDNumber and to the valueChanged() signal of the LCDRange.
-
-Thus, when the signal is emitted, LCDRange emits its own
-valueChanged() signal. In addition, QLCDNumber::display() is called
-and shows the new number.
-
-Note that you're not guaranteed any particular order of execution -
-LCDRange::valueChanged() may be emitted before or after
-QLCDNumber::display()and is entirely arbitrary.
-
-\skipto LCDRange::value
-\printuntil }
-
-The implementation of value() is straightforward; it simply returns
-the slider's value.
-
-\printline setValue
-\printuntil }
-
-The implementation of setValue() is equally straightforward. Note
-that because the slider and LCD number are connected, setting the
-slider's value automatically updates the LCD number as well. In
-addition, the slider will automatically adjust the value if it is
-outside its legal range.
-
-\section2 \l t7/main.cpp
-
-\quotefile t7/main.cpp
-
-\skipto previous
-\printline previous
-\printuntil setValue
-\printline previous
-\printline }
-\printline }
-
-All of main.cpp is copied from the previous chapter except in
-the constructor for MyWidget. When we create the 16 LCDRange object, we
-now connect them using the \link signalsandslots.html
-signal/slot\endlink mechanism. Each has its valueChanged() signal
-connected to the setValue() slot in the previous one. Because LCDRange
-emits the signal valueChanged() when its value changes (surprise!), we
-are here creating a "chain" of signals and slots.
-
-\target compiling
-\section1 Compiling
-
-Creating a makefile for a multi-file application is no different from
-creating one for a single-file application. If you've saved all the
-files in this example in their own directory, all you have to do is:
-\code
-qmake -project
-qmake
-\endcode
-
-The first command tells \link qmake-manual.html qmake\endlink to
-create a \c .pro (project) file. The second command tells it to create
-a (platform-specific) makefile based on the project file. You should
-now be able to type \c make (or \c nmake if you're using Visual
-Studio) to build your application.
-
-\section1 Behavior
-
-On startup, the program's appearance is identical to the previous one.
-Try operating the slider to the bottom-right...
-
-\section1 Exercises
-
-Use the bottom-right slider to set all LCDs to 50. Then set the top
-half to 40 by clicking once to the left of the slider handle. Now,
-use the one to the left of the last one operated to set the first
-seven LCDs back to 50.
-
-Click to the left of the handle on the bottom-right slider. What
-happens?  Why is this the correct behavior?
-
-You're now ready for \link tutorial1-08.html Chapter 8.\endlink
-
-[\link tutorial1-06.html Previous tutorial\endlink]
-[\link tutorial1-08.html Next tutorial\endlink]
-[\link tutorial.html Main tutorial page\endlink]
-
+    The source contains three occurrences of "4". What happens if you
+    change the one in the QGridWidget constructor call? What about
+    the other two? Why is this?
 */
 
-/*! \file t8/lcdrange.h */
-/*! \file t8/lcdrange.cpp */
-/*! \file t8/cannon.h */
-/*! \file t8/cannon.cpp */
-/*! \file t8/main.cpp */
+/*! \example tutorial/t7
 
-/*! \page tutorial1-08.html
+    \contentspage tutorial.html Qt Tutorial
+    \previouspage tutorial-t6.html Chapter 6
+    \nextpage tutorial-t8.html Chapter 8
 
-\title Qt Tutorial - Chapter 8: Preparing for Battle
+    \title Qt Tutorial 7 - One Thing Leads to Another
 
-\img t8.png Screenshot of tutorial eight
+    \image t7.png Screenshot of tutorial seven
 
-In this example, we introduce the first custom widget that can paint
-itself. We also add a useful keyboard interface (with two lines of
-code).
+    This example shows how to create custom widgets with signals and
+    slots, and how to connect them together in more complex ways. For the
+    first time, the source is split among several files which we've placed
+    in the \c tutorial/t7 directory.
 
-\list
-\i \l t8/lcdrange.h contains the LCDRange class definition.
-\i \l t8/lcdrange.cpp contains the LCDRange implementation.
-\i \l t8/cannon.h contains the CannonField class definition.
-\i \l t8/cannon.cpp contains the CannonField implementation.
-\i \l t8/main.cpp contains MyWidget and main.
-\endlist
+    \section1 Line by Line Walkthrough
 
-\section1 Line-by-line Walkthrough
+    \section2 \l{tutorial/t7/lcdrange.h}{t7/lcdrange.h}
 
-\section2 \l t8/lcdrange.h
+    This file is mainly lifted from \c main.cpp in Chapter 6; only
+    the non-trivial changes are noted here.
 
-This file is very similar to the lcdrange.h in Chapter 7. We have added
-one slot: setRange().
+    \quotefromfile tutorial/t7/lcdrange.h
 
-\quotefile t8/lcdrange.h
+    \skipto ifndef
+    \printuntil define
 
-\skipto setRange
-\printline setRange
+    This, together with the \c #endif at the end of the file, is the
+    classic C++ construction to avoid errors if a header file happens
+    to be included more than once. If you don't use it already, it is
+    a very good habit to develop.
 
-We now add the possibility of setting the range of the LCDRange.
-Until now, it has been fixed at 0..99.
+    \printline include
 
-\section2 \l t8/lcdrange.cpp
+    \c <QVBoxWidget> is included. Our \c LCDRange class inherits
+    QVBoxWidget, and the header file of a parent class must always be
+    included. We cheated a bit in the previous chapters, and we let
+    \c <QWidget> be included indirectly via other header files.
 
-\quotefile t8/lcdrange.cpp
+    \printline QSlider
 
-There is a change to the constructor (we'll discuss that later).
+    This is another classic trick, but one that's much less used
+    often. Because we don't need QSlider in the interface of the
+    class, only in the implementation, we use a forward declaration
+    of the class in the header file and include the header file for
+    QSlider in the \c .cpp file.
 
-\skipto ::setRange
-\printuntil slider
-\printline }
+    This makes the compilation of big projects much faster, because
+    the compiler usually spends most of its time parsing header
+    files, not the actual source code. This trick alone can often
+    speed up compilations by a factor of two or more.
 
-SetRange() sets the range of the slider in the LCDRange. Because we
-have set up the QLCDNumber to always display two digits, we want to
-limit the possible range of \c minVal and \c maxVal to 0..99 to avoid
-overflow of the QLCDNumber. (We could have allowed values down to -9
-but chose not to.)  If the arguments are illegal, we use Qt's
-qWarning() function to issue a warning to the user and return
-immediately. qWarning() is a printf-like function that by default
-sends its output to \c stderr. If you want, you can install your own handler
-function using \l ::qInstallMsgHandler().
+    \skipto LCDRange
+    \printuntil parent = 0
 
-\section2 \l t8/cannon.h
+    Note the \c Q_OBJECT. This macro must be included in \e all
+    classes that contain signals and/or slots. If you are curious, it
+    defines the functions that are implemented in the
+    \l{metaobjects.html}{meta-object file}.
 
-CannonField is a new custom widget that knows how to display itself.
+    \printline value
+    \printuntil valueChanged
 
-\quotefile t8/cannon.h
+    These three members make up an interface between this widget and
+    other components in a program. Until now, \c LCDRange didn't
+    really have an API at all.
 
-\skipto include
-\skipto class
-\printuntil parent=0
+    \c value() is a public function for accessing the value of the \c
+    LCDRange, \c setValue() is our first custom slot, and \c
+    valueChanged() is our first custom signal.
 
-CannonField inherits QWidget, and we use the same idiom as for LCDRange.
+    Slots must be implemented in the normal way (a slot is also a C++
+    member function). Signals are automatically implemented in the
+    \l{metaobjects.html}{meta-object file}. Signals follow the
+    access rules of protected C++ functions (i.e., they can be
+    emitted only by the class they are defined in or by classes
+    inheriting from it).
 
-\printuntil angleChanged
+    The \c valueChanged() signal is used when the \c{LCDRange}'s
+    value has changed.
 
-For the time being, CannonField only contains an angle value for which we
-provide an interface using the same idiom as for value in LCDRange.
+    \section2 \l{tutorial/t7/lcdrange.cpp}{t7/lcdrange.cpp}
 
-\printline protected
-\printline paintEvent
+    \quotefromfile tutorial/t7/lcdrange.cpp
 
-This is the second of the many event handlers in QWidget that we
-encounter. This virtual function is called by Qt whenever a widget needs
-to update itself (i.e., paint the widget's surface).
+    This file is mainly lifted from \c main.cpp in Chapter 6, and only
+    the changes are noted here.
 
+    \skipto connect
+    \printline connect
+    \printline display
+    \printline connect
+    \printline valueChanged
 
-\section2 \l t8/cannon.cpp
+    This code is from the \c LCDRange constructor.
 
-\quotefile t8/cannon.cpp
-
-\skipto ::CannonField
-\printuntil {
-
-Again, we use the same idiom as for LCDRange in the previous chapter.
-
-\printuntil }
-
-The constructor initializes the angle value to 45 degrees and sets a
-custom palette for this widget.
-
-This palette uses the indicated color as background and picks other
-colors suitably. (For this widget only the background and text
-colors will actually be used.)
-
-\skipto ::setAngle
-\printuntil emit
-\printline }
-
-This function sets the angle value. We have chosen a legal range of
-5..70 and adjust the given number of degrees accordingly. We have
-chosen not to issue a warning if the new angle is out of range.
-
-If the new angle equals the old one, we return immediately. It is
-important to only emit the signal angleChanged() when the angle \e
-really has changed.
-
-Then we set the new angle value and repaint our widget. The \l
-QWidget::repaint() function clears the widget (usually filling it with
-its background color) and sends a paint event to the widget. This
-results in a call to the paint event function of the widget.
-
-Finally, we emit the angleChanged() signal to tell the outside world
-that the angle has changed. The \c emit keyword is unique to Qt and
-not regular C++ syntax. In fact, it is a macro.
-
-\skipto ::paintEvent
-\printuntil drawText
-\printline }
-
-This is our first attempt to write a paint event handler. The event
-argument contains a description of the paint event. \l QPaintEvent
-contains the region in the widget that must be updated. For the time
-being, we will be lazy and just paint everything.
-
-Our code displays the angle value in the widget at a fixed position.
-First we create a QString with some text and the angle; then we create
-a QPainter operating on this widget and use it to paint the string.
-We'll come back to QPainter later; it can do a great many things.
-
-
-\section2 \l t8/main.cpp
-
-\quotefile t8/main.cpp
-
-\skipto cannon.h
-\printline cannon.h
-
-We include our new class.
-
-\skipto MyWidget
-\printuntil };
-
-This time we include a single LCDRange and a CannonField in our top-level
-widget.
-
-\skipto angle
-\printline angle
-
-In the constructor, we create and set up our LCDRange.
-
-\printline setRange
-
-We set the LCDRange to accept ranges from 5 to 70 degrees.
-
-\printline cannonField
-\printline CannonField
-
-We create our CannonField.
-
-\printuntil setValue
-
-Here we connect the valueChanged() signal of the LCDRange to the
-setAngle() slot of the CannonField. This will update CannonField's angle
-value whenever the user operates the LCDRange. We also make the reverse
-connection so that changing the angle in the CannonField will update the
-LCDRange value. In our example we never change the angle of the
-CannonField directly; but by doing the last connect() we ensure that no
-future changes will disrupt the synchronization between those two values.
-
-This illustrates the power of component programming and proper
-encapsulation.
-
-Notice how important it is to emit the angleChanged() signal only when
-the angle actually changes. If both the LCDRange and the CannonField
-had omitted this check, the program would have entered an infinite
-loop upon the first change of one of the values.
-
-\printline QGridLayout
-\printline 2x2
-
-So far we have used the no-assembly-required QVBox and QGrid widgets
-for geometry management. Now, however, we want to have a little more
-control over the layout, and we switch to the more powerful QGridLayout
-class. QGridLayout isn't a widget; it is a different class that can
-manage the children of \e any widget.
-
-As the comment indicates, we create a two-by-two array with ten pixel
-borders. (The constructor for \l QGridLayout can be a little cryptic,
-so it's good to put in such comments.)
-
-\printline addWidget
-
-We add the Quit button in the top-left cell of the grid: 0, 0.
-
-\printline addWidget
-
-We put the angle LCDRange in the bottom-left cell, aligned to the top
-of its cell. (This alignment is one of the things QGridLayout allows
-but QGrid does not allow.)
-
-\printline addWidget
-
-We put the CannonField object in the bottom-right cell. (The top-
-right cell is empty.)
-
-\printline setColStretch
-
-We tell QGridLayout that the right column (column 1) is stretchable.
-Because the left column isn't (it has stretch factor 0, the default
-value), QGridLayout will try to let the left-hand widgets' sizes be
-unchanged and will resize just the CannonField when the MyWidget is
-resized.
-
-\printline setValue
-
-We set an initial angle value. Note that this will trigger the
-connection from LCDRange to CannonField.
-
-\printline setFocus
-
-Our last action is to set \c angle to have keyboard focus so that
-keyboard input will go to the LCDRange widget by default.
-
-LCDRange does not contain any keyPressEvent(), so that would seem not
-to be terribly useful. However, its constructor just got a new line:
-
-\quotefile t8/lcdrange.cpp
-\skipto setFocusProxy
-\printline setFocusProxy
-
-The LCDRange sets the slider to be its focus proxy. That means that
-when someone (the program or the user) wants to give the LCDRange
-keyboard focus, the slider should take care of it. QSlider has a decent
-keyboard interface, so with just one line of code we've given LCDRange
-one.
-
-\section1 Behavior
-
-The keyboard now does something - the arrow keys, Home, End, PageUp
-and PageDown all do something vaguely sensible.
-
-When the slider is operated, the CannonField displays the new angle
-value. Upon resizing, CannonField is given as much space as possible.
-
-On Windows machines with an 8-bit display the new background color is
-dithered to death. The next chapter works around this.
-
-(See \link tutorial1-07.html#compiling Compiling\endlink for how to create a
-makefile and build the application.)
-
-\section1 Exercises
-
-Try to resize the window. What happens if you make it really narrow
-or really squat?
-
-If you remove the AlignTop, what happens to the LCDRange's position
-and size?  Why?
-
-If you give the left-hand column a non-zero stretch factor, what
-happens when you resize the window?
-
-Leave out the setFocus() call. Which behavior do you prefer?
-
-Try to change "Quit" to "&Quit" in the QButton::setText() call. How
-does the button's look change?  What happens if you press Alt+Q while
-the program's running?  (It is Meta+Q on a few keyboards.)
-
-Center the text in the CannonField.
-
-You're now ready for \link tutorial1-09.html Chapter 9.\endlink
-
-[\link tutorial1-07.html Previous tutorial\endlink]
-[\link tutorial1-09.html Next tutorial\endlink]
-[\link tutorial.html Main tutorial page\endlink]
-
+    The first \l{QObject::connect()}{connect()} call is the same that
+    you have seen in the previous chapter. The second is new; it
+    connects slider's \l{QSlider::valueChanged()}{valueChanged()}
+    signal to this object's \c valueChanged() signal. Yes, that's
+    right. Signals can be connected to other signals. When the first
+    is emitted, the second signal is also emitted.
+
+    Let's look at what happens when the user operates the slider. The
+    slider sees that its value has changed and emits the
+    \l{QSlider::valueChanged()}{valueChanged()} signal. That signal
+    is connected both to the \l{QLCDNumber::display()}{display()}
+    slot of the QLCDNumber and to the \c valueChanged() signal of the
+    \c LCDRange.
+
+    Thus, when the signal is emitted, \c LCDRange emits its own \c
+    valueChanged() signal. In addition, QLCDNumber::display() is
+    called and shows the new number.
+
+    Note that you're not guaranteed any particular order of
+    execution; \c LCDRange::valueChanged() may be emitted before or
+    after QLCDNumber::display() is called.
+
+    \skipto LCDRange::value
+    \printuntil }
+
+    The implementation of \c value() is straightforward. It simply
+    returns the slider's value.
+
+    \printline setValue
+    \printuntil }
+
+    The implementation of \c setValue() is equally straightforward.
+    Note that because the slider and LCD number are connected,
+    setting the slider's value automatically updates the LCD number
+    as well. In addition, the slider will automatically adjust the
+    value if it is outside its legal range.
+
+    \section2 \l{tutorial/t7/main.cpp}{t7/main.cpp}
+
+    \quotefromfile tutorial/t7/main.cpp
+
+    \skipto previous
+    \printline previous
+    \printuntil setValue
+    \printline previous
+    \printline }
+    \printline }
+
+    All of \c main.cpp is copied from the previous chapter except in
+    the constructor for \c MyWidget. When we create the 16 \c
+    LCDRange objects, we now connect them using the
+    \l{signalsandslots.html}{signals and slots mechanism}. Each has
+    its \c valueChanged() signal connected to the previous one's \c
+    setValue() slot. Because \c LCDRange emits the \c valueChanged()
+    signal when its value changes, we are here creating a chain of
+    signals and slots.
+
+    \target compiling
+    \section1 Compiling the Application
+
+    Creating a makefile for a multi-file application is no different from
+    creating one for a single-file application. If you've saved all the
+    files in this example in their own directory, all you have to do is:
+
+    \code
+        qmake -project
+        qmake
+    \endcode
+
+    The first command tells \l{qmake-manual.html}{qmake} to create a
+    \c .pro file. The second command tells it to create a
+    (platform-specific) makefile based on the project file. You
+    should now be able to type \c make (or \c nmake if you're using
+    Visual Studio) to build your application.
+
+    \section1 Running the Application
+
+    On startup, the program's appearance is identical to the previous
+    one. Try operating the slider to the bottom-right.
+
+    \section1 Exercises
+
+    Use the bottom-right slider to set all LCDs to 50. Then set the top
+    half to 40 by clicking once to the left of the slider handle. Now,
+    use the one to the left of the last one operated to set the first
+    seven LCDs back to 50.
+
+    Click to the left of the handle on the bottom-right slider. What
+    happens? Why is this the correct behavior?
 */
 
-/*! \file t9/lcdrange.h */
-/*! \file t9/lcdrange.cpp */
-/*! \file t9/cannon.h */
-/*! \file t9/cannon.cpp */
-/*! \file t9/main.cpp */
+/*! \example tutorial/t8
 
-/*! \page tutorial1-09.html
+    \contentspage tutorial.html Qt Tutorial
+    \previouspage tutorial-t7.html Chapter 7
+    \nextpage tutorial-t9.html Chapter 9
 
-\title Qt Tutorial - Chapter 9: With Cannon You Can
+    \title Qt Tutorial 8 - Preparing for Battle
 
-\img t9.png Screenshot of tutorial nine
+    \image t8.png Screenshot of tutorial eight
 
-In this example we become graphic by drawing a cute little blue
-cannon. Only cannon.cpp differs from the previous chapter.
+    In this example, we introduce the first custom widget that can paint
+    itself. We also add a useful keyboard interface (with two lines of
+    code).
 
-\list
-\i \l t9/lcdrange.h contains the LCDRange
-class definition.
-\i \l t9/lcdrange.cpp contains the LCDRange
-implementation.
-\i \l t9/cannon.h contains the CannonField class
-definition.
-\i \l t9/cannon.cpp contains the CannonField
-implementation.
-\i \l t9/main.cpp contains MyWidget and main.
-\endlist
+    \section1 Line by Line Walkthrough
 
-\section1 Line-by-line Walkthrough
+    \section2 \l{tutorial/t8/lcdrange.h}{t8/lcdrange.h}
 
-\section2 \l t9/cannon.cpp
+    This file is very similar to the lcdrange.h in Chapter 7. We have added
+    one slot: \c setRange().
 
-\quotefile t9/cannon.cpp
+    \quotefromfile tutorial/t8/lcdrange.h
 
-\skipto ::paintEvent
-\printuntil QPainter
+    \skipto setRange
+    \printline setRange
 
-We'll now start to use QPainter in earnest. We create a painter that
-operates on this widget.
+    We now add the possibility of setting the range of the \c LCDRange.
+    Until now, it has been fixed at 0 to 99.
 
-\printline setBrush
+    \section2 \l{tutorial/t8/lcdrange.cpp}{t8/lcdrange.cpp}
 
-When QPainter fills a rectangle, a circle, or whatever, it fills the
-shape using its brush. Here we set it to use a blue brush. (We
-could also use a pattern.)
+    \quotefromfile tutorial/t8/lcdrange.cpp
 
-\printline setPen
+    There is a change to the constructor (we'll discuss that later).
 
-And the edges of what QPainter draws are drawn using the pen. Here we
-set it to NoPen, meaning that there will be no special edge when we
-draw something; the blue brush will go all the way to the edges of
-the things we draw.
+    \skipto ::setRange
+    \printuntil slider
+    \printline }
 
-\skipto translate
-\printline translate
+    The \c setRange() slot sets the range of the slider in the \c
+    LCDRange. Because we have set up the QLCDNumber to always display
+    two digits, we want to limit the possible range of \c minVal and
+    \c maxVal to avoid overflow of the QLCDNumber. (We could have
+    allowed values down to -9 but chose not to.) If the arguments are
+    illegal, we use Qt's qWarning() function to issue a warning to
+    the user and return immediately. qWarning() is a \c{printf}-like
+    function that by default sends its output to \c stderr. If you
+    want, you can install your own handler function using
+    qInstallMsgHandler().
 
-The \l QPainter::translate() function translates the coordinate
-system of the QPainter; i.e., it moves it by an offset. Here we set
-the (0, 0) point to the bottom-left corner of the widget. The x and
-y directions remain unchanged, i.e., all the y coordinates inside the
-widget are now negative (see \link coordsys.html The Coordinate
-System\endlink for more information about Qt's coordinate system).
+    \section2 \l{tutorial/t8/cannonfield.h}{t8/cannonfield.h}
 
-\printline drawPie
+    \c CannonField is a new custom widget that knows how to display
+    itself.
 
-The drawPie() function draws a pie shape inside the specified
-rectangle using a start angle and an arc length. The angles are
-specified in 1/16th of a degree. Zero degrees is at the 3 o'clock
-position. The drawing direction is counter-clockwise. Here we draw a
-quarter of a circle in the bottom-left corner of the widget. The pie
-is filled with blue and has no outline.
+    \quotefromfile tutorial/t8/cannonfield.h
 
-\printline rotate
+    \skipto include
+    \skipto class
+    \printuntil parent = 0
 
-The QPainter::rotate() function rotates the coordinate system of the
-QPainter around the origin. The rotation argument is a \c float given
-in degrees (not given in 1/16th of a degree as above) and clockwise.
-Here we rotate the coordinate system \c ang degrees counter-clockwise.
+    \c CannonField inherits QWidget. We use the same idiom as for \c
+    LCDRange.
 
-\printline drawRect
+    \printuntil angleChanged
 
-The QPainter::drawRect() function draws the specified rectangle. Here
-we draw the barrel of the cannon.
+    For the time being, \c CannonField only contains an angle value
+    for which we provide an interface using the same idiom as for
+    value in \c LCDRange.
 
-It can often be difficult to envision the resulting drawing when the
-coordinate system has been transformed (translated, rotated, scaled, or
-sheared) as above.
+    \printline protected
+    \printline paintEvent
 
-In this case the coordinate system is first translated and then rotated.
-If the rectangle QRect(33, -4, 15, 8) had been drawn in the translated
-coordinate system, it would have looked like this:
+    This is the second of the many event handlers in QWidget that we
+    encounter. This virtual function is called by Qt whenever a widget needs
+    to update itself (i.e., paint the widget's surface).
 
-\img t9_1.png The cannon translated but not rotated
+    \section2 \l{tutorial/t8/cannonfield.cpp}{t8/cannonfield.cpp}
 
-Note that the rectangle is clipped by the border of the CannonField
-widget. When we rotate the coordinate system, for instance 60
-degrees, the rectangle will be rotated around (0, 0), which is the
-bottom-left corner because we have translated the coordinate system.
-The result looks like this:
+    \quotefromfile tutorial/t8/cannonfield.cpp
 
-\img t9_2.png The cannon translated and rotated
+    \skipto ::CannonField
+    \printuntil {
 
-We're done, except that we haven't explained why Windows didn't dither
-this time.
+    Again, we use the same idiom as for \c LCDRange in the previous
+    chapter.
 
-\quotefile t9/main.cpp
-\skipto main
-\printline main
-\printline {
-\printline CustomColor
-\printline QApplication
+    \printuntil }
 
-We tell Qt that we want a different color-allocation strategy for this
-program. There is no single correct color-allocation strategy. Because
-this program uses an unusual yellow but not many colors, \c
-CustomColor is best. There are several other allocation strategies; you can read about them in the \l QApplication::setColorSpec()
-documentation.
+    The constructor initializes the angle value to 45 degrees and sets a
+    custom palette for this widget.
 
-Mostly you can ignore this, since the default is good. Occasionally
-some applications with unusual color use look bad; changing the
-allocation strategy often helps then.
+    This palette uses the indicated color as background and picks other
+    colors suitably. (For this widget only the background and text
+    colors will actually be used.)
 
-\section1 Behavior
+    \skipto ::setAngle
+    \printuntil emit
+    \printline }
 
-When the slider is operated the angle of the drawn cannon changes
-accordingly.
+    This function sets the angle value. We have chosen a legal range
+    of 5 to 70 and adjust the given number of degrees accordingly. We
+    have chosen not to issue a warning if the new angle is out of
+    range.
 
-The Q on the Quit button is now underlined, and Alt+Q does what you
-think it does. If you do not know why, you didn't do the exercises in
-Chapter 8.
+    If the new angle equals the old one, we return immediately. It is
+    important to only emit the \c angleChanged() signal when the
+    angle really has changed.
 
-You may notice that the cannon flickers annoyingly, especially on a
-slow machine. We'll fix this in the next chapter.
+    Then we set the new angle value and repaint our widget. The
+    QWidget::repaint() function clears the widget (usually filling it with
+    its background color) and sends a paint event to the widget. This
+    results in a call to the paint event function of the widget.
 
-(See \link tutorial1-07.html#compiling Compiling\endlink for how to create a
-makefile and build the application.)
+    Finally, we emit the \c angleChanged() signal to tell the outside
+    world that the angle has changed. The \c emit keyword is unique
+    to Qt and not regular C++ syntax. In fact, it is a macro.
 
-\section1 Exercises
+    \skipto ::paintEvent
+    \printuntil drawText
+    \printline }
 
-Set a different pen instead of NoPen. Set a patterned brush.
+    This is our first attempt to write a paint event handler. The event
+    argument contains a description of the paint event. QPaintEvent
+    contains the region in the widget that must be updated. For the time
+    being, we will be lazy and just paint everything.
 
-Try "Q&uit" or "Qu&it" as button text instead of "&Quit". What
-happens?
+    Our code displays the angle value in the widget at a fixed position.
+    First we create a QString with some text and the angle; then we create
+    a QPainter operating on this widget and use it to paint the string.
+    We'll come back to QPainter later; it can do a great many things.
 
-You're now ready for \link tutorial1-10.html Chapter 10.\endlink
+    \section2 \l{tutorial/t8/main.cpp}{t8/main.cpp}
 
-[\link tutorial1-08.html Previous tutorial\endlink]
-[\link tutorial1-10.html Next tutorial\endlink]
-[\link tutorial.html Main tutorial page\endlink]
+    \quotefromfile tutorial/t8/main.cpp
 
+    \skipto cannonfield.h
+    \printline cannonfield.h
+
+    We include the definition of our new class.
+
+    \skipto MyWidget
+    \printuntil };
+
+    The \c MyWidget class will include a single \c LCDRange and a \c
+    CannonField.
+
+    \skipto angle
+    \printline angle
+
+    In the constructor, we create and set up the \c LCDRange widget.
+
+    \printline setRange
+
+    We set the \c LCDRange to accept angles from 5 to 70 degrees.
+
+    \printline cannonField
+
+    We create our \c CannonField widget.
+
+    \printuntil setValue
+
+    Here we connect the \c valueChanged() signal of the \c LCDRange
+    to the \c setAngle() slot of the \c CannonField. This will update
+    \c{CannonField}'s angle value whenever the user operates the \c
+    LCDRange. We also make the reverse connection so that changing
+    the angle in the \c CannonField will update the \c LCDRange
+    value. In our example we never change the angle of the \c
+    CannonField directly; but by doing the last
+    \l{QObject::connect()}{connect()} we ensure that no future
+    changes will disrupt the synchronization between those two
+    values.
+
+    This illustrates the power of component programming and proper
+    encapsulation.
+
+    Notice how important it is to emit the \c angleChanged() signal
+    only when the angle actually changes. If both the \c LCDRange and
+    the \c CannonField had omitted this check, the program would have
+    entered an infinite loop upon the first change of one of the
+    values.
+
+    \printline QGridLayout
+
+    So far, we have used QVBoxWidget and QGridWidget for geometry
+    management. Now, however, we want to have a little more control
+    over the layout, and we switch to the more powerful QGridLayout
+    class. QGridLayout isn't a widget; it is a different class that
+    can manage the children of \e any widget.
+
+    We don't need to specify any dimensions to the QGridLayout
+    constructor. The QGridLayout will determine the number of rows
+    and columns based on the grid cells we populate.
+
+    \table
+    \row
+    \o \inlineimage tutorial8-layout.png A schematic view of the grid layout
+    \o \inlineimage tutorial8-reallayout.png The actual grid layout
+    \endtable
+
+    The diagram above shows the layout we're trying to achieve. The
+    left side shows a schematic view of the layout; the right side is
+    a screenshot.
+
+    \printline addWidget
+
+    We add the \gui{Quit} button in the top-left cell of the grid,
+    i.e., the cell with coordinates (0, 0).
+
+    \printline addWidget
+
+    We put the angle \c LCDRange cell (1, 0).
+
+    \printline addWidget
+
+    We let the \c CannonField object occupy cells (1, 1) and (2, 1).
+
+    \printline setColumnStretch
+
+    We tell QGridLayout that the right column (column 1) is
+    stretchable, with a stretch factor of 10. Because the left column
+    isn't (its stretch factor is 0, the default value), QGridLayout
+    will try to let the left-hand widgets' sizes be unchanged and
+    will resize just the \c CannonField when the \c MyWidget is resized.
+
+    In this particular example, any stretch factor greater than 0 for
+    column 1 would have the same effect. In more complex layouts, you
+    can use the stretch factors to tell that a particular column or
+    row should stretch twice as fast as another by assigning
+    appropriate stretch factors.
+
+    \printline setValue
+
+    We set an initial angle value. Note that this will trigger the
+    connection from \c LCDRange to \c CannonField.
+
+    \printline setFocus
+
+    Our last action is to set \c angle to have keyboard focus so that
+    keyboard input will go to the \c LCDRange widget by default.
+
+    \c LCDRange does not contain any
+    \l{QWidget::keyPressEvent()}{keyPressEvent()}, so that would seem
+    not to be terribly useful. However, its constructor just got a
+    new line:
+
+    \quotefromfile tutorial/t8/lcdrange.cpp
+    \skipto setFocusProxy
+    \printline setFocusProxy
+
+    The \c LCDRange sets the slider to be its focus proxy. That means
+    that when someone (the program or the user) wants to give the \c
+    LCDRange keyboard focus, the slider should take care of it.
+    QSlider has a decent keyboard interface, so with just one line of
+    code we've given \c LCDRange one.
+
+    \section1 Running the Application
+
+    The keyboard now does something: The arrow keys, \key{Home},
+    \key{End}, \key{PageUp}, and \key{PageDown} all do something
+    sensible.
+
+    When the slider is operated, the \c CannonField displays the new
+    angle value. Upon resizing, \c CannonField is given as much space
+    as possible.
+
+    \section1 Exercises
+
+    Try to resize the window. What happens if you make it really narrow
+    or really squat?
+
+    If you give the left-hand column a non-zero stretch factor, what
+    happens when you resize the window?
+
+    Leave out the QWidget::setFocus() call. Which behavior do you
+    prefer?
+
+    Try to change "Quit" to "&Quit" in the QAbstractButton::setText()
+    call. How does the button's look change? What happens if you
+    press \key{Alt+Q} while the program is running?
+
+    Center the text in the \c CannonField.
 */
 
-/*! \file t10/lcdrange.h */
-/*! \file t10/lcdrange.cpp */
-/*! \file t10/cannon.h */
-/*! \file t10/cannon.cpp */
-/*! \file t10/main.cpp */
+/*! \example tutorial/t9
 
-/*! \page tutorial1-10.html
+    \contentspage tutorial.html Qt Tutorial
+    \previouspage tutorial-t8.html Chapter 8
+    \nextpage tutorial-t10.html Chapter 10
 
-\title Qt Tutorial - Chapter 10: Smooth as Silk
+    \title Qt Tutorial 9 - With Cannon You Can
 
-\img t10.png Screenshot of tutorial ten
+    \image t9.png Screenshot of tutorial nine
 
-In this example, we introduce painting in a pixmap to remove flickering.
-We also add a force control.
+    In this example we become graphic by drawing a cute little blue
+    cannon. Only \c cannonfield.cpp differs from the previous
+    chapter.
 
-\list
-\i \l t10/lcdrange.h contains the LCDRange
-class definition.
-\i \l t10/lcdrange.cpp contains the LCDRange
-implementation.
-\i \l t10/cannon.h contains the CannonField class
-definition.
-\i \l t10/cannon.cpp contains the CannonField
-implementation.
-\i \l t10/main.cpp contains MyWidget and main.
-\endlist
+    \section1 Line by Line Walkthrough
 
-\section1 Line-by-line Walkthrough
+    \section2 \l{tutorial/t9/cannonfield.cpp}{t9/cannonfield.cpp}
 
-\section2 \l t10/cannon.h
+    \quotefromfile tutorial/t9/cannonfield.cpp
 
-The CannonField now has a force value in addition to the angle.
+    \skipto ::paintEvent
+    \printuntil QPainter
 
-\quotefile t10/cannon.h
+    We'll now start to use QPainter in earnest. We create a painter that
+    operates on this widget.
 
-\skipto angle
-\printuntil forceChanged
+    \printline setPen
 
-The interface to the force follows the same practice as for the angle.
+    The edges of what QPainter draws are drawn using the pen. Here we
+    set it to Qt::NoPen, meaning that there will be no special edge
+    when we draw something.
 
-\skipto private
-\printuntil cannonRect
+    \printline setBrush
 
-We have put the definition of the cannon's enclosing rectangle in a
-separate function.
+    When QPainter fills a rectangle, a circle, or whatever, it fills
+    the shape using its brush. Here we set it to use a solid blue
+    brush. (We could also use a pattern.) The blue brush will go all
+    the way to the edges of the things we draw.
 
-\skipto ang
-\printuntil };
+    \skipto translate
+    \printline translate
 
-The force is stored in the integer \c f.
+    The QPainter::translate() function translates the coordinate
+    system of the QPainter (i.e., it moves it by an offset). Here we
+    set the (0, 0) point to the bottom-left corner of the widget. The
+    \e x and \e y directions remain unchanged, i.e., all the \e y
+    coordinates inside the widget are now negative. (See
+    \l{coordsys.html}{The Coordinate System} for more information
+    about Qt's coordinate system.)
 
-\section2 \l t10/cannon.cpp
+    \printline drawPie
 
-\quotefile t10/cannon.cpp
+    The QPainter::drawPie() function draws a pie shape inside the
+    specified rectangle using a start angle and an arc length. The
+    angles are specified in sixteenths of a degree. Zero degrees is
+    at the 3 o'clock position. The drawing direction is
+    counter-clockwise. Here we draw a quarter of a circle in the
+    bottom-left corner of the widget. The pie is filled with blue and
+    has no outline.
 
-\skipto include
-\skipto pixmap
-\printline pixmap
+    \printline rotate
 
-We include the QPixmap class definition.
+    The QPainter::rotate() function rotates the coordinate system of
+    the QPainter around the origin. The rotation argument is a \c
+    float given in degrees (not given in sixteenths of a degree as
+    above) and clockwise. Here we rotate the coordinate system \c ang
+    degrees counter-clockwise.
 
-\skipto ::CannonField
-\printuntil }
+    \printline drawRect
 
-The force (\c f) is initialized to zero.
+    The QPainter::drawRect() function draws the specified rectangle. Here
+    we draw the barrel of the cannon.
 
-\skipto ::setAngle
-\printuntil }
+    It can often be difficult to envision the resulting drawing when the
+    coordinate system has been transformed (translated, rotated, scaled, or
+    sheared) as above.
 
-We have made a slight change in the setAngle() function. It repaints
-only the portion of the widget that contains the cannon. The false
-argument indicates that the specified rectangle should not be erased
-before a paint event is sent to the widget. This speeds up and smooths
-the drawing a little bit.
+    In this case the coordinate system is first translated and then rotated.
+    If the rectangle QRect(33, -4, 15, 8) had been drawn in the translated
+    coordinate system, it would have looked like this:
 
-\skipto ::setForce
-\printuntil }
+    \image t9_1.png The cannon translated but not rotated
 
-The implementation of setForce() is quite similar to that of
-setAngle(). The only difference is that because we don't show the force
-value, we don't need to repaint the widget.
+    Note that the rectangle is clipped by the border of the \c CannonField
+    widget. When we rotate the coordinate system, for instance 60
+    degrees, the rectangle will be rotated around (0, 0), which is the
+    bottom-left corner because we have translated the coordinate system.
+    The result looks like this:
 
-\skipto ::paintEvent
-\printuntil return
+    \image t9_2.png The cannon translated and rotated
 
-We have now optimized the paint event to repaint only the parts of the
-widget that need updating. First we check whether we have to paint
-anything at all, and we return if we don't.
+    \section1 Running the Application
 
-\printline cannonRect
-\printline pix
+    When the slider is operated the angle of the drawn cannon changes
+    accordingly.
 
-Then we create a temporary pixmap, which we use for flicker-free
-painting. All the painting operations are done into this pixmap, and
-then the pixmap is drawn on the screen in a single operation.
+    The 'Q' on the \gui{Quit} button is now underlined, and
+    \key{Alt+Q} presses the button.
 
-This is the essence of flicker-free drawing: Draw on each pixel
-precisely once. Less, and you get drawing errors. More, and you get
-flicker. It doesn't matter much in this example - when the code was
-written there were still machines slow enough for it to flicker, but
-not any more. We've kept the code for educational purposes.
+    \section1 Exercises
 
-\printline fill
+    Set a different pen instead of Qt::NoPen. Set a patterned brush.
 
-We fill the pixmap with the background from this widget.
-
-\printline QPainter
-\printuntil end
-
-We paint, as in Chapter 9, but now we paint in the pixmap.
-
-At this point, we have a painter variable and a pixmap that looks
-precisely right, but we still haven't painted on the screen.
-
-\printline begin
-\printline drawPixmap
-
-So we open the painter on the CannonField itself and then draw the pixmap.
-
-That's all. A couple of extra lines at the top and a couple at the
-bottom, and the code is 100% flicker-free.
-
-\skipto cannonRect
-\printuntil }
-
-This function returns the rectangle enclosing the cannon in widget
-coordinates. First we create a rectangle with the size 50x50 and then
-move it so its bottom-left corner is equal to the widget's own bottom-
-left corner.
-
-The \l QWidget::rect() function returns the widget's enclosing
-rectangle in the widget's own coordinates (where the top-left corner
-is 0, 0).
-
-\section2 \l t10/main.cpp
-
-\quotefile t10/main.cpp
-
-\skipto MyWidget::MyWidget
-\printuntil {
-
-The constructor is mostly the same, but some new bits have been added.
-
-\skipto force
-\printline force
-\printline force
-
-We add a second LCDRange, which will be used to set the force.
-
-\skipto force
-\printline connect
-\printline cannonField
-\printline connect
-\printline force
-
-We connect the \c force widget and the \c cannonField widget, just like
-we did for the \c angle widget.
-
-\skipto QVBoxLayout
-\printline QVBoxLayout
-\printline addLayout
-\printline addWidget
-\printline addWidget
-
-In Chapter 9 we put \c angle in the lower-left cell of the layout.
-Now we want to have two widgets in that cell, so we make a vertical
-box, put the vertical box in the grid cell, and put each of \c angle
-and \c range in the vertical box.
-
-\skipto force
-\printline setValue
-
-We initialize the force value to 25.
-
-\section1 Behavior
-
-The flicker has gone and we have a force control.
-
-(See \link tutorial1-07.html#compiling Compiling\endlink for how to create a
-makefile and build the application.)
-
-
-\section1 Exercises
-
-Make the size of the cannon barrel be dependent on the force.
-
-Put the cannon in the bottom-right corner.
-
-Try adding a better keyboard interface. For example, make + and -
-increase and decrease the force and enter shoot. Hint: \l QAccel and
-new addStep() and subtractStep() slots in LCDRange, like \l
-QSlider::addStep(). If you're bothered by the way the left and right
-keys work (I am!), change that too.
-
-You're now ready for \link tutorial1-11.html Chapter 11.\endlink
-
-[\link tutorial1-09.html Previous tutorial\endlink]
-[\link tutorial1-11.html Next tutorial\endlink]
-[\link tutorial.html Main tutorial page\endlink]
-
+    Try "Q&uit" or "Qu&it" as button text instead of "&Quit". What
+    happens?
 */
 
-/*! \file t11/lcdrange.h */
-/*! \file t11/lcdrange.cpp */
-/*! \file t11/cannon.h */
-/*! \file t11/cannon.cpp */
-/*! \file t11/main.cpp */
+/*! \example tutorial/t10
 
-/*! \page tutorial1-11.html
+    \contentspage tutorial.html Qt Tutorial
+    \previouspage tutorial-t9.html Chapter 9
+    \nextpage tutorial-t11.html Chapter 11
 
-\title Qt Tutorial - Chapter 11: Giving It a Shot
+    \title Qt Tutorial 10 - Smooth as Silk
 
-\img t11.png Screenshot of tutorial eleven
+    \image t10.png Screenshot of tutorial ten
 
-In this example we introduce a timer to implement animated shooting.
+    In this example, we add a force control.
 
-\list
-\i \l t11/lcdrange.h contains the LCDRange
-class definition.
-\i \l t11/lcdrange.cpp contains the LCDRange
-implementation.
-\i \l t11/cannon.h contains the CannonField class
-definition.
-\i \l t11/cannon.cpp contains the CannonField
-implementation.
-\i \l t11/main.cpp contains MyWidget and main.
-\endlist
+    \section1 Line by Line Walkthrough
 
-\section1 Line-by-line Walkthrough
+    \section2 \l{tutorial/t10/cannonfield.h}{t10/cannonfield.h}
 
-\section2 \l t11/cannon.h
+    The \c CannonField now has a force value in addition to the angle.
 
-The CannonField now has shooting capabilities.
+    \quotefromfile tutorial/t10/cannonfield.h
 
-\quotefile t11/cannon.h
+    \skipto angle
+    \printuntil forceChanged
 
-\skipto shoot
-\printline shoot
+    The interface to the force follows the same practice as for the angle.
 
-Calling this slot will make the cannon shoot if a shot is not in the air.
+    \skipto private
+    \printuntil cannonRect
 
-\printline private
-\printline moveShot
+    We have put the definition of the cannon's enclosing rectangle in a
+    separate function.
 
-This private slot is used to move the shot while it is in the air,
-using a \l QTimer.
+    \skipto ang
+    \printuntil };
 
-\skipto private
-\printline private
-\printline paintShot
+    The force is stored in the integer \c f.
 
-This private function paints the shot.
+    \section2 \l{tutorial/t10/cannonfield.cpp}{t10/cannonfield.cpp}
 
-\skipto shotRect
-\printline shotRect
+    \quotefromfile tutorial/t10/cannonfield.cpp
 
-This private function returns the shot's enclosing rectangle if
-one is in the air; otherwise the returned rectangle is undefined.
+    \skipto ::CannonField
+    \printuntil }
 
-\skipto timerCount
-\printuntil shoot_f
-\printline };
+    The force (\c f) is initialized to zero.
 
-These private variables contain information that describes the shot. The
-\c timerCount keeps track of the time passed since the shot was fired.
-The \c shoot_ang is the cannon angle and \c shoot_f is the cannon force
-when the shot was fired.
+    \skipto ::setAngle
+    \printuntil }
 
+    We have made a slight change in the \c setAngle() function. It
+    repaints only the portion of the widget that contains the cannon.
+    The \c false argument indicates that the specified rectangle
+    should not be erased before a paint event is sent to the widget.
+    This speeds up and smooths the drawing a little bit.
 
-\section2 \l t11/cannon.cpp
+    \skipto ::setForce
+    \printuntil }
 
-\quotefile t11/cannon.cpp
+    The implementation of \c setForce() is quite similar to that of
+    \c setAngle(). The only difference is that because we don't show
+    the force value, we don't need to repaint the widget.
 
-\skipto include
-\skipto math
-\printline math
+    \skipto ::paintEvent
+    \printuntil return
 
-We include the math library because we need the sin() and cos() functions.
+    We have now optimized the paint event to repaint only the parts of the
+    widget that need updating. First we check whether we have to paint
+    anything at all, and we return if we don't.
 
-\skipto ::CannonField
-\printuntil }
+    \printline QPainter
+    \printuntil }
 
-We initialize our new private variables and connect the \l
-QTimer::timeout() signal to our moveShot() slot. We'll move the
-shot every time the timer times out.
+    We paint as in Chapter 9.
 
-\skipto ::shoot
-\printuntil start
-\printline }
+    \skipto cannonRect
+    \printuntil }
 
-This function shoots a shot unless a shot is in the air. The \c timerCount
-is reset to zero. The \c shoot_ang and \c shoot_f are set to the current
-cannon angle and force. Finally, we start the timer.
+    The \c cannonRect() function returns the rectangle enclosing the
+    cannon in widget coordinates. First we create a rectangle with
+    the size 50 x 50 and then move it so its bottom-left corner is
+    equal to the widget's own bottom-left corner.
 
-\skipto ::moveShot
-\printuntil repaint
-\printline }
+    The QWidget::rect() function returns the widget's enclosing
+    rectangle in the widget's own coordinates. The top-left corner of
+    the rectangle is always (0, 0).
 
-moveShot() is the slot that moves the shot, called every 50
-milliseconds when the QTimer fires.
+    \section2 \l{tutorial/t10/main.cpp}{t10/main.cpp}
 
-Its tasks are to compute the new position, repaint the screen with the
-shot in the new position, and if necessary, stop the timer.
+    \quotefromfile tutorial/t10/main.cpp
 
-First we make a \l QRegion that holds the old shotRect(). A QRegion
-is capable of holding any sort of region, and we'll use it here to
-simplify the painting. ShotRect() returns the rectangle where the
-shot is now - it is explained in detail later.
+    \skipto MyWidget::MyWidget
+    \printuntil {
 
-Then we increment the \c timerCount, which has the effect of moving the
-shot one step along its trajectory.
+    The constructor is mostly the same, but some new bits have been added.
 
-Next we fetch the new shot rectangle.
+    \skipto force
+    \printline force
+    \printline force
 
-If the shot has moved beyond the right or bottom edge of the widget, we
-stop the timer or we add the new shotRect() to the QRegion.
+    We add a second \c LCDRange, which will be used to set the force.
 
-Finally, we repaint the QRegion. This will send a single paint event
-for just the one or two rectangles that need updating.
+    \skipto force
+    \printline connect
+    \printline cannonField
+    \printline connect
+    \printline force
 
-\skipto ::paintEvent
-\printuntil }
+    We connect the \c force widget and the \c cannonField widget, just like
+    we did for the \c angle widget.
 
-The paint event function has been split in two since the previous
-chapter. Now we fetch the bounding rectangle of the region that
-needs painting, check whether it intersects either the cannon and/or
-the shot, and if necessary, call paintCannon() and/or paintShot().
+    \skipto QVBoxLayout
+    \printline QVBoxLayout
+    \printline addWidget
+    \printline addWidget
 
-\skipto ::paintShot
-\printuntil drawRect
-\printline }
+    \printline QGridLayout
+    \printline addWidget
+    \printline addLayout
+    \printline addWidget
+    \printline setColumnStretch
 
-This private function paints the shot by drawing a black filled rectangle.
+    In Chapter 9, we put \c angle in the lower-left cell of the
+    layout. Now we want to have two widgets in that cell, so we make
+    a vertical box, put the vertical box in the grid cell, and put
+    each of \c angle and \c range in the vertical box.
 
-We leave out the implementation of paintCannon(); it is the same as
-the paintEvent() from the previous chapter.
+    \skipto force
+    \printline setValue
 
-\skipto ::shotRect
-\printuntil return
-\printline }
+    We initialize the force value to 25.
 
-This private function calculates the center point of the shot and returns
-the enclosing rectangle of the shot. It uses the initial cannon force and
-angle in addition to \c timerCount, which increases as time passes.
+    \section1 Running the Application
 
-The formula used is the classical Newtonian formula for frictionless
-movement in a gravity field. For simplicity, we've chosen to
-disregard any Einsteinian effects.
+    We now have a force control.
 
-We calculate the center point in a coordinate system where y
-coordinates increase upward. After we have calculated the center
-point, we construct a QRect with size 6x6 and move its center point to
-the point calculated above. In the same operation we convert the
-point into the widget's coordinate system (see \link coordsys.html The
-Coordinate System\endlink).
+    \section1 Exercises
 
-The qRound() function is an inline function defined in qglobal.h (included
-by all other Qt header files). qRound() rounds a double to the closest
-integer.
+    Make the size of the cannon barrel be dependent on the force.
 
-\section2 \l t11/main.cpp
+    Put the cannon in the bottom-right corner.
 
-\quotefile t11/main.cpp
-
-\skipto class
-\printuntil };
-
-The only addition is the Shoot button.
-
-\skipto ::MyWidget
-\skipto shoot
-\printuntil setFont
-
-In the constructor we create and set up the Shoot button exactly like we
-did with the Quit button. Note that the first argument to the constructor
-is the button text, and the third is the widget's name.
-
-\skipto connect
-\printline connect
-
-Connects the clicked() signal of the Shoot button to the shoot() slot
-of the CannonField.
-
-
-\section1 Behavior
-
-The cannon can shoot, but there's nothing to shoot at.
-
-(See \link tutorial1-07.html#compiling Compiling\endlink for how to create a
-makefile and build the application.)
-
-
-\section1 Exercises
-
-Make the shot a filled circle. Hint: \l QPainter::drawEllipse() may
-help.
-
-Change the color of the cannon when a shot is in the air.
-
-You're now ready for \link tutorial1-12.html Chapter 12.\endlink
-
-[\link tutorial1-10.html Previous tutorial\endlink]
-[\link tutorial1-12.html Next tutorial\endlink]
-[\link tutorial.html Main tutorial page\endlink]
-
+    Try adding a better keyboard interface. For example, make \key{+}
+    and \key{-} increase and decrease the force and enter shoot. If
+    you're bothered by the way the \key{Left} and \key{Right} keys
+    work, change that too.
 */
 
-/*! \file t12/lcdrange.h */
-/*! \file t12/lcdrange.cpp */
-/*! \file t12/cannon.h */
-/*! \file t12/cannon.cpp */
-/*! \file t12/main.cpp */
+/*! \example tutorial/t11
 
-/*! \page tutorial1-12.html
+    \contentspage tutorial.html Qt Tutorial
+    \previouspage tutorial-t10.html Chapter 10
+    \nextpage tutorial-t12.html Chapter 12
 
-\title Qt Tutorial - Chapter 12: Hanging in the Air the Way Bricks Don't
+    \title Qt Tutorial 11 - Giving It a Shot
 
-\img t12.png Screenshot of tutorial twelve
+    \image t11.png Screenshot of tutorial eleven
 
-In this example, we extend our LCDRange class to include a text label.
-We also provide something to shoot at.
+    In this example we introduce a timer to implement animated shooting.
 
-\list
-\i \l t12/lcdrange.h contains the LCDRange
-class definition.
-\i \l t12/lcdrange.cpp contains the LCDRange
-implementation.
-\i \l t12/cannon.h contains the CannonField class
-definition.
-\i \l t12/cannon.cpp contains the CannonField
-implementation.
-\i \l t12/main.cpp contains MyWidget and main.
-\endlist
+    \section1 Line by Line Walkthrough
 
-\section1 Line-by-line Walkthrough
+    \section2 \l{tutorial/t11/cannonfield.h}{t11/cannonfield.h}
 
+    The \c CannonField now has shooting capabilities.
 
-\section2 \l t12/lcdrange.h
+    \quotefromfile tutorial/t11/cannonfield.h
 
-The LCDRange now has a text label.
+    \skipto shoot
+    \printline shoot
 
-\quotefile t12/lcdrange.h
+    Calling this slot will make the cannon shoot if a shot is not in the air.
 
-\skipto QLabel
-\printline QLabel
+    \printline private
+    \printline moveShot
 
-We name declare QLabel because we want to use a pointer to it in the class
-definition.
+    This private slot is used to move the shot while it is in the air,
+    using a QTimer.
 
-\skipto class
-\printuntil parent=0
-\printline parent=0
-\printline name=0
+    \skipto private
+    \printline private
+    \printline paintShot
 
-We have added a new constructor that sets the label text in addition to
-the parent and name.
+    This private function paints the shot.
 
-\skipto text
-\printline text
+    \skipto shotRect
+    \printline shotRect
 
-This function returns the label text.
+    This private function returns the shot's enclosing rectangle if
+    one is in the air; otherwise the returned rectangle is undefined.
 
-\skipto setText
-\printline setText
+    \skipto timerCount
+    \printuntil shoot_f
+    \printline };
 
-This slot sets the label text.
+    These private variables contain information that describes the shot. The
+    \c timerCount keeps track of the time passed since the shot was fired.
+    The \c shoot_ang is the cannon angle and \c shoot_f is the cannon force
+    when the shot was fired.
 
-\skipto private
-\printuntil init
+    \section2 \l{tutorial/t11/cannonfield.cpp}{t11/cannonfield.cpp}
 
-Because we now have two constructors, we have chosen to put the common
-initialization in the private init() function.
+    \quotefromfile tutorial/t11/cannonfield.cpp
 
-\skipto QLabel
-\printline label
+    \skipto include
+    \skipto math
+    \printline math
+    \skipto using namespace std
+    \printline namespace
 
-We also have a new private variable: a QLabel. QLabel is one of Qt's
-standard widgets and can show a text or a pixmap with or without a
-frame.
+    We include the math library because we need the \c sin() and \c
+    cos() functions. We also import all symbols from the \c std
+    namespace, so we don't need to type \c std::sin() and \c
+    std::cos().
 
+    \skipto ::CannonField
+    \printuntil }
 
-\section2 \l t12/lcdrange.cpp
+    We initialize our new private variables and connect the \l
+    QTimer::timeout() signal to our \c moveShot() slot. We'll move
+    the shot every time the timer times out.
 
-\quotefile t12/lcdrange.cpp
+    \skipto ::shoot
+    \printuntil start
+    \printline }
 
-\skipto qlabel
-\printline include
+    This function shoots a shot unless a shot is in the air. The \c timerCount
+    is reset to zero. The \c shoot_ang and \c shoot_f are set to the current
+    cannon angle and force. Finally, we start the timer.
 
-Here we include the QLabel class definition.
+    \skipto ::moveShot
+    \printuntil repaint
+    \printline }
 
-\skipto ::LCDRange
-\printuntil }
+    \c moveShot() is the slot that moves the shot, called every 50
+    milliseconds when the QTimer fires.
 
-This constructor calls the init() function, which contains the common
-initialization code.
+    Its tasks are to compute the new position, repaint the screen with the
+    shot in the new position, and if necessary, stop the timer.
 
-\skipto ::LCDRange
-\printuntil }
+    First we make a QRegion that holds the old \c shotRect(). A
+    QRegion is capable of holding any sort of region, and we'll use
+    it here to simplify the painting. \c shotRect() returns the
+    rectangle where the shot is now. It is explained in detail
+    later.
 
-This constructor first calls init() and then sets the label text.
+    Then we increment the \c timerCount, which has the effect of moving the
+    shot one step along its trajectory.
 
-\skipto ::init
-\printuntil }
+    Next we fetch the new shot rectangle.
 
-The setup of \c lcd and \c slider is the same as in the previous
-chapter. Next we create a QLabel and tell it to align the contents
-centered (both vertically and horizontally). The connect() statements
-have also been taken from the previous chapter.
+    If the shot has moved beyond the right or bottom edge of the
+    widget, we stop the timer or we add the new \c shotRect() to the
+    QRegion.
 
-\skipto ::text
-\printuntil }
+    Finally, we repaint the QRegion. This will send a single paint event
+    for just the one or two rectangles that need updating.
 
-This function returns the label text.
+    \skipto ::paintEvent
+    \printuntil }
 
-\skipto ::setText
-\printuntil }
+    The paint event function has been split in two since the previous
+    chapter. Now we fetch the bounding rectangle of the region that
+    needs painting, check whether it intersects either the cannon
+    and/or the shot, and if necessary, call \c paintCannon() and/or
+    \c paintShot().
 
-This function sets the label text.
+    \skipto ::paintShot
+    \printuntil drawRect
+    \printline }
 
-\section2 \l t12/cannon.h
+    This private function paints the shot by drawing a black filled rectangle.
 
-The CannonField now has two new signals: hit() and missed(). In addition
-it contains a target.
+    We leave out the implementation of \c paintCannon(); it is the
+    same as the QWidget::paintEvent() reimplementation from the
+    previous chapter.
 
-\quotefile t12/cannon.h
+    \skipto ::shotRect
+    \printuntil return
+    \printline }
 
-\skipto slots
-\skipto newTarget
-\printline newTarget
+    This private function calculates the center point of the shot and returns
+    the enclosing rectangle of the shot. It uses the initial cannon force and
+    angle in addition to \c timerCount, which increases as time passes.
 
-This slot creates a target at a new position.
+    The formula used is the classical Newtonian formula for frictionless
+    movement in a gravity field. For simplicity, we've chosen to
+    disregard any Einsteinian effects.
 
-\skipto signals
-\printuntil missed
+    We calculate the center point in a coordinate system where \e y
+    coordinates increase upward. After we have calculated the center
+    point, we construct a QRect with size 6 x 6 and move its center
+    point to the point calculated above. In the same operation we
+    convert the point into the widget's coordinate system (see
+    \l{coordsys.html}{The Coordinate System}).
 
-The hit() signal is emitted when a shot hits the target. The missed()
-signal is emitted when the shot moves beyond the right or bottom edge
-of the widget (i.e., it is certain that it has not and will not
-hit the target).
+    The qRound() function is an inline function defined in \c
+    <QtGlobal> (included by all other Qt header files). qRound()
+    rounds a double to the closest integer.
 
-\skipto paintTarget
-\printline paintTarget
+    \section2 \l{tutorial/t11/main.cpp}{t11/main.cpp}
 
-This private function paints the target.
+    \quotefromfile tutorial/t11/main.cpp
 
-\skipto targetRect
-\printline targetRect
+    \skipto class
+    \printuntil };
 
-This private function returns the enclosing rectangle of the target.
+    The only addition is the \gui{Shoot} button.
 
-\skipto target
-\printline target
+    \skipto ::MyWidget
+    \skipto shoot
+    \printuntil setFont
 
-This private variable contains the center point of the target.
+    In the constructor we create and set up the \gui{Shoot} button
+    exactly like we did with the \gui{Quit} button.
 
+    \skipto connect
+    \printline connect
 
-\section2 \l t12/cannon.cpp
+    Connects the \l{QPushButton::clicked()}{clicked()} signal of the
+    \gui{Shoot} button to the \c shoot() slot of the \c CannonField.
 
-\quotefile t12/cannon.cpp
+    \section1 Running the Application
 
-\skipto qdatetime
-\printline qdatetime
+    The cannon can shoot, but there's nothing to shoot at.
 
-We include the QDate, QTime, and QDateTime class definitions.
+    \section1 Exercises
 
-\skipto stdlib
-\printline stdlib
+    Make the shot a filled circle. [Hint: QPainter::drawEllipse() may
+    help.]
 
-We include the stdlib library because we need the rand() function.
-
-\skipto newTarget
-\printline newTarget
-
-This line has been added to the constructor. It creates a "random"
-position for the target. In fact, the newTarget() function will try
-to paint the target. Because we are in a constructor, the CannonField
-widget is invisible. Qt guarantees that no harm is done when calling
-repaint() on a hidden widget.
-
-\skipto ::newTarget
-\printuntil repaint
-\printline }
-
-This private function creates a target center point at a new "random"
-position.
-
-We use the rand() function to fetch random integers. The rand() function
-normally returns the same series of numbers each time you run a program.
-This would make the target appear at the same position every time. To
-avoid this, we must set a random seed the first time this function is
-called. The random seed must also be random in order to avoid equal random
-number series. The solution is to use the number of seconds that have
-passed since midnight as a pseudo-random value.
-
-First we create a static bool local variable. A static variable like
-this one is guaranteed to keep its value between calls to the function.
-
-The \c if test will succeed only the first time this function is called
-because we set \c first_time to false inside the \c if block.
-
-Then we create the QTime object \c midnight, which represents the time
-00:00:00. Next we fetch the number of seconds from midnight until
-now and use it as a random seed. See the documentation for \l QDate,
-\l QTime, and \l QDateTime for more information.
-
-Finally we calculate the target's center point. We keep it within
-the rectangle (x=200, y=35, width=190, height=255), (i.e., the
-possible x and y values are x = 200..389 and y = 35..289) in a
-coordinate system where we put y position 0 at the bottom edge of the
-widget and let y values increase upwards  X is as normal, with 0 at
-the left edge and with x values increasing to the right.
-
-By experimentation we have found this to always be in reach of the shot.
-
-Note that rand() returns a random integer >= 0.
-
-\skipto ::moveShot
-\printuntil QRect
-
-This part of the timer event has not changed from the previous chapter.
-
-\printuntil hit
-
-This \c if statement checks whether the shot rectangle intersects the
-target rectangle. If it does, the shot has hit the target (ouch!).
-We stop the shoot timer and emit the hit() signal to tell the outside
-world that a target was destroyed, and return.
-
-Note that we could have created a new target on the spot, but because the
-CannonField is a component we leave such decisions to the user of the
-component.
-
-\printuntil missed
-
-This \c if statement is the same as in the previous chapter, except that
-it now emits the missed() signal to tell the outside world about the
-failure.
-
-\printuntil }
-
-And the rest of the function is as before.
-
-CannonField::paintEvent() is as before, except that this has been
-added:
-
-\skipto ::paintEvent
-\skipto targetRect
-\printline updateR
-\printline paintTarget
-
-These two lines make sure that the target is also painted when necessary.
-
-\skipto ::paintTarget
-\printuntil }
-
-This private function paints the target; a rectangle filled with red and
-with a black outline.
-
-\skipto ::targetRect
-\printuntil }
-
-This private function returns the enclosing rectangle of the target.
-Remember from newTarget() that the \c target point uses y coordinate 0 at
-the bottom of the widget. We calculate the point in widget coordinates
-before we call \l QRect::moveCenter().
-
-The reason we have chosen this coordinate mapping is to fix the distance
-between the target and the bottom of the widget. Remember that the widget
-can be resized by the user or the program at any time.
-
-\section2 \l t12/main.cpp
-
-\quotefile t12/main.cpp
-
-There are no new members in the MyWidget class, but we have slightly
-changed the constructor to set the new LCDRange text labels.
-
-\skipto ::MyWidget
-\skipto angle
-\printline ANGLE
-
-We set the angle text label to "ANGLE".
-
-
-\skipto force
-\printline FORCE
-
-We set the force text label to "FORCE".
-
-
-\section1 Behavior
-
-The LCDRange widgets look a bit strange - the built-in layout
-management in QVBox gives the labels too much space and the rest not
-enough. We'll fix that in the next chapter.
-
-(See \link tutorial1-07.html#compiling Compiling\endlink for how to create a
-makefile and build the application.)
-
-\section1 Exercises
-
-Make a cheat button that, when pressed, makes the CannonField display
-the shot trajectory for five seconds.
-
-If you did the "round shot" exercise from the previous chapter, try
-changing the shotRect() to a shotRegion() that returns a \l QRegion so
-you can have really accurate collision detection.
-
-Make a moving target.
-
-Make sure that the target is always created entirely on-screen.
-
-Make sure that the widget cannot be resized so that the target isn't
-visible. Hint: \l QWidget::setMinimumSize() is your friend.
-
-Not easy; make it possible to have several shots in the air at the
-same time. Hint: make a Shot object.
-
-You're now ready for \link tutorial1-13.html Chapter 13.\endlink
-
-[\link tutorial1-11.html Previous tutorial\endlink]
-[\link tutorial1-13.html Next tutorial\endlink]
-[\link tutorial.html Main tutorial page\endlink]
-
+    Change the color of the cannon when a shot is in the air.
 */
 
-/*! \file t13/lcdrange.h */
-/*! \file t13/lcdrange.cpp */
-/*! \file t13/cannon.h */
-/*! \file t13/cannon.cpp */
-/*! \file t13/gamebrd.h */
-/*! \file t13/gamebrd.cpp */
-/*! \file t13/main.cpp */
+/*! \example tutorial/t12
 
-/*! \page tutorial1-13.html
+    \contentspage tutorial.html Qt Tutorial
+    \previouspage tutorial-t11.html Chapter 11
+    \nextpage tutorial-t13.html Chapter 13
 
-\title Qt Tutorial - Chapter 13: Game Over
+    \title Qt Tutorial 12 - Hanging in the Air the Way Bricks Don't
 
-\img t13.png Screenshot of tutorial thirteen
+    \image t12.png Screenshot of tutorial twelve
 
-In this example we start to approach a real playable game with a
-score. We give MyWidget a new name (GameBoard) and add some slots.
+    In this example, we extend our \c LCDRange class to include a
+    text label. We also provide something to shoot at.
 
-We put the definition in gamebrd.h and the implementation in gamebrd.cpp.
+    \section1 Line by Line Walkthrough
 
-The CannonField now has a game over state.
+    \section2 \l{tutorial/t12/lcdrange.h}{t12/lcdrange.h}
 
-The layout problems in LCDRange are fixed.
+    The \c LCDRange now has a text label.
 
-\list
-\i \l t13/lcdrange.h contains the LCDRange
-class definition.
-\i \l t13/lcdrange.cpp contains the LCDRange
-implementation.
-\i \l t13/cannon.h contains the CannonField class
-definition
-\i \l t13/cannon.cpp contains the CannonField
-implementation.
-\i \l t13/gamebrd.h contains the GameBoard
-class definition.
-\i \l t13/gamebrd.cpp contains the GameBoard
-implementation.
-\i \l t13/main.cpp contains MyWidget and main.
-\endlist
+    \quotefromfile tutorial/t12/lcdrange.h
 
-\section1 Line-by-line Walkthrough
+    \skipto QLabel
+    \printline QLabel
 
+    We forward declare QLabel because we want to use a pointer to it
+    in the class definition. We could also use an \c #include, but
+    that would slow down compilation for nothing.
 
-\section2 \l t13/lcdrange.h
+    \skipto class
+    \printuntil parent = 0
+    \printline parent = 0
 
-\quotefile t13/lcdrange.h
+    We have added a new constructor that sets the label text in addition to
+    the parent.
 
-\skipto include
-\printuntil QWidget
+    \skipto text
+    \printline text
 
-We inherit QWidget rather than QVBox. QVBox is very easy to use, but
-again it showed its limitations so we switch to the more powerful and
-slightly harder to use QVBoxLayout. (As you remember, QVBoxLayout is
-not a widget, it manages one.)
+    This function returns the label text.
 
-\section2 \l t13/lcdrange.cpp
+    \skipto setText
+    \printline setText
 
-\quotefile t13/lcdrange.cpp
+    This slot sets the label text.
 
-\skipto layout
-\printline layout
+    \skipto private
+    \printuntil init
 
-We need to include qlayout.h now to get the other layout management
-API.
+    Because we now have two constructors, we have chosen to put the
+    common initialization in the private \c init() function.
 
-\printline LCDRange
-\printline QWidget
+    \skipto QLabel
+    \printline label
 
-We inherit QWidget in the usual way.
+    We also have a new private variable: a QLabel. QLabel is one of
+    Qt's standard widgets and can show a text or a QPixmap with or
+    without a frame.
 
-The other constructor has the same change. init() is unchanged,
-except that we've added some lines at the end:
+    \section2 \l{tutorial/t12/lcdrange.cpp}{t12/lcdrange.cpp}
 
-\skipto QVBoxLayout
-\printline QVBoxLayout
+    \quotefromfile tutorial/t12/lcdrange.cpp
 
-We create a QVBoxLayout with all the default values, managing this
-widget's children.
+    \skipto ::LCDRange
+    \printuntil }
 
-\printline addWidget
+    This constructor calls the \c init() function, which contains the
+    common initialization code.
 
-At the top we add the QLCDNumber with a non-zero stretch.
+    \skipto ::LCDRange
+    \printuntil }
 
-\printline addWidget
-\printline addWidget
+    This constructor first calls \c init() and then sets the label
+    text.
 
-Then we add the other two, both with the default zero stretch.
+    \skipto ::init
+    \printuntil }
 
-This stretch control is something QVBoxLayout (and QHBoxLayout, and
-QGridLayout) offers but classes like QVBox do not. In this case
-we're saying that the QLCDNumber should stretch and the others should
-not.
+    The setup of \c lcd and \c slider is the same as in the previous
+    chapter. Next we create a QLabel and tell it to align the
+    contents centered horizontally and to the top vertically. The
+    QObject::connect() calls have also been taken from the previous
+    chapter.
 
-\section2 \l t13/cannon.h
+    \skipto ::text
+    \printuntil }
 
-The CannonField now has a game over state and a few new functions.
+    This function returns the label text.
 
-\quotefile t13/cannon.h
+    \skipto ::setText
+    \printuntil }
 
-\skipto gameOver
-\printline gameOver
+    This function sets the label text.
 
-This function returns true if the game is over or false if a game
-is going on.
+    \section2 \l{tutorial/t12/cannonfield.h}{t12/cannonfield.h}
 
-\skipto setGameOver
-\printuntil restartGame
+    The \c CannonField now has two new signals: \c hit() and \c
+    missed(). In addition, it contains a target.
 
-Here are two new slots: setGameOver() and restartGame().
+    \quotefromfile tutorial/t12/cannonfield.h
 
-\skipto canShoot
-\printline canShoot
+    \skipto slots
+    \skipto newTarget
+    \printline newTarget
 
-This new signal indicates that the CannonField is in a state where the
-shoot() slot makes sense. We'll use it below to enable/disable the
-Shoot button.
+    This slot creates a target at a new position.
 
-\skipto gameEnded
-\printline gameEnded
+    \skipto signals
+    \printuntil missed
 
-This private variable contains the game state. true means that the
-game is over, and false means that a game is going on.
+    The \c hit() signal is emitted when a shot hits the target. The
+    \c missed() signal is emitted when the shot moves beyond the
+    right or bottom edge of the widget (i.e., it is certain that it
+    has not and will not hit the target).
 
-\section2 \l t13/cannon.cpp
+    \skipto paintTarget
+    \printline paintTarget
 
-\quotefile t13/cannon.cpp
+    This private function paints the target.
 
-\skipto ::CannonField
-\skipto gameEnded
-\printline gameEnded
+    \skipto targetRect
+    \printline targetRect
 
-This line has been added to the constructor. Initially, the game is not
-over (luckily for the player :-).
+    This private function returns the enclosing rectangle of the target.
 
-\skipto ::shoot
-\printuntil }
+    \skipto target
+    \printline target
 
-We added a new isShooting() function, so shoot() uses it instead of
-testing directly. Also, shoot tells the world that the CannonField
-cannot shoot now.
+    This private variable contains the center point of the target.
 
-\skipto ::setGameOver
-\printuntil }
+    \section2 \l{tutorial/t12/cannonfield.cpp}{t12/cannonfield.cpp}
 
-This slot ends the game. It must be called from outside CannonField,
-because this widget does not know when to end the game. This is an
-important design principle in component programming. We choose to
-make the component as flexible as possible to make it usable with
-different rules (for example, a multi-player version of this in which the
-first player to hit ten times wins could use the CannonField unchanged).
+    \quotefromfile tutorial/t12/cannonfield.cpp
 
-If the game has already been ended we return immediately. If a game is
-going on we stop the shot, set the game over flag, and repaint the entire
-widget.
+    \skipto stdlib
+    \printline stdlib
+    \skipto using namespace std
+    \printline using namespace
 
-\skipto ::restartGame
-\printuntil }
+    We include the \c <cstdlib> header file because we need the \c
+    rand() function.
 
-This slot starts a new game. If a shot is in the air, we stop shooting.
-We then reset the \c gameEnded variable and repaint the widget.
+    \skipto newTarget
+    \printline newTarget
 
-moveShot() too emits the new canShoot(true) signal at the same time as
-either hit() or miss().
+    This line has been added to the constructor. It creates a
+    "random" position for the target. In fact, the \c newTarget()
+    function will try to paint the target. Because we are in a
+    constructor, the \c CannonField widget is invisible. Qt
+    guarantees that no harm is done when calling \c repaint() on a
+    hidden widget.
 
-Modifications in CannonField::paintEvent():
+    \skipto ::newTarget
+    \printuntil repaint
+    \printline }
 
-\skipto ::paintEvent
-\printuntil }
+    This private function creates a target center point at a new "random"
+    position.
 
-The paint event has been enhanced to display the text "Game Over" if
-the game is over, i.e.,  \c gameEnded is true. We don't bother to
-check the update rectangle here because speed is not critical when
-the game is over.
+    We use the \c rand() function to fetch random integers. The \c
+    rand() function normally returns the same series of numbers each
+    time you run a program. This would make the target appear at the
+    same position every time. To avoid this, we must set a random
+    seed the first time this function is called. The random seed must
+    also be random in order to avoid equal random number series. The
+    solution is to use the number of seconds that have passed since
+    midnight as a pseudo-random value.
 
-To draw the text we first set a black pen; the pen color is used
-when drawing text. Next we choose a 48 point bold font from the
-Courier family. Finally we draw the text centered in the widget's
-rectangle. Unfortunately, on some systems (especially X servers with
-Unicode fonts) it can take a while to load such a large font. Because
-Qt caches fonts, you will notice this only the first time the font is
-used.
+    First we create a static \c bool local variable. A static
+    variable like this one is guaranteed to keep its value between
+    calls to the function.
 
-\printuntil }
+    The \c if test will succeed only the first time this function is called
+    because we set \c first_time to \c false inside the \c if block.
 
-We draw the shot only when shooting and the target only when playing
-(that is, when the game is not ended).
+    Then we create the QTime object \c midnight, which represents the time
+    00:00:00. Next we fetch the number of seconds from midnight until
+    now and use it as a random seed. See the documentation for QDate,
+    QTime, and QDateTime for more information.
 
+    Finally we calculate the target's center point. We keep it within
+    the rectangle (\e x = 200, \e y = 35, \e width = 190, \e height =
+    255), i.e., the possible \e x and \e y values are 200 to 389 and
+    35 to 289, respectively) in a coordinate system where we put \e y
+    position 0 at the bottom edge of the widget and let \e y values
+    increase upwards \e x is as normal, with 0 at the left edge and
+    with \e x values increasing to the right.
 
-\section2 \l t13/gamebrd.h
+    By experimentation we have found this to always be in reach of the shot.
 
-This file is new. It contains the definition of the GameBoard class,
-which was last seen as MyWidget.
+    \skipto ::moveShot
+    \printuntil QRect
 
-\quotefile t13/gamebrd.h
+    This part of the timer event has not changed from the previous chapter.
 
-\skipto include
-\skipto class
-\printuntil };
+    \printuntil hit
 
-We have now added four slots. These are protected and are used internally.
-We have also added two QLCDNumbers (\c hits and \c shotsLeft) which display
-the game status.
+    This \c if statement checks whether the shot rectangle intersects the
+    target rectangle. If it does, the shot has hit the target (ouch!).
+    We stop the shoot timer and emit the \c hit() signal to tell the outside
+    world that a target was destroyed, and return.
 
+    Note that we could have created a new target on the spot, but because the
+    \c CannonField is a component we leave such decisions to the user of the
+    component.
 
-\section2 \l t13/gamebrd.cpp
+    \printuntil missed
 
-This file is new. It contains the implementation of the GameBoard
-class, which was last seen as MyWidget.
+    This \c if statement is the same as in the previous chapter,
+    except that it now emits the \c missed() signal to tell the
+    outside world about the failure.
 
-\quotefile t13/gamebrd.cpp
+    \printuntil }
 
-We have made some changes in the GameBoard constructor.
+    And the rest of the function is as before.
 
-\skipto ::GameBoard
-\skipto cannonField
-\printline cannonField
+    \c CannonField::paintEvent() is as before, except that this has
+    been added:
 
-\c cannonField is now a member variable, so we carefully change the
-constructor to use it. (The \e good programmers at Trolltech never
-forget this, but I do. Caveat programmor - if "programmor" is Latin,
-at least. Anyway, back to the code.)
+    \skipto ::paintEvent
+    \skipto targetRect
+    \printline updateR
+    \printline paintTarget
 
-\skipto hit
-\printline connect
-\printline hit
-\printline connect
-\printline missed
+    These two lines make sure that the target is also painted when necessary.
 
-This time we want to do something when the shot has hit or missed the
-target. Thus we connect the hit() and missed() signals of the
-CannonField to two protected slots with the same names in this class.
+    \skipto ::paintTarget
+    \printuntil }
 
-\skipto shoot
-\skipto connect
-\printline fire
+    This private function paints the target; a rectangle filled with red and
+    with a black outline.
 
-Previously we connected the Shoot button's clicked() signal directly
-to the CannonField's shoot() slot. This time we want to keep track of
-the number of shots fired, so we connect it to a protected slot in
-this class instead.
+    \skipto ::targetRect
+    \printuntil }
 
-Notice how easy it is to change the behavior of a program when you are
-working with self-contained components.
+    This private function returns the enclosing rectangle of the
+    target. Remember from \c newTarget() that the \c target point
+    uses \e y coordinate 0 at the bottom of the widget. We calculate the
+    point in widget coordinates before we call QRect::moveCenter().
 
-\printline connect
-\printline setEnabled
+    The reason we have chosen this coordinate mapping is to fix the distance
+    between the target and the bottom of the widget. Remember that the widget
+    can be resized by the user or the program at any time.
 
-We also use the cannonField's canShoot() signal to enable or disable
-the Shoot button appropriately.
+    \section2 \l{tutorial/t12/main.cpp}{t12/main.cpp}
 
-\skipto restart
-\printuntil connect
+    \quotefromfile tutorial/t12/main.cpp
 
-We create, set up, and connect the New Game button as we have done
-with the other buttons. Clicking this button will activate the
-newGame() slot in this widget.
+    There are no new members in the \c MyWidget class, but we have slightly
+    changed the constructor to set the new \c LCDRange text labels.
 
-\printuntil shotsLeftL
-\printline QLabel
+    \skipto ::MyWidget
+    \skipto angle
+    \printline ANGLE
 
-We create four new widgets. Note that we don't bother to keep the
-pointers to the QLabel widgets in the GameBoard class because there's
-nothing much we want to do with them. Qt will delete them when the
-GameBoard widget is destroyed, and the layout classes will resize them
-appropriately.
+    We set the angle text label to "ANGLE".
 
-\skipto QHBoxLayout
-\printuntil addStretch
-\printline addWidget
+    \skipto force
+    \printline FORCE
 
-The number of widgets in the top-right cell is getting large. Once it
-was empty; now it's full enough that we group together the layout
-setting for better overview.
+    We set the force text label to "FORCE".
 
-Notice that we let all the widgets have their preferred sizes, instead
-putting the stretch just to the left of the New Game button.
+    \section1 Running the Application
 
-\skipto newGame
-\printline newGame
-\printline }
+    The \c LCDRange widgets look a bit strange: The built-in layout
+    management in QVBoxWidget gives the labels too much space and the
+    rest not enough. We'll fix that in the next chapter.
 
-We're all done constructing the GameBoard, so we start it all using
-newGame(). (NewGame() is a slot, but as we said, slots can be used as
-ordinary functions, too.)
+    \section1 Exercises
 
-\skipto ::fire
-\printuntil }
+    Make a cheat button that, when pressed, makes the \c CannonField display
+    the shot trajectory for five seconds.
 
-This function fires a shot. If the game is over or if there is a shot in the
-air, we return immediately. We decrement the number of shots left and tell
-the cannon to shoot.
+    If you did the "round shot" exercise from the previous chapter,
+    try changing the \c shotRect() to a \c shotRegion() that returns
+    a QRegion so you can have really accurate collision detection.
 
-\skipto ::hit
-\printuntil }
+    Make a moving target.
 
-This slot is activated when a shot has hit the target. We increment the
-number of hits. If there are no shots left, the game is over. Otherwise,
-we make the CannonField generate a new target.
+    Make sure that the target is always created entirely on-screen.
 
-\skipto ::missed
-\printuntil }
+    Make sure that the widget cannot be resized so that the target isn't
+    visible. [Hint: QWidget::setMinimumSize() is your friend.]
 
-This slot is activated when a shot has missed the target. If there are no
-shots left, the game is over.
-
-\skipto ::newGame
-\printuntil }
-
-This slot is activated when the user clicks the Restart button. It is
-also called from the constructor. First it sets the number of shots
-to 15. Note that this is the only place in the program where we set
-the number of shots. Change it to whatever you like to change the
-game rules. Next we reset the number of hits, restart the game, and
-generate a new target.
-
-\section2 \l t13/main.cpp
-
-This file has just been on a diet. MyWidget is gone, and the only
-thing left is the main() function, unchanged except for the name
-change.
-
-
-\section1 Behavior
-
-The cannon can shoot at a target; a new target is automatically created
-when one has been hit.
-
-Hits and shots left are displayed and the program keeps track of them.
-The game can end, and there's a button to start a new game.
-
-(See \link tutorial1-07.html#compiling Compiling\endlink for how to create a
-makefile and build the application.)
-
-
-\section1 Exercises
-
-Add a random wind factor and show it to the user.
-
-Make some splatter effects when the shot hits the target.
-
-Implement multiple targets.
-
-You're now ready for \link tutorial1-14.html Chapter 14.\endlink
-
-[\link tutorial1-12.html Previous tutorial\endlink]
-[\link tutorial1-14.html Next tutorial\endlink]
-[\link tutorial.html Main tutorial page\endlink]
-
+    Not easy; make it possible to have several shots in the air at
+    the same time. [Hint: Make a \c Shot class.]
 */
 
-/*! \file t14/lcdrange.h */
-/*! \file t14/lcdrange.cpp */
-/*! \file t14/cannon.h */
-/*! \file t14/cannon.cpp */
-/*! \file t14/gamebrd.h */
-/*! \file t14/gamebrd.cpp */
-/*! \file t14/main.cpp */
+/*! \example tutorial/t13
 
-/*! \page tutorial1-14.html
+    \contentspage tutorial.html Qt Tutorial
+    \previouspage tutorial-t12.html Chapter 12
+    \nextpage tutorial-t14.html Chapter 14
 
-\title Qt Tutorial - Chapter 14: Facing the Wall
+    \title Qt Tutorial 13 - Game Over
 
-\img t14.png Screenshot of tutorial fourteen
+    \image t13.png Screenshot of tutorial thirteen
 
-This is the final example: a complete game.
+    In this example we start to approach a real playable game with a
+    score. We give \c MyWidget a new name (\c{GameBoard}) and add some slots.
 
-We add keyboard accelerators and introduce mouse events to CannonField. We
-put a frame around the CannonField and add a barrier (wall) to make the
-game more challenging.
+    We put the definition in \c gameboard.h and the implementation in
+    \c gameboard.cpp.
 
-\list
-\i \l t14/lcdrange.h contains the LCDRange
-class definition.
-\i \l t14/lcdrange.cpp contains the LCDRange
-implementation.
-\i \l t14/cannon.h contains the CannonField class
-definition.
-\i \l t14/cannon.cpp contains the CannonField
-implementation.
-\i \l t14/gamebrd.h contains the GameBoard
-class definition.
-\i \l t14/gamebrd.cpp contains the GameBoard
-implementation.
-\i \l t14/main.cpp contains MyWidget and main.
-\endlist
+    The \c CannonField now has a game over state.
 
-\section1 Line-by-line Walkthrough
+    The layout problems in \c LCDRange are fixed.
 
-\section2 \l t14/cannon.h
+    \section1 Line by Line Walkthrough
 
-The CannonField can now receive mouse events to make the user aim the
-barrel by clicking on it and dragging. CannonField also has a barrier
-wall.
+    \section2 \l{tutorial/t13/lcdrange.cpp}{t13/lcdrange.cpp}
 
-\quotefile t14/cannon.h
+    \quotefromfile tutorial/t13/lcdrange.cpp
 
-\skipto CannonField
-\skipto protected
-\printuntil mouseReleaseEvent
+    \skipto setSizePolicy
+    \printline setSizePolicy
 
-In addition to the familiar event handlers, CannonField implements
-three mouse event handlers. The names say it all.
+    We set the size policy of the QLabel to
+    (\l{QSizePolicy::Preferred}{Preferred},
+    \l{QSizePolicy::Fixed}{Fixed}). The vertical component ensures
+    that the label won't stretch or shrink vertically; it will stay
+    at its optimal size (its \l{QWidget::sizeHint}{sizeHint()}). This
+    solves the layout problems observed in Chapter 12.
 
-\skipto paintBarrier
-\printline paintBarrier
+    \section2 \l{tutorial/t13/cannonfield.h}{t13/cannonfield.h}
 
-This private function paints the barrier wall.
+    The \c CannonField now has a game over state and a few new functions.
 
-\skipto barrierRect
-\printline barrierRect
+    \quotefromfile tutorial/t13/cannonfield.h
 
-This private function returns the enclosing rectangle of the barrier.
+    \skipto gameOver
+    \printline gameOver
 
-\skipto barrelHit
-\printline barrelHit
+    This function returns \c true if the game is over, \c false if a
+    game is going on.
 
-This private function checks if a point is inside the barrel of the cannon.
+    \skipto setGameOver
+    \printuntil restartGame
 
-\skipto barrelPressed
-\printline barrelPressed
+    Here are two new slots: \c setGameOver() and \c restartGame().
 
-This private variable is true if the user has pressed the mouse on the
-barrel and not released it.
+    \skipto canShoot
+    \printline canShoot
 
+    This new signal indicates that the \c CannonField is in a state
+    where the \c shoot() slot makes sense. We'll use it below to
+    enable or disable the \gui{Shoot} button.
 
-\section2 \l t14/cannon.cpp
+    \skipto gameEnded
+    \printline gameEnded
 
-\quotefile t14/cannon.cpp
+    This private variable contains the game state; \c true means that
+    the game is over, and \c false means that a game is going on.
 
-\skipto ::CannonField
-\skipto barrelPressed
-\printline barrelPressed
+    \section2 \l{tutorial/t13/cannonfield.cpp}{t13/cannonfield.cpp}
 
-This line has been added to the constructor. Initially, the mouse is
-not pressed on the barrel.
+    \quotefromfile tutorial/t13/cannonfield.cpp
 
-\skipto ::moveShot
-\skipto else
-\printuntil {
+    \skipto ::CannonField
+    \skipto gameEnded
+    \printline gameEnded
 
-Now that we have a barrier, there are three ways to miss. We test for
-the third, too.
+    This line has been added to the constructor. Initially, the game is not
+    over (luckily for the player :-).
 
-\skipto ::mousePressEvent
-\printuntil }
+    \skipto ::shoot
+    \printuntil }
 
-This is a Qt event handler. It is called when the user presses a
-mouse button when the mouse cursor is over the widget.
+    We added a new \c isShooting() function, so \c shoot() uses it
+    instead of testing directly. Also, shoot tells the world that the
+    \c CannonField cannot shoot now.
 
-If the event was not generated by the left mouse button, we return
-immediately. Otherwise, we check if the position of the mouse cursor
-is within the cannon's barrel. If it is, we set \c barrelPressed to
-true.
+    \skipto ::setGameOver
+    \printuntil }
 
-Notice that the pos() function returns a point in the widget's
-coordinate system.
+    This slot ends the game. It must be called from outside \c CannonField,
+    because this widget does not know when to end the game. This is an
+    important design principle in component programming. We choose to
+    make the component as flexible as possible to make it usable with
+    different rules (for example, a multi-player version of this in which the
+    first player to hit ten times wins could use the \c CannonField unchanged).
 
-\skipto ::mouseMoveEvent
-\printuntil setAngle
-\printline }
+    If the game has already been ended we return immediately. If a game is
+    going on we stop the shot, set the game over flag, and repaint the entire
+    widget.
 
-This is another Qt event handler. It is called when the user already
-has pressed the mouse button inside this widget and then moves/drags
-the mouse. (You can make Qt send mouse move events even when no
-buttons are pressed. See \l QWidget::setMouseTracking().)
+    \skipto ::restartGame
+    \printuntil }
 
-This handler repositions the cannon's barrel according to the position of
-the mouse cursor.
+    This slot starts a new game. If a shot is in the air, we stop shooting.
+    We then reset the \c gameEnded variable and repaint the widget.
 
-First, if the barrel is not pressed, we return. Next, we fetch the
-mouse cursor's position. If the mouse cursor is to the left or below
-the widget, we adjust the point to be inside the widget.
+    \c moveShot() too emits the new \c canShoot(true) signal at the
+    same time as either \c hit() or \c miss().
 
-Then we calculate the angle between the bottom edge of the widget and
-the imaginary line between the bottom-left corner of the widget and
-the cursor position. Finally we set the cannon's angle to the new
-value converted to degrees.
+    Modifications in CannonField::paintEvent():
 
-Remember that setAngle() redraws the cannon.
+    \skipto ::paintEvent
+    \printuntil }
 
-\skipto ::mouseReleaseEvent
-\printuntil }
+    The paint event has been enhanced to display the text "Game Over"
+    if the game is over, i.e., \c gameEnded is \c true. We don't
+    bother to check the update rectangle here because speed is not
+    critical when the game is over.
 
-This Qt event handler is called whenever the user releases a mouse
-button and it was pressed inside this widget.
+    To draw the text we first set a black pen; the pen color is used
+    when drawing text. Next we choose a 48 point bold font from the
+    Courier family. Finally we draw the text centered in the widget's
+    rectangle. Unfortunately, on some systems (especially X servers with
+    Unicode fonts) it can take a while to load such a large font. Because
+    Qt caches fonts, you will notice this only the first time the font is
+    used.
 
-If the left button is released, we can be sure that the barrel is no
-longer pressed.
+    \printuntil }
 
-The paint event has two extra lines:
+    We draw the shot only when shooting and the target only when playing
+    (that is, when the game is not ended).
 
-\skipto ::paintEvent
-\skipto barrierRect
-\printline barrierRect
-\printline paintBarrier
+    \section2 \l{tutorial/t13/gameboard.h}{t13/gameboard.h}
 
-paintBarrier() does the same sort of thing as paintShot(),
-paintTarget(), and paintCannon().
+    This file is new. It contains the definition of the \c GameBoard class,
+    which was last seen as \c MyWidget.
 
-\skipto ::paintBarrier
-\printuntil }
+    \quotefromfile tutorial/t13/gameboard.h
 
-This private function paints the barrier as a rectangle filled with
-yellow and with a black outline.
+    \skipto include
+    \skipto class
+    \printuntil };
 
-\skipto ::barrierRect
-\printuntil }
+    We have now added four slots. These are protected and are used
+    internally. We have also added two \l{QLCDNumber}s (\c hits and
+    \c shotsLeft) that display the game status.
 
-This private function returns the rectangle of the barrier. We fix
-the bottom edge of the barrier to the bottom edge of the widget.
+    \section2 \l{tutorial/t13/gameboard.cpp}{t13/gameboard.cpp}
 
-\skipto ::barrelHit
-\printuntil }
+    This file is new. It contains the implementation of the \c GameBoard
+    class, which was last seen as \c MyWidget.
 
-This function returns true if the point is in the barrel; otherwise it returns
-false.
+    \quotefromfile tutorial/t13/gameboard.cpp
 
-Here we use the class \l QWMatrix. It is defined in the header file
-qwmatrix.h, which is included by qpainter.h.
+    We have made some changes in the \c GameBoard constructor.
 
-QWMatrix defines a coordinate system mapping. It can perform the same
-transformations as the QPainter.
+    \skipto ::GameBoard
+    \skipto cannonField
+    \printline cannonField
 
-Here we perform the same transformation steps as we do when drawing
-the barrel in the paintCannon() function. First we translate the
-coordinate system and then we rotate it.
+    \c cannonField is now a member variable, so we carefully change the
+    constructor to use it.
 
-Now we need to check whether the point \c p (in widget coordinates) lies
-inside the barrel. To do this, we invert the transformation matrix.
-The inverted matrix performs the inverse transformation that we used
-when drawing the barrel. We map the point \c p using the inverted
-matrix and return true if it is inside the original barrel rectangle.
+    \skipto hit
+    \printline connect
+    \printline hit
+    \printline connect
+    \printline missed
 
+    This time we want to do something when the shot has hit or missed
+    the target. Thus we connect the \c hit() and \c missed() signals
+    of the \c CannonField to two protected slots with the same names
+    in this class.
 
-\section2 \l t14/gamebrd.cpp
+    \skipto connect(shoot
+    \printline connect
+    \printline fire
 
-\quotefile t14/gamebrd.cpp
+    Previously we connected the \gui{Shoot} button's \c clicked()
+    signal directly to the \c{CannonField}'s \c shoot() slot. This
+    time we want to keep track of the number of shots fired, so we
+    connect it to a protected slot in this class instead.
 
-\skipto qaccel.h
-\printline qaccel.h
+    Notice how easy it is to change the behavior of a program when you are
+    working with self-contained components.
 
-We include the class definition of \l QAccel.
+    \printline connect
+    \printline setEnabled
 
-\skipto ::GameBoard
-\skipto QVBox
-\printline QVBox
-\printline setFrameStyle
-\printline cannonField
+    We also use the \c {cannonField}'s \c canShoot() signal to enable
+    or disable the \gui{Shoot} button appropriately.
 
-We create and set up a \l QVBox, set its frame style, and then create
-\c CannonField as a child of that box. Because nothing else is in the
-box, the effect is that the QVBox will put a frame around the
-CannonField.
+    \skipto restart
+    \printuntil connect
 
-\skipto QAccel
-\printline accel
-\printline connectItem
-\printline fire
-\printline connectItem
-\printline fire
+    We create, set up, and connect the \gui{New Game} button as we
+    have done with the other buttons. Clicking this button will
+    activate the \c newGame() slot in this widget.
 
-Here we create and set up an accelerator. An accelerator is an object
-that intercepts keyboard events to an application and calls slots if
-certain keys are pressed. This mechanism is also called shortcut
-keys. Note that an accelerator is a child of a widget and will be
-destroyed when that widget is destroyed. QAccel is \e not a widget
-and has no visible effect on its parent.
+    \printuntil shotsLeftL
 
-We define two shortcut keys. We want the slot fire() to be called
-when the user presses Enter, and we want the application to quit when
-key Ctrl+Q is pressed. Because Enter is sometimes Return and there
-are even keyboards with \e both keys, we make both Enter and Return
-invoke fire().
+    We create four new widgets. Note that we don't bother to keep the
+    pointers to the QLabel widgets in the \c GameBoard class because there's
+    nothing much we want to do with them. Qt will delete them when the
+    \c GameBoard widget is destroyed, and the layout classes will resize them
+    appropriately.
 
-\printline connectItem
-\printline quit
+    \skipto QHBoxLayout
+    \printuntil addStretch
+    \printline addWidget
 
-And then we set up Ctrl+Q to do the same thing as Alt+Q. Some
-people are more used to Ctrl+Q (and anyway it shows how do do it).
+    The number of widgets in the top-right cell is getting large. Once it
+    was empty; now it's full enough that we group together the layout
+    setting for better overview.
 
-CTRL, Key_Enter, Key_Return and Key_Q are all constants provided by
-Qt. They're actually Qt::Key_Enter, etc., but practically all classes
-inherit the \l Qt namespace class.
+    Notice that we let all the widgets have their preferred sizes, instead
+    putting the stretch just to the left of the \gui{New Game} button.
 
-\printline QGridLayout
-\printline addWidget
-\printline addWidget
-\printline setColStretch
+    \skipto newGame
+    \printline newGame
+    \printline }
 
-We put \c box (the QVBox), not the CannonField, in the lower-right
-cell.
+    We're all done constructing the \c GameBoard, so we start it all
+    using \c newGame(). Although \c newGame() is a slot, it can also
+    be used as an ordinary function.
 
-\section1 Behavior
+    \skipto ::fire
+    \printuntil }
 
-The cannon now shoots when you press Enter. You can also position the
-cannon's angle using the mouse. The barrier makes it a little more
-challenging to play the game. We also have a nice looking frame
-around the CannonField.
+    This function fires a shot. If the game is over or if there is a shot in the
+    air, we return immediately. We decrement the number of shots left and tell
+    the cannon to shoot.
 
-(See \link tutorial1-07.html#compiling Compiling\endlink for how to create a
-makefile and build the application.)
+    \skipto ::hit
+    \printuntil }
 
+    This slot is activated when a shot has hit the target. We increment the
+    number of hits. If there are no shots left, the game is over. Otherwise,
+    we make the \c CannonField generate a new target.
 
-\section1 Exercises
+    \skipto ::missed
+    \printuntil }
 
-Write a space invaders game.
+    This slot is activated when a shot has missed the target. If there are no
+    shots left, the game is over.
 
-(This exercise was first done by
-\link mailto:igorr@ifi.uio.no Igor Rafienko\endlink. You can
-\link http://www.stud.ifi.uio.no/~igorr/download.html
-download his game\endlink.)
+    \skipto ::newGame
+    \printuntil }
 
-The new exercise is: Write a Breakout game.
+    This slot is activated when the user clicks the Restart button. It is
+    also called from the constructor. First it sets the number of shots
+    to 15. Note that this is the only place in the program where we set
+    the number of shots. Change it to whatever you like to change the
+    game rules. Next we reset the number of hits, restart the game, and
+    generate a new target.
 
-Final exhortation: Go forth now and create \e {masterpieces of the
-programming art!}
+    \section2 \l{tutorial/t13/main.cpp}{t13/main.cpp}
 
-\omit
-Cf. Chapter 27 of The TeXbook
-\endomit
+    This file has just been on a diet. \c MyWidget is gone, and the
+    only thing left is the \c main() function, unchanged except for
+    the name change.
 
-[\link tutorial1-13.html Previous tutorial\endlink]
-[\link tutorial1-01.html First tutorial\endlink]
-[\link tutorial.html Main tutorial page\endlink]
+    \section1 Running the Application
 
+    The cannon can shoot at a target; a new target is automatically created
+    when one has been hit.
+
+    Hits and shots left are displayed and the program keeps track of them.
+    The game can end, and there's a button to start a new game.
+
+    \section1 Exercises
+
+    Add a random wind factor and show it to the user.
+
+    Make some splatter effects when the shot hits the target.
+
+    Implement multiple targets.
+*/
+
+/*! \example tutorial/t14
+
+    \contentspage tutorial.html Qt Tutorial
+    \previouspage tutorial-t13.html Chapter 13
+
+    \title Qt Tutorial 14 - Facing the Wall
+
+    \image t14.png Screenshot of tutorial fourteen
+
+    This is the final example: a complete game.
+
+    We add keyboard accelerators and introduce mouse events to \c
+    CannonField. We put a frame around the \c CannonField and add a
+    barrier (wall) to make the game more challenging.
+
+    \section1 Line by Line Walkthrough
+
+    \section2 \l{tutorial/t14/cannonfield.h}{t14/cannonfield.h}
+
+    The \c CannonField can now receive mouse events to make the user
+    aim the barrel by clicking on it and dragging. \c CannonField
+    also has a barrier wall.
+
+    \quotefromfile tutorial/t14/cannonfield.h
+
+    \skipto CannonField
+    \skipto protected
+    \printuntil mouseReleaseEvent
+
+    In addition to the familiar event handlers, \c CannonField implements
+    three mouse event handlers. The names say it all.
+
+    \skipto paintBarrier
+    \printline paintBarrier
+
+    This private function paints the barrier wall.
+
+    \skipto barrierRect
+    \printline barrierRect
+
+    This private function returns the enclosing rectangle of the barrier.
+
+    \skipto barrelHit
+    \printline barrelHit
+
+    This private function checks if a point is inside the barrel of the cannon.
+
+    \skipto barrelPressed
+    \printline barrelPressed
+
+    This private variable is \c true if the user has pressed the
+    mouse on the barrel and not released it.
+
+    \section2 \l{tutorial/t14/cannonfield.cpp}{t14/cannonfield.cpp}
+
+    \quotefromfile tutorial/t14/cannonfield.cpp
+
+    \skipto ::CannonField
+    \skipto barrelPressed
+    \printline barrelPressed
+
+    This line has been added to the constructor. Initially, the mouse is
+    not pressed on the barrel.
+
+    \skipto ::moveShot
+    \skipto else
+    \printuntil {
+
+    Now that we have a barrier, there are three ways to miss. We test for
+    the third, too.
+
+    \skipto ::mousePressEvent
+    \printuntil }
+
+    This is a Qt event handler. It is called when the user presses a
+    mouse button when the mouse cursor is over the widget.
+
+    If the event was not generated by the left mouse button, we return
+    immediately. Otherwise, we check if the position of the mouse cursor
+    is within the cannon's barrel. If it is, we set \c barrelPressed to
+    \c true.
+
+    Notice that the QMouseEvent::pos() function returns a point in
+    the widget's coordinate system.
+
+    \skipto ::mouseMoveEvent
+    \printuntil setAngle
+    \printline }
+
+    This is another Qt event handler. It is called when the user already
+    has pressed the mouse button inside this widget and then moves/drags
+    the mouse. (You can make Qt send mouse move events even when no
+    buttons are pressed. See QWidget::setMouseTracking().)
+
+    This handler repositions the cannon's barrel according to the position of
+    the mouse cursor.
+
+    First, if the barrel is not pressed, we return. Next, we fetch the
+    mouse cursor's position. If the mouse cursor is to the left or below
+    the widget, we adjust the point to be inside the widget.
+
+    Then we calculate the angle between the bottom edge of the widget and
+    the imaginary line between the bottom-left corner of the widget and
+    the cursor position. Finally we set the cannon's angle to the new
+    value converted to degrees.
+
+    Remember that \c setAngle() redraws the cannon.
+
+    \skipto ::mouseReleaseEvent
+    \printuntil }
+
+    This Qt event handler is called whenever the user releases a mouse
+    button and it was pressed inside this widget.
+
+    If the left button is released, we can be sure that the barrel is no
+    longer pressed.
+
+    The paint event has two extra lines:
+
+    \skipto ::paintEvent
+    \skipto barrierRect
+    \printline barrierRect
+    \printline paintBarrier
+
+    \c paintBarrier() does the same sort of thing as \c paintShot(),
+    \c paintTarget(), and \c paintCannon().
+
+    \skipto ::paintBarrier
+    \printuntil }
+
+    This private function paints the barrier as a rectangle filled with
+    yellow and with a black outline.
+
+    \skipto ::barrierRect
+    \printuntil }
+
+    This private function returns the rectangle of the barrier. We fix
+    the bottom edge of the barrier to the bottom edge of the widget.
+
+    \skipto ::barrelHit
+    \printuntil }
+
+    This function returns \c true if the point is in the barrel;
+    otherwise it returns \c false.
+
+    Here we use the class QMatrix. QMatrix defines a coordinate
+    system mapping. It can perform the same transformations as the
+    QPainter.
+
+    Here we perform the same transformation steps as we do when
+    drawing the barrel in the \c paintCannon() function. First we
+    translate the coordinate system and then we rotate it.
+
+    Now we need to check whether the point \c p (in widget
+    coordinates) lies inside the barrel. To do this, we invert the
+    transformation matrix. The inverted matrix performs the inverse
+    transformation that we used when drawing the barrel. We map the
+    point \c p using the inverted matrix and return \c true if it is
+    inside the original barrel rectangle.
+
+    \section2 \l{tutorial/t14/gameboard.cpp}{t14/gameboard.cpp}
+
+    \quotefromfile tutorial/t14/gameboard.cpp
+
+    \skipto ::GameBoard
+    \skipto QVBoxWidget
+    \printline QVBoxWidget
+    \printline setFrameStyle
+    \printline cannonField
+
+    We create and set up a QVBoxWidget, set its frame style, and then
+    create \c CannonField as a child of that box. Because nothing
+    else is in the box, the effect is that the QVBoxWidget will put a
+    frame around the \c CannonField.
+
+    \skipto QShortcut
+    \printline QShortcut
+    \printline QShortcut
+    \printline QShortcut
+
+    Here we create and set up three QShortcut objects. These objects
+    intercept keyboard events to a widget and call slots if certain
+    keys are pressed. Note that a QShortcut object is a child of a
+    widget and will be destroyed when that widget is destroyed.
+    QShortcut itself is not a widget and has no visible effect on its
+    parent.
+
+    We define three shortcut keys. We want the \c fire() slot to be
+    called when the user presses \key{Enter} or \key{Return}. We also
+    want the application to quit when key \key{Ctrl+Q} is pressed.
+    Instead of connecting to QApplication::quit(), we connect to
+    QWidget::close() this time. Since the \c GameBoard is the
+    application's main widget, this has the same effect as
+    \l{QApplication::quit()}{quit()}.
+
+    Qt::CTRL, Qt::Key_Enter, Qt::Key_Return, and Qt::Key_Q are all
+    constants declared in the \l Qt namespace.
+
+    \skipto addWidget(cannonBox
+    \printline addWidget
+
+    We put \c cannonBox (the QVBoxWidget), not \c cannonField, in the
+    grid layout.
+
+    \section1 Running the Application
+
+    The cannon now shoots when you press Enter. You can also position the
+    cannon's angle using the mouse. The barrier makes it a little more
+    challenging to play the game. We also have a nice looking frame
+    around the \c CannonField.
+
+    \section1 Exercises
+
+    Write a space invaders game.
+
+    (This exercise was first done by
+    \l{mailto:igorr@ifi.uio.no}{Igor Rafienko}. You can
+    \l{http://www.stud.ifi.uio.no/~igorr/download.html}{download his game}.)
+
+    The new exercise is: Write a Breakout game.
+
+    Final exhortation: Go forth now and create masterpieces of the
+    programming art!
+
+    \omit Cf. Chapter 27 of The TeXbook \endomit
 */

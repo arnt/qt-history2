@@ -1287,7 +1287,7 @@ bool DocParser::closeCommand( int endCommand )
 		openedCommands.pop();
 	    }
 	} else {
-	    location().warning( tr("Missing '\\%1'")
+	    location().warning( tr("Unexpected '\\%1'")
 				.arg(commandName(endCommand)) );
 	}
 	return false;

@@ -121,7 +121,7 @@
     An alternative approach is to use a blocking socket. The code can
     then be concentrated in one function:
 
-    \quotefile network/blockingfortuneclient/thread.cpp
+    \quotefile network/blockingfortuneclient/fortunethread.cpp
     \skipto const int Timeout
     \printuntil emit newFortune
 
@@ -211,7 +211,7 @@
     if users ask for it.
 
     As an aid to porting to Qt 4, the \l{Qt 3 compatibility library}
-    includes Q3Dns, QServerSocket, QSocket, and QSocketDevice
+    includes Q3Dns, Q3ServerSocket, Q3Socket, and Q3SocketDevice
     classes.
 
     \l{qt4-intro.html}{[Back to the Beta page]}

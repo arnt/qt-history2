@@ -1,4 +1,5 @@
-/*! \page qt4-getting-started.html
+/*!
+    \page qt4-getting-started.html
     \title Getting Started with Qt 4
 
     This document covers the most important differences between Qt 3 and
@@ -32,10 +33,7 @@
     \list
     \i QApplication is split into QCoreApplication (in QtCore) and
        QApplication (in QtGui).
-
     \i QVariant is split into QCoreVariant and QVariant.
-
-    \i QEventLoop is split into QEventLoop and QGuiEventLoop.
     \endlist
 
     This split makes it possible to develop server applications using Qt
@@ -69,7 +67,7 @@
         CONFIG += uic3
     \endcode
 
-    \section1 Includes
+    \section1 Include Syntax
 
     The syntax for including Qt class definitions has become
 
@@ -107,7 +105,6 @@
         #include <QtCore>
     \endcode
 
-
     \section1 Namespaces
 
     Qt 2 introduced a class called Qt for global-like constants (e.g.,
@@ -133,6 +130,7 @@
     write Qt::yellow or add the "using namespace" directive and drop the
     "Qt::" prefix.
 
+    The \l{qt3to4.html}{qt3to4 porting tool} automates this conversion.
 
     \section1 QObject/QWidget Constructors
 
@@ -160,7 +158,6 @@
     programming where widgets are created without parents and then
     inserted in a layout, at which point the layout automatically
     reparents them.
-
 
     \section1 Dynamic Casts
 
@@ -212,7 +209,6 @@
     than before. The cost of one QPointer<T> object is now approximately
     the same as that of a signal--slot connection.
 
-
     \section1 Paint Events
 
     Qt 4 supports double buffering transparently on all platforms. This
@@ -225,6 +221,10 @@
     update() from anywhere in your code to create a paint event, with the
     region to update as the argument.
 
+    To help porting, QWidget supports a Qt::WA_PaintOutsidePaintEvent
+    attribute that can be set to make it possible to paint outside
+    \l{QWidget::paintEvent()}{paintEvent()} on Windows, X11, and
+    Qt/Embedded.
 
     \section1 Qt 3 Compatibility
 
@@ -233,14 +233,11 @@
     before, without bloating Qt.
 
     \list
-     \i Classes that no longer exist in Qt 4, such as QIconView, are
-        accessible under their old name.
+    \i  Classes that have been replaced by a different class with the
+        same name, such as QListView, and classes that no longer exist in Qt 4
+        are available with a \c 3 in their name (e.g., Q3ListView, Q3Accel).
 
-     \i Classes that have been replaced by a different class with the
-        same name, such as QListView, are available under a different
-        name (e.g., Q3ListView).
-
-     \i Other classes provide compatibility functions. Most of these are
+    \i  Other classes provide compatibility functions. Most of these are
         implemented inline, so that they don't bloat the Qt libraries.
     \endlist
 
@@ -250,17 +247,17 @@
         QT += compat
     \endcode
 
-    to your .pro file.
+    to your \c .pro file.
 
     On Visual C++ 7 and GCC 3.2+, using compatibility function results in
-    a compiler warning (e.g. "'find' is deprecated"). If you want to turn
+    a compiler warning (e.g., "'find' is deprecated"). If you want to turn
     off that warning, add the line
 
     \code
         DEFINES += QT_COMPAT
     \endcode
 
-    to your .pro file.
+    to your \c .pro file.
 
     If you want to use compatibility functions but don't want to link
     against the compatibility library, add the line
@@ -275,7 +272,7 @@
         DEFINES += QT_COMPAT
     \endcode
 
-    to your .pro file, depending on whether you want compatibility
+    to your \c .pro file, depending on whether you want compatibility
     function calls to generate compiler warnings or not.
 
     \link qt4-intro.html [Back to the Beta page] \endlink

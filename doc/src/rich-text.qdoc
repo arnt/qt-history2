@@ -106,8 +106,8 @@ ensures that it is padded with empty blocks where necessary.
 We obtain the root frame in the following manner:
 
 \quotefromfile snippets/textdocument-frames/xmlwriter.h
-\skipto QTextDocument *root
-\printuntil QTextDocument *root
+\skipto QTextDocument *textDocument
+\printuntil QTextDocument *textDocument
 \quotefromfile snippets/textdocument-frames/xmlwriter.cpp
 \skipto textDocument->rootFrame()
 \printuntil textDocument->rootFrame()

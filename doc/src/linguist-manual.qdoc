@@ -104,7 +104,7 @@
     section of the project file for each language that is additional to
     the native language. A typical entry looks like this:
 
-    \quotefile tt2/tt2.pro
+    \quotefromfile tt2/tt2.pro
     \skipto TRANSLATIONS
     \printline tt2_fr
     \printline tt2_nl
@@ -751,7 +751,7 @@
 
 /*!
     \page linguist-programmers.html
-    \chapter Qt Linguist Manual: Programmers
+    \title Qt Linguist Manual: Programmers
 
     Support for multiple languages is extremely simple in Qt
     applications, and adds little overhead to the programmer's workload.
@@ -769,7 +769,7 @@
     with Qt, but requires a certain amount of programmer intervention and
     will of course incur some runtime performance cost.
 
-    \section1 Making the Application Translation Aware
+    \section1 Making the Application Translation-Aware
 
     Programmers should make their application look for and load the
     appropriate translation file and mark user-visible text and Ctrl
@@ -809,7 +809,7 @@
     For \l lupdate to work successfully, it must know which translation
     files to produce. The files are simply listed in the application's \c
     .pro Qt project file, for example:
-    \quotefile  tt2/tt2.pro
+    \quotefromfile  tt2/tt2.pro
     \skipto TRANSLATIONS
     \printline TRANSLATIONS
     \printline
@@ -818,14 +818,14 @@
 
     \section2 Loading Translations
 
-    \quotefile  tt1/main.cpp
+    \quotefromfile  tt1/main.cpp
     \skipto main(
     \printline main(
     \printuntil QApplication
 
     This is how a simple \c main() function of a Qt application begins.
 
-    \quotefile tt1/main.cpp
+    \quotefromfile tt1/main.cpp
     \skipto main(
     \printline main(
     \printuntil app.installTrans
@@ -834,7 +834,7 @@
     translation is loaded and the translator object installed into the
     application.
 
-    \quotefile tt2/main.cpp
+    \quotefromfile tt2/main.cpp
     \skipto main(
     \printline main(
     \printuntil app.installTrans
@@ -870,17 +870,16 @@
     other cases an explicit class name can be supplied, for example:
 
     \code
-        QPushButton::tr("&Quit")
+            QPushButton::tr("&Quit")
     \endcode
 
     or
 
     \code
-        QObject::tr("&Quit")
+            QObject::tr("&Quit")
     \endcode
 
-    \section2 Distinguishing Identical Strings That Require Different
-    Translations
+    \section2 Distinguishing Identical Strings That Require Different Translations
 
     The \l lupdate program automatically provides a \e context for every
     source text. This context is the class name of the class that contains
@@ -893,18 +892,18 @@
     two argument form of the \c tr() call, e.g.
 
     \code
-        rbc = new QRadioButton(tr("Enabled", "Color frame"), this);
+           rbc = new QRadioButton(tr("Enabled", "Color frame"), this);
     \endcode
 
     and
 
     \code
-        rbh = new QRadioButton(tr("Enabled", "Hue frame"), this);
+           rbh = new QRadioButton(tr("Enabled", "Hue frame"), this);
     \endcode
 
     Ctrl key accelerators are also translatable:
 
-    \quotefile tt3/mainwindow.cpp
+    \quotefromfile tt3/mainwindow.cpp
     \skipto quit()
     \printline quit()
     \printuntil Quit
@@ -1047,14 +1046,12 @@
     The \e {Tutorial 1 Screenshot, English version}, above, shows the
     English version.
 
-    \quotefile tt1/main.cpp
+    \section3 Line by Line Walkthrough
 
-    \section3 Line by Line Walk-through
+    \quotefromfile tt1/main.cpp
 
-    \quotefile tt1/main.cpp
-
-    \skipto qtranslator
-    \printline qtranslator
+    \skipto <QTranslator>
+    \printline QTranslator
 
     This line includes the definition of the \l QTranslator class. 
     Objects of this class provide translations for user-visible text.
@@ -1100,7 +1097,7 @@
     all the source files for the project. The project file can be a qmake
     project file, or even an ordinary makefile. Any file that contains
 
-    \quotefile tt1/tt1.pro
+    \quotefromfile tt1/tt1.pro
     \skipto SOURCES
     \printline SOURCES
     \skipto TRANSLATIONS
@@ -1226,7 +1223,7 @@
     effective limit on the number of possible translations that can be used
     with an application. The relevant lines of \c tt2.pro are
 
-    \quotefile tt2/tt2.pro
+    \quotefromfile tt2/tt2.pro
     \skipto HEADERS
     \printuntil tt2_nl.ts
 
@@ -1234,7 +1231,7 @@
     \c tt2_fr.ts and \c tt2_nl.ts. These files will contain all the source
     texts marked for translation with \c tr() calls and their contexts.
 
-    \section3 Line by Line Walk-through
+    \section3 Line by Line Walkthrough
 
     In \c arrowpad.h we define the \c ArrowPad subclass which is a
     subclass of \l QWidget. In the \e {Tutorial 2 Screenshot, English
@@ -1289,11 +1286,11 @@
     become a context in \e {Qt Linguist}.
 
     In the implementation of \c MainWindow, \c mainwindow.cpp, we create
-    an instance of our \c ArrowPad class
+    an instance of our \c ArrowPad class.
 
     \quotefile tt2/mainwindow.cpp
-    \skipto arrow pad
-    \printline arrow pad
+    \skipto new ArrowPad
+    \printline ArrowPad
 
     We also call \c MainWindow::tr() twice, once for the menu item and
     once for the accelerator.
@@ -1465,7 +1462,7 @@
     \o \c tt3_pt.ts is the Portuguese message file.
     \endlist
 
-    \section3 Line by Line Walk-through
+    \section3 Line by Line Walkthrough
 
     The PrintPanel is defined in \c printpanel.h.
 
@@ -1480,7 +1477,6 @@
     The implementation file is \c printpanel.cpp.
 
     \quotefile tt3/printpanel.cpp
-    \skipto setSpacing
     \skipto /
     \printline /
     \printline
@@ -1490,7 +1486,7 @@
     Some of the code is commented out in Troll Print 1.0; you will uncomment
     it later, for Troll Print 1.1.
 
-    \quotefile tt3/printpanel.cpp
+    \quotefromfile tt3/printpanel.cpp
     \skipto twoSided
     \printline twoSided
     \printuntil toggle
@@ -1511,11 +1507,11 @@
     surprises. In the implementation, \c mainwindow.cpp, we have some
     user-visible source texts that must be marked for translation.
 
-    \quotefile tt3/mainwindow.cpp
-    \skipto setCaption
-    \printline setCaption
+    \quotefromfile tt3/mainwindow.cpp
+    \skipto setWindowTitle
+    \printline setWindowTitle
 
-    We must translate the window's caption.
+    We must translate the window title.
 
     \skipto quit
     \printline quit
@@ -1526,7 +1522,7 @@
     the second argument is the only clue the translator has to indicate
     what function that accelerator will perform.
 
-    \quotefile tt3/main.cpp
+    \quotefromfile tt3/main.cpp
     \skipto QTranslator
     \printuntil installTranslator
 

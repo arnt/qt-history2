@@ -175,8 +175,9 @@
     \endtable
 
     ###
-
+    \omit
     \row \o QButton::ToggleState \o Use QCheckBox::ToggleState instead.
+    \endomit
 
     \section1 Enum Values
 

@@ -73,7 +73,7 @@ GameBoard::GameBoard(QWidget *parent)
 
     (void) new QShortcut(Qt::Key_Enter, this, SLOT(fire()));
     (void) new QShortcut(Qt::Key_Return, this, SLOT(fire()));
-    (void) new QShortcut(Qt::CTRL + Qt::Key_Q, this, SLOT(fire()));
+    (void) new QShortcut(Qt::CTRL + Qt::Key_Q, this, SLOT(close()));
 
     QHBoxLayout *topLayout = new QHBoxLayout;
     topLayout->addWidget(shoot);

@@ -32,7 +32,7 @@
     has the additional benefit that you don't need to know anything
     about SQL to display and edit data.
 
-    Currently, the Qt 4 SQL module includes three item models:
+    The Qt 4 SQL module includes three item models:
 
     \list
     \o QSqlQueryModel is a read-only model based on an arbitrary

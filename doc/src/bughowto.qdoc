@@ -27,7 +27,7 @@
     \if defined(beta)
     Trolltech has set up a special mailing list, \c qt4-preview-feedback, for
     discussion of issues relating to the Qt 4 beta releases. To subscribe, send
-    a message containing just the word "subscribe" (without the quotes) to
+    a message containing just the word \e subscribe to
     \l{mailto:qt4-preview-feedback-request@trolltech.com}{qt4-preview-feedback-request@trolltech.com}.
     We encourage you to use this mailing list instead of \c qt-interest for Qt 4-specific issues.
     See \l http://lists.trolltech.com/ for more information on Trolltech's

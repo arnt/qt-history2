@@ -7,7 +7,6 @@
 #include <QDateTime>
 #include <QPaintEvent>
 #include <QPainter>
-#include <QPixmap>
 #include <QTimer>
 
 #include <math.h>
@@ -142,15 +141,15 @@ void CannonField::paintEvent(QPaintEvent *event)
 
 void CannonField::paintShot(QPainter &painter)
 {
-    painter.setBrush(Qt::black);
     painter.setPen(Qt::NoPen);
+    painter.setBrush(Qt::black);
     painter.drawRect(shotRect());
 }
 
 void CannonField::paintTarget(QPainter &painter)
 {
-    painter.setBrush(Qt::red);
     painter.setPen(Qt::black);
+    painter.setBrush(Qt::red);
     painter.drawRect(targetRect());
 }
 
@@ -158,21 +157,15 @@ const QRect barrelRect(33, -4, 15, 8);
 
 void CannonField::paintCannon(QPainter &painter)
 {
-    QRect rect = cannonRect();
-    QPixmap pixmap(rect.size());
-    pixmap.fill(this, rect.topLeft());
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(Qt::blue);
 
-    QPainter pixmapPainter(&pixmap);
-    pixmapPainter.setBrush(Qt::blue);
-    pixmapPainter.setPen(Qt::NoPen);
-
-    pixmapPainter.translate(0, pixmap.height() - 1);
-    pixmapPainter.drawPie(QRect(-35, -35, 70, 70), 0, 90 * 16);
-    pixmapPainter.rotate(-ang);
-    pixmapPainter.drawRect(barrelRect);
-    pixmapPainter.end();
-
-    painter.drawPixmap(rect.topLeft(), pixmap);
+    painter.save();
+    painter.translate(rect().bottomLeft());
+    painter.drawPie(QRect(-35, -35, 70, 70), 0, 90 * 16);
+    painter.rotate(-ang);
+    painter.drawRect(barrelRect);
+    painter.restore();
 }
 
 QRect CannonField::cannonRect() const

@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QMenu *file = new QMenu(this);
     QAction *exitAction = file->addAction(tr("E&xit"), qApp, SLOT(quit()));
-    exitAction->setShortcut(QKeySequence("Ctrl+Q"));
+    exitAction->setShortcut(tr("Ctrl+Q"));
     
     menuBar()->addMenu(file)->setText(tr("&File"));
 }

@@ -426,7 +426,7 @@ void Generator::generateExampleFiles(const FakeNode *fake, CodeMarker *marker)
         OpenedList openedList(OpenedList::Bullet);
 
         Text text;
-        text << Atom::ParaLeft << "Example files:" << Atom::ParaRight
+        text << Atom::ParaLeft << "Files:" << Atom::ParaRight
              << Atom(Atom::ListLeft, openedList.styleString());
         foreach (QString exampleFile, exampleFiles) {
             openedList.next();

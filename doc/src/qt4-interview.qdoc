@@ -141,7 +141,7 @@
     These functions are implemented quite simply:
 
     \quotefromfile snippets/stringlistmodel/model.cpp
-    \skipto int StringListModel::rowCount() const
+    \skipto int StringListModel::rowCount(
     \printuntil }
 
     \skipto QVariant StringListModel::data(
