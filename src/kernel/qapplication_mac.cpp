@@ -1113,7 +1113,14 @@ bool QApplication::do_mouse_down( Point *pt )
 			 widget->extra->maxw, widget->extra->maxh);
 	    }
 	}
-	GrowWindow( wp, *pt, &limits);
+	int growWindowSize = GrowWindow( wp, *pt, &limits);
+	if( growWindowSize) {
+	    // nw/nh might not match the actual size if setSizeIncrement is used
+	    int nw = LoWord( growWindowSize );
+	    int nh = HiWord( growWindowSize );
+	    if( nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0 && widget) 
+		widget->resize(nw, nh);
+	}
 	break;
     }
     case inCollapseBox:
@@ -1699,17 +1706,19 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    GetEventParameter(event, kEventParamAttributes, typeUInt32, NULL, sizeof(flags), NULL, &flags);
 	    Rect nr;
 	    GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, NULL, sizeof(nr), NULL, &nr);
-	    if((flags & kWindowBoundsChangeUserDrag)) {
+	    if((flags & kWindowBoundsChangeOriginChanged)) {
 		int ox = widget->crect.x(), oy = widget->crect.y();
 		int nx = nr.left, ny = nr.top;
 		widget->crect.setRect( nx, ny, widget->width(), widget->height() );
 		QMoveEvent qme( widget->crect.topLeft(), QPoint( ox, oy) );
 		QApplication::sendEvent( widget, &qme );
-	    } else if((flags & kWindowBoundsChangeUserResize)) {
+	    } 
+	    if((flags & kWindowBoundsChangeSizeChanged)) {
 		// nw/nh might not match the actual size if setSizeIncrement is used
 		int nw = nr.right - nr.left, nh = nr.bottom - nr.top;
 		widget->resize(nw, nh);
-		widget->propagateUpdates();
+		if(widget->isVisible())
+		    widget->propagateUpdates();
 	    }
 	} else if(ekind == kEventWindowActivated) {
 	    if(widget) {

@@ -347,7 +347,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	else
 	    wclass = kDocumentWindowClass;
 
-	WindowAttributes wattr = kWindowNoAttributes | kWindowLiveResizeAttribute;
+	WindowAttributes wattr = kWindowNoAttributes /*| kWindowLiveResizeAttribute*/;
 	if( testWFlags(WStyle_Customize) ) {
 	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
 		if(wclass == kToolbarWindowClass)
@@ -1677,6 +1677,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 	}
 
 	if(isTopLevel()) {
+#if 0
 	    QRegion contents;
 	    RgnHandle r = NewRgn();
 	    GetWindowRegion((WindowPtr)hd, kWindowContentRgn, r);
@@ -1686,6 +1687,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 	    }
 	    DisposeRgn(r);
 	    extra->clip_sibs &= contents;
+#endif
 	}
 	else if(parentWidget()) {
 	    extra->clip_sibs &= parentWidget()->clippedRegion(FALSE);
