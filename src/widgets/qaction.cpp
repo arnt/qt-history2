@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qaction.cpp#113 $
+** $Id: //depot/qt/main/src/widgets/qaction.cpp#114 $
 **
 ** Implementation of QAction class
 **
@@ -69,7 +69,7 @@
   the constructor. They can all be set independently with setIconSet(),
   setText(), setMenuText(), setToolTip(), setStatusTip(), setWhatsThis()
   and setAccel().
-  
+
   An action may be a toggle action e.g. a Bold toolbar button, or a
   command action, e.g. 'Open File' which invokes an open file dialog.
   Toggle actions emit the toggled() signal when their state changes.
@@ -348,7 +348,7 @@ QAction::QAction( const QString& text, const QIconSet& icon, const QString& menu
     init();
 }
 
-/*! This constructor results in an iconless action with the description 
+/*! This constructor results in an iconless action with the description
   \a text, the menu text \a menuText and the keyboard accelerator \a accel.
   Its parent is \a parent and its name \a
   name. If \a toggle is TRUE the action will be a toggle
@@ -481,12 +481,12 @@ QString QAction::toolTip() const
     return d->toolTip();
 }
 
-/*! \property QAction::statusTip 
+/*! \property QAction::statusTip
   \brief the action's status tip
-  
+
   The statusTip is displayed on all status bars that the toplevel
   widget parenting this action provides.
-  
+
   If no status tip is defined, the action uses the tool tip text.
 
   \sa setStatusTip() setToolTip()
@@ -594,7 +594,7 @@ int QAction::accel() const
     toolbar button is either on or off. An action which is not a toggle
     action is a command action; a command action is simply executed. For
     example a file open toolbar button would invoke a file open dialog.
-  
+
   For exclusive toggling ("one of many choice"), add toggle actions to
   a QActionGroup with the \l QActionGroup::exclusive property set to TRUE.
 
@@ -612,7 +612,7 @@ bool QAction::isToggleAction() const
     return d->toggleaction;
 }
 
-/*! 
+/*!
   \property QAction::on
   \brief whether a toggle action is on
 
@@ -642,9 +642,9 @@ bool QAction::isOn() const
     return d->on;
 }
 
-/*! \property QAction::enabled 
+/*! \property QAction::enabled
   \brief whether the action is enabled
-  
+
   Disabled actions can't be chosen by the user. They don't
   disappear from the menu/tool bar but are displayed in a way which
   indicates that they are unavailable, e.g. they might be displayed
@@ -697,7 +697,7 @@ void QAction::toolButtonToggled( bool on )
 
   addTo() returns TRUE if the action was added successfully and FALSE
   otherwise. (If \a w is not a QToolBar or QPopupMenu the action will
-  not be added and FALSE will be returned.) 
+  not be added and FALSE will be returned.)
 
   \sa removeFrom()
 */
@@ -707,7 +707,8 @@ bool QAction::addTo( QWidget* w )
 	if ( !qstrcmp( name(), "qt_separator_action" ) ) {
 	    ((QToolBar*)w)->addSeparator();
 	} else {
-	    QToolButton* btn = new QToolButton( (QToolBar*) w );
+	    QCString bname = name() + QCString( "_action_button" );
+	    QToolButton* btn = new QToolButton( (QToolBar*) w, bname );
 	    addedTo( btn, w );
 	    btn->setToggleButton( d->toggleaction );
 	    d->toolbuttons.append( btn );
@@ -1050,7 +1051,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
     We create a left align action, add it to the toolbar and the menu
     and make it a toggle action. We create center and right align
     actions in exactly the same way.
-    
+
     A QActionGroup emits an activated() signal when one of its actions
     is activated. The actions in an action group emit their activated()
     (and for toggle actions, toggled()) signals as usual.
@@ -1129,7 +1130,7 @@ QActionGroup::~QActionGroup()
     delete d;
 }
 
-/*! \property QActionGroup::exclusive 
+/*! \property QActionGroup::exclusive
   \brief whether the action group does exclusive toggling ("one of
   many choice")
 
@@ -1150,18 +1151,18 @@ bool QActionGroup::isExclusive() const
     return d->exclusive;
 }
 
-/*!  \property QActionGroup::usesDropDown 
-  \brief whether the group's actions are displayed in a 
+/*!  \property QActionGroup::usesDropDown
+  \brief whether the group's actions are displayed in a
   subwidget of the widgets the action group is added to
-  
+
   Exclusive action groups added to a toolbar display their actions in
   a combobox with the action's \l QAction::text and \l
   QAction::iconSet properties shown. Non-exclusive groups are
   represented by a tool button showing their \l QAction::iconSet and
-  -- depending on \l QMainWindow::usesTextLabel() -- text() property. 
+  -- depending on \l QMainWindow::usesTextLabel() -- text() property.
 
   In a popup menu the member actions are displayed in a
-  submenu.  
+  submenu.
 
   Changing usesDropDown effects subsequent calls to addTo() only.
 
@@ -1241,11 +1242,11 @@ void QActionGroup::addSeparator()
     within the group are added to the widget individually, for example
     if the widget is a menu the actions will appear as individual menu
     options and if the widget is a toolbar the actions will appear as
-    toolbar buttons. 
+    toolbar buttons.
 
     It is recommended that actions is action groups, especially where
     usesDropDown() is TRUE, have their menuText() or text() property set.
-  
+
     All actions should be added to the action group \e before the action
     group is added to the widget. If actions are added to the action
     group \e after the action group has been added to the widget these
@@ -1632,7 +1633,7 @@ void QActionGroup::addedTo( int index, QPopupMenu *menu, QAction *a )
     Q_UNUSED( a );
 }
 
-/*! \reimp 
+/*! \reimp
     \overload
   This function is called from the addTo() function when it created
   a widget (\a actionWidget) in the \a container.
@@ -1644,8 +1645,8 @@ void QActionGroup::addedTo( QWidget *actionWidget, QWidget *container )
     Q_UNUSED( container );
 }
 
-/*! \reimp 
-    \overload 
+/*! \reimp
+    \overload
   This function is called from the addTo() function when it created a
   menu item at the index \a index in the popup menu \a menu.
 
