@@ -35,6 +35,13 @@ int main(int argc, char *argv[])
 
     QItemSelectionModel *selectionModel = table->selectionModel();
 
+    QModelIndex topLeft = model->index(3, 3, QModelIndex(), QModelIndex::View);
+    QModelIndex bottomRight = model->index(4, 4, QModelIndex(),
+        QModelIndex::View);
+    
+    QItemSelection selection(topLeft, bottomRight, model);
+    selectionModel->select(selection, QItemSelectionModel::Select);
+
     for (int row = 0; row < 8; row += 2) {
         for (int column = 0; column < 8; column += 2) {
             QModelIndex topLeft = model->index(row, column, QModelIndex(),
@@ -43,7 +50,7 @@ int main(int argc, char *argv[])
                 QModelIndex(), QModelIndex::View);
             QItemSelection selection(topLeft, bottomRight, model);
             if (((row % 4) ^ (column % 4)) != 0)
-                selectionModel->select(selection, QItemSelectionModel::Select);
+                selectionModel->select(selection, QItemSelectionModel::Toggle);
         }
     }
 
