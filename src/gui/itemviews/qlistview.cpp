@@ -1108,8 +1108,8 @@ bool QListView::doItemsLayout(int delta)
   \internal
 */
 void QListView::doItemsLayout(const QRect &bounds,
-                                     const QModelIndex &first,
-                                     const QModelIndex &last)
+                              const QModelIndex &first,
+                              const QModelIndex &last)
 {
     if (first.row() >= last.row() || !first.isValid() || !last.isValid())
         return;
@@ -1128,15 +1128,14 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
     int y = 0;
     int spacing = d->gridSize.isEmpty() ? d->spacing : 0;
     d->initStaticLayout(x, y, first, bounds, spacing);
-    QPoint topLeft(x, y);
 
-    int gw = d->gridSize.width() > 0 ? d->gridSize.width() : 0;
-    int gh = d->gridSize.height() > 0 ? d->gridSize.height() : 0;
+    QPoint topLeft(x, y);
+    QSize grid = d->gridSize;
     int delta = last - first + 1;
     int layoutWraps = d->layoutWraps;
     bool wrap = d->wrap;
     QModelIndex index;
-    QSize hint;
+    QSize hint = grid;
     QRect rect = bounds;
     QFontMetrics fontMetrics(font());
     QStyleOptionViewItem option = viewOptions();
@@ -1151,11 +1150,12 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
 
     if (d->flow == LeftToRight) {
         int w = bounds.width();
-        int dx, dy = (gh ? gh : d->translate);
+        int dx, dy = grid.isValid() ? grid.height() : d->translate;
         for (int i = first; i <= last ; ++i) {
             index = model->index(i, 0, root());
-            hint = delegate->sizeHint(fontMetrics, option, model, index);
-            dx = (gw ? gw : hint.width());
+            if (!grid.isValid())
+                hint = delegate->sizeHint(fontMetrics, option, model, index);
+            dx = hint.width();
             if (wrap && (x + spacing >= w))
                 d->createStaticRow(x, y, dy, layoutWraps, i, bounds, spacing, delta);
             d->xposVector.push_back(x);
@@ -1169,11 +1169,12 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
         rect.setBottom(y + dy);
     } else { // d->flow == TopToBottom
         int h = bounds.height();
-        int dy, dx = (gw ? gw : d->translate);
+        int dy, dx = grid.isValid() ? grid.width() : d->translate;
         for (int i = first; i <= last ; ++i) {
             index = model->index(i, 0, root());
-            hint = delegate->sizeHint(fontMetrics, option, model, index);
-            dy = (gh ? gh : hint.height());
+            if (!grid.isValid())
+                hint = delegate->sizeHint(fontMetrics, option, model, index);
+            dy = hint.height();
             if (wrap && (y + spacing >= h))
                 d->createStaticColumn(x, y, dx, layoutWraps, i, bounds, spacing, delta);
             d->yposVector.push_back(y);
@@ -1204,9 +1205,8 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
 */
 void QListView::doDynamicLayout(const QRect &bounds, int first, int last)
 {
-    int gw = d->gridSize.width() > 0 ? d->gridSize.width() : 0;
-    int gh = d->gridSize.height() > 0 ? d->gridSize.height() : 0;
-    int spacing = gw && gh ? 0 : d->spacing;
+    QSize grid = d->gridSize;
+    int spacing = grid.isValid() ? 0 : d->spacing;
     int x, y;
 
     if (first == 0) {
@@ -1219,9 +1219,9 @@ void QListView::doDynamicLayout(const QRect &bounds, int first, int last)
         x = item.x;
         y = item.y;
         if (d->flow == LeftToRight)
-            x += (gw ? gw : item.w) + spacing;
+            x += (grid.isValid() ? grid.width() : item.w) + spacing;
         else
-            y += (gh ? gh : item.h) + spacing;
+            y += (grid.isValid() ? grid.height() : item.h) + spacing;
     }
 
     QPoint topLeft(x, y);
@@ -1232,10 +1232,10 @@ void QListView::doDynamicLayout(const QRect &bounds, int first, int last)
 
     if (d->flow == LeftToRight) {
         int w = bounds.width();
-        int dy = (gh ? gh : d->translate);
+        int dy = (grid.isValid() ? grid.height() : d->translate);
         for (int i = first; i <= last; ++i) {
             item = d->tree.itemPtr(i);
-            int dx = (gw ? gw : item->w);
+            int dx = (grid.isValid() ? grid.width() : item->w);
             // create new layout row
             if (wrap && (x + spacing + dx >= w)) {
                 x = bounds.x() + spacing;
@@ -1250,10 +1250,10 @@ void QListView::doDynamicLayout(const QRect &bounds, int first, int last)
         d->translate = dy;
     } else { // TopToBottom
         int h = bounds.height();
-        int dx = (gw ? gw : d->translate);
+        int dx = (grid.isValid() ? grid.width() : d->translate);
         for (int i = first; i <= last; ++i) {
             item = d->tree.itemPtr(i);
-            int dy = (gh ? gh : item->h);
+            int dy = (grid.isValid() ? grid.height() : item->h);
             if (wrap && (y + spacing + dy >= h)) {
                 y = bounds.y() + spacing;
                 x += spacing + dx;
