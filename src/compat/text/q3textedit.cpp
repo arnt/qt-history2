@@ -414,7 +414,7 @@ static bool block_set_alignment = false;
     by using the HTML font tag \c {<font color=colorname>}. The color
     name can be one of the color names from the X11 color database, or
     a RGB hex value (e.g \c {#00ff00}). Example of valid color tags:
-    \c {<font color=red>}, \c {<font color="light blue">}, \c {<font
+    \c {<font color=red>}, \c{<font color="light blue">},\c {<font
     color="#223344">}. Bold, italic and underline settings can be
     specified by the tags \c {<b>}, \c <i> and \c {<u>}. Note that a
     tag does not necessarily have to be closed. A valid example:
@@ -5435,7 +5435,7 @@ QPopupMenu *Q3TextEdit::createPopupMenu()
 void Q3TextEdit::zoomIn(int range)
 {
     QFont f(QScrollView::font());
-    f.setPointSize(QFontInfo(f).pointSize() + range);
+    f.setPointSize(f.pointSize() + range);
     setFont(f);
 }
 
@@ -5450,7 +5450,7 @@ void Q3TextEdit::zoomIn(int range)
 void Q3TextEdit::zoomOut(int range)
 {
     QFont f(QScrollView::font());
-    f.setPointSize(qMax(1, QFontInfo(f).pointSize() - range));
+    f.setPointSize(qMax(1, f.pointSize() - range));
     setFont(f);
 }
 
