@@ -112,10 +112,6 @@
 
   </ul>
 
-  The <a href="walkthrough-application.html#simplemain">Application
-  walktrough example</a> contains a typical complete main() that does
-  the usual things with QApplication.
-
   Since the QApplication object does so much initialization, it is
   absolutely necessary to create it before any other objects related
   to the user interface are created.
