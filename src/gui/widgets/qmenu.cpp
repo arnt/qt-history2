@@ -84,9 +84,12 @@ public:
     }
     void syncWithMenu(QMenu *, QActionEvent *act)
     {
-        if(act->type() == QEvent::ActionAdded)
-            insertAction(act->before(), act->action());
-        else if(act->type() == QEvent::ActionRemoved)
+        if(act->type() == QEvent::ActionAdded) {
+            if (act->before())
+                insertAction(act->before(), act->action());
+            else
+                addAction(act->action());
+        } else if(act->type() == QEvent::ActionRemoved)
             removeAction(act->action());
     }
     void actionEvent(QActionEvent *e)
