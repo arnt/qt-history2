@@ -833,7 +833,7 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
 	e->ignore();
 	return;					// left mouse button is up
     }
-    if ( hitButton( e->pos() ) ) {		// mouse move in button
+    if ( hasMouse() ) {		// mouse move in button
 	if ( !buttonDown ) {
 	    buttonDown = TRUE;
 	    repaint( FALSE );
