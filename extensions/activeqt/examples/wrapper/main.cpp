@@ -68,7 +68,7 @@ public:
 	    return new QPushButton(0 );
 	if ( key == "QToolButton" ) {
 	    QToolButton *tb = new QToolButton(0);
-	    tb->setIcon( QPixmap(fileopen) );
+//	    tb->setIcon( QPixmap(fileopen) );
 	    return tb;
 	}
 
