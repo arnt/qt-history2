@@ -16,7 +16,7 @@ public:
     QUnknownInterface() {}
     virtual ~QUnknownInterface() {}
 
-    static QString interfaceID() { return "QUnknownInterface"; }
+    virtual QString interfaceID() { return "QUnknownInterface"; }
 
     virtual bool connectNotify( QApplicationInterface* ) { return TRUE; }
     virtual bool disconnectNotify() { return TRUE; }
@@ -30,7 +30,7 @@ class Q_EXPORT QPlugInInterface : public QUnknownInterface
 public:
     QPlugInInterface() {}
 
-    static QString interfaceID() { return "QPlugInInterface"; }
+    QString interfaceID() { return "QPlugInInterface"; }
 
     virtual QString name() { return QString::null; }
     virtual QString description() { return QString::null; }
@@ -48,7 +48,7 @@ public:
     QApplicationInterface();
     ~QApplicationInterface() {}
 
-    static QString interfaceID() { return "QApplicationInterface"; }
+    QString interfaceID() { return "QApplicationInterface"; }
 };
 
 class Q_EXPORT QApplicationComponentInterface : public QObject, public QUnknownInterface
@@ -59,7 +59,7 @@ public:
     QApplicationComponentInterface( QObject* o );
     ~QApplicationComponentInterface() {}
 
-    static QString interfaceID() { return "QApplicationComponentInterface"; }
+    QString interfaceID() { return "QApplicationComponentInterface"; }
 
 #ifndef QT_NO_PROPERTIES
     virtual QVariant requestProperty( const QCString& p );

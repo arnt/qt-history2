@@ -63,7 +63,7 @@ signals:
 #endif
 
 template<class Type>
-class Q_EXPORT QInterfaceManager : public QInterfaceManagerSignalEmitter
+class Q_EXPORT QInterfaceManager : public QInterfaceManagerSignalEmitter, public Type
 {
 public:
     QInterfaceManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so",
@@ -114,7 +114,7 @@ public:
 	    QStringList iFaces = plugin->interfaceList();
 	    for ( QStringList::Iterator i = iFaces.begin(); i != iFaces.end(); ++i ) {
 		QUnknownInterface *iFace = plugin->queryInterface( *i );
-		if ( iFace && iFace->interfaceID() == Type::interfaceID() ) {
+		if ( iFace && iFace->interfaceID() == interfaceID() ) {
 		    Type* typedIFace = (Type*)iFace;
 		    QStringList al = typedIFace->featureList();
 		    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ ) {
