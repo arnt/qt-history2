@@ -1308,33 +1308,37 @@ void QWidget::setWindowTitle(const QString &cap)
 
 void QWidgetPrivate::setWindowIcon_sys()
 {
-#if 0
-    QTLWExtra* x = d->topData();
-    delete x->icon;
-    x->icon = 0;
-    if(!pixmap.isNull())
-        x->icon = new QPixmap(pixmap);
-    if(q->isWindow()) {
+    if (d->extra->topextra->iconPixmap) // already set
+        return;
+
+    QIcon icon = q->windowIcon();
+    QPixmap *pm = 0;
+    if (!icon.isNull()) {
+        pm = new QPixmap(icon.pixmap(icon.actualSize(QSize(22, 22))));
+        if (!pm->mask())
+            pm->setMask(pm->createHeuristicMask());
+        d->extra->topextra->iconPixmap = pm;
+    }
+    if (q->isWindow()) {
 #ifdef QT3_SUPPORT
         //I hate to do this but, I've moved the application icon to
         //where it belongs in *gasp* QApplication but I'm afraid to
         //break assumptions so I'll leave this in for now maybe we can
         //consider its removal for 5.0 --Sam
-	if(qApp && qApp->mainWidget() == q && qApp->windowIcon().isNull()) {
+	if (qApp->mainWidget() == q && qApp->windowIcon().isNull() && pm) {
             void qt_mac_set_app_icon(const QPixmap &); //qapplication_mac.cpp
-            qt_mac_set_app_icon(pixmap);
+            qt_mac_set_app_icon(*pm);
         }
 #endif
-        if(pixmap.isNull()) {
+        if (icon.isNull()) {
             RemoveWindowProxy(qt_mac_window_for(q));
         } else {
             WindowClass wclass;
-            GetWindowClass((WindowPtr)qt_mac_window_for(q), &wclass);
-            if(wclass == kDocumentWindowClass)
-                SetWindowProxyIcon(qt_mac_window_for(q), qt_mac_create_iconref(pixmap));
+            GetWindowClass(qt_mac_window_for(q), &wclass);
+            if (wclass == kDocumentWindowClass)
+                SetWindowProxyIcon(qt_mac_window_for(q), qt_mac_create_iconref(*pm));
         }
     }
-#endif
 }
 
 void QWidget::setWindowIconText(const QString &iconText)
