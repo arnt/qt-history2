@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#80 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#79 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#80 $");
 
 
 const int Unsorted = 32767;
@@ -1442,15 +1442,6 @@ void QListView::clear()
     }
 }
 
-
-/*! DEPRECATED.  See addColumn().  */
-void QListView::setColumn( const char * label, int size, int column )
-{
-    if ( column < 0 )
-	addColumn( label, size );
-    else
-	d->h->setLabel( column, label, size );
-}
 
 /*!
   Adds a new column at the right end of the

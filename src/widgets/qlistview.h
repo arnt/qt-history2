@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#38 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#39 $
 **
 ** Definition of QListView widget class
 **
@@ -130,9 +130,6 @@ public:
 
     virtual void insertItem( QListViewItem * );
     virtual void clear();
-
-    // Deprecate!
-    virtual void setColumn( const char * label, int size, int column=-1 );
 
     virtual void addColumn( const char * label, int size = -1);
     virtual void setColumnText( int column, const char * label );
