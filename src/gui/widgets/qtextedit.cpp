@@ -946,6 +946,7 @@ void QTextEdit::selectAll()
     d->cursor.movePosition(QTextCursor::Start);
     d->cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
     d->selectionChanged();
+    d->viewport->update();
 }
 
 /*! \internal
