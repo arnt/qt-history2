@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#40 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#41 $
 **
 ** Implementation of Network Extension Library
 **
@@ -76,8 +76,9 @@ void QFtp::operationMkDir( QNetworkOperation *op )
 
 void QFtp::operationRemove( QNetworkOperation *op )
 {
-    QString cmd( "DELE " + op->arg1() + "\r\n" );
-    commandSocket->writeBlock( cmd, cmd.length() );
+    QString path = url()->path().isEmpty() ? QString( "/" ) : url()->path();
+    QString cmd = "CWD " + path + "\r\n";
+    commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 }
 
 void QFtp::operationRename( QNetworkOperation *op )
@@ -119,8 +120,8 @@ bool QFtp::checkConnection( QNetworkOperation *op )
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
 	op->setErrorCode( ErrHostNotFound );
-	clearOperationQueue();
 	emit finished( op );
+	clearOperationQueue();
     }
 
     return FALSE;
@@ -268,7 +269,7 @@ void QFtp::okGoOn( int code, const QCString &data )
 		 operationInProgress()->operation() == OpPut )
 		commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
 	}
-    }
+    } break;
     case 220: { // expect USERNAME
 	QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
 	QString cmd = "USER " + user + "\r\n";
@@ -291,7 +292,7 @@ void QFtp::okGoOn( int code, const QCString &data )
 	if ( operationInProgress() && operationInProgress()->operation() == OpListChildren )
 	    dataSocket->setMode( QSocket::Ascii );
     } break;
-    case 250: { // cwd succesfully
+    case 250: { // file operation succesfully
 	if ( operationInProgress() && !passiveMode &&
 	     operationInProgress()->operation() == OpListChildren ) { // list dir
 	    dataSocket->setMode( QSocket::Ascii );
@@ -304,10 +305,16 @@ void QFtp::okGoOn( int code, const QCString &data )
 	    emit itemChanged( operationInProgress() );
 	    emit finished( operationInProgress() );
 	} else if ( operationInProgress() &&
-		    operationInProgress()->operation() == OpRemove ) { // remove successful
-	    operationInProgress()->setState( StDone );
-	    emit removed( operationInProgress() );
-	    emit finished( operationInProgress() );
+		    operationInProgress()->operation() == OpRemove ) { // remove or cwd successful
+	    if ( operationInProgress()->state() == StWaiting ) {
+		operationInProgress()->setState( StInProgress );
+		QString cmd( "DELE " + operationInProgress()->arg1() + "\r\n" );
+		commandSocket->writeBlock( cmd, cmd.length() );
+	    } else {
+		operationInProgress()->setState( StDone );
+		emit removed( operationInProgress() );
+		emit finished( operationInProgress() );
+	    }
 	}
     } break;
     case 226: // listing directory (in passive mode) finished and data socket closing
@@ -353,6 +360,7 @@ void QFtp::errorForgetIt( int code, const QCString &data )
 	QString msg( tr( "Login Incorrect" ) );
 	QNetworkOperation *op = operationInProgress();
 	if ( op ) {
+	    qDebug( "%d", op->operation() );
 	    op->setProtocolDetail( msg );
 	    op->setState( StFailed );
 	    op->setErrorCode( ErrLoginIncorrect );
