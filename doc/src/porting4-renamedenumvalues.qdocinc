@@ -1,6 +1,9 @@
 \row \o QAccessible::Moveable \o QAccessible::Movable
 \row \o QApplication::CustomColors \o QApplication::CustomColor
 \row \o QApplication::NormalColors \o QApplication::NormalColor
+\row \o QButton::NoChange \o QCheckBox::NoChange
+\row \o QButton::Off \o QCheckBox::Off
+\row \o QButton::On \o QCheckBox::On
 \row \o QChar::Single \o QChar::NoDecomposition
 \row \o QChar::byteOrderMark \o QChar::ByteOrderMark
 \row \o QChar::byteOrderSwapped \o QChar::ByteOrderSwapped

@@ -23,6 +23,29 @@
     ### How to port from Qt 2.3 to Qt 4.
     ### missing sort() functions?
     ### QToolTipGroup
+    ### QServerSocket -> Q3ServerSocket
+
+    ### remove these when the classes are re-ported
+    \row \o void QCheckListItem::paintCell(QPainter *, const QColorGroup &, int, int, int)\row \o void Q3CheckListItem::paintCell(QPainter *, const QPalette &, int, int, int)
+    \row \o void QCheckListItem::paintFocus(QPainter *, const QColorGroup &, const QRect &) \o void Q3CheckListItem::paintFocus(QPainter *, const QPalette &, const QRect &)
+    \row \o QDataTable: a whole bunch of virtual functions have a different signature
+
+    <     Function: void QIconViewItem::paintFocus(QPainter *, const QColorGroup &)
+    >     Function: void QIconViewItem::paintFocus(QPainter *, const QPalette &)
+
+    <     Function: void QIconViewItem::paintItem(QPainter *, const QColorGroup &)
+    >     Function: void QIconViewItem::paintItem(QPainter *, const QPalette &)
+
+    <     Function: QVariant QSqlCursor::calculateField(const QString &)
+    >     Function: QCoreVariant QSqlCursor::calculateField(const QString &)
+
+    <     Function: bool QUrlOperator::checkValid()
+
+    <     Function: void QWSInputMethod::setFont(const QFont &)
+
+    ### DeviceMode or OpenMode
+
+    ### QWSDecoration
 \endomit
 
     If you haven't yet made the decision about porting, or are unsure
@@ -282,6 +305,7 @@
 
     \table
     \header \o Qt 3 property \o Qt 4 equivalent
+    \row \o QButton::autoRepeat \o N/A
     \row \o QButton::autoResize \o N/A
     \row \o QButton::exclusiveToggle \o Use QButton::autoExclusive instead.
     \row \o QButton::pixmap \o Use QAbstractButton::icon instead.
@@ -296,21 +320,9 @@
     \row \o QWidget::microFocusHint \o N/A
     \endtable
 
-    \section1 Virtual Functions
+    \section1 Inheritance Chain
 
-    Virtual functions that changed their signature in Qt 4:
-
-    \table
-    \header \o Qt 3 function signature \o Qt 4 function signature
-    \input porting4-modifiedvirtual.qdocinc
-    \endtable
-
-    Virtual functions that are not virtual anymore in Qt 4:
-
-    \table
-    \header \o Qt 3 function
-    \input porting4-removedvirtual.qdocinc
-    \endtable
+    ### QMenuBar, etc.
 
 \omit
     \section1 Null vs. Empty
@@ -869,6 +881,14 @@
 
     See \l{SQL Module} for an overview of the new item SQL classes.
 
+    \section1 QDataSink
+
+    ###
+
+    \section1 QDataSource
+
+    ###
+
     \section1 QDataTable
 
     The QDataTable class has been moved to the \l{Qt 3 compatibility library}.
@@ -1292,6 +1312,10 @@
     \l{#qnetworkprotocol.section}{section on QNetworkProtocol} for
     details.
 
+    \section1 QGLayoutIterator
+
+    ###
+
     \section1 QGrid
 
     The QGrid class has been renamed QGridWidget.
@@ -1410,6 +1434,18 @@
     (rather than a Q_ULONG). All subclass will need to change as this is a
     pure virtual function build errors will occur.
 
+    \section1 QIODeviceSource
+
+    ###
+
+    \section1 QIconFactory
+
+    ###
+
+    \section1 QLayoutIterator
+
+    ###
+
     \section1 QListBox
 
     The QListBox, QListBoxItem, QListBoxText, and QListBoxPixmap
@@ -1491,6 +1527,12 @@
         implicitly shared. See \l{Explicit Sharing} for more
         information.
     \endlist
+
+    \section1 QMenuBar
+
+    ### Used to inherit from QFrame and QMenuData; now inherits from QWidget
+
+    \section1 QMenuData
 
     \section1 QMimeSourceFactory
 
@@ -2952,6 +2994,23 @@
 
     The dialogs/simplewizard and dialogs/complexwizard examples show
     how to create wizards without using QWizard.
+
+    \section1 Virtual Functions
+
+    Virtual functions that changed their signature in Qt 4:
+
+    \table
+    \header \o Qt 3 function signature \o Qt 4 function signature
+    \input porting4-modifiedvirtual.qdocinc
+    \endtable
+
+    Virtual functions that are not virtual anymore in Qt 4:
+
+    \table
+    \header \o Qt 3 function \o Comment
+    \input porting4-removedvirtual.qdocinc
+    \endtable
+
 */
 
 #if 0
