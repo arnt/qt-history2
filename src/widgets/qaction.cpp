@@ -592,6 +592,7 @@ bool QAction::addTo( QWidget* w )
 {
     if ( w->inherits( "QToolBar" ) ) {
 	QToolButton* btn = new QToolButton( (QToolBar*) w );
+	btn->setToggleButton( d->toggleaction );
 	d->toolbuttons.append( btn );
 	if ( d->iconset )
 	    btn->setIconSet( *d->iconset );
