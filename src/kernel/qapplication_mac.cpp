@@ -130,6 +130,7 @@ static EventLoopTimerRef mac_context_timer = NULL;
 static EventLoopTimerUPP mac_context_timerUPP = NULL;
 static EventLoopTimerRef mac_select_timer = NULL;
 static EventLoopTimerUPP mac_select_timerUPP = NULL;
+static DMExtendedNotificationUPP mac_display_changeUPP = NULL;
 static EventHandlerRef app_proc_handler = NULL;
 static EventHandlerUPP app_proc_handlerUPP = NULL;
 //popup variables
@@ -151,6 +152,14 @@ QCString p2qstring(const unsigned char *); //qglobal.cpp
 //and very special case, if you plan on using these variables be VERY careful!!
 static bool qt_closed_popup = FALSE;
 static EventRef qt_replay_event = NULL;
+
+static QMAC_PASCAL void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
+{
+    if(msg == kDMNotifyEvent) {
+	if(QDesktopWidget *dw = qApp->desktop()) 
+	    QApplication::postEvent(dw, new QResizeEvent(dw->size(), dw->size()));
+    }
+}
 
 static short qt_mac_find_window( int x, int y, QWidget **w=NULL )
 {
@@ -363,13 +372,18 @@ static EventTypeSpec events[] = {
 /* platform specific implementations */
 void qt_init(int* argcptr, char **argv, QApplication::Type)
 {
-#ifdef Q_WS_MACX
-    if (qt_is_gui_used) {
+    if(qt_is_gui_used) {
 	ProcessSerialNumber psn;
-	GetCurrentProcess(&psn);
-	SetFrontProcess(&psn);
-    }
+	if(GetCurrentProcess(&psn) == noErr) {
+	    if(!mac_display_changeUPP) {
+		mac_display_changeUPP = NewDMExtendedNotificationUPP(qt_mac_display_change_callbk);
+		DMRegisterExtendedNotifyProc( mac_display_changeUPP, NULL, 0, &psn);
+	    }
+#ifdef Q_WS_MACX
+	    SetFrontProcess(&psn);
 #endif
+	}
+    }
 
     // Get command line params
     int argc = *argcptr;
