@@ -2244,17 +2244,16 @@ QByteArray compress( const QImage & image ) {
     QRgb *pixel = new QRgb[size+1];
 
     int i = 0;
-    int x, y;
     if ( image.depth() == 8 ) {
-	for( y=0; y < image.height(); y++ ) {
+	for( int y=0; y < image.height(); y++ ) {
 	    uchar * s = image.scanLine( y );
-	    for( x=0; x < image.width(); x++ )
+	    for( int x=0; x < image.width(); x++ )
 		pixel[i++] = ( image.color( s[x] ) ) & RGB_MASK;
 	}
     } else {
-	for( y=0; y < image.height(); y++ ) {
+	for( int y=0; y < image.height(); y++ ) {
 	    QRgb * s = (QRgb*)(image.scanLine( y ));
-	    for( x=0; x < image.width(); x++ )
+	    for( int x=0; x < image.width(); x++ )
 		pixel[i++] = (*s++) & RGB_MASK;
 	}
     }
