@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#12 $
 **
 ** Implementation of QSlider class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#12 $");
 
 #define SLIDE_BORDER	2
 #define MOTIF_WIDTH	30
@@ -454,12 +454,15 @@ void QSlider::paintEvent( QPaintEvent * )
     p.end();
 }
 
+static int sliderStartVal = 0;
+
 /*!
   Handles mouse press events for the slider.
  */
 void QSlider::mousePressEvent( QMouseEvent *e )
 {
     resetState();
+    sliderStartVal = sliderVal;
     if ( e->button() == MidButton ) {
 	int pos = (orient == Horizontal) ?  e->pos().x(): e->pos().y();
 	moveSlider( pos - slideWidth() / 2 );
@@ -494,6 +497,15 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 
 void QSlider::mouseMoveEvent( QMouseEvent *e )
 {
+    /*
+    if ( style == WindowsStyle ) {
+	QRect r = rect();
+	if ( orientation() == Horizontal )
+	    r.setRect( r.x() - 20, r.y() - 30, r.width() + 40, r.height() + 60 );
+	else
+	    r.setRect( r.x() - 30, r.y() - 20, r.width() + 60, r.height() + 40 );
+    }
+    */
     if ( (e->state() & MidButton) ) { 		// middle button wins
 	int pos = (orient == Horizontal) ?  e->pos().x(): e->pos().y();
 	moveSlider( pos - slideWidth() / 2 );
