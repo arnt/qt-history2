@@ -664,19 +664,17 @@ bool Configure::displayHelp()
 	    cout << "                         " << qPrintable(allConfigs.at(i)) << endl;
 
 	cout << endl;
-	cout << "-qt-gif            " << MARK_OPTION(GIF,yes)	    << " Enable GIF support." << endl;
-	cout << "-no-gif            " << MARK_OPTION(GIF,no)	    << " Disable GIF support." << endl << endl;
 
 	cout << "-no-zlib           " << MARK_OPTION(ZLIB,no)	    << " Disable zlib.  Implies -no-png." << endl;
 	cout << "-qt-zlib           " << MARK_OPTION(ZLIB,yes)	    << " Compile in zlib." << endl;
 	cout << "-system-zlib       " << MARK_OPTION(ZLIB,system)   << " Use existing zlib in system." << endl << endl;
 
-	cout << "-plugin-imgfmt-<format> Enable format (png, jpeg) to" << endl;
+	cout << "-plugin-imgfmt-<format> Enable format (png, jpeg, gif) to" << endl;
 	cout << "                        be linked to at runtime." << endl;
 	cout << "-qt-imgfmt-<format>     Enable format (png, jpeg) to" << endl;
 	cout << "                        be linked into Qt." << endl;
-	cout << "-no-imgfmt-<format>     Fully disable format (png, jpeg)" << endl << endl;
-	cout << "                        from Qt." << endl;
+	cout << "-no-imgfmt-<format>     Fully disable format (png, jpeg, gif)" << endl;
+	cout << "                        from Qt." << endl << endl;
 
 	cout << "-qt-png            " << MARK_OPTION(LIBPNG,qt)	    << " Use the libpng bundled with Qt." << endl;
 	cout << "-system-png        " << MARK_OPTION(LIBPNG,system) << " Use existing libPNG in system." << endl  << endl;
@@ -723,13 +721,6 @@ WCE( {	cout << "-vcp               " << MARK_OPTION(VCPFILES,yes)   << " Enable 
 	cout << "-D <define>          Add <define> to the list of defines." << endl;
 	cout << "-I <includepath>     Add <includepath> to the include searchpath." << endl;
 	cout << "-L <library>         Add <library> to the library list." << endl << endl;
-
-	cout << "-enable-*            Enable the specified module" << endl;
-	cout << "-disable-*           Disable the specified module" << endl;
-	cout << "                     where module is one of" << endl;
-	for (int j=0; j<modules.size(); ++j)
-	    cout << "                         " << qPrintable(modules.at(j)) << endl;
-	cout << endl;
 
 	cout << "-qt-sql-*            Build the specified Sql driver into Qt" << endl;
 	cout << "-plugin-sql-*        Build the specified Sql driver into a plugin" << endl;
