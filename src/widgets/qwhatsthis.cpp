@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#4 $
 **
 ** C++ file skeleton
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#4 $");
 
 
 class QWhatsThisPrivate: public QObject
@@ -162,8 +162,8 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
     // the two straight-and-simple dicts
     delete tlw;
     delete buttons;
-    
-    
+
+
     // then delete the complex one.
     QPtrDictIterator<Item> it( *dict );
     Item * i;
@@ -176,10 +176,10 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 	if ( !i->dc || !i->count )
 	    delete i;
     }
-    
+
     // and finally lose wt
     wt = 0;
-}    
+}
 
 bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 {
@@ -247,8 +247,12 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 		    e->type() == Event_FocusIn ||
 		    e->type() == Event_Accel ||
 		    e->type() == Event_KeyPress ) {
-	    if ( whatsThat )
-		whatsThat->hide();
+	    QPtrDictIterator<Button> it( *(wt->buttons) );
+	    Button * b;
+	    while( (b=it.current()) != 0 ) {
+		++it;
+		b->setOn( FALSE );
+	    }
 	    state = Inactive;
 	    qApp->removeEventFilter( this );
 	}
