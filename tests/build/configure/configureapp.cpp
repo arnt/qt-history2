@@ -322,16 +322,17 @@ void ConfigureApp::displayConfig()
 
 void ConfigureApp::buildQmake()
 {
+    if( dictionary[ "QMAKEPATH" ] == QString( "win32-msvc" ) ) {
+	dictionary[ "MAKE" ] = "nmake";
+	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
+    }
+    else {
+	dictionary[ "MAKE" ] = "make";
+	dictionary[ "QMAKEMAKEFILE" ] = "Makefile.borland";
+    }
+
     if( dictionary[ "BUILD_QMAKE" ] == "yes" ) {
 	QStringList args;
-	if( dictionary[ "QMAKEPATH" ] == QString( "win32-msvc" ) ) {
-	    dictionary[ "MAKE" ] = "nmake";
-	    dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
-	}
-	else {
-	    dictionary[ "MAKE" ] = "make";
-	    dictionary[ "QMAKEMAKEFILE" ] = "Makefile.borland";
-	}
 
 	// Build qmake
 	cout << "Creating qmake..." << endl;
@@ -549,8 +550,9 @@ void ConfigureApp::qmakeDone()
 
 void ConfigureApp::showSummary()
 {
-    cout << endl << endl << "Qt is now configured for building. Just run " << dictionary[ "MAKE" ] << "." << endl;
-    cout << "To reconfigure, run " << dictionary[ "MAKE" ] << " clean and configure." << endl << endl;
+    QString make = dictionary[ "MAKE" ];
+    cout << endl << endl << "Qt is now configured for building. Just run " << make.latin1() << "." << endl;
+    cout << "To reconfigure, run " << make.latin1() << " clean and configure." << endl << endl;
 }
 
 void ConfigureApp::copyDefsFile()
