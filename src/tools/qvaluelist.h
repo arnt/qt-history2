@@ -49,6 +49,8 @@
 #include <list>
 #endif
 
+//#define QT_CHECK_VALUELIST_RANGE
+
 #if defined(Q_CC_MSVC)
 #pragma warning(disable:4284) // "return type for operator -> is not a UDT"
 #endif
@@ -335,7 +337,7 @@ public:
 };
 
 #ifdef QT_CHECK_RANGE
-# ifndef QT_NO_DEBUG
+# ifndef QT_NO_DEBUG && defined( QT_CHECK_VALUELIST_RANGE )
 #  define QT_CHECK_INVALID_LIST_ELEMENT if ( empty() ) qWarning( "QValueList: Warning invalid element" )
 #  define QT_CHECK_INVALID_LIST_ELEMENT_FATAL Q_ASSERT( !empty() );
 # else
