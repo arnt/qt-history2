@@ -440,7 +440,7 @@ QString QTextDocument::html() const
 */
 void QTextDocument::setHtml(const QString &html)
 {
-    QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(html);
+    QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(html);
     QTextCursor cursor(this);
     cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
     setUndoRedoEnabled(false);

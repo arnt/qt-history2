@@ -40,7 +40,7 @@ public:
     QString toPlainText() const;
 
     static QTextDocumentFragment fromPlainText(const QString &plainText);
-    static QTextDocumentFragment fromHTML(const QString &html);
+    static QTextDocumentFragment fromHtml(const QString &html);
 
 private:
     QTextDocumentFragmentPrivate *d;

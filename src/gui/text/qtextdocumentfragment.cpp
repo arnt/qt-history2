@@ -754,7 +754,7 @@ void QTextHTMLImporter::appendText(QString text, QTextCharFormat format)
     possible; for example, "<b>bold</b>" will become a document
     fragment with the text "bold" with a bold character format.
 */
-QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
+QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &html)
 {
     QTextDocumentFragment res;
     res.d = new QTextDocumentFragmentPrivate;

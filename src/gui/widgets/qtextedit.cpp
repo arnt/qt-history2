@@ -420,7 +420,7 @@ void QTextEditPrivate::paste(const QMimeData *source)
         stream >> fragment;
         hasData = true;
     } else if (source->hasFormat("application/x-qrichtext")) {
-        fragment = QTextDocumentFragment::fromHTML(source->data("application/x-qrichtext"));
+        fragment = QTextDocumentFragment::fromHtml(source->data("application/x-qrichtext"));
         hasData = true;
     } else {
         QString text = source->text();
@@ -813,7 +813,7 @@ QTextEdit::QTextEdit(QTextEditPrivate &dd, QWidget *parent)
 QTextEdit::QTextEdit(const QString &text, QWidget *parent)
     : QViewport(*new QTextEditPrivate, parent)
 {
-    QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(text);
+    QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(text);
     d->init(fragment);
 }
 
@@ -1244,7 +1244,7 @@ QString QTextEdit::plainText() const
 
 void QTextEdit::setHtml(const QString &text)
 {
-    QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(text);
+    QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(text);
     d->init(fragment);
 }
 
@@ -1973,13 +1973,13 @@ void QTextEdit::insertPlainText(const QString &text)
     It is equivalent to:
 
     \code
-    QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(text);
+    QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(text);
     edit->textCursor().insertFragment(fragment);
     \endcode
  */
 void QTextEdit::insertHtml(const QString &text)
 {
-    QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(text);
+    QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(text);
     d->cursor.insertFragment(fragment);
 }
 
@@ -2314,7 +2314,7 @@ void QTextEdit::append(const QString &text)
         txt.replace('\n', QChar::ParagraphSeparator);
         cursor.insertText(txt);
     } else {
-        QTextDocumentFragment frag = QTextDocumentFragment::fromHTML(text);
+        QTextDocumentFragment frag = QTextDocumentFragment::fromHtml(text);
         cursor.insertFragment(frag);
     }
     cursor.endEditBlock();
