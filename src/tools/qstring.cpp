@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#184 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#185 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -370,6 +370,11 @@ QString::QString( const char *str )
 
 
 /*!
+  \internal
+
+  This function is obsolete - the semantics is too tricky.
+  Use QString("helloworld").left(5) instead.
+
   Constructs a string that is a deep copy of \a str, interpreted as a
   classic C string. If the size (including the 0-terminator) of \a str
   is larger than \a maxSize, only the first \a maxSize - 1 characters

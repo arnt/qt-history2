@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#88 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#89 $
 **
 ** Implementation of QMessageBox class
 **
@@ -619,7 +619,9 @@ void QMessageBox::resizeButtons()
 
 
 /*!
-  Returns the message box text currently set, or null if no text has been set.
+  Returns the message box text currently set, or a
+  \link QString::operator!() null string\endlink
+  if no text has been set.
   \sa setText()
 */
 

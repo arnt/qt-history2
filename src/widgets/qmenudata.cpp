@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#75 $
 **
 ** Implementation of QMenuData class
 **
@@ -769,8 +769,9 @@ QIconSet* QMenuData::iconSet( int id ) const
 }
 
 /*!
-  Returns the text that has been set for menu item \a id, or 0 if no text
-  has been set.
+  Returns the text that has been set for menu item \a id, or a
+  \link QString::operator!() null string\endlink
+  if no text has been set.
   \sa changeItem(), pixmap(), iconSet()
 */
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#211 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#212 $
 **
 ** Implementation of QApplication class
 **
@@ -1271,14 +1271,21 @@ void QApplication::removeTranslator( QTranslator * mf )
     {
 	QApplication app(argc, argv);
 	... install any additional codecs ...
-	QApplication::setDefaultCodec( QTextCodec::codecForName("eucKR") );
+	app.setDefaultCodec( QTextCodec::codecForName("eucKR") );
 	...
     }
   \endcode
 
-  Note that some Qt built-in classes call tr() with various strings.  These
-  strings are in English, so for a full translation, a codec would be
-  required for these strings.
+  Note that this is \e not the way the select the encoding that the
+  \e user has chosen.  For example, to convert an application containing
+  literal English strings to Korean, all that is needed is for the English
+  strings to be passed through tr() and for translation files to be
+  loaded.  For details of internationalization, see the \link i18n.html
+  Qt Internationalization documentation\endlink.
+
+  Note also that some Qt built-in classes call tr() with various
+  strings.  These strings are in English, so for a full translation, a
+  codec would be required for these strings.  
 */
 void QApplication::setDefaultCodec( QTextCodec* codec )
 {

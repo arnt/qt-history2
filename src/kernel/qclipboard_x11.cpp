@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#43 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -474,8 +474,9 @@ bool QClipboard::event( QEvent *e )
 }
 
 /*!
-  Returns the clipboard text, or null if the clipboard does not contains
-  any text.
+  Returns the clipboard text, or a
+  \link QString::operator!() null string\endlink
+  if the clipboard does not contain any text.
   \sa setText()
 */
 
@@ -498,8 +499,8 @@ void QClipboard::setText( const QString &text )
 
 
 /*!
-  Returns the clipboard image, or null if the clipboard does not contains
-  any image.
+  Returns the clipboard image, or null if the clipboard does not contain
+  an image.
   \sa setText()
 */
 

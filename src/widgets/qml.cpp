@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#42 $
 **
 ** Implementation of QML classes
 **
@@ -801,7 +801,7 @@ public:
   \class QMLStyleSheet qml.h
   \brief A collection of styles and a generator of tags.
 
-  By created QMLStyle objects for a style sheet, you build a
+  By creating QMLStyle objects for a style sheet, you build a
   definition of a set of tags.  This definition will be used by the
   internal QML features to parse and display QML documents to which
   the style sheet applies. QML is normally visualized in a QMLView or
@@ -817,7 +817,7 @@ public:
 	- The type of the document. The default type is \c page . It indicates that
 	the document is displayed in a page of its own. Another style is \c detail.
 	It can be used to explain certain expressions more detailed in a few
-	sentences. The QMLBrowser will then keep the currentx page and display the
+	sentences. The QMLBrowser will then keep the current page and display the
 	new document in a small popup similar to QWhatsThis. Note that links
 	will not work in documents with \c &lt;qml \c type="detail" \c &gt;...&lt;/qml&gt;
 	<li> \c bgcolor

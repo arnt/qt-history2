@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#186 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#187 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -631,7 +631,9 @@ QString QComboBox::currentText() const
 }
 
 /*!
-  Returns the text item at a given index, or 0 if the item is not a string.
+  Returns the text item at a given index, or
+  \link QString::operator!() null string\endlink
+  if the item is not a string.
   \sa currentText()
 */
 

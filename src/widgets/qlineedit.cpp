@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#187 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#188 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -276,14 +276,7 @@ void QLineEdit::deselect()
 
 
 /*!
-  Returns a pointer to the text currently in the line.
-
-  If you need to store the text, you should make a copy of it. This can
-  conveniently be done with a QString object:
-  \code
-    QString s = lineEd->text();	 // makes a copy and stores it in s
-  \endcode
-
+  Returns the text currently in the line.
   \sa setText()
 */
 
