@@ -370,6 +370,7 @@ void QDockWidget::endRectDraw()
 void QDockWidget::setResizeEnabled( bool b )
 {
     resizeEnabled = b;
+    updateSizePolicy();
 }
 
 bool QDockWidget::isResizeEnabled() const
@@ -400,7 +401,7 @@ QSize QDockWidget::sizeHint() const
 	else
 	    s.setWidth( sh.width() );
     }
-    
+
     return s;
 }
 
@@ -436,10 +437,10 @@ void QDockWidget::unsetSizeHint()
 void QDockWidget::updateSizePolicy()
 {
     if ( !dockArea || dockArea->orientation() == Horizontal )
- 	setSizePolicy( QSizePolicy( isHorizontalStretchable() || isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed, 
+ 	setSizePolicy( QSizePolicy( isHorizontalStretchable() || isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed,
 				    isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed ) );
     else
- 	setSizePolicy( QSizePolicy( isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed, 
+ 	setSizePolicy( QSizePolicy( isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed,
 				    isVerticalStretchable() || isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed ) );
 }
 
