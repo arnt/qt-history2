@@ -148,7 +148,7 @@ MainWindow::MainWindow( bool asClient )
     setupFileActions();
     setupEditActions();
 #if defined(HAVE_KDE)
-    layoutToolBar = new KToolBar( this );
+    layoutToolBar = new KToolBar( this, "Layout" );
     ( (KToolBar*)layoutToolBar )->setFullSize( FALSE );
 #else
     layoutToolBar = new QToolBar( this, "Layout" );
@@ -333,7 +333,7 @@ void MainWindow::setupEditActions()
     connect( actionEditPreferences, SIGNAL( activated() ), this, SLOT( editPreferences() ) );
 
 #if defined(HAVE_KDE)
-    KToolBar *tb = new KToolBar( this );
+    KToolBar *tb = new KToolBar( this, "Edit" );
     tb->setFullSize( FALSE );
 #else
     QToolBar *tb = new QToolBar( this, "Edit" );
@@ -503,7 +503,7 @@ void MainWindow::setupToolActions()
 				      "it the first item in the chain and restart the ordering.</p>") );
 
 #if defined(HAVE_KDE)
-    KToolBar *tb = new KToolBar( this );
+    KToolBar *tb = new KToolBar( this, "Tools" );
     tb->setFullSize( FALSE );
 #else
     QToolBar *tb = new QToolBar( this, "Tools" );
@@ -541,7 +541,7 @@ void MainWindow::setupToolActions()
 	if ( !WidgetDatabase::isGroupVisible( grp ) )
 	    continue;
 #if defined(HAVE_KDE)
-	KToolBar *tb = new KToolBar( this );
+	KToolBar *tb = new KToolBar( this, grp.latin1() );
 	tb->setFullSize( FALSE );
 #else
 	QToolBar *tb = new QToolBar( this, grp.latin1() );
@@ -597,7 +597,7 @@ void MainWindow::setupToolActions()
 
     if ( !customWidgetToolBar ) {
 #if defined(HAVE_KDE)
-	KToolBar *tb = new KToolBar( this );
+	KToolBar *tb = new KToolBar( this, "Custom Widgets" );
 	tb->setFullSize( FALSE );
 #else
 	QToolBar *tb = new QToolBar( this, "Custom Widgets" );
@@ -623,7 +623,7 @@ void MainWindow::setupToolActions()
 void MainWindow::setupFileActions()
 {
 #if defined(HAVE_KDE)
-    KToolBar *tb = new KToolBar( this );
+    KToolBar *tb = new KToolBar( this, "File" );
     tb->setFullSize( FALSE );
 #else
     QToolBar *tb = new QToolBar( this, "File" );
@@ -938,7 +938,7 @@ void MainWindow::setupHelpActions()
     connect( actionHelpWhatsThis, SIGNAL( activated() ), this, SLOT( whatsThis() ) );
 
 #if defined(HAVE_KDE)
-    KToolBar *tb = new KToolBar( this );
+    KToolBar *tb = new KToolBar( this, "Help" );
     tb->setFullSize( FALSE );
 #else
     QToolBar *tb = new QToolBar( this, "Help" );
@@ -3348,20 +3348,19 @@ void MainWindow::setupActionManager()
 	QString grp = actionPluginManager->group( *it );
 	QPopupMenu *menu = 0;
 	QToolBar *tb = 0;
-	if ( TRUE ) { // this action is not known to the mainwindow configuration, so use group hints
-	    if ( ! ( menu = (QPopupMenu*)child( grp.latin1(), "QPopupMenu" ) ) ) {
-		menu = new QPopupMenu( this, grp.latin1() );
-		menubar->insertItem( tr( grp ), menu );
-	    }
-	    if ( ! ( tb = (QToolBar*)child( grp.latin1(), "QToolBar" ) ) ) {
+	
+	if ( !( menu = (QPopupMenu*)child( grp.latin1(), "QPopupMenu" ) ) ) {
+	    menu = new QPopupMenu( this, grp.latin1() );
+	    menubar->insertItem( tr( grp ), menu );
+	}
+	if ( !( tb = (QToolBar*)child( grp.latin1(), "QToolBar" ) ) ) {
 #if defined(HAVE_KDE)
-		KToolBar *tb = new KToolBar( this );
-		tb->setFullSize( FALSE );
+	    KToolBar *tb = new KToolBar( this );
+	    tb->setFullSize( FALSE, grp.latin1() );
 #else
-		tb = new QToolBar( this, grp.latin1() );
+	    tb = new QToolBar( this, grp.latin1() );
 #endif
-		addToolBar( tb, grp );
-	    }
+	    addToolBar( tb, grp );
 	}
 
 	a->addTo( menu );
