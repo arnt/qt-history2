@@ -48,7 +48,7 @@ void GLWorkspace::setupSceneActions()
     newGroup->setText( tr( "New" ) );
     newGroup->setUsesDropDown( TRUE );
     newGroup->setExclusive( FALSE );
-    newGroup->setIconSet( QPixmap( "textdrawing/filenew.xpm" ) );
+    newGroup->setIconSet( QPixmap( "textdrawing/filenew.png" ) );
     a = new QAction( tr( "Wirebox" ), QPixmap( "opengl/wirebox.xpm" ), tr( "&Wirebox" ), 0, newGroup );
     connect( a, SIGNAL( activated() ), this, SLOT( newWirebox() ) );
     a = new QAction( tr( "Gear" ), QPixmap( "opengl/gear.xpm" ), tr( "&Gears" ), 0, newGroup );
@@ -66,8 +66,8 @@ void GLWorkspace::setupSceneActions()
     printGroup->setText( tr( "Print" ) );
     printGroup->setUsesDropDown( TRUE );
     printGroup->setExclusive( FALSE );
-    printGroup->setIconSet( QPixmap( "textdrawing/fileprint.xpm" ) );
-    QAction *da = new QAction( tr( "Window Size" ), QPixmap( "textdrawing/fileprint.xpm" ), tr( "&Window Size" ), CTRL + Key_P, printGroup );
+    printGroup->setIconSet( QPixmap( "textdrawing/print.png" ) );
+    QAction *da = new QAction( tr( "Window Size" ), QPixmap( "textdrawing/print.png" ), tr( "&Window Size" ), CTRL + Key_P, printGroup );
     connect( da, SIGNAL( activated() ), this, SLOT( filePrintWindowRes() ) );
     a = new QAction( tr( "Low Resolution" ), tr( "&Low Resolution" ), 0, printGroup );
     connect( a, SIGNAL( activated() ), this, SLOT( filePrintLowRes() ) );

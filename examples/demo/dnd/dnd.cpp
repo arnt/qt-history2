@@ -7,7 +7,6 @@
 #include "styledbutton.h"
 #include "listview.h"
 #include "iconview.h"
-#include "images.h"
 
 DnDDemo::DnDDemo( QWidget* parent, const char* name )
     : DnDDemoBase( parent, name )
@@ -70,19 +69,19 @@ DnDDemo::DnDDemo( QWidget* parent, const char* name )
                          + "When Cromwell spake the word Democracy!<br>" );
 
 
-    items.insert( tr("copy"), IconItem( tr("Copy"), "editcopy.xpm" ) );
-    items.insert( tr("cut"), IconItem( tr("Cut"), "editcut.xpm" ));
-    items.insert( tr("paste"), IconItem( tr("Paste"), "editpaste.xpm" ));
-    items.insert( tr("raise"), IconItem( tr("Raise"), "editraise.xpm" ));
-    items.insert( tr("lower"), IconItem( tr("Lower"), "editlower.xpm" ));
-    items.insert( tr("new"), IconItem( tr("New"), "filenew.xpm" ));
-    items.insert( tr("load"), IconItem( tr("Load"), "fileopen.xpm" ));
-    items.insert( tr("save"), IconItem( tr("Save"), "filesave.xpm" ));
-    items.insert( tr("undo"), IconItem( tr("Undo"), "undo.xpm" ));
-    items.insert( tr("redo"), IconItem( tr("Redo"), "redo.xpm" ));
-    items.insert( tr("delete"), IconItem( tr("Delete"), "editdelete.xpm" ));
-    items.insert( tr("help"), IconItem( tr("Help"), "help.xpm" ));
-    items.insert( tr("home"), IconItem( tr("Home"), "home.xpm" ));
+    items.insert( tr("copy"), IconItem( tr("Copy"), "editcopy.png" ) );
+    items.insert( tr("cut"), IconItem( tr("Cut"), "editcut.png" ));
+    items.insert( tr("paste"), IconItem( tr("Paste"), "editpaste.png" ));
+    items.insert( tr("raise"), IconItem( tr("Raise"), "editraise.png" ));
+    items.insert( tr("lower"), IconItem( tr("Lower"), "editlower.png" ));
+    items.insert( tr("new"), IconItem( tr("New"), "filenew.png" ));
+    items.insert( tr("load"), IconItem( tr("Load"), "fileopen.png" ));
+    items.insert( tr("save"), IconItem( tr("Save"), "filesave.png" ));
+    items.insert( tr("undo"), IconItem( tr("Undo"), "undo.png" ));
+    items.insert( tr("redo"), IconItem( tr("Redo"), "redo.png" ));
+    items.insert( tr("delete"), IconItem( tr("Delete"), "editdelete.png" ));
+    items.insert( tr("help"), IconItem( tr("Help"), "help.png" ));
+    items.insert( tr("home"), IconItem( tr("Home"), "home.png" ));
 
     listView->addColumn( tr("Actions"), 240 );
     listView->setColumnWidthMode( 0, QListView::Maximum );
@@ -111,18 +110,8 @@ IconItem::IconItem( const QString& name, const QString& icon )
 
 QPixmap IconItem::loadPixmap( const QString& name )
 {
-    Embed *e = &embed_vec[ 0 ];
-    while ( e->name ) {
-	if ( QString( e->name ) == name ) {
-	    QImage img;
-	    img.loadFromData( (const uchar*)e->data, e->size );
-	    QPixmap pix;
-	    pix.convertFromImage( img );
-	    return pix;
-	}
-	e++;
-    }
-    return QPixmap();
+    QPixmap pix( "textdrawing/" + name );
+    return pix;
 }
 
 IconItem DnDDemo::findItem( const QString& tag )

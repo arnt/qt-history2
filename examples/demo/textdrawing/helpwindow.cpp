@@ -66,9 +66,9 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path,
     file->insertItem( tr("&Print"), this, SLOT( print() ), ALT | Key_P );
 
     // The same three icons are used twice each.
-    QIconSet icon_back( QPixmap("textdrawing/back.xpm") );
-    QIconSet icon_forward( QPixmap("textdrawing/forward.xpm") );
-    QIconSet icon_home( QPixmap("textdrawing/home.xpm") );
+    QIconSet icon_back( QPixmap("textdrawing/previous.png") );
+    QIconSet icon_forward( QPixmap("textdrawing/next.png") );
+    QIconSet icon_home( QPixmap("textdrawing/home.png") );
 
     QPopupMenu* go = new QPopupMenu( this );
     backwardId = go->insertItem( icon_back,
