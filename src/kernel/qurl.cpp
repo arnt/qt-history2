@@ -575,7 +575,6 @@ bool QUrl::parse( const QString& url )
 	    break;
 	case '@':
 	    input = InputAt;
-	
 	    break;
 	case ':':
 	    input = InputColon;
