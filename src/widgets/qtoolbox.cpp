@@ -227,7 +227,7 @@ static void set_background_mode( QWidget *top, Qt::BackgroundMode bm )
 }
 
 
-#define FIX_PAGE( page ) if ( page && !page->inherits( "QScrollView" ) ) page = page->parentWidget()
+#define FIX_PAGE( page ) if ( page && !page->inherits( "QScrollView" ) && page->parentWidget() ) page = page->parentWidget()->parentWidget()
 
 /*!
     \class QToolBox
@@ -570,7 +570,7 @@ void QToolBox::removePage( QWidget *page )
 
 QWidget *QToolBox::currentPage() const
 {
-    return d->currentPage;
+    return (QWidget*)( (QScrollView*)d->currentPage )->viewport()->children()->getFirst();
 }
 
 /*!
