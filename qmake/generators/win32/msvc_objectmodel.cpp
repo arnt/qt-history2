@@ -463,6 +463,7 @@ bool VCCLCompilerTool::parseOption( const char* option )
 		     || (third == 's' && fourth == 'c') ) {
 		ExceptionHandling = _True;
 		AdditionalOptions += option;
+		break;
 	    }
 	    found = FALSE; break;
 	}
