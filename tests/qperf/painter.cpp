@@ -10,6 +10,20 @@ static void painter_init()
 {
 }
 
+static int painter_drawline()
+{
+    int i;
+    QPainter *p = qperf_painter();
+    int n = qperf_maxColors();
+    QColor *c = qperf_colors();
+    for ( i=0; i<10000; i++ ) {
+	if ( n > 1 )
+	    p->setPen( c[qrnd(n)] );
+	p->drawLine(320,240,qrnd(640),qrnd(480));
+    }
+    return i;
+}
+
 static int painter_drawrect()
 {
     int i;
@@ -19,7 +33,7 @@ static int painter_drawrect()
     for ( i=0; i<10000; i++ ) {
 	if ( n > 1 )
 	    p->setPen( c[qrnd(n)] );
-	p->drawRect(qrnd(600-200),qrnd(480-200),200,200);
+	p->drawRect(qrnd(640-200),qrnd(480-200),200,200);
     }
     return i;
 }
@@ -35,7 +49,7 @@ static int painter_fillrect()
     for ( i=0; i<10000; i++ ) {
 	if ( n > 1 )
 	    p->setBrush( c[qrnd(n)] );
-	p->drawRect(qrnd(600-200),qrnd(480-200),200,200);
+	p->drawRect(qrnd(640-200),qrnd(480-200),200,200);
     }
     return i;
 }
@@ -46,7 +60,7 @@ static int painter_drawtext()
     QPainter *p = qperf_painter();
     QString s = "Troll Tech";
     for ( i=0; i<10000; i++ ) {
-	p->drawText(qrnd(600),qrnd(480),s);
+	p->drawText(qrnd(640),qrnd(480),s);
     }
     return i;
 }
@@ -94,7 +108,8 @@ static int painter_drawtext_center()
 }
 
 QPERF_BEGIN(painter,"QPainter tests")
-    QPERF(painter_drawrect,"Draw rectangle outlines")
+    QPERF(painter_drawline,"Draw line")
+    QPERF(painter_drawrect,"Draw rectangle outline")
     QPERF(painter_fillrect,"Draw filled rectangle")
     QPERF(painter_drawtext,"Draw text without formatting")
     QPERF(painter_drawtext_left,"Draw text, left aligned")
