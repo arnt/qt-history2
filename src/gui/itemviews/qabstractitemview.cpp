@@ -831,29 +831,29 @@ bool QAbstractItemView::event(QEvent *e)
             break;
         QPoint margins = d->viewport->geometry().topLeft();
         QModelIndex index = itemAt(he->pos() - margins);
-        if (!index.isValid())
-            break;
-        QString tooltip = model()->data(index, QAbstractItemModel::ToolTipRole).toString();
-        QToolTip::showText(he->globalPos(), tooltip, this);
+        if (index.isValid()) {
+            QString tooltip = model()->data(index, QAbstractItemModel::ToolTipRole).toString();
+            QToolTip::showText(he->globalPos(), tooltip, this);
+        }
         return true; }
     case QEvent::WhatsThis: {
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         QPoint margins = d->viewport->geometry().topLeft();
         QModelIndex index = itemAt(he->pos() - margins);
-        if (!index.isValid())
-            break;
-        QString whatsthis = model()->data(index, QAbstractItemModel::WhatsThisRole).toString();
-        QWhatsThis::showText(he->globalPos(), whatsthis, this);
+        if (index.isValid()) {
+            QString whatsthis = model()->data(index, QAbstractItemModel::WhatsThisRole).toString();
+            QWhatsThis::showText(he->globalPos(), whatsthis, this);
+        }
         return true; }
     case QEvent::StatusTip: {
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         QPoint margins = d->viewport->geometry().topLeft();
         QModelIndex index = itemAt(he->pos() - margins);
-        if (!index.isValid())
-            break;
-        QString statustip = model()->data(index, QAbstractItemModel::StatusTipRole).toString();
-        if (!statustip.isEmpty())
-            setStatusTip(statustip);
+        if (index.isValid()) {
+            QString statustip = model()->data(index, QAbstractItemModel::StatusTipRole).toString();
+            if (!statustip.isEmpty())
+                setStatusTip(statustip);
+        }
         return true; }
     case QEvent::WindowActivate:
     case QEvent::WindowDeactivate:
