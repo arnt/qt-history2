@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#5 $
 **
 ** Implementation of the QSimpleRichText class
 **
@@ -144,14 +144,33 @@ int QSimpleRichText::height() const
     return d->doc->height;
 }
 
+
 /*!
-  Draws the formatted text with \a p, at position (\a x,\a y), clipped to
-  \a clipRegion.  Colors from \a cg are used as needed, and if not 0,
-  *\a paper is used as the background brush.
+  Draws the formatted text with \a p, at position (\a x,\a y), clipped
+  to \a clipRegion.  Colors from the palette \a pal are used as
+  needed, and if not 0, *\a paper is used as the background brush.
 
   Note that the display code is highly optimized to reduce flicker, so
   passing a brush for \a paper is preferrable to simply clearing the area
   to be painted and then calling this without a brush.
+*/
+void QSimpleRichText::draw( QPainter* p,  int x, int y, const QRegion& clipRegion,
+	   const QPalette& pal, const QBrush* paper ) const
+{
+    draw( p, x, y, clipRegion, pal.normal(), paper );
+}
+
+/*!
+  Draws the formatted text with \a p, at position (\a x,\a y), clipped
+  to \a clipRegion.  Colors from the \a cg are used as
+  needed, and if not 0, *\a paper is used as the background brush.
+
+  Note that the display code is highly optimized to reduce flicker, so
+  passing a brush for \a paper is preferrable to simply clearing the area
+  to be painted and then calling this without a brush.
+
+  This is a convenience function if there's no palette but just a
+  cologroup available. If you have a palette, pass this instead of \a cg.
 */
 void QSimpleRichText::draw( QPainter* p,  int x, int y, const QRegion& clipRegion,
 			      const QColorGroup& cg, const QBrush* paper) const

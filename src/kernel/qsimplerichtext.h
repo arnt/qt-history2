@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.h#2 $
+** $Id: //depot/qt/main/src/kernel/qsimplerichtext.h#3 $
 **
 ** Definition of the QSimpleRichText class
 **
@@ -41,7 +41,7 @@ class QSimpleRichTextData;
 class Q_EXPORT QSimpleRichText
 {
 public:
-    QSimpleRichText( const QString& text, const QFont& fnt = QApplication::font(), 
+    QSimpleRichText( const QString& text, const QFont& fnt = QApplication::font(),
 		     const QString& context = QString::null, const QStyleSheet* s = 0);
     ~QSimpleRichText();
 
@@ -53,7 +53,11 @@ public:
     int height() const;
 
     void draw( QPainter*,  int x, int y, const QRegion& clipRegion,
+	       const QPalette& pal, const QBrush* paper = 0) const;
+    
+    void draw( QPainter*,  int x, int y, const QRegion& clipRegion,
 	       const QColorGroup& cg, const QBrush* paper = 0) const;
+
 
     QString context() const;
     QString anchor( QPainter* p, const QPoint& pos );
