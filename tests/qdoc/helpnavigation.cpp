@@ -18,7 +18,7 @@ HelpNavigationListItem::HelpNavigationListItem( QListBox *ls, const QString &txt
     : QListBoxText( ls, txt )
 {
 }
-    
+
 void HelpNavigationListItem::addLink( const QString &link )
 {
     int hash = link.find( '#' );
@@ -26,7 +26,7 @@ void HelpNavigationListItem::addLink( const QString &link )
 	linkList << link;
 	return;
     }
-    
+
     QString preHash = link.left( hash );
     if ( linkList.grep( preHash, FALSE ).count() > 0 )
 	return;
@@ -53,7 +53,7 @@ QString HelpNavigationContentsItem::link() const
     return theLink;
 }
 
-HelpNavigation::HelpNavigation( QWidget *parent, const QString &indexFile, 
+HelpNavigation::HelpNavigation( QWidget *parent, const QString &indexFile,
 				const QString &titleFile, const char *name = 0 )
     : QWidget( parent, name )
 {
@@ -62,18 +62,18 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &indexFile,
     layout->setSpacing( 5 );
     tabWidget = new QTabWidget( this );
     layout->addWidget( tabWidget );
-    
+
     // --------------- contents tab ----------
     contentsTab = new QWidget( tabWidget );
     tabWidget->addTab( contentsTab, tr( "&Contents" ) );
-    
+
     QVBoxLayout *contentsLayout = new QVBoxLayout( contentsTab );
     contentsLayout->setMargin( 5 );
     contentsLayout->setSpacing( 5 );
 
     contentsView = new QListView( contentsTab );
     contentsLayout->addWidget( contentsView );
-    
+
     connect( contentsView, SIGNAL( doubleClicked( QListViewItem * ) ),
 	     this, SLOT( showContents( QListViewItem * ) ) );
     connect( contentsView, SIGNAL( returnPressed( QListViewItem * ) ),
@@ -82,7 +82,7 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &indexFile,
     // ----------- index tab -----------
     indexTab = new QWidget( tabWidget );
     tabWidget->addTab( indexTab, tr( "&Index" ) );
-    
+
     QVBoxLayout *indexLayout = new QVBoxLayout( indexTab );
     indexLayout->setMargin( 5 );
     indexLayout->setSpacing( 5 );
@@ -93,22 +93,22 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &indexFile,
     indexEdit = new QLineEdit( indexTab );
     indexEdit->installEventFilter( this );
     indexLayout->addWidget( indexEdit );
-    
+
     indexList = new QListBox( indexTab );
     indexLayout->addWidget( indexList );
 
     l->setBuddy( indexEdit );
-    
+
     connect( indexEdit, SIGNAL( textChanged( const QString & ) ),
 	     this, SLOT( searchInIndexLine( const QString & ) ) );
-    
+
     connect( indexList, SIGNAL( doubleClicked( QListBoxItem * ) ),
 	     this, SLOT( showTopic( QListBoxItem * ) ) );
     connect( indexList, SIGNAL( returnPressed( QListBoxItem * ) ),
 	     this, SLOT( showTopic( QListBoxItem * ) ) );
     connect( indexList, SIGNAL( currentChanged( QListBoxItem * ) ),
 	     this, SLOT( setIndexTopic( QListBoxItem * ) ) );
-    
+
     indexEdit->setFocus();
 
     loadIndexFile( indexFile, titleFile );
@@ -124,6 +124,8 @@ void HelpNavigation::loadIndexFile( const QString &indexFile, const QString &tit
     HelpNavigationListItem *lastItem = 0;
     while ( !ts.atEnd() ) {
 	QString s( ts.readLine() );
+	if ( s.find( "::" ) != -1 )
+	    continue;
 	int from = s.find( "\"" );
 	if ( from == -1 )
 	    continue;
@@ -160,7 +162,7 @@ void HelpNavigation::searchInIndexLine( const QString &s )
 {
     QListBoxItem *i = indexList->firstItem();
     while ( i ) {
-	if ( i->text().left( s.length() ) == s ) {
+	if ( i->text().lower().left( s.length() ) == s.lower() ) {
 	    indexList->setCurrentItem( i );
 	    break;
 	}
@@ -172,7 +174,7 @@ void HelpNavigation::showTopic( QListBoxItem *i )
 {
     if ( !i )
 	return;
-    
+
     HelpNavigationListItem *item = (HelpNavigationListItem*)i;
 
     QStringList links = item->links();
@@ -291,17 +293,31 @@ bool HelpNavigation::eventFilter( QObject * o, QEvent * e )
 
     if ( o == indexEdit && e->type() == QEvent::KeyPress ) {
 	QKeyEvent *ke = (QKeyEvent*)e;
-	if ( ke->key() == Key_Up ||
-	     ke->key() == Key_Down ||
-	     ke->key() == Key_Enter ||
-	     ke->key() == Key_Return ) {
-	    QApplication::sendEvent( indexList, e );
-	    qApp->processEvents();
-	    indexEdit->setText( indexList->currentText() );
-	    return FALSE;
+	if ( ke->key() == Key_Up ) {
+	    int i = indexList->currentItem();
+	    if ( --i >= 0 ) {
+		indexList->setCurrentItem( i );
+		indexEdit->blockSignals( TRUE );
+		indexEdit->setText( indexList->currentText() );
+		indexEdit->blockSignals( FALSE );
+	    }
+	    return TRUE;
+	} else if ( ke->key() == Key_Down ) {
+	    int i = indexList->currentItem();
+	    if ( ++i < indexList->count() ) {
+		indexList->setCurrentItem( i );
+		indexEdit->blockSignals( TRUE );
+		indexEdit->setText( indexList->currentText() );
+		indexEdit->blockSignals( FALSE );
+	    }
+	    return TRUE;
+	} else if ( ke->key() == Key_Enter ||
+		    ke->key() == Key_Return ) {
+	    showTopic( indexList->item( indexList->currentItem() ) );
+	    return TRUE;
 	}
     }
-    
+
     return QWidget::eventFilter( o, e );
 }
 

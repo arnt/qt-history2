@@ -11,18 +11,17 @@ HelpTopicChooser::HelpTopicChooser( QWidget *parent, const QStringList &lnkNames
     QVBoxLayout *layout = new QVBoxLayout( this );
     layout->setMargin( 5 );
     layout->setSpacing( 5 );
-    
+
     QLabel *l = new QLabel( tr( "Choose a topic for <b>%1</b>" ).arg( title ), this );
     layout->addWidget( l );
-    
+
     linkList = new QListBox( this );
     linkList->insertStringList( linkNames );
     layout->addWidget( linkList );
     linkList->setCurrentItem( 0 );
-    
+
     QHBoxLayout *buttonLayout = new QHBoxLayout( layout );
     buttonLayout->setSpacing( 5 );
-    buttonLayout->setAlignment( AlignRight );
     buttonLayout->addStretch();
     QPushButton *pb = new QPushButton( tr( "&Display" ), this );
     pb->setDefault( TRUE );
@@ -39,10 +38,12 @@ HelpTopicChooser::HelpTopicChooser( QWidget *parent, const QStringList &lnkNames
 	     this, SLOT( accept() ) );
     connect( linkList, SIGNAL( returnPressed( QListBoxItem * ) ),
 	     this, SLOT( accept() ) );
+
+    linkList->setFocus();
     
-    resize( sizeHint().width() * 2, sizeHint().height() );
+    resize( sizeHint().width() * 2, sizeHint().height() + 20 );
 }
-    
+
 QString HelpTopicChooser::link() const
 {
     if ( linkList->currentItem() == -1 )
@@ -54,7 +55,7 @@ QString HelpTopicChooser::link() const
     return links[ i ];
 }
 
-QString HelpTopicChooser::getLink( QWidget *parent, const QStringList &linkNames, 
+QString HelpTopicChooser::getLink( QWidget *parent, const QStringList &linkNames,
 				   const QStringList &links, const QString &title )
 {
     HelpTopicChooser *dlg = new HelpTopicChooser( parent, linkNames, links, title );
