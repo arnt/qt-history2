@@ -458,8 +458,8 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
     if (!anchor.isEmpty()) {
         d->textOrSourceChanged = false;
 
-        QUrl url = QUrl(d->currentURL).resolved(anchor);
-        emit linkClicked(url.toString());
+        const QString url = QUrl(d->currentURL).resolved(anchor).toString();
+        emit linkClicked(url);
 
         // compat signal. the name is set to null. the 'name' makes no sense as it is
         // an attribute for specifying a destination.
@@ -467,7 +467,7 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
         emit anchorClicked(anchor);
 
         if (!d->textOrSourceChanged)
-            setSource(anchor);
+            setSource(url);
     }
 }
 
