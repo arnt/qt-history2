@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#38 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#39 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -238,7 +238,7 @@ static char * parsePrintersConf( QListView * printers )
 
     QString printerDesc;
     int lineLength = 0;
-    
+
     char * defaultPrinter = 0;
 
     while( !pc.atEnd() &&
@@ -268,8 +268,8 @@ static char * parsePrintersConf( QListView * printers )
 		    while( printerDesc[i] == '=' || isspace( printerDesc[i] ) )
 			i++;
 		    j = i;
-		    while( printerDesc[j] != ':' && 
-			   printerDesc[j] != ',' && 
+		    while( printerDesc[j] != ':' &&
+			   printerDesc[j] != ',' &&
 			   printerDesc[j] )
 			j++;
 		    // that's our default printer
@@ -299,8 +299,8 @@ static char * parsePrintersConf( QListView * printers )
 		    while( printerDesc[i] == '=' || isspace( printerDesc[i] ) )
 			i++;
 		    j = i;
-		    while( printerDesc[j] != ':' && 
-			   printerDesc[j] != ',' && 
+		    while( printerDesc[j] != ':' &&
+			   printerDesc[j] != ',' &&
 			   printerDesc[j] )
 			j++;
 		    // and stuff that into the string
@@ -311,8 +311,8 @@ static char * parsePrintersConf( QListView * printers )
 			while( isspace( printerDesc[i] ) )
 			    i++;
 			j = i;
-			while( printerDesc[j] != ':' && 
-			       printerDesc[j] != ',' && 
+			while( printerDesc[j] != ':' &&
+			       printerDesc[j] != ',' &&
 			       printerDesc[j] )
 			    j++;
 			if ( printerName != printerDesc.mid( i, j-i ) ) {
@@ -354,7 +354,7 @@ static void parseEtcLpMember( QListView * printers )
 	// other directories, it's the one to use.  I did not find a
 	// decent way to locate aliases and remote printers.
 	if ( printer->isFile() )
-	    perhapsAddPrinter( printers, printer->fileName().data(), 
+	    perhapsAddPrinter( printers, printer->fileName().data(),
 			       "unknown", 0 );
     }
 }
@@ -541,7 +541,7 @@ QGroupBox * QPrintDialog::setupDestination()
     // all printers hopefully known.  try to find a good default
     char * dollarPrinter;
     dollarPrinter = getenv( "PRINTER" );
-    if ( !dollarPrinter )
+    if ( !dollarPrinter || !*dollarPrinter )
 	dollarPrinter = getenv( "LPDEST" );
     int quality = 0;
 
