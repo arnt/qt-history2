@@ -22,7 +22,6 @@ private:
 };
 
 WindowsStyle::WindowsStyle()
-: ref( 0 )
 {
 }
 
