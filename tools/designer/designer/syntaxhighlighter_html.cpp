@@ -48,7 +48,7 @@ SyntaxHighlighter_HTML::~SyntaxHighlighter_HTML()
 {
 }
 
-void SyntaxHighlighter_HTML::process( QTextDocument *doc, QTextParag *string, int, bool invalidate )
+void SyntaxHighlighter_HTML::process( QTextDocument *doc, QTextParagraph *string, int, bool invalidate )
 {
 
     QTextFormat *formatStandard = format( Standard );
@@ -135,7 +135,7 @@ void SyntaxHighlighter_HTML::process( QTextDocument *doc, QTextParag *string, in
 
     if ( invalidate && string->next() &&
 	 !string->next()->firstPreProcess() && string->next()->endState() != -1 ) {
-	QTextParag *p = string->next();
+	QTextParagraph *p = string->next();
 	while ( p ) {
 	    if ( p->endState() == -1 )
 		return;

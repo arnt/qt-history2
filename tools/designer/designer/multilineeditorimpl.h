@@ -38,8 +38,8 @@ class TextEdit : public QTextEdit
 public:
     TextEdit( QWidget *parent = 0, const char *name = 0 );
     QTextDocument *document() const { return QTextEdit::document(); }
-    QTextParag *paragraph();
-    
+    QTextParagraph *paragraph();
+
 };
 
 class ToolBarItem : public QAction
@@ -47,8 +47,8 @@ class ToolBarItem : public QAction
     Q_OBJECT
 
 public:
-    ToolBarItem( QWidget *parent, QWidget *toolBar, 
-                 const QString &label, const QString &tagstr, 
+    ToolBarItem( QWidget *parent, QWidget *toolBar,
+                 const QString &label, const QString &tagstr,
 		 const QIconSet &icon, const QKeySequence &key = 0 );
     ~ToolBarItem();
 signals:
@@ -57,8 +57,8 @@ signals:
 protected slots:
     void wasActivated();
 private:
-    QString tag;    
-};     
+    QString tag;
+};
 
 
 class MultiLineEditor : public MultiLineEditorBase
@@ -82,10 +82,10 @@ protected slots:
 private:
     TextEdit *textEdit;
     QMultiLineEdit *mlined;
-    FormWindow *formwindow;    
+    FormWindow *formwindow;
     QToolBar *basicToolBar;
-    QToolBar *fontToolBar;  
-    int res;     
+    QToolBar *fontToolBar;
+    int res;
     QString staticText;
     bool callStatic;
 };

@@ -27,17 +27,17 @@
 class SyntaxHighlighter_HTML : public QTextPreProcessor
 {
 public:
-    
+
     enum HTML {
 	Standard = 1,
 	Keyword,
 	Attribute,
 	AttribValue
     };
-    
+
     SyntaxHighlighter_HTML();
     virtual ~SyntaxHighlighter_HTML();
-    void process( QTextDocument *doc, QTextParag *string, int start, bool invalidate = TRUE );
+    void process( QTextDocument *doc, QTextParagraph *string, int start, bool invalidate = TRUE );
     QTextFormat *format( int id );
 
 private:

@@ -35,7 +35,7 @@
 #include <qaction.h>
 
 
-static const char* const center_data[] = { 
+static const char* const center_data[] = {
 "22 22 4 1",
 "a c None",
 "# c None",
@@ -64,7 +64,7 @@ static const char* const center_data[] = {
 ".#.a.#.a.#.a.#.a.#.a.#",
 "a.a.a.a.a.a.a.a.a.a.a."};
 
-static const char* const under_data[] = { 
+static const char* const under_data[] = {
 "22 22 4 1",
 "a c None",
 "# c None",
@@ -93,7 +93,7 @@ static const char* const under_data[] = {
 ".#.a.#.a.#.a.#.a.#.a.#",
 "a.a.a.a.a.a.a.a.a.a.a."};
 
-static const char* const right_data[] = { 
+static const char* const right_data[] = {
 "22 22 4 1",
 "a c None",
 "# c None",
@@ -122,7 +122,7 @@ static const char* const right_data[] = {
 ".#.a.#.a.#.a.#.a.#.a.#",
 "a.a.a.a.a.a.a.a.a.a.a."};
 
-static const char* const bold_data[] = { 
+static const char* const bold_data[] = {
 "22 22 4 1",
 "a c None",
 "# c None",
@@ -151,7 +151,7 @@ static const char* const bold_data[] = {
 ".#.a.#.a.#.a.#.a.#.a.#",
 "a.a.a.a.a.a.a.a.a.a.a."};
 
-static const char* const italic_data[] = { 
+static const char* const italic_data[] = {
 "22 22 4 1",
 "a c None",
 "# c None",
@@ -180,7 +180,7 @@ static const char* const italic_data[] = {
 ".#.a.#.a.#.a.#.a.#.a.#",
 "a.a.a.a.a.a.a.a.a.a.a."};
 
-static const char* const left_data[] = { 
+static const char* const left_data[] = {
 "22 22 4 1",
 "a c None",
 "# c None",
@@ -209,7 +209,7 @@ static const char* const left_data[] = {
 ".#.a.#.a.#.a.#.a.#.a.#",
 "a.a.a.a.a.a.a.a.a.a.a."};
 
-static const char* const block_data[] = { 
+static const char* const block_data[] = {
 "22 22 2 1",
 ". c None",
 "# c #000000",
@@ -236,7 +236,7 @@ static const char* const block_data[] = {
 "......................",
 "......................"};
 
-static const char* const fontdec_data[] = { 
+static const char* const fontdec_data[] = {
 "22 22 4 1",
 ". c None",
 "# c #000000",
@@ -265,7 +265,7 @@ static const char* const fontdec_data[] = {
 "......................",
 "......................"};
 
-static const char* const fontinc_data[] = { 
+static const char* const fontinc_data[] = {
 "22 22 4 1",
 ". c None",
 "# c #000000",
@@ -294,7 +294,7 @@ static const char* const fontinc_data[] = {
 "......................",
 "......................"};
 
-static const char* const h1_data[] = { 
+static const char* const h1_data[] = {
 "22 22 3 1",
 ". c None",
 "# c #000000",
@@ -322,7 +322,7 @@ static const char* const h1_data[] = {
 "......................",
 "......................"};
 
-static const char* const h2_data[] = { 
+static const char* const h2_data[] = {
 "22 22 3 1",
 ". c None",
 "# c #000000",
@@ -350,7 +350,7 @@ static const char* const h2_data[] = {
 "......................",
 "......................"};
 
-static const char* const h3_data[] = { 
+static const char* const h3_data[] = {
 "22 22 3 1",
 ". c None",
 "# c #000000",
@@ -378,7 +378,7 @@ static const char* const h3_data[] = {
 "......................",
 "......................"};
 
-static const char* const break_data[] = { 
+static const char* const break_data[] = {
 "22 22 6 1",
 ". c None",
 "d c #000000",
@@ -409,7 +409,7 @@ static const char* const break_data[] = {
 "......................",
 "......................"};
 
-static const char* const para_data[] = { 
+static const char* const para_data[] = {
 "22 22 4 1",
 ". c None",
 "a c #313031",
@@ -438,7 +438,7 @@ static const char* const para_data[] = {
 "......................",
 "......................"};
 
-static const char* const tt_data[] = { 
+static const char* const tt_data[] = {
 "22 22 9 1",
 ". c None",
 "d c #000000",
@@ -472,7 +472,7 @@ static const char* const tt_data[] = {
 "......................",
 "......................"};
 
-static const char* const font_data[] = { 
+static const char* const font_data[] = {
 "22 22 9 1",
 ". c None",
 "d c #000000",
@@ -506,8 +506,8 @@ static const char* const font_data[] = {
 "......................",
 "......................"};
 
-ToolBarItem::ToolBarItem( QWidget *parent, QWidget *toolBar, 
-			  const QString &label, const QString &tagstr, 
+ToolBarItem::ToolBarItem( QWidget *parent, QWidget *toolBar,
+			  const QString &label, const QString &tagstr,
 			  const QIconSet &icon, const QKeySequence &key )
     : QAction( parent )
 {
@@ -535,64 +535,64 @@ TextEdit::TextEdit( QWidget *parent, const char *name )
     setTextFormat( Qt::PlainText );
 }
 
-QTextParag* TextEdit::paragraph()
+QTextParagraph* TextEdit::paragraph()
 {
     QTextCursor *tc = new QTextCursor( QTextEdit::document() );
-    return tc->parag();
+    return tc->paragraph();
 }
 
 
-MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget, 
+MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget,
     FormWindow *fw, const QString &text )
-    : MultiLineEditorBase( parent, 0, 
+    : MultiLineEditorBase( parent, 0,
 	WType_Dialog | WShowModal | WDestructiveClose ), formwindow( fw )
 {
     callStatic = FALSE;
-    
+
     if ( !text.isNull() ) {
 	applyButton->hide();
 	callStatic = TRUE;
     }	
-    
+
     textEdit = new TextEdit( centralWidget(), "textedit" );
     Layout4->insertWidget( 0, textEdit );
-    
+
     QPopupMenu *stylesMenu = new QPopupMenu( this );
     menuBar->insertItem( tr( "Styles" ), stylesMenu );
-        
-    fileMenu->insertItem( tr( "Close" ), this, SLOT( okClicked() ) );    
-    
+
+    fileMenu->insertItem( tr( "Close" ), this, SLOT( okClicked() ) );
+
     basicToolBar = new QToolBar( tr( "Basics" ), this, DockTop );
-    
+
     ToolBarItem *it = new ToolBarItem( this, basicToolBar, tr( "Italic" ),
 		      "i", QPixmap( (const char **) italic_data ), CTRL+Key_I );
     it->addTo( stylesMenu );
-    connect( it, SIGNAL( clicked( const QString& ) ), 
+    connect( it, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
-        
+
     ToolBarItem *b = new ToolBarItem( this, basicToolBar, tr( "Bold" ),
 		      "b", QPixmap( (const char **) bold_data ), CTRL+Key_B );
     b->addTo( stylesMenu );
-    connect( b, SIGNAL( clicked( const QString& ) ), 
+    connect( b, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 
     ToolBarItem *ul = new ToolBarItem( this, basicToolBar, tr( "Underline" ),
 		      "u", QPixmap( (const char **) under_data ), CTRL+Key_U );
     ul->addTo( stylesMenu );
-    connect( ul, SIGNAL( clicked( const QString& ) ), 
+    connect( ul, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 
     ToolBarItem *tt = new ToolBarItem( this, basicToolBar, tr( "Typewriter" ),
 		      "tt", QPixmap( (const char **) tt_data ) );
     tt->addTo( stylesMenu );
-    connect( tt, SIGNAL( clicked( const QString& ) ), 
+    connect( tt, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
-        
+
     basicToolBar->addSeparator();
 
     QPopupMenu *layoutMenu = new QPopupMenu( this );
-    menuBar->insertItem( tr( "Layout" ), layoutMenu );    
-    
+    menuBar->insertItem( tr( "Layout" ), layoutMenu );
+
     QAction *brAction = new QAction( this );
     brAction->setIconSet( QPixmap( (const char **) break_data ) );
     brAction->setText( tr("Break" ) );
@@ -603,80 +603,80 @@ MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget,
     ToolBarItem *p = new ToolBarItem( this, basicToolBar, tr( "Paragraph" ),
 		      "p", QPixmap( (const char **) para_data ) );
     p->addTo( layoutMenu );
-    connect( p, SIGNAL( clicked( const QString& ) ), 
+    connect( p, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
-    layoutMenu->insertSeparator();    
+    layoutMenu->insertSeparator();
     basicToolBar->addSeparator();
-    
+
     ToolBarItem *al = new ToolBarItem( this, basicToolBar, tr( "Align left" ),
 		      "p align=\"left\"", QPixmap( (const char **) left_data ) );
     al->addTo( layoutMenu );
-    connect( al, SIGNAL( clicked( const QString& ) ), 
+    connect( al, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
-    
+
     ToolBarItem *ac = new ToolBarItem( this, basicToolBar, tr( "Align center" ),
 		      "p align=\"center\"", QPixmap( (const char **) center_data ) );
     ac->addTo( layoutMenu );
-    connect( ac, SIGNAL( clicked( const QString& ) ), 
+    connect( ac, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 
     ToolBarItem *ar = new ToolBarItem( this, basicToolBar, tr( "Align right" ),
 		      "p align=\"right\"", QPixmap( (const char **) right_data ) );
     ar->addTo( layoutMenu );
-    connect( ar, SIGNAL( clicked( const QString& ) ), 
+    connect( ar, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 
     ToolBarItem *block = new ToolBarItem( this, basicToolBar, tr( "Blockquote" ),
 		      "blockquote", QPixmap( (const char **) block_data ) );
     block->addTo( layoutMenu );
-    connect( block, SIGNAL( clicked( const QString& ) ), 
+    connect( block, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 
 
     QPopupMenu *fontMenu = new QPopupMenu( this );
-    menuBar->insertItem( tr( "Font" ), fontMenu );    
-    
+    menuBar->insertItem( tr( "Font" ), fontMenu );
+
     fontToolBar = new QToolBar( "Fonts", this, DockTop );
-    
+
     QAction *fontAction = new QAction( this );
     fontAction->setIconSet( QPixmap( (const char **) font_data ) );
     fontAction->setText( tr("Font" ) );
     fontAction->addTo( fontToolBar );
     fontAction->addTo( fontMenu );
     connect( fontAction, SIGNAL( activated() ) , this, SLOT( showFontDialog() ) );
-   
-    
+
+
     ToolBarItem *fp1 = new ToolBarItem( this, fontToolBar, tr( "Fontsize +1" ),
-		      "font size=\"+1\"", QPixmap( (const char **) fontinc_data ) );    
-    connect( fp1, SIGNAL( clicked( const QString& ) ), 
-	     this, SLOT( insertTags( const QString& )));
-    
-    ToolBarItem *fm1 = new ToolBarItem( this, fontToolBar, tr( "Fontsize -1" ),
-		      "font size=\"-1\"", QPixmap( (const char **) fontdec_data ) );    
-    connect( fm1, SIGNAL( clicked( const QString& ) ), 
-	     this, SLOT( insertTags( const QString& )));    
-    
-    ToolBarItem *h1 = new ToolBarItem( this, fontToolBar, tr( "Headline 1" ),
-		      "h1", QPixmap( (const char **) h1_data ) );
-    connect( h1, SIGNAL( clicked( const QString& ) ), 
-	     this, SLOT( insertTags( const QString& )));
-    
-    ToolBarItem *h2 = new ToolBarItem( this, fontToolBar, tr( "Headline 2" ),
-		      "h2", QPixmap( (const char **) h2_data ) );
-    connect( h2, SIGNAL( clicked( const QString& ) ), 
-	     this, SLOT( insertTags( const QString& )));
-    
-    ToolBarItem *h3 = new ToolBarItem( this, fontToolBar, tr( "Headline 3" ),
-		      "h3", QPixmap( (const char **) h3_data ) );
-    connect( h3, SIGNAL( clicked( const QString& ) ), 
+		      "font size=\"+1\"", QPixmap( (const char **) fontinc_data ) );
+    connect( fp1, SIGNAL( clicked( const QString& ) ),
 	     this, SLOT( insertTags( const QString& )));
 
-    
+    ToolBarItem *fm1 = new ToolBarItem( this, fontToolBar, tr( "Fontsize -1" ),
+		      "font size=\"-1\"", QPixmap( (const char **) fontdec_data ) );
+    connect( fm1, SIGNAL( clicked( const QString& ) ),
+	     this, SLOT( insertTags( const QString& )));
+
+    ToolBarItem *h1 = new ToolBarItem( this, fontToolBar, tr( "Headline 1" ),
+		      "h1", QPixmap( (const char **) h1_data ) );
+    connect( h1, SIGNAL( clicked( const QString& ) ),
+	     this, SLOT( insertTags( const QString& )));
+
+    ToolBarItem *h2 = new ToolBarItem( this, fontToolBar, tr( "Headline 2" ),
+		      "h2", QPixmap( (const char **) h2_data ) );
+    connect( h2, SIGNAL( clicked( const QString& ) ),
+	     this, SLOT( insertTags( const QString& )));
+
+    ToolBarItem *h3 = new ToolBarItem( this, fontToolBar, tr( "Headline 3" ),
+		      "h3", QPixmap( (const char **) h3_data ) );
+    connect( h3, SIGNAL( clicked( const QString& ) ),
+	     this, SLOT( insertTags( const QString& )));
+
+
     connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     textEdit->document()->setFormatter( new QTextFormatterBreakInWords );
     textEdit->document()->setUseFormatCollection( FALSE );
     textEdit->document()->setPreProcessor( new SyntaxHighlighter_HTML );
-    
+
     if ( !callStatic ) {
 	mlined = (QMultiLineEdit*)editWidget;
 	textEdit->setAlignment( mlined->alignment() );
@@ -685,7 +685,7 @@ MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget,
 	textEdit->setWrapPolicy( mlined->wrapPolicy() );
 	textEdit->setText( mlined->text() );
 	if ( !mlined->text().isEmpty() )
-	    textEdit->selectAll();  
+	    textEdit->selectAll();
     }
     else {	
 	textEdit->setText( text );
@@ -698,39 +698,39 @@ int MultiLineEditor::exec()
 {
     res = 1;
     show();
-    qApp->enter_loop();    
+    qApp->enter_loop();
     return res;
 }
 
 void MultiLineEditor::okClicked()
-{       
+{
     applyClicked();
     qApp->exit_loop();
     hide();
 }
 
 void MultiLineEditor::applyClicked()
-{    
-    if ( !callStatic ) {    
+{
+    if ( !callStatic ) {
 	PopulateMultiLineEditCommand *cmd = new PopulateMultiLineEditCommand( tr( "Set the text of '%1'" ).arg( mlined->name() ), formwindow, mlined, textEdit->text() );
 	cmd->execute();
-	formwindow->commandHistory()->addCommand( cmd );    
+	formwindow->commandHistory()->addCommand( cmd );
 	textEdit->setFocus();
-    } 
+    }
     else {
-	staticText = textEdit->text();    
+	staticText = textEdit->text();
     }
 }
 
 void MultiLineEditor::cancelClicked()
 {
-    res = 0;    
+    res = 0;
     hide();
 }
 
 void MultiLineEditor::insertTags( const QString &tag )
-{    
-    int pfrom, pto, ifrom, ito; 
+{
+    int pfrom, pto, ifrom, ito;
     QString tagend(  tag.simplifyWhiteSpace() );
     tagend.remove( tagend.find( ' ', 0 ), tagend.length() );
     if ( textEdit->hasSelectedText() ) {
@@ -747,7 +747,7 @@ void MultiLineEditor::insertTags( const QString &tag )
 	textEdit->insert( QString( "<%1></%2>" ).arg( tag ).arg( tagend ) );
 	index += 2 + tag.length();
 	textEdit->setCursorPosition( para, index  );
-    }    
+    }
 }
 
 void MultiLineEditor::insertBR()
@@ -758,7 +758,7 @@ void MultiLineEditor::insertBR()
 void MultiLineEditor::showFontDialog()
 {
     bool selText = FALSE;
-    int pfrom, pto, ifrom, ito; 
+    int pfrom, pto, ifrom, ito;
     if ( textEdit->hasSelectedText() ) {
 	textEdit->getSelection( &pfrom, &ifrom, &pto, &ito );
 	selText = TRUE;
@@ -766,17 +766,17 @@ void MultiLineEditor::showFontDialog()
     RichTextFontDialog *fd = new RichTextFontDialog( this );
     if ( fd->exec() == QDialog::Accepted ) {
 	QString size, font;
-	if ( fd->getSize() != "0" ) 
+	if ( fd->getSize() != "0" )
 	    size = "size=\"" + fd->getSize() + "\"";
 	QString color;
-	if ( !fd->getColor().isEmpty() && fd->getColor() != "#000000" ) 
+	if ( !fd->getColor().isEmpty() && fd->getColor() != "#000000" )
 	    color = "color=\"" + fd->getColor() + "\"";
 	if ( fd->getFont() != "default" )
 	    font = "face=\"" + fd->getFont() + "\"";
 	QString tag( QString( "font %1 %2 %3" )
 	             .arg( color ).arg( size ).arg( font ) );
 	
-	if ( selText ) 
+	if ( selText )
 	    textEdit->setSelection( pfrom, ifrom, pto, ito );
 	insertTags( tag.simplifyWhiteSpace() ); 	
     }
@@ -792,8 +792,8 @@ QString MultiLineEditor::getStaticText()
 QString MultiLineEditor::getText( QWidget *parent, const QString &text )
 {
     MultiLineEditor medit( parent, 0, 0, text );
-    if ( medit.exec() == QDialog::Accepted ) 
+    if ( medit.exec() == QDialog::Accepted )
 	return medit.getStaticText();
-    
+
     return QString::null;
 }
