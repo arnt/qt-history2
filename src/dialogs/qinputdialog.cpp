@@ -390,7 +390,20 @@ double QInputDialog::getDouble( const QString &caption, const QString &label, do
     ok_ = dlg->exec() == QDialog::Accepted;
     if ( ok )
 	*ok = ok_;
-    result = dlg->lineEdit()->text().toDouble();
+
+    QString editText = dlg->lineEdit()->text();
+    int i = dlg->lineEdit()->text().find( '.' );
+    if ( i >= 0 ) {
+	// has decimal point, now count digits after that
+	i++;
+	int j = i;
+	while( dlg->lineEdit()->text()[j].isDigit() )
+	    j++;
+        if ( j > decimals )
+            editText.truncate( i + decimals );
+    }
+    result = editText.toDouble();
+
 
     delete dlg;
     return result;
