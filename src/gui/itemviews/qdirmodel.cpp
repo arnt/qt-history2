@@ -926,9 +926,11 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         return QModelIndex();
 
     if (!QFileInfo(path).exists()) {
+#if 0
         QString converted = QDir::convertSeparators(path);
         QString warn = QString("index: the path '%1'does not exist\n").arg(converted);
         qWarning(warn.toLatin1().constData());
+#endif
         return QModelIndex();
     }
 
