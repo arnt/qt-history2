@@ -198,7 +198,7 @@ void QRadioButton::drawButton( QPainter *paint )
     QSize sz = style().exclusiveIndicatorSize();
     x = 0;
     if( QApplication::reverseLayout() )
-	x = width() - gutter -sz.width();
+	x = width() - sz.width();
     y = (height() - lsz.height() + fm.height() - sz.height())/2;
 
 #ifndef QT_NO_TEXTSTREAM
@@ -313,11 +313,13 @@ void QRadioButton::resizeEvent( QResizeEvent* e )
 	sz.setWidth(sz.width()+1);
     x = sz.width() + gutter;
     w = width() - x;
+    if( QApplication::reverseLayout() )
+	x = 0;
     h = height();
 
     QPainter p(this);
     QRect br = style().itemRect( &p, x, 0, w, h,
-				 AlignLeft|AlignVCenter|ShowPrefix,
+				 AlignAuto|AlignVCenter|ShowPrefix,
 				 isEnabled(),
 				 pixmap(), text() );
     if ( autoMask() )
@@ -344,26 +346,27 @@ void QRadioButton::updateMask()
 	y = 0;
 	x = sz.width() + gutter;
 	w = width() - x;
+	if( QApplication::reverseLayout() )
+	    x = 0;
 	h = height();
 
 	QColorGroup cg(color1,color1, color1,color1,color1,color1,color1,color1, color0);
 
 	style().drawItem( &p, x, y, w, h,
-			  AlignLeft|AlignVCenter|ShowPrefix,
+			  AlignAuto|AlignVCenter|ShowPrefix,
 			  cg, TRUE,
 			  pixmap(), text() );
-	x = 0;
+
 	y = (height() - lsz.height() + fm.height() - sz.height())/2;
 
-	style().drawExclusiveIndicatorMask(&p, x, y, sz.width(), sz.height(), isOn() );
+	style().drawExclusiveIndicatorMask(&p, 0, y, sz.width(), sz.height(), isOn() );
 
 	if ( hasFocus() ) {
  	    y = 0;
- 	    x = sz.width() + gutter;
  	    w = width() - x;
  	    h = height();
 	    QRect br = style().itemRect( &p, x, y, w, h,
-					 AlignLeft|AlignVCenter|ShowPrefix,
+					 AlignAuto|AlignVCenter|ShowPrefix,
 					 isEnabled(),
 					 pixmap(), text() );
 	    br.setLeft( br.left()-3 );

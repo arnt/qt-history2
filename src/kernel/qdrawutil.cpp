@@ -39,6 +39,7 @@
 #ifndef QT_NO_DRAWUTIL
 #include "qbitmap.h"
 #include "qpixmapcache.h"
+#include "qapplication.h"
 
 // REVISED: paul
 
@@ -582,6 +583,8 @@ QRect qItemRect( QPainter *p, Qt::GUIStyle gs,
 	    x += w - pixmap->width();
 	else if ( (flags & Qt::AlignHCenter) == Qt::AlignHCenter )
 	    x += w/2 - pixmap->width()/2;
+	else if ( (flags & Qt::AlignLeft) != Qt::AlignLeft && QApplication::reverseLayout() )
+	    x += w - pixmap->width();
 	result = QRect(x, y, pixmap->width(), pixmap->height());
     } else if ( !text.isNull() && p ) {
 	result = p->boundingRect( x, y, w, h, flags, text, len );
@@ -622,6 +625,9 @@ void qDrawItem( QPainter *p, Qt::GUIStyle gs,
 	    x += w - pm.width();
 	else if ( (flags & Qt::AlignHCenter) == Qt::AlignHCenter )
 	    x += w/2 - pm.width()/2;
+	else if ( ((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout() ) // AlignAuto && rightToLeft
+	    x += w - pm.width();
+	
 	if ( !enabled ) {
 	    if ( pm.mask() ) {			// pixmap with a mask
 		if ( !pm.selfMask() ) {		// mask is not pixmap itself

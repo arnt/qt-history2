@@ -44,6 +44,7 @@
 #include "qimage.h"
 #include "q1xcompatibility.h"
 #include "qpaintdevicemetrics.h"
+#include "qapplication.h"
 #ifdef _WS_QWS_
 #include "qgfx_qws.h"
 #endif
@@ -2531,6 +2532,8 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	xp = w - maxwidth;			// right aligned
     } else if ( (tf & Qt::AlignHCenter) == Qt::AlignHCenter ) {
 	xp = w/2 - maxwidth/2;			// centered text
+    } else if ( (tf & Qt::AlignLeft) != Qt::AlignLeft && QApplication::reverseLayout() ) {
+	xp = w - maxwidth;			// automatic alignment is right in revered layout
     } else {
 	xp = 0;				// left aligned
     }
@@ -2625,6 +2628,8 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	    xc = w - tw + minrightbearing;
 	} else if ( (tf & Qt::AlignHCenter) == Qt::AlignHCenter ) {
 	    xc = w/2 - (tw-minleftbearing-minrightbearing)/2 - minleftbearing;
+	} else if ( (tf & Qt::AlignLeft) != Qt::AlignLeft && QApplication::reverseLayout() ) {
+	    xc = w - tw + minrightbearing;
 	} else {
 	    xc = -minleftbearing;
 	}
@@ -2705,6 +2710,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 
   The \a tf argument is
   the bitwise OR of the following flags:  <ul>
+  <li> \c AlignAuto aligns according to the language, usually left.
   <li> \c AlignLeft aligns to the left border.
   <li> \c AlignRight aligns to the right border.
   <li> \c AlignHCenter aligns horizontally centered.

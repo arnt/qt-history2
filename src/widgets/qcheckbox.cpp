@@ -293,7 +293,7 @@ void QCheckBox::drawButtonLabel( QPainter *p )
     x = sz.width() + extraWidth( gs ); //###
     w = width() - x;
     if ( QApplication::reverseLayout() )
-	x = extraWidth( gs );
+	x = 0;
     h = height();
 
     style().drawItem( p, x, y, w, h,
@@ -326,11 +326,13 @@ void QCheckBox::resizeEvent( QResizeEvent* )
     QSize sz = style().indicatorSize();
     x = sz.width() + extraWidth( gs );
     w = width() - x;
+    if ( QApplication::reverseLayout() )
+	x = 0;
     h = height();
 
     QPainter p(this);
     QRect br = style().itemRect( &p, x, 0, w, h,
-				 AlignLeft|AlignVCenter|ShowPrefix,
+				 AlignAuto|AlignVCenter|ShowPrefix,
 				 isEnabled(),
 				 pixmap(), text() );
     update( br.right(), w, 0, h );
@@ -354,24 +356,24 @@ void QCheckBox::updateMask()
     y = 0;
     x = sz.width() + extraWidth(gs);
     w = width() - x;
+    if ( QApplication::reverseLayout() )
+	x = 0;
     h = height();
 
     QColorGroup cg(color1,color1,color1,color1,color1,color1,color1,color1,color0);
 
     style().drawItem( &p, x, y, w, h,
-		      AlignLeft|AlignVCenter|ShowPrefix,
+		      AlignAuto|AlignVCenter|ShowPrefix,
 		      cg, TRUE,
 		      pixmap(), text() );
-    x = 0;
     y = (height() - lsz.height() + fm.height() - sz.height())/2;
 	
-    style().drawIndicatorMask(&p, x, y, sz.width(), sz.height(), state() );
+    style().drawIndicatorMask(&p, 0, y, sz.width(), sz.height(), state() );
 
     if ( hasFocus() ) {
 	y = 0;
-	x = sz.width() + extraWidth(gs);
 	QRect br = style().itemRect( &p, x, y, w, h,
-				     AlignLeft|AlignVCenter|ShowPrefix,
+				     AlignAuto|AlignVCenter|ShowPrefix,
 				     isEnabled(),
 				     pixmap(), text() );
 	br.setLeft( br.left()-3 );
