@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#20 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#21 $
 **
 ** Definition of QListBox widget class
 **
@@ -150,6 +150,7 @@ private:
     uint	copyStrings	: 1;
     uint	multiSelect	: 1;
     uint	ownerDrawn	: 1;
+    uint	goingDown	: 1;
     int		current;
     QLBItemList *itemList;
 };
