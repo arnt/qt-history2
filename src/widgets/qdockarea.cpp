@@ -56,9 +56,7 @@ struct Q_EXPORT DockData
     QDockWindow *w;
     QRect rect;
 
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const DockData& ) const { return FALSE; }
-#endif
+    Q_DUMMY_COMPARISON_OPERATOR( DockData )
 };
 
 static int fix_x( QDockWindow* w, int width = -1 ) {

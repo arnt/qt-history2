@@ -35,10 +35,7 @@ struct Paren
     QChar chr;
     int pos;
 
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const Paren & ) const {
-	return type == type && chr == chr && pos == pos; }
-#endif
+    Q_DUMMY_COMPARISON_OPERATOR( Paren )
 };
 
 typedef QValueList<Paren> ParenList;

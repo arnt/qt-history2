@@ -212,16 +212,6 @@ class QXmlDefaultHandlerPrivate
 {
 };
 
-#if 0
-// ### do we still need this for any platform?
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-bool operator==( const QMap<QString, QString>, const QMap<QString, QString> )
-{
-    return FALSE;
-}
-#endif
-#endif
-
 /*!
     \class QXmlParseException qxml.h
     \brief The QXmlParseException class is used to report errors with

@@ -37,9 +37,7 @@ public:
 	QPixmap pix;
 	QString name;
 	QString absname;
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator==( const Pixmap& ) const { return FALSE; }
-#endif
+	Q_DUMMY_COMPARISON_OPERATOR( Pixmap )
     };
 
     PixmapCollection( Project *pro );

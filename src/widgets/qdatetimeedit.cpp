@@ -70,9 +70,7 @@ public:
     int width() const { return selend - selstart; }
     int index() const { return act; }
     bool separator() const { return sep; }
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const QNumberSection& ) const { return FALSE; }
-#endif
+    Q_DUMMY_COMPARISON_OPERATOR( QNumberSection )
 private:
     int selstart :12;
     int selend	 :12;

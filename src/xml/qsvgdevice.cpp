@@ -59,25 +59,19 @@ const char systemId[] = "http://www.w3.org/TR/2000/CR-SVG-20001102/DTD/svg-20001
 struct QM_EXPORT_SVG ImgElement {
     QDomElement element;
     QImage image;
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const ImgElement& ) const { return FALSE; }
-#endif
+    Q_DUMMY_COMPARISON_OPERATOR( ImgElement )
 };
 
 struct QM_EXPORT_SVG PixElement {
     QDomElement element;
     QPixmap pixmap;
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const PixElement& ) const { return FALSE; }
-#endif
+    Q_DUMMY_COMPARISON_OPERATOR( PixElement )
 };
 
 struct QSvgDeviceState {
     int textx, texty;			// current text position
     int textalign;			// text alignment
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const QSvgDeviceState& ) const { return FALSE; }
-#endif
+    Q_DUMMY_COMPARISON_OPERATOR( QSvgDeviceState )
 };
 
 typedef QValueList<ImgElement> ImageList;

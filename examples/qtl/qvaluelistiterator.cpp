@@ -27,9 +27,7 @@ public:
     void setSalary( int salary ) { s = salary; }
 
     // this is here to support very old compilers
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const Employee & ) const { return FALSE; }
-#endif
+    Q_DUMMY_COMPARISON_OPERATOR( Employee )
 
 private:
     QString n;

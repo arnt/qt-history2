@@ -752,9 +752,7 @@ public:
     {
 	QString text;
 	QPixmap pix;
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator==( const Item & ) const { return FALSE; }
-#endif
+	Q_DUMMY_COMPARISON_OPERATOR( Item )
     };
 
     PopulateListBoxCommand( const QString &n, FormWindow *fw,
@@ -778,9 +776,7 @@ public:
     {
 	QString text;
 	QPixmap pix;
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator==( const Item & ) const { return FALSE; }
-#endif
+	Q_DUMMY_COMPARISON_OPERATOR( Item )
     };
 
     PopulateIconViewCommand( const QString &n, FormWindow *fw,
@@ -838,9 +834,7 @@ public:
     {
 	QString text;
 	QPixmap pix;
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator==( const Row& ) const { return FALSE; }
-#endif
+	Q_DUMMY_COMPARISON_OPERATOR( Row )
     };
 
     struct Column
@@ -848,9 +842,7 @@ public:
 	QString text;
 	QPixmap pix;
 	QString field;
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator==( const Column& ) const { return FALSE; }
-#endif
+	Q_DUMMY_COMPARISON_OPERATOR( Column )
     };
 
     PopulateTableCommand( const QString &n, FormWindow *fw, QTable *t,

@@ -149,9 +149,7 @@ public:
 	factory = newFactory;
     }
 
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const QIconSetPrivate& ) const { return FALSE; }
-#endif
+    Q_DUMMY_COMPARISON_OPERATOR( QIconSetPrivate )
 };
 
 QIconSetIcon *QIconSetPrivate::icon( const QIconSet *iconSet,

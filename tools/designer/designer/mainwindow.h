@@ -356,9 +356,7 @@ private:
 	QString title;
 	QObject *receiver;
 	const char *init_slot, *accept_slot;
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator==( const Tab& ) const { return FALSE; }
-#endif
+	Q_DUMMY_COMPARISON_OPERATOR( Tab )
     };
 
 private:
