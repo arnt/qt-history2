@@ -5,12 +5,14 @@ language		= Cpp
 headerdirs		= $QTDIR/src
 sourcedirs              = $QTDIR/src \
                           $QTDIR/doc/src \
+                          $QTDIR/doc/src/examples \
                           $QTDIR/extensions/activeqt/doc \
                           $QTDIR/extensions/activeqt/tools \
                           $QTDIR/extensions/activeqt/examples
 #                          $QTDIR/extensions/motif/doc
 sources.fileextensions	= "*.cpp *.qdoc"
 exampledirs		= $QTDIR/doc/src \
+                          $QTDIR/doc/src/examples \
                           $QTDIR/doc/src/snippets \
 			  $QTDIR/examples \
 			  $QTDIR/demos \
@@ -31,6 +33,7 @@ extraimages.HTML	= logo32
 
 macro.key               = "\\bold"
 macro.menu              = "\\bold"
+macro.reg.HTML          = "&reg;"
 
 Cpp.ignoretokens	= QAXFACTORY_EXPORT \
                           QM_EXPORT_CANVAS \
