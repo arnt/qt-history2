@@ -3349,6 +3349,10 @@ void QWidget::setFocusPolicy( FocusPolicy policy )
 	QFocusData * f = focusData( TRUE );
 	if ( f->focusWidgets.findRef( this ) < 0 )
 	    f->focusWidgets.append( this );
+    } else {
+	QFocusData *f = focusData( FALSE );
+	if ( f )
+	    f->focusWidgets.removeRef( this );
     }
     focus_policy = (uint)policy;
 }
