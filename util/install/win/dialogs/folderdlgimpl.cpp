@@ -1,5 +1,5 @@
 #include "folderdlgimpl.h"
-#include "shell.h"
+#include "../shell.h"
 #include <qlineedit.h>
 #include <qlistview.h>
 #include <qpixmap.h>

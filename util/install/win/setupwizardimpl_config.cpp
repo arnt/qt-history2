@@ -27,11 +27,11 @@ void SetupWizardImpl::cleanDone()
 {
 #if defined(EVAL)
     prepareEnvironment();
-# if defined(Q_OS_WIN32)
+#  if defined(Q_OS_WIN32)
     if( qWinVersion() & WV_NT_based ) {
-# elif defined(Q_OS_UNIX)
+#  elif defined(Q_OS_UNIX)
     if (true) {
-# endif
+#  endif
 	buildPage->compileProgress->setProgress( 0 );
         buildPage->compileProgress->setTotalSteps( int(double(filesToCompile) * 1.8) );
 	configDone();
@@ -62,11 +62,11 @@ void SetupWizardImpl::cleanDone()
     QTextStream tmpStream;
     bool settingsOK;
 
-#if defined(Q_OS_WIN32)
+#  if defined(Q_OS_WIN32)
     args << ( QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configure.exe" );
-#elif defined(Q_OS_UNIX)
+#  elif defined(Q_OS_UNIX)
     args << ( QEnvironment::getEnv( "QTDIR" ) + QDir::separator() + "configure" );
-#endif
+#  endif
 
     entry = settings.readEntry( "/Trolltech/Qt/Build", "Debug", &settingsOK );
     if ( entry == "Debug" )
@@ -135,14 +135,14 @@ void SetupWizardImpl::cleanDone()
     else if ( entry == "Off" )
 	args += "-no-sql-tds";
 
-#if defined(Q_OS_WIN32)
+#  if defined(Q_OS_WIN32)
 //TODO: Win only, remove these options from wizard on mac?
     entry = settings.readEntry( "/Trolltech/Qt/Accessibility", "On", &settingsOK );
     if ( entry == "On" )
 	args += "-accessibility";
     else
 	args += "-no-accessibility";
-#endif
+#  endif
 
     entry = settings.readEntry( "/Trolltech/Qt/Big Textcodecs", "On", &settingsOK );
     if ( entry == "On" )
@@ -162,7 +162,7 @@ void SetupWizardImpl::cleanDone()
     else
 	args += "-no-stl";
 
-#if defined(Q_OS_WIN32)
+#  if defined(Q_OS_WIN32)
 //TODO: Win only, remove these options from wizard on mac?
     entry = settings.readEntry( "/Trolltech/Qt/Image Formats/PNG", "Direct", &settingsOK );
     if ( entry == "Plugin" )
@@ -171,15 +171,7 @@ void SetupWizardImpl::cleanDone()
 	args += "-qt-imgfmt-png";
     else if ( entry == "Off" )
 	args += "-no-imgfmt-png";
-#if 0
-    entry = settings.readEntry( "/Trolltech/Qt/Image Formats/PNG Present", "No", &settingsOK );
-    if ( entry == "No" )
-	args += "-qt-png";
-    else
-	args += "-system-png";
-#else
     args += "-qt-png";
-#endif
 
     entry = settings.readEntry( "/Trolltech/Qt/Image Formats/JPEG", "Direct", &settingsOK );
     if ( entry == "Plugin" )
@@ -188,15 +180,7 @@ void SetupWizardImpl::cleanDone()
 	args += "-qt-imgfmt-jpeg";
     else if ( entry == "Off" )
 	args += "-no-imgfmt-jpeg";
-#if 0
-    entry = settings.readEntry( "/Trolltech/Qt/Image Formats/JPEG Present", "No", &settingsOK );
-    if ( entry == "No" )
-	args += "-qt-jpeg";
-    else
-	args += "-system-jpeg";
-#else
     args += "-qt-jpeg";
-#endif
 
     entry = settings.readEntry( "/Trolltech/Qt/Image Formats/MNG", "Direct", &settingsOK );
     if ( entry == "Plugin" )
@@ -205,16 +189,8 @@ void SetupWizardImpl::cleanDone()
 	args += "-qt-imgfmt-mng";
     else if ( entry == "Off" )
 	args += "-no-imgfmt-mng";
-#if 0
-    entry = settings.readEntry( "/Trolltech/Qt/Image Formats/MNG Present", "No", &settingsOK );
-    if ( entry == "No" )
-	args += "-qt-mng";
-    else
-	args += "-system-mng";
-#else
     args += "-qt-mng";
-#endif
-#endif
+#  endif
 
     entry = settings.readEntry( "/Trolltech/Qt/Image Formats/GIF", "Direct", &settingsOK );
     if ( entry == "Direct" )
@@ -222,7 +198,7 @@ void SetupWizardImpl::cleanDone()
     else if ( entry == "Off" )
 	args += "-no-gif";
 
-#if defined(Q_OS_WIN32)
+#  if defined(Q_OS_WIN32)
 //TODO: Win only, remove these options from wizard on mac?
     entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows", "Direct", &settingsOK );
     if ( entry == "Direct" )
@@ -271,18 +247,18 @@ void SetupWizardImpl::cleanDone()
 	args += "-plugin-style-sgi";
     else if ( entry == "Off" )
 	args += "-no-style-sgi";
-#endif
+#  endif
 
-    if( !optionsPage->installExamples->isChecked() )
+    if( optionsPage && !optionsPage->installExamples->isChecked() )
 	args += "-no-examples";
-    if( !optionsPage->installTutorials->isChecked() )
+    if( optionsPage && !optionsPage->installTutorials->isChecked() )
 	args += "-no-tutorials";
 
-# if defined(Q_OS_WIN32)
+#  if defined(Q_OS_WIN32)
     if( qWinVersion() & WV_NT_based ) {
-# elif defined(Q_OS_UNIX)
+#  elif defined(Q_OS_UNIX)
     if (true) {
-# endif
+#  endif
 	logOutput( "Execute configure...\n" );
 	logOutput( args.join( " " ) + "\n" );
 
@@ -299,7 +275,12 @@ void SetupWizardImpl::cleanDone()
 	}
     } else { // no proper process handling on DOS based systems - create a batch file instead
 	logOutput( "Generating batch file...\n" );
-	QFile outFile( optionsPage->installPath->text() + "\\build.bat" );
+	QDir installDir;
+	if ( optionsPage )
+	    installDir.setPath( optionsPage->installPath->text() );
+	else
+	    installDir.setPath( QEnvironment::getEnv( "QTDIR" ) );
+	QFile outFile( installDir.filePath("build.bat") );
 	QTextStream outStream( &outFile );
 
 	if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
@@ -320,7 +301,7 @@ void SetupWizardImpl::cleanDone()
 
 void SetupWizardImpl::prepareEnvironment()
 {
-    QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++" );
+    QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++ macx-g++" );
     QByteArray pathBuffer;
     QStringList path;
     QString qtDir;
@@ -328,16 +309,20 @@ void SetupWizardImpl::prepareEnvironment()
 
     if( globalInformation.reconfig() ) {
 	qtDir = QEnvironment::getEnv( "QTDIR" );
-	configPage->currentInstLabel->show();
-	configPage->currentInstallation->show();
-	configPage->rebuildInstallation->show();
-	configPage->currentInstallation->setText( qtDir );
+	if ( configPage ) {
+	    configPage->currentInstLabel->show();
+	    configPage->currentInstallation->show();
+	    configPage->rebuildInstallation->show();
+	    configPage->currentInstallation->setText( qtDir );
+	}
     }
     else {
 	qtDir = QDir::convertSeparators( QEnvironment::getFSFileName( optionsPage->installPath->text() ) );
-	configPage->currentInstLabel->hide();
-	configPage->currentInstallation->hide();
-	configPage->rebuildInstallation->hide();
+	if ( configPage ) {
+	    configPage->currentInstLabel->hide();
+	    configPage->currentInstallation->hide();
+	    configPage->rebuildInstallation->hide();
+	}
     }
 
 #if defined(Q_OS_WIN32)
@@ -364,14 +349,15 @@ void SetupWizardImpl::prepareEnvironment()
     }
 #endif
 
-    if( foldersPage->qtDirCheck->isChecked() ) {
+#if defined(Q_OS_WIN32)
+    if( foldersPage && foldersPage->qtDirCheck->isChecked() ) {
 	envSpec |= QEnvironment::PersistentEnv;
 /*
 	if( folderGroups->currentItem() == 0 )
 	    envSpec |= QEnvironment::GlobalEnv;
 */
 	path.clear();
-#if defined(Q_OS_WIN32)
+
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	    path = QStringList::split( ';', QEnvironment::getEnv( "PATH", QEnvironment::PersistentEnv ) );
 	    if( path.findIndex( qtDir + "\\bin" ) == -1 ) {
@@ -383,10 +369,10 @@ void SetupWizardImpl::prepareEnvironment()
 		QEnvironment::putEnv( "PATH", qtDir + "\\bin;%PATH%", QEnvironment::PersistentEnv );
 	    }
 	}
+    }
 #elif defined(Q_OS_UNIX)
 //Persistent environment not supported
 #endif
-    }
 
     QEnvironment::putEnv( "QTDIR", qtDir, envSpec );
     QEnvironment::putEnv( "QMAKESPEC", mkSpecs[ sysID ], envSpec );
@@ -422,7 +408,7 @@ void SetupWizardImpl::prepareEnvironment()
 	    path.prepend( msVCDir + "\\BIN" );
 	    path.prepend( vsCommonDir + "\\Tools\\" + osDir );
 	    path.prepend( vsCommonDir + "\\Tools" );
-	    if( path.findIndex( optionsPage->installPath->text() + "\\bin" ) == -1 )
+	    if( optionsPage && path.findIndex( optionsPage->installPath->text() + "\\bin" ) == -1 )
 		path.prepend( optionsPage->installPath->text() + "\\bin" );
 	    QEnvironment::putEnv( "PATH", path.join( ";" ), envSpec );
 	    QStringList include = QStringList::split( ';', QEnvironment::getEnv( "INCLUDE", envSpec ) );
@@ -442,7 +428,9 @@ void SetupWizardImpl::prepareEnvironment()
 void SetupWizardImpl::showPageConfig()
 {
     // First make sure that the current license information is saved
-    writeLicense( QDir::homeDirPath() + "/.qt-license" );
+    if( !globalInformation.reconfig() ) {
+	writeLicense( QDir::homeDirPath() + "/.qt-license" );
+    }
 
     prepareEnvironment();
 
@@ -775,7 +763,7 @@ void SetupWizardImpl::showPageConfig()
 void SetupWizardImpl::showPageBuild()
 {
     QStringList args;
-    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
+    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make" );
 
     autoContTimer.stop();
     nextButton()->setText( "Next >" );

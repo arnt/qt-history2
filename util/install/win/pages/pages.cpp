@@ -7,6 +7,7 @@
 #include <qvalidator.h>
 #include <qdir.h>
 #include <qbuttongroup.h>
+#include <qpushbutton.h>
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
@@ -122,3 +123,10 @@ ProgressPageImpl::ProgressPageImpl( QWidget* parent, const char* name, WFlags fl
     setWrapPolicy( QTextView::Anywhere );
 #endif
 }
+
+#if defined(Q_OS_WIN32)
+WinIntroPageImpl::WinIntroPageImpl( QWidget* parent, const char* name, WFlags fl )
+    : WinIntroPage( parent, name, fl )
+{
+}
+#endif

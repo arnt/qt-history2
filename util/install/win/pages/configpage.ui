@@ -428,5 +428,12 @@
         </widget>
     </hbox>
 </widget>
+<tabstops>
+    <tabstop>configTabs</tabstop>
+    <tabstop>configList</tabstop>
+    <tabstop>explainOption</tabstop>
+    <tabstop>rebuildInstallation</tabstop>
+    <tabstop>advancedList</tabstop>
+</tabstops>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

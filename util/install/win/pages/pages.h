@@ -8,6 +8,9 @@
 #include "licensepage.h"
 #include "optionspage.h"
 #include "progresspage.h"
+#if defined(Q_OS_WIN32)
+#include "winintropage.h"
+#endif
 #include "../globalinformation.h"
 
 class Page
@@ -104,6 +107,12 @@ public:
     { return QString("License Information to Install Qt %1").arg(globalInformation.qtVersionStr()); }
     QString shortTitle() const
     { return "License information"; }
+
+#if defined(EVAL)
+    QLineEdit* evalName;
+    QLineEdit* evalCompany;
+    QLineEdit* evalSerialNumber;
+#endif
 };
 
 class OptionsPageImpl : public OptionsPage, public Page
@@ -129,5 +138,19 @@ public:
     QString shortTitle() const
     { return "Install files"; }
 };
+
+#if defined(Q_OS_WIN32)
+class WinIntroPageImpl : public WinIntroPage, public Page
+{
+    Q_OBJECT
+public:
+    WinIntroPageImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
+    ~WinIntroPageImpl() {}
+    QString title() const
+    { return "Introduction"; }
+    QString shortTitle() const
+    { return "Introduction"; }
+};
+#endif
 
 #endif // PAGES_H

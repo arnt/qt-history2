@@ -23,6 +23,7 @@ signals:
     void wizardPages( const QPtrList<Page>& );
     void wizardPageShowed( int );
     void wizardPageFailed( int );
+    void editionString( const QString& );
 
 private:
     int sysID;
@@ -160,10 +161,7 @@ private:
     ProgressPageImpl		*progressPage;
     BuildPageImpl		*buildPage;
     FinishPageImpl		*finishPage;
-
-#if defined(EVAL)
-    QLineEdit* evalName;
-    QLineEdit* evalCompany;
-    QLineEdit* evalSerialNumber;
+#if defined(Q_OS_WIN32)
+    WinIntroPageImpl		*winIntroPage;
 #endif
 };

@@ -80,6 +80,16 @@ SideDecorationImpl::SideDecorationImpl( QWidget* parent, const char* name, WFlag
     crossPix( ( const char** ) cross_data ),
     activeBullet( -1 )
 {
+    Q_ASSERT( layout() != 0 );
+    if ( layout()->inherits("QBoxLayout") ) {
+	((QBoxLayout*)layout())->setMargin( 0 );
+    }
+    versionLabel->setText( versionLabel->text() + globalInformation.qtVersionStr() );
+#if defined(EVAL)
+    editionLabel->setText( "Evaluation Version" );
+#else
+    editionLabel->setText( "" );
+#endif
 }
 
 SideDecorationImpl::~SideDecorationImpl()
@@ -105,7 +115,8 @@ void SideDecorationImpl::wizardPages( const QPtrList<Page>& li )
 	bullets.append( l );
 	l = new QLabel( page->shortTitle(), grid );
     }
-    lay->insertWidget( 1, grid );
+    lay->insertWidget( -1, grid );
+    lay->insertStretch( -1 );
 }
 
 void SideDecorationImpl::wizardPageShowed( int a )

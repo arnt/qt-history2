@@ -404,7 +404,8 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 
     initPages();
     initConnections();
-    optionsPage->sysGroup->setButton( sysGroupButton );
+    if ( optionsPage )
+	optionsPage->sysGroup->setButton( sysGroupButton );
     clickedSystem( sysGroupButton );
     readLicense( QDir::homeDirPath() + "/.qt-license" );
 }
@@ -432,6 +433,8 @@ void SetupWizardImpl::initPages()
 	    sideDeco, SLOT(wizardPageShowed(int)) ); \
     connect( this, SIGNAL(wizardPageFailed(int)), \
 	    sideDeco, SLOT(wizardPageFailed(int)) ); \
+    connect( this, SIGNAL(editionString(const QString&)), \
+	    sideDeco->editionLabel, SLOT(setText(const QString&)) ); \
     }
 
     QPtrList<Page> pages;
@@ -440,8 +443,11 @@ void SetupWizardImpl::initPages()
 	ADD_PAGE( buildPage,	BuildPageImpl   )
 	ADD_PAGE( finishPage,	FinishPageImpl  )
     } else {
+#if defined(Q_OS_WIN32)
+	ADD_PAGE( winIntroPage,		WinIntroPageImpl	)
+#endif
 	ADD_PAGE( licensePage,		LicensePageImpl		)
-	ADD_PAGE( licenseAgreementPage, LicenseAgreementPageImpl	)
+	ADD_PAGE( licenseAgreementPage, LicenseAgreementPageImpl)
 	ADD_PAGE( optionsPage,		OptionsPageImpl		)
 #if !defined(Q_OS_UNIX)
 	ADD_PAGE( foldersPage,		FoldersPageImpl		)
@@ -473,8 +479,8 @@ void SetupWizardImpl::initPages()
 	setNextEnabled( buildPage, FALSE );
     }
     if ( finishPage ) {
-	setBackEnabled( finishPage, true );
-	setNextEnabled( finishPage, FALSE );
+	setBackEnabled( finishPage, FALSE );
+	setFinishEnabled( finishPage, TRUE );
     }
     emit wizardPages( pages );
 }
@@ -544,7 +550,7 @@ void SetupWizardImpl::clickedPath()
     if( !dir.exists() )
 	dir.setPath( "/" );
 
-    QString dest =  QFileDialog::getExistingDirectory( optionsPage->installPath->text(), this, NULL, "Select installation directory" );
+    QString dest = QFileDialog::getExistingDirectory( optionsPage->installPath->text(), this, NULL, "Select installation directory" );
     if (!dest.isNull())
 	optionsPage->installPath->setText( dest );
 #endif
@@ -557,17 +563,13 @@ void SetupWizardImpl::clickedFolderPath()
 
 void SetupWizardImpl::clickedDevSysPath()
 {
-    QFileDialog dlg;
     QDir dir( foldersPage->devSysPath->text() );
-
     if( !dir.exists() )
 	dir.setPath( devSysFolder );
 
-    dlg.setDir( dir );
-    dlg.setMode( QFileDialog::DirectoryOnly );
-    if( dlg.exec() ) {
-	foldersPage->devSysPath->setText( dlg.dir()->absPath() );
-    }
+    QString dest = QFileDialog::getExistingDirectory( dir.absPath(), this, 0, "Select the path to Microsoft Visual Studio" );
+    if (!dest.isNull())
+	foldersPage->devSysPath->setText( dest );
 }
 
 void SetupWizardImpl::clickedSystem( int sys )
@@ -642,12 +644,14 @@ void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
 	    break;
 	case '\n':
 	    if( currentOLine.length() ) {
-		if( currentOLine.right( 4 ) == ".cpp" || 
-		    currentOLine.right( 2 ) == ".c" ||
-		    currentOLine.right( 4 ) == ".pro" ||
-		    currentOLine.right( 3 ) == ".ui" )
-		    buildPage->compileProgress->setProgress( ++filesCompiled );
-
+		if ( !globalInformation.reconfig() ) {
+		    if ( currentOLine.right( 4 ) == ".cpp" || 
+			 currentOLine.right( 2 ) == ".c" ||
+			 currentOLine.right( 4 ) == ".pro" ||
+			 currentOLine.right( 3 ) == ".ui" ) {
+			buildPage->compileProgress->setProgress( ++filesCompiled );
+		    }
+		}
 		logOutput( currentOLine );
 		currentOLine = "";
 	    }
@@ -1106,6 +1110,7 @@ void SetupWizardImpl::showPageProgress()
 	    } else {
 		QMessageBox::critical( this, tr("Package corrupted"),
 			tr("Could not find the LICENSE file in the package.\nThe package might be corrupted.") );
+		emit wizardPageFailed( indexOf(currentPage()) );
 	    }
 	    delete rcLoader;
 	    licenseFile.close();
@@ -1226,9 +1231,9 @@ void SetupWizardImpl::showPageProgress()
 		qtLib = "\\lib\\qtmt.lib";
 	    }
 	    int ret = trDoIt( optionsPage->installPath->text() + qtLib,
-		    evalName->text().latin1(),
-		    evalCompany->text().latin1(),
-		    evalSerialNumber->text().latin1() );
+		    licensePage->evalName->text().latin1(),
+		    licensePage->evalCompany->text().latin1(),
+		    licensePage->evalSerialNumber->text().latin1() );
 	    if ( ret != 0 ) {
 		copySuccessful = FALSE;
 		QMessageBox::critical( this,
@@ -1242,13 +1247,14 @@ void SetupWizardImpl::showPageProgress()
 			 "This log has been saved to the installation directory.\n"
 			 "The build will start automatically in 30 seconds."), true );
 	} else {
-	    emit wizardPageFailed( indexOf(currentPage()) );
 	    logFiles( tr("One or more errors occurred during file installation.\n"
 			 "Please review the log and try to amend the situation.\n"), true );
 	}
     }
     if ( copySuccessful )
 	autoContTimer.start( 1000 );
+    else
+	emit wizardPageFailed( indexOf(currentPage()) );
     setNextEnabled( progressPage, copySuccessful );
 }
 
@@ -1509,9 +1515,9 @@ void SetupWizardImpl::configPageChanged()
 void SetupWizardImpl::licenseChanged()
 {
 #if defined(EVAL)
-    int ret = trCheckIt( evalName->text().latin1(),
-	    evalCompany->text().latin1(),
-	    evalSerialNumber->text().latin1() );
+    int ret = trCheckIt( licensePage->evalName->text().latin1(),
+	    licensePage->evalCompany->text().latin1(),
+	    licensePage->evalSerialNumber->text().latin1() );
 
     if ( ret == 0 )
 	setNextEnabled( licensePage, TRUE );
@@ -1582,10 +1588,13 @@ void SetupWizardImpl::licenseChanged()
 	usLicense = FALSE;
 
     licensePage->expiryDate->setText( date.toString( Qt::ISODate ) );
-    if( features & Feature_Enterprise )
+    if( features & Feature_Enterprise ) {
 	licensePage->productsString->setCurrentItem( 1 );
-    else
+	emit editionString( "Enterprise Edition" );
+    } else {
 	licensePage->productsString->setCurrentItem( 0 );
+	emit editionString( "Professional Edition" );
+    }
     setNextEnabled( licensePage, TRUE );
     return;
 
@@ -1597,6 +1606,7 @@ rejectLicense:
     // I guess (rms)
     licensePage->productsString->setCurrentItem( -1 );
 #  endif
+    emit editionString( "" );
     setNextEnabled( licensePage, FALSE );
     return;
 #endif
@@ -1618,7 +1628,9 @@ void SetupWizardImpl::logFiles( const QString& entry, bool close )
 #if 0
     progressPage->filesDisplay->append( entry + "\n" );
 #else
-    progressPage->filesDisplay->setText( "Installing files...\n" + entry + "\n" );
+    if ( entry.startsWith("Expanding") )
+	// only show the "Expanding" entries to avoid flickering
+	progressPage->filesDisplay->setText( "Installing files...\n" + entry + "\n" );
 #endif
     outstream << ( entry + "\n" );
 
@@ -1630,7 +1642,12 @@ void SetupWizardImpl::logOutput( const QString& entry, bool close )
 {
     static QTextStream outstream;
     if( !outputLog.isOpen() ) {
-	outputLog.setName( optionsPage->installPath->text() + QDir::separator() +  "build.log" );
+	QDir installDir;
+	if ( optionsPage )
+	    installDir.setPath( optionsPage->installPath->text() );
+	else
+	    installDir.setPath( QEnvironment::getEnv( "QTDIR" ) );
+	outputLog.setName( installDir.filePath("build.log") );
 	if( !outputLog.open( IO_WriteOnly | IO_Translate ) )
 	    return;
     }
@@ -1775,16 +1792,20 @@ void SetupWizardImpl::readLicense( QString filePath)
 	}
 	licenseFile.close();
 
-	licensePage->customerID->setText( licenseInfo[ "CUSTOMERID" ] );
-	licensePage->licenseID->setText( licenseInfo[ "LICENSEID" ] );
-	licensePage->licenseeName->setText( licenseInfo[ "LICENSEE" ] );
-	if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" ) {
-	    licensePage->productsString->setCurrentItem( 1 );
-	} else {
-	    licensePage->productsString->setCurrentItem( 0 );
+	if ( licensePage ) {
+	    licensePage->customerID->setText( licenseInfo[ "CUSTOMERID" ] );
+	    licensePage->licenseID->setText( licenseInfo[ "LICENSEID" ] );
+	    licensePage->licenseeName->setText( licenseInfo[ "LICENSEE" ] );
+	    if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" ) {
+		licensePage->productsString->setCurrentItem( 1 );
+		emit editionString( "Enterprise Edition" );
+	    } else {
+		licensePage->productsString->setCurrentItem( 0 );
+		emit editionString( "Professional Edition" );
+	    }
+	    licensePage->expiryDate->setText( licenseInfo[ "EXPIRYDATE" ] );
+	    licensePage->key->setText( licenseInfo[ "LICENSEKEY" ] );
 	}
-	licensePage->expiryDate->setText( licenseInfo[ "EXPIRYDATE" ] );
-	licensePage->key->setText( licenseInfo[ "LICENSEKEY" ] );
     }
 #endif
 }
@@ -1800,10 +1821,13 @@ void SetupWizardImpl::writeLicense( QString filePath )
 	licenseInfo[ "CUSTOMERID" ] = licensePage->customerID->text();
 	licenseInfo[ "LICENSEID" ] = licensePage->licenseID->text();
 	licenseInfo[ "LICENSEE" ] = licensePage->licenseeName->text();
-	if( licensePage->productsString->currentItem() == 0 )
+	if( licensePage->productsString->currentItem() == 0 ) {
 	    licenseInfo[ "PRODUCTS" ] = "qt-professional";
-	else
+	    emit editionString( "Enterprise Edition" );
+	} else {
 	    licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
+	    emit editionString( "Professional Edition" );
+	}
 
 	licenseInfo[ "EXPIRYDATE" ] = licensePage->expiryDate->text();
 	licenseInfo[ "LICENSEKEY" ] = licensePage->key->text();
@@ -1856,6 +1880,7 @@ void SetupWizardImpl::readLicenseAgreement()
 	QMessageBox::critical( this, tr("Package corrupted"),
 		tr("Could not find the LICENSE file in the package.\nThe package might be corrupted.") );
 	licenseAgreementPage->acceptLicense->setEnabled( FALSE );
+	emit wizardPageFailed( indexOf(currentPage()) );
     }
     delete rcLoader;
 }

@@ -1,6 +1,6 @@
 #include "shell.h"
 #include "environment.h"
-#include "folderdlgimpl.h"
+#include "dialogs/folderdlgimpl.h"
 #include <qnamespace.h>
 #include <qdir.h>
 #if defined(Q_OS_WIN32)

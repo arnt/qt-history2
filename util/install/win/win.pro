@@ -6,7 +6,7 @@ HEADERS		= globalinformation.h \
 		  environment.h \
 		  shell.h \
 		  resource.h \
-		  folderdlgimpl.h \
+		  dialogs/folderdlgimpl.h \
 		  pages/pages.h \
 		  pages/sidedecorationimpl.h
 
@@ -17,11 +17,11 @@ SOURCES		= main.cpp \
 		  environment.cpp \
 		  shell.cpp \
 		  resource.cpp \
-		  folderdlgimpl.cpp \
+		  dialogs/folderdlgimpl.cpp \
 		  pages/pages.cpp \
 		  pages/sidedecorationimpl.cpp
 
-INTERFACES	= folderdlg.ui \
+INTERFACES	= dialogs/folderdlg.ui \
 		  pages/buildpage.ui \
 		  pages/configpage.ui \
 		  pages/finishpage.ui \
@@ -31,6 +31,7 @@ INTERFACES	= folderdlg.ui \
 		  pages/optionspage.ui \
 		  pages/progresspage.ui \
 		  pages/sidedecoration.ui
+win32:INTERFACES += pages/winintropage.ui
 
 TARGET		= install
 DESTDIR		= ../../../bin
