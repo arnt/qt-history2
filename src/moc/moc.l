@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#28 $
+** $Id: //depot/qt/main/src/moc/moc.l#29 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -48,12 +48,21 @@ int expLevel   = 1;  /* Used to keep track of nested parentheses in IN_EXPR */
 int fctLevel   = 1;  /* Used to keep track of nested parentheses in IN_FCT */
 int templLevel = 1;  /* Used to keep track of levels in IN_TEMPL_ARGS */
 
+int lastState  = 0;  /* Used to keep track of the state when a 
+		        //MOC_SKIP_BEGIN is encountered */
+int skipLevel   = 0; /* Used to keep track of levels of MOC_SKIP_BEGIN */
+
+
+class QString;
 
 extern void addExpressionChar( char );
 extern void addExpressionString( char * );
+extern bool isMocSkipBegin( const QString & );
+extern bool isMocSkipEnd( const QString & );
+extern void moc_warn( char *msg );
 %}
 
-%start OUTSIDE QT_DEF IN_CLASS IN_EXPR IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON
+%start OUTSIDE QT_DEF IN_CLASS IN_EXPR IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON SKIP
 
 %%
 <OUTSIDE>"class"		{ X;
@@ -101,6 +110,7 @@ extern void addExpressionString( char * );
 <QT_DEF>"register"		{ X;return REGISTER; }
 <QT_DEF>"static"		{ X;return STATIC; }
 <QT_DEF>"extern"		{ X;return EXTERN; }
+<QT_DEF>"mutable"		{ X;return MUTABLE; }
 <QT_DEF>"inline"		{ X;return INLINE; }
 <QT_DEF>"virtual"		{ X;return VIRTUAL; }
 <QT_DEF>"const"			{ X;return CONST; }
@@ -313,7 +323,26 @@ extern void addExpressionString( char * );
 			}
 
 ^[ \t]*#.*		{ /* preprocessor commands are skipped */}
-"//"[^\n]*		{ /* C++ comment */ }
+"//"[^\n]*		{ /* C++ comment */ 
+			  QCString s = yytext;
+                          if ( s.contains( "MOC_SKIP_BEGIN" ) ) {
+                            skipLevel++;
+                            if ( skipLevel == 1 ) {
+                              lastState = YYSTATE;
+                              BEGIN SKIP;
+                            }
+                          } else
+                          if ( s.contains( "MOC_SKIP_END" ) ) {
+                            if ( skipLevel == 0 ) {
+                              moc_warn(" MOC_SKIP_END without MOC_SKIP_BEGIN");
+                            } else {
+                              skipLevel--;
+                              if ( skipLevel == 0 ) {
+                                BEGIN lastState;
+                              }
+                            }
+                          }
+                        }
 "/*"			{ /* C	 comment */
 			  char c = ' ';
 			  do {
@@ -333,6 +362,7 @@ extern void addExpressionString( char * );
 <IN_EXPR>.		  { addExpressionChar( yytext[0] ); }
 <IN_TEMPL_ARGS>.	  { addExpressionChar( yytext[0] ); }
 <OUTSIDE>.		;
+<SKIP>.		        ;
 <QT_DEF>.		{
 			  X;
 			  return yytext[0];
