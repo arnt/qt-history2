@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#27 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -20,7 +20,7 @@
 #include <math.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#27 $")
 
 
 // --------------------------------------------------------------------------
@@ -553,15 +553,12 @@ bool QPainter::begin( const QPaintDevice *pd )
 #endif
 	return FALSE;
     }
-    else if ( pd == 0 ) {
+    if ( pd == 0 ) {
 #if defined(CHECK_NULL)
 	warning( "QPainter::begin: Paint device cannot be null" );
 #endif
 	return FALSE;
     }
-
-    bool reinit = flags != IsStartingUp;	// 2nd, 3rd,.... time called
-    flags = IsActive;				// init flags
 
     if ( pdev_dict ) {				// redirected paint device?
 	pdev = pdev_dict->find( (long)pd );
@@ -571,12 +568,23 @@ bool QPainter::begin( const QPaintDevice *pd )
     else
 	pdev = (QPaintDevice *)pd;
 
+    if ( pdev->paintingActive() ) {		// somebody else is already painting
+#if defined(CHECK_STATE)
+	warning( "QPainter::begin: Another QPainter is already painting "
+		 "this device;\n\tA paint device can only be painted by "
+		 "one QPainter at a time" );
+#endif
+	return FALSE;
+    }
+
+    bool reinit = flags != IsStartingUp;	// 2nd, 3rd,.... time called
+    flags = IsActive;				// init flags
     int dt = pdev->devType();			// get the device type
 
     if ( (pdev->devFlags & PDF_EXTDEV) != 0 )	// this is an extended device
 	setf(ExtDev);
     else if ( dt == PDT_PIXMAP )		// device is a pixmap
-	((QPixmap*)pdev)->detach();		// will modify pixmap
+	((QPixmap*)pdev)->detach();		// will modify it
 
     xfFont = FALSE;
     hdc = 0;
@@ -689,7 +697,7 @@ bool QPainter::end()
 {
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
-	warning( "QPainter::end: No begin()" );
+	warning( "QPainter::end: Missing begin() or begin() failed" );
 #endif
 	return FALSE;
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#149 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#150 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#149 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#150 $")
 
 
 /*****************************************************************************
@@ -767,6 +767,8 @@ static uchar *pat_tbl[] = {
   <li>The \link setClipRegion() clip region\endlink is set to an empty region.
   </ul>
 
+  \warning A paint device can only be painted by one painter at a time.
+
   \sa end(), setFont(), setPen(), setBrush(), setBackgroundColor(),
   setBackgroundMode(), setRasterOp(), setBrushOrigin(), setViewXForm(),
   setWindow(), setViewport(), setWorldXForm(), setWorldMatrix(),
@@ -779,8 +781,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 #if defined(CHECK_STATE)
 	warning( "QPainter::begin: Painter is already active" );
 #endif
-	end();
-	return begin( pd );
+	return FALSE;
     }
     if ( pd == 0 ) {
 #if defined(CHECK_NULL)
@@ -797,10 +798,10 @@ bool QPainter::begin( const QPaintDevice *pd )
     else
 	pdev = (QPaintDevice *)pd;
 
-    if ( pdev->paintingActive() ) {		// somebody paints already
+    if ( pdev->paintingActive() ) {		// somebody else is already painting
 #if defined(CHECK_STATE)
 	warning( "QPainter::begin: Another QPainter is already painting "
-		 "this device\n\tA paint device can only be painted by "
+		 "this device;\n\tA paint device can only be painted by "
 		 "one QPainter at a time" );
 #endif
 	return FALSE;
@@ -813,7 +814,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     if ( (pdev->devFlags & PDF_EXTDEV) != 0 )	// this is an extended device
 	setf(ExtDev);
     else if ( dt == PDT_PIXMAP )		// device is a pixmap
-	((QPixmap*)pdev)->detach();		// will modify pixmap
+	((QPixmap*)pdev)->detach();		// will modify it
 
     dpy = pdev->dpy;				// get display variable
     hd	= pdev->hd;				// get handle to drawable
@@ -911,7 +912,7 @@ bool QPainter::end()				// end painting
 {
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
-	warning( "QPainter::end: No begin()" );
+	warning( "QPainter::end: Missing begin() or begin() failed" );
 #endif
 	return FALSE;
     }
