@@ -285,6 +285,10 @@ bool QTextStreamPrivate::fillReadBuffer()
         }
     }
 #endif
+#if defined (QTEXTSTREAM_DEBUG)
+    qDebug("QTextStreamPrivate::fillReadBuffer(), using %s codec",
+           codec->name().constData());
+#endif
 
     readBuffer += endOfBufferState;
 #ifndef QT_NO_TEXTCODEC
@@ -333,6 +337,10 @@ bool QTextStreamPrivate::flushWriteBuffer()
 #ifndef QT_NO_TEXTCODEC
     if (!codec)
         codec = QTextCodec::codecForLocale();
+#if defined (QTEXTSTREAM_DEBUG)
+    qDebug("QTextStreamPrivate::flushWriteBuffer(), using %s codec",
+           codec->name().constData());
+#endif
 
     // convert from unicode to raw data
     QByteArray data = codec->fromUnicode(writeBuffer.data(), writeBuffer.size(), &writeConverterState);
