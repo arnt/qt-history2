@@ -35,6 +35,7 @@
 
 /*!
 \page distributingqt.html
+
 \title Deploying Qt Applications
 
 This document lists the platform-specific files needed to distribute

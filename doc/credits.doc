@@ -3,7 +3,7 @@
 **
 ** Credits file - all the qt-bugs stuff
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -33,7 +33,8 @@
 **
 **********************************************************************/
 
-/*! \page credits.html
+/*!
+\page credits.html
 
 \title Thanks!
 
@@ -314,4 +315,5 @@ yleffler <i>at</i> ucis.vill.edu<br>
 omissions are <b>bugs</b> and should be reported to
 <a href="mailto:qt-bugs@trolltech.com">qt-bugs@trolltech.com</a>
 like other bugs in the Qt code or documentation.
+
 */
