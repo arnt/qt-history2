@@ -680,7 +680,11 @@ QFileInfo::completeSuffix() const
 {
     if(!d->data->fileEngine)
         return QLatin1String("");
-    return d->getFileName(QFileEngine::BaseName).section(QLatin1Char('.'), 1, -1);
+    QString fileName = d->getFileName(QFileEngine::BaseName);
+    int firstDot = fileName.indexOf('.');
+    if (firstDot == -1)
+        return QLatin1String("");
+    return fileName.mid(firstDot + 1);
 }
 
 /*!
@@ -703,7 +707,11 @@ QFileInfo::suffix() const
 {
     if(!d->data->fileEngine)
         return QLatin1String("");
-    return d->getFileName(QFileEngine::BaseName).section(QLatin1Char('.'), -1);
+    QString fileName = d->getFileName(QFileEngine::BaseName);
+    int lastDot = fileName.lastIndexOf('.');
+    if (lastDot == -1)
+        return QLatin1String("");
+    return fileName.mid(lastDot + 1);
 }
 
 #ifndef QT_NO_DIR
