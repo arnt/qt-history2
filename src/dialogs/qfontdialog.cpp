@@ -197,7 +197,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 
     d->sample = new QHGroupBox( tr("Sample"), this, "sample text" );
     d->sampleEdit = new QLineEdit( d->sample, "r/w sample text" );
-    d->sampleEdit->setFixedHeight( 75 );
+    d->sampleEdit->setSizePolicy( QSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored) );
 
     // Note that the sample text is *not* translated with tr(), as the
     // characters used depend on the charset encoding.
