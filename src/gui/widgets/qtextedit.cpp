@@ -2120,6 +2120,20 @@ QMenu *QTextEdit::createStandardContextMenu()
 }
 
 /*!
+  returns a QTextCursor at position \a pos (in contents coordinates).
+*/
+QTextCursor QTextEdit::cursorForPosition(const QPoint &pos) const
+{
+    Q_D(const QTextEdit);
+    int cursorPos = d->doc->documentLayout()->hitTest(pos, Qt::FuzzyHit);
+    if (cursorPos == -1)
+        cursorPos = 0;
+    QTextCursor c(d->doc);
+    c.setPosition(cursorPos);
+    return c;
+}
+
+/*!
     This function returns a new MIME data object to represent the contents
     of the text edit's current selection. It is called when the selection needs
     to be encapsulated into a new QMimeData object; for example, when a drag

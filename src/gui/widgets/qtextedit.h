@@ -147,6 +147,8 @@ public:
 
     QMenu *createStandardContextMenu();
 
+    QTextCursor cursorForPosition(const QPoint &pos) const;
+
 public slots:
     void setFontPointSize(qreal s);
     void setFontFamily(const QString &fontFamily);
