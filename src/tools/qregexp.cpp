@@ -887,12 +887,9 @@ public:
     };
 #endif
 
-    QRegExpEngine(QString::CaseSensitivity caseSensitive):ref(1) { setup(caseSensitive); }
+    QRegExpEngine(QString::CaseSensitivity caseSensitive) { setup(caseSensitive); }
     QRegExpEngine(const QString &rx, QString::CaseSensitivity caseSensitive);
-#ifndef QT_NO_REGEXP_OPTIM
     ~QRegExpEngine();
-#endif
-    int ref;
 
     bool isValid() const { return valid; }
     QString::CaseSensitivity caseSensitive() const { return cs; }
@@ -930,7 +927,9 @@ public:
     void dump() const;
 #endif
 
-// private:
+    int ref;
+
+private:
     enum { CharClassBit = 0x10000, BackRefBit = 0x20000 };
 
     /*
@@ -1038,7 +1037,7 @@ public:
 #endif
     bool matchHere();
 
-    QList<State*> s; // array of states
+    QList<State *> s; // array of states
 #ifndef QT_NO_REGEXP_CAPTURE
     QVector<Atom> f; // atom hierarchy
     int nf; // number of atoms
@@ -1047,10 +1046,10 @@ public:
     int officialncap; // number of captures, seen from the outside
     int ncap; // number of captures, seen from the inside
 #ifndef QT_NO_REGEXP_CCLASS
-    QList<CharClass*> cl; // array of character classes
+    QList<CharClass *> cl; // array of character classes
 #endif
 #ifndef QT_NO_REGEXP_LOOKAHEAD
-    QList<Lookahead*> ahead; // array of lookaheads
+    QList<Lookahead *> ahead; // array of lookaheads
 #endif
 #ifndef QT_NO_REGEXP_ANCHOR_ALT
     QVector<AnchorAlternation> aa; // array of (a, b) pairs of anchors
@@ -1209,10 +1208,9 @@ public:
 };
 
 QRegExpEngine::QRegExpEngine(const QString &rx, QString::CaseSensitivity caseSensitive)
-    : ref(1)
 {
     setup(caseSensitive);
-    valid = (parse(rx.unicode(), rx.length()) == (int) rx.length());
+    valid = (parse(rx.unicode(), rx.length()) == rx.length());
     if (!valid) {
 #ifndef QT_NO_REGEXP_OPTIM
 	trivial = false;
@@ -1221,11 +1219,16 @@ QRegExpEngine::QRegExpEngine(const QString &rx, QString::CaseSensitivity caseSen
     }
 }
 
-#ifndef QT_NO_REGEXP_OPTIM
 QRegExpEngine::~QRegExpEngine()
 {
-}
+    s.deleteAll();
+#ifndef QT_NO_REGEXP_CCLASS
+    cl.deleteAll();
 #endif
+#ifndef QT_NO_REGEXP_LOOKAHEAD
+    ahead.deleteAll();
+#endif
+}
 
 /*
   Tries to match in str and returns an array of (begin, length) pairs
@@ -1515,7 +1518,7 @@ void QRegExpEngine::dump() const
 
 void QRegExpEngine::setup(QString::CaseSensitivity caseSensitive)
 {
-    s.setAutoDelete(true);
+    ref = 1;
 #ifndef QT_NO_REGEXP_CAPTURE
     f.resize(32);
     nf = 0;
@@ -1523,12 +1526,6 @@ void QRegExpEngine::setup(QString::CaseSensitivity caseSensitive)
 #endif
     officialncap = 0;
     ncap = 0;
-#ifndef QT_NO_REGEXP_CCLASS
-    cl.setAutoDelete(true);
-#endif
-#ifndef QT_NO_REGEXP_LOOKAHEAD
-    ahead.setAutoDelete(true);
-#endif
 #ifndef QT_NO_REGEXP_OPTIM
     caretAnchored = true;
     trivial = true;
@@ -1552,7 +1549,7 @@ int QRegExpEngine::setupState(int match)
 #else
     s += new State(match);
 #endif
-    return s.size()-1;
+    return s.size() - 1;
 }
 
 #ifndef QT_NO_REGEXP_CAPTURE
@@ -1805,8 +1802,8 @@ bool QRegExpEngine::matchHere()
 	for (j = 0; j < ncur; j++) {
 	    int cur = mmCurStack[j];
 	    State *scur = s[cur];
-	    QVector<int>& outs = scur->outs;
-	    for (k = 0; k < (int) outs.size(); k++) {
+	    QVector<int> &outs = scur->outs;
+	    for (k = 0; k < outs.size(); k++) {
 		int next = outs[k];
 		State *snext = s[next];
 		bool in = true;
