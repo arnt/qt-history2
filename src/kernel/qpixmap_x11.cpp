@@ -235,7 +235,7 @@ static void build_scale_table( uint **table, uint nBits )
 	if ( firstTable ) {
 	    qAddPostRoutine( cleanup_scale_tables );
 	    firstTable = FALSE;
-	}	
+	}
 	*table = new uint[256];
     }
     int   maxVal   = (1 << nBits) - 1;
@@ -1297,10 +1297,11 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 				    w, h, dd );
 
     XPutImage( dpy, hd, qt_xget_readonly_gc(), xi, 0, 0, 0, 0, w, h );
-    if ( data->optim != BestOptim ) {		// throw away image
-	qSafeXDestroyImage( xi );
-    } else {					// keep ximage that we created
-	data->ximage = xi;
+    if ( data->optim == BestOptim ||
+	 ( data->optim == NormalOptim && w*h <= 48*48 ) ) {
+	data->ximage = xi;			// keep ximage that we created
+    } else {		
+	qSafeXDestroyImage( xi );		// throw away image
     }
     data->w = w;
     data->h = h;
