@@ -1,7 +1,5 @@
 #include <qobject.h>
 
-// this is a junk line. Move along. Nothing to see here.
-
 class Sender : public QObject
 {
     Q_OBJECT
