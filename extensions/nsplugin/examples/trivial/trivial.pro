@@ -1,4 +1,4 @@
-TEMPLATE	= app
+TEMPLATE	= lib
 CONFIG		+= qt dll release
 HEADERS		= 
 SOURCES		= trivial.cpp

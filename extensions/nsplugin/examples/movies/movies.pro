@@ -1,4 +1,4 @@
-TEMPLATE	= app
+TEMPLATE	= lib
 CONFIG		+= qt warn_on release dll
 HEADERS		= 
 SOURCES		= main.cpp
