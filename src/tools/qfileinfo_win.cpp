@@ -473,7 +473,7 @@ void QFileInfo::doStat() const
 		s = fn.find(fn[0],s+1);
 		if ( s > 0 ) {
 		    // "\\server\share\..."
-		    if ( fn[s+1] ) {
+		    if ( fn[s+1] != 0 ) {
 			// "\\server\share\notfound"
 		    } else {
 			// "\\server\share\"
