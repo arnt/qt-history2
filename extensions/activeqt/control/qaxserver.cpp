@@ -50,7 +50,7 @@ ITypeLib *qAxTypeLibrary = 0;
 char qAxModuleFilename[MAX_PATH];
 
 // The QAxFactory instance
-static QAxFactoryInterface* _factory;
+static QAxFactoryInterface* _factory = 0;
 extern QUnknownInterface *ucm_instantiate();
 extern CLSID CLSID_QRect;
 extern CLSID CLSID_QSize;
@@ -78,8 +78,13 @@ static CRITICAL_SECTION qAxModuleSection;
 // Server control
 /////////////////////////////////////////////////////////////////////////////
 
+static int initCount = 0;
+
 void qAxInit()
 {
+    if (initCount)
+	return;
+
     InitializeCriticalSection( &qAxModuleSection );
 
     QString libFile( qAxModuleFilename );
@@ -89,10 +94,18 @@ void qAxInit()
 	libFile = libFile.left( lastDot ) + ".tlb";
 	LoadTypeLibEx( (TCHAR*)libFile.ucs2(), REGKIND_NONE, &qAxTypeLibrary );
     }
+
+    ++initCount;
 }
 
 void qAxCleanup()
 {
+    if (!initCount)
+	qWarning("qAxInit/Cleanup mismatch.");
+
+    if (--initCount)
+	return;
+
     if ( _factory ) {
 	_factory->release();
 	_factory = 0;
@@ -162,7 +175,6 @@ HRESULT UpdateRegistry(BOOL bRegister)
     }
     if (typeLibVersion.isEmpty())
 	typeLibVersion = "1.0";
-    qAxCleanup();
 
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
@@ -314,6 +326,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
 	settings.removeEntry( "/TypeLib/" + libId + "/" + typeLibVersion + "/." );
     }
 
+    qAxCleanup();
     return S_OK;
 }
 
