@@ -262,8 +262,8 @@ bool OpenTypeIface::loadTables( FT_ULong script)
 
 	char featureString[5];
 	tag_to_string( featureString, r->FeatureTag );
-	qDebug("found feature '%s' in GSUB table", featureString );
-	qDebug("setting bit %x for feature, feature_index = %d", f->bit, feature_index );
+// 	qDebug("found feature '%s' in GSUB table", featureString );
+// 	qDebug("setting bit %x for feature, feature_index = %d", f->bit, feature_index );
     }
     if ( hasGPos ) {
 	FT_UShort script_index;
@@ -287,13 +287,13 @@ bool OpenTypeIface::loadTables( FT_ULong script)
 
 	    char featureString[5];
 	    tag_to_string( featureString, r->FeatureTag );
-	    qDebug("found feature '%s' in GPOS table", featureString );
+// 	    qDebug("found feature '%s' in GPOS table", featureString );
 	}
 
 
     }
     if ( found_bits & s->required_bits != s->required_bits ) {
-	qDebug( "not all required features for script found! found_bits=%x", found_bits );
+// 	qDebug( "not all required features for script found! found_bits=%x", found_bits );
 	TT_GSUB_Clear_Features( gsub );
 	return FALSE;
     }
@@ -319,12 +319,12 @@ bool OpenTypeIface::supportsScript( unsigned int script )
 
     char featureString[5];
     tag_to_string( featureString, supported_scripts[script].tag );
-    qDebug("trying to load tables for script %d (%s))", script, featureString);
+//     qDebug("trying to load tables for script %d (%s))", script, featureString);
 
     FT_Error error;
     if ( !gdef ) {
 	if ( (error = TT_Load_GDEF_Table( face, &gdef )) ) {
-	    qDebug("error loading gdef table: %d", error );
+// 	    qDebug("error loading gdef table: %d", error );
 	    hasGDef = FALSE;
 // 	    return FALSE;
 	}
@@ -333,10 +333,10 @@ bool OpenTypeIface::supportsScript( unsigned int script )
     if ( !gsub ) {
 	if ( (error = TT_Load_GSUB_Table( face, &gsub, gdef )) ) {
 	    if ( error != FT_Err_Table_Missing ) {
-		qDebug("error loading gsub table: %d", error );
+// 		qDebug("error loading gsub table: %d", error );
 		return FALSE;
 	    } else {
-		qDebug("face doesn't have a gsub table" );
+// 		qDebug("face doesn't have a gsub table" );
 		hasGSub = FALSE;
 	    }
 	}
@@ -345,10 +345,10 @@ bool OpenTypeIface::supportsScript( unsigned int script )
     if ( !gpos ) {
 	if ( (error = TT_Load_GPOS_Table( face, &gpos, gdef )) ) {
 	    if ( error != FT_Err_Table_Missing ) {
-		qDebug("error loading gpos table: %d", error );
+// 		qDebug("error loading gpos table: %d", error );
 		return FALSE;
 	    } else {
-		qDebug("face doesn't have a gpos table" );
+// 		qDebug("face doesn't have a gpos table" );
 		hasGPos = FALSE;
 	    }
 	}

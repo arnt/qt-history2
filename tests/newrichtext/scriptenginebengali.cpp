@@ -392,6 +392,8 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 		    break;
 		case None:
 		    break;
+		case Split:
+		    break;
 		}
 		featuresToApply[to] = feature;
 		fixed++;
