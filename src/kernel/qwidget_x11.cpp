@@ -77,19 +77,31 @@ int qt_x11_create_desktop_on_screen = -1;
   QWidget member functions
  *****************************************************************************/
 
+// defined in qapplication_x11.cpp
+extern Atom qt_wm_delete_window;
+extern Atom qt_wm_take_focus;
+extern Atom qt_wm_client_leader;
+extern Atom qt_window_role;
+extern Atom qt_sm_client_id;
+extern Atom qt_net_wm_context_help;
+extern Atom qt_xa_motif_wm_hints;
+extern Atom qt_net_wm_state;
+extern Atom qt_net_wm_state_modal;
+extern Atom qt_net_wm_state_max_v;
+extern Atom qt_net_wm_state_max_h;
+extern Atom qt_net_wm_state_stays_on_top;
+extern Atom qt_net_wm_window_type;
+extern Atom qt_net_wm_window_type_normal;
+extern Atom qt_net_wm_window_type_dialog;
+extern Atom qt_net_wm_window_type_toolbar;
+extern Atom qt_net_wm_window_type_override;
+extern Atom qt_enlightenment_desktop;
+extern Atom qt_net_virtual_roots;
 
-extern Atom qt_wm_delete_window;	// defined in qapplication_x11.cpp
-extern Atom qt_wm_take_focus;		// defined in qapplication_x11.cpp
-extern Atom qt_wm_client_leader;	// defined in qapplication_x11.cpp
-extern Atom qt_window_role;		// defined in qapplication_x11.cpp
-extern Atom qt_sm_client_id;		// defined in qapplication_x11.cpp
-extern Atom qt_net_wm_context_help;	// defined in qapplication_x11.cpp
-extern Atom qt_xa_motif_wm_hints;	// defined in qapplication_x11.cpp
-extern Atom qt_net_wm_window_type;      // defined in qapplication_x11.cpp
-extern Atom qt_net_wm_window_type_normal; // defined in qapplication_x11.cpp
-extern Atom qt_net_wm_window_type_dialog; // defined in qapplication_x11.cpp
-extern Atom qt_net_wm_window_type_toolbar; // defined in qapplication_x11.cpp
-extern Atom qt_net_wm_window_type_override; // defined in qapplication_x11.cpp
+// defined in qapplication_x11.cpp
+extern bool qt_net_supports(Atom);
+extern unsigned long *qt_net_virtual_root_list;
+
 
 const uint stdWidgetEventMask =			// X event mask
 	(uint)(
@@ -153,24 +165,33 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 {
     if ( testWState(WState_Created) && window == 0 )
 	return;
-    setWState( WState_Created );			// set created flag
 
-    if ( !parentWidget() || parentWidget()->isDesktop() )
-	setWFlags( WType_TopLevel );		// top-level widget
+    // set created flag
+    setWState( WState_Created );
 
-    bool topLevel = testWFlags(WType_TopLevel);
     bool popup = testWFlags(WType_Popup);
     bool dialog = testWFlags(WType_Dialog);
     bool desktop = testWFlags(WType_Desktop);
+
+    // top-level widget
+    if ( !parentWidget() || parentWidget()->isDesktop() )
+	setWFlags( WType_TopLevel );
+
+    // these are top-level, too
+    if ( dialog || popup || desktop )
+	setWFlags( WType_TopLevel );
+
+    // a popup stays on top
+    if ( popup )
+	setWFlags(WStyle_StaysOnTop);
+
+    bool topLevel = testWFlags(WType_TopLevel);
     Window parentw, destroyw = 0;
     WId	   id;
 
-    if ( !window )				// always initialize
+    // always initialize
+    if ( !window )
 	initializeWindow = TRUE;
-
-    if ( popup )
-	setWFlags(WStyle_StaysOnTop); // a popup stays on top
-
 
     if ( desktop &&
 	 qt_x11_create_desktop_on_screen >= 0 &&
@@ -196,11 +217,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     int sw = DisplayWidth(dpy,scr);
     int sh = DisplayHeight(dpy,scr);
 
-    if ( dialog || popup || desktop ) {		// these are top-level, too
-	topLevel = TRUE;
-	setWFlags( WType_TopLevel );
-    }
-
     if ( desktop ) {				// desktop widget
 	dialog = popup = FALSE;			// force these flags off
 	crect.setRect( 0, 0, sw, sh );
@@ -209,7 +225,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     } else {					// child widget
 	crect.setRect( 0, 0, 100, 30 );
     }
-    // fpos = crect.topLeft();			// default frame rect
 
     parentw = topLevel ? root_win : parentWidget()->winId();
 
@@ -253,53 +268,85 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	setWinId( id );				// set widget id/handle + hd
     }
 
-    if ( !topLevel ) {
-	if ( !testWFlags(WStyle_Customize) )
-	    setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
-    } else if ( !(desktop || popup) ) {
+    // NET window types
+    long net_wintypes[4] = { 0, 0, 0, 0 };
+    int curr_wintype = 0;
 
-	ulong wsa_mask = 0;
+    // NET window states
+    long net_winstates[4] = { 0, 0, 0, 0 };
+    int curr_winstate = 0;
 
-	if ( testWFlags(WStyle_Customize) ) {	// customize top-level widget
-	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
-		;				// ok, we already have it
-	    } else { // Style_NoBorder, sets Motif hint
+    if (topLevel && ! (desktop || popup)) {
+       	ulong wsa_mask = 0;
+	if (testWFlags(WStyle_Customize)) {
+	    if (testWFlags(WStyle_NoBorder)) {
 		struct {
-		    ulong flags;
-		    ulong functions;
-		    ulong decorations;
+		    ulong flags, functions, decorations;
 		    long input_mode;
 		    ulong status;
 		} hints;
+
 		hints.decorations = 0;
-		hints.flags =  (1L << 1); // MWM_HINTS_DECORATIONS;
-		XChangeProperty (dpy, id, qt_xa_motif_wm_hints,
-				 qt_xa_motif_wm_hints, 32, PropModeReplace,
-				 (unsigned char*) &hints, 5 );
+		hints.flags = (1L << 1); // MWM_HINTS_DECORATIONS
+		XChangeProperty(dpy, id, qt_xa_motif_wm_hints,
+				qt_xa_motif_wm_hints, 32, PropModeReplace,
+				(unsigned char *) &hints, 5);
+
+		// override netwm type - quick and easy for KDE noborder
+		net_wintypes[curr_wintype++] = qt_net_wm_window_type_override;
 	    }
-	    if ( testWFlags(WStyle_Tool) ) {
+
+	    if (testWFlags(WStyle_Tool)) {
 		wsa.save_under = TRUE;
 		wsa_mask |= CWSaveUnder;
+
+		// toolbar netwm type
+		net_wintypes[curr_wintype++] = qt_net_wm_window_type_toolbar;
 	    }
-	} else {				// normal top-level widget
-	    if ( testWFlags(WStyle_Dialog ) )
-		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu | WStyle_ContextHelp );
-	    else
-		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
+	} else if (testWFlags(WStyle_Dialog)) {
+	    setWFlags(WStyle_NormalBorder | WStyle_Title |
+		      WStyle_SysMenu | WStyle_ContextHelp);
+
+	    // dialog netwm type
+	    net_wintypes[curr_wintype++] = qt_net_wm_window_type_dialog;
+
+	    if (testWFlags(WShowModal))
+		net_winstates[curr_winstate++] = qt_net_wm_state_modal;
+	} else {
+	    setWFlags(WStyle_NormalBorder | WStyle_Title |
+		      WStyle_MinMax | WStyle_SysMenu);
+
+	    // maximized netwm state
+	    if (testWFlags(WState_Maximized)) {
+		net_winstates[curr_winstate++] = qt_net_wm_state_max_v;
+		net_winstates[curr_winstate++] = qt_net_wm_state_max_h;
+	    }
 	}
+
+	// normal netwm type - default
+	net_wintypes[curr_wintype++] = qt_net_wm_window_type_normal;
+
+	// stays on top
+	if (testWFlags(WStyle_StaysOnTop))
+	    net_winstates[curr_winstate++] = qt_net_wm_state_stays_on_top;
 
 	if ( testWFlags( WX11BypassWM ) ) {
 	    wsa.override_redirect = TRUE;
 	    wsa_mask |= CWOverrideRedirect;
 	}
+
 	if ( wsa_mask && initializeWindow )
 	    XChangeWindowAttributes( dpy, id, wsa_mask, &wsa );
+    } else {
+	if (! testWFlags(WStyle_Customize))
+	    setWFlags(WStyle_NormalBorder | WStyle_Title |
+		      WStyle_MinMax | WStyle_SysMenu);
     }
+
 
     if ( !initializeWindow ) {
 	// do no initialization
     } else if ( popup ) {			// popup widget
-	XSetTransientForHint( dpy, id, parentw ); //?!?! this looks pointless
 	wsa.override_redirect = TRUE;
 	wsa.save_under = TRUE;
 	XChangeWindowAttributes( dpy, id, CWOverrideRedirect | CWSaveUnder,
@@ -308,10 +355,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	QWidget *p = parentWidget();	// real parent
 	if (p)
 	    p = p->topLevelWidget();
-	if ( testWFlags(WStyle_DialogBorder)
-	     || testWFlags(WStyle_StaysOnTop)
-	     || dialog
-	     || testWFlags(WStyle_Tool) ) {
+
+	if ( testWFlags(WStyle_DialogBorder) ||
+	     testWFlags(WStyle_StaysOnTop) ||
+	     dialog ||
+	     testWFlags(WStyle_Tool) ) {
 	    if ( testWFlags( WStyle_StaysOnTop ) )
 		XSetTransientForHint( dpy, id, None );
 	    else  if ( p )
@@ -321,9 +369,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	}
 
 	// find the real client leader, i.e. a toplevel without parent
-	while ( p && p->parentWidget()) {
+	while ( p && p->parentWidget())
 	    p = p->parentWidget()->topLevelWidget();
-	}
 
 	XSizeHints size_hints;
 	size_hints.flags = USSize | PSize | PWinGravity;
@@ -358,64 +405,17 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	if ( testWFlags( WStyle_ContextHelp ) )
 	    protocols[n++] = qt_net_wm_context_help;
 	XSetWMProtocols( dpy, id, protocols, n );
-    }
-
-    if ( initializeWindow ) {
-	// don't erase when resizing
-	wsa.bit_gravity =
-	    QApplication::reverseLayout() ? NorthEastGravity : NorthWestGravity;
-	XChangeWindowAttributes( dpy, id, CWBitGravity, &wsa );
 
 	// set _NET_WM_WINDOW_TYPE
-	unsigned long wtype[2];
-	int len = 1;
-	if (! (testWFlags(WStyle_NormalBorder) || testWFlags(WStyle_DialogBorder))) {
-	    // KDE extension for quick no border, motif hints are still set above
-	    wtype[0] = qt_net_wm_window_type_override;
-	    wtype[1] = qt_net_wm_window_type_normal;
-	    len = 2;
-	} else if (testWFlags(WStyle_Tool))
-	    wtype[0] = qt_net_wm_window_type_toolbar;
-	// else if (testWFlags(WType_Dialog))
-	// wtype[0] = qt_net_wm_window_type_dialog;
-	else
-	    wtype[0] = qt_net_wm_window_type_normal;
-
+	if (curr_wintype > 0)
 	XChangeProperty(dpy, id, qt_net_wm_window_type, XA_ATOM, 32, PropModeReplace,
-			(unsigned char *) wtype, len);
-    }
+			(unsigned char *) net_wintypes, curr_wintype);
 
-    setWState( WState_MouseTracking );
-    setMouseTracking( FALSE );			// also sets event mask
-    if ( desktop ) {
-	setWState( WState_Visible );
-    } else if ( topLevel ) {			// set X cursor
-	QCursor *oc = QApplication::overrideCursor();
-	if ( initializeWindow )
-	    XDefineCursor( dpy, winid, oc ? oc->handle() : cursor().handle() );
-	setWState( WState_OwnCursor );
-    }
+	// set _NET_WM_WINDOW_STATE
+	if (curr_winstate > 0)
+	    XChangeProperty(dpy, id, qt_net_wm_state, XA_ATOM, 32, PropModeReplace,
+			    (unsigned char *) net_winstates, curr_winstate);
 
-    if ( window ) {				// got window from outside
-	XWindowAttributes a;
-	XGetWindowAttributes( dpy, window, &a );
-	crect.setRect( a.x, a.y, a.width, a.height );
-	// fpos = crect.topLeft();
-	if ( a.map_state == IsUnmapped )
-	    clearWState( WState_Visible );
-	else
-	    setWState( WState_Visible );
-	QPaintDeviceX11Data* xd = getX11Data( TRUE );
-	xd->x_depth = a.depth;
-	xd->x_visual = a.visual;
-	xd->x_defvisual = ( XVisualIDFromVisual( a.visual ) ==
-			    XVisualIDFromVisual( (Visual*)x11AppVisual() ) );
-	xd->x_colormap = a.colormap;
-	setX11Data( xd );
-	delete xd;
-    }
-
-    if ( topLevel ) {
 	// when we create a toplevel widget, the frame strut should be dirty
 	fstrut_dirty = 1;
 
@@ -433,6 +433,45 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     } else
 	// non-toplevel widgets don't have a frame, so no need to update the strut
 	fstrut_dirty = 0;
+
+    if ( initializeWindow ) {
+	// don't erase when resizing
+	wsa.bit_gravity =
+	    QApplication::reverseLayout() ? NorthEastGravity : NorthWestGravity;
+	XChangeWindowAttributes( dpy, id, CWBitGravity, &wsa );
+    }
+
+    setWState( WState_MouseTracking );
+    setMouseTracking( FALSE );			// also sets event mask
+    if ( desktop ) {
+	setWState( WState_Visible );
+    } else if ( topLevel ) {			// set X cursor
+	QCursor *oc = QApplication::overrideCursor();
+	if ( initializeWindow )
+	    XDefineCursor( dpy, winid, oc ? oc->handle() : cursor().handle() );
+	setWState( WState_OwnCursor );
+    }
+
+    if ( window ) {				// got window from outside
+	XWindowAttributes a;
+	XGetWindowAttributes( dpy, window, &a );
+	crect.setRect( a.x, a.y, a.width, a.height );
+
+	if ( a.map_state == IsUnmapped )
+	    clearWState( WState_Visible );
+	else
+	    setWState( WState_Visible );
+
+	QPaintDeviceX11Data* xd = getX11Data( TRUE );
+	xd->x_depth = a.depth;
+	xd->x_visual = a.visual;
+	xd->x_defvisual = ( XVisualIDFromVisual( a.visual ) ==
+			    XVisualIDFromVisual( (Visual*)x11AppVisual() ) );
+	xd->x_colormap = a.colormap;
+	setX11Data( xd );
+
+	delete xd;
+    }
 
     if ( destroyw )
 	qt_XDestroyWindow( this, dpy, destroyw );
@@ -1548,19 +1587,38 @@ void QWidget::showMaximized()
 {
     if ( testWFlags(WType_TopLevel) ) {
 	Display *dpy = x11Display();
-	int scr = x11Screen();
-	int sw = DisplayWidth(dpy,scr);
-	int sh = DisplayHeight(dpy,scr);
-	if ( topData()->normalGeometry.width() < 0 )
-	    topData()->normalGeometry = geometry();
-	if ( !topData()->parentWinId && !isVisible() ) {
-	    setGeometry(0, 0, sw, sh );
-	    show();
-	    qt_wait_for_window_manager( this );
+
+	if (qt_net_supports(qt_net_wm_state_max_h) &&
+	    qt_net_supports(qt_net_wm_state_max_v)) {
+	    // we have a NET supporting window manager
+	    long net_winstates[3] = { 0, 0, 0 };
+	    int curr_winstate = 0;
+
+	    // keep modal state if it is set
+	    if (testWFlags(WShowModal))
+		net_winstates[curr_winstate++] = qt_net_wm_state_modal;
+
+	    // set maximized states
+	    net_winstates[curr_winstate++] = qt_net_wm_state_max_v;
+	    net_winstates[curr_winstate++] = qt_net_wm_state_max_h;
+
+	    XChangeProperty(dpy, winId(), qt_net_wm_state, XA_ATOM, 32, PropModeReplace,
+			    (unsigned char *) net_winstates, curr_winstate);
+	} else {
+	    int scr = x11Screen();
+	    int sw = DisplayWidth(dpy,scr);
+	    int sh = DisplayHeight(dpy,scr);
+	    if ( topData()->normalGeometry.width() < 0 )
+		topData()->normalGeometry = geometry();
+	    if ( !topData()->parentWinId && !isVisible() ) {
+		setGeometry(0, 0, sw, sh );
+		show();
+		qt_wait_for_window_manager( this );
+	    }
+	    sw -= frameGeometry().width() - width();
+	    sh -= frameGeometry().height() - height();
+	    resize( sw, sh );
 	}
-	sw -= frameGeometry().width() - width();
-	sh -= frameGeometry().height() - height();
-	resize( sw, sh );
     }
     show();
     QEvent e( QEvent::ShowMaximized );
@@ -2329,12 +2387,6 @@ void QWidget::setName( const char *name )
   Computes the frame rectangle when needed.  This is an internal function, you
   should never call this.
 */
-
-// defined in qapplication_x11.cpp
-extern Atom qt_enlightenment_desktop;
-extern Atom qt_net_virtual_roots;
-extern bool qt_net_supports(Atom);
-extern unsigned long *qt_net_virtual_root_list;
 
 void QWidget::updateFrameStrut() const
 {

@@ -308,6 +308,9 @@ Atom		qt_x_incr		= 0;
 Atom		qt_net_supported	= 0;
 Atom		qt_net_virtual_roots	= 0;
 Atom		qt_net_wm_state		= 0;
+Atom		qt_net_wm_state_modal	= 0;
+Atom		qt_net_wm_state_max_v	= 0;
+Atom		qt_net_wm_state_max_h	= 0;
 Atom            qt_net_wm_window_type   = 0;
 Atom            qt_net_wm_window_type_normal	= 0;
 Atom            qt_net_wm_window_type_dialog	= 0;
@@ -1920,6 +1923,9 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "_NET_SUPPORTED", &qt_net_supported );
 	qt_x11_intern_atom( "_NET_VIRTUAL_ROOTS", &qt_net_virtual_roots );
 	qt_x11_intern_atom( "_NET_WM_STATE", &qt_net_wm_state );
+	qt_x11_intern_atom( "_NET_WM_STATE_MODAL", &qt_net_wm_state_modal );
+	qt_x11_intern_atom( "_NET_WM_STATE_MAXIMIZED_VERT", &qt_net_wm_state_max_v );
+	qt_x11_intern_atom( "_NET_WM_STATE_MAXIMIZED_HORIZ", &qt_net_wm_state_max_h );
      	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE", &qt_net_wm_window_type );
 	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_NORMAL",
 			    &qt_net_wm_window_type_normal );
@@ -1927,7 +1933,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 			    &qt_net_wm_window_type_dialog );
 	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_TOOLBAR",
 			    &qt_net_wm_window_type_toolbar );
-	qt_x11_intern_atom( "_KDE__NET_WM_WINDOW_TYPE_OVERRIDE",
+	qt_x11_intern_atom( "_KDE_NET_WM_WINDOW_TYPE_OVERRIDE",
 			    &qt_net_wm_window_type_override );
 	qt_x11_intern_atom( "_KDE_NET_WM_FRAME_STRUT", &qt_net_wm_frame_strut );
 	qt_x11_intern_atom( "_NET_WM_STATE_STAYS_ON_TOP",
@@ -3416,33 +3422,67 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    }
 	} else if ( widget) {
 	    if (event->xproperty.window == widget->winId() ) { // widget properties
-		if (widget->isTopLevel() &&
-		    event->xproperty.atom == qt_net_wm_frame_strut) {
+		if (widget->isTopLevel()) {
 		    Atom ret;
-		    int format;
+		    int format, e;
 		    unsigned char *data = 0;
 		    unsigned long nitems, after;
-		    if (XGetWindowProperty(appDpy, event->xproperty.window,
-					   qt_net_wm_frame_strut,
-					   0, 4, // struts are 4 longs
-					   FALSE, XA_CARDINAL, &ret, &format, &nitems,
-					   &after, &data) == Success &&
-			ret == XA_CARDINAL && format == 32 && nitems == 4) {
-			unsigned long *strut = (unsigned long *) data;
-			widget->topData()->fleft   = strut[0];
-			widget->topData()->fright  = strut[1];
-			widget->topData()->ftop    = strut[2];
-			widget->topData()->fbottom = strut[3];
-			widget->fstrut_dirty = 0;
-		    } else {
-			// if failed, zero the strut and mark it dirty
-			widget->topData()->fleft = widget->topData()->fright =
-			 widget->topData()->ftop = widget->topData()->fbottom = 0;
-			widget->fstrut_dirty = 1;
-		    }
 
-		    if (data)
-			XFree(data);
+		    if (event->xproperty.atom == qt_net_wm_frame_strut) {
+			e = XGetWindowProperty(appDpy, event->xproperty.window,
+					       qt_net_wm_frame_strut,
+					       0, 4, // struts are 4 longs
+					       FALSE, XA_CARDINAL, &ret, &format,
+					       &nitems, &after, &data);
+
+			if (e == Success && ret == XA_CARDINAL &&
+			    format == 32 && nitems == 4) {
+			    long *strut = (long *) data;
+			    widget->topData()->fleft   = strut[0];
+			    widget->topData()->fright  = strut[1];
+			    widget->topData()->ftop    = strut[2];
+			    widget->topData()->fbottom = strut[3];
+			    widget->fstrut_dirty = 0;
+			} else {
+			    // if failed, zero the strut and mark it dirty
+			    widget->topData()->fleft = widget->topData()->fright =
+			     widget->topData()->ftop = widget->topData()->fbottom = 0;
+			    widget->fstrut_dirty = 1;
+			}
+
+			if (data)
+			    XFree(data);
+		    } else if (event->xproperty.atom == qt_net_wm_state) {
+			// using length of 1024 should be safe for all current
+			// and possible NET states...
+			e = XGetWindowProperty(appDpy, event->xproperty.window,
+					       qt_net_wm_state, 0, 1024, FALSE,
+					       XA_ATOM, &ret, &format, &nitems,
+					       &after, &data);
+
+			bool isMaximized = FALSE;
+			if (e == Success && ret == XA_ATOM && format == 32 &&
+			    nitems > 0) {
+			    Atom *states = (Atom *) data;
+
+			    unsigned long i;
+			    for (i = 0; i < nitems; i++) {
+				if (states[i] == qt_net_wm_state_max_v ||
+				    states[i] == qt_net_wm_state_max_h) {
+				    isMaximized = TRUE;
+				    break;
+				}
+			    }
+			}
+
+			if (isMaximized)
+			    widget->setWState(WState_Maximized);
+			else
+			    widget->clearWState(WState_Maximized);
+
+			if (data)
+			    XFree(data);
+		    }
 		}
 	    }
 	}
