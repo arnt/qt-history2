@@ -149,8 +149,11 @@ protected:
     void focusInEvent(QFocusEvent *e);
     void focusOutEvent(QFocusEvent *e);
     void paintEvent(QPaintEvent *e);
+    void showEvent(QShowEvent *e);
         
 private:
+    void resizeObject();
+
     int setFocusTimer;
     bool hasFocus;
     QAxClientSite *axhost;
@@ -454,7 +457,7 @@ bool axc_FilterProc(void *m)
 }
 
 QAxClientSite::QAxClientSite(QAxWidget *c)
-: ref(1), widget(c)
+: ref(1), widget(c), host(0)
 {
     aggregatedObject = widget->createAggregate();
     if (aggregatedObject) {
@@ -479,12 +482,13 @@ QAxClientSite::QAxClientSite(QAxWidget *c)
 
 bool QAxClientSite::activateObject(bool initialized)
 {
-    host = new QAxHostWidget(widget, this);
+    if (!host)
+        host = new QAxHostWidget(widget, this);
 
     bool showHost = false;
     HRESULT hr = S_OK;
-    m_spOleObject = 0;
-    widget->queryInterface(IID_IOleObject, (void**)&m_spOleObject);
+    if (!m_spOleObject)
+        widget->queryInterface(IID_IOleObject, (void**)&m_spOleObject);
     if (m_spOleObject) {
         DWORD dwMiscStatus = 0;
         m_spOleObject->GetMiscStatus(DVASPECT_CONTENT, &dwMiscStatus);
@@ -568,10 +572,11 @@ bool QAxClientSite::activateObject(bool initialized)
         }
         
         RECT rcPos = { host->x(), host->y(), host->x()+sizehint.width(), host->y()+sizehint.height() };
-        
+
         hr = m_spOleObject->DoVerb(OLEIVERB_INPLACEACTIVATE, 0, (IOleClientSite*)this, 0, host->winId(), &rcPos);
         
-        m_spOleObject->QueryInterface(IID_IOleControl, (void**)&m_spOleControl);
+        if (!m_spOleControl)
+            m_spOleObject->QueryInterface(IID_IOleControl, (void**)&m_spOleControl);
         if (m_spOleControl) {
             m_spOleControl->OnAmbientPropertyChange(DISPID_AMBIENT_BACKCOLOR);
             m_spOleControl->OnAmbientPropertyChange(DISPID_AMBIENT_FORECOLOR);
@@ -1431,7 +1436,6 @@ QAxHostWidget::~QAxHostWidget()
         axhost->reset(this);
 }
 
-
 int QAxHostWidget::qt_metacall(QMetaObject::Call call, int isignal, void **argv)
 {
     if (axhost)
@@ -1454,9 +1458,8 @@ QSize QAxHostWidget::minimumSizeHint() const
     return QWidget::minimumSizeHint();
 }
 
-void QAxHostWidget::resizeEvent(QResizeEvent *e)
+void QAxHostWidget::resizeObject()
 {
-    QWidget::resizeEvent(e);
     if (!axhost)
         return;
     
@@ -1479,6 +1482,16 @@ void QAxHostWidget::resizeEvent(QResizeEvent *e)
         RECT rcPos = { x(), y(), x()+width(), y()+height() };
         axhost->m_spInPlaceObject->SetObjectRects(&rcPos, &rcPos);
     }
+}
+
+void QAxHostWidget::resizeEvent(QResizeEvent *)
+{
+    resizeObject();
+}
+
+void QAxHostWidget::showEvent(QShowEvent *)
+{
+    resizeObject();
 }
 
 bool QAxHostWidget::winEvent(MSG *msg, long *result)
@@ -1602,7 +1615,6 @@ void QAxHostWidget::paintEvent(QPaintEvent*)
     QPainter painter(this);
     painter.drawPixmap(0, 0, pm);
 }
-
 
 /*!
     \class QAxWidget qaxwidget.h
@@ -1879,12 +1891,10 @@ void QAxWidget::changeEvent(QEvent *e)
 /*!
     \reimp
 */
-void QAxWidget::resizeEvent(QResizeEvent *e)
+void QAxWidget::resizeEvent(QResizeEvent *)
 {
     if (container)
         container->resize(size());
-    
-    QWidget::resizeEvent(e);
 }
 
 /*!
