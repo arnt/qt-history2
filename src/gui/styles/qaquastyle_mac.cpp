@@ -12,6 +12,7 @@
 **
 ****************************************************************************/
 
+#include <qabstractspinbox.h>
 #include <qaquastyle_mac.h>
 #include <qapplication.h>
 #include <qcheckbox.h>
@@ -22,7 +23,6 @@
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qlist.h>
-#include <qlistbox.h>
 #include <qmainwindow.h>
 #include <qmenubar.h>
 #include <qprogressbar.h>
@@ -168,12 +168,12 @@ bool QAquaAnimate::addWidget(QWidget *w)
     if(static_cast<QPushButton*>(w) == d->defaultButton || d->progressBars.contains(static_cast<QProgressBar*>(w)))
         return false;
 
-    if(QPushButton *btn = ::qt_cast<QPushButton *>(w)) {
+    if(QPushButton *btn = qt_cast<QPushButton *>(w)) {
         btn->installEventFilter(this);
         if(btn->isDefault() || (btn->autoDefault() && btn->hasFocus()))
             startAnimate(AquaPushButton, btn);
         return true;
-    } else if(QProgressBar *pb = ::qt_cast<QProgressBar *>(w)) {
+    } else if(QProgressBar *pb = qt_cast<QProgressBar *>(w)) {
         pb->installEventFilter(this);
         startAnimate(AquaProgressBar, pb);
         return true;
@@ -184,10 +184,10 @@ void QAquaAnimate::removeWidget(QWidget *w)
 {
     if(focusWidget() == w)
         setFocusWidget(0);
-    QPushButton *btn = ::qt_cast<QPushButton *>(w);
+    QPushButton *btn = qt_cast<QPushButton *>(w);
     if(btn && btn == d->defaultButton) {
         stopAnimate(AquaPushButton, btn);
-    } else if(::qt_cast<QProgressBar *>(w)) {
+    } else if(qt_cast<QProgressBar *>(w)) {
         stopAnimate(AquaProgressBar, static_cast<QProgressBar *>(w));
     }
 }
@@ -292,7 +292,7 @@ bool QAquaAnimate::eventFilter(QObject * o, QEvent * e)
             setFocusWidget(w);
     }
     //animate
-    if(QProgressBar *pb = ::qt_cast<QProgressBar *>(o)) {
+    if(QProgressBar *pb = qt_cast<QProgressBar *>(o)) {
         switch (e->type()) {
         default:
             break;
@@ -303,7 +303,7 @@ bool QAquaAnimate::eventFilter(QObject * o, QEvent * e)
         case QEvent::Hide:
             d->progressBars.removeAll(pb);
         }
-    } else if(QPushButton *btn = ::qt_cast<QPushButton *>(o)) {
+    } else if(QPushButton *btn = qt_cast<QPushButton *>(o)) {
         switch (e->type()) {
         default:
             break;
@@ -357,7 +357,7 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
         while (!top->isTopLevel() && !top->testWFlags(Qt::WSubWindow))
             top = top->parentWidget();
 #ifndef QT_NO_MAINWINDOW
-        if(::qt_cast<QMainWindow *>(top)) {
+        if(qt_cast<QMainWindow *>(top)) {
             QWidget *central = static_cast<QMainWindow *>(top)->centerWidget();
             for (const QWidget *par = w; par; par = par->parentWidget()) {
                 if(par == central) {
@@ -370,7 +370,7 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
         }
 #endif
         if(top && (w->width() < top->width() - 30 || w->height() < top->height() - 40)) {
-            if(QComboBox *cmb = ::qt_cast<QComboBox *>(w)) {
+            if(QComboBox *cmb = qt_cast<QComboBox *>(w)) {
                 if(cmb->isEditable())
                     w = cmb->lineEdit();
             }
@@ -389,7 +389,7 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
 
 bool QAquaAnimate::focusable(const QWidget *w) const
 {
-    QMacStyle *macStyle = ::qt_cast<QMacStyle *>(&w->style());
+    QMacStyle *macStyle = qt_cast<QMacStyle *>(&w->style());
     QMacStyle::FocusRectPolicy fp = macStyle ? macStyle->focusRectPolicy(w)
                                    : QMacStyle::FocusDefault;
     if(fp == QMacStyle::FocusEnabled)
@@ -397,12 +397,14 @@ bool QAquaAnimate::focusable(const QWidget *w) const
     else if(fp == QMacStyle::FocusDisabled)
         return false;
     return (w && !w->isTopLevel() && w->parentWidget() &&
-            (/*::qt_cast<QSpinWidget *>(w) || ::qt_cast<QDateTimeEdit *>(w)
-            ||*/ ::qt_cast<QComboBox *>(w)|| ::qt_cast<QListBox *>(w) || w->inherits("QListView")             || (::qt_cast<QLineEdit *>(w) /*&& ::qt_cast<QSpinWidget *>(w->parentWidget())*/)
-//           || (w->inherits("QTextEdit") && wstatic_cast<const QTextEdit *>(w)->isReadOnly())
-             || (::qt_cast<QFrame *>(w) && ::qt_cast<QLineEdit *>(w)
+            (qt_cast<QAbstractSpinBox *>(w) || qt_cast<QComboBox *>(w)
+#ifdef QT_COMPAT
+              || w->inherits("QListBox") || w->inherits("QListView") 
+#endif
+//           || (w->inherits("QTextEdit") && static_cast<const QTextEdit *>(w)->isReadOnly())
+             || (qt_cast<QFrame *>(w) && qt_cast<QLineEdit *>(w)
                  && (static_cast<const QFrame *>(w)->frameStyle() != QFrame::NoFrame
-                     || ::qt_cast<QComboBox *>(w->parentWidget())))));
+                     || qt_cast<QComboBox *>(w->parentWidget())))));
 }
 
 #if defined(QMAC_QAQUASTYLE_SIZE_CONSTRAIN) || defined(DEBUG_SIZE_CONSTRAINT)
@@ -423,7 +425,7 @@ static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSiz
     }
 
 #ifndef QT_NO_MAINWINDOW
-    if(::qt_cast<QDockWindow *>(widg->topLevelWidget()) || getenv("QWIDGET_ALL_SMALL")) {
+    if(qt_cast<QDockWindow *>(widg->topLevelWidget()) || getenv("QWIDGET_ALL_SMALL")) {
         //if(small.width() != -1 || small.height() != -1)
             return QAquaSizeSmall;
     } else if(getenv("QWIDGET_ALL_MINI")) {
@@ -507,27 +509,27 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         return ret;
 
     if(ct == QStyle::CT_CustomBase && widg) {
-        if(::qt_cast<QPushButton *>(widg))
+        if(qt_cast<QPushButton *>(widg))
             ct = QStyle::CT_PushButton;
-        else if(::qt_cast<QRadioButton *>(widg))
+        else if(qt_cast<QRadioButton *>(widg))
             ct = QStyle::CT_RadioButton;
-        else if(::qt_cast<QCheckBox *>(widg))
+        else if(qt_cast<QCheckBox *>(widg))
             ct = QStyle::CT_CheckBox;
-        else if(::qt_cast<QComboBox *>(widg))
+        else if(qt_cast<QComboBox *>(widg))
             ct = QStyle::CT_ComboBox;
-        else if(::qt_cast<QComboBox *>(widg))
+        else if(qt_cast<QComboBox *>(widg))
             ct = QStyle::CT_ToolButton;
-        else if(::qt_cast<QSlider *>(widg))
+        else if(qt_cast<QSlider *>(widg))
             ct = QStyle::CT_Slider;
-        else if(::qt_cast<QProgressBar *>(widg))
+        else if(qt_cast<QProgressBar *>(widg))
             ct = QStyle::CT_ProgressBar;
-        else if(::qt_cast<QLineEdit *>(widg))
+        else if(qt_cast<QLineEdit *>(widg))
             ct = QStyle::CT_LineEdit;
         else if(widg->inherits("QHeader"))
             ct = QStyle::CT_Header;
-        else if(::qt_cast<QMenuBar *>(widg) || widg->inherits("Q3MenuBar"))
+        else if(qt_cast<QMenuBar *>(widg) || widg->inherits("Q3MenuBar"))
             ct = QStyle::CT_MenuBar;
-        else if(::qt_cast<QSizeGrip *>(widg))
+        else if(qt_cast<QSizeGrip *>(widg))
             ct = QStyle::CT_SizeGrip;
         else
             return ret;
@@ -709,7 +711,7 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, QStyle::ContentsType
           mini  = qt_aqua_get_known_size(ct, widg, szHint, QAquaSizeMini);
     bool guess_size = false;
     QAquaWidgetSize ret = QAquaSizeUnknown;
-    QMacStyle *macStyle = ::qt_cast<QMacStyle *>(&widg->style());
+    QMacStyle *macStyle = qt_cast<QMacStyle *>(&widg->style());
     if(macStyle) {
         QMacStyle::WidgetSizePolicy wsp = macStyle->widgetSizePolicy(widg);
         if(wsp == QMacStyle::SizeDefault)

@@ -44,7 +44,6 @@
 #include <qregexp.h>
 #include <qrubberband.h>
 #include <qscrollbar.h>
-#include <qscrollview.h>
 #include <qslider.h>
 #include <qspinbox.h>
 #include <qsplitter.h>
@@ -52,6 +51,7 @@
 #include <qtabbar.h>
 #include <qtoolbutton.h>
 #include <qtoolbar.h>
+#include <qviewport.h>
 
 extern QRegion qt_mac_convert_mac_region(RgnHandle rgn);
 extern QRegion qt_mac_convert_mac_region(HIShapeRef shape);
@@ -346,7 +346,7 @@ void QMacStyleQD::polish(QApplication* app)
 void QMacStyleQD::polish(QWidget* w)
 {
     QPixmap *bgPixmap = w->palette().brush(w->backgroundRole()).pixmap();
-    if(!w->isTopLevel() && ::qt_cast<QSplitter*>(w) == 0
+    if(!w->isTopLevel() && qt_cast<QSplitter*>(w) == 0
        && bgPixmap && qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap()
        && bgPixmap->serialNumber() == qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap()->serialNumber()) {
         // w->setBackgroundOrigin(QWidget::AncestorOrigin); // I currently do nothing.
@@ -354,10 +354,10 @@ void QMacStyleQD::polish(QWidget* w)
     d->addWidget(w);
 
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
-    if(w->parentWidget() && ::qt_cast<QGroupBox*>(w->parentWidget())
+    if(w->parentWidget() && qt_cast<QGroupBox*>(w->parentWidget())
             && !w->testAttribute(Qt::WA_SetPalette)
             && w->parentWidget()->parentWidget()
-            && ::qt_cast<QGroupBox*>(w->parentWidget()->parentWidget())) {
+            && qt_cast<QGroupBox*>(w->parentWidget()->parentWidget())) {
         QPalette pal = w->palette();
         QPixmap px(200, 200, 32);
         QColor pc(Qt::black);
@@ -377,12 +377,12 @@ void QMacStyleQD::polish(QWidget* w)
 #endif
 
     if(QSysInfo::MacintoshVersion >= QSysInfo::MV_JAGUAR) {
-        if(::qt_cast<QGroupBox*>(w))
+        if(qt_cast<QGroupBox*>(w))
             w->setAttribute(Qt::WA_ContentsPropagated, true);
     }
-    if(QLineEdit *lined = ::qt_cast<QLineEdit*>(w)) {
+    if(QLineEdit *lined = qt_cast<QLineEdit*>(w)) {
 #if 0
-        if(::qt_cast<QComboBox*>(w->parentWidget()))
+        if(qt_cast<QComboBox*>(w->parentWidget()))
             lined->setFrameStyle(QFrame::LineEditPanel | QFrame::Sunken);
         SInt32 frame_size;
         GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
@@ -391,14 +391,14 @@ void QMacStyleQD::polish(QWidget* w)
         Q_UNUSED(lined);
 //# warning "Do we need to replace this with something else for the new QLineEdit? --Sam"
 #endif
-    } else if(QDialogButtons *btns = ::qt_cast<QDialogButtons*>(w)) {
+    } else if(QDialogButtons *btns = qt_cast<QDialogButtons*>(w)) {
         if(btns->buttonText(QDialogButtons::Help).isNull())
             btns->setButtonText(QDialogButtons::Help, "?");
-    } else if(QToolButton *btn = ::qt_cast<QToolButton*>(w)) {
+    } else if(QToolButton *btn = qt_cast<QToolButton*>(w)) {
         btn->setAutoRaise(false);
     }
 #ifndef QT_NO_MAINWINDOW
-    else if(QToolBar *bar = ::qt_cast<QToolBar*>(w)) {
+    else if(QToolBar *bar = qt_cast<QToolBar*>(w)) {
         QLayout *layout = bar->layout();
         layout->setSpacing(0);
         layout->setMargin(0);
@@ -411,17 +411,17 @@ void QMacStyleQD::polish(QWidget* w)
         label->setWindowOpacity(0.95);
         /*
 #ifdef QT_COMPAT
-    } else if(Q3PopupMenu *popup = ::qt_cast<Q3PopupMenu*>(w)) {
+    } else if(Q3PopupMenu *popup = qt_cast<Q3PopupMenu*>(w)) {
         popup->setMargin(0);
         popup->setLineWidth(0);
         w->setWindowOpacity(0.95);
 #endif
 */
-    } else if(QRubberBand *rubber = ::qt_cast<QRubberBand*>(w)) {
+    } else if(QRubberBand *rubber = qt_cast<QRubberBand*>(w)) {
         rubber->setWindowOpacity(0.75);
-    } else if(QMenu *menu = ::qt_cast<QMenu*>(w)) {
+    } else if(QMenu *menu = qt_cast<QMenu*>(w)) {
         menu->setWindowOpacity(0.95);
-    } else if(QTitleBar *tb = ::qt_cast<QTitleBar *>(w)) {
+    } else if(QTitleBar *tb = qt_cast<QTitleBar *>(w)) {
 //        w->font().setPixelSize(10);
         tb->setAutoRaise(true);
     }
@@ -431,19 +431,19 @@ void QMacStyleQD::polish(QWidget* w)
 void QMacStyleQD::unPolish(QWidget* w)
 {
     d->removeWidget(w);
-    QToolButton *btn = ::qt_cast<QToolButton*>(w);
+    QToolButton *btn = qt_cast<QToolButton*>(w);
     if(btn) {
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise(true);
         /*
 #ifdef QT_COMPAT
-    } else if(::qt_cast<Q3PopupMenu*>(w)) {
+    } else if(qt_cast<Q3PopupMenu*>(w)) {
         w->setWindowOpacity(1.0);
 #endif
 */
-    } else if(QRubberBand *rubber = ::qt_cast<QRubberBand*>(w)) {
+    } else if(QRubberBand *rubber = qt_cast<QRubberBand*>(w)) {
         rubber->setWindowOpacity(1.0);
-    } else if(::qt_cast<QMenu*>(w)) {
+    } else if(qt_cast<QMenu*>(w)) {
         w->setWindowOpacity(1.0);
     }
 }
@@ -513,9 +513,13 @@ int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_DefaultFrameWidth:
 #ifndef QT_NO_MAINWINDOW
         if(widget && (widget->isTopLevel() || !widget->parentWidget()
-                || (::qt_cast<QMainWindow*>(widget->parentWidget())
+                || (qt_cast<QMainWindow*>(widget->parentWidget())
                    && static_cast<QMainWindow *>(widget->parentWidget())->centerWidget() == widget))
-                && (::qt_cast<QScrollView*>(widget) || widget->inherits("QWorkspaceChild")))
+                && (qt_cast<QViewport *>(widget)
+#ifdef QT_COMPAT
+                    || widget->inherits("QScrollView")
+#endif
+                    || widget->inherits("QWorkspaceChild")))
             ret = 0;
         else
 #endif
@@ -710,7 +714,11 @@ int QMacStyleQD::styleHint(StyleHint sh, const QWidget *w,
         break;
     case SH_ScrollView_FrameOnlyAroundContents:
         if(w && (w->isTopLevel() || !w->parentWidget() || w->parentWidget()->isTopLevel())
-            && (::qt_cast<QScrollView*>(w) || w->inherits("QWorkspaceChild")))
+            && (qt_cast<QViewport *>(w)
+#ifdef QT_COMPAT
+                || w->inherits("QScrollView")
+#endif
+                || w->inherits("QWorkspaceChild")))
             ret = true;
         else
             ret = QWindowsStyle::styleHint(sh, w, opt, d);
@@ -1002,7 +1010,7 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt)) {
             static_cast<QMacStyleQDPainter *>(p)->setport();
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
-            if (w && ::qt_cast<QGroupBox *>(w->parentWidget()))
+            if (w && qt_cast<QGroupBox *>(w->parentWidget()))
                 DrawThemeSecondaryGroup(qt_glb_mac_rect(frame->rect, p), kThemeStateActive);
             else
 #endif
@@ -2129,7 +2137,7 @@ QSize QMacStyleQD::sizeFromContents(ContentsType ct, const QStyleOption *opt, co
                 w += maxpmw + 6;
             // add space for a check. All items have place for a check too.
             w += 20;
-            if (widget && ::qt_cast<QComboBox*>(widget->parentWidget())
+            if (widget && qt_cast<QComboBox*>(widget->parentWidget())
                     && widget->parentWidget()->isVisible()) {
                 QStyleOptionComboBox cmb(0);
                 cmb.init(widget->parentWidget());
