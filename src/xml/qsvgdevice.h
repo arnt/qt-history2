@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.h#3 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.h#4 $
 **
 ** Definition of the QSVGDevice class
 **
@@ -50,6 +50,7 @@
 #include "qpaintdevice.h"
 #include "qrect.h"
 #include "qdom.h"
+#include "qmap.h"
 #endif // QT_H
 
 #ifndef QT_NO_SVG
@@ -75,9 +76,11 @@ protected:
 
 private:
     bool play( const QDomNode &node, QPainter *p );
+    QColor parseColor( const QString &col );
 
     QRect brect;	    		// bounding rectangle
     QDomDocument doc;			// document tree
+    QMap<QString,QString> colMap;	// recognized color keyword names
 
     QSVGDevicePrivate *d;
 };

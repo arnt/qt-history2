@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#6 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#7 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -41,6 +41,8 @@
 
 #include "qpaintdevicemetrics.h"
 #include "qfile.h"
+#include "qmap.h"
+#include "qregexp.h"
 
 class QSVGDevicePrivate {
 };
@@ -96,6 +98,12 @@ bool QSVGDevice::load( const QString &file )
 
 bool QSVGDevice::play( QPainter *painter )
 {
+    if ( !painter ) {
+#if defined(QT_CHECK_RANGE)
+	Q_ASSERT( painter );
+#endif	
+	return FALSE;
+    }
     if ( doc.isNull() ) {
 	qWarning( "QSVGDevice::play: No SVG data set." );
 	return FALSE;
@@ -179,6 +187,68 @@ bool QSVGDevice::cmd ( int, QPainter*, QPDevCmdParam * )
 bool QSVGDevice::play( const QDomNode & /*node*/, QPainter * /*p*/ )
 {
     return FALSE; //###
+}
+
+/*!
+  \internal
+  Parses a CSS2-compatible color specification. Either a keyword or a numerical
+  RGB specification like #ff00ff or rgb(255,0,50%).
+ */
+
+QColor QSVGDevice::parseColor( const QString &col )
+{
+    static const struct ColorTable {
+	const char *name;
+	const char *rgb;
+    } coltab[] = {
+	{ "black",   "#000000" },
+	{ "silver",  "#c0c0c0" },
+	{ "gray",    "#808080" },
+	{ "white",   "#ffffff" },
+	{ "maroon",  "#800000" },
+	{ "red",     "#ff0000" },
+	{ "purple",  "#800080" },
+	{ "fuchsia", "#ff00ff" },
+	{ "green",   "#008000" },
+	{ "lime",    "#00ff00" },
+	{ "olive",   "#808000" },
+	{ "yellow",  "#ffff00" },
+	{ "navy",    "#000080" },
+	{ "blue",    "#0000ff" },
+	{ "teal",    "#008080" },
+	{ "aqua",    "#00ffff" },
+	// ### the latest spec has more
+	{ 0,         0         }
+    };
+    
+    // initialize color map on first use
+    if ( colMap.isEmpty() ) {
+	const struct ColorTable *t = coltab;
+	while ( t->name ) {
+	    colMap.insert( t->name, t->rgb );
+	    t++;
+	}
+    }
+
+    // a keyword ?
+    if ( colMap.contains ( col ) )
+	return QColor( colMap[ col ] );
+    // in rgb(r,g,b) form ?
+    QString c = col;
+    c.replace( QRegExp( "\\s*" ), "" );
+    QRegExp reg( "^rgb\\((\\d+)(%?),(\\d+)(%?),(\\d+)(%?)\\)$" );
+    if ( reg.search( c ) >= 0 ) {
+	int comp[3];
+	for ( int i = 0; i < 3; i++ ) {
+	    comp[ i ] = reg.cap( 2*i+1 ).toInt();
+	    if ( !reg.cap( 2*i+2 ).isEmpty() )		// percentage ?
+		comp[ i ] = int((double(255*comp[ i ])/100.0));
+	}
+	return QColor( comp[ 0 ], comp[ 1 ], comp[ 2 ] );
+    }
+
+    // check for predefined Qt color objects, #RRGGBB and #RGB
+    return QColor( col );
 }
 
 #endif // QT_NO_SVG
