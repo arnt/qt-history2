@@ -83,7 +83,10 @@
 
 // #define QT_NO_XINERAMA
 #ifndef QT_NO_XINERAMA
+// Why isn't Xinerama C++ified?
+extern "C" {
 #  include <X11/extensions/Xinerama.h>
+}
 #endif // QT_NO_XINERAMA
 
 #if !defined(XlibSpecificationRelease)
