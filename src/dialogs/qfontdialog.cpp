@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#7 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#8 $
 **
 ** C++ file skeleton
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#8 $");
 
 
 struct QFontDialogPrivate
@@ -179,16 +179,18 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 
     mainGrid->addMultiCellWidget( sampleStuff, 4, 4, 2, 4 );
 
-    d->buttonLayout = new QBoxLayout( QBoxLayout::Down, 0 );
-    mainGrid->addLayout( d->buttonLayout, 1, 6 );
+    QWidget *buttonBox = new QWidget( this, "button box" );
+    mainGrid->addMultiCellWidget( buttonBox, 1, 4, 6, 6 );
 
-    d->ok = new QPushButton( "OK", this, "accept font selection" );
+    d->buttonLayout = new QBoxLayout( buttonBox, QBoxLayout::Down, 0 );
+
+    d->ok = new QPushButton( "OK", buttonBox, "accept font selection" );
     connect( d->ok, SIGNAL(clicked()), SLOT(accept()) );
     d->buttonLayout->addWidget( d->ok, 0, AlignLeft );
 
     d->buttonLayout->addSpacing( 6 );
 
-    d->cancel = new QPushButton( "Cancel", this, "cancel" );
+    d->cancel = new QPushButton( "Cancel", buttonBox, "cancel" );
     connect( d->cancel, SIGNAL(clicked()), SLOT(reject()) );
     d->buttonLayout->addWidget( d->cancel, 0, AlignLeft );
 
@@ -418,6 +420,7 @@ void QFontDialog::updateGeometry()
     br.setWidth( QCOORD_MAX );
     d->script->setMaximumSize( br );
 
+    d->buttonLayout->activate();
     d->effectsLayout->activate();
     d->sampleLayout->activate();
     d->sampleEditLayout->activate();
