@@ -3,7 +3,7 @@
  * For conditions of distribution and use, see copyright notice in zlib.h 
  */
 
-/* @(#) $Id: //depot/qt/main/src/3rdparty/zlib/crc32.c#1 $ */
+/* @(#) $Id: //depot/qt/main/src/3rdparty/zlib/crc32.c#2 $ */
 
 #include "zlib.h"
 
@@ -139,10 +139,7 @@ const uLongf * ZEXPORT get_crc_table()
 #define DO8(buf)  DO4(buf); DO4(buf);
 
 /* ========================================================================= */
-uLong ZEXPORT crc32(crc, buf, len)
-    uLong crc;
-    const Bytef *buf;
-    uInt len;
+uLong ZEXPORT crc32(uLong crc, const Bytef *buf, uInt len)
 {
     if (buf == Z_NULL) return 0L;
 #ifdef DYNAMIC_CRC_TABLE

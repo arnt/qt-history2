@@ -1322,7 +1322,7 @@ png_read_png(png_structp png_ptr, png_infop info_ptr,
       info_ptr->free_me |= PNG_FREE_ROWS;
 #endif
       for (row = 0; row < (int)info_ptr->height; row++)
-         info_ptr->row_pointers[row] = png_malloc(png_ptr,
+         info_ptr->row_pointers[row] = (unsigned char *)png_malloc(png_ptr,
             png_get_rowbytes(png_ptr, info_ptr));
    }
 

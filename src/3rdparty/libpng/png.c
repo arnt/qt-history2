@@ -20,11 +20,11 @@ typedef version_1_0_9 Your_png_h_is_not_version_1_0_9;
 
 #ifdef PNG_USE_GLOBAL_ARRAYS
 /* png_libpng_ver was changed to a function in version 1.0.5c */
-const char png_libpng_ver[18] = "1.0.9";
+extern "C" const char png_libpng_ver[18] = "1.0.9";
 
 /* png_sig was changed to a function in version 1.0.5c */
 /* Place to hold the signature string for a PNG file. */
-const png_byte FARDATA png_sig[8] = {137, 80, 78, 71, 13, 10, 26, 10};
+extern "C" const png_byte FARDATA png_sig[8] = {137, 80, 78, 71, 13, 10, 26, 10};
 
 /* Invoke global declarations for constant strings for known chunk types */
 PNG_IHDR;
@@ -52,20 +52,20 @@ PNG_zTXt;
 /* arrays to facilitate easy interlacing - use pass (0 - 6) as index */
 
 /* start of interlace block */
-const int FARDATA png_pass_start[] = {0, 4, 0, 2, 0, 1, 0};
+extern "C" const int FARDATA png_pass_start[] = {0, 4, 0, 2, 0, 1, 0};
 
 /* offset to next interlace block */
-const int FARDATA png_pass_inc[] = {8, 8, 4, 4, 2, 2, 1};
+extern "C" const int FARDATA png_pass_inc[] = {8, 8, 4, 4, 2, 2, 1};
 
 /* start of interlace block in the y direction */
-const int FARDATA png_pass_ystart[] = {0, 0, 4, 0, 2, 0, 1};
+extern "C" const int FARDATA png_pass_ystart[] = {0, 0, 4, 0, 2, 0, 1};
 
 /* offset to next interlace block in the y direction */
-const int FARDATA png_pass_yinc[] = {8, 8, 8, 4, 4, 2, 2};
+extern "C" const int FARDATA png_pass_yinc[] = {8, 8, 8, 4, 4, 2, 2};
 
 /* width of interlace block (used in assembler routines only) */
 #ifdef PNG_HAVE_ASSEMBLER_COMBINE_ROW
-const int FARDATA png_pass_width[] = {8, 4, 4, 2, 2, 1, 1};
+extern "C" const int FARDATA png_pass_width[] = {8, 4, 4, 2, 2, 1, 1};
 #endif
 
 /* Height of interlace block.  This is not currently used - if you need
@@ -74,10 +74,10 @@ const int FARDATA png_pass_height[] = {8, 8, 4, 4, 2, 2, 1};
 */
 
 /* Mask to determine which pixels are valid in a pass */
-const int FARDATA png_pass_mask[] = {0x80, 0x08, 0x88, 0x22, 0xaa, 0x55, 0xff};
+extern "C" const int FARDATA png_pass_mask[] = {0x80, 0x08, 0x88, 0x22, 0xaa, 0x55, 0xff};
 
 /* Mask to determine which pixels to overwrite while displaying */
-const int FARDATA png_pass_dsp_mask[]
+extern "C" const int FARDATA png_pass_dsp_mask[]
    = {0xff, 0x0f, 0xff, 0x33, 0xff, 0x55, 0xff};
 
 #endif
