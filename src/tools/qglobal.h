@@ -1519,6 +1519,21 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
 #  endif
 #endif
 
+// tell gcc to use it's built-in methods for some common functions.
+// GCC does do this automatically in release mode for C code, but not for C++
+#if defined(QT_NO_DEBUG) && defined(Q_CC_GNU)
+#  define qMemCopy __builtin_memcpy
+#  define qMemSet __builtin_memset
+#  define memcpy __builtin_memcpy
+#  define memset __builtin_memset
+#  define strcmp __builtin_strcmp
+#  define strcpy __builtin_strcpy
+#  define strncmp __builtin_strncmp
+#  define strncpy __builtin_strncpy
+#  define strlen __builtin_strlen
+#endif
+
+
 #endif // __cplusplus
 
 #endif // QGLOBAL_H
