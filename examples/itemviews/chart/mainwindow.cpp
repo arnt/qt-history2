@@ -32,24 +32,15 @@ MainWindow::MainWindow()
     QAction *quitAction = fileMenu->addAction(tr("E&xit"));
     quitAction->setShortcut(QKeySequence(tr("Ctrl+Q")));
 
-    QMenu *windowsMenu = new QMenu(tr("&Windows"), this);
-    pieWindowAction = windowsMenu->addAction("&Pie Chart");
-    pieWindowAction->setCheckable(true);
-
     setupModel();
     setupViews();
 
     connect(openAction, SIGNAL(triggered()), this, SLOT(openFile()));
     connect(saveAction, SIGNAL(triggered()), this, SLOT(saveFile()));
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-    connect(windowsMenu, SIGNAL(aboutToShow()), this, SLOT(updateWindowsMenu()));
-    connect(pieWindowAction, SIGNAL(checked(bool)),
-            pieChart, SLOT(setVisible(bool)));
 
     menuBar()->addMenu(fileMenu);
-    menuBar()->addMenu(windowsMenu);
     statusBar();
-    setCentralWidget(table);
 
     openFile(":/Charts/qtdata.cht");
 
@@ -59,15 +50,16 @@ MainWindow::MainWindow()
 
 void MainWindow::setupModel()
 {
-    model = new QStandardItemModel(8, 3, this);
+    model = new QStandardItemModel(8, 2, this);
+    model->setHeaderData(0, Qt::Horizontal, tr("Label"));
+    model->setHeaderData(1, Qt::Horizontal, tr("Quantity"));
 }
 
 void MainWindow::setupViews()
 {
-    table = new QTableView(this);
-
-    pieChart = new PieView;
-    pieChart->setWindowTitle(tr("Pie Chart"));
+    QSplitter *splitter = new QSplitter(this);
+    QTableView *table = new QTableView(splitter);
+    pieChart = new PieView(splitter);
 
     table->setModel(model);
     pieChart->setModel(model);
@@ -75,6 +67,8 @@ void MainWindow::setupViews()
     QItemSelectionModel *selectionModel = new QItemSelectionModel(model);
     table->setSelectionModel(selectionModel);
     pieChart->setSelectionModel(selectionModel);
+
+    setCentralWidget(splitter);
 }
 
 void MainWindow::openFile(const QString &path)
@@ -103,18 +97,19 @@ void MainWindow::openFile(const QString &path)
                     model->insertRows(row, 1, QModelIndex());
 
                     QStringList pieces = line.split(",", QString::SkipEmptyParts);
-                    for (int column = 0; column < qMin(3, pieces.count()); ++column) {
-                        QModelIndex index = model->index(row, column,
-                            QModelIndex());
-                        model->setData(index, pieces[column]);
-                    }
+                    model->setData(model->index(row, 0, QModelIndex()),
+                                   pieces.value(0));
+                    model->setData(model->index(row, 1, QModelIndex()),
+                                   pieces.value(1));
+                    model->setData(model->index(row, 0, QModelIndex()),
+                                   QColor(pieces.value(2)),
+                                   QAbstractItemModel::DecorationRole);
                     row++;
                 }
             } while (!line.isEmpty());
 
             file.close();
-            if (!pieChart->isExplicitlyHidden())
-                pieChart->raise();
+            statusBar()->showMessage(tr("Loaded %1").arg(fileName), 2000);
         }
     }
 }
@@ -133,21 +128,18 @@ void MainWindow::saveFile()
 
                 QStringList pieces;
 
-                for (int column = 0; column < 3; ++column) {
-                    QModelIndex index = model->index(row, column,
-                        QModelIndex());
-                    pieces.append(model->data(index,
-                        QAbstractItemModel::DisplayRole).toString());
-                }
+                pieces.append(model->data(model->index(row, 0, QModelIndex()),
+                    QAbstractItemModel::DisplayRole).toString());
+                pieces.append(model->data(model->index(row, 1, QModelIndex()),
+                    QAbstractItemModel::DisplayRole).toString());
+                pieces.append(model->data(model->index(row, 0, QModelIndex()),
+                    QAbstractItemModel::DecorationRole).toString());
+
                 stream << pieces.join(",") << "\n";
             }
         }
 
         file.close();
+        statusBar()->showMessage(tr("Saved %1").arg(fileName), 2000);
     }
-}
-
-void MainWindow::updateWindowsMenu()
-{
-    pieWindowAction->setChecked(!pieChart->isExplicitlyHidden());
 }

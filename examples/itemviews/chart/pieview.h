@@ -39,19 +39,23 @@ protected slots:
     void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
 
 protected:
-    bool isIndexHidden(const QModelIndex &index) const;
-    void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command);
-    QRect visualRectForSelection(const QItemSelection &selection) const;
-    QRect itemRect(const QModelIndex &item) const;
-    int horizontalOffset() const;
-    int verticalOffset() const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
                            Qt::KeyboardModifiers modifiers);
+
+    QRect visualRectForSelection(const QItemSelection &selection) const;
+
+    int horizontalOffset() const;
+    int verticalOffset() const;
+
+    bool isIndexHidden(const QModelIndex &index) const;
+
+    void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command);
 
     void paintEvent(QPaintEvent *event);
     void resizeEvent(QResizeEvent *event);
 
 private:
+    QRect itemRect(const QModelIndex &item) const;
     int rows(const QModelIndex &index = QModelIndex()) const;
     void updateGeometries();
 

@@ -18,7 +18,6 @@
 class QAbstractItemModel;
 class QAbstractItemView;
 class QItemSelectionModel;
-class QTableView;
 
 class MainWindow : public QMainWindow
 {
@@ -30,7 +29,6 @@ public:
 private slots:
     void openFile(const QString &path = QString());
     void saveFile();
-    void updateWindowsMenu();
 
 private:
     void setupModel();
@@ -38,9 +36,7 @@ private:
 
     QAbstractItemModel *model;
     QAbstractItemView *pieChart;
-    QAction *pieWindowAction;
     QItemSelectionModel *selectionModel;
-    QTableView *table;
 };
 
 #endif

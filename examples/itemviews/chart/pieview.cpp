@@ -97,13 +97,6 @@ QRect PieView::itemRect(const QModelIndex &index) const
                          pieSize, int(itemHeight));
         case 1:
             return viewport()->rect();
-        case 2:
-            itemHeight = QFontMetrics(viewOptions().font).height();
-
-            return QRect(totalSize, int(margin + listItem*itemHeight),
-                         int(itemHeight),
-                         int(itemHeight)).unite(QRect(margin, margin,
-                         pieSize, pieSize));
         }
 
     }
@@ -270,22 +263,22 @@ QModelIndex PieView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     QModelIndex current = currentIndex();
 
     switch (cursorAction) {
-    case MoveLeft:
-    case MoveUp:
-        if (current.row() > 0)
-            return model()->index(current.row() - 1, 0, rootIndex());
-        else
-            return model()->index(0, 0, rootIndex());
-        break;
-    case MoveRight:
-    case MoveDown:
-        if (current.row() < rows(current) - 1)
-            return model()->index(current.row() + 1, 0, rootIndex());
-        else
-            return model()->index(rows(current) - 1, 0, rootIndex());
-        break;
-    default:
-        return current;
+        case MoveLeft:
+        case MoveUp:
+            if (current.row() > 0)
+                return model()->index(current.row() - 1, 0, rootIndex());
+            else
+                return model()->index(0, 0, rootIndex());
+            break;
+        case MoveRight:
+        case MoveDown:
+            if (current.row() < rows(current) - 1)
+                return model()->index(current.row() + 1, 0, rootIndex());
+            else
+                return model()->index(rows(current) - 1, 0, rootIndex());
+            break;
+        default:
+            return current;
     }
 }
 
@@ -330,25 +323,6 @@ QRect PieView::visualRectForSelection(const QItemSelection &selection) const
     return firstRect.unite(lastRect);
 }
 
-/*
-    Render the data from the table model as a pie chart.
-    We interpret the data in the following way:
-
-    Column  0       1       2
-            Title   Amount  Color
-
-    The figure is always drawn with the chart on the left and the key on
-    the right. This means that we must try and obtain an area that is wider
-    than it is tall. We do this by imposing a particular aspect ratio on
-    the chart and applying it to the available vertical space. This ensures
-    that we always obtain the maximum horizontal space for the aspect ratio
-    used.
-    We also apply fixed size margin around the figure.
-
-    We use logical coordinates to draw the chart and key, and position them
-    on the view using viewports.
-*/
-
 void PieView::paintEvent(QPaintEvent *event)
 {
     QItemSelectionModel *selections = selectionModel();
@@ -388,8 +362,9 @@ void PieView::paintEvent(QPaintEvent *event)
             if (value > 0.0) {
                 double angle = 360*value/totalValue;
 
-                QModelIndex colorIndex = model()->index(row, 2, rootIndex());
-                QColor color = QColor(model()->data(colorIndex).toString());
+                QModelIndex colorIndex = model()->index(row, 0, rootIndex());
+                QColor color = QColor(model()->data(colorIndex,
+                    QAbstractItemModel::DecorationRole).toString());
 
                 painter.setBrush(QBrush(color));
                 painter.drawPie(0, 0, pieSize, pieSize, int(startAngle*16),
@@ -415,10 +390,10 @@ void PieView::paintEvent(QPaintEvent *event)
 
             if (value > 0.0) {
                 QModelIndex labelIndex = model()->index(row, 0, rootIndex());
-                QModelIndex colorIndex = model()->index(row, 2, rootIndex());
 
                 QString label = model()->data(labelIndex).toString();
-                QColor color = QColor(model()->data(colorIndex).toString());
+                QColor color = QColor(model()->data(labelIndex,
+                    QAbstractItemModel::DecorationRole).toString());
 
                 painter.setBrush(QBrush(color));
                 painter.setPen(textPen);
