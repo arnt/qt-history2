@@ -77,92 +77,77 @@ clean:
 
 qbitarry.o: qbitarry.h qstring.h qarray.h qgarray.h qshared.h qglobal.h
 qbitarry.o: /usr/include/string.h /usr/include/features.h
-qbitarry.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-qbitarry.o: qdstream.h qiodev.h
+qbitarry.o: /usr/include/sys/cdefs.h qdstream.h qiodev.h
 qbuffer.o: qbuffer.h qiodev.h qglobal.h qstring.h qarray.h qgarray.h
 qbuffer.o: qshared.h /usr/include/string.h /usr/include/features.h
-qbuffer.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-qbuffer.o: /usr/include/stdlib.h /usr/include/errno.h
-qbuffer.o: /usr/include/linux/errno.h /usr/local/lib/gcc-include/float.h
+qbuffer.o: /usr/include/sys/cdefs.h /usr/include/stdlib.h
+qbuffer.o: /usr/include/errno.h /usr/include/linux/errno.h
 qcollect.o: qcollect.h qglobal.h
 qdatetm.o: qdatetm.h qstring.h qarray.h qgarray.h qshared.h qglobal.h
 qdatetm.o: /usr/include/string.h /usr/include/features.h
-qdatetm.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-qdatetm.o: qdstream.h qiodev.h /usr/include/stdio.h /usr/include/libio.h
-qdatetm.o: /usr/include/time.h
+qdatetm.o: /usr/include/sys/cdefs.h qdstream.h qiodev.h /usr/include/stdio.h
+qdatetm.o: /usr/include/libio.h /usr/include/time.h
 qdstream.o: qdstream.h qiodev.h qglobal.h qstring.h qarray.h qgarray.h
 qdstream.o: qshared.h /usr/include/string.h /usr/include/features.h
-qdstream.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-qdstream.o: /usr/include/stdio.h /usr/include/libio.h /usr/include/ctype.h
-qdstream.o: /usr/include/stdlib.h /usr/include/errno.h
-qdstream.o: /usr/include/linux/errno.h /usr/local/lib/gcc-include/float.h
+qdstream.o: /usr/include/sys/cdefs.h /usr/include/stdio.h
+qdstream.o: /usr/include/libio.h /usr/include/ctype.h /usr/include/stdlib.h
+qdstream.o: /usr/include/errno.h /usr/include/linux/errno.h
 qfile.o: qfile.h qiodev.h qglobal.h qstring.h qarray.h qgarray.h qshared.h
 qfile.o: /usr/include/string.h /usr/include/features.h
-qfile.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-qfile.o: /usr/include/stdio.h /usr/include/libio.h qdatetm.h
-qfile.o: /usr/include/sys/types.h /usr/include/linux/types.h
+qfile.o: /usr/include/sys/cdefs.h /usr/include/stdio.h /usr/include/libio.h
+qfile.o: qdatetm.h /usr/include/sys/types.h /usr/include/linux/types.h
 qfile.o: /usr/include/sys/stat.h /usr/include/linux/stat.h
-qfile.o: /usr/include/fcntl.h /usr/include/linux/fcntl.h /usr/include/errno.h
-qfile.o: /usr/include/linux/errno.h /usr/local/lib/gcc-include/limits.h
-qfile.o: /usr/local/lib/gcc-include/syslimits.h
+qfile.o: /usr/include/fcntl.h /usr/include/gnu/types.h
+qfile.o: /usr/include/linux/fcntl.h /usr/include/errno.h
+qfile.o: /usr/include/linux/errno.h /usr/include/limits.h
 qgarray.o: qgarray.h qshared.h qglobal.h /usr/include/string.h
 qgarray.o: /usr/include/features.h /usr/include/sys/cdefs.h
-qgarray.o: /usr/local/lib/gcc-include/stddef.h /usr/include/stdlib.h
-qgarray.o: /usr/include/errno.h /usr/include/linux/errno.h
-qgarray.o: /usr/local/lib/gcc-include/float.h
+qgarray.o: /usr/include/stdlib.h /usr/include/errno.h
+qgarray.o: /usr/include/linux/errno.h
 qgdict.o: qgdict.h qcollect.h qglobal.h qlist.h qglist.h qstring.h qarray.h
 qgdict.o: qgarray.h qshared.h /usr/include/string.h /usr/include/features.h
-qgdict.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-qgdict.o: qdstream.h qiodev.h /usr/include/ctype.h
+qgdict.o: /usr/include/sys/cdefs.h qdstream.h qiodev.h /usr/include/ctype.h
 qglist.o: qglist.h qcollect.h qglobal.h qgvector.h qdstream.h qiodev.h
 qglobal.o: qglobal.h /usr/include/stdio.h /usr/include/libio.h
-qglobal.o: /usr/include/sys/cdefs.h /usr/include/features.h
-qglobal.o: /usr/local/lib/gcc-include/stdarg.h /usr/include/stdlib.h
-qglobal.o: /usr/local/lib/gcc-include/stddef.h /usr/include/errno.h
-qglobal.o: /usr/include/linux/errno.h /usr/local/lib/gcc-include/float.h
+qglobal.o: /usr/include/stdlib.h /usr/include/features.h
+qglobal.o: /usr/include/sys/cdefs.h /usr/include/errno.h
+qglobal.o: /usr/include/linux/errno.h
 qgvector.o: qgvector.h qcollect.h qglobal.h qglist.h qstring.h qarray.h
 qgvector.o: qgarray.h qshared.h /usr/include/string.h /usr/include/features.h
-qgvector.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-qgvector.o: qdstream.h qiodev.h /usr/include/stdlib.h /usr/include/errno.h
-qgvector.o: /usr/include/linux/errno.h /usr/local/lib/gcc-include/float.h
+qgvector.o: /usr/include/sys/cdefs.h qdstream.h qiodev.h
+qgvector.o: /usr/include/stdlib.h /usr/include/errno.h
+qgvector.o: /usr/include/linux/errno.h
 qiodev.o: qiodev.h qglobal.h
 qipcomm.o: qipcomm.h qtcomm.h qiodev.h qglobal.h qbuffer.h qstring.h qarray.h
 qipcomm.o: qgarray.h qshared.h /usr/include/string.h /usr/include/features.h
-qipcomm.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-qipcomm.o: /usr/include/stdlib.h /usr/include/errno.h
-qipcomm.o: /usr/include/linux/errno.h /usr/local/lib/gcc-include/float.h
+qipcomm.o: /usr/include/sys/cdefs.h /usr/include/stdlib.h
+qipcomm.o: /usr/include/errno.h /usr/include/linux/errno.h
 qnpipe.o: qnpipe.h qtcomm.h qiodev.h qglobal.h qbuffer.h qstring.h qarray.h
 qnpipe.o: qgarray.h qshared.h /usr/include/string.h /usr/include/features.h
-qnpipe.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
+qnpipe.o: /usr/include/sys/cdefs.h
 qres.o: qres.h qstrvec.h qstring.h qarray.h qgarray.h qshared.h qglobal.h
 qres.o: /usr/include/string.h /usr/include/features.h
-qres.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-qres.o: qvector.h qgvector.h qcollect.h qdstream.h qiodev.h qstrlist.h
-qres.o: qlist.h qglist.h qdict.h qgdict.h /usr/include/stdio.h
-qres.o: /usr/include/libio.h /usr/include/ctype.h
+qres.o: /usr/include/sys/cdefs.h qvector.h qgvector.h qcollect.h qdstream.h
+qres.o: qiodev.h qstrlist.h qlist.h qglist.h qdict.h qgdict.h
+qres.o: /usr/include/stdio.h /usr/include/libio.h /usr/include/ctype.h
 qstring.o: qstring.h qarray.h qgarray.h qshared.h qglobal.h
 qstring.o: /usr/include/string.h /usr/include/features.h
-qstring.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-qstring.o: qdstream.h qiodev.h /usr/include/stdio.h /usr/include/libio.h
-qstring.o: /usr/local/lib/gcc-include/stdarg.h /usr/include/stdlib.h
-qstring.o: /usr/include/errno.h /usr/include/linux/errno.h
-qstring.o: /usr/local/lib/gcc-include/float.h /usr/include/ctype.h
+qstring.o: /usr/include/sys/cdefs.h qdstream.h qiodev.h /usr/include/stdio.h
+qstring.o: /usr/include/libio.h /usr/include/stdlib.h /usr/include/errno.h
+qstring.o: /usr/include/linux/errno.h /usr/include/ctype.h
 qtcomm.o: qtcomm.h qiodev.h qglobal.h qbuffer.h qstring.h qarray.h qgarray.h
 qtcomm.o: qshared.h /usr/include/string.h /usr/include/features.h
-qtcomm.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
+qtcomm.o: /usr/include/sys/cdefs.h
 qtcpcomm.o: qtcpcomm.h qipcomm.h qtcomm.h qiodev.h qglobal.h qbuffer.h
 qtcpcomm.o: qstring.h qarray.h qgarray.h qshared.h /usr/include/string.h
 qtcpcomm.o: /usr/include/features.h /usr/include/sys/cdefs.h
-qtcpcomm.o: /usr/local/lib/gcc-include/stddef.h
 qtracefs.o: qtracefs.h
 qtstream.o: qtstream.h qiodev.h qglobal.h /usr/include/stdio.h
-qtstream.o: /usr/include/libio.h /usr/include/sys/cdefs.h
-qtstream.o: /usr/include/features.h qfile.h qstring.h qarray.h qgarray.h
-qtstream.o: qshared.h /usr/include/string.h
-qtstream.o: /usr/local/lib/gcc-include/stddef.h /usr/include/ctype.h
+qtstream.o: /usr/include/libio.h qfile.h qstring.h qarray.h qgarray.h
+qtstream.o: qshared.h /usr/include/string.h /usr/include/features.h
+qtstream.o: /usr/include/sys/cdefs.h /usr/include/ctype.h
 qtstream.o: /usr/include/stdlib.h /usr/include/errno.h
-qtstream.o: /usr/include/linux/errno.h /usr/local/lib/gcc-include/float.h
+qtstream.o: /usr/include/linux/errno.h
 qudpcomm.o: qudpcomm.h qipcomm.h qtcomm.h qiodev.h qglobal.h qbuffer.h
 qudpcomm.o: qstring.h qarray.h qgarray.h qshared.h /usr/include/string.h
 qudpcomm.o: /usr/include/features.h /usr/include/sys/cdefs.h
-qudpcomm.o: /usr/local/lib/gcc-include/stddef.h
