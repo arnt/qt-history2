@@ -403,7 +403,14 @@ int QTDSResult::size()
 
 int QTDSResult::numRowsAffected()
 {
+#ifdef DBNTWIN32
+    if ( dbiscount( d->dbproc ) ) {
+	return DBCOUNT( d->dbproc );
+    }
+    return -1;
+#else
     return DBCOUNT( d->dbproc );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////
