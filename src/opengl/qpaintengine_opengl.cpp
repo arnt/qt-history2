@@ -80,6 +80,7 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
 				       | PixmapScale
 		                       | AlphaFill
 		                       | AlphaPixmap
+                                       | PainterPaths
  				       | LinearGradientFill
  				       | FillAntialiasing
  				       | LineAntialiasing
@@ -673,7 +674,6 @@ static void qgl_draw_poly(const QPointF *points, int pointCount)
 #endif
 }
 
-
 void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
     if(!pointCount)
@@ -700,6 +700,51 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
     }
 }
 
+void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
+{
+    if (path.isEmpty())
+        return;
+
+    if (d->cbrush.style() != Qt::NoBrush) {
+        QPolygonF poly = path.toFillPolygon();
+        QPen oldPen = d->cpen;
+        d->cpen.setStyle(Qt::NoPen);
+        drawPolygon(poly.data(), poly.size(),
+                    path.fillRule() == Qt::OddEvenFill ? OddEvenMode : WindingMode);
+        d->cpen = oldPen;
+    }
+
+    if (d->cpen.style() != Qt::NoPen) {
+        QPainterPathStroker stroker;
+        stroker.setDashPattern(d->cpen.style());
+        stroker.setCapStyle(d->cpen.capStyle());
+        stroker.setJoinStyle(d->cpen.joinStyle());
+        QPainterPath stroke;
+        qreal width = d->cpen.widthF();
+        QPolygonF poly;
+        if (width == 0) {
+            stroker.setWidth(1);
+            stroke = stroker.createStroke(path);
+            if (stroke.isEmpty())
+                return;
+            poly = stroke.toFillPolygon();
+        } else {
+            stroker.setWidth(width);
+            // stroker.setCurveThreshold(width / (2 * 10 * d->matrix.m11() * d->matrix.m22())); // ## fix
+            stroke = stroker.createStroke(path);
+            if (stroke.isEmpty())
+                return;
+            poly = stroke.toFillPolygon();
+        }
+        QPen oldPen = d->cpen;
+        QBrush oldBrush = d->cbrush;
+        d->cpen.setStyle(Qt::NoPen);
+        d->cbrush.setColor(d->cpen.color());
+        drawPolygon(poly.data(), poly.size(), WindingMode);
+        d->cpen = oldPen;
+        d->cbrush = oldBrush;
+    }
+}
 
 void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                                     Qt::PixmapDrawingMode blend)
