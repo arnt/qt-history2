@@ -415,6 +415,17 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << "name = \"" << grp << "\";" << "\n"
 	  << "\t\t" << "};" << "\n";
     }
+    if(project->first("TEMPLATE") == "app") { //BUNDLE RESOURCES
+	QString grp("Bundle Resources"), key = keyFor(grp);
+	project->variables()["QMAKE_PBX_BUILDPHASES"].append(key);
+	t << "\t\t" << key << " = {" << "\n"
+	  << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
+	  << "\t\t\t" << "files = (" << "\n"
+	  << "\t\t\t" << ");" << "\n"
+	  << "\t\t\t" << "isa = PBXResourcesBuildPhase;" << "\n"
+	  << "\t\t\t" << "name = \"" << grp << "\";" << "\n"
+	  << "\t\t" << "};" << "\n";
+    }
 
     //DUMP EVERYTHING THAT TIES THE ABOVE TOGETHER
     //PRODUCTS
@@ -479,7 +490,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    //copy the actual target
 	    sht << "OUT_TARG=\"" << targ << "\"\n" 
 		<< "[ -z \"$BUILD_ROOT\" ] || OUT_TARG=\"${BUILD_ROOT}/${OUT_TARG}\"" << endl;
-	    sht << "[ \"$OUT_TARG\" = \"" << dstdir << targ << "\" ] || " 
+	    sht << "[ \"$OUT_TARG\" = \"" 
+		<< (dstdir.isEmpty() ? QDir::currentDirPath() + QDir::separator(): dstdir) << targ << "\" ] || " 
+		<< "[ \"$OUT_TARG\" = \"" << targ << "\" ] || " 
 		<< "cp -r \"$OUT_TARG\" " << "\"" << dstdir << targ << "\"" << endl;
 	    //rename as a framework
 	    if(project->first("TEMPLATE") == "lib" && project->isActiveConfig("frameworklib"))
@@ -526,7 +539,10 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << "refType = 3;" << "\n";
     if(project->first("TEMPLATE") == "app") {
 	t << "\t\t\t" << "isa = PBXApplicationReference;" << "\n"
-	<< "\t\t\t" << "path = " << project->first("QMAKE_ORIG_TARGET") << ".app;" << "\n";
+	  << "\t\t\t" << "name = " << project->first("QMAKE_ORIG_TARGET") << ".app;" << "\n"
+	  << "\t\t\t" << "path = \"" 
+	  << (!project->isEmpty("DESTDIR") ? project->first("DESTDIR") : QDir::currentDirPath()) 
+	  << ".app\";" << "\n";
     } else {
 	QString lib = project->first("QMAKE_ORIG_TARGET");
 	if(project->isActiveConfig("staticlib")) {
