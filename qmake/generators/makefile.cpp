@@ -488,7 +488,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
  				        //Since it is include, no need to link it in as well
 					project->variables()["_SRCMOC"].append((*it));
 					l.remove(it);
-				    } else if(findMocSource(fqn) != fn) {
+				    } else if(findMocSource(fqn) != Option::fixPathToTargetOS(fn)) {
 					/* Not really a very good test, but this will at least avoid confusion
 					   if it really does happen (since tmake/qmake previously didn't even 
 					   allow this the test is mostly accurate) */
@@ -1268,8 +1268,7 @@ MakefileGenerator::write()
 	prl += Option::prl_ext;
 	if(!project->isEmpty("DESTDIR"))
 	    prl.prepend(var("DESTDIR"));
-	QString local_prl = fileFixify(prl, QDir::currentDirPath(), Option::output_dir);
-	fixEnvVariables(local_prl);
+	QString local_prl = Option::fixPathToLocalOS(fileFixify(prl, QDir::currentDirPath(), Option::output_dir));
 	QFile ft(local_prl);
 	if(ft.open(IO_WriteOnly)) {
 	    project->variables()["ALL_DEPS"].append(prl);
