@@ -16,10 +16,10 @@
 
 <table cellpadding=2 cellspacing=1 border=0 width=100% bgcolor=#e5e5e5>
 <tr bgcolor=white><td colspan=3 align=center>
-\if defined(commercial_edition)
+\if defined(commercial)
 <h1>Qt Reference Documentation (Commercial Edition)</h1><br></td></tr>
 \endif
-\if !defined(commercial_edition)
+\if !defined(commercial)
 <h1>Qt Reference Documentation (Free Edition)</h1></td>
 <tr bgcolor=white><td colspan=3 align=center><br><b>Notice</b>: This edition is
 for the development of \link freeeditions.html Free and Open

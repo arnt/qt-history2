@@ -22,7 +22,7 @@
 
 \title Network Module
 
-\if defined(commercial_edition)
+\if defined(commercial)
 This module is part of the \link commercialeditions.html Qt Enterprise Edition \endlink.
 \endif
 
