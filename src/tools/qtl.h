@@ -47,7 +47,7 @@ public:
 
 template <class InputIterator, class OutputIterator>
 inline OutputIterator qCopy(InputIterator _begin, InputIterator _end,
-			     OutputIterator _dest)
+			    OutputIterator _dest)
 {
     while(_begin != _end)
 	*_dest++ = *_begin++;
@@ -276,6 +276,22 @@ template <class Container, class T>
 bool qBinarySearch(const Container &c, const T &value)
 {
     return qBinarySearch(c.begin(), c.end(), value);
+}
+
+// ### 4.0: rename qDeleteAll() qDelete() once we got rid of qDelete() in qglobal.h
+template <class InputIterator>
+void qDeleteAll(InputIterator b, InputIterator e)
+{
+    while (b != e) {
+	delete *b;
+        ++b;
+    }
+}
+
+template <class Container>
+void qDeleteAll(const Container &c)
+{
+    return qDeleteAll(c.begin(), c.end());
 }
 
 
