@@ -330,7 +330,7 @@ void QFontPrivate::load( QFont::Script script )
     for ( ; ! engine && it != end; ++it ) {
 	req.family = *it;
 
-	engine = QFontDatabase::findFont( script, req, screen );
+	engine = QFontDatabase::findFont( script, this, req );
 	if ( engine ) {
 	    if ( engine->type() != QFontEngine::Box )
 		break;

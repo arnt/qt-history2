@@ -472,15 +472,16 @@ static inline HFONT systemFont()
 
 
 static
-QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
+QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
+			 const QFontDef &request,
 			 QtFontFamily *family, QtFontFoundry *foundry,
 			 QtFontStyle *style )
 {
     Q_UNUSED( script );
     Q_UNUSED( foundry );
     Q_UNUSED( style );
-    // ########
-    QPaintDevice *paintdevice = 0;
+
+    QPaintDevice *paintdevice = fp->paintdevice;
 
     HDC hdc;
     if ( paintdevice ) {
@@ -495,9 +496,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 
     HFONT hfont = 0;
 
-#if 0
-    // ###### 
-    if ( request.mask & QFontDef::RawMode ) {			// will choose a stock font
+    if ( fp->mask & QFontPrivate::RawMode ) {			// will choose a stock font
 	int f, deffnt;
 	// ### why different?
 	if ( (qt_winver & Qt::WV_NT_based) || qt_winver == Qt::WV_32s )
@@ -533,9 +532,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 	    hfont = systemFont();
 	}
 	stockFont = TRUE;
-    } else 
-#endif
-    {
+    } else {
 
 	int hint = FF_DONTCARE;
 	switch ( request.styleHint ) {
@@ -568,13 +565,11 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 	lf.lfWidth		= 0;
 	lf.lfEscapement	= 0;
 	lf.lfOrientation	= 0;
-	if ( request.weight == 50 )
+	if ( style->key.weight == 50 )
 	    lf.lfWeight = FW_DONTCARE;
 	else
-	    lf.lfWeight = (request.weight*900)/99;
-	lf.lfItalic		= request.italic;
-//	lf.lfUnderline	= request.underline;
-//	lf.lfStrikeOut	= request.strikeOut;
+	    lf.lfWeight = (style->key.weight*900)/99;
+	lf.lfItalic		= (style->key.italic || style->key.oblique);
 	lf.lfCharSet	= DEFAULT_CHARSET;
 
 	int strat = OUT_DEFAULT_PRECIS;

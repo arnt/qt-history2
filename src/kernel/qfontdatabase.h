@@ -113,12 +113,12 @@ public:
 
 #endif // QT_NO_COMPAT
 
+private:
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
-    static QFontEngine *findFont( QFont::Script script, const QFontDef &request,
-				  int x11Screen );
+    static QFontEngine *findFont( QFont::Script script, const QFontPrivate *fp,
+	const QFontDef &request );
 #endif // Q_WS_X11
 
-private:
     static void createDatabase();
 
     static void parseFontName(const QString &, QString &, QString &);

@@ -521,11 +521,11 @@ static inline bool canRender( QFontEngine *fe, const QChar &sample )
 
 #ifndef Q_WS_MAC
 static
-QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
+QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp, const QFontDef &request,
 			 QtFontFamily *family, QtFontFoundry *foundry,
 			 QtFontStyle *style, QtFontSize *size
 #ifdef Q_WS_X11
-			 , QtFontEncoding *encoding, int screen
+			 , QtFontEncoding *encoding
 #endif
 			 );
 #endif
@@ -736,14 +736,13 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
     \internal
 */
 QFontEngine *
-QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int screen )
+QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp, 
+			 const QFontDef &request )
 {
-    Q_UNUSED( screen );
-
     if ( !db )
 	initializeDb();
 
-    QFontCache::Key key( request, script, screen );
+    QFontCache::Key key( request, script, fp->screen );
     QFontEngine *fe = QFontCache::instance->findEngine( key );
     if ( fe ) return fe;
 
@@ -758,7 +757,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int scre
 
 #ifdef FONT_MATCH_DEBUG
     qDebug( "QFontDatabase::findFont\n"
-	    "  REQUEST:\n"
+	    "  request:\n"
 	    "    family: %s [%s], script: %d (%s)\n"
 	    "    weight: %d, italic: %d\n"
 	    "    stretch: %d\n"
@@ -869,9 +868,9 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int scre
 	    );
 #endif // FONT_MATCH_DEBUG
 
-    fe = loadEngine( script, request, best_family, best_foundry, best_style
+    fe = loadEngine( script, fp, request, best_family, best_foundry, best_style
 #ifdef Q_WS_X11
-		     , best_size, best_encoding, screen
+		     , best_size, best_encoding
 #endif
 		     );
 
@@ -912,7 +911,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int scre
 
 #if defined(Q_WS_X11)
 	fe->fontDef.pointSize     = int( double( fe->fontDef.pixelSize ) * 720.0 /
-					 QPaintDevice::x11AppDpiY( screen ) );
+					 QPaintDevice::x11AppDpiY( fp->screen ) );
 #elif defined(Q_WS_WIN)
 	fe->fontDef.pointSize     = int( double( fe->fontDef.pixelSize ) * 720.0 /
 					 GetDeviceCaps(shared_dc,LOGPIXELSY) );
