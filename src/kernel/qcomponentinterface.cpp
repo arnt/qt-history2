@@ -14,7 +14,7 @@ public:
 */
 
 QUnknownInterface::QUnknownInterface( QUnknownInterface *p )
-: children( 0 ), refcount( 0 ), par( p ), appInterface( 0 )
+: children( 0 ), par( p ), refcount( 0 ), appInterface( 0 )
 {   
     if ( par )
 	par->insertChild( this );
