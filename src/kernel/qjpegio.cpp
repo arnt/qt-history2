@@ -178,6 +178,20 @@ inline my_jpeg_source_mgr::my_jpeg_source_mgr(QImageIO* iioptr)
 
 
 static
+void scaleSize( int &reqW, int &reqH, int imgW, int imgH, QImage::ScaleMode mode )
+{
+    if ( mode == QImage::ScaleFree )
+        return;
+    int t1 = imgW * reqH;
+    int t2 = reqW * imgH;
+    if (( mode == QImage::ScaleMin && (t1 > t2) ) || ( mode == QImage::ScaleMax && (t1 < t2) ))
+	reqH = t2 / imgW;
+    else
+        reqW = t1 / imgH;
+}
+
+
+static
 void read_jpeg_image(QImageIO* iio)
 {
     QImage image;
@@ -203,37 +217,116 @@ void read_jpeg_image(QImageIO* iio)
 
 	(void) jpeg_start_decompress(&cinfo);
 
-	if ( cinfo.output_components == 3 || cinfo.output_components == 4) {
-	    image.create( cinfo.output_width, cinfo.output_height, 32 );
-	} else if ( cinfo.output_components == 1 ) {
-	    image.create( cinfo.output_width, cinfo.output_height, 8, 256 );
-	    for (int i=0; i<256; i++)
-		image.setColor(i, qRgb(i,i,i));
-	} else {
-	    // Unsupported format
-	}
 
-	if (!image.isNull()) {
-	    uchar** lines = image.jumpTable();
-	    while (cinfo.output_scanline < cinfo.output_height)
-		(void) jpeg_read_scanlines(&cinfo,
-			    lines + cinfo.output_scanline,
-			    cinfo.output_height);
-	    (void) jpeg_finish_decompress(&cinfo);
-	}
+//#define EXPERIMENTAL_JPEG_SCALING
 
-	if ( cinfo.output_components == 3 ) {
-	    // Expand 24->32 bpp.
-	    for (uint j=0; j<cinfo.output_height; j++) {
-		uchar *in = image.scanLine(j) + cinfo.output_width * 3;
-		QRgb *out = (QRgb*)image.scanLine(j);
+#ifdef EXPERIMENTAL_JPEG_SCALING
+	QString params = iio->parameters();
+	params.simplifyWhiteSpace();
+	int sWidth = 0, sHeight = 0;
+	char sModeStr[1024] = "";
+	QImage::ScaleMode sMode; 
 
-		for (uint i=cinfo.output_width; i--; ) {
-		    in-=3;
-		    out[i] = qRgb(in[0], in[1], in[2]);
+	if ( params.contains( "Scale" ) ) {
+	    sscanf( params.latin1(), "Scale( %i, %i, %s )", &sWidth, &sHeight, sModeStr );
+
+	    QString sModeQStr( sModeStr );
+	    if ( sModeQStr == "ScaleFree" ) {
+		sMode = QImage::ScaleFree;
+	    } else if ( sModeQStr == "ScaleMin" ) {
+		sMode = QImage::ScaleMin;
+	    } else if ( sModeQStr == "ScaleMax" ) {
+		sMode = QImage::ScaleMax;
+	    } else {
+		qDebug("read_jpeg_image: invalid scale mode \"%s\", see QImage::ScaleMode documentation", sModeStr);
+		sMode = QImage::ScaleFree;
+	    }
+
+//	    qDebug( "Parameters ask to scale the image to %i x %i ScaleMode: %s", sWidth, sHeight, sModeStr );
+	    scaleSize( sWidth, sHeight, cinfo.output_width, cinfo.output_height, sMode );
+//	    qDebug( "Scaling the jpeg to %i x %i", sWidth, sHeight, sModeStr );
+
+	    if ( cinfo.output_components == 3 || cinfo.output_components == 4) {
+		image.create( sWidth, sHeight, 32 );
+	    } else if ( cinfo.output_components == 1 ) {
+		image.create( sWidth, sHeight, 8, 256 );
+		for (int i=0; i<256; i++)
+		    image.setColor(i, qRgb(i,i,i));
+	    } else {
+		// Unsupported format
+	    }
+
+	    if (!image.isNull()) {
+		QImage tmpImage( cinfo.output_width, 1, 32 );
+		uchar** inLines = tmpImage.jumpTable();
+		uchar** outLines = image.jumpTable();
+		while (cinfo.output_scanline < cinfo.output_height) {
+		    int outputLine = sHeight * cinfo.output_scanline / cinfo.output_height;
+		    (void) jpeg_read_scanlines(&cinfo, inLines, 1);
+		    if ( cinfo.output_components == 3 ) {
+			uchar *in = inLines[0];
+			QRgb *out = (QRgb*)outLines[outputLine];
+			for (uint i=0; i<cinfo.output_width; i++ ) {
+// ### Only scaling down an image works, I don't think scaling up will work at the moment
+// ### An idea I have to make this a smooth scale is to progressively add the pixel values up
+// When scaling down, multiple values are being over drawn in to the output buffer.
+// Instead, a weighting based on the distance the line or pixel is from the output pixel determines
+// the weight of it when added to the output buffer. At present it is a non-smooth scale which is
+// inefficently implemented, it still uncompresses all the jpeg, an optimization for progressive
+// jpegs could be made if scaling by say 50% or some other special cases
+			    out[sWidth * i / cinfo.output_width] = qRgb( in[0], in[1], in[2] );
+			    in += 3;
+			}
+		    } else {
+// ### Need to test the case where the jpeg is greyscale, need some black and white jpegs to test
+// this code. (also only scales down and probably won't scale to a larger size)
+			uchar *in = inLines[0];
+			uchar *out = outLines[outputLine];
+			for (uint i=0; i<cinfo.output_width; i++ ) {
+			    out[sWidth * i / cinfo.output_width] = in[i];
+			}
+		    }
+		}
+		(void) jpeg_finish_decompress(&cinfo);
+	    }
+
+	} else
+#endif // EXPERIMENTAL_JPEG_SCALING
+	{
+
+	    if ( cinfo.output_components == 3 || cinfo.output_components == 4) {
+		image.create( cinfo.output_width, cinfo.output_height, 32 );
+	    } else if ( cinfo.output_components == 1 ) {
+		image.create( cinfo.output_width, cinfo.output_height, 8, 256 );
+		for (int i=0; i<256; i++)
+		    image.setColor(i, qRgb(i,i,i));
+	    } else {
+		// Unsupported format
+	    }
+
+	    if (!image.isNull()) {
+		uchar** lines = image.jumpTable();
+		while (cinfo.output_scanline < cinfo.output_height)
+		    (void) jpeg_read_scanlines(&cinfo,
+				lines + cinfo.output_scanline,
+				cinfo.output_height);
+		(void) jpeg_finish_decompress(&cinfo);
+	    }
+
+	    if ( cinfo.output_components == 3 ) {
+		// Expand 24->32 bpp.
+		for (uint j=0; j<cinfo.output_height; j++) {
+		    uchar *in = image.scanLine(j) + cinfo.output_width * 3;
+		    QRgb *out = (QRgb*)image.scanLine(j);
+
+		    for (uint i=cinfo.output_width; i--; ) {
+			in-=3;
+			out[i] = qRgb(in[0], in[1], in[2]);
+		    }
 		}
 	    }
-	}
+        }
+
 	iio->setImage(image);
 	iio->setStatus(0);
     }
