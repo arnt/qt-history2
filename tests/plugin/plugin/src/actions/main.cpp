@@ -29,7 +29,7 @@ public:
     QAction* create( const QString &actionname, QObject* parent = 0 );
 
     QCleanUpHandler<QAction>* actions;
-    QClientInterface* requestClientInterface( const QCString& );
+    QStrList queryInterfaceList() const;
 
 public slots:
     void onOpenModalDialog();
@@ -39,18 +39,18 @@ protected:
     QAction* actionTurnOnText;
 
 private:
-    QClientInterface* mwIface;
+    QClientInterface* cIface;
 };
 
 TestInterface::TestInterface()
 {
-    mwIface = 0;
+    cIface = 0;
     actions = new QCleanUpHandler<QAction>;
 }
 
 TestInterface::~TestInterface()
 {
-    delete mwIface;
+    delete cIface;
     delete actions;
 }
 
@@ -60,6 +60,15 @@ QStringList TestInterface::featureList()
 
     list << "Open Dialog";
     list << "Show Text";
+
+    return list;
+}
+
+QStrList TestInterface::queryInterfaceList() const
+{
+    QStrList list;
+
+    list.append( "PlugMainWindowInterface" );
 
     return list;
 }
@@ -83,16 +92,16 @@ QAction* TestInterface::create( const QString& actionname, QObject* parent )
 void TestInterface::onOpenModalDialog()
 {
     QVariant obj;
-    mwIface->requestProperty( "mainWindow", obj );
+    clientInterface()->requestProperty( "mainWindow", obj );
     QDialog dialog( (QWidget*)obj.toUInt(), 0, TRUE );
     dialog.show();
 }
 
 void TestInterface::turnOnText()
 {
-    if ( mwIface ) {
+    if ( clientInterface() ) {
 	QVariant onOff;
-	mwIface->requestProperty( "usesTextLabel", onOff );
+	clientInterface()->requestProperty( "usesTextLabel", onOff );
 	bool on = onOff.toBool();
 	if ( !on ) {
 	    actionTurnOnText->setText( "Hide Text" );
@@ -101,16 +110,8 @@ void TestInterface::turnOnText()
 	    actionTurnOnText->setText( "Show Text" );
 	    actionTurnOnText->setMenuText( "&Show Text" );
 	}
-	mwIface->requestSetProperty( "usesTextLabel", !on );
+	clientInterface()->requestSetProperty( "usesTextLabel", !on );
     }
-}
-
-QClientInterface* TestInterface::requestClientInterface( const QCString& request )
-{
-    if ( QString(request) == QString(queryPlugInInterface()) )
-	return mwIface ? mwIface : ( mwIface = new QClientInterface );
-    else
-	return 0;
 }
 
 #if defined(__cplusplus )
