@@ -823,7 +823,7 @@ bool QSocket::at( Offset index )
     // readyRead() signal since this might cause a bad recursive behavior.
     // We can test for this condition by looking at the
     // sn_read_alreadyCalled flag.
-    if ( d->rsn && QSocketPrivate::sn_read_alreadyCalled.findRef(this) == -1 )
+    if ( d->rsn && !QSocketPrivate::sn_read_alreadyCalled.contains(this) )
 	d->rsn->setEnabled( TRUE );
     return TRUE;
 }
@@ -952,7 +952,7 @@ Q_LONG QSocket::readBlock( char *data, Q_ULONG maxlen )
     // readyRead() signal since this might cause a bad recursive behavior.
     // We can test for this condition by looking at the
     // sn_read_alreadyCalled flag.
-    if ( d->rsn && QSocketPrivate::sn_read_alreadyCalled.findRef(this) == -1 )
+    if ( d->rsn && !QSocketPrivate::sn_read_alreadyCalled.contains(this) )
 	d->rsn->setEnabled( TRUE );
     return maxlen;
 }
@@ -1030,7 +1030,7 @@ int QSocket::getch()
 	// readyRead() signal since this might cause a bad recursive behavior.
 	// We can test for this condition by looking at the
 	// sn_read_alreadyCalled flag.
-	if ( d->rsn && QSocketPrivate::sn_read_alreadyCalled.findRef(this) == -1 )
+	if ( d->rsn && !QSocketPrivate::sn_read_alreadyCalled.contains(this) )
 	    d->rsn->setEnabled( TRUE );
 	return c;
     }
