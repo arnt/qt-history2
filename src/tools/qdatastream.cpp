@@ -29,7 +29,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-// BEING REVISED: warwick
+// REVISED: warwick
 /*!
   \class QDataStream qdatastream.h
 
@@ -134,11 +134,13 @@
 	return XXX_BAD_FILE_TOO_OLD;
     if ( version > 123 )
 	return XXX_BAD_FILE_TOO_NEW;
+    if ( version <= 110 )
+	s.setVersion(1);
 
     // Read the data
     s >> [lots of interesting data];
-    if ( version > 110 )
-	s >> [data new in XXX version 1.1];
+    if ( version > 120 )
+	s >> [data new in XXX version 1.2];
     s >> [other interesting data];
   \endcode
 
@@ -182,7 +184,7 @@ QDataStream::QDataStream()
 }
 
 /*!
-  Constructs a data stream that uses the IO device \e d.
+  Constructs a data stream that uses the IO device \a d.
 
   \sa setDevice(), device()
 */
@@ -251,7 +253,7 @@ QDataStream::~QDataStream()
 
 /*!
   void QDataStream::setDevice(QIODevice *d )
-  Sets the IO device to \e d.
+  Sets the IO device to \a d.
   \sa device(), unsetDevice()
 */
 
@@ -301,14 +303,16 @@ void QDataStream::unsetDevice()
 
 /*!
   \fn int QDataStream::byteOrder() const
-  Returns the current byte order setting.
+  Returns the current byte order setting - either \c BigEndian or
+  \c LittleEndian.
+
   \sa setByteOrder()
 */
 
 /*!
-  Sets the serialization byte order to \e bo.
+  Sets the serialization byte order to \a bo.
 
-  The \e bo parameter can be \c QDataStream::BigEndian or
+  The \a bo parameter can be \c QDataStream::BigEndian or
   \c QDataStream::LittleEndian.
 
   The default setting is big endian.  We recommend leaving this setting unless
@@ -341,7 +345,7 @@ void QDataStream::setByteOrder( int bo )
   consists of printable characters (7 bit ASCII).
 
   We recommend enabling printable data only for debugging purposes
-  (it is slower and creates bigger output).
+  (it is slower and creates larger output).
 */
 
 
@@ -541,11 +545,11 @@ QDataStream &QDataStream::operator>>( double &f )
 
 
 /*!
-  Reads the '\0'-terminated string \e s from the stream and returns
+  Reads the '\0'-terminated string \a s from the stream and returns
   a reference to the stream.
 
-  The string is read using readBytes(), which allocates space using \c
-  new.
+  Space for the string is allocated using \c new - the caller must
+  eventually call delete[] on the value.
 */
 
 QDataStream &QDataStream::operator>>( char *&s )
@@ -556,17 +560,17 @@ QDataStream &QDataStream::operator>>( char *&s )
 
 
 /*!
-  Reads the buffer \e s from the stream and returns a reference to the
+  Reads the buffer \a s from the stream and returns a reference to the
   stream.
 
-  The buffer \e s is allocated using \c new. Destroy it with the \c delete
-  operator.  If the length is zero or \e s cannot be allocated, \e s is
+  The buffer \a s is allocated using \c new. Destroy it with the \c delete[]
+  operator.  If the length is zero or \a s cannot be allocated, \a s is
   set to 0.
 
-  The \e l parameter will be set to the length of the buffer.
+  The \a l parameter will be set to the length of the buffer.
 
   The serialization format is an Q_UINT32 length specifier first, then the
-  data (\e length bytes).
+  data (\a l bytes).
 
   \sa readRawBytes(), writeBytes()
 */
@@ -591,10 +595,10 @@ QDataStream &QDataStream::readBytes( char *&s, uint &l )
 
 
 /*!
-  Reads \e len bytes from the stream into \e e s and returns a reference to
+  Reads \a len bytes from the stream into \a s and returns a reference to
   the stream.
 
-  The buffer \e s must be preallocated.
+  The buffer \a s must be preallocated.
 
   \sa readBytes(), QIODevice::readBlock(), writeRawBytes()
 */
@@ -786,7 +790,7 @@ QDataStream &QDataStream::operator<<( double f )
 
 
 /*!
-  Writes the '\0'-terminated string \e s to the stream and returns
+  Writes the '\0'-terminated string \a s to the stream and returns
   a reference to the stream.
 
   The string is serialized using writeBytes().
@@ -805,11 +809,11 @@ QDataStream &QDataStream::operator<<( const char *s )
 
 
 /*!
-  Writes the length specifier \e len and the buffer \e s to the stream and
+  Writes the length specifier \a len and the buffer \a s to the stream and
   returns a reference to the stream.
 
-  The \e len is serialized as an Q_UINT32, followed by \e len bytes from
-  \e s.
+  The \a len is serialized as an Q_UINT32, followed by \a len bytes from
+  \a s.
 
   \sa writeRawBytes(), readBytes()
 */
@@ -825,7 +829,7 @@ QDataStream &QDataStream::writeBytes(const char *s, uint len)
 
 
 /*!
-  Writes \e len bytes from \e s to the stream and returns a reference to the
+  Writes \a len bytes from \a s to the stream and returns a reference to the
   stream.
 
   \sa writeBytes(), QIODevice::writeBlock(), readRawBytes()
