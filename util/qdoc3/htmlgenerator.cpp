@@ -327,10 +327,10 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
             if (threeColumnEnumValueTable) {
 	        out() << "<table border=\"1\" cellpadding=\"2\" cellspacing=\"1\" width=\"100%\">\n"
                          "<tr><th width=\"25%\">Constant</th><th width=\"15%\">Value</th>"
-                         "<th width=\"60%\">Description</th></th>\n";
+                         "<th width=\"60%\">Description</th></tr>\n";
             } else {
                 out() << "<table border=\"1\" cellpadding=\"2\" cellspacing=\"1\" width=\"40%\">\n"
-                      << "<tr><th width=\"60%\">Constant</th><th width=\"40%\">Value</th></th>\n";
+                      << "<tr><th width=\"60%\">Constant</th><th width=\"40%\">Value</th></tr>\n";
             }
 	} else {
             out() << "<ol type=";
@@ -359,7 +359,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	    out() << "<tr><td valign=\"top\"><tt>"
                   << protect(plainCode(marker->markedUpEnumValue(atom->next()->string(),
                                                                  relative)))
-                  << "</tt><td align=\"center\" valign=\"top\">";
+                  << "</tt></td><td align=\"center\" valign=\"top\">";
 
             QString itemValue;
             if (relative->type() == Node::Enum) {
