@@ -1583,12 +1583,14 @@ const QString QVariant::toString() const
 */
 const QCString QVariant::toCString() const
 {
-    if ( d->typ == CString )
+    switch ( d->typ ) {
+    case CString:
 	return *((QCString*)d->value.ptr);
-    if ( d->typ == String )
+    case String:
 	return ((QString*)d->value.ptr)->latin1();
-
-    return 0;
+    default:
+	return 0;
+    }
 }
 
 
@@ -1613,23 +1615,26 @@ const QCString QVariant::toCString() const
 */
 const QStringList QVariant::toStringList() const
 {
-    if ( d->typ == StringList )
+    switch ( d->typ ) {
+    case StringList:
 	return *((QStringList*)d->value.ptr);
 #ifndef QT_NO_TEMPLATE_VARIANT
-    if ( d->typ == List ) {
-	QStringList lst;
-	QValueList<QVariant>::ConstIterator it = listBegin();
-	QValueList<QVariant>::ConstIterator end = listEnd();
-	while( it != end ) {
-	    QString tmp = (*it).toString();
-	    ++it;
-	    lst.append( tmp );
+    case List:
+	{
+	    QStringList lst;
+	    QValueList<QVariant>::ConstIterator it = listBegin();
+	    QValueList<QVariant>::ConstIterator end = listEnd();
+	    while( it != end ) {
+		QString tmp = (*it).toString();
+		++it;
+		lst.append( tmp );
+	    }
+	    return lst;
 	}
-	return lst;
-    }
 #endif
-
-    return QStringList();
+    default:
+	return QStringList();
+    }
 }
 #endif //QT_NO_STRINGLIST
 
@@ -1899,15 +1904,18 @@ const QCursor QVariant::toCursor() const
 */
 const QDate QVariant::toDate() const
 {
-    if ( d->typ == Date )
+    switch ( d->typ ) {
+    case Date:
 	return *((QDate*)d->value.ptr);
-    if ( d->typ == DateTime )
+    case DateTime:
 	return ((QDateTime*)d->value.ptr)->date();
 #ifndef QT_NO_DATESTRING
-    if ( d->typ == String )
+    case String:
 	return QDate::fromString( *((QString*)d->value.ptr), Qt::ISODate );
 #endif
-    return QDate();
+    default:
+	return QDate();
+    }
 }
 
 /*!
@@ -1921,15 +1929,18 @@ const QDate QVariant::toDate() const
 */
 const QTime QVariant::toTime() const
 {
-    if ( d->typ == Time )
+    switch ( d->typ ) {
+    case Time:
 	return *((QTime*)d->value.ptr);
-    if ( d->typ == DateTime )
+    case DateTime:
 	return ((QDateTime*)d->value.ptr)->time();
 #ifndef QT_NO_DATESTRING
-    if ( d->typ == String )
+    case String:
 	return QTime::fromString( *((QString*)d->value.ptr), Qt::ISODate );
 #endif
-    return QTime();
+    default:
+	return QTime();
+    }
 }
 
 /*!
@@ -1944,15 +1955,18 @@ const QTime QVariant::toTime() const
 */
 const QDateTime QVariant::toDateTime() const
 {
-    if ( d->typ == DateTime )
+    switch ( d->typ ) {
+    case DateTime:
 	return *((QDateTime*)d->value.ptr);
 #ifndef QT_NO_DATESTRING
-    if ( d->typ == String )
+    case String:
 	return QDateTime::fromString( *((QString*)d->value.ptr), Qt::ISODate );
 #endif
-    if ( d->typ == Date )
+    case Date:
 	return QDateTime( *((QDate*)d->value.ptr) );
-    return QDateTime();
+    default:
+	return QDateTime();
+    }
 }
 
 /*!
@@ -1995,13 +2009,16 @@ const QBitArray QVariant::toBitArray() const
 */
 const QKeySequence QVariant::toKeySequence() const
 {
-    if ( d->typ == KeySequence )
+    switch ( d->typ ) {
+    case KeySequence:
 	return *((QKeySequence*)d->value.ptr);
-    if ( d->typ == String )
+    case String:
 	return QKeySequence( toString() );
-    if ( d->typ == Int )
+    case Int:
 	return QKeySequence( toInt() );
-    return QKeySequence();
+    default:
+	return QKeySequence();
+    }
 }
 
 #endif // QT_NO_ACCEL
@@ -2032,26 +2049,29 @@ const QPen QVariant::toPen() const
 */
 int QVariant::toInt( bool * ok ) const
 {
-    if( d->typ == String )
-	return ((QString*)d->value.ptr)->toInt( ok );
-    if ( d->typ == CString )
-	return ((QCString*)d->value.ptr)->toInt( ok );
     if ( ok )
 	*ok = canCast( UInt );
-    if( d->typ == Int )
+
+    switch ( d->typ ) {
+    case String:
+	return ((QString*)d->value.ptr)->toInt( ok );
+    case CString:
+	return ((QCString*)d->value.ptr)->toInt( ok );
+    case Int:
 	return d->value.i;
-    if( d->typ == UInt )
+    case UInt:
 	return (int)d->value.u;
-    if ( d->typ == Double )
+    case Double:
 	return (int)d->value.d;
-    if ( d->typ == Bool )
+    case Bool:
 	return (int)d->value.b;
 #ifndef QT_NO_ACCEL
-    if ( d->typ == KeySequence )
+    case KeySequence:
 	return (int) *( (QKeySequence*)d->value.ptr );
 #endif
-
-    return 0;
+    default:
+	return 0;
+    }
 }
 
 /*!
@@ -2065,22 +2085,25 @@ int QVariant::toInt( bool * ok ) const
 */
 uint QVariant::toUInt( bool * ok ) const
 {
-    if( d->typ == String )
-	return ((QString*)d->value.ptr)->toUInt( ok );
-    if ( d->typ == CString )
-	return ((QCString*)d->value.ptr)->toUInt( ok );
     if ( ok )
 	*ok = canCast( UInt );
-    if( d->typ == Int )
-	return d->value.i;
-    if( d->typ == UInt )
-	return (int)d->value.u;
-    if ( d->typ == Double )
-	return (int)d->value.d;
-    if ( d->typ == Bool )
-	return (int)d->value.b;
 
-    return 0;
+    switch( d->typ ) {
+    case String:
+	return ((QString*)d->value.ptr)->toUInt( ok );
+    case CString:
+	return ((QCString*)d->value.ptr)->toUInt( ok );
+    case Int:
+	return d->value.i;
+    case UInt:
+	return (int)d->value.u;
+    case Double:
+	return (int)d->value.d;
+    case Bool:
+	return (int)d->value.b;
+    default:
+	return 0;
+    }
 }
 
 /*!
@@ -2093,16 +2116,18 @@ uint QVariant::toUInt( bool * ok ) const
 */
 bool QVariant::toBool() const
 {
-    if ( d->typ == Bool )
+    switch( d->typ ) {
+    case Bool:
 	return d->value.b;
-    if ( d->typ == Double )
+    case Double:
 	return d->value.d != 0.0;
-    if ( d->typ == Int )
+    case Int:
 	return d->value.i != 0;
-    if ( d->typ == UInt )
+    case UInt:
 	return d->value.u != 0;
-
-    return FALSE;
+    default:
+	return FALSE;
+    }
 }
 
 /*!
@@ -2116,21 +2141,25 @@ bool QVariant::toBool() const
 */
 double QVariant::toDouble( bool * ok ) const
 {
-    if( d->typ == String )
-	return ((QString*)d->value.ptr)->toDouble( ok );
-    if ( d->typ == CString )
-	return ((QCString*)d->value.ptr)->toDouble( ok );
     if ( ok )
 	*ok = canCast( Double );
-    if ( d->typ == Double )
+
+    switch ( d->typ ) {
+    case String:
+	return ((QString*)d->value.ptr)->toDouble( ok );
+    case CString:
+	return ((QCString*)d->value.ptr)->toDouble( ok );
+    case Double:
 	return d->value.d;
-    if ( d->typ == Int )
+    case Int:
 	return (double)d->value.i;
-    if ( d->typ == Bool )
+    case Bool:
 	return (double)d->value.b;
-    if ( d->typ == UInt )
+    case UInt:
 	return (double)d->value.u;
-    return 0.0;
+    default:
+	return 0.0;
+    }
 }
 
 #ifndef QT_NO_TEMPLATE_VARIANT
@@ -2648,46 +2677,52 @@ bool QVariant::canCast( Type t ) const
 {
     if ( d->typ == t )
 	return TRUE;
-    if ( t == Bool && ( d->typ == Double || d->typ == Int || d->typ == UInt ) )
-	 return TRUE;
-    if ( t == Int && ( d->typ == String || d->typ == Double || d->typ == Bool || d->typ == UInt  || d->typ == KeySequence ) )
-	return TRUE;
-    if ( t == UInt && ( d->typ == String || d->typ == Double || d->typ == Bool || d->typ == Int ) )
-	return TRUE;
-    if ( t == Double && ( d->typ == String || d->typ == Int || d->typ == Bool || d->typ == UInt ) )
-	return TRUE;
-    if ( t == CString && d->typ == String )
-	return TRUE;
-    if ( t == String && ( d->typ == CString || d->typ == Int || d->typ == UInt || d->typ == Double || d->typ == Date || d->typ == Time || d->typ == DateTime || d->typ == KeySequence || d->typ == Font || d->typ == Color ) )
-	return TRUE;
-    if ( t == Date && ( d->typ == String || d->typ == DateTime ) )
-	return TRUE;
-    if ( t == Time && ( d->typ == String || d->typ == DateTime ) )
-	return TRUE;
-    if ( t == DateTime && ( d->typ == String || d->typ == Date ) )
-	return TRUE;
-    if ( ( t == KeySequence && ( d->typ == String || d->typ == Int ) ) )
-	return TRUE;
-    if ( ( t == Font && ( d->typ == String ) ) )
-	return TRUE;
-    if ( ( t == Color && ( d->typ == String ) ) )
-	return TRUE;
+
+    switch ( t ) {
+    case Bool:
+	return d->typ == Double || d->typ == Int || d->typ == UInt;
+    case Int:
+	return d->typ == String || d->typ == Double || d->typ == Bool || d->typ == UInt  || d->typ == KeySequence;
+    case UInt:
+	return d->typ == String || d->typ == Double || d->typ == Bool || d->typ == Int;
+    case Double:
+	return d->typ == String || d->typ == Int || d->typ == Bool || d->typ == UInt;
+    case CString:
+	return d->typ == String;
+    case String:
+	return d->typ == CString || d->typ == Int || d->typ == UInt || d->typ == Double || d->typ == Date || d->typ == Time || d->typ == DateTime || d->typ == KeySequence || d->typ == Font || d->typ == Color;
+    case Date:
+	return d->typ == String || d->typ == DateTime;
+    case Time:
+	return d->typ == String || d->typ == DateTime;
+    case DateTime:
+	return d->typ == String || d->typ == Date;
+    case KeySequence:
+	return d->typ == String || d->typ == Int;
+    case Font:
+	return d->typ == String;
+    case Color:
+	return d->typ == String;
 #ifndef QT_NO_STRINGLIST
-    if ( t == List && d->typ == StringList )
-	return TRUE;
+    case List:
+	return d->typ == StringList;
 #endif
 #ifndef QT_NO_TEMPLATE_VARIANT
-    if ( t == StringList && d->typ == List ) {
-	QValueList<QVariant>::ConstIterator it = listBegin();
-	QValueList<QVariant>::ConstIterator end = listEnd();
-	for( ; it != end; ++it ) {
-	    if ( !(*it).canCast( String ) )
-		return FALSE;
+    case StringList:
+	if ( d->typ == List ) {
+	    QValueList<QVariant>::ConstIterator it = listBegin();
+	    QValueList<QVariant>::ConstIterator end = listEnd();
+	    for( ; it != end; ++it ) {
+		if ( !(*it).canCast( String ) )
+		    return FALSE;
+	    }
+	    return TRUE;
 	}
-	return TRUE;
-    }
+	return FALSE;
 #endif
-    return FALSE;
+    default:
+	return FALSE;
+    }
 }
 
 /*!
