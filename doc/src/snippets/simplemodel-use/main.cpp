@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         QModelIndex index = model->index(row, 0, QModelIndex());
 
         QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
-        qDebug("%s", text.ascii());
+        // Display the text in a widget.
 
         QLabel *label = new QLabel(text, window);
         layout->addWidget(label);

@@ -25,7 +25,6 @@ int main(int argc, char *argv[])
     QSplitter *splitter = new QSplitter;
 
     QDirModel *model = new QDirModel;
-
     QTreeView *tree = new QTreeView(splitter);
     QListView *list = new QListView(splitter);
 
