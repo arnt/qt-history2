@@ -70,7 +70,30 @@
  
 \title SQL Module
 
-This module is part of the \link editions.html Qt Enterprise Edition \endlink.
+This module is part of the \link editions.html Qt Enterprise Edition
+\endlink. It provides the following classes:
+\table
+\row
+\i \l QSql
+\i \l QSqlDriverPlugin
+\i \l QSqlFieldInfo
+\i \l QSqlQuery
+\row
+\i \l QSqlCursor
+\i \l QSqlEditorFactory
+\i \l QSqlForm
+\i \l QSqlRecord
+\row
+\i \l QSqlDatabase
+\i \l QSqlError
+\i \l QSqlIndex
+\i \l QSqlRecordInfo
+\row
+\i \l QSqlDriver
+\i \l QSqlField
+\i \l QSqlPropertyMap
+\i \l QSqlResult
+\endtable
 
 \tableofcontents
 

@@ -51,103 +51,114 @@ public:
 };
 
 /*!
-  \class QSqlPropertyMap qsqlpropertymap.h
+    \class QSqlPropertyMap qsqlpropertymap.h
+    \brief The QSqlPropertyMap class is used to map widgets to SQL fields.
+
     \ingroup database
-  \module sql
-  \brief The QSqlPropertyMap class is used to map widgets to SQL fields.
+    \module sql
 
-  The SQL module uses Qt <a href="properties.html">object properties</a>
-  to insert and extract values from editor widgets.
+    The SQL module uses Qt \link properties.html object
+    properties\endlink to insert and extract values from editor
+    widgets.
 
-  This class is used to map editors to SQL fields. This works by
-  associating SQL editor class names to the properties used to insert
-  and extract values to/from the editor.
+    This class is used to map editors to SQL fields. This works by
+    associating SQL editor class names to the properties used to
+    insert and extract values to/from the editor.
 
-  For example, a QLineEdit can be used to edit text strings and other
-  data types in QDataTables or QSqlForms. Several properties are
-  defined in QLineEdit, but only the \e text property is used to
-  insert and extract text from a QLineEdit. Both QDataTable and QSqlForm
-  use the global QSqlPropertyMap for inserting and extracting values
-  to and from an editor widget.  The global property map defines
-  several common widgets and properties that are suitable for many
-  applications.  You can add and remove widget properties to suit your
-  specific needs.
+    For example, a QLineEdit can be used to edit text strings and
+    other data types in QDataTables or QSqlForms. Several properties
+    are defined in QLineEdit, but only the \e text property is used to
+    insert and extract text from a QLineEdit. Both QDataTable and
+    QSqlForm use the global QSqlPropertyMap for inserting and
+    extracting values to and from an editor widget. The global
+    property map defines several common widgets and properties that
+    are suitable for many applications. You can add and remove widget
+    properties to suit your specific needs.
 
-  If you want to use custom editors with your QDataTable or QSqlForm,
-  you have to install your own QSqlPropertyMap for that table or form.
-  Example:
+    If you want to use custom editors with your QDataTable or
+    QSqlForm, you must install your own QSqlPropertyMap for that table
+    or form. Example:
 
-  \code
-  QSqlPropertyMap *myMap  = new QSqlPropertyMap();
-  QSqlForm        *myForm = new QSqlForm( this );
-  MyEditor	   myEditor( this );
+    \code
+    QSqlPropertyMap *myMap  = new QSqlPropertyMap();
+    QSqlForm        *myForm = new QSqlForm( this );
+    MyEditor myEditor( this );
 
-  // Set the QSqlForm's record buffer to the update buffer of
-  // a pre-existing QSqlCursor called 'cur'.
-  myForm->setRecord( cur->primeUpdate() );
+    // Set the QSqlForm's record buffer to the update buffer of
+    // a pre-existing QSqlCursor called 'cur'.
+    myForm->setRecord( cur->primeUpdate() );
 
-  // Install the customized map
-  myMap->insert( "MyEditor", "content" );
-  myForm->installPropertyMap( myMap ); // myForm now owns myMap
-  ...
-  // Insert a field into the form that uses a myEditor to edit the
-  // field 'somefield'
-  myForm->insert( &myEditor, "somefield" );
+    // Install the customized map
+    myMap->insert( "MyEditor", "content" );
+    myForm->installPropertyMap( myMap ); // myForm now owns myMap
+    ...
+    // Insert a field into the form that uses a myEditor to edit the
+    // field 'somefield'
+    myForm->insert( &myEditor, "somefield" );
 
-  // Update myEditor with the value from the mapped database field
-  myForm->readFields();
-  ...
-  // Let the user edit the form
-  ...
-  // Update the database fields with the values in the form
-  myForm->writeFields();
-  ...
-  \endcode
+    // Update myEditor with the value from the mapped database field
+    myForm->readFields();
+    ...
+    // Let the user edit the form
+    ...
+    // Update the database fields with the values in the form
+    myForm->writeFields();
+    ...
+    \endcode
 
-  You can also replace the global QSqlPropertyMap that is used by
-  default. (Bear in mind that QSqlPropertyMap takes ownership of the new
-  default map.)
+    You can also replace the global QSqlPropertyMap that is used by
+    default. (Bear in mind that QSqlPropertyMap takes ownership of the
+    new default map.)
 
-  \code
-  QSqlPropertyMap *myMap = new QSqlPropertyMap;
+    \code
+    QSqlPropertyMap *myMap = new QSqlPropertyMap;
 
-  myMap->insert( "MyEditor", "content" );
-  QSqlPropertyMap::installDefaultMap( myMap );
-  ...
-  \endcode
+    myMap->insert( "MyEditor", "content" );
+    QSqlPropertyMap::installDefaultMap( myMap );
+    ...
+    \endcode
 
-  \sa QDataTable, QSqlForm, QSqlEditorFactory
+    \sa QDataTable, QSqlForm, QSqlEditorFactory
 */
 
 /*!
 
-  Constructs a QSqlPropertyMap.
+Constructs a QSqlPropertyMap.
 
-    The default property mappings used by Qt widgets are:
-    <ul>
-    <li>QButton -- text
-    <li>QCheckBox -- checked
-    <li>QComboBox -- currentItem
-    <li>QDateEdit -- date
-    <li>QDateTimeEdit -- dateTime
-    <li>QDial -- value
-    <li>QLabel -- text
-    <li>QLCDNumber -- value
-    <li>QLineEdit -- text
-    <li>QListBox -- currentItem
-    <li>QMultiLineEdit -- text
-    <li>QPushButton -- text
-    <li>QRadioButton -- text
-    <li>QScrollBar -- value
-    <li>QSlider -- value
-    <li>QSpinBox -- value
-    <li>QTextBrowser -- source
-    <li>QTextEdit -- text
-    <li>QTextView -- text
-    <li>QTimeEdit -- time
-    </ul>
+The default property mappings used by Qt widgets are:
+\table
+\header \i Widgets \i Property
+\row \i \l QCheckBox
+     \i checked
+\row \i \l QComboBox,
+	\l QListBox
+     \i currentItem
+\row \i \l QDateEdit
+     \i date
+\row \i \l QDateTimeEdit
+     \i dateTime
+\row \i \l QTextBrowser
+     \i source
+\row \i \l QButton,
+	\l QDial,
+	\l QLabel,
+	\l QLineEdit,
+	\l QMultiLineEdit,
+	\l QPushButton,
+	\l QRadioButton,
+	\l QTextEdit,
+	\l QTextView
+     \i text
+\row \i \l QTimeEdit
+     \i time
+\row \i \l QLCDNumber,
+	\l QScrollBar
+	\l QSlider,
+	\l QSpinBox
+     \i value
+\endtable
+*/
 
- */
 QSqlPropertyMap::QSqlPropertyMap()
 {
     d = new QSqlPropertyMapPrivate();
@@ -183,21 +194,20 @@ QSqlPropertyMap::QSqlPropertyMap()
 }
 
 /*!
+    Destroys the QSqlPropertyMap.
 
-  Destroys the QSqlPropertyMap.
-
-  Note that if the QSqlPropertyMap is installed with
-  installPropertyMap() the object it was installed into, e.g. the
-  QSqlForm, takes ownership and will delete the QSqlPropertyMap when
-  necessary.
- */
+    Note that if the QSqlPropertyMap is installed with
+    installPropertyMap() the object it was installed into, e.g. the
+    QSqlForm, takes ownership and will delete the QSqlPropertyMap when
+    necessary.
+*/
 QSqlPropertyMap::~QSqlPropertyMap()
 {
     delete d;
 }
 
-/*!  Returns the mapped property of \a widget as a QVariant.
-
+/*!
+    Returns the mapped property of \a widget as a QVariant.
 */
 QVariant QSqlPropertyMap::property( QWidget * widget )
 {
@@ -216,9 +226,7 @@ QVariant QSqlPropertyMap::property( QWidget * widget )
 }
 
 /*!
-
-  Sets the property of \a widget to \a value.
-
+    Sets the property of \a widget to \a value.
 */
 void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
 {
@@ -238,11 +246,9 @@ void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
 }
 
 /*!
-
   Insert a new classname/property pair, which is used for custom SQL
-  field editors. There \e must be a Q_PROPERTY clause in the \a classname
-  class declaration for the \a property.
-
+  field editors. There \e must be a \c Q_PROPERTY clause in the \a
+  classname class declaration for the \a property.
 */
 void QSqlPropertyMap::insert( const QString & classname,
 			      const QString & property )
@@ -250,8 +256,8 @@ void QSqlPropertyMap::insert( const QString & classname,
     d->propertyMap[ classname ] = property;
 }
 
-/*!  Removes \a classname from the map.
-
+/*!
+    Removes \a classname from the map.
 */
 void QSqlPropertyMap::remove( const QString & classname )
 {
@@ -262,8 +268,7 @@ static QSqlPropertyMap * defaultmap = 0;
 static QCleanupHandler< QSqlPropertyMap > qsql_cleanup_property_map;
 
 /*!
-
-  Returns the application global QSqlPropertyMap.
+    Returns the application global QSqlPropertyMap.
 */
 QSqlPropertyMap * QSqlPropertyMap::defaultMap()
 {
@@ -275,11 +280,11 @@ QSqlPropertyMap * QSqlPropertyMap::defaultMap()
 }
 
 /*!
-
-  Replaces the global default property map with \a map. All QDataTable and
-  QSqlForm instantiations will use this new map for inserting and
-  extracting values to and from editors. <em>QSqlPropertyMap takes
-  ownership of \a map, and destroys it when it is no longer needed. </em>
+    Replaces the global default property map with \a map. All
+    QDataTable and QSqlForm instantiations will use this new map for
+    inserting and extracting values to and from editors.
+    \e{QSqlPropertyMap takes ownership of \a map, and destroys it
+    when it is no longer needed.}
 */
 void QSqlPropertyMap::installDefaultMap( QSqlPropertyMap * map )
 {

@@ -59,74 +59,75 @@ public:
 };
 
 /*!
-  \class QSqlForm
+    \class QSqlForm
+    \brief The QSqlForm class creates and manages data entry forms
+    tied to SQL databases.
+
     \ingroup database
-  \mainclass
-  \brief The QSqlForm class creates and manages data entry forms tied to SQL
-  databases.
+    \mainclass
+    \module sql
 
-  \module sql
+    Typical use of a QSqlForm consists of the following steps:
+    \list
+    \i Create the widgets you want to appear in the form.
+    \i Create a cursor and navigate to the record to be edited.
+    \i Create the QSqlForm.
+    \i Set the form's record buffer to the cursor's update buffer.
+    \i Insert each widget and the field it is to edit into the form.
+    \i Use readFields() to update the editor widgets with values from
+    the database's fields.
+    \i Display the form and let the user edit values etc.
+    \i Use writeFields() to update the database's field values with
+    the values in the editor widgets.
+    \endlist
 
-  Typical use of a QSqlForm consists of the following steps:
+    Note that a QSqlForm does not access the database directly, but
+    most often via QSqlFields which are part of a QSqlCursor. A
+    QSqlCursor::insert(), QSqlCursor::update() or QSqlCursor::del()
+    call is needed to actually write values to the database.
 
-  <ol>
-  <li>Create the widgets you want to appear in the form.
-  <li>Create a cursor and navigate to the record to be edited.
-  <li>Create the QSqlForm.
-  <li>Set the form's record buffer to the cursor's update buffer.
-  <li>Insert each widget and the field it is to edit into the form.
-  <li>Use readFields() to update the editor widgets with values from the database's fields.
-  <li>Display the form and let the user edit values etc.
-  <li>Use writeFields() to update the database's field values with the values in the editor widgets.
-  </ol>
+    Some sample code to initialize a form successfully:
 
-  Note that a QSqlForm does not access the database directly, but
-  most often via QSqlFields which are part of a QSqlCursor. A
-  QSqlCursor::insert(), QSqlCursor::update() or QSqlCursor::del() call
-  is needed to actually write values to the database.
+    \code
+    QLineEdit  myEditor( this );
+    QSqlForm   myForm( this );
+    QSqlCursor myCursor( "mytable" );
 
-  Some sample code to initialize a form successfully:
+    // Execute a query to make the cursor valid
+    myCursor.select();
+    // Move the cursor to a valid record (the first record)
+    myCursor.next();
+    // Set the form's record pointer to the cursor's edit buffer (which
+    // contains the current record's values)
+    myForm.setRecord( myCursor.primeUpdate() );
 
-  \code
-  QLineEdit  myEditor( this );
-  QSqlForm   myForm( this );
-  QSqlCursor myCursor( "mytable" );
+    // Insert a field into the form that uses myEditor to edit the
+    // field 'somefield' in 'mytable'
+    myForm.insert( &myEditor, "somefield" );
 
-  // Execute a query to make the cursor valid
-  myCursor.select();
-  // Move the cursor to a valid record (the first record)
-  myCursor.next();
-  // Set the form's record pointer to the cursor's edit buffer (which
-  // contains the current record's values)
-  myForm.setRecord( myCursor.primeUpdate() );
+    // Update myEditor with the value from the mapped database field
+    myForm.readFields();
+    ...
+    // Let the user edit the form
+    ...
+    // Update the database
+    myForm.writeFields();  // Update the cursor's edit buffer from the form
+    myCursor.update();	// Update the database from the cursor's buffer
+    \endcode
 
-  // Insert a field into the form that uses myEditor to edit the
-  // field 'somefield' in 'mytable'
-  myForm.insert( &myEditor, "somefield" );
+    If you want to use custom editors for displaying and editing data
+    fields, you must install a custom QSqlPropertyMap. The form
+    uses this object to get or set the value of a widget.
 
-  // Update myEditor with the value from the mapped database field
-  myForm.readFields();
-  ...
-  // Let the user edit the form
-  ...
-  // Update the database
-  myForm.writeFields();	// Update the cursor's edit buffer from the form
-  myCursor.update();	// Update the database from the cursor's buffer
-  \endcode
+    Note that \link designer-manual.book Qt Designer\endlink provides
+    a visual means of creating data-aware forms.
 
-  If you want to use custom editors for displaying/editing data
-  fields, you need to install a custom QSqlPropertyMap. The form
-  uses this object to get or set the value of a widget.
-
-  Note that <em>Qt Designer</em> provides a visual means of creating
-  data-aware forms.
-
-  \sa installPropertyMap(), QSqlPropertyMap
+    \sa installPropertyMap(), QSqlPropertyMap
 */
 
 
 /*!
-  Constructs a QSqlForm with parent \a parent and name \a name.
+    Constructs a QSqlForm with parent \a parent and called \a name.
 */
 QSqlForm::QSqlForm( QObject * parent, const char * name )
     : QObject( parent, name )
@@ -134,20 +135,22 @@ QSqlForm::QSqlForm( QObject * parent, const char * name )
     d = new QSqlFormPrivate();
 }
 
-/*! Destroys the object and frees any allocated resources.
+/*!
+    Destroys the object and frees any allocated resources.
 */
 QSqlForm::~QSqlForm()
 {
     delete d;
 }
 
-/*!  Installs a custom QSqlPropertyMap. This is useful if you plan to
-  create your own custom editor widgets.
+/*!
+    Installs a custom QSqlPropertyMap. This is useful if you plan to
+    create your own custom editor widgets.
 
-  QSqlForm takes ownership of \a pmap, and \a pmap is therefore
-  deleted when QSqlForm goes out of scope.
+    QSqlForm takes ownership of \a pmap, so \a pmap is deleted when
+    QSqlForm goes out of scope.
 
-  \sa QDataTable::installEditorFactory()
+    \sa QDataTable::installEditorFactory()
 */
 void QSqlForm::installPropertyMap( QSqlPropertyMap * pmap )
 {
@@ -156,10 +159,11 @@ void QSqlForm::installPropertyMap( QSqlPropertyMap * pmap )
     d->propertyMap = pmap;
 }
 
-/*!  Sets \a buf as the record buffer for the form.  To force the
-  display of the data from \a buf, use readFields().
+/*!
+    Sets \a buf as the record buffer for the form. To force the
+    display of the data from \a buf, use readFields().
 
-  \sa readFields() writeFields()
+    \sa readFields() writeFields()
 */
 
 void QSqlForm::setRecord( QSqlRecord* buf )
@@ -168,11 +172,12 @@ void QSqlForm::setRecord( QSqlRecord* buf )
     d->buf = buf;
 }
 
-/*!  Inserts a \a widget, and the name of the \a field it is to be mapped
-   to, into the form.  To actually associate inserted widgets with an
-   edit buffer, use setRecord().
+/*!
+    Inserts a \a widget, and the name of the \a field it is to be
+    mapped to, into the form. To actually associate inserted widgets
+    with an edit buffer, use setRecord().
 
-  \sa setRecord()
+    \sa setRecord()
 */
 
 void QSqlForm::insert( QWidget * widget, const QString& field )
@@ -182,7 +187,9 @@ void QSqlForm::insert( QWidget * widget, const QString& field )
     d->fld += field;
 }
 
-/*! \overload
+/*!
+    \overload
+
     Removes \a field from the form.
 */
 
@@ -195,10 +202,10 @@ void QSqlForm::remove( const QString& field )
 }
 
 /*!
-  \overload
+    \overload
 
-  Inserts a \a widget, and the \a field it is to be mapped to, into
-  the form.
+    Inserts a \a widget, and the \a field it is to be mapped to, into
+    the form.
 */
 
 void QSqlForm::insert( QWidget * widget, QSqlField * field )
@@ -207,7 +214,8 @@ void QSqlForm::insert( QWidget * widget, QSqlField * field )
 }
 
 /*!
-  Removes a \a widget, and hence the field it's mapped to, from the form.
+    Removes a \a widget, and hence the field it's mapped to, from the
+    form.
 */
 
 void QSqlForm::remove( QWidget * widget )
@@ -216,9 +224,9 @@ void QSqlForm::remove( QWidget * widget )
 }
 
 /*!
-  Clears the values in all the widgets, and the fields they are mapped
-  to, in the form.  If \a nullify is TRUE (the default is FALSE), each
-  field is also set to null.
+    Clears the values in all the widgets, and the fields they are
+    mapped to, in the form. If \a nullify is TRUE (the default is
+    FALSE), each field is also set to NULL.
 */
 void QSqlForm::clearValues( bool nullify )
 {
@@ -230,7 +238,7 @@ void QSqlForm::clearValues( bool nullify )
 }
 
 /*!
-  Removes every widget, and the fields they're mapped to, from the form.
+    Removes every widget, and the fields they're mapped to, from the form.
 */
 void QSqlForm::clear()
 {
@@ -240,7 +248,7 @@ void QSqlForm::clear()
 }
 
 /*!
-  Returns the number of widgets in the form.
+    Returns the number of widgets in the form.
 */
 uint QSqlForm::count() const
 {
@@ -248,8 +256,8 @@ uint QSqlForm::count() const
 }
 
 /*!
-  Returns the \a {i}-th widget in the form. Useful for traversing the widgets
-  in the form.
+    Returns the \a{i}-th widget in the form. Useful for traversing
+    the widgets in the form.
 */
 QWidget * QSqlForm::widget( uint i ) const
 {
@@ -265,7 +273,7 @@ QWidget * QSqlForm::widget( uint i ) const
 }
 
 /*!
-  Returns the widget that field \a field is mapped to.
+    Returns the widget that field \a field is mapped to.
 */
 QWidget * QSqlForm::fieldToWidget( QSqlField * field ) const
 {
@@ -278,7 +286,7 @@ QWidget * QSqlForm::fieldToWidget( QSqlField * field ) const
 }
 
 /*!
-  Returns the SQL field that widget \a widget is mapped to.
+    Returns the SQL field that widget \a widget is mapped to.
 */
 QSqlField * QSqlForm::widgetToField( QWidget * widget ) const
 {
@@ -289,8 +297,8 @@ QSqlField * QSqlForm::widgetToField( QWidget * widget ) const
 }
 
 /*!
-  Updates the widgets in the form with current values from the SQL
-  fields they are mapped to.
+    Updates the widgets in the form with current values from the SQL
+    fields they are mapped to.
 */
 void QSqlForm::readFields()
 {
@@ -308,10 +316,10 @@ void QSqlForm::readFields()
 }
 
 /*!
-  Updates the SQL fields with values from the widgets they are mapped
-  to.  To actually update the database with the contents of the record
-  buffer, use QSqlCursor::insert(), QSqlCursor::update() or
-  QSqlCursor::del() as appropriate.
+    Updates the SQL fields with values from the widgets they are
+    mapped to. To actually update the database with the contents of
+    the record buffer, use QSqlCursor::insert(), QSqlCursor::update()
+    or QSqlCursor::del() as appropriate.
 */
 void QSqlForm::writeFields()
 {
@@ -330,8 +338,9 @@ void QSqlForm::writeFields()
 }
 
 /*!
-  Updates the widget \a widget with the value from the SQL field it is
-  mapped to. Nothing happens if no SQL field is mapped to the \a widget.
+    Updates the widget \a widget with the value from the SQL field it
+    is mapped to. Nothing happens if no SQL field is mapped to the \a
+    widget.
 */
 void QSqlForm::readField( QWidget * widget )
 {
@@ -345,8 +354,9 @@ void QSqlForm::readField( QWidget * widget )
 }
 
 /*!
-  Updates the SQL field with the value from the \a widget it is mapped to.
-  Nothing happens if no SQL field is mapped to the \a widget.
+    Updates the SQL field with the value from the \a widget it is
+    mapped to. Nothing happens if no SQL field is mapped to the \a
+    widget.
 */
 void QSqlForm::writeField( QWidget * widget )
 {
