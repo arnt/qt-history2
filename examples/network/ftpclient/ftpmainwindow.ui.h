@@ -141,22 +141,22 @@ void FtpMainWindow::connectToHost()
     if ( connectDialog.exec() == QDialog::Rejected )
 	return;
 
+    remotePath->clear();
+    remoteView->clear();
+
     if ( ftp->state() != QFtp::Unconnected )
 	ftp->close();
 
     ftp->connectToHost( connectDialog.host->text(), connectDialog.port->value() );
     ftp->login( connectDialog.username->text(), connectDialog.password->text() );
-
-    remotePath->clear();
-    remotePath->insertItem( "/", 0 );
-    changePath( "/" );
+    ftp->rawCommand( "PWD" );
+    ftp->list();
 }
 
 // This slot is connected to the QComboBox::activated() signal of the
 // remotePath.
 void FtpMainWindow::changePath( const QString &newPath )
 {
-//    currentFtpDir = newPath;
     ftp->cd( newPath );
     ftp->rawCommand( "PWD" );
     ftp->list();
