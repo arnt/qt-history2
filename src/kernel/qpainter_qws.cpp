@@ -1720,6 +1720,9 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
     if ( cfont.underline() || cfont.strikeOut() ) {
         QFontMetrics fm = fontMetrics();
         int lw = fm.lineWidth();
+
+	gfx->save();
+	gfx->setBrush(cpen.color());
 	
         // draw underline effect
         if ( cfont.underline() ) {
@@ -1729,7 +1732,10 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
         // draw strikeout effect
         if ( cfont.strikeOut() ) {
 	    gfx->fillRect(x,y-fm.strikeOutPos(), x+width, y-fm.strikeOutPos());
-        }
+	}
+	
+	gfx->restore();
+	
     }
 }
 
