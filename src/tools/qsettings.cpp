@@ -1695,17 +1695,18 @@ QDateTime QSettings::lastModficationTime(const QString &key)
 
 /*!
     \overload
-    Writes the string list entry \a value into key \a key. The \a key is
-    created if it doesn't exist. Any previous value is overwritten by \a
-    value. The list is stored as a sequence of strings separated by \a
-    separator, so none of the strings in the list should contain the
-    separator. If the list is empty or null the key's value will be an
-    empty string.
+
+    Writes the string list entry \a value into key \a key. The \a key
+    is created if it doesn't exist. Any previous value is overwritten
+    by \a value. The list is stored as a sequence of strings separated
+    by \a separator, so none of the strings in the list should contain
+    the separator. If the list is empty or null the key's value will
+    be an empty string.
 
     If an error occurs the settings are left unchanged and FALSE is
-    returned; otherwise TRUE is returned.
+    returned; otherwise returns TRUE.
 
-  \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
+    \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
 bool QSettings::writeEntry(const QString &key, const QStringList &value,
 			   const QChar &separator)
@@ -1716,14 +1717,15 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value,
 
 /*!
     \overload
-    Writes the string list entry \a value into key \a key. The \a key is
-    created if it doesn't exist. Any previous value is overwritten by \a
-    value.
+
+    Writes the string list entry \a value into key \a key. The \a key
+    is created if it doesn't exist. Any previous value is overwritten
+    by \a value.
 
     If an error occurs the settings are left unchanged and FALSE is
-    returned; otherwise TRUE is returned.
+    returned; otherwise returns TRUE.
 
-  \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
+    \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
 bool QSettings::writeEntry(const QString &key, const QStringList &value)
 {
@@ -1745,14 +1747,13 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
 /*!
     \overload QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok ) const
 
-  Reads the entry specified by \a key as a string.  The \a separator is
-  used to create a QStringList by calling QStringList::split(\a
-  separator, entry).
-  If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
-  otherwise.
+    Reads the entry specified by \a key as a string. The \a separator
+    is used to create a QStringList by calling QStringList::split(\a
+    separator, entry). If \a ok is not 0: \a *ok is set to TRUE if the
+    key was read, otherwise \a *ok is set to FALSE.
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
     \code
     QStringList list = mySettings.readListEntry( "size", " " );
     QStringList::Iterator it = list.begin();
@@ -1762,7 +1763,7 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
     }
     \endcode
 
-  \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry(), QStringList::split()
+    \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry(), QStringList::split()
 */
 
 /*!
@@ -1779,13 +1780,12 @@ QStringList QSettings::readListEntry(const QString &key, const QChar &separator,
 
 /*!
     \fn QStringList QSettings::readListEntry(const QString &key, bool *ok ) const
+    Reads the entry specified by \a key as a string. If \a ok is not
+    0, \a *ok is set to TRUE if the key was read, otherwise \a *ok is
+    set to FALSE.
 
-  Reads the entry specified by \a key as a string.
-  If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
-  otherwise.
-
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
     \code
     QStringList list = mySettings.readListEntry( "recentfiles" );
     QStringList::Iterator it = list.begin();
@@ -1795,7 +1795,7 @@ QStringList QSettings::readListEntry(const QString &key, const QChar &separator,
     }
     \endcode
 
-  \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry(), QStringList::split()
+    \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry(), QStringList::split()
 */
 
 /*!

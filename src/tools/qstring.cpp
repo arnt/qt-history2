@@ -11864,158 +11864,167 @@ static uint computeNewMax( uint len )
     return newMax;
 }
 
-/*! \class QCharRef qstring.h
-  \ingroup text
-  \brief The QCharRef class is a helper class for QString.
+/*!
+    \class QCharRef qstring.h
+    \brief The QCharRef class is a helper class for QString.
 
-  When you get an object of type QCharRef, you can assign to it, which
-  will operate on the character in the string from which you got the
-  reference.  That is its whole purpose in life.  The QCharRef becomes
-  invalid once modifications are made to the string: if you want to keep
-  the character, copy it into a QChar.
+    \ingroup text
 
-  Most of the QChar member functions also exist in QCharRef.  However,
-  they are not explicitly documented here.
+    When you get an object of type QCharRef, if you can assign to it,
+    the assignment will apply to the character in the string from
+    which you got the reference. That is its whole purpose in life.
+    The QCharRef becomes invalid once modifications are made to the
+    string: if you want to keep the character, copy it into a QChar.
 
-  \sa QString::operator[]() QString::at() QChar
+    Most of the QChar member functions also exist in QCharRef.
+    However, they are not explicitly documented here.
+
+    \sa QString::operator[]() QString::at() QChar
 */
 
-/*! \class QChar qstring.h
-  \ingroup text
+/*!
+    \class QChar qstring.h
+    \brief The QChar class provides a lightweight Unicode character.
 
-\brief The QChar class provides a lightweight Unicode character.
+    \ingroup text
 
-Unicode characters are (so far) 16-bit entities without any markup or
-structure.  This class represents such an entity.  It is
-lightweight, so it can be used everywhere.  Most compilers treat it
-like a "short int."  (In a few years it may be necessary
-to make QChar 32-bit when more than 65536 Unicode code points have
-been defined and come into use.)
+    Unicode characters are (so far) 16-bit entities without any markup
+    or structure. This class represents such an entity. It is
+    lightweight, so it can be used everywhere. Most compilers treat it
+    like a "short int".  (In a few years it may be necessary to make
+    QChar 32-bit when more than 65536 Unicode code points have been
+    defined and come into use.)
 
-QChar provides a full complement of testing/classification functions,
-converting to and from other formats, converting from composed to decomposed
-Unicode, and trying to compare and case-convert if you ask it to.
+    QChar provides a full complement of testing/classification
+    functions, converting to and from other formats, converting from
+    composed to decomposed Unicode, and trying to compare and
+    case-convert if you ask it to.
 
-The classification functions include functions like those in ctype.h,
-but operating on the full range of Unicode characters.  They all
-return TRUE if the character is a certain type of character;
-otherwise they return FALSE. These classification functions are isNull()
-(returns TRUE if the character is U+0000), isPrint() (TRUE if the
-character is any sort of printable character, including whitespace),
-isPunct() (any sort of punctation), isMark() (Unicode Mark), isLetter
-(a letter), isNumber() (any sort of numeric character),
-isLetterOrNumber(), and isDigit() (decimal digits). All of these are
-wrappers around category() which return the Unicode-defined category of
-each character.
+    The classification functions include functions like those in
+    ctype.h, but operating on the full range of Unicode characters.
+    They all return TRUE if the character is a certain type of
+    character; otherwise they return FALSE. These classification
+    functions are isNull() (returns TRUE if the character is U+0000),
+    isPrint() (TRUE if the character is any sort of printable
+    character, including whitespace), isPunct() (any sort of
+    punctation), isMark() (Unicode Mark), isLetter (a letter),
+    isNumber() (any sort of numeric character), isLetterOrNumber(),
+    and isDigit() (decimal digits). All of these are wrappers around
+    category() which return the Unicode-defined category of each
+    character.
 
-QChar further provides direction(), which indicates the "natural"
-writing direction of this character. The joining() function indicates how
-the character joins with its neighbors (needed mostly for Arabic)
-and finally mirrored(), which indicates whether the character needs
-to be mirrored when it is printed in its "unnatural" writing
-direction.
+    QChar further provides direction(), which indicates the "natural"
+    writing direction of this character. The joining() function
+    indicates how the character joins with its neighbors (needed
+    mostly for Arabic) and finally mirrored(), which indicates whether
+    the character needs to be mirrored when it is printed in its
+    "unnatural" writing direction.
 
-Composed Unicode characters (like &aring;) can be converted to
-decomposed Unicode ("a" followed by "ring above") by using
-decomposition().
+    Composed Unicode characters (like &aring;) can be converted to
+    decomposed Unicode ("a" followed by "ring above") by using
+    decomposition().
 
-In Unicode, comparison is not necessarily possible and case
-conversion is very difficult at best.  Unicode, covering the "entire"
-world, also includes most of the world's case and sorting
-problems.  Qt tries, but not very hard: operator== and friends will do
-comparison based purely on the numeric Unicode value (code point) of
-the characters, and upper() and lower() will do case changes when the
-character has a well-defined upper/lower-case equivalent. There is no
-provision for locale-dependent case folding rules or comparison; these
-functions are meant to be fast so they can be used unambiguously in
-data structures. (See QString::localeAwareCompare() though.)
+    In Unicode, comparison is not necessarily possible and case
+    conversion is very difficult at best. Unicode, covering the
+    "entire" world, also includes most of the world's case and sorting
+    problems. Qt tries, but not very hard: operator==() and friends
+    will do comparison based purely on the numeric Unicode value (code
+    point) of the characters, and upper() and lower() will do case
+    changes when the character has a well-defined upper/lower-case
+    equivalent. There is no provision for locale-dependent case
+    folding rules or comparison; these functions are meant to be fast
+    so they can be used unambiguously in data structures. (See
+    QString::localeAwareCompare() though.)
 
-The conversion functions include unicode() (to a scalar), latin1() (to
-scalar, but converts all non-Latin1 characters to 0), row() (gives the
-Unicode row), cell() (gives the Unicode cell), digitValue() (gives the
-integer value of any of the numerous digit characters), and a host of
-constructors.
+    The conversion functions include unicode() (to a scalar), latin1()
+    (to scalar, but converts all non-Latin1 characters to 0), row()
+    (gives the Unicode row), cell() (gives the Unicode cell),
+    digitValue() (gives the integer value of any of the numerous digit
+    characters), and a host of constructors.
 
-More information can be found in the document
-\link unicode.html About Unicode. \endlink
+    More information can be found in the document \link unicode.html
+    About Unicode. \endlink
 
-\sa QString QCharRef */
+    \sa QString QCharRef
+*/
 
-/*! \enum QChar::Category
+/*!
+    \enum QChar::Category
 
-This enum maps the Unicode character categories.  The following
-characters are normative in Unicode:
+    This enum maps the Unicode character categories.
 
-\value Mark_NonSpacing  Unicode class name Mn
+    The following characters are normative in Unicode:
 
-\value Mark_SpacingCombining  Unicode class name Mc
+    \value Mark_NonSpacing  Unicode class name Mn
 
-\value Mark_Enclosing  Unicode class name Me
+    \value Mark_SpacingCombining  Unicode class name Mc
 
-\value Number_DecimalDigit  Unicode class name Nd
+    \value Mark_Enclosing  Unicode class name Me
 
-\value Number_Letter  Unicode class name Nl
+    \value Number_DecimalDigit  Unicode class name Nd
 
-\value Number_Other  Unicode class name No
+    \value Number_Letter  Unicode class name Nl
 
-\value Separator_Space  Unicode class name Zs
+    \value Number_Other  Unicode class name No
 
-\value Separator_Line  Unicode class name Zl
+    \value Separator_Space  Unicode class name Zs
 
-\value Separator_Paragraph  Unicode class name Zp
+    \value Separator_Line  Unicode class name Zl
 
-\value Other_Control  Unicode class name Cc
+    \value Separator_Paragraph  Unicode class name Zp
 
-\value Other_Format  Unicode class name Cf
+    \value Other_Control  Unicode class name Cc
 
-\value Other_Surrogate  Unicode class name Cs
+    \value Other_Format  Unicode class name Cf
 
-\value Other_PrivateUse  Unicode class name Co
+    \value Other_Surrogate  Unicode class name Cs
 
-\value Other_NotAssigned  Unicode class name Cn
+    \value Other_PrivateUse  Unicode class name Co
 
-
-The following categories are informative in Unicode:
-
-\value Letter_Uppercase  Unicode class name Lu
-
-\value Letter_Lowercase  Unicode class name Ll
-
-\value Letter_Titlecase  Unicode class name Lt
-
-\value Letter_Modifier  Unicode class name Lm
-
-\value Letter_Other Unicode class name Lo
-
-\value Punctuation_Connector  Unicode class name Pc
-
-\value Punctuation_Dash  Unicode class name Pd
-
-\value Punctuation_Open  Unicode class name Ps
-
-\value Punctuation_Close  Unicode class name Pe
-
-\value Punctuation_InitialQuote  Unicode class name Pi
-
-\value Punctuation_FinalQuote  Unicode class name Pf
-
-\value Punctuation_Other  Unicode class name Po
-
-\value Symbol_Math  Unicode class name Sm
-
-\value Symbol_Currency  Unicode class name Sc
-
-\value Symbol_Modifier  Unicode class name Sk
-
-\value Symbol_Other  Unicode class name So
+    \value Other_NotAssigned  Unicode class name Cn
 
 
-There are two categories that are specific to Qt:
+    The following categories are informative in Unicode:
 
-\value NoCategory  used when Qt is dazed and confused and cannot
-make sense of anything.
+    \value Letter_Uppercase  Unicode class name Lu
 
-\value Punctuation_Dask  old typo alias for Punctuation_Dash
+    \value Letter_Lowercase  Unicode class name Ll
+
+    \value Letter_Titlecase  Unicode class name Lt
+
+    \value Letter_Modifier  Unicode class name Lm
+
+    \value Letter_Other Unicode class name Lo
+
+    \value Punctuation_Connector  Unicode class name Pc
+
+    \value Punctuation_Dash  Unicode class name Pd
+
+    \value Punctuation_Open  Unicode class name Ps
+
+    \value Punctuation_Close  Unicode class name Pe
+
+    \value Punctuation_InitialQuote  Unicode class name Pi
+
+    \value Punctuation_FinalQuote  Unicode class name Pf
+
+    \value Punctuation_Other  Unicode class name Po
+
+    \value Symbol_Math  Unicode class name Sm
+
+    \value Symbol_Currency  Unicode class name Sc
+
+    \value Symbol_Modifier  Unicode class name Sk
+
+    \value Symbol_Other  Unicode class name So
+
+
+    There are two categories that are specific to Qt:
+
+    \value NoCategory  used when Qt is dazed and confused and cannot
+    make sense of anything.
+
+    \value Punctuation_Dask  old typo alias for Punctuation_Dash
 
 */
 
@@ -12067,89 +12076,106 @@ make sense of anything.
 */
 
 
-/*! \fn QChar::QChar()
+/*!
+    \fn QChar::QChar()
 
-Constructs a null QChar (one that isNull()).
-*/
-
-
-/*! \fn QChar::QChar( char c )
-
-Constructs a QChar corresponding to ASCII/Latin1 character \a c.
-*/
-
-
-/*! \fn QChar::QChar( uchar c )
-
-Constructs a QChar corresponding to ASCII/Latin1 character \a c.
-*/
-
-
-/*! \fn QChar::QChar( uchar c, uchar r )
-
-Constructs a QChar for Unicode cell \a c in row \a r.
-*/
-
-
-/*! \fn QChar::QChar( const QChar& c )
-
-Constructs a copy of \a c.  This is a deep copy, if such a
-lightweight object can be said to have deep copies.
-*/
-
-
-/*! \fn QChar::QChar( ushort rc )
-
-Constructs a QChar for the character with Unicode code point \a rc.
-*/
-
-
-/*! \fn QChar::QChar( short rc )
-
-Constructs a QChar for the character with Unicode code point \a rc.
-*/
-
-
-/*! \fn QChar::QChar( uint rc )
-
-Constructs a QChar for the character with Unicode code point \a rc.
-*/
-
-
-/*! \fn QChar::QChar( int rc )
-
-Constructs a QChar for the character with Unicode code point \a rc.
-*/
-
-
-/*! \fn bool  QChar::networkOrdered ()
-  \obsolete
-
-   Kept for compatibility with old code. In Qt3 QChar is now always
-   host ordered, so the method will always return FALSE.
+    Constructs a null QChar (one that isNull()).
 */
 
 
 /*!
-  \fn bool QChar::isNull() const
-  Returns TRUE if the character is the Unicode character 0x0000,
-  i.e., ASCII NUL.
+    \fn QChar::QChar( char c )
+
+    Constructs a QChar corresponding to ASCII/Latin1 character \a c.
+*/
+
+
+/*!
+    \fn QChar::QChar( uchar c )
+
+    Constructs a QChar corresponding to ASCII/Latin1 character \a c.
+*/
+
+
+/*!
+    \fn QChar::QChar( uchar c, uchar r )
+
+    Constructs a QChar for Unicode cell \a c in row \a r.
+*/
+
+
+/*!
+    \fn QChar::QChar( const QChar& c )
+
+    Constructs a copy of \a c. This is a deep copy, if such a
+    lightweight object can be said to have deep copies.
+*/
+
+
+/*!
+    \fn QChar::QChar( ushort rc )
+
+    Constructs a QChar for the character with Unicode code point \a rc.
+*/
+
+
+/*!
+    \fn QChar::QChar( short rc )
+
+    Constructs a QChar for the character with Unicode code point \a rc.
+*/
+
+
+/*!
+    \fn QChar::QChar( uint rc )
+
+    Constructs a QChar for the character with Unicode code point \a rc.
+*/
+
+
+/*!
+    \fn QChar::QChar( int rc )
+
+    Constructs a QChar for the character with Unicode code point \a rc.
+*/
+
+
+/*!
+    \fn bool  QChar::networkOrdered ()
+
+    \obsolete
+
+    Returns TRUE if this character is in network byte order (MSB
+    first); otherwise returns FALSE. This is platform dependent.
+*/
+
+
+/*!
+    \fn bool QChar::isNull() const
+
+    Returns TRUE if the character is the Unicode character 0x0000,
+    i.e. ASCII NUL; otherwise returns FALSE.
 */
 
 /*!
-  \fn uchar QChar::cell () const
-  Returns the cell (least significant byte) of the Unicode character.
+    \fn uchar QChar::cell () const
+
+    Returns the cell (least significant byte) of the Unicode
+    character.
 */
 
 /*!
-  \fn uchar QChar::row () const
-  Returns the row (most significant byte) of the Unicode character.
+    \fn uchar QChar::row () const
+
+    Returns the row (most significant byte) of the Unicode character.
 */
 
 /*!
-  Returns whether the character is a printable character.  This is
-  any character not of category Cc or Cn.  Note that this gives no indication
-  of whether the character is available in a particular font.
+    Returns TRUE if the character is a printable character; otherwise
+    returns FALSE. This is any character not of category Cc or Cn.
+
+    Note that this gives no indication of whether the character is
+    available in a particular \link QFont font\endlink.
 */
 bool QChar::isPrint() const
 {
@@ -12158,8 +12184,8 @@ bool QChar::isPrint() const
 }
 
 /*!
-  Returns whether the character is a separator
-  character (Separator_* categories).
+    Returns TRUE if the character is a separator character
+    (Separator_* categories); otherwise returns FALSE.
 */
 bool QChar::isSpace() const
 {
@@ -12169,7 +12195,8 @@ bool QChar::isSpace() const
 }
 
 /*!
-  Returns whether the character is a mark (Mark_* categories).
+    Returns TRUE if the character is a mark (Mark_* categories);
+    otherwise returns FALSE.
 */
 bool QChar::isMark() const
 {
@@ -12178,7 +12205,8 @@ bool QChar::isMark() const
 }
 
 /*!
-  Returns whether the character is a punctuation mark (Punctuation_* categories).
+    Returns TRUE if the character is a punctuation mark (Punctuation_*
+    categories); otherwise returns FALSE.
 */
 bool QChar::isPunct() const
 {
@@ -12187,7 +12215,8 @@ bool QChar::isPunct() const
 }
 
 /*!
-  Returns whether the character is a letter (Letter_* categories).
+    Returns TRUE if the character is a letter (Letter_* categories);
+    otherwise returns FALSE.
 */
 bool QChar::isLetter() const
 {
@@ -12196,9 +12225,10 @@ bool QChar::isLetter() const
 }
 
 /*!
-  Returns whether the character is a number (of any sort - Number_* categories).
+    Returns TRUE if the character is a number (of any sort - Number_*
+    categories); otherwise returns FALSE.
 
-  \sa isDigit()
+    \sa isDigit()
 */
 bool QChar::isNumber() const
 {
@@ -12207,7 +12237,8 @@ bool QChar::isNumber() const
 }
 
 /*!
-  Returns whether the character is a letter or number (Letter_* or Number_* categories).
+    Returns TRUE if the character is a letter or number (Letter_* or
+    Number_* categories); otherwise returns FALSE.
 */
 bool QChar::isLetterOrNumber() const
 {
@@ -12218,8 +12249,9 @@ bool QChar::isLetterOrNumber() const
 
 
 /*!
-  Returns whether the character is a decimal digit (Number_DecimalDigit).
-  */
+    Returns TRUE if the character is a decimal digit
+    (Number_DecimalDigit); otherwise returns FALSE.
+*/
 bool QChar::isDigit() const
 {
     return (::category( *this ) == Number_DecimalDigit);
@@ -12227,7 +12259,8 @@ bool QChar::isDigit() const
 
 
 /*!
-  Returns whether the character is a symbol (Symbol_* categories)
+    Returns TRUE if the character is a symbol (Symbol_* categories);
+    otherwise returns FALSE.
 */
 bool QChar::isSymbol() const
 {
@@ -12236,8 +12269,8 @@ bool QChar::isSymbol() const
 }
 
 /*!
-  Returns the numeric value of the digit, or -1 if the character is not
-  a digit.
+    Returns the numeric value of the digit, or -1 if the character is
+    not a digit.
 */
 int QChar::digitValue() const
 {
@@ -12256,9 +12289,9 @@ int QChar::digitValue() const
 }
 
 /*!
-  Returns the character category.
+    Returns the character category.
 
-  \sa Category
+    \sa Category
 */
 QChar::Category QChar::category() const
 {
@@ -12266,9 +12299,9 @@ QChar::Category QChar::category() const
 }
 
 /*!
-  Returns the character's direction.
+    Returns the character's direction.
 
-  \sa Direction
+    \sa Direction
 */
 QChar::Direction QChar::direction() const
 {
@@ -12276,11 +12309,11 @@ QChar::Direction QChar::direction() const
 }
 
 /*!
-  This function is not supported (it may change to use Unicode
-  character classes).
+    \warning This function is not supported (it may change to use
+    Unicode character classes).
 
-  Returns information about the joining properties of the
-  character (needed for Arabic).
+    Returns information about the joining properties of the character
+    (needed for example, for Arabic).
 */
 QChar::Joining QChar::joining() const
 {
@@ -12296,8 +12329,9 @@ QChar::Joining QChar::joining() const
 
 
 /*!
-  Returns whether the character is a mirrored character (one that
-  should be reversed if the text direction is reversed).
+    Returns TRUE if the character is a mirrored character (one that
+    should be reversed if the text direction is reversed); otherwise
+    returns FALSE.
 */
 bool QChar::mirrored() const
 {
@@ -12312,8 +12346,8 @@ bool QChar::mirrored() const
 }
 
 /*!
-  Returns the mirrored char if this character is a mirrored char, otherwise returns the char
-  itself.
+    Returns the mirrored character if this character is a mirrored
+    character, otherwise returns the character itself.
 */
 QChar QChar::mirroredChar() const
 {
@@ -12335,8 +12369,8 @@ QChar QChar::mirroredChar() const
 static QString shared_decomp;
 #endif
 /*!
-  Decomposes a character into its parts. Returns QString::null if
-  no decomposition exists.
+    Decomposes a character into its parts. Returns QString::null if no
+    decomposition exists.
 */
 const QString &QChar::decomposition() const
 {
@@ -12361,8 +12395,8 @@ const QString &QChar::decomposition() const
 }
 
 /*!
-  Returns the tag defining the composition of the character.
-  Returns QChar::Single if no decomposition exists.
+    Returns the tag defining the composition of the character. Returns
+    QChar::Single if no decomposition exists.
 */
 QChar::Decomposition QChar::decompositionTag() const
 {
@@ -12380,13 +12414,12 @@ QChar::Decomposition QChar::decompositionTag() const
 }
 
 /*!
-  Returns the combining class for the character as defined in
-  the Unicode standard.
-  This is mainly useful as a positioning hint for marks attached to
-  a base character.
+    Returns the combining class for the character as defined in the
+    Unicode standard. This is mainly useful as a positioning hint for
+    marks attached to a base character.
 
-  The Qt text rendering engine uses this information
-  to correctly position non spacing marks around a base character.
+    The Qt text rendering engine uses this information to correctly
+    position non spacing marks around a base character.
 */
 unsigned char QChar::combiningClass() const
 {
@@ -12402,8 +12435,8 @@ unsigned char QChar::combiningClass() const
 
 
 /*!
-  Returns the lowercase equivalent if the character is uppercase,
-  otherwise returns the character itself.
+    Returns the lowercase equivalent if the character is uppercase;
+    otherwise returns the character itself.
 */
 QChar QChar::lower() const
 {
@@ -12411,8 +12444,8 @@ QChar QChar::lower() const
 }
 
 /*!
-  Returns the uppercase equivalent if the character is lowercase,
-  otherwise returns the character itself.
+    Returns the uppercase equivalent if the character is lowercase;
+    otherwise returns the character itself.
 */
 QChar QChar::upper() const
 {
@@ -12420,28 +12453,30 @@ QChar QChar::upper() const
 }
 
 /*!
-  \fn QChar::operator char() const
+    \fn QChar::operator char() const
 
-  Returns the Latin1 character equivalent to the QChar,
-  or 0.  This is mainly useful for non-internationalized software.
+    Returns the Latin1 character equivalent to the QChar, or 0. This
+    is mainly useful for non-internationalized software.
 
-  \sa unicode()
+    \sa unicode()
 */
 
 /*!
-  \fn ushort QChar::unicode() const
+    \fn ushort QChar::unicode() const
 
-  Returns the numeric Unicode value equal to the QChar.  Normally, you
-  should use QChar objects as they are equivalent, but for some low-level
-  tasks (e.g. indexing into an array of Unicode information), this function
-  is useful.
+    Returns the numeric Unicode value equal to the QChar. Normally,
+    you should use QChar objects as they are equivalent, but for some
+    low-level tasks (e.g. indexing into an array of Unicode
+    information), this function is useful.
 */
 
 /*!
-  \fn ushort & QChar::unicode()
-  \overload
+    \fn ushort & QChar::unicode()
 
-  Returns a reference to the numeric Unicode value equal to the QChar.
+    \overload
+
+    Returns a reference to the numeric Unicode value equal to the
+    QChar.
 */
 
 /*****************************************************************************
@@ -12449,152 +12484,185 @@ QChar QChar::upper() const
  *****************************************************************************/
 
 /*!
-  \fn bool operator==( QChar c1, QChar c2 )
-  \relates QChar
+    \fn bool operator==( QChar c1, QChar c2 )
 
-  Returns TRUE if \a c1 and \a c2 are the same Unicode character.
-*/
+    \relates QChar
 
-/*! \fn bool operator==( char ch, QChar c )
-  \overload
-
-  \relates QChar
-
-  Returns TRUE if \a c is the ASCII/Latin1 character \a ch.
-*/
-
-/*! \fn bool operator==( QChar c, char ch )
-  \overload
-
-  \relates QChar
-
-  Returns TRUE if \a c is the ASCII/Latin1 character \a ch.
+    Returns TRUE if \a c1 and \a c2 are the same Unicode character;
+    otherwise returns FALSE.
 */
 
 /*!
-  \fn int operator!=( QChar c1, QChar c2 )
-  \relates QChar
+    \fn bool operator==( char ch, QChar c )
 
-  Returns TRUE if \a c1 and \a c2 are not the same Unicode character.
-*/
+    \overload
+    \relates QChar
 
-/*! \fn int operator!=( char ch, QChar c )
-  \overload
-
-  \relates QChar
-
-  Returns TRUE if \a c is not the ASCII/Latin1 character \a ch.
-*/
-
-/*! \fn int operator!=( QChar c, char ch )
-  \overload
-
-  \relates QChar
-
-  Returns TRUE if \a c is not the ASCII/Latin1 character \a ch.
+    Returns TRUE if \a c is the ASCII/Latin1 character \a ch;
+    otherwise returns FALSE.
 */
 
 /*!
-  \fn int operator<=( QChar c1, QChar c2 )
-  \relates QChar
+    \fn bool operator==( QChar c, char ch )
 
-  Returns TRUE if the numeric Unicode value of \a c1 is less than that
-  of \a c2, or they are the same Unicode character.
-*/
+    \overload
+    \relates QChar
 
-/*! \fn int operator<=( QChar c, char ch )
-  \overload
-
-  \relates QChar
-
-  Returns TRUE if the numeric Unicode value of \a c is less than or
-  equal to that of the ASCII/Latin1 character \a ch.
-*/
-
-/*! \fn int operator<=( char ch, QChar c )
-  \overload
-
-  \relates QChar
-
-  Returns TRUE if the numeric Unicode value of the ASCII/Latin1
-  character \a ch is less than or equal to that of \a c.
+    Returns TRUE if \a c is the ASCII/Latin1 character \a ch;
+    otherwise returns FALSE.
 */
 
 /*!
-  \fn int operator>=( QChar c1, QChar c2 )
-  \relates QChar
+    \fn int operator!=( QChar c1, QChar c2 )
 
-  Returns TRUE if the numeric Unicode value of \a c1 is greater than that
-  of \a c2, or they are the same Unicode character.
-*/
+    \relates QChar
 
-/*! \fn int operator>=( QChar c, char ch )
-  \overload
-  \relates QChar
-
-  Returns TRUE if the numeric Unicode value of \a c is greater than or
-  equal to that of the ASCII/Latin1 character \a ch.
-*/
-
-/*! \fn int operator>=( char ch, QChar c )
-  \overload
-
-  \relates QChar
-
-  Returns TRUE if the numeric Unicode value of the ASCII/Latin1
-  character \a ch is greater than or equal to that of \a c.
+    Returns TRUE if \a c1 and \a c2 are not the same Unicode
+    character; otherwise returns FALSE.
 */
 
 /*!
-  \fn int operator<( QChar c1, QChar c2 )
-  \relates QChar
+    \fn int operator!=( char ch, QChar c )
 
-  Returns TRUE if the numeric Unicode value of \a c1 is less than that
-  of \a c2.
-*/
+    \overload
+    \relates QChar
 
-/*! \fn int operator<( QChar c, char ch )
-  \overload
-
-  \relates QChar
-
-  Returns TRUE if the numeric Unicode value of \a c is less than that
-  of the ASCII/Latin1 character \a ch.
-*/
-
-/*! \fn int operator<( char ch, QChar c )
-  \overload
-
-  \relates QChar
-
-  Returns TRUE if the numeric Unicode value of the ASCII/Latin1
-  character \a ch is less than that of \a c.
+    Returns TRUE if \a c is not the ASCII/Latin1 character \a ch;
+    otherwise returns FALSE.
 */
 
 /*!
-  \fn int operator>( QChar c1, QChar c2 )
-  \relates QChar
+    \fn int operator!=( QChar c, char ch )
 
-  Returns TRUE if the numeric Unicode value of \a c1 is greater than
-  that of \a c2.
+    \overload
+    \relates QChar
+
+    Returns TRUE if \a c is not the ASCII/Latin1 character \a ch;
+    otherwise returns FALSE.
 */
 
-/*! \fn int operator>( QChar c, char ch )
-  \overload
+/*!
+    \fn int operator<=( QChar c1, QChar c2 )
 
-  \relates QChar
+    \relates QChar
 
-  Returns TRUE if the numeric Unicode value of \a c is greater than
-  that of the ASCII/Latin1 character \a ch.
+    Returns TRUE if the numeric Unicode value of \a c1 is less than
+    that of \a c2, or they are the same Unicode character; otherwise
+    returns FALSE.
 */
 
-/*! \fn int operator>( char ch, QChar c )
-  \overload
+/*!
+    \fn int operator<=( QChar c, char ch )
 
-  \relates QChar
+    \overload
+    \relates QChar
 
-  Returns TRUE if the numeric Unicode value of the ASCII/Latin1
-  character \a ch is greater than that of \a c.
+    Returns TRUE if the numeric Unicode value of \a c is less than or
+    equal to that of the ASCII/Latin1 character \a ch; otherwise
+    returns FALSE.
+*/
+
+/*!
+    \fn int operator<=( char ch, QChar c )
+
+    \overload
+    \relates QChar
+
+    Returns TRUE if the numeric Unicode value of the ASCII/Latin1
+    character \a ch is less than or equal to that of \a c; otherwise
+    returns FALSE.
+*/
+
+/*!
+    \fn int operator>=( QChar c1, QChar c2 )
+
+    \relates QChar
+
+    Returns TRUE if the numeric Unicode value of \a c1 is greater than
+    that of \a c2, or they are the same Unicode character; otherwise
+    returns FALSE.
+*/
+
+/*!
+    \fn int operator>=( QChar c, char ch )
+
+    \overload
+    \relates QChar
+
+    Returns TRUE if the numeric Unicode value of \a c is greater than
+    or equal to that of the ASCII/Latin1 character \a ch; otherwise
+    returns FALSE.
+*/
+
+/*!
+    \fn int operator>=( char ch, QChar c )
+
+    \overload
+    \relates QChar
+
+    Returns TRUE if the numeric Unicode value of the ASCII/Latin1
+    character \a ch is greater than or equal to that of \a c;
+    otherwise returns FALSE.
+*/
+
+/*!
+    \fn int operator<( QChar c1, QChar c2 )
+
+    \relates QChar
+
+    Returns TRUE if the numeric Unicode value of \a c1 is less than
+    that of \a c2; otherwise returns FALSE.
+*/
+
+/*!
+    \fn int operator<( QChar c, char ch )
+
+    \overload
+    \relates QChar
+
+    Returns TRUE if the numeric Unicode value of \a c is less than that
+    of the ASCII/Latin1 character \a ch; otherwise returns FALSE.
+*/
+
+/*!
+    \fn int operator<( char ch, QChar c )
+
+    \overload
+    \relates QChar
+
+    Returns TRUE if the numeric Unicode value of the ASCII/Latin1
+    character \a ch is less than that of \a c; otherwise returns
+    FALSE.
+*/
+
+/*!
+    \fn int operator>( QChar c1, QChar c2 )
+
+    \relates QChar
+
+    Returns TRUE if the numeric Unicode value of \a c1 is greater than
+    that of \a c2; otherwise returns FALSE.
+*/
+
+/*!
+    \fn int operator>( QChar c, char ch )
+
+    \overload
+    \relates QChar
+
+    Returns TRUE if the numeric Unicode value of \a c is greater than
+    that of the ASCII/Latin1 character \a ch; otherwise returns FALSE.
+*/
+
+/*!
+    \fn int operator>( char ch, QChar c )
+
+    \overload
+    \relates QChar
+
+    Returns TRUE if the numeric Unicode value of the ASCII/Latin1
+    character \a ch is greater than that of \a c; otherwise returns
+    FALSE.
 */
 
 #ifndef QT_NO_UNICODETABLES
@@ -12710,14 +12778,16 @@ static inline bool format(QChar::Decomposition tag, QString & str,
   who developed the unicode data tables.
 */
 /*!
-  Note that this function is not supported in Qt 3.0 and is merely
-  for experimental and illustrative purposes.  It is mainly of interest
-  to those experimenting with Arabic and other composition-rich texts.
+    \warning This function is not supported in Qt 3.x. It is provided
+    for experimental and illustrative purposes only. It is mainly of
+    interest to those experimenting with Arabic and other
+    composition-rich texts.
 
-  Applies possible ligatures to a QString. Useful when composition-rich
-  text requires rendering with glyph-poor fonts, but it also
-  makes compositions such as QChar(0x0041) ('A') and QChar(0x0308)
-  (Unicode accent diaresis), giving QChar(0x00c4) (German A Umlaut).
+    Applies possible ligatures to a QString. Useful when
+    composition-rich text requires rendering with glyph-poor fonts,
+    but it also makes compositions such as QChar(0x0041) ('A') and
+    QChar(0x0308) (Unicode accent diaresis), giving QChar(0x00c4)
+    (German A Umlaut).
 */
 void QString::compose()
 {
@@ -12776,10 +12846,11 @@ void QString::compose()
 
 
 /*!
-  This utility function converts the 8-bit string
-  \a ba to Unicode, returning the result.
+    This utility function converts the 8-bit string \a ba to Unicode,
+    returning the result.
 
-  The caller is responsible for deleting the return value with delete[].
+    The caller is responsible for deleting the return value with
+    delete[].
 */
 
 QChar* QString::asciiToUnicode( const QByteArray& ba, uint* len )
@@ -12820,13 +12891,15 @@ static QChar* internalAsciiToUnicode( const QByteArray& ba, uint* len )
     return result;
 }
 
-/*! \overload
+/*!
+    \overload
 
-  This utility function converts the NUL-terminated 8-bit string
-  \a str to Unicode, returning the result and setting \a len to
-  the length of the Unicode string.
+    This utility function converts the '\0'-terminated 8-bit string \a
+    str to Unicode, returning the result and setting \a *len to the
+    length of the Unicode string.
 
-  The caller is responsible for deleting the return value with delete[].
+    The caller is responsible for deleting the return value with
+    delete[].
 */
 
 QChar* QString::asciiToUnicode( const char *str, uint* len, uint maxlen )
@@ -12877,10 +12950,11 @@ static QChar* internalAsciiToUnicode( const char *str, uint* len,
 }
 
 /*!
-  This utility function converts \a l 16-bit characters from
-  \a uc to ASCII, returning a NUL-terminated string.
+    This utility function converts \a l 16-bit characters from \a uc
+    to ASCII, returning a '\0'-terminated string.
 
-  The caller is responsible for deleting the string with delete[].
+    The caller is responsible for deleting the resultant string with
+    delete[].
 */
 char* QString::unicodeToAscii(const QChar *uc, uint l)
 {
@@ -12902,48 +12976,48 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
  *****************************************************************************/
 
 /*!
-  \class QString qstring.h
+    \class QString qstring.h
 
-  \brief The QString class provides an abstraction of Unicode text and
-	  the classic C null-terminated char array.
+    \brief The QString class provides an abstraction of Unicode text
+    and the classic C '\0'-terminated char array.
 
-  \ingroup tools
-  \ingroup shared
-  \ingroup text
-  \mainclass
+    \ingroup tools
+    \ingroup shared
+    \ingroup text
+    \mainclass
 
-  QString uses \link shclass.html implicit sharing\endlink, which makes it
-  very efficient and easy to use.
+    QString uses \link shclass.html implicit sharing\endlink, which
+    makes it very efficient and easy to use.
 
-  In all of the QString methods that take \c {const char *} parameters,
-  the \c {const char *} is interpreted as a classic C-style
-  0-terminated ASCII string. It is legal for the \c {const
-  char *} parameter to be 0. If the \c {const char *} is not
-  0-terminated, the results are undefined.  Functions that
-  copy classic C strings into a QString will not copy the terminating
-  0 character. The QChar array of the QString (as returned by
-  unicode()) is generally not terminated by a null. If you need to
-  pass a QString to a function that requires a C null-terminated
-  string use latin1().
+    In all of the QString methods that take \c {const char *}
+    parameters, the \c {const char *} is interpreted as a classic
+    C-style '\0'-terminated ASCII string. It is legal for the \c
+    {const char *} parameter to be 0. If the \c {const char *} is not
+    '\0'-terminated, the results are undefined. Functions that copy
+    classic C strings into a QString will not copy the terminating
+    '\0' character. The QChar array of the QString (as returned by
+    unicode()) is generally not terminated by a '\0'. If you need to
+    pass a QString to a function that requires a C '\0'-terminated
+    string use latin1().
 
-  \keyword QString::null
-  A QString that has not been assigned to anything is \e null, i.e. both
-  the length and data pointer is 0. A QString that references the empty
-  string ("", a single '\0' char) is \e empty.  Both null and empty
-  QStrings are legal parameters to the methods. Assigning
-  \c{(const char *) 0} to QString gives a null QString. For
-  convenience, \c QString::null is a null QString. When sorting, empty
-  strings come first, followed by non-empty strings, followed by null
-  strings. We recommend using \c{if ( !str.isNull() )} to check for a
-  non-null string rather than \c{if ( !str )}; see \l operator!() for
-  an explanation.
+    \keyword QString::null
+    A QString that has not been assigned to anything is \e null, i.e.
+    both the length and data pointer is 0. A QString that references
+    the empty string ("", a single '\0' char) is \e empty. Both null
+    and empty QStrings are legal parameters to the methods. Assigning
+    \c{(const char *) 0} to QString gives a null QString. For
+    convenience, \c QString::null is a null QString. When sorting,
+    empty strings come first, followed by non-empty strings, followed
+    by null strings. We recommend using \c{if ( !str.isNull() )} to
+    check for a non-null string rather than \c{if ( !str )}; see \l
+    operator!() for an explanation.
 
-  Note that if you find that you are mixing usage of \l QCString,
-  QString, and \l QByteArray, this causes lots of unnecessary copying
-  and might indicate that the true nature of the data you are dealing
-  with is uncertain.  If the data is 0-terminated 8-bit data, use \l
-  QCString; if it is unterminated (i.e. contains 0s) 8-bit data, use
-  \l QByteArray; if it is text, use QString.
+    Note that if you find that you are mixing usage of \l QCString,
+    QString, and \l QByteArray, this causes lots of unnecessary
+    copying and might indicate that the true nature of the data you
+    are dealing with is uncertain. If the data is '\0'-terminated 8-bit
+    data, use \l QCString; if it is unterminated (i.e. contains '\0's)
+    8-bit data, use \l QByteArray; if it is text, use QString.
 
     Lists of strings are handled by the QStringList class. You can
     split a string into a list of strings using QStringList::split(),
@@ -12953,13 +13027,13 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
     that match a particular \link qregexp.html regex\endlink using
     QStringList::grep().
 
-  <b>Note for C programmers</b>
+    <b>Note for C programmers</b>
 
-  Due to C++'s type system and the fact that QString is implicitly
-  shared, QStrings may be treated like ints or other simple base types.
-  For example:
+    Due to C++'s type system and the fact that QString is implicitly
+    shared, QStrings may be treated like ints or other simple base
+    types. For example:
 
-  \code
+    \code
     QString boolToString( bool b )
     {
 	QString result;
@@ -12969,47 +13043,35 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
 	    result = "False";
 	return result;
     }
-  \endcode
+    \endcode
 
-  The variable, result, is an auto variable allocated on the stack.
-  When return is called, because we're returning by value, The copy
-  constructor is called and a copy of the string is returned. (No
-  actual copying takes place thanks to the implicit sharing, see
-  below.)
+    The variable, result, is an auto variable allocated on the stack.
+    When return is called, because we're returning by value, The copy
+    constructor is called and a copy of the string is returned. (No
+    actual copying takes place thanks to the implicit sharing, see
+    below.)
 
-  Throughout Qt's source code you will encounter QString usages like this:
-  \code
+    Throughout Qt's source code you will encounter QString usages like
+    this:
+    \code
     QString func( const QString& input )
     {
 	QString output = input;
 	// process output
 	return output;
     }
-  \endcode
+    \endcode
 
-  The 'copying' of input to output is almost as fast as copying a
-  pointer because behind the scenes copying is achieved by
-  incrementing a reference count. QString operates on a copy-on-write
-  basis, only copying if an instance is actually changed.
+    The 'copying' of input to output is almost as fast as copying a
+    pointer because behind the scenes copying is achieved by
+    incrementing a reference count. QString (like all Qt's implicitly
+    shared classes) operates on a copy-on-write basis, only copying if
+    an instance is actually changed.
 
-  If you wish to create a deep copy of a QString without loosing any
-  Unicode information then you should use the QString constructor
-  that takes a QChar*.  For example:
+    If you wish to create a deep copy of a QString without losing any
+    Unicode information then you should use QDeepCopy.
 
-  \code
-    QString a("abcd");
-    QString b( a.unicode(), b.length() );
-  \endcode
-
-  Otherwise, using the QString constructor that takes a const char*
-  will be sufficent.  For example:
-
-  \code
-    QString a("abcd");
-    QString b( a.latin1() );
-  \endcode
-
-  \sa QChar QCString QByteArray QConstString
+    \sa QChar QCString QByteArray QConstString
 */
 
 /*! \enum Qt::ComparisonFlags
@@ -13019,7 +13081,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   \enum Qt::StringComparisonMode
 
   This enum type is used to set the string comparison mode when
-  searching for an item.  This is implemented in QListBox, QListView
+  searching for an item. This is implemented in QListBox, QListView
   and QIconView, for example. We'll refer to the string being searched
   as the 'target' string.
 
@@ -13087,7 +13149,7 @@ Q_EXPORT void qt_qstring_stats()
 /*!
   \fn QString::QString()
 
-  Constructs a null string.  This is a string that has not been assigned to
+  Constructs a null string. This is a string that has not been assigned to
   anything, i.e. both the length and data pointer is 0.
 
   \sa isNull()
@@ -13103,7 +13165,7 @@ QString::QString( QChar ch )
 }
 
 /*!
-  Constructs an implicitly shared copy of \a s.  This is
+  Constructs an implicitly shared copy of \a s. This is
   instantaneous, since reference counting is used.
 */
 QString::QString( const QString &s ) :
@@ -13159,7 +13221,7 @@ QString::QString( const QByteArray& ba )
 
   If only \a unicode is 0, the string is empty but has \a length
   characters of space preallocated - QString expands automatically
-  anyway, but this may speed up some cases a little.  We recommend
+  anyway, but this may speed up some cases a little. We recommend
   using the plain constructor and setLength() for this purpose since
   it will result in more readable code.
 
@@ -13190,7 +13252,7 @@ QString::QString( const QChar* unicode, uint length )
   You can disable this constructor by
   defining QT_NO_CAST_ASCII when you compile your applications.
   You can also make QString objects by using setLatin1(), fromLatin1(),
-  fromLocal8Bit(), and fromUtf8().  Or whatever encoding is appropriate for
+  fromLocal8Bit(), and fromUtf8(). Or whatever encoding is appropriate for
   the 8-bit data you have.
 
   \sa isNull()
@@ -13252,7 +13314,7 @@ void QStringData::deleteSelf()
 /*! \overload
 
   Assigns a shallow copy of \a s to this string and returns a
-  reference to this string.  This is very fast because the string
+  reference to this string. This is very fast because the string
   isn't actually copied.
 */
 QString &QString::operator=( const QString &s )
@@ -13336,7 +13398,7 @@ QString &QString::operator=( const char *str )
 
 /*!
   If \a newLen is less than the length of the string, then the string
-  is truncated at position \a newLen.  Otherwise nothing will happen.
+  is truncated at position \a newLen. Otherwise nothing will happen.
 
   \code
     QString s = "truncate me";
@@ -13354,7 +13416,7 @@ void QString::truncate( uint newLen )
 
 /*!
   Ensures that at least \a newLen characters are allocated to the string,
-  and sets the length of the string to \a newLen.  Any new space allocated
+  and sets the length of the string to \a newLen. Any new space allocated
   contains arbitrary data.
 
   If \a newLen is 0, then the string becomes empty, unless the string is
@@ -13414,7 +13476,7 @@ void QString::setLength( uint newLen )
   \c %i (\c i being '1' or '2' or ... or '9') with \a a.
 
   The \a fieldwidth value specifies the minimum amount of space that
-  \a a is padded to.  A positive value will produce right-aligned text,
+  \a a is padded to. A positive value will produce right-aligned text,
   whereas a negative value will produce left-aligned text.
 
   \code
@@ -13433,7 +13495,7 @@ void QString::setLength( uint newLen )
   (when you use the tr() function).
 
   If there is no \c %i pattern, a warning message (qWarning()) is
-  outputted and the text is appended at the end of the string.  This is
+  outputted and the text is appended at the end of the string. This is
   error recovery done by the function and should not occur in correct code.
 
   \sa QObject::tr()
@@ -13476,7 +13538,7 @@ QString QString::arg( const QString& a, int fieldwidth ) const
 /*! \overload
 
   The \a fieldwidth value specifies the minimum amount of space that
-  \a a is padded to.  A positive value will produce a right-aligned number,
+  \a a is padded to. A positive value will produce a right-aligned number,
   whereas a negative value will produce a left-aligned number.
 
   \a a is expressed in base \a base, which is 10 by default and
@@ -13609,7 +13671,7 @@ bool QString::findArg( int& pos, int& len ) const
 
 /*!
   Safely builds a formatted string from the format string \a cformat and an
-  arbitrary list of arguments.  The format string supports all
+  arbitrary list of arguments. The format string supports all
   the escape sequences of printf() in the standard C library.
 
   The %s escape sequence expects a utf8() encoded string. The format
@@ -13627,7 +13689,7 @@ bool QString::findArg( int& pos, int& len ) const
 
   For \link QObject::tr() translations,\endlink especially if the
   strings contains more than one escape sequence, you should consider
-  using the arg() function instead.  This allows the order of the
+  using the arg() function instead. This allows the order of the
   replacements to be controlled by the translator, and has Unicode
   support.
 
@@ -13837,10 +13899,10 @@ QString& QString::fill( QChar c, int len )
 
   Finds the first occurrence of the character \a c, starting at
   position \a index. If \a index is -1, the search starts at the
-  last character; if -2, at the next to last character and so on.  (See
+  last character; if -2, at the next to last character and so on. (See
   findRev() for searching backwards.)
 
-  If \a cs is TRUE, then the search is case sensitive.  If \a cs is FALSE,
+  If \a cs is TRUE, then the search is case sensitive. If \a cs is FALSE,
   then the search is case insensitive.
 
   Returns the position of \a c or -1 if \a c could not be found.
@@ -13964,7 +14026,7 @@ static int bm_find( const QString &str, int index, const QString &pattern, uint 
 
   Finds the first occurrence of the string \a str, starting at position
   \a index. If \a index is -1, the search starts at the last character, if
-  it is -2, at the next to last character and so on.  (See
+  it is -2, at the next to last character and so on. (See
   findRev() for searching backwards.)
 
   The search is case sensitive if \a cs is TRUE or case insensitive if
@@ -13993,10 +14055,10 @@ int QString::find( const QString& str, int index, bool cs ) const
     }
 
     /*
-      We use some simple hashing for efficiency's sake. Instead of
-      comparing strings, we compare the hash value of str with that
-      of a part of this QString. Only if that matches, we call
-      ucstrncmp() or ucstrnicmp().
+      We use some weird hashing for efficiency's sake. Instead of
+      comparing strings, we compare the hash value of str with that of
+      a part of this QString. Only if that matches, we call ucstrncmp
+      or ucstrnicmp.
 
       The hash value of a string is the sum of the unicode values of its
       QChars.
@@ -14069,7 +14131,7 @@ int QString::find( const QString& str, int index, bool cs ) const
 
   Returns the position of \a c or -1 if \a c could not be found.
 
-  If \a cs is TRUE then the search is case sensitive.  If \a cs is
+  If \a cs is TRUE then the search is case sensitive. If \a cs is
   FALSE then the search is case insensitive.
 
   \code
@@ -14093,7 +14155,7 @@ int QString::findRev( QChar c, int index, bool cs ) const
 
   Returns the position of \a str or -1 if \a str could not be found.
 
-  If \a cs is TRUE then the search is case sensitive.  If \a cs is
+  If \a cs is TRUE then the search is case sensitive. If \a cs is
   FALSE then the search is case insensitive.
 
   \code
@@ -14509,7 +14571,7 @@ QString QString::section( const QRegExp &reg, int start, int end, int flags ) co
 /*!
   Returns the number of times the character \a c occurs in the string.
 
-  If \a cs is TRUE then the match is case sensitive.  If \a cs is FALSE, then the
+  If \a cs is TRUE then the match is case sensitive. If \a cs is FALSE, then the
   match is case insensitive.
 
   \code
@@ -14544,7 +14606,7 @@ int QString::contains( QChar c, bool cs ) const
 
   Returns the number of times the string \a str occurs in the string.
 
-  If \a cs is TRUE then the match is case sensitive.  If \a cs is
+  If \a cs is TRUE then the match is case sensitive. If \a cs is
   FALSE, then the match is case insensitive.
 */
 int QString::contains( const char* str, bool cs ) const
@@ -14559,7 +14621,7 @@ int QString::contains( const char* str, bool cs ) const
 
 /*! \overload int QString::find( char c, int index, bool cs ) const
     Find character \a c starting from position \a index.
-  If \a cs is TRUE then the match is case sensitive.  If \a cs is
+  If \a cs is TRUE then the match is case sensitive. If \a cs is
   FALSE, then the match is case insensitive.
 */
 
@@ -14567,7 +14629,7 @@ int QString::contains( const char* str, bool cs ) const
     \overload int QString::findRev( char c, int index, bool cs ) const
     Find character \a c starting from position \a index and working
     backwards.
-  If \a cs is TRUE then the match is case sensitive.  If \a cs is
+  If \a cs is TRUE then the match is case sensitive. If \a cs is
   FALSE, then the match is case insensitive.
 */
 
@@ -14678,7 +14740,7 @@ QString QString::right( uint len ) const
   string, starting at position \a index.
 
   Returns a null string if the string is empty or \a index is out
-  of range.  Returns the whole string from \a index if \a index+len exceeds
+  of range. Returns the whole string from \a index if \a index+len exceeds
   the length of the string.
 
   \code
@@ -15075,7 +15137,7 @@ QString &QString::prepend( const char *s )
   Removes \a len characters starting at position \a index from the
   string and returns a reference to the string.
 
-  If \a index is beyond the length of the string, nothing happens.  If
+  If \a index is beyond the length of the string, nothing happens. If
   \a index is within the string, but \a index plus \a len is beyond the
   end of the string, the string is truncated at position \a index.
 
@@ -15200,7 +15262,7 @@ QString &QString::remove( const char *str )
   string with \a s, and returns a reference to the string.
 
   If \a index is beyond the length of the string, nothing is deleted
-  and \a s is appended at the end of the string.  If \a index is valid,
+  and \a s is appended at the end of the string. If \a index is valid,
   but \a index plus \a len is beyond the end of the string, the string
   is truncated at position \a index, then \a s is appended at the
   end.
@@ -15460,7 +15522,7 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
   Finds the first occurrence of the constant regular expression \a
   rx, starting at position \a index. If \a index is -1, the search
   starts at the last character; if -2, at the next to last character
-  and so on.  (See findRev() for searching backwards.)
+  and so on. (See findRev() for searching backwards.)
 
   Returns the position of the first occurrence of \a rx or -1 if
   \a rx was not found.
@@ -15483,7 +15545,7 @@ int QString::find( const QRegExp &rx, int index ) const
   Finds the first occurrence of the regexp \a rx, starting at
   position \a index and searching backwards. If the index is -1,
   the search starts at the last character, if it is -2, at the next
-  to last character and so on.  (See findRev() for searching
+  to last character and so on. (See findRev() for searching
   backwards.)
 
   Returns the position of \a rx or -1 if \a rx could not be found.
@@ -15711,7 +15773,7 @@ ushort QString::toUShort( bool *ok, int base ) const
   be between 2 and 36.
 
   If \a *ok is nonnull, and is TRUE then there have been no errors
-  in the conversion.  If \a *ok is nonnull, and is FALSE, then the
+  in the conversion. If \a *ok is nonnull, and is FALSE, then the
   string is not a number at all or it has invalid characters at the end.
 
   \code
@@ -16069,10 +16131,10 @@ void QString::setExpand( uint index, QChar c )
 
   \obsolete
 
-  Returns a pointer to a 0-terminated classic C string.
+  Returns a pointer to a '\0'-terminated classic C string.
 
   In Qt 1.x, this returned a char* allowing direct manipulation of the
-  string as a sequence of bytes.  In Qt 2.x where QString is a Unicode
+  string as a sequence of bytes. In Qt 2.x where QString is a Unicode
   string, char* conversion constructs a temporary string, and hence
   direct character operations are meaningless.
 */
@@ -16228,13 +16290,13 @@ QString &QString::operator+=( char c )
 /*! \fn char QChar::latin1() const
 
   Returns a latin-1 copy of this character, if this character is in
-  the latin-1 character set.  If not, this function returns 0.
+  the latin-1 character set. If not, this function returns 0.
 */
 
 
 /*!
   Returns a Latin-1 representation of the string. Note that the returned
-  value is undefined if the string contains non-Latin-1 characters.  If you
+  value is undefined if the string contains non-Latin-1 characters. If you
   want to convert strings into formats other than Unicode, see the
   QTextCodec classes.
 
@@ -16298,8 +16360,8 @@ QCString QString::utf8() const
 
 /*!
   Returns the unicode string decoded from the first \a len characters of
-  \a utf8, ignoring the rest of \a utf8.  If \a len is -1 then the
-  length of \a utf8 is used.  If \a len is bigger than the length of
+  \a utf8, ignoring the rest of \a utf8. If \a len is -1 then the
+  length of \a utf8 is used. If \a len is bigger than the length of
   \a utf8 then it will use the length of \a utf8.
 
   \code
@@ -16355,8 +16417,8 @@ QString QString::fromUtf8( const char* utf8, int len )
 
 /*!
   Returns the unicode string decoded from the first \a len characters of
-  \a chars, ignoring the rest of \a chars.  If \a len is -1 then the
-  length of \a chars is used.  If \a len is bigger than the length of
+  \a chars, ignoring the rest of \a chars. If \a len is -1 then the
+  length of \a chars is used. If \a len is bigger than the length of
   \a chars then it will use the length of \a chars.
 
   This is the same as the QString(const char*) constructor, but
@@ -16383,13 +16445,13 @@ QString QString::fromLatin1( const char* chars, int len )
 /*!
   \fn const QChar* QString::unicode() const
 
-  Returns the Unicode representation of the string.  The result
+  Returns the Unicode representation of the string. The result
   remains valid until the string is modified.
 */
 
 /*!
-  Returns the string encoded in a locale-specific format.  On X11, this
-  is the QTextCodec::codecForLocale().  On Windows, it is a system-defined
+  Returns the string encoded in a locale-specific format. On X11, this
+  is the QTextCodec::codecForLocale(). On Windows, it is a system-defined
   encoding. On Mac OS X, this always uses utf8 as the encoding.
 
   See QTextCodec for more diverse coding/decoding of Unicode strings.
@@ -16426,8 +16488,8 @@ QCString QString::local8Bit() const
 
 /*!
   Returns the unicode string decoded from the first \a len characters of
-  \a local8Bit, ignoring the rest of \a local8Bit.  If \a len is -1 then the
-  length of \a local8Bit is used.  If \a len is bigger than the length of
+  \a local8Bit, ignoring the rest of \a local8Bit. If \a len is -1 then the
+  length of \a local8Bit is used. If \a len is bigger than the length of
   \a local8Bit then it will use the length of \a local8Bit.
 
   \code
@@ -16474,10 +16536,10 @@ QString QString::fromLocal8Bit( const char* local8Bit, int len )
 /*!
   \fn QString::operator const char *() const
 
-  Returns latin1().  Be sure to see the warnings documented there.
+  Returns latin1(). Be sure to see the warnings documented there.
   Note that for new code which you wish to be strictly Unicode-clean,
   you can define the macro QT_NO_ASCII_CAST when compiling your code
-  to hide this function so that automatic casts are not done.  This
+  to hide this function so that automatic casts are not done. This
   has the added advantage that you catch the programming error
   described under operator!().
 */
@@ -16563,7 +16625,7 @@ QString QString::fromUcs2( const unsigned short *str )
   \fn QChar& QString::ref(uint i)
 
   Returns the QChar at index \a i by reference, expanding the string with
-  QChar::null if necessary.  The resulting reference can be assigned to, or
+  QChar::null if necessary. The resulting reference can be assigned to, or
   otherwise used immediately, but becomes invalid once furher modifications
   are made to the string.
 
@@ -16589,7 +16651,7 @@ QString QString::fromUcs2( const unsigned short *str )
 /*! \fn QCharRef QString::operator[]( int )
   \overload
 
-  The function returns a reference to the character at index \a i.  The
+  The function returns a reference to the character at index \a i. The
   resulting reference can then be assigned to, or used
   immediately, but it will become invalid once further modifications
   are made to the original string.
@@ -16607,7 +16669,7 @@ QString QString::fromUcs2( const unsigned short *str )
 /*! \fn QCharRef QString::at( uint i )
   \overload
 
-  The function returns a reference to the character at index \a i.  The
+  The function returns a reference to the character at index \a i. The
   resulting reference can then be assigned to, or used
   immediately, but it will become invalid once further modifications
   are made to the original string.
@@ -16636,7 +16698,7 @@ void QString::subat( uint i )
 
 /*!
   Resizes the string to \a len characters and copies \a unicode
-  into the string.  If \a unicode is null, nothing is copied, but the
+  into the string. If \a unicode is null, nothing is copied, but the
   string is still resized to \a len. If \a len is zero, then the string
   becomes a \link isNull() null\endlink string.
 
@@ -16692,7 +16754,7 @@ QString& QString::setUnicodeCodes( const ushort* unicode_as_ushorts, uint len )
   Sets this string to \a str, interpreted as a classic Latin1 C string.
   If \a len is -1 (the default), then it is set to strlen(str).
 
-  If \a str is 0 a null string is created.  If \a str is "", an empty
+  If \a str is 0 a null string is created. If \a str is "", an empty
   string is created.
 
   \sa isNull(), isEmpty()
@@ -16993,7 +17055,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \fn bool operator<( const QString &s1, const char *s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically less than \a s2 or FALSE if it is not.
-  The comparison is case sensitive.  Note that a null string is not equal to
+  The comparison is case sensitive. Note that a null string is not equal to
   an empty string which is nonnull.
 
   Equivalent to compare(\a s1, \a s2) \< 0.
@@ -17004,7 +17066,7 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is lexically less than \a s2 or FALSE if it is not.
-  The comparison is case sensitive.  Note that a null string is not equal to
+  The comparison is case sensitive. Note that a null string is not equal to
   an empty string which is nonnull.
 
   Equivalent to compare(\a s1, \a s2) \< 0.
@@ -17015,7 +17077,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \fn bool operator<=( const QString &s1, const char *s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically less than or equal to \a s2 or FALSE if it is not.
-  The comparison is case sensitive.  Note that a null string is not equal to
+  The comparison is case sensitive. Note that a null string is not equal to
   an empty string which is nonnull.
 
   Equivalent to compare(\a s1,\a s2) \<= 0.
@@ -17027,7 +17089,7 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is lexically less than or equal to \a s2 or FALSE if it is not.
-  The comparison is case sensitive.  Note that a null string is not equal to
+  The comparison is case sensitive. Note that a null string is not equal to
   an empty string which is nonnull.
 
   Equivalent to compare(\a s1, \a s2) \<= 0.
@@ -17037,7 +17099,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \fn bool operator>( const QString &s1, const char *s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically greater than \a s2 or FALSE if it is not.
-  The comparison is case sensitive.  Note that a null string is not equal to
+  The comparison is case sensitive. Note that a null string is not equal to
   an empty string which is nonnull.
 
   Equivalent to compare(\a s1, \a s2) \> 0.
@@ -17048,7 +17110,7 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is lexically greater than \a s2 or FALSE if it is not.
-  The comparison is case sensitive.  Note that a null string is not equal to
+  The comparison is case sensitive. Note that a null string is not equal to
   an empty string which is nonnull.
 
   Equivalent to compare(\a s1, \a s2) \> 0.
@@ -17058,7 +17120,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \fn bool operator>=( const QString &s1, const char *s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically greater than or equal to \a s2 or FALSE if it is not.
-  The comparison is case sensitive.  Note that a null string is not equal to
+  The comparison is case sensitive. Note that a null string is not equal to
   an empty string which is nonnull.
 
   Equivalent to compare(\a s1, \a s2) \>= 0.
@@ -17069,7 +17131,7 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is lexically greater than or equal to \a s2 or FALSE if it is not.
-  The comparison is case sensitive.  Note that a null string is not equal to
+  The comparison is case sensitive. Note that a null string is not equal to
   an empty string which is nonnull.
 
   Equivalent to compare(\a s1, \a s2) \>= 0.
@@ -17244,7 +17306,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 
   In order to minimize copying, highly optimized applications can use
   QConstString to provide a QString-compatible object from existing
-  Unicode data.  It is then the programmer's responsibility to ensure
+  Unicode data. It is then the programmer's responsibility to ensure
   that the Unicode data exists for the entire lifetime of the
   QConstString object.
 
@@ -17254,11 +17316,11 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 
 /*!
   Constructs a QConstString that uses the first \a length Unicode
-  characters in the array \a unicode.  Any attempt to modify
+  characters in the array \a unicode. Any attempt to modify
   copies of the string will cause it to create a copy of the
   data, thus it remains forever unmodified.
 
-  The data in \a unicode is not copied.  The caller must be
+  The data in \a unicode is not copied. The caller must be
   able to guarantee that \a unicode will not be deleted or
   modified.
 */

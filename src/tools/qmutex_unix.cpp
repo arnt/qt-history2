@@ -418,6 +418,9 @@ QMutex::QMutex(bool recursive)
 
 /*!
     Destroys the mutex.
+
+    \warning If you destroy a mutex that still holds a lock the
+    resultant behavior is undefined.
 */
 QMutex::~QMutex()
 {
