@@ -157,6 +157,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 		p->fillRect(r, fill);
 	    break;
 	}
+#if defined(Q_WS_WIN)
     case PE_HeaderArrow:
 	p->save();
 	if ( flags & Style_Up ) { // invert logic to follow Windows style guide
@@ -180,6 +181,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	}
 	p->restore();
 	break;
+#endif
 
     case PE_ButtonDefault:
 	p->setPen(cg.shadow());
