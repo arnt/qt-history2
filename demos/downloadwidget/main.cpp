@@ -66,7 +66,10 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
                        option.rect.width() - 6, option.rect.height() - 6);
             double download = model->data(index, DownloadDelegate::ProgressRole).toDouble();
             int width = qMin(rect.width(), static_cast<int>(rect.width() * download));
-            painter->fillRect(rect.x(), rect.y(), width, rect.height(), Qt::blue);
+            QLinearGradient gradient(rect.topLeft(), rect.bottomLeft());
+            gradient.appendStop(0, option.palette.color(cg, QPalette::Light));
+            gradient.appendStop(1, option.palette.color(cg, QPalette::Dark));
+            painter->fillRect(rect.x(), rect.y(), width, rect.height(), gradient);
             painter->fillRect(rect.x() + width, rect.y(), rect.width() - width, rect.height(),
                               option.palette.base());
             painter->drawRect(rect);

@@ -292,15 +292,21 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
     QPen pen = painter->pen();
     QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
                               ? QPalette::Normal : QPalette::Disabled;
+    QRect fill(rect.adjusted(-border, -border, border, border));
     if (option.state & QStyle::State_Selected) {
-        QRect fill(rect.x() - border, rect.y() - border,
-                   rect.width() + border * 2, rect.height() + border * 2);
         painter->fillRect(fill, option.palette.color(cg, QPalette::Highlight));
         painter->setPen(option.palette.color(cg, QPalette::HighlightedText));
     } else {
         painter->setPen(option.palette.color(cg, QPalette::Text));
     }
 
+    if (option.state & QStyle::State_Editing) {
+        painter->save();
+        painter->setPen(option.palette.color(cg, QPalette::Text));
+        painter->drawRect(fill.adjusted(0,0,-1,-1));
+        painter->restore();
+    }
+    
     QRect textRect = rect.adjusted(textMargin, 0, 0, 0);
     QFont font = painter->font();
     painter->setFont(option.font);
@@ -312,6 +318,7 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
         painter->drawText(textRect, option.displayAlignment, text);
     painter->setFont(font);
     painter->setPen(pen);
+
 }
 
 /*!

@@ -1334,6 +1334,8 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                     btn.QStyleOption::operator=(*cb);
                     btn.state |= QStyle::State_Raised;
                     drawPrimitive(PE_PanelButtonCommand, &btn, p, widget);
+                } else {
+                    p->fillRect(opt->rect, opt->palette.brush(QPalette::Button));
                 }
 
                 QRect tr = opt->rect;
@@ -1371,7 +1373,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                                                   subControlRect(CC_ComboBox, opt, SC_ComboBoxEditField, widget));
                     er.adjust(-1, -1, 1, 1);
                     qDrawShadePanel(p, er, opt->palette, true, 1,
-                                    &opt->palette.brush(QPalette::Button));
+                                    &opt->palette.brush(QPalette::Base));
                 }
             }
             p->setPen(opt->palette.buttonText().color());
