@@ -1132,7 +1132,7 @@ QApplication::~QApplication()
 
 #ifndef QT_NO_STYLE
 
-static QString *style_override = 0;
+static QString *qt_style_override = 0;
 
 /*!
   Returns the style object of the application.
@@ -1142,17 +1142,19 @@ QStyle& QApplication::style()
 {
 #ifndef QT_NO_STYLE
     if ( qt_is_gui_used ) {
-#if defined(Q_WS_X11)
-	x11_initialize_style(); // run-time search for default style
-#endif
 	if ( !app_style ) {
+#if defined(Q_WS_X11)
+	    if(!qt_style_override)
+		x11_initialize_style(); // run-time search for default style
+#endif
+
 	    // Compile-time search for default style
 	    //
 	    QString style;
-	    if ( style_override ) {
-		style = *style_override;
-		delete style_override;
-		style_override = 0;
+	    if ( qt_style_override ) {
+		style = *qt_style_override;
+		delete qt_style_override;
+		qt_style_override = 0;
 	    } else {
 #  if defined(Q_WS_WIN) && defined(Q_OS_TEMP)
 		style = "PocketPC";
@@ -1185,9 +1187,9 @@ QStyle& QApplication::style()
 		!(app_style = QStyleFactory::create( "Compact" ) ) &&
 		!(app_style = QStyleFactory::create( QStyleFactory::keys()[0]  ) ) )
 		qFatal( "No %s style available!", style.latin1() );
+	    app_style->polish( *app_pal );
+	    app_style->polish( qApp );
 	}
-	app_style->polish( *app_pal );
-	app_style->polish( qApp ); //##### wrong place, still inside the qapplication constructor...grmbl....
     } else {
 	qFatal( "No style available in non-gui applications!" );
     }
@@ -1279,7 +1281,10 @@ void QApplication::setStyle( QStyle *style )
 QStyle* QApplication::setStyle( const QString& style )
 {
     if ( startingUp() ) {
-	style_override = new QString(style);
+	if(qt_style_override)
+	    *qt_style_override = style;
+	else
+	    qt_style_override = new QString(style);
 	return 0;
     }
     QStyle *s = QStyleFactory::create( style );
