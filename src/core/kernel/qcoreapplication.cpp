@@ -113,8 +113,15 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
 
 QCoreApplicationPrivate::~QCoreApplicationPrivate()
 {
-    QThreadStorageData::finish(mainData()->tls);
+    QThreadData *data = mainData();
+
+    QThreadStorageData::finish(data->tls);
     QThreadData::setCurrent(0);
+
+    // need to clear the state of the mainData, just in case a new QCoreApplication comes along.
+    QMutexLocker locker(&data->postEventList.mutex);
+    data->postEventList.clear();
+    data->postEventList.offset = 0;
 }
 
 void QCoreApplicationPrivate::createEventLoop()
