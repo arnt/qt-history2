@@ -350,8 +350,6 @@ QString qt_mac_get_save_file_name(const QString &start, const QString &filter,
     options.optionFlags |= kNavDontConfirmReplacement;
     options.modality = kWindowModalityAppModal;
     options.location.h = options.location.v = -1;
-    QString workingDir;
-    QString initialSelection;
     if (!start.isEmpty())
         options.saveFileName = CFStringCreateWithCharacters(0,
                                                             (UniChar *)start.unicode(),
@@ -407,9 +405,9 @@ QString qt_mac_get_save_file_name(const QString &start, const QString &filter,
         qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
         return retstr;
     }
-    if (!workingDir.isEmpty()) {
+    if (pwd && !pwd->isEmpty()) {
         FSSpec spec;
-        if (qt_mac_create_fsspec(workingDir, &spec) == noErr) {
+        if (qt_mac_create_fsspec(*pwd, &spec) == noErr) {
             AEDesc desc;
             if (AECreateDesc(typeFSS, &spec, sizeof(FSSpec), &desc) == noErr)
                 NavCustomControl(dlg, kNavCtlSetLocation, (void*)&desc);
