@@ -24,18 +24,18 @@
   and edit type for that cell and defines some other behaviour. By
   default it can contain a text and pixmaps and offers a QLineEdit for
   editing.
-  
+
   By reimplementing paint(), editor() and setContentFromEditor() you
   can change this.
 */
 
 /*! \fn QTable *QTableItem::table() const
-  
+
   Returns the QTable of this item.
 */
 
 /*! \enum QTableItem::EditType
-  
+
   <ul>
   <li>\c Always
   <li>\c OnActivate
@@ -49,7 +49,7 @@
 
 QTableItem::QTableItem( QTable *table, const QString &t )
     : txt( t ), pix(), t( table ), edType( OnActivate ), wordwrap( FALSE ),
-      tcha( TRUE ), lastEditor( 0 ), row( -1 ), col( -1 ) 
+      tcha( TRUE ), lastEditor( 0 ), row( -1 ), col( -1 )
 {
 }
 
@@ -59,14 +59,14 @@ QTableItem::QTableItem( QTable *table, const QString &t )
 
 QTableItem::QTableItem( QTable *table, const QString &t, const QPixmap &p )
     : txt( t ), pix( p ), t( table ), edType( OnActivate ), wordwrap( FALSE ),
-      tcha( TRUE ), lastEditor( 0 ), row( -1 ), col( -1 ) 
+      tcha( TRUE ), lastEditor( 0 ), row( -1 ), col( -1 )
 {
 }
 
 /*!  Destructor.
 */
 
-QTableItem::~QTableItem() 
+QTableItem::~QTableItem()
 {
 }
 
@@ -129,7 +129,7 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg, const QRect &cr, boo
   reimplement that to use a custom editor widget always create a new
   widget here as parent of table()->viewport(), as the ownership of it
   is trasferred to the caller.
-  
+
   \sa QTable::editor()
 */
 
@@ -143,7 +143,7 @@ QWidget *QTableItem::editor() const
 
 /*!  This function is called to set the cell contents from the editor
   \a w.
-  
+
   \sa QTable::setContentFromEditor()
 */
 
@@ -200,7 +200,7 @@ void QTableItem::setEditType( EditType t )
 }
 
 /*!  Returns the edit type of that item
-  
+
   \sa setEditType()
 */
 
@@ -221,7 +221,7 @@ void QTableItem::setTypeChangeAllowed( bool b )
 
 /*!  Returns if it is allowed to replace this item if it is set to a
   cell once.
-  
+
   \sa setTypeChangeAllowed()
 */
 
@@ -265,14 +265,14 @@ bool QTableItem::isTypeChangeAllowed() const
   it. To create an editor widget this function calls editor() for the
   required cell. See the documentation of editor() for more detailed
   documentation of that.
-  
+
   Now there exist two different ways to edit a cell. Either offer an
   edit widget to enter a contents which should replace the current
   cell's contents or offer an editor to edit the current cell's
   contents. If it shouldn't be possible to replace the contents of a
   cell, but just edit the current content, set a QTableItem for that
   cell and set isTypeChangeAllowed() of that item to FALSE.
-  
+
   There are also different ways for starting in-place
   editing. Normally if the user starts typing text in-place editing
   (Replacing) for the current cell is started. If the user
@@ -281,29 +281,29 @@ bool QTableItem::isTypeChangeAllowed() const
   that a cell always shows an editor, shows the editor as soon as it
   gets the current cell or that it is not editable at all. Use
   QTableItem::setEditType() for specifying this behaviour of a cell.
-  
+
   Now when the user finishes editing endEdit() is called. Look at the
   documentation of endEdit() for more information on that (e.g. how
   the contents from the editor is transferred to the item.)
-  
+
   If you want to make a cell not editable and do not want to waste a
   QTableItem for this cell, reimplement editor() and return 0 there
   for the cells which should be not editable.
 */
 
 /*! \fn void QTable::currentChanged( int row, int col )
-  
+
   This signal is emitted if the current cell has been changed to \a
   row, \a col.
 */
 
 /*! \fn int QTable::currentRow() const
-  
+
   Returns the current row.
 */
 
 /*! \fn int QTable::currentCol() const
-  
+
   Returns the current column.
 */
 
@@ -398,17 +398,17 @@ QTable::~QTable()
 /*!  Returns the QHeader which is used on the top.
 */
 
-QHeader *QTable::horizontalHeader() const 
-{ 
-    return (QHeader*)topHeader; 
+QHeader *QTable::horizontalHeader() const
+{
+    return (QHeader*)topHeader;
 }
 
 /*!  Returns the QHeader which is used on the left side.
 */
 
-QHeader *QTable::verticalHeader() const 
-{ 
-    return (QHeader*)leftHeader; 
+QHeader *QTable::verticalHeader() const
+{
+    return (QHeader*)leftHeader;
 }
 
 /*!  If \a b is TRUE, the table grid is shown, else not.
@@ -1027,8 +1027,10 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 	    return TRUE;
 	if ( isEditing() && editorWidget && o == editorWidget ) {
 	    QTableItem *item = cellContent( editRow, editCol );
-	    if ( !item || item->editType() == QTableItem::OnActivate )
-		endEdit( editRow, editCol, TRUE, editorWidget, edMode );
+ 	    if ( !item || item->editType() == QTableItem::OnActivate ) {
+ 		endEdit( editRow, editCol, TRUE, editorWidget, edMode );
+		return TRUE;
+	    }
 	}
 	break;
     case QEvent::FocusIn:
@@ -1462,21 +1464,21 @@ QValidator *QTable::defaultValidator() const
   the cell. If this is the case and \a initFromCell is TRUE or
   QTableItem::isTypeChangeAllowed() of the cell is FALSE, the item of
   that cell is asked to create the editor (using QTableItem::editor()).
-  
+
   If this is not the case, defaultEditor() is called to get the editor
   for that cell.
-  
+
   So if you want to create your own editor for certain cells,
   implement your own QTableItem and reimplement
   QTableItem::editor(). If you want to use a different editor than a
   QLineEdit as default editor, reimplement defaultEditor().
-  
+
   So normally you do not need to reimplement this function.
 
   The ownership of the editor widget is transferred to the caller.
 
   Returning 0 here means that the cell is not editable.
-  
+
   \sa QTableItem::editor()
 */
 
@@ -1506,9 +1508,9 @@ QWidget *QTable::editor( int row, int col, bool initFromCell ) const
 /*! Returns the editor widget which should be used for editing cells
   which have no QTableItem. The default implementation returns a
   QLineEdit which has the defaultValidator() set.
-  
+
   The ownership of the editor widget is transferred to the caller.
-  
+
   \sa editor()
 */
 
@@ -1527,7 +1529,7 @@ QWidget *QTable::defaultEditor() const
 
   This function calls editor() to get the editor which should be used
   for editing the cell.
-  
+
   This function is responsible for creating and placing the editor.
 */
 
@@ -1560,12 +1562,12 @@ void QTable::beginEdit( int row, int col, bool replace )
   cell and creating a new one for the cell), else (if possible) the
   content of the editor should just be set to the QTableItem of this
   cell.
-  
+
   So, if the cell contents should be replaced or if no QTableItem
   exists for the cell yet, setCellContentFromEditor() is called, else
   QTableItem::setCellContentFromEditor() is called on the QTableItem
   of the cell.
-  
+
   This function is also responsible for deleting the editor widget.
 */
 
@@ -1598,7 +1600,6 @@ void QTable::endEdit( int row, int col, bool accept, QWidget *editor, EditMode m
     delete editor;
     editorWidget = 0;
     viewport()->setFocus();
-    updateCell( row, col );
     edMode = NotEditing;
     updateCell( row, col );
 }
@@ -1606,9 +1607,9 @@ void QTable::endEdit( int row, int col, bool accept, QWidget *editor, EditMode m
 /*!  This function is called to set the contents of the cell \a row,
   \a col from the \a editor. If there existed already a QTableItem for
   this cell, this is removed first (see clearCell()).
-  
+
   Reimplement this if you want to do something different here.
-  
+
   \sa QTableItem::setContentFromEditor()
 */
 
@@ -1744,7 +1745,7 @@ QRect QTable::rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCo
 
 /*!  This is called to activate the next cell if in-place editing was
   finished by pressing the Return key.
-  
+
   If you want a different behaviour then going from top to bottom,
   reimplement this function.
 */
