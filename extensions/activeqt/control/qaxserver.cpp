@@ -606,9 +606,8 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
         pmo = pmo->superClass();
     } while (pmo && topclass != pmo->className());
     
-    int slotoff = pmo ? pmo->slotOffset() : mo->slotOffset();
+    int memberoff = pmo ? pmo->memberOffset() : mo->memberOffset();
     int propoff = pmo ? pmo->propertyOffset() : mo->propertyOffset();
-    int signaloff = pmo ? pmo->signalOffset() : mo->signalOffset();
     
     int qtProps = 0;
     int qtSlots = 0;
@@ -734,9 +733,9 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     out << "\tmethods:" << endl;
     int numDefArgs = 0;
     QString outBuffer;
-    for (i = slotoff; i < mo->slotCount(); ++i) {
-        const QMetaMember slot = mo->slot(i);
-        if (slot.access() != QMetaMember::Public)
+    for (i = memberoff; i < mo->memberCount(); ++i) {
+        const QMetaMember slot = mo->member(i);
+        if (slot.access() != QMetaMember::Public || slot.memberType() == QMetaMember::Signal)
             continue;
 
         if (slot.attributes() & QMetaMember::Cloned) {
@@ -819,8 +818,10 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
             out << "\t\t[id(DISPID_MOUSEUP)] void MouseUp(short Button, short Shift, OLE_XPOS_PIXELS x, OLE_YPOS_PIXELS y);" << endl << endl;
         }
         
-        for (i = signaloff; i < mo->signalCount(); ++i) {
-            const QMetaMember signal = mo->signal(i);
+        for (i = memberoff; i < mo->memberCount(); ++i) {
+            const QMetaMember signal = mo->member(i);
+            if (signal.memberType() != QMetaMember::Signal)
+                continue;
             
             QString signature(signal.signature());
             QString name(signature.left(signature.indexOf('(')));

@@ -1239,8 +1239,10 @@ void QAxServerBase::internalConnect()
 
 	// connect the generic slot to all signals of qt.object
 	const QMetaObject *mo = qt.object->metaObject();
-	for (int isignal = mo->signalCount()-1; isignal >= 0; --isignal)
-	    QMetaObject::connect(qt.object, isignal, this, QSIGNAL_CODE, isignal);
+        for (int isignal = mo->memberCount()-1; isignal >= 0; --isignal) {
+            if (mo->member(isignal).memberType() == QMetaMember::Signal)
+	        QMetaObject::connect(qt.object, isignal, this, isignal);
+        }
     }
 }
 
@@ -1434,7 +1436,7 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	    if (index < 0)
 		break;
 
-	    that->currentPopup->qt_metacall(QMetaObject::EmitSignal, index, 0);
+	    that->currentPopup->qt_metacall(QMetaObject::InvokeMetaMember, index, 0);
 	    that->createPopup(that->currentPopup, (HMENU)wParam);
 	    return 0;
 	}
@@ -1473,7 +1475,7 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 		if (index < 0)
 		    break;
 
-		menuObject->qt_metacall(QMetaObject::EmitSignal, index, 0);
+		menuObject->qt_metacall(QMetaObject::InvokeMetaMember, index, 0);
                 if (menuClosed || uMsg == WM_COMMAND)
                     that->currentPopup = 0;
 		return 0;
@@ -1873,6 +1875,8 @@ static inline QByteArray paramType(const QByteArray &ptype, bool *out)
 */
 int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 {
+    Q_ASSERT(call == QMetaObject::InvokeMetaMember);
+
     if (index == -1 && sender() && m_spInPlaceSite) {
 	if (qt_cast<QStatusBar*>(sender()) != statusBar)
 	    return true;
@@ -1890,12 +1894,12 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
     ensureMetaData();
 
     // get the signal information.
+    const QMetaObject *mo = qt.object->metaObject();
     QMetaMember signal;
     DISPID eventId = index;
     int pcount = 0;
     QByteArray type;
     QList<QByteArray> ptypes;
-    const QMetaObject *mo = qt.object->metaObject();
 
     switch(index) {
     case DISPID_KEYDOWN:
@@ -1918,7 +1922,8 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 	break;
     default:
 	{
-	    signal = mo->signal(index);
+	    signal = mo->member(index);
+            Q_ASSERT(signal.memberType() == QMetaMember::Signal);
 	    type = signal.typeName();
 	    QByteArray signature(signal.signature());
 	    QByteArray name(signature);
@@ -2288,8 +2293,9 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		    index = mo->indexOfSlot((name + ")"));
 		// search
 		if (index == -1) {
-		    for (int i = 0; i < mo->slotCount(); ++i) {
-			if (QByteArray(mo->slot(i).signature()).startsWith(name)) {
+		    for (int i = 0; i < mo->memberCount(); ++i) {
+                        const QMetaMember slot(mo->member(i));
+                        if (slot.memberType() == QMetaMember::Slot && QByteArray(slot.signature()).startsWith(name)) {
 			    index = i;
 			    break;
 			}
@@ -2302,7 +2308,8 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
             int lookupIndex = index;
 
 	    // get slot info
-	    QMetaMember slot = mo->slot(index);
+	    QMetaMember slot(mo->member(index));
+            Q_ASSERT(slot.memberType() == QMetaMember::Slot);
 	    QByteArray type = slot.typeName();
 	    name = slot.signature();
             nameLength = name.indexOf('(');
@@ -2317,9 +2324,9 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
             if (pcount > pDispParams->cArgs) {
                 // count cloned slots immediately following the real thing
                 int defArgs = 0;
-                while (index < mo->slotCount()) {
+                while (index < mo->memberCount()) {
                     ++index;
-                    slot = mo->slot(index);
+                    slot = mo->member(index);
                     if (!(slot.attributes() & QMetaMember::Cloned))
                         break;
                     --pcount;
@@ -2411,7 +2418,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 
 	    // call the slot if everthing went fine.
 	    if (ok) {
-		qt.object->qt_metacall(QMetaObject::InvokeSlot, index, argv);
+		qt.object->qt_metacall(QMetaObject::InvokeMetaMember, index, argv);
 
 		// update reference parameters and return value
 		for (int p = 0; p < pcount; ++p) {
@@ -3511,7 +3518,7 @@ HRESULT QAxServerBase::internalActivate()
 		    statusBar = qt.widget ? qFindChild<QStatusBar*>(qt.widget) : 0;
 		    if (statusBar && !statusBar->isVisible()) {
 			const int index = statusBar->metaObject()->indexOfSignal("messageChanged(const QString&)");
-			QMetaObject::connect(statusBar, index, this, QSIGNAL_CODE, -1);
+			QMetaObject::connect(statusBar, index, this, -1);
 			statusBar->hide();
 			statusBar->installEventFilter(this);
 		    }
@@ -3937,9 +3944,9 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
 		&key,
 		&state
 	    };
-	    qt_metacall(QMetaObject::EmitSignal, DISPID_KEYDOWN, argv);
+	    qt_metacall(QMetaObject::InvokeMetaMember, DISPID_KEYDOWN, argv);
 	    if (!ke->text().isEmpty())
-		qt_metacall(QMetaObject::EmitSignal, DISPID_KEYPRESS, argv);
+		qt_metacall(QMetaObject::InvokeMetaMember, DISPID_KEYPRESS, argv);
 	}
 	break;
     case QEvent::KeyRelease:
@@ -3952,7 +3959,7 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
 		&key,
 		&state
 	    };
-	    qt_metacall(QMetaObject::EmitSignal, DISPID_KEYUP, argv);
+	    qt_metacall(QMetaObject::InvokeMetaMember, DISPID_KEYUP, argv);
 	}
 	break;
     case QEvent::MouseMove:
@@ -3969,7 +3976,7 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
 		&x,
 		&y
 	    };
-	    qt_metacall(QMetaObject::EmitSignal, DISPID_MOUSEMOVE, argv);
+	    qt_metacall(QMetaObject::InvokeMetaMember, DISPID_MOUSEMOVE, argv);
 	}
 	break;
     case QEvent::MouseButtonRelease:
@@ -3986,13 +3993,13 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
 		&x,
 		&y
 	    };
-	    qt_metacall(QMetaObject::EmitSignal, DISPID_MOUSEUP, argv);
-	    qt_metacall(QMetaObject::EmitSignal, DISPID_CLICK, 0);
+	    qt_metacall(QMetaObject::InvokeMetaMember, DISPID_MOUSEUP, argv);
+	    qt_metacall(QMetaObject::InvokeMetaMember, DISPID_CLICK, 0);
 	}
 	break;
     case QEvent::MouseButtonDblClick:
 	if (o == qt.object && hasStockEvents) {
-	    qt_metacall(QMetaObject::EmitSignal, DISPID_DBLCLICK, 0);
+	    qt_metacall(QMetaObject::InvokeMetaMember, DISPID_DBLCLICK, 0);
 	}
 	break;
     case QEvent::MouseButtonPress:
@@ -4009,7 +4016,7 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
 		&x,
 		&y
 	    };
-	    qt_metacall(QMetaObject::EmitSignal, DISPID_MOUSEDOWN, argv);
+	    qt_metacall(QMetaObject::InvokeMetaMember, DISPID_MOUSEDOWN, argv);
 	}
 	break;
     case QEvent::Show:
