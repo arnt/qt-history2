@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#30 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#31 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -497,7 +497,7 @@ void QtFileIconViewItem::setText( const QString &text )
 	QDir dir( itemFileInfo->dir() );
 	dir.rename( itemFileInfo->fileName(), text );
 	itemFileName = itemFileInfo->dirPath( TRUE ) + "/" + text;
-	//delete itemFileInfo;
+	delete itemFileInfo;
 	itemFileInfo = new QFileInfo( itemFileName );
     }
 }
@@ -614,9 +614,10 @@ void QtFileIconView::setDirectory( const QDir &dir )
 
 void QtFileIconView::newDirectory()
 {
+    selectAll( FALSE );
     if ( viewDir.mkdir( QString( "New Folder %1" ).arg( ++newFolderNum ) ) ) {
 	QFileInfo *fi = new QFileInfo( viewDir, QString( "New Folder %1" ).arg( newFolderNum ) );
-	QtFileIconViewItem *item = new QtFileIconViewItem( this, fi );
+	QtFileIconViewItem *item = new QtFileIconViewItem( this, new QFileInfo( *fi ) );
 	delete fi;
 	repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight() );
 	ensureItemVisible( item );
