@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#99 $
 **
 ** Implementation of QColor class
 **
@@ -143,6 +143,13 @@ bool QColor::color_init   = FALSE;		// color system not initialized
 bool QColor::globals_init = FALSE;		// global color not initialized
 bool QColor::lazy_alloc = TRUE;			// lazy color allocation
 
+
+QColor* QColor::globalColors()
+{
+    return stdcol;
+}
+
+
 /*!
   Initializes the global colors.  This function is called if a global
   color variable is initialized before the constructors for our global
@@ -162,27 +169,27 @@ bool QColor::lazy_alloc = TRUE;			// lazy color allocation
 void QColor::initGlobalColors()
 {
     globals_init = TRUE;
-    ((QColor*)(&Qt::color0))->pix = COLOR0_PIX;
-    ((QColor*)(&Qt::color1))->pix = COLOR1_PIX;
-    ((QColor*)(&Qt::color0))->rgbVal = 0x00ffffff;
-    ((QColor*)(&Qt::color1))->rgbVal = 0;
-    ((QColor*)(&Qt::black))->setRgb(   0,	 0,   0 );
-    ((QColor*)(&Qt::white))->setRgb( 255, 255, 255 );
-    ((QColor*)(&Qt::darkGray))->setRgb( 128, 128, 128 );
-    ((QColor*)(&Qt::gray))->setRgb( 160, 160, 164 );
-    ((QColor*)(&Qt::lightGray))->setRgb( 192, 192, 192 );
-    ((QColor*)(&Qt::red))->setRgb( 255,	 0,   0 );
-    ((QColor*)(&Qt::green))->setRgb(   0, 255,   0 );
-    ((QColor*)(&Qt::blue))->setRgb(   0,	0,  255 );
-    ((QColor*)(&Qt::cyan))->setRgb(   0, 255, 255 );
-    ((QColor*)(&Qt::magenta))->setRgb( 255,	0,  255 );
-    ((QColor*)(&Qt::yellow))->setRgb( 255, 255,   0 );
-    ((QColor*)(&Qt::darkRed))->setRgb( 128,	0,    0 );
-    ((QColor*)(&Qt::darkGreen))->setRgb(   0, 128,   0 );
-    ((QColor*)(&Qt::darkBlue))->setRgb(   0,	0,  128 );
-    ((QColor*)(&Qt::darkCyan))->setRgb(   0, 128, 128 );
-    ((QColor*)(&Qt::darkMagenta))->setRgb( 128,	0,  128 );
-    ((QColor*)(&Qt::darkYellow))->setRgb( 128, 128,   0 );
+    stdcol[ 0].pix = COLOR0_PIX;
+    stdcol[ 1].pix = COLOR1_PIX;
+    stdcol[ 0].rgbVal = 0x00ffffff;
+    stdcol[ 1].rgbVal = 0;
+    stdcol[ 2].setRgb(   0,	 0,   0 );
+    stdcol[ 3].setRgb( 255, 255, 255 );
+    stdcol[ 4].setRgb( 128, 128, 128 );
+    stdcol[ 5].setRgb( 160, 160, 164 );
+    stdcol[ 6].setRgb( 192, 192, 192 );
+    stdcol[ 7].setRgb( 255,	 0,   0 );
+    stdcol[ 8].setRgb(   0, 255,   0 );
+    stdcol[ 9].setRgb(   0,	0,  255 );
+    stdcol[10].setRgb(   0, 255, 255 );
+    stdcol[11].setRgb( 255,	0,  255 );
+    stdcol[12].setRgb( 255, 255,   0 );
+    stdcol[13].setRgb( 128,	0,    0 );
+    stdcol[14].setRgb(   0, 128,   0 );
+    stdcol[15].setRgb(   0,	0,  128 );
+    stdcol[16].setRgb(   0, 128, 128 );
+    stdcol[17].setRgb( 128,	0,  128 );
+    stdcol[18].setRgb( 128, 128,   0 );
 }
 
 

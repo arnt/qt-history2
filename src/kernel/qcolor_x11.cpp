@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#96 $
 **
 ** Implementation of QColor class for X11
 **
@@ -164,6 +164,9 @@ int QColor::numBitPlanes()
 
 void QColor::initialize()
 {
+    static const int blackIdx = 2;
+    static const int whiteIdx = 3;
+    
     if ( color_init )				// already initialized
 	return;
     color_init = TRUE;
@@ -211,15 +214,15 @@ void QColor::initialize()
 
   // Initialize global color objects
 
-    ((QColor*)(&Qt::black))->rgbVal = qRgb( 0, 0, 0 );
-    ((QColor*)(&Qt::white))->rgbVal = qRgb( 255, 255, 255 );
+    globalColors()[blackIdx].rgbVal = qRgb( 0, 0, 0 );
+    globalColors()[whiteIdx].rgbVal = qRgb( 255, 255, 255 );
     if ( QPaintDevice::x11AppDefaultVisual() &&
 	 QPaintDevice::x11AppDefaultColormap() ) {
-	((QColor*)(&Qt::black))->pix = (uint)BlackPixel( dpy, scr );
-	((QColor*)(&Qt::white))->pix = (uint)WhitePixel( dpy, scr );
+	globalColors()[blackIdx].pix = (uint)BlackPixel( dpy, scr );
+	globalColors()[whiteIdx].pix = (uint)WhitePixel( dpy, scr );
     } else {
-	((QColor*)(&Qt::black))->alloc();
-	((QColor*)(&Qt::white))->alloc();
+	globalColors()[blackIdx].alloc();
+	globalColors()[whiteIdx].alloc();
     }
 
     if ( spec == (int)QApplication::ManyColor ) {
