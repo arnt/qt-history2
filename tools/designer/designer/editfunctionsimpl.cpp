@@ -288,6 +288,7 @@ void EditFunctions::functionAdd( const QString &access, const QString &type )
     
     functionListView->setCurrentItem( i );
     functionListView->setSelected( i, TRUE );
+    functionListView->ensureItemVisible( i );
     functionName->setFocus();
     functionName->selectAll();
 
