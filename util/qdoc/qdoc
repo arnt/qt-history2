@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#84 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#85 $
 #
 # this is a massive hack, written very quickly
 #
@@ -333,7 +333,7 @@ sub processdocs {
 	    }
 	-egsx;
 
-	$doc =~ s-((?:(?:\s)|(?:<pre>.*?</pre>))) *-$1-gs;
+	$doc =~ s@(?:(?:(<pre>.*?</pre>)\n?)|(?:\n *))@$1\n@gs;
 
 	$brief{$url} = $1
 	    if ($doc =~ s/\s*\\brief\s+(.*?)(?:(?:\n<p>\s*)|(?:$))//s);
@@ -1280,7 +1280,7 @@ sub printclass {
 	$protection =~ s/s$//;
 	$protection =~ s/\s*public\s*//;
 	if ($protection ne "") {
-	    $protection = " <code>" . $protection . "</code>";
+	    $protection = " <code>[" . $protection . "]</code>";
 	}
 	$_ = $def{$url};
 	if ( /$class/ ) {
