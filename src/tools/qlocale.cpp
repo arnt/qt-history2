@@ -18,7 +18,7 @@
 #define LLONG_MIN _I64_MIN
 #endif // Q_WS_WIN
 
-#if defined(Q_OS_UNIX) && !defined(INFINITY)
+#if !defined(INFINITY)
 // POSIX says HUGE_VAL is equal to +infinity
 #  define INFINITY (HUGE_VAL)
 #endif
