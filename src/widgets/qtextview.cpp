@@ -2059,9 +2059,9 @@ void QTextView::setText( const QString &text, const QString &context )
 
 /*!
   \property QTextView::text
-  \brief the current text
+  \brief the text view's text
 
-  The current text of the view.
+  The current text in the text view.
 
   On setting, any previous text is deleted.
 
@@ -2207,9 +2207,10 @@ void QTextView::getSelection( int *paraFrom, int *indexFrom,
 
 /*!
   \property QTextView::textFormat
-  \brief the current text format
+  \brief the text format: rich text, plain text or auto text
 
-  Represents the current text format.
+  The current text format.
+
   Possible values are:
   <ul>
   <li> \c PlainText - all characters, except newlines, are displayed
@@ -2474,7 +2475,7 @@ void QTextView::setStyleSheet( QStyleSheet* styleSheet )
 
 /*!
   \property QTextView::paper
-  \brief the background (paper)
+  \brief the background (paper) color
 
   The brush that is currently used to draw the background of the
   text view. The initial setting is an empty brush.
@@ -2496,7 +2497,7 @@ QBrush QTextView::paper() const
 
 /*!
   \property QTextView::linkUnderline
-  \brief wether links will be underlined
+  \brief whether links will be underlined
 
   If TRUE links will be displayed underlined. If FALSE
   links will not be displayed underlined.
@@ -2893,7 +2894,7 @@ QTextView::WordWrap QTextView::wordWrap() const
 
 /*!
   \property QTextView::wrapColumnOrWidth
-  \brief wether to wrap at a fixed pixel or fixed column
+  \brief the position (in pixels or columns depending on the wrap mode) where text will be wrapped 
 
   If the wrap mode is \c FixedPixelWidth, the \a value is the number
   of pixels from the left edge of the text view at which text should
@@ -2941,7 +2942,7 @@ int QTextView::wrapColumnOrWidth() const
 
 /*!
   \property QTextView::wrapPolicy
-  \brief the wrapping policy
+  \brief the word wrap policy, at whitespace or anywhere
 
   Defines where text can be wrapped when word wrap mode is not \a
   NoWrap. The choices are \c AtWhiteSpace (the default) and \c
@@ -2994,7 +2995,7 @@ int QTextView::undoDepth() const
 
 /*!
   \property QTextView::length
-  \brief the length of the text
+  \brief the number of characters in the text
 
   Returns the number of characters of the text.
 */
