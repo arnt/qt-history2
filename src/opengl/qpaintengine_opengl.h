@@ -11,8 +11,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef QOPENGLPAINTENGINE_H
-#define QOPENGLPAINTENGINE_H
+#ifndef QPAINTENGINE_OPENGL_H
+#define QPAINTENGINE_OPENGL_H
 
 #include "qpaintengine.h"
 
@@ -71,4 +71,5 @@ private:
     QOpenGLPaintEngine &operator=(const QOpenGLPaintEngine &);
 #endif
 };
-#endif // QOPENGLPAINTENGINE_H
+
+#endif // QPAINTENGINE_OPENGL_H
