@@ -237,6 +237,7 @@ sub parseclassfile {
 
     # fonts, code and emphasized text
     s-<em>(.*?)</em>-\\fI$1\\fP-gs;
+    s-<b>(.*?)</b>-\\fB$1\\fP-gs;
     s-<strong>(.*?)</strong>-\\fB$1\\fP-gs;
     s-<code>(.*?)</code>-\\fC$1\\fP-gs;
 

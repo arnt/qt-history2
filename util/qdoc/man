@@ -16,6 +16,7 @@ sub fixup {
     s-<dfn>(.*?)</dfn>-\\fI$1\\fR-gs;
     s-<em>(.*?)</em>-\\fI$1\\fR-gs;
     s-<strong>(.*?)</strong>-\\fB$1\\fR-gs;
+    s-<b>(.*?)</b>-\\fB$1\\fR-gs;
     s-<i>(.*?)</i>-\\fI$1\\fR-gs;
     s-<var>(.*?)</var>-\\fI$1\\fR-gs;
 
@@ -208,7 +209,7 @@ $_ = <A>;
 s/ / /gs;
 close A;
 
-while ( m@<li><strong><a href=\"(.*?\.html)\">(.*?)</a></strong> \((.*?)\)\n@gs ) {
+while ( m@<strong><a href=\"(.*?\.html)\">(.*?)</a></strong></td><td>(.*?)</td>@gs ) {
     $name{$1} = $2;
     $desc{$1} = $3;
 }
@@ -216,6 +217,7 @@ while ( m@<li><strong><a href=\"(.*?\.html)\">(.*?)</a></strong> \((.*?)\)\n@gs 
 foreach ( keys %desc ) {
     $desc{$_} =~ s-<a .*?>(.*?)</a>-$1-gs;
     $desc{$_} =~ s-<code>(.*?)</code>-\\fC$1\\fR-gs;
+    $desc{$_} =~ s/<[^>]*>//gs;
 }
 
 foreach $url ( sort keys %name ) { #'qstring.html'
