@@ -17,28 +17,25 @@ For menu options that invoke a dialog box or which have a corresponding
 toolbar button, there is a cross-reference to the detailed explanation
 that appears in the relevant chapter.
 
-@PP
-@Figure
-    @Caption { 
-@I{The File Menu} }
- 0.3 @Scale @IncludeGraphic { "images/rmo-filemenu.eps.gz"
-}
 @End @Section
 @Section
     @Title { The File Menu }
     @Tag { the.file.menux }
 @Begin
+@Figure
+    @Caption { @I{The File Menu} }
+    0.5 @Scale @IncludeGraphic { "images/rmo-filemenu.eps.gz" }
 
-files @Index{ Files }@PP
+@PP
 This menu is invoked with @Option{Alt+F}, and provides the following
-options:
-
-
+files @Index{ Files }
 adding @RawIndex{ Adding }
 adding.files.to.projects @SubIndex{ Files to Projects }
 files @RawIndex{ Files }
 files.adding.to.projects @SubIndex{ Adding to Projects }
-@NumberedList
+options:
+
+@BulletList
 @LI{
 @Option{File"|"New}@LLP
 
@@ -103,27 +100,23 @@ files.templates @SubIndex{ Templates }}
  saved but has had changes made to it, the @Win{Save Form Dialog} is
  invoked. Click @Option{Yes} to invoke the @Win{Save Form As} dialog.}
 @EndList
-@PP
-See also The File Toolbar Buttons.
 
-@PP
-@Figure
-    @Caption { 
-@I{The Edit Menu} }
- 0.3 @Scale @IncludeGraphic { "images/rmo-editmenu.eps.gz"
-}
+See also @NamePageRef{the.file.toolbar.buttons}.
+
 @End @Section
 @Section
     @Title { The Edit Menu }
     @Tag { the.edit.menux }
 @Begin
+@Figure
+    @Caption { @I{The Edit Menu} }
+ 0.5 @Scale @IncludeGraphic { "images/rmo-editmenu.eps.gz" }
 @PP
 This menu is invoked with @Option{Alt+E}, and provides the following
+undo.and.redo @Index{ Undo and Redo }
 options:
 
-
-undo.and.redo @Index{ Undo and Redo }
-@NumberedList
+@BulletList
 @LI{
 @Option{Edit"|"Undo}@LLP
 
@@ -189,28 +182,24 @@ preferences.dialog @Index{ Preferences Dialog }}
 
  Click this menu option to invoke the Preferences Dialog.}
 @EndList
-@PP
-See also The Edit Toolbar Buttons.
 
-@PP
-@Figure
-    @Caption { 
-@I{The Project Menu} }
- 0.3 @Scale @IncludeGraphic { "images/rmo-projectmenu.eps.gz"
-}
+See also @NamePageRef{the.edit.toolbar.buttons}.
+
 @End @Section
 @Section
     @Title { The Project Menu }
     @Tag { the.project.menu }
 @Begin
+@Figure
+    @Caption { @I{The Project Menu} }
+ 0.5 @Scale @IncludeGraphic { "images/rmo-projectmenu.eps.gz" }
 @PP
 This menu is invoked with @Option{Alt+O}, and provides the following
-options:
-
-
 projects @RawIndex{ Projects }
 projects.active.project @SubIndex{ Active Project }
-@NumberedList
+options:
+
+@BulletList
 @LI{
 @Option{Project"|"Active Project}@LLP
 
@@ -244,27 +233,23 @@ database.connections.dialog @Index{ Database Connections Dialog }}
 
  Click this menu option to invoke the Edit Database Connections Dialog.}
 @EndList
-@PP
-See also The File Toolbar Buttons.
 
-@PP
-@Figure
-    @Caption { 
-@I{The Search Menu} }
- 0.3 @Scale @IncludeGraphic { "images/rmo-searchmenu.eps.gz"
-}
+See also @NamePageRef{the.file.toolbar.buttons}.
+
 @End @Section
 @Section
     @Title { The Search Menu }
     @Tag { the.search.menu }
 @Begin
+@Figure
+    @Caption { @I{The Search Menu} }
+ 0.5 @Scale @IncludeGraphic { "images/rmo-searchmenu.eps.gz" }
 @PP
 This menu is invoked with @Option{Alt+S}, and provides the following
+find.text.dialog @Index{ Find Text Dialog }
 options:
 
-
-find.text.dialog @Index{ Find Text Dialog }
-@NumberedList
+@BulletList
 @LI{
 @Option{Search"|"Find}@LLP
 
@@ -289,28 +274,24 @@ goto.line.dialog @Index{ Goto Line Dialog }}
 
  Click this menu option (or press @Option{Alt+G}) to invoke the Goto Line Dialog to go to a specific line in the file.}
 @EndList
-@PP
-See also The Search Toolbar Buttons.
 
-@PP
-@Figure
-    @Caption { 
-@I{The Tools Menu} }
- 0.3 @Scale @IncludeGraphic { "images/rmo-toolsmenu.eps.gz"
-}
+See also @NamePageRef{the.search.toolbar.buttons}.
+
 @End @Section
 @Section
     @Title { The Tools Menu }
     @Tag { the.tools.menu }
 @Begin
+@Figure
+    @Caption { @I{The Tools Menu} }
+ 0.5 @Scale @IncludeGraphic { "images/rmo-toolsmenu.eps.gz" }
 @PP
 This menu is invoked with @Option{Alt+T}, and provides the following
-options:
-
-
 tools @RawIndex{ Tools }
 tools.pointer @SubIndex{ Pointer }
-@NumberedList
+options:
+
+@BulletList
 @LI{
 @Option{Tools"|"Pointer}@LLP
 
@@ -565,29 +546,26 @@ edit.custom.widgets.dialog @Index{ Edit Custom Widgets Dialog }}
 
  Click this menu option to invoke the Configure Toolbox Dialog.}
 @EndList
-@PP
-See also The Tools Toolbar Buttons.
 
-@PP
-@Figure
-    @Caption { 
-@I{The Layout Menu} }
- 0.3 @Scale @IncludeGraphic { "images/rmo-layoutmenu.eps.gz"
-}
+See also @NamePageRef{the.tools.toolbar.buttons}.
+
 @End @Section
 @Section
     @Title { The Layout Menu }
     @Tag { the.layout.menu }
 @Begin
+@Figure
+    @Caption { @I{The Layout Menu} }
+ 0.5 @Scale @IncludeGraphic { "images/rmo-layoutmenu.eps.gz" }
 
-layouts @Index{ Layouts }@PP
+@PP
 This menu is invoked with @Option{Alt+L}, and provides the following
-options:
-
-
+layouts @Index{ Layouts }
 layouts @RawIndex{ Layouts }
 layouts.adjust.size @SubIndex{ Adjust Size }
-@NumberedList
+options:
+
+@BulletList
 @LI{
 @Option{Layout"|"Adjust Size}@LLP
 
@@ -646,26 +624,24 @@ layouts.spacers @SubIndex{ Spacers }}
 
  Click this menu option to add a vertical or horizontal spacer to widgets that take up too much space on the form. The spacer consumes extra space in the layout.}
 @EndList
-@PP
-See also The Layout Toolbar Buttons.
 
-@PP
-@Figure
-    @Caption { 
-@I{The Preview Menu} }
- 0.3 @Scale @IncludeGraphic { "images/rmo-previewmenu.eps.gz"
-}
+See also @NamePageRef{the.layout.toolbar.buttons}.
+
 @End @Section
 @Section
     @Title { The Preview Menu }
     @Tag { the.preview.menu }
 @Begin
+@Figure
+    @Caption { @I{The Preview Menu} }
+ 0.5 @Scale @IncludeGraphic { "images/rmo-previewmenu.eps.gz" }
 
-previewing @Index{ Previewing }@PP
+@PP
 This menu is invoked with @Option{Alt+P}, and provides the following
+previewing @Index{ Previewing }
 options:
 
-@NumberedList
+@BulletList
 @LI{
 @Option{Preview"|"Preview Form}@LLP
 
@@ -695,22 +671,20 @@ options:
 
  Click this menu option to preview the form in the SGI style.}
 @EndList
-@PP
-@Figure
-    @Caption { 
-@I{The Window Menu} }
- 0.3 @Scale @IncludeGraphic { "images/rmo-windowmenu.eps.gz"
-}
+
 @End @Section
 @Section
     @Title { The Window Menu }
     @Tag { the.window.menu }
 @Begin
+@Figure
+    @Caption { @I{The Window Menu} }
+ 0.5 @Scale @IncludeGraphic { "images/rmo-windowmenu.eps.gz" }
 @PP
 This menu is invoked with @Option{Alt+W}, and provides the following
 options:
 
-@NumberedList
+@BulletList
 @LI{
 @Option{Window"|"Close}@LLP
 
@@ -824,22 +798,20 @@ windows.object.explorer @SubIndex{ Object Explorer }}
 
  Click one of the numbered menu options that list the currently open files and forms to switch to the named file or form.}
 @EndList
-@PP
-@Figure
-    @Caption { 
-@I{The Help Menu} }
- 0.3 @Scale @IncludeGraphic { "images/rmo-helpmenu.eps.gz"
-}
+
 @End @Section
 @Section
     @Title { The Help Menu }
     @Tag { the.help.menu }
 @Begin
+@Figure
+    @Caption { @I{The Help Menu} }
+ 0.5 @Scale @IncludeGraphic { "images/rmo-helpmenu.eps.gz" }
 @PP
 This menu is invoked with @Option{Alt+H}, and provides the following
 options:
 
-@NumberedList
+@BulletList
 @LI{
 @Option{Help"|"Contents}@LLP
 
@@ -861,8 +833,8 @@ options:
 
  Click this menu option to invoke a small question mark that is attached to the mouse pointer. Click on a feature which you would like more information about. A popup box appears with information about the feature.}
 @EndList
-@PP
-See also The Help Toolbar Button.
+
+See also @NamePageRef{the.help.toolbar.button}.
 
 @End @Section
 @EndSections

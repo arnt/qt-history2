@@ -47,7 +47,7 @@ Change the slot's name to @Func{editAdd()}, then click @OK. Now
 change the slot we connect to @Func{editAdd()}, then click @OK
 to close the dialog.
 
-@Figure
+@LP
 { Selecting Widgets } @Sidebar {
 To @PageMark{selecting.widgets.sidebar} select an individual widget,
 either click the widget itself or click its @Prop{name} in @Win{Object
@@ -367,7 +367,7 @@ widgets that can accept focus. It is most likely that the tab
 order is correct. If it isn't, we can easily change it: see the
 Changing the Tab Order [p.~@PageOf{tab.order}] sidebar.
 
-@Figure
+@LP
 { Changing the Tab Order } @Sidebar {
 Keyboard @PageMark{changing.the.tab.order.sidebar} users press the
 @Option{Tab} key to move the focus from widget to widget as they use a
@@ -467,7 +467,7 @@ need directly in the form. Which approach you take is mostly
 a matter of personal preference; and you can use both approaches
 if you wish.
 
-@Figure
+@LP
 { Adding Members vs Coding in .ui.h } @Sidebar {
 For includes there is no difference between adding an include to
 @Win{Object Explorer}'s @Option{Members} @Option{Includes (in

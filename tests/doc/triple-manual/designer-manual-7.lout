@@ -2,22 +2,19 @@
     @Title { Creating Custom Widgets }
     @Tag { creating.custom.widgets }
 @Begin
-
-custom.widgets @Index{ Custom Widgets }
-widgets @RawIndex{ Widgets }
-widgets.custom @SubIndex{ Custom }@PP
+@PP
 Custom widgets are created in code. They may comprise a combination
-of existing widgets but with additional functionality, slots
-and signals, or they may be written from scratch, or a mixture
-of both.
+custom.widgets @Index{ Custom Widgets } widgets @RawIndex{ Widgets }
+widgets.custom @SubIndex{ Custom } of existing widgets but with
+additional functionality, slots and signals, or they may be written
+from scratch, or a mixture of both.
 
 
-previewing @RawIndex{ Previewing }
-previewing.custom.widgets @SubIndex{ Custom Widgets }
-custom.widgets @RawIndex{ Custom Widgets }
-custom.widgets.previewing @SubIndex{ Previewing }@PP
-@QDR provides two mechanisms for incorporating custom
-widgets:
+@PP
+@QDR provides two mechanisms for incorporating custom previewing
+@RawIndex{ Previewing } previewing.custom.widgets @SubIndex{ Custom
+Widgets } custom.widgets @RawIndex{ Custom Widgets }
+custom.widgets.previewing @SubIndex{ Previewing } widgets:
 
 @BulletList
 @LI{
@@ -29,19 +26,22 @@ to create custom widgets using the original approach in "\""Simple
 Custom Widgets"\"".
 }
 @LI{
-plugins @Index{ Plugins }@PP
-
-The new method involves embedding the widgets in a plugin. Widgets that are incorporated through plugins appear in their true form in @QDR, both when laying out the form and in preview mode. This approach provides more power and flexibility than the original method and is covered in Creating Custom Widgets with Plugins.}
+The new method involves embedding the widgets in a plugin. Widgets
+that are incorporated through plugins appear in their true form in
+@QDR, both when laying out the form and in preview mode. This approach
+provides more power and flexibility than the original method and is
+covered in Creating Custom Widgets with Plugins.} plugins @Index{
+Plugins }
 @EndList
 @BeginSections
 @Section
     @Title { Simple Custom Widgets }
     @Tag { simple.custom.widgets }
 @Begin
-
-custom.widgets @RawIndex{ Custom Widgets }
-custom.widgets.simple @SubIndex{ Simple }@PP
+@PP
 There are two stages to creating a custom widget. Firstly we
+custom.widgets @RawIndex{ Custom Widgets }
+custom.widgets.simple @SubIndex{ Simple }
 must create a class that defines the widget, and secondly we
 must incorporate the widget into @QDR. Creating the
 widget has to be done whether we are creating a simple custom
@@ -53,18 +53,22 @@ We will create a VCR style widget comprising four buttons, rewind,
 play, next and stop. The widget will emit signals according to
 which button is clicked.
 
-@LD @Heading { Coding the Custom Widget{@PageMark{coding.the.custom.widget}} }
+@BeginSubSections
+@SubSection
+    @Title { Coding the Custom Widget }
+    @Tag{coding.the.custom.widget}
+@Begin
 @PP
 A custom widget may consist of one or more standard widgets placed
-together in a particular combination, or may be written from
-scratch. We will combine some @Class{QPushButton}qpushbutton @Index{ QPushButton } widgets to form
-the basis of our custom widget.
+together in a particular combination, or may be written from scratch.
+We will combine some @Class{QPushButton}qpushbutton @Index{
+QPushButton } widgets to form the basis of our custom widget.
 
 @PP
 We'll look at the header file,
 @File{"qt/tools/designer/examples/vcr/vcr.h"}
+qwidget @Index{ QWidget }
 first.
-
 @LD @Code @RawVerbatim @Begin
     #include <qwidget.h>
 
@@ -81,22 +85,19 @@ first.
         void stop();
     };
 @End @RawVerbatim
-qwidget @Index{ QWidget }
-
-macros @RawIndex{ Macros }
-macros.q.object @SubIndex{ Q_OBJECT }
-q.object @Index{ Q_OBJECT } @PP
-We include @File{qwidget.h} since we'll be deriving our
-custom widget from @Class{QWidget}qwidget @Index{ QWidget }. We declare a constructor where
-the widget will be created and the four signals we want our widget
-to emit. Since we're using signals we must also include the @Code{Q_OBJECT} macro.
+We include @File{qwidget.h} since we'll be deriving our macros
+@RawIndex{ Macros } macros.q.object @SubIndex{ Q_OBJECT } q.object
+@Index{ Q_OBJECT } custom widget from @Class{QWidget}qwidget @Index{
+QWidget }. We declare a constructor where the widget will be created
+and the four signals we want our widget to emit. Since we're using
+signals we must also include the @Code{Q_OBJECT} macro.
 
 @PP
 The implementation is straightforward. The only function we implement
 is the constructor. The rest of the file consists of include
-statements and embedded
-
-xpm @Index{ .xpm } @File{.xpm} images.
+statements and embedded qwidget @Index{ QWidget } qhboxlayout @Index{
+QHBoxLayout } qpushbutton @Index{ QPushButton } qpixmap @Index{
+QPixmap } xpm @Index{ .xpm } @File{.xpm} images.
 @LD @Code @RawVerbatim @Begin
     Vcr::Vcr( QWidget *parent, const char *name )
         : QWidget( parent, name )
@@ -104,32 +105,32 @@ xpm @Index{ .xpm } @File{.xpm} images.
         QHBoxLayout *layout = new QHBoxLayout( this );
         layout->setMargin( 0 );
 
-        QPushButton *rewind = new QPushButton( QPixmap( rewind_xpm ), 0, this, "vcr_rewind" );
+        QPushButton *rewind = new QPushButton( QPixmap( rewind_xpm ), 0,
+                                               this, "vcr_rewind" );
         layout->addWidget( rewind );
 @End @RawVerbatim
-qwidget @Index{ QWidget }
-qhboxlayout @Index{ QHBoxLayout }
-qpushbutton @Index{ QPushButton }
-qpixmap @Index{ QPixmap }
 @PP
-We create a @Class{QHBoxLayout}qhboxlayout @Index{ QHBoxLayout } in which we'll place the buttons.
-We've only shown the rewind button in the code above since all
-the others are identical except for the names of the buttons,
-pixmaps and signals. For each of the buttons we require we call
-the @Class{QPushButton}qpushbutton @Index{ QPushButton } constructor passing it the appropriate embedded
-pixmap. We then add it to the layout. Finally we connect the
-button's
-
-clicked @Index{ clicked() } @Func{clicked()} signal to the appropriate @I{signal}. Since the
-clicked @Index{ clicked() } @Func{clicked()} signals aren't specific to our widget we want to emit signals that reflect the widget's use. The @Func{rewind()}, @Func{play()}, etc. signals are meaningful in the context of our widget so we propagate each button's
-clicked @Index{ clicked() } @Func{clicked()} signal to the appropriate widget-specific signal.
-
+We create a @Class{QHBoxLayout}qhboxlayout @Index{ QHBoxLayout } in
+which we'll place the buttons. We've only shown the rewind button in
+the code above since all the others are identical except for the names
+of the buttons, pixmaps and signals. For each of the buttons we
+require we call the @Class{QPushButton}qpushbutton @Index{ QPushButton
+} constructor passing it the appropriate embedded pixmap. We then add
+it to the layout. Finally we connect the button's clicked @Index{
+clicked() } @Func{clicked()} signal to the appropriate @I{signal}.
+Since the clicked @Index{ clicked() } @Func{clicked()} signals aren't
+specific to our widget we want to emit signals that reflect the
+widget's use. The @Func{rewind()}, @Func{play()}, etc. signals are
+meaningful in the context of our widget so we propagate each button's
+clicked @Index{ clicked() } @Func{clicked()} signal to the appropriate
 forms @RawIndex{ Forms }
-forms.creating.test.harnesses @SubIndex{ Creating Test Harnesses }@PP
+forms.creating.test.harnesses @SubIndex{ Creating Test Harnesses }
+widget-specific signal.
+
+@PP
 The implementation is complete, but to make sure that our widget
 compiles and runs we'll create a tiny test harness. The test
 harness will require two files, a
-
 pro @Index{ .pro } @File{.pro} project file and a
 main.cpp @Index{ main.cpp } @File{main.cpp}. The
 @File{"qt/tools/designer/examples/vcr/vcr.pro"} project file:
@@ -137,15 +138,14 @@ main.cpp @Index{ main.cpp } @File{main.cpp}. The
 SOURCES += vcr.cpp main.cpp
 HEADERS += vcr.h
 TARGET   = vcr
-TEMPLATE        =app
+TEMPLATE = app
 CONFIG  += qt warn_on release
-DBFILE  = vcr.db
-LANGUAGE        = @Cpp
+DBFILE   = vcr.db
+LANGUAGE = C++
 @End @RawVerbatim
-@PP
 The @File{"qt/tools/designer/examples/vcr/main.cpp"}
+qapplication @Index{ QApplication }
 file is also brief:
-
 @LD @Code @RawVerbatim @Begin
     #include <qapplication.h>
     #include "vcr.h"
@@ -158,7 +158,6 @@ file is also brief:
         return app.exec();
     }
 @End @RawVerbatim
-qapplication @Index{ QApplication }
 @PP
 Once we're satisfied that the custom widget compiles and runs
 we are ready to incorporate it into @QDR.
@@ -167,14 +166,18 @@ we are ready to incorporate it into @QDR.
 In Base-class Templates the creation of a container custom widget
 is described.
 
-@LD @Heading { Adding the Custom Widget to Qt Designer{@PageMark{adding.the.custom.widget.to.qt.designer}} }
-
-custom.widgets @RawIndex{ Custom Widgets }
-custom.widgets.adding.to.qt.designer @SubIndex{ Adding to Qt Designer }
-adding @RawIndex{ Adding }
-adding.custom.widgets.to.qt.designer @SubIndex{ Custom Widgets to Qt Designer }@PP
+@End @SubSection
+@SubSection
+    @Title { Adding the Custom Widget to Qt Designer }
+    @Tag{adding.the.custom.widget.to.qt.designer}
+@Begin
+@PP
 Click @Option{Tools"|"Custom"|"Edit Custom Widgets} to invoke the
-@Win{Edit Custom Widgets} dialog.
+custom.widgets @RawIndex{ Custom Widgets }
+custom.widgets.adding.to.qt.designer @SubIndex{ Adding to Qt Designer
+} adding @RawIndex{ Adding } adding.custom.widgets.to.qt.designer
+@SubIndex{ Custom Widgets to Qt Designer } @Win{Edit Custom Widgets}
+dialog.
 
 @BulletList
 @LI{
@@ -195,8 +198,7 @@ on the toolbar click the ellipsis button to the right of Pixmap
 property. (The ellipsis button appears when you click in the
 Value part of the Properties list by a @Prop{pixmap} or @Prop{iconSet}
 property.)
-
-@PP
+@LP
 In our example we have the file
 @File{"qt/tools/designer/examples/vcr/play.xpm"}
 which we'll use for this purpose.
@@ -208,7 +210,7 @@ of 80 (in the left hand spin box), and a height of 20 (in the
 right hand spin box).
 }
 @EndList
-@PP
+
 The remaining items to be completed will depend on the characteristics
 of the widget you've created. If, for example, your widget can
 be used to contain other widgets you'd check the Container Widget
@@ -233,43 +235,47 @@ Incorporating custom widgets that have their own slots and properties
 is achieved in a similar way to adding signals. All the required
 information is in our custom widget's header file.
 
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { Creating Custom Widgets with Plugins }
     @Tag { creating.custom.widgets.with.plugins }
 @Begin
-
-custom.widgets @RawIndex{ Custom Widgets }
-custom.widgets.plugins @SubIndex{ Plugins }
-plugins @RawIndex{ Plugins }
-plugins.implementing.custom.widgets @SubIndex{ Implementing Custom Widgets }@PP
+@PP
 This section will show you how to write a custom widget and how
-to embed the custom widget into a plugin. There are no restrictions
-or special considerations that must be taken into account when
-creating a widget that is destined to become a plugin. If you
-are an experienced Qt programmer you can safely skip the section
-on creating a custom widget and go directly to Creating a Plugin [p.~@PageOf{creating.a.plugin}].
+custom.widgets @RawIndex{ Custom Widgets } custom.widgets.plugins
+@SubIndex{ Plugins } plugins @RawIndex{ Plugins }
+plugins.implementing.custom.widgets @SubIndex{ Implementing Custom
+Widgets } to embed the custom widget into a plugin. There are no
+restrictions or special considerations that must be taken into account
+when creating a widget that is destined to become a plugin. If you are
+an experienced Qt programmer you can safely skip the section on
+creating a custom widget and go directly to Creating a Plugin
+[p.~@PageOf{creating.a.plugin}].
 
-@LD @Heading { Creating a Custom Widget{@PageMark{creating.a.custom.widget}} }
-
-creating.custom.widgets @Index{ Creating Custom Widgets }
-widgets @RawIndex{ Widgets }
-widgets.creating.a.custom.widget @SubIndex{ Creating a Custom Widget }
-subclassing @RawIndex{ Subclassing }
-subclassing.widgets @SubIndex{ Widgets }@PP
+@BeginSubSections
+@SubSection
+    @Title { Creating a Custom Widget }
+    @Tag{creating.a.custom.widget}
+@Begin
+@PP
 A custom widget is often a specialization (subclass) of another
-widget or a combination of widgets working together or a blend
-of both these approaches. If you simply want a collection of
-widgets in a particular configuration it is easiest to create
-them, select them as a group, and copy and paste them as required
-within @QDR. Custom widgets are generally created
-when you need to add new functionality to existing widgets or
-groups of widgets.
+creating.custom.widgets @Index{ Creating Custom Widgets } widgets
+@RawIndex{ Widgets } widgets.creating.a.custom.widget @SubIndex{
+Creating a Custom Widget } subclassing @RawIndex{ Subclassing }
+subclassing.widgets @SubIndex{ Widgets } widget or a combination of
+widgets working together or a blend of both these approaches. If you
+simply want a collection of widgets in a particular configuration it
+is easiest to create them, select them as a group, and copy and paste
+them as required within @QDR. Custom widgets are generally created
+when you need to add new functionality to existing widgets or groups
+of widgets.
 
-
-properties @RawIndex{ Properties }
-properties.creating.custom.properties @SubIndex{ Creating Custom Properties }@PP
+@PP
 We have two recommendations that you should consider when creating
+properties @RawIndex{ Properties }
+properties.creating.custom.properties @SubIndex{ Creating Custom Properties }
 a custom widget for a plugin:
 
 @BulletList
@@ -284,7 +290,7 @@ slots so that you can perform signal-slot connections with the
 widget in @QDR.
 }
 @EndList
-@PP
+
 In the course of this chapter we will create a simple but useful
 widget, 'FileChooser', which we'll later make available in @QDR as a plugin. In practice most custom widgets are created
 to add functionality rather than to compose widgets, so we will
@@ -294,13 +300,10 @@ and a @Class{QPushButton}qpushbutton @Index{ QPushButton }. The @Class{QLineEdit
 or directory name, the @Class{QPushButton}qpushbutton @Index{ QPushButton } is used to launch a file
 dialog through which the user can choose a file or directory.
 
-@PP
 @Figure
-    @Caption { 
-@I{The FileChooser Custom Widget} }
- 0.3 @Scale @IncludeGraphic { "images/filechooser.eps.gz"
-}
-@PP
+    @Caption { @I{The FileChooser Custom Widget} }
+    @IncludeGraphic { "images/filechooser.eps.gz" }
+
 If you've followed the manual up to this point you may well be
 able to create this custom widget yourself. If you're confident
 that you can make your own version of the widget, or have another
@@ -308,11 +311,16 @@ widget that you want to turn into a plugin, skip ahead to Creating
 a Plugin. If you prefer to read how we created the widget then
 read on.
 
-@LD @I { Coding the Widget's Interface{@PageMark{coding.the.widget.s.interface}} }
+@BeginSubSubSections
+@SubSubSection
+    @Title { Coding the Widget's Interface }
+    @Tag{coding.the.widget.s.interface}
+@Begin
 @PP
 We will work step-by-step through the widget's header file,
-@File{"qt/tools/designer/examples/filechooser/widget/filechooser.h"}.
-
+qlineedit @Index{ QLineEdit }
+qpushbutton @Index{ QPushButton }
+@File{"qt/tools/designer/examples/"} @File{"filechooser/widget/filechooser.h"}.
 @LD @Code @RawVerbatim @Begin
     #include <qwidget.h>
     #include <qwidgetplugin.h>
@@ -320,29 +328,27 @@ We will work step-by-step through the widget's header file,
     class QLineEdit;
     class QPushButton;
 @End @RawVerbatim
-qlineedit @Index{ QLineEdit }
-qpushbutton @Index{ QPushButton }
+
+Our widget will be derived from @Class{QWidget}qwidget @Index{ QWidget
+} so we include the @File{qwidget.h} header file. We also forward
+declare the two classes that our widget will be built from.
+
 @PP
-Our widget will be derived from @Class{QWidget}qwidget @Index{ QWidget } so we include the
-@File{qwidget.h} header file. We also forward declare
-the two classes that our widget will be built from.
-
-@LD @Code @RawVerbatim @Begin
-@End @RawVerbatim
-
+We include the @Code{Q_OBJECT} macro since this is required
 macros @RawIndex{ Macros }
 macros.q.object @SubIndex{ Q_OBJECT }
 q.object @Index{ Q_OBJECT }
 macros @RawIndex{ Macros }
 macros.q.enums @SubIndex{ Q_ENUMS }
-q.enums @Index{ Q_ENUMS } @PP
-We include the @Code{Q_OBJECT} macro since this is required
+q.enums @Index{ Q_ENUMS } 
 for classes that declare signals or slots. The @Code{Q_ENUMS}
 declaration is used to register the Mode enumeration. Our widget
 has two properties, mode, to store whether the user should select
 a File or a Directory and fileName which stores the file or directory
+qt.widget.plugin.export @Index{ QT_WIDGET_PLUGIN_EXPORT }
+qwidget @Index{ QWidget }
+qstring @Index{ QString }
 they chose.
-
 @LD @Code @RawVerbatim @Begin
     class QT_WIDGET_PLUGIN_EXPORT FileChooser : public QWidget
     {
@@ -360,14 +366,11 @@ they chose.
         QString fileName() const;
         Mode mode() const;
 @End @RawVerbatim
-qt.widget.plugin.export @Index{ QT_WIDGET_PLUGIN_EXPORT }
-qwidget @Index{ QWidget }
-qstring @Index{ QString }
-@PP
+
 The constructor is declared in the standard way for widgets.
 We declare two public functions, @Func{fileName()} to
+qstring @Index{ QString }
 return the filename, and @Func{mode()} to return the mode.
-
 @LD @Code @RawVerbatim @Begin
     public slots:
         void setFileName( const QString &fn );
@@ -379,14 +382,13 @@ return the filename, and @Func{mode()} to return the mode.
     private slots:
         void chooseFile();
 @End @RawVerbatim
-qstring @Index{ QString }
-@PP
 The two 'set' functions are declared as public slots. @Func{setFileName()}
 and @Func{setMode()} set the filename and mode respectively.
 We declare a single signal, @Func{fileNameChanged()}.
 The private slot, @Func{chooseFile()} is called by the
+qlineedit @Index{ QLineEdit }
+qpushbutton @Index{ QPushButton }
 widget itself when its button is clicked.
-
 @LD @Code @RawVerbatim @Begin
     private:
         QLineEdit *lineEdit;
@@ -395,29 +397,29 @@ widget itself when its button is clicked.
 
     };
 @End @RawVerbatim
-qlineedit @Index{ QLineEdit }
-qpushbutton @Index{ QPushButton }
-@PP
-A pointer to @Class{QLineEdit}qlineedit @Index{ QLineEdit } and @Class{QPushButton}qpushbutton @Index{ QPushButton }, as well as a
+A pointer to @Class{QLineEdit}qlineedit @Index{ QLineEdit } and
+@Class{QPushButton}qpushbutton @Index{ QPushButton }, as well as a
 Mode variable are held as private data.
 
-@LD @I { Coding the Implementation{@PageMark{coding.the.implementation}} }
+@End @SubSubSection
+@SubSubSection
+    @Title { Coding the Implementation }
+    @Tag{coding.the.implementation}
+@Begin
 @PP
-We will work step-by-step through the implementation which is
-in
-@File{"qt/tools/designer/examples/filechooser/widget/filechooser.cpp"}.
-
+We will work step-by-step through the implementation which is in
+qwidget @Index{ QWidget }
+@File{"qt/tools/designer/"} @File{"examples/filechooser/widget/filechooser.cpp"}.
 @LD @Code @RawVerbatim @Begin
     FileChooser::FileChooser( QWidget *parent, const char *name )
         : QWidget( parent, name ), md( File )
     {
 @End @RawVerbatim
-qwidget @Index{ QWidget }
-@PP
 The constructor passes the parent and name to its superclass,
-@Class{QWidget}qwidget @Index{ QWidget }, and also initializes the private mode data, md,
-to File mode.
-
+@Class{QWidget}qwidget @Index{ QWidget }, and also initializes the
+qhboxlayout @Index{ QHBoxLayout }
+qlineedit @Index{ QLineEdit }
+private mode data, md, to File mode.
 @LD @Code @RawVerbatim @Begin
         QHBoxLayout *layout = new QHBoxLayout( this );
         layout->setMargin( 0 );
@@ -425,12 +427,12 @@ to File mode.
         lineEdit = new QLineEdit( this, "filechooser_lineedit" );
         layout->addWidget( lineEdit );
 @End @RawVerbatim
-qhboxlayout @Index{ QHBoxLayout }
-qlineedit @Index{ QLineEdit }
-@PP
-We begin by creating a horizontal box layout (@Class{QHBoxLayout}qhboxlayout @Index{ QHBoxLayout })
-and add a @Class{QLineEdit}qlineedit @Index{ QLineEdit } and a @Class{QPushButton}qpushbutton @Index{ QPushButton } to it.
-
+We begin by creating a horizontal box layout
+(@Class{QHBoxLayout}qhboxlayout @Index{ QHBoxLayout }) and add a
+@Class{QLineEdit}qlineedit @Index{ QLineEdit } and a
+qstring @Index{ QString }
+qpushbutton @Index{ QPushButton }
+@Class{QPushButton}qpushbutton @Index{ QPushButton } to it.
 @LD @Code @RawVerbatim @Begin
         connect( lineEdit, SIGNAL( textChanged( const QString & ) ),
                  this, SIGNAL( fileNameChanged( const QString & ) ) );
@@ -442,22 +444,22 @@ and add a @Class{QLineEdit}qlineedit @Index{ QLineEdit } and a @Class{QPushButto
         connect( button, SIGNAL( clicked() ),
                  this, SLOT( chooseFile() ) );
 @End @RawVerbatim
-qstring @Index{ QString }
-qpushbutton @Index{ QPushButton }
-@PP
-We connect the lineEdit's
-
-textchanged @Index{ textChanged() } @Func{textChanged()} signal to the custom widget's @Func{fileNameChanged()} signal. This ensures that if the user changes the text in the @Class{QLineEdit} this fact will be propagated via the custom widget's own signal. The button's
-clicked @Index{ clicked() } @Func{clicked()} signal is connected to the custom widget's @Func{chooseFile()} slot which invokes the appropriate dialog for the user to choose their file or directory.
+We connect the lineEdit's textchanged @Index{ textChanged() }
+@Func{textChanged()} signal to the custom widget's
+@Func{fileNameChanged()} signal. This ensures that if the user changes
+the text in the @Class{QLineEdit} this fact will be propagated via the
+custom widget's own signal. The button's clicked @Index{ clicked() }
+@Func{clicked()} signal is connected to the custom widget's
+@Func{chooseFile()} slot which invokes the appropriate dialog for the
+user to choose their file or directory.
 @LD @Code @RawVerbatim @Begin
         setFocusProxy( lineEdit );
     }
 @End @RawVerbatim
-@PP
 We set the lineEdit as the focus proxy for our custom widget.
 This means that when the widget is given focus the focus actually
+qstring @Index{ QString }
 goes to the lineEdit.
-
 @LD @Code @RawVerbatim @Begin
     void FileChooser::setFileName( const QString &fn )
     {
@@ -469,22 +471,23 @@ goes to the lineEdit.
         return lineEdit->text();
     }
 @End @RawVerbatim
+The @Func{setFileName()} function sets the filename in the
+@Class{QLineEdit}qlineedit @Index{ QLineEdit }, and the
+@Func{fileName()} function returns the filename from the
+@Class{QLineEdit}qlineedit @Index{ QLineEdit }. The @Func{setMode()}
+and @Func{mode()} functions (not shown) are similarly set and return
 qstring @Index{ QString }
-@PP
-The @Func{setFileName()} function sets the filename in
-the @Class{QLineEdit}qlineedit @Index{ QLineEdit }, and the @Func{fileName()} function
-returns the filename from the @Class{QLineEdit}qlineedit @Index{ QLineEdit }. The @Func{setMode()}
-and @Func{mode()} functions (not shown) are similarly
-set and return the given mode.
-
+qfiledialog @Index{ QFileDialog }
+the given mode.
 @LD @Code @RawVerbatim @Begin
     void FileChooser::chooseFile()
     {
         QString fn;
         if ( mode() == File )
-            fn = QFileDialog::getOpenFileName( lineEdit->text(), QString::null, this );
+            fn = QFileDialog::getOpenFileName( lineEdit->text(),
+                                               QString::null, this );
         else
-            fn = QFileDialog::getExistingDirectory( lineEdit->text(),this );
+            fn = QFileDialog::getExistingDirectory( lineEdit->text(), this );
 
         if ( !fn.isEmpty() ) {
             lineEdit->setText( fn );
@@ -492,14 +495,11 @@ set and return the given mode.
         }
     }
 @End @RawVerbatim
-qstring @Index{ QString }
-qfiledialog @Index{ QFileDialog }
-@PP
-When @Func{chooseFile()} is called it presents the user
-with a file or directory dialog depending on the mode. If the
-user chooses a file or directory the @Class{QLineEdit}qlineedit @Index{ QLineEdit } is updated
-with the chosen file or directory and the @Func{fileNameChanged()}
-signal is emitted.
+When @Func{chooseFile()} is called it presents the user with a file or
+directory dialog depending on the mode. If the user chooses a file or
+directory the @Class{QLineEdit}qlineedit @Index{ QLineEdit } is
+updated with the chosen file or directory and the
+@Func{fileNameChanged()} signal is emitted.
 
 @PP
 Although these two files complete the implementation of the FileChooser
@@ -507,17 +507,21 @@ widget it is good practice to write a test harness to check that
 the widget behaves as expected before attempting to put it into
 a plugin.
 
-@LD @I { Testing the Implementation{@PageMark{testing.the.implementation}} }
-
+@End @SubSubSection
+@SubSubSection
+    @Title { Testing the Implementation }
+    @Tag{testing.the.implementation}
+@Begin
+@PP
+We present a rudimentary test harness which will allow us to
 main.cpp @Index{ main.cpp }
 forms @RawIndex{ Forms }
-forms.creating.test.harnesses @SubIndex{ Creating Test Harnesses }@PP
-We present a rudimentary test harness which will allow us to
+forms.creating.test.harnesses @SubIndex{ Creating Test Harnesses }
 run our custom widget. The test harness requires two files, a
 @File{main.cpp} to contain the FileChooser, and a @File{.pro}
 file to create the Makefile from. Here is
+qapplication @Index{ QApplication }
 @File{"qt/tools/designer/examples/filechooser/widget/main.cpp"}:
-
 @LD @Code @RawVerbatim @Begin
     #include <qapplication.h>
     #include "filechooser.h"
@@ -530,34 +534,36 @@ file to create the Makefile from. Here is
         return a.exec();
     }
 @End @RawVerbatim
-qapplication @Index{ QApplication }
-@PP
 And here is
 @File{"qt/tools/designer/examples/filechooser/widget/filechooser.pro"}
-
 @LD @Code @RawVerbatim @Begin
 SOURCES += filechooser.cpp main.cpp
 HEADERS += filechooser.h
-TARGET          = filechooser
-TEMPLATE        =app
+TARGET   = filechooser
+TEMPLATE = app
 CONFIG  += qt warn_on release
-DBFILE  = filechooser.db
-LANGUAGE        = @Cpp
+DBFILE   = filechooser.db
+LANGUAGE = C++
 @End @RawVerbatim
+We can create the makefile using @File{qmake}: @Code{qmake -o Makefile
+filechooser.pro}, then we can make and run the harness to test our new
+widget. Once we're satisfied that the custom widget is robust and has
+the behaviour we require we can embed it into a plugin.
+
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@SubSection
+    @Title { Creating a Plugin }
+    @Tag{creating.a.plugin}
+@Begin
 @PP
-We can create the makefile using @File{qmake}: @Code{qmake -o Makefile filechooser.pro}, then we can make and run the harness
-to test our new widget. Once we're satisfied that the custom
-widget is robust and has the behaviour we require we can embed
-it into a plugin.
-
-@LD @Heading { Creating a Plugin{@PageMark{creating.a.plugin}} }
-
+Qt Plugins can be used to provide self-contained software components
 creating.plugins @Index{ Creating Plugins }
 plugins @RawIndex{ Plugins }
 plugins.creating.a.plugin @SubIndex{ Creating a Plugin }
 component @RawIndex{ Component }
-component.plugins @SubIndex{ Plugins }@PP
-Qt Plugins can be used to provide self-contained software components
+component.plugins @SubIndex{ Plugins }
 for Qt applications. Qt currently supports the creation of five
 kinds of plugins: codecs, image formats, database drivers, styles
 and custom widgets. In this section we will explain how to convert
@@ -566,20 +572,37 @@ plugin.
 
 @PP
 A @QDR custom widget plugin is always derived from
-@Class{QWidgetPlugin}qwidgetplugin @Index{ QWidgetPlugin }. The amout of code that needs to be written
-is minimal.
+@Class{QWidgetPlugin}qwidgetplugin @Index{ QWidgetPlugin }. The amout
+of code that needs to be written is minimal.
 
 @PP
-To make your own plugin it is probably easiest to start by copying
-our example
+To make your own plugin it is probably easiest to start by copying our
+example plugin.h @Index{ plugin.h } @File{plugin.h} and plugin.cpp
+@Index{ plugin.cpp } @File{plugin.cpp} files and changing
+'CustomWidgetPlugin' to the name you wish to use for your widget
+plugin implementation class. Below we provide an introduction to the
+header file although it needs no changes beyond class renaming. The
+implementation file requires simple changes, mostly more class
+renaming; we will review each function in turn and explain what you
+need to do.
 
-plugin.h @Index{ plugin.h } @File{plugin.h} and
-plugin.cpp @Index{ plugin.cpp } @File{plugin.cpp} files and changing 'CustomWidgetPlugin' to the name you wish to use for your widget plugin implementation class. Below we provide an introduction to the header file although it needs no changes beyond class renaming. The implementation file requires simple changes, mostly more class renaming; we will review each function in turn and explain what you need to do.
-@LD @I { The @Option{CustomWidgetPlugin} Implementation{@PageMark{the.customwidgetplugin.implementation}} }
+@BeginSubSubSections
+@SubSubSection
+    @Title { The CustomWidgetPlugin Implementation }
+    @Tag{the.customwidgetplugin.implementation}
+@Begin
 @PP
-We have called our header file
-
-plugin.h @Index{ plugin.h } @File{plugin.h} and we've called our plugin class @Option{CustomWidgetPlugin} since we will be using our plugin class to wrap our custom widgets. We present the entire header file to give you an impression of the scope of the implementation required. Most of the functions require just a few lines of code.
+We have called our header file plugin.h @Index{ plugin.h }
+@File{plugin.h} and we've called our plugin class
+@Option{CustomWidgetPlugin} since we will be using our plugin class to
+wrap our custom widgets. We present the entire header file to give you
+an impression of the scope of the implementation required. Most of the
+qwidgetplugin @Index{ QWidgetPlugin }
+qstringlist @Index{ QStringList }
+qwidget @Index{ QWidget }
+qstring @Index{ QString }
+qiconset @Index{ QIconSet }
+functions require just a few lines of code.
 @LD @Code @RawVerbatim @Begin
     #include <qwidgetplugin.h>
 
@@ -589,7 +612,8 @@ plugin.h @Index{ plugin.h } @File{plugin.h} and we've called our plugin class @O
         CustomWidgetPlugin();
 
         QStringList keys() const;
-        QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
+        QWidget* create( const QString &classname, QWidget* parent = 0,
+                         const char* name = 0 );
         QString group( const QString& ) const;
         QIconSet iconSet( const QString& ) const;
         QString includeFile( const QString& ) const;
@@ -598,32 +622,29 @@ plugin.h @Index{ plugin.h } @File{plugin.h} and we've called our plugin class @O
         bool isContainer( const QString& ) const;
     };
 @End @RawVerbatim
-qwidgetplugin @Index{ QWidgetPlugin }
-qstringlist @Index{ QStringList }
-qwidget @Index{ QWidget }
-qstring @Index{ QString }
-qiconset @Index{ QIconSet }
-@QD{ From @File{"qt/tools/designer/examples/filechooser/plugin/plugin.h"}}
-@LD @I { The QWidgetPlugin Functions{@PageMark{the.qwidgetplugin.functions}} }
-
-plugin.cpp @Index{ plugin.cpp }@PP
-Create your own plugin @File{.cpp} file by copying our
-@File{plugin.cpp} file and changing all occurrences of
-'CustomWidgetPlugin' to the name you wish to use for your widget
-plugin implementation. Most of the other changes are simply replacing
-the name of our custom control, 'FileChooser', with the name
-of your custom control. You may need to add extra @Code{else if} clauses if you have more than one custom control in your
-plugin implementation.
+@Filename{@File{"qt/tools/designer/examples/filechooser/plugin/plugin.h"}}
+@End @SubSubSection
+@SubSubSection
+    @Title { The QWidgetPlugin Functions }
+    @Tag{the.qwidgetplugin.functions}
+@Begin
+@PP
+Create your own plugin @File{.cpp} file by copying our plugin.cpp
+@Index{ plugin.cpp } @File{plugin.cpp} file and changing all
+occurrences of 'CustomWidgetPlugin' to the name you wish to use for
+your widget plugin implementation. Most of the other changes are
+simply replacing the name of our custom control, 'FileChooser', with
+the name of your custom control. You may need to add extra @Code{else
+if} clauses if you have more than one custom control in your plugin
+implementation.
 
 @PP
 We'll now look at the constructor.
-
 @LD @Code @RawVerbatim @Begin
     CustomWidgetPlugin::CustomWidgetPlugin()
     {
     }
 @End @RawVerbatim
-@PP
 The constructor does not have to do anything. Simply copy ours
 with the class name you wish to use for your widget plugin implementation.
 
@@ -631,9 +652,9 @@ with the class name you wish to use for your widget plugin implementation.
 No destructor is necessary.
 
 
-keys @Index{ keys() }@PP
-The @Func{keys()} function.
-
+@PP
+The keys @Index{ keys() } @Func{keys()} qstringlist @Index{
+QStringList }function.
 @LD @Code @RawVerbatim @Begin
     QStringList CustomWidgetPlugin::keys() const
     {
@@ -642,38 +663,32 @@ The @Func{keys()} function.
         return list;
     }
 @End @RawVerbatim
-qstringlist @Index{ QStringList }
+For each widget class that you want to wrap in the plugin
+implementation you should supply a key by which the class can be
+identified. This key @I{must} be your class's name, so in our example
+we add a single key, 'FileChooser'.
+
 @PP
-For each widget class that you want to wrap in the plugin implementation
-you should supply a key by which the class can be identified.
-This key @I{must} be your class's name, so in our example we
-add a single key, 'FileChooser'.
-
-
-create @Index{ create() }@PP
-The @Func{create()} function.
-
+The qwidget @Index{ QWidget } qstring @Index{ QString } create @Index{
+create() } @Func{create()} function.
 @LD @Code @RawVerbatim @Begin
-    QWidget* CustomWidgetPlugin::create( const QString &key, QWidget* parent, const char* name )
+    QWidget* CustomWidgetPlugin::create( const QString &key, QWidget* parent,
+                                         const char* name )
     {
         if ( key == "FileChooser" )
             return new FileChooser( parent, name );
         return 0;
     }
 @End @RawVerbatim
-qwidget @Index{ QWidget }
-qstring @Index{ QString }
+In this function we create an instance of the requested class and
+return a QWidget pointer to the newly created widget. Copy this
+function changing the class name and the feature name and create an
+instance of your widget just as we've done here. (See the Qt Plugin
+documentation for more information.)
+
 @PP
-In this function we create an instance of the requested class
-and return a QWidget pointer to the newly created widget. Copy
-this function changing the class name and the feature name and
-create an instance of your widget just as we've done here. (See
-the Qt Plugin documentation for more information.)
-
-
-includefile @Index{ includeFile() }@PP
-The @Func{includeFile()} function.
-
+The qstring @Index{ QString }includefile @Index{ includeFile()
+} @Func{includeFile()} function.
 @LD @Code @RawVerbatim @Begin
     QString CustomWidgetPlugin::includeFile( const QString& feature ) const
     {
@@ -682,21 +697,21 @@ The @Func{includeFile()} function.
         return QString::null;
     }
 @End @RawVerbatim
-qstring @Index{ QString }
-@PP
 This function returns the name of the include file for the custom
 widget. Copy this function changing the class name, key and include
 filename to suit your own custom widget.
 
-
+@PP
+The @Func{group()}, @Func{iconSet()}, @Func{toolTip()}
 group @Index{ group() }
 iconset @Index{ iconSet() }
 includefile @Index{ includeFile() }
 tooltip @Index{ toolTip() }
-whatsthis @Index{ whatsThis() }@PP
-The @Func{group()}, @Func{iconSet()}, @Func{toolTip()}
+whatsthis @Index{ whatsThis() }
+qstring @Index{ QString }
+qiconset @Index{ QIconSet }
+qpixmap @Index{ QPixmap }
 and @Func{whatsThis()} functions.
-
 @LD @Code @RawVerbatim @Begin
     QString CustomWidgetPlugin::group( const QString& feature ) const
     {
@@ -731,15 +746,11 @@ and @Func{whatsThis()} functions.
         return QString::null;
     }
 @End @RawVerbatim
-qstring @Index{ QString }
-qiconset @Index{ QIconSet }
-qpixmap @Index{ QPixmap }
-@PP
-We use the @Func{group()} function to identify which @QDR toolbar group this custom widget should be part of.
-If we use a name that is not in use @QDR will create
-a new toolbar group with the given name. Copy this function,
-changing the class name, key and group name to suit your own
-widget plugin implementation.
+We use the @Func{group()} function to identify which @QDR toolbar
+group this custom widget should be part of. If we use a name that is
+not in use @QDR will create a new toolbar group with the given name.
+Copy this function, changing the class name, key and group name to
+suit your own widget plugin implementation.
 
 @PP
 The @Func{iconSet()} function returns the pixmap to use
@@ -749,34 +760,29 @@ function returns the Whats This text. Copy each of these functions
 changing the class name, key and the string you return to suit
 your own widget plugin implementation.
 
-
-iscontainer @Index{ isContainer() }@PP
-The @Func{isContainer()} function.
-
+@PP
+The qstring @Index{ QString }iscontainer @Index{ isContainer()
+} @Func{isContainer()} function.
 @LD @Code @RawVerbatim @Begin
     bool CustomWidgetPlugin::isContainer( const QString& ) const
     {
         return FALSE;
     }
 @End @RawVerbatim
-qstring @Index{ QString }
+Copy this function changing the class name to suit your widget plugin
+implementation. It should return @Code{@TRUE} if your custom widget
+can contain other widgets, e.g. like @Class{QFrame}qframe @Index{
+QFrame }, or @Code{@FALSE} if it must not contain other widgets, e.g.
+like @Class{QPushButton}qpushbutton @Index{ QPushButton }.
+
+
 @PP
-Copy this function changing the class name to suit your widget
-plugin implementation. It should return @Code{@TRUE} if
-your custom widget can contain other widgets, e.g. like @Class{QFrame}qframe @Index{ QFrame },
-or @Code{@FALSE} if it must not contain other widgets,
-e.g. like @Class{QPushButton}qpushbutton @Index{ QPushButton }.
-
-
-macros @RawIndex{ Macros }
-macros.q.export.plugin @SubIndex{ Q_EXPORT_PLUGIN }
-q.export.plugin @Index{ Q_EXPORT_PLUGIN }@PP
-The @Code{Q_EXPORT_PLUGIN} macro.
-
+The macros @RawIndex{ Macros } macros.q.export.plugin @SubIndex{
+Q_EXPORT_PLUGIN } q.export.plugin @Index{ Q_EXPORT_PLUGIN }
+@Code{Q_EXPORT_PLUGIN} macro.
 @LD @Code @RawVerbatim @Begin
     Q_EXPORT_PLUGIN( CustomWidgetPlugin )
 @End @RawVerbatim
-@PP
 This macro identifies the module as a plugin -- all the other
 code simply implements the relevant interface, i.e. wraps the
 classes you wish to make available.
@@ -792,12 +798,16 @@ Each widget you wrap in a widget plugin implementation becomes
 a class that the plugin implementation offers. There is no limit
 to the number of classes that you may include in an plugin implementation.
 
-@LD @I { The Project File{@PageMark{the.project.file}} }
+@End @SubSubSection
+@SubSubSection
+    @Title { The Project File }
+    @Tag{the.project.file}
+@Begin
 @PP
 The project file for a plugin is somewhat different from an application's
 project file but in most cases you can use our project file changing
+qt.source.tree @Index{ QT_SOURCE_TREE }
 only the @Code{HEADERS} and @Code{SOURCES} lines.
-
 @LD @Code @RawVerbatim @Begin
 SOURCES  += plugin.cpp ../widget/filechooser.cpp
 HEADERS  += plugin.h ../widget/filechooser.h
@@ -811,10 +821,10 @@ TEMPLATE     = lib
 CONFIG      += qt warn_on release plugin
 INCLUDEPATH += $$QT_SOURCE_TREE/tools/designer/interfaces
 DBFILE       = plugin.db
-LANGUAGE     = @Cpp
+LANGUAGE     = C++
 @End @RawVerbatim
-qt.source.tree @Index{ QT_SOURCE_TREE }
-@QD{@File{"qt/tools/designer/examples/filechooser/plugin/plugin.pro"}}
+@Filename{@File{"qt/tools/designer/examples/filechooser/plugin/plugin.pro"}}
+/0.1vx
 @PP
 Change the @Code{HEADERS} line to list your plugin's header
 file plus a header file for each of your widgets. Make the equivalent
@@ -825,7 +835,11 @@ find it. The next time you run @QDR it will detect
 your new plugin and load it automatically, displaying its icon
 in the toolbar you specified.
 
-@LD @I { Using the Widget Plugin{@PageMark{using.the.widget.plugin}} }
+@End @SubSubSection
+@SubSubSection
+    @Title { Using the Widget Plugin }
+    @Tag{using.the.widget.plugin}
+@Begin
 @PP
 Once the plugin has been compiled it will automatically be found
 and loaded by @QDR the next time @QDR is
@@ -836,37 +850,29 @@ If you want to use the plugin in another of your projects you
 can link against it by adding an appropriate line to the project,
 e.g. by adding a line like this to the project's @File{.pro}
 file:
-
 @LD @Code @RawVerbatim @Begin
-
 LIBS += filechooser.lib
 @End @RawVerbatim
-@PP
 When you want to distribute your application, include the compiled
-plugin with the executable. Install the plugin in @File{$QTDIR/plugins/widgets}.
-If you don't want to use the standard plugin path, have your
-installation process determine the path you want to use for the
-plugin, and save the path, e.g. using QSettings, for the application
-to read when it runs. The application can then call QApplication::addLibraryPath()
-with this path and your plugins will be available to the application.
-Note that the final part of the path, i.e. @File{styles},
-@File{widgets}, etc. cannot be changed.
-
-@Figure
-@Box paint { @LightGreyColour } margin { 0.5f }{@LLP @Centre @Heading{ Plugins and Threaded Applications}
-
+plugin with the executable. Install the plugin in
+@File{"$QTDIR/plugins/widgets"}. If you don't want to use the standard
+plugin path, have your installation process determine the path you
+want to use for the plugin, and save the path, e.g. using QSettings,
+for the application to read when it runs. The application can then
+call QApplication::addLibraryPath() with this path and your plugins
+will be available to the application. Note that the final part of the
+path, i.e. @File{styles}, @File{widgets}, etc. cannot be changed.
+@LP
+{ Plugins and Threaded Applications} @Sidebar {
 If you want to build a plugin which you want to use with a threaded
 Qt library (whether or not the plugin itself uses threads) you
 must use a threaded environment. Specifically, you must use a
 threaded Qt library, and you must build @QDR with
 that library. Your @File{.pro} file for your plugin must
 include the line:
-
 @LD @Code @RawVerbatim @Begin
-
     CONFIG += thread
 @End @RawVerbatim
-@PP
 @Option{Do not} mix the normal Qt library and the threaded Qt library
 in an application. If your application uses the threaded Qt library,
 you should not link with the normal Qt library. Nor should you
@@ -874,8 +880,11 @@ dynamically load the normal Qt library or dynamically load another
 library, e.g. a plugin, that depends on the normal Qt library.
 On some systems, mixing threaded and non-threaded libraries or
 plugins will corrupt the static data used in the Qt library.
-
 }
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@EndSubSections
 @End @Section
 @EndSections
 @End @Chapter

@@ -5,8 +5,8 @@
 # @Shadow{ text }
 # @Sidebar		e.g. { Caption } @Sidebar { Body }
 # @PageRef{tag}		shows [p. 91]
-# @TitlePageRef{tag}	shows ``Chapter Title'' [p. 51]
-# @TitleRef{tag}	shows ``Chapter Title''
+# @NamePageRef{tag}	shows ``Chapter Title'' [p. 51]
+# @NameRef{tag}	shows ``Chapter Title''
 
 macro @QAT { Slope @Font @OneCol{Qt Assistant} }
 macro @QDR { Slope @Font @OneCol{Qt Designer} }
@@ -23,21 +23,23 @@ macro @LightGreyColour		{{rgb 0.90 0.90 0.90}}
 
 macro @SBPP { //0.35f 2f @Wide &0c }
 
-def @Code right x { { 0.75 1.00 } @Scale { Courier Base } @Font x }
-def @Class right x { { 0.75 1.00 } @Scale { Courier Bold } @Font x }
-def @File right x { { 0.75 1.00 } @Scale { Courier Base } @Font x } # File or Program
-def @Func right x { { 0.75 1.00 } @Scale { Courier Base } @Font x } 
-def @Option right x { { Helvetica Base -1p } @Font  x } # Button, toolbar button, menu option or key sequence
-def @Prop right x { { Helvetica Slope -1p } @Font x } # Property
+def @C right x { { 0.875 1.00 } @Scale { Courier Base } @Font x }
+macro @Code { @C }
+macro @Func { @C }
+macro @Var { @C }
+macro @Prop { @C }
+def @Class right x { { 0.875 1.00 } @Scale { Courier Bold } @Font x }
+def @File right x { { 0.875 1.00 } @Scale { Courier Base } @Font x } # File or Program
+def @Click right x { { Helvetica Base -1p } @Font  x } # Button, toolbar button, menu option or key sequence
+macro @Option { @Click } 
 def @Win right x { Slope @Font x } # Window or dialog
-def @Var right x { { 0.75 1.00 } @Scale { Courier Slope } @Font x } 
 
-macro @OK { { Helvetica Base -1p } @Font { OK } }
-macro @Cancel { { Helvetica Base -1p } @Font { Cancel } }
-macro @Close { { Helvetica Base -1p } @Font { Close } }
+macro @OK { @Click { OK } }
+macro @Cancel { @Click { Cancel } }
+macro @Close { @Click { Close } }
 macro @Cpp { {C |0.55fo +0.015f @VShift{+|0.3s +}} }
-macro @TRUE { { 0.75 1.00 } @Scale { Courier Base } @Font { TRUE } }
-macro @FALSE { { 0.75 1.00 } @Scale { Courier Base } @Font { FALSE } }
+macro @TRUE { { 0.875 1.00 } @Scale { Courier Base } @Font { TRUE } }
+macro @FALSE { { 0.875 1.00 } @Scale { Courier Base } @Font { FALSE } }
 
 def @Sans right x { { Helvetica Base -1p } @Font  x }
 
@@ -86,7 +88,7 @@ def @Http right x { @HContract{http{:|0.15s{"/"|0.4fo "/"}x}}}
 def @News right x { @HContract{news{:|0.15s{"/"|0.4fo "/"}x}}}
 
 import @BasicSetup 
-def @TitlePageRef right x { 
+def @NamePageRef right x { 
     x @Case {
 	"" @Yield { red @Colour { ?? } }
 	else @Yield {``{@TitleOf x}'' [p.~@PageOf{x}]} 
@@ -94,7 +96,7 @@ def @TitlePageRef right x {
 }
 
 import @BasicSetup 
-def @TitleRef right x { 
+def @NameRef right x { 
     x @Case {
 	"" @Yield { red @Colour { ?? } }
 	else @Yield {``{@TitleOf x}''} 

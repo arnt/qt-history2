@@ -25,18 +25,18 @@ single dialog editing. In addition to many new design features
 like the ability to creating main windows and actions, the new
 version introduces:
 
-@NumberedList
+@BulletList
 @LI{
-@I{project management} for the user interface part of your application;
+@I{Project management} for the user interface part of your application;
 }
 @LI{
-@I{code in forms} @QDR provides a code editor so that
+@I{Code in forms} @QDR provides a code editor so that
 you can code your slots directly; the code is stored in @File{.ui.h}
 files and eliminates the need for sub-classing (although you
 can still subclass if you prefer);
 }
 @LI{
-@I{dynamic form loading} allows you to load @File{.ui}
+@I{Dynamic form loading} allows you to load @File{.ui}
 files at runtime which provides great scope for design customization
 separate from the underlying code.
 }
@@ -65,7 +65,6 @@ with the visual form design process that we will explain later.
 However, if you prefer using the editor you're used to, @File{vim},
 @File{emacs}, @File{notepad}, Microsoft Visual
 Studio, etc. you can still do so.
-
 @End @Section
 @Section
     @Title { Project management }
@@ -77,8 +76,7 @@ is conceptually simple and worked fairly well in Qt 2.x. However,
 it lacked certain features that made us introduce project management
 for the GUI part of an application in @QDR. The main
 benefits of project management are:
-
-@NumberedList
+@BulletList
 @LI{
 Grouping forms [p.~@PageOf{grouping.forms}] that belong together.
 }
@@ -93,15 +91,22 @@ Sharing database information between different forms.
 The following sections explain these benefits in more detail,
 and why project management is required to achieve them.
 
-@LD @Heading { Grouping forms{@PageMark{grouping.forms}} }
-@PP
+@BeginSubSections
+@SubSection
+    @Title { Grouping forms }
+    @Tag{grouping.forms}
+@Begin
+@LP
 Grouping forms [p.~@PageOf{grouping.forms}] means that @QDR maintains a list of
 the @File{.ui} files that belong to the same project.
 This makes it easy to switch between forms with a single mouse
 click.
-
-@LD @Heading { Sharing images in a image collection{@PageMark{sharing.images.in.a.image.collection}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Sharing images in a image collection }
+    @Tag{sharing.images.in.a.image.collection}
+@Begin
+@LP
 In Qt 2.x's @QDR each form included the images it
 required and no images were shared. This led to duplication when
 several forms needed to use the same images. Furthermore the
@@ -138,8 +143,12 @@ argument of the image tag is simply the image's name in the image
 collection. This also works during the design process in @I{Qt
 Designer}.
 
-@LD @Heading { Sharing database settings{@PageMark{sharing.database.settings}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Sharing database settings }
+    @Tag{sharing.database.settings}
+@Begin
+@LP
 Qt 3.0 introduces a brand new database module, the Qt SQL module.
 @QDR is fully integrated with the SQL module and can
 show live data from the databases that you connect to.
@@ -158,8 +167,12 @@ In most non-trivial database applications you will want to access
 the database from more than one form. This is why the @File{.db}
 file is part of a project, not just part of a single form.
 
-@LD @Heading { .pro files{@PageMark{pro.files}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Project (.pro) files }
+    @Tag{project.pro.files}
+@Begin
+@LP
 @QDR needs to store information on projects, for example,
 the list of forms, the image collection and information about
 available databases and how to access them. The majority of Qt
@@ -187,6 +200,8 @@ file as a file that describes the GUI part of your application.
 All you need to do -- as previously -- is add the @File{.ui}
 files and the images collection to your own Makefiles.
 
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { Extending the functionality of a form }
@@ -197,12 +212,45 @@ First let us look at a small figure that shows the relationship
 between @File{.ui} files, generated code and application
 code:
 
-@PP
-@Figure 0.3 @Scale @IncludeGraphic { "images/designer1.eps.gz"
+@Figure
+@Diag 
+    font { Helvetica Base }
+    hsize { 24s }
+    bfont { Helvetica Slope -2p }
+    bhsize { 30s }
+    bhindent { left }
+    boutline { box }
+{
+@Tbl
+#    rule { yes } rulecolour { red }
+    indent { ctr }
+    marginvertical { 0.75f }
+    marginhorizontal { 1.0f }
+    aformat { @Cell A | @Cell B | @Cell C | @Cell D }
+{
+    @Rowa A { A:: @CurveBox paint { darkgrey } { white @Colour @QDR } }
+	  B { B:: @Box { form.ui } }
+    @Rowa B { C:: @CurveBox paint { darkgrey } { white @Colour uic } }
+	  C { D:: @Box paint { lightgrey } { form.h } }
+    @Rowa A {
+	      @BNode paint { lightgrey } { Generated }
+	      /0c
+	      @BNode { Revision Controlled }}
+	  C { E:: @Box paint { lightgrey } { form.cpp } }
+	  D { F:: @Box { main.cpp } }
 }
-
-
-@PP
+//
+@Link arrow { both } from { A } to { B } ylabel { { 0.666vx clines }  @Break {
+reads
+and
+writes } }
+@Arrow from { C } to { B } ylabel { reads }
+@Arrow from { C } to { D } pathstyle { dashed } ylabel { 90d @Rotate generates }
+@VHCurveArrow from { C } to { E } pathstyle { dashed } ylabel { ~~generates }
+@Arrow from { E } to { D } pathstyle { dotted } ylabel { "#"includes }
+@VHCurveArrow from { F } to { D } pathstyle { dotted } ylabel { "#"includes }
+}
+#
 @QDR reads and writes @File{.ui} files, e.g.
 @File{form.ui}. The user interface compiler, @File{uic},
 creates both a header file, e.g. @File{form.h}, and an
@@ -243,17 +291,61 @@ whenever the form changes -- and we don't want a combination
 of generated and handwritten code. There are two possible solutions,
 which we'll cover next.
 
-@LD @Heading { The subclassing approach{@PageMark{the.subclassing.approach}} }
-@PP
+@BeginSubSections
+@SubSection
+    @Title { The subclassing approach }
+    @Tag{the.subclassing.approach}
+@Begin
+@LP
 A very clean way to implement custom slots for generated forms
 is via @Cpp inheritance as shown in the next figure:
 
-@PP
-@Figure 0.3 @Scale @IncludeGraphic { "images/designer2.eps.gz"
+@Figure
+@Diag 
+    font { Helvetica Base }
+#    hsize { 22s }
+    bfont { Helvetica Slope -2p }
+    bhsize { 30s }
+    bhindent { left }
+    boutline { box }
+    cfont { Helvetica Base }
+    chsize { 23s }
+    coutline { box }
+{
+@Tbl
+#    rule { yes } rulecolour { red }
+    indent { ctr }
+    marginvertical { 0.75f }
+    marginhorizontal { 1.0f }
+    aformat { @Cell A | @Cell B | @Cell C | @Cell D | @Cell E }
+{
+    @Rowa A { A:: @CurveBox paint { darkgrey } { white @Colour @QDR } }
+	  B { B:: @Box hsize { 16s } { form.ui } }
+    @Rowa B { C:: @CurveBox hsize { 16s } paint { darkgrey } { white @Colour uic } }
+	  C { D:: @CNode paint { lightgrey } { form.h } }
+	  D { G:: @CNode { formimpl.h } }
+    @Rowa A {
+	      @BNode paint { lightgrey } { Generated }
+	      /0c
+	      @BNode { Revision Controlled }}
+	  C { E:: @CNode paint { lightgrey } { form.cpp } }
+	  D { H:: @CNode { formimpl.cpp } }
+	  E { F:: @Box { main.cpp } }
+}
+//
+@Link arrow { both } from { A } to { B } ylabel { { 0.666vx clines }  @Break {
+reads
+and
+writes } }
+@Arrow from { C } to { B } ylabel { reads }
+@Arrow from { C } to { D } pathstyle { dashed } ylabel { 90d @Rotate generates }
+@VHCurveArrow from { C } to { E } pathstyle { dashed } ylabel { ~~generates }
+@Arrow from { E } to { D } pathstyle { dotted } ylabel { "#"includes }
+@VHCurveArrow from { F } to { G } pathstyle { dotted } ylabel { "#"includes }
+@Arrow from { G } to { D } pathstyle { dotted } ylabel { 90d @Rotate inherits } 
+@Arrow from { H } to { G } pathstyle { dotted } ylabel { "#"includes }
 }
 
-
-@PP
 Here the user wrote an additional class @Option{FormImpl}, which is
 split into the header file @File{formimpl.h} and the implementation
 file @File{formimpl.cpp}. The header file includes the
@@ -275,8 +367,12 @@ instead named their @QDR forms FormBase and their
 subclasses Form. This made a lot of sense, because they always
 subclassed and were using those subclasses in application code.
 
-@LD @Heading { The ui.h extension approach{@PageMark{the.ui.h.extension.approach}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { The ui.h extension approach }
+    @Tag{the.ui.h.extension.approach}
+@Begin
+@LP
 Despite its flexibility and cleanness, the subclassing approach
 has some disadvantages:
 
@@ -311,12 +407,58 @@ up with a new concept, the @I{ui.h extension}.
 @PP
 This is how it works:
 
-@PP
-@Figure 0.3 @Scale @IncludeGraphic { "images/designer3.eps.gz"
+@Figure
+@Diag 
+    font { Helvetica Base }
+    hsize { 24s }
+    bfont { Helvetica Slope -2p }
+    bhsize { 30s }
+    bhindent { left }
+    boutline { box }
+    cfont { Helvetica Base }
+    chsize { 24s }
+    coutline { box }
+{
+@Tbl
+#    rule { yes } rulecolour { red }
+    indent { ctr }
+    marginvertical { 1.0f }
+    marginhorizontal { 1.0f }
+    aformat { @Cell A | @Cell B | @Cell C | @Cell D }
+    bformat { @Cell A | @StartHSpan @Cell B | @HSpan | @Cell D }
+{
+    @Rowb B { A:: @CurveBox paint { darkgrey } { white @Colour @QDR } }
+    @Rowa B { B:: @Box { form.ui } }
+	  C { I:: @Box { form.ui.h } }
+    @Rowa B { C:: @CurveBox paint { darkgrey } { white @Colour uic } }
+	  C { D:: @CNode paint { lightgrey } { form.h } }
+    @Rowa A {
+	      @BNode paint { lightgrey } { Generated }
+	      /0c
+	      @BNode { Revision Controlled }}
+	  C { E:: @CNode paint { lightgrey } { form.cpp } }
+	  D { F:: @Box { main.cpp } }
+}
+//
+@Link arrow { both } from { A } to { B } ylabeladjust { -0.666c -0.25c }
+ylabel { { 0.666vx clines }  @Break {
+reads
+and
+writes } }
+@Link arrow { both } from { A } to { I } ylabeladjust { 0.666c -0.25c }
+ylabel { { 0.666vx clines }  @Break {
+reads
+and
+writes } }
+@Arrow from { C } to { B } ylabel { reads }
+@Arrow from { C } to { D } pathstyle { dashed } ylabel { 90d @Rotate generates }
+@VHCurveArrow from { C } to { E } pathstyle { dashed } ylabel { ~~generates }
+@Arrow from { E } to { D } pathstyle { dotted } ylabel { "#"includes }
+@VHCurveArrow from { F } to { D } pathstyle { dotted } ylabel { "#"includes }
+@Link from { E@S } to { 0.64,0.1 } pathstyle { dotted }
+@RVLCurveArrow from { 0.64,0.1 } to { I } bias { 10f } pathstyle { dotted } ylabel { "#"includes }
 }
 
-
-@PP
 In addition to the @File{.ui} file, @File{form.ui},
 @QDR reads and writes another associated file @File{form.ui.h}.
 This @File{.ui.h} file is an @I{ordinary @Cpp source file}
@@ -365,7 +507,11 @@ implementations of the slots either within @QDR or
 using your own editor; if you use your own editor @QDR
 will keep your changes.
 
-@LD @I { Construction and destruction{@PageMark{construction.and.destruction}} }
+@BeginSubSubSections
+@SubSubSection
+    @Title { Construction and destruction }
+    @Tag{construction.and.destruction}
+@Begin
 @PP
 The @File{ui.h} extension approach has one disadvantage
 compared to subclassing. The @File{ui.h} file only contains
@@ -386,7 +532,11 @@ void.) If you prefer to use your own editor you must still create
 these functions in @QDR; once created you can then
 write your implementation code either using @QDR's
 @Cpp editor plugin or using your own editor.
+@End @SubSubSection
+@EndSubSubSections
 
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { Loading forms dynamically }
@@ -414,8 +564,8 @@ adding those implementations via a controlling QObject subclass
 that you pass as receiver to the widget factory.
 
 @PP
-This concept and its usage is explained in detail in the Subclassing
-and Dynamic Dialogs chapter.
+This concept and its usage is explained in detail in
+@NamePageRef{subclassing.and.dynamic.dialogs}.
 
 @End @Section
 @EndSections
