@@ -53,6 +53,7 @@
 #include "qdict.h"
 #include "qguardedptr.h"
 #include "qclipboard.h"
+#include "qwhatsthis.h" // ######## dependency
 #include <stdlib.h>
 #ifdef QT_SM_SUPPORT
 #include <pwd.h>
@@ -190,6 +191,7 @@ static Atom	qt_wm_protocols;		// window manager protocols
 Atom		qt_wm_delete_window;		// delete window protocol
 Atom 		qt_wm_take_focus;		// take focus window protocol
 static Atom	qt_qt_scrolldone;		// scroll synchronization
+Atom	qt_net_wm_context_help; 	// context help
 
 Atom	qt_embedded_window;
 Atom	qt_embedded_window_take_focus;
@@ -1046,6 +1048,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "_QT_SELECTION_SENTINEL", &qt_selection_sentinel );
 	qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
 	qt_x11_intern_atom( "WM_TAKE_FOCUS", &qt_wm_take_focus );
+	qt_x11_intern_atom( "_NET_WM_CONTEXT_HELP", &qt_net_wm_context_help );
 	qt_x11_intern_atom( "RESOURCE_MANAGER", &qt_resource_manager );
 	qt_x11_intern_atom( "_QT_DESKTOP_PROPERTIES", &qt_desktop_properties );
 	qt_x11_intern_atom( "_QT_SIZEGRIP", &qt_sizegrip );
@@ -1503,10 +1506,13 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
     if ( replace )
 	cursorStack->removeLast();
     cursorStack->append( app_cursor );
+    
+    QWidget* amw = activeModalWidget();
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets that have
-	if ( w->testWState(WState_OwnCursor) )	//   set a cursor
+	if ( w->testWState(WState_OwnCursor) && 
+	     ( !amw || w->topLevelWidget() == amw ) )	//   set a cursor
 	    XDefineCursor( w->x11Display(), w->winId(), app_cursor->handle() );
 	++it;
     }
@@ -2137,8 +2143,10 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 		    beep();
 		    amw->raise(); // support broken window managers
 		}
-		XSetInputFocus( appDpy, (amw?amw:widget)->winId(), 
+		XSetInputFocus( appDpy, (amw?amw:widget)->winId(),
 				RevertToParent, event->xclient.data.l[1] );
+	    } else if ( a == qt_net_wm_context_help ) {
+		QWhatsThis::enterWhatsThisMode();
 	    }
 	} else if ( event->xclient.message_type == qt_qt_scrolldone ) {
 	    widget->translateScrollDoneEvent(event);

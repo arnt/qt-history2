@@ -71,11 +71,12 @@ static QWidget *keyboardGrb = 0;
  *****************************************************************************/
 
 
-extern Atom qt_wm_delete_window;		// defined in qapplication_x11.cpp
+extern Atom qt_wm_delete_window;	// defined in qapplication_x11.cpp
 extern Atom qt_wm_take_focus;		// defined in qapplication_x11.cpp
-extern Atom qt_wm_client_leader;		// defined in qapplication_x11.cpp
-extern Atom qt_window_role;			// defined in qapplication_x11.cpp
-extern Atom qt_sm_client_id;			// defined in qapplication_x11.cpp
+extern Atom qt_wm_client_leader;	// defined in qapplication_x11.cpp
+extern Atom qt_window_role;		// defined in qapplication_x11.cpp
+extern Atom qt_sm_client_id;		// defined in qapplication_x11.cpp
+extern Atom qt_net_wm_context_help;	// defined in qapplication_x11.cpp
 
 const uint stdWidgetEventMask =			// X event mask
 	(uint)(
@@ -248,8 +249,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    if ( wsa_mask && initializeWindow )
 		XChangeWindowAttributes( dpy, id, wsa_mask, &wsa );
 	} else {				// normal top-level widget
-	    setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu |
-		       WStyle_MinMax );
+	    if ( testWFlags(WStyle_Dialog ) )
+		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu | WStyle_ContextHelp );
+	    else
+		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
 	}
     }
 
@@ -305,10 +308,13 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 			  &class_hint );
 	XResizeWindow( dpy, id, crect.width(), crect.height() );
 	XStoreName( dpy, id, title );
-	Atom protocols[2];
-	protocols[0] = qt_wm_delete_window;	// support del window protocol
-	protocols[1] = qt_wm_take_focus;	// support take focus window protocol
-	XSetWMProtocols( dpy, id, protocols, 2 );
+	Atom protocols[3];
+	int n = 0;
+	protocols[n++] = qt_wm_delete_window;	// support del window protocol
+	protocols[n++] = qt_wm_take_focus;	// support take focus window protocol
+	if ( testWFlags( WStyle_ContextHelp ) ) 
+	    protocols[n++] = qt_net_wm_context_help;
+	XSetWMProtocols( dpy, id, protocols, n );
     }
 
     if ( initializeWindow ) {
