@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#135 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#136 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -163,7 +163,7 @@ Q_EXPORT GC	 qt_xget_temp_gc( bool monochrome=FALSE );
 
 // Global platform-independent types and functions
 
-typedef int QCOORD;				// coordinate type
+typedef Q_INT16 QCOORD;				// coordinate type
 const int QCOORD_MIN = -32768;
 const int QCOORD_MAX =	32767;
 
