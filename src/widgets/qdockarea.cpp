@@ -759,7 +759,7 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 	}
     }
 
-    if ( mse != -10 ) {
+    if ( mse != -10 && w->isResizeEnabled() ) {
 	if ( orientation() != Qt::Horizontal )
 	    w->setFixedExtentWidth( QMIN( QMAX( w->minimumWidth(), mse ), w->sizeHint().width() ) );
 	else
