@@ -1430,12 +1430,10 @@ void QAxServerBase::update()
 */
 void QAxServerBase::updateGeometry()
 {
-    if ( !isWidget )
+    if ( !isWidget || !qt.widget)
 	return;
 
-    QSize sizeHint;
-    if ( qt.widget )
-	sizeHint = qt.widget->sizeHint();
+    QSize sizeHint = qt.widget->sizeHint();
     if ( sizeHint.isValid() ) {
 	QPaintDeviceMetrics pmetric( qt.widget );
 
@@ -2076,6 +2074,8 @@ HRESULT WINAPI QAxServerBase::Load( IPropertyBag *bag, IErrorLog * /*log*/ )
 	}
 	SysFreeString(bstr);
     }
+    
+    updateGeometry();
 
     return /*error ? E_FAIL :*/ S_OK;
 }
@@ -2179,6 +2179,8 @@ HRESULT WINAPI QAxServerBase::Load(IStorage *pStg )
     m_spStorage = pStg;
     if ( m_spStorage )
 	m_spStorage->AddRef();
+
+    updateGeometry();
 
     return S_OK;
 }
@@ -2370,8 +2372,6 @@ HRESULT WINAPI QAxServerBase::GetAdvise( DWORD* /*aspects*/, DWORD* /*advf*/, IA
 */
 HRESULT WINAPI QAxServerBase::GetExtent( DWORD /*dwAspect*/, LONG /*lindex*/, DVTARGETDEVICE* /*ptd*/, LPSIZEL lpsizel )
 {
-    if ( isWidget )
-	updateGeometry();
     *lpsizel = sizeExtent;
     return S_OK;
 }
@@ -3148,11 +3148,12 @@ HRESULT WINAPI QAxServerBase::SetExtent( DWORD dwDrawAspect, SIZEL* psizel )
 	return DV_E_DVASPECT;
     if ( !psizel )
 	return E_POINTER;
+    if ( !isWidget || !qt.widget ) {
+	sizeExtent = *psizel;
+	return S_OK;
+    }
 
-    QSize minSizeHint;
-    if ( isWidget && qt.widget ) 
-	minSizeHint = qt.widget->minimumSizeHint();
-
+    QSize minSizeHint = qt.widget->minimumSizeHint();
     if ( minSizeHint.isValid() ) {
 	QPaintDeviceMetrics pmetric( qt.widget );
 
@@ -3160,15 +3161,12 @@ HRESULT WINAPI QAxServerBase::SetExtent( DWORD dwDrawAspect, SIZEL* psizel )
 	minSize.cx = MAP_PIX_TO_LOGHIM( minSizeHint.width(), pmetric.logicalDpiX() );
 	minSize.cy = MAP_PIX_TO_LOGHIM( minSizeHint.height(), pmetric.logicalDpiY() );
 
-	if ( minSize.cx > psizel->cx || minSize.cy > psizel->cy )
-	    return E_FAIL;
+	psizel->cx = QMAX( minSize.cx, psizel->cx );
+	psizel->cy = QMAX( minSize.cy, psizel->cy );
     }
 
-    BOOL bResized = FALSE;
-    if ( psizel->cx != sizeExtent.cx || psizel->cy != sizeExtent.cy ) {
+    if ( psizel->cx != sizeExtent.cx || psizel->cy != sizeExtent.cy )
 	sizeExtent = *psizel;
-	bResized = TRUE;
-    }
 
     return S_OK;
 }
