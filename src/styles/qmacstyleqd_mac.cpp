@@ -419,7 +419,7 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
 	    else
 		GetThemeMetric(kThemeMetricListBoxFrameOutset, &frame_size);
 
-	    int lw = opt.isDefault() ? pixelMetric(PM_DefaultFrameWidth) : opt.lineWidth();
+	    int lw = opt.isDefault() ? pixelMetric(PM_DefaultFrameWidth, 0) : opt.lineWidth();
 	    p->fillRect(r.x(), r.y(), lw, r.height(), pal.background()); //left
 	    p->fillRect(r.right()-lw+1, r.y(), lw, r.height(), pal.background()); //right
 	    p->fillRect(r.x(), r.y(), r.width(), lw, pal.background()); //top
@@ -1653,7 +1653,7 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl control,
 	else if(sc & SC_TitleBarLabel)
 	    wrc = kWindowTitleTextRgn;
 	else if(sc & SC_TitleBarSysMenu)
-	    return QRect(-666, -666, 10, pixelMetric(PM_TitleBarHeight)); //ugh
+	    return QRect(-666, -666, 10, pixelMetric(PM_TitleBarHeight, 0)); //ugh
 	if(wrc != kWindowGlobalPortRgn) {
 	    //AppMan paints outside the given rectangle, so I have to adjust for the height properly!
 	    Rect br;

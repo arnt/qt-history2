@@ -19,7 +19,7 @@
 #include "qwindowsstyle.h"
 #endif // QT_H
 
-#if defined( Q_WS_MAC ) && !defined( QT_NO_STYLE_MAC )
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 
 class QPalette;
 
@@ -35,74 +35,49 @@ class Q_GUI_EXPORT_STYLE_MAC QMacStyleQD : public QWindowsStyle
 {
     Q_OBJECT
 public:
-    QMacStyleQD( );
-    virtual ~QMacStyleQD();
+    QMacStyleQD();
+    ~QMacStyleQD();
 
-    void polish( QWidget * w );
-    void unPolish( QWidget * w );
-    void polish( QApplication* );
+    void polish(QWidget * w);
+    void unPolish(QWidget * w);
+    void polish(QApplication*);
 
-    void drawPrimitive( PrimitiveElement pe,
-			QPainter *p,
-			const QRect &r,
-			const QPalette &pal,
-			SFlags flags = Style_Default,
-			const QStyleOption& = QStyleOption::Default ) const;
+    void drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r, const QPalette &pal,
+		       SFlags flags, const QStyleOption& = QStyleOption::Default) const;
 
-    void drawControl( ControlElement element,
-		      QPainter *p,
-		      const QWidget *widget,
-		      const QRect &r,
-		      const QPalette &pal,
-		      SFlags how = Style_Default,
-		      const QStyleOption& = QStyleOption::Default ) const;
+    void drawControl(ControlElement element, QPainter *p, const QWidget *widget, const QRect &r,
+		     const QPalette &pal, SFlags how, const QStyleOption& = QStyleOption::Default) const;
 
-    void drawComplexControl( ComplexControl control,
-			     QPainter* p,
-			     const QWidget* w,
-			     const QRect& r,
-			     const QPalette& pal,
-			     SFlags flags = Style_Default,
-			     SCFlags sub = SC_None,
-			     SCFlags subActive = SC_None,
-			     const QStyleOption& = QStyleOption::Default ) const;
+    void drawComplexControl(ComplexControl control, QPainter* p, const QWidget* w, const QRect& r,
+			    const QPalette& pal, SFlags flags, SCFlags sub, SCFlags subActive,
+			    const QStyleOption& = QStyleOption::Default) const;
 
 
-    int pixelMetric( PixelMetric metric,
-		     const QWidget *widget = 0 ) const;
+    int pixelMetric(PixelMetric metric, const QWidget *widget) const;
 
 
-    virtual QRect querySubControlMetrics( ComplexControl control,
-					  const QWidget *w,
-					  SubControl sc,
-					  const QStyleOption& = QStyleOption::Default ) const;
+    QRect querySubControlMetrics(ComplexControl control, const QWidget *w,SubControl sc,
+				 const QStyleOption& = QStyleOption::Default) const;
 
-    virtual QRect subRect( SubRect, const QWidget *w ) const;
+    QRect subRect(SubRect, const QWidget *w) const;
 
-    SubControl querySubControl( ComplexControl control,
-				const QWidget *widget,
-				const QPoint &pos,
-				const QStyleOption& = QStyleOption::Default ) const;
+    SubControl querySubControl(ComplexControl control, const QWidget *widget, const QPoint &pos,
+			       const QStyleOption& = QStyleOption::Default) const;
 
-    virtual int styleHint(StyleHint sh, const QWidget *, const QStyleOption &,
-			  QStyleHintReturn *) const;
+    int styleHint(StyleHint sh, const QWidget *, const QStyleOption &, QStyleHintReturn *) const;
 
-    QSize sizeFromContents( ContentsType contents,
-			    const QWidget *w,
-			    const QSize &contentsSize,
-			    const QStyleOption& = QStyleOption::Default ) const;
+    QSize sizeFromContents(ContentsType contents, const QWidget *w, const QSize &contentsSize,
+			   const QStyleOption& = QStyleOption::Default) const;
 
-    QPixmap stylePixmap( StylePixmap sp,
-			 const QWidget *widget = 0,
-			 const QStyleOption& = QStyleOption::Default ) const;
+    QPixmap stylePixmap(StylePixmap sp, const QWidget *widget, const QStyleOption& = QStyleOption::Default) const;
 
-    QPixmap stylePixmap( PixmapType pixmaptype, const QPixmap &pixmap,
-			 const QPalette &pal, const QStyleOption& = QStyleOption::Default ) const;
+    QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
+			const QPalette &pal, const QStyleOption& = QStyleOption::Default) const;
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QMacStyleQD( const QMacStyleQD & );
-    QMacStyleQD& operator=( const QMacStyleQD & );
+    QMacStyleQD(const QMacStyleQD &);
+    QMacStyleQD& operator=(const QMacStyleQD &);
 #endif
 
 protected:
