@@ -1272,13 +1272,15 @@ void MainWindow::fileNewProject()
     }
 
     if ( !pro->isValid() ) {
-	// #### error
+	QMessageBox::information( this, tr("New Project"),
+			tr("Cannot create invalid project." ) );
 	delete pro;
 	return;
     }
 
     QAction *a = new QAction( pro->projectName(), pro->projectName(), 0, actionGroupProjects, 0, TRUE );
     projects.insert( a, pro );
+    addRecentlyOpened( pro->makeAbsolute( pro->fileName() ), recentlyProjects );
     a->setOn( TRUE );
     projectSelected( a );
 }
@@ -3732,16 +3734,20 @@ void MainWindow::setupRecentlyFilesMenu()
 {
     recentlyFilesMenu->clear();
     int id = 0;
-    for ( QStringList::Iterator it = recentlyFiles.begin(); it != recentlyFiles.end(); ++it )
+    for ( QStringList::Iterator it = recentlyFiles.begin(); it != recentlyFiles.end(); ++it ) {
 	recentlyFilesMenu->insertItem( *it, id );
+	id++;
+    }
 }
 
 void MainWindow::setupRecentlyProjectsMenu()
 {
     recentlyProjectsMenu->clear();
     int id = 0;
-    for ( QStringList::Iterator it = recentlyProjects.begin(); it != recentlyProjects.end(); ++it )
+    for ( QStringList::Iterator it = recentlyProjects.begin(); it != recentlyProjects.end(); ++it ) {
 	recentlyProjectsMenu->insertItem( *it, id );
+	id++;
+    }
 }
 
 void MainWindow::recentlyFilesMenuActivated( int id )
@@ -3752,8 +3758,9 @@ void MainWindow::recentlyFilesMenuActivated( int id )
 
 void MainWindow::recentlyProjectsMenuActivated( int id )
 {
-    if ( id != -1 )
+    if ( id != -1 ) {
 	openProject( *recentlyProjects.at( id ) );
+    }
 }
 
 void MainWindow::addRecentlyOpened( const QString &fn, QStringList &lst )
