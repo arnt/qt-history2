@@ -588,7 +588,7 @@ static char * parseCupsOutput( QListView * printers )
 
 static QPrintDialog * globalPrintDialog = 0;
 
-QCleanUpHandler<QPrintDialog> qpd_cleanup_globaldialog;
+QCleanupHandler<QPrintDialog> qpd_cleanup_globaldialog;
 
 /*!
   \class QPrintDialog qprintdialog.h
@@ -1120,7 +1120,7 @@ bool QPrintDialog::getPrinterSetup( QPrinter * p )
     if ( !globalPrintDialog ) {
 	globalPrintDialog = new QPrintDialog( 0, 0, "global print dialog" );
 	globalPrintDialog->setCaption( QPrintDialog::tr( "Setup Printer" ) );
-	qpd_cleanup_globaldialog.addCleanUp( globalPrintDialog );
+	qpd_cleanup_globaldialog.add( globalPrintDialog );
     }
 
     globalPrintDialog->setPrinter( p );
