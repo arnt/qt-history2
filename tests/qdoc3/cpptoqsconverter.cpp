@@ -184,7 +184,7 @@ void CppToQsConverter::terminate()
 }
 
 QString CppToQsConverter::convertCodeLine( Tree *qsTree,
-					   const QStringList& /* program */,
+					   const QStringList& program,
 					   const QString& code,
 					   const Set<QString>& classesWithNoQ )
 {
@@ -204,6 +204,9 @@ QString CppToQsConverter::convertCodeLine( Tree *qsTree,
     static QRegExp qdebugRegExp(
 	"q(?:Debug|Warning|Fatal)\\(\\s*(\"(?:\\\\.|[^\"])*\")\\s*"
 	"(?:,\\s*(\\S(?:[^,]*\\S)?))?\\s*\\);" );
+    static QRegExp coutRegExp( "c(?:out|err)\\b(.*);" );
+    static QRegExp lshiftRegExp( "\\s*<<\\s*" );
+    static QRegExp endlRegExp( "^endl$" );
 
     if ( code.isEmpty() || code == "{" || code == "}" )
 	return code;
@@ -317,6 +320,20 @@ QString CppToQsConverter::convertCodeLine( Tree *qsTree,
 	    }
 	}
 	result += ";";
+    } else if ( coutRegExp.exactMatch(code) &&
+		program.grep("var cout").isEmpty() ) {
+	QStringList args = QStringList::split( lshiftRegExp,
+					       coutRegExp.cap(1) );
+	args.gres( endlRegExp, "\"\\n\"" );
+	if ( args.last() == "\"\\n\"" ) {
+	    args.remove( args.fromLast() );
+	    if ( args.isEmpty() )
+		args << "\"\"";
+	    result += "println ";
+	} else {
+	    result += "print ";
+	}
+	result += args.join( " + " ) + ";";
     } else {
 	result = convertExpr( qsTree, code, classesWithNoQ );
     }
@@ -347,6 +364,6 @@ QString CppToQsConverter::convertComment( Tree * /* qsTree */,
 QString CppToQsConverter::convertExpr( Tree *qsTree, const QString& expr,
 				       const Set<QString>& classesWithNoQ )
 {
-    // not entirely right
+    // suboptimal
     return convertComment( qsTree, expr, classesWithNoQ );
 }
