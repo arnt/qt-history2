@@ -35,6 +35,8 @@
 #define NO_STATIC_COLORS
 #include "globaldefs.h"
 
+#include <stdlib.h>
+
 #include <qevent.h>
 #include <qpainter.h>
 #include <qpen.h>
@@ -1678,6 +1680,17 @@ void FormWindow::save( const QString &filename, bool withMsgBox )
     }
 
     fname = filename;
+
+    if ( QFile::exists( filename ) ) {
+#if defined(Q_OS_WIN)
+	QString cmd = "copy " + filename + " " + filename + ".bak";
+	system( cmd.latin1() );
+#else
+	QString cmd = "cp " + filename + " " + filename + "~";
+	system( cmd.latin1() );
+#endif
+    }
+
     Resource resource( mainWindow() );
     resource.setWidget( this );
     if ( !resource.save( fname ) ) {
