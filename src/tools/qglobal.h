@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#34 $ 
+** $Id: //depot/qt/main/src/tools/qglobal.h#35 $
 **
 ** Global type declarations and definitions
 **
@@ -46,7 +46,7 @@
 #define _OS_HPUX_
 #elif defined(ultrix) || defined(__ultrix) || defined(__ultrix__)
 #define _OS_ULTRIX_
-#elif defined(linux) || defined(__linux__)
+#elif defined(linux) || defined(__linux) || defined(__linux__)
 #define _OS_LINUX_
 #else
 #error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
@@ -136,9 +136,13 @@
 // Useful type definitions for Qt
 //
 
-#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 6)
-  // bool is a built-in type
-#else
+#if defined(bool)
+#define HAS_BOOL_TYPE
+#elif __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 6)
+#define HAS_BOOL_TYPE
+#endif
+
+#if !defined(HAS_BOOL_TYPE)
 typedef int		bool;
 #endif
 typedef unsigned char	uchar;
