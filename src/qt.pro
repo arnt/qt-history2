@@ -7,6 +7,9 @@ embedded:CONFIG -= x11
 # CONFIG += newrichtext
 CONFIG += oldrichtext
 
+# CONFIG += newx11font
+CONFIG += oldx11font
+
 TARGET		= qt
 VERSION		= 3.0.0
 DESTDIR		= ../lib
@@ -401,13 +404,15 @@ kernel:QWSSOURCES += kernel/qapplication_qws.cpp \
 		  kernel/qwsregionmanager_qws.cpp \
 		  kernel/qwssocket_qws.cpp
 
+oldx11font:X11FONTSOURCES = kernel/qfont_x11.cpp
+newx11font:X11FONTSOURCES = ../tests/newfont/qfont_newx11.cpp
+
 kernel:X11SOURCES += kernel/qapplication_x11.cpp \
 		  kernel/qclipboard_x11.cpp \
 		  kernel/qcolor_x11.cpp \
 		  kernel/qcursor_x11.cpp \
 		  kernel/qdnd_x11.cpp \
 		  kernel/qmotifdnd_x11.cpp \
-		  kernel/qfont_x11.cpp \
 		  kernel/qpixmap_x11.cpp \
 		  kernel/qprinter_x11.cpp \
 		  kernel/qpaintdevice_x11.cpp \
@@ -416,7 +421,8 @@ kernel:X11SOURCES += kernel/qapplication_x11.cpp \
 		  kernel/qsound_x11.cpp \
 		  kernel/qwidget_x11.cpp \
 		  kernel/qnpsupport.cpp \
-		  kernel/qwidgetcreate_x11.cpp
+		  kernel/qwidgetcreate_x11.cpp \
+		  $$X11FONTSOURCES
 
 widgets:QWSSOURCES += $$WIDGETS_H/qcompactstyle.cpp
 
