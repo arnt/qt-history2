@@ -162,7 +162,6 @@ ChartForm::ChartForm( const QString& filename )
     filePrintAction->addTo( fileMenu );
     fileMenu->insertSeparator();
     fileQuitAction->addTo( fileMenu );
-    fileMenu->insertSeparator();
 
     optionsMenu = new QPopupMenu( this );
     menuBar()->insertItem( "&Options", optionsMenu );
