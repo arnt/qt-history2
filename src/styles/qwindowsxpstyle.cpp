@@ -191,7 +191,8 @@ struct XPThemeData
 
         if ( !htheme ) {
 	    static wchar_t nm[256];
-	    wcscpy( nm, (wchar_t*)name.unicode() );
+	    Q_ASSERT( name.length() < 255 );
+	    memcpy( nm, (wchar_t*)name.unicode(), sizeof(wchar_t)*name.length() );
 	    nm[name.length()] = 0;
             htheme = pOpenThemeData( QWindowsXPStylePrivate::winId( widget ), nm );
 	    if ( htheme ) {
