@@ -2999,7 +2999,7 @@ static int sn_activate()
   To make your application perform idle processing, i.e. executing a
   special function whenever there are no pending events, use a QTimer
   with 0 timeout. More advanced idle processing schemes can be
-  achieved by using processEvents() and processOneEvent().
+  achieved using processEvents().
 
   \sa quit(), exit(), processEvents(), setMainWidget()
 */
