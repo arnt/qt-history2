@@ -49,7 +49,7 @@
 #include "qtimer.h"
 #include "qstyle.h"
 
-const int coord_limit = 4000;
+static const int coord_limit = 4000;
 static const int autoscroll_margin = 16;
 static const int initialScrollTime = 30;
 static const int initialScrollAccel = 5;
@@ -61,24 +61,7 @@ struct QSVChildRec {
     {
     }
 
-    void hideOrShow(QScrollView* sv, QWidget* clipped_viewport)
-    {
-        if ( clipped_viewport ) {
-            if ( x+child->width() < sv->contentsX()+clipped_viewport->x()
-              || x > sv->contentsX()+clipped_viewport->width()
-              || y+child->height() < sv->contentsY()+clipped_viewport->y()
-              || y > sv->contentsY()+clipped_viewport->height() )
-            {
-                child->move(clipped_viewport->width(),
-                            clipped_viewport->height());
-            } else {
-                child->move(x-sv->contentsX()-clipped_viewport->x(),
-                            y-sv->contentsY()-clipped_viewport->y());
-            }
-        } else {
-            child->move(x-sv->contentsX(), y-sv->contentsY());
-        }
-    }
+    void hideOrShow(QScrollView* sv, QWidget* clipped_viewport);
     void moveTo(QScrollView* sv, int xx, int yy, QWidget* clipped_viewport)
     {
         if ( x != xx || y != yy ) {
@@ -87,13 +70,27 @@ struct QSVChildRec {
             hideOrShow(sv,clipped_viewport);
         }
     }
-    void moveBy(QScrollView* sv, int dx, int dy, QWidget* clipped_viewport)
-    {
-        moveTo( sv, x+dx, y+dy, clipped_viewport );
-    }
     QWidget* child;
     int x, y;
 };
+
+void QSVChildRec::hideOrShow(QScrollView* sv, QWidget* clipped_viewport)
+{
+    if ( clipped_viewport ) {
+	if ( x+child->width() < sv->contentsX()+clipped_viewport->x()
+	     || x > sv->contentsX()+clipped_viewport->width()
+	     || y+child->height() < sv->contentsY()+clipped_viewport->y()
+	     || y > sv->contentsY()+clipped_viewport->height() ) {
+	    child->move(clipped_viewport->width(),
+			clipped_viewport->height());
+	} else {
+	    child->move(x-sv->contentsX()-clipped_viewport->x(),
+			y-sv->contentsY()-clipped_viewport->y());
+	}
+    } else {
+	child->move(x-sv->contentsX(), y-sv->contentsY());
+    }
+}
 
 class QViewportWidget : public QWidget
 {
@@ -154,21 +151,7 @@ public:
     ~QScrollViewData();
 
     QSVChildRec* rec(QWidget* w) { return childDict.find(w); }
-    QSVChildRec* ancestorRec(QWidget* w)
-    {
-        if ( clipped_viewport ) {
-            while (w->parentWidget() != clipped_viewport) {
-                w = w->parentWidget();
-                if (!w) return 0;
-            }
-        } else {
-            while (w->parentWidget() != viewport) {
-                w = w->parentWidget();
-                if (!w) return 0;
-            }
-        }
-        return rec(w);
-    }
+    QSVChildRec* ancestorRec(QWidget* w);
     QSVChildRec* addChildRec(QWidget* w, int x, int y )
     {
         QSVChildRec *r = new QSVChildRec(w,x,y);
@@ -182,115 +165,14 @@ public:
         children.removeRef(r);
         delete r;
     }
-    void hideOrShowAll(QScrollView* sv, bool isScroll = FALSE )
-    {
-        if ( clipped_viewport ) {
-            if ( clipped_viewport->x() <= 0
-                 && clipped_viewport->y() <= 0
-                 && clipped_viewport->width()+clipped_viewport->x() >=
-                 viewport->width()
-                 && clipped_viewport->height()+clipped_viewport->y() >=
-                 viewport->height() ) {
-                // clipped_viewport still covers viewport
-                if( static_bg )
-                    clipped_viewport->repaint( clipped_viewport->visibleRect(), TRUE );
-                else if ( ( !isScroll && !clipped_viewport->testWFlags( Qt::WStaticContents) ) || static_bg )
-                    QApplication::postEvent( clipped_viewport, new QPaintEvent( clipped_viewport->visibleRect(),
-                                                                                !clipped_viewport->testWFlags(Qt::WResizeNoErase) ) );
-            } else {
-                // Re-center
-                int nx = ( viewport->width() - clipped_viewport->width() ) / 2;
-                int ny = ( viewport->height() - clipped_viewport->height() ) / 2;
-                // hide the clipped_viewport while we mess around
-                // with it. To avoid having the focus jumping
-                // around, we block it.
-                clipped_viewport->blockFocus = TRUE;
-                clipped_viewport->hide();
-                clipped_viewport->move(nx,ny);
-                clipped_viewport->blockFocus = FALSE;
-                // no need to update, we'll receive a paintevent after show.
-            }
-            for (QSVChildRec *r = children.first(); r; r=children.next()) {
-                r->hideOrShow(sv, clipped_viewport);
-            }
-            clipped_viewport->show();
-        }
-    }
 
-    void moveAllBy(int dx, int dy)
-    {
-        if ( clipped_viewport && !static_bg ) {
-            clipped_viewport->move(
-                clipped_viewport->x()+dx,
-                clipped_viewport->y()+dy
-            );
-        } else {
-            for (QSVChildRec *r = children.first(); r; r=children.next()) {
-                r->child->move(r->child->x()+dx,r->child->y()+dy);
-            }
-            if ( static_bg )
-                viewport->repaint( viewport->visibleRect(), TRUE );
-        }
-    }
-    void deleteAll()
-    {
-        for (QSVChildRec *r = children.first(); r; r=children.next()) {
-            delete r;
-        }
-    }
-    bool anyVisibleChildren()
-    {
-        for (QSVChildRec *r = children.first(); r; r=children.next()) {
-            if (r->child->isVisible()) return TRUE;
-        }
-        return FALSE;
-    }
-    void autoMove(QScrollView* sv)
-    {
-        if ( policy == QScrollView::AutoOne ) {
-            QSVChildRec* r = children.first();
-            if (r)
-                sv->setContentsPos(-r->child->x(),-r->child->y());
-        }
-    }
-    void autoResize(QScrollView* sv)
-    {
-        if ( policy == QScrollView::AutoOne ) {
-            QSVChildRec* r = children.first();
-            if (r)
-                sv->resizeContents(r->child->width(),r->child->height());
-        }
-    }
-    void autoResizeHint(QScrollView* sv)
-    {
-        if ( policy == QScrollView::AutoOne ) {
-            QSVChildRec* r = children.first();
-            if (r) {
-                QSize s = r->child->sizeHint();
-                if ( s.isValid() )
-                    r->child->resize(s);
-            }
-        } else if ( policy == QScrollView::AutoOneFit ) {
-            QSVChildRec* r = children.first();
-            if (r) {
-                QSize sh = r->child->sizeHint();
-                sh = sh.boundedTo( r->child->maximumSize() );
-                sv->resizeContents( sh.width(), sh.height() );
-            }
-        }
-    }
-
-    void viewportResized( int w, int h ) {
-        if ( policy == QScrollView::AutoOneFit ) {
-            QSVChildRec* r = children.first();
-            if (r) {
-                QSize sh = r->child->sizeHint();
-                sh = sh.boundedTo( r->child->maximumSize() );
-                r->child->resize( QMAX(w,sh.width()), QMAX(h,sh.height()) );
-            }
-
-        }
-    }
+    void hideOrShowAll(QScrollView* sv, bool isScroll = FALSE );
+    void moveAllBy(int dx, int dy);
+    bool anyVisibleChildren();
+    void autoMove(QScrollView* sv);
+    void autoResize(QScrollView* sv);
+    void autoResizeHint(QScrollView* sv);
+    void viewportResized( int w, int h );
 
     QScrollBar*  hbar;
     QScrollBar*  vbar;
@@ -330,7 +212,130 @@ public:
 
 inline QScrollViewData::~QScrollViewData()
 {
-    deleteAll();
+    children.setAutoDelete( TRUE );
+}
+
+QSVChildRec* QScrollViewData::ancestorRec(QWidget* w)
+{
+    if ( clipped_viewport ) {
+	while (w->parentWidget() != clipped_viewport) {
+	    w = w->parentWidget();
+	    if (!w) return 0;
+	}
+    } else {
+	while (w->parentWidget() != viewport) {
+	    w = w->parentWidget();
+	    if (!w) return 0;
+	}
+    }
+    return rec(w);
+}
+
+void QScrollViewData::hideOrShowAll(QScrollView* sv, bool isScroll = FALSE )
+{
+    if ( clipped_viewport ) {
+	if ( clipped_viewport->x() <= 0
+	     && clipped_viewport->y() <= 0
+	     && clipped_viewport->width()+clipped_viewport->x() >=
+	     viewport->width()
+	     && clipped_viewport->height()+clipped_viewport->y() >=
+	     viewport->height() ) {
+	    // clipped_viewport still covers viewport
+	    if( static_bg )
+		clipped_viewport->repaint( clipped_viewport->visibleRect(), TRUE );
+	    else if ( ( !isScroll && !clipped_viewport->testWFlags( Qt::WStaticContents) ) || static_bg )
+		QApplication::postEvent( clipped_viewport, new QPaintEvent( clipped_viewport->visibleRect(),
+									    !clipped_viewport->testWFlags(Qt::WResizeNoErase) ) );
+	} else {
+	    // Re-center
+	    int nx = ( viewport->width() - clipped_viewport->width() ) / 2;
+	    int ny = ( viewport->height() - clipped_viewport->height() ) / 2;
+	    // hide the clipped_viewport while we mess around
+	    // with it. To avoid having the focus jumping
+	    // around, we block it.
+	    clipped_viewport->blockFocus = TRUE;
+	    clipped_viewport->hide();
+	    clipped_viewport->move(nx,ny);
+	    clipped_viewport->blockFocus = FALSE;
+	    // no need to update, we'll receive a paintevent after show.
+	}
+	for (QSVChildRec *r = children.first(); r; r=children.next()) {
+	    r->hideOrShow(sv, clipped_viewport);
+	}
+	clipped_viewport->show();
+    }
+}
+
+void QScrollViewData::moveAllBy(int dx, int dy)
+{
+    if ( clipped_viewport && !static_bg ) {
+	clipped_viewport->move( clipped_viewport->x()+dx,
+				clipped_viewport->y()+dy );
+    } else {
+	for (QSVChildRec *r = children.first(); r; r=children.next()) {
+	    r->child->move(r->child->x()+dx,r->child->y()+dy);
+	}
+	if ( static_bg )
+	    viewport->repaint( viewport->visibleRect(), TRUE );
+    }
+}
+
+bool QScrollViewData::anyVisibleChildren()
+{
+    for (QSVChildRec *r = children.first(); r; r=children.next()) {
+	if (r->child->isVisible()) return TRUE;
+    }
+    return FALSE;
+}
+
+void QScrollViewData::autoMove(QScrollView* sv)
+{
+    if ( policy == QScrollView::AutoOne ) {
+	QSVChildRec* r = children.first();
+	if (r)
+	    sv->setContentsPos(-r->child->x(),-r->child->y());
+    }
+}
+
+void QScrollViewData::autoResize(QScrollView* sv)
+{
+    if ( policy == QScrollView::AutoOne ) {
+	QSVChildRec* r = children.first();
+	if (r)
+	    sv->resizeContents(r->child->width(),r->child->height());
+    }
+}
+
+void QScrollViewData::autoResizeHint(QScrollView* sv)
+{
+    if ( policy == QScrollView::AutoOne ) {
+	QSVChildRec* r = children.first();
+	if (r) {
+	    QSize s = r->child->sizeHint();
+	    if ( s.isValid() )
+		r->child->resize(s);
+	}
+    } else if ( policy == QScrollView::AutoOneFit ) {
+	QSVChildRec* r = children.first();
+	if (r) {
+	    QSize sh = r->child->sizeHint();
+	    sh = sh.boundedTo( r->child->maximumSize() );
+	    sv->resizeContents( sh.width(), sh.height() );
+	}
+    }
+}
+
+void QScrollViewData::viewportResized( int w, int h )
+{
+    if ( policy == QScrollView::AutoOneFit ) {
+	QSVChildRec* r = children.first();
+	if (r) {
+	    QSize sh = r->child->sizeHint();
+	    sh = sh.boundedTo( r->child->maximumSize() );
+	    r->child->resize( QMAX(w,sh.width()), QMAX(h,sh.height()) );
+	}
+
+    }
 }
 
 
