@@ -37,6 +37,11 @@ class QProgressBarPrivate;
 class Q_EXPORT QProgressBar : public QFrame
 {
     Q_OBJECT
+    Q_PROPERTY( int, "totalSteps", totalSteps, setTotalSteps )
+    Q_PROPERTY( int, "progress", progress, setProgress )
+    Q_PROPERTY( bool, "centerIndicator", centerIndicator, setCenterIndicator )
+    Q_PROPERTY( bool, "indicatorFollowsStyle", indicatorFollowsStyle, setIndicatorFollowsStyle )
+	
 public:
     QProgressBar( QWidget *parent=0, const char *name=0, WFlags f=0 );
     QProgressBar( int totalSteps, QWidget *parent=0, const char *name=0,
@@ -48,7 +53,7 @@ public:
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
     QSize	minimumSizeHint() const;
-    
+
     void	setCenterIndicator( bool on );
     bool	centerIndicator() const;
 

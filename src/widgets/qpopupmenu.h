@@ -35,6 +35,9 @@
 class Q_EXPORT QPopupMenu : public QFrame, public QMenuData
 {
     Q_OBJECT
+    Q_PROPERTY( bool, "checkable", isCheckable, setCheckable )
+    Q_PROPERTY( bool, "defaultUp", isDefaultUp, setDefaultUp )
+	// ######### Is activeItem a property ?
 public:
     QPopupMenu( QWidget *parent=0, const char *name=0 );
    ~QPopupMenu();
