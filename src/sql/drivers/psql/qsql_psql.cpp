@@ -4,7 +4,7 @@
 **
 ** Created : 001103
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the sql module of the Qt GUI Toolkit.
 **
@@ -41,22 +41,19 @@
 #include <qregexp.h>
 #include <qdatetime.h>
 #include <qpointarray.h>
-#undef DEBUG // the PostgreSQL headers redefines this
+// PostgreSQL header <utils/elog.h> included by <postgres.h> redefines DEBUG.
+#if defined(DEBUG)
+# undef DEBUG
+#endif
 #include <postgres.h>
 #include <libpq/libpq-fs.h>
-// PostgreSQL headers redefine errno wrongly and without any reason
-// in <catalog/pg_type.h>. We try to work around by undefining system
-// header macros and disabling compiler warnings.
-#if defined(Q_CC_MSVC)
-#pragma warning(disable: 4273)
-#endif
+// PostgreSQL header <catalog/pg_type.h> redefines errno erroneously.
 #if defined(errno)
-#undef errno
+# undef errno
 #endif
+#define errno qt_psql_errno
 #include <catalog/pg_type.h>
-#if defined(Q_CC_MSVC)
-#pragma warning(default: 4273)
-#endif
+#undef errno
 #include <math.h>
 
 extern
