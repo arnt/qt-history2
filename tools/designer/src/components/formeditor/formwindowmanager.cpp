@@ -750,6 +750,7 @@ void FormWindowManager::endDrag(const QPoint &pos)
         if (parent == 0)
             parent = form->mainContainer();
 
+        setActiveFormWindow(form);
         form->mainContainer()->activateWindow();
         form->clearSelection(false);
 
@@ -764,7 +765,7 @@ void FormWindowManager::endDrag(const QPoint &pos)
 
                 QRect geometry = item->decoration()->geometry();
                 QWidget *widget = form->createWidget(dom_ui, geometry, parent);
-                form->selectWidget(widget, true);
+                form->selectWidget(widget, true);                
             }
         } else if (qobject_cast<FormWindowDnDItem*>(m_drag_item_list.first()) != 0) {
             foreach (AbstractDnDItem *item, m_drag_item_list) {
@@ -791,9 +792,7 @@ void FormWindowManager::endDrag(const QPoint &pos)
                     form->selectWidget(widget, true);
                 }
             }
-
         }
-
         form->endCommand();
     } else {
         foreach (AbstractDnDItem *item, m_drag_item_list) {
@@ -808,7 +807,6 @@ void FormWindowManager::endDrag(const QPoint &pos)
     m_drag_item_list.clear();
     m_last_widget_under_mouse = 0;
     m_last_form_under_mouse = 0;
-    emit itemDragFinished();
 }
 
 bool FormWindowManager::isDecoration(QWidget *widget) const
