@@ -16,6 +16,8 @@
 class Location
 {
 public:
+    static Location fromString( const QString& str );
+
     Location()
 	: fp(), ln( 0 ), cn( 0 ) { }
     Location( const QString& filePath )
@@ -32,6 +34,8 @@ public:
     QString shortFilePath() const;
     int lineNum() const { return ln; }
     int columnNum() const { return cn; }
+
+    QString toString() const;
 
 private:
     QString fp;

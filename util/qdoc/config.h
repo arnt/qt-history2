@@ -5,9 +5,12 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <qmap.h>
 #include <qregexp.h>
 #include <qstring.h>
 #include <qstringlist.h>
+
+class Location;
 
 class Config
 {
@@ -47,6 +50,9 @@ public:
     bool supervisor() const { return super; }
     bool lint() const { return lin; }
     bool friendly() const { return frend; }
+
+    QString unalias( const Location& loc, const QString& alias,
+		     const QString& format, const QStringList& args ) const;
 
 private:
 #if defined(Q_DISABLE_COPY)
@@ -89,6 +95,8 @@ private:
     bool super;
     bool lin;
     bool frend;
+
+    QMap<QString, QString> aliasMap;
 
     QString dotHtml;
     QString membersDotHtml;

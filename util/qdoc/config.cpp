@@ -13,6 +13,7 @@
 #include <stdlib.h>
 
 #include "config.h"
+#include "location.h"
 #include "messages.h"
 
 Config *config;
@@ -76,6 +77,44 @@ static const char *toYN( bool yes )
     return yes ? "yes" : "no";
 }
 
+static int numParams( const QString& t )
+{
+    int n = 0;
+
+    int k = 0;
+    while ( (k = t.find(QRegExp(QString("%[1-9]")), k)) != -1 ) {
+	int d = t[k + 1].digitValue();
+	if ( d > n )
+	    n = d;
+	k += 2;
+    }
+    return n;
+}
+
+static QString replaceArgs( const QString& s, const QStringList& args )
+{
+    QString t = s;
+    int d;
+
+    int k = 0;
+    while ( (k = t.find(QChar('%'), k)) != -1 ) {
+	if ( k + 1 < (int) t.length() ) {
+	    if ( t[k + 1] == QChar('%') ) {
+		t.replace( k, 2, QChar('%') );
+		k++;
+	    } else if ( (d = t[k + 1].digitValue()) > 0 ) {
+		t.replace( k, 2, args[d - 1] );
+		k += args[d - 1].length();
+	    } else {
+		k++;
+	    }
+	} else {
+	    k++;
+	}
+    }
+    return t;
+}
+
 static void setPattern( QRegExp *rx, const QString& pattern, bool plus )
 {
     static QRegExp separators( QString("[ \t\n]*[ \t\n,;][ \t\n]*") );
@@ -137,60 +176,65 @@ Config::Config( int argc, char **argv )
 	if ( !matchLine(&key, &val) )
 	    break;
 
-	if ( key == QString("ADDRESS") ) {
-	    addr = val.join( QChar(' ') );
-	} else if ( key == QString("AUTOHREFS") ) {
-	    autoh = isYes( singleton(key, val) );
-	} else if ( key == QString("BASE") ) {
-	    bas = val.join( QChar(' ') );
-	} else if ( key == QString("BOOKDIRS") ) {
-	    bookdirs = val;
-	} else if ( key == QString("COMPANY") ) {
-	    co = val.join( QChar(' ') );
-	} else if ( key == QString("DEFINE") ) {
-	    defsym.setPattern( val.join(QChar('|')) );
-	} else if ( key == QString("DOCDIRS") ) {
-	    docdirs = val;
-	} else if ( key == QString("EXAMPLEDIRS") ) {
-	    exampledirs = val;
-	} else if ( key == QString("FALSE") ) {
-	    falsesym.setPattern( val.join(QChar('|')) );
-	} else if ( key == QString("FOOTER") ) {
-	    foot = val.join( QChar(' ') );
-	} else if ( key == QString("INCLUDEDIRS") ) {
-	    includedirs = val;
-	} else if ( key == QString("INTERNAL") ) {
-	    internal = isYes( key, val );
-	} else if ( key == QString("MAXSIMILAR") ) {
-	    maxSim = singleton( key, val ).toInt();
-	} else if ( key == QString("MAXWARNINGS") ) {
-	    maxAll = singleton( key, val ).toInt();
-	} else if ( key == QString("ONLY") ) {
-	    onlyfn.setPattern( val.join(QChar('|')) );
-	} else if ( key == QString("OUTPUTDIR") ) {
-	    outputdir = singleton( key, val );
-	} else if ( key == QString("POSTHEADER") ) {
-	    posth = val.join( QChar(' ') );
-	} else if ( key == QString("PRODUCT") ) {
-	    prod = val.join( QChar(' ') );
-	} else if ( key == QString("SOURCEDIRS") ) {
-	    sourcedirs = val;
-	} else if ( key == QString("STYLE") ) {
-	    styl = val.join( QChar(' ') );
-	} else if ( key == QString("SUPERVISOR") ) {
-	    super = isYes( key, val );
-	} else if ( key == QString("VERSIONSTR") ) {
-	    vers = val.join( QChar(' ') );
-	} else if ( key == QString("VERSIONSYM") ) {
-	    verssym = singleton( key, val );
-	} else if ( key == QString("WARNINGLEVEL") ) {
-	    wlevel = singleton( key, val ).toInt();
-	    if ( wlevel < 0 )
-		wlevel = 0;
-	} else {
-	    message( 1, "Unknown entry '%s' in configuration file",
-		     key.latin1() );
-	    break;
+	if ( key.contains(QChar('.')) == 1 ) {
+	    QString t = val.join( QChar(' ') );
+	    aliasMap.insert( key + QString::number(numParams(t)), t );
+	} else {	
+	    if ( key == QString("ADDRESS") ) {
+		addr = val.join( QChar(' ') );
+	    } else if ( key == QString("AUTOHREFS") ) {
+		autoh = isYes( singleton(key, val) );
+	    } else if ( key == QString("BASE") ) {
+		bas = val.join( QChar(' ') );
+	    } else if ( key == QString("BOOKDIRS") ) {
+		bookdirs = val;
+	    } else if ( key == QString("COMPANY") ) {
+		co = val.join( QChar(' ') );
+	    } else if ( key == QString("DEFINE") ) {
+		defsym.setPattern( val.join(QChar('|')) );
+	    } else if ( key == QString("DOCDIRS") ) {
+		docdirs = val;
+	    } else if ( key == QString("EXAMPLEDIRS") ) {
+		exampledirs = val;
+	    } else if ( key == QString("FALSE") ) {
+		falsesym.setPattern( val.join(QChar('|')) );
+	    } else if ( key == QString("FOOTER") ) {
+		foot = val.join( QChar(' ') );
+	    } else if ( key == QString("INCLUDEDIRS") ) {
+		includedirs = val;
+	    } else if ( key == QString("INTERNAL") ) {
+		internal = isYes( key, val );
+	    } else if ( key == QString("MAXSIMILAR") ) {
+		maxSim = singleton( key, val ).toInt();
+	    } else if ( key == QString("MAXWARNINGS") ) {
+		maxAll = singleton( key, val ).toInt();
+	    } else if ( key == QString("ONLY") ) {
+		onlyfn.setPattern( val.join(QChar('|')) );
+	    } else if ( key == QString("OUTPUTDIR") ) {
+		outputdir = singleton( key, val );
+	    } else if ( key == QString("POSTHEADER") ) {
+		posth = val.join( QChar(' ') );
+	    } else if ( key == QString("PRODUCT") ) {
+		prod = val.join( QChar(' ') );
+	    } else if ( key == QString("SOURCEDIRS") ) {
+		sourcedirs = val;
+	    } else if ( key == QString("STYLE") ) {
+		styl = val.join( QChar(' ') );
+	    } else if ( key == QString("SUPERVISOR") ) {
+		super = isYes( key, val );
+	    } else if ( key == QString("VERSIONSTR") ) {
+		vers = val.join( QChar(' ') );
+	    } else if ( key == QString("VERSIONSYM") ) {
+		verssym = singleton( key, val );
+	    } else if ( key == QString("WARNINGLEVEL") ) {
+		wlevel = singleton( key, val ).toInt();
+		if ( wlevel < 0 )
+		    wlevel = 0;
+	    } else {
+		message( 1, "Unknown entry '%s' in configuration file",
+			 key.latin1() );
+		break;
+	    }
 	}
     }
 
@@ -375,10 +419,35 @@ bool Config::generateFile( const QString& fileName ) const
     return onlyfn.exactMatch( fileName );
 }
 
+QString Config::unalias( const Location& loc, const QString& alias,
+			 const QString& format, const QStringList& args ) const
+{
+    QString key;
+    QMap<QString, QString>::ConstIterator a;
+    
+    key = alias + QChar( '.' ) + format + QString::number( args.count() );
+    a = aliasMap.find( key );
+    if ( a == aliasMap.end() ) {
+	key = alias + QString( ".*" ) + QString::number( args.count() );
+	a = aliasMap.find( key );
+	if ( a == aliasMap.end() ) {
+	    warning( 1, loc, "No alias entry '%s' with %d parameter%s",
+		     (alias + QChar('.') + format).latin1(), args.count(),
+		     args.count() == 1 ? "" : "s" );
+	    if ( args.isEmpty() )
+		return QString::null;
+	    else
+		return args[0];
+	}
+    }
+
+    return replaceArgs( *a, args );
+}
+
 bool Config::matchLine( QString *key, QStringList *val )
 {
     // key = value \n
-    QRegExp keyX( QString("^[ \t]*([A-Z_a-z][A-Z_a-z0-9]*)[ \t]*=[ \t]*") );
+    QRegExp keyX( QString("^[ \n\t]*([A-Z_a-z][A-Z_a-z0-9.*]*)[ \t]*=[ \t]*") );
     // there are two syntaxes for values: foo and "foo"
     QRegExp valXOrY( QString(
 	    "^(?:([^\" \n\t]*)|\"((?:[^\"\\\\]|\\\\.)*)\")"

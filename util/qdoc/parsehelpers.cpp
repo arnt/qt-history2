@@ -304,8 +304,10 @@ QString getArgument( const QString& in, int& pos )
 	    pos++;
 	}
 
-	if ( pos > begin + 1 && punctuation.find(in[pos - 1]) != -1 )
+	if ( pos > begin + 1 && punctuation.find(in[pos - 1]) != -1 &&
+	     in.mid(pos - 3, 3) != QString("...") )
 	    pos--;
+
 	if ( pos > begin + 2 && in[pos - 2] == QChar('\'') &&
 	     in[pos - 1] == QChar('s') )
 	    pos -= 2;

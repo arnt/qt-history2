@@ -11,6 +11,7 @@
 
 #include "bookparser.h"
 #include "config.h"
+#include "html.h"
 #include "htmlwriter.h"
 #include "location.h"
 #include "messages.h"
@@ -63,7 +64,8 @@ protected:
     virtual void processFootnoteEnd() { }
     virtual void processGranularity( int /* level */ ) { }
     virtual void processImg( const QString& /* fileName */,
-			     const QString& /* alt */ ) { }
+			     const QString& /* alt */,
+			     bool /* inParagraph */ ) { }
     virtual void processIndex( const QString& /* text */ ) { }
     virtual void processLink( const QString& name,
 			      const QString& text = QString::null );
@@ -98,6 +100,7 @@ private:
     QString fileContents( const QString& fileName, const QString& fileKind );
     void endSections( int prevLevel, int newLevel, int topLevel );
     void enterState( State newState, const QString& command );
+    void maybeInlined();
     void inprint();
     void inlined();
     void outlined();
@@ -117,8 +120,8 @@ private:
 };
 
 Processor::Processor( const QString& filePath, const Resolver *resolver )
-    : res( resolver ), loc( filePath ), locPos( 0 ), inParagraph( FALSE ),
-      state( Normal ), pendingSpace( FALSE ), yyPos( 0 ), yyLen( 0 )
+    : res( resolver ), locPos( 0 ), inParagraph( FALSE ), state( Normal ),
+      pendingSpace( FALSE ), yyPos( 0 ), yyLen( 0 )
 {
     input( filePath );
 }
@@ -296,10 +299,10 @@ void Processor::start( bool verbose )
 		    processListItem( &openedLists.top() );
 		break;
 	    case HASH( 'i', 3 ):
-		BCONSUME( "img", inlined );
+		BCONSUME( "img", maybeInlined );
 		x = getWord( yyIn, yyPos );
 		alt = fixBackslashes( getRestOfLine(yyIn, yyPos) );
-		processImg( x, alt );
+		processImg( x, alt, inParagraph );
 		break;
 	    case HASH( 'i', 5 ):
 		if ( command[2] == QChar('d') ) {
@@ -308,11 +311,8 @@ void Processor::start( bool verbose )
 		} else {
 		    BCONSUME( "input", outlined );
 		    filePath = getFilePath( config->bookDirList(), command );
-		    if ( !filePath.isEmpty() ) {
-			yyPos--;
+		    if ( !filePath.isEmpty() )
 			input( filePath );
-			yyPos++;
-		    }
 		}
 		break;
 	    case HASH( 'i', 7 ):
@@ -344,6 +344,11 @@ void Processor::start( bool verbose )
 					       getWord(yyIn, yyPos)) );
 		    processListBegin( &openedLists.top() );
 		}
+		break;
+	    case HASH( 'l', 8 ):
+		BCONSUME( "location", outlined );
+		loc = Location::fromString( getArgument(yyIn, yyPos) );
+		locPos = yyPos;
 		break;
 	    case HASH( 'o', 4 ):
 		BCONSUME( "omit", outlined );
@@ -573,8 +578,11 @@ const Location& Processor::location()
 
 void Processor::input( const QString& filePath )
 {
-    yyIn.insert( yyPos, fileContents(filePath, QString("book")) +
-			QString("\n\n") );
+    QString t = fileContents( filePath, QString("book") ) + QString( "\n\n" );
+    t.prepend( QString("\\location {%1}").arg(Location(filePath).toString()) );
+    t.append( QString("\\location {%1}").arg(location().toString()) );
+
+    yyIn.insert( yyPos, t );
     yyLen = yyIn.length();
 }
 
@@ -634,6 +642,18 @@ void Processor::enterState( State newState, const QString& command )
 	warning( 2, location(), "Unexpected '\\%s'", command.latin1() );
 
     state = newState;
+}
+
+void Processor::maybeInlined()
+{
+    QRegExp captionOrBlankLine( QString(
+	"^[^\n]*\n(?:[ \t]*\\\\caption|[ \n\t]*\n)") );
+
+    if ( inParagraph || yyIn.mid(yyPos).find(captionOrBlankLine) == -1 ) {
+	inlined();
+    } else {
+	outlined();
+    }
 }
 
 void Processor::inprint()
@@ -810,7 +830,6 @@ public:
 		 const Resolver *resolver = 0 );
 
 protected:
-    virtual void processAlias( const QString& alias, const QStringList& args );
     virtual void processTableOfContents();
 
     virtual void emitTocListBegin( int /* level */ ) { }
@@ -836,12 +855,6 @@ Synthetizer::Synthetizer( const QString& filePath, const Analyzer *analyzer,
     int k = fb.findRev( QChar('.') );
     if ( k != -1 )
 	fb.truncate( k );
-}
-
-void Synthetizer::processAlias( const QString& alias, const QStringList& args )
-{
-    (void) alias;
-    (void) args;
 }
 
 void Synthetizer::processTableOfContents()
@@ -872,6 +885,7 @@ public:
 		     const Resolver *resolver );
 
 protected:
+    virtual void processAlias( const QString& alias, const QStringList& args );
     virtual void processC( const QString& text );
     virtual void processCaptionBegin();
     virtual void processCaptionEnd();
@@ -881,11 +895,10 @@ protected:
     virtual void processE( const QString& text );
     virtual void processFootnoteBegin();
     virtual void processFootnoteEnd();
-    virtual void processImg( const QString& fileName,
-			     const QString& alt );
+    virtual void processImg( const QString& fileName, const QString& alt,
+			     bool inParagraph );
     virtual void processIndex( const QString& text );
-    virtual void processLink( const QString& name,
-			      const QString& text );
+    virtual void processLink( const QString& name, const QString& text );
     virtual void processListBegin( OpenedList *ol );
     virtual void processListItem( OpenedList *ol );
     virtual void processListEnd( OpenedList *ol );
@@ -907,9 +920,13 @@ protected:
 
 private:
     QString targetForSectionNumber( const SectionNumber& number ) const;
+    void fillHtmlPageSequence( const QValueList<Section> *sects, int level );
+    QString makeBanner();
 
+    QValueStack<QString> banners;
     QPtrStack<HtmlWriter> w;
     SectionNumber sectionCounter;
+    QValueList<const Section *> htmlPageSequence;
 };
 
 HtmlSynthetizer::HtmlSynthetizer( const QString& filePath,
@@ -923,6 +940,21 @@ HtmlSynthetizer::HtmlSynthetizer( const QString& filePath,
     w.top()->setHeading( analyzer->title() );
     if ( analyzer->granularity() != -1 )
 	w.top()->putsMeta( "<!-- unfriendly -->\n" );
+
+    /*
+      Construct a list of all HTML pages in sequence, with two
+      sentinels.
+    */
+    htmlPageSequence.append( (Section *) 0 );
+    fillHtmlPageSequence( &analyzer->tableOfContents(), 0 );
+    htmlPageSequence.append( (Section *) 0 );
+}
+
+void HtmlSynthetizer::processAlias( const QString& alias,
+				    const QStringList& args )
+{
+    w.top()->putsMeta( config->unalias(location(), alias, QString("html"),
+				       args) );
 }
 
 void HtmlSynthetizer::processC( const QString& text )
@@ -977,10 +1009,12 @@ void HtmlSynthetizer::processFootnoteEnd()
 {
 }
 
-void HtmlSynthetizer::processImg( const QString& fileName,
-				  const QString& alt )
+void HtmlSynthetizer::processImg( const QString& fileName, const QString& alt,
+				  bool inParagraph )
 {
-    w.top()->putsMeta( "<img align=center src=\"" );
+    if ( !inParagraph )
+	w.top()->putsMeta( "<p align=\"center\">" );
+    w.top()->putsMeta( "<img align=\"middle\" src=\"" );
     w.top()->puts( fileName.latin1() );
     w.top()->putsMeta( "\"" );
     if ( !alt.isEmpty() ) {
@@ -989,6 +1023,8 @@ void HtmlSynthetizer::processImg( const QString& fileName,
 	w.top()->putsMeta( "\"" );
     }
     w.top()->putsMeta( ">\n" );
+    if ( !inParagraph )
+	w.top()->putsMeta( "</p>\n" );
 }
 
 void HtmlSynthetizer::processIndex( const QString& text )
@@ -999,9 +1035,12 @@ void HtmlSynthetizer::processIndex( const QString& text )
 void HtmlSynthetizer::processLink( const QString& name,
 				   const QString& text )
 {
+    // see also doc.cpp
+    static QRegExp allProtos( QString("(?:f(?:ile|tp)|http|mailto):.*") );
+
     QString textx = text;
 
-    QString y = resolver()->href( name, textx );
+    QString y = resolver()->href( name, text );
     if ( textx.isEmpty() )
 	textx = name;
 
@@ -1017,10 +1056,12 @@ void HtmlSynthetizer::processLink( const QString& name,
 	} else {
 	    Section *s = analyzer()->resolveSection( name );
 	    if ( s == 0 ) {
-		namex = QString::null;
+		if ( allProtos.exactMatch(name) )
+		    namex = name;
 	    } else {
 		namex = targetForSectionNumber( s->number );
-		textx = s->title;
+		if ( text.isEmpty() )
+		    textx = s->title;
 	    }
 	}
 
@@ -1106,9 +1147,11 @@ void HtmlSynthetizer::processSectionHeadingEnd( int level, int topLevel )
     w.top()->printfMeta( "</h%d>\n", level - topLevel + 2 );
 
     if ( level <= analyzer()->granularity() ) {
+	banners.push( makeBanner() );
 	w.push( new HtmlWriter(outFileBase() + sectionCounter.fileSuffix(n) +
 			       QString(".html")) );
 	w.top()->setTitle( heading.latin1() );
+	w.top()->putsMeta( banners.top().latin1() );
 	w.top()->printfMeta( "<h%d align=center>", level - topLevel + 2 );
 	w.top()->putsMeta( heading.latin1() );
 	w.top()->printfMeta( "</h%d>\n", level - topLevel + 2 );
@@ -1117,8 +1160,10 @@ void HtmlSynthetizer::processSectionHeadingEnd( int level, int topLevel )
 
 void HtmlSynthetizer::processSectionEnd( int level, int /* topLevel */ )
 {
-    if ( level <= analyzer()->granularity() )
+    if ( level <= analyzer()->granularity() ) {
+	w.top()->putsMeta( banners.pop().latin1() );
 	delete w.pop();
+    }
 }
 
 void HtmlSynthetizer::processSidebarBegin()
@@ -1171,12 +1216,55 @@ QString HtmlSynthetizer::targetForSectionNumber(
     return t;
 }
 
+void HtmlSynthetizer::fillHtmlPageSequence( const QValueList<Section> *sects,
+					    int level )
+{
+    if ( level <= analyzer()->granularity() ) {
+	QValueList<Section>::ConstIterator s = sects->begin();
+	while ( s != sects->end() ) {
+	    htmlPageSequence.append( &*s );
+	    fillHtmlPageSequence( (*s).subsections(), level + 1 );
+	    ++s;
+	}
+    }
+}
+
+QString HtmlSynthetizer::makeBanner()
+{
+    const Section *prev = htmlPageSequence[0];
+    const Section *next = htmlPageSequence[2];
+    QString t;
+
+    if ( prev != 0 || next != 0 ) {
+	t += QString( "<p align=\"right\">" );
+	if ( prev != 0 ) {
+	    t += QString( "[<a href=\"%1\">Prev: " )
+		 .arg( targetForSectionNumber(prev->number) );
+	    t += htmlProtect( prev->title );
+	    t += QString( "</a>] " );
+	}
+	t += QString( "[<a href=\"%1.html\">Home</a>]" )
+	     .arg( outFileBase().latin1() );
+	if ( next != 0 ) {
+	    t += QString( " [<a href=\"%1\">Next: " )
+		 .arg( targetForSectionNumber(next->number) );
+	    t += htmlProtect( next->title );
+	    t += QString( "</a>]" );
+	}
+	t += QString( "</p>\n" );
+    }
+
+    htmlPageSequence.remove( htmlPageSequence.begin() );
+    return t;
+}
+
 class SgmlSynthetizer : public Synthetizer
 {
 public:
     SgmlSynthetizer( const QString& filePath, const Analyzer *analyzer );
 
 protected:
+    virtual void processAlias( const QString& alias, const QStringList& args );
     virtual void processChar( QChar ch );
 };
 
@@ -1184,6 +1272,12 @@ SgmlSynthetizer::SgmlSynthetizer( const QString& filePath,
 				  const Analyzer *analyzer )
     : Synthetizer( filePath, analyzer )
 {
+}
+
+void SgmlSynthetizer::processAlias( const QString& alias,
+				    const QStringList& args )
+{
+    config->unalias( location(), alias, QString("sgml"), args );
 }
 
 void SgmlSynthetizer::processChar( QChar ch )

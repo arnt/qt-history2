@@ -1459,6 +1459,7 @@ void Doc::printHtmlIncludeHeader( HtmlWriter& out, const QString& fileName )
 
 QString Doc::href( const QString& name, const QString& text, bool propertize )
 {
+    // see also bookparser.cpp
     static QRegExp allProtos( QString("(?:f(?:ile|tp)|http|mailto):.*") );
     static QRegExp uglyProtos( QString("(?:file|mailto):(.*)") );
 
@@ -2093,12 +2094,14 @@ QString Doc::finalHtml() const
 	    case HASH( 'c', 1 ):
 		/*
 		  We try to turn '\c MyEnumValue' into a link.
-		  Otherwise, '\c' means monospace.
+		  Otherwise, '\c' means code (monospace and verbatim
+		  treatment of special characters).
 		*/
 		CONSUME( "c" );
 		name = getArgument( yyIn, yyPos );
 		ahref = href( name );
-		if ( ahref.length() == name.length() ) {
+		if ( ahref.length() == name.length() ||
+		     name.startsWith(QChar('#')) ) {
 		    yyOut += QString( "<tt>" );
 		    yyOut += htmlProtect( name );
 		    yyOut += QString( "</tt>" );
@@ -2248,7 +2251,7 @@ QString Doc::finalHtml() const
 		yyOut += QString( "\\" );
 		yyOut += command;
 	    }
-	} else if ( ch == '(' ) {
+	} else if ( ch == '(' && !yyOut.endsWith(QString("</a>")) ) {
 	    end = yyOut.length();
 	    begin = end;
 	    while ( begin > 0 && !yyOut[begin - 1].isSpace() &&

@@ -36,9 +36,11 @@ static void printHtmlDataType( HtmlWriter& out, const CodeChunk& type,
 static void printHtmlListEntry( HtmlWriter& out, const QString& funcName,
 				const QString& className )
 {
-    out.printfMeta( "<li><a href=\"%s#%s\">%s</a>()\n",
+    out.printfMeta( "<li><a href=\"%s#%s\">", 
 		    config->classRefHref(className).latin1(),
-		    Decl::ref(funcName).latin1(), funcName.latin1() );
+		    Decl::ref(funcName).latin1() );
+    out.puts( funcName.latin1() );
+    out.putsMeta( "</a>()\n" );
 }
 
 static void printHtmlShortMembers( HtmlWriter& out,
