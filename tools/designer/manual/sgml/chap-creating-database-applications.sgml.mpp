@@ -16,19 +16,17 @@ in the online SQL module documentation.
 \x[Databases|Drivers]
 \x[QODBC3, Database driver]
 \x[QOCI8, Database driver]
-\x[QPSQL6, Database driver]
 \x[QPSQL7, Database driver]
 \x[QMYSQL3, Database driver]
 \x[Databases|Drivers|QODBC3]
 \x[Databases|Drivers|QOCI8]
-\x[Databases|Drivers|QPSQL6]
 \x[Databases|Drivers|QPSQL7]
 \x[Databases|Drivers|QMYSQL3]
 If you wish to run the examples or create your own applications using
 these widgets you need access to an SQL database and a Qt database driver
 that can connect to the database. At the time of writing the drivers
 that Qt supports are QODBC3 (Open Database Connectivity), QOCI8 (Oracle),
-QPSQL6 (PostgreSQL 6), QPSQL7 (PostgreSQL 7) and QMYSQL3 (MySQL).
+QPSQL7 (PostgreSQL 6 and 7) and QMYSQL3 (MySQL).
 </para>
 
 <para id="afgv">
@@ -164,7 +162,7 @@ databases.
 bool createConnections()
 {
     // create the default database connection
-    \b[QSqlDatabase] *defaultDB = \b[QSqlDatabase::addDatabase]( &quot;QPSQL6&quot; );
+    \b[QSqlDatabase] *defaultDB = \b[QSqlDatabase::addDatabase]( &quot;QPSQL7&quot; );
     if ( ! defaultDB ) {
         qWarning( "Failed to connect to driver" );
         return FALSE;

@@ -1822,10 +1822,10 @@ QValueList<QHostAddress> QDns::addresses() const
 /*!
    Returns a list of mail servers if the record type is \c Mx. The class
    \c QDns::MailServer contains the following public variables:
-   <ul>
-   <li> \c QString QDns::MailServer::name
-   <li> \c Q_UINT16 QDns::MailServer::priority
-   </ul>
+   \list
+   \i QString QDns::MailServer::name
+   \i Q_UINT16 QDns::MailServer::priority
+   \endlist
 */
 QValueList<QDns::MailServer> QDns::mailServers() const
 {
@@ -1862,12 +1862,12 @@ QValueList<QDns::MailServer> QDns::mailServers() const
 /*!
   Returns a list of servers if the record type is \c Srv. The class \c
   QDns::Server contains the following public variables:
-  <ul>
-  <li> \c QString QDns::Server::name
-  <li> \c Q_UINT16 QDns::Server::priority
-  <li> \c Q_UINT16 QDns::Server::weight
-  <li> \c Q_UINT16 QDns::Server::port
-  </ul>
+  \list
+  \i QString QDns::Server::name
+  \i Q_UINT16 QDns::Server::priority
+  \i Q_UINT16 QDns::Server::weight
+  \i Q_UINT16 QDns::Server::port
+  \endlist
 */
 QValueList<QDns::Server> QDns::servers() const
 {

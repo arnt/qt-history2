@@ -133,6 +133,16 @@ QClipboard::~QClipboard()
   This signal is emitted when the clipboard data is changed.
 */
 
+/*!
+  \fn void QClipboard::selectionChanged()
+
+  This signal is emitted when the selection is changed. This only
+  applies to windowing systems that support selections, e.g. X11.
+  Windows doesn't support selections.
+*/
+
+
+
 
 /*****************************************************************************
   QApplication member functions related to QClipboard.

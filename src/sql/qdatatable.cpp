@@ -1881,7 +1881,7 @@ void QDataTable::sortDescending( int col )
 }
 
 /*! 
-    \overload
+    \overload void QDataTable::refresh( Refresh mode )
     Refreshes the table.  If there is no currently defined cursor (see
   setCursor()), nothing happens. The \a mode parameter determines which
   type of refresh will take place.

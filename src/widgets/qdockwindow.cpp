@@ -753,6 +753,22 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
   their dock window handle when they are docked.
 */
 
+/*!
+    \fn void QDockWindow::setHorizontalStretchable( bool b ) 
+    \obsolete
+*/
+/*!
+    \fn void QDockWindow::setVerticalStretchable( bool b ) 
+    \obsolete
+*/
+/*!
+    \fn bool QDockWindow::isHorizontalStretchable() const 
+    \obsolete
+*/
+/*!
+    \fn bool QDockWindow::isVerticalStretchable() const 
+    \obsolete
+*/
 /*! \fn void QDockWindow::orientationChanged( Orientation o )
 
   This signal is emitted when the orientation of the dock window is
@@ -1508,7 +1524,8 @@ void QDockWindow::undock( QWidget *w )
 }
 
 /*!
-  \internal void QDockWindow::undock()
+  \fn void QDockWindow::undock()
+  \internal 
 */
 
 void QDockWindow::removeFromDock( bool fixNewLines )

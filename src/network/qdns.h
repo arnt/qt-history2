@@ -82,7 +82,7 @@ public:
     virtual void setRecordType( RecordType rr = A );
     RecordType recordType() const { return t; }
 
-    // whether something is happening behind the curtains
+    // whether something is happening behind the scenes
     bool isWorking() const;
 
     // to query for replies

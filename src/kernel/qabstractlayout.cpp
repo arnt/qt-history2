@@ -72,6 +72,11 @@
   \sa QLayout
 */
 
+/*! \fn const QSize &QWidgetItem::widgetSizeHint() const
+  Implemented in subclasses to return a reference to the preferred
+  size of this item.
+*/
+
 
 /*! \fn QLayoutItem::QLayoutItem( int alignment )
   Constructs a layout item with an \a alignment

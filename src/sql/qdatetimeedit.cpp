@@ -213,7 +213,6 @@ private:
     QString sep;
 };
 
-
 class QDateTimeEditor : public QWidget
 {
 public:
@@ -587,6 +586,16 @@ public:
   \value YMD year-month-day (the default)
   \value YDM year-day-month
 */
+
+/*!
+    \fn bool QDateEdit::frame() const 
+    \internal
+*/
+/*!
+    \fn void QDateEdit::setFrame( const bool )
+    \internal
+*/
+
 
 
 /*! Constructs an empty date editor which is a child of \a parent and the

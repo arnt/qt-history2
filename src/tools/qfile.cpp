@@ -250,6 +250,11 @@ void QFile::flush()
 }
 
 /*!
+    \fn Offset	at() const
+    Returns the position in the file.
+*/
+
+/*!
   Returns TRUE if the end of file has been reached; otherwise returns FALSE.
   \sa size()
 */

@@ -448,6 +448,11 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 */
 
 /*!
+    \fn Orientation orientation() const
+    Returns the wheel's orientation.
+*/
+
+/*!
   \fn QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation orient = Vertical );
 
   Constructs a wheel event object.
