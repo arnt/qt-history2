@@ -124,7 +124,7 @@ QString QText::escape(const QString& plain)
 */
 
 /*!
-    Constructs an empty QTextDocument with parent \a parent.
+    Constructs an empty QTextDocument with the given \a parent.
 */
 QTextDocument::QTextDocument(QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
@@ -133,8 +133,8 @@ QTextDocument::QTextDocument(QObject *parent)
 }
 
 /*!
-    Constructs a QTextDocument containing the plain (unformatted) text
-    \a text, and with parent \a parent.
+    Constructs a QTextDocument containing the plain (unformatted) \a text
+    specified, and with the given \a parent.
 */
 QTextDocument::QTextDocument(const QString &text, QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
@@ -425,12 +425,13 @@ QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, Fi
 
 
 /*!
-    Creates and returns a new document object (a QTextObject), based
-    on the given format, \a f.
+    \fn QTextObject *QTextDocument::createObject(const QTextFormat &format)
 
-    TextObjects will always get created through this method, so you
-    will have to reimplement it, if you use custom text objects inside
-    your document.
+    Creates and returns a new document object (a QTextObject), based
+    on the given \a format.
+
+    QTextObjects will always get created through this method, so you
+    must reimplement it if you use custom text objects inside your document.
 */
 QTextObject *QTextDocument::createObject(const QTextFormat &f)
 {
