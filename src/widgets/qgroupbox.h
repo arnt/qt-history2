@@ -77,6 +77,8 @@ public:
     void setCheckable( bool b );
     bool isChecked() const;
 
+    void setEnabled(bool on);
+
 public slots:
     void setChecked( bool b );
 

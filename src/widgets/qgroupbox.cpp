@@ -886,6 +886,17 @@ void QGroupBox::setChildrenEnabled( bool b )
     }
 }
 
+/*! \reimp */
+void QGroupBox::setEnabled(bool on)
+{
+    QFrame::setEnabled(on);
+    if ( !d->checkbox || !on )
+	return;
+
+    // we are being enabled - disable children
+    if ( !d->checkbox->isChecked() )
+	setChildrenEnabled( FALSE );
+}
 
 /*
   recalculates and sets the checkbox setGeometry
