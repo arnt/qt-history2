@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#329 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#330 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3738,7 +3738,7 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	QMessageBox::critical( this, tr( "ERROR" ), op->protocolDetail() );
 
 	int ecode = op->errorCode();
-	if ( ecode == QNetworkProtocol::ErrReadDir || ecode == QNetworkProtocol::ErrParse ||
+	if ( ecode == QNetworkProtocol::ErrListChlidren || ecode == QNetworkProtocol::ErrParse ||
 	     ecode == QNetworkProtocol::ErrUnknownProtocol || ecode == QNetworkProtocol::ErrLoginIncorrect ||
 	     ecode == QNetworkProtocol::ErrValid ) {
 	    d->url = d->oldUrl;
@@ -3788,7 +3788,7 @@ void QFileDialog::insertEntry( const QUrlInfo &inf, QNetworkOperation * )
 {
     if ( d->mode == Directory && !inf.isDir() )
 	return;
-    
+
     if ( inf.name() == ".." ) {
 	d->hadDotDot = TRUE;
 	if ( d->url.path() == "/" )
