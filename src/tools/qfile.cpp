@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#94 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#95 $
 **
 ** Implementation of QFile class
 **
@@ -240,7 +240,7 @@ bool QFile::remove( const QString &fileName )
 {
     if ( fileName.isEmpty() ) {
 #if defined(CHECK_NULL)
-	qWarning( "QFile::remove: Empty or NULL file name" );
+	qWarning( "QFile::remove: Empty or null file name" );
 #endif
 	return FALSE;
     }
@@ -555,9 +555,10 @@ bool QFile::open( int m, int f )
 /*!
   Closes an open file.
 
-  The file is closed even if it was opened with an existing file
-  handle or a file descriptor, \e except that stdin, stdout and stderr
-  are never closed.
+  The file is not closed if it was opened with an existing file handle.
+  If the existing file handle is a \c FILE*, the file is flushed.
+  If the existing file handle is an \c int file descriptor, nothing
+  is done to the file.
 
   Some "write-behind" filesystems may report an unspecified error on
   closing the file. These errors only indiciate that something may
@@ -571,12 +572,12 @@ void QFile::close()
 {
     bool ok = FALSE;
     if ( isOpen() ) {				// file is not open
-	if ( fh ) {					// buffered file
+	if ( fh ) {				// buffered file
 	    if ( ext_f )
-		ok = fflush( fh ) != -1;		// cannot close
+		ok = fflush( fh ) != -1;	// flush instead of closing
 	    else
 		ok = fclose( fh ) != -1;
-	} else {					// raw file
+	} else {				// raw file
 	    if ( ext_f )
 		ok = TRUE;			// cannot close
 	    else
@@ -1053,8 +1054,9 @@ static QFile::EncoderFn encoder = locale_encoder;
   store in filenames in UTF-8, etc., but beware that such filenames
   would probably then be unrecognizable when seen by other programs.
 
-  \sa decodeName().
+  \sa decodeName()
 */
+
 QCString QFile::encodeName( const QString &fileName )
 {
     return (*encoder)(fileName);
@@ -1095,6 +1097,7 @@ QString QFile::decodeName( const QCString &localFileName )
 
   \sa encodeName(), decodeName()
 */
+
 void QFile::setDecodingFunction( DecoderFn f )
 {
     decoder = f;
