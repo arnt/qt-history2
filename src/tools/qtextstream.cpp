@@ -565,6 +565,7 @@ void QTextStream::skipWhiteSpace()
 uint QTextStream::ts_getbuf( QChar* buf, uint len )
 {
     uint rnum=len;   // the number of QChars really read
+    int ungetcLocalBuf = EOF;
 
     if( len<1 )
 	return 0;
@@ -584,9 +585,12 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	    latin1 = FALSE;
 	    internalOrder = !QChar::networkOrdered();   //reverse network order
 	} else {
-	    if ( c2 != EOF )
+	    if ( c2 != EOF ) {
 		dev->ungetch( c2 );
-	    dev->ungetch( c1 );
+		ungetcLocalBuf = c1; // it is not safe to make two ungetc()
+	    } else {
+    		dev->ungetch( c1 );
+	    }
 	}
     }
     if ( mapper ) {
@@ -601,7 +605,13 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 		do {
 		    // TODO: can this getch() call be optimized to read
 		    // more than one character after another?
-		    int c = dev->getch();
+		    int c;
+		    if ( ungetcLocalBuf == EOF ) {
+			c = dev->getch();
+		    } else {
+			c = ungetcLocalBuf;
+			ungetcLocalBuf = EOF;
+		    }
 		    if ( c == EOF ) {
 			return i;
 		    }
@@ -614,7 +624,13 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
     } else if ( latin1 ) {
 	if ( len==1 ) {
 	    // choose this method for one character because it is more efficient
-	    int c = dev->getch();
+	    int c;
+	    if ( ungetcLocalBuf == EOF ) {
+		c = dev->getch();
+	    } else {
+		c = ungetcLocalBuf;
+		ungetcLocalBuf = EOF;
+	    }
 	    if ( c == EOF ) {
 		return 0;
 	    } else {
@@ -623,7 +639,14 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	    }
 	} else {
 	    char *cbuf = new char[len];
-	    rnum = dev->readBlock( cbuf, len );
+	    if ( ungetcLocalBuf == EOF ) {
+		rnum = dev->readBlock( cbuf, len );
+	    } else {
+		rnum = dev->readBlock( cbuf+1, len-1 );
+		cbuf[0] = ungetcLocalBuf;
+		rnum++;
+		ungetcLocalBuf = EOF;
+	    }
 	    for ( uint i=0; i<rnum; i++ ) {
 		buf[i] = cbuf[i];
 	    }
@@ -631,7 +654,13 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	}
     } else { //Unicode
 	if ( len==1 ) {
-	    int c1 = dev->getch();
+	    int c1;
+	    if ( ungetcLocalBuf == EOF ) {
+		c1 = dev->getch();
+	    } else {
+		c1 = ungetcLocalBuf;
+		ungetcLocalBuf = EOF;
+	    }
 	    if ( c1 == EOF ) {
 		return 0;
 	    }
@@ -642,7 +671,14 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 		buf[0] = QChar( c1, c2 );
 	} else {
 	    char *cbuf = new char[2*len]; // for paranoids: overflow possible
-	    rnum = dev->readBlock( cbuf, 2*len );
+	    if ( ungetcLocalBuf == EOF ) {
+		rnum = dev->readBlock( cbuf, 2*len );
+	    } else {
+		rnum = dev->readBlock( cbuf+1, 2*len-1 );
+		cbuf[0] = ungetcLocalBuf;
+		rnum++;
+		ungetcLocalBuf = EOF;
+	    }
 	    rnum/=2;
 	    for ( uint i=0; i<rnum; i++ ) {
 		if ( isNetworkOrder() )
