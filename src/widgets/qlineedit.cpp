@@ -433,8 +433,7 @@ bool QLineEdit::hasMarkedText() const
 
 /*! \property QLineEdit::markedText
     \brief the text marked by the user (e.g., by clicking and
-    dragging), or a \link QString::operator!() null string\endlink
-    if no text is marked
+    dragging), or QString::null if no text is marked.
 
   \sa hasMarkedText()
 */

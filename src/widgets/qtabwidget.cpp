@@ -507,6 +507,7 @@ QWidget * QTabWidget::currentPage() const
 
 /*! \property QTabWidget::currentPage
     \brief the id of the current tab page    
+
   \sa QTabBar::currentPage()
 */
 

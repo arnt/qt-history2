@@ -81,7 +81,7 @@ public:
 // NOT REVISED
 /*! \class QDial qdial.h
 
-  \brief The QDial class provides a rounded rangecontrol (like a speedometer or potentiometer).
+  \brief The QDial class provides a rounded range control (like a speedometer or potentiometer).
 
   \ingroup basic
 
@@ -150,7 +150,6 @@ QDial::QDial( QWidget *parent, const char *name )
   \a pageStep, and whose value is initially \a value.
 
   \a value is forced to be within the legal range.
-
 */
 
 QDial::QDial( int minValue, int maxValue, int pageStep, int value,
@@ -359,7 +358,7 @@ void QDial::repaintScreen( const QRect *cr )
 	    br.setWidth( br.width() + r / 3 );
 	    br.setHeight( br.height() + r / 3 );
 	}
-	// strange, but else we get redraw errors on windows!!
+	// strange, but else we get redraw errors on Windows
 	p.end();
 	p.begin( this );
 	p.save();
@@ -858,6 +857,7 @@ void QDial::calcLines()
 /*!
   \property QDial::minValue
   \brief the current minimum value
+
   \sa setRange()
 */
 int QDial::minValue() const
@@ -868,6 +868,7 @@ int QDial::minValue() const
 /*!
   \property QDial::maxValue
   \brief the current maximum value
+
   \sa setRange()
 */
 int QDial::maxValue() const
@@ -926,11 +927,11 @@ void QDial::setPageStep( int i )
 
 /*!
   \property QDial::value
-  \brief current dial value
+  \brief the current dial value
 
-  This is guaranteed to be within the range [ minValue ... maxValue ].
+  This is guaranteed to be within the range [\l minValue ... \l maxValue].
 
-  /sa minValue maxValue
+  \sa minValue maxValue
 */
 
 int QDial::value() const

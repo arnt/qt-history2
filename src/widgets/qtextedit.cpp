@@ -307,7 +307,7 @@
 */
 
 /*!
-  \property QTextEdit::overWriteMode
+  \property QTextEdit::overwriteMode
   \brief the text edit's overwrite mode
 
   If TRUE, the editor is in overwrite mode, i.e. characters entered by

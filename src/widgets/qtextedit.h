@@ -51,7 +51,7 @@ class Q_EXPORT QTextEdit : public QTextView
 {
     Q_OBJECT
     Q_PROPERTY( int undoDepth READ undoDepth WRITE setUndoDepth )
-    Q_PROPERTY( bool overWriteMode READ isOverwriteMode WRITE setOverwriteMode )
+    Q_PROPERTY( bool overwriteMode READ isOverwriteMode WRITE setOverwriteMode )
 
 public:
     QTextEdit(QWidget *parent = 0, const char *name = 0 );
