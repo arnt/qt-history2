@@ -21,8 +21,6 @@
 #include "qpixmapcache.h"
 #include "qtextcodec.h"
 #include "qpaintdevicemetrics.h"
-#include "qpaintdevice.h" // tmp
-#include "qpainter.h" // tmp
 #include "qcoreevent.h"
 
 #include "qpainter_p.h"
@@ -402,7 +400,6 @@ static inline void release_gc(void *ref)
     ((QGCC*)ref)->count--;
 }
 
-// ########
 void qt_erase_background(QPaintDevice *pd, int screen,
                          int x, int y, int w, int h,
                          const QBrush &brush, int xoff, int yoff)
@@ -491,7 +488,7 @@ void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h)
     qt_draw_transformed_rect(p, x, y, w, h, true);
     XSetForeground(p->d->dpy, p->d->gc, p->d->cpen.color().pixel(p->d->scrn));
 }
-// ########
+
 
 /*
  * QX11PaintEngine members
@@ -600,8 +597,8 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
 bool QX11PaintEngine::end()
 {
     setActive(false);
-    if (d->pdev->devType() == QInternal::Widget  &&                 // #####
-        ((QWidget*)d->pdev)->testAttribute(Qt::WA_PaintUnclipped)) {
+    if (d->pdev->devType() == QInternal::Widget
+	&& (static_cast<QWidget*>(d->pdev)->testAttribute(Qt::WA_PaintUnclipped))) {
         if (d->gc)
             XSetSubwindowMode(d->dpy, d->gc, ClipByChildren);
         if (d->gc_brush)
@@ -722,7 +719,8 @@ void QX11PaintEngine::drawRects(const QList<QRect> &rects)
 	return;
     }
     if (d->cpen.style() != Qt::NoPen && d->cbrush.style() == Qt::NoBrush) {
-	for (int i = 0; i < rects.size(); ++i) { // ### this is kinda makes it useless but it's needed
+	// some of the speed gain is lost by this conversion
+	for (int i = 0; i < rects.size(); ++i) {
 	    xrects[i].width -= 1;
 	    xrects[i].height -= 1;
 	}
@@ -1342,12 +1340,12 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
         return;
     }
 
-    QRegion rgn = d->crgn; // ### remove this
 
-    if (mask) {                               // pixmap has clip mask
+    if (mask) { // pixmap has clip mask
         // Implies that clipping is on, either explicit or implicit
         // Create a new mask that combines the mask with the clip region
 
+	QRegion rgn = d->crgn;
         if (d->pdev == paintEventDevice && paintEventClipRegion) {
             if (hasClipping())
                 rgn = rgn.intersect(*paintEventClipRegion);
@@ -1403,7 +1401,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
         }
     }
 
-    if (mask) {                               // restore clipping
+    if (mask) { // restore clipping
         XSetClipOrigin(d->dpy, d->gc, 0, 0);
         int num;
         XRectangle *rects = (XRectangle *)qt_getClipRects(d->crgn, num);
