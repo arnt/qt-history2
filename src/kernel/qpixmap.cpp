@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#29 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,11 +15,11 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#29 $";
 #endif
 
 
-/*!
+/*----------------------------------------------------------------------------
   \class QPixmap qpixmap.h
   \brief The QPixmap class is an off-screen buffer paint device.
 
@@ -71,9 +71,9 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#28 $";
   \sa QBitmap, QImage, QImageIO, QPaintDevice */
 
 
-/*!
+/*----------------------------------------------------------------------------
   Detaches the pixmap from shared data.
-*/
+ ----------------------------------------------------------------------------*/
 
 void QPixmap::detach()				// detach shared pixmap
 {
@@ -86,11 +86,11 @@ void QPixmap::detach()				// detach shared pixmap
     *this = copy();
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Returns a deep copy of the pixmap using the bitBlt() function to copy
   the pixels.
   \sa operator=()
-*/
+ ----------------------------------------------------------------------------*/
 
 QPixmap QPixmap::copy() const
 {
@@ -103,11 +103,11 @@ QPixmap QPixmap::copy() const
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Converts the image \e image to a pixmap that is assigned to this pixmap.
   Returns a reference to the pixmap.
   \sa convertFromImage().
-*/
+ ----------------------------------------------------------------------------*/
 
 QPixmap &QPixmap::operator=( const QImage &image )
 {
@@ -116,7 +116,7 @@ QPixmap &QPixmap::operator=( const QImage &image )
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   \fn bool QPixmap::isNull() const
   Returns TRUE if it is a null pixmap.
 
@@ -128,62 +128,65 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
   \sa resize() */
 
-/*!
+/*----------------------------------------------------------------------------
   \fn int QPixmap::width() const
   Returns the width of the pixmap.
   \sa height(), size(), rect()
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn int QPixmap::height() const
   Returns the height of the pixmap.
   \sa width(), size(), rect()
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn QSize QPixmap::size() const
-
   Returns the size of the pixmap.  A null pixmap has size (0,0).
+  \sa width(), height(), rect(), isNull().
+ ----------------------------------------------------------------------------*/
 
-  \sa width(), height(), rect() isNull.
-*/
-
-/*!
+/*----------------------------------------------------------------------------
   \fn QRect QPixmap::rect() const
   Returns the enclosing rectangle of the pixmap, or (0,0,0,0) for a
   null pixmap.
-  \sa width(), height(), size() */
+  \sa width(), height(), size(), isNull()
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn int QPixmap::depth() const
   Returns the depth of the image.
   The pixmap depth is also called bits per pixel (bpp) or bit planes
   of a pixmap.  A null pixmap has depth 0.
   \sa numColors(), isNull()
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn int QPixmap::numColors() const
   Returns the maximum number of colors that can be used for the pixmap.
   Equivalent to 2^depth().
   \sa depth()
-*/
+ ----------------------------------------------------------------------------*/
 
 
-/*! \overload void QPixmap::resize( const QSize &size ) */
+/*----------------------------------------------------------------------------
+  \overload void QPixmap::resize( const QSize &size )
+ ----------------------------------------------------------------------------*/
 
-/*!  Resizes the pixmap to \e w width and \e h height.  If either \e w
+/*----------------------------------------------------------------------------
+  Resizes the pixmap to \e w width and \e h height.  If either \e w
   or \e h is less than 1, the pixmap becomes a null pixmap.
 
   If both \e w and \e h are greater than 0, a valid pixmap will be
   created.  New pixels will be uninitialized (random) if the pixmap is
-  expanded. */
+  expanded.
+ ----------------------------------------------------------------------------*/
 
 void QPixmap::resize( int w, int h )
 {
     if ( w<1 || h<1 ){				// will become null?
 	QPixmap pm;
-	pm.data->bitmap = data->bitmap;		// voodoo
+	pm.data->bitmap = data->bitmap;		// keep is-a flag
 	*this = pm;
 	return;
     }
@@ -204,14 +207,14 @@ void QPixmap::resize( int w, int h )
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Returns a string that specifies the image format of the file \e fileName,
   or null if the file cannot be read or if the format cannot be recognized.
 
   The QImageIO documentation lists the supported image formats.
 
   \sa load(), save()
-*/
+ ----------------------------------------------------------------------------*/
 
 const char *QPixmap::imageFormat( const char *fileName )
 {
@@ -237,7 +240,7 @@ bool qt_image_did_turn_scanlines()
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Loads an image from the file \e fileName into the pixmap.
   Returns TRUE if successful, or FALSE if the image could not be loaded.
 
@@ -248,7 +251,8 @@ bool qt_image_did_turn_scanlines()
   The QImageIO documentation lists the supported image formats and
   explains how to add extra formats.
 
-  \sa save(), imageFormat() */
+  \sa save(), imageFormat()
+ ----------------------------------------------------------------------------*/
 
 bool QPixmap::load( const char *fileName, const char *format )
 {
@@ -269,12 +273,12 @@ bool QPixmap::load( const char *fileName, const char *format )
     return result;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Saves the pixmap to the file \e fileName, using the image file format
   \e format.  Returns TRUE if successful, or FALSE if the image could not
   be saved.
   \sa load(), imageFormat()
-*/
+ ----------------------------------------------------------------------------*/
 
 bool QPixmap::save( const char *fileName, const char *format ) const
 {
@@ -288,14 +292,14 @@ bool QPixmap::save( const char *fileName, const char *format ) const
 }
 
 
-// --------------------------------------------------------------------------
-// QPixmap stream functions
-//
+/*****************************************************************************
+  QPixmap stream functions
+ *****************************************************************************/
 
-/*!
+/*----------------------------------------------------------------------------
   \relates QPixmap
   Writes a pixmap to the stream as a BMP image.
-*/
+ ----------------------------------------------------------------------------*/
 
 QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
 {
@@ -307,10 +311,10 @@ QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
     return s;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   \relates QPixmap
   Reads a pixmap from the stream as a BMP image.
-*/
+ ----------------------------------------------------------------------------*/
 
 QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )
 {
