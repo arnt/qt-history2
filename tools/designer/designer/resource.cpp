@@ -36,6 +36,8 @@
 #include "database.h"
 #endif
 #include "actiondnd.h"
+#include "project.h"
+#include "pixmapcollection.h"
 
 #include <qfeatures.h>
 #include <qfile.h>
@@ -662,38 +664,47 @@ void Resource::saveItem( QListViewItem *i, QTextStream &ts, int indent )
     }
 }
 
-void Resource::savePixmap( const QPixmap &p, QTextStream &ts, int indent )
+void Resource::savePixmap( const QPixmap &p, QTextStream &ts, int indent, const QString &tagname )
 {
     if ( p.isNull() ) {
-	ts << makeIndent( indent ) << "<pixmap></pixmap>" << endl;
+	ts << makeIndent( indent ) << "<" + tagname + "></"  + tagname + ">" << endl;
 	return;
     }
 
     if ( formwindow && formwindow->savePixmapInline() )
-	ts << makeIndent( indent ) << "<pixmap>" << saveInCollection( p ) << "</pixmap>" << endl;
+	ts << makeIndent( indent ) << "<" + tagname + ">" << saveInCollection( p ) << "</" + tagname + ">" << endl;
     else if ( formwindow && formwindow->savePixmapInProject() )
-	; // ##### pixmap in project file
+	ts << makeIndent( indent ) << "<" + tagname + ">" << MetaDataBase::pixmapKey( formwindow, p.serialNumber() )
+	   << "</" + tagname + ">" << endl;
     else
-	ts << makeIndent( indent ) << "<pixmap>" << MetaDataBase::pixmapArgument( formwindow, p.serialNumber() ) << "</pixmap>" << endl;
+	ts << makeIndent( indent ) << "<" + tagname + ">" << MetaDataBase::pixmapArgument( formwindow, p.serialNumber() )
+	   << "</" + tagname + ">" << endl;
 }
 
-QPixmap Resource::loadPixmap( const QDomElement &e )
+QPixmap Resource::loadPixmap( const QDomElement &e, const QString &/*tagname*/ )
 {
     QString arg = e.firstChild().toText().data();
+
     if ( formwindow && formwindow->savePixmapInline() ) {
+	QImage img = loadFromCollection( arg );
+	QPixmap pix;
+	pix.convertFromImage( img );
+	MetaDataBase::setPixmapArgument( formwindow, pix.serialNumber(), arg );
+	return pix;
     } else if ( formwindow && formwindow->savePixmapInProject() ) {
-	// #### pixmap in project file
+	QPixmap pix;
+	if ( mainwindow && mainwindow->currProject() )
+	    pix = mainwindow->currProject()->pixmapCollection()->pixmap( arg );
+	else
+	    pix = PixmapChooser::loadPixmap( "image.xpm" );
+	MetaDataBase::setPixmapKey( formwindow, pix.serialNumber(), arg );
+	return pix;
     } else {
 	QPixmap pix = PixmapChooser::loadPixmap( "image.xpm" );
 	MetaDataBase::setPixmapArgument( formwindow, pix.serialNumber(), arg );
 	return pix;
     }
-
-    QImage img = loadFromCollection( arg );
-    QPixmap pix;
-    pix.convertFromImage( img );
-    MetaDataBase::setPixmapArgument( formwindow, pix.serialNumber(), arg );
-    return pix;
+    return QPixmap();
 }
 
 void Resource::saveItem( const QStringList &text, const QList<QPixmap> &pixmaps, QTextStream &ts, int indent )
@@ -987,7 +998,7 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 	savePixmap( value.toPixmap(), ts, indent );
 	break;
     case QVariant::IconSet:
-	ts << makeIndent( indent ) << "<iconset>" << saveInCollection( value.toIconSet().pixmap() ) << "</iconset>" << endl;
+	savePixmap( value.toIconSet().pixmap(), ts, indent, "iconset" );
 	break;
     case QVariant::Image:
 	ts << makeIndent( indent ) << "<image>" << saveInCollection( value.toImage() ) << "</image>" << endl;
@@ -1452,8 +1463,7 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	QPixmap pix = loadPixmap( e );
 	v = QVariant( pix );
     } else if ( e.tagName() == "iconset" ) {
-	QPixmap pix;
-	pix.convertFromImage( loadFromCollection( v.toString() ) );
+	QPixmap pix = loadPixmap( e, "iconset" );
 	v = QVariant( QIconSet( pix ) );
     } else if ( e.tagName() == "image" ) {
 	v = QVariant( loadFromCollection( v.toString() ) );
