@@ -1126,7 +1126,8 @@ MakefileGenerator::fileFixify(QString &file) const
 	if(QDir::isRelativePath(file))
 	    return FALSE;
 	QString match_dir = Option::output_dir;
-	if(file.left(match_dir.length()) == match_dir) {
+	if(file.left(match_dir.length()) == match_dir && 
+	   QString(file.at(match_dir.length())) == Option::dir_sep) {
 	    file = file.right(file.length() - (match_dir.length() + 1));
 	} else {
 	    //try to make no more than five ..'s
