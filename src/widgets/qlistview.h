@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#42 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#43 $
 **
 ** Definition of QListView widget class
 **
@@ -75,11 +75,12 @@ public:
 
     QListViewItem * firstChild() const;
     QListViewItem * nextSibling() const { return siblingItem; }
+    QListViewItem * parent() const;
 
     QListViewItem * itemAbove();
     QListViewItem * itemBelow();
 
-    virtual QListView *listView() const;
+    QListView *listView() const;
 
     virtual void setSelectable( bool enable );
     bool isSelectable() const { return selectable; }
@@ -100,13 +101,14 @@ private:
     int maybeTotalHeight;
     int childCount;
 
-    uint lsc: 15;
+    uint lsc: 14;
     uint lso: 1;
     uint open : 1;
     uint selected : 1;
     uint selectable: 1;
     uint configured: 1;
     uint expandable: 1;
+    uint is_root: 1;
 
     QListViewItem * parentItem;
     QListViewItem * siblingItem;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#91 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,10 +26,10 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#90 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#91 $");
 
 
-const int Unsorted = 32767;
+const int Unsorted = 16383;
 
 
 struct QListViewPrivate
@@ -43,7 +43,7 @@ struct QListViewPrivate
 	void setHeight( int );
 	void invalidateHeight();
 	void setup();
-	QListView * listView() const;
+	QListView * theListView() const;
 
 	QListView * lv;
     };
@@ -272,6 +272,7 @@ void QListViewItem::init()
     configured = FALSE;
     expandable = FALSE;
     selectable = TRUE;
+    is_root = FALSE;
 }
 
 
@@ -952,7 +953,7 @@ void QListViewPrivate::Root::invalidateHeight()
 }
 
 
-QListView * QListViewPrivate::Root::listView() const
+QListView * QListViewPrivate::Root::theListView() const
 {
     return lv;
 }
@@ -1081,6 +1082,7 @@ QListView::QListView( QWidget * parent, const char * name )
 
     // will access d->r
     QListViewPrivate::Root * r = new QListViewPrivate::Root( this );
+    r->is_root = TRUE;
     d->r = r;
     d->r->setSelectable( FALSE );
 
@@ -1725,7 +1727,11 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 
 QListView * QListViewItem::listView() const
 {
-    return parentItem ? parentItem->listView() : 0;
+    const QListViewItem* c = this;
+    while (c && !c->is_root)
+	c = c->parentItem;
+    if (!c) return 0;
+    return ((QListViewPrivate::Root*)c)->theListView();
 }
 
 /*!
@@ -1829,6 +1835,18 @@ QListViewItem* QListViewItem::firstChild () const
 {
     enforceSortOrder();
     return childItem;
+}
+
+
+/*! Returns a pointer to the parent of this item.
+
+  \sa firstChild(), nextSibling()
+*/
+
+QListViewItem* QListViewItem::parent () const
+{
+    if ( !parentItem || parentItem->is_root ) return 0;
+    return parentItem;
 }
 
 
