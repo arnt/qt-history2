@@ -35,7 +35,7 @@
 #define d d_func()
 
 #define ABORT_IF_ACTIVE(location) \
-    if (d->printEngine->printerState() != QPrinter::Active) { \
+    if (d->printEngine->printerState() == QPrinter::Active) { \
         qWarning("%s, cannot be changed while printer is active", location); \
         return; \
     }

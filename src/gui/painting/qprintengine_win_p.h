@@ -49,8 +49,6 @@ public:
     void setProperty(PrintEnginePropertyKey key, const QVariant &value);
     QVariant property(PrintEnginePropertyKey key) const;
 
-    bool isActive() const;
-
     bool newPage();
     bool abort();
     int metric(QPaintDevice::PaintDeviceMetric) const;

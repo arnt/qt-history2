@@ -162,8 +162,6 @@ QWin32PaintEngine::~QWin32PaintEngine()
 
 bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 {
-    qWarning("windows paint engine in use...");
-
     if (isActive()) {                                // already active painting
         qWarning("QWin32PaintEngine::begin: Painter is already active."
                "\n\tYou must end() the painter before a second begin()\n");

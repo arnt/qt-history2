@@ -1126,11 +1126,6 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
     return value;
 }
 
-bool QWin32PrintEngine::isActive() const
-{
-    return d->state == QPrinter::Active;
-}
-
 QPrinter::PrinterState QWin32PrintEngine::printerState() const
 {
     return d->state;
