@@ -79,48 +79,6 @@ extern "C" {
                                                          reinterpret_cast<int>(newval)));
     }
 
-#elif defined(Q_OS_WIN) && (defined(Q_CC_MSVC) || defined(Q_CC_INTEL))
-
-    inline int q_atomic_test_and_set_int(volatile int *pointer, int expected, int newval)
-    {
-        __asm {
-            mov EBX,pointer
-            mov EAX,expected
-            mov ECX,newval
-            lock cmpxchg dword ptr[EBX],ECX
-            mov EAX,0
-            sete AL
-            mov newval,EAX
-        }
-        return newval;
-    }
-
-#define Q_HAVE_ATOMIC_SET
-
-    inline int q_atomic_test_and_set_ptr(volatile void *pointer, void *expected, void *newval)
-    {
-        return q_atomic_test_and_set_int(reinterpret_cast<volatile int *>(pointer),
-                                         reinterpret_cast<int>(expected),
-                                         reinterpret_cast<int>(newval));
-    }
-
-    inline int q_atomic_set_int(volatile int *pointer, int newval)
-    {
-        __asm {
-            mov EBX,pointer
-            mov ECX,newval
-            xchg dword ptr[EBX],ECX
-            mov newval,ECX
-        }
-        return newval;
-    }
-
-    inline void *q_atomic_set_ptr(volatile void *pointer, void *newval)
-    {
-        return reinterpret_cast<void *>(q_atomic_set_int(reinterpret_cast<volatile int *>(pointer),
-                                                         reinterpret_cast<int>(newval)));
-    }
-
 #else
 
     // compiler doesn't support inline assembly

@@ -9,5 +9,5 @@ DEPENDPATH += $$ARCH_CPP;$$ARCH_H
 
 HEADERS += $$ARCH_H/qatomic.h
 
-unix:SOURCES += $$ARCH_CPP/qatomic.s
+SOURCES += $$ARCH_CPP/qatomic.s
 
