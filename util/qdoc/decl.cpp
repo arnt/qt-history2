@@ -169,12 +169,12 @@ static void printHtmlLongMembers( HtmlWriter& out,
 
 		QStringList funcs;
 		QStringList roles;
-		if ( !prop->readFunction().isEmpty() ) {
-		    funcs.append( prop->readFunction() );
-		    roles.append( QString("set") );
-		}
 		if ( !prop->writeFunction().isEmpty() ) {
 		    funcs.append( prop->writeFunction() );
+		    roles.append( QString("set") );
+		}
+		if ( !prop->readFunction().isEmpty() ) {
+		    funcs.append( prop->readFunction() );
 		    roles.append( QString("get") );
 		}
 		if ( !prop->resetFunction().isEmpty() ) {
@@ -966,8 +966,8 @@ void ClassDecl::fillInDocsForThis()
 
 		if ( !html.isEmpty() ) {
 		    html.prepend( QString("<p>") );
-		    html += QString( ". See also the documentation for"
-				     " property <a href=\"#%2\">\"%3\"</a>." );
+		    html += QString( ". See the <a href=\"#%2\">\"%3\"</a>"
+				     " property for details." );
 		    html = html.arg( brief ).arg( (*q)->ref() )
 			       .arg( (*q)->name() );
 
