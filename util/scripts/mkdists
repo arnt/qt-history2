@@ -30,6 +30,7 @@ DO_MAC=no
 DO_QWS=yes
 #other
 DO_GZIP=auto
+DO_BZIP=auto
 DO_ID=auto
 DO_DOC=auto
 
@@ -93,6 +94,7 @@ showhelp()
     echo "  -no-id   / -do-id    : Toggle whether to generate \$Id tag"
     echo "  -no-doc  / -do-doc   : Toggle whether to generate documentation"
     echo "  -no-gzip / -do-gzip  : Toggle whether to add a gzip package"
+    echo "  -no-bzip / -do-bzip  : Toggle whether to add a bzip package"
 
     echo "=-________________________________________________________________-="
     echo "All options can be in long form --option=value as well (where value "
@@ -181,6 +183,7 @@ while [ -n "$1" ]; do
    #other
    doc) DO_DOC=$VAL ;;
    gzip)DO_GZIP=$VAL;;
+   bzip)DO_BZIP=$VAL;;
    id) DO_ID=$VAL   ;;
    *) showhelp "--${VAR}=$VAL" ;;
    esac
@@ -210,6 +213,13 @@ if [ "$DO_GZIP" = "auto" ]; then
 	DO_GZIP=yes
     else
 	DO_GZIP=no
+    fi
+fi
+if [ "$DO_BZIP" = "auto" ]; then
+    if [ ! -z `which bzip2` ]; then
+	DO_BZIP=yes
+    else
+	DO_BZIP=no
     fi
 fi
 if [ "$BRANCH" = "auto" ]; then
@@ -756,6 +766,7 @@ for plat in mac win x11 qws; do
 	if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
 	    tar cf "$OUT_TREE/${PLATNAME}.tar" "${PLATNAME}"
 	    [ "$DO_GZIP" = "yes" ] && gzip -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.gz"
+	    [ "$DO_BZIP" = "yes" ] && bzip2 -z -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.bz2"
 	elif [ "$plat" = "win" ]; then
 	    find "${PLATNAME}" | zip $OUT_TREE/${PLATNAME}.zip -@ >/dev/null 2>&1
 	fi
