@@ -21,6 +21,7 @@
 #include "pixmaploader.h"
 #include <images.h>
 #include <qdict.h>
+#include <qimage.h>
 
 
 #if defined(Q_WS_MACX)
@@ -642,7 +643,7 @@ const QPixmap createPixmap( PixmapType type )
 #endif
 
     switch ( type ) {
-    case IconPixmap:
+    case IconPixmap: {
 #if defined(Q_WS_MACX)
 	if ( !image.isNull() )
 	    pix.convertFromImage( image );
@@ -650,7 +651,7 @@ const QPixmap createPixmap( PixmapType type )
 	setupImageDict();
 	em = imageDict->find( "icon" );
 #endif
-	break;
+	break; }
     case SplashPixmap:
 	setupImageDict();
 	em = imageDict->find( "splash" );
