@@ -2,7 +2,7 @@
 rem
 rem Configures to build the Qt library
 rem
-rem Copyright 1999-2000 Trolltech AS.  All rights reserved.
+rem Copyright 2001 Trolltech AS.  All rights reserved.
 rem
 
 rem **************************************
@@ -17,7 +17,7 @@ if x%MKSPEC% == x (
 
 set DELEXP=yes
 if not %DELEXP%==!DELEXP! (
-	echo Delayed expansion is not enabled.
+	echo Delayed variable expansion is not enabled.
 	echo Spawning a new shell with delayed expansion enabled...
 	cmd /V:ON /C call configure.bat
 	goto :end)
@@ -32,11 +32,15 @@ set QMAKE_VARS=
 set QMAKE_CONFIG=
 set QMAKE_OUTDIR=
 set MAKE=nmake
+set XMKSPEC=
 :loop
 if x%1==x goto endloop
 if %1==debug set DEBUG=yes
 if %1==thread set THREADS=yes
 if %1==shared set SHARED=yes
+if %1==mkspec (
+	set XMKSPEC=%2
+	shift)
 shift
 goto loop
 :endloop
@@ -61,9 +65,12 @@ if x%THREADS%==xyes (
 set QMAKE_LIBDIR_QT=%QTDIR%\lib
 set QMAKE_VARS=%QMAKE_VARS% "OBJECTS_DIR=.obj\%QMAKE_OUTDIR%" "MOC_DIR=.moc\%QMAKE_OUTDIR%"
 
+if x%XMKSPEC% == x set XMKSPEC=%MKSPEC%
+
 rem **************************************
 rem   Build qmake
 rem **************************************
+pushd .
 echo Creating qmake...
 rem %QTDIR%\bin\syncqt
 cd %QTDIR%\qmake
@@ -75,7 +82,7 @@ rem   Generate .qmake.cache
 rem **************************************
 echo Generating .qmake.cache
 echo CONFIG=%QMAKE_CONFIG%>.qmake.cache
-echo MKSPEC=%MKSPEC%>>.qmake.cache
+echo MKSPEC=%XMKSPEC%>>.qmake.cache
 
 rem **************************************
 rem   Create the makefiles
@@ -91,8 +98,8 @@ for /R %QTDIR% %%d IN (.) DO (
 			set QMAKE_FILE=%%f%
 			if not "!QMAKE_FILE!" == "qtmain.pro" (
 				set QMAKE_EXTRA_ARGS="QMAKE_ABSOLUTE_SOURCE_PATH=!QMAKE_DIR!"
-rem				set QMAKE_COMMAND=%QTDIR%\bin\qmake !QMAKE_DIR!\!QMAKE_FILE! %QMAKE_ALL_ARGS% !QMAKE_EXTRA_ARGS! -o !QMAKE_DIR!\Makefile -mkspec %MKSPEC%
-				set QMAKE_COMMAND=%QTDIR%\bin\qmake !QMAKE_DIR!\!QMAKE_FILE! %QMAKE_ALL_ARGS% -o !QMAKE_DIR!\Makefile -mkspec %MKSPEC%
+rem				set QMAKE_COMMAND=%QTDIR%\bin\qmake !QMAKE_DIR!\!QMAKE_FILE! %QMAKE_ALL_ARGS% !QMAKE_EXTRA_ARGS! -o !QMAKE_DIR!\Makefile -mkspec %XMKSPEC%
+				set QMAKE_COMMAND=%QTDIR%\bin\qmake !QMAKE_DIR!\!QMAKE_FILE! %QMAKE_ALL_ARGS% -o !QMAKE_DIR!\Makefile -mkspec %XMKSPEC%
 
 				echo echo !QMAKE_DIR!\!QMAKE_FILE! >> tmp.bat
 				echo !QMAKE_COMMAND! >> tmp.bat
@@ -102,7 +109,11 @@ rem				set QMAKE_COMMAND=%QTDIR%\bin\qmake !QMAKE_DIR!\!QMAKE_FILE! %QMAKE_ALL_A
 )
 call tmp.bat
 
-cd %QTDIR%
+rem *************************************
+rem   Clean up
+rem *************************************
+del tmp.bat
+popd
 
 echo =============================================
 echo Qt is now ready for building.
