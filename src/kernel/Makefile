@@ -25,7 +25,8 @@ HEADERS		= qapp.h	qbitmap.h	qbrush.h	qcolor.h      \
 		  qpntarry.h	qpoint.h	qprinter.h	qprtdrv.h     \
 		  qprtstrm.h	qrect.h		qregion.h	qsignal.h     \
 		  qsize.h	qtimer.h	qview.h		qwidcoll.h    \
-		  qwidget.h	qwindefs.h	q2matrix.h	qpalette.h
+		  qwidget.h	qwindefs.h	q2matrix.h	qpalette.h    \
+		  qaccel.h
 SOURCES		= qapp.cpp	qapp_x11.cpp	qbitmap.cpp	qcol_x11.cpp  \
 		  qcolor.cpp	qconnect.cpp	qcur_x11.cpp	qcursor.cpp   \
 		  qevent.cpp	qfnt_x11.cpp	qfont.cpp	qimage.cpp    \
@@ -34,7 +35,8 @@ SOURCES		= qapp.cpp	qapp_x11.cpp	qbitmap.cpp	qcol_x11.cpp  \
 		  qpntarry.cpp	qpoint.cpp	qprinter.cpp	qprtstrm.cpp  \
 		  qptd_x11.cpp	qptr_x11.cpp	qrect.cpp	qrgn_x11.cpp  \
 		  qsignal.cpp	qsize.cpp	qtimer.cpp	qview.cpp     \
-		  qwid_x11.cpp	qwidget.cpp	q2matrix.cpp	qpalette.cpp
+		  qwid_x11.cpp	qwidget.cpp	q2matrix.cpp	qpalette.cpp  \
+		  qaccel.cpp
 OBJECTS		= qapp.o	qapp_x11.o	qbitmap.o	qcol_x11.o    \
 		  qcolor.o	qconnect.o	qcur_x11.o	qcursor.o     \
 		  qevent.o	qfnt_x11.o	qfont.o		qimage.o      \
@@ -43,9 +45,10 @@ OBJECTS		= qapp.o	qapp_x11.o	qbitmap.o	qcol_x11.o    \
 		  qpntarry.o	qpoint.o	qprinter.o	qprtstrm.o    \
 		  qptd_x11.o	qptr_x11.o	qrect.o		qrgn_x11.o    \
 		  qsignal.o	qsize.o		qtimer.o	qview.o	      \
-		  qwid_x11.o	qwidget.o	q2matrix.o	qpalette.o
-SRCMETA		= mtimer.cpp	mview.cpp	mwidget.cpp
-OBJMETA		= mtimer.o	mview.o		mwidget.o
+		  qwid_x11.o	qwidget.o	q2matrix.o	qpalette.o    \
+		  qaccel.o
+SRCMETA		= maccel.cpp	mtimer.cpp	mview.cpp	mwidget.cpp
+OBJMETA		= maccel.o	mtimer.o	mview.o		mwidget.o
 TARGET		= $(LIBDIR)/libqkernel.a
 
 ####### Implicit rules
@@ -84,6 +87,9 @@ clean:
 	/bin/rm -f $(SRCMETA)
 
 ####### Meta classes
+
+maccel.cpp: qaccel.h
+	$(QTDIR)/bin/moc qaccel.h -o maccel.cpp
 
 mtimer.cpp: qtimer.h
 	$(QTDIR)/bin/moc qtimer.h -o mtimer.cpp
@@ -146,7 +152,6 @@ qapp_x11.o: /usr/include/posix1_lim.h /usr/include/linux/limits.h
 qapp_x11.o: /usr/include/posix2_lim.h /usr/include/linux/param.h
 qapp_x11.o: /usr/include/asm/param.h
 qapp_x11.o: /home/popcorn/home/hanord/qt/include/qmemchk.h
-qapp_x11.o: /home/popcorn/home/hanord/qt/include/qstack.h
 qapp_x11.o: /usr/include/X11/keysymdef.h qkeycode.h
 qbitmap.o: qbitmap.h qimage.h qpixmap.h qpaintd.h qwindefs.h qobjdefs.h
 qbitmap.o: /home/popcorn/home/hanord/qt/include/qglobal.h qrect.h qsize.h
@@ -608,12 +613,14 @@ qwid_x11.o: /usr/include/string.h /usr/include/features.h
 qwid_x11.o: /usr/include/sys/cdefs.h qpaintd.h qrect.h qsize.h qpoint.h
 qwid_x11.o: qpalette.h qcolor.h qfontmet.h qfont.h qfontinf.h qcursor.h
 qwid_x11.o: qevent.h qapp.h qpaintdc.h qpainter.h qregion.h qpen.h qbrush.h
-qwid_x11.o: q2matrix.h qpntarry.h qpixmap.h qobjcoll.h qmetaobj.h qconnect.h
+qwid_x11.o: q2matrix.h qpntarry.h qpixmap.h qwidcoll.h
 qwid_x11.o: /home/popcorn/home/hanord/qt/include/qlist.h
 qwid_x11.o: /home/popcorn/home/hanord/qt/include/qglist.h
 qwid_x11.o: /home/popcorn/home/hanord/qt/include/qcollect.h
+qwid_x11.o: /home/popcorn/home/hanord/qt/include/qintdict.h
+qwid_x11.o: /home/popcorn/home/hanord/qt/include/qgdict.h qobjcoll.h
+qwid_x11.o: qmetaobj.h qconnect.h
 qwid_x11.o: /home/popcorn/home/hanord/qt/include/qdict.h
-qwid_x11.o: /home/popcorn/home/hanord/qt/include/qgdict.h
 qwid_x11.o: /usr/include/X11/Xlib.h /usr/include/sys/types.h
 qwid_x11.o: /usr/include/linux/types.h /usr/include/asm/types.h
 qwid_x11.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
@@ -656,6 +663,29 @@ qpalette.o: /home/popcorn/home/hanord/qt/include/qglobal.h qcolor.h
 qpalette.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qpalette.o: /home/popcorn/home/hanord/qt/include/qdstream.h
 qpalette.o: /home/popcorn/home/hanord/qt/include/qiodev.h
+qaccel.o: qaccel.h qobject.h qobjdefs.h
+qaccel.o: /home/popcorn/home/hanord/qt/include/qglobal.h
+qaccel.o: /home/popcorn/home/hanord/qt/include/qstring.h
+qaccel.o: /home/popcorn/home/hanord/qt/include/qarray.h
+qaccel.o: /home/popcorn/home/hanord/qt/include/qgarray.h
+qaccel.o: /home/popcorn/home/hanord/qt/include/qshared.h
+qaccel.o: /home/popcorn/home/hanord/qt/include/qgeneric.h
+qaccel.o: /usr/include/string.h /usr/include/features.h
+qaccel.o: /usr/include/sys/cdefs.h qkeycode.h qapp.h qwidget.h qwindefs.h
+qaccel.o: qpaintd.h qrect.h qsize.h qpoint.h qpalette.h qcolor.h qfontmet.h
+qaccel.o: qfont.h qfontinf.h qcursor.h qevent.h
+qaccel.o: /home/popcorn/home/hanord/qt/include/qlist.h
+qaccel.o: /home/popcorn/home/hanord/qt/include/qglist.h
+qaccel.o: /home/popcorn/home/hanord/qt/include/qcollect.h qsignal.h
+maccel.o: qmetaobj.h qconnect.h qobject.h qobjdefs.h
+maccel.o: /home/popcorn/home/hanord/qt/include/qglobal.h
+maccel.o: /home/popcorn/home/hanord/qt/include/qstring.h
+maccel.o: /home/popcorn/home/hanord/qt/include/qarray.h
+maccel.o: /home/popcorn/home/hanord/qt/include/qgarray.h
+maccel.o: /home/popcorn/home/hanord/qt/include/qshared.h
+maccel.o: /home/popcorn/home/hanord/qt/include/qgeneric.h
+maccel.o: /usr/include/string.h /usr/include/features.h
+maccel.o: /usr/include/sys/cdefs.h qaccel.h qkeycode.h
 mtimer.o: qmetaobj.h qconnect.h qobject.h qobjdefs.h
 mtimer.o: /home/popcorn/home/hanord/qt/include/qglobal.h
 mtimer.o: /home/popcorn/home/hanord/qt/include/qstring.h
