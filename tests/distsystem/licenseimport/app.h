@@ -8,6 +8,5 @@ public:
 
     void doImport();
 
-    QSqlDatabase* internDB;
     QSqlDatabase* axaptaDB;
 };
