@@ -10,6 +10,11 @@
     manual procedure as well, in case the installation should fail for some
     reason.
 
+*** NOTE about compiling the XP style
+    To build the XP style you must at least install the Core SDK
+    component of the latest Platform SDK from Microsoft. This is
+    available from http://msdn.microsoft.com.
+
 *** NOTE about compiling the SQL drivers
     If you intend to build the SQL drivers, please update the environment
     variable %LIB% to include the path to your SQL libraries.

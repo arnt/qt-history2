@@ -1225,7 +1225,7 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
     be navigated. A new select() call must be made before you can move
     to a valid record. For example:
 
-    \quotefile sql/overview/del/main.cpp
+    \quotefile sql/overview/delete/main.cpp
     \skipto prices
     \printline prices
     \printuntil }

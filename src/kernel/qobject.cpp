@@ -2045,21 +2045,20 @@ void QObject::cleanupEventFilter(QObject* obj)
 
 
 /*!
-    \fn QString QObject::tr( const char *sourceText, const char * comment ) const
+    \fn QString QObject::tr( const char *sourceText, const char * comment )
     \reentrant
 
     Returns a translated version of \a sourceText, or \a sourceText
     itself if there is no appropriate translated version. The
-    translation context is QObject with \a comment (null by default).
+    translation context is QObject with \a comment (0 by default).
     All QObject subclasses using the Q_OBJECT macro automatically have
     a reimplementation of this function with the subclass name as
     context.
 
     \warning This method is reentrant only if all translators are
-    installed \e before calling this method.  Installing or removing
-    translators while performing translations is not supported.  Doing
-    so will most likely result in crashes or other undesirable
-    behavior.
+    installed \e before calling this method. Installing or removing
+    translators while performing translations is not supported. Doing
+    so will probably result in crashes or other undesirable behavior.
 
     \sa trUtf8() QApplication::translate()
 	\link i18n.html Internationalization with Qt\endlink
@@ -2067,7 +2066,7 @@ void QObject::cleanupEventFilter(QObject* obj)
 
 /*!
     \fn QString QObject::trUtf8( const char *sourceText,
-                                 const char *comment ) const
+                                 const char *comment )
     \reentrant
 
     Returns a translated version of \a sourceText, or
@@ -2076,10 +2075,9 @@ void QObject::cleanupEventFilter(QObject* obj)
     comment).
 
     \warning This method is reentrant only if all translators are
-    installed \e before calling this method.  Installing or removing
-    translators while performing translations is not supported.  Doing
-    so will most likely result in crashes or other undesirable
-    behavior.
+    installed \e before calling this method. Installing or removing
+    translators while performing translations is not supported. Doing
+    so will probably result in crashes or other undesirable behavior.
 
     \sa tr() QApplication::translate()
 */

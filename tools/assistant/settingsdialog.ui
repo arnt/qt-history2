@@ -277,7 +277,7 @@
                     <cstring>tab</cstring>
                 </property>
                 <attribute name="title">
-                    <string>Documentations</string>
+                    <string>Documentation</string>
                 </attribute>
                 <vbox>
                     <property name="name">
