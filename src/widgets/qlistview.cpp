@@ -8030,10 +8030,11 @@ void QListView::adjustColumn( int col )
 	    iw += itemMargin() + rootDepth + item->depth()*treeStepSize() - 1;
 	w = qMax( w, iw );
     }
-    w = qMax( w, QApplication::globalStrut().width() );
-    setColumnWidth( col, w );
+    w = QMAX( w, QApplication::globalStrut().width() );
 
     d->h->adjustHeaderSize( oldw - w );
+    d->h->resizeSection( col, w );
+    handleSizeChange( col, oldw, w );
 }
 
 #endif // QT_NO_LISTVIEW
