@@ -282,9 +282,11 @@
     \c QEvent::MouseMove.
 
     The \a pos parameter specifies the position relative to the
-    receiving widget. \a button specifies the ButtonState of the
-    button that caused the event, which should be 0 if \a type is \c
-    MouseMove. \a state is the ButtonState at the time of the event.
+    receiving widget. \a button specifies the \link Qt::ButtonState
+    button\endlink that caused the event, which should be \c
+    Qt::NoButton (0), if \a type is \c MouseMove. \a state is the
+    \link Qt::ButtonState ButtonState\endlink at the time of the
+    event.
 
     The globalPos() is initialized to QCursor::pos(), which may not be
     appropriate. Use the other constructor to specify the global
@@ -308,9 +310,12 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 
     The \a pos parameter specifies the position relative to the
     receiving widget. \a globalPos is the position in absolute
-    coordinates. \a button specifies the ButtonState of the button
-    that caused the event, which should be 0 if \a type is \c
-    MouseMove. \a state is the ButtonState at the time of the event.
+    coordinates. \a button specifies the \link Qt::ButtonState
+    button\endlink that caused the event, which should be \c
+    Qt::NoButton (0), if \a type is \c MouseMove. \a state is the
+    \link Qt::ButtonState ButtonState\endlink at the time of the
+    event.
+
 */
 
 /*!
@@ -385,7 +390,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
     Note that the returned value is always \c NoButton for mouse move
     events.
 
-    \sa state()
+    \sa state() Qt::ButtonState
 */
 
 
@@ -407,7 +412,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
     The returned value is \c LeftButton, \c RightButton, \c MidButton,
     \c ShiftButton, \c ControlButton and \c AltButton OR'ed together.
 
-    \sa button() stateAfter()
+    \sa button() stateAfter() Qt::ButtonState
 */
 
 /*!
@@ -415,7 +420,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 
     Returns the state of buttons after the event.
 
-    \sa state()
+    \sa state() Qt::ButtonState
 */
 Qt::ButtonState QMouseEvent::stateAfter() const
 {
