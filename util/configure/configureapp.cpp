@@ -20,6 +20,21 @@ using namespace std;
 #define MARK_OPTION(x,y) ( dictionary[ #x ] == #y ? "*" : " " )
 #define WCE(x) if ( dictionary[ "QMAKESPEC" ].startsWith( "wince-" ) ) { x }
 
+
+bool writeToFile(const char* text, const QString &filename)
+{
+    QByteArray symFile(text);
+    QFile v1(filename);
+    if (v1.open(IO_WriteOnly)) {
+        v1.writeBlock(symFile);
+    } else {
+        cout << "Couldn't write to " << filename.latin1() << ": " << v1.errorString().latin1() << endl;
+        return false;
+    }
+    return true;
+}
+
+
 Configure::Configure( int& argc, char** argv )
 {
     int i;
@@ -1037,11 +1052,7 @@ void Configure::generateCachefile()
 #if !defined(EVAL)
 void Configure::generateConfigfiles()
 {
-    QString outDir( dictionary[ "QT_INSTALL_HEADERS" ] );
-
-    if( dictionary[ "QMAKE_INTERNAL" ] == "yes" )
-	outDir = dictionary[ "QT_SOURCE_TREE" ] + "/src/core/global";
-
+    QString outDir(dictionary[ "QT_SOURCE_TREE" ] + "/src/core/global");
     QString outName( outDir + "/qconfig.h" );
 
     ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
@@ -1062,7 +1073,7 @@ void Configure::generateConfigfiles()
 	    QString configName( "qconfig-" + dictionary[ "QCONFIG" ] + ".h" );
 	    outStream << "// Copied from " << configName << endl;
 
-	    QFile inFile( dictionary[ "QT_SOURCE_TREE" ] + "/src/core/base/" + configName );
+	    QFile inFile( dictionary[ "QT_SOURCE_TREE" ] + "/src/core/global/" + configName );
 	    if( inFile.open( IO_ReadOnly ) ) {
 		QByteArray buffer = inFile.readAll();
 		outFile.writeBlock( buffer.data(), buffer.size() );
@@ -1125,21 +1136,28 @@ void Configure::generateConfigfiles()
 	    outStream << "#endif" << endl;
 	}
 	outFile.close();
-	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
-	    if ( !CopyFileA( outName, dictionary[ "QT_INSTALL_HEADERS" ] + "/qconfig.h", FALSE ) )
-		qDebug("Couldn't copy %s to include", outName.latin1() );
-	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
-	}
+        writeToFile("#include \"../../src/core/global/qconfig.h\"\n", 
+                    dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/qconfig.h");
+        writeToFile("#include \"../../src/core/global/qconfig.h\"\n", 
+                    dictionary[ "QT_INSTALL_HEADERS" ] + "/Qt/qconfig.h");
     }
 
     QString archFile = dictionary[ "QT_SOURCE_TREE" ] + "/src/core/arch/i386/arch/qatomic.h";
     QDir archhelper;
-    archhelper.mkdir(dictionary[ "QT_INSTALL_HEADERS" ] + "/arch");
-    if (!CopyFileA(archFile, dictionary[ "QT_INSTALL_HEADERS" ] + "/arch/qatomic.h", FALSE))
+    archhelper.mkdir(dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch");
+    if (!CopyFileA(archFile, dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch/qatomic.h", FALSE))
 	qDebug("Couldn't copy %s to include/arch", archFile.latin1() );
-    if (!SetFileAttributesA(dictionary[ "QT_INSTALL_HEADERS" ] + "/arch/qatomic.h",
+    if (!SetFileAttributesA(dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch/qatomic.h",
 			    FILE_ATTRIBUTE_NORMAL))
 	qDebug("Couldn't reset writable file attribute for qatomic.h");
+
+    // Create qatomic.h "symlinks"
+    const char* atomicContents = "#include \"../../src/core/arch/i386/arch/qatomic.h\"\n";
+    if (!writeToFile(atomicContents, dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch/qatomic.h")
+        || !writeToFile(atomicContents, dictionary[ "QT_INSTALL_HEADERS" ] + "/Qt/arch/qatomic.h")) {
+        dictionary[ "DONE" ] = "error";
+        return;
+    }
 
     outDir = dictionary[ "QT_SOURCE_TREE" ];
     outName = outDir + "/src/core/global/qconfig.cpp";

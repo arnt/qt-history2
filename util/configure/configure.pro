@@ -18,14 +18,11 @@ SOURCES	 = main.cpp configureapp.cpp \
 	   $$QT_SOURCE_TREE/src/core/tools/qbytearraymatcher.cpp \
 	   $$QT_SOURCE_TREE/src/core/tools/qchar.cpp \
            $$QT_SOURCE_TREE/src/core/io/qdatastream.cpp \
-           $$QT_SOURCE_TREE/src/compat/tools/qglist.cpp \
 	   $$QT_SOURCE_TREE/src/core/tools/qlist.cpp \
 	   $$QT_SOURCE_TREE/src/core/tools/qlocale.cpp \
-	   $$QT_SOURCE_TREE/src/compat/tools/qgvector.cpp \
 	   $$QT_SOURCE_TREE/src/core/tools/qvector.cpp \
            $$QT_SOURCE_TREE/src/core/global/qglobal.cpp \
 	   $$QT_SOURCE_TREE/src/core/tools/qhash.cpp \
-           $$QT_SOURCE_TREE/src/compat/tools/qptrcollection.cpp \
            $$QT_SOURCE_TREE/src/core/io/qbuffer.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qstringlist.cpp \
            $$QT_SOURCE_TREE/src/core/io/qtextstream.cpp \
@@ -36,7 +33,8 @@ SOURCES	 = main.cpp configureapp.cpp \
            $$QT_SOURCE_TREE/src/core/library/qlibrary_win.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qunicodetables.cpp
 
-INCLUDEPATH += $$QT_SOURCE_TREE/include/ $$QT_SOURCE_TREE/src/core/arch/generic
+INCLUDEPATH += $$QT_SOURCE_TREE/include/QtCore \
+               $$QT_SOURCE_TREE/src/core/arch/generic
 INTERFACES=
 TARGET=configure
 DESTDIR=../../bin
