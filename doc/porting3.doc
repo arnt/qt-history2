@@ -111,6 +111,7 @@ the top of the file giving the error.
     <li><code>&lt;qregexp.h&gt;</code>
     <li><code>&lt;qpainter.h&gt;</code>
     <li><code>&lt;qstringlist.h&gt;</code>
+    <li><code>&lt;qstrlist.h&gt;</code>
     <li><code>&lt;qvaluelist.h&gt;</code>
 </ul>
 
