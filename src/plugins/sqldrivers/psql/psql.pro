@@ -10,7 +10,7 @@ unix {
 }
 
 win32 {
-	LIBS	*= libpqdll.lib
+	LIBS	*= libpq.lib
         LIBS    *= ws2_32.lib advapi32.lib
 #	win32-msvc: {
 #		LIBS *= delayimp.lib
