@@ -1174,7 +1174,9 @@ QStyle& QApplication::style()
 	    style = *qt_style_override;
 	    delete qt_style_override;
 	    qt_style_override = 0;
+#ifdef Q_WS_X11
 	    qt_explicit_app_style = TRUE;
+#endif // Q_WS_X11
 	} else {
 #  if defined(Q_WS_WIN) && defined(Q_OS_TEMP)
 	    style = "PocketPC";
@@ -1251,7 +1253,9 @@ void QApplication::setStyle( QStyle *style )
 {
     QStyle* old = app_style;
     app_style = style;
+#ifdef Q_WS_X11
     qt_explicit_app_style = TRUE;
+#endif // Q_WS_X11
 
     if ( startingUp() ) {
 	delete old;
