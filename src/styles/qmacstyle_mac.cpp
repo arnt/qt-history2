@@ -712,20 +712,11 @@ void QMacStyle::drawControl(ControlElement element,
 	bool checked = mi->isChecked();
 	bool checkable = popupmenu->isCheckable();
 	bool act = how & Style_Active;
-	int x, y, w, h;
-	r.rect(&x, &y, &w, &h);
 	Rect mrect = *qt_glb_mac_rect(popupmenu->rect(), p),
 	     irect = *qt_glb_mac_rect(r, p, FALSE);
 
 	if(checkable)
 	    maxpmw = QMAX(maxpmw, 12); // space for the checkmarks
-
-	int checkcol = maxpmw;
-	if(mi && mi->isSeparator()) {
-	    ((QMacPainter *)p)->setport();
-	    DrawThemeMenuSeparator(&irect);
-	    return;
-	}
 
 	ThemeMenuState tms = kThemeMenuActive;
 	if(!mi->isEnabled())
@@ -739,8 +730,17 @@ void QMacStyle::drawControl(ControlElement element,
 	    tmit |= kThemeMenuItemHasIcon;
 	((QMacPainter *)p)->setport();
 	DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, NULL, 0);
-	bool reverse = QApplication::reverseLayout();
 
+	if(mi && mi->isSeparator()) {
+	    ((QMacPainter *)p)->setport();
+	    DrawThemeMenuSeparator(&irect);
+	    return;
+	}
+
+	int x, y, w, h;
+	r.rect(&x, &y, &w, &h);
+	int checkcol = maxpmw;
+	bool reverse = QApplication::reverseLayout();
 	int xpos = x;
 	if(reverse)
 	    xpos += w - checkcol;
