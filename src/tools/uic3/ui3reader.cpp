@@ -34,7 +34,7 @@ QString Ui3Reader::getComment(const QDomNode& n)
 {
     QDomNode child = n.firstChild();
     while (!child.isNull()) {
-        if (child.toElement().tagName() == "comment")
+        if (child.toElement().tagName() == QLatin1String("comment"))
             return child.toElement().firstChild().toText().data();
         child = child.nextSibling();
     }
@@ -43,17 +43,17 @@ QString Ui3Reader::getComment(const QDomNode& n)
 
 QString Ui3Reader::mkBool(bool b)
 {
-    return b? "true" : "false";
+    return b ? QLatin1String("true") : QLatin1String("false");
 }
 
 QString Ui3Reader::mkBool(const QString& s)
 {
-    return mkBool(s == "true" || s == "1");
+    return mkBool(s == QLatin1String("true") || s == QLatin1String("1"));
 }
 
 bool Ui3Reader::toBool(const QString& s)
 {
-    return s == "true" || s.toInt() != 0;
+    return s == QLatin1String("true") || s.toInt() != 0;
 }
 
 QString Ui3Reader::fixString(const QString &str, bool encode)
@@ -83,10 +83,10 @@ QString Ui3Reader::trcall(const QString& sourceText, const QString& comment)
     QString t = trmacro;
     bool encode = false;
     if (t.isNull()) {
-        t = "tr";
+        t = QLatin1String("tr");
         for (int i = 0; i < (int) sourceText.length(); i++) {
             if (sourceText[i].unicode() >= 0x80) {
-                t = "trUtf8";
+                t = QLatin1String("trUtf8");
                 encode = true;
                 break;
             }
@@ -117,7 +117,7 @@ void Ui3Reader::init()
     defMargin = BOXLAYOUT_DEFAULT_MARGIN;
     defSpacing = BOXLAYOUT_DEFAULT_SPACING;
     externPixmaps = false;
-    indent = "    "; // default indent
+    indent = QLatin1String("    "); // default indent
 
     item_used = cg_used = pal_used = 0;
 
@@ -256,7 +256,7 @@ QString Ui3Reader::getPixmapLoaderFunction(const QDomElement& e)
 {
     QDomElement n;
     for (n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement()) {
-        if (n.tagName() == "pixmapfunction")
+        if (n.tagName() == QLatin1String("pixmapfunction"))
             return n.firstChild().toText().data();
     }
     return QString::null;
@@ -270,7 +270,7 @@ QString Ui3Reader::getFormClassName(const QDomElement& e)
     QDomElement n;
     QString cn;
     for (n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement()) {
-        if (n.tagName() == "class") {
+        if (n.tagName() == QLatin1String("class")) {
             QString s = n.firstChild().toText().data();
             int i;
             while ((i = s.indexOf(' ')) != -1)
@@ -300,7 +300,7 @@ QString Ui3Reader::getClassName(const QDomElement& e)
 bool Ui3Reader::isFrameworkCodeGenerated(const QDomElement& e)
 {
     QDomElement n = getObjectProperty(e, "frameworkCode");
-    if (n.attribute("name") == "frameworkCode" &&
+    if (n.attribute("name") == QLatin1String("frameworkCode") &&
          !DomTool::elementToVariant(n.firstChild().toElement(), QCoreVariant(true)).toBool())
         return false;
     return true;
@@ -312,7 +312,7 @@ bool Ui3Reader::isFrameworkCodeGenerated(const QDomElement& e)
 QString Ui3Reader::getObjectName(const QDomElement& e)
 {
     QDomElement n = getObjectProperty(e, "name");
-    if (n.firstChild().toElement().tagName() == "cstring")
+    if (n.firstChild().toElement().tagName() == QLatin1String("cstring"))
         return n.firstChild().toElement().firstChild().toText().data();
     return QString::null;
 }
@@ -325,11 +325,11 @@ QString Ui3Reader::getLayoutName(const QDomElement& e)
     QDomElement p = e.parentNode().toElement();
     QString name;
 
-    if (getClassName(p) != "QLayoutWidget")
-        name = "Layout";
+    if (getClassName(p) != QLatin1String("QLayoutWidget"))
+        name = QLatin1String("Layout");
 
     QDomElement n = getObjectProperty(p, "name");
-    if (n.firstChild().toElement().tagName() == "cstring") {
+    if (n.firstChild().toElement().tagName() == QLatin1String("cstring")) {
         name.prepend(n.firstChild().toElement().firstChild().toText().data());
         return name.split("::").last();
     }
@@ -343,16 +343,16 @@ QString Ui3Reader::getDatabaseInfo(const QDomElement& e, const QString& tag)
     QDomElement n1;
     int child = 0;
     // database info is a stringlist stored in this order
-    if (tag == "connection")
+    if (tag == QLatin1String("connection"))
         child = 0;
-    else if (tag == "table")
+    else if (tag == QLatin1String("table"))
         child = 1;
-    else if (tag == "field")
+    else if (tag == QLatin1String("field"))
         child = 2;
     else
         return QString::null;
     n = getObjectProperty(e, "database");
-    if (n.firstChild().toElement().tagName() == "stringlist") {
+    if (n.firstChild().toElement().tagName() == QLatin1String("stringlist")) {
             // find correct stringlist entry
             QDomElement n1 = n.firstChild().firstChild().toElement();
             for (int i = 0; i < child && !n1.isNull(); ++i)
@@ -387,19 +387,19 @@ void Ui3Reader::createColorGroupImpl(const QString& name, const QDomElement& e)
     white.init(0, 0, 0);
 
     while (!n.isNull()) {
-        if (n.tagName() == "color") {
+        if (n.tagName() == QLatin1String("color")) {
             r++;
             Color col = DomTool::readColor(n);
-            color = "QColor(%1, %2, %3)";
+            color = QLatin1String("QColor(%1, %2, %3)");
             color = color.arg(col.red).arg(col.green).arg(col.blue);
             if (col == white)
-                color = "white";
+                color = QLatin1String("white");
             else if (col == black)
-                color = "black";
-            if (n.nextSibling().toElement().tagName() != "pixmap") {
+                color = QLatin1String("black");
+            if (n.nextSibling().toElement().tagName() != QLatin1String("pixmap")) {
                 out << indent << name << ".setColor(QColorGroup::" << ColorRole[r] << ", " << color << ");" << endl;
             }
-        } else if (n.tagName() == "pixmap") {
+        } else if (n.tagName() == QLatin1String("pixmap")) {
             QString pixmap = n.firstChild().toText().data();
             if (!pixmapLoaderFunction.isEmpty()) {
                 pixmap.prepend(pixmapLoaderFunction + "(" + QString(externPixmaps ? "\"" : ""));
@@ -423,7 +423,7 @@ ColorGroup Ui3Reader::loadColorGroup(const QDomElement &e)
     QDomElement n = e.firstChild().toElement();
     Color col;
     while (!n.isNull()) {
-        if (n.tagName() == "color") {
+        if (n.tagName() == QLatin1String("color")) {
             r++;
             col = DomTool::readColor(n);
             cg.append(qMakePair(r, col));

@@ -213,7 +213,7 @@ void WriteInitialization::accept(DomWidget *node)
 
 void WriteInitialization::accept(DomLayout *node)
 {
-    QString className = node->attributeClass(); // ### check if className is a valid layout
+    QString className = node->attributeClass();
     QString varName = driver->findOrInsertLayout(node);
 
     QHash<QString, DomProperty*> properties = propertyMap(node->elementProperty());

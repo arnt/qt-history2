@@ -46,7 +46,7 @@ void Ui3Reader::createSubDecl( const QDomElement &e, const QString& subClass )
     out << "public:" << endl;
 
     // constructor
-    if ( objClass == "QDialog" || objClass == "QWizard" ) {
+    if ( objClass == QLatin1String("QDialog") || objClass == QLatin1String("QWizard") ) {
         out << "    " << subClass << "( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );" << endl;
     } else { // standard QWidget
         out << "    " << subClass << "( QWidget* parent = 0, const char* name = 0, Qt::WFlags fl = 0 );" << endl;
@@ -67,10 +67,10 @@ void Ui3Reader::createSubDecl( const QDomElement &e, const QString& subClass )
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
         n = nl.item(i).toElement();
-        if ( n.parentNode().toElement().tagName() != "slots"
-             && n.parentNode().toElement().tagName() != "connections" )
+        if ( n.parentNode().toElement().tagName() != QLatin1String("slots")
+             && n.parentNode().toElement().tagName() != QLatin1String("connections") )
             continue;
-        if ( n.attribute( "language", "C++" ) != "C++" )
+        if ( n.attribute( "language", "C++" ) != QLatin1String("C++") )
             continue;
         QString returnType = n.attribute( "returnType", "void" );
         QString functionName = n.firstChild().toText().data().trimmed();
@@ -78,11 +78,11 @@ void Ui3Reader::createSubDecl( const QDomElement &e, const QString& subClass )
             functionName = functionName.left( functionName.length() - 1 );
         QString specifier = n.attribute( "specifier" );
         QString access = n.attribute( "access" );
-        if ( access == "protected" ) {
+        if ( access == QLatin1String("protected") ) {
             protectedSlots += functionName;
             protectedSlotTypes += returnType;
             protectedSlotSpecifier += specifier;
-        } else if ( access == "private" ) {
+        } else if ( access == QLatin1String("private") ) {
             privateSlots += functionName;
             privateSlotTypes += returnType;
             privateSlotSpecifier += specifier;
@@ -96,9 +96,9 @@ void Ui3Reader::createSubDecl( const QDomElement &e, const QString& subClass )
     nl = e.parentNode().toElement().elementsByTagName( "function" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
         n = nl.item(i).toElement();
-        if ( n.parentNode().toElement().tagName() != "functions" )
+        if ( n.parentNode().toElement().tagName() != QLatin1String("functions") )
             continue;
-        if ( n.attribute( "language", "C++" ) != "C++" )
+        if ( n.attribute( "language", "C++" ) != QLatin1String("C++") )
             continue;
         QString returnType = n.attribute( "returnType", "void" );
         QString functionName = n.firstChild().toText().data().trimmed();
@@ -106,11 +106,11 @@ void Ui3Reader::createSubDecl( const QDomElement &e, const QString& subClass )
             functionName = functionName.left( functionName.length() - 1 );
         QString specifier = n.attribute( "specifier" );
         QString access = n.attribute( "access" );
-        if ( access == "protected" ) {
+        if ( access == QLatin1String("protected") ) {
             protectedFuncts += functionName;
             protectedFunctRetTyp += returnType;
             protectedFunctSpec += specifier;
-        } else if ( access == "private" ) {
+        } else if ( access == QLatin1String("private") ) {
             privateFuncts += functionName;
             privateFunctRetTyp += returnType;
             privateFunctSpec += specifier;
@@ -161,8 +161,8 @@ void Ui3Reader::writeFunctionsSubDecl( const QStringList &fuLst, const QStringLi
           it != fuLst.end(); ++it, ++it2, ++it3 ) {
         QString type = *it2;
         if ( type.isEmpty() )
-            type = "void";
-        if ( *it3 == "non virtual" )
+            type = QLatin1String("void");
+        if ( *it3 == QLatin1String("non virtual") )
             continue;
         out << "    " << type << " " << (*it) << ";" << endl;
     }
@@ -186,7 +186,7 @@ void Ui3Reader::createSubImpl( const QDomElement &e, const QString& subClass )
         return;
 
     // constructor
-    if ( objClass == "QDialog" || objClass == "QWizard" ) {
+    if ( objClass == QLatin1String("QDialog") || objClass == QLatin1String("QWizard") ) {
         out << "/* " << endl;
         out << " *  Constructs a " << subClass << " which is a child of 'parent', with the " << endl;
         out << " *  name 'name' and widget flags set to 'f' " << endl;
@@ -230,10 +230,10 @@ void Ui3Reader::createSubImpl( const QDomElement &e, const QString& subClass )
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
         n = nl.item(i).toElement();
-        if ( n.parentNode().toElement().tagName() != "slots"
-             && n.parentNode().toElement().tagName() != "connections" )
+        if ( n.parentNode().toElement().tagName() != QLatin1String("slots")
+             && n.parentNode().toElement().tagName() != QLatin1String("connections") )
             continue;
-        if ( n.attribute( "language", "C++" ) != "C++" )
+        if ( n.attribute( "language", "C++" ) != QLatin1String("C++") )
             continue;
         QString returnType = n.attribute( "returnType", "void" );
         QString functionName = n.firstChild().toText().data().trimmed();
@@ -241,11 +241,11 @@ void Ui3Reader::createSubImpl( const QDomElement &e, const QString& subClass )
             functionName = functionName.left( functionName.length() - 1 );
         QString specifier = n.attribute( "specifier" );
         QString access = n.attribute( "access" );
-        if ( access == "protected" ) {
+        if ( access == QLatin1String("protected") ) {
             protectedSlots += functionName;
             protectedSlotTypes += returnType;
             protectedSlotSpecifier += specifier;
-        } else if ( access == "private" ) {
+        } else if ( access == QLatin1String("private") ) {
             privateSlots += functionName;
             privateSlotTypes += returnType;
             privateSlotSpecifier += specifier;
@@ -259,9 +259,9 @@ void Ui3Reader::createSubImpl( const QDomElement &e, const QString& subClass )
     nl = e.parentNode().toElement().elementsByTagName( "function" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
         n = nl.item(i).toElement();
-        if ( n.parentNode().toElement().tagName() != "functions" )
+        if ( n.parentNode().toElement().tagName() != QLatin1String("functions") )
             continue;
-        if ( n.attribute( "language", "C++" ) != "C++" )
+        if ( n.attribute( "language", "C++" ) != QLatin1String("C++") )
             continue;
         QString returnType = n.attribute( "returnType", "void" );
         QString functionName = n.firstChild().toText().data().trimmed();
@@ -269,11 +269,11 @@ void Ui3Reader::createSubImpl( const QDomElement &e, const QString& subClass )
             functionName = functionName.left( functionName.length() - 1 );
         QString specifier = n.attribute( "specifier" );
         QString access = n.attribute( "access" );
-        if ( access == "protected" ) {
+        if ( access == QLatin1String("protected") ) {
             protectedFuncts += functionName;
             protectedFunctRetTyp += returnType;
             protectedFunctSpec += specifier;
-        } else if ( access == "private" ) {
+        } else if ( access == QLatin1String("private") ) {
             privateFuncts += functionName;
             privateFunctRetTyp += returnType;
             privateFunctSpec += specifier;
@@ -314,8 +314,8 @@ void Ui3Reader::writeFunctionsSubImpl( const QStringList &fuLst, const QStringLi
           it != fuLst.end(); ++it, ++it2, ++it3 ) {
         QString type = *it2;
         if ( type.isEmpty() )
-            type = "void";
-        if ( *it3 == "non virtual" )
+            type = QLatin1String("void");
+        if ( *it3 == QLatin1String("non virtual") )
             continue;
         out << "/*" << endl;
         out << " * " << descr << endl;

@@ -73,7 +73,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
         } else if (tagName == QLatin1String("includes")) {
             QDomElement n2 = n.firstChild().toElement();
             while (!n2.isNull()) {
-                if (n2.tagName().toLower() == "include") {
+                if (n2.tagName().toLower() == QLatin1String("include")) {
                     QString name = n2.firstChild().toText().data();
                     if (n2.attribute("impldecl", "in implementation") == QLatin1String("in declaration")) {
                         if (name.right(5) == QLatin1String(".ui.h"))
@@ -503,9 +503,9 @@ DomLayout *Ui3Reader::createLayout(const QDomElement &w)
     QString tagName = w.tagName().toLower();
 
     QString className;
-    if (tagName == "vbox")
+    if (tagName == QLatin1String("vbox"))
         className = QLatin1String("QVBoxLayout");
-    else if (tagName == "hbox")
+    else if (tagName == QLatin1String("hbox"))
         className = QLatin1String("QHBoxLayout");
     else
         className = QLatin1String("QGridLayout");

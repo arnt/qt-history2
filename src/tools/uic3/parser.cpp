@@ -37,7 +37,9 @@ QString Parser::cleanArgs(const QString &func)
                 arg = arg.left(pos).simplified() + ":" + arg.mid(pos + 1).simplified();
             QStringList l = arg.split(' ');
             if (l.count() == 2) {
-                if (l[0] != "const" && l[0] != "unsigned" && l[0] != "var")
+                if (l[0] != QLatin1String("const")
+                        && l[0] != QLatin1String("unsigned")
+                        && l[0] != QLatin1String("var"))
                     arg = l[0];
             } else if (l.count() == 3) {
                 arg = l[0] + " " + l[1];

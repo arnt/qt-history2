@@ -462,14 +462,14 @@ void Ui3Reader::writeFunctionsDecl(const QStringList &fuLst, const QStringList &
         QString pure;
         QString type = *it2;
         if (type.isEmpty())
-            type = "void";
+            type = QLatin1String("void");
         if (*it3 == QLatin1String("static")) {
-            specifier = "static ";
+            specifier = QLatin1String("static ");
         } else {
             if (*it3 != QLatin1String("non virtual") && *it3 != QLatin1String("nonVirtual"))
-                specifier = "virtual ";
+                specifier = QLatin1String("virtual ");
             if (*it3 == QLatin1String("pure virtual") || *it3 == QLatin1String("pureVirtual"))
-                pure = " = 0";
+                pure = QLatin1String(" = 0");
         }
         type.replace(">>", "> >");
         if (!signature.contains("operator"))
@@ -623,7 +623,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
     objName = registerObject(objName);
 
     if (externPixmaps) {
-        pixmapLoaderFunction = "QPixmap::fromMimeSource";
+        pixmapLoaderFunction = QLatin1String("QPixmap::fromMimeSource");
     }
 
     // constructor
@@ -735,9 +735,9 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
 
                  // translate formwindow name to "this"
                 if (sender == objName)
-                    sender = "this";
+                    sender = QLatin1String("this");
                 if (receiver == objName)
-                    receiver = "this";
+                    receiver = QLatin1String("this");
 
                 out << indent << "connect(" << sender << ", SIGNAL(" << signal << "), "
                     << receiver << ", SLOT(" << slot << "));" << endl;
@@ -803,7 +803,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         while (it != extraFuncts.end()) {
             QString type = *it2;
             if (type.isEmpty())
-                type = "void";
+                type = QLatin1String("void");
             type = type.simplified();
             QString fname = Parser::cleanArgs(*it);
             if (!(*it3).startsWith("pure")) { // "pure virtual" or "pureVirtual"
@@ -841,14 +841,14 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
                                 (toks.find(numeric).count() == toks.count());
 
                         if (type == QLatin1String("bool")) {
-                            retVal = "FALSE";
+                            retVal = QLatin1String("FALSE");
                         } else if (isBasicNumericType || type.endsWith("*")) {
-                            retVal = "0";
+                            retVal = QLatin1String("0");
                         } else if (type.endsWith("&")) {
                             do {
                                 type.truncate(type.length() - 1);
                             } while (type.endsWith(" "));
-                            retVal = "uic_temp_var";
+                            retVal = QLatin1String("uic_temp_var");
                             out << indent << "static " << type << " " << retVal << ";" << endl;
                         } else {
                             retVal = type + "()";
