@@ -90,7 +90,8 @@ static const char * const empty_encodings[] = { 0, 0 };
 static const char * const latin_encodings[] = { "iso8859-1", "adobe-fontspecific",
 						"microsoft-symbol", 0 };
 static const char * const greek_encodings[] = { "iso8859-7", 0 };
-static const char * const cyrillic_encodings[] = { "iso8859-5", "koi8-r", "koi8-ru", 0 };
+static const char * const cyrillic_encodings[] = { "koi8-ru", "koi8-u", "koi8-r",
+						   "iso8859-5", "microsoft-cp1251", 0 };
 static const char * const hebrew_encodings[] = { "iso8859-8", 0 };
 static const char * const arabic_encodings[] = { "iso8859-6.8x" /*, "iso8859-6"*/, 0 };
 static const char * const tamil_encodings[] = { "tscii-*", 0 };
