@@ -339,23 +339,23 @@ inline T QList<T>::takeLast()
 { T t = last(); removeLast(); return t; }
 template <typename T>
 inline void QList<T>::append(const T &t)
-{ Q_ASSERT_X((void *)&t < d->array || (void *)&t > d->array + d->alloc,
+{ Q_ASSERT_X((void *)&t < d->array || (void *)&t >= d->array + d->alloc,
              "QList<T>::append", "append with reference to own member");
   detach(); node_construct(reinterpret_cast<Node*>(p.append()), t); }
 template <typename T>
 inline void QList<T>::prepend(const T &t)
-{ Q_ASSERT_X((void *)&t < d->array || (void *)&t > d->array + d->alloc,
+{ Q_ASSERT_X((void *)&t < d->array || (void *)&t >= d->array + d->alloc,
              "QList<T>::prepend", "prepend with reference to own member");
    detach(); node_construct(reinterpret_cast<Node*>(p.prepend()), t); }
 template <typename T>
 inline void QList<T>::insert(int i, const T &t)
-{ Q_ASSERT_X((void *)&t < d->array || (void *)&t > d->array + d->alloc,
+{ Q_ASSERT_X((void *)&t < d->array || (void *)&t >= d->array + d->alloc,
              "QList<T>::insert", "insert with reference to own member");
   detach(); node_construct(reinterpret_cast<Node*>(p.insert(i)), t); }
 template <typename T>
 inline void QList<T>::replace(int i, const T &t)
 { Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::replace", "index out of range");
- Q_ASSERT_X((void *)&t < d->array || (void *)&t > d->array + d->alloc,
+ Q_ASSERT_X((void *)&t < d->array || (void *)&t >= d->array + d->alloc,
              "QList<T>::replace", "replace with reference to own member");
   detach(); reinterpret_cast<Node*>(p.at(i))->t() = t; }
 template <typename T>

@@ -371,7 +371,7 @@ Q_OUTOFLINE_TEMPLATE T QVector<T>::value(int i, const T &defaultValue) const
 template <typename T>
 void QVector<T>::append(const T &t)
 {
-    Q_ASSERT_X((void *)&t < d->array || (void *)&t > d->array + d->alloc,
+    Q_ASSERT_X((void *)&t < d->array || (void *)&t >= d->array + d->alloc,
                "QVector<T>::append", "append with reference to own member");
     if (d->ref != 1 || d->size + 1 > d->alloc)
         realloc(d->size, QVectorData::grow(sizeof(Data), d->size + 1, sizeof(T),
@@ -386,7 +386,7 @@ void QVector<T>::append(const T &t)
 template <typename T>
 Q_TYPENAME QVector<T>::iterator QVector<T>::insert(iterator before, size_type n, const T& t)
 {
-    Q_ASSERT_X((void *)&t < d->array || (void *)&t > d->array + d->alloc,
+    Q_ASSERT_X((void *)&t < d->array || (void *)&t >= d->array + d->alloc,
                "QVector<T>::insert", "insert with reference to own member");
     int p = before - d->array;
     if (n != 0) {
