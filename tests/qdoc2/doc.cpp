@@ -598,7 +598,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    consume( "line" );
 		    warning( 3, location(),
 			     "Command '%s' is obsolete, use '%s'",
-			     "\\line", "\\printlint" );
+			     "\\line", "\\printline" );
 		    enterPre();
 		    yyOut += QString( "\\printline" );
 		} else {
