@@ -18,7 +18,7 @@
 
 class QStandardItemModelPrivate;
 
-class QStandardItemModel : public QAbstractItemModel
+class Q_GUI_EXPORT QStandardItemModel : public QAbstractItemModel
 {
 public:
     explicit QStandardItemModel(QObject *parent = 0);
