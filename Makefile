@@ -25,7 +25,7 @@ src-moc: src-qmake FORCE
 	$(MAKE)
 	cd ..\..
 
-sub-tools: sub-src FORCE
+sub-tools: sub-codecs FORCE
 	cd tools
 	$(MAKE)
 	cd ..
