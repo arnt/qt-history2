@@ -213,8 +213,8 @@ static void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
 #ifdef DEBUG_PLATFORM_SETTINGS
 static void qt_mac_debug_palette(const QPalette &pal, const QPalette &pal2, const QString &where)
 {
-    const char *groups[] = { "Disabled", "Active", "Inactive" };
-    const char *roles[] = { "Foreground", "Button", "Light", "Midlight", "Dark", "Mid",
+    const char *const groups[] = {"Active", "Disabled", "Inactive" };
+    const char *const roles[] = { "Foreground", "Button", "Light", "Midlight", "Dark", "Mid",
                             "Text", "BrightText", "ButtonText", "Base", "Background", "Shadow",
                             "Highlight", "HighlightedText", "Link", "LinkVisited" };
     if(!where.isNull())
@@ -421,7 +421,7 @@ void qt_mac_update_os_settings()
     }
     { //setup the fonts
         struct {
-            const char *qt_class;
+            const char *const qt_class;
             short font_key;
         } mac_widget_fonts[] = {
             { "QPushButton", kThemePushButtonFont },
@@ -465,7 +465,7 @@ void qt_mac_update_os_settings()
     }
     { //setup the palette
         struct {
-            const char *qt_class;
+            const char *const qt_class;
             ThemeBrush active, inactive;
         } mac_widget_colors[] = {
             { "QToolButton", kThemeTextColorBevelButtonActive, kThemeTextColorBevelButtonInactive },
@@ -508,7 +508,7 @@ void qt_mac_update_os_settings()
                 GetThemeTextColor(kThemeTextColorMenuItemDisabled, 32, true, &c);
                 pal.setBrush(QPalette::Disabled, QPalette::Text,
                              QColor(c.red / 256, c.green / 256, c.blue / 256));
-            } else if(!strcmp(mac_widget_colors[i].qt_class, "QButton") ||
+            } else if(!strcmp(mac_widget_colors[i].qt_class, "QAbstractButton") ||
                       !strcmp(mac_widget_colors[i].qt_class, "QHeader")) { //special
                 pal.setColor(QPalette::Disabled, QPalette::ButtonText,
                              pal.color(QPalette::Disabled, QPalette::Text));
@@ -2136,6 +2136,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             GetEventParameter(event, kEventParamTextInputSendRefCon, typeLongInteger, 0,
                               sizeof(refcon), 0, &refcon);
             if(QTSMDocumentWrapper *doc = (QTSMDocumentWrapper*)refcon) {
+		Q_UNUSED(doc); // #### IME
                 UInt32 unilen = 0;
                 GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
                                   0, 0, &unilen, 0);
