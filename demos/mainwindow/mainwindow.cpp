@@ -73,36 +73,37 @@ void MainWindow::setupDockWindows()
 {
     static const struct Set {
         const char * name;
+        Qt::WFlags flags;
         Qt::DockWindowArea area;
         uint allowedAreas;
         uint features;
     } sets [] = {
-        { "Black", Qt::DockWindowAreaLeft,
+        { "Black", Qt::WMacDrawer, Qt::DockWindowAreaLeft,
           Qt::DockWindowAreaLeft | Qt::DockWindowAreaRight,
           QDockWindow::DockWindowClosable },
 
-        { "White", Qt::DockWindowAreaRight,
+        { "White", 0, Qt::DockWindowAreaRight,
           Qt::DockWindowAreaLeft | Qt::DockWindowAreaRight,
           QDockWindow::AllDockWindowFeatures },
 
-        { "Red", Qt::DockWindowAreaTop,
+        { "Red", 0, Qt::DockWindowAreaTop,
           Qt::AllDockWindowAreas,
           QDockWindow::DockWindowClosable | QDockWindow::DockWindowMovable },
-        { "Green", Qt::DockWindowAreaTop,
+        { "Green", 0, Qt::DockWindowAreaTop,
           Qt::AllDockWindowAreas,
           QDockWindow::DockWindowClosable | QDockWindow::DockWindowMovable },
 
-        { "Blue", Qt::DockWindowAreaBottom,
+        { "Blue", 0, Qt::DockWindowAreaBottom,
           Qt::AllDockWindowAreas,
           QDockWindow::DockWindowClosable | QDockWindow::DockWindowMovable },
-        { "Yellow", Qt::DockWindowAreaBottom,
+        { "Yellow", 0, Qt::DockWindowAreaBottom,
           Qt::AllDockWindowAreas,
           QDockWindow::DockWindowClosable | QDockWindow::DockWindowMovable }
     };
     const int setCount = sizeof(sets) / sizeof(Set);
 
     for (int i = 0; i < setCount; ++i) {
-        ColorSwatch *swatch = new ColorSwatch(tr(sets[i].name), this);
+        ColorSwatch *swatch = new ColorSwatch(tr(sets[i].name), this, sets[i].flags);
         swatch->setAllowedAreas(Qt::DockWindowAreas(sets[i].allowedAreas));
         swatch->setFeatures(QDockWindow::DockWindowFeatures(sets[i].features));
         swatch->setArea(sets[i].area);

@@ -5,8 +5,8 @@
 #include <qframe.h>
 #include <qmenu.h>
 
-ColorSwatch::ColorSwatch(const QString &colorName, QMainWindow *parent)
-    : QDockWindow(parent)
+ColorSwatch::ColorSwatch(const QString &colorName, QMainWindow *parent, Qt::WFlags flags)
+    : QDockWindow(parent, flags)
 {
     setObjectName(colorName + QLatin1String(" Dock Window"));
     setWindowTitle(objectName());
