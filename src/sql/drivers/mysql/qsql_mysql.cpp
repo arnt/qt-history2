@@ -477,7 +477,8 @@ bool QMYSQLDriver::open( const QString& db,
 	}
     } else {
 	    setLastError( qMakeError( "Unable to connect", QSqlError::Connection, d ) );
-	    mysql_close( d->mysql ) ;
+	    mysql_close( d->mysql );
+	    setOpenError( TRUE );
 	    return FALSE;
     }
     setOpen( TRUE );
