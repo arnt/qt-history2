@@ -261,8 +261,6 @@ public slots:
     void helpAboutQt();
     void helpRegister();
 
-    void scriptsManage();
-
 private slots:
     void activeWindowChanged( QWidget *w );
     void updateUndoRedo( bool, bool, const QString &, const QString & );

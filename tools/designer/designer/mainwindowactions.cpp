@@ -1875,9 +1875,3 @@ void MainWindow::toolsCustomWidget()
     rebuildCustomWidgetGUI();
     statusBar()->clear();
 }
-
-void MainWindow::scriptsManage()
-{
-    ScriptManager dlg( this, 0, TRUE );
-    dlg.exec();
-}
