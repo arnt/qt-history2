@@ -35,6 +35,12 @@
 **
 **********************************************************************/
 
+#ifdef Q_SUPERFONT
+
+#include "newfont/qfontmetrics.h"
+
+#else
+
 #ifndef QFONTMETRICS_H
 #define QFONTMETRICS_H
 
@@ -114,5 +120,7 @@ private:
     void    setStrikeOutFlag()	   { flags |= 0x2; }
 };
 
-
 #endif // QFONTMETRICS_H
+
+#endif // Q_SUPERFONT
+

@@ -35,6 +35,12 @@
 **
 **********************************************************************/
 
+#ifdef Q_SUPERFONT
+
+#include "newfont/qpainter_x11.cpp"
+
+#else
+
 #include "qpainter.h"
 #include "qwidget.h"
 #include "qbitmap.h"
@@ -2254,7 +2260,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 
     if ( pa[index] != pa[index+npoints-1] ){   // close open pointarray
     	pa.resize( index+npoints+1 );
-    	pa.setPoint( index+npoints, pa[index] ); 
+    	pa.setPoint( index+npoints, pa[index] );
     	npoints++;
     }
 
@@ -2854,3 +2860,4 @@ QPoint QPainter::pos() const
     return curPt;
 }
 
+#endif // Q_SUPERFONT

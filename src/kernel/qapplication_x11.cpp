@@ -702,7 +702,11 @@ static bool qt_set_desktop_properties()
     if ( pal != *qt_std_pal && pal != QApplication::palette() )
 	QApplication::setPalette( pal, TRUE );
     *qt_std_pal = pal;
+    
+#ifndef Q_SUPERFONT
     font.setCharSet(QFont::charSetForLocale());
+#endif // Q_SUPERFONT
+    
     if ( font != QApplication::font() ) {
 	QApplication::setFont( font, TRUE );
     }
@@ -834,10 +838,12 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	QFont fnt;
 	fnt.setRawName( resFont );
 
+#ifndef Q_SUPERFONT
 	// override requested charset, unless given on the command-line
 	if ( !font )
 	    fnt.setCharSet( QFont::charSetForLocale() );
-
+#endif // Q_SUPERFONT
+	
 	if ( fnt != QApplication::font() )
 	    QApplication::setFont( fnt, TRUE );
     }
@@ -1335,10 +1341,18 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_set_input_encoding();
 
 	// pick default character set (now that we have done setlocale stuff)
+	
+#ifndef Q_SUPERFONT
 	QFont::locale_init();
+#endif // Q_SUPERFONT
+	
 	QFont f;
 	f = QFont( "Helvetica", (QPaintDevice::x11AppDpiX() < 95) ? 12 : 11 );
+	
+#ifndef Q_SUPERFONT
 	f.setCharSet( QFont::charSetForLocale() ); // must come after locale_init()
+#endif // Q_SUPERFONT
+	
 	QApplication::setFont( f );
 
 	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);

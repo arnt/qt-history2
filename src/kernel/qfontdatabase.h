@@ -35,6 +35,12 @@
 **
 **********************************************************************/
 
+#ifdef Q_SUPERFONT
+
+#include "newfont/qfontdatabase.h"
+
+#else
+
 #ifndef QFONTDATABASE_H
 #define QFONTDATABASE_H
 
@@ -131,3 +137,6 @@ private:
 #endif // QT_NO_FONTDATABASE
 
 #endif // QFONTDATABASE_H
+
+#endif // Q_SUPERFONT
+

@@ -35,6 +35,12 @@
 **
 **********************************************************************/
 
+#ifdef Q_SUPERFONT
+
+#include "newfont/qfont.cpp"
+
+#else
+
 #include "qfont.h"
 #include "qfontdata_p.h"
 #include "qfontmetrics.h"
@@ -2047,3 +2053,5 @@ bool QFontInfo::exactMatch() const
 {
     return painter ? painter->font().exactMatch() : exactMatchFlag();
 }
+
+#endif // Q_SUPERFONT

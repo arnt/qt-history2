@@ -35,6 +35,12 @@
 **
 **********************************************************************/
 
+#ifdef Q_SUPERFONT
+
+#include "newfont/qfont.h"
+
+#else
+
 #ifndef QFONT_H
 #define QFONT_H
 
@@ -42,7 +48,6 @@
 #include "qwindowdefs.h"
 #include "qstring.h"
 #endif // QT_H
-
 
 class QStringList;
 struct QFontDef;
@@ -244,4 +249,7 @@ Q_EXPORT QDataStream &operator<<( QDataStream &, const QFont & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QFont & );
 #endif
 
+#endif // Q_SUPERFONT
+
 #endif // QFONT_H
+

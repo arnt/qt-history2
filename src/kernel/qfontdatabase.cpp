@@ -35,6 +35,12 @@
 **
 **********************************************************************/
 
+#ifdef Q_SUPERFONT
+
+#include "newfont/qfontdatabase.cpp"
+
+#else
+
 #include "qfontdatabase.h"
 
 #ifndef QT_NO_FONTDATABASE
@@ -2024,3 +2030,6 @@ void QFontDatabase::createDatabase()
 #endif
 
 #endif // QT_NO_FONTDATABASE
+
+#endif // Q_SUPERFONT
+

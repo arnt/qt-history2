@@ -35,6 +35,12 @@
 **
 **********************************************************************/
 
+#ifdef Q_SUPERFONT
+
+#include "newfont/qfontdata_p.h"
+
+#else
+
 #ifndef QFONTDATA_P_H
 #define QFONTDATA_P_H
 
@@ -105,3 +111,5 @@ struct QFontData : public QShared {
 
 
 #endif // QFONTDATA_P_H
+
+#endif // Q_SUPERFONT

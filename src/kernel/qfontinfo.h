@@ -35,6 +35,12 @@
 **
 **********************************************************************/
 
+#ifdef Q_SUPERFONT
+
+#  include "newfont/qfontinfo.h"
+
+#else
+
 #ifndef QFONTINFO_H
 #define QFONTINFO_H
 
@@ -94,5 +100,7 @@ private:
 inline bool QFontInfo::bold() const
 { return weight() > QFont::Normal; }
 
+#endif // Q_SUPERFONT
 
 #endif // QFONTINFO_H
+

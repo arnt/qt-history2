@@ -34,7 +34,14 @@
 ** not clear to you.
 **
 **********************************************************************/
-#define QT_DEBUG
+
+#ifdef Q_SUPERFONT
+
+#include "newfont/qfont_x11.cpp"
+
+#else
+
+// #define QT_DEBUG
 // REVISED: arnt
 
 #include "qwidget.h"
@@ -2701,4 +2708,6 @@ void QFont::setPixelSizeFloat( float pixelSize )
 {
     setPointSizeFloat( pixelSize * 72.0 / QPaintDevice::x11AppDpiY() );
 }
+
+#endif // Q_SUPERFONT
 
