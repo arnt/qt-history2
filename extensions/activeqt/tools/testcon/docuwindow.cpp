@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "docuwindow.h"
-#include <qtextbrowser.h>
+#include <q3textbrowser.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qfiledialog.h>
@@ -76,7 +76,7 @@ DocuWindow::DocuWindow( const QString& docu, QWidget *parent, QWidget *source )
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowTitle( source->windowTitle() + " - Documentation" );
 
-    browser = new QTextBrowser( this );
+    browser = new Q3TextBrowser( this );
     browser->setSource( docu );
     browser->setText( docu );
     browser->setLinkUnderline( TRUE );
@@ -133,7 +133,7 @@ void DocuWindow::print()
 	statusBar()->message( QString("Printing aborted"), 2000 );
 	return;
     }
-    
+
     QPainter painter;
     if ( !painter.begin( &printer ) ) {
 	statusBar()->message( QString("Printing aborted"), 2000 );

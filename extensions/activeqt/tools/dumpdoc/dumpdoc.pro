@@ -5,6 +5,7 @@ TEMPLATE = app
 
 CONFIG  += console
 LIBS    += -lqaxcontainer
+QT = core gui
 
 # Input
 SOURCES += main.cpp
