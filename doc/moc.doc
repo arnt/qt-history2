@@ -83,7 +83,7 @@ a get function \c priority() and a set function \c setPriority().
     class MyClass : public QObject
     {
         Q_OBJECT
-        Q_PROPERTY( Priority,  priority,  priority, setPriority )
+        Q_PROPERTY( Priority,  "priority",  priority, setPriority )
     public:
         MyClass( QObject * parent=0, const char * name=0 );
         ~MyClass();
@@ -538,7 +538,7 @@ Here is an example of the illegal syntax:
 	Q_OBJECT
     public:
     [...]
-        Q_PROPERTY( Priority,  priority,  priority, setPriority ) // illegal
+        Q_PROPERTY( Priority,  "priority",  priority, setPriority ) // illegal
         enum Priority { High, Low, VeryHigh, VeryLow };
         void setPriority( Priority );
         Priority priority() const;
@@ -552,7 +552,7 @@ beginning of the class declaration, right after Q_OBJECT:
 \code
     class SomeClass : public QObject {
 	Q_OBJECT
-        Q_PROPERTY( Priority,  priority,  priority, setPriority )
+        Q_PROPERTY( Priority,  "priority",  priority, setPriority )
     public:
     [...]
         enum Priority { High, Low, VeryHigh, VeryLow };

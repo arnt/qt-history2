@@ -513,7 +513,7 @@ will complain that it cannot find these functions. Here is an example of the ill
 .br
         // illegal
 .br
-        Q_PROPERTY( Priority, priority, priority, setPriority )
+        Q_PROPERTY( Priority, "priority", priority, setPriority )
 .br
         enum Priority { High, Low, VeryHigh, VeryLow };
 .br
@@ -533,7 +533,7 @@ beginning of the class declaration, right after Q_OBJECT:
 .br
         Q_OBJECT
 .br
-        Q_PROPERTY( Priority, priority, priority, setPriority )
+        Q_PROPERTY( Priority, "priority", priority, setPriority )
 .br
     public:
 .br
