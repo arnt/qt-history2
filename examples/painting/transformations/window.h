@@ -1,40 +1,39 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef WINDOW_H
+#define WINDOW_H
 
 #include <QList>
-#include <QMap>
-#include <QMainWindow>
+#include <QPainterPath>
+#include <QWidget>
 
-#include "paintwidget.h"
+#include "renderarea.h"
 
 class QComboBox;
-class QFrame;
 
-class MainWindow : public QMainWindow
+class Window : public QWidget
 {
     Q_OBJECT
 
 public:
-    MainWindow();
+    Window();
 
 public slots:
-    void changeOperations(int row);
-    void setShape(QAction *action);
+    void changeOperations(int index);
+    void shapeSelected(int index);
 
 private:
-    void setupFrame(QFrame *frame);
     void setupShapes();
 
-    PaintWidget *originalPaintWidget;
-    PaintWidget *firstPaintWidget;
-    PaintWidget *secondPaintWidget;
-    PaintWidget *thirdPaintWidget;
+    RenderArea *originalRenderArea;
+    RenderArea *firstRenderArea;
+    RenderArea *secondRenderArea;
+    RenderArea *thirdRenderArea;
+    QComboBox *shapeComboBox;
     QComboBox *firstOperation;
     QComboBox *secondOperation;
     QComboBox *thirdOperation;
     QList<Operation> operations;
     QList<Operation> operationsList;
-    QMap<QAction*,QPainterPath> shapesMap;
+    QList<QPainterPath> shapesList;
 };
 
 #endif

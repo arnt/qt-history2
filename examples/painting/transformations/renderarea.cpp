@@ -1,8 +1,8 @@
 #include <QtGui>
 
-#include "paintwidget.h"
+#include "renderarea.h"
 
-PaintWidget::PaintWidget(QWidget *parent)
+RenderArea::RenderArea(QWidget *parent)
     : QWidget(parent)
 {
     font.setPixelSize(12);
@@ -11,7 +11,7 @@ PaintWidget::PaintWidget(QWidget *parent)
     yBoundingRect = fontMetrics.boundingRect(tr("y"));
 }
 
-void PaintWidget::paintEvent(QPaintEvent *event)
+void RenderArea::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
@@ -32,7 +32,7 @@ void PaintWidget::paintEvent(QPaintEvent *event)
     painter.restore();
 }
 
-void PaintWidget::drawCoordinates(QPainter &painter)
+void RenderArea::drawCoordinates(QPainter &painter)
 {
     painter.setPen(Qt::red);
     painter.setFont(font);
@@ -40,17 +40,17 @@ void PaintWidget::drawCoordinates(QPainter &painter)
     painter.drawLine(0, 0, 50, 0);
     painter.drawLine(48, -2, 50, 0);
     painter.drawLine(48, 2, 50, 0);
-    painter.drawText(60 - xBoundingRect.width()/2,
-                     0 + xBoundingRect.height()/2, tr("x"));
+    painter.drawText(60 - xBoundingRect.width() / 2,
+                     0 + xBoundingRect.height() / 2, tr("x"));
 
     painter.drawLine(0, 0, 0, 50);
     painter.drawLine(-2, 48, 0, 50);
     painter.drawLine(2, 48, 0, 50);
-    painter.drawText(0 - yBoundingRect.width()/2,
-                     60 + yBoundingRect.height()/2, tr("y"));
+    painter.drawText(0 - yBoundingRect.width() / 2,
+                     60 + yBoundingRect.height() / 2, tr("y"));
 }
 
-void PaintWidget::drawOutline(QPainter &painter)
+void RenderArea::drawOutline(QPainter &painter)
 {
     painter.setPen(Qt::darkGreen);
     painter.setPen(Qt::DashLine);
@@ -58,50 +58,50 @@ void PaintWidget::drawOutline(QPainter &painter)
     painter.drawRect(0, 0, 100, 100);
 }
 
-void PaintWidget::drawShape(QPainter &painter)
+void RenderArea::drawShape(QPainter &painter)
 {
     painter.setBrush(Qt::black);
     painter.drawPath(painterShape);
 }
 
-QSize PaintWidget::minimumSizeHint() const
+QSize RenderArea::minimumSizeHint() const
 {
     return QSize(232, 232);
 }
 
-QList<Operation> PaintWidget::operations() const
+QList<Operation> RenderArea::operations() const
 {
     return transforms;
 }
 
-void PaintWidget::setOperations(const QList<Operation> operations)
+void RenderArea::setOperations(const QList<Operation> &operations)
 {
     transforms = operations;
     update();
 }
 
-void PaintWidget::setShape(const QPainterPath &shape)
+void RenderArea::setShape(const QPainterPath &shape)
 {
     painterShape = shape;
     update();
 }
 
-void PaintWidget::transformPainter(QPainter &painter)
+void RenderArea::transformPainter(QPainter &painter)
 {
     for (int i = 0; i < transforms.count(); ++i) {
         switch (transforms[i]) {
-            case Translate:
-                painter.translate(50, 50);
-                break;
-            case Scale:
-                painter.scale(0.75, 0.75);
-                break;
-            case Rotate:
-                painter.rotate(60);
-                break;
-            case NoTransformation:
-            default:
-                break;
+        case Translate:
+            painter.translate(50, 50);
+            break;
+        case Scale:
+            painter.scale(0.75, 0.75);
+            break;
+        case Rotate:
+            painter.rotate(60);
+            break;
+        case NoTransformation:
+        default:
+            ;
         }
     }
 }

@@ -1,5 +1,5 @@
-#ifndef PAINTWIDGET_H
-#define PAINTWIDGET_H
+#ifndef RENDERAREA_H
+#define RENDERAREA_H
 
 #include <QFont>
 #include <QList>
@@ -11,15 +11,16 @@ class QPaintEvent;
 
 enum Operation { NoTransformation, Translate, Rotate, Scale };
 
-class PaintWidget : public QWidget
+class RenderArea : public QWidget
 {
     Q_OBJECT
 
 public:
-    PaintWidget(QWidget *parent = 0);
+    RenderArea(QWidget *parent = 0);
+
     QSize minimumSizeHint() const;
     QList<Operation> operations() const;
-    void setOperations(const QList<Operation> operations);
+    void setOperations(const QList<Operation> &operations);
     void setShape(const QPainterPath &shape);
 
 protected:
