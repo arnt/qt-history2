@@ -630,6 +630,9 @@ int QAccel::stringToKey( const QString & s )
 	if ( s.contains("Alt+") || s.contains(tr("Alt")+"+") )
 	    k |= ALT;
     }
+    else if ( s.length() == 1 ) {
+	k = s[0].unicode() | UNICODE_ACCEL;
+    }
     return k;
 }
 
