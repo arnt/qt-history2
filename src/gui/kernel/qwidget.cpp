@@ -283,7 +283,7 @@ QWidgetPrivate::~QWidgetPrivate()
     \row \i What's this help \i
         setWhatsThis()
 
-    \row \i Internal kernel<br>functions \i
+    \row \i Internal kernel functions \i
         focusNextPrevChild(),
         clearWFlags(),
         getWFlags(),
