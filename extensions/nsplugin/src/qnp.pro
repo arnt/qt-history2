@@ -1,5 +1,5 @@
 TEMPLATE    =   lib
-CONFIG      =	qt release staticlib
+CONFIG      =	qt x11 release staticlib
 HEADERS     =   ../../../include/qnp.h
 SOURCES     =   qnp.cpp
 MOC_DIR     =   .
