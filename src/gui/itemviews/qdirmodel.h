@@ -45,6 +45,12 @@ public:
     bool isEditable(const QModelIndex &index) const;
     bool isDragEnabled(const QModelIndex &index) const;
 
+    bool isSortable() const;
+    void sort(int column, SortOrder order);
+
+    bool equal(const QModelIndex &left, const QModelIndex &right) const;
+    bool greater(const QModelIndex &left, const QModelIndex &right) const;
+
     void setIconProvider(Q4FileIconProvider *provider);
     Q4FileIconProvider *iconProvider() const;
 
@@ -52,12 +58,15 @@ public:
     QString nameFilter() const;
     void setFilter(QDir::FilterSpec spec);
     QDir::FilterSpec filter() const;
-    void setSorting(QDir::SortSpec spec);
+    void setSorting(int spec);
     QDir::SortSpec sorting() const;
 
+    QModelIndex index(const QString &path) const;
+    QString path(const QModelIndex &index) const;
     QFileInfo fileInfo(const QModelIndex &index) const;
-    void mkdir(const QModelIndex &parent, const QString &name);
-    void rmdir(const QModelIndex &index);
+    
+    QModelIndex mkdir(const QModelIndex &parent, const QString &name);
+    bool rmdir(const QModelIndex &index);
 
 protected:
     QDirModel(QDirModelPrivate &, const QDir &directory, QObject *parent = 0);

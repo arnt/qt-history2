@@ -354,6 +354,66 @@ bool QDirModel::isDragEnabled(const QModelIndex &) const
     return true;
 }
 
+bool QDirModel::isSortable() const
+{
+    return true;
+}
+
+void QDirModel::sort(int column, SortOrder order)
+{
+    int spec = (order == Qt::Descending ? QDir::Reversed : 0);
+    
+    switch (column) {
+    case 0:
+        spec |= QDir::Name;
+        break;
+    case 1:
+        spec |= QDir::Size;
+        break;
+    case 2:
+        spec |= QDir::DirsFirst;
+        break;
+    case 3:
+        spec |= QDir::Time;
+        break;
+    default:
+        break;
+    };
+    
+    setSorting(spec);
+}
+
+bool QDirModel::equal(const QModelIndex &left, const QModelIndex &right) const
+{
+    if (!(left.isValid() && right.isValid()))
+        return left == right;
+    QDirModelPrivate::QDirNode *l = static_cast<QDirModelPrivate::QDirNode*>(left.data());
+    QDirModelPrivate::QDirNode *r = static_cast<QDirModelPrivate::QDirNode*>(right.data());
+    return l->info.absFilePath() == r->info.absFilePath();
+}
+
+bool QDirModel::greater(const QModelIndex &left, const QModelIndex &right) const
+{
+    if (!(left.isValid() && right.isValid()))
+        return false;
+
+    QDirModelPrivate::QDirNode *l = static_cast<QDirModelPrivate::QDirNode*>(left.data());
+    QDirModelPrivate::QDirNode *r = static_cast<QDirModelPrivate::QDirNode*>(right.data());
+    
+    // this depends on the sort column
+    int spec = sorting();
+    if (spec & QDir::Name) // col 0
+        return (l->info.fileName() > r->info.fileName());
+    if (spec & QDir::Size) // col 1
+        return (l->info.size() > r->info.size());
+    if (QDir::DirsFirst) // col 2
+        return l->info.isDir();
+    if (spec & QDir::Time) // col 3
+        return l->info.lastModified() > r->info.lastModified();
+
+    return QAbstractItemModel::greater(left, right);
+}
+
 void QDirModel::setIconProvider(Q4FileIconProvider *provider)
 {
     d->iconProvider = provider;
@@ -384,14 +444,36 @@ QDir::FilterSpec QDirModel::filter() const
     return d->root.filter();
 }
 
-void QDirModel::setSorting(QDir::SortSpec spec)
+void QDirModel::setSorting(int spec)
 {
     d->root.setSorting(spec);
+    d->tree = d->children(0);
 }
 
 QDir::SortSpec QDirModel::sorting() const
 {
     return d->root.sorting();
+}
+
+QModelIndex QDirModel::index(const QString &path) const
+{
+    QModelIndex parent;
+    QStringList pth = QDir::convertSeparators(path).split('/');
+    QDir dir = d->root;
+    for (int i = 0; i < pth.count() - 1; ++i) {
+        if (!dir.cd(pth.at(i))) {
+            qWarning("index: the path does not exist");
+            return QModelIndex();
+        }
+        parent = index(i, 0, parent);
+    }
+    QStringList entries = dir.entryList(d->root.nameFilter(), d->root.filter(), d->root.sorting());
+    return index(entries.indexOf(pth.last()), 0, parent);
+}
+
+QString QDirModel::path(const QModelIndex &index) const
+{
+    return fileInfo(index).absFilePath();
 }
 
 QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
@@ -404,37 +486,51 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
     return node->info;
 }
 
-void QDirModel::mkdir(const QModelIndex &parent, const QString &name)
+QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
 {
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
+    int r;
     if (p) {
-        p->info.dir().mkdir(name);
+        QDir dir(p->info.absFilePath());
+        if (!dir.mkdir(name))
+            return QModelIndex();
         p->children = d->children(p);
+        r = dir.entryList().indexOf(name);
     } else {
-        d->root.mkdir(name);
+        if (!d->root.mkdir(name))
+            return QModelIndex();
         d->tree = d->children(0);
+        r = d->root.entryList().indexOf(name);
     }
+    QModelIndex idx = index(r, 0, parent);
+//     if (idx.isValid())
+//         emit contentsInserted(idx, idx);
+    return idx;
 }
 
-void QDirModel::rmdir(const QModelIndex &index)
+bool QDirModel::rmdir(const QModelIndex &index)
 {
+    QModelIndex par = parent(index);
     QDirModelPrivate::QDirNode *n = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     if (!n) {
         qWarning("rmdir: the node does not exist");
-        return;
+        return false;
     }
     if (!n->info.isDir()) {
         qWarning("rmdir: the node is not a directory");
-        return;
+        return false;
     }
-    n->info.dir().rmdir(n->info.absFilePath());
+    if (!n->info.dir().rmdir(n->info.absFilePath()))
+        return false;
 
-    // FIXME: invalidates parent and deletes node
     QDirModelPrivate::QDirNode *p = d->parent(n);
     if (p)
         p->children = d->children(p);
     else
         d->tree = d->children(0);
+
+    emit QAbstractItemModel::contentsRemoved(par, index, index);
+    return true;
 }
 
 QDirModelPrivate::QDirNode *QDirModelPrivate::node(int row, QDirNode *parent) const
