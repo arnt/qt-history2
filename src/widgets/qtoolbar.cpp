@@ -363,7 +363,8 @@ void QToolBar::setOrientation( Orientation newOrientation )
 	    delete d->back;
 	    d->back = 0;
 	}
-	boxLayout()->setDirection( o==Horizontal ? QBoxLayout::LeftToRight :
+	boxLayout()->setDirection( o==Horizontal ? (QApplication::reverseLayout() ? QBoxLayout::RightToLeft 
+						    : QBoxLayout::LeftToRight ) :
 				   QBoxLayout::TopToBottom );
 	emit orientationChanged( newOrientation );
     }
@@ -896,16 +897,16 @@ void QToolBar::paintToolBar()
     int hh =h;
     if ( orientation() == Horizontal && w < sizeHint().width() ) {
 	w++;
-	hw = 14;
+	hw = 10;
     } else if ( orientation() == Vertical && h < sizeHint().height() ) {
 	h++;
-	hh = 14;
+	hh = 10;
     }
     style().drawPanel( &p, 0, 0, w, h,
  		       colorGroup(), FALSE, 1, 0 );
     int xpos;
-    if ( QApplication::reverseLayout() )
-	xpos = width() - 14;
+    if ( QApplication::reverseLayout() && orientation() == Horizontal )
+	xpos = width() - 10;
     else 
 	xpos = 0;
     style().drawToolBarHandle( &p, QRect( xpos, 0, hw, hh ),

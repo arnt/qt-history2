@@ -980,15 +980,15 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarDock dock,
 				    const QPoint &pos, QToolBar *tb )
 {
-    Qt::Orientation o = dock == QMainWindow::Top || dock == QMainWindow::Bottom ?
+    Qt::Orientation o = ( dock == QMainWindow::Top || dock == QMainWindow::Bottom ) ?
 			Qt::Horizontal : Qt::Vertical;
     bool swap = o != tb->orientation();
     QPoint offset( 0, 0 );
-    if ( swap ) {
+    if ( swap && QApplication::reverseLayout() ) {
 	if ( o == Qt::Horizontal )
-	    offset = QPoint( tb->height() / 2, 0 );
+	    offset = QPoint( tb->height() - tb->width(), 0 );
 	else
-	    offset = QPoint( 0, tb->width() / 2 );
+	    offset = QPoint( -tb->width() + tb->height(), 0 );
     }
     return QRect( pos - d->cursorOffset - offset,
 		  swap ? QSize( tb->height(), tb->width() ) : tb->size() );
