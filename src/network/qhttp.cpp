@@ -1376,7 +1376,7 @@ QString QHttpRequestHeader::toString() const
     The functions hasPendingRequests() and clearPendingRequests()
     allow you to query and clear the list of pending requests.
 
-    \sa \l{networking.html}{Networking Overview}, QFtp
+    \sa {networking.html}{Networking Overview}, QFtp
 */
 
 /*!

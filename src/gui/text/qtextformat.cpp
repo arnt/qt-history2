@@ -240,7 +240,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     associate the format with a QTextObject. It is used to represent
     lists, frames, and tables inside the document.
 
-    \sa \l{text.html}{Text Related Classes}
+    \sa {text.html}{Text Related Classes}
 */
 
 /*!
