@@ -594,6 +594,7 @@ static bool isUnfinishedLine()
 	  It doesn't end with ';' or similar. If it's not "Q_OBJECT"
 	  nor "if ( x )", it must be an unfinished line.
 	*/
+	/* qmake ignore Q_OBJECT */
 	unf = ( yyLine->contains(QString("Q_OBJECT")) == 0 &&
 		!matchBracelessControlStatement() );
     } else if ( lastCh == QChar(';') ) {
