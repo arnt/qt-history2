@@ -148,9 +148,10 @@ bool qax_stopServer()
     return true;
 }
 
-#if defined(NEEDS_QMAIN)
-extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
+#if defined(QT_NEEDS_QMAIN)
+extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pchar> &);
 int qMain(int, char **);
+#define main qMain
 #else
 #if defined(Q_OS_TEMP)
 extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pchar> &);
@@ -241,10 +242,4 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
     return nRet;
 }
 
-
-// until such time as mingw runtime calls winmain instead of main
-// in a GUI app we need this.
-#if defined(Q_OS_WIN32) && defined(Q_CC_GNU)
-#include <qtcrtentrypoint.cpp>
-#endif
 

@@ -1932,7 +1932,7 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 		qAxTypeLibrary->GetTypeInfoOfGuid(qAxFactory()->eventsID(class_name), &eventInfo);
 		if (eventInfo) {
                     QString uni_name = QLatin1String(name);
-		    const OLECHAR *olename = uni_name.utf16();
+		    const OLECHAR *olename = reinterpret_cast<const OLECHAR *>(uni_name.utf16());
 		    eventInfo->GetIDsOfNames((OLECHAR**)&olename, 1, &eventId);
 		    eventInfo->Release();
 		}
