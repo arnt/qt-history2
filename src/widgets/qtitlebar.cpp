@@ -160,10 +160,10 @@ QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
     d->buttonDown = QStyle::SC_None;
     d->act = 0;
     if ( w ) {
+	setWFlags( ((QTitleBar*)w)->getWFlags() | WResizeNoErase | WRepaintNoErase );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     	setCaption( w->caption() );
 #endif
-	setWFlags( ((QTitleBar*)w)->getWFlags() | WResizeNoErase | WRepaintNoErase );
     } else {
 	setWFlags( WStyle_Customize | WResizeNoErase | WRepaintNoErase );
     }

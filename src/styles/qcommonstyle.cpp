@@ -102,14 +102,6 @@ QCommonStyle::~QCommonStyle()
 }
 
 
-#define TITLEBAR_PAD 3
-#define TITLEBAR_SEPARATION 1
-#define TITLEBAR_PIXMAP_WIDTH 12
-#define TITLEBAR_PIXMAP_HEIGHT 12
-#define TITLEBAR_CONTROL_WIDTH (TITLEBAR_PAD+TITLEBAR_PIXMAP_WIDTH)
-#define TITLEBAR_CONTROL_HEIGHT (TITLEBAR_PAD+TITLEBAR_PIXMAP_HEIGHT)
-
-
 /*! \reimp */
 void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 				  QPainter *p,
@@ -1325,23 +1317,23 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 			    AlignAuto | AlignVCenter | SingleLine, titlebar->visibleText() );
 	    }
 
+	    QRect ir;
+	    bool down = FALSE;
+	    QPixmap pm;
+
+	    if ( controls & SC_TitleBarCloseButton ) {
+		ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarCloseButton );
+		down = active & SC_TitleBarCloseButton;
+		pm = stylePixmap(SP_TitleBarCloseButton, widget);
+		drawPrimitive(PE_ButtonTool, p, ir, titlebar->colorGroup(),
+			      down ? Style_Down : Style_Raised);
+
+		if( down )
+		    ir.addCoords( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical), 0, 0 );
+		drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
+	    }
+
 	    if ( titlebar->window() ) {
-		QRect ir;
-		bool down = FALSE;
-		QPixmap pm;
-
-		if ( controls & SC_TitleBarCloseButton ) {
-		    ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarCloseButton );
-		    down = active & SC_TitleBarCloseButton;
-		    pm = stylePixmap(SP_TitleBarCloseButton, widget);
-		    drawPrimitive(PE_ButtonTool, p, ir, titlebar->colorGroup(),
-				  down ? Style_Down : Style_Raised);
-
-		    if( down )
-			ir.addCoords( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical), 0, 0 );
-		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
-		}
-
 		if ( controls & SC_TitleBarMaxButton ) {
 		    ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarMaxButton );
 
@@ -1396,17 +1388,15 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 			ir.addCoords( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical), 0, 0 );
 		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
 		}
-
-#ifndef QT_NO_WIDGET_TOPEXTRA
-		if ( controls & SC_TitleBarSysMenu ) {
-		    if ( titlebar->icon() ) {
-			ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarSysMenu );
-			drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, titlebar->icon(), QString::null );
-		    }
-		}
-#endif
 	    }
-
+#ifndef QT_NO_WIDGET_TOPEXTRA
+	    if ( controls & SC_TitleBarSysMenu ) {
+		if ( titlebar->icon() ) {
+		    ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarSysMenu );
+		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, titlebar->icon(), QString::null );
+		}
+	    }
+#endif
 	    break;
 	}
 #endif //QT_NO_TITLEBAR
@@ -1777,6 +1767,8 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
     case CC_TitleBar:
 	{
 	    const QTitleBar *titlebar = (const QTitleBar *) widget;
+	    const int titleBarHeight = pixelMetric( PM_TitleBarHeight, widget );
+	    const int controlHeight = titleBarHeight - 3;
 
 	    switch (sc) {
 	    case SC_TitleBarLabel:
@@ -1785,52 +1777,45 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 		    QRect ir( 0, 0, titlebar->width(), titlebar->height() );
 		    if ( titlebar->testWFlags( WStyle_Tool ) ) {
 			if ( titlebar->testWFlags( WStyle_SysMenu ) )
-			    ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
+			    ir.addCoords( 0, 0, -controlHeight-3, 0 );
 			if ( titlebar->testWFlags( WStyle_MinMax ) )
-			    ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
+			    ir.addCoords( 0, 0, -controlHeight-2, 0 );
 		    } else {
 			if ( titlebar->testWFlags( WStyle_SysMenu ) )
-			    ir.addCoords( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH+2, 0,
-					 -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
+			    ir.addCoords( controlHeight+3, 0, -controlHeight-3, 0 );
 			if ( titlebar->testWFlags( WStyle_Minimize ) )
-			    ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
+			    ir.addCoords( 0, 0, -controlHeight-2, 0 );
 			if ( titlebar->testWFlags( WStyle_Maximize ) )
-			    ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
+			    ir.addCoords( 0, 0, -controlHeight-2, 0 );
 		    }
 		    rect = ir;
 		}
 		break;
 
 	    case SC_TitleBarCloseButton:
-		rect.setRect(titlebar->width()-(TITLEBAR_CONTROL_WIDTH +
-						TITLEBAR_SEPARATION), 2,
-			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+		rect.setRect(titlebar->width()-( controlHeight + 1 ), 2, controlHeight, controlHeight);
 		break;
 
 	    case SC_TitleBarMaxButton:
 	    case SC_TitleBarShadeButton:
 	    case SC_TitleBarUnshadeButton:
-		rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_WIDTH +
-						 TITLEBAR_SEPARATION) * 2), 2,
-			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+		rect.setRect(titlebar->width()-((controlHeight + 1 ) * 2), 2, controlHeight, controlHeight);
 		break;
 
 	    case SC_TitleBarMinButton:
 	    case SC_TitleBarNormalButton:
 		{
-		    int offset = TITLEBAR_CONTROL_WIDTH + TITLEBAR_SEPARATION;
+		    int offset = controlHeight + 1;
 		    if ( !titlebar->testWFlags( WStyle_Maximize ) )
 			offset *= 2;
 		    else
 			offset *= 3;
-		    rect.setRect(titlebar->width() - offset, 2,
-				 TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+		    rect.setRect(titlebar->width() - offset, 2, controlHeight, controlHeight);
 		}
 		break;
 
 	    case SC_TitleBarSysMenu:
-		rect.setRect(2 + TITLEBAR_SEPARATION, 2, TITLEBAR_CONTROL_WIDTH,
-			     TITLEBAR_CONTROL_HEIGHT);
+		rect.setRect( 3, 2, controlHeight, controlHeight);
 		break;
 
 	    default:
@@ -1930,9 +1915,12 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 
     switch (m) {
     case PM_TitleBarHeight: {
-	ret = QMAX( widget->fontMetrics().lineSpacing(), 18 );
-	if ( widget )
-	    ret = QMAX( ret, widget->fontMetrics().lineSpacing() );
+	if ( widget && widget->testWFlags( WStyle_Tool ) ) {
+	    ret = QMAX( widget->fontMetrics().lineSpacing(), 16 );
+	} else {
+	    ret = QMAX( widget->fontMetrics().lineSpacing(), 18 );
+	}
+
 	break; }
     case PM_ScrollBarSliderMin:
 	ret = 9;
