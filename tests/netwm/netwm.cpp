@@ -497,8 +497,9 @@ void NETRootInfo::setNumberOfDesktops(CARD32 num) {
 void NETRootInfo::setCurrentDesktop(CARD32 desk) {
   if (role == WindowManager) {
     p->current_desktop = desk;
+    CARD32 d = p->current_desktop - 1;
     XChangeProperty(p->display, p->root, net_current_desktop, XA_CARDINAL, 32,
-		    PropModeReplace, (unsigned char *) &(p->current_desktop), 1);
+		    PropModeReplace, (unsigned char *) &d, 1);
   } else {
     XEvent e;
 
@@ -507,7 +508,7 @@ void NETRootInfo::setCurrentDesktop(CARD32 desk) {
     e.xclient.display = p->display;
     e.xclient.window = p->root;
     e.xclient.format = 32;
-    e.xclient.data.l[0] = desk;
+    e.xclient.data.l[0] = desk - 1;
     e.xclient.data.l[1] = 0l;
     e.xclient.data.l[2] = 0l;
     e.xclient.data.l[3] = 0l;
@@ -1083,19 +1084,20 @@ void NETRootInfo::update(unsigned long dirty) {
         } else
 	    p->viewport.x = p->viewport.y = 0;
 
-    if (dirty & CurrentDesktop)
+    if (dirty & CurrentDesktop) {
+	p->current_desktop = 0;
 	if (XGetWindowProperty(p->display, p->root, net_current_desktop,
 			       0l, 1l, False, XA_CARDINAL, &type_ret, &format_ret,
 			       &nitems_ret, &unused, &data_ret)
 	    == Success) {
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 && nitems_ret == 1)
-		    p->current_desktop = *((CARD32 *) data_ret);
+		    p->current_desktop = *((CARD32 *) data_ret) + 1;
 
 		XFree(data_ret);
 	    }
-        } else
-            p->current_desktop = 0;
+        }
+    }
 
     if (dirty & DesktopNames)
 	if (XGetWindowProperty(p->display, p->root, net_current_desktop,
@@ -1383,6 +1385,10 @@ void NETWinInfo::setVisibleName(const char *vname) {
 void NETWinInfo::setDesktop(CARD32 desk) {
     if (role == Client && p->managed) {
 	// we only send a ClientMessage if we are 1) a client and 2) managed
+	
+	if ( desk == 0 )
+	    return; // we can't do that while being managed
+
 	XEvent e;
 
 	e.xclient.type = ClientMessage;
@@ -1390,7 +1396,7 @@ void NETWinInfo::setDesktop(CARD32 desk) {
 	e.xclient.display = p->display;
 	e.xclient.window = p->window;
 	e.xclient.format = 32;
-	e.xclient.data.l[0] = desk;
+	e.xclient.data.l[0] = desk - 1;
 	e.xclient.data.l[1] = 0l;
 	e.xclient.data.l[2] = 0l;
 	e.xclient.data.l[3] = 0l;
@@ -1398,10 +1404,18 @@ void NETWinInfo::setDesktop(CARD32 desk) {
 
 	XSendEvent(p->display, p->root, False, SubstructureRedirectMask, &e);
     } else {
-	// otherwise we just set the property directly
+	// otherwise we just set or remove the property directly
 	p->desktop = desk;
+	CARD32 d = desk;
+	if ( d != OnAllDesktops ) {
+	    if ( d == 0 ) {
+		XDeleteProperty( p->display, p->window, net_wm_desktop );
+		return;
+	    }
+	    d -= 1;
+	}
 	XChangeProperty(p->display, p->window, net_wm_desktop, XA_CARDINAL, 32,
-			PropModeReplace, (unsigned char *) &(p->desktop), 1);
+			PropModeReplace, (unsigned char *) &d, 1);
     }
 }
 
@@ -1572,19 +1586,21 @@ void NETWinInfo::update(unsigned long dirty) {
 		XFree(data_ret);
 	    }
 
-    if (dirty & WMDesktop)
+    if (dirty & WMDesktop) {
+	p->desktop = 0;
 	if (XGetWindowProperty(p->display, p->window, net_wm_desktop, 0l, 1l,
 			       False, XA_CARDINAL, &type_ret,
 			       &format_ret, &nitems_ret,
 			       &unused, &data_ret)
 	    == Success)
 	    if (data_ret) {
-		if (type_ret == net_wm_desktop && format_ret == 32 &&
+		if (type_ret == XA_CARDINAL && format_ret == 32 &&
 		    nitems_ret == 1)
-		    p->desktop = *((CARD32 *) data_ret);
+		    p->desktop = *((CARD32 *) data_ret) + 1;
 
 		XFree(data_ret);
 	    }
+    }
 
     if (dirty & WMName)
 	if (XGetWindowProperty(p->display, p->window, net_wm_name, 0l,
