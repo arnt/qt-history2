@@ -23,9 +23,10 @@
 # include "qfileinfo.h"
 # include "qtextstream.h"
 # include "qdir.h"
+# include <unistd.h>
 # include <sys/types.h>
 # include <sys/stat.h>
-# include <fcntl.h>
+# include <sys/fcntl.h>
 #endif
 
 #include "qstrlist.h"
@@ -247,21 +248,21 @@ int QMacMimeAnyMime::registerMimeType(const char *mime)
 #else
 bool QMacMimeAnyMime::loadMimeRegistry()
 {
-    const QString LibraryDir = "/Library/Qt";
+    const QString mimeTypeDir = "/Library/Qt";
     if(!library_file.isOpen()) {
-	if(!QFile::exists(LibraryDir)) {
+	if(!QFile::exists(mimeTypeDir)) {
             // Do it with a system call as I don't see much worth in
             // doing it with QDir since we have to chmod anyway.
-            bool success = ::mkdir(LibraryDir.local8Bit(), S_IRUSR | S_IWUSR | S_IXUSR) == 0;
+            bool success = ::mkdir(mimeTypeDir.local8Bit(), S_IRUSR | S_IWUSR | S_IXUSR) == 0;
             if (success)
-                success = ::chmod(LibraryDir.local8Bit(), S_IRUSR | S_IWUSR | S_IXUSR 
+                success = ::chmod(mimeTypeDir.local8Bit(), S_IRUSR | S_IWUSR | S_IXUSR 
                                   | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH | S_IXOTH) == 0;
             if (!success) {
-                qWarning(QString("Problem creating %1: %2").arg(LibraryDir, strerror(errno)));
+                qWarning(QString("Problem creating %1: %2").arg(mimeTypeDir, strerror(errno)));
                 return FALSE;
             }
 	}
-        library_file.setName(LibraryDir + "/.mime_types");
+        library_file.setName(mimeTypeDir + "/.mime_types");
         if (!library_file.exists()) {
             // Create the file and chmod it so that everyone can write to it.
             int fd = ::open(library_file.name().local8Bit(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
