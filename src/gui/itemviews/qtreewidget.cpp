@@ -18,49 +18,6 @@
 #include <qitemdelegate.h>
 #include <private/qtreeview_p.h>
 
-class QTreeItemDelegate : public QItemDelegate
-{
-public:
-    QTreeItemDelegate(QObject *parent) : QItemDelegate(parent) {}
-    ~QTreeItemDelegate() {}
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QAbstractItemModel *model, const QModelIndex &index) const;
-    QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
-                   const QAbstractItemModel *model, const QModelIndex &index) const;
-};
-
-
-void QTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                              const QAbstractItemModel *model, const QModelIndex &index) const
-{
-    QStyleOptionViewItem opt = option;
-    // set font
-    QVariant value = model->data(index, QAbstractItemModel::FontRole);
-    if (value.isValid())
-        opt.font = value.toFont();
-    // set text color
-    value = model->data(index, QAbstractItemModel::TextColorRole);
-    if (value.isValid() && value.toColor().isValid())
-        opt.palette.setColor(QPalette::Text, value.toColor());
-    // draw the background color
-    value = model->data(index, QAbstractItemModel::BackgroundColorRole);
-    if (value.isValid() && value.toColor().isValid())
-        painter->fillRect(option.rect, value.toColor());
-    // draw the item
-    QItemDelegate::paint(painter, opt, model, index);
-}
-
-QSize QTreeItemDelegate::sizeHint(const QFontMetrics &/*fontMetrics*/,
-                                  const QStyleOptionViewItem &option,
-                                  const QAbstractItemModel *model,
-                                  const QModelIndex &index) const
-{
-    QVariant value = model->data(index, QAbstractItemModel::FontRole);
-    QFont fnt = value.isValid() ? value.toFont() : option.font;
-    return QItemDelegate::sizeHint(QFontMetrics(fnt), option, model, index);
-}
-
 class QTreeModel : public QAbstractItemModel
 {
     friend class QTreeWidget;
@@ -658,8 +615,6 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeViewPrivate(), parent)
 {
     setModel(new QTreeModel(0, this));
-    setItemDelegate(new QTreeItemDelegate(this));
-    header()->setItemDelegate(new QTreeItemDelegate(header()));
     connect(this, SIGNAL(clicked(const QModelIndex&, int)),
             SLOT(emitClicked(const QModelIndex&, int)));
     connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),

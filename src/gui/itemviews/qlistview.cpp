@@ -57,9 +57,9 @@ template <class T>
 void BinTree<T>::remove(QVector<int> &leaf, const QRect &, uint, void *data)
 {
     int idx = (int)data;
-    for (int i = 0; i < (int)leaf.count(); ++i) {
+    for (int i = 0; i < leaf.count(); ++i) {
         if (leaf[i] == idx) {
-            for (; i < (int)leaf.count() - 1; ++i)
+            for (; i < leaf.count() - 1; ++i)
                 leaf[i] = leaf[i + 1];
             leaf.pop_back();
             return;
@@ -1141,7 +1141,6 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
     QModelIndex index;
     QSize hint = grid;
     QRect rect = bounds;
-    QFontMetrics fontMetrics(font());
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     QAbstractItemModel *model = this->model();
@@ -1158,7 +1157,7 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
         for (int i = first; i <= last ; ++i) {
             index = model->index(i, 0, root());
             if (!grid.isValid())
-                hint = delegate->sizeHint(fontMetrics, option, model, index);
+                hint = delegate->sizeHint(option, model, index);
             dx = hint.width();
             if (wrap && (x + spacing >= w))
                 d->createStaticRow(x, y, dy, layoutWraps, i, bounds, spacing, delta);
@@ -1177,7 +1176,7 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
         for (int i = first; i <= last ; ++i) {
             index = model->index(i, 0, root());
             if (!grid.isValid())
-                hint = delegate->sizeHint(fontMetrics, option, model, index);
+                hint = delegate->sizeHint(option, model, index);
             dy = hint.height();
             if (wrap && (y + spacing >= h))
                 d->createStaticColumn(x, y, dx, layoutWraps, i, bounds, spacing, delta);
@@ -1315,7 +1314,7 @@ void QListView::updateGeometries()
         return;
     QModelIndex index = model()->index(0, 0, root());
     QStyleOptionViewItem option = viewOptions();
-    QSize size = itemDelegate()->sizeHint(fontMetrics(), option, model(), index);
+    QSize size = itemDelegate()->sizeHint(option, model(), index);
 
     horizontalScrollBar()->setSingleStep(size.width() + d->spacing);
     horizontalScrollBar()->setPageStep(d->viewport->width());
@@ -1436,10 +1435,9 @@ void QListViewPrivate::createItems(int to)
     int count = tree.itemCount();
     QSize size;
     QStyleOptionViewItem option = q->viewOptions();
-    QFontMetrics fontMetrics(q->font());
     QModelIndex root = q->root();
     for (int i = count; i < to; ++i) {
-        size = delegate->sizeHint(fontMetrics, option, model, model->index(i, 0, root));
+        size = delegate->sizeHint(option, model, model->index(i, 0, root));
         QListViewItem item(QRect(0, 0, size.width(), size.height()), i); // default pos
         tree.appendItem(item);
     }
@@ -1497,7 +1495,7 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
 
     QStyleOptionViewItem option = q->viewOptions();
     QAbstractItemDelegate *del = q->itemDelegate();
-    QSize size = del->sizeHint(q->fontMetrics(), option, model, index);
+    QSize size = del->sizeHint(option, model, index);
     return QListViewItem(QRect(pos, size), index.row());
 }
 

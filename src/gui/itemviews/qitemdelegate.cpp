@@ -134,17 +134,37 @@ void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 {
     static QPoint pt(0, 0);
     static QSize sz(border * 2, border * 2);
-    QVariant variant = model->data(index, QAbstractItemModel::DecorationRole);
-    QPixmap pixmap = decoration(option, variant);
+
+    QStyleOptionViewItem opt = option;
+
+    // set font
+    QVariant value = model->data(index, QAbstractItemModel::FontRole);
+    if (value.isValid())
+        opt.font = value.toFont();
+
+    // set text color
+    value = model->data(index, QAbstractItemModel::TextColorRole);
+    if (value.isValid() && value.toColor().isValid())
+        opt.palette.setColor(QPalette::Text, value.toColor());
+
+    // do layout
+    value = model->data(index, QAbstractItemModel::DecorationRole);
+    QPixmap pixmap = decoration(opt, value);
     QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
 
     QRect pixmapRect = pixmap.rect();
     QRect textRect(pt, painter->fontMetrics().size(0, text) + sz);
-    doLayout(option, &pixmapRect, &textRect, false);
+    doLayout(opt, &pixmapRect, &textRect, false);
 
-    drawDecoration(painter, option, pixmapRect, pixmap);
-    drawDisplay(painter, option, textRect, text);
-    drawFocus(painter, option, textRect);
+    // draw the background color
+    value = model->data(index, QAbstractItemModel::BackgroundColorRole);
+    if (value.isValid() && value.toColor().isValid())
+        painter->fillRect(option.rect, value.toColor());
+    
+    // draw the item
+    drawDecoration(painter, opt, pixmapRect, pixmap);
+    drawDisplay(painter, opt, textRect, text);
+    drawFocus(painter, opt, textRect);
 }
 
 /*!
@@ -154,18 +174,22 @@ information provided by the font metrics in \a fontMetrics, and the given
 style \a option.
 */
 
-QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
-                              const QAbstractItemModel *model, const QModelIndex &index) const
+QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
+                              const QAbstractItemModel *model,
+                              const QModelIndex &index) const
 {
     static QPoint pt(0, 0);
     static QSize sz(border * 2, border * 2);
 
-    QVariant variant = model->data(index, QAbstractItemModel::DecorationRole);
-    QPixmap pixmap = decoration(option, variant);
+    QVariant value = model->data(index, QAbstractItemModel::FontRole);
+    QFont fnt = value.isValid() ? value.toFont() : option.font;
+
+    value = model->data(index, QAbstractItemModel::DecorationRole);
+    QPixmap pixmap = decoration(option, value);
     QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
 
     QRect pixmapRect = pixmap.rect();
-    QRect textRect(pt, fontMetrics.size(0, text) + sz);
+    QRect textRect(pt, QFontMetrics(fnt).size(0, text) + sz);
     doLayout(option, &pixmapRect, &textRect, true);
 
     return pixmapRect.unite(textRect).size();

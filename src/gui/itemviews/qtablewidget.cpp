@@ -19,49 +19,6 @@
 #include <private/qabstractitemmodel_p.h>
 #include <private/qtableview_p.h>
 
-class QTableItemDelegate : public QItemDelegate
-{
-public:
-    QTableItemDelegate(QObject *parent) : QItemDelegate(parent) {}
-    ~QTableItemDelegate() {}
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QAbstractItemModel *model, const QModelIndex &index) const;
-    QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
-                   const QAbstractItemModel *model, const QModelIndex &index) const;
-};
-
-
-void QTableItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                              const QAbstractItemModel *model, const QModelIndex &index) const
-{
-    QStyleOptionViewItem opt = option;
-    // set font
-    QVariant value = model->data(index, QAbstractItemModel::FontRole);
-    if (value.isValid())
-        opt.font = value.toFont();
-    // set text color
-    value = model->data(index, QAbstractItemModel::TextColorRole);
-    if (value.isValid() && value.toColor().isValid())
-        opt.palette.setColor(QPalette::Text, value.toColor());
-    // draw the background color
-    value = model->data(index, QAbstractItemModel::BackgroundColorRole);
-    if (value.isValid() && value.toColor().isValid())
-        painter->fillRect(option.rect, value.toColor());
-    // draw the item
-    QItemDelegate::paint(painter, opt, model, index);
-}
-
-QSize QTableItemDelegate::sizeHint(const QFontMetrics &/*fontMetrics*/,
-                                  const QStyleOptionViewItem &option,
-                                  const QAbstractItemModel *model,
-                                  const QModelIndex &index) const
-{
-    QVariant value = model->data(index, QAbstractItemModel::FontRole);
-    QFont fnt = value.isValid() ? value.toFont() : option.font;
-    return QItemDelegate::sizeHint(QFontMetrics(fnt), option, model, index);
-}
-
 class QTableModel : public QAbstractTableModel
 {
     friend class QTableWidget;
@@ -394,9 +351,6 @@ QTableWidget::QTableWidget(QWidget *parent)
     : QTableView(*new QTableWidgetPrivate, parent)
 {
     setModel(new QTableModel(0, 0, this));
-    setItemDelegate(new QTableItemDelegate(this));
-    verticalHeader()->setItemDelegate(new QTableItemDelegate(verticalHeader()));
-    horizontalHeader()->setItemDelegate(new QTableItemDelegate(horizontalHeader()));
 }
 
 /*!

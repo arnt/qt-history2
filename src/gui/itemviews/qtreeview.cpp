@@ -359,7 +359,7 @@ QRect QTreeView::itemViewportRect(const QModelIndex &index) const
     }
     int y = d->coordinate(vi);
     QStyleOptionViewItem option = viewOptions();
-    int h = itemDelegate()->sizeHint(fontMetrics(), option, d->model, d->modelIndex(vi)).height();
+    int h = itemDelegate()->sizeHint(option, d->model, d->modelIndex(vi)).height();
     return QRect(x, y, w, h);
 }
 
@@ -386,7 +386,6 @@ void QTreeView::ensureItemVisible(const QModelIndex &index)
         verticalScrollBar()->setValue(i * verticalFactor());
     } else if (rect.bottom() > area.bottom()) { // below
         QStyleOptionViewItem option = viewOptions();
-        QFontMetrics fontMetrics(this->fontMetrics());
         QAbstractItemDelegate *delegate = itemDelegate();
         int i = d->viewIndex(index);
         if (i < 0) {
@@ -395,8 +394,8 @@ void QTreeView::ensureItemVisible(const QModelIndex &index)
         }
         int y = area.height();
         while (y > 0 && i > 0)
-            y -= delegate->sizeHint(fontMetrics, option, d->model, d->items.at(i--).index).height();
-        int a = (-y * verticalFactor()) / delegate->sizeHint(fontMetrics, option, d->model,
+            y -= delegate->sizeHint(option, d->model, d->items.at(i--).index).height();
+        int a = (-y * verticalFactor()) / delegate->sizeHint(option, d->model,
                                                              d->items.at(i).index).height();
         verticalScrollBar()->setValue(++i * verticalFactor() + a);
     }
@@ -445,7 +444,6 @@ void QTreeView::paintEvent(QPaintEvent *e)
         d->right = tmp;
     }
 
-    QFontMetrics fontMetrics(this->fontMetrics());
     QAbstractItemDelegate *delegate = itemDelegate();
     QModelIndex index;
     QModelIndex current = selectionModel()->currentItem();
@@ -456,14 +454,14 @@ void QTreeView::paintEvent(QPaintEvent *e)
     int v = verticalScrollBar()->value();
     int c = d->items.count();
     int i = d->itemAt(v);
-    int s = delegate->sizeHint(fontMetrics, option, model(), d->items.at(i).index).height();
+    int s = delegate->sizeHint(option, model(), d->items.at(i).index).height();
     int y = d->coordinateAt(v, s);
 
     QVector<QTreeViewItem> items = d->items;
 
     while (y < h && i < c) {
         index = items.at(i).index;
-        s = delegate->sizeHint(fontMetrics, option, d->model, index).height();
+        s = delegate->sizeHint(option, d->model, index).height();
         if (y + s >= t) {
             option.rect.setRect(0, y, 0, s);
             option.state = state|(items.at(i).open ? QStyle::Style_Open : QStyle::Style_Default);
@@ -658,7 +656,7 @@ void QTreeView::doItemsLayout()
     QStyleOptionViewItem option = viewOptions();
     if (model()->rowCount(root()) > 0 && model()->columnCount(root()) > 0) {
         QModelIndex index = model()->index(0, 0, root());
-        d->itemHeight = itemDelegate()->sizeHint(fontMetrics(), option, model(), index).height();
+        d->itemHeight = itemDelegate()->sizeHint(option, model(), index).height();
         d->layout(-1);
         d->reopenChildren(root(), false);
     }
@@ -694,7 +692,7 @@ int QTreeView::verticalOffset() const
     // gives an estimate
     QStyleOptionViewItem option = viewOptions();
     QModelIndex index = model()->index(0, 0);
-    int iheight = itemDelegate()->sizeHint(fontMetrics(), option, model(), index).height();
+    int iheight = itemDelegate()->sizeHint(option, model(), index).height();
     int item = verticalScrollBar()->value() / d->verticalFactor;
     return item * iheight;
 }
@@ -824,7 +822,7 @@ QRect QTreeView::selectionViewportRect(const QItemSelection &selection) const
     }
 
     QStyleOptionViewItem option = viewOptions();
-    int bottomHeight = itemDelegate()->sizeHint(fontMetrics(), option, model(), bottomIndex).height();
+    int bottomHeight = itemDelegate()->sizeHint(option, model(), bottomIndex).height();
     int bottomPos = d->coordinate(bottom) + bottomHeight;
     int topPos = d->coordinate(top);
 
@@ -869,26 +867,23 @@ void QTreeView::scrollContentsBy(int dx, int dy)
         int previous_item = previous_value / d->verticalFactor;
 
         QStyleOptionViewItem option = viewOptions();
-        QFontMetrics fontMetrics(this->fontMetrics());
         QAbstractItemDelegate *delegate = itemDelegate();
         const QTreeViewItem *items = d->items.constData();
         QModelIndex current_index = items[current_item].index;
         QModelIndex previous_index = items[previous_item].index;
 
-        int current_height = delegate->sizeHint(fontMetrics, option,
-                                                d->model, current_index).height();
-        int previous_height = delegate->sizeHint(fontMetrics, option,
-                                                 d->model, previous_index).height();
+        int current_height = delegate->sizeHint(option, d->model, current_index).height();
+        int previous_height = delegate->sizeHint(option, d->model, previous_index).height();
         int current_y = d->coordinateAt(current_value, current_height);
         int previous_y = d->coordinateAt(previous_value, previous_height);
 
         dy = current_y - previous_y;
         if (current_item > previous_item)
             for (int i = previous_item; i < current_item; ++i)
-                dy -= delegate->sizeHint(fontMetrics, option, d->model, items[i].index).height();
+                dy -= delegate->sizeHint(option, d->model, items[i].index).height();
         else if (current_item < previous_item)
             for (int i = previous_item; i > current_item; --i)
-                dy += delegate->sizeHint(fontMetrics, option, d->model, items[i].index).height();
+                dy += delegate->sizeHint(option, d->model, items[i].index).height();
 
         verticalScrollBar()->repaint();
     }
@@ -1000,7 +995,7 @@ void QTreeView::updateGeometries()
     // update scrollbars
     if (model() && model()->rowCount(root()) > 0 && model()->columnCount(root()) > 0) {
         QModelIndex topLeft = model()->index(0, 0);
-        QSize size = itemDelegate()->sizeHint(fontMetrics(), viewOptions(), model(), topLeft);
+        QSize size = itemDelegate()->sizeHint(viewOptions(), model(), topLeft);
         d->updateVerticalScrollbar(size.height());
         d->updateHorizontalScrollbar(d->header->sectionSize(0));
     }
@@ -1024,7 +1019,7 @@ void QTreeView::verticalScrollbarAction(int action)
     int factor = d->verticalFactor;
     int value = verticalScrollBar()->value();
     int item = value / factor;
-    int iheight = delegate->sizeHint(fontMetrics(), option, model, d->modelIndex(item)).height();
+    int iheight = delegate->sizeHint(option, model, d->modelIndex(item)).height();
     int above = (value % factor) * iheight;
     int y = -(above / factor); // above the page
 
@@ -1033,10 +1028,10 @@ void QTreeView::verticalScrollbarAction(int action)
         // go down to the bottom of the page
         int h = d->viewport->height();
         while (y < h && item < d->items.count())
-            y += delegate->sizeHint(fontMetrics(), option, model, d->modelIndex(item++)).height();
+            y += delegate->sizeHint(option, model, d->modelIndex(item++)).height();
         value = item * factor; // i is now the last item on the page
         if (y > h && item)
-            value -= factor * (y - h) / delegate->sizeHint(fontMetrics(), option, model,
+            value -= factor * (y - h) / delegate->sizeHint(option, model,
                                                            d->modelIndex(item - 1)).height();
         verticalScrollBar()->setSliderPosition(value);
 
@@ -1046,12 +1041,11 @@ void QTreeView::verticalScrollbarAction(int action)
 
         // go up to the top of the page
         while (y > 0 && item > 0)
-            y -= delegate->sizeHint(fontMetrics(), option, model, d->modelIndex(--item)).height();
+            y -= delegate->sizeHint(option, model, d->modelIndex(--item)).height();
         value = item * factor; // i is now the first item in the page
 
         if (y < 0)
-            value += factor * -y / delegate->sizeHint(fontMetrics(), option, model,
-                                                      d->modelIndex(item)).height();
+            value += factor * -y / delegate->sizeHint(option, model, d->modelIndex(item)).height();
         verticalScrollBar()->setSliderPosition(value);
     }
 }
@@ -1109,7 +1103,6 @@ int QTreeView::columnSizeHint(int column) const
         return 0;
 
     QStyleOptionViewItem option = viewOptions();
-    QFontMetrics fontMetrics(this->fontMetrics());
     QAbstractItemDelegate *delegate = itemDelegate();
     QModelIndex index;
 
@@ -1118,7 +1111,7 @@ int QTreeView::columnSizeHint(int column) const
     int h = d->viewport->height();
     int c = d->items.count();
     int i = d->itemAt(v);
-    int s = delegate->sizeHint(fontMetrics, option, d->model, items[i].index).height();
+    int s = delegate->sizeHint(option, d->model, items[i].index).height();
     int y = d->coordinateAt(v, s);
     int w = 0;
     QSize size;
@@ -1126,7 +1119,7 @@ int QTreeView::columnSizeHint(int column) const
     while (y < h && i < c) {
         index = items[i].index;
         index = d->model->sibling(index.row(), column, index);
-        size = delegate->sizeHint(fontMetrics, option, d->model, index);
+        size = delegate->sizeHint(option, d->model, index);
         w = qMax(w, size.width() + (column == 0 ? d->indentation(i) : 0));
         y += size.height();
         ++i;
@@ -1270,17 +1263,16 @@ int QTreeViewPrivate::indentation(int i) const
 int QTreeViewPrivate::coordinate(int item) const
 {
     QStyleOptionViewItem option = q->viewOptions();
-    QFontMetrics fontMetrics(q->fontMetrics());
     int v = q->verticalScrollBar()->value();
     int i = itemAt(v); // first item (may start above the page)
-    int ih = delegate->sizeHint(fontMetrics, option, model, items.at(i).index).height();
+    int ih = delegate->sizeHint(option, model, items.at(i).index).height();
     int y = coordinateAt(v, ih); // the part of the item above the page
     int h = viewport->height();
     if (i <= item) {
         while (y < h && i < items.count()) {
             if (i == item)
                 return y; // item is visible - actual y in viewport
-            y += delegate->sizeHint(fontMetrics, option, model, items.at(i).index).height();
+            y += delegate->sizeHint(option, model, items.at(i).index).height();
             ++i;
         }
         // item is below the viewport - estimated y
@@ -1293,20 +1285,19 @@ int QTreeViewPrivate::coordinate(int item) const
 int QTreeViewPrivate::item(int coordinate) const
 {
     QStyleOptionViewItem option = q->viewOptions();
-    QFontMetrics fontMetrics(q->fontMetrics());
 
     int v = q->verticalScrollBar()->value();
     int i = itemAt(v);
     if (i >= items.count())
         return -1;
 
-    int s = delegate->sizeHint(fontMetrics, option, model, items.at(i).index).height();
+    int s = delegate->sizeHint(option, model, items.at(i).index).height();
     int y = coordinateAt(v, s);
     int h = viewport->height();
     if (coordinate >= y) {
         // search for item in viewport
         while (y < h && i < items.count()) {
-            y += delegate->sizeHint(fontMetrics, option, model, items.at(i).index).height();
+            y += delegate->sizeHint(option, model, items.at(i).index).height();
             if (coordinate < y)
                 return i;
             ++i;
@@ -1422,12 +1413,12 @@ void QTreeViewPrivate::updateVerticalScrollbar(int itemHeight)
     QStyleOptionViewItem option = q->viewOptions();
     QAbstractItemDelegate *delegate = q->itemDelegate();
     while (y > 0 && i > 0)
-        y -= delegate->sizeHint(q->fontMetrics(), option, model, modelIndex(--i)).height();
+        y -= delegate->sizeHint(option, model, modelIndex(--i)).height();
     int max = i * factor;
 
     if (y < 0) { // if the first item starts above the viewport, we have to backtrack
         int backtracking = factor * -y;
-        int itemSize = delegate->sizeHint(q->fontMetrics(), option, model, modelIndex(i)).height();
+        int itemSize = delegate->sizeHint(option, model, modelIndex(i)).height();
         if (itemSize > 0) // avoid division by zero
             max += (backtracking / itemSize) + 1;
     }

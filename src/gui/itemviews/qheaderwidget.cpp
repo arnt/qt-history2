@@ -18,52 +18,6 @@
 #include <private/qabstractitemmodel_p.h>
 #include <private/qheaderview_p.h>
 
-class QHeaderItemDelegate : public QItemDelegate
-{
-public:
-    QHeaderItemDelegate(QObject *parent) : QItemDelegate(parent) {}
-    ~QHeaderItemDelegate() {}
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QAbstractItemModel *model, const QModelIndex &index) const;
-    QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
-                   const QAbstractItemModel *model, const QModelIndex &index) const;
-};
-
-
-void QHeaderItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                              const QAbstractItemModel *model, const QModelIndex &index) const
-{
-    QStyleOptionViewItem opt = option;
-    // enabled
-    if ((model->flags(index) & QAbstractItemModel::ItemIsEnabled) == 0)
-        opt.state &= ~QStyle::Style_Enabled;
-    // set font
-    QVariant value = model->data(index, QAbstractItemModel::FontRole);
-    if (value.isValid())
-        opt.font = value.toFont();
-    // set text color
-    value = model->data(index, QAbstractItemModel::TextColorRole);
-    if (value.isValid() && value.toColor().isValid())
-        opt.palette.setColor(QPalette::Text, value.toColor());
-    // draw the background color
-    value = model->data(index, QAbstractItemModel::BackgroundColorRole);
-    if (value.isValid() && value.toColor().isValid())
-        painter->fillRect(option.rect, value.toColor());
-    // draw the item
-    QItemDelegate::paint(painter, opt, model, index);
-}
-
-QSize QHeaderItemDelegate::sizeHint(const QFontMetrics &/*fontMetrics*/,
-                                  const QStyleOptionViewItem &option,
-                                  const QAbstractItemModel *model,
-                                  const QModelIndex &index) const
-{
-    QVariant value = model->data(index, QAbstractItemModel::FontRole);
-    QFont fnt = value.isValid() ? value.toFont() : option.font;
-    return QItemDelegate::sizeHint(QFontMetrics(fnt), option, model, index);
-}
-
 class QHeaderModel : public QAbstractTableModel
 {
     friend class QHeaderWidget;
@@ -205,8 +159,8 @@ int QHeaderModel::columnCount() const
 // item
 
 QHeaderWidgetItem::QHeaderWidgetItem(QHeaderWidget *view)
-    : view(view),
-      itemFlags(QAbstractItemModel::ItemIsEnabled)
+    : itemFlags(QAbstractItemModel::ItemIsEnabled),
+      view(view)
 {
 }
 
@@ -258,7 +212,6 @@ QHeaderWidget::QHeaderWidget(Qt::Orientation orientation, QWidget *parent)
     : QHeaderView(orientation, parent)
 {
     setModel(new QHeaderModel(orientation, 0, this));
-    setItemDelegate(new QHeaderItemDelegate(this));
 }
 
 QHeaderWidget::~QHeaderWidget()

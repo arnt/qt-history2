@@ -39,8 +39,8 @@ public:
     virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
                        const QAbstractItemModel *model, const QModelIndex &index) const = 0;
 
-    virtual QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
-                           const QAbstractItemModel *model, const QModelIndex &index) const = 0;
+    virtual QSize sizeHint(const QStyleOptionViewItem &option, const QAbstractItemModel *model,
+                           const QModelIndex &index) const = 0;
 
     // editing
     virtual EditorType editorType(const QAbstractItemModel *model, const QModelIndex &index) const;

@@ -39,8 +39,9 @@ void PlasmaDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option
     painter->drawRect(option.rect);
 }
 
-QSize PlasmaDelegate::sizeHint(const QFontMetrics &, const QStyleOptionViewItem &,
-                               const QAbstractItemModel *, const QModelIndex &) const
+QSize PlasmaDelegate::sizeHint(const QStyleOptionViewItem &,
+                               const QAbstractItemModel *,
+                               const QModelIndex &) const
 {
     return QSize(4, 4);
 }

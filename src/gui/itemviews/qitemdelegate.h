@@ -29,8 +29,8 @@ public:
     // painting
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QAbstractItemModel *model, const QModelIndex &index) const;
-    QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
-                   const QAbstractItemModel *model, const QModelIndex &index) const;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QAbstractItemModel *model,
+                   const QModelIndex &index) const;
 
     // editing
     QAbstractItemDelegate::EditorType editorType(const QAbstractItemModel *model,

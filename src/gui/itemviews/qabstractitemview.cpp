@@ -1343,7 +1343,7 @@ void QAbstractItemView::keyboardSearch(const QString &search)
 */
 QSize QAbstractItemView::itemSizeHint(const QModelIndex &index) const
 {
-    return itemDelegate()->sizeHint(fontMetrics(), viewOptions(), model(), index);
+    return itemDelegate()->sizeHint(viewOptions(), model(), index);
 }
 
 /*!
@@ -1358,7 +1358,7 @@ int QAbstractItemView::rowSizeHint(int row) const
     QModelIndex idx;
     for (int c = 0; c < colCount; ++c) {
         idx = d->model->index(row, c, root());
-        height = qMax(height, delegate->sizeHint(fontMetrics(), option, d->model, idx).height());
+        height = qMax(height, delegate->sizeHint(option, d->model, idx).height());
     }
     return height;
 }
@@ -1375,7 +1375,7 @@ int QAbstractItemView::columnSizeHint(int column) const
     QModelIndex idx;
     for (int r = 0; r < rows; ++r) {
         idx = d->model->index(r, column, root());
-        width = qMax(width, delegate->sizeHint(fontMetrics(), option, d->model, idx).width());
+        width = qMax(width, delegate->sizeHint(option, d->model, idx).width());
     }
     return width;
 }

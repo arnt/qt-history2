@@ -98,9 +98,11 @@ bool Model::hasChildren(const QModelIndex &) const
     return rc > 0 && cc > 0;
 }
 
-bool Model::isDragEnabled(const QModelIndex &index) const
+QAbstractItemModel::ItemFlags Model::flags(const QModelIndex &index) const
 {
-    return index.isValid();
+    return (QAbstractItemModel::ItemIsDragEnabled
+            |QAbstractItemModel::ItemIsSelectable
+            |QAbstractItemModel::ItemIsEnabled);
 }
 
 Model::Node *Model::node(int row, Node *parent) const

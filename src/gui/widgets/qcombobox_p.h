@@ -120,11 +120,13 @@ protected:
         painter->eraseRect(option.rect);
         QApplication::style().drawControl(QStyle::CE_MenuItem, &opt, painter, 0);
     }
-    QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
+    QSize sizeHint(const QStyleOptionViewItem &option,
                            const QAbstractItemModel *model, const QModelIndex &index) const {
         QStyleOptionMenuItem opt = getStyleOption(option, model, index);
+        QVariant value = model->data(index, QAbstractItemModel::FontRole);
+        QFont fnt = value.isValid() ? value.toFont() : option.font;
         return QApplication::style().sizeFromContents(
-            QStyle::CT_MenuItem, &opt, option.rect.size(), fontMetrics, 0);
+            QStyle::CT_MenuItem, &opt, option.rect.size(), QFontMetrics(fnt), 0);
     }
 
 private:

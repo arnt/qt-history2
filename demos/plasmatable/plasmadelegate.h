@@ -25,7 +25,7 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QAbstractItemModel *model, const QModelIndex &index) const;
-    QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
+    QSize sizeHint(const QStyleOptionViewItem &option,
                    const QAbstractItemModel *model, const QModelIndex &index) const;
 };
 

@@ -651,7 +651,7 @@ int QTableView::rowSizeHint(int row) const
     QModelIndex index;
     for (int column = columnfirst; column < columnlast; ++column) {
         index = d->model->index(row, column, root());
-        hint = qMax(hint, itemDelegate()->sizeHint(fontMetrics(), option, d->model, index).height());
+        hint = qMax(hint, itemDelegate()->sizeHint(option, d->model, index).height());
     }
     return d->showGrid ? hint + 1 : hint;
 }
@@ -674,7 +674,7 @@ int QTableView::columnSizeHint(int column) const
     QModelIndex index;
     for (int row = rowfirst; row <= rowlast; ++row) {
         index = d->model->index(row, column, root());
-        hint = qMax(hint, itemDelegate()->sizeHint(fontMetrics(), option, d->model, index).width());
+        hint = qMax(hint, itemDelegate()->sizeHint(option, d->model, index).width());
     }
     return d->showGrid ? hint + 1 : hint;
 }

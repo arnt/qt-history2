@@ -16,49 +16,6 @@
 #include <qpainter.h>
 #include <private/qlistview_p.h>
 
-class QListItemDelegate : public QItemDelegate
-{
-public:
-    QListItemDelegate(QObject *parent) : QItemDelegate(parent) {}
-    ~QListItemDelegate() {}
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QAbstractItemModel *model, const QModelIndex &index) const;
-    QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
-                   const QAbstractItemModel *model, const QModelIndex &index) const;
-};
-
-
-void QListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                              const QAbstractItemModel *model, const QModelIndex &index) const
-{
-    QStyleOptionViewItem opt = option;
-    // set font
-    QVariant value = model->data(index, QAbstractItemModel::FontRole);
-    if (value.isValid())
-        opt.font = value.toFont();
-    // set text color
-    value = model->data(index, QAbstractItemModel::TextColorRole);
-    if (value.isValid() && value.toColor().isValid())
-        opt.palette.setColor(QPalette::Text, value.toColor());
-    // draw the background color
-    value = model->data(index, QAbstractItemModel::BackgroundColorRole);
-    if (value.isValid() && value.toColor().isValid())
-        painter->fillRect(option.rect, value.toColor());
-    // draw the item
-    QItemDelegate::paint(painter, opt, model, index);
-}
-
-QSize QListItemDelegate::sizeHint(const QFontMetrics &/*fontMetrics*/,
-                                  const QStyleOptionViewItem &option,
-                                  const QAbstractItemModel *model,
-                                  const QModelIndex &index) const
-{
-    QVariant value = model->data(index, QAbstractItemModel::FontRole);
-    QFont fnt = value.isValid() ? value.toFont() : option.font;
-    return QItemDelegate::sizeHint(QFontMetrics(fnt), option, model, index);
-}
-
 class QListModel : public QAbstractListModel
 {
 public:
@@ -484,7 +441,6 @@ QListWidget::QListWidget(QWidget *parent, const char* name)
 {
     setObjectName(name);
     setModel(new QListModel(this));
-    setItemDelegate(new QListItemDelegate(this));
 }
 #endif
 
@@ -515,7 +471,6 @@ QListWidget::QListWidget(QWidget *parent)
     : QListView(*new QListWidgetPrivate(), parent)
 {
     setModel(new QListModel(this));
-    setItemDelegate(new QListItemDelegate(this));
 }
 
 /*!
