@@ -2613,7 +2613,7 @@ QPtrList<DesignerProject> MainWindow::projectList() const
 void MainWindow::recentlyFilesMenuActivated( int id )
 {
     if ( id != -1 ) {
-	openFile( *recentlyFiles.at( id ) );
+	fileOpen( "", "", *recentlyFiles.at( id ) );
 	QString fn( *recentlyFiles.at( id ) );
 	addRecentlyOpened( fn, recentlyFiles );
     }
