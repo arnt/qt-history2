@@ -33,6 +33,8 @@ MainWindow::MainWindow()
                       "classes, but also provides a focus for the framework.",
                       plainCharFormat);
 
+    QTextFrame *mainFrame = cursor.currentFrame();
+    
     QTextFrameFormat frameFormat;
     frameFormat.setMargin(32);
     frameFormat.setPadding(8);
@@ -44,7 +46,7 @@ MainWindow::MainWindow()
                       "can done by an editor widget, such as QTextEdit, or by "
                       "explicit calls to the Scribe API.", boldCharFormat);
 
-    cursor = cursor.currentFrame()->parentFrame()->lastCursorPosition();
+    cursor = mainFrame->lastCursorPosition();
     cursor.insertText("There are two complementary ways to visualize the "
                       "contents of a document: as a linear buffer that is "
                       "used by editors to modify the contents, and as an "
