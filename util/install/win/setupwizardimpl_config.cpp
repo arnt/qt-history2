@@ -1477,7 +1477,7 @@ void SetupWizardImpl::showPageConfig()
     motifDirect->setOn( entry == "Direct" );
 
     folder = new CheckListItem( stfolder, "Windows XP" );
-    folder->addRequiredFiles("uxtheme.hh");
+    folder->addRequiredFiles("uxtheme.h");
     folder->setRequiredFileLocation("part of the Microsoft Platform SDK, which is usually available for "
 				    "download from the following location:"
 				    "<p>http://www.microsoft.com/msdownload/platformsdk/sdkupdate/<p>");
