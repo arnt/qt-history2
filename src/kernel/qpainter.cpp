@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#184 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#185 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1732,7 +1732,7 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 	return;
 
     bool all = image.rect().intersect(QRect(sx,sy,sw,sh)) == image.rect();
-    QImage subimage = all ? image : image.copy(sx,sy,sw,wh);
+    QImage subimage = all ? image : image.copy(sx,sy,sw,sh);
 
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[2];
