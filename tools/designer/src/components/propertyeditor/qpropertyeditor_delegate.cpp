@@ -56,7 +56,7 @@ bool Delegate::eventFilter(QObject *object, QEvent *event)
                 emit commitData(widget);
                 return true;
             }
-        } break; 
+        } break;
         default:
             break;
     }
@@ -129,7 +129,7 @@ QWidget *Delegate::editor(QWidget *parent,
         QWidget *editor = property->createEditor(parent, this, SLOT(sync()));
         Q_ASSERT(editor);
 
-        editor->installEventFilter(this);
+        editor->installEventFilter(const_cast<Delegate *>(this));
         return editor;
     }
 
