@@ -4564,6 +4564,8 @@ void QTable::setNumRows( int r )
     if ( isUpdatesEnabled )
 	leftHeader->update();
     leftHeader->updateCache();
+    if ( curRow > numRows() )
+	curRow = numRows();
 }
 
 void QTable::setNumCols( int c )
@@ -4588,6 +4590,8 @@ void QTable::setNumCols( int c )
     if ( isUpdatesEnabled )
 	topHeader->update();
     topHeader->updateCache();
+    if ( curCol > numCols() )
+	curCol = numCols();
 }
 
 /*! Sets the section labels of the verticalHeader() to \a labels */
