@@ -114,12 +114,7 @@ QAbstractEventDispatcher::QAbstractEventDispatcher(QAbstractEventDispatcherPriva
 }
 
 QAbstractEventDispatcher::~QAbstractEventDispatcher()
-{
-    QThreadData *data = QThreadData::current();
-    Q_ASSERT_X(data != 0, "QAbstractEventDispatcher",
-               "QAbstractEventDispatcher can only be used with threads started with QThread");
-    data->eventDispatcher = 0;
-}
+{ }
 
 /*!
     Returns a pointer to the event dispatcher object for the specified

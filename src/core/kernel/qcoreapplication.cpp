@@ -129,6 +129,8 @@ QCoreApplicationPrivate::~QCoreApplicationPrivate()
 {
     QThreadData *data = mainData();
 
+    data->eventDispatcher = 0;
+
     QThreadStorageData::finish(data->tls);
     QThreadData::setCurrent(0);
 
