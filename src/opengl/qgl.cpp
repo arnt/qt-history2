@@ -1227,13 +1227,12 @@ void qgl_delete_d( const QGLWidget * w )
 {
     if ( qgl_d_ptr ) {
 	QGLWidgetPrivate * d = qgl_d_ptr->find( (void *) w );
+	((QGLWidget*) w)->makeCurrent();
 	if ( d ) {
-#ifndef Q_WS_MAC //We do not delete the displaylist because it is shared with something else
 	    QMapIterator<QString, int> it;
 	    for ( it = d->displayListCache.begin(); it != d->displayListCache.end(); ++it ) {
 		glDeleteLists( it.data(), 256 );
 	    }
-#endif
 	}
 	qgl_d_ptr->remove( (void *) w );
     }
@@ -1317,6 +1316,7 @@ QGLWidget::~QGLWidget()
 #if defined(GLX_MESA_release_buffers) && defined(QGL_USE_MESA_EXT)
     bool doRelease = ( glcx && glcx->windowCreated() );
 #endif
+    qgl_delete_d( this );
     delete glcx;
 #if defined(Q_WGL)
     delete olcx;
@@ -1332,7 +1332,6 @@ QGLWidget::~QGLWidget()
     }
 #endif
     cleanupColormaps();
-    qgl_delete_d( this );
 }
 
 

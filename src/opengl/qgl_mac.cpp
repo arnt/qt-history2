@@ -532,12 +532,14 @@ void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLCon
 		delete gl_pix;
 	    }
 	    gl_pix = new QPixmap(width(), height(), QPixmap::BestOptim);
-	    qgl_delete_d(this); 
+	    if(oldcx)
+		qgl_delete_d(this); 
 	    setContext(new QGLContext(format, gl_pix), NULL, FALSE);
 	}
     } else {
 	setEraseColor(black);
-	qgl_delete_d(this); 
+	if(oldcx)
+	    qgl_delete_d(this); 
 	setContext(new QGLContext(format, this), share_ctx, FALSE);
 	glcx->fixBufferRect();
     }
