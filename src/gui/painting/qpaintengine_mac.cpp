@@ -783,27 +783,26 @@ QQuickDrawPaintEngine::setupQDPen()
         dot = 1;
     PenSize(dot, dot);
 
-    Pattern pat;
-    switch(d->current.pen.style()) {
-        case DotLine:
-        case DashDotLine:
-        case DashDotDotLine:
-//            qDebug("Penstyle not implemented %s - %d", __FILE__, __LINE__);
-        case DashLine:
-            GetQDGlobalsGray(&pat);
-            break;
-        default:
-            GetQDGlobalsBlack(&pat);
-            break;
-    }
-    PenPat(&pat);
-
-    //pen color
+    //forecolor
     ::RGBColor f;
     f.red = d->current.pen.color().red()*256;
     f.green = d->current.pen.color().green()*256;
     f.blue = d->current.pen.color().blue()*256;
-    RGBForeColor(&f);
+    PixPatHandle pixpat = NewPixPat();
+    MakeRGBPat(pixpat, &f);
+    CGrafPtr port;
+    if(d->pdev->devType() == QInternal::Widget)
+        port = GetWindowPort((WindowPtr)d->pdev->handle());
+    else
+        port = (GWorldPtr)d->pdev->handle();
+    SetPortPenPixPat(port, pixpat);
+
+    //backcolor
+    ::RGBColor b;
+    b.red = d->current.bg.brush.color().red()*256;
+    b.green = d->current.bg.brush.color().green()*256;
+    b.blue = d->current.bg.brush.color().blue()*256;
+    RGBBackColor(&b);
 
     //penmodes
     //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
@@ -813,7 +812,7 @@ QQuickDrawPaintEngine::setupQDPen()
     int penmode = ropCodes[d->current.rop];
     PenMode(penmode);
     if(penmode == subPin || penmode == addPin)
-        OpColor(&f);
+        OpColor(&b);
 }
 
 /*!
@@ -833,16 +832,34 @@ QQuickDrawPaintEngine::setupQDBrush()
     } else { //unset
         d->brush_style_pix = 0;
     }
-    Pattern pat;
-    GetQDGlobalsBlack(&pat);
-    PenPat(&pat);
 
-    //color
+    //forecolor
     ::RGBColor f;
     f.red = d->current.brush.color().red()*256;
     f.green = d->current.brush.color().green()*256;
     f.blue = d->current.brush.color().blue()*256;
-    RGBForeColor(&f);
+    if(bs == SolidPattern) {
+        PixPatHandle pixpat = NewPixPat();
+        MakeRGBPat(pixpat, &f);
+        CGrafPtr port;
+        if(d->pdev->devType() == QInternal::Widget)
+            port = GetWindowPort((WindowPtr)d->pdev->handle());
+        else
+            port = (GWorldPtr)d->pdev->handle();
+        SetPortPenPixPat(port, pixpat);
+    } else {
+        Pattern pat;
+        GetQDGlobalsBlack(&pat);
+        PenPat(&pat);
+        RGBForeColor(&f);
+    }
+
+    //backcolor
+    ::RGBColor b;
+    b.red = d->current.bg.brush.color().red()*256;
+    b.green = d->current.bg.brush.color().green()*256;
+    b.blue = d->current.bg.brush.color().blue()*256;
+    RGBBackColor(&b);
 
     //penmodes
     //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
@@ -853,7 +870,7 @@ QQuickDrawPaintEngine::setupQDBrush()
     int penmode = ropCodes[d->current.rop];
     PenMode(penmode);
     if(penmode == subPin || penmode == addPin)
-        OpColor(&f);
+        OpColor(&b);
 }
 
 /*!
