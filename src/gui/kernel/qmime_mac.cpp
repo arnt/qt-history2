@@ -199,7 +199,7 @@ inline static void qt_mac_copy_to_str255(const QString &qstr, unsigned char *pst
     int length = qstr.length();
     Q_ASSERT(length < 255);
     pstr[0] = (uchar)length;
-    memcpy(pstr+1, qstr.latin1(), length);
+    memcpy(pstr+1, qstr.toLatin1(), length);
 }
 
 int QMacMimeAnyMime::registerMimeType(const QString &mime)
@@ -267,16 +267,16 @@ bool openMimeRegistry(bool global, QIODevice::OpenMode mode, QFile &file)
         if(!QFile::exists(dir)) {
             // Do it with a system call as I don't see much worth in
             // doing it with QDir since we have to chmod anyway.
-            bool success = ::mkdir(dir.local8Bit(), S_IRUSR | S_IWUSR | S_IXUSR) == 0;
+            bool success = ::mkdir(dir.toLocal8Bit().constData(), S_IRUSR | S_IWUSR | S_IXUSR) == 0;
             if (success)
-                success = ::chmod(dir.local8Bit(), S_IRUSR | S_IWUSR | S_IXUSR
+                success = ::chmod(dir.toLocal8Bit().constData(), S_IRUSR | S_IWUSR | S_IXUSR
                                       | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH | S_IXOTH) == 0;
             if (!success)
                 return false;
         }
         if (!file.exists()) {
             // Create the file and chmod it so that everyone can write to it.
-            int fd = ::open(file.fileName().local8Bit(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+            int fd = ::open(file.fileName().toLocal8Bit().constData(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
             bool success = fd != -1;
             if (success)
                 success = ::fchmod(fd, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH) == 0;
@@ -310,8 +310,8 @@ bool QMacMimeAnyMime::loadMimeRegistry()
                 global.close();
             }
             if(!openMimeRegistry(false, QIODevice::ReadWrite, library_file)) {
-                qWarning("Failure to open mime resources %s -- %s", library_file.fileName().latin1(),
-                         library_file.errorString().latin1());
+                qWarning("Failure to open mime resources %s -- %s", library_file.fileName().toLatin1().constData(),
+                         library_file.errorString().toLatin1().constData());
                 return false;
             }
         }
@@ -335,8 +335,8 @@ int QMacMimeAnyMime::registerMimeType(const QString &mime)
         if(!mime_registry.contains(mime)) {
             if(!library_file.isOpen()) {
                 if(!library_file.open(QIODevice::WriteOnly)) {
-                    qWarning("Failure to open %s -- %s", library_file.fileName().latin1(),
-                             library_file.errorString().latin1());
+                    qWarning("Failure to open %s -- %s", library_file.fileName().toLatin1().constData(),
+                             library_file.errorString().toLatin1().constData());
                     return false;
                 }
             }
@@ -387,7 +387,7 @@ QString QMacMimeAnyMime::mimeFor(int flav)
     loadMimeRegistry();
     for(QMap<QString, int>::Iterator it = mime_registry.begin(); it != mime_registry.end(); ++it) {
         if(it.value() == flav)
-            return it.key().latin1();
+            return it.key().toLatin1();
     }
     return QString();
 }
@@ -526,7 +526,7 @@ int QMacMimeImage::flavorFor(const QString &mime)
     if(mime.startsWith(QLatin1String("image/"))) {
         QList<QByteArray> ofmts = QImageIO::outputFormats();
         for (int i = 0; i < ofmts.count(); ++i) {
-            if (!qstricmp(ofmts.at(i), mime.mid(6).latin1()))
+            if (!qstricmp(ofmts.at(i), mime.mid(6).toLatin1()))
                 return kScrapFlavorTypePicture;
         }
     }
@@ -545,7 +545,7 @@ bool QMacMimeImage::canConvert(const QString &mime, int flav)
     if(flav == kScrapFlavorTypePicture && mime.startsWith(QLatin1String("image/"))) {
         QList<QByteArray> ofmts = QImageIO::outputFormats();
         for (int i = 0; i < ofmts.count(); ++i) {
-            if (!qstricmp(ofmts.at(i), mime.mid(6).latin1()))
+            if (!qstricmp(ofmts.at(i), mime.mid(6).toLatin1()))
                 return true;
         }
     }
@@ -574,7 +574,7 @@ QByteArray QMacMimeImage::convertToMime(QList<QByteArray> data, const QString &m
         QBuffer iod(&ret);
         iod.open(QIODevice::WriteOnly);
         QImage img = px.toImage();
-        QImageIO iio(&iod, mime.mid(6).toUpper().latin1());
+        QImageIO iio(&iod, mime.mid(6).toUpper().toLatin1());
         iio.setImage(img);
         if(iio.write())
             iod.close();

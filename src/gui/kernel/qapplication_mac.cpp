@@ -877,7 +877,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
                         else if(s == "offthespot")
                             qt_mac_input_spot = QT_MAC_OFFTHESPOT;
                         else
-                            qDebug("Qt: internal: Misunderstood input style '%s'", s.latin1());
+                            qDebug("Qt: internal: Misunderstood input style '%s'", s.toLatin1().constData());
                     }
                 } else if(arg.left(5) == "-psn_") {
                     passed_psn = arg.mid(6);
@@ -1669,7 +1669,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 if(!qt_mac_is_macsheet(widget)
                    || ShowSheetWindow(window, qt_mac_window_for(widget->parentWidget())) != noErr) {
                     qWarning("Qt: QWidget: Unable to show as sheet %s::%s", widget->metaObject()->className(),
-                             widget->objectName().local8Bit());
+                             widget->objectName().toLocal8Bit().constData());
                     just_show = true;
                 }
                 if(just_show) //at least the window will be visible, but the sheet flag doesn't work sadly (probalby too many sheets)
@@ -2036,7 +2036,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                         s.replace(QRegExp(QString::fromLatin1("(\\&|\\<[^\\>]*\\>)")), "");
                         SpeechChannel ch;
                         NewSpeechChannel(0, &ch);
-                        SpeakText(ch, s.latin1(), s.length());
+                        SpeakText(ch, s.toLatin1().constData(), s.length());
                     }
                 }
 #endif
@@ -2847,7 +2847,7 @@ bool QApplicationPrivate::qt_mac_apply_settings()
 
     QString defaultcodec = settings.value(QLatin1String("defaultCodec"), QVariant(QLatin1String("none"))).toString();
     if(defaultcodec != QLatin1String("none")) {
-        QTextCodec *codec = QTextCodec::codecForName(defaultcodec.latin1());
+        QTextCodec *codec = QTextCodec::codecForName(defaultcodec.toLatin1().constData());
         if(codec)
             qApp->setDefaultCodec(codec);
     }
@@ -2961,7 +2961,7 @@ bool QApplicationPrivate::qt_mac_apply_settings()
         if (!fontsubs.isEmpty()) {
             QStringList::Iterator it = fontsubs.begin();
             for (; it != fontsubs.end(); ++it) {
-                QString fam = (*it).latin1();
+                QString fam = (*it).toLatin1();
                 QStringList subs = settings.value(fam).toStringList();
                 QFont::insertSubstitutions(fam, subs);
             }

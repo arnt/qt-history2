@@ -948,7 +948,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
             SetEventParameter(event, kEventParamHIObjectInstance, typeVoidPtr, sizeof(wrap), &wrap);
         } else if(ekind == kEventHIObjectInitialize) {
             QAccessibleInterface *qacc;
-            GetEventParameter(event, kEventParamQAccessiblityInterface, typeQAccessibleInterface, 0, 
+            GetEventParameter(event, kEventParamQAccessiblityInterface, typeQAccessibleInterface, 0,
                               sizeof(qacc), 0, &qacc);
             wrap->setInterface(qacc);
             qt_mac_access_iface_map()->insert(qacc, wrap);
@@ -956,8 +956,8 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
             free(data);
         } else if(ekind == kEventHIObjectPrintDebugInfo) {
             if(wrap->interface()->object())
-                qDebug("%s::%s", wrap->interface()->object()->metaObject()->className(), 
-                       wrap->interface()->object()->objectName().local8Bit());
+                qDebug("%s::%s", wrap->interface()->object()->metaObject()->className(),
+                       wrap->interface()->object()->objectName().toLocal8Bit().constData());
         } else {
             handled_event = false;
         }
