@@ -130,7 +130,7 @@ public slots:
 
 QDockWidgetTitleButton::QDockWidgetTitleButton(QDockWidgetTitle *title)
     : QAbstractButton(title)
-{ }
+{ setFocusPolicy(Qt::NoFocus); }
 
 QSize QDockWidgetTitleButton::sizeHint() const
 {
@@ -771,10 +771,12 @@ bool QDockWidget::event(QEvent *event)
 {
     Q_D(QDockWidget);
     switch (event->type()) {
-    case QEvent::Show:
     case QEvent::Hide:
-        if (!event->spontaneous())
-            d->toggleViewAction->setChecked(event->type() == QEvent::Show);
+        if (!isExplicitlyHidden())
+            break;
+        // fallthrough intended
+    case QEvent::Show:
+        d->toggleViewAction->setChecked(event->type() == QEvent::Show);
         break;
     case QEvent::StyleChange:
         d->top->setSpacing(style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth));

@@ -841,10 +841,12 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 bool QToolBar::event(QEvent *event)
 {
     switch (event->type()) {
-    case QEvent::Show:
     case QEvent::Hide:
-        if (!event->spontaneous())
-            d->toggleViewAction->setChecked(event->type() == QEvent::Show);
+        if (!isExplicitlyHidden())
+            break;
+        // fallthrough intended
+    case QEvent::Show:
+        d->toggleViewAction->setChecked(event->type() == QEvent::Show);
         break;
     case QEvent::ParentChange:
         d->handle->setVisible(d->movable && (qobject_cast<QMainWindow *>(parentWidget()) != 0));
