@@ -3235,7 +3235,7 @@ void QTextEdit::getCursorPosition( int *para, int *index ) const
   Uses the selection settings of selection \a selNum. If \a selNum is 0,
   this is the default selection.
 
-  The cursor is moved to the end of the selection, if \a selNum is 0,
+  The cursor is moved to the end of the selection if \a selNum is 0,
   otherwise the cursor position remains unchanged.
 
   \sa getSelection() selectedText
