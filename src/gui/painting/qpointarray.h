@@ -18,6 +18,7 @@
 #include "qpoint.h"
 
 class QMatrix;
+class QRect;
 
 class Q_GUI_EXPORT QPointArray : public QVector<QPoint>
 {

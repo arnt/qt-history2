@@ -21,6 +21,7 @@
 class QPolygon;
 class QPainterPathPrivate;
 class QPainterPathStrokerPrivate;
+class QFont;
 
 class Q_GUI_EXPORT QPainterPath
 {

@@ -16,12 +16,15 @@
 
 #include "qatomic.h"
 #include "qrect.h"
+#include "qwindowdefs.h"
 
 template <class T> class QVector;
 
 #if defined(Q_WS_QWS) || defined(Q_WS_X11) || defined(Q_WS_MAC)
 struct QRegionPrivate;
 #endif
+
+class QBitmap;
 
 class Q_GUI_EXPORT QRegion
 {

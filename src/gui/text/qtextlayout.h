@@ -26,6 +26,7 @@ class QFont;
 class QRect;
 class QRegion;
 class QTextFormat;
+class QPalette;
 
 class Q_GUI_EXPORT QTextInlineObject
 {

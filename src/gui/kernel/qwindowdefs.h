@@ -144,11 +144,11 @@ typedef QHash<WId, QWidget *> QWidgetMapper;
 
 // Global platform-independent types and functions
 
-typedef Q_INT32 QCOORD;                                // coordinate type
-enum {
-    QCOORD_MAX =  2147483647,
-    QCOORD_MIN = -QCOORD_MAX - 1
-};
+//typedef Q_INT32 QCOORD;                                // coordinate type
+//enum {
+//    QCOORD_MAX =  2147483647,
+//    QCOORD_MIN = -QCOORD_MAX - 1
+//};
 
 
 #endif // QWINDOWDEFS_H

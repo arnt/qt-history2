@@ -37,7 +37,8 @@ private:
 #ifndef QT_NO_CURSOR
 
 struct QCursorData;
-
+class QBitmap;
+class QPixmap;
 
 class Q_GUI_EXPORT QCursor
 {

@@ -20,6 +20,7 @@
 struct QBrushData;
 struct QTexturedBrushData;
 struct QLinGradBrushData;
+class QPixmap;
 
 class Q_GUI_EXPORT QBrush
 {
