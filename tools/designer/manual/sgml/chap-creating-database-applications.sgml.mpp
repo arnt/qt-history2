@@ -85,7 +85,7 @@ in a combobox for example.
 
 	<para>
 	<figure><title>Database Connections Dialog</title>
-	\img[database-connections-dialog]
+	\img[database-connections]
 	</figure>
 	Choose <guimenuitem>Edit|Database Connections</> from the menu
 	bar. The Database Connections dialog will appear. Click
