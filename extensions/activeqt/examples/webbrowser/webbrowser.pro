@@ -1,6 +1,5 @@
 TEMPLATE = app
 
-CONFIG	+= uic3
 QT      += compat
 LIBS	+= -lqaxcontainer
 
