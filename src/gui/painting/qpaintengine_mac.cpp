@@ -788,10 +788,10 @@ QQuickDrawPaintEngine::setupQDPen()
     f.red = d->current.pen.color().red()*256;
     f.green = d->current.pen.color().green()*256;
     f.blue = d->current.pen.color().blue()*256;
-    PixPatHandle pixpat = NewPixPat();
-    MakeRGBPat(pixpat, &f);
+    Pattern pat;
+    GetQDGlobalsBlack(&pat);
+    PenPat(&pat);
     RGBForeColor(&f);
-    PenPixPat(pixpat);
 
     //backcolor
     ::RGBColor b;
@@ -839,17 +839,10 @@ QQuickDrawPaintEngine::setupQDBrush()
     f.red = d->current.brush.color().red()*256;
     f.green = d->current.brush.color().green()*256;
     f.blue = d->current.brush.color().blue()*256;
-    if(bs == SolidPattern) {
-        PixPatHandle pixpat = NewPixPat();
-        MakeRGBPat(pixpat, &f);
-        RGBForeColor(&f);
-        PenPixPat(pixpat);
-    } else {
-        Pattern pat;
-        GetQDGlobalsBlack(&pat);
-        PenPat(&pat);
-        RGBForeColor(&f);
-    }
+    Pattern pat;
+    GetQDGlobalsBlack(&pat);
+    PenPat(&pat);
+    RGBForeColor(&f);
 
     //backcolor
     ::RGBColor b;
