@@ -958,15 +958,15 @@ static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine()
     : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate),
                             PaintEngineFeatures(CoordTransform|PenWidthTransform|PixmapTransform|PainterPaths
-                                                |PixmapScale|UsesFontEngine|LinearGradients|AlphaFill
-                                                |ClipTransform))
+                                                |PixmapScale|UsesFontEngine|LinearGradients
+                                                |ClipTransform|AlphaStroke|AlphaFill))
 {
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr)
     : QQuickDrawPaintEngine(dptr, PaintEngineFeatures(CoordTransform|PenWidthTransform|PixmapTransform|PainterPaths
-                                                      |PixmapScale|UsesFontEngine|LinearGradients|AlphaFill
-                                                      |ClipTransform))
+                                                      |PixmapScale|UsesFontEngine|LinearGradients
+                                                      |ClipTransform|AlphaStroke|AlphaFill))
 {
 }
 
@@ -1237,16 +1237,20 @@ void
 QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
 {
     CGMutablePathRef path = CGPathCreateMutable();
+    QPointF startPt;
     for (int i=0; i<p.elementCount(); ++i) {
         const QPainterPath::Element &elm = p.elementAt(i);
         switch (elm.type) {
         case QPainterPath::MoveToElement:
-            if (i != 0)
+            if (i > 0
+                && p.elementAt(i - 1).x == startPt.x()
+                && p.elementAt(i - 1).y == startPt.y())
                 CGPathCloseSubpath(path);
-            CGPathMoveToPoint(path, 0, elm.x+1, elm.y+1);
+            startPt = QPointF(elm.x, elm.y);
+            CGPathMoveToPoint(path, 0, elm.x, elm.y);
             break;
         case QPainterPath::LineToElement:
-            CGPathAddLineToPoint(path, 0, elm.x+1, elm.y+1);
+            CGPathAddLineToPoint(path, 0, elm.x, elm.y);
             break;
         case QPainterPath::CurveToElement:
             Q_ASSERT(p.elementAt(i+1).type == QPainterPath::CurveToDataElement);
@@ -1262,6 +1266,10 @@ QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
             break;
         }
     }
+    if (!p.isEmpty()
+        && p.elementAt(p.elementCount() - 1).x == startPt.x()
+        && p.elementAt(p.elementCount() - 1).y == startPt.y())
+        CGPathCloseSubpath(path);
     uchar ops = QCoreGraphicsPaintEnginePrivate::CGStroke;
     if(p.fillMode() == QPainterPath::Winding)
         ops |= QCoreGraphicsPaintEnginePrivate::CGFill;
