@@ -71,7 +71,7 @@ mochack:
 
 FORCE:
 
-lib: include
+lib:
 	$(RM) -f tools/*.o
 	$(RM) -f kernel/*.o
 	$(RM) -f widgets/*.o
