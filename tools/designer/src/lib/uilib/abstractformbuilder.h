@@ -26,6 +26,7 @@ class QObject;
 class QVariant;
 class QWidget;
 class QListWidget;
+class QTreeWidget;
 class QComboBox;
 class QLayout;
 class QLayoutItem;
@@ -126,9 +127,11 @@ protected:
     virtual QString pixmapToQrcPath(const QPixmap &pm) const;
 
     void loadListWidgetExtraInfo(DomWidget *ui_widget, QListWidget *listWidget, QWidget *parentWidget);
+    void loadTreeWidgetExtraInfo(DomWidget *ui_widget, QTreeWidget *treeWidget, QWidget *parentWidget);
     void loadComboBoxExtraInfo(DomWidget *ui_widget, QComboBox *comboBox, QWidget *parentWidget);
 
     void saveListWidgetExtraInfo(QListWidget *widget, DomWidget *ui_widget, DomWidget *ui_parentWidget);
+    void saveTreeWidgetExtraInfo(QTreeWidget *treeWidget, DomWidget *ui_widget, DomWidget *ui_parentWidget);
     void saveComboBoxExtraInfo(QComboBox *widget, DomWidget *ui_widget, DomWidget *ui_parentWidget);
 
 //

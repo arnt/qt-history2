@@ -27,6 +27,7 @@
 #include <QtGui/QIcon>
 #include <QtGui/QPixmap>
 #include <QtGui/QListWidget>
+#include <QtGui/QTreeWidget>
 #include <QtGui/QComboBox>
 #include <QtGui/QStatusBar>
 
@@ -238,6 +239,7 @@ bool AbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget
 
     if (QMenuBar *mb = qobject_cast<QMenuBar*>(parentWidget)) {
         if (QMenu *menu = qobject_cast<QMenu*>(widget)) {
+            qDebug() << "=========> added menu:" << menu << "to" << mb;
             mb->addMenu(menu);
             return true;
         }
@@ -245,6 +247,7 @@ bool AbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget
 
     if (QMenu *parentMenu = qobject_cast<QMenu*>(parentWidget)) {
         if (QMenu *menu = qobject_cast<QMenu*>(widget)) {
+            qDebug() << "=========> added menu:" << menu << "to" << parentMenu;
             parentMenu->addMenu(menu);
             return true;
         }
@@ -1131,6 +1134,52 @@ DomResources *AbstractFormBuilder::saveResources()
     return 0;
 }
 
+void AbstractFormBuilder::saveTreeWidgetExtraInfo(QTreeWidget *treeWidget, DomWidget *ui_widget, DomWidget *ui_parentWidget)
+{
+    Q_UNUSED(ui_parentWidget);
+
+    QList<DomColumn*> columns;
+
+    // save the header
+    for (int c = 0; c<treeWidget->columnCount(); ++c) {
+        DomColumn *column = new DomColumn;
+
+        QList<DomProperty*> properties;
+
+        // property text
+        DomProperty *ptext = new DomProperty;
+        DomString *str = new DomString;
+        str->setText(treeWidget->headerItem()->text(c));
+        ptext->setAttributeName(QLatin1String("text"));
+        ptext->setElementString(str);
+        properties.append(ptext);
+
+        QIcon icon = treeWidget->headerItem()->icon(c);
+        if (!icon.isNull()) {
+            QString iconPath = iconToFilePath(icon);
+            QString qrcPath = iconToQrcPath(icon);
+
+            DomProperty *p = new DomProperty;
+
+            DomResourcePixmap *pix = new DomResourcePixmap;
+            if (!qrcPath.isEmpty())
+                pix->setAttributeResource(qrcPath);
+
+            pix->setText(iconPath);
+
+            p->setAttributeName(QLatin1String("icon"));
+            p->setElementIconSet(pix);
+
+            properties.append(p);
+        }
+
+        column->setElementProperty(properties);
+        columns.append(column);
+    }
+
+    ui_widget->setElementColumn(columns);
+}
+
 void AbstractFormBuilder::saveListWidgetExtraInfo(QListWidget *listWidget, DomWidget *ui_widget, DomWidget *ui_parentWidget)
 {
     Q_UNUSED(ui_parentWidget);
@@ -1201,12 +1250,24 @@ void AbstractFormBuilder::saveComboBoxExtraInfo(QComboBox *comboBox, DomWidget *
         p->setElementString(str);
         properties.append(p);
 
-#if 0 // ### implement me
-        p = new DomProperty;
-        p->setAttributeName(QLatin1String("icon"));
-        p->setElementIconSet();
-        properties.append(p);
-#endif
+        QIcon icon = comboBox->itemIcon(i);
+        if (!icon.isNull()) {
+            QString iconPath = iconToFilePath(icon);
+            QString qrcPath = iconToQrcPath(icon);
+
+            DomProperty *p = new DomProperty;
+
+            DomResourcePixmap *pix = new DomResourcePixmap;
+            if (!qrcPath.isEmpty())
+                pix->setAttributeResource(qrcPath);
+
+            pix->setText(iconPath);
+
+            p->setAttributeName(QLatin1String("icon"));
+            p->setElementIconSet(pix);
+
+            properties.append(p);
+        }
 
         ui_item->setElementProperty(properties);
         ui_items.append(ui_item);
@@ -1219,6 +1280,8 @@ void AbstractFormBuilder::saveExtraInfo(QWidget *widget, DomWidget *ui_widget, D
 {
     if (QListWidget *listWidget = qobject_cast<QListWidget*>(widget)) {
         saveListWidgetExtraInfo(listWidget, ui_widget, ui_parentWidget);
+    } else if (QTreeWidget *treeWidget = qobject_cast<QTreeWidget*>(widget)) {
+        saveTreeWidgetExtraInfo(treeWidget, ui_widget, ui_parentWidget);
     } else if (QComboBox *comboBox = qobject_cast<QComboBox*>(widget)) {
         saveComboBoxExtraInfo(comboBox, ui_widget, ui_parentWidget);
     }
@@ -1251,6 +1314,35 @@ void AbstractFormBuilder::loadListWidgetExtraInfo(DomWidget *ui_widget, QListWid
     }
 }
 
+void AbstractFormBuilder::loadTreeWidgetExtraInfo(DomWidget *ui_widget, QTreeWidget *treeWidget, QWidget *parentWidget)
+{
+    Q_UNUSED(parentWidget);
+
+    QList<DomColumn*> columns = ui_widget->elementColumn();
+
+    treeWidget->setColumnCount(columns.count());
+
+    for (int i = 0; i<columns.count(); ++i) {
+        DomColumn *c = columns.at(i);
+        QHash<QString, DomProperty*> properties = propertyMap(c->elementProperty());
+
+        DomProperty *ptext = properties.value(QLatin1String("text"));
+        DomProperty *picon = properties.value(QLatin1String("icon"));
+
+        if (ptext != 0 && ptext->elementString())
+            treeWidget->headerItem()->setText(i, ptext->elementString()->text());
+
+        if (picon && picon->kind() == DomProperty::IconSet) {
+            DomResourcePixmap *icon = picon->elementIconSet();
+            Q_ASSERT(icon != 0);
+            QString iconPath = icon->text();
+            QString qrcPath = icon->attributeResource();
+
+            treeWidget->headerItem()->setIcon(i, nameToIcon(iconPath, qrcPath));
+        }
+    }
+}
+
 void AbstractFormBuilder::loadComboBoxExtraInfo(DomWidget *ui_widget, QComboBox *comboBox, QWidget *parentWidget)
 {
     Q_UNUSED(parentWidget);
@@ -1263,13 +1355,18 @@ void AbstractFormBuilder::loadComboBoxExtraInfo(DomWidget *ui_widget, QComboBox 
         DomProperty *p = 0;
 
         p = properties.value(QLatin1String("text"));
-        if (p && p->kind() == DomProperty::String) {
+        if (p && p->elementString()) {
             text = p->elementString()->text();
         }
 
         p = properties.value(QLatin1String("icon"));
         if (p && p->kind() == DomProperty::IconSet) {
-            // ### not implemented yet
+            DomResourcePixmap *picon = p->elementIconSet();
+            Q_ASSERT(picon != 0);
+            QString iconPath = picon->text();
+            QString qrcPath = picon->attributeResource();
+
+            icon = nameToIcon(iconPath, qrcPath);
         }
 
         comboBox->addItem(text, icon);
@@ -1281,6 +1378,8 @@ void AbstractFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, Q
 {
     if (QListWidget *listWidget = qobject_cast<QListWidget*>(widget)) {
         loadListWidgetExtraInfo(ui_widget, listWidget, parentWidget);
+    } else if (QTreeWidget *treeWidget = qobject_cast<QTreeWidget*>(widget)) {
+        loadTreeWidgetExtraInfo(ui_widget, treeWidget, parentWidget);
     } else if (QComboBox *comboBox = qobject_cast<QComboBox*>(widget)) {
         loadComboBoxExtraInfo(ui_widget, comboBox, parentWidget);
     }
