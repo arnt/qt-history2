@@ -329,7 +329,7 @@ QString QFileInfo::group() const
 
 	return QString::null;
 #else
-    // ### need to query this for CE
+    // ### need to query this
     return QString();
 #endif
 }
