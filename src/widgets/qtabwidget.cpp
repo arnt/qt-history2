@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#8 $
 **
 ** Implementation of QTabWidget class
 **
@@ -150,6 +150,22 @@ void QTabWidget::addTab( QWidget *child, const QString &label)
     QTab * t = new QTab();
     CHECK_PTR( t );
     t->label = label;
+    addTab( child, t );
+}
+
+
+/*!
+  Adds another tab and page to the tab view.
+  
+  This function is the same as addTab() but with an additional
+  iconset.
+ */
+void QTabWidget::addTab( QWidget *child, const QIconSet& iconset, const QString &label)
+{
+    QTab * t = new QTab();
+    CHECK_PTR( t );
+    t->label = label;
+    t->iconset = new QIconSet(iconset);
     addTab( child, t );
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#36 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#37 $
 **
 ** Definition of QTabDialog class
 **
@@ -28,6 +28,7 @@
 
 #ifndef QT_H
 #include "qdialog.h"
+#include "qiconset.h"
 #endif // QT_H
 
 
@@ -48,6 +49,7 @@ public:
     void setFont( const QFont & font );
 
     void addTab( QWidget *, const QString &);
+    void addTab( QWidget *child, const QIconSet& iconset, const QString &label);
     void addTab( QWidget *, QTab* );
     bool isTabEnabled( const QString &) const;
     void setTabEnabled( const QString &, bool );

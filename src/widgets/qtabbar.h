@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#21 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#22 $
 **
 ** Definition of QTabBar class
 **
@@ -28,6 +28,7 @@
 #include "qwidget.h"
 #include "qpainter.h"
 #include "qlist.h"
+#include "qiconset.h"
 #endif // QT_H
 
 struct QTabPrivate;
@@ -35,7 +36,7 @@ struct QTabPrivate;
 
 struct Q_EXPORT QTab
 {
-    QTab(): enabled( TRUE ), id( 0 ) {}
+    QTab():  enabled( TRUE ), id( 0 ), iconset(0) {}
     virtual ~QTab();
 
     QString label;
@@ -43,6 +44,9 @@ struct Q_EXPORT QTab
     QRect r;
     bool enabled;
     int id;
+    
+    // an optional iconset
+    QIconSet* iconset;
 };
 
 
@@ -88,7 +92,7 @@ protected:
 
     virtual QTab * selectTab( const QPoint & p ) const;
     void updateMask();
-    
+
     void paintEvent( QPaintEvent * );
     void mousePressEvent ( QMouseEvent * );
     void mouseReleaseEvent ( QMouseEvent * );

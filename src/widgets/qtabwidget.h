@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.h#2 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.h#3 $
 **
 ** Definition of QTabWidget class
 **
@@ -28,6 +28,7 @@
 
 #ifndef QT_H
 #include "qwidget.h"
+#include "qiconset.h"
 #endif // QT_H
 
 class  QTabBar;
@@ -44,6 +45,7 @@ public:
    ~QTabWidget();
 
     void addTab( QWidget *, const QString &);
+    void addTab( QWidget *child, const QIconSet& iconset, const QString &label);
     void addTab( QWidget *, QTab* );
     bool isTabEnabled( const QString &) const;
     void setTabEnabled( const QString &, bool );
@@ -69,7 +71,7 @@ protected:
     void setTabBar( QTabBar* );
     QTabBar* tabBar() const;
     void styleChange( GUIStyle );
-    
+
 signals:
     void selected( const QString& );
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#57 $
 **
 ** Implementation of QTabBar class
 **
@@ -38,7 +38,7 @@
 
 QTab::~QTab()
 {
-    // gcc says: just give me a vtbl and I'll be satisfied
+    delete iconset;
 }
 
 // this struct can be expanded without breaking binary compatibility
@@ -155,17 +155,23 @@ int QTabBar::addTab( QTab * newTab )
     QFontMetrics fm = fontMetrics();
     QTab  *t = l->first();
     int lw = fm.width( newTab->label );
-    int h = fm.height();
+    int iw = 0;
+    int ih = 0;
+    if ( newTab->iconset != 0 ) {
+	iw = newTab->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 2;
+	ih = newTab->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
+    }
+    int h = QMAX( fm.height(), ih );
     if ( d->s == RoundedAbove || d->s == RoundedBelow )
 	h += 10;
     if ( t ) {
 	QRect r( t->r );
 	while ( (t = l->next()) != 0 )
 	    r = r.unite( t->r );
-	newTab->r.setRect( r.right()-3, 0, lw + 24,
+	newTab->r.setRect( r.right()-3, 0, lw + 24 + iw,
 			   QMAX( r.height(), h ) );
     } else {
-	newTab->r.setRect( 0, 0, lw + 24, h );
+	newTab->r.setRect( 0, 0, lw + 24 + iw, h );
     }
 
     newTab->id = d->id++;
@@ -403,8 +409,14 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 
     p->setFont( font() );
 
-    int w = p->fontMetrics().width( t->label ) + 4;
-    int h = p->fontMetrics().height() + 4;
+    int iw = 0;
+    int ih = 0;
+    if ( t->iconset != 0 ) {
+	iw = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 2;
+	ih = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
+    }
+    int w = iw + p->fontMetrics().width( t->label ) + 4;
+    int h = QMAX(p->fontMetrics().height() + 4, ih );
     paintLabel( p, QRect( r.left() + (r.width()-w)/2 - 3,
 			  r.top() + (r.height()-h)/2,
 			  w, h ), t, t->id == keyboardFocusTab() );
@@ -418,15 +430,29 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 void QTabBar::paintLabel( QPainter* p, const QRect& br,
                           QTab* t, bool has_focus ) const
 {
-    if ( t->enabled ) {
+    
+    QRect r = br;
+    if ( t->iconset) {
+	// the tab has an iconset, draw it in the right mode
+	QIconSet::Mode mode = t->enabled?QIconSet::Normal:QIconSet::Disabled;
+	if ( mode == QIconSet::Normal && has_focus )
+	    mode = QIconSet::Active;
+	QPixmap pixmap = t->iconset->pixmap( QIconSet::Small, mode );
+	int pixw = pixmap.width();
+	int pixh = pixmap.height();
+	r.setLeft( r.left() + pixw + 2 );
+	p->drawPixmap( br.left()+2, br.center().y()-pixh/2, pixmap );
+    }
+    
+   if ( t->enabled ) {
 	p->setPen( palette().normal().text() );
-	p->drawText( br, AlignCenter | ShowPrefix, t->label );
+	p->drawText( r, AlignCenter | ShowPrefix, t->label );
     } else if ( style() == MotifStyle ) {
 	p->setPen( palette().disabled().text() );
 	p->drawText( br, AlignCenter | ShowPrefix, t->label );
     } else { // Windows style, disabled
 	p->setPen( colorGroup().light() );
-	QRect wr = br;
+	QRect wr = r;
 	wr.moveBy( 1, 1 );
 	p->drawText( wr, AlignCenter | ShowPrefix, t->label );
 	p->setPen( palette().disabled().text() );
