@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#42 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#43 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -668,13 +668,23 @@ bool QSvgDevice::play( const QDomNode &node )
 	    {
 		x1 = lenToInt( attr, "x" );
 		y1 = lenToInt( attr, "y" );
+		// backup old colors
+		QPen pn = pt->pen();
+		QColor pcolor = pn.color();
+		QColor bcolor = pt->brush().color();
 		QDomNode c = child.firstChild();
 		while ( !c.isNull() ) {
 		    if ( c.isText() ) {
+			// we have pen and brush reversed for text drawing
+			pn.setColor( bcolor );
+			pt->setPen( pn );
 			QString text = c.toText().nodeValue();
 			w = pt->fontMetrics().width( text );
 			text = text.simplifyWhiteSpace(); // ### 'preserve'
 			pt->drawText( x1, y1, text );
+			// restore pen
+			pn.setColor( pcolor );
+			pt->setPen( pn );
 			x1 += w;
 		    }
 		    c = c.nextSibling();
@@ -792,7 +802,7 @@ QColor QSvgDevice::parseColor( const QString &col )
 
 double QSvgDevice::parseLen( const QString &str, bool *ok ) const
 {
-    QRegExp reg( "([+-]*\\d*\\.*\\d*[Ee]?[+-]?\\d*)(em|ex|px|pt|pc|cm|mm|)" );
+    QRegExp reg( "([+-]?\\d*\\.*\\d*[Ee]?[+-]?\\d*)(em|ex|px|pt|pc|cm|mm|)" );
     if ( reg.search( str ) == -1 ) {
 	qWarning( "QSvgDevice::parseLen: couldn't parse " + str );
 	if ( ok )
@@ -871,7 +881,7 @@ void QSvgDevice::setStyle( const QString &s )
 		else
 		    pt->setBrush( parseColor( val ));
 	    } else if ( prop == "font-size" ) {
-		font.setPixelSizeFloat( float(parseLen( val )) );
+		font.setPointSizeFloat( float(parseLen( val )) );
 	    } else if ( prop == "font-family" ) {
 		font.setFamily( val );
 	    }
