@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#46 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#46 $");
 
 
 /*****************************************************************************
@@ -183,10 +183,10 @@ QCursor::QCursor( int shape )			// cursor with shape
 
   The cursor \e bitmap (B) and \e mask (M) bits are combined this way:
   <ol>
-  <li> M=1 and B=1 gives black.
-  <li> M=1 and B=0 gives white.
-  <li> M=0 and B=0 gives transparency.
-  <li> M=0 and B=1 gives an undefined result.
+  <li> B=1 and M=1 gives black.
+  <li> B=0 and M=1 gives white.
+  <li> B=0 and M=0 gives transparency.
+  <li> B=1 and M=0 gives an undefined result.
   </ol>
 
   Hint: Use the global color \c color0 to draw 0-pixels and \c color1
