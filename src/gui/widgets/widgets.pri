@@ -42,7 +42,7 @@ HEADERS += \
         widgets/qspinbox.h \
         widgets/qsplashscreen.h \
         widgets/qsplitter.h \
-        widgets/qstackedbox.h \
+        widgets/qstackedwidget.h \
         widgets/qstatusbar.h \
         widgets/qtabbar.h \
         widgets/qtabwidget.h \
@@ -104,7 +104,7 @@ SOURCES += \
         widgets/qspinbox.cpp \
         widgets/qsplashscreen.cpp \
         widgets/qsplitter.cpp \
-        widgets/qstackedbox.cpp \
+        widgets/qstackedwidget.cpp \
         widgets/qstatusbar.cpp \
         widgets/qtabbar.cpp \
         widgets/qtabwidget.cpp \

@@ -11,22 +11,22 @@
 **
 ****************************************************************************/
 
-#ifndef QSTACKEDBOX_H
-#define QSTACKEDBOX_H
+#ifndef QSTACKEDWIDGET_H
+#define QSTACKEDWIDGET_H
 
 #include <qframe.h>
 
-class QStackedBoxPrivate;
+class QStackedWidgetPrivate;
 
-class Q_GUI_EXPORT QStackedBox : public QFrame
+class Q_GUI_EXPORT QStackedWidget : public QFrame
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QStackedBox)
+    Q_DECLARE_PRIVATE(QStackedWidget)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
     QDOC_PROPERTY(int count READ count)
 public:
-    QStackedBox(QWidget *parent=0);
-    ~QStackedBox();
+    QStackedWidget(QWidget *parent=0);
+    ~QStackedWidget();
 
     int addWidget(QWidget *w);
     int insertWidget(int index, QWidget *w);
@@ -50,7 +50,7 @@ protected:
     void childEvent(QChildEvent *e);
 
 private:
-    Q_DISABLE_COPY(QStackedBox)
+    Q_DISABLE_COPY(QStackedWidget)
 };
 
 

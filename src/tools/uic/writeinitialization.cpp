@@ -204,7 +204,7 @@ void WriteInitialization::accept(DomWidget *node)
     if (attributes.contains(QLatin1String("id")))
         id = attributes.value(QLatin1String("id"))->elementNumber();
 
-    if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QStackedBox"))) {
+    if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QStackedWidget"))) {
         output << option.indent << parentWidget << "->addWidget(" << varName << ");\n";
     } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QWidgetStack"))) {
         output << option.indent << parentWidget << "->addWidget(" << varName << ", " << id << ");\n";

@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qstackedbox.h"
+#include "qstackedwidget.h"
 
 #include <qstackedlayout.h>
 #include <qevent.h>
@@ -20,11 +20,11 @@
 #define d d_func()
 #define q q_func()
 
-class QStackedBoxPrivate : public QFramePrivate
+class QStackedWidgetPrivate : public QFramePrivate
 {
-    Q_DECLARE_PUBLIC(QStackedBox)
+    Q_DECLARE_PUBLIC(QStackedWidget)
 public:
-    QStackedBoxPrivate():layout(0), blockChildAdd(false){}
+    QStackedWidgetPrivate():layout(0), blockChildAdd(false){}
     QStackedLayout *layout;
     bool blockChildAdd;
 };
@@ -39,8 +39,8 @@ public:
 };
 
 /*!
-    \class QStackedBox qstackedbox.h
-    \brief The QStackedBox class provides a stack of widgets where only the top
+    \class QStackedWidget qstackedwidget.h
+    \brief The QStackedWidget class provides a stack of widgets where only the top
     widget is visible.
 
     \ingroup organizers
@@ -56,7 +56,7 @@ public:
     widgets, each of which is typically created without a parent widget:
 
     \code
-      QStackedBox *pages = new QStackedBox(this);
+      QStackedWidget *pages = new QStackedWidget(this);
       pages->addWidget(firstPageWidget);
       pages->addWidget(secondPageWidget);
       pages->addWidget(thirdPageWidget);
@@ -88,7 +88,7 @@ public:
 */
 
 /*!
-    \fn void QStackedBox::currentChanged(int index)
+    \fn void QStackedWidget::currentChanged(int index)
 
     This signal is emitted when the current widget is changed. The
     parameter holds the \a index of the new current widget, or -1 if
@@ -97,7 +97,7 @@ public:
 */
 
 /*!
-    \fn void QStackedBox::widgetRemoved(int index)
+    \fn void QStackedWidget::widgetRemoved(int index)
 
     This signal is emitted when the widget at position \a index is
     removed.
@@ -105,11 +105,11 @@ public:
 
 
 /*!
-  Constructs a new QStackedBox as a child of \a parent.
+  Constructs a new QStackedWidget as a child of \a parent.
 */
 
-QStackedBox::QStackedBox(QWidget *parent)
-    :QFrame(*new QStackedBoxPrivate, parent)
+QStackedWidget::QStackedWidget(QWidget *parent)
+    :QFrame(*new QStackedWidgetPrivate, parent)
 {
     d->layout = new QStackedLayout(this);
     connect(d->layout, SIGNAL(widgetRemoved(int)), this, SIGNAL(widgetRemoved(int)));
@@ -119,14 +119,14 @@ QStackedBox::QStackedBox(QWidget *parent)
   Destroys the object and frees any allocated resources.
 */
 
-QStackedBox::~QStackedBox()
+QStackedWidget::~QStackedWidget()
 {
 }
 
 /*!  Adds \a w to this box. The first widget added becomes the
   initial current widget.  Returns the index of \a w in this box.
 */
-int QStackedBox::addWidget(QWidget *w)
+int QStackedWidget::addWidget(QWidget *w)
 {
     QBoolBlocker block(d->blockChildAdd);
     return d->layout->addWidget(w);
@@ -136,7 +136,7 @@ int QStackedBox::addWidget(QWidget *w)
   of range, the widget gets appened. The first widget added becomes
   the initial current widget.  Returns the index of \a w in this box.
 */
-int QStackedBox::insertWidget(int index, QWidget *w)
+int QStackedWidget::insertWidget(int index, QWidget *w)
 {
     QBoolBlocker block(d->blockChildAdd);
     return d->layout->insertWidget(index, w);
@@ -146,14 +146,14 @@ int QStackedBox::insertWidget(int index, QWidget *w)
 /*!
     Removes widget \a w from this layout, but does not delete it.
 */
-void QStackedBox::removeWidget(QWidget *w)
+void QStackedWidget::removeWidget(QWidget *w)
 {
     d->layout->removeWidget(w);
 }
 
 
 /*!
-    \property QStackedBox::currentIndex
+    \property QStackedWidget::currentIndex
     \brief The index position of the current widget
 
     The current index is -1 if there is no current widget. The widget
@@ -163,13 +163,13 @@ void QStackedBox::removeWidget(QWidget *w)
     \sa currentWidget() indexOf()
 */
 
-void QStackedBox::setCurrentIndex(int index)
+void QStackedWidget::setCurrentIndex(int index)
 {
     d->layout->setCurrentIndex(index);
     emit currentChanged(index);
 }
 
-int QStackedBox::currentIndex() const
+int QStackedWidget::currentIndex() const
 {
     return d->layout->currentIndex();
 }
@@ -177,7 +177,7 @@ int QStackedBox::currentIndex() const
 /*!
   Returns the current widget, or 0 if there are no child widgets.
 */
-QWidget *QStackedBox::currentWidget() const
+QWidget *QStackedWidget::currentWidget() const
 {
     return d->layout->currentWidget();
 }
@@ -186,7 +186,7 @@ QWidget *QStackedBox::currentWidget() const
 /*!
   Returns the index of \a w, or -1 if \a w is not a child.
  */
-int QStackedBox::indexOf(QWidget *w) const
+int QStackedWidget::indexOf(QWidget *w) const
 {
     return d->layout->indexOf(w);
 }
@@ -195,16 +195,16 @@ int QStackedBox::indexOf(QWidget *w) const
     Returns the widget at position \a index, or 0 if there is no such
     widget.
 */
-QWidget *QStackedBox::widget(int index) const
+QWidget *QStackedWidget::widget(int index) const
 {
     return d->layout->widget(index);
 }
 
 /*!
-    \property QStackedBox::count
+    \property QStackedWidget::count
     \brief The number of widgets in this layout.
 */
-int QStackedBox::count() const
+int QStackedWidget::count() const
 {
     return d->layout->count();
 }
@@ -212,7 +212,7 @@ int QStackedBox::count() const
 /*!
   \reimp
 */
-void QStackedBox::childEvent(QChildEvent *e)
+void QStackedWidget::childEvent(QChildEvent *e)
 {
     if (!e->child()->isWidgetType())
         return;

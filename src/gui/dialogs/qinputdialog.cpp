@@ -21,7 +21,7 @@
 #include "qpushbutton.h"
 #include "qspinbox.h"
 #include "qcombobox.h"
-#include "qstackedbox.h"
+#include "qstackedwidget.h"
 #include "qvalidator.h"
 #include "qapplication.h"
 
@@ -37,7 +37,7 @@ public:
     QSpinBox *spinBox;
     QComboBox *comboBox, *editComboBox;
     QPushButton *ok;
-    QStackedBox *stack;
+    QStackedWidget *stack;
     QInputDialog::Type type;
 
     void init(const QString &label, QInputDialog::Type type);
@@ -65,7 +65,7 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
     label = new QLabel(lbl, q);
     vbox->addWidget(label);
 
-    stack = new QStackedBox(q);
+    stack = new QStackedWidget(q);
     vbox->addWidget(stack);
     lineEdit = new QLineEdit(stack);
     spinBox = new QSpinBox(stack);

@@ -53,7 +53,7 @@ public:
     is removed (e.g. with QLayout::removeWidget()), the
     widgetRemoved() signal is emitted.
 
-    \sa QStackedBox
+    \sa QStackedWidget
 */
 
 /*!

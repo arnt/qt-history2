@@ -20,7 +20,7 @@
 #include "qevent.h"
 #include "qlayout.h"
 #include "qpainter.h"
-#include "qstackedbox.h"
+#include "qstackedwidget.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qtabbar.h"
@@ -75,18 +75,18 @@
     visible, for example if all of the tabs happen to be disabled.
 
     Tab widgets can be a very good way to split up a complex dialog.
-    An alternative is to use a QStackedBox for which you provide some
+    An alternative is to use a QStackedWidget for which you provide some
     means of navigating between pages, for example, a QToolBar or a
     QListBox.
 
     Most of the functionality in QTabWidget is provided by a QTabBar
-    (at the top, providing the tabs) and a QStackedBox (most of the
+    (at the top, providing the tabs) and a QStackedWidget (most of the
     area, organizing the individual pages).
 
     \inlineimage qtabwidget-m.png Screenshot in Motif style
     \inlineimage qtabwidget-w.png Screenshot in Windows style
 
-    \sa QTabBar QStackedBox QToolBox
+    \sa QTabBar QStackedWidget QToolBox
 */
 
 /*!
@@ -153,7 +153,7 @@ public:
     void removeTab(int);
     void init();
     QTabBar *tabs;
-    QStackedBox *stack;
+    QStackedWidget *stack;
     bool dirty;
     QTabWidget::TabPosition pos;
     QTabWidget::TabShape shape;
@@ -176,7 +176,7 @@ QTabWidgetPrivate::~QTabWidgetPrivate()
 
 void QTabWidgetPrivate::init()
 {
-    stack = new QStackedBox(q);
+    stack = new QStackedWidget(q);
     QObject::connect(stack, SIGNAL(widgetRemoved(int)), q, SLOT(removeTab(int)));
     q->setTabBar(new QTabBar(q));
 

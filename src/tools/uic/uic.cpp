@@ -172,7 +172,7 @@ bool Uic::isButton(const QString &className) const
 
 bool Uic::isContainer(const QString &className) const
 {
-    return customWidgetsInfo()->extends(className, QLatin1String("QStackedBox"))
+    return customWidgetsInfo()->extends(className, QLatin1String("QStackedWidget"))
         || customWidgetsInfo()->extends(className, QLatin1String("QToolBox"))
         || customWidgetsInfo()->extends(className, QLatin1String("QTabWidget"))
         || customWidgetsInfo()->extends(className, QLatin1String("QWidgetStack"))
