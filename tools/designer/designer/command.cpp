@@ -707,7 +707,7 @@ AddTabPageCommand::AddTabPageCommand( const QString &n, FormWindow *fw,
 				      QTabWidget *tw, const QString &label )
     : Command( n, fw ), tabWidget( tw ), tabLabel( label )
 {
-    tabPage = new QDesignerWidget( formWindow(), tabWidget, 0 );
+    tabPage = new QDesignerWidget( formWindow(), tabWidget, "tab" );
     tabPage->hide();
     index = -1;
     MetaDataBase::addEntry( tabPage );
@@ -763,7 +763,7 @@ AddWizardPageCommand::AddWizardPageCommand( const QString &n, FormWindow *fw,
 					    QWizard *w, const QString &label )
     : Command( n, fw ), wizard( w ), pageLabel( label )
 {
-    page = new QDesignerWidget( formWindow(), wizard, 0 );
+    page = new QDesignerWidget( formWindow(), wizard, "page" );
     page->hide();
     index = -1;
     MetaDataBase::addEntry( page );

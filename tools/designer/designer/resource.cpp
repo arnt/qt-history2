@@ -427,6 +427,13 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    ++indent;
 	    ts << makeIndent( indent ) << "<class>" << "QWidget" << "</class>" << endl;
 
+	    ts << makeIndent( indent ) << "<property stdset=\"1\">" << endl;
+	    indent++;
+	    ts << makeIndent( indent ) << "<name>name</name>" << endl;
+	    ts << makeIndent( indent ) << "<cstring>" << entitize( it.current()->name() ) << "</cstring>" << endl;
+	    indent--;
+	    ts << makeIndent( indent ) << "</property>" << endl;
+
 	    ts << makeIndent( indent ) << "<attribute>" << endl;
 	    indent++;
 	    ts << makeIndent( indent ) << "<name>" << "title" << "</name>" << endl;
@@ -452,7 +459,14 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    ts << makeIndent( indent ) << "<widget>" << endl;
 	    ++indent;
 	    ts << makeIndent( indent ) << "<class>" << "QWidget" << "</class>" << endl;
-
+	    
+	    ts << makeIndent( indent ) << "<property stdset=\"1\">" << endl;
+	    indent++;
+	    ts << makeIndent( indent ) << "<name>name</name>" << endl;
+	    ts << makeIndent( indent ) << "<cstring>" << entitize( it.current()->name() ) << "</cstring>" << endl;
+	    indent--;
+	    ts << makeIndent( indent ) << "</property>" << endl;
+	    
 	    ts << makeIndent( indent ) << "<attribute>" << endl;
 	    indent++;
 	    ts << makeIndent( indent ) << "<name>" << "title" << "</name>" << endl;

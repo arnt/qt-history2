@@ -100,6 +100,19 @@ void QDesignerTabWidget::setPageTitle( const QString& title )
     changeTab( QTabWidget::currentPage(), title  );
 }
 
+void QDesignerTabWidget::setPageName( const QCString& name )
+{
+    if ( QTabWidget::currentPage() )
+	QTabWidget::currentPage()->setName( name );
+}
+
+QCString QDesignerTabWidget::pageName() const
+{
+    if ( !QTabWidget::currentPage() )
+	return 0;
+    return QTabWidget::currentPage()->name();
+}
+
 int QDesignerTabWidget::count() const
 {
     return tabBar()->count();
@@ -141,6 +154,19 @@ QString QDesignerWizard::pageTitle() const
 void QDesignerWizard::setPageTitle( const QString& title )
 {
     setTitle( currentPage(), title );
+}
+
+void QDesignerWizard::setPageName( const QCString& name )
+{
+    if ( QWizard::currentPage() )
+	QWizard::currentPage()->setName( name );
+}
+
+QCString QDesignerWizard::pageName() const
+{
+    if ( !QWizard::currentPage() )
+	return 0;
+    return QWizard::currentPage()->name();
 }
 
 int QDesignerWizard::pageNum( QWidget *p )
@@ -506,9 +532,9 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	QTabWidget *tw = new QDesignerTabWidget( parent, name );
 	if ( init ) {
 	    FormWindow *fw = find_formwindow( parent );
-	    QWidget *w = fw ? new QDesignerWidget( fw, tw, 0 ) : new QWidget( tw );
+	    QWidget *w = fw ? new QDesignerWidget( fw, tw, "tab" ) : new QWidget( tw, "tab" );
 	    tw->addTab( w, MainWindow::tr("Tab 1") );
-	    w = fw ? new QDesignerWidget( fw, tw, 0 ) : new QWidget( tw );
+	    w = fw ? new QDesignerWidget( fw, tw, "tab" ) : new QWidget( tw, "tab" );
 	    MetaDataBase::addEntry( tw );
 	    tw->addTab( w, MainWindow::tr("Tab 2") );
 	    MetaDataBase::addEntry( tw );
@@ -542,7 +568,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	if ( parent )
 	    wiz->reparent( parent, QPoint( 0, 0 ), TRUE );
 	if ( init && parent && parent->inherits( "FormWindow" ) ) {
-	    QDesignerWidget *dw = new QDesignerWidget( (FormWindow*)parent, wiz, "Page" );
+	    QDesignerWidget *dw = new QDesignerWidget( (FormWindow*)parent, wiz, "page" );
 	    MetaDataBase::addEntry( dw );
 	    wiz->addPage( dw, FormWindow::tr( "Page" ) );
 	    QTimer::singleShot( 0, wiz, SLOT( next() ) );
@@ -781,8 +807,10 @@ void WidgetFactory::initChangedProperties( QObject *o )
     else if ( o->isA( "QFrame" ) ) {
 	MetaDataBase::setPropertyChanged( o, "frameShadow", TRUE );
 	MetaDataBase::setPropertyChanged( o, "frameShape", TRUE );
-    } else if ( o->inherits( "QTabWidget" ) )
+    } else if ( o->inherits( "QTabWidget" ) || o->inherits( "QWizard" ) ) {
 	MetaDataBase::setPropertyChanged( o, "pageTitle", TRUE );
+	MetaDataBase::setPropertyChanged( o, "pageName", TRUE );
+    }
 }
 
 bool WidgetFactory::hasSpecialEditor( int id )

@@ -92,6 +92,7 @@ class QDesignerTabWidget : public QTabWidget
     Q_OBJECT
     Q_PROPERTY( int currentPage READ currentPage WRITE setCurrentPage STORED false DESIGNABLE true )
     Q_PROPERTY( QString pageTitle READ pageTitle WRITE setPageTitle STORED false DESIGNABLE true )
+    Q_PROPERTY( QCString pageName READ pageName WRITE setPageName STORED false DESIGNABLE true )
 public:
     QDesignerTabWidget( QWidget *parent, const char *name ) : QTabWidget( parent, name ) {}
 
@@ -99,6 +100,8 @@ public:
     void setCurrentPage( int i );
     QString pageTitle() const;
     void setPageTitle( const QString& title );
+    QCString pageName() const;
+    void setPageName( const QCString& name );
 
     int count() const;
     QTabBar *tabBar() const { return QTabWidget::tabBar(); }
@@ -110,6 +113,7 @@ class QDesignerWizard : public QWizard
     Q_OBJECT
     Q_PROPERTY( int currentPage READ currentPageNum WRITE setCurrentPage STORED false DESIGNABLE true )
     Q_PROPERTY( QString pageTitle READ pageTitle WRITE setPageTitle STORED false DESIGNABLE true )
+    Q_PROPERTY( QCString pageName READ pageName WRITE setPageName STORED false DESIGNABLE true )
 public:
     QDesignerWizard( QWidget *parent, const char *name ) : QWizard( parent, name ) {}
 
@@ -117,6 +121,8 @@ public:
     void setCurrentPage( int i );
     QString pageTitle() const;
     void setPageTitle( const QString& title );
+    QCString pageName() const;
+    void setPageName( const QCString& name );
     int pageNum( QWidget *page );
     void addPage( QWidget *p, const QString & );
     void removePage( QWidget *p );
