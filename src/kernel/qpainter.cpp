@@ -767,8 +767,6 @@ void QPainter::restore()
 	setFont( ps->font );
     if ( ps->pen != cpen || hardRestore )
 	setPen( ps->pen );
-    if ( ps->curPt != pos() || hardRestore )
-	moveTo( ps->curPt );
     if ( ps->brush != cbrush || hardRestore )
 	setBrush( ps->brush );
     if ( ps->bgc != bg_col || hardRestore )
@@ -801,6 +799,8 @@ void QPainter::restore()
     xlatey = ps->xlatey;
     setf( VxF, xlatex || xlatey );
 #endif
+    if ( ps->curPt != pos() || hardRestore )
+	moveTo( ps->curPt );
     if ( ps->rgn != crgn || hardRestore )
 	setClipRegion( ps->rgn );
     if ( ps->clip != testf(ClipOn) || hardRestore )

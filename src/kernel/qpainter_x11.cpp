@@ -1697,7 +1697,6 @@ void QPainter::moveTo( int x, int y )
             if ( !pdev->cmd( QPaintDevice::PdcMoveTo, this, param ) || !hd )
                 return;
         }
-        map( x, y, &x, &y );
     }
     curPt = QPoint( x, y );
 }
@@ -1713,6 +1712,8 @@ void QPainter::lineTo( int x, int y )
 {
     if ( !isActive() )
         return;
+    int cx = curPt.x(), cy = curPt.y();
+    curPt = QPoint( x, y );
     if ( testf(ExtDev|VxF|WxF) ) {
         if ( testf(ExtDev) ) {
             QPDevCmdParam param[1];
@@ -1722,10 +1723,10 @@ void QPainter::lineTo( int x, int y )
                 return;
         }
         map( x, y, &x, &y );
+	map( cx,  cy,  &cx,  &cy );
     }
     if ( cpen.style() != NoPen )
-        XDrawLine( dpy, hd, gc, curPt.x(), curPt.y(), x, y );
-    curPt = QPoint( x, y );
+        XDrawLine( dpy, hd, gc, cx, cy, x, y );
 }
 
 /*!
@@ -1739,6 +1740,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 {
     if ( !isActive() )
         return;
+    curPt = QPoint( x2, y2 );
     if ( testf(ExtDev|VxF|WxF) ) {
         if ( testf(ExtDev) ) {
             QPDevCmdParam param[2];
@@ -1753,7 +1755,6 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
     }
     if ( cpen.style() != NoPen )
         XDrawLine( dpy, hd, gc, x1, y1, x2, y2 );
-    curPt = QPoint( x2, y2 );
 }
 
 
@@ -3131,5 +3132,5 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
  */
 QPoint QPainter::pos() const
 {
-    return xFormDev( curPt );
+    return curPt;
 }
