@@ -282,7 +282,7 @@ QInstallationWizard::QInstallationWizard( QWidget *parent, QProgressBar *pb, con
     // in which case a specific full path might be needed instead. Need a way to either make it automatic or if one
     // is specified it is obviously needed.
     destination->destination->setText( data.attribute( "destination" ) );
-
+    // ### Need to connect browse button to do something here
     addWidgetToStack( destination );
     advanceProgressBar();
     
@@ -430,7 +430,7 @@ void QInstallationWizard::addWidgetToStack( QWidget *w, const QString& nextText 
 
 void QInstallationWizard::installFiles()
 {
-
+    // ### Need to add code here
 }
 
 
