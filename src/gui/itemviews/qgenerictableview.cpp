@@ -375,7 +375,11 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
 */
 QModelIndex QGenericTableView::itemAt(int x, int y) const
 {
-    return model()->index(rowAt(y), columnAt(x), root());
+    int r = rowAt(y);
+    int c = columnAt(x);
+    if (r >= 0 && c >= 0)
+        return model()->index(r, c, root());
+    return QModelIndex();
 }
 
 /*!
