@@ -64,6 +64,8 @@ public:
 
     int	  readBlock( char *p, uint );
     int	  writeBlock( const char *p, uint );
+    int	  writeBlock( const QByteArray& data )
+	      { return QIODevice::writeBlock(data); }
     int	  readLine( char *p, uint );
 
     int	  getch();
