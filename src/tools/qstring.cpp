@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#37 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#38 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#37 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#38 $";
 #endif
 
 
@@ -1198,7 +1198,7 @@ QString &QString::setNum( double n, char f, int prec )
 
 /*----------------------------------------------------------------------------
   Sets the characted at position \e index to \e c and expands the
-  string is necessary.
+  string if necessary.
 
   Returns FALSE if this \e index was out of range and the string could
   not be expanded, otherwise TRUE.
