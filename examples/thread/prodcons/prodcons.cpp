@@ -17,7 +17,7 @@
 
 // 50kb buffer
 #define BUFSIZE (100*1000)
-#define PRGSTEP (BUFSIZE / 50)
+#define PRGSTEP (BUFSIZE / 20)
 #define BLKSIZE (8)
 QByteArray bytearray;
 
@@ -65,9 +65,8 @@ ProdThread::ProdThread(QObject *r, QMutex *m, QWaitCondition *c)
 
 void ProdThread::stop()
 {
-    mutex->lock();
+    QMutexLocker locker(mutex);
     done = TRUE;
-    mutex->unlock();
 }
 
 
@@ -166,9 +165,8 @@ ConsThread::ConsThread(QObject *r, QMutex *m, QWaitCondition *c)
 
 void ConsThread::stop()
 {
-    mutex->lock();
+    QMutexLocker locker(mutex);
     done = TRUE;
-    mutex->unlock();
 }
 
 
@@ -299,7 +297,7 @@ void ProdCons::go()
 {
     stopped = FALSE;
 
-    mutex.lock();
+    QMutexLocker locker(&mutex);
 
     if ( redraw ) {
 	startbutton->setEnabled(FALSE);
@@ -317,7 +315,6 @@ void ProdCons::go()
     if (! prod)
         prod = new ProdThread(this, &mutex, &condition);
     prod->start();
-    mutex.unlock();
 }
 
 
