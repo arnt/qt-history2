@@ -48,12 +48,15 @@ class QColor;
 class QPalette;
 class QColorGroup;
 class QIconSet;
+class QDataStream;
 // Relevant header files removed from above for GCC 2.7.* compatibility, so...
 class QVariant;
+class QVariantTypeBase;
 class QStringList;
 template <class T> class QValueList;
 template <class T> struct QValueListNode;
 template <class Key, class T> class QMap;
+
 
 /**
  * This class acts like a union. It can hold one value at the
@@ -85,8 +88,7 @@ public:
 	Bool,
 	Double,
 	CString,
-	NTypes=CString,
-	Custom = 0x1000
+	Custom
     };
 
     QVariant();
@@ -113,11 +115,13 @@ public:
     QVariant( const QMap<QString,QVariant>& );
     QVariant( int );
     QVariant( uint );
+    // ### Problems on some compilers ?
     QVariant( bool );
     QVariant( double );
-
+    QVariant( void* custom, const QCString& type );
+	     
     QVariant& operator= ( const QVariant& );
-    
+
     void setValue( const QString& );
     void setValue( const QCString& );
     void setValue( const char* );
@@ -139,12 +143,14 @@ public:
     void setValue( uint );
     void setBoolValue( bool );
     void setValue( double );
-
+    void setValue( void* custom, const QCString& type );
+    
     Type type() const;
     const char* typeName() const;
 
     bool canCast( Type ) const;
-
+    bool canCast( const char* ) const;
+    
     bool isValid() const;
 
     QString toString() const;
@@ -167,14 +173,16 @@ public:
     double toDouble() const;
     QValueList<QVariant> toList() const;
     QMap<QString,QVariant> toMap() const;
-
+    void* toCustom( const char* type ) const;
+    const void* toCustom() const;
+    
     void load( QDataStream& );
     void save( QDataStream& ) const;
 
     static const char* typeToName( Type typ );
     static Type nameToType( const char* name );
 
-protected:
+private:
     void clear();
 
     Type typ;
@@ -186,7 +194,54 @@ protected:
 	double d;
 	void *ptr;
     } value;
+    
+    QVariantTypeBase* customType;
+};
 
+class QVariantTypeBase
+{
+public:
+    QVariantTypeBase( const char* type );
+    virtual ~QVariantTypeBase();
+    
+    virtual void* create() = 0;
+    virtual void destroy( void* ) = 0;
+    virtual void* copy( void* ) = 0;
+    
+    virtual void save( const void*, QDataStream& ) const = 0;
+    virtual void load( void*, QDataStream& ) = 0;
+
+    virtual void* castFrom( const QVariant& ) const;
+    virtual QVariant castTo( void* ptr, QVariant::Type ) const;
+
+    virtual bool canCastTo( QVariant::Type ) const;
+    virtual bool canCastFrom( const char* type ) const;
+    virtual bool canCastFrom( QVariant::Type ) const;
+    
+    const char* typeName() const;
+    
+    static QVariantTypeBase* type( const char* t );
+    
+private:
+    QCString m_type;
+};
+
+/**
+ * Template for convenience.
+ */
+template <class T>
+class QVariantType : public QVariantTypeBase
+{
+public:
+    QVariantType( const char* type ) : QVariantTypeBase( type ) { };
+    ~QVariantType() { };
+    
+    void* create() { return new T; }
+    void destroy( void* ptr ) { delete (T*)ptr; }
+    void* copy( void* ptr ) { return new T( (const T&)*ptr ); }
+    
+    void save( const void* ptr, QDataStream& str ) const { str << *ptr; }
+    void load( void* ptr, QDataStream& str ) { str >> *ptr; }
 };
 
 // These header files are down here for GCC 2.7.* compatibility
