@@ -776,6 +776,19 @@ void QTextDocument::print(QPrinter *printer) const
     } while (true);
 }
 
+static QTextFormat formatDifference(const QTextFormat &from, const QTextFormat &to)
+{
+    QTextFormat diff(to.type());
+
+    const QMap<int, QVariant> props = to.properties();
+    for (QMap<int, QVariant>::ConstIterator it = props.begin(), end = props.end();
+         it != end; ++it)
+        if (it.value() != from.property(it.key()))
+            diff.setProperty(it.key(), it.value());
+
+    return diff;
+}
+
 class QTextHtmlExporter
 {
 public:
@@ -790,21 +803,22 @@ private:
     void emitFragment(const QTextFragment &fragment);
 
     void emitBlockAttributes(const QTextBlock &block);
-    bool emitCharFormatStyle(const QTextCharFormat &format, bool ignoreDifferenceToDefaultFont = false);
+    bool emitCharFormatStyle(const QTextCharFormat &format);
     void emitTextLength(const char *attribute, const QTextLength &length);
     void emitAlignment(Qt::Alignment alignment);
     void emitFloatStyle(QTextFrameFormat::Position pos);
     void emitAttribute(const char *attribute, const QString &value);
 
     QString html;
-    QFont defaultFont;
+    QTextCharFormat defaultCharFormat;
     const QTextDocument *doc;
 };
 
 QTextHtmlExporter::QTextHtmlExporter(const QTextDocument *_doc)
     : doc(_doc)
 {
-    defaultFont = doc->documentLayout()->defaultFont();
+    const QFont defaultFont = doc->documentLayout()->defaultFont();
+    defaultCharFormat.setFont(defaultFont);
 }
 
 /*!
@@ -820,9 +834,7 @@ QString QTextHtmlExporter::toHtml()
 
     html += QLatin1String(" style=\" white-space: pre-wrap;");
 
-    QTextCharFormat fmt;
-    fmt.setFont(defaultFont);
-    emitCharFormatStyle(fmt, true /*ignore difference to default font*/);
+    emitCharFormatStyle(defaultCharFormat);
     html += QLatin1Char('"');
 
     html += QLatin1Char('>');
@@ -841,36 +853,32 @@ void QTextHtmlExporter::emitAttribute(const char *attribute, const QString &valu
     html += QLatin1Char('"');
 }
 
-bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format, bool ignoreDifferenceToDefaultFont)
+bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
 {
     bool attributesEmitted = false;
 
-    if (format.hasProperty(QTextFormat::FontFamily)
-        && (ignoreDifferenceToDefaultFont || format.fontFamily() != defaultFont.family())) {
+    if (format.hasProperty(QTextFormat::FontFamily)) {
         html += QLatin1String(" font-family:");
         html += format.fontFamily();
         html += QLatin1Char(';');
         attributesEmitted = true;
     }
 
-    if (format.hasProperty(QTextFormat::FontPointSize)
-        && (ignoreDifferenceToDefaultFont || format.fontPointSize() != defaultFont.pointSize())) {
+    if (format.hasProperty(QTextFormat::FontPointSize)) {
         html += QLatin1String(" font-size:");
         html += QString::number(format.fontPointSize());
         html += QLatin1String("pt;");
         attributesEmitted = true;
     }
 
-    if (format.hasProperty(QTextFormat::FontWeight)
-        && (ignoreDifferenceToDefaultFont || format.fontWeight() != defaultFont.weight())) {
+    if (format.hasProperty(QTextFormat::FontWeight)) {
         html += QLatin1String(" font-weight:");
         html += QString::number(format.fontWeight() * 8);
         html += QLatin1Char(';');
         attributesEmitted = true;
     }
 
-    if (format.hasProperty(QTextFormat::FontItalic)
-        && (ignoreDifferenceToDefaultFont || format.fontItalic() != defaultFont.italic())) {
+    if (format.hasProperty(QTextFormat::FontItalic)) {
         html += QLatin1String(" font-style:");
         html += (format.fontItalic() ? QLatin1String("italic") : QLatin1String("normal"));
         html += QLatin1Char(';');
@@ -882,8 +890,7 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format, bool 
     bool hasDecoration = false;
     bool atLeastOneDecorationSet = false;
 
-    if (format.hasProperty(QTextFormat::FontUnderline)
-        && (ignoreDifferenceToDefaultFont || format.fontUnderline() != defaultFont.underline())) {
+    if (format.hasProperty(QTextFormat::FontUnderline)) {
         hasDecoration = true;
         if (format.fontUnderline()) {
             html += QLatin1String(" underline");
@@ -891,8 +898,7 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format, bool 
         }
     }
 
-    if (format.hasProperty(QTextFormat::FontOverline)
-        && (ignoreDifferenceToDefaultFont || format.fontOverline() != defaultFont.overline())) {
+    if (format.hasProperty(QTextFormat::FontOverline)) {
         hasDecoration = true;
         if (format.fontOverline()) {
             html += QLatin1String(" overline");
@@ -900,8 +906,7 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format, bool 
         }
     }
 
-    if (format.hasProperty(QTextFormat::FontStrikeOut)
-        && (ignoreDifferenceToDefaultFont || format.fontStrikeOut() != defaultFont.strikeOut())) {
+    if (format.hasProperty(QTextFormat::FontStrikeOut)) {
         hasDecoration = true;
         if (format.fontStrikeOut()) {
             html += QLatin1String(" line-through");
@@ -1010,7 +1015,7 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
     QLatin1String styleTag("<span style=\"");
     html += styleTag;
 
-    const bool attributesEmitted = emitCharFormatStyle(format);
+    const bool attributesEmitted = emitCharFormatStyle(formatDifference(defaultCharFormat, format).toCharFormat());
     if (attributesEmitted)
         html += QLatin1String("\">");
     else
