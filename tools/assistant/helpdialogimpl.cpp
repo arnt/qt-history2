@@ -596,6 +596,7 @@ void HelpDialog::searchInIndex( const QString &s )
 	if ( t.length() >= sl.length() &&
 	     i->text().left(s.length()).lower() == sl ) {
 	    listIndex->setCurrentItem( i );
+	    listIndex->setTopItem(listIndex->index(i));
 	    break;
 	}
 	i = i->next();
