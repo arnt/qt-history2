@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#7 $
 **
 ** Implementation of QTabWidget class
 **
@@ -113,7 +113,6 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name)
 
     d->stack = new QWidgetStack( this, "tab pages" );
     setTabBar( new QTabBar( this, "tab control" ) );
-    d->tabs->setShape( QTabBar::TriangularAbove );
 
     d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     d->stack->setLineWidth( style().defaultFrameWidth() );
