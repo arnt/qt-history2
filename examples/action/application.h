@@ -15,7 +15,7 @@
 
 #include <q3mainwindow.h>
 
-class Q3TextEdit;
+class QTextEdit;
 
 class ApplicationWindow: public Q3MainWindow
 {
@@ -41,7 +41,7 @@ private slots:
 
 private:
     QPrinter *printer;
-    Q3TextEdit *e;
+    QTextEdit *e;
     QString filename;
 };
 

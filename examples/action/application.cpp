@@ -18,7 +18,7 @@
 #include <qtoolbutton.h>
 #include <qpopupmenu.h>
 #include <qmenubar.h>
-#include <q3textedit.h>
+#include <qtextedit.h>
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qstatusbar.h>
@@ -34,6 +34,9 @@
 #include <qsimplerichtext.h>
 #include <qevent.h>
 #include <qmime.h>
+#include <qmimefactory.h>
+#include <qtextdocumentfragment.h>
+#include <qabstracttextdocumentlayout.h>
 
 #include "filesave.xpm"
 #include "fileopen.xpm"
@@ -46,7 +49,8 @@ using namespace Qt;
 ApplicationWindow::ApplicationWindow()
     : Q3MainWindow( 0, "example application main window", WDestructiveClose )
 {
-    printer = new QPrinter( QPrinter::HighResolution );
+    // ### change back to highres, when it works
+    printer = new QPrinter( QPrinter::ScreenResolution );
 
     Q3Action * fileNewAction;
     Q3Action * fileOpenAction;
@@ -145,7 +149,7 @@ ApplicationWindow::ApplicationWindow()
 
     // create and define the central widget
 
-    e = new Q3TextEdit( this, "editor" );
+    e = new QTextEdit( this, "editor" );
     e->setFocus();
     setCentralWidget( e );
     statusBar()->message( "Ready", 2000 );
@@ -247,22 +251,34 @@ void ApplicationWindow::print()
 	int dpiy = metrics.logicalDpiY();
 	int margin = (int) ( (2/2.54)*dpiy ); // 2 cm margins
 	QRect body( margin, margin, metrics.width() - 2*margin, metrics.height() - 2*margin );
-	QSimpleRichText richText( QStyleSheet::convertFromPlainText(e->text()),
-				  QFont(),
-				  e->context(),
-				  e->styleSheet(),
-				  e->mimeSourceFactory(),
-				  body.height() );
-	richText.setWidth( &p, body.width() );
-  	QRect view( body );
+
+        QTextDocument doc;
+        QTextCursor(&doc).insertFragment(QTextDocumentFragment(e->document()));
+        QAbstractTextDocumentLayout *layout = doc.documentLayout();
+        layout->setPageSize(QSize(body.width(), INT_MAX));
+
+        QRect view(0, 0, body.width(), body.height());
+        p.translate(body.left(), body.top());
+
+        QFont font = e->font();
+        font.setPointSize(10); // we define 10pt to be a nice base size for printing
+
 	int page = 1;
 	do {
-	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
-	    view.moveBy( 0, body.height() );
-	    p.translate( 0 , -body.height() );
-	    p.drawText( view.right() - p.fontMetrics().width( QString::number( page ) ),
-			view.bottom() + p.fontMetrics().ascent() + 5, QString::number( page ) );
-	    if ( view.top()  >= richText.height() )
+            QAbstractTextDocumentLayout::PaintContext ctx;
+            ctx.palette = palette();
+            p.setClipRect(view);
+            layout->draw(&p, ctx);
+
+            p.setClipping(false);
+            p.setFont(font);
+            p.drawText(view.right() - p.fontMetrics().width(QString::number(page)),
+                       view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page));
+
+            view.moveBy(0, body.height());
+            p.translate(0, -body.height());
+
+	    if ( view.top() >= layout->sizeUsed().height() )
 		break;
 	    printer->newPage();
 	    page++;
