@@ -206,7 +206,7 @@ MakefileGenerator::setProjectFile(QMakeProject *p)
         processPrlFiles();
 }
 
-void 
+void
 MakefileGenerator::init()
 {
     initOutPaths();
@@ -235,7 +235,7 @@ MakefileGenerator::init()
     }
 
     /* get deps and mocables */
-    if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || Option::mkfile::do_deps || Option::mkfile::do_mocs) 
+    if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || Option::mkfile::do_deps || Option::mkfile::do_mocs)
        && !noIO() && !project->isActiveConfig("no_fileio")) {
         depHeuristics.clear();
         if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || Option::mkfile::do_deps) && doDepends()) {
@@ -305,9 +305,9 @@ MakefileGenerator::init()
                                 } else {
                                     for(int i = (int)files.count()-1; i >= 0; i--) {
                                         QString file = fileFixify(dir + files[i]);
-                                        if(!i) 
+                                        if(!i)
                                             val = file;
-                                        else 
+                                        else
                                             l.insert(val_it+1, file);
                                     }
                                     val_it += files.count();
@@ -475,7 +475,7 @@ MakefileGenerator::init()
             if(QMakeSourceFileInfo::included(moc))
                 srcmoc += moc;
             else if(moc.endsWith(Option::cpp_moc_ext))
-                warn_msg(WarnLogic, "File %s considered mocable but will not be linked into TARGET!", 
+                warn_msg(WarnLogic, "File %s considered mocable but will not be linked into TARGET!",
                          mocables[i].latin1());
             else
                 hdrmoc += moc;
@@ -1607,6 +1607,9 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
             st->target = "sub-" + (*it);
             st->target.replace('/', '-');
             st->target.replace('.', '_');
+
+            // Required since nmake doesn't accept cd into a / separated directory structure.
+            st->directory = QDir::convertSeparators(st->directory);
         }
     }
     t << "first: make_first" << endl;
