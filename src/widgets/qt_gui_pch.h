@@ -8,15 +8,15 @@
 
 #if defined __cplusplus
 
-#include <kernel/qt_pch.h>
 #include <qapplication.h>
 #include <qbitmap.h>
 #include <qcursor.h>
 #include <qdatetime.h>
+#include <qevent.h>
 #include <qglobal.h>
 #include <qimage.h>
+#include <qmetaobject.h>
 #include <qpainter.h>
-#include <qevent.h>
 #include <qpixmap.h>
 #include <qplatformdefs.h>
 #include <qstyle.h>
