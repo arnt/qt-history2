@@ -924,6 +924,19 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format, bool 
         attributesEmitted = true;
     }
 
+    if (format.verticalAlignment() != QTextCharFormat::AlignNormal) {
+        html += QLatin1String(" vertical-align:");
+
+        QTextCharFormat::VerticalAlignment valign = format.verticalAlignment();
+        if (valign == QTextCharFormat::AlignSubScript)
+            html += QLatin1String("sub");
+        else if (valign == QTextCharFormat::AlignSuperScript)
+            html += QLatin1String("super");
+
+        html += QLatin1Char(';');
+        attributesEmitted = true;
+    }
+
     return attributesEmitted;
 }
 
