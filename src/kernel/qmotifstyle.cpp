@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#23 $
 **
 ** Implementation of Motif-like style class
 **
@@ -49,8 +49,8 @@
 */
 
 /*!
-    Constructs a QMotifStyle. 
-    
+    Constructs a QMotifStyle.
+
     If useHighlightCols is FALSE (default value), then the style will
     polish the application's color palette to emulate the Motif way of
     highlighting, which is a simple inversion between the base and the
@@ -68,11 +68,11 @@ QMotifStyle::QMotifStyle( bool useHighlightCols ) : QStyle(MotifStyle)
   application's color palette to emulate the
   Motif way of highlighting, which is a simple inversion between the
   base and the text color.
-  
+
   The effect will show up the next time a application palette is set
   via QApplication::setPalette(). The current color palette of the
   application remains unchanged.
-    
+
   \sa QStyle::polish( QPalette& ), selectionOnlyInverse()
  */
 void QMotifStyle::setUseHighlightColors( bool arg)
@@ -183,7 +183,7 @@ void QMotifStyle::drawExclusiveIndicator( QPainter* p,
     QPointArray a( QCOORDARRLEN(inner_pts), inner_pts );
     p->eraseRect( x, y, w, h );
     p->setPen( NoPen );
-    p->setBrush( showUp ? g.brush( QColorGroup::Button ) : 
+    p->setBrush( showUp ? g.brush( QColorGroup::Button ) :
                           g.brush( QColorGroup::Mid ) )  ;
     a.translate( x, y );
     p->drawPolygon( a );			// clear inner area
@@ -361,7 +361,7 @@ void QMotifStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 {
     qDrawShadePanel( p, x, y, w, h, g, sunken, defaultFrameWidth(),
 		     fill ? fill : (sunken ?
-				    &g.brush( QColorGroup::Mid )      : 
+				    &g.brush( QColorGroup::Mid )      :
 				    &g.brush( QColorGroup::Button ) ));
 }
 
@@ -383,7 +383,7 @@ QMotifStyle::drawFocusRect( QPainter* p,
     if (bg ) {
 	int h,s,v;
 	bg->hsv(&h,&s,&v);
-	if (v >= 255-50)
+	if (v >= 128)
 	    p->setPen( Qt::black );
 	else
 	    p->setPen( Qt::white );
@@ -392,9 +392,9 @@ QMotifStyle::drawFocusRect( QPainter* p,
 	p->setPen( Qt::black);
     if ( atBorder )
 	p->drawRect( QRect( r.x()+1, r.y()+1, r.width()-2, r.height()-2 ) );
-    else 
+    else
 	p->drawRect( r );
-    
+
 }
 
 
