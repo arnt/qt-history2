@@ -2,13 +2,13 @@
 
 \section1 qmake's Advanced Concepts
 
-Even though it appears that \e qmake can only be used for simple purposes, it can also be very powerful and allows you to decide what to do on certain platforms, so
-you don't have to create a project file for each platform.
+Even though it appears that \e qmake can only be used for simple purposes, it can also be very powerful.  It also allows you to decide what to do on certain 
+platforms.  This avoids having to create a project file for each platform.
 
 \section1 Operators
 
-So far, you have seen the \e = operator and \e += operator being used in a project file, there are more operators available for use, some of these should be used
-carefully as they may change more than you expect them to.
+So far, you have seen the \e = operator and \e += operator being used in a project file.  There are more operators available for use; but some of these should be 
+used carefully as they may change more than you expect them to.
 
 \section2 The '=' operator
 
@@ -18,51 +18,51 @@ This operator simply assigns a value to a variable, it should be used in the fol
 	TARGET = myapp
 \endcode
 
-This will set the TARGET variable to \e myapp.  This will remove any previously set TARGET.
+This sets the TARGET variable to \e myapp.  This will remove any previously set TARGET.
 
 \section2 The '+=' operator
 
-This operator adds a value to the list of values in a variable, it should be used in the following form:
+This operator adds a value to the list of values in a variable.  It should be used in the following form:
 
 \code
 	DEFINES += QT_DLL
 \endcode
 
-This will add QT_DLL to the list of pre-processor defines to be put in the makefile.
+This adds QT_DLL to the list of pre-processor defines to be put in the makefile.
 
 \section2 The '-=' operator
 
-This operator removes a value from the list of values in a variable, it should be used in the following form:
+This operator removes a value from the list of values in a variable.  It should be used in the following form:
 
 \code
 	DEFINES -= QT_DLL
 \endcode
 
-This will remove QT_DLL from the list of pre-processor defines to be put in the makefile.
+This removes QT_DLL from the list of pre-processor defines to be put in the makefile.
 
 \section2 The '*=' operator
 
-This operator will only add a value to the list of values in a variable if it doesn't already exist, it should be used in the following form:
+This operator only adds a value to the list of values in a variable if it doesn't already exist.  It should be used in the following form:
 
 \code
 	DEFINES *= QT_DLL
 \endcode
 
-If QT_DLL is already in the list of pre-processor defines then it will not be added, otherwise it will be.
+If QT_DLL is already in the list of pre-processor defines then it is not added, otherwise it is.
 
 \section2 The '~=' operator
 
-This operator will replace any values that match the regexp with the specified value, it should be used in the following form:
+This operator replaces any values that match the regexp with the specified value.  It should be used in the following form:
 
 \code
 	DEFINES ~= s/QT_[DT].+/QT
 \endcode
 
-This will remove any values in the list that start with QT_D or QT_T with QT.
+This removes any values in the list that start with QT_D or QT_T with QT.
 
 \section1 Scopes
 
-A scope are like 'if' statements, if a certain condition is true then the settings inside the scope are to be processed.  A scope should be written in the following
+A scope are similar to 'if' statements, if a certain condition is true, the settings inside the scope are processed.  A scope should be written in the following
 form:
 
 \code
@@ -71,10 +71,10 @@ form:
 	}
 \endcode
 
-The above code will add the QT_DLL define to the makefile if \e qmake is used on a Windows platform, if qmake is used on a different platform then the define will be 
-ignored.
+The above code will add the QT_DLL define to the makefile if \e qmake is used on a Windows platform.  If \e qmake is used on a different platform than Windows, the 
+define will be ignored.
 
-Let's say that we wanted to process something on all platforms except for the Windows platform, in this case all we would need to do is put \e ! before win32, so 
+Let's say we want to process something on all platforms except for the Windows platform.  In this case all we would need to do is put \e ! before win32, so 
 the scope will look like:
 
 \code
@@ -103,7 +103,7 @@ In the above code, two scopes are created which would depend on what is put on t
 variable is set to \e myappdebug.  If \e release was on the config line, then the TARGET variable would be set to \e myapp.
 
 It is also possible to check for two things before processing some settings.  For instance, if you want to check if qmake is used on Windows and that the thread 
-configuration is set, then using the way already shown, it would like:
+configuration is set, then using the way already shown, it would look like:
 
 \code
 	win32 {
@@ -126,7 +126,7 @@ Which makes it easier to understand and easier to maintain.
 \section1 Variables
 
 The variables that we have encountered so far are system variables, such as \e DEFINES, \e SOURCES and \e HEADERS.  It is possible for you to create your own 
-variables so that you use them in scopes.  It's easy to create your own variable, just name it something and assign it something, an example of this is:
+variables so that you use them in scopes.  It's easy to create your own variable; just name it and assign something to it.  An example of this is:
 
 \code
 	THIS_IS_MY_OWN = variable
@@ -134,7 +134,7 @@ variables so that you use them in scopes.  It's easy to create your own variable
 
 There are no restricitions on what you do to your own variables, as \e qmake will just ignore them unless it needs to look at them for a scope.  
 
-You can also assign the value of a current variable to another variable, just do this by prefixing $$ to the variable name.  An example of this:
+You can also assign the value of a current variable to another variable by prefixing $$ to the variable name.  An example of this:
 
 \code
 	MY_DEFINES = $$DEFINES
@@ -144,9 +144,7 @@ Now the MY_DEFINES variable contains what is currently in the DEFINES variable.
 
 \section1 Functions
 
-As well as the scopes, there are built-in functions in qmake that perform simple yet powerful tasks, there are a few functions that are available for use and they 
-are as follows:
-
+\e qmake provides built-in functions that perform simple, yet powerful tasks.  The following are a few functions that are available for use.
 \section2 contains( variablename, value )
 
 If \e value is in the list of values for \e variablename, then the settings inside the scope will be processed.  For example:
@@ -193,7 +191,7 @@ If \e /local/qt/qmake/main.cpp exists then main.cpp is added to the list of sour
 
 \section2 include( filename )
 
-The contents of filename are included at this point in the project file, so any settings in the specified file will be processed at this point.  An example of
+The contents of filename are included at this point in the project file, so any settings in the specified file will be processed.  An example of
 this is:
 
 \code 
@@ -204,7 +202,7 @@ Any settings in the \e myotherapp.pro project file are now processed.
 
 \section2 isEmpty( variablename )
 
-This is the equivalent of using count( variablename, 0 ), if the variablename has no elements, then the settings inside the scope will be processed.  An example
+This is the equivalent of using count( variablename, 0 ).  If the variablename has no elements, then the settings inside the scope will be processed.  An example
 of this is:
 
 \code
@@ -225,7 +223,7 @@ The text "This is a message" is outputted to the console and processing of the p
 
 \section2 system( command )
 
-The specified command is performed and if it returns an exit code of 1, then the settings inside the scope are processed.  For example:
+The specified command is performed and if it returns an exit code of 1, the settings inside the scope are processed.  For example:
 
 \code
 	system( ls /bin ) {

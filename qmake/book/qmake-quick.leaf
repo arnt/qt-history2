@@ -52,7 +52,7 @@ The next line is the CONFIG line
 The config line specifies the basic configuration of the application.  For now, ignore the \e += part of the line,
 just ensure that you use this when you create your own project files.  
 
-The \e qt part of the CONFIG line tells \e qmake that the application is built using Qt, this means that qmake will 
+The \e qt part of the CONFIG line tells \e qmake that the application is built using Qt.  This means that \e qmake will 
 link against the Qt libraries when linking and add in the neccesary include paths for compiling.
 
 The \e warn_on part of the CONFIG line tells \e qmake that it should set the compiler flags for outputting warnings.

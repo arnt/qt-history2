@@ -6,7 +6,7 @@
 of makefiles so that only a few lines are needed to create to build a makefile.  \e qmake can be used for any software project whether it is written in Qt or not, 
 and it contains features to support developing with Qt.
 
-\e qmake generates a makefile for an application by reading a project file.  These project files are created by the user and can be easily created, they can also 
+\e qmake generates a makefile for an application by reading a project file.  These project files are created by the user; they can also 
 be very powerful in the sense that they can allow the user to do certain things in certain conditions.  \e qmake can also generate projects for Microsoft Visual 
 studio without having to change the project file.  
 
@@ -15,31 +15,31 @@ studio without having to change the project file.
 \section2 The QMAKESPEC environment variable
 
 Before \e qmake can be used to build makefiles, the QMAKESPEC environment variable needs to be set to the platform/compiler combination that is being used on the 
-system.  The QMAKESPEC environment variable tells qmake where to look to find platform and compiler specifc information, this ensures that the right libraries are 
+system.  The QMAKESPEC environment variable tells qmake where to look to find platform and compiler specific information.  This ensures that the right libraries are 
 linked against in certain situations, and that the generated makefile uses the right syntax.  A list of the currently supported platform/compiler combinations can
 be found in qt/mkspecs.  Just set your environment variable to one of the directories listed.
 
 For example, if you are using Microsoft Visual Studio on Windows, then you would set your QMAKESPEC environment variable to \e win32-msvc.  If you are using gcc on 
 Solaris then you would set your QMAKESPEC environment variable to \e solaris-g++.
 
-Inside each of the directories in qt/mkspecs there is a \e qmake.conf file which contains the platform and compiler specifc information, the settings in here are 
-applied to any project that is built using \e qmake and should not be modified unless you know what you are doing.  This is the place to add a library that you 
-want all of your applications to link against for example.
+Inside each of the directories in qt/mkspecs, there is a \e qmake.conf file which contains the platform and compiler specific information.  The settings in here are 
+applied to any project that is built using \e qmake and should not be modified unless you know what you are doing.  For example, this is the place to add a library that you 
+want all of your applications to link against.
 
 \section2 Project (.pro) files
 
 A project file is used to tell \e qmake the details it needs to know about creating a makefile for the application.  For instance, a list of source files and 
-header files that should be put into the project file.  Any application specific configuration, such as an extra library that should be linked against, or an extra 
-include path that should be put into the project file.
+header files that should be put into the project file; any application specific configuration, such as an extra library that should be linked against, or an extra 
+include path.
 
 We'll go over these in more detail later on, but first we'll look at the TEMPLATE variable.
 
 \section2 Templates
 
-The template variable tells qmake what sort of makefile should be generated for the application, you can choose from one of the following:
+The template variable tells qmake what sort of makefile should be generated for the application.  You can choose from one of the following:
 
 \list
-\i app - Creates a makefile that builds an application.  This is the default, so if a template is not specified then this is used.
+\i app - Creates a makefile that builds an application.  This is the default, so if a template is not specified, this is used.
 \i lib - Creates a makefile that builds a library.
 \i vcapp - Creates a Visual Studio Project file which builds an application.
 \i vclib - Creates a Visual Studio Project file which builds a library.
@@ -50,7 +50,7 @@ make on it.
 \section3 The 'app' template
 
 The 'app' template tells qmake to generate a makefile that will build an application.  When using this template the following \e qmake system variables are 
-recognised, you should use these in your .pro file to specify information about your application.
+recognized.  You should use these in your .pro file to specify information about your application.
 
 \list
 \i HEADERS - A list of all the header files for the application.
@@ -58,9 +58,9 @@ recognised, you should use these in your .pro file to specify information about 
 \i FORMS - A list of all the .ui files (created using Qt Designer) for the application.
 \i LEXSOURCES - A list of all the lex source files for the application.
 \i YACCSOURCES - A list of all the yacc source files for the application.
-\i TARGET - Name of the executable for application (the extension is added automatically).
-\i DESTDIR - Where the target executable is placed.
-\i DEFINES - A list of any additional pre-processordefines needed for the application.
+\i TARGET - Name of the executable for the application (the extension is added automatically).
+\i DESTDIR - The directory in which the target executable is placed.
+\i DEFINES - A list of any additional pre-processor defines needed for the application.
 \i INCLUDEPATH - A list of any additional include paths needed for the application.
 \i DEPENDPATH - The dependency search path for the application.
 \i DEF_FILE - Windows only: A .def file to be linked against for the application.
@@ -87,12 +87,12 @@ specifying additional DEFINES, by using \e += we inform \e qmake that it should 
 itself.
 
 The other thing that has not been mentioned in much detail up to now is the CONFIG line.  If you have read through the quick-start part of the manual then you will
-know a little bit about the CONFIG line already.  This will be talked about in more detail later on.
+know a little bit about the CONFIG line already.  This will be explained in more detail later on in the chapter.
 
 \section3 The 'lib' template
 
-The 'lib' template tells \e qmake to generate a makefile that will build a library.  When using this template the system variables mentioned above for the 'app' 
-template and the following are recognised, you should use these in your .pro file to specify information about the library.
+The 'lib' template tells \e qmake to generate a makefile that will build a library.  When using this template, the system variables mentioned above for the 'app' 
+template and the following are recognized.  You should use these in your .pro file to specify information about the library.
 
 \list
 \i VERSION - The version number of the target library, for example, 2.3.1.
@@ -109,7 +109,7 @@ it without a problem.  For example, if the sub directory is called 'hello' then 
 
 \section2 The CONFIG variable
 
-The config variable specifies the compilers options that should be used and the libraries that should be linked against.  Anything can be added to the end of the
+The config variable specifies the options that the compiler should use and the libraries that should be linked against.  Anything can be added to the end of the
 config variable, but the following are recognised by qmake internally.
 
 The following options control what compiler flags are used:
@@ -126,12 +126,12 @@ The following options define the type of library/application to be built:
 \list
 \i qt - The application is a Qt application and should link against the Qt library.
 \i thread - The application is a multi-threaded application.
-\i x11 - The application is a X11 application or library.
+\i x11 - The application is an X11 application or library.
 \i windows - 'app' template only: The application is a Windows window application.
 \i console - 'app' template only: The application is a Windows console application.
 \i dll - 'lib' template only: The library is a shared library (dll).
 \i staticlib - 'lib' template only: The library is a static library.
-\i plugin - 'lib' template only: The library is a plugin, this enables the dll option.
+\i plugin - 'lib' template only: The library is a plugin; this enables the dll option.
 \endlist
 
 For example, if your application uses the Qt library and you want to build it as a debuggable multi-threaded application, your project file will have the following
