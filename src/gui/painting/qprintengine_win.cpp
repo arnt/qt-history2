@@ -443,7 +443,7 @@ int QWin32PrintEngine::metric(int m) const
 void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
                                    const QPixmap &pixmap,
                                    const QRect &,
-                                   Qt::PixmapDrawingMode /* mode */)
+                                   Qt::PixmapDrawingMode)
 {
     bool oldNoNativeXForm = d->noNativeXform;
     d->noNativeXform = true;
@@ -547,6 +547,8 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
     uchar *bits;
 
 
+    QRegion oldClip;
+
     // Since we scale the image in the StretchXXX below, we scale the
     // bitmask to make the transparency clip region correct.
     if ( paint && image.hasAlphaBuffer() ) {
@@ -564,8 +566,8 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
         if ( paint->hasClipping() )
             r &= paint->clipRegion();
         paint->save();
+        oldClip = paint->clipRegion();
         updateClipRegion(r, true);
-        setDirty(DirtyClip);
         QWMatrix::setTransformationMode( tmpMode );
     }
 
@@ -615,8 +617,10 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
     delete [] bits;
     free( bmi );
 
-    if ( paint && image.hasAlphaBuffer() )
+    if ( paint && image.hasAlphaBuffer() ) {
+        updateClipRegion(oldClip, !oldClip.isEmpty());
         paint->restore();
+    }
 
     // Recover from the xform hack at the top...
     d->noNativeXform = oldNoNativeXForm;
