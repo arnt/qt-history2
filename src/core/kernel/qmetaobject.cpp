@@ -1471,14 +1471,13 @@ static const struct { const char * typeName; int type; }types[]  = {
 class QCustomTypeInfo
 {
 public:
-    QCustomTypeInfo() : typeName(0), copy(0), destr(0) {}
-    ~QCustomTypeInfo() { delete typeName; }
+    QCustomTypeInfo() : copy(0), destr(0) {}
     void setData(const char *tname, QMetaType::CopyConstructor cp, QMetaType::Destructor de)
-    { delete typeName; typeName = qstrdup(tname); copy = cp; destr = de; }
+    { typeName = tname; copy = cp; destr = de; }
     void setData(QMetaType::CopyConstructor cp, QMetaType::Destructor de)
     { copy = cp; destr = de; }
 
-    const char *typeName;
+    QByteArray typeName;
     QMetaType::CopyConstructor copy;
     QMetaType::Destructor destr;
 };
