@@ -21,18 +21,32 @@
 #include <qdesigner_command.h>
 #include <taskmenu.h>
 
-#include <QMenu>
-#include <QVariant>
-#include <QWidget>
-#include <QApplication>
-#include <QLabel>
-#include <QPainter>
-#include <QMouseEvent>
-#include <QStylePainter>
+#include <QtGui/QMenu>
+#include <QtGui/QWidget>
+#include <QtGui/QApplication>
+#include <QtGui/QLabel>
+#include <QtGui/QPainter>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QStylePainter>
+
+#include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
+#define NO_TOPWIDGET
+
+class TopWidget: public InvisibleWidget
+{
+    Q_OBJECT
+public:
+    TopWidget(QWidget *parent)
+        : InvisibleWidget(parent)
+    {
+        setAttribute(Qt::WA_TransparentForMouseEvents);
+    }
+};
+
 WidgetHandle::WidgetHandle(FormWindow *parent, WidgetHandle::Type t, WidgetSelection *s)
-    : QWidget(parent)
+    : InvisibleWidget(parent)
 {
     active = true;
     widget = 0;
@@ -309,27 +323,11 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
         trySetGeometry(widget, widget->x() + dx, widget->y(), w, widget->height());
     } break;
 
-    default: {
-    } break;
+    default: break;
 
     } // end switch
 
     sel->updateGeometry();
-
-#if 0 // ### enable me
-    QPoint p = pos();
-    sel->updateGeometry();
-    oldPressPos += (p - pos());
-
-    QLabel *sizePreview = formWindow->sizePreview();
-    sizePreview->setText(tr("%1/%2").arg(widget->width()).arg(widget->height()));
-    sizePreview->adjustSize();
-    QRect lg(formWindow->mapFromGlobal(e->globalPos()) + QPoint(16, 16), sizePreview->size());
-    formWindow->checkPreviewGeometry(lg);
-    sizePreview->setGeometry(lg);
-    sizePreview->show();
-    sizePreview->raise();
-#endif
 
     if (LayoutInfo::layoutType(formWindow->core(), widget) != LayoutInfo::NoLayout)
         formWindow->updateChildSelections(widget);
@@ -402,12 +400,26 @@ WidgetSelection::WidgetSelection(FormWindow *parent, QHash<QWidget *, WidgetSele
     for (int i = WidgetHandle::LeftTop; i < WidgetHandle::TypeCount; ++i) {
         handles.insert(i, new WidgetHandle(formWindow, (WidgetHandle::Type)i, this));
     }
+
+    m_topWidget = 0;
+
     hide();
 }
 
 void WidgetSelection::setWidget(QWidget *w, bool updateDict)
 {
     taskMenu = qt_extension<ITaskMenu*>(core()->extensionManager(), w);
+
+#ifndef NO_TOPWIDGET
+    if (m_topWidget) {
+        Q_ASSERT(m_topWidget->parentWidget() != 0);
+        m_topWidget->parentWidget()->setAttribute(Qt::WA_ContentsPropagated, false);
+    }
+
+    delete m_topWidget;
+    m_topWidget = 0;
+#endif
+
 
     if (!w) {
         hide();
@@ -426,6 +438,16 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
             h->setActive(active);
         }
     }
+
+#ifndef NO_TOPWIDGET
+    if (wid) {
+        wid->setAttribute(Qt::WA_ContentsPropagated, true);
+        m_topWidget = new TopWidget(wid);
+        QPalette p = m_topWidget->palette();
+        p.setColor(m_topWidget->backgroundRole(), QColor(255, 0, 0, 32));
+        m_topWidget->setPalette(p);
+    }
+#endif
 
     updateGeometry();
     show();
@@ -487,6 +509,12 @@ void WidgetSelection::updateGeometry()
             break;
         }
     }
+
+#ifndef NO_TOPWIDGET
+    if (m_topWidget) {
+        m_topWidget->setGeometry(wid->rect());
+    }
+#endif
 }
 
 void WidgetSelection::hide()
@@ -496,6 +524,11 @@ void WidgetSelection::hide()
         if (h)
             h->hide();
     }
+
+#ifndef NO_TOPWIDGET
+    if (m_topWidget)
+        m_topWidget->hide();
+#endif
 }
 
 void WidgetSelection::show()
@@ -512,6 +545,13 @@ void WidgetSelection::show()
             }
         }
     }
+
+#ifndef NO_TOPWIDGET
+    if (m_topWidget) {
+        m_topWidget->show();
+        m_topWidget->raise();
+    }
+#endif
 }
 
 void WidgetSelection::update()
@@ -521,6 +561,11 @@ void WidgetSelection::update()
         if (h)
             h->update();
     }
+
+#ifndef NO_TOPWIDGET
+    if (m_topWidget)
+        m_topWidget->update();
+#endif
 }
 
 QWidget *WidgetSelection::widget() const
@@ -535,3 +580,5 @@ AbstractFormEditor *WidgetSelection::core() const
 
     return 0;
 }
+
+#include "widgetselection.moc"

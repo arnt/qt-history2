@@ -15,9 +15,9 @@
 #define WIDGETHANDLE_H
 
 #include "formeditor_global.h"
+#include <invisible_widget.h>
 
-#include <QWidget>
-#include <QHash>
+#include <QtCore/QHash>
 
 struct ITaskMenu;
 class QMouseEvent;
@@ -26,10 +26,9 @@ class AbstractFormEditor;
 class WidgetSelection;
 class QPaintEvent;
 
-class QT_FORMEDITOR_EXPORT WidgetHandle: public QWidget
+class QT_FORMEDITOR_EXPORT WidgetHandle: public InvisibleWidget
 {
     Q_OBJECT
-
 public:
     enum Type
     {
@@ -98,6 +97,7 @@ public:
 
 protected:
     QHash<int, WidgetHandle*> handles;
+    InvisibleWidget *m_topWidget;
     QWidget *wid;
     FormWindow *formWindow;
     QHash<QWidget *, WidgetSelection *> *selectionDict;
