@@ -671,6 +671,8 @@ QOleDataObject::Release(void)
 //                     (NOTE: must set pformatetcOut->ptd = NULL)
 //---------------------------------------------------------------------
 
+extern bool qt_CF_HDROP_valid(const char *mime, int cf, QMimeSource * src);
+
 STDMETHODIMP
 QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
 {
@@ -687,7 +689,8 @@ QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
     for (int i=0; (fmt=object->format(i)); i++) {
 	if ((wm=QWindowsMime::convertor(fmt,pformatetc->cfFormat))
 	    && (pformatetc->dwAspect & DVASPECT_CONTENT) &&
-	       (pformatetc->tymed & TYMED_HGLOBAL))
+	       (pformatetc->tymed & TYMED_HGLOBAL) &&
+	       qt_CF_HDROP_valid(fmt, pformatetc->cfFormat, object))
 	{
 	    QByteArray data =
 		wm->convertFromMime(object->encodedData(fmt),
@@ -726,7 +729,8 @@ QOleDataObject::QueryGetData(LPFORMATETC pformatetc)
     for (int i=0; (fmt=object->format(i)); i++) {
 	if (QWindowsMime::convertor(fmt,pformatetc->cfFormat) &&
 	   (pformatetc->dwAspect & DVASPECT_CONTENT) &&
-	   (pformatetc->tymed & TYMED_HGLOBAL))
+	   (pformatetc->tymed & TYMED_HGLOBAL) &&
+	   qt_CF_HDROP_valid(fmt, pformatetc->cfFormat, object))
 	{
 	    return ResultFromScode(S_OK);
 	}

@@ -432,6 +432,8 @@ QMimeSource* QClipboard::data( Mode mode ) const
     return d->provider();
 }
 
+extern bool qt_CF_HDROP_valid(const char *mime, int cf, QMimeSource * src);
+
 void QClipboard::setData( QMimeSource* src, Mode mode )
 {
     if ( mode != Clipboard ) return;
@@ -464,7 +466,8 @@ void QClipboard::setData( QMimeSource* src, Mode mode )
 	    if ( c->cfFor(mime) ) {
 		for (int j = 0; j < c->countCf(); j++) {
 		    UINT cf = c->cf(j);
-		    if ( c->canConvert(mime,cf) ) {
+		    if ( c->canConvert(mime,cf) &&
+			qt_CF_HDROP_valid(mime, cf, src) ) {
 #ifndef Q_OS_TEMP
 			if ( qApp && qApp->eventLoop()->loopLevel() )
 			    SetClipboardData( cf, 0 ); // 0 == ask me later

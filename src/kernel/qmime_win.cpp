@@ -840,6 +840,25 @@ QWindowsMime::convertor( const char *mime, int cf )
     return 0;
 }
 
+
+/*
+  Check if the uri-list actual contains files as this is all the CF_HDROP supports
+*/
+bool qt_CF_HDROP_valid(const char *mime, int cf, QMimeSource * src)
+{
+    if (cf != CF_HDROP || qstricmp(mime,"text/uri-list") != 0)
+	return TRUE; // retrun true if this check is not for CF_HDROP and text/uri-list
+
+    // we should only provide CF_HDROP if the uri list contains local files
+    QStringList fn;
+    QUriDrag::decodeLocalFiles(src, fn);
+    if (fn.count() == 0)
+	return FALSE;
+    else
+	return TRUE;
+}
+
+
 /*!
   Returns a MIME type for \a cf, or 0 if none exists.
 */
