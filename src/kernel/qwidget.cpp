@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#58 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#57 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#58 $";
 #endif
 
 /*!
@@ -471,27 +471,6 @@ void QWidget::setPalette( const QPalette &p )	// set widget palette
     pal = p;
     setBackgroundColor( colorGroup().background() );
     update();
-}
-
-
-/*!
-  Returns the font metrics of the font currently in use by this widget.
-  \sa fontInfo(), font(), setFont()
-*/
-
-QFontMetrics QWidget::fontMetrics() const
-{
-    return QFontMetrics(fnt);
-}
-
-/*!
-Returns the font information of the font currently in use by this widget.
-\sa fontMetrics(), font(), setFont()
-*/
-
-QFontInfo QWidget::fontInfo() const
-{
-    return QFontInfo(fnt);
 }
 
 
