@@ -400,6 +400,9 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 
     qApp->setName( appName );
     if ( qt_is_gui_used ) {
+#ifndef QT_NO_STYLE_AQUA
+	QAquaStyle::appearanceChanged();
+#endif
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	QMenuBar::initialize();
 #endif
@@ -416,6 +419,7 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
     }
 
     if(!app_proc_handler) {
+	RegisterAppearanceClient();
 	app_proc_handlerUPP = NewEventHandlerUPP(QApplication::globalEventProcessor);
 	InstallEventHandler( GetApplicationEventTarget(), app_proc_handlerUPP,
 			     GetEventTypeCount(events), events, (void *)qApp, &app_proc_handler);

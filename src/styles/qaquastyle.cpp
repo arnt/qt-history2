@@ -1025,8 +1025,7 @@ int QAquaStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_ButtonShiftVertical:
 	ret = 0;
 	break;
-    case PM_SliderMaximumDragDistance:
-    case PM_ScrollBarMaximumDragDistance:
+    case PM_MaximumDragDistance:
 	ret = -1;
 	break;
     case PM_SliderLength:
@@ -1661,30 +1660,34 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, void ***d) const
     return ret;
 }
 
+#ifdef Q_WS_MAC
 void QAquaStyle::appearanceChanged()
 {
-    AquaMode old_mode = aquaMode;
-#ifdef Q_WS_MAC
-    Collection c=NewCollection();
-    GetTheme(c);
-    Str255 str;
-    long int s = 256;
-    if(!GetCollectionItem(c, kThemeVariantNameTag, 0, &s, &str)) {
-	if(!strncmp((char *)str+1, "Blue", str[0]))
-	    aquaMode = AquaModeAqua;
-	else if(!strncmp((char *)str+1, "Graphite", str[0]))
-	    aquaMode = AquaModeGraphite;
-	else
-	    aquaMode = AquaModeUnknown;
+    AquaMode m;
+    {
+	Collection c=NewCollection();
+	GetTheme(c);
+	Str255 str;
+	long int s = 256;
+	if(!GetCollectionItem(c, kThemeVariantNameTag, 0, &s, &str)) {
+	    if(!strncmp((char *)str+1, "Blue", str[0]))
+		m = AquaModeAqua;
+	    else if(!strncmp((char *)str+1, "Graphite", str[0]))
+		m = AquaModeGraphite;
+	    else
+		m = AquaModeUnknown;
+	} else {
+	    qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
+	}
+	DisposeCollection(c);
     }
-    DisposeCollection(c);
-#else
-    aquaMode = AquaModeAqua;
-#endif
-    if(aquaMode != old_mode && qApp->style().inherits("QAquaStyle")) 
+#if 0
+    if(aquaMode != m && qApp && qApp->style().inherits("QAquaStyle")) 
 	qApp->setStyle(new QAquaStyle);
+#endif
+    aquaMode = m;
 }
-
+#endif
 
 #if 0
 /*! \reimp */

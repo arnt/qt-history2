@@ -11053,8 +11053,12 @@ static bool qAquaActive( const QColorGroup & g )
 
 static void qAquaPixmap( const QString & s, QPixmap & p )
 {
-    if(aquaMode == AquaModeUnknown)
-	QAquaStyle::appearanceChanged();
+#ifdef Q_WS_MAC
+    if(aquaMode == AquaModeUnknown) {
+	qDebug("This shouldn't happen %s:%d", __FILE__, __LINE__);
+	return;
+    }
+#endif
     int i, size = 0;
 
     QString mode = "aqua";
@@ -11786,10 +11790,11 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     }
 
     if(aquaMode == AquaModeGraphite) { //take that!!
-	QPixmapCache::find( "$qt_aqua_" + s, p );
-	QPixmap mp = p;
+	QPixmap mp;
+	QPixmapCache::find( "$qt_aqua_" + s, mp );
+	p = mp;
 	if( !s.contains("gen_back") ) {
-	    im = mp.convertToImage().convertDepth(32);
+	    im = p.convertToImage().convertDepth(32);
 	    for(int x = 0; x < im.width(); x++) {
 		for(int y = 0; y < im.height(); y++) {
 		    QRgb c = im.pixel(x, y);
@@ -11797,11 +11802,11 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 		    im.setPixel(x, y, qRgb(c, c, c));
 		}
 	    }
-	    mp = im;
-	    if(p.mask())
-		mp.setMask(*p.mask());
+	    p = im;
+	    if(mp.mask())
+		p.setMask(*mp.mask());
 	}
-	QPixmapCache::insert(str, mp);
+	QPixmapCache::insert(str, p);
     } else {
 	QPixmapCache::find( str, p );
     }
