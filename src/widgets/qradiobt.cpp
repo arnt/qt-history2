@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#18 $
 **
 ** Implementation of QRadioButton class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#18 $";
 #endif
 
 
@@ -151,7 +151,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	    p->drawPolyline( a );
 	}
 	if ( isOn() ) {				// draw check mark
-	    a.setPoints( QCOOTARRLEN(pts3), pts3 );
+	    a.setPoints( QCOORDARRLEN(pts3), pts3 );
 	    a.move( x, y );
 	    p->setBrush( g.foreground() );
 	    p->drawPolygon( a );
