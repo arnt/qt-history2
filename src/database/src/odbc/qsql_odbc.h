@@ -5,6 +5,8 @@
 #include <qstring.h>
 #include <qsqldriver.h>
 #include <qsqlresult.h>
+#include <qsqlresultinfo.h>
+#include <qsqlindex.h>
 
 class QODBCPrivate;
 class QODBCResult;
@@ -21,7 +23,7 @@ public:
     void 	        close();
     QSql 	        createResult() const;
     QStringList         tables( const QString& user ) const;
-    QSqlFieldInfoList   fields( const QString& tablename ) const;
+    QSqlFieldList       fields( const QString& tablename ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
 protected:
     bool                beginTransaction();

@@ -12,7 +12,7 @@
      can belong to only one table in a database.  Information about
      the fields that compromise the index can be obtained by calling
      the fields() method.
-     
+
      Normally, QSqlIndex objects are created by QSqlDatabase.
 
      \sa QSqlDatabase
@@ -64,7 +64,7 @@ QSqlIndex::~QSqlIndex()
 
 */
 
-QSqlFieldInfoList QSqlIndex::fields() const
+QSqlFieldList QSqlIndex::fields() const
 {
     return fieldList;
 }
@@ -74,7 +74,7 @@ QSqlFieldInfoList QSqlIndex::fields() const
 
 */
 
-void QSqlIndex::append( QSqlFieldInfo field )
+void QSqlIndex::append( QSqlField field )
 {
     fieldList.append( field );
 }

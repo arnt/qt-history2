@@ -6,7 +6,7 @@
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qsqlerror.h"
-#include "qsqlresultinfo.h"
+#include "qsqlfield.h"
 #include "qsqlindex.h"
 #include "qsql.h"
 #endif // QT_H
@@ -40,7 +40,7 @@ public:
     QSql	query( const QString & sqlquery ) const;
     QStringList tables() const;
     QSqlIndex   primaryIndex( const QString& tablename ) const;
-    QSqlFieldInfoList fields( const QString& tablename ) const;
+    QSqlFieldList fields( const QString& tablename ) const;
     int		exec( const QString & sql ) const;
     QSql	createResult() const;
     bool	transaction();

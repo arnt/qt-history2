@@ -285,16 +285,6 @@ bool QOCIDriver::endTrans()
     return FALSE;
 }
 
-QStringList QOCIDriver::tables() const
-{
-    QSql t = createResult();
-    t << "select table_name from user_tables;";
-    QStringList tl;
-    while ( t.next() )
-	tl.append( t[0].toString() );
-    return tl;
-}
-
 QStringList QOCIDriver::tables( const QString& user ) const
 {
     QSql t = createResult();
@@ -306,23 +296,23 @@ QStringList QOCIDriver::tables( const QString& user ) const
     Q_CONST_UNUSED( user );
 }
 
-QSqlFieldInfoList QOCIDriver::fields( const QString& tablename ) const
+QSqlFieldList QOCIDriver::fields( const QString& tablename ) const
 {
     QSql t = createResult();
-    QString stmt ("select column_name, data_type, data_length, data_precision  "
+    QString stmt ("select column_name, data_type " //, data_length, data_precision  "
 		  "from user_tab_columns "
 		  "where table_name='%1';" );
     t << stmt.arg( tablename );
-    QSqlFieldInfoList fil;
+    QSqlFieldList fil;
     while ( t.next() )
-	fil.append( QSqlFieldInfo( t[0].toString(), qDecodeOCIType(t[1].toInt()), t[2].toInt(), t[3].toInt() ));
+	fil.append( QSqlField( t[0].toString(), t.at(), qDecodeOCIType(t[1].toInt()) ));
     return fil;
 }
 
 QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 {
     QSql t = createResult();
-    QString stmt ("select b.column_name, b.data_type, b.data_length, b.data_precision "
+    QString stmt ("select b.column_name, b.data_type " //, b.data_length, b.data_precision "
 		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
 		  "where a.constraint_type='P' "
 		  "and a.table_name='%1' "
@@ -332,7 +322,7 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
     t << stmt.arg( tablename );
     QSqlIndex idx( tablename );
     if ( t.next() )
-	idx.append( QSqlFieldInfo( t[0].toString(), qDecodeOCIType(t[1].toInt()), t[2].toInt(), t[3].toInt() ));
+	idx.append( QSqlField( t[0].toString(), t.at(), qDecodeOCIType(t[1].toInt()) ));
     return idx;
     return QSqlIndex();
 }

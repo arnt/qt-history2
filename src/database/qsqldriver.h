@@ -7,7 +7,7 @@
 #include "qstringlist.h"
 #include "qsqlerror.h"
 #include "qsql.h"
-#include "qsqlresultinfo.h"
+#include "qsqlfield.h"
 #include "qsqlindex.h"
 #endif // QT_H
 
@@ -26,9 +26,9 @@ public:
     virtual bool    beginTransaction();
     virtual bool    commitTransaction();
     virtual bool    rollbackTransaction();
-    virtual QStringList tables( const QString& user ) const;
-    virtual QSqlIndex   primaryIndex( const QString& tablename ) const;
-    virtual QSqlFieldInfoList fields( const QString& tablename ) const;
+    virtual QStringList   tables( const QString& user ) const;
+    virtual QSqlIndex     primaryIndex( const QString& tablename ) const;
+    virtual QSqlFieldList fields( const QString& tablename ) const;
     QSqlError	    lastError() const;
     virtual bool    open( const QString & db,
     			const QString & user = QString::null,

@@ -315,7 +315,7 @@ QSqlIndex QMySQLDriver::primaryIndex( const QString& tablename ) const
     i << stmt.arg( tablename );
     while ( i.isActive() && i.next() ) {
 	if ( i[2].toString() == "PRIMARY" ) {
-	    QSqlFieldInfoList fil = fields( tablename );
+	    QSqlFieldList fil = fields( tablename );
 	    idx.append( fil[ i[3].toInt()-1 ] );
 	    break;
 	}
@@ -323,14 +323,14 @@ QSqlIndex QMySQLDriver::primaryIndex( const QString& tablename ) const
     return idx;
 }
 
-QSqlFieldInfoList QMySQLDriver::fields( const QString& tablename ) const
+QSqlFieldList QMySQLDriver::fields( const QString& tablename ) const
 {
-    QSqlFieldInfoList fil;
+    QSqlFieldList fil;
     QString fieldStmt( "show columns from %1;");
     QSql i = createResult();
     i << fieldStmt.arg( tablename );
-    while ( i.isActive() && i.next() )
-	fil.append ( QSqlFieldInfo( i[0].toString(), qDecodeMYSQLType(i[1].toInt()), 0, 0 ));
+    while ( i.isActive() && i.next() ) 
+	fil.append ( QSqlField( i[0].toString() , t.at(), qDecodeMYSQLType(i[1].toInt()) ) );
     return fil;
 }
 

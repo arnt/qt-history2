@@ -176,9 +176,9 @@ int qGetIntData( SQLHANDLE hStmt, int column, bool& isNull  )
     return (int)intbuf;
 }
 
-QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* d, const QString& tablename, const QString& fieldname )
+QSqlField qMakeFieldInfo( const QODBCPrivate* d, const QString& tablename, const QString& fieldname )
 {
-    QSqlFieldInfo fi;
+    QSqlField fi;
     SQLHANDLE hStmt;
     SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
 				  d->hDbc,
@@ -212,12 +212,10 @@ QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* d, const QString& tablename, c
     if ( r == SQL_SUCCESS ) {
 	bool isNull;
 	int type = qGetIntData( hStmt, 4, isNull ); // column type
-	int length = qGetIntData( hStmt, 6, isNull ); // column size
-	int precision = qGetIntData( hStmt, 8, isNull ); // column prec
-	fi.name = fieldname;
-	fi.type = qDecodeODBCType( type );
-	fi.length = length;
-	fi.precision = precision;
+	//	int length = qGetIntData( hStmt, 6, isNull ); // column size
+	//	int precision = qGetIntData( hStmt, 8, isNull ); // column prec
+	fi.setName( fieldname );
+	fi.setValue( QVariant( qDecodeODBCType( type ) ) );
     }
     r = SQLFreeStmt( hStmt, SQL_CLOSE );
     return fi;
@@ -485,23 +483,27 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
     r = SQLFetchScroll( hStmt,
                         SQL_FETCH_NEXT,
                         0);
+    int count = 0;
     while ( r == SQL_SUCCESS ) {
 	SQLINTEGER lengthIndicator = 0;
 	bool isNull;
 	QString fieldVal = qGetStringData( hStmt, 3, buf, lengthIndicator, isNull ); // column name
-	index.append( qMakeFieldInfo( d, tablename, fieldVal ) );
+	QSqlField f = qMakeFieldInfo( d, tablename, fieldVal );
+	f.setFieldNumber( count );
+	index.append( f );
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
 			    0);
+	count++;
     }
     delete buf;
     r = SQLFreeStmt( hStmt, SQL_CLOSE );
     return index;
 }
 
-QSqlFieldInfoList QODBCDriver::fields( const QString& tablename ) const
+QSqlFieldList QODBCDriver::fields( const QString& tablename ) const
 {
-    QSqlFieldInfoList fil;
+    QSqlFieldList fil;
     SQLHANDLE hStmt;
     SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
 				  d->hDbc,
@@ -532,6 +534,7 @@ QSqlFieldInfoList QODBCDriver::fields( const QString& tablename ) const
     r = SQLFetchScroll( hStmt,
                         SQL_FETCH_NEXT,
                         0);
+    int count = 0;
     while ( r == SQL_SUCCESS ) {
 	QSqlFieldInfo fi;
 	bool isNull;
@@ -545,16 +548,13 @@ QSqlFieldInfoList QODBCDriver::fields( const QString& tablename ) const
 	SQLINTEGER lengthIndicator(0);
 	QString fieldname = qGetStringData( hStmt, 3, buf, lengthIndicator, isNull );
 	int type = qGetIntData( hStmt, 4, isNull ); // column type
-	int length = qGetIntData( hStmt, 6, isNull ); // column size
-	int precision = qGetIntData( hStmt, 8, isNull ); // column prec
-	fi.name = fieldname;
-	fi.type = qDecodeODBCType( type );
-	fi.length = length;
-	fi.precision = precision;
-	fil.append( fi );
+	//	int length = qGetIntData( hStmt, 6, isNull ); // column size
+	//	int precision = qGetIntData( hStmt, 8, isNull ); // column prec
+	fil.append( QSqlField( fieldname, count, qDecodeODBCType( type ) ) );
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
 			    0);
+	count++;
     }
     r = SQLFreeStmt( hStmt, SQL_CLOSE );
     return fil;

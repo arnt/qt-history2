@@ -4,6 +4,7 @@
 
 #include "qsqldriverplugin.h"
 #include "qsqlresult.h"
+#include "qsqlresultinfo.h"
 #include "qsqldriver.h"
 #include <stdlib.h> //### for getenv, get rid of this soon!
 
@@ -370,7 +371,7 @@ QSqlIndex QSqlDatabase::primaryIndex( const QString& tablename ) const
 
 */
 
-QSqlFieldInfoList QSqlDatabase::fields( const QString& tablename ) const
+QSqlFieldList QSqlDatabase::fields( const QString& tablename ) const
 {
     return d->driver->fields( tablename );
 }

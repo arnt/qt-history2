@@ -99,7 +99,7 @@ QSqlFieldInfo makeFieldInfo( QPSQLPrivate* p, int i )
     return QSqlFieldInfo( PQfname( p->result, i ), type, PQfsize( p->result, i ), 0  );
 }
 
-QSqlFieldInfo makeFieldInfo( const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
+QSqlField makeFieldInfo( const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
 {
     QString stmt ( "select a.atttypid, atttypmod, a.attlen "
 		   "from pg_user u, pg_class c, pg_attribute a, pg_type t "
@@ -112,8 +112,8 @@ QSqlFieldInfo makeFieldInfo( const QSqlDriver* driver, const QString& tablename,
     QSql fi = driver->createResult();
     fi << stmt.arg( tablename ).arg( fieldname );
     if ( fi.next() )
-	return QSqlFieldInfo( fieldname, decodePSQLType(fi[0].toInt()), fi[1].toInt(), fi[2].toInt());
-    return QSqlFieldInfo();
+	return QSqlField( fieldname, 0, decodePSQLType(fi[0].toInt()) );
+    return QSqlField();
 }
 
 QPSQLResult::QPSQLResult( const QPSQLDriver* db, const QPSQLPrivate* p )
@@ -483,15 +483,17 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 		  "and c1.oid = i.indrelid and i.indexrelid = c2.oid "
 		  "and a.attrelid = c2.oid;");
     i << stmt.arg( tablename );
-    while ( i.isActive() && i.next() )
-	idx.append ( makeFieldInfo( this, tablename,  i[0].toString() ) );
+    while ( i.isActive() && i.next() ) {
+	QSqlField f = makeFieldInfo( this, tablename,  i[0].toString() );
+	f.setFieldNumber( i.at() );
+	idx.append( f );
+    }
     return idx;
 }
 
-
-QSqlFieldInfoList QPSQLDriver::fields( const QString& tablename ) const
+QSqlFieldList QPSQLDriver::fields( const QString& tablename ) const
 {
-    QSqlFieldInfoList fil;
+    QSqlFieldList fil;
     QString stmt ( "select a.attname, a.atttypid, atttypmod, a.attlen "
 		   "from pg_user u, pg_class c, pg_attribute a, pg_type t "
 		   "where c.relname = '%1' "
@@ -502,6 +504,6 @@ QSqlFieldInfoList QPSQLDriver::fields( const QString& tablename ) const
     QSql fi = createResult();
     fi << stmt.arg( tablename );
     while ( fi.next() )
-	fil.append( QSqlFieldInfo( fi[0].toString(), decodePSQLType(fi[1].toInt()), fi[2].toInt(), fi[3].toInt() ));
+	fil.append( QSqlField( fi[0].toString(), fi.at(), decodePSQLType(fi[1].toInt()) ));
     return fil;
 }

@@ -2,6 +2,7 @@
 #include <qsql.h>
 #include <qsqldatabase.h>
 #include <qsqlindex.h>
+#include <qsqlfield.h>
 #include <qapplication.h>
 
 QSqlDatabase* database;
@@ -27,18 +28,18 @@ int main( int argc, char** argv )
     qDebug("Table count:" + QString::number( tables.count()) );
     for ( i = 0; i < tables.count(); ++i ) {
 	qDebug( "..." + tables[i] );
-	QSqlFieldInfoList fil = database->fields( tables[i] );
+	QSqlFieldList fil = database->fields( tables[i] );
 	for ( uint j = 0; j < fil.count(); ++j )
-	    qDebug("......" + fil[j].name );
+	    qDebug("......" + fil[j].name() );
     }
 
     qDebug("Getting list of table primary index...");
     for ( i = 0; i < tables.count(); ++i ) {
 	QSqlIndex pk = database->primaryIndex( tables[i] );
 	qDebug( "..." + tables[i] );
-	QSqlFieldInfoList fil = pk.fields();
+	QSqlFieldList fil = pk.fields();
 	for ( uint j = 0; j < fil.count(); ++j )
-	    qDebug("......" + fil[j].name );
+	    qDebug("......" + fil[j].name() );
     }
 
     qDebug("Closing database...");

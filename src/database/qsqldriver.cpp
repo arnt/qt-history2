@@ -245,9 +245,9 @@ QSqlIndex QSqlDriver::primaryIndex( const QString& tablename ) const
 
 */
 
-QSqlFieldInfoList QSqlDriver::fields( const QString& tablename ) const
+QSqlFieldList QSqlDriver::fields( const QString& tablename ) const
 {
-    return QSqlFieldInfoList();
+    return QSqlFieldList();
     Q_CONST_UNUSED( tablename );
 }
 

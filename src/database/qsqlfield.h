@@ -11,13 +11,13 @@
 
 class QSqlField
 {
-public:    
-    QSqlField( const QString& fieldName = QString::null, int fieldNumber = -1 );
+public:
+    QSqlField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid );
     virtual ~QSqlField();
 
     QVariant      value() const {return val;}
     void          setValue( const QVariant& v );
-    
+
     void          setName( const QString& name ) { nm = name; }
     QString       name() const { return nm; }
     void          setDisplayLabel( const QString& l ) { label = l; }
@@ -26,14 +26,14 @@ public:
     int           fieldNumber() const { return num; }
     void          setReadOnly( bool readOnly ) { ro = readOnly; }
     bool          isReadOnly() const { return ro; }
-    
-private:    
-    QVariant      val;    
+
+private:
+    QVariant      val;
     QString       nm;
     int           num;
-    QString       label;    
+    QString       label;
     bool          ro;
-    
+
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QSqlField& ) const { return FALSE; }
 #endif
@@ -46,8 +46,8 @@ public:
     QSqlFieldList ( const QSqlFieldList& l );
     virtual ~QSqlFieldList();
     QSqlField& operator[]( int i );
-    QSqlField& operator[]( const QString& name );    
-    int position( const QString& name );    
+    QSqlField& operator[]( const QString& name );
+    int position( const QString& name );
 };
 
 #endif	// QT_NO_SQL

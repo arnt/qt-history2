@@ -14,14 +14,15 @@
   Constructs an empty SQL field using the field name \a fieldName
   and field number \a fieldNumber.  By default, the fields displayLabel()
   uses \a fieldName.  The field is not read only.
-  
+
   \sa setDisplayLabel() setReadOnly()
 
 */
 
-QSqlField::QSqlField( const QString& fieldName, int fieldNumber )
+QSqlField::QSqlField( const QString& fieldName, int fieldNumber, QVariant::Type type )
     : nm(fieldName), num(fieldNumber), label(fieldName), ro(FALSE)
 {
+    val.cast( type );
 }
 
 /*!
@@ -55,28 +56,37 @@ void QSqlField::setValue( const QVariant& v )
 */
 
 
-/*!  
+/*!
   Constructs an empty field list.
 
 */
 
 QSqlFieldList::QSqlFieldList()
 {
-    
+
 }
 
-/*! 
+/*!  Constructs a copy of \a l.
+
+*/
+
+QSqlFieldList::QSqlFieldList( const QSqlFieldList& l )
+    : QValueList<QSqlField>( l )
+{
+}
+
+/*!
   Destroys the object and frees any allocated resources.
 
 */
 
 QSqlFieldList::~QSqlFieldList()
 {
-    
+
 }
 
-/*! 
-  Returns a reference to a field located at position \a i in the list.  
+/*!
+  Returns a reference to a field located at position \a i in the list.
   It is up to you to check wether this item really exists.
 
 */
@@ -86,8 +96,8 @@ QSqlField& QSqlFieldList::operator[]( int i )
     return QValueList<QSqlField>::operator[](i);
 }
 
-/*! 
-  Returns a reference to a field named \a name in the list.  
+/*!
+  Returns a reference to a field named \a name in the list.
   It is up to you to check wether this item really exists.
 
 */
@@ -114,3 +124,4 @@ int QSqlFieldList::position( const QString& name )
     }
     return -1;
 }
+
