@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#212 $
+** $Id: //depot/qt/main/src/moc/moc.y#213 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2421,19 +2421,19 @@ int generateProps()
 		     entry, (const char*) it.current()->name );
 
 	    if ( it.current()->getfunc )
-		fprintf( out, "    props_tbl[%d].get = (QMember)v%d_%d;\n",
+		fprintf( out, "    props_tbl[%d].get = *((QMember*)&v%d_%d);\n",
 			 entry, Prop_Num, count );
 	    else
 		fprintf( out, "    props_tbl[%d].get = 0;\n", entry );
 
 	    if ( it.current()->setfunc )
-		fprintf( out, "    props_tbl[%d].set = (QMember)v%d_%d;\n",
+		fprintf( out, "    props_tbl[%d].set = *((QMember*)&v%d_%d);\n",
 			 entry, Prop_Num, count + 1 );
 	    else
 		fprintf( out, "    props_tbl[%d].set = 0;\n", entry );
 
 	    if ( it.current()->resetfunc )
-		fprintf( out, "    props_tbl[%d].reset = (QMember)v%d_%d;\n",
+		fprintf( out, "    props_tbl[%d].reset = *((QMember*)&v%d_%d);\n",
 			 entry, Prop_Num, count + 2 );
 	    else
 		fprintf( out, "    props_tbl[%d].reset = 0;\n", entry );
@@ -2535,7 +2535,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#212 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#213 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
