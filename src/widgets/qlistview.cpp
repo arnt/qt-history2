@@ -6020,6 +6020,8 @@ void QListView::startDrag()
     drag->drag();
 }
 
+#endif // QT_NO_DRAGANDDROP
+
 /*! \property QListView::defaultRenameAction
     \brief whether the list view accepts the rename operation by default
 
@@ -6040,7 +6042,6 @@ QListView::RenameAction QListView::defaultRenameAction() const
     return d->defRenameAction;
 }
 
-#endif // QT_NO_DRAGANDDROP
 
 /**********************************************************************
  *
