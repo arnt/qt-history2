@@ -902,8 +902,8 @@ void QAbstractSpinBoxPrivate::init()
     if (useprivate) {
         edit->setValidator(new QSpinBoxValidator(this, q));
 	QObject::connect(edit, SIGNAL(textChanged(QString)), q, SLOT(editorTextChanged(QString)));
-        QObject::connect(edit, SIGNAL(cursorPositionChanged(int, int)),
-                         q, SLOT(editorCursorPositionChanged(int, int)));
+        QObject::connect(edit, SIGNAL(cursorPositionChanged(int,int)),
+                         q, SLOT(editorCursorPositionChanged(int,int)));
     }
 }
 

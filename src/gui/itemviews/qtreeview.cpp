@@ -169,7 +169,7 @@ void QTreeView::setHeader(QHeaderView *header)
                             this, SLOT(dataChanged()));
         QObject::disconnect(d->header, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(columnCountChanged(int,int)));
-        QObject::disconnect(d->header, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
+        QObject::disconnect(d->header, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
                             this, SLOT(resizeColumnToContents(int)));
         delete d->header;
     }
@@ -182,7 +182,7 @@ void QTreeView::setHeader(QHeaderView *header)
                      this, SLOT(dataChanged()), Qt::QueuedConnection);
     QObject::connect(d->header, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(columnCountChanged(int,int)), Qt::QueuedConnection);
-    QObject::connect(d->header, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
+    QObject::connect(d->header, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
                      this, SLOT(resizeColumnToContents(int)));
 }
 

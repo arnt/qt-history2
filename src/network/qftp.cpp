@@ -1328,8 +1328,8 @@ QFtp::QFtp(QObject *parent)
 
     connect(&d->pi.dtp, SIGNAL(readyRead()),
             SIGNAL(readyRead()));
-    connect(&d->pi.dtp, SIGNAL(dataTransferProgress(Q_LONGLONG, Q_LONGLONG)),
-            SIGNAL(dataTransferProgress(Q_LONGLONG, Q_LONGLONG)));
+    connect(&d->pi.dtp, SIGNAL(dataTransferProgress(Q_LONGLONG,Q_LONGLONG)),
+            SIGNAL(dataTransferProgress(Q_LONGLONG,Q_LONGLONG)));
     connect(&d->pi.dtp, SIGNAL(listInfo(QUrlInfo)),
             SIGNAL(listInfo(QUrlInfo)));
 }
@@ -1356,8 +1356,8 @@ QFtp::QFtp(QObject *parent, const char *name)
 
     connect(&d->pi.dtp, SIGNAL(readyRead()),
             SIGNAL(readyRead()));
-    connect(&d->pi.dtp, SIGNAL(dataTransferProgress(Q_LONGLONG, Q_LONGLONG)),
-            SIGNAL(dataTransferProgress(Q_LONGLONG, Q_LONGLONG)));
+    connect(&d->pi.dtp, SIGNAL(dataTransferProgress(Q_LONGLONG,Q_LONGLONG)),
+            SIGNAL(dataTransferProgress(Q_LONGLONG,Q_LONGLONG)));
     connect(&d->pi.dtp, SIGNAL(listInfo(QUrlInfo)),
             SIGNAL(listInfo(QUrlInfo)));
 }

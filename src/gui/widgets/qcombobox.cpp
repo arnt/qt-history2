@@ -65,10 +65,10 @@ ListViewContainer::ListViewContainer(QListView *listView, QWidget *parent)
     list->setFocusPolicy(Qt::StrongFocus);
     connect(list->verticalScrollBar(), SIGNAL(valueChanged(int)),
             this, SLOT(updateScrollers()));
-    connect(list->verticalScrollBar(), SIGNAL(rangeChanged(int, int)),
+    connect(list->verticalScrollBar(), SIGNAL(rangeChanged(int,int)),
             this, SLOT(updateScrollers()));
-    connect(list, SIGNAL(itemEntered(const QModelIndex &, Qt::ButtonState)),
-            this, SLOT(setCurrentIndex(const QModelIndex &, Qt::ButtonState)));
+    connect(list, SIGNAL(itemEntered(QModelIndex,ButtonState)),
+            this, SLOT(setCurrentIndex(QModelIndex,ButtonState)));
 
     // add widgets to layout and create scrollers if needed
     QBoxLayout *layout =  new QBoxLayout(QBoxLayout::TopToBottom, this);
@@ -469,11 +469,11 @@ void QComboBoxPrivate::init()
     QStyleOptionComboBox opt = getStyleOption();
     if (q->style().styleHint(QStyle::SH_ComboBox_Popup, &opt, q))
         l->setItemDelegate(new MenuDelegate(l, q));
-    QObject::connect(container, SIGNAL(itemSelected(const QModelIndex &)),
-                     q, SLOT(itemSelected(const QModelIndex &)));
+    QObject::connect(container, SIGNAL(itemSelected(QModelIndex)),
+                     q, SLOT(itemSelected(QModelIndex)));
     QObject::connect(q->listView()->selectionModel(),
-                     SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-                     q, SLOT(emitHighlighted(const QModelIndex &)));
+                     SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                     q, SLOT(emitHighlighted(QModelIndex)));
     QObject::connect(container, SIGNAL(containerDisappearing()), q, SLOT(resetButton()));
 }
 
@@ -797,9 +797,9 @@ void QComboBox::setLineEdit(QLineEdit *edit)
     if (d->lineEdit->parent() != this)
 	d->lineEdit->setParent(this);
     connect(d->lineEdit, SIGNAL(returnPressed()), this, SLOT(returnPressed()));
-    connect(d->lineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(complete()));
-    connect(d->lineEdit, SIGNAL(textChanged(const QString&)),
-            this, SIGNAL(textChanged(const QString &)));
+    connect(d->lineEdit, SIGNAL(textChanged(QString)), this, SLOT(complete()));
+    connect(d->lineEdit, SIGNAL(textChanged(QString)),
+            this, SIGNAL(textChanged(QString)));
     d->lineEdit->setFrame(false);
     d->lineEdit->setAttribute(Qt::WA_CompositeChild);
     setAttribute(Qt::WA_CompositeParent);

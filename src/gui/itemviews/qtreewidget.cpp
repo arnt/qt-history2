@@ -1171,33 +1171,33 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeWidgetPrivate(), parent)
 {
     setModel(new QTreeModel(1, this)); // default is 1 column
-    connect(this, SIGNAL(pressed(const QModelIndex&, Qt::ButtonState)),
-            SLOT(emitPressed(const QModelIndex&, Qt::ButtonState)));
-    connect(this, SIGNAL(clicked(const QModelIndex&, Qt::ButtonState)),
-            SLOT(emitClicked(const QModelIndex&, Qt::ButtonState)));
-    connect(this, SIGNAL(doubleClicked(const QModelIndex&, Qt::ButtonState)),
-            SLOT(emitDoubleClicked(const QModelIndex&, Qt::ButtonState)));
-    connect(this, SIGNAL(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)),
-            SLOT(emitKeyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
-    connect(this, SIGNAL(returnPressed(const QModelIndex&)),
-            SLOT(emitReturnPressed(const QModelIndex&)));
-    connect(this, SIGNAL(expanded(const QModelIndex&)),
-            SLOT(emitExpanded(const QModelIndex&)));
-    connect(this, SIGNAL(collapsed(const QModelIndex&)),
-            SLOT(emitCollapsed(const QModelIndex&)));
-    connect(this, SIGNAL(itemEntered(const QModelIndex&, Qt::ButtonState)),
-            SLOT(emitItemEntered(const QModelIndex&, Qt::ButtonState)));
-    connect(this, SIGNAL(aboutToShowContextMenu(QMenu*, const QModelIndex&)),
-            SLOT(emitAboutToShowContextMenu(QMenu*, const QModelIndex&)));
+    connect(this, SIGNAL(pressed(QModelIndex,ButtonState)),
+            SLOT(emitPressed(QModelIndex,ButtonState)));
+    connect(this, SIGNAL(clicked(QModelIndex,ButtonState)),
+            SLOT(emitClicked(QModelIndex,ButtonState)));
+    connect(this, SIGNAL(doubleClicked(QModelIndex,ButtonState)),
+            SLOT(emitDoubleClicked(QModelIndex,ButtonState)));
+    connect(this, SIGNAL(keyPressed(QModelIndex,Key,ButtonState)),
+            SLOT(emitKeyPressed(QModelIndex,Key,ButtonState)));
+    connect(this, SIGNAL(returnPressed(QModelIndex)),
+            SLOT(emitReturnPressed(QModelIndex)));
+    connect(this, SIGNAL(expanded(QModelIndex)),
+            SLOT(emitExpanded(QModelIndex)));
+    connect(this, SIGNAL(collapsed(QModelIndex)),
+            SLOT(emitCollapsed(QModelIndex)));
+    connect(this, SIGNAL(itemEntered(QModelIndex,ButtonState)),
+            SLOT(emitItemEntered(QModelIndex,ButtonState)));
+    connect(this, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
+            SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
     connect(selectionModel(),
-            SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-            this, SLOT(emitCurrentChanged(const QModelIndex&, const QModelIndex&)));
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this, SLOT(emitCurrentChanged(QModelIndex,QModelIndex)));
     connect(selectionModel(),
-            SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SIGNAL(selectionChanged()));
-    connect(model(), SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-            this, SLOT(emitItemChanged(const QModelIndex&, const QModelIndex&)));
-    connect(header(), SIGNAL(sectionPressed(int, Qt::ButtonState)), this, SLOT(sortItems(int)));
+    connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            this, SLOT(emitItemChanged(QModelIndex,QModelIndex)));
+    connect(header(), SIGNAL(sectionPressed(int,ButtonState)), this, SLOT(sortItems(int)));
 }
 
 /*!

@@ -390,7 +390,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
         if (!doc)
             doc = new QTextDocument(q);
 
-        QObject::connect(doc->documentLayout(), SIGNAL(update(const QRect &)), q, SLOT(update(const QRect &)));
+        QObject::connect(doc->documentLayout(), SIGNAL(update(QRect)), q, SLOT(update(QRect)));
         QObject::connect(doc->documentLayout(), SIGNAL(usedSizeChanged()), q, SLOT(adjustScrollbars()));
         cursor = QTextCursor(doc);
 

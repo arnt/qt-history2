@@ -1277,8 +1277,8 @@ int QHttpProtocol::supportedOperations() const
 */
 void QHttpProtocol::operationGet(QNetworkOperation *op)
 {
-    connect(&http, SIGNAL(readyRead(const QHttpResponseHeader &)),
-            this, SLOT(clientReply(const QHttpResponseHeader &)));
+    connect(&http, SIGNAL(readyRead(QHttpResponseHeader)),
+            this, SLOT(clientReply(QHttpResponseHeader)));
     connect(&http, SIGNAL(done(bool)),
             this, SLOT(clientDone(bool)));
     connect(&http, SIGNAL(stateChanged(int)),
@@ -1297,8 +1297,8 @@ void QHttpProtocol::operationGet(QNetworkOperation *op)
 */
 void QHttpProtocol::operationPut(QNetworkOperation *op)
 {
-    connect(&http, SIGNAL(readyRead(const QHttpResponseHeader &)),
-            this, SLOT(clientReply(const QHttpResponseHeader &)));
+    connect(&http, SIGNAL(readyRead(QHttpResponseHeader)),
+            this, SLOT(clientReply(QHttpResponseHeader)));
     connect(&http, SIGNAL(done(bool)),
             this, SLOT(clientDone(bool)));
     connect(&http, SIGNAL(stateChanged(int)),
@@ -1532,8 +1532,8 @@ bool QFtpProtocol::checkConnection(QNetworkOperation *op)
                 this, SLOT(npDone(bool)));
         connect(&ftp, SIGNAL(stateChanged(int)),
                 this, SLOT(npStateChanged(int)));
-        connect(&ftp, SIGNAL(dataTransferProgress(Q_LLONG, Q_LLONG)),
-                this, SLOT(npDataTransferProgress(Q_LLONG, Q_LLONG)));
+        connect(&ftp, SIGNAL(dataTransferProgress(Q_LLONG,Q_LLONG)),
+                this, SLOT(npDataTransferProgress(Q_LLONG,Q_LLONG)));
         connect(&ftp, SIGNAL(readyRead()),
                 this, SLOT(npReadyRead()));
 
@@ -1644,8 +1644,8 @@ void QFtpProtocol::npDone(bool err)
                     this, SLOT(npDone(bool)));
         disconnect(&ftp, SIGNAL(stateChanged(int)),
                     this, SLOT(npStateChanged(int)));
-        disconnect(&ftp, SIGNAL(dataTransferProgress(Q_LLONG, Q_LLONG)),
-                    this, SLOT(npDataTransferProgress(Q_LLONG, Q_LLONG)));
+        disconnect(&ftp, SIGNAL(dataTransferProgress(Q_LLONG,Q_LLONG)),
+                    this, SLOT(npDataTransferProgress(Q_LLONG,Q_LLONG)));
         disconnect(&ftp, SIGNAL(readyRead()),
                     this, SLOT(npReadyRead()));
     }

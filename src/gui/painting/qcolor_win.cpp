@@ -397,3 +397,4 @@ void QColor::destroyAllocContext(int context)
 
 }
 #endif
+

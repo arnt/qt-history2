@@ -77,7 +77,7 @@ Q_GLOBAL_STATIC(QDnsAgent, agent)
     The lookup is performed by a single function call:
 
     \code
-        QDns::getHostByName("www.trolltech.com", this, SLOT(lookedUp(const QDnsHostInfo&)));
+        QDns::getHostByName("www.trolltech.com", this, SLOT(lookedUp(const QDnsHostInfo &)));
     \endcode
 
     The implementation of the slot prints basic information about the

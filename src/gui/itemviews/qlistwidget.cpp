@@ -939,28 +939,28 @@ void QListWidget::setModel(QAbstractItemModel *model)
 void QListWidget::setup()
 {
     setModel(new QListModel(this));
-    connect(this, SIGNAL(pressed(const QModelIndex&, Qt::ButtonState)),
-            SLOT(emitPressed(const QModelIndex&,Qt::ButtonState)));
-    connect(this, SIGNAL(clicked(const QModelIndex&, Qt::ButtonState)),
-            SLOT(emitClicked(const QModelIndex&, Qt::ButtonState)));
-    connect(this, SIGNAL(doubleClicked(const QModelIndex&, Qt::ButtonState)),
-            SLOT(emitDoubleClicked(const QModelIndex&, Qt::ButtonState)));
-    connect(this, SIGNAL(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)),
-            SLOT(emitKeyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
-    connect(this, SIGNAL(returnPressed(const QModelIndex&)),
-            SLOT(emitReturnPressed(const QModelIndex&)));
-    connect(this, SIGNAL(itemEntered(const QModelIndex&, Qt::ButtonState)),
-            SLOT(emitItemEntered(const QModelIndex&, Qt::ButtonState)));
-    connect(this, SIGNAL(aboutToShowContextMenu(QMenu*, const QModelIndex&)),
-            SLOT(emitAboutToShowContextMenu(QMenu*, const QModelIndex&)));
+    connect(this, SIGNAL(pressed(QModelIndex,ButtonState)),
+            SLOT(emitPressed(QModelIndex,ButtonState)));
+    connect(this, SIGNAL(clicked(QModelIndex,ButtonState)),
+            SLOT(emitClicked(QModelIndex,ButtonState)));
+    connect(this, SIGNAL(doubleClicked(QModelIndex,ButtonState)),
+            SLOT(emitDoubleClicked(QModelIndex,ButtonState)));
+    connect(this, SIGNAL(keyPressed(QModelIndex,Key,ButtonState)),
+            SLOT(emitKeyPressed(QModelIndex,Key,ButtonState)));
+    connect(this, SIGNAL(returnPressed(QModelIndex)),
+            SLOT(emitReturnPressed(QModelIndex)));
+    connect(this, SIGNAL(itemEntered(QModelIndex,ButtonState)),
+            SLOT(emitItemEntered(QModelIndex,ButtonState)));
+    connect(this, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
+            SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
     connect(selectionModel(),
-            SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-            this, SLOT(emitCurrentChanged(const QModelIndex&, const QModelIndex&)));
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this, SLOT(emitCurrentChanged(QModelIndex,QModelIndex)));
     connect(selectionModel(),
-            SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SIGNAL(selectionChanged()));
-    connect(model(), SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-            SLOT(emitItemChanged(const QModelIndex&, const QModelIndex &)));
+    connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            SLOT(emitItemChanged(QModelIndex,QModelIndex)));
 }
 
 #include "moc_qlistwidget.cpp"

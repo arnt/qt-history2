@@ -362,7 +362,7 @@ QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QWidget *pare
 QAbstractItemView::~QAbstractItemView()
 {
     if (d->selectionModel)
-        disconnect(d->selectionModel, SIGNAL(destroyed(QObject *)),
+        disconnect(d->selectionModel, SIGNAL(destroyed(QObject*)),
                    this, SLOT(selectionModelDestroyed()));
 }
 
@@ -377,10 +377,10 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
     if (d->model) {
         QObject::disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                             this, SLOT(dataChanged(QModelIndex,QModelIndex)));
-        QObject::disconnect(d->model, SIGNAL(rowsInserted(const QModelIndex&,int,int)),
-                            this, SLOT(rowsInserted(const QModelIndex&,int,int)));
-        QObject::disconnect(d->model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
-                            this, SLOT(rowsRemoved(const QModelIndex&,int,int)));
+        QObject::disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                            this, SLOT(rowsInserted(QModelIndex,int,int)));
+        QObject::disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                            this, SLOT(rowsRemoved(QModelIndex,int,int)));
         QObject::disconnect(d->model, SIGNAL(reset()), this, SLOT(reset()));
     }
 
@@ -389,10 +389,10 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
     if (d->model) {
         QObject::connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                          this, SLOT(dataChanged(QModelIndex,QModelIndex)));
-        QObject::connect(d->model, SIGNAL(rowsInserted(const QModelIndex&,int,int)),
-                         this, SLOT(rowsInserted(const QModelIndex&,int,int)));
-        QObject::connect(d->model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
-                         this, SLOT(rowsRemoved(const QModelIndex&,int,int)));
+        QObject::connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                         this, SLOT(rowsInserted(QModelIndex,int,int)));
+        QObject::connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                         this, SLOT(rowsRemoved(QModelIndex,int,int)));
         QObject::connect(d->model, SIGNAL(reset()), this, SLOT(reset()));
     }
 

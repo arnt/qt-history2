@@ -180,28 +180,28 @@ QHeaderView::~QHeaderView()
 void QHeaderView::setModel(QAbstractItemModel *model)
 {
     if (d->orientation == Qt::Horizontal) {
-        QObject::disconnect(d->model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
-                            this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
-        QObject::disconnect(d->model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
-                            this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
-        QObject::connect(model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
-                         this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
-        QObject::connect(model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
-                         this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
+        QObject::disconnect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
+                            this, SLOT(sectionsInserted(QModelIndex,int,int)));
+        QObject::disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+                            this, SLOT(sectionsRemoved(QModelIndex,int,int)));
+        QObject::connect(model, SIGNAL(columnsInserted(QModelIndex,int,int)),
+                         this, SLOT(sectionsInserted(QModelIndex,int,int)));
+        QObject::connect(model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+                         this, SLOT(sectionsRemoved(QModelIndex,int,int)));
     } else {
-        QObject::disconnect(d->model, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
-                            this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
-        QObject::disconnect(d->model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
-                            this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
-        QObject::connect(model, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
-                         this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
-        QObject::connect(model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
-                         this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
+        QObject::disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                            this, SLOT(sectionsInserted(QModelIndex,int,int)));
+        QObject::disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                            this, SLOT(sectionsRemoved(QModelIndex,int,int)));
+        QObject::connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                         this, SLOT(sectionsInserted(QModelIndex,int,int)));
+        QObject::connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                         this, SLOT(sectionsRemoved(QModelIndex,int,int)));
     }
-    QObject::disconnect(d->model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
-                        this, SLOT(headerDataChanged(Qt::Orientation, int, int)));
-    QObject::connect(d->model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
-                     this, SLOT(headerDataChanged(Qt::Orientation, int, int)));
+    QObject::disconnect(d->model, SIGNAL(headerDataChanged(Orientation,int,int)),
+                        this, SLOT(headerDataChanged(Orientation,int,int)));
+    QObject::connect(d->model, SIGNAL(headerDataChanged(Orientation,int,int)),
+                     this, SLOT(headerDataChanged(Orientation,int,int)));
     QAbstractItemView::setModel(model);
     // Users want to set sizes and modes before the widget is shown.
     // Thus, we have to initialize when the model is set,
