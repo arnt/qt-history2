@@ -771,7 +771,7 @@ void QFileDialogPrivate::setup()
     lview->setSpacing(2);
     lview->setWrapping(true);
     lview->setResizeMode(QGenericListView::Adjust);
-    lview->setStartEditActions(QAbstractItemDelegate::EditKeyPressed);
+    lview->setBeginEditActions(QAbstractItemDelegate::EditKeyPressed);
     grid->addWidget(lview, 1, 0, 1, 6);
 
     QItemSelectionModel *selections = lview->selectionModel();
@@ -784,7 +784,7 @@ void QFileDialogPrivate::setup()
     tview->header()->setResizeMode(QGenericHeader::Stretch, 0);
     tview->header()->setSortIndicator(0, Qt::DescendingOrder);
     tview->hide();
-    tview->setStartEditActions(QAbstractItemDelegate::EditKeyPressed);
+    tview->setBeginEditActions(QAbstractItemDelegate::EditKeyPressed);
     grid->addWidget(tview, 1, 0, 1, 6);
 
     // actions

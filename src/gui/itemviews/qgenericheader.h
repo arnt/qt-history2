@@ -94,7 +94,8 @@ protected:
     void mouseReleaseEvent(QMouseEvent *e);
     void mouseDoubleClickEvent(QMouseEvent *e);
 
-    virtual void paintSection(QPainter *painter, QItemOptions *options, const QModelIndex &item);
+    virtual void paintSection(QPainter *painter, const QStyleOptionViewItem &option,
+                              const QModelIndex &item);
 
     int horizontalOffset() const;
     int verticalOffset() const;

@@ -13,31 +13,31 @@ public:
     virtual ~QItemDelegate();
 
     // painting
-    void paint(QPainter *painter, const QItemOptions &options, const QModelIndex &index) const;
-    QSize sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options,
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
                    const QModelIndex &index) const;
 
     // editing
     QAbstractItemDelegate::EditorType editorType(const QModelIndex &index) const;
-    QWidget *editor(QAbstractItemDelegate::StartEditAction action, QWidget *parent,
-                    const QItemOptions &options, const QModelIndex &index);
+    QWidget *editor(QAbstractItemDelegate::BeginEditAction action, QWidget *parent,
+                    const QStyleOptionViewItem &option, const QModelIndex &index);
 
     void setModelData(QWidget *editor, const QModelIndex &index) const;
     void setEditorData(QWidget *editor, const QModelIndex &index) const;
 
-    void updateEditorGeometry(QWidget *editor, const QItemOptions &options,
+    void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
                               const QModelIndex &index) const;
     void releaseEditor(EndEditAction action, QWidget *editor, const QModelIndex &index);
 
 protected:
-    void drawDisplay(QPainter *painter, const QItemOptions &options, const QRect &rect,
+    void drawDisplay(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect,
                      const QString &text) const;
-    void drawDecoration(QPainter *painter, const QItemOptions &options, const QRect &rect,
+    void drawDecoration(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect,
                         const QPixmap &pixmap) const;
-    void drawFocus(QPainter *painter, const QItemOptions &options, const QRect &rect) const;
-    void doLayout(const QItemOptions &options, QRect *iconRect, QRect *textRect, bool hint) const;
+    void drawFocus(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect) const;
+    void doLayout(const QStyleOptionViewItem &option, QRect *iconRect, QRect *textRect, bool hint) const;
     void doAlignment(const QRect &boundingRect, int alignment, QRect *rect) const;
-    QPixmap decoration(const QItemOptions &options, const QVariant &variant) const;
+    QPixmap decoration(const QStyleOptionViewItem &option, const QVariant &variant) const;
 };
 
 #endif

@@ -63,48 +63,48 @@ QItemDelegate::~QItemDelegate()
 {
 }
 
-void QItemDelegate::paint(QPainter *painter, const QItemOptions &options,
+void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const
 {
 #if 0
     static unsigned char r = 0;
     static unsigned char g = 0;
     static unsigned char b = 0;
-    painter->fillRect(options.itemRect, QColor(r, g, b));
+    painter->fillRect(option.rect, QColor(r, g, b));
     r -= 10;
     g += 20;
     b += 10;
-    painter->drawRect(options.itemRect);
+    painter->drawRect(options.rect);
 #endif
     static QPoint pt(0, 0);
     static QSize sz(border * 2, border * 2);
     QVariant variant = model()->data(index, QAbstractItemModel::Decoration);
-    QPixmap pixmap = decoration(options, variant);
+    QPixmap pixmap = decoration(option, variant);
     QString text = model()->data(index, QAbstractItemModel::Display).toString();
 #if 1
     QRect pixmapRect = pixmap.rect();
     QRect textRect(pt, painter->fontMetrics().size(0, text) + sz);
-    doLayout(options, &pixmapRect, &textRect, false);
+    doLayout(option, &pixmapRect, &textRect, false);
 
-    drawDecoration(painter, options, pixmapRect, pixmap);
-    drawDisplay(painter, options, textRect, text);
-    drawFocus(painter, options, textRect);
+    drawDecoration(painter, option, pixmapRect, pixmap);
+    drawDisplay(painter, option, textRect, text);
+    drawFocus(painter, option, textRect);
 #endif
 }
 
-QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options,
+QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
                               const QModelIndex &index) const
 {
     static QPoint pt(0, 0);
     static QSize sz(border * 2, border * 2);
 
     QVariant variant = model()->data(index, QAbstractItemModel::Decoration);
-    QPixmap pixmap = decoration(options, variant);
+    QPixmap pixmap = decoration(option, variant);
     QString text = model()->data(index, QAbstractItemModel::Display).toString();
 
     QRect pixmapRect = pixmap.rect();
     QRect textRect(pt, fontMetrics.size(0, text) + sz);
-    doLayout(options, &pixmapRect, &textRect, true);
+    doLayout(option, &pixmapRect, &textRect, true);
 
     return pixmapRect.unite(textRect).size();
 }
@@ -114,18 +114,18 @@ QItemDelegate::EditorType QItemDelegate::editorType(const QModelIndex &) const
     return Widget;
 }
 
-QWidget *QItemDelegate::editor(StartEditAction action, QWidget *parent,
-                               const QItemOptions &options, const QModelIndex &index)
+QWidget *QItemDelegate::editor(BeginEditAction action, QWidget *parent,
+                               const QStyleOptionViewItem &option, const QModelIndex &index)
 {
     if (index.type() != QModelIndex::View)
         return 0;
     if (action & (EditKeyPressed | AnyKeyPressed | DoubleClicked | AlwaysEdit)
-        || (options.focus && editorType(index) == Widget)) {
+        || (option.state & QStyle::Style_HasFocus && editorType(index) == Widget)) {
         QLineEdit *lineEdit = new QLineEdit(parent);
         lineEdit->setFrame(false);
         lineEdit->setText(model()->data(index, QAbstractItemModel::Edit).toString());
         lineEdit->selectAll();
-        updateEditorGeometry(lineEdit, options, index);
+        updateEditorGeometry(lineEdit, option, index);
         return lineEdit;
     }
     return 0;
@@ -150,67 +150,68 @@ void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) con
         lineEdit->setText(model()->data(index, QAbstractItemModel::Edit).toString());
 }
 
-void QItemDelegate::updateEditorGeometry(QWidget *editor, const QItemOptions &options,
+void QItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
                                          const QModelIndex &index) const
 {
     static QPoint pt(0, 0);
     if (editor) {
-        QPixmap pixmap = decoration(options, model()->data(index, QAbstractItemModel::Decoration));
+        QPixmap pixmap = decoration(option, model()->data(index, QAbstractItemModel::Decoration));
         QString text = model()->data(index, QAbstractItemModel::Display).toString();
         QRect pixmapRect = pixmap.rect();
         QRect textRect(pt, editor->fontMetrics().size(0, text));
-        doLayout(options, &pixmapRect, &textRect, false);
+        doLayout(option, &pixmapRect, &textRect, false);
         editor->setGeometry(textRect);
     }
 }
 
-void QItemDelegate::drawDisplay(QPainter *painter, const QItemOptions &options, const QRect &rect,
-                                const QString &text) const
+void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &option,
+                                const QRect &rect, const QString &text) const
 {
     QPen old = painter->pen();
-    if (options.selected) {
+    if (option.state & QStyle::Style_Selected) {
         QRect fill(rect.x() - border, rect.y() - border,
                    rect.width() + border * 2, rect.height() + border * 2);
-        painter->fillRect(fill, options.palette.highlight());
-        painter->setPen(options.palette.highlightedText());
+        painter->fillRect(fill, option.palette.highlight());
+        painter->setPen(option.palette.highlightedText());
     } else {
-        painter->setPen(options.palette.text());
+        painter->setPen(option.palette.text());
     }
     QString display;
     if (painter->fontMetrics().width(text) > rect.width())
-        painter->drawText(rect, options.displayAlignment,
+        painter->drawText(rect, option.displayAlignment,
                           ellipsisText(painter->fontMetrics(), rect.width(),
-                                       options.displayAlignment, text));
+                                       option.displayAlignment, text));
     else
-        painter->drawText(rect, options.displayAlignment, text);
+        painter->drawText(rect, option.displayAlignment, text);
     painter->setPen(old);
 }
 
-void QItemDelegate::drawDecoration(QPainter *painter, const QItemOptions &options,
+void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem &option,
                                    const QRect &rect, const QPixmap &pixmap) const
 {
-    if (options.selected && !options.smallItem)
-        painter->fillRect(rect,QBrush(options.palette.highlight(), Qt::Dense4Pattern));
+    if (option.state & QStyle::Style_Selected && option.decorationSize == QStyleOptionViewItem::Large)
+        painter->fillRect(rect, QBrush(option.palette.highlight(), Qt::Dense4Pattern));
     painter->drawPixmap(rect.topLeft(), pixmap);
 }
 
-void QItemDelegate::drawFocus(QPainter *painter, const QItemOptions &options, const QRect &rect) const
+void QItemDelegate::drawFocus(QPainter *painter, const QStyleOptionViewItem &option,
+                              const QRect &rect) const
 {
-    if (options.focus) {
-        QStyleOptionFocusRect opt(0);
-        opt.rect = rect;
-        opt.palette = options.palette;
-        opt.state = QStyle::Style_Default;
-        QApplication::style().drawPrimitive(QStyle::PE_FocusRect, &opt, painter);
+    if (option.state & QStyle::Style_HasFocus) {
+        QStyleOptionFocusRect o(0);
+        o.rect = rect;
+        o.palette = option.palette;
+        o.state = QStyle::Style_Default;
+        QApplication::style().drawPrimitive(QStyle::PE_FocusRect, &o, painter);
     }
 }
 
-void QItemDelegate::doLayout(const QItemOptions &options, QRect *pixmapRect,
+void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRect,
                              QRect *textRect, bool hint) const
 {
     if (pixmapRect && textRect) {
-        int x = options.itemRect.left();
-        int y = options.itemRect.top();
+        int x = option.rect.left();
+        int y = option.rect.top();
         int b = border * 2;
         int w, h;
         if (hint) {
@@ -219,27 +220,27 @@ void QItemDelegate::doLayout(const QItemOptions &options, QRect *pixmapRect,
         } else {
             x += border;
             y += border;
-            w = options.itemRect.width() - b;
-            h = options.itemRect.height() - b;
+            w = option.rect.width() - b;
+            h = option.rect.height() - b;
         }
         QRect decoration;
-        switch (options.decorationPosition) {
-        case QItemOptions::Top: {
+        switch (option.decorationPosition) {
+        case QStyleOptionViewItem::Top: {
             decoration.setRect(x, y, w, pixmapRect->height());
             h = hint ? textRect->height() : h - pixmapRect->height();
             textRect->setRect(x, y + pixmapRect->height(), w, h);
             break;}
-        case QItemOptions::Bottom: {
+        case QStyleOptionViewItem::Bottom: {
             textRect->setRect(x, y, w, textRect->height());
             h = hint ? pixmapRect->height() : h - textRect->height();
             decoration.setRect(x, y + textRect->height(), w, h);
             break;}
-        case QItemOptions::Left: {
+        case QStyleOptionViewItem::Left: {
             decoration.setRect(x, y, pixmapRect->width(), h);
             w = hint ? textRect->width() : w - pixmapRect->width();
             textRect->setRect(x + pixmapRect->width(), y, w, h);
             break;}
-        case QItemOptions::Right: {
+        case QStyleOptionViewItem::Right: {
             textRect->setRect(x, y, textRect->width(), h);
             w = hint ? pixmapRect->width() : w - textRect->width();
             decoration.setRect(x + textRect->width(), y, w, h);
@@ -252,7 +253,7 @@ void QItemDelegate::doLayout(const QItemOptions &options, QRect *pixmapRect,
         if (hint)
             *pixmapRect = decoration;
         else
-            doAlignment(decoration, options.decorationAlignment, pixmapRect);
+            doAlignment(decoration, option.decorationAlignment, pixmapRect);
     }
 }
 
@@ -299,13 +300,16 @@ void QItemDelegate::doAlignment(const QRect &boundingRect, int alignment, QRect 
     }
 }
 
-QPixmap QItemDelegate::decoration(const QItemOptions &options, const QVariant &variant) const
+QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVariant &variant) const
 {
     switch (variant.type()) {
     case QVariant::IconSet:
-        return variant.toIconSet().pixmap(options.smallItem ? QIconSet::Small : QIconSet::Large,
-                                          options.disabled ? QIconSet::Disabled : QIconSet::Normal,
-                                          options.open ? QIconSet::On : QIconSet::Off);
+        return variant.toIconSet().pixmap(option.decorationSize == QStyleOptionViewItem::Small
+                                          ? QIconSet::Small : QIconSet::Large,
+                                          option.state & QStyle::Style_Enabled
+                                          ? QIconSet::Normal : QIconSet::Disabled,
+                                          option.state & QStyle::Style_Open
+                                          ? QIconSet::On : QIconSet::Off);
     case QVariant::Bool: {
         static QPixmap checked(checked_xpm);
         static QPixmap unchecked(unchecked_xpm);

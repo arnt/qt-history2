@@ -15,40 +15,12 @@
 
 #ifndef QT_H
 #include <qobject.h>
-#include <qpalette.h>
-#include <qrect.h>
+#include <qstyleoption.h>
 #endif
 
 class QPainter;
-class QAbstractItemView;
-class QAbstractItemModel;
 class QModelIndex;
-
-class Q_GUI_EXPORT QItemOptions
-{
-    Q_ENUMS(Position)
-public:
-    enum Position { Left, Right, Top, Bottom };
-    QItemOptions()
-        : palette(), itemRect(), selected(false), open(false),
-          focus(false), disabled(false), smallItem(true), editing(false),
-          displayAlignment(Qt::AlignAuto|Qt::AlignVCenter),
-          decorationAlignment(Qt::AlignCenter),
-          decorationPosition(Left) {}
-
-    QPalette palette;
-    QRect itemRect;
-    uint selected : 1;
-    uint open : 1;
-    uint focus : 1;
-    uint disabled : 1;
-    uint smallItem : 1;
-    uint editing : 1;
-    int displayAlignment;
-    int decorationAlignment;
-    Position decorationPosition;
-};
-
+class QAbstractItemModel;
 class QAbstractItemDelegatePrivate;
 
 class Q_GUI_EXPORT QAbstractItemDelegate : public QObject
@@ -68,7 +40,7 @@ public:
         Events
     };
 
-    enum StartEditAction {
+    enum BeginEditAction {
         NeverEdit = 0,
         CurrentChanged = 1,
         DoubleClicked = 2,
@@ -78,7 +50,7 @@ public:
         AlwaysEdit = 32
     };
 
-    Q_DECLARE_FLAGS(StartEditFlags, StartEditAction);
+    Q_DECLARE_FLAGS(BeginEditFlags, BeginEditAction);
 
     enum EndEditAction {
         Accepted = 1,
@@ -86,18 +58,18 @@ public:
     };
 
     // painting
-    virtual void paint(QPainter *painter, const QItemOptions &options,
+    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
                        const QModelIndex &index) const = 0;
-    virtual QSize sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options,
+    virtual QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
                            const QModelIndex &index) const = 0;
 
     // editing
     virtual EditorType editorType(const QModelIndex &index) const;
-    virtual QWidget *editor(StartEditAction action, QWidget *parent,
-                            const QItemOptions &options, const QModelIndex &index);
+    virtual QWidget *editor(BeginEditAction action, QWidget *parent,
+                            const QStyleOptionViewItem &option, const QModelIndex &index);
     virtual void setModelData(QWidget *editor, const QModelIndex &index) const;
     virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
-    virtual void updateEditorGeometry(QWidget *editor, const QItemOptions &options,
+    virtual void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
                                       const QModelIndex &index) const;
     virtual void releaseEditor(EndEditAction action, QWidget *editor, const QModelIndex &index);
 
@@ -111,6 +83,6 @@ protected:
                          const QString &org) const;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemDelegate::StartEditFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemDelegate::BeginEditFlags);
 
 #endif

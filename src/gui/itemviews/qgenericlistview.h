@@ -100,7 +100,7 @@ protected:
     QDragObject *dragObject();
     void startDrag();
 
-    QItemOptions viewOptions() const;
+    QStyleOptionViewItem viewOptions() const;
     void paintEvent(QPaintEvent *e);
 
     int horizontalOffset() const;

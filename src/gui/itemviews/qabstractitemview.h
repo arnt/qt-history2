@@ -32,7 +32,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_DECLARE_PRIVATE(QAbstractItemView)
     Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
     Q_PROPERTY(bool autoScroll READ autoScroll WRITE setAutoScroll)
-    Q_PROPERTY(QAbstractItemDelegate::StartEditFlags startEditActions READ startEditActions WRITE setStartEditActions)
+    Q_PROPERTY(QAbstractItemDelegate::BeginEditFlags beginEditActions READ beginEditActions WRITE setBeginEditActions)
     Q_ENUMS(SelectionMode SelectionBehaviour)
 
 public:
@@ -66,8 +66,8 @@ public:
     void setItemDelegate(QAbstractItemDelegate *delegate);
     QAbstractItemDelegate *itemDelegate() const;
 
-    void setStartEditActions(int actions);
-    int startEditActions() const;
+    void setBeginEditActions(int actions);
+    int beginEditActions() const;
 
     void setAutoScroll(bool b);
     bool autoScroll() const;
@@ -137,8 +137,8 @@ protected:
     virtual void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command) = 0;
     virtual QRect selectionViewportRect(const QItemSelection &selection) const = 0;
 
-    virtual bool startEdit(const QModelIndex &index,
-                           QAbstractItemDelegate::StartEditAction action, QEvent *event);
+    virtual bool beginEdit(const QModelIndex &index,
+                           QAbstractItemDelegate::BeginEditAction action, QEvent *event);
     virtual void endEdit(const QModelIndex &index, bool accept);
     QWidget *currentEditor() const;
 
@@ -151,7 +151,7 @@ protected:
     virtual QDragObject *dragObject();
     virtual void startDrag();
 
-    virtual QItemOptions viewOptions() const;
+    virtual QStyleOptionViewItem viewOptions() const;
 
     enum State { NoState, Dragging, Selecting, Editing, Opening, Closing };
     State state() const;

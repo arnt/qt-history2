@@ -16,10 +16,10 @@ public:
 
     void init();
 
-    bool shouldEdit(QAbstractItemDelegate::StartEditAction action, const QModelIndex &index);
+    bool shouldEdit(QAbstractItemDelegate::BeginEditAction action, const QModelIndex &index);
     bool shouldAutoScroll(const QPoint &pos);
 
-    QWidget *requestEditor(QAbstractItemDelegate::StartEditAction action,
+    QWidget *requestEditor(QAbstractItemDelegate::BeginEditAction action,
                            QEvent *event, const QModelIndex &index);
     QWidget *persistentEditor(const QModelIndex &index) const;
     void setPersistentEditor(QWidget *editor, const QModelIndex &index);
@@ -40,7 +40,7 @@ public:
     
     QAbstractItemView::State state;
     QPoint cursorIndex;
-    int startEditActions;
+    int beginEditActions;
 
     QPersistentModelIndex root;
     int horizontalFactor;

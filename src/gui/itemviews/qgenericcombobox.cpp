@@ -36,7 +36,7 @@ ListViewContainer::ListViewContainer(QGenericListView *listView, QWidget *parent
     list->setFrameStyle(QFrame::NoFrame);
     list->setLineWidth(0);
     list->setSpacing(0);
-    list->setStartEditActions(QAbstractItemDelegate::NeverEdit);
+    list->setBeginEditActions(QAbstractItemDelegate::NeverEdit);
     list->setFocusPolicy(Qt::StrongFocus);
     connect(list->verticalScrollBar(), SIGNAL(valueChanged(int)),
             this, SLOT(updateScrollers()));
@@ -604,14 +604,14 @@ QSize QGenericComboBox::sizeHint() const
     if (d->lineEdit)
         d->sizeHint.setHeight(d->lineEdit->sizeHint().height());
 
-    QItemOptions options;
-    options.editing = isEditable();
-    options.selected = true;
-    options.focus = q->hasFocus();
+    QStyleOptionViewItem option(0);
+    option.state |= (isEditable() ? QStyle::Style_Editing : QStyle::Style_Default);
+    option.state |= QStyle::Style_Selected;
+    option.state |= (q->hasFocus() ? QStyle::Style_HasFocus : QStyle::Style_Default);
 
     QSize itemSize;
     for (int i = 0; i < model()->rowCount(root()); i++) {
-        itemSize = d->delegate->sizeHint(fontMetrics(), options, model()->index(i, 0, root()));
+        itemSize = d->delegate->sizeHint(fontMetrics(), option, model()->index(i, 0, root()));
         if (itemSize.width() > d->sizeHint.width())
             d->sizeHint.setWidth(itemSize.width());
         if (itemSize.height() > d->sizeHint.height())
@@ -699,16 +699,16 @@ void QGenericComboBox::paintEvent(QPaintEvent *)
     QRect delegateRect = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
                                                         QStyle::SC_ComboBoxEditField, this);
     // delegate paints content
-    QItemOptions options;
+    QStyleOptionViewItem option(0);
 
     QModelIndex current = currentItem();
     if (current.isValid()) {
-        options.palette = palette();
-        options.editing = isEditable();
-        options.itemRect = delegateRect;
-        options.focus = q->hasFocus();
-        options.selected = options.focus;
-        d->delegate->paint(&painter, options, current);
+        option.palette = palette();
+        option.state |= (isEditable() ? QStyle::Style_Editing : QStyle::Style_Default);
+        option.state |= (q->hasFocus()
+                        ? QStyle::Style_HasFocus|QStyle::Style_Selected : QStyle::Style_Default);
+        option.rect = delegateRect;
+        d->delegate->paint(&painter, option, current);
     }
 }
 

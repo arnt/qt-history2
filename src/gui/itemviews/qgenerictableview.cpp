@@ -47,7 +47,7 @@
 QGenericTableView::QGenericTableView(QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(*new QGenericTableViewPrivate, model, parent)
 {
-    setStartEditActions(startEditActions()|QAbstractItemDelegate::AnyKeyPressed);
+    setBeginEditActions(beginEditActions()|QAbstractItemDelegate::AnyKeyPressed);
     setLeftHeader(new QGenericHeader(model, Qt::Vertical, this));
     d->leftHeader->setClickable(true);
     setTopHeader(new QGenericHeader(model, Qt::Horizontal, this));
@@ -60,7 +60,7 @@ QGenericTableView::QGenericTableView(QAbstractItemModel *model, QWidget *parent)
 QGenericTableView::QGenericTableView(QGenericTableViewPrivate &dd, QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(dd, model, parent)
 {
-    setStartEditActions(startEditActions()|QAbstractItemDelegate::AnyKeyPressed);
+    setBeginEditActions(beginEditActions()|QAbstractItemDelegate::AnyKeyPressed);
     setLeftHeader(new QGenericHeader(model, Qt::Vertical, this));
     d->leftHeader->setClickable(true);
     setTopHeader(new QGenericHeader(model, Qt::Horizontal, this));
@@ -196,8 +196,8 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
 */
 void QGenericTableView::paintEvent(QPaintEvent *e)
 {
-    QItemOptions options = viewOptions();
-    QBrush base = options.palette.base();
+    QStyleOptionViewItem option = viewOptions();
+    QBrush base = option.palette.base();
     QRect area = e->rect();
 
     if (d->topHeader->count() == 0 || d->leftHeader->count() == 0) {
@@ -247,7 +247,8 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
     QGenericHeader *topHeader = d->topHeader;
     QModelIndex current = currentItem();
     bool focus = hasFocus() && current.isValid();
-
+    QStyle::SFlags state = option.state;
+    
     for (int r = rowfirst; r <= rowlast; ++r) {
         if (leftHeader->isSectionHidden(r))
             continue;
@@ -260,12 +261,16 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
             int colw = columnWidth(c) - gridSize;
             QModelIndex item = model()->index(r, c, root());
             if (item.isValid()) {
-                options.itemRect = QRect(colp, rowp, colw, rowh);
-                options.selected = sels->isSelected(item);
-                options.focus = (focus && item == current);
+                option.rect = QRect(colp, rowp, colw, rowh);
+                option.state = state;
+                option.state |= (sels->isSelected(item)
+                                 ? QStyle::Style_Selected : QStyle::Style_Default);
+                option.state |= (focus && item == current
+                                 ? QStyle::Style_HasFocus : QStyle::Style_Default);
                 painter.fillRect(colp, rowp, colw, rowh,
-                                 (options.selected ? options.palette.highlight() : base));
-                itemDelegate()->paint(&painter, options, item);
+                                 (option.state & QStyle::Style_Selected
+                                  ? option.palette.highlight() : base));
+                itemDelegate()->paint(&painter, option, item);
             }
             if (r == rowfirst && showGrid) {
                 QPen old = painter.pen();
@@ -471,13 +476,13 @@ void QGenericTableView::updateGeometries()
                               vg.width(), topHint.height());
 
     // update sliders
-    QItemOptions options = viewOptions();
+    QStyleOptionViewItem option = viewOptions();
 
     int h = d->viewport->height();
     int row = model()->rowCount();
     if (h <= 0 || row <= 0) // if we have no viewport or no rows, there is nothing to do
         return;
-    QSize def = itemDelegate()->sizeHint(fontMetrics(), options, model()->index(0, 0));
+    QSize def = itemDelegate()->sizeHint(fontMetrics(), option, model()->index(0, 0));
     verticalScrollBar()->setPageStep(h / def.height() * verticalFactor());
     while (h > 0 && row > 0)
         h -= d->leftHeader->sectionSize(--row);
@@ -511,13 +516,13 @@ int QGenericTableView::rowSizeHint(int row) const
     if (columnlast < 0)
         columnlast = d->topHeader->count() - 1;
 
-    QItemOptions options = viewOptions();
+    QStyleOptionViewItem option = viewOptions();
 
     int hint = 0;
     QModelIndex index;
     for (int column = columnfirst; column < columnlast; ++column) {
         index = model()->index(row, column, root());
-        hint = qMax(hint, itemDelegate()->sizeHint(fontMetrics(), options, index).height());
+        hint = qMax(hint, itemDelegate()->sizeHint(fontMetrics(), option, index).height());
     }
     return hint + 1; // add space for the grid
 }
@@ -534,13 +539,13 @@ int QGenericTableView::columnSizeHint(int column) const
     if (rowlast < 0)
         rowlast = d->leftHeader->count() - 1;
 
-    QItemOptions options = viewOptions();
+    QStyleOptionViewItem option = viewOptions();
 
     int hint = 0;
     QModelIndex index;
     for (int row = rowfirst; row <= rowlast; ++row) {
         index = model()->index(row, column, root());
-        hint = qMax(hint, itemDelegate()->sizeHint(fontMetrics(), options, index).width());
+        hint = qMax(hint, itemDelegate()->sizeHint(fontMetrics(), option, index).width());
     }
     return hint + 1; // add space for the grid
 }

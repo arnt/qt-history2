@@ -100,29 +100,30 @@ public:
     MenuDelegate(QAbstractItemModel *model, QObject *parent) : QItemDelegate(model, parent) {}
 
 protected:
-    void paint(QPainter *painter, const QItemOptions &options,
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const {
-        QStyleOptionMenuItem opt = getStyleOption(options, index);
+        QStyleOptionMenuItem opt = getStyleOption(option, index);
         QApplication::style().drawControl(QStyle::CE_MenuItem, &opt, painter, 0);
     }
-    QSize sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options,
+    QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
                    const QModelIndex &index) const {
-        QStyleOptionMenuItem opt = getStyleOption(options, index);
+        QStyleOptionMenuItem opt = getStyleOption(option, index);
         return QApplication::style().sizeFromContents(
-            QStyle::CT_MenuItem, &opt, options.itemRect.size(), fontMetrics, 0);
+            QStyle::CT_MenuItem, &opt, option.rect.size(), fontMetrics, 0);
     }
 
 private:
-    QStyleOptionMenuItem getStyleOption(const QItemOptions &options, const QModelIndex &index) const {
+    QStyleOptionMenuItem getStyleOption(const QStyleOptionViewItem &option,
+                                        const QModelIndex &index) const {
         QStyleOptionMenuItem opt(0);
-        opt.palette = options.palette;
+        opt.palette = option.palette;
         opt.state = QStyle::Style_Default;
-        if (options.disabled)
-            opt.palette.setCurrentColorGroup(QPalette::Disabled);
-        else
+        if (option.state & QStyle::Style_Enabled)
             opt.state |= QStyle::Style_Enabled;
+        else
+            opt.palette.setCurrentColorGroup(QPalette::Disabled);
         opt.state |= QStyle::Style_ButtonDefault;
-        if (options.selected) {
+        if (option.state & QStyle::Style_Selected) {
             opt.state |= QStyle::Style_Active;
             opt.checkState = QStyleOptionMenuItem::Checked;
         } else {
@@ -135,8 +136,8 @@ private:
         opt.maxIconWidth = 0;
         if (!opt.icon.isNull())
             opt.maxIconWidth = opt.icon.pixmap(QIconSet::Small, QIconSet::Normal).width() + 4;
-        opt.menuRect = options.itemRect;
-        opt.rect = options.itemRect;
+        opt.menuRect = option.rect;
+        opt.rect = option.rect;
         return opt;
     }
 };

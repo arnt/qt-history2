@@ -55,7 +55,7 @@
 */
 
 /*!
-    \enum QAbstractItemDelegate::StartEditAction
+    \enum QAbstractItemDelegate::BeginEditAction
 
     This enum describes how an editor was invoked to edit an item.
 
@@ -108,21 +108,21 @@ QAbstractItemDelegate::~QAbstractItemDelegate()
 }
 
 /*!
-    \fn void QAbstractItemDelegate::paint(QPainter *painter, const QItemOptions &options, const QModelIndex &index) const = 0;
+    \fn void QAbstractItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const = 0;
 
     This pure abstract function must be reimplemented if you want to
     provide custom rendering. The painter to paint on is given by \a
-    painter, the options by \a options, and the item by \a index.
+    painter, the options by \a option, and the item by \a index.
 
     If you reimplement this you must also reimplement sizeHint().
 */
 
 /*!
-    \fn QSize QAbstractItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options, const QModelIndex &index) const = 0
+    \fn QSize QAbstractItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option, const QModelIndex &index) const = 0
 
     This pure abstract function must be reimplemented if you want to
     provide custom rendering. The font metrics are given by \a
-    fontMetrics, the options by \a options, and the item by \a index.
+    fontMetrics, the options by \a option, and the item by \a index.
 
     If you reimplement this you must also reimplement paint().
 */
@@ -150,8 +150,8 @@ QAbstractItemDelegate::EditorType QAbstractItemDelegate::editorType(const QModel
 /*!
     Returns the editor to be used for editing the data item at index
     \a index. The action that caused the edit is given by \a action;
-    see \c StartEditAction. The editor's parent widget is given by \a
-    parent, and the item options by \a options. Ownership is kept by
+    see \c BeginEditAction. The editor's parent widget is given by \a
+    parent, and the item options by \a option. Ownership is kept by
     the delegate. Subsequent calls to this function with the same
     arguments are not guaranteed to return the same editor object.
 
@@ -162,8 +162,8 @@ QAbstractItemDelegate::EditorType QAbstractItemDelegate::editorType(const QModel
 
     \sa editorType() setModelData() setEditorData() releaseEditor()
 */
-QWidget *QAbstractItemDelegate::editor(StartEditAction, QWidget *,
-        const QItemOptions&, const QModelIndex &)
+QWidget *QAbstractItemDelegate::editor(BeginEditAction, QWidget *,
+        const QStyleOptionViewItem&, const QModelIndex &)
 {
     return 0;
 }
@@ -198,7 +198,7 @@ void QAbstractItemDelegate::setEditorData(QWidget *, const QModelIndex &) const
 
 
 // ### DOC: can't guess!
-void QAbstractItemDelegate::updateEditorGeometry(QWidget *, const QItemOptions &,
+void QAbstractItemDelegate::updateEditorGeometry(QWidget *, const QStyleOptionViewItem &,
                                                  const QModelIndex &) const
 {
     // do nothing

@@ -531,27 +531,28 @@ void QGenericListView::startDrag()
     d->draggedItems.clear();
 }
 
-QItemOptions QGenericListView::viewOptions() const
+QStyleOptionViewItem QGenericListView::viewOptions() const
 {
-    QItemOptions options = QAbstractItemView::viewOptions();
+    QStyleOptionViewItem option = QAbstractItemView::viewOptions();
     if (d->iconSize == Automatic ? d->wrap : d->iconSize == Small) {
-        options.smallItem = true;
-        options.decorationPosition = QApplication::reverseLayout()
-                                     ? QItemOptions::Right : QItemOptions::Left;
+        option.decorationSize = QStyleOptionViewItem::Small;
+        option.decorationPosition = (QApplication::reverseLayout()
+                                      ? QStyleOptionViewItem::Right
+                                      : QStyleOptionViewItem::Left);
     } else {
-        options.smallItem = false;
-        options.decorationPosition = QItemOptions::Top;
+        option.decorationSize = QStyleOptionViewItem::Large;
+        option.decorationPosition = QStyleOptionViewItem::Top;
     }
-    return options;
+    return option;
 }
 
 void QGenericListView::paintEvent(QPaintEvent *e)
 {
-    QItemOptions options = viewOptions();
+    QStyleOptionViewItem option = viewOptions();
 
     QPainter painter(&d->backBuffer);
     QRect area = e->rect();
-    painter.fillRect(area, options.palette.base());
+    painter.fillRect(area, option.palette.base());
     area.moveBy(horizontalScrollBar()->value(), verticalScrollBar()->value());
 
     // fill the intersectVector
@@ -564,12 +565,15 @@ void QGenericListView::paintEvent(QPaintEvent *e)
     QAbstractItemDelegate *delegate = itemDelegate();
     QItemSelectionModel *selections = selectionModel();
     bool focus = q->hasFocus() && current.isValid();
+    QStyle::SFlags state = option.state;
     QVector<QModelIndex>::iterator it = d->intersectVector.begin();
     for (; it != d->intersectVector.end(); ++it) {
-        options.itemRect = itemViewportRect(*it);
-        options.selected = selections ? selections->isSelected(*it) : false;
-        options.focus = (focus && current == *it);
-        delegate->paint(&painter, options, *it);
+        option.rect = itemViewportRect(*it);
+        option.state = state;
+        option.state |= (selections && selections->isSelected(*it)
+                         ? QStyle::Style_Selected : QStyle::Style_Default);
+        option.state |= (focus && current == *it ? QStyle::Style_HasFocus : QStyle::Style_Default);
+        delegate->paint(&painter, option, *it);
     }
 
     painter.end();
@@ -849,7 +853,7 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
     bool wrap = d->wrap;
     QModelIndex item;
     QFontMetrics fontMetrics(font());
-    QItemOptions options = viewOptions();
+    QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     QSize hint;
     QRect rect = bounds;
@@ -864,14 +868,11 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
         int w = bounds.width();
         int dx, dy = (gh ? gh : d->translate);
         for (int i = first; i <= last ; ++i) {
-
             item = model()->index(i, 0, root());
-            hint = delegate->sizeHint(fontMetrics, options, item);
+            hint = delegate->sizeHint(fontMetrics, option, item);
             dx = (gw ? gw : hint.width());
-
             if (wrap && (x + spacing >= w))
                 d->createStaticRow(x, y, dy, layoutWraps, i, bounds, spacing, delta);
-
             d->xposVector.push_back(x);
             dy = (hint.height() > dy ? hint.height() : dy);
             x += spacing + dx;
@@ -885,14 +886,11 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
         int h = bounds.height();
         int dy, dx = (gw ? gw : d->translate);
         for (int i = first; i <= last ; ++i) {
-
             item = model()->index(i, 0, root());
-            hint = delegate->sizeHint(fontMetrics, options, item);
+            hint = delegate->sizeHint(fontMetrics, option, item);
             dy = (gh ? gh : hint.height());
-
             if (wrap && (y + spacing >= h))
                 d->createStaticColumn(x, y, dx, layoutWraps, i, bounds, spacing, delta);
-
             d->yposVector.push_back(y);
             dx = (hint.width() > dx ? hint.width() : dx);
             y += spacing + dy;
@@ -1051,8 +1049,8 @@ void QGenericListView::moveItem(int index, const QPoint &dest)
 void QGenericListView::updateGeometries()
 {
     QModelIndex index = model()->index(0, 0, root());
-    QItemOptions options = viewOptions();
-    QSize size = itemDelegate()->sizeHint(fontMetrics(), options, index);
+    QStyleOptionViewItem option = viewOptions();
+    QSize size = itemDelegate()->sizeHint(fontMetrics(), option, index);
     
     horizontalScrollBar()->setSingleStep(size.width() + d->spacing);
     horizontalScrollBar()->setPageStep(d->viewport->width());
@@ -1175,13 +1173,13 @@ void QGenericListViewPrivate::createItems(int to)
 {
     int count = tree.itemCount();
     QSize size;
-    QItemOptions options = q->viewOptions();
+    QStyleOptionViewItem option = q->viewOptions();
     QFontMetrics fontMetrics(q->font());
     QAbstractItemModel *model = q->model();
     QAbstractItemDelegate *delegate = q->itemDelegate();
     QModelIndex root = q->root();
     for (int i = count; i < to; ++i) {
-        size = delegate->sizeHint(fontMetrics, options, model->index(i, 0, root));
+        size = delegate->sizeHint(fontMetrics, option, model->index(i, 0, root));
         QGenericListViewItem item(QRect(0, 0, size.width(), size.height()), i); // default pos
         tree.appendItem(item);
     }
@@ -1189,16 +1187,16 @@ void QGenericListViewPrivate::createItems(int to)
 
 QRect QGenericListViewPrivate::drawItems(QPainter *painter, const QVector<QModelIndex> &indices) const
 {
-    QItemOptions options = q->viewOptions();
+    QStyleOptionViewItem option = q->viewOptions();
     QAbstractItemDelegate *delegate = q->itemDelegate();
     QVector<QModelIndex>::const_iterator it = indices.begin();
     QGenericListViewItem item = indexToListViewItem(*it);
     QRect rect(item.x, item.y, item.w, item.h);
     for (; it != indices.end(); ++it) {
         item = indexToListViewItem(*it);
-        options.itemRect.setRect(item.x, item.y, item.w, item.h);
-        delegate->paint(painter, options, *it);
-        rect |= options.itemRect;
+        option.rect.setRect(item.x, item.y, item.w, item.h);
+        delegate->paint(painter, option, *it);
+        rect |= option.rect;
     }
     return rect;
 }
@@ -1229,8 +1227,8 @@ QGenericListViewItem QGenericListViewPrivate::indexToListViewItem(const QModelIn
         pos.setX(xposVector.at(i));
     }
     
-    QItemOptions options = q->viewOptions();
-    QSize size = q->itemDelegate()->sizeHint(q->fontMetrics(), options, index);
+    QStyleOptionViewItem option = q->viewOptions();
+    QSize size = q->itemDelegate()->sizeHint(q->fontMetrics(), option, index);
     return QGenericListViewItem(QRect(pos, size), index.row());
 }
 

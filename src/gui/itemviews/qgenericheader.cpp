@@ -166,14 +166,14 @@ QSize QGenericHeader::sizeHint() const
 {
     if (d->sections.isEmpty() || !isVisible())
             return QSize();
-    QItemOptions options = viewOptions();
+    QStyleOptionViewItem option = viewOptions();
     int row = orientation() == Qt::Horizontal ? 0 : section(count() - 1);
     int col = orientation() == Qt::Horizontal ? section(count() - 1) : 0;
     QModelIndex::Type type = orientation() == Qt::Horizontal
                              ? QModelIndex::HorizontalHeader
                              : QModelIndex::VerticalHeader;
     QModelIndex item = model()->index(row, col, QModelIndex(), type);
-    QSize hint = itemDelegate()->sizeHint(fontMetrics(), options, item);
+    QSize hint = itemDelegate()->sizeHint(fontMetrics(), option, item);
     if (orientation() == Qt::Vertical)
         return QSize(hint.width() + border, size());
     return QSize(size(), hint.height() + border);
@@ -184,7 +184,7 @@ QSize QGenericHeader::sizeHint() const
 
 int QGenericHeader::sectionSizeHint(int section) const
 {
-    QItemOptions options = viewOptions();
+    QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     int hint = 0;
     int row = orientation() == Qt::Vertical ? section : 0;
@@ -194,12 +194,12 @@ int QGenericHeader::sectionSizeHint(int section) const
                              QModelIndex::VerticalHeader;
     QModelIndex header = model()->index(row, col, QModelIndex(), type);
     if (orientation() == Qt::Vertical) {
-        QSize size = delegate->sizeHint(fontMetrics(), options, header);
+        QSize size = delegate->sizeHint(fontMetrics(), option, header);
         hint = size.height();
         if (sortIndicatorSection() == section)
             hint += size.width();
     } else {
-        QSize size = delegate->sizeHint(fontMetrics(), options, header);
+        QSize size = delegate->sizeHint(fontMetrics(), option, header);
         hint = size.width();
         if (sortIndicatorSection() == section)
             hint += size.height();
@@ -214,8 +214,7 @@ int QGenericHeader::sectionSizeHint(int section) const
 
 void QGenericHeader::paintEvent(QPaintEvent *e)
 {
-    QItemOptions options = viewOptions();
-
+    QStyleOptionViewItem option = viewOptions();
     QPainter painter(&d->backBuffer);
     QRect area = e->rect();
 
@@ -250,15 +249,13 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
                 continue;
             section = sections[i].section;
             item = model()->index(0, section, QModelIndex(), QModelIndex::HorizontalHeader);
-            options.itemRect.setRect(sectionPosition(section) - offset, 0,
-                                     sectionSize(section), height);
-            paintSection(&painter, &options, item);
+            option.rect.setRect(sectionPosition(section) - offset, 0, sectionSize(section), height);
+            paintSection(&painter, option, item);
         }
-        if (options.itemRect.right() < area.right()) {
+        if (option.rect.right() < area.right()) {
             QStyleOptionHeader opt = d->getStyleOption();
             opt.state |= QStyle::Style_Off | QStyle::Style_Raised;
-            opt.rect.setRect(options.itemRect.right() + 1, 0,
-                             width - options.itemRect.right() - 1, height);
+            opt.rect.setRect(option.rect.right() + 1, 0, width - option.rect.right() - 1, height);
             style().drawPrimitive(QStyle::PE_HeaderSection, &opt, &painter, this);
         }
     } else {
@@ -267,15 +264,13 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
                 continue;
             section = sections[i].section;
             item = model()->index(section, 0, QModelIndex(), QModelIndex::VerticalHeader);
-            options.itemRect.setRect(0, sectionPosition(section) - offset,
-                                     width, sectionSize(section));
-            paintSection(&painter, &options, item);
+            option.rect.setRect(0, sectionPosition(section) - offset, width, sectionSize(section));
+            paintSection(&painter, option, item);
         }
-        if (options.itemRect.bottom() < area.bottom()) {
+        if (option.rect.bottom() < area.bottom()) {
             QStyleOptionHeader opt = d->getStyleOption();
             opt.state |= QStyle::Style_Off | QStyle::Style_Raised;
-            opt.rect.setRect(0, options.itemRect.bottom() + 1, width,
-                             height - options.itemRect.bottom() - 1);
+            opt.rect.setRect(0, option.rect.bottom() + 1, width, height - option.rect.bottom() - 1);
             style().drawPrimitive(QStyle::PE_HeaderSection, &opt, &painter, this);
         }
     }
@@ -288,27 +283,28 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
 /*!
 */
 
-void QGenericHeader::paintSection(QPainter *painter, QItemOptions *options, const QModelIndex &item)
+void QGenericHeader::paintSection(QPainter *painter, const QStyleOptionViewItem &option,
+                                  const QModelIndex &index)
 {
     QStyleOptionHeader opt = d->getStyleOption();
     QStyle::SFlags arrowFlags = QStyle::Style_Off;
-    opt.rect = options->itemRect;
+    opt.rect = option.rect;
     if (d->clickableSections && (d->orientation == Qt::Horizontal ?
-          selectionModel()->isColumnSelected(item.column(), model()->parent(item)) :
-          selectionModel()->isRowSelected(item.row(), model()->parent(item))))
+          selectionModel()->isColumnSelected(index.column(), model()->parent(index)) :
+          selectionModel()->isRowSelected(index.row(), model()->parent(index))))
         opt.state |= QStyle::Style_Down;
     else
         opt.state |= QStyle::Style_Raised;
     style().drawPrimitive(QStyle::PE_HeaderSection, &opt, painter, this);
-    itemDelegate()->paint(painter, *options, item); // draw item
+    itemDelegate()->paint(painter, option, index);
 
-    int section = orientation() == Qt::Horizontal ? item.column() : item.row();
+    int section = orientation() == Qt::Horizontal ? index.column() : index.row();
     if (sortIndicatorSection() == section) {
         //bool alignRight = style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & Qt::AlignRight;
         // FIXME: use alignRight and RTL
-        int h = options->itemRect.height();
-        int x = options->itemRect.x();
-        int y = options->itemRect.y();
+        int h = option.rect.height();
+        int x = option.rect.x();
+        int y = option.rect.y();
         int secSize = sectionSize(section);
         if (d->orientation == Qt::Horizontal)
             opt.rect.setRect(x + secSize - border * 2 - (h / 2), y + 5, h / 2, h - border * 2);

@@ -29,7 +29,7 @@ struct Q_GUI_EXPORT QStyleOption {
     QPalette palette;
     enum { Default, FocusRect, Button, Tab, MenuItem, Complex, Slider, Frame, ProgressBar,
            ListView, ListViewItem, Header, DockWindow, SpinBox, ToolButton, ComboBox, ToolBox,
-           TitleBar };
+           TitleBar, ViewItem, CustomBase = 0xf0000000 };
     enum { Type = Default };
     QStyleOption(int optionversion, int optiontype = Default);
     void init(const QWidget *w);
@@ -214,6 +214,18 @@ struct QStyleOptionTitleBar : public QStyleOptionComplex
     int titleBarState;
     Qt::WFlags titleBarFlags;
     QStyleOptionTitleBar(int version) : QStyleOptionComplex(version, TitleBar) {};
+};
+
+struct QStyleOptionViewItem : public QStyleOption
+{
+    enum { Type = ViewItem };
+    enum Position { Left, Right, Top, Bottom };
+    enum Size { Large, Small };
+    int displayAlignment;
+    int decorationAlignment;
+    Position decorationPosition;
+    Size decorationSize;
+    QStyleOptionViewItem(int version) : QStyleOption(version, ViewItem) {}
 };
 
 template <typename T>
