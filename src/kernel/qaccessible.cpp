@@ -341,6 +341,11 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
     if ( factory )
 	return factory->createAccessibleInterface( mo->className(), object, iface );
 
+    if (qt_cast<QWidget*>(object))
+	*iface = new QAccessibleWidget(object);
+/*    else if (qt_cast<QApplication*>(object))
+	*iface = new QAccessibleApplication(object);*/
+
     return QE_NOCOMPONENT;
 }
 
