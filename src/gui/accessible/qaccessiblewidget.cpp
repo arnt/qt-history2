@@ -539,6 +539,8 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
                         continue;
                     distp = sibp - startp;
                     break;
+		default:
+		    break;
                 }
 
                 int dist = (int)sqrt((double)distp.x() * distp.x() + distp.y() * distp.y());
@@ -791,6 +793,8 @@ QString QAccessibleWidget::actionText(int action, Text t, int child) const
         return "Set Focus";
     case Description:
         return "Passes focus to this widget.";
+    default:
+	break;
     }
     return QString();
 }
