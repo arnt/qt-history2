@@ -57,61 +57,61 @@ static QString getFmtString( const QString& f, const QTime* dt = 0, const QDate*
     QString buf = f;
 
     if ( dt ) {
-	if ( f == "h" ) {
+	if ( f == QLatin1String("h") ) {
 	    if ( ( am_pm ) && ( dt->hour() > 12 ) )
 		buf = QString::number( dt->hour() - 12 );
 	    else if ( ( am_pm ) && ( dt->hour() == 0 ) )
-		buf = "12";
+		buf = QLatin1String("12");
 	    else
 		buf = QString::number( dt->hour() );
-	} else if ( f == "hh" ) {
+	} else if ( f == QLatin1String("hh") ) {
 	    if ( ( am_pm ) && ( dt->hour() > 12 ) )
 		buf = QString::number( dt->hour() - 12 ).rightJustified( 2, '0', TRUE );
 	    else if ( ( am_pm ) && ( dt->hour() == 0 ) )
-		buf = "12";
+		buf = QLatin1String("12");
 	    else
 		buf = QString::number( dt->hour() ).rightJustified( 2, '0', TRUE );
-	} else if ( f == "m" ) {
+	} else if ( f == QLatin1String("m") ) {
 	    buf = QString::number( dt->minute() );
-	} else if ( f == "mm" ) {
+	} else if ( f == QLatin1String("mm") ) {
 	    buf = QString::number( dt->minute() ).rightJustified( 2, '0', TRUE );
-	} else if ( f == "s" ) {
+	} else if ( f == QLatin1String("s") ) {
 	    buf = QString::number( dt->second() );
-	} else if ( f == "ss" ) {
+	} else if ( f == QLatin1String("ss") ) {
 	    buf = QString::number( dt->second() ).rightJustified( 2, '0', TRUE );
-	} else if ( f == "z" ) {
+	} else if ( f == QLatin1String("z") ) {
 	    buf = QString::number( dt->msec() );
-	} else if ( f == "zzz" ) {
+	} else if ( f == QLatin1String("zzz") ) {
 	    buf = QString::number( dt->msec() ).rightJustified( 3, '0', TRUE );
-	} else if ( f == "ap" ) {
-	    buf = dt->hour() < 12 ? "am" : "pm";
-	} else if ( f == "AP" ) {
-	    buf = dt->hour() < 12 ? "AM" : "PM";
+	} else if ( f == QLatin1String("ap") ) {
+	    buf = dt->hour() < 12 ? QLatin1String("am") : QLatin1String("pm");
+	} else if ( f == QLatin1String("AP") ) {
+	    buf = dt->hour() < 12 ? QLatin1String("AM") : QLatin1String("PM");
 	}
     }
 
     if ( dd ) {
-	if ( f == "d" ) {
+	if ( f == QLatin1String("d") ) {
 	    buf = QString::number( dd->day() );
-	} else if ( f == "dd" ) {
+	} else if ( f == QLatin1String("dd") ) {
 	    buf = QString::number( dd->day() ).rightJustified( 2, '0', TRUE );
-	} else if ( f == "M" ) {
+	} else if ( f == QLatin1String("M") ) {
 	    buf = QString::number( dd->month() );
-	} else if ( f == "MM" ) {
+	} else if ( f == QLatin1String("MM") ) {
 	    buf = QString::number( dd->month() ).rightJustified( 2, '0', TRUE );
 #ifndef QT_NO_TEXTDATE
-	} else if ( f == "ddd" ) {
+	} else if ( f == QLatin1String("ddd") ) {
 	    buf = dd->shortDayName( dd->dayOfWeek() );
-	} else if ( f == "dddd" ) {
+	} else if ( f == QLatin1String("dddd") ) {
 	    buf = dd->longDayName( dd->dayOfWeek() );
-	} else if ( f == "MMM" ) {
+	} else if ( f == QLatin1String("MMM") ) {
 	    buf = dd->shortMonthName( dd->month() );
-	} else if ( f == "MMMM" ) {
+	} else if ( f == QLatin1String("MMMM") ) {
 	    buf = dd->longMonthName( dd->month() );
 #endif
-	} else if ( f == "yy" ) {
+	} else if ( f == QLatin1String("yy") ) {
 	    buf = QString::number( dd->year() ).right( 2 );
-	} else if ( f == "yyyy" ) {
+	} else if ( f == QLatin1String("yyyy") ) {
 	    buf = QString::number( dd->year() );
 	}
     }
@@ -131,7 +131,7 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
     if ( dd && !dd->isValid() )
 	return QString::null;
 
-    bool ap = ( f.contains( "AP", QString::CaseInsensitive ) );
+    bool ap = ( f.contains( QLatin1String("AP"), QString::CaseInsensitive ) );
 
     QString buf;
     QString frm;
@@ -719,7 +719,7 @@ QString QDate::toString( Qt::DateFormat f ) const
 	{
 	    QString month( QString::number( m ).rightJustified( 2, '0' ) );
 	    QString day( QString::number( d ).rightJustified( 2, '0' ) );
-	    return QString::number( y ) + "-" + month + "-" + day;
+	    return QString::number( y ) + QLatin1Char('-') + month + QLatin1Char('-') + day;
 	}
     }
 }
@@ -1043,7 +1043,7 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 
 	    // try English names first
 	    for ( int i = 0; i < 12; i++ ) {
-		if ( monthName == qt_shortMonthNames[i] ) {
+		if ( monthName == QLatin1String(qt_shortMonthNames[i]) ) {
 		    month = i + 1;
 		    break;
 		}
@@ -2038,7 +2038,7 @@ QString QDateTime::toString( Qt::DateFormat f ) const
 	return QString::null;
 
     if ( f == Qt::ISODate ) {
-	return d.toString( Qt::ISODate ) + "T" + t.toString( Qt::ISODate );
+	return d.toString( Qt::ISODate ) + QLatin1Char('T') + t.toString( Qt::ISODate );
     }
 #ifndef QT_NO_TEXTDATE
     else if ( f == Qt::TextDate ) {
@@ -2077,7 +2077,7 @@ QString QDateTime::toString( Qt::DateFormat f ) const
     }
 #endif
     else if ( f == Qt::LocalDate ) {
-	return d.toString( Qt::LocalDate ) + " " + t.toString( Qt::LocalDate );
+	return d.toString( Qt::LocalDate ) + QLatin1Char(' ') + t.toString( Qt::LocalDate );
     }
     return QString::null;
 }
@@ -2393,7 +2393,7 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 	int month = -1;
 	// Assume that English monthnames are the default
 	for ( int i = 0; i < 12; ++i ) {
-	    if ( monthName == qt_shortMonthNames[i] ) {
+	    if ( monthName == QLatin1String(qt_shortMonthNames[i]) ) {
 		month = i + 1;
 		break;
 	    }

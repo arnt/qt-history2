@@ -1594,7 +1594,7 @@ static QString languageToCode(QLocale::Language language)
     	return QString::null;
 
     if (language == QLocale::C)
-    	return "C";
+    	return QLatin1String("C");
 
     QString code;
     code.resize(2);
@@ -2289,8 +2289,8 @@ QString QLocale::unixLocaleName() const
 QString QLocale::languageToString(Language language)
 {
     if ((uint)language > (uint)QLocale::LastLanguage)
-    	return "Unknown";
-    return language_name_list + language_name_index[(uint)language];
+    	return QLatin1String("Unknown");
+    return QLatin1String(language_name_list + language_name_index[(uint)language]);
 }
 
 /*!
@@ -2300,8 +2300,8 @@ QString QLocale::languageToString(Language language)
 QString QLocale::countryToString(Country country)
 {
     if ((uint)country > (uint)QLocale::LastCountry)
-    	return "Unknown";
-    return country_name_list + country_name_index[(uint)country];
+    	return QLatin1String("Unknown");
+    return QLatin1String(country_name_list + country_name_index[(uint)country]);
 }
 
 /*!
@@ -2797,7 +2797,7 @@ QString QLocalePrivate::doubleToString(double d,
 	if (form == DFExponent)
 	    ++pr;
 
-	QString digits = qdtoa(d, mode, pr, &decpt, &sign, &rve, &buff);
+	QString digits = QLatin1String(qdtoa(d, mode, pr, &decpt, &sign, &rve, &buff));
 
     	if (zero().unicode() != '0') {
 	    ushort z = zero().unicode() - '0';
@@ -2938,7 +2938,7 @@ QString QLocalePrivate::longLongToString(Q_LLONG l, int precision,
     if (base == 16
 	    && flags & Alternate
 	    && l != 0)
-    	num_str.prepend("0x");
+    	num_str.prepend(QLatin1String("0x"));
 
     // add sign
     if (negative)
@@ -3005,7 +3005,7 @@ QString QLocalePrivate::unsLongLongToString(Q_ULLONG l, int precision,
     if (base == 16
 	    && flags & Alternate
 	    && l != 0)
-    	num_str.prepend("0x");
+    	num_str.prepend(QLatin1String("0x"));
 
     if (flags & CapitalEorX)
     	num_str = num_str.toUpper();
