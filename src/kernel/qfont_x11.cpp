@@ -1104,7 +1104,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 		    if (markexists) {
 			if (qfs && qfs != (QFontStruct *) -1 && qfs->codec)
 			    cache->mapped =
-				qfs->codec->fromUnicode(str, pos + i - lastlen, lastlen);
+				qfs->codec->fromUnicode(str, pos + i + n + 1 - lastlen, lastlen);
 			// set the position for the mark
 			cache->setParams(pw + p.x(), p.y(), w, last, lastlen, tmp);
 
@@ -1260,13 +1260,13 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 
 		markexists = inFont(*chars);
 
-		QPoint p = markpos[n];
-
 		if (markexists) {
+		    QPoint p = markpos[n];
+		    QRect br = boundingRect( *chars );
 		    // yes, really do both, this makes sure that marks that rise above
 		    // the box expand it up, and marks below the box expand it down
-		    overall->ascent = QMAX(overall->ascent, p.y()*scale);
-		    overall->descent = QMAX(overall->descent, p.y()*scale);
+		    overall->ascent = QMAX(overall->ascent, (-p.y()-br.y())*scale);
+		    overall->descent = QMAX(overall->descent, (p.y()+br.y()+br.height())*scale);
 
 		    current = QFont::UnknownScript;
 		}
