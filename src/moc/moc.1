@@ -314,7 +314,8 @@ example:
 class Whatever : public QButtonGroup {
     ...
 public slots:
-    void QButtonGroup::buttonPressed(); // illegal
+    QButtonGroup::buttonPressed; // illegal
+    ...
 };
 .fi
 .in -4

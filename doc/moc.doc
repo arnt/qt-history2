@@ -373,7 +373,7 @@ illegal example:
     class Whatever : public QButtonGroup {
 	...
     public slots:
-        void QButtonGroup::buttonPressed; // WRONG
+	QButtonGroup::buttonPressed; // WRONG
 	...
     };
 \endcode
