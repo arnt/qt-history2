@@ -23,7 +23,7 @@ MainWindow::MainWindow( QWidget *parent, const char *name )
 
     QPopupMenu *file = new QPopupMenu( this );
     file->insertItem( tr( "E&xit" ), qApp, SLOT(quit()),
-			QAccel::stringToKey( tr( "Ctrl+Q", "Quit" ) ) );
+		      QAccel::stringToKey( tr("Ctrl+Q", "Quit") ) );
     QPopupMenu *help = new QPopupMenu( this );
     help->insertItem( tr( "&About..." ), this, SLOT(about()), Key_F1 );
     help->insertItem( tr( "About &Qt..." ), this, SLOT(aboutQt()) );

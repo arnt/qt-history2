@@ -11,10 +11,6 @@
         <translation>&amp;Sair</translation>
     </message>
     <message>
-        <source>Ctrl+Q</source>
-        <translation>Ctrl+Q</translation>
-    </message>
-    <message>
         <source>&amp;About...</source>
         <translation>&amp;Sobre...</translation>
     </message>
@@ -41,6 +37,11 @@ Copyright 1999 Macroshaft, Inc.</source>
         <translation>Troll Imprimir 1.0
 
 Copyright 1999 Macroshaft, Inc.</translation>
+    </message>
+    <message>
+        <source>Ctrl+Q</source>
+        <comment>Quit</comment>
+        <translation>Ctrl+Q</translation>
     </message>
 </context>
 <context>
