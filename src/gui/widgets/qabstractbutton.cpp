@@ -791,7 +791,6 @@ void QAbstractButton::mousePressEvent(QMouseEvent *e)
         e->ignore();
         return;
     }
-    Q_D(QAbstractButton);
     if (hitButton(e->pos())) {
         setDown(true);
         emit pressed();
