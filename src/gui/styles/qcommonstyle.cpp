@@ -638,127 +638,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
     }
 }
 
-/*! \reimp */
-void QCommonStyle::drawControl(ControlElement element,
-                                QPainter *p,
-                                const QWidget *widget,
-                                const QRect &r,
-                                const QPalette &pal,
-                                SFlags flags,
-                                const QStyleOption& opt) const
-{
-    if (! widget) {
-        qWarning("QCommonStyle::drawControl: widget parameter cannot be zero!");
-        return;
-    }
-
-    activePainter = p;
-
-    switch (element) {
-    case CE_MenuBarEmptyArea: {
-        if (!widget->testAttribute(Qt::WA_NoSystemBackground))
-            p->eraseRect(r);
-        break; }
-#if 0
-    case CE_TabBarTab:
-        {
-            const QTabBar * tb = (const QTabBar *) widget;
-
-            if (tb->shape() == QTabBar::TriangularAbove ||
-                 tb->shape() == QTabBar::TriangularBelow) {
-                // triangular, above or below
-                int y;
-                int x;
-                QPointArray a(10);
-                a.setPoint(0, 0, -1);
-                a.setPoint(1, 0, 0);
-                y = r.height()-2;
-                x = y/3;
-                a.setPoint(2, x++, y-1);
-                a.setPoint(3, x++, y);
-                a.setPoint(3, x++, y++);
-                a.setPoint(4, x, y);
-
-                int i;
-                int right = r.width() - 1;
-                for (i = 0; i < 5; i++)
-                    a.setPoint(9-i, right - a.point(i).x(), a.point(i).y());
-
-                if (tb->shape() == QTabBar::TriangularAbove)
-                    for (i = 0; i < 10; i++)
-                        a.setPoint(i, a.point(i).x(),
-                                    r.height() - 1 - a.point(i).y());
-
-                a.translate(r.left(), r.top());
-
-                if (flags & Style_Selected)
-                    p->setBrush(pal.base());
-                else
-                    p->setBrush(pal.background());
-                p->setPen(pal.foreground());
-                p->drawPolygon(a);
-                p->setBrush(Qt::NoBrush);
-            }
-            break;
-        }
-
-    case CE_TabBarLabel:
-        {
-            if (opt.isDefault())
-                break;
-
-            const QTabBar * tb = (const QTabBar *) widget;
-            QTab * t = opt.tab();
-
-            QRect tr = r;
-            if (t->identifier() == tb->currentTab())
-                tr.setBottom(tr.bottom() -
-                              pixelMetric(QStyle::PM_DefaultFrameWidth, tb));
-
-            int alignment = Qt::AlignCenter | Qt::ShowPrefix;
-            if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
-                alignment |= Qt::NoAccel;
-            drawItem(p, tr, alignment, pal, flags & Style_Enabled, t->text());
-
-            if ((flags & Style_HasFocus) && !t->text().isEmpty())
-                drawPrimitive(PE_FocusRect, p, r, pal);
-            break;
-        }
-#endif
-    case CE_MenuTearoff: {
-        if(flags & Style_Active)
-            p->fillRect(r, pal.brush(QPalette::Highlight));
-        else
-            p->fillRect(r, pal.brush(QPalette::Button));
-        p->setPen(QPen(pal.dark(), 1, Qt::DashLine));
-        p->drawLine(r.x()+2, r.y()+r.height()/2-1, r.x()+r.width()-4, r.y()+r.height()/2-1);
-        p->setPen(QPen(pal.light(), 1, Qt::DashLine));
-        p->drawLine(r.x()+2, r.y()+r.height()/2, r.x()+r.width()-4, r.y()+r.height()/2);
-        break; }
-
-    case CE_MenuBarItem:
-        {
-            if (opt.isDefault())
-                break;
-
-            QAction *mi = opt.action();
-            int alignment = Qt::AlignCenter|Qt::ShowPrefix|Qt::DontClip|Qt::SingleLine;
-            if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
-                alignment |= Qt::NoAccel;
-            QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
-            drawItem(p, r, alignment, pal, flags & Style_Enabled, pix, mi->text(), -1,
-                      &pal.buttonText().color());
-            break;
-        }
-
-    default:
-        break;
-    }
-
-    activePainter = 0;
-}
-
-
 /*!
     Draws the control \a ce, with style options \a opt, on painter \a
     p, with parent widget \a widget.
@@ -871,6 +750,10 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
             drawItem(p, mbi->rect, alignment, mbi->palette, mbi->state & Style_Enabled,
                      pix, mbi->text, -1, &mbi->palette.buttonText().color());
         }
+        break;
+    case CE_MenuBarEmptyArea:
+        if (widget && !widget->testAttribute(Qt::WA_NoSystemBackground))
+            p->eraseRect(opt->rect);
         break;
     case CE_ProgressBarGroove:
         qDrawShadePanel(p, opt->rect, opt->palette, true, 1,
@@ -1109,7 +992,7 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
         }
         break;
     default:
-        qWarning("QCommonStyle::drawControl not currently handled %d", ce);
+        break;
     }
 }
 
@@ -1133,28 +1016,6 @@ void QCommonStyle::drawControlMask(ControlElement ce, const Q4StyleOption *opt, 
         p->fillRect(opt->rect, Qt::color1);
     }
 
-}
-
-/*! \reimp */
-void QCommonStyle::drawControlMask(ControlElement control,
-                                    QPainter *p,
-                                    const QWidget *widget,
-                                    const QRect &r,
-                                    const QStyleOption& ) const
-{
-    Q_UNUSED(widget);
-
-    activePainter = p;
-
-    QPalette pal(Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color0);
-
-    switch (control) {
-    default:
-        p->fillRect(r, Qt::color1);
-        break;
-    }
-
-    activePainter = 0;
 }
 
 /*! \reimp */
@@ -1381,11 +1242,6 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 #endif // QT_NO_SLIDER
 
 
-    case SR_ToolBoxTabContents:
-        rect = wrect;
-        rect.addCoords(0, 0, -30, 0);
-        break;
-
     default:
         rect = wrect;
         break;
@@ -1555,6 +1411,10 @@ QRect QCommonStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget 
         break;
     case SR_ComboBoxFocusRect:
         r.setRect(3, 3, opt->rect.width() - 6 - 16, opt->rect.height() - 6);
+        break;
+    case SR_ToolBoxTabContents:
+        r = opt->rect;
+        r.addCoords(0, 0, -30, 0);
         break;
     default:
         qWarning("QCommonStyle::SubRect case not handled %d", sr);

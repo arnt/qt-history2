@@ -44,8 +44,6 @@ public:
                        const QWidget *w = 0) const;
     void drawControl(ControlElement element, const Q4StyleOption *opt, QPainter *p,
                      const QWidget *w = 0) const;
-    void drawControlMask(ControlElement element, const Q4StyleOption *opt, QPainter *p,
-                         const QWidget *w) const;
     QRect subRect(SubRect r, const Q4StyleOption *opt, const QWidget *widget = 0) const;
     void drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt, QPainter *p,
                             const QWidget *w = 0) const;
@@ -56,14 +54,6 @@ public:
                                  const QWidget *w) const;
     QSize sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &contentsSize,
                            const QFontMetrics &fm, const QWidget *w = 0) const;
-
-    void drawControl(ControlElement element,
-                      QPainter *p,
-                      const QWidget *widget,
-                      const QRect &r,
-                      const QPalette &pal,
-                      SFlags how = Style_Default,
-                      const QStyleOption& = QStyleOption::Default) const;
 
     void drawComplexControl(ComplexControl control,
                              QPainter* p,

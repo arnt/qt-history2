@@ -173,18 +173,6 @@ void QMacStyle::unPolish(QWidget* w)
 }
 
 /*! \reimp */
-void QMacStyle::drawControl(ControlElement element,
-                                 QPainter *p,
-                                 const QWidget *widget,
-                                 const QRect &r,
-                                 const QPalette &pal,
-                                 SFlags how,
-                                 const QStyleOption& opt) const
-{
-    correctStyle(p)->drawControl(element, p, widget, r, pal, how, opt);
-}
-
-/*! \reimp */
 void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
                                         const QWidget *widget,
                                         const QRect &r,
@@ -373,13 +361,6 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPa
 /*! \reimp */
 void QMacStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
                             const QWidget *w) const
-{
-    correctStyle(p)->drawControl(ce, opt, p, w);
-}
-
-/*! \reimp */
-void QMacStyle::drawControlMask(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
-                                const QWidget *w) const
 {
     correctStyle(p)->drawControl(ce, opt, p, w);
 }

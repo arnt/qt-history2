@@ -257,17 +257,20 @@ void QCheckBox::paintEvent(QPaintEvent *)
 */
 void QCheckBox::updateMask()
 {
-    QRect irect = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxIndicator, this), this);
+    Q4StyleOptionButton opt = d->getStyleOption();
+    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxIndicator, &opt, this), this);
 
     QBitmap bm(width(), height());
     bm.fill(Qt::color0);
 
     QPainter p(&bm);
-    style().drawControlMask(QStyle::CE_CheckBox, &p, this, irect);
+    style().drawControlMask(QStyle::CE_CheckBox, &opt, &p, this);
     if (!text().isNull() || !icon().isNull()) {
         Q4StyleOptionButton opt = d->getStyleOption();
-        QRect crect = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxContents, &opt, this), this);
-        QRect frect = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxFocusRect, &opt, this), this);
+        QRect crect = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxContents, &opt, this),
+                                         this);
+        QRect frect = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxFocusRect, &opt, this),
+                                         this);
         QRect label(crect.unite(frect));
         p.fillRect(label, Qt::color1);
     }

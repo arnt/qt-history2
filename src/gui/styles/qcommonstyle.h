@@ -47,20 +47,6 @@ public:
     QSize sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &contentsSize,
                            const QFontMetrics &fm, const QWidget *widget = 0) const;
 
-    void drawControl(ControlElement element,
-                      QPainter *p,
-                      const QWidget *widget,
-                      const QRect &r,
-                      const QPalette &pal,
-                      SFlags how = Style_Default,
-                      const QStyleOption& = QStyleOption::Default) const;
-
-    void drawControlMask(ControlElement element,
-                          QPainter *p,
-                          const QWidget *widget,
-                          const QRect &r,
-                          const QStyleOption& = QStyleOption::Default) const;
-
     QRect subRect(SubRect r, const QWidget *widget) const;
 
     void drawComplexControl(ComplexControl control,

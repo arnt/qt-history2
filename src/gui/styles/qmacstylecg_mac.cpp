@@ -353,73 +353,6 @@ void QMacStyleCG::polish(QApplication *app)
     app->setPalette(pal);
 }
 
-void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget *widget,
-                              const QRect &r, const QPalette &pal, SFlags how,
-                              const QStyleOption &opt) const
-{
-    CGContextRef cg = qt_macCGHandle(p->device());
-    ThemeDrawState tds = d->getDrawState(how, pal);
-    switch(element) {
-    case CE_TabBarTab: {
-        const QTabBar *tabbar = static_cast<const QTabBar *>(widget);
-        HIThemeTabDrawInfo tdi;
-        tdi.version = qt_mac_hitheme_version;
-        ThemeTabStyle tts = kThemeTabNonFront;
-        if(how & Style_Selected) {
-            if(!qAquaActive(pal))
-                tts = kThemeTabFrontUnavailable;
-            else if(!(how & Style_Enabled))
-                tts = kThemeTabFrontInactive;
-            else
-                tts = kThemeTabFront;
-        } else if(!qAquaActive(pal)) {
-            tts = kThemeTabNonFrontUnavailable;
-        } else if(!(how & Style_Enabled)) {
-            tts = kThemeTabNonFrontInactive;
-        } else if((how & Style_Sunken) && (how & Style_MouseOver)) {
-            tts = kThemeTabNonFrontPressed;
-        }
-        tdi.style = tts;
-        if (tabbar->shape() == QTabBar::RoundedAbove || tabbar->shape() == QTabBar::TriangularAbove)
-            tdi.direction = kThemeTabNorth;
-        else
-            tdi.direction = kThemeTabSouth;
-        tdi.size = kHIThemeTabSizeNormal;
-        if (how & Style_HasFocus)
-            tdi.adornment = kHIThemeTabAdornmentFocus;
-        else
-            tdi.adornment = kHIThemeTabAdornmentNone;
-        QRect tabrect = r;
-        tabrect.setHeight(tabrect.height() + pixelMetric(PM_TabBarBaseOverlap, widget));
-        QRegion oldRegion(p->clipRegion());
-        p->setClipRect(tabrect);
-        HIThemeDrawTab(qt_glb_mac_rect(tabrect, p), &tdi, cg, kHIThemeOrientationNormal, 0);
-        p->setClipRegion(oldRegion);
-        // If the tab is not selected, we have to redraw a portion of the pane.
-        if (!(how & Style_Selected)) {
-            HIThemeTabPaneDrawInfo tpdi;
-            tpdi.version = qt_mac_hitheme_version;
-            tpdi.state = tds;
-            tpdi.direction = tdi.direction;
-            tpdi.size = tdi.size;
-            // This fudge is used to so we don't draw the edges of the pane in the middle.
-            // So draw a little bit more and clip it.
-            const int FUDGE = 20;
-            QRect panerect(r.x() - FUDGE, r.bottom() - 2, 2 * FUDGE + r.width(),
-                           pixelMetric(PM_TabBarBaseHeight, widget));
-            if (tdi.direction == kThemeTabSouth)
-                panerect.moveBy(0, (-r.height() + 2));
-            oldRegion = p->clipRegion();
-            p->setClipRect(r.x(), panerect.y(), r.width(), panerect.height());
-            HIThemeDrawTabPane(qt_glb_mac_rect(panerect, p), &tpdi, cg, kHIThemeOrientationNormal);
-            p->setClipRegion(oldRegion);
-        }
-        break; }
-    default:
-        QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
-    }
-}
-
 void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const QWidget *w,
                                      const QRect &r, const QPalette& pal, SFlags flags, SCFlags sub,
                                      SCFlags subActive, const QStyleOption &opt) const
@@ -1874,7 +1807,7 @@ QSize QMacStyleCG::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, c
                 w += maxpmw + 6;
             if (checkable)
                 w += 12;
-            if (::qt_cast<QComboBox*>(widget->parentWidget())
+            if (widget && ::qt_cast<QComboBox*>(widget->parentWidget())
                     && widget->parentWidget()->isVisible()) {
                 Q4StyleOptionComboBox cmb(0);
                 cmb.init(widget->parentWidget());

@@ -307,19 +307,6 @@ public:
         CE_CustomBase =                0xf0000000
     };
 
-    virtual void drawControl(ControlElement element,
-                              QPainter *p,
-                              const QWidget *widget,
-                              const QRect &r,
-                              const QPalette &pal,
-                              SFlags how = Style_Default,
-                              const QStyleOption& = QStyleOption::Default) const = 0;
-    virtual void drawControlMask(ControlElement element,
-                                  QPainter *p,
-                                  const QWidget *widget,
-                                  const QRect &r,
-                                  const QStyleOption& = QStyleOption::Default) const = 0;
-    // Qt 4, drawControl...
     virtual void drawControl(ControlElement element, const Q4StyleOption *opt, QPainter *p,
                              const QWidget *w = 0) const = 0;
     virtual void drawControlMask(ControlElement element, const Q4StyleOption *opt, QPainter *p,
@@ -827,11 +814,6 @@ private:
                    const QPixmap *pixmap,
                    const QString &text, int len = -1,
                    const QColor *penColor = 0) const;
-
-    void QT_COMPAT drawControl(ControlElement element,
-                      QPainter *p, const QWidget *widget, const QRect &r,
-                      const QColorGroup &cg, SFlags how = Style_Default,
-                      const QStyleOption& = QStyleOption::Default) const;
 
     void QT_COMPAT drawComplexControl(ComplexControl control,
                              QPainter *p, const QWidget *widget, const QRect &r,

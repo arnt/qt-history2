@@ -1508,11 +1508,12 @@ void Q3DockWindow::drawFrame(QPainter *p)
 */
 void Q3DockWindow::drawContents(QPainter *p)
 {
-    QStyle::SFlags flags = QStyle::Style_Default;
+    // This is only used by the PocketPC style. We probably need to revist later.
+    Q4StyleOption opt(0, Q4StyleOption::Default);
+    opt.init(this);
     if (titleBar->isActive())
-        flags |= QStyle::Style_Active;
-    style().drawControl(QStyle::CE_DockWindowEmptyArea, p, this,
-                         rect(), palette(), flags);
+        opt.state |= QStyle::Style_Active;
+    style().drawControl(QStyle::CE_DockWindowEmptyArea, &opt, p, this);
 }
 
 /*!
