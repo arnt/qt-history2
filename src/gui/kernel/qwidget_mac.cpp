@@ -280,9 +280,27 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
         bool send_to_app = false;
         {
             WindowPartCode wpc;
-            if(GetEventParameter(event, kEventParamWindowPartCode, typeWindowPartCode, NULL,
-                                 sizeof(wpc), NULL, &wpc) == noErr && wpc != inContent)
-                send_to_app = true;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+            if (QSysInfo::MacintoshVersion >= Qt::MV_10_3) {
+                if (GetEventParameter(event, kEventParamWindowPartCode, typeWindowPartCode, 0,
+                                      sizeof(wpc), 0, &wpc) == noErr && wpc != inContent)
+                    send_to_app = true;
+            } else
+#else
+            {
+                HIPoint hipt;
+                WindowRef wref;
+                if (GetEventParameter(event, kEventParamMouseLocation, typeHIPoint, 0,
+                                      sizeof(hipt), 0, &hipt) == noErr
+                    && GetEventParameter(event, kEventParamWindowRef, typeWindowRef, 0,
+                                         sizeof(wref), 0, &wref) == noErr) {
+                    Point lopt = { int(hipt.y), int(hipt.x) };
+                    wpc = FindWindow(lopt, &wref);
+                    if (wpc != inContent)
+                        send_to_app = true;
+                }
+            }
+#endif
         }
         if(!send_to_app) {
             WindowRef window;
