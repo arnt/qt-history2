@@ -11,6 +11,27 @@
     \class QShortcut qshortcut.h
     \brief The QShortcut class is used to create keyboard shortcuts.
 
+    The QShortcut class provides a way of connecting keyboard shortcuts
+    to Qt's \link signalsandslots.html signal/slot \endlink mechanism,
+    so that objects can be informed when a shortcut is executed.
+    The shortcut can be set up to contain all the key presses necessary
+    to describe a keyboard shortcut, including the states of modifier
+    keys such as Shift, Ctrl, and Alt.
+
+    For applications that use menus, it may be more convenient to
+    use the convenience functions provided in the QMenu class to
+    assign keyboard shortcuts to menu items as they are created.
+    Alternatively, shortcuts may be associated with other types of
+    actions in the QAction class.
+
+    The simplest way to create a shortcut for a particular widget is
+    to construct the shortcut with a key sequence. For example:
+
+    \code
+        shortcut = QShortcut(QKeySequence(tr("Ctrl+O", "File|Open")),
+                             parent);
+    \endcode
+
     When the user types the \link QKeySequence key sequence\endlink
     for a given shortcut, the shortcut's activated() signal is
     emitted. (In the case of ambiguity, the activatedAmbiguously()
@@ -19,8 +40,10 @@
 
     A shortcut's key sequence can be set with setKey() and retrieved
     with key(). A shortcut can be enabled or disabled with
-    setEnabled(), and can have What's This? help text set with
+    setEnabled(), and can have "What's This?" help text set with
     setWhatsThis().
+
+    \sa QKeySequence QAction
 */
 
 /*
@@ -68,7 +91,7 @@ QShortcut::QShortcut(QWidget *parent)
 /*!
     Constructs a QShortcut object for the \a parent widget. The shortcut
     operates on its parent, listening for \l{QShortcutEvent}s that
-    match the key sequence \a key. Depending on the ambiguity of the
+    match the \a key sequence. Depending on the ambiguity of the
     event, the shortcut will call the \a member function, or the \a
     ambiguousMember function, if the key press was in the shortcut's
     \a context.
@@ -103,7 +126,7 @@ QShortcut::~QShortcut()
     \property QShortcut::key
     \brief the shortcut's key sequence
 
-    This is a key sequence with an optional combination of Shift, Ctrl
+    This is a key sequence with an optional combination of Shift, Ctrl,
     and Alt. The key sequence may be supplied in a number of ways:
 
     \code
@@ -140,12 +163,12 @@ QKeySequence QShortcut::key() const
     \property QShortcut::enabled
     \brief whether the shortcut is enabled
 
-    An enabled shortcut emits the activated() or
-    activatedAmbiguously() signal when a QShortcutEvent occurs that
-    matches the shortcut's key() sequence.
+    An enabled shortcut emits the activated() or activatedAmbiguously()
+    signal when a QShortcutEvent occurs that matches the shortcut's
+    key() sequence.
 
-    If the application is in WhatsThis mode the shortcut will not emit
-    the signals, but will show the Whats This? text instead.
+    If the application is in \c WhatsThis mode the shortcut will not emit
+    the signals, but will show the "Whats This?" text instead.
 
     \sa isEnabled(), whatsThis()
 */
@@ -176,8 +199,8 @@ bool QShortcut::isEnabled() const
     A shortcut's context decides in which circumstances a shortcut is
     allowed to be triggered. The normal context is OnActiveWindow,
     which allows the shortcut to trigger if the parent (the widget
-    which has the shortcut) is a logical sub widget of the active top-
-    level window.
+    containing the shortcut) is a subwidget of the active top-level
+    window.
 
     \sa context ShortcutContext
 */
@@ -203,10 +226,10 @@ Qt::ShortcutContext QShortcut::context()
     \property QShortcut::whatsThis
     \brief the shortcut's What's This? help text
 
-    The text will be shown when the application is in What's
-    This? mode and the user types the shortcut key() sequence.
+    The text will be shown when the application is in "What's
+    This?" mode and the user types the shortcut key() sequence.
 
-    To set What's This help on a menu item (with or without a
+    To set "What's This?" help on a menu item (with or without a
     shortcut key), use QMenuData::setWhatsThis().
 
     \sa whatsThis(), QWhatsThis::inWhatsThisMode(),
@@ -218,7 +241,7 @@ void QShortcut::setWhatsThis(const QString &text)
 }
 
 /*!
-    Returns the shortcut's What's This? help text.
+    Returns the shortcut's "What's This?" help text.
 
     \sa setWhatsThis()
 */
