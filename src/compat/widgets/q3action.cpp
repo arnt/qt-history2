@@ -1607,7 +1607,8 @@ void Q3ActionGroup::add(Q3Action* action)
         action->addTo(popup);
     }
 #else
-# warning "This needs to be implemented!!!!!!!"
+    // ###
+    qDebug("This needs to be implemented!!!!!!!");
 #endif
 }
 
@@ -1769,7 +1770,8 @@ bool Q3ActionGroup::addTo(QWidget* w)
         (*it)->addTo(w);
     }
 #else
-# warning "This needs to be implemented!!!!!!!"
+    // ###
+    qDebug("This needs to be implemented!!!!!!!");
 #endif
 
     return true;
@@ -1996,7 +1998,8 @@ void Q3ActionGroup::childEvent(QChildEvent *e)
         action->removeFrom(popup);
     }
 #else
-# warning "This needs to be implemented!!!!!!!"
+    // ###
+    qDebug("This needs to be implemented!!!!!!!");
 #endif
 }
 
