@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#349 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#350 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -508,29 +508,36 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 /*!
-  When a widget gets focus, it should call setMicroFocusHint for some appropriate
-  position and size - \a x, \a y and \a w by \a h.
-  This has no \e visual effect, it just provides hints to any system-specific
-  input handling tools.
+  When a widget gets focus, it should call setMicroFocusHint for some
+  appropriate position and size - \a x, \a y and \a w by \a h.  This
+  has no \e visual effect, it just provides hints to any
+  system-specific input handling tools.  
+
+  The \a text argument should be TRUE if this is a position for text
+  input.
 
   In the Windows version of Qt, this method sets the system caret, which is
-  used for user Accessibility focus handling.
+  used for user Accessibility focus handling.  If \a text is TRUE, it also
+  sets the IME composition window in Far East Asian language input systems.
 
-  In the X11 version of Qt, this method sets the XIMP "spot" point for
+  In the X11 version of Qt, if \a text is TRUE,
+  this method sets the XIMP "spot" point for
   complex language input handling.
 */
-void QWidget::setMicroFocusHint(int x, int y, int width, int height)
+void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
 {
-    QWidget* tlw = topLevelWidget();
-    if ( tlw->extra && tlw->extra->topextra && tlw->extra->topextra->xic ) {
-	QPoint p = tlw->mapFromGlobal(mapToGlobal(QPoint(x,y)));
-	XPoint spot;
-	spot.x = p.x()+width;
-	spot.y = p.y()+height;
-	XIC xic = (XIC)tlw->extra->topextra->xic;
-	XVaNestedList preedit_attr;
-	preedit_attr = XVaCreateNestedList(0, XNSpotLocation, &spot, 0);
-	XSetICValues(xic, XNPreeditAttributes, preedit_attr, 0);
+    if ( text ) {
+	QWidget* tlw = topLevelWidget();
+	if ( tlw->extra && tlw->extra->topextra && tlw->extra->topextra->xic ) {
+	    QPoint p = tlw->mapFromGlobal(mapToGlobal(QPoint(x,y)));
+	    XPoint spot;
+	    spot.x = p.x();
+	    spot.y = p.y()+height;
+	    XIC xic = (XIC)tlw->extra->topextra->xic;
+	    XVaNestedList preedit_attr;
+	    preedit_attr = XVaCreateNestedList(0, XNSpotLocation, &spot, 0);
+	    XSetICValues(xic, XNPreeditAttributes, preedit_attr, 0);
+	}
     }
 }
 

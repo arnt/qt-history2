@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#223 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#224 $
 **
 ** Definition of QWidget class
 **
@@ -371,7 +371,7 @@ protected:
     QFocusData	*focusData();
 
     virtual void setKeyCompression(bool);
-    virtual void setMicroFocusHint(int x, int y, int w, int h);
+    virtual void setMicroFocusHint(int x, int y, int w, int h, bool text=TRUE);
 
 private slots:
     void	 focusProxyDestroyed();

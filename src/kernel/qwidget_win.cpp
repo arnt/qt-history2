@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#192 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#193 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -396,20 +396,30 @@ void QWidget::setFontSys()
     }
 }
 
-void QWidget::setMicroFocusHint(int x, int y, int width, int height)
+void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
 {
-    // For Windows logo compliance, applications must set the
-    // caret are the location is moved.
     CreateCaret( winId(), 0, width, height );
     SetCaretPos( x, y );
 
-    COMPOSITIONFORM cf;
-    cf.dwStyle = CFS_FORCE_POSITION; // ### need X-like inputStyle config settings
-    cf.ptCurrentPos.x = x+width/2;
-    cf.ptCurrentPos.y = y+height;
-    HIMC imc = ImmGetContext( winId() ); // Can we store it?
-    ImmSetCompositionWindow( imc, &cf );
-    ImmReleaseContext( winId(), imc );
+    if ( text ) {
+	// Translate x,y to be relative to the TLW
+	QPoint p(x,y);
+	QWidget* w = this;
+	while ( !w->isTopLevel() ) {
+	    p = w->mapToParent(p);
+	    w = parentWidget();
+	}
+
+	COMPOSITIONFORM cf;
+	// ### need X-like inputStyle config settings
+	cf.dwStyle = CFS_FORCE_POSITION;
+	cf.ptCurrentPos.x = p.x();
+	cf.ptCurrentPos.y = p.y();
+
+	HIMC imc = ImmGetContext( winId() ); // Should we store it?
+	ImmSetCompositionWindow( imc, &cf );
+	ImmReleaseContext( winId(), imc );
+    }
 }
 
 #if 0
