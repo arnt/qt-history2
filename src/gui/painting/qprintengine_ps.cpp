@@ -4524,7 +4524,7 @@ QPSPrintEngineFont::QPSPrintEngineFont(const QFont &f, int script, QPSPrintEngin
 
 #define d d_func()
 
-QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter *prt, QPrinter::PrinterMode m)
+QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
     : buffer(0), outDevice(0), fd(-1), pageBuffer(0), fontBuffer(0), savedImage(0),
       bkMode(Qt::TransparentMode),
 #ifndef QT_NO_TEXTCODEC

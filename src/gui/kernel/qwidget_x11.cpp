@@ -2793,7 +2793,7 @@ void QWidgetPrivate::setWindowRole(const char *role)
                     (unsigned char *)role, qstrlen(role));
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(QX11PaintEngine, qt_widget_paintengine, (0))
+Q_GLOBAL_STATIC(QX11PaintEngine, qt_widget_paintengine)
 QPaintEngine *QWidget::paintEngine() const
 {
     if (qt_widget_paintengine()->isActive()) {
