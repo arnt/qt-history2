@@ -1936,6 +1936,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	QMenuItem* firstAfterCurrent = 0;
 
 	register QMenuItem *m;
+	mi = 0;
 	int indx = 0;
 	int clashCount = 0;
 	while ( (m=it.current()) ) {
@@ -1961,6 +1962,8 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		    }
 		}
 	    }
+	    if ( mi )
+		break;
 	    indx++;
 	}
 
@@ -1968,7 +1971,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    mi = first;
 	    popup = mi->popup();
 	    if ( popup ) {
-		setActiveItem( indexOf( mi->id() ) );
+		setActiveItem( indx );
 		hidePopups();
 		popupSubMenuLater( 20, this );
 		popup->setFirstItemActive();
