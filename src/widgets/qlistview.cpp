@@ -1393,9 +1393,9 @@ void QListViewItem::setOpen( bool o )
 	return;
     open = o;
 
-    if ( !nChildren )
-	return;
-    invalidateHeight();
+    // Has children to show, so trigger update
+    if ( nChildren )
+	invalidateHeight();
 
     if ( !configured ) {
 	QListViewItem * l = this;
@@ -1421,6 +1421,9 @@ void QListViewItem::setOpen( bool o )
 
     QListView *lv = listView();
 
+    if ( open && lv)
+	enforceSortOrder();
+
     if ( lv && lv->d && lv->d->drawables ) {
 	lv->d->drawables->clear();
 	lv->buildDrawableList();
@@ -1432,11 +1435,6 @@ void QListViewItem::setOpen( bool o )
 	else
 	    emit lv->collapsed( this );
     }
-
-    if ( !open )
-	return;
-
-    enforceSortOrder();
 }
 
 
