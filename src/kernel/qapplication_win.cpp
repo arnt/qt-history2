@@ -403,7 +403,10 @@ static void set_winapp_name()
 #ifndef Q_OS_TEMP
 	GetModuleFileNameA( 0, appFileName, sizeof(appFileName) );
 #else
-	GetModuleFileName( 0, (unsigned short*)QString(appFileName).ucs2(), sizeof(appFileName) );
+	QString afm;
+	afm.setLength( 256 );
+	afm.setLength( GetModuleFileName( 0, (unsigned short*)afm.unicode(), 255 ) );
+	strncpy( appFileName, afm.latin1(), afm.length() );
 #endif
 	const char *p = strrchr( appFileName, '\\' );	// skip path
 	if ( p )
