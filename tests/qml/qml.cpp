@@ -469,7 +469,7 @@ QMLNode* QMLRow::hitTest(QMLContainer* box, QPainter* p, int obx, int oby, int x
     if (start->isBox) {
 	return ((QMLBox*)start)->hitTest(p, obx+x, oby+y, xarg, yarg);
     }
-    
+
     QMLNode* t = start;
     QMLContainer* par = parent;
     int tx = 0;
@@ -483,7 +483,7 @@ QMLNode* QMLRow::hitTest(QMLContainer* box, QPainter* p, int obx, int oby, int x
     } while (result != end && obx + x + tx <= xarg);
 	
     return result;
-    
+
 }
 
 bool QMLRow::locate(QMLContainer* box, QPainter* p, QMLNode* node, int &lx, int &ly, int &lh)
@@ -640,8 +640,8 @@ void QMLBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy
 void QMLBox::resize(QPainter* p, int newWidth)
 {
     if (newWidth == width) // no need to resize
-	return; 
-    
+	return;
+
     rows.clear();
 
     width = newWidth;
@@ -679,7 +679,7 @@ void QMLBox::resize(QPainter* p, int newWidth)
 	}
 	height = QMAX( height, colheight );
     }
-    
+
 }
 
 
@@ -694,19 +694,23 @@ void QMLBox::update(QPainter* p, QMLRow* r)
 	for ( row = rows.first(); row && row != r; row = rows.next()) {
 	    prev = row;
 	}
-	
-	QMLContainer* par = prev->parent;
-	QMLNode* n = prev->start;
- 	QMLRow tr (this, p, n, par, prev->width);
-	if (prev->end == tr.end) {
-	    par = r->parent;
-	    n = r->start;
-	    QMLRow tr (this, p, n, par, r->width);
-	    if (r->end == tr.end && r->height == tr.height)
-		return;
+	bool fast_exit = TRUE;
+	if (prev) {
+	    QMLContainer* par = prev->parent;
+	    QMLNode* n = prev->start;
+	    QMLRow tr (this, p, n, par, prev->width);
+	    fast_exit &= prev->end == tr.end;
 	}
+	if (fast_exit) {
+	    QMLContainer* par = r->parent;
+	    QMLNode* n = r->start;
+	    QMLRow tr (this, p, n, par, r->width);
+	    fast_exit &= r->end == tr.end && r->height == tr.height;
+	}
+	if (fast_exit)
+	    return;
     }
-    
+
     int oldHeight = height;
     int oldWidth = width;
 
@@ -843,7 +847,7 @@ void QMLCursor::right(QPainter* p)
 void QMLCursor::left(QPainter* p)
 {
     QMLContainer* tmpParent = 0;
-    
+
     QMLContainer* np = nodeParent;
     while (np->parent && document->nextLeaf(np, tmpParent) == node)
 	np = np->parent;
@@ -960,7 +964,7 @@ void QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 	if (hasPrefix(doc, pos, *openChar) ){
 	    if (hasPrefix(doc, pos+1, *slashChar)) {
 		if (current->isBox){ // todo this inserts a hitable null character
-		    debug("insert star");
+		    //		    debug("insert star");
 		    QMLNode* n = new QMLNode;
 		    n->c = '*';
 		    QMLNode* l = lastChild;
@@ -1059,7 +1063,7 @@ void QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 	    }
 	}
     }
-    
+
 }
 
 bool QMLDocument::eatSpace(const QString& doc, int& pos)
@@ -1179,7 +1183,7 @@ QMLView::QMLView()
 
 void QMLView::keyPressEvent( QKeyEvent * e)
 {
-    
+
     if (e->key() == Key_Right
 	|| e->key() == Key_Left
 	|| e->key() == Key_Up
@@ -1250,8 +1254,8 @@ void QMLView::showCursor()
 {
     cursor_hidden = FALSE;
     QPainter p( viewport() );
-    doc->cursor->draw(&p, contentsX(), contentsY(), 
-		      contentsX(), contentsY(), 
+    doc->cursor->draw(&p, contentsX(), contentsY(),
+		      contentsX(), contentsY(),
 		      viewport()->width(), viewport()->height());
 }
 
@@ -1266,7 +1270,6 @@ void QMLView::hideCursor()
 
 void QMLView::resizeEvent(QResizeEvent*e)
 {
-    debug("resize event");
     QScrollView::resizeEvent(e);
     {
 	QPainter p( this );
