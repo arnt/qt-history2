@@ -1,7 +1,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <QtGui/QFileDialog>
-
+#include <QtCore/qdebug.h>
 
 #include "findicondialog.h"
 
@@ -22,9 +22,18 @@ void FindIconDialog::setPaths(const QString &qrcPath, const QString &filePath)
 {
     if (qrcPath.isEmpty()) {
         activateBox(FileBox);
-        QFileInfo fi(filePath);
-        m_file_dir_input->setText(fi.absolutePath());
-        m_icon_file_name = fi.fileName();
+        QString fileDir;
+        QString fileName;
+        if (filePath.endsWith(QString(QDir::separator()))) {
+            fileDir = filePath;
+        } else {
+            QFileInfo fi(filePath);
+            fileDir = fi.absolutePath();
+            fileName = fi.fileName();
+        }
+        qDebug() << "FindIconDialog::setPaths():" << filePath << fileDir << fileName;
+        m_file_dir_input->setText(fileDir);
+        m_icon_file_name = fileName;
     } else {
         activateBox(ResourceBox);
         m_resource_file_input->setText(qrcPath);

@@ -522,8 +522,8 @@ bool QDesignerActions::readInForm(const QString &fileName) const
 
     QDesignerFormWindow *formWindow = workbench()->createFormWindow();
     if (AbstractFormWindow *editor = formWindow->editor()) {
-        editor->setContents(&f);
         editor->setFileName(fileName);
+        editor->setContents(&f);
         formWindowManager->setActiveFormWindow(editor);
     }
     formWindow->show();

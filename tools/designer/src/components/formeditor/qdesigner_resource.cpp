@@ -36,13 +36,14 @@
 #include <abstracticoncache.h>
 #include <ui4.h>
 
-#include <QMainWindow>
-#include <QMessageBox>
-#include <QLayout>
-#include <QTabWidget>
-#include <QToolBox>
-#include <QTabBar>
+#include <QtGui/QMainWindow>
+#include <QtGui/QMessageBox>
+#include <QtGui/QLayout>
+#include <QtGui/QTabWidget>
+#include <QtGui/QToolBox>
+#include <QtGui/QTabBar>
 #include <QtXml/QDomDocument>
+#include <QtCore/QDir>
 
 #include <QtCore/qdebug.h>
 
@@ -278,7 +279,10 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
                         name = p->elementIconSet()->text();
                     else if (p->elementPixmap() != 0)
                         name = p->elementPixmap()->text();
-                    v = qVariant(m_core->iconCache()->nameToIcon(name));
+                    QString ui_path = QFileInfo(m_formWindow->fileName()).path();
+                    QString icon_path = QDir::cleanPath(ui_path + QDir::separator() + name);
+                    qDebug() << "QDesignerResource::applyProperties():" << m_formWindow->fileName() << icon_path;
+                    v = qVariant(m_core->iconCache()->nameToIcon(icon_path));
                 } else {
                     v = toVariant(o->metaObject(), p);
                 }
@@ -948,6 +952,28 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
     return properties;
 }
 
+static QString relativePath(const QString &dir, const QString &file)
+{
+    QString result;
+    QStringList dir_elts = dir.split(QDir::separator(), QString::SkipEmptyParts);
+    QStringList file_elts = file.split(QDir::separator(), QString::SkipEmptyParts);
+
+    int i = 0;
+    while (i < dir_elts.size() && i < file_elts.size() && dir_elts.at(i) == file_elts.at(i))
+        ++i;
+
+    for (int j = 0; j < dir_elts.size() - i; ++j)
+        result += QLatin1String("..") + QDir::separator();
+
+    for (int j = i; j < file_elts.size(); ++j) {
+        result += file_elts.at(j);
+        if (j < file_elts.size() - 1)
+        result += QDir::separator();
+    }
+
+    return result;
+}
+
 DomProperty *QDesignerResource::createProperty(QObject *object, const QString &propertyName, const QVariant &value)
 {
     EnumType e;
@@ -986,8 +1012,9 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         return 0;
     } else if (value.type() == QVariant::Pixmap || value.type() == QVariant::Icon) {
         DomResourcePixmap *r = new DomResourcePixmap;
-        QString name = m_core->iconCache()->iconToFilePath(qVariant_to<QIcon>(value));
-        r->setText(name);
+        QString icon_file_path = m_core->iconCache()->iconToFilePath(qVariant_to<QIcon>(value));
+        QString ui_file_path = m_formWindow->fileName();
+        r->setText(relativePath(QFileInfo(ui_file_path).path(), icon_file_path));
         DomProperty *p = new DomProperty;
         p->setElementIconSet(r);
         p->setAttributeName(propertyName);

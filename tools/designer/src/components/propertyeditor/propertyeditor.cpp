@@ -19,6 +19,7 @@
 #include <propertysheet.h>
 #include <container.h>
 #include <abstracticoncache.h>
+#include <abstractformwindowmanager.h>
 
 #include <QtGui/QVBoxLayout>
 #include <QtCore/QMetaObject>
@@ -30,6 +31,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/qevent.h>
 #include <QtCore/QTimer>
+#include <QtCore/qsignal.h>
 
 using namespace QPropertyEditor;
 
@@ -61,18 +63,16 @@ private:
     AbstractFormEditor *m_core;
 };
 
-class IconPropertyEditor : public QLabel
+class IconPropertyEditor : public QWidget
 {
     Q_OBJECT
 public:
     IconPropertyEditor(AbstractFormEditor *core, const QIcon &pm, QWidget *parent);
+    ~IconPropertyEditor();
 
     void setIcon(const QIcon &pm);
     QIcon icon() const { return m_icon; }
 
-protected:
-    virtual void mousePressEvent(QMouseEvent *);
-    
 signals:
     void iconChanged(const QIcon &pm);
 
@@ -81,15 +81,29 @@ public slots:
 
 private:
     AbstractFormEditor *m_core;
+    QLabel *m_label;
+    QPushButton *m_button;
     QIcon m_icon;
 };
 
+IconPropertyEditor::~IconPropertyEditor()
+{
+}
+
 IconPropertyEditor::IconPropertyEditor(AbstractFormEditor *core, const QIcon &pm,
                                                 QWidget *parent)
-    : QLabel(parent)
+    : QWidget(parent)
 {
     m_core = core;
-    setText(tr("<no icon>"));
+
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    
+    m_label = new QLabel(tr("<no icon>"), this);
+    layout->addWidget(m_label);
+    layout->addStretch();
+    m_button = new QPushButton(tr("Change..."), this);
+    layout->addWidget(m_button);
+    connect(m_button, SIGNAL(clicked()), this, SLOT(showDialog()));
     
     setIcon(pm);
 }
@@ -97,18 +111,22 @@ IconPropertyEditor::IconPropertyEditor(AbstractFormEditor *core, const QIcon &pm
 void IconPropertyEditor::showDialog()
 {
     FindIconDialog dialog(0);
-    dialog.setPaths(QString(), m_core->iconCache()->iconToFilePath(m_icon));
+    QString file_path;
+    if (m_icon.isNull()) {
+        QString ui_name = m_core->formWindowManager()->activeFormWindow()->fileName();
+        if (ui_name.isEmpty())
+            file_path = QDir::currentPath() + QDir::separator();
+        else
+            file_path = QFileInfo(ui_name).path();
+    } else {
+        file_path = m_core->iconCache()->iconToFilePath(m_icon);
+    }
+    dialog.setPaths(QString(), file_path);
     if (dialog.exec()) {
         QString name = dialog.filePath();
         if (!name.isEmpty())
             setIcon(m_core->iconCache()->nameToIcon(name));
     }
-}
-
-void IconPropertyEditor::mousePressEvent(QMouseEvent *e)
-{
-    e->accept();
-    showDialog();
 }
 
 void IconPropertyEditor::setIcon(const QIcon &pm)
@@ -121,10 +139,10 @@ void IconPropertyEditor::setIcon(const QIcon &pm)
     m_icon = pm;
 
     if (m_icon.isNull()) {
-        setText(tr("<no icon>"));
+        m_label->setText(tr("<no icon>"));
     } else {
         QString path = m_core->iconCache()->iconToFilePath(pm);
-        setText(QFileInfo(path).fileName());
+        m_label->setText(QFileInfo(path).fileName());
     }
     emit iconChanged(m_icon);
 }
