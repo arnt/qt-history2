@@ -170,8 +170,8 @@ class IsNull : public Op
 {
 public:
     IsNull( int trueLab, int falseLab )
-	: Op( trueLab, falseLab )
-    {}
+	: Op( trueLab, falseLab ) {}
+    QString name() const { return "isnull"; }
     int exec( LocalSQLEnvironment* env )
     {
 	if ( !checkStack(env, 1) )

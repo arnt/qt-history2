@@ -94,11 +94,11 @@ enum { Tok_Eoi, Tok_Equal, Tok_NotEq, Tok_LessThan, Tok_GreaterThan,
       (Node_And x y) - x and y
       (Node_Eq x y) - x = y
       (Node_GreaterEq x y) - x >= y
-      (Node_LessThan x y) - x < y
       (Node_In x y1 y2 ... yN) - x in (y1, y2, ..., yN)
+      (Node_IsNull x) - x is null
+      (Node_LessThan x y) - x < y
       (Node_Like s t) - s like t
       (Node_Not x) - not x
-      (Node_NotEq x y) - x <> y
       (Node_Or x y) - x or y
 
       (Node_Avg X) - avg(X)
@@ -116,13 +116,13 @@ enum { Tok_Eoi, Tok_Equal, Tok_NotEq, Tok_LessThan, Tok_GreaterThan,
 */
 enum { Node_Abs, Node_Add, Node_And, Node_Avg, Node_Ceil, Node_Count,
        Node_Divide, Node_Eq, Node_Floor, Node_GreaterEq, Node_In,
-       Node_Length, Node_LessThan, Node_Like, Node_Lower, Node_Max,
-       Node_Min, Node_Mod, Node_Multiply, Node_Not, Node_NotEq,
-       Node_Or, Node_Power, Node_Replace, Node_ResolvedField,
-       Node_ResolvedStar, Node_ResultColumnNo, Node_Sign,
-       Node_Soundex, Node_Substring, Node_Subtract, Node_Sum,
-       Node_Translate, Node_UnresolvedField, Node_UnresolvedStar,
-       Node_Upper };
+       Node_IsNull, Node_Length, Node_LessThan, Node_Like,
+       Node_Lower, Node_Max, Node_Min, Node_Mod, Node_Multiply,
+       Node_Not, Node_Or, Node_Power, Node_Replace,
+       Node_ResolvedField, Node_ResolvedStar, Node_ResultColumnNo,
+       Node_Sign, Node_Soundex, Node_Substring, Node_Subtract,
+       Node_Sum, Node_Translate, Node_UnresolvedField,
+       Node_UnresolvedStar, Node_Upper };
 
 /*
   Yes, that's the representation of 'null' in the virtual machine.
@@ -991,8 +991,12 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 	    break;
 	case Node_In:
 	    emitExpr( *++v );
-	    yyProg->append( new Push(*++v) );
+	    yyProg->append( new Push(*++v) ); // pushes a list
 	    yyProg->append( new In(trueLab, falseLab) );
+	    break;
+	case Node_IsNull:
+	    emitExpr( *++v );
+	    yyProg->append( new IsNull(trueLab, falseLab) );
 	    break;
 	case Node_Like:
 	    emitExpr( *++v );
@@ -1046,9 +1050,6 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 	    switch ( node ) {
 	    case Node_Eq:
 		op = new Eq( trueLab, falseLab );
-		break;
-	    case Node_NotEq:
-		op = new Eq( falseLab, trueLab );
 		break;
 	    case Node_LessThan:
 		op = new Lt( trueLab, falseLab );
@@ -1843,32 +1844,52 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 
     switch ( yyTok ) {
     case Tok_Equal:
-	pred.append( (int) Node_Eq );
 	yyTok = getToken();
 	right = matchScalarExpr();
-	pred.append( left );
-	pred.append( right );
-	if ( constants != 0 && leftIsColumnRef &&
-	     right.type() != QVariant::List ) {
-	    constants->append( pred );
-	    return QVariant();
+
+	if ( left == NullRep || right == NullRep ) {
+	    /*
+	      We have 'foo = null' or 'null = foo'. Node_Eq has the
+	      wrong semantics for null values. We have to use
+	      Node_IsNull.
+	    */
+	    pred.append( (int) Node_IsNull );
+	    pred.append( left == NullRep ? right : left );
+	} else {
+	    pred.append( (int) Node_Eq );
+	    pred.append( left );
+	    pred.append( right );
+	    if ( constants != 0 && leftIsColumnRef &&
+		 right.type() != QVariant::List ) {
+		constants->append( pred );
+		return QVariant();
+	    }
 	}
 	break;
     case Tok_NotEq:
-	pred.append( (int) Node_NotEq );
 	yyTok = getToken();
-	pred.append( left );
-	pred.append( matchScalarExpr() );
+	right = matchScalarExpr();
+	unot = TRUE;
+
+	if ( left == NullRep || right == NullRep ) {
+	    // see Tok_Eq above
+	    pred.append( (int) Node_IsNull );
+	    pred.append( left == NullRep ? right : left );
+	} else {
+	    pred.append( (int) Node_Eq );
+	    pred.append( left );
+	    pred.append( right );
+	}
 	break;
     case Tok_LessThan:
-	pred.append( (int) Node_LessThan );
 	yyTok = getToken();
+	pred.append( (int) Node_LessThan );
 	pred.append( left );
 	pred.append( matchScalarExpr() );
 	break;
     case Tok_GreaterEq:
-	pred.append( (int) Node_GreaterEq );
 	yyTok = getToken();
+	pred.append( (int) Node_GreaterEq );
 	pred.append( left );
 	pred.append( matchScalarExpr() );
 	break;
@@ -1898,9 +1919,8 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 	}
 	matchOrSkip( Tok_null, "'null'" );
 
-	pred.append( (int) Node_Eq );
+	pred.append( (int) Node_IsNull );
 	pred.append( left );
-	pred.append( NullRep );
 	break;
     case Tok_like:
 	pred = matchLike( left ).toList();
@@ -2418,10 +2438,13 @@ void Parser::matchOptOrderByClause( int resultId,
 	yyProg->append( new PushSeparator );
 	while ( TRUE ) {
 	    QString columnName = matchColumnName();
+	    bool ok;
 	    bool descending = FALSE;
 
 	    yyProg->append( new PushSeparator );
-	    int k = columnNames.findIndex( columnName );
+	    int k = columnName.toInt( &ok ) - 1; // FORTRAN vs. C
+	    if ( !ok )
+		k = columnNames.findIndex( columnName );
 	    if ( k == -1 )
 		error( "No column named '%s'", columnName.latin1() );
 	    yyProg->append( new Push(k) );
