@@ -28,7 +28,7 @@
 #define q q_func()
 
 template <class T>
-void BinTree<T>::create(int n)
+void QBinTree<T>::create(int n)
 {
     // simple heuristics to find the best tree depth
     int c;
@@ -40,7 +40,7 @@ void BinTree<T>::create(int n)
 }
 
 template <class T>
-void BinTree<T>::destroy()
+void QBinTree<T>::destroy()
 {
     leafVector.clear();
     nodeVector.resize(0);
@@ -48,13 +48,13 @@ void BinTree<T>::destroy()
 }
 
 template <class T>
-void BinTree<T>::insert(QVector<int> &leaf, const QRect &, uint, void *data)
+void QBinTree<T>::insert(QVector<int> &leaf, const QRect &, uint, void *data)
 {
     leaf.push_back((int)data);
 }
 
 template <class T>
-void BinTree<T>::remove(QVector<int> &leaf, const QRect &, uint, void *data)
+void QBinTree<T>::remove(QVector<int> &leaf, const QRect &, uint, void *data)
 {
     int idx = (int)data;
     for (int i = 0; i < leaf.count(); ++i) {
@@ -68,7 +68,7 @@ void BinTree<T>::remove(QVector<int> &leaf, const QRect &, uint, void *data)
 }
 
 template <class T>
-void BinTree<T>::climbTree(const QRect &area, callback *function, void *data, int index)
+void QBinTree<T>::climbTree(const QRect &area, callback *function, void *data, int index)
 {
     int tvs = nodeCount();
     if (index >= tvs) { // leaf
@@ -96,7 +96,7 @@ void BinTree<T>::climbTree(const QRect &area, callback *function, void *data, in
 }
 
 template <class T>
-void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type type, int index)
+void QBinTree<T>::init(const QRect &area, int depth, typename QBinTree::Node::Type type, int index)
 {
     typename Node::Type t = Node::None; // t should never have this value
     if (type == Node::Both) // if both planes are specified, use 2d bsp
@@ -1307,18 +1307,18 @@ void QListView::doDynamicLayout(const QRect &bounds, int first, int last)
 
         // initialize tree
         // we have to get the bounding rect of the items before we can initialize the tree
-        BinTree<QListViewItem>::Node::Type type =
-            BinTree<QListViewItem>::Node::Both; // use 2D bsp by default
+        QBinTree<QListViewItem>::Node::Type type =
+            QBinTree<QListViewItem>::Node::Both; // use 2D bsp by default
         if (h / w >= 3)    // simple heuristics to get better bsp
-            type = BinTree<QListViewItem>::Node::HorizontalPlane;
+            type = QBinTree<QListViewItem>::Node::HorizontalPlane;
         else if (w / h >= 3)
-            type = BinTree<QListViewItem>::Node::VerticalPlane;
+            type = QBinTree<QListViewItem>::Node::VerticalPlane;
         d->tree.init(QRect(0, 0, w, h), type); // build tree for bounding rect (not contents rect)
     }
 
     // insert items in tree
     for (int i = insertFrom; i <= last; i++)
-        d->tree.climbTree(d->tree.item(i).rect(), &BinTree<QListViewItem>::insert,
+        d->tree.climbTree(d->tree.item(i).rect(), &QBinTree<QListViewItem>::insert,
                           reinterpret_cast<void *>(i));
 
     QRect changedRect(topLeft, rect.bottomRight());

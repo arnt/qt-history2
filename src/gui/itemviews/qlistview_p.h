@@ -18,7 +18,7 @@
 #include <qrubberband.h>
 
 template <class T>
-class BinTree
+class QBinTree
 {
 public:
     struct Node
@@ -31,7 +31,7 @@ public:
 
     typedef void callback(QVector<int> &leaf, const QRect &area, uint visited, void *data);
 
-    inline BinTree() : depth_(6), visited(0) {}
+    inline QBinTree() : depth_(6), visited(0) {}
 
     void create(int n);
     void destroy();
@@ -40,7 +40,7 @@ public:
 
     inline void climbTree(const QRect &rect, callback *function, void *data);
 
-    inline void init(const QRect &area, typename BinTree::Node::Type type);
+    inline void init(const QRect &area, typename QBinTree::Node::Type type);
     inline void reserve(int size);
 
     inline int itemCount() const;
@@ -68,7 +68,7 @@ public:
 
 private:
     void climbTree(const QRect &rect, callback *function, void *data, int index);
-    void init(const QRect &area, int depth, typename BinTree::Node::Type type, int index);
+    void init(const QRect &area, int depth, typename QBinTree::Node::Type type, int index);
 
     uint depth_ : 8;
     mutable uint visited : 16;
@@ -78,77 +78,77 @@ private:
 };
 
 template <class T>
-void BinTree<T>::climbTree(const QRect &rect, callback *function, void *data)
+void QBinTree<T>::climbTree(const QRect &rect, callback *function, void *data)
 {
     ++visited;
     climbTree(rect, function, data, 0);
 }
 
 template <class T>
-void BinTree<T>::init(const QRect &area, typename BinTree::Node::Type type)
+void QBinTree<T>::init(const QRect &area, typename QBinTree::Node::Type type)
 {
     init(area, depth_, type, 0);
 }
 
 template <class T>
-void BinTree<T>::reserve(int size)
+void QBinTree<T>::reserve(int size)
 {
     itemVector.reserve(size);
 }
 
 template <class T>
-int BinTree<T>::itemCount() const
+int QBinTree<T>::itemCount() const
 {
     return itemVector.count();
 }
 
 template <class T>
-const T &BinTree<T>::const_item(int idx) const
+const T &QBinTree<T>::const_item(int idx) const
 {
     return itemVector[idx];
 }
 
 template <class T>
-T &BinTree<T>::item(int idx)
+T &QBinTree<T>::item(int idx)
 {
     return itemVector[idx];
 }
 
 template <class T>
-T *BinTree<T>::itemPtr(int idx)
+T *QBinTree<T>::itemPtr(int idx)
 {
     return &itemVector[idx];
 }
 
 template <class T>
-void BinTree<T>::setItemPosition(int x, int y, int idx)
+void QBinTree<T>::setItemPosition(int x, int y, int idx)
 {
     item(idx).x = x;
     item(idx).y = y;
 }
 
 template <class T>
-void BinTree<T>::appendItem(T &item)
+void QBinTree<T>::appendItem(T &item)
 {
     itemVector.append(item);
 }
 
 template <class T>
-void BinTree<T>::insertItem(T &item, const QRect &rect, int idx)
+void QBinTree<T>::insertItem(T &item, const QRect &rect, int idx)
 {
     itemVector.insert(idx + 1, 1, item); // insert after idx
     climbTree(rect, &insert, reinterpret_cast<void *>(idx), 0);
 }
 
 template <class T>
-void BinTree<T>::removeItem(const QRect &rect, int idx)
+void QBinTree<T>::removeItem(const QRect &rect, int idx)
 {
     climbTree(rect, &remove, reinterpret_cast<void *>(idx), 0);
     itemVector.remove(idx, 1);
 }
 
 template <class T>
-void BinTree<T>::moveItem(const QPoint &dest, const QRect &rect, int idx)
+void QBinTree<T>::moveItem(const QPoint &dest, const QRect &rect, int idx)
 {
     climbTree(rect, &remove, reinterpret_cast<void *>(idx), 0);
     item(idx).x = dest.x();
@@ -157,46 +157,46 @@ void BinTree<T>::moveItem(const QPoint &dest, const QRect &rect, int idx)
 }
 
 template <class T>
-int BinTree<T>::leafCount() const
+int QBinTree<T>::leafCount() const
 {
     return leafVector.count();
 }
 
 template <class T>
-const QVector<int> &BinTree<T>::const_leaf(int idx) const
+const QVector<int> &QBinTree<T>::const_leaf(int idx) const
 {
     return leafVector.at(idx);
 }
 
 template <class T>
-QVector<int> &BinTree<T>::leaf(int idx)
+QVector<int> &QBinTree<T>::leaf(int idx)
 {
     return leafVector[idx];
 }
 
 template <class T>
-void BinTree<T>::clearLeaf(int idx) { leafVector[idx].clear(); }
+void QBinTree<T>::clearLeaf(int idx) { leafVector[idx].clear(); }
 
 template <class T>
-int BinTree<T>::nodeCount() const
+int QBinTree<T>::nodeCount() const
 {
     return nodeVector.count();
 }
 
 template <class T>
-const typename BinTree<T>::Node &BinTree<T>::node(int idx) const
+const typename QBinTree<T>::Node &QBinTree<T>::node(int idx) const
 {
     return nodeVector[idx];
 }
 
 template <class T>
-int BinTree<T>::parentIndex(int idx) const
+int QBinTree<T>::parentIndex(int idx) const
 {
     return (idx & 1) ? ((idx - 1) / 2) : ((idx - 2) / 2);
 }
 
 template <class T>
-int BinTree<T>::firstChildIndex(int idx) const
+int QBinTree<T>::firstChildIndex(int idx) const
 {
     return ((idx * 2) + 1);
 }
@@ -299,7 +299,7 @@ public:
     mutable QVector<QModelIndex> intersectVector;
 
     // used when items are movable
-    BinTree<QListViewItem> tree;
+    QBinTree<QListViewItem> tree;
 
     // used when items are static
     QVector<int> xposVector;
