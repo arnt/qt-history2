@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.h#43 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.h#44 $
 **
 ** Definition of QScrollBar class
 **
@@ -26,11 +26,14 @@
 #ifndef QSCROLLBAR_H
 #define QSCROLLBAR_H
 
+class QTimer;
+
 #ifndef QT_H
 #include "qwidget.h"
 #include "qrangecontrol.h"
 #include "qdrawutil.h"
 #endif // QT_H
+
 
 class Q_EXPORT QScrollBar : public QWidget, public QRangeControl
 {
@@ -64,7 +67,6 @@ signals:
     void	prevPage();
 
 protected:
-    void	timerEvent( QTimerEvent * );
     void 	wheelEvent( QWheelEvent * );
     void	keyPressEvent( QKeyEvent * );
     void	resizeEvent( QResizeEvent * );
@@ -81,35 +83,42 @@ protected:
     int		sliderStart() const;
     QRect	sliderRect() const;
 
-private:
-    void	init();
-    void	positionSliderFromValue();
-    int		calculateValueFromSlider() const;
+private slots:
+    void doAutoRepeat();
 
-    void	  sliderMinMax( int &, int & )		const;
-    void	  metrics( int &, int &, int &, int& )	const;
+private:
+    void init();
+    void positionSliderFromValue();
+    int calculateValueFromSlider() const;
+
+    void sliderMinMax( int &, int & )		const;
+    void metrics( int &, int &, int &, int& )	const;
+
+    void startAutoRepeat();
+    void stopAutoRepeat();
 
     QStyle::ScrollControl pointOver( const QPoint &p ) const;
 
-    int		  rangeValueToSliderPos( int val ) const;
-    int		  sliderPosToRangeValue( int  val ) const;
+    int rangeValueToSliderPos( int val ) const;
+    int sliderPosToRangeValue( int  val ) const;
 
-    void	  action( QStyle::ScrollControl control );
+    void action( QStyle::ScrollControl control );
 
-    void	  drawControls( uint controls, uint activeControl ) const;
-    void	  drawControls( uint controls, uint activeControl,
+    void drawControls( uint controls, uint activeControl ) const;
+    void drawControls( uint controls, uint activeControl,
 				QPainter *p ) const;
 
-    uint	pressedControl	 : 8;
-    uint	track		 : 1;
-    uint	clickedAt	 : 1;
-    uint	orient		 : 1;
-    uint	thresholdReached : 1;
-    uint	isTiming	 : 1;
+    uint pressedControl	 : 8;
+    uint track		 : 1;
+    uint clickedAt	 : 1;
+    uint orient		 : 1;
 
-    int		slidePrevVal;
-    QCOORD	sliderPos;
-    QCOORD	clickOffset;
+    int slidePrevVal;
+    QCOORD sliderPos;
+    QCOORD clickOffset;
+
+    QTimer * repeater;
+    void * d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

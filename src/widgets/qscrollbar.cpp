@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#124 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#125 $
 **
 ** Implementation of QScrollBar class
 **
@@ -27,6 +27,7 @@
 #include "qpainter.h"
 #include "qbitmap.h"
 #include "qapplication.h"
+#include "qtimer.h"
 #include <limits.h>
 
 /*!
@@ -159,12 +160,12 @@
 
 
 static const int thresholdTime = 500;
-static const int repeatTime	= 10;
+static const int repeatTime	= 50;
 
 #define HORIZONTAL	(orientation() == Horizontal)
 #define VERTICAL	!HORIZONTAL
 #define MOTIF_BORDER	2
-#define SLIDER_MIN	9 // ### motif says 6 but that's too small
+#define SLIDER_MIN	9
 
 
 /*!
@@ -221,11 +222,15 @@ QScrollBar::QScrollBar( int minValue, int maxValue, int lineStep, int pageStep,
 
 void QScrollBar::init()
 {
-    track	     = TRUE;
-    sliderPos	     = 0;
-    pressedControl   = QStyle::NONE;
-    clickedAt	     = FALSE;
+    track = TRUE;
+    sliderPos = 0;
+    pressedControl = QStyle::NONE;
+    clickedAt = FALSE;
     setFocusPolicy( NoFocus );
+
+    repeater = 0;
+    d = 0;
+
     if ( style() == MotifStyle )
 	setBackgroundMode( PaletteMid );
     else
@@ -364,8 +369,9 @@ void QScrollBar::stepChange()
 void QScrollBar::rangeChange()
 {
     positionSliderFromValue();
-    drawControls( QStyle::ADD_LINE | QStyle::ADD_PAGE | QStyle::SLIDER | QStyle::SUB_PAGE | QStyle::SUB_LINE,
-			pressedControl );
+    drawControls( QStyle::ADD_LINE | QStyle::ADD_PAGE | QStyle::SLIDER |
+		  QStyle::SUB_PAGE | QStyle::SUB_LINE,
+		  pressedControl );
 }
 
 
@@ -373,19 +379,41 @@ void QScrollBar::rangeChange()
   Handles timer events for the scroll bar.
 */
 
-void QScrollBar::timerEvent( QTimerEvent * )
+void QScrollBar::doAutoRepeat()
 {
-    if ( !isTiming )
-	return;
-    if ( !thresholdReached ) {
-	thresholdReached = TRUE;	// control has been pressed for a time
-	killTimers();			// kill the threshold time timer
-	startTimer( repeatTime );	//   and start repeating
-    }
     if ( clickedAt ){
+	if ( repeater )
+	    repeater->changeInterval( repeatTime );
 	action( (QStyle::ScrollControl) pressedControl );
 	QApplication::syncX();
+    } else {
+	stopAutoRepeat();
     }
+}
+
+
+/*! Starts the auto-repeat logic.  Some time after this function is
+called, the auto-repeat starts taking effect, and from then on repeats
+until stopAutoRepeat() is called.
+*/
+
+void QScrollBar::startAutoRepeat()
+{
+    if ( !repeater ) {
+	repeater = new QTimer( this, "auto-repeat timer" );
+	connect( repeater, SIGNAL(timeout()),
+		 this, SLOT(doAutoRepeat()) );
+    }
+    repeater->start( thresholdTime, FALSE );
+}
+
+
+/*! Stops the auto-repeat logic. */
+
+void QScrollBar::stopAutoRepeat()
+{
+    delete repeater;
+    repeater = 0;
 }
 
 
@@ -524,9 +552,7 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
     } else if ( pressedControl != QStyle::NONE ) {
 	drawControls( pressedControl, pressedControl );
 	action( (QStyle::ScrollControl) pressedControl );
-	thresholdReached = FALSE;	// wait before starting repeat
-	startTimer(thresholdTime);
-	isTiming = TRUE;
+	startAutoRepeat();
     }
 }
 
@@ -537,14 +563,12 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 
 void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( !clickedAt || !(e->button() == LeftButton ||
-			 (/*style() == MotifStyle &&*/
-			  e->button() == MidButton)) )
+    if ( !clickedAt || !( e->button() == LeftButton ||
+			  e->button() == MidButton ) )
 	return;
     QStyle::ScrollControl tmp = (QStyle::ScrollControl) pressedControl;
     clickedAt = FALSE;
-    if ( isTiming )
-	killTimers();
+    stopAutoRepeat();
     mouseMoveEvent( e );  // Might have moved since last mouse move event.
     pressedControl = QStyle::NONE;
 
@@ -612,18 +636,15 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	drawControls( QStyle::ADD_PAGE | QStyle::SLIDER | QStyle::SUB_PAGE, pressedControl );
     }
     else if ( style() == WindowsStyle ) {
-	// stop scrolling when the mouse pointer leaves a control similar to push buttons
+	// stop scrolling when the mouse pointer leaves a control
+	// similar to push buttons
 	if ( (int)pressedControl != pointOver( e->pos() ) ) {
 	    drawControls( pressedControl, QStyle::NONE );
-	    isTiming = FALSE;
-	    killTimers();
-	}
-	else if (!isTiming){
+	    stopAutoRepeat();
+	} else if ( !repeater ) {
 	    drawControls( pressedControl, pressedControl );
 	    action( (QStyle::ScrollControl) pressedControl );
-	    thresholdReached = FALSE;	// wait before starting repeat
-	    startTimer(thresholdTime);
-	    isTiming = TRUE;
+	    startAutoRepeat();
 	}
     }
 }
