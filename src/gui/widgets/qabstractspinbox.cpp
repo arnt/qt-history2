@@ -1281,9 +1281,11 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
 QVariant QAbstractSpinBoxPrivate::valueForPosition(int pos) const
 {
     QStyleOptionSpinBox opt = getStyleOption();
-    QRect r = q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxSlider, q);
+    QRect r = QStyle::visualRect(opt.direction, opt.rect,
+                                 q->style()->subControlRect(QStyle::CC_SpinBox,
+                                                            &opt, QStyle::SC_SpinBoxSlider, q));
 
-    double percentage = (double)pos / r.width();
+    double percentage = (double)QStyle::visualPos(opt.direction, r, QPoint(pos, 0)).x() / r.width();
 
     QVariant ret = minimum + (maximum - minimum) * percentage;
     return ret;

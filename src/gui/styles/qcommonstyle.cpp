@@ -1267,7 +1267,11 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
     case CE_SpinBoxSlider:
         if (const QStyleOptionSpinBox *sb = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
             QRect re = sb->rect;
-            re.setWidth((int)((double)re.width() * sb->percentage));
+            int tmp = (int)((double)re.width() * sb->percentage);
+            re.setWidth(tmp);
+            if (sb->direction == Qt::RightToLeft) {
+                re.moveRight(sb->rect.right());
+            }
             p->fillRect(re, sb->palette.brush(QPalette::Highlight));
             break;
         }
