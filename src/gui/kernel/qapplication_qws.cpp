@@ -1940,7 +1940,7 @@ QWidget *QApplication::findWidget(const QObjectList& list,
     for (int i = list.size()-1; i >= 0; --i) {
         if (list.at(i)->isWidgetType()) {
           w = static_cast<QWidget*>(list.at(i));
-            if (w->isVisible() && w->geometry().contains(pos)
+            if (w->isVisible() && !w->testAttribute(Qt::WA_TransparentForMouseEvents) &&  w->geometry().contains(pos)
                  && w->requestedRegion().contains(qt_screen->mapToDevice(w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height())))) {
                 if (!rec)
                     return w;
