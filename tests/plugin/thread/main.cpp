@@ -11,6 +11,8 @@
 #include <qthread.h>
 #include <qlabel.h>
 
+#include <qcomponentfactory.h>
+
 #include <qt_windows.h>
 
 class TestThread : public QThread
@@ -232,28 +234,12 @@ bool TestComponent::canUnload() const
 
 bool TestComponent::registerComponents( const QString &filepath ) const
 {
-    QString cidStr = TestComponent::cid.toString();
-    QSettings settings;
-    bool ok;
-
-    settings.insertSearchPath( QSettings::Windows, "/Classes" );
-    ok = settings.writeEntry( "/CLSID/" + cidStr + "/Default", "Test Component" );
-    ok = ok && settings.writeEntry( "/CLSID/" + cidStr + "/InprocServer32/Default", filepath );
-
-    return ok;
+    return QComponentFactory::registerComponent( TestComponent::cid, filepath, "Test Component" );
 }
 
 bool TestComponent::unregisterComponents() const
 {
-    QString cidStr = TestComponent::cid.toString();
-    QSettings settings;
-    bool ok;
-
-    settings.insertSearchPath( QSettings::Windows, "/Classes" );
-    ok = settings.removeEntry( "/CLSID/" + cidStr + "/InprocServer32/Default" );
-    ok = ok && settings.removeEntry( "/CLSID/" + cidStr + "/Default" );
-
-    return ok;
+    return QComponentFactory::unregisterComponent( TestComponent::cid );
 }
 
 QRESULT TestComponent::createInstance( const QUuid &iid, const QUuid &cid, QUnknownInterface **iface, QUnknownInterface * )
