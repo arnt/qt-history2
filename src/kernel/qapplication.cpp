@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#255 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#256 $
 **
 ** Implementation of QApplication class
 **
@@ -1476,6 +1476,15 @@ void QApplication::removeTranslator( QTranslator * mf )
 void QApplication::setDefaultCodec( QTextCodec* codec )
 {
     default_codec = codec;
+}
+
+/*!
+  Returns the default codec (see setDefaultCodec()).
+  Returns 0 by default (no codec).
+*/
+QTextCodec* QApplication::defaultCodec() const
+{
+    return default_codec;
 }
 
 /*!  Returns the best available translation for \a key in \a scope, by

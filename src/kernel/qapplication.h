@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#124 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#125 $
 **
 ** Definition of QApplication class
 **
@@ -132,6 +132,7 @@ public:
     static void	     beep();
 
     void	     setDefaultCodec( QTextCodec* );
+    QTextCodec*	     defaultCodec() const;
     void	     installTranslator( QTranslator * );
     void	     removeTranslator( QTranslator * );
     QString	     translate( const char * scope, const char * key ) const;
