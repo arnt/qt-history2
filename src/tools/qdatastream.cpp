@@ -33,14 +33,14 @@
 /*!
   \class QDataStream qdatastream.h
 
-  \brief The QDataStream class provides basic functions for serialization of
+  \brief The QDataStream class provides serialization of
   binary data to a QIODevice.
 
   \ingroup io
 
   A data stream is a binary stream of encoded information which is 100%
   independent of the host computer operation system, CPU or byte order.	 A
-  stream that is written by a PC under DOS/Windows can easily be read by a
+  stream that is written by a PC under DOS/Windows can be read by a
   Sun SPARC running Solaris.
 
   The QDataStream class implements serialization of primitive types, like
@@ -49,8 +49,9 @@
 
   The programmer can select which byte order to use when serializing data.
   The default setting is big endian (MSB first). Changing it to little
-  endian breaks the portability.  We therefore recommend keeping this
-  setting unless you have special needs or requirements.
+  endian breaks the portability (unless the reader also changes to little
+  endian).  We recommend keeping this setting unless you have
+  special requirements.
 
   A data stream cooperates closely with a QIODevice. A QIODevice
   represents an input/output medium one can read data from and write data
@@ -63,7 +64,6 @@
     QDataStream s( &f );			// serialize using f
     s << "the answer is";			// serialize string
     s << (Q_INT32)42;				// serialize integer
-    f.close();					// done
   \endcode
 
   Example (read data from a stream):
@@ -74,14 +74,75 @@
     char   *str;
     Q_INT32 a;
     s >> str >> a;				// "the answer is" and 42
-    f.close();					// done
     delete str;					// delete string
   \endcode
 
   In the last example, if you read into a QString instead of a \c char*
   you do not have to delete it.
 
-  \sa QTextStream
+  Normally, each item written to the stream is written in a fixed binary
+  format.
+  For example, a \c char* is written as a 32-bit integer equal to the
+  length of the string including the NUL byte, followed by all the
+  characters of the string including the NUL byte. Similarly when
+  reading a string, 4 bytes are read to create the 32-bit length value,
+  then that many characters for the string including the NUL. If you
+  want a "parsing" input stream, see QTextStream. If you just want the
+  data to be human-readable to aid in debugging, you can set the data
+  stream into printable data mode with setPrintableData(). The data is
+  then written slower, in a human readable bloated form that is sufficient
+  for debugging.
+
+  If you are producing a new binary data format, such as a file format
+  for documents created by your application, you could use a QDataStream
+  to write the data in a portable format. Typically, you would write
+  a brief header containing a magic string and a version number to give
+  yourself room for future expansion. For example:
+
+  \code
+    // Open the file.
+    QFile f( "file.xxx" );
+    f.open( IO_WriteOnly );
+    QDataStream s( &f );
+
+    // Write a header with a "magic number" and a version
+    s << 0xa0b0c0d0;
+    s << 123;
+
+    // Write the data
+    s << [lots of interesting data]
+  \endcode
+
+  Then read it in with:
+
+  \code
+    // Open the file.
+    QFile f( "file.xxx" );
+    f.open( IO_ReadOnly );
+    QDataStream s( &f );
+
+    // Read and check the header
+    Q_UINT32 magic;
+    s >> magic;
+    if ( magic != 0xa0b0c0d0 )
+	return XXX_BAD_FILE_FORMAT;
+
+    // Read the version
+    Q_INT32 version;
+    s >> version;
+    if ( version < 100 )
+	return XXX_BAD_FILE_TOO_OLD;
+    if ( version > 123 )
+	return XXX_BAD_FILE_TOO_NEW;
+
+    // Read the data
+    s >> [lots of interesting data];
+    if ( version > 110 )
+	s >> [data new in XXX version 1.1];
+    s >> [other interesting data];
+  \endcode
+
+  \sa QTextStream QVariant
 */
 
 
@@ -104,6 +165,8 @@ static bool systemBigEndian;
 
 /*!
   Constructs a data stream that has no IO device.
+
+  \sa setDevice()
 */
 
 QDataStream::QDataStream()
@@ -120,6 +183,8 @@ QDataStream::QDataStream()
 
 /*!
   Constructs a data stream that uses the IO device \e d.
+
+  \sa setDevice(), device()
 */
 
 QDataStream::QDataStream( QIODevice *d )
@@ -144,7 +209,7 @@ QDataStream::QDataStream( QIODevice *d )
     QByteArray	a;
     a.setRawData( bindata, sizeof(bindata) );	// a points to bindata
     QDataStream s( a, IO_ReadOnly );		// open on a's data
-    s >> <something>;				// read raw bindata
+    s >> [something];				// read raw bindata
     a.resetRawData( bindata, sizeof(bindata) ); // finished
   \endcode
 
@@ -291,7 +356,7 @@ void QDataStream::setByteOrder( int bo )
   \fn void QDataStream::setVersion( int v )
   Sets the version number of the data serialization format.
 
-  In Qt 2.0, the datastream serialization format of many Qt classes
+  In Qt 2.0, the datastream serialization format of QString
   was changed. In order to read data that was created with the
   QDatastream of Qt 1.x, call this function with the version number \v
   set to 1.
