@@ -26,7 +26,6 @@
 #include "metadatabase.h"
 #include "resource.h"
 #include "layout.h"
-#include "connectioneditorimpl.h"
 #include "connectiondialog.h"
 #include <widgetdatabase.h>
 #include "pixmapchooser.h"
@@ -2115,10 +2114,6 @@ void FormWindow::editConnections()
     mainWindow()->statusBar()->message( tr( "Edit connections...") );
     dlg.addConnection( connectSender, connectReceiver, QString::null, QString::null );
     dlg.exec();
-
-//     ConnectionEditor editor( mainwindow, connectSender, connectReceiver, this );
-//     mainWindow()->statusBar()->message( tr( "Edit connections...") );
-//     editor.exec();
 
     mainWindow()->statusBar()->clear();
     if ( !toolFixed )

@@ -55,7 +55,6 @@
 #include "finddialog.h"
 #include "replacedialog.h"
 #include "gotolinedialog.h"
-#include "connectionviewerimpl.h"
 #include "formsettingsimpl.h"
 #include "pixmapcollectioneditor.h"
 #include "styledbutton.h"
@@ -1808,9 +1807,6 @@ void MainWindow::editConnections()
     statusBar()->message( tr( "Edit the current form's connections..." ) );
     ConnectionDialog dlg( this );
     dlg.exec();
-
-//     ConnectionViewer dlg( this, formWindow() );
-//     dlg.exec();
 
     statusBar()->clear();
 }
