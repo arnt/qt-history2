@@ -18,11 +18,11 @@ tour of features. \link tutorial2.html Tutorial #2\endlink presents a
 more real-world example, demonstrating how to code menus, toolbars,
 file loading and saving, dialogs, etc.
 
-If you want to design your user interfaces using a design tool,
-then read at least the first few chapters of the \link
-designer-manual.book Qt Designer manual\endlink. After this, it is
-still worthwhile trying the pure C++ \link tutorial.html
-Tutorial\endlink mentioned above.
+If you want to design your user interfaces using a design tool, then
+read at least the first few chapters of the \link designer-manual.book
+Qt Designer manual\endlink. After this, it is still worthwhile trying
+the pure C++ Tutorials (\link tutorial.html Tutorial #1\endlink and
+\link tutorial2.html Tutorial #2\endlink) mentioned above.
 
 By now you'll have produced some small working applications and have a
 broad feel for Qt programming. You could start work on your own

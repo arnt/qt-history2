@@ -35,7 +35,7 @@ How to Learn Qt\endlink if you haven't already done so.
 \endlist
 
 <p align=right>
-<a href="tutorial2-01.html">&raquo; Introduction</a> 
+<a href="tutorial2-01.html">Introduction &raquo;</a> 
 </p>
 */
 
@@ -57,7 +57,7 @@ source for the application is in \c examples/chart.
 
 <p align=right>
 <a href="tutorial2.html">&laquo; Contents</a> |
-<a href="tutorial2-02.html">&raquo; The 'Big Picture'</a>
+<a href="tutorial2-02.html">The 'Big Picture' &raquo;</a>
 </p>
 
 */
@@ -92,7 +92,7 @@ used to build the application.
 <p align=right>
 <a href="tutorial2-01.html">&laquo; Introduction</a> |
 <a href="tutorial2.html">Contents</a> |
-<a href="tutorial2-03.html">&raquo; Data Elements</a>
+<a href="tutorial2-03.html">Data Elements &raquo;</a>
 </p>
 
 */
@@ -150,7 +150,7 @@ size vector of Elements, and can mark unused Elements by giving them
 user has not positioned the Element's label; any positive position
 value is taken to be the position. 
 
-The \c MAX_POINTS enum is problematic. We need to store the (x, y)
+The \c MAX_PROPOINTS enum is problematic. We need to store the (x, y)
 position for the text label for every chart type. And we have chosen
 to store these positions in a fixed-size array. Because of this we
 must specify the maximum number of points needed. This value must be
@@ -160,13 +160,21 @@ provided by the \c ChartForm class. In a realistic example we might
 have used a vector to store these points and dynamically resized it
 depending on how many chart types are available. 
 
+If we stored the actual points, then every time the user resized the
+main window (and therefore the canvas), the text would retain its
+original (now incorrect) position. So instead of storing absolute (x,
+y) positions we store \e proportional positions, i.e. x/width and
+y/height. We can then multiply these positions by width and height
+respectively when we come to draw the text and the text will be
+positioned correctly regardless of any resizing.
+
 \printto Element()
 
 
 <p align=right>
 <a href="tutorial2-02.html">&laquo; The 'Big Picture'</a> |
 <a href="tutorial2.html">Contents</a> |
-<a href="tutorial2-03.html">&raquo; ????</a>
+<a href="tutorial2-03.html">???? &raquo;</a>
 </p>
 
 */
