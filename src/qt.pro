@@ -114,7 +114,6 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$WIDGETS_H/qcombo.h \
 		  $$WIDGETS_H/qframe.h \
 		  $$WIDGETS_H/qgrpbox.h \
-		  $$WIDGETS_H/qgrid.h \
 		  $$WIDGETS_H/qheader.h \
 		  $$WIDGETS_H/qlabel.h \
 		  $$WIDGETS_H/qlcdnum.h \
@@ -215,7 +214,6 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  widgets/qcombo.cpp \
 		  widgets/qframe.cpp \
 		  widgets/qgrpbox.cpp \
-		  widgets/qgrid.cpp \
 		  widgets/qheader.cpp \
 		  widgets/qlabel.cpp \
 		  widgets/qlcdnum.cpp \
