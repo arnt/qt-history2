@@ -26,11 +26,15 @@ class Q_GUI_EXPORT QTextBrowser : public QTextEdit
     Q_OVERRIDE(bool modified SCRIPTABLE false)
     Q_OVERRIDE(bool readOnly DESIGNABLE false SCRIPTABLE false)
     Q_OVERRIDE(bool undoRedoEnabled DESIGNABLE false SCRIPTABLE false)
+    Q_PROPERTY(QStringList searchPaths READ searchPaths WRITE setSearchPaths)
 public:
     QTextBrowser(QWidget* parent = 0);
     virtual ~QTextBrowser();
 
     QString source() const;
+
+    QStringList searchPaths() const;
+    void setSearchPaths(const QStringList &paths);
 
     virtual QImage loadImage(const QString &name);
 public slots:

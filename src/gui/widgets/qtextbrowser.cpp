@@ -43,6 +43,8 @@ public:
     QString currentURL;
     QString currentAnchor;
 
+    QStringList searchPaths;
+
     /*flag necessary to give the linkClicked() signal some meaningful
       semantics when somebody connected to it calls setText() or
       setSource() */
@@ -74,6 +76,16 @@ QString QTextBrowserPrivate::resolvePath(const QString &name) const
 {
     if (isAbsoluteFileName(name))
         return name;
+
+    QString slash("/");
+
+    foreach (QString path, searchPaths) {
+        if (!path.endsWith(slash))
+            path.append(slash);
+        path.append(name);
+        if (QFileInfo(path).isReadable())
+            return path;
+    }
 
     if (d->stack.isEmpty())
         return name;
@@ -170,7 +182,17 @@ QString QTextBrowser::source() const
     if (d->stack.isEmpty())
         return QString::null;
     else
-        return d->resolvePath(d->stack.top());
+        return d->stack.top();
+}
+
+QStringList QTextBrowser::searchPaths() const
+{
+    return d->searchPaths;
+}
+
+void QTextBrowser::setSearchPaths(const QStringList &paths)
+{
+    d->searchPaths = paths;
 }
 
 /*!
