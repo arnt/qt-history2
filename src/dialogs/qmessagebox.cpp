@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#9 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#10 $
 **
 ** Implementation of QMessageBox class
 **
@@ -13,11 +13,9 @@
 #include "qmsgbox.h"
 #include "qlabel.h"
 #include "qpushbt.h"
-#include "qpainter.h"
-#include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#10 $";
 #endif
 
 
@@ -26,7 +24,7 @@ static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#9 $";
 
   \brief The QMessageBox widget provides a modal message box.
 
-  \ingroup realwidgets
+  \ingroup dialog
 
   A message box is a modal dialog that displays a text and a push button.
 
@@ -57,7 +55,7 @@ static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#9 $";
 */
 
 QMessageBox::QMessageBox( QWidget *parent, const char *name )
-	: QDialog( parent, name, TRUE )
+    : QDialog( parent, name, TRUE )
 {
     label = new QLabel( this, "text" );
     CHECK_PTR( label );
@@ -127,7 +125,7 @@ void QMessageBox::adjustSize()
     label->adjustSize();
     int w = QMAX(button->width(),label->width());
     int h = button->height() + label->height();
-    resize( w + w/4, h + h/4 );
+    resize( w + w/3, h + h/3 );
 }
 
 
