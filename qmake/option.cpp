@@ -58,6 +58,7 @@ bool Option::recursive = false;
 QStringList Option::before_user_vars;
 QStringList Option::after_user_vars;
 QStringList Option::user_configs;
+QStringList Option::after_user_configs;
 QString Option::user_template;
 QString Option::user_template_prefix;
 QString Option::qtconfig_commandline;

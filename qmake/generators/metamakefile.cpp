@@ -188,11 +188,13 @@ MakefileGenerator
         //create project
         QMakeProject *build_proj = new QMakeProject(project->properities(), basevars);
 
-        //all the user configs must be set after the "initial" files (qmake.conf, .qmake.cache, etc)
+        //all the user configs must be set again afterwards (for .pro tests and for .prf tests)
+        const QStringList old_after_user_config = Option::after_user_configs;
         const QStringList old_user_config = Option::user_configs;
-        if(!project->isEmpty(build + ".CONFIG"))
-            Option::user_configs += project->values(build + ".CONFIG");
+        Option::after_user_configs += basevars["CONFIG"];
+        Option::user_configs += basevars["CONFIG"];
         build_proj->read(project->projectFile());
+        Option::after_user_configs = old_after_user_config;
         Option::user_configs = old_user_config;
 
         //done

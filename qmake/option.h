@@ -114,7 +114,7 @@ struct Option
     static int debug_level;
     static int warn_level;
     static bool recursive;
-    static QStringList before_user_vars, after_user_vars, user_configs;
+    static QStringList before_user_vars, after_user_vars, user_configs, after_user_configs;
     enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE, TARG_QNX6_MODE };
     static TARG_MODE target_mode;
     static QString user_template, user_template_prefix;

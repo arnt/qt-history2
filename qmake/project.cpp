@@ -1250,7 +1250,7 @@ QMakeProject::read(uchar cmd)
         }
     }
 
-    //"magical" configs
+    //commandline configs
     if(cmd & ReadConfigs && !Option::user_configs.isEmpty()) {
         parser.file = "(configs)";
         parser.from_file = false;
@@ -1287,6 +1287,14 @@ QMakeProject::read(uchar cmd)
             }
             parser.line_no++;
         }
+    }
+
+    //after configs (set in BUILDS)
+    if(cmd & ReadConfigs && !Option::after_user_configs.isEmpty()) {
+        parser.file = "(configs)";
+        parser.from_file = false;
+        parser.line_no = 1; //really arg count now.. duh
+        parse("CONFIG += " + Option::after_user_configs.join(" "), vars);
     }
 
     if(pfile != "-" && vars["TARGET"].isEmpty())
