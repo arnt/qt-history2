@@ -27,6 +27,11 @@ Bugs
 
     Fikse fokus til å gå oppover på widget-treet rett måte.
 
+    QListBox bugs:
+       - Feil når variabel høyde (QTableView bug)
+       - Feil når sletting/insetting utenfor synlig område (ikke oppdatering)
+       - Feil markering av fokus når horisontal scrolling
+       - Blinkende scrollbar ved resize (cellWidth).
 Funksjonalitet:
 ---------------
 

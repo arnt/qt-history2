@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#6 $
 **
 **  Studies in Geometry Management
 **
@@ -12,16 +12,22 @@
 #include "qgeom.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#5 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#6 $")
 
 
 
 /*!
   \class QBoxLayout qgeom.h
-  \brief The QBoxLayout class manages child widget geometry.
+  \brief The QBoxLayout class specifies child widget geometry.
+
+  
+  Contents arranged serially, either horizontal or vertical.
+  The contents fill the available space.
 
   A QBoxLayout (box for short) can contain widgets or other
   boxes. 
+
+
 
   */
 
@@ -52,8 +58,9 @@ static inline QBasicManager::Direction perp( QBasicManager::Direction dir )
  */
 
 QBoxLayout::QBoxLayout( QWidget *parent, QBasicManager::Direction d, int border, int autoBorder, const char *name )
-
+    : QObject( parent, name )
 {
+    topLevel = TRUE;
     bm = new QBasicManager( parent, name );
     pristine = TRUE;
     dir = d;
@@ -81,13 +88,37 @@ QBoxLayout::QBoxLayout( QWidget *parent, QBasicManager::Direction d, int border,
   Returns the default border for the geometry manager.
   */
 
+/*!
+  \fn bool QBoxLayout::doIt()
+Starts geometry management.
+  */
+
+/*!
+  Fixes the size of the main widget and distributes the available
+  space to the child widgets. The size is adjusted to a valid
+  value. Thus freeze(0,0) (the default) will fix the widget to its
+  minimum size.
+  */
+void QBoxLayout::freeze( int w = 0, int h = 0 ) 
+{
+    if ( !topLevel ) {
+	warning( "Only top-level QBoxLayout can be frozen." );
+	return;
+    }
+    bm->freeze( w, h );
+    delete bm;
+    bm = 0;
+}
 
 /*!
   \internal
   Constructs a new box with direction \e d, within \e parent. 
  */
-QBoxLayout::QBoxLayout(  QBoxLayout *parent, QBasicManager::Direction d )
+QBoxLayout::QBoxLayout(  QBoxLayout *parent, QBasicManager::Direction d,
+			 const char *name )
+    : QObject( parent, name )
 {
+    topLevel = FALSE;
     pristine = TRUE;
     dir = d;
     bm = parent->bm;
@@ -99,21 +130,32 @@ QBoxLayout::QBoxLayout(  QBoxLayout *parent, QBasicManager::Direction d )
 
 
 /*!
-  If \e stretch is zero, adds a non-stretchable space with size
-  \e size. Otherwise, adds a stretchable space with minimum size
-  \e size and stretch factor \e stretch.
-  
-  QBoxLayout gives default border and spacing. This function
-  adds additional space. ... Should perhaps replace default space?
-  */
+  Adds a non-stretchable space with size
+  \e size.  QBoxLayout gives default border and spacing. This function
+  adds additional space. 
 
-void QBoxLayout::addSpacing( int size, int stretch )
+  \sa addStretch
+  */
+//###... Should perhaps replace default space?
+void QBoxLayout::addSpacing( int size )
 {
-    if ( stretch )
-	bm->addSpacing( serChain, size, stretch ); 
-    else
 	bm->addSpacing( serChain, size, 0, size ); 
 }
+
+/*!
+
+  Adds a stretchable space with zero minimum size
+  and stretch factor \e stretch.  
+
+  \sa addSpacing
+  */
+//###... Should perhaps replace default space?
+void QBoxLayout::addStretch( int stretch )
+{
+    bm->addSpacing( serChain, 0, stretch ); 
+}
+  
+
 
 /*!  
   Limits the perpendicular dimension of the box (e.g. height if the
@@ -167,9 +209,9 @@ void QBox::addMaxStrut( int size)
   the widget's maximum size. \c alignBoth will limit the maximum
   size of the box.
 
-  \sa insertNewBox(), addSpacing()
+  \sa addNewBox(), addSpacing()
   */
-void QBoxLayout::insert( QWidget *widget, int stretch, alignment a )
+void QBoxLayout::addWidget( QWidget *widget, int stretch, alignment a )
 {
     if ( !pristine && defaultBorder() )
 	bm->addSpacing( serChain, defaultBorder(), 0, defaultBorder() ); 
@@ -194,12 +236,12 @@ void QBoxLayout::insert( QWidget *widget, int stretch, alignment a )
 
 /*!
   Creates a new box and adds it, with serial stretch factor \e stretch.
-  and \link insert alignment \endlink \e a. Returns a pointer to the new
+  and \link addWidget alignment \endlink \e a. Returns a pointer to the new
   box.
 
-  \sa insert(), addSpacing()
+  \sa addWidget(), addSpacing()
   */
-QBoxLayout *QBoxLayout::insertNewBox( QBasicManager::Direction d, int stretch
+QBoxLayout *QBoxLayout::addNewBox( QBasicManager::Direction d, int stretch
 				      /*alignment a*/ )
 {
     if ( !pristine && defaultBorder() )
@@ -210,7 +252,7 @@ QBoxLayout *QBoxLayout::insertNewBox( QBasicManager::Direction d, int stretch
 #if 1
     addB( b, stretch );
 #else
-//### duplication of logic from insert
+//### duplication of logic from addWidget
     if ( a == alignBoth ) {
 	addB( b, stretch );
     } else {

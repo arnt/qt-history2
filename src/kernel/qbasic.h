@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.h#7 $
+** $Id: //depot/qt/main/src/kernel/qbasic.h#8 $
 **
 **   Geometry Management
 **
@@ -20,8 +20,11 @@ class QChain;
 
 class QBasicManager : public QObject
 {
+    Q_OBJECT
 public:
     QBasicManager( QWidget *parent, const char *name=0 );
+    ~QBasicManager();
+
     void setBorder( int b ) { border = b; } 
 
     enum Direction { LeftToRight, RightToLeft, Down, Up };
@@ -36,6 +39,10 @@ public:
 
     bool doIt();
 
+    void freeze( int w = 0, int h = 0 );
+    //    void freezeH( int w = 0 );
+    //    void freezeV( int h = 0 );
+
     QChain *xChain() {  return xC; }
     QChain *yChain() {  return yC; }
 
@@ -43,7 +50,6 @@ protected:
     bool  eventFilter( QObject *, QEvent * );
 
 private:
-
     enum chainType { Parallel, Serial }; 
 
     int border;
@@ -54,8 +60,8 @@ private:
     QChain *xC;
     QChain *yC;
     QWidget *main;
-
     
+    bool frozen;
 
 private:	// Disabled copy constructor and operator=
     QBasicManager( const QBasicManager & ) {}

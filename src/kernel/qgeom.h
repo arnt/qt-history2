@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.h#6 $
+** $Id: //depot/qt/main/src/kernel/qgeom.h#7 $
 **
 **  Geometry Management
 **
@@ -15,7 +15,7 @@
 
 #include "qbasic.h"
 
-class QBoxLayout
+class QBoxLayout : public QObject
 {
 public:
     QBoxLayout(  QWidget *parent, QBasicManager::Direction, int border=0, 
@@ -23,15 +23,16 @@ public:
     int     defaultBorder() { return defBorder; }
 
     bool doIt() { return bm->doIt(); }
-public:
+    void freeze( int w = 0, int h = 0 );
 
     enum alignment { alignCenter, alignTop, alignLeft,
 		 alignBottom, alignRight /*, alignBoth */};
     
-    QBoxLayout *insertNewBox( QBasicManager::Direction, int stretch = 0
+    QBoxLayout *addNewBox( QBasicManager::Direction, int stretch = 0
 			      /*alignment a = alignBoth*/ );
-    void insert( QWidget *, int stretch = 0, alignment a = alignCenter );
-    void addSpacing( int size, int stretch = 0 ); 
+    void addWidget( QWidget *, int stretch = 0, alignment a = alignCenter );
+    void addSpacing( int size ); 
+    void addStretch( int stretch = 0 ); 
 
     QBasicManager::Direction direction() const { return dir; }
 
@@ -39,7 +40,7 @@ public:
     //void addMaxStrut( int );
 
 private:
-    QBoxLayout(  QBoxLayout *parent, QBasicManager::Direction );
+    QBoxLayout(  QBoxLayout *parent, QBasicManager::Direction, const char *name=0 );
     void addB( QBoxLayout *, int stretch );
     //   QBox( QGeomManager*, QChain *, QChain *, QGeomManager::Direction d );
 
@@ -49,6 +50,8 @@ private:
     QChain * parChain;
     QChain * serChain;
     bool    pristine;
+    bool    topLevel;
+    
 
 private:	// Disabled copy constructor and operator=
     QBoxLayout( const QBoxLayout & ) {}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#10 $
 **
 **  Studies in Geometry Management
 **
@@ -18,7 +18,7 @@
 #include "qbasic.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#10 $")
 
 
 
@@ -27,13 +27,13 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#9 $")
   \brief The QBasicManager class provides one-dimensional geometry management.
 
   This class is not for the faint of heart. The QBoxLayout class is
-  available for normal application programming.
+  available for normal application programming. 
 
   This class is intended for those who write geometry managers and
-  graphical designers.
+  graphical designers. 
 
   Each dimension (horizontal and vertical) is handled independently. Widgets
-  are organized in chains, which can be parellel or serial.
+  are organized in chains, which can be parallel or serial.
 
   \sa QBoxLayout
   */
@@ -185,7 +185,7 @@ public:
     {
     }
 
-    ~QParChain() {}
+    ~QParChain();
     bool addC( QChain *s );
 
     void recalc();
@@ -211,7 +211,7 @@ class QSerChain : public QChain
 public:
 
     QSerChain( QBasicManager::Direction d ) : QChain( d ) {}
-    ~QSerChain() {}
+    ~QSerChain();
 
     bool addC( QChain *s );
 
@@ -233,11 +233,28 @@ private:
 };
 
 
+QParChain::~QParChain()
+{
+    int i;
+    for ( i = 0; i < (int)chain.size(); i++ ) {
+	delete chain[i];
+    }
+}
+
 void QParChain::distribute( wDict & wd, int pos, int space )
 {
     int i;
     for ( i = 0; i < (int)chain.size(); i++ ) {
 	chain[i]->distribute(  wd, pos, space );
+    }
+}
+
+
+QSerChain::~QSerChain()
+{
+    int i;
+    for ( i = 0; i < (int)chain.size(); i++ ) {
+	delete chain[i];
     }
 }
 
@@ -388,10 +405,8 @@ bool QParChain::addC( QChain *s )
     return TRUE;
 }
 
-
 /*!
   Creates a new QBasicManager which manages \e parent's children.
-
   */
 QBasicManager::QBasicManager( QWidget *parent, const char *name )
     : QObject( parent, name )
@@ -401,10 +416,20 @@ QBasicManager::QBasicManager( QWidget *parent, const char *name )
     xC = new QParChain( LeftToRight );
     yC = new QParChain(	Down );
 
-    if ( parent )
+    if ( parent ) {
 	parent->installEventFilter( this );
+    }
 }
 
+/*!
+  Destroys the QBasicManager, deleting all add()ed chains.
+  */
+QBasicManager::~QBasicManager()
+{
+    debug("QBasicManager::~QBasicManager");
+    delete xC;
+    delete yC;
+}
 /*!
   Creates a new QChain which is \e parallel.
   */
@@ -444,16 +469,17 @@ bool QBasicManager::add( QChain *destination, QChain *source, int stretch )
 
 bool QBasicManager::addWidget( QChain *d, QWidget *w, int stretch )
 {
-    // int i, j;
-    // if ( !w->minimumSize( &i, &j ) )
-    //	w->setMinimumSize( w->width(), w->height() ); //######
-
+    //if ( w->parent() != main ) {
+    //	  warning("QBasicManager::addWidget - widget is not child.");
+    //	  return FALSE;
+    //}
     return d->add( new QWidChain( d->direction(), w) , stretch );
 }
 
 /*!
-  Adds the spacing  \e w to the chain \e d. Not much of a point unless
-  \e d is a serial chain.
+  Adds the spacing  \e w to the chain \e d. If \e d is a serial chain, this
+  means screen space between widgets. If \e d is parallel, this influences
+  the maximum and minimum size.
   */
 
 bool QBasicManager::addSpacing( QChain *d, int minSize, int stretch, int maxSize )
@@ -492,19 +518,15 @@ void QBasicManager::resizeHandle( QWidget *, const QSize & )
 
 bool QBasicManager::doIt()
 {
+    if ( frozen )
+	return FALSE;
+
     yC->recalc();
     xC->recalc();
 
     int ys = yC->minSize() + 2*border;
     int xs = xC->minSize() + 2*border;
-    /*
-    if (  main->width() < xs && main->height() < ys )
-	main->resize( xs , ys );
-    else if (  main->width() < xs )
-	main->resize( xs , main->height() );
-    else if ( main->height() < ys )
-	main->resize( main->width(), ys );
-	*/
+
     main->setMinimumSize( xs, ys );
 
     ys = yC->maxSize() + 2*border;
@@ -513,23 +535,48 @@ bool QBasicManager::doIt()
     xs = xC->maxSize() + 2*border;
     if ( xs > QBasicManager::unlimited )
 	xs = QBasicManager::unlimited;
-    /*
-    if (  main->width() > xs && main->height() > ys )
-	main->resize( xs , ys );
-    else if (  main->width() > xs )
-	main->resize( xs , main->height() );
-    else if ( main->height() > ys )
-	main->resize( main->width(), ys );
-	*/
+
     main->setMaximumSize( xs, ys );
 
-
-    resizeAll();
-
+    resizeAll(); //### double recalc...
     return TRUE;
-
 }
 
+/*!
+  Fixes the size of the main widget and distributes the available
+  space to the child widgets. The size is adjusted to a valid
+  value. Thus freeze(0,0) (the default) will fix the widget to its
+  minimum size.
+  */
+void QBasicManager::freeze( int w, int h )
+{
+    xC->recalc();
+    yC->recalc();
+
+    //### duplication of code from doIt...
+ 
+    int ys = yC->maxSize() + 2*border;
+    if ( ys > QBasicManager::unlimited )
+	ys = QBasicManager::unlimited;
+    int xs = xC->maxSize() + 2*border;
+    if ( xs > QBasicManager::unlimited )
+	xs = QBasicManager::unlimited;
+
+    w = QMIN( w, xs );
+    h = QMIN( h, ys );
+
+    ys = yC->minSize() + 2*border;
+    xs = xC->minSize() + 2*border;
+    w = QMAX( w, xs );
+    h = QMAX( h, ys );
+
+    resizeAll(); //### double recalc...
+
+    main->setMaximumSize( w, h );
+    main->setMinimumSize( w, h );
+
+    frozen = TRUE;
+}
 
 void QBasicManager::resizeAll()
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#54 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#53 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#54 $")
 
 
 /*----------------------------------------------------------------------------
@@ -105,7 +105,10 @@ QMenuBar::~QMenuBar()
 	parent()->removeEventFilter( this );
 }
 
-
+/*!
+  \internal
+  Needs documentation.
+ */
 void QMenuBar::updateItem( int )
 {
  //   repaint( FALSE ); !!!hanord: avoid this until we get a better solution
@@ -121,6 +124,10 @@ void QMenuBar::menuContentsChanged()
     }
 }
 
+/*!
+  \internal
+  Needs documentation.
+ */
 void QMenuBar::menuStateChanged()
 {
  //   repaint(); !!!hanord: avoid this until we get a better solution
