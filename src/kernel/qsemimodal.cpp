@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsemimodal.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qsemimodal.cpp#3 $
 **
 ** Implementation of QSemiModal class
 **
@@ -12,7 +12,7 @@
 #include "qsemimodal.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsemimodal.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsemimodal.cpp#3 $");
 
 
 /*!
@@ -23,6 +23,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qsemimodal.cpp#2 $");
   it is open.  To enable this, the QSemiModal must be constructed with
   TRUE for the \e modal argument, which is FALSE by default, for consistency
   with QDialog.
+  Such a QSemiModal is modal like QDialog, but it does not have
+  its own event loop and has no concept of a default button.
 
   Note that the parent widget has a different meaning for semi-modal
   dialogs than for other types of widgets. A semi-modal dialog is
