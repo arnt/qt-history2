@@ -72,6 +72,21 @@ bool QDir::rmdir(const QString &dirname,bool acceptAbsPath) const
 
 bool QDir::isReadable() const
 {
+    FSSpec myspec;
+    char bigbuf[257];
+    const char * wingle=
+           (const char *)QFile::encodeName(filePath(dirname,
+						    acceptAbsPath));
+    strcpy(bigbuf+1,wingle);
+    bigbuf[0]=strlen(wingle);
+    OSErr ret;
+    ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
+    if(ret!=noErr) {
+	qWarning("Make FS spec in QDir::isReadable error %d",ret);
+	return false;
+    }
+    // If we can get to it, it must be readable. MacOS isn't big
+    // on file permissions
     return true;
 }
 
@@ -145,7 +160,135 @@ bool QDir::isRelativePath(const QString& path)
 bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
 			  int sortSpec)
 {
-    return true;
+    int i;
+    if ( !fList ) {
+        fList  = new QStringList;
+        CHECK_PTR( fList );
+        fiList = new QFileInfoList;
+        CHECK_PTR( fiList );
+        fiList->setAutoDelete( TRUE );
+    } else {
+        fList->clear();
+        fiList->clear();
+    }
+
+    QStringList filters = makeFilterList( nameFilter );
+
+    bool doDirs     = (filterSpec & Dirs)       != 0;
+    bool doFiles    = (filterSpec & Files)      != 0;
+    bool noSymLinks = (filterSpec & NoSymLinks) != 0;
+    bool doReadable = (filterSpec & Readable)   != 0;
+    bool doWritable = (filterSpec & Writable)   != 0;
+    bool doExecable = (filterSpec & Executable) != 0;
+    bool doHidden   = (filterSpec & Hidden)     != 0;
+
+    QFileInfo fi;
+
+    OSErr ret;
+    FSSpec matches[5000];
+    CInfoPBRec crit1;
+    CInfoPBRec crit2;
+    short myvrefnum;
+    long mydirid;
+
+    qt_cwd=path;
+    FSSpec myspec;
+    char bigbuf[257];
+    const char * wingle=
+           (const char *)QFile::encodeName(filePath(dPath,
+						    acceptAbsPath));
+    strcpy(bigbuf+1,wingle);
+    bigbuf[0]=strlen(wingle);
+    OSErr ret;
+    ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
+    if(ret!=noErr) {
+	qWarning("Make FS spec in readDirEntries error %d",ret);
+	return false;
+    }
+    myvrefnum=myspec.vRefNum;
+    mydirid=myspec.parId;
+    char mybuffer[4000];
+    
+    HParamBlockRec params;
+    params.ioCompletion=0;
+    params.ioNamePtr=0;
+    params.ioVRefNum=myvrefnum;
+    params.ioMatchPtr=(FSSpecArrayPtr)matches;
+    params.ioReqMatchCount=5000;
+    params.ioSearchBits=fsSBDrParID;
+    params.ioSearchInfo1=&myspec1;
+    params.ioSearchInfo2=&myspec2;
+    params.ioSearchTime=0;
+    params.ioCatPosition.initialize=0;
+    params.ioOptBuffer=&mybuffer;
+    params.ioOptBufSize=4000;
+    myspec1.ioNamePtr=myfind;
+    myspec1.ioFlAttrib=0;
+    myspec1.ioFlCrData=0;
+    myspec1.ioDrDirID=mydirid;
+    myspec2.ioNamePtr=0;
+    myspec2.ioFlAttrib=0x10;
+    myspec2.ioFlCrDat=0;
+    myspec2.ioDrDirID=mydirid;
+    
+    OSErr done;
+    
+    char namebuf[256];
+    
+    do {
+	done=PBGetCatInfo(&mycpb,false);
+	if(done==noErr) {
+	    int loopc;
+	    for(loopc=0;loopc<mycpb.ioActMatchCount;loopc++) {
+		char * thename=matches[loopc].name;
+		thename[thename[0]+1]=0;
+		QString fn = thename+1;
+		fi.setFile( *this, fn );
+		if ( !match( filters, fn ) && !(allDirs && fi.isDir()) )
+		    continue;
+		if  ( (doDirs && fi.isDir()) || (doFiles && fi.isFile()) ) {
+		    if ( noSymLinks && fi.isSymLink() )
+			continue;
+		    if ( (filterSpec & RWEMask) != 0 )
+			if ( (doReadable && !fi.isReadable()) ||
+			     (doWritable && !fi.isWritable()) ||
+			     (doExecable && !fi.isExecutable()) )
+			    continue;
+		    if ( !doHidden && fn[0] == '.' &&
+			 fn != QString::fromLatin1(".")
+			 && fn != QString::fromLatin1("..") )
+			continue;
+		    fiList->append( new QFileInfo( fi ) );
+		}
+	    }
+	}
+    } while(done==noErr);
+
+        // Sort...
+        QDirSortItem* si= new QDirSortItem[fiList->count()];
+        QFileInfo* itm;
+        i=0;
+        for (itm = fiList->first(); itm; itm = fiList->next())
+            si[i++].item = itm;
+        qt_cmp_si_sortSpec = sortSpec;
+        qsort( si, i, sizeof(si[0]), qt_cmp_si );
+        // put them back in the list
+        fiList->setAutoDelete( FALSE );
+        fiList->clear();
+        int j;
+        for ( j=0; j<i; j++ ) {
+            fiList->append( si[j].item );
+            fList->append( si[j].item->fileName() );
+        }
+        delete [] si;
+        fiList->setAutoDelete( TRUE );
+
+        if ( filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
+             nameFilter == nameFilt )
+            dirty = FALSE;
+        else
+            dirty = TRUE;
+        return TRUE;
 }
 
 const QFileInfoList * QDir::drives()
