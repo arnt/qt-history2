@@ -100,7 +100,7 @@ extern bool qt_file_access( const QString& fn, int t );
     \enum QFileInfo::PermissionSpec
 
     This enum is used by the permission() function to report the
-    permissions and ownership of a file. The values may be 0R-ed
+    permissions and ownership of a file. The values may be OR-ed
     together to test multiple permissions and ownership values.
 
     \value ReadUser The file is readable by the user.

@@ -12485,7 +12485,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   \value EndsWith The target string ends with the search string.
   \value Contains The target string contains the search string.
 
-  If you 0R these flags together (excluding \c
+  If you OR these flags together (excluding \c
   CaseSensitive), the search criteria be applied in the following
   order: \c ExactMatch, \c BeginsWith, \c EndsWith, \c Contains.
 

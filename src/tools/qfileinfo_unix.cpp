@@ -175,7 +175,7 @@ uint QFileInfo::groupId() const
   \fn bool QFileInfo::permission( int permissionSpec ) const
 
   Tests for file permissions.  The \a permissionSpec argument can be several
-  flags of type PermissionSpec 0R-ed together to check for permission
+  flags of type PermissionSpec OR-ed together to check for permission
   combinations.
 
   On systems where files do not have permissions this function always
