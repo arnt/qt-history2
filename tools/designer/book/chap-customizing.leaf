@@ -287,9 +287,10 @@ single main window.)
 
 \section1 Integrating Qt Designer with Visual Studio
 
-\QD can be integrated into Visual Studio using the
+\QD can be integrated into Visual Studio 6.0 using the
 \index qmsdev.dsp
-\File qmsdev.dsp file that is supplied with Qt.
+\File qmsdev.dsp file that is supplied with Qt. 
+Visual Studio.Net does not support this integration.
 
 \index Visual Studio
 Start up Visual Studio and click \Menu {File|Open
@@ -320,23 +321,24 @@ buttons:
 New Qt Project -- A small application wizard
 \i
 
-Generate Qt Project -- Runs \Cmd qmake (or the functionally equivalent \Cmd {tmake}) with a \index .pro
-\File .pro file
-\i
-
-New Qt Dialog -- Add an empty Qt Dialog to the active project
+New Qt Dialog -- Add an empty Qt Dialog to the active project, or add an existing dialog
 \i
 
 Qt GUI Designer -- Run \QD
 \i
 
+Open Qt Project -- Runs \Cmd qmake with a \index .pro
+\File .pro file
+\i
+
+Write Qt Project -- Saves the current VS project as a \index .pro
+\File .pro file
+\i
+
 Use Qt -- Add the Qt libraries to the active project
 \i
 
-Add MOC -- Add the \Cmd moc precompiler to the active file
-\i
-
-Add UIC -- Add the \Cmd uic precompiler to the active file\endlist
+Add MOC -- Add the \Cmd moc precompiler to the active file\endlist
 Double clicking a \index .ui
 \File .ui file in the workspace
 overview will now launch \QD.

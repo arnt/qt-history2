@@ -2,6 +2,8 @@
   The QMsDev AddIn - Qt integration for the Microsoft(tm) Visual Studio(tm)
 ==============================================================================
 
+This AddIn can only be used with Visual Studio 6.0. Visual Studio.Net does not
+support the object model required for this integration.
 
 1. Building the DLL
 ===================
@@ -27,12 +29,12 @@ Use the "Customize"-Dialog to change the layout of the toolbar. The plugin
 will add these commands to your Visual Studio(tm):
 
 - New Qt Project       - A small application wizard
-- Generate Qt Project  - Runs the TMAKE tool with a .pro-file
-- New Qt Dialog        - Add an empty Qt Dialog to the active project
+- New Qt Dialog        - Add an empty or existing dialog to the active project
 - Qt GUI Designer      - Run the Qt Designer
+- Open Qt Project      - Runs the qmake tool with a .pro-file
+- Write Qt Project     - Saves the current VS project as a .pro-file
 - Use Qt               - Add the Qt libraries to the active project
 - Add MOC              - Add the MOC precompiler to the active file
-- Add UIC              - Add the UIC precompiler to the active file
 
 Moreover, the plugin will start the Qt Designer each time you open a .ui file
 by doubleclicking on the file in workspace overview.
