@@ -157,6 +157,11 @@ private:
     Gravity grav;
     QList<QDockWindow> forbiddenWidgets;
 
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QDockArea( const QDockArea & );
+    QDockArea& operator=( const QDockArea & );
+#endif
 
 };
 

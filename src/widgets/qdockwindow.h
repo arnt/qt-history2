@@ -170,6 +170,11 @@ private:
     QPoint lastPos;
     QWidgetResizeHandler *widgetResizeHandler;
 
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QDockWindow( const QDockWindow & );
+    QDockWindow& operator=( const QDockWindow & );
+#endif
 };
 
 inline QDockArea *QDockWindow::area() const

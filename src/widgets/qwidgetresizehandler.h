@@ -55,7 +55,7 @@ public:
     bool isActive() const { return active; }
     void setMovingEnabled( bool b ) { moving = b; }
     bool isMovingEnabled() const { return moving; }
-    
+
     bool isButtonDown() const { return buttonDown; }
 
     void setExtraHeight( int h ) { extrahei = h; }
@@ -89,7 +89,7 @@ private:
     bool active;
     int extrahei;
     bool moving;
-    
+
     void setMouseCursor( MousePosition m );
     bool isMove() const {
 	return moveResizeMode && mode == Center;
@@ -97,6 +97,12 @@ private:
     bool isResize() const {
 	return moveResizeMode && !isMove();
     }
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QWidgetResizeHandler( const QWidgetResizeHandler & );
+    QWidgetResizeHandler& operator=( const QWidgetResizeHandler & );
+#endif
 
 };
 
