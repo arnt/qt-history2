@@ -465,16 +465,8 @@ void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
     } else if (hd.count() != 0)
 	grp = *grpit;
 
-
-    QString v = value;
-    if ( v.isNull() ) {
-	v = "\\0"; // escape null string
-    } else {
-	v.replace(QRegExp("\\\\"), "\\\\"); // escape backslash
-	v.replace(QRegExp("\n"), "\\n"); // escape newlines
-    }
     grp.modified = TRUE;
-    grp.replace(key, v);
+    grp.replace(key, value);
     hd.replace(group, grp);
     headings.replace(heading, hd);
 
@@ -709,7 +701,15 @@ bool QSettings::sync()
 		QSettingsGroup::Iterator grpit = grp.begin();
 
 		while (grpit != grp.end()) {
-		    stream << grpit.key() << "=" << grpit.data() << endl;
+		    QString v = grpit.data();
+		    if ( v.isNull() ) {
+			v = "\\0"; // escape null string
+		    } else {
+			v.replace(QRegExp("\\\\"), "\\\\"); // escape backslash
+			v.replace(QRegExp("\n"), "\\n"); // escape newlines
+		    }
+
+		    stream << grpit.key() << "=" << v << endl;
 		    grpit++;
 		}
 
