@@ -282,6 +282,7 @@
 
 #define QABSTRACTSOCKET_BUFFERSIZE 32768
 #define QT_CONNECT_TIMEOUT 30000
+#define QT_TRANSFER_TIMEOUT 120000
 
 #if defined QABSTRACTSOCKET_DEBUG
 #include <qstring.h>
@@ -1372,9 +1373,8 @@ bool QAbstractSocket::flush()
            d->writeBuffer.size());
 #endif
     while (d->writeBuffer.size() > 0) {
-        if (!d->socketLayer.waitForWrite(1000) && d->socketLayer.socketError() != Qt::SocketTimeoutError)
+        if (!d->socketLayer.waitForWrite(QT_TRANSFER_TIMEOUT) || !d->flush())
             return false;
-        d->flush();
     }
 
     return d->writeBuffer.isEmpty();
