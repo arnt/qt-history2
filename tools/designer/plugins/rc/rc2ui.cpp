@@ -315,7 +315,7 @@ bool RC2UI::makeDialog()
 	QString widgetType;
 	QString widgetName;
 	QString arguments;
-	int pointsize;
+	int pointsize = 10;
 	QString fontname;
 	do {
 	    line = "";
