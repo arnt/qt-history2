@@ -76,6 +76,8 @@ QRemoteFactoryPrivate::~QRemoteFactoryPrivate()
   \class QRemoteFactory QRemoteFactory.h
   \brief The QRemoteFactory class creates QRemoteInterface objects.
 
+  \internal
+
   The remote factory creates a QRemoteInterface object for a given key with
   QRemoteFactory::create(key).
 
@@ -89,6 +91,8 @@ QRemoteFactoryPrivate::~QRemoteFactoryPrivate()
 
 /*!  Creates a QRemoteInterface object that matches \a key. Currently this is
   always a remote control from a plugin.
+
+  \internal
 
   \sa keys()
 */
@@ -114,6 +118,8 @@ QRemoteInterface *QRemoteFactory::create( const QString& key )
 /*!
   Returns the list of keys  this factory can create
   remote controls for.
+
+  \internal
 
   \sa create()
 */

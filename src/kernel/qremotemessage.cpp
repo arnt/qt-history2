@@ -44,8 +44,12 @@
 
 /*!
   \class QRemoteMessage qtestmessage.h
-  \brief The QRemoteMessage class is a class that is used for exchanging messages between a
-  Qt application and it's remote control. A typical use of such a remote functionality
+  \brief The QRemoteMessage class is used for exchanging messages between a
+  Qt application and it's remote control.
+
+  \internal
+
+  A typical use of such a remote functionality
   is testing. Hence the msg_type QRemoteMessage.
 
   \mainclass
@@ -72,6 +76,8 @@ uint QRemoteMessage::next_msg_id = 1;
 */
 
 /*!
+   \internal
+
     Constructs a default (empty) message.
 */
 
@@ -81,6 +87,8 @@ QRemoteMessage::QRemoteMessage()
 }
 
 /*!
+   \internal
+
     Constructs a message based on msg_type \a msgType and \a message.
 */
 
@@ -95,6 +103,8 @@ QRemoteMessage::QRemoteMessage(const QString &msgType, const QString &message)
 }
 
 /*!
+   \internal
+
     Constructs a message based on msg_type \a msgType, \a message and \a pixmap.
 */
 
@@ -112,6 +122,8 @@ QRemoteMessage::QRemoteMessage(const QString &msgType, const QString &message, c
 }
 
 /*!
+   \internal
+
     Constructs a message based on msg_type \a msgType, \a message and \a byteArray.
 */
 
@@ -129,6 +141,8 @@ QRemoteMessage::QRemoteMessage(const QString &msgType, const QString &message, c
 }
 
 /*!
+   \internal
+
     Destroys the message.
 */
 
@@ -137,6 +151,8 @@ QRemoteMessage::~QRemoteMessage()
 }
 
 /*!
+   \internal
+
     Clears the message so that the same instance can be used for the reception of
     a new message.
 */
@@ -156,6 +172,8 @@ void QRemoteMessage::reset()
 }
 
 /*!
+   \internal
+
     Returns a hardcoded value that is used for bitsynchronisation and validity check
     of the received data.
 */
@@ -166,6 +184,8 @@ uint QRemoteMessage::magicId() const
 }
 
 /*!
+   \internal
+
     Returns the smallest size of the message.
 */
 
@@ -178,6 +198,8 @@ uint QRemoteMessage::primarySize()
 }
 
 /*!
+   \internal
+
     Sends the message over the \a socket connection.
 */
 
@@ -234,6 +256,8 @@ void QRemoteMessage::send(QSocket *socket)
 }
 
 /*!
+   \internal
+
     Sends a reply message over the \a socket connection using the current message id
     and the given \a result.
 */
@@ -250,6 +274,8 @@ void QRemoteMessage::reply(QSocket *socket, const QString &result)
 }
 
 /*!
+   \internal
+
     Fills the message with data received from the given \a socket connection.
     Returns TRUE if a complete and valid message was received.
 */
@@ -306,7 +332,10 @@ bool QRemoteMessage::receive(QSocket *socket)
 }
 
 /*!
-    Returns TRUE if the message contains a valid pixmap.
+   \internal
+
+    Returns TRUE if the message contains a valid pixmap; otherwise
+    returns FALSE.
 */
 
 bool QRemoteMessage::hasPixmap() const
@@ -332,7 +361,10 @@ bool QRemoteMessage::getPixmap(QPixmap *&pixmap)
 }
 
 /*!
-    Returns TRUE if the message contains a valid ByteArray.
+   \internal
+
+    Returns TRUE if the message contains a valid ByteArray; otherwise
+    returns FALSE.
 */
 
 bool QRemoteMessage::hasByteArray() const
@@ -341,8 +373,10 @@ bool QRemoteMessage::hasByteArray() const
 }
 
 /*!
+  \internal
+
     Returns the \a byteArray contained in the message.
-    Returns TRUE if the byteArray is valid.
+    Returns TRUE if the byteArray is valid; otherwise returns FALSE.
 */
 
 bool QRemoteMessage::getByteArray(QByteArray *&byteArray)
@@ -358,6 +392,8 @@ bool QRemoteMessage::getByteArray(QByteArray *&byteArray)
 }
 
 /*!
+  \internal
+
     Returns the message.
 */
 
@@ -367,6 +403,8 @@ QString QRemoteMessage::message() const
 }
 
 /*!
+  \internal
+
     Returns the id of the message.
     Each message transferred from the client to the remote control gets a unique id.
     If a remote controller replies to a message the same id is used.
@@ -379,7 +417,9 @@ uint QRemoteMessage::messageId()  const
 }
 
 /*!
-    Returns TRUE if the message is a reply message.
+  \internal
+
+    Returns TRUE if the message is a reply message; otherwise returns FALSE.
 */
 
 bool QRemoteMessage::isReply() const
@@ -388,6 +428,8 @@ bool QRemoteMessage::isReply() const
 }
 
 /*!
+  \internal
+
     Returns the returnValue from the reply message.
     If the message is not a reply the return value is undefined.
 */
@@ -398,6 +440,8 @@ QString QRemoteMessage::result() const
 }
 
 /*!
+  \internal
+
     Returns the type of the message.
 */
 
