@@ -780,6 +780,7 @@ public:
     QString                 Name;
     QString                 Version;
     QString                 ProjectGUID;
+    QString                 Keyword;
     QString                 SccProjectName;
     QString                 SccLocalPath;
     QString                 PlatformName;
@@ -917,6 +918,7 @@ public:
     QString                 Name;
     QString                 Version;
     QString                 ProjectGUID;
+    QString                 Keyword;
     QString                 SccProjectName;
     QString                 SccLocalPath;
     QString                 PlatformName;

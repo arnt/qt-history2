@@ -137,6 +137,7 @@ const char* _PrecompiledHeaderThrough           = "PrecompiledHeaderThrough";
 const char* _PreprocessorDefinitions            = "PreprocessorDefinitions";
 const char* _PrimaryOutput                      = "PrimaryOutput";
 const char* _ProjectGUID                        = "ProjectGUID";
+const char* _Keyword                            = "Keyword";
 const char* _ProjectType                        = "ProjectType";
 const char* _ProgramDatabase                    = "ProgramDatabase";
 const char* _ProgramDataBaseFileName            = "ProgramDataBaseFileName";
@@ -2029,6 +2030,7 @@ XmlOutput &operator<<(XmlOutput &xml, const VCProjectSingleConfig &tool)
             << attrS(_Version, tool.Version)
             << attrS(_Name, tool.Name)
             << attrS(_ProjectGUID, tool.ProjectGUID)
+            << attrS(_Keyword, tool.Keyword)
             << attrS(_SccProjectName, tool.SccProjectName)
             << attrS(_SccLocalPath, tool.SccLocalPath)
             << tag(_Platforms)
@@ -2191,6 +2193,7 @@ XmlOutput &operator<<(XmlOutput &xml, VCProject &tool)
             << attrS(_Version, tool.Version)
             << attrS(_Name, tool.Name)
             << attrS(_ProjectGUID, tool.ProjectGUID)
+            << attrS(_Keyword, tool.Keyword)
             << attrS(_SccProjectName, tool.SccProjectName)
             << attrS(_SccLocalPath, tool.SccLocalPath)
             << tag(_Platforms)

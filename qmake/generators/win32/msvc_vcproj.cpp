@@ -288,6 +288,7 @@ bool VcprojGenerator::writeProjectMakefile()
         mergedProject.Name = mergedProjects.at(0)->vcProject.Name;
         mergedProject.Version = mergedProjects.at(0)->vcProject.Version;
         mergedProject.ProjectGUID = getProjectUUID();
+        mergedProject.Keyword = project->first("VCPROJ_KEYWORD");
         mergedProject.SccProjectName = mergedProjects.at(0)->vcProject.SccProjectName;
         mergedProject.SccLocalPath = mergedProjects.at(0)->vcProject.SccLocalPath;
         mergedProject.PlatformName = mergedProjects.at(0)->vcProject.PlatformName;
@@ -637,6 +638,7 @@ void VcprojGenerator::initProject()
     vcProject.Name = project->first("QMAKE_ORIG_TARGET");
     vcProject.Version = use_net2003_version() ? "7.10" : "7.00";
     vcProject.ProjectGUID = getProjectUUID().toString().toUpper();
+    vcProject.Keyword = project->first("VCPROJ_KEYWORD");
     vcProject.PlatformName = (vcProject.Configuration.idl.TargetEnvironment == midlTargetWin64 ? "Win64" : "Win32");
     // These are not used by Qt, but may be used by customers
     vcProject.SccProjectName = project->first("SCCPROJECTNAME");
