@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#21 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#22 $
 #
 # this is a massive hack, written very quickly
 #
@@ -110,7 +110,12 @@ sub processdocs {
 	if ($type{$url} eq "class") {
 	    $anchor{$class . "::" . $1} = $class . "#" . $1
 		while($def{$url} =~ /\benum\s*(\w+)\b/s);
+	} else {
+	    if ($type{$url} eq "fn" && $doc{$url} =~ /\\class\s/s) {
+		$doc{$url} = "";
+	    }
 	}
+
 
 	$doc = $doc{$url};
 
@@ -126,6 +131,8 @@ sub processdocs {
 		(?:(?:\n\s*?\n\s*)|(?:$ ))/\n/sx);
 	$doc =~ s/\s*$/\n/s;
 	$doc =~ s/^\s*//s;
+	$brief{$url} = $1
+	    if ($doc =~ s/\s*\\brief\s+(.*?)\n\s*\n//s);
 
 	$doc =~ s/\\internal\s.*//s if (!$internal);
 
@@ -335,13 +342,13 @@ sub readc {
     study $c;
 
 # find all the defined functions
-    while ($c =~ m;
+    while ($c =~ m@
 	   (?:/\*\![-\s]*      (?# documentation prologue 
 			       )
-	   ((?:[^\*]|(?:\*[^/]))*) (?# documentation
-			       )
+	   ((?:(?:[^\*])|(?:\*[^/]))*)
            \*/)\s*            (?# comment end 
 			       )
+# ([^\{;]+)\x7b
 	   \n\s*((?:[\w:]+\s*)*[\*\&\s])*(?# return type 
 			       )
 	   (?:(\w+)\s*::\s*)? (?# class name and :: 
@@ -354,7 +361,7 @@ sub readc {
 	     (?:\s+delete))))\s*
 	   \(\s*([^\)]*?)\s*\) (?# arg list
 			       )
-           \s*(const)?\s*(?::[\s\w,\(\)]+)?\s*\x7b;gsx) {
+           \s*(const)?\s*(?::[\s\w,\(\)]+)?\s*\x7b@gsx) {
         my ($doc, $type, $class, $name, $args, $const);
 	print "url:\n" if ($debug);
 	$doc = $1;
@@ -565,7 +572,7 @@ sub printout {
 	$file = $url;
 	$file =~ s/#.*//;
 	if ($file ne $cfile) {
-	    $fnheader = "<h2>Member function documentation</h2>\n<dl>\n";
+	    $fnheader = "<h2>Member Function Documentation</h2>\n<dl>\n";
 	    print O $fntail, $tail;
 	    close(O);
 	    open(O, "> $file") || die "can't open $file for writing";
@@ -601,7 +608,7 @@ sub printout {
 	    print O "<html><head>\n<title>Qt toolkit - ", 
 	    $name{$url}, 
 	    " class</title>\n</head><body>\n",
-	    "<h1>", $name{$url}, " class reference</h1>\n<hr>\n";
+	    "<h1>", $name{$url}, " Class Reference</h1>\n<hr>\n";
 	}
 	if ($type{$url} eq "class") {
 	    my ($i);
@@ -619,22 +626,21 @@ sub printout {
 		}
 		if (($ic ne "") && ($im eq "public")) {
 		    if (defined($capt{$ic})) {
-			$i = join ("", $i, "<li>", &al($ic), 
-				   " (", $capt{$ic}, ")");
+			$i = join ("", $i, ", ", &al($ic), " (", $capt{$ic}, ")");
 		    } else {
-			$i = join ("", $i, "<li>", &al($ic));
+			$i = join ("", $i, ", ", &al($ic));
 		    }
 		}
 	    }
-	    if ($i eq "") {
-		print O "<p>\nDoes not inherit anything.\n";
-	    } else {
-		print O "<p>\nInherits:\n<ul>\n", $i, "</ul>\n";
+	    if ($i ne "") {
+		$i =~ s/\,([^,]+)$/and$1/;
+		print O "<p>\nInherits ", $i, ".\n";
 	    }
 
-	    print O "<p>\n<h2>Description</h2>\n", $doc{$url}, "\n";
 	    if (defined($members{$url})) {
 		my (%m, $mode, %enums);
+		print O "<p>\n", $brief{$url}, "\n"
+		    if (defined($brief{$url}));
 		undef %m;
 		$mode = "private";
 		foreach (split(/;/, $members{$url})) {
@@ -720,8 +726,9 @@ sub printout {
 		    }
 		    print O "</ul>\n";
 		}
+		print O "<p><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
 	    }
-	} elsif ($type{$url} eq "fn") {
+	} elsif (($type{$url} eq "fn") && ($doc{$url} =~ /\S/)) {
 	    my ($name);
 	    print O $fnheader;
 	    $fnheader = "";
@@ -753,5 +760,4 @@ foreach $arg ( 0..$#ARGV ) {
 chdir("/local/qt/doc/html") || die "can't cd to /local/qt/doc/html";
 
 &printout();
-
 
