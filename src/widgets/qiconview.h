@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#23 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#24 $
 **
 ** Definition of QIconView widget class
 **
@@ -190,6 +190,8 @@ public:
 public slots:
     virtual void setText( const QString &text );
     virtual void setIcon( const QIconSet &icon );
+    virtual void setText( const QString &text, bool recalc );
+    virtual void setIcon( const QIconSet &icon, bool recalc );
 
 protected slots:
     virtual void renameItem();
@@ -204,7 +206,8 @@ protected:
     virtual void dragEntered();
     virtual void dragLeft();
     virtual void init();
-
+    
+protected:
     QIconView *view;
     QString itemText;
     QIconSet itemIcon;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#55 $
 **
 ** Definition of QIconView widget class
 **
@@ -39,6 +39,7 @@
 #include <qkeycode.h>
 #include <qapplication.h>
 #include <qmultilinedit.h>
+#include <qmap.h>
 
 #include <stdlib.h>
 #include <math.h>
@@ -122,6 +123,8 @@ struct QIconViewPrivate
     int maxItemWidth, maxItemTextLength;
     QPoint dragStart;
     bool drawDragShape;
+    QMap< QString, QIconViewItem* > textMap;
+    QString currInputString;
 };
 
 /*****************************************************************************
@@ -520,6 +523,39 @@ void QIconViewItem::setIcon( const QIconSet &icon )
     itemIcon = icon;
     calcRect();
     repaint();
+}
+
+/*!
+  Sets \a text as text of the iconview item. Using \a recalc you can specify,
+  if the iconview should be recalculated and repainted or not.
+*/
+
+void QIconViewItem::setText( const QString &text, bool recalc )
+{
+    if ( text == itemText )
+	return;
+
+    itemText = text;
+    
+    if ( recalc ) {
+	calcRect();
+	repaint();
+    }
+}
+
+/*!
+  Sets \a icon as item icon of the iconview item. Using \a recalc you can specify,
+  if the iconview should be recalculated and repainted or not.
+*/
+
+void QIconViewItem::setIcon( const QIconSet &icon, bool recalc )
+{
+    itemIcon = icon;
+    
+    if ( recalc ) {
+	calcRect();
+	repaint();
+    }
 }
 
 /*!
@@ -2483,6 +2519,9 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	scrollBy( 0, -visibleHeight() );
 	setCurrentItem( findFirstVisibleItem() );
 	break;
+    default:
+	if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
+	}
     }
 
     ensureItemVisible( d->currentItem );
