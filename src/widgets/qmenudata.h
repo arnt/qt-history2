@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#16 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#17 $
 **
 ** Definition of QMenuData class
 **
@@ -76,6 +76,8 @@ public:
     QMenuData();
     virtual ~QMenuData();
 
+    int		count() const;
+
     void	insertItem( const char *string, int id=-1, int index=-1 );
     void	insertItem( const char *string, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
@@ -88,6 +90,7 @@ public:
 
     void	removeItem( int id )		{ removeItemAt(indexOf(id)); }
     void	removeItemAt( int index );
+    void	clear();
 
     long	accel( int id )	 const;		// get accelerator key
     void	setAccel( long key, int id );	// set accelerator key
@@ -120,9 +123,6 @@ public:
 				const QObject *receiver, const char *member );
 
     QMenuItem  *findItem( int id ) const;
-
-    int         count() const;
-    void        clear();         // count() and clear() EE 26/4-95 ###
 
 protected:
     int		   actItem;			// active menu item

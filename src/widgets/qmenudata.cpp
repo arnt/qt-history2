@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#20 $
 **
 ** Implementation of QMenuData class
 **
@@ -10,21 +10,26 @@
 **
 *****************************************************************************/
 
-#define  INCLUDE_MENUITEM_DEF
+#define	 INCLUDE_MENUITEM_DEF
 #include "qmenudta.h"
 #include "qpopmenu.h"
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#20 $";
 #endif
 
 
 /*!
 \class QMenuData qmenudta.h
+\brief The QMenuData class is a base class for QMenuBar and QPopupMenu.
 
-The QMenuData class is a base class for QMenuBar and QPopupMenu.
-QMenuData organizes a list of menu items.
+QMenuData has an internal list of menu items.  A menu item is a text
+or a pixmap in a menu.  The menu item sends out an activated() signal
+when it is selected, and a highlighted() signal when it receives the
+user input focus.
+
+Menu items can be accessed through identifiers.
 */
 
 // ---------------------------------------------------------------------------
@@ -33,12 +38,12 @@ QMenuData organizes a list of menu items.
 
 QMenuItem::QMenuItem()				// initialize menu item
 {
-    ident        = -1;
+    ident	 = -1;
     is_separator = is_disabled = is_checked = FALSE;
-    pixmap_data  = 0;
-    popup_menu   = 0;
-    accel_key    = 0;
-    signal_data  = 0;
+    pixmap_data	 = 0;
+    popup_menu	 = 0;
+    accel_key	 = 0;
+    signal_data	 = 0;
 }
 
 QMenuItem::~QMenuItem()
@@ -52,6 +57,10 @@ QMenuItem::~QMenuItem()
 // QMenuData member functions
 //
 
+/*!
+Constructs an empty list.
+*/
+
 QMenuData::QMenuData()
 {
     actItem = -1;				// no active menu item
@@ -62,6 +71,10 @@ QMenuData::QMenuData()
     isPopup = isMenuBar = mouseBtDn = FALSE;
     badSize = TRUE;
 }
+
+/*!
+Removes all menu items and disconnects any signals that have been connected.
+*/
 
 QMenuData::~QMenuData()
 {
@@ -75,26 +88,59 @@ QMenuData::~QMenuData()
 }
 
 
+/*!
+Virtual function; notifies subclasses about an item that has been changed.
+*/
+
 void QMenuData::updateItem( int )		// reimplemented in subclass
 {
 }
+
+/*!
+Virtual function; notifies subclasses that one or more items have been
+inserted or removed.
+*/
 
 void QMenuData::menuContentsChanged()		// reimplemented in subclass
 {
 }
 
+/*!
+Virtual function; notifies subclasses that one or more items have changed
+state (enabled/disabled or checked/unchecked).
+*/
+
 void QMenuData::menuStateChanged()		// reimplemented in subclass
 {
 }
+
+/*!
+Virtual function; notifies subclasses that a popup menu item has been
+inserted.
+*/
 
 void QMenuData::menuInsPopup( QPopupMenu * )	// reimplemented in subclass
 {
 }
 
+/*!
+Virtual function; notifies subclasses that a popup menu item has been
+removed.
+*/
+
 void QMenuData::menuDelPopup( QPopupMenu * )	// reimplemented in subclass
 {
 }
 
+
+/*!
+Returns the number of items in the menu.
+*/
+
+int QMenuData::count() const
+{ 
+    return mitems->count(); 
+}
 
 void QMenuData::insertAny( const char *string, const QPixmap *pixmap,
 			   QPopupMenu *popup, int id, int index )
@@ -153,10 +199,18 @@ void QMenuData::removePopup( QPopupMenu *popup )
 	removeItemAt( index );
 }
 
+/*!
+Inserts a menu item with a text.
+*/
+
 void QMenuData::insertItem( const char *string, int id, int index )
 {						// insert string item
     insertAny( string, 0, 0, id, index );
 }
+
+/*!
+Inserts a menu item with a text and a sub menu.
+*/
 
 void QMenuData::insertItem( const char *string, QPopupMenu *popup,
 			    int id, int index )
@@ -164,10 +218,18 @@ void QMenuData::insertItem( const char *string, QPopupMenu *popup,
     insertAny( string, 0, popup, id, index );
 }
 
+/*!
+Inserts a menu item with a pixmap.
+*/
+
 void QMenuData::insertItem( const QPixmap &pixmap, int id, int index )
 {						// insert pixmap item
     insertAny( 0, &pixmap, 0, id, index );
 }
+
+/*!
+Inserts a menu item with a pixmap and a sub menu.
+*/
 
 void QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 			    int id, int index )
@@ -179,6 +241,7 @@ void QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 Inserts a separator at position \e index.  The separator will become the last
 menu item if \e index is negative.
 */
+
 void QMenuData::insertSeparator( int index )	// insert menu separator
 {
     insertAny( 0, 0, 0, -2, index );
@@ -192,6 +255,7 @@ Removes the menu item which has the identifier \e id.
 /*!
 Removes the menu item at position \e index.
 */
+
 void QMenuData::removeItemAt( int index )	// remove menu item
 {
     if ( index < 0 || index >= mitems->count() ) {
@@ -209,11 +273,59 @@ void QMenuData::removeItemAt( int index )	// remove menu item
 }
 
 
-long QMenuData::accel( int id ) const	// get accelerator key
+/*!
+Removes all menu items.
+*/
+
+void QMenuData::clear()				// remove all menu items
+{
+    register QMenuItem *mi = mitems->first();
+    while ( mi ) {
+	if ( mi->popup_menu )
+	    menuDelPopup( mi->popup_menu );
+	mitems->remove();
+	mi = mitems->current();
+    }
+    if ( !QApplication::closingDown() )		// avoid trouble
+	menuContentsChanged();
+
+}
+
+
+/*!
+Returns the accelerator key that has been defined for the menu item \e id,
+or 0 if there is no accelerator key.
+*/
+
+long QMenuData::accel( int id ) const		// get accelerator key
 {
     QMenuItem *mi = findItem( id );
     return mi ? mi->key() : 0;
 }
+
+/*!
+Defines an accelerator key for the menu item \e id.
+
+An accelerator key consists of a key code and a combination of the modifiers
+\c SHIFT, \c CTRL and \c ALT (OR'ed or added).
+The header file qkeycode.h has a list of key codes.
+
+Defining an accelerator key generates a text which is added to the menu item,
+for instance, \c CTRL + \c Key_O generates "Ctrl+O".  The text is formatted
+differently for different platforms.
+
+Notice that accelerators are only meaningful for popup submenus of a menu
+bar.
+
+Example of use:
+\code
+  QPopupMenu fm;			\/ file sub menu
+  fm.insertItem( "Open Document", 67 );	\/ add "Open" item
+  fm.setAccel( CTRL + Key_O, 67 );
+  fm.insertItem( "Quit", 69 );		\/ add "Quit" item
+  fm.setAccel( CTRL + ALT + Key_Delete, 69 );
+\endcode
+*/
 
 void QMenuData::setAccel( long key, int id )	// set accelerator key
 {
@@ -225,17 +337,31 @@ void QMenuData::setAccel( long key, int id )	// set accelerator key
 }
 
 
+/*!
+Returns the text that has been set for menu item \e id, or 0 if no text
+has been set.
+*/
+
 const char *QMenuData::string( int id ) const	// get string
 {
     QMenuItem *mi = findItem( id );
     return mi ? mi->string() : 0;
 }
 
+/*!
+Returns the pixmap that has been set for menu item \e id, or 0 if no pixmap
+has been set.
+*/
+
 QPixmap *QMenuData::pixmap( int id ) const	// get pixmap
 {
     QMenuItem *mi = findItem( id );
     return mi ? mi->pixmap() : 0;
 }
+
+/*!
+Changes the text of the menu item \e id.
+*/
 
 void QMenuData::changeItem( const char *string, int id )
 {
@@ -251,6 +377,10 @@ void QMenuData::changeItem( const char *string, int id )
 	menuContentsChanged();
     }
 }
+
+/*!
+Changes the pixmap of the menu item \e id.
+*/
 
 void QMenuData::changeItem( const QPixmap &pixmap, int id )
 {
@@ -272,11 +402,20 @@ void QMenuData::changeItem( const QPixmap &pixmap, int id )
 }
 
 
+/*!
+Returns TRUE if the item is disabled.
+*/
+
 bool QMenuData::isItemDisabled( int id ) const
 {						// is menu item disabled?
     QMenuItem *mi = findItem( id );
     return mi ? mi->isDisabled() : FALSE;
 }
+
+/*!
+Enables the menu item if \e enable is TRUE, or disables the item if
+\e enable is FALSE.
+*/
 
 void QMenuData::setItemEnabled( int id, bool enable )
 {						// enable/disable item
@@ -291,11 +430,20 @@ void QMenuData::setItemEnabled( int id, bool enable )
 }
 
 
+/*!
+Returns TRUE if the menu item has been checked.
+*/
+
 bool QMenuData::isItemChecked( int id ) const
 {						// is menu item checked?
     QMenuItem *mi = findItem( id );
     return mi ? mi->isChecked() : FALSE;
 }
+
+/*!
+Checks a menu item if \e check is TRUE, or unchecks it if \e check is
+FALSE.
+*/
 
 void QMenuData::setItemChecked( int id, bool check )
 {						// enable/disable item
@@ -306,6 +454,10 @@ void QMenuData::setItemChecked( int id, bool check )
     }
 }
 
+
+/*!
+Returns a pointer to the menu item.
+*/
 
 QMenuItem *QMenuData::findItem( int id ) const	// find menu item, ident==id
 {
@@ -326,6 +478,10 @@ QMenuItem *QMenuData::findItem( int id ) const	// find menu item, ident==id
     return 0;					// not found
 }
 
+/*!
+Returns the index of the menu item.
+*/
+
 int QMenuData::indexOf( int id ) const		// get index of item, ident==id
 {
     if ( id == -1 )				// bad identifier
@@ -342,23 +498,35 @@ int QMenuData::indexOf( int id ) const		// get index of item, ident==id
     return -1;					// not found
 }
 
+/*!
+Returns the identifier of the menu item at position \e index in the internal
+list.
+*/
+
 int QMenuData::idAt( int index ) const		// get menu identifier at index
 {
     return ((uint)index < mitems->count()) ?
 	   mitems->at(index)->id() : -1;
 }
 
-  /*!
-  Sets the menu identifier of the item at \e index. If index is out of range
-  the operation is ignored. 
-  */
+/*!
+Sets the menu identifier of the item at \e index to \e id.
+
+If index is out of range the operation is ignored. 
+*/
 
 void QMenuData::setId( int index, int id )	// set menu identifier at index
 {
     if ((uint)index < mitems->count())
-        mitems->at(index)->ident = id;
+	mitems->at(index)->ident = id;
 }
 
+
+/*!
+Connects a menu item to a receiver and a slot or signal.
+
+The receiver will be notified when the menu item is activated.
+*/
 
 bool QMenuData::connectItem( int id, const QObject *receiver,
 			     const char *member )
@@ -373,6 +541,12 @@ bool QMenuData::connectItem( int id, const QObject *receiver,
     return mi->signal_data->connect( receiver, member );
 }
 
+/*!
+Disconnects a receiver/member from a menu item.
+
+All connections are removed when the menu data object is destroyed.
+*/
+
 bool QMenuData::disconnectItem( int id, const QObject *receiver,
 				const char *member )
 {
@@ -381,32 +555,3 @@ bool QMenuData::disconnectItem( int id, const QObject *receiver,
 	return FALSE;
     return mi->signal_data->disconnect( receiver, member );
 }
-
-  /*!
-  Returns the number of items in the menu.
-  */
-int QMenuData::count() const
-{ 
-    return mitems->count(); 
-}
-
-
-  /*!
-  Removes all menu items.
-  */
-void QMenuData::clear()				// remove all menu items
-{
-    register QMenuItem *mi = mitems->first();
-    while ( mi ) {
-	if ( mi->popup_menu )
-            menuDelPopup( mi->popup_menu );
-        mitems->remove();
-	mi = mitems->current();
-    }
-    if ( !QApplication::closingDown() )		// avoid trouble
-	menuContentsChanged();
-
-}
-
-
-
