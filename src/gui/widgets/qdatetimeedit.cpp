@@ -2460,19 +2460,15 @@ void QDateTimeEditPrivate::calculateSizeHints() const
         int h = edit->sizeHint().height();
         int w = 0;
         QString s;
-        s = prefix + textFromValue(minimum) + suffix + QLatin1Char(' ');
+        s = prefix + textFromValue(minimum) + QLatin1String("  ");
         w = qMax<int>(w, fm.width(s));
-        s = prefix + textFromValue(maximum) + suffix + QLatin1Char(' ');
+        s = prefix + textFromValue(maximum) + QLatin1String("  ");
         w = qMax<int>(w, fm.width(s));
-        if (specialvaluetext.size()) {
-            s = specialvaluetext;
-            w = qMax<int>(w, fm.width(s));
-        }
-        w += 2; // cursor blinking space
+        w += 10; // cursor blinking space
 
         QStyleOptionSpinBox opt = getStyleOption();
         QSize hint(w, h);
-        QSize extra(35,6);
+        QSize extra(35, 6);
         opt.rect.setSize(hint + extra);
         extra += hint - q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
                                             QStyle::SC_SpinBoxEditField, q).size();
@@ -2484,8 +2480,7 @@ void QDateTimeEditPrivate::calculateSizeHints() const
 
         if (slider)
             hint.rheight() += q->style()->pixelMetric(QStyle::PM_SpinBoxSliderHeight, &opt, q);
-        cachedsizehint = hint.expandedTo(QApplication::globalStrut());
-        cachedminimumsizehint = hint.expandedTo(QApplication::globalStrut());
+        cachedsizehint = cachedminimumsizehint = hint.expandedTo(QApplication::globalStrut());
         const_cast<QDateTimeEditPrivate *>(this)->sizehintdirty = false;
     }
 }
