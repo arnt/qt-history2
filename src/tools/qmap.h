@@ -528,8 +528,8 @@ public:
     ConstIterator find ( const Key& k ) const
 	{ return sh->find( k ); }
     T& operator[] ( const Key& k ) {
-	detach(); Iterator it( sh->find( k ).node );
-	if ( it != sh->end() ) return it.data();
+	detach(); QMapNode<Key,T>* p = sh->find( k ).node;
+	if ( p != sh->end().node ) return p->data;
 	return insert( k, T() ).data(); }
     const T& operator[] ( const Key& k ) const
 	{ return sh->find( k ).data(); }
