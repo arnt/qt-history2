@@ -31,6 +31,7 @@
 
 #ifndef QT_NO_DRAGANDDROP
 
+#include "qapplication_p.h"
 #include "qpainter.h"
 #include "qwidget.h"
 #include "qdragobject.h"
@@ -41,8 +42,6 @@
 #include "qt_windows.h"
 #include <shlobj.h>
 
-
-extern Qt::WindowsVersion qt_winver;
 
 static HCURSOR *cursor = 0;
 static QDragObject *global_src = 0;

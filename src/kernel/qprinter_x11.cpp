@@ -46,6 +46,7 @@
 #include "qpsprinter_p.h"
 #include "qprintdialog.h"
 #include "qapplication.h"
+#include "qapplication_p.h"
 #include <stdlib.h>
 
 #if defined(_OS_WIN32_)

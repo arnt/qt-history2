@@ -37,6 +37,7 @@
 #include "qworkspace.h"
 #ifndef QT_NO_WORKSPACE
 #include "qapplication.h"
+#include "../kernel/qapplication_p.h"
 #include "qobjectlist.h"
 #include "qlayout.h"
 #include "qtoolbutton.h"
@@ -110,7 +111,6 @@
 #if defined(_WS_WIN_)
 #include "qt_windows.h"
 
-extern Qt::WindowsVersion qt_winver;
 extern QRgb qt_colorref2qrgb(COLORREF);
 
 const bool win32 = TRUE;

@@ -38,10 +38,8 @@
 #include "qprinter.h"
 #include <stdlib.h>
 #include <math.h>
+#include "qapplication_p.h"
 #include "qt_windows.h"
-
-
-extern Qt::WindowsVersion qt_winver;	// defined in qapplication_win.cpp
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())

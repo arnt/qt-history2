@@ -37,11 +37,11 @@
 #include "qdragobject.h"
 #include "qbuffer.h"
 #include "qt_windows.h"
+#include "qapplication_p.h"
 #include <shlobj.h>
 
 extern bool qt_read_dib( QDataStream&, QImage& ); // qimage.cpp
 extern bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp
-extern Qt::WindowsVersion qt_winver;
 
 
 static QList<QWindowsMime> mimes;

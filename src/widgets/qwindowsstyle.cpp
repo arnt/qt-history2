@@ -38,6 +38,7 @@
 #include "qwindowsstyle.h"
 #ifndef QT_NO_STYLE_WINDOWS
 #include "qapplication.h"
+#include "../kernel/qapplication_p.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now
 #include "qpixmap.h" // for now
@@ -64,10 +65,6 @@
   This class implements the look and feel known from the Windows
   platform. Naturally it is also Qt's default GUI style on Windows.
 */
-
-#if defined(_WS_WIN32_)
-extern Qt::WindowsVersion qt_winver;
-#endif
 
 /*!
     Constructs a QWindowsStyle

@@ -32,11 +32,11 @@
 #include "qpaintdevicemetrics.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
+#include "qapplication_p.h"
 #include "qt_windows.h"
 #include <limits.h>
 
 
-extern Qt::WindowsVersion qt_winver;
 extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
 #define DATA_HBM	 data->hbm_or_mcpi.hbm

@@ -58,4 +58,8 @@ extern void qt_leave_modal( QWidget* );
 
 extern bool qt_is_gui_used;
 
+#if defined (_OS_WIN32_)
+extern Qt::WindowsVersion qt_winver;
+#endif
+
 #endif

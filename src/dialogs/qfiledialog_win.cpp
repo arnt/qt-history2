@@ -32,12 +32,11 @@
 #ifndef QT_NO_FILEDIALOG
 
 #include "qapplication.h"
+#include "./kernel/qapplication_p.h"
 #include "qt_windows.h"
 #include "qregexp.h"
 #include "qbuffer.h"
 #include "qstringlist.h"
-
-extern Qt::WindowsVersion qt_winver;	// defined in qapplication_win.cpp
 
 const int maxNameLen = 255;
 const int maxMultiLen = 16383;

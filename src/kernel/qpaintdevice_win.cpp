@@ -32,10 +32,9 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
+#include "qapplication_p.h"
 #include "qt_windows.h"
 
-
-extern Qt::WindowsVersion qt_winver;	// defined in qapplication_win.cpp
 
 QPaintDevice::QPaintDevice( uint devflags )
 {

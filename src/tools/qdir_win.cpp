@@ -41,6 +41,7 @@
 #include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"
+#include "../kernel/qapplication_p.h"
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -83,8 +84,6 @@ static void QDir::slashify( QString& n)
 }
 
 #endif
-
-extern Qt::WindowsVersion qt_winver;
 
 QString QDir::homeDirPath()
 {

@@ -35,10 +35,9 @@
 #include "qt_windows.h"
 #include "qobject.h"
 #include "qapplication.h"
+#include "qapplication_p.h"
 #include "qintdict.h"
 #include <process.h>
-
-extern Qt::WindowsVersion qt_winver;
 
 void qSystemWarning( const QString& message )
 {

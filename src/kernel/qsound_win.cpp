@@ -33,11 +33,10 @@
 
 #include <qsocknot.h>
 #include <qapplication.h>
+#include "qapplication_p.h"
 #include <qfile.h>
 
 #include <qt_windows.h>
-
-extern Qt::WindowsVersion qt_winver;            // in qapplication_win.cpp
 
 class QAuServerWindows : public QAuServer {
     Q_OBJECT

@@ -30,11 +30,10 @@
 #include "qcursor.h"
 #include "qbitmap.h"
 #include "qapplication.h"
+#include "qapplication_p.h"
 #include "qimage.h"
 #include "qdatastream.h"
 #include "qt_windows.h"
-
-extern Qt::WindowsVersion qt_winver;
 
 static const int cursors = 15;
 static QCursor cursorTable[cursors];

@@ -43,8 +43,6 @@
 #include "qpaintdevicemetrics.h"
 
 
-extern Qt::WindowsVersion qt_winver;
-
 #if !defined(WS_EX_TOOLWINDOW)
 #define WS_EX_TOOLWINDOW 0x00000080
 #endif

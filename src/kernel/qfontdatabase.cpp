@@ -47,6 +47,7 @@
 #include "qfile.h"
 #include "qtextstream.h"
 #include "qapplication.h"
+#include "qapplication_p.h"
 #include "qpainter.h"
 #include <stdlib.h>
 #include <ctype.h>
@@ -1024,8 +1025,6 @@ void QFontDatabase::createDatabase()
 
 
 #ifdef _WS_WIN_
-
-extern Qt::WindowsVersion qt_winver;            // defined in qapplication_win.cpp
 
 static
 int CALLBACK

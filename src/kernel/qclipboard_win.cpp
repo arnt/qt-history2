@@ -32,6 +32,7 @@
 #ifndef QT_NO_CLIPBOARD
 
 #include "qapplication.h"
+#include "qapplication_p.h"
 #include "qpixmap.h"
 #include "qdatetime.h"
 #include "qimage.h"
@@ -45,7 +46,6 @@
 
 static HWND nextClipboardViewer = 0;
 static bool inClipboardChain = FALSE;
-extern Qt::WindowsVersion qt_winver;		// in qapplication_win.cpp
 
 
 static QWidget *clipboardOwner()

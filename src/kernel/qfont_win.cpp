@@ -38,9 +38,8 @@
 #include "qcache.h"
 #include <limits.h>
 #include "qt_windows.h"
+#include "qapplication_p.h"
 
-
-extern Qt::WindowsVersion qt_winver;		// defined in qapplication_win.cpp
 
 static HDC   shared_dc	    = 0;		// common dc for all fonts
 static HFONT shared_dc_font = 0;		// used by Windows 95/98
