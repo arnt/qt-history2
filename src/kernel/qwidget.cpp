@@ -4315,9 +4315,9 @@ bool QWidget::event( QEvent *e )
 		return FALSE;
 	    break;
 #endif
-        case QEvent::TabletMove:
-        case QEvent::TabletPress:
-        case QEvent::TabletRelease:
+	case QEvent::TabletMove:
+	case QEvent::TabletPress:
+	case QEvent::TabletRelease:
 	    tabletEvent( (QTabletEvent*)e );
 	    if ( ! ((QTabletEvent*)e)->isAccepted() )
 		return FALSE;
