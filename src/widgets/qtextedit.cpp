@@ -1031,6 +1031,10 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
     case Key_Insert:
 	if ( e->state() & ShiftButton )
 	    paste();
+#if defined (Q_WS_WIN)
+	else if ( e->state() & ControlButton )
+	    copy();
+#endif
 	break;
     case Key_Backspace:
 	if ( doc->hasSelection( QTextDocument::Standard, TRUE ) ) {
