@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#26 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -21,7 +21,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#26 $");
 
 
 static QRegion *empty_region = 0;
@@ -270,7 +270,9 @@ QArray<QRect> QRegion::getRects() const
     a = QArray<QRect>( rd->rdh.nCount );
     RECT *r = (RECT*)rd->Buffer;
     for ( int i=0; i<(int)a.size(); i++ ) {
-	a[i].setCoords( r->left, r->top, r->right, r->bottom);
+	// ##### This needs to be carefully tested.
+	a[i].setCoords( r->left, r->top, r->right-1, r->bottom-1);
+	//a[i].setCoords( r->left, r->top, r->right, r->bottom);
 	r++;
     }
 
