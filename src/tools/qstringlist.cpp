@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#25 $
 **
 ** Implementation of QStringList
 **
@@ -86,6 +86,11 @@
     ...
     QStringList mylist = QStringList() << s1 << s2 << s3;
   \endcode
+*/
+
+/*! \fn QStringList::QStringList( const QValueList<QString>& l ) 
+
+  Constructs a new string list that is a copy of \a l.
 */
 
 /*!
