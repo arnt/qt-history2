@@ -930,38 +930,6 @@ void SetupWizardImpl::makeDone()
     }
 }
 
-void SetupWizardImpl::makeDone()
-{
-    QStringList args;
-
-    if( !make.normalExit() || ( make.normalExit() && make.exitStatus() ) ) {
-	logOutput( "The build process failed!\n" );
-	emit wizardPageFailed( indexOf(currentPage()) );
-	QMessageBox::critical( this, "Error", "The build process failed!" );
-	setAppropriate( progressPage, false );
-    } else {
-	if( ( globalInformation.sysId() != GlobalInformation::MSVC ) ||
-	    ( !findFileInPaths( "atlbase.h", QStringList::split( ";", QEnvironment::getEnv( "INCLUDE" ) ) ) &&
-	      !findFileInPaths( "afxwin.h", QStringList::split( ";", QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
-	    integratorDone();
-	else {
-	    connect( &integrator, SIGNAL( processExited() ), this, SLOT( integratorDone() ) );
-	    connect( &integrator, SIGNAL( readyReadStdout() ), this, SLOT( readIntegratorOutput() ) );
-	    connect( &integrator, SIGNAL( readyReadStderr() ), this, SLOT( readIntegratorError() ) );
-
-	    args << "nmake";
-
-	    integrator.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) + "\\Tools\\Designer\\Integration\\QMsDev" );
-	    integrator.setArguments( args );
-	    triedToIntegrate = true;
-	    if( !integrator.start() ) {
-		logOutput( "Could not start integrator process" );
-		emit wizardPageFailed( indexOf(currentPage()) );
-	    }
-	}
-    }
-}
-
 void SetupWizardImpl::configDone()
 {
     QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make" );
@@ -1593,14 +1561,14 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 
     if ( item->text(0) == "Static" && item->isOn() ) {
 	setStaticEnabled( TRUE );
-	if ( !QMessageBox::information( this, "Are you sure?", "It will not be possible to build components "
+	if ( QMessageBox::information( this, "Are you sure?", "It will not be possible to build components "
 				  "or plugins if you select the static build of the Qt library.\n"
 				  "New features, e.g souce code editing in Qt Designer, will not "
 				  "be available, "
 				  "\nand you or users of your software might not be able "
 				  "to use all or new features, e.g. new styles.\n\n"
 				  "Are you sure you want to build a static Qt library?",
-				  "No, I want to use the cool new stuff", "Yes" ) ) {
+				  "OK", "Revert" ) ) {
 		item->setOn( FALSE );
 		if ( ( item = (QCheckListItem*)configPage->configList->findItem( "Shared", 0, 0 ) ) ) {
 		item->setOn( TRUE );
