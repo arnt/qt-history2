@@ -585,7 +585,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
     s << (Q_UINT8)0;				// write dummy length info
     int pos = (int)pictb.at();			// save position
     QRect br;					// bounding rect addition
-    bool corr = false;				// correction for pen width
+    bool corr = FALSE;				// correction for pen width
 
     switch ( c ) {
 	case PdcDrawPoint:

@@ -1103,7 +1103,7 @@ void QGridLayout::init( int nRows, int nCols )
     setSupportsMargin( TRUE );
     array = new QLayoutArray( nRows, nCols );
     if(QApplication::reverseLayout())
-	array->setReversed( false, true );
+	array->setReversed( FALSE, TRUE );
 }
 
 /*!
