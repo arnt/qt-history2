@@ -243,6 +243,7 @@ public:
     QStringList children(const QString &prefix, ChildSpec spec) const;
     void clear();
     void sync();
+    void flush();
     bool isWritable() const;
 
 private:
@@ -401,6 +402,11 @@ void QMacSettingsPrivate::sync()
                                      hostNames[j]);
         }
     }
+}
+
+void QMacSettingsPrivate::flush()
+{
+    sync();
 }
 
 bool QMacSettingsPrivate::isWritable() const

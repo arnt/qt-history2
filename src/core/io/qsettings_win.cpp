@@ -51,6 +51,7 @@ public:
     QStringList children(const QString &uKey, ChildSpec spec) const;
     void clear();
     void sync();
+    void flush();
     bool isWritable() const;
     HKEY writeHandle() const;
     bool readKey(HKEY parentHandle, const QString &rSubKey, QCoreVariant *value) const;
@@ -790,6 +791,11 @@ void QWinSettingsPrivate::clear()
 void QWinSettingsPrivate::sync()
 {
     RegFlushKey(writeHandle());
+}
+
+void QWinSettingsPrivate::flush()
+{
+    // Windows does this for us.
 }
 
 QString QWinSettingsPrivate::fileName() const

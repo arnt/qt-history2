@@ -242,7 +242,7 @@ void QSettingsPrivate::update()
 {
     Q_Q(QSettings);
 
-    q->sync();
+    flush();
     pendingChanges = false;
 }
 
@@ -1040,6 +1040,11 @@ void QConfFileSettingsPrivate::sync()
             }
         }
     }
+}
+
+void QConfFileSettingsPrivate::flush()
+{
+    sync();
 }
 
 QString QConfFileSettingsPrivate::fileName() const
@@ -1984,7 +1989,7 @@ QSettings::~QSettings()
 {
     Q_D(QSettings);
     if (d->pendingChanges)
-        d->sync();
+        d->flush();
 }
 
 /*!

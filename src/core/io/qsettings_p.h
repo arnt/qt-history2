@@ -142,6 +142,7 @@ public:
 
     virtual void clear() = 0;
     virtual void sync() = 0;
+    virtual void flush() = 0;
     virtual bool isWritable() const = 0;
     virtual QString fileName() const;
 
@@ -213,6 +214,7 @@ public:
 
     void clear();
     void sync();
+    void flush();
     bool isWritable() const;
     QString fileName() const;
 
