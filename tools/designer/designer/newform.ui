@@ -1,5 +1,6 @@
-<!DOCTYPE UI><UI>
-<class>NewFormBase</class><comment>*********************************************************************
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>NewFormBase</class>
+<comment>*********************************************************************
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
@@ -18,170 +19,138 @@
 ** not clear to you.
 **
 *********************************************************************</comment>
-<widget>
-    <class>QDialog</class>
-    <property stdset="1">
-        <name>name</name>
+<widget class="QDialog">
+    <property name="name">
         <cstring>NewFormBase</cstring>
     </property>
-    <property stdset="1">
-        <name>geometry</name>
+    <property name="geometry">
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>437</width>
-            <height>257</height>
+            <width>433</width>
+            <height>255</height>
         </rect>
     </property>
-    <property stdset="1">
-        <name>caption</name>
+    <property name="caption">
         <string>New Form</string>
     </property>
-    <property stdset="1">
-        <name>sizeGripEnabled</name>
+    <property name="sizeGripEnabled">
         <bool>true</bool>
     </property>
-    <property>
-        <name>whatsThis</name>
+    <property name="whatsThis" stdset="0">
         <string>&lt;b&gt;New Form&lt;/b&gt;&lt;p&gt;Select a template for the new form and click the &lt;b&gt;OK&lt;/b&gt;-button to open it.&lt;/p&gt;</string>
     </property>
     <vbox>
-        <property stdset="1">
-            <name>margin</name>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
             <number>11</number>
         </property>
-        <property stdset="1">
-            <name>spacing</name>
+        <property name="spacing">
             <number>6</number>
         </property>
-        <widget>
-            <class>QLabel</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLabel">
+            <property name="name">
                 <cstring>Label1</cstring>
             </property>
-            <property stdset="1">
-                <name>text</name>
+            <property name="text">
                 <string>Choose a &amp;template for the new form:</string>
             </property>
-            <property>
-                <name>buddy</name>
+            <property name="buddy" stdset="0">
                 <cstring>templateView</cstring>
             </property>
         </widget>
-        <widget>
-            <class>QIconView</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QIconView">
+            <property name="name">
                 <cstring>templateView</cstring>
             </property>
-            <property stdset="1">
-                <name>itemsMovable</name>
-                <bool>false</bool>
-            </property>
-            <property stdset="1">
-                <name>gridX</name>
+            <property name="gridX">
                 <number>120</number>
             </property>
-            <property stdset="1">
-                <name>wordWrapIconText</name>
+            <property name="resizeMode">
+                <enum>Adjust</enum>
+            </property>
+            <property name="itemsMovable">
+                <bool>false</bool>
+            </property>
+            <property name="wordWrapIconText">
                 <bool>true</bool>
             </property>
-            <property>
-                <name>whatsThis</name>
+            <property name="whatsThis" stdset="0">
                 <string>Displays a list of available templates.</string>
             </property>
         </widget>
-        <widget>
-            <class>QLayoutWidget</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLayoutWidget">
+            <property name="name">
                 <cstring>Layout1</cstring>
             </property>
             <hbox>
-                <property stdset="1">
-                    <name>margin</name>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
                     <number>0</number>
                 </property>
-                <property stdset="1">
-                    <name>spacing</name>
+                <property name="spacing">
                     <number>6</number>
                 </property>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QPushButton">
+                    <property name="name">
                         <cstring>helpButton</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>&amp;Help</string>
                     </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
+                    <property name="autoDefault">
                         <bool>true</bool>
                     </property>
                 </widget>
                 <spacer>
-                    <property>
-                        <name>name</name>
+                    <property name="name" stdset="0">
                         <cstring>Horizontal Spacing2</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>orientation</name>
+                    <property name="orientation">
                         <enum>Horizontal</enum>
                     </property>
-                    <property stdset="1">
-                        <name>sizeType</name>
+                    <property name="sizeType">
                         <enum>Expanding</enum>
                     </property>
-                    <property>
-                        <name>sizeHint</name>
+                    <property name="sizeHint">
                         <size>
                             <width>20</width>
                             <height>20</height>
                         </size>
                     </property>
                 </spacer>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QPushButton">
+                    <property name="name">
                         <cstring>buttonOk</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>&amp;OK</string>
                     </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
+                    <property name="autoDefault">
                         <bool>true</bool>
                     </property>
-                    <property stdset="1">
-                        <name>default</name>
+                    <property name="default">
                         <bool>true</bool>
                     </property>
-                    <property>
-                        <name>whatsThis</name>
+                    <property name="whatsThis" stdset="0">
                         <string>Open a new form using the selected template.</string>
                     </property>
                 </widget>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QPushButton">
+                    <property name="name">
                         <cstring>buttonCancel</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>&amp;Cancel</string>
                     </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
+                    <property name="autoDefault">
                         <bool>true</bool>
                     </property>
-                    <property>
-                        <name>whatsThis</name>
+                    <property name="whatsThis" stdset="0">
                         <string>Close dialog and do not open a form.</string>
                     </property>
                 </widget>
