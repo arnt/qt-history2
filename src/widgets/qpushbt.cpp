@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#36 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#35 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#36 $";
 #endif
 
 
@@ -188,7 +188,7 @@ void QPushButton::adjustSize()
 {
     QFontMetrics fm = fontMetrics();
     QRect br = fm.boundingRect( text() );
-    int w = br.width()  + 6;
+    int w = br.width()	+ 6;
     int h = br.height() + 6;
     resize( w + w/8 + 16, h + h/8 + 4 );
 }
@@ -240,11 +240,11 @@ Draws the button, but not the button face.
 void QPushButton::drawButton( QPainter *paint )
 {
     register QPainter *p = paint;
-    GUIStyle 	gs = style();
+    GUIStyle	gs = style();
     QColorGroup g  = colorGroup();
-    bool 	updated = isDown() != lastDown || lastDef != defButton;
+    bool	updated = isDown() != (bool)lastDown || lastDef != defButton;
     QColor	fillcol = g.background();
-    int 	x1, y1, x2, y2;
+    int		x1, y1, x2, y2;
 
     rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
 
@@ -344,7 +344,7 @@ void QPushButton::drawButton( QPainter *paint )
     else if ( gs == Win3Style ) {		// Windows 3.x push button
 	QPointArray a;
 	a.setPoints( 8, x1+1,y1, x2-1,y1, x1+1,y2, x2-1,y2,
-		        x1,y1+1, x1,y2-1, x2,y1+1, x2,y2-1 );
+			x1,y1+1, x1,y2-1, x2,y1+1, x2,y2-1 );
 	p->drawLineSegments( a );		// draw frame
 	x1++; y1++;
 	x2--; y2--;
@@ -431,7 +431,7 @@ void QPushButton::drawButton( QPainter *paint )
 
 
 /*!
-Draws the button face.  The default implementation draws the button text.
+Draws the button face.	The default implementation draws the button text.
 
 This virtual function can be reimplemented by subclasses.
 */
@@ -440,8 +440,8 @@ void QPushButton::drawButtonFace( QPainter *paint )
 {
     if ( !text() )
 	return;
-    register QPainter *p = paint;    
-    GUIStyle    gs = style();
+    register QPainter *p = paint;
+    GUIStyle	gs = style();
     QColorGroup g  = colorGroup();
     int		dt = 0;
     switch ( gs ) {

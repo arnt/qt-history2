@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.h#7 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.h#8 $
 **
 ** Definition of QButtonGroup class
 **
 ** Author  : Eirik Eng
 ** Created : 950130
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -28,7 +28,7 @@ public:
     QButtonGroup( const char *title, QWidget *parent=0, const char *name=0 );
    ~QButtonGroup();
 
-    int  insert( QButton *, int id=-1 );
+    int	 insert( QButton *, int id=-1 );
     void remove( QButton * );
 
 signals:

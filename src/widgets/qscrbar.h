@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.h#18 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.h#19 $
 **
 ** Definition of QScrollBar class
 **
@@ -41,10 +41,10 @@ signals:
     void	sliderPressed();
     void	sliderMoved( long value );
     void	sliderReleased();
-    void        nextLine();
-    void        previousLine();
-    void        nextPage();
-    void        previousPage();
+    void	nextLine();
+    void	previousLine();
+    void	nextPage();
+    void	previousPage();
 
 protected:
     void	timerEvent( QTimerEvent * );
@@ -61,23 +61,23 @@ protected:
     void	rangeChange();
 
     int		sliderStart() const;
-    QRect       sliderRect() const;
+    QRect	sliderRect() const;
 
 private:
     void	init();
     void	positionSliderFromValue();
     long	calculateValueFromSlider() const;
 
-    uint     	pressedControl   : 8;
-    uint     	track	         : 1;
-    uint     	clickedAt	 : 1;
-    uint     	orient	         : 1;
-    uint     	thresholdReached : 1;
-    uint     	isTiming	 : 1;
+    uint	pressedControl	 : 8;
+    uint	track		 : 1;
+    uint	clickedAt	 : 1;
+    uint	orient		 : 1;
+    uint	thresholdReached : 1;
+    uint	isTiming	 : 1;
 
-    long        slidePreviousVal;
-    QCOORD    	sliderPos;
-    QCOORD    	clickOffset;
+    long	slidePreviousVal;
+    QCOORD	sliderPos;
+    QCOORD	clickOffset;
 };
 
 
@@ -105,7 +105,7 @@ inline int QScrollBar::sliderStart() const
 enum ArrowType
     { UpArrow, DownArrow, LeftArrow, RightArrow };
 
-void qDrawArrow( QPainter *, ArrowType type, GUIStyle style, bool down, 
+void qDrawArrow( QPainter *, ArrowType type, GUIStyle style, bool down,
 		 int x, int y, int w, int h, const QColorGroup & );
 
 

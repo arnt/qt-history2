@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#18 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#18 $";
 #endif
 
 
@@ -68,7 +68,7 @@ static QString long2string( long num, int base, int ndigits, bool *oflow )
 	    break;
     }
     if ( negative ) {
-	for ( int i=0; i<s.length(); i++ ) {
+	for ( int i=0; i<(int)s.length(); i++ ) {
 	    if ( s[i] != ' ' ) {
 		if ( i != 0 ) {
 		    s[i-1] = '-';
@@ -80,7 +80,7 @@ static QString long2string( long num, int base, int ndigits, bool *oflow )
 	}
     }
     if ( oflow )
-	*oflow = s.length() > ndigits;
+	*oflow = (int)s.length() > ndigits;
     return s;
 }
 
@@ -105,7 +105,7 @@ QString double2string( double num, int base, int ndigits, bool *oflow )
 	}
     }
     if ( oflow )
-	*oflow = s.length() > ndigits;
+	*oflow = (int)s.length() > ndigits;
     return s;
 }
 
@@ -214,7 +214,7 @@ QLCDNumber::~QLCDNumber()
 }
 
 
-void QLCDNumber::setNumDigits( uint numDigits )
+void QLCDNumber::setNumDigits( int numDigits )
 {
     if ( numDigits > 99 ) {
 #if defined(CHECK_RANGE)
@@ -246,10 +246,10 @@ void QLCDNumber::setNumDigits( uint numDigits )
 	}
 	else {					// shrink
 	    dif = ndigits - numDigits;
-	    digitStr = digitStr.right( numDigits );	    
+	    digitStr = digitStr.right( numDigits );
 	    QBitArray tmpPoints = points.copy();
 	    points.resize( numDigits );
-	    for ( i=0; i<numDigits; i++ )
+	    for ( i=0; i<(int)numDigits; i++ )
 		points.setBit( i, tmpPoints.testBit(i+dif) );
 	}
 	ndigits = numDigits;
@@ -318,7 +318,7 @@ void QLCDNumber::display( const char *s )
     p.begin( this );
     if ( !smallPoint ) {
 	if ( len >= ndigits ) {			  // String too long?
-	    for( i=0; i<ndigits; i++ )		  // Yes, show first chars.
+	    for( i=0; i<(int)ndigits; i++ )	  // Yes, show first chars.
 		buffer[i] = s[len - ndigits + i];
 	} else {
 	    for( i=0; i<ndigits-len; i++ )	  // Pad with spaces.
@@ -370,7 +370,7 @@ void QLCDNumber::display( const char *s )
 
 void QLCDNumber::setMode( Mode m )
 {
-    if ( base == m )
+    if ( (Mode)base == m )
 	return;
     base = m;
     display( "" );
@@ -378,7 +378,7 @@ void QLCDNumber::setMode( Mode m )
 
 void QLCDNumber::smallDecimalPoint( bool b )
 {
-    if ( smallPoint == b )
+    if ( (bool)smallPoint == b )
 	return;
     smallPoint = b;
     display( "" );
@@ -428,7 +428,7 @@ void QLCDNumber::drawString( const char *s, QPainter &p,
     }
     if ( newString ) {
 	digitStr = s;
-	if ( digitStr.length() > ndigits )
+	if ( (int)digitStr.length() > ndigits )
 	    digitStr.resize( ndigits );
 	if ( newPoints )
 	    points = *newPoints;
@@ -520,7 +520,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
 	case 2 :
-	    pt.rx() += segLen - 1;
+	    pt.rx() += (QCOORD)(segLen - 1);
 	    pt.ry()++;
 	    p.moveTo(pt);
 	    DARK;
@@ -531,7 +531,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
 	case 3 :
-	    pt.ry() += segLen;
+	    pt.ry() += (QCOORD)segLen;
 	    p.moveTo(pt);
 	    LIGHT;
 	    LINETO(width,-width/2);
@@ -548,7 +548,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
 	case 4 :
-	    pt.ry() += segLen + 1;
+	    pt.ry() += (QCOORD)(segLen + 1);
 	    p.moveTo(pt);
 	    LIGHT;
 	    LINETO(width,width/2);
@@ -559,8 +559,8 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
 	case 5 :
-	    pt.rx() += segLen - 1;
-	    pt.ry() += segLen + 1;
+	    pt.rx() += (QCOORD)(segLen - 1);
+	    pt.ry() += (QCOORD)(segLen + 1);
 	    p.moveTo(pt);
 	    DARK;
 	    LINETO(0,segLen - 2);
@@ -570,7 +570,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
 	case 6 :
-	    pt.ry() += 2*segLen;
+	    pt.ry() += (QCOORD)(segLen*2);
 	    p.moveTo(pt);
 	    LIGHT;
 	    LINETO(width,-width);
@@ -581,10 +581,10 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    break;
 	case 7 :
 	    if ( smallPoint )  // If smallpoint place'.' between other digits
-		pt.rx() += segLen + width/2;
+		pt.rx() += (QCOORD)(segLen + width/2);
 	    else
-		pt.rx() += segLen/2;
-	    pt.ry() += 2*segLen;
+		pt.rx() += (QCOORD)(segLen/2);
+	    pt.ry() += (QCOORD)(segLen);
 	    p.moveTo(pt);
 	    DARK;
 	    LINETO(width,0);
@@ -594,8 +594,8 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
 	case 8 :
-	    pt.ry() += segLen/2 + width;
-	    pt.rx() += segLen/2 - width/2 + 1;
+	    pt.ry() += (QCOORD)(segLen/2 + width);
+	    pt.rx() += (QCOORD)(segLen/2 - width/2 + 1);
 	    p.moveTo(pt);
 	    DARK;
 	    LINETO(width,0);
@@ -605,8 +605,8 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    LINETO(0,0);
 	    break;
 	case 9 :
-	    pt.ry() += 3*segLen/2 + width;
-	    pt.rx() += segLen/2 - width/2 + 1;
+	    pt.ry() += (QCOORD)(3*segLen/2 + width);
+	    pt.rx() += (QCOORD)(segLen/2 - width/2 + 1);
 	    p.moveTo(pt);
 	    DARK;
 	    LINETO(width,0);
@@ -618,7 +618,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 #if defined(CHECK_RANGE)
 	default :
 	    warning( "QLCDNumber::drawSegment: Internal error."
-		     "	Illegal segment id: %s\n", segmentNo );
+		     "  Illegal segment id: %s\n", segmentNo );
 #endif
     }
 #undef LINETO

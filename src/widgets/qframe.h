@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#7 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#8 $
 **
 ** Definition of QFrame widget class
 **
@@ -22,16 +22,16 @@ class QFrame : public QWidget			// frame class
 public:
     QFrame( QWidget *parent=0, const char *name=0, WFlags f=0 );
 
-    const int	NoFrame = 0;			// no frame
-    const int	Box	= 0x0001;		// rectangular box
-    const int	Panel	= 0x0002;		// rectangular panel
-    const int	HLine	= 0x0003;		// horizontal line
-    const int	VLine	= 0x0004;		// vertical line
-    const int	MType	= 0x000f;
-    const int	Plain	= 0x0010;		// plain line
-    const int	Raised	= 0x0020;		// raised shadow effect
-    const int	Sunken	= 0x0030;		// sunken shadow effect
-    const int	MStyle	= 0x00f0;
+    enum { NoFrame  = 0,			// no frame
+	   Box	    = 0x0001,			// rectangular box
+	   Panel    = 0x0002,			// rectangular panel
+	   HLine    = 0x0003,			// horizontal line
+	   VLine    = 0x0004,			// vertical line
+	   MType    = 0x000f,
+	   Plain    = 0x0010,			// plain line
+	   Raised   = 0x0020,			// raised shadow effect
+	   Sunken   = 0x0030,			// sunken shadow effect
+	   MStyle   = 0x00f0 };
 
     QRect	contentsRect()	const;		// get rect inside frame
 
@@ -51,7 +51,7 @@ protected:
     void	setFrameRect( const QRect & );
     void	paintEvent( QPaintEvent * );
     virtual void drawFrame( QPainter * );
-    virtual void drawContents( QPainter * );	
+    virtual void drawContents( QPainter * );
 
 private:
     void	updateFrameWidth();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#3 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#4 $
 **
 ** Definition of QRangeControl class
 **
@@ -36,7 +36,7 @@ public:
 protected:
     void    directSetValue(long val);
     long    previousValue() const;
-    
+
 private:
     void adjustValue();
     virtual void valueChange();

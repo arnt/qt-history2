@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#27 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#27 $";
 #endif
 
 
@@ -44,7 +44,7 @@ static void getSizeOfBitmap( GUIStyle gs, int *w, int *h )
 	case MotifStyle:
 	    *w = *h = 10;
 	    break;
-        default:
+	default:
 	    *w = *h = 10;
     }
 }
@@ -130,9 +130,9 @@ Draws the check box.
 void QCheckBox::drawButton( QPainter *paint )	// draw check box
 {
     register QPainter *p = paint;
-    GUIStyle     gs = style();
-    QColorGroup  g  = colorGroup();
-    QSize 	 sz = size();
+    GUIStyle	 gs = style();
+    QColorGroup	 g  = colorGroup();
+    QSize	 sz = size();
     QFontMetrics fm = fontMetrics();
     int		 x, y, w, h;
     int		 wmore = 0;

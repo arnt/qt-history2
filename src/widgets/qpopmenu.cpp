@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#37 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#36 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#37 $";
 #endif
 
 
@@ -100,9 +100,12 @@ the parent widget.
 
 /*!
 Constructs a popup menu with a parent and a widget name.
+
+The parent widget is ignored since this widget never has
+any parent.
 */
 
-QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
+QPopupMenu::QPopupMenu( QWidget *, const char *name )
 	: QTableWidget( 0, name, WType_Popup )
 {
     initMetaObject();
@@ -321,7 +324,7 @@ int QPopupMenu::itemPos( int index )		// get y coord for item
     if ( rowYPos( index, &y ) )			// ask table for position
 	return y;
     else
-	return 0;				// return 0 if not visible 
+	return 0;				// return 0 if not visible
 }
 
 
@@ -348,9 +351,9 @@ void QPopupMenu::updateSize()			// update popup size params
 	else if ( mi->string() ) {
 	    height += cellh;
 	    const char *s = mi->string();
-	    char *t = strchr( s, '\t' );
+	    const char *t = strchr( s, '\t' );
 	    if ( t ) {				// string contains tab
-		w = fm.width( s, (int)t-(int)s );
+		w = fm.width( s, (int)((long)t-(long)s) );
 		int tw = fm.width( t+1 );
 		if ( tw > tab_width )
 		    tab_width = tw;
@@ -394,13 +397,13 @@ static QString key_str( long k )		// get key string
 	if ( s.isEmpty() )
 	    s = "Ctrl";
 	else
-	    s += "+Ctrl";		
+	    s += "+Ctrl";
     }
     if ( (k & ALT) == ALT ) {
 	if ( s.isEmpty() )
 	    s = "A|t";
 	else
-	    s += "+Alt";		
+	    s += "+Alt";
     }
     k &= ~(SHIFT | CTRL | ALT);
     QString p;
@@ -496,7 +499,7 @@ static QString key_str( long k )		// get key string
 changed a state, or it is something else if called from the menu bar.
 */
 
-void QPopupMenu::updateAccel( QWidget *parent )	// update accelerator
+void QPopupMenu::updateAccel( QWidget *parent ) // update accelerator
 {
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
@@ -595,8 +598,8 @@ void QPopupMenu::hide()
 
 int QPopupMenu::cellHeight( long row )
 {
-    QMenuItem *mi = mitems->at( row );
-    int h = 0;					// default cell height
+    QMenuItem *mi = mitems->at( (int)row );
+    int h;
     if ( mi->isSeparator() )			// separator height
 	h = motifSepHeight;
     else if ( mi->pixmap() )			// pixmap height
@@ -608,7 +611,7 @@ int QPopupMenu::cellHeight( long row )
     return h;
 }
 
-int QPopupMenu::cellWidth( long col )
+int QPopupMenu::cellWidth( long )
 {
     return width() - 2*motifPopupFrame;
 }
@@ -617,7 +620,7 @@ int QPopupMenu::cellWidth( long col )
 void QPopupMenu::paintCell( QPainter *p, long row, long col )
 {
     QColorGroup g = colorGroup();
-    QMenuItem *mi = mitems->at( row );		// get menu item
+    QMenuItem *mi = mitems->at( (int)row );	// get menu item
     int cellh	  = cellHeight( row );
     int cellw	  = cellWidth( col );
     GUIStyle gs	  = style();
@@ -655,7 +658,7 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 	    p->setPen( palette().disabled().text() );
 	if ( t ) {				// draw text before tab
 	    p->drawText( x, m, cellw, cellh-2*m, text_flags,
-			 s, (int)t-(int)s );
+			 s, (int)((long)t-(long)s) );
 	    s = t + 1;
 	    x = tabMark;
 	}
@@ -844,7 +847,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     }
 
     if ( !ok_key ) {				// send to menu bar
-	register QMenuData *top = this;	// find top level
+	register QMenuData *top = this; // find top level
 	while ( top->parentMenu )
 	    top = top->parentMenu;
 	if ( top->isMenuBar )
@@ -887,7 +890,7 @@ void QPopupMenu::timerEvent( QTimerEvent *e )	// open sub menu
 	QPoint pos( width() - motifArrowHMargin,
 		    motifPopupFrame + motifArrowVMargin );
 	for ( int i=0; i<actItem; i++ )
-	    pos.ry() += cellHeight( i );
+	    pos.ry() += (QCOORD)cellHeight( i );
 	popupActive = actItem;
 	popup->popup( mapToGlobal(pos) );
     }

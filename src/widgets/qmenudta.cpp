@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#27 $
 **
 ** Implementation of QMenuData class
 **
@@ -16,7 +16,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#27 $";
 #endif
 
 
@@ -25,7 +25,7 @@ static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#26 $";
 \brief The QMenuData class is a base class for QMenuBar and QPopupMenu.
 
 QMenuData has an internal list of menu items.  A menu item is a string
-or a pixmap in a menu.  The menu item sends out an activated() signal
+or a pixmap in a menu.	The menu item sends out an activated() signal
 when it is selected, and a highlighted() signal when it receives the
 user input focus.
 
@@ -138,8 +138,8 @@ Returns the number of items in the menu.
 */
 
 int QMenuData::count() const
-{ 
-    return mitems->count(); 
+{
+    return mitems->count();
 }
 
 
@@ -162,7 +162,7 @@ int QMenuData::insertAny( const char *string, const QPixmap *pixmap,
     mi->ident = id == -1 ? index : id;
     if ( string == 0 && pixmap == 0 && popup == 0 ) {
 	mi->is_separator = TRUE;		// separator
-        mi->ident        = -1;
+	mi->ident	 = -1;
     } else {
 	mi->string_data = string;
 	if ( pixmap )
@@ -334,7 +334,7 @@ Removes the menu item at position \e index.
 
 void QMenuData::removeItemAt( int index )
 {
-    if ( index < 0 || index >= mitems->count() ) {
+    if ( index < 0 || index >= (int)mitems->count() ) {
 #if defined(CHECK_RANGE)
 	warning( "QMenuData::removeItem: Index %d out of range" );
 #endif
@@ -443,9 +443,9 @@ void QMenuData::changeItem( const char *string, int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi ) {					// item found
-	if ( mi->string_data == string )		// same string
+	if ( mi->string_data == string )	// same string
 	    return;
-	if ( mi->pixmap ) {			// delete pixmap
+	if ( mi->pixmap_data ) {		// delete pixmap
 	    delete mi->pixmap_data;
 	    mi->pixmap_data = 0;
 	}
@@ -497,7 +497,7 @@ void QMenuData::setItemEnabled( int id, bool enable )
 {						// enable/disable item
     QMenuItem *mi = findItem( id );
     bool disable = !enable;
-    if ( mi && mi->is_disabled != disable ) {
+    if ( mi && (bool)mi->is_disabled != disable ) {
 	mi->is_disabled = disable;
 	if ( mi->popup() )
 	    mi->popup()->enableAccel( enable );
@@ -524,7 +524,7 @@ FALSE.
 void QMenuData::setItemChecked( int id, bool check )
 {						// enable/disable item
     QMenuItem *mi = findItem( id );
-    if ( mi && mi->is_checked != check ) {
+    if ( mi && (bool)mi->is_checked != check ) {
 	mi->is_checked = check;
 	menuStateChanged();
     }
@@ -588,7 +588,7 @@ int QMenuData::idAt( int index ) const		// get menu identifier at index
 /*!
 Sets the menu identifier of the item at \e index to \e id.
 
-If index is out of range the operation is ignored. 
+If index is out of range the operation is ignored.
 */
 
 void QMenuData::setId( int index, int id )	// set menu identifier at index

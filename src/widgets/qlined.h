@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.h#13 $
+** $Id: //depot/qt/main/src/widgets/qlined.h#14 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -33,7 +33,7 @@ public slots:
 
 signals:
     void	textChanged( char * );
-    void        returnPressed();
+    void	returnPressed();
 
 protected:
     void	mousePressEvent( QMouseEvent * );
@@ -57,9 +57,9 @@ private:
 
     QString	tbuf;
     QPixmap    *pm;
-    uint	cursorPos;
-    uint	offset;
-    uint	maxLen;
+    int		cursorPos;
+    int		offset;
+    int		maxLen;
     uint	cursorOn	: 1;
 };
 

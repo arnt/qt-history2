@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#6 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#7 $
 **
 ** Implementation of QMessageBox class
 **
 ** Author  : Haavard Nord
 ** Created : 950503
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -17,7 +17,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#7 $";
 #endif
 
 

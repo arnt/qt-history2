@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#28 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#28 $";
 #endif
 
 
@@ -351,8 +351,8 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
     pressedControl = PRIV->pointOver( e->pos() );
     switch( pressedControl ) {
 	case SLIDER:
-	    clickOffset = ( HORIZONTAL ? e->pos().x() : e->pos().y() )
-			    - sliderPos;
+	    clickOffset = (QCOORD)( (HORIZONTAL ? e->pos().x() : e->pos().y())
+				    - sliderPos );
 	    slidePreviousVal = value();
 	    emit sliderPressed();
 	    break;
@@ -409,7 +409,7 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !(e->state() & LeftButton) )
 	return;					// left mouse button is up
-    
+
     int newSliderPos;
     if ( pressedControl == SLIDER ) {
 	int sliderMin, sliderMax;
@@ -428,7 +428,7 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 		emit valueChanged( value() );
 	    }
 	    slidePreviousVal = newVal;
-	    sliderPos = newSliderPos;
+	    sliderPos = (QCOORD)newSliderPos;
 	    PRIV->drawControls( ADD_PAGE | SLIDER | SUB_PAGE, pressedControl );
 	}
     }
@@ -464,7 +464,7 @@ QRect QScrollBar::sliderRect() const
 
 void QScrollBar::positionSliderFromValue()
 {
-    sliderPos = PRIV->rangeValueToSliderPos( value() );
+    sliderPos = (QCOORD)PRIV->rangeValueToSliderPos( value() );
 }
 
 long QScrollBar::calculateValueFromSlider() const
@@ -497,14 +497,14 @@ void QScrollBar_Private::metrics( int *sliderMin, int *sliderMax,
     else
 	buttonDim = ( length - b*2 - SLIDER_MIN )/2 - 1;
 
-    *sliderMin	  = b + buttonDim;
-    maxLength	  = length - b*2 - buttonDim*2;
+    *sliderMin = b + buttonDim;
+    maxLength  = length - b*2 - buttonDim*2;
 
     if ( maxValue() == minValue() ) {
 	*sliderLength = maxLength;
     } else {
-	*sliderLength = maxLength*pageStep()/
-			    ( maxValue() - minValue() + pageStep() );
+	*sliderLength = (int)((pageStep()*maxLength)/
+			      (maxValue()-minValue()+pageStep()));
 	if ( *sliderLength < SLIDER_MIN )
 	    *sliderLength = SLIDER_MIN;
 	if ( *sliderLength > maxLength )
@@ -537,17 +537,19 @@ ScrollControl QScrollBar_Private::pointOver(const QPoint &p) const
 
 int QScrollBar_Private::rangeValueToSliderPos( long val ) const
 {
-    int sliderMin, sliderMax;
-    sliderMinMax( &sliderMin, &sliderMax );
+    int smin, smax;
+    sliderMinMax( &smin, &smax );
     if ( maxValue() == minValue() )
-	return sliderMin;
+	return smin;
+    long sliderMin=smin, sliderMax=smax;
 #if 0	// ###!!! DEBUGGING
     debug( "rangeValueToSliderPos, val = %3i, pos = %3i ", val ,
 	   (sliderMax - sliderMin)*2*( val - minValue() + 1 )/
 	   ( ( maxValue() - minValue() )*2 ) + sliderMin);
 #endif
-    return ( ( sliderMax - sliderMin )*2*( val - minValue() ) + 1 )/
-		( 2*( maxValue() - minValue() ) ) + sliderMin;
+    return (int)( ((sliderMax-sliderMin)*2*(val-minValue())+1)/
+		  ((maxValue()-minValue())*2)
+		  + sliderMin );
 }
 
 long QScrollBar_Private::sliderPosToRangeValue( int pos ) const
@@ -712,7 +714,7 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 }
 
 
-static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
+static void qDrawWinArrow( QPainter *p, ArrowType type, bool /* down */,
 			   int x, int y, int w, int h,
 			   const QColorGroup &g )
 {
@@ -734,7 +736,6 @@ static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
 	aw = awidth[dim-4];
     else
 	aw = dim/3 + 1;
-//    debug( "aw = %d, %d", aw, dim );	// !!! debug
 
     switch ( type ) {
 	case UpArrow:
@@ -769,6 +770,10 @@ static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
     p->setPen( savePen );			// restore pen
 }
 
+
+#if defined(_CC_MSC_)
+#pragma warning(disable: 4244)
+#endif
 
 static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
 			     int x, int y, int w, int h,

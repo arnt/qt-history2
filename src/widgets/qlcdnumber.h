@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#9 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#10 $
 **
 ** Definition of QLCDNumber class
 **
@@ -27,8 +27,8 @@ public:
 
     enum Mode { HEX, DEC, OCT, BIN };
 
-    uint    numDigits()	const	{ return ndigits; }
-    void    setNumDigits( uint nDigits );
+    int	    numDigits() const	{ return ndigits; }
+    void    setNumDigits( int nDigits );
 
     bool    checkOverflow( double num ) const;
     bool    checkOverflow( long	  num ) const;
@@ -58,7 +58,7 @@ private:
     void    drawDigit( const QPoint &, QPainter &, int, char, char = ' ' );
     void    drawSegment( const QPoint &, char, QPainter &, int, bool = FALSE );
 
-    uint    ndigits	: 8;
+    int	    ndigits;
     uint    base	: 2;
     uint    smallPoint	: 1;
     QString digitStr;

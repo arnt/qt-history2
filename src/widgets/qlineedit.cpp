@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#30 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#30 $";
 #endif
 
 
@@ -50,7 +50,7 @@ static const int blinkTime = 500;		// text cursor blink time
 #define BOTTOM_MARGIN 4
 
 
-static uint xPosToCursorPos( char *s, const QFontMetrics &fm, 
+static uint xPosToCursorPos( char *s, const QFontMetrics &fm,
 			     uint xPos, uint width )
 {
     char *tmp;
@@ -124,7 +124,7 @@ void QLineEdit::setText( const char *text )
     if ( tbuf == text )				// no change
 	return;
     tbuf = text;
-    if ( tbuf.length() > maxLen )
+    if ( (int)tbuf.length() > maxLen )
 	tbuf.resize( maxLen+1 );
     cursorPos = 0;
     offset    = 0;
@@ -132,8 +132,8 @@ void QLineEdit::setText( const char *text )
     emit textChanged( tbuf.data() );
 }
 
-/*! 
-Returns a pointer to the text currently in the line.  
+/*!
+Returns a pointer to the text currently in the line.
 
 If you need to store the text, you should make a copy of it. This can
 conveniently be done with a QString object:
@@ -159,7 +159,7 @@ currently too long, it is chopped off at the limit.
 void QLineEdit::setMaxLength( int m )
 {
     maxLen = (uint) m;
-    if ( tbuf.length() > maxLen ) {
+    if ( (int)tbuf.length() > maxLen ) {
 	tbuf.resize( maxLen + 1 );		// include \0
 	if ( cursorPos > maxLen ) {
 	    offset = maxLen;
@@ -211,11 +211,11 @@ All other keys with valid ASCII codes insert themselves into the line.
 void QLineEdit::keyPressEvent( QKeyEvent *e )
 {
     if ( e->key() == Key_Enter || e->key() == Key_Return ) {
-        emit returnPressed();
-        return;
+	emit returnPressed();
+	return;
     }
      if ( e->ascii() >= 32 && e->key() != Key_Delete ) {
-	if ( tbuf.length() < maxLen ) {
+	if ( (int)tbuf.length() < maxLen ) {
 	    tbuf.insert( cursorPos, e->ascii() );
 	    cursorRight();			// will repaint
 	    emit textChanged( tbuf.data() );
@@ -349,7 +349,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
     killTimers();
     cursorPos = offset +
-	xPosToCursorPos( &tbuf[offset], fontMetrics(),
+	xPosToCursorPos( &tbuf[(int)offset], fontMetrics(),
 			 e->pos().x() - LEFT_MARGIN,
 			 width() - LEFT_MARGIN - RIGHT_MARGIN );
     cursorOn = TRUE;
@@ -407,7 +407,7 @@ void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
 {
     QColorGroup	 g  = colorGroup();
     QFontMetrics fm = fontMetrics();
-    char *displayText = &tbuf[offset];
+    char *displayText = &tbuf[(int)offset];
 
     if ( frame )
 	p->drawShadePanel( 0, 0, sz.width(), sz.height(),

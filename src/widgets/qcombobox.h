@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#6 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#7 $
 **
 ** Definition of QComboBox class
 **
@@ -16,8 +16,8 @@
 #include "qwidget.h"
 
 
-class QComboData;
-class QStrList;
+struct QComboData;
+class  QStrList;
 
 
 class QComboBox : public QWidget
@@ -41,17 +41,17 @@ public:
     void	removeItem( int index );
     void	clear();
 
-    const char *string( int index )	const;
-    QPixmap    *pixmap( int index )	const;
+    const char *string( int index ) const;
+    QPixmap    *pixmap( int index ) const;
 
     void	changeItem( const char *string, int index );
     void	changeItem( const QPixmap &pixmap, int index );
 
     void	setCurrentItem( int index );
-    int		currentItem()		const;
+    int		currentItem()	const;
 
     void	setAutoResizing( bool );
-    bool	autoResizing()		const;
+    bool	autoResizing()	const;
     void	adjustSize();
 
     void	setBackgroundColor( const QColor & );
@@ -66,7 +66,7 @@ private slots:
     void	internalActivate( int );
     void	internalHighlight( int );
 
-protected:    
+protected:
     void	paintEvent( QPaintEvent * );
     void	mousePressEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );

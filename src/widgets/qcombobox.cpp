@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#10 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombobox.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombobox.cpp#10 $";
 #endif
 
 /*!
@@ -47,7 +47,7 @@ The \e index is the position of the item in the popup list.
 */
 
 
-struct QComboData 
+struct QComboData
 {
     int		current;
     QPopupMenu *popup;
@@ -55,7 +55,7 @@ struct QComboData
 };
 
 
-static bool getMetrics( int width, int height, 
+static bool getMetrics( int width, int height,
 			int *dist, int *buttonW, int *buttonH )
 {
     int drawH = height - 4;
@@ -151,12 +151,12 @@ void QComboBox::setStrList( const QStrList *list )
 #endif
 	return;
     }
-    QStrListIterator iter( *list );
+    QStrListIterator it( *list );
     const char *tmp;
     int index = 0;
-    while ( (tmp = iter.current()) ) {
+    while ( (tmp = it.current()) ) {
 	d->popup->insertItem( tmp, index++ );
-	++iter;
+	++it;
     }
     currentChanged();
 }
@@ -175,19 +175,19 @@ Example of use:
 \endcode
 */
 
-void QComboBox::setStrList( const char **strs, int numStrings )
+void QComboBox::setStrList( const char **strings, int numStrings )
 {
     d->popup->clear();
     d->current = 0;
-    if ( !strs ) {
+    if ( !strings ) {
 #if defined(CHECK_NULL)
-	ASSERT( strs != 0 );
+	ASSERT( strings != 0 );
 #endif
 	return;
     }
     int i = 0;
-    while ( (numStrings<0 && strs[i]!=0) || i<numStrings ) {
-	d->popup->insertItem( strs[i],i  );
+    while ( (numStrings<0 && strings[i]!=0) || i<numStrings ) {
+	d->popup->insertItem( strings[i],i  );
 	i++;
     }
     currentChanged();
@@ -330,7 +330,7 @@ the current combo box item change.
 
 void QComboBox::setAutoResizing( bool enable )
 {
-    if ( d->autoResize == enable )
+    if ( (bool)d->autoResize == enable )
 	return;
     d->autoResize = enable;
     if ( enable )
@@ -487,7 +487,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 }
 
 
-void QComboBox::mousePressEvent( QMouseEvent *e )
+void QComboBox::mousePressEvent( QMouseEvent * )
 {
     popup();
 }
@@ -500,7 +500,7 @@ void QComboBox::mouseReleaseEvent( QMouseEvent * )
 {
 }
 
-void QComboBox::mouseDoubleClickEvent( QMouseEvent *e )
+void QComboBox::mouseDoubleClickEvent( QMouseEvent * )
 {
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#21 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#22 $
 **
 ** Definition of QMenuData class
 **
@@ -32,7 +32,7 @@ public:
    ~QMenuItem();
 
     int		id()		const	{ return ident; }
-    const char *string()       	const	{ return string_data; }
+    const char *string()	const	{ return string_data; }
     QPixmap    *pixmap()	const	{ return pixmap_data; }
     QPopupMenu *popup()		const	{ return popup_menu; }
     long	key()		const	{ return accel_key; }
@@ -76,7 +76,7 @@ public:
     QMenuData();
     virtual ~QMenuData();
 
-    int		count()	const;
+    int		count() const;
 
     int		insertItem( const char *string,
 			    const QObject *receiver, const char *member,
@@ -97,7 +97,7 @@ public:
     long	accel( int id )		const;
     void	setAccel( long key, int id );
 
-    const char *string( int id )		const;
+    const char *string( int id )	const;
     QPixmap    *pixmap( int id )	const;
     void	changeItem( const char *string, int id );
     void	changeItem( const QPixmap &pixmap, int id );

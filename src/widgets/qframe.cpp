@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#15 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#15 $";
 #endif
 
 
@@ -34,7 +34,7 @@ width.
 The different frame types are \c NoFrame, \c Box, \c Panel, \c HLine and
 \c VLine.  Notice that the two latter ones specify lines, not rectangles.
 
-The frame styles are \c Plain, \c Raised and \c Sunken.  See setFrameStyle()
+The frame styles are \c Plain, \c Raised and \c Sunken.	 See setFrameStyle()
 for a description of frame types and frame styles.
 
 The frame width is the width of the frame border.
@@ -75,7 +75,7 @@ Returns the geometry of the rectangle inside the frame.
 QRect QFrame::contentsRect() const
 {
     QRect r = frameRect();
-    int   w = frameWidth();			// total width
+    int	  w = frameWidth();			// total width
     r.setRect( r.x()+w, r.y()+w, r.width()-w*2, r.height()-w*2 );
     return r;
 }
@@ -136,7 +136,7 @@ Sets the frame width to \e fw.
 
 void QFrame::setLineWidth( int fw )
 {
-    lwidth = fw;
+    lwidth = (short)fw;
     updateFrameWidth();
 }
 
@@ -153,21 +153,21 @@ Sets the width of the middle line to \e mw.
 
 void QFrame::setMidLineWidth( int mw )
 {
-    mwidth = mw;
+    mwidth = (short)mw;
     updateFrameWidth();
 }
 
 
 void QFrame::updateFrameWidth()
 {
-    int	type  = fstyle & MType;
-    int	style = fstyle & MStyle;
+    int type  = fstyle & MType;
+    int style = fstyle & MStyle;
 
     fwidth = -1;
 
     switch ( type ) {
 
-        case NoFrame:
+	case NoFrame:
 	    fwidth = 0;
 	    break;
 
@@ -178,7 +178,7 @@ void QFrame::updateFrameWidth()
 		    break;
 		case Raised:
 		case Sunken:
-		    fwidth = lwidth*2 + mwidth;
+		    fwidth = (short)(lwidth*2 + mwidth);
 		    break;
 	    }
 	    break;
@@ -201,7 +201,7 @@ void QFrame::updateFrameWidth()
 		    break;
 		case Raised:
 		case Sunken:
-		    fwidth = 2*lwidth + mwidth;
+		    fwidth = (short)(lwidth*2 + mwidth);
 		    break;
 	    }
 	    break;
@@ -234,7 +234,7 @@ QRect QFrame::frameRect() const
 
 
 /*!
-Sets the frame rectangle to \e r. 
+Sets the frame rectangle to \e r.
 
 If \e r is a null rectangle (for example <code>QRect(0,0,0,0)</code>),
 then the frame rectangle follows the widget rectangle (QWidget::rect()).
@@ -271,13 +271,13 @@ Internal function that draws the frame.
 
 void QFrame::drawFrame( QPainter *p )
 {
-    QPoint      p1, p2;
-    QRect       r     = frameRect();
+    QPoint	p1, p2;
+    QRect	r     = frameRect();
     QPainter   *paint = p;
-    int	        type  = fstyle & MType;
-    int	        style = fstyle & MStyle;
+    int		type  = fstyle & MType;
+    int		style = fstyle & MStyle;
     QColorGroup g     = colorGroup();
-    QColor      fg    = g.foreground();
+    QColor	fg    = g.foreground();
     QColor	light = g.light();
     QColor	dark  = g.dark();
     QColor	mid   = g.mid();
@@ -351,7 +351,6 @@ This function is reimplemented by subclasses that want to draw something
 inside the frame.
 */
 
-void QFrame::drawContents( QPainter *p )
+void QFrame::drawContents( QPainter * )
 {
-    p = p;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#25 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#25 $";
 #endif
 
 
@@ -153,7 +153,7 @@ the contents change.
 
 void QButton::setAutoResizing( bool enable )
 {
-    if ( autoResize != enable ) {
+    if ( (bool)autoResize != enable ) {
 	autoResize = enable;
 	if ( autoResize )
 	    adjustSize();			// calls resize which repaints

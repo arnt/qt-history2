@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#10 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -10,13 +10,13 @@
 **
 *****************************************************************************/
 
-#define  QButtonList QListM_QButtonItem
+#define	 QButtonList QListM_QButtonItem
 #include "qbttngrp.h"
 #include "qbutton.h"
 #include "qlist.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#10 $";
 #endif
 
 
@@ -52,7 +52,7 @@ struct QButtonItem
     int	     id;
 };
 
-typedef declare(QListM,QButtonItem);
+declare(QListM,QButtonItem);
 
 
 /*!
@@ -104,7 +104,7 @@ QButtonGroup::~QButtonGroup()
 Inserts a button with the identifier \e id into the button group.
 
 If \e id is -1, then the button will get an identifier (number of
-buttons in the group).  Inserting several buttons with \e id = -1
+buttons in the group).	Inserting several buttons with \e id = -1
 will assign the identifers 0, 1, 2, etc.
 */
 

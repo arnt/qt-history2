@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#10 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#11 $
 **
 ** Definition of QListBox widget class
 **
@@ -16,7 +16,7 @@
 #include "qtablew.h"
 
 
-#define LBI_String      1
+#define LBI_String	1
 #define LBI_Pixmap	2
 #define LBI_UserDefined 1000
 
@@ -45,118 +45,118 @@ public:
     QListBox( QWidget *parent=0, const char *name=0 );
    ~QListBox();
 
-    void	 setStrList( const QStrList * );
-    void	 setStrList( const char **, int numStrings );
+    int		count() const;
 
-    void	 insertStrList( const QStrList *, int index=-1 );
-    void	 insertStrList( const char**, int numStrings, int index=-1 );
+    void	setStrList( const QStrList * );
+    void	setStrList( const char **, int numStrings );
 
-    void	 insertItem( const char *string, int index=-1 );
-    void	 insertItem( const QPixmap *pixmap, int index=-1 );
-    void	 inSort( const char *string );
-    void	 removeItem( int index );
+    void	insertStrList( const QStrList *, int index=-1 );
+    void	insertStrList( const char**, int numStrings, int index=-1 );
 
-    const char	*string( int index ) const;	// get string at index
-    QPixmap	*pixmap( int index ) const;	// get pixmap at index
+    void	insertItem( const char *string, int index=-1 );
+    void	insertItem( const QPixmap *pixmap, int index=-1 );
+    void	inSort( const char *string );
 
-    void	 changeItem( const char *string, int index );
-    void	 changeItem( const QPixmap *pixmap, int index );
-    void	 clear();
-    void	 setStringCopy( bool );
-    bool	 stringCopy();
+    void	removeItem( int index );
+    void	clear();
 
-    void	 setAutoUpdate( bool );
-    bool	 autoUpdate() const;
+    const char *string( int index ) const;	// get string at index
+    QPixmap    *pixmap( int index ) const;	// get pixmap at index
+    void	changeItem( const char *string, int index );
+    void	changeItem( const QPixmap *pixmap, int index );
 
-    int		 count() const;
+    void	setStringCopy( bool );
+    bool	stringCopy();
 
-    void	 setTopItem( int index );
-    void	 setCurrentItem( int index );
-    int		 topItem() const;
-    int		 currentItem() const;
+    void	setAutoUpdate( bool );
+    bool	autoUpdate()	const;
 
-    void	 setDragSelect( bool );
-    void	 setAutoScroll( bool );		// scroll on drag
-    void	 setAutoScrollBar( bool );
-    void	 setScrollBar( bool );
-    void         setAutoBottomScrollBar( bool );
-    void         setBottomScrollBar( bool );
-    void         setSmoothScrolling( bool );
+    void	setTopItem( int index );
+    void	setCurrentItem( int index );
+    int		topItem()	const;
+    int		currentItem()	const;
 
-    bool	 dragSelect() const;	
-    bool	 autoScroll() const;
-    bool	 autoScrollBar() const;
-    bool         autoBottomScrollBar() const;
-    bool         bottomScrollBar() const;
-    bool	 scrollBar() const;
-    bool         smoothScrolling() const;
+    void	setDragSelect( bool );
+    void	setAutoScroll( bool );
+    void	setAutoScrollBar( bool );
+    void	setScrollBar( bool );
+    void	setAutoBottomScrollBar( bool );
+    void	setBottomScrollBar( bool );
+    void	setSmoothScrolling( bool );
 
-    void	 centerCurrentItem();
-    int		 numItemsVisible();
+    bool	dragSelect()		const;
+    bool	autoScroll()		const;
+    bool	autoScrollBar()		const;
+    bool	autoBottomScrollBar()	const;
+    bool	bottomScrollBar()	const;
+    bool	scrollBar()		const;
+    bool	smoothScrolling()	const;
+
+    void	centerCurrentItem();
+    int		numItemsVisible();
 
 signals:
-    void	 highlighted( int index );
-    void	 selected( int index );
+    void	highlighted( int index );
+    void	selected( int index );
 
-protected:    
+protected:
     virtual int itemWidth( QLBItem * );
     virtual int itemHeight( QLBItem * );
 
-    void	 setUserItems( bool );
-    bool	 userItems();
+    void	setUserItems( bool );
+    bool	userItems();
 
     virtual QLBItem *newItem();
     virtual void     deleteItem( QLBItem * );
 
     virtual void paintItem( QPainter *, int index );
-    void	 insertItem( const QLBItem*, int index=-1 );
-//    void	 inSort( const QLBItem * );
-    void	 changeItem( const QLBItem*, int index );
-    QLBItem	*item( int index ) const;
-    bool	 itemVisible( int index );
+    void	insertItem( const QLBItem*, int index=-1 );
+//    void	inSort( const QLBItem * );
+    void	changeItem( const QLBItem*, int index );
+    QLBItem    *item( int index ) const;
+    bool	itemVisible( int index );
 
-    int		 cellHeight( long );
-    int		 cellWidth( long );
-    int		 cellHeight(){return QTableWidget::cellHeight();} //why,
-    int		 cellWidth(){return QTableWidget::cellHeight();} //Bjarne, why?
-    void	 paintCell( QPainter *, long row, long col );
+    int		cellHeight( long );
+    int		cellWidth( long );
+    int		cellHeight() { return QTableWidget::cellHeight(); }
+    int		cellWidth()  { return QTableWidget::cellHeight(); }
+    void	paintCell( QPainter *, long row, long col );
 
-    void	 mousePressEvent( QMouseEvent * );
-    void	 mouseMoveEvent( QMouseEvent * );
-    void	 mouseReleaseEvent( QMouseEvent * );
-    void	 mouseDoubleClickEvent( QMouseEvent * );
-    void	 resizeEvent( QResizeEvent * );
-    void	 timerEvent( QTimerEvent * );
-    void	 keyPressEvent( QKeyEvent *e );
-    void         setFont( QFont &f );
+    void	mousePressEvent( QMouseEvent * );
+    void	mouseReleaseEvent( QMouseEvent * );
+    void	mouseDoubleClickEvent( QMouseEvent * );
+    void	mouseMoveEvent( QMouseEvent * );
+    void	keyPressEvent( QKeyEvent *e );
+    void	resizeEvent( QResizeEvent * );
+    void	timerEvent( QTimerEvent * );
 
-    int		 findItem( int yPos ) const;
-    bool	 itemYPos( int index, int *yPos ) const;
-    void	 updateItem( int index, bool clear = TRUE );
-    void	 clearList();	 
-    void         updateCellWidth();
+    int		findItem( int yPos ) const;
+    bool	itemYPos( int index, int *yPos ) const;
+    void	updateItem( int index, bool clear = TRUE );
+    void	clearList();
+    void	updateCellWidth();
+
 private:
-    QLBItem	*newAny( const char *, const QPixmap * );
-    void	 insertAny( const char *, const QPixmap *, 
-			    const QLBItem *, int,
-                            bool updateCellWidth = TRUE );
-    void	 changeAny( const char *, const QPixmap *, 
-			    const QLBItem *, int );
-    void	 updateNumRows( bool updateWidth = TRUE );
-    int          internalItemWidth( const QLBItem *,
-                                    const QFontMetrics & ) const;
-    void	 init();
+    QLBItem    *newAny( const char *, const QPixmap * );
+    void	insertAny( const char *, const QPixmap *,
+			   const QLBItem *, int,
+			   bool updateCellWidth = TRUE );
+    void	changeAny( const char *, const QPixmap *,
+			   const QLBItem *, int );
+    void	updateNumRows( bool updateWidth = TRUE );
+    int		internalItemWidth( const QLBItem *,
+				   const QFontMetrics & ) const;
+    void	init();
 
-    uint   doDrag	  : 1;
-    uint   doAutoScroll	  : 1;
-    uint   isTiming	  : 1;
-    uint   scrollDown	  : 1;
-    uint   stringsOnly	  : 1;
-    uint   copyStrings	  : 1;
-    uint   multiSelect	  : 1;
-    uint   ownerDrawn	  : 1;
-    int	   current;
-    
+    uint	doDrag		: 1;
+    uint	doAutoScroll	: 1;
+    uint	isTiming	: 1;
+    uint	scrollDown	: 1;
+    uint	stringsOnly	: 1;
+    uint	copyStrings	: 1;
+    uint	multiSelect	: 1;
+    uint	ownerDrawn	: 1;
+    int		current;
     QLBItemList *itemList;
 };
 
@@ -243,12 +243,12 @@ inline int QListBox::currentItem() const
 
 inline int QListBox::findItem( int yPos ) const
 {
-    return findRow( yPos );
+    return (int)findRow( yPos );
 }
 
 inline bool QListBox::itemYPos( int index, int *yPos ) const
 {
-    
+
     return rowYPos( index, yPos );
 }
 
@@ -259,7 +259,7 @@ inline void QListBox::updateItem( int index, bool clear )
 
 inline int QListBox::topItem() const
 {
-    return topCell();
+    return (int)topCell();
 }
 
 inline void QListBox::setTopItem( int index )

@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#12 $
 **
 ** Implementation of QGroupBox widget class
 **
 ** Author  : Haavard Nord
 ** Created : 950203
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 ***********************************************************************/
 
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#12 $";
 #endif
 
 
@@ -69,6 +69,7 @@ void QGroupBox::init()
 	case Win3Style:
 	    align = AlignLeft;
 	    fs = QFrame::Box | QFrame::Plain;
+	    break;
 	default:
 	    align = AlignHCenter;
 	    fs = QFrame::Box | QFrame::Plain;
@@ -128,10 +129,10 @@ Internal; paints the group box.
 
 void QGroupBox::paintEvent( QPaintEvent * )	// overrides QFrame::paintEvent
 {
-    int   	tw  = 0;
-    QRect 	cr  = rect();
-    QRect 	r   = cr;
-    int   	len = str.length();
+    int		tw  = 0;
+    QRect	cr  = rect();
+    QRect	r   = cr;
+    int		len = str.length();
     QColorGroup g = colorGroup();
     QPainter	paint;
 

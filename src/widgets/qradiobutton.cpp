@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#28 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,7 +16,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#28 $";
 #endif
 
 
@@ -148,7 +148,7 @@ void QRadioButton::drawButton( QPainter *paint )
 {
     register QPainter *p = paint;
     GUIStyle	 gs = style();
-    QColorGroup  g  = colorGroup();
+    QColorGroup	 g  = colorGroup();
     QSize	 sz = size();
     QFontMetrics fm = fontMetrics();
     int		 x, y, w, h;
@@ -199,11 +199,11 @@ void QRadioButton::drawButton( QPainter *paint )
 	    5,0, 7,0, 8,1, 9,1, 11,3, 11,4, 12,5, 12,7,
 	    11,8, 11,9, 9,11, 8,11, 7,12, 5,12, 4,11, 3,11,
 	    1,9, 1,8, 0,7, 0,5, 1,4, 1,3, 3,1, 4,1 };
-	static QCOORD pts2[] =  {		// fat circle
+	static QCOORD pts2[] =	{		// fat circle
 	    5,1, 7,1, 8,2, 9,2, 10,3, 10,4, 11,5, 11,7,
 	    10,8, 10,9, 9,10, 8,10, 7,11, 5,11, 4,10, 3,10,
 	    2,9, 2,8, 1,7, 1,5, 2,4, 2,3, 3,2, 4,2 };
-	static QCOORD pts3[] =  {		// check mark
+	static QCOORD pts3[] =	{		// check mark
 	    5,3, 7,3, 9,5, 9,7, 7,9, 5,9, 3,7, 3,5 };
 	QPointArray a( QCOORDARRLEN(pts1), pts1 );
 	a.move( x, y );
@@ -289,7 +289,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	p->drawPolyline( a );			// draw normal circle
 	QColor tc, bc;
 	QCOORD *bp;
-	int     bl;
+	int	bl;
 	if ( isDown() ) {			// pressed down
 	    tc = g.dark();
 	    bc = g.light();

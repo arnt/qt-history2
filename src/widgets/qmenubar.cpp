@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#33 $
 **
 ** Implementation of QMenuBar class
 **
@@ -10,7 +10,7 @@
 **
 *****************************************************************************/
 
-#define  INCLUDE_MENUITEM_DEF
+#define	 INCLUDE_MENUITEM_DEF
 #include "qmenubar.h"
 #include "qaccel.h"
 #include "qpainter.h"
@@ -18,7 +18,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#33 $";
 #endif
 
 /*! \class QMenuBar qmenubar.h
@@ -43,13 +43,13 @@ static const motifItemVMargin	= 8;		// menu item ver text margin
 +-----------------------------
 |      BarFrame
 |   +-------------------------
-|   |      V  BarMargin
-|   |   +---------------------
+|   |	   V  BarMargin
+|   |	+---------------------
 |   | H |      ItemFrame
-|   |   |  +-----------------
-|   |   |  |			   \
-|   |   |  |  ^  T E X T   ^	    | ItemVMargin
-|   |   |  |  |		   |	   /
+|   |	|  +-----------------
+|   |	|  |			   \
+|   |	|  |  ^	 T E X T   ^	    | ItemVMargin
+|   |	|  |  |		   |	   /
 |   |	|      ItemHMargin
 |   |
 |
@@ -195,7 +195,7 @@ bool QMenuBar::tryMouseEvent( QPopupMenu *popup, QMouseEvent *e )
     return TRUE;
 }
 
-void QMenuBar::tryKeyEvent( QPopupMenu *popup, QKeyEvent *e )
+void QMenuBar::tryKeyEvent( QPopupMenu *, QKeyEvent *e )
 {
     event( e );
 }
@@ -223,7 +223,7 @@ void QMenuBar::openActPopup()			// open active popup menu
 	int ph = popup->height();
 	if ( pos.y() + ph > sh ) {
 	    pos = mapToGlobal( r.topLeft() );
-	    pos.ry() -= ph;
+	    pos.ry() -= (QCOORD)ph;
 	}
 	popup->popup( pos );
     }
@@ -269,7 +269,7 @@ void QMenuBar::show()
 		    connect( autoaccel, SIGNAL(destroyed()),
 			     SLOT(accelDestroyed()) );
 		}
-		autoaccel->insertItem( ALT+k, mi->id() );		
+		autoaccel->insertItem( ALT+k, mi->id() );
 	    }
 	}
 	if ( mi->popup() && w ) {
@@ -310,12 +310,12 @@ void QMenuBar::updateRects()
     QFontMetrics fm = fontMetrics();
     int max_width = width();
     int max_height = 0;
-    int nlines = 1;				// number of lines
+//  int nlines = 1;				// number of lines
     int nlitems = 0;				// number on items on cur line
     int x = motifBarFrame + motifBarHMargin;
     int y = motifBarFrame + motifBarVMargin;
     int i = 0;
-    while ( i < mitems->count() ) {		// for each menu item...
+    while ( i < (int)mitems->count() ) {	// for each menu item...
 	QMenuItem *mi = mitems->at(i);
 	int w, h;
 	if ( mi->pixmap() ) {			// pixmap item
@@ -329,7 +329,7 @@ void QMenuBar::updateRects()
 	w += 2*motifItemFrame;
 	h += 2*motifItemFrame;
 	if ( x + w + motifBarFrame > max_width && nlitems > 0 ) {
-	    nlines++;				// break line
+//	    nlines++;				// break line
 	    nlitems = 0;
 	    x = motifBarFrame + motifBarHMargin;
 	    y += h + motifBarHMargin;
@@ -358,7 +358,7 @@ int QMenuBar::itemAtPos( const QPoint &pos )	// get item at pos (x,y)
     if ( !irects )
 	return -1;
     int i = 0;
-    while ( i < mitems->count() ) {
+    while ( i < (int)mitems->count() ) {
 	if ( irects[i].contains( pos ) ) {
 	    QMenuItem *mi = mitems->at(i);
 	    return mi->isDisabled() || mi->isSeparator() ? -1 : i;
@@ -373,11 +373,11 @@ int QMenuBar::itemAtPos( const QPoint &pos )	// get item at pos (x,y)
 // Event handlers
 //
 
-void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
+void QMenuBar::paintEvent( QPaintEvent * )	// paint menu bar
 {
     register QPainter *p;
-    QPainter     paint;
-    QColorGroup  g  = colorGroup();
+    QPainter	 paint;
+    QColorGroup	 g  = colorGroup();
     QFontMetrics fm = fontMetrics();
     QSize	 sz = size();
 
@@ -385,10 +385,10 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
     p->begin( this );
     p->drawShadePanel( rect(), g.light(), g.dark(), motifBarFrame );
     p->setClipRect( motifBarFrame, motifBarFrame,
-		    sz.width()  - 2*motifBarFrame,
+		    sz.width()	- 2*motifBarFrame,
 		    sz.height() - 2*motifBarFrame );
     updateRects();
-    for ( int i=0; i<mitems->count(); i++ ) {
+    for ( int i=0; i<(int)mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
 	QRect r = irects[i];
 	if ( i == actItem )			// active item frame
@@ -519,7 +519,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	case Key_Return:
 	case Key_Enter:
 	    mi = mitems->at( actItem );
-	    popup = mi->popup();
+//	    popup = mi->popup();
 	    // ... what to do
 	    break;
     }
