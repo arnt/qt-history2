@@ -625,6 +625,13 @@ NPP_New(NPMIMEType /*pluginType*/,
     qNP->newInstance();
     instance_count++;
 
+    if (strstr(This->instance->userAgent(), "Mozilla/3.")) {
+	// ### work-around for browser inconsistency
+	const char* src = This->instance->arg("SRC");
+	if (src)
+	    This->instance->getURL(src);
+    }
+
     return result;
 }
 
@@ -761,7 +768,11 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 	if ( This->widget->width() != (int)window->width
 	  || This->widget->height() != (int)window->height )
 	{
+#ifdef _WS_WIN_
+	    This->widget->setGeometry(window->x, window->y, window->width, window->height);
+#else
 	    This->widget->resize(window->width, window->height);
+#endif
 	} else {
 	    This->widget->update();
 	}
@@ -1187,6 +1198,12 @@ QNPWidget::QNPWidget() :
     setWindow(TRUE);
 
     piApp->addQNPWidget(this);
+
+#ifdef _WS_WIN_
+    // Communicator and explorer give us an unshown
+    // widget.  Navigator gives us a shown one.
+    show();
+#endif
 }
 
 /*!
@@ -1297,8 +1314,11 @@ void QNPWidget::setWindow(bool delold)
 
     createNewWindowsForAllChildren(this);
 
-    //setGeometry( pi->x, pi->y, pi->width, pi->height );
+#ifdef _WS_WIN_
+    setGeometry( pi->x, pi->y, pi->width, pi->height );
+#else
     resize( pi->width, pi->height );
+#endif
 }
 
 /*!
