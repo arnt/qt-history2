@@ -322,7 +322,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	needEventHandler = needEventHandler ||
 			   !DomTool::propertiesOfType( n, "font" ).isEmpty() ;
 	QString s = getClassName( n );
-	if ( s == "QDataTable" || s == "QDataBrowser" || s == "QDataView" ) {
+	if ( s == "QDataTable" || s == "QDataBrowser" ) {
 	    if ( isFrameworkCodeGenerated( n ) )
 		 needPolish = TRUE;
 	}
