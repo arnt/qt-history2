@@ -36,57 +36,58 @@
 **********************************************************************/
 
 /*!
-  \class QGLColormap qglcolormap.h
-  \ingroup graphics
-  \ingroup images
-  \brief The QGLColormap class is used for installing custom colormaps into
-  QGLWidgets.
+    \class QGLColormap qglcolormap.h
+    \brief The QGLColormap class is used for installing custom colormaps into
+    QGLWidgets.
 
-  QGLColormap provides a platform independent way of specifying and
-  installing indexed colormaps into QGLWidgets. QGLColormap is
-  especially useful when using the \link opengl.html OpenGL\endlink
-  color-index mode.
+    \ingroup graphics
+    \ingroup images
 
-  Under X11 you will have to use an X server that supports either a
-  PseudoColor or DirectColor visual class.  If your X server currently
-  only provides a GrayScale, TrueColor, StaticColor or StaticGray
-  visual, you will not be able to allocate colorcells for writing. If
-  this is the case, try setting your X server in 8 bit mode. It should
-  then provide you with at least a PseudoColor visual. Note that you
-  may experience colormap flashing if your X server is running in 8
-  bit mode.
+    QGLColormap provides a platform independent way of specifying and
+    installing indexed colormaps into QGLWidgets. QGLColormap is
+    especially useful when using the \link opengl.html OpenGL\endlink
+    color-index mode.
 
-  Under Windows the size of the colormap is always set to 256 colors.
-  Note that under Windows you are allowed to install colormaps into
-  child widgets.
+    Under X11 you must use an X server that supports either a \c
+    PseudoColor or \c DirectColor visual class. If your X server
+    currently only provides a \c GrayScale, \c TrueColor, \c
+    StaticColor or \c StaticGray visual, you will not be able to
+    allocate colorcells for writing. If this is the case, try setting
+    your X server to 8 bit mode. It should then provide you with at
+    least a \c PseudoColor visual. Note that you may experience
+    colormap flashing if your X server is running in 8 bit mode.
 
-  This class uses explicit sharing (see \link shclass.html Shared
-  Classes\endlink).
+    Under Windows the size of the colormap is always set to 256
+    colors. Note that under Windows you can also install colormaps
+    in child widgets.
 
-  Example of use:
-  \code
-  #include <qapplication.h>
-  #include <qglcolormap.h>
+    This class uses explicit sharing (see \link shclass.html Shared
+    Classes\endlink).
 
-  int main()
-  {
-      QApplication a( argc, argv );
+    Example of use:
+    \code
+    #include <qapplication.h>
+    #include <qglcolormap.h>
 
-      MySuperGLWidget widget( 0 ); // A QGLWidget in color-index mode
-      QGLColormap colormap;
+    int main()
+    {
+	QApplication a( argc, argv );
 
-      // This will fill the colormap with colors ranging from
-      // black to white.
-      for ( int i = 0; i < colormap.size(); i++ )
-          colormap.setEntry( i, qRgb( i, i, i ) );
+	MySuperGLWidget widget( 0 ); // A QGLWidget in color-index mode
+	QGLColormap colormap;
 
-      widget.setColormap( colormap );
-      widget.show();
-      return a.exec();
-  }
-  \endcode
+	// This will fill the colormap with colors ranging from
+	// black to white.
+	for ( int i = 0; i < colormap.size(); i++ )
+	    colormap.setEntry( i, qRgb( i, i, i ) );
 
-  \sa QGLWidget::setColormap(), QGLWidget::colormap()
+	widget.setColormap( colormap );
+	widget.show();
+	return a.exec();
+    }
+    \endcode
+
+    \sa QGLWidget::setColormap(), QGLWidget::colormap()
 */
 
 #include "qglcolormap.h"
@@ -94,7 +95,7 @@
 
 
 /*!
-  Construct a QGLColormap.
+    Construct a QGLColormap.
 */
 QGLColormap::QGLColormap()
 {
@@ -103,7 +104,7 @@ QGLColormap::QGLColormap()
 
 
 /*!
-  Construct a shallow copy of \a map.
+    Construct a shallow copy of \a map.
 */
 QGLColormap::QGLColormap( const QGLColormap & map )
 {
@@ -113,8 +114,8 @@ QGLColormap::QGLColormap( const QGLColormap & map )
 }
 
 /*!
-  Dereferences the QGLColormap and deletes it if this was the last
-  reference to it.
+    Dereferences the QGLColormap and deletes it if this was the last
+    reference to it.
 */
 QGLColormap::~QGLColormap()
 {
@@ -125,7 +126,7 @@ QGLColormap::~QGLColormap()
 }
 
 /*!
-  Assign a shallow copy of \a map to this QGLColormap.
+    Assign a shallow copy of \a map to this QGLColormap.
 */
 QGLColormap & QGLColormap::operator=( const QGLColormap & map )
 {
@@ -140,8 +141,8 @@ QGLColormap & QGLColormap::operator=( const QGLColormap & map )
 }
 
 /*!
-  Detaches this QGLColormap from the shared block.
- */
+    Detaches this QGLColormap from the shared block.
+*/
 void QGLColormap::detach()
 {
     if ( d && d->count != 1 ) {
@@ -156,7 +157,7 @@ void QGLColormap::detach()
 }
 
 /*!
-  Set cell \a idx in the colormap to color \a color.
+    Set cell at index \a idx in the colormap to color \a color.
 */
 void QGLColormap::setEntry( int idx, QRgb color )
 {
@@ -173,10 +174,9 @@ void QGLColormap::setEntry( int idx, QRgb color )
 }
 
 /*!
-
-  Set an array of cells in this colormap. \a count is the number of
-  colors that should be set, \a colors is the array of colors, and
-  \a base is the starting index.
+    Set an array of cells in this colormap. \a count is the number of
+    colors that should be set, \a colors is the array of colors, and
+    \a base is the starting index.
 */
 void QGLColormap::setEntries( int count, const QRgb * colors, int base )
 {
@@ -195,7 +195,7 @@ void QGLColormap::setEntries( int count, const QRgb * colors, int base )
 }
 
 /*!
-  Returns the QRgb value in the colorcell with index \a idx.
+    Returns the QRgb value in the colorcell with index \a idx.
 */
 QRgb QGLColormap::entryRgb( int idx ) const
 {
@@ -207,7 +207,8 @@ QRgb QGLColormap::entryRgb( int idx ) const
 
 /*!
     \overload
-  Set cell with index \a idx in the colormap to color \a color.
+
+    Set the cell with index \a idx in the colormap to color \a color.
 */
 void QGLColormap::setEntry( int idx, const QColor & color )
 {
@@ -215,7 +216,7 @@ void QGLColormap::setEntry( int idx, const QColor & color )
 }
 
 /*!
-  Returns the QRgb value in the colorcell with index \a idx.
+    Returns the QRgb value in the colorcell with index \a idx.
 */
 QColor QGLColormap::entryColor( int idx ) const
 {
@@ -226,8 +227,8 @@ QColor QGLColormap::entryColor( int idx ) const
 }
 
 /*!
-  Returns TRUE if the colormap is empty; otherwise returns FALSE.
-  A colormap with no color values set is considered to be empty.
+    Returns TRUE if the colormap is empty; otherwise returns FALSE. A
+    colormap with no color values set is considered to be empty.
 */
 bool QGLColormap::isEmpty() const
 {
@@ -236,7 +237,7 @@ bool QGLColormap::isEmpty() const
 
 
 /*!
-  Returns the number of colorcells in the colormap.
+    Returns the number of colorcells in the colormap.
 */
 int QGLColormap::size() const
 {
@@ -244,8 +245,8 @@ int QGLColormap::size() const
 }
 
 /*!
-  Returns the index of the color \a color. If \a color is not in the
-  map, -1 is returned.
+    Returns the index of the color \a color. If \a color is not in the
+    map, -1 is returned.
 */
 int QGLColormap::find( QRgb color ) const
 {
@@ -255,8 +256,8 @@ int QGLColormap::find( QRgb color ) const
 }
 
 /*!
-  Returns the index of the color that is the closest match to color
-  \a color.
+    Returns the index of the color that is the closest match to color
+    \a color.
 */
 int QGLColormap::findNearest( QRgb color ) const
 {

@@ -627,14 +627,17 @@ static bool qLogEq( bool a, bool b )
 }
 
 /*!
+    <strong>Win32 only</strong> This virtual function chooses a pixel
+    format that matches the OpenGL \link setFormat() format\endlink.
+    Reimplement this function in a subclass if you need a custom
+    context.
 
-<strong>Win32 only</strong> This virtual function chooses a pixel format
-that matches the OpenGL \link setFormat() format\endlink. Reimplement this function in a subclass if you need a custom context.
+    \warning The \a dummyPfd pointer and \a pdc are used as a \c
+    PIXELFORMATDESCRIPTOR*. We use \c void to avoid using
+    Windows-specific types in our header files.
 
-  \warning The \a dummyPfd pointer and \a pdc are used as a \c PIXELFORMATDESCRIPTOR*.
-  We use \c void to avoid using Windows-specific types in our header files.
-
-  \sa chooseContext() */
+    \sa chooseContext()
+*/
 
 int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 {
@@ -745,7 +748,6 @@ int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 		score += 4000;
 	    if ( qLogEq( glFormat.rgba(), fmt.rgba() ) )
 		score += 8000;
-	
 	    if ( score > bestScore ) {
 		bestScore = score;
 		bestPfi = pfi;
@@ -1080,7 +1082,7 @@ void QGLWidget::setColormap( const QGLColormap & c )
 }
 
 void QGLWidget::cleanupColormaps()
-{	
+{
     if ( !cmap.d )
 	return;
 

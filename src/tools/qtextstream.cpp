@@ -61,10 +61,7 @@
   \mainclass
 
   The text stream class has a functional interface that is very
-  similar to that of the standard C++ iostream class.  The difference
-  between iostream and QTextStream is that our stream operates on a
-  QIODevice which is easily subclassed, whereas iostream operates on
-  FILE * pointers which cannot be subclassed.
+  similar to that of the standard C++ iostream class.
 
   Qt provides several global functions similar to the ones in iostream:
   \list
