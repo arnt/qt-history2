@@ -220,10 +220,13 @@ public:
 				    const QPalette& pal,
 				    bool act, bool enabled, int x, int y, int w, int h) = 0;
 
-    // Binary compatibility contortions:
-    QSize scrollBarExtent(); //to become virtual in 3.0
+    // Binary compatibility contortions, to become virtual in 3.0
+    QSize scrollBarExtent();
+    int buttonDefaultIndicatorWidth() const;
 protected:
-    void setScrollBarExtent( int w, int h=-1 ); //will be removed in 3.0
+    
+    void setScrollBarExtent( int w, int h=-1 ); // will be removed in 3.0
+    void setButtonDefaultIndicatorWidth( int w ); // will be removed in 3.0
 };
 
 

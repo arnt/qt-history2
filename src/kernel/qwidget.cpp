@@ -1052,13 +1052,14 @@ QStyle& QWidget::style() const
   style changes.  You will almost certainly need to update the widget
   using either repaint(TRUE) or update().
 
-  The default implementation does nothing.
+  The default implementation calls updateGeometry()
 
   \sa QApplication::setStyle(), style()
 */
 
 void QWidget::styleChange( QStyle& )
 {
+    updateGeometry();
 }
 
 

@@ -55,6 +55,7 @@
 */
 QPlatinumStyle::QPlatinumStyle()
 {
+    setButtonDefaultIndicatorWidth( 3 );
 }
 
 // /*! \reimp */
@@ -139,8 +140,10 @@ void QPlatinumStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 	 p->drawPoint(x, y+1);
 	 p->setPen(g.shadow());
 	 p->drawPoint(x+1, y+1);
+	 p->setPen(g.button());
+ 	 p->drawPoint(x+2, y+2);
 	 p->setPen(white);
-	 p->drawPoint(x+3, y+3);
+ 	 p->drawPoint(x+3, y+3);
 	 // bottom left corner:
 	 p->setPen(g.background());
 	 p->drawPoint(x, y+h-1);
@@ -148,6 +151,8 @@ void QPlatinumStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 	 p->drawPoint(x, y+h-2);
 	 p->setPen(g.shadow());
 	 p->drawPoint(x+1, y+h-2);
+	 p->setPen(g.dark());
+	 p->drawPoint(x+2, y+h-3);
 	 // top right corner:
 	 p->setPen(g.background());
 	 p->drawPoint(x+w-1, y);
@@ -155,6 +160,8 @@ void QPlatinumStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 	 p->drawPoint(x+w-1, y+1);
 	 p->setPen(g.shadow());
 	 p->drawPoint(x+w-2, y+1);
+	 p->setPen(g.dark());
+	 p->drawPoint(x+w-3, y+2);
 	 // bottom right corner:
 	 p->setPen(g.background());
 	 p->drawPoint(x+w-1, y+h-1);
@@ -438,28 +445,31 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
 //     }
 	
     // small or square buttons as well as toggle buttons are bevel buttons (what a heuristic....)
-    if ( btn->isDefault() &&
-	 (btn->isToggleButton()
-	  || btn->width() * btn->height() < 1600 || QABS( btn->width() - btn->height()) < 10 ))
+    if ( btn->isToggleButton()
+	 || btn->width() * btn->height() < 1600 || QABS( btn->width() - btn->height()) < 10 )
 	drawBevelButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
 			 &fill );
     else {
+	int diw = buttonDefaultIndicatorWidth();
 	if (btn->isDefault() ) {
-	    p->setPen( g.shadow() );
-	    p->drawRect( x1, y1, x2-x1+1, y2-y1+1);
-	    QColorGroup g2 = g;
-	    g2.setColor( QColorGroup::Background,  g.shadow() );
 	    x1 += 1;
 	    y1 += 1;
 	    x2 -= 1;
 	    y2 -= 1;
-	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g2, btn->isOn() || btn->isDown(),
-			&fill );
+	    QColorGroup g2( g );
+ 	    g2.setColor( QColorGroup::Button,  g.mid() );
+	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g2, FALSE, &fill );
 	}
-	else {
-	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
-			&fill );
+	
+	if ( btn->isDefault() || btn->autoDefault() ) {
+	    x1 += diw;
+	    y1 += diw;
+	    x2 -= diw;
+	    y2 -= diw;
 	}
+
+	drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
+		    &fill );
     }
 	
 
@@ -1041,8 +1051,8 @@ void QPlatinumStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
     p->drawPoint(x, y+1);
     p->setPen(g.shadow());
     p->drawPoint(x+1, y+1);
-//     p->setPen(white);
-//     p->drawPoint(x+3, y+3);
+    p->setPen(white);
+    p->drawPoint(x+3, y+3);
     // bottom left corner:
     p->setPen(g.background());
     p->drawPoint(x, y+h-1);

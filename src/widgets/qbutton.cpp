@@ -696,16 +696,22 @@ void QButton::drawButtonLabel( QPainter * )
 }
 
 
+static bool got_a_release = FALSE; // binary compatibility trick, keyReleaseEvent is new
 /*!
   Handles keyboard events for the button.
 
-  Space calls animateClick(), the arrow keys cause focus changes.
+  Space presses the button, the arrow keys cause focus changes.
 */
 
 void QButton::keyPressEvent( QKeyEvent *e )
 {
-    if ( e->key() == Key_Space ) {
-	animateClick();
+    if ( e->key() == Key_Space && !e->isAutoRepeat() ) {
+	if ( got_a_release )
+	    setDown( TRUE );
+	else {
+	    buttonDown = TRUE;
+	    repaint( FALSE );
+	}
     } else if ( group() &&
 		( e->key() == Key_Up ||
 		  e->key() == Key_Left ||
@@ -719,6 +725,21 @@ void QButton::keyPressEvent( QKeyEvent *e )
     } else {
 	e->ignore();
     }
+}
+
+/*!
+  \reimp
+ */
+void QButton::keyReleaseEvent( QKeyEvent * e)
+{
+    got_a_release = TRUE;
+    if ( e->key() == Key_Space && !e->isAutoRepeat() ) {
+	buttonDown = FALSE;
+	nextState();
+	emit released();
+	emit clicked();
+    } else 
+	e->ignore();
 }
 
 
@@ -849,6 +870,7 @@ void QButton::focusInEvent( QFocusEvent * )
 
 void QButton::focusOutEvent( QFocusEvent * )
 {
+    buttonDown = FALSE;
     repaint( FALSE );
     if ( autoMask() )
 	updateMask();

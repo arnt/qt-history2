@@ -81,8 +81,8 @@ private:
 
     uint	autoDefButton	: 1;
     uint	defButton	: 1;
-    uint	lastDown	: 1;
-    uint	lastDef		: 1;
+    uint	lastDown		: 1;
+    uint	autoDefDefined	: 1;
     uint	lastEnabled	: 1;
     uint	hasMenuArrow	: 1;
     uint	hasArrow	: 1;

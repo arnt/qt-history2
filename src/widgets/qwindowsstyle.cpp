@@ -56,6 +56,7 @@
 */
 QWindowsStyle::QWindowsStyle() : QCommonStyle(WindowsStyle)
 {
+    setButtonDefaultIndicatorWidth( 1 );
 }
 
 
@@ -383,30 +384,32 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
     int x1, y1, x2, y2;
 
     btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
-    int w = x2 + 1;
-    int h = y2 + 1;
 
     p->setPen( g.foreground() );
     p->setBrush( QBrush(g.button(),NoBrush) );
 
-    bool clearButton = TRUE;
-    if ( btn->isDown() ) {
+    int diw = buttonDefaultIndicatorWidth();
+    if ( btn->isDefault() || btn->autoDefault() ) {
 	if ( btn->isDefault() ) {
 	    p->setPen( g.shadow() );
 	    p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
+	}
+	x1 += diw;
+	y1 += diw;
+	x2 -= diw;
+	y2 -= diw;
+    }
+
+    bool clearButton = TRUE;
+    if ( btn->isDown() ) {
+	if ( btn->isDefault() ) {
 	    p->setPen( g.dark() );
-	    p->drawRect( x1+1, y1+1, x2-x1-1, y2-y1-1 );
+	    p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
 	} else {
-	    drawButton( p, x1, y1, w, h, g, TRUE,
+	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE,
 			&g.brush( QColorGroup::Button ) );
 	}
     } else {
-	if ( btn->isDefault() ) {
-	    p->setPen( g.shadow() );
-	    p->drawRect( x1, y1, w, h );
-	    x1++; y1++;
-	    x2--; y2--;
-	}
 	if ( btn->isToggleButton() && btn->isOn() && btn->isEnabled() ) {
 	    QBrush fill(g.light(), Dense4Pattern );
 	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, &fill );
@@ -1130,11 +1133,11 @@ int QWindowsStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const
 	h = mi->pixmap()->height() + 2*motifItemFrame;
     else					// text height
 	h = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
-    
+
     if ( !mi->isSeparator() && mi->iconSet() != 0 ) {
 	h = QMAX( h, mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height() + 2*motifItemFrame );
     }
-    if ( mi->custom() ) 
+    if ( mi->custom() )
 	h = QMAX( h, mi->custom()->sizeHint().height() + 2*motifItemVMargin + 2*motifItemFrame );
     return h;
 }

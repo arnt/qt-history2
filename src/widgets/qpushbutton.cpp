@@ -111,7 +111,7 @@ QPushButton::QPushButton( ArrowType type, QWidget *parent, const char *name )
     : QButton( parent, name )
 {
     init();
-    
+
     setAutoRepeat( TRUE );
     // abuse text due to the lack of a bit flag ### fix 3.0
     switch ( type ) {
@@ -136,10 +136,10 @@ void QPushButton::init()
 {
     defButton = FALSE;
     lastDown = FALSE;
-    lastDef = FALSE;
     lastEnabled = FALSE;
     hasMenuArrow = FALSE;
     autoDefButton = TRUE;
+    autoDefDefined = FALSE;
     hasArrow = FALSE;
     setBackgroundMode( PaletteButton );
 }
@@ -158,6 +158,8 @@ void QPushButton::init()
 void QPushButton::setToggleButton( bool enable )
 {
     QButton::setToggleButton( enable );
+    if ( !autoDefDefined )
+	autoDefButton = FALSE;
 }
 
 
@@ -208,6 +210,7 @@ void QPushButton::toggle()
 void QPushButton::setAutoDefault( bool enable )
 {
     autoDefButton = enable;
+    autoDefDefined = TRUE;
 }
 
 
@@ -259,7 +262,7 @@ QSize QPushButton::sizeHint() const
     int h = 0;
     if ( hasArrow )
 	return QSize( 16, 16 );
-    
+
     if ( pixmap() ) {
 	QPixmap *pm = (QPixmap *)pixmap();
 	w = pm->width()	 + 6;
@@ -274,6 +277,19 @@ QSize QPushButton::sizeHint() const
 	h = sz.height() + sz.height()/8 + 10;
 	w += h;
     }
+
+    bool adb = autoDefButton;
+    if ( adb && !autoDefDefined && autoRepeat() ) {
+	QPushButton* that  = (QPushButton*) this;
+	that->autoDefButton = FALSE;
+	adb = FALSE;
+    }
+
+    if ( adb || isDefault() ) {
+	w += 2*style().buttonDefaultIndicatorWidth();
+	h += 2*style().buttonDefaultIndicatorWidth();
+    }
+
     if ( style() == WindowsStyle ) {
 	// in windows style, try a little harder to conform to
 	// microsoft's size specifications
@@ -368,16 +384,46 @@ void QPushButton::resizeEvent( QResizeEvent * )
 
 void QPushButton::drawButton( QPainter *paint )
 {
+    int diw = 0;
+    if ( isDefault() || autoDefault() ) {
+	diw = style().buttonDefaultIndicatorWidth();
+	if ( !autoDefDefined && autoRepeat() ) {
+	    autoDefButton = FALSE;
+	    diw = 0;
+	}
+	if ( diw > 0 ) {
+	    if ( parentWidget() && parentWidget()->backgroundPixmap() ){
+		// pseudo tranparency
+		paint->drawTiledPixmap( 0, 0, width(), diw,
+				    *parentWidget()->backgroundPixmap(),
+				    x(), y() );
+		paint->drawTiledPixmap( 0, 0, diw, height(),
+				    *parentWidget()->backgroundPixmap(),
+				    x(), y() );
+		paint->drawTiledPixmap( 0, height()-diw, width(), diw,
+				    *parentWidget()->backgroundPixmap(),
+				    x(), y() );
+		paint->drawTiledPixmap( width()-diw, 0, diw, height(),
+				    *parentWidget()->backgroundPixmap(),
+				    x(), y() );
+	    } else {
+		paint->fillRect( 0, 0, width(), diw, colorGroup().brush(QColorGroup::Background) );
+		paint->fillRect( 0, 0, diw, height(), colorGroup().brush(QColorGroup::Background) );
+		paint->fillRect( 0, height()-diw, width(), diw, colorGroup().brush(QColorGroup::Background) );
+		paint->fillRect( width()-diw, 0, diw, height(), colorGroup().brush(QColorGroup::Background) );
+	    }
+	}
+    }
+
     style().drawPushButton(this, paint);
     drawButtonLabel( paint );
     int x1, y1, x2, y2;
-    rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
+    style().buttonRect( 0,0,width(),height()).coords( &x1, &y1, &x2, &y2 );	// get coordinates
     if ( hasFocus() ) {
- 	QRect r(x1+3, y1+3, x2-x1-5, y2-y1-5);
+ 	QRect r(x1+3+diw, y1+3+diw, x2-x1-5-2*diw, y2-y1-5-2*diw);
  	style().drawFocusRect( paint, r , colorGroup(), &colorGroup().button() );
      }
     lastDown = isDown();
-    lastDef = defButton;
     lastEnabled = isEnabled();
 }
 
@@ -451,6 +497,7 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
 	if ( p->inherits("QDialog") )
 	    ((QDialog*)p)->setDefault( 0 );
     }
+
     QButton::focusOutEvent( e );
 }
 
@@ -484,3 +531,5 @@ bool QPushButton::isMenuButton() const
 {
     return hasMenuArrow;
 }
+
+

@@ -97,6 +97,7 @@ protected:
     virtual void drawButtonLabel( QPainter * );
 
     void	keyPressEvent( QKeyEvent *);
+    void	keyReleaseEvent( QKeyEvent *);
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );

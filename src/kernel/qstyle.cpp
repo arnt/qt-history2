@@ -35,6 +35,45 @@
 #include "qptrdict.h" //binary compatibility
 #include <limits.h>
 
+class QStylePrivate
+{
+public:
+    QStylePrivate()
+	:sbextent(16,16),
+	 button_default_indiciator_width(0)
+    {
+    }
+
+    QSize sbextent;
+    int button_default_indiciator_width;
+};
+
+static QPtrDict<QStylePrivate> *d_ptr = 0;
+static void cleanup_d_ptr()
+{
+    delete d_ptr;
+}
+static QStylePrivate* d( const QStyle* foo )
+{
+    if ( !d_ptr ) {
+	d_ptr = new QPtrDict<QStylePrivate>;
+	qAddPostRoutine( cleanup_d_ptr );
+    }
+    QStylePrivate* ret = d_ptr->find( (void*)foo );
+    if ( ! ret ) {
+	ret = new QStylePrivate;
+	d_ptr->replace( (void*) foo, ret );
+    }
+    return ret;
+}
+static void delete_d( const QStyle* foo )
+{
+    if ( d_ptr )
+	d_ptr->remove( (void*) foo );
+}
+
+
+
 
 // NOT REVISED
 /*!
@@ -99,6 +138,7 @@ QStyle::QStyle() :
 */
 QStyle::~QStyle()
 {
+    delete_d( this );
 }
 
 /*!
@@ -648,25 +688,10 @@ Draws a checkmark suitable for checkboxes and checkable menu items.
  enabled define whether the item is active (i.e. highlighted) or
  enabled, respectively. Finally, \a x, \a y, \a w and \a h determine
  the geometry of the entire item.
- 
- Note that \a mi can be 0 in the case of multicolumn popup menus. In that case, 
+
+ Note that \a mi can be 0 in the case of multicolumn popup menus. In that case,
  drawPopupMenuItem() simply draws the appropriate item background.
 */
-
-
-struct QStyleData
-{
-    QStyleData( int sbextw, int sbexth ) :sbextent(sbextw, sbexth) {}
-    QSize sbextent;
-};
-
-static QPtrDict<QStyleData> *extraData;
-
-static void cleanupStyleData()
-{
-    delete extraData;
-    extraData = 0;
-}
 
 
 /*!
@@ -679,8 +704,7 @@ static void cleanupStyleData()
 */
 QSize QStyle::scrollBarExtent()
 {
-    QStyleData *d = extraData ? extraData->find( this ) : 0;
-    return d ? d->sbextent : QSize(16,16);
+    return d(this)->sbextent;
 }
 
 /*!
@@ -691,19 +715,35 @@ QSize QStyle::scrollBarExtent()
 
   In a future version of the Qt library, this function will be removed
   and subclasses will be able to reimplement scrollBarExtent().
-
 */
 //### TODO: pick up desktop settings on Windows
 void QStyle::setScrollBarExtent( int width, int height )
 {
-    if ( !extraData ) {
-	extraData = new QPtrDict<QStyleData>;
-	extraData->setAutoDelete( TRUE );
-	qAddPostRoutine( cleanupStyleData );
-    }
+    d(this)->sbextent = QSize( width, height );
+}
 
-    QStyleData *sd = new QStyleData( width, height<0 ? width : height );
 
-    extraData->replace( this, sd );
+/*!
+  Returns the width of the default-button indicator frame.
+
+  In this version of the Qt library, subclasses must call
+  setButtonDefaultIndicatorWidth() to change the frame width. In a
+  future version of Qt, this function will become virtual.
+*/
+int QStyle::buttonDefaultIndicatorWidth() const
+{
+    return d(this)->button_default_indiciator_width;
+}
+
+/*!
+  Sets the width of the default-button indicator frame.
+  
+  In a future version of the Qt library, this function will be removed
+  and subclasses will be able to reimplement buttonDefaultIndicatorWidth()
+*/
+//### TODO: pick up desktop settings on Windows
+void QStyle::setButtonDefaultIndicatorWidth( int w )
+{
+    d(this)->button_default_indiciator_width = w;
 }
 

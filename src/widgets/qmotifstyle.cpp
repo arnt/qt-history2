@@ -63,6 +63,11 @@
 QMotifStyle::QMotifStyle( bool useHighlightCols ) : QCommonStyle(MotifStyle)
 {
     highlightCols = useHighlightCols;
+
+#define Q_NICE_MOTIF_DEFAULT_BUTTON
+#ifdef Q_NICE_MOTIF_DEFAULT_BUTTON
+    setButtonDefaultIndicatorWidth( 3 );
+#endif
 }
 
 
@@ -445,6 +450,14 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
     p->setPen( g.foreground() );
     p->setBrush( QBrush(g.button(),NoBrush) );
 
+    int diw = buttonDefaultIndicatorWidth();
+    if ( btn->isDefault() || btn->autoDefault() ) {
+	x1 += diw;
+	y1 += diw;
+	x2 -= diw;
+	y2 -= diw;
+    }
+    
     QBrush fill;
     if ( btn->isDown() )
 	fill = g.brush( QColorGroup::Mid );
@@ -454,16 +467,20 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	fill = g.brush( QColorGroup::Button );	
 
     if ( btn->isDefault() ) {
-	QPointArray a;
-	a.setPoints( 9,
-		     x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
-		     x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
-	p->setPen( g.shadow() );
-	p->drawPolyline( a );
-	x1 += 2;
-	y1 += 2;
-	x2 -= 2;
-	y2 -= 2;
+	if ( diw == 0 ) {
+	    QPointArray a;
+	    a.setPoints( 9,
+			 x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
+			 x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
+	    p->setPen( g.shadow() );
+	    p->drawPolyline( a );
+	    x1 += 2;
+	    y1 += 2;
+	    x2 -= 2;
+	    y2 -= 2;
+	} else {
+	    qDrawShadePanel( p, btn->rect(), g, TRUE );
+	}
     }
 	
     drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
