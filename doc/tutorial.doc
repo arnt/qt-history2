@@ -322,12 +322,12 @@ We set its width to 200 pixels and the height to 120 pixels.
 A child is born.
 
 This QPushButton is created with both a text ("Quit") and a mother
-(box).  A child widget is always on top of its mother.  When displayed,
-it is clipped by its mother's bounds.
+(box).  A child widget is always on top of its mother.  When
+displayed, it is clipped by its mother's bounds.
 
-The mother widget, the QVBox, automatically adds the child centered
-in its box.  Because nothing else is added, the button gets all the
-space the mother has.
+The mother widget, the QVBox, automatically adds the child centered in
+its box.  Because nothing else is added, the button gets all the space
+the mother has.
 
 \skipto show
 \printline show
@@ -339,14 +339,16 @@ When a mother widget is shown, it will call show for all its children
 
 The button no longer fills the entire widget.  Instead, it gets a
 "natural" size.  This is because there is now a new top-level widget,
-which uses layout management to set a good size and position for the
-button.
+which uses the button's size hint and size change policy to set the
+button's size and position. (See \l QWidget::sizeHint() and \l
+QWidget::setSizePolicy() for more information about these functions.)
 
 <h2>Exercises</h2>
 
 Try resizing the window.  How does the button change?  What is the
-button's size-change policy?  What happens if you try to make the
-window \e really small?
+button's size-change policy?  What happens to the button's height if
+you run the program with a bigger font?  What happens if you try to
+make the window \e really small?
 
 You may now go on to \link t4.html Chapter 4.  \endlink
 
