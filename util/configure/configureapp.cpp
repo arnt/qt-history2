@@ -5,8 +5,15 @@
 #include <qglobal.h>
 #include "configureapp.h"
 
-#include <iostream.h>
+#include <iostream>
 #include <windows.h>
+
+using namespace std;
+
+std::ostream &operator<<( std::ostream &s, const QString &val ) {
+    s << val.latin1();
+    return s;
+}
 
 // Macros to simplify options marking, and WinCE only code
 #define MARK_OPTION(x,y) ( dictionary[ #x ] == #y ? "*" : " " )
@@ -109,6 +116,7 @@ Configure::Configure( int& argc, char** argv )
 
     dictionary[ "QT_SOURCE_TREE" ]  = QDir::convertSeparators( QDir::currentDirPath() );
     dictionary[ "QT_INSTALL_PREFIX" ] = QDir::convertSeparators( dictionary[ "QT_SOURCE_TREE" ] );
+    dictionary[ "QT_INSTALL_TRANSLATIONS" ] = dictionary[ "QT_INSTALL_PREFIX" ] + "\\translations";
 
     QString tmp = dictionary[ "QMAKESPEC" ];
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
@@ -510,6 +518,13 @@ void Configure::parseCmdLine()
 	    dictionary[ "QT_INSTALL_DATA" ] = (*args);
 	}
 
+	else if( (*args) == "-translationdir" ) {
+	    ++args;
+	    if( args == configCmdLine.end() )
+		break;
+	    dictionary[ "QT_INSTALL_TRANSLATIONS" ] = (*args);
+	}
+
 	else if( (*args).find( QRegExp( "^-(en|dis)able-" ) ) != -1 ) {
 	    // Scan to see if any specific modules and drivers are enabled or disabled
 	    for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module ) {
@@ -700,11 +715,12 @@ WCE( {	cout << "                         pocketpc" << endl; } );
 	cout << "                         motifplus" << endl;
 	cout << "                         platinum" << endl << endl;
 
-	cout << "-prefix <prefix>     Install Qt to <prefix>, defaults to current directory." << endl;
-	cout << "-docdir <docs>       Install documentation to <docs>, default <prefix>/doc." << endl;
-	cout << "-headerdir <headers> Install Qt headers to <header>, default <prefix>/include." << endl;
-	cout << "-plugindir <plugins> Install Qt plugins to <plugins>, default <prefix>/plugins." << endl;
-	cout << "-datadir <data>      Data used by Qt programs will be installed to <data>." << endl;
+	cout << "-prefix <prefix>      Install Qt to <prefix>, defaults to current directory." << endl;
+	cout << "-docdir <docs>        Install documentation to <docs>, default <prefix>/doc." << endl;
+	cout << "-headerdir <headers>  Install Qt headers to <header>, default <prefix>/include." << endl;
+	cout << "-plugindir <plugins>  Install Qt plugins to <plugins>, default <prefix>/plugins." << endl;
+	cout << "-datadir <data>       Data used by Qt programs will be installed to <data>." << endl;
+	cout << "-translationdir <dir> Translations used by Qt programs will be installed to dir." << endl << "(default PREFIX/translations)" << endl;
 	cout << "                     Default <prefix>." << endl;
 	cout << "-libdir <libs>       Install Qt libraries to <libs>, default <prefix>/lib." << endl;
 	cout << "-bindir <bins>       Install Qt binaries to <bins>, default <prefix>/bin." << endl << endl;
@@ -937,12 +953,15 @@ void Configure::generateCachefile()
 	cacheStream << "QT_BUILD_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
 	cacheStream << "QT_SOURCE_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
 	cacheStream << "QT_INSTALL_PREFIX=" << dictionary[ "QT_INSTALL_PREFIX" ] << endl;
+	cacheStream << "QT_INSTALL_TRANSLATIONS=" << dictionary[ "QT_INSTALL_TRANSLATIONS" ] << endl;
 	cacheStream << "docs.path=" << dictionary[ "QT_INSTALL_DOCS" ] << endl;
 	cacheStream << "headers.path=" << dictionary[ "QT_INSTALL_HEADERS" ] << endl;
 	cacheStream << "plugins.path=" << dictionary[ "QT_INSTALL_PLUGINS" ] << "/plugins" << endl;
 	cacheStream << "libs.path=" << dictionary[ "QT_INSTALL_LIBS" ] << "/lib" << endl;
 	cacheStream << "bins.path=" << dictionary[ "QT_INSTALL_BINS" ] << "/bin" << endl;
 	cacheStream << "data.path=" << dictionary[ "QT_INSTALL_DATA" ] << endl;
+	cacheStream << "translations.path=" << dictionary[ "QT_INSTALL_TRANSLATIONS" ] << endl;
+
 	cacheFile.close();
     }
     QFile configFile( dictionary[ "QT_SOURCE_TREE" ] + "\\.qtwinconfig" );
@@ -1109,16 +1128,18 @@ void Configure::generateConfigfiles()
 		  << QString(dictionary["QT_INSTALL_PLUGINS"]).replace( "\\", "\\\\" )  << "\";" << endl;
 	outStream << "static const char QT_INSTALL_DATA   [267] = \"qt_datpath="
 		  << QString(dictionary["QT_INSTALL_DATA"]).replace( "\\", "\\\\" )  << "\";" << endl;
+	outStream << "static const char QT_INSTALL_TRANSLATIONS [256] = \""
+		  << QString(dictionary["QT_INSTALL_TRANSLATIONS"]).replace( "\\", "\\\\" )  << "\";" << endl;
 
 	outStream << endl;
-	outStream << "/* strlen( \"qt_xxxpath=\" ) == 11 */" << endl;
-	outStream << "const char *qInstallPath()        { return QT_INSTALL_PREFIX  + 11; }" << endl;
-	outStream << "const char *qInstallPathDocs()    { return QT_INSTALL_DOCS    + 11; }" << endl;
-	outStream << "const char *qInstallPathHeaders() { return QT_INSTALL_HEADERS + 11; }" << endl;
-	outStream << "const char *qInstallPathLibs()    { return QT_INSTALL_LIBS;   + 11; }" << endl;
-	outStream << "const char *qInstallPathBins()    { return QT_INSTALL_BINS    + 11;    }" << endl;
-	outStream << "const char *qInstallPathPlugins() { return QT_INSTALL_PLUGINS + 11; }" << endl;
-	outStream << "const char *qInstallPathData()    { return QT_INSTALL_DATA    + 11;    }" << endl;
+	outStream << "const char *qInstallPath()        { return QT_INSTALL_PREFIX;  }" << endl;
+	outStream << "const char *qInstallPathDocs()    { return QT_INSTALL_DOCS;    }" << endl;
+	outStream << "const char *qInstallPathHeaders() { return QT_INSTALL_HEADERS; }" << endl;
+	outStream << "const char *qInstallPathLibs()    { return QT_INSTALL_LIBS;    }" << endl;
+	outStream << "const char *qInstallPathBins()    { return QT_INSTALL_BINS;    }" << endl;
+	outStream << "const char *qInstallPathPlugins() { return QT_INSTALL_PLUGINS; }" << endl;
+	outStream << "const char *qInstallPathData()    { return QT_INSTALL_DATA;    }" << endl;
+	outStream << "const char *qInstallPathTranslations() { return QT_INSTALL_TRANSLATIONS; }" << endl;
 
 	outFile.close();
     }
@@ -1245,7 +1266,8 @@ WCE( { cout << "PocketPC...................." << dictionary[ "STYLE_POCKETPC" ] 
     cout << "Plugins installed to........" << dictionary[ "QT_INSTALL_PLUGINS" ] << endl;
     cout << "Binaries installed to......." << dictionary[ "QT_INSTALL_BINS" ] << endl;
     cout << "Docs installed to..........." << dictionary[ "QT_INSTALL_DOCS" ] << endl;
-    cout << "Data installed to..........." << dictionary[ "QT_INSTALL_DATA" ] << endl << endl;
+    cout << "Data installed to..........." << dictionary[ "QT_INSTALL_DATA" ] << endl;
+    cout << "Translations installed to..." << dictionary[ "QT_INSTALL_TRANSLATIONS" ] << endl << endl;
 
     cout << endl;
     if( !qmakeDefines.isEmpty() ) {

@@ -2723,7 +2723,7 @@ QMAKE_VARS="$QMAKE_VARS \"plugins.path=${QT_INSTALL_PLUGINS}\""
 QMAKE_VARS="$QMAKE_VARS \"libs.path=${QT_INSTALL_LIBS}\""
 QMAKE_VARS="$QMAKE_VARS \"bins.path=${QT_INSTALL_BINS}\""
 QMAKE_VARS="$QMAKE_VARS \"data.path=${QT_INSTALL_DATA}\""
-QMAKE_VARS="$QMAKE_VARS \"translation.path=${QT_INSTALL_TRANSLATIONS}\""
+QMAKE_VARS="$QMAKE_VARS \"translations.path=${QT_INSTALL_TRANSLATIONS}\""
 
 # turn off exceptions for the compilers that support it
 COMPILER=`echo $PLATFORM | cut -f 2- -d-`

@@ -67,9 +67,9 @@ INCLUDEPATH += $$QT_SOURCE_TREE/include/ $$QT_SOURCE_TREE/src/tools/
 INTERFACES=
 TARGET=configure
 DESTDIR=../../dist/win/bin
+LIBS = ole32.lib
+win32-msvc.net : QMAKE_CXXFLAGS += /EHsc
 win32-g++:LIBS += -luuid
 win32:LIBS += -lole32
-
-
 
 win32:CONFIG+=console

@@ -64,7 +64,7 @@ static void resolveLibs()
     static bool triedResolve = FALSE;
     if ( !triedResolve ) {
 	// need to resolve the security info functions
-	
+
 #ifdef QT_THREAD_SUPPORT
 	// protect initialization
 	QMutexLocker locker( qt_global_mutexpool ?
@@ -77,12 +77,12 @@ static void resolveLibs()
 	    return;
 	}
 #endif
-	
+
 	triedResolve = TRUE;
 	if ( qWinVersion() & Qt::WV_NT_based ) {
 	    QLibrary lib("advapi32");
 	    lib.setAutoUnload( FALSE );
-	    
+
 	    ptrGetNamedSecurityInfoW = (PtrGetNamedSecurityInfoW) lib.resolve( "GetNamedSecurityInfoW" );
 	    ptrLookupAccountSidW = (PtrLookupAccountSidW) lib.resolve( "LookupAccountSidW" );
 	    ptrAllocateAndInitializeSid = (PtrAllocateAndInitializeSid) lib.resolve( "AllocateAndInitializeSid" );
@@ -108,7 +108,7 @@ static void resolveLibs()
 			    UINT puLen;
 			    VS_FIXEDFILEINFO *pLocalInfo;
 			    if ( ptrVerQueryValueW( versionData, L"\\", (void**)&pLocalInfo, &puLen ) ) {
-				WORD wVer1, wVer2, wVer3, wVer4; 
+				WORD wVer1, wVer2, wVer3, wVer4;
 				wVer1 = HIWORD(pLocalInfo->dwFileVersionMS);
 				wVer2 = LOWORD(pLocalInfo->dwFileVersionMS);
 				wVer3 = HIWORD(pLocalInfo->dwFileVersionLS);
