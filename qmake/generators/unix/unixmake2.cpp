@@ -748,57 +748,73 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t <<"FORCE:" << endl << endl;
 }
 
+struct SubDir
+{
+    QString directory, profile, target, makefile;
+};
+
 void
 UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 {
+    QPtrList<SubDir> subdirs;
+    {
+	QStringList subdirs_in = project->variables()["SUBDIRS"];
+	for(QStringList::Iterator it = subdirs_in.begin(); it != subdirs_in.end(); ++it) {
+	    QString file = (*it);
+	    fileFixify(file);
+	    SubDir *sd = new SubDir;
+	    subdirs.append(sd);
+	    sd->makefile = "$(MAKEFILE)";
+	    if((*it).right(4) == ".pro") {
+		int slsh = file.findRev(Option::dir_sep);
+		if(slsh != -1) {
+		    sd->directory = file.left(slsh+1);
+		    sd->profile = file.mid(slsh+1);
+		} else {
+		    sd->profile = file;
+		}
+		sd->makefile += "." + sd->profile;
+	    } else {
+		sd->directory = file;
+	    }
+	    sd->target = "sub-" + (*it);
+	    sd->target.replace('/', '-');
+	    sd->target.replace('.', '_');
+	}
+    }
+    QPtrListIterator<SubDir> it(subdirs);
+
     QString ofile = Option::output.name();
     if(ofile.findRev(Option::dir_sep) != -1)
 	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
-
     t << "MAKEFILE =	" << var("MAKEFILE") << endl;
     t << "QMAKE    =	" << var("QMAKE") << endl;
-    t << "SUBDIRS  =	" << varList("SUBDIRS") << endl;
     t << "DEL_FILE =    " << var("QMAKE_DEL_FILE") << endl;
-
-    // subdirectory targets are sub-directory
-    QStringList::Iterator it;
-    QStringList subdirs = project->variables()["SUBDIRS"];
-    t << "SUBTARGETS =	";
-    for(it = subdirs.begin(); it != subdirs.end(); ++it) {
-	QString sr = (*it);
-	sr.replace('/', '-');
-	t << " \\\n\t\tsub-" << sr;
-    }
+    t << "SUBTARGETS =	";     // subdirectory targets are sub-directory
+    for( it.toFirst(); it.current(); ++it) 
+	t << " \\\n\t\t" << it.current()->target;
     t << endl << endl;
-
     t << "first: all\n\nall: " << ofile << " $(SUBTARGETS)" << endl << endl;
 
     // generate target rules
-    for(it = subdirs.begin(); it != subdirs.end(); ++it) {
-	QString sr = (*it), mkfile = (*it) + Option::dir_sep + "$(MAKEFILE)", out;
-	if(direct)
-	    out = " -o $(MAKEFILE)";
-	sr.replace("/", "-");
+    for( it.toFirst(); it.current(); ++it) {
+	QString mkfile = (*it)->directory + Option::dir_sep + (*it)->makefile, out;
+	if(direct || (*it)->makefile != "$(MAKEFILE)")
+	    out = " -o " + (*it)->makefile;
 	//qmake it
 	t << mkfile << ": " << "\n\t"
-	  << "cd " << (*it) << " && $(QMAKE)" << buildArgs() << out << endl;
+	  << "cd " << (*it)->directory << " && $(QMAKE) " << (*it)->profile << buildArgs() << out << endl;
 	//actually compile
-	t << "sub-" << sr << ": " << mkfile << " FORCE" << "\n\t"
-	  << "cd " << *(it) << " && $(MAKE) -f $(MAKEFILE)" << endl << endl;
+	t << (*it)->target << ": " << mkfile << " FORCE" << "\n\t"
+	  << "cd " << (*it)->directory << " && $(MAKE) -f " << (*it)->makefile << endl << endl;
     }
 
-    if (project->isActiveConfig("ordered")) {
-	// generate dependencies
-	QString tar, dep;
-	it = subdirs.begin();
-	while (it != subdirs.end()) {
-	    tar = *it++;
-            tar.replace('/', '-');
-	    if (it != subdirs.end()) {
-		dep = *it;
-                dep.replace('/', '-');
-		t << "sub-" << dep << ": sub-" << tar << endl;
-	    }
+    if (project->isActiveConfig("ordered")) { 	// generate dependencies
+	for( it.toFirst(); it.current(); ) {
+	    QString tar = it.current()->target;
+	    ++it;
+	    if (it.current()) 
+		t << it.current()->target << ": " << tar << endl;
 	}
 	t << endl;
     }
@@ -808,23 +824,25 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
     if(project->isEmpty("SUBDIRS")) {
 	t << "all qmake_all distclean install uiclean mocclean clean: FORCE" << endl;
     } else {
-	t << "qmake_all: " << varGlue("SUBDIRS", "", Option::dir_sep + "$(MAKEFILE) ",
-				      Option::dir_sep + "$(MAKEFILE)") << "\n\t"
-	  << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; "
-	  << "grep \"^qmake_all:\" $(MAKEFILE) 2>/dev/null >/dev/null && "
-	  << "$(MAKE) -f $(MAKEFILE) qmake_all || true; fi; ) ; done" << endl << endl;
-
-	t << "clean: qmake_all FORCE" << "\n\t"
-	  << varGlue("QMAKE_CLEAN","-$(DEL_FILE) "," ","\n\t")
-	  << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) "
-	    "-f $(MAKEFILE) clean; fi; ) ; done" << endl;
-	t <<"uninstall install uiclean mocclean: qmake_all FORCE" << "\n\t"
-	  << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) "
-	    "-f $(MAKEFILE) $@; fi; ) ; done" << endl;
-	t <<"distclean: qmake_all" << " FORCE\n\t"
-	  << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) "
-	    "-f $(MAKEFILE) $@ ; $(DEL_FILE) $(MAKEFILE) ; fi; ) ; done"
-	  << endl << endl;
+	t << "all: $(SUBTARGETS)" << endl;
+	t << "qmake_all:";
+	for( it.toFirst(); it.current(); ++it) 
+	    t << " " << (*it)->directory << Option::dir_sep + (*it)->makefile;
+	for( it.toFirst(); it.current(); ++it) 
+	    t << "\n\t" << "( [ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; "
+	      << "grep \"^qmake_all:\" " << (*it)->makefile 
+	      << " && $(MAKE) -f " << (*it)->makefile << " qmake_all" << "; ) || true";
+	t << endl;
+	t << "clean uninstall install uiclean mocclean: qmake_all FORCE";
+	for( it.toFirst(); it.current(); ++it) 
+	    t << "\n\t" << "( [ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; "
+	      << "$(MAKE) -f " << (*it)->makefile << " $@" << "; ) || true";
+	t << endl;
+	t << "distclean: qmake_all FORCE";
+	for( it.toFirst(); it.current(); ++it) 
+	    t << "\n\t" << "( [ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; "
+	      << "$(MAKE) -f " << (*it)->makefile << " $@; $(DEL_FILE) " << (*it)->makefile << "; ) || true";
+	t << endl << endl;
     }
     t <<"FORCE:" << endl << endl;
 }
