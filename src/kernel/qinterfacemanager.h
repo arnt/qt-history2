@@ -64,6 +64,17 @@ public:
 	    addLibraryPath( path, filter );
     }
 
+    ~QInterfaceManager()
+    {
+	qDebug( "Interface manager dies..." );
+	// Release all interfaces
+	QDictIterator<Type> it( interfaceDict );
+	while ( it.current() ) {
+	    it.current()->release();
+	    ++it;
+	}
+    }
+
     void addLibraryPath( const QString& path, const QString& filter = "*.dll; *.so" )
     {
 	if ( !QDir( path ).exists( ".", TRUE ) )
