@@ -197,6 +197,7 @@ QDesignerMenuBar::QDesignerMenuBar( QWidget *mw )
     show();
     setAcceptDrops( TRUE );
     MetaDataBase::addEntry( this );
+    itemNum = 0;
 }
 
 #ifndef QT_NO_DRAGANDDROP
@@ -229,6 +230,29 @@ void QDesignerMenuBar::dropEvent( QDropEvent * )
 
 #endif
 
+void QDesignerMenuBar::setItemNumber( int num )
+{
+    itemNum = num;
+}
+
+int QDesignerMenuBar::itemNumber() const
+{
+    return itemNum;
+}
+
+void QDesignerMenuBar::setItemText( const QString &s )
+{
+    if ( itemNum < 0 || itemNum >= (int)count() )
+	return;
+    return changeItem( idAt( itemNum ), s );
+}
+
+QString QDesignerMenuBar::itemText() const
+{
+    if ( itemNum < 0 || (int)itemNum >= (int)count() )
+	return QString::null;
+    return text( idAt( itemNum ) );
+}
 
 
 

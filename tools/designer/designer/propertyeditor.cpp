@@ -2303,6 +2303,9 @@ void PropertyList::setupProperties()
 		continue;
 	}
 	if ( editor->widget()->inherits( "QDesignerMenuBar" ) ) {
+	    if ( qstrcmp( p->name(), "itemNumber" ) != 0 &&
+		 qstrcmp( p->name(), "itemText" ) != 0 )
+		continue;
 	}
 	unique.insert( QString::fromLatin1( it.current() ), TRUE );
 	if ( editor->widget()->isWidgetType() &&

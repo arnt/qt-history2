@@ -76,8 +76,16 @@ class QDesignerMenuBar : public QMenuBar
     Q_OBJECT
     friend class QDesignerPopupMenu;
 
+    Q_PROPERTY( int itemNumber WRITE setItemNumber READ itemNumber )
+    Q_PROPERTY( QString itemText WRITE setItemText READ itemText )
+
 public:
     QDesignerMenuBar( QWidget *mw );
+
+    void setItemNumber( int num );
+    int itemNumber() const;
+    void setItemText( const QString &s );
+    QString itemText() const;
 
 protected:
 #ifndef QT_NO_DRAGANDDROP
@@ -86,6 +94,9 @@ protected:
     void dragLeaveEvent( QDragLeaveEvent * );
     void dropEvent( QDropEvent * );
 #endif
+
+private:
+    int itemNum;
 
 };
 
