@@ -151,6 +151,8 @@ The Qt API consists of the following modules:
 <dd>Classes providing drawing primitives
 <dt><a href="fonts.html">Font Classes</a>
 <dd>Classes related to the handling of text fonts
+<dt><a href="color.html">Color Classes</a>
+<dd>Classes related to the handling of colors.
 <dt><a href="kernel.html">Kernel</a>
 <dd>Classes providing access to the low-level parts of Qt
 <dt><a href="misc.html">Miscellaneous</a>
@@ -211,6 +213,14 @@ classes</a>.
 
 These classes are used to manipulate fonts.  See also <a
 href="fontmatch.html">Font matching.</a>
+
+*/
+
+/*! \defgroup color.html
+
+<h1 align="center">Color-related Classes</h1><br clear="all">
+
+These classes are used to manipulate colors.
 
 */
 
