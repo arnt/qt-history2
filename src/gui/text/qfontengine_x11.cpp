@@ -446,7 +446,9 @@ void QFontEngineMultiXft::loadEngine(int at)
     QFontCache::Key key(fontDef, -1, screen);
     QFontEngine *fontEngine = QFontCache::instance->findEngine(key);
     if (!fontEngine) {
-        XftFont *f = XftFontOpenPattern(QX11Info::display(), FcPatternDuplicate(pattern));
+        FcResult res;
+        FcPattern *p = XftFontMatch(QX11Info::display(), screen, pattern, &res);
+        XftFont *f = XftFontOpenPattern(QX11Info::display(), p);
         fontEngine = new QFontEngineXft(f);
         fontEngine->fontDef = fontDef;
         QFontCache::instance->insertEngine(key, fontEngine);

@@ -1359,9 +1359,7 @@ static QFontEngine *loadFcEngineFromPattern(FcPattern *pattern, const QFontPriva
             // add properties back in as the font selected from the
             // list doesn't contain them.
             addPatternProps(pattern, key, false, true, fp, request, script);
-            FcResult res;
-            FcFontSetAdd(fontSet, XftFontMatch(QX11Info::display(), fp->screen, pattern, &res));
-            FcPatternDestroy(pattern);
+            FcFontSetAdd(fontSet, pattern);
         }
 
         fe = new QFontEngineMultiXft(fontSet, fp->screen);
