@@ -96,7 +96,8 @@ FormWindow::~FormWindow()
     foreach (QWidget *w, l)
         core()->metaDataBase()->remove(w);
 
-    delete m_rubberBand;
+    m_widgetStack = 0;
+    m_rubberBand = 0;
 
     qDeleteAll(selections);
 }
@@ -311,7 +312,7 @@ QWidget *FormWindow::findTargetContainer(QWidget *widget) const
 void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
 {
     checkedSelectionsForMove = false;
-        
+
         // if the dragged widget is not in a layout, raise it
     if (!w->parentWidget() || LayoutInfo::layoutType(m_core, w->parentWidget()) == LayoutInfo::NoLayout)
         w->raise();
@@ -1278,7 +1279,7 @@ void FormWindow::handleMouseButtonDblClickEvent(QWidget *w, QMouseEvent * /*e*/)
 {
     emit activated(w);
 
-/*    
+/*
     case TabOrderEditMode:
         if (!isMainContainer(w)) { // press on a child widget
             orderedWidgets.clear();

@@ -50,13 +50,13 @@ void FormWindowWidgetStack::setCurrentTool(int index)
         qWarning("FormWindowWidgetStack::setCurrentTool(): invalid index: %d", index);
         return;
     }
-    
+
     if (index == m_current_index)
         return;
 
     if (m_current_index != -1)
         m_tools.at(m_current_index)->deactivated();
-        
+
     m_current_index = index;
 
     AbstractFormWindowTool *tool = m_tools.at(m_current_index);
@@ -66,7 +66,7 @@ void FormWindowWidgetStack::setCurrentTool(int index)
         w->raise();
         qDebug() << "Raising" << w;
     }
-    
+
     emit currentToolChanged(index);
 }
 
@@ -78,7 +78,7 @@ void FormWindowWidgetStack::setSenderAsCurrentTool()
         qWarning("FormWindowWidgetStack::setSenderAsCurrentTool(): sender is not a QAction");
         return;
     }
-    
+
     foreach (AbstractFormWindowTool *t, m_tools) {
         if (action == t->action()) {
             tool = t;
