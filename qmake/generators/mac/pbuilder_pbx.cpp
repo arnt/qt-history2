@@ -436,8 +436,6 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         QStringList &root_group_list = project->variables()["QMAKE_PBX_GROUPS"];
 
         QStringList files = fileFixify(sources.at(source).files(project));
-        qDebug("%s -- %s -- %s", sources.at(source).keyName().latin1(), 
-               sources.at(source).groupName().latin1(), files.join("::").latin1());
         for(int f = 0; f < files.count(); ++f) {
             bool buildable = false;
             if(sources.at(source).keyName() == "SOURCES") 
