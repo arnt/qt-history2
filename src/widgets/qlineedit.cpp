@@ -1026,7 +1026,8 @@ QString QLineEdit::inputMask() const
 void QLineEdit::setInputMask( const QString &inputMask )
 {
     d->parseInputMask( inputMask );
-    d->moveCursor( d->nextMaskBlank( 0 ) );
+    if ( d->maskData )
+	d->moveCursor( d->nextMaskBlank( 0 ) );
 }
 
 /*!
