@@ -2246,7 +2246,7 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
 	}
 	oldLen = undoRedoInfo.d->text.length();
     }
-    
+
     lastFormatted = checkNewLine && cursor->parag()->prev() ?
 		    cursor->parag()->prev() : cursor->parag();
     QTextCursor oldCursor = *cursor;
@@ -2264,7 +2264,7 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
     repaintChanged();
     ensureCursorVisible();
     drawCursor( TRUE );
-    
+
     if ( undoEnabled && !isReadOnly() ) {
 	undoRedoInfo.d->text += txt;
 	if ( !doc->preProcessor() ) {
@@ -2964,7 +2964,7 @@ QString QTextEdit::text( int para ) const
   QMimeSourceFactory uses to resolve the locations of files and images.
   (See \l{QTextEdit::QTextEdit()}.) It is passed to the text edit's
   QMimeSourceFactory when quering data.
-  
+
   Note that the undo/redo history is cleared by this function.
 
   \sa text(), setTextFormat()
@@ -3677,7 +3677,7 @@ void QTextEdit::append( const QString &text )
     // flush and clear the undo/redo stack if necessary
     if ( isReadOnly() && undoRedoInfo.valid() ) {
 	undoRedoInfo.clear();
-	doc->commands()->clear(); 
+	doc->commands()->clear();
     }
     doc->removeSelection( QTextDocument::Standard );
     TextFormat f = doc->textFormat();
