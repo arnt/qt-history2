@@ -2,6 +2,7 @@
 TEMPLATE = lib
 TARGET	 = qtmain
 DESTDIR	 = $$QMAKE_LIBDIR_QT
+QT       =
 
 CONFIG	+= staticlib warn_on
 CONFIG	-= qt shared
