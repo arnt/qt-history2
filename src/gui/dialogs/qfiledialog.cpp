@@ -960,7 +960,7 @@ void QFileDialog::fileNameChanged(const QString &text)
     \internal
 
     This is called when the user changes the text in the "Look in"
-    combobox; the new text is passed in \a text. The file dialog accordingly.
+    combobox; the new text is passed in \a text. The file dialog updates accordingly.
 */
 
 void QFileDialog::lookInChanged(const QString &text)
@@ -994,6 +994,7 @@ void QFileDialog::lookInChanged(const QString &text)
             }
         }
 
+        // we found a valid autocompletion
         if (result.isValid()) {
             QString completed = d->convert(d->model->path(result)); // to native format
             int start = completed.length();
@@ -1086,8 +1087,9 @@ void QFileDialog::headerPressed(int section)
         sort = QDir::Size;
         break;
     case 2:
-        qDebug("sorting on type is not implemented yet");
-        return;
+        // FIXME: add a special internals sort mode that will sort by type
+        sort = QDir::Unsorted;
+        break;
     case 3:
         sort = QDir::Time;
         break;
