@@ -266,6 +266,10 @@ QQueue:
   bool isPending( type* ) - to determine if an item is pending
   And have an iterator.  (see support/arc-11/23842)
 
+QDockWindow
+  Be able to dock a window on top of itself so that it makes it like a QTabWidget.  
+  (see support/arc-11/23889)
+
 
 New functionality
 -----------------
