@@ -822,6 +822,9 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 		if ( !DomTool::elementToVariant( e, QVariant( TRUE, 0 ) ).toBool() ) {
 		    noDatabaseWidgets << obj->name();
 		}
+	    } else if ( prop == "buttonGroupId" ) {
+		if ( obj->inherits( "QButton" ) && obj->parent()->inherits( "QButtonGroup" ) )
+		    ( (QButtonGroup*)obj->parent() )->insert( (QButton*)obj, v.toInt() );
 	    }
 
 	    return;
