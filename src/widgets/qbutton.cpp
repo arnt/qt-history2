@@ -46,6 +46,7 @@
 #include "qapplication.h"
 #include "qpushbutton.h"
 #include "qcleanuphandler.h"
+#include "qaccessible.h"
 #include <ctype.h>
 
 static const int autoRepeatDelay  = 300;
@@ -465,6 +466,10 @@ void QButton::setText( const QString &text )
 
     update();
     updateGeometry();
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::NameChanged );
+#endif
 }
 
 void QButton::setPixmap( const QPixmap &pixmap )
@@ -587,12 +592,16 @@ void QButton::setState( ToggleState s )
     if ( (ToggleState)stat != s ) {		// changed state
 	bool was = stat != Off;
 	stat = s;
-    if ( autoMask() )
-        updateMask();
+	if ( autoMask() )
+	    updateMask();
 	repaint( FALSE );
 	if ( was != (stat != Off) )
 	    emit toggled( stat != Off );
 	emit stateChanged( s );
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	emit accessibilityChanged( QAccessible::StateChanged );
+#endif
     }
 }
 

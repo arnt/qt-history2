@@ -42,6 +42,7 @@
 #include "qtimer.h"
 #include "qbitmap.h"
 #include "qapplication.h"
+#include "qaccessible.h"
 
 static const int motifBorder = 2;
 static const int thresholdTime = 500;
@@ -293,6 +294,9 @@ void QSlider::valueChange()
 	reallyMoveSlider( newPos );
     }
     emit valueChanged(value());
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::ValueChanged );
+#endif
 }
 
 
@@ -778,6 +782,9 @@ int QSlider::slideLength() const
 void QSlider::setValue( int value )
 {
     QRangeControl::setValue( value );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::ValueChanged );
+#endif
 }
 
 
