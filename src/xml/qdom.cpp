@@ -111,6 +111,7 @@ public:
     bool startCDATA();
     bool endCDATA();
     bool startDTD( const QString& name, const QString&, const QString& );
+    bool comment( const QString& ch );
 
 private:
     QXmlLocator* loc;
@@ -4947,7 +4948,10 @@ void QDOM_DocumentPrivate::save( QTextStream& s, int ) const
   QFile f( "mydocument.xml" );
   if ( !f.open( IO_ReadOnly ) )
       return;
-  doc.setContent( &f );
+  if ( !doc.setContent( &f ) ) {
+      f.close();
+      return;
+  }
   f.close();
 
   // print out the element names of all elements that are a direct child
@@ -4966,8 +4970,7 @@ void QDOM_DocumentPrivate::save( QTextStream& s, int ) const
   // lets append a new element to the end of the document
   QDomElement elem = doc.createElement( "img" );
   elem.setAttribute( "src", "myimage.png" );
-
-  doc.appendChild( elem );
+  docElem.appendChild( elem );
   \endcode
 
   Once \c doc and \c elem go out of scode, the whole internal tree representing
@@ -5514,6 +5517,12 @@ bool QDomHandler::startCDATA()
 bool QDomHandler::endCDATA()
 {
     cdata = FALSE;
+    return TRUE;
+}
+
+bool QDomHandler::comment( const QString& ch )
+{
+    node->appendChild( doc->createComment( ch ) );
     return TRUE;
 }
 
