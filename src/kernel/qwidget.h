@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#58 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#59 $
 **
 ** Definition of QWidget class
 **
@@ -280,7 +280,7 @@ const QColor &QWidget::backgroundColor() const
 inline const QPalette &QWidget::palette() const
 { return pal; }
 
-inline const QFont &font() const
+inline const QFont &QWidget::font() const
 { return fnt; }
 
 inline QFontMetrics QWidget::fontMetrics() const
