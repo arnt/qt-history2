@@ -595,8 +595,8 @@
 
   We've used the search() function to repeatedly match the regexp in
   the string. Note that instead of moving forward by one character at
-  a time <tt>pos++</tt> we could have written <tt>pos +=
-  rx.matchedLength()</tt> to skip over the already matched string. The
+  a time \c pos++ we could have written \c {pos +=
+  rx.matchedLength()} to skip over the already matched string. The
   count will equal 3, matching 'One <u>Eric</u> another <u>Eirik</u>,
   and an Ericsson. How many Eiriks, <u>Eric</u>?'; it doesn't match
   'Ericsson' or 'Eiriks' because they are not bounded by non-word
@@ -1226,13 +1226,18 @@ QMemArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
     bool matched = FALSE;
     if ( valid && mmPos >= 0 && mmPos <= mmLen ) {
 #ifndef QT_NO_REGEXP_OPTIM
-	if ( mmPos <= mmLen - minl ) {
-	    if ( caretAnchored || oneTest )
-		matched = matchHere();
-	    else if ( useGoodStringHeuristic )
-		matched = goodStringMatch();
-	    else
-		matched = badCharMatch();
+	if ( oneTest ) {
+	    matched = matchHere();
+	} else {
+	    if ( mmPos <= mmLen - minl ) {
+		if ( caretAnchored || oneTest ) {
+		    matched = matchHere();
+		} else if ( useGoodStringHeuristic ) {
+		    matched = goodStringMatch();
+		} else {
+		    matched = badCharMatch();
+		}
+	    }
 	}
 #else
 	matched = oneTest ? matchHere() : bruteMatch();
@@ -3396,14 +3401,15 @@ void QRegExp::setMinimal( bool minimal )
   otherwise it returns FALSE. You can determine how much of the string was
   matched by calling matchedLength().
 
-    For a given regexp string, R, <tt>match("R")</tt> is the equivalent
-    of <tt>search("^R$")</tt> since match() effectively encloses the
-    regexp in the start of string and end of string anchors.
+  For a given regexp string, R, exactMatch("R") is the equivalent
+  of search("^R$") since match() effectively encloses the
+  regexp in the start of string and end of string anchors, except that
+  it sets matchedLength() differently.
 
   For example, if the regular expression is <b>blue</b>, then match()
-  returns TRUE only for input <tt>blue</tt>.  For inputs
-  <tt>bluebell</tt>, <tt>blutak</tt> and <tt>lightblue</tt>, match()
-  returns FALSE and matchedLength() will return 4, 3 and 0 respectively.
+  returns TRUE only for input \c blue.  For inputs \c bluebell, \c
+  blutak and \c lightblue, match() returns FALSE and matchedLength()
+  will return 4, 3 and 0 respectively.
 
   Although const, this function sets matchedLength(), capturedTexts()
   and pos().
