@@ -22,6 +22,7 @@
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
+#include <time.h>
 #endif
 
 static const uint FIRST_DAY = 2361222;        // Julian day for 1752-09-14
