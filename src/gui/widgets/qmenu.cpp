@@ -59,13 +59,12 @@ QList<Q4MenuAction*> Q4MenuPrivate::calcActionRects() const
     if(!itemsDirty)
 	return actionItems;
 
-    int max_column_width = 0, max_column_height = 0,
-		      dh = QApplication::desktop()->height(), ncols = 1;
     QList<Q4MenuAction*> ret;
     QList<QAction*> items = q->actions();
+    int max_column_width = 0, dh = QApplication::desktop()->height(), ncols = 1;
 
     //for compatability now - will have to refactor this away..
-    maxIconWidth = 0;
+    tabWidth = maxIconWidth = 0;
     for(int i = 0; i < items.count(); i++) {
 	QAction *action = items.at(i);
 	if(!action->isVisible())
@@ -89,6 +88,11 @@ QList<Q4MenuAction*> Q4MenuPrivate::calcActionRects() const
 	    sz = QSize(2, 2);
 	} else {
 	    QString s = action->text();
+	    int t = s.indexOf('\t');
+	    if(t != -1) {
+		tabWidth = qMax((int)tabWidth, fm.width(s.mid(t+1)));
+		s = s.left(t);
+	    }
 	    int w = fm.width( s );
 	    w -= s.count('&') * fm.width('&');
 	    w += s.count("&&") * fm.width('&');
@@ -104,14 +108,13 @@ QList<Q4MenuAction*> Q4MenuPrivate::calcActionRects() const
 	}
 
 	//let the style modify the above size..
-	sz = q->style().sizeFromContents(QStyle::CT_MenuItem, q, sz, QStyleOption(action, maxIconWidth));
+	sz = q->style().sizeFromContents(QStyle::CT_MenuItem, q, sz, QStyleOption(action, maxIconWidth, 0));
 
 	if(!sz.isEmpty()) {
 	    max_column_width = qMax(max_column_width, sz.width());
 	    //wrapping
 	    if(!scroll && y+sz.height() > dh) {
 		ncols++;
-		max_column_height = y;
 		y = 0;
 	    }
 	    y += sz.height();
@@ -122,6 +125,8 @@ QList<Q4MenuAction*> Q4MenuPrivate::calcActionRects() const
 	    ret.append(item);
 	}
     }
+    if(tabWidth) 
+	max_column_width += tabWidth+20; //finally add in the tab width
 
     //calculate position
     int x = 0, y = 0;
@@ -134,7 +139,7 @@ QList<Q4MenuAction*> Q4MenuPrivate::calcActionRects() const
 	    x += max_column_width;
 	    y = 0;
 	}
-	action->rect.moveBy(x, y);               //move
+	action->rect.moveBy(x, y);                        //move
 	action->rect.setWidth(max_column_width); //uniform width
 	y += action->rect.height();
     }
@@ -684,7 +689,7 @@ void Q4Menu::paintEvent(QPaintEvent *e)
 	if(d->mouseDown)
 	    flags |= QStyle::Style_Down;
 	style().drawControl(QStyle::CE_MenuItem, &p, this, adjustedActionRect, pal, flags,
-			    QStyleOption(action->action, d->maxIconWidth, 0)); //what should the _tab be? ###
+			    QStyleOption(action->action, d->maxIconWidth, d->tabWidth));
     }
 
     //draw the scroller regions..
@@ -1172,6 +1177,7 @@ void Q4MenuBarPrivate::popupAction(Q4MenuAction *action, bool activateFirst)
 	activeMenu->popup(q->mapToGlobal(QPoint(adjustedActionRect.left(), adjustedActionRect.bottom())));
 	if(activateFirst)
 	    activeMenu->d->setFirstActionActive();
+	q->update(actionRect(action));
     }
 }
 
@@ -1194,8 +1200,6 @@ void Q4MenuBarPrivate::setCurrentAction(Q4MenuAction *action, bool popup, bool a
 	if(popup)
 	    popupAction(action, activateFirst);
 	q->update(actionRect(action));
-    } else {
-	setKeyboardMode(false);
     }
 }
 
@@ -1372,7 +1376,6 @@ void Q4MenuBar::mouseReleaseEvent(QMouseEvent *e)
 
 void Q4MenuBar::keyPressEvent(QKeyEvent *e)
 {
-    qDebug("QMenuBar::keyPress..");
     int key = e->key();
     if(QApplication::reverseLayout()) {  // in reverse mode open/close key for submenues are reversed
 	if(key == Key_Left)
@@ -1388,10 +1391,16 @@ void Q4MenuBar::keyPressEvent(QKeyEvent *e)
     case Key_Up:
     case Key_Down:
     case Key_Enter:
+    case Key_Space:
     case Key_Return: {
 	if(!style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this) || !d->currentAction)
 	   break;
-	d->popupAction(d->currentAction, true);
+	if(d->currentAction->action->menu()) {
+	    d->popupAction(d->currentAction, true);
+	} else if(key == Key_Enter || key == Key_Return | key == Key_Space) {
+	    d->currentAction->action->activate(QAction::Trigger);
+	    d->setCurrentAction(d->currentAction, false);
+	}
 	key_consumed = true;
 	break; }
 
@@ -1436,7 +1445,6 @@ void Q4MenuBar::keyPressEvent(QKeyEvent *e)
 
     if(!key_consumed && 
        (!e->state() || (e->state()&(MetaButton|AltButton))) && e->text().length()==1 && !d->popupState) {
-	qDebug("a boink..");
 	int clashCount = 0;
 	Q4MenuAction *first = 0, *currentSelected = 0, *firstAfterCurrent = 0;
 	{

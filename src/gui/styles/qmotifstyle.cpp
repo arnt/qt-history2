@@ -1857,7 +1857,7 @@ QSize QMotifStyle::sizeFromContents(ContentsType contents,
 
     case CT_MenuBarItem: {
 	if(!sz.isEmpty())
-	    sz = QSize(sz.width()+4, sz.height()+5);
+	    sz = QSize(sz.width()+(motifItemVMargin*2), sz.height()+(motifItemHMargin*2));
 	break; }
 
     case CT_MenuItem:

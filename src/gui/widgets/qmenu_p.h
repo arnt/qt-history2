@@ -17,7 +17,7 @@ class Q4MenuPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(Q4Menu);
 public:
-    Q4MenuPrivate() : itemsDirty(0), maxIconWidth(0), ncols(0), mouseDown(0), 
+    Q4MenuPrivate() : itemsDirty(0), maxIconWidth(0), tabWidth(0), ncols(0), mouseDown(0), 
 		      currentAction(0), scroll(0), sync(0), tearoff(0), tornoff(0), tearoffHighlighted(0),
 		      checkable(0)  { }  
     ~Q4MenuPrivate() 
@@ -28,12 +28,11 @@ public:
     }
 
     //item calculations
-    mutable uint itemsDirty : 1, maxIconWidth : 8;
+    mutable uint itemsDirty : 1, maxIconWidth : 8, tabWidth : 8;
     QRect actionRect(Q4MenuAction *);
     QList<Q4MenuAction*> actionItems;
     QList<Q4MenuAction*> calcActionRects() const;
     void updateActions();
-
     uint ncols : 4; //4 bits is probably plenty
 
     //selection 

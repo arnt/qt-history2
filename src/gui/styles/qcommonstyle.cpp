@@ -2607,11 +2607,6 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    break;
 	}
 	
-    case CT_MenuBarItem: {
-	if(!sz.isEmpty())
-	    sz = QSize(sz.width()+2, sz.height()+2);
-	break; }
-
     case CT_MenuItem:
 	{
 #ifndef QT_NO_MENU
@@ -2698,6 +2693,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	}
 #endif
 
+    case CT_MenuBarItem: 
     case CT_LineEdit:
     case CT_Header:
     case CT_Slider:

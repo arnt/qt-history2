@@ -1384,6 +1384,11 @@ QSize QWindowsStyle::sizeFromContents(ContentsType contents,
 	    break;
 	}
 
+    case CT_MenuBarItem: {
+	if(!sz.isEmpty())
+	    sz = QSize(sz.width()+(windowsItemVMargin*2), sz.height()+(windowsItemHMargin*2));
+	break; }
+
     case CT_MenuItem:
 	{
 #ifndef QT_NO_MENU
