@@ -38,7 +38,7 @@
 
 #ifndef QT_NO_SQL
 
-#define QT_DEBUG_SQL
+//#define QT_DEBUG_SQL
 
 #include "qsqlresult.h"
 #include "qsqldriver.h"
