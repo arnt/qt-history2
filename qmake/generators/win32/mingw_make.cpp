@@ -68,6 +68,7 @@ void createLdObjectScriptFile(const QString &fileName, QStringList &objList)
 		t << *it << endl;
         }
         t << ");" << endl;
+	t.flush();
         file.close();
     }
 }
@@ -172,7 +173,7 @@ void MingwMakefileGenerator::processQtConfig()
 void MingwMakefileGenerator::writeObjectsPart(QTextStream &t)
 {
     if(project->isActiveConfig("staticlib")
-        && project->variables()["OBJECTS"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
+        || project->variables()["OBJECTS"].count() < var("QMAKE_LINK_OBJECT_MAX").toInt()) {
         objectsLinkLine = "$(OBJECTS)";
     } else {
         QString ld_script_file = var("QMAKE_LINK_OBJECT_SCRIPT") + "." + var("TARGET");
