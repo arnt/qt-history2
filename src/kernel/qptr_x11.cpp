@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#158 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#159 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#158 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#159 $")
 
 
 /*****************************************************************************
@@ -2712,7 +2712,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     bool singleline = (tf & SingleLine) == SingleLine;
     bool showprefix = (tf & ShowPrefix) == ShowPrefix;
 
-    int	 spacewidth = CWIDTH( (int)' ' );		// width of space char
+    int	 spacewidth = CWIDTH( (int)' ' );	// width of space char
 
     nlines = 0;
     index  = 1;					// first index contains BEGLINE
