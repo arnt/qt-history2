@@ -233,10 +233,8 @@ The difference between smooth and non-smooth fonts is illustrated below
 <table>
 <tr align=center>
 <td><img src=smooth.png>
-<td width=10% rowspan=2>
+<td width=10%>
 <td><img src=unsmooth.png>
-<tr align=center>
-<td>Smooth<td>Non-smooth
 </table>
 </center>
 
@@ -308,7 +306,7 @@ usage of your applications by disabling TTF and BDF support from Qt/Embedded.
 option, or by modifying the initialization of <tt>qws_savefonts</tt> in
 <tt>kernel/qapplication_qws.cpp</tt> of the Qt/Embedded library source code.
 In extreme cases of memory-saving, it is possible to save partially-rendered
-fonts (eg. only the characters in "Product Name<sup>TM<sup>") if you are
+fonts (eg. only the characters in "Product Name<sup>TM</sup>") if you are
 certain that these are the only characters you will need from the font.
 See QMemoryManager::savePrerenderedFont() for this functionality.
 
