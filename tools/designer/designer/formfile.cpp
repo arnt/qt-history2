@@ -50,6 +50,7 @@ static QString make_func_pretty( const QString &s )
     res.replace( ":", " : " );
     res = res.simplifyWhiteSpace();
     res.replace( " : : ", "::" );
+    res.replace( ">>", "> >" );
     return res;
 }
 
