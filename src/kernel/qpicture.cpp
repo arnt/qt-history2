@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#57 $
 **
 ** Implementation of QPicture class
 **
@@ -443,6 +443,12 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 	    case PDC_SETWMATRIX:
 		s >> matrix >> i_8;
 		painter->setWorldMatrix( matrix, i_8 );
+		break;
+	    case PDC_SAVEWMATRIX:
+		painter->saveWorldMatrix();
+		break;
+	    case PDC_RESTOREWMATRIX:
+		painter->restoreWorldMatrix();
 		break;
 	    case PDC_SETCLIP:
 		s >> i_8;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#28 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#29 $
 **
 ** Definition of QPaintDevice constants and flags
 **
@@ -75,6 +75,8 @@
 #define PDC_SETVIEWPORT		53		// rect
 #define PDC_SETWXFORM		54		// ival
 #define PDC_SETWMATRIX		55		// matrix,ival
+#define PDC_SAVEWMATRIX	56
+#define PDC_RESTOREWMATRIX	57
 #define PDC_SETCLIP		60		// ival
 #define PDC_SETCLIPRGN		61		// rgn
 #define PDC_DRAWTEXT2		62		// point,str

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#81 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2489,6 +2489,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	case PDC_SETVIEWPORT:
 	case PDC_SETWXFORM:
 	case PDC_SETWMATRIX:
+	case PDC_RESTOREWMATRIX:
 	    dirtyMatrix = TRUE;
 	    break;
 	case PDC_SETCLIP:

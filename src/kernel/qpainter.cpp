@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#161 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#162 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -309,6 +309,7 @@ struct QPState {				// painter state
     bool	clip;
     int		ts;
     int	       *ta;
+    void* wm_stack;
 };
 
 //TODO Matthias store worldmatrix stack in QPState!
@@ -368,6 +369,8 @@ void QPainter::save()
     ps->clip  = testf(ClipOn);
     ps->ts    = tabstops;
     ps->ta    = tabarray;
+    ps->wm_stack = wm_stack;
+    wm_stack = 0;
     pss->push( ps );
 }
 
@@ -423,6 +426,10 @@ void QPainter::restore()
 	setClipping( ps->clip );
     tabstops = ps->ts;
     tabarray = ps->ta;
+
+    if (wm_stack )
+	delete (QWMatrixStack *)wm_stack;
+    wm_stack = ps->wm_stack;
     delete ps;
 }
 
@@ -954,11 +961,17 @@ const QWMatrix &QPainter::worldMatrix() const
   \code
     void QPainter::rotate( double a )
     {
-	wxmat.rotate( a );
-	setWorldMatrix( wxmat );
+	QWMatrix m;     
+	m.rotate( a );
+	setWorldMatrix( m, TRUE );
     }
   \endcode
-
+  
+  Note that you should always use combine when you are drawing into a
+  QPicture. Otherwise the picture may not be completely encapsulated
+  and cannot be replayed with additional transformations. Using the
+  translate(), scale(), etc. functions is safe.
+  
   Furthermore, you can easily save and restore the current world
   transformation matrix with the convenient functions
   saveWorldMatrix() and restoreWorldMatrix(), respectively. If you
@@ -987,7 +1000,6 @@ const QWMatrix &QPainter::worldMatrix() const
   setViewXForm(), xForm()
 */
 
-// TODO Matthias: docu: ALWAYS use combine if you want your QPicture to be encapsulated
 void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 {
 #if defined(CHECK_STATE)
@@ -1003,7 +1015,7 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 		    wxmat.dx()	== 0.0F && wxmat.dy()  == 0.0F;
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[2];
-	param[0].matrix = &m; //#####
+	param[0].matrix = &m;
 	param[1].ival = combine;
 	pdev->cmd( PDC_SETWMATRIX, this, param );
     }
@@ -1076,8 +1088,9 @@ void QPainter::restoreWorldMatrix()
 
 void QPainter::translate( double dx, double dy )
 {
-    wxmat.translate( dx, dy );
-    setWorldMatrix( wxmat );
+    QWMatrix m;
+    m.translate( dx, dy );
+    setWorldMatrix( m, TRUE );
 }
 
 /*!
@@ -1088,8 +1101,9 @@ void QPainter::translate( double dx, double dy )
 
 void QPainter::scale( double sx, double sy )
 {
-    wxmat.scale( sx, sy );
-    setWorldMatrix( wxmat );
+    QWMatrix m;
+    m.scale( sx, sy );
+    setWorldMatrix( m, TRUE );
 }
 
 /*!
@@ -1100,8 +1114,9 @@ void QPainter::scale( double sx, double sy )
 
 void QPainter::shear( double sh, double sv )
 {
-    wxmat.shear( sv, sh );
-    setWorldMatrix( wxmat );
+    QWMatrix m;
+    m.shear( sv, sh );
+    setWorldMatrix( m, TRUE );
 }
 
 /*!
@@ -1112,8 +1127,9 @@ void QPainter::shear( double sh, double sv )
 
 void QPainter::rotate( double a )
 {
-    wxmat.rotate( a );
-    setWorldMatrix( wxmat );
+    QWMatrix m;
+    m.rotate( a );
+    setWorldMatrix( m, TRUE );
 }
 
 /*!

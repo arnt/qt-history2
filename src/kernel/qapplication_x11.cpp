@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#393 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#394 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3198,13 +3198,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( qt_window_for_button_down != winId() && !qApp->inPopupMode() )
 		unexpected = TRUE;
 
-	    if ( (state & (~button) & ( LeftButton |
-			    MidButton |
-			    RightButton)) == 0 ) {
-		qt_button_down = 0;
-		qt_window_for_button_down = 0;
-	    }
-
 	    if ( unexpected )
 		return FALSE;			// unexpected event
 
@@ -3294,9 +3287,17 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( testWFlags(WType_Popup) )	// ignore replayed event
 		return TRUE;
 	}
-
+	
 	QMouseEvent e( type, pos, globalPos, button, state );
 	QApplication::sendEvent( widget, &e );
+	
+	if ( type == QEvent::MouseButtonRelease && 
+	     (state & (~button) & ( LeftButton |
+				    MidButton |
+				    RightButton)) == 0 ) {
+	    qt_button_down = 0;
+	    qt_window_for_button_down = 0;
+	}
     }
     return TRUE;
 }
