@@ -172,9 +172,6 @@ class QWSRegionManager;
 
 class QWSDisplay
 {
-    friend class QApplication;
-    QWSDisplayData *d;
-
 public:
     QWSDisplay();
 
@@ -214,6 +211,9 @@ public:
     static void ungrab() { lock->unlock(); }
 
 private:
+    friend class QApplication;
+    QWSDisplayData *d;
+
     int getPropertyLen;
     char *getPropertyData;
     static QLock *lock;
