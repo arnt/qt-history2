@@ -404,15 +404,15 @@ QString QDir::absFilePath( const QString &fileName,
     if ( fileName[0].isLetter() && fileName[1] == ':' ) {
 	int drv = fileName.upper()[0].latin1() - 'A' + 1;
 	if ( _getdrive() != drv ) {
-	    if ( qt_winunicode ) {
+	    QT_WA( {
 		TCHAR buf[PATH_MAX];
-		::_tgetdcwd( drv, buf, PATH_MAX );
-		tmp.setUnicodeCodes( (ushort*)buf, ::_tcslen(buf) );
-	    } else {
+		::_wgetdcwd( drv, buf, PATH_MAX );
+		tmp.setUnicodeCodes( (ushort*)buf, ::wcslen(buf) );
+	    }, {
 		char buf[PATH_MAX];
 		::_getdcwd( drv, buf, PATH_MAX );
 		tmp = buf;
-	    }
+	    } );
 	    if ( !tmp.endsWith("\\") )
 		tmp += "\\";
 	    tmp += fileName.right( fileName.length() - 2 );
