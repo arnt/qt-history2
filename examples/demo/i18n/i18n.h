@@ -20,6 +20,9 @@ public:
     void initActions();
     void initMenuBar();
 
+    void showEvent(QShowEvent *);
+    void hideEvent(QHideEvent *);
+
     QWorkspace *workspace;
     QAction *actionClose, *actionCloseAll, *actionTile, *actionCascade;
     QPopupMenu *windowMenu, *newMenu;

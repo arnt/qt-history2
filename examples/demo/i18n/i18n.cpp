@@ -18,6 +18,7 @@
 
 
 static int windowIdNumber = 5000;
+static bool firstShow = TRUE;
 
 
 I18nDemo::I18nDemo(QWidget *parent, const char *name)
@@ -37,8 +38,6 @@ I18nDemo::I18nDemo(QWidget *parent, const char *name)
     workspace->setBackgroundMode(PaletteMid);
 
     setCentralWidget(box);
-
-    newSlot(2);
 }
 
 
@@ -56,9 +55,9 @@ void I18nDemo::initActions()
     connect(actionClose, SIGNAL(activated()), SLOT(closeSlot()));
 
     actionCloseAll = new QAction(tr("Close all opened windows."),
-			      tr("Close All"),
-			      0,
-			      this);
+				 tr("Close All"),
+				 0,
+				 this);
     connect(actionCloseAll, SIGNAL(activated()), SLOT(closeAllSlot()));
 
     actionTile = new QAction(tr("Tile opened windows."),
@@ -111,17 +110,23 @@ void I18nDemo::newSlot(int id)
     case 2: qmfile = "i18n/ko.qm"; break;
     }
 
-    if (lastwrapper)
+    if (lastwrapper) {
 	qApp->removeTranslator(&lastwrapper->translator);
+	lastwrapper = 0;
+    }
 
     Wrapper *wrapper = new Wrapper(workspace, windowIdNumber);
     wrapper->translator.load(qmfile, ".");
+
     qApp->installTranslator(&wrapper->translator);
 
     connect(wrapper, SIGNAL(destroyed()), SLOT(wrapperDead()));
     wrapper->setCaption(tr("--language--"));
 
     TextEdit *te = new TextEdit(wrapper);
+
+    qApp->removeTranslator(&wrapper->translator);
+
     te->setMinimumSize(500, 400);
     te->fileNew();
     te->currentEditor()->
@@ -174,7 +179,9 @@ void I18nDemo::windowActivated(QWidget *w)
     }
 
     Wrapper *wrapper = (Wrapper *) w;
-    qApp->installTranslator(&wrapper->translator);
+    if (isVisible())
+	qApp->installTranslator(&wrapper->translator);
+
     windowMenu->setItemChecked(wrapper->id, TRUE);
     lastwrapper = wrapper;
 }
@@ -213,5 +220,30 @@ void I18nDemo::wrapperDead()
 
     if (w == lastwrapper)
 	qApp->removeTranslator(&w->translator);
+
     windowMenu->removeItem(w->id);
+}
+
+
+void I18nDemo::showEvent(QShowEvent *e)
+{
+    if (firstShow) {
+	newSlot(2);
+	firstShow = FALSE;
+	return;
+    }
+
+    if (! lastwrapper)
+	return;
+
+    qApp->installTranslator(&lastwrapper->translator);
+}
+
+
+void I18nDemo::hideEvent(QHideEvent *e)
+{
+    if (! lastwrapper)
+	return;
+
+    qApp->removeTranslator(&lastwrapper->translator);
 }
