@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/i18n/main.cpp#3 $
+** $Id: //depot/qt/main/examples/i18n/main.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -16,6 +16,8 @@
 
 main( int argc, char** argv )
 {
+    QApplication app( argc, argv );
+
     if ( argc != 2 ) {
 	qWarning( "\n\nUsage: %s <language> (where <language> can be 'de', 'en', 'no'...)\n", argv[0] );
         return 0;
@@ -31,13 +33,11 @@ main( int argc, char** argv )
 	return 0;
     }
 
-    QApplication app( argc, argv );
-
     QTranslator translator( 0 );
     translator.load( lfile, "." );
     app.installTranslator( &translator );
 
-    MyWidget m( 0, QString( argv[1] ), "mainwindow" );
+    MyWidget m;
     m.resize( 400, 300 );
     app.setMainWidget( &m );
     m.show();

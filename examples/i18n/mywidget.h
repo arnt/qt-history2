@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/i18n/mywidget.h#1 $
+** $Id: //depot/qt/main/examples/i18n/mywidget.h#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -11,19 +11,18 @@
 #ifndef MYWIDGET_H
 #define MYWIDGET_H
 
-#include <qvbox.h>
+#include <qmainwindow.h>
 #include <qstring.h>
 
-class MyWidget : public QVBox
+class MyWidget : public QMainWindow
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MyWidget( QWidget* parent, const QString &language, const char* name = 0 );
+    MyWidget( QWidget* parent=0, const char* name = 0 );
 
 private:
-	void initChoices();
-
+    static void initChoices(QWidget* parent);
 };
 
 #endif
