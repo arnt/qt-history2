@@ -40,16 +40,15 @@
 #ifdef QT_THREAD_SUPPORT
 #  include <private/qmutexpool_p.h>
 #endif // QT_THREAD_SUPPORT
-#include "qdict.h"
+#include "qhash.h"
 #include "qdir.h"
 #include "qstringlist.h"
 
 struct glibs_ref {
-    QString name;
     int count;
     void *handle;
 };
-static QDict<glibs_ref> *glibs_loaded = 0;
+static QHash<QString, glibs_ref *> *glibs_loaded = 0;
 
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
 static NSModule qt_mac_library_multiple(NSSymbol sym, NSModule o, NSModule)
@@ -135,8 +134,8 @@ bool QLibraryPrivate::loadLibrary()
 		tmp += QDir::separator();
 	tmp += library->library();
 	if(!glibs_loaded) {
-	    glibs_loaded = new QDict<glibs_ref>();
-	} else if(glibs_ref *i = glibs_loaded->find(tmp)) {
+	    glibs_loaded = new QHash<QString, glibs_ref *>();
+	} else if(glibs_ref *i = glibs_loaded->value(tmp)) {
 	    i->count++;
 	    pHnd = i->handle;
 	    return TRUE;
@@ -159,7 +158,6 @@ bool QLibraryPrivate::loadLibrary()
 	glibs_ref *i = new glibs_ref;
 	i->handle = pHnd;
 	i->count = 1;
-	i->name = filename;
 	glibs_loaded->insert(filename, i); //insert it in the loaded hash
 	return TRUE;
     }
@@ -185,12 +183,10 @@ bool QLibraryPrivate::freeLibrary()
 #endif // QT_THREAD_SUPPORT
 
     if(glibs_loaded) {
-	for(QDictIterator<glibs_ref> it(*glibs_loaded); it.current(); ++it) {
-	    if(it.current()->handle == pHnd && !(--it.current()->count)) {
-		glibs_loaded->remove(it.currentKey());
-
-		NSUnLinkModule(pHnd,
-			       NSUNLINKMODULE_OPTION_KEEP_MEMORY_MAPPED|
+	for(QHash<QString, glibs_ref *>::Iterator it = glibs_loaded->begin(); it != glibs_loaded->end(); ++it) {
+	    if(it.value()->handle == pHnd && !(--it.value()->count)) {
+		glibs_loaded->remove(it.key());
+		NSUnLinkModule(pHnd, NSUNLINKMODULE_OPTION_KEEP_MEMORY_MAPPED|
 			       NSUNLINKMODULE_OPTION_RESET_LAZY_REFERENCES);
 
 		break;
