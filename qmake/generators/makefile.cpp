@@ -339,7 +339,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 		for(QStringList::Iterator it = nodeplist.begin();
 		    it != nodeplist.end(); ++it) {
 		    QRegExp regx((*it));
-		    if(regx.match(inc) != -1) {
+		    if(regx.search(inc) != -1) {
 			found = TRUE;
 			break;
 		    }

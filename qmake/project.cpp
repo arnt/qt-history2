@@ -872,7 +872,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			const QStringList &var = place[varMap(args.first())];
 			for(QStringList::ConstIterator vit = var.begin();
 			    vit != var.end(); ++vit) {
-			    if(regx.match(*vit) != -1) {
+			    if(regx.search(*vit) != -1) {
 				if(!replacement.isEmpty())
 				    replacement += " ";
 				replacement += (*vit);
