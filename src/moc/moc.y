@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#246 $
+** $Id: //depot/qt/main/src/moc/moc.y#247 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2636,7 +2636,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#246 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#247 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -3079,13 +3079,13 @@ void generateClass()		      // generate C++ source code for a class
 	    }
 	    if ( it.current()->getfunc ) {
 		if ( it.current()->gspec == Property::Pointer )
-		    fprintf( out, "\tcase 1: if ( %s() ) { QVariant &_v_=*_v;_v_= QVariant( %s*%s()%s ); } break;\n",
+		    fprintf( out, "\tcase 1: if ( %s() ) *_v = QVariant( %s*%s()%s ); break;\n",
 			     it.current()->getfunc->name.data(),
 			     !isVariantType( it.current()->type ) ? "(int)" : "",
 			     it.current()->getfunc->name.data(),
 			     it.current()->type == "bool" ? ", 0" : "" );
 		else
-		    fprintf( out, "\tcase 1: { QVariant &_v_=*_v;_v_= QVariant( %s%s()%s ); } break;\n",
+		    fprintf( out, "\tcase 1: *_v = QVariant( %s%s()%s ); break;\n",
 			     !isVariantType( it.current()->type ) ? "(int)" : "",
 			     it.current()->getfunc->name.data(),
 			     it.current()->type == "bool" ? ", 0" : "" );
