@@ -1573,7 +1573,7 @@ QGLayoutIterator::~QGLayoutIterator()
 	QLayoutItem *child;
 	while ( (child = it.current()) != 0 ) {
 	    paintLayout( p, child );
-	    it++;
+	    ++it;
 	}
 	p->drawRect( lay->geometry() );
     }
