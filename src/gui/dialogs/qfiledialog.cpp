@@ -1331,7 +1331,6 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
     listView->setRoot(current);
     listView->setKeyTracking(true);
 
-    listView->viewport()->setAcceptDrops(true);
     listView->setSpacing(2);
     listView->setWrapping(true);
     listView->setResizeMode(QListView::Adjust);

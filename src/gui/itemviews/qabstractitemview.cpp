@@ -1147,6 +1147,8 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
         pos = d->viewport->mapFromGlobal(center);
         index = itemAt(pos);
         index = model()->sibling(index.row(), 0, index);
+        if (!index.isValid())
+            index = root(); // drop on viewport
     }
     // if we are allowed to do the drop
     if (model()->supportedDropActions() & e->proposedAction()) {
