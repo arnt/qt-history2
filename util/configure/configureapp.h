@@ -20,6 +20,7 @@ public:
     void displayConfig();
     void buildQmake();
     void generateMakefiles();
+    void generateConfigfiles();
     void showSummary();
     void findProjects( const QString& dirName );
 

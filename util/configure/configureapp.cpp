@@ -4,6 +4,7 @@
 #include "../install/environment.h"
 
 #include <iostream.h>
+#include <windows.h>
 
 ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv )
 {
@@ -385,6 +386,58 @@ void ConfigureApp::generateCachefile()
 	}
 	cacheFile.close();
     }
+}
+
+void ConfigureApp::generateConfigfiles()
+{
+    QString outName( qtDir + "/src/tools/qconfig.h" );
+
+    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
+    QFile::remove( outName );
+    QFile outFile( outName );
+
+    if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
+	QTextStream outStream( &outFile );
+
+	outStream << "// Everything" << endl;
+	QString configName( "qconfig-" + dictionary[ "QCONFIG" ] + ".h" );
+	outStream << "// Copied from " << configName << endl;
+	
+	QFile inFile( qtDir + "/src/tools/" + configName );
+	if( inFile.open( IO_ReadOnly | IO_Translate ) ) {
+	    QByteArray buffer = inFile.readAll();
+	    outFile.writeBlock( buffer.data(), buffer.size() );
+	    inFile.close();
+	}
+	outStream << "#define QT_PRODUCT_LICENSEE \"" << licenseInfo[ "LICENSEE" ] << "\"" << endl;
+	outStream << "#define QT_PRODUCT_LICENSE \"" << licenseInfo[ "PRODUCTS" ] << "\"" << endl;
+	outFile.close();
+	::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
+    }
+    outName = qtDir + "/src/tools/qmodules.h";
+
+    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
+    QFile::remove( outName );
+    outFile.setName( outName );
+
+    if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
+	QTextStream outStream( &outFile );
+
+	outStream << "// These modules are present in this configuration of Qt" << endl;
+	for( QStringList::Iterator it = modules.begin(); it != modules.end(); ++it ) {
+	    outStream << "#define QT_MODULE_" << (*it).upper() << endl;
+	}
+	outStream << endl;
+	outStream << "// Compile time features" << endl;
+	if( dictionary[ "STL" ] == "no" ) {
+	    outStream << "#ifndef QT_NO_STL" << endl;
+	    outStream << "#define QT_NO_STL" << endl;
+	    outStream << "#endif" << endl;
+	}
+	outFile.close();
+	::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
+    }
+
 }
 
 void ConfigureApp::displayConfig()
