@@ -358,8 +358,6 @@ void QMenuBar::menuContentsChanged()
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     if(mac_eaten_menubar)
 	macDirtyNativeMenubar();
-#endif
-
     bool all_hidden = TRUE;
     if(irects) {
 	for(int i = 0; all_hidden && i < (int)mitems->count(); i++)
@@ -372,6 +370,9 @@ void QMenuBar::menuContentsChanged()
 	if( isHidden() )
 	    show();
     }
+
+#endif
+
 }
 
 /*!
