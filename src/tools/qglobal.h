@@ -866,13 +866,6 @@ class QDataStream;
 #  endif
 #endif
 
-//no support for ipv6 I guess?
-#if defined(Q_OS_MAC) || defined(Q_OS_DARWIN)
-#  ifndef QT_NO_IPV6
-#    define QT_NO_IPV6
-#  endif
-#endif
-
 #if !defined(Q_WS_QWS) && !defined(QT_NO_COP)
 #  define QT_NO_COP
 #endif
