@@ -256,7 +256,7 @@ public:
     QTextCursor();
     QTextCursor( const QTextCursor &c );
     QTextCursor &operator=( const QTextCursor &c );
-	virtual ~QTextCursor() {};
+    virtual ~QTextCursor() {};
 
     bool operator==( const QTextCursor &c ) const;
     bool operator!=( const QTextCursor &c ) const { return !(*this == c); }
@@ -949,7 +949,7 @@ public:
 	: QTextDeleteCommand( d, i, idx, str, os, ols, oas ) {};
     QTextInsertCommand( QTextParag *p, int idx, const QMemArray<QTextStringChar> &str )
 	: QTextDeleteCommand( p, idx, str ) {};
-	virtual ~QTextInsertCommand() {};
+    virtual ~QTextInsertCommand() {};
 
     Commands type() const { return Insert; };
     QTextCursor *execute( QTextCursor *c ) { return QTextDeleteCommand::unexecute( c ); }
@@ -979,7 +979,7 @@ class Q_EXPORT QTextAlignmentCommand : public QTextCommand
 {
 public:
     QTextAlignmentCommand( QTextDocument *d, int fParag, int lParag, int na, const QMemArray<int> &oa );
-	virtual ~QTextAlignmentCommand() {};
+    virtual ~QTextAlignmentCommand() {};
 
     Commands type() const { return Alignment; }
     QTextCursor *execute( QTextCursor *c );
@@ -998,7 +998,7 @@ public:
     QTextParagTypeCommand( QTextDocument *d, int fParag, int lParag, bool l,
 			   QStyleSheetItem::ListStyle s, const QValueList< QPtrVector<QStyleSheetItem> > &os,
 			   const QValueList<QStyleSheetItem::ListStyle> &ols );
-	virtual ~QTextParagTypeCommand() {};
+    virtual ~QTextParagTypeCommand() {};
 
     Commands type() const { return ParagType; }
     QTextCursor *execute( QTextCursor *c );
@@ -1314,7 +1314,7 @@ class Q_EXPORT QTextFormatterBreakInWords : public QTextFormatter
 {
 public:
     QTextFormatterBreakInWords();
-	virtual ~QTextFormatterBreakInWords() {};
+    virtual ~QTextFormatterBreakInWords() {};
 
     int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParagLineStart*> &oldLineStarts );
 
@@ -1338,7 +1338,7 @@ class Q_EXPORT QTextIndent
 {
 public:
     QTextIndent();
-	virtual ~QTextIndent() {};
+    virtual ~QTextIndent() {};
 
     virtual void indent( QTextDocument *doc, QTextParag *parag, int *oldIndent = 0, int *newIndent = 0 ) = 0;
 
