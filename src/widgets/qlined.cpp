@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#108 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#109 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -18,10 +18,11 @@
 #include "qclipbrd.h"
 #include "qapp.h"
 #include "qvalidator.h"
+#include "qdragobject.h"
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#108 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#109 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -626,10 +627,18 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	QKeyEvent k( Event_KeyPress, Key_V, 0, ControlButton );
 	keyPressEvent( &k );
 	return;
+    } else if ( hasMarkedText() &&
+		e->button() == LeftButton &&
+		( (markAnchor > cursorPos && markDrag < cursorPos) ||
+		  (markAnchor < cursorPos && markDrag > cursorPos) ) ) {
+	QTextDragObject * tdo = new QTextDragObject( this );
+	tdo->setText( markedText() );
+	return;
     }
+
     markAnchor = cursorPos;
     newMark( markAnchor, FALSE );
-    cursorOn	  = TRUE;
+    cursorOn = TRUE;
     dragScrolling = FALSE;
     startTimer( blinkTime );
     repaint( !hasFocus() );
@@ -1257,4 +1266,84 @@ QValidator * QLineEdit::validator() const
 void QLineEdit::clearValidator()
 {
     setValidator( 0 );
+}
+
+
+/*!  Don't use it if you don't mean it. */
+
+bool QLineEdit::event( QEvent * e )
+{
+    if ( !e )
+	return QWidget::event( e );
+
+    if ( e->type() == Event_DragMove ) {
+	if ( rect().contains( ((QDragMoveEvent *) e)->pos() ) ) {
+	    ((QDragMoveEvent *) e)->accept();
+	    return TRUE;
+	}
+    } else if ( e->type() == Event_DragLeave ) {
+	return TRUE;
+    } else if ( e->type() == Event_Drop ) {
+	QDropEvent * de = (QDropEvent *) e;
+	de->ignore();
+	debug( "1" );
+	QString t = *(QString*)&(de->payload());
+	if ( !t.isEmpty() ) {
+	    t.detach();
+	    int i = t.find( '\n' );	// no multiline text
+	    if ( i >= 0 )
+		t.truncate( i );
+	    uchar *p = (uchar *) t.data();
+	    while ( *p ) {		// unprintable becomes space
+		if ( *p < 32 )
+		    *p = 32;
+		p++;
+	    }
+	    int tlen = t.length();
+	    int blen;
+	    int cp = cursorPos;
+	    // do a test run without hurting tbuf and stuf
+	    QString test( tbuf.copy() );
+	    if ( hasMarkedText() ) {
+		test.remove( minMark(), maxMark() - minMark() );
+		if ( cp > maxMark() )
+		    cp -= (maxMark() - minMark());
+		else if ( cp > minMark() )
+		    cp = minMark();
+	    }
+	    blen = test.length();
+	    if ( tlen+blen >= maxLen ) {
+		debug( "2" );
+		if ( blen >= maxLen ) {
+		    debug( "3" );
+		    return FALSE;
+		}
+		if ( tlen > maxLen )
+		    tlen = maxLen;
+		t.truncate( maxLen-blen+1 );
+		t[maxLen-blen] = '\0';
+	    }
+	    test.insert( cp, t );
+	    cp += t.length();
+
+	    QValidator * v = validator();
+
+	    if ( v &&
+		 v->validate( test, cp ) == QValidator::Invalid &&
+		 v->validate( tbuf, cursorPos ) != QValidator::Invalid ) {
+		debug( "4" );
+		return FALSE;
+	    }
+
+	    // okay, it succeeded, so use those changes.
+	    tbuf = test;
+	    cursorPos = cp;
+	    repaint( FALSE );
+	    emit textChanged( tbuf );
+	}
+	debug( "5" );
+	de->accept();
+	return TRUE;
+    }
+    return QWidget::event( e );
 }

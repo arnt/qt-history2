@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#39 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#40 $
 **
 ** Definition of event classes
 **
@@ -14,6 +14,7 @@
 
 #include "qwindefs.h"
 #include "qrect.h"
+#include "qstring.h"
 
 
 #define Event_None		    0		// invalid event
@@ -25,7 +26,6 @@
 #define Event_KeyPress		    6		// key pressed
 #define Event_KeyRelease	    7		// key released
 #define Event_FocusIn		    8		// keyboard focus received
-#define Event_FocusRestore	   21		// restore original focus
 #define Event_FocusOut		    9		// keyboard focus lost
 #define Event_Enter		   10		// mouse enters widget
 #define Event_Leave		   11		// mouse leaves widget
@@ -44,6 +44,7 @@
 #define Event_DragMove		   60		// drag moves (into) widget
 #define Event_DragLeave		   61		// drag leaves or is cancelled
 #define	Event_Drop		   62		// actual drop
+#define	Event_DragResponse	   63		// drag accepted/rejected
 #define Event_User		 1000		// first user event id
 
 
@@ -195,6 +196,61 @@ protected:
 #define Q_CLOSE_EVENT(x)	((QCloseEvent*)x)
 
 
+class QDragMoveEvent : public QEvent
+{
+public:
+    QDragMoveEvent( const QPoint& pos, const QByteArray & f )
+	: QEvent(Event_DragMove), p(pos), fmt(f), accpt(FALSE) {}
+    const QPoint &pos() const	{ return p; }
+    bool   isAccepted() const	{ return accpt; }
+    void   accept()		{ accpt = TRUE; }
+    void   ignore()		{ accpt = FALSE; }
+    const QByteArray & format() const { return fmt; }
+protected:
+    QPoint p;
+    const QByteArray & fmt;
+    bool   accpt;
+};
+
+
+class QDragResponseEvent : public QEvent
+{
+public:
+    QDragResponseEvent( bool accepted )
+	: QEvent(Event_DragResponse), a(accepted) {}
+    bool   dragAccepted() const	{ return a; }
+protected:
+    bool a;
+};
+
+
+class QDragLeaveEvent : public QEvent
+{
+public:
+    QDragLeaveEvent()
+	: QEvent(Event_DragLeave) {}
+};
+
+
+class QDropEvent : public QEvent
+{
+public:
+    QDropEvent( const QPoint& pos, const QByteArray & f, const QByteArray & e )
+	: QEvent(Event_Drop), p(pos), accpt(FALSE), fmt(f), enc(e) {}
+    const QPoint &pos() const	{ return p; }
+    bool   isAccepted() const	{ return accpt; }
+    void   accept()		{ accpt = TRUE; }
+    void   ignore()		{ accpt = FALSE; }
+    const QByteArray & format() const { return fmt; }
+    const QByteArray & payload() const { return enc; }
+protected:
+    QPoint p;
+    bool   accpt;
+    const QByteArray & fmt;
+    const QByteArray & enc;
+};
+
+
 class QCustomEvent : public QEvent		// user-defined event
 {
 public:
@@ -204,6 +260,7 @@ public:
 private:
     void       *d;
 };
+
 
 #define Q_CUSTOM_EVENT(x)	((QCustomEvent*)x)
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#223 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#224 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,6 +21,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
+#include <X11/Xatom.h>
 #if !defined(XlibSpecificationRelease)
 #define X11R4
 typedef char *XPointer;
@@ -28,7 +29,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#223 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#224 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -290,6 +291,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	else
 	    setWFlags( WState_Visible );
     }
+
+    Atom qt_xdnd_version = 0;
+    extern Atom qt_xdnd_aware;
+    XChangeProperty ( dpy, id, qt_xdnd_aware, XA_ATOM, 32, PropModeReplace, 
+		      (unsigned char *)&qt_xdnd_version, 1 );
 
     if ( destroyw )
 	qt_XDestroyWindow( this, dpy, destroyw );
