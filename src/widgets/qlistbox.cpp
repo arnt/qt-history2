@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#264 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#265 $
 **
 ** Implementation of QListBox widget class
 **
@@ -87,7 +87,7 @@ public:
     QTimer * scrollTimer;
     QTimer * updateTimer;
     QTimer * visibleTimer;
-    
+
     QPoint scrollPos;
 
     QListBox::SelectionMode selectionMode;
@@ -1047,17 +1047,17 @@ void QListBox::setCurrentItem( QListBoxItem * i )
         if ( i )
             setSelected( i, TRUE );
     }
-        if ( o )
-            updateItem( o );
-        if ( i )
-            updateItem( i );
-        //}
+    if ( o )
+        updateItem( o );
+    if ( i )
+        updateItem( i );
 
     int ind = index( i );
     d->currentColumn = ind / numRows();
     d->currentRow = ind % numRows();
+    // scroll after the items are redrawn
     d->visibleTimer->start( 1, TRUE );
-    
+
     QString tmp;
     if ( i )
         tmp = i->text();
