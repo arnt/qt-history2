@@ -1,5 +1,15 @@
 <!DOCTYPE TS><TS>
-<codec>ISO-8859-1</codec>
+<context>
+    <name>@default</name>
+    <message>
+        <source>OK</source>
+        <translation type="obsolete">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">Annuler</translation>
+    </message>
+</context>
 <context>
     <name>QAccel</name>
     <message>
@@ -114,6 +124,176 @@
         <source>F%1</source>
         <translation>F%1</translation>
     </message>
+    <message>
+        <source>Menu</source>
+        <translation>Menu</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Aide</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Précédent (historique)</translation>
+    </message>
+    <message>
+        <source>Forward</source>
+        <translation>Successeur (historique)</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stop</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation>Rafraîchir</translation>
+    </message>
+    <message>
+        <source>Volume Down</source>
+        <translation>Volume bas</translation>
+    </message>
+    <message>
+        <source>Volume Mute</source>
+        <translation>Volume muet</translation>
+    </message>
+    <message>
+        <source>Volume Up</source>
+        <translation>Volume haut
+</translation>
+    </message>
+    <message>
+        <source>Bass Boost</source>
+        <translation>Bass boost</translation>
+    </message>
+    <message>
+        <source>Bass Up</source>
+        <translation>Bass haut
+</translation>
+    </message>
+    <message>
+        <source>Bass Down</source>
+        <translation>Bass bas</translation>
+    </message>
+    <message>
+        <source>Treble Up</source>
+        <translation>Tremble haut</translation>
+    </message>
+    <message>
+        <source>Treble Down</source>
+        <translation>Tremble bas</translation>
+    </message>
+    <message>
+        <source>Media Play</source>
+        <translation>Média démarrer</translation>
+    </message>
+    <message>
+        <source>Media Stop</source>
+        <translation>Média arrêt</translation>
+    </message>
+    <message>
+        <source>Media Previous</source>
+        <translation>Média précédent</translation>
+    </message>
+    <message>
+        <source>Media Next</source>
+        <translation>Média suivant</translation>
+    </message>
+    <message>
+        <source>Media Record</source>
+        <translation>Média enregistrer</translation>
+    </message>
+    <message>
+        <source>Favorites</source>
+        <translation>Préférés</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Recherche</translation>
+    </message>
+    <message>
+        <source>Standby</source>
+        <translation>Attente</translation>
+    </message>
+    <message>
+        <source>Open URL</source>
+        <translation>Ouvrir URL</translation>
+    </message>
+    <message>
+        <source>Launch Mail</source>
+        <translation>Lancer courrier</translation>
+    </message>
+    <message>
+        <source>Launch Media</source>
+        <translation>Lancer média</translation>
+    </message>
+    <message>
+        <source>Launch (0)</source>
+        <translation>Lancer (0)</translation>
+    </message>
+    <message>
+        <source>Launch (1)</source>
+        <translation>Lancer (1)</translation>
+    </message>
+    <message>
+        <source>Launch (2)</source>
+        <translation>Lancer (2)</translation>
+    </message>
+    <message>
+        <source>Launch (3)</source>
+        <translation>Lancer (3)</translation>
+    </message>
+    <message>
+        <source>Launch (4)</source>
+        <translation>Lancer (4)</translation>
+    </message>
+    <message>
+        <source>Launch (5)</source>
+        <translation>Lancer (5)</translation>
+    </message>
+    <message>
+        <source>Launch (6)</source>
+        <translation>Lancer (6)</translation>
+    </message>
+    <message>
+        <source>Launch (7)</source>
+        <translation>Lancer (7)</translation>
+    </message>
+    <message>
+        <source>Launch (8)</source>
+        <translation>Lancer (8)</translation>
+    </message>
+    <message>
+        <source>Launch (9)</source>
+        <translation>Lancer (9)</translation>
+    </message>
+    <message>
+        <source>Launch (A)</source>
+        <translation>Lancer (A)</translation>
+    </message>
+    <message>
+        <source>Launch (B)</source>
+        <translation>Lancer (B)</translation>
+    </message>
+    <message>
+        <source>Launch (C)</source>
+        <translation>Lancer (C)</translation>
+    </message>
+    <message>
+        <source>Launch (D)</source>
+        <translation>Lancer (D)</translation>
+    </message>
+    <message>
+        <source>Launch (E)</source>
+        <translation>Lancer (E)</translation>
+    </message>
+    <message>
+        <source>Launch (F)</source>
+        <translation>Lancer (F)</translation>
+    </message>
+    <message>
+        <source>Meta</source>
+        <translation>Méta</translation>
+    </message>
 </context>
 <context>
     <name>QApplication</name>
@@ -121,6 +301,25 @@
         <source>QT_LAYOUT_DIRECTION</source>
         <comment>Translate this string to the string &apos;LTR&apos; in left-to-right languages or to &apos;RTL&apos; in right-to-left languages (such as Hebrew and Arabic) to get proper widget layout.</comment>
         <translation>LTR</translation>
+    </message>
+    <message>
+        <source>Executable &apos;%1&apos; requires Qt %2, found Qt %3.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incompatible Qt Library Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QAquaStyle</name>
+    <message>
+        <source>OK</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Annuler</translation>
     </message>
 </context>
 <context>
@@ -186,31 +385,31 @@
     <name>QDataManager</name>
     <message>
         <source>Delete this record?</source>
-        <translation>Supprimer cet enregistrement ?</translation>
+        <translation type="obsolete">Supprimer cet enregistrement ?</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation>Oui</translation>
+        <translation type="obsolete">Oui</translation>
     </message>
     <message>
         <source>No</source>
-        <translation>Non</translation>
+        <translation type="obsolete">Non</translation>
     </message>
     <message>
         <source>Save edits?</source>
-        <translation>Enregistrer les modifications ?</translation>
+        <translation type="obsolete">Enregistrer les modifications ?</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Annuler</translation>
+        <translation type="obsolete">Annuler</translation>
     </message>
     <message>
         <source>Confirm</source>
-        <translation>Confirmer</translation>
+        <translation type="obsolete">Confirmer</translation>
     </message>
     <message>
         <source>Cancel your edits?</source>
-        <translation>Annuler vos modifications ?</translation>
+        <translation type="obsolete">Annuler vos modifications ?</translation>
     </message>
 </context>
 <context>
@@ -252,6 +451,18 @@
     <message>
         <source>&amp;OK</source>
         <translation>&amp;OK</translation>
+    </message>
+    <message>
+        <source>Debug Message:</source>
+        <translation>Message de débogage:</translation>
+    </message>
+    <message>
+        <source>Warning:</source>
+        <translation>Avertissement:</translation>
+    </message>
+    <message>
+        <source>Fatal Error:</source>
+        <translation>Erreur fatale:</translation>
     </message>
 </context>
 <context>
@@ -508,6 +719,10 @@ Vérifier le chemin et le nom du fichier.</translation>
         <source>Write: %1</source>
         <translation>Écriture : %1</translation>
     </message>
+    <message>
+        <source>Directory:</source>
+        <translation>Dossier:</translation>
+    </message>
 </context>
 <context>
     <name>QFont</name>
@@ -697,27 +912,27 @@ Vérifier le chemin et le nom du fichier.</translation>
     </message>
     <message>
         <source>Reverse Oblique</source>
-        <translation>Oblique inversé</translation>
+        <translation type="obsolete">Oblique inversé</translation>
     </message>
     <message>
         <source>Reverse Italic</source>
-        <translation>Italique inversé</translation>
+        <translation type="obsolete">Italique inversé</translation>
     </message>
     <message>
         <source>Other</source>
-        <translation>Autre</translation>
+        <translation type="obsolete">Autre</translation>
     </message>
     <message>
         <source>Oblique</source>
-        <translation>Oblique</translation>
+        <translation type="obsolete">Oblique</translation>
     </message>
     <message>
         <source>Italic</source>
-        <translation>Italique</translation>
+        <translation type="obsolete">Italique</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation>Normal</translation>
+        <translation type="obsolete">Normal</translation>
     </message>
 </context>
 <context>
@@ -807,15 +1022,104 @@ Vérifier le chemin et le nom du fichier.</translation>
     </message>
     <message>
         <source>Login Incorrect</source>
-        <translation>Informations de connexion incorrectes</translation>
+        <translation type="obsolete">Informations de connexion incorrectes</translation>
     </message>
     <message>
         <source>Host %1 not found</source>
-        <translation>Hôte %1 introuvable</translation>
+        <translation type="unfinished">Hôte %1 introuvable</translation>
     </message>
     <message>
         <source>Connection refused to host %1</source>
-        <translation>Connecté à l&apos;hôte %1 refusée</translation>
+        <translation type="unfinished">Connecté à l&apos;hôte %1 refusée</translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
+        <translation>Erreur inconnue</translation>
+    </message>
+    <message>
+        <source>Connecting to host failed:
+%1</source>
+        <translation>Échec de la connexion à l&apos;hôte
+%1</translation>
+    </message>
+    <message>
+        <source>Login failed:
+%1</source>
+        <translation>Échec du login:
+%1</translation>
+    </message>
+    <message>
+        <source>Listing directory failed:
+%1</source>
+        <translation>Échec du listage du dossier:
+%1</translation>
+    </message>
+    <message>
+        <source>Changing directory failed:
+%1</source>
+        <translation>Échec du changement de dossier:
+%1</translation>
+    </message>
+    <message>
+        <source>Downloading file failed:
+%1</source>
+        <translation>Échec du téléchargement du fichier:
+%1</translation>
+    </message>
+    <message>
+        <source>Uploading file failed:
+%1</source>
+        <translation>Échec du télédéchargement:
+%1</translation>
+    </message>
+    <message>
+        <source>Removing file failed:
+%1</source>
+        <translation>Échec de la suppression d&apos;un fichier:
+%1</translation>
+    </message>
+    <message>
+        <source>Creating directory failed:
+%1</source>
+        <translation>Échec de la création d&apos;un dossier:
+%1</translation>
+    </message>
+    <message>
+        <source>Removing directory failed:
+%1</source>
+        <translation>Échec de la suppression d&apos;un dossier:
+%1</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation type="unfinished">Non connecté</translation>
+    </message>
+    <message>
+        <source>Connection refused for data connection</source>
+        <translation type="unfinished">Connexion donnée refusée</translation>
+    </message>
+</context>
+<context>
+    <name>QFtpPI</name>
+    <message>
+        <source>Not connected</source>
+        <translation type="obsolete">Non connecté</translation>
+    </message>
+    <message>
+        <source>Host %1 not found</source>
+        <translation type="obsolete">Hôte %1 introuvable</translation>
+    </message>
+    <message>
+        <source>Connection refused to host %1</source>
+        <translation type="obsolete">Connecté à l&apos;hôte %1 refusée</translation>
+    </message>
+    <message>
+        <source>Connected to host %1</source>
+        <translation type="obsolete">Connecté à l&apos;hôte %1</translation>
+    </message>
+    <message>
+        <source>Connection refused for data connection</source>
+        <translation type="obsolete">Connexion donnée refusée</translation>
     </message>
 </context>
 <context>
@@ -837,11 +1141,11 @@ Vérifier le chemin et le nom du fichier.</translation>
     </message>
     <message>
         <source>Connection closed by %1</source>
-        <translation>Connexion arrêtée par %1</translation>
+        <translation type="obsolete">Connexion arrêtée par %1</translation>
     </message>
     <message>
         <source>Invalid HTTP reply header</source>
-        <translation>Entête HTTP invalide</translation>
+        <translation type="obsolete">Entête HTTP invalide</translation>
     </message>
     <message>
         <source>Wrong content length</source>
@@ -874,6 +1178,30 @@ Vérifier le chemin et le nom du fichier.</translation>
     <message>
         <source>Connection closed</source>
         <translation>Connexion arrêtée</translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
+        <translation>Erreur inconnue</translation>
+    </message>
+    <message>
+        <source>Request aborted</source>
+        <translation>Requête interrompue</translation>
+    </message>
+    <message>
+        <source>No server set to connect to</source>
+        <translation>Aucun serveur spécifié</translation>
+    </message>
+    <message>
+        <source>Server closed connection unexpectedly</source>
+        <translation>Connexion interrompue par le serveur</translation>
+    </message>
+    <message>
+        <source>Invalid HTTP response header</source>
+        <translation>Entête de réponse HTTP invalide</translation>
+    </message>
+    <message>
+        <source>Invalid HTTP chunked body</source>
+        <translation>Fragment HTTP invalide</translation>
     </message>
 </context>
 <context>
@@ -942,6 +1270,24 @@ en
         <translation>Impossible d&apos;écrire
 %1</translation>
     </message>
+    <message>
+        <source>Could not read directory
+%1</source>
+        <translation>Impossible de lire le dossier
+%1</translation>
+    </message>
+    <message>
+        <source>Could not create directory
+%1</source>
+        <translation>Impossible de créer le dossier
+%1</translation>
+    </message>
+    <message>
+        <source>Could not remove file or directory
+%1</source>
+        <translation>Impossible de supprimer le fichier ou dossier
+%1</translation>
+    </message>
 </context>
 <context>
     <name>QMainWindow</name>
@@ -952,6 +1298,41 @@ en
     <message>
         <source>Customize...</source>
         <translation>Personnaliser...</translation>
+    </message>
+</context>
+<context>
+    <name>QMenuBar</name>
+    <message>
+        <source>About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Config</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Preference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation type="unfinished">Options</translation>
+    </message>
+    <message>
+        <source>Setting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Setup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exit</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -986,15 +1367,19 @@ en
     </message>
     <message>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This application was created with Qt version %1.&lt;/p&gt;</source>
-        <translation>&lt;h3&gt;À propos de Qt&lt;/h3&gt;&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;À propos de Qt&lt;/h3&gt;&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for cross-platform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX and many other versions of Unix with X11.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;&lt;p&gt;Qt est une boîte à outils C++ pour le développement multi-plateforme d&apos;applications graphiques. Qt permet de porter un même code source sur Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX et beaucoup d&apos;autres versions d&apos;Unix avec X11.&lt;br&gt;Qt est aussi disponible pour les systèmes embarqués.&lt;/p&gt;&lt;p&gt;Qt est un produit de Trolltech. Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;&lt;p&gt;Qt est une boîte à outils C++ pour le développement multi-plateforme d&apos;applications graphiques. Qt permet de porter un même code source sur Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX et beaucoup d&apos;autres versions d&apos;Unix avec X11.&lt;br&gt;Qt est aussi disponible pour les systèmes embarqués.&lt;/p&gt;&lt;p&gt;Qt est un produit de Trolltech. Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for cross-platform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX and many other versions of Unix with X11.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation>&lt;h3&gt;À propos de Qt&lt;/h3&gt;&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;&lt;p&gt;Qt est une boîte à outils C++ pour le développement multi-plateforme d&apos;applications graphiques. Qt permet de porter un même code source sur Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX et beaucoup d&apos;autres versions d&apos;Unix avec X11.&lt;br&gt;Qt est aussi disponible pour les systèmes embarqués.&lt;/p&gt;&lt;p&gt;Qt est un produit de Trolltech. Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;À propos de Qt&lt;/h3&gt;&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;&lt;p&gt;Qt est une boîte à outils C++ pour le développement multi-plateforme d&apos;applications graphiques. Qt permet de porter un même code source sur Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX et beaucoup d&apos;autres versions d&apos;Unix avec X11.&lt;br&gt;Qt est aussi disponible pour les systèmes embarqués.&lt;/p&gt;&lt;p&gt;Qt est un produit de Trolltech. Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for multiplatform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
+        <translation>&lt;h3&gt;À propos de Qt&lt;/h3&gt;&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;&lt;p&gt;Qt est une boîte à outils C++ pour le développement multi-plateforme d&apos;applications graphiques. Qt permet de porter un même code source sur MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux et toutes les versions commerciales majeures.&lt;br&gt;Qt est aussi disponible pour les systèmes embarqués.&lt;/p&gt;&lt;p&gt;Qt est un produit de Trolltech. Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -1251,6 +1636,107 @@ en
     </message>
 </context>
 <context>
+    <name>QRegExp</name>
+    <message>
+        <source>no error occurred</source>
+        <translation>aucune erreur ne s&apos;est produite</translation>
+    </message>
+    <message>
+        <source>disabled feature used</source>
+        <translation>option désactivée</translation>
+    </message>
+    <message>
+        <source>bad char class syntax</source>
+        <translation>syntaxe invalide pour classe de caractère</translation>
+    </message>
+    <message>
+        <source>bad lookahead syntax</source>
+        <translation>syntaxe invalide pour lookahead</translation>
+    </message>
+    <message>
+        <source>bad repetition syntax</source>
+        <translation>syntaxe invalide pour répétition</translation>
+    </message>
+    <message>
+        <source>invalid octal value</source>
+        <translation>valeur octale invalide</translation>
+    </message>
+    <message>
+        <source>missing left delim</source>
+        <translation>délémiteur gauche manquant</translation>
+    </message>
+    <message>
+        <source>unexpected end</source>
+        <translation>fin impromptue</translation>
+    </message>
+    <message>
+        <source>met internal limit</source>
+        <translation>rencontré limite interne</translation>
+    </message>
+</context>
+<context>
+    <name>QSql</name>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Supprimer</translation>
+    </message>
+    <message>
+        <source>Delete this record?</source>
+        <translation type="unfinished">Supprimer cet enregistrement ?</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation type="unfinished">Oui</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation type="unfinished">Non</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation type="unfinished">Insérer</translation>
+    </message>
+    <message>
+        <source>Update</source>
+        <translation type="unfinished">Actualiser</translation>
+    </message>
+    <message>
+        <source>Save edits?</source>
+        <translation type="unfinished">Enregistrer les modifications ?</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Annuler</translation>
+    </message>
+    <message>
+        <source>Confirm</source>
+        <translation type="unfinished">Confirmer</translation>
+    </message>
+    <message>
+        <source>Cancel your edits?</source>
+        <translation type="unfinished">Annuler vos modifications ?</translation>
+    </message>
+    <message>
+        <source>Could not open database connection</source>
+        <translation type="obsolete">Impossible d&apos;ouvrir la connection à la base de donnéees</translation>
+    </message>
+    <message>
+        <source>Could not open database</source>
+        <translation type="obsolete">Impossible d&apos;ouvrir la base de données</translation>
+    </message>
+</context>
+<context>
+    <name>QTDSDriver</name>
+    <message>
+        <source>Could not open database connection</source>
+        <translation type="obsolete">Impossible d&apos;ouvrir la connection à la base de donnéees</translation>
+    </message>
+    <message>
+        <source>Could not open database</source>
+        <translation type="obsolete">Impossible d&apos;ouvrir la base de données</translation>
+    </message>
+</context>
+<context>
     <name>QTabDialog</name>
     <message>
         <source>OK</source>
@@ -1333,6 +1819,13 @@ en
     <message>
         <source>Close</source>
         <translation>Fermer</translation>
+    </message>
+</context>
+<context>
+    <name>QToolBar</name>
+    <message>
+        <source>More...</source>
+        <translation>Reste...</translation>
     </message>
 </context>
 <context>
@@ -1429,7 +1922,7 @@ en
     <name>QWSManager</name>
     <message>
         <source>Style</source>
-        <translation>Style</translation>
+        <translation type="obsolete">Style</translation>
     </message>
 </context>
 <context>
@@ -1443,23 +1936,43 @@ en
     <name>QWizard</name>
     <message>
         <source>Cancel</source>
-        <translation>Annuler</translation>
+        <translation type="obsolete">Annuler</translation>
     </message>
     <message>
         <source>&lt; Back</source>
-        <translation>&lt; Précédent</translation>
+        <translation type="obsolete">&lt; Précédent</translation>
     </message>
     <message>
         <source>Next &gt;</source>
-        <translation>Suivant &gt;</translation>
+        <translation type="obsolete">Suivant &gt;</translation>
     </message>
     <message>
         <source>Finish</source>
-        <translation>Terminer</translation>
+        <translation type="obsolete">Terminer</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation>Aide</translation>
+        <translation type="obsolete">Aide</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation>&amp;Annuler</translation>
+    </message>
+    <message>
+        <source>&lt; &amp;Back</source>
+        <translation>&lt; &amp;Précédent</translation>
+    </message>
+    <message>
+        <source>&amp;Next &gt;</source>
+        <translation>&amp;Suivant &gt;</translation>
+    </message>
+    <message>
+        <source>&amp;Finish</source>
+        <translation>&amp;Terminer</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation>&amp;Aide</translation>
     </message>
 </context>
 <context>

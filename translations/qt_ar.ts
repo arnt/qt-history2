@@ -1,5 +1,12 @@
 <!DOCTYPE TS><TS>
 <context>
+    <name>@default</name>
+    <message>
+        <source>OK</source>
+        <translation type="obsolete">موافق</translation>
+    </message>
+</context>
+<context>
     <name>QAccel</name>
     <message>
         <source>Space</source>
@@ -113,6 +120,174 @@
         <source>F%1</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation type="unfinished">مساعدة</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation type="unfinished">للخلف</translation>
+    </message>
+    <message>
+        <source>Forward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Volume Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Volume Mute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Volume Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bass Boost</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bass Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bass Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Treble Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Treble Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Media Play</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Media Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Media Previous</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Media Next</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Media Record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Favorites</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Standby</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch Mail</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch Media</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch (0)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch (1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch (2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch (3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch (4)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch (5)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch (6)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch (7)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch (8)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch (9)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch (A)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch (B)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch (C)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch (D)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch (E)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch (F)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Meta</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QApplication</name>
@@ -120,6 +295,25 @@
         <source>QT_LAYOUT_DIRECTION</source>
         <comment>Translate this string to the string &apos;LTR&apos; in left-to-right languages or to &apos;RTL&apos; in right-to-left languages (such as Hebrew and Arabic) to get proper widget layout.</comment>
         <translation>RTL</translation>
+    </message>
+    <message>
+        <source>Executable &apos;%1&apos; requires Qt %2, found Qt %3.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incompatible Qt Library Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QAquaStyle</name>
+    <message>
+        <source>OK</source>
+        <translation type="unfinished">موافق</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -185,31 +379,31 @@
     <name>QDataManager</name>
     <message>
         <source>Delete this record?</source>
-        <translation>مسح السجل؟</translation>
+        <translation type="obsolete">مسح السجل؟</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation>نعم</translation>
+        <translation type="obsolete">نعم</translation>
     </message>
     <message>
         <source>No</source>
-        <translation>لا</translation>
+        <translation type="obsolete">لا</translation>
     </message>
     <message>
         <source>Save edits?</source>
-        <translation>حفظ التغييرات؟</translation>
+        <translation type="obsolete">حفظ التغييرات؟</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>إلغاء الأمر</translation>
+        <translation type="obsolete">إلغاء الأمر</translation>
     </message>
     <message>
         <source>Confirm</source>
-        <translation>تأكيد</translation>
+        <translation type="obsolete">تأكيد</translation>
     </message>
     <message>
         <source>Cancel your edits?</source>
-        <translation>إلغاء التغييرات؟</translation>
+        <translation type="obsolete">إلغاء التغييرات؟</translation>
     </message>
 </context>
 <context>
@@ -251,6 +445,18 @@
     <message>
         <source>&amp;OK</source>
         <translation>&amp;موافق</translation>
+    </message>
+    <message>
+        <source>Debug Message:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fatal Error:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -507,6 +713,10 @@ Check path and filename.</source>
         <source>Select a Directory</source>
         <translation>اختيار دليل</translation>
     </message>
+    <message>
+        <source>Directory:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QFont</name>
@@ -696,27 +906,27 @@ Check path and filename.</source>
     </message>
     <message>
         <source>Reverse Oblique</source>
-        <translation>منحرف معاكس</translation>
+        <translation type="obsolete">منحرف معاكس</translation>
     </message>
     <message>
         <source>Reverse Italic</source>
-        <translation>مائل معاكس</translation>
+        <translation type="obsolete">مائل معاكس</translation>
     </message>
     <message>
         <source>Other</source>
-        <translation>غير ذلك</translation>
+        <translation type="obsolete">غير ذلك</translation>
     </message>
     <message>
         <source>Oblique</source>
-        <translation>منحرف</translation>
+        <translation type="obsolete">منحرف</translation>
     </message>
     <message>
         <source>Italic</source>
-        <translation>مائل</translation>
+        <translation type="obsolete">مائل</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation>عادي</translation>
+        <translation type="obsolete">عادي</translation>
     </message>
 </context>
 <context>
@@ -806,15 +1016,87 @@ Check path and filename.</source>
     </message>
     <message>
         <source>Login Incorrect</source>
-        <translation>معلومات الدخول خاطئة</translation>
+        <translation type="obsolete">معلومات الدخول خاطئة</translation>
     </message>
     <message>
         <source>Host %1 not found</source>
-        <translation>لم نجد المضيف %1</translation>
+        <translation type="unfinished">لم نجد المضيف %1</translation>
     </message>
     <message>
         <source>Connection refused to host %1</source>
-        <translation>رفض الاتصال بـ المضيف %1</translation>
+        <translation type="unfinished">رفض الاتصال بـ المضيف %1</translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connecting to host failed:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Login failed:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Listing directory failed:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Changing directory failed:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Downloading file failed:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uploading file failed:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Removing file failed:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Creating directory failed:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Removing directory failed:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connection refused for data connection</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QFtpPI</name>
+    <message>
+        <source>Host %1 not found</source>
+        <translation type="obsolete">لم نجد المضيف %1</translation>
+    </message>
+    <message>
+        <source>Connection refused to host %1</source>
+        <translation type="obsolete">رفض الاتصال بـ المضيف %1</translation>
+    </message>
+    <message>
+        <source>Connected to host %1</source>
+        <translation type="obsolete">تم الاتصال بالمضيف %1</translation>
     </message>
 </context>
 <context>
@@ -836,11 +1118,11 @@ Check path and filename.</source>
     </message>
     <message>
         <source>Connection closed by %1</source>
-        <translation>أغلق الاتصال بـ %1</translation>
+        <translation type="obsolete">أغلق الاتصال بـ %1</translation>
     </message>
     <message>
         <source>Invalid HTTP reply header</source>
-        <translation>ترويسة HTTP غير صالحة</translation>
+        <translation type="obsolete">ترويسة HTTP غير صالحة</translation>
     </message>
     <message>
         <source>Wrong content length</source>
@@ -873,6 +1155,30 @@ Check path and filename.</source>
     <message>
         <source>Connection closed</source>
         <translation>أغلق الاتصال</translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Request aborted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No server set to connect to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Server closed connection unexpectedly</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid HTTP response header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid HTTP chunked body</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -941,6 +1247,21 @@ to
         <translation>عدم إستطاعة كتابة 
 %1</translation>
     </message>
+    <message>
+        <source>Could not read directory
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not create directory
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not remove file or directory
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QMainWindow</name>
@@ -951,6 +1272,41 @@ to
     <message>
         <source>Customize...</source>
         <translation>تخصيص...</translation>
+    </message>
+</context>
+<context>
+    <name>QMenuBar</name>
+    <message>
+        <source>About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Config</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Preference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation type="unfinished">خيارات</translation>
+    </message>
+    <message>
+        <source>Setting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Setup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exit</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -985,15 +1341,19 @@ to
     </message>
     <message>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This application was created with Qt version %1.&lt;/p&gt;</source>
-        <translation>&lt;h3&gt;حول QT&lt;/h3&gt;&lt;p&gt;هذا البرنامج قد صنع بواسطة QT الإصدار %1.&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;حول QT&lt;/h3&gt;&lt;p&gt;هذا البرنامج قد صنع بواسطة QT الإصدار %1.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for cross-platform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX and many other versions of Unix with X11.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation>&lt;p dir=rtl&gt;هذا البرنامج يستخدم QT الإصدار %1.&lt;/p&gt;&lt;p&gt;QT هو أدات C++ للحصول على برمجة ظاهرية.&lt;/p&gt;&lt;p&gt;Qt يقدم توافق مبني على مصدر برمجي واحد لجميع أنظمة التشغيل مثل الويندوز والماكنتوش واللينكس القائمة على X11.&lt;/p&gt; &lt;p dir=rtl&gt;Qt هو من إنتاج Trolltech. انظر إلى &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt;لمزيد من المعلومات.&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;p dir=rtl&gt;هذا البرنامج يستخدم QT الإصدار %1.&lt;/p&gt;&lt;p&gt;QT هو أدات C++ للحصول على برمجة ظاهرية.&lt;/p&gt;&lt;p&gt;Qt يقدم توافق مبني على مصدر برمجي واحد لجميع أنظمة التشغيل مثل الويندوز والماكنتوش واللينكس القائمة على X11.&lt;/p&gt; &lt;p dir=rtl&gt;Qt هو من إنتاج Trolltech. انظر إلى &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt;لمزيد من المعلومات.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for cross-platform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX and many other versions of Unix with X11.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation>&lt;h3 dir=rtl&gt;حول Qt&lt;/h3&gt;&lt;p dir=rtl&gt;هذا البرنامج يستخدم QT الإصدار %1.&lt;/p&gt;&lt;p dir=rtl&gt;QT هو أدات C++ للحصول على برمجة ظاهرية.&lt;/p&gt;&lt;p dir=rtl&gt;Qt يقدم توافق مبني على مصدر برمجي واحد لجميع أنظمة التشغيل مثل الويندوز والماكنتوش واللينكس القائمة على X11.&lt;/p&gt; &lt;p dir=rtl&gt;Qt هو من إنتاج Trolltech. انظر إلى &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt;لمزيد من المعلومات.&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;h3 dir=rtl&gt;حول Qt&lt;/h3&gt;&lt;p dir=rtl&gt;هذا البرنامج يستخدم QT الإصدار %1.&lt;/p&gt;&lt;p dir=rtl&gt;QT هو أدات C++ للحصول على برمجة ظاهرية.&lt;/p&gt;&lt;p dir=rtl&gt;Qt يقدم توافق مبني على مصدر برمجي واحد لجميع أنظمة التشغيل مثل الويندوز والماكنتوش واللينكس القائمة على X11.&lt;/p&gt; &lt;p dir=rtl&gt;Qt هو من إنتاج Trolltech. انظر إلى &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt;لمزيد من المعلومات.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for multiplatform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1250,6 +1610,88 @@ to
     </message>
 </context>
 <context>
+    <name>QRegExp</name>
+    <message>
+        <source>no error occurred</source>
+        <translation type="unfinished">لم يحدث خطأ</translation>
+    </message>
+    <message>
+        <source>disabled feature used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>bad char class syntax</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>bad lookahead syntax</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>bad repetition syntax</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>invalid octal value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>missing left delim</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>unexpected end</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>met internal limit</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QSql</name>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">مسح</translation>
+    </message>
+    <message>
+        <source>Delete this record?</source>
+        <translation type="unfinished">مسح السجل؟</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation type="unfinished">نعم</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation type="unfinished">لا</translation>
+    </message>
+    <message>
+        <source>Insert</source>
+        <translation type="unfinished">ادخال</translation>
+    </message>
+    <message>
+        <source>Update</source>
+        <translation type="unfinished">تعديل</translation>
+    </message>
+    <message>
+        <source>Save edits?</source>
+        <translation type="unfinished">حفظ التغييرات؟</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirm</source>
+        <translation type="unfinished">تأكيد</translation>
+    </message>
+    <message>
+        <source>Cancel your edits?</source>
+        <translation type="unfinished">إلغاء التغييرات؟</translation>
+    </message>
+</context>
+<context>
     <name>QTabDialog</name>
     <message>
         <source>OK</source>
@@ -1332,6 +1774,13 @@ to
     <message>
         <source>Close</source>
         <translation>إغلاق</translation>
+    </message>
+</context>
+<context>
+    <name>QToolBar</name>
+    <message>
+        <source>More...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1428,7 +1877,7 @@ to
     <name>QWSManager</name>
     <message>
         <source>Style</source>
-        <translation>مظهر</translation>
+        <translation type="obsolete">مظهر</translation>
     </message>
 </context>
 <context>
@@ -1442,23 +1891,43 @@ to
     <name>QWizard</name>
     <message>
         <source>Cancel</source>
-        <translation>الغاء الأمر</translation>
+        <translation type="obsolete">الغاء الأمر</translation>
     </message>
     <message>
         <source>&lt; Back</source>
-        <translation>للخلف &gt;</translation>
+        <translation type="obsolete">للخلف &gt;</translation>
     </message>
     <message>
         <source>Next &gt;</source>
-        <translation>&lt; للأمام </translation>
+        <translation type="obsolete">&lt; للأمام </translation>
     </message>
     <message>
         <source>Finish</source>
-        <translation>إنهاء</translation>
+        <translation type="obsolete">إنهاء</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation>مساعدة</translation>
+        <translation type="obsolete">مساعدة</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt; &amp;Back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Next &gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Finish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
