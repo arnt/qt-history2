@@ -321,7 +321,16 @@ void DeleteWidgetCommand::redo()
     formWindow()->unmanageWidget(m_widget);
     m_widget->hide();    
     m_widget->setParent(formWindow());
+    
+    formWindow()->emitGeometryChanged(m_parentWidget);
+}
 
+void DeleteWidgetCommand::undo()
+{
+    m_widget->setParent(m_parentWidget);    
+    m_widget->setGeometry(m_geometry);
+    formWindow()->manageWidget(m_widget);
+    
     // ### set up alignment
     switch (m_layoutType) {
         case LayoutInfo::VBox:
@@ -336,19 +345,7 @@ void DeleteWidgetCommand::redo()
         default:
             break;
     } // end switch
-    formWindow()->emitGeometryChanged(m_parentWidget);
-}
 
-void DeleteWidgetCommand::undo()
-{
-    if (hasLayout(m_parentWidget)) {
-        // ### implement me
-        qWarning("DeleteWidgetCommand::undo() -- not implemented yet!");
-    }
-
-    m_widget->setParent(m_parentWidget);    
-    m_widget->setGeometry(m_geometry);
-    formWindow()->manageWidget(m_widget);
     m_widget->show();
     formWindow()->emitGeometryChanged(m_parentWidget);
 }
