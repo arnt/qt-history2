@@ -102,14 +102,14 @@ protected:
     virtual void writePrlFile(QTextStream &);
 
     //make sure libraries are found
-    virtual bool findLibraries(); 
+    virtual bool findLibraries();
 
     QString var(const QString &var);
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);
     QString varList(const QString &var);
 
-    bool fileFixify(QString &file, QString dir=QString::null) const;
-    bool fileFixify(QStringList &files, QString dir=QString::null) const;
+    bool fileFixify(QString &file, const QString &dir=QString::null) const;
+    bool fileFixify(QStringList &files, const QString &dir=QString::null) const;
 public:
     MakefileGenerator(QMakeProject *p);
     virtual ~MakefileGenerator();
@@ -124,7 +124,7 @@ inline QString MakefileGenerator::defaultMakefile() const
     return "Makefile";
 }
 
-inline QString MakefileGenerator::findMocSource(const QString &moc_file) const 
+inline QString MakefileGenerator::findMocSource(const QString &moc_file) const
 {
     QString tmp = cleanFilePath(moc_file);
     if (mocablesFromMOC.contains(tmp))
@@ -133,7 +133,7 @@ inline QString MakefileGenerator::findMocSource(const QString &moc_file) const
 	return QString("");
 }
 
-inline QString MakefileGenerator::findMocDestination(const QString &src_file) const 
+inline QString MakefileGenerator::findMocDestination(const QString &src_file) const
 {
     QString tmp = cleanFilePath(src_file);
     if (mocablesToMOC.contains(tmp))
