@@ -1951,7 +1951,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		if ( c == '\n' ) // happens only in whitespacepre-mode or with WhiteSpaceNormalWithNewlines.
  		    break;  // we want a new line in this case
 
-		bool c_isSpace = c.isSpace() && c.unicode() != 0x00a0U && 
+		bool c_isSpace = c.isSpace() && c.unicode() != 0x00a0U &&
 		   curtag.wsm != QStyleSheetItem_WhiteSpaceNoCompression;
 
 		if ( curtag.wsm == QStyleSheetItem::WhiteSpaceNormal && c_isSpace && space )
@@ -5209,6 +5209,9 @@ void QTextParag::copyParagData( QTextParag *parag )
     setStyleSheetItems( parag->styleSheetItems() );
     setListStyle( parag->listStyle() );
     setAlignment( parag->alignment() );
+    QColor *c = parag->backgroundColor();
+    if ( c )
+	setBackgroundColor( *c );
 }
 
 void QTextParag::show()
