@@ -108,39 +108,53 @@ QThread *QThreadPrivate::threadForId(int id)
     run() to include your code. For example:
 
     \code
-    class MyThread : public QThread {
-
+    class MyThread : public QThread
+    {
     public:
-
         virtual void run();
-
     };
 
     void MyThread::run()
     {
-        for(int count = 0; count < 20; count++) {
-            sleep(1);
-            qDebug("Ping!");
-        }
-    }
-
-    int main()
-    {
-        MyThread a;
-        MyThread b;
-        a.start();
-        b.start();
-        a.wait();
-        b.wait();
+        QTcpSocket socket;
+        // connect QTcpSocket's signals somewhere meaningful
+        ...
+        socket.connectToHost(hostName, portNumber);
+        exec();
     }
     \endcode
 
-    This will start two threads, each of which writes Ping! 20 times
-    to the screen and exits. The wait() calls at the end of main() are
-    necessary because exiting main() ends the program, unceremoniously
-    killing all other threads. Each MyThread stops executing when it
-    reaches the end of MyThread::run(), just as an application does
-    when it leaves main().
+    This will create a QTcpSocket in the thread and then execute the
+    thread's event loop.  Use the start() method to begin execution.
+    Execution ends when you return from run(), just as an application
+    does when it leaves main().  QThread will notifiy you via a signal
+    when the thread is started(), finished() and terminated(), or you
+    can use isFinished() and isRunning() to query the state of the
+    thread.  Use wait() to block until the thread has finished
+    execution.
+
+    Each thread gets its own stack from the operating system.  The
+    operating system also determines the default size of the stack.
+    You can use setStackSize() to set a custom stack size.
+
+    Each QThread can have its own event loop.  You can start the event
+    loop by calling exec(); you can stop it by calling exit() or
+    quit().
+
+    In extreme cases, you may wish to forcibly terminate() an
+    executing thread.  However, doing so is dangerous and discouraged.
+    Please read the documentation for terminate() and
+    setTerminationEnabled() for detailed information.
+
+    The static functions currentThreadId() and currentThread() return
+    identifiers for the currently executing thread.  The former
+    returns a platform specific id for the thread; the latter returns
+    a QThread pointer.
+
+    QThread also provides platform independent sleep functions in
+    varying resolutions. Use sleep() for full second resolution,
+    msleep() for millisecond resolution and usleep() for microsecond
+    resolution.
 
     \sa \link threads.html Thread Support in Qt\endlink.
 */
@@ -188,8 +202,8 @@ QThread *QThreadPrivate::threadForId(int id)
 */
 
 /*!
-    Constructs a new thread. The thread does not begin executing until
-    start() is called.
+    Constructs a new thread with the given \a parent. Note that the
+    thread does not begin executing until start() is called.
 */
 QThread::QThread(QObject *parent)
     : QObject(*(new QThreadPrivate), parent)
@@ -201,7 +215,7 @@ QThread::QThread(QObject *parent)
 }
 
 /*!
-    QThread destructor.
+    Destroys the thread.
 
     Note that deleting a QThread object will not stop the execution of
     the thread it represents. Deleting a running QThread (i.e.
