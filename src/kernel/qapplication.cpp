@@ -2309,29 +2309,22 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	{
 	    QWidget* w = (QWidget*)receiver;
 	    QMouseEvent* mouse = (QMouseEvent*) e;
-	    QMouseEvent* t, *ev = mouse;
+	    QPoint relpos = mouse->pos();
 	    while ( w ) {
-		ev->accept();
-		res = internalNotify( w, ev );
-		if ( res || w->isTopLevel() )
+		QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->state());
+		me.spont = mouse->spontaneous();
+		res = internalNotify( w, &me );
+		e->spont = FALSE;
+		if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
 		    break;
-		t = ev;
-		ev = new QMouseEvent( t->type(), t->pos() + w->pos(), t->globalPos(), t->button(), t->state() );
-		if ( t != mouse )
-		    delete t;
+
+		relpos += w->pos();
 		w = w->parentWidget();
-		if ( w && w->testWFlags( WNoMousePropagation ) ) {
-		    res = TRUE;
-		    break;
-		}
 	    }
-	    if ( ev != mouse ) {
-		if ( res )
-		    mouse->accept();
-		else
-		    mouse->ignore();
-		delete ev;
-	    }
+	    if ( res )
+		mouse->accept();
+	    else
+		mouse->ignore();
 	}
     break;
 #ifndef QT_NO_WHEELEVENT
@@ -2350,30 +2343,22 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 
 	    QWidget* w = (QWidget*)receiver;
 	    QWheelEvent* wheel = (QWheelEvent*) e;
-	    QWheelEvent* t, *ev = wheel;
-
+	    QPoint relpos = wheel->pos();
 	    while ( w ) {
-		ev->accept();
-		res = internalNotify( w, e );
-		if ( res || w->isTopLevel() )
+		QWheelEvent we(relpos, wheel->globalPos(), wheel->delta(), wheel->state(), wheel->orientation());
+		we.spont = wheel->spontaneous();
+		res = internalNotify( w, &we );
+		e->spont = FALSE;
+		if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
 		    break;
-		t = ev;
-		ev = new QWheelEvent( t->pos() + w->pos(), t->globalPos(), t->delta(), t->state() );
-		if ( t != wheel )
-		    delete t;
+
+		relpos += w->pos();
 		w = w->parentWidget();
-		if ( w && w->testWFlags( WNoMousePropagation ) ) {
-		    wheel->accept();
-		    break;
-		}
 	    }
-	    if ( ev != wheel ) {
-		if ( res )
-		    wheel->accept();
-		else
-		    wheel->ignore();
-		delete ev;
-	    }
+	    if ( res )
+		wheel->accept();
+	    else
+		wheel->ignore();
 	}
     break;
 #endif
@@ -2381,22 +2366,23 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	{
 	    QWidget* w = (QWidget*)receiver;
 	    QContextMenuEvent *cevent = (QContextMenuEvent*) e;
+	    QPoint relpos = cevent->pos();
 	    while ( w ) {
-		QContextMenuEvent ce( cevent->reason(),
-				      w->mapFromGlobal( cevent->globalPos() ),
-				      cevent->globalPos(), cevent->state() );
+		QContextMenuEvent ce(cevent->reason(), relpos, cevent->globalPos(), cevent->state());
 		ce.spont = e->spontaneous();
 		res = internalNotify( w, &ce );
+		e->spont = FALSE;
 
-		if ( ce.isConsumed() )
-		    cevent->consume();
-		if ( ce.isAccepted() )
-		    cevent->accept();
-		if ( res || cevent->isConsumed() || w->testWFlags( WNoMousePropagation ) )
+		if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
 		    break;
 
-		w = w->parentWidget( TRUE );
+		relpos += w->pos();
+		w = w->parentWidget();
 	    }
+	    if ( res )
+		cevent->accept();
+	    else
+		cevent->ignore();
 	}
     break;
 #if defined (QT_TABLET_SUPPORT)
@@ -2406,31 +2392,24 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	{
 	    QWidget *w = (QWidget*)receiver;
 	    QTabletEvent *tablet = (QTabletEvent*)e;
-	    QTabletEvent *t, *ev = tablet;
+	    QPoint relpos = tablet->pos();
 	    while ( w ) {
-		ev->accept();
-		res = internalNotify( w, e );
-		if ( res || w->isTopLevel() )
+		QTabletEvent te(tablet->pos(), tablet->globalPos(), tablet->device(),
+				tablet->pressure(), tablet->xTilt(), tablet->yTilt(),
+				tablet->uniqueId());
+		te.spont = e->spontaneous();
+		res = internalNotify( w, &te );
+		e->spont = FALSE;
+		if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
 		    break;
-		t = ev;
-		ev = new QTabletEvent( t->pos() + w->pos(), t->globalPos(),
-				       t->device(), t->pressure(), t->xTilt(),
-				       t->yTilt(), t->uniqueId() );
-		if ( t != tablet )
-		    delete t;
+
+		relpos += w->pos();
 		w = w->parentWidget();
-		if ( w && w->testWFlags( WNoMousePropagation ) ) {
-		    tablet->accept();
-		    break;
-		}
 	    }
-	    if ( ev != tablet ) {
-		if ( res )
-		    tablet->accept();
-		else
-		    tablet->ignore();
-		delete ev;
-	    }
+	    if ( res )
+		tablet->accept();
+	    else
+		tablet->ignore();
 	    chokeMouse = tablet->isAccepted();
 	}
     break;
