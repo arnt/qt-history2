@@ -2377,7 +2377,6 @@ void QFileDialog::init()
     d->checkForFilter = FALSE;
     d->ignoreNextRefresh = FALSE;
     d->ignoreStop = FALSE;
-    d->pendingItems.setAutoDelete( FALSE );
     d->mimeTypeTimer = new QTimer( this );
     d->cursorOverride = FALSE;
     connect( d->mimeTypeTimer, SIGNAL( timeout() ),
@@ -2602,11 +2601,6 @@ void QFileDialog::init()
     d->leftLayout = new QHBoxLayout( lay, 5 );
     d->topLevelLayout = new QVBoxLayout( (QWidget*)0, 5 );
     lay->addLayout( d->topLevelLayout, 1 );
-    d->extraWidgetsLayouts.setAutoDelete( FALSE );
-    d->extraLabels.setAutoDelete( FALSE );
-    d->extraWidgets.setAutoDelete( FALSE );
-    d->extraButtons.setAutoDelete( FALSE );
-    d->toolButtons.setAutoDelete( FALSE );
 
     QHBoxLayout * h;
 

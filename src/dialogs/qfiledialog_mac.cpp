@@ -259,7 +259,6 @@ QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *pwd
     qt_mac_nav_filter_type t;
     t.index = 0;
     t.filts = &filts;
-    filts.setAutoDelete(TRUE);
     if(filts.count() > 1) {
 	int i = 0;
 	CFStringRef *arr = (CFStringRef *)malloc(sizeof(CFStringRef) * filts.count());
@@ -340,6 +339,7 @@ QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *pwd
     NavDisposeReply(&ret);
     if(selectedFilter) 
 	*selectedFilter = filts.at(t.index)->filter;
+    filts.deleteAll();
     return retstrl;
 }
 
@@ -395,7 +395,6 @@ QString QFileDialog::macGetSaveFileName(const QString &start, const QString &fil
     qt_mac_nav_filter_type t;
     t.index = 0;
     t.filts = &filts;
-    filts.setAutoDelete(TRUE);
     if(filts.count() > 1) {
 	int i = 0;
 	CFStringRef *arr = (CFStringRef *)malloc(sizeof(CFStringRef) * filts.count());
@@ -457,6 +456,7 @@ QString QFileDialog::macGetSaveFileName(const QString &start, const QString &fil
     NavDisposeReply(&ret);
     if(selectedFilter) 
 	*selectedFilter = filts.at(t.index)->filter;
+    filts.deleteAll();
     return retstr;
 }
 
