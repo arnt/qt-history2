@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#81 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include <stdlib.h>
 #include <signal.h>
-#include <ctype.h> // for QETWidget::translateKeyEvent()
+#include <ctype.h>
 #include <locale.h>
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
@@ -32,7 +32,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#80 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#81 $";
 #endif
 
 
@@ -44,11 +44,9 @@ static char    *appName;			// application name
 static char    *appFont		= 0;		// application font
 static char    *appBGCol	= 0;		// application bg color
 static char    *appFGCol	= 0;		// application fg color
-static char    *tlwGeometry	= 0;		// top level widget geometry
-static char    *tlwTitle	= 0;		// top level widget title
-static bool	tlwIconic	= FALSE;	// top level widget iconified
-static int	appArgc;			// argument count
-static char   **appArgv;			// argument vector
+static char    *mwGeometry	= 0;		// main widget geometry
+static char    *mwTitle		= 0;		// main widget title
+static bool	mwIconic	= FALSE;	// main widget iconified
 static Display *appDpy;				// X11 application display
 static char    *appDpyName	= 0;		// X11 display name
 static bool	appSync		= FALSE;	// X11 synchronization
@@ -83,7 +81,6 @@ static short	mouseXPos, mouseYPos;		// mouse position in act window
 typedef void  (*VFPTR)();
 typedef void  (*VFPTR_ARG)( int, char ** );
 typedef declare(QListM,void) QVFuncList;
-static QVFuncList *preRList = 0;		// list of pre routines
 static QVFuncList *postRList = 0;		// list of post routines
 
 static void	trapSignals( int signo );	// default signal handler
@@ -102,7 +99,8 @@ static bool	qt_try_modal( QWidget *, XEvent * );
 void		qt_reset_color_avail();		// defined in qcol_x11.cpp
 
 
-class QETWidget : public QWidget {		// event translator widget
+class QETWidget : public QWidget		// event translator widget
+{
 public:
     void setWFlags( WFlags f )		{ QWidget::setWFlags(f); }
     void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
@@ -134,18 +132,6 @@ void qt_init( int *argcptr, char **argv )
     int mcBufSize = 100000;			// default memchk settings
     const char *mcLogFile = "MEMCHK.LOG";
 #endif
-
-    appArgc = argc;				// save arguments
-    appArgv = argv;
-
-    if ( preRList ) {
-	VFPTR_ARG f = (VFPTR_ARG)preRList->first();
-	while ( f ) {				// call pre routines
-	    (*f)( argc, argv );
-	    preRList->remove();
-	    f = (VFPTR_ARG)preRList->first();
-	}
-    }
 
   // Install default traps
 
@@ -183,13 +169,13 @@ void qt_init( int *argcptr, char **argv )
 	    if ( ++i < argc ) appName = argv[i];
 	}
 	else if ( arg == "-title" ) {
-	    if ( ++i < argc ) tlwTitle = argv[i];
+	    if ( ++i < argc ) mwTitle = argv[i];
 	}
 	else if ( arg == "-geometry" ) {
-	    if ( ++i < argc ) tlwGeometry = argv[i];
+	    if ( ++i < argc ) mwGeometry = argv[i];
 	}
 	else if ( arg == "-iconic" )
-	    tlwIconic = !tlwIconic;
+	    mwIconic = !mwIconic;
 #if defined(DEBUG)
 	else if ( arg == "-sync" )
 	    appSync = !appSync;
@@ -252,6 +238,7 @@ void qt_init( int *argcptr, char **argv )
     gettimeofday( &watchtime, 0 );
 #endif
 
+    qApp->setName( appName );
     if ( appFont ) {				// set application font
 	QFont font;
 	font.setRawMode( TRUE );
@@ -290,7 +277,6 @@ void qt_cleanup()
 	}
 	delete postRList;
     }
-    delete preRList;
 
     if ( app_save_rootinfo )			// root window must keep state
 	qt_save_rootinfo();
@@ -366,39 +352,25 @@ static int trapIOErrors( Display * )		// default X11 IO error handler
 
 
 /*!
-\relates QApplication
-Adds a global routine that will be called from the QApplication constructor.
-*/
+  \relates QApplication
+  Adds a global routine that will be called from the QApplication destructor.
+  This function is normally used to add cleanup routines.
 
-void qAddPreRoutine( void (*p)() )		// add pre routine
-{
-    if ( !preRList ) {
-	preRList = new QVFuncList;
-	CHECK_PTR( preRList );
+  Example of use:
+  \code
+    static int *global_ptr = 0;
+
+    void cleanup_ptr()
+    {
+        delete global_ptr;
     }
-    preRList->append( (void *)p );		// store at list tail
-}
 
-/*!
-\relates QApplication
-Adds a global routine that will be called from the QApplication destructor.
-This function is normally used to add cleanup routines.
-
-Example of use:
-\code
-  static int *global_ptr = 0;
-
-  void cleanup_ptr()
-  {
-      delete global_ptr;
-  }
-
-  void init_ptr()
-  {
-      global_ptr = new int[100];	// alloc data
-      qAddPostRoutine( cleanup_ptr );	// do cleanup later
-  }
-\endcode
+    void init_ptr()
+    {
+        global_ptr = new int[100];		// allocate data
+        qAddPostRoutine( cleanup_ptr );		// delete later
+    }
+  \endcode
 */
 
 void qAddPostRoutine( void (*p)() )		// add post routine
@@ -478,6 +450,37 @@ GC qt_xget_temp_gc( bool monochrome )		// get use'n throw GC
     return gc;
 }
 
+
+/*!
+  Sets the main widget of the application.
+
+  When the user destroys the main widget, the application leaves the
+  main event loop and quits.
+  \sa mainWidget(), exec(), quit()
+*/
+
+void QApplication::setMainWidget( QWidget *mainWidget )
+{
+    main_widget = mainWidget;			// set main widget
+    if ( main_widget ) {			// give WM command line
+	XSetWMProperties( main_widget->display(), main_widget->id(),
+			  0, 0, app_argv, app_argc, 0, 0, 0 );
+	if ( mwTitle )
+	    XStoreName( appDpy, main_widget->id(), mwTitle );
+	if ( mwGeometry ) {			// parse geometry
+	    int	 x, y;
+	    uint w, h;
+	    int m = XParseGeometry( mwGeometry, &x, &y, &w, &h );
+	    if ( (m & XValue) == 0 )	  x = main_widget->geometry().x();
+	    if ( (m & YValue) == 0 )	  y = main_widget->geometry().y();
+	    if ( (m & WidthValue) == 0 )  w = main_widget->width();
+	    if ( (m & HeightValue) == 0 ) h = main_widget->height();
+	    main_widget->setGeometry( x, y, w, h );
+	}
+    }
+}
+
+
 QWidget *QApplication::desktop()
 {
     if ( !desktopWidget ) {			// not created yet
@@ -490,15 +493,15 @@ QWidget *QApplication::desktop()
 
 void QApplication::setCursor( const QCursor &c )// set application cursor
 {
-    if ( appCursor )
-	delete appCursor;
-    appCursor = new QCursor( c );
-    CHECK_PTR( appCursor );
+    if ( app_cursor )
+	delete app_cursor;
+    app_cursor = new QCursor( c );
+    CHECK_PTR( app_cursor );
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets that have
 	if ( w->testWFlags(WCursorSet) )	//   set a cursor
-	    XDefineCursor( w->display(), w->id(), appCursor->handle() );
+	    XDefineCursor( w->display(), w->id(), app_cursor->handle() );
 	++it;
     }
     XFlush( appDpy );				// make X execute it NOW
@@ -506,7 +509,7 @@ void QApplication::setCursor( const QCursor &c )// set application cursor
 
 void QApplication::restoreCursor()		// restore application cursor
 {
-    if ( !appCursor )				// there is no app cursor
+    if ( !app_cursor )				// there is no app cursor
 	return;
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
@@ -516,8 +519,8 @@ void QApplication::restoreCursor()		// restore application cursor
 	++it;
     }
     XFlush( appDpy );
-    delete appCursor;				// reset appCursor
-    appCursor = 0;
+    delete app_cursor;				// reset appCursor
+    app_cursor = 0;
 }
 
 
@@ -675,38 +678,53 @@ QETWidget *qPRFindWidget( Window oldwin )
 // Main event loop
 //
 
-/*! Enters the main event loop and waits until quit() is called or \e
-  mainWidget is destroyed. Returns the value that was specified to
-  quit().
+/*!
+  This function is obsolete and will be removed in the next release
+  of the Qt library.  This is how your main() should look like:
 
-  If \e mainWidget is a null pointer, exec will return only when
-  quit() is called.  This is for intended for applications that do not
-  want to quit just because the first window was closed.
+  \code
+    #include <qapp.h>				// defines QApplication
+    #include <qpushbt.h>			// defines QPushButton
 
-  As a special case, modal widgets like QMessageBox can be used before
-  calling exec(), because modal widget have a local event loop. All
-  programs must call exec() to activate other types of widgets. */
+    int main( int argc, char **argv )
+    {
+        QApplication app( argc, argv );		// create app object
+        QPushButton  hi( "Hello, world" );	// create a push button
+	app.setMainWidget( &hi );		// define as main widget
+        hi.show();				// show button
+        return a.exec();			// run main event loop
+    }
+  \endcode
 
+  Call setMainWidget(), then exec() with no parameters.
+*/
 
 int QApplication::exec( QWidget *mainWidget )	// enter main event loop
 {
-    main_widget = mainWidget;			// set main widget
-    if ( main_widget ) {			// give WM command line
-	XSetWMProperties( main_widget->display(), main_widget->id(),
-			  0, 0, appArgv, appArgc, 0, 0, 0 );
-	if ( tlwTitle )
-	    XStoreName( appDpy, main_widget->id(), tlwTitle );
-	if ( tlwGeometry ) {			// parse geometry
-	    int	 x, y;
-	    uint w, h;
-	    int m = XParseGeometry( tlwGeometry, &x, &y, &w, &h );
-	    if ( (m & XValue) == 0 )	  x = main_widget->geometry().x();
-	    if ( (m & YValue) == 0 )	  y = main_widget->geometry().y();
-	    if ( (m & WidthValue) == 0 )  w = main_widget->width();
-	    if ( (m & HeightValue) == 0 ) h = main_widget->height();
-	    main_widget->setGeometry( x, y, w, h );
-	}
-    }
+    debug( "QApplication: exec( QWidget * ) IS OBSOLETE"
+	   "  Use setMainWidget to set the main widget" );
+    setMainWidget( mainWidget );
+    return exec();
+}
+
+
+/*!
+  Enters the main event loop and waits until quit() is called or
+  the \link setMainWidget() main widget\endlink is destroyed.
+  Returns the value that was specified to quit().
+
+  It is necessary to call this function to start event handling.
+  The main event loop receives \link QWidget::event() events\endlink from
+  the window system and dispatches these to the application widgets.  No
+  user interaction can take place before calling exec().
+
+  As a special case, modal widgets like QMessageBox can be used before
+  calling exec(), because modal widget have a local event loop.
+  \sa quit(), setMainWidget()
+*/
+
+int QApplication::exec()			// enter main event loop
+{
     enter_loop();
     return quit_code;
 }
