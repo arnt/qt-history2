@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#212 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#213 $
 **
 ** Implementation of QListView widget class
 **
@@ -2743,7 +2743,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    setOpen( i, FALSE );
 	else if ( i->parentItem && i->parentItem != d->r )
 	    i = i->parentItem;
-	else if ( contentsX() );
+	else if ( contentsX() )
 	    horizontalScrollBar()->subtractLine();
 	d->currentPrefix.truncate( 0 );
 	e->accept();
