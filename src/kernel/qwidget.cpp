@@ -2324,7 +2324,7 @@ const QWidget *QWidget::findInheritedPalettePolicyWidget() const
 {
     for(const QWidget *w = this; w; w = w->parentWidget(TRUE)) {
 	if(w->testWFlags(WType_TopLevel|WSubWindow) ||
-	   !w->palettePolicy().background() == QPalette::Inherited)
+	   w->palettePolicy().background() != QPalette::Inherited)
 	    return w;
     }
     return NULL;
