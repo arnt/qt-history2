@@ -431,6 +431,12 @@ QLayoutIterator, \l QSpacerItem and \l QWidgetItem have been moved from \c
 <qabstractlayout.h> now includes \c <qlayout.h> for compatibility. It
 might be removed in a future version.
 
+\section1 QListViewItem
+
+The paintBranches() function in Qt 2.x had a GUIStyle parameter; this
+has been dropped for Qt 3.x since GUI style is handled by the new
+style engine (See \l QStyle.)
+
 \section1 QMoveEvent
 
 In Qt 2.x, the function QMoveEvent::pos() returned the position of the

@@ -44,64 +44,67 @@
 
 
 /*!
-  \class QButtonGroup qbuttongroup.h
-  \brief The QButtonGroup widget organizes QButton widgets in a group.
+    \class QButtonGroup qbuttongroup.h
+    \brief The QButtonGroup widget organizes QButton widgets in a group.
 
-  \ingroup organizers
-  \ingroup geomanagement
-  \ingroup appearance
-  \mainclass
+    \ingroup organizers
+    \ingroup geomanagement
+    \ingroup appearance
+    \mainclass
 
-  A button group widget makes it easier to deal with groups of
-  buttons.  Each button in a button group has a unique
-  identifier. The button group emits a clicked() signal with this
-  identifier when the button is clicked. This makes a button group
-  particularly useful when you have several similar buttons and want to
-  connect all their clicked() signals to one slot.
+    A button group widget makes it easier to deal with groups of
+    buttons. Each button in a button group has a unique identifier.
+    The button group emits a clicked() signal with this identifier
+    when a button in the group is clicked. This makes a button group
+    particularly useful when you have several similar buttons and want
+    to connect all their clicked() signals to a single slot.
 
-  An \link setExclusive() exclusive\endlink button group switches off
-  all toggle buttons except the one that was clicked. A button group
-  is by default non-exclusive. By default, all radio
-  buttons that are inserted will be
-  mutually exclusive even if the button group is non-exclusive. (See
-  setRadioButtonExclusive().)
+    An \link setExclusive() exclusive\endlink button group switches
+    off all toggle buttons except the one that was clicked. A button
+    group is, by default, non-exclusive. Note that all radio buttons
+    that are inserted into a button group are mutually exclusive even
+    if the button group is non-exclusive. (See
+    setRadioButtonExclusive().)
 
-  There are two ways of using a button group:
-  \list
-  \i The button group is a parent widget of a number of buttons,
-  i.e., the button group is the parent argument in the button constructor.
-  The buttons are assigned identifiers 0, 1, 2, etc. in the order they are
-  created. A QButtonGroup can display a frame and a title because it inherits
-  QGroupBox.
-  \i The button group is an invisible widget and the contained buttons
-  have some other parent widget.  A button must then be manually inserted
-  using the insert() function with an identifier.
-  \endlist
+    There are two ways of using a button group:
+    \list
+    \i The button group is the parent widget of a number of buttons,
+    i.e. the button group is the parent argument in the button
+    constructor. The buttons are assigned identifiers 0, 1, 2, etc.,
+    in the order they are created. A QButtonGroup can display a frame
+    and a title because it inherits QGroupBox.
+    \i The button group is an invisible widget and the contained
+    buttons have some other parent widget. In this usage, each button
+    must be manually inserted, using insert(), into the button group
+    and given an identifier.
+    \endlist
 
-  A button can be removed from the group with remove(). A pointer to a
-  button with a given id can be obtained using find(). The id of a
-  button is available using id(). A button can be set on with
-  setButton(). The number of buttons in the group is returned by
-  count().
+    A button can be removed from the group with remove(). A pointer to
+    a button with a given id can be obtained using find(). The id of a
+    button is available using id(). A button can be set \e on with
+    setButton(). The number of buttons in the group is returned by
+    count().
 
-  <img src=qbttngrp-m.png> <img src=qbttngrp-w.png>
+    <img src=qbttngrp-m.png> <img src=qbttngrp-w.png>
 
-  \sa QButton, QPushButton, QCheckBox, QRadioButton
+    \sa QPushButton, QCheckBox, QRadioButton
 */
 
-/*! \property QButtonGroup::exclusive
+/*!
+    \property QButtonGroup::exclusive
     \brief whether the button group is exclusive
 
-  If this property is TRUE, then the buttons in the group are
-  toggled, and to untoggle a button you must click on another button in
-  the group. The default value is FALSE.
+    If this property is TRUE, then the buttons in the group are
+    toggled, and to untoggle a button you must click on another button
+    in the group. The default value is FALSE.
 */
 
-/*! \property QButtonGroup::radioButtonExclusive
-    \brief whether the radiobuttons in the group are exclusive
+/*!
+    \property QButtonGroup::radioButtonExclusive
+    \brief whether the radio buttons in the group are exclusive
 
-  If this property is TRUE (the default), the radiobuttons in the
-  group are treated exclusively.
+    If this property is TRUE (the default), the \link QRadioButton
+    radiobuttons\endlink in the group are treated exclusively.
 */
 
 struct QButtonItem
@@ -123,9 +126,10 @@ typedef QPtrListIterator<QButtonItem> QButtonListIt;
 
 
 /*!
-  Constructs a button group with no title.
+    Constructs a button group with no title.
 
-  The \a parent and \a name arguments are passed to the QWidget constructor.
+    The \a parent and \a name arguments are passed to the QWidget
+    constructor.
 */
 
 QButtonGroup::QButtonGroup( QWidget *parent, const char *name )
@@ -135,9 +139,10 @@ QButtonGroup::QButtonGroup( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a button group with the title \a title.
+    Constructs a button group with the title \a title.
 
-  The \a parent and \a name arguments are passed to the QWidget constructor.
+    The \a parent and \a name arguments are passed to the QWidget
+    constructor.
 */
 
 QButtonGroup::QButtonGroup( const QString &title, QWidget *parent,
@@ -148,10 +153,12 @@ QButtonGroup::QButtonGroup( const QString &title, QWidget *parent,
 }
 
 /*!
-  Constructs a button group with no title. Child widgets will be arranged
-  in \a strips rows or columns (depending on \a orientation).
+    Constructs a button group with no title. Child widgets will be
+    arranged in \a strips rows or columns (depending on \a
+    orientation).
 
-  The \a parent and \a name arguments are passed to the QWidget constructor.
+    The \a parent and \a name arguments are passed to the QWidget
+    constructor.
 */
 
 QButtonGroup::QButtonGroup( int strips, Orientation orientation,
@@ -162,10 +169,12 @@ QButtonGroup::QButtonGroup( int strips, Orientation orientation,
 }
 
 /*!
-  Constructs a button group with title \a title. Child widgets will be
-  arranged in \a strips rows or columns (depending on \a orientation).
+    Constructs a button group with title \a title. Child widgets will
+    be arranged in \a strips rows or columns (depending on \a
+    orientation).
 
-  The \a parent and \a name arguments are passed to the QWidget constructor.
+    The \a parent and \a name arguments are passed to the QWidget
+    constructor.
 */
 
 QButtonGroup::QButtonGroup( int strips, Orientation orientation,
@@ -177,7 +186,7 @@ QButtonGroup::QButtonGroup( int strips, Orientation orientation,
 }
 
 /*!
-  Initializes the button group.
+    Initializes the button group.
 */
 
 void QButtonGroup::init()
@@ -215,23 +224,24 @@ void QButtonGroup::setExclusive( bool enable )
 
 
 /*!
-  Inserts the \a button with the identifier \a id into the button group.
-  Returns the button identifier.
+    Inserts the \a button with the identifier \a id into the button
+    group. Returns the button identifier.
 
     Buttons are normally inserted into a button group automatically by
-    giving the button group as the parent when the button is
-    constructed. So it is not necessary to manually insert buttons that
-    have this button group as their parent widget. An exception is when
-    you want custom identifiers instead of the default 0, 1, 2, etc.
+    passing the button group as the parent when the button is
+    constructed. So it is not necessary to manually insert buttons
+    that have this button group as their parent widget. An exception
+    is when you want custom identifiers instead of the default 0, 1,
+    2, etc., or if you want the buttons to have some other parent.
 
-  The button is assigned the identifier \a id or an automatically
-  generated identifier.	 It works as follows: If \a id >= 0, this
-  identifier is assigned.  If \a id == -1 (default), the identifier is
-  equal to the number of buttons in the group.	If \a id is any other
-  negative integer, for instance -2, a unique identifier (negative
-  integer \<= -2) is generated. No button has an id of -1.
+    The button is assigned the identifier \a id or an automatically
+    generated identifier. It works as follows: If \a id >= 0, this
+    identifier is assigned. If \a id == -1 (default), the identifier
+    is equal to the number of buttons in the group. If \a id is any
+    other negative integer, for instance -2, a unique identifier
+    (negative integer \<= -2) is generated. No button has an id of -1.
 
-  \sa find(), remove(), setExclusive()
+    \sa find(), remove(), setExclusive()
 */
 
 int QButtonGroup::insert( QButton *button, int id )
@@ -268,7 +278,7 @@ int QButtonGroup::insert( QButton *button, int id )
 }
 
 /*!
-  Returns the number of buttons in the group.
+    Returns the number of buttons in the group.
 */
 int QButtonGroup::count() const
 {
@@ -276,8 +286,9 @@ int QButtonGroup::count() const
 }
 
 /*!
-  Removes the \a button from the button group.
-  \sa insert()
+    Removes the \a button from the button group.
+
+    \sa insert()
 */
 
 void QButtonGroup::remove( QButton *button )
@@ -300,10 +311,8 @@ void QButtonGroup::remove( QButton *button )
 
 
 /*!
-  Finds and returns a pointer to the button with the specified identifier
-  \a id.
-
-  Returns null if the button was not found.
+    Returns the button with the specified identifier \a id, or 0 if
+    the button was not found.
 */
 
 QButton *QButtonGroup::find( int id ) const
@@ -317,26 +326,33 @@ QButton *QButtonGroup::find( int id ) const
 
 
 /*!
-  \fn void QButtonGroup::pressed( int id )
-  This signal is emitted when a button in the group is
-  \link QButton::pressed() pressed\endlink.
-  The \a id argument is the button's identifier.
+    \fn void QButtonGroup::pressed( int id )
+
+    This signal is emitted when a button in the group is \link
+    QButton::pressed() pressed\endlink. The \a id argument is the
+    button's identifier.
+
+    \sa insert()
 */
 
 /*!
-  \fn void QButtonGroup::released( int id )
-  This signal is emitted when a button in the group is
-  \link QButton::released() released\endlink.
-  The \a id argument is the button's identifier.
+    \fn void QButtonGroup::released( int id )
+
+    This signal is emitted when a button in the group is \link
+    QButton::released() released\endlink. The \a id argument is the
+    button's identifier.
+
+    \sa insert()
 */
 
 /*!
-  \fn void QButtonGroup::clicked( int id )
+    \fn void QButtonGroup::clicked( int id )
 
-  This signal is emitted when a button in the group is clicked.  The
-  \a id argument is the button's identifier.
+    This signal is emitted when a button in the group is \link
+    QButton::clicked() clicked\endlink. The \a id argument is the
+    button's identifier.
 
-  \sa QButton::clicked() insert()
+    \sa insert()
 */
 
 
@@ -455,8 +471,9 @@ void QButtonGroup::buttonToggled( bool on )
 
 
 
-/*!  Sets the button with id \a id to be on; if this is an
-  exclusive group, all other buttons in the group will be set to off.
+/*!
+    Sets the button with id \a id to be on; if this is an exclusive
+    group, all the other buttons in the group will be set to off.
 */
 
 void QButtonGroup::setButton( int id )
@@ -472,12 +489,13 @@ void QButtonGroup::setRadioButtonExclusive( bool on)
 }
 
 
-/*!  Moves the keyboard focus according to \a key, and if appropriate
-  checks the new focus item.
+/*!
+    Moves the keyboard focus according to \a key, and if appropriate
+    checks the new focus item.
 
-  This function does nothing unless the keyboard focus points to one
-  of the button group members and \a key is one of \c Key_Up, \c
-  Key_Down, \c Key_Left and \c Key_Right.
+    This function does nothing unless the keyboard focus points to one
+    of the button group members and \a key is one of \c Key_Up, \c
+    Key_Down, \c Key_Left and \c Key_Right.
 */
 
 void QButtonGroup::moveFocus( int key )
@@ -564,8 +582,8 @@ void QButtonGroup::moveFocus( int key )
 
 
 /*!
-  Returns a pointer to the selected toggle button if exactly one
-  is selected; returns 0 otherwise.
+    Returns the selected toggle button if exactly one is selected;
+    otherwise returns 0.
 */
 
 QButton * QButtonGroup::selected() const
@@ -588,8 +606,9 @@ QButton * QButtonGroup::selected() const
 }
 
 
-/*! Returns the id of \a button, or -1 if \a button is not a member of
-  this group.
+/*!
+    Returns the id of \a button, or -1 if \a button is not a member of
+    this group.
 */
 
 int QButtonGroup::id( QButton * button ) const
