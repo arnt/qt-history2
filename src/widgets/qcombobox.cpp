@@ -35,7 +35,7 @@
 #include "qapplication.h"
 #include "qlineedit.h"
 #include "qbitmap.h"
-#include "qeffects.h"
+#include "qeffects_p.h"
 #include <limits.h>
 
 //#define ANIMATED_COMBO
