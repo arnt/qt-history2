@@ -83,7 +83,9 @@ QSocketPrivate::~QSocketPrivate()
     delete rsn;
     delete wsn;
     delete socket;
+#ifndef QT_NO_DNS
     delete dns;
+#endif
 }
 
 
