@@ -734,6 +734,7 @@ void WriteInitialization::initializeListViewItems(const QString &className, cons
         }
 
         if (item->elementItem().size()) {
+            output << option.indent << itemName << "->setOpen(true);\n";
             initializeListViewItems(className, itemName, item->elementItem());
         }
     }
