@@ -621,7 +621,7 @@ void qSystemWarning( const char* msg, int code )
 //
 // The Q_CHECK_PTR macro calls this function to check if an allocation went ok.
 //
-#if (QT_VERSION-0 >= 400)
+#if (QT_VERSION-0 >= 0x040000)
 #if defined(Q_CC_GNU)
 #warning "Change Q_CHECK_PTR to '{if ((p)==0) qt_check_pointer(__FILE__,__LINE__);}'"
 #warning "No need for qt_check_pointer() to return a value - make it void!"

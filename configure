@@ -251,7 +251,8 @@ CFG_TABLET=auto
 CFG_XKB=auto
 CFG_CUPS=auto
 CFG_NIS=auto
-CFG_LARGEFILE=no
+CFG_LARGEFILE=auto
+CFG_NEWABI=no ### need to break ABI for full Large File support...
 CFG_STL=auto
 CFG_NAS=no
 CFG_REMOTE=no
@@ -672,6 +673,13 @@ while [ -n "$1" ]; do
     largefile)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    CFG_LARGEFILE="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    newabi)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_NEWABI="$VAL"
 	else
 	    UNKNOWN_OPT=yes
 	fi
@@ -1465,7 +1473,7 @@ Usage:  $relconf [-prefix dir] [-docdir dir] [-headerdir dir]
 	[-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm]
 	[-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng]
 	[-no-jpeg] [-system-jpeg] [-no-thread] [-thread] [-no-nis] [-nis]
-	[-no-cups] [-cups] [-stl] [-no-stl]
+	[-no-cups] [-cups] [-no-largefile] [-largefile] [-stl] [-no-stl]
 	[-Istring] [-lstring] [-Lstring] [-Rstring] [-disable-<module>]
 	[-with-<module setting>] [-without-<module setting>] [-fast] [-nofast]
 
@@ -1978,7 +1986,7 @@ if [ "$CFG_STL" = "auto" ]; then
 fi
 
 # find if the platform supports X/Open Large File compilation environment
-if [ "$CFG_LARGEFILE" != "no" ]; then
+if [ "$CFG_LARGEFILE" = "auto" ]; then
     CFG_LARGEFILE=yes
     $unixtests/largefile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath && CFG_LARGEFILE=no
 fi
@@ -2080,6 +2088,9 @@ EOF
 if [ "$CFG_LARGEFILE" = "yes" ]; then
     echo "#define QT_LARGEFILE_SUPPORT 64" >>$outpath/include/qconfig.h.new
     QMAKE_CONFIG="$QMAKE_CONFIG largefile"
+    if [ "$CFG_NEWABI" = "yes" ]; then
+	echo "#define QT_NEWABI 1" >>$outpath/include/qconfig.h.new
+    fi
 fi
 if [ "$CFG_STL" = "no" ]; then
     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STL"
@@ -2388,7 +2399,11 @@ echo "STL support ......... $CFG_STL"
 echo "Thread support ...... $CFG_THREAD"
 echo "NIS support ......... $CFG_NIS"
 echo "CUPS support ........ $CFG_CUPS"
-echo "Large File support .. $CFG_LARGEFILE"
+if [ "$CFG_LARGEFILE" = "yes" && "$CFG_NEWABI" = "no" ]; then
+    echo "Large File support .. partial"
+else
+    echo "Large File support .. $CFG_LARGEFILE"
+fi
 echo "GIF support ......... $CFG_GIF"
 if [ "$CFG_MNG" = "no" ]; then
     echo "MNG support ......... $CFG_MNG"

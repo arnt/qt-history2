@@ -533,7 +533,7 @@ bool QFileInfo::convertToAbs()
   Returns the file size in bytes, or 0 if the file does not exist or if
   the size is 0 or if the size cannot be fetched.
 */
-#if defined(QT_LARGEFILE_SUPPORT)
+#if defined(QT_LARGEFILE_SUPPORT) && defined(QT_NEWABI)
 QIODevice::Offset QFileInfo::size() const
 #else
 uint QFileInfo::size() const
@@ -542,7 +542,7 @@ uint QFileInfo::size() const
     if ( !fic || !cache )
 	doStat();
     if ( fic )
-#if defined(QT_LARGEFILE_SUPPORT)
+#if defined(QT_LARGEFILE_SUPPORT) && defined(QT_NEWABI)
 	return (uint)fic->st.st_size;
 #else
 	return (QIODevice::Offset)fic->st.st_size;

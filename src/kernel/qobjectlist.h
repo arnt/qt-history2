@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QObjectList
 **
 ** Created : 940807
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -70,7 +70,13 @@ public:
 		 QPtrListIterator<QObject>::operator=( i ); }
 };
 
-#if (QT_VERSION-0 < 0x040000)
+#if (QT_VERSION-0 >= 0x040000)
+#if defined(Q_CC_GNU)
+#warning "remove the QObjectListIt class below"
+#warning "remove this typedef too, maybe"
+#endif
+#else
+typedef QObjectListIterator QObjectListIt;
 class Q_EXPORT QObjectListIt : public QPtrListIterator<QObject>
 {
 public:
@@ -78,10 +84,6 @@ public:
     QObjectListIt &operator=(const QObjectListIt &i)
 	{ return (QObjectListIt&)QPtrListIterator<QObject>::operator=(i); }
 };
-#else
-// ### Qt 4.0: remove the QObjectListIt class above
-// ### remove this typedef too, maybe
-typedef QObjectListIterator QObjectListIt;
 #endif
 
 #endif // QOBJECTLIST_H
