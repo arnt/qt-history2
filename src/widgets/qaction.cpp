@@ -134,8 +134,8 @@ public:
     QString tooltip;
     QString statustip;
     QString whatsthis;
-    QKeySequence key;
 #ifndef QT_NO_ACCEL
+    QKeySequence key;
     QAccel* accel;
     int accelid;
 #endif
@@ -178,8 +178,8 @@ QActionPrivate::QActionPrivate()
 #ifndef QT_NO_ACCEL
     accel = 0;
     accelid = 0;
-#endif
     key = 0;
+#endif
     enabled = 1;
     toggleaction  = 0;
     on = 0;
@@ -331,6 +331,7 @@ QAction::QAction( QObject* parent, const char* name, bool toggle )
 }
 
 
+#ifndef QT_NO_ACCEL
 /*!
   This constructor creates an action with the following properties:
   the description \a text, the icon or iconset \a icon, the menu text
@@ -388,6 +389,7 @@ QAction::QAction( const QString& text, const QString& menuText, QKeySequence acc
     setAccel( accel );
     init();
 }
+#endif
 
 /*!
   \internal
@@ -412,16 +414,19 @@ QAction::~QAction()
   The icon is used as the tool button icon and in the menu to the left
   of the menu text. There is no default icon.
 
+  If a null icon (QIconSet::isNull() is passed into this function,
+  the icon of the action is cleared.
+
   (See the action/toggleaction/toggleaction.cpp example.)
 
 */
 void QAction::setIconSet( const QIconSet& icon )
 {
-    if ( icon.isNull() )
-	return;
-
     register QIconSet *i = d->iconset;
-    d->iconset = new QIconSet( icon );
+    if ( !icon.isNull() )
+	d->iconset = new QIconSet( icon );
+    else
+	d->iconset = 0;
     delete i;
     d->update( QActionPrivate::Icons );
 }
@@ -466,8 +471,11 @@ QString QAction::text() const
 
   \sa text
 */
-void QAction::setMenuText( const QString& text ) { d->menutext = text;
-    d->update(); }
+void QAction::setMenuText( const QString& text )
+{ 	
+    d->menutext = text;
+    d->update();
+}
 
 QString QAction::menuText() const { return d->menuText(); }
 
@@ -553,6 +561,7 @@ QString QAction::whatsThis() const
 }
 
 
+#ifndef QT_NO_ACCEL
 /*! \property QAction::accel
   \brief the action's accelerator key
 
@@ -569,17 +578,14 @@ QString QAction::whatsThis() const
 void QAction::setAccel( const QKeySequence& key )
 {
     d->key = key;
-#ifndef QT_NO_ACCEL
     delete d->accel;
     d->accel = 0;
-#endif
 
     if ( !(int)key ) {
 	d->update();
 	return;
     }
 
-#ifndef QT_NO_ACCEL
     QObject* p = parent();
     while ( p && !p->isWidgetType() ) {
 	p = p->parent();
@@ -596,7 +602,6 @@ void QAction::setAccel( const QKeySequence& key )
     else
 	qWarning( "QAction::setAccel()  (%s) requires widget in parent chain.", name( "unnamed" ) );
 #endif
-#endif
     d->update();
 }
 
@@ -605,6 +610,7 @@ QKeySequence QAction::accel() const
 {
     return d->key;
 }
+#endif
 
 
 /*!
@@ -1106,7 +1112,9 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 	int id = parent->idAt( index );
 	parent->changeItem( id, that->iconSet(), that->menuText() );
 	parent->setItemEnabled( id, that->isEnabled() );
+#ifndef QT_NO_ACCEL
 	parent->setAccel( that->accel(), id );
+#endif
     }
 }
 
