@@ -349,16 +349,17 @@ QStyle *QMacStyle::correctStyle(const QPainter *p) const
 QStyle *QMacStyle::correctStyle(const QPaintDevice *pdev) const
 {
     bool ret_cg_style = FALSE;
-#ifdef USE_CORE_GRAPHICS
+#if defined( USE_CORE_GRAPHICS ) && QT_MACOSX_VERSION >= 0x1030
     ret_cg_style = TRUE; //default to TRUE when using CORE_GRAPHICS if there is no pdev
     if(pdev)
 	ret_cg_style = (pdev->gc()->type() == QAbstractGC::CoreGraphics);
-#endif
     if(ret_cg_style) {
 	if(!cg_style)
 	    cg_style = new QMacStyleCG();
 	return cg_style;
-    } else {
+    } else 
+#endif
+    {
 	if(!cg_style)
 	    qd_style = new QMacStyleQD();
 	return qd_style;

@@ -1,6 +1,8 @@
 #ifndef QMACSTYLECG_MAC_H
 #define QMACSTYLECG_MAC_H
 
+#if QT_MACOSX_VERSION >= 0x1030
+
 #ifndef QT_H
 #include "qwindowsstyle.h"
 #endif // QT_H
@@ -73,3 +75,4 @@ protected:
 #endif // Q_WS_MAC
 
 #endif /* QMACSTYLECG_MAC_H */
+#endif

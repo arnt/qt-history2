@@ -1,4 +1,7 @@
 #include "qmacstylecg_mac.h"
+
+#if QT_MACOSX_VERSION >= 0x1030
+
 #include "qaquastyle_p.h"
 #include "qt_mac.h"
 #include "qpainter.h"
@@ -255,3 +258,4 @@ QMacStyleCG::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
     return QCommonStyle::stylePixmap(pixmaptype, pixmap, pal, opt);
 }
 
+#endif
