@@ -2800,9 +2800,17 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 mouse->ignore();
 
             w = static_cast<QWidget *>(receiver);
-            if (w->testAttribute(Qt::WA_Hover)) {
-                QHoverEvent he(QEvent::HoverMove, w->mapFromGlobal(mouse->globalPos()), w->mapFromGlobal(d->hoverGlobalPos));
-                notify_helper(w, &he);
+            relpos = w->pos();
+            QPoint diff = relpos - w->mapFromGlobal(d->hoverGlobalPos);
+            while (w) {
+                if (w->testAttribute(Qt::WA_Hover)) {
+                    QHoverEvent he(QEvent::HoverMove, relpos, relpos - diff);
+                    notify_helper(w, &he);
+                }
+                if (w->isWindow() || w->testAttribute(Qt::WA_NoMousePropagation))
+                    break;
+                relpos += w->pos();
+                w = w->parentWidget();
             }
             d->hoverGlobalPos = mouse->globalPos();
         }
