@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#73 $
 **
-** Definition of font rendering infrastructure for QWS
+** Definition of font rendering infrastructure for Embedded Qt
 **
 ** Created : 940721
 **

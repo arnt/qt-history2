@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/q/main/src/kernel/qpaintdevice.h#73 $
 **
-** Definition of QFontFactory for Truetype class for QWS
+** Implementation of QFontFactory for Truetype class for Embedded Qt
 **
 ** Created : 940721
 **

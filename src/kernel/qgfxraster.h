@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#73 $
 **
-** Definition of QGfxRasterBase (graphics context) class for raster devices
+** Definition of QGfxRaster (unaccelerated graphics context) class
 **
 ** Created : 940721
 **
