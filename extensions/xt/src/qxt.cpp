@@ -438,7 +438,7 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
   subwidgets, layouts, etc. using Qt functionality.
 */
 QXtWidget::QXtWidget(const char* name, Widget parent, bool managed) :
-    QWidget( 0, name, WResizeNoErase )
+    xtw(NULL), QWidget( 0, name, WResizeNoErase )
 {
     init(name, qWidgetClass, parent, 0, 0, 0, managed);
     Arg reqargs[20];
@@ -466,7 +466,7 @@ QXtWidget::QXtWidget(const char* name, Widget parent, bool managed) :
 QXtWidget::QXtWidget(const char* name, WidgetClass widget_class,
 		     QWidget *parent, ArgList args, Cardinal num_args,
 		     bool managed) :
-    QWidget( parent, name, WResizeNoErase )
+    xtw(NULL), QWidget( parent, name, WResizeNoErase )
 {
     if ( !parent )
 	init(name, widget_class, 0, 0, args, num_args, managed);
@@ -580,7 +580,7 @@ bool QXtWidget::isActiveWindow() const
  */
 void QXtWidget::moveEvent( QMoveEvent* )
 {
-    if ( xtparent )
+    if ( xtparent || !xtw )
 	return;
     XConfigureEvent c;
     c.type = ConfigureNotify;
@@ -599,7 +599,7 @@ void QXtWidget::moveEvent( QMoveEvent* )
  */
 void QXtWidget::resizeEvent( QResizeEvent* )
 {
-    if ( xtparent )
+    if ( xtparent || !xtw )
 	return;
     XtWidgetGeometry preferred;
     (void ) XtQueryGeometry( xtw, 0, &preferred );
