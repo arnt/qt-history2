@@ -2495,7 +2495,7 @@ QImage QImage::smoothScale( const QSize& s, ScaleMode mode ) const
   This function uses a quite simple algorithm for doing this task; if you need
   a better quality, use smoothScale() instead.
  
-  \sa smoothScale()
+  \sa smoothScale() xForm()
 */
 QImage QImage::scale( int w, int h, ScaleMode mode ) const
 {
@@ -2568,6 +2568,15 @@ QSize QImage::scaleSize( const QSize &size, ScaleMode mode ) const
     return QSize( size.width(), (int)(size.width()/ratio) );
 }
 
+/*!
+  Returns a copy of the image that is transformed using \a matrix.
+
+  The transformation matrix \a matrix is internally adjusted to compensate for
+  unwanted translation, i.e., xForm() returns the smallest image containing all
+  transformed points of the original image. 
+
+  \sa scale() QPixmap::xForm() QPixmap::trueMatrix() QWMatrix
+*/
 QImage QImage::xForm( const QWMatrix &matrix ) const
 {
     if ( isNull() )

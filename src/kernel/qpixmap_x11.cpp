@@ -1446,8 +1446,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 }
 
 
-/*!
-  Returns a copy of the pixmap that is transformed using \a matrix.
+/*!  Returns a copy of the pixmap that is transformed using \a matrix.
 
   Qt uses this function to implement rotated text on window systems
   that do not support such complex features.
@@ -1508,7 +1507,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     p.end();
   \endcode
 
-  \sa trueMatrix(), QWMatrix, QPainter::setWorldMatrix()
+  \sa trueMatrix(), QWMatrix, QPainter::setWorldMatrix() QImage::xForm()
 */
 
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
