@@ -107,21 +107,25 @@ public:
     static QString getOpenFileName( const QString &initially = QString::null,
 				    const QString &filter = QString::null,
 				    QWidget *parent = 0, const char* name = 0,
-				    const QString &caption = QString::null );
+				    const QString &caption = QString::null,
+				    QString *selectedFilter = 0 );
     static QString getSaveFileName( const QString &initially = QString::null,
 				    const QString &filter = QString::null,
 				    QWidget *parent = 0, const char* name = 0,
-				    const QString &caption = QString::null );
+				    const QString &caption = QString::null,
+				    QString *selectedFilter = 0 );
     static QString getExistingDirectory( const QString &dir = QString::null,
 					 QWidget *parent = 0,
 					 const char* name = 0,
 					 const QString &caption = QString::null,
-					 bool dirOnly = TRUE );
+					 bool dirOnly = TRUE,
+					 QString *selectedFilter = 0 );
     static QStringList getOpenFileNames( const QString &filter= QString::null,
 					 const QString &dir = QString::null,
 					 QWidget *parent = 0,
 					 const char* name = 0,
-					 const QString &caption = QString::null );
+					 const QString &caption = QString::null,
+					 QString *selectedFilter = 0 );
 
     // other static functions
 

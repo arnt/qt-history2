@@ -2850,7 +2850,7 @@ QString QFileDialog::dirPath() const
 // also allows (*.a *.b;*.c) which is not (the filter likes to have
 // only one kind of separator). The fix would be long and tedious.
 // Also allows (*) as a special case.
-extern const char qt_file_dialog_filter_reg_exp[] = 
+extern const char qt_file_dialog_filter_reg_exp[] =
     "\\((?:(?:\\*\\.[^ ;]+[ ;])*(?:\\*\\.[^ ;]+)|\\*)\\)$";
 
 /*!
@@ -2875,19 +2875,27 @@ extern const char qt_file_dialog_filter_reg_exp[] =
 
 void QFileDialog::setFilter( const QString & newFilter )
 {
-    if ( !newFilter )
+    if ( newFilter.isEmpty() )
 	return;
     QString f = newFilter;
     QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
     int index = r.search( f );
-    if ( index >= 0 )
+    if ( index >= 0 ) {
 	f = f.mid( index + 1, r.matchedLength() - 2 );
 	d->url.setNameFilter( f );
 	if ( d->types->count() == 1 )  {
 	    d->types->clear();
 	    d->types->insertItem( newFilter );
+	} else {
+	    for ( int i = 0; i < d->types->count(); ++i ) {
+		if ( d->types->text( i ).left( newFilter.length() ) == newFilter ) {
+		    d->types->setCurrentItem( i );
+		    break;
+		}
+	    }
 	}
-    rereadDir();
+	rereadDir();
+    }
 }
 
 
@@ -3104,7 +3112,8 @@ void QFileDialog::rereadDir()
 QString QFileDialog::getOpenFileName( const QString & startWith,
 				      const QString& filter,
 				      QWidget *parent, const char* name,
-				      const QString& caption )
+				      const QString& caption,
+				      QString *selectedFilter )
 {
     QStringList filters;
     if ( !filter.isEmpty() )
@@ -3143,7 +3152,6 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null,
 					parent, name, TRUE );
-
     if ( parent && parent->icon() && !parent->icon()->isNull() )
 	dlg->setIcon( *parent->icon() );
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
@@ -3156,6 +3164,8 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 	dlg->setCaption( QFileDialog::tr( "Open" ) );
 
     dlg->setFilters( filters );
+    if ( selectedFilter )
+	dlg->setFilter( *selectedFilter );
     dlg->setMode( QFileDialog::ExistingFile );
     QString result;
     if ( !initialSelection.isEmpty() )
@@ -3163,6 +3173,8 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->selectedFile();
 	*workingDirectory = dlg->d->url;
+	if ( selectedFilter )
+	    *selectedFilter = dlg->selectedFilter();
     }
     delete dlg;
 
@@ -3205,7 +3217,8 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 QString QFileDialog::getSaveFileName( const QString & startWith,
 				      const QString& filter,
 				      QWidget *parent, const char* name,
-				      const QString& caption )
+				      const QString& caption,
+				      QString *selectedFilter )
 {
     QStringList filters;
     if ( !filter.isEmpty() )
@@ -3249,12 +3262,16 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 	dlg->setCaption( QFileDialog::tr( "Save As" ) );
     QString result;
     dlg->setFilters( filters );
+    if ( selectedFilter )
+	dlg->setFilter( *selectedFilter );
     dlg->setMode( QFileDialog::AnyFile );
     if ( !initialSelection.isEmpty() )
 	dlg->setSelection( initialSelection );
     if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->selectedFile();
 	*workingDirectory = dlg->d->url;
+	if ( selectedFilter )
+	    *selectedFilter = dlg->selectedFilter();
     }
     delete dlg;
     return result;
@@ -4056,7 +4073,8 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 					   QWidget *parent,
 					   const char* name,
 					   const QString& caption,
-					   bool dirOnly )
+					   bool dirOnly,
+					   QString *selectedFilter )
 {
     makeVariables();
     QString wd;
@@ -4073,6 +4091,8 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     dialog->d->types->clear();
     dialog->d->types->insertItem( QFileDialog::tr("Directories") );
     dialog->d->types->setEnabled( FALSE );
+    if ( selectedFilter )
+	dialog->setFilter( *selectedFilter );
 
     QString dir_( dir );
     dir_ = dir_.simplifyWhiteSpace();
@@ -4116,6 +4136,8 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     if ( dialog->exec() == QDialog::Accepted ) {
 	result = dialog->selectedFile();
 	wd = result;
+	if ( selectedFilter )
+	    *selectedFilter = dialog->selectedFilter();
     }
     delete dialog;
 
@@ -5007,7 +5029,8 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 					   const QString& dir,
 					   QWidget *parent,
 					   const char* name,
-					   const QString& caption )
+					   const QString& caption,
+					   QString *selectedFilter )
 {
     QStringList filters;
     if ( !filter.isEmpty() )
@@ -5045,6 +5068,8 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 	dlg->setIcon( *qApp->mainWidget()->icon() );
 
     dlg->setFilters( filters );
+    if ( selectedFilter )
+	dlg->setFilter( *selectedFilter );
     if ( !caption.isNull() )
 	dlg->setCaption( caption );
     else
@@ -5069,6 +5094,8 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 	    i = i->nextSibling();
 	}
 	*workingDirectory = dlg->d->url;
+	if ( selectedFilter )
+	    *selectedFilter = dlg->selectedFilter();
     }
     delete dlg;
     return lst;
