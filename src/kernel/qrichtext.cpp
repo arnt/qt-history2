@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#31 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -315,7 +315,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	else if ( !it->isContainer ) {
 	    QTextCustomNode* c = (QTextCustomNode*)*it;
 	    if ( c->expandsHorizontally() ) {
-		c->width = width - fm.width(' ');
+		c->width = width + fm.minRightBearing() - fm.width(' ');
 	    }
 	    tx +=c->width;
 	    h = c->height;
@@ -331,8 +331,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	    }
 	}
 	
-	if (tx > width - fm.width(' ') && !noSpaceFound  && !it->isSpace() )
-// 	if (tx > width - fm.width(' ') && *it != first && !it->isSpace() )
+	if (tx > width - fm.width(' ') + fm.minRightBearing() && !noSpaceFound  && !it->isSpace() )
 	    break;
 
 	rh = QMAX( rh, h );
