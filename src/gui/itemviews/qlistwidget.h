@@ -121,7 +121,7 @@ public:
     QListWidgetItem *item(int row) const;
     int row(const QListWidgetItem *item) const;
     void insertItem(int row, QListWidgetItem *item);
-    void insertItem(int row, const QString &label);
+    inline void insertItem(int row, const QString &label) { insertItems(row, QStringList(label)); }
     void insertItems(int row, const QStringList &labels);
     inline void appendItem(QListWidgetItem *item) { insertItem(count(), item); }
     inline void appendItem(const QString &label) { insertItems(count(), QStringList(label)); }
