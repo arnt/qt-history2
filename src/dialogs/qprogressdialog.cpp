@@ -725,7 +725,6 @@ int QProgressDialog::minimumDuration() const
 void QProgressDialog::closeEvent( QCloseEvent *e )
 {
     emit canceled();
-    emit cancelled();
     QDialog::closeEvent( e );
 }
 
