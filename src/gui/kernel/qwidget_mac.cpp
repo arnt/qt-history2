@@ -1437,7 +1437,7 @@ void QWidget::setWindowState(uint newstate)
                 setParent(0, d->topData()->savedFlags);
                 setGeometry(d->topData()->normalGeometry);
                 qt_mac_set_fullscreen_mode(false);
-                topData()->normalGeometry = QRect(0, 0, -1, -1);
+                d->topData()->normalGeometry = QRect(0, 0, -1, -1);
             }
         }
 
@@ -1498,7 +1498,7 @@ void QWidget::setWindowState(uint newstate)
                 }
             } else {
                 ZoomWindow(window, inZoomIn, false);
-                topData()->normalGeometry = QRect(0, 0, -1, -1);
+                d->topData()->normalGeometry = QRect(0, 0, -1, -1);
             }
         }
     }
