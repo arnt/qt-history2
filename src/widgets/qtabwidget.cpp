@@ -640,7 +640,7 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	exty = taby - (exth - overlap);
     } else { // Top
 	taby = 0;
-	stacky = t.height()-lw + (exth - overlap), width();
+	stacky = t.height()-lw + (exth - overlap);
 	exty = taby + t.height() - overlap;
     }
 
