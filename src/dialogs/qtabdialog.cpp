@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#10 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#11 $
 **
 ** Implementation of tab dialog
 **
@@ -11,7 +11,7 @@
 #include "qpushbt.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#11 $");
 
 // a small private class to show the tabs on top
 
@@ -169,11 +169,27 @@ void QTabDialog::setFont( const QFont & font )
 }
 
 
-/*!  Shows the tab view and its children.  Reimplemented in order to delay
-  show()'ing of every page except the initially visible one. \sa hide() */
+/*! \fn void QTabDialog::aboutToShow()
+
+  This signal is emitted by show() when it's time to set the state of
+  the dialog's contents.  The dialog should reflect the current state
+  of the application when if appears; if there is any chance that the
+  state of the application can change between the time you call
+  QTabDialog::QTabDialog() and QTabDialog::show(), you should set the
+  dialog's state in a slot and connect this signal to it.
+
+  \sa applyButtonPressed() show() cancelButtonPressed() */
+
+
+/*!  Shows the tab view and its children.  Reimplemented in order to
+  delay show()'ing of every page except the initially visible one, and
+  in order to emit the aboutToShow() signal.
+
+  \sa hide() aboutToShow() */
 
 void QTabDialog::show()
 {
+    emit aboutToShow();
     setSizes();
     showTab();
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#6 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#7 $
 **
 ** Definition of tab dialog
 **
@@ -44,7 +44,7 @@ protected:
     void resizeEvent( QResizeEvent * );
 
 signals:
-    void collect();
+    void aboutToShow();
 
     void applyButtonPressed();
     void cancelButtonPressed();
