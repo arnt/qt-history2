@@ -55,6 +55,7 @@ struct QTextHtmlParserNode {
     QVector<QTextHtmlParserAttribute> attributes;
     int parent;
     QVector<int> children;
+    int id;
     uint isBlock : 1;
     uint isListItem : 1;
     uint isListStart : 1;
@@ -85,6 +86,8 @@ struct QTextHtmlParserNode {
 
     QStyleSheetItem::WhiteSpaceMode wsm;
 private:
+    void setAttributesFromId();
+
     int margin[5];
     friend class QTextHtmlParser;
     const QStyleSheetItem *style; // will go away

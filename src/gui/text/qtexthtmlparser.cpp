@@ -24,6 +24,8 @@
 #include "qtextdocument_p.h"
 #include "qtextcursor.h"
 
+const int DefaultFontSize = 12;
+
 #define MAX_ENTITY 259
 static const struct QTextHtmlEntity { const char *name; Q_UINT16 code; } entities[MAX_ENTITY]= {
     { "AElig", 0x00c6 },
@@ -435,7 +437,6 @@ int QTextHtmlParser::lookupElement(const QString &element)
     return e->code;
 }
 
-
 static int scaleFontPointSize(int fontPointSize, int logicalFontSize, int logicalFontSizeStep = 0)
 {
     if (logicalFontSize != -1 || logicalFontSizeStep) {
@@ -471,6 +472,150 @@ static int scaleFontPointSize(int fontPointSize, int logicalFontSize, int logica
     return fontPointSize;
 }
 
+void QTextHtmlParserNode::setAttributesFromId()
+{
+    switch (id) {
+        case Html_qt:
+            isBlock = true;
+            break;
+        case Html_a:
+            isAnchor = true;
+            break;
+        case Html_em:
+        case Html_i:
+            fontItalic = true;
+            break;
+        case Html_big:
+            fontPointSize = scaleFontPointSize(fontPointSize, -1 /*logical*/, 1 /*step*/);
+            break;
+        case Html_small:
+            fontPointSize = scaleFontPointSize(fontPointSize, -1 /*logical*/, -1 /*step*/);
+            break;
+        case Html_strong:
+        case Html_b:
+            fontWeight = QFont::Bold;
+            break;
+        case Html_h1:
+            fontWeight = QFont::Bold;
+            fontPointSize = scaleFontPointSize(DefaultFontSize, 6);
+            isBlock = true;
+            margin[QStyleSheetItem::MarginTop] = 18;
+            margin[QStyleSheetItem::MarginBottom] = 12;
+            break;
+        case Html_h2:
+            fontWeight = QFont::Bold;
+            fontPointSize = scaleFontPointSize(DefaultFontSize, 5);
+            isBlock = true;
+            margin[QStyleSheetItem::MarginTop] = 16;
+            margin[QStyleSheetItem::MarginBottom] = 12;
+            break;
+        case Html_h3:
+            fontWeight = QFont::Bold;
+            fontPointSize = scaleFontPointSize(DefaultFontSize, 4);
+            isBlock = true;
+            margin[QStyleSheetItem::MarginTop] = 14;
+            margin[QStyleSheetItem::MarginBottom] = 12;
+            break;
+        case Html_h4:
+            fontWeight = QFont::Bold;
+            fontPointSize = scaleFontPointSize(DefaultFontSize, 3);
+            isBlock = true;
+            margin[QStyleSheetItem::MarginTop] = 12;
+            margin[QStyleSheetItem::MarginBottom] = 12;
+            break;
+        case Html_h5:
+            fontWeight = QFont::Bold;
+            fontPointSize = scaleFontPointSize(DefaultFontSize, 2);
+            isBlock = true;
+            margin[QStyleSheetItem::MarginTop] = 12;
+            margin[QStyleSheetItem::MarginBottom] = 4;
+            break;
+        case Html_p:
+            isBlock = true;
+            margin[QStyleSheetItem::MarginTop] = 12;
+            margin[QStyleSheetItem::MarginBottom] = 12;
+            break;
+        case Html_center:
+            isBlock = true;
+            alignment = Qt::AlignCenter;
+            break;
+        case Html_ul:
+            isListStart = true;
+            isBlock = true;
+            listStyle = QTextListFormat::ListDisc;
+            margin[QStyleSheetItem::MarginTop] = 12;
+            margin[QStyleSheetItem::MarginBottom] = 12;
+            // no left margin as we use indenting instead
+            break;
+        case Html_ol:
+            isListStart = true;
+            isBlock = true;
+            listStyle = QTextListFormat::ListDecimal;
+            margin[QStyleSheetItem::MarginTop] = 12;
+            margin[QStyleSheetItem::MarginBottom] = 12;
+            // no left margin as we use indenting instead
+            break;
+        case Html_li:
+            isListItem = true;
+            break;
+        case Html_code:
+        case Html_tt:
+            fontFamily = QString::fromLatin1("Courier New,courier");
+            break;
+        case Html_img:
+            isImage = true;
+            break;
+        case Html_br:
+            text = QChar::LineSeparator;
+            break;
+        // ##### sub / sup
+        case Html_pre:
+            fontFamily = QString::fromLatin1("Courier New,courier");
+            isBlock = true;
+            wsm = QStyleSheetItem::WhiteSpacePre;
+            margin[QStyleSheetItem::MarginTop] = 12;
+            margin[QStyleSheetItem::MarginBottom] = 12;
+            break;
+        case Html_blockquote:
+            isBlock = true;
+            margin[QStyleSheetItem::MarginLeft] = 40;
+            margin[QStyleSheetItem::MarginRight] = 40;
+            break;
+        case Html_body:
+            isBlock = true;
+            break;
+        case Html_div:
+            isBlock = true;
+            break;
+        case Html_dl:
+            isBlock = true;
+            margin[QStyleSheetItem::MarginTop] = 8;
+            margin[QStyleSheetItem::MarginBottom] = 8;
+            break;
+        case Html_dt:
+            isBlock = true;
+            break;
+        case Html_dd:
+            isBlock = true;
+            margin[QStyleSheetItem::MarginLeft] = 30;
+            break;
+        case Html_u:
+            fontUnderline = true;
+            break;
+        case Html_s:
+            fontStrikeOut = true;
+            break;
+        case Html_nobr:
+            wsm = QStyleSheetItem::WhiteSpaceNoWrap;
+            break;
+        case Html_th:
+            fontWeight = QFont::Bold;
+            alignment = Qt::AlignCenter;
+            break;
+        default: break;
+    }
+}
+
 // quotes newlines as "\\n"
 static QString quoteNewline(const QString &s)
 {
@@ -497,7 +642,7 @@ static QTextListFormat::Style convertListStyle(QStyleSheetItem::ListStyle style)
 QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
       isImage(false), fontItalic(false), fontUnderline(false), fontOverline(false),
-      fontStrikeOut(false), fontFixedPitch(false), hasOwnListStyle(false), fontPointSize(12), fontWeight(QFont::Normal),
+      fontStrikeOut(false), fontFixedPitch(false), hasOwnListStyle(false), fontPointSize(DefaultFontSize), fontWeight(QFont::Normal),
       alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
       imageWidth(-1), imageHeight(-1),
       wsm(QStyleSheetItem::WhiteSpaceModeUndefined), style(0)
@@ -553,6 +698,7 @@ QTextHtmlParserNode *QTextHtmlParser::newNode(int parent)
         node->tag.clear();
         node->text.clear();
         node->style = 0;
+        node->id = -1;
     }
     node->parent = parent;
     return node;
@@ -740,6 +886,7 @@ void QTextHtmlParser::parseTag()
     if (!node->style)
         node->style = QStyleSheet::defaultSheet()->item("");
     Q_ASSERT(node->style != 0);
+    node->id = lookupElement(node->tag);
 
     node->isImage = (node->tag == QLatin1String("img"));
     node->isListItem = (node->style->displayMode() == QStyleSheetItem::DisplayListItem);
@@ -914,7 +1061,6 @@ void QTextHtmlParser::resolveNode()
 {
     QTextHtmlParserNode *node = &nodes.last();
     const QTextHtmlParserNode *parent = &nodes.at(node->parent);
-    const QStyleSheetItem *style = node->style;
 
     // inherit properties from parent element
     node->isAnchor = parent->isAnchor;
@@ -942,50 +1088,10 @@ void QTextHtmlParser::resolveNode()
     node->margin[4] = 0;
     node->cssFloat = QTextFrameFormat::InFlow;
 
-    if (node->tag == QLatin1String("br")) {
-        node->text = QChar::LineSeparator;
-    } else if (node->tag == QLatin1String("a")) {
-        node->isAnchor = true;
-    }
-
     if (!node->style)
         return;
 
-    // apply styles settings
-    if (style->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceModeUndefined)
-        node->wsm = style->whiteSpaceMode();
-    if (style->definesFontItalic())
-        node->fontItalic = style->fontItalic();
-    if (style->definesFontUnderline())
-        node->fontUnderline = style->fontUnderline();
-    if (style->definesFontStrikeOut())
-        node->fontStrikeOut = style->fontStrikeOut();
-    if (style->fontFamily().size())
-        node->fontFamily = style->fontFamily();
-    if (style->fontSize() >= 0)
-        node->fontPointSize = style->fontSize();
-    if (style->fontWeight() >= 0)
-        node->fontWeight = style->fontWeight();
-    if (style->color().isValid())
-        node->color = style->color();
-    if (style->alignment() >= 0)
-        node->alignment = (Qt::Alignment)style->alignment();
-    if (style->listStyle() != QStyleSheetItem::ListStyleUndefined)
-        node->listStyle = convertListStyle(style->listStyle());
-
-    if (style->margin(QStyleSheetItem::MarginTop) != -1)
-        node->margin[QStyleSheetItem::MarginTop] = style->margin(QStyleSheetItem::MarginTop);
-    if (style->margin(QStyleSheetItem::MarginBottom) != -1)
-        node->margin[QStyleSheetItem::MarginBottom] = style->margin(QStyleSheetItem::MarginBottom);
-    if (style->margin(QStyleSheetItem::MarginLeft) != -1)
-        node->margin[QStyleSheetItem::MarginLeft] = style->margin(QStyleSheetItem::MarginLeft);
-    if (style->margin(QStyleSheetItem::MarginRight) != -1)
-        node->margin[QStyleSheetItem::MarginRight] = style->margin(QStyleSheetItem::MarginRight);
-    if (style->margin(QStyleSheetItem::MarginFirstLine) != -1)
-        node->margin[QStyleSheetItem::MarginFirstLine] = style->margin(QStyleSheetItem::MarginFirstLine);
-
-    if (style->logicalFontSize() > 0 || style->logicalFontSizeStep())
-        node->fontPointSize = scaleFontPointSize(12, style->logicalFontSize(), style->logicalFontSizeStep());
+    node->setAttributesFromId();
 }
 
 
@@ -1014,7 +1120,7 @@ void QTextHtmlParser::parseAttributes()
                 int n = value.toInt();
                 if (value.at(0) == QLatin1Char('+') || value.at(0) == QLatin1Char('-'))
                     n += 3;
-                node->fontPointSize = scaleFontPointSize(12, n);
+                node->fontPointSize = scaleFontPointSize(DefaultFontSize, n);
             } else if (key == QLatin1String("face")) {
                 node->fontFamily = value;
             } else if (key == QLatin1String("color")) {
