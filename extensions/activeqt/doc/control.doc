@@ -68,7 +68,9 @@
     The files \c qaxserver.rc and \c qaxserver.def are part of the
     framework and can be used from their usual location (specify a
     path in the \c .pro file), or copied into the project directory.
-    You should \e not modify these files.
+    You can modify these files as long as it includes any file as the
+    type library entry, ie. you can add version information or use a
+    different toolbox icon.
 
     The \c activeqt configuration will cause the \c qmake tool to add the 
     required build steps to the build system:
