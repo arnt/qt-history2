@@ -352,6 +352,9 @@ void QVFb::configure()
     connect(config->bslider, SIGNAL(valueChanged(int)), this, SLOT(setB400(int)));
     updateGammaLabels();
 
+    connect(config->buttonOk, SIGNAL(clicked()), config, SLOT(accept()));
+    connect(config->buttonCancel, SIGNAL(clicked()), config, SLOT(reject()));
+
     double ogr=view->gammaRed(), ogg=view->gammaGreen(), ogb=view->gammaBlue();
 
     if ( config->exec() ) {
