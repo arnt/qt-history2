@@ -34,11 +34,11 @@
 ** not clear to you.
 **
 **********************************************************************/
-/*!  
+/*!
   \mustquote
 
   True type font embedding for Qt's post script driver:
-  
+
  Copyright 1995, Trinity College Computing Center.
  Written by David Chappell.
 
@@ -60,8 +60,8 @@
  "comp.sources.postscript".  The author did not provide a copyright
  notice or indicate any restrictions on use.
 
- Last revised 11 July 1995.                                                 
-*/       
+ Last revised 11 July 1995.
+*/
 
 #include "qpsprinter_p.h"
 
@@ -617,22 +617,22 @@ static const char * const ps_header[] = {
 "    concat",
 "} D",
 
-// this function tries to find a suitable postscript font. We try quite hard not to get courier for a 
+// this function tries to find a suitable postscript font. We try quite hard not to get courier for a
 // proportional font. The following takes an array of fonts. The algorithm will take the first one that
-// gives a match (defined as not resulting in a courier font). 
+// gives a match (defined as not resulting in a courier font).
 // each entry in the table is an array of the form [ /Fontname x-stretch slant ]
 // x-strtch can be used to stretch/squeeze the font in x direction. This gives better results when
 // eg substituting helvetica for arial
 // slant is an optional slant. 0 is non slanted, 0.2 is a typical value for a syntetic oblique.
 // encoding can be either an encoding vector of false if the default font encoding is requested.
 "/qtfindfont {",	       		// fntlist
-"  true exch",  			// push a dummy on the stack, 
+"  true exch",  			// push a dummy on the stack,
 "  {", 				// so the loop over the array will leave a font in any case when exiting.
 "    exch pop",			// (dummy | oldfont) fontarray
 "    dup 0 get dup findfont",	       	// get the fontname from the array and load it
 "    dup /FontName get",		// see if the font exists
 "    3 -1 roll eq {",			// see if fontname and the one provided are equal
-"      exit",			  
+"      exit",
 "    } {",
 "      pop",
 "    } ifelse",
@@ -1632,7 +1632,7 @@ static const struct {
 };
 
 // ---------------------------------------------------------------------
-// postscript font substitution dictionary. We assume every postscript printer has at least 
+// postscript font substitution dictionary. We assume every postscript printer has at least
 // Helvetica, Times, Courier and Symbol
 
 struct psfont {
@@ -1659,9 +1659,9 @@ static const psfont Bookman [] = {
     { "Bookman-Light", 0, 93.78 },
     { "Bookman-LightItalic", 0, 91.42 },
     { "Bookman-Demi", 0, 99.86 },
-    { "Bookman-DemiItalic", 0, 101.54 } 
+    { "Bookman-DemiItalic", 0, 101.54 }
 };
-	 
+
 static const psfont Charter [] = {
     { "CharterBT-Roman", 0, 84.04 },
     { "CharterBT-Italic", 0.0, 81.92 },
@@ -1819,13 +1819,13 @@ static const struct {
     { "verdana", Verdana, VerdanaReplacements },
     { "utopia", Utopia, SerifReplacements },
     { 0, 0, 0 }
-};    
+};
 
 static int getPsFontType( const QFont &f )
 {
     int weight = f.weight();
     bool italic = f.italic();
-  
+
     int type = 0; // used to look up in the psname array
   // get the right modification, or build something
   if ( weight > QFont::Normal && italic )
@@ -1894,7 +1894,7 @@ static QString makePSFontName( const QFont &f, int *listpos = 0, int *ftype = 0 
   const psfont *psf = postscriptFonts[i].ps;
 
   int type = addPsFontNameExtension( f, ps, psf );
-  
+
   if ( listpos )
       *listpos = i;
   if ( ftype )
@@ -1920,7 +1920,7 @@ static QStringList makePSFontNameList( const QFont &f, const QString &psname = Q
     int type;
     QStringList list;
     QString ps = psname;
-	
+
     if ( !ps.isEmpty() && !useNameForLookup ) {
 	QString best = "[ /" + ps + " 1.0 0.0 ]";
 	list.append( best );
@@ -1930,7 +1930,7 @@ static QStringList makePSFontNameList( const QFont &f, const QString &psname = Q
 
     const psfont *psf = postscriptFonts[i].ps;
     const psfont * const * replacements = postscriptFonts[i].replacements;
-    float xscale = 100; 
+    float xscale = 100;
     if ( psf ) {
 	// xscale for the "right" font is always 1. We scale the replacements...
 	xscale = psf->xscale;
@@ -1946,11 +1946,11 @@ static QStringList makePSFontNameList( const QFont &f, const QString &psname = Q
 	    replacements = SansSerifReplacements;
 	    // 100 is courier, but most fonts are not as wide as courier. Using 100
 	    // here would make letters overlap for some fonts. This value is empirical.
-	    xscale = 83; 
+	    xscale = 83;
 	}
     }
     list.append( ps );
-    
+
     if ( replacements )
 	appendReplacements( list, replacements, type, xscale);
     return list;
@@ -2123,10 +2123,10 @@ public:
     QPSPrinterFontPrivate();
     virtual ~QPSPrinterFontPrivate() {}
     virtual QString postScriptFontName() { return psname; }
-    virtual QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key, 
+    virtual QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
 			     QPSPrinterPrivate *d );
     virtual void download(QTextStream& s, bool global);
-    virtual void drawText( QTextStream &stream, uint spaces, const QPoint &p, 
+    virtual void drawText( QTextStream &stream, uint spaces, const QPoint &p,
 			   const QString &text, QPSPrinterPrivate *d, QPainter *paint);
     virtual void restore() {}
 protected:
@@ -2139,16 +2139,16 @@ protected:
   bool           downloaded;
 };
 
-QPSPrinterFontPrivate::QPSPrinterFontPrivate() 
+QPSPrinterFontPrivate::QPSPrinterFontPrivate()
 {
     global_dict = false;
     downloaded  = false;
 }
 
-void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QPoint &p, 
+void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QPoint &p,
 				 const QString &text, QPSPrinterPrivate *d, QPainter *paint)
 {
-    if ( text.length() == 0 ) 
+    if ( text.length() == 0 )
 	return;
     for (int i = 0; i < (int)text.length(); i++) {
 	ushort u = text.at(i).unicode();
@@ -2162,34 +2162,34 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
 	    }
 	}
     }
-      
+
     int x = p.x();
     if ( spaces > 0 )
 	x += spaces * d->fm->width( ' ' );
-      
+
     int y = p.y();
     if ( y != d->textY || d->textY == 0 )
 	stream << y << " Y";
     d->textY = y;
-      
+
     int w = d->fm->width( text ); // Will this work? Sivan
-      
+
     stream << "<";
     QString s;
     int i;
     for (i=0; i < (int) text.length(); i++) {
 	ushort u = text.at(i).unicode();
 	// I don't know if this is endian safe. Sivan
-	ushort high = u / 256; 
+	ushort high = u / 256;
 	ushort low  = u % 256;
 	stream << s.sprintf("%02x",high);
 	stream << s.sprintf("%02x",low);
 	//printf("i=%d high=%02x low=%02x unicode=%04x\n",i,high,low,u);
     }
     stream << ">";
-      
+
     stream << w << " " << x;
-      
+
     if ( paint->font().underline() )
 	stream << ' ' << y + d->fm->underlinePos() << " Tl";
     if ( paint->font().strikeOut() )
@@ -2199,12 +2199,12 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
 }
 
 
-QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key, 
+QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
 				   QPSPrinterPrivate *d )
 {
     QString *tmp = d->headerFontNames.find( key );
     QString fontName;
-    
+
     if ( d->buffer ) {
 	if ( tmp ) {
 	    fontName = *tmp;
@@ -2240,7 +2240,7 @@ void QPSPrinterFontPrivate::download(QTextStream &s, bool /*global*/)
   // (at least if we don't subset these encoding vectors).
 
   printf("DOWNLOADING %s\n",psname.latin1());
-  
+
   int l = 0;
   QString vector;
   QString glyphname;
@@ -2267,7 +2267,7 @@ void QPSPrinterFontPrivate::download(QTextStream &s, bool /*global*/)
     vector += dummy.sprintf("0 1 255 {");
     vector += psname;
     vector += dummy.sprintf("-ENC-%02x exch /.notdef put} for\n",range);
-    
+
     for(int k=0; k<256; k++ ) {
       int c = range*256+k;
       while( unicodetoglyph[l].u < c )
@@ -2314,12 +2314,12 @@ void QPSPrinterFontPrivate::download(QTextStream &s, bool /*global*/)
       s << " MFUni\n";
     }
   }
-  
+
 
   // === write header ===
 //   int VMMin;
 //   int VMMax;
-  
+
   // I am not sure that these comments conform to some specs. I could
   // not find any appropriate specs on the adobe site. Sivan Toledo.
   s << "%%BeginFont: " << psname << "\n";
@@ -2330,40 +2330,40 @@ void QPSPrinterFontPrivate::download(QTextStream &s, bool /*global*/)
   s << "-Unicode\n";
 
   s << "%%Creator: Composite font created by Qt\n";
-  
+
   /* Start the dictionary which will eventually */
   /* become the font. */
   s << "25 dict begin\n"; // need to verify. Sivan
-    
+
   s << "/FontName /";
   s << psname;
   s << "-Unicode";
   s << " def\n";
   s << "/PaintType 0 def\n";
-  
+
   // This is concatenated with the base fonts, so it should perform
   // no transformation. Sivan
 
-  s << "/FontMatrix[1 0 0 1 0 0]def\n"; 
-  
+  s << "/FontMatrix[1 0 0 1 0 0]def\n";
+
   s << "/FontType ";
   s << 0;
   s << " def\n";
 
   // now come composite font structures
 
-  // FMapTypes: 
+  // FMapTypes:
   // 5: 9/7, 9 bits select the font, 7 the glyph
   // 2: 8/8, 8 bits select the font, 8 the glyph
 
-  s << "/FMapType 2 def\n"; 
+  s << "/FMapType 2 def\n";
 
   // The encoding in a composite font is used for indirection.
   // Every char is split into a font-number and a character-selector.
   // PostScript prints glyph number character-selector from the font
   // FDepVector[ Encoding[ font-number ] ].
 
-  s << "/Encoding ["; 
+  s << "/Encoding [";
   int next = 1;
   for (int range=0; range < 0xff; range++) {
     if (range % 16 == 0) s << "\n";
@@ -2374,11 +2374,11 @@ void QPSPrinterFontPrivate::download(QTextStream &s, bool /*global*/)
       s << 0;
     s << " ";
   }
-  s << "]def\n"; 
+  s << "]def\n";
 
   // Descendent fonts
-  
-  s << "/FDepVector [\n"; 
+
+  s << "/FDepVector [\n";
   s << "/";
   s << psname;
   s << "-Unicode-ND findfont\n";
@@ -2392,10 +2392,10 @@ void QPSPrinterFontPrivate::download(QTextStream &s, bool /*global*/)
       s << " findfont\n";
     }
   }
-  s << "] def\n"; 
+  s << "] def\n";
 
   // === trailer ===
-  
+
   s << "FontName currentdict end definefont pop\n";
   s << "%%EndFont\n";
 }
@@ -2409,7 +2409,7 @@ typedef Q_UINT16 USHORT;
 typedef Q_UINT16 uFWord;
 typedef Q_INT16 SHORT;
 typedef Q_INT16 FWord;
-typedef Q_UINT32   ULONG;  
+typedef Q_UINT32   ULONG;
 typedef Q_INT32  FIXED;
 
 typedef struct {
@@ -2417,39 +2417,39 @@ typedef struct {
   Q_UINT16 fraction;
 } Fixed; // 16.16 bit fixed-point number
 
-static ULONG getULONG(BYTE *p) 
+static ULONG getULONG(BYTE *p)
 {
   int x;
-  ULONG val=0;    
-  
+  ULONG val=0;
+
   for(x=0; x<4; x++) {
     val *= 0x100;
-    val += p[x];	
+    val += p[x];
   }
-  
+
   return val;
-} 
+}
 
 static USHORT getUSHORT(BYTE *p)
 {
   int x;
-  USHORT val=0;    
-  
+  USHORT val=0;
+
   for(x=0; x<2; x++) {
     val *= 0x100;
-    val += p[x];	
+    val += p[x];
   }
-  
+
   return val;
-} 
+}
 
 static Fixed getFixed(BYTE *s)
 {
   Fixed val={0,0};
-  
+
   val.whole = ((s[0] * 256) + s[1]);
-  val.fraction = ((s[2] * 256) + s[3]);    
-  
+  val.fraction = ((s[2] * 256) + s[3]);
+
   return val;
 }
 
@@ -2457,26 +2457,26 @@ static FWord getFWord(BYTE* s)  { return (FWord)  getUSHORT(s); }
 static uFWord getuFWord(BYTE* s) { return (uFWord) getUSHORT(s); }
 static SHORT getSHORT(BYTE* s)  { return (SHORT)  getUSHORT(s); }
 
-static const char * const Apple_CharStrings[]={ 
-  ".notdef",".null","nonmarkingreturn","space","exclam","quotedbl","numbersign", 
-  "dollar","percent","ampersand","quotesingle","parenleft","parenright", 
+static const char * const Apple_CharStrings[]={
+  ".notdef",".null","nonmarkingreturn","space","exclam","quotedbl","numbersign",
+  "dollar","percent","ampersand","quotesingle","parenleft","parenright",
   "asterisk","plus", "comma","hyphen","period","slash","zero","one","two",
-  "three","four","five","six","seven","eight","nine","colon","semicolon", 
+  "three","four","five","six","seven","eight","nine","colon","semicolon",
   "less","equal","greater","question","at","A","B","C","D","E","F","G","H","I",
   "J","K", "L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
   "bracketleft","backslash","bracketright","asciicircum","underscore","grave",
-  "a","b","c","d","e","f","g","h","i","j","k", "l","m","n","o","p","q","r","s", 
+  "a","b","c","d","e","f","g","h","i","j","k", "l","m","n","o","p","q","r","s",
   "t","u","v","w","x","y","z","braceleft","bar","braceright","asciitilde",
   "Adieresis","Aring","Ccedilla","Eacute","Ntilde","Odieresis","Udieresis",
   "aacute","agrave","acircumflex","adieresis","atilde","aring","ccedilla",
-  "eacute","egrave","ecircumflex","edieresis","iacute","igrave","icircumflex", 
+  "eacute","egrave","ecircumflex","edieresis","iacute","igrave","icircumflex",
   "idieresis","ntilde","oacute","ograve","ocircumflex","odieresis","otilde",
   "uacute","ugrave","ucircumflex","udieresis","dagger","degree","cent",
   "sterling","section","bullet","paragraph","germandbls","registered",
   "copyright","trademark","acute","dieresis","notequal","AE","Oslash",
   "infinity","plusminus","lessequal","greaterequal","yen","mu","partialdiff",
   "summation","product","pi","integral","ordfeminine","ordmasculine","Omega",
-  "ae","oslash","questiondown","exclamdown","logicalnot","radical","florin", 
+  "ae","oslash","questiondown","exclamdown","logicalnot","radical","florin",
   "approxequal","Delta","guillemotleft","guillemotright","ellipsis",
   "nobreakspace","Agrave","Atilde","Otilde","OE","oe","endash","emdash",
   "quotedblleft","quotedblright","quoteleft","quoteright","divide","lozenge",
@@ -2490,7 +2490,7 @@ static const char * const Apple_CharStrings[]={
   "Yacute","yacute","Thorn","thorn","minus","multiply","onesuperior",
   "twosuperior","threesuperior","onehalf","onequarter","threequarters","franc",
   "Gbreve","gbreve","Idot","Scedilla","scedilla","Cacute","cacute","Ccaron",
-  "ccaron","dmacron","markingspace","capslock","shift","propeller","enter", 
+  "ccaron","dmacron","markingspace","capslock","shift","propeller","enter",
   "markingtabrtol","markingtabltor","control","markingdeleteltor",
   "markingdeletertol","option","escape","parbreakltor","parbreakrtol",
   "newpage","checkmark","linebreakltor","linebreakrtol","markingnobreakspace",
@@ -2515,7 +2515,7 @@ public:
   virtual void    download_unicode(QTextStream& s);
    //  virtual ~QPSPrinterFontTTF();
 
-  virtual void drawText( QTextStream &stream, uint spaces, const QPoint &p, 
+  virtual void drawText( QTextStream &stream, uint spaces, const QPoint &p,
   		   const QString &text, QPSPrinterPrivate *d, QPainter *paint);
   virtual void restore();
 private:
@@ -2532,7 +2532,7 @@ private:
   int   topost(FWord x) { return (int)( ((int)(x) * 1000 + HUPM) / unitsPerEm ); }
 
 #ifdef Q_PRINTER_USE_TYPE42
-  void sfnts_pputBYTE(BYTE n,QTextStream& s, 
+  void sfnts_pputBYTE(BYTE n,QTextStream& s,
 				    int& string_len, int& line_len, bool& in_string);
   void sfnts_pputUSHORT(USHORT n,QTextStream& s,
 				      int& string_len, int& line_len, bool& in_string);
@@ -2542,13 +2542,13 @@ private:
 				      int& string_len, int& line_len, bool& in_string);
   void sfnts_new_table(ULONG length,QTextStream& s,
 				     int& string_len, int& line_len, bool& in_string);
-  void sfnts_glyf_table(ULONG oldoffset, 
+  void sfnts_glyf_table(ULONG oldoffset,
 				      ULONG correct_total_length,
 				      QTextStream& s,
 				      int& string_len, int& line_len, bool& in_string);
   void download_sfnts(QTextStream& s);
 #endif
-      
+
   void subsetGlyph(int charindex,bool* glyphset);
 
   void charproc(int charindex, QTextStream& s);
@@ -2557,7 +2557,7 @@ private:
   void charprocLoad(BYTE *glyph, charproc_data* cd);
 
   int target_type;			/* 42 or 3 */
-  
+
   int numTables;			/* number of tables present */
   QString PostName;			/* Font's PostScript name */
   QString FullName;			/* Font's full name */
@@ -2567,23 +2567,23 @@ private:
   QString Version;			/* Font's version string */
   QString Trademark;			/* Font's trademark string */
   int llx,lly,urx,ury;		/* bounding box */
-  
+
   Fixed TTVersion;			/* Truetype version number from offset table */
   Fixed MfrRevision;			/* Revision number of this font */
-  
+
   BYTE *offset_table; 		/* Offset table in memory */
   BYTE *post_table;			/* 'post' table in memory */
-  
+
   BYTE *loca_table;			/* 'loca' table in memory */
   BYTE *glyf_table;			/* 'glyf' table in memory */
   BYTE *hmtx_table;			/* 'hmtx' table in memory */
-  
+
   USHORT numberOfHMetrics;
   int unitsPerEm;			/* unitsPerEm converted to int */
   int HUPM;				/* half of above */
-  
+
   int numGlyphs;			/* from 'post' table */
-  
+
   int indexToLocFormat;		/* short or long offsets */
 
 };
@@ -2601,29 +2601,29 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
   defective = false;
 
   BYTE *ptr;
-  
-  target_type = 3;  // will work on any printer 
+
+  target_type = 3;  // will work on any printer
   //target_type = 42; // works with gs, faster, better quality
-  
+
 #ifdef Q_PRINTER_USE_TYPE42
   char* environment_preference = getenv("QT_TTFTOPS");
   if (environment_preference) {
-    if (QString(environment_preference) == "42") 
+    if (QString(environment_preference) == "42")
       target_type = 42;
-    else if (QString(environment_preference) == "3") 
+    else if (QString(environment_preference) == "3")
       target_type = 3;
-    else 
+    else
       qWarning("The value of QT_TTFTOPS must be 42 or 3");
   }
 #endif
   offset_table = (unsigned char*) data.data(); /* first 12 bytes */
-    
+
   /* Determine how many directory entries there are. */
   numTables = getUSHORT( offset_table + 4 );
 
   /* Extract information from the "Offset" table. */
   TTVersion = getFixed( offset_table );
-    
+
   /* Load the "head" table and extract information from it. */
   ptr = getTable("head");
   if ( !ptr ) {
@@ -2651,12 +2651,12 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
     defective = true;
     return;
   }
-    
+
   // === Load information from the "name" table ===
-  
+
   /* Set default values to avoid future references to */
   /* undefined pointers. */
-  
+
   psname = FullName = FamilyName = Version = Style = "unknown";
   Copyright = "No copyright notice";
   Trademark = "No trademark notice";
@@ -2668,7 +2668,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
   }
   int numrecords = getUSHORT( table_ptr + 2 );	/* number of names */
   char* strings = (char *)table_ptr + getUSHORT( table_ptr + 4 ); /* start of string storage */
-    
+
   BYTE* ptr2 = table_ptr + 6;
   for(int x=0; x < numrecords; x++,ptr2+=12) {
       int platform = getUSHORT(ptr2);
@@ -2684,10 +2684,10 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
     if( platform == 1 && nameid == 1 )
       FamilyName.setLatin1(strings+offset,length);
 
-    if( platform == 1 && nameid == 2 ) 
+    if( platform == 1 && nameid == 2 )
       Style.setLatin1(strings+offset,length);
 
-    if( platform == 1 && nameid == 4 ) 
+    if( platform == 1 && nameid == 4 )
       FullName.setLatin1(strings+offset,length);
 
     if( platform == 1 && nameid == 5 )
@@ -2696,13 +2696,13 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
     if( platform == 1 && nameid == 6 )
       psname.setLatin1(strings+offset,length);
 
-    if( platform == 1 && nameid == 7 ) 
+    if( platform == 1 && nameid == 7 )
       Trademark.setLatin1(strings+offset,length);
 
   }
 
   //read_cmap(font);
-    
+
   /* We need to have the PostScript table around. */
 
   post_table = getTable("post");
@@ -2717,7 +2717,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
     QString dummy;
     qWarning(dummy.sprintf("post format is %d.%d",post_format.whole,post_format.fraction));
     // Sivan Feb 2001: no longer defective.
-    // defective = true; 
+    // defective = true;
   }
 
   numGlyphs = getUSHORT( post_table + 32 );
@@ -2731,7 +2731,7 @@ void QPSPrinterFontTTF::restore()
   //printf("restore for font %s\n",psname.latin1());
 }
 
-void QPSPrinterFontTTF::drawText( QTextStream &stream, uint spaces, const QPoint &p, 
+void QPSPrinterFontTTF::drawText( QTextStream &stream, uint spaces, const QPoint &p,
 				 const QString &text, QPSPrinterPrivate *d, QPainter *paint)
  {
   QPSPrinterFontPrivate::drawText(stream,spaces,p,text,d,paint);
@@ -2742,7 +2742,7 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
 {
   global_dict = global;
   downloaded  = true;
-  
+
     emitPSFontNameList( s, psname, replacementList );
   if (defective) {
     s << "% Font ";
@@ -2754,7 +2754,7 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
   // === write header ===
   int VMMin;
   int VMMax;
-  
+
   s << "%%BeginFont: ";
   s << FullName;
   s << "\n";
@@ -2762,11 +2762,11 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
     s << "%!PS-TrueTypeFont-"
       << TTVersion.whole
       << "."
-      << TTVersion.fraction 
+      << TTVersion.fraction
       << "-"
-      << MfrRevision.whole 
+      << MfrRevision.whole
       << "."
-      << MfrRevision.fraction 
+      << MfrRevision.fraction
       << "\n";
   } else {
     /* If it is not a Type 42 font, we will use a different format. */
@@ -2783,7 +2783,7 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
     s << "%%Creator: Converted from TrueType to type 42 by Qt using PPR\n";
   else
     s << "%%Creator: Converted from TrueType by Qt using PPR\n";
-  
+
   /* If VM usage information is available, print it. */
   if( target_type == 42 )
     {
@@ -2792,14 +2792,14 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
       if( VMMin > 0 && VMMax > 0 )
 	s << "%%VMUsage: " << VMMin << " " << VMMax << "\n";
     }
-  
+
   /* Start the dictionary which will eventually */
   /* become the font. */
   if( target_type != 3 ) {
     s << "15 dict begin\n";
   }  else {
     s << "25 dict begin\n";
-    
+
     /* Type 3 fonts will need some subroutines here. */
     s << "/_d{bind def}bind def\n";
     s << "/_m{moveto}_d\n";
@@ -2809,17 +2809,17 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
     s << "/_sc{7 -1 roll{setcachedevice}{pop pop pop pop pop pop}ifelse}_d\n";
     s << "/_e{exec}_d\n";
   }
-  
+
   s << "/FontName /";
   s << psname;
   s << " def\n";
   s << "/PaintType 0 def\n";
-  
+
   if(target_type == 42)
     s << "/FontMatrix[1 0 0 1 0 0]def\n";
   else
     s << "/FontMatrix[.001 0 0 .001 0 0]def\n";
-  
+
   s << "/FontBBox[";
   s<< llx;
   s << " ";
@@ -2835,7 +2835,7 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
   s << " def\n";
 
   // === write encoding ===
-  
+
   s << "/Encoding StandardEncoding def\n";
 
   // === write fontinfo dict ===
@@ -2845,32 +2845,32 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
   /* interpreter, is useful to some programs which will */
   /* be printing with the font. */
   s << "/FontInfo 10 dict dup begin\n";
-  
+
   /* These names come from the TrueType font's "name" table. */
   s << "/FamilyName (";
   s << FamilyName;
   s << ") def\n";
-  
+
   s << "/FullName (";
   s << FullName;
   s << ") def\n";
-  
+
   s << "/Notice (";
   s << Copyright;
   s << " ";
   s << Trademark;
   s << ") def\n";
-    
+
   /* This information is not quite correct. */
   s << "/Weight (";
   s << Style;
   s << ") def\n";
-  
+
   /* Some fonts have this as "version". */
   s << "/Version (";
   s << Version;
   s << ") def\n";
-  
+
   /* Some information from the "post" table. */
   Fixed ItalicAngle = getFixed( post_table + 4 );
   s << "/ItalicAngle ";
@@ -2878,27 +2878,27 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
   s << ".";
   s << ItalicAngle.fraction;
   s << " def\n";
-  
+
   s << "/isFixedPitch ";
   s << (getULONG( post_table + 12 ) ? "true" : "false" );
   s << " def\n";
-  
+
   s << "/UnderlinePosition ";
   s << (int)getFWord( post_table + 8 );
   s << " def\n";
-  
+
   s << "/UnderlineThickness ";
   s << (int)getFWord( post_table + 10 );
   s << " def\n";
-  
-  s << "end readonly def\n";    
+
+  s << "end readonly def\n";
 
 #ifdef Q_PRINTER_USE_TYPE42
   /* If we are generating a type 42 font, */
   /* emmit the sfnts array. */
   if( target_type == 42 )
     download_sfnts(s);
-#endif  
+#endif
   /* If we are generating a Type 3 font, we will need to */
   /* have the 'loca' and 'glyf' tables arround while */
   /* we are generating the CharStrings. */
@@ -2907,12 +2907,12 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
       BYTE *ptr;			/* We need only one value */
       ptr = getTable("hhea");
       numberOfHMetrics = getUSHORT(ptr + 34);
-      
+
       loca_table = getTable("loca");
       glyf_table = getTable("glyf");
       hmtx_table = getTable("hmtx");
     }
-  
+
   // ===  CharStrings array ===
 
   s << "/CharStrings ";
@@ -2930,9 +2930,9 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
 	  subsetGlyph( glyph_for_unicode( c ), glyphset );
 //	  glyphset[c] = TRUE;
        }
-  }  
-  
-  // Emmit one key-value pair for each glyph. 
+  }
+
+  // Emmit one key-value pair for each glyph.
   for(int x=0; x < 65536; x++) {
     if(target_type == 42)	{
       s << "/";
@@ -2953,7 +2953,7 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
       s << "}_d\n";	/* "} bind def" */
     }
   }
-  
+
   // ### check me
   //delete glyphset;
 
@@ -2965,27 +2965,27 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
   /* a BuildGlyph and BuildChar proceedures. */
   if( target_type == 3 ) {
     s << "\n";
-    
+
     s << "/BuildGlyph\n";
     s << " {exch begin\n";		/* start font dictionary */
     s << " CharStrings exch\n";
     s << " 2 copy known not{pop /.notdef}if\n";
     s << " true 3 1 roll get exec\n";
     s << " end}_d\n";
-    
+
     s << "\n";
-    
+
     /* This proceedure is for compatiblity with */
     /* level 1 interpreters. */
     s << "/BuildChar {\n";
     s << " 1 index /Encoding get exch get\n";
     s << " 1 index /BuildGlyph get exec\n";
-    s << "}_d\n";    	
-    
+    s << "}_d\n";
+
     s << "\n";
-    
+
   }
-  
+
   /* If we are generating a type 42 font, we need to check to see */
   /* if this PostScript interpreter understands type 42 fonts.  If */
   /* it doesn't, we will hope that the Apple TrueType rasterizer */
@@ -2995,26 +2995,26 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
   /* setup instructions and part of BuildGlyph came from. */
   else if( target_type == 42 ) {
     s << "\n";
-    
+
     /* If we have no "resourcestatus" command, or FontType 42 */
     /* is unknown, leave "true" on the stack. */
     s << "systemdict/resourcestatus known\n";
     s << " {42 /FontType resourcestatus\n";
     s << "   {pop pop false}{true}ifelse}\n";
     s << " {true}ifelse\n";
-    
+
     /* If true, execute code to produce an error message if */
     /* we can't find Apple's TrueDict in VM. */
     s << "{/TrueDict where{pop}{(%%[ Error: no TrueType rasterizer ]%%)= flush}ifelse\n";
-    
+
     /* Since we are expected to use Apple's TrueDict TrueType */
-    /* reasterizer, change the font type to 3. */    	
+    /* reasterizer, change the font type to 3. */
     s << "/FontType 3 def\n";
-    
+
     /* Define a string to hold the state of the Apple */
     /* TrueType interpreter. */
     s << " /TrueState 271 string def\n";
-    
+
     /* It looks like we get information about the resolution */
     /* of the printer and store it in the TrueState string. */
     s << " TrueDict begin sfnts save\n";
@@ -3023,61 +3023,61 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
     s << " defaultmatrix dtransform dup mul exch dup\n";
     s << " mul add sqrt cvi 3 -1 roll restore\n";
     s << " TrueState initer end\n";
-    
+
     /* This BuildGlyph procedure will look the name up in the */
     /* CharStrings array, and then check to see if what it gets */
     /* is a procedure.  If it is, it executes it, otherwise, it */
     /* lets the TrueType rasterizer loose on it. */
-    
+
     /* When this proceedure is executed the stack contains */
     /* the font dictionary and the character name.  We */
     /* exchange arguments and move the dictionary to the */
     /* dictionary stack. */
     s << " /BuildGlyph{exch begin\n";
     /* stack: charname */
-    
+
     /* Put two copies of CharStrings on the stack and consume */
     /* one testing to see if the charname is defined in it, */
     /* leave the answer on the stack. */
     s << "  CharStrings dup 2 index known\n";
     /* stack: charname CharStrings bool */
-    
+
     /* Exchange the CharStrings dictionary and the charname, */
     /* but if the answer was false, replace the character name */
-    /* with ".notdef". */ 
+    /* with ".notdef". */
     s << "    {exch}{exch pop /.notdef}ifelse\n";
     /* stack: CharStrings charname */
-    
+
     /* Get the value from the CharStrings dictionary and see */
     /* if it is executable. */
     s << "  get dup xcheck\n";
     /* stack: CharStrings_entry */
-    
+
     /* If is a proceedure.  Execute according to RBIIp 277-278. */
     s << "    {currentdict systemdict begin begin exec end end}\n";
-    
+
     /* Is a TrueType character index, let the rasterizer at it. */
     s << "    {TrueDict begin /bander load cvlit exch TrueState render end}\n";
-    
+
     s << "    ifelse\n";
-    
+
     /* Pop the font's dictionary off the stack. */
     s << " end}bind def\n";
-    
+
     /* This is the level 1 compatibility BuildChar procedure. */
     /* See RBIIp 281. */
     s << " /BuildChar{\n";
     s << "  1 index /Encoding get exch get\n";
     s << "  1 index /BuildGlyph get exec\n";
-    s << " }bind def\n";    	
-    
+    s << " }bind def\n";
+
     /* Here we close the condition which is true */
     /* if the printer has no built-in TrueType */
     /* rasterizer. */
     s << "}if\n";
     s << "\n";
   } /* end of if Type 42 not understood. */
-  
+
   s << "FontName currentdict end definefont pop\n";
 
   download_unicode(s); // sivan added
@@ -3105,8 +3105,8 @@ void QPSPrinterFontTTF::download_unicode(QTextStream& s)
 	  glyphindex[c] = glyph_for_unicode( c );
       else
 	  glyphindex[c] = 0xffff;
-  }  
-  
+  }
+
   int l = 0;
   QString vector;
   QString glyphname;
@@ -3176,12 +3176,12 @@ void QPSPrinterFontTTF::download_unicode(QTextStream& s)
       s << " MFUni\n";
     }
   }
-  
+
 
   // === write header ===
 //   int VMMin;
 //   int VMMax;
-  
+
   // I am not sure that these comments conform to some specs. I could
   // not find any appropriate specs on the adobe site. Sivan Toledo.
 
@@ -3192,40 +3192,40 @@ void QPSPrinterFontTTF::download_unicode(QTextStream& s)
   s << "-Unicode\n";
 
   s << "%%Creator: Composite font created by Qt\n";
-  
+
   /* Start the dictionary which will eventually */
   /* become the font. */
   s << "25 dict begin\n"; // need to verify. Sivan
-    
+
   s << "/FontName /";
   s << psname;
   s << "-Unicode";
   s << " def\n";
   s << "/PaintType 0 def\n";
-  
+
   // This is concatenated with the base fonts, so it should perform
   // no transformation. Sivan
 
-  s << "/FontMatrix[1 0 0 1 0 0]def\n"; 
-  
+  s << "/FontMatrix[1 0 0 1 0 0]def\n";
+
   s << "/FontType ";
   s << 0;
   s << " def\n";
 
   // now come composite font structures
 
-  // FMapTypes: 
+  // FMapTypes:
   // 5: 9/7, 9 bits select the font, 7 the glyph
   // 2: 8/8, 8 bits select the font, 8 the glyph
 
-  s << "/FMapType 2 def\n"; 
+  s << "/FMapType 2 def\n";
 
   // The encoding in a composite font is used for indirection.
   // Every char is split into a font-number and a character-selector.
   // PostScript prints glyph number character-selector from the font
   // FDepVector[ Encoding[ font-number ] ].
 
-  s << "/Encoding ["; 
+  s << "/Encoding [";
   int next = 1;
   for (int range=0; range < 0x100; range++) {
     if (range % 16 == 0) s << "\n";
@@ -3236,11 +3236,11 @@ void QPSPrinterFontTTF::download_unicode(QTextStream& s)
       s << 0;
     s << " ";
   }
-  s << "]def\n"; 
+  s << "]def\n";
 
   // Descendent fonts
-  
-  s << "/FDepVector [\n"; 
+
+  s << "/FDepVector [\n";
   s << "/";
   s << psname;
   s << "-Unicode-ND findfont\n";
@@ -3254,18 +3254,18 @@ void QPSPrinterFontTTF::download_unicode(QTextStream& s)
       s << " findfont\n";
     }
   }
-  s << "] def\n"; 
+  s << "] def\n";
 
   // === trailer ===
-  
+
   s << "FontName currentdict end definefont pop\n";
 }
 
-BYTE* QPSPrinterFontTTF::getTable(const char* name) 
+BYTE* QPSPrinterFontTTF::getTable(const char* name)
 {
   BYTE *ptr;
   int x;
-  
+
   /* We must search the table directory. */
   ptr = offset_table + 12;
   x=0;
@@ -3273,14 +3273,14 @@ BYTE* QPSPrinterFontTTF::getTable(const char* name)
     if( strncmp((const char *)ptr,name,4) == 0 ) {
       ULONG offset,length;
       BYTE *table;
-      
+
       offset = getULONG( ptr + 8 );
-      length = getULONG( ptr + 12 );	    
-      
+      length = getULONG( ptr + 12 );
+
       table = offset_table + offset;
       return table;
     }
-    
+
     x++;
     ptr += 16;
   }
@@ -3309,7 +3309,7 @@ QString QPSPrinterFontTTF::glyphName(int charindex)
     ushort  u;
     // We must have a notdef glyph. I am not sure how it is uncoded in
     // unicode, so I assume it's the first glyph.
-    if (charindex == 0) 
+    if (charindex == 0)
       name = ".notdef";
     else if ((u=unicode_for_glyph(charindex)) != 0x0000)
       name.sprintf("uni%04X",u);
@@ -3317,26 +3317,26 @@ QString QPSPrinterFontTTF::glyphName(int charindex)
       name.sprintf("glyph%04X",charindex); // may be part of a composite etc
     return name;
   }
-  
+
   int GlyphIndex = (int)getUSHORT( post_table + 34 + (charindex * 2) );
-  
+
   if( GlyphIndex <= 257 ) {		/* If a standard Apple name, */
       //qDebug("post name for glyph is %s 1\n",Apple_CharStrings[GlyphIndex]);
     return QString(Apple_CharStrings[GlyphIndex]);
   } else {			/* Otherwise, use one */
     				/* of the pascal strings. */
     GlyphIndex -= 258;
-      
+
     /* Set pointer to start of Pascal strings. */
     char* ptr = (char*)(post_table + 34 + (numGlyphs * 2));
-      
+
     int len = (int)*(ptr++);	/* Step thru the strings */
     while(GlyphIndex--) {	/* until we get to the one */
       			        /* that we want. */
       ptr += len;
       len = (int)*(ptr++);
     }
-      
+
     return QString::fromLatin1(ptr,len);
   }
 }
@@ -3347,11 +3347,11 @@ void QPSPrinterFontTTF::uni2glyphSetup()
   for (int i=0; i<65536; i++) uni2glyph[i] = 0x0000;
   glyph2uni.resize(65536);
   for (int i=0; i<65536; i++) glyph2uni[i] = 0xffff;
-  
+
   unsigned char* cmap = getTable("cmap");
   int pos = 0;
 
-  //USHORT version = getUSHORT(cmap + pos); 
+  //USHORT version = getUSHORT(cmap + pos);
   pos += 2;
   USHORT nmaps   = getUSHORT(cmap + pos); pos += 2;
 
@@ -3372,16 +3372,16 @@ void QPSPrinterFontTTF::uni2glyphSetup()
   }
 
   //fprintf(stderr,"Doing Unicode encoding\n");
-  
+
   pos = offset;
   USHORT format = getUSHORT(cmap+pos); pos+=2;
   //fprintf(stderr,"Unicode cmap format %d\n",format);
-  
+
   if (format != 4) {
     //qWarning("Unicode cmap format is not 4");
     return;
   }
-    
+
   pos += 2; // length
   pos += 2; // version
   USHORT segcount = getUSHORT(cmap+pos) / 2; pos+=2;
@@ -3389,9 +3389,9 @@ void QPSPrinterFontTTF::uni2glyphSetup()
   //fprintf(stderr,"Unicode cmap seg count %d\n",segcount);
 
   // skip search data
-  pos += 2; 
-  pos += 2; 
-  pos += 2; 
+  pos += 2;
+  pos += 2;
+  pos += 2;
 
   unsigned char* endcode    = cmap + offset + 14;
   unsigned char* startcode  = cmap + offset + 16 + 2*segcount;
@@ -3403,7 +3403,7 @@ void QPSPrinterFontTTF::uni2glyphSetup()
     USHORT startcode_i  = getUSHORT(startcode +2*i);
     SHORT iddelta_i    = getSHORT(iddelta   +2*i);
     USHORT idrangeoff_i = getUSHORT(idrangeoff+2*i);
-    
+
 //     fprintf(stderr,"[%d] %04x-%04x (%x %x)\n",
 //         i,startcode_i,endcode_i,iddelta_i,idrangeoff_i);
     if (endcode_i == 0xffff) break; // last dummy segment
@@ -3418,7 +3418,7 @@ void QPSPrinterFontTTF::uni2glyphSetup()
       }
     } else {
       for (USHORT c = startcode_i; c <= endcode_i; c++) {
-	USHORT g = getUSHORT(idrangeoff+2*i 
+	USHORT g = getUSHORT(idrangeoff+2*i
 			     + 2*(c - startcode_i)
 			     + idrangeoff_i);
 	if ( g != 0 ) {
@@ -3445,21 +3445,21 @@ USHORT QPSPrinterFontTTF::glyph_for_unicode(unsigned short unicode)
 
 /*-------------------------------------------------------------------
 ** sfnts routines
-** These routines generate the PostScript "sfnts" array which 
+** These routines generate the PostScript "sfnts" array which
 ** contains one or more strings which contain a reduced version
 ** of the TrueType font.
 **
 ** A number of functions are required to accomplish this rather
-** complicated task. 
+** complicated task.
 -------------------------------------------------------------------*/
 
 // Write a BYTE as a hexadecimal value as part of the sfnts array.
 
-void QPSPrinterFontTTF::sfnts_pputBYTE(BYTE n,QTextStream& s, 
+void QPSPrinterFontTTF::sfnts_pputBYTE(BYTE n,QTextStream& s,
 				  int& string_len, int& line_len, bool& in_string)
 {
   static const char hexdigits[]="0123456789ABCDEF";
-  
+
   if(!in_string) {
     s << "<";
     string_len=0;
@@ -3477,7 +3477,7 @@ void QPSPrinterFontTTF::sfnts_pputBYTE(BYTE n,QTextStream& s,
     line_len=0;
   }
 }
-   
+
 // Write a USHORT as a hexadecimal value as part of the sfnts array.
 
 void QPSPrinterFontTTF::sfnts_pputUSHORT(USHORT n,QTextStream& s,
@@ -3496,7 +3496,7 @@ void QPSPrinterFontTTF::sfnts_pputULONG(ULONG n,QTextStream& s,
   int x1 = n % 256;   n /= 256;
   int x2 = n % 256;   n /= 256;
   int x3 = n % 256;   n /= 256;
-  
+
   sfnts_pputBYTE(n,s , string_len, line_len, in_string);
   sfnts_pputBYTE(x3,s, string_len, line_len, in_string);
   sfnts_pputBYTE(x2,s, string_len, line_len, in_string);
@@ -3504,7 +3504,7 @@ void QPSPrinterFontTTF::sfnts_pputULONG(ULONG n,QTextStream& s,
 }
 
 /*
-** This is called whenever it is 
+** This is called whenever it is
 ** necessary to end a string in the sfnts array.
 **
 ** (The array must be broken into strings which are
@@ -3515,16 +3515,16 @@ void QPSPrinterFontTTF::sfnts_end_string(QTextStream& s,
 {
   if(in_string)	{
     string_len=0;		/* fool sfnts_pputBYTE() */
-    
+
     // s << "\n% dummy byte:\n";
 
-    // extra byte for pre-2013 compatibility 
-    sfnts_pputBYTE(0, s, string_len, line_len, in_string);	
+    // extra byte for pre-2013 compatibility
+    sfnts_pputBYTE(0, s, string_len, line_len, in_string);
 
     s << ">";
     line_len++;
   }
-  
+
   in_string=false;
 }
 
@@ -3537,7 +3537,7 @@ void QPSPrinterFontTTF::sfnts_end_string(QTextStream& s,
 void QPSPrinterFontTTF::sfnts_new_table(ULONG length,QTextStream& s,
 				   int& string_len, int& line_len, bool& in_string)
 {
-  if( (string_len + length) > 65528 )    
+  if( (string_len + length) > 65528 )
     sfnts_end_string(s, string_len, line_len, in_string);
 }
 
@@ -3546,7 +3546,7 @@ void QPSPrinterFontTTF::sfnts_new_table(ULONG length,QTextStream& s,
 ** why we provide this special routine to copy it into the sfnts
 ** array.
 */
-void QPSPrinterFontTTF::sfnts_glyf_table(ULONG oldoffset, 
+void QPSPrinterFontTTF::sfnts_glyf_table(ULONG oldoffset,
 				    ULONG correct_total_length,
 				    QTextStream& s,
 				    int& string_len, int& line_len, bool& in_string)
@@ -3557,11 +3557,11 @@ void QPSPrinterFontTTF::sfnts_glyf_table(ULONG oldoffset,
   ULONG length;
   int c;
   ULONG total=0;		/* running total of bytes written to table */
-  
+
   loca_table = getTable("loca");
 
   int font_off = oldoffset;
-  
+
   /* Copy the glyphs one by one */
   for(x=0; x < numGlyphs; x++) {
     /* Read the glyph offset from the index-to-location table. */
@@ -3576,13 +3576,13 @@ void QPSPrinterFontTTF::sfnts_glyf_table(ULONG oldoffset,
       length = getULONG( loca_table + ((x+1) * 4) );
       length -= off;
     }
-      
+
     //  fprintf(stderr,"glyph length=%d",(int)length);
-      
+
     /* Start new string if necessary. */
     sfnts_new_table( (int)length, s, string_len, line_len, in_string );
-      
-    /* 
+
+    /*
     ** Make sure the glyph is padded out to a
     ** two byte boundary.
     */
@@ -3591,15 +3591,15 @@ void QPSPrinterFontTTF::sfnts_glyf_table(ULONG oldoffset,
       defective = true;
       return;
     }
-      
+
     /* Copy the bytes of the glyph. */
     while( length-- ) {
       c = offset_table[ font_off ];
       font_off++;
-	
+
       sfnts_pputBYTE(c, s, string_len, line_len, in_string);
       total++;		/* add to running total */
-    }	    
+    }
   }
 
   /* Pad out to full length from table directory */
@@ -3608,7 +3608,7 @@ void QPSPrinterFontTTF::sfnts_glyf_table(ULONG oldoffset,
     total++;
   }
 
-  /* Look for unexplainable descrepancies between sizes */ 
+  /* Look for unexplainable descrepancies between sizes */
   if( total != correct_total_length ) {
     qWarning("QPSPrinterFontTTF::sfnts_glyf_table: total != correct_total_length");
     defective = true;
@@ -3619,7 +3619,7 @@ void QPSPrinterFontTTF::sfnts_glyf_table(ULONG oldoffset,
 /*
 ** Here is the routine which ties it all together.
 **
-** Create the array called "sfnts" which 
+** Create the array called "sfnts" which
 ** holds the actual TrueType data.
 */
 
@@ -3644,16 +3644,16 @@ void QPSPrinterFontTTF::download_sfnts(QTextStream& s)
     ULONG length;
     ULONG checksum;
   } tables[9];
-    	
+
   int c;			/* Input character. */
   int diff;
   int count;			/* How many `important' tables did we find? */
-  
+
   BYTE* ptr = offset_table + 12; // original table directory
   ULONG nextoffset=0;
   count=0;
-    
-  /* 
+
+  /*
   ** Find the tables we want and store there vital
   ** statistics in tables[].
   */
@@ -3663,7 +3663,7 @@ void QPSPrinterFontTTF::download_sfnts(QTextStream& s)
 
       if( diff > 0 ) {		/* If we are past it. */
 	tables[x].length = 0;
-	diff = 0;		
+	diff = 0;
       }
       else if( diff < 0 ) {		/* If we haven't hit it yet. */
 	ptr += 16;
@@ -3675,11 +3675,11 @@ void QPSPrinterFontTTF::download_sfnts(QTextStream& s)
 	tables[x].length = getULONG( ptr + 12 );
 	nextoffset += ( ((tables[x].length + 3) / 4) * 4 );
 	count++;
-	ptr += 16;	    	
+	ptr += 16;
       }
     } while(diff != 0);
   } /* end of for loop which passes over the table directory */
-  
+
   /* Begin the sfnts array. */
 
   s << "/sfnts[<";
@@ -3687,97 +3687,97 @@ void QPSPrinterFontTTF::download_sfnts(QTextStream& s)
   bool in_string=true;
   int  string_len=0;
   int  line_len=8;
-  
+
   /* Generate the offset table header */
   /* Start by copying the TrueType version number. */
   ptr = offset_table;
   for(int x=0; x < 4; x++)
     sfnts_pputBYTE( *(ptr++) , s, string_len, line_len, in_string );
-  
+
   /* Now, generate those silly numTables numbers. */
   sfnts_pputUSHORT(count,s, string_len, line_len, in_string);		/* number of tables */
   if( count == 9 ) {
     sfnts_pputUSHORT(7,s, string_len, line_len, in_string);		/* searchRange */
     sfnts_pputUSHORT(3,s, string_len, line_len, in_string);		/* entrySelector */
     sfnts_pputUSHORT(81,s, string_len, line_len, in_string);		/* rangeShift */
-  }    
-  else {
-    qWarning("Fewer than 9 tables selected"); 	
   }
-  
+  else {
+    qWarning("Fewer than 9 tables selected");
+  }
+
   /* Now, emmit the table directory. */
   for(int x=0; x < 9; x++) {
     if( tables[x].length == 0 )	/* Skip missing tables */
       continue;
-      
+
     /* Name */
     sfnts_pputBYTE( table_names[x][0], s, string_len, line_len, in_string);
     sfnts_pputBYTE( table_names[x][1], s, string_len, line_len, in_string);
     sfnts_pputBYTE( table_names[x][2], s, string_len, line_len, in_string);
     sfnts_pputBYTE( table_names[x][3], s, string_len, line_len, in_string);
-    
+
     /* Checksum */
     sfnts_pputULONG( tables[x].checksum, s, string_len, line_len, in_string );
-    
+
     /* Offset */
     sfnts_pputULONG( tables[x].newoffset + 12 + (count * 16), s,
 		     string_len, line_len, in_string );
-    
+
     /* Length */
     sfnts_pputULONG( tables[x].length, s,
 		     string_len, line_len, in_string );
   }
-  
+
   /* Now, send the tables */
   for(int x=0; x < 9; x++) {
     if( tables[x].length == 0 )	/* skip tables that aren't there */
       continue;
-      
+
     /* 'glyf' table gets special treatment */
     if( strcmp(table_names[x],"glyf")==0 ) {
       sfnts_glyf_table(tables[x].oldoffset,tables[x].length, s,
 		       string_len, line_len, in_string);
     } else { // other tables should not exceed 64K (not always true; Sivan)
       if( tables[x].length > 65535 ) {
-	qWarning("TrueType font has a table which is too long");	    
+	qWarning("TrueType font has a table which is too long");
 	defective = true;
 	return;
       }
-	  
+
       /* Start new string if necessary. */
       sfnts_new_table(tables[x].length, s,
 		      string_len, line_len, in_string);
-	  
+
       int font_off = tables[x].oldoffset;
       /* Copy the bytes of the table. */
       for( int y=0; y < (int)tables[x].length; y++ ) {
 	c = offset_table[ font_off ];
 	font_off++;
-	      
+
 	sfnts_pputBYTE(c, s, string_len, line_len, in_string);
-      }	    
+      }
     }
-      
+
     /* Padd it out to a four byte boundary. */
     int y=tables[x].length;
     while( (y % 4) != 0 ) {
       sfnts_pputBYTE(0, s, string_len, line_len, in_string);
       y++;
     }
-      
+
   } /* End of loop for all tables */
-  
+
   /* Close the array. */
-  sfnts_end_string(s, string_len, line_len, in_string);    
+  sfnts_end_string(s, string_len, line_len, in_string);
   s << "]def\n";
-} 
+}
 #endif
 
 // ****************** Type 3 CharProcs *******
 
 /*
 ** This routine is used to break the character
-** procedure up into a number of smaller 
+** procedure up into a number of smaller
 ** procedures.  This is necessary so as not to
 ** overflow the stack on certain level 1 interpreters.
 **
@@ -3816,7 +3816,7 @@ static void stack_end(QTextStream& s)			/* called at end */
 
 // postscript drawing commands
 
-static void PSMoveto(FWord x, FWord y, QTextStream& ts) 
+static void PSMoveto(FWord x, FWord y, QTextStream& ts)
 {
   ts << x;
   ts << " ";
@@ -3824,7 +3824,7 @@ static void PSMoveto(FWord x, FWord y, QTextStream& ts)
   ts << " _m\n";
 }
 
-static void PSLineto(FWord x, FWord y, QTextStream& ts) 
+static void PSLineto(FWord x, FWord y, QTextStream& ts)
 {
   ts << x;
   ts << " ";
@@ -3834,11 +3834,11 @@ static void PSLineto(FWord x, FWord y, QTextStream& ts)
 
 /* Emmit a PostScript "curveto" command. */
 static void PSCurveto(FWord* xcoor, FWord* ycoor,
-		      FWord x, FWord y, int s, int t, QTextStream& ts) 
+		      FWord x, FWord y, int s, int t, QTextStream& ts)
 {
   int N, i;
   double sx[3], sy[3], cx[4], cy[4];
-  
+
   N = t-s+2;
   for(i=0; i<N-1; i++) {
     sx[0] = i==0?xcoor[s-1]:(xcoor[i+s]+xcoor[i+s-1])/2;
@@ -3893,39 +3893,39 @@ static void PSCurveto(FWord* xcoor, FWord* ycoor,
 ** Find the area of a contour?
 */
 static double area(FWord *x, FWord *y, int n)
-{ 
+{
   int i;
   double sum;
-      
+
   sum=x[n-1]*y[0]-y[n-1]*x[0];
   for (i=0; i<=n-2; i++) sum += x[i]*y[i+1] - y[i]*x[i+1];
   return sum;
-}   
+}
 
 static int nextoutctr(int /*co*/, charproc_data* cd)
 {
   int j;
-  
-  for(j=0; j<cd->num_ctr; j++) 
+
+  for(j=0; j<cd->num_ctr; j++)
     if (cd->check_ctr[j]==0 && cd->area_ctr[j] < 0) {
       cd->check_ctr[j]=1;
       return j;
     }
-  
+
   return NOMOREOUTCTR;
 } /* end of nextoutctr() */
 
 static int nextinctr(int co, int /*ci*/, charproc_data* cd)
 {
   int j;
-  
+
   for(j=0; j<cd->num_ctr; j++)
-    if (cd->ctrset[2*j+1]==co) 
+    if (cd->ctrset[2*j+1]==co)
       if (cd->check_ctr[ cd->ctrset[2*j] ]==0) {
 	cd->check_ctr[ cd->ctrset[2*j] ]=1;
 	return cd->ctrset[2*j];
       }
-  
+
   return NOMOREINCTR;
 }
 
@@ -3934,15 +3934,15 @@ static double intest(int co, int ci, charproc_data* cd)
   int i, j, start, end;
   double r1, r2, a;
   FWord xi[3], yi[3];
-  
+
   j=start=(co==0)?0:(cd->epts_ctr[co-1]+1);
   end=cd->epts_ctr[co];
   i=(ci==0)?0:(cd->epts_ctr[ci-1]+1);
   xi[0] = cd->xcoor[i];
   yi[0] = cd->ycoor[i];
-  r1=sqr(cd->xcoor[start] - xi[0]) 
+  r1=sqr(cd->xcoor[start] - xi[0])
      + sqr(cd->ycoor[start] - yi[0]);
-  
+
   for (i=start; i<=end; i++) {
     r2 = sqr(cd->xcoor[i] - xi[0])+sqr(cd->ycoor[i] - yi[0]);
     if (r2 < r1) {
@@ -3954,7 +3954,7 @@ static double intest(int co, int ci, charproc_data* cd)
   if (j==start) { xi[1]=cd->xcoor[end]; yi[1]=cd->ycoor[end]; }
   if (j==end) { xi[2]=cd->xcoor[start]; yi[2]=cd->ycoor[start]; }
   a=area(xi, yi, 3);
-  
+
   return a;
 } /* end of intest() */
 
@@ -3966,7 +3966,7 @@ static int nearout(int ci, charproc_data* cd)
   int k = 0;			/* !!! is this right? */
   int co;
   double a, a1=0;
-  
+
   for (co=0; co < cd->num_ctr; co++) {
     if(cd->area_ctr[co] < 0) {
       a=intest(co,ci, cd);
@@ -3980,7 +3980,7 @@ static int nearout(int ci, charproc_data* cd)
       }
     }
   }
-			
+
   return k;
 } /* end of nearout() */
 
@@ -3990,10 +3990,10 @@ static int nearout(int ci, charproc_data* cd)
 ** for the character we have loaded with load_char().
 */
 void PSConvert(QTextStream& s, charproc_data* cd)
-{    
+{
   int i,j,k,fst,start_offpt;
   int end_offpt=0;
-  
+
   cd->area_ctr = new double[cd->num_ctr];
   memset(cd->area_ctr, 0, (cd->num_ctr*sizeof(double)));
 
@@ -4002,21 +4002,21 @@ void PSConvert(QTextStream& s, charproc_data* cd)
 
   cd->ctrset = new int[2*(cd->num_ctr)];
   memset(cd->ctrset, 0, (cd->num_ctr*2*sizeof(int)));
-  
+
   cd->check_ctr[0]=1;
   cd->area_ctr[0]=area(cd->xcoor, cd->ycoor, cd->epts_ctr[0]+1);
-  
-  for (i=1; i<cd->num_ctr; i++) 
-    cd->area_ctr[i]=area(cd->xcoor+cd->epts_ctr[i-1]+1, 
-			 cd->ycoor+cd->epts_ctr[i-1]+1, 
+
+  for (i=1; i<cd->num_ctr; i++)
+    cd->area_ctr[i]=area(cd->xcoor+cd->epts_ctr[i-1]+1,
+			 cd->ycoor+cd->epts_ctr[i-1]+1,
 			 cd->epts_ctr[i]-cd->epts_ctr[i-1]);
-  
+
   for (i=0; i<cd->num_ctr; i++) {
     if (cd->area_ctr[i]>0) {
-      cd->ctrset[2*i]=i; 
+      cd->ctrset[2*i]=i;
       cd->ctrset[2*i+1]=nearout(i,cd);
     } else {
-      cd->ctrset[2*i]=-1; 
+      cd->ctrset[2*i]=-1;
       cd->ctrset[2*i+1]=-1;
     }
   }
@@ -4027,16 +4027,16 @@ void PSConvert(QTextStream& s, charproc_data* cd)
   i=j=k=0;
   while (i < cd->num_ctr ) {
     fst = j = (k==0) ? 0 : (cd->epts_ctr[k-1]+1);
-    
+
     /* Move to the first point on the contour. */
     stack(cd->num_pts,3,s);
     PSMoveto(cd->xcoor[j],cd->ycoor[j],s);
     start_offpt = 0;		/* No off curve points yet. */
-      
+
     /* Step thru the remaining points of this contour. */
     for(j++; j <= cd->epts_ctr[k]; j++) {
       if (!(cd->tt_flags[j]&1))	{ /* Off curve */
-	if (!start_offpt) 
+	if (!start_offpt)
 	  { start_offpt = end_offpt = j; }
 	else
 	  end_offpt++;
@@ -4053,37 +4053,37 @@ void PSConvert(QTextStream& s, charproc_data* cd)
 	}
       }
     }
-      
+
     /* Do the final curve or line */
     /* of this coutour. */
     if (start_offpt) {
-      stack(cd->num_pts,7,s); 
+      stack(cd->num_pts,7,s);
       PSCurveto(cd->xcoor,cd->ycoor,
 		cd->xcoor[fst],cd->ycoor[fst],
 		start_offpt,end_offpt,s);
     } else {
-      stack(cd->num_pts,3,s); 
+      stack(cd->num_pts,3,s);
       PSLineto(cd->xcoor[fst],cd->ycoor[fst],s);
     }
-      
+
     k=nextinctr(i,k,cd);
-      
+
     if (k==NOMOREINCTR)
       i=k=nextoutctr(i,cd);
-      
+
     if (i==NOMOREOUTCTR)
       break;
   }
-  
+
   /* Now, we can fill the whole thing. */
   stack(cd->num_pts,1,s);
   s << "_cl";		/* "closepath eofill" */
-  
+
   /* Free our work arrays. */
   delete cd->area_ctr;
   delete cd->check_ctr;
   delete cd->ctrset;
-} 
+}
 
 
 /*
@@ -4095,7 +4095,7 @@ void QPSPrinterFontTTF::charprocLoad(BYTE *glyph, charproc_data* cd)
 {
   int x;
   BYTE c, ct;
-  
+
   /* Read the contour endpoints list. */
   cd->epts_ctr = new int[cd->num_ctr];
   //cd->epts_ctr = (int *)myalloc(cd->num_ctr,sizeof(int));
@@ -4103,7 +4103,7 @@ void QPSPrinterFontTTF::charprocLoad(BYTE *glyph, charproc_data* cd)
     cd->epts_ctr[x] = getUSHORT(glyph);
     glyph += 2;
   }
-  
+
   /* From the endpoint of the last contour, we can */
   /* determine the number of points. */
   cd->num_pts = cd->epts_ctr[cd->num_ctr-1]+1;
@@ -4129,15 +4129,15 @@ void QPSPrinterFontTTF::charprocLoad(BYTE *glyph, charproc_data* cd)
   /* There is danger of overflow here. */
   for (x = 0; x < cd->num_pts; ) {
     cd->tt_flags[x++] = c = *(glyph++);
-    
+
     if (c&8) {		/* If next byte is repeat count, */
       ct = *(glyph++);
-      
+
       if( (x + ct) > cd->num_pts ) {
 	qWarning("Fatal Error in TT flags");
 	return;
       }
-      
+
       while (ct--)
 	cd->tt_flags[x++] = c;
     }
@@ -4215,18 +4215,18 @@ void QPSPrinterFontTTF::subsetGlyph(int charindex,bool* glyphset)
     /* Advance the pointer past bounding box. */
     glyph += 10;
   }
-  
-  if( cd.num_ctr < 0 ) { // composite 
+
+  if( cd.num_ctr < 0 ) { // composite
     /* Once around this loop for each component. */
     do {
-      flags = getUSHORT(glyph);	/* read the flags word */ 
+      flags = getUSHORT(glyph);	/* read the flags word */
       glyph += 2;
       glyphIndex = getUSHORT(glyph);	/* read the glyphindex word */
       glyph += 2;
-      
+
       glyphset[ glyphIndex ] = true;
       //printf("%s ",glyphName(glyphIndex).latin1());
-	     
+
       if(flags & ARG_1_AND_2_ARE_WORDS) {
 	glyph += 2;
 	glyph += 2;
@@ -4234,9 +4234,9 @@ void QPSPrinterFontTTF::subsetGlyph(int charindex,bool* glyphset)
 	glyph += 1;
 	glyph += 1;
       }
-      
+
       if(flags & WE_HAVE_A_SCALE) {
-	glyph += 2;	    
+	glyph += 2;
       } else if(flags & WE_HAVE_AN_X_AND_Y_SCALE) {
 	glyph += 2;
 	glyph += 2;
@@ -4266,15 +4266,15 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
   USHORT yscale;
   USHORT scale01;
   USHORT scale10;
-    
+
   /* Once around this loop for each component. */
   do {
-    flags = getUSHORT(glyph);	/* read the flags word */ 
+    flags = getUSHORT(glyph);	/* read the flags word */
     glyph += 2;
 
     glyphIndex = getUSHORT(glyph);	/* read the glyphindex word */
     glyph += 2;
-	
+
     if(flags & ARG_1_AND_2_ARE_WORDS) {
                                 /* The tt spec. seems to say these are signed. */
       arg1 = getSHORT(glyph);
@@ -4289,7 +4289,7 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
 
     if(flags & WE_HAVE_A_SCALE) {
       xscale = yscale = getUSHORT(glyph);
-      glyph += 2;	    
+      glyph += 2;
       scale01 = scale10 = 0;
     } else if(flags & WE_HAVE_AN_X_AND_Y_SCALE) {
       xscale = getUSHORT(glyph);
@@ -4315,7 +4315,7 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
     fprintf(stderr,"% flags=%d, arg1=%d, arg2=%d, xscale=%d, yscale=%d, scale01=%d, scale10=%d\n",
 	    (int)flags,arg1,arg2,(int)xscale,(int)yscale,(int)scale01,(int)scale10);
 #endif
-    
+
     /* If we have an (X,Y) shif and it is non-zero, */
     /* translate the coordinate system. */
     if( flags & ARGS_ARE_XY_VALUES ) {
@@ -4325,7 +4325,7 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
 	s << " ";
 	s << topost(arg2);
 	s << " translate\n";
-	
+
 	//fprintf(stderr,"gsave %d %d translate\n", topost(arg1), topost(arg2) );
       }
     } else {
@@ -4401,30 +4401,30 @@ void QPSPrinterFontTTF::charproc(int charindex, QTextStream& s)
   } else {
     /* Read the number of contours. */
     cd.num_ctr = getSHORT(glyph);
-      
+
     /* Read PostScript bounding box. */
     llx = getFWord(glyph + 2);
     lly = getFWord(glyph + 4);
     urx = getFWord(glyph + 6);
-    ury = getFWord(glyph + 8);     
-      
+    ury = getFWord(glyph + 8);
+
     /* Advance the pointer. */
     glyph += 10;
   }
-  
+
   /* If it is a simple character, load its data. */
   if (cd.num_ctr > 0)
     charprocLoad(glyph, &cd);
   else
     cd.num_pts=0;
-  
+
   /* Consult the horizontal metrics table to determine */
   /* the character width. */
   if( charindex < numberOfHMetrics )
-    advance_width = getuFWord( hmtx_table + (charindex * 4) );    	
+    advance_width = getuFWord( hmtx_table + (charindex * 4) );
   else
     advance_width = getuFWord( hmtx_table + ((numberOfHMetrics-1) * 4) );
-  
+
   /* Execute setcachedevice in order to inform the font machinery */
   /* of the character bounding box and advance width. */
   stack(cd.num_pts,7,s);
@@ -4447,10 +4447,10 @@ void QPSPrinterFontTTF::charproc(int charindex, QTextStream& s)
     delete cd.xcoor;
     delete cd.ycoor;
     delete cd.epts_ctr;
-  } else if( cd.num_ctr < 0 ) { // composite 
+  } else if( cd.num_ctr < 0 ) { // composite
     charprocComposite(glyph,s);
   }
-  
+
   stack_end(s);
 } /* end of tt_type3_charproc() */
 
@@ -4473,21 +4473,21 @@ QPSPrinterFontPFA::QPSPrinterFontPFA(const QFont &f, QByteArray& d)
   int pos = 0;
   char* p = data.data();
   QString fontname;
-  
+
   if (p[ pos ] != '%' || p[ pos+1 ] != '!') { // PFA marker
     qWarning("invalid pfa file");
     return;
   }
-  
+
   char* fontnameptr = strstr(p+pos,"/FontName");
   if (fontnameptr == NULL)
     return;
-  
+
   fontnameptr += strlen("/FontName") + 1;
   while (*fontnameptr == ' ' || *fontnameptr == '/') fontnameptr++;
   int l=0;
   while (fontnameptr[l] != ' ') l++;
-  
+
   psname = QString::fromLatin1(fontnameptr,l);
   replacementList = makePSFontNameList( f, psname );
 }
@@ -4522,7 +4522,7 @@ QPSPrinterFontPFB::QPSPrinterFontPFB(const QFont &f, QByteArray& d)
   int typ;
   unsigned char* p = (unsigned char*) data.data();
   QString fontname;
-  
+
   if (p[ pos ] != 0x80) { // PFB marker
     qWarning("pfb file does not start with 0x80");
     return;
@@ -4534,18 +4534,18 @@ QPSPrinterFontPFB::QPSPrinterFontPFB(const QFont &f, QByteArray& d)
   len |= (p[ pos ] << 8) ; pos++;
   len |= (p[ pos ] << 16); pos++;
   len |= (p[ pos ] << 24); pos++;
-  
+
   //printf("font block type %d len %d\n",typ,len);
-  
+
   char* fontnameptr = strstr((char*)p+pos,"/FontName");
   if (fontnameptr == NULL)
     return;
-  
+
   fontnameptr += strlen("/FontName") + 1;
   while (*fontnameptr == ' ' || *fontnameptr == '/') fontnameptr++;
   int l=0;
   while (fontnameptr[l] != ' ') l++;
-  
+
   psname = QString::fromLatin1(fontnameptr,l);
   replacementList = makePSFontNameList( f, psname );
 }
@@ -4556,7 +4556,7 @@ void QPSPrinterFontPFB::download(QTextStream& s, bool)
   int pos;
   int len;
   int typ;
-  
+
   int hexcol = 0;
   int line_length = 64;
 
@@ -4565,22 +4565,22 @@ void QPSPrinterFontPFB::download(QTextStream& s, bool)
 
   pos = 0;
   typ = -1;
-  while (typ != 3) { // not end of file 
+  while (typ != 3) { // not end of file
     if (p[ pos ] != 0x80) // PFB marker
       return; // pfb file does not start with 0x80
     pos++;
     typ = p[ pos ]; // 1=ascii 2=binary 3=done
     pos++;
-  
+
     if (typ == 3) break;
 
     len = p[ pos ];	    pos++;
     len |= (p[ pos ] << 8) ; pos++;
     len |= (p[ pos ] << 16); pos++;
     len |= (p[ pos ] << 24); pos++;
-    
+
     //printf("font block type %d len %d\n",typ,len);
-    
+
     if (typ==1) {
       for (int j=0; j<len; j++) {
 	if (hexcol) { s << "\n"; hexcol = 0; }
@@ -4650,9 +4650,9 @@ class QPSPrinterFontAsian
   : public QPSPrinterFontPrivate {
 public:
       void download(QTextStream& s, bool global);
-      QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key, 
+      QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
 			  QPSPrinterPrivate *d ) = 0;
-      QString emitDef( QTextStream &stream, const QString &ps, const QString &latinName, 
+      QString emitDef( QTextStream &stream, const QString &ps, const QString &latinName,
 		    const QFont &f, float slant, const QString &key, const QString &key2, QPSPrinterPrivate *d );
 };
 
@@ -4664,7 +4664,7 @@ void QPSPrinterFontAsian::download(QTextStream& s, bool)
 }
 
 
-QString QPSPrinterFontAsian::emitDef( QTextStream &stream, const QString &ps, const QString &latinName, 
+QString QPSPrinterFontAsian::emitDef( QTextStream &stream, const QString &ps, const QString &latinName,
 				   const QFont &f, float slant, const QString &key, const QString &key2, QPSPrinterPrivate *d)
 {
     QString fontName;
@@ -4721,9 +4721,9 @@ class QPSPrinterFontJapanese
   : public QPSPrinterFontAsian {
 public:
       QPSPrinterFontJapanese(const QFont& f);
-      void drawText( QTextStream &stream, uint spaces, const QPoint &p, 
+      void drawText( QTextStream &stream, uint spaces, const QPoint &p,
 		     const QString &text, QPSPrinterPrivate *d, QPainter *paint);
-      QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key, 
+      QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
 			  QPSPrinterPrivate *d );
 private:
     const QJpUnicodeConv *convJP;
@@ -4735,7 +4735,7 @@ QPSPrinterFontJapanese::QPSPrinterFontJapanese(const QFont& f)
     // now try to convert that to some japanese postscript font in a sensible way.
     // as we don't support font substitution at the moment, we just use the
     // two fonts that should be available on any system: Ryumin-Light and GothicBBB-Medium
-    
+
     if ( psname.contains( "Helvetica" ) || psname.contains( "Bold" ) )
 	if ( psname.contains("Italic") || psname.contains("Oblique") ) {
 	    psname = "GothicBBB-Oblique";
@@ -4753,7 +4753,7 @@ QPSPrinterFontJapanese::QPSPrinterFontJapanese(const QFont& f)
 }
 
 
-QString QPSPrinterFontJapanese::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key, 
+QString QPSPrinterFontJapanese::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
 				       QPSPrinterPrivate *d )
 {
     float slant = 0;
@@ -4777,7 +4777,7 @@ QString QPSPrinterFontJapanese::defineFont( QTextStream &stream, QString ps, con
     return emitDef( stream, ps, latinName, f, slant, key, ps, d );
 }
 
-void QPSPrinterFontJapanese::drawText( QTextStream &stream, uint spaces, const QPoint &p, 
+void QPSPrinterFontJapanese::drawText( QTextStream &stream, uint spaces, const QPoint &p,
 				  const QString &text, QPSPrinterPrivate *d, QPainter *paint)
 {
     if ( !convJP )
@@ -4855,7 +4855,7 @@ static const psfont SMGothic [] = {
     { "SMGothic-Medium-KSC-EUC-H", 0.2, 100. },
     { "SMGothic-DemiBold-KSC-EUC-H", 0, 100. },
     { "SMGothic-DemiBold-KSC-EUC-H", 0.2, 100. }
-};	
+};
 
 // serif
 static const psfont SMMyungjo [] = {
@@ -4863,22 +4863,22 @@ static const psfont SMMyungjo [] = {
     { "SMMyungjo-Light-KSC-EUC-H", 0.2, 100. },
     { "SMMyungjo-Bold-KSC-EUC-H", 0, 100. },
     { "SMMyungjo-Bold-KSC-EUC-H", 0.2, 100. }
-};	
-    
+};
+
 static const psfont MKai [] = {
     { "MingMT-Light-KSC-EUC-H", 0, 100. },
     { "MingMT-Light-KSC-EUC-H", 0.2, 100. },
     { "MKai-Medium-KSC-EUC-H", 0, 100. },
     { "MKai-Medium-KSC-EUC-H", 0.2, 100. },
-};	
-    
+};
+
 
 static const psfont Munhwa [] = {
     { "Munhwa-Regular-KSC-EUC-H", 0, 100. },
     { "Munhwa-Regular-KSC-EUC-H", 0.2, 100. },
     { "Munhwa-Bold-KSC-EUC-H", 0, 100. },
     { "Munhwa-Bold-KSC-EUC-H", 0.2, 100. }
-};	
+};
 
 static const psfont * const KoreanReplacements[] = {
     SMMyungjo, SMGothic, Munhwa, MKai, Helvetica, 0
@@ -4888,7 +4888,7 @@ class QPSPrinterFontKorean
   : public QPSPrinterFontAsian {
 public:
       QPSPrinterFontKorean(const QFont& f);
-      QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key, 
+      QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
 			  QPSPrinterPrivate *d );
 };
 
@@ -4900,7 +4900,7 @@ QPSPrinterFontKorean::QPSPrinterFontKorean(const QFont& f)
 }
 
 
-QString QPSPrinterFontKorean::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key, 
+QString QPSPrinterFontKorean::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
 				       QPSPrinterPrivate *d )
 {
     return QPSPrinterFontPrivate::defineFont( stream, ps, f, key, d );
@@ -4913,14 +4913,14 @@ static const psfont MSung [] = {
     { "MSung-Light-B5-H", 0.2, 100. },
     { "MSung-Light-B5-H", 0, 100. },
     { "MSung-Light-B5-H", 0.2, 100. },
-};	
+};
 
 static const psfont MOESung [] = {
     { "MOESung-Regular-B5-H", 0, 100. },
     { "MOESung-Regular-B5-H", 0.2, 100. },
     { "MOESung-Regular-B5-H", 0, 100. },
     { "MOESung-Regular-B5-H", 0.2, 100. },
-};	
+};
 
 static const psfont * const MSungReplacements[] = {
     MSung, MOESung, Helvetica, 0
@@ -4930,7 +4930,7 @@ class QPSPrinterFontTraditionalChinese
   : public QPSPrinterFontAsian {
 public:
       QPSPrinterFontTraditionalChinese(const QFont& f);
-      QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key, 
+      QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
 			  QPSPrinterPrivate *d );
 };
 
@@ -4942,7 +4942,7 @@ QPSPrinterFontTraditionalChinese::QPSPrinterFontTraditionalChinese(const QFont& 
 }
 
 
-QString QPSPrinterFontTraditionalChinese::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key, 
+QString QPSPrinterFontTraditionalChinese::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
 				       QPSPrinterPrivate *d )
 {
     return QPSPrinterFontPrivate::defineFont( stream, ps, f, key, d );
@@ -4957,21 +4957,21 @@ static const psfont Simplified [] = {
     { "MSung-Light-GBK-EUC-H", 0.2, 100. },
     { "MKai-Medium-GBK-EUC-H", 0, 100. },
     { "MKai-Medium-GBK-EUC-H", 0.2, 100. },
-};	
+};
 
 static const psfont MSungGBK [] = {
     { "MSung-Light-GBK-EUC-H", 0, 100. },
     { "MSung-Light-GBK-EUC-H", 0.2, 100. },
     { "MSung-Light-GBK-EUC-H", 0, 100. },
     { "MSung-Light-GBK-EUC-H", 0.2, 100. },
-};	
+};
 
 static const psfont FangSong [] = {
     { "CFangSong-Light-GBK-EUC-H", 0, 100. },
     { "CFangSong-Light-GBK-EUC-H", 0.2, 100. },
     { "CFangSong-Light-GBK-EUC-H", 0, 100. },
     { "CFangSong-Light-GBK-EUC-H", 0.2, 100. },
-};	
+};
 
 static const psfont * const SimplifiedReplacements[] = {
     Simplified, MSungGBK, FangSong, Helvetica, 0
@@ -4981,7 +4981,7 @@ class QPSPrinterFontSimplifiedChinese
   : public QPSPrinterFontAsian {
 public:
       QPSPrinterFontSimplifiedChinese(const QFont& f);
-      QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key, 
+      QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
 			  QPSPrinterPrivate *d );
 };
 
@@ -4993,7 +4993,7 @@ QPSPrinterFontSimplifiedChinese::QPSPrinterFontSimplifiedChinese(const QFont& f)
 }
 
 
-QString QPSPrinterFontSimplifiedChinese::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key, 
+QString QPSPrinterFontSimplifiedChinese::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
 				       QPSPrinterPrivate *d )
 {
     return QPSPrinterFontPrivate::defineFont( stream, ps, f, key, d );
@@ -5006,7 +5006,7 @@ public:
   QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *priv);
   ~QPSPrinterFont();
   QString postScriptFontName()     { return p->postScriptFontName(); }
-    QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key, 
+    QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
 			     QPSPrinterPrivate *d )
     { return p->defineFont( stream, ps, f, key, d ); }
     void    download(QTextStream& s, bool global) { p->download(s, global); }
@@ -5016,12 +5016,12 @@ private:
   QPSPrinterFontPrivate* p;
 };
 
-QPSPrinterFont::~QPSPrinterFont() 
+QPSPrinterFont::~QPSPrinterFont()
 {
     // the dict in QFontPrivate does deletion for us.
     //  delete p;
 }
-  
+
 
 QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *priv)
     : p(0)
@@ -5032,7 +5032,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 
     // ### implement similar code for QWS and WIN
     xfontname = makePSFontName( f );
-		
+
     // ###
 // 	QFont::CharSet cs = f.charSet();
 // 	// ### the next four lines are a hack to not produce invalid postscript with unicode
@@ -5048,17 +5048,17 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 // 	    p = new QPSPrinterFontKorean( f );
 // 	} else if ( cs == QFont::Set_Big5 || cs == QFont::Big5) {
 // 	    p = new QPSPrinterFontTraditionalChinese( f );
-// 	} else 
+// 	} else
     //qDebug("didnt find font for %s", xfontname.latin1());
 #ifdef Q_WS_X11
     f.d->load( (QFont::Script)script );
     QFontStruct *fs = f.d->x11data.fontstruct[script];
     //qDebug("fs = %p, script=%d", fs, script);
     bool xlfd = FALSE;
-    
+
 #ifndef QT_NO_XFTFREETYPE
-    if ( qt_has_xft && fs && fs != (QFontStruct *)-1 && fs->xfthandle && fs->xftpattern ) {
-	XftPattern *font = (XftPattern *) fs->xftpattern;
+    if ( qt_has_xft && fs && fs != (QFontStruct *)-1 && fs->xfthandle ) {
+	XftPattern *font = XftNameParse(fs->name.data());
 	//qDebug("xfthandle=%p", font);
 	char *filename;
 	XftPatternGetString (font, XFT_FILE, 0, &filename);
@@ -5071,8 +5071,8 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	if ( fs && fs != (QFontStruct *)-1 )
 	    rawName = fs->name;
 	int index = rawName.find('-');
-	if (index == 0) { 
-	    // this is an XLFD font name 
+	if (index == 0) {
+	    // this is an XLFD font name
 	    for (int i=0; i < 6; i++) {
 		index = rawName.find('-',index+1);
 	    }
@@ -5080,9 +5080,9 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	    xlfd = TRUE;
 	}
 	if ( xlfd ) {
-	    char** font_path; 
+	    char** font_path;
 	    int npaths;
-    
+
 	    font_path = XGetFontPath( qt_xdisplay(), &npaths);
 	    for (int i=0; i<npaths && fontfilename.length()==0; i++) {
 		if ((font_path[i])[0] != '/') continue; // not a path name, a font server
@@ -5118,7 +5118,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 				}
 			    }
 			}
-			fontmap.close(); 
+			fontmap.close();
 		    }
 		    num++;
 		}
@@ -5131,7 +5131,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	xfontname = fontfilename;
     // ### somehow the font dict doesn't seem to work without this. Don't ask me why...
     priv->fonts.size();
-    
+
     p = priv->fonts.find(xfontname);
     qDebug("font=%s, fontname=%s, p=%p", f.family().latin1(), xfontname.latin1(), p);
 
@@ -5141,48 +5141,48 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	    QFile fontfile(fontfilename);
 	    printf("font name %s size = %d\n",fontfilename.latin1(),fontfile.size());
 	    data = QByteArray( fontfile.size() );
-      
+
 	    fontfile.open(IO_Raw | IO_ReadOnly);
 	    fontfile.readBlock(data.data(), fontfile.size());
-	    fontfile.close(); 
+	    fontfile.close();
 	}
-  
+
 
 	enum { NONE, PFB, PFA, TTF } type = NONE;
 
 	if (!data.isNull() && data.size() > 0) {
 	    unsigned char* d = (unsigned char *)data.data();
-	    if (d[0] == 0x80 && d[6] == '%' && d[7] == '!' && d[8] == 'P' && d[9] == 'S' )                
+	    if (d[0] == 0x80 && d[6] == '%' && d[7] == '!' && d[8] == 'P' && d[9] == 'S' )
 		type = PFB;
-	    else if (d[0] == '%' && d[1] == '!' && d[2] == 'P' && d[3] == 'S')  
+	    else if (d[0] == '%' && d[1] == '!' && d[2] == 'P' && d[3] == 'S')
 		type = PFA;
-	    else if (d[0]==0x00 && d[1]==0x01 && d[2]==0x00 && d[3]==0x00) 
+	    else if (d[0]==0x00 && d[1]==0x01 && d[2]==0x00 && d[3]==0x00)
 		type = TTF;
-	    else 
+	    else
 		type = NONE;
 	} else
 	    type = NONE;
 
 	//qWarning(xfontname);
 	switch (type) {
-	    case TTF : 
+	    case TTF :
 		p = new QPSPrinterFontTTF(f, data);
 		break;
-	    case PFB:  
+	    case PFB:
 		p = new QPSPrinterFontPFB(f, data);
 		break;
-	    case PFA:  
-		p = new QPSPrinterFontPFA(f, data);   
+	    case PFA:
+		p = new QPSPrinterFontPFA(f, data);
 		break;
-	    case NONE: 
-	    default:   
+	    case NONE:
+	    default:
 		p=new QPSPrinterFontNotFound( f ); break;
 	}
 	//qDebug("inserting %s int dict (%p)", xfontname.latin1(), p);
 	priv->fonts.insert( xfontname, p );
     }
-} 
-	    
+}
+
 // ================= END OF PS FONT METHODS ============
 
 void QPSPrinter::setFont( const QFont & fnt, int script )
@@ -5334,7 +5334,7 @@ QByteArray compress( const QImage & image ) {
 	    for( int x=0; x < image.width(); x++ )
 		for( x=0; x < image.width(); x++ ) {
 		    pixel[i] = (*s++);
-		    if ( qAlpha( pixel[i] ) < 0x40 ) // 25% alpha, convert to white -                   
+		    if ( qAlpha( pixel[i] ) < 0x40 ) // 25% alpha, convert to white -
 			pixel[i] = qRgb( 0xff, 0xff, 0xff );
 		    else
 			pixel[i] &= RGB_MASK;
@@ -5836,7 +5836,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    setFont( d->currentSet, script );
 	}
 	if( d->currentFontFile ) // better not crash in case somethig goes wrong.
-	    d->currentFontFile->drawText( stream, spaces, *p[0].point, tmp, d, paint); 
+	    d->currentFontFile->drawText( stream, spaces, *p[0].point, tmp, d, paint);
 	break;
     }
     case PdcDrawText2Formatted:
@@ -6063,7 +6063,7 @@ void QPSPrinter::emitHeader( bool finished )
 	    h += 2*printer->margins().height();
 	}
 	// set a bounding box according to the DSC
-	if ( printer->orientation() == QPrinter::Landscape )	      
+	if ( printer->orientation() == QPrinter::Landscape )
 	    stream << "\n%%BoundingBox: 0 0 " << h << " " << w;
 	else
 	    stream << "\n%%BoundingBox: 0 0 " << w << " " << h;
@@ -6109,7 +6109,7 @@ void QPSPrinter::emitHeader( bool finished )
 	    stream << printer->margins().width() << " "
 		   << printer->margins().height() << " translate\n";
 	else
-	    stream << printer->margins().height() << " " 
+	    stream << printer->margins().height() << " "
 		   << printer->margins().width() << " translate\n";
     }
     if ( printer->orientation() == QPrinter::Portrait ) {
@@ -6165,14 +6165,14 @@ void QPSPrinter::newPageSetup( QPainter *paint )
 
     // Sivan: a restore undefines all the fonts that have been defined
     // inside the scope (normally within pages) and all the glyphs that
-    // have been added in the scope. 
+    // have been added in the scope.
 
     QDictIterator<QPSPrinterFontPrivate> it(d->fonts);
     while (it.current()) {
       it.current()->restore();
       ++it;
     }
-    
+
     // Sivan: end.
 }
 
@@ -6196,7 +6196,7 @@ void QPSPrinter::resetDrawingTools( QPainter *paint )
     //d->currentUsed = d->currentSet;
     //setFont( d->currentSet );
     d->currentFontFile = 0;
-    
+
     param[0].brush = &paint->brush();
     if (*param[0].brush != defaultBrush )
 	cmd( PdcSetBrush, paint, param);
