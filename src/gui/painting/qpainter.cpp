@@ -1171,17 +1171,21 @@ void QPainter::drawPath(const QPainterPath &path)
 
     // Fill the path...
     if (d->state->brush.style() != Qt::NoBrush) {
-        QPointArray fillPoly = pd->toFillPolygon(worldMatrix);
+	QPointArray fillPoly = pd->toFillPolygon(worldMatrix);
         QPen oldPen = d->state->pen;
         setPen(Qt::NoPen);
-        drawPolygon(fillPoly, path.fillMode() == QPainterPath::Winding);
+	d->engine->updateState(d->state);
+	d->engine->drawPolygon(fillPoly, path.fillMode() == QPainterPath::Winding ?
+ 			       QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
         setPen(oldPen);
     }
 
     // Draw the outline of the path...
     if (d->state->pen.style() != Qt::NoPen) {
-	for (int i=0; i<polygons.size(); ++i)
-	    drawPolyline(polygons.at(i));
+	for (int i=0; i<polygons.size(); ++i) {
+	    d->engine->updateState(d->state);
+  	    d->engine->drawPolygon(polygons.at(i), QPaintEngine::UnconnectedMode);
+	}
     }
 
     restore();
