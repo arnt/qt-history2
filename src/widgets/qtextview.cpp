@@ -789,6 +789,16 @@ void QTextView::drawCursor( bool visible )
     cursorVisible = visible;
 }
 
+enum {
+    IdUndo = 0,
+    IdRedo = 1,
+    IdCut = 2,
+    IdCopy = 3,
+    IdPaste = 4,
+    IdClear = 5,
+    IdSelectAll = 6
+};
+
 /*! \reimp */
 
 void QTextView::contentsMousePressEvent( QMouseEvent *e )
@@ -799,6 +809,52 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
     QTextCursor c = *cursor;
     mousePos = e->pos();
     mightStartDrag = FALSE;
+
+    if ( !isReadOnly() && e->button() == RightButton ) {
+	QPopupMenu *popup = new QPopupMenu( this );
+	int id[ 7 ];
+ 	id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
+ 	id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
+	popup->insertSeparator();
+#ifndef QT_NO_CLIPBOARD
+	id[ IdCut ] = popup->insertItem( tr( "Cut" ) );
+	id[ IdCopy ] = popup->insertItem( tr( "Copy" ) );
+	id[ IdPaste ] = popup->insertItem( tr( "Paste" ) );
+#endif
+	id[ IdClear ] = popup->insertItem( tr( "Clear" ) );
+	popup->insertSeparator();
+	id[ IdSelectAll ] = popup->insertItem( tr( "Select All" ) );
+ 	popup->setItemEnabled( id[ IdUndo ], !isReadOnly() && doc->commands()->isUndoAvailable() );
+ 	popup->setItemEnabled( id[ IdRedo ], !isReadOnly() && doc->commands()->isRedoAvailable() );
+#ifndef QT_NO_CLIPBOARD
+	popup->setItemEnabled( id[ IdCut ], !isReadOnly() && doc->hasSelection( QTextDocument::Standard ) );
+	popup->setItemEnabled( id[ IdCopy ], doc->hasSelection( QTextDocument::Standard ) );
+	popup->setItemEnabled( id[ IdPaste ], !isReadOnly() && !QApplication::clipboard()->text().isEmpty() );
+#endif
+	popup->setItemEnabled( id[ IdClear ], !isReadOnly() && !text().isEmpty() );
+	popup->setItemEnabled( id[ IdSelectAll ], (bool)text().length() );
+
+	int r = popup->exec( e->globalPos() );
+	delete popup;
+
+	if ( r == id[ IdClear ] )
+	    clear();
+	else if ( r == id[ IdSelectAll ] )
+	    selectAll();
+ 	else if ( r == id[ IdUndo ] )
+ 	    undo();
+ 	else if ( r == id[ IdRedo ] )
+ 	    redo();
+#ifndef QT_NO_CLIPBOARD
+	else if ( r == id[ IdCut ] )
+	    cut();
+	else if ( r == id[ IdCopy ] )
+	    copy();
+	else if ( r == id[ IdPaste ] )
+	    paste();
+#endif
+	return;
+    }
 
     if ( e->button() == LeftButton ) {
 	mousePressed = TRUE;
