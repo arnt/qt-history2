@@ -19,6 +19,7 @@
 #include "qpaintdevice.h"
 #include "qstring.h"
 #include <private/qt_mac_p.h>
+#include <private/qtextengine_p.h>
 #include <private/qunicodetables_p.h>
 #include <qapplication.h>
 #include "qfontdatabase.h"
@@ -65,7 +66,7 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
         int to = qMin(str.length(), pos + 8);
         QString cstr(str.unicode() + from, to - from);
         QTextEngine layout(cstr, d);
-        layout.setMode(QTextLayout::WidthOnly);
+        layout.setMode(QTextEngine::WidthOnly);
         layout.itemize();
         cwidth = (int)layout.width(pos - from, 1);
     } else if (::category(ch) == QChar::Mark_NonSpacing) {
