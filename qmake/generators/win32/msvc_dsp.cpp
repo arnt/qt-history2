@@ -117,12 +117,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
 
 			QString build = "\n\n# Begin Custom Build - Moc'ing " + findMocSource((*it)) +
-		    "...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
+					"...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
 					" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
 					"\t" + mocpath + findMocSource((*it)) + " -o " +
 					(*it) + "\n\n" "# End Custom Build\n\n";
 
-			t << "USERDEP_" << base << "=\"" << findMocSource((*it)) << "\" \"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
+			t << "USERDEP_" << base << "=\".\\" << findMocSource((*it)) << "\" \"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
 
 			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\""
@@ -155,7 +155,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
 
 			QString build = "\n\n# Begin Custom Build - Moc'ing " + (*it) +
-		    "...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + findMocDestination((*it)) +
+					"...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + findMocDestination((*it)) +
 					"\"" " : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
 					"\t" + mocpath + (*it)  + " -o " +
 					findMocDestination((*it)) + "\n\n" "# End Custom Build\n\n";
@@ -258,12 +258,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
 
 			QString build = "\n\n# Begin Custom Build - Moc'ing " + findMocSource((*it)) +
-		    "...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
+					"...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
 					" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
 					"\t" + mocpath + findMocSource((*it)) + " -o " +
 					(*it) + "\n\n" "# End Custom Build\n\n";
 
-			t << "USERDEP_" << base << "=\"" << findMocSource((*it)) << "\" \"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
+			t << "USERDEP_" << base << "=\".\\" << findMocSource((*it)) << "\" \"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
 
 			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\""
