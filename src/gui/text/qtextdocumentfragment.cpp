@@ -9,74 +9,6 @@
 #include <qbytearray.h>
 #include <qdatastream.h>
 
-QTextFormatCollectionState::QTextFormatCollectionState(QDataStream &stream)
-{
-    int formatCount;
-    stream >> formatCount;
-
-    for (; formatCount > 0; --formatCount) {
-        int formatIdx;
-        stream >> formatIdx;
-
-        int formatType;
-        stream >> formatType;
-
-        QTextFormat format(formatType);
-
-        int propCount;
-        stream >> propCount;
-
-        for (; propCount > 0; --propCount) {
-            int propId, propType;
-
-            Q_INT32 i;
-            QString s;
-            float f;
-
-            stream >> propId >> propType;
-
-            switch (propType) {
-                case QTextFormat::Undefined:
-                    break;
-                case QTextFormat::Bool:
-                    stream >> i;
-                    format.setProperty(propId, (bool)i);
-                    break;
-                case QTextFormat::Integer:
-                    stream >> i;
-                    format.setProperty(propId, i);
-                    break;
-                case QTextFormat::Float:
-                    stream >> f;
-                    format.setProperty(propId, f);
-                    break;
-                case QTextFormat::String:
-                    stream >> s;
-                    format.setProperty(propId, s);
-                    break;
-                case QTextFormat::FormatGroup:
-                    Q_ASSERT(propId == QTextFormat::GroupIndex);
-                    stream >> i;
-                    format.setGroupIndex(i);
-                    break;
-                default:
-                    Q_ASSERT(false);
-            }
-        }
-
-        formats[formatIdx] = format;
-    }
-
-    int groupCount;
-    stream >> groupCount;
-
-    for (; groupCount > 0; --groupCount) {
-        int key, value;
-        stream >> key >> value;
-        references[key] = value;
-    }
-}
-
 QTextFormatCollectionState::QTextFormatCollectionState(const QTextFormatCollection *collection, const QList<int> &formatIndices)
 {
     Q_FOREACH(int formatIdx, formatIndices) {
@@ -122,51 +54,6 @@ QMap<int, int> QTextFormatCollectionState::insertIntoOtherCollection(QTextFormat
     }
 
     return formatIndexMap;
-}
-
-void QTextFormatCollectionState::save(QDataStream &stream) const
-{
-    stream << formats.count();
-
-    for (FormatMap::ConstIterator it = formats.begin(); it != formats.end(); ++it) {
-        stream << it.key();
-
-        const QTextFormat &format = *it;
-        stream << format.type();
-
-        QList<int> props = format.allPropertyIds();
-        stream << props.count();
-        Q_FOREACH(int propId, props) {
-            if (format.propertyType(propId) != QTextFormat::Undefined) {
-                stream << propId << format.propertyType(propId);
-                switch (format.propertyType(propId)) {
-                    case QTextFormat::Undefined:
-                        Q_ASSERT(false);
-                        break;
-                    case QTextFormat::Bool:
-                        stream << Q_INT32(format.boolProperty(propId));
-                        break;
-                    case QTextFormat::Integer:
-                        stream << format.intProperty(propId);
-                        break;
-                    case QTextFormat::Float:
-                        stream << format.floatProperty(propId);
-                        break;
-                    case QTextFormat::String:
-                        stream << format.stringProperty(propId);
-                        break;
-                    case QTextFormat::FormatGroup:
-                        Q_ASSERT(propId == QTextFormat::GroupIndex);
-                        stream << format.groupIndex();
-                        break;
-                }
-            }
-        }
-    }
-
-    stream << references.count();
-    for (ReferenceMap::ConstIterator it = references.begin(); it != references.end(); ++it)
-        stream << it.key() << it.value();
 }
 
 QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cursor)
@@ -523,9 +410,7 @@ void QTextDocumentFragment::save(QDataStream &stream) const
     if (!d)
         return;
 
-    // ### version
-
-    d->formatCollectionState().save(stream);
+    stream << d->formatCollectionState();
 
     stream << d->blocks.count();
 
@@ -552,7 +437,8 @@ QTextDocumentFragment QTextDocumentFragment::fromBinary(const QByteArray &data)
 
     QTextDocumentFragmentPrivate *d = new QTextDocumentFragmentPrivate;
 
-    QTextFormatCollectionState collState(stream);
+    QTextFormatCollectionState collState;
+    stream >> collState;
     QMap<int, int> formatIndexMap = collState.insertIntoOtherCollection(d->localFormatCollection);
 
     int blockCount;

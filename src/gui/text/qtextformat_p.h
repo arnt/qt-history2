@@ -49,14 +49,17 @@ private:
     void free();
 };
 
+QDataStream &operator<<(QDataStream &stream, const QTextFormatProperty &prop);
+QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop);
 
 class QTextFormatPrivate : public QSharedData
 {
 public:
-    typedef QMap<int, QTextFormatProperty> PropertyMap;
+    // keep Q_INT* types here, so we can safely stream to a datastream
+    typedef QMap<Q_INT32, QTextFormatProperty> PropertyMap;
 
     PropertyMap properties;
-    int type;
+    Q_INT32 type;
 
     inline bool operator==(const QTextFormatPrivate &rhs) const {
         if (type != rhs.type)

@@ -21,16 +21,23 @@ public:
 
     QMap<int, int> insertIntoOtherCollection(QTextFormatCollection *collection) const;
 
-    void save(QDataStream &stream) const;
-
-private:
-    typedef QMap<int, QTextFormat> FormatMap;
-    typedef QMap<int, int> ReferenceMap;
+    typedef QMap<Q_INT32, QTextFormat> FormatMap;
+    typedef QMap<Q_INT32, Q_INT32> ReferenceMap;
 
     FormatMap formats;
     // maps from reference index to index (key) in 'formats' map
     ReferenceMap references;
 };
+
+inline QDataStream &operator<<(QDataStream &stream, const QTextFormatCollectionState &state)
+{
+    stream << state.formats << state.references; return stream;
+}
+
+inline QDataStream &operator>>(QDataStream &stream, QTextFormatCollectionState &state)
+{
+    stream >> state.formats >> state.references; return stream;
+}
 
 class QTextDocumentFragmentPrivate
 {

@@ -75,6 +75,56 @@ bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
     return true;
 }
 
+QDataStream &operator<<(QDataStream &stream, const QTextFormatProperty &prop)
+{
+    stream << Q_INT32(prop.type);
+
+    switch (prop.type) {
+        case QTextFormat::Undefined: break;
+        case QTextFormat::Bool: stream << Q_INT8(prop.data.boolValue); break;
+        case QTextFormat::FormatGroup:
+        case QTextFormat::Integer: stream << Q_INT32(prop.data.intValue); break;
+        case QTextFormat::Float: stream << prop.data.floatValue; break;
+        case QTextFormat::String: stream << prop.stringValue(); break;
+        default: Q_ASSERT(false); break;
+    }
+
+    return stream;
+}
+
+QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
+{
+    Q_INT32 t;
+    stream >> t;
+    prop.type = static_cast<QTextFormat::PropertyType>(t);
+
+    switch (prop.type) {
+        case QTextFormat::Undefined: break;
+        case QTextFormat::Bool: {
+            Q_INT8 b;
+            stream >> b;
+            prop.data.boolValue = b;
+            break;
+        }
+        case QTextFormat::FormatGroup:
+        case QTextFormat::Integer: {
+            Q_INT32 i;
+            stream >> i;
+            prop.data.intValue = i;
+            break;
+        }
+        case QTextFormat::Float: stream >> prop.data.floatValue; break;
+        case QTextFormat::String: {
+            QString s;
+            stream >> s;
+            prop = QTextFormatProperty(s);
+            break;
+        }
+        default: Q_ASSERT(false); break;
+    }
+
+    return stream;
+}
 
 /*!
     \class QTextFormat qtextformat.h
@@ -315,6 +365,17 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
     return *d == *rhs.d;
 }
 
+QDataStream &operator<<(QDataStream &stream, const QTextFormat &format)
+{
+    stream << format.d->type << format.d->properties;
+    return stream;
+}
+
+QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
+{
+    stream >> format.d->type >> format.d->properties;
+    return stream;
+}
 
 /*!
     \class QTextCharFormat qtextformat.h
