@@ -1729,7 +1729,7 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 
 /*! \reimp */
 
-void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
+void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 {
     QTextCursor oldCursor = *cursor;
     if ( scrollTimer->isActive() )
@@ -1764,9 +1764,35 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
     if ( !onLink.isEmpty() && onLink == pressedLink && linksEnabled() ) {
 	QUrl u( doc->context(), onLink, TRUE );
 	emitLinkClicked( u.toString( FALSE, FALSE ) );
+	
+	// emitting linkClicked() may result in that the cursor winds
+	// up hovering over a different valid link - check this and
+	// set the appropriate cursor shape
+	if ( isReadOnly() && linksEnabled() ) {
+	    QTextCursor c = *cursor;
+	    placeCursor( e->pos(), &c, TRUE );
+#ifndef QT_NO_NETWORKPROTOCOL
+	    if ( c.parag() && c.parag()->at( c.index() ) &&
+		 c.parag()->at( c.index() )->format()->isAnchor() &&
+		 !c.parag()->at( c.index() )->format()->anchorHref().isEmpty() ) {
+		if ( c.index() < c.parag()->length() - 1 )
+		    onLink = c.parag()->at( c.index() )->format()->anchorHref();
+		else
+		    onLink = QString::null;
 #ifndef QT_NO_CURSOR
-	viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+		viewport()->setCursor( onLink.isEmpty() ? arrowCursor : pointingHandCursor );
 #endif
+ 		QUrl u( doc->context(), onLink, TRUE );
+ 		emitHighlighted( u.toString( FALSE, FALSE ) );
+	    } else {
+#ifndef QT_NO_CURSOR
+		viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
+		onLink = QString::null;
+ 		emitHighlighted( QString::null );
+	    }
+#endif
+	}
     }
 #endif
     drawCursor( TRUE );
