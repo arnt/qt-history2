@@ -51,7 +51,7 @@
 
 /*!
   \class QLocalFs qlocalfs.h
-  \brief Implementation of a QNetworkProtocol that works
+  \brief The QLocalFs class is an implementation of a QNetworkProtocol that works
   on the local file system.
 
   \ingroup io

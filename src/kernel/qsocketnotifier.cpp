@@ -44,7 +44,7 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
 
 /*!
   \class QSocketNotifier qsocketnotifier.h
-  \brief The QSocketNotifer class provides support for socket callbacks.
+  \brief The QSocketNotifier class provides support for socket callbacks.
 
   \ingroup io
 
@@ -86,9 +86,9 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
 		      myObject, SLOT(dataReceived()) );
   \endcode
 
-  The optional \a parent argument can be set to make the socket notifier a
-  child of some widget and therefore be automatically destroyed when the
-  widget is destroyed.
+  The optional \e parent argument can be set to make the socket notifier a
+  child of any QObject, e.g. a widget, thus being automatically destroyed 
+  when the widget is destroyed.
 
   For read notifiers it makes little sense to connect the activated()
   signal to more than one slot because the data can be read from the

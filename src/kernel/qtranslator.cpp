@@ -970,7 +970,7 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
   For a QTranslator object, a lookup key is a triple (\e context, \e
   source \e text, \e comment) that uniquely identifies a message.  An
   extended key is a quadruple (\e hash, \e context, \e source \e
-  text, \e comment), where \a hash is computed from the source text
+  text, \e comment), where \e hash is computed from the source text
   and the comment.  Unless you plan to read and write messages
   yourself, you need not worry about the hash value.
 

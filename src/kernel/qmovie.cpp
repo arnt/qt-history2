@@ -60,7 +60,7 @@
 // NOT REVISED
 /*!
   \class QMovie qmovie.h
-  \brief Incrementally loads an animation or image, signalling as it progresses.
+  \brief The QMovie class provides incremental loading of animations or images, signalling as it progresses.
 
   \ingroup images
   \ingroup drawing

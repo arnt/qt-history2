@@ -38,11 +38,9 @@
 #include "qconnection.h"
 
 /*! \class QConnection qconnection.h
+  \brief The QConnection class is an internal class, used in the signal/slot mechanism.
 
   \internal
-
-  \brief The QConnection class is an internal class, used in the
-  signal/slot mechanism.
 
   Do not use this class directly in application programs.
 

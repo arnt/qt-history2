@@ -56,7 +56,7 @@
 
 /*!
   \class QShared qshared.h
-  \brief The QShared struct is internally used for implementing shared classes.
+  \brief The QShared class is used internally for implementing shared classes.
 
   \internal
 

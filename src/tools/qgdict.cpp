@@ -981,7 +981,7 @@ QDataStream& QGDict::write( QDataStream &s ) const
 
 /*!
   \class QGDictIterator qgdict.h
-  \brief An internal class for implementing QDictIterator and QIntDictIterator.
+  \brief The QGDictIterator class is an internal class for implementing QDictIterator and QIntDictIterator.
 
   \internal
 

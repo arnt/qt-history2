@@ -517,7 +517,7 @@ bool QIODevice::atEnd() const
 
 
 /*!
-  \fn int QIODevice::readBlock( char *data, uint maxlen )
+  \fn int QIODevice::readBlock( char *data, Q_ULONG maxlen )
   Reads at most \e maxlen bytes from the I/O device into \e data and
   returns the number of bytes actually read.
 
@@ -563,7 +563,7 @@ QByteArray QIODevice::readAll()
 }
 
 /*!
-  \fn int QIODevice::writeBlock( const char *data, uint len )
+  \fn int QIODevice::writeBlock( const char *data, Q_ULONG len )
   Writes \e len bytes from \e p to the I/O device and returns the number of
   bytes actually written.
 

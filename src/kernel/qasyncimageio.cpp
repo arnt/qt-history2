@@ -48,7 +48,7 @@ extern void qt_init_image_handlers();
 
 /*!
   \class QImageConsumer qasyncimageio.h
-  \brief An abstraction used by QImageDecoder.
+  \brief The QImageConsumer class is an abstraction used by QImageDecoder.
 
   \ingroup images
 
@@ -143,7 +143,7 @@ extern void qt_init_image_handlers();
 
 /*!
   \class QImageDecoder qasyncimageio.h
-  \brief Incremental image decoder for all supported image formats.
+  \brief The QImageDecoder class is an incremental image decoder for all supported image formats.
 
   \ingroup images
 
@@ -460,7 +460,7 @@ void QImageDecoder::unregisterDecoderFactory(QImageFormatType* f)
 
 /*!
   \class QImageFormat qasyncimageio.h
-  \brief Incremental image decoder for a specific image format.
+  \brief The QImageFormat class is an incremental image decoder for a specific image format.
 
   \ingroup images
 
@@ -509,7 +509,7 @@ QImageFormat::~QImageFormat()
 
 /*!
   \class QImageFormatType qasyncimageio.h
-  \brief Factory that makes QImageFormat objects.
+  \brief The QImageFormatType class is a factory that makes QImageFormat objects.
 
   \ingroup images
 

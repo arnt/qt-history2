@@ -1488,7 +1488,7 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \class QDragLeaveEvent qevent.h
-  \brief The QDragEnterEvent class provides an event which is sent to the widget when a drag and drop leaves the widget
+  \brief The QDragLeaveEvent class provides an event which is sent to the widget when a drag and drop leaves the widget
 
   This event is always preceded by a QDragEnterEvent and a series
   of QDragMoveEvent.  It is not sent if a QDropEvent is sent instead.

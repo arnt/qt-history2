@@ -2199,7 +2199,7 @@ QTextStream &reset( QTextStream &s )
 
 /*!
   \class QTextIStream qtextstream.h
-  \brief QTextIStream class is a convenience class for input streams.
+  \brief The QTextIStream class is a convenience class for input streams.
 
   For simple tasks code should be simple.  Hence, this
   class is a shorthand to avoid passing the \e mode argument
@@ -2234,7 +2234,7 @@ QTextStream &reset( QTextStream &s )
 
 /*!
   \class QTextOStream qtextstream.h
-  \brief QTextOStream class is a convenience class for output streams.
+  \brief The QTextOStream class is a convenience class for output streams.
 
   For simple tasks, code should be simple.  Hence this
   class is a shorthand to avoid passing the \e mode argument

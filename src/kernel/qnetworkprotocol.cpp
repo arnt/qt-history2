@@ -67,9 +67,7 @@ public:
 // NOT REVISED
 /*!
   \class QNetworkProtocol qnetworkprotocol.h
-
-  \brief This is the base class for network protocols that provide
-  a common API for network protocols.
+  \brief The QNetworkProtocol class provides a common API for network protocols.
 
   \ingroup io
 
@@ -911,8 +909,7 @@ public:
 /*!
   \class QNetworkOperation qnetworkprotocol.h
 
-  \brief This class is used to define operations for network
-  protocols and to return the state, arguments, etc.
+  \brief The QNetworkOperation class provides common operations for network protocols.
 
   \ingroup io
 

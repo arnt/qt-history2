@@ -53,7 +53,7 @@ static QPtrList<QWindowsMime> mimes;
 // NOT REVISED
 /*!
   \class QWindowsMime qmime.h
-  \brief Maps open-standard MIME types with Window Clipboard formats.
+  \brief The QWindowsMime class maps open-standard MIME types with Window Clipboard formats.
   \ingroup misc
 
   The drag-and-drop and clipboard facilities of Qt use the MIME standard.

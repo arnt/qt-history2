@@ -40,7 +40,7 @@
 // NOT REVISED
 /*!
   \class QFocusData qfocusdata.h
-  \brief Maintains the list of widgets that can take focus.
+  \brief The QFocusData class maintains the list of widgets that can take focus.
 
   This read-only list always contains at least one widget (the
   top-level widget, actually).  It provides a simple cursor which can

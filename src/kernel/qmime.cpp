@@ -47,7 +47,7 @@
 
 /*!
   \class QMimeSource qmime.h
-  \brief Am abstract class of objects which provide formatted data of a certain MIME type.
+  \brief The QMimeSource class is an abstraction of objects which provide formatted data of a certain MIME type.
   \ingroup misc
 
   \link dnd.html Drag-and-drop\endlink and
@@ -183,7 +183,7 @@ public:
 
 /*!
   \class QMimeSourceFactory qmime.h
-  \brief The QMimeSourceFactory is an extensible supply of mime-typed data.
+  \brief The QMimeSourceFactory class is an extensible provider of mime-typed data.
   \ingroup environment
 
   A QMimeSourceFactory provides an abstract interface to a collection of

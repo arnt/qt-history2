@@ -642,7 +642,7 @@ void QGCache::statistics() const
 
 /*!
   \class QGCacheIterator qgcache.h
-  \brief An internal class for implementing QCacheIterator and
+  \brief The QGCacheIterator class is an internal class for implementing QCacheIterator and
   QIntCacheIterator.
 
   \internal

@@ -51,7 +51,7 @@
 // NOT REVISED
 /*!
   \class QPlatinumStyle qplatinumstyle.h
-  \brief The QPlatinumStyle class provides Mac/Platinum look and feel
+  \brief The QPlatinumStyle class provides Mac/Platinum look and feel.
   \ingroup appearance
 
   This class implements the Platinum look and feel. It's an

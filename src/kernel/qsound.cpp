@@ -104,7 +104,7 @@ public:
 
 /*!
   \class QSound qsound.h
-  \brief Access to the platform audio facilities.
+  \brief The QSound class provides access to the platform audio facilities.
 
   \ingroup sound
 

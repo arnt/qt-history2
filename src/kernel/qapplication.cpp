@@ -1005,7 +1005,9 @@ void QApplication::setStyle( QStyle *style )
 }
 
 /*!
-  ###
+  \overload
+
+  Uses the QStyleFactory to create a QStyle object for \a style.
 */
 QStyle* QApplication::setStyle( const QString& style )
 {

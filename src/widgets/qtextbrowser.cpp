@@ -58,7 +58,7 @@
 
 /*!
   \class QTextBrowser qtextbrowser.h
-  \brief A rich text  browser with hypertext navigation.
+  \brief The QTextBrowser class provides a rich text  browser with hypertext navigation.
   \ingroup advanced
   \ingroup helpsystem
 
