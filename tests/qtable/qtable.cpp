@@ -175,11 +175,11 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
     selections.setAutoDelete( TRUE );
 
     // Create headers
-    leftHeader = new QTableHeader( numRows, this );
+    leftHeader = new QTableHeader( numRows, this, this );
     leftHeader->setOrientation( Vertical );
     leftHeader->setTracking( TRUE );
     leftHeader->setMovingEnabled( FALSE );
-    topHeader = new QTableHeader( numCols, this );
+    topHeader = new QTableHeader( numCols, this, this );
     topHeader->setOrientation( Horizontal );
     topHeader->setTracking( TRUE );
     topHeader->setMovingEnabled( FALSE );
@@ -471,8 +471,8 @@ void QTable::setCurrentCell( int row, int col )
 	    topHeader->setSectionState( oldCol, QTableHeader::Normal );
 	    leftHeader->setSectionState( oldRow, QTableHeader::Normal );
 	}
-	topHeader->setSectionState( curCol, QTableHeader::Bold );
-	leftHeader->setSectionState( curRow, QTableHeader::Bold );
+	topHeader->setSectionState( curCol, isColSelected( curCol, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
+	leftHeader->setSectionState( curRow, isRowSelected( curRow, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
     }
 }
 
@@ -510,7 +510,14 @@ bool QTable::isRowSelected( int row, bool full )
 	    return TRUE;
 	}
     } else {
-	// #### todo
+	for ( SelectionRange *s = selections.first(); s; s = selections.next() ) {
+	    if ( s->active &&
+		 row >= s->topRow &&
+		 row <= s->bottomRow &&
+		 s->leftCol == 0 && 
+		 s->rightCol == cols() - 1 )
+		return TRUE;
+	}
     }
     return FALSE;
 }
@@ -527,7 +534,14 @@ bool QTable::isColSelected( int col, bool full )
 	    return TRUE;
 	}
     } else {
-	// #### todo
+	for ( SelectionRange *s = selections.first(); s; s = selections.next() ) {
+	    if ( s->active &&
+		 col >= s->leftCol &&
+		 col <= s->rightCol &&
+		 s->topRow == 0 &&
+		 s->bottomRow == rows() - 1 )
+		return TRUE;
+	}
     }
     return FALSE;
 }
@@ -563,7 +577,7 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
 	selections.append( currentSelection );
 	currentSelection->init( curRow, curCol );
     } else {
-	clearSelections();
+	clearSelection();
 	currentSelection = new SelectionRange();
 	selections.append( currentSelection );
 	currentSelection->init( curRow, curCol );
@@ -721,7 +735,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
     case Key_Next:
     case Key_Home:
     case Key_End:
-	clearSelections();
+	clearSelection();
 	navigationKey = TRUE;
 	break;
     default: // ... or start in-place editing
@@ -743,7 +757,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	    currentSelection->expandTo( curRow, curCol );
 	    repaintSelections( &oldSelection, currentSelection );
 	} else {
-	    clearSelections();
+	    clearSelection();
 	}	
     }
 }
@@ -1114,7 +1128,8 @@ int QTable::indexOf( int row, int col ) const
     return ( row * cols() ) + col; // mapping from 2D table to 1D array
 }
 
-void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection )
+void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection, 
+				bool updateVertical, bool updateHorizontal )
 {
     QRect old = rangeGeometry( oldSelection->topRow,
 			       oldSelection->leftCol,
@@ -1130,26 +1145,34 @@ void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *ne
     repaintContents( r, FALSE );
 
     int i;
-    for ( i = 0; i <= cols(); ++i ) {
-	if ( !isColSelected( i ) )
-	    topHeader->setSectionState( i, QTableHeader::Normal );
-	else
-	    topHeader->setSectionState( i, QTableHeader::Bold );
-    }
 
-    for ( i = 0; i <= rows(); ++i ) {
-	if ( !isRowSelected( i ) )
-	    leftHeader->setSectionState( i, QTableHeader::Normal );
-	else
-	    leftHeader->setSectionState( i, QTableHeader::Bold );
+    if ( updateHorizontal ) {
+	for ( i = 0; i <= cols(); ++i ) {
+	    if ( !isColSelected( i ) )
+		topHeader->setSectionState( i, QTableHeader::Normal );
+	    else if ( isColSelected( i, TRUE ) )
+		topHeader->setSectionState( i, QTableHeader::Selected );
+	    else
+		topHeader->setSectionState( i, QTableHeader::Bold );
+	}
+    }
+    
+    if ( updateVertical ) {
+	for ( i = 0; i <= rows(); ++i ) {
+	    if ( !isRowSelected( i ) )
+		leftHeader->setSectionState( i, QTableHeader::Normal );
+	    else if ( isRowSelected( i, TRUE ) )
+		leftHeader->setSectionState( i, QTableHeader::Selected );
+	    else
+		leftHeader->setSectionState( i, QTableHeader::Bold );
+	}
     }
 }
 
-void QTable::clearSelections()
+void QTable::clearSelection()
 {
-    if ( selections.isEmpty() )
-	return;
-
+    bool needRepaint = !selections.isEmpty();
+    
     QRect r;
     for ( SelectionRange *s = selections.first(); s; s = selections.next() ) {
 	r = r.unite( rangeGeometry( s->topRow,
@@ -1160,10 +1183,15 @@ void QTable::clearSelections()
 
     currentSelection = 0;
     selections.clear();
+    if ( needRepaint )
+	repaintContents( r, FALSE );
+    
     int i;
     for ( i = 0; i <= cols(); ++i ) {
 	if ( !isColSelected( i ) )
 	    topHeader->setSectionState( i, QTableHeader::Normal );
+	else if ( isColSelected( i, TRUE ) )
+	    topHeader->setSectionState( i, QTableHeader::Selected );
 	else
 	    topHeader->setSectionState( i, QTableHeader::Bold );
     }
@@ -1171,11 +1199,11 @@ void QTable::clearSelections()
     for ( i = 0; i <= rows(); ++i ) {
 	if ( !isRowSelected( i ) )
 	    leftHeader->setSectionState( i, QTableHeader::Normal );
+	else if ( isRowSelected( i, TRUE ) )
+	    leftHeader->setSectionState( i, QTableHeader::Selected );
 	else
 	    leftHeader->setSectionState( i, QTableHeader::Bold );
     }
-
-    repaintContents( r, FALSE );
 }
 
 QRect QTable::rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCol )
@@ -1270,18 +1298,24 @@ bool QTable::SelectionRange::operator==( const SelectionRange &s ) const
 
 
 
-QTableHeader::QTableHeader( QWidget *parent, const char *name )
-    : QHeader( parent, name )
-{
-    setClickEnabled( FALSE );
-}
 
-QTableHeader::QTableHeader( int i, QWidget *parent, const char *name )
-    : QHeader( i, parent, name )
+
+
+
+
+
+
+
+
+
+
+
+QTableHeader::QTableHeader( int i, QTable *t, QWidget *parent, const char *name )
+    : QHeader( i, parent, name ), table( t )
 {
-    setClickEnabled( FALSE );
     states.resize( i );
     states.fill( Normal, -1 );
+    mousePressed = FALSE;
 }
 
 void QTableHeader::setSectionState( int s, SectionState state )
@@ -1292,11 +1326,10 @@ void QTableHeader::setSectionState( int s, SectionState state )
 	return;
 
     states[ s ] = state;
-    setClickEnabled( state != Normal, s );
     if ( orientation() == Horizontal )
-	repaint( sectionPos( s ) - 2 - offset(), 0, sectionSize( s ) + 4, height() );
+	repaint( sectionPos( s ) - 2 - offset(), 0, sectionSize( s ) + 4, height(), FALSE );
     else
-	repaint( 0, sectionPos( s ) - 2 - offset(), width(), sectionSize( s ) + 4 );
+	repaint( 0, sectionPos( s ) - 2 - offset(), width(), sectionSize( s ) + 4, FALSE );
 }
 
 QTableHeader::SectionState QTableHeader::sectionState( int s ) const
@@ -1320,7 +1353,7 @@ void QTableHeader::paintEvent( QPaintEvent *e )
     for ( int i = id; i < count(); i++ ) {
 	QRect r = sRect( i );
 	p.save();
-	if ( sectionState( i ) == Bold ) {
+	if ( sectionState( i ) == Bold || sectionState( i ) == Selected ) {
 	    QFont f( font() );
 	    f.setBold( TRUE );
 	    p.setFont( f );
@@ -1331,4 +1364,99 @@ void QTableHeader::paintEvent( QPaintEvent *e )
 	     orientation() == Vertical && r. bottom() >= e->rect().bottom() )
 	    return;
     }
+}
+
+void QTableHeader::paintSection( QPainter *p, int index, QRect fr )
+{
+    int section = mapToSection( index );
+    if ( section < 0 )
+	return;
+
+    if ( sectionState( index ) != Selected ) {
+	QHeader::paintSection( p, index, fr );
+    } else {
+	style().drawBevelButton( p, fr.x(), fr.y(), fr.width(), fr.height(),
+				 colorGroup(), TRUE );
+	paintSectionLabel( p, index, fr );
+    }
+}
+
+static int real_pos( const QPoint &p, Qt::Orientation o )
+{
+    if ( o == Qt::Horizontal )
+	return p.x();
+    return p.y();
+}
+
+void QTableHeader::mousePressEvent( QMouseEvent *e )
+{
+    QHeader::mousePressEvent( e );
+    mousePressed = TRUE;
+    pressPos = real_pos( e->pos(), orientation() );
+    startPos = -1;
+}
+
+void QTableHeader::mouseMoveEvent( QMouseEvent *e )
+{
+    if ( !mousePressed || cursor().shape() != ArrowCursor ) {
+	QHeader::mouseMoveEvent( e );
+	return;
+    }
+    
+    int p = real_pos( e->pos(), orientation() );
+    if ( startPos == -1 ) {
+	startPos = p;
+	if ( ( e->state() & ControlButton ) != ControlButton )
+	    table->clearSelection();
+	saveStates();
+	table->currentSelection = new QTable::SelectionRange();
+	table->selections.append( table->currentSelection );
+	if ( orientation() == Vertical ) {
+	    table->setCurrentCell( sectionAt( p ), 0 );
+	    table->currentSelection->init( sectionAt( p ), 0 );
+	} else {
+	    table->setCurrentCell( 0, sectionAt( p ) );
+	    table->currentSelection->init( 0, sectionAt( p ) );
+	}
+    }
+    endPos = p;
+    if ( startPos != -1 )
+	updateSelections();
+    else
+	QHeader::mouseMoveEvent( e );
+}
+
+void QTableHeader::mouseReleaseEvent( QMouseEvent *e )
+{
+    mousePressed = FALSE;
+    QHeader::mouseReleaseEvent( e );
+}
+
+void QTableHeader::updateSelections()
+{
+    int a = sectionAt( startPos );
+    int b = sectionAt( endPos );
+    int start = QMIN( a, b );
+    int end = QMAX( a, b );
+    for ( int i = 0; i < count(); ++i ) {
+	if ( i < start || i > end )
+	    setSectionState( i, oldStates[ i ] );
+	else
+	    setSectionState( i, Selected );
+    }
+    
+    QTable::SelectionRange oldSelection = *table->currentSelection;
+    if ( orientation() == Vertical )
+	table->currentSelection->expandTo( b, count() - 1 );
+    else
+	table->currentSelection->expandTo( count() - 1, b );
+    table->repaintSelections( &oldSelection, table->currentSelection, 
+			      orientation() == Horizontal, orientation() == Vertical );
+}
+
+void QTableHeader::saveStates()
+{
+    oldStates.resize( count() );
+    for ( int i = 0; i < count(); ++i )
+	oldStates[ i ] = sectionState( i );
 }

@@ -57,7 +57,8 @@ class QTable : public QScrollView
 {
     Q_OBJECT
     friend class QTableItem;
-
+    friend class QTableHeader;
+    
 public:
     enum EditMode { NotEditing, Editing, Replacing };
 
@@ -105,6 +106,7 @@ public:
     bool isSelected( int row, int col );
     bool isRowSelected( int row, bool full = FALSE );
     bool isColSelected( int col, bool full = FALSE );
+    void clearSelection();
 
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
@@ -149,8 +151,8 @@ private:
     void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
     int indexOf( int row, int col ) const;
     void updateGeometries();
-    void repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection );
-    void clearSelections();
+    void repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection, 
+			    bool updateVertical = TRUE, bool updateHorizontal = TRUE );
     QRect rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCol );
     void activateNextCell();
     void fixRow( int &row, int y );
@@ -174,7 +176,7 @@ private:
 class QTableHeader : public QHeader
 {
     Q_OBJECT
-
+    
 public:
     enum SectionState {
 	Normal,
@@ -182,18 +184,28 @@ public:
 	Selected
     };
 
-    QTableHeader( QWidget *parent=0, const char *name=0 );
-    QTableHeader( int, QWidget *parent=0, const char *name=0 );
+    QTableHeader( int, QTable *t, QWidget *parent=0, const char *name=0 );
 
     void setSectionState( int s, SectionState state );
     SectionState sectionState( int s ) const;
 
 protected:
     void paintEvent( QPaintEvent *e );
+    void paintSection( QPainter *p, int index, QRect fr );
+    void mousePressEvent( QMouseEvent *e );
+    void mouseMoveEvent( QMouseEvent *e );
+    void mouseReleaseEvent( QMouseEvent *e );
 
 private:
-    QArray<SectionState> states;
+    void updateSelections();
+    void saveStates();
 
+private:
+    QArray<SectionState> states, oldStates;
+    bool mousePressed;
+    int pressPos, startPos, endPos;
+    QTable *table;
+    
 };
 
 #endif // TABLE_H
