@@ -4,4 +4,4 @@
 #
 
 cd ${QTDIR}/util/scripts
-./mkdist.generic commercial win /tmp/qtdist
+./mkdist.generic $* commercial win /tmp/qtdist

@@ -4,6 +4,23 @@
 #
 # Copyright 1996 Troll Tech AS.  All rights reserved.
 #
+# ----------------------------------------------------------------
+#
+# Usage:
+#	mkdist.generic [options] {commercial|free|trial} {distdir}
+#
+# Options:
+#	-nodoc	Don't generate documentation
+#	-local	Copy local distribution from $QTDIR, don't use cvs
+#
+
+while true ; do
+  case "$1" in
+    "-nodoc") nodoc="yes"; shift;;
+    "-local") local="yes"; shift;;
+    *) break;;
+  esac
+done
 
 disttype=$1
 platform=$2
@@ -48,8 +65,18 @@ rm -rf ${DISTDIR} || ( echo unable to remove ${DISTDIR} ; exit 1 )
 mkdir ${DISTDIR}
 cd ${DISTDIR}
 
-echo "Exporting the entire Qt archive..." >&2
-cvs -Q export -Dnow qt
+if [ "$local" = "yes" ]; then
+  echo "Copying the local Qt archive (doesn't use CVS)..." >&2
+  cd ${QTDIR}
+  cd ..
+  find qt \( -type f -o -type l \) -print | \
+    egrep -v 'CVS|.cvsignore|.depend|core$|\.o$|\.a$|\.so|~|#' | \
+    tar cfT - - | (cd ${DISTDIR} ; tar xf - )
+else
+  echo "Exporting the entire Qt archive..." >&2
+  cvs -Q export -Dnow qt
+fi
+
 
 VERSION=`grep "#define.*QT_VERSION" qt/src/tools/qglobal.cpp | fmt -1 | grep '"' | sed -e 's/"//g'`
 VERSIONMAJOR=`echo $VERSION | sed -e 's/\..*$//'`
@@ -59,7 +86,7 @@ echo "Removing beta code..." >&2
 cd ${DISTDIR}/qt/src
 for d in `make showdirs`; do cd $d ; rm -f `make showbeta`; cd .. ; done
 
-if [ "$NODOC" = "yes" ]; then
+if [ "$nodoc" = "yes" ]; then
   echo "Documentation won't be generated" >& 2
 else
   echo "Generating documentation" >&2
@@ -97,7 +124,7 @@ fi
 
 echo "Generate lex and yacc files for moc..." >&2
 cd ${DISTDIR}/qt/src/moc
-make moc.cpp
+make moc_gen.cpp
 
 if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}/qt/src/moc
