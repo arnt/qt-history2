@@ -141,14 +141,37 @@ be in classes that inherit from the Qt namespace class), then change:
     <li><code>BitmapCursor</code> becomes <code>Qt::BitmapCursor</code>
 </ul>
 
-<p> The name of some debugging macro variables has been changed:
+<p> The name of some debugging macro variables has been changed.  We have
+tried not to break source compatibility as much as possible.  If you observe
+error messages on the UNIX console or the Windows debugging stream that were
+previously disabled, please check these macro variables:
 
 <ul>
+    <li><code>DEBUG</code> becomes <code>QT_DEBUG</code>
+    <li><code>NO_DEBUG</code> becomes <code>QT_NO_DEBUG</code>
     <li><code>NO_CHECK</code> becomes <code>QT_NO_CHECK</code>
     <li><code>CHECK_STATE</code> becomes <code>QT_CHECK_STATE</code>
     <li><code>CHECK_RANGE</code> becomes <code>QT_CHECK_RANGE</code>
     <li><code>CHECK_NULL</code> becomes <code>QT_CHECK_NULL</code>
     <li><code>CHECK_MATH</code> becomes <code>QT_CHECK_MATH</code>
+</ul>
+
+<p> The name of some debugging macro functions has been changed as well
+but source compatibility should not be affected if the macro variable
+<code>QT_CLEAN_NAMESPACE</code> is not defined:
+
+<ul>
+    <li><code>ASSERT</code> becomes <code>Q_ASSERT</code>
+    <li><code>CHECK_PTR</code> becomes <code>Q_CHECK_PTR</code>
+</ul>
+
+<p> For the record, undocumented macro variables that are not part of the API
+have been changed:
+
+<ul>
+    <li><code>_OS_*_</code> becomes <code>Q_OS_*</code>
+    <li><code>_WS_*_</code> becomes <code>Q_WS_*</code>
+    <li><code>_CC_*_</code> becomes <code>Q_CC_*</code>
 </ul>
 
 <h3><a name="Removed">Removed functions</a></h3>
