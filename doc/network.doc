@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Documentation for network programming
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -504,15 +504,14 @@ before emitting \c finished().
 Ideally you should use one of the predefined error codes of \c
 QNetworkProtocol. If this is not possible, you can add own error codes
 - they are just normal \c{int}s. Just be careful that the value of the
-  error code doesn't conflict with an existing one.
+error code doesn't conflict with an existing one.
 
-An example to look at is in qt/extensions/network/examples/ftpclient.
+An example to look at is in qt/examples/network/ftpclient.
 This is the implementation of a fairly complete FTP client, which
 supports uploading and downloading files, making directories, etc.,
 all done using \c QUrlOperators.
 
-You might also like to look at QFtp (in
-qt/extenstions/network/src/qftp.cpp) or at the example in
-qt/extenstions/network/examples/networkprotocol/nntp.cpp.
+You might also like to look at QFtp (in qt/src/network/qftp.cpp) or at
+the example in qt/examples/network/networkprotocol/nntp.cpp.
 
 */
