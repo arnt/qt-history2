@@ -1,0 +1,61 @@
+/****************************************************************************
+** $Id: $
+**
+** Qt/Embedded (Qt on QWS) documentation
+**
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+/*! \page mac-differences.html
+
+\title Qt/Mac differences
+
+This file will outline known issues and possible workarounds for
+limitations on Mac OS X with Qt. This list will not always be complete, so
+please contact Trolltech support with issues you find to be missing:
+
+\section1 \link qcursor.html QCursor \endlink
+
+Due to Mac OS X having only 16x16 custom cursors QCursor is limited by this
+as well. For now the only workaround to this problem is to use a small
+cursor (16x16).
+
+\section1 Anti-aliased text
+
+Qt/Mac (starting with 3.0.5) has introduced some support for smooth text as
+suggested by Apple's Aqua Style Guildelines. This support is limited to Mac
+OS X >10.1.4, when this version is not detected it will fallback to the old
+text rendering library.
+
+
+
+*/
+
+
+

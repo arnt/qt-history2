@@ -63,13 +63,14 @@ When compiling for this platform, the macro \c{Q_WS_WIN} is defined.
 \e{Not documented here. Please contact Trolltech Technical Support
 if you have queries.}
 
-\target mac
+\target macosx
 \section1 Qt/MacOSX
 
 When compiling for this platform, the macro \c{Q_WS_MACX} is defined.
 
-\e{Not documented here. Please contact Trolltech Technical Support
-if you have queries.}
+\list
+ \i \link mac-differences.html Qt/Mac differences\endlink
+\endlist
 
 \target qws
 \section1 Qt/Embedded
