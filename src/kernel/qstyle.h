@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#21 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#22 $
 **
 ** Definition of QStyle class
 **
@@ -47,12 +47,14 @@ public:
 
     GUIStyle guiStyle() const { return gs; }
 
-    virtual void polish( QApplication*);
-    virtual void unPolish( QApplication*);
-
     virtual void polish( QWidget* );
     virtual void unPolish( QWidget* );
 
+    virtual void polish( QApplication*);
+    virtual void unPolish( QApplication*);
+
+    virtual void polish( QPalette&);
+    
     virtual QRect itemRect( QPainter *p, int x, int y, int w, int h,
 		    int flags, bool enabled,
 		    const QPixmap *pixmap, const QString& text, int len=-1 );
@@ -126,17 +128,17 @@ public:
 
     // focus
     virtual void drawFocusRect( QPainter*,
-		    const QRect&, const QColorGroup &, const QColor* bg = 0 ) = 0;
+		    const QRect&, const QColorGroup &, const QColor* bg = 0, bool = FALSE ) = 0;
 
     // push buttons
     virtual void drawPushButton( QPushButton* btn, QPainter *p) = 0;
     virtual void drawPushButtonLabel( QPushButton* btn, QPainter *p);
 
     virtual void getButtonShift( int &x, int &y);
-    
+
     // frame
-    virtual int defaultFrameWidth();
-    
+    virtual int defaultFrameWidth() const;
+
     // scrollbars
     enum ScrollControl { ADD_LINE = 0x1 , SUB_LINE = 0x2 , ADD_PAGE = 0x4,
 			    SUB_PAGE = 0x8 , FIRST    = 0x10, LAST	= 0x20,

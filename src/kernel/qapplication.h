@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#107 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#108 $
 **
 ** Definition of QApplication class
 **
@@ -59,8 +59,8 @@ public:
     int		    argc()	const;
     char	  **argv()	const;
 
-    QStyle&	    style();
-    void	    setStyle( QStyle* );
+    static QStyle&	    style();
+    static void	    setStyle( QStyle* );
 
 #if 1	/* OBSOLETE */
     enum ColorMode { NormalColors, CustomColors };
@@ -170,7 +170,7 @@ private:
     char	   **app_argv;
     bool	     quit_now;
     int		     quit_code;
-    QStyle	    *app_style;
+    static QStyle	    *app_style;
     static int	     app_cspec;
     static QPalette *app_pal;
     static QFont    *app_font;

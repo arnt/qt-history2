@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#20 $
 **
 ** Implementation of Motif-like style class
 **
@@ -49,51 +49,91 @@
 */
 
 /*!
-    Constructs a QMotifStyle
+    Constructs a QMotifStyle. 
+    
+    If useHighlightCols is FALSE (default value), then the style will
+    polish the application's color palette to emulate the Motif way of
+    highlighting, which is a simple inversion between the base and the
+    text color.
 */
-QMotifStyle::QMotifStyle() : QStyle(MotifStyle)
+QMotifStyle::QMotifStyle( bool useHighlightCols ) : QStyle(MotifStyle)
 {
+    highlightCols = useHighlightCols;
+}
+
+
+
+/*!
+  If the argument is FALSE, then the style will polish the
+  application's color palette to emulate the
+  Motif way of highlighting, which is a simple inversion between the
+  base and the text color.
+  
+  The effect will show up the next time a application palette is set
+  via QApplication::setPalette(). The current color palette of the
+  application remains unchanged.
+    
+  \sa QStyle::polish( QPalette& ), selectionOnlyInverse()
+ */
+void QMotifStyle::setUseHighlightColors( bool arg)
+{
+    highlightCols = arg;
+}
+
+/*!
+  Returns whether the style treats the highlight colors of the palette
+  Motif-like, which is a simple inversion between the base and the
+  text color. The default is FALSE.
+
+  \sa setSelectionOnlyInverse()
+ */
+bool QMotifStyle::useHighlightColors() const
+{
+    return highlightCols;
 }
 
 /*! \reimp */
 
-void QMotifStyle::polish( QApplication* app)
+void QMotifStyle::polish( QPalette& pal)
 {
-    oldPalette = *app->palette();
+    if ( highlightCols )
+	return;
 
     // force the ugly motif way of highlighting *sigh*
-    QColorGroup normal = app->palette()->normal();
-    QColorGroup disabled = app->palette()->disabled();
-    QColorGroup active = app->palette()->active();
+    QColorGroup normal = pal.normal();
+    QColorGroup disabled = pal.disabled();
+    QColorGroup active = pal.active();
 
-    int h,s,v;
-    normal.text().hsv(&h,&s,&v);
-    if (v >= 255-50) {
-	normal.setHighlight( Qt::white );
-	normal.setHighlightedText( normal.base() );
-	disabled.setHighlight( Qt::white );
-	disabled.setHighlightedText( disabled.base() );
-	active.setHighlight( Qt::white );
-	active.setHighlightedText( active.base() );
-    } else {
-	normal.setHighlight( Qt::black );
-	normal.setHighlightedText( normal.base() );
-	disabled.setHighlight( Qt::black );
-	disabled.setHighlightedText( disabled.base() );
-	active.setHighlight( Qt::black );
-	active.setHighlightedText( active.base() );
-    }
-    app->setPalette(QPalette(normal, disabled, active), TRUE); // TODO
-    // really TRUE? when is this called?Ideally, before the first widget
-    // is constructed.... #####
+//     int h,s,v;
+//     normal.text().hsv(&h,&s,&v);
+//     if (v >= 255-50) {
+// 	normal.setHighlight( Qt::white );
+// 	normal.setHighlightedText( normal.base() );
+// 	disabled.setHighlight( Qt::white );
+// 	disabled.setHighlightedText( disabled.base() );
+// 	active.setHighlight( Qt::white );
+// 	active.setHighlightedText( active.base() );
+//     } else {
+// 	normal.setHighlight( Qt::black );
+// 	normal.setHighlightedText( normal.base() );
+// 	disabled.setHighlight( Qt::black );
+// 	disabled.setHighlightedText( disabled.base() );
+// 	active.setHighlight( Qt::black );
+// 	active.setHighlightedText( active.base() );
+//     }
+
+    normal.setHighlight( normal.text() );
+    normal.setHighlightedText( normal.base() );
+    disabled.setHighlight( disabled.text() );
+    disabled.setHighlightedText( disabled.base() );
+    active.setHighlight( active.text() );
+    active.setHighlightedText( active.base() );
+    pal.setNormal( normal );
+    pal.setDisabled( normal );
+    pal.setActive( normal );
 }
 
-/*! \reimp */
 
-void QMotifStyle::unPolish( QApplication* app)
-{
-    app->setPalette(oldPalette, TRUE);
-}
 
 /*! \reimp */
 
@@ -326,14 +366,25 @@ void QMotifStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 
 void
 QMotifStyle::drawFocusRect( QPainter* p,
-			    const QRect& r, const QColorGroup &/*g */, const QColor* col)
+			    const QRect& r, const QColorGroup &/*g */, const QColor* bg, bool atBorder)
 {
-    if (col && *col == Qt::black)
-	p->setPen( Qt::white );
+    if (bg ) {
+	int h,s,v;
+	bg->hsv(&h,&s,&v);
+	if (v >= 255-50)
+	    p->setPen( Qt::black );
+	else
+	    p->setPen( Qt::white );
+    }
     else
 	p->setPen( Qt::black);
-    p->drawRect( r );
+    if ( atBorder )
+	p->drawRect( QRect( r.x()+1, r.y()+1, r.width()-2, r.height()-2 ) );
+    else 
+	p->drawRect( r );
+    
 }
+
 
 /*! \reimp */
 

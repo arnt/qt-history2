@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#192 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#193 $
 **
 ** Implementation of QListView widget class
 **
@@ -1147,15 +1147,10 @@ int QListViewItem::width(const QFontMetrics& fm,
   \sa paintCell() paintBranches() QListView::setAllColumnsShowFocus()
 */
 
-void QListViewItem::paintFocus( QPainter *p, const QColorGroup &,
+void QListViewItem::paintFocus( QPainter *p, const QColorGroup &g,
 				const QRect & r )
 {
-    if ( listView()->style() == WindowsStyle ) {
-	p->drawWinFocusRect( r );
-    } else {
-	p->setPen( black );
-	p->drawRect( r );
-    }
+    listView()->style().drawFocusRect(p, r, g, isSelected()? &g.highlight() : &g.base(), isSelected() );
 }
 
 

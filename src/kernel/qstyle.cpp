@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#30 $
 **
 ** Implementation of QStyle class
 **
@@ -95,24 +95,6 @@ QStyle::~QStyle()
 */
 
 
-/*!
-  Late initialization of the QApplication object like settings an
-  appropriate color palette.
-
-  \sa unPolish, QPalette, QApplication::setPalette()
- */
-void QStyle::polish( QApplication*)
-{
-}
-
-/*!
-  Redo the application polisih
-
-  \sa polish, QPalette, QApplication::setPalette()
- */
-void QStyle::unPolish( QApplication*)
-{
-}
 
 /*!
   Initializes the appearance of a widget.
@@ -155,6 +137,40 @@ void QStyle::unPolish( QWidget*)
 }
 
 
+/*!
+  Late initialization of the QApplication object.
+  
+  The default implementation does nothing.
+
+  \sa unPolish
+ */
+void QStyle::polish( QApplication*)
+{
+}
+
+/*!
+  Redo the application polish
+
+  The default implementation does nothing.
+
+  \sa polish
+ */
+void QStyle::unPolish( QApplication*)
+{
+}
+
+/*!
+  The style may have certain requirements for color palettes.  In this
+  function it has the chance to change the palette according to these
+  requirements. 
+  
+  The default implementation does nothing.
+
+  \sa unPolish, QPalette, QApplication::setPalette()
+ */
+void QStyle::polish( QPalette&)
+{
+}
 
 
 /*!
@@ -371,7 +387,7 @@ void QStyle::getButtonShift( int &x, int &y)
 /*!
   The default frame width, usually 2.
  */
-int QStyle::defaultFrameWidth()
+int QStyle::defaultFrameWidth() const
 {
     return 2;
 }
@@ -492,10 +508,11 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on *
 
 /*!
   \fn void QStyle::drawFocusRect( QPainter* p,
-		const QRect& r, const QColorGroup &g , const QColor*)
+		const QRect& r, const QColorGroup &g , const QColor*, bool atBorder)
 
   Draws a mark indicating keyboard focus is on \a r.
 */
+
 
 /*!
 

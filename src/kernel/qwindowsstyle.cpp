@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#18 $
 **
 ** Implementation of Windows-like style class
 **
@@ -92,9 +92,8 @@ void QWindowsStyle::drawIndicator( QPainter* p,
 
 /*! \reimp */
 
-void
-QWindowsStyle::drawFocusRect( QPainter* p,
-			      const QRect& r, const QColorGroup &, const QColor* bg)
+void QWindowsStyle::drawFocusRect( QPainter* p,
+			      const QRect& r, const QColorGroup &, const QColor* bg, bool)
 {
     if (!bg)
 	p->drawWinFocusRect( r );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#7 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#8 $
 **
 ** Definition of something or other
 **
@@ -26,7 +26,8 @@ public:
 			  const QBrush *fill = 0 );
 
     void drawFocusRect( QPainter*,
-			const QRect&, const QColorGroup &, const QColor* =0 );
+			const QRect&, const QColorGroup &, const QColor* =0,  bool = FALSE );
+    
     void drawPushButton( QPushButton* btn, QPainter *p);
 
     void getButtonShift( int &x, int &y);
@@ -83,8 +84,6 @@ protected:
 			const QColor &c3, const QColor &c4,
 			const QBrush *fill );
 
-//     void initialize( QApplication*);
-//     void polish( QWidget* );
 };
 
 #endif

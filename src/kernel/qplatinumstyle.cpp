@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplatinumstyle.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qplatinumstyle.cpp#16 $
 **
 ** Implementation of Platinum-like style class
 **
@@ -56,36 +56,29 @@ QPlatinumStyle::QPlatinumStyle()
 {
 }
 
-/*! \reimp */
+// /*! \reimp */
 
-void QPlatinumStyle::polish( QApplication* app)
-{
-    oldPalette = *app->palette();
+// void QPlatinumStyle::polish( QApplication* app)
+// {
 
-    QColor standardLightGray( 222, 222, 222 );
-    QColor light( 255, 255, 255 );
-    QColor dark (98, 101, 98);
-    QColor mid (139, 137, 139);
-    QColorGroup nor( black, standardLightGray,
-			 light, dark, mid,
-			 black, white, white, standardLightGray );
-    QColorGroup dis( darkGray, standardLightGray,
-			 light, dark, mid,
-			 darkGray, white, white, nor.background() );
-    QColorGroup act( black, standardLightGray,
-			 light, dark, mid,
-			 black, white, white, nor.background() );
+//     QColor standardLightGray( 222, 222, 222 );
+//     QColor light( 255, 255, 255 );
+//     QColor dark (98, 101, 98);
+//     QColor mid (139, 137, 139);
+//     QColorGroup nor( black, standardLightGray,
+// 			 light, dark, mid,
+// 			 black, white, white, standardLightGray );
+//     QColorGroup dis( darkGray, standardLightGray,
+// 			 light, dark, mid,
+// 			 darkGray, white, white, nor.background() );
+//     QColorGroup act( black, standardLightGray,
+// 			 light, dark, mid,
+// 			 black, white, white, nor.background() );
 
-    app->setPalette(QPalette(nor, dis, act), TRUE );
+//     app->setPalette(QPalette(nor, dis, act), TRUE );
 
-}
+// }
 
-/*! \reimp */
-
-void QPlatinumStyle::unPolish( QApplication* app)
-{
-    app->setPalette(oldPalette, TRUE);
-}
 
 /*!
   Draws a press-sensitive shape.
@@ -595,7 +588,7 @@ void QPlatinumStyle::drawScrollBarBackground( QPainter *p, int x, int y, int w, 
 }
 
 
-/*!\reimp 
+/*!\reimp
  */
 QStyle::ScrollControl QPlatinumStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p )
 {

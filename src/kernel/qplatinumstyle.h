@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplatinumstyle.h#7 $
+** $Id: //depot/qt/main/src/kernel/qplatinumstyle.h#8 $
 **
 ** Definition of something or other
 **
@@ -63,17 +63,12 @@ public:
 
     int maximumSliderDragDistance() const;
 
-    void polish( QApplication*);
-    void unPolish( QApplication*);
-
 protected:
     void drawScrollBarBackground( QPainter *p, int x, int y, int w, int h,
 				  const QColorGroup &g, bool horizontal, const QBrush* fill = 0);
     QColor mixedColor(const QColor &, const QColor &);
     void drawRiffles( QPainter* p,  int x, int y, int w, int h,
 		      const QColorGroup &g, bool horizontal );
-private:
-       QPalette oldPalette;
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcdestyle.h#1 $
+** $Id: //depot/qt/main/src/kernel/qcdestyle.h#2 $
 **
 ** Definition of something or other
 **
@@ -17,9 +17,9 @@
 class Q_EXPORT QCDEStyle : public QMotifStyle
 {
 public:
-    QCDEStyle();
+    QCDEStyle( bool useHighlightCols = FALSE );
 
-    int defaultFrameWidth();
+    int defaultFrameWidth() const;
 
     void drawArrow( QPainter *p, ArrowType type, bool down,
 		    int x, int y, int w, int h,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcdestyle.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qcdestyle.cpp#4 $
 **
 ** Implementation of CDE-like style class
 **
@@ -52,27 +52,26 @@
 
 /*!
     Constructs a QCDEStyle
+
+    If useHighlightCols is FALSE (the default value), then the style
+    will polish the application's color palette to emulate the Motif
+    way of highlighting, which is a simple inversion between the base
+    and the text color.
 */
-QCDEStyle::QCDEStyle() : QMotifStyle()
+QCDEStyle::QCDEStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols )
 {
 }
 
-/*!
-  Reimplementation from QStyle
-
-  \sa QStyle
+/*!\reimp
   */
 
-int QCDEStyle::defaultFrameWidth()
+int QCDEStyle::defaultFrameWidth() const
 {
     return 1;
 }
 
 
-/*!
-  Reimplementation from QMotifStyle
-
-  \sa QMotifStyle
+/*!\reimp
   */
 
 void QCDEStyle::drawArrow( QPainter *p, ArrowType type, bool down,
@@ -189,10 +188,7 @@ void QCDEStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 
 }
 
-/*!
-  Reimplementation from QMotifStyle
-
-  \sa QMotifStyle
+/*!\reimp
   */
 void QCDEStyle::drawIndicator( QPainter* p,
 			       int x, int y, int w, int h, const QColorGroup &g,
@@ -226,10 +222,7 @@ void QCDEStyle::drawIndicator( QPainter* p,
 
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
 
-/*!
-  Reimplementation from QMotifStyle
-
-  \sa QMotifStyle
+/*!\reimp
   */
 void QCDEStyle::drawExclusiveIndicator( QPainter* p,
 				   int x, int y, int w, int h, const QColorGroup &g,

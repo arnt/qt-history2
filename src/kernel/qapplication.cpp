@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#192 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#193 $
 **
 ** Implementation of QApplication class
 **
@@ -105,6 +105,7 @@ void qt_init( Display* dpy );
 #endif
 
 QApplication *qApp = 0;				// global application object
+QStyle *QApplication::app_style	       = 0;	// default application style
 QPalette *QApplication::app_pal	       = 0;	// default application palette
 QFont	 *QApplication::app_font       = 0;	// default application font
 QDict<QPalette>* QApplication::app_palettes = 0; // default application palettes
@@ -304,7 +305,6 @@ void QApplication::init_precmdline()
 	warning( "QApplication: There should be only one application object" );
 #endif
 
-    app_style = 0;
     qApp = this;
 }
 
@@ -341,8 +341,9 @@ void QApplication::initialize( int argc, char **argv )
 #endif
     }
 
+    app_style->polish( *app_pal );
     app_style->polish( this ); //##### wrong place, still inside the qapplication constructor...grmbl....
-    // no longer starting up .....
+    
 
     if ( makeqdevel ) {
 	qdevel = new QDeveloper;
@@ -434,15 +435,13 @@ QApplication::~QApplication()
 /*!
   \fn QStyle& QApplication::style()
   Returns the style object of the application.
-  \sa setStyle()
+  \sa setStyle(), QStyle
 */
 
 /*!
   Sets the application GUI style to \e style.
 
-  The style parameter can be \c WindowsStyle or \c MotifStyle.
-
-  \sa style(), QWidget::setStyle()
+  \sa style(), QStyle
 */
 
 void QApplication::setStyle( QStyle *style )
@@ -467,9 +466,9 @@ void QApplication::setStyle( QStyle *style )
 		}
 	    }
 	}
-	old->unPolish( this );
+	old->unPolish( qApp );
     }
-    app_style->polish( this );
+    app_style->polish( qApp );
     if (old) {
 	if ( is_app_running && !is_app_closing ) {
 	    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
@@ -655,15 +654,24 @@ QPalette *QApplication::palette(const QWidget* w)
   Widgets created after this call get \e   palette as their
   \link QWidget::palette() palette\endlink when they
   access it.
+  
+  The palette may be changed according to the current GUI style in
+  QStyle::polish().
 
-  \sa QWidget::setPalette(), palette()
+  \sa QWidget::setPalette(), palette(), QStyle::polish()
 */
 
 void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, const char* className )
 {
+    QPalette* pal = new QPalette( palette );
+    
+    if ( !startingUp() ) 
+	qApp->style().polish( *pal );
+
+    
     if (!className) {
 	QPalette* old =  app_pal;
-	app_pal = new QPalette( palette.copy() );
+	app_pal = pal;
 	CHECK_PTR( app_pal );
 	delete old;
     }
@@ -673,7 +681,6 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
 	    CHECK_PTR( app_palettes );
 	    app_palettes->setAutoDelete( TRUE );
 	}
-	QPalette* pal = new QPalette(palette);
 	CHECK_PTR( pal );
 	app_palettes->insert(className, pal);
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#129 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#130 $
 **
 ** Implementation of QPushButton class
 **
@@ -310,7 +310,7 @@ void QPushButton::drawButton( QPainter *paint )
     rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
      if ( hasFocus() ) {
  	QRect r(x1+3, y1+3, x2-x1-5, y2-y1-5);
- 	style().drawFocusRect( paint, r , colorGroup() );
+ 	style().drawFocusRect( paint, r , colorGroup(), &colorGroup().base() );
      }
     lastDown = isDown();
     lastDef = defButton;
