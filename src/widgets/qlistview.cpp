@@ -7540,6 +7540,7 @@ void QListView::startRename()
     d->buttonDown = FALSE;
 }
 
+/* unselects items from to, including children, returns TRUE if any items were unselected */
 bool QListView::clearRange( QListViewItem *from, QListViewItem *to, bool includeFirst )
 {
     if ( !from || !to )
@@ -7561,13 +7562,16 @@ bool QListView::clearRange( QListViewItem *from, QListViewItem *to, bool include
 
     // Clear items <from, to>
     bool changed = FALSE;
-    for ( QListViewItem *i = from; i; i = i->itemBelow() ) {
-	if ( i->isSelected() ) {
-	    i->setSelected( FALSE );
+
+    QListViewItemIterator it( from );
+    while ( it.current() ) {
+	if ( it.current()->isSelected() ) {
+	    it.current()->setSelected( FALSE );
 	    changed = TRUE;
 	}
-	if ( i == to )
+	if ( it.current() == to )
 	    break;
+	++it;
     }
 
     // NOTE! This function does _not_ emit
