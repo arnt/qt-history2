@@ -47,8 +47,6 @@
 
 #include <stdlib.h>
 
-#include <qvariant.h>
-extern const QCoreVariant::Handler qt_gui_variant_handler;
 extern void qt_call_post_routines();
 
 #include "qapplication_p.h"
@@ -75,7 +73,6 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::T
     qt_tryComposeUnicode = 0;
     qt_dispatchAccelEvent = 0;
 #endif
-    QVariant::handler = &qt_gui_variant_handler;
 }
 
 void QApplicationPrivate::createEventLoop()

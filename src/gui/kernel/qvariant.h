@@ -170,8 +170,8 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     inline QT_COMPAT QPixmap& asPixmap() { return *static_cast<QPixmap *>(castOrDetach(Pixmap)); }
 #endif //QT_COMPAT
 
-private:
-    friend class QApplicationPrivate;
+protected:
+    Private *create(int type, const void *copy);
 };
 
 typedef QList<QVariant> QVariantList;

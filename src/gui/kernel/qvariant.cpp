@@ -36,7 +36,6 @@
 extern QDataStream &qt_stream_out_qcolorgroup(QDataStream &s, const QColorGroup &g);
 extern QDataStream &qt_stream_in_qcolorgroup(QDataStream &s, QColorGroup &g);
 
-extern const QVariant::Handler qt_gui_variant_handler;
 Q_CORE_EXPORT const QVariant::Handler *qcoreVariantHandler();
 
 template<typename T> inline T *v_cast(void *&p)
@@ -953,6 +952,21 @@ const QVariant::Handler qt_gui_variant_handler = {
     Constructs a new variant that holds a map whose keys are strings
     and whose values are variants, as given in \a val.
 */
+
+/*! \internal
+ */
+static const QVariant::Handler *qRegisterGuiVariantHandler(const QVariant::Handler *&handler)
+{
+    handler = &qt_gui_variant_handler;
+    return handler;
+}
+
+QVariant::Private *QVariant::create(int type, const void *copy)
+{
+    static const Handler *h = qRegisterGuiVariantHandler(handler);
+    Q_UNUSED(h);
+    return QCoreVariant::create(type, copy);
+}
 
 
 QVariant::QVariant(const QPoint &pt) { d = create(Point, &pt); }
