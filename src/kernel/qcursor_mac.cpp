@@ -430,10 +430,10 @@ void QCursor::update() const
 	    static int big_cursor_cnt = 0;
 	    sprintf(d->curs.big_cursor_name, "qt_QCursor_%d_%d", getpid(), big_cursor_cnt++);
 	    Point hotspot;
-	    if((hotspot.v = data->hx) < 0)
-		hotspot.v = 0;
-	    if((hotspot.h = data->hy) < 0)
+	    if((hotspot.h = data->hx) < 0)
 		hotspot.h = 0;
+	    if((hotspot.v = data->hy) < 0)
+		hotspot.v = 0;
 	    OSStatus ret = QDRegisterNamedPixMapCursor(GetGWorldPixMap((GWorldPtr)data->bm->handle()),
 						       GetGWorldPixMap((GWorldPtr)data->bmm->handle()), hotspot,
 						       d->curs.big_cursor_name);
