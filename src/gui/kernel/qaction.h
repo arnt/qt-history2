@@ -117,6 +117,8 @@ public:
     inline QT_COMPAT QIconSet iconSet() const { return icon(); }
     inline QT_COMPAT bool addTo(QWidget *w) { w->addAction(this); return true; }
     inline QT_COMPAT bool removeFrom(QWidget *w) { w->removeAction(this); return true; }
+    inline QT_COMPAT void setMenuText(const QString &s) { setText(s); }
+    inline QT_COMPAT QString menuText() { return text(); }
 #endif
 
 protected:
