@@ -56,6 +56,7 @@
     \i PostScript on Linux, Unix, and Mac OS X
     \i QuickDraw and CoreGraphics on Mac OS X
     \i X11 and the X Render Extension on Linux and Unix systems
+    \i Qt/Embedded
     \endlist
 
     To implement support for a new backend, you must derive from
@@ -152,8 +153,8 @@
 
     \img antialiased.png
 
-    Supported platforms are currently Mac OS X,  Windows if GDI+ is
-    installed, and OpenGL.
+    Supported backends are currently Mac OS X,  Windows if GDI+ is
+    installed, X11 and OpenGL.
 
 
     \section2 Extensive Use of Native Graphics Operations
@@ -246,16 +247,9 @@
 
     \list
     \i Gradients cannot have alpha color on X11.
-    \i Anti-aliasing of lines on X11.
-    \i Clipping regions on OpenGL.
-    \i Transformation of pen widths.
     \i Transformation of fill patterns.
     \i Support for querying for supported features (such as if
        antialiasing is available)
-    \i Not all primitive types are supported with gradient filling or
-       alpha filling at the moment. These will be made more consistent
-       in the time to come.
-    \i Use painter paths for clipping.
     \endlist
 
     \link qt4-intro.html [Back to the Technology Preview page] \endlink
