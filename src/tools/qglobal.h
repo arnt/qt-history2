@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#62 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#63 $
 **
 ** Global type declarations and definitions
 **
@@ -30,6 +30,7 @@
 //   IRIX   -	SGI Irix
 //   OSF    -	OSF Unix
 //   BSDI   -	BSDI Unix
+//   SCO    -   SCO of some sort
 //   UNIX   -	Any UNIX bsd/sysv system
 //
 
@@ -61,6 +62,8 @@
 #define _OS_OSF_
 #elif defined(bsdi) || defined(__bsdi__)
 #define _OS_BSDI_
+#elif defined(_SCO_DS) || defined(M_UNIX) || defined(M_XENIX)
+#define _OS_SCO_
 #else
 #error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
 #endif
