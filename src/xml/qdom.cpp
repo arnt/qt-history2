@@ -715,7 +715,7 @@ QDOM_NodePrivate* QDOM_NodePrivate::insertBefore( QDOM_NodePrivate* newChild, QD
 	return newChild;
     }
 
-    // No more errors can occure now, so we take
+    // No more errors can occur now, so we take
     // ownership of the node.
     newChild->ref();
 
@@ -808,7 +808,7 @@ QDOM_NodePrivate* QDOM_NodePrivate::insertAfter( QDOM_NodePrivate* newChild, QDO
     if ( newChild->parent )
 	newChild->parent->removeChild( newChild );
 
-  // No more errors can occure now, so we take
+  // No more errors can occur now, so we take
   // ownership of the node
     newChild->ref();
 
@@ -902,7 +902,7 @@ QDOM_NodePrivate* QDOM_NodePrivate::replaceChild( QDOM_NodePrivate* newChild, QD
 	return oldChild;
     }
 
-    // No more errors can occure now, so we take
+    // No more errors can occur now, so we take
     // ownership of the node
     newChild->ref();
 

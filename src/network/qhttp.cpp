@@ -1682,7 +1682,7 @@ void QHttpConnection::socketError( int e )
 */
 
 /*!
-  This function is Called when an error occures. The default implementation
+  This function is called when an error occues. The default implementation
   does nothing. Overload this method to implement your own error handling.
 */
 void QHttpConnection::error( int )
