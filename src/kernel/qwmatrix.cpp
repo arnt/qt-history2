@@ -185,6 +185,14 @@ bool qt_old_transformations = TRUE;
     In Areas mode, the width and height of the rectangle will be
     invariant under scaling, leading to a rectangle with the same
     topleft corner but with a width of 40 and a height of 80.
+
+    Please note that due to integer arithmetics certain operations
+    are not commutative.
+
+    Under points mode, matrix * ( region1 | region2 ) is not equal to
+    matrix*region1 | matrix*region2. Under Area mode, matrix *
+    (pointarray[i]) is not neccesarily equal to (matrix*pointarry)[i].
+
 */
 
 /*! 
