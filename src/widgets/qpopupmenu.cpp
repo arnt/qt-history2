@@ -712,8 +712,11 @@ void QPopupMenu::actSig( int id, bool inwhatsthis )
     } else {
 #ifndef QT_NO_WHATSTHIS
 	QRect r( itemGeometry( indexOf( id ) ) );
-	QWhatsThis::leaveWhatsThisMode( findItem( id )->whatsThis(),
-					mapToGlobal( QPoint( r.center().x(), r.bottom() ) ) );
+	QPoint p( r.center().x(), r.bottom() );
+	QString whatsThis = findItem( id )->whatsThis();
+	if ( whatsThis.isNull() )
+	    whatsThis = QWhatsThis::textFor( this, p );
+	QWhatsThis::leaveWhatsThisMode( whatsThis, mapToGlobal( p ) );
 #endif
     }
 
