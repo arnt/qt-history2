@@ -102,8 +102,6 @@ rm 	  dialogs/qdeveloper.h \
 	  dialogs/qtranslatordialog.h \
 	  kernel/qproperty.h \
 	  kernel/qresource.h \
-	  kernel/qsocket.h \
-	  kernel/qsocketdevice.h \
 	  widgets/qdial.h \
 	  widgets/qworkspace.h \
 	  widgets/qworkspacechild.h \
@@ -111,8 +109,6 @@ rm 	  dialogs/qdeveloper.h \
 	  kernel/qdns.h  \
 	  kernel/qproperty.cpp \
 	  kernel/qresource.cpp \
-	  kernel/qsocket.cpp \
-	  kernel/qsocketdevice.cpp \
 	  widgets/qdial.cpp \
 	  widgets/qworkspace.cpp \
 	  widgets/qworkspacechild.cpp \
@@ -295,6 +291,10 @@ if [ "${platform}" = "x11" ]; then
 
   # Generate makefiles
   ${QTDIR}/util/scripts/makeunixmake -v
+  # Copy template files into qt/configs
+  cp ${QTDIR}/tmake/*.t ${QTDIR}/configs
+  cd ${QTDIR}/configs
+  rm -f propagate.t subdirs.t
 fi
 
 echo "Copying the README, LICENSE etc. files..." >&2
