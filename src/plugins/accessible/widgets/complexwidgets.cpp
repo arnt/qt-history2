@@ -143,8 +143,7 @@ QRect QAccessibleTabBar::rect(int child) const
     QPoint tp = tabBar()->mapToGlobal(QPoint(0,0));
     QRect rec;
     if (child <= tabBar()->count()) {
-        QTab *tab = tabBar()->tabAt(child - 1);
-        rec = tab->rect();
+        rec = tabBar()->tabRect(child - 1);
     } else {
         QWidget *widget = button(child);
         rec = widget->geometry();
@@ -171,10 +170,9 @@ QString QAccessibleTabBar::text(Text t, int child) const
             return left ? QTabBar::tr("Scroll Left") : QTabBar::tr("Scroll Right");
         }
     } else if (child > 0) {
-        QTab *tab = tabBar()->tabAt(child - 1);
         switch (t) {
         case Name:
-            return qacc_stripAmp(tab->text());
+            return qacc_stripAmp(tabBar()->tabText(child - 1));
         }
     }
 
@@ -201,23 +199,21 @@ int QAccessibleTabBar::state(int child) const
     if (!child)
         return st;
 
-    if (child > tabBar()->count()) {
+    QTabBar *tb = tabBar();
+
+    if (child > tb->count()) {
         QWidget *bt = button(child);
         if (!bt->isEnabled())
             st |= Unavailable;
         return st;
     }
 
-    QTab *tab = tabBar()->tabAt(child - 1);
-    if (!tab)
-        return st;
-
-    if (!tab->isEnabled())
+    if (!tb->isTabEnabled(child - 1))
         st |= Unavailable;
     else
         st |= Selectable;
 
-    if (tabBar()->currentTab() == tab->identifier())
+    if (!tb->currentIndex() == child - 1)
         st |= Selected;
 
     return st;
@@ -236,10 +232,9 @@ bool QAccessibleTabBar::doAction(int, int child, const QVariantList &)
         bt->animateClick();
         return true;
     }
-    QTab *tab = tabBar()->tabAt(child - 1);
-    if (!tab || !tab->isEnabled())
+    if (!tabBar()->isTabEnabled(child - 1))
         return false;
-    tabBar()->setCurrentTab(tab);
+    tabBar()->setCurrentIndex(child - 1);
     return true;
 }
 
@@ -249,19 +244,18 @@ bool QAccessibleTabBar::setSelected(int child, bool on, bool extend)
     if (!child || !on || extend || child > tabBar()->count())
         return false;
 
-    QTab *tab = tabBar()->tabAt(child - 1);
-    if (!tab || !tab->isEnabled())
+    if (!tabBar()->isTabEnabled(child - 1))
         return false;
-    tabBar()->setCurrentTab(tab);
+    tabBar()->setCurrentIndex(child - 1);
     return true;
 }
 
 /*! \reimp */
 QVector<int> QAccessibleTabBar::selection() const
 {
-    QVector<int> array(1);
-    array[0] = tabBar()->indexOf(tabBar()->currentTab()) + 1;
-
+    QVector<int> array;
+    if (tabBar()->currentIndex() != -1)
+        array +=tabBar()->currentIndex() + 1;
     return array;
 }
 
