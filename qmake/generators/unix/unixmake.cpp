@@ -87,7 +87,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "CXXFLAGS= " << var("QMAKE_CXXFLAGS") << " " << varGlue("DEFINES","-D"," -D","") << endl;
     t << "LEXFLAGS=" << var("QMAKE_LEXFLAGS") << endl;
     t << "YACCFLAGS=" << var("QMAKE_YACCFLAGS") << endl;
-    t << "INCPATH = " << varGlue("INCLUDEPATH","-I", " -I", "") << endl;
+    t << "INCPATH = " << varGlue("INCLUDEPATH","-I", " -I", "") << " -I" << Option::specfile << endl;
     if(!project->isActiveConfig("staticlib")) {
 	t << "LINK  = " << var("QMAKE_LINK") << endl;
 	t << "LFLAGS= " << var("QMAKE_LFLAGS") << endl;

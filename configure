@@ -277,7 +277,7 @@ GIF=no
 THREAD=auto
 SM=auto
 XINERAMA=auto
-BIG_CODECS=auto
+BIG_CODECS=yes
 ZLIB=yes
 LIBPNG=yes
 JPEG=no
@@ -510,6 +510,7 @@ while [ -n "$1" ]; do
 	HELP=yes
 	;;
    -v)
+        #takes two verboses to turn on qmake debugs
 	[ "x$VERBOSE" = "xyes" ] && QMAKE_SWITCHES="$QMAKE_SWITCHES -d"
 	VERBOSE=yes
 	;;
@@ -567,8 +568,8 @@ then
 	MODULES=`echo $MODULES | sed -e 's/opengl//'`
 	PLATFORMS=`find $relpath/mkspecs/qws | sed "s,$relpath/mkspecs/qws/,,"`
 	case "$UNAME_MACHINE" in
-	 *86) ARCH=x86-
-	;; *) ARCH=generic-
+	*86) ARCH=x86- ;;
+	*) ARCH=generic- ;;
 	esac
     else
 	PLATFORMS=`find $relpath/mkspecs/ -type f | xargs grep -v qws | sed "s,$relpath/mkspecs/qws/,,"`
@@ -735,9 +736,6 @@ then
     echo
     exit 2
 fi
-# Link the platform include file into the include directory
-rm -f ${relpath}/include/qplatformdefs.h
-ln -s ${relpath}/mkspecs/${XPLATFORM}/qplatformdefs.h ${relpath}/include/qplatformdefs.h
 
 # Auto-detect opengl support
 if echo $MODULES | grep opengl >/dev/null 
@@ -962,12 +960,6 @@ then
 	    fi
 	done
     fi
-fi
-
-# Compile in big text codecs by default
-if [ $BIG_CODECS = auto ]
-then
-    BIG_CODECS=yes
 fi
 
 case "$QCONFIG" in
@@ -1392,11 +1384,11 @@ then
 	sed -e "s,QMAKE_.*FLAGS.*,,g" -e "s,QMAKE_CXX,CXX," >> $outpath/qmake/Makefile
 
     sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
-        -e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" $relpath/qmake/GNUmakefile.in >> \
-	$outpath/qmake/GNUmakefile
+        -e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" -e "s,@QMAKE_MKSPEC@,$MKSPEC,g" \
+	$relpath/qmake/GNUmakefile.in >$outpath/qmake/GNUmakefile
     sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
-	-e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" $relpath/qmake/Makefile.unix >> \
-	$outpath/qmake/Makefile
+	-e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" -e "s,@QMAKE_MKSPEC@,$MKSPEC,g" \
+	$relpath/qmake/Makefile.unix >$outpath/qmake/Makefile
 
     (cd $outpath/qmake; /bin/sh -c $MAKE || \
 	(echo "QMake failed to build. Aborting." && exit 2)) || exit 2
@@ -1491,7 +1483,7 @@ rm -f .sorted.projects
 cat >$outpath/config.status << EOF
 #!/bin/sh
 
-yes yes | $relpath/$relconf $CONFIG_CMDLINE \$@
+echo yes | $relpath/$relconf $CONFIG_CMDLINE \$@
 EOF
 chmod +x $outpath/config.status
 
