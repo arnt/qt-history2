@@ -1877,17 +1877,11 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \overload bool operator==( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns TRUE if \a s1 and \a s2 are equal; otherwise returns FALSE.
-
-  Equivalent to qstrcmp(\a s1, \a s2) == 0.
 */
 
 /*!
   \overload bool operator==( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \a s1 and \a s2 are equal; otherwise returns FALSE.
-
-  Equivalent to qstrcmp(\a s1, \a s2) == 0.
 */
 
 /*!
@@ -1901,41 +1895,35 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \overload bool operator!=( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns TRUE if \a s1 and \a s2 are different; otherwise returns FALSE.
-
-  Equivalent to qstrcmp(\a s1, \a s2) != 0.
 */
 
 /*!
   \overload bool operator!=( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \a s1 and \a s2 are different; otherwise returns FALSE.
-
-  Equivalent to qstrcmp(\a s1, \a s2) != 0.
 */
 
 /*!
-  \fn bool operator<( const QCString &s1, const char *s2 )
+  \fn bool operator<( const QCString &s1, const QCString &s2 )
   \relates QCString
   Returns TRUE if \a s1 is less than \a s2; otherwise returns FALSE.
 
   Equivalent to qstrcmp(\a s1, \a s2) \< 0.
 
   \sa \link #asciinotion Note on character comparisons \endlink
+*/
+
+/*!
+  \overload bool operator<( const QCString &s1, const char *s2 )
+  \relates QCString
 */
 
 /*!
   \overload bool operator<( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \a s1 is less than \a s2; otherwise returns FALSE.
-
-  Equivalent to qstrcmp(\a s1, \a s2) \< 0.
-
-  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
-  \fn bool operator<=( const QCString &s1, const char *s2 )
+  \fn bool operator<=( const QCString &s1, const QCString& s2 )
   \relates QCString
   Returns TRUE if \a s1 is less than or equal to \a s2;
   otherwise returns FALSE.
@@ -1943,41 +1931,40 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   Equivalent to qstrcmp(\a s1, \a s2) \<= 0.
 
   \sa \link #asciinotion Note on character comparisons \endlink
+*/
+
+/*!
+  \overload bool operator<=( const QCString &s1, const char *s2 )
+  \relates QCString
 */
 
 /*!
   \overload bool operator<=( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \a s1 is less than or equal to \a s2;
-  otherwise returns FALSE.
-
-  Equivalent to qstrcmp(\a s1, \a s2) \<= 0.
-
-  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
-  \fn bool operator>( const QCString &s1, const char *s2 )
+  \fn bool operator>( const QCString &s1, const QCString &s2 )
   \relates QCString
   Returns TRUE if \a s1 is greater than \a s2; otherwise returns FALSE.
 
   Equivalent to qstrcmp(\a s1, \a s2) \> 0.
 
   \sa \link #asciinotion Note on character comparisons \endlink
+*/
+
+/*!
+  \overload bool operator>( const QCString &s1, const char *s2 )
+  \relates QCString
 */
 
 /*!
   \overload bool operator>( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \a s1 is greater than \a s2; otherwise returns FALSE.
-
-  Equivalent to qstrcmp(\a s1, \a s2) \> 0.
-
-  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
-  \fn bool operator>=( const QCString &s1, const char *s2 )
+  \fn bool operator>=( const QCString &s1, const QCString &s2 )
   \relates QCString
   Returns TRUE if \a s1 is greater than or equal to \a s2;
   otherwise returns FALSE.
@@ -1985,17 +1972,16 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   Equivalent to qstrcmp(\a s1, \a s2) \>= 0.
 
   \sa \link #asciinotion Note on character comparisons \endlink
+*/
+
+/*!
+  \overload bool operator>=( const QCString &s1, const char *s2 )
+  \relates QCString
 */
 
 /*!
   \overload bool operator>=( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \a s1 is greater than or equal to \a s2;
-  otherwise returns FALSE.
-
-  Equivalent to qstrcmp(\a s1, \a s2) \>= 0.
-
-  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
