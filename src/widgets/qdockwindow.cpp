@@ -1840,6 +1840,15 @@ void QDockWindow::hideEvent( QHideEvent *e )
 
 void QDockWindow::showEvent( QShowEvent *e )
 {
+    if ( curPlace == OutsideDock ) {
+	QRect sr = qApp->desktop()->availableGeometry( this );
+	if ( !sr.contains( pos() ) ) {
+	    int nx = QMIN( QMAX( x(), sr.x() ), sr.right()-width() );
+	    int ny = QMIN( QMAX( y(), sr.y() ), sr.bottom()-height() );
+	    move( nx, ny );
+	}
+    }
+
     QFrame::showEvent( e );
 }
 
