@@ -100,6 +100,7 @@ QTreeView::QTreeView(QWidget *parent)
     d->header->setMovable(true);
     d->rootDecoration = true;
     setSelectionBehavior(QAbstractItemView::SelectRows);
+    setSelectionMode(QAbstractItemView::SingleSelection);
 }
 
 /*!
@@ -111,6 +112,7 @@ QTreeView::QTreeView(QTreeViewPrivate &dd, QWidget *parent)
 {
     d->rootDecoration = true;
     setSelectionBehavior(QAbstractItemView::SelectRows);
+    setSelectionMode(QAbstractItemView::SingleSelection);
 
     QHeaderView *header = new QHeaderView(Qt::Horizontal, this);
     header->setModel(model());

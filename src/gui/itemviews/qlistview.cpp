@@ -221,6 +221,7 @@ QListView::QListView(QWidget *parent)
 {
     d->init();
     setViewMode(ListMode);
+    setSelectionMode(QAbstractItemView::SingleSelection);
 }
 
 /*!
@@ -231,6 +232,7 @@ QListView::QListView(QListViewPrivate &dd, QWidget *parent)
 {
     d->init();
     setViewMode(ListMode);
+    setSelectionMode(QAbstractItemView::SingleSelection);
 }
 
 /*!
