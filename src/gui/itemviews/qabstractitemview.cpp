@@ -340,6 +340,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         (topLeft - bottomRight).manhattanLength() > QApplication::startDragDistance()) {
         startDrag();
         setState(NoState); // the startDrag will return when the dnd operation is done
+        stopAutoScroll();
         return;
     }
 
@@ -414,17 +415,11 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
         startAutoScroll();
 }
 
-void QAbstractItemView::dragLeaveEvent(QDragLeaveEvent *)
-{
-    stopAutoScroll();
-}
-
 void QAbstractItemView::dropEvent(QDropEvent *e)
 {
     QModelIndex index = itemAt(e->pos());
     if (model()->decode(e, (index.isValid() ? index : root())))
         e->accept();
-    stopAutoScroll();
 }
 
 void QAbstractItemView::focusInEvent(QFocusEvent *e)
@@ -813,7 +808,8 @@ void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
     d->delegate = delegate;
 }
 
-void QAbstractItemView::selectionChanged(const QItemSelection &deselected, const QItemSelection &selected)
+void QAbstractItemView::selectionChanged(const QItemSelection &deselected,
+                                         const QItemSelection &selected)
 {
     QRect deselectedRect = selectionViewportRect(deselected);
     QRect selectedRect = selectionViewportRect(selected);
@@ -825,27 +821,15 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
     if (d->currentEditor)
         endEdit(old, true);
 
-    // FIXME: calling ensureItemVisible first before redrawing oldRect
-    // make the view look slow, but since repaintItem does not update the rect
-    // immediately we get drawing errors because the content  might be shifted
     QRect area = d->viewport->clipRegion().boundingRect();
-    QRect oldRect = itemViewportRect(old);
-    if (old.isValid() && area.contains(oldRect)) {
-        update(oldRect);
-//         QApplication::eventLoop()->processEvents(QEventLoop::ExcludeUserInput
-//                                                  |QEventLoop::ExcludeSocketNotifiers);
-        //qApp->processOneEvent();
-        //qApp->processEvents();
-    }
 
-    if (current.isValid()) {
-        QRect currentRect = itemViewportRect(current);
-        if (area.contains(currentRect))
-            update(currentRect);
-        else
-            ensureItemVisible(current);
-        startEdit(current, QAbstractItemDelegate::CurrentChanged, 0);
-    }   
+    if (old.isValid())
+        d->viewport->repaint(itemViewportRect(old));
+        
+    if (current.isValid())
+        ensureItemVisible(current);
+
+    startEdit(current, QAbstractItemDelegate::CurrentChanged, 0);
 }
 
 void QAbstractItemView::fetchMore()
@@ -914,6 +898,7 @@ void QAbstractItemView::stopAutoScroll()
 {
     killTimer(d->autoScrollTimer);
     d->autoScrollTimer = 0;
+    d->autoScrollCount = 0;
 }
 
 /*!
@@ -945,7 +930,8 @@ void QAbstractItemView::doAutoScroll()
     horizontalScrollBar()->setValue(horizontalValue + delta);
     
     if (verticalValue == verticalScrollBar()->value()
-        && horizontalValue == horizontalScrollBar()->value())
+        && horizontalValue == horizontalScrollBar()->value()
+        || state() != Dragging)
         stopAutoScroll();
 }
 

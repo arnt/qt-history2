@@ -366,32 +366,35 @@ void QGenericListView::ensureItemVisible(const QModelIndex &item)
     QRect area = d->viewport->geometry();
     QRect rect = itemViewportRect(item);
 
-    if (area.contains(rect) || model()->parent(item) != root())
+    if (model()->parent(item) != root())
         return;
+    
+    if (area.contains(rect)) {
+        d->viewport->repaint(rect);
+        return;
+    }
 
     // vertical
-    if (rect.top() < area.top()) { // above
-        int cy = verticalScrollBar()->value() + rect.top();
-        verticalScrollBar()->setValue(cy);
-    } else if (rect.bottom() > area.bottom()) { // below
-        int cy = verticalScrollBar()->value() + rect.bottom() - viewport()->height();
-        verticalScrollBar()->setValue(cy);
-    }
+    int vy = verticalScrollBar()->value();
+    if (rect.top() < area.top()) // above
+        verticalScrollBar()->setValue(vy + rect.top());
+    else if (rect.bottom() > area.bottom()) // below
+        verticalScrollBar()->setValue(vy + rect.bottom() - viewport()->height());
 
     // horizontal
-    if (rect.left() < area.left()) { // left of
-        int cx = horizontalScrollBar()->value() + rect.left();
-        horizontalScrollBar()->setValue(cx);
-    } else if (rect.right() > area.right()) { // right of
-        int cx = horizontalScrollBar()->value() + rect.right() - viewport()->width();
-        horizontalScrollBar()->setValue(cx);
-    }
+    int vx = horizontalScrollBar()->value();
+    if (rect.left() < area.left()) // left of
+        horizontalScrollBar()->setValue(vx + rect.left());
+    else if (rect.right() > area.right()) // right of
+        horizontalScrollBar()->setValue(vx + rect.right() - viewport()->width());
 }
 
-void QGenericListView::scrollContentsBy(int /*dx*/, int /*dy*/)
+void QGenericListView::scrollContentsBy(int dx, int dy)
 {
-    //d->viewport->scroll(dx, dy);
-    d->viewport->update();
+    QRect rect = d->draggedItemsRect;
+    rect.moveBy(dx, dy);
+    d->viewport->scroll(dx, dy);
+    d->viewport->repaint(rect);
 }
 
 void QGenericListView::resizeContents(int w, int h)
@@ -484,7 +487,7 @@ void QGenericListView::dragMoveEvent(QDragMoveEvent *e)
     if (d->shouldAutoScroll(pos))
         startAutoScroll();
     d->draggedItemsPos = pos;
-    d->viewport->update(d->draggedItemsRect); // erase area
+    d->viewport->repaint(d->draggedItemsRect);
 
     QModelIndex item = itemAt(pos.x(), pos.y());
     if (item.isValid())
@@ -494,7 +497,6 @@ void QGenericListView::dragMoveEvent(QDragMoveEvent *e)
             e->ignore();
     else
         e->accept();
-    qApp->processEvents(); // make sure we can draw items
 }
 
 void QGenericListView::dragLeaveEvent(QDragLeaveEvent *)
@@ -1210,8 +1212,10 @@ QGenericListViewItem QGenericListViewPrivate::indexToListViewItem(const QModelIn
     if (movement != QGenericListView::Static)
         if (item.row() < tree.itemCount())
             return tree.const_item(item.row());
-        else
+        else {
+            qDebug("returns invalid listview item");
             return QGenericListViewItem();
+        }
 
     // movement == Static
     if ((flow == QGenericListView::LeftToRight && item.row() >= xposVector.count()) ||
@@ -1311,7 +1315,8 @@ void QGenericListViewPrivate::createStaticColumn(int &x, int &y, int &dx, int &w
     dx = 0;
 }
 
-void QGenericListViewPrivate::initStaticLayout(int &x, int &y, int first, const QRect &bounds, int spacing)
+void QGenericListViewPrivate::initStaticLayout(int &x, int &y, int first,
+                                               const QRect &bounds, int spacing)
 {
     if (first == 0) {
         x = bounds.left() + spacing;
@@ -1366,6 +1371,7 @@ QRect QGenericListViewPrivate::mapToViewport(const QRect &rect) const
     QRect result(rect.left() - q->horizontalScrollBar()->value(),
                  rect.top() - q->verticalScrollBar()->value(),
                  rect.width(), rect.height());
+    // If the listview is in "listbox-mode", the items are as wide as the viewport
     if (!wrap && movement == QGenericListView::Static)
         if (flow == QGenericListView::TopToBottom)
             result.setWidth(viewport->width());

@@ -170,7 +170,6 @@ protected:
     void contextMenuEvent(QContextMenuEvent *e);
     void dragEnterEvent(QDragEnterEvent *e);
     void dragMoveEvent(QDragMoveEvent *e);
-    void dragLeaveEvent(QDragLeaveEvent *e);
     void dropEvent(QDropEvent *e);
     void focusInEvent(QFocusEvent *e);
     void focusOutEvent(QFocusEvent *e);

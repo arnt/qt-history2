@@ -158,8 +158,7 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
         vscroll = d->leftHeader->offset() - offset;
         d->leftHeader->setOffset(offset);
     }
-    //d->viewport->scroll(hscroll, vscroll);
-    d->viewport->update();
+    d->viewport->scroll(hscroll, vscroll);
 }
 
 void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
