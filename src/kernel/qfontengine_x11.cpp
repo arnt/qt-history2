@@ -2340,7 +2340,7 @@ void QOpenType::applyGSUBFeature(unsigned int featureTag, bool *where)
     memset(where_to_apply, 1, str->length);
     if (where) {
 	int j = str->length-1;
-	for (int i = orig_nglyphs; i >= 0; --i) {
+	for (int i = orig_nglyphs-1; i >= 0; --i) {
 	    if (str->character_index[j] > i)
 		--j;
 	    if (!where[i])

@@ -1360,13 +1360,13 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	    //      matras here. For shaping however all pre matras need
 	    //      to be at the begining of the syllable, so we just move
 	    //      them there now.
-	    if (matra_position == Split)
+	    if (matra_position == Split) {
 		splitMatra(uc, matra, len, base);
 		// Handle three-part matras (0xccb in Kannada)
 		matra_position = indic_position(uc[matra]);
 	    	if (matra_position == Split)
 			splitMatra(uc, matra, len, base);
-	    else if (matra_position == Pre) {
+	    } else if (matra_position == Pre) {
 		unsigned short m = uc[matra];
 		while (matra--)
 		    uc[matra+1] = uc[matra];
