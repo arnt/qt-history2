@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#171 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#172 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#171 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#172 $");
 
 
 /*!
@@ -577,6 +577,8 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     if ( !deferredMoves )			// do it only once
 	initDeferredDicts();
     create();					// platform-dependent init
+    deferMove( frect.topLeft() );
+    deferResize( crect.size() );    
 }
 
 /*!
@@ -926,7 +928,8 @@ void QWidget::styleChange( GUIStyle )
   Some widgets display themselves differently when they are disabled.
   For example a button might draw its label grayed out.
 
-  \sa isEnabled(), QKeyEvent, QMouseEvent */
+  \sa isEnabled(), QKeyEvent, QMouseEvent
+*/
 
 void QWidget::setEnabled( bool enable )
 {
@@ -1541,8 +1544,9 @@ void QWidget::setFocus()
 /*!
   Takes keyboard input focus from the widget.
 
-  If the widget has focus, a \link focusOutEvent() focus out event\endlink
-  is sent to this widget to tell it that it is about to loose the focus.
+  If the widget has active focus, a \link focusOutEvent() focus out
+  event\endlink is sent to this widget to tell it that it is about to
+  loose the focus.
 
   This widget must enable focus setting in order to get the keyboard input
   focus, i.e. it must call setFocusPolicy().
@@ -1570,7 +1574,8 @@ void QWidget::clearFocus()
     }
 }
 
-/*!  Finds a new widget to give the keyboard focus to, as appropriate
+/*!
+  Finds a new widget to give the keyboard focus to, as appropriate
   for Tab/Shift-Tab.
 
   If \a next is true, this function searches \"forwards\", if \a next
