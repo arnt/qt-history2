@@ -456,9 +456,11 @@ void WidgetDatabase::setupDataBase()
 	if ( !iface )
 	    continue;
 
+#ifndef UIC
 	QIconSet icon = iface->iconset( *it );
 	if ( !icon.pixmap().isNull() )
 	    r->icon = new QIconSet( icon );
+#endif
 	r->iconSet = iface->iconSet( *it );
 	QString grp = iface->group( *it );
 	if ( grp.isEmpty() )
