@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#2 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,48 +18,42 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#2 $";
 #endif
 
 
 // --------------------------------------------------------------------------
-// Global colors
+// Application-wide data structures for QColor:
+//   A color dictionary which speeds up color handling.
+//   A color waiting list which post-initializes global custom colors.
 //
-
-const QColor black;
-const QColor white;
-const QColor darkGray;
-const QColor gray;
-const QColor lightGray;
-const QColor red;
-const QColor green;
-const QColor blue;
-const QColor cyan;
-const QColor magenta;
-const QColor yellow;
-const QColor darkRed;
-const QColor darkGreen;
-const QColor darkBlue;
-const QColor darkCyan;
-const QColor darkMagenta;
-const QColor darkYellow;
-
-
-// --------------------------------------------------------------------------
-// QColor dictionary to make color lookup faster than using XAllocColor
+// A waiting color is a color object that is declared as a global application
+// object with a non-zero RGB value or a color name.
+// Such colors cannot be allocated before the X display variable is set,
+// therefore we need to register them in a list and perform initialization
+// after the display variable is ok.
+// Global QFont objects are initialized in a similar way.
 //
 
 #include "qintdict.h"
+#include "qlist.h"
 
 typedef declare(QIntDictM,QColor) QColorDict;
 typedef declare(QIntDictIteratorM,QColor) QColorDictIt;
-
 static QColorDict *colorDict = 0;		// dict of allocated colors
 static bool	   colorAvail = TRUE;		// X colors available
 
+struct QWaitingColor {				// waiting color
+    QColor *cptr;
+    ulong   rgb;
+    char   *name;
+};
+typedef declare(QListM,QWaitingColor)	  QColorWaitingList;
+static QColorWaitingList *colorWaitList = 0;	// list of waiting colors
+
 
 // --------------------------------------------------------------------------
-// QColor member functions
+// QColor special member functions
 //
 
 static Colormap cmap = 0;			// application global colormap
@@ -69,6 +63,10 @@ inline ulong _RGB( uint r, uint g, uint b )
     return (uchar)r | ((ushort)g << 8) | ((ulong)b << 16);
 }
 
+
+// --------------------------------------------------------------------------
+// QColor static member functions
+//
 
 void QColor::initialize()			// called from startup routines
 {
@@ -105,6 +103,21 @@ void QColor::initialize()			// called from startup routines
     ((QColor*)(&darkCyan))->   setRGB(	 0, 128, 128 );
     ((QColor*)(&darkMagenta))->setRGB( 128,   0, 128 );
     ((QColor*)(&darkYellow))-> setRGB( 128, 128,   0 );
+
+  // Initialize global custom color objects
+
+    register QWaitingColor *wc = colorWaitList ? colorWaitList->first() : 0;
+    while ( wc ) {
+	if ( wc->name ) {
+	    XColor col, hw_col;
+	    if ( XLookupColor( dpy, cmap, wc->name, &col, &hw_col ) )
+		wc->cptr->setRGB( col.red>>8, col.green>>8, col.blue>>8 );
+	}
+	else
+	    wc->cptr->setRGB( wc->rgb );
+	wc = colorWaitList->next();
+    }
+    delete colorWaitList;
 }
 
 void QColor::cleanup()
@@ -115,10 +128,39 @@ void QColor::cleanup()
 }
 
 
+// --------------------------------------------------------------------------
+// QColor member functions
+//
+
 QColor::QColor()				// default RGB=0,0,0
 {
     rgb = RGB_INVALID;
     pix = 0;
+}
+
+QColor::QColor( const QColor &c )		// copy color
+{
+    if ( cmap ) {				// initialized
+	rgb = c.rgb;
+	pix = c.pix;
+    }
+    else {					// not initialized
+	if ( !colorWaitList )
+	    return;
+	QWaitingColor *wc = colorWaitList->first();
+	QWaitingColor *new_wc;
+	QColor *pc = (QColor *)&c;
+	while ( wc && wc->cptr != pc )		// find other color in list
+	    wc = colorWaitList->next();
+	if ( wc ) {				// found color in list
+	    rgb = pc->rgb;
+	    new_wc = new QWaitingColor;
+	    new_wc->cptr = (QColor *)this;
+	    new_wc->rgb = rgb;
+	    new_wc->name = wc->name;
+	    colorWaitList->append( new_wc );	// add similar entry to list
+	}
+    }
 }
 
 QColor::QColor( int r, int g, int b )		// specify RGB
@@ -140,24 +182,53 @@ QColor::QColor( const char *name )		// load color from database
 	}
 	setRGB( col.red>>8, col.green>>8, col.blue>>8 );
     }
-#if defined(CHECK_STATE)
-    else
-	warning( "QColor: Not ready to set color %s", name );
-#endif
+    else {					// not initialized
+	if ( !colorWaitList ) {
+	    colorWaitList = new QColorWaitingList;
+	    CHECK_PTR( colorWaitList );
+	    colorWaitList->setAutoDelete( TRUE );
+	}
+	QWaitingColor *wc = new QWaitingColor;
+	CHECK_PTR( wc );
+	wc->cptr = (QColor *)this;
+	wc->rgb = 0;
+	wc->name = (char *)name;
+	colorWaitList->append( wc );		// add entry to list
+    }
+}
+
+QColor::~QColor()
+{
+    if ( !cmap ) {				// not initialized
+	QWaitingColor *wc = colorWaitList ? colorWaitList->first() : 0;
+	while ( wc ) {				// remove entry from list
+	    if ( wc->cptr == this ) {
+		colorWaitList->remove();
+		break;
+	    }
+	    wc = colorWaitList->next();
+	}
+    }
 }
 
 
 bool QColor::setRGB( int r, int g, int b )	// set RGB value
 {
+    rgb = _RGB(r,g,b);
     if ( !cmap ) {				// not initialized
-#if defined(CHECK_STATE)
-	warning( "QColor: Not ready to set color (%d,%d,%d)", r, g, b );
-#endif
-	rgb = RGB_INVALID;
-	pix = 0;
+	if ( !colorWaitList ) {
+	    colorWaitList = new QColorWaitingList;
+	    CHECK_PTR( colorWaitList );
+	    colorWaitList->setAutoDelete( TRUE );
+	}
+	QWaitingColor *wc = new QWaitingColor;
+	CHECK_PTR( wc );
+	wc->cptr = (QColor *)this;
+	wc->rgb = rgb;
+	wc->name = 0;
+	colorWaitList->append( wc );		// add entry to list
 	return FALSE;
     }
-    rgb = _RGB(r,g,b);
     if ( colorDict ) {				// lookup color dictionary
 	QColor *c = colorDict->find( (long)rgb );
 	if ( c ) {				// found color
