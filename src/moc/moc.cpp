@@ -649,6 +649,8 @@ void Moc::parseProperty(ClassDef *def, bool override)
     QByteArray type = parseType();
     if (type.isEmpty())
         error();
+    if (!override)
+        propDef.designable = propDef.scriptable = propDef.stored = "true";
     /*
       The Q_PROPERTY construct cannot contain any commas, since
       commas separate macro arguments. We therefore expect users
