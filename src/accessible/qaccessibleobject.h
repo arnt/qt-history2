@@ -36,6 +36,16 @@ public:
     bool	isValid() const;
     QObject	*object() const;
 
+    int		propertyCount(int control) const;
+    QString	propertyText(int property, Text t, int control) const;
+    QString	property(int property, int control) const;
+    void	setProperty(int property, const QString& value, int control);
+
+    // action
+    int		actionCount(int control) const;
+    QString	actionText(int action, Text t, int control) const;
+    bool	doAction(int action, int control);
+
 private:
     QAccessibleObjectPrivate *d;
 };
@@ -51,22 +61,26 @@ public:
     bool	queryChild( int control, QAccessibleInterface** ) const;
     bool	queryParent( QAccessibleInterface** ) const;
 
+    // relations
+    Relation	relationTo(const QAccessibleInterface *, int) const;
+
     // navigation
     int		childAt( int x, int y ) const;
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
+    int		navigate(Relation, int, QAccessibleInterface **) const;
 
     // properties and state
     QString	text( Text t, int control ) const;
     void	setText( Text t, int control, const QString &text );
     Role	role( int control ) const;
     State	state( int control ) const;
-    QMemArray<int> selection() const;
+    QVector<int> selection() const;
 
-    // methods
-    bool	doDefaultAction( int control );
-    bool	setFocus( int control );
-    bool	setSelected( int control, bool on, bool extend );
+    // selection
+    bool	doAction(int action, int control);
+    bool	setFocus(int control);
+    bool	setSelected(int control, bool on, bool extend);
     void	clearSelection();
 };
 

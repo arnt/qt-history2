@@ -195,6 +195,67 @@ int QAccessibleWidget::navigate( NavDirection dir, int startControl ) const
 }
 
 /*! \reimp */
+QAccessible::Relation QAccessibleWidget::relationTo(const QAccessibleInterface *iface, int child) const
+{
+    QObject *o = iface ? iface->object() : 0;
+    if (!o)
+	return None;
+
+    if (o == object())
+	return child ? Parent : Self;
+
+    if (o->parent() == object()->parent())
+	return Sibling;
+
+    QObjectList cl(object()->queryList("QWidget", 0, 0, FALSE));
+    if (cl.contains(o))
+	return Parent;
+
+    for (int i = 0; i < cl.count(); ++i) {
+	QObject *child = cl.at(i);
+	QObjectList scl(child->queryList("QWidget", 0, 0, FALSE));
+	if (scl.contains(o))
+	    return Ancestor;
+    }
+
+    return None;
+}
+
+/*! \reimp */
+int QAccessibleWidget::navigate(Relation relation, int index, QAccessibleInterface **iface) const
+{
+    *iface = 0;
+    switch (relation) {
+    case Self:
+	const_cast<QAccessibleWidget*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)iface);
+	return 0;
+    case Child:
+	queryChild(index + 1, iface);
+	return *iface ? 0 : -1;
+    case Parent:
+	queryParent(iface);
+	return *iface ? 0 : -1;
+    case Ancestor:
+	queryParent(iface);
+	for (int i = 0; i < index, *iface; ++i) {
+	    QAccessibleInterface *parent = *iface;	    
+	    parent->queryParent(iface);
+	    parent->release();
+	}
+	return *iface ? 0 : -1;
+    case Sibling:
+	queryParent(iface);
+	if (*iface) {
+	    QAccessibleInterface *parent = *iface;
+	    parent->queryChild(index + 1, iface);
+	    parent->release();
+	}
+	return *iface ? 0 : -1;
+    }
+    return -1;
+}
+
+/*! \reimp */
 int QAccessibleWidget::childCount() const
 {
     QObjectList cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
@@ -240,11 +301,11 @@ bool QAccessibleWidget::queryParent( QAccessibleInterface **iface ) const
 }
 
 /*! \reimp */
-bool QAccessibleWidget::doDefaultAction( int control )
+bool QAccessibleWidget::doAction(int action, int control)
 {
 #if defined(QT_DEBUG)
     if ( control )
-	qWarning( "QAccessibleWidget::doDefaultAction: This implementation does not support subelements! (ID %d unknown for %s)", control, widget()->className() );
+	qWarning( "QAccessibleWidget::doAction: This implementation does not support subelements! (ID %d unknown for %s)", control, widget()->className() );
 #else
     Q_UNUSED(control)
 #endif
@@ -383,9 +444,9 @@ void QAccessibleWidget::clearSelection()
 }
 
 /*! \reimp */
-QMemArray<int> QAccessibleWidget::selection() const
+QVector<int> QAccessibleWidget::selection() const
 {
-    return QMemArray<int>();
+    return QVector<int>();
 }
 
 #endif //QT_ACCESSIBILITY_SUPPORT

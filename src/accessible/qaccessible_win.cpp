@@ -775,7 +775,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accDoDefaultAction( VARIANT varID 
     if ( !accessible->isValid() )
 	return E_FAIL;
 
-    if ( accessible->doDefaultAction( varID.lVal ) )
+    if ( accessible->doAction( QAccessible::Default, varID.lVal ) )
 	return S_OK;
 
     return DISP_E_MEMBERNOTFOUND;

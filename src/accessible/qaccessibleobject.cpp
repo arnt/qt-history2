@@ -100,6 +100,60 @@ bool QAccessibleObject::isValid() const
     return !d->object.isNull();
 }
 
+/*!
+    \reimp
+*/
+int QAccessibleObject::propertyCount(int) const
+{
+    return 0;
+}
+
+/*!
+    \reimp
+*/
+QString QAccessibleObject::propertyText(int, Text, int) const
+{
+    return QString();
+}
+
+/*!
+    \reimp
+*/
+QString QAccessibleObject::property(int, int) const
+{
+    return QString();
+}
+
+/*!
+    \reimp
+*/
+void QAccessibleObject::setProperty(int, const QString&, int)
+{
+}
+
+/*!
+    \reimp
+*/
+int QAccessibleObject::actionCount(int) const
+{
+    return 0;
+}
+
+/*!
+    \reimp
+*/
+QString QAccessibleObject::actionText(int, Text, int) const
+{
+    return QString();
+}
+
+/*!
+    \reimp
+*/
+bool QAccessibleObject::doAction(int, int)
+{
+    return FALSE;
+}
 
 /*!
     \class QAccessibleApplication qaccessibleobject.h
@@ -191,6 +245,48 @@ QRect QAccessibleApplication::rect( int ) const
 }
 
 /*! \reimp */
+QAccessible::Relation QAccessibleApplication::relationTo(const QAccessibleInterface *iface, int child) const
+{
+    QObject *o = iface ? iface->object() : 0;
+    if (!o)
+	return None;
+
+    if(o == object())
+	return child ? Parent : Self;
+
+    QWidgetList tlw(topLevelWidgets());
+    if (tlw.contains(qt_cast<QWidget*>(o)))
+	return Parent;
+
+    for (int i = 0; i < tlw.count(); ++i) {
+	QWidget *w = tlw.at(i);
+	QObjectList cl(w->queryList());
+	if (cl.contains(o))
+	    return Ancestor;
+    }
+
+    return None;
+}
+
+/*! \reimp */
+int QAccessibleApplication::navigate(Relation relation, int index, QAccessibleInterface **iface) const
+{
+    *iface = 0;
+    switch (relation) {
+    case Self:
+	const_cast<QAccessibleApplication*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)iface);
+	return 0;
+    case Child:
+	queryChild(index + 1, iface);
+	return 0;
+    default:
+	break;
+    }
+    return -1;
+}
+
+
+/*! \reimp */
 int QAccessibleApplication::navigate( NavDirection dir, int startControl ) const
 {
 #if defined(QT_DEBUG)
@@ -260,15 +356,17 @@ QAccessible::State QAccessibleApplication::state( int ) const
 }
 
 /*! \reimp */
-QMemArray<int> QAccessibleApplication::selection() const
+QVector<int> QAccessibleApplication::selection() const
 {
-    return QMemArray<int>();
+    return QVector<int>();
 }
 
 /*! \reimp */
-bool QAccessibleApplication::doDefaultAction( int child )
+bool QAccessibleApplication::doAction(int action, int child)
 {
-    return setFocus( child );
+    if (action == Default)
+	return setFocus( child );
+    return FALSE;
 }
 
 /*! \reimp */

@@ -33,9 +33,13 @@ public:
 
     ~QAccessibleWidget();
 
+    Relation	relationTo(const QAccessibleInterface *, int) const;
+
     int		childAt( int x, int y ) const;
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
+    int		navigate(Relation, int, QAccessibleInterface **) const;
+
     int		childCount() const;
     int		indexOfChild(const QAccessibleInterface*) const;
     bool	queryChild( int control, QAccessibleInterface ** ) const;
@@ -46,11 +50,11 @@ public:
     Role	role( int control ) const;
     State	state( int control ) const;
 
-    bool	doDefaultAction( int control );
-    bool	setFocus( int control );
-    bool	setSelected( int control, bool on, bool extend );
+    bool	doAction(int action, int control);
+    bool	setFocus(int control);
+    bool	setSelected(int control, bool on, bool extend);
     void	clearSelection();
-    QMemArray<int> selection() const;
+    QVector<int> selection() const;
 
 protected:
     QWidget *widget() const;

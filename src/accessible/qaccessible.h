@@ -18,7 +18,7 @@
 #ifndef QT_H
 #include <private/qcom_p.h>
 #include "qrect.h"
-#include "qmemarray.h"
+#include "qvector.h"
 #endif // QT_H
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -83,7 +83,7 @@ public:
 	Mixed		= 0x00000020,
 	ReadOnly	= 0x00000040,
 	HotTracked	= 0x00000080,
-	Default		= 0x00000100,
+	DefaultButton	= 0x00000100,
 	Expanded	= 0x00000200,
 	Collapsed	= 0x00000400,
 	Busy		= 0x00000800,
@@ -194,6 +194,30 @@ public:
 	DefaultAction
     };
 
+    enum DefaultAction {
+	Default		= -101,
+	Press		= -102,
+	Increment	= -103,
+	Decrease	= -104,
+	Accept		= -105,
+	Select		= -106,
+	Cancel		= -107
+    };
+
+    enum Relation {
+	None		= 0x00000000,
+	Self		= 0x00000001,
+	Label		= 0x00000002,
+	Buddy		= 0x00000004,
+	Parent		= 0x00000008,
+	Ancestor	= 0x00000010,
+	Child		= 0x00000011,
+	Descendent	= 0x00000012,
+	Sibling		= 0x00000014,
+	Controller	= 0x00000018,
+	Controlled	= 0x00000020
+    };
+
     typedef bool(*InterfaceFactory)(QObject*, QAccessibleInterface**);
     typedef void(*UpdateHandler)(QObject*, int who, Event reason);
     typedef void(*RootObjectHandler)(QObject*);
@@ -228,26 +252,40 @@ struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterf
     // hierarchy
     virtual int		childCount() const = 0;
     virtual int		indexOfChild(const QAccessibleInterface *) const = 0;
-    virtual bool	queryChild( int control, QAccessibleInterface** ) const = 0;
-    virtual bool	queryParent( QAccessibleInterface** ) const = 0;
+    virtual bool	queryChild(int control, QAccessibleInterface**) const = 0;
+    virtual bool	queryParent(QAccessibleInterface**) const = 0;
+
+    // relations
+    virtual Relation	relationTo(const QAccessibleInterface *, int) const = 0;
 
     // navigation
-    virtual int		childAt( int x, int y ) const = 0;
-    virtual QRect	rect( int control ) const = 0;
-    virtual int		navigate( NavDirection direction, int startControl ) const = 0;
+    virtual int		childAt(int x, int y) const = 0;
+    virtual QRect	rect(int control) const = 0;
+    virtual int		navigate(NavDirection direction, int startControl) const = 0;
+    virtual int		navigate(Relation, int, QAccessibleInterface **) const = 0;
 
     // properties and state
-    virtual QString	text( Text t, int control ) const = 0;
-    virtual void	setText( Text t, int control, const QString &text ) = 0;
-    virtual Role	role( int control ) const = 0;
-    virtual State	state( int control ) const = 0;
-    virtual QMemArray<int> selection() const = 0;
+    virtual QString	text(Text t, int control) const = 0;
+    virtual void	setText(Text t, int control, const QString &text) = 0;
+    virtual Role	role(int control) const = 0;
+    virtual State	state(int control) const = 0;
+    virtual QVector<int> selection() const = 0;
 
-    // methods
-    virtual bool	doDefaultAction( int control ) = 0;
-    virtual bool	setFocus( int control ) = 0;
-    virtual bool	setSelected( int control, bool on, bool extend ) = 0;
-    virtual void	clearSelection() = 0;    
+    // selection
+    virtual bool	setFocus(int control) = 0;
+    virtual bool	setSelected(int control, bool on, bool extend) = 0;
+    virtual void	clearSelection() = 0;
+
+    // more properties
+    virtual int		propertyCount(int control) const = 0;
+    virtual QString	propertyText(int property, Text t, int control) const = 0;
+    virtual QString	property(int property, int control) const = 0;
+    virtual void	setProperty(int property, const QString& value, int control) = 0;
+
+    // action
+    virtual bool	doAction(int action, int control) = 0;
+    virtual int		actionCount(int control) const = 0;
+    virtual QString	actionText(int action, Text t, int control) const = 0;
 };
 
 // {49F4C6A7-412F-41DE-9E24-648843421FD3} 
