@@ -59,9 +59,9 @@
     loaded yet. Multiple instances of QLibrary can be used to access
     the same physical library. Once loaded, libraries remain in memory
     until the application terminates. You can programmatically unload
-    a library using unload(), but if you do this, you are responsible
-    for ensuring that no other QLibrary instances are making use of
-    the library you've unloaded.
+    a library using unload(), unless other instances of QLibrary make
+    use of the same library. In that case, unloading will be blocked
+    until unload() was called on all instances.
 
     A typical use of QLibrary is to resolve an exported symbol in a
     library, and to call the C-function that this symbol represents.
@@ -537,12 +537,12 @@ bool QLibrary::load()
     Unloads the library and returns true if the library could be
     unloaded; otherwise returns false.
 
-    QLibrary handles this automatically so you shouldn't normally need
-    to call this function.
+    This happens automatically on application termination, so you
+    shouldn't normally need to call this function.
 
-    \warning If you unload() a library that is being used elsewhere in
-    your application, e.g. by another QLibrary instance, you may
-    experience undefined behavior.
+    If other instances of QLibrary make use of the same library,
+    unloading will be blocked until unload() was called on all
+    instances.
 
     \sa resolve(), load()
 */
