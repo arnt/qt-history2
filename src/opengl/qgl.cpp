@@ -1259,7 +1259,7 @@ QGLWidget::QGLWidget(QWidget *parent, const char *name,
     if (name)
         setObjectName(name);
     setAttribute(WA_PaintOnScreen);
-    setAttribute(WA_NoBackground);
+    setAttribute(WA_NoSystemBackground);
     init(new QGLContext(QGLFormat::defaultFormat(), this), shareWidget);
 }
 
