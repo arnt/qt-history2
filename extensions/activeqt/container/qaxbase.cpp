@@ -66,7 +66,8 @@ static QMetaObject *tempMetaObj = 0;
 #define PropBindable	0x00008000
 #define PropRequesting	0x00010000
 
-
+#define PredefSignals	3
+#define PredefProps	1
 
 #include "../shared/types.h"
 
@@ -421,7 +422,7 @@ public:
 	    delete [] (QMetaData*)metaobj->slot( 0 );
 
 	// clean up signal info
-	for ( i = 2; i < metaobj->numSignals(); ++i ) { // 0 and 1 are static signals
+	for ( i = PredefSignals; i < metaobj->numSignals(); ++i ) { // 0 and 1 are static signals
 	    const QMetaData *signal_data = metaobj->signal( i );
 	    QUMethod *signal = (QUMethod*)signal_data->method;
 	    if ( signal ) {
@@ -975,7 +976,7 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
 	str = "void";
 	break;
     case VT_HRESULT:
-	str = "long";
+	str = "HRESULT";
 	break;
     case VT_LPSTR:
 	str = "const char*";
@@ -1093,11 +1094,20 @@ QMetaObject *QAxBase::metaObject() const
 	{ "name", &static_QUType_QString, 0, QUParameter::In }
     };
     static const QUMethod signal_1 = {"propertyChanged", 1, param_signal_1 };
+
+    static const QUParameter param_signal_2[] = {
+	{ "code", &static_QUType_int, 0, QUParameter::In },
+	{ "source", &static_QUType_QString, 0, QUParameter::In },
+	{ "description", &static_QUType_QString, 0, QUParameter::In },
+	{ "help", &static_QUType_QString, 0, QUParameter::In },
+    };
+    static const QUMethod signal_2 = {"exception", 4, param_signal_2 };
     static const QMetaData signal_tbl[] = {
 	{ "signal(const QString&,int,void*)", &signal_0, QMetaData::Public },
-	{ "propertyChanged(const QString&)", &signal_1, QMetaData::Public }
+	{ "propertyChanged(const QString&)", &signal_1, QMetaData::Public },
+	{ "exception(int,const QString&,const QString&,const QString&)", &signal_2, QMetaData::Public }
     };
-    static const QMetaProperty props_tbl[1] = {
+    static const QMetaProperty props_tbl[] = {
  	{ "QString","control", 259, (QMetaObject**)&tempMetaObj, 0, -1 }
     };
 
@@ -1109,9 +1119,9 @@ QMetaObject *QAxBase::metaObject() const
 	tempMetaObj = QMetaObject::new_metaobject(
 	    "QAxBase", parentObject,
 	    0, 0,
-	    signal_tbl, 2,
+	    signal_tbl, PredefSignals,
 #ifndef QT_NO_PROPERTIES
-	    props_tbl, 1,
+	    props_tbl, PredefProps,
 	    0, 0,
 #endif // QT_NO_PROPERTIES
 	    0, 0 );
@@ -1166,7 +1176,7 @@ QMetaObject *QAxBase::metaObject() const
 	    // UUID
 	    if ( d->useClassInfo && !infolist.find( "CoClass" ) ) {
 		QString coClassIDstr = iidnames.readEntry( "/CLSID/" + coClassID + "/Default", coClassID );
-		infolist.insert( "CoClass", new QString( coClassIDstr ) );
+		infolist.insert( "CoClass", new QString( coClassIDstr.isEmpty() ? coClassID : coClassIDstr ) );
 		QString version( "%1.%1" );
 		version = version.arg( typeattr->wMajorVerNum ).arg( typeattr->wMinorVerNum );
 		infolist.insert( "Version", new QString( version ) );
@@ -1348,23 +1358,28 @@ QMetaObject *QAxBase::metaObject() const
 			// get return value
 			returnType = guessTypes( typedesc, info, enumDict, function );
 
-			if ( funcdesc->invkind == INVOKE_FUNC && returnType != "void" ) {
-			    parameters << "return";
-			    paramTypes << returnType;
+			if ( returnType != "void" ) {
+			    if ( funcdesc->invkind == INVOKE_FUNC || returnType != "HRESULT" ) {
+				parameters << "return";
+				if ( returnType == "HRESULT" )
+				    returnType = "long";
+				paramTypes << returnType;
+			    }
 			}
 
 			continue;
 		    }
 
 		    // parameter
-		    bool optional = p > funcdesc->cParams - funcdesc->cParamsOpt;
-		    TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
+		    bool optional = p > ( funcdesc->cParams - funcdesc->cParamsOpt );
+		    int offset = 0;
+		    if ( funcdesc->invkind == INVOKE_FUNC || paramTypes.count() )
+			offset = 1;
+
+		    TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - offset ].tdesc;
 		    QString ptype = guessTypes( tdesc, info, enumDict, function );
 
-		    if ( funcdesc->invkind == INVOKE_FUNC )
-			ptype = constRefify( ptype );
-
-		    prototype += ptype;
+		    prototype += constRefify( ptype );
 		    if ( optional )
 			ptype += "=0";
 		    paramTypes << ptype;
@@ -1381,17 +1396,9 @@ QMetaObject *QAxBase::metaObject() const
 		if ( !(funcdesc->wFuncFlags & FUNCFLAG_FHIDDEN) ) switch( funcdesc->invkind ) {
 		case INVOKE_PROPERTYGET: // property
 		case INVOKE_PROPERTYPUT:
-		    {
+		    if ( paramTypes.count() <= 1 ) {
 			prop = proplist[function];
 			if ( !prop ) {
-			    if ( funcdesc->cParams > 1 ) {
-#ifndef QT_NO_DEBUG
-				qWarning( "%s: Too many parameters in property.", function.latin1() );
-#endif
-				debugInfo += QString( "%1: Too many parameters in property.\n").arg( function );
-				break;
-			    }
-
 			    QString ptype = paramTypes[0];
 			    if ( ptype.isEmpty() )
 				ptype = returnType;
@@ -1472,7 +1479,7 @@ QMetaObject *QAxBase::metaObject() const
 			    break;
 			// fall through to generate put function as slot
 		    }
-		    if ( funcdesc->invkind != INVOKE_PROPERTYPUT )
+		    if ( funcdesc->invkind != INVOKE_PROPERTYPUT && paramTypes.count() <= 1 )
 			break;
 
 		case INVOKE_FUNC: // method
@@ -1521,7 +1528,7 @@ QMetaObject *QAxBase::metaObject() const
 				    slot->count = p;
 				    prototype = function + "(";
 				    for ( int pp = offset; pp < p; ++pp ) {
-					prototype += paramTypes[pp];
+					prototype += constRefify( paramTypes[pp] );
 					if ( pp < p-1 )
 					    prototype += ",";
 				    }
@@ -1540,7 +1547,7 @@ QMetaObject *QAxBase::metaObject() const
 				    if ( inout & PARAMFLAG_FOUT )
 					params[p].inOut |= QUParameter::Out;
 				}
-				QStringToQUType( paramType, params + p, enumDict );
+				QStringToQUType( constRefify( paramType ), params + p, enumDict );
 			    }
 
 			    slot->parameters = params;
@@ -1827,12 +1834,9 @@ QMetaObject *QAxBase::metaObject() const
 			    TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
 			    QString ptype = guessTypes( tdesc, eventinfo, enumDict, function );
 
-			    if ( funcdesc->invkind == INVOKE_FUNC )
-				ptype = constRefify( ptype );
-
 			    paramTypes << ptype;
 			    parameters << paramName;
-			    prototype += ptype;
+			    prototype += constRefify( ptype );
 			    if ( optional )
 				prototype += "=0";
 			    if ( p < funcdesc->cParams )
@@ -1849,7 +1853,7 @@ QMetaObject *QAxBase::metaObject() const
 			    QUParameter *params = signal->count ? new QUParameter[signal->count] : 0;
 			    for ( p = 0; p< signal->count; ++p ) {
 				QString paramName = parameters[p];
-				QString paramType = paramTypes[p];
+				QString paramType = constRefify( paramTypes[p] );
 				params[p].name = new char[paramName.length()+1];
 				params[p].name = qstrcpy( (char*)params[p].name, paramName );
 				params[p].inOut = 0;
@@ -1913,10 +1917,8 @@ QMetaObject *QAxBase::metaObject() const
 
     // setup signal data
     index = 0;
-    QMetaData *const signal_data = new QMetaData[signallist.count()+2];
-    if ( signal_data ) {
-	signal_data[index] = signal_tbl[index];
-	++index;
+    QMetaData *const signal_data = new QMetaData[signallist.count()+PredefSignals];
+    while ( index < PredefSignals ) {
 	signal_data[index] = signal_tbl[index];
 	++index;
     }
@@ -1935,15 +1937,15 @@ QMetaObject *QAxBase::metaObject() const
 
     // setup property data
     index = 0;
-    QMetaProperty *const prop_data = new QMetaProperty[proplist.count()+1];
-    if ( prop_data ) {
-	prop_data[index].n = new char[8];
-	prop_data[index].n = qstrcpy( (char*)prop_data[index].n, "control" );
-	prop_data[index].t = new char[8];
-	prop_data[index].t = qstrcpy( (char*)prop_data[index].t, "QString" );
-	prop_data[index].flags = 259;
-	prop_data[index]._id = -1;
-	prop_data[index].enumData = 0;
+    QMetaProperty *const prop_data = new QMetaProperty[proplist.count()+PredefProps];
+    while ( index < PredefProps ) {
+	prop_data[index].n = new char[strlen(props_tbl[index].n)+1];
+	prop_data[index].n = qstrcpy( (char*)prop_data[index].n, props_tbl[index].n );
+	prop_data[index].t = new char[strlen(props_tbl[index].t)+1];
+	prop_data[index].t = qstrcpy( (char*)prop_data[index].t, props_tbl[index].t );
+	prop_data[index].flags = props_tbl[index].flags;
+	prop_data[index]._id = props_tbl[index]._id;
+	prop_data[index].enumData = props_tbl[index].enumData;
 	prop_data[index].meta = (QMetaObject**)&d->metaobj->metaObject;
 
 	++index;
@@ -1984,8 +1986,8 @@ QMetaObject *QAxBase::metaObject() const
     d->metaobj->metaObject = QMetaObject::new_metaobject(
 	className(), parentObject,
 	slot_data, slotlist.count(),
-	signal_data, signallist.count()+2,
-	prop_data, proplist.count()+1,
+	signal_data, signallist.count()+PredefSignals,
+	prop_data, proplist.count()+PredefProps,
 	enum_data, enumlist.count(),
 #ifndef QAX_NO_CLASSINFO
 	class_info, infolist.count() );
@@ -2001,69 +2003,160 @@ QMetaObject *QAxBase::metaObject() const
     return d->metaobj->metaObject;
 }
 
-static inline bool checkHRESULT( HRESULT hres )
+QString QAxBase::generateDocumentation()
+{
+    if ( isNull() )
+	return QString::null;
+
+    QString docu;
+    QTextStream stream( &docu, IO_WriteOnly );
+
+    const QMetaObject *mo = metaObject();
+    QString coClass  = mo->classInfo( "CoClass" );
+
+    stream << "<h1 align=center>" << coClass << " Class Reference</h1>" << endl;
+    stream << "<p>The " << coClass << " class is a " << qObject()->className() << "</p>" << endl;
+
+    int slotCount = mo->numSlots();
+    if ( slotCount ) {
+	stream << "<h2>Public Slots:</h2>" << endl;
+	stream << "<ul>" << endl;
+	for ( int islot = 0; islot < slotCount; ++islot ) {
+	    const QMetaData *slot = mo->slot( islot );
+	    const QUMethod *method = slot->method;
+	    stream << "<li>";
+	    if ( !method->count ) {
+		stream << "void";
+	    } else {
+		const QUParameter *param = method->parameters;
+		bool returnType = ( param->inOut & QUParameter::Out ) && !qstrcmp( param->name, "return" );
+		if ( !returnType )
+		    stream << "void";
+		else if ( QUType::isEqual( &static_QUType_ptr, param->type ) )
+		    stream << (const char*)param->typeExtra << " ";
+		else if ( QUType::isEqual( &static_QUType_enum, param->type ) )
+		    stream << ((QUEnum*)param->typeExtra)->name << " ";
+		else 
+		    stream << param->type->desc();
+	    }
+	    stream << " " << slot->name << ";</li>" << endl;
+	}
+	stream << "</ul>";
+    }
+    int propCount = mo->numProperties();
+    if ( propCount ) {
+	stream << "<h2>Properties:</h2>" << endl;
+	stream << "<ul>";
+	for ( int iprop = 0; iprop < propCount; ++iprop ) {
+	    const QMetaProperty *prop = mo->property( iprop );
+	    stream << "<li>" << prop->type() << " " << prop->name() << ";</li>" << endl;
+	}
+	stream << "</ul>";
+    }
+    int signalCount = mo->numSignals();
+    if ( signalCount ) {
+	stream << "<h2>Signals:</h2>" << endl;
+	stream << "<ul>";
+	for ( int isignal = 0; isignal < signalCount; ++isignal ) {
+	    const QMetaData *signal = mo->signal( isignal );
+	    const QUMethod *method = signal->method;
+	    stream << "<li>void ";
+	    stream << signal->name << ";</li>";
+	}
+	stream << "</ul>";
+    }
+
+    return docu;
+}
+
+static bool checkHRESULT( HRESULT hres, EXCEPINFO *exc, QAxBase *that )
 {
     switch( hres ) {
     case S_OK:
 	return TRUE;
     case DISP_E_BADPARAMCOUNT:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDipatch member: Bad parameter count." );
+	qWarning( "QAxBase: Error calling IDispatch member: Bad parameter count." );
 #endif
 	return FALSE;
     case DISP_E_BADVARTYPE:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDipatch member: Bad variant type." );
+	qWarning( "QAxBase: Error calling IDispatch member: Bad variant type." );
 #endif
 	return FALSE;
     case DISP_E_EXCEPTION:
+	{
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDipatch member: Exception thrown by server." );
+	    qWarning( "QAxBase: Error calling IDispatch member: Exception thrown by server." );
 #endif
+	    const QMetaObject *mo = that->metaObject();
+	    int exceptionSignal = mo->findSignal( "exception(int,const QString&,const QString&,const QString&)" );
+	    if ( exceptionSignal >= 0 ) {
+		if ( exc->pfnDeferredFillIn )
+		    exc->pfnDeferredFillIn( exc );
+
+		unsigned short code = exc->wCode ? exc->wCode : exc->scode;
+		QString source = BSTRToQString( exc->bstrSource );
+		QString desc = BSTRToQString( exc->bstrDescription );
+		QString help = BSTRToQString( exc->bstrHelpFile );
+		unsigned long helpContext = exc->dwHelpContext;
+
+		QUObject o[5];
+		static_QUType_int.set( o+1, code );
+		static_QUType_QString.set( o+2, source );
+		static_QUType_QString.set( o+3, desc );
+		static_QUType_QString.set( o+4, QString( "%1 [%2]" ).arg(help).arg(helpContext) );
+		that->qt_emit( exceptionSignal, o );
+		static_QUType_QString.clear( o+4 );
+		static_QUType_QString.clear( o+3 );
+		static_QUType_QString.clear( o+2 );
+		static_QUType_int.clear( o+1 );
+	    }
+	}
 	return FALSE;
     case DISP_E_MEMBERNOTFOUND:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDipatch member: Member not found." );
+	qWarning( "QAxBase: Error calling IDispatch member: Member not found." );
 #endif
 	return FALSE;
     case DISP_E_NONAMEDARGS:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDipatch member: No named arguments." );
+	qWarning( "QAxBase: Error calling IDispatch member: No named arguments." );
 #endif
 	return FALSE;
     case DISP_E_OVERFLOW:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDipatch member: Overflow." );
+	qWarning( "QAxBase: Error calling IDispatch member: Overflow." );
 #endif
 	return FALSE;
     case DISP_E_PARAMNOTFOUND:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDipatch member: Parameter not found." );
+	qWarning( "QAxBase: Error calling IDispatch member: Parameter not found." );
 #endif
 	return FALSE;
     case DISP_E_TYPEMISMATCH:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDipatch member: Type mismatch." );
+	qWarning( "QAxBase: Error calling IDispatch member: Type mismatch." );
 #endif
 	return FALSE;
     case DISP_E_UNKNOWNINTERFACE:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDipatch member: Unknown interface." );
+	qWarning( "QAxBase: Error calling IDispatch member: Unknown interface." );
 #endif
 	return FALSE;
     case DISP_E_UNKNOWNLCID:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDipatch member: Unknown locale ID." );
+	qWarning( "QAxBase: Error calling IDispatch member: Unknown locale ID." );
 #endif
 	return FALSE;
     case DISP_E_PARAMNOTOPTIONAL:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDipatch member: Non-optional parameter missing." );
+	qWarning( "QAxBase: Error calling IDispatch member: Non-optional parameter missing." );
 #endif
 	return FALSE;
     default:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDipatch member: Unknown error." );
+	qWarning( "QAxBase: Error calling IDispatch member: Unknown error." );
 #endif
 	return FALSE;
     }
@@ -2134,10 +2227,11 @@ bool QAxBase::qt_invoke( int _id, QUObject* _o )
     // call the method
     UINT argerr = 0;
     HRESULT hres;
+    EXCEPINFO excepinfo;
     if ( fakedslot && slotcount == 1 ) {
-	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &params, pret, 0, &argerr );
+	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &params, pret, &excepinfo, &argerr );
     } else {
-	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &params, pret, 0, &argerr );
+	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &params, pret, &excepinfo, &argerr );
     }
 
     // get return value
@@ -2160,7 +2254,7 @@ bool QAxBase::qt_invoke( int _id, QUObject* _o )
     }
     delete [] params.rgvarg;
 
-    return checkHRESULT( hres );
+    return checkHRESULT( hres, &excepinfo, this );
 }
 
 /*!
@@ -2225,7 +2319,8 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 		params.cNamedArgs = 1;
 
 		UINT argerr = 0;
-		HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &params, 0, 0, &argerr );
+		EXCEPINFO excepinfo;
+		HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &params, 0, &excepinfo, &argerr );
 		switch ( arg.vt )
 		{
 		case VT_BSTR:
@@ -2237,7 +2332,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 		    break;
 		}
 
-		return checkHRESULT( hres );
+		return checkHRESULT( hres, &excepinfo, this );
 	    }
 	case 1: // Get
 	    {
@@ -2248,8 +2343,9 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 		params.rgdispidNamedArgs = 0;
 		params.rgvarg = 0;
 
-		HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &arg, 0, 0 );
-		if ( !checkHRESULT( hres ) )
+		EXCEPINFO excepinfo;
+		HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &arg, &excepinfo, 0 );
+		if ( !checkHRESULT( hres, &excepinfo, this ) )
 		    return FALSE;
 
 		// map result VARIANTARG to QVariant
@@ -2342,9 +2438,8 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	if ( id >= 0 ) {
 	    const QMetaData *slot = metaObject()->slot( id, TRUE );
 	    function = slot->method->name;
-	    for ( int i = 0; i < varc; ++i ) {
-		arg[i] = QVariantToVARIANT( vars[i], slot->method->parameters + i + 1 );
-	    }
+	    for ( int i = 0; i < varc; ++i )
+		arg[varc-i-1] = QVariantToVARIANT( vars[i], slot->method->parameters + i + 1 );
 	    disptype = DISPATCH_METHOD;
 	} else {
 #ifdef QT_CHECK_STATE
@@ -2358,9 +2453,10 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	id = metaObject()->findProperty( name, TRUE );
 	if ( id >= 0 ) {
 	    if ( varc ) {
+		varc = 1;
 		const QMetaProperty *prop = metaObject()->property( id, TRUE );
 		arg[0] = QVariantToVARIANT( vars[0], prop ? prop->type() : 0 );
-		res = 0;
+		res = 0;		
 		disptype = DISPATCH_PROPERTYPUT;
 	    } else {
 		disptype = DISPATCH_PROPERTYGET;
@@ -2393,8 +2489,11 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
     params.cNamedArgs = 0;
     params.rgdispidNamedArgs = 0;
     params.rgvarg = arg;
+    EXCEPINFO excepinfo;
 
-    HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, disptype, &params, res, 0, 0 );
+    HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, disptype, &params, res, &excepinfo, 0 );
+    if ( hres == DISP_E_MEMBERNOTFOUND && disptype == DISPATCH_METHOD )
+	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, res, &excepinfo, 0 );
 
     // clean up
     for ( int i = 0; i < varc; ++i ) {
@@ -2403,7 +2502,7 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
     }
     delete[] arg;
 
-    return checkHRESULT( hres );
+    return checkHRESULT( hres, &excepinfo, this );
 }
 
 
@@ -2779,4 +2878,13 @@ bool QAxBase::isNull() const
 
     If the COM object supports property notification, this signal gets
     emitted when the property called \a name is changed.
+*/
+
+/*!
+    \fn void QAxBase::exception( int code, const QString &source, const QString &desc, const QString &help )
+
+    This signal is emitted when the COM object throws an exception while called using the OLE automation
+    interface IDispatch. \a code, \a source, \a desc and \a help provide information about the exception as 
+    provided by the COM server and can be used to provide useful feedback to the end user. \a help includes
+    the help file, and the help context ID in brackets, e.g. "filename [id]".
 */

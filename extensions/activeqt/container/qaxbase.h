@@ -94,6 +94,8 @@ public:
     PropertyBag propertyBag() const;
     void setPropertyBag( const PropertyBag& );
 
+    QString generateDocumentation();
+
     virtual bool propertyWritable( const char* ) const;
     virtual void setPropertyWritable( const char*, bool );
 
@@ -104,6 +106,7 @@ public:
 signals:
     void signal(const QString&,int,void*);
     void propertyChanged(const QString&);
+    void exception(int,const QString&,const QString&,const QString&);
 #endif
 
 public:
