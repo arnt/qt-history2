@@ -18,9 +18,9 @@ Qt is easy to learn, with consistent naming across all the classes and a
 14-chapter on-line tutorial with links into the rest of the documentation.
 
 Qt dramatically cuts down on development time and complexity in writing
-user interface software for X-Windows.	It allows the programmer to focus
-directly on the programming task, and not mess around with low-level X11
-code.
+user interface software for the X Window System. It allows the programmer
+to focus directly on the programming task, and not mess around with
+low-level X11 code.
 
 Qt is fully object-oriented. All widgets and dialogs are C++ objects,
 and, using inheritance, creation of new widgets is easy and natural.
@@ -85,4 +85,3 @@ Alternate-site: ftp.troll.no /qt/linux
 Platform:	linux/X11R6
 Copying-policy: freely distributable with certain restrictions
 End
-
