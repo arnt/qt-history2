@@ -4754,7 +4754,8 @@ void QFileDialog::urlStart( QNetworkOperation *op )
     if ( !op )
 	return;
 
-    files->setEnabled( FALSE );
+    // ### this causes some problems with ftp; take a close look!
+//    files->setEnabled( FALSE );
     if ( op->operation() == QNetworkProtocol::OpListChildren ) {
 	if ( isRoot( d->url ) )
 	    d->cdToParent->setEnabled( FALSE );
@@ -4850,7 +4851,8 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	delete d->progressDia;
 	d->progressDia = 0;
     }
-    files->setEnabled( TRUE );
+    // ### this causes some problems with ftp; take a close look!
+//    files->setEnabled( TRUE );
 }
 
 void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *op )
