@@ -254,6 +254,7 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 
 	{ kEventClassKeyboard, kEventRawKeyUp },
 	{ kEventClassKeyboard, kEventRawKeyDown },
+	{ kEventClassKeyboard, kEventRawKeyRepeat },
 
 	{ kEventClassWindow, kEventWindowUpdate },
 	{ kEventClassWindow, kEventWindowActivated },
@@ -911,17 +912,23 @@ bool QApplication::processNextEvent( bool canWait )
 
     if(qt_is_gui_used) {
 	sendPostedEvents();
+
+	/* this gives QD a chance to flush buffers, I don't like doing it, FIXME!! */
+	EventRecord ev;
+	EventAvail(everyEvent, &ev);
+
 	EventRef event;
 	OSStatus ret;
 	do {
-	    ret = ReceiveNextEvent( 0, 0, canWait ? kEventDurationNoWait : 
-				    ((kEventDurationSecond)*3), TRUE, &event );
-	    if(!ret) {
-		nevents++;
-		SendEventToApplication(event);
-		ReleaseEvent(event);
-	    }
-	} while(!ret);
+	    ret = ReceiveNextEvent( 0, 0, kEventDurationNoWait, TRUE, &event );
+	    if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr) 
+		break;
+	    ret = SendEventToApplication(event);
+	    ReleaseEvent(event);
+	    if(ret != noErr)
+		break;
+	    nevents++;
+	} while(1);
 	sendPostedEvents();
     }
 
@@ -1476,7 +1483,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    QEvent::Type etype = (ekind == kEventRawKeyUp) ? 
 				 QEvent::KeyRelease : QEvent::KeyPress;
 	    QKeyEvent ke(etype,mychar, mychar, 
-			 get_modifiers(modif), QString(QChar(mychar)));
+			 get_modifiers(modif), QString(QChar(mychar)), ekind == kEventRawKeyRepeat);
 	    QApplication::sendEvent(widget,&ke);
 	}
 	break;
@@ -1530,7 +1537,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	break;
     }
     }
-    return 0;
+    return noErr;
 }
 
 void QApplication::processEvents( int maxtime)
