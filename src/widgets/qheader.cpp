@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#21 $
 **
 **  Table header
 **
@@ -349,7 +349,7 @@ void QHeader::unMarkLine( int idx )
 /*!
   Returns the actual index of the section at position \a c, or -1 if outside.
  */
-int QHeader::pos2idx( int c )
+int QHeader::cellAt( int c ) const
 {
     if ( orient == Horizontal )
 	return findCol( c );
@@ -357,12 +357,13 @@ int QHeader::pos2idx( int c )
 	return findRow( c );
 }
 
+
 /*!
   Tries to find a line that is not a neighbour of  \c handleIdx.
  */
 int QHeader::findLine( int c )
 {
-    int i = pos2idx( c );
+    int i = cellAt( c );
     if ( i == -1 )
 	return handleIdx; //####### frustrating, but safe behaviour.
     if ( i == handleIdx )

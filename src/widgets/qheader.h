@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#9 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#10 $
 **
 **  Table header
 **
@@ -38,6 +38,7 @@ public:
     void	setCellSize( int i, int s );
     int		cellSize( int i ) const;
     int		cellPos( int i ) const;
+    int		cellAt( int i ) const;
     int		count() const;
 
     int 	offset() const;
@@ -81,7 +82,6 @@ private:
     int		pPos( int i ) const;
     int		pSize( int i ) const;
 
-    int 	pos2idx( int );
     int 	findLine( int );
 
     void	moveAround( int fromIdx, int toIdx );
