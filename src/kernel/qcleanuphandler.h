@@ -66,7 +66,7 @@ public:
 	while ( it.current() ) {
 	    Type* object = it.current();
 	    ++it;
-	    if ( *guard )
+	    if ( object )
 		return FALSE;
 	}
 	return TRUE;

@@ -43,6 +43,7 @@
 #include "qapplication_p.h"
 #include "qdragobject.h"
 #include "qpixmap.h"
+#include "qcleanuphandler.h"
 
 // REVISED: arnt
 
@@ -127,11 +128,7 @@ QClipboard::~QClipboard()
   QApplication member functions related to QClipboard.
  *****************************************************************************/
 
-static void cleanupClipboard()
-{
-    delete qt_clipboard;
-    qt_clipboard = 0;
-}
+QGuardedCleanUpHandler<QObject> qt_cleanup_clipboard;
 
 /*!
   Returns a pointer to the application global clipboard.
@@ -142,7 +139,7 @@ QClipboard *QApplication::clipboard()
     if ( qt_clipboard == 0 ) {
 	qt_clipboard = new QClipboard;
 	CHECK_PTR( qt_clipboard );
-	qAddPostRoutine( cleanupClipboard );
+	qt_cleanup_clipboard.addCleanUp( qt_clipboard );
     }
     return (QClipboard *)qt_clipboard;
 }
