@@ -6,6 +6,15 @@
 #include <qpainter.h>
 
 
+int QTextItem::x() const
+{
+    return engine->items[item].x;
+}
+
+int QTextItem::y() const
+{
+    return engine->items[item].y;
+}
 
 int QTextItem::width() const
 {
@@ -53,6 +62,16 @@ void QTextItem::setBaselineAdjustment( int adjust )
 void QTextItem::setFont( const QFont & f )
 {
     engine->setFont( item, f.d );
+}
+
+int QTextItem::from() const
+{
+    return engine->items[item].position;
+}
+
+int QTextItem::length() const
+{
+    return engine->length(item);
 }
 
 
@@ -202,7 +221,7 @@ void QTextLayout::beginLayout()
 {
     d->items.clear();
     d->itemize();
-    d->currentItem = -1;
+    d->currentItem = 0;
     d->firstItemInLine = -1;
 }
 
@@ -213,9 +232,9 @@ void QTextLayout::beginLine( int width )
     d->firstItemInLine = -1;
 }
 
-bool QTextLayout::hasNextItem() const
+bool QTextLayout::atEnd() const
 {
-    return d->currentItem < d->items.size() - 1;
+    return d->currentItem == d->items.size();
 }
 
 QTextItem QTextLayout::nextItem()
@@ -225,10 +244,21 @@ QTextItem QTextLayout::nextItem()
     return QTextItem( d->currentItem, d );
 }
 
+QTextItem QTextLayout::currentItem()
+{
+    d->shape( d->currentItem );
+    return QTextItem( d->currentItem, d );
+}
+
 /* ## maybe also currentItem() */
 void QTextLayout::setLineWidth( int newWidth )
 {
     d->lineWidth = newWidth;
+}
+
+int QTextLayout::lineWidth() const
+{
+    return d->lineWidth;
 }
 
 int QTextLayout::availableWidth() const
@@ -242,13 +272,18 @@ QTextLayout::Result QTextLayout::addCurrentItem()
 {
     QScriptItem &current = d->items[d->currentItem];
 
-    if ( d->firstItemInLine == -1 )
-	d->firstItemInLine = d->currentItem;
-
     int width = d->lineWidth - d->widthUsed;
+
+//     qDebug("adding current item %d, size=%d available=%d, itemWidth=%d", d->currentItem, d->items.size(),
+// 	   width, current.width);
+
     if ( current.width < width ) {
 	// simple case, we can add it as is, there's nothing to do for now
 	d->widthUsed += current.width;
+// 	qDebug("   -> Ok" );
+	if ( d->firstItemInLine == -1 )
+	    d->firstItemInLine = d->currentItem;
+	d->currentItem++;
 	return Ok;
     }
 
@@ -291,9 +326,10 @@ QTextLayout::Result QTextLayout::addCurrentItem()
 	}
     }
 
-    if ( lastBreak == 0 )
+    if ( lastBreak == 0 ) {
+// 	qDebug("   -> Error" );
 	return Error;
-
+    }
     // we have the break position
     d->items.split( lastBreak + d->items[d->currentItem].position );
 
@@ -311,15 +347,26 @@ QTextLayout::Result QTextLayout::addCurrentItem()
 
     shaped->num_glyphs = splitGlyph;
     d->items[d->currentItem+1].shaped = split;
+    d->items[d->currentItem+1].width = current.width - w;
+    current.width = w;
 
     d->widthUsed += w;
+    if ( d->firstItemInLine == -1 )
+	d->firstItemInLine = d->currentItem;
+    d->currentItem++;
 
+//     qDebug("   -> Split at %d", lastBreak );
     return Split;
 }
 
+bool QTextLayout::lineIsEmpty() const
+{
+    return d->firstItemInLine == -1;
+}
 
 void QTextLayout::endLine( int x, int y, Qt::AlignmentFlags alignment )
 {
+//     qDebug("endLine x=%d, y=%d, first=%d, current=%d", x,  y, d->firstItemInLine, d->currentItem );
     if ( d->firstItemInLine == -1 )
 	return;
 
@@ -330,7 +377,7 @@ void QTextLayout::endLine( int x, int y, Qt::AlignmentFlags alignment )
     if ( alignment == Qt::AlignAuto )
 	alignment = Qt::AlignLeft;
 
-    int numRuns = d->currentItem - d->firstItemInLine + 1;
+    int numRuns = d->currentItem - d->firstItemInLine;
     Q_UINT8 _levels[128];
     int _visual[128];
     Q_UINT8 *levels = _levels;
@@ -354,6 +401,7 @@ void QTextLayout::endLine( int x, int y, Qt::AlignmentFlags alignment )
 	x += available/2;
 
     for ( i = 0; i < numRuns; i++ ) {
+// 	qDebug("positioning item %d", d->firstItemInLine+visual[i] );
 	QScriptItem &si = d->items[d->firstItemInLine+visual[i]];
 	si.x = x;
 	si.y = y;

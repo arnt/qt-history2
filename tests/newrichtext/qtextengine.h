@@ -230,7 +230,7 @@ public:
 	d->size++;
     }
     int size() const {
-	return d->size;
+	return d ? d->size : 0;
     }
     void split( int pos );
     QScriptItemArray( const QScriptItemArray & ) {}

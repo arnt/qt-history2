@@ -10,6 +10,8 @@ class QFont;
 class Q_EXPORT QTextItem
 {
 public:
+    int x() const;
+    int y() const;
     int width() const;
     int ascent() const;
     int descent() const;
@@ -32,6 +34,9 @@ public:
     void setBaselineAdjustment( int adjust );
 
     void setFont( const QFont & f );
+
+    int from() const;
+    int length() const;
 
 private:
     friend class QTextLayout;
@@ -67,10 +72,12 @@ public:
     void beginLayout();
     void beginLine( int width );
 
-    bool hasNextItem() const;
+    bool atEnd() const;
     QTextItem nextItem();
+    QTextItem currentItem();
     /* ## maybe also currentItem() */
     void setLineWidth( int newWidth );
+    int lineWidth() const;
     int availableWidth() const;
 
     enum Result {
@@ -81,6 +88,7 @@ public:
     /* returns true if completely added */
     Result addCurrentItem();
 
+    bool lineIsEmpty() const;
     void endLine( int x, int y, Qt::AlignmentFlags alignment );
     void endLayout();
 

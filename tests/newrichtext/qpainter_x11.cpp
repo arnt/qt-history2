@@ -3092,6 +3092,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     }
 
     QTextEngine layout( str, cfont.d );
+    layout.itemize();
 
     int start = 0;
     int end = layout.items.size();
@@ -3121,8 +3122,8 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
     int xpos = x;
 
-    qDebug("QPainter::drawText( pos=%d, len=%d): num items=%d ( start=%d (pos=%d), end=%d (pos=%d) )",
-	   pos, len, numItems, start, layout.items[start].position, end, layout.items[end].position );
+//     qDebug("QPainter::drawText( x=%d, y=%d, pos=%d, len=%d): num items=%d ( start=%d (pos=%d), end=%d (pos=%d) )",
+// 	   x,  y, pos, len, numItems, start, layout.items[start].position, end, layout.items[end].position );
     for ( int i = 0; i < numItems; i++ ) {
 	int current = visualOrder[i] + start;
 	const QScriptItem &it = layout.items[ current ];
@@ -3145,7 +3146,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	int length = layout.length( current ) - from;
 	if ( it.position + from + length > pos + len )
 	    length = pos + len - it.position - from;
- 	qDebug("drawing item %d (from: %d, length: %d), shaped.count=%d", current, from, length, shaped->num_glyphs );
+//  	qDebug("drawing item %d (from: %d, length: %d), shaped.count=%d", current, from, length, shaped->num_glyphs );
 
 	int f = shaped->logClusters[from];
 	if ( from > 0 && shaped->logClusters[from-1] == f ) {
@@ -3157,7 +3158,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	}
 	int t = (from+length >= layout.length( current )) ?
 		 shaped->num_glyphs : shaped->logClusters[from+length];
-	qDebug("real drawing from %d to %d", f, t );
+// 	qDebug("real drawing from %d to %d", f, t );
 	fe->draw( this, x,  y, shaped->glyphs+f, shaped->advances+f,
 		  shaped->offsets+f, t-f, rightToLeft );
 	if ( from != 0 || length != shaped->num_glyphs )

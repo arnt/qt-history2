@@ -101,6 +101,11 @@ void EditWidget::resizeEvent( QResizeEvent * )
 
 void EditWidget::paintEvent( QPaintEvent * )
 {
+    QPainter p( this );
+    for ( int i = 0; i < d->layout->numItems(); i++ ) {
+	QTextItem ti = d->layout->itemAt( i );
+	p.drawText( ti.x(), ti.y(), d->text, ti.from(), ti.length() );
+    }
 }
 
 
@@ -121,23 +126,27 @@ void EditWidget::recalculate()
     int lw = width() - 20;
 
     int state = QTextLayout::Ok;
-    while ( d->layout->hasNextItem() ) {
-	d->layout->beginLine( lw );
-	if ( state != QTextLayout::Error )
-	    d->layout->nextItem();
-	state = QTextLayout::Ok;
+    int add = 0;
+    while ( !d->layout->atEnd() ) {
+	d->layout->beginLine( lw + add );
 	int ascent = 0;
 	int descent = 0;
-	while ( state == QTextLayout::Ok ) {
+	int state = QTextLayout::Ok;
+	do {
+	    QTextItem ti = d->layout->currentItem();
+	    ascent = QMAX( ascent, ti.ascent() );
+	    descent = QMAX( descent, ti.descent() );
 	    state = d->layout->addCurrentItem();
-	    if ( !d->layout->hasNextItem() )
-		break;
-	    QTextItem item = d->layout->nextItem();
-	    ascent = QMAX( ascent, item.ascent() );
-	    descent = QMAX( descent, item.ascent() );
+	} while ( state == QTextLayout::Ok && !d->layout->atEnd() );
+	if ( !d->layout->lineIsEmpty() ) {
+// 	    qDebug("finalizing line: ascent = %d, descent=%d", ascent, descent );
+	    d->layout->endLine( x, y+ascent, Qt::AlignLeft );
+	    y += ascent + descent + 2;
+	    add = 0;
+	} else {
+	    add += 10;
 	}
-	d->layout->endLine( x, y+ascent, Qt::AlignLeft );
-	y += ascent + descent + 2;
     }
     d->layout->endLayout();
+    qDebug("layout took %dms (%dus/char)", t.elapsed(), t.elapsed()*1000/d->text.length() );
 }
