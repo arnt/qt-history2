@@ -389,7 +389,7 @@ QString QDir::absFilePath( const QString &fileName,
 	    if ( qt_winunicode ) {
 		TCHAR buf[PATH_MAX];
 		::_tgetdcwd( drv, buf, PATH_MAX );
-		tmp = QString().setUnicodeCodes( buf, ::wcslen(buf) );
+		tmp.setUnicodeCodes( buf, ::wcslen(buf) );
 	    } else {
 		char buf[PATH_MAX];
 		::_getdcwd( drv, buf, PATH_MAX );
