@@ -3465,7 +3465,7 @@ EOF
 cat >>$outpath/src/core/global/qconfig.h.new << EOF
 #if defined($cfgd) && defined($cfgdNeg)
 # undef $cfgd
-#elif !defined($cfgd)
+#elif !defined($cfgd) && !defined($cfgdNeg)
 # define $cfg
 #endif
 
