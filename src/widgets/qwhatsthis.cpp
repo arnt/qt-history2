@@ -186,9 +186,9 @@ public:
 
     // variables
     QWhatsThat *whatsThat;
-    QHash<void *, WhatsThisItem *> *dict;
-    QHash<void *, QWidget *> *tlw;
-    QHash<void *, QWhatsThisButton *> *buttons;
+    QHash<QWidget *, WhatsThisItem *> *dict;
+    QHash<QWidget *, QWidget *> *tlw;
+    QHash<QToolButton *, QWhatsThisButton *> *buttons;
     State state;
 
 private slots:
@@ -306,7 +306,7 @@ void QWhatsThat::mouseReleaseEvent( QMouseEvent* e )
 	    href = a;
 	anchor = QString::null;
 	if ( widget && wt && wt->dict ) {
-	    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->value((void *)widget);
+	    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->value(widget);
 	    if ( i  && i->whatsthis && !i->whatsthis->clicked( href ) )
 		return;
 	}
@@ -421,7 +421,7 @@ QWhatsThisButton::QWhatsThisButton( QWidget * parent, const char * name )
     setAutoRaise( TRUE );
     setFocusPolicy( NoFocus );
     setTextLabel( tr( "What's this?" ) );
-    wt->buttons->insert( (void *)this, this );
+    wt->buttons->insert(this, this );
     connect( this, SIGNAL( released() ),
 	     this, SLOT( mouseReleased() ) );
 }
@@ -430,7 +430,7 @@ QWhatsThisButton::QWhatsThisButton( QWidget * parent, const char * name )
 QWhatsThisButton::~QWhatsThisButton()
 {
     if ( wt && wt->buttons )
-	wt->buttons->take( (void *)this );
+	wt->buttons->take(this );
 }
 
 
@@ -459,10 +459,10 @@ QWhatsThisPrivate::QWhatsThisPrivate()
     : QObject( 0, "global what's this object" )
 {
     whatsThat = 0;
-    dict = new QHash<void *, WhatsThisItem *>;
-    tlw = new QHash<void *, QWidget *>;
+    dict = new QHash<QWidget *, WhatsThisItem *>;
+    tlw = new QHash<QWidget *, QWidget *>;
     wt = this;
-    buttons = new QHash<void *, QWhatsThisButton *>;
+    buttons = new QHash<QToolButton *, QWhatsThisButton *>;
     state = Inactive;
 }
 
@@ -477,7 +477,7 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
     delete buttons;
 
     // then delete the complex one.
-    QHash<void *, WhatsThisItem*>::Iterator it = dict->begin();
+    QHash<QWidget *, WhatsThisItem*>::Iterator it = dict->begin();
     WhatsThisItem * i;
     QWidget * w;
     while( it != dict->end() ) {
@@ -508,7 +508,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    QMouseEvent* me = (QMouseEvent*) e;
 	    QPoint p = me->pos();
 	    while( w && !i ) {
-		i = dict->value((void *)w);
+		i = dict->value(w);
 		if ( !i ) {
 		    p += w->pos();
 		    w = w->parentWidget( TRUE );
@@ -599,7 +599,7 @@ void QWhatsThisPrivate::enterWhatsThisMode()
 void QWhatsThisPrivate::leaveWhatsThisMode()
 {
     if ( state == Waiting ) {
-	QHash<void *, QWhatsThisButton *>::Iterator it = wt->buttons->begin();
+	QHash<QToolButton *, QWhatsThisButton *>::Iterator it = wt->buttons->begin();
 	while (it != wt->buttons->end()) {
 	    ((QWhatsThisButton*)*it)->setOn(FALSE);
 	    ++it;
@@ -697,14 +697,14 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 
 QWhatsThisPrivate::WhatsThisItem* QWhatsThisPrivate::newItem( QWidget * widget )
 {
-    WhatsThisItem * i = dict->value((void *)widget);
+    WhatsThisItem * i = dict->value(widget);
     if ( i )
 	QWhatsThis::remove( widget );
     i = new WhatsThisItem;
-    dict->insert( (void *)widget, i );
+    dict->insert(widget, i);
     QWidget * t = widget->topLevelWidget();
-    if ( !tlw->value((void *)t) ) {
-	tlw->insert( (void *)t, t );
+    if ( !tlw->value(t) ) {
+	tlw->insert(t, t);
 	t->installEventFilter( this );
     }
     connect( widget, SIGNAL(destroyed()), this, SLOT(cleanupWidget()) );
@@ -752,11 +752,11 @@ void QWhatsThis::add( QWidget * widget, const QString &text )
 void QWhatsThis::remove( QWidget * widget )
 {
     QWhatsThisPrivate::setUpWhatsThis();
-    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->value((void *)widget);
+    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->value(widget);
     if ( !i )
 	return;
 
-    wt->dict->take( (void *)widget );
+    wt->dict->take(widget);
 
     delete i;
 }
@@ -779,7 +779,7 @@ QString QWhatsThis::textFor( QWidget * w, const QPoint& pos, bool includeParents
     QWhatsThisPrivate::WhatsThisItem * i = 0;
     QPoint p = pos;
     while( w && !i ) {
-	i = wt->dict->value((void *)w);
+	i = wt->dict->value(w);
 	if ( !includeParents )
 	    break;
 	if ( !i ) {
