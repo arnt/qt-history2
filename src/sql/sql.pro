@@ -18,36 +18,22 @@ sql {
 		    qsqldatabase.h \
 		    qsqlfield.h \
 		    qsqlrecord.h \
-		    qsqlcursor.h \
-		    qsqlform.h \
-		    qeditorfactory.h \
-		    qsqleditorfactory.h \
 		    qsqldriver.h \
 		    qsqldriverinterface_p.h \
 		    qsqldriverplugin.h \
 		    qsqlerror.h \
 		    qsqlresult.h \
-		    qsqlindex.h \
-		    qsqlpropertymap.h \
-		    qsqlmanager_p.h \
-		    qsqlselectcursor.h 
+		    qsqlindex.h
 
 	SOURCES     += qsqlquery.cpp \
 		    qsqldatabase.cpp \
 		    qsqlfield.cpp \
 		    qsqlrecord.cpp \
-		    qsqlform.cpp \
-		    qsqlcursor.cpp \
-		    qeditorfactory.cpp \
-		    qsqleditorfactory.cpp \
 		    qsqldriver.cpp \
 		    qsqldriverplugin.cpp \
 		    qsqlerror.cpp \
 		    qsqlresult.cpp \
 		    qsqlindex.cpp \
-		    qsqlpropertymap.cpp \
-		    qsqlmanager_p.cpp \
-		    qsqlselectcursor.cpp \
 		    drivers/cache/qsqlcachedresult.cpp
 
 	contains(sql-drivers, all ) {
