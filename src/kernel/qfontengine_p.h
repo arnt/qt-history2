@@ -219,7 +219,7 @@ enum IndicFeatures {
     AboveSubstFeature,
     BelowSubstFeature,
     PostSubstFeature,
-    HalantFeature,
+    HalantFeature
 };
 
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
