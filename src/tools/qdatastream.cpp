@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#9 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#10 $
 **
 ** Implementation of QDataStream class
 **
@@ -22,7 +22,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatastream.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatastream.cpp#10 $";
 #endif
 
 
@@ -140,11 +140,8 @@ Returns the IO device currently set.
 Sets the IO device to \e d.
 */
 
-/*!
-\fn void QDataStream::unsetDevice()
-Unsets the IO device.
-
-Same as calling setDevice( 0 ).
+/*! \fn void QDataStream::unsetDevice()
+Unsets the IO device.  This is the same as calling setDevice( 0 ).
 */
 
 /*!

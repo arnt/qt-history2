@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#24 $
 **
 ** Implementation of QPainter class
 **
@@ -22,21 +22,40 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#24 $";
 #endif
 
 
 /*!
 \class QPainter qpainter.h
-\brief The QPainter class paints paint devices.
+\brief The QPainter class paints on paint devices.
 
-It does exactly what I want it to. Hurra.
-MUCH REMAINS TO BE WRITTEN HERE. YUCKYUCKYUCKJ.
+The typical use of a painter is: <br>
+1. Open the painter on a device. <br>
+2..n Set some variables (e.g. font, pen color) and perform some paint
+  commands<br>
+n+1. Close the painter<br>
 
+Here is some code which draws some text (copied from QLabel, actually):
+
+\code
+    QPainter paint;
+    paint.begin( this );
+    paint.eraseRect( contentsRect() );
+    paint.setPen( colorGroup().text() );
+    paint.drawText( contentsRect(), align, str );
+    paint.end();
+\endcode
+
+\sa QPaintDevice.
 */
 
 
 QPaintDevice *QPainter::pdev_ov = 0;
+
+/*! Redirects the paint-command stream from the device you tell
+begin() to \e pd.  Some neat tricks become possible, but we think it's
+not a good idea and will probably remove it shortly. */
 
 bool QPainter::redirect( const QPaintDevice *pd )
 {
@@ -46,6 +65,7 @@ bool QPainter::redirect( const QPaintDevice *pd )
     return TRUE;
 }
 
+/*! Set a painter flag to \e v */
 
 void QPainter::setf( ushort b, bool v )		// set painter flag (internal)
 {
@@ -55,6 +75,8 @@ void QPainter::setf( ushort b, bool v )		// set painter flag (internal)
 	clearf( b );
 }
 
+/*! Set the number of characters per tab stop.  Defaults to 8, like
+  any sane system.  \sa setTabArray(). */
 
 void QPainter::setTabStops( int ts )		// set tab stops
 {
@@ -65,6 +87,10 @@ void QPainter::setTabStops( int ts )		// set tab stops
 	pdev->cmd( PDC_SETTABSTOPS, param );
     }
 }
+
+/*! Set the tabs to a list of positions.  If you want to have tab
+  stops at positions, 1, 2, 3, 5, 8, 13, 21, 34 and 31, setTabArray()
+  is the function to use. \sa setTabStops(). */
 
 void QPainter::setTabArray( int *ta )		// set tab array
 {
@@ -111,10 +137,34 @@ struct QPState {				// painter state
 declare(QStackM,QPState);
 typedef QStackM(QPState) QPStateStack;
 
+/*! Deletes the stack of painter states.  \sa save() and restore(). */
+
 void QPainter::killPStack()
 {
     delete (QPStateStack *)ps_stack;
 }
+
+/*! Save the current painter state.  The painter state is the current
+
+\link    QFont	 font \endlink,
+\link    QPen	 pen \endlink,
+\link    QBrush	 brush \endlink,
+\link    QColor	 bgc \endlink,
+\link 	 bgm \endlink,
+\link    uchar	 pu \endlink,
+\link    bitBlt	 raster operation \endlink,
+\link    QPoint	 bro \endlink,
+\link    QRect	 wr, vr \endlink,
+\link    Q2DMatrix	 wm \endlink,
+\link    	 vxf \endlink,
+whether world transform is being used,
+\link    QRegion clip region \endlink,
+whether clipping is used,
+\link setTabStops() the tab length \endlink and
+\link setTabArray() the tab stop array \endlink.
+
+\sa restore() and killPStack().
+*/
 
 void QPainter::save()				// save/push painter state
 {
@@ -150,6 +200,9 @@ void QPainter::save()				// save/push painter state
     ps->ta    = tabarray;
     pss->push( ps );
 }
+
+/*! Restore the painter state from the stack.  The state is defined in
+the documentation for save(). \sa save() and killPStack().
 
 void QPainter::restore()			// restore/pop painter state
 {
@@ -205,32 +258,31 @@ void QPainter::restore()			// restore/pop painter state
 // Painter functions for drawing shadow effects.
 //
 
-/*!
-Draw a nicely shaded line.  The arguments may not reveal it, but
-the line has to be either vertical or horizontal.  If the line is
-horizontal (\e y1 == \e y2), the line is drawn with \e tColor (the
-top color) at the y coordinate and \e bColor at the line below.  If
-the line is vertical (\e x1 == \e x2) the line drawn with \e tColor
-at the x coordinate and bColor at the next line to the right.  The
-end pixels are treated specially.
+/*! Draw a nicely shaded line.  The arguments may not reveal it, but
+  the line has to be either vertical or horizontal.  If the line is
+  horizontal (\e y1 == \e y2), the line is drawn with \e tColor (the
+  top color) at the y coordinate and \e bColor at the line below.  If
+  the line is vertical (\e x1 == \e x2) the line drawn with \e tColor
+  at the x coordinate and bColor at the next line to the right.  The
+  end pixels are treated specially.
 
-You may consider the line to be illuminated from the top left corner
-of the screen.
+  You may consider the line to be illuminated from the top left corner
+  of the screen.
 
-If \e tColor is darker than \e bColor, the line will appear to be a
-groove, and if \e bColor is darker then \e tColor, the line will
-appear to be raised.
+  If \e tColor is darker than \e bColor, the line will appear to be a
+  groove, and if \e bColor is darker then \e tColor, the line will
+  appear to be raised.
 
-drawShadeLine() doesn't disturb the pen color.
+  drawShadeLine() doesn't disturb the pen color.
 
-For the curious: If the line, as specified, isn't either vertical or
-horizontal, the routine won't notice.  It only tests for one
-alternative, and uses the other if the test fails.  (But I'm not
-telling which :)
+  For the curious: If the line, as specified, isn't either vertical or
+  horizontal, the routine won't notice.  It only tests for one
+  alternative, and uses the other if the test fails.  (But I'm not
+  telling which :)
 
-\todo document mColor, mlw, lw
+  \todo document mColor, mlw, lw
 
-\sa drawShadeRect(), drawShadePanel(), drawLine(). */
+  \sa drawShadeRect(), drawShadePanel(), drawLine(). */
 
 void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
 			      const QColor &tColor, const QColor &bColor,
@@ -295,6 +347,24 @@ void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
     }
     setPen( oldPen );
 }
+
+
+/*! Draw a nicely shaded rectangle.  The outer size is given by \e x,
+  \e y, \e w and \e h.
+
+  You may consider the rectangle to be illuminated from the top left
+  corner of the screen.
+
+  If \e tColor is darker than \e bColor, the rectangle will appear to
+  be below the screen "level", and if \e bColor is darker then \e
+  tColor, the rectangle will appear to be above it.
+
+  drawShadeRect() doesn't disturb the pen color.
+
+  \todo document mColor, mlw, lw
+
+  \sa drawShadeRect(), drawShadePanel(), drawLine(). */
+
 
 
 void QPainter::drawShadeRect( int x, int y, int w, int h,
@@ -408,6 +478,10 @@ void QPainter::drawShadePanel( int x, int y, int w, int h,
 // --------------------------------------------------------------------------
 // Convenience function for filling a rectangle.
 //
+
+/*! Convenience function for filling a rectangle.  Calls drawRect(x,
+y, w, h) with a black and the specified brush, and restores pen and
+brush afterwards. \sa QPen */
 
 void QPainter::fillRect( int x, int y, int w, int h, const QColor &color )
 {
