@@ -2786,7 +2786,6 @@ void PropertyEditor::setup()
     listview->viewport()->setUpdatesEnabled( FALSE );
     listview->setupProperties();
     listview->viewport()->setUpdatesEnabled( TRUE );
-    qApp->processEvents();
     listview->updateEditorSize();
 }
 
