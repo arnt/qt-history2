@@ -10,7 +10,7 @@ CFLAGS	    =	-c -o$@ -O \
 		-I..\src\tools -I..\mkspecs\win32-g++ \
 		-DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT \
 	       	-DQT_NODLL -DQT_NO_STL -DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP \
-	       	-DQT_BUILD_QMAKE -DQT_NO_THREAD -DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT
+	       	-DQT_BUILD_QMAKE -DQT_NO_THREAD -DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT -DQT_NO_DATASTREAM
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =
 LIBS	    = -lole32 -luuid
@@ -33,7 +33,6 @@ QTOBJS= \
 	qbytearraymatcher.o \
 	qchar.o \
 	qconfig.o \
-	qdatastream.o \
 	qdatetime.o \
 	qdir.o \
 	qfile.o \
@@ -136,9 +135,6 @@ qlocale.o: ..\src\core\tools\qlocale.cpp
 
 quuid.o: ..\src\core\plugin\quuid.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\plugin\quuid.cpp
-
-qdatastream.o: ..\src\core\io\qdatastream.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qdatastream.cpp
 
 qbuffer.o: ..\src\core\io\qbuffer.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qbuffer.cpp

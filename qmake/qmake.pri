@@ -3,7 +3,7 @@ CONFIG += depend_includepath
 QMAKE_INCREMENTAL =
 SKIP_DEPENDS += qconfig.h qmodules.h
 DEFINES += QT_NO_TEXTCODEC QT_NO_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_NO_UNICODETABLES \
-           QT_NO_GEOM_VARIANT
+           QT_NO_GEOM_VARIANT QT_NO_DATASTREAM
 
 #qmake code
 SOURCES += project.cpp property.cpp main.cpp generators/makefile.cpp \
@@ -38,7 +38,6 @@ bootstrap { #Qt code
         qbytearray.cpp \
         qbytearraymatcher.cpp \
         qchar.cpp \
-        qdatastream.cpp \
         qdatetime.cpp \
         qdir.cpp \
         qfile.cpp \
@@ -73,7 +72,6 @@ bootstrap { #Qt code
         qbytearray.h \
         qbytearraymatcher.h \
         qchar.h \
-        qdatastream.h \
         qdatetime.h \
         qdatetime_p.h \
         qdir.h \
