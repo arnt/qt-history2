@@ -1915,95 +1915,129 @@ void QIconViewItem::checkRect()
   \module iconview
 
   \ingroup advanced
+    
+    The QIconView class provides a rectangular area which contains
+    moveable labelled icons. It can display and manage a grid or other
+    2D layout of labelled icons. Each labelled icon is a QIconViewItem.
+    Items (QIconViewItems) can be added or deleted at any time; items
+    can be moved within the QIconView. Single or multiple items can be
+    selected. Items can be renamed in-place. QIconView also supports
+    drag and drop.
 
-  It can display and control a grid or other 2D layout of items; it
-  provides the ability to add or remove new items at any time, lets
-  the user select one or may items and rearrange the items; it
-  provides drag and drop of items, and so on.
+    Each item contains a label string, a pixmap (the icon itself) and
+    optionally an index key. The index key is used for sorting the items
+    and defaults to the label string. The label string can be displayed
+    below or to the right of the icon (see \l ItemTextPos).
 
-  Each item (a QIconViewItem) contains a text and a pixmap (the icon itself).
+    The simplest way to create a QIconView is to create a QIconView
+    object and create some QIconViewItems with the QIconView as their
+    parent, set the icon view's geometry and show it. Below is an
+    example of how such code might look:
 
-  The simplest usage of QIconView is to create the object, create some
-  QIconViewItems with the view as parent, set the view's geometry, and
-  show it.
+    \code
+    QIconView *iv = new QIconView( this );
+    QDir dir( path, "*.xpm" );	
+    for ( uint i = 0; i < dir.count(); i++ ) {
+	(void) new QIconViewItem( iv, dir[i], QPixmap( path + dir[i] ) );
+    }
+    iv->resize( 600, 400 );
+    iv->show();
+    \endcode
 
-  When an item is inserted QIconView allocates a spot for it. The
-  default arrangement is \c LeftToRight - QIconView fills up the
-  leftmost column first and then goes right. You can change that by
-  using setArrangement(), insert items in a specified position by
-  calling the appropriate constructors or QIconViewItem::insertItem(),
-  or sort while the view is on-screen using setSorting() and/or
-  sort().
+    When an item is inserted the QIconView allocates a position for it.
+    The default arrangement is \c LeftToRight -- QIconView fills up the
+    \e left-most column from top to bottom, then moves one column \e right
+    and fills that from top to bottom and so on. The arrangement can be
+    modified with any of the following approaches:
+    <ul>
+    <li>Call setArrangement(), e.g. with \c TopToBottom which will fill
+    the \e top-most row from left to right, then moves one row \e down and
+    fills that row from left to right and so on.
+    <li>Construct each QIconViewItem using a constructor which allows
+    you to specify which item the new one is to follow.
+    <li>Call setSorting() or sort() to sort the items.
+    </ul>
 
-  Each (\link QIconViewItem::isSelectable() selectable\endlink) item
-  can be selected, and the view provides various SelectionMode
-  settings. The default is \c Single - when one item is selected the
-  previously selected item is unselected.
+    Items which are <em>\link QIconViewItem::isSelectable()
+    selectable\endlink</em> may be selected depending on the
+    SelectionMode (default is \c Single). Because QIconView offers
+    multiple selection it has to display keyboard focus and selection
+    state separately. Therefore there are functions to set the selection
+    state of an item (setSelected()) and to select which item displays
+    keyboard focus (setCurrentItem()). When multiple items may be
+    selected the icon view provides a rubberband, too.
 
-  The QIconView provides a widget that can contain lots of icon view
-  items which can be selected, dragged, etc.
+    When in-place renaming is enabled (it is disabled by default), the
+    user may change the item's label. They do this by selecting the item
+    (single clicking it or navigating to it with the arrow keys), then
+    single clicking it (or pressing F2), and entering their text. If no
+    key has been set with QIconViewItem::setKey() the new text will also
+    serve as the key. (See QIconViewItem::setRenameEnabled().)
 
-  Items can be inserted in a grid and can flow from top to bottom
-  (TopToBottom) or from left to right (LeftToRight). The text can be
-  either displayed at the bottom of the icons or to the right of the
-  icons. Items can also be inserted in a sorted order. There are
-  functions to rearrange and re-sort the items after they have been
-  inserted.
+    QIconView offers functions similar to QListView and QListBox, such as
+    takeItem(), clearSelection(), setSelected(), setCurrentItem(),
+    currentItem() and many more.
 
-  There is a variety of selection modes described in the
-  QIconView::SelectionMode documentation. The default is
-  single-selection; you can change it using setSelectionMode().
-
-  Because QIconView offers multiple selection it has to display keyboard
-  focus and selection state separately. Therefore there are functions
-  to set the selection state of an item (setSelected()) and to
-  select which item displays keyboard focus (setCurrentItem()).
-
-  When multiple items may be selected the icon view provides a
-  rubberband, too.
-
-  Items can also be in-place renamed.
-
-  The normal way to insert some items is to create QIconViewItems and
-  pass the icon view as parent. By using insertItem(), items can be
-  inserted manually, too. The QIconView offers basic functions similar to
-  the QListView and QListBox, such as QIconView::takeItem(),
-  QIconView::clearSelection(), QIconView::setSelected(),
-  QIconView::setCurrentItem(), QIconView::currentItem() and much more.
-
-  Because the internal structure to store the icon view items is linear (a
-  double-linked list), no iterator class is needed to iterate over all
-  items. This can be easily done with a code like
+    Because the internal structure used to store the icon view items is
+    linear (a double-linked list), no iterator class is needed to
+    iterate over all the items. Instead we iterate by getting the first
+    item from the icon view and then each subsequent (\l nextItem) from
+    each item in turn: 
 
   \code
-  QIconView *iv = the iconview
-  for ( QIconViewItem *i = iv->firstItem(); i; i = i->nextItem() ) {
-      i->doSmething();
-  }
+  for ( QIconViewItem *item = iv->firstItem(); item; item = item->nextItem() ) 
+    do_something( item );
   \endcode
 
-  To notify the application about changes in the icon view there are
-  several signals which are emitted by the QIconView.
+    QIconView supports the drag and drop of items within the QIconView
+    itself. It also supports the drag and drop of items out of or into
+    the QIconView and drag and drop onto items themselves. The drag and
+    drop of items outside the QIconView can be achieved in a simple way
+    with basic functionality, or in a more sophisticated way which
+    provides more power and control.
 
-  The QIconView is designed for drag-and-drop because the icons are also
-  moved inside the icon view itself, using drag-and-drop. So the QIconView
-  provides some functions for extended drag-and-drop, too. To use drag-and-drop correctly in
-  the icon view, please read the following instructions.
+    The simple approach to dragging items out of the icon view is to
+    subclass QIconView and reimplement QIconView::dragObject().
 
-  There are two different ways to do that, depending on what you want.
-  The first is the simple one, in which just the dragobject
-  you created is dragged around. If you want drag shapes (the
-  rectangles of the dragged items with exact positions) to be drawn, you
-  have to choose the more complicated way. First the simple case
-  is described.
+    \code
+    QDragObject *MyIconView::dragObject()
+    {
+      return new QTextDrag( currentItem()->text(), this );
+    }
+    \endcode
 
-  In the simple case you need only to start a drag to reimplement
-  QIconView::dragObject(). Then you create a QDragObject with the
-  data you want to drag and return it. And for entering drags you
-  don't need to do anything special. Just connect to the dropped()
-  signal to get notified about drops onto the viewport and reimplement
-  QIconViewItem::acceptDrop() and QIconViewItem::dropped() to be able
-  to react to drops onto an icon view item.
+    In this example we create a QTextDrag object, (derived from
+    QDragObject), containing the item's label and return it as the drag
+    object. We could just as easily have created a QImageDrag from the
+    item's pixmap and returned that instead.
+
+    QIconViews and their QIconViewItems can also be the targets of drag
+    and drops. To make the QIconView itself able to accept drops connect
+    to the dropped() signal. When a drop occurs this signal will be
+    emitted with a QDragEvent and a QValueList of QIconDragItems. To
+    make a QIconViewItem into a drop target subclass QIconViewItem and
+    reimplement QIconViewItem::acceptDrop() and
+    QIconViewItem::dropped().
+
+    \code
+    bool MyIconViewItem::acceptDrop( const QMimeSource *mime ) const
+    {
+	if ( mime->provides( "text/plain" ) )
+	    return TRUE;
+	return FALSE;
+    }
+
+    void MyIconViewItem::dropped( QDropEvent *evt, const QValueList<QIconDragItem>& )
+    {
+	QString label;
+	if ( QTextDrag::decode( evt, label ) ) 
+	    setText( label );
+    }
+    \endcode
+
+    See qt/examples/iconview/simple_dd for a simple drag and drop
+    example which demonstrates drag and drop between a QIconView and a
+    QListBox.
 
   If you want to have drag shapes drawn you have to do more complex things.
 
@@ -2024,7 +2058,8 @@ void QIconViewItem::checkRect()
   connect to the dropped() signal and reimplement
   QIconViewItem::dropped() and QIconViewItem::acceptDrop(). The only
   thing special in this case is the second argument in the dropped()
-  signal and in QIconViewItem::dropped(). For further details, look at the documentation of this signal/function.
+  signal and in QIconViewItem::dropped(). For further details, look at
+  the documentation of this signal/function.
 
   For an example implementation of the complex drag- and-drop stuff look at the
   qfileiconview example (qt/examples/qfileiconview).
