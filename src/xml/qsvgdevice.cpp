@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#3 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#4 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -42,7 +42,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qfile.h"
 
-struct QSVGDevicePrivate {
+class QSVGDevicePrivate {
 };
 
 /*!
@@ -178,6 +178,7 @@ bool QSVGDevice::cmd ( int, QPainter*, QPDevCmdParam * )
 
 bool QSVGDevice::play( const QDomNode &node, QPainter *p )
 {
+    return FALSE; //###
 }
 
 #endif // QT_NO_SVG
