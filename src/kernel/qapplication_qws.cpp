@@ -2115,10 +2115,10 @@ bool QApplication::processNextEvent( bool canWait )
 	return FALSE;
     }
 
-    sendPostedEvents();
-
     if ( !outgoing.isEmpty() )
 	QWSServer::processEventQueue();
+
+    sendPostedEvents();
 
     static timeval zerotm;
     timeval *tm = qt_wait_timer();		// wait for timer or X event
