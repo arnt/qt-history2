@@ -1994,7 +1994,7 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 		}
 		//fall through
 	    case SC_ScrollBarAddPage: {
-		int sbextent = pixelMetric(PM_ScrollBarExtent, w);
+		int sbextent = 17;
 		if(scr->orientation() == Horizontal) {
 		    rect.moveBy( -sbextent, 0 );
   		    if(sc == SC_ScrollBarAddPage)
