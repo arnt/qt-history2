@@ -3345,7 +3345,19 @@ int QApplication::startDragDistance()
 */
 void QApplication::setReverseLayout( bool b )
 {
+    if ( reverse_layout == b )
+	return;
+
     reverse_layout = b;
+
+    QWidgetList *list = topLevelWidgets();
+    QWidgetListIt it( *list );
+    QWidget *w;
+    while ( ( w=it.current() ) != 0 ) {
+	++it;
+	postEvent( w, new QEvent( QEvent::LayoutDirectionChange ) );
+    }
+    delete list;
 }
 
 /*!

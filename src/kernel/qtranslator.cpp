@@ -595,7 +595,11 @@ bool QTranslator::save( const QString & filename, SaveMode mode )
 
 void QTranslator::clear()
 {
-    bool wasUsed = d->messages && d->messages->count();
+    bool wasUsed = d->unmapPointer || 
+		   d->unmapLength || 
+		   d->messageArray || 
+		   d->offsetArray || 
+		   d->contextArray;
 
     if ( d->unmapPointer && d->unmapLength ) {
 #if defined(QT_USE_MMAP)

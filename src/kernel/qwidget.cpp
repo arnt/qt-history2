@@ -4317,22 +4317,24 @@ bool QWidget::event( QEvent *e )
 		int index = metaObject()->findSlot( "retranslateStrings()", TRUE );
 		if ( index >= 0 )
 		    qt_invoke( index, 0 );
-
-		if ( layout() ) {
-		    layout()->activate();
-		} else {
-		    QObjectList* llist = queryList( "QLayout", 0, TRUE, TRUE );
-		    QObjectListIt lit( *llist );
-		    QLayout *lay;
-		    while ( ( lay = (QLayout*)lit.current() ) != 0 ) {
-			++lit;
-			lay->activate();
-		    }
-		    delete llist;
-		}
-
-		update();
 	    }
+	    update();
+	    break;
+	
+	case QEvent::LayoutDirectionChange:
+	    if ( layout() ) {
+		layout()->activate();
+	    } else {
+		QObjectList* llist = queryList( "QLayout", 0, TRUE, TRUE );
+		QObjectListIt lit( *llist );
+		QLayout *lay;
+		while ( ( lay = (QLayout*)lit.current() ) != 0 ) {
+		    ++lit;
+		    lay->activate();
+		}
+		delete llist;
+	    }
+	    update();
 	    break;
 
 	default:
