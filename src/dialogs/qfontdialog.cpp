@@ -492,6 +492,49 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 }
 
 
+#ifdef Q_WS_MAC
+#include <qpainter.h>
+
+class QListBoxFontText : public QListBoxText
+{
+    QFont cfont;
+public:
+    QListBoxFontText( const QString & text );
+    ~QListBoxFontText() { }
+
+    int	 height( const QListBox * ) const;
+    int	 width( const QListBox * )  const;
+
+protected:
+    void  paint( QPainter * );
+};
+
+QListBoxFontText::QListBoxFontText( const QString & text ) 
+    : QListBoxText(text), cfont(text)
+{
+}
+
+int QListBoxFontText::height( const QListBox * ) const
+{
+    QFontMetrics fm(cfont);
+    return QMAX( fm.lineSpacing() + 2, QApplication::globalStrut().height() );
+}
+
+int QListBoxFontText::width( const QListBox * )  const
+{
+    QFontMetrics fm(cfont);
+    return QMAX( fm.width( text() ) + 6, QApplication::globalStrut().width() );
+}
+
+void QListBoxFontText::paint( QPainter *painter )
+{
+    painter->save();
+    painter->setFont(cfont);
+    QListBoxText::paint(painter);
+    painter->restore();
+}
+
+#endif
 
 /*!  Updates the contents of the "font family" list box.  This
   function can be reimplemented if you have special requirements.
@@ -503,7 +546,7 @@ void QFontDialog::updateFamilies()
     QStringList newList;
     QString s;
     QStringList::Iterator it = d->familyNames.begin();
-    for( ; it != d->familyNames.end() ; it++ ) {
+    for( int idx = 0; it != d->familyNames.end() ; it++ ) {
 	s = *it;
 	if ( s.contains('-') ) {
 	    int i = s.find('-');
@@ -517,9 +560,15 @@ void QFontDialog::updateFamilies()
 	    newList.append( s + "(BT)" );
 	else
 #endif
+#ifdef Q_WS_MAC
+	    d->familyList->insertItem(new QListBoxFontText(s), idx++);
+#else       
 	newList.append( s );
+#endif
     }
+#ifndef Q_WS_MAC
     d->familyList->insertStringList( newList );
+#endif
 }
 
 /*!  Updates the contents of the "font script" combo box.  This
