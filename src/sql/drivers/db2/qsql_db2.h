@@ -94,6 +94,7 @@ public:
     bool beginTransaction();
     bool commitTransaction();
     bool rollbackTransaction();
+    QString formatValue( const QSqlField* field, bool trimStrings ) const;
     
 private:
     bool setAutoCommit( bool autoCommit );

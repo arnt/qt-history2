@@ -192,6 +192,7 @@ QVariant::Type qDecodeDB2Type( SQLSMALLINT sqltype )
     case SQL_TINYINT:
 	type = QVariant::Int;
 	break;
+    case SQL_BLOB:
     case SQL_BINARY:
     case SQL_VARBINARY:
     case SQL_LONGVARBINARY:
@@ -561,8 +562,10 @@ bool QDB2Result::fetch( int i )
 			    SQL_FETCH_ABSOLUTE,
 			    actualIdx );
     }
-    if ( r != SQL_SUCCESS )
+    if ( r != SQL_SUCCESS ) {
+	setLastError( qMakeError( QString ( "Unable to fetch record %1" ).arg( i ), QSqlError::Statement, d ) );
 	return FALSE;
+    }
     setAt( i );
     return TRUE;
 }
@@ -574,8 +577,10 @@ bool QDB2Result::fetchNext()
     r = SQLFetchScroll( d->hStmt,
 		       SQL_FETCH_NEXT,
 		       0 );
-    if ( r != SQL_SUCCESS )
+    if ( r != SQL_SUCCESS ) {
+	setLastError( qMakeError( "Unable to fetch next", QSqlError::Statement, d ) );
 	return FALSE;
+    }
     setAt( at() + 1 );
     return TRUE;
 }
@@ -591,8 +596,10 @@ bool QDB2Result::fetchFirst()
     r = SQLFetchScroll( d->hStmt,
 			SQL_FETCH_FIRST,
 			0 );
-    if ( r != SQL_SUCCESS )
+    if ( r != SQL_SUCCESS ) {
+	setLastError( qMakeError( "Unable to fetch first", QSqlError::Statement, d ) );
 	return FALSE;
+    }
     setAt( 0 );
     return TRUE;
 }
@@ -688,7 +695,8 @@ QVariant QDB2Result::data( int field )
 			    0,
 			    &lengthIndicator );
 	    if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) && ( lengthIndicator != SQL_NULL_DATA ) )
-		v = new QVariant( QDateTime( QDate( dtbuf.year, dtbuf.month, dtbuf.day ), QTime( dtbuf.hour, dtbuf.minute, dtbuf.second ) ) );
+		v = new QVariant( QDateTime( QDate( dtbuf.year, dtbuf.month, dtbuf.day ),
+					     QTime( dtbuf.hour, dtbuf.minute, dtbuf.second, dtbuf.fraction / 1000000 ) ) );
 	    else
 		v = new QVariant( QDateTime() );
 	break; }
@@ -1019,7 +1027,7 @@ bool QDB2Driver::hasFeature( DriverFeature f ) const
 	case QuerySize:
 	    return FALSE;
 	case BLOB:
-	    return FALSE;
+	    return TRUE;
 	case Unicode:
 	// this is the query that shows the codepage for the types:
 	// select typename, codepage from syscat.datatypes
@@ -1096,4 +1104,44 @@ bool QDB2Driver::setAutoCommit( bool autoCommit )
 	return FALSE;
     }
     return TRUE;
+}
+
+QString QDB2Driver::formatValue( const QSqlField* field, bool trimStrings ) const
+{
+    if ( field->isNull() )
+	return nullText();
+
+    switch ( field->type() ) {
+	case QVariant::DateTime: {
+	    // Use an escape sequence for the datetime fields
+	    if ( field->value().toDateTime().isValid() ) {
+		QDate dt = field->value().toDateTime().date();
+		QTime tm = field->value().toDateTime().time();	
+		// Dateformat has to be "yyyy-MM-dd hh:mm:ss", with leading zeroes if month or day < 10
+		return "'" + QString::number( dt.year() ) + "-" +
+		       QString::number( dt.month() ) + "-" +
+		       QString::number( dt.day() ) + "-" +
+		       QString::number( tm.hour() ) + "." +
+		       QString::number( tm.minute() ).rightJustify( 2, '0', TRUE ) + "." +
+		       QString::number( tm.second() ).rightJustify( 2, '0', TRUE ) + "." +
+		       QString::number( tm.msec() * 1000 ).rightJustify( 6, '0', TRUE ) + "'";
+		} else {
+		    return nullText();
+		}
+	}
+	case QVariant::ByteArray: {
+	    QByteArray ba = field->value().toByteArray();
+	    QString res( "BLOB(X'" );
+	    static const char hexchars[] = "0123456789abcdef";
+	    for ( uint i = 0; i < ba.size(); ++i ) {
+		uchar s = (uchar) ba[(int)i];
+		res += hexchars[s >> 4];
+		res += hexchars[s & 0x0f];
+	    }
+	    res += "')";
+	    return res;
+	}
+	default:
+	    return QSqlDriver::formatValue( field, trimStrings );
+    }
 }
