@@ -160,6 +160,62 @@ QDir::QDir()
     init();
 }
 
+static QStringList qt_makeFilterStringList(const QString &nameFilter)
+{
+    if (nameFilter.isEmpty())
+        return QStringList();
+
+    QChar sep(';');
+    int i = nameFilter.indexOf(sep, 0);
+    if (i == -1 && nameFilter.indexOf(' ', 0) != -1)
+        sep = QChar(' ');
+
+    QStringList ret = nameFilter.split(sep);
+    for(QStringList::Iterator it = ret.begin(); it != ret.end(); ++it)
+        (*it) = (*it).trimmed();
+    return ret;
+}
+
+/*!
+    Constructs a QDir with path \a path, that filters its entries by
+    name using \a nameFilter and by attributes using \a filterSpec. It
+    also sorts the names using \a sortSpec.
+
+    The default \a nameFilter is an empty string, which excludes
+    nothing; the default \a filterSpec is \c All, which also means
+    exclude nothing. The default \a sortSpec is \c Name|IgnoreCase,
+    i.e. sort by name case-insensitively.
+
+    Example that lists all the files in "/tmp":
+    \code
+    QDir d( "/tmp" );
+    for ( int i = 0; i < d.count(); i++ )
+	printf( "%s\n", d[i] );
+    \endcode
+
+    If \a path is "" or QString::null, QDir uses "." (the current
+    directory). If \a nameFilter is "" or QString::null, QDir uses the
+    name filter "*" (all files).
+
+    Note that \a path need not exist.
+
+    \sa exists(), setPath(), setNameFilter(), setFilter(), setSorting()
+*/
+
+QDir::QDir(const QString &path, const QString &nameFilter, int sortSpec, int filterSpec)
+{
+    init();
+    dPath = cleanDirPath(path);
+    if (dPath.isEmpty())
+	dPath = QString::fromLatin1(".");
+    nameFilts = qt_makeFilterStringList(nameFilter);
+    if (nameFilts.size() == 0)
+	nameFilts << QString::fromLatin1("*");
+    filtS = (FilterSpec)filterSpec;
+    sortS = (SortSpec)sortSpec;
+}
+
+
 /*!
     Constructs a QDir with path \a path, that filters its entries by
     name using \a nameFilters and by attributes using \a filterSpec. It
@@ -1053,17 +1109,9 @@ QList<QRegExp> qt_makeFilterList(const QString &filter)
     if (filter.isEmpty())
         return regExps;
 
-    QChar sep(';');
-    int i = filter.indexOf(sep, 0);
-    if (i == -1 && filter.indexOf(' ', 0) != -1)
-        sep = QChar(' ');
-
-    QStringList list = filter.split(sep);
-    QStringList::Iterator it = list.begin();
-    while (it != list.end()) {
-        regExps << QRegExp((*it).trimmed(), CaseSensitiveFS, QRegExp::Wildcard);
-        ++it;
-    }
+    const QStringList list = qt_makeFilterStringList(filter);
+    for(QStringList::ConstIterator it = list.begin(); it != list.end(); ++it)
+        regExps << QRegExp((*it), CaseSensitiveFS, QRegExp::Wildcard);
     return regExps;
 }
 

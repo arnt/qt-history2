@@ -60,8 +60,10 @@ public:
                       DefaultSort = -1 };
 
     QDir();
-    QDir(const QString &path, const QStringList &nameFilters = QStringList(),
+    QDir(const QString &path, const QString &nameFilter,
          int sortSpec = Name | IgnoreCase, int filterSpec = All);
+    explicit QDir(const QString &path, const QStringList &nameFilters = QStringList(),
+                  int sortSpec = Name | IgnoreCase, int filterSpec = All);
     QDir(const QDir &);
 
     ~QDir();
