@@ -120,7 +120,6 @@ FormWindow::FormWindow( FormFile *f, MainWindow *mw, QWidget *parent, const char
 {
     ff = f;
     init();
-    MetaDataBase::addEntry( this );
     initSlots();
 }
 
@@ -134,6 +133,7 @@ FormWindow::FormWindow( FormFile *f, QWidget *parent, const char *name )
 
 void FormWindow::init()
 {
+    MetaDataBase::addEntry( this );
     ff->setFormWindow( this );
     iface = 0;
     proj = 0;

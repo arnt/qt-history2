@@ -97,7 +97,6 @@ void FormFile::setFileName( const QString &fn )
 void FormFile::setCode( const QString &c )
 {
     cod = c;
-    parseCode( cod );
 }
 
 FormWindow *FormFile::formWindow() const
@@ -352,9 +351,9 @@ void FormFile::showFormWindow()
 
 void FormFile::showEditor()
 {
-    showFormWindow();
     if ( !hasFormCode() )
 	createFormCode();
+    showFormWindow();
     MainWindow::self->editSource();
 }
 
