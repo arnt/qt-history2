@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#include "private/qlibrary_p.h"
 #include "qplatformdefs.h"
+#include "private/qlibrary_p.h"
 
 #if defined(QT_AOUT_UNDERSCORE)
 #include <string.h>
