@@ -48,7 +48,7 @@ public:
     int id;
 
 private:
-    static int idCounter;
+    static QAtomic idCounter;
     static int nextId();
 };
 
@@ -129,15 +129,15 @@ public:
     QString proxyPassword;
 };
 
-int QHttpRequest::idCounter = 0;
+QAtomic QHttpRequest::idCounter = Q_ATOMIC_INIT(1);
 int QHttpRequest::nextId()
 {
     register int id;
     for (;;) {
         id = idCounter;
-        if (q_atomic_test_and_set_int(&idCounter, id, id + 1))
+        if (idCounter.testAndSet(id, id + 1))
             break;
-    }
+    }   
     return id;
 }
 

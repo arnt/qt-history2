@@ -16,6 +16,8 @@
 
 #include <arch/qatomic.h>
 
+#ifndef Q_SPECIALIZED_QATOMIC
+
 #ifndef Q_HAVE_ATOMIC_INCDEC
 
 extern "C" {
@@ -71,12 +73,6 @@ extern "C" {
 } // extern "C"
 
 #endif // Q_HAVE_ATOMIC_SET
-
-template <typename T>
-inline T qAtomicSetPtr(volatile T *ptr, T newval)
-{ return static_cast<T>(q_atomic_set_ptr(ptr, newval)); }
-
-#ifndef Q_SPECIALIZED_QATOMIC
 
 struct QAtomic {
     int atomic;
@@ -147,6 +143,10 @@ struct QAtomicPointer
 #define Q_ATOMIC_INIT(a) { (a) }
 
 #endif
+
+template <typename T>
+inline T qAtomicSetPtr(volatile T *ptr, T newval)
+{ return static_cast<T>(q_atomic_set_ptr(ptr, newval)); }
 
 /*! \internal
   This is a helper for the assignment operators of implicitely shared classes.

@@ -213,17 +213,17 @@ public:
     } data;
     bool is_ba;
 
-    static int idCounter;
+    static QAtomic idCounter;
     static int nextId();
 };
 
-int QFtpCommand::idCounter = 1;
+QAtomic QFtpCommand::idCounter = Q_ATOMIC_INIT(1);
 int QFtpCommand::nextId()
 {
     register int id;
     for (;;) {
         id = idCounter;
-        if (q_atomic_test_and_set_int(&idCounter, id, id + 1))
+        if (idCounter.testAndSet(id, id + 1))
             break;
     }
     return id;
