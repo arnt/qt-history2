@@ -244,16 +244,24 @@ dragged from the main toolbox onto the form.
 
 \target EditingModes
 \table
-\row \i
-\inlineimage designer-editing-modes.png
-\i \bold{Editing modes}
-
-In \l{designer-editing-mode.html}{form editing mode},
-we can change the appearance of the form, add layouts, and edit the properties
-of each widget.
-
-In \l{designer-connection-mode.html}{connection editing mode}, we can connect
-widgets together using Qt's signals and slots mechanism.
+\header \i \i \bold{Editing modes}
+\row \i \inlineimage designer-widget-tool.png
+\i In \l{Qt Designer's Form Editing Mode}{form editing mode},
+we can change the appearance of the form, add layouts, and edit the
+properties of each widget.
+\row \i \inlineimage designer-connection-tool.png
+\i In \l{Qt Designer's Connection Editing Mode}{connection editing mode},
+we can connect widgets together using Qt's signals and slots mechanism.
+\row \i \inlineimage designer-buddy-tool.png
+\i In \l{Qt Designer's Buddy Editing Mode}, buddy widgets can be
+assigned to label widgets to help them handle keyboard focus correctly.
+\row \i \inlineimage designer-tab-order-tool.png
+\i In \l{Qt Designer's Tab Order Mode}{tab order mode}, we can set the
+order in which widgets receive the keyboard focus.
+\row \i \inlineimage designer-resource-tool.png
+\i In \l{Editing Resources with Qt Designer}{resource editing mode},
+resources can be associated with a particular form, making it easier
+to use images and other external data with widgets.
 \endtable
 
 For our example, we will develop a dialog that lets the user create an
