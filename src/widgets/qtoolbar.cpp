@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#11 $
 **
 ** Implementation of something useful.
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#11 $");
 
 
 
@@ -37,9 +37,15 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#10 $");
 
 /*! \fn void QToolBar::useBigPixmaps( bool );
 
-  This signal is emitted when items in teh toolbar need to foo */
+  This signal is emitted when items in teh toolbar need to set or
+  change their use-big-pixmaps setting. */
 
 
+/*! \fn void QToolBar::useTextLabels( bool )
+
+  This signal is emitted when items in the toolbar need to change
+  their use-text-label settings.
+*/
 
 
 /*!  Constructs an empty tool bar.
@@ -190,3 +196,4 @@ void QToolBar::paintEvent( QPaintEvent * )
 	}
     }
 }
+
