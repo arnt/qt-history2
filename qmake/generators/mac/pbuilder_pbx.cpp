@@ -957,22 +957,22 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         }
     }
     if(project->first("TEMPLATE") == "app") {
-        QString file = Option::mkfile::qmakespec + Option::dir_sep + "Info.plist.app";
-        if(QFile::exists(file)) {
-            QFile plist_in_file(file);
-            if(plist_in_file.open(IO_ReadOnly)) {
-                QTextStream plist_in(&plist_in_file);
-                QString plist_in_text = plist_in.read();
+	QString file = Option::mkfile::qmakespec + Option::dir_sep + "Info.plist.app";
+	if(QFile::exists(file)) {
+	    QFile plist_in_file(file);
+	    if(plist_in_file.open(IO_ReadOnly)) {
+		QTextStream plist_in(&plist_in_file);
+		QString plist_in_text = plist_in.read();
                 plist_in_text = plist_in_text.replace("@ICON@", project->isEmpty("RC_FILE") ? QString("") : project->first("RC_FILE").section(Option::dir_sep, -1));
                 plist_in_text = plist_in_text.replace("@EXECUTABLE@", project->first("QMAKE_ORIG_TARGET"));
-                QFile plist_out_file("Info.plist");
-                if(plist_out_file.open(IO_WriteOnly | IO_Translate)) {
-                    QTextStream plist_out(&plist_out_file);
-                    plist_out << plist_in_text;
-                    t << "\t\t\t\t" << "INFOPLIST_FILE = \"Info.plist\";" << "\n";
-                }
-            }
-        }
+		QFile plist_out_file("Info.plist");
+		if(plist_out_file.open(IO_WriteOnly | IO_Translate)) {
+		    QTextStream plist_out(&plist_out_file);
+		    plist_out << plist_in_text;
+		    t << "\t\t\t\t" << "INFOPLIST_FILE = \"Info.plist\";" << "\n";
+		}
+	    }
+	}
     }
 #if 1
     t << "\t\t\t\t" << "BUILD_ROOT = \"" << QDir::currentDirPath() << "\";" << "\n";
