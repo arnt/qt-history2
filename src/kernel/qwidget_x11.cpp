@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#107 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#106 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#107 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -391,7 +391,7 @@ void QWidget::setCursor( const QCursor &cursor )
 
 /*----------------------------------------------------------------------------
   Sets the window caption (title).
-  \sa caption()
+  \sa caption(), setIcon(), setIconText()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setCaption( const char *caption )
@@ -406,6 +406,7 @@ void QWidget::setCaption( const char *caption )
 
 /*----------------------------------------------------------------------------
   Sets the window icon pixmap.
+  \sa icon(), setIconText(), setCaption()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setIcon( const QPixmap &pixmap )
@@ -424,7 +425,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
 
 /*----------------------------------------------------------------------------
   Sets the text of the window's icon to \e iconText.
-  \sa iconText()
+  \sa iconText(), setIcon(), setCaption()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setIconText( const char *iconText )

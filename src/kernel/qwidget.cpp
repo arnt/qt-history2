@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#91 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#90 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#91 $")
 
 
 /*----------------------------------------------------------------------------
@@ -122,8 +122,8 @@ inline bool QWidgetMapper::remove( WId id )
   Constructs a widget which is a child of \e parent, with the name \e name and
   widget flags set to \e f.
 
-  If \e parent is 0, the new widget is a top level window. If \e
-  parent is another widget, the new widget is a child window inside \e
+  If \e parent is 0, the new widget becomes a top level window. If \e
+  parent is another widget, the new widget becomes a child window inside \e
   parent.
 
   The \e name is sent to the QObject constructor.
@@ -382,7 +382,6 @@ void QWidget::setStyle( GUIStyle style )	// set widget GUI style
 
 /*----------------------------------------------------------------------------
   Enables the widget so that it receives mouse and keyboard events.
-
   \sa disable(), setEnabled(), isEnabled(), isDisabled()
  ----------------------------------------------------------------------------*/
 
@@ -397,7 +396,6 @@ void QWidget::enable()				// enable events
 /*----------------------------------------------------------------------------
   Disables the widget so that it does not receive mouse and keyboard
   events.
-
   \sa enable(), setEnabled(), isEnabled(), isDisabled()
  ----------------------------------------------------------------------------*/
 
@@ -649,7 +647,7 @@ const QPixmap *QWidget::backgroundPixmap() const
   \sa palette(), setPalette()
  ----------------------------------------------------------------------------*/
 
-const QColorGroup &QWidget::colorGroup() const	// get current colors
+const QColorGroup &QWidget::colorGroup() const
 {
     if ( testWFlags(WState_Disabled) )
 	return pal.disabled();
@@ -716,15 +714,13 @@ void QWidget::setFont( const QFont &font )
 /*----------------------------------------------------------------------------
   \fn QFontMetrics QWidget::fontMetrics() const
   Returns the font metrics for the widget.
-
-  \sa font() fontInfo() setFont()
+  \sa font(), fontInfo(), setFont()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QFontInfo QWidget::fontInfo() const
   Returns the font info for the widget.
-
-  \sa font() fontMetrics() setFont()
+  \sa font(), fontMetrics(), setFont()
  ----------------------------------------------------------------------------*/
 
 
@@ -741,7 +737,7 @@ const QCursor &QWidget::cursor() const
 
 /*----------------------------------------------------------------------------
   Returns the widget caption, or null if no caption has been set.
-  \sa setCaption() icon() iconText()
+  \sa setCaption(), icon(), iconText()
  ----------------------------------------------------------------------------*/
 
 const char *QWidget::caption() const
@@ -751,7 +747,7 @@ const char *QWidget::caption() const
 
 /*----------------------------------------------------------------------------
   Returns the widget icon pixmap, or null if no icon has been set.
-  \sa setIcon() caption() iconText()
+  \sa setIcon(), iconText(), caption()
  ----------------------------------------------------------------------------*/
 
 const QPixmap *QWidget::icon() const
@@ -761,7 +757,7 @@ const QPixmap *QWidget::icon() const
 
 /*----------------------------------------------------------------------------
   Returns the widget icon text, or null if no icon text has been set.
-  \sa setIconText() icon() caption()
+  \sa setIconText(), icon(), caption()
  ----------------------------------------------------------------------------*/
 
 const char *QWidget::iconText() const
@@ -775,7 +771,7 @@ const char *QWidget::iconText() const
   Enables or disables mouse tracking and returns the previous setting.
 
   If mouse tracking is disabled (default), the widget only receives
-  mouse move events if at least one mouse button is pressed down while
+  mouse move events when at least one mouse button is pressed down while
   the mouse is being moved.
 
   If mouse tracking is enabled, the widget receives mouse move events
