@@ -1395,7 +1395,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType contents,
             if (button->isDefault() || button->autoDefault())
                 defwidth = 2*pixelMetric(PM_ButtonDefaultIndicator, widget);
 
-            if (w < 80+defwidth && !button->pixmap())
+            if (w < 80+defwidth)
                 w = 80+defwidth;
             if (h < 23+defwidth)
                 h = 23+defwidth;
