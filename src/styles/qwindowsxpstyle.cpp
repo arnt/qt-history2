@@ -343,6 +343,8 @@ struct XPThemeData
 	    painter->setPen( tbBorderColor );
 	    if ( !flipped )
 		painter->drawLine( rec.left(), rec.bottom(), rec.right()+1, rec.bottom() );
+	} else if ( name && name == "TREEVIEW" ) {
+	    ulong res = DrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
 	} else {
 	    QRect rt = rec;
 	    rec = painter->xForm( rec );
