@@ -19,6 +19,7 @@ CONFIG		+= png zlib
 
 # Uncomment the next line if you want to use the standard png/zlib libs
 # unix:LIBS	+= -lpng -lz
+mng:LIBS	+= -L/home/warwick/qt/main/src/3rdparty/libmng -lmng -ljpeg
 
 # for now, dunno how to make this configurable, also requires a #define in qapplication_x11.cpp
 unix:LIBS += $$TMAKE_LIBS_X11SM
@@ -37,8 +38,10 @@ win32:TMAKE_CXXFLAGS   += -DUNICODE
 #win32:TMAKE_CFLAGS    += -MT
 #win32:TMAKE_CXXFLAGS  += -MT
 
+MNG_INCLUDEPATH		= 3rdparty/libmng
 PNG_INCLUDEPATH		= 3rdparty/libpng
 ZLIB_INCLUDEPATH	= 3rdparty/zlib
+mng:INCLUDEPATH        += $$MNG_INCLUDEPATH
 png:INCLUDEPATH        += $$PNG_INCLUDEPATH
 zlib:INCLUDEPATH       += $$ZLIB_INCLUDEPATH
 win32:INCLUDEPATH      += tmp
@@ -105,6 +108,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qtranslator.h \
 		  $$KERNEL_H/qmetaobject.h \
 		  $$KERNEL_H/qmime.h \
+		  $$KERNEL_H/qmngio.h \
 		  $$KERNEL_H/qmovie.h \
 		  $$KERNEL_H/qnamespace.h \
 		  $$KERNEL_H/qnetworkprotocol.h \
@@ -362,6 +366,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qtranslator.cpp \
 		  kernel/qmetaobject.cpp \
 		  kernel/qmime.cpp \
+		  kernel/qmngio.cpp \
 		  kernel/qmovie.cpp \
 		  kernel/qnetworkprotocol.cpp \
 		  kernel/qobject.cpp \
