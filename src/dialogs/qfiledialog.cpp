@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#244 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#245 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1485,7 +1485,7 @@ void QFileDialogPrivate::MCItem::paint( QPainter * ptr )
 	    text() );
 }
 
-static QStringList makeFiltersList( QString filter )
+static QStringList makeFiltersList( const QString &filter )
 {
     if ( filter.isEmpty() )
         return QStringList();
@@ -1500,15 +1500,18 @@ static QStringList makeFiltersList( QString filter )
     }
     QStringList lst;
 
+    int j = 0;
+    
     while ( i != -1 ) {
-        if ( filter.left( i ).length() > 0 )
-            lst.append( filter.left( i ) );
-        filter.remove( 0, i + sep.length() );
-        i = filter.find( sep, 0 );
+        if ( filter.mid( j, i - j ).length() > 0 )
+            lst.append( filter.mid( j, i - j ) );
+        j = i + 2;
+        i = filter.find( sep, j );
     }
 
-    if ( !filter.simplifyWhiteSpace().isEmpty() )
-        lst.append( filter.simplifyWhiteSpace() );
+    int l = filter.length() - 1;
+    if ( !filter.mid( j, l - j + 1 ).simplifyWhiteSpace().isEmpty() )
+        lst.append( filter.mid( j, l - j + 1 ).simplifyWhiteSpace() );
 
     return lst;
 }

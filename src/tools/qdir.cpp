@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#97 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#98 $
 **
 ** Implementation of QDir class
 **
@@ -1297,7 +1297,7 @@ QString QDir::rootDirPath()
     return d;
 }
 
-static QStringList makeFilterList( QString filter )
+static QStringList makeFilterList( const QString &filter )
 {
     if ( filter.isEmpty() )
         return QStringList();
@@ -1312,16 +1312,19 @@ static QStringList makeFilterList( QString filter )
     }
     QStringList lst;
 
+    int j = 0;
+    
     while ( i != -1 ) {
-        if ( filter.left( i ).length() > 0 )
-            lst.append( filter.left( i ) );
-        filter.remove( 0, i + 1 );
-        i = filter.find( sep, 0 );
+        if ( filter.mid( j, i - j ).length() > 0 )
+            lst.append( filter.mid( j, i - j ) );
+        j = i + 1;
+        i = filter.find( sep, j );
     }
 
-    if ( !filter.simplifyWhiteSpace().isEmpty() )
-        lst.append( filter.simplifyWhiteSpace() );
-
+    int l = filter.length() - 1;
+    if ( !filter.mid( j, l - j + 1 ).simplifyWhiteSpace().isEmpty() )
+        lst.append( filter.mid( j, l - j + 1 ).simplifyWhiteSpace() );
+    
     return lst;
 }
 
