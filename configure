@@ -1526,7 +1526,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 		echo " switch (-continue) to $0 to continue."
 		exit 101
 	    else
-		CFG_XRENDERER=no
+		CFG_XRENDER=no
 		CFG_FREETYPE=no
 	    fi
 	else
