@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -72,10 +72,12 @@ UnixMakefileGenerator::init()
     }
 
     if( project->isEmpty("QMAKE_EXTENSION_SHLIB") ) {
-	if ( project->isEmpty("QMAKE_CYGWIN_SHLIB") ) {
-	    project->variables()["QMAKE_EXTENSION_SHLIB"].append( "so" );
-	} else {
+	QString spec = Option::mkfile::qmakespec.section( QDir::separator(), -1 );
+	QString os = spec.section( '-', 0, 0 );
+	if ( os == "cygwin" ) {
 	    project->variables()["QMAKE_EXTENSION_SHLIB"].append( "dll" );
+	} else {
+	    project->variables()["QMAKE_EXTENSION_SHLIB"].append( "so" );
 	}
     }
     if( project->isEmpty("QMAKE_COPY_FILE") )
@@ -404,9 +406,11 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		uninst.append("\n\t");
 	    uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
 	}
-	if ( project->isEmpty("QMAKE_CYGWIN_SHLIB") ) {
+	QString spec = Option::mkfile::qmakespec.section( QDir::separator(), -1 );
+	QString os = spec.section( '-', 0, 0 );
+	if ( os != "cygwin" ) {
 	    if ( !project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin") ) {
-		if ( !project->isEmpty("QMAKE_HPUX_SHLIB") ) {
+		if ( os == "hpux" ) {
 		    links << "$(TARGET0)";
 		} else {
 		    links << "$(TARGET0)" << "$(TARGET1)" << "$(TARGET2)";

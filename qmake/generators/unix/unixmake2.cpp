@@ -82,6 +82,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 			   (!project->variables()["QMAKE_APP_FLAG"].isEmpty() ||
 			    !project->isActiveConfig("staticlib"))), 
 	 src_incremental=FALSE, moc_incremental=FALSE;
+    QString spec = Option::mkfile::qmakespec.section( QDir::separator(), -1 );
+    QString os = spec.section( '-', 0, 0 );
 
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC       = ";
@@ -219,15 +221,15 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "TARGETD   = " << var("TARGET") << endl;
     } else if (!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	t << "TARGETA	= " << var("TARGETA") << endl;
-	if(project->isEmpty("QMAKE_HPUX_SHLIB")) {
+	if (os == "hpux") {
+	    t << "TARGETD	= " << var("TARGET_x") << endl;
+	    t << "TARGET0	= " << var("TARGET_") << endl;
+	}
+	else {
 	    t << "TARGETD	= " << var("TARGET_x.y.z") << endl;
 	    t << "TARGET0	= " << var("TARGET_") << endl;
 	    t << "TARGET1	= " << var("TARGET_x") << endl;
 	    t << "TARGET2	= " << var("TARGET_x.y") << endl;
-	}
-	else {
-	    t << "TARGETD	= " << var("TARGET_x") << endl;
-	    t << "TARGET0	= " << var("TARGET_") << endl;
 	}
     }
     t << endl;
@@ -481,7 +483,20 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    if(!project->isEmpty("QMAKE_POST_LINK"))
 		t << "\n\t" << var("QMAKE_POST_LINK") << "\n\t";
 	    t << endl << endl;
-	} else if(project->isEmpty("QMAKE_HPUX_SHLIB")) {
+	} else if ( os == "hpux" ) {
+	    t << "\n\t"
+	      << "-$(DEL_FILE) $(TARGET) $(TARGET0)" << "\n\t"
+	      << var("QMAKE_LINK_SHLIB_CMD") << "\n\t";
+	    t << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET0)");
+	    if(!destdir.isEmpty())
+		t  << "\n\t"
+		   << "-$(DEL_FILE) " << var("DESTDIR") << "$(TARGET)\n\t"
+		   << "-$(DEL_FILE) " << var("DESTDIR") << "$(TARGET0)\n\t"
+		   << "-$(MOVE) $(TARGET) $(TARGET0) " << var("DESTDIR");
+	    if(!project->isEmpty("QMAKE_POST_LINK"))
+		t << "\n\t" << var("QMAKE_POST_LINK");
+	    t << endl << endl;
+	} else {
 	    t << "\n\t"
 	      << "-$(DEL_FILE) $(TARGET) $(TARGET0) $(TARGET1) $(TARGET2)" << "\n\t"
 	      << var("QMAKE_LINK_SHLIB_CMD") << "\n\t";
@@ -495,19 +510,6 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		  << "-$(DEL_FILE) " << var("DESTDIR") << "$(TARGET1)\n\t"
 		  << "-$(DEL_FILE) " << var("DESTDIR") << "$(TARGET2)\n\t"
 		  << "-$(MOVE) $(TARGET) $(TARGET0) $(TARGET1) $(TARGET2) " << var("DESTDIR");
-	    if(!project->isEmpty("QMAKE_POST_LINK"))
-		t << "\n\t" << var("QMAKE_POST_LINK");
-	    t << endl << endl;
-	} else {
-	    t << "\n\t"
-	      << "-$(DEL_FILE) $(TARGET) $(TARGET0)" << "\n\t"
-	      << var("QMAKE_LINK_SHLIB_CMD") << "\n\t";
-	    t << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET0)");
-	    if(!destdir.isEmpty())
-		t  << "\n\t"
-		   << "-$(DEL_FILE) " << var("DESTDIR") << "$(TARGET)\n\t"
-		   << "-$(DEL_FILE) " << var("DESTDIR") << "$(TARGET0)\n\t"
-		   << "-$(MOVE) $(TARGET) $(TARGET0) " << var("DESTDIR");
 	    if(!project->isEmpty("QMAKE_POST_LINK"))
 		t << "\n\t" << var("QMAKE_POST_LINK");
 	    t << endl << endl;
@@ -863,6 +865,8 @@ void UnixMakefileGenerator::init2()
 	    project->variables()["QMAKE_AR_CMD"].first().replace(QRegExp("\\(TARGET\\)"),"(TARGETA)");
 	else
 	    project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGETA) $(OBJECTS) $(OBJMOC)");
+	QString spec = Option::mkfile::qmakespec.section( QDir::separator(), -1 );
+	QString os = spec.section( '-', 0, 0 );
 	if( project->isActiveConfig("plugin") ) {
 	    project->variables()["TARGET_x.y.z"].append("lib" +
 							project->first("TARGET") + "." + project->first("QMAKE_EXTENSION_SHLIB"));
@@ -878,7 +882,7 @@ void UnixMakefileGenerator::init2()
 	    project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
 	    if(project->isActiveConfig("qt"))
 		project->variables()["DEFINES"].append("QT_PLUGIN");
-	} else if ( !project->isEmpty("QMAKE_HPUX_SHLIB") ) {
+	} else if ( os == "hpux" ) {
 	    project->variables()["TARGET_"].append("lib" + project->first("TARGET") + ".sl");
 	    if(project->isActiveConfig("lib_version_first"))
 		project->variables()["TARGET_x"].append("lib" + project->first("VER_MAJ") + "." + 
@@ -887,7 +891,7 @@ void UnixMakefileGenerator::init2()
 		project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." + 
 							project->first("VER_MAJ"));
 	    project->variables()["TARGET"] = project->variables()["TARGET_x"];
-	} else if ( !project->variables()["QMAKE_AIX_SHLIB"].isEmpty() ) {
+	} else if ( os == "aix" ) {
 	    project->variables()["TARGET_"].append("lib" + project->first("TARGET") + ".a");
 	    if(project->isActiveConfig("lib_version_first")) {
 		project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
