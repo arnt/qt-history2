@@ -1112,8 +1112,12 @@ bool QODBCDriver::open( const QString & db,
 		return FALSE;
     }
     QString connQStr;
+    // support the "DRIVER={SQL SERVER};SERVER=blah;" syntax
+//    QRegExp cr( "DRIVER\\s*=\\s*\\{.+\\}\\s*;\\s*SERVER\\s*=\\s*.+;" );
     if ( db.contains(".dsn") ) {
 	connQStr = "FILEDSN=" + db;
+    } else if ( db.startsWith( "DRIVER" ) && db.contains( "SERVER" ) ) {
+	connQStr = db;
     } else {
 	connQStr = "DSN=" + db;
     }
