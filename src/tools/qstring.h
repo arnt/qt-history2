@@ -454,22 +454,22 @@ public:
 #endif
 
     enum FieldFlags {
-	FieldDefault             = 0x00,
-	FieldSkipEmpty           = 0x01,
-	FieldIncludeLeadingSeps  = 0x02,
-	FieldIncludeTrailingSeps = 0x04,
-	FieldCaseInsensitiveSeps = 0x08
+	SectionDefault             = 0x00,
+	SectionSkipEmpty           = 0x01,
+	SectionIncludeLeadingSeps  = 0x02,
+	SectionIncludeTrailingSeps = 0x04,
+	SectionCaseInsensitiveSeps = 0x08
     };
-    QString     fields( QChar sep, int field, int count = 1, int flags = FieldSkipEmpty ) const;
-    QString     fields( char sep, int field, int count = 1, int flags = FieldSkipEmpty ) const
-	          { return fields(QChar(sep), field, count, flags); }
+    QString     section( QChar sep, int start, int count = 1, int flags = SectionSkipEmpty ) const;
+    QString     section( char sep, int start, int count = 1, int flags = SectionSkipEmpty ) const
+	          { return section(QChar(sep), start, count, flags); }
 #ifndef QT_NO_CAST_ASCII
-    QString     fields( const char *substr, int field, int count = 1, int flags = FieldSkipEmpty ) const
-	          { return fields(QString(substr), field, count, flags); }
+    QString      section( const char *substr, int start, int count = 1, int flags = SectionSkipEmpty ) const
+	          { return section(QString(substr), start, count, flags); }
 #endif
-    QString     fields( QString substr, int field, int count = 1, int flags = FieldSkipEmpty ) const;
+    QString     section( QString substr, int start, int count = 1, int flags = SectionSkipEmpty ) const;
 #ifndef QT_NO_REGEXP
-    QString     fields( const QRegExp &regxp, int field, int count = 1, int flags = FieldSkipEmpty ) const;
+    QString     section( const QRegExp &regxp, int start, int count = 1, int flags = SectionSkipEmpty ) const;
 #endif
 
     QString     left( uint len )  const;
