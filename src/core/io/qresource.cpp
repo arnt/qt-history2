@@ -142,6 +142,10 @@ QResource *QResourcePrivate::locateResource(const QString &resource)
         if(!ret)
             break;
     }
+#ifdef QRESOURCE_DEBUG
+    fprintf(stderr, "Looking for resources %s found %p[%p]\n", resource.latin1(),
+            ret, ret ? ret->localeResource() : 0);
+#endif
     return ret ? ret->localeResource() : 0;
 }
 
@@ -390,7 +394,7 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
         const uchar *bytes = len ? resource+off : 0;
 
 #ifdef QRESOURCE_DEBUG
-        qDebug("created %s %d %p [%d/%d]", name.latin1(), len, bytes, lang, country);
+        fprintf(stderr, "created %s %d %p [%d/%d]\n", name.latin1(), len, bytes, lang, country);
 #endif
 
         //now create the nodes
