@@ -164,7 +164,7 @@ QFSFileInfoEnginePrivate::doStat() const
 
 	UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
 
-	int r;
+        int r;
 	QT_WA({
 	    r = QT_TSTAT((TCHAR*)file.utf16(), (QT_STATBUF4TSTAT*)&st);
 	} , {
@@ -208,6 +208,7 @@ QFSFileInfoEnginePrivate::doStat() const
 	if (!r)
 	    could_stat = false;
 	SetErrorMode(oldmode);
+        return !r;
     }
     return could_stat;
 }
