@@ -31,6 +31,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "LEAN" ]	    = "no";
     dictionary[ "NOPROCESS" ]	    = "no";
     dictionary[ "STL" ]		    = "no";
+    dictionary[ "QWINEXPORT" ]	    = "no";
     dictionary[ "EXCEPTIONS" ]	    = "no";
     dictionary[ "RTTI" ]	    = "no";
 
@@ -355,6 +356,11 @@ void Configure::parseCmdLine()
 	else if( (*args) == "-no-stl" )
 	    dictionary[ "STL" ] = "no";
 
+	else if( (*args) == "-qwinexport" )
+	    dictionary[ "QWINEXPORT" ] = "yes";
+	else if( (*args) == "-no-qwinexport" )
+	    dictionary[ "QWINEXPORT" ] = "no";
+
 	else if ( (*args) == "-exceptions" )
 	    dictionary[ "EXCEPTIONS" ] = "yes";
 	else if ( (*args) == "-no-exceptions" )
@@ -567,6 +573,9 @@ bool Configure::displayHelp()
 
 	cout << "-stl                 Enable STL support." << endl;
 	cout << "-no-stl            * Disable STL support." << endl  << endl;
+
+	cout << "-qwinexport          Enable additional and centralized template exports." << endl;
+	cout << "-no-qwinexport     * Disable additional template exports." << endl  << endl;
 
 	cout << "-exceptions          Enable C++ exception support." << endl;
 	cout << "-no-exceptions     * Disable C++ exception support." << endl  << endl;
@@ -952,6 +961,11 @@ void Configure::generateConfigfiles()
 	    outStream << "#define QT_NO_STL" << endl;
 	    outStream << "#endif" << endl;
 	}
+	if( dictionary[ "QWINEXPORT" ] == "yes" ) {
+	    outStream << "#ifndef QT_QWINEXPORT" << endl;
+	    outStream << "#define QT_QWINEXPORT" << endl;
+	    outStream << "#endif" << endl;
+	}
 	outFile.close();
 	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
 	    if ( !CopyFileA( outName, dictionary[ "QT_INSTALL_HEADERS" ] + "/qmodules.h", FALSE ) )
@@ -1028,6 +1042,7 @@ void Configure::displayConfig()
     cout << "Big Textcodecs.............." << dictionary[ "BIG_CODECS" ] << endl;
     cout << "Tablet support.............." << dictionary[ "TABLET" ] << endl;
     cout << "STL support................." << dictionary[ "STL" ] << endl;
+    cout << "Additional exports.........." << dictionary[ "QWINEXPORT" ] << endl;
     cout << "Exception support..........." << dictionary[ "EXCEPTIONS" ] << endl;
     cout << "RTTI support................" << dictionary[ "RTTI" ] << endl;
     cout << "OpenGL support.............." << dictionary[ "OPENGL" ] << endl << endl;
