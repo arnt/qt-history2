@@ -294,7 +294,7 @@ void SpreadSheet::updateLineEdit(QTableWidgetItem *item)
 
 void SpreadSheet::contextActions(QMenu *menu)
 {
-    if (table->selectedItems().count() > 0) {
+    if (menu) {
         menu->addAction(sumAction);
         menu->addSeparator();
         menu->addAction(colorAction);
@@ -319,16 +319,19 @@ void SpreadSheet::returnPressed()
 
 void SpreadSheet::selectColor()
 {
-    QList<QTableWidgetItem*> selected = table->selectedItems();
-    if (selected.count() == 0)
-        return;
     QTableWidgetItem *item = table->currentItem();
     QColor col = item ? item->backgroundColor() : table->palette().base().color();
     col = QColorDialog::getColor(col, this);
     if (!col.isValid())
         return;
+
+    QList<QTableWidgetItem*> selected = table->selectedItems(true);
+    if (selected.count() == 0)
+        return;
+
     foreach(QTableWidgetItem *i, selected)
         if (i) i->setBackgroundColor(col);
+
     updateColor(table->currentItem());
 }
 
@@ -362,7 +365,7 @@ void SpreadSheet::sum()
 void SpreadSheet::clear()
 {
     foreach (QTableWidgetItem *i, table->selectedItems())
-        if (i) i->clear();
+        delete i;
 }
 
 void SpreadSheet::setupContents()
