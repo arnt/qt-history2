@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#168 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#169 $
 **
 ** Global type declarations and definitions
 **
@@ -254,7 +254,10 @@
 #define Q_TEMPLATEDLL
 #undef  Q_DISABLE_COPY		/* avoid unresolved externals */
 #endif
-#endif // _OS_WIN32_
+#else // ! _OS_WIN32_
+#undef QT_MAKEDLL		/* ignore these for other platforms */
+#undef QT_DLL
+#endif
 
 #ifndef Q_EXPORT
 #define Q_EXPORT
