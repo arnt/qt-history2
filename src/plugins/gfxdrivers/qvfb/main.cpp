@@ -6,7 +6,7 @@ class GfxVfbDriver : public QGfxDriverPlugin
 public:
     GfxVfbDriver();
 
-    QStringList keys() const;
+    QStringList keys();
     QScreen *create(const QString&, int displayId);
 };
 
@@ -15,7 +15,7 @@ GfxVfbDriver::GfxVfbDriver()
 {
 }
 
-QStringList GfxVfbDriver::keys() const
+QStringList GfxVfbDriver::keys()
 {
     QStringList list;
     list << "QVFb";

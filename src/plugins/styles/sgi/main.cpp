@@ -6,7 +6,7 @@ class SGIStyle : public QStylePlugin
 public:
     SGIStyle();
 
-    QStringList keys() const;
+    QStringList keys();
     QStyle *create(const QString&);
 };
 
@@ -15,7 +15,7 @@ SGIStyle::SGIStyle()
 {
 }
 
-QStringList SGIStyle::keys() const
+QStringList SGIStyle::keys()
 {
     QStringList list;
     list << "SGI";

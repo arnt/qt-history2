@@ -6,7 +6,7 @@ class CompactStyle : public QStylePlugin
 public:
     CompactStyle();
 
-    QStringList keys() const;
+    QStringList keys();
     QStyle *create(const QString&);
 };
 
@@ -15,7 +15,7 @@ CompactStyle::CompactStyle()
 {
 }
 
-QStringList CompactStyle::keys() const
+QStringList CompactStyle::keys()
 {
     QStringList list;
     list << "Compact";

@@ -26,7 +26,7 @@ public:
     QTDSDriverPlugin();
 
     QSqlDriver* create(const QString &);
-    QStringList keys() const;
+    QStringList keys();
 };
 
 QTDSDriverPlugin::QTDSDriverPlugin()
@@ -43,7 +43,7 @@ QSqlDriver* QTDSDriverPlugin::create(const QString &name)
     return 0;
 }
 
-QStringList QTDSDriverPlugin::keys() const
+QStringList QTDSDriverPlugin::keys()
 {
     QStringList l;
     l.append("QTDS7");

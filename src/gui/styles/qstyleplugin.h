@@ -33,7 +33,7 @@ public:
     QStylePlugin();
     ~QStylePlugin();
 
-    virtual QStringList keys() const = 0;
+    virtual QStringList keys() = 0;
     virtual QStyle *create(const QString &key) = 0;
 
 private:

@@ -33,7 +33,7 @@ public:
     QImageFormatPlugin();
     ~QImageFormatPlugin();
 
-    virtual QStringList keys() const = 0;
+    virtual QStringList keys() = 0;
     virtual bool loadImage(const QString &format, const QString &filename, QImage *image);
     virtual bool saveImage(const QString &format, const QString &filename, const QImage &image);
     virtual bool installIOHandler(const QString &format) = 0;

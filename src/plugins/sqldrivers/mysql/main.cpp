@@ -21,7 +21,7 @@ public:
     QMYSQLDriverPlugin();
 
     QSqlDriver* create(const QString &);
-    QStringList keys() const;
+    QStringList keys();
 };
 
 QMYSQLDriverPlugin::QMYSQLDriverPlugin()
@@ -38,7 +38,7 @@ QSqlDriver* QMYSQLDriverPlugin::create(const QString &name)
     return 0;
 }
 
-QStringList QMYSQLDriverPlugin::keys() const
+QStringList QMYSQLDriverPlugin::keys()
 {
     QStringList l;
     l  << "QMYSQL3";

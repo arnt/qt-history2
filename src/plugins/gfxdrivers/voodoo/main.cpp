@@ -6,7 +6,7 @@ class GfxVoodooDriver : public QGfxDriverPlugin
 public:
     GfxVoodooDriver();
 
-    QStringList keys() const;
+    QStringList keys();
     QScreen *create(const QString&, int displayId);
 };
 
@@ -15,7 +15,7 @@ GfxVoodooDriver::GfxVoodooDriver()
 {
 }
 
-QStringList GfxVoodooDriver::keys() const
+QStringList GfxVoodooDriver::keys()
 {
     QStringList list;
     list << "Voodoo3";

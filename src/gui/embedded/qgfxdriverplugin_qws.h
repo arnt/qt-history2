@@ -32,7 +32,7 @@ public:
     QGfxDriverPlugin();
     ~QGfxDriverPlugin();
 
-    virtual QStringList keys() const = 0;
+    virtual QStringList keys() = 0;
     virtual QScreen* create(const QString& driver, int displayId) = 0;
 
 private:

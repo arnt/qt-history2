@@ -21,7 +21,7 @@ public:
     QOCIDriverPlugin();
 
     QSqlDriver* create(const QString &);
-    QStringList keys() const;
+    QStringList keys();
 };
 
 QOCIDriverPlugin::QOCIDriverPlugin()
@@ -38,7 +38,7 @@ QSqlDriver* QOCIDriverPlugin::create(const QString &name)
     return 0;
 }
 
-QStringList QOCIDriverPlugin::keys() const
+QStringList QOCIDriverPlugin::keys()
 {
     QStringList l;
     l.append("QOCI8");

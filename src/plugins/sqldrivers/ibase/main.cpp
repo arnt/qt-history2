@@ -43,7 +43,7 @@ public:
     QIBaseDriverPlugin();
 
     QSqlDriver* create(const QString &);
-    QStringList keys() const;
+    QStringList keys();
 };
 
 QIBaseDriverPlugin::QIBaseDriverPlugin()
@@ -60,7 +60,7 @@ QSqlDriver* QIBaseDriverPlugin::create(const QString &name)
     return 0;
 }
 
-QStringList QIBaseDriverPlugin::keys() const
+QStringList QIBaseDriverPlugin::keys()
 {
     QStringList l;
     l  << "QIBASE";

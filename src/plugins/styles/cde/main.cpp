@@ -6,7 +6,7 @@ class CDEStyle : public QStylePlugin
 public:
     CDEStyle();
 
-    QStringList keys() const;
+    QStringList keys();
     QStyle *create(const QString&);
 };
 
@@ -15,7 +15,7 @@ CDEStyle::CDEStyle()
 {
 }
 
-QStringList CDEStyle::keys() const
+QStringList CDEStyle::keys()
 {
     QStringList list;
     list << "CDE";

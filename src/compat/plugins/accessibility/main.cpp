@@ -7,7 +7,7 @@ class CompatAccessibleFactory : public QAccessiblePlugin, QAccessible
 public:
     CompatAccessibleFactory();
 
-    QStringList keys() const;
+    QStringList keys();
     QAccessibleInterface *create(const QString &classname, QObject *object);
 };
 
@@ -15,7 +15,7 @@ CompatAccessibleFactory::CompatAccessibleFactory()
 {
 }
 
-QStringList CompatAccessibleFactory::keys() const
+QStringList CompatAccessibleFactory::keys()
 {
     QStringList list;
     list << "QTextEdit";

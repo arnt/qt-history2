@@ -21,7 +21,7 @@ public:
     QPSQLDriverPlugin();
 
     QSqlDriver* create(const QString &);
-    QStringList keys() const;
+    QStringList keys();
 };
 
 QPSQLDriverPlugin::QPSQLDriverPlugin()
@@ -38,7 +38,7 @@ QSqlDriver* QPSQLDriverPlugin::create(const QString &name)
     return 0;
 }
 
-QStringList QPSQLDriverPlugin::keys() const
+QStringList QPSQLDriverPlugin::keys()
 {
     QStringList l;
     l.append("QPSQL7");

@@ -21,7 +21,7 @@ public:
     QDB2DriverPlugin();
 
     QSqlDriver* create(const QString &);
-    QStringList keys() const;
+    QStringList keys();
 };
 
 QDB2DriverPlugin::QDB2DriverPlugin()
@@ -38,7 +38,7 @@ QSqlDriver* QDB2DriverPlugin::create(const QString &name)
     return 0;
 }
 
-QStringList QDB2DriverPlugin::keys() const
+QStringList QDB2DriverPlugin::keys()
 {
     QStringList l;
     l.append("QDB2");
