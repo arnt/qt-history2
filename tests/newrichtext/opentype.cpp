@@ -5,6 +5,8 @@
 #include "qfont.h"
 #include "scriptengine.h"
 
+extern void q_calculateAdvances( QScriptItem *item );
+
 static inline void tag_to_string( char *string, FT_ULong tag )
 {
     string[0] = (tag >> 24)&0xff;
@@ -66,21 +68,21 @@ const Features syriacFeatures[] = {
 
 const Features indicFeatures[] = {
     // Language based forms
-    { FT_MAKE_TAG( 'i', 'n', 'i', 't' ), 0x0001 },
-    { FT_MAKE_TAG( 'n', 'u', 'k', 't' ), 0x0002 },
-    { FT_MAKE_TAG( 'a', 'k', 'h', 'n' ), 0x0004 },
-    { FT_MAKE_TAG( 'r', 'p', 'h', 'f' ), 0x0008 },
-    { FT_MAKE_TAG( 'b', 'l', 'w', 'f' ), 0x0010 },
-    { FT_MAKE_TAG( 'h', 'a', 'l', 'f' ), 0x0020 },
-    { FT_MAKE_TAG( 'p', 's', 'b', 'f' ), 0x0040 },
-    { FT_MAKE_TAG( 'v', 'a', 't', 'u' ), 0x0080 },
+    { FT_MAKE_TAG( 'i', 'n', 'i', 't' ), InitFeature },
+    { FT_MAKE_TAG( 'n', 'u', 'k', 't' ), NuktaFeature },
+    { FT_MAKE_TAG( 'a', 'k', 'h', 'n' ), AkhantFeature },
+    { FT_MAKE_TAG( 'r', 'p', 'h', 'f' ), RephFeature },
+    { FT_MAKE_TAG( 'b', 'l', 'w', 'f' ), BelowFormFeature },
+    { FT_MAKE_TAG( 'h', 'a', 'l', 'f' ), HalfFormFeature },
+    { FT_MAKE_TAG( 'p', 's', 'b', 'f' ), PostFormFeature },
+    { FT_MAKE_TAG( 'v', 'a', 't', 'u' ), VattuFeature },
     // Conjunkts and typographical forms
-    { FT_MAKE_TAG( 'p', 'r', 'e', 's' ), 0x0100 },
-    { FT_MAKE_TAG( 'b', 'l', 'w', 's' ), 0x0200 },
-    { FT_MAKE_TAG( 'a', 'b', 'v', 's' ), 0x0400 },
-    { FT_MAKE_TAG( 'p', 's', 't', 's' ), 0x0800 },
+    { FT_MAKE_TAG( 'p', 'r', 'e', 's' ), PreSubstFeature },
+    { FT_MAKE_TAG( 'b', 'l', 'w', 's' ), BelowSubstFeature },
+    { FT_MAKE_TAG( 'a', 'b', 'v', 's' ), AboveSubstFeature },
+    { FT_MAKE_TAG( 'p', 's', 't', 's' ), PostSubstFeature },
     // halant forms
-    { FT_MAKE_TAG( 'h', 'a', 'l', 'n' ), 0x1000 },
+    { FT_MAKE_TAG( 'h', 'a', 'l', 'n' ), HalantFeature },
     { 0,  0 }
 };
 
@@ -434,7 +436,7 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QSc
 
     // positioning code:
 
-    QScriptEngine::calculateAdvances( item );
+    q_calculateAdvances( item );
 
     item->width = 0;
     if ( hasGPos ) {

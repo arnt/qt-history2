@@ -76,24 +76,6 @@ QShapedItem::~QShapedItem()
     }
 }
 
-QScriptEngine **QTextEngine::scriptEngines = 0;
-
-void QTextEngine::initialize()
-{
-    if ( !scriptEngines ) {
-	scriptEngines = (QScriptEngine **) malloc( QFont::NScripts * sizeof( QScriptEngine * ) );
-	scriptEngines[0] = new QScriptEngine;
-	for ( int i = 1; i < QFont::NScripts; i++ )
-	    scriptEngines[i] = scriptEngines[0];
-	scriptEngines[QFont::Arabic] = new QScriptEngineArabic;
-	scriptEngines[QFont::Syriac] = new QScriptEngineSyriac;
-	scriptEngines[QFont::Devanagari] = new QScriptEngineDevanagari;
-	scriptEngines[QFont::Bengali] = new QScriptEngineBengali;
-	scriptEngines[QFont::Tamil] = new QScriptEngineTamil;
-    }
-}
-
-
 void QTextEngine::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder )
 {
     ::bidiReorder(numRuns, levels, visualOrder );
@@ -103,7 +85,6 @@ void QTextEngine::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOr
 QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
     : string( str ), fnt( f ), charAttributes( 0 )
 {
-    if ( !scriptEngines ) initialize();
     if ( fnt ) fnt->ref();
 }
 
@@ -161,7 +142,7 @@ const QCharAttributes *QTextEngine::attributes()
 	QScriptItem &si = items[i];
 	int from = si.position;
 	int len = length( i );
-	scriptEngines[si.analysis.script]->charAttributes( string, from, len, charAttributes+from );
+	scriptEngines[si.analysis.script].charAttributes( string, from, len, charAttributes+from );
     }
     return charAttributes;
 }
@@ -184,7 +165,7 @@ QShapedItem *QTextEngine::shape( int item ) const
     si.fontEngine->ref();
 
     if ( si.fontEngine && si.fontEngine != (QFontEngine*)-1 ) {
-	scriptEngines[script]->shape( string, from, len, &si );
+	scriptEngines[script].shape( script, string, from, len, &si );
     }
     return si.shaped;
 }

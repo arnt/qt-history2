@@ -295,7 +295,6 @@ struct QCharAttributes {
 };
 
 class QTextEngine;
-class QScriptEngine;
 class QFontEngine;
 class QFontPrivate;
 
@@ -341,10 +340,6 @@ struct QTextEngine {
 	item++;
 	return ( item < items.size() ? items[item].position : string.length() ) - from;
     }
-private:
-    void initialize();
-
-    static QScriptEngine **scriptEngines;
 };
 
 #endif

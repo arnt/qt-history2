@@ -105,7 +105,7 @@ void EditWidget::paintEvent( QPaintEvent * )
     p.drawRect( 10, 10, width()-20, height()-20 );
     for ( int i = 0; i < d->layout->numItems(); i++ ) {
 	QTextItem ti = d->layout->itemAt( i );
-#if 1
+#if 0
 	p.drawText( ti.x(), ti.y(), d->text, ti.from(), ti.length() );
 #else
 	p.drawTextItem( 0,  0, ti );

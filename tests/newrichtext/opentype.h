@@ -6,6 +6,22 @@
 
 class QScriptItem;
 
+enum IndicFeatures {
+    InitFeature = 0x0001,
+    NuktaFeature = 0x0002,
+    AkhantFeature = 0x0004,
+    RephFeature = 0x0008,
+    BelowFormFeature = 0x0010,
+    HalfFormFeature = 0x0020,
+    PostFormFeature = 0x0040,
+    VattuFeature = 0x0080,
+    PreSubstFeature = 0x0100,
+    BelowSubstFeature = 0x0200,
+    AboveSubstFeature = 0x0400,
+    PostSubstFeature = 0x0800,
+    HalantFeature = 0x1000
+};
+
 class QOpenType
 {
 public:

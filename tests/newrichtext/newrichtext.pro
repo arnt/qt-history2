@@ -23,10 +23,6 @@ SOURCES += qfont.cpp \
            qtextengine.cpp \
            qtextlayout.cpp \
 	   scriptengine.cpp \
-           scriptenginearabic.cpp \
-           scriptenginedevanagari.cpp \
-           scriptenginebengali.cpp \
-           scriptenginetamil.cpp \
 	   opentype.cpp \
            test.cpp editwidget.cpp
 CONFIG += qt warn_on debug  thread create_prl link_prl
