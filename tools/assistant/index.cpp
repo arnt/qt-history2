@@ -303,7 +303,7 @@ QString Index::getDocumentTitle( const QString &fileName )
     int start = text.indexOf( "<title>", 0, Qt::CaseInsensitive) + 7;
     int end = text.indexOf( "</title>", 0, Qt::CaseInsensitive);
 
-    QString title = text.mid( start, end - start );
+    QString title = ( end - start <= 0 ? tr("Untitled") : text.mid( start, end - start ) );
     return title;
 }
 
