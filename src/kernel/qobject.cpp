@@ -580,11 +580,15 @@ QObject* QObject::child( const char *objName, const char *inheritsClass, bool re
     if ( !list )
 	return 0;
     
+    bool onlyWidgets = (inheritsClass && qstrcmp( inheritsClass, "QWidget" ) == 0 );
     QObjectListIt it( *list );
     QObject *obj;
     while ( ( obj = it.current() ) ) {
 	++it;
-	if ( ( !inheritsClass || obj->inherits(inheritsClass) ) && ( !objName || qstrcmp( objName, obj->name() ) == 0 ) )
+	if ( onlyWidgets ) {
+	    if ( obj->isWidgetType() && ( !objName || qstrcmp( objName, obj->name() ) == 0 ) )
+		break;
+	} else if ( ( !inheritsClass || obj->inherits(inheritsClass) ) && ( !objName || qstrcmp( objName, obj->name() ) == 0 ) )
 	    break;
 	if ( recursiveSearch && (obj = obj->child( objName, inheritsClass, recursiveSearch ) ) )
 	    break;
