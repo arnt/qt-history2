@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: session.doc,v 1.2 1999/05/20 20:00:56 ettrich Exp $
+** $Id: session.doc,v 1.3 1999/05/31 22:07:41 ettrich Exp $
 **
 ** Qt session management overview documentation
 **
@@ -41,7 +41,7 @@ called \e session \e clients.
 The session manager issues commands to its clients on behalf of the
 user. These commands may cause clients to commit unsaved changes (for
 example by saving open files), to preserve their state for future
-sessions or to terminate gracefully. The set of these operations are
+sessions or to terminate gracefully. The set of these operations is
 called \e session \e management.
 
 In the common case, a session consists of all applications that a
@@ -75,8 +75,63 @@ TODO
 <h2> Getting session management to work with Qt </h2>
 
 TODO
+Reimplementing saveState() and commitData().
+Restoring the application in main() etc.
 
 <h2> Testing and debugging session management </h2>
 
-TODO
+As mentioned ealier, session management support on Windows is fairly
+limited due to the lack of this functionality in the Windows operating
+system itself. Simply shut the session down and verify that your
+application behaves as wanted. It may be a good idea to launch another
+application, usually the integrated development environment, before
+starting your application. This other application will get the
+shutdown message afterwards, thus permitting you to cancel the
+shutdown. Otherwise you would have to log in again after each test
+run, which is not a problem per se but time consuming.
+
+On Unix you can either use a desktop environment that supports
+standard X11R6 session management or, the recommended method, use the
+session manager reference implementation provided by the X Consortium.
+This sample manager is dubbed \c xsm and is part of a standard X11R6
+installation. As always with X11, a useful and informative manual page
+is provided. Using \c xsm is straightforward (apart from the clumsy
+Athena-based user interface). Here's a simple approach:
+
+<ul>
+<li> Run X11R6.
+<li> Create a dot file \c .xsmstartup in your home directory which
+contains the single line
+
+\code
+xterm
+\endcode
+
+This tells \c xsm that the default/failsafe session is just an xterm
+and nothing else. Otherwise \c xsm would try to invoke lots of
+clients including the windowmanager \c twm, which isn't very helpful.
+<li> Now launch \c xsm from another terminal window. Both a session
+manager window and the xterm will appear. The xterm has a nice
+property that sets it apart from all the other shells you are
+currently running: Within its shell, the \c SESSION_MANAGER
+environment variable points to the session manager you just started.
+<li> Launch your application from the new xterm window. It will
+connect itself automatically to the session manager. You can check
+with the \e ClientList push button whether the connect was successful.<br>
+<strong>Note:</strong> Never keep the \e ClientList open when you
+start or end session managed clients! Otherwise \c xsm is likely to
+crash.
+<li> Use the session manager's \e Checkpoint and \e Shutdown buttons
+with different settings and see how your application behaves. The save
+type \e local means that the clients should save their state. It
+corresponds to the \l QApplication::saveState() function. The \e
+global save type asks application to save their unsaved changes in the
+permanent, globally accessible storage. It invokes \l
+QApplication::commitData(), respectively.
+<li> Whenever something crashes, blame \c xsm and not Qt. \c xsm is far
+from being a usable session manager on a user's desktop. It is,
+however, stable and useful enough to serve as testing environment.
+ </ul>
+
+
 */
