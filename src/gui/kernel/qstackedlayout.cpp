@@ -74,6 +74,7 @@ QStackedLayout::QStackedLayout(QLayout *parentLayout)
 */
 QStackedLayout::~QStackedLayout()
 {
+    qDeleteAll(d->list);
     delete d;
 }
 
