@@ -31,6 +31,10 @@ CONFIG	+= qt warn_on release
 DEFINES	+= DESIGNER
 INCLUDEPATH	+= ../shared ../uilib ../../../src/3rdparty/zlib/
 win32:LIBS	+= $(QTDIR)/lib/qui.lib
-unix:LIBS	+= -L$(QTDIR)/lib -lqui -lz
+unix {
+	LIBS	+= -L$(QTDIR)/lib -lqui
+	system-zlib:LIBS += -lz
+}
+
 DBFILE	= designer.db
 LANGUAGE	= C++
