@@ -94,6 +94,9 @@ void qt_clear_paintevent_clipping()
     paintEventClipRegion = 0;
 //    paintEventSaveRegion = 0;
     paintEventDevice = 0;
+#ifdef QWS_EXTRA_DEBUG
+    qDebug("qt_clear_paintevent_clipping");
+#endif
 }
 
 void qwsUpdateActivePainters()
@@ -227,6 +230,9 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev)
 //    qDebug("QWSPaintEngine::begin %p gfx %p", this, d->gfx);
     setActive(true);
 
+    // make sure that paintEventClipRegion is set on the gfx
+    updateClipRegion(QRegion(), Qt::NoClip); // checks for isActive(), so must be after setActive.
+
     return true;
 }
 
@@ -345,6 +351,7 @@ void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperati
                 crgn = crgn.intersect(*paintEventClipRegion);
         } else {
             crgn = *paintEventClipRegion;
+            op = Qt::ReplaceClip;
         }
         //note that gfx is already translated by redirection_offset
         d->gfx->setClipRegion(crgn, op);
@@ -608,7 +615,7 @@ void QWSPaintEngine::tiledBlt(const QImage &src, int rx,int ry,int w,int h, int 
         d->gfx->setBrushOrigin(0, 0);
 }
 
-//########### This doesn't really belong here; we need qscreen_qws.cpp
+//### This doesn't really belong here; we need qscreen_qws.cpp
 
 /*!
     \internal
