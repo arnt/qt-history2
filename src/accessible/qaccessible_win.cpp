@@ -17,10 +17,10 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 
 #include "qapplication.h"
+#include "qlibrary.h"
+#include "qmessagebox.h" // ### dependency
 #include "qt_windows.h"
 #include "qwidget.h"
-#include "qmessagebox.h" // ### dependency
-#include "qlibrary.h"
 
 #if defined(Q_CC_GNU)
 #include <winuser.h>
@@ -251,7 +251,7 @@ HRESULT STDMETHODCALLTYPE QWindowsEnumerate::Skip( unsigned long celt )
 
 /*
 */
-class QWindowsAccessible : public IAccessible, QAccessible
+class QWindowsAccessible : public IAccessible, IOleWindow, QAccessible
 {
 public:
     QWindowsAccessible( QAccessibleInterface *a )
@@ -298,6 +298,9 @@ public:
     HRESULT STDMETHODCALLTYPE get_accFocus( VARIANT *pvarID );
     HRESULT STDMETHODCALLTYPE get_accSelection( VARIANT *pvarChildren );
 
+    HRESULT STDMETHODCALLTYPE GetWindow(HWND *phwnd);
+    HRESULT STDMETHODCALLTYPE ContextSensitiveHelp(BOOL fEnterMode);
+
 private:
     ULONG ref;
     QAccessibleInterface *accessible;
@@ -332,19 +335,19 @@ IAccessible *qt_createWindowsAccessible( QAccessibleInterface *access )
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::QueryInterface( REFIID id, LPVOID *iface )
 {
     *iface = 0;
-    if ( id == IID_IUnknown )
-	*iface = (IUnknown*)this;
-    else if ( id == IID_IDispatch )
+    if (id == IID_IUnknown)
+	*iface = (IUnknown*)(IDispatch*)this;
+    else if (id == IID_IDispatch)
 	*iface = (IDispatch*)this;
-    else if ( id == IID_IAccessible )
+    else if (id == IID_IAccessible)
 	*iface = (IAccessible*)this;
+    else if (id == IID_IOleWindow)
+	*iface = (IOleWindow*)this;
+    else
+	return E_NOINTERFACE;
 
-    if ( *iface ) {
-	AddRef();
-	return S_OK;
-    }
-
-    return E_NOINTERFACE;
+    AddRef();
+    return S_OK;
 }
 
 ULONG STDMETHODCALLTYPE QWindowsAccessible::AddRef()
@@ -743,7 +746,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accParent( IDispatch** ppdispP
 
     QAccessibleInterface *acc = 0;
     accessible->queryParent( &acc );
-    if ( acc ) {
+    if (acc) {
 	QWindowsAccessible* wacc = new QWindowsAccessible( acc );
 	acc->release();
 	wacc->QueryInterface( IID_IDispatch, (void**)ppdispParent );
@@ -978,6 +981,25 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accSelection( VARIANT *pvarChi
     (*pvarChildren).vt = VT_UNKNOWN;
     (*pvarChildren).punkVal = uiface;
 
+    return S_OK;
+}
+
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetWindow(HWND *phwnd)
+{
+    *phwnd = 0;
+    if (!accessible->isValid())
+	return E_UNEXPECTED;
+    
+    QObject *o = accessible->object();
+    if (!o->isWidgetType())
+	return E_FAIL;
+
+    *phwnd = static_cast<QWidget*>(o)->winId();
+    return S_OK;
+}
+
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::ContextSensitiveHelp(BOOL fEnterMode)
+{
     return S_OK;
 }
 
