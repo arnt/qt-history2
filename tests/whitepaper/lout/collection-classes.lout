@@ -18,6 +18,7 @@ compilers.
   collectionclass @Index { Collection class }
   container @Index { Container }
   stl @Index { STL }
+  standardtemplatelibrary @Index { Standard Template Library }
 @PP
 Qt's rich set of portable collection classes (`containers')
 and associated iterators are heavily used internally, and are
@@ -60,6 +61,7 @@ STL and Qt containers.
   qheapsort @Index { qHeapSort() }
   qstringlist @Index { QStringList }
   qtl @Index { QTL }
+  qttemplatelibrary @Index { Qt Template Library }
   qvaluelist @Index { QValueList }
   qvaluestack @Index { QValueStack }
   qvaluevector @Index { QValueVector }
@@ -150,6 +152,7 @@ automatically delete them when the collection is destroyed.
 @Href{"http://doc.trolltech.com/3.0/qtl.html"}@LLP
 @Href{"http://doc.trolltech.com/3.0/collections.html"}@LLP
 @Href{"http://doc.trolltech.com/3.0/shclass.html"}@LLP
+@NP
 @End @SubSection
 @EndSubSections
 @End @Section

@@ -61,6 +61,8 @@ DML statements. It is also used to navigate the result sets produced
 by @F SELECT statements.
   ddl @Index { DDL }
   dml @Index { DML }
+  datadefinitionlanguage @Index { Data Definition Language }
+  datamanipulationlanguage @Index { Data Manipulation Language }
   qsqlquery @Index { QSqlQuery }
   query @Index { Query }
   select @Index { SELECT }
@@ -80,7 +82,7 @@ Field values are indexed in the order they appear in the @F SELECT
 statement. @Class QSqlQuery also provides the @Func first(), @Func
 prev(), @Func last() and @Func seek() navigation functions.
 @PP
-@F INSERT, @F UPDATE and @F DELETE are equally simple. Below is an @F
+@F{INSERT}, @F UPDATE and @F DELETE are equally simple. Below is an @F
 UPDATE example:
 @IndentedDisplay @CP @Begin
 QSqlQuery query( "UPDATE staff SET salary = salary * 1.10"
@@ -154,8 +156,9 @@ by creating a property map for the table, which matches fields
   table @Index { Table }
 @PP
 @Figure
-    @Caption { A @Class QDataTable }
-0.5 @Scale @IncludeGraphic { "images/bookform.eps" }
+    @Caption { A @Class QDataTable and a @Class QDataBrowser }
+{0.5 @Scale @IncludeGraphic { "images/bookform.eps" }
+|1c 0.5 @Scale @IncludeGraphic { "images/editbooks.eps" }}
 @PP
 Records can be updated and deleted without writing any code.
 Insertions require some code since most database designs expect new
@@ -181,9 +184,9 @@ editing, and can provide ready-made insert, update and delete buttons.
 menu and keyboard shortcuts for editing records.
   contextmenu @Index { Context menu }
   popupmenu @Index { Popup menu }
-@Figure
-    @Caption { A @Class QDataBrowser }
-0.5 @Scale @IncludeGraphic { "images/editbooks.eps" }
+#@Figure
+#    @Caption { A @Class QDataBrowser }
+#0.5 @Scale @IncludeGraphic { "images/editbooks.eps" }
 @PP
 Programmers can manipulate data retrieved from the database before it
 is displayed by implementing a slot and connecting it to the @Func

@@ -27,9 +27,9 @@ def @OLREF { @B{On-line References} }
 
 import @BasicSetup
 # Can't use @QD since that's short for @QuotedDisplay!
-def @QDR { @I{Qt Designer} }
+def @QDR { @I{Qt~Designer} }
 
 import @BasicSetup
-def @Xref right x { [p. @PageOf{ x }] }
-#def @Xref right x { x @CrossLink { [p. @PageOf{ x }] } }
+def @Xref right x { [p.~@PageOf{ x }] }
+#def @Xref right x { x @CrossLink { [p.~@PageOf{ x }] } }
 

@@ -10,6 +10,7 @@ compiler supports STL or not.
   \index Collection class
   \index Container
   \index STL
+  \index Standard Template Library 
 
 Applications often need to manage items in memory, for example,
 groups of images, widgets or custom objects. Many C++ compilers
@@ -50,6 +51,7 @@ private classes.
   \index qHeapSort()
   \index QStringList
   \index QTL
+  \index Qt Template Library 
   \index QValueList
   \index QValueStack
   \index QValueVector

@@ -44,6 +44,7 @@ environment. The style can also be chosen programmatically, or with
 the @F -style command-line option.
   aqua @Index { Aqua }
   cde @Index { CDE }
+  commondesktopenvironment @Index { Common Desktop Environment }
   macintosh @Index { Macintosh }
   microsoftwindows @Index { Microsoft Windows }
   motif @Index { Motif }
@@ -133,10 +134,10 @@ An application's style can be set like this:
 @IndentedDisplay @CP @Begin
 QApplication::setStyle( new MyCustomStyle );
 @End @CP
-A style can also be compiled as a plugin. Plugins make it possible to
-preview a form in a custom style in @QDR without recompiling Qt or
-@QDR. The style of an existing Qt application can be changed using a
-style plugin without recompiling the application.
+A style can also be compiled as a plugin @Xref{plugins}. Plugins make
+it possible to preview a form in a custom style in @QDR without
+recompiling Qt or @QDR. The style of an existing Qt application can be
+changed using a style plugin without recompiling the application.
   designer @Index { Designer }
   plugin @Index { Plugin }
   qtdesigner @Index { Qt Designer }

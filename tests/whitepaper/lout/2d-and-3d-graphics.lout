@@ -4,7 +4,7 @@
 @Begin
 @QuotedDisplay { @I {
 Qt provides excellent support for 2D and 3D graphics. Qt's 2D
-graphics classes support bitmapped vector graphics. Animation and
+graphics classes support bitmapped and vector graphics. Animation and
 collision detection are also supported. Qt can load and save a wide
 and extensible range of image formats. Qt can draw Unicode rich text,
 rotated and sheared as required. Qt is the de-facto standard GUI
@@ -120,6 +120,7 @@ QPainter in the reimplementation of @Func paintEvent(), with the
 default coordinate system.
   customwidget @Index { Custom widget }
   event @Index { Event }
+@NP
 @IndentedDisplay @CP @Begin
 void BarGraph::paintEvent( QPaintEvent * )
 {
@@ -168,7 +169,7 @@ The @Class QColor class stores a color specified by a RGB or HSV
 triple, or by a name (e.g. `skyblue'). Qt programmers can specify any
 24-bit color; Qt automatically allocates the requested color in the
 system's palette, or uses a similar color on color-limited displays.
-Commonly used colors, including @F red, @F green and @F blue, are
+Commonly used colors, including @F{red}, @F green and @F{blue}, are
 predefined in Qt.
   color @Index { Color }
   hsv @Index { HSV }

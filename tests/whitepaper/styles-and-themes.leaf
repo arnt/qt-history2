@@ -35,6 +35,7 @@ speed and flexibility.
 
   \index Aqua
   \index CDE
+  \index Common Desktop Environment
   \index Macintosh
   \index Microsoft Windows
   \index Motif
@@ -112,7 +113,7 @@ An application's style can be set like this:
   \index Plugin
   \index Qt Designer
 
-A style can also be compiled as a plugin. Plugins make it possible
+A style can also be compiled as a plugin. \l{Plugins} make it possible
 to preview a form in a custom style in \l {Qt Designer} without
 recompiling Qt or \l {Qt Designer}. The style of an existing Qt
 application can be changed using a style plugin without recompiling

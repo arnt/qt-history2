@@ -133,8 +133,8 @@ The statement
 emit balanceChanged( curBalance );
 @End @CP
 causes the @Func balanceChanged() signal to be emitted with the new
-current balance as its argument. The keyword @F emit, like @F signals
-and @F slots, is provided by Qt and is transformed into standard C++
+current balance as its argument. The keyword @F{emit}, like @F signals
+and @F{slots}, is provided by Qt and is transformed into standard C++
 by the C++ pre-processor.
 @PP
 Here's an example of how to connect two @Class{BankAccount}s:
@@ -145,8 +145,8 @@ connect( &x, SIGNAL(balanceChanged(int)),
 x.setBalance( 2450 );
 @End @CP
 When the balance in @F x is set to 2450, the @Func balanceChanged()
-signal is emitted. The signal is received by @F y's @Func
-setBalance() slot, which sets @F y's balance to 2450.
+signal is emitted. The signal is received by @F{y}'s @Func
+setBalance() slot, which sets @F{y}'s balance to 2450.
 @PP
 One object's signal can be connected to many different slots, and
 many signals can be connected to one slot in a particular object.

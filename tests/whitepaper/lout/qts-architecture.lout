@@ -123,11 +123,11 @@ provide accessibility.
 Qt also supports multiple screens on Microsoft Windows.
   multiplescreens @Index { Multiple screens }
 @PP
+"Qt/Windows" customers create Qt applications using Microsoft Visual
+C++ and Borland C++.
   borlandc @Index { Borland C++ }
   microsoftvisualc @Index { Microsoft Visual C++ }
   visualc @Index { Visual C++ }
-"Qt/Windows" customers create Qt applications using Microsoft Visual
-C++ and Borland C++.
 @End @SubSection
 @SubSection
     @Title { X11 }

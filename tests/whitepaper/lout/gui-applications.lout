@@ -70,8 +70,10 @@ or a @Class QWorkspace for MDI applications. Tooltips and ``What's
 this?'' help provide balloon help for the user-interface elements.
   centralarea @Index { Central area }
   mdi @Index { MDI }
+  multipledocumentinterface @Index { Multiple Document Interface }
   qworkspace @Index { QWorkspace }
   sdi @Index { SDI }
+  singledocumentinterface @Index { Single Document Interface }
   statusbar @Index { Status bar }
   toolbar @Index { Toolbar }
   workspace @Index { Workspace }
@@ -281,6 +283,7 @@ Multiple Document Interface (MDI) is provided by the @Class QWorkspace
 class. @Class QWorkspace is typically used as the central widget of a
 @Class QMainWindow, but it can be used like any other widget.
   mdi @Index { MDI }
+  multipledocumentinterface @Index { Multiple Document Interface }
   qworkspace @Index { QWorkspace }
   workspace @Index { Workspace }
 @PP

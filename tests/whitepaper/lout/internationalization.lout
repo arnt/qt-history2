@@ -12,7 +12,7 @@ translation to help companies reach international markets.
 @PP
 Qt includes tools to facilitate the translation process. Programmers
 can easily mark user-visible text that needs translation, and a tool
-extracts this text from the source code. @QDR is an
+extracts this text from the source code. Qt Linguist is an
 easy-to-use GUI application that reads the extracted source texts,
 and provides the texts with context information ready for
 translation. When the translation is complete, Qt Linguist
@@ -156,7 +156,7 @@ To make a string translatable, simply wrap it in a call to @Func tr()
 @IndentedDisplay @CP @Begin
 saveButton->setText( tr("Save") );
 @End @CP
-@Func tr() attempts to replace a string literal (e.g. @F "Save") with
+@Func tr() attempts to replace a string literal (e.g. @F{``Save''}) with
 a translation if one is available; otherwise it uses the original
 text. English can be used as the source language and Chinese as the
 translated language, or vice versa. The argument to @Func tr() is
@@ -218,7 +218,7 @@ Qt itself contains about 400 user-visible strings, for which
 Trolltech provides French and German translations.
   french @Index { French }
   german @Index { German }
-@NP
+#@NP
 @End @SubSection
 @SubSection
     @Title { Qt Linguist }

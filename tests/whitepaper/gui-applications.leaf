@@ -55,8 +55,10 @@ provide a framework for typical application main windows.
 
   \index Central area
   \index MDI
+  \index Multiple Document Interface 
   \index QWorkspace
   \index SDI
+  \index Single Document Interface 
   \index Status bar
   \index Toolbar
   \index Workspace
@@ -266,6 +268,7 @@ widget:
 \section1 Multiple Document Interface
 
   \index MDI
+  \index Multiple Document Interface 
   \index QWorkspace
   \index Workspace
 

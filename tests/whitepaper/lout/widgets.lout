@@ -161,6 +161,7 @@ using the Windows style.
   scrollview @Index { Scroll view }
   slider @Index { Slider }
   spinbox @Index { Spin box }
+@PP
 @Figure
     @Caption { A @Class QDial, a @Class QProgressBar, a @Class QSpinBox,
 	       a @Class QScrollBar, a @Class QLCDNumber and a @Class

@@ -56,6 +56,8 @@ lookups, present master-detail relationships, and support drill-down.
 
   \index DDL
   \index DML
+  \index Data Definition Language
+  \index Data Manipulation Language
   \index QSqlQuery
   \index Query
   \index SELECT

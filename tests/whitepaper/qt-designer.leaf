@@ -130,10 +130,11 @@ The class hierarchy application is a classic 'dialog' style application
 where the user chooses some options, in this case paths, and then
 carries out some processing based on those options.
 
-The complete code for the application is presented below. The visual
-design  was done using \l {Qt Designer} and is stored in a \File .ui
-file. The \File .ui file is converted into C++ by \Cmd uic, leaving
-the developer free to focus on the application's functionality.
+The complete code for the application is presented below. The
+\File{main.cpp} file was produced by a \QD wizard. The form was
+designed in \QD and stored in a @File .ui file. The \File .ui file is
+converted into C++ by \Cmd uic, leaving the developer free to focus on
+the application's functionality.
 
 The \Func addSearchPath(), \Func removeSearchPath() and \Func
 updateHierarchy() functions are all slots. They have been visually
