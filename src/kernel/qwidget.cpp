@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#214 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#215 $
 **
 ** Implementation of QWidget class
 **
@@ -18,6 +18,7 @@
 #include "qpixmap.h"
 #include "qkeycode.h"
 #include "qapp.h"
+#include "qbrush.h"
 #if defined(_WS_WIN_)
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
@@ -28,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#214 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#215 $");
 
 
 /*!
@@ -136,6 +137,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#214 $");
 	setBackgroundMode(),
 	backgroundPixmap(),
 	setBackgroundPixmap(),
+	backgroundBrush(),
 	colorGroup(),
 	fontMetrics(),
 	fontInfo().
@@ -1463,6 +1465,55 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
 	extra->bg_mode = m;
 	setBackgroundColorFromMode();
     }
+}
+
+
+/*!  Returns a QBrush suitable for setting this widget to the
+  background.
+*/
+
+QBrush QWidget::backgroundBrush() const
+{
+    QBrush b( NoBrush );
+
+    switch( backgroundMode() ) {
+    case FixedColor:
+        b = QBrush( backgroundColor() );
+	break;
+    case FixedPixmap:
+	if ( backgroundPixmap() )
+	    b = QBrush( color1, *backgroundPixmap() );
+	break;
+    case NoBackground:
+	// nothing
+	break;
+    case PaletteForeground:
+	b = QBrush( colorGroup().foreground() );
+	break;
+    case PaletteBackground:
+	b = QBrush( colorGroup().background() );
+	break;
+    case PaletteLight:
+	b = QBrush( colorGroup().light() );
+	break;
+    case PaletteMidlight:
+	b = QBrush( colorGroup().midlight() );
+	break;
+    case PaletteDark:
+	b = QBrush( colorGroup().dark() );
+	break;
+    case PaletteMid:
+	b = QBrush( colorGroup().mid() );
+	break;
+    case PaletteText:
+	b = QBrush( colorGroup().text() );
+	break;
+    case PaletteBase:
+	b = QBrush( colorGroup().base() );
+	break;
+    }
+
+    return b;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#83 $
 **
 ** Implementation of QButton widget class
 **
@@ -18,7 +18,7 @@
 #include "qaccel.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#82 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#83 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -27,9 +27,10 @@ static const int autoRepeatPeriod = 100;
 
 struct QButtonData
 {
-    QButtonData() : group(0) {}
+    QButtonData() : group(0), pm(0) {}
     QButtonGroup *group;
     QTimer	  timer;
+    QPixmap * pm;
 };
 
 void QButton::ensureData()
@@ -207,6 +208,8 @@ QButton::~QButton()
     if ( group() )				// remove from button group
 	group()->remove( this );
     delete bpixmap;
+    if ( d && d->pm )
+	delete d->pm;
     delete d;
 }
 
@@ -684,16 +687,19 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
 
 void QButton::paintEvent( QPaintEvent *event )
 {
-    QPainter paint;
-    paint.begin( this );
+    ensureData();
+    if ( !d->pm )
+	d->pm = new QPixmap( width(), height() );
+    else if ( d->pm->size() != size() )
+	d->pm->resize( size() );
 
-    // This optimization is worth it, since we often call repaint()
-    // to draw exactly the whole button.
-    if ( event && !event->rect().contains(rect()) )
-	paint.setClipRect( event->rect() );
+    QPainter paint( d->pm );
 
+    paint.fillRect( rect(), backgroundBrush() );
     drawButton( &paint );
     paint.end();
+
+    bitBlt( this, event->rect().topLeft(), d->pm, event->rect(), CopyROP );
 }
 
 #if QT_VERSION == 200
