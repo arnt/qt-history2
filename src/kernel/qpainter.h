@@ -125,12 +125,10 @@ public:
     void	scale( double sx, double sy );
     void	shear( double sh, double sv );
     void	rotate( double a );
-
-    void	resetXForm();
 #else
-    void	resetXForm();
     void	translate( int dx, int dy );	// ###
 #endif
+    void	resetXForm();
 
     QPoint	xForm( const QPoint & ) const;	// map virtual -> device
     QRect	xForm( const QRect & )	const;
