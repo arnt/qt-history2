@@ -2228,17 +2228,12 @@ void QX11PaintEngine::drawBox(const QPointF &p, const QTextItem &ti)
     }
 
     if (ti.flags)
-        ::drawLines(this, ti, p.toPoint().y(), p.toPoint().x(), ti.num_glyphs*size);
+        ::drawLines(this, ti, qRound(p.y()), qRound(p.x()), ti.num_glyphs*size);
 }
 
 
 void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si)
 {
-    int xpos = qRound(p.x());
-    int ypos = qRound(p.y());
-
-    int xorig = xpos;
-    int yorig = ypos;
 
     QFontEngineXLFD *xlfd = static_cast<QFontEngineXLFD *>(si.fontEngine);
     Qt::HANDLE font_id = xlfd->handle();
@@ -2249,8 +2244,8 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si)
         return;
     }
 
-    float x(xpos);
-    float y(ypos);
+    float x = p.x();
+    float y = p.y();
 
     if (d->txop == QPainterPrivate::TxTranslate) {
         x += state->matrix.dx();
@@ -2272,6 +2267,9 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si)
 #endif
 
     QGlyphLayout *glyphs = si.glyphs;
+
+    if (si.flags)
+        ::drawLines(this, si, qRound(p.y()), qRound(p.x()), qRound(si.width));
 
     QVarLengthArray<XChar2b> chars(si.num_glyphs);
 
@@ -2328,9 +2326,6 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si)
         }
     }
 
-    if (si.flags)
-        ::drawLines(this, si, yorig, xorig, qRound(x-xpos));
-
 #ifdef FONTENGINE_DEBUG
     x = xp;
     y = yp;
@@ -2352,14 +2347,13 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si)
 
 void QX11PaintEngine::drawLatinXLFD(const QPointF &p, const QTextItem &si)
 {
-    int xpos = qRound(p.x());
-    int y = qRound(p.y());
 
     QFontEngineLatinXLFD *lxlfd = static_cast<QFontEngineLatinXLFD *>(si.fontEngine);
     QGlyphLayout *glyphs = si.glyphs;
     int which = glyphs[0].glyph >> 8;
 
-    float x(xpos);
+    float x = p.x();
+    float y = p.y();
 
     int start = 0;
     int end, i;
@@ -2376,7 +2370,7 @@ void QX11PaintEngine::drawLatinXLFD(const QPointF &p, const QTextItem &si)
         si2.glyphs = si.glyphs + start;
         si2.num_glyphs = end - start;
         si2.fontEngine = lxlfd->engine(which);
-        drawXLFD(QPoint(qRound(x), qRound(y)), si2);
+        drawXLFD(QPointF(x, y), si2);
 
         // reset the high byte for all glyphs and advance to the next sub-string
         const int hi = which << 8;
@@ -2399,7 +2393,7 @@ void QX11PaintEngine::drawLatinXLFD(const QPointF &p, const QTextItem &si)
     si2.glyphs = si.glyphs + start;
     si2.num_glyphs = end - start;
     si2.fontEngine = lxlfd->engine(which);
-    drawXLFD(QPoint(qRound(x), qRound(y)), si2);
+    drawXLFD(QPointF(x,y), si2);
 
     // reset the high byte for all glyphs
     const int hi = which << 8;
