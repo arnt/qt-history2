@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#36 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -486,8 +486,8 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
 
 /*!
   Copies the file \a from to \a to. If \a move is TRUE,
-  the file is moved (copied and removed). \a to must point to a directory,
-  not to a file!
+  the file is moved (copied and removed). \a from has to point to a file and 
+  \a to must point to a directory.
   The copying is done using get() and put() operations. If you want to get notified
   about the progress of the operation, connect to the dataTransferProgress()
   signal. But you have to know, that the get() and the put() operations emit
@@ -587,7 +587,7 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
 
 /*!
   Copies \a files to the directory \a dest. If \a move is TRUE,
-  the files are moved and not copied.
+  the files are moved and not copied. \a dest has to point to a directory.
   Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
   so check the state of the network operation object to see if the
   operation was successful or not.
@@ -643,41 +643,41 @@ bool QUrlOperator::isDir()
   so check the state of the network operation object to see if the
   operation was successful or not.
 
-  Now, if \a location is QString::null, the path of this QUrlOperator should point to a file 
+  Now, if \a location is QString::null, the path of this QUrlOperator should point to a file
   when you use this operation. If \a location is not empty, it can be relative (a child of
   the path to which the QUrlOperator points) or an absolute URL.
-  
+
   E.g. for getting a webpage you might do something like
-  
+
   \code
   QUrlOperator op( "http://www.whatever.org/cgi-bin/search.pl?cmd=Hallo" );
   op.get();
   \endcode
-  
+
   But as for the most other operations it is required that the path of the
   QUrlOperator points to a directory, you could do following if you
   want e.g. download a file
-  
+
   \code
   QUrlOperator op( "ftp://ftp.whatever.org/pub" );
   // do some other stuff like op.listChildren() or op.mkdir( "new Dir" )
   op.get( "a_file.txt" );
   \code
-  
+
   This will get the data of ftp://ftp.whatever.org/pub/a_file.txt.
 
   But <b>never</b> do something like
-  
+
   \code
   QUrlOperator op( "http://www.whatever.org/cgi-bin" );
   op.get( "search.pl?cmd=Hallo" );
   \endcode
-  
+
   This means if \a location is not empty and relative, it must not
   contain any queries or references, just the name of a child. So,
   if you need to specify a query or reference do it like in the first
   example or specify the full URL as \a location.
-  
+
   \sa copy()
  */
 
@@ -689,7 +689,7 @@ const QNetworkOperation *QUrlOperator::get( const QString &location )
     QUrl u( *this );
     if ( !location.isEmpty() )
 	u = QUrl( *this, location );
-    
+
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet,
 						    u,
 						    QString::null, QString::null );
@@ -724,27 +724,27 @@ const QNetworkOperation *QUrlOperator::get( const QString &location )
   so check the state of the network operation object to see if the
   operation was successful or not.
 
-  Now, if \a location is QString::null, the path of this QUrlOperator should point to a file 
+  Now, if \a location is QString::null, the path of this QUrlOperator should point to a file
   when you use this operation. If \a location is not empty, it can be relative (a child of
   the path to which the QUrlOperator points) or an absolute URL.
-  
+
   E.g. for putting some data to a file you can do
-  
+
   \code
   QUrlOperator op( "ftp://ftp.whatever.com/home/me/filename" );
   op.put( data );
   \endcode
-  
+
   But as for the most other operations it is required that the path of the
   QUrlOperator points to a directory, you could do following if you
   want e.g. upload data to a file
-  
+
   \code
   QUrlOperator op( "ftp://ftp.whatever.com/home/me" );
   // do some other stuff like op.listChildren() or op.mkdir( "new Dir" )
   op.put( data, "filename" );
   \code
-  
+
   This will upload the data to ftp://ftp.whatever.com/home/me/filename.
 
   \sa copy()
