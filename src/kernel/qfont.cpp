@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#67 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#66 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#67 $");
 
 
 /*!
@@ -1343,7 +1343,7 @@ void QFontInfo::reset( const QPainter *p )
   <ol>
   <li> The QFontInfo constructor with a QFont
   creates a font info object for a screen-compatible font,
-  i.e. the font must not a printer font.
+  i.e. the font must not be a printer font.
   <li> QWidget::fontInfo() returns the font info for a
   widget's current font. The font info object is automatically
   updated if somebody sets a new widget font.

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#53 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#53 $");
 
 
 const int sbDim = 16;
@@ -1266,7 +1266,7 @@ void QTableView::paintEvent( QPaintEvent *e )
 
     if ( !contentsRect().contains( updateR ) ) {// update frame ?
 	drawFrame( &paint );
-	if ( updateR.left() < frameWidth() ) // ##arnt
+	if ( updateR.left() < frameWidth() ) 		//###
 	    updateR.setLeft( frameWidth() );
 	if ( updateR.top() < frameWidth() )
 	    updateR.setTop( frameWidth() );
