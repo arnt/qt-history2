@@ -72,11 +72,11 @@ public:
 
 #if (QT_VERSION-0 >= 0x040000)
 #if defined(Q_CC_GNU)
-#warning "remove the QObjectListIt class below"
-#warning "remove this typedef too, maybe"
+#warning "remove the QObjectListIt class"
+#warning "remove the typedef too, maybe"
 #endif
-#else
 typedef QObjectListIterator QObjectListIt;
+#else
 class Q_EXPORT QObjectListIt : public QPtrListIterator<QObject>
 {
 public:
