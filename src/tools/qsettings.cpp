@@ -1835,6 +1835,8 @@ QStringList QSettings::readListEntry(const QString &key, bool *ok )
 	    esc = TRUE;
 	} else {
 	    s.append(value[i]);
+	    if ( i == value.length()-1 )
+		l.append(s);
 	}
     }
     return l;
