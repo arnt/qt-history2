@@ -1,6 +1,6 @@
 Qt COMMERCIAL LICENSE AGREEMENT
 FOR PROFESSIONAL AND ENTERPRISE EDITIONS
-Agreement version 2.6
+Agreement version 2.7
 
 
 IMPORTANT-READ CAREFULLY: 
@@ -44,32 +44,31 @@ Agreement, Trolltech grants Licensee the right to use the Licensed
 Software in the manner provided below.
 
 6. Trolltech grants to Licensee as an individual a personal,
-nonexclusive, non-transferable license to make and use copies of the
-Licensed Software for the sole purposes of designing, developing, and
-testing Licensee's software product(s) ("Applications"). Licensee may
-install copies of the Licensed Software on an unlimited number of
-computers provided that Licensee is the only individual using the
-Licensed Software. If Licensee is an entity, Trolltech grants Licensee
-the right to designate one, and only one, individual within Licensee's
-organization who shall have the sole right to use the Licensed
-Software in the manner provided above. Licensee may at any time, but
-not more frequently that once every six (6) months, designate another
-individual to replace the current designated user by notifying
-Trolltech, so long as there is no more than one designated user at any
-given time.
+nonexclusive, non-transferable, perpetual license to make and use 
+copies of the Licensed Software for the sole purposes of designing, developing, and testing Licensee's software product(s) 
+("Applications"). Licensee may install copies of the Licensed Software 
+on an unlimited number of computers provided that Licensee is the 
+only individual using the Licensed Software. If Licensee is an entity, 
+Trolltech grants Licensee the right to designate one, and only one, 
+individual within Licensee's organization who shall have the sole 
+right to use the Licensed Software in the manner provided above. 
+Licensee may at any time, but not more frequently that once every 
+six (6) months, designate another individual to replace the current designated user by notifying Trolltech, so long as there is no more 
+than one designated user at any given time.
 
 7. Verification: Trolltech may, upon its reasonable request and at its
 expense, audit Licensee with respect to the use of the Licensed
 Software.  Any such audit shall be conducted during regular business
 hours at Licensee's facilities and shall not unreasonably interfere
-with Licensee's business activities.  If an audit reveals that
-Licensee is using the Licensed Software in a way that is in material
-violation of the terms of the Agreement, then Licensee shall pay
-Trolltech's reasonable costs of conducting the audit.  In the case of
-a material violation, Licensee agrees to pay Trolltech any amounts
-owing that are attributable to the unauthorized use.  In the
-alternative, Trolltech reserves the right, at Trolltech's sole option,
-to terminate the licenses for the Licensed Software.
+with Licensee's business activities.  Trolltech will not remove, copy, or
+redistribute any electronic material during the course of an audit. The Licensee does not implicitly grant Trolltech any form of license
+agreement.If an audit reveals that Licensee is using the Licensed 
+Software in a way that is in material violation of the terms of the
+Agreement, then Licensee shall pay Trolltech's reasonable costs of 
+conducting the audit.  In the case of a material violation, Licensee
+agrees to pay Trolltech any amounts owing that are attributable to the
+unauthorized use.  In the alternative, Trolltech reserves the right, at Trolltech's sole option, to terminate the licenses for the Licensed 
+Software.
 
 
 8. The Licensed Software may provide links to third party libraries or
@@ -171,7 +170,9 @@ developer support and access to Updates ("Support and Updates") to the
 Licensed Software for a period not to exceed one year from the date of
 initial delivery ("Initial Term"), in accordance with Trolltech's then
 current policies and procedures, if any. Such policies and procedures
-may be changed from time to time.
+may be changed from time to time. Following the Initial Term, Trolltech 
+will no longer make the Licensed Software available to Licensee unless Licensee purchases additional Support and Updates according to
+section 15 below. 
 
 GENERAL PROVISIONS
 
@@ -217,15 +218,19 @@ in violation of any applicable laws or regulations, including the
 export laws and regulations of the United States, and shall comply
 with all such laws and regulations.
 
-19. Modification: This Agreement may only be modified in writing
-signed by authorized representatives of Licensee and Trolltech. In
-case of a conflict between the Agreement and the terms of any purchase
-order or other ordering document, the Agreement shall prevail. If any
+19. Entire Agreement: This Agreement constitutes the complete 
+agreement between the parties and supersedes all prior or 
+contemporaneous discussions, representations, and proposals, written
+or oral, with respect to the subject matters discussed herein. 
+No modification of this Agreement will be effective unless contained
+in a writing executed by an authorized representative of each party.
+No term or condition contained in Licensee's purchase order will 
+apply unless expressly accepted by Trolltech in writing. If any
 provision of the Agreement is found void or unenforceable, the
-remainder will remain valid and enforceable according to its terms. If
-any remedy provided is determined to have failed for its essential
-purpose, all limitations of liability and exclusions of damages set
-forth in this Agreement shall remain in effect.
+remainder will remain valid and enforceable according to its terms. 
+If any remedy provided is determined to have failed for its 
+essential purpose, all limitations of liability and exclusions of 
+damages set forth in this Agreement shall remain in effect.
 
 20. Governing law, legal venue: This Agreement shall be construed,
 interpreted and governed by the laws of the State of California,
