@@ -83,10 +83,10 @@ Qt 3.3.x does no longer officially support IRIX MIPSpro o32 or Sun CC
 ****************************************************************************
 
 - QAction
-  Added a setDisabled() slot similar to QWidget::setDisabled. Actions
-  with the "text" properties including '&' and with now "menuText" set
-  explicitly encode the '&' to "&&" so that the ampersand is visible
-  in the menu.
+  Added a setDisabled() slot similar to QWidget::setDisabled, and a slot
+  activate(). Actions with the "text" properties including '&' and with
+  now "menuText" set explicitly encode the '&' to "&&" so that the ampersand
+  is visible in the menu.
 
 - QListView
   Improved alignment for text in QListViewItems. Right aligned text
