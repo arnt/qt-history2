@@ -139,6 +139,10 @@
     This signal is emitted when the connection is closing, before any
     pending data has been written to the network.
 
+    QAbstractSocket stops receiving data (and no longer emits
+    readyRead()) after closing() has been emitted. Any pending data is
+    still available
+
     \sa closed()
 */
 
@@ -945,10 +949,8 @@ void QAbstractSocketPrivate::startConnecting(const QDnsHostInfo &hostInfo)
     connectTimeElapsed = 0;
 
     // The addresses returned by the lookup will be tested one after
-    // another by the connectToNextAddress() slot.
-    qInvokeMetaMember(q, "connectToNextAddress",
-                      isBlocking ? Qt::DirectConnection
-                      : Qt::QueuedConnection);
+    // another by connectToNextAddress().
+    connectToNextAddress();
 }
 
 /*! \internal
@@ -1297,10 +1299,15 @@ bool QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port)
     d->state = Qt::HostLookupState;
     emit stateChanged(d->state);
 
-    if (d->isBlocking)
+    QHostAddress temp;
+    if (temp.setAddress(hostName)) {
         d->startConnecting(QDns::getHostByName(hostName));
-    else
-        QDns::getHostByName(hostName, this, SLOT(startConnecting(QDnsHostInfo)));
+    } else {
+        if (d->isBlocking)
+            d->startConnecting(QDns::getHostByName(hostName));
+        else
+            QDns::getHostByName(hostName, this, SLOT(startConnecting(QDnsHostInfo)));
+    }
 
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::connectToHost(\"%s\", %i) == %s%s", hostName.latin1(), port,
