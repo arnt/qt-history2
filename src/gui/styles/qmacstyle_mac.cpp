@@ -1776,7 +1776,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 HIThemeGetTextDimensions(checkmark, 0, &tti, &outWidth, &outHeight,
                                          &outBaseline);
                 QRect r(xp, contentRect.y(), mw, mh);
-                r.moveBy(0, p->fontMetrics().ascent() - int(outBaseline) + 1);
+                r.translate(0, p->fontMetrics().ascent() - int(outBaseline) + 1);
                 HIRect bounds = qt_hirectForQRect(r);
                 HIThemeDrawTextBox(checkmark, &bounds, &tti,
                                    cg, kHIThemeOrientationNormal);
@@ -2000,7 +2000,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                             2 * FUDGE + tabOpt->rect.width(),
                             q->pixelMetric(QStyle::PM_TabBarBaseHeight, tabOpt, w));
                     if (tdi.direction == kThemeTabSouth)
-                        panerect.moveBy(0, (-tabOpt->rect.height() + 2));
+                        panerect.translate(0, (-tabOpt->rect.height() + 2));
                     p->save();
                     p->setClipRect(tabOpt->rect.x(), panerect.y(), tabOpt->rect.width(),
                             panerect.height());
@@ -2374,7 +2374,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             QRect newr = titlebar->rect;
             HIThemeGetWindowShape(&titleRect, &wdi, kWindowTitleBarRgn, &titleRegion);
             HIShapeGetBounds(titleRegion, &titleRect);
-            newr.moveBy(newr.x() - (int)titleRect.origin.x, newr.y() - (int)titleRect.origin.y);
+            newr.translate(newr.x() - (int)titleRect.origin.x, newr.y() - (int)titleRect.origin.y);
             HIRect finalRect = qt_hirectForQRect(newr, p, false);
             HIThemeDrawWindowFrame(&finalRect, &wdi, cg, kHIThemeOrientationNormal, 0);
             if (titlebar->subControls & QStyle::SC_TitleBarLabel) {
@@ -2756,7 +2756,7 @@ QRect QMacStylePrivate::HIThemeQuerySubControlMetrics(QStyle::ComplexControl cc,
                 HIThemeGetWindowShape(&titleRect, &wdi, kWindowTitleBarRgn, &region);
                 HIShapeGetBounds(region, &titleRect);
                 CFRelease(region);
-                tmpRect.moveBy(tmpRect.x() - int(titleRect.origin.x),
+                tmpRect.translate(tmpRect.x() - int(titleRect.origin.x),
                                tmpRect.y() - int(titleRect.origin.y));
                 titleRect = qt_hirectForQRect(tmpRect);
                 HIThemeGetWindowShape(&titleRect, &wdi, wrc, &region);
@@ -3405,12 +3405,12 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 int mw = checkcol + macItemFrame;
                 int mh = h - 2 * macItemFrame;
                 QRect r(xp, y + macItemFrame, mw, mh);
-                int moveBy = p->fontMetrics().ascent() - macbaseline + 1;
+                int translate = p->fontMetrics().ascent() - macbaseline + 1;
                 if (macbaseline)
-                    moveBy = p->fontMetrics().ascent() - macbaseline + 1;
+                    translate = p->fontMetrics().ascent() - macbaseline + 1;
                 else
-                    moveBy = 3;
-                r.moveBy(0, moveBy);
+                    translate = 3;
+                r.translate(0, translate);
                 DrawThemeTextBox(checkmark, kThemeMenuItemMarkFont, menuTDS, false,
                                  qt_glb_mac_rect(r, p), teFlushDefault, 0);
             }
@@ -3577,7 +3577,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                        tab->rect.height() + q->pixelMetric(QStyle::PM_TabBarBaseOverlap, tab,
                                                            widget));
             if (ttd == kThemeTabSouth)
-                tabr.moveBy(0, -q->pixelMetric(QStyle::PM_TabBarBaseOverlap, tab, widget));
+                tabr.translate(0, -q->pixelMetric(QStyle::PM_TabBarBaseOverlap, tab, widget));
             qt_mac_set_port(p);
             DrawThemeTab(qt_glb_mac_rect(tabr, p, false), tts, ttd, 0, 0);
         }
@@ -3966,7 +3966,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
             GetThemeWindowRegion(QtWinType, qt_glb_mac_rect(tbar->rect), tds, &twm, twa,
                                  kWindowTitleBarRgn, rgn);
             GetRegionBounds(rgn, &br);
-            newr.moveBy(newr.x() - br.left, newr.y() - br.top);
+            newr.translate(newr.x() - br.left, newr.y() - br.top);
             qt_mac_dispose_rgn(rgn);
         }
         if (tbar->subControls & QStyle::SC_TitleBarLabel) {
@@ -4256,7 +4256,7 @@ QRect QMacStylePrivate::AppManQuerySubControlMetrics(QStyle::ComplexControl cc,
                 GetThemeWindowRegion(QtWinType, qt_glb_mac_rect(r), kThemeStateActive, &twm, twa,
                                      kWindowTitleBarRgn, rgn);
                 GetRegionBounds(rgn, &br);
-                r.moveBy(r.x() - br.left, r.y() - br.top);
+                r.translate(r.x() - br.left, r.y() - br.top);
                 GetThemeWindowRegion(QtWinType, qt_glb_mac_rect(r), kThemeStateActive, &twm, twa,
                                      wrc, rgn);
                 GetRegionBounds(rgn, &br);
@@ -4941,7 +4941,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 drawItem(p, pixr, Qt::AlignVCenter, header->palette,
                          mode != QIcon::Disabled
                                 || !header->icon.isGenerated(QIcon::Small, mode), pixmap);
-                textr.moveBy(pixmap.width() + 2, 0);
+                textr.translate(pixmap.width() + 2, 0);
             }
 
 	    QColor penColor = header->palette.buttonText().color();

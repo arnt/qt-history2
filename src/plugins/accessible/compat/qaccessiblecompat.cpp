@@ -585,9 +585,9 @@ QAccessibleWidgetStack::QAccessibleWidgetStack(QWidget *w)
 }
 
 /*! Returns the widget stack. */
-QWidgetStack *QAccessibleWidgetStack::widgetStack() const
+Q3WidgetStack *QAccessibleWidgetStack::widgetStack() const
 {
-    return qt_cast<QWidgetStack*>(object());
+    return qt_cast<Q3WidgetStack*>(object());
 }
 
 /*! \reimp */

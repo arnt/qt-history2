@@ -94,7 +94,7 @@ protected:
     Q3TextEdit *textEdit() const;
 };
 
-class QWidgetStack;
+class Q3WidgetStack;
 
 class QAccessibleWidgetStack : public QAccessibleWidget
 {
@@ -109,7 +109,7 @@ public:
     int navigate(RelationFlag rel, int entry, QAccessibleInterface **target) const;
 
 protected:
-    QWidgetStack *widgetStack() const;
+    Q3WidgetStack *widgetStack() const;
 };
 
 class QAccessibleListBox : public Q3AccessibleScrollView

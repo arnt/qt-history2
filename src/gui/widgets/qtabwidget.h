@@ -102,7 +102,7 @@ private:
     Q_DECLARE_PRIVATE(QTabWidget)
 
     void setUpLayout(bool = false);
-    friend class QTabDialog;
+    friend class Q3TabDialog;
 
 #ifdef QT_COMPAT
 public:

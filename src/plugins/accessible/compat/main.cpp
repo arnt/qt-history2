@@ -71,7 +71,7 @@ QAccessibleInterface *CompatAccessibleFactory::create(const QString &classname, 
 #endif
     } else if (classname == "Q3ListView") {
         iface = new QAccessibleListView(widget);
-    } else if (classname == "QWidgetStack") {
+    } else if (classname == "Q3WidgetStack") {
         iface = new QAccessibleWidgetStack(widget);
     } else if (classname == "QListBox") {
         iface = new QAccessibleListBox(widget);
