@@ -53,7 +53,24 @@
   It's not too hard to guess what the functions do.
 */
 
-#if defined(QT_HPUX_LD) // for HP-UX < 11.x and 32 bit
+#if defined(Q_OS_MAC)
+
+bool QLibraryPrivate::loadLibrary()
+{
+    return FALSE;
+}
+
+bool QLibraryPrivate::freeLibrary()
+{
+    return FALSE;
+}
+
+void* QLibraryPrivate::resolveSymbol( const char* )
+{
+    return 0;
+}
+
+#elif defined(QT_HPUX_LD) // for HP-UX < 11.x and 32 bit
 
 bool QLibraryPrivate::loadLibrary()
 {

@@ -76,8 +76,7 @@ tools {
 
         offmac:SOURCES += $$TOOLS_CPP/qdir_mac.cpp \
 		  $$TOOLS_CPP/qfile_mac.cpp \
-		  $$TOOLS_CPP/qfileinfo_mac.cpp \
-		  $$TOOLS_CPP/qlibrary_mac.cpp 
+		  $$TOOLS_CPP/qfileinfo_mac.cpp 
 	else:unix:SOURCES += $$TOOLS_CPP/qdir_unix.cpp \
 		  $$TOOLS_CPP/qfile_unix.cpp \
 		  $$TOOLS_CPP/qfileinfo_unix.cpp \
@@ -85,10 +84,8 @@ tools {
 		  $$TOOLS_CPP/qsemaphore_unix.cpp \
 		  $$TOOLS_CPP/qwaitcondition_unix.cpp
 
-	mac {
-	  exists($$TOOLS_CPP/qlibrary_mac.cpp):SOURCES += $$TOOLS_CPP/qlibrary_mac.cpp 
-	  !embedded:SOURCES += $$TOOLS_CPP/qsettings_mac.cpp
-        }
+        mac:!embedded:SOURCES += $$TOOLS_CPP/qsettings_mac.cpp
+	mac:exists($$TOOLS_CPP/qlibrary_mac.cpp):SOURCES += $$TOOLS_CPP/qlibrary_mac.cpp 
 	else:unix:SOURCES += $$TOOLS_CPP/qlibrary_unix.cpp
 
 	SOURCES += $$TOOLS_CPP/qbitarray.cpp \

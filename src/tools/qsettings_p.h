@@ -94,7 +94,7 @@ public:
     bool modified :1;
     bool globalScope :1;
 
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     // system dependent implementations to use the 
     // system specific setting database (ie. registry on Windows)
 

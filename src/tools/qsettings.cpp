@@ -455,7 +455,7 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 QSettingsPrivate::QSettingsPrivate( QSettings::Format format )
     : groupDirty( TRUE ), modified(FALSE), globalScope(TRUE)
 {
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( format != QSettings::Ini )
 	return;
 #endif
@@ -763,7 +763,7 @@ static inline QString groupKey( const QString &group, const QString &key )
 */
 void QSettings::insertSearchPath( System s, const QString &path)
 {
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd ) {
 	d->sysInsertSearchPath( s, path );
 	return;
@@ -777,12 +777,12 @@ void QSettings::insertSearchPath( System s, const QString &path)
 	return;
     }
 
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd && s != Unix ) {
 #else
     if ( s != Unix ) {
 #endif
-#ifdef Q_OS_MAC
+#if !defined(QWS) && defined(Q_OS_MAC)
 	if(s != Mac) //mac is respected on the mac as well
 #endif
 	    return;
@@ -817,12 +817,12 @@ void QSettings::removeSearchPath( System s, const QString &path)
 	return;
     }
 #endif
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd && s != Unix ) {
 #else
     if ( s != Unix ) {
 #endif
-#ifdef Q_OS_MAC
+#if !defined(QWS) && defined(Q_OS_MAC)
 	if(s != Mac) //mac is respected on the mac as well
 #endif
 	    return;
@@ -843,7 +843,7 @@ QSettings::QSettings()
     d = new QSettingsPrivate( Native );
     Q_CHECK_PTR(d);
 
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     d->sysd = 0;
     d->sysInit();
 #endif
@@ -860,7 +860,7 @@ QSettings::QSettings( Format format )
     d = new QSettingsPrivate( format );
     Q_CHECK_PTR(d);
 
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     d->sysd = 0;
     if ( format == Native )
 	d->sysInit();
@@ -878,7 +878,7 @@ QSettings::~QSettings()
 {
     sync();
 
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
 	d->sysClear();
 #endif
@@ -893,7 +893,7 @@ QSettings::~QSettings()
 */
 bool QSettings::sync()
 {
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
 	return d->sysSync();
 #endif
@@ -1025,7 +1025,7 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
     }
 
     QString theKey = groupKey( group(), key );
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
 	return d->sysReadBoolEntry( theKey, def, ok );
 #endif
@@ -1077,7 +1077,7 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
     }
 
     QString theKey = groupKey( group(), key );
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
 	return d->sysReadDoubleEntry( theKey, def, ok );
 #endif
@@ -1123,7 +1123,7 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 
     QString theKey = groupKey( group(), key );
 
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
 	return d->sysReadNumEntry( theKey, def, ok );
 #endif
@@ -1170,7 +1170,7 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 
     QString theKey = groupKey( group(), key );
 
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
 	return d->sysReadEntry( theKey, def, ok );
 #endif
@@ -1243,7 +1243,7 @@ bool QSettings::writeEntry(const QString &key, bool value)
 
     QString theKey = groupKey( group(), key );
 
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
 	return d->sysWriteEntry( theKey, value );
 #endif
@@ -1275,7 +1275,7 @@ bool QSettings::writeEntry(const QString &key, double value)
 
     QString theKey = groupKey( group(), key );
 
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
 	return d->sysWriteEntry( theKey, value );
 #endif
@@ -1306,7 +1306,7 @@ bool QSettings::writeEntry(const QString &key, int value)
 
     QString theKey = groupKey( group(), key );
 
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
 	return d->sysWriteEntry( theKey, value );
 #endif
@@ -1369,7 +1369,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 
     QString theKey = groupKey( group(), key );
 
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
 	return d->sysWriteEntry( theKey, value );
 #endif
@@ -1430,7 +1430,7 @@ bool QSettings::removeEntry(const QString &key)
 
     QString theKey = groupKey( group(), key );
 
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
 	return d->sysRemoveEntry( theKey );
 #endif
@@ -1509,7 +1509,7 @@ QStringList QSettings::entryList(const QString &key) const
 
     QString theKey = groupKey( group(), key );
 
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
 	return d->sysEntryList( theKey );
 #endif
@@ -1606,7 +1606,7 @@ QStringList QSettings::subkeyList(const QString &key) const
 
     QString theKey = groupKey( group(), key );
 
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
 	return d->sysSubkeyList( theKey );
 #endif
@@ -1685,7 +1685,7 @@ QDateTime QSettings::lastModficationTime(const QString &key)
 
     QString theKey = groupKey( group(), key );
 
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+#if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
 	return QDateTime();
 #endif
@@ -1892,7 +1892,7 @@ void QSettings::setPath( const QString &domain, const QString &product, Scope sc
 #if defined(Q_WS_WIN)
     actualSearchPath = "/" + domain.mid( 0, lastDot ) + "/" + product;
     insertSearchPath( Windows, actualSearchPath );
-#elif defined(Q_WS_MAC)
+#elif !defined(QWS) && defined(Q_OS_MAC)
     QString topLevelDomain = domain.right( domain.length() - lastDot - 1 ) + ".";
     if ( topLevelDomain.isEmpty() )
 	topLevelDomain = "com.";
