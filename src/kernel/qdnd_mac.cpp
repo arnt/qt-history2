@@ -446,8 +446,8 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
 
     QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height());
     if(!pix.isNull()) {
-	QRegion r(0, 0, pix.width(), pix.height());
-	SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), r.handle(TRUE), boundsPoint, 0);
+	pixRegion = QRegion(0, 0, pix.width(), pix.height());
+	SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), pixRegion.handle(TRUE), boundsPoint, 0);
     }
 
     QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v);
