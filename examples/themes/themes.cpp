@@ -58,7 +58,7 @@ Themes::Themes( QWidget *parent, const char *name, WFlags f )
     menuBar()->insertItem( "&Style" , style );
 
     style->setCheckable( TRUE );
-    QActionGroup *ag = new QActionGroup( this, 0 );
+    QActionGroup *ag = new QActionGroup( this );
     ag->setExclusive( TRUE );
     QSignalMapper *styleMapper = new QSignalMapper( this );
     connect( styleMapper, SIGNAL( mapped( const QString& ) ), this, SLOT( makeStyle( const QString& ) ) );
