@@ -974,7 +974,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 	    HIViewRef hiview = (HIViewRef)winId();
 	    if(isTopLevel())
 		DisposeWindow(qt_mac_window_for(hiview));
-	    if(hiview)
+	    else if(hiview)
 		CFRelease(hiview);
 	}
     }
