@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#21 $
 **
 ** Implementation of QFile class
 **
@@ -15,7 +15,7 @@
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#21 $";
 #endif
 
 
@@ -77,7 +77,7 @@ void QFile::init()				// initialize internal data
 
 
 /*----------------------------------------------------------------------------
-  \fn QFile::name()
+  \fn const char *QFile::name() const
   Returns the name set by setName().
 
   This is NOT a function that always returns a pure file name (i.e. without
