@@ -397,8 +397,8 @@
 #  elif defined(__ghs)
 #    define Q_CC_GHS
 
-/* The new UnixWare 7 compiler is based on EDG and does define __EDG__ */
-#  elif defined(__USLC__)
+/* The UnixWare 7 UDK compiler is based on EDG and does define __EDG__ */
+#  elif defined(__USLC__) && defined(__SCO_VERSION__)
 #    define Q_CC_USLC
 #    define Q_NO_USING_KEYWORD /* ### check "using" status */
 
@@ -431,8 +431,8 @@
 #    define Q_NO_USING_KEYWORD /* ### check "using" status */
 #  endif
 
-/* the older UnixWare compiler is not based on EDG */
-#elif defined(__USLC__)
+/* The older UnixWare compiler is not based on EDG. */
+#elif defined(__USLC__) && !defined(__SCO_VERSION__)
 #  define Q_CC_USLC
 #  define Q_NO_BOOL_TYPE
 #  define Q_NO_EXPLICIT_KEYWORD
