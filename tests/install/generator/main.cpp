@@ -11,7 +11,7 @@
 
 QString makeCmd( "nmake" );
 
-#define BUFFERSIZE 128 * 1024
+#define BUFFERSIZE 512 * 1024
 /*
 ** Writes a file to the archive
 **
@@ -91,6 +91,7 @@ void writeDir( QDir& srcDir, QDataStream& outStream, bool topLevel = false )
 	    }
 	    else {
 		outStream << fi->fileName().latin1();
+		outStream << fi->lastModified();
 		writeFile( fi, outStream );
 	    }
 	}
@@ -131,6 +132,7 @@ void generateFileArchive( const QString arcName, QStringList fileNames )
 	    QString srcName = *it;
 	    fi.setFile( srcName );
 	    outStream << fi.fileName().latin1();
+	    outStream << fi.lastModified();
 	    writeFile( &fi, outStream );
 	}
     }
@@ -158,6 +160,7 @@ void copyFile( QString src, QString dst )
 
 void buildInstaller( QString distname )
 {
+/*
     QStringList args;
     QProcess extproc;
 
@@ -188,7 +191,8 @@ void buildInstaller( QString distname )
     while( extproc.isRunning() )
 	Sleep( 100 );
     qDebug( "make is done" );
-    copyFile( QString( getenv( "QTDIR" ) ) + "\\tests\\install\\setup.exe", QString( getenv( "QTDIR" ) ) + QString( "\\tests\\install\\generator\\dist" ) + distname + "\\setup.exe" );
+*/
+    copyFile( QString( getenv( "QTDIR" ) ) + "\\bin\\setup.exe", QString( getenv( "QTDIR" ) ) + QString( "\\tests\\install\\generator\\dist" ) + distname + "\\setup.exe" );
     qDebug( "Copied setup program" );
 }
 
@@ -222,6 +226,10 @@ int main( int argc, char** argv )
     fileList << QString( getenv( "QTDIR" ) ) + "\\Makefile";
     fileList << QString( getenv( "QTDIR" ) ) + "\\configure.bat";
     generateFileArchive( distname + "\\build.arq", fileList );
+
+    fileList.clear();
+    fileList << QString( getenv( "QTDIR" ) ) + "\\bin\\quninstall.exe";
+    generateFileArchive( distname + "\\uninstall.arq", fileList );
 
     dirList << "dist\\win\\" << "src" << "include" << "mkspecs" << "plugins" << "qmake" << "tmake" << "tools";
     generateArchive( distname + "\\qt.arq", dirList );
