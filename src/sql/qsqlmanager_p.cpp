@@ -59,7 +59,7 @@ public:
     bool autoDelete;
 };
 
-/*!
+/*! \internal
   \class QSqlCursorManager qsqlmanager_p.h
   \brief The QSqlCursorManager class manages a database cursor.
 
@@ -72,7 +72,9 @@ public:
 
 */
 
-/*!  Constructs a cursor manager.
+/*!  \internal
+
+  Constructs a cursor manager.
 
 */
 
@@ -82,7 +84,9 @@ QSqlCursorManager::QSqlCursorManager()
 }
 
 
-/*! Destroys the object and frees any allocated resources.
+/*! \internal
+
+  Destroys the object and frees any allocated resources.
 
 */
 
@@ -93,7 +97,9 @@ QSqlCursorManager::~QSqlCursorManager()
     delete d;
 }
 
-/*! Sets the manager's sort to the index \a sort.  To apply the new
+/*! \internal
+
+  Sets the manager's sort to the index \a sort.  To apply the new
   sort, use refresh().
 
  */
@@ -103,7 +109,9 @@ void QSqlCursorManager::setSort( const QSqlIndex& sort )
     setSort( sort.toStringList() );
 }
 
-/*! Sets the manager's sort to the stringlist \a sort.  To apply the
+/*! \internal
+
+  Sets the manager's sort to the stringlist \a sort.  To apply the
   new sort, use refresh().
 
  */
@@ -113,7 +121,9 @@ void QSqlCursorManager::setSort( const QStringList& sort )
     d->srt = sort;
 }
 
-/*! Returns the current sort, or an empty stringlist if there is none.
+/*! \internal
+
+  Returns the current sort, or an empty stringlist if there is none.
 
 */
 
@@ -122,7 +132,9 @@ QStringList  QSqlCursorManager::sort() const
     return d->srt;
 }
 
-/*! Sets the manager's filter to the string \a filter.  To apply the
+/*! \internal
+
+  Sets the manager's filter to the string \a filter.  To apply the
   new filter, use refresh().
 
 */
@@ -132,7 +144,9 @@ void QSqlCursorManager::setFilter( const QString& filter )
     d->ftr = filter;
 }
 
-/*! Returns the current filter, or an empty string if there is none.
+/*! \internal
+
+  Returns the current filter, or an empty string if there is none.
 
 */
 
@@ -141,7 +155,9 @@ QString QSqlCursorManager::filter() const
     return d->ftr;
 }
 
-/*! Sets auto-delete to \a enable.  If TRUE, the default cursor will
+/*! \internal
+
+  Sets auto-delete to \a enable.  If TRUE, the default cursor will
   be deleted when necessary.
 
   \sa autoDelete()
@@ -153,7 +169,9 @@ void QSqlCursorManager::setAutoDelete( bool enable )
 }
 
 
-/*! Returns TRUE if auto-deletion is enabled, otherwise FALSE.
+/*! \internal
+
+  Returns TRUE if auto-deletion is enabled, otherwise FALSE.
 
   \sa setAutoDelete()
 
@@ -164,7 +182,9 @@ bool QSqlCursorManager::autoDelete() const
     return d->autoDelete;
 }
 
-/*! Sets the default cursor used by the manager to \a cursor.  If \a
+/*! \internal
+
+  Sets the default cursor used by the manager to \a cursor.  If \a
   autoDelete is TRUE (the default is FALSE), the manager takes
   ownership of the \a cursor pointer, which will be deleted when the
   manager is destroyed, or when setCursor() is called again. To
@@ -174,6 +194,8 @@ bool QSqlCursorManager::autoDelete() const
 
 */
 
+/*! \internal
+ */
 void QSqlCursorManager::setCursor( QSqlCursor* cursor, bool autoDelete )
 {
     if ( d->autoDelete )
@@ -182,7 +204,9 @@ void QSqlCursorManager::setCursor( QSqlCursor* cursor, bool autoDelete )
     d->autoDelete = autoDelete;
 }
 
-/*! Returns a pointer to the default cursor used for navigation, or 0
+/*! \internal
+
+  Returns a pointer to the default cursor used for navigation, or 0
   if there is no default cursor.
 
   \sa setCursor()
@@ -195,7 +219,9 @@ QSqlCursor* QSqlCursorManager::cursor() const
 }
 
 
-/*! Refreshes the manager using the default cursor.  The manager's
+/*! \internal
+
+  Refreshes the manager using the default cursor.  The manager's
   filter and sort are applied.
 
   \sa setFilter() setSort()
@@ -213,7 +239,9 @@ void QSqlCursorManager::refresh()
     cur->select( currentFilter, newSort );
 }
 
-/* Returns TRUE if the \a buf field values that correspond to \idx
+/* \internal
+
+   Returns TRUE if the \a buf field values that correspond to \idx
    match the field values in \a idx.
 */
 
@@ -232,7 +260,9 @@ bool q_index_matches( const QSqlRecord* buf, const QSqlIndex& idx )
     return indexEquals;
 }
 
-/* Return less than, equal to or greater than 0 if buf1 is less than,
+/* \internal
+
+   Return less than, equal to or greater than 0 if buf1 is less than,
  equal to or greater than buf2 according to fields described in idx
  (currently only uses first field) ##
 */
@@ -280,7 +310,9 @@ int q_compare( const QSqlRecord* buf1, const QSqlRecord* buf2, const QSqlIndex& 
 
 }
 
-/*! Relocates the default cursor to the record matching the cursor's
+/*! \internal
+
+  Relocates the default cursor to the record matching the cursor's
 edit buffer.  Only the field names specified by \a idx are used to
 determine an exact match of the cursor to the edit buffer. However,
 other fields in the edit buffer are also used during the search,
@@ -415,7 +447,9 @@ public:
 };
 
 
-/*! Creates a form manager.
+/*! \internal
+
+  Creates a form manager.
 
 */
 
@@ -424,7 +458,9 @@ QSqlFormManager::QSqlFormManager()
     d = new QSqlFormManagerPrivate();
 }
 
-/*! Destroys the object and frees any allocated resources.
+/*! \internal
+
+  Destroys the object and frees any allocated resources.
 
 */
 
@@ -433,7 +469,9 @@ QSqlFormManager::~QSqlFormManager()
     delete d;
 }
 
-/*!  Clears the default form values.  If there is no default form,
+/*!  \internal
+
+  Clears the default form values.  If there is no default form,
   nothing happens,
 
 */
@@ -444,7 +482,9 @@ void QSqlFormManager::clearValues()
 	form()->clearValues();
 }
 
-/*! Sets the form used by the form manager to \a form.  If a record has
+/*! \internal
+
+  Sets the form used by the form manager to \a form.  If a record has
   already been assigned to the form manager, that record is also used by
   the \a form to display data.
 
@@ -460,7 +500,9 @@ void QSqlFormManager::setForm( QSqlForm* form )
 }
 
 
-/*! Returns the default form used by the form manager, or 0 if there is
+/*! \internal
+
+  Returns the default form used by the form manager, or 0 if there is
   none.
 
   \sa setForm()
@@ -473,7 +515,9 @@ QSqlForm* QSqlFormManager::form()
 }
 
 
-/*! Sets the record used by the form manager to \a record.  If a form has
+/*! \internal
+
+  Sets the record used by the form manager to \a record.  If a form has
   already been assigned to the form manager, \a record is also used by
   the default form to display data.
 
@@ -489,7 +533,9 @@ void QSqlFormManager::setRecord( QSqlRecord* record )
 }
 
 
-/*! Returns the default record used by the form manager, or 0 if there is
+/*! \internal
+
+  Returns the default record used by the form manager, or 0 if there is
   none.
 
   \sa setRecord()
@@ -501,7 +547,9 @@ QSqlRecord* QSqlFormManager::record()
 }
 
 
-/*! Causes the default form to read its fields .  If there is no
+/*! \internal
+
+  Causes the default form to read its fields .  If there is no
   default form, nothing happens.
 
   \sa setForm()
@@ -514,7 +562,9 @@ void QSqlFormManager::readFields()
 	d->frm->readFields();
 }
 
-/*! Causes the default form to write its fields .  If there is no
+/*! \internal
+
+  Causes the default form to write its fields .  If there is no
   default form, nothing happens.
 
   \sa setForm()
@@ -540,7 +590,8 @@ public:
 
 };
 
-/*!
+/*! \internal
+
   \class QDataManager qdatahandler.h
 
   \brief The QDataManager class is an internal class for implementing
@@ -602,7 +653,9 @@ void QDataManager::setMode( QSql::Op m )
 }
 
 
-/*! Returns the current mode.
+/*! \internal
+
+  Returns the current mode.
 
 */
 
@@ -612,7 +665,9 @@ QSql::Op QDataManager::mode() const
 }
 
 
-/*! Sets the auto-edit mode to \a auto.
+/*! \internal
+
+  Sets the auto-edit mode to \a auto.
 
 */
 
@@ -623,7 +678,9 @@ void QDataManager::setAutoEdit( bool autoEdit )
 
 
 
-/*! Returns TRUE if auto-edit mode is enabled, otherwise FALSE is
+/*! \internal
+
+  Returns TRUE if auto-edit mode is enabled, otherwise FALSE is
   returned.
 
 */
@@ -633,7 +690,9 @@ bool QDataManager::autoEdit() const
     return d->autoEd;
 }
 
-/*! If \a confirm is TRUE, all edit operations (inserts, updates and
+/*! \internal
+
+  If \a confirm is TRUE, all edit operations (inserts, updates and
   deletes) will be confirmed by the user.  If \a confirm is FALSE (the
   default), all edits are posted to the database immediately.
 
@@ -643,7 +702,9 @@ void QDataManager::setConfirmEdits( bool confirm )
     d->confEdits.fill( confirm );
 }
 
-/*! If \a confirm is TRUE, all inserts will be confirmed by the user.
+/*! \internal
+
+  If \a confirm is TRUE, all inserts will be confirmed by the user.
   If \a confirm is FALSE (the default), all edits are posted to the
   database immediately.
 
@@ -654,7 +715,9 @@ void QDataManager::setConfirmInsert( bool confirm )
     d->confEdits[ QSql::Insert ] = confirm;
 }
 
-/*! If \a confirm is TRUE, all updates will be confirmed by the user.
+/*! \internal
+
+  If \a confirm is TRUE, all updates will be confirmed by the user.
   If \a confirm is FALSE (the default), all edits are posted to the
   database immediately.
 
@@ -665,7 +728,9 @@ void QDataManager::setConfirmUpdate( bool confirm )
     d->confEdits[ QSql::Update ] = confirm;
 }
 
-/*! If \a confirm is TRUE, all deletes will be confirmed by the user.
+/*! \internal
+
+  If \a confirm is TRUE, all deletes will be confirmed by the user.
   If \a confirm is FALSE (the default), all edits are posted to the
   database immediately.
 
@@ -676,7 +741,9 @@ void QDataManager::setConfirmDelete( bool confirm )
     d->confEdits[ QSql::Delete ] = confirm;
 }
 
-/*! Returns TRUE if the table confirms all edit operations (inserts,
+/*! \internal
+
+  Returns TRUE if the table confirms all edit operations (inserts,
   updates and deletes), otherwise returns FALSE.
 */
 
@@ -685,7 +752,9 @@ bool QDataManager::confirmEdits() const
     return ( confirmInsert() && confirmUpdate() && confirmDelete() );
 }
 
-/*! Returns TRUE if the table confirms inserts, otherwise returns
+/*! \internal
+
+  Returns TRUE if the table confirms inserts, otherwise returns
   FALSE.
 */
 
@@ -694,7 +763,9 @@ bool QDataManager::confirmInsert() const
     return ( d->confEdits[ QSql::Insert ] );
 }
 
-/*! Returns TRUE if the table confirms updates, otherwise returns
+/*! \internal
+
+  Returns TRUE if the table confirms updates, otherwise returns
   FALSE.
 */
 
@@ -703,7 +774,9 @@ bool QDataManager::confirmUpdate() const
     return ( d->confEdits[ QSql::Update ] );
 }
 
-/*! Returns TRUE if the table confirms deletes, otherwise returns
+/*! \internal
+
+  Returns TRUE if the table confirms deletes, otherwise returns
   FALSE.
 */
 
@@ -712,7 +785,9 @@ bool QDataManager::confirmDelete() const
     return ( d->confEdits[ QSql::Delete ] );
 }
 
-/*! If \a confirm is TRUE, all cancels will be confirmed by the user
+/*! \internal
+
+  If \a confirm is TRUE, all cancels will be confirmed by the user
   through a message box.  If \a confirm is FALSE (the default), all
   cancels occur immediately.
 */
@@ -722,7 +797,9 @@ void QDataManager::setConfirmCancels( bool confirm )
     d->confCancs = confirm;
 }
 
-/*! Returns TRUE if the table confirms cancels, otherwise returns FALSE.
+/*! \internal
+
+  Returns TRUE if the table confirms cancels, otherwise returns FALSE.
 */
 
 bool QDataManager::confirmCancels() const
