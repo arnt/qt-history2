@@ -86,14 +86,12 @@ staticdbg:
 shared:
 	$(MAKE) lib 'CFLAGS=$(CFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shared'
 	/bin/rm -f $(SHAREDTARGET)
-	$(CC) -shared -Wl,-soname,libqt.so.0 -o $(SHAREDTARGET) \
-		obj/shared/*/*.o -lX11 -lgcc -lc
+	$(CC) -shared -o $(SHAREDTARGET) obj/shared/*/*.o -lX11
 
 shareddbg:
 	$(MAKE) lib 'CFLAGS=$(CDBGFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shareddbg'
 	/bin/rm -f $(SHAREDTARGET)
-	$(CC) -shared -o -Wl,-soname,libqt.so.0 -o $(SHAREDTARGET) \
-		obj/shareddbg/*/*.o -lX11 -lgcc -lc
+	$(CC) -shared -o $(SHAREDTARGET) obj/shareddbg/*/*.o -lX11
 
 showdirs:
 	@echo $(DIRS)
