@@ -22,17 +22,27 @@ class QIconView;
 #endif
 
 
-QString buddyString( QWidget * );
-QString stripAmp( const QString& );
-QString hotKey( const QString& );
+QString buddyString(QWidget *);
+QString stripAmp(const QString&);
+QString hotKey(const QString&);
+
+class QAccessibleComplexWidget : public QAccessibleWidget
+{
+public:
+    QAccessibleComplexWidget( QWidget *o, Role r = Client, QString name = QString(), 
+	QString description = QString(), QString value = QString(), 
+	QString help = QString(), int defAction = SetFocus, QString defActionName = QString(),
+	QString accelerator = QString(), State s = Normal );
+
+    int		childAt(int x, int y) const;
+};
 
 class QAccessibleWidgetStack : public QAccessibleWidget
 {
 public:
-    QAccessibleWidgetStack( QObject *o );
+    QAccessibleWidgetStack(QWidget *o);
 
-    int		childAt( int x, int y ) const;
-    bool	queryChild( int control, QAccessibleInterface ** ) const;
+    int		childAt(int x, int y) const;
 
 protected:
     QWidgetStack *widgetStack() const;
@@ -41,63 +51,60 @@ protected:
 class QAccessibleButton : public QAccessibleWidget
 {
 public:
-    QAccessibleButton( QObject *o, Role r, QString description = QString::null,
-	QString help = QString::null );
+    QAccessibleButton(QWidget *o, Role r, QString description = QString(),
+	QString help = QString());
 
-    QString	text( Text t, int control ) const;
-    State	state( int control ) const;
+    QString	text(Text t, int child) const;
+    State	state(int child) const;
 
-    bool	doAction(int action, int control);
+    bool	doAction(int action, int child);
 
 protected:
     QButton *button() const;
 };
 
-class QAccessibleRangeControl : public QAccessibleWidget
+class QAccessibleRangeControl : public QAccessibleComplexWidget
 {
 public:
-    QAccessibleRangeControl( QObject *o, Role role, QString name = QString::null, 
-	QString description = QString::null, QString help = QString::null, 
-	QString defAction = QString::null, QString accelerator = QString::null );
+    QAccessibleRangeControl(QWidget *o, Role role, QString name = QString(), 
+	QString description = QString(), QString help = QString(), 
+	QString defAction = QString(), QString accelerator = QString());
 
-    QString	text( Text t, int control ) const;
+    QString	text(Text t, int child) const;
 };
 
 class QAccessibleSpinWidget : public QAccessibleRangeControl
 {
 public:
-    QAccessibleSpinWidget( QObject *o );
+    QAccessibleSpinWidget(QWidget *o);
 
-    int		childAt( int x, int y ) const;
-    QRect	rect( int control ) const;
-    int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
-    bool	queryChild( int control, QAccessibleInterface ** ) const;
+    QRect	rect(int child) const;
 
-    QString	text( Text t, int control ) const;
-    Role	role( int control ) const;
-    State	state( int control ) const;
+    int		navigate(Relation rel, int entry, QAccessibleInterface **target) const;
 
-    bool	doAction(int action, int control);
+    QString	text(Text t, int child) const;
+    Role	role(int child) const;
+    State	state(int child) const;
+
+    bool	doAction(int action, int child);
 };
 
 class QAccessibleScrollBar : public QAccessibleRangeControl
 {
 public:
-    QAccessibleScrollBar( QObject *o, QString name = QString::null, 
-	QString description = QString::null, QString help = QString::null, 
-	QString defAction = QString::null, QString accelerator = QString::null );
+    QAccessibleScrollBar(QWidget *o, QString name = QString(), 
+	QString description = QString(), QString help = QString(), 
+	QString defAction = QString(), QString accelerator = QString());
 
-    int		childAt( int x, int y ) const;
-    QRect	rect( int control ) const;
-    int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
-    bool	queryChild( int control, QAccessibleInterface ** ) const;
+    int		navigate(Relation rel, int entry, QAccessibleInterface **target) const;
 
-    QString	text( Text t, int control ) const;
-    Role	role( int control ) const;
+    QRect	rect(int child) const;
+    QString	text(Text t, int child) const;
+    Role	role(int child) const;
 
-    bool	doAction(int action, int control);
+    bool	doAction(int action, int child);
 
 protected:
     QScrollBar *scrollBar() const;
@@ -106,20 +113,20 @@ protected:
 class QAccessibleSlider : public QAccessibleRangeControl
 {
 public:
-    QAccessibleSlider( QObject *o, QString name = QString::null, 
-	QString description = QString::null, QString help = QString::null, 
-	QString defAction = QString::null, QString accelerator = QString::null );
+    QAccessibleSlider(QWidget *o, QString name = QString(), 
+	QString description = QString(), QString help = QString(), 
+	QString defAction = QString(), QString accelerator = QString());
 
-    int		childAt( int x, int y ) const;
-    QRect	rect( int control ) const;
-    int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
-    bool	queryChild( int control, QAccessibleInterface ** ) const;
+    int		relationTo(int child, const QAccessibleInterface *other, int otherChild);
 
-    QString	text( Text t, int control ) const;
-    Role	role( int control ) const;
+    int		navigate(Relation rel, int entry, QAccessibleInterface **target) const;
 
-    bool	doAction(int action, int control);
+    QRect	rect(int child) const;
+    QString	text(Text t, int child) const;
+    Role	role(int child) const;
+
+    bool	doAction(int action, int child);
 
 protected:
     QSlider *slider() const;
@@ -128,112 +135,99 @@ protected:
 class QAccessibleText : public QAccessibleWidget
 {
 public:
-    QAccessibleText( QObject *o, Role role, QString name = QString::null, 
-	QString description = QString::null, QString help = QString::null, 
-	QString defAction = QString::null, QString accelerator = QString::null );
+    QAccessibleText(QWidget *o, Role role, QString name = QString(), 
+	QString description = QString(), QString help = QString(), 
+	QString defAction = QString(), QString accelerator = QString());
 
-    QString	text( Text t, int control ) const;
-    State	state( int control ) const;
+    QString	text(Text t, int child) const;
+    State	state(int child) const;
 };
 
 class QAccessibleDisplay : public QAccessibleWidget
 {
 public:
-    QAccessibleDisplay( QObject *o, Role role, QString description = QString::null, 
-	QString value = QString::null, QString help = QString::null, 
-	QString defAction = QString::null, QString accelerator = QString::null );
+    QAccessibleDisplay(QWidget *o, Role role, QString description = QString(), 
+	QString value = QString(), QString help = QString(), 
+	QString defAction = QString(), QString accelerator = QString());
 
-    QString	text( Text t, int control ) const;
-    Role	role( int control ) const;
+    QString	text(Text t, int child) const;
+    Role	role(int child) const;
 };
 
-class QAccessibleHeader : public QAccessibleWidget
+class QAccessibleHeader : public QAccessibleComplexWidget
 {
 public:
-    QAccessibleHeader( QObject *o, QString description = QString::null, 
-	QString value = QString::null, QString help = QString::null, 
-	QString defAction = QString::null, QString accelerator = QString::null );
+    QAccessibleHeader(QWidget *o, QString description = QString(), 
+	QString value = QString(), QString help = QString(), 
+	QString defAction = QString(), QString accelerator = QString());
 
-    int		childAt( int x, int y ) const;
-    QRect	rect( int control ) const;
-    int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
-    bool	queryChild( int control, QAccessibleInterface ** ) const;
+    int		navigate(Relation rel, int entry, QAccessibleInterface **target) const;
 
-    QString	text( Text t, int control ) const;
-
-    Role role( int control ) const;
-    State state( int control ) const;
+    QRect	rect(int child) const;
+    QString	text(Text t, int child) const;
+    Role role(int child) const;
+    State state(int child) const;
 
 protected:
     QHeader *header() const;
 };
 
-class QAccessibleTabBar : public QAccessibleWidget
+class QAccessibleTabBar : public QAccessibleComplexWidget
 {
 public:
-    QAccessibleTabBar( QObject *o, QString description = QString::null, 
-	QString value = QString::null, QString help = QString::null, 
-	QString defAction = QString::null, QString accelerator = QString::null );
+    QAccessibleTabBar(QWidget *o, QString description = QString(), 
+	QString value = QString(), QString help = QString(), 
+	QString defAction = QString(), QString accelerator = QString());
 
-    int		childAt( int x, int y ) const;
-    QRect	rect( int control ) const;
-    int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
-    bool	queryChild( int control, QAccessibleInterface ** ) const;
+    int		navigate(Relation rel, int entry, QAccessibleInterface **target) const;
 
-    QString	text( Text t, int control ) const;
+    QRect	rect(int child) const;
+    QString	text(Text t, int child) const;
+    Role	role(int child) const;
+    State	state(int child) const;
 
-    Role	role( int control ) const;
-    State	state( int control ) const;
-
-    bool	doAction(int action, int control);
-    bool	setSelected( int control, bool on, bool extend );
-    void	clearSelection();
-    QVector<int> selection() const;    
+    bool	doAction(int action, int child);
+    bool	setSelected(int child, bool on, bool extend);
+    QVector<int> selection() const;
 
 protected:
     QTabBar *tabBar() const;
 };
 
-class QAccessibleComboBox : public QAccessibleWidget
+class QAccessibleComboBox : public QAccessibleComplexWidget
 {
 public:
-    QAccessibleComboBox( QObject *o );
+    QAccessibleComboBox(QWidget *o);
 
-    int		childAt( int x, int y ) const;
-    QRect	rect( int control ) const;
-    int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
-    bool	queryChild( int control, QAccessibleInterface ** ) const;
+    int		navigate(Relation rel, int entry, QAccessibleInterface **target) const;
 
-    QString	text( Text t, int control ) const;
+    QString	text(Text t, int child) const;
+    QRect	rect(int child) const;
+    Role	role(int child) const;
+    State	state(int child) const;
 
-    Role	role( int control ) const;
-    State	state( int control ) const;
-
-    bool	doAction(int action, int control);
+    bool	doAction(int action, int child);
 
 protected:
     QComboBox *comboBox() const;
 };
 
-class QAccessibleTitleBar : public QAccessibleWidget
+class QAccessibleTitleBar : public QAccessibleComplexWidget
 {
 public:
-    QAccessibleTitleBar( QObject *o );
+    QAccessibleTitleBar(QWidget *o);
 
-    int		childAt( int x, int y ) const;
-    QRect	rect( int control ) const;
-    int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
-    bool	queryChild( int control, QAccessibleInterface ** ) const;
 
-    QString	text( Text t, int control ) const;
-    Role	role( int control ) const;
-    State	state( int control ) const;
+    QString	text(Text t, int child) const;
+    QRect	rect(int child) const;
+    Role	role(int child) const;
+    State	state(int child) const;
 
-    bool	doAction(int action, int control);
+    bool	doAction(int action, int child);
 
 protected:
     QTitleBar *titleBar() const;
@@ -242,35 +236,33 @@ protected:
 class QAccessibleScrollView : public QAccessibleWidget
 {
 public:
-    QAccessibleScrollView( QObject *o, Role role, QString name = QString::null,
-	QString description = QString::null, QString value = QString::null, 
-	QString help = QString::null, QString defAction = QString::null, 
-	QString accelerator = QString::null );
+    QAccessibleScrollView(QWidget *o, Role role, QString name = QString(),
+	QString description = QString(), QString value = QString(), 
+	QString help = QString(), QString defAction = QString(), 
+	QString accelerator = QString());
 
-    QString	text( Text t, int control ) const;
+    QString	text(Text t, int child) const;
 
-    virtual int itemAt( int x, int y ) const;
-    virtual QRect itemRect( int item ) const;
+    virtual int itemAt(int x, int y) const;
+    virtual QRect itemRect(int item) const;
     virtual int itemCount() const;
 };
 
 class QAccessibleViewport : public QAccessibleWidget
 {
 public:
-    QAccessibleViewport( QObject *o, QObject *sv );
+    QAccessibleViewport(QWidget *o,QWidget *sv);
 
-    int		childAt( int x, int y ) const;
-    QRect	rect( int control ) const;
-    int		navigate( NavDirection direction, int startControl ) const;
+    int		childAt(int x, int y) const;
     int		childCount() const;
 
-    QString	text( Text t, int control ) const;
-    Role	role( int control ) const;
-    State	state( int control ) const;
+    QRect	rect(int child) const;
+    QString	text(Text t, int child) const;
+    Role	role(int child) const;
+    State	state(int child) const;
 
-    bool	doAction(int action, int control);
-    bool	setFocus( int control );
-    bool	setSelected( int control, bool on, bool extend );
+    bool	doAction(int action, int child);
+    bool	setSelected(int child, bool on, bool extend);
     void	clearSelection();
     QVector<int> selection() const;
 
@@ -282,18 +274,17 @@ protected:
 class QAccessibleListBox : public QAccessibleScrollView
 {
 public:
-    QAccessibleListBox( QObject *o );
+    QAccessibleListBox(QWidget *o);
 
-    int		itemAt( int x, int y ) const;
-    QRect	itemRect( int item ) const;
+    int		itemAt(int x, int y) const;
+    QRect	itemRect(int item) const;
     int		itemCount() const;
 
-    QString	text( Text t, int control ) const;
-    Role	role( int control ) const;
-    State	state( int control ) const;
+    QString	text(Text t, int child) const;
+    Role	role(int child) const;
+    State	state(int child) const;
 
-    bool	setFocus( int control );
-    bool	setSelected( int control, bool on, bool extend );
+    bool	setSelected(int child, bool on, bool extend);
     void	clearSelection();
     QVector<int> selection() const;
 
@@ -304,18 +295,17 @@ protected:
 class QAccessibleListView : public QAccessibleScrollView
 {
 public:
-    QAccessibleListView( QObject *o );
+    QAccessibleListView(QWidget *o);
 
-    int		itemAt( int x, int y ) const;
-    QRect	itemRect( int item ) const;
+    int		itemAt(int x, int y) const;
+    QRect	itemRect(int item) const;
     int		itemCount() const;
 
-    QString	text( Text t, int control ) const;
-    Role	role( int control ) const;
-    State	state( int control ) const;
+    QString	text(Text t, int child) const;
+    Role	role(int child) const;
+    State	state(int child) const;
 
-    bool	setFocus( int control );
-    bool	setSelected( int control, bool on, bool extend );
+    bool	setSelected(int child, bool on, bool extend);
     void	clearSelection();
     QVector<int> selection() const;
 
@@ -327,18 +317,17 @@ protected:
 class QAccessibleIconView : public QAccessibleScrollView
 {
 public:
-    QAccessibleIconView( QObject *o );
+    QAccessibleIconView(QWidget *o);
 
-    int		itemAt( int x, int y ) const;
-    QRect	itemRect( int item ) const;
+    int		itemAt(int x, int y) const;
+    QRect	itemRect(int item) const;
     int		itemCount() const;
 
-    QString	text( Text t, int control ) const;
-    Role	role( int control ) const;
-    State	state( int control ) const;
+    QString	text(Text t, int child) const;
+    Role	role(int child) const;
+    State	state(int child) const;
 
-    bool	setFocus( int control );
-    bool	setSelected( int control, bool on, bool extend );
+    bool	setSelected(int child, bool on, bool extend);
     void	clearSelection();
     QVector<int> selection() const;
 
@@ -350,14 +339,14 @@ protected:
 class QAccessibleTextEdit : public QAccessibleScrollView
 {
 public:
-    QAccessibleTextEdit( QObject *o );
+    QAccessibleTextEdit(QWidget *o);
 
-    int		itemAt( int x, int y ) const;
-    QRect	itemRect( int item ) const;
+    int		itemAt(int x, int y) const;
+    QRect	itemRect(int item) const;
     int		itemCount() const;
 
-    QString	text( Text t, int control ) const;
-    Role	role( int control ) const;
+    QString	text(Text t, int child) const;
+    Role	role(int child) const;
 
 protected:
     QTextEdit *textEdit() const;

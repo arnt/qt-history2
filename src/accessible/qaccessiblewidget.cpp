@@ -26,8 +26,7 @@ class QAccessibleWidgetPrivate : public QAccessible
 public:
     QAccessibleWidgetPrivate()
 	:role(Client), state(Normal)
-    {
-    }
+    {}
 
     Role role;
     State state;
@@ -35,7 +34,8 @@ public:
     QString description;
     QString value;
     QString help;
-    QString defAction;
+    int	    defAction;
+    QString defActionName;
     QString accelerator;
 };
 
@@ -49,14 +49,15 @@ public:
 */
 
 /*!
-    Creates a QAccessibleWidget object for \a o.
-    \a role, \a name, \a description, \a value, \a help, \a defAction,
+    Creates a QAccessibleWidget object for \a widget.
+    \a role, \a name, \a description, \a value, \a help, \a defAction, \a defActionName,
     \a accelerator and \a state are optional parameters for static values
     of the object's property.
 */
-QAccessibleWidget::QAccessibleWidget( QWidget *o, Role role, QString name,
-    QString description, QString value, QString help, QString defAction, QString accelerator, State state )
-    : QAccessibleObject( o )
+QAccessibleWidget::QAccessibleWidget(QWidget *widget, Role role, QString name,
+    QString description, QString value, QString help, int defAction, QString defActionName, 
+    QString accelerator, State state)
+: QAccessibleObject(widget)
 {
     d = new QAccessibleWidgetPrivate();
     d->role = role;
@@ -65,7 +66,8 @@ QAccessibleWidget::QAccessibleWidget( QWidget *o, Role role, QString name,
     d->description = description;
     d->value = value;
     d->help = help;
-    d->defAction = defAction;
+    d->defAction = SetFocus;
+    d->defActionName = defAction;
     d->accelerator = accelerator;
 }
 
@@ -83,20 +85,20 @@ QAccessibleWidget::~QAccessibleWidget()
 QWidget *QAccessibleWidget::widget() const
 {
     Q_ASSERT(object()->isWidgetType());
-    if ( !object()->isWidgetType() )
+    if (!object()->isWidgetType())
 	return 0;
     return (QWidget*)object();
 }
 
 /*! \reimp */
-int QAccessibleWidget::childAt( int x, int y ) const
+int QAccessibleWidget::childAt(int x, int y) const
 {
     QWidget *w = widget();
-    QPoint gp = w->mapToGlobal( QPoint( 0, 0 ) );
-    if ( !QRect( gp.x(), gp.y(), w->width(), w->height() ).contains( x, y ) )
+    QPoint gp = w->mapToGlobal(QPoint(0, 0));
+    if (!QRect(gp.x(), gp.y(), w->width(), w->height()).contains(x, y))
 	return -1;
 
-    QPoint rp = w->mapFromGlobal( QPoint( x, y ) );
+    QPoint rp = w->mapFromGlobal(QPoint(x, y));
 
     QObjectList list = w->queryList( "QWidget", 0, FALSE, FALSE );
 
@@ -106,9 +108,9 @@ int QAccessibleWidget::childAt( int x, int y ) const
     QList<QObject*>::Iterator it = list.begin();
     QWidget *child = 0;
     int index = 1;
-    while ( it != list.end() ) {
+    while (it != list.end()) {
 	child = (QWidget*)*it;
-	if ( !child->isTopLevel() && !child->isHidden() && child->geometry().contains( rp ) ) {
+	if (!child->isTopLevel() && !child->isHidden() && child->geometry().contains(rp)) {
 	    return index;
 	}
 	++it;
@@ -122,154 +124,170 @@ int QAccessibleWidget::childAt( int x, int y ) const
 /*! \reimp */
 QRect	QAccessibleWidget::rect( int control ) const
 {
-#if defined(QT_DEBUG)
-    if ( control )
+    if (control)
 	qWarning( "QAccessibleWidget::rect: This implementation does not support subelements! (ID %d unknown for %s)", control, widget()->className() );
-#else
-    Q_UNUSED(control)
-#endif
-    QWidget *w = widget();
-    QPoint wpos = w->mapToGlobal( QPoint( 0, 0 ) );
 
-    return QRect( wpos.x(), wpos.y(), w->width(), w->height() );
+    QWidget *w = widget();
+    QPoint wpos = w->mapToGlobal(QPoint(0, 0));
+
+    return QRect(wpos.x(), wpos.y(), w->width(), w->height());
 }
 
-/*! \reimp
-int QAccessibleWidget::navigate( NavDirection dir, int startControl ) const
-{
-#if defined(QT_DEBUG)
-    if ( startControl )
-	qWarning( "QAccessibleWidget::navigate: This implementation does not support subelements! (ID %d unknown for %s)", startControl, widget()->className() );
-#else
-    Q_UNUSED(startControl);
-#endif
-    QWidget *w = widget();
-    switch ( dir ) {
-    case NavFirstChild:
-	{
-	    QObjectList list = w->queryList( "QWidget", 0, FALSE, FALSE );
-	    return list.isEmpty() ? -1 : 1;
-	}
-    case NavLastChild:
-	{
-	    QObjectList list = w->queryList( "QWidget", 0, FALSE, FALSE );
-	    return list.isEmpty() ? -1 : list.count();
-	}
-    case NavNext:
-    case NavPrevious:
-	{
-	    QAccessibleInterface *parent = 0;
-	    queryParent(&parent);
-	    if (!parent)
-		return -1;
-
-	    int ourIndex = parent->indexOfChild(this);
-	    int siblings = parent->childCount();
-	    parent->release();
-	    if (dir == NavNext) {
-		if (ourIndex < siblings)
-		    return ourIndex + 1;
-	    } else {
-		if (ourIndex > 1)
-		    return ourIndex - 1;
-	    }
-	    return -1;
-	}
-	break;
-    case NavFocusChild:
-	{
-	    if ( w->hasFocus() )
-		return 0;
-
-	    QWidget *fw = w->focusWidget();
-	    if ( !fw )
-		return -1;
-
-	    QObjectList list = w->queryList( "QWidget", 0, FALSE, FALSE );
-	    int index = list.indexOf(fw);
-	    if (index != -1)
-		++index;
-	    return index;
-	}
-    default:
-	qWarning( "QAccessibleWidget::navigate: unhandled request" );
-	break;
-    };
-    return -1;
-}*/
-
 /*! \reimp */
-QAccessible::Relation QAccessibleWidget::relationTo(int control,const QAccessibleInterface *iface, int child) const
+QAccessible::Relation QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, int otherChild) const
 {
-    QObject *o = iface ? iface->object() : 0;
-    if (!o)
-	return None;
+    QObject *o = other ? other->object() : 0;
+    if (!o || !o->isWidgetType())
+	return Unrelated;
 
-    if (o == object())
-	return child ? Ancestor : Self;
+    if(o == object()) {
+	if (child && !otherChild)
+	    return Child;
+	if (!child && otherChild)
+	    return Ancestor;
+	if (!child && !otherChild)
+	    return Self;
+    }
 
-    if (o->parent() == object()->parent())
-	return Sibling;
+    QObject *parent = object()->parent();
+    if (o == parent)
+	return Child;
+
+    if (o->parent() == parent) {
+	int relation = Sibling;
+	QWidget *sibling = static_cast<QWidget*>(o);
+	if (widget()->x() < sibling->x())
+	    relation |= QAccessible::Left;
+	else
+	    relation |= QAccessible::Right;
+	if (widget()->y() < sibling->y())
+	    relation |= QAccessible::Above;
+	else
+	    relation |= QAccessible::Below;
+
+	return (Relation)relation;
+    }
+
+    while(parent) {
+	if (parent == o)
+	    return Descendent;
+	parent = parent->parent();
+    }
 
     QObjectList cl(object()->queryList("QWidget", 0, 0, FALSE));
     if (cl.contains(o))
 	return Ancestor;
 
     for (int i = 0; i < cl.count(); ++i) {
-	QObject *child = cl.at(i);
-	QObjectList scl(child->queryList("QWidget", 0, 0, FALSE));
+	QObject *co = cl.at(i);
+	QObjectList scl(co->queryList("QWidget", 0, 0, FALSE));
 	if (scl.contains(o))
 	    return Ancestor;
     }
 
-    return None;
+    return Unrelated;
 }
 
 /*! \reimp */
-int QAccessibleWidget::navigate(Relation relation, int index, QAccessibleInterface **iface) const
+int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterface **target) const
 {
-    *iface = 0;
+    *target = 0;
+    if (entry < 1) entry = 1;
+    QObject *targetObject = 0;
+
     switch (relation) {
     case Self:
-	const_cast<QAccessibleWidget*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)iface);
+	const_cast<QAccessibleWidget*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)target);
 	return 0;
     case Child:
 	{
 	    QObjectList cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
-	    if (cl.isEmpty())
-		return -1;
-	    
-	    QObject *o = 0;
-	    if (cl.count() > index)
-		o = cl.at(index);
-	    
-	    if (!o)
-		return -1;
-	    
-	    QAccessible::queryAccessibleInterface(o, iface);
+	    if (cl.count() >= entry)
+		targetObject = cl.at(entry - 1);
 	}
-	return *iface ? 0 : -1;
+	break;
     case Ancestor:
 	{
-	    QObject *parentObject = widget()->parentWidget();
+	    targetObject = widget()->parentWidget();
 	    int i;
-	    for (i = index; i > 0; --i)
-		parentObject = parentObject->parent();
-	    if (!parentObject && i == 0)
-		parentObject = qApp;
-	    QAccessible::queryAccessibleInterface( parentObject, iface );
+	    for (i = entry; i > 1; --i)
+		targetObject = targetObject->parent();
+	    if (!targetObject && i == 1)
+		targetObject = qApp;
 	}
-	return *iface ? 0 : -1;
+	break;
     case Sibling:
-	QAccessible::queryAccessibleInterface( widget()->parentWidget(), iface );
-	if (*iface) {
-	    QAccessibleInterface *parent = *iface;
-	    parent->navigate(Child, index, iface);
-	    parent->release();
+	{
+	    QWidget *parentWidget = widget()->parentWidget();
+	    if (!parentWidget)
+		return -1;
+	    QObjectList ol = parentWidget->queryList("QWidget", 0, 0, FALSE);
+	    if (ol.count() >= entry)
+		targetObject = ol.at(entry - 1);
 	}
-	return *iface ? 0 : -1;
+	break;
+    case FocusChild:
+	{
+	    if (widget()->hasFocus())
+		return 0;
+
+	    QWidget *fw = widget()->focusWidget();
+	    if ( !fw )
+		return -1;
+
+	    QWidget *parent = fw;
+	    while (parent && !targetObject) {
+		parent = parent->parentWidget();
+		if (parent == widget())
+		    targetObject = fw;
+	    }
+	}
+	break;
+    case QAccessible::Left:
+    case QAccessible::Right:
+    case QAccessible::Above:
+    case QAccessible::Below:
+	{
+	    QWidget *start = widget();
+	    QWidget *parentWidget = start->parentWidget();
+	    if (!parentWidget)
+		return -1;
+	    QObjectList ol = parentWidget->queryList("QWidget", 0, 0, FALSE);
+
+	    QRect geom = start->geometry();
+	    QPoint center = geom.center();
+	    QWidget *candidate = 0;
+	    int mindist = INT_MAX;
+	    for (int i = 0; i < ol.count(); ++i) {
+		QWidget *sibling = static_cast<QWidget*>(ol.at(i));
+		if (sibling == start)
+		    continue;
+		QRect sibg = sibling->geometry();
+		QPoint sibc = sibg.center();
+		QPoint sc = sibc - center;
+		int dist = sc.manhattanLength();
+		if (dist < mindist ) {
+		    QWidget *oldcandidate = candidate;
+		    if (relation == QAccessible::Left && sc.x() < 0 && sibg.right() < geom.left())
+			candidate = sibling;
+		    else if (relation == QAccessible::Right && sc.x() > 0 && sibg.left() > geom.right())
+			candidate = sibling;
+		    else if (relation == QAccessible::Above && sc.y() < 0 && sibg.bottom() < geom.top())
+			candidate = sibling;
+		    else if (relation == QAccessible::Below && sc.y() > 0 && sibg.top() > geom.bottom())
+			candidate = sibling;
+		    if (candidate && candidate != oldcandidate)
+			mindist = dist;
+		}
+	    }
+	    targetObject = candidate;
+	}
+	break;
+    default:
+	break;
     }
-    return -1;
+    QAccessible::queryAccessibleInterface(targetObject, target);
+    return *target ? 0 : -1;
 }
 
 /*! \reimp */
@@ -284,6 +302,8 @@ int QAccessibleWidget::indexOfChild(const QAccessibleInterface *child) const
 {
     QObjectList cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
     int index = cl.indexOf(child->object());
+    if (index != -1)
+	++index;
     return index;
 }
 
@@ -294,9 +314,26 @@ bool QAccessibleWidget::doAction(int action, int control)
     if ( control )
 	qWarning( "QAccessibleWidget::doAction: This implementation does not support subelements! (ID %d unknown for %s)", control, widget()->className() );
 #else
-    Q_UNUSED(control)
+    Q_UNUSED(control);
 #endif
+    if (action == SetFocus && widget()->focusPolicy() != QWidget::NoFocus ) {
+	widget()->setFocus();
+	return TRUE;
+    }
     return FALSE;
+}
+
+/*! \reimp */
+int QAccessibleWidget::defaultAction(int control) const
+{
+#if defined(QT_DEBUG)
+    if ( control )
+	qWarning( "QAccessibleWidget::doAction: This implementation does not support subelements! (ID %d unknown for %s)", control, widget()->className() );
+#else
+    Q_UNUSED(control);
+#endif
+
+    return SetFocus;
 }
 
 /*! \reimp */
@@ -331,36 +368,12 @@ QString QAccessibleWidget::text( Text t, int control ) const
     return QString();
 }
 
+/*! \reimp */
 QString QAccessibleWidget::actionText(int action, Text t, int control) const
 {
-    if (action != Default || t != Name || control)
+    if (action != d->defAction || t != Name || control)
 	return QString();
-    return d->defAction;
-}
-
-
-/*! \reimp */
-void QAccessibleWidget::setText( Text t, int /*control*/, const QString &text )
-{
-    switch ( t ) {
-    case Description:
-	d->description = text;
-	break;
-    case Help:
-	d->help = text;
-	break;
-    case Accelerator:
-	d->accelerator = text;
-	break;
-    case Name:
-	d->name = text;
-	break;
-    case Value:
-	d->value = text;
-	break;
-    default:
-	break;
-    }
+    return d->defActionName;
 }
 
 /*! \reimp */
@@ -398,45 +411,6 @@ QAccessible::State QAccessibleWidget::state( int control ) const
     }
 
     return (State)state;
-}
-
-/*! \reimp */
-bool QAccessibleWidget::setFocus( int control )
-{
-#if defined(QT_DEBUG)
-    if ( control )
-	qWarning( "QAccessibleWidget::setFocus: This implementation does not support subelements! (ID %d unknown for %s)", control, widget()->className() );
-#else
-    Q_UNUSED(control)
-#endif
-    if ( widget()->focusPolicy() != QWidget::NoFocus ) {
-	widget()->setFocus();
-	return TRUE;
-    }
-    return FALSE;
-}
-
-/*! \reimp */
-bool QAccessibleWidget::setSelected( int, bool, bool )
-{
-#if defined(QT_DEBUG)
-    qWarning( "QAccessibleWidget::setSelected: This function not supported for simple widgets." );
-#endif
-    return FALSE;
-}
-
-/*! \reimp */
-void QAccessibleWidget::clearSelection()
-{
-#if defined(QT_DEBUG)
-    qWarning( "QAccessibleWidget::clearSelection: This function not supported for simple widgets." );
-#endif
-}
-
-/*! \reimp */
-QVector<int> QAccessibleWidget::selection() const
-{
-    return QVector<int>();
 }
 
 #endif //QT_ACCESSIBILITY_SUPPORT

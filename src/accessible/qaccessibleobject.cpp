@@ -33,12 +33,14 @@ public:
     \ingroup misc
 
     This class is mainly provided for convenience. All subclasses of
-    the QAccessibleInterface that provide implementations of non-widget object
+    the QAccessibleInterface that provide implementations of non-widget objects
     should use this class as the base class.
 */
 
 extern void qInsertAccessibleObject(QObject *object, QAccessibleInterface *iface);
 extern void qRemoveAccessibleObject(QObject *object);
+
+static int acc_object_count = 0;
 
 /*!
     Creates a QAccessibleObject for \a object.
@@ -49,6 +51,7 @@ QAccessibleObject::QAccessibleObject( QObject *object )
     d->object = object;
 
     qInsertAccessibleObject(object, this);
+    qDebug("%d", ++acc_object_count);
 }
 
 /*!
@@ -62,6 +65,7 @@ QAccessibleObject::~QAccessibleObject()
     qRemoveAccessibleObject(d->object);
 
     delete d;
+    qDebug("%d", --acc_object_count);
 }
 
 /*!
@@ -101,6 +105,34 @@ bool QAccessibleObject::isValid() const
     return !d->object.isNull();
 }
 
+/*! \reimp */
+QRect QAccessibleObject::rect( int ) const
+{
+    return QRect();
+}
+
+/*! \reimp */
+bool QAccessibleObject::setSelected( int, bool, bool )
+{
+    return FALSE;
+}
+
+/*! \reimp */
+void QAccessibleObject::clearSelection()
+{
+}
+
+/*! \reimp */
+QVector<int> QAccessibleObject::selection() const
+{
+    return QVector<int>();
+}
+
+/*! \reimp */
+void QAccessibleObject::setText( Text t, int, const QString &text )
+{
+}
+
 /*!
     \reimp
 */
@@ -138,6 +170,14 @@ void QAccessibleObject::setProperty(int, const QString&, int)
 int QAccessibleObject::actionCount(int) const
 {
     return 0;
+}
+
+/*!
+    \reimp
+*/
+int QAccessibleObject::defaultAction(int) const
+{
+    return NoAction;
 }
 
 /*!
@@ -216,20 +256,20 @@ int QAccessibleApplication::childAt( int x, int y ) const
 }
 
 /*! \reimp */
-QRect QAccessibleApplication::rect( int ) const
+QAccessible::Relation QAccessibleApplication::relationTo(int child, const QAccessibleInterface *other, int otherChild) const
 {
-    return QRect();
-}
-
-/*! \reimp */
-QAccessible::Relation QAccessibleApplication::relationTo(int control, const QAccessibleInterface *iface, int child) const
-{
-    QObject *o = iface ? iface->object() : 0;
+    QObject *o = other ? other->object() : 0;
     if (!o)
-	return None;
+	return Unrelated;
 
-    if(o == object())
-	return child ? Ancestor : Self;
+    if(o == object()) {
+	if (child && !otherChild)
+	    return Child;
+	if (!child && otherChild)
+	    return Ancestor;
+	if (!child && !otherChild)
+	    return Self;
+    }
 
     QWidgetList tlw(topLevelWidgets());
     if (tlw.contains(qt_cast<QWidget*>(o)))
@@ -242,42 +282,35 @@ QAccessible::Relation QAccessibleApplication::relationTo(int control, const QAcc
 	    return Ancestor;
     }
 
-    return None;
+    return Unrelated;
 }
 
 /*! \reimp */
-int QAccessibleApplication::navigate(Relation relation, int index, QAccessibleInterface **iface) const
+int QAccessibleApplication::navigate(Relation relation, int entry, QAccessibleInterface **target) const
 {
-    *iface = 0;
+    *target = 0;
+    if (entry < 1) entry = 1; // tolerate wrong calls
+    QObject *targetObject = 0;
+
     switch (relation) {
     case Self:
-	const_cast<QAccessibleApplication*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)iface);
+	const_cast<QAccessibleApplication*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)target);
 	return 0;
     case Child:
 	{
-	    QObject *o = 0;
 	    const QWidgetList tlw(topLevelWidgets());
-	    if (tlw.count() > index)
-		o = tlw.at(index);
-	    if (!o )
-		return -1;
-
-	    QAccessible::queryAccessibleInterface( o, iface );
-	    return *iface ? 0 : -1;
+	    if (tlw.count() >= entry)
+		targetObject = tlw.at(entry-1);
 	}
+	break;
     case FocusChild:
-	{
-	    QWidget *actw = qApp->activeWindow();
-	    if (!actw)
-		return -1;
-
-	    QAccessible::queryAccessibleInterface(actw, iface);
-	    return *iface ? 0 : -1;
-	}
+	targetObject = qApp->activeWindow();
+	break;
     default:
 	break;
     }
-    return -1;
+    QAccessible::queryAccessibleInterface(targetObject, target);
+    return *target ? 0 : -1;
 }
 
 /*! \reimp */
@@ -296,11 +329,6 @@ QString QAccessibleApplication::text( Text t, int ) const
 }
 
 /*! \reimp */
-void QAccessibleApplication::setText( Text t, int, const QString &text )
-{
-}
-
-/*! \reimp */
 QAccessible::Role QAccessibleApplication::role( int ) const
 {
     return Application;
@@ -309,53 +337,37 @@ QAccessible::Role QAccessibleApplication::role( int ) const
 /*! \reimp */
 QAccessible::State QAccessibleApplication::state( int ) const
 {
-    return Normal;
+    return qApp->activeWindow() ? Focused : Normal;
 }
 
 /*! \reimp */
-QVector<int> QAccessibleApplication::selection() const
+int QAccessibleApplication::defaultAction(int control) const
 {
-    return QVector<int>();
+    return SetFocus;
 }
 
 /*! \reimp */
 bool QAccessibleApplication::doAction(int action, int child)
 {
-    if (action == Default)
-	return setFocus( child );
+    if (action == SetFocus) {
+        QWidget *w = qApp->mainWidget();
+	if (!w)
+	    w = topLevelWidgets().at(0);
+	if (!w)
+	    return FALSE;
+	w->setActiveWindow();
+	return TRUE;
+    }
     return FALSE;
 }
 
 /*! \reimp */
 QString QAccessibleApplication::actionText(int action, Text text, int child) const
 {
-    if (action != Default || text != Name || child)
+    if (action != SetFocus || text != Name || child)
 	return QString();
 
     return QApplication::tr("Activate");
-}
-
-/*! \reimp */
-bool QAccessibleApplication::setFocus( int )
-{
-    QWidget *w = qApp->mainWidget();
-    if (!w)
-	w = topLevelWidgets().at(0);
-    if (!w)
-	return FALSE;
-    w->setActiveWindow();
-    return TRUE;
-}
-
-/*! \reimp */
-bool QAccessibleApplication::setSelected( int, bool, bool )
-{
-    return FALSE;
-}
-
-/*! \reimp */
-void QAccessibleApplication::clearSelection()
-{
 }
 
 #endif //QT_ACCESSIBILITY_SUPPORT

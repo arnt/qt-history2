@@ -1,49 +1,25 @@
 #include "qaccessiblewidgets.h"
 #include "qaccessiblemenu.h"
 
+#include <qaccessibleplugin.h>
 #include <qtoolbutton.h>
 #include <qtoolbar.h>
 #include <qvariant.h>
 
-class AccessibleFactory : public QAccessibleFactoryInterface, public QLibraryInterface
+class AccessibleFactory : public QAccessiblePlugin, QAccessible
 {
 public:
     AccessibleFactory();
 
-    QRESULT queryInterface( const QUuid &, QUnknownInterface **iface );
-    Q_REFCOUNT
-
-    QStringList featureList() const;
-    QRESULT createAccessibleInterface( const QString &classname, QObject *object, QAccessibleInterface **iface );
-
-    bool init();
-    void cleanup();
-    bool canUnload() const;
+    QStringList keys() const;
+    QAccessibleInterface *create(const QString &classname, QObject *object);
 };
 
 AccessibleFactory::AccessibleFactory()
 {
 }
 
-QRESULT AccessibleFactory::queryInterface( const QUuid &iid, QUnknownInterface **iface )
-{
-    *iface = 0;
-    if ( iid == IID_QUnknown )
-	*iface = (QUnknownInterface*)(QFeatureListInterface*)(QAccessibleFactoryInterface*)this;
-    else if ( iid == IID_QFeatureList )
-	*iface = (QFeatureListInterface*)this;
-    else if ( iid == IID_QAccessibleFactory )
-	*iface = (QAccessibleFactoryInterface*)this;
-    else if ( iid == IID_QLibrary )
-	*iface = (QLibraryInterface*)this;
-    else
-	return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-QStringList AccessibleFactory::featureList() const
+QStringList AccessibleFactory::keys() const
 {
     QStringList list;
     list << "QLineEdit";
@@ -92,130 +68,114 @@ QStringList AccessibleFactory::featureList() const
     return list;
 }
 
-QRESULT AccessibleFactory::createAccessibleInterface( const QString &classname, QObject *object, QAccessibleInterface **iface )
+QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObject *object)
 {
-    *iface = 0;
+    QAccessibleInterface *iface = 0;
+    if (!object || !object->isWidgetType())
+	return iface;
+    QWidget *widget = static_cast<QWidget*>(object);
 
-    if ( classname == "QLineEdit" ) {
-	*iface = new QAccessibleText( object, EditableText );
-    } else if ( classname == "QComboBox" ) {
-	*iface = new QAccessibleComboBox( object );
-    } else if ( classname == "QSpinBox" ) {
-	*iface = new QAccessibleRangeControl( object, SpinBox );
-    } else if ( classname == "QSpinWidget" ) {
-	*iface = new QAccessibleSpinWidget( object );
-    } else if ( classname == "QDial" ) {
-	*iface = new QAccessibleRangeControl( object, Dial );
-    } else if ( classname == "QScrollBar" ) {
-	*iface = new QAccessibleScrollBar( object );
-    } else if ( classname == "QSlider" ) {
-	*iface = new QAccessibleSlider( object );
-    } else if ( classname == "QToolButton" ) {
-	QToolButton *tb = (QToolButton*)object;
-	if ( !tb->popup() )
-	    *iface = new QAccessibleButton( object, PushButton );
-	else if ( !tb->popupDelay() )
-	    *iface = new QAccessibleButton( object, ButtonDropDown );
+    if (classname == "QLineEdit") {
+	iface = new QAccessibleText(widget, EditableText);
+    }
+    else if (classname == "QComboBox") {
+	iface = new QAccessibleComboBox(widget);
+    } else if (classname == "QSpinBox") {
+	iface = new QAccessibleRangeControl(widget, SpinBox);
+    } else if (classname == "QSpinWidget") {
+	iface = new QAccessibleSpinWidget(widget);
+    } else if (classname == "QDial") {
+	iface = new QAccessibleRangeControl(widget, Dial);
+    } else if (classname == "QScrollBar") {
+	iface = new QAccessibleScrollBar(widget);
+    } else if (classname == "QSlider") {
+	iface = new QAccessibleSlider(widget);
+    } else if (classname == "QToolButton") {
+	QToolButton *tb = (QToolButton*)widget;
+	if (!tb->popup())
+	    iface = new QAccessibleButton(widget, PushButton);
+	else if (!tb->popupDelay())
+	    iface = new QAccessibleButton(widget, ButtonDropDown);
 	else
-	    *iface = new QAccessibleButton( object, ButtonMenu );
-    } else if ( classname == "QCheckBox" ) {
-	*iface = new QAccessibleButton( object, CheckBox );
-    } else if ( classname == "QRadioButton" ) {
-	*iface = new QAccessibleButton( object, RadioButton );
-    } else if ( classname == "QButton" ) {
-	*iface = new QAccessibleButton( object, PushButton );
-    } else if ( classname == "QViewportWidget" ) {
-	*iface = new QAccessibleViewport( object, object->parent() );
-    } else if ( classname == "QClipperWidget" ) {
-	*iface = new QAccessibleViewport( object, object->parent()->parent() );
-    } else if ( classname == "QTextEdit" ) {
-	*iface = new QAccessibleTextEdit( object );
+	    iface = new QAccessibleButton(widget, ButtonMenu);
+    } else if (classname == "QCheckBox") {
+	iface = new QAccessibleButton(widget, CheckBox);
+    } else if (classname == "QRadioButton") {
+	iface = new QAccessibleButton(widget, RadioButton);
+    } else if (classname == "QButton") {
+	iface = new QAccessibleButton(widget, PushButton);
+    } else if (classname == "QViewportWidget") {
+	iface = new QAccessibleViewport(widget, widget->parentWidget());
+    } else if (classname == "QClipperWidget") {
+	iface = new QAccessibleViewport(widget, widget->parentWidget()->parentWidget());
+    } else if (classname == "QTextEdit") {
+	iface = new QAccessibleTextEdit(widget);
 #ifndef QT_NO_ICONVIEW
-    } else if ( classname == "QIconView" ) {
-	*iface = new QAccessibleIconView( object );
+    } else if (classname == "QIconView") {
+	iface = new QAccessibleIconView(widget);
 #endif
-    } else if ( classname == "QListView" ) {
-	*iface = new QAccessibleListView( object );
-    } else if ( classname == "QListBox" ) {
-	*iface = new QAccessibleListBox( object );
-    } else if ( classname == "QTable" ) {
-	*iface = new QAccessibleScrollView( object, Table );
-    } else if ( classname == "QDialog" ) {
-	*iface = new QAccessibleWidget( object, Dialog );
-    } else if ( classname == "QMessageBox" ) {
-	*iface = new QAccessibleWidget( object, AlertMessage );
-    } else if ( classname == "QMainWindow" ) {
-	*iface = new QAccessibleWidget( object, Application );
-    } else if ( classname == "QLabel" || classname == "QLCDNumber" ) {
-	*iface = new QAccessibleDisplay( object, StaticText );
-    } else if ( classname == "QGroupBox" ) {
-	*iface = new QAccessibleDisplay( object, Grouping );
-    } else if ( classname == "QStatusBar" ) {
-	*iface = new QAccessibleWidget( object, StatusBar );
-    } else if ( classname == "QProgressBar" ) {
-	*iface = new QAccessibleRangeControl( object, ProgressBar );
-    } else if ( classname == "QToolBar" ) {
-	QToolBar *tb = (QToolBar*)object;
-	*iface = new QAccessibleWidget( object, ToolBar, tb->label() );
-    } else if ( classname == "QMenuBar" ) {
-	*iface = new QAccessibleMenuBar( object );
-    } else if ( classname == "QPopupMenu" ) {
-	*iface = new QAccessiblePopup( object );
-    } else if ( classname == "QHeader" ) {
-	*iface = new QAccessibleHeader( object );
-    } else if ( classname == "QTabBar" ) {
-	*iface = new QAccessibleTabBar( object );
-    } else if ( classname == "QTitleBar" ) {
-	*iface = new QAccessibleTitleBar( object );
-    } else if ( classname == "QWorkspaceChild" ) {
-	*iface = new QAccessibleWidget( object, Window );
-    } else if ( classname == "QSizeGrip" ) {
-	*iface = new QAccessibleWidget( object, Grip );
-    } else if ( classname == "QSplitterHandle" ) {
-	*iface = new QAccessibleWidget( object, Separator, QString::null, 
-					QString::null, QString::null, QString::null, 
-					QString::null, QString::null, QAccessible::Moveable );
-    } else if ( classname == "QToolBarSeparator" ) {
-	*iface = new QAccessibleWidget( object, QAccessible::Separator, QString::null, 
-					QString::null, QString::null, QString::null, 
-					QString::null, QString::null, QAccessible::Unavailable );
-    } else if ( classname == "QDockWindowHandle" ) {
-	*iface = new QAccessibleWidget( object, QAccessible::Grip, object->property( "caption" ).toString(),
-					QString::null, QString::null, QString::null,
-					QString::null, QString::null, QAccessible::Moveable );
-    } else if ( classname == "QDockWindowResizeHandle" ) {
-	*iface = new QAccessibleWidget( object, QAccessible::Separator, QString::null,
-					QString::null, QString::null, QString::null,
-					QString::null, QString::null, QAccessible::Moveable );
-    } else if ( classname == "QTipLabel" ) {
-	*iface = new QAccessibleWidget( object, ToolTip );
-    } else if ( classname == "QFrame" ) {
-	*iface = new QAccessibleWidget( object, Border );
-    } else if ( classname == "QWidgetStack" ) {
-	*iface = new QAccessibleWidgetStack( object );
-    } else {
-	return QE_NOINTERFACE;
+    } else if (classname == "QListView") {
+	iface = new QAccessibleListView(widget);
+    } else if (classname == "QListBox") {
+	iface = new QAccessibleListBox(widget);
+    } else if (classname == "QTable") {
+	iface = new QAccessibleScrollView(widget, Table);
+    } else if (classname == "QDialog") {
+	iface = new QAccessibleWidget(widget, Dialog);
+    } else if (classname == "QMessageBox") {
+	iface = new QAccessibleWidget(widget, AlertMessage);
+    } else if (classname == "QMainWindow") {
+	iface = new QAccessibleWidget(widget, Application);
+    } else if (classname == "QLabel" || classname == "QLCDNumber") {
+	iface = new QAccessibleDisplay(widget, StaticText);
+    } else if (classname == "QGroupBox") {
+	iface = new QAccessibleDisplay(widget, Grouping);
+    } else if (classname == "QStatusBar") {
+	iface = new QAccessibleWidget(widget, StatusBar);
+    } else if (classname == "QProgressBar") {
+	iface = new QAccessibleRangeControl(widget, ProgressBar);
+    } else if (classname == "QToolBar") {
+	QToolBar *tb = (QToolBar*)widget;
+	iface = new QAccessibleWidget(widget, ToolBar, tb->label());
+    } else if (classname == "QMenuBar") {
+	iface = new QAccessibleMenuBar(widget);
+    } else if (classname == "QPopupMenu") {
+	iface = new QAccessiblePopup(widget);
+    } else if (classname == "QHeader") {
+	iface = new QAccessibleHeader(widget);
+    } else if (classname == "QTabBar") {
+	iface = new QAccessibleTabBar(widget);
+    } else if (classname == "QTitleBar") {
+	iface = new QAccessibleTitleBar(widget);
+    } else if (classname == "QWorkspaceChild") {
+	iface = new QAccessibleWidget(widget, Window);
+    } else if (classname == "QSizeGrip") {
+	iface = new QAccessibleWidget(widget, Grip);
+    } else if (classname == "QSplitterHandle") {
+	iface = new QAccessibleWidget(widget, Separator, QString::null, 
+					QString::null, QString::null, QString::null, NoAction,
+					QString::null, QString::null, Moveable);
+    } else if (classname == "QToolBarSeparator") {
+	iface = new QAccessibleWidget(widget, QAccessible::Separator, QString::null, 
+					QString::null, QString::null, QString::null, NoAction,
+					QString::null, QString::null, Unavailable);
+    } else if (classname == "QDockWindowHandle") {
+	iface = new QAccessibleWidget(widget, QAccessible::Grip, widget->property( "caption").toString(),
+					QString::null, QString::null, QString::null, NoAction,
+					QString::null, QString::null, Moveable);
+    } else if (classname == "QDockWindowResizeHandle") {
+	iface = new QAccessibleWidget(widget, QAccessible::Separator, QString::null,
+					QString::null, QString::null, QString::null, NoAction,
+					QString::null, QString::null, Moveable);
+    } else if (classname == "QTipLabel") {
+	iface = new QAccessibleWidget(widget, ToolTip);
+    } else if (classname == "QFrame") {
+	iface = new QAccessibleWidget(widget, Border);
+    } else if (classname == "QWidgetStack") {
+	iface = new QAccessibleWidgetStack(widget);
     }
 
-    (*iface)->addRef();
-    return QS_OK;
+    return iface;
 }
 
-bool AccessibleFactory::init()
-{
-    return TRUE;
-}
-
-void AccessibleFactory::cleanup()
-{
-}
-
-bool AccessibleFactory::canUnload() const
-{
-    return FALSE;
-}
-
-Q_EXPORT_COMPONENT()
-{
-    Q_CREATE_INSTANCE( AccessibleFactory )
-}
+Q_EXPORT_PLUGIN(AccessibleFactory)

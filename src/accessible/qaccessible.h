@@ -178,13 +178,14 @@ public:
 	Description,
 	Value,
 	Help,
-	Accelerator,
+	Accelerator
     };
 
-    enum DefaultAction {
-	Default		= -101,
-	Press		= -102,
-	Increment	= -103,
+    enum Action {
+	NoAction    	= 0,
+	Press		= -101,
+	SetFocus	= -102,
+	Increase	= -103,
 	Decrease	= -104,
 	Accept		= -105,
 	Select		= -106,
@@ -192,7 +193,7 @@ public:
     };
 
     enum Relation {
-	None		= 0x00000000,
+	Unrelated	= 0x00000000,
 	Self		= 0x00000001,
 	Ancestor	= 0x00000002,
 	Child		= 0x00000004,
@@ -248,23 +249,17 @@ struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterf
 
     // relations
     virtual Relation	relationTo(int child, const QAccessibleInterface *other, int otherChild) const = 0;
+    virtual int		childAt(int x, int y) const = 0;
 
     // navigation
-    virtual int		childAt(int x, int y) const = 0;
-    virtual QRect	rect(int control) const = 0;
     virtual int		navigate(Relation relation, int index, QAccessibleInterface **iface) const = 0;
 
     // properties and state
     virtual QString	text(Text t, int control) const = 0;
     virtual void	setText(Text t, int control, const QString &text) = 0;
+    virtual QRect	rect(int control) const = 0;
     virtual Role	role(int control) const = 0;
     virtual State	state(int control) const = 0;
-    virtual QVector<int> selection() const = 0;
-
-    // selection
-    virtual bool	setFocus(int control) = 0;
-    virtual bool	setSelected(int control, bool on, bool extend) = 0;
-    virtual void	clearSelection() = 0;
 
     // more properties
     virtual int		propertyCount(int control) const = 0;
@@ -273,9 +268,15 @@ struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterf
     virtual void	setProperty(int property, const QString& value, int control) = 0;
 
     // action
-    virtual bool	doAction(int action, int control) = 0;
     virtual int		actionCount(int control) const = 0;
+    virtual int		defaultAction(int control) const = 0;
     virtual QString	actionText(int action, Text t, int control) const = 0;
+    virtual bool	doAction(int action, int control) = 0;
+
+    // selection
+    virtual bool	setSelected(int control, bool on, bool extend) = 0;
+    virtual QVector<int> selection() const = 0;
+    virtual void	clearSelection() = 0;
 };
 
 // {49F4C6A7-412F-41DE-9E24-648843421FD3} 

@@ -28,7 +28,6 @@ class Q_EXPORT QAccessibleObject : public Qt, public QAccessibleInterface
 {
 public:
     QAccessibleObject(QObject *object);
-    virtual ~QAccessibleObject();
 
     QRESULT	queryInterface(const QUuid &, QUnknownInterface**);
     Q_REFCOUNT
@@ -36,15 +35,28 @@ public:
     bool	isValid() const;
     QObject	*object() const;
 
+    // properties
+    QRect	rect(int control) const;
+    void	setText(Text t, int control, const QString &text);
+
     int		propertyCount(int control) const;
     QString	propertyText(int property, Text t, int control) const;
     QString	property(int property, int control) const;
     void	setProperty(int property, const QString& value, int control);
 
-    // action
+    // selections
+    bool	setSelected(int control, bool on, bool extend);
+    void	clearSelection();
+    QVector<int> selection() const;
+
+    // actions
     int		actionCount(int control) const;
-    QString	actionText(int action, Text t, int control) const;
+    int		defaultAction(int control) const;
     bool	doAction(int action, int control);
+    QString	actionText(int action, Text t, int control) const;
+
+protected:
+    virtual ~QAccessibleObject();
 
 private:
     QAccessibleObjectPrivate *d;
@@ -62,23 +74,17 @@ public:
 
     // navigation
     int		childAt(int x, int y) const;
-    QRect	rect(int control) const;
     int		navigate(Relation, int, QAccessibleInterface **) const;
 
     // properties and state
     QString	text(Text t, int control) const;
-    void	setText(Text t, int control, const QString &text);
     Role	role(int control) const;
     State	state(int control) const;
-    QVector<int> selection() const;
 
-    // selection
+    // actions
+    int		defaultAction(int control) const;
     bool	doAction(int action, int control);
     QString	actionText(int action, Text t, int control) const;
-
-    bool	setFocus(int control);
-    bool	setSelected(int control, bool on, bool extend);
-    void	clearSelection();
 };
 
 #endif //QT_ACCESSIBILITY_SUPPORT

@@ -29,67 +29,81 @@
 #include <private/qtitlebar_p.h>
 
 
-QString buddyString( QWidget *widget )
+QString buddyString(QWidget *widget)
 {
     QWidget *parent = widget->parentWidget();
-    QObjectList ol = parent->queryList( "QLabel", 0, FALSE, FALSE );
-    if ( !ol.count() )
-	return QString::null;
+    QObjectList ol = parent->queryList("QLabel", 0, FALSE, FALSE);
+    if (!ol.count())
+	return QString();
 
     QString str;
 
     QList<QObject*>::Iterator it = ol.begin();
-    while ( it != ol.end() ) {
+    while (it != ol.end()) {
 	QLabel *label = (QLabel*)*it;
 	++it;
-	if ( label->buddy() == widget ) {
+	if (label->buddy() == widget) {
 	    str = label->text();
 	    break;
 	}
     }
-    if ( !!str )
+    if (!!str)
 	return str;
 
-    if ( parent->inherits( "QGroupBox" ) )
+    if (parent->inherits("QGroupBox"))
 	return ((QGroupBox*)parent)->title();
 
-    return QString::null;
+    return QString();
 }
 
-QString stripAmp( const QString &text )
+QString stripAmp(const QString &text)
 {
-    if ( text.isEmpty() )
+    if (text.isEmpty())
 	return text;
 
     QString n = text;
-    for ( uint i = 0; i < n.length(); i++ ) {
-	if ( n[(int)i] == '&' )
-	    n.remove( i, 1 );
+    for (uint i = 0; i < n.length(); i++) {
+	if (n[(int)i] == '&')
+	    n.remove(i, 1);
     }
     return n;
 }
 
-QString hotKey( const QString &text )
+QString hotKey(const QString &text)
 {
-    if ( text.isEmpty() )
+    if (text.isEmpty())
 	return text;
 
     QString n = text;
     int fa = 0;
     bool ac = FALSE;
-    while ( ( fa = n.find( "&", fa ) ) != -1 ) {
-	if ( n.at(fa+1) != '&' ) {
+    while ((fa = n.find("&", fa)) != -1) {
+	if (n.at(fa+1) != '&') {
 	    ac = TRUE;
 	    break;
 	}
     }
-    if ( fa != -1 && ac )
-	return QString( n.at(fa + 1) );
+    if (fa != -1 && ac)
+	return QString(n.at(fa + 1));
 
-    return QString::null;
+    return QString();
 }
 
-//ulong QAccessibleWidget::objects = 0;
+QAccessibleComplexWidget::QAccessibleComplexWidget( QWidget *w, Role r, 
+    QString name, QString description, QString value, QString help, 
+    int defAction, QString defActionName, QString accelerator, State s )
+    : QAccessibleWidget( w, r, name, description, value, help, defAction, defActionName, accelerator, s)
+{
+}
+
+int QAccessibleComplexWidget::childAt(int x, int y) const
+{
+    for (int i = 1; i <= childCount(); i++) {
+	if (rect(i).contains(x,y))
+	    return i;
+    }
+    return 0;
+}
 
 /*!
   \class QAccessibleWidgetStack qaccessible.h
@@ -97,40 +111,25 @@ QString hotKey( const QString &text )
 */
 
 /*!
-  Creates a QAccessibleWidgetStack object for \a o.
+  Creates a QAccessibleWidgetStack object for \a w.
 */
-QAccessibleWidgetStack::QAccessibleWidgetStack( QObject *o )
-: QAccessibleWidget( o )
+QAccessibleWidgetStack::QAccessibleWidgetStack(QWidget *w)
+: QAccessibleWidget(w)
 {
-    Q_ASSERT( o->inherits("QWidgetStack") );
+    Q_ASSERT(widgetStack());
 }
 
 /*! Returns the widget stack. */
 QWidgetStack *QAccessibleWidgetStack::widgetStack() const
 {
-    return (QWidgetStack*)object();
+    return qt_cast<QWidgetStack*>(object());
 }
 
 /*! \reimp */
-int QAccessibleWidgetStack::childAt( int, int ) const
+int QAccessibleWidgetStack::childAt(int, int) const
 {
-    return widgetStack()->id( widgetStack()->visibleWidget() ) + 1;
+    return widgetStack()->id(widgetStack()->visibleWidget()) + 1;
 }
-
-/*! \reimp */
-bool QAccessibleWidgetStack::queryChild( int control, QAccessibleInterface **iface ) const
-{
-    if ( !control ) {
-	*iface = (QAccessibleInterface*)this;
-	return TRUE;
-    }
-
-    QWidget *widget = widgetStack()->widget( control - 1 );
-    if ( !widget )
-	return QAccessibleWidget::queryChild( control, iface );
-    return QAccessible::queryAccessibleInterface( widgetStack()->widget( control - 1 ), iface );
-}
-
 
 /*!
   \class QAccessibleButton qaccessible.h
@@ -138,48 +137,53 @@ bool QAccessibleWidgetStack::queryChild( int control, QAccessibleInterface **ifa
 */
 
 /*!
-  Creates a QAccessibleButton object for \a o.
+  Creates a QAccessibleButton object for \a w.
   \a role, \a description and \a help are propagated to the QAccessibleWidget constructor.
 */
-QAccessibleButton::QAccessibleButton( QObject *o, Role role, QString description,
-				     QString help )
-: QAccessibleWidget( o, role, QString::null, description, QString::null,
-		    QString::null, QString::null, QString::null )
+QAccessibleButton::QAccessibleButton(QWidget *w, Role role, QString description,
+				     QString help)
+: QAccessibleWidget(w, role, QString(), description)
 {
-    Q_ASSERT(o->inherits("QButton"));
+    Q_ASSERT(button());
+}
+
+/*! Returns the button. */
+QButton *QAccessibleButton::button() const
+{
+    return qt_cast<QButton*>(object());
 }
 
 /*! \reimp */
-bool	QAccessibleButton::doAction(int action, int control)
+bool QAccessibleButton::doAction(int action, int child)
 {
-    if ( !widget()->isEnabled() )
+    if (!widget()->isEnabled())
 	return FALSE;
 
-    Role r = role(control);
-    if ( r == PushButton || r ==  CheckBox || r == RadioButton ) {
-	((QButton*)object())->animateClick();
-    } else if ( object()->inherits("QToolButton") ) {
-	QToolButton *tb = (QToolButton*)object();
+    Role r = role(child);
+    QToolButton *tb = qt_cast<QToolButton*>(object());
+    if (tb && tb->popup())
 	tb->openPopup();
-    }
+    else
+	button()->animateClick();
 
     return TRUE;
 }
 
 /*! \reimp */
-QString QAccessibleButton::text( Text t, int control ) const
+QString QAccessibleButton::text(Text t, int child) const
 {
-    QString tx = QAccessibleWidget::text( t, control );
-    if ( !!tx )
+    QString tx = QAccessibleWidget::text(t, child);
+    if (!!tx)
 	return tx;
 
-    switch ( t ) {
+    switch (t) {
+/*
     case DefaultAction:
-	switch( role(control) ) {
+	switch(role(child)) {
 	case PushButton:
 	    return QButton::tr("Press");
 	case CheckBox:
-	    if ( state(control) & Checked )
+	    if (state(child) & Checked)
 		return QButton::tr("UnCheck");
 	    return QButton::tr("Check");
 	case RadioButton:
@@ -187,24 +191,25 @@ QString QAccessibleButton::text( Text t, int control ) const
 	default:
 	    return QButton::tr("Press");
 	}
+*/
     case Accelerator:
-	tx = hotKey( ((QButton*)widget())->text() );
-	if ( !!tx ) {
+	tx = hotKey(button()->text());
+	if (!!tx) {
 	    tx = "Alt + "+tx;
 	} else {
-	    tx = hotKey( buddyString( widget() ) );
-	    if ( !!tx )
+	    tx = hotKey(buddyString(widget()));
+	    if (!!tx)
 		tx = "Alt + "+tx;
 	}
 	return tx;
     case Name:
-	tx = ((QButton*)widget())->text();
-	if ( tx.isEmpty() && widget()->inherits("QToolButton") )
-	    tx = ((QToolButton*)widget())->textLabel();
-	if ( tx.isEmpty() )
-	    tx = buddyString( widget() );
+	tx = button()->text();
+	if (tx.isEmpty() && qt_cast<QToolButton*>(widget()))
+	    tx = static_cast<QToolButton*>(widget())->textLabel();
+	if (tx.isEmpty())
+	    tx = buddyString(widget());
 
-	return stripAmp( tx );
+	return stripAmp(tx);
     default:
 	break;
     }
@@ -212,22 +217,20 @@ QString QAccessibleButton::text( Text t, int control ) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleButton::state( int control ) const
+QAccessible::State QAccessibleButton::state(int child) const
 {
-    int state = QAccessibleWidget::state( control );
+    int state = QAccessibleWidget::state(child);
 
-    QButton *b = (QButton*)widget();
-    if ( b->state() == QButton::On )
+    QButton *b = button();
+    if (b->state() == QButton::On)
 	state |= Checked;
-    else  if ( b->state() == QButton::NoChange )
+    else  if (b->state() == QButton::NoChange)
 	    state |= Mixed;
-    if ( b->isDown() )
+    if (b->isDown())
 	state |= Pressed;
-    if ( b->inherits( "QPushButton" ) ) {
-	QPushButton *pb = (QPushButton*)b;
-	if ( pb->isDefault() )
-	    state |= Default;
-    }
+    QPushButton *pb = qt_cast<QPushButton*>(b);
+    if (pb && pb->isDefault())
+	state |= DefaultButton;
 
     return (State)state;
 }
@@ -242,50 +245,47 @@ QAccessible::State QAccessibleButton::state( int control ) const
   \a role, \a name, \a description, \a help, \a defAction and \a accelerator
   are propagated to the QAccessibleWidget constructor.
 */
-QAccessibleRangeControl::QAccessibleRangeControl( QObject *o, Role role, QString name,
-						 QString description, QString help, QString defAction, QString accelerator )
-: QAccessibleWidget( o, role, name, description, QString::null, help, defAction, accelerator )
+QAccessibleRangeControl::QAccessibleRangeControl(QWidget *w, Role role, QString name,
+						 QString description, QString help, QString defAction, QString accelerator)
+: QAccessibleComplexWidget(w, role, name, description, QString(), help, SetFocus, defAction, accelerator)
 {
 }
 
 /*! \reimp */
-QString QAccessibleRangeControl::text( Text t, int control ) const
+QString QAccessibleRangeControl::text(Text t, int child) const
 {
-    QString tx = QAccessibleWidget::text( t, control );
-    if ( !!tx )
+    QString tx = QAccessibleWidget::text(t, child);
+    if (!!tx)
 	return stripAmp(tx);
 
-    switch ( t ) {
+    switch (t) {
     case Name:
-	return stripAmp( buddyString( widget() ) );
+	return stripAmp(buddyString(widget()));
     case Accelerator:
-	tx = hotKey( buddyString( widget() ) );
-	if ( !!tx )
+	tx = hotKey(buddyString(widget()));
+	if (!!tx)
 	    return "Alt + "+tx;
 	break;
     case Value:
-	if ( widget()->inherits( "QSlider" ) ) {
-	    QSlider *s = (QSlider*)widget();
-	    return QString::number( s->value() );
-	} else if ( widget()->inherits( "QDial" ) ) {
-	    QDial *d = (QDial*)widget();
-	    return QString::number( d->value() );
-	} else if ( widget()->inherits( "QSpinBox" ) ) {
-	    QSpinBox *s = (QSpinBox*)widget();
-	    return s->text();
-	} else if ( widget()->inherits( "QScrollBar" ) ) {
-	    QScrollBar *s = (QScrollBar*)widget();
-	    return QString::number( s->value() );
-	} else if ( widget()->inherits( "QProgressBar" ) ) {
-	    QProgressBar *p = (QProgressBar*)widget();
-	    return QString::number( p->progress() );
+	{
+	    int value = 0;
+	    if (qt_cast<QSlider*>(widget()))
+		value = qt_cast<QSlider*>(widget())->value();
+	    else if (qt_cast<QDial*>(widget()))
+		value = qt_cast<QDial*>(widget())->value();
+	    else if (qt_cast<QScrollBar*>(widget()))
+		value = qt_cast<QScrollBar*>(widget())->value();
+	    else if (qt_cast<QSpinBox*>(widget()))
+		return qt_cast<QSpinBox*>(widget())->text();
+	    else if (qt_cast<QProgressBar*>(widget()))
+		value = qt_cast<QProgressBar*>(widget())->progress();
+	    return QString::number(value);
 	}
     default:
 	break;
     }
     return tx;
 }
-
 
 /*!
   \class QAccessibleSpinWidget qaccessiblewidget.h
@@ -295,28 +295,16 @@ QString QAccessibleRangeControl::text( Text t, int control ) const
 /*!
   Constructs a QAccessibleSpinWidget object for \a o.
 */
-QAccessibleSpinWidget::QAccessibleSpinWidget( QObject *o )
-: QAccessibleRangeControl( o, SpinBox )
+QAccessibleSpinWidget::QAccessibleSpinWidget(QWidget *o)
+: QAccessibleRangeControl(o, SpinBox)
 {
 }
 
 /*! \reimp */
-int QAccessibleSpinWidget::childAt( int x, int y ) const
-{
-    QPoint tl = widget()->mapFromGlobal( QPoint( x, y ) );
-    if ( ((QSpinWidget*)widget())->upRect().contains( tl ) )
-	return 1;
-    else if ( ((QSpinWidget*)widget())->downRect().contains( tl ) )
-	return 2;
-
-    return -1;
-}
-
-/*! \reimp */
-QRect QAccessibleSpinWidget::rect( int control ) const
+QRect QAccessibleSpinWidget::rect(int child) const
 {
     QRect rect;
-    switch( control ) {
+    switch(child) {
     case 1:
 	rect = ((QSpinWidget*)widget())->upRect();
 	break;
@@ -326,38 +314,30 @@ QRect QAccessibleSpinWidget::rect( int control ) const
     default:
 	rect = widget()->rect();
     }
-    QPoint tl = widget()->mapToGlobal( QPoint( 0, 0 ) );
-    return QRect( tl.x() + rect.x(), tl.y() + rect.y(), rect.width(), rect.height() );
+    QPoint tl = widget()->mapToGlobal(QPoint(0, 0));
+    return QRect(tl.x() + rect.x(), tl.y() + rect.y(), rect.width(), rect.height());
 }
 
 /*! \reimp */
-int QAccessibleSpinWidget::navigate( NavDirection direction, int startControl ) const
+int QAccessibleSpinWidget::navigate(Relation rel, int entry, QAccessibleInterface **target) const
 {
-    if ( direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl )
-	return QAccessibleWidget::navigate( direction, startControl );
-
-    switch ( direction ) {
-    case NavFirstChild:
-	return 1;
-    case NavLastChild:
-	return 2;
-    case NavNext:
-    case NavDown:
-	startControl += 1;
-	if ( startControl > 2 )
+    *target = 0;
+    switch (rel) {
+    case Child:
+	return entry;
+    case QAccessible::Below:
+	if (entry > 1)
 	    return -1;
-	return startControl;
-    case NavPrevious:
-    case NavUp:
-	startControl -= 1;
-	if ( startControl < 1 )
+	return entry + 1;
+    case QAccessible::Above:
+	if (entry < 1)
 	    return -1;
-	return startControl;
+	return entry - 1;
     default:
 	break;
     }
 
-    return -1;
+    return QAccessibleRangeControl::navigate(rel, entry, target);
 }
 
 /*! \reimp */
@@ -367,18 +347,11 @@ int QAccessibleSpinWidget::childCount() const
 }
 
 /*! \reimp */
-bool QAccessibleSpinWidget::queryChild( int /*control*/, QAccessibleInterface **iface ) const
+QString QAccessibleSpinWidget::text(Text t, int child) const
 {
-    *iface = 0;
-    return FALSE;
-}
-
-/*! \reimp */
-QString QAccessibleSpinWidget::text( Text t, int control ) const
-{
-    switch ( t ) {
+    switch (t) {
     case Name:
-	switch ( control ) {
+	switch (child) {
 	case 1:
 	    return QSpinWidget::tr("More");
 	case 2:
@@ -387,8 +360,9 @@ QString QAccessibleSpinWidget::text( Text t, int control ) const
 	    break;
 	}
 	break;
+/*
     case DefaultAction:
-	switch( control ) {
+	switch(child) {
 	case 1:
 	case 2:
 	    return QSpinWidget::tr("Press");
@@ -396,16 +370,17 @@ QString QAccessibleSpinWidget::text( Text t, int control ) const
 	    break;
 	}
 	break;
+*/
     default:
 	break;
     }
-    return QAccessibleRangeControl::text( t, control );
+    return QAccessibleRangeControl::text(t, child);
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleSpinWidget::role( int control ) const
+QAccessible::Role QAccessibleSpinWidget::role(int child) const
 {
-    switch( control ) {
+    switch(child) {
     case 1:
 	return PushButton;
     case 2:
@@ -413,46 +388,46 @@ QAccessible::Role QAccessibleSpinWidget::role( int control ) const
     default:
 	break;
     }
-    return QAccessibleRangeControl::role( control );
+    return QAccessibleRangeControl::role(child);
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleSpinWidget::state( int control ) const
+QAccessible::State QAccessibleSpinWidget::state(int child) const
 {
-    int state = QAccessibleRangeControl::state( control );
-    switch( control ) {
+    int state = QAccessibleRangeControl::state(child);
+    switch(child) {
     case 1:
-	if ( !((QSpinWidget*)widget())->isUpEnabled() )
+	if (!((QSpinWidget*)widget())->isUpEnabled())
 	    state |= Unavailable;
 	return (State)state;
     case 2:
-	if ( !((QSpinWidget*)widget())->isDownEnabled() )
+	if (!((QSpinWidget*)widget())->isDownEnabled())
 	    state |= Unavailable;
 	return (State)state;
     default:
 	break;
     }
-    return QAccessibleRangeControl::state( control );
+    return QAccessibleRangeControl::state(child);
 }
 
 /*! \reimp */
-bool QAccessibleSpinWidget::doAction(int action, int control)
+bool QAccessibleSpinWidget::doAction(int action, int child)
 {
-    switch( control ) {
+    if (action == Press) switch(child) {
     case 1:
-	if ( !((QSpinWidget*)widget())->isUpEnabled() )
+	if (!((QSpinWidget*)widget())->isUpEnabled())
 	    return FALSE;
 	((QSpinWidget*)widget())->stepUp();
 	return TRUE;
     case 2:
-	if ( !((QSpinWidget*)widget())->isDownEnabled() )
+	if (!((QSpinWidget*)widget())->isDownEnabled())
 	    return FALSE;
 	((QSpinWidget*)widget())->stepDown();
 	return TRUE;
     default:
 	break;
     }
-    return QAccessibleRangeControl::doAction(action, control);
+    return QAccessibleRangeControl::doAction(action, child);
 }
 
 /*!
@@ -461,111 +436,93 @@ bool QAccessibleSpinWidget::doAction(int action, int control)
 */
 
 /*!
-  Constructs a QAccessibleScrollBar object for \a o.
+  Constructs a QAccessibleScrollBar object for \a w.
   \a name, \a description, \a help, \a defAction and \a accelerator
   are propagated to the QAccessibleRangeControl constructor.
 */
-QAccessibleScrollBar::QAccessibleScrollBar( QObject *o, QString name,
-    QString description, QString help, QString defAction, QString accelerator )
-: QAccessibleRangeControl( o, ScrollBar, name, description, help, defAction, accelerator )
+QAccessibleScrollBar::QAccessibleScrollBar(QWidget *w, QString name,
+    QString description, QString help, QString defAction, QString accelerator)
+: QAccessibleRangeControl(w, ScrollBar, name, description, help, defAction, accelerator)
 {
-    Q_ASSERT( o->inherits("QScrollBar" ) );
+    Q_ASSERT(scrollBar());
 }
 
 /*! Returns the scroll bar. */
 QScrollBar *QAccessibleScrollBar::scrollBar() const
 {
-    return (QScrollBar*)widget();
+    return qt_cast<QScrollBar*>(widget());
 }
 
 /*! \reimp */
-int QAccessibleScrollBar::childAt( int x, int y ) const
-{
-    for ( int i = 1; i <= childCount(); i++ ) {
-	if ( rect(i).contains( x,y ) )
-	    return i;
-    }
-    return 0;
-}
-
-/*! \reimp */
-QRect QAccessibleScrollBar::rect( int control ) const
+QRect QAccessibleScrollBar::rect(int child) const
 {
     QRect rect;
     QRect srect = scrollBar()->sliderRect();
-    int sz = scrollBar()->style().pixelMetric( QStyle::PM_ScrollBarExtent, scrollBar() );
-    switch ( control ) {
+    int sz = scrollBar()->style().pixelMetric(QStyle::PM_ScrollBarExtent, scrollBar());
+    switch (child) {
     case 1:
-	if ( scrollBar()->orientation() == Vertical )
-	    rect = QRect( 0, 0, sz, sz );
+	if (scrollBar()->orientation() == Vertical)
+	    rect = QRect(0, 0, sz, sz);
 	else
-	    rect = QRect( 0, 0, sz, sz );
+	    rect = QRect(0, 0, sz, sz);
 	break;
     case 2:
-	if ( scrollBar()->orientation() == Vertical )
-	    rect = QRect( 0, sz, sz, srect.y() - sz );
+	if (scrollBar()->orientation() == Vertical)
+	    rect = QRect(0, sz, sz, srect.y() - sz);
 	else
-	    rect = QRect( sz, 0, srect.x() - sz, sz );
+	    rect = QRect(sz, 0, srect.x() - sz, sz);
 	break;
     case 3:
 	rect = srect;
 	break;
     case 4:
-	if ( scrollBar()->orientation() == Vertical )
-	    rect = QRect( 0, srect.bottom(), sz, scrollBar()->rect().height() - srect.bottom() - sz );
+	if (scrollBar()->orientation() == Vertical)
+	    rect = QRect(0, srect.bottom(), sz, scrollBar()->rect().height() - srect.bottom() - sz);
 	else
-	    rect = QRect( srect.right(), 0, scrollBar()->rect().width() - srect.right() - sz, sz ) ;
+	    rect = QRect(srect.right(), 0, scrollBar()->rect().width() - srect.right() - sz, sz) ;
 	break;
     case 5:
-	if ( scrollBar()->orientation() == Vertical )
-	    rect = QRect( 0, scrollBar()->rect().height() - sz, sz, sz );
+	if (scrollBar()->orientation() == Vertical)
+	    rect = QRect(0, scrollBar()->rect().height() - sz, sz, sz);
 	else
-	    rect = QRect( scrollBar()->rect().width() - sz, 0, sz, sz );
+	    rect = QRect(scrollBar()->rect().width() - sz, 0, sz, sz);
 	break;
     default:
-	return QAccessibleRangeControl::rect( control );
+	return QAccessibleRangeControl::rect(child);
     }
 
-    QPoint tp = scrollBar()->mapToGlobal( QPoint( 0,0 ) );
-    return QRect( tp.x() + rect.x(), tp.y() + rect.y(), rect.width(), rect.height() );
+    QPoint tp = scrollBar()->mapToGlobal(QPoint(0,0));
+    return QRect(tp.x() + rect.x(), tp.y() + rect.y(), rect.width(), rect.height());
 }
 
 /*! \reimp */
-int QAccessibleScrollBar::navigate( NavDirection direction, int startControl ) const
+int QAccessibleScrollBar::navigate(Relation rel, int entry, QAccessibleInterface **target) const
 {
-    if ( direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl )
-	return QAccessibleRangeControl::navigate( direction, startControl );
-
-    switch ( direction ) {
-    case NavFirstChild:
-	return 1;
-    case NavLastChild:
-	return 5;
-    case NavNext:
-	return startControl == childCount() ? -1 : startControl + 1;
-    case NavDown:
-	if ( scrollBar()->orientation() == Horizontal )
-	    break;
-	return startControl == childCount() ? -1 : startControl + 1;
-    case NavRight:
-	if ( scrollBar()->orientation() == Vertical )
-	    break;
-	return startControl == childCount() ? -1 : startControl + 1;
-    case NavPrevious:
-	return startControl == 1 ? -1 : startControl - 1;
-    case NavUp:
-	if ( scrollBar()->orientation() == Horizontal )
-	    break;
-	return startControl == 1 ? -1 : startControl - 1;
-    case NavLeft:
-	if ( scrollBar()->orientation() == Vertical )
-	    break;
-	return startControl == 1 ? -1 : startControl - 1;
+    *target = 0;
+    switch (rel) {
+    case Child:
+	return entry;
+    case Below:
+	if (scrollBar()->orientation() == Horizontal || entry >= childCount())
+	    return -1;
+	return entry + 1;
+    case QAccessible::Right:
+	if (scrollBar()->orientation() == Vertical || entry >= childCount())
+	    return -1;
+	return entry + 1;
+    case Above:
+	if (scrollBar()->orientation() == Horizontal || entry < 2)
+	    return -1;
+	return entry - 1;
+    case QAccessible::Left:
+	if (scrollBar()->orientation() == Vertical || entry < 2)
+	    return -1;
+	return entry - 1;
     default:
 	break;
     }
 
-    return -1;
+    return QAccessibleRangeControl::navigate(rel, entry, target);
 }
 
 /*! \reimp */
@@ -575,22 +532,15 @@ int QAccessibleScrollBar::childCount() const
 }
 
 /*! \reimp */
-bool	QAccessibleScrollBar::queryChild( int /*control*/, QAccessibleInterface **iface ) const
+QString	QAccessibleScrollBar::text(Text t, int child) const
 {
-    *iface = 0;
-    return FALSE;
-}
-
-/*! \reimp */
-QString	QAccessibleScrollBar::text( Text t, int control ) const
-{
-    switch ( t ) {
+    switch (t) {
     case Value:
-	if ( control && control != 3 )
-	    return QString::null;
+	if (child && child != 3)
+	    return QString();
 	break;
     case Name:
-	switch ( control ) {
+	switch (child) {
 	case 1:
 	    return QScrollBar::tr("Line up");
 	case 2:
@@ -603,38 +553,39 @@ QString	QAccessibleScrollBar::text( Text t, int control ) const
 	    return QScrollBar::tr("Line down");
 	}
 	break;
+/*
     case DefaultAction:
-	if ( control != 3 )
+	if (child != 3)
 	    return QScrollBar::tr("Press");
 	break;
+*/
     default:
 	break;
 
     }
-    return QAccessibleRangeControl::text( t, control );
+    return QAccessibleRangeControl::text(t, child);
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleScrollBar::role( int control ) const
+QAccessible::Role QAccessibleScrollBar::role(int child) const
 {
-    switch ( control ) {
+    switch (child) {
     case 1:
     case 2:
-	return PushButton;
-    case 3:
-	return Indicator;
     case 4:
     case 5:
 	return PushButton;
+    case 3:
+	return Indicator;
     default:
 	return ScrollBar;
     }
 }
 
 /*! \reimp */
-bool QAccessibleScrollBar::doAction(int action, int control)
+bool QAccessibleScrollBar::doAction(int action, int child)
 {
-    switch ( control ) {
+    if (action == Press) switch (child) {
     case 1:
 	scrollBar()->subtractLine();
 	return TRUE;
@@ -647,9 +598,8 @@ bool QAccessibleScrollBar::doAction(int action, int control)
     case 5:
 	scrollBar()->addLine();
 	return TRUE;
-    default:
-	return FALSE;
     }
+    return FALSE;
 }
 
 /*!
@@ -658,98 +608,84 @@ bool QAccessibleScrollBar::doAction(int action, int control)
 */
 
 /*!
-  Constructs a QAccessibleScrollBar object for \a o.
+  Constructs a QAccessibleScrollBar object for \a w.
   \a name, \a description, \a help, \a defAction and \a accelerator
   are propagated to the QAccessibleRangeControl constructor.
 */
-QAccessibleSlider::QAccessibleSlider( QObject *o, QString name,
-    QString description, QString help, QString defAction, QString accelerator )
-: QAccessibleRangeControl( o, ScrollBar, name, description, help, defAction, accelerator )
+QAccessibleSlider::QAccessibleSlider(QWidget *w, QString name,
+    QString description, QString help, QString defAction, QString accelerator)
+: QAccessibleRangeControl(w, ScrollBar, name, description, help, defAction, accelerator)
 {
-    Q_ASSERT( o->inherits("QSlider" ) );
+    Q_ASSERT(slider());
 }
 
 /*! Returns the slider. */
 QSlider *QAccessibleSlider::slider() const
 {
-    return (QSlider*)widget();
+    return qt_cast<QSlider*>(widget());
 }
 
 /*! \reimp */
-int QAccessibleSlider::childAt( int x, int y ) const
-{
-    for ( int i = 1; i <= childCount(); i++ ) {
-	if ( rect(i).contains( x,y ) )
-	    return i;
-    }
-    return 0;
-}
-
-/*! \reimp */
-QRect QAccessibleSlider::rect( int control ) const
+QRect QAccessibleSlider::rect(int child) const
 {
     QRect rect;
     QRect srect = slider()->sliderRect();
-    switch ( control ) {
+    switch (child) {
     case 1:
-	if ( slider()->orientation() == Vertical )
-	    rect = QRect( 0, 0, slider()->width(), srect.y() );
+	if (slider()->orientation() == Vertical)
+	    rect = QRect(0, 0, slider()->width(), srect.y());
 	else
-	    rect = QRect( 0, 0, srect.x(), slider()->height() );
+	    rect = QRect(0, 0, srect.x(), slider()->height());
 	break;
     case 2:
 	rect = srect;
 	break;
     case 3:
-	if ( slider()->orientation() == Vertical )
-	    rect = QRect( 0, srect.y() + srect.height(), slider()->width(), slider()->height()- srect.y() - srect.height() );
+	if (slider()->orientation() == Vertical)
+	    rect = QRect(0, srect.y() + srect.height(), slider()->width(), slider()->height()- srect.y() - srect.height());
 	else
-	    rect = QRect( srect.x() + srect.width(), 0, slider()->width() - srect.x() - srect.width(), slider()->height() );
+	    rect = QRect(srect.x() + srect.width(), 0, slider()->width() - srect.x() - srect.width(), slider()->height());
 	break;
     default:
-	return QAccessibleRangeControl::rect( control );
+	return QAccessibleRangeControl::rect(child);
     }
 
-    QPoint tp = slider()->mapToGlobal( QPoint( 0,0 ) );
-    return QRect( tp.x() + rect.x(), tp.y() + rect.y(), rect.width(), rect.height() );
+    QPoint tp = slider()->mapToGlobal(QPoint(0,0));
+    return QRect(tp.x() + rect.x(), tp.y() + rect.y(), rect.width(), rect.height());
 }
 
 /*! \reimp */
-int QAccessibleSlider::navigate( NavDirection direction, int startControl ) const
+int QAccessibleSlider::relationTo(int child, const QAccessibleInterface *other, int otherChild)
 {
-    if ( direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl )
-	return QAccessibleRangeControl::navigate( direction, startControl );
+    return QAccessibleRangeControl::relationTo(child, other, otherChild);
+}
 
-    switch ( direction ) {
-    case NavFirstChild:
-	return 1;
-    case NavLastChild:
-	return childCount();
-    case NavNext:
-	return startControl == childCount() ? -1 : startControl + 1;
-    case NavDown:
-	if ( slider()->orientation() == Horizontal )
-	    break;
-	return startControl == childCount() ? -1 : startControl + 1;
-    case NavRight:
-	if ( slider()->orientation() == Vertical )
-	    break;
-	return startControl == childCount() ? -1 : startControl + 1;
-    case NavPrevious:
-	return startControl == 1 ? -1 : startControl - 1;
-    case NavUp:
-	if ( slider()->orientation() == Horizontal )
-	    break;
-	return startControl == 1 ? -1 : startControl - 1;
-    case NavLeft:
-	if ( slider()->orientation() == Vertical )
-	    break;
-	return startControl == 1 ? -1 : startControl - 1;
-    default:
-	break;
+/*! \reimp */
+int QAccessibleSlider::navigate(Relation rel, int entry, QAccessibleInterface **target) const
+{
+    *target = 0;
+    switch (rel) {
+    case Child:
+	return entry;
+    case QAccessible::Below:
+	if (slider()->orientation() == Horizontal || entry >= childCount())
+	    return -1;
+	return entry + 1;
+    case QAccessible::Right:
+	if (slider()->orientation() == Vertical || entry >= childCount())
+	    return -1;
+	return entry + 1;
+    case QAccessible::Above:
+	if (slider()->orientation() == Horizontal || entry < 2)
+	    return -1;
+	return entry - 1;
+    case QAccessible::Left:
+	if (slider()->orientation() == Vertical || entry < 2)
+	    return -1;
+	return entry - 1;
     }
 
-    return -1;
+    return QAccessibleRangeControl::navigate(rel, entry, target);
 }
 
 /*! \reimp */
@@ -759,68 +695,61 @@ int QAccessibleSlider::childCount() const
 }
 
 /*! \reimp */
-bool	QAccessibleSlider::queryChild( int /*control*/, QAccessibleInterface **iface ) const
+QString	QAccessibleSlider::text(Text t, int child) const
 {
-    *iface = 0;
-    return FALSE;
-}
-
-/*! \reimp */
-QString	QAccessibleSlider::text( Text t, int control ) const
-{
-    switch ( t ) {
+    switch (t) {
     case Value:
-	if ( control && control != 2 )
-	    return QString::null;
+	if (child && child != 2)
+	    return QString();
 	break;
     case Name:
-	switch ( control ) {
+	switch (child) {
 	case 1:
-	    return QSlider::tr("Page up");
+	    return QSlider::tr("Page down");
 	case 2:
 	    return QSlider::tr("Position");
 	case 3:
-	    return QSlider::tr("Page down");
+	    return QSlider::tr("Page up");
 	}
 	break;
+/*
     case DefaultAction:
-	if ( control != 2 )
+	if (child != 2)
 	    return QSlider::tr("Press");
 	break;
+*/
     default:
 	break;
     }
-    return QAccessibleRangeControl::text( t, control );
+    return QAccessibleRangeControl::text(t, child);
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleSlider::role( int control ) const
+QAccessible::Role QAccessibleSlider::role(int child) const
 {
-    switch ( control ) {
+    switch (child) {
     case 1:
+    case 3:
 	return PushButton;
     case 2:
 	return Indicator;
-    case 3:
-	return PushButton;
     default:
 	return Slider;
     }
 }
 
 /*! \reimp */
-bool QAccessibleSlider::doAction(int action, int control)
+bool QAccessibleSlider::doAction(int action, int child)
 {
-    switch ( control ) {
+    if (action == Press) switch (child) {
     case 1:
 	slider()->subtractLine();
 	return TRUE;
     case 3:
 	slider()->addLine();
 	return TRUE;
-    default:
-	return FALSE;
     }
+    return FALSE;
 }
 
 
@@ -834,27 +763,27 @@ bool QAccessibleSlider::doAction(int action, int control)
   \a role, \a name, \a description, \a help, \a defAction and \a accelerator
   are propagated to the QAccessibleWidget constructor.
 */
-QAccessibleText::QAccessibleText( QObject *o, Role role, QString name, QString description, QString help, QString defAction, QString accelerator )
-: QAccessibleWidget( o, role, name, description, QString::null, help, defAction, accelerator )
+QAccessibleText::QAccessibleText(QWidget *o, Role role, QString name, QString description, QString help, QString defAction, QString accelerator)
+: QAccessibleWidget(o, role, name, description, QString(), help, SetFocus, defAction, accelerator)
 {
 }
 
 /*! \reimp */
-QString QAccessibleText::text( Text t, int control ) const
+QString QAccessibleText::text(Text t, int child) const
 {
-    QString str = QAccessibleWidget::text( t, control );
-    if ( !!str )
+    QString str = QAccessibleWidget::text(t, child);
+    if (!!str)
 	return str;
-    switch ( t ) {
+    switch (t) {
     case Name:
-	return stripAmp( buddyString( widget() ) );
+	return stripAmp(buddyString(widget()));
     case Accelerator:
-	str = hotKey( buddyString( widget() ) );
-	if ( !!str )
+	str = hotKey(buddyString(widget()));
+	if (!!str)
 	    return "Alt + "+str;
 	break;
     case Value:
-	if ( widget()->inherits( "QLineEdit" ) )
+	if (widget()->inherits("QLineEdit"))
 	    return ((QLineEdit*)widget())->text();
 	break;
     default:
@@ -864,18 +793,18 @@ QString QAccessibleText::text( Text t, int control ) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleText::state( int control ) const
+QAccessible::State QAccessibleText::state(int child) const
 {
-    int state = QAccessibleWidget::state( control );
+    int state = QAccessibleWidget::state(child);
 
-    if ( widget()->inherits( "QLineEdit" ) ) {
-	QLineEdit *l = (QLineEdit*)widget();
-	if ( l->isReadOnly() )
+    QLineEdit *l = qt_cast<QLineEdit*>(widget());
+    if (l) {
+	if (l->isReadOnly())
 	    state |= ReadOnly;
-	if ( l->echoMode() == QLineEdit::Password )
+	if (l->echoMode() == QLineEdit::Password)
 	    state |= Protected;
 	state |= Selectable;
-	if ( l->hasSelectedText() )
+	if (l->hasSelectedText())
 	    state |= Selected;
     }
 
@@ -892,54 +821,55 @@ QAccessible::State QAccessibleText::state( int control ) const
   \a role, \a description, \a value, \a help, \a defAction and \a accelerator
   are propagated to the QAccessibleWidget constructor.
 */
-QAccessibleDisplay::QAccessibleDisplay( QObject *o, Role role, QString description, QString value, QString help, QString defAction, QString accelerator )
-: QAccessibleWidget( o, role, QString::null, description, value, help, defAction, accelerator )
+QAccessibleDisplay::QAccessibleDisplay(QWidget *o, Role role, QString description, QString value, QString help, QString defAction, QString accelerator)
+: QAccessibleWidget(o, role, QString(), description, value, help, NoAction, defAction, accelerator)
 {
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleDisplay::role( int control ) const
+QAccessible::Role QAccessibleDisplay::role(int child) const
 {
-    if ( widget()->inherits( "QLabel" ) ) {
-	QLabel *l = (QLabel*)widget();
-	if ( l->pixmap() || l->picture() )
+    QLabel *l = qt_cast<QLabel*>(widget());
+    if (l) {
+	if (l->pixmap() || l->picture())
 	    return Graphic;
 #ifndef QT_NO_PICTURE
-	if ( l->picture() )
+	if (l->picture())
 	    return Graphic;
 #endif
 #ifndef QT_NO_MOVIE
-	if ( l->movie() )
+	if (l->movie())
 	    return Animation;
 #endif
     }
-    return QAccessibleWidget::role( control );
+    return QAccessibleWidget::role(child);
 }
 
 /*! \reimp */
-QString QAccessibleDisplay::text( Text t, int control ) const
+QString QAccessibleDisplay::text(Text t, int child) const
 {
-    QString str = QAccessibleWidget::text( t, control );
-    if ( !!str )
+    QString str = QAccessibleWidget::text(t, child);
+    if (!!str)
 	return str;
 
-    switch ( t ) {
+    switch (t) {
     case Name:
-	if ( widget()->inherits( "QLabel" ) ) {
-	    return stripAmp( ((QLabel*)widget())->text() );
-	} else if ( widget()->inherits( "QLCDNumber" ) ) {
-	    QLCDNumber *l = (QLCDNumber*)widget();
-	    if ( l->numDigits() )
-		return QString::number( l->value() );
-	    return QString::number( l->intValue() );
-	} else if ( widget()->inherits( "QGroupBox" ) ) {
-	    return stripAmp( ((QGroupBox*)widget())->title() );
+	if (qt_cast<QLabel*>(widget())) {
+	    str = qt_cast<QLabel*>(widget())->text();
+	} else if (qt_cast<QGroupBox*>(widget())) {
+	    str = qt_cast<QGroupBox*>(widget())->title();
+	} else if (qt_cast<QLCDNumber*>(widget())) {
+	    QLCDNumber *l = qt_cast<QLCDNumber*>(widget());
+	    if (l->numDigits())
+		str = QString::number(l->value());
+	    else
+		str = QString::number(l->intValue());
 	}
 	break;
     default:
 	break;
     }
-    return str;
+    return stripAmp(str);
 }
 
 
@@ -953,74 +883,54 @@ QString QAccessibleDisplay::text( Text t, int control ) const
   \a role, \a description, \a value, \a help, \a defAction and \a accelerator
   are propagated to the QAccessibleWidget constructor.
 */
-QAccessibleHeader::QAccessibleHeader( QObject *o, QString description,
-    QString value, QString help, QString defAction, QString accelerator )
-    : QAccessibleWidget( o, NoRole, description, value, help, defAction, accelerator )
+QAccessibleHeader::QAccessibleHeader(QWidget *o, QString description,
+    QString value, QString help, QString defAction, QString accelerator)
+: QAccessibleComplexWidget(o, NoRole, QString(), description, value, help, SetFocus, defAction, accelerator)
 {
-    Q_ASSERT(widget()->inherits("QHeader"));
+    Q_ASSERT(header());
 }
 
 /*! Returns the QHeader. */
 QHeader *QAccessibleHeader::header() const
 {
-    return (QHeader *)widget();
+    return qt_cast<QHeader*>(widget());
 }
 
 /*! \reimp */
-int QAccessibleHeader::childAt( int x, int y ) const
+QRect QAccessibleHeader::rect(int child) const
 {
-    QPoint point = header()->mapFromGlobal( QPoint( x, y ) );
-    for ( int i = 0; i < header()->count(); i++ ) {
-	if ( header()->sectionRect( i ).contains( point ) )
-	    return i+1;
-    }
-    return -1;
+    QPoint zero = header()->mapToGlobal(QPoint (0,0));
+    QRect sect = header()->sectionRect(child - 1);
+    return QRect(sect.x() + zero.x(), sect.y() + zero.y(), sect.width(), sect.height());
 }
 
 /*! \reimp */
-QRect QAccessibleHeader::rect( int control ) const
+int QAccessibleHeader::navigate(Relation rel, int entry, QAccessibleInterface **target) const
 {
-    QPoint zero = header()->mapToGlobal( QPoint ( 0,0 ) );
-    QRect sect = header()->sectionRect( control - 1 );
-    return QRect( sect.x() + zero.x(), sect.y() + zero.y(), sect.width(), sect.height() );
-}
-
-/*! \reimp */
-int QAccessibleHeader::navigate( NavDirection direction, int startControl ) const
-{
-    if ( direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl )
-	return QAccessibleWidget::navigate( direction, startControl );
-
-    int count = header()->count();
-    switch ( direction ) {
-    case NavFirstChild:
-	return 1;
-    case NavLastChild:
-	return count;
-    case NavNext:
-	return startControl + 1 > count ? -1 : startControl + 1;
-    case NavPrevious:
-	return startControl - 1 < 1 ? -1 : startControl - 1;
-    case NavUp:
-	if ( header()->orientation() == Vertical )
-	    return startControl - 1 < 1 ? -1 : startControl - 1;
-	return -1;
-    case NavDown:
-	if ( header()->orientation() == Vertical )
-	    return startControl + 1 > count ? -1 : startControl + 1;
-	break;
-    case NavLeft:
-	if ( header()->orientation() == Horizontal )
-	    return startControl - 1 < 1 ? -1 : startControl - 1;
-	break;
-    case NavRight:
-	if ( header()->orientation() == Horizontal )
-	    return startControl + 1 > count ? -1 : startControl + 1;
-	break;
+    *target = 0;
+    switch (rel) {
+    case Child:
+	return entry;
+    case QAccessible::Left:
+	if (header()->orientation() == Vertical || entry < 2)
+	    return -1;
+	return entry - 1;
+    case QAccessible::Right:
+	if (header()->orientation() == Vertical || entry >= childCount())
+	    return -1;
+	return entry + 1;
+    case Above:
+	if (header()->orientation() == Horizontal || entry < 2)
+	    return -1;
+	return entry - 1;
+    case Below:
+	if (header()->orientation() == Horizontal || entry >= childCount())
+	    return -1;
+	return entry + 1;
     default:
 	break;
     }
-    return -1;
+    return QAccessibleComplexWidget::navigate(rel, entry, target);
 }
 
 /*! \reimp */
@@ -1030,22 +940,15 @@ int QAccessibleHeader::childCount() const
 }
 
 /*! \reimp */
-bool QAccessibleHeader::queryChild( int /*control*/, QAccessibleInterface **iface ) const
+QString QAccessibleHeader::text(Text t, int child) const
 {
-    *iface = 0;
-    return FALSE;
-}
-
-/*! \reimp */
-QString QAccessibleHeader::text( Text t, int control ) const
-{
-    QString str = QAccessibleWidget::text( t, control );
-    if ( !!str )
+    QString str = QAccessibleWidget::text(t, child);
+    if (!!str)
 	return str;
 
-    switch ( t ) {
+    switch (t) {
     case Name:
-	return header()->label( control - 1 );
+	return header()->label(child - 1);
     default:
 	break;
     }
@@ -1053,20 +956,19 @@ QString QAccessibleHeader::text( Text t, int control ) const
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleHeader::role( int /*control*/ ) const
+QAccessible::Role QAccessibleHeader::role(int child) const
 {
-    if ( header()->orientation() == Qt::Horizontal )
-	return ColumnHeader;
+    if (header()->orientation() == Qt::Horizontal)
+	return child ? Column : ColumnHeader;
     else
-	return RowHeader;
+	return child ? Row : RowHeader;
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleHeader::state( int control ) const
+QAccessible::State QAccessibleHeader::state(int child) const
 {
-    return QAccessibleWidget::state( control );
+    return QAccessibleWidget::state(child);
 }
-
 
 /*!
   \class QAccessibleTabBar qaccessiblewidget.h
@@ -1078,81 +980,58 @@ QAccessible::State QAccessibleHeader::state( int control ) const
   \a role, \a description, \a value, \a help, \a defAction and \a accelerator
   are propagated to the QAccessibleWidget constructor.
 */
-QAccessibleTabBar::QAccessibleTabBar( QObject *o, QString description,
-    QString value, QString help, QString defAction, QString accelerator )
-    : QAccessibleWidget( o, NoRole, description, value, help, defAction, accelerator )
+QAccessibleTabBar::QAccessibleTabBar(QWidget *o, QString description,
+    QString value, QString help, QString defAction, QString accelerator)
+    : QAccessibleComplexWidget(o, NoRole, QString(), description, value, help, Select, defAction, accelerator)
 {
-    Q_ASSERT(widget()->inherits("QTabBar"));
+    Q_ASSERT(tabBar());
 }
 
-/*! Returns the QHeader. */
+/*! Returns the QTabBar. */
 QTabBar *QAccessibleTabBar::tabBar() const
 {
-    return (QTabBar*)widget();
+    return qt_cast<QTabBar*>(widget());
 }
 
 /*! \reimp */
-int QAccessibleTabBar::childAt( int x, int y ) const
+QRect QAccessibleTabBar::rect(int child) const
 {
-    int wc = QAccessibleWidget::childAt( x, y );
-    if ( wc )
-	return wc + tabBar()->count();
+    if (!child)
+	return QAccessibleWidget::rect(0);
 
-    QPoint tp = tabBar()->mapFromGlobal( QPoint( x,y ) );
-    QTab *tab = tabBar()->selectTab( tp );
-    return tabBar()->indexOf( tab->identifier() ) + 1;
-}
-
-/*! \reimp */
-QRect QAccessibleTabBar::rect( int control ) const
-{
-    if ( !control )
-	return QAccessibleWidget::rect( 0 );
-    if ( control > tabBar()->count() ) {
-	QAccessibleInterface *iface;
-	QAccessibleWidget::queryChild( control - tabBar()->count(), &iface );
-	if ( !iface )
-	    return QRect();
-	return iface->rect( 0 );
+    if (child > tabBar()->count()) {
+	QAccessibleInterface *iface = 0;
+	QAccessibleWidget::navigate(Child, child - tabBar()->count(), &iface);
+	QRect r;
+	if (iface) {
+	    r = iface->rect(0);
+	    iface->release();
+	}
+	return r;
     }
 
-    QTab *tab = tabBar()->tabAt( control - 1 );
+    QTab *tab = tabBar()->tabAt(child - 1);
 
-    QPoint tp = tabBar()->mapToGlobal( QPoint( 0,0 ) );
+    QPoint tp = tabBar()->mapToGlobal(QPoint(0,0));
     QRect rec = tab->rect();
-    return QRect( tp.x() + rec.x(), tp.y() + rec.y(), rec.width(), rec.height() );
+    return QRect(tp.x() + rec.x(), tp.y() + rec.y(), rec.width(), rec.height());
 }
 
 /*! \reimp */
-bool	QAccessibleTabBar::queryChild( int /*control*/, QAccessibleInterface **iface ) const
+int QAccessibleTabBar::navigate(Relation rel, int entry, QAccessibleInterface **target) const
 {
-    *iface = 0;
-    return FALSE;
-}
-
-/*! \reimp */
-int QAccessibleTabBar::navigate( NavDirection direction, int startControl ) const
-{
-    if ( direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl )
-	return QAccessibleWidget::navigate( direction, startControl );
-
-    switch ( direction ) {
-    case NavFirstChild:
-	return 1;
-	break;
-    case NavLastChild:
-	return childCount();
-	break;
-    case NavNext:
-    case NavRight:
-	return startControl + 1 > childCount() ? -1 : startControl + 1;
-    case NavPrevious:
-    case NavLeft:
-	return startControl -1 < 1 ? -1 : startControl - 1;
+    *target = 0;
+    switch (rel) {
+    case Child:
+	return entry;
+    case QAccessible::Right:
+	return entry + 1 > childCount() ? -1 : entry + 1;
+    case QAccessible::Left:
+	return entry -1 < 1 ? -1 : entry - 1;
     default:
 	break;
     }
-    return -1;
+    return QAccessibleComplexWidget::navigate(rel, entry, target);;
 }
 
 /*! \reimp */
@@ -1164,31 +1043,30 @@ int QAccessibleTabBar::childCount() const
 }
 
 /*! \reimp */
-QString QAccessibleTabBar::text( Text t, int control ) const
+QString QAccessibleTabBar::text(Text t, int child) const
 {
-    QString str = QAccessibleWidget::text( t, control );
-    if ( !!str )
+    QString str = QAccessibleWidget::text(t, child);
+    if (!!str)
 	return str;
 
-    if ( !control )
-	return QAccessibleWidget::text( t, control );
-    if ( control > tabBar()->count() ) {
+    if (!child)
+	return QAccessibleWidget::text(t, child);
+/*
+    if (child > tabBar()->count()) {
 	QAccessibleInterface *iface;
-	QAccessibleWidget::queryChild( control - tabBar()->count(), &iface );
-	if ( !iface )
-	    return QAccessibleWidget::text( t, 0 );
-	return iface->text( t, 0 );
+	QAccessibleWidget::queryChild(child - tabBar()->count(), &iface);
+	if (!iface)
+	    return QAccessibleWidget::text(t, 0);
+	return iface->text(t, 0);
     }
+*/
+    QTab *tab = tabBar()->tabAt(child - 1);
+    if (!tab)
+	return QAccessibleWidget::text(t, 0);
 
-    QTab *tab = tabBar()->tabAt( control - 1 );
-    if ( !tab )
-	return QAccessibleWidget::text( t, 0 );
-
-    switch ( t ) {
+    switch (t) {
     case Name:
-	return stripAmp( tab->text() );
-    case DefaultAction:
-	return QTabBar::tr( "Switch" );
+	return stripAmp(tab->text());
     default:
 	break;
     }
@@ -1196,87 +1074,86 @@ QString QAccessibleTabBar::text( Text t, int control ) const
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleTabBar::role( int control ) const
+QAccessible::Role QAccessibleTabBar::role(int child) const
 {
-    if ( !control )
+    if (!child)
 	return PageTabList;
-    if ( control > tabBar()->count() ) {
+/*
+    if (child > tabBar()->count()) {
 	QAccessibleInterface *iface;
-	QAccessibleWidget::queryChild( control - tabBar()->count(), &iface );
-	if ( !iface )
-	    return QAccessibleWidget::role( 0 );
-	return iface->role( 0 );
+	QAccessibleWidget::queryChild(child - tabBar()->count(), &iface);
+	if (!iface)
+	    return QAccessibleWidget::role(0);
+	return iface->role(0);
     }
-
+*/
     return PageTab;
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleTabBar::state( int control ) const
+QAccessible::State QAccessibleTabBar::state(int child) const
 {
-    int st = QAccessibleWidget::state( 0 );
+    int st = QAccessibleWidget::state(0);
 
-    if ( !control )
+    if (!child)
 	return (State)st;
-    if ( control > tabBar()->count() ) {
+/*
+    if (child > tabBar()->count()) {
 	QAccessibleInterface *iface;
-	QAccessibleWidget::queryChild( control - tabBar()->count(), &iface );
-	if ( !iface )
+	QAccessibleWidget::queryChild(child - tabBar()->count(), &iface);
+	if (!iface)
 	    return (State)st;
-	return iface->state( 0 );
+	return iface->state(0);
     }
+*/
 
-    QTab *tab = tabBar()->tabAt( control - 1 );
-    if ( !tab )
+    QTab *tab = tabBar()->tabAt(child - 1);
+    if (!tab)
 	return (State)st;
 
-    if ( !tab->isEnabled() )
+    if (!tab->isEnabled())
 	st |= Unavailable;
     else
 	st |= Selectable;
 
-    if ( tabBar()->currentTab() == tab->identifier() )
+    if (tabBar()->currentTab() == tab->identifier())
 	st |= Selected;
 
     return (State)st;
 }
 
 /*! \reimp */
-bool QAccessibleTabBar::doAction(int action, int control)
+bool QAccessibleTabBar::doAction(int action, int child)
 {
-    if ( !control )
+    if (!child)
 	return FALSE;
-    if ( control > tabBar()->count() ) {
+/*
+    if (child > tabBar()->count()) {
 	QAccessibleInterface *iface;
-	QAccessibleWidget::queryChild( control - tabBar()->count(), &iface );
-	if ( !iface )
+	QAccessibleWidget::queryChild(child - tabBar()->count(), &iface);
+	if (!iface)
 	    return FALSE;
 	return iface->doAction(action, 0);
     }
-
-    QTab *tab = tabBar()->tabAt( control - 1 );
-    if ( !tab || !tab->isEnabled() )
+*/
+    QTab *tab = tabBar()->tabAt(child - 1);
+    if (!tab || !tab->isEnabled())
 	return FALSE;
-    tabBar()->setCurrentTab( tab );
+    tabBar()->setCurrentTab(tab);
     return TRUE;
 }
 
 /*! \reimp */
-bool QAccessibleTabBar::setSelected( int control, bool on, bool extend )
+bool QAccessibleTabBar::setSelected(int child, bool on, bool extend)
 {
-    if ( !control || !on || extend || control > tabBar()->count() )
+    if (!child || !on || extend || child > tabBar()->count())
 	return FALSE;
 
-    QTab *tab = tabBar()->tabAt( control - 1 );
-    if ( !tab || !tab->isEnabled() )
+    QTab *tab = tabBar()->tabAt(child - 1);
+    if (!tab || !tab->isEnabled())
 	return FALSE;
-    tabBar()->setCurrentTab( tab );
+    tabBar()->setCurrentTab(tab);
     return TRUE;
-}
-
-/*! \reimp */
-void QAccessibleTabBar::clearSelection()
-{
 }
 
 /*! \reimp */
@@ -1295,12 +1172,12 @@ QVector<int> QAccessibleTabBar::selection() const
 
 
 /*!
-  Constructs a QAccessibleComboBox object for \a o.
+  Constructs a QAccessibleComboBox object for \a w.
 */
-QAccessibleComboBox::QAccessibleComboBox( QObject *o )
-: QAccessibleWidget( o, ComboBox )
+QAccessibleComboBox::QAccessibleComboBox(QWidget *w)
+: QAccessibleComplexWidget(w, ComboBox)
 {
-    Q_ASSERT(o->inherits("QComboBox"));
+    Q_ASSERT(comboBox());
 }
 
 /*!
@@ -1308,68 +1185,50 @@ QAccessibleComboBox::QAccessibleComboBox( QObject *o )
 */
 QComboBox *QAccessibleComboBox::comboBox() const
 {
-    return (QComboBox*)object();
+    return qt_cast<QComboBox*>(object());
 }
 
 /*! \reimp */
-int QAccessibleComboBox::childAt( int x, int y ) const
-{
-    for ( int i = childCount(); i >= 0; --i ) {
-	if ( rect( i ).contains( x, y ) )
-	    return i;
-    }
-    return -1;
-}
-
-/*! \reimp */
-QRect QAccessibleComboBox::rect( int control ) const
+QRect QAccessibleComboBox::rect(int child) const
 {
     QPoint tp;
     QRect r;
 
-    switch( control ) {
+    switch(child) {
     case 1:
-	if ( comboBox()->editable() ) {
-	    tp = comboBox()->lineEdit()->mapToGlobal( QPoint( 0,0 ) );
+	if (comboBox()->editable()) {
+	    tp = comboBox()->lineEdit()->mapToGlobal(QPoint(0,0));
 	    r = comboBox()->lineEdit()->rect();
 	} else  {
-	    tp = comboBox()->mapToGlobal( QPoint( 0,0 ) );
-	    r = comboBox()->style().querySubControlMetrics( QStyle::CC_ComboBox, comboBox(), QStyle::SC_ComboBoxEditField );
+	    tp = comboBox()->mapToGlobal(QPoint(0,0));
+	    r = comboBox()->style().querySubControlMetrics(QStyle::CC_ComboBox, comboBox(), QStyle::SC_ComboBoxEditField);
 	}
 	break;
     case 2:
-	tp = comboBox()->mapToGlobal( QPoint( 0,0 ) );
-	r = comboBox()->style().querySubControlMetrics( QStyle::CC_ComboBox, comboBox(), QStyle::SC_ComboBoxArrow );
+	tp = comboBox()->mapToGlobal(QPoint(0,0));
+	r = comboBox()->style().querySubControlMetrics(QStyle::CC_ComboBox, comboBox(), QStyle::SC_ComboBoxArrow);
 	break;
     default:
-	return QAccessibleWidget::rect( control );
+	return QAccessibleWidget::rect(child);
     }
-    return QRect( tp.x() + r.x(), tp.y() + r.y(), r.width(), r.height() );
+    return QRect(tp.x() + r.x(), tp.y() + r.y(), r.width(), r.height());
 }
 
 /*! \reimp */
-int QAccessibleComboBox::navigate( NavDirection direction, int startControl ) const
+int QAccessibleComboBox::navigate(Relation rel, int entry, QAccessibleInterface **target) const
 {
-    if ( direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl )
-	return QAccessibleWidget::navigate( direction, startControl );
-
-    switch ( direction ) {
-    case NavFirstChild:
-	return 1;
-	break;
-    case NavLastChild:
-	return childCount();
-	break;
-    case NavNext:
-    case NavRight:
-	return startControl + 1 > childCount() ? -1 : startControl + 1;
-    case NavPrevious:
-    case NavLeft:
-	return startControl -1 < 1 ? -1 : startControl - 1;
+    *target = 0;
+    switch (rel) {
+    case Child:
+	return entry;
+    case QAccessible::Right:
+	return entry + 1 > childCount() ? -1 : entry + 1;
+    case QAccessible::Left:
+	return entry -1 < 1 ? -1 : entry - 1;
     default:
 	break;
     }
-    return -1;
+    return QAccessibleComplexWidget::navigate(rel, entry, target);
 }
 
 /*! \reimp */
@@ -1379,56 +1238,51 @@ int QAccessibleComboBox::childCount() const
 }
 
 /*! \reimp */
-bool	QAccessibleComboBox::queryChild( int /*control*/, QAccessibleInterface **iface ) const
-{
-    *iface = 0;
-    return FALSE;
-}
-
-/*! \reimp */
-QString QAccessibleComboBox::text( Text t, int control ) const
+QString QAccessibleComboBox::text(Text t, int child) const
 {
     QString str;
 
-    switch ( t ) {
+    switch (t) {
     case Name:
-	if ( control < 2 )
-	    return stripAmp( buddyString( comboBox() ) );
+	if (child < 2)
+	    return stripAmp(buddyString(comboBox()));
 	return QComboBox::tr("Open");
     case Accelerator:
-	if ( control < 2 ) {
-	    str = hotKey( buddyString( comboBox() ) );
-	    if ( !!str )
+	if (child < 2) {
+	    str = hotKey(buddyString(comboBox()));
+	    if (!!str)
 		return "Alt + " + str;
 	    return str;
 	}
-	return QComboBox::tr("Alt + Down Arrow" );
+	return QComboBox::tr("Alt + Down Arrow");
     case Value:
-	if ( control < 2 ) {
-	    if ( comboBox()->editable() )
+	if (child < 2) {
+	    if (comboBox()->editable())
 		return comboBox()->lineEdit()->text();
 	    return comboBox()->currentText();
 	}
 	break;
+/*
     case DefaultAction:
-	if ( control == 2 )
+	if (child == 2)
 	    return QComboBox::tr("Open");
 	break;
+*/
     default:
-	str = QAccessibleWidget::text( t, 0 );
+	str = QAccessibleWidget::text(t, 0);
 	break;
     }
     return str;
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleComboBox::role( int control ) const
+QAccessible::Role QAccessibleComboBox::role(int child) const
 {
-    switch ( control ) {
+    switch (child) {
     case 0:
 	return ComboBox;
     case 1:
-	if ( comboBox()->editable() )
+	if (comboBox()->editable())
 	    return EditableText;
 	return StaticText;
     case 2:
@@ -1439,15 +1293,15 @@ QAccessible::Role QAccessibleComboBox::role( int control ) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleComboBox::state( int /*control*/ ) const
+QAccessible::State QAccessibleComboBox::state(int /*child*/) const
 {
-    return QAccessibleWidget::state( 0 );
+    return QAccessibleWidget::state(0);
 }
 
 /*! \reimp */
-bool QAccessibleComboBox::doAction(int action, int control)
+bool QAccessibleComboBox::doAction(int action, int child)
 {
-    if ( control != 2 )
+    if (child != 2)
 	return FALSE;
     comboBox()->popup();
     return TRUE;
@@ -1459,12 +1313,12 @@ bool QAccessibleComboBox::doAction(int action, int control)
 */
 
 /*!
-  Constructs a QAccessibleComboBox object for \a o.
+  Constructs a QAccessibleComboBox object for \a w.
 */
-QAccessibleTitleBar::QAccessibleTitleBar( QObject *o )
-: QAccessibleWidget( o, ComboBox )
+QAccessibleTitleBar::QAccessibleTitleBar(QWidget *w)
+: QAccessibleComplexWidget(w, TitleBar)
 {
-    Q_ASSERT(o->inherits("QTitleBar"));
+    Q_ASSERT(titleBar());
 }
 
 /*!
@@ -1472,70 +1326,47 @@ QAccessibleTitleBar::QAccessibleTitleBar( QObject *o )
 */
 QTitleBar *QAccessibleTitleBar::titleBar() const
 {
-    return (QTitleBar*)object();
+    return qt_cast<QTitleBar*>(object());
 }
 
 /*! \reimp */
-int QAccessibleTitleBar::childAt( int x, int y ) const
+QRect QAccessibleTitleBar::rect(int child) const
 {
-    int ctrl = titleBar()->style().querySubControl( QStyle::CC_TitleBar, titleBar(), titleBar()->mapFromGlobal( QPoint( x,y ) ) );
-
-    switch ( ctrl )
-    {
-    case QStyle::SC_TitleBarSysMenu:
-	return 1;
-    case QStyle::SC_TitleBarLabel:
-	return 2;
-    case QStyle::SC_TitleBarMinButton:
-	return 3;
-    case QStyle::SC_TitleBarMaxButton:
-	return 4;
-    case QStyle::SC_TitleBarCloseButton:
-	return 5;
-    default:
-	break;
-    }
-    return 0;
-}
-
-/*! \reimp */
-QRect QAccessibleTitleBar::rect( int control ) const
-{
-    if ( !control )
-	return QAccessibleWidget::rect( control );
+    if (!child)
+	return QAccessibleWidget::rect(child);
 
     QRect r;
-    switch ( control ) {
+    switch (child) {
     case 1:
-	r = titleBar()->style().querySubControlMetrics( QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarSysMenu );
+	r = titleBar()->style().querySubControlMetrics(QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarSysMenu);
 	break;
     case 2:
-	r = titleBar()->style().querySubControlMetrics( QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarLabel );
+	r = titleBar()->style().querySubControlMetrics(QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarLabel);
 	break;
     case 3:
-	r = titleBar()->style().querySubControlMetrics( QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarMinButton );
+	r = titleBar()->style().querySubControlMetrics(QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarMinButton);
 	break;
     case 4:
-	r = titleBar()->style().querySubControlMetrics( QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarMaxButton );
+	r = titleBar()->style().querySubControlMetrics(QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarMaxButton);
 	break;
     case 5:
-	r = titleBar()->style().querySubControlMetrics( QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarCloseButton );
+	r = titleBar()->style().querySubControlMetrics(QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarCloseButton);
 	break;
     default:
 	break;
     }
 
-    QPoint tp = titleBar()->mapToGlobal( QPoint( 0,0 ) );
-    return QRect( tp.x() + r.x(), tp.y() + r.y(), r.width(), r.height() );
+    QPoint tp = titleBar()->mapToGlobal(QPoint(0,0));
+    return QRect(tp.x() + r.x(), tp.y() + r.y(), r.width(), r.height());
 }
 
-/*! \reimp */
-int QAccessibleTitleBar::navigate( NavDirection direction, int startControl ) const
+/*! \reimp *
+int QAccessibleTitleBar::navigate(NavDirection direction, int startControl) const
 {
-    if ( direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl )
-	return QAccessibleWidget::navigate( direction, startControl );
+    if (direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl)
+	return QAccessibleWidget::navigate(direction, startControl);
 
-    switch ( direction ) {
+    switch (direction) {
     case NavFirstChild:
 	return 1;
 	break;
@@ -1553,38 +1384,40 @@ int QAccessibleTitleBar::navigate( NavDirection direction, int startControl ) co
     }
     return -1;
 }
+*/
 
 /*! \reimp */
 int QAccessibleTitleBar::childCount() const
 {
-    return 5;
+    if (!titleBar()->testWFlags(WStyle_SysMenu))
+	return 0;
+    int control = 3;
+    if (titleBar()->testWFlags(WStyle_Minimize))
+	++control;
+    if (titleBar()->testWFlags(WStyle_Maximize))
+	++control;
+    return control;
 }
 
 /*! \reimp */
-bool QAccessibleTitleBar::queryChild( int /*control*/, QAccessibleInterface **iface ) const
+QString QAccessibleTitleBar::text(Text t, int child) const
 {
-    *iface = 0;
-    return FALSE;
-}
-
-/*! \reimp */
-QString QAccessibleTitleBar::text( Text t, int control ) const
-{
-    QString str = QAccessibleWidget::text( t, control );
-    if ( !!str )
+    QString str = QAccessibleWidget::text(t, child);
+    if (!!str)
 	return str;
 
-    switch ( t ) {
+    QWidget *window = titleBar()->window();
+    switch (t) {
     case Name:
-	switch ( control ) {
+	switch (child) {
 	case 1:
 	    return QTitleBar::tr("System");
 	case 3:
-	    if ( titleBar()->window()->isMinimized() )
+	    if (window && window->isMinimized())
 		return QTitleBar::tr("Restore up");
 	    return QTitleBar::tr("Minimize");
 	case 4:
-	    if ( titleBar()->window()->isMaximized() )
+	    if (window && window->isMaximized())
 		return QTitleBar::tr("Restore down");
 	    return QTitleBar::tr("Maximize");
 	case 5:
@@ -1594,23 +1427,25 @@ QString QAccessibleTitleBar::text( Text t, int control ) const
 	}
 	break;
     case Value:
-	if ( !control || control == 2 )
+	if (!child || child == 2)
 	    return titleBar()->window()->caption();
 	break;
+/*
     case DefaultAction:
-	if ( control > 2 )
+	if (child > 2)
 	    return QTitleBar::tr("Press");
 	break;
+*/
     case Description:
-	switch ( control ) {
+	switch (child) {
 	case 1:
 	    return QTitleBar::tr("Contains commands to manipulate the window");
 	case 3:
-	    if ( titleBar()->window()->isMinimized() )
+	    if (window && window->isMinimized())
 		return QTitleBar::tr("Puts a minimized back to normal");
 	    return QTitleBar::tr("Moves the window out of the way");
 	case 4:
-	    if ( titleBar()->window()->isMaximized() )
+	    if (window && window->isMaximized())
 		return QTitleBar::tr("Puts a maximized window back to normal");
 	    return QTitleBar::tr("Makes the window full screen");
 	case 5:
@@ -1625,9 +1460,9 @@ QString QAccessibleTitleBar::text( Text t, int control ) const
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleTitleBar::role( int control ) const
+QAccessible::Role QAccessibleTitleBar::role(int child) const
 {
-    switch ( control )
+    switch (child)
     {
     case 1:
     case 3:
@@ -1640,23 +1475,23 @@ QAccessible::Role QAccessibleTitleBar::role( int control ) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleTitleBar::state( int control ) const
+QAccessible::State QAccessibleTitleBar::state(int child) const
 {
-    return QAccessibleWidget::state( control );
+    return QAccessibleWidget::state(child);
 }
 
 /*! \reimp */
-bool QAccessibleTitleBar::doAction(int action, int control)
+bool QAccessibleTitleBar::doAction(int action, int child)
 {
-    switch ( control ) {
+    switch (child) {
     case 3:
-	if ( titleBar()->window()->isMinimized() )
+	if (titleBar()->window()->isMinimized())
 	    titleBar()->window()->showNormal();
 	else
 	    titleBar()->window()->showMinimized();
 	return TRUE;
     case 4:
-	if ( titleBar()->window()->isMaximized() )
+	if (titleBar()->window()->isMaximized())
 	    titleBar()->window()->showNormal();
 	else
 	    titleBar()->window()->showMaximized();
@@ -1677,48 +1512,49 @@ bool QAccessibleTitleBar::doAction(int action, int control)
   \internal
 */
 
-QAccessibleViewport::QAccessibleViewport( QObject *o, QObject *sv )
-    : QAccessibleWidget( o )
+QAccessibleViewport::QAccessibleViewport(QWidget *o, QWidget *sv)
+    : QAccessibleWidget(o)
 {
-    Q_ASSERT( sv->inherits("QScrollView") );
+    Q_ASSERT(sv->inherits("QScrollView"));
     scrollview = (QScrollView*)sv;
 }
 
 QAccessibleScrollView *QAccessibleViewport::scrollView() const
 {
     QAccessibleInterface *iface = 0;
-    queryAccessibleInterface( scrollview, &iface );
+    queryAccessibleInterface(scrollview, &iface);
     Q_ASSERT(iface);
     return (QAccessibleScrollView *)iface;
 }
 
-int QAccessibleViewport::childAt( int x, int y ) const
+int QAccessibleViewport::childAt(int x, int y) const
 {
-    int control = QAccessibleWidget::childAt( x, y );
-    if ( control > 0 )
-	return control;
+    int child = QAccessibleWidget::childAt(x, y);
+    if (child > 0)
+	return child;
 
-    QPoint p = widget()->mapFromGlobal( QPoint( x,y ) );
-    return scrollView()->itemAt( p.x(), p.y() );
+    QPoint p = widget()->mapFromGlobal(QPoint(x,y));
+    return scrollView()->itemAt(p.x(), p.y());
 }
 
-QRect QAccessibleViewport::rect( int control ) const
+QRect QAccessibleViewport::rect(int child) const
 {
-    if ( !control )
-	return QAccessibleWidget::rect( control );
-    QRect rect = scrollView()->itemRect( control );
-    QPoint tl = widget()->mapToGlobal( QPoint( 0,0 ) );
-    return QRect( tl.x() + rect.x(), tl.y() + rect.y(), rect.width(), rect.height() );
+    if (!child)
+	return QAccessibleWidget::rect(child);
+    QRect rect = scrollView()->itemRect(child);
+    QPoint tl = widget()->mapToGlobal(QPoint(0,0));
+    return QRect(tl.x() + rect.x(), tl.y() + rect.y(), rect.width(), rect.height());
 }
 
-int QAccessibleViewport::navigate( NavDirection direction, int startControl ) const
+/*
+int QAccessibleViewport::navigate(NavDirection direction, int startControl) const
 {
-    if ( direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl )
-	return QAccessibleWidget::navigate( direction, startControl );
+    if (direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl)
+	return QAccessibleWidget::navigate(direction, startControl);
 
     // ### call itemUp/Down etc. here
     const int items = scrollView()->itemCount();
-    switch( direction ) {
+    switch(direction) {
     case NavFirstChild:
 	return 1;
     case NavLastChild:
@@ -1735,6 +1571,7 @@ int QAccessibleViewport::navigate( NavDirection direction, int startControl ) co
 
     return -1;
 }
+*/
 
 int QAccessibleViewport::childCount() const
 {
@@ -1742,34 +1579,29 @@ int QAccessibleViewport::childCount() const
     return widgets ? widgets : scrollView()->itemCount();
 }
 
-QString QAccessibleViewport::text( Text t, int control ) const
+QString QAccessibleViewport::text(Text t, int child) const
 {
-    return scrollView()->text( t, control );
+    return scrollView()->text(t, child);
 }
 
-bool QAccessibleViewport::doAction(int action, int control)
+bool QAccessibleViewport::doAction(int action, int child)
 {
-    return scrollView()->doAction(action, control);
+    return scrollView()->doAction(action, child);
 }
 
-QAccessible::Role QAccessibleViewport::role( int control ) const
+QAccessible::Role QAccessibleViewport::role(int child) const
 {
-    return scrollView()->role( control );
+    return scrollView()->role(child);
 }
 
-QAccessible::State QAccessibleViewport::state( int control ) const
+QAccessible::State QAccessibleViewport::state(int child) const
 {
-    return scrollView()->state( control );
+    return scrollView()->state(child);
 }
 
-bool QAccessibleViewport::setFocus( int control )
+bool QAccessibleViewport::setSelected(int child, bool on, bool extend)
 {
-    return scrollView()->setFocus( control );
-}
-
-bool QAccessibleViewport::setSelected( int control, bool on, bool extend )
-{
-    return scrollView()->setSelected( control, on, extend );
+    return scrollView()->setSelected(child, on, extend);
 }
 
 void QAccessibleViewport::clearSelection()
@@ -1792,21 +1624,21 @@ QVector<int> QAccessibleViewport::selection() const
   \a role, \a description, \a value, \a help, \a defAction and \a accelerator
   are propagated to the QAccessibleWidget constructor.
 */
-QAccessibleScrollView::QAccessibleScrollView( QObject *o, Role role, QString name,
-    QString description, QString value, QString help, QString defAction, QString accelerator )
-    : QAccessibleWidget( o, role, name, description, value, help, defAction, accelerator )
+QAccessibleScrollView::QAccessibleScrollView(QWidget *o, Role role, QString name,
+    QString description, QString value, QString help, QString defAction, QString accelerator)
+    : QAccessibleWidget(o, role, name, description, value, help, SetFocus, defAction, accelerator)
 {
 }
 
 /*! \reimp */
-QString QAccessibleScrollView::text( Text t, int control ) const
+QString QAccessibleScrollView::text(Text t, int child) const
 {
-    QString str = QAccessibleWidget::text( t, control );
-    if ( !!str )
+    QString str = QAccessibleWidget::text(t, child);
+    if (!!str)
 	return str;
-    switch ( t ) {
+    switch (t) {
     case Name:
-	return buddyString( widget() );
+	return buddyString(widget());
     default:
 	break;
     }
@@ -1817,7 +1649,7 @@ QString QAccessibleScrollView::text( Text t, int control ) const
 /*!
   Returns the ID of the item at viewport position \a x, \a y.
 */
-int QAccessibleScrollView::itemAt( int /*x*/, int /*y*/ ) const
+int QAccessibleScrollView::itemAt(int /*x*/, int /*y*/) const
 {
     return 0;
 }
@@ -1825,7 +1657,7 @@ int QAccessibleScrollView::itemAt( int /*x*/, int /*y*/ ) const
 /*!
   Returns the location of the item with ID \a item in viewport coordinates.
 */
-QRect QAccessibleScrollView::itemRect( int /*item*/ ) const
+QRect QAccessibleScrollView::itemRect(int /*item*/) const
 {
     return QRect();
 }
@@ -1846,8 +1678,8 @@ int QAccessibleScrollView::itemCount() const
 /*!
   Constructs a QAccessibleListBox object for \a o.
 */
-QAccessibleListBox::QAccessibleListBox( QObject *o )
-    : QAccessibleScrollView( o, List )
+QAccessibleListBox::QAccessibleListBox(QWidget *o)
+    : QAccessibleScrollView(o, List)
 {
     Q_ASSERT(widget()->inherits("QListBox"));
 }
@@ -1859,16 +1691,16 @@ QListBox *QAccessibleListBox::listBox() const
 }
 
 /*! \reimp */
-int QAccessibleListBox::itemAt( int x, int y ) const
+int QAccessibleListBox::itemAt(int x, int y) const
 {
-    QListBoxItem *item = listBox()->itemAt( QPoint( x, y ) );
-    return listBox()->index( item ) + 1;
+    QListBoxItem *item = listBox()->itemAt(QPoint(x, y));
+    return listBox()->index(item) + 1;
 }
 
 /*! \reimp */
-QRect QAccessibleListBox::itemRect( int item ) const
+QRect QAccessibleListBox::itemRect(int item) const
 {
-    return listBox()->itemRect( listBox()->item( item-1 ) );
+    return listBox()->itemRect(listBox()->item(item-1));
 }
 
 /*! \reimp */
@@ -1878,87 +1710,87 @@ int QAccessibleListBox::itemCount() const
 }
 
 /*! \reimp */
-QString QAccessibleListBox::text( Text t, int control ) const
+QString QAccessibleListBox::text(Text t, int child) const
 {
-    if ( !control || t != Name )
-	return QAccessibleScrollView::text( t, control );
+    if (!child || t != Name)
+	return QAccessibleScrollView::text(t, child);
 
-    QListBoxItem *item = listBox()->item( control - 1 );
-    if ( item )
+    QListBoxItem *item = listBox()->item(child - 1);
+    if (item)
 	return item->text();
-    return QString::null;
+    return QString();
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleListBox::role( int control ) const
+QAccessible::Role QAccessibleListBox::role(int child) const
 {
-    if ( !control )
-	return QAccessibleScrollView::role( control );
+    if (!child)
+	return QAccessibleScrollView::role(child);
     return ListItem;
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleListBox::state( int control ) const
+QAccessible::State QAccessibleListBox::state(int child) const
 {
-    int state = QAccessibleScrollView::state( control );
+    int state = QAccessibleScrollView::state(child);
     QListBoxItem *item;
-    if ( !control || !( item = listBox()->item( control - 1 ) ) )
+    if (!child || !(item = listBox()->item(child - 1)))
 	return (State)state;
 
-    if ( item->isSelectable() ) {
-	if ( listBox()->selectionMode() == QListBox::Multi )
+    if (item->isSelectable()) {
+	if (listBox()->selectionMode() == QListBox::Multi)
 	    state |= MultiSelectable;
-	else if ( listBox()->selectionMode() == QListBox::Extended )
+	else if (listBox()->selectionMode() == QListBox::Extended)
 	    state |= ExtSelectable;
-	else if ( listBox()->selectionMode() == QListBox::Single )
+	else if (listBox()->selectionMode() == QListBox::Single)
 	    state |= Selectable;
-	if ( item->isSelected() )
+	if (item->isSelected())
 	    state |= Selected;
     }
-    if ( listBox()->focusPolicy() != QWidget::NoFocus ) {
+    if (listBox()->focusPolicy() != QWidget::NoFocus) {
 	state |= Focusable;
-	if ( item->isCurrent() )
+	if (item->isCurrent())
 	    state |= Focused;
     }
-    if ( !listBox()->itemVisible( item ) )
+    if (!listBox()->itemVisible(item))
 	state |= Invisible;
 
     return (State)state;
 }
 
-/*! \reimp */
-bool QAccessibleListBox::setFocus( int control )
+/*! \reimp
+bool QAccessibleListBox::setFocus(int child)
 {
-    bool res = QAccessibleScrollView::setFocus( 0 );
-    if ( !control || !res )
+    bool res = QAccessibleScrollView::setFocus(0);
+    if (!child || !res)
 	return res;
 
-    QListBoxItem *item = listBox()->item( control -1 );
-    if ( !item )
+    QListBoxItem *item = listBox()->item(child -1);
+    if (!item)
 	return FALSE;
-    listBox()->setCurrentItem( item );
+    listBox()->setCurrentItem(item);
     return TRUE;
-}
+}*/
 
 /*! \reimp */
-bool QAccessibleListBox::setSelected( int control, bool on, bool extend )
+bool QAccessibleListBox::setSelected(int child, bool on, bool extend)
 {
-    if ( !control || ( extend &&
+    if (!child || (extend &&
 	listBox()->selectionMode() != QListBox::Extended &&
-	listBox()->selectionMode() != QListBox::Multi ) )
+	listBox()->selectionMode() != QListBox::Multi))
 	return FALSE;
 
-    QListBoxItem *item = listBox()->item( control -1 );
-    if ( !item )
+    QListBoxItem *item = listBox()->item(child -1);
+    if (!item)
 	return FALSE;
-    if ( !extend ) {
-	listBox()->setSelected( item, on );
+    if (!extend) {
+	listBox()->setSelected(item, on);
     } else {
 	int current = listBox()->currentItem();
-	bool down = control > current;
-	for ( int i = current; i != control;) {
+	bool down = child > current;
+	for (int i = current; i != child;) {
 	    down ? i++ : i--;
-	    listBox()->setSelected( i, on );
+	    listBox()->setSelected(i, on);
 	}
 
     }
@@ -1977,14 +1809,14 @@ QVector<int> QAccessibleListBox::selection() const
     QVector<int> array;
     uint size = 0;
     const uint c = listBox()->count();
-    array.resize( c );
-    for ( uint i = 0; i < c; ++i ) {
-	if ( listBox()->isSelected( i ) ) {
+    array.resize(c);
+    for (uint i = 0; i < c; ++i) {
+	if (listBox()->isSelected(i)) {
 	    ++size;
 	    array[ (int)size-1 ] = i+1;
 	}
     }
-    array.resize( size );
+    array.resize(size);
     return array;
 }
 
@@ -1993,12 +1825,12 @@ QVector<int> QAccessibleListBox::selection() const
   \brief The QAccessibleListView class implements the QAccessibleInterface for list views.
 */
 
-static QListViewItem *findLVItem( QListView* listView, int control )
+static QListViewItem *findLVItem(QListView* listView, int child)
 {
     int id = 1;
-    QListViewItemIterator it( listView );
+    QListViewItemIterator it(listView);
     QListViewItem *item = it.current();
-    while ( item && id < control ) {
+    while (item && id < child) {
 	++it;
 	++id;
 	item = it.current();
@@ -2009,8 +1841,8 @@ static QListViewItem *findLVItem( QListView* listView, int control )
 /*!
   Constructs a QAccessibleListView object for \a o.
 */
-QAccessibleListView::QAccessibleListView( QObject *o )
-    : QAccessibleScrollView( o, Outline )
+QAccessibleListView::QAccessibleListView(QWidget *o)
+    : QAccessibleScrollView(o, Outline)
 {
 }
 
@@ -2022,16 +1854,16 @@ QListView *QAccessibleListView::listView() const
 }
 
 /*! \reimp */
-int QAccessibleListView::itemAt( int x, int y ) const
+int QAccessibleListView::itemAt(int x, int y) const
 {
-    QListViewItem *item = listView()->itemAt( QPoint( x, y ) );
-    if ( !item )
+    QListViewItem *item = listView()->itemAt(QPoint(x, y));
+    if (!item)
 	return 0;
 
-    QListViewItemIterator it( listView() );
+    QListViewItemIterator it(listView());
     int c = 1;
-    while ( it.current() ) {
-	if ( it.current() == item )
+    while (it.current()) {
+	if (it.current() == item)
 	    return c;
 	++c;
 	++it;
@@ -2040,20 +1872,20 @@ int QAccessibleListView::itemAt( int x, int y ) const
 }
 
 /*! \reimp */
-QRect QAccessibleListView::itemRect( int control ) const
+QRect QAccessibleListView::itemRect(int child) const
 {
-    QListViewItem *item = findLVItem( listView(), control );
-    if ( !item )
+    QListViewItem *item = findLVItem(listView(), child);
+    if (!item)
 	return QRect();
-    return listView()->itemRect( item );
+    return listView()->itemRect(item);
 }
 
 /*! \reimp */
 int QAccessibleListView::itemCount() const
 {
-    QListViewItemIterator it( listView() );
+    QListViewItemIterator it(listView());
     int c = 0;
-    while ( it.current() ) {
+    while (it.current()) {
 	++c;
 	++it;
     }
@@ -2062,76 +1894,76 @@ int QAccessibleListView::itemCount() const
 }
 
 /*! \reimp */
-QString QAccessibleListView::text( Text t, int control ) const
+QString QAccessibleListView::text(Text t, int child) const
 {
-    if ( !control || t != Name )
-	return QAccessibleScrollView::text( t, control );
+    if (!child || t != Name)
+	return QAccessibleScrollView::text(t, child);
 
-    QListViewItem *item = findLVItem( listView(), control );
-    if ( !item )
-	return QString::null;
-    return item->text( 0 );
+    QListViewItem *item = findLVItem(listView(), child);
+    if (!item)
+	return QString();
+    return item->text(0);
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleListView::role( int control ) const
+QAccessible::Role QAccessibleListView::role(int child) const
 {
-    if ( !control )
-	return QAccessibleScrollView::role( control );
+    if (!child)
+	return QAccessibleScrollView::role(child);
     return OutlineItem;
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleListView::state( int control ) const
+QAccessible::State QAccessibleListView::state(int child) const
 {
-    int state = QAccessibleScrollView::state( control );
+    int state = QAccessibleScrollView::state(child);
     QListViewItem *item;
-    if ( !control || !( item = findLVItem( listView(), control ) ) )
+    if (!child || !(item = findLVItem(listView(), child)))
 	return (State)state;
 
-    if ( item->isSelectable() ) {
-	if ( listView()->selectionMode() == QListView::Multi )
+    if (item->isSelectable()) {
+	if (listView()->selectionMode() == QListView::Multi)
 	    state |= MultiSelectable;
-	else if ( listView()->selectionMode() == QListView::Extended )
+	else if (listView()->selectionMode() == QListView::Extended)
 	    state |= ExtSelectable;
-	else if ( listView()->selectionMode() == QListView::Single )
+	else if (listView()->selectionMode() == QListView::Single)
 	    state |= Selectable;
-	if ( item->isSelected() )
+	if (item->isSelected())
 	    state |= Selected;
     }
-    if ( listView()->focusPolicy() != QWidget::NoFocus ) {
+    if (listView()->focusPolicy() != QWidget::NoFocus) {
 	state |= Focusable;
-	if ( item == listView()->currentItem() )
+	if (item == listView()->currentItem())
 	    state |= Focused;
     }
-    if ( item->childCount() ) {
-	if ( item->isOpen() )
+    if (item->childCount()) {
+	if (item->isOpen())
 	    state |= Expanded;
 	else
 	    state |= Collapsed;
     }
-    if ( !listView()->itemRect( item ).isValid() )
+    if (!listView()->itemRect(item).isValid())
 	state |= Invisible;
 
-    if ( item->rtti() == QCheckListItem::RTTI ) {
-	if ( ((QCheckListItem*)item)->isOn() )
+    if (item->rtti() == QCheckListItem::RTTI) {
+	if (((QCheckListItem*)item)->isOn())
 	    state|=Checked;
     }
     return (State)state;
 }
 
 /*! \reimp
-QAccessibleInterface *QAccessibleListView::focusChild( int *control ) const
+QAccessibleInterface *QAccessibleListView::focusChild(int *child) const
 {
     QListViewItem *item = listView()->currentItem();
-    if ( !item )
+    if (!item)
 	return 0;
 
-    QListViewItemIterator it( listView() );
+    QListViewItemIterator it(listView());
     int c = 1;
-    while ( it.current() ) {
-	if ( it.current() == item ) {
-	    *control = c;
+    while (it.current()) {
+	if (it.current() == item) {
+	    *child = c;
 	    return (QAccessibleInterface*)this;
 	}
 	++c;
@@ -2140,44 +1972,44 @@ QAccessibleInterface *QAccessibleListView::focusChild( int *control ) const
     return 0;
 }
 */
-/*! \reimp */
-bool QAccessibleListView::setFocus( int control )
+/*! \reimp
+bool QAccessibleListView::setFocus(int child)
 {
-    bool res = QAccessibleScrollView::setFocus( 0 );
-    if ( !control || !res )
+    bool res = QAccessibleScrollView::setFocus(0);
+    if (!child || !res)
 	return res;
 
-    QListViewItem *item = findLVItem( listView(), control );
-    if ( !item )
+    QListViewItem *item = findLVItem(listView(), child);
+    if (!item)
 	return FALSE;
-    listView()->setCurrentItem( item );
+    listView()->setCurrentItem(item);
     return TRUE;
-}
+}*/
 
 /*! \reimp */
-bool QAccessibleListView::setSelected( int control, bool on, bool extend )
+bool QAccessibleListView::setSelected(int child, bool on, bool extend)
 {
-    if ( !control || ( extend &&
+    if (!child || (extend &&
 	listView()->selectionMode() != QListView::Extended &&
-	listView()->selectionMode() != QListView::Multi ) )
+	listView()->selectionMode() != QListView::Multi))
 	return FALSE;
 
-    QListViewItem *item = findLVItem( listView(), control );
-    if ( !item )
+    QListViewItem *item = findLVItem(listView(), child);
+    if (!item)
 	return FALSE;
-    if ( !extend ) {
-	listView()->setSelected( item, on );
+    if (!extend) {
+	listView()->setSelected(item, on);
     } else {
 	QListViewItem *current = listView()->currentItem();
-	if ( !current )
+	if (!current)
 	    return FALSE;
 	bool down = item->itemPos() > current->itemPos();
-	QListViewItemIterator it( current );
-	while ( it.current() ) {
-	    listView()->setSelected( it.current(), on );
-	    if ( it.current() == item )
+	QListViewItemIterator it(current);
+	while (it.current()) {
+	    listView()->setSelected(it.current(), on);
+	    if (it.current() == item)
 		break;
-	    if ( down )
+	    if (down)
 		++it;
 	    else
 		--it;
@@ -2198,12 +2030,12 @@ QVector<int> QAccessibleListView::selection() const
     QVector<int> array;
     uint size = 0;
     int id = 1;
-    array.resize( size );
-    QListViewItemIterator it( listView() );
-    while ( it.current() ) {
-	if ( it.current()->isSelected() ) {
+    array.resize(size);
+    QListViewItemIterator it(listView());
+    while (it.current()) {
+	if (it.current()->isSelected()) {
 	    ++size;
-	    array.resize( size );
+	    array.resize(size);
 	    array[ (int)size-1 ] = id;
 	}
 	++it;
@@ -2218,11 +2050,11 @@ QVector<int> QAccessibleListView::selection() const
   \brief The QAccessibleIconView class implements the QAccessibleInterface for icon views.
 */
 
-static QIconViewItem *findIVItem( QIconView *iconView, int control )
+static QIconViewItem *findIVItem(QIconView *iconView, int child)
 {
     int id = 1;
     QIconViewItem *item = iconView->firstItem();
-    while ( item && id < control ) {
+    while (item && id < child) {
 	item = item->nextItem();
 	++id;
     }
@@ -2233,8 +2065,8 @@ static QIconViewItem *findIVItem( QIconView *iconView, int control )
 /*!
   Constructs a QAccessibleIconView object for \a o.
 */
-QAccessibleIconView::QAccessibleIconView( QObject *o )
-    : QAccessibleScrollView( o, Outline )
+QAccessibleIconView::QAccessibleIconView(QWidget *o)
+    : QAccessibleScrollView(o, Outline)
 {
     Q_ASSERT(widget()->inherits("QIconView"));
 }
@@ -2246,18 +2078,18 @@ QIconView *QAccessibleIconView::iconView() const
 }
 
 /*! \reimp */
-int QAccessibleIconView::itemAt( int x, int y ) const
+int QAccessibleIconView::itemAt(int x, int y) const
 {
-    QIconViewItem *item = iconView()->findItem( QPoint( x, y ) );
-    return iconView()->index( item ) + 1;
+    QIconViewItem *item = iconView()->findItem(QPoint(x, y));
+    return iconView()->index(item) + 1;
 }
 
 /*! \reimp */
-QRect QAccessibleIconView::itemRect( int control ) const
+QRect QAccessibleIconView::itemRect(int child) const
 {
-    QIconViewItem *item = findIVItem( iconView(), control );
+    QIconViewItem *item = findIVItem(iconView(), child);
 
-    if ( !item )
+    if (!item)
 	return QRect();
     return item->rect();
 }
@@ -2269,48 +2101,48 @@ int QAccessibleIconView::itemCount() const
 }
 
 /*! \reimp */
-QString QAccessibleIconView::text( Text t, int control ) const
+QString QAccessibleIconView::text(Text t, int child) const
 {
-    if ( !control || t != Name )
-	return QAccessibleScrollView::text( t, control );
+    if (!child || t != Name)
+	return QAccessibleScrollView::text(t, child);
 
-    QIconViewItem *item = findIVItem( iconView(), control );
-    if ( !item )
-	return QString::null;
+    QIconViewItem *item = findIVItem(iconView(), child);
+    if (!item)
+	return QString();
     return item->text();
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleIconView::role( int control ) const
+QAccessible::Role QAccessibleIconView::role(int child) const
 {
-    if ( !control )
-	return QAccessibleScrollView::role( control );
+    if (!child)
+	return QAccessibleScrollView::role(child);
     return OutlineItem;
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleIconView::state( int control ) const
+QAccessible::State QAccessibleIconView::state(int child) const
 {
-    int state = QAccessibleScrollView::state( control );
+    int state = QAccessibleScrollView::state(child);
     QIconViewItem *item;
-    if ( !control || !( item = findIVItem( iconView(), control ) ) )
+    if (!child || !(item = findIVItem(iconView(), child)))
 	return (State)state;
 
-    if ( item->isSelectable() ) {
-	if ( iconView()->selectionMode() == QIconView::Multi )
+    if (item->isSelectable()) {
+	if (iconView()->selectionMode() == QIconView::Multi)
 	    state |= MultiSelectable;
-	else if ( iconView()->selectionMode() == QIconView::Extended )
+	else if (iconView()->selectionMode() == QIconView::Extended)
 	    state |= ExtSelectable;
-	else if ( iconView()->selectionMode() == QIconView::Single )
+	else if (iconView()->selectionMode() == QIconView::Single)
 	    state |= Selectable;
-	if ( item->isSelected() )
+	if (item->isSelected())
 	    state |= Selected;
     }
-    if ( iconView()->itemsMovable() )
+    if (iconView()->itemsMovable())
 	state |= Moveable;
-    if ( iconView()->focusPolicy() != QWidget::NoFocus ) {
+    if (iconView()->focusPolicy() != QWidget::NoFocus) {
 	state |= Focusable;
-	if ( item == iconView()->currentItem() )
+	if (item == iconView()->currentItem())
 	    state |= Focused;
     }
 
@@ -2318,66 +2150,66 @@ QAccessible::State QAccessibleIconView::state( int control ) const
 }
 
 /*! \reimp
-QAccessibleInterface *QAccessibleIconView::focusChild( int *control ) const
+QAccessibleInterface *QAccessibleIconView::focusChild(int *child) const
 {
     QIconViewItem *item = iconView()->currentItem();
-    if ( !item )
+    if (!item)
 	return 0;
 
-    *control = iconView()->index( item );
+    *child = iconView()->index(item);
     return (QAccessibleInterface*)this;
 }
 */
-/*! \reimp */
-bool QAccessibleIconView::setFocus( int control )
+/*! \reimp
+bool QAccessibleIconView::setFocus(int child)
 {
-    bool res = QAccessibleScrollView::setFocus( 0 );
-    if ( !control || !res )
+    bool res = QAccessibleScrollView::setFocus(0);
+    if (!child || !res)
 	return res;
 
-    QIconViewItem *item = findIVItem( iconView(), control );
-    if ( !item )
+    QIconViewItem *item = findIVItem(iconView(), child);
+    if (!item)
 	return FALSE;
-    iconView()->setCurrentItem( item );
+    iconView()->setCurrentItem(item);
     return TRUE;
-}
+}*/
 
 /*! \reimp */
-bool QAccessibleIconView::setSelected( int control, bool on, bool extend  )
+bool QAccessibleIconView::setSelected(int child, bool on, bool extend )
 {
-    if ( !control || ( extend &&
+    if (!child || (extend &&
 	iconView()->selectionMode() != QIconView::Extended &&
-	iconView()->selectionMode() != QIconView::Multi ) )
+	iconView()->selectionMode() != QIconView::Multi))
 	return FALSE;
 
-    QIconViewItem *item = findIVItem( iconView(), control );
-    if ( !item )
+    QIconViewItem *item = findIVItem(iconView(), child);
+    if (!item)
 	return FALSE;
-    if ( !extend ) {
-	iconView()->setSelected( item, on, TRUE );
+    if (!extend) {
+	iconView()->setSelected(item, on, TRUE);
     } else {
 	QIconViewItem *current = iconView()->currentItem();
-	if ( !current )
+	if (!current)
 	    return FALSE;
 	bool down = FALSE;
 	QIconViewItem *temp = current;
-	while ( ( temp = temp->nextItem() ) ) {
-	    if ( temp == item ) {
+	while ((temp = temp->nextItem())) {
+	    if (temp == item) {
 		down = TRUE;
 		break;
 	    }
 	}
 	temp = current;
-	if ( down ) {
-	    while ( ( temp = temp->nextItem() ) ) {
-		iconView()->setSelected( temp, on, TRUE );
-		if ( temp == item )
+	if (down) {
+	    while ((temp = temp->nextItem())) {
+		iconView()->setSelected(temp, on, TRUE);
+		if (temp == item)
 		    break;
 	    }
 	} else {
-	    while ( ( temp = temp->prevItem() ) ) {
-		iconView()->setSelected( temp, on, TRUE );
-		if ( temp == item )
+	    while ((temp = temp->prevItem())) {
+		iconView()->setSelected(temp, on, TRUE);
+		if (temp == item)
 		    break;
 	    }
 	}
@@ -2397,17 +2229,17 @@ QVector<int> QAccessibleIconView::selection() const
     QVector<int> array;
     uint size = 0;
     int id = 1;
-    array.resize( iconView()->count() );
+    array.resize(iconView()->count());
     QIconViewItem *item = iconView()->firstItem();
-    while ( item ) {
-	if ( item->isSelected() ) {
+    while (item) {
+	if (item->isSelected()) {
 	    ++size;
 	    array[ (int)size-1 ] = id;
 	}
 	item = item->nextItem();
 	++id;
     }
-    array.resize( size );
+    array.resize(size);
     return array;
 }
 #endif
@@ -2421,8 +2253,8 @@ QVector<int> QAccessibleIconView::selection() const
 /*!
   Constructs a QAccessibleTextEdit object for \a o.
 */
-QAccessibleTextEdit::QAccessibleTextEdit( QObject *o )
-: QAccessibleScrollView( o, Pane )
+QAccessibleTextEdit::QAccessibleTextEdit(QWidget *o)
+: QAccessibleScrollView(o, Pane)
 {
     Q_ASSERT(widget()->inherits("QTextEdit"));
 }
@@ -2435,22 +2267,22 @@ QTextEdit *QAccessibleTextEdit::textEdit() const
 }
 
 /*! \reimp */
-int QAccessibleTextEdit::itemAt( int x, int y ) const
+int QAccessibleTextEdit::itemAt(int x, int y) const
 {
     int p;
-    QPoint cp = textEdit()->viewportToContents( QPoint( x,y ) );
-    textEdit()->charAt( cp , &p );
+    QPoint cp = textEdit()->viewportToContents(QPoint(x,y));
+    textEdit()->charAt(cp , &p);
     return p + 1;
 }
 
 /*! \reimp */
-QRect QAccessibleTextEdit::itemRect( int item ) const
+QRect QAccessibleTextEdit::itemRect(int item) const
 {
-    QRect rect = textEdit()->paragraphRect( item - 1 );
-    if ( !rect.isValid() )
+    QRect rect = textEdit()->paragraphRect(item - 1);
+    if (!rect.isValid())
 	return QRect();
-    QPoint ntl = textEdit()->contentsToViewport( QPoint( rect.x(), rect.y() ) );
-    return QRect( ntl.x(), ntl.y(), rect.width(), rect.height() );
+    QPoint ntl = textEdit()->contentsToViewport(QPoint(rect.x(), rect.y()));
+    return QRect(ntl.x(), ntl.y(), rect.width(), rect.height());
 }
 
 /*! \reimp */
@@ -2460,17 +2292,17 @@ int QAccessibleTextEdit::itemCount() const
 }
 
 /*! \reimp */
-QString QAccessibleTextEdit::text( Text t, int control ) const
+QString QAccessibleTextEdit::text(Text t, int child) const
 {
-    if ( !control || t != Name )
-	return QAccessibleScrollView::text( t, control );
-    return textEdit()->text( control-1 );
+    if (!child || t != Name)
+	return QAccessibleScrollView::text(t, child);
+    return textEdit()->text(child-1);
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleTextEdit::role( int control ) const
+QAccessible::Role QAccessibleTextEdit::role(int child) const
 {
-    if ( control )
+    if (child)
 	return EditableText;
-    return QAccessibleScrollView::role( control );
+    return QAccessibleScrollView::role(child);
 }

@@ -1974,9 +1974,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			break;
 		    }
 
-		    QCustomEvent e( QEvent::Accessibility, acc );
-		    QApplication::sendEvent( widget, &e );
-
 		    // and get an instance of the IAccessibile implementation
 		    IAccessible *iface = qt_createWindowsAccessible( acc );
 		    acc->release();

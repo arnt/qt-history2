@@ -620,7 +620,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accHitTest( long xLeft, long yTop,
     }
     QAccessibleInterface *acc = 0;
     if ( control )
-	accessible->navigate( Child, control-1, &acc );
+	accessible->navigate( Child, control, &acc );
     if ( !acc ) {
 	(*pvarID).vt = VT_I4;
 	(*pvarID).lVal = control;
@@ -672,48 +672,48 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accNavigate( long navDir, VARIANT 
     int control = -1;
     switch(navDir) {
     case NAVDIR_FIRSTCHILD:
-	control = accessible->navigate(Child, 0, &acc);
+	control = accessible->navigate(Child, 1, &acc);
 	break;
     case NAVDIR_LASTCHILD:
-	control = accessible->navigate(Child, accessible->childCount()-1, &acc);
+	control = accessible->navigate(Child, accessible->childCount(), &acc);
 	break;
     case NAVDIR_NEXT:
     case NAVDIR_PREVIOUS:
 	if (!varStart.lVal){
 	    QAccessibleInterface *parent = 0;
-	    accessible->navigate(Ancestor, 0, &parent);
+	    accessible->navigate(Ancestor, 1, &parent);
 	    if (parent) {
 		int index = parent->indexOfChild(accessible);
 		index += (navDir == NAVDIR_NEXT) ? 1 : -1;
-		if (index >= 0 && index < parent->childCount())
+		if (index > 0 && index <= parent->childCount())
 		    control = parent->navigate(Child, index, &acc);
 		parent->release();
 	    }
 	} else {
+	    int index = varStart.lVal;
+	    index += (navDir == NAVDIR_NEXT) ? 1 : -1;
+	    if (index > 0 && index <= accessible->childCount())
+		control = accessible->navigate(Child, index, &acc);
 	}
 	break;
     case NAVDIR_UP:
+	control = accessible->navigate(Above, varStart.lVal, &acc);
+	break;
     case NAVDIR_DOWN:
+	control = accessible->navigate(Below, varStart.lVal, &acc);
+	break;
     case NAVDIR_LEFT:
+	control = accessible->navigate(Left, varStart.lVal, &acc);
+	break;
     case NAVDIR_RIGHT:
+	control = accessible->navigate(Right, varStart.lVal, &acc);
+	break;
     default:
 	break;
     }
     if ( control == -1 ) {
 	(*pvarEnd).vt = VT_EMPTY;
 	return S_FALSE;
-    }
-    if ( control ) {
-/*	if ( varStart.lVal || navDir == NavFirstChild || navDir == NavLastChild || navDir == NavFocusChild ) {
-	    accessible->navigate(Child, control-1, &acc);
-	} else {
-	    QAccessibleInterface *parent = 0;
-	    accessible->navigate(Ancestor, 0, &parent);
-	    if ( parent ) {
-		parent->navigate(Child, control-1, &acc );
-		parent->release();
-	    }
-	}*/
     }
     if ( !acc ) {
 	(*pvarEnd).vt = VT_I4;
@@ -750,7 +750,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accChild( VARIANT varChildID, 
 	acc = accessible;
 	acc->addRef();
     } else {
-	accessible->navigate(Child, varChildID.lVal-1, &acc );
+	accessible->navigate(Child, varChildID.lVal, &acc );
     }
 
     if ( acc ) {
@@ -779,7 +779,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accParent( IDispatch** ppdispP
 	return E_FAIL;
 
     QAccessibleInterface *acc = 0;
-    accessible->navigate(Ancestor, 0, &acc);
+    accessible->navigate(Ancestor, 1, &acc);
     if (acc) {
 	QWindowsAccessible* wacc = new QWindowsAccessible( acc );
 	acc->release();
@@ -801,7 +801,8 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accDoDefaultAction( VARIANT varID 
     if ( !accessible->isValid() )
 	return E_FAIL;
 
-    if ( accessible->doAction( Default, varID.lVal ) )
+    int defAction = accessible->defaultAction(varID.lVal);
+    if (accessible->doAction(defAction, varID.lVal))
 	return S_OK;
 
     return DISP_E_MEMBERNOTFOUND;
@@ -812,7 +813,8 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDefaultAction( VARIANT varI
     if ( !accessible->isValid() )
 	return E_FAIL;
 
-    QString def = accessible->actionText( Default, Name, varID.lVal );
+    int defAction = accessible->defaultAction(varID.lVal);
+    QString def = accessible->actionText( defAction, Name, varID.lVal );
     if ( !!def ) {
 	*pszDefaultAction = QStringToBSTR( def );
 	return S_OK;
@@ -944,7 +946,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accSelect( long flagsSelect, VARIA
 
     bool res = FALSE;
     if ( flagsSelect & SELFLAG_TAKEFOCUS )
-	res = accessible->setFocus( varID.lVal );
+	res = accessible->doAction(SetFocus, varID.lVal);
     if ( flagsSelect & SELFLAG_TAKESELECTION ) {
 	accessible->clearSelection();
 	res = accessible->setSelected( varID.lVal, TRUE, FALSE );
@@ -965,13 +967,13 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accFocus( VARIANT *pvarID )
 	return E_FAIL;
 
     QAccessibleInterface *acc = 0;
-    int control = accessible->navigate( FocusChild, 0, &acc );
+    int control = accessible->navigate( FocusChild, 1, &acc );
     if ( control == -1 ) {
 	(*pvarID).vt = VT_EMPTY;
 	return S_FALSE;
     }
     if ( control )
-	accessible->navigate(Child, control-1, &acc);
+	accessible->navigate(Child, control, &acc);
     if ( !acc ) {
 	(*pvarID).vt = VT_I4;
 	(*pvarID).lVal = control;

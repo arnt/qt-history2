@@ -9,21 +9,17 @@ class QMenuBar;
 class QAccessiblePopup : public QAccessibleWidget
 {
 public:
-    QAccessiblePopup( QObject *o );
+    QAccessiblePopup(QWidget *w);
 
     int		childCount() const;
-    bool	queryChild( int control, QAccessibleInterface ** ) const;
+    int		childAt(int x, int y) const;
 
-    QRect	rect( int control ) const;
-    int		controlAt( int x, int y ) const;
-    int		navigate( NavDirection direction, int control ) const;
+    QRect	rect(int child) const;
+    QString	text(Text t, int child) const;
+    Role	role(int child) const;
+    State	state(int child) const;
 
-    QString	text( Text t, int control ) const;
-    Role	role( int control ) const;
-    State	state( int control ) const;
-
-    bool	doDefaultAction( int control );
-    bool	setFocus( int control );
+    bool	doAction(int action, int child);
 
 protected:
     QPopupMenu *popupMenu() const;
@@ -32,21 +28,17 @@ protected:
 class QAccessibleMenuBar : public QAccessibleWidget
 {
 public:
-    QAccessibleMenuBar( QObject *o );
+    QAccessibleMenuBar(QWidget *w);
 
     int		childCount() const;
-    bool	queryChild( int control, QAccessibleInterface ** ) const;
+    int		childAt(int x, int y) const;
 
-    QRect	rect( int control ) const;
-    int		controlAt( int x, int y ) const;
-    int		navigate( NavDirection direction, int control ) const;
+    QRect	rect(int child) const;
+    QString	text(Text t, int child) const;
+    Role	role(int child) const;
+    State	state(int child) const;
 
-    QString	text( Text t, int control ) const;
-    Role	role( int control ) const;
-    State	state( int control ) const;
-
-    bool	doDefaultAction( int control );
-    bool	setFocus( int control );
+    bool	doAction(int action, int child);
 
 protected:
     QMenuBar *menuBar() const;
