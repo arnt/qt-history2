@@ -1,11 +1,11 @@
 /****************************************************************************
 ** $Id$
 **
-** Definition of ________ class.
+** Implementation of VCProject class.
 **
-** Copyright (C) 2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 2002-2003 Trolltech AS.  All rights reserved.
 **
-** This file is part of the network module of the Qt GUI Toolkit.
+** This file is part of qmake.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Trolltech AS of Norway and appearing in the file
