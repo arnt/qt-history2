@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#24 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#25 $
 **
 ** Implementation of QSocketDevice class.
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -35,19 +35,6 @@
 **
 **********************************************************************/
 
-#include "qglobal.h"
-#if defined(Q_OS_LINUX)
-// Shouldn't we be using O_NDELAY instead of FNDELAY? O_NDELAY is the new
-// "standard" while FNDELAY is the old one.
-// <fcntl.h> defines 'FNDELAY' only if __USE_BSD is defined. __USE_BSD is
-// defined in <features.h> if _BSD_SOURCE is defined.  The conclusion is
-// that _BSD_SOURCE needs to be defined before <features.h> is included.
-// Now "qsocketdevice.h" includes "qiodevice.h" which includes "qcstring.h"
-// which includes <string.h> which includes <features.h>.  So _BSD_SOURCE
-// has to be defined before "qsocketdevice.h".
-#  define _BSD_SOURCE
-#endif
-
 #include "qsocketdevice.h"
 
 #ifndef QT_NO_NETWORK
@@ -58,15 +45,15 @@
 #if defined(Q_OS_AIX)
 // Please add comments! Which version of AIX? Why?
 // Adding #defines specifying BSD compatibility ought to be enough.
-#include <strings.h>
-#include <sys/select.h>
+#  include <strings.h>
+#  include <sys/select.h>
 #endif
 
 #if defined(Q_OS_OSF) && defined(_XOPEN_SOURCE_EXTENDED)
 // Tru64 redefines accept() to _accept() when XNS4 is specified using
 // _XOPEN_SOURCE_EXTENDED.  Avoid it as it breaks our sources.
-// No! Find another solution! We should use recent APIs.
-#undef _XOPEN_SOURCE_EXTENDED
+// We really should find another solution!
+#  undef _XOPEN_SOURCE_EXTENDED
 #endif
 
 #include <unistd.h>
@@ -74,14 +61,14 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
-// Needed for FIONREAD.
-// FIONREAD is #defined in <sys/filio.h>.
-// Have <sys/ioctl.h> include <sys/filio.h>.
-#define BSD_COMP
+// FIONREAD is #defined inside <sys/filio.h>.
+// Define BSD_COMP to have <sys/ioctl.h> include <sys/filio.h>.
+// Solaris 2.5.1, 7, and 8.
+#  define BSD_COMP
 #endif
 #include <sys/ioctl.h>
 #if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
-#undef BSD_COMP
+#  undef BSD_COMP
 #endif
 #include <sys/file.h>
 #include <sys/time.h>
@@ -92,42 +79,44 @@
 #include <errno.h>
 
 #if defined(Q_OS_QNX)
-#include <unix.h>
+#  include <unix.h>
 #endif
 
 #ifndef UNIX_PATH_MAX
-#define UNIX_PATH_MAX    108
+#  define UNIX_PATH_MAX    108
 #endif
 
 #ifdef __MIPSEL__
-#ifndef SOCK_DGRAM
-#define SOCK_DGRAM 1
-#endif
-#ifndef SOCK_STREAM
-#define SOCK_STREAM 2
-#endif
-#endif
-
-#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7) || defined(Q_OS_OS2EMX) || defined(Q_OS_QNX)
-// And this then?  Unixware?
-// Also why is this defined on Solaris? Seems to be in <sys/file.h>, unguarded,
-// in both Solaris 2.5.1 and Solaris 8!
-#if !defined(FNDELAY)
-#define FNDELAY O_NDELAY
-#endif
+#  ifndef SOCK_DGRAM
+#    define SOCK_DGRAM 1
+#  endif
+#  ifndef SOCK_STREAM
+#    define SOCK_STREAM 2
+#  endif
 #endif
 
 #if defined(Q_OS_UNIXWARE7)
 // UnixWare 7 redefines listen() to _listen() in socket.h
-#undef listen
+// It's a good idea to #undef this.
+// If it were unecessary why would the macro have been added
+// in the first place? We really should find another solution!
+#  undef listen
 #endif
 
 
 // no includes after this point
 
-
 #if defined(TIOCINQ) && !defined(FIONREAD)
-#define FIONREAD TIOCINQ
+#  define FIONREAD TIOCINQ
+#endif
+
+// ### Undefine this if you have problems with missing FNDELAY.
+// ### Please document and #ifdef against OS and OS release.
+// ### Will hopefully remove this before 3.0 release if all goes well.
+#if 0
+#if !defined (O_NDELAY) && defined (FNDELAY)
+#  define O_NDELAY FNDELAY
+#endif
 #endif
 
 // This mess (it's not yet a mess but I'm sure it'll be one before it's
@@ -139,8 +128,7 @@
 // modern unixes and you have to explicitly _ask_ for Single Unix 1998 by
 // setting for example _XOPEN_SOURCE=500 and we don't do that.
 //
-// Note: size_t seems to have been a short-lived non-LP64 compatible error
-// on most decent systems.
+// Note: size_t seems to have been a short-lived non-LP64 compatible error.
 
 #if defined(SOCKLEN_T)
 #  undef SOCKLEN_T
@@ -184,18 +172,17 @@
 #  define SOCKLEN_T int
 #endif
 
-// the next mess deals with EAGAIN and/or EWOULDBLOCK
-
+// The next mess deals with EAGAIN and/or EWOULDBLOCK.
 #if !defined(EAGAIN) && !defined(EWOULDBLOCK)
-#error "requires EAGAIN or EWOULDBLOCK"
+#  error "requires EAGAIN or EWOULDBLOCK"
 #endif
 
-// if one is there, define the other one similarly, so we can switch() easily
+// If one is there, define the other one similarly, so we can switch() easily.
 #if defined(EAGAIN) && !defined(EWOULDBLOCK)
-#define EWOULDBLOCK EAGAIN
+#  define EWOULDBLOCK EAGAIN
 #endif
 #if defined(EWOULDBLOCK) && !defined(EAGAIN)
-#define EAGAIN EWOULDBLOCK
+#  define EAGAIN EWOULDBLOCK
 #endif
 
 
@@ -285,7 +272,7 @@ bool QSocketDevice::blocking() const
     if ( !isValid() )
 	return TRUE;
     int s = fcntl(fd, F_GETFL, 0);
-    return !(s >= 0 && ((s & FNDELAY) != 0));
+    return !(s >= 0 && ((s & O_NDELAY) != 0));
 }
 
 
@@ -314,7 +301,7 @@ void QSocketDevice::setBlocking( bool enable )
 	return;
     int tmp = ::fcntl(fd, F_GETFL, 0);
     if ( tmp >= 0 )
-	tmp = fcntl( fd, F_SETFL, enable ? (tmp&!FNDELAY) : (tmp|FNDELAY) );
+	tmp = fcntl( fd, F_SETFL, enable ? (tmp&!O_NDELAY) : (tmp|O_NDELAY) );
     if ( tmp >= 0 )
 	return;
     if ( e )
@@ -973,4 +960,5 @@ void QSocketDevice::fetchConnectionParameters()
 	pa = QHostAddress( ntohl( sa.sin_addr.s_addr ) );
     }
 }
+
 #endif //QT_NO_NETWORK
