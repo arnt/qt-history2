@@ -2683,17 +2683,21 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		x += cs;
 		c++;
 	    }
+
 	    if ( current->i == d->focusItem && hasFocus() &&
 		 !d->allColumnsShowFocus ) {
 		p->save();
-		int c = d->h->mapToActual( 0 );
-		QRect r( d->h->cellPos( c ) - ox, current->y - oy, d->h->cellSize( c ), ih );
+		int cell = d->h->mapToActual( 0 );
+		QRect r( d->h->cellPos( cell ) - ox, current->y - oy, d->h->cellSize( cell ), ih );
 		if ( current->i->parentItem )
 		    r.setLeft( r.left() + current->l * treeStepSize() );
-		current->i->paintFocus( p, colorGroup(), r );
+		if ( r.left() < r.right() )
+		    current->i->paintFocus( p, colorGroup(), r );
 		p->restore();
 	    }
 	}
+
+    	const int cell = d->h->mapToActual( 0 );
 
 	// does current need focus indication?
 	if ( current->i == d->focusItem && hasFocus() &&
@@ -2705,14 +2709,15 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	    r.setRect( x, current->y - oy, w, ih );
 	    if ( d->h->mapToActual( 0 ) == 0 || ( current->l == 0 && !rootIsDecorated() ) ) {
-		r.setLeft( r.left() + current->l * treeStepSize() );
+		int offsetx = QMIN( current->l * treeStepSize(), d->h->cellSize( cell ) );
+		r.setLeft( r.left() + offsetx );
 		current->i->paintFocus( p, colorGroup(), r );
 	    } else {
-		int xdepth = treeStepSize() * ( current->i->depth() + ( rootIsDecorated() ? 1 : 0) )
-			     + itemMargin();
-		xdepth += d->h->cellPos( d->h->mapToActual( 0 ) );
+		int xdepth = QMIN( treeStepSize() * ( current->i->depth() + ( rootIsDecorated() ? 1 : 0) )
+			     + itemMargin(), d->h->cellSize( cell ) );
+		xdepth += d->h->cellPos( cell );
 		QRect r1( r );
-		r1.setRight( d->h->cellPos( d->h->mapToActual( 0 ) ) - 1 );
+		r1.setRight( d->h->cellPos( cell ) - 1 );
 		QRect r2( r );
 		r2.setLeft( xdepth - 1 );
 		current->i->paintFocus( p, colorGroup(), r1 );
@@ -2722,7 +2727,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	}
 
 	if ( tx < 0 )
-	    tx = d->h->cellPos( d->h->mapToActual( 0 ) );
+	    tx = d->h->cellPos( cell );
 
 	// do any children of current need to be painted?
 	if ( ih != ith &&
