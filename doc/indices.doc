@@ -99,6 +99,11 @@ Overviews
 \i \link functions.html   All Functions (long) \endlink
 \i \link headers.html   Header File Index \endlink
 \endlist
+<p>
+\list
+\i \link ftp://ftp.trolltech.com/qt/pdf/3.0/ Documentation in PDF \endlink
+\i \link ftp://ftp.trolltech.com/qt/man/ Documentation in man pages \endlink
+\endlist
 </td>
 <td valign=top>
 \list
