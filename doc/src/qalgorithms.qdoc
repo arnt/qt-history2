@@ -10,17 +10,17 @@
     class} that provides STL-style iterators, including Qt's QList,
     QLinkedList, QVector, QMap, and QHash classes.
 
-    These functions are inspired from the functions available in the
-    STL \c <algorithm> header. Most of them have a direct STL
-    equivalent; for example, qCopyBackward() is the same as STL's
-    copy_backward() algorithm.
+    These functions have taken their inspiration from similar
+    functions available in the STL \c <algorithm> header. Most of them
+    have a direct STL equivalent; for example, qCopyBackward() is the
+    same as STL's copy_backward() algorithm.
 
     If STL is available on all your target platforms, you can use the
     STL algorithms instead of their Qt counterparts. One reason why
-    you might want to use the this is that STL provides dozens and
-    dozens of algorithms. Qt concentrates on the basic, most
-    important ones, but doesn't attempt beyond that to duplicate
-    functionality that is already provided by the C++ standard.
+    you might want to use the the STL algorithms is that STL provides
+    dozens and dozens of algorithms, whereas Qt only provides the most
+    important ones, making no attempt to duplicate functionality that
+    is already provided by the C++ standard.
 
     Most algorithms take \l {STL-style iterators} as parameters. The
     algorithms are generic in the sense that they aren't bound to a
@@ -29,7 +29,7 @@
 
     Let's take the qFill() algorithm as an example. Unlike QVector,
     QList has no fill() function that can be used to fill a list with
-    a certain value. If you need that functionality, you can use
+    a particular value. If you need that functionality, you can use
     qFill():
 
     \code
@@ -50,21 +50,21 @@
         // list: [ "eleven", "six", "six" ]
     \endcode
 
-    The various algorithms have different requirements on the
+    The various algorithms have different requirements for the
     iterators they accept. For example, qFill() accepts two \l {input
-    iterators}, the lowest requirement for an iterator type. The
-    requirement are specified for every algorithm. If an iterator of
+    iterators}, the most minimal requirement for an iterator type. The
+    requirements are specified for every algorithm. If an iterator of
     the wrong type is passed (for example, QList::ConstIterator is
     passed as an \l{output iterator}), you will always get a
-    compiler error, although not necessary a highly readable one.
+    compiler error, although not necessarily a very informative one.
 
     Some algorithms have special requirements on the value type
     stored in the containers. For example, qEqual() requires that the
     value type supports operator==(), which it uses to compare items.
     Similarly, qDeleteAll() requires that the value type is a
-    non-const pointer type (for example, QWidget *). The requirements
-    are specified for each algorithm, and the compiler will produce
-    an error if such a constraint isn't met.
+    non-const pointer type (for example, QWidget *). The value type
+    requirements are specified for each algorithm, and the compiler
+    will produce an error if a requirement isn't met.
 
     The generic algorithms can be used on other container classes
     than those provided by Qt and STL. The syntax of STL-style
@@ -119,10 +119,10 @@
 
     \section1 Types of Iterators
 
-    The algorithms have certain requirements on the iterator type
-    they accept. The requirements on the iterator types are specified
-    for each function. The compiler will produce an error if a
-    requirement isn't met.
+    The algorithms have certain requirements on the iterator types
+    they accept, and these are specified individually for each
+    function. The compiler will produce an error if a requirement
+    isn't met.
 
     \section2 Input Iterators
 
@@ -151,7 +151,7 @@
     A \e{forward iterator} is an iterator that meets the requirements
     of both input iterators and output iterators.
 
-    The Qt containers' non-const iterator types are all output
+    The Qt containers' non-const iterator types are all forward
     iterators.
 
     \section2 Bidirectional Iterators
@@ -160,7 +160,7 @@
     requirements of forward iterators but that in addition supports
     \c{--} for iterating backward.
 
-    The Qt containers' non-const iterator types are all output
+    The Qt containers' non-const iterator types are all bidirectional
     iterators.
 
     \section2 Random Access Iterators
@@ -177,7 +177,7 @@
     \row \i \c{i - n} \i returns the iterator for the item \c n positions behind of iterator \c i
     \row \i \c{i - j} \i returns the number of items between iterators \c i and \c j
     \row \i \c{i[n]} \i same as \c{*(i + n)}
-    \row \i \c{i < j} \i returns true if iterator \c j lies ahead of iterator \c i
+    \row \i \c{i < j} \i returns true if iterator \c j comes after iterator \c i
     \endtable
 
     QList, QLinkedList, and QVector's non-const iterator types are
@@ -194,7 +194,7 @@
 
     The item at position \a begin1 is assigned to that at position \a
     begin2; the item at position \a begin1 + 1 is assigned to that at
-    position \a begin2 + 2; and so on.
+    position \a begin2 + 1; and so on.
 
     Example:
     \code
@@ -241,7 +241,7 @@
 
     Compares the items in the range [\a begin1, \a end1) with the
     items in the range [\a begin2, ...). Returns true if all the
-    items compare equal, false otherwise.
+    items compare equal; otherwise returns false.
 
     Example:
     \code
@@ -254,11 +254,11 @@
         vect[2] = "three";
 
 	bool ret1 = qEqual(list.begin(), list.end(), vect.begin());
-        // ret1 is true
+        // ret1 == true
 
         vect[2] = "seven";
 	bool rec2 = qEqual(list.begin(), list.end(), vect.begin());
-        // ret2 is false
+        // ret2 == false
     \endcode
 
     This function requires the item type (in the example above,
@@ -299,13 +299,13 @@
         QList<QString> list;
         list << "one" << "two" << "three";
 
-        QList<QString>::Iterator it1 = qFind(list.begin(), list.end(),
-					     "two");
-	// it1 == list.begin() + 1
+        QList<QString>::Iterator i1 = qFind(list.begin(), list.end(),
+				            "two");
+	// i1 == list.begin() + 1
 
-        QList<QString>::Iterator it2 = qFind(list.begin(), list.end(),
-					     "seventy");
-	// it2 == list.end()
+        QList<QString>::Iterator i2 = qFind(list.begin(), list.end(),
+					    "seventy");
+	// i2 == list.end()
     \endcode
 
     This function requires the item type (in the example above,
@@ -329,13 +329,13 @@
 	QList<int> list;
         list << 3 << 3 << 6 << 6 << 6 << 8;
 
-	int count6;
-        qCount(list.begin(), list.end(), count6, 6);
-        // count6 == 3
+	int countOf6;
+        qCount(list.begin(), list.end(), countOf6, 6);
+        // countOf6 == 3
 
-	int count7;
-        qCount(list.begin(), list.end(), count7, 7);
-        // count7 == 0
+	int countOf7;
+        qCount(list.begin(), list.end(), countOf7, 7);
+        // countOf7 == 0
     \endcode
 
     This function requires the item type (in the example above,
@@ -375,8 +375,8 @@
 
     The bubble sort algorithm can be very slow on large data sets.
     Its behavior is said to be \l quadratic. Use this algorithm only
-    if you are certain that there are only a few items to sort, say,
-    less than 30. If you can't guarantee that, use qHeapSort()
+    if you are certain that there are only a very few items to sort,
+    say, less than 30. If you can't guarantee that, use qHeapSort()
     instead.
 
     This function requires the item type (in the example above,
@@ -421,9 +421,10 @@
         // list: [ 6, 12, 12, 33, 68 ]
     \endcode
 
-    The heap sort algorithm can be slower than bubble sort (qBubbleSort())
-    for small data sets, but is much faster on large data sets. Its behavior
-    is said to be \l {linear-logarithmic}, O(\e{n} log \e{n}).
+    The heap sort algorithm can be slower than bubble sort
+    (qBubbleSort()) for very small data sets, but is much faster on
+    large data sets. Its behavior is said to be \l
+    {linear-logarithmic}, O(\e{n} log \e{n}).
 
     This function requires the item type (in the example above,
     \c{int}) to implement \c operator<().
@@ -448,19 +449,19 @@
     inserted.
 
     The items in the range [\a begin, \e end) must be sorted in
-    ascending order beforehand.
+    ascending order; see qHeapSort().
 
     Example:
     \code
 	QList<int> list;
         list << 3 << 3 << 6 << 6 << 6 << 8;
 
-        QList<int>::Iterator it = qLowerBound(list.begin(), list.end(), 5);
-	list.insert(it, 5);
+        QList<int>::Iterator i = qLowerBound(list.begin(), list.end(), 5);
+	list.insert(i, 5);
         // list: [ 3, 3, 5, 6, 6, 6, 8 ]
 
-	it = qLowerBound(list.begin(), list.end(), 12);
-        list.insert(it, 12);
+	i = qLowerBound(list.begin(), list.end(), 12);
+        list.insert(i, 12);
         // list: [ 3, 3, 5, 6, 6, 6, 8, 12 ]
     \endcode
 
@@ -476,12 +477,12 @@
         QVector<int>::Iterator begin6 =
 	        qLowerBound(vect.begin(), vect.end(), 6);
         QVector<int>::Iterator end6 =
-	        qLowerBound(vect.begin(), vect.end(), 6);
+	        qUpperBound(begin6, vect.end(), 6);
 
-	QVector<int>::Iterator it = begin6;
-        while (it != end6) {
-	    *it = 7;
-            ++it;
+	QVector<int>::Iterator i = begin6;
+        while (i != end6) {
+	    *i = 7;
+            ++i;
         }
         // vect: [ 3, 3, 7, 7, 7, 8 ]
     \endcode
@@ -498,19 +499,19 @@
     should be inserted.
 
     The items in the range [\a begin, \e end) must be sorted in
-    ascending order beforehand.
+    ascending order; see qHeapSort().
 
     Example:
     \code
 	QList<int> list;
         list << 3 << 3 << 6 << 6 << 6 << 8;
 
-        QList<int>::Iterator it = qLowerBound(list.begin(), list.end(), 5);
-	list.insert(it, 5);
+        QList<int>::Iterator i = qLowerBound(list.begin(), list.end(), 5);
+	list.insert(i, 5);
         // list: [ 3, 3, 5, 6, 6, 6, 8 ]
 
-	it = qLowerBound(list.begin(), list.end(), 12);
-        list.insert(it, 12);
+	i = qLowerBound(list.begin(), list.end(), 12);
+        list.insert(i, 12);
         // list: [ 3, 3, 5, 6, 6, 6, 8, 12 ]
     \endcode
 
@@ -526,12 +527,12 @@
         QVector<int>::Iterator begin6 =
 	        qLowerBound(vect.begin(), vect.end(), 6);
         QVector<int>::Iterator end6 =
-	        qLowerBound(vect.begin(), vect.end(), 6);
+	        qUpperBound(begin6, vect.end(), 6);
 
-	QVector<int>::Iterator it = begin6;
-        while (it != end6) {
-	    *it = 7;
-            ++it;
+	QVector<int>::Iterator i = begin6;
+        while (i != end6) {
+	    *i = 7;
+            ++i;
         }
         // vect: [ 3, 3, 7, 7, 7, 8 ]
     \endcode
@@ -546,21 +547,21 @@
     returns the position of an occurrence of \a value. If there are
     no occurrences of \a value, returns \a end.
 
-    The items in the range [\a begin, \e end) must be sorted in
-    ascending order beforehand.
+    The items in the range [\a begin, \a end) must be sorted in
+    ascending order; see qHeapSort().
 
-    If there are many occurrences of the same value, it is not
-    specified which one is returned. Use qLowerBound() or
-    qUpperBound() if you need more control.
+    If there are many occurrences of the same value, any one of them
+    could be returned. Use qLowerBound() or qUpperBound() if you need
+    finer control.
 
     Example:
     \code
 	QVector<int> vect;
         vect << 3 << 3 << 6 << 6 << 6 << 8;
 
-	QVector<int>::Iterator it =
+	QVector<int>::Iterator i =
 		qBinaryFind(vect.begin(), vect.end(), 6);
-	// it == vect.begin() + 2 (or 3 or 4)
+	// i == vect.begin() + 2 (or 3 or 4)
     \endcode
 
     This function requires the item type (in the example above,

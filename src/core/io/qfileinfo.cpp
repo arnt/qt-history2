@@ -1044,3 +1044,21 @@ QFileInfo::setCaching(bool enable)
     Use makeAbsolute() instead.
 */
 
+/*!
+    \enum QFileInfo::PermissionSpec
+
+    \compat
+
+    \value ReadOwner
+    \value WriteOwner
+    \value ExeOwner
+    \value ReadUser
+    \value WriteUser
+    \value ExeUser
+    \value ReadGroup
+    \value WriteGroup
+    \value ExeGroup
+    \value ReadOther
+    \value WriteOther
+    \value ExeOther
+*/

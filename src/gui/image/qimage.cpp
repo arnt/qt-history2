@@ -659,6 +659,12 @@ QImage QImage::copy() const
 
     The returned image always has the size of the rectangle \a r. In
     areas beyond this image pixels are filled with pixel 0.
+
+    If the image needs to be modified to fit in a lower-resolution
+    result (e.g. converting from 32-bit to 8-bit), use the \a
+    conversion_flags to specify how you'd prefer this to happen.
+
+    \sa bitBlt() Qt::ImageConversionFlags
 */
 inline QImage QImage::copy(const QRect& r, int conversion_flags) const
 {
@@ -836,6 +842,9 @@ uchar **QImage::jumpTable()
     return data->bits;
 }
 
+/*!
+    \overload
+*/
 const uchar * const *QImage::jumpTable() const
 {
     return data->bits;
@@ -852,6 +861,9 @@ QRgb *QImage::colorTable()
     return data->ctbl;
 }
 
+/*!
+    \overload
+*/
 const QRgb *QImage::colorTable() const
 {
     return data->ctbl;
@@ -941,6 +953,9 @@ uchar *QImage::scanLine(int i)
     return data->bits ? data->bits[i] : 0;
 }
 
+/*!
+    \overload
+*/
 const uchar *QImage::scanLine(int i) const
 {
     Q_ASSERT(i < height());
@@ -960,6 +975,9 @@ uchar *QImage::bits()
     return data->bits ? data->bits[0] : 0;
 }
 
+/*!
+    \overload
+*/
 const uchar *QImage::bits() const
 {
     return data->bits ? data->bits[0] : 0;

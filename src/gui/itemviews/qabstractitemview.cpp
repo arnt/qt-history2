@@ -1328,7 +1328,8 @@ int QAbstractItemView::columnSizeHint(int column) const
 
 /*!
     Sets the editor created by the delegate as a persistent
-    editor for the item at the given \a index.
+    editor for the item at the given \a index. (The \a enable argument
+    should not be used.)
 */
 void QAbstractItemView::setPersistentEditor(const QModelIndex &index, bool enable)
 {

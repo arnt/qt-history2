@@ -53,6 +53,9 @@
     item.
 
     \value Widget The editor() is a widget.
+    \value PersistentWidget The editor() is a widget whose ownership
+    is not passed to the QAbstractItemDelegate and which must be
+    deleted manually when no longer required.
     \value Events There is no editor() widget; used if event() is
     reimplemented.
 */

@@ -192,6 +192,13 @@
     Appends item \a t to the array, extending the array if necessary.
 */
 
+/*!
+    \fn void QVarLengthArray::append(const T *buf, int size)
+
+    \internal
+*/
+
+
 /*! \fn T *QVarLengthArray::data()
 
     Returns a pointer to the data stored in the array. The pointer can

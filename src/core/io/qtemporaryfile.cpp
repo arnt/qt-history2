@@ -181,9 +181,9 @@ QTemporaryFile::autoRemove() const
 }
 
 /*!
-  Sets the QTemporaryFile into auto-remove mode. 
+    Sets the QTemporaryFile into auto-remove mode if \a b is true.
 
-  \sa QTemporarFile::autoRemove(), QTemporaryFile::remove()
+    \sa QTemporarFile::autoRemove(), QTemporaryFile::remove()
 */
 void
 QTemporaryFile::setAutoRemove(bool b)
@@ -290,6 +290,19 @@ QIOEngine
 }
 
 
+
+/*!
+    \fn QTemporaryFile *QTemporaryFile::createLocalFile(const QString &fileName)
+
+    Works on the given \a fileName rather than an existing QFile
+    object.
+*/
+
+
+/*!
+    Creates and returns a local temporary file whose contents are a
+    copy of the contens of the given \a file.
+*/
 QTemporaryFile
 *QTemporaryFile::createLocalFile(QFile &file)
 {
