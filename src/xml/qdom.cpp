@@ -461,7 +461,7 @@ uint QDOM_NodeListPrivate::length() const
   \module XML
 
   Lists can be obtained by QDomDocument::elementsByTagName() and
-  QDomNode::childNode(). The Document Object Model (DOM) requires these lists
+  QDomNode::childNodes(). The Document Object Model (DOM) requires these lists
   to be "live": whenever you change the underlying document, the contents of
   the list will get updated.
 
@@ -3471,8 +3471,9 @@ QDomAttr QDomElement::removeAttributeNode( const QDomAttr& oldAttr )
 }
 
 /*!
-  Returns a QDomNodeList containing all child elements of this element
-  with the name \a tagname.
+  Returns a QDomNodeList containing all descendant elements of this element
+  with the name \a tagname. The order they are in the node list, is the order
+  they are encountered in a preorder traversal of the element tree.
 */
 QDomNodeList QDomElement::elementsByTagName( const QString& tagname ) const
 {
@@ -5289,7 +5290,8 @@ QDomEntityReference QDomDocument::createEntityReference( const QString& name )
 
 /*!
   Returns a QDomNodeList, that contains all elements in the document
-  with the tag name \a tagname.
+  with the tag name \a tagname. The order of the node list, is the
+  order they are encountered in a preorder traversal of the element tree.
 */
 QDomNodeList QDomDocument::elementsByTagName( const QString& tagname ) const
 {
