@@ -325,9 +325,8 @@ of items. This subject is covered in more detail in the
 \section2 Using Model Indexes
 
 To demonstrate how data can be retrieved from a model, using model
-indexes, we set up a QDirModel without a view and print out the
-names of files and directories to a terminal. We will use the
-qDebug() function for this purpose.
+indexes, we set up a QDirModel without a view and display the
+names of files and directories in a widget.
 Although this does not show a normal way of using a model, it demonstrates
 the conventions used by models when dealing with model indexes.
 
@@ -358,7 +357,7 @@ the \l{QAbstractItemModel::Role}{DisplayRole} to obtain data for the
 item in the form of a string.
 
 \skipto QString text
-\printuntil qDebug
+\printuntil // Display
 \skipto }
 \printuntil }
 
