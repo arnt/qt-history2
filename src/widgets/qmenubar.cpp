@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#42 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#41 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#42 $")
 
 
 /*!
@@ -283,11 +283,12 @@ void QMenuBar::show()
 	QString s = mi->string();
 	if ( !s.isEmpty() ) {
 	    int i = s.find( '&' );
-	    if ( i >= 0 && s[i+1] != '&' ) {
-		int k = toupper(s[i+1]);
-		k = k - 'A' + Key_A;
+	    if ( i >= 0 && isalnum(s[i+1]) ) {
+		int k = s[i+1];
+		if ( isalpha(k) )
+		    k = toupper(k) - 'A' + Key_A;		
 		if ( !autoaccel ) {
-		    autoaccel = new QAccel( w );
+		    autoaccel = new QAccel( this );
 		    CHECK_PTR( autoaccel );
 		    connect( autoaccel, SIGNAL(activated(int)),
 			     SLOT(accelActivated(int)) );
@@ -297,8 +298,8 @@ void QMenuBar::show()
 		autoaccel->insertItem( ALT+k, mi->id() );
 	    }
 	}
-	if ( mi->popup() && w ) {
-	    mi->popup()->updateAccel( w );
+	if ( mi->popup() ) {
+	    mi->popup()->updateAccel( this );
 	    if ( mi->popup()->isDisabled() )
 		mi->popup()->enableAccel( FALSE );
 	}
