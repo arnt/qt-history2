@@ -38,7 +38,7 @@
 #include <math.h>
 
 // #define QT_DEBUG_DRAW
-=#ifdef QT_DEBUG_DRAW
+#ifdef QT_DEBUG_DRAW
 bool qt_show_painter_debug_output = true;
 #endif
 
