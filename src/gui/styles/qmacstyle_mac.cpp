@@ -147,14 +147,17 @@ QMacStyle::~QMacStyle()
 void QMacStyle::polish(QApplication* app)
 {
 #if defined( USE_CORE_GRAPHICS ) && QT_MACOSX_VERSION >= 0x1030
-    if(!cg_style)
-	cg_style = new QMacStyleCG();
-    cg_style->polish(app);
-#else
-    if(!qd_style)
-	qd_style = new QMacStyleQD();
-    qd_style->polish(app);
+    if(!getenv("QT_MAC_USE_APPMANAGER")) {
+        if(!cg_style)
+            cg_style = new QMacStyleCG();
+        cg_style->polish(app);
+    } else
 #endif
+    {
+        if(!qd_style)
+            qd_style = new QMacStyleQD();
+        qd_style->polish(app);
+    }
 }
 
 /*! \reimp */

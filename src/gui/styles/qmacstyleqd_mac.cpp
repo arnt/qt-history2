@@ -38,13 +38,13 @@ void QMacStyleQDPainter::setport()
 	mpe = (QQuickDrawPaintEngine*)d->engine;
     if(mpe) {
 	mpe->updateState(mpe->state);
-#ifdef USE_CORE_GRAPHICS
-	QRegion rgn;
-	mpe->setupQDPort(true, 0, &rgn);
-	QMacSavedPortInfo::setClipRegion(rgn);
-#else
-	mpe->setupQDPort(true);
-#endif
+        if(mpe->type() != QPaintEngine::CoreGraphics) {
+            QRegion rgn;
+            mpe->setupQDPort(true, 0, &rgn);
+            QMacSavedPortInfo::setClipRegion(rgn);
+        } else {
+            mpe->setupQDPort(true);
+        }
     }
     NormalizeThemeDrawingState();
 }

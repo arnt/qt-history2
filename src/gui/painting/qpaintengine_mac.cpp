@@ -162,11 +162,8 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipp
 	}
     }
     d->unclipped = unclipped;
-#ifndef USE_CORE_GRAPHICS
     if(type() != CoreGraphics)
 	setupQDPort(true); //force setting paint device, this does unclipped fu
-#endif
-
     updateXForm(ps);
     updateBrush(ps);
     updatePen(ps);
@@ -1019,10 +1016,8 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
     }
     { //setup the port
 	QMacSavedPortInfo::setPaintDevice(d->pdev);
-#ifndef USE_CORE_GRAPHICS
 	if(type() != CoreGraphics)
 	    QMacSavedPortInfo::setClipRegion(d->clip.paintable);
-#endif
     }
     if(off)
 	*off = QPoint(d->offx, d->offy);
