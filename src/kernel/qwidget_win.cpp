@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#166 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#167 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -797,15 +797,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	}
 	setFRect( QRect(x,y,w,h) );
 	setWFlags( WState_ConfigPending );
-#warning "next few lines have been removed - please look at that"
-#if 0
-	if ( extra && extra->topextra ) {
-	    // They might be different
-	    QSize fs = frameSize();
-	    w += fs.width()  - crect.width();
-	    h += fs.height() - crect.height();
-	}
-#endif
 	MoveWindow( winId(), x, y, w, h, TRUE );
 	clearWFlags( WState_ConfigPending );
     }
