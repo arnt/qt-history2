@@ -2990,10 +2990,6 @@ void qt_draw_background( QPainter *p,
 */
 void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection dir )
 {
-    if (len < 0)
-        len = str.length();
-    if (len == 0)
-        return;
     drawText( x, y, str, 0, len, dir );
 }
 
@@ -3008,7 +3004,9 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 {
     if ( !isActive() )
         return;
-    if ( len == 0 || pos >= (int)str.length() ) // empty string
+    if (len < 0)
+        len = str.length() - pos;
+    if ( len <= 0 || pos >= (int)str.length() ) // empty string
         return;
     if ( pos + len > (int)str.length() )
         len = str.length() - pos;
