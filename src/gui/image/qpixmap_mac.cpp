@@ -534,19 +534,11 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     hs=height();
 
     QPixmap pm(w, h, depth(), optimization());
+    pm.fill(0x00FFFFFF);
     dptr = (uchar *)GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(&pm)));
     dbpl = GetPixRowBytes(GetGWorldPixMap(qt_macQDHandle(&pm)));
     bpp = 32;
     dbytes = dbpl*h;
-
-    if(bpp == 1)
-        memset(dptr, 0x00, dbytes);
-    else if(bpp == 8)
-        memset(dptr, QColor(Qt::white).pixel(), dbytes);
-    else if(bpp == 32)
-        pm.fill(0x00FFFFFF);
-    else
-        memset(dptr, 0xff, dbytes);
 
     int        xbpl = bpp == 1 ? ((w+7)/8) : ((w*bpp)/8);
     if(!qt_xForm_helper(mat, 0, QT_XFORM_TYPE_MSBFIRST, bpp,
@@ -561,13 +553,13 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
             if(data->selfmask)               // pixmap == mask
                 pm.setMask(*((QBitmap*)(&pm)));
             else
-                pm.setMask(data->mask->xForm(matrix));
+                pm.setMask(data->mask->transform(matrix));
         }
     } else if(data->mask) {
-        pm.setMask(data->mask->xForm(matrix));
+        pm.setMask(data->mask->transform(matrix));
     }
     if(data->alphapm)
-        pm.data->alphapm = new QPixmap(data->alphapm->xForm(matrix));
+        pm.data->alphapm = new QPixmap(data->alphapm->transform(matrix));
     return pm;
 }
 
