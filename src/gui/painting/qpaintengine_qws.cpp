@@ -527,7 +527,7 @@ void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QR
     int sh = int(sr.height());
 
     if ((w != sw || h != sh) && (sx != 0) && (sy != 0))
-        qDebug("QWSPaintEngine::drawPixmap offset stretch notimplemented");
+        qDebug("QWSPaintEngine::drawPixmap offset stretch not implemented");
 
     // convert the mask to alpha 0
     if (state->txop > QPainterPrivate::TxTranslate
@@ -550,10 +550,10 @@ Qt::HANDLE QWSPaintEngine::handle() const{
 
 
 void QWSPaintEngine::initialize(){
-        qDebug("QWSPaintEngine::initialize");
+//        qDebug("QWSPaintEngine::initialize");
 }
 void QWSPaintEngine::cleanup(){
-        qDebug("QWSPaintEngine::cleanup");
+//        qDebug("QWSPaintEngine::cleanup");
 }
 
 void QWSPaintEngine::setGlobalRegionIndex(int idx)
