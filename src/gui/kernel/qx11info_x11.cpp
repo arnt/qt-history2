@@ -165,6 +165,8 @@ QX11InfoData* QX11Info::getX11Data(bool def) const
 
 int QX11Info::appDpiX(int screen)
 {
+    if (!X11)
+        return 75;
     if (screen < 0)
         screen = X11->defaultScreen;
     if (screen > X11->screenCount)
@@ -182,6 +184,8 @@ int QX11Info::appDpiX(int screen)
 
 void QX11Info::setAppDpiX(int screen, int xdpi)
 {
+    if (!X11)
+        return;
     if (screen < 0)
         screen = X11->defaultScreen;
     if (screen > X11->screenCount)
@@ -199,6 +203,8 @@ void QX11Info::setAppDpiX(int screen, int xdpi)
 
 int QX11Info::appDpiY(int screen)
 {
+    if (!X11)
+        return 75;
     if (screen < 0)
         screen = X11->defaultScreen;
     if (screen > X11->screenCount)
@@ -215,6 +221,8 @@ int QX11Info::appDpiY(int screen)
 
 void QX11Info::setAppDpiY(int screen, int ydpi)
 {
+    if (!X11)
+        return;
     if (screen < 0)
         screen = X11->defaultScreen;
     if (screen > X11->screenCount)
@@ -228,7 +236,7 @@ void QX11Info::setAppDpiY(int screen, int ydpi)
 
 Display *QX11Info::display()
 {
-    return X11->display;
+    return X11 ? X11->display : 0;
 }
 
 /*!
