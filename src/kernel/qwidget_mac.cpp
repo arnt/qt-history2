@@ -79,6 +79,26 @@ static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_era
     if(!p || r.isEmpty() || !p->isVisible())
 	return;
 
+    QRegion pa(p->clippedRegion());
+    QPoint point(posInWindow(p));
+    pa.translate( -point.x(), -point.y() );
+    pa &= r;
+    if(!pa.isEmpty()) {
+	bool painted = FALSE, erase = force_erase || !p->testWFlags(QWidget::WRepaintNoErase);
+	if(now) {
+	    /* this is stupid, probably should just post, I need to ask mathias! FIXME */
+	    if(!p->testWState(QWidget::WState_BlockUpdates)) {
+		painted = TRUE;
+		p->repaint(pa, erase);
+	    } else if(erase) {
+		erase = FALSE;
+		p->erase(pa);
+	    }
+	}
+	if(!painted)
+	    QApplication::postEvent(p, new QPaintEvent(pa, erase));
+    }
+
     if(QObjectList * childObjects=(QObjectList*)p->children()) {
 	QObjectListIt it(*childObjects);
 	for(it.toLast(); it.current(); --it) {
@@ -87,29 +107,12 @@ static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_era
 		if ( w->topLevelWidget() == p->topLevelWidget() && w->isVisible() ) {
 		    QRegion wr = QRegion(w->geometry()) & r;
 		    if ( !wr.isEmpty() ) {
-			r -= wr; //take that from the parent!
 			wr.translate( -w->x(), -w->y() );
 			paint_children(w, wr, now, force_erase);
 		    }
 		}
 	    }
 	}
-    }
-
-    if(!r.isEmpty()) {
-	bool painted = FALSE, erase = force_erase || !p->testWFlags(QWidget::WRepaintNoErase);
-	if(now) {
-	    /* this is stupid, probably should just post, I need to ask mathias! FIXME */
-	    if(!p->testWState(QWidget::WState_BlockUpdates)) {
-		painted = TRUE;
-		p->repaint(r, erase);
-	    } else if(erase) {
-		erase = FALSE;
-		p->erase(r);
-	    }
-	}
-	if(!painted)
-	    QApplication::postEvent(p, new QPaintEvent(r, erase));
     }
 }
 
