@@ -62,6 +62,9 @@ if [ "$relpath" != `pwd` ]; then
 	cp -a $relpath/include/*.h $outpath/include
     fi
 
+    # symlink the doc directory
+    ln -sf $relpath/doc $outpath/doc
+
     #let qmake see qconfig/qmodules.h
     QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=$outpath/src/tools\""
     #binaries from qt
@@ -991,6 +994,9 @@ else
     [ -f $outpath/src/tools/qconfig.h ] && chmod +w $outpath/src/tools/qconfig.h
     mv $outpath/src/tools/qconfig.h.new $outpath/src/tools/qconfig.h
     chmod -w $outpath/src/tools/qconfig.h
+    # incase of shadow builds, relink qconfig.h
+    rm -f $outpath/include/qconfig.h
+    ln -sf $outpath/src/tools/qconfig.h $outpath/include/qconfig.h
 fi
 
 # Next, emit a usage message if something failed.
@@ -1278,6 +1284,9 @@ else
     [ -f $outpath/src/tools/qmodules.h ] && chmod +w $outpath/src/tools/qmodules.h
     mv $outpath/src/tools/qmodules.h.new $outpath/src/tools/qmodules.h
     chmod -w $outpath/src/tools/qmodules.h
+    # incase of shadow builds, relink qmodules.h
+    rm -f $outpath/include/qmodules.h
+    ln -sf $outpath/src/tools/qmodules.h $outpath/include/qmodules.h
 fi
 
 # Create the .qmake.cache file
