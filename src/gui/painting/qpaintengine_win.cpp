@@ -1859,11 +1859,11 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
     QPaintEngine::PaintEngineFeatures commonFeatures =
         QPaintEngine::UsesFontEngine
         | QPaintEngine::AlphaPixmap
+        | QPaintEngine::PixmapScale
 #ifndef QT_NO_NATIVE_XFORM
         | QPaintEngine::CoordTransform
         | QPaintEngine::PenWidthTransform
         | QPaintEngine::PixmapTransform
-        | QPaintEngine::PixmapScale
         | QPaintEngine::ClipTransform
 #endif
 
