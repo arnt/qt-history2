@@ -239,13 +239,13 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 		    0,
 		    OCI_ATTR_CHAR_SIZE,
 		    p->err );
-#else
-    // for Oracle8.
-    colFieldLength = colLength;
-#endif
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
 	qWarning( "qMakeOraField: " + qOraWarn( p ) );
+#endif
+#else
+    // for Oracle8.
+    colFieldLength = colLength;
 #endif
 
     r = OCIAttrGet( (dvoid*) param,
@@ -1555,10 +1555,17 @@ QSqlRecordInfo QOCIDriver::recordInfo( const QString& tablename ) const
     if ( !isOpen() )
 	return fil;
     QSqlQuery t = createQuery();
-    t.setForwardOnly( TRUE );
-    QString stmt ("select column_name, data_type, data_length, data_precision, data_scale, nullable, data_default "
+    QString stmt;
+    if ( d->serverVersion >= 9 ) {
+	stmt  = "select column_name, data_type, data_length, data_precision, data_scale, nullable, data_default, char_length "
 		  "from user_tab_columns "
-		  "where table_name='%1'" );
+		  "where table_name='%1'";
+    } else {
+	stmt  = "select column_name, data_type, data_length, data_precision, data_scale, nullable, data_default "
+		  "from user_tab_columns "
+		  "where table_name='%1'";
+    }
+    t.setForwardOnly( TRUE );
     t.exec( stmt.arg( tablename.upper() ) );
     while ( t.next() ) {
 	QVariant::Type ty = qDecodeOCIType( t.value(1).toString(), t.value(2).toInt(), t.value(3).toInt(), t.value(4).toInt() );
@@ -1567,7 +1574,12 @@ QSqlRecordInfo QOCIDriver::recordInfo( const QString& tablename ) const
 	if ( !t.isNull( 3 ) ) {
 	    prec = t.value( 3 ).toInt();
 	}
-	QSqlFieldInfo f( t.value(0).toString(), ty, required, t.value(2).toInt(), prec, t.value( 6 ) );
+	int size = t.value( 2 ).toInt();
+	if ( d->serverVersion >= 9 && ( ty == QVariant::String || ty == QVariant::CString ) ) {
+	    // Oracle9: data_length == size in bytes, char_length == amount of characters
+	    size = t.value( 7 ).toInt();
+	}
+	QSqlFieldInfo f( t.value(0).toString(), ty, required, size, prec, t.value( 6 ) );
 	fil.append( f );
     }
     return fil;
