@@ -45,7 +45,7 @@
 // ###################
 
 #define QT_VERSION       300
-#define QT_VERSION_STR   "3.0.0-beta2"
+#define QT_VERSION_STR   "3.0.0-beta3"
 
 
 //
