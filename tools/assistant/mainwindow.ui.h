@@ -239,11 +239,10 @@ void MainWindow::destroy()
 void MainWindow::about()
 {
     static const char *about_text =
-    "<p><b><font size=+2>Qt Assistant</font></b></p>"
-    "<p>The Qt documentation browser</p>"
+    "<center><img src=\"splash.png\">"
     "<p>Version 2.0</p>"
     "<p>Copyright (C) 2001-2002 Trolltech AS. All rights reserved.</p>"
-    "<p></p>"
+    "</center><p></p>"
     "<p>This program is licensed to you under the terms of the GNU General "
     "Public License Version 2 as published by the Free Software Foundation. This "
     "gives you legal permission to copy, distribute and/or modify this software "
@@ -252,7 +251,11 @@ void MainWindow::about()
     "info@trolltech.com.</p>\n\n<p>The program is provided AS IS with NO WARRANTY "
     "OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS "
     "FOR A PARTICULAR PURPOSE.</p>";
-    QMessageBox::about( this, tr("Qt Assistant"), tr( about_text ) );
+    QMessageBox box( this );
+    box.setText( about_text );
+    box.setCaption( tr( "Qt Assistant" ) );
+    box.setIcon( QMessageBox::NoIcon );
+    box.exec();
 }
 
 void MainWindow::aboutQt()
