@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#13 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#13 $";
 #endif
 
 
@@ -119,7 +119,9 @@ int QButtonGroup::insert( QButton *button, int id )
     bi->button = button;
     button->group  = this;
     buttons->append( bi );
-    connect( button, SIGNAL(clicked()), SLOT(buttonClicked()) );
+    connect( button, SIGNAL(pressed()) , SLOT(buttonPressed()) );
+    connect( button, SIGNAL(released()), SLOT(buttonReleased()) );
+    connect( button, SIGNAL(clicked()) , SLOT(buttonClicked()) );
     return bi->id;
 }
 
@@ -139,6 +141,43 @@ void QButtonGroup::remove( QButton *button )
     }
 }
 
+/*!
+\internal
+This slot is activated when one of the buttons in the group emits the
+QButton::pressed() signal.
+*/
+
+void QButtonGroup::buttonPressed()
+{
+    int id = -1;
+    QObject *sobj = sender();			// object that sent the signal
+    for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() )
+	if ( sobj == i->button ) {		// button was clicked
+	    id = i->id;
+            break;
+	}
+    if ( id != -1 )
+	emit pressed( id );
+}
+
+/*!
+\internal
+This slot is activated when one of the buttons in the group emits the
+QButton::released() signal.
+*/
+
+void QButtonGroup::buttonReleased()
+{
+    int id = -1;
+    QObject *sobj = sender();			// object that sent the signal
+    for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() )
+	if ( sobj == i->button ) {		// button was clicked
+	    id = i->id;
+            break;
+	}
+    if ( id != -1 )
+	emit released( id );
+}
 
 /*!
 \internal
@@ -160,3 +199,4 @@ void QButtonGroup::buttonClicked()
     if ( id != -1 )
 	emit clicked( id );
 }
+

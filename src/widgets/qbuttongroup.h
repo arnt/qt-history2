@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#8 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#9 $
 **
 ** Definition of QButtonGroup class
 **
@@ -32,9 +32,13 @@ public:
     void remove( QButton * );
 
 signals:
+    void pressed( int id );
+    void released( int id );
     void clicked( int id );
 
 protected slots:
+    void buttonPressed();
+    void buttonReleased();
     void buttonClicked();
 
 private:
