@@ -874,7 +874,6 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     writeExtraTargets(t);
     writeExtraCompilerTargets(t);
-    t <<"FORCE:" << endl << endl;
 }
 
 void UnixMakefileGenerator::init2()
