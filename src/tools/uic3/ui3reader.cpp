@@ -364,20 +364,6 @@ QString Ui3Reader::getDatabaseInfo(const QDomElement& e, const QString& tag)
     return QString::null;
 }
 
-/*!
-  Returns include file for class \a className or a null string.
- */
-QString Ui3Reader::getInclude(const QString& className)
-{
-    return className.toLower() + ".h"; // ### implement me! (urgent)
-
-#if 0
-    int wid = WidgetDatabase::idFromClassName(className);
-    if (wid != -1)
-        return WidgetDatabase::includeFile(wid);
-#endif
-}
-
 static const char* const ColorRole[] = {
     "Foreground", "Button", "Light", "Midlight", "Dark", "Mid",
     "Text", "BrightText", "ButtonText", "Base", "Background", "Shadow",
@@ -409,7 +395,7 @@ void Ui3Reader::createColorGroupImpl(const QString& name, const QDomElement& e)
             if (col == white)
                 color = "white";
             else if (col == black)
-            color = "black";
+                color = "black";
             if (n.nextSibling().toElement().tagName() != "pixmap") {
                 out << indent << name << ".setColor(QColorGroup::" << ColorRole[r] << ", " << color << ");" << endl;
             }

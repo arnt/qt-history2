@@ -65,7 +65,6 @@ public:
     QString getClassName(const QDomElement& e);
     QString getObjectName(const QDomElement& e);
     QString getLayoutName(const QDomElement& e);
-    QString getInclude(const QString& className);
 
     QString registerObject(const QString& name);
     QString registeredName(const QString& name);
