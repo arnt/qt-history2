@@ -124,7 +124,7 @@
 #include <qimage.h>
 #include <qfile.h>
 #include <qlist.h>
-#include <qregion.h>
+#include <qrect.h>
 #include <qsize.h>
 #include <qvariant.h>
 
@@ -226,7 +226,7 @@ public:
     QSize size;
     QString description;
     QSize resolution;
-    QRegion region;
+    QRect region;
 
     // errors
     QImageIO::ImageFormatError error;
@@ -475,7 +475,7 @@ QSize QImageIO::resolution() const
 
     \sa region()
 */
-void QImageIO::setRegion(const QRegion &region)
+void QImageIO::setRegion(const QRect &region)
 {
     d->region = region;
 }
@@ -486,7 +486,7 @@ void QImageIO::setRegion(const QRegion &region)
 
     \sa setRegion()
 */
-QRegion QImageIO::region() const
+QRect QImageIO::region() const
 {
     return d->region;
 }
@@ -630,6 +630,7 @@ bool QImageIO::load()
     }
 
     QImageIOHandler *handler = d->handler;
+
     handler->setProperty(QImageIOHandler::Size, d->size);
     handler->setProperty(QImageIOHandler::Gamma, d->gamma);
     handler->setProperty(QImageIOHandler::Quality, d->quality);
@@ -643,6 +644,12 @@ bool QImageIO::load()
         d->errorString = QT_TRANSLATE_NOOP(QIMageIO, "Invalid image data");
         return false;
     }
+
+    if (!handler->supportsProperty(QImageIOHandler::Region) && d->region.isValid())
+        d->image = d->image.copy(d->region);
+    if (!handler->supportsProperty(QImageIOHandler::Size) && d->size.isValid())
+        d->image = d->image.scale(d->size);
+
     return true;
 }
 

@@ -22,7 +22,7 @@ class QIODevice;
 class QImage;
 class QImageIOHandler;
 class QImageIOPrivate;
-class QRegion;
+class QRect;
 class QString;
 class QStringList;
 
@@ -54,8 +54,8 @@ public:
     void setResolution(const QSize &resolution);
     QSize resolution() const;
 
-    void setRegion(const QRegion &region);
-    QRegion region() const;
+    void setRegion(const QRect &region);
+    QRect region() const;
 
     void setDescription(const QString &description);
     QString description() const;
