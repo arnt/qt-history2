@@ -73,19 +73,32 @@ static QTextFormatCollection *qFormatCollection = 0;
 static QString debug_indent;
 #endif
 
-static double scale_factor( double v )
-{
-    return v;
-}
+#ifdef Q_WS_WIN
+#include "qt_windows.h"
+#endif
 
-static bool is_printer( QPainter * )
+static inline bool is_printer( QPainter *p )
 {
-    return FALSE;
-#if 0
     if ( !p || !p->device() )
 	return FALSE;
     return p->device()->devType() == QInternal::Printer;
-#endif
+}
+
+static inline int scale( int value, QPainter *painter )
+{
+    if ( is_printer( painter ) ) {
+	QPaintDeviceMetrics metrics( painter->device() );
+#if defined( Q_WS_X11 )
+	value = value * metrics.logicalDpiY() / QPaintDevice::x11AppDpiY();
+#elif defined ( Q_WS_WIN )
+	value = value * metrics.logicalDpiY() / GetDeviceCaps( GetDC( 0 ), LOGPIXELSY);
+#elif defined ( Q_WS_MAC )
+	value = value * metrics.logicalDpiY() / 75; // ##### FIXME
+#elif defined ( Q_WS_QWS )
+	value = value * metrics.logicalDpiY() / 75;
+#endif	
+    }
+    return value;
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -4035,7 +4048,8 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 	    QFont f( painter.font() );
 	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
 	    painter.setFont( f );
-	    painter.drawText( startX, lastY + baseLine - ( h - painter.fontMetrics().height() ), str, start, len, dir );
+	    painter.drawText( startX, lastY + baseLine - ( h - painter.fontMetrics().height() ),
+			      str, start, len, dir );
 	} else if ( lastFormat->vAlign() == QTextFormat::AlignSubScript ) {
 	    QFont f( painter.font() );
 	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
@@ -4381,12 +4395,8 @@ int QTextParag::topMargin() const
 	if ( it->displayMode() != QStyleSheetItem::DisplayInline )
 	    break;
     }
-
-    if ( is_printer( painter() ) ) {
-	QPaintDeviceMetrics metrics( painter()->device() );
-	double yscale = scale_factor( metrics.logicalDpiY() );
-	m = (int)( (double)m * yscale );
-    }
+    
+    m = scale( m, painter() );
 
     ( (QTextParag*)this )->tm = m;
     return tm;
@@ -4417,11 +4427,7 @@ int QTextParag::bottomMargin() const
 	    break;
     }
 
-    if ( is_printer( painter() ) ) {
-	QPaintDeviceMetrics metrics( painter()->device() );
-	double yscale = scale_factor( metrics.logicalDpiY() );
-	m = (int)( (double)m * yscale );
-    }
+    m = scale ( m, painter() );
 
     ( (QTextParag*)this )->bm = m;
     return bm;
@@ -4449,11 +4455,7 @@ int QTextParag::leftMargin() const
 	}
     }
 
-    if ( is_printer( painter() ) ) {
-	QPaintDeviceMetrics metrics( painter()->device() );
-	double yscale = scale_factor( metrics.logicalDpiY() );
-	m = (int)( (double)m * yscale );
-    }
+    m = scale ( m, painter() );
 
     ( (QTextParag*)this )->lm = m;
     return lm;
@@ -4475,11 +4477,7 @@ int QTextParag::firstLineMargin() const
 	m += mar != QStyleSheetItem::Undefined ? mar : 0;
     }
 
-    if ( is_printer( painter() ) ) {
-	QPaintDeviceMetrics metrics( painter()->device() );
-	double yscale = scale_factor( metrics.logicalDpiY() );
-	m = (int)( (double)m * yscale );
-    }
+    m = scale( m, painter() );
 
     ( (QTextParag*)this )->flm = m;
     return flm;
@@ -4501,11 +4499,7 @@ int QTextParag::rightMargin() const
 	m += mar != QStyleSheetItem::Undefined ? mar : 0;
     }
 
-    if ( is_printer( painter() ) ) {
-	QPaintDeviceMetrics metrics( painter()->device() );
-	double yscale = scale_factor( metrics.logicalDpiY() );
-	m = (int)( (double)m * yscale );
-    }
+    m = scale( m, painter() );
 
     ( (QTextParag*)this )->rm = m;
     return rm;
@@ -4520,11 +4514,7 @@ int QTextParag::lineSpacing() const
     int ls = item->lineSpacing();
     if ( ls == QStyleSheetItem::Undefined )
 	return 0;
-    if ( is_printer( painter() ) ) {
-	QPaintDeviceMetrics metrics( painter()->device() );
-	double yscale = scale_factor( metrics.logicalDpiY() );
-	ls = (int)( (double)ls * yscale );
-    }
+    ls = scale( ls, painter() );
 
     return ls;
 }
@@ -4866,6 +4856,8 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     QTextParagLineStart *lineStart = new QTextParagLineStart( y, y, 0 );
     insertLineStart( parag, 0, lineStart );
 
+    QPainter *painter = parag->painter();
+    
     int col = 0;
     int ww = 0;
     QChar lastChr;
@@ -4873,6 +4865,9 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	if ( c )
 	    lastChr = c->c;
 	c = &parag->string()->at( i );
+	// ### the lines below should not be needed
+	if ( painter )
+	    c->format()->setPainter( painter );
 	if ( i > 0 ) {
 	    c->lineStart = 0;
 	} else {
@@ -4944,11 +4939,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     if ( parag->next() && doc && !doc->addMargins() )
 	m = QMAX( m, parag->next()->topMargin() );
     parag->setFullWidth( fullWidth );
-    if ( is_printer( parag->painter() ) ) {
-	QPaintDeviceMetrics metrics( parag->painter()->device() );
-	double yscale = scale_factor( metrics.logicalDpiY() );
-	m = (int)( (double)m * yscale );
-    }
+    m = scale( m, parag->painter() );
     y += h + m;
     if ( !wrapEnabled )
 	minw = QMAX( minw, c->x + ww ); // #### Lars: Fix this for BiDi, please
@@ -5011,12 +5002,16 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     if ( align == Qt::AlignAuto && doc && doc->alignment() != Qt::AlignAuto )
 	align = doc->alignment();
 
+    QPainter *painter = parag->painter();
     int col = 0;
     int ww = 0;
     QChar lastChr;
     for ( ; i < len; ++i, ++col ) {
 	if ( c )
 	    lastChr = c->c;
+	// ### next line should not be needed
+	if ( painter )
+	    c->format()->setPainter( painter );
 	c = &string->at( i );
 	if ( i > 0 && (x > curLeft || ww == 0) || lastWasNonInlineCustom ) {
 	    c->lineStart = 0;
@@ -5197,11 +5192,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     if ( parag->next() && doc && !doc->addMargins() )
 	m = QMAX( m, parag->next()->topMargin() );
     parag->setFullWidth( fullWidth );
-    if ( is_printer( parag->painter() ) ) {
-	QPaintDeviceMetrics metrics( parag->painter()->device() );
-	double yscale = scale_factor( metrics.logicalDpiY() );
-	m = (int)( (double)m * yscale );
-    }
+    m = scale( m, parag->painter() );
     y += h + m;
 
     if ( !wrapEnabled )
@@ -5736,7 +5727,7 @@ QTextImage::QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, co
 	width = attr["width"].toInt();
     if ( attr.contains("height") )
 	height = attr["height"].toInt();
-
+    
     reg = 0;
     QString imageName = attr["src"];
 
@@ -5848,13 +5839,8 @@ QString QTextImage::richText() const
 
 void QTextImage::adjustToPainter( QPainter* p )
 {
-    width = tmpwidth;
-    height = tmpheight;
-    if ( !is_printer( p ) )
-	return;
-    QPaintDeviceMetrics metrics(p->device());
-    width = int( width * scale_factor( metrics.logicalDpiX() ) );
-    height = int( height * scale_factor( metrics.logicalDpiY() ) );
+    width = scale( tmpwidth, p );
+    height = scale( tmpheight, p );
 }
 
 #if !defined(Q_WS_X11)
@@ -5918,10 +5904,7 @@ void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch
 
 void QTextHorizontalLine::adjustToPainter( QPainter* p )
 {
-    if ( !is_printer( p ) )
-	return;
-    QPaintDeviceMetrics metrics(p->device());
-    height = int( tmpheight * scale_factor( metrics.logicalDpiY() ) );
+    height = scale( tmpheight, p );
 }
 
 
@@ -5943,7 +5926,7 @@ QString QTextHorizontalLine::richText() const
 void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int , const QColorGroup& cg, bool selected )
 {
     QRect r( x, y, width, height);
-    if ( is_printer( p ) || ( p && p->device() && p->device()->devType() == QInternal::Printer ) ) {
+    if ( is_printer( p ) ) {
 	QPen oldPen = p->pen();
 	p->setPen( QPen( cg.text(), height/8 ) );
 	p->drawLine( r.left()-1, y + height / 2, r.right() + 1, y + height / 2 );
@@ -6527,14 +6510,10 @@ void QTextTable::adjustToPainter( QPainter* p)
 {
     painter = p;
     if ( is_printer( p ) ) {
-	QPaintDeviceMetrics metrics(p->device());
-	double xscale = QMAX( scale_factor( metrics.logicalDpiX() ),
-			      scale_factor( metrics.logicalDpiY() ) );
-	xscale = QMAX( xscale, 1 );
-	cellspacing = int(us_cs * xscale);
-	border = int(us_b * xscale);
-	innerborder = int(us_ib * xscale);
-	outerborder = int(us_ob * xscale);
+	cellspacing = scale( us_cs, p );
+	border = scale( us_b , p );
+	innerborder = scale( us_ib, p );
+	outerborder = scale( us_ob ,p );
     }
     for ( QTextTableCell* cell = cells.first(); cell; cell = cells.next() )
 	cell->adjustToPainter();
