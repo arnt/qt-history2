@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#50 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#49 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#50 $")
 
 
 /*
@@ -566,9 +566,10 @@ QImage QPixmap::convertToImage() const
 		pix[i] = ncols++;
 	}
 	p = image.bits();  i = image.numBytes();
-	while ( i-- )				// translate pixels
-	    *p++ = pix[*p];
-
+	while ( i-- ) {				// translate pixels
+	    *p = pix[*p];
+	    p++;
+	}
 	Colormap cmap	= DefaultColormap( dpy, scr );
 	int	 ncells = DisplayCells( dpy, scr );
 	XColor *carr = new XColor[ncells];
