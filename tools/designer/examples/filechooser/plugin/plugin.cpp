@@ -107,6 +107,7 @@ QRESULT CustomWidgetInterface::queryInterface( const QUuid& uuid, QUnknownInterf
 
     if ( *iface )
 	(*iface)->addRef();
+    return QS_OK;
 }
 
 Q_EXPORT_INTERFACE()
