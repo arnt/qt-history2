@@ -69,10 +69,7 @@
 #include <qdom.h>
 #include <qprocess.h>
 #include <qstyle.h>
-
-#ifndef QT_NO_SQL
 #include <qdatetimeedit.h>
-#endif
 
 #include "../pics/arrow.xbm"
 #include "../pics/uparrow.xbm"
@@ -738,7 +735,6 @@ void PropertyTextItem::getText()
     }
 }
 
-#ifndef QT_NO_SQL
 // --------------------------------------------------------------
 
 PropertyDateItem::PropertyDateItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName )
@@ -965,7 +961,6 @@ void PropertyDateTimeItem::setValue()
 }
 
 // --------------------------------------------------------------
-#endif
 
 PropertyBoolItem::PropertyBoolItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName )
     : PropertyItem( l, after, prop, propName )
@@ -1932,6 +1927,8 @@ void PropertyDatabaseItem::childValueChanged( PropertyItem *c )
 	lst << ( (PropertyListItem*)PropertyItem::child( 2 ) )->currentItem();
     setValue( lst );
     notifyValueChange();
+#else
+    Q_UNUSED( c );
 #endif
 }
 
@@ -2405,9 +2402,9 @@ static bool parent_is_data_aware( QObject *o )
 {
     if ( !o->inherits( "QWidget" ) )
 	return FALSE;
+#ifndef QT_NO_SQL
     QWidget *w = (QWidget*)o;
     QWidget *p = w->parentWidget();
-#ifndef QT_NO_SQL
     while ( p && !p->isTopLevel() ) {
 	if ( p->inherits( "QDesignerDataBrowser" ) || p->inherits( "QDesignerDataView" ) )
 	    return TRUE;
@@ -2730,7 +2727,6 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
     case QVariant::Cursor:
 	item = new PropertyCursorItem( this, item, 0, name );
 	break;
-#ifndef QT_NO_SQL
     case QVariant::Date:
 	item = new PropertyDateItem( this, item, 0, name );
 	break;
@@ -2740,7 +2736,6 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
     case QVariant::DateTime:
 	item = new PropertyDateTimeItem( this, item, 0, name );
 	break;
-#endif
     default:
 	return FALSE;
     }

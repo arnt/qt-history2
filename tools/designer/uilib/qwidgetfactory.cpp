@@ -46,7 +46,6 @@
 #include <qsqlrecord.h>
 #include <qsqldatabase.h>
 #include <qdatatable.h>
-#include <qdatetimeedit.h>
 #endif
 
 // include all Qt widgets we support
@@ -89,6 +88,7 @@
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 #include <qwidgetstack.h>
+#include <qdatetimeedit.h>
 
 #include <stdlib.h>
 
@@ -552,6 +552,12 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 	return f;
     } else if ( className == "QTextEdit" ) {
 	return new QTextEdit( parent, name );
+    } else if ( className == "QDateEdit" ) {
+	return new QDateEdit( parent, name );
+    } else if ( className == "QTimeEdit" ) {
+	return new QTimeEdit( parent, name );
+    } else if ( className == "QDateTimeEdit" ) {
+	return new QDateTimeEdit( parent, name );
     } else if ( className == "QScrollBar" ) {
 	return new QScrollBar( parent, name );
     } else if ( className == "QPopupMenu" ) {
@@ -573,12 +579,6 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 #if !defined(QT_NO_SQL)
     else if ( className == "QDataTable" ) {
 	return new QDataTable( parent, name );
-    } else if ( className == "QDateEdit" ) {
-	return new QDateEdit( parent, name );
-    } else if ( className == "QTimeEdit" ) {
-	return new QTimeEdit( parent, name );
-    } else if ( className == "QDateTimeEdit" ) {
-	return new QDateTimeEdit( parent, name );
     } else if ( className == "QDataBrowser" ) {
 	return new QDesignerDataBrowser2( parent, name );
     } else if ( className == "QDataView" ) {

@@ -46,8 +46,8 @@
 #endif
 #ifndef QT_NO_SQL
 #include <qdatatable.h>
-#include <qdatetimeedit.h>
 #endif
+#include <qdatetimeedit.h>
 #include <qlineedit.h>
 #include <qspinbox.h>
 #include <qmultilineedit.h>
@@ -633,10 +633,10 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 #else
 	return 0;
 #endif
-    }
 #ifndef QT_NO_SQL
-    else if ( className == "QDataTable" ) {
+    } else if ( className == "QDataTable" ) {
 	return new QDataTable( parent, name );
+#endif //QT_NO_SQL
     } else if ( className == "QDateEdit" ) {
 	return new QDateEdit( parent, name );
     } else if ( className == "QTimeEdit" ) {
@@ -644,7 +644,6 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
     } else if ( className == "QDateTimeEdit" ) {
 	return new QDateTimeEdit( parent, name );
     }
-#endif
     else if ( className == "QListBox" ) {
 	QListBox* lb = new QListBox( parent, name );
 	if ( init ) {

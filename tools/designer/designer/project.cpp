@@ -912,6 +912,8 @@ bool Project::openDatabase( const QString &connection, bool suppressDialog )
     bool b = conn->open( suppressDialog );
     return b;
 #else
+    Q_UNUSED( connection );
+    Q_UNUSED( suppressDialog );
     return FALSE;
 #endif
 }
@@ -927,6 +929,8 @@ void Project::closeDatabase( const QString &connection )
     if ( !conn )
 	return;
     conn->close();
+#else
+    Q_UNUSED( connection );
 #endif
 }
 

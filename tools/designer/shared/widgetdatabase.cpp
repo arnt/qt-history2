@@ -254,7 +254,6 @@ void WidgetDatabase::setupDataBase( int id )
 
     append( r );
 
-#ifndef QT_NO_SQL
     r = new WidgetDatabaseRecord;
     r->iconSet = "dateedit.xpm";
     r->name = "QDateEdit";
@@ -273,7 +272,7 @@ void WidgetDatabase::setupDataBase( int id )
 
     append( r );
 
-	r = new WidgetDatabaseRecord;
+    r = new WidgetDatabaseRecord;
     r->iconSet = "datetimeedit.xpm";
     r->name = "QDateTimeEdit";
     r->group = widgetGroup( "Input" );
@@ -281,7 +280,6 @@ void WidgetDatabase::setupDataBase( int id )
     r->includeFile = "qdatetimeedit.h";
 
     append( r );
-#endif
 
     r = new WidgetDatabaseRecord;
     r->iconSet = "multilineedit.xpm";

@@ -14,7 +14,7 @@ win32-msvc:RC_FILE = designer.rc
 
 sql {
 	SOURCES  +=		  database.cpp dbconnectionimpl.cpp dbconnectionsimpl.cpp
-	HEADERS += 		  database.h dbconnectionimpl.h dbconnectionsimpl.h   propertyeditorsql.h
+	HEADERS += 		  database.h dbconnectionimpl.h dbconnectionsimpl.h
 	FORMS +=	dbconnections.ui dbconnection.ui dbconnectioneditor.ui 
 	}
 table {
