@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabelled.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qlabelled.cpp#3 $
 **
 ** Implementation of QLabelled widget class
 **
@@ -15,12 +15,14 @@
 
 class QLabelledPrivate {
 public:
-    QLabelledPrivate(QLabelled* parent) :
-	align(AlignTop)
+    QLabelledPrivate(QLabelled* parent)
     {
 	QLabel *l = new QLabel(parent, "label");
 	l->setMargin(2);
+
 	label = l;
+	child = 0;
+	align = AlignTop;
 	grid = 0;
     }
 
