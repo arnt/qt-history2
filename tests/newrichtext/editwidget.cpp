@@ -79,8 +79,18 @@ void EditWidget::keyPressEvent ( QKeyEvent *e )
 	if ( d->cursorPos < d->text.length()-1 )
 	    d->cursorPos++;
 	break;
+    case Key_Backspace:
+	if ( d->cursorPos )
+	    d->text.remove( --d->cursorPos, 1 );
+	break;
+    case Key_Delete:
+	d->text.remove( d->cursorPos, 1 );
+	break;
     default:
-	d->text.insert( d->cursorPos, e->text() );
+	if ( !e->text().isEmpty() ) {
+	    d->text.insert( d->cursorPos, e->text() );
+	    d->cursorPos += e->text().length();
+	}
 	break;
     }
     qDebug("cursorPos at %d",  d->cursorPos );
@@ -102,20 +112,31 @@ void EditWidget::paintEvent( QPaintEvent * )
     for ( int j = 0; j < d->lineBreaks.size(); j++ ) {
 	int end = d->lineBreaks[j].pos;
 	y += d->lineBreaks[j].ascent;
-	unsigned char levels[256];
-	int visualOrder[256];
-	int x = 5;
-	for ( int i = 0; i < end-start; i++ )
-	    levels[i] = d->items[start+i].analysis.bidiLevel;
-	layout->bidiReorder( end-start, (unsigned char *)levels, (int *)visualOrder );
+	int vo[256];
+	int *visualOrder = vo;
+	if ( end-start > 255 )
+	    visualOrder = (int *)malloc( (end-start)*sizeof(int) );
+	{
+	    unsigned char lv[256];
+	    unsigned char *levels = lv;
+	    if ( end-start > 255 )
+		levels = (unsigned char *)malloc( (end-start)*sizeof(unsigned char) );
+	    for ( int i = 0; i < end-start; i++ )
+		levels[i] = d->items[start+i].analysis.bidiLevel;
+	    layout->bidiReorder( end-start, (unsigned char *)levels, (int *)visualOrder );
+	    if ( end-start > 255 )
+		free( levels );
+	}
 
+	int x = 5;
 	for ( int i = 0; i < end-start; i++ ) {
 	    int current = visualOrder[i];
 	    const ScriptItem &it = d->items[ start+current ];
 	    ShapedItem shaped;
 	    layout->shape( shaped, d->font, d->text, d->items, current+start );
 	    layout->position( shaped );
-	    if ( it.position <= d->cursorPos && d->items[ start+current+1 ].position > d->cursorPos ) {
+	    if ( it.position <= d->cursorPos &&
+		 (current == d->items.size()-1 || d->items[ start+current+1 ].position > d->cursorPos) ) {
 		// draw cursor
 		int xp = layout->cursorToX( shaped, d->cursorPos - it.position );
 		qDebug("cursor inside run %d at pos %d (absolute=%d)", start+current, xp, x+xp );
@@ -143,6 +164,8 @@ void EditWidget::paintEvent( QPaintEvent * )
 		// 	    drawLine( x, y-20, x, y+20 );
 	    }
 	}
+	if ( end-start > 255 )
+	    free( visualOrder );
 	start = end;
 	y += d->lineBreaks[j].descent;
 // 	painter.drawLine( 0,  y+1,  1000, y+1 );

@@ -8,7 +8,7 @@
 #include <qdatetime.h>
 #include "editwidget.h"
 
-const char *family = "Serto Jerusalem";
+const char *family = "Arial Unicode Ms";
 
 class MyWidget : public QWidget
 {
@@ -41,8 +41,9 @@ void MyWidget::paintEvent( QPaintEvent * )
     QFont f(family);
     f.setPointSize( 48 );
     p.setFont( f );
-    p.drawText( 10, 100, string );
-    p.drawLine( cursor, 0,  cursor,  500 );
+    p.drawText( 10, 50, string );
+    p.drawText( 10, 100, string, 0, 10 );
+    p.drawText( 10, 150, string, 5, 10 );
 }
 
 void MyWidget::mouseMoveEvent( QMouseEvent *e )
@@ -119,26 +120,32 @@ int MyWidget::getCursorPosition( int _x )
 // const char *s = "ทำไมเขาถึงไม่พูด �าษาไทย";
 
 // Vietnamese
-//  const char *s = "Tại sao họ không thể chỉ nói tiệ̣̣́ng."
-//  " لاَْلحاسًوب برمجيات الحاسوب";
-// const char *s = "Tại";// sao họ";
+const char *s = "Tại sao họ không thể chỉ nói tiệ̣̣́ng.";
 
 // Syriac
-const char *s = "ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ";
+// const char *s = "ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ";
+
+// mixed
+// const char *s = "Thai: ทำไมเขาถึงไม่พูด �าษาไทย "
+// "Syriac: ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ "
+// "Arabic: أوروبا, برمجيات الحاسوب "
+// "Hebrew: תוכנה והאינטרנט ";
 
 int main( int argc, char **argv )
 {
     QApplication a(argc, argv);
 
-    EditWidget *w = new EditWidget( 0, 0 );
     QFont f( family );
     f.setPointSize( 48 );
-    w->setFont( f );
+    a.setFont( f );
+
+#if 1
+    EditWidget *w = new EditWidget( 0, 0 );
     w->setText( QString::fromUtf8( s ) );
     w->resize( 600, 300 );
     w->show();
     a.setMainWidget ( w );
-#if 0
+#else
 
     MyWidget *w = new MyWidget;
     w->resize( 700,  300 );

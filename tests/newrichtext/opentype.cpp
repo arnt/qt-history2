@@ -5,6 +5,50 @@
 #include "qtextlayout.h"
 
 
+const FT_ULong scriptToOTTag [] = {
+    FT_MAKE_TAG( 'a', 'r', 'a', 'b' ),
+    FT_MAKE_TAG( 'a', 'r', 'm', 'n' ),
+    FT_MAKE_TAG( 'b', 'e', 'n', 'g' ),
+    FT_MAKE_TAG( 'b', 'o', 'p', 'o' ),
+    FT_MAKE_TAG( 'b', 'r', 'a', 'i' ),
+    FT_MAKE_TAG( 'b', 'y', 'z', 'm' ),
+    FT_MAKE_TAG( 'c', 'a', 'n', 's' ),
+    FT_MAKE_TAG( 'c', 'h', 'e', 'r' ),
+    FT_MAKE_TAG( 'h', 'a', 'n', 'i' ),
+    FT_MAKE_TAG( 'c', 'y', 'r', 'l' ),
+    FT_MAKE_TAG( 'D', 'F', 'L', 'T' ),
+    FT_MAKE_TAG( 'd', 'e', 'v', 'a' ),
+    FT_MAKE_TAG( 'e', 't', 'h', 'i' ),
+    FT_MAKE_TAG( 'g', 'e', 'o', 'r' ),
+    FT_MAKE_TAG( 'g', 'r', 'e', 'k' ),
+    FT_MAKE_TAG( 'g', 'u', 'j', 'r' ),
+    FT_MAKE_TAG( 'g', 'u', 'r', 'u' ),
+    FT_MAKE_TAG( 'j', 'a', 'm', 'o' ),
+    FT_MAKE_TAG( 'h', 'a', 'n', 'g' ),
+    FT_MAKE_TAG( 'h', 'e', 'b', 'r' ),
+    FT_MAKE_TAG( 'k', 'a', 'n', 'a' ),
+    FT_MAKE_TAG( 'k', 'n', 'd', 'a' ),
+    FT_MAKE_TAG( 'k', 'a', 'n', 'a' ),
+    FT_MAKE_TAG( 'k', 'h', 'm', 'r' ),
+    FT_MAKE_TAG( 'l', 'a', 'o', ' ' ),
+    FT_MAKE_TAG( 'l', 'a', 't', 'n' ),
+    FT_MAKE_TAG( 'm', 'l', 'y', 'm' ),
+    FT_MAKE_TAG( 'm', 'o', 'n', 'g' ),
+    FT_MAKE_TAG( 'm', 'y', 'm', 'r' ),
+    FT_MAKE_TAG( 'o', 'g', 'a', 'm' ),
+    FT_MAKE_TAG( 'o', 'r', 'y', 'a' ),
+    FT_MAKE_TAG( 'r', 'u', 'n', 'r' ),
+    FT_MAKE_TAG( 's', 'i', 'n', 'h' ),
+    FT_MAKE_TAG( 's', 'y', 'r', 'c' ),
+    FT_MAKE_TAG( 't', 'a', 'm', 'l' ),
+    FT_MAKE_TAG( 't', 'e', 'l', 'u' ),
+    FT_MAKE_TAG( 't', 'h', 'a', 'a' ),
+    FT_MAKE_TAG( 't', 'h', 'a', 'i' ),
+    FT_MAKE_TAG( 't', 'i', 'b', 't' ),
+    FT_MAKE_TAG( 'y', 'i', ' ', ' ' ),
+};
+
+
 static inline void tag_to_string( char *string, FT_ULong tag )
 {
     string[0] = (tag >> 24)&0xff;
@@ -238,6 +282,7 @@ OpenTypeIface::OpenTypeIface( FT_Face _face )
 
 bool OpenTypeIface::supportsScript( unsigned int script )
 {
+    script = scriptToOTTag[script];
     if ( current_script == script )
 	return TRUE;
 
@@ -283,6 +328,7 @@ bool OpenTypeIface::supportsScript( unsigned int script )
 
 bool OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *shaped, unsigned short *featuresToApply )
 {
+    script = scriptToOTTag[script];
     if ( script != current_script ) {
 	TT_GSUB_Clear_Features( gsub );
 
@@ -356,6 +402,7 @@ bool OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
 
 bool OpenTypeIface::applyGlyphPositioning( unsigned int script, ShapedItem *shaped )
 {
+    script = scriptToOTTag[script];
     TTO_GSUB_String *in = (TTO_GSUB_String *)shaped->d->enginePrivate;
     TTO_GPOS_Data *out = 0;
 
