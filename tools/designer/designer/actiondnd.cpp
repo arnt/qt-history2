@@ -986,8 +986,8 @@ void QDesignerPopupMenu::contextMenuEvent( QContextMenuEvent *e )
 {
 #if defined( Q_WS_MAC ) //the mac needs us to use context menu rather than right click
     e->accept();
-    QMouseEvent me( MouseButtonPress, e->pos(), e->globalPos(), RightButton, RightButton );
-    mousePressed(&me);
+    QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, RightButton );
+    mousePressEvent(&me);
 #else
     Q_UNUSED( e );
 #endif
