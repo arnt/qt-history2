@@ -120,6 +120,15 @@ void QGenericTableView::setLeftHeader(QGenericHeader *header)
     rowCountChanged(0, d->leftHeader->count());
 }
 
+void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
+{
+    QPen old = p->pen();
+    p->setPen(lightGray);
+    p->drawLine(x, h, w, h);
+    p->drawLine(w, y, w, h);
+    p->setPen(old);
+}
+
 void QGenericTableView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 {
     int colfirst = columnAt(cx);
@@ -179,15 +188,6 @@ void QGenericTableView::drawContents(QPainter *p, int cx, int cy, int cw, int ch
 	    rowh = oldrh;
 	}
     }
-}
-
-void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
-{
-    QPen old = p->pen();
-    p->setPen(lightGray);
-    p->drawLine(x, h, w, h);
-    p->drawLine(w, y, w, h);
-    p->setPen(old);
 }
 
 QModelIndex QGenericTableView::itemAt(int x, int y) const

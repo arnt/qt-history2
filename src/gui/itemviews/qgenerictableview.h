@@ -50,8 +50,8 @@ protected slots:
     void columnCountChanged(int oldCount, int newCount);
 
 protected:
-    void drawContents(QPainter *p, int cx, int cy, int cw, int ch);
     virtual void drawGrid(QPainter *p, int x, int y, int w, int h) const;
+    void drawContents(QPainter *p, int cx, int cy, int cw, int ch);
     QModelIndex itemAt(int x, int y) const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     QRect itemRect(const QModelIndex &item) const;
