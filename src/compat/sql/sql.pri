@@ -1,13 +1,9 @@
 # Qt compat module
 
-compat {
-	COMPAT_P	= compat
-
-	HEADERS += \
-		sql/qsqlfieldinfo.h \
-		sql/qsqlrecordinfo.h \
-		sql/qdatatable.h \
-		sql/qdataview.h \
+HEADERS +=      sql/qsqlfieldinfo.h \
+                sql/qsqlrecordinfo.h \
+                sql/qdatatable.h \
+                sql/qdataview.h \
                 sql/qsqlcursor.h \
                 sql/qsqlselectcursor.h \
                 sql/qsqlform.h \
@@ -15,11 +11,10 @@ compat {
                 sql/qeditorfactory.h \
                 sql/qsqleditorfactory.h \
                 sql/qsqlpropertymap.h \
-		sql/qdatabrowser.h
+                sql/qdatabrowser.h
 
-	SOURCES += \
-		sql/qdatatable.cpp \
-		sql/qdataview.cpp \
+SOURCES +=      sql/qdatatable.cpp \
+                sql/qdataview.cpp \
                 sql/qsqlcursor.cpp \
                 sql/qsqlselectcursor.cpp \
                 sql/qsqlform.cpp \
@@ -27,5 +22,4 @@ compat {
                 sql/qeditorfactory.cpp \
                 sql/qsqleditorfactory.cpp \
                 sql/qsqlpropertymap.cpp \
-		sql/qdatabrowser.cpp 
-}
+                sql/qdatabrowser.cpp 
