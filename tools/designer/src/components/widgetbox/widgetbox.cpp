@@ -23,7 +23,7 @@
 #include <customwidget.h>
 #include <pluginmanager.h>
 #include <ui4.h>
-#include <spacer.h>
+#include <spacer_widget.h>
 #include <sheet_delegate.h>
 
 #include <QtGui/QtGui>

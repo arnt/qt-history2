@@ -21,7 +21,6 @@ HEADERS += \
            formwindow.h \
            formwindowcursor.h \
            widgetselection.h \
-           metadatabase.h \
            formwindowmanager.h \
            orderindicator.h \
            formeditor.h \
@@ -39,7 +38,6 @@ SOURCES += \
            formwindow.cpp \
            formwindowcursor.cpp \
            widgetselection.cpp \
-           metadatabase.cpp \
            formwindowmanager.cpp \
            orderindicator.cpp \
            formeditor.cpp \

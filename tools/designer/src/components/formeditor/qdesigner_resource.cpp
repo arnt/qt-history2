@@ -24,7 +24,7 @@
 
 // shared
 #include <layoutinfo.h>
-#include <spacer.h>
+#include <spacer_widget.h>
 
 // sdk
 #include <container.h>

@@ -13,7 +13,7 @@
 
 #include "widgetdatabase.h"
 #include "widgetfactory.h"
-#include "spacer.h"
+#include "spacer_widget.h"
 
 #include <pluginmanager.h>
 #include <customwidget.h>

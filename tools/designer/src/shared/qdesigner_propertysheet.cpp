@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "default_propertysheet.h"
+#include "qdesigner_propertysheet.h"
 
 #include <QVariant>
 #include <QMetaObject>

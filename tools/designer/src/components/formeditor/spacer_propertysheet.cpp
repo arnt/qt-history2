@@ -14,7 +14,7 @@
 #include "spacer_propertysheet.h"
 #include "qdesigner_widget.h"
 #include "formwindow.h"
-#include "spacer.h"
+#include "spacer_widget.h"
 
 #include <qextensionmanager.h>
 

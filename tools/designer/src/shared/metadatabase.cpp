@@ -18,8 +18,8 @@
 #include <abstractwidgetfactory.h>
 
 // Qt
-#include <qalgorithms.h>
-#include <qdebug.h>
+#include <QtCore/qalgorithms.h>
+#include <QtCore/qdebug.h>
 
 MetaDataBaseItem::MetaDataBaseItem(QObject *object)
     : m_object(object),

@@ -29,7 +29,7 @@
 #include <abstractmetadatabase.h>
 #include <abstractformeditor.h>
 #include <layoutinfo.h>
-#include <spacer.h>
+#include <spacer_widget.h>
 #include <customwidget.h>
 
 #include <QtGui/QtGui>

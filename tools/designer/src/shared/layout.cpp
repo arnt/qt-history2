@@ -14,7 +14,7 @@
 #include "layout.h"
 #include "qdesigner_widget.h"
 #include "layoutdecoration.h"
-#include "spacer.h"
+#include "spacer_widget.h"
 
 #include <abstractwidgetdatabase.h>
 #include <abstractformwindow.h>

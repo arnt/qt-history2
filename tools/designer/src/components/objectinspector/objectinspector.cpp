@@ -20,7 +20,7 @@
 #include <abstractformwindow.h>
 #include <abstractformwindowcursor.h>
 #include <abstractwidgetdatabase.h>
-#include <treewidget.h>
+#include <tree_widget.h>
 #include <qdesigner_promotedwidget.h>
 
 // Qt

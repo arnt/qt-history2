@@ -18,19 +18,20 @@ LIBS += \
 # Input
 HEADERS += \
     shared_global.h \
-    spacer.h \
+    spacer_widget.h \
     layoutinfo.h \
     layout.h \
     connectionedit.h \
     qtundo.h \
     pluginmanager.h \
+    metadatabase.h \
     qdesigner_command.h \
     qdesigner_formbuilder.h \
     qdesigner_taskmenu.h \
     qdesigner_widget.h \
-    default_propertysheet.h \
+    qdesigner_propertysheet.h \
     invisible_widget.h \
-    treewidget.h \
+    tree_widget.h \
     sheet_delegate.h \
     qdesigner_promotedwidget.h \
     qdesigner_customwidget.h \
@@ -41,7 +42,7 @@ HEADERS += \
     widgetdatabase.h
 
 SOURCES += \
-    spacer.cpp \
+    spacer_widget.cpp \
     layoutinfo.cpp \
     layout.cpp \
     connectionedit.cpp \
@@ -51,10 +52,11 @@ SOURCES += \
     qdesigner_formbuilder.cpp \
     qdesigner_taskmenu.cpp \
     qdesigner_widget.cpp \
-    default_propertysheet.cpp \
+    qdesigner_propertysheet.cpp \
     invisible_widget.cpp \
-    treewidget.cpp \
+    tree_widget.cpp \
     sheet_delegate.cpp \
+    metadatabase.cpp \
     qdesigner_promotedwidget.cpp \
     qdesigner_customwidget.cpp \
     qdesigner_stackedbox.cpp \

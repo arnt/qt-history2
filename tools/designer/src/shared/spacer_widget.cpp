@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "spacer.h"
+#include "spacer_widget.h"
 #include "layoutinfo.h"
 
 #include <abstractformwindow.h>

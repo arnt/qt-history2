@@ -27,7 +27,7 @@
 #include <pluginmanager.h>
 #include <qextensionmanager.h>
 #include <qdesigner_taskmenu.h>
-#include <default_propertysheet.h>
+#include <qdesigner_propertysheet.h>
 #include <qdesigner_promotedwidget.h>
 
 FormEditor::FormEditor(QObject *parent)

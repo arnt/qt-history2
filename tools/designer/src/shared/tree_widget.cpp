@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "treewidget.h"
+#include "tree_widget.h"
 
 #include <QApplication>
 #include <QHeaderView>

@@ -14,14 +14,14 @@
 #ifndef METADATABASE_H
 #define METADATABASE_H
 
-#include "formeditor_global.h"
+#include "shared_global.h"
 
 #include <abstractmetadatabase.h>
 
-#include <QHash>
-#include <QCursor>
+#include <QtCore/QHash>
+#include <QtGui/QCursor>
 
-struct MetaDataBaseItem: public AbstractMetaDataBaseItem
+struct QT_SHARED_EXPORT MetaDataBaseItem: public AbstractMetaDataBaseItem
 {
     MetaDataBaseItem(QObject *object);
     virtual ~MetaDataBaseItem();
@@ -61,7 +61,7 @@ private:
     bool m_enabled;
 };
 
-class QT_FORMEDITOR_EXPORT MetaDataBase: public AbstractMetaDataBase
+class QT_SHARED_EXPORT MetaDataBase: public AbstractMetaDataBase
 {
     Q_OBJECT
 public:

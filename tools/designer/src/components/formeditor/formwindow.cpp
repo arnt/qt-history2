@@ -31,7 +31,7 @@
 
 // shared
 #include <qdesigner_command.h>
-#include <spacer.h>
+#include <spacer_widget.h>
 #include <layoutinfo.h>
 #include <layoutdecoration.h>
 #include <qdesigner_widget.h>
