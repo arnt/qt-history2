@@ -8,8 +8,8 @@ X11ONLY	    =	dialogs/qprintdialog.h \
 		kernel/qwidgetcreate_x11.cpp
 
 # Non-public Qt files which we use internally in our Qt library
-INT_HEADERS =	dialogs/qfontdialog.h
-INT_SOURCES =	dialogs/qfontdialog.cpp
+INT_HEADERS =
+INT_SOURCES =
 
 # Other non-public Qt files
 INT_MISC    =	kernel/qpshdr.txt \

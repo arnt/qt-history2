@@ -2,8 +2,7 @@ TEMPLATE	= lib
 CONFIG		= qt warn_on release
 unix:CONFIG    += x11inc
 
-
-win32:TMAKE_CFLAGS   += -DUNICODE
+win32:TMAKE_CFLAGS     += -DUNICODE
 
 win32:INCLUDEPATH	= tmp
 win32:MOC_DIR		= tmp
@@ -96,7 +95,6 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$TOOLS_H/qbitarray.h \
 		  $$TOOLS_H/qbuffer.h \
 		  $$TOOLS_H/qcache.h \
-		  $$TOOLS_H/qtextcodec.h \
 		  $$TOOLS_H/qcollection.h \
 		  $$TOOLS_H/qdatastream.h \
 		  $$TOOLS_H/qdatetime.h \
@@ -126,6 +124,7 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$TOOLS_H/qstring.h \
 		  $$TOOLS_H/qstrlist.h \
 		  $$TOOLS_H/qstrvec.h \
+		  $$TOOLS_H/qtextcodec.h \
 		  $$TOOLS_H/qtextstream.h \
 		  $$TOOLS_H/qutfcodec.h \
 		  $$TOOLS_H/qvector.h \
@@ -172,7 +171,7 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 
 # DO NOT sort directories - dependency order = tools,kernel,widgets,dialogs
 
-win32:SOURCES  = kernel/qapplication_win.cpp \
+win32:SOURCES	= kernel/qapplication_win.cpp \
 		  kernel/qclipboard_win.cpp \
 		  kernel/qcolor_win.cpp \
 		  kernel/qcursor_win.cpp \
@@ -188,7 +187,7 @@ win32:SOURCES  = kernel/qapplication_win.cpp \
 
 win32:SOURCES  += kernel/qole_win.c
 
-unix:SOURCES   = kernel/qapplication_x11.cpp \
+unix:SOURCES    = kernel/qapplication_x11.cpp \
 		  kernel/qclipboard_x11.cpp \
 		  kernel/qcolor_x11.cpp \
 		  kernel/qcursor_x11.cpp \
@@ -207,11 +206,8 @@ unix:SOURCES   += dialogs/qprintdialog.cpp \
 		  kernel/qnpsupport.cpp \
 		  kernel/qwidgetcreate_x11.cpp
 
-SOURCES		+= \
-		  tools/qbitarray.cpp \
+SOURCES	       += tools/qbitarray.cpp \
 		  tools/qbuffer.cpp \
-		  tools/qtextcodec.cpp \
-		  tools/qutfcodec.cpp \
 		  tools/qcollection.cpp \
 		  tools/qdatastream.cpp \
 		  tools/qdatetime.cpp \
@@ -229,7 +225,9 @@ SOURCES		+= \
 		  tools/qkoi8codec.cpp \
 		  tools/qregexp.cpp \
 		  tools/qstring.cpp \
+		  tools/qtextcodec.cpp \
 		  tools/qtextstream.cpp \
+		  tools/qutfcodec.cpp \
 		  kernel/qabstractlayout.cpp \
 		  kernel/qaccel.cpp \
 		  kernel/qapplication.cpp \
