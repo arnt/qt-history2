@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#74 $
 **
 ** Implementation of QTabBar class
 **
@@ -238,7 +238,7 @@ void QTabBar::setTabEnabled( int id, bool enabled )
 				       (p2.y() - p1.y())*(p2.y() - p1.y());
 			    if ( distance < m ) {
 				t = n;
-				distance = m;
+				m = distance;
 			    }
 			}
 		    }
