@@ -1046,13 +1046,29 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	      << " && $(MAKE) -f " << (*it)->makefile << " qmake_all" << "; ) || true";
 	}
 	t << endl;
-	t << "clean uninstall_subdirs install_subdirs uicables mocables"
-	  << " uiclean mocclean lexclean yaccclean " << var("SUBDIR_TARGETS") << ": qmake_all FORCE";
+	t << "clean uicables mocables uiclean mocclean lexclean yaccclean " 
+	  << var("SUBDIR_TARGETS") << ": qmake_all FORCE";
 	for( it.toFirst(); it.current(); ++it) {
 	    t << "\n\t ( ";
 	    if(!(*it)->directory.isEmpty())
 		t << "[ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
 	    t << "$(MAKE) -f " << (*it)->makefile << " $@" << "; ) || true";
+	}
+	t << endl;
+	t << "uninstall_subdirs: qmake_all FORCE";
+	for( it.toFirst(); it.current(); ++it) {
+	    t << "\n\t ( ";
+	    if(!(*it)->directory.isEmpty())
+		t << "[ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
+	    t << "$(MAKE) -f " << (*it)->makefile << " uninstall" << "; ) || true";
+	}
+	t << endl;
+	t << "install_subdirs: qmake_all FORCE";
+	for( it.toFirst(); it.current(); ++it) {
+	    t << "\n\t ( ";
+	    if(!(*it)->directory.isEmpty())
+		t << "[ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
+	    t << "$(MAKE) -f " << (*it)->makefile << " install" << "; ) || true";
 	}
 	t << endl;
 	t << "distclean: qmake_all FORCE";

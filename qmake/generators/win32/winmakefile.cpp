@@ -157,7 +157,12 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     targs += project->values("SUBDIR_TARGETS");
     for(QStringList::Iterator targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
         t << (*targ_it) << ": qmake_all";
-	if((*targ_it) == "clean")
+	QString targ = (*targ_it);
+	if(targ == "install_subdirs")
+	    targ = "install";
+	else if(targ == "uninstall_subdirs")
+	    targ = "uninstall";
+	if(targ == "clean")
 	    t << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ", "");
 	if (!subdirs.isEmpty()) {
 	    for( it.toFirst(); it.current(); ++it) {
@@ -166,7 +171,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 		if(have_dir)
 		    t << "\n\t" << "cd " << (*it)->directory;
 		QString in_file = " -f " + (*it)->makefile;
-		t << "\n\t" << "$(MAKE) " << in_file << " " << (*targ_it);
+		t << "\n\t" << "$(MAKE) " << in_file << " " << targ;
 		if(have_dir) {
 		    t << "\n\t" << "@cd ..";
 		    for(int i = 1; i < subLevels; i++ )
