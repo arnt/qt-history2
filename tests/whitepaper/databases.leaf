@@ -24,7 +24,7 @@ drivers work on all platforms supported by Qt and for which client
 libraries are available. Programs can access multiple databases using
 multiple drivers simultaneously.
 
-Programmers can easily execute any arbitrary SQL statements. Qt also
+Programmers can easily execute any SQL statements. Qt also
 provides a high-level C++ interface that programmers can use to
 generate the appropriate SQL statements automatically.
 

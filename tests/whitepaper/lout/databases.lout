@@ -25,7 +25,7 @@ multiple drivers simultaneously.
   sybase @Index { Sybase }
   tds @Index { TDS }
 @PP
-Programmers can easily execute any arbitrary SQL statements. Qt also
+Programmers can easily execute any SQL statements. Qt also
 provides a high-level C++ interface that programmers can use to
 generate the appropriate SQL statements automatically.
 @PP

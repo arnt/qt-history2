@@ -175,7 +175,7 @@ platform and broaden their market hugely simply by recompiling on, for
 example, Windows.
 
   \index OpenGL
-
+  \omit ### \endomit
 Qt/Mac also brings some technical benefits to Macintosh development,
 for example, standard OpenGL, straightforward internationalization
 and powerful visual design with \l {Qt Designer}.
