@@ -21,7 +21,7 @@
 #include "qpushbutton.h"
 #include "qspinbox.h"
 #include "qcombobox.h"
-#include "qstackedwidget.h"
+#include "qstackedlayout.h"
 #include "qvalidator.h"
 #include "qapplication.h"
 
@@ -37,7 +37,7 @@ public:
     QSpinBox *spinBox;
     QComboBox *comboBox, *editComboBox;
     QPushButton *ok;
-    QStackedWidget *stack;
+    QStackedLayout *stack;
     QInputDialog::Type type;
 
     void init(const QString &label, QInputDialog::Type type);
@@ -64,14 +64,20 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
 
     label = new QLabel(lbl, q);
     vbox->addWidget(label);
+    vbox->addStretch(1);
 
-    stack = new QStackedWidget(q);
-    vbox->addWidget(stack);
-    lineEdit = new QLineEdit(stack);
-    spinBox = new QSpinBox(stack);
-    comboBox = new QComboBox(stack);
-    editComboBox = new QComboBox(stack);
+    stack = new QStackedLayout;
+    vbox->addLayout(stack);
+    lineEdit = new QLineEdit(q);
+    stack->addWidget(lineEdit);
+    spinBox = new QSpinBox(q);
+    stack->addWidget(spinBox);
+    comboBox = new QComboBox(q);
+    stack->addWidget(comboBox);
+    editComboBox = new QComboBox(q);
+    stack->addWidget(editComboBox);
     editComboBox->setEditable(true);
+    vbox->addStretch(1);
 
     QHBoxLayout *hbox = new QHBoxLayout;
     hbox->setSpacing(6);
@@ -252,7 +258,6 @@ void QInputDialog::setType(Type t)
     }
     if (input) {
         d->stack->setCurrentIndex(t);
-        d->stack->setFixedHeight(input->sizeHint().height());
         input->setFocus();
 #ifndef QT_NO_ACCEL
         d->label->setBuddy(input);

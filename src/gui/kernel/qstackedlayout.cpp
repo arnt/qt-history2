@@ -69,6 +69,15 @@ public:
     occupied in the stack is given by \a index.
 */
 
+
+/*!
+    Constructs a new QStackedLayout
+*/
+QStackedLayout::QStackedLayout()
+    :QLayout(*new QStackedLayoutPrivate, 0, 0)
+{
+}
+
 /*!
     Constructs a new QStackedLayout with the given \a parent.
 */
