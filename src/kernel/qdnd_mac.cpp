@@ -41,6 +41,14 @@
 #include "qt_mac.h"
 #include "qpainter.h"
 
+struct QMacDndExtra {
+    QWidget *widget;
+    bool acceptfmt;
+    bool acceptact;
+    bool received;
+    int ref;
+};
+
 bool qt_mac_in_drag = FALSE;
 //internal globals
 static QDragObject *global_src = 0;
@@ -350,6 +358,7 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
     QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v, TRUE);
     if(!widget->extraData()->macDndExtra) //never too late I suppose..
 	qt_macdnd_register( widget,  widget->extraData());
+    widget->extraData()->macDndExtra->received = FALSE;
     qt_mac_tracking_handler( kDragTrackingEnterWindow, (WindowPtr)widget->hd,
 			     (void *)widget->extraData()->macDndExtra, theDrag );
     int tid = startTimer( 1 );
@@ -364,15 +373,6 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
 void QDragManager::updatePixmap()
 {
 }
-
-
-struct QMacDndExtra {
-    QWidget *widget;
-    bool acceptfmt;
-    bool acceptact;
-    bool received;
-    int ref;
-};
 
 static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, DragReference theDrag)
 { 
@@ -432,7 +432,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 	QApplication::sendEvent( widget, &de );
 	macDndExtra->acceptfmt = de.isAccepted();
 	macDndExtra->acceptact = de.isActionAccepted();
-    } else {
+    } else if(!macDndExtra->received) {
 	if ( current_drag_widget && ((theMessage == kDragTrackingLeaveWindow) || 
 				     (widget != current_drag_widget))) {
 	    macDndExtra->acceptfmt = FALSE;
