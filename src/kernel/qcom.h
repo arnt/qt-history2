@@ -42,8 +42,7 @@ struct Q_EXPORT QComponentInterface : public QUnknownInterface
 
 struct Q_EXPORT QComponentFactoryInterface : public QUnknownInterface
 {
-    virtual QStringList	componentList() const = 0;
-    virtual QUnknownInterface	*createInstance( const QUuid &, const QString & ) = 0;
+    virtual QUnknownInterface	*createInstance( const QUuid &cid, const QUuid &iid ) = 0;
 };
 
 // {D16111D4-E1E7-4C47-8599-24483DAE2E07} 
@@ -79,10 +78,20 @@ struct Q_EXPORT QComponentServerInterface : public QUnknownInterface
     virtual bool    unregisterComponents() const = 0;
 };
 
+// {621F033C-D7D0-4462-BD67-1E8C8FA1C741} 
+#ifndef IID_QInterfaceListInterface
+#define IID_QInterfaceListInterface QUuid( 0x621f033c, 0xd7d0, 0x4462, 0xbd, 0x67, 0x1e, 0x8c, 0x8f, 0xa1, 0xc7, 0x41)
+#endif
+
+struct Q_EXPORT QInterfaceListInterface
+{
+    virtual QUuid   interfaceId( int index ) = 0;
+};
+
 class Q_EXPORT QComponentFactory
 {
 public:
-    static QLibrary *createInstance( const QUuid &clsid );
+    static QUnknownInterface *createInstance( const QUuid &cid, const QUuid &iid );
     static bool registerServer( const QString &filename );
     static bool unregisterServer( const QString &filename );
 };
@@ -90,8 +99,7 @@ public:
 #ifndef Q_CREATE_INSTANCE
     #define Q_CREATE_INSTANCE( IMPLEMENTATION )		\
 	IMPLEMENTATION *i = new IMPLEMENTATION;		\
-	i->addRef();					\
-	return i;
+	return i->queryInterface( IID_QUnknownInterface );
 #endif
 
 #ifndef Q_EXTERN_C

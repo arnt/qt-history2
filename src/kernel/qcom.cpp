@@ -3,6 +3,7 @@
 #ifndef QT_NO_COMPONENT
 #include "qsettings.h"
 #include "qlibrary.h"
+#include "qcleanuphandler.h"
 
 // We still have no name for the COM-like stuff here! See ###
 
@@ -46,17 +47,21 @@
   }
   \endcode
 
-  For any component, a query for the QUnknownInterface must always return the same
-  pointer value to allow a client to determine whether two interfaces point to the
-  same component.
-  There are four requirements for implementations of queryInterface:
+  There are five requirements for implementations of queryInterface:
   <ul>
-  <li>The set of interfaces accessible through queryInterface must be static for any component.
-  <li>Reflexive - if a client holding a pointer to one interface and queries for that interface the call must succeed
-  <li>Symmetric - if a client holding a pointer to one interface and queries for another, 
-      a query through the obtained interface for the first interface must succeed
-  <li>Transitive - if a client holding a pointer to one interface queries successfully for a second, and queries that 
-      successfully for a third interface, a query for that third interface on the first interface must succeed.
+  <li>Always the same QUnknownInterface
+  For any component, a query for the QUnknownInterface must always return the same pointer value to 
+  allow a client to determine whether two interfaces point to the same component.
+  <li>Static set of interfaces
+  The number of interfaces for which queryInterface returns a valid pointer must not change.
+  <li>Reflexive
+  If a client holding a pointer to one interface and queries for that interface, the call must succeed.
+  <li>Symmetric
+  If a client holding a pointer to one interface and queries for another, a query through the obtained 
+  interface for the first interface must succeed.
+  <li>Transitive
+  If a client holding a pointer to one interface queries successfully for a second, and queries that 
+  successfully for a third interface, a query for that third interface on the first interface must succeed.
   </ul>
 
   \sa addRef(), release()
@@ -110,7 +115,7 @@
 
 /*!
   \class QComponentInterface qcom.h
-  \brief The QComponentInterface class defines an interface to get information about components.
+  \brief The QComponentInterface class is an interface to get information about components.
   \ingroup componentmodel
 */
 
@@ -142,7 +147,7 @@
 
 /*!
   \class QLibraryInterface qcom.h
-  \brief The QLibraryInterface class defines an interface to control loading and unloading of components.
+  \brief The QLibraryInterface class is an interface to control loading and unloading of components.
   \ingroup componentmodel
 */
 
@@ -169,7 +174,7 @@
 
 /*!
   \class QFeatureListInterface qcom.h
-  \brief The QFeatureListInterface class defines an interface to retrieve information about features provided by a component.
+  \brief The QFeatureListInterface class is an interface to retrieve information about features provided by a component.
   \ingroup componentmodel
 */
 
@@ -182,7 +187,7 @@
 
 /*!
   \class QComponentServerInterface qcom.h
-  \brief The QComponentServerInterface class defines an interface to register and unregister components.
+  \brief The QComponentServerInterface class is an interface to register and unregister components.
   \ingroup componentmodel
 
   \sa QComponentFactory
@@ -235,34 +240,52 @@
   \sa QComponentServerInterface
 */
 
-/*!
-  Looks up the component identifier \a clsid in the system registry and returns a 
-  pointer to a QLibrary object for the component server, or NULL if there is no
-  such component or server.
+QCleanupHandler< QLibrary > qt_component_server_cleanup;
 
+/*!
+  Looks up the component identifier \a cid in the system registry, loads the corresponding
+  component server and queries for the interface \a iid. Returns the retrieved interface pointer, 
+  or NULL if there was an error.
+
+  Example:
   \code
-  QLibrary *library = QComponentFactory::createInstance( QUuid( "{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}" ) );
-  if ( library ) {
-      MyInterface *iface = library->queryInterface( IID_MyInterface );
-      if ( iface ) {
-	  ...
-	  iface->release();
-      }
-      delete library;
+  MyInterface *iface = (MyInterface*)QComponentFactory::createInstance( IID_MyInterface, CID_MyComponent );
+  if ( iface ) {
+      ...
+      iface->release();
   }
   \endcode
 */
-QLibrary *QComponentFactory::createInstance( const QUuid &clsid )
+
+QUnknownInterface *QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid )
 {
+    QUnknownInterface *iface = 0;
+
     QSettings settings;
     bool ok;
 
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
-    QString file = settings.readEntry( "/CLSID/" + clsid.toString() + "/InprocServer32/Default", QString::null, &ok );
+    QString file = settings.readEntry( "/CLSID/" + cid.toString() + "/InprocServer32/Default", QString::null, &ok );
+    int dot = file.findRev( '.' );
+    QString ext = file.right( file.length() - dot );
+    if ( ext == ".dll" || ext == ".so" || ext == ".dylib" )
+	file = file.left( dot );
 
-    if ( ok )
-	return new QLibrary( file );    
-    return 0;
+    if ( !ok )
+	return 0;
+
+    QLibrary *library = new QLibrary( file );
+    qt_component_server_cleanup.add( library );
+
+    QComponentFactoryInterface *cfIface = (QComponentFactoryInterface *)library->queryInterface( IID_QComponentFactoryInterface );
+    if ( cfIface ) {
+	iface = cfIface->createInstance( iid, cid );
+	cfIface->release();
+    } else {
+	iface = library->queryInterface( iid );
+    }
+
+    return iface;
 }
 
 /*!
