@@ -2185,7 +2185,7 @@ void Doc::printHtml( HtmlWriter& out ) const
 QString Doc::finalHtml() const
 {
     QMap<QString, int> offsetMap;
-    static QRegExp hashHashHash( QString("###") );
+    static QRegExp hashHashHash( QString("#" "##") );
 
     QString yyOut;
 
