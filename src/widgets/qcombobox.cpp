@@ -488,7 +488,7 @@ static inline bool checkInsertIndex( QComboBox *combo, const char *func,
 static inline bool checkIndex( const QComboBox *combo, const char *func,
 			       int index )
 {
-    bool ok = ( index < (int) combo->count() );
+    bool ok = ( index < (int)combo->count() );
 #if defined(QT_CHECK_RANGE)
     if ( !ok )
 	qWarning( "QComboBox::%s: (%s) Index %d out of range", func,
@@ -674,7 +674,7 @@ void QComboBox::insertItem( const QString &t, int index )
     if ( !checkInsertIndex(this, "insertItem", &index) )
 	return;
     d->insertItem( index, t );
-    afterInsertItem( index );
+    afterInsertItem( index++ );
     reindex( index );
 }
 
@@ -693,7 +693,7 @@ void QComboBox::insertItem( const QPixmap &pixmap, int index )
     } else {
 	d->popupMenu()->insertItem( pixmap, index, index );
     }
-    afterInsertItem( index );
+    afterInsertItem( index++ );
     reindex( index );
 }
 
@@ -713,7 +713,7 @@ void QComboBox::insertItem( const QPixmap &pixmap, const QString& text,
     } else {
 	d->popupMenu()->insertItem( pixmap, text, index, index );
     }
-    afterInsertItem( index );
+    afterInsertItem( index++ );
     reindex( index );
 }
 
@@ -723,7 +723,6 @@ void QComboBox::insertItem( const QPixmap &pixmap, const QString& text,
 
 void QComboBox::removeItem( int index )
 {
-    int cnt = count();
     if ( !checkIndex(this, "removeItem", index) )
 	return;
     if ( d->listBox() ) {
@@ -731,7 +730,7 @@ void QComboBox::removeItem( int index )
     } else {
 	d->popupMenu()->removeItemAt( index );
     }
-    reindex( cnt - 1 );
+    reindex( index );
     if ( index == d->current ) {
 	if ( d->ed ) {
 	    QString s = QString::fromLatin1( "" );
@@ -1051,34 +1050,29 @@ void QComboBox::internalClickTimeout()
     d->shortClick = FALSE;
 }
 
-/*!
-  \reimp
-  Sets the palette of the listbox and/or of the popup menu to \a
-  palette.
-*/
+/*! \reimp */
 
 void QComboBox::setPalette( const QPalette &palette )
 {
     QWidget::setPalette( palette );
-    if ( d->listBox() )
+    if ( d->listBox() ) {
 	d->listBox()->setPalette( palette );
-    if ( d->popupMenu() )
+    } else {
 	d->popupMenu()->setPalette( palette );
+    }
 }
 
-/*!
-  \reimp
-  Sets the font of the listbox and/or of the popup menu to \a font.
-*/
+/*! \reimp */
 
 void QComboBox::setFont( const QFont &font )
 {
     d->sizeHint = QSize(); // invalidate
     QWidget::setFont( font );
-    if ( d->listBox() )
+    if ( d->listBox() ) {
 	d->listBox()->setFont( font );
-    if ( d->popupMenu() )
+    } else {
 	d->popupMenu()->setFont( font );
+    }
     if ( d->autoresize )
 	adjustSize();
 }
@@ -1457,12 +1451,12 @@ void QComboBox::popDownListBox()
 
 /*!
   \internal
-  Re-indexes the identifiers in the popup list.
+  Reindexes the identifiers in the popup list.
 */
 
 void QComboBox::reindex( int nextIndex )
 {
-    if ( !d->listBox() && nextIndex != (int) count() ) {
+    if ( d->popupMenu() && nextIndex != (int)count() ) {
 	int i = count();
 	while ( i-- )
 	    d->popupMenu()->setId( i, i );
