@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#69 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#68 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#69 $")
 
 
 // Windows style parameters
@@ -236,18 +236,14 @@ void QPopupMenu::accelDestroyed()		// accel about to be deleted
 
 void QPopupMenu::actSig( int id )
 {
-    if ( receivers(SIGNAL(activated(int))) )
-	emit activated( id );
-    else
-	emit activatedRedirect( id );
+    emit activated( id );
+    emit activatedRedirect( id );
 }
 
 void QPopupMenu::hilitSig( int id )
 {
-    if ( receivers(SIGNAL(highlighted(int))) )
-	emit highlighted( id );
-    else
-	emit highlightedRedirect( id );
+    emit highlighted( id );
+    emit highlightedRedirect( id );
 }
 
 
