@@ -3,7 +3,7 @@
 #include "pixeldelegate.h"
 
 void PixelDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-        const QAbstractItemModel *model, const QModelIndex &index) const
+                          const QModelIndex &index) const
 {
     painter->setBrush(QBrush(Qt::white));
     painter->setPen(Qt::NoPen);
@@ -11,7 +11,8 @@ void PixelDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     painter->setBrush(QBrush(Qt::black));
 
     int size = qMin(option.rect.width(), option.rect.height());
-    int brightness = model->data(index, QAbstractItemModel::DisplayRole).toInt();
+    int brightness = index.model()->data(index,
+        QAbstractItemModel::DisplayRole).toInt();
     int radius = size/2 - int(brightness/255.0 * size/2);
 
     painter->save();
@@ -23,7 +24,6 @@ void PixelDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 }
 
 QSize PixelDelegate::sizeHint(const QStyleOptionViewItem & /* option */,
-                              const QAbstractItemModel * /* model */,
                               const QModelIndex & /* index */) const
 {
     return QSize(PixelSize, PixelSize);

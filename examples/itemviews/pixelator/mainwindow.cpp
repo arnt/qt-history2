@@ -117,8 +117,8 @@ void MainWindow::printImage()
 
         for (int column = 0; column < columns; ++column) {
             option.rect = QRect(int(x), int(y), ItemSize, ItemSize);
-            view->itemDelegate()->paint(&painter, option, model,
-                model->index(row, column, parent));
+            view->itemDelegate()->paint(&painter, option,
+                                        model->index(row, column, parent));
             x = x + ItemSize;
         }
         y = y + ItemSize;
