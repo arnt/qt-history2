@@ -128,7 +128,7 @@ public:
     inline QTextBlock(const QTextBlock &o) : p(o.p), n(o.n) {}
     inline QTextBlock &operator=(const QTextBlock &o) { p = o.p; n = o.n; return *this; }
 
-    bool isValid() const { return p != 0 && n != 0; }
+    inline bool isValid() const { return p != 0 && n != 0; }
 
     inline bool operator==(const QTextBlock &o) const { return p == o.p && n == o.n; }
     inline bool operator!=(const QTextBlock &o) const { return p != o.p || n != o.n; }
@@ -193,6 +193,8 @@ public:
     inline QTextFragment() : p(0), n(0), ne(0) {}
     inline QTextFragment(const QTextFragment &o) : p(o.p), n(o.n), ne(o.ne) {}
     inline QTextFragment &operator=(const QTextFragment &o) { p = o.p; n = o.n; ne = o.ne; return *this; }
+
+    inline bool isValid() const { return p && n; }
 
     inline bool operator==(const QTextFragment &o) const { return p == o.p && n == o.n; }
     inline bool operator!=(const QTextFragment &o) const { return p != o.p || n != o.n; }

@@ -577,7 +577,7 @@ QTextBlock::iterator QTextBlock::iterator::operator--()
 int QTextFragment::position() const
 {
     if (!p || !n)
-        return 0;
+        return 0; // ### -1 instead?
 
     return p->fragmentMap().position(n);
 }
@@ -598,12 +598,16 @@ int QTextFragment::length() const
 
 bool QTextFragment::contains(int position) const
 {
+    if (!p || !n)
+        return false;
     int pos = this->position();
     return position >= pos && position < pos + length();
 }
 
 QTextCharFormat QTextFragment::charFormat() const
 {
+    if (!p || !n)
+        return QTextCharFormat();
     const QTextFragmentData *data = p->fragmentMap().fragment(n);
     return p->formatCollection()->charFormat(data->format);
 }
