@@ -14,6 +14,12 @@ class QTextStream;
 class QIODevice;
 
 class QHttpHeaderPrivate;
+class QHttpReplyHeaderPrivate;
+class QHttpRequestHeaderPrivate;
+class QHttpClientPrivate;
+class QHttpServerPrivate;
+class QHttpConnectionPrivate;
+
 
 class Q_EXPORT QHttpHeader
 {
@@ -77,6 +83,7 @@ protected:
     virtual bool parseLine( const QString& line, int number );
 
 private:
+    QHttpReplyHeaderPrivate *d;
     int m_code;
     QString m_text;
     int m_version;
@@ -102,6 +109,7 @@ protected:
     virtual bool parseLine( const QString& line, int number );
 
 private:
+    QHttpRequestHeaderPrivate *d;
     QString m_method;
     QString m_path;
     int m_version;
@@ -153,6 +161,8 @@ private slots:
 private:
     void killIdleTimer();
 
+    QHttpClientPrivate *d;
+
     QSocket* m_socket;
     QByteArray m_buffer;
     uint m_bytesRead;
@@ -174,6 +184,9 @@ class Q_EXPORT QHttpServer : public QServerSocket
 
 public:
     QHttpServer( int port = 0, QObject* parent = 0, const char* name = 0 );
+
+private:
+    QHttpServerPrivate *d;
 };
 
 
@@ -217,6 +230,8 @@ private slots:
     void socketError( int );
 
 private:
+    QHttpConnectionPrivate *d;
+
     QSocket* m_socket;
     int m_bytesToWrite;
     int m_bytesToRead;

@@ -345,6 +345,7 @@ void QHttpHeader::setConnection( QHttpHeader::Connection con )
 */
 QHttpReplyHeader::QHttpReplyHeader()
 {
+    d = 0;
 }
 
 /*!
@@ -353,6 +354,7 @@ QHttpReplyHeader::QHttpReplyHeader()
 QHttpReplyHeader::QHttpReplyHeader( int code, const QString& text, int version )
     : QHttpHeader(), m_code( code ), m_text( text ), m_version( version )
 {
+    d = 0;
 }
 
 /*!
@@ -361,6 +363,7 @@ QHttpReplyHeader::QHttpReplyHeader( int code, const QString& text, int version )
 QHttpReplyHeader::QHttpReplyHeader( const QHttpReplyHeader& header )
     : QHttpHeader( header ), m_code( header.m_code ), m_text( header.m_text ), m_version( header.m_version )
 {
+    d = 0;
 }
 
 /*!
@@ -369,6 +372,7 @@ QHttpReplyHeader::QHttpReplyHeader( const QHttpReplyHeader& header )
 QHttpReplyHeader::QHttpReplyHeader( const QString& str )
     : QHttpHeader()
 {
+    d = 0;
     parse( str );
 }
 
@@ -498,6 +502,7 @@ bool QHttpReplyHeader::hasAutoContentLength() const
 QHttpRequestHeader::QHttpRequestHeader()
     : QHttpHeader()
 {
+    d = 0;
 }
 
 /*!
@@ -506,6 +511,7 @@ QHttpRequestHeader::QHttpRequestHeader()
 QHttpRequestHeader::QHttpRequestHeader( const QString& method, const QString& path, int version )
     : QHttpHeader(), m_method( method ), m_path( path ), m_version( version )
 {
+    d = 0;
 }
 
 /*!
@@ -514,6 +520,7 @@ QHttpRequestHeader::QHttpRequestHeader( const QString& method, const QString& pa
 QHttpRequestHeader::QHttpRequestHeader( const QHttpRequestHeader& header )
     : QHttpHeader( header ), m_method( header.m_method ), m_path( header.m_path ), m_version( header.m_version )
 {
+    d = 0;
 }
 
 /*!
@@ -522,6 +529,7 @@ QHttpRequestHeader::QHttpRequestHeader( const QHttpRequestHeader& header )
 QHttpRequestHeader::QHttpRequestHeader( const QString& str )
     : QHttpHeader()
 {
+    d = 0;
     parse( str );
 }
 
@@ -668,6 +676,7 @@ QHttpClient::QHttpClient( QObject* parent, const char* name )
     : QObject( parent, name ), m_state( QHttpClient::Idle ), m_idleTimer( 0 ),
       m_device( 0 ), m_postDevice( 0 )
 {
+    d = 0;
     m_socket = new QSocket( this );
 	
     connect( m_socket, SIGNAL( connected() ), this, SLOT( connected() ) );
@@ -1135,6 +1144,7 @@ QIODevice* QHttpClient::device() const
 QHttpServer::QHttpServer( int port, QObject* parent, const char* name )
     : QServerSocket( port, 0, parent, name )
 {
+    d = 0;
 }
 
 /****************************************************
@@ -1170,6 +1180,7 @@ QHttpConnection::QHttpConnection( int socket, QObject* parent, const char* name 
     : QObject( parent, name ), m_bytesToWrite( 0 ), m_state( Created ), m_killTimer( 0 ),
       m_allowKeepAlive( TRUE ), m_keepAliveTimeout( 10000 )
 {
+    d = 0;
     m_socket = new QSocket( this );
     m_socket->setSocket( socket );
 
