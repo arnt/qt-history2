@@ -1,9 +1,10 @@
 /****************************************************************************
 ** $Id$
 **
-** Definition of QGb18030Codec class
+** Compatibility file - should only be included by legacy code.
+** It #includes the file which obsoletes this one.
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -35,55 +36,7 @@
 
 // Contributed by James Su <suzhe@gnuchina.org>
 
-#ifndef QGB18030CODEC_H
-#define QGB18030CODEC_H
-
-#ifndef QT_H
-#include "qglobal.h"
-#include "qtextcodec.h"
-#endif // QT_H
-
-
-#ifndef QT_NO_BIG_CODECS
-
-#if defined(QT_PLUGIN)
-#define Q_EXPORT_CODECS_CN
-#else
-#define Q_EXPORT_CODECS_CN Q_EXPORT
-#endif
-
-class Q_EXPORT_CODECS_CN QGb18030Codec : public QTextCodec {
-public:
-    QGb18030Codec();
-
-    int mibEnum() const;
-    const char* name() const;
-
-    QTextDecoder* makeDecoder() const;
-
-    QCString fromUnicode(const QString& uc, int& len_in_out) const;
-    QString toUnicode(const char* chars, int len) const;
-
-    int heuristicContentMatch(const char* chars, int len) const;
-    int heuristicNameMatch(const char* hint) const;
-};
-
-class Q_EXPORT_CODECS_CN QGbkCodec : public QGb18030Codec {
-public:
-    QGbkCodec();
-
-    int mibEnum() const;
-    const char* name() const;
-    const char* mimeName() const;
-
-    QTextDecoder* makeDecoder() const;
-
-    QCString fromUnicode(const QString& uc, int& len_in_out) const;
-    QString toUnicode(const char* chars, int len) const;
-
-    int heuristicContentMatch(const char* chars, int len) const;
-    int heuristicNameMatch(const char* hint) const;
-};
-
-#endif
+#ifndef QGKCODEC_H
+#define QGKCODEC_H
+#include <qgb18030codec.h>
 #endif
