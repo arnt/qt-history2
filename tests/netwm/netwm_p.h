@@ -82,7 +82,7 @@ struct NETWinInfoPrivate {
     unsigned long state;
     NETStrut strut;
     NET::WindowType type;
-    char *name;
+    char *name, *visible_name;
     CARD32 desktop;
     CARD32 pid;
     CARD32 handled_icons;

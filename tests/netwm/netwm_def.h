@@ -117,7 +117,8 @@ public:
 	WMMoveResize        = 1<<14,
 
 	// window
-	WMName              = 1<<16,
+	WMName              = 1<<15,
+	WMVisibleName       = 1<<16,
 	WMDesktop           = 1<<17,
 	WMWindowType        = 1<<18,
 	WMState             = 1<<19,

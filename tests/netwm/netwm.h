@@ -133,7 +133,8 @@ public:
     void setState(unsigned long /* state */, unsigned long /* mask */);
     void setWindowType(WindowType /* type */);
     void setName(const char * /* name */);
-    
+    void setVisibleName(const char * /* visible name */);
+
     enum { OnAllDesktops = 0xFFFFFF };
     void setDesktop(CARD32 /* desktop */);
     void setPid(CARD32 /* pid */);
@@ -147,6 +148,7 @@ public:
     inline NETStrut strut() const;
     inline WindowType windowType() const;
     inline const char *name() const;
+    inline const char *visibleName() const;
     inline CARD32 desktop() const;
     inline CARD32 pid() const;
     inline Bool handledIcons() const;
@@ -244,6 +246,8 @@ inline NETStrut NETWinInfo::strut() const { return p->strut; }
 inline NET::WindowType NETWinInfo::windowType() const { return p->type; }
 
 inline const char *NETWinInfo::name() const { return p->name; }
+
+inline const char *NETWinInfo::visibleName() const { return p->visible_name; }
 
 inline CARD32 NETWinInfo::desktop() const { return p->desktop; }
 

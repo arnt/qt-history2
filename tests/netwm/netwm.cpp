@@ -50,8 +50,8 @@ static Atom net_close_window         = 0;
 static Atom net_wm_moveresize        = 0;
 
 // application window properties
-static Atom net_properties           = 0;
 static Atom net_wm_name              = 0;
+static Atom net_wm_visible_name      = 0;
 static Atom net_wm_desktop           = 0;
 static Atom net_wm_window_type       = 0;
 static Atom net_wm_state             = 0;
@@ -146,124 +146,72 @@ int wcmp(const void *a, const void *b) {
 
 
 static void create_atoms(Display *d) {
-    Atom atoms[28], *atomsp[28];
-    const char *names[28];
-
-    names[0]  = "_NET_SUPPORTED";
-    atoms[0]   = 0;
-    atomsp[0] = &net_supported;
-
-    names[1]  = "_NET_SUPPORTING_WM_CHECK";
-    atoms[1]   = 0;
-    atomsp[1] = &net_supporting_wm_check;
-
-    names[2]  = "_NET_CLIENT_LIST";
-    atoms[2]  = 0;
-    atomsp[2] = &net_client_list;
-
-    names[3]  = "_NET_CLIENT_LIST_STACKING";
-    atoms[3]  = 0;
-    atomsp[3] = &net_client_list_stacking;
-
-    names[4]  = "_NET_NUMBER_OF_DESKTOPS";
-    atoms[4]  = 0;
-    atomsp[4] = &net_number_of_desktops;
-
-    names[5]  = "_NET_DESKTOP_GEOMETRY";
-    atoms[5]  = 0;
-    atomsp[5] = &net_desktop_geometry;
-
-    names[6] = "_NET_DESKTOP_VIEWPORT";
-    atoms[6] = 0;
-    atomsp[6] = &net_desktop_viewport;
-
-    names[7]  = "_NET_CURRENT_DESKTOP";
-    atoms[7]  = 0;
-    atomsp[7] = &net_current_desktop;
-
-    names[8]  = "_NET_DESKTOP_NAMES";
-    atoms[8]  = 0;
-    atomsp[8] = &net_desktop_names;
-
-    names[9]  = "_NET_ACTIVE_WINDOW";
-    atoms[9]  = 0;
-    atomsp[9] = &net_active_window;
-
-    names[10]  = "_NET_WORKAREA";
-    atoms[10]  = 0;
-    atomsp[10] = &net_workarea;
-
-    names[11]  = "_NET_VIRTUAL_ROOTS";
-    atoms[11]  = 0;
-    atomsp[11] = &net_virtual_roots;
-
-    names[12]  = "_NET_CLOSE_WINDOW";
-    atoms[12]  = 0;
-    atomsp[12] = &net_close_window;
-
-    names[13]  = "_NET_WM_MOVERESIZE";
-    atoms[13]  = 0;
-    atomsp[13] = &net_wm_moveresize;
-
-    names[14]  = "_NET_PROPERTIES";
-    atoms[14]  = 0;
-    atomsp[14] = &net_properties;
-
-    names[15]  = "_NET_WM_NAME";
-    atoms[15]  = 0;
-    atomsp[15] = &net_wm_name;
-
-    names[16]  = "_NET_WM_DESKTOP";
-    atoms[16]  = 0;
-    atomsp[16] = &net_wm_desktop;
-
-    names[17]  = "_NET_WM_WINDOW_TYPE";
-    atoms[17]  = 0;
-    atomsp[17] = &net_wm_window_type;
-
-    names[18]  = "_NET_WM_STATE";
-    atoms[18]  = 0;
-    atomsp[18] = &net_wm_state;
-
-    names[19]  = "_NET_WM_STRUT";
-    atoms[19]  = 0;
-    atomsp[19] = &net_wm_strut;
-
-    names[20]  = "_NET_WM_ICON_GEOMETRY";
-    atoms[20]  = 0;
-    atomsp[20] = &net_wm_icon_geometry;
-
-    names[21]  = "_NET_WM_ICON";
-    atoms[21]  = 0;
-    atomsp[21] = &net_wm_icon;
-
-    names[22]  = "_NET_WM_PID";
-    atoms[22]  = 0;
-    atomsp[22] = &net_wm_pid;
-
-    names[23]  = "_NET_WM_HANDLED_ICONS";
-    atoms[23]  = 0;
-    atomsp[23] = &net_wm_handled_icons;
-
-    names[24]  = "_NET_WM_PING";
-    atoms[24]  = 0;
-    atomsp[24] = &net_wm_ping;
-
-    names[25]  = "_NET_KDE_DOCKING_WINDOWS";
-    atoms[25]  = 0;
-    atomsp[25] = &net_kde_docking_windows;
-
-    names[26]  = "_NET_WM_KDE_DOCKING_WINDOW_FOR";
-    atoms[26]  = 0;
-    atomsp[26] = &net_wm_kde_docking_window_for;
-
-    names[27] = "WM_STATE";
-    atoms[27] = 0;
-    atomsp[27] = &xa_wm_state;
-
+    static const char *names[28] = { "_NET_SUPPORTED",
+					 "_NET_SUPPORTING_WM_CHECK",
+					 "_NET_CLIENT_LIST",
+					 "_NET_CLIENT_LIST_STACKING",
+					 "_NET_NUMBER_OF_DESKTOPS",
+					 "_NET_DESKTOP_GEOMETRY",
+					 "_NET_DESKTOP_VIEWPORT",
+					 "_NET_CURRENT_DESKTOP",
+					 "_NET_DESKTOP_NAMES",
+					 "_NET_ACTIVE_WINDOW",
+					 "_NET_WORKAREA",
+					 "_NET_VIRTUAL_ROOTS",
+					 "_NET_CLOSE_WINDOW",
+					 "_NET_WM_MOVERESIZE",
+					 "_NET_WM_NAME",
+					 "_NET_WM_VISIBLE_NAME",
+					 "_NET_WM_DESKTOP",
+					 "_NET_WM_WINDOW_TYPE",
+					 "_NET_WM_STATE",
+					 "_NET_WM_STRUT",
+					 "_NET_WM_ICON_GEOMETRY",
+					 "_NET_WM_ICON",
+					 "_NET_WM_PID",
+					 "_NET_WM_HANDLED_ICONS",
+					 "_NET_WM_PING",
+					 "_NET_KDE_DOCKING_WINDOWS",
+					 "_NET_WM_KDE_DOCKING_WINDOW_FOR",
+					 "WM_STATE" };
+    
+    Atom atoms[28], *atomsp[28] = {
+	&net_supported,
+	    &net_supporting_wm_check,
+	    &net_client_list,
+	    &net_client_list_stacking,
+	    &net_number_of_desktops,
+	    &net_desktop_geometry,
+	    &net_desktop_viewport,
+	    &net_current_desktop,
+	    &net_desktop_names,
+	    &net_active_window,
+	    &net_workarea,
+	    &net_virtual_roots,
+	    &net_close_window,
+	    &net_wm_moveresize,
+	    &net_wm_name,
+	    &net_wm_visible_name,
+	    &net_wm_desktop,
+	    &net_wm_window_type,
+	    &net_wm_state,
+	    &net_wm_strut,
+	    &net_wm_icon_geometry,
+	    &net_wm_icon,
+	    &net_wm_pid,
+	    &net_wm_handled_icons,
+	    &net_wm_ping,
+	    &net_kde_docking_windows,
+	    &net_wm_kde_docking_window_for,
+	    &xa_wm_state };
+    
+    int i = 28;
+    while (i--)
+	atoms[i] = 0;
+    
     XInternAtoms(d, (char **) names, 28, False, atoms);
 
-    int i = 28;
+    i = 28;
     while (i--)
 	*atomsp[i] = atoms[i];
 
@@ -847,48 +795,47 @@ const NETRootInfo &NETRootInfo::operator=(const NETRootInfo &nri) {
 unsigned long NETRootInfo::event(XEvent *e) {
     unsigned long dirty = 0;
 
-    if (role == WindowManager) {
-	if (e->type == ClientMessage && e->xclient.format == 32) {
-	    if (e->xclient.message_type == net_number_of_desktops) {
-		dirty = NumberOfDesktops;
+    // the window manager will be interested in client messages... no other
+    // client should get these messages
+    if (role == WindowManager && e->type == ClientMessage &&
+	e->xclient.format == 32) {
+	if (e->xclient.message_type == net_number_of_desktops) {
+	    dirty = NumberOfDesktops;
 
-		changeNumberOfDesktops(e->xclient.data.l[0]);
-	    } else if (e->xclient.message_type == net_desktop_geometry) {
-		dirty = DesktopGeometry;
+	    changeNumberOfDesktops(e->xclient.data.l[0]);
+	} else if (e->xclient.message_type == net_desktop_geometry) {
+	    dirty = DesktopGeometry;
 
-		NETSize sz;
-		sz.width = e->xclient.data.l[0];
-		sz.height = e->xclient.data.l[1];
-		changeDesktopGeometry(sz);
-	    } else if (e->xclient.message_type == net_desktop_viewport) {
-		dirty = DesktopViewport;
+	    NETSize sz;
+	    sz.width = e->xclient.data.l[0];
+	    sz.height = e->xclient.data.l[1];
+	    changeDesktopGeometry(sz);
+	} else if (e->xclient.message_type == net_desktop_viewport) {
+	    dirty = DesktopViewport;
 
-		NETPoint pt;
-		pt.x = e->xclient.data.l[0];
-		pt.y = e->xclient.data.l[1];
-		changeDesktopViewport(pt);
-	    } else if (e->xclient.message_type == net_current_desktop) {
-		dirty = CurrentDesktop;
+	    NETPoint pt;
+	    pt.x = e->xclient.data.l[0];
+	    pt.y = e->xclient.data.l[1];
+	    changeDesktopViewport(pt);
+	} else if (e->xclient.message_type == net_current_desktop) {
+	    dirty = CurrentDesktop;
 
-		changeCurrentDesktop(e->xclient.data.l[0]);
-	    } else if (e->xclient.message_type == net_active_window) {
-		dirty = ActiveWindow;
+	    changeCurrentDesktop(e->xclient.data.l[0]);
+	} else if (e->xclient.message_type == net_active_window) {
+	    dirty = ActiveWindow;
 
-		changeActiveWindow(e->xclient.window);
-	    } else if (e->xclient.message_type == net_wm_moveresize) {
-		moveResize(e->xclient.window,
-			   e->xclient.data.l[0],
-			   e->xclient.data.l[1],
-			   e->xclient.data.l[2]);
-	    } else if (e->xclient.message_type == net_close_window) {
-		closeWindow(e->xclient.window);
-	    }
-	} else if (e->type == PropertyNotify &&
-		   e->xproperty.atom == net_desktop_names) {
-	    dirty = DesktopNames;
-	    update(dirty);
+	    changeActiveWindow(e->xclient.window);
+	} else if (e->xclient.message_type == net_wm_moveresize) {
+	    moveResize(e->xclient.window,
+		       e->xclient.data.l[0],
+		       e->xclient.data.l[1],
+		       e->xclient.data.l[2]);
+	} else if (e->xclient.message_type == net_close_window) {
+	    closeWindow(e->xclient.window);
 	}
-    } else if (e->type == PropertyNotify) {
+    }
+    
+    if (e->type == PropertyNotify) {
 	XEvent pe = *e;
 
 	Bool done = False;
@@ -916,6 +863,7 @@ unsigned long NETRootInfo::event(XEvent *e) {
 	    else {
 		XPutBackEvent(p->display, &pe);
 		done = True;
+		break;
 	    }
 
 	    if (! XCheckTypedWindowEvent(p->display, p->root, PropertyNotify, &pe))
@@ -938,7 +886,7 @@ void NETRootInfo::update(unsigned long dirty) {
     unsigned long nitems_ret, unused;
 
     dirty = dirty & p->protocols;
-    
+
     if (dirty & ClientList)
 	if (XGetWindowProperty(p->display, p->root, net_client_list,
 			       0l, (long) BUFSIZE, False, XA_WINDOW, &type_ret,
@@ -1397,6 +1345,17 @@ void NETWinInfo::setName(const char *name) {
 }
 
 
+void NETWinInfo::setVisibleName(const char *vname) {
+    if (role != WindowManager) return;
+    
+    if (p->visible_name) delete [] p->visible_name;
+    p->visible_name = nstrdup(vname);
+    XChangeProperty(p->display, p->window, net_wm_visible_name, XA_STRING, 8,
+		    PropModeReplace, (unsigned char *) p->visible_name,
+		    strlen(p->visible_name) + 1);
+}
+
+
 void NETWinInfo::setDesktop(CARD32 desk) {
     if (role == Client && p->managed) {
 	// we only send a ClientMessage if we are 1) a client and 2) managed
@@ -1484,21 +1443,19 @@ NETIcon NETWinInfo::icon(int w, int h) const {
 unsigned long NETWinInfo::event(XEvent *e) {
     unsigned long dirty = 0;
 
-    if (role == WindowManager) {
-	if (e->type == ClientMessage && e->xclient.format == 32) {
-	    if (e->xclient.message_type == net_wm_state) {
-		dirty = WMState;
+    if (role == WindowManager && e->type == ClientMessage &&
+	e->xclient.format == 32) {
+	if (e->xclient.message_type == net_wm_state) {
+	    dirty = WMState;
 
-		changeState(e->xclient.data.l[0], e->xclient.data.l[1]);
-	    } else if (e->xclient.message_type == net_wm_desktop) {
-		dirty = WMDesktop;
+	    changeState(e->xclient.data.l[0], e->xclient.data.l[1]);
+	} else if (e->xclient.message_type == net_wm_desktop) {
+	    dirty = WMDesktop;
 
-		changeDesktop(e->xclient.data.l[0]);
-	    }
+	    changeDesktop(e->xclient.data.l[0]);
 	}
     }
-	    
-	    
+
     if (e->type == PropertyNotify) {
 	XEvent pe = *e;
 
@@ -1506,6 +1463,8 @@ unsigned long NETWinInfo::event(XEvent *e) {
 	while (! done) {
 	    if (pe.xproperty.atom == net_wm_name)
 		dirty |= WMName;
+	    else if (pe.xproperty.atom == net_wm_visible_name)
+		dirty |= WMVisibleName;
 	    else if (pe.xproperty.atom == net_wm_window_type)
 		dirty |=WMWindowType;
 	    else if (pe.xproperty.atom == net_wm_strut)
@@ -1523,6 +1482,7 @@ unsigned long NETWinInfo::event(XEvent *e) {
 	    else {
 		XPutBackEvent(p->display, &pe);
 		done = True;
+		break;
 	    }
 
 	    if (! XCheckTypedWindowEvent(p->display, p->window,
@@ -1544,7 +1504,7 @@ void NETWinInfo::update(unsigned long dirty) {
     unsigned char *data_ret;
 
     dirty = dirty & p->properties;
-    
+
     if (dirty & INTERNAL_XAWMState)
 	if (XGetWindowProperty(p->display, p->window, xa_wm_state, 0l, 1l,
 			       False, xa_wm_state, &type_ret, &format_ret,
@@ -1555,7 +1515,7 @@ void NETWinInfo::update(unsigned long dirty) {
 		    nitems_ret == 2) {
 		    CARD32 *state = (CARD32 *) data_ret;
 		    if (*state != WithdrawnState ) p->managed = True;
-		
+
 		    switch(*state) {
 		    case IconicState:
 			p->mapping_state = Iconic;
@@ -1613,8 +1573,23 @@ void NETWinInfo::update(unsigned long dirty) {
 		}
 
 		XFree(data_ret);
-	    }
+	    } 
+    
+    if (dirty & WMVisibleName)
+	if (XGetWindowProperty(p->display, p->window, net_wm_visible_name, 0l,
+			       (long) BUFSIZE, False, XA_STRING, &type_ret,
+			       &format_ret, &nitems_ret, &unused, &data_ret)
+	    == Success)
+	    if (data_ret) {
+		if (type_ret == XA_STRING && format_ret == 8 &&
+		    nitems_ret > 0) {
+		    if (p->visible_name) delete [] p->visible_name;
+		    p->visible_name = nstrndup((const char *) data_ret, nitems_ret);
+		}
 
+		XFree(data_ret);
+	    }
+        
     if (dirty & WMWindowType)
 	if (XGetWindowProperty(p->display, p->window, net_wm_window_type, 0l, 1l,
 			       False, XA_CARDINAL, &type_ret, &format_ret,
