@@ -2065,19 +2065,19 @@ void QTimeEdit::stepUp()
 	if ( !outOfRange( d->h+1, d->m, d->s ) )
 	    setHour( d->h+1 );
 	else
-	    setHour( 0 );
+	    setHour( d->min.hour() );
 	break;
     case 1:
 	if ( !outOfRange( d->h, d->m+1, d->s ) )
 	    setMinute( d->m+1 );
 	else
-	    setMinute( 0 );
+	    setMinute( d->min.minute() );
 	break;
     case 2:
 	if ( !outOfRange( d->h, d->m, d->s+1 ) )
 	    setSecond( d->s+1 );
 	else
-	    setSecond( 0 );
+	    setSecond( d->min.second() );
 	break;
     case 3:
 	if ( d->h < 12 )
@@ -2114,19 +2114,19 @@ void QTimeEdit::stepDown()
 	if ( !outOfRange( d->h-1, d->m, d->s ) )
 	    setHour( d->h-1 );
 	else
-	    setHour( 23 );
+	    setHour( d->max.hour() );
 	break;
     case 1:
 	if ( !outOfRange( d->h, d->m-1, d->s ) )
 	    setMinute( d->m-1 );
 	else
-	    setMinute( 59 );
+	    setMinute( d->max.minute() );
 	break;
     case 2:
 	if ( !outOfRange( d->h, d->m, d->s-1 ) )
 	    setSecond( d->s-1 );
 	else
-	    setSecond( 59 );
+	    setSecond( d->max.second() );
 	break;
     case 3:
 	if ( d->h > 11 )
