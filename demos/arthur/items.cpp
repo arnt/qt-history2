@@ -219,6 +219,7 @@ void Items::drawItems(const QRect &rect)
 
 void Items::resetState()
 {
+    updateBackground();
     drawItems(QRect());
     update();
 }
