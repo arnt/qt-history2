@@ -167,7 +167,7 @@ static QString protect( const QCString& str )
     QString result;
     while( k < l ) {
 	switch( str[k] ) {
-	case '\\':
+	case '\"':
 	    result += QString::fromLatin1( "&quot;" );
 	    break;
 	case '&':
