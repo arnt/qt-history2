@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#245 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#246 $
 **
 ** Implementation of QWidget class
 **
@@ -2610,7 +2610,7 @@ bool QWidget::close( bool forceKill )
   This function returns TRUE if the widget it is obscured by other
   windows on the screen, but would be visible if moved.
 
-  \sa show(), hide(), isVisible(), iconified()
+  \sa show() hide() isVisible()
 */
 
 bool QWidget::isVisibleTo(QWidget* ancestor) const
@@ -2636,7 +2636,7 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
 
   This is equivalent to isVisibleTo(0).
 
-  \sa show(), hide(), isVisible(), iconified()
+  \sa show(), hide(), isVisible()
 */
 
 bool QWidget::isVisibleToTLW() const
