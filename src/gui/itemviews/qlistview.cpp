@@ -495,13 +495,10 @@ bool QListView::isRowHidden(int row) const
 void QListView::setRowHidden(int row, bool hide)
 {
     Q_D(QListView);
-    if (hide) {
+    if (hide && !isRowHidden(row))
         d->hiddenRows.append(row);
-    } else {
-        int idx = d->hiddenRows.indexOf(row);
-        if(idx != -1)
-            d->hiddenRows.remove(idx);
-    }
+    else if (!hide && isRowHidden(row))
+        d->hiddenRows.remove(d->hiddenRows.indexOf(row));
 
     d->doDelayedItemsLayout();
 }
