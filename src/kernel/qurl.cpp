@@ -28,6 +28,8 @@
 
 #include <stdlib.h>
 
+extern Q_EXPORT QNetworkProtocolDict *qNetworkProtocolRegister;
+
 struct QUrlPrivate
 {
     QString protocol;

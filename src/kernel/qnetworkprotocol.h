@@ -60,7 +60,6 @@ public:
 };
 
 typedef QDict< QNetworkProtocolFactoryBase > QNetworkProtocolDict;
-extern Q_EXPORT QNetworkProtocolDict *qNetworkProtocolRegister;
 
 class Q_EXPORT QNetworkProtocol : public QObject
 {

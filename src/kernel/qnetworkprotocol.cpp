@@ -29,6 +29,8 @@
 #include "qtimer.h"
 #include "qmap.h"
 
+extern Q_EXPORT QNetworkProtocolDict *qNetworkProtocolRegister;
+
 QNetworkProtocolDict *qNetworkProtocolRegister = 0;
 
 struct QNetworkProtocolPrivate
@@ -321,7 +323,7 @@ QNetworkProtocol::QNetworkProtocol()
 	connect( this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
 		 url(), SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
     }
-    
+
     connect( this, SIGNAL( finished( QNetworkOperation * ) ),
 	     this, SLOT( processNextOperation( QNetworkOperation * ) ) );
 
@@ -376,7 +378,7 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
     }
 
     d->url = u;
-    
+
     if ( url() ) {
 	connect( this, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
 		 url(), SIGNAL( data( const QByteArray &, QNetworkOperation * ) ) );
