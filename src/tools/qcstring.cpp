@@ -376,6 +376,118 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 #endif //QT_NO_DATASTREAM
 
 /*****************************************************************************
+  QByteArray conversion functions
+ *****************************************************************************/
+static const char Base64Alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char Base64Terminator = '=';
+
+QString qToBase64( const QByteArray &array, int linelength )
+{
+    QString base64, word;
+    int size = array.size(), counter = 0;
+    for ( int i = 0; i < size; i += 3 ) {
+	if ( i <= size - 3 ) {
+	    word = Base64Alphabet[ ( array[i] & 0xFC ) >> 2 ];
+	    word += Base64Alphabet[ ( ( array[i] & 0x3 ) << 4 ) | ( ( array[i+1] & 0xF0 ) >> 4 ) ];
+	    word += Base64Alphabet[ ( ( array[i+1] & 0xF ) << 2 ) | ( ( array[i+2] & 0xC0 ) >> 6 ) ];
+	    word += Base64Alphabet[ array[i+2] & 0x3F ];
+	} else if ( i == size - 2) {
+	    word = Base64Alphabet[ ( array[i] & 0xFC ) >> 2 ];
+	    word += Base64Alphabet[ ( ( array[i] & 0x3 ) << 4 ) | ( ( array[i+1] & 0xF0 ) >> 4 ) ];
+	    word += Base64Alphabet[ ( array[i+1] & 0xF ) << 2 ];
+	    word += Base64Terminator;
+	} else if ( i == size - 1 ) {
+	    word = Base64Alphabet[ ( array[i] & 0xFC ) >> 2 ];
+	    word += Base64Alphabet[ ( array[i] & 0x3 ) << 4 ];
+	    word += Base64Terminator;
+	    word += Base64Terminator;
+	}
+	if ( linelength <= 4 )  //### should be 0
+	    base64 += word;
+	else { //### linelength must be >= 4
+	    counter += 4;
+	    if ( counter < linelength )
+		base64 += word;
+	    else if ( counter = linelength ) {
+		base64 += word + "\n";
+	    } else {
+		base64 += word.left( counter - linelength ) + '\n' + word.right( word.length() - ( counter - linelength ) );
+	    }
+	    if ( counter >= linelength )
+		counter %= linelength;
+	}
+    }
+    return base64;
+}
+
+QByteArray qFromBase64( const QString &base64, bool *ok )
+{
+    QByteArray array( ( ( base64.length() -1 ) / 4 + 1 ) * 3 );
+    int table[ 256 ];
+    unsigned int i;
+    char word[ 4 ], last4[ 4 ];
+    // construct the translation table, to make it static?
+    for ( i = 0; i < 256; i++ )
+	table[ i ] = -1;
+    for ( i = 0; i < qstrlen( Base64Alphabet ); i++ ) 
+	table[ Base64Alphabet[ i ] ] = i;
+    table[ Base64Terminator ] = 0;
+
+    unsigned int size = base64.length();
+    int counter = 0;
+    int bytes = 0;
+    if ( ok )
+	*ok = TRUE;
+    for ( i = 0; i < size; i++ ) {
+	QChar current = base64[ (int)i ];
+	if ( current.isSpace() )
+	    continue;
+	int value = table[ current ];
+	if ( value < -1 ) {
+	    if ( ok )
+		*ok = FALSE;
+	    continue;
+	}
+	word[ counter ] = value;
+	last4[ counter ] = current;
+	if ( ++counter > 3 ) {
+	    counter = 0;
+	    int valid = 3;
+	    if ( last4[ 0 ] == Base64Terminator ) {
+		if ( ok )
+		    *ok = FALSE;
+		continue;
+	    }
+	    if ( last4[ 1 ] == Base64Terminator ) {
+		if ( ok )
+		    *ok = FALSE;
+	    }
+	    if ( last4[ 2 ] == Base64Terminator ) {
+		valid = 1;
+	    }
+	    if ( last4[ 3 ] == Base64Terminator ) {
+		valid = 2;
+	    }
+
+	    if ( valid ) {
+		array[ bytes++ ] = ( ( word[0] & 0x3F ) << 2 ) | ( ( word[1] & 0x30 ) >> 4 );
+		if ( valid > 1 ) {
+		    array[ bytes++ ] = ( ( word[1] & 0xF ) << 4 ) | ( ( word[2] & 0x3C ) >> 2 );
+		    if ( valid > 2 ) {
+			array[ bytes++ ] = ( ( word[2] & 0x3 ) << 6 ) | ( word[3] & 0x3F );
+		    }
+		}
+	    }
+	}
+
+    }
+
+    return array;
+}
+
+
+
+/*****************************************************************************
   QCString member functions
  *****************************************************************************/
 
