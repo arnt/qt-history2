@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qdstream.cpp#9 $
 **
 ** Implementation of QDataStream class
 **
@@ -22,14 +22,14 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdstream.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdstream.cpp#9 $";
 #endif
 
 
 /*!
 \class QDataStream qdstream.h
 \brief The QDataStream class provides basic functions for serialization of
-binary data.
+binary data to a QIODevice.
 
 A data stream is a binary stream of encoded information which is 100%
 independent of the host computer operation system, CPU or byte order.
