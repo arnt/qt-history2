@@ -1,0 +1,245 @@
+/****************************************************************************
+**
+** Documentation for qmake commands
+**
+** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
+Environment Variables
+
+qmake Command Line arguments
+
+Functions
+
+<p>
+<table border="1">
+    <tr>
+        <td>&nbsp;</td>
+        <td>Function name</td>
+        <td>&nbsp;</td>
+        <td>Arguments</td>
+        <td>&nbsp;</td>
+        <td>Description</td>
+    </tr>
+
+    <tr>
+        <td>&nbsp;</td>
+        <td>include</td>
+        <td>&nbsp;</td>
+        <td>string</td>
+        <td>&nbsp;</td>
+        <td>This function will succeed if the file could be found and
+        parsed correctly, it will fail otherwise.</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>contains</td>
+        <td>&nbsp;</td>
+        <td>variable, value</td>
+        <td>&nbsp;</td>
+		<td>This function will succeed if variable (the name of a qmake
+		variable) contains the given value</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>count</td>
+        <td>&nbsp;</td>
+        <td>variable, count</td>
+        <td>&nbsp;</td>
+		<td>This function will succeed if variable (the name of a qmake
+		variable) contains count values</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>isEmpty</td>
+        <td>&nbsp;</td>
+        <td>variable</td>
+        <td>&nbsp;</td>
+		<td>This function will succeed if variable (the name of a qmake
+		variable) is empty (same as count(variable, 0))<cite></td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>system</td>
+        <td>&nbsp;</td>
+        <td>string</td>
+        <td>&nbsp;</td>
+        <td>This function will execute string in a secondary shell and will
+        succeed if the command exits with a exit status of 1.</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>message</td>
+        <td>&nbsp;</td>
+        <td>string</td>
+        <td>&nbsp;</td>
+        <td>This function will always return succeed, but will display the
+        given string to the user.</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>error</td>
+        <td>&nbsp;</td>
+        <td>string</td>
+        <td>&nbsp;</td>
+        <td>This function will never return, but will display the given
+        string to the user, and then exit qmake, this should only be used
+        for very fatal configurations.</td>
+    </tr>
+</table>
+
+<p>
+Example usages:
+
+<pre>
+  !include(file.pri):message(I couldn't include file.pri):file_pri=FAILED
+  release:debug:error(You can't have release and debug at the same time!)
+  system(ls /bin):HAS_BIN=FALSE
+  !contains(HAS_BIN, TRUE):message(why you don't have a /bin directory!):
+</pre>
+
+Order Of Execution
+
+<p>
+The cache file (mentioned above in the options) is a special file qmake
+will read to find settings not specified in the mkspec, the .pro file, or
+the command line. If neither -mkspec nor -nocache are specified qmake will
+try to find a file called .qmake.cache in parent directories, if it fails
+to find this file it will silently ignore this step of processing. 
+
+<p>
+The order of processing all given assignments is:
+
+<ol>
+<li>The cache file is read and processed
+<li>The mkspec file is read and processed
+<li>All commandline given assignments are processed in order
+<li>Finally all project files are processed in order
+</ol>
+
+
+
+Additional Information
+
+
+ *CONFIG*
+
+  Qmake allows you to use the CONFIG variable to see what is in scope,
+  however it has special interpretation of the following values in it:
+
+  qt        The target is a Qt application/library and requires Qt header files/library.
+  opengl    The target requires the OpenGL (or Mesa) headers/libraries.
+  thread    The target is a multi-threaded application or library.
+  x11       The target is a X11 application or library.
+  windows   The target is a Win32 window application (app.t only).
+  console   The target is a Win32 console application (app.t only).
+  dll       The target is a shared object/DLL.
+  staticlib The target is a static library (lib.t only).
+  plugin    The target is a plugin (QInterface).
+
+  release   Compile with optimization enabled, ignored if "debug" is specified.
+  debug     Compile with debug options enabled.
+  warn_on   The compiler should emit more warnings than normally, ignored if "warn_off" is specified.
+  warn_off  The compiler should emit no warnings or as few as possible.
+
+ *INSTALLS*
+
+  Qmake allows you to define an install target for the output makefile
+  (currently supported only by unix makefile backends). You enable this
+  like the following:
+
+    animals.path = /usr/local/animals
+    animals.files = *.pig *.cow
+    INSTALLS += animals
+
+  This will copy all files that match *.pig and *.cow into /usr/local/animals.
+  Each backend can support builtin INSTALLS (like animals). Currently target is
+  the only supported one, this will allow you to do:
+
+   target.path = /usr/local/myapp/bin
+   INSTALLS += target
+
+  This allows Qmake to define what files get copied in (usually just $$TARGET,
+  but in the case of libs this will include symlinks created to the shared
+  object). If you specify a target.files or a target.extra (described below)
+  the builtin behaviour will not happen and will be overridden by your targets.
+  You can specify as many INSTALLS as you like to install your whole project.
+
+  If .files doesn't allow you enough control you can also use .extra to put
+  literal commands into the makefile like this:
+
+     msgfiles.path = /usr/local/myapp/msgs
+     msgfiles.files = ../msgfiles/*.msg
+     unix:msgfiles.extra = $(QTDIR)/bin/msg2qm $$msgfiles.path/*.msg $$msgfiles.path/msgfile.qm
+     INSTALLS += msgfiles
+
+  This will copy all .msg files from ../msgfiles/ into /usr/local/myapp/msgs
+  after that it will run msg2qm on those files. 
+
+ *TEMPLATE*
+
+  Although qmake doesn't actually support custom templates, it does allow
+  you to tell it what kind of project this is from a hardcoded list,
+  currently this list is app, subdirs, and lib. The following variables
+  will be used with their respective TEMPLATE:
+
+  *APP and LIB template*
+
+  These "templates" will generate a application and a library respectivly:
+
+  HEADERS      Header files.
+  SOURCES      Source files.
+  TARGET       Name of executable (adds .exe if on Windows).
+  DESTDIR      Where to put the target.
+  DEFINES      Tell compiler to define C preprocessor macros (-D option).
+  INCLUDEPATH  Sets the include file search path for the compiler (-I option). 
+  INTERFACES   Sets the .ui files to be compiled into the project.
+  OBJECTS_DIR  Sets the directory all object files will be dumped to.
+  MOC_DIR      Sets the directory all move files output will be placed in.
+  LEXSOURCES   Sets the files to be processed by lex before compiling
+  YACCSOURCES  Sets the files to be process by yacc before compiling
+  DEPENDPATH   Sets the dependency search path for tmake.
+
+  DEF_FILE     Win32 only: Link with a .def file.
+  RC_FILE      Win32 only: Use a .rc file (compile to temporary .res). 
+  RES_FILE     Win32 only: Link with a .res file. 
+  VERSION      Lib template only: Will specify the version number of the library
+  INSTALLS     This defines values to use as install targets, see *INSTALLS* section.
+
+  *Subdirs template*
+
+  This template is usefull for wrapping a bunch of other makefiles into one:
+
+  SUBDIRS      A list of directories to be made
+
+ *MAKEFILE_GENERATOR*
+
+  This tells qmake what kind of makefile it is to generate currently these
+  map directly to the list of output makefiles above.

@@ -152,6 +152,7 @@ Appendix
 </td>
 <td valign=top>
 <ul>
+  <li> \link qmake.html  qmake \endlink
   <li> \link designer.html  Qt Designer \endlink
   <li> \link qembed.html  QEmbed - inline files/images \endlink
   <li> \link qvfb-qws.html  QVFb - virtual framebuffer for Qt/Embedded \endlink
