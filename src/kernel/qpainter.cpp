@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#112 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#113 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qwidget.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#112 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#113 $");
 
 
 /*!
@@ -61,7 +61,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#112 $");
 			"The Text" );
     }
   \endcode
-  
+
   You can also use the begin() and end() functions to begin and end
   painting explicitly:
 
@@ -2729,3 +2729,18 @@ void QPainter::drawWinFocusRect( int, int, int, int,
     // do nothing, only called from X11 specific functions
 }
 #endif
+
+/*!
+  Constructs a painter that begins painting the paint device \a pd
+  immediately, with the default arguments taken from \a copyAttributes.
+
+  \sa begin()
+*/
+
+QPainter::QPainter( const QPaintDevice *pd,
+		    const QWidget *copyAttributes )
+{
+    init();
+    begin( pd, copyAttributes );
+}
+
