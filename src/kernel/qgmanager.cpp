@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#23 $
 **
 ** Implementation of QGGeometry class
 **
@@ -14,7 +14,7 @@
 #include "qmenubar.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#23 $");
 
 
 
@@ -39,7 +39,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#22 $");
   the same position.
 
 
-  \sa QHBoxLayout QVBoxLayout QGridLayout 
+  \sa QHBoxLayout QVBoxLayout QGridLayout
 
 */
 
@@ -189,7 +189,7 @@ public:
 
     bool removeWidget( QWidget *w ) {
 	if ( w == widget ) {
-	    widget = 0; 
+	    widget = 0;
 	    return TRUE;
 	} else {
 	    return FALSE;
@@ -361,20 +361,20 @@ bool QSerChain::removeWidget( QWidget *w )
 
 
 static inline int toFixed( int i ) { return i * 256; }
-static inline int fRound( int i ) { 
-    return  i % 256 < 128 ? i / 256 : 1 + i / 256; 
+static inline int fRound( int i ) {
+    return  i % 256 < 128 ? i / 256 : 1 + i / 256;
 }
 /*
   \internal
   This is the main workhorse of the geometry manager. It portions out
   available space to the chain's children.
 
-  The calculation is done in fixed point: "fixed" variables are scaled 
+  The calculation is done in fixed point: "fixed" variables are scaled
   by a factor of 256.
 
   If the chain runs "backwards" (i.e. RightToLeft or Up) the layout
   is computed mirror-reversed, and then turned the right way at the end.
-  
+
 */
 
 void QSerChain::distribute( wDict & wd, int pos, int space )
@@ -665,7 +665,7 @@ QGManager::~QGManager()
 /*!
   \fn QWidget *QGManager::mainWidget()
 
-  Returns the main widget of the manager. 
+  Returns the main widget of the manager.
   */
 
 
@@ -772,7 +772,7 @@ bool QGManager::eventFilter( QObject *o, QEvent *e )
 	return FALSE;
 
     QWidget *w = (QWidget*)o;
-    switch ( e->type() ) { 
+    switch ( e->type() ) {
     case Event_Resize: {
 	QResizeEvent *r = (QResizeEvent*)e;
 	resizeHandle( w, r->size() );
@@ -784,8 +784,9 @@ bool QGManager::eventFilter( QObject *o, QEvent *e )
 	break;
     }
     case Event_LayoutHint:
-	debug( "QGManager::eventFilter() Event_LayoutHint" );
-	resizeAll(); //######## should be optimized somehow...
+	debug( "QGManager::eventFilter() Event_LayoutHint to %s/%s",
+	       o->name(), o->className() );
+	activate(); //######## ######@#!#@!$ should be optimized somehow...
 	break;
     }
     return FALSE;			    // standard event processing
@@ -807,7 +808,7 @@ bool QGManager::activate()
 
     yC->recalc();
     xC->recalc();
-    
+
     menuBarHeight = menuBar ? menuBar->height() : 0;
 
     int ys = yC->minSize() + 2*border + menuBarHeight;
@@ -846,7 +847,7 @@ void QGManager::freeze( int w, int h )
     h = QMAX( min.height(), QMIN( h, max.height() ) );
     main->setMaximumSize( w, h );
     main->setMinimumSize( w, h );
-    main->resize( w, h ); 
+    main->resize( w, h );
     resizeAll(); // deferred resize!
     frozen = TRUE;
 }
@@ -865,11 +866,11 @@ void QGManager::resizeAll()
 
     // Resize menubar first to get valid size for rest of widgets to
     // arrange themselves around.
-     
+
     // size may not be set yet
     int ww = QMAX( min.width(), QMIN( main->width(), max.width() ) );
     int hh;
- 
+
     int mbh = menuBar ? ((QMenuBar *)menuBar)->heightForWidth( ww ) : 0;
 
     if ( menuBar && mbh != menuBarHeight ) {
@@ -881,7 +882,7 @@ void QGManager::resizeAll()
     }
     ww = QMAX( min.width(), QMIN( main->width(), max.width() ) );
     hh = QMAX( min.height(), QMIN( main->height(), max.height() ) );
-    
+
     xC->distribute( lookupTable, border, ww - 2*border );
     yC->distribute( lookupTable, mbh + border, hh - 2*border - mbh );
 
@@ -918,12 +919,12 @@ bool QGManager::addBranch( QChain *destination, QChain *branch,
 }
 
 
-/*!  
+/*!
   Sets the stretch factor on \a c to \a s. This stretch factor is
   overridden by add(), so there's no point in calling this function
-  before you add() the chain. 
+  before you add() the chain.
 
-  \sa add() 
+  \sa add()
 */
 
 void QGManager::setStretch( QChain *c, int s )
@@ -940,7 +941,7 @@ void QGManager::setStretch( QChain *c, int s )
 
 void QGManager::remove( QWidget *w )
 {
-    debug( "QGManager::remove %p", w );
+    debug( "QGManager::remove %p %s", w, w->name() );
     xC->removeWidget( w );
     yC->removeWidget( w );
 }

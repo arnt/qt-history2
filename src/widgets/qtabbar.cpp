@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#30 $
 **
 ** Implementation of QTabBar class
 **
@@ -13,7 +13,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#30 $");
 
 
 QTab::~QTab()
@@ -152,6 +152,9 @@ int QTabBar::addTab( QTab * newTab )
     if ( p && *p && isalpha(p[1]) )
 	d->a->insertItem( ALT + toupper(p[1]), newTab->id );
 
+    if ( autoMinimumSize() )
+	setMinimumSize( sizeHint() );
+
     return newTab->id;
 }
 
@@ -261,17 +264,13 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 	    p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
 	    p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
 	    p->setPen( colorGroup().light() );
-	    QFont bold( font() );
-	    bold.setWeight( QFont::Bold );
-	    p->setFont( bold );
 	} else {
 	    p->setPen( colorGroup().light() );
 	    p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
 	    r.setRect( r.left() + 2, r.top() + 2,
 		       r.width() - 4, r.height() - 2 );
-	    p->setFont( font() );
 	}
-    
+
 	p->drawLine( r.left(), r.bottom(), r.left(), r.top() + 2 );
 	p->drawPoint( r.left()+1, r.top() + 1 );
 	p->drawLine( r.left()+2, r.top(),
@@ -279,25 +278,21 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 
 	p->setPen( colorGroup().dark() );
 	p->drawLine( r.right() - 1, r.top() + 2,
-		     r.right() - 1, r.bottom() - 1 ); 
+		     r.right() - 1, r.bottom() - 1 );
 	p->setPen( colorGroup().foreground() );
 	p->drawPoint( r.right() - 1, r.top() + 1 );
-	p->drawLine( r.right(), r.top() + 2, r.right(), r.bottom() - 1 ); 
+	p->drawLine( r.right(), r.top() + 2, r.right(), r.bottom() - 1 );
     } else if ( d->s == RoundedBelow ) {
 	if ( selected ) {
 	    p->setPen( colorGroup().background() );
 	    p->drawLine( r.left()+1, r.top(), r.right()-2, r.top() );
 	    p->drawLine( r.left()+1, r.top(), r.left()+1, r.bottom()-2 );
 	    p->setPen( colorGroup().dark() );
-	    QFont bold( font() );
-	    bold.setWeight( QFont::Bold );
-	    p->setFont( bold );
 	} else {
 	    p->setPen( colorGroup().dark() );
 	    p->drawLine( r.left(), r.top(), r.right(), r.top() );
 	    r.setRect( r.left() + 2, r.top(),
 		       r.width() - 4, r.height() - 2 );
-	    p->setFont( font() );
 	}
 
 	p->drawLine( r.right() - 1, r.top(),
@@ -306,7 +301,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 	p->drawLine( r.right() - 2, r.bottom() - 1,
 		     r.left() + 1, r.bottom() - 1 );
 	p->drawPoint( r.left() + 1, r.bottom() - 2 );
-    
+
 	p->setPen( colorGroup().foreground() );
 	p->drawLine( r.right(), r.top(),
 		     r.right(), r.bottom() - 1 );
@@ -330,7 +325,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 	a.setPoint( 3, x++, y );
 	a.setPoint( 3, x++, y++ );
 	a.setPoint( 4, x, y );
-
+	
 	int i;
 	int right = t->r.width() - 1;
 	for ( i = 0; i < 5; i++ )
@@ -348,6 +343,8 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 	p->drawPolygon( a );
 	p->setBrush( NoBrush );
     }
+
+    p->setFont( font() );
 
     int w = p->fontMetrics().width( t->label ) + 4;
     int h = p->fontMetrics().height() + 4;

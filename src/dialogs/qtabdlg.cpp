@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#52 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#53 $
 **
 ** Implementation of QTabDialog class
 **
@@ -10,13 +10,17 @@
 *****************************************************************************/
 
 #include "qtabdlg.h"
+
+#include "qobjcoll.h"
 #include "qtabbar.h"
 #include "qpushbt.h"
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qapp.h"
+#include "qwidgetstack.h"
+#include "qlayout.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#53 $");
 
 
 /*!
@@ -144,13 +148,19 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#52 $");
 
   \sa raise()
 */
-  
+
 
 // add comments about delete, ok and apply
 
 struct QTabPrivate
 {
+    QTabPrivate()
+	: tabs(0), stack(0),
+	  ok(0), cb(0), db(0), ab(0),
+	  tll(0) {}
+
     QTabBar * tabs;
+    QWidgetStack * stack;
 
     QArrayT<QWidget *> children;
 
@@ -158,9 +168,8 @@ struct QTabPrivate
     QPushButton * cb;
     QPushButton * db;
     QPushButton * ab;
-    int bh;
 
-    QCOORD l_marg, r_marg, t_marg, b_marg;
+    QBoxLayout * tll;
 };
 
 /*!
@@ -174,15 +183,8 @@ QTabDialog::QTabDialog( QWidget *parent, const char *name, bool modal,
     d = new QTabPrivate;
     CHECK_PTR( d );
 
-    d->l_marg = 7;
-    d->t_marg = 6;
-    d->r_marg = d->l_marg;
-    d->b_marg = 8;
-
-    d->tabs = 0;
+    d->stack = new QWidgetStack( this, "tab pages" );
     setTabBar( new QTabBar( this, "tab control" ) );
-
-    d->ab = d->cb = d->db = 0;
 
     d->ok = new QPushButton( this, "ok" );
     CHECK_PTR( d->ok );
@@ -208,10 +210,6 @@ QTabDialog::~QTabDialog()
 /*!
   Sets the font for the tabs to \e font.
 
-  The weight is forced to QFont::Bold for the active tab and
-  QFont::Light for the others.  (QTabDialog::font() returns the
-  latter.)
-
   If the widget is visible, the display is updated with the new font
   immediately.  There may be some geometry changes, depending on the
   size of the old and new fonts.
@@ -219,9 +217,7 @@ QTabDialog::~QTabDialog()
 
 void QTabDialog::setFont( const QFont & font )
 {
-    QFont f( font );
-    f.setWeight( QFont::Light );
-    QDialog::setFont( f );
+    QDialog::setFont( font );
     setSizes();
 }
 
@@ -345,18 +341,11 @@ bool QTabDialog::hasOkButton() const
 
 void QTabDialog::show()
 {
-    d->tabs->setFocus();
+    if ( topLevelWidget() == this )
+	d->tabs->setFocus();
     emit aboutToShow();
     setSizes();
-
-    // force one page to be shown now and the rest to be show only on demand
-    int c = d->tabs->currentTab();
-    for( int i=0; i < (int)d->children.size(); i++ )
-	if ( c != i )
-	    d->children[i]->hide();
-    if ( c >= 0 )
-	showTab( c );
-
+    setUpLayout();
     QDialog::show();
 }
 
@@ -367,27 +356,8 @@ void QTabDialog::show()
 
 void QTabDialog::showTab( int i )
 {
-    if ( d && (uint)i < d->children.size() ) {
-	d->children[i]->setGeometry( childRect() );
-	d->children[i]->show();
-	QWidget * f = qApp ? qApp->focusWidget() : 0;
-	while ( f && f->parent() != this )
-	    f = f->parentWidget();
-	for ( int t = 0; t< (int)d->children.size(); t++ )
-	    if ( i != t ) {
-		if ( f == d->children[t] ) {
-		    // move focus to first object on the incoming page,
-		    // without ugly flicker.
-		    bool b = d->tabs->isUpdatesEnabled();
-		    d->tabs->setUpdatesEnabled( FALSE );
-		    d->tabs->setFocus();
-		    d->children[t]->hide();
-		    focusNextPrevChild( TRUE );
-		    d->tabs->setUpdatesEnabled( b );
-		} else if ( d->children[t]->isVisible() ) {
-		    d->children[t]->hide();
-		}
-	    }
+    if ( d->stack->widget( i ) ) {
+	d->stack->raiseWidget( i );
 	emit selected( d->tabs->tab( i )->label );
     }
 }
@@ -403,7 +373,7 @@ void QTabDialog::showTab( int i )
   label is shown on screen and may vary according to e.g. language.
 
   \a label is written in the QButton style, where &P makes Qt create
-  an accelerator key on Alt-P for this page.  For example:  
+  an accelerator key on Alt-P for this page.  For example:
 
   \code
     td->addTab( graphicsPane, "&Graphics" );
@@ -435,15 +405,8 @@ void QTabDialog::addTab( QWidget * child, QTab* tab )
 {
     tab->enabled = TRUE;
     int id = d->tabs->addTab( tab );
-    if ( id ==(int)d->children.size() ) {
-	d->children.resize( id+1 );
-	d->children[id] = child;
-    } else {
-#if defined(CHECK_RANGE)
-	warning( "QTabDialog::addTab: Unexpected tab id %d (expected %d), "
-		 "ignoring", id, d->children.size() );
-#endif
-    }
+    d->stack->addWidget( child, id );
+    d->tabs->setMinimumSize( d->tabs->sizeHint() );
 }
 
 /*!
@@ -458,7 +421,8 @@ void QTabDialog::setTabBar( QTabBar* tb )
     d->tabs = tb;
     connect( d->tabs, SIGNAL(selected(int)),
 	     this,    SLOT(showTab(int)) );
-    d->tabs->move( d->l_marg, d->t_marg );
+    d->tabs->setMinimumSize( d->tabs->sizeHint() );
+    setUpLayout();
 }
 
 /*!
@@ -472,18 +436,15 @@ QTabBar* QTabDialog::tabBar() const
 
 /*!  Ensures that \a w is shown.  This is useful mainly for accelerators.
 
-  If you use this function, take care not to surprise or confuse the
-  user.
+  \warning Used carelessly, this function can easily surprise or
+  confuse the user.
 
   \sa QTabBar::setCurrentTab()
 */
 
 void QTabDialog::showPage( QWidget * w )
 {
-    int i;
-    for( i=0; i<(int)d->children.size(); i++ )
-	if ( d->children[i] == w )
-	    d->tabs->setCurrentTab( i );
+    d->stack->raiseWidget( w );
 }
 
 
@@ -499,11 +460,20 @@ void QTabDialog::showPage( QWidget * w )
 
 bool QTabDialog::isTabEnabled( const char *name ) const
 {
-    int i;
-    for( i=0; i<(int)d->children.size(); i++ )
-	if ( qstrcmp( d->children[i]->name(), name ) == 0 )
-	    return d->tabs->isTabEnabled( i );
-    return FALSE;
+    if ( !name || !*name )
+	return FALSE;
+
+    QObjectList * l
+	= ((QTabDialog *)this)->queryList( "QWidget", name, FALSE, FALSE );
+    bool r = FALSE;
+    if ( l && l->first() ) {
+	while( l->current() && !l->current()->isWidgetType() )
+	    l->next();
+	if ( l->current() )
+	    r = ((QWidget *)l->current())->isEnabled();
+    }
+    delete l;
+    return r;
 }
 
 
@@ -528,13 +498,17 @@ void QTabDialog::setTabEnabled( const char * name, bool enable )
 {
     if ( !name || !*name )
 	return;
-    int i;
-    for( i=0; i<(int)d->children.size(); i++ ) {
-	if ( qstrcmp( d->children[i]->name(), name ) == 0 ) {
-	    d->tabs->setTabEnabled( i, enable );
-	    return;
+    QObjectList * l = queryList( "QWidget", name, FALSE, FALSE );
+    if ( l && l->first() ) {
+	while( l->current() && !l->current()->isWidgetType() )
+	    l->next();
+	if ( l->current() ) {
+	    int id = d->stack->id( (QWidget *)l->current() );
+	    ((QWidget *)l->current())->setEnabled( enable );
+	    d->tabs->setTabEnabled( id, enable );
 	}
     }
+    delete l;
 }
 
 
@@ -552,7 +526,7 @@ void QTabDialog::setTabEnabled( const char * name, bool enable )
 
 void QTabDialog::setApplyButton( const char * text )
 {
-    if ( !text ) {
+    if ( !text && d->ab ) {
 	delete d->ab;
 	d->ab = 0;
 	setSizes();
@@ -561,6 +535,7 @@ void QTabDialog::setApplyButton( const char * text )
 	    d->ab = new QPushButton( this, "apply settings" );
 	    connect( d->ab, SIGNAL(clicked()),
 		     this, SIGNAL(applyButtonPressed()) );
+	    setUpLayout();
 	}
 	d->ab->setText( text );
 	setSizes();
@@ -592,6 +567,7 @@ void QTabDialog::setDefaultButton( const char * text )
 	    d->db = new QPushButton( this, "back to default" );
 	    connect( d->db, SIGNAL(clicked()),
 		     this, SIGNAL(defaultButtonPressed()) );
+	    setUpLayout();
 	}
 	d->db->setText( text );
 	setSizes();
@@ -627,6 +603,7 @@ void QTabDialog::setCancelButton( const char * text )
 		     this, SIGNAL(cancelButtonPressed()) );
 	    connect( d->cb, SIGNAL(clicked()),
 		     this, SLOT(reject()) );
+	    setUpLayout();
 	}
 	d->cb->setText( text );
 	setSizes();
@@ -635,51 +612,118 @@ void QTabDialog::setCancelButton( const char * text )
 }
 
 
-/*!
-  Set the appropriate size and position for each of the fixed children.
+/*!  Sets up the layout manager for the tab dialog.
 
-  Finally set the minimum and maximum sizes for the dialog.
+  \sa setSizes() setApplyButton() setCancelButton() setDefaultButton()
+*/
 
-  \sa setApplyButton() setCancelButton() setDefaultButton()
+void QTabDialog::setUpLayout()
+{
+    // the next four are probably the same, really?
+    const int topMargin = 6;
+    const int leftMargin = 6;
+    const int rightMargin = 6;
+    const int bottomMargin = 6;
+    const int betweenButtonsMargin = 7;
+    const int aboveButtonsMargin = 8;
+    
+    delete d->tll;
+    d->tll = new QBoxLayout( this, QBoxLayout::Down );
+    
+    // top margin
+    d->tll->addSpacing( topMargin );
+    
+    // tab bar
+    QBoxLayout * tmp = new QBoxLayout( QBoxLayout::LeftToRight );
+    d->tll->addLayout( tmp, 0 );
+    tmp->addSpacing( leftMargin );
+    tmp->addWidget( d->tabs, 0 );
+    tmp->addStretch( 1 );
+    tmp->addSpacing( rightMargin + 2 );
+
+    // widget stack.
+    tmp = new QBoxLayout( QBoxLayout::LeftToRight );
+    d->tll->addLayout( tmp, 1 );
+    tmp->addSpacing( leftMargin + 1 );
+    tmp->addWidget( d->stack, 1 );
+    tmp->addSpacing( rightMargin + 2 );
+    
+    d->tll->addSpacing( aboveButtonsMargin + 2 );
+    QBoxLayout * buttonRow = new QBoxLayout( QBoxLayout::RightToLeft );
+    d->tll->addLayout( buttonRow, 0 );
+    d->tll->addSpacing( bottomMargin );
+    
+    buttonRow->addSpacing( rightMargin );
+    if ( d->cb ) {
+	buttonRow->addWidget( d->cb, 0 );
+	buttonRow->addSpacing( betweenButtonsMargin );
+    }
+
+    if ( d->ab ) {
+	buttonRow->addWidget( d->ab, 0 );
+	buttonRow->addSpacing( betweenButtonsMargin );
+    }
+
+    if ( d->db ) {
+	buttonRow->addWidget( d->db, 0 );
+	buttonRow->addSpacing( betweenButtonsMargin );
+    }
+
+    if ( d->ok ) {
+	buttonRow->addWidget( d->ok, 0 );
+	buttonRow->addSpacing( betweenButtonsMargin );
+    }
+
+    // add one custom widget here
+    buttonRow->addStretch( 1 );
+    // add another custom widget here
+
+    d->tll->activate();
+}
+
+
+/*!  Sets up the minimum and maximum sizes for each child widget.
+
+  \sa setUpLayout() setFont()
 */
 
 void QTabDialog::setSizes()
 {
-    d->tabs->move( d->l_marg, d->t_marg );
-
     // compute largest button size
-    int bw;
-    QWidget* first_button = d->ok ?
-		    d->ok : d->db ?
-		    d->db : d->ab ?
-		    d->ab : d->cb ? 
-		    d->cb : 0;
-    QSize s( first_button ? d->ok->sizeHint() : QSize(0,0) );
-    bw = s.width();
-    d->bh = s.height(); // private member, used for GM
+    QSize s( 0, 0 );
+    int bw = s.width();
+    int bh = s.height();
 
-    if ( d->ab && d->ab != first_button ) {
+    if ( d->ok ) {
+	s = d->ok->sizeHint();
+	if ( s.width() > bw )
+	    bw = s.width();
+	if ( s.height() > bh )
+	    bh = s.height();
+    }
+
+    if ( d->ab ) {
 	s = d->ab->sizeHint();
 	if ( s.width() > bw )
 	    bw = s.width();
-	if ( s.height() > d->bh )
-	    d->bh = s.height();
+	if ( s.height() > bh )
+	    bh = s.height();
     }
 
-    if ( d->db && d->ab != first_button ) {
+    if ( d->db ) {
 	s = d->db->sizeHint();
 	if ( s.width() > bw )
 	    bw = s.width();
-	if ( s.height() > d->bh )
-	    d->bh = s.height();
+	if ( s.height() > bh )
+	    bh = s.height();
     }
 
-    if ( d->cb && d->ab != first_button ) {
+    if ( d->cb ) {
 	s = d->cb->sizeHint();
 	if ( s.width() > bw )
 	    bw = s.width();
-	if ( s.height() > d->bh )
-	    d->bh = s.height();
+	if ( s.height() > bh )
+	    bh = s.height();
     }
 
     if ( style() == WindowsStyle && bw < 75 )
@@ -687,74 +731,30 @@ void QTabDialog::setSizes()
 
     // and set all the buttons to that size
     if ( d->ok )
-	d->ok->resize( bw, d->bh );
+	d->ok->setFixedSize( bw, bh );
     if ( d->ab )
-	d->ab->resize( bw, d->bh );
+	d->ab->setFixedSize( bw, bh );
     if ( d->db )
-	d->db->resize( bw, d->bh );
+	d->db->setFixedSize( bw, bh );
     if ( d->cb )
-	d->cb->resize( bw, d->bh );
-
-    // look at the pages and find the largest minimum and smallest
-    // maximum size
-    QSize min( d->tabs->sizeHint() );
-    d->tabs->resize( min ); // resize it just in case
-    QSize max(QCOORD_MAX,QCOORD_MAX);
-    int th = min.height();
-    int i;
-    for ( i=0; i<(int)d->children.size(); i++ ) {
-	// maximum sizes
-	if ( d->children[i]->maximumSize().height() < max.height() )
-	    max.setHeight( d->children[i]->maximumSize().height() );
-	if ( d->children[i]->maximumSize().width() < max.width() )
-	    max.setWidth( d->children[i]->maximumSize().width() );
-	// minimum sizes
-	if ( d->children[i]->minimumSize().height() > min.height() )
-	    min.setHeight( d->children[i]->minimumSize().height() );
-	if ( d->children[i]->minimumSize().width() > min.width() )
-	    min.setWidth( d->children[i]->minimumSize().width() );
-    }
-    min.setHeight( min.height() + th );
-
-    // factor in the buttons.  six pixels between each button, seven
-    // (6+1) to the right and seven to the left.
-    bw = (bw + 6) * ( (d->ab ? 1 : 0) + (d->db ? 1 : 0) + (d->cb ? 1 : 0)
-	 + (d->ok ? 1 : 0 ) ) + 1 + d->l_marg;
-    if ( min.width() < bw )
-	min.setWidth( bw );
-
-    // max must be >= min
-    if ( max.width() < min.width() )
-	max.setWidth( min.width() );
-    if ( max.height() < min.height() )
-	max.setHeight( min.height() );
-
-    // allow for own borders, buttons and tabs, and set own sizes
-    min.setWidth( QMIN( min.width() + 17, 32767 ) );
-    min.setHeight( QMIN( d->t_marg + 1 + th + min.height()
-		       + d->t_marg + d->bh + 8, 32767 ) );
-    max.setWidth( QMIN( max.width() + 17, 32767 ) );
-    max.setHeight( QMIN( d->t_marg + 1 + th + max.height()
-		       + d->t_marg + d->bh + 8, 32767 ) );
-    setMinimumSize( min );
-    setMaximumSize( max );
-
-    // fake a resize event to trigger child widget moves
-    QResizeEvent r( size(), size() );
-    resizeEvent( &r );
+	d->cb->setFixedSize( bw, bh );
 
     // fiddle the tab chain so the buttons are in their natural order
-    QWidget * w = first_button;
+    QWidget * w = d->ok;
+
     if ( d->db ) {
-	setTabOrder( w, d->db );
+	if ( w )
+	    setTabOrder( w, d->db );
 	w = d->db;
     }
     if ( d->ab ) {
-	setTabOrder( w, d->ab );
+	if ( w )
+	    setTabOrder( w, d->ab );
 	w = d->ab;
     }
     if ( d->cb ) {
-	setTabOrder( w, d->cb );
+	if ( w )
+	    setTabOrder( w, d->cb );
 	w = d->cb;
     }
     setTabOrder( w, d->tabs );
@@ -765,45 +765,11 @@ void QTabDialog::setSizes()
 
 /*!
   Handles resize events for the tab dialog.
-
-  All of the pages are resized, and the buttons moved into position.
 */
 
-void QTabDialog::resizeEvent( QResizeEvent * )
+void QTabDialog::resizeEvent( QResizeEvent * e )
 {
-    if ( d->tabs ) {
-	QSize ts = d->tabs->sizeHint();
-	if ( ts.width() > width() ) {
-	    ts.setWidth( width() );
-	}
-	d->tabs->resize( ts );
-
-	int x;
-	x = width();
-
-	if ( d->cb ) {
-	    d->cb->move( x - d->l_marg - d->cb->width(), height() - d->b_marg - d->bh );
-	    x = d->cb->geometry().x();
-	}
-
-	if ( d->ab ) {
-	    d->ab->move( x - d->l_marg - d->ab->width(), height() - d->b_marg - d->bh );
-	    x = d->ab->geometry().x();
-	}
-
-	if ( d->db ) {
-	    d->db->move( x - d->l_marg - d->db->width(), height() - d->b_marg - d->bh );
-	    x = d->db->geometry().x();
-	}
-
-	if ( d->ok ) {
-	    d->ok->move( x - d->l_marg - d->ok->width(), height() - d->b_marg - d->bh );
-	}
-
-	int i;
-	for ( i=0; i<(int)d->children.size(); i++ )
-	    d->children[i]->setGeometry( childRect() );
-    }
+    QDialog::resizeEvent( e );
 }
 
 
@@ -819,10 +785,12 @@ void QTabDialog::paintEvent( QPaintEvent * )
     QPainter p;
     p.begin( this );
 
-    QCOORD t = childRect().top() - 1;
-    QCOORD b = childRect().bottom() + 2;
-    QCOORD r = childRect().right() + 2;
-    QCOORD l = childRect().left() - 1;
+    QRect s( d->stack->geometry() );
+
+    QCOORD t = s.top() - 1;
+    QCOORD b = s.bottom() + 2;
+    QCOORD r = s.right() + 2;
+    QCOORD l = s.left() - 1;
 
     p.setPen( colorGroup().light() );
     // note - this line overlaps the bottom line drawn by QTabBar
@@ -841,10 +809,7 @@ void QTabDialog::paintEvent( QPaintEvent * )
 
 QRect QTabDialog::childRect() const
 {
-    int y = d->tabs->height() + d->tabs->y();
-    return QRect( d->l_marg + 1, y,
-	    width() - d->l_marg - d->l_marg - 1 - 2,
-	    height() - d->t_marg - 2 - d->bh - d->b_marg - y );
+    return d->stack->geometry();
 }
 
 
@@ -870,6 +835,7 @@ void QTabDialog::setOkButton( const char * text )
 	    d->ok = new QPushButton( this, "ok" );
 	    connect( d->ok, SIGNAL(clicked()),
 		     this, SIGNAL(applyButtonPressed()) );
+	    setUpLayout();
 	}
 	d->ok->setText( text );
 	setSizes();
@@ -891,16 +857,9 @@ void QTabDialog::setOKButton( const char * text )
 
 const char * QTabDialog::tabLabel( QWidget * w )
 {
-    int i;
-    for( i=0; i<(int)d->children.size(); i++ ) {
-	if ( d->children[i] == w ) {
-	    QTab * t = d->tabs->tab(i);
-	    if ( t )
-		return t->label;
-	}
-    }
-    return 0;
-}	    
+    QTab * t = d->tabs->tab( d->stack->id( w ) );
+    return t ? ((const char *)t->label) : 0;
+}	
 
 
 /*!  Reimplemented to hndle a change of GUI style while on-screen.
