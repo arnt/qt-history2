@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#2 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#3 $
 **
 ** Implementation of QPrintDialog class for X-Windows
 **
@@ -11,7 +11,7 @@
 *****************************************************************************/
 
 #include "qprndlg.h"
-#include "qfilesel.h"
+#include "qfiledlg.h"
 #include "qcombo.h"
 #include "qframe.h"
 #include "qlabel.h"
@@ -20,7 +20,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#3 $";
 #endif
 
 
@@ -210,15 +210,14 @@ void QPrintDialog::printerOrFileSelected( int index )
 void QPrintDialog::browseClicked()
 {
 #if 0
-    QString fname = QFileSelect::getLoadFile();
+    QString fname = QFileDialog::getLoadFile();
     if ( !fname.isNull() ) {
 	WIDGET(this,QLineEdit,"printFile")->setText( fname );
     }
 #endif
-    QFileSelect fsel( "/", "*", this, 0, TRUE );
-    debug( "before exec" );
+    QFileDialog filedlg( 0, "*", 0, 0, TRUE );
     if ( fsel.exec() == QDialog::Accepted ) {
-	WIDGET(this,QLineEdit,"printFile")->setText( fsel.selectedFile() );
+	WIDGET(this,QLineEdit,"printFile")->setText( filedlg.selectedFile() );
     }
 }
 
