@@ -157,6 +157,11 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
 
     int colfirst = columnAt(area.left());
     int collast = columnAt(area.right());
+    if (colfirst > collast) {
+        int tmp = colfirst;
+        colfirst = collast;
+        collast = tmp;
+    }
     int rowfirst = rowAt(area.top());
     int rowlast = rowAt(area.bottom());
     bool showGrid = d->showGrid;
@@ -461,7 +466,12 @@ int QGenericTableView::rowAt(int y) const
 
 int QGenericTableView::columnViewportPosition(int column) const
 {
-    return d->topHeader->sectionPosition(column) - d->topHeader->offset();
+    int colp = d->topHeader->sectionPosition(column) - d->topHeader->offset();
+    if (!QApplication::reverseLayout())
+        return colp;
+    if (verticalScrollBar()->isVisible())
+        return colp + d->topHeader->x() - verticalScrollBar()->width();
+    return colp + d->topHeader->x();
 }
 
 int QGenericTableView::columnWidth(int column) const
@@ -471,7 +481,7 @@ int QGenericTableView::columnWidth(int column) const
 
 int QGenericTableView::columnAt(int x) const
 {
-    return d->topHeader->sectionAt(x + d->topHeader->offset());
+    return d->topHeader->sectionAt(x + d->topHeader->offset() - d->topHeader->x());
 }
 
 bool QGenericTableView::isRowHidden(int row) const
@@ -494,19 +504,21 @@ bool QGenericTableView::showGrid() const
     return d->showGrid;
 }
 
-void QGenericTableView::rowHeightChanged(int row, int /*oldSize*/, int /*newSize*/)
+void QGenericTableView::rowHeightChanged(int row, int, int)
 {
+    int y = rowViewportPosition(row);
+    d->viewport->update(QRect(0, y, d->viewport->width(), d->viewport->height() - y));
     updateGeometries();
-    int rowp = rowViewportPosition(row);
-    d->viewport->update(QRect(0, rowp, d->viewport->width(), d->viewport->height() - rowp));
     updateCurrentEditor();
 }
 
-void QGenericTableView::columnWidthChanged(int column, int /*oldSize*/, int /*newSize*/)
+void QGenericTableView::columnWidthChanged(int column, int, int)
 {
+    bool reverse = QApplication::reverseLayout();
+    int x = columnViewportPosition(column) - (reverse ? columnWidth(column) : 0);
+    QRect rect(x, 0, d->viewport->width() - x, d->viewport->height());
+    d->viewport->update(rect.normalize());
     updateGeometries();
-    int colp = columnViewportPosition(column);
-    d->viewport->update(QRect(colp, 0, d->viewport->width() - colp, d->viewport->height()));
     updateCurrentEditor();
 }
 

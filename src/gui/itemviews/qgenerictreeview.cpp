@@ -301,8 +301,8 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const 
 void QGenericTreeView::mousePressEvent(QMouseEvent *e)
 {
     bool reverse = QApplication::reverseLayout();
-    int x = e->x() - d->header->x() + d->header->offset()
-            + (reverse && verticalScrollBar()->isVisible() ? verticalScrollBar()->width() : 0);
+    int scrollbar = reverse && verticalScrollBar()->isVisible() ? verticalScrollBar()->width() : 0;
+    int x = e->x() - d->header->x() + d->header->offset() + scrollbar;
     int column = d->header->sectionAt(x);
     int position = d->header->sectionPosition(column);
     int cx = reverse ? position + d->header->sectionSize(column) - x : x - position;
@@ -616,11 +616,11 @@ void QGenericTreeView::resizeColumnToContents(int column)
 
 void QGenericTreeView::columnWidthChanged(int column, int, int)
 {
-    int columnPos = d->header->sectionPosition(column);
-    int x = columnPos;
-    int w = d->viewport->width() - columnPos + d->header->offset();
-    QRect rect(x, 0, w, d->viewport->height());
-    d->viewport->update(rect);
+    bool reverse = QApplication::reverseLayout();
+    int x = d->header->sectionPosition(column) + d->header->offset()
+            - (reverse ? d->header->sectionSize(column) : 0);
+    QRect rect(x, 0, d->viewport->width() - x, d->viewport->height());
+    d->viewport->update(rect.normalize());
     updateGeometries();
     updateCurrentEditor();
 }

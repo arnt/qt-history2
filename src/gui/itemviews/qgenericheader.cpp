@@ -645,16 +645,14 @@ void QGenericHeader::resizeSection(int section, int size)
         }
     }
 
-    int pos = sectionPosition(section) - offset();
+    bool reverse = QApplication::reverseLayout();
+    int pos = sectionPosition(section) + offset() - (reverse ? size : 0);
     QRect r;
     if (orientation() == Horizontal)
-        if (d->reverse())
-            r = QRect(0, 0, pos + sectionSize(section), height());
-        else
-            r = QRect(pos, 0, width() - pos, height());
+        r = QRect(pos, 0, width() - pos, height());
     else
         r = QRect(0, pos, width(), height() - pos);
-    d->viewport->update(r);
+    d->viewport->update(r.normalize());
     emit sectionSizeChanged(section, oldSize, size);
 }
 
