@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#20 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#20 $";
 #endif
 
 
@@ -62,7 +62,7 @@ static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#19 $";
   The \e allowLines argument can be set to FALSE to disallow \c HLine and
   \c VLine shapes.
 
-  The \e parent , \e name and \e f arguments are passed to the QWidget
+  The \e parent, \e name and \e f arguments are passed to the QWidget
   constructor.
 */
 
@@ -265,13 +265,10 @@ void QFrame::updateFrameWidth()
 */
 
 
-/*!
-  Returns the frame rectangle.
+/*!  Returns the frame rectangle.
 
-  The default frame rectangle is equivalent with the
-  \link QWidget::rect() widget rectangle\endlink.
-  \sa setFrameRect()
-*/
+  The default frame rectangle is equivalent to the \link
+  QWidget::rect() widget rectangle\endlink.  \sa setFrameRect() */
 
 QRect QFrame::frameRect() const
 {
@@ -279,15 +276,13 @@ QRect QFrame::frameRect() const
 }
 
 
-/*!
-  Sets the frame rectangle to \e r.
+/*!  Sets the frame rectangle to \e r.
 
-  If \e r is a null rectangle (for example <code>QRect(0,0,0,0)</code>),
-  then the frame rectangle will be equivalent with the
-  \link QWidget::rect() widget rectangle\endlink.
+  If \e r is a null rectangle (for example
+  <code>QRect(0,0,0,0)</code>), then the frame rectangle will be
+  equivalent to the \link QWidget::rect() widget rectangle\endlink.
 
-  \sa frameRect().
-*/
+  \sa frameRect(). */
 
 void QFrame::setFrameRect( const QRect &r )
 {

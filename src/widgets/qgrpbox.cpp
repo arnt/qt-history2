@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#14 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#14 $";
 #endif
 
 
@@ -22,13 +22,11 @@ static char ident[] = "$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#13 $";
   \class QGroupBox qgrpbox.h
   \brief The QGroupBox widget provides a group box frame with a title.
 
-  A group box is a widget with a frame and a title.  The intended use of a
-  group box is to show that a number of widgets (i.e. child widgets) are
-  logically related.
+  The intended use of a group box is to show that a number of widgets
+  (i.e. child widgets) are logically related.
 
   The button group widget, QButtonGroup, is an "intelligent" group box that is
-  very useful for organizing button widgets in a group.
-*/
+  very useful for organizing button widgets in a group. */
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#16 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#17 $
 **
 ** Implementation of QGArray class
 **
@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#17 $";
 #endif
 
 
@@ -67,6 +67,8 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#16 $";
 
   \brief The QGArray class is a generic array, intended to be
   subclassed by real array classes such as QArray.
+
+  \internal
 
   It provides <em>no</em> type checking and other new-fangled luxury.
   See the entry for Real Programmer in <i>The New Hackers
