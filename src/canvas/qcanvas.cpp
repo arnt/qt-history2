@@ -3133,8 +3133,9 @@ QSize QCanvasView::sizeHint() const
   determining whether an object intersects this object. You can change
   that using setWinding().
 
-  By default, QCanvasPolygonalItem objects have no pen and a black brush.
-  You can change this with setPen() and setBrush(), but note that most
+  By default, QCanvasPolygonalItem objects have a black pen and no brush
+  (the default QPen and QBrush constructors).
+  You can change this with setPen() and setBrush(), but note that some
   QCanvasPolygonalItem subclasses only use the brush, ignoring the pen
   setting.
 */
@@ -3148,14 +3149,14 @@ static const QPen& defaultPolygonPen()
 {
     static QPen* dp=0;
     if ( !dp )
-	dp = new QPen(Qt::NoPen);
+	dp = new QPen;
     return *dp;
 }
 static const QBrush& defaultPolygonBrush()
 {
     static QBrush* db=0;
     if ( !db )
-	db = new QBrush(Qt::black);
+	db = new QBrush;
     return *db;
 }
 
