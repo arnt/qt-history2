@@ -1678,8 +1678,8 @@ void qt_init_internal( int *argcptr, char **argv,
 				     &visInfo, &nvis );
 		if ( vi ) {
 		    int useGL;
-		    glXGetConfig( appDpy, vi, GLX_USE_GL, &useGL );
-		    if ( !useGL ) {
+		    int ret = glXGetConfig( appDpy, vi, GLX_USE_GL, &useGL );
+		    if ( ret != 0 || !useGL ) {
 			// We have to find another visual that is GL capable
 			int i;
 			XVisualInfo * visuals;
@@ -1693,9 +1693,9 @@ void qt_init_internal( int *argcptr, char **argv,
 						  &nvis );
 			if ( visuals ) {
 			    for ( i = 0; i < nvis; i++ ) {
-				glXGetConfig( appDpy, &visuals[i], GLX_USE_GL,
-					      &useGL );
-				if ( useGL ) {
+				int ret = glXGetConfig( appDpy, &visuals[i],
+							GLX_USE_GL, &useGL );
+				if ( ret == 0 && useGL ) {
 				    vis = visuals[i].visual;
 				    QPaintDevice::x_appdefvisual_arr[ screen ] = FALSE;
 				    break;
