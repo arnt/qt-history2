@@ -424,7 +424,7 @@ QPixmap QPixmap::copy( bool ignoreMask ) const
 #endif // !QT_NO_XRENDER
 #endif // Q_WS_X11
 	bitBlt( &pm, 0,0, this, 0,0, data->w, data->h, CopyROP, TRUE );
-#if defined(Q_WS_X11) && ! QT_NO_XRENDER
+#if defined(Q_WS_X11) && !defined(QT_NO_XRENDER)
 	data->alphapm = save_alpha;
 #endif // Q_WS_X11 && !QT_NO_XRENDER
 	if ( !ignoreMask ) {
