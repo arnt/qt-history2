@@ -1252,9 +1252,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_GUIStyle The GUI style to use.
 
-    \value SH_ScrollBar_BackgroundRole  The background role for a
-        QScrollBar.
-
     \value SH_ScrollBar_MiddleClickAbsolutePosition  A boolean value.
         If true, middle clicking on a scroll bar causes the slider to
         jump to that position. If false, middle clicking is
@@ -1360,8 +1357,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_ScrollBar_StopMouseOverSlider  Stops auto-repeat when
         the slider reaches the mouse position.
-
-    \omitvalue SH_ScrollBar_BackgroundMode
 
     \value SH_BlinkCursorWhenTextSelected  Whether cursor should blink
         when text is selected.

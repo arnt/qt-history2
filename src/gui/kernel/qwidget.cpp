@@ -1022,8 +1022,13 @@ bool QWidgetPrivate::isBackgroundInherited() const
     if (q->isWindow() || q->windowType() == Qt::SubWindow)
         return false;
 
+    QBrush brush = q->palette().brush(q->backgroundRole());
+
+    if (brush.style() == Qt::SolidPattern)
+        return false;
+
     if ((q->testAttribute(Qt::WA_SetBackgroundRole) || q->testAttribute(Qt::WA_SetPalette))
-        && q->palette().brush(q->backgroundRole()).isOpaque())
+        && brush.isOpaque())
         return false;
 
     return true;

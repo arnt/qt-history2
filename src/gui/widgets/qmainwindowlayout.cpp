@@ -485,7 +485,7 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
                 continue;
 
             info.item = new QWidgetItem(toolbar);
-            toolbar->setShown(shown);
+            toolbar->setVisible(shown);
             lineInfo.list << info;
         }
         toolBarState << lineInfo;

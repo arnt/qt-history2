@@ -323,7 +323,6 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             fill = QBrush(opt->palette.mid().color(), Qt::Dense4Pattern);
         else
             fill = opt->palette.brush(QPalette::Button);
-        p->setBrushOrigin(opt->rect.topLeft());
         qDrawShadePanel(p, opt->rect, opt->palette, bool(opt->state & (State_Down | State_On)),
                         pixelMetric(PM_DefaultFrameWidth), &fill);
         break; }
@@ -713,7 +712,10 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
     case CE_ScrollBarSlider: {
         QStyleOption bevelOpt = *opt;
         bevelOpt.state = (opt->state | State_Raised) & ~State_Down;
+        p->save();
+        p->setBrushOrigin(bevelOpt.rect.topLeft());
         drawPrimitive(PE_PanelButtonBevel, &bevelOpt, p, widget);
+        p->restore();
         if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
             p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
         break; }
@@ -1090,8 +1092,11 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             fill = QBrush(opt->palette.mid().color(), Qt::Dense4Pattern);
         else
             fill = opt->palette.brush(QPalette::Button);
+        p->save();
+        p->setBrushOrigin(opt->rect.topLeft());
         qDrawShadePanel(p, opt->rect, opt->palette, bool(opt->state & State_On),
                         pixelMetric(PM_DefaultFrameWidth), &fill);
+        p->restore();
         break; }
     case CE_RubberBand:
         p->fillRect(opt->rect, opt->palette.base());
@@ -1313,7 +1318,10 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
             if ((opt->subControls & SC_SliderHandle) && handle.isValid()) {
                 QStyleOption bevelOpt = *opt;
                 bevelOpt.rect = handle;
+                p->save();
+                p->setBrushOrigin(bevelOpt.rect.topLeft());
                 drawPrimitive(PE_PanelButtonBevel, &bevelOpt, p, widget);
+                p->restore();
 
                 if (slider->orientation == Qt::Horizontal) {
                     int mid = handle.x() + handle.width() / 2;

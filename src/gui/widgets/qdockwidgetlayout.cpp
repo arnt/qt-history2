@@ -137,7 +137,7 @@ bool QDockWidgetLayout::restoreState(QDataStream &stream)
                 }
 
                 QDockWidgetLayoutInfo &info = insert(-1, new QWidgetItem(widget));
-                widget->setShown(shown);
+                widget->setVisible(shown);
                 stream >> info.cur_pos;
                 stream >> info.cur_size;
                 stream >> info.min_size;

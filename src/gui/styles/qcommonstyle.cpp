@@ -2983,12 +2983,6 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         break;
 #endif
 
-#ifndef QT_NO_PALETTE
-    case SH_ScrollBar_BackgroundRole:
-        ret = QPalette::Background;
-        break;
-#endif
-
     case SH_TabBar_Alignment:
     case SH_Header_ArrowAlignment:
         ret = Qt::AlignLeft;

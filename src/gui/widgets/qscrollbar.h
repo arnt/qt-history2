@@ -38,7 +38,6 @@ protected:
     void        mouseMoveEvent(QMouseEvent *);
     void        hideEvent(QHideEvent*);
 
-    void     changeEvent(QEvent *);
     void sliderChange(SliderChange change);
 
 #ifdef QT3_SUPPORT

@@ -504,7 +504,6 @@ public:
         SH_ScrollBar_LeftClickAbsolutePosition,
         SH_Q3ListViewExpand_SelectMouseType,
         SH_UnderlineShortcut,
-        SH_ScrollBar_BackgroundRole,
         SH_SpinBox_AnimateButton,
         SH_SpinBox_KeyPressAutoRepeatRate,
         SH_SpinBox_ClickAutoRepeatRate,

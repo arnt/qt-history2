@@ -536,7 +536,7 @@ void QPainterPrivate::updateInvMatrix()
     the background pixels in the stipple.
 
     \i brushOrigin() is the origin of the tiled brushes, normally the
-    origin of the window.
+    origin of widget's background.
 
     \i viewport(), window(), matrix() and many more make up the
     painter's coordinate transformation system. See \link
@@ -783,17 +783,27 @@ bool QPainter::isActive() const
     return false;
 }
 
-/*!
-  Initializes the painters pen, background and font to the same as \a widget.
+/*!  Initializes the painters pen, background and font to the same as
+  \a widget. To be called after begin() while the painter is active.
 */
 void QPainter::initFrom(const QWidget *widget)
 {
     Q_ASSERT_X(widget, "QPainter::initFrom(const QWidget *widget)", "Widget cannot be 0");
+    if (!isActive()) {
+        qWarning("QPainter::initFrom: Painter is not active, aborted");
+        return;
+    }
     QPalette pal = widget->palette();
     Q_D(QPainter);
-    d->state->pen = pal.color(QPalette::Foreground);
-    d->state->bgBrush = pal.background();
+    d->state->pen = pal.color(widget->foregroundRole());
+    d->state->bgBrush = pal.brush(widget->backgroundRole());
     d->state->font = widget->font();
+    const QWidget *w = widget;
+    d->state->bgOrigin = -d->redirection_offset;
+    while (w->d_func()->isBackgroundInherited()) {
+        d->state->bgOrigin -= w->pos();
+        w = w->parentWidget();
+    }
     if (d->engine) {
         d->engine->setDirty(QPaintEngine::DirtyPen);
         d->engine->setDirty(QPaintEngine::DirtyBrush);
@@ -928,7 +938,7 @@ bool QPainter::begin(QPaintDevice *pd)
 #endif
 
 
-    d->state->bgOrigin -= d->redirection_offset; // This will accumulate!! ############
+    d->state->bgOrigin = -d->redirection_offset;
 
     d->device = pd;
     d->engine = pd->paintEngine();
@@ -982,6 +992,11 @@ bool QPainter::begin(QPaintDevice *pd)
         d->state->deviceFont = widget->font();
         d->state->pen = widget->palette().color(widget->foregroundRole());
         d->state->bgBrush = widget->palette().brush(widget->backgroundRole());
+        const QWidget *w = static_cast<const QWidget *>(originalDevice);;
+        while (w->d_func()->isBackgroundInherited()) {
+            d->state->bgOrigin -= w->pos();
+            w = w->parentWidget();
+        }
     }
 
     // make sure we have a font compatible with the paintdevice

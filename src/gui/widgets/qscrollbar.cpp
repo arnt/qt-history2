@@ -328,9 +328,6 @@ void QScrollBarPrivate::init()
     pressedControl = QStyle::SC_None;
     pointerLeftControl = false;
     q->setFocusPolicy(Qt::NoFocus);
-    QStyleOptionSlider opt = d->getStyleOption();
-    q->setBackgroundRole((QPalette::ColorRole)
-                         q->style()->styleHint(QStyle::SH_ScrollBar_BackgroundRole, &opt, q));
     QSizePolicy sp(QSizePolicy::Minimum, QSizePolicy::Fixed);
     if (orientation == Qt::Vertical)
         sp.transpose();
@@ -510,19 +507,6 @@ int QScrollBarPrivate::pixelPosToRangeValue(int pos) const
 
     return  QStyle::sliderValueFromPosition(d->minimum, d->maximum, pos - sliderMin,
                                             sliderMax - sliderMin, opt.upsideDown);
-}
-
-
-/*! \reimp
-*/
-void QScrollBar::changeEvent(QEvent *ev)
-{
-    if(ev->type() == QEvent::StyleChange) {
-        QStyleOptionSlider opt = d->getStyleOption();
-        setBackgroundRole((QPalette::ColorRole)
-                          style()->styleHint(QStyle::SH_ScrollBar_BackgroundRole, &opt, this));
-    }
-    QWidget::changeEvent(ev);
 }
 
 /*! \reimp
