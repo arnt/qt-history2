@@ -1444,6 +1444,7 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 		p->setPen( discol );
 	    }
 	    p->drawText( xp, y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
+	    s = s.left( t );
 	}
 	if ( dis && !act ) {
 	    p->setPen( g.light() );

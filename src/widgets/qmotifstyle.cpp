@@ -1055,6 +1055,7 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 	if ( t >= 0 ) {				// draw tab text
 	    p->drawText( x+w-tab-motifItemHMargin-motifItemFrame,
 			 y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
+	    s = s.left( t );
 	}
 	p->drawText( x+xm, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
     } else if ( mi->pixmap() ) {			// draw pixmap

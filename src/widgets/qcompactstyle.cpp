@@ -233,6 +233,7 @@ void QCompactStyle::drawPopupMenuItem( QPainter* p, bool checkable,
 	    }
 	    p->drawText( x+w-tab-windowsRightBorder-motifItemHMargin-motifItemFrame,
 			 y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
+	    s = s.left( t );
 	}
 	if ( dis && !act ) {
 	    p->setPen( g.light() );
