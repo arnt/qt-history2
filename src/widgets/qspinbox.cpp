@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#27 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -366,7 +366,6 @@ QSize QSpinBox::sizeHint() const
 	     );
     if ( style() == WindowsStyle && r.height() < 26 )
 	r.setHeight( 22 );
-    //    debug( "spsh: %d, %d", r.width(), r.height() );
     return r;
 }
 
@@ -455,13 +454,11 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
 	    stepUp();
 	    k->accept();
 	    return TRUE;
-	}
-	else if ( k->key() == Key_Down ) {
+	} else if ( k->key() == Key_Down ) {
 	    stepDown();
 	    k->accept();
 	    return TRUE;
-	}
-	else if ( k->key() == Key_Return ) { // Workaround for use in dialogs
+	} else if ( k->key() == Key_Return ) { // Workaround for use in dialogs
 	    interpretText();
 	    k->accept();
 	    return TRUE;
@@ -475,16 +472,17 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
   Handles resize events for the spin box.
 */
 
-void QSpinBox::resizeEvent( QResizeEvent* ev )
+void QSpinBox::resizeEvent( QResizeEvent* )
 {
     if ( !up || !down ) // happens if the application has a pointer error
 	return;
 
     QSize bs; // no, it's short for 'button size'
-    bs.setHeight( ev->size().height()/2 - frameWidth() );
+    bs.setHeight( height()/2 );
     if ( bs.height() < 8 )
 	bs.setHeight( 8 );
-    bs.setWidth( bs.height() * 2 );
+    bs.setWidth( bs.height() * 8 / 5 ); // 1.6 - approximate golden mean
+    setFrameRect( QRect( 0, 0, width() - bs.width(), height() ) );
     QSize bms( (bs.height()-5)*2-1, bs.height()-4 );
 
     if ( up->size() != bs ) {
@@ -519,13 +517,12 @@ void QSpinBox::resizeEvent( QResizeEvent* ev )
 	down->setPixmap( bm );
     }
 
-    int x = ev->size().width() - frameWidth() - bs.width();
+    int x = width() - bs.width();
 
-    up->move( x, frameWidth() );
-    down->move( x, height() - frameWidth() - up->height() );
+    up->move( x, 0 );
+    down->move( x, height() - up->height() );
 
-    vi->setGeometry( frameWidth(), frameWidth(),
-		     (x - frameWidth())-1, height() - 2*frameWidth() );
+    vi->setGeometry( contentsRect() );
 }
 
 
