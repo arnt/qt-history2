@@ -84,7 +84,7 @@ QPainter *qt_mac_current_painter = 0;
 QPoint posInWindow(QWidget *w); //qwidget_mac.cpp
 bool qt_recreate_root_win(); //qwidget_mac.cpp
 #ifndef USE_CORE_GRAPHICS
-void drawTile(QPainter *, int, int, int, int, const QPixmap &, int, int);
+static void drawTile(QPainter *, int, int, int, int, const QPixmap &, int, int);
 #endif
 QRegion make_region(RgnHandle handle); 
 void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QPoint &, bool); //qpaintdevice_mac.cpp
@@ -896,7 +896,9 @@ void QPainter::setClipping(bool b)
 	return;
     }
 
+#ifdef USE_CORE_GRAPHICS
     bool old_clipon = testf(ClipOn);
+#endif
     if(b)
 	setf(ClipOn);
     else
