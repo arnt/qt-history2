@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#24 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#25 $
 **
 ** Definition of QMessageBox class
 **
@@ -39,13 +39,36 @@ public:
     static int information( QWidget *parent, const char *caption,
 			    const char *text,
 			    int button1, int button2=0, int button3=0 );
+    static int information( QWidget *parent, const char *caption,
+			    const char *text,
+			    const char * button1Text = "&OK",
+			    const char * button2Text = 0, 
+			    const char * button3Text = 0,
+			    int defaultButtonNumber = 0,
+			    int escapeButtonNumber = -1 );
+
     static int warning( QWidget *parent, const char *caption,
 			const char *text,
 			int button1, int button2, int button3=0 );
+    static int warning( QWidget *parent, const char *caption,
+			const char *text,
+			const char * button1Text = "&OK",
+			const char * button2Text = 0, 
+			const char * button3Text = 0,
+			int defaultButtonNumber = 0,
+			int escapeButtonNumber = -1 );
+
     static int critical( QWidget *parent, const char *caption,
 			 const char *text,
 			 int button1, int button2, int button3=0 );
-
+    static int critical( QWidget *parent, const char *caption,
+			 const char *text,
+			 const char * button1Text = "&OK",
+			 const char * button2Text = 0, 
+			 const char * button3Text = 0,
+			 int defaultButtonNumber = 0,
+			 int escapeButtonNumber = -1 );
+    
     static void about( QWidget *parent, const char *caption,
 		       const char *text );
 

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#42 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#43 $
 **
 ** Implementation of QMessageBox class
 **
 ** Created : 950503
 **
-** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#43 $");
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -86,55 +86,143 @@ static const unsigned char critical_gif_data[] = {
   \brief The QMessageBox widget provides a message box.
   \ingroup dialogs
 
+  \define QMessageBox::Icon
+
   A message box is a modal dialog that displays an icon, a text and up to
-  three push buttons.
+  three push buttons.  It's used for simple messages and questions.
 
-  There are three very useful static member functions that display
-  standard message boxes.  We recommend using these, but you can also
-  construct a QMessageBox from scratch and set custom button texts.
+  QMessageBox provides a range of different messages, arranged roughly
+  along two axes: Severity and complexity.
 
-  The information message box should be used to display some information
-  to the user.  The user must press a button to progress:
+  Severity is<ul> <li> \c Information - for message boxes that are
+  part of normal operation <li> \c Warning - for message boxes that
+  tell the user about errors or ask the user how to fix an error <li>
+  \c Critical - as Warning, but for critical errors. </ul> The message
+  box has a different icon for each of the severity levels.
+
+  Complexity is one button (OK, sometimes Dismiss for Motif
+  applications) for a simple messages, or two or even three buttons
+  for questions.
+
+  Here are some examples of how to use the static member functions.
+  After these examples you will find an overview of the non-static
+  member functions.
+
+  If a program is unable to find a supporting file, it may perhaps do:
+
   \code
-    QMessageBox::information( 0, "Hello",
-    			      "Press OK to continue",
-			      QMessageBox::OK | QMessageBox::Default );
+    QMessageBox::information( this, "Application name here",
+                              "Unable to find the file \"index.html\".\n"
+			      "The factory default will be used instead." );
   \endcode
 
-  The warning message box should be used to display a warning to the
-  user and ask the user to confirm or to cancel the operation.  A typical
-  use of a warning box is an exit confirmation message box:
-  \code
-    int reply =
-         QMessageBox::warning( 0, "Exit Program",
-			       "Are you really sure you want to exit?",
-			       QMessageBox::Yes,
-			       QMessageBox::No | QMessageBox::Default |
-			       QMessageBox::Escape );
-  \endcode
+  The Microsoft Windows User Interface Guidelines strongly recommends
+  using the application name as window caption.  The message box has
+  just one button, OK, and its text tells the user both what happened
+  and what the program will do about it.  Since the application is
+  able to make do, the message box is just information, not a warning
+  or a critical error.
 
-  The critical message box should be used to display a critical warning
-  to the user and ask for confirmation.  It is similar to the warning
-  box except that it has another icon:
+  Exiting a program is part of its normal operation, and if there are
+  unsaved data the user probably should be asked what do do, for
+  example like this:
+
   \code
-    int reply =
-        QMessageBox::critical( 0, "Disk Failure",
-			       "Cannot write to disk.\n"
-			       "The disk is probably full.\n"
-			       "Do you want to retry?\n",
-			       QMessageBox::Retry,
-			       QMessageBox::Cancel );
-    if ( reply == QMessageBox::Retry ) {
-        // retry the operation
+    switch( QMessageBox::information( this, "Application name here",
+                                      "The document contains unsaved work\n"
+                                      "Do you want to save it before exiting?",
+			              "&Save", "&Don't Save", "&Cancel",
+                                      0,      // Enter == button 0
+				      2 ) ) { // Escape == button 2
+    case 0: // Save clicked, Alt-S or Enter pressed.
+        // save
+	break;
+    case 1: // Don't Save clicked or Alt-D pressed
+        // don't save but exit
+	break;
+    case 2: // Cancel clicked, Alt-C or Escape pressed
+        // don't exit
+	break;
     }
   \endcode
 
-  You can also make a message from scratch and set custom button texts:
+  Again, the application name is used as window caption, as Microsoft
+  recommends.  The Escape button cancels the entire Exit operation,
+  and Enter/Return saves the document and exits.
+
+  warning() can be used to tell the user about unusual errors, or
+  errors which can't be easily fixed:
+
   \code
-    QMessageBox mb( "Exit Program",
+    switch( QMessageBox::warning( this, "Application name here",
+                                  "Could not connect to the <mumble> server.\n"
+				  "This program can't function correctly "
+				  "without the server.\n\n"
+				  "Try again", "Quit",
+				  0, 1 );
+    case 0: // Try again or Enter
+        // try again
+	break;
+    case 1: // Quit or Escape
+        // exit
+	break;
+    }
+  \endcode
+
+  Disk full errors are (hopefully) unusual and they certainly can be
+  hard to correct:
+
+  \code
+    switch( QMessageBox::warning( this, "Application name here",
+                                  "Could not save the the user preferences,\n"
+				  "because the disk is full.  You can delete\n"
+				  "some files and press Retry, or you can\n"
+				  "abort the Save Preferences operation.",
+				  QMessageBox::Default | QMessageBox::Retry,
+				  QMessageBox::Escape | QMessageBox::Abort )) {
+    case Retry: // Enter or Retry
+        // try again
+	break;
+    case Abort: // Enter or Retry
+        // try again
+	break;
+    }
+  \endcode
+
+  The critical() function should be reserved for critical errors.  In
+  this example, errorDetails is a QString or const char *, and QString
+  is used to concatenate several strings:
+
+  \code
+    QMessageBox::critical( 0, "Application name here",
+                           QString("An internal error occured. Please call ") +
+			   "technical support at 123456789 and report these\n"+
+			   "numbers:\n\n" + errorDetails + "\n\n<Application>"+
+			   " will now exit." );
+  \endcode
+
+  QMessageBox provides a very simple About box, which displays an
+  appropriate icon and the string you give it:
+
+  \code
+     QMessageBox::about( this, "About <Application>",
+                         "<Application> is a <one-paragraph blurb>\n\n"
+			 "Copyright 1951-1997 Such-and-such.  <License words "
+			 "here.>\n\n"
+			 "For technical support, call 123456789 or see\n"
+			 "http://www.such-and-such.com/Application/\n" );
+  \endcode
+
+  See about() for more information.
+
+  Finally, you can make a QMessageBox from scratch and set custom
+  button texts:
+
+  \code
+    QMessageBox mb( "Application name here",
 		    "Saving the file will overwrite the old file on disk.\n"
 		    "Do you really want to save?",
-		    QMessageBox::Warning,
+		    QMessageBox::Information,
 		    QMessageBox::Yes | QMessageBox::Default,
 		    QMessageBox::No,
 		    QMessageBox::Cancel | QMessageBox::Escape );
@@ -152,6 +240,43 @@ static const unsigned char critical_gif_data[] = {
 	    break;
     }
   \endcode
+
+  QMessageBox defines two enum types, Icon and an unnamed button
+  type.  Icon defines the Information, Warning and Critical icons for
+  each GUI style.  It is used by the constructor, by the static member
+  functions information(), warning and critical(), and there is a
+  function called standardIcon() which gives you access to the various
+  icons.
+
+  The button type is a bit-field type which can have about twenty or
+  thirty values.  Its main component is the button type: <ul>
+  <li> \c OK - the default for single-button message boxes
+  <li> \c Cancel - note that this is \e not automatically Escape
+  <li> \c Yes
+  <li> \c No
+  <li> \c Abort
+  <li> \c Retry
+  <li> \c Ignore
+  </ul>
+
+  There are also two modifiers you can OR into the variable: <ul> <li>
+  \c Default - makes pressing Enter or Return be equivalent with
+  clicking this button.  Normally used with OK, Yes or similaro. <li>
+  \c Escape - makes pressing Escape be equivalent with this button.
+  Normally used with Abort, Cancel or similar. </ul>
+
+  The text(), icon() and iconPixmap() functions provide access to the
+  current text and pixmap of a message box, and setText(), setIcon()
+  and setIconPixmap() lets you change it.  The difference between
+  setIcon() and setIconPixmap() is that the former accepts a
+  QMessageBox::Icon and can it be used to set standard icons while the
+  latter accepts a QPixmap and can be used to set custom icons.
+
+  setButtonText() and buttonText() provide access to the buttons.
+
+  QMessageBox has no signals or slots.
+
+  \sa QProgressDialog
 */
 
 
@@ -322,7 +447,7 @@ void QMessageBox::init( int button1, int button2, int button3 )
 	}
 	b &= ButtonMask;
 	if ( b == 0 ) {
-	    if ( i == 0 )
+	    if ( i == 0 ) // ### undocumented magic! why?
 		b = OK;
 	} else if ( b < 0 || b > LastButton ) {
 #if defined(CHECK_RANGE)
@@ -348,7 +473,7 @@ void QMessageBox::init( int button1, int button2, int button3 )
 	    mbd->pb[i] = 0;
 	} else {
 	    QString buttonName;
-	    buttonName.sprintf( "button%d", i+1 );
+	    buttonName.sprintf( "button %d", i+1 );
 	    mbd->pb[i] = new QPushButton( mb_texts[mbd->button[i]],
 					  this, buttonName );
 	    if ( mbd->defButton == i ) {
@@ -651,13 +776,11 @@ void QMessageBox::adjustSize()
     label->adjustSize();
     int bw = mbd->numButtons * smax.width() + (mbd->numButtons-1)*border;
     int w = QMAX( bw, label->width() ) + 2*border;
-    int h = smax.height();
     if ( mbd->iconLabel.pixmap() && mbd->iconLabel.pixmap()->width() )  {
 	mbd->iconLabel.adjustSize();
 	w += mbd->iconLabel.pixmap()->width() + border;
-	if ( label->height() < mbd->iconLabel.pixmap()->height() )
-	    h += mbd->iconLabel.pixmap()->height() - label->height();
     }
+    int h = smax.height();
     if ( label->height() )
 	h += label->height() + 3*border;
     else
@@ -902,4 +1025,146 @@ void QMessageBox::setStyle( GUIStyle s )
 	// Reload icon for new style
 	setIcon( mbd->icon );
     }
+}
+
+
+static int textBox( QWidget *parent, QMessageBox::Icon severity,
+		    const char *caption, const char *text,
+		    const char * button0Text,
+		    const char * button1Text, 
+		    const char * button2Text,
+		    int defaultButtonNumber,
+		    int escapeButtonNumber )
+{
+    int b[3];
+    b[0] = (button0Text && *button0Text) ? 1 : 0;
+    b[1] = (button1Text && *button1Text) ? 2 : 0;
+    b[2] = (button2Text && *button2Text) ? 3 : 0;
+
+    int i;
+    for( i=0; i<3; i++ ) {
+	if ( b[i] && defaultButtonNumber == i )
+	    b[i] += QMessageBox::Default;
+	if ( b[i] && escapeButtonNumber == i )
+	    b[i] += QMessageBox::Escape;
+    }
+
+    QMessageBox *mb = new QMessageBox( caption, text, severity,
+				       b[0], b[1], b[2],
+				       parent, "information" );
+    CHECK_PTR( mb );
+    if ( b[0] )
+	mb->setButtonText( 1, button0Text );
+    if ( b[1] )
+	mb->setButtonText( 2, button1Text );
+    if ( b[2] )
+	mb->setButtonText( 3, button2Text );
+    int reply = mb->exec();
+    delete mb;
+    return reply-1;
+}
+
+
+/*!  Displays an information message box with a caption, a text and
+  1-3 buttons.  Returns the identifier of the button that was clicked.
+
+  \a button0Text is the text of the first button and must be present,
+  \a button1Text is the text of the second button and is optional, and
+  \a button2Text is the text of the third button and is optional.  \a
+  defaultbuttonNumber (0-2) is the index if the default button;
+  pressing Return or Enter is the same as clicking the default button.
+  It defaults to 0 (the first button).  \a escapeButtonNumber is the
+  index of the Escape button; pressing Escape is the same as clicking
+  this button.  It defaults to -1 (pressing Escape does nothing);
+  supply 0, 1 or 2 to make pressing Escape be equivalent with clicking
+  the relevant button.
+
+  If \e parent is 0, then the message box becomes an application-global
+  modal dialog box.  If \e parent is a widget, the message box becomes
+  modal relative to \e parent.
+
+  \sa warning(), critical()
+*/
+
+int QMessageBox::information( QWidget *parent, const char *caption,
+			      const char *text,
+			      const char * button0Text,
+			      const char * button1Text, 
+			      const char * button2Text,
+			      int defaultButtonNumber,
+			      int escapeButtonNumber )
+{
+    return textBox( parent, Information, caption, text,
+		    button0Text, button1Text, button2Text,
+		    defaultButtonNumber, escapeButtonNumber );
+}
+
+
+/*!  Displays a warning message box with a caption, a text and
+  1-3 buttons.  Returns the identifier of the button that was clicked.
+
+  \a button0Text is the text of the first button and must be present,
+  \a button1Text is the text of the second button and is optional, and
+  \a button2Text is the text of the third button and is optional.  \a
+  defaultbuttonNumber (0-2) is the index if the default button;
+  pressing Return or Enter is the same as clicking the default button.
+  It defaults to 0 (the first button).  \a escapeButtonNumber is the
+  index of the Escape button; pressing Escape is the same as clicking
+  this button.  It defaults to -1 (pressing Escape does nothing);
+  supply 0, 1 or 2 to make pressing Escape be equivalent with clicking
+  the relevant button.
+
+  If \e parent is 0, then the message box becomes an application-global
+  modal dialog box.  If \e parent is a widget, the message box becomes
+  modal relative to \e parent.
+
+  \sa information(), critical()
+*/
+
+int QMessageBox::warning( QWidget *parent, const char *caption,
+				 const char *text,
+				 const char * button0Text,
+				 const char * button1Text, 
+				 const char * button2Text,
+				 int defaultButtonNumber,
+				 int escapeButtonNumber )
+{
+    return textBox( parent, Warning, caption, text,
+		    button0Text, button1Text, button2Text,
+		    defaultButtonNumber, escapeButtonNumber );
+}
+
+
+/*!  Displays a critical error message box with a caption, a text and
+  1-3 buttons.  Returns the identifier of the button that was clicked.
+
+  \a button0Text is the text of the first button and must be present,
+  \a button1Text is the text of the second button and is optional, and
+  \a button2Text is the text of the third button and is optional.  \a
+  defaultbuttonNumber (0-2) is the index if the default button;
+  pressing Return or Enter is the same as clicking the default button.
+  It defaults to 0 (the first button).  \a escapeButtonNumber is the
+  index of the Escape button; pressing Escape is the same as clicking
+  this button.  It defaults to -1 (pressing Escape does nothing);
+  supply 0, 1 or 2 to make pressing Escape be equivalent with clicking
+  the relevant button.
+
+  If \e parent is 0, then the message box becomes an application-global
+  modal dialog box.  If \e parent is a widget, the message box becomes
+  modal relative to \e parent.
+
+  \sa information() warning()
+*/
+
+int QMessageBox::critical( QWidget *parent, const char *caption,
+				  const char *text,
+				  const char * button0Text,
+				  const char * button1Text, 
+				  const char * button2Text,
+				  int defaultButtonNumber,
+				  int escapeButtonNumber )
+{
+    return textBox( parent, Critical, caption, text,
+		    button0Text, button1Text, button2Text,
+		    defaultButtonNumber, escapeButtonNumber );
 }
