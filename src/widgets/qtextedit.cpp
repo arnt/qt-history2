@@ -5147,6 +5147,7 @@ void QTextEdit::optimSetText( const QString &str )
     d->od->lines.clear();
     d->od->len = str.length();
     d->od->maxLineWidth = 0;
+    d->od->clearTags();
     QFontMetrics fm( QScrollView::font() );
     if ( !(str.isEmpty() || str.isNull()) ) {
 	QStringList strl = QStringList::split( '\n', str, TRUE );
@@ -5165,9 +5166,12 @@ void QTextEdit::optimSetText( const QString &str )
     emit textChanged();
 }
 
-/*! \internal */
+/*! \internal 
+ 
+  Append \a tag to the tag list.
+*/
 QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag( int index,
-							  const QString & tag )
+							const QString & tag )
 {
     QTextEditOptimPrivate::Tag * t = new QTextEditOptimPrivate::Tag, * tmp;
     
@@ -5193,7 +5197,7 @@ QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag( int index,
 
 /*! \internal
 
-  Find tags in \a line, pull them out and put them in a structure.
+  Find tags in \a line, remove them and put them in a structure.
 
   A tag is delimited by '<' and '>'. The characters '<' and '>' are
   escaped by using "<<" and ">>". Left-tags marks the starting point for
@@ -5212,8 +5216,9 @@ QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag( int index,
   A tag can be used to change the color of a piece of text, or set one
   of the following formatting attributes: bold, italic and underline.
   The bold, italic and underline attributes can be abbreviated to b, i
-  and u.
-  Possible valid tags:
+  and u. This gives the following valid format tags:
+  <b>, <bold>, <i>, <italic>, <u> and <underline>.
+  Example of valid tags:
   <red>, <#ff0000>, </red>, <bold>, <b>, </italic>, </i>
   Example of valid text:
 
@@ -5262,17 +5267,17 @@ void QTextEdit::optimParseTags( QString * line )
 		QTextEditOptimPrivate::Tag * tag, * cur, * tmp;
 		bool format = TRUE;
 		
-		if ( tagStr == "bold" || tagStr == "b" )
+		if ( tagStr == "b" || tagStr == "bold" )
 		    bold++;
-		else if ( tagStr == "/bold" || tagStr == "/b" )
+		else if ( tagStr == "/b" || tagStr == "/bold" )
 		    bold--;
-		else if ( tagStr == "italic" || tagStr == "i" )
+		else if ( tagStr == "i" || tagStr == "italic" )
 		    italic++;
-		else if ( tagStr == "/italic" || tagStr == "/i" )
+		else if ( tagStr == "/i" || tagStr == "/italic" )
 		    italic--;
-		else if ( tagStr == "underline" || tagStr == "u" )
+		else if ( tagStr == "u" || tagStr == "underline" )
 		    underline++;
-		else if ( tagStr == "/underline" || tagStr == "/u" )
+		else if ( tagStr == "/u" || tagStr == "/underline" )
 		    underline--;
 		else
 		    format = FALSE;
@@ -5280,9 +5285,15 @@ void QTextEdit::optimParseTags( QString * line )
 		tag->type = format ? QTextEditOptimPrivate::Format
 			    : QTextEditOptimPrivate::Color;
 		if ( tagStr[0] == '/' ) {
-		    // ok, this is a right-tag - search for the left-tag
+		    // this is a right-tag - search for the left-tag
 		    // and possible parent tag
 		    cur = tag->prev;
+		    if ( !cur ) {
+#ifdef QT_CHECK_RANGE				
+			qWarning( "QTextEdit::optimParseTags(): no left-tag for '<" + tag->tag + ">' in line %d.", tag->line + 1 );
+#endif
+			return; // something is wrong - give up
+		    }
 		    while ( cur ) {
 			if ( cur->leftTag ) { // push right-tags encountered
 			    tagStack.push( cur );
@@ -5299,18 +5310,12 @@ void QTextEdit::optimParseTags( QString * line )
 					tag->parent = tmp;
 				    }
 				    break;
-				} 
-				else if ( !cur->leftTag ) {
+				} else if ( !cur->leftTag ) {
 #ifdef QT_CHECK_RANGE				
 				    qWarning( "QTextEdit::optimParseTags(): mismatching %s-tag for '<" + cur->tag + ">' in line %d.", cur->tag[0] == '/' ? "left" : "right", cur->line + 1 );
 #endif
 				    return; // something is amiss - give up
 				}
-			    } else if ( ("/" + cur->tag) != tmp->tag ) {
-#ifdef QT_CHECK_RANGE				
-				qWarning( "QTextEdit::optimParseTags(): mismatching right-tag for '<" + cur->tag + ">' in line %d.", cur->line + 1 );
-#endif
-				return; // something is amiss - give up
 			    }
 			}
 			cur = cur->prev;
@@ -5347,7 +5352,11 @@ void QTextEdit::optimParseTags( QString * line )
     }
 }
 
-/*! \internal */
+/*! \internal 
+
+  Append \a str to the current text buffer. Parses each line to find
+  formatting tags.
+*/
 void QTextEdit::optimAppend( const QString &str )
 {
     if ( str.isEmpty() || str.isNull() )
@@ -5373,7 +5382,7 @@ void QTextEdit::optimAppend( const QString &str )
 
 /*! \internal
 
-  Find the first open left-tag appearing before \a line.
+  Returns the first open left-tag appearing before line \a line.
  */
 QTextEditOptimPrivate::Tag * QTextEdit::optimPreviousLeftTag( int line )
 {
@@ -5405,11 +5414,19 @@ QTextEditOptimPrivate::Tag * QTextEdit::optimPreviousLeftTag( int line )
     return ftag;
 }
 
-/*! \internal */
+/*! \internal
+
+  Set the format for the string starting at index \a start and ending
+  at \a end according to \a tag. If \a tag is a Format tag, find the
+  first open color tag appearing before \a tag and use that tag to
+  color the string.
+*/
 void QTextEdit::optimSetTextFormat( QTextDocument * td, QTextCursor * cur,
 				    QTextFormat * f, int start, int end,
 				    QTextEditOptimPrivate::Tag * tag )
 {
+    int formatFlags = QTextFormat::Bold | QTextFormat::Italic | 
+		      QTextFormat::Underline;
     cur->setIndex( start );
     td->setSelectionStart( 0, cur );
     cur->setIndex( end );
@@ -5417,18 +5434,20 @@ void QTextEdit::optimSetTextFormat( QTextDocument * td, QTextCursor * cur,
     f->setBold( tag->bold );
     f->setItalic( tag->italic );
     f->setUnderline( tag->underline );
-    // plain format tags might need coloring
     if ( tag->type == QTextEditOptimPrivate::Format ) {
+	// check to see if there are any open color tags prior to this
+	// format tag
 	tag = tag->prev;
 	while ( tag && (tag->type == QTextEditOptimPrivate::Format || 
 			tag->leftTag) ) {
 	    tag = tag->leftTag ? tag->parent : tag->prev;
 	}
     }
-    if ( tag )
+    if ( tag ) {
+	formatFlags |= QTextFormat::Color;
 	f->setColor( QColor( tag->tag ) );
-    td->setFormat( 0, f, QTextFormat::Color | QTextFormat::Bold |
-		   QTextFormat::Italic | QTextFormat::Underline );
+    }
+    td->setFormat( 0, f, formatFlags );
     td->removeSelection( 0 );
 }
 
@@ -5508,8 +5527,8 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
 	    }
 	    cur.setParag( cur.parag()->next() );
 	}
-// debug
-//	
+        // useful debug info
+	//	
 // 	tag = d->od->tags;
 // 	qWarning("###");
 // 	while ( tag ) {

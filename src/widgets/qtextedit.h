@@ -75,8 +75,8 @@ class QTextEditPrivate;
 class QTextEditOptimPrivate
 {
 public:
-    // No left-tag has any value for leftTag or parent. No right-tag
-    // has any formatting flags set.
+    // Note: no left-tag has any value for leftTag or parent, and
+    // no right-tag has any formatting flags set.
     enum TagType { Color = 0, Format = 1 };
     struct Tag {
 	TagType type:2;
@@ -101,12 +101,18 @@ public:
     }
     ~QTextEditOptimPrivate()
     {
+	clearTags();
+    }
+    void clearTags()
+    {
 	Tag * itr = tags;
 	while ( tags ) {
 	    itr  = tags;
 	    tags = tags->next;
 	    delete itr;
 	}
+	tags = lastTag = 0;
+	tagIndex.clear();
     }
     int len;
     int numLines;
