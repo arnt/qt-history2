@@ -188,16 +188,15 @@ if [ "${platform}" = "x11" ]; then
 fi
 
 echo "Build tutorial, example, and extensions Makefiles" >&2
-for pro_file in $(find ${DISTDIR}/qt/tutorial
-		       ${DISTDIR}/qt/examples
-		       ${DISTDIR}/qt/extensions -name '*.pro')
-do
-  (
-    cd $(dirname $pro_file)
-    rm Makefile
-    tmake -t ${QTDIR}/tmake/propagate.t $tmakearg $(basename $pro_file) >$tmakeout
-  )
-done
+find ${DISTDIR}/qt/tutorial \
+     ${DISTDIR}/qt/examples \
+     ${DISTDIR}/qt/extensions -name '*.pro' |
+    while read pro_file
+    do
+	cd $(dirname $pro_file) # we are in a subshell
+	rm -f Makefile GNUmakefile
+	tmake -t ${QTDIR}/tmake/propagate.t $tmakearg $(basename $pro_file) >$tmakeout
+    done
 
 echo "Removing GNUmakefiles" >&2
 find ${QTDIR} -name 'GNUmakefile*' -print | xargs rm -vf

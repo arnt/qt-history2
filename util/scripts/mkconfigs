@@ -1,0 +1,34 @@
+#!/bin/sh
+
+if [ ! -d $QTDIR/configs ]
+then
+    mkdir $QTDIR/configs
+fi
+
+if [ ! -d "$TMAKEDIR/lib" ]
+then
+    echo '$TMAKEDIR not set properly - eg. ~/tmake'
+    exit 1
+fi
+
+for platform in `(cd $TMAKEDIR/lib; /bin/ls -d *-*)`
+do
+  case "$platform" in
+   win32*)
+      true;
+  ;; *)
+      if [ -f $TMAKEDIR/lib/$platform/tmake.conf ]
+      then
+          for i in static static-debug shared shared-debug
+          do
+	    sysconf=$QTDIR/configs/$platform-$i
+	    TMAKEPATH=$TMAKEDIR/lib/unix:$TMAKEDIR/lib/$platform:$TMAKEPATH \
+		tmake -t $i /dev/null >$sysconf
+	    if [ ! -s $sysconf  ]
+	    then
+		rm $sysconf
+	    fi
+          done
+      fi
+  esac
+done
