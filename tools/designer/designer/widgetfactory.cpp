@@ -541,10 +541,15 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutTy
     int spacing = MainWindow::self->currentLayoutDefaultSpacing();
     int margin = 0;
 
+    int metaspacing = MetaDataBase::spacing( widget );
+    int metamargin = 0;
+
     if ( widget && !widget->inherits( "QLayoutWidget" ) &&
 	 ( WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( widget ) ) ) ||
-	   widget && widget->parentWidget() && widget->parentWidget()->inherits( "FormWindow" ) ) )
+	   widget && widget->parentWidget() && widget->parentWidget()->inherits( "FormWindow" ) ) ) {
 	margin = MainWindow::self->currentLayoutDefaultMargin();
+	metamargin = MetaDataBase::margin( widget );
+    }
 
     if ( !layout && widget && widget->inherits( "QTabWidget" ) )
 	widget = ((QTabWidget*)widget)->currentPage();
@@ -559,10 +564,7 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutTy
 	widget = ((QWidgetStack*)widget)->visibleWidget();
 
     MetaDataBase::addEntry( widget );
-
-    int metaspacing = MetaDataBase::spacing( widget );
-    int metamargin = MetaDataBase::margin( widget );
-
+    
     if ( !layout && widget && widget->inherits( "QGroupBox" ) ) {
 	QGroupBox *gb = (QGroupBox*)widget;
 	gb->setColumnLayout( 0, Qt::Vertical );
