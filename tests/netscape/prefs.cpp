@@ -2,17 +2,20 @@
 #include <qpainter.h>
 #include <qapp.h>
 #include <qlabel.h>
+#include <qchkbox.h>
+#include <qradiobt.h>
 #include <qwidgetstack.h>
 #include <qvbox.h>
 #include <qhbox.h>
 #include <qpushbt.h>
+#include <qlabelled.h>
 #include <qbuttonrow.h>
 #include <qlayout.h>
 
 class DummyCategory : public QLabel {
 public:
-    DummyCategory() :
-	QLabel("Dummy")
+    DummyCategory( const char * s = 0 ) :
+	QLabel(s?s:"Dummy")
     {
 	setMinimumSize(100,100);
     }
@@ -42,14 +45,35 @@ Preferences::Preferences(QWidget* parent, const char* name, int f) :
     selector->setColumn( "Category", w );
     selector->setColumn( "Bug", 30 ); // ### bug in QListView
     selector->setMaximumWidth( w /*BUG*/+30 );
+    selector->setRootIsDecorated( TRUE );
+    selector->setFocusPolicy( QWidget::StrongFocus );
 
     PreferenceItem *group;
-    add(group = new PreferenceItem(selector, "Appearance"), new DummyCategory);
-     add(new PreferenceItem(group, "Font"), new DummyCategory);
-     add(new PreferenceItem(group, "Colors"), new DummyCategory);
-    add(group = new PreferenceItem(selector, "Navigator"), new DummyCategory);
-     add(new PreferenceItem(group, "Languages"), new DummyCategory);
-     add(new PreferenceItem(group, "Applications"), new DummyCategory);
+
+    QVBox *appearance = new QVBox;
+    QLabelled *frame = new QLabelled( "On startup, launch", appearance );
+    QVBox *box = new QVBox( frame );
+    new QCheckBox( "&Navigator", box );
+    new QCheckBox( "&Messenger Mailbox", box );
+    new QCheckBox( "Collabra &Discussions", box );
+    new QCheckBox( "Page &Composer", box );
+    new QCheckBox( "N&etcaster", box );
+    frame = new QLabelled( "Show toolbar as", appearance );
+    box = new QVBox( frame );
+    new QRadioButton( "&Pictures and Text", box );
+    new QRadioButton( "Pictures &Only", box );
+    new QRadioButton( "&Text Only", box );
+
+    add(group = new PreferenceItem(selector, "Appearance"), 
+	appearance );
+     add(new PreferenceItem(group, "Font"), new DummyCategory("Font"));
+     add(new PreferenceItem(group, "Colors"), new DummyCategory("Colors"));
+    add(group = new PreferenceItem(selector, "Navigator"), 
+	new DummyCategory("Navigator"));
+     add(new PreferenceItem(group, "Languages"), 
+	 new DummyCategory("Languages"));
+     add(new PreferenceItem(group, "Applications"), 
+	 new DummyCategory("Applications"));
     add(group = new PreferenceItem(selector, "Mail & Groups"), new DummyCategory);
      add(new PreferenceItem(group, "Identity"), new DummyCategory);
      add(new PreferenceItem(group, "Messages"), new DummyCategory);
