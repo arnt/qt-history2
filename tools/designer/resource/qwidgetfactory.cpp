@@ -505,6 +505,7 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     WidgetInterface *iface = widgetManager()->queryInterface( className );
     if ( iface ) {
 	w = iface->create( className, parent, name );
+	iface->release();
 	if ( w )
 	    return w;
     }
