@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#54 $
 **
 ** Implementation of QLabel widget class
 **
@@ -17,7 +17,8 @@
 #include "qkeycode.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#54 $");
+
 
 #if QT_VERSION == 200
 #error "Remove QLabel dict!"
@@ -89,6 +90,7 @@ static void cleanupLabel()
   <img src=qlabel-m.gif> <img src=qlabel-w.gif>
 */
 
+
 /*!
   Constructs an empty label which is left-aligned, vertically centered,
   has an automatic margin and with manual resizing.
@@ -108,6 +110,7 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
     extraMargin= -1;
     autoresize = FALSE;
 }
+
 
 /*!
   Constructs a label with a text. The label is left-aligned, vertically
