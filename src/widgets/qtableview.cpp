@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#40 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#40 $");
 
 
 const int sbDim = 16;
@@ -934,9 +934,9 @@ void QTableView::updateCell( int row, int col, bool erase )
 /*!
   \fn QRect QTableView::cellUpdateRect() const
 
-  This function should only be called from the updateCell() function
+  This function should only be called from the paintCell() function
   in subclasses. It returns the portion of a cell that actually needs
-  to be updated. This is only useful for non-trivial updateCell().
+  to be updated. This is only useful for non-trivial paintCell().
 */
 
 /*!
