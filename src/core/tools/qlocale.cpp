@@ -1811,7 +1811,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 
     It is initialized with a country/language pair in its constructor
     and offers number-to-string and string-to-number conversion
-    functions simmilar to those in QString.
+    functions similar to those in QString.
 
     \code
     QLocale egyptian(QLocale::Arabic, QLocale::Egypt);
