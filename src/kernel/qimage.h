@@ -54,9 +54,9 @@ public:
     QCString key;
     QCString lang;
 
-    int operator < (const QImageTextKeyLang& other) const
+    bool operator< (const QImageTextKeyLang& other) const
 	{ return key < other.key || key==other.key && lang < other.lang; }
-    int operator == (const QImageTextKeyLang& other) const
+    bool operator== (const QImageTextKeyLang& other) const
 	{ return key==other.key && lang==other.lang; }
 };
 #endif //QT_NO_IMAGE_TEXT

@@ -2599,7 +2599,7 @@ bool QCanvasPixmapArray::readPixmaps( const QString& datafilenamepattern,
 /*!
   This returns FALSE if the array is valid, and TRUE if it is not.
 */
-int QCanvasPixmapArray::operator!()
+bool QCanvasPixmapArray::operator!()
 {
     return img==0;
 }

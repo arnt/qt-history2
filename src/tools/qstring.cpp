@@ -11377,7 +11377,7 @@ Unicode row), cell() (gives the Unicode cell), digitValue() (gives the
 integer value of any of the numerous digit characters), and a host of
 constructors.
 
-More information can be found in the document 
+More information can be found in the document
 \link unicode.html About Unicode. \endlink
 
 \sa QString QCharRef */
@@ -11432,7 +11432,7 @@ The following categories are informative in Unicode:
 
 \value Punctuation_Dash  Unicode class name Pd
 
-\value Punctuation_Open  Unicode class name Ps 
+\value Punctuation_Open  Unicode class name Ps
 
 \value Punctuation_Close  Unicode class name Pe
 
@@ -11585,7 +11585,7 @@ Constructs a QChar for the character with Unicode code point \a rc.
 
 /*! \fn uchar& QChar::row ()
   \overload
-  
+
   Returns a reference to the row (most significant byte) of the Unicode character.
 */
 
@@ -11906,13 +11906,13 @@ QChar QChar::upper() const
  *****************************************************************************/
 
 /*!
-  \fn int operator==( QChar c1, QChar c2 )
+  \fn bool operator==( QChar c1, QChar c2 )
   \relates QChar
 
   Returns TRUE if \a c1 and \a c2 are the same Unicode character.
 */
 
-/*! \fn int operator==( char ch, QChar c )
+/*! \fn bool operator==( char ch, QChar c )
   \overload
 
   \relates QChar
@@ -11920,7 +11920,7 @@ QChar QChar::upper() const
   Returns TRUE if \a c is the ASCII/Latin1 character \a ch.
 */
 
-/*! \fn int operator==( QChar c, char ch )
+/*! \fn bool operator==( QChar c, char ch )
   \overload
 
   \relates QChar
@@ -11937,7 +11937,7 @@ QChar QChar::upper() const
 
 /*! \fn int operator!=( char ch, QChar c )
   \overload
-  
+
   \relates QChar
 
   Returns TRUE if \a c is not the ASCII/Latin1 character \a ch.
@@ -11945,7 +11945,7 @@ QChar QChar::upper() const
 
 /*! \fn int operator!=( QChar c, char ch )
   \overload
-  
+
   \relates QChar
 
   Returns TRUE if \a c is not the ASCII/Latin1 character \a ch.
@@ -11970,7 +11970,7 @@ QChar QChar::upper() const
 
 /*! \fn int operator<=( char ch, QChar c )
   \overload
-  
+
   \relates QChar
 
   Returns TRUE if the numeric Unicode value of the ASCII/Latin1
@@ -11995,7 +11995,7 @@ QChar QChar::upper() const
 
 /*! \fn int operator>=( char ch, QChar c )
   \overload
-  
+
   \relates QChar
 
   Returns TRUE if the numeric Unicode value of the ASCII/Latin1
@@ -12012,7 +12012,7 @@ QChar QChar::upper() const
 
 /*! \fn int operator<( QChar c, char ch )
   \overload
-  
+
   \relates QChar
 
   Returns TRUE if the numeric Unicode value of \a c is less than that
@@ -12021,7 +12021,7 @@ QChar QChar::upper() const
 
 /*! \fn int operator<( char ch, QChar c )
   \overload
-  
+
   \relates QChar
 
   Returns TRUE if the numeric Unicode value of the ASCII/Latin1
@@ -12038,7 +12038,7 @@ QChar QChar::upper() const
 
 /*! \fn int operator>( QChar c, char ch )
   \overload
-  
+
   \relates QChar
 
   Returns TRUE if the numeric Unicode value of \a c is greater than
@@ -12047,7 +12047,7 @@ QChar QChar::upper() const
 
 /*! \fn int operator>( char ch, QChar c )
   \overload
-  
+
   \relates QChar
 
   Returns TRUE if the numeric Unicode value of the ASCII/Latin1
@@ -12389,7 +12389,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   if it is unterminated (i.e., contains NULs) 8-bit data, use QByteArray;
   if it is text, use QString.
 
-  \sa QChar 
+  \sa QChar
 */
 
 Q_EXPORT QStringData *QString::shared_null = 0;
@@ -12403,10 +12403,10 @@ QT_STATIC_CONST_IMPL QChar QChar::nbsp((ushort)0x00a0);
 QStringData* QString::makeSharedNull()
 {
     QString::shared_null = new QStringData;
-#ifdef Q_OS_MAC9   
-    QString *that = const_cast<QString *>(&QString::null); 
+#ifdef Q_OS_MAC9
+    QString *that = const_cast<QString *>(&QString::null);
     that->d = QString::shared_null;
-#endif    
+#endif
     return shared_null;
 }
 
@@ -13355,9 +13355,9 @@ int QString::contains( QChar c, bool cs ) const
 /*! \overload
 
   Returns the number of times the string \a str occurs in the string.
- 
+
   The match is case-sensitive if \a cs is TRUE or case-insensitive if \a cs
-  if FALSE. 
+  if FALSE.
 */
 int QString::contains( const char* str, bool cs ) const
 {
@@ -13365,28 +13365,28 @@ int QString::contains( const char* str, bool cs ) const
 }
 
 /*! \fn int QString::contains( char c, bool cs ) const
-  \overload 
+  \overload
 
   Returns the number of times the character \a c occurs in the string.
- 
+
   The match is case-sensitive if \a cs is TRUE or case-insensitive if \a cs
-  if FALSE. 
+  if FALSE.
 */
 
 /*! \fn int QString::find( char c, int index, bool cs ) const
-  \overload 
+  \overload
 
   Finds the first occurrence of the character \a c, starting at position
   \a index. If \a index is negative, find() adds length() to \a index.
- 
+
   The search is case-sensitive if \a cs is TRUE or case-insensitive if
   \a cs is FALSE.
- 
-  Returns the position of \a c or -1 if \a str could not be found.   
+
+  Returns the position of \a c or -1 if \a str could not be found.
 */
 
 /*!\fn int QString::findRev( char c, int index, bool cs ) const
-  \overload 
+  \overload
 */
 
 /*! \overload
@@ -13882,7 +13882,7 @@ QString &QString::insert( uint index, QChar c ) // insert char
 QString &QString::remove( uint index, uint len )
 {
     uint olen = length();
-    if ( index >= olen  ) {		
+    if ( index >= olen  ) {
         // range problems
     } else if ( index + len >= olen ) {  // index ok
         setLength( index );
@@ -13950,7 +13950,7 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
 
 
 /*!
-  Finds the first occurrence of the constant regular expression \a rx, 
+  Finds the first occurrence of the constant regular expression \a rx,
   starting at
   position \a index. If \a index is -1, the search starts at the last
   character; if -2, at the next to last character; etc.
@@ -14379,7 +14379,7 @@ QString &QString::setNum( ulong n, int base )
 /*! \fn QString &QString::setNum( uint n, int base )
   \overload
 
-  Sets the string to the printed unsigned value of \a n to the 
+  Sets the string to the printed unsigned value of \a n to the
   base \a base and returns a reference to the string.
 */
 
@@ -14398,7 +14398,7 @@ QString &QString::setNum( ulong n, int base )
 */
 
 /*! \overload
-  
+
   Sets the string to the printed value of \a n, formatted in the \a f
   format with \a prec precision, and returns a reference to the
   string.
@@ -14438,8 +14438,8 @@ QString &QString::setNum( double n, char f, int prec )
 }
 
 /*! \fn QString &QString::setNum( float n, char f, int prec )
-  \overload 
-  
+  \overload
+
   Sets the string to the printed value of \a n, formatted in the \a f
   format with \a prec precision, and returns a reference to the
   string.
@@ -15032,7 +15032,7 @@ void QString::checkSimpleText() const
     }
 }
 
-/*! \fn bool QString::simpleText() const 
+/*! \fn bool QString::simpleText() const
   \internal
 */
 

@@ -197,15 +197,15 @@ public:
 
     static bool networkOrdered() { return (int)net_ordered == 1; }
 
-    friend inline int operator==( char ch, QChar c );
-    friend inline int operator==( QChar c, char ch );
-    friend inline int operator==( QChar c1, QChar c2 );
-    friend inline int operator!=( QChar c1, QChar c2 );
-    friend inline int operator!=( char ch, QChar c );
-    friend inline int operator!=( QChar c, char ch );
-    friend inline int operator<=( QChar c, char ch );
-    friend inline int operator<=( char ch, QChar c );
-    friend inline int operator<=( QChar c1, QChar c2 );
+    friend inline bool operator==( char ch, QChar c );
+    friend inline bool operator==( QChar c, char ch );
+    friend inline bool operator==( QChar c1, QChar c2 );
+    friend inline bool operator!=( QChar c1, QChar c2 );
+    friend inline bool operator!=( char ch, QChar c );
+    friend inline bool operator!=( QChar c, char ch );
+    friend inline bool operator<=( QChar c, char ch );
+    friend inline bool operator<=( char ch, QChar c );
+    friend inline bool operator<=( QChar c1, QChar c2 );
 
 private:
 #if defined(Q_WS_X11) || defined(Q_OS_WIN32BYTESWAP_) || defined( Q_WS_QWS ) || defined( Q_WS_MAC )
@@ -293,49 +293,49 @@ inline QChar::QChar( int rc )
 }
 
 
-inline int operator==( char ch, QChar c )
+inline bool operator==( char ch, QChar c )
 {
     return ch == c.cl && !c.rw;
 }
 
-inline int operator==( QChar c, char ch )
+inline bool operator==( QChar c, char ch )
 {
     return ch == c.cl && !c.rw;
 }
 
-inline int operator==( QChar c1, QChar c2 )
+inline bool operator==( QChar c1, QChar c2 )
 {
     return c1.cl == c2.cl
         && c1.rw == c2.rw;
 }
 
-inline int operator!=( QChar c1, QChar c2 )
+inline bool operator!=( QChar c1, QChar c2 )
 {
     return c1.cl != c2.cl
         || c1.rw != c2.rw;
 }
 
-inline int operator!=( char ch, QChar c )
+inline bool operator!=( char ch, QChar c )
 {
     return ch != c.cl || c.rw;
 }
 
-inline int operator!=( QChar c, char ch )
+inline bool operator!=( QChar c, char ch )
 {
     return ch != c.cl || c.rw;
 }
 
-inline int operator<=( QChar c, char ch )
+inline bool operator<=( QChar c, char ch )
 {
     return !(ch < c.cl || c.rw);
 }
 
-inline int operator<=( char ch, QChar c )
+inline bool operator<=( char ch, QChar c )
 {
     return ch <= c.cl || c.rw;
 }
 
-inline int operator<=( QChar c1, QChar c2 )
+inline bool operator<=( QChar c1, QChar c2 )
 {
     return c1.rw > c2.rw
         ? FALSE
@@ -344,15 +344,15 @@ inline int operator<=( QChar c1, QChar c2 )
             : c1.cl <= c2.cl;
 }
 
-inline int operator>=( QChar c, char ch ) { return ch <= c; }
-inline int operator>=( char ch, QChar c ) { return c <= ch; }
-inline int operator>=( QChar c1, QChar c2 ) { return c2 <= c1; }
-inline int operator<( QChar c, char ch ) { return !(ch<=c); }
-inline int operator<( char ch, QChar c ) { return !(c<=ch); }
-inline int operator<( QChar c1, QChar c2 ) { return !(c2<=c1); }
-inline int operator>( QChar c, char ch ) { return !(ch>=c); }
-inline int operator>( char ch, QChar c ) { return !(c>=ch); }
-inline int operator>( QChar c1, QChar c2 ) { return !(c2>=c1); }
+inline bool operator>=( QChar c, char ch ) { return ch <= c; }
+inline bool operator>=( char ch, QChar c ) { return c <= ch; }
+inline bool operator>=( QChar c1, QChar c2 ) { return c2 <= c1; }
+inline bool operator<( QChar c, char ch ) { return !(ch<=c); }
+inline bool operator<( char ch, QChar c ) { return !(c<=ch); }
+inline bool operator<( QChar c1, QChar c2 ) { return !(c2<=c1); }
+inline bool operator>( QChar c, char ch ) { return !(ch>=c); }
+inline bool operator>( char ch, QChar c ) { return !(c>=ch); }
+inline bool operator>( QChar c1, QChar c2 ) { return !(c2>=c1); }
 
 // internal
 struct Q_EXPORT QStringData : public QShared {

@@ -127,7 +127,7 @@ class paintevent_item
     QRegion clipRegion;
 public:
     paintevent_item(QPaintDevice *d, QRegion r) : dev(d), clipRegion(r) { }
-    inline int operator==( QPaintDevice *rhs ) const { return rhs == dev; }
+    inline bool operator==( QPaintDevice *rhs ) const { return rhs == dev; }
     inline QPaintDevice *device() const { return dev; }
     inline QRegion region() const { return clipRegion; }
 };

@@ -394,7 +394,7 @@ public:
     bool readPixmaps(const QString& datafilenamepattern, int framecount=0);
     bool readCollisionMasks(const QString& filenamepattern);
 
-    int operator!(); // Failure check.
+    bool operator!(); // Failure check.
 
     QCanvasPixmap* image(int i) const
 	{ return img[i]; }

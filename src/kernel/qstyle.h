@@ -68,8 +68,8 @@ public:
 
 #ifndef QT_NO_COMPAT
     operator GUIStyle() const { return gs; }
-    int operator==(GUIStyle s) const { return gs==s; }
-    int operator!=(GUIStyle s) const { return gs!=s; }
+    bool operator==(GUIStyle s) const { return gs==s; }
+    bool operator!=(GUIStyle s) const { return gs!=s; }
 #endif
 
     GUIStyle guiStyle() const { return gs; }
