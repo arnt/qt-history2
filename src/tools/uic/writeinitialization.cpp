@@ -73,6 +73,14 @@ void WriteInitialization::acceptUI(DomUI *node)
         output << option.indent << varConn << " = QSqlDatabase::database(" << fixString(connection) << ");\n";
     }
 
+    if(uic->isMainWindow(widgetClassName) &&
+       (node->elementWidget() && !node->elementWidget()->elementWidget().isEmpty())) {
+        QString centralWidget = driver->unique(QLatin1String("__qt_center_widget"));
+        output << option.indent << "QWidget *" << centralWidget << "= new QWidget(" << varName << ");\n";
+        output << option.indent << centralWidget << "->setObjectName(" << fixString(centralWidget) << ");\n";
+        output << option.indent << varName << "->setCentralWidget(" << centralWidget << ");\n";
+    }
+
     acceptWidget(node->elementWidget());
 
     for (int i=0; i<m_buddies.size(); ++i) {
@@ -255,7 +263,6 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
     bool isGroupBox = false;
     bool isMainWindow = false;
-    QString centralWidget;
 
     if (m_widgetChain.top()) {
         QString parentWidget = m_widgetChain.top()->attributeClass();
@@ -285,25 +292,14 @@ void WriteInitialization::acceptLayout(DomLayout *node)
             if (margin != INT_MIN)
                 output << option.indent << parent << "->layout()->setMargin(" << margin << ");\n";
         } else if (uic->isMainWindow(parentWidget)) {
-            QString parent = driver->findOrInsertWidget(m_widgetChain.top());
-
             isMainWindow = true;
-            centralWidget = driver->unique(QLatin1String("__qt_center_widget"));
-            output << option.indent << "QWidget *" << centralWidget << "= new QWidget(" << parent << ");\n";
-            output << option.indent << centralWidget << "->setObjectName(" << fixString(centralWidget) << ");\n";
-
-            if (uic->customWidgetsInfo()->extends(parentWidget, QLatin1String("Q3MainWindow"))) {
-                output << option.indent << parent << "->setCentralWidget(" << centralWidget << ");\n";
-            } else {
-                output << option.indent << parent << "->setCentralWidget(" << centralWidget << ");\n";
-            }
         }
     }
 
     output << option.indent << varName << " = new " << className << "(";
 
     if (isMainWindow) {
-        output << centralWidget;
+        output << driver->findOrInsertWidget(m_widgetChain.top()) << "->centralWidget()";
     } else if (isGroupBox) {
         output << driver->findOrInsertWidget(m_widgetChain.top()) << "->layout()";
     } else if (!m_layoutChain.top()) {
