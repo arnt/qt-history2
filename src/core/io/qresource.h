@@ -41,6 +41,7 @@ public:
 
 protected:
     friend class QMetaResource;
+    friend class QMetaResourcePrivate;
     QResource();
     ~QResource();
 };

@@ -63,6 +63,12 @@ QResource::QResource() : d_ptr(new QResourcePrivate(this))
 
 QResource::~QResource()
 {
+    if(d->parent) {
+        d->parent->d->children.removeAll(this);
+        if(d->parent->d->children.isEmpty()) 
+            delete d->parent;
+        d->parent = 0;
+    }
     delete d_ptr;
     d_ptr = 0;
 }
@@ -153,8 +159,12 @@ private:
     QResource *resource;
 
 protected:
-    QMetaResourcePrivate(QMetaResource *qq) : q_ptr(qq) { }
-    ~QMetaResourcePrivate() { q_ptr = 0; }
+    QMetaResourcePrivate(QMetaResource *qq) : q_ptr(qq), resource(0) { }
+    ~QMetaResourcePrivate() { 
+        delete resource;
+        resource = 0;
+        q_ptr = 0; 
+    }
 };
 
 QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePrivate(this))
@@ -221,6 +231,7 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
             }
         }
         Q_ASSERT(current && !current->d->container);
+        d->resource = current;
         current->d->size = len;
         current->d->data = bytes;
         current->d->compressed = flags & Compressed;
@@ -229,21 +240,6 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
 
 QMetaResource::~QMetaResource()
 {
-#if 0
-    if(d->resource) {
-        for(QResource *r = d->resource->d->parent; r && r != qt_resource_root; ) {
-            if(r->d->container && r->d->children.count() == 1) {
-                QResource *n = r->d->parent;
-                n->d->children.removeAll(r);
-                delete r;
-                r = n;
-            }
-            break;
-        }
-        delete d->resource;
-        d->resource = 0;
-    }
-#endif
     delete d_ptr;
     d_ptr = 0;
 }
