@@ -255,12 +255,14 @@ void QFont::cleanup()
     delete QFontCache::instance;
 }
 
+// Return a font family ID 
 Qt::HANDLE QFont::handle() const
 {
     if ( ! d->engineData )
         d->load( QFont::NoScript );
-    // ### shouldn't this be some window system handle?
-    return d;
+    if (d->engineData && d->engineData->engine)
+	return (void*)(((QFontEngineMac*)d->engineData->engine)->fnum);
+    return 0;
 }
 
 void QFont::macSetFont(QPaintDevice *v)

@@ -340,13 +340,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
     if(fnt.underline())
 	fstyle |= underline;
 
-    int fnum = 0;
-    if(QFontPrivate *fp = (QFontPrivate*)fnt.handle()) {
-	if(fp->engineData && fp->engineData->engine) {
-	    Q_ASSERT(fp->engineData->engine->type() == QFontEngine::Mac);
-	    fnum = ((QFontEngineMac*)fp->engineData->engine)->fnum;
-	}
-    }
+    int fnum = (int)fnt.handle();
     aglUseFont((AGLContext) cx, fnum, fstyle, fnt.pointSize(), 0, 256, listBase);
 }
 

@@ -496,7 +496,6 @@ class QFontEngineMac : public QFontEngine
 #else
     FontInfo *info;
 #endif
-    short fnum;
     int psize;
     QMacFontInfo *internal_fi;
     enum { widthCacheSize = 0x500 };
@@ -506,6 +505,7 @@ class QFontEngineMac : public QFontEngine
     friend class QMacSetFontInfo;
 
 public:
+    short fnum;
     QFontEngineMac();
 
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
