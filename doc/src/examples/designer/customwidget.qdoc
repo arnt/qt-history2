@@ -168,7 +168,7 @@
     \skipto AnalogClockPlugin::includeFile(
     \printuntil /^\}/
 
-    Finally, we can provide a sample code template for the custom widget with
+    We can provide a sample code template for the custom widget with
     the \c codeTemplate() function:
 
     \skipto AnalogClockPlugin::codeTemplate(
@@ -176,4 +176,10 @@
 
     The code template is optionally used to specify how the widget is used
     in application code.
+
+    Finally, we use the \c Q_EXPORT_PLUGIN macro to export the \c AnalogClockPlugin
+    class for use with \QD:
+
+    \skipto Q_EXPORT_PLUGIN
+    \printuntil Q_EXPORT_PLUGIN
 */
