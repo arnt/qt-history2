@@ -249,7 +249,7 @@ public:
 
 Q_CORE_EXPORT void qt_qFindChildren_helper(const QObject *parent, const QString &name, const QRegExp *re,
                          const QMetaObject &mo, QList<void*> *list);
-QObject *qFindChild_helper(const QObject *parent, const QString &name, const QMetaObject &mo);
+Q_CORE_EXPORT QObject *qFindChild_helper(const QObject *parent, const QString &name, const QMetaObject &mo);
 
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
