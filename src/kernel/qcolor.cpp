@@ -79,17 +79,17 @@
   strategy.  A color is normally allocated the first time it is used
   (lazy allocation), that is, whenever the pixel() function is called:
 
-  <ol>
-  <li>Is the pixel value valid? If it is, just return it; otherwise,
+  \list 1
+  \i Is the pixel value valid? If it is, just return it; otherwise,
   allocate a pixel value.
-  <li>Check an internal hash table to see if we allocated an equal RGB
+  \i Check an internal hash table to see if we allocated an equal RGB
   value earlier. If we did, set the pixel value and return.
-  <li>Try to allocate the RGB value. If we succeed, we get a pixel value
+  \i Try to allocate the RGB value. If we succeed, we get a pixel value
   that we save in the internal table with the RGB value.
   Return the pixel value.
-  <li>The color could not be allocated. Find the closest matching
+  \i The color could not be allocated. Find the closest matching
   color and save it in the internal table.
-  </ol>
+  \endlist
 
   Because many people don't know the HSV color model very well, we'll
   cover it briefly here.
@@ -101,21 +101,23 @@
   of" are easily expressed in HSV but are much harder to express in
   RGB.
 
-  HSV, like RGB, has three components:  <ul>
+  HSV, like RGB, has three components:
 
-  <li> H, for hue, is either 0-359 if the color is chromatic (not
+  \list
+
+  \i H, for hue, is either 0-359 if the color is chromatic (not
   gray), or meaningless if it is gray.  It represents degrees on the
   color wheel familiar to most people.  Red is 0 (degrees), green is
   120 and blue is 240.
 
-  <li> S, for saturation, is 0-255, and the bigger it is, the
+  \i S, for saturation, is 0-255, and the bigger it is, the
   stronger the color is.  Grayish colors have saturation near 0; very
   strong colors have saturation near 255.
 
-  <li> V, for value, is 0-255 and represents lightness or brightness
+  \i V, for value, is 0-255 and represents lightness or brightness
   of the color.  0 is black; 255 is as far from black as possible.
 
-  </ul>
+  \endlist
 
   Here are some examples: Pure red is H=0, S=255, V=255.  A dark red,
   moving slightly towards the magenta, could be H=350 (equivalent to
@@ -455,15 +457,15 @@ static int hex2int( QChar hexchar )
 
 /*!
   Sets the RGB value to \a name, which may be in one of these formats:
-  <ul>
-  <li> #RGB (each of R, G and B is a single hex digit)
-  <li> #RRGGBB
-  <li> #RRRGGGBBB
-  <li> #RRRRGGGGBBBB
-  <li> A name from the X color database (rgb.txt) (e.g.
+  \list
+  \i #RGB (each of R, G and B is a single hex digit)
+  \i #RRGGBB
+  \i #RRRGGGBBB
+  \i #RRRRGGGGBBBB
+  \i A name from the X color database (rgb.txt) (e.g.
   "steelblue" or "gainsboro").  These color names also work
   under Qt for Windows.
-  </ul>
+  \endlist
 
   The color is left invalid if \a name cannot be parsed.
 */

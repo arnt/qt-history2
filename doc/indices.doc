@@ -127,7 +127,10 @@ Overviews
 \i \link i18n.html   Internationalization (i18n)  \endlink
 \i \link debug.html   Debugging Techniques \endlink
 \i \link threads.html  Thread Support in Qt  \endlink
+\i \link plugins.html Qt Plugins\endlink
+\omit
 \i \link component.html  Qt Component Model \endlink
+\endomit
 \i \link pictures.html   Widget Screenshots \endlink
 \endlist
 
@@ -200,9 +203,15 @@ related classes together. Some classes may appear in more than one group.
 \i \link basic.html   Basic Widgets \endlink
 \i Basic GUI widgets such as buttons, comboboxes and scrollbars.
 
+\row
+\i \link plugins.html Plugins\endlink
+\i Plugin related classes.
+
+\omit
 \row 
 \i \link componentmodel.html   Component Model \endlink
 \i Interfaces and helper classes for the Qt Component Model.
+\endomit
 
 \row
 \i \link database.html Database\endlink
@@ -514,11 +523,19 @@ These classes form the basis of the \link object.html Qt Object Model \endlink.
 
 */
 
-/*! \defgroup componentmodel
+/* \defgroup componentmodel
 
 \title Component Model
 
 These classes and interfaces form the basis of the \link component.html Qt Component Model \endlink.
+
+*/
+
+/*! \defgroup plugins
+
+\title Plugins
+
+These classes are used with Qt \link plugins.html Plugins\endlink.
 
 */
 

@@ -47,26 +47,26 @@
   \class QComponentFactory qcomponentfactory.h
   \brief The QComponentFactory class provides static functions to create and register components.
 
-  \ingroup componentmodel
+    \internal
 
-  The static convenience functions can be used both by applications to instantiate components, 
+  The static convenience functions can be used both by applications to instantiate components,
   and by component servers to register components.
 
-  The createInstance() function provides a pointer to an interface implemented in a specific 
+  The createInstance() function provides a pointer to an interface implemented in a specific
   component if the component requested has been installed properly and implements the interface.
 
   Use registerServer() to load a component server and register its components, and unregisterServer()
   to unregister the components. The component exported by the component server has to implement the
-  QComponentRegistrationInterface. 
-  
-  The static functions registerComponent() and unregisterComponent() register and unregister a single 
-  component in the system component registry, and should be used when implementing the 
+  QComponentRegistrationInterface.
+
+  The static functions registerComponent() and unregisterComponent() register and unregister a single
+  component in the system component registry, and should be used when implementing the
   \link QComponentRegistrationInterface::registerComponents() registerCompontents() \endlink and
   \link QComponentRegistrationInterface::unregisterComponents() unregisterCompontents() \endlink functions
   in the QComponentRegistrationInterface.
 
   A component is registered using a UUID, but can additionally be registered with a name, version and
-  description. A component registered with a name and a version can be instantiated by client applications 
+  description. A component registered with a name and a version can be instantiated by client applications
   using the name and specific version number, or the highest available version number for that component by
   just using the name. A component that is registered calling
 
@@ -89,7 +89,7 @@
   \endcode
 
   The first and the last way will always instantiate exactly the component registered above, while
-  the second call might also return a later version of the same component. This allows smoother upgrading 
+  the second call might also return a later version of the same component. This allows smoother upgrading
   of components, and is easier to use in application source code, but should only be used when new versions
   of the component are guaranteed to work with the application.
 
@@ -120,18 +120,18 @@ static QPtrList<QComLibrary> *liblist()
 
 /*!
   Searches for the component identifier \a cid in the system component registry,
-  loads the corresponding component server and queries for the interface \a iid. 
+  loads the corresponding component server and queries for the interface \a iid.
   \a iface is set to the resulting interface pointer. \a cid can either be the
   UUID or the name of the component.
 
   The parameter \a outer is a pointer to the outer interface used
   for containment and aggregation and is propagated to the \link
   QComponentFactoryInterface::createInstance() createInstance() \endlink
-  implementation of the QComponentFactoryInterface in the component server if 
+  implementation of the QComponentFactoryInterface in the component server if
   provided.
 
   The function returns QS_OK if the interface was successfully instantiated, QE_NOINTERFACE if
-  the component does not provide an interface \a iid, or QE_NOCOMPONENT if there was 
+  the component does not provide an interface \a iid, or QE_NOCOMPONENT if there was
   an error loading the component.
 
   Example:
@@ -232,10 +232,10 @@ QRESULT QComponentFactory::unregisterServer( const QString &filename )
 /*!
   Registers the component with id \a cid in the system component registry and
   returns TRUE if the component was registerd successfully, otherwise returns
-  FALSE. The component is provided by the component server at \a filepath and 
-  registered with an optional \a name, \a version and \a description. 
-  
-  This function does nothing and returns FALSE if a component with an identical 
+  FALSE. The component is provided by the component server at \a filepath and
+  registered with an optional \a name, \a version and \a description.
+
+  This function does nothing and returns FALSE if a component with an identical
   \a cid does already exist on the system.
 
   A component that has been registered with a \a name can be created using both the

@@ -10,7 +10,10 @@
 \list
 \i \link porting.html Porting to Qt 3.x \endlink
 \i \link commonproblems.html Common Problems and Special Use Cases \endlink
+\i \link plugins.html Qt Plugins\endlink
+\omit
 \i \link component.html The Qt Component Model \endlink
+\endomit
 \i \link datastreamformat.html Format of the QDataStream Operators \endlink
 \i \link debug.html Debugging Techniques \endlink
 \i \link design.html Design Principles \endlink

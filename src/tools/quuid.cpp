@@ -38,7 +38,8 @@
 /*!
   \class QUuid quuid.h
   \brief The QUuid class defines a Universally Unique Identifier (UUID).
-  \ingroup componentmodel
+
+  \internal
 
   For objects or declarations that need to be identified uniquely, UUIDs (also known as GUIDs) are widely
   used in order to assign a fixed and easy to compare value to this object or declaration. The 128bit value

@@ -51,12 +51,16 @@ platform independent and database neutral. This module is seamlessly
 integrated into Qt Designer, greatly simplifying the process of
 building database applications and using data aware widgets.
 
+\omit
 Other major new features include a component architecture allowing you
-to build cross platform components, 'plugins' with Qt. You can use
-your own and third party plugins your own applications. The Unicode
-support of Qt 2.x has been greatly enhanced, it now includes full
-support for scripts written from right to left (e.g. Arabic and
-Hebrew) and also provides improved support for Asian languages.
+to build cross platform components, 'plugins' with Qt. 
+\endomit
+Other major new features include a plugin architecture. You can use
+your own and third party plugins your own applications. 
+The Unicode support of Qt 2.x has been greatly enhanced, it now
+includes full support for scripts written from right to left (e.g.
+Arabic and Hebrew) and also provides improved support for Asian
+languages.
 
 Many new classes have been added to the Qt Library. Amongst them are
 classes that provide a docking architecture (QDockArea/QDockWindow), a
@@ -114,7 +118,7 @@ laid out within Qt Designer, and relationships can be established
 between controls visually. Many interactions can be defined purely in
 terms of Qt's signals/slots mechanism directly in Qt Designer.
 
-
+\omit
 \section2 Component model - plugins
 
 The QLibrary class provides a platform independent wrapper for runtime
@@ -133,6 +137,16 @@ widgets both when designing and previewing forms.
 QComponentFactory makes it easy to register any kind of component in a
 global database (e.g. the Windows Registry) and to use any registered
 component.
+\endomit
+\section2 Plugins
+
+The QLibrary class provides a platform independent wrapper for runtime
+loading of shared libraries. QPluginManager makes it trivial to implement
+plugin support in applications. The Qt library is able to load
+additional styles, database drivers and text codecs from plugins. 
+
+Qt Designer supports custom widgets in plugins, and will use the
+widgets both when designing and previewing forms.
 
 
 \section2 Rich text engine and editor

@@ -1,0 +1,55 @@
+/*!
+    \page plugins.doc
+
+\title Qt Plugins
+
+Qt provides a simple plugin interface which makes it easy to create
+custom styles, codes and image formats that can be dynamically loaded
+into applications. The plugin interface is also used to extend \link
+designer-manual.book Qt Designer\endlink with custom widgets.
+
+Writing a new plugin is achieved by subclassing the appropriate plugin
+baseclase, implementing a few functions, and adding a macro. 
+
+There are five plugin base classes:
+\list 1
+\i QCodecPlugin
+\i QImagePlugin
+\i QSqlDriverPlugin
+\i QStylePlugin
+\i QWidgetPlugin
+\endlist
+
+Suppose that you have a new style class called 'MyStyle' that you want
+to make available as a plugin. The required code is straightforward:
+\code
+    // file: mystyleplugin.h
+    #include "mystyle.h"
+    
+    class MyStylePlugin : public QStylePlugin
+    {
+    public:
+	MyStylePlugin() {}
+	~MyStylePlugin();
+
+	QStringList keys() { 
+	    QStringList l; 
+	    l << "MyStyle"; 
+	    return l; 
+	}
+	QStyle* create( const QString& key ) { 
+	    if ( key == "MyStyle" ) 
+		return new MyStyle;
+	    return 0;
+	}
+    };
+
+    Q_EXPORT_PLUGIN( MyStylePlugin )
+\endcode
+
+To load the new style, use code like this:
+\code
+    ### Help!
+\endcode
+
+*/

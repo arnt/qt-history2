@@ -6,7 +6,7 @@
   \class QUnknownInterface qcom.h
   \brief The QUnknownInterface class is the base class for all interfaces of the Qt Component Model.
 
-  \ingroup componentmodel
+  \internal
 
   All interfaces in the component object model are derived from the
   QUnknownInterface. This interface provides control of the object's

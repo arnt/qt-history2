@@ -41,13 +41,13 @@
 \target Introduction
 \section1 Introduction
 
-The <a href="sql.html">SQL Module</a> uses driver <a
-href="component.html">plugins</a> in order to communicate with
-different database APIs.  Since the SQL Module API is
-database-independent, all database-specific code is contained within
-these drivers.  Several drivers are supplied with Qt and other drivers
-can be added. The driver source code is supplied and can be used as a
-model for \link #development writing your own drivers\endlink.
+The \link sql.html SQL Module\endlink uses driver \link plugins.html
+plugins\endlink in order to communicate with different database APIs.
+Since the SQL Module API is database-independent, all
+database-specific code is contained within these drivers.  Several
+drivers are supplied with Qt and other drivers can be added. The
+driver source code is supplied and can be used as a model for \link
+#development writing your own drivers\endlink.
 
 To build a driver plugin you need the client API that is
 shipped with every DBMS (Database Management System). Most
