@@ -70,12 +70,12 @@ static QPoint pointInsideRect(const QRect &r, QPoint p)
         p.setX(r.left());
     else if (p.x() > r.right())
         p.setX(r.right());
-        
+
     if (p.y() < r.top())
         p.setY(r.top());
     else if (p.y() > r.bottom())
         p.setY(r.bottom());
-    
+
     return p;
 }
 
@@ -87,7 +87,7 @@ class CECommand : public QtCommand, public CETypes
 {
     Q_OBJECT
 public:
-    CECommand(ConnectionEdit *edit) 
+    CECommand(ConnectionEdit *edit)
         : m_edit(edit) { setCanMerge(false); }
     ConnectionEdit *edit() const { return m_edit; }
 private:
@@ -134,7 +134,7 @@ public:
     AdjustConnectionCommand(ConnectionEdit *edit, Connection *con,
                             const QPoint &old_source_pos,
                             const QPoint &old_target_pos,
-                            const QPoint &new_source_pos, 
+                            const QPoint &new_source_pos,
                             const QPoint &new_target_pos);
     virtual void redo();
     virtual void undo();
@@ -144,10 +144,10 @@ private:
             m_new_source_pos, m_new_target_pos;
 };
 
-AdjustConnectionCommand::AdjustConnectionCommand(ConnectionEdit *edit, Connection *con, 
+AdjustConnectionCommand::AdjustConnectionCommand(ConnectionEdit *edit, Connection *con,
                                                     const QPoint &old_source_pos,
                                                     const QPoint &old_target_pos,
-                                                    const QPoint &new_source_pos, 
+                                                    const QPoint &new_source_pos,
                                                     const QPoint &new_target_pos)
     : CECommand(edit)
 {
@@ -181,7 +181,7 @@ private:
     ConnectionList m_con_list;
 };
 
-DeleteConnectionsCommand::DeleteConnectionsCommand(ConnectionEdit *edit, 
+DeleteConnectionsCommand::DeleteConnectionsCommand(ConnectionEdit *edit,
                                                     const ConnectionList &con_list)
     : CECommand(edit), m_con_list(con_list)
 {
@@ -219,7 +219,7 @@ Connection::Connection(ConnectionEdit *edit)
     m_edit = edit;
     m_source = 0;
     m_target = 0;
-    
+
     m_source_pos = QPoint(-1, -1);
     m_target_pos = QPoint(-1, -1);
 }
@@ -234,7 +234,7 @@ Connection::Connection(ConnectionEdit *edit, QWidget *source, QWidget *target)
     m_target_pos = QPoint(-1, -1);
 }
 
-QPoint Connection::endPointPos(EndPoint::Type type) const 
+QPoint Connection::endPointPos(EndPoint::Type type) const
 {
     if (type == EndPoint::Source)
         return m_source_pos;
@@ -249,12 +249,12 @@ void Connection::setSource(QWidget *source, const QPoint &pos)
         return;
 
     update(false);
-    
+
     m_source = source;
     m_source_pos = pos;
     m_source_rect = m_edit->widgetRect(source);
     updateKneeList();
-    
+
     update(false);
 }
 
@@ -264,7 +264,7 @@ static QPoint lineEntryPos(const QPoint &p1, const QPoint &p2, const QRect &rect
     Q_ASSERT(rect.contains(p2));
 
     QPoint result;
-    
+
     CETypes::LineDir dir = classifyLine(p1, p2);
     switch (dir) {
         case CETypes::UpDir:
@@ -354,12 +354,12 @@ void Connection::updateKneeList()
 {
     LineDir old_source_label_dir = labelDir(EndPoint::Source);
     LineDir old_target_label_dir = labelDir(EndPoint::Target);
-        
+
     QPoint s = endPointPos(EndPoint::Source);
     QPoint t = endPointPos(EndPoint::Target);
     QRect sr = m_source_rect;
     QRect tr = m_target_rect;
-    
+
     m_knee_list.clear();
     m_arrow_head.clear();
 
@@ -430,7 +430,7 @@ void Connection::updateKneeList()
 
     if (m_knee_list.size() == 2)
         m_knee_list.clear();
-            
+
     trimLine();
 
     LineDir new_source_label_dir = labelDir(EndPoint::Source);
@@ -448,17 +448,17 @@ void Connection::trimLine()
     int cnt = m_knee_list.size();
     if (cnt < 2)
         return;
-    
+
     QRect sr = m_source_rect;
     QRect tr = m_target_rect;
 
     if (sr.contains(m_knee_list.at(1)))
         m_knee_list.removeFirst();
-    
+
     cnt = m_knee_list.size();
     if (cnt < 2)
         return;
-    
+
     if (sr.contains(m_knee_list.at(0)) && !sr.contains(m_knee_list.at(1)))
         m_knee_list[0] = lineEntryPos(m_knee_list.at(1), m_knee_list.at(0), sr);
 
@@ -473,14 +473,14 @@ void Connection::setTarget(QWidget *target, const QPoint &pos)
 {
     if (target == m_target && m_target_pos == pos)
         return;
-    
+
     update(false);
-    
-    m_target = target; 
+
+    m_target = target;
     m_target_pos = pos;
     m_target_rect = m_edit->widgetRect(target);
     updateKneeList();
-    
+
     update(false);
 }
 
@@ -488,7 +488,7 @@ static QRect lineRect(const QPoint &a, const QPoint &b)
 {
     QPoint c(qMin(a.x(), b.x()), qMin(a.y(), b.y()));
     QPoint d(qMax(a.x(), b.x()), qMax(a.y(), b.y()));
-    
+
     QRect result(c, d);
     return expand(result, LINE_PROXIMITY_RADIUS);
 }
@@ -496,7 +496,7 @@ static QRect lineRect(const QPoint &a, const QPoint &b)
 QRegion Connection::region() const
 {
     QRegion result;
-    
+
     for (int i = 0; i < m_knee_list.size() - 1; ++i)
         result = result.unite(lineRect(m_knee_list.at(i), m_knee_list.at(i + 1)));
 
@@ -505,10 +505,10 @@ QRegion Connection::region() const
         r = expand(r, 1);
         result = result.unite(r);
     }
-    
+
     result = result.unite(labelRect(EndPoint::Source));
     result = result.unite(labelRect(EndPoint::Target));
-    
+
     return result;
 }
 
@@ -521,7 +521,7 @@ void Connection::update(bool update_widgets) const
         if (m_target != 0)
             m_edit->update(m_target_rect);
     }
-    
+
     m_edit->update(endPointRect(EndPoint::Source));
     m_edit->update(endPointRect(EndPoint::Target));
 }
@@ -530,13 +530,13 @@ void Connection::paint(QPainter *p) const
 {
     for (int i = 0; i < m_knee_list.size() - 1; ++i)
         p->drawLine(m_knee_list.at(i), m_knee_list.at(i + 1));
-    
+
     if (!m_arrow_head.isEmpty()) {
         p->save();
         p->setBrush(p->pen().color());
         p->drawPolygon(m_arrow_head);
         p->restore();
-    }    
+    }
 }
 
 bool Connection::contains(const QPoint &pos) const
@@ -561,18 +561,18 @@ CETypes::LineDir Connection::labelDir(EndPoint::Type type) const
     int cnt = m_knee_list.size();
     if (cnt < 2)
         return RightDir;
-    
+
     LineDir dir;
     if (type == EndPoint::Source)
         dir = classifyLine(m_knee_list.at(0), m_knee_list.at(1));
     else
         dir = classifyLine(m_knee_list.at(cnt - 2), m_knee_list.at(cnt - 1));
-    
+
     if (dir == LeftDir)
         dir = RightDir;
     if (dir == UpDir)
         dir = DownDir;
-        
+
     return dir;
 }
 
@@ -584,7 +584,7 @@ QRect Connection::labelRect(EndPoint::Type type) const
     QString text = label(type);
     if (text.isEmpty())
         return QRect();
-        
+
     QSize size = labelPixmap(type).size();
     QPoint p1, p2;
     if (type == EndPoint::Source) {
@@ -595,7 +595,7 @@ QRect Connection::labelRect(EndPoint::Type type) const
         p2 = m_knee_list.at(cnt - 2);
     }
     LineDir dir = classifyLine(p1, p2);
-            
+
     QRect result;
     switch (dir) {
         case UpDir:
@@ -611,12 +611,12 @@ QRect Connection::labelRect(EndPoint::Type type) const
             result = QRect(p1 + QPoint(-size.width(), -size.height()/2), size);
             break;
     }
-    
+
     return result;
 }
 
 void Connection::setLabel(EndPoint::Type type, const QString &text)
-{ 
+{
     if (text == label(type))
         return;
 
@@ -624,7 +624,7 @@ void Connection::setLabel(EndPoint::Type type, const QString &text)
         m_source_label = text;
     else
         m_target_label = text;
-        
+
     updatePixmap(type);
 }
 
@@ -632,23 +632,23 @@ void Connection::updatePixmap(EndPoint::Type type)
 {
     QPixmap *pm = type == EndPoint::Source ? &m_source_label_pm : &m_target_label_pm;
     *pm = QPixmap();
-    
+
     QString text = label(type);
     if (text.isEmpty())
         return;
-    
+
     QFontMetrics fm = m_edit->fontMetrics();
     QSize size = fm.size(Qt::TextSingleLine, text) + QSize(HLABEL_MARGIN*2, VLABEL_MARGIN*2);
     pm->resize(size);
     pm->fill(m_edit->palette().color(QPalette::Base));
-    
+
     QPainter p(pm);
     p.setPen(m_edit->palette().color(QPalette::Text));
     p.drawText(-fm.leftBearing(text.at(0)) + HLABEL_MARGIN, fm.ascent() + VLABEL_MARGIN, text);
     p.end();
-    
+
     LineDir dir = labelDir(type);
-    
+
     if (dir == DownDir)
         *pm = pm->transform(QMatrix(0.0, -1.0, 1.0, 0.0, 0.0, 0.0));
 }
@@ -723,12 +723,12 @@ void ConnectionEdit::clear()
 
 void ConnectionEdit::setBackground(QWidget *background)
 {
-    m_bg_widget = background; 
-    updateBackground(); 
+    m_bg_widget = background;
+    updateBackground();
 }
-    
+
 void ConnectionEdit::updateBackground()
-{    
+{
     if (m_bg_widget != 0) {
         m_bg_pixmap = QPixmap::grabWidget(m_bg_widget);
         updateLines();
@@ -852,9 +852,11 @@ void ConnectionEdit::paintEvent(QPaintEvent *e)
 
 void ConnectionEdit::mousePressEvent(QMouseEvent *e)
 {
+    e->accept();
+
     Connection *con_under_mouse = connectionAt(e->pos());
     m_start_connection_on_drag = false;
-    
+
     switch (state()) {
         case Connecting:
         case Dragging:
@@ -880,12 +882,12 @@ void ConnectionEdit::mousePressEvent(QMouseEvent *e)
             }
             break;
     }
-    
-    e->accept();
 }
 
 void ConnectionEdit::mouseDoubleClickEvent(QMouseEvent *e)
 {
+    e->accept();
+
     switch (state()) {
         case Connecting:
             break;
@@ -898,11 +900,13 @@ void ConnectionEdit::mouseDoubleClickEvent(QMouseEvent *e)
             }
             break;
     }
-    
+
 }
 
 void ConnectionEdit::mouseReleaseEvent(QMouseEvent *e)
 {
+    e->accept();
+
     switch (state()) {
         case Connecting:
             if (m_widget_under_mouse == 0) {
@@ -911,7 +915,7 @@ void ConnectionEdit::mouseReleaseEvent(QMouseEvent *e)
                 m_tmp_con = 0;
             } else {
                 endConnection(m_widget_under_mouse, e->pos());
-            }    
+            }
             setCursor(QCursor());
             break;
         case Editing:
@@ -920,9 +924,8 @@ void ConnectionEdit::mouseReleaseEvent(QMouseEvent *e)
             endDrag(e->pos());
             break;
     }
-        
-    e->accept();
 }
+
 
 void ConnectionEdit::findObjectsUnderMouse(const QPoint &pos)
 {
@@ -946,7 +949,7 @@ void ConnectionEdit::findObjectsUnderMouse(const QPoint &pos)
             setCursor(QCursor());
         m_end_point_under_mouse = hs;
     }
-    
+
 }
 
 void ConnectionEdit::mouseMoveEvent(QMouseEvent *e)
@@ -960,7 +963,7 @@ void ConnectionEdit::mouseMoveEvent(QMouseEvent *e)
         case Editing:
             if ((e->buttons() & Qt::LeftButton)
                     && m_start_connection_on_drag
-                    && m_widget_under_mouse != 0) { 
+                    && m_widget_under_mouse != 0) {
                 m_start_connection_on_drag = false;
                 startConnection(m_widget_under_mouse, e->pos());
                 setCursor(Qt::CrossCursor);
@@ -970,7 +973,7 @@ void ConnectionEdit::mouseMoveEvent(QMouseEvent *e)
             continueDrag(e->pos());
             break;
     }
-        
+
     e->accept();
 }
 
@@ -982,14 +985,14 @@ void ConnectionEdit::keyPressEvent(QKeyEvent *e)
                 deleteSelected();
             break;
     }
-    
+
     e->accept();
 }
 
 void ConnectionEdit::startConnection(QWidget *source, const QPoint &pos)
 {
     Q_ASSERT(m_tmp_con == 0);
-    
+
     m_tmp_con = new Connection(this);
     m_tmp_con->setEndPoint(EndPoint::Source, source, pos);
 }
@@ -997,9 +1000,9 @@ void ConnectionEdit::startConnection(QWidget *source, const QPoint &pos)
 void ConnectionEdit::endConnection(QWidget *target, const QPoint &pos)
 {
     Q_ASSERT(m_tmp_con != 0);
-    
+
     m_tmp_con->setEndPoint(EndPoint::Target, target, pos);
-    
+
     QWidget *source = m_tmp_con->widget(EndPoint::Source);
     Q_ASSERT(source != 0);
     Q_ASSERT(target != 0);
@@ -1010,7 +1013,7 @@ void ConnectionEdit::endConnection(QWidget *target, const QPoint &pos)
         m_undo_stack->push(new AddConnectionCommand(this, new_con));
     }
     findObjectsUnderMouse(mapFromGlobal(QCursor::pos()));
-            
+
     delete m_tmp_con;
     m_tmp_con = 0;
 }
@@ -1019,9 +1022,9 @@ void ConnectionEdit::continueConnection(QWidget *target, const QPoint &pos)
 {
     Q_ASSERT(m_tmp_con != 0);
 
-    m_tmp_con->setEndPoint(EndPoint::Target, target, pos);    
+    m_tmp_con->setEndPoint(EndPoint::Target, target, pos);
 }
-    
+
 void ConnectionEdit::modifyConnection(Connection *)
 {
 }
@@ -1036,7 +1039,7 @@ void ConnectionEdit::widgetRemoved(QWidget *widget)
 {
     QList<QWidget*> child_list = qFindChildren<QWidget*>(widget);
     child_list.prepend(widget);
-    
+
     ConnectionSet remove_set;
     foreach (QWidget *w, child_list) {
         foreach (Connection *con, m_con_list) {
@@ -1044,10 +1047,10 @@ void ConnectionEdit::widgetRemoved(QWidget *widget)
                 remove_set.insert(con, con);
         }
     }
-                    
+
     if (!remove_set.isEmpty())
         m_undo_stack->push(new DeleteConnectionsCommand(this, remove_set.keys()));
-    
+
     updateBackground();
 }
 
@@ -1060,10 +1063,10 @@ void ConnectionEdit::setSelected(Connection *con, bool sel)
         m_sel_con_set.insert(con, con);
     else
         m_sel_con_set.remove(con);
-    
+
     con->update();
 }
-    
+
 bool ConnectionEdit::selected(const Connection *con) const
 {
     return m_sel_con_set.contains(const_cast<Connection*>(con));
@@ -1093,7 +1096,7 @@ CETypes::EndPoint ConnectionEdit::endPointAt(const QPoint &pos) const
             continue;
         QRect sr = con->endPointRect(EndPoint::Source);
         QRect tr = con->endPointRect(EndPoint::Target);
-        
+
         if (sr.contains(pos))
             return EndPoint(con, EndPoint::Source);
         if (tr.contains(pos))
@@ -1121,13 +1124,13 @@ void ConnectionEdit::endDrag(const QPoint &pos)
 {
     Q_ASSERT(!m_drag_end_point.isNull());
     adjustHotSopt(m_drag_end_point, pos);
-    
+
     Connection *con = m_drag_end_point.con;
     QPoint new_source_pos = con->endPointPos(EndPoint::Source);
     QPoint new_target_pos = con->endPointPos(EndPoint::Target);
     m_undo_stack->push(new AdjustConnectionCommand(this, con, m_old_source_pos, m_old_target_pos,
                                                     new_source_pos, new_target_pos));
-            
+
     m_drag_end_point = EndPoint();
 }
 
@@ -1156,6 +1159,7 @@ void ConnectionEdit::updateLines()
 void ConnectionEdit::resizeEvent(QResizeEvent *e)
 {
     updateBackground();
+    QWidget::resizeEvent(e);
 }
 
 #include "connectionedit.moc"

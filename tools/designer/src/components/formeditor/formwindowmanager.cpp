@@ -102,9 +102,9 @@ static bool isMouseMoveOrRelease(QEvent *e)
 
 bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
 {
-    if (!m_drag_item_list.isEmpty()
-            && isMouseMoveOrRelease(e)
-            && o == m_core->topLevel()) {
+    if (o == m_core->topLevel()
+            && !m_drag_item_list.isEmpty()
+            && isMouseMoveOrRelease(e)) {
         // We're dragging
         QMouseEvent *me = static_cast<QMouseEvent*>(e);
         me->accept();
@@ -118,15 +118,18 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
 
     QWidget *widget = static_cast<QWidget*>(o);
 
-    if (!o->isWidgetType())
+    if (!o->isWidgetType()) {
         return false;
+    }
 
-    if (qt_cast<WidgetHandle*>(widget)) // ### remove me
+    if (qt_cast<WidgetHandle*>(widget)) { // ### remove me
         return false;
+    }
 
     FormWindow *fw = FormWindow::findFormWindow(widget);
-    if (!fw)
+    if (fw == 0) {
         return false;
+    }
 
     if (isPassiveInteractor(widget)) {
         if (fw->editMode() == FormWindow::TabOrderEditMode)
@@ -854,10 +857,9 @@ bool FormWindowManager::isPassiveInteractor(QWidget *o) const
 {
     if (lastPassiveInteractor && lastPassiveInteractor == o)
         return lastWasAPassiveInteractor;
+
     lastWasAPassiveInteractor = false;
     lastPassiveInteractor = o;
-    if (QApplication::activePopupWidget()) // if a popup is open, we have to make sure that this one is closed, else X might do funny things
-        return (lastWasAPassiveInteractor = true);
 
     if (qt_cast<QTabBar*>(o))
         return (lastWasAPassiveInteractor = true);
