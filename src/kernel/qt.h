@@ -204,6 +204,7 @@
 #include <qtable.h>
 #include <qmultilineedit.h>
 #include <qtabwidget.h>
+#include "qtextedit.h"
 #include "qtextview.h"
 #include <qbig5codec.h>
 #include <qtextstream.h>
