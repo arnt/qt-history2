@@ -1,90 +1,39 @@
 #ifndef QITEMDELEGATE_H
 #define QITEMDELEGATE_H
 
-#ifndef QT_H
-#include <qpalette.h>
-#include <qgenericitemmodel.h>
-#endif
+#include <qabstractitemdelegate.h>
+#include <qstring.h>
+#include <qiconset.h>
 
-class QPainter;
-class QAbstractItemView;
-
-class Q_GUI_EXPORT QItemOptions
-{
-public:
-    QItemOptions()
-	: palette(), itemRect(), selected(false), open(false),
-	  focus(false), disabled(false), smallItem(true), editing(false),
-	  iconAlignment(Qt::AlignLeft|Qt::AlignVCenter),
-	  textAlignment(Qt::AlignLeft|Qt::AlignVCenter) {}
-
-    QPalette palette;
-    QRect itemRect;
-    uint selected : 1;
-    uint open : 1;
-    uint focus : 1;
-    uint disabled : 1;
-    uint smallItem : 1;
-    uint editing : 1;
-    int iconAlignment;
-    int textAlignment;
-};
-
-class Q_GUI_EXPORT QItemDelegate
+class Q_GUI_EXPORT QItemDelegate : public QAbstractItemDelegate
 {
 public:
     QItemDelegate(QGenericItemModel *model);
-    virtual ~QItemDelegate();
+    ~QItemDelegate();
 
-    enum EditType {
-	NoEditType,
-	PersistentWidget,
-	WidgetOnTyping,
-	WidgetWhenCurrent,
-	NoWidget
-    };
+    // painting
+    void paint(QPainter *painter, const QItemOptions &options, const QModelIndex &item) const;
+    QSize sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options, const QModelIndex &item) const;
 
-    enum StartEditAction {
-	NoAction = 0,
-	CurrentChanged = 1,
-	DoubleClicked = 2,
-	SelectedClicked = 4,
-	EditKeyPressed = 8,
-	AnyKeyPressed = 16
-    };
-
-    virtual bool supports(const QModelIndex &item) const;
-
-    virtual void paint(QPainter *painter, const QItemOptions &options, const QModelIndex &item) const;
-    virtual QSize sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options,
-			   const QModelIndex &item) const;
-
-    virtual EditType editType(const QModelIndex &item) const;
-    virtual QWidget *createEditor(StartEditAction action, QWidget *parent,
-				  const QItemOptions &options, const QModelIndex &item) const;
-    virtual void setContentFromEditor(QWidget *editor, const QModelIndex &item) const;
-    virtual void updateEditorContents(QWidget *editor, const QModelIndex &item) const;
-    virtual void updateEditorGeometry(QWidget *editor, const QItemOptions &options,
-				      const QModelIndex &item) const;
-
-    // for non-widget editors
-//     virtual void event( QEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void keyPressEvent( QKeyEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void keyReleaseEvent( QKeyEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void mousePressEvent( QMouseEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void mouseReleaseEvent( QMouseEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void mouseDoubleClickEvent( QMouseEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void mouseMoveEvent( QMouseEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void dragEnterEvent( QDragEnterEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void dragMoveEvent( QDragMoveEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void dropEvent( QDropEvent *e, QItemOptions *options, const QModelIndex &item );
+    // editing
+    QAbstractItemDelegate::EditType editType(const QModelIndex &item) const;
+    QWidget *createEditor(QAbstractItemDelegate::StartEditAction action, QWidget *parent,
+			  const QItemOptions &options, const QModelIndex &item) const;
+    void setContentFromEditor(QWidget *editor, const QModelIndex &item) const;
+    void updateEditorContents(QWidget *editor, const QModelIndex &item) const;
+    void updateEditorGeometry(QWidget *editor, const QItemOptions &options, const QModelIndex &item) const;
 
 protected:
-    QRect textRect(const QItemOptions &options, const QModelIndex &item) const;
-    inline QGenericItemModel *model() const { return m; }
+    void drawText(QPainter *painter, const QItemOptions &options, const QRect &rect, const QString &text) const;
+    void drawIcon(QPainter *painter, const QItemOptions &options, const QRect &rect, const QIconSet &icons) const;
+    void drawFocus(QPainter *painter, const QItemOptions &options, const QRect &rect) const;
+
+    void doLayout(const QItemOptions &options, QRect *iconRect, QRect *textRect, bool bound) const;
+    QSize textSize(const QFontMetrics &fontMetrics, const QItemOptions &options, const QString &text) const;
+    QSize iconSize(const QItemOptions &options, const QIconSet &icons) const;
 
 private:
-    QGenericItemModel *m;
+    int spacing;
 };
 
 #endif

@@ -2,68 +2,30 @@
 #include <qdatastream.h>
 
 /*!
-  \class QGenericModelItem qgenericitemmodel.h
+  \class QModelIndex qgenericitemmodel.h
 
-  \brief Encapsulates the data of an item in a QGenericItemModel
+  \brief class used to access data in the data model.
 
-  This class is used to encapsulate a specific data item in a
-  model. To retrieve one, QGenericItemModel::item() is used.
-
-  A QGenericModelItem object has a short life, meaning for every time
-  retrieving an item you get a new QGenericModelItem object. To ensure
-  that the data item is not deleted too early, it is reference
-  counted. Too ease the use of it, in the API QGenericModelItemPtr
-  objects are passed around, which do automatic reference counting in
-  the QGenericModelItem.
-
-  description() returns what type of data this item provides. This can
-  be Text, Pixmap or a user defined data field (or a mixture). Using
-  text(), iconSet(), data() and dataPtr() the data can be
-  retrieved. Using setText(), setIconSet(), setData() and
-  setDataPtr(), data can be set on the item. The default
-  implementation of those functions do nothing, they need to be
-  reimplemented to work on the specific data of the data model.
-
-  Data items in a model are structured in a table. row() and column()
-  return the position of that item in the table. Using nextRow(),
-  nextColumn(), prevRow() and prevColumn() it is possible to traverse
-  the table. A data item can also span over multiple rows or columns
-  (rowSpan() and colSpan()).
-
-  An item can have children. Using hasChildren() and numChildren(),
-  firstChild() and parent() the relevant information can be found
-  out. A child level starts a new sub-table, meaning the row() and
-  column() of a first child of an item is (0,0).
-
-  All the above functions except parent() need to be reimplemented to
-  work on the specific data of a model.
-
-  An item can also define, whether it can be edited and seleced by a
-  view (isEditable() and isSelectable()).
-
-  The model of an item can be accessed using model().
+  This class is used as an index into QGenericItemModel derived data models.
+  The index is used by itemviews, delegates and selection models to represent an item in the model.
+  QModelIndex objects are created by the model.
 */
 
 /*!
   \class QGenericItemModel qgenericitemmodel.h
 
-  \brief Abstract class used to provide abitrary data to a view
+  \brief Abstract class used to provide abitrary data.
 
-  This class is an abstract class which provides item data which can
-  be displayed in different item views. Using item() the data of a
-  specific item can be retrieved, numRows() and numColumns() returns
-  the size of the data source which is provided by the model. All
-  those three functions need to be reimplemented.
-  fetchMore() can be reimplemented by models where it is hard  to determine the
-  final size of the data (e.g. data streams ).
+  This class is an abstract class which provides data.  The data model is a hierarchy of rows. The data is accessed
+  by calling data() with a QModelIndex object.  Functions rowCunt() and columnCount() returns
+  the size of the data source which is provided by the model on each leve in the heierarchy.
+  
+  fetchMore() can be reimplemented by models where it is hard  to determine the final size of the data (e.g. data streams ).
   The model is also responsible for sorting its data through the virtual functions
   sort() and isSortable().
 
-  The data which the model provides is encapsulatd in QGenericModelItem.
-
-  To notify about changes (e.g. an item changed,
-  new data was added, etc.), the QGenericItemModel emits the itemChanged,
-  numRowsChanged, numColumnChanged and/or contentsChanged signals.
+  To notify about changes (e.g. an item changed, new data was added, etc.), the QGenericItemModel emits the contentsChanged,
+  contentsInserted and/or contentsRemoved signals.
 */
 
 QGenericItemModel::QGenericItemModel(QObject *parent, const char *name)

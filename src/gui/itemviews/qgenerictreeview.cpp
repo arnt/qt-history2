@@ -340,7 +340,9 @@ QRect QGenericTreeView::itemRect(const QModelIndex &item) const
     }
     QItemOptions options;
     getViewOptions(&options);
-    int h = itemDelegate()->sizeHint(fontMetrics(), options, item).height(); // FIXME: *really slow*
+    QModelIndex parent = model()->parent(item);
+    QModelIndex sibling = model()->index(item.row(), 0, parent); // FIXME: find the tallest item in this row
+    int h = itemDelegate()->sizeHint(fontMetrics(), options, sibling).height(); // FIXME: *really slow*
     return QRect(x, d->coordinate(vi), w, h);
 }
 

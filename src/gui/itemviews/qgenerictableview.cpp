@@ -168,10 +168,9 @@ void QGenericTableView::drawContents(QPainter *p, int cx, int cy, int cw, int ch
 		continue;
 	    int colp = columnPosition(c);
 	    int colw = columnWidth(c);
-	    //p->translate(colp, rowp);
 	    QModelIndex item = model()->index(r, c, root());
 	    if (item.isValid()) {
-		options.itemRect = QRect(colp, rowp, colw, rowh);
+		options.itemRect = QRect(colp, rowp, colw - 1, rowh - 1);
 		options.selected = sels ? sels->isSelected(item) : 0;
 		options.focus = (viewport()->hasFocus() && item == cvi);
 		p->fillRect(colp, rowp, colw, rowh,
@@ -180,10 +179,8 @@ void QGenericTableView::drawContents(QPainter *p, int cx, int cy, int cw, int ch
 			     options.palette.base()));
 		itemDelegate()->paint(p, options, item);
 	    }
-	    if (showGrid) {
+	    if (showGrid)
 		drawGrid(p, colp, rowp, colw - 1, rowh - 1);
-	    }
-	    //p->translate(-colp, -rowp);
 	}
     }
 }

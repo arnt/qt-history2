@@ -8,6 +8,7 @@ HEADERS += \
 	itemviews/qgenericlistview.h \
 	itemviews/qgenerictableview.h \
 	itemviews/qgenerictreeview.h \
+	itemviews/qabstractitemdelegate.h \
 	itemviews/qitemdelegate.h \
 	itemviews/qitemselectionmodel.h \
 	itemviews/qlistmodel.h \
@@ -24,6 +25,7 @@ SOURCES += \
 	itemviews/qgenericlistview.cpp \
 	itemviews/qgenerictableview.cpp \
 	itemviews/qgenerictreeview.cpp \
+	itemviews/qabstractitemdelegate.cpp \
 	itemviews/qitemdelegate.cpp \
 	itemviews/qitemselectionmodel.cpp \
 	itemviews/qlistmodel.cpp \

@@ -1039,7 +1039,7 @@ void QGenericListView::updateGeometries()
 	    resizeContents(qMax(visibleWidth(), d->contentsSize.width()), contentsHeight());
 	else
 	    resizeContents(contentsWidth(), qMax(visibleHeight(), d->contentsSize.height()));
-//    qDebug("contentsSize %d", d->contentsSize.width());
+//    qDebug("contentsSize %d", d->contentsSize.width());   
 #endif
 }
 
@@ -1142,9 +1142,7 @@ void QGenericListViewPrivate::drawDraggedItems(QPainter *painter, const QPoint &
  	x = item.x + delta.x();
  	y = item.y + delta.y();
 	options.itemRect.setRect(x, y, item.w, item.h);
-	painter->translate(x, y);
  	delegate->paint(painter, options, *it);
- 	painter->translate(-x, -y);
 	draggedItemsRect |= options.itemRect;
     }
 }
