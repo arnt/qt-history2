@@ -742,11 +742,13 @@ inline bool XLessThanY( QString &x, QString &y, bool flat_mode )
 }
 void nonflatDir_BubbleSort( QStringList& list, bool flat_mode )
 {
+    if (!list.count())	// shortcut
+	return;
     QStringList::Iterator b = list.begin();
     QStringList::Iterator e = list.end();
     QStringList::Iterator last = e;
     --last;		// goto last
-    if ( last == b )	// shortcut
+    if (last == b)	// shortcut
 	return;
     while( b != last ) {// sort them
 	bool swapped = FALSE;
@@ -1145,10 +1147,17 @@ void VcprojGenerator::initOld()
 			    "\tregsvr32 /s %1\n"
 			    "# End Special Build Tool";
 
-	    QString executable = project->variables()["MSVCPROJ_TARGETDIRREL"].first() + "\\" + project->variables()["TARGET"].first();
+
+	    QString executable;
+	    if (project->variables()["MSVCPROJ_TARGETDIRREL"].count())
+		executable = project->variables()["MSVCPROJ_TARGETDIRREL"].first() + "\\";
+	    executable += project->variables()["TARGET"].first();
 	    project->variables()["MSVCPROJ_COPY_DLL_REL"].append(regcmd.arg(executable).arg(executable).arg(executable));
 
-	    executable = project->variables()["MSVCPROJ_TARGETDIRDEB"].first() + "\\" + project->variables()["TARGET"].first();
+	    executable = "";
+	    if (project->variables()["MSVCPROJ_TARGETDIRDEB"].count())
+		executable = project->variables()["MSVCPROJ_TARGETDIRDEB"].first() + "\\";
+	    executable += project->variables()["TARGET"].first();
 	    project->variables()["MSVCPROJ_COPY_DLL_DBG"].append(regcmd.arg(executable).arg(executable).arg(executable));
 	} else {
 	    QString regcmd = "# Begin Special Build Tool\n"
@@ -1162,10 +1171,16 @@ void VcprojGenerator::initOld()
 			    "\t%1 -regserver\n"
 			    "# End Special Build Tool";
 
-	    QString executable = project->variables()["MSVCPROJ_TARGETDIRREL"].first() + "\\" + project->variables()["TARGET"].first();
+	    QString executable;
+	    if (project->variables()["MSVCPROJ_TARGETDIRREL"].count())
+		executable = project->variables()["MSVCPROJ_TARGETDIRREL"].first() + "\\";
+	    executable += project->variables()["TARGET"].first();
 	    project->variables()["MSVCPROJ_REGSVR_REL"].append(regcmd.arg(executable).arg(executable).arg(executable));
 
-	    executable = project->variables()["MSVCPROJ_TARGETDIRDEB"].first() + "\\" + project->variables()["TARGET"].first();
+	    executable = "";
+	    if (project->variables()["MSVCPROJ_TARGETDIRDEB"].count())
+		executable = project->variables()["MSVCPROJ_TARGETDIRDEB"].first() + "\\";
+	    executable += project->variables()["TARGET"].first();
 	    project->variables()["MSVCPROJ_REGSVR_DBG"].append(regcmd.arg(executable).arg(executable).arg(executable));
 	}
     }
