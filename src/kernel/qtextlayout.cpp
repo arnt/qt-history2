@@ -118,7 +118,7 @@ int QTextItem::cursorToX( int *cPos, Edge edge )
     return x;
 }
 
-int QTextItem::xToCursor( int x )
+int QTextItem::xToCursor( int x, CursorPosition cpos )
 {
     QScriptItem &si = engine->items[item];
     const QShapedItem *shaped = si.shaped;
@@ -161,7 +161,8 @@ int QTextItem::xToCursor( int x )
 	}
     }
 
-    bool before = (x - x_before) < (x_after - x);
+    bool before = ( cpos == OnCharacters || (x - x_before) < (x_after - x) );
+
 //     qDebug("got cursor position for %d: %d/%d, x_ba=%d/%d using %d",
 // 	   x, cp_before,cp_after,  x_before, x_after,  before ? cp_before : cp_after );
 

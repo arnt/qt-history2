@@ -26,10 +26,15 @@ public:
 	Leading,
 	Trailing
     };
+    enum CursorPosition {
+	BetweenCharacters,
+	OnCharacters
+    };
+
     /* cPos gets set to the valid position */
     int cursorToX( int *cPos, Edge edge = Leading );
     inline int cursorToX( int cPos, Edge edge = Leading ) { return cursorToX( &cPos, edge ); }
-    int xToCursor( int x );
+    int xToCursor( int x, CursorPosition = BetweenCharacters );
 
     bool isRightToLeft() const;
     bool isObject() const;
