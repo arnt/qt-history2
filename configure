@@ -1590,7 +1590,9 @@ ln -s "$relpath/src/core/arch/$ARCH/arch" "$outpath/include/arch"
 #-------------------------------------------------------------------------------
 
 # auto-detect precompiled header support
-$unixtests/precomp.test $XQMAKESPEC $OPT_VERBOSE || QMAKE_CONFIG="$QMAKE_CONFIG precompile_header"
+if [ "$PLATFORM_MAC" != "yes" ]; then
+    $unixtests/precomp.test $XQMAKESPEC $OPT_VERBOSE || QMAKE_CONFIG="$QMAKE_CONFIG precompile_header"
+fi
 
 # auto-detect SQL-modules support
 if echo $MODULES | grep sql >/dev/null; then
