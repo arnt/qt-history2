@@ -215,33 +215,31 @@ int QFontMetrics::lineWidth() const
     return d->lineWidth;
 }
 
-#undef FI
-#define FI (painter ? painter->cfont.d : d)
 
 int QFontMetrics::leading() const
 {
-    return FI->fin->leading();
+    return d->fin->leading();
 }
 
 int QFontMetrics::ascent() const
 {
-    return FI->fin->ascent();
+    return d->fin->ascent();
 }
 
 int QFontMetrics::descent() const
 {
-    return FI->fin->descent();
+    return d->fin->descent();
 }
 
 bool QFontMetrics::inFont(QChar ch) const
 {
-    return FI->fin->canRender(&ch, 1);
+    return d->fin->canRender(&ch, 1);
 }
 
 int QFontMetrics::width(QChar c) const
 {
-    Q_ASSERT(FI->fin->type() == QFontStruct::Mac);
-    return ((QFontEngineMac*)FI->fin)->doTextTask(&c, 0, 1, 1, QFontEngineMac::WIDTH);
+    Q_ASSERT(d->fin->type() == QFontStruct::Mac);
+    return ((QFontEngineMac*)d->fin)->doTextTask(&c, 0, 1, 1, QFontEngineMac::WIDTH);
 }
 
 int QFontMetrics::charWidth(const QString &str, int pos) const
@@ -265,7 +263,7 @@ int QFontMetrics::width(const QString &str,int len) const
 
 int QFontMetrics::maxWidth() const
 {
-    return FI->fin->maxCharWidth();
+    return d->fin->maxCharWidth();
 }
 
 int QFontMetrics::height() const
