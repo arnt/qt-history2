@@ -63,6 +63,19 @@ public:
     inline QStringList &operator<<(const QString &str)
     { append(str); return *this; }
 
+#ifndef QT_NO_REGEXP
+    int indexOf(const QRegExp &rx, int from = 0) const;
+    int lastIndexOf(const QRegExp &rx, int from = -1) const;
+#endif
+#if !defined(Q_NO_USING_KEYWORD)
+    using QList<QString>::indexOf;
+    using QList<QString>::lastIndexOf;
+#else
+    inline int indexOf(const QString &str, int from = 0) const
+    { return QList<QString>::indexOf(str, from); }
+    inline int lastIndexOf(const QString &str, int from = 0) const
+    { return QList<QString>::lastIndexOf(str, from); }
+#endif
 #ifdef QT_COMPAT
     inline QT_COMPAT QStringList grep(const QString &str, bool cs = true) const
         { return find(str, cs ? Qt::CaseSensitive : Qt::CaseInsensitive); }
@@ -75,6 +88,32 @@ public:
     inline ConstIterator QT_COMPAT fromLast() const { return (isEmpty() ? end() : --end()); }
 #endif
 };
+
+#ifndef QT_NO_REGEXP
+inline int QStringList::indexOf(const QRegExp &rx, int from) const
+{
+   if (from < 0)
+       from = qMax(from + size(), 0);
+   for (int i = from; i < size(); ++i) {
+        if (at(i).contains(rx))
+            return i;
+    }
+    return -1;
+}
+
+inline int QStringList::lastIndexOf(const QRegExp &rx, int from) const
+{
+    if (from < 0)
+        from += size();
+    else if (from >= size())
+        from = size() - 1;
+    for (int i = from; i >= 0; --i) {
+        if (at(i).contains(rx))
+            return i;
+        }
+    return -1;
+}
+#endif
 
 #ifdef QT_COMPAT
 inline QStringList QStringList::split(const QString &sep, const QString &str,
