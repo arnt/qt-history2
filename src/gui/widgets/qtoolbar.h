@@ -31,6 +31,9 @@ public:
     void setAllowedAreas(Qt::ToolBarAreaFlags areas);
     Qt::ToolBarAreaFlags allowedAreas() const;
 
+    inline bool isDockable(Qt::ToolBarArea area)
+    { return (allowedAreas() & area) == area; }
+
     void setArea(Qt::ToolBarArea area, bool linebreak = false);
     Qt::ToolBarArea area() const;
 
