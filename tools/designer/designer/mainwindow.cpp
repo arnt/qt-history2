@@ -531,7 +531,17 @@ QObjectList *MainWindow::runProject()
 			    if ( !isVisible() )
 				show();
 			    showSourceLine( it.key(), line[ 0 ] - 1, Error );
-			    oWindow->setErrorMessages( error, line );
+			    QStringList l;
+			    QObjectList l2;
+			    for ( int i = 0; i < (int)error.count(); ++i ) {
+				if ( qwf_form_object )
+				    l << QString( QString( qwf_form_object->name() ) + " [Source]" );
+				else
+				    l << QString( QString( w->name() ) + " [Source]" );
+				l2.append( w );
+			    }
+			    oWindow->setErrorMessages( error, line, FALSE,
+						       l, l2 );
 			    piface->release();
 			    QApplication::restoreOverrideCursor();
 			    return 0;
@@ -544,7 +554,14 @@ QObjectList *MainWindow::runProject()
 			QValueList<int> line;
 			if ( !piface->check( f->text(), error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
 			    showSourceLine( f, line[ 0 ] - 1, Error );
-			    oWindow->setErrorMessages( error, line );
+			    QStringList l;
+			    QObjectList l2;
+			    for ( int i = 0; i < (int)error.count(); ++i ) {
+				l << f->fileName();
+				l2.append( f );
+			    }
+			    oWindow->setErrorMessages( error, line, FALSE,
+						       l, l2 );
 			    piface->release();
 			    QApplication::restoreOverrideCursor();
 			    return 0;
@@ -3086,7 +3103,7 @@ void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &err
     l << errorLine;
     QStringList l2;
     l2 << errorMessage;
-    oWindow->setErrorMessages( l2, l, TRUE );
+    oWindow->setErrorMessages( l2, l, TRUE, QStringList(), QObjectList() );
     showSourceLine( o, errorLine, Error );
 }
 

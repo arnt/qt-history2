@@ -8,6 +8,7 @@
 #include <qheader.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <qpainter.h>
 
 static QTextEdit *debugoutput = 0;
 bool debugToStderr = FALSE;
@@ -32,14 +33,24 @@ OutputWindow::~OutputWindow()
 void OutputWindow::setupError()
 {
     errorView = new QListView( this, "OutputWindow::errorView" );
+    connect( errorView, SIGNAL( selectionChanged( QListViewItem* ) ),
+	     this, SLOT( currentErrorChanged( QListViewItem* ) ) );
+    connect( errorView, SIGNAL( currentChanged( QListViewItem* ) ),
+	     this, SLOT( currentErrorChanged( QListViewItem* ) ) );
 
     if ( MetaDataBase::languages().count() > 1 )
-	addTab( errorView, tr( "Error Messages" ) );
+	addTab( errorView, tr( "Warnings/Errors" ) );
     else
 	errorView->hide();
+    errorView->addColumn( tr( "Type" ) );
     errorView->addColumn( tr( "Message" ) );
     errorView->addColumn( tr( "Line" ) );
-    errorView->header()->setStretchEnabled( TRUE );
+    errorView->addColumn( tr( "Location" ) );
+    errorView->setResizeMode( QListView::LastColumn );
+    errorView->setColumnWidth( 0, errorView->fontMetrics().width( "WARNING1234" ) );
+    errorView->setColumnWidth( 1, errorView->fontMetrics().width( "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ" ) );
+    errorView->setColumnWidth( 2, errorView->fontMetrics().width( "9999999" ) );
+    errorView->setColumnAlignment( 2, Qt::AlignRight );
     errorView->setAllColumnsShowFocus( TRUE );
 }
 
@@ -68,14 +79,18 @@ void OutputWindow::setupDebug()
 	oldMsgHandler = qInstallMsgHandler( debugMessageOutput );
 }
 
-void OutputWindow::setErrorMessages( const QStringList &errors, const QValueList<int> &lines, bool clear )
+void OutputWindow::setErrorMessages( const QStringList &errors, const QValueList<int> &lines,
+				     bool clear, const QStringList &locations,
+				     const QObjectList &locationObjects )
 {
     if ( clear )
 	errorView->clear();
     QStringList::ConstIterator mit = errors.begin();
     QValueList<int>::ConstIterator lit = lines.begin();
-    for ( ; lit != lines.end() && mit != errors.end(); ++lit, ++mit )
-	(void)new QListViewItem( errorView, *mit, QString::number( *lit ) );
+    QStringList::ConstIterator it = locations.begin();
+    QListViewItem *after = 0;
+    for ( ; lit != lines.end() && mit != errors.end(); ++lit, ++mit, ++it )
+	after = new ErrorItem( errorView, after, *mit, *lit, *it, 0 );
     setCurrentPage( 1 );
 }
 
@@ -102,4 +117,41 @@ void OutputWindow::clearDebug()
 void OutputWindow::showDebugTab()
 {
     showPage( debugView );
+}
+
+void OutputWindow::currentErrorChanged( QListViewItem *i )
+{
+    if ( !i )
+	return;
+    ( (ErrorItem*)i )->setRead( TRUE );
+}
+
+
+
+ErrorItem::ErrorItem( QListView *parent, QListViewItem *after, const QString &message, int line,
+		      const QString &locationString, QObject *locationObject )
+    : QListViewItem( parent, after )
+{
+    QString m( message );
+    type = m.startsWith( "Warning: " ) ? Warning : Error;
+    m = m.mid( m.find( ':' ) + 1 );
+    setText( 0, type == Error ? "Error" : "Warning" );
+    setText( 1, m );
+    setText( 2, QString::number( line ) );
+    setText( 3, locationString );
+    object = locationObject;
+    read = FALSE;
+}
+
+void ErrorItem::paintCell( QPainter *p, const QColorGroup & cg,
+			   int column, int width, int alignment )
+{
+    QColorGroup g( cg );
+    g.setColor( QColorGroup::Text, type == Error ? Qt::red : Qt::darkYellow );
+    if ( !read ) {
+	QFont f( p->font() );
+	f.setBold( TRUE );
+	p->setFont( f );
+    }
+    QListViewItem::paintCell( p, g, column, width, alignment );
 }
