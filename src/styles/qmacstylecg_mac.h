@@ -21,7 +21,6 @@ class QMacStyleCGPrivate;
 
 class Q_GUI_EXPORT_STYLE_MAC QMacStyleCG : public QWindowsStyle
 {
-    Q_OBJECT
 public:
     QMacStyleCG();
     ~QMacStyleCG();
