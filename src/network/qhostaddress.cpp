@@ -65,7 +65,7 @@ QHostAddressPrivate::QHostAddressPrivate(const Q_IPV6ADDR &a_) : a(0), isIp4(fal
     way that you can easily access on any platform.
 
     QHostAddress is normally used with the classes QSocket,
-    QServerSocket and QSocketDevice to set up a server or to connect
+    QServerSocket, and QSocketDevice to set up a server, or to connect
     to a host.
 
     A host address is set with setAddress(), checked for its type
@@ -88,7 +88,7 @@ QHostAddress::QHostAddress()
 
 
 /*!
-    Creates a host address object for the IPv4 address \a ip4Addr.
+    Creates a host address object for the IPv4 address, \a ip4Addr.
 */
 QHostAddress::QHostAddress(Q_UINT32 ip4Addr)
     : d(new QHostAddressPrivate(ip4Addr))
@@ -97,7 +97,7 @@ QHostAddress::QHostAddress(Q_UINT32 ip4Addr)
 
 
 /*!
-    Creates a host address object with the specified IPv6 address.
+    Creates a host address object for the specified IPv6 address.
 
     \a ip6Addr must be an array of 16 bytes in network byte order
     (high-order byte first).
@@ -108,7 +108,7 @@ QHostAddress::QHostAddress(Q_UINT8 *ip6Addr)
 }
 
 /*!
-    Creates a host address object with the IPv6 address, \a ip6Addr.
+    Creates a host address object for the IPv6 address, \a ip6Addr.
 */
 QHostAddress::QHostAddress(const Q_IPV6ADDR &ip6Addr)
     : d(new QHostAddressPrivate(ip6Addr))
@@ -128,7 +128,7 @@ QHostAddress::QHostAddress(const QString &address)
 }
 
 /*!
-    Creates a copy of \a address.
+    Creates a copy of the given \a address.
 */
 QHostAddress::QHostAddress(const QHostAddress &address)
     : d(new QHostAddressPrivate(*address.d))
@@ -145,8 +145,8 @@ QHostAddress::~QHostAddress()
 }
 
 /*!
-    Assigns another host address object \a address to this object and
-    returns a reference to this object.
+    Assigns another host \a address to this object, and returns a reference
+    to this object.
 */
 QHostAddress &QHostAddress::operator=(const QHostAddress & address)
 {
@@ -208,9 +208,9 @@ static bool parseIp4(const QString& address, Q_UINT32 *addr)
     \overload
 
     Sets the IPv4 or IPv6 address specified by the string
-    representation \a address (e.g. "127.0.0.1"). Returns true and
-    sets the address if the address was successfully parsed; otherwise
-    returns false.
+    representation given by \a address (e.g. "127.0.0.1").
+    Returns true and sets the address if the address was successfully
+    parsed; otherwise returns false.
 */
 bool QHostAddress::setAddress(const QString& address)
 {
@@ -289,7 +289,7 @@ bool QHostAddress::setAddress(const QString& address)
 }
 
 /*!
-    Returns true if the host address represents an IPv4 address;
+    Returns true if this host address represents an IPv4 address;
     otherwise returns false.
 */
 bool QHostAddress::isIPv4Address() const
@@ -303,7 +303,7 @@ bool QHostAddress::isIPv4Address() const
     For example, if the address is 127.0.0.1, the returned value is
     2130706433 (i.e. 0x7f000001).
 
-    This value is only valid when isIp4Addr() returns true.
+    This value is only valid if isIp4Addr() returns true.
 
     \sa toString()
 */
@@ -313,7 +313,7 @@ Q_UINT32 QHostAddress::toIPv4Address() const
 }
 
 /*!
-    Returns true if the host address represents an IPv6 address;
+    Returns true if this host address represents an IPv6 address;
     otherwise returns false.
 */
 bool QHostAddress::isIPv6Address() const
@@ -334,7 +334,7 @@ bool QHostAddress::isIPv6Address() const
         }
     \endcode
 
-    This value is only valid when isIPv6Address() returns true.
+    This value is only valid if isIPv6Address() returns true.
 
     \sa toString()
 */
@@ -377,8 +377,8 @@ QString QHostAddress::toString() const
 
 
 /*!
-    Returns true if this host address is the same as \a other;
-    otherwise returns false.
+    Returns true if this host address is the same as the \a other address
+    given; otherwise returns false.
 */
 bool QHostAddress::operator==(const QHostAddress & other) const
 {
@@ -387,9 +387,9 @@ bool QHostAddress::operator==(const QHostAddress & other) const
 
 
 /*!
-    Returns true if this host address is null (INADDR_ANY or in6addr_any). The
-    default constructor creates a null address, and that address isn't valid
-    for any host or interface.
+    Returns true if this host address is null (INADDR_ANY or in6addr_any).
+    The default constructor creates a null address, and that address is
+    not valid for any host or interface.
 */
 bool QHostAddress::isNull() const
 {
