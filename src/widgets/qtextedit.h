@@ -101,7 +101,7 @@ public:
 	    delete itr;
 	}
     }
-    
+
     int len;
     int numLines;
     int maxLineWidth;
@@ -331,7 +331,17 @@ public slots:
 
     virtual void scrollToBottom();
 
-    virtual void insert( const QString &text, bool indent = FALSE, bool checkNewLine = TRUE, bool removeSelected = TRUE );
+    enum TextInsertionFlags {
+	RedoIndentation = 0x0001,
+	CheckNewLines = 0x0002,
+	RemoveSelected = 0x0004
+    };
+
+    void insert( const QString &text, uint insertionFlags = CheckNewLines | RemoveSelected ); // ## virtual in 4.0
+
+    // obsolete
+    virtual void insert( const QString &text, bool, bool = TRUE, bool = TRUE );
+
     virtual void insertAt( const QString &text, int para, int index );
     virtual void removeParagraph( int para );
     virtual void insertParagraph( const QString &text, int para );
@@ -459,7 +469,7 @@ private:
     void ensureFormatted( QTextParag *p );
     void placeCursor( const QPoint &pos, QTextCursor *c, bool link );
 
-#ifdef QT_TEXTEDIT_OPTIMIZATION    
+#ifdef QT_TEXTEDIT_OPTIMIZATION
     bool checkOptimMode();
     QString optimText() const;
     void optimSetText( const QString &str );

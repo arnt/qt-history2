@@ -2264,19 +2264,41 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
     return QScrollView::eventFilter( o, e );
 }
 
+
+
 /*!
-  Inserts \a text at the current cursor position. If \a indent is TRUE,
-  the paragraph is re-indented. If \a checkNewLine is TRUE, newline
-  characters in \a text result in hard line breaks (i.e. new
-  paragraphs). If \a checkNewLine is FALSE the behaviour of the editor
-  is undefined if the \a text contains newlines. If \a removeSelected is
-  TRUE, any selected text (in selection 0) is removed before the text is
-  inserted.
+  \obsolete
+ */
+void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, bool removeSelected )
+{
+    uint f = 0;
+    if ( indent )
+	f &= RedoIndentation;
+    if ( checkNewLine )
+	f &= CheckNewLines;
+    if ( removeSelected )
+	f &= removeSelected;
+    insert( text, f );
+}
+
+/*!
+  Inserts \a text at the current cursor position.
+
+  The \a insertionFlags define how the text is inserted. If \c
+  RedoIndentation is set, the paragraph is re-indented. If \c
+  CheckNewLines is set, newline characters in \a text result in hard
+  line breaks (i.e. new paragraphs). If \c checkNewLine is not set,
+  the behaviour of the editor is undefined if the \a text contains
+  newlines. If \c RemoveSelected is set, any selected text (in
+  selection 0) is removed before the text is inserted.
+
+  The default flags are CheckNewLines | RemoveSelected.
 
   \sa paste() pasteSubType()
 */
 
-void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, bool removeSelected )
+
+void QTextEdit::insert( const QString &text, uint insertionFlags )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode )
@@ -2285,6 +2307,10 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
 
     if ( cursor->nestedDepth() != 0 ) // #### for 3.0, disable editing of tables as this is not advanced enough
 	return;
+
+    bool indent = insertionFlags & RedoIndentation;
+    bool checkNewLine = insertionFlags & CheckNewLines;
+    bool removeSelected = insertionFlags & RemoveSelected;
     QString txt( text );
     drawCursor( FALSE );
     if ( !isReadOnly() && doc->hasSelection( QTextDocument::Standard ) && removeSelected )
