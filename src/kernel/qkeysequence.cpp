@@ -518,30 +518,9 @@ Qt::SequenceMatch QKeySequence::matches( const QKeySequence& seq ) const
 	int userKey      = (*this)[i],
 	    sequenceKey  = seq[i];
 
-	if ( (userKey & ~Qt::UNICODE_ACCEL) == 
-	     (sequenceKey & ~Qt::UNICODE_ACCEL) ) // perfect match
-	    continue;
-
-	if ( (sequenceKey & Qt::UNICODE_ACCEL) == 0 ||
-	     (userKey & Qt::UNICODE_ACCEL) == 0 )
-	    return NoMatch; // no perfect match and no unicode
-
-	int sequenceModifiers = sequenceKey & Qt::MODIFIER_MASK;
-	QChar userChar = QChar( userKey & 0xffff );
-	QChar sequenceChar = QChar( sequenceKey & 0xffff );
-	if ( sequenceModifiers ) {
-	    // Modifiers must match...
-	    QChar c;
-	    if ( (userKey & Qt::CTRL) && (userChar < ' ') )
-		c = userChar.unicode()+'@'+' '; // Ctrl+A is ASCII 001, etc.
-	    else
-		c = userChar;
-	    if ( sequenceChar.lower() == c.lower() &&
-		 ( (userKey & Qt::MODIFIER_MASK) == sequenceModifiers
-		   || (userKey & (Qt::MODIFIER_MASK^Qt::SHIFT)) == sequenceModifiers ) )
-		continue;
-	}
-	return NoMatch;
+	if ( (userKey & ~Qt::UNICODE_ACCEL) != 
+	     (sequenceKey & ~Qt::UNICODE_ACCEL) ) // no match
+	    return NoMatch;
     }
     return match;
 }
