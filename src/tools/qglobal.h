@@ -233,7 +233,6 @@
 #  define _CC_SUN_
 #  if __SUNPRO_CC >= 0x500
 #    define Q_HAS_BOOL_TYPE
-#    define Q_SPARCWORKS_FUNCP_BUG
 #    define Q_C_CALLBACKS
 #  endif
 #elif defined(__DECCXX)
