@@ -1867,12 +1867,33 @@ void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
     QString mocApp = Project->var( "QMAKE_MOC" );
     QString fname = str.section( '\\', -1 );
     QString mocDir = Project->var( "MOC_DIR" );
+    QString uiDir = Project->var( "UI_DIR" );
+    QString uiHeaders;
+    QString uiSources;
+
+    // Determining the paths for the output files.
+    int slash = str.findRev( '\\' );
+    QString pname = ( slash != -1 ) ? str.left( slash+1 ) : QString( ".\\" );
+    if( !uiDir.isEmpty() ) {
+	uiHeaders = uiDir;
+	uiSources = uiDir;
+    } else {
+	uiHeaders = Project->var( "UI_HEADERS_DIR" );
+	uiSources = Project->var( "UI_SOURCES_DIR" );
+	if( uiHeaders.isEmpty() )
+	    uiHeaders = pname;
+	if( uiSources.isEmpty() )
+	    uiSources = pname;
+    }
+    if( !uiHeaders.endsWith( "\\" ) )
+	uiHeaders += "\\";
+    if( !uiSources.endsWith( "\\" ) )
+	uiSources += "\\";
+
+    // Determine the file name.
     int dot = fname.findRev( '.' );
     if( dot != -1 )
 	fname.truncate( dot );
-
-    int slash = str.findRev( '\\' );
-    QString pname = ( slash != -1 ) ? str.left( slash+1 ) : QString(".\\");
 
     strm << _begFileConfiguration;
     strm << _Name5;
@@ -1883,13 +1904,13 @@ void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
     strm << _Description6;
     strm << "Uic'ing " << str << "...\"";
     strm << _CommandLine6;
-    strm << uicApp << " " << str << " -o " << pname << fname << ".h &amp;&amp; ";				// Create .h from .ui file
-    strm << uicApp << " " << str << " -i " << fname << ".h -o " << pname << fname << ".cpp &amp;&amp; ";	// Create .cpp from .ui file
+    strm << uicApp << " " << str << " -o " << uiHeaders << fname << ".h &amp;&amp; ";				// Create .h from .ui file
+    strm << uicApp << " " << str << " -i " << fname << ".h -o " << uiSources << fname << ".cpp &amp;&amp; ";	// Create .cpp from .ui file
     strm << mocApp << " " << pname << fname << ".h -o " << mocDir << "moc_" << fname << ".cpp\"";
     strm << _AdditionalDependencies6;
     strm << mocApp << ";" << uicApp << "\"";
     strm << _Outputs6;
-    strm << pname << fname << ".h;" << pname << fname << ".cpp;" << mocDir << "moc_" << fname << ".cpp\"";
+    strm << uiHeaders << fname << ".h;" << uiSources << fname << ".cpp;" << mocDir << "moc_" << fname << ".cpp\"";
     strm << "/>";
     strm << _endFileConfiguration;
 }
