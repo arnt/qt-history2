@@ -65,7 +65,7 @@ void yyerror( const char *msg );
 
 #include <ctype.h>
 #include <limits.h>
-#include <qplatformdefs.h> 
+#include <qplatformdefs.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -392,7 +392,7 @@ public:
   This table is copied from qvariant.cpp. If you change
   one, change both.
 */
-static const int ntypes = 31;
+static const int ntypes = 32;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -425,7 +425,8 @@ static const char* const type_map[ntypes] =
     "QTime",
     "QDateTime",
     "QByteArray",
-    "QBitArray"
+    "QBitArray",
+    "QKeySequence"
 };
 
 int qvariant_nameToType( const char* name )
@@ -1444,7 +1445,7 @@ class parser_reg {
 
     QStrList qtEnums;				// Used to store the contents of Q_ENUMS
     QStrList qtSets;				// Used to store the contents of Q_SETS
-    
+
     QStrList strings; 				// unified strings
 };
 FILE  *out;					// output file
@@ -1871,7 +1872,7 @@ QCString combinePath( const char *infile, const char *outfile )
 	if ( QT_GETCWD(currentName,PATH_MAX) >= 0 ) {
 	    cdir = QString::fromLatin1(currentName);
 	    replace(cdir.data(),'\\','/');
-	    if(isRelativePath(cdir)) 
+	    if(isRelativePath(cdir))
 		fprintf(stderr, "Got relative path from CWD, help!?");
 	}
 	while(b.left(3) == "../") {
@@ -2687,12 +2688,12 @@ void generatePropsStrings()
 	    }
 	}
     }
-    
+
     if ( g->props.count() ) {
 	for( QPtrListIterator<Property> it( g->props ); it.current(); ++it )
 	    addString( it.current()->type );
     }
-		       
+		
 }
 
 
@@ -2936,7 +2937,7 @@ void generateClass()		      // generate C++ source code for a class
     generateFuncsStrings( &g->slots );
     generateFuncsStrings( &g->signals );
     generatePropsStrings();
-    
+
     if ( !g->strings.isEmpty() ) {
 	fprintf( out, "    const char* s[%d] = {\n", g->strings.count() );
 	(void) g->strings.first();
@@ -2950,7 +2951,7 @@ void generateClass()		      // generate C++ source code for a class
 	}
 	fprintf( out, "    };\n" );
     }
-    
+
 //
 // Build slots array in staticMetaObject()
 //
@@ -3353,7 +3354,7 @@ void generateClass()		      // generate C++ source code for a class
     }
     fprintf( out, "#endif // QT_NO_PROPERTIES\n" );
 }
-    
+
 
 ArgList *addArg( Argument *a )			// add argument to list
 {

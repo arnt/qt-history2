@@ -490,16 +490,16 @@ void QButton::setPixmap( const QPixmap &pixmap )
 }
 
 
-int QButton::accel() const
+QKeySequence QButton::accel() const
 {
 #ifndef QT_NO_ACCEL
-    return d && d->a ? d->a->key( 0 ) : 0;
-#else
-    return 0;
+    if ( d && d->a )
+	return d->a->key( 0 );
 #endif
+    return QKeySequence();
 }
 
-void QButton::setAccel( int key )
+void QButton::setAccel( const QKeySequence& key )
 {
 #ifndef QT_NO_ACCEL
     if ( d && d->a )

@@ -58,6 +58,7 @@
 #include "qsizepolicy.h"
 #include "qshared.h"
 #include "qbitarray.h"
+#include "qkeysequence.h"
 
 // Uncomment to test for memory leaks or to run qt/test/qvariant/main.cpp
 // #define QVARIANT_DEBUG
@@ -171,6 +172,9 @@ QVariant::Private::Private( Private* d )
 	    break;
 	case QVariant::BitArray:
 	    value.ptr = new QBitArray( *((QBitArray*)d->value.ptr) );
+	    break;
+	case QVariant::KeySequence:
+	    value.ptr = new QKeySequence( *((QKeySequence*)d->value.ptr) );
 	    break;
 	case QVariant::Int:
 	    value.i = d->value.i;
@@ -295,6 +299,9 @@ void QVariant::Private::clear()
 	case QVariant::BitArray:
 	    delete (QBitArray*)value.ptr;
 	    break;
+	case QVariant::KeySequence:
+	    delete (QKeySequence*)value.ptr;
+	    break;
 	case QVariant::Invalid:
 	case QVariant::Int:
 	case QVariant::UInt:
@@ -411,6 +418,7 @@ void QVariant::Private::clear()
   \value ByteArray  a QByteArray
   \value BitArray  a QBitArray
   \value SizePolicy  a QSizePolicy
+  \value KeySequence  a QKeySequence
 
   Note that Qt's definition of bool depends on the compiler.
   qglobal.h has the system-dependent definition of bool.
@@ -734,6 +742,16 @@ QVariant::QVariant( const QBitArray& val )
 }
 
 /*!
+  Constructs a new variant with a key sequence value, \a val.
+*/
+QVariant::QVariant( const QKeySequence& val )
+{
+    d = new Private;
+    d->typ = KeySequence;
+    d->value.ptr = new QKeySequence( val );
+}
+
+/*!
   Constructs a new variant with an integer value, \a val.
 */
 QVariant::QVariant( int val )
@@ -862,7 +880,7 @@ void QVariant::clear()
 
    (Search for the word 'Attention' in moc.y.)
 */
-static const int ntypes = 31;
+static const int ntypes = 32;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -895,7 +913,8 @@ static const char* const type_map[ntypes] =
     "QTime",
     "QDateTime",
     "QByteArray",
-    "QBitArray"
+    "QBitArray",
+    "QKeySequence"
 };
 
 
@@ -1172,6 +1191,11 @@ void QVariant::load( QDataStream& s )
 	    d->value.ptr = x;
 	}
 	break;
+    case KeySequence:
+	QKeySequence* x = new QKeySequence;
+ 	s >> *x;
+	d->value.ptr = x;
+	break;
     }
     d->typ = t;
 }
@@ -1293,6 +1317,9 @@ void QVariant::save( QDataStream& s ) const
 	break;
     case BitArray:
 	s << *((QBitArray*)d->value.ptr);
+	break;
+    case KeySequence:
+	s << *((QKeySequence*)d->value.ptr);
 	break;
     case Invalid:
 	s << QString(); // ### looks wrong.
@@ -1426,6 +1453,8 @@ const QString QVariant::toString() const
 #endif
     if ( d->typ == Bool )
 	return QString::number( toInt() );
+    if ( d->typ == KeySequence )
+	return (QString) *( (QKeySequence*)d->value.ptr );
     if ( d->typ != String )
 	return QString::null;
     return *((QString*)d->value.ptr);
@@ -1777,8 +1806,26 @@ const QBitArray QVariant::toBitArray() const
 }
 
 /*!
+  Returns the variant as a QKeySequence if the variant has type()
+  KeySequence, or an empty key sequence otherwise.
+
+  \sa asKeySequence()
+*/
+const QKeySequence QVariant::toKeySequence() const
+{
+    if ( d->typ == KeySequence )
+	return *((QKeySequence*)d->value.ptr);
+    if ( d->typ == String )
+	return QKeySequence( toString() );
+    if ( d->typ == Int )
+	return QKeySequence( toInt() );
+    return QKeySequence();
+}
+
+
+/*!
   Returns the variant as an int if the variant has type()
-  String, CString, Int, UInt, Double or Bool; or 0 otherwise.
+  String, CString, Int, UInt, Double, Bool or KeySequence; or 0 otherwise.
 
   If \a ok is non-null, \a*ok is set to TRUE if the value could be
   converted to int and FALSE otherwise.
@@ -1801,6 +1848,8 @@ int QVariant::toInt( bool * ok ) const
 	return (int)d->value.d;
     if ( d->typ == Bool )
 	return (int)d->value.b;
+    if ( d->typ == KeySequence )
+	return (int) *( (QKeySequence*)d->value.ptr );
 
     return 0;
 }
@@ -1954,6 +2003,7 @@ Q_VARIANT_AS(Time)
 Q_VARIANT_AS(DateTime)
 Q_VARIANT_AS(ByteArray)
 Q_VARIANT_AS(BitArray)
+Q_VARIANT_AS(KeySequence)
 
 /*! \fn QString& QVariant::asString()
 
@@ -2193,6 +2243,16 @@ Q_VARIANT_AS(BitArray)
   \sa toBitArray()
 */
 
+/*! \fn QKeySequence& QVariant::asKeySequence()
+
+  Tries to convert the variant to hold a QKeySequence value. If that
+  is not possible then the variant is set to an empty bitarray.
+
+  Returns a reference to the stored key sequence.
+
+  \sa toKeySequence()
+*/
+
 /*!
   Returns the variant's value as int reference.
 */
@@ -2293,7 +2353,7 @@ bool QVariant::canCast( Type t ) const
 	return TRUE;
     if ( t == Bool && ( d->typ == Double || d->typ == Int || d->typ == UInt ) )
 	 return TRUE;
-    if ( t == Int && ( d->typ == String || d->typ == Double || d->typ == Bool || d->typ == UInt ) )
+    if ( t == Int && ( d->typ == String || d->typ == Double || d->typ == Bool || d->typ == UInt  || d->typ == KeySequence ) )
 	return TRUE;
     if ( t == UInt && ( d->typ == String || d->typ == Double || d->typ == Bool || d->typ == Int ) )
 	return TRUE;
@@ -2301,13 +2361,15 @@ bool QVariant::canCast( Type t ) const
 	return TRUE;
     if ( t == CString && d->typ == String )
 	return TRUE;
-    if ( t == String && ( d->typ == CString || d->typ == Int || d->typ == UInt || d->typ == Double || d->typ == Date || d->typ == Time || d->typ == DateTime ) )
+    if ( t == String && ( d->typ == CString || d->typ == Int || d->typ == UInt || d->typ == Double || d->typ == Date || d->typ == Time || d->typ == DateTime || d->typ == KeySequence ) )
 	return TRUE;
     if ( t == Date && d->typ == String )
 	return TRUE;
     if ( t == Time && d->typ == String )
 	return TRUE;
     if ( t == DateTime && d->typ == String )
+	return TRUE;
+    if ( ( t == KeySequence && ( d->typ == String || d->typ == Int ) ) )
 	return TRUE;
 #ifndef QT_NO_STRINGLIST
     if ( t == List && d->typ == StringList )
@@ -2439,6 +2501,9 @@ bool QVariant::cast( Type t )
     case QVariant::BitArray:
 	asBitArray();
 	break;
+    case QVariant::KeySequence:
+	asKeySequence();
+	break;
     default:
     case QVariant::Invalid:
 	(*this) = QVariant();
@@ -2533,6 +2598,8 @@ bool QVariant::operator==( const QVariant &v ) const
 	return v.toByteArray() == toByteArray();
     case BitArray:
 	return v.toBitArray() == toBitArray();
+    case KeySequence:
+	return v.toKeySequence() == toKeySequence();
     case Invalid:
 	break;
     }

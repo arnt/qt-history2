@@ -42,6 +42,7 @@
 #include "qobject.h"
 #include "qiconset.h"
 #include "qstring.h"
+#include "qkeysequence.h"
 #endif // QT_H
 
 #ifndef QT_NO_ACTION
@@ -63,13 +64,13 @@ class Q_EXPORT QAction : public QObject
     Q_PROPERTY( QString toolTip READ toolTip WRITE setToolTip )
     Q_PROPERTY( QString statusTip READ statusTip WRITE setStatusTip )
     Q_PROPERTY( QString whatsThis READ whatsThis WRITE setWhatsThis )
-    Q_PROPERTY( int accel READ accel WRITE setAccel )
+    Q_PROPERTY( QKeySequence accel READ accel WRITE setAccel )
 
 public:
     QAction( QObject* parent, const char* name = 0, bool toggle = FALSE  );
-    QAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel,
+    QAction( const QString& text, const QIconSet& icon, const QString& menuText, QKeySequence accel,
 	     QObject* parent, const char* name = 0, bool toggle = FALSE );
-    QAction( const QString& text, const QString& menuText, int accel, QObject* parent,
+    QAction( const QString& text, const QString& menuText, QKeySequence accel, QObject* parent,
 	     const char* name = 0, bool toggle = FALSE );
     ~QAction();
 
@@ -85,8 +86,8 @@ public:
     QString statusTip() const;
     virtual void setWhatsThis( const QString& );
     QString whatsThis() const;
-    virtual void setAccel( int key );
-    int accel() const;
+    virtual void setAccel( const QKeySequence& key );
+    QKeySequence accel() const;
     virtual void setToggleAction( bool );
     bool isToggleAction() const;
     virtual void setOn( bool );
@@ -166,7 +167,7 @@ private slots:
 
 private:
     QActionGroupPrivate* d;
-    
+
 #ifndef QT_NO_COMPAT
 public:
     void insert( QAction* a ) { add( a ); }

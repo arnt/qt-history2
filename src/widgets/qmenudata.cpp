@@ -350,11 +350,11 @@ void QMenuData::removePopup( QPopupMenu *popup )
   Not all insert functions take an object/slot parameter or an
   accelerator key. Use connectItem() and setAccel() on these items.
 
-  If you need to translate accelerators, use QAccel::stringToKey()
-  to obtain the accelerator key:
+  If you need to translate accelerators, use tr() with a string
+  description that use pass to the \l QKeySequence constructor:
   \code
     fileMenu->insertItem( tr("Open"), myView, SLOT(open()),
-			  QAccel::stringToKey( tr("Ctrl+O") ) );
+			 tr("Ctrl+O") );
   \endcode
 
   In the example above, pressing Ctrl+N or selecting "Open" from the
@@ -389,7 +389,7 @@ void QMenuData::removePopup( QPopupMenu *popup )
 
 int QMenuData::insertItem( const QString &text,
 			   const QObject *receiver, const char* member,
-			   int accel, int id, int index )
+			   const QKeySequence& accel, int id, int index )
 {
     int actualID = insertAny( &text, 0, 0, 0, id, index );
     connectItem( actualID, receiver, member );
@@ -413,7 +413,7 @@ int QMenuData::insertItem( const QString &text,
 int QMenuData::insertItem( const QIconSet& icon,
 			   const QString &text,
 			   const QObject *receiver, const char* member,
-			   int accel, int id, int index )
+			   const QKeySequence& accel, int id, int index )
 {
     int actualID = insertAny( &text, 0, 0, &icon, id, index );
     connectItem( actualID, receiver, member );
@@ -438,7 +438,7 @@ int QMenuData::insertItem( const QIconSet& icon,
 
 int QMenuData::insertItem( const QPixmap &pixmap,
 			   const QObject *receiver, const char* member,
-			   int accel, int id, int index )
+			   const QKeySequence& accel, int id, int index )
 {
     int actualID = insertAny( 0, &pixmap, 0, 0, id, index );
     connectItem( actualID, receiver, member );
@@ -466,7 +466,7 @@ int QMenuData::insertItem( const QPixmap &pixmap,
 int QMenuData::insertItem( const QIconSet& icon,
 			   const QPixmap &pixmap,
 			   const QObject *receiver, const char* member,
-			   int accel, int id, int index )
+			   const QKeySequence& accel, int id, int index )
 {
     int actualID = insertAny( 0, &pixmap, 0, &icon, id, index );
     connectItem( actualID, receiver, member );
@@ -775,10 +775,12 @@ void QMenuData::clear()
   \sa setAccel(), QAccel, qnamespace.h
 */
 
-int QMenuData::accel( int id ) const
+QKeySequence QMenuData::accel( int id ) const
 {
     QMenuItem *mi = findItem( id );
-    return mi ? mi->key() : 0;
+    if ( mi )
+	return mi->key();
+    return QKeySequence();
 }
 
 /*!
@@ -826,7 +828,7 @@ int QMenuData::accel( int id ) const
   \sa accel() insertItem() QAccel qnamespace.h QAction
 */
 
-void QMenuData::setAccel( int key, int id )
+void QMenuData::setAccel( const QKeySequence& key, int id )
 {
     QMenuData *parent;
     QMenuItem *mi = findItem( id, &parent );

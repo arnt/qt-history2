@@ -133,7 +133,7 @@ public:
     QString tooltip;
     QString statustip;
     QString whatsthis;
-    int key;
+    QKeySequence key;
 #ifndef QT_NO_ACCEL
     QAccel* accel;
     int accelid;
@@ -347,7 +347,7 @@ QAction::QAction( QObject* parent, const char* name, bool toggle )
   unless you provide specific text for these using setToolTip() and
   setStatusTip().
 */
-QAction::QAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel, QObject* parent, const char* name, bool toggle )
+QAction::QAction( const QString& text, const QIconSet& icon, const QString& menuText, QKeySequence accel, QObject* parent, const char* name, bool toggle )
     : QObject( parent, name )
 {
     d = new QActionPrivate;
@@ -377,7 +377,7 @@ QAction::QAction( const QString& text, const QIconSet& icon, const QString& menu
   unless you provide specific text for these using setToolTip() and
   setStatusTip().
 */
-QAction::QAction( const QString& text, const QString& menuText, int accel, QObject* parent, const char* name, bool toggle )
+QAction::QAction( const QString& text, const QString& menuText, QKeySequence accel, QObject* parent, const char* name, bool toggle )
     : QObject( parent, name )
 {
     d = new QActionPrivate;
@@ -563,7 +563,7 @@ QString QAction::whatsThis() const
 //#### their accelerators and e.g. open the relevant submenu.
 //#### Please change appropriate QActionGroup class doc after
 //#### reimplementation.
-void QAction::setAccel( int key )
+void QAction::setAccel( const QKeySequence& key )
 {
     d->key = key;
 #ifndef QT_NO_ACCEL
@@ -597,7 +597,7 @@ void QAction::setAccel( int key )
 }
 
 
-int QAction::accel() const
+QKeySequence QAction::accel() const
 {
     return d->key;
 }

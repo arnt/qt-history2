@@ -40,6 +40,7 @@
 
 #ifndef QT_H
 #include "qobject.h"
+#include "qkeysequence.h"
 #endif // QT_H
 
 #ifndef QT_NO_ACCEL
@@ -54,42 +55,40 @@ public:
     QAccel( QWidget* watch, QObject *parent, const char *name=0 );
     ~QAccel();
 
-    bool	isEnabled() const;
-    void	setEnabled( bool );
+    bool isEnabled() const;
+    void setEnabled( bool );
 
-    uint	count() const;
+    uint count() const;
 
-    int		insertItem( int key, int id=-1);
-    void	removeItem( int id );
-    void	clear();
+    int insertItem( const QKeySequence& key, int id=-1);
+    void removeItem( int id );
+    void clear();
 
-    int		key( int id );
-    int		findKey( int key ) const;
+    QKeySequence key( int id );
+    int findKey( const QKeySequence& key ) const;
 
-    bool	isItemEnabled( int id ) const;
-    void	setItemEnabled( int id, bool enable );
+    bool isItemEnabled( int id ) const;
+    void setItemEnabled( int id, bool enable );
 
-    bool	connectItem( int id,
-			     const QObject *receiver, const char* member );
-    bool	disconnectItem( int id,
-				const QObject *receiver, const char* member );
+    bool connectItem( int id,  const QObject *receiver, const char* member );
+    bool disconnectItem( int id,  const QObject *receiver, const char* member );
 
-    void	repairEventFilter();
+    void repairEventFilter();
 
     void setWhatsThis( int id, const QString& );
     QString whatsThis( int id ) const;
     void setIgnoreWhatsThis( bool );
     bool ignoreWhatsThis() const;
 
-    static int shortcutKey( const QString & );
-    static QString keyToString( int k );
-    static int stringToKey( const QString & );
+    static QKeySequence shortcutKey( const QString & );
+    static QString keyToString(QKeySequence k );
+    static QKeySequence stringToKey( const QString & );
 
 signals:
-    void	activated( int id );
+    void activated( int id );
 
 protected:
-    bool	eventFilter( QObject *, QEvent * );
+    bool eventFilter( QObject *, QEvent * );
 
 private:
     QAccelPrivate * d;

@@ -41,6 +41,7 @@
 #ifndef QT_H
 #include "qglobal.h"
 #include "qiconset.h" // conversion QPixmap->QIconset
+#include "qkeysequence.h"
 #include "qstring.h"
 #include "qsignal.h"
 #include "qfont.h"
@@ -70,7 +71,7 @@ public:
     QPopupMenu *popup()		const	{ return popup_menu; }
     QWidget *widget()		const	{ return widget_item; }
     QCustomMenuItem *custom()	const;
-    int		key()		const	{ return accel_key; }
+    QKeySequence key()		const	{ return accel_key; }
     QSignal    *signal()	const	{ return signal_data; }
     bool	isSeparator()	const	{ return is_separator; }
     bool	isEnabled()	const	{ return is_enabled; }
@@ -88,8 +89,8 @@ private:
     QString	whatsthis_data;			// item Whats This help text
     QPixmap    *pixmap_data;			// item pixmap
     QPopupMenu *popup_menu;			// item popup menu
-    QWidget    *widget_item;				// widget menu item
-    int		accel_key;			// accelerator key (state|ascii)
+    QWidget    *widget_item;			// widget menu item
+    QKeySequence	accel_key;		// accelerator key (state|ascii)
     QSignal    *signal_data;			// connection
     uint	is_separator : 1;		// separator flag
     uint	is_enabled   : 1;		// disabled flag
@@ -138,18 +139,18 @@ public:
 
     int		insertItem( const QString &text,
 			    const QObject *receiver, const char* member,
-			    int accel = 0, int id = -1, int index = -1 );
+			    const QKeySequence& accel = 0, int id = -1, int index = -1 );
     int		insertItem( const QIconSet& icon,
 			    const QString &text,
 			    const QObject *receiver, const char* member,
-			    int accel = 0, int id = -1, int index = -1 );
+			    const QKeySequence& accel = 0, int id = -1, int index = -1 );
     int		insertItem( const QPixmap &pixmap,
 			    const QObject *receiver, const char* member,
-			    int accel = 0, int id = -1, int index = -1 );
+			    const QKeySequence& accel = 0, int id = -1, int index = -1 );
     int		insertItem( const QIconSet& icon,
 			    const QPixmap &pixmap,
 			    const QObject *receiver, const char* member,
-			    int accel = 0, int id = -1, int index = -1 );
+			    const QKeySequence& accel = 0, int id = -1, int index = -1 );
 
 
 
@@ -186,8 +187,8 @@ public:
     void	removeItemAt( int index );
     void	clear();
 
-    int		accel( int id )		const;
-    void	setAccel( int key, int id );
+    QKeySequence accel( int id )	const;
+    void	setAccel( const QKeySequence& key, int id );
 
     QIconSet    *iconSet( int id )	const;
     QString text( int id )		const;

@@ -40,6 +40,7 @@
 
 #ifndef QT_H
 #include "qwidget.h"
+#include "qkeysequence.h"
 #endif // QT_H
 
 #ifndef QT_NO_BUTTON
@@ -55,7 +56,7 @@ class Q_EXPORT QButton : public QWidget
     Q_ENUMS( ToggleType ToggleState )
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( QPixmap pixmap READ pixmap WRITE setPixmap )
-    Q_PROPERTY( int accel READ accel WRITE setAccel )
+    Q_PROPERTY( QKeySequence accel READ accel WRITE setAccel )
     Q_PROPERTY( bool toggleButton READ isToggleButton )
     Q_PROPERTY( ToggleType toggleType READ toggleType )
     Q_PROPERTY( bool down READ isDown WRITE setDown DESIGNABLE false  )
@@ -74,8 +75,8 @@ public:
     const QPixmap *pixmap() const;
     virtual void setPixmap( const QPixmap & );
 
-    int		accel()	const;
-    virtual void	setAccel( int );
+    QKeySequence		accel()	const;
+    virtual void	setAccel( const QKeySequence& );
 
     bool	isToggleButton() const;
 

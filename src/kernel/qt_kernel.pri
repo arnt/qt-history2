@@ -35,6 +35,7 @@ kernel {
 		  $$KERNEL_H/qimageformatinterface.h \
 		  $$KERNEL_P/qinputcontext_p.h \
 		  $$KERNEL_H/qkeycode.h \
+		  $$KERNEL_H/qkeysequence.h \
 		  $$KERNEL_H/qlayout.h \
 		  $$KERNEL_P/qlayoutengine_p.h \
 		  $$KERNEL_H/qtranslator.h \
@@ -180,6 +181,7 @@ kernel {
 		  $$KERNEL_CPP/qguardedptr.cpp \
 		  $$KERNEL_CPP/qiconset.cpp \
 		  $$KERNEL_CPP/qimage.cpp \
+		  $$KERNEL_CPP/qkeysequence.cpp \
 		  $$KERNEL_CPP/qlayout.cpp \
 		  $$KERNEL_CPP/qlayoutengine.cpp \
 		  $$KERNEL_CPP/qtranslator.cpp \
@@ -229,7 +231,7 @@ kernel {
 	accessibility {
 	      HEADERS += $$KERNEL_H/qaccessible.h
 	      SOURCES += $$KERNEL_CPP/qaccessible.cpp
-	      
+	
 	      win32:SOURCES += $$KERNEL_CPP/qaccessible_win.cpp
 	}
 	remote {

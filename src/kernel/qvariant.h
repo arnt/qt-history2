@@ -67,6 +67,7 @@ class QDate;
 class QTime;
 class QDateTime;
 class QBitArray;
+class QKeySequence;
 // Some headers rejected after QVariant declaration for GCC 2.7.* compatibility
 class QVariant;
 #ifndef QT_NO_TEMPLATE_VARIANT
@@ -111,7 +112,8 @@ public:
 	Time,
 	DateTime,
 	ByteArray,
-	BitArray
+	BitArray,
+	KeySequence,
     };
 
     QVariant();
@@ -146,6 +148,7 @@ public:
     QVariant( const QDateTime& );
     QVariant( const QByteArray& );
     QVariant( const QBitArray& );
+    QVariant( const QKeySequence& );
 #ifndef QT_NO_TEMPLATE_VARIANT
     QVariant( const QValueList<QVariant>& );
     QVariant( const QMap<QString,QVariant>& );
@@ -196,6 +199,7 @@ public:
     const QDateTime toDateTime() const;
     const QByteArray toByteArray() const;
     const QBitArray toBitArray() const;
+    const QKeySequence toKeySequence() const;
     int toInt( bool * ok=0 ) const;
     uint toUInt( bool * ok=0 ) const;
     bool toBool() const;
@@ -240,6 +244,7 @@ public:
     QDateTime& asDateTime();
     QByteArray& asByteArray();
     QBitArray& asBitArray();
+    QKeySequence& asKeySequence();
     int& asInt();
     uint& asUInt();
     bool& asBool();
