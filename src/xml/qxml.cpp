@@ -416,8 +416,8 @@ void QXmlNamespaceSupport::setPrefix(const QString& pre, const QString& uri)
 */
 QString QXmlNamespaceSupport::prefix(const QString& uri) const
 {
-    NamespaceMap::ConstIterator itc, it = d->ns.begin();
-    while ((itc=it) != d->ns.end()) {
+    NamespaceMap::const_iterator itc, it = d->ns.constBegin();
+    while ((itc=it) != d->ns.constEnd()) {
         ++it;
         if (*itc == uri && !itc.key().isEmpty())
             return itc.key();
@@ -487,6 +487,11 @@ void QXmlNamespaceSupport::processName(const QString& qname,
     nsuri.clear();
     // attributes don't take default namespace
     if (!isAttribute && !d->ns.isEmpty()) {
+	/*
+	    We want to access d->ns.value(""), but as an optimization
+	    we use the fact that "" compares less than any other
+	    string, so it's either first in the map or not there.
+	*/
         NamespaceMap::const_iterator first = d->ns.constBegin();
         if (first.key().isEmpty())
             nsuri = first.value(); // get default namespace
@@ -505,8 +510,8 @@ void QXmlNamespaceSupport::processName(const QString& qname,
     over a copy, e.g.
     \code
     QStringList list = myXmlNamespaceSupport.prefixes();
-    QStringList::Iterator it = list.begin();
-    while(it != list.end()) {
+    QStringList::iterator it = list.begin();
+    while (it != list.end()) {
         myProcessing(*it);
         ++it;
     }
@@ -516,8 +521,8 @@ QStringList QXmlNamespaceSupport::prefixes() const
 {
     QStringList list;
 
-    NamespaceMap::ConstIterator itc, it = d->ns.begin();
-    while ((itc=it) != d->ns.end()) {
+    NamespaceMap::const_iterator itc, it = d->ns.constBegin();
+    while ((itc=it) != d->ns.constEnd()) {
         ++it;
         if (!itc.key().isEmpty())
             list.append(itc.key());
@@ -543,7 +548,7 @@ QStringList QXmlNamespaceSupport::prefixes() const
     over a copy, e.g.
     \code
     QStringList list = myXmlNamespaceSupport.prefixes("");
-    QStringList::Iterator it = list.begin();
+    QStringList::iterator it = list.begin();
     while(it != list.end()) {
         myProcessing(*it);
         ++it;
@@ -554,8 +559,8 @@ QStringList QXmlNamespaceSupport::prefixes(const QString& uri) const
 {
     QStringList list;
 
-    NamespaceMap::ConstIterator itc, it = d->ns.begin();
-    while ((itc=it) != d->ns.end()) {
+    NamespaceMap::const_iterator itc, it = d->ns.constBegin();
+    while ((itc=it) != d->ns.constEnd()) {
         ++it;
         if (*itc == uri && !itc.key().isEmpty())
             list.append(itc.key());
@@ -3567,7 +3572,7 @@ bool QXmlSimpleReader::processElementEmptyTag()
             // call the handler for prefix mapping
             prefixesAfter = d->namespaceSupport.prefixes();
             for (QStringList::Iterator it = prefixesBefore.begin(); it != prefixesBefore.end(); ++it) {
-                if (! prefixesAfter.contains(*it)) {
+                if (!prefixesAfter.contains(*it)) {
                     if (!contentHnd->endPrefixMapping(*it)) {
                         reportParseError(contentHnd->errorString());
                         return false;
@@ -7619,48 +7624,23 @@ const QString& QXmlSimpleReader::ref()
     return refValue;
 }
 
-void QXmlSimpleReader::stringAddC()
+void QXmlSimpleReader::stringAddC(QChar ch)
 {
     if (stringArrayPos == 256)
         updateValue(stringValue, stringArray, stringArrayPos, stringValueLen);
-    stringArray[stringArrayPos++] = c;
-}
-void QXmlSimpleReader::nameAddC()
-{
-    if (nameArrayPos == 256)
-        updateValue(nameValue, nameArray, nameArrayPos, nameValueLen);
-    nameArray[nameArrayPos++] = c;
-}
-void QXmlSimpleReader::refAddC()
-{
-    if (refArrayPos == 256)
-        updateValue(refValue, refArray, refArrayPos, refValueLen);
-    refArray[refArrayPos++] = c;
-}
-
-void QXmlSimpleReader::stringAddC(QChar ch)
-{
-    if (stringArrayPos >= 256) {
-        stringValue += QString(stringArray, stringArrayPos);
-        stringArrayPos = 0;
-    }
     stringArray[stringArrayPos++] = ch;
 }
 void QXmlSimpleReader::nameAddC(QChar ch)
 {
-    if (nameArrayPos >= 256) {
-        nameValue += QString(nameArray, nameArrayPos);
-        nameArrayPos = 0;
-    }
+    if (nameArrayPos == 256)
+        updateValue(nameValue, nameArray, nameArrayPos, nameValueLen);
     nameArray[nameArrayPos++] = ch;
 }
 void QXmlSimpleReader::refAddC(QChar ch)
 {
-    if (refArrayPos >= 256) {
-        refValue += QString(refArray, refArrayPos);
-        refArrayPos = 0;
-    }
+    if (refArrayPos == 256)
+        updateValue(refValue, refArray, refArrayPos, refValueLen);
     refArray[refArrayPos++] = ch;
 }
 
-#endif //QT_NO_XML
+#endif // QT_NO_XML

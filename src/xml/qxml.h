@@ -287,16 +287,16 @@ private:
 
     const QString &string();
     void stringClear();
-    void stringAddC();
     void stringAddC(QChar);
+    inline void stringAddC() { stringAddC(c); }
     const QString &name();
     void nameClear();
-    void nameAddC();
     void nameAddC(QChar);
+    inline void nameAddC() { nameAddC(c); }
     const QString &ref();
     void refClear();
-    void refAddC();
     void refAddC(QChar);
+    inline void refAddC() { refAddC(c); }
 
     // used by parseReference() and parsePEReference()
     enum EntityRecognitionContext { InContent, InAttributeValue, InEntityValue, InDTD };
