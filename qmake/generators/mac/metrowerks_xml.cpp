@@ -159,7 +159,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		if(arg == "INCLUDEPATH") {
 		    list = project->variables()[arg];
 		    list << Option::mkfile::qmakespec;
-		    list << Option::output_dir;
+		    list << QDir::current().currentDirPath();
 		} else {
 		    QStringList &l = project->variables()[arg];
 		    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it)
