@@ -91,7 +91,7 @@
     Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS)' );
     Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS)' );
     Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS)' );
-    if ( Project('TEMPLATE') eq "lib" ) {
+    if ( Project('TEMPLATE') eq "lib" || Project('TEMPLATE') eq "qt.t" ) {
 	Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS_LIB)' );
 	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_LIB)' );
     } else {
@@ -153,7 +153,7 @@ ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
 ####### Build rules
 
 #${
-	if ( Project('TEMPLATE') eq "lib" ) {
+	if ( Project('TEMPLATE') eq "lib" || Project('TEMPLATE') eq "qt.t" ) {
 	    if ( Config('staticlib') ) {
 		$targ = '$(SYSCONF_LINK_TARGET_STATIC)';
 	    } else {
@@ -177,7 +177,7 @@ ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
 	$text .= '$(DESTDIR)' . $targ . ': $(OBJECTS) $(OBJMOC) ';
 	Expand("TARGETDEPS");
 	$text .= "\n\t";
-	if ( Project('TEMPLATE') eq "lib" ) {
+	if ( Project('TEMPLATE') eq "lib" || Project('TEMPLATE') eq "qt.t" ) {
 	    if ( Config('staticlib') ) {
 		$text .= '$(SYSCONF_LINK_LIB_STATIC)';
 	    } else {
