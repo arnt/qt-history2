@@ -18,8 +18,8 @@
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
-    app.connect(&app, SIGNAL(lastWindowClosed()), SLOT(quit()));
     MainWindow mainWin;
+    app.setMainWidget(&mainWin);
     mainWin.show();
     return app.exec();
 }
