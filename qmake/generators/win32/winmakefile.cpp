@@ -194,12 +194,14 @@ Win32MakefileGenerator::findLibraries(const QString &where)
             if(!lib.isEmpty()) {
                 for(MakefileDependDir *mdd = dirs.first(); mdd; mdd = dirs.next() ) {
                     int ver = findHighestVersion(mdd->local_dir, lib);
-                        out = QString(mdd->real_dir + Option::dir_sep + lib + "%1" + ".lib");
-			if(ver && ver != -1 )
-			    out = out.arg(ver);
-			else
-			    out = out.arg("");
-                        break;
+		    out = QString(mdd->real_dir + Option::dir_sep + lib + "%1" + ".lib");
+		    if(ver && ver != -1 )
+			out = out.arg(ver);
+		    else
+			out = out.arg("");
+		    if(QFile::exists(out))
+			break;
+		    out = "";
                 }
             }
             if(out.isEmpty())
