@@ -224,14 +224,15 @@ QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull, 
 	    // more data can be fetched, the length indicator does NOT
 	    // contain the number of bytes returned - it contains the
 	    // total number of bytes that CAN be fetched
+	    // colSize-1: remove 0 termination when there is more data to fetch
+	    int rSize = (r == SQL_SUCCESS_WITH_INFO) ? colSize-1 : lengthIndicator;
 	    if ( unicode ) {
-		// colSize-1: remove 0 termination when there is more data to fetch
-		int rSize = (r == SQL_SUCCESS_WITH_INFO) ? colSize-1 : lengthIndicator;
 		fieldVal += QString( (QChar*) buf, rSize / 2 );
 	    } else {
+		buf[ rSize ] = 0;
 		fieldVal += buf;
 	    }
-	    if ( lengthIndicator < colSize ) {
+	    if ( lengthIndicator <= colSize ) {
 		// workaround for Drivermanagers that don't return SQL_NO_DATA
 		break;
 	    }
@@ -1249,7 +1250,7 @@ bool QODBCPrivate::checkDriver() const
     static const SQLUSMALLINT reqFunc[] = {
 		SQL_API_SQLDESCRIBECOL, SQL_API_SQLGETDATA, SQL_API_SQLCOLUMNS, 
 		SQL_API_SQLGETSTMTATTR, SQL_API_SQLGETDIAGREC, SQL_API_SQLEXECDIRECT,
-		SQL_API_SQLGETINFO, SQL_API_SQLTABLES, SQL_API_SQLPRIMARYKEYS, 0
+		SQL_API_SQLGETINFO, SQL_API_SQLTABLES, 0
     };
 
     // these functions are optional
@@ -1440,6 +1441,7 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
     QSqlIndex index( tablename );
     if ( !isOpen() )
 	return index;
+    bool usingSpecialColumns = FALSE;
     QSqlRecord rec = record( tablename );
 
     SQLHANDLE hStmt;
@@ -1477,24 +1479,64 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 			(SQLCHAR*)table.latin1(),
 #endif
 			table.length() /* in characters, not in bytes */);
-#ifdef QT_CHECK_RANGE
-    if ( r != SQL_SUCCESS )
-	qSqlWarning( "QODBCDriver::primaryIndex: Unable to execute primary key list", d );
+    
+    // if the SQLPrimaryKeys() call does not succeed (e.g the driver
+    // does not support it) - try an alternative method to get hold of
+    // the primary index (e.g MS Access and FoxPro)
+    if ( r != SQL_SUCCESS ) {
+	    r = SQLSpecialColumns( hStmt,
+				   SQL_BEST_ROWID,
+#ifdef UNICODE
+				   catalog.length() == 0 ? NULL : (SQLWCHAR*)catalog.unicode(),
+#else
+				   catalog.length() == 0 ? NULL : (SQLCHAR*)catalog.latin1(),
 #endif
+				   catalog.length(),
+#ifdef UNICODE
+				   schema.length() == 0 ? NULL : (SQLWCHAR*)schema.unicode(),
+#else
+				   schema.length() == 0 ? NULL : (SQLCHAR*)schema.latin1(),
+#endif
+				   schema.length(),
+#ifdef UNICODE
+				   (SQLWCHAR*)table.unicode(),
+#else
+				   (SQLCHAR*)table.latin1(),
+#endif
+				   
+				   table.length(),
+				   SQL_SCOPE_CURROW,
+				   SQL_NULLABLE );
+
+	    if ( r != SQL_SUCCESS ) {
+#ifdef QT_CHECK_RANGE
+		qSqlWarning( "QODBCDriver::primaryIndex: Unable to execute primary key list", d );
+#endif
+	    } else {
+		usingSpecialColumns = TRUE;
+	    }
+    }
     r = SQLFetchScroll( hStmt,
 			SQL_FETCH_NEXT,
-			0);
+			0 );
+    bool isNull;
+    int fakeId = 0;
+    QString cName, idxName;
+    // Store all fields in a StringList because some drivers can't detail fields in this FETCH loop
     while ( r == SQL_SUCCESS ) {
-	bool isNull;
-	QString cName = qGetStringData( hStmt, 3, -1, isNull, d->unicode ); // column name
+	if ( usingSpecialColumns ) {
+	    cName = qGetStringData( hStmt, 1, -1, isNull, d->unicode ); // column name
+	    idxName = QString::number( fakeId++ ); // invent a fake index name
+	} else {
+	    cName = qGetStringData( hStmt, 3, -1, isNull, d->unicode ); // column name
+	    idxName = qGetStringData( hStmt, 5, -1, isNull, d->unicode ); // pk index name
+	}
 	index.append( *(rec.field( cName )) );
-	QString idxName = qGetStringData( hStmt, 5, -1, isNull, d->unicode ); // pk index name
 	index.setName( idxName );
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
-			    0);
+			    0 );
     }
-
     r = SQLFreeHandle( SQL_HANDLE_STMT, hStmt );
     if ( r!= SQL_SUCCESS )
 	qSqlWarning( "QODBCDriver: Unable to free statement handle" + QString::number(r), d );
