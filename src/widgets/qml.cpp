@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#25 $
 **
 ** Implementation of QML classes
 **
@@ -1171,6 +1171,10 @@ QMLImage::QMLImage(const QDict<QString> &attr, QMLProvider &provider)
     }
     if (pm.isNull()) {
 	width = height = 50;
+	if ( attr["width"] )
+	    width = attr["width"]->toInt();
+	if ( attr["height"] )
+	    width = attr["height"]->toInt();
     }
 }
 
@@ -3167,7 +3171,7 @@ QChar QMLDocument::parseHTMLSpecialChar(const QString& doc, int& pos)
 	return 'ä';
     if ( s == "uuml")
 	return 'ü';
- 
+
     pos = recoverpos;
     return '&';
 }
