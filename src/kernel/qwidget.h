@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#183 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#184 $
 **
 ** Definition of QWidget class
 **
@@ -158,19 +158,19 @@ public:
     PropagationMode palettePropagation() const;
     virtual void setPalettePropagation( PropagationMode );
 
-    const QCursor &cursor() const;
-    virtual void setCursor( const QCursor & );
+    const QCursor      &cursor() const;
+    virtual void	setCursor( const QCursor & );
 
-    QString caption()	const;
-    const QPixmap *icon()	const;
-    QString iconText()	const;
-    bool hasMouseTracking() const;
+    QString		caption() const;
+    const QPixmap      *icon() const;
+    QString		iconText() const;
+    bool		hasMouseTracking() const;
 
 public slots:
-    virtual void	 setCaption( const QString &);
-    virtual void	 setIcon( const QPixmap & );
-    virtual void	 setIconText( const QString &);
-    virtual void	 setMouseTracking( bool enable );
+    virtual void	setCaption( const QString &);
+    virtual void	setIcon( const QPixmap & );
+    virtual void	setIconText( const QString &);
+    virtual void	setMouseTracking( bool enable );
 
   // Keyboard input focus functions
 
@@ -203,10 +203,11 @@ public:
   // Update/refresh functions
 
     bool	 isUpdatesEnabled() const;
+
 public slots:
     virtual void	 setUpdatesEnabled( bool enable );
     void	 update();
-    void	 update( int x, int y, int w, int h);
+    void	 update( int x, int y, int w, int h );
     void	 update( const QRect& );
     void	 repaint( bool erase=TRUE );
     void	 repaint( int x, int y, int w, int h, bool erase=TRUE );
@@ -217,9 +218,15 @@ public slots:
 
     virtual void show();
     virtual void hide();
+#ifndef QT_NO_COMPAT
+    void	 iconify()
+	{ showMinimized(); }
+#endif
+    virtual void showMinimized();
+    virtual void showMaximized();
+    virtual void showNormal();
     virtual void polish();
-    void iconify();
-    bool close();
+    bool	 close();
 
 public:
     virtual bool close( bool forceKill );
@@ -576,6 +583,9 @@ struct QTLWExtra {
     QSize    fsize;				// rect of frame
     short    incw, inch;			// size increments
     uint     iconic: 1;				// iconified [cur. win32 only]
+#if defined(_WS_X11_)
+    QRect    normalGeometry;			// used by showMin/maximized
+#endif
 };
 
 struct QWExtra {

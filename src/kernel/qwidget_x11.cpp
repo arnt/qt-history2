@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#286 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#287 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1067,18 +1067,65 @@ void QWidget::hideWindow()
 
 
 /*!
-  Iconifies the widget.
+  Shows the widget minimized, as an icon.
 
   Calling this function has no effect for other than \link isTopLevel()
   top-level widgets\endlink.
 
-  \sa show(), hide(), isVisible()
+  \sa showNormal(), showMaximized(), show(), hide(), isVisible()
 */
 
-void QWidget::iconify()
+void QWidget::showMinimized()
 {
     if ( testWFlags(WType_TopLevel) )
 	XIconifyWindow( dpy, winid, qt_xscreen() );
+}
+
+/*!
+  Shows the widget maximized.
+
+  Calling this function has no effect for other than \link isTopLevel()
+  top-level widgets\endlink.
+
+  \sa showNormal(), showMinimized(), show(), hide(), isVisible()
+*/
+
+void QWidget::showMaximized()
+{
+    if ( testWFlags(WType_TopLevel) ) {
+	int sw = DisplayWidth(dpy,scr);
+	int sh = DisplayHeight(dpy,scr);
+	createTLExtra();
+	if ( extra->topextra->normalGeometry,width() < 0 ) {
+	    extra->topextra->saveNormal = geometry();
+	    setGeomtry( 0, 0, DisplayWidth(dpy,scr), DisplayHeight(dpy,scr) );
+	}
+	show();
+    }
+}
+
+/*!
+  Restores the widget after it has been maximized or minimized.
+
+  Calling this function has no effect for other than \link isTopLevel()
+  top-level widgets\endlink.
+
+  \sa showMinimized(), showMaximized(), show(), hide(), isVisible()
+*/
+
+void QWidget::showNormal()
+{
+    if ( testWFlags(WType_TopLevel) ) {
+	if ( extra && extra->topextra ) {
+	    QRect r = extra->topextra->normalGeometry;
+	    if ( r.width() >= 0 ) {
+		// the widget has been maximized
+		extra->topextra->normalGeometry = QRect(0,0,-1,-1);
+		setGeometry( r );
+	    }
+	}
+	show();
+    }
 }
 
 
