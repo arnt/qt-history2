@@ -138,6 +138,7 @@ static int CS_PUBLIC qTdsMsgHandler ( DBPROCESS* dbproc,
     QTDSResultPrivate* p = errs.value( dbproc );
 
     if ( !p ) {
+//	### umm... temporary disabled since this throws shitloads of warnings...
 //	qWarning( "QTDSDriver warning (%d): [%s] from server [%s]", msgstate, msgtext, srvname );
 	return INT_CANCEL;
     }
@@ -259,7 +260,7 @@ QTDSResult::~QTDSResult()
 {
     cleanup();
     dbclose( d->dbproc );
-    errs.erase( d->dbproc );
+    errs.remove( d->dbproc );
     delete d;
 }
 
