@@ -1,15 +1,27 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#105 $
+** $Id: //depot/qt/main/src/moc/moc.y#106 $
 **
 ** Parser and code generator for meta object compiler
 **
 ** Created : 930417
 **
-** Copyright (C) 1993-1998 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1999 by Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees with valid Qt Professional Edition licenses may distribute and
+** use this file in accordance with the Qt Professional Edition License
+** provided at sale or upon request.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
 **
 ** --------------------------------------------------------------------------
-** This file contains the parser and code generator for the meta object
-** compiler (moc) of the Qt development framework.
 **
 ** This compiler reads a C++ header file with class definitions and ouputs
 ** C++ code to build a meta class. The meta data includes public methods
@@ -1262,7 +1274,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.39 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.40 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
