@@ -1770,6 +1770,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    curpar->append( QChar('b') );
 		    curpar->setFormat( index, 1, &format );
 		    curpar->at( index )->setCustomItem( custom );
+		    if ( !curtag.anchorHref.isEmpty() ) 
+ 			curpar->at(index)->setAnchor( QString::null, curtag.anchorHref );
  		    if ( !anchorName.isEmpty()  ) {
  			curpar->at(index)->setAnchor( anchorName, curpar->at(index)->anchorHref() );
  			anchorName = QString::null;
