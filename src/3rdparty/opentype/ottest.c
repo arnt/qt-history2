@@ -47,7 +47,7 @@ enum {
 void
 print_tag (FT_ULong tag)
 {
-  fprintf (stderr, "%c%c%c%c", 
+  fprintf (stderr, "%c%c%c%c",
 	  (unsigned char)(tag >> 24),
 	  (unsigned char)((tag & 0xff0000) >> 16),
 	  (unsigned char)((tag & 0xff00) >> 8),
@@ -62,10 +62,10 @@ maybe_add_feature (TTO_GSUB  gsub,
 {
   FT_Error error;
   FT_UShort feature_index;
-  
+
   /* 0xffff == default language system */
   error = TT_GSUB_Select_Feature (gsub, tag, script_index, 0xffff, &feature_index);
-  
+
   if (error)
     {
       if (error == TTO_Err_Not_Covered)
@@ -87,7 +87,7 @@ select_cmap (FT_Face face)
 {
   FT_UShort  i;
   FT_CharMap cmap = NULL;
-  
+
   for (i = 0; i < face->num_charmaps; i++)
     {
       if (face->charmaps[i]->platform_id == 3 && face->charmaps[i]->encoding_id == 1)
@@ -96,7 +96,7 @@ select_cmap (FT_Face face)
 	  break;
 	}
     }
-  
+
   /* we try only pid/eid (0,0) if no (3,1) map is found -- many Windows
      fonts have only rudimentary (0,0) support.                         */
 
@@ -146,7 +146,7 @@ add_features (TTO_GSUB gsub)
   maybe_add_feature (gsub, script_index, FT_MAKE_TAG ('l', 'i', 'g', 'a'), L);
 }
 
-void 
+void
 dump_string (TTO_GSUB_String *str)
 {
   int i;
@@ -175,11 +175,14 @@ try_string (FT_Library library,
   FT_Error error;
   TTO_GSUB_String *in_str;
   TTO_GSUB_String *out_str;
+  TTO_GSUB_String *tmp_str;
   int i;
 
   if ((error = TT_GSUB_String_New (face->memory, &in_str)))
     croak ("TT_GSUB_String_New", error);
   if ((error = TT_GSUB_String_New (face->memory, &out_str)))
+    croak ("TT_GSUB_String_New", error);
+  if ((error = TT_GSUB_String_New (face->memory, &tmp_str)))
     croak ("TT_GSUB_String_New", error);
 
   if ((error = TT_GSUB_String_Set_Length (in_str, N_ELEMENTS (arabic_str))))
@@ -193,7 +196,7 @@ try_string (FT_Library library,
       in_str->ligIDs[i] = i;
     }
 
-  if ((error = TT_GSUB_Apply_String (gsub, in_str, out_str)))
+  if ((error = TT_GSUB_Apply_String (gsub, in_str, &out_str, &tmp_str)))
     croak ("TT_GSUB_Apply_String", error);
 
   dump_string (in_str);
@@ -203,9 +206,11 @@ try_string (FT_Library library,
     croak ("TT_GSUB_String_New", error);
   if ((error = TT_GSUB_String_Done (out_str)))
     croak ("TT_GSUB_String_New", error);
+  if ((error = TT_GSUB_String_Done (tmp_str)))
+    croak ("TT_GSUB_String_New", error);
 }
 
-int 
+int
 main (int argc, char **argv)
 {
   FT_Error error;
@@ -230,7 +235,7 @@ main (int argc, char **argv)
   if (!(error = TT_Load_GSUB_Table (face, &gsub, NULL)))
     {
       TT_Dump_GSUB_Table (gsub, stdout);
-      
+
       if ((error = TT_Done_GSUB_Table (gsub)))
 	croak ("FT_Done_GSUB_Table", error);
     }
@@ -241,7 +246,7 @@ main (int argc, char **argv)
   if (!(error = TT_Load_GPOS_Table (face, &gpos, NULL)))
     {
       TT_Dump_GPOS_Table (gpos, stdout);
-      
+
       if ((error = TT_Done_GPOS_Table (gpos)))
 	croak ("FT_Done_GPOS_Table", error);
     }
@@ -261,7 +266,7 @@ main (int argc, char **argv)
 
   if ((error = FT_Done_FreeType (library)))
     croak ("FT_Done_FreeType", error);
-  
+
   return 0;
 }
 

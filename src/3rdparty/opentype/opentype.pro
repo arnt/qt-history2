@@ -13,7 +13,7 @@ HEADERS += disasm.h \
            ftxgsub.h \
            ftxopen.h \
            ftxopenf.h
-SOURCES += disasm.c ftxgdef.c ftxgpos.c ftxgsub.c ftxopen.c ottest.c
+SOURCES += disasm.c ftxopentype.c ottest.c
 CONFIG += warn_on debug  thread create_prl link_prl
 OBJECTS_DIR=.obj/debug-shared-mt
 MOC_DIR=.moc/debug-shared-mt
