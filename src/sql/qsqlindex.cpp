@@ -162,12 +162,16 @@ void QSqlIndex::setDescending( int i, bool desc )
 QString QSqlIndex::toString( const QString& prefix ) const
 {
     QString s;
+    bool comma = FALSE;
     for ( uint i = 0; i < count(); ++i ) {
+	if( comma )
+	    s += ", ";
 	if ( !prefix.isNull() )
 	    s += prefix + ".";
 	s += field( i )->name();
 	if ( isDescending( i ) )
 	    s += " desc";
+	comma = TRUE;y
     }
     return s;
 }
