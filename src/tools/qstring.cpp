@@ -11904,7 +11904,7 @@ static uint computeNewMax( uint len )
     uint newMax = 4;
     while ( newMax < len )
 	newMax *= 2;
-    // try to spare some memory
+    // try to save some memory
     if ( newMax >= 1024 * 1024 && len <= newMax - (newMax >> 2) )
 	newMax -= newMax >> 2;
     return newMax;
