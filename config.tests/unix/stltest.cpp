@@ -66,8 +66,11 @@ int main()
 	rval = 0;
     }
 
-    if ( !rval )
+    if ( !rval ) {
 	std::cout << std::endl << "stltest: Failure:" << rval << std::endl;
+    } else {
+	std::cout << std::endl << "stltest: Success" << std::endl;
+    }
     return rval;
 }
 
