@@ -1503,10 +1503,14 @@ QFont QTextCharFormat::font() const
 
 /*!
     \fn QTextFrameFormat::setBorder(int border)
+
+    Sets the \a width in pixels of the frame's border.
 */
 
 /*!
     \fn int QTextFrameFormat::border()
+
+    Returns the width of the border in pixels.
 */
 
 /*!
@@ -1515,6 +1519,8 @@ QFont QTextCharFormat::font() const
 
 /*!
     \fn int QTextFrameFormat::margin()
+
+    Returns the width of the frame's external margin in pixels.
 */
 
 /*!
@@ -1523,6 +1529,8 @@ QFont QTextCharFormat::font() const
 
 /*!
     \fn int QTextFrameFormat::padding()
+
+    Returns the width of the frame's internal padding in pixels.
 */
 
 /*!
@@ -1531,14 +1539,20 @@ QFont QTextCharFormat::font() const
 
 /*!
     \fn int QTextFrameFormat::width()
+
+    Returns the width of the frame's border rectangle.
 */
 
 /*!
     \fn QTextFrameFormat::setHeight(int border)
+
+
 */
 
 /*!
     \fn int QTextFrameFormat::height()
+
+    Returns the height of the frame's border rectangle.
 */
 
 /*!
