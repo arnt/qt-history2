@@ -169,18 +169,10 @@ public:
 
 struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterface
 {
-#ifdef Q_DOC
-    enum Event {
-    };
-    enum State {
-    };
-    enum Role {
-    };
-#endif
     // navigation and hierarchy
     virtual QAccessibleInterface* hitTest( int x, int y, int *who ) const = 0;
     virtual QRect	location( int who ) const = 0;
-    virtual QAccessibleInterface* navigate( int direction, int *target ) const = 0;
+    virtual QAccessibleInterface* navigate( NavDirection direction, int *target ) const = 0;
     virtual int		childCount() const = 0;
     virtual QAccessibleInterface* child( int who ) const = 0;
     virtual QAccessibleInterface* parent() const = 0;
@@ -228,7 +220,7 @@ public:
 
     QAccessibleInterface* hitTest( int x, int y, int *who ) const;
     QRect	location( int who ) const;
-    QAccessibleInterface* navigate( int direction, int *target ) const;
+    QAccessibleInterface* navigate( NavDirection direction, int *target ) const;
     int		childCount() const;
     QAccessibleInterface *child( int who ) const;
     QAccessibleInterface *parent() const;

@@ -208,7 +208,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accNavigate( long navDir, VARIANT 
 {
     if ( varStart.lVal == CHILDID_SELF ) {
 	int target;
-	QAccessibleInterface *acc = accessible->navigate( navDir, &target );
+	QAccessibleInterface *acc = accessible->navigate( (QAccessible::NavDirection)navDir, &target );
 	if ( !acc ) {
 	    (*pvarEnd).vt = VT_EMPTY;
 	    return S_FALSE;
