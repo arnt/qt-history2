@@ -467,7 +467,7 @@ void QPainter::drawRect(int x, int y, int w, int h)
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
-    if ((ds->VxF || ds->WxF) && dgc->hasCapability(QAbstractGC::CoordTransform)) {
+    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop < TxRotShear) {
 	    map(x, y, w, h, &x, &y, &w, &h);
 	} else {
