@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#145 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#146 $
 **
 ** Implementation of QWidget class
 **
@@ -19,11 +19,11 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#145 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#146 $");
 
 
-/*! \class QWidget qwidget.h
-
+/*!
+  \class QWidget qwidget.h
   \brief The QWidget class is the base class of all user interface objects.
 
   \ingroup abstractwidgets
@@ -34,20 +34,21 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#145 $");
   rectangular, and they are sorted in a Z-order.  A widget is clipped
   by its parent and by the widgets in front of it.
 
-  A widget without a parent, called a top-level widget, is a window
-  and usually has with a frame and title bar.  A widget with a parent
-  is a child window in its parent.  You usually can't distinguish a
-  child widget from its parent visually.
+  A widget without a parent, called a top-level widget, is a window with a
+  frame and a title bar (it is also possible to create top level widgets
+  without such decoration).  A widget with a parent is a child window in
+  its parent.  You usually cannot distinguish a child widget from its
+  parent visually.
 
-  There are many member functions in QWidget, but it has hardly any
-  functionality - for example it ias a setFont() function but never
-  uses the font itself.  There are many subclasses which provide real
+  QWidget has many member functions, but many of them have little direct
+  functionality - for example it has a setFont() function but never uses
+  the font itself. There are many subclasses which provide real
   functionality, as diverse as QPushButton, QListBox and QTabDialog.
 
-  QWidget offers two APIs: The public functions, for mamipulating stat
+  QWidget offers two APIs: The public functions, for mamipulating state
   which is common to all or many of the subclasses, and the protected
   event handlers, which constitute the interface towards the user.
-  (The constructor and a few static functions don't belong in either
+  (The constructor and a few static functions do not belong in either
   group.)
 
   <strong>Publics:</strong> The public interface mostly consists of
