@@ -10,8 +10,8 @@
 /*!
   Constructs a default plugin with file \a file and policy \a pol.
 */
-ActionPlugIn::ActionPlugIn( const QString& file, LibraryPolicy pol, const char* fn )
-    : QPlugIn( file, pol, fn )
+ActionPlugIn::ActionPlugIn( const QString& file, QApplicationInterface* appIface, LibraryPolicy pol )
+    : QPlugIn( file, appIface, pol )
 {
 }
 
@@ -49,8 +49,8 @@ QString ActionPlugIn::group( const QString& actionname )
   \sa QPlugInManager
 */
 ActionPlugInManager::ActionPlugInManager( const QString& path, const QString& filter,
-					   QPlugIn::LibraryPolicy pol, const char* fn  )
-: QPlugInManager<ActionPlugIn>( path, filter, pol, fn )
+					  QApplicationInterface* appIface, QPlugIn::LibraryPolicy pol )
+: QPlugInManager<ActionPlugIn>( path, filter, appIface, pol )
 {
 }
 

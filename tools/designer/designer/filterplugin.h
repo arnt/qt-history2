@@ -9,7 +9,7 @@
 class FilterPlugIn : public FilterInterface, public QPlugIn
 {
 public:
-    FilterPlugIn( const QString& filename, LibraryPolicy = Default, const char* fn = 0 );
+    FilterPlugIn( const QString& filename, QApplicationInterface* = 0, LibraryPolicy = Default );
 
     QString queryInterface() const { return "FilterInterface"; }
 
@@ -20,7 +20,7 @@ class FilterPlugInManager : public QPlugInManager<FilterPlugIn>
 {
 public:
     FilterPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so",
-			 QPlugIn::LibraryPolicy = QPlugIn::Default, const char* fn = 0 );
+			 QApplicationInterface* = 0, QPlugIn::LibraryPolicy = QPlugIn::Default );
 
     QStringList import( const QString& filter, const QString& filename );
 };

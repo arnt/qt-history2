@@ -9,7 +9,7 @@
 class ActionPlugIn : public ActionInterface, public QPlugIn
 {
 public:
-    ActionPlugIn( const QString& filename, LibraryPolicy = Default, const char* fn = 0 );
+    ActionPlugIn( const QString& filename, QApplicationInterface* = 0, LibraryPolicy = Default );
 
     QString queryInterface() const { return "ActionInterface"; }
 
@@ -21,7 +21,7 @@ class ActionPlugInManager : public QPlugInManager<ActionPlugIn>
 {
 public:
     ActionPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so",
-			 QPlugIn::LibraryPolicy = QPlugIn::Default, const char* fn = 0 );
+			 QApplicationInterface* = 0, QPlugIn::LibraryPolicy = QPlugIn::Default );
     QAction* create( const QString& actionname, QObject* parent = 0 );
     QString group( const QString &actionname );
 

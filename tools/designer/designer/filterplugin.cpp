@@ -9,8 +9,8 @@
 /*!
   Constructs a filter plugin with file \a file and policy \a pol.
 */
-FilterPlugIn::FilterPlugIn( const QString& file, LibraryPolicy pol, const char* fn )
-    : QPlugIn( file, pol, fn )
+FilterPlugIn::FilterPlugIn( const QString& file, QApplicationInterface* appIface, LibraryPolicy pol )
+    : QPlugIn( file, appIface, pol )
 {
 }
 
@@ -36,8 +36,8 @@ QStringList FilterPlugIn::import( const QString& filter, const QString& filename
   \sa QPlugInManager
 */
 FilterPlugInManager::FilterPlugInManager( const QString& path, const QString& filter,
-					   QPlugIn::LibraryPolicy pol, const char* fn  )
-: QPlugInManager<FilterPlugIn>( path, filter, pol, fn )
+					  QApplicationInterface* appIface, QPlugIn::LibraryPolicy pol )
+: QPlugInManager<FilterPlugIn>( path, filter, appIface, pol )
 {
 }
 
