@@ -3,92 +3,116 @@
 #include <qdatastream.h>
 
 /*!
-    \class QBitArray qbitarray.h
-    \reentrant
+    \class QBitArray
     \brief The QBitArray class provides an array of bits.
 
     \ingroup tools
     \ingroup shared
+    \reentrant
 
-    QBitArray uses \link shclass.html implicit sharing\endlink, which
-    makes it very efficient and easy to use.
+    A QBitArray is an array that offers access to individual bits and
+    provides operators (AND, OR, XOR, and NOT) that work on entire
+    arrays of bits. It uses \l{implicit sharing} (copy-on-write) to
+    reduce memory usage and avoid needless copying of data.
 
-    A QBitArray is an array that can access individual bits and
-    perform bit-operations (AND, OR, XOR and NOT) on entire arrays or
-    bits.
+    The following code constructs a QBitArray containing 200 bits
+    initialized to false (0):
 
-    Bits can be manipulated by the setBit() and clearBit() functions,
-    but it is also possible to use the indexing [] operator to test
-    and set individual bits.
-
-    Example:
     \code
-    QBitArray a;
-    a.setBit(0);
-    a.clearBit(1);
-    a.setBit(2);     // a = [1 0 1]
-
-    QBitArray b;
-    b[0] = 1;
-    b[1] = 1;
-    b[2] = 0;          // b = [1 1 0]
-
-    QBitArray c;
-    c = ~a & b;        // c = [0 1 0]
+        QBitArray ba(200);
     \endcode
 
-    When a QBitArray is constructed all bits are 0. The array resizes
-    automatically, or it can be resized with resize(). Bits can be set
-    with setBit() and cleared with clearBit(). Bits can be toggled
-    with toggleBit(). A bit's value can be obtained with testBit() and
-    with at().
+    To initialize the bits to true, either pass \c true as second
+    argument to the constructor, or call fill() later on.
 
-    QBitArray supports the \& (AND), | (OR), ^ (XOR) and ~ (NOT)
-    operators.
+    QBitArray uses 0-based indexes, just like C++ arrays. To access
+    the bit at a particular index position, you can use operator[]().
+    On non-const bit arrays, operator[]() returns a reference to a
+    bit that can be used on the left side of an assignment. For
+    example:
+
+    \code
+        QBitArray ba;
+        ba.resize(3);
+        ba[0] = true;
+        ba[1] = false;
+        ba[2] = true;
+    \endcode
+
+    For technical reasons, it is more efficient to use testBit() and
+    setBit() to access bits in the array than operator[](). For
+    example:
+
+    \code
+        QBitArray ba(3);
+        ba.setBit(0, true);
+        ba.setBit(1, false);
+        ba.setBit(2, true);
+    \endcode
+
+    QBitArray supports \c{&} (AND), \c{|} (OR), \c{^} (XOR), \c{~}
+    (NOT), as well as \c{&=}, \c{|=}, and \c{^=}. These operators
+    work in the same way as the built-in C++ bitwise operators of the
+    same name. For example:
+
+    \code
+        QBitArray x(5);
+        x.setBit(3, true);
+        // x: [ 0, 0, 0, 1, 0 ]
+
+        QBitArray y(5);
+        y.setBit(4, true);
+        // y: [ 0, 0, 0, 0, 1 ]
+
+        x |= y;
+        // x: [ 0, 0, 0, 1, 1 ]
+    \endcode
+
+    \sa QByteArray, QVector
 */
-
 
 /*! \fn QBitArray::QBitArray()
-    Constructs an empty bit array.
-*/
 
-/*
- */
+    Constructs an empty bit array.
+
+    \sa isEmpty()
+*/
 
 /*!
-    Constructs a bit array of \a size bits. The bits are initialized
-    with \a val.
+    Constructs a bit array containing \a size bits. The bits are
+    initialized with \a value.
 */
-QBitArray::QBitArray(int size, bool val)
+QBitArray::QBitArray(int size, bool value)
 {
-    if (!size)
-        return;
     d.resize(1 + (size+7)/8);
     uchar* c = (uchar*)d.data();
-    memset(c, val ? 0xff : 0, d.size());
+    memset(c, value ? 0xff : 0, d.size());
     *c = d.size()*8 - size;
-    if (val && size && size%8)
+    if (value && size && size % 8)
         *(c+1+size/8) &= (1 << (size%8)) - 1;
 }
 
-/*!
-    \fn int QBitArray::size() const
+/*! \fn int QBitArray::size() const
 
-    Returns the bit array's size (number of bits).
+    Returns the number of bits stored in the bit array.
 
     \sa resize()
 */
 
-/*!
-    \fn int QBitArray::count() const
+/*! \fn int QBitArray::count() const
 
-    Synonym for size().
+    Same as size().
 */
 
 /*!
     Resizes the bit array to \a size bits.
 
-    If the array is expanded, the new bits are set to 0.
+    If \a size is greater than the current size, the bit array is
+    extended to make it \a size bits with the extra bits added to the
+    end. The new bits are initialized to false (0).
+
+    If \a size is less than the current size, bits are removed from
+    the end.
 
     \sa size()
 */
@@ -102,201 +126,231 @@ void QBitArray::resize(int size)
     *c = d.size()*8 - size;
 }
 
-/*!
-    \fn bool QBitArray::isEmpty() const
+/*! \fn bool QBitArray::isEmpty() const
 
-    Returns true if this bit array is empty; otherwise returns false.
+    Returns true if this bit array has size 0; otherwise returns
+    false.
+
+    \sa size()
 */
 
-/*!
-    \fn bool QBitArray::isNull() const
+/*! \fn bool QBitArray::isNull() const
 
     \internal
 */
 
-/*!
-    \fn bool QBitArray::ensure_constructed()
+/*! \fn bool QBitArray::ensure_constructed()
 
     \internal
 */
 
-/*!
-    \fn  bool QBitArray::fill(bool val, int size = -1)
+/*! \fn bool QBitArray::fill(bool value, int size = -1)
 
+    Sets every bit in the bit array to \a value. If \a size is
+    different from -1 (the default), the bit array is resized to \a
+    size beforehand.
+
+    Example:
+    \code
+        QBitArray ba(8);
+        ba.fill(true);
+        // ba: [ 1, 1, 1, 1, 1, 1, 1, 1 ]
+
+        ba.fill(false, 2);
+        // ba: [ 0, 0 ]
+    \endcode
+
+    \sa resize()
+*/
+
+/*!
     \overload
 
-    Fills the array with with \a val from position 0 to the end (or
-    for \a size positions).
+    Sets bits at index positions \a first to (and including) \a last
+    to \a value.
+
+    \a first and \a last must be a valid index position in the bit
+    array (i.e., 0 <= \a first < size() and 0 <= \a last < size()).
 */
 
-/*!
-    Fills the array with with \a val from \a first to \a last.
-*/
-
-void QBitArray::fill(bool val, int first, int last)
+void QBitArray::fill(bool value, int first, int last)
 {
-    while (first <= last && first & 0x00000007)
-        setBit(first++, val);
-    int len = last - first;
-    if (len < 0)
+    while (first <= last && first & 0x7)
+        setBit(first++, value);
+    int len = last - first + 1;
+    if (len <= 0)
         return;
-    int s = len & 0xfffffff8;
+    int s = len & ~0x7;
     uchar *c = (uchar*)d.data();
-    memset(c + (first >> 3) + 1, val ? 0xff : 0, s >> 3);
+    memset(c + (first >> 3) + 1, value ? 0xff : 0, s >> 3);
     s += first;
     while (s <= last)
-        setBit(s++, val);
-    return;
+        setBit(s++, value);
 }
 
 /*! \fn bool QBitArray::isDetached() const
-  \internal
+
+    \internal
 */
 
 
 /*! \fn void QBitArray::detach()
-  \internal
+
+    \internal
 */
 
-/*!
-    \fn bool QBitArray::toggleBit(int i)
+/*! \fn bool QBitArray::toggleBit(int i)
 
-    Toggles (inverts) the value of bit \a i.
+    Inverts the value of the bit at index position \a i.
+
+    If the previous value was 0, the new value will be 1. If the
+    previous value was 1, the new value will be 0.
+
+    \a i must be a valid index position in the bit array (i.e., 0 <=
+    \a i < size()).
+
+    \sa setBit(), clearBit()
 */
 
 /*! \fn bool QBitArray::testBit(int i) const
 
-  Returns true if the bit at position \a i is set, i.e. is 1; otherwise
-  returns false.
+    Returns true if the bit at index position \a i is 1; otherwise
+    returns false.
 
-  \sa setBit(), clearBit()
+    \a i must be a valid index position in the bit array (i.e., 0 <=
+    \a i < size()).
+
+    \sa setBit(), clearBit()
 */
 
 /*! \fn bool QBitArray::setBit(int i)
 
-  Sets the bit at position \a i to 1.
+    Sets the bit at index position \a i to 1.
 
-   \sa clearBit(), toggleBit()
+    \a i must be a valid index position in the bit array (i.e., 0 <=
+    \a i < size()).
+
+    \sa clearBit(), toggleBit()
 */
 
-/*!
-    \fn void QBitArray::setBit(int i, bool val)
+/*! \fn void QBitArray::setBit(int i, bool value)
 
     \overload
 
-    Sets the bit at position \a i to \a val.
-
-    Equivalent to:
-    \code
-    if (val)
-        setBit(i);
-    else
-        clearBit(i);
-    \endcode
-
-    \sa clearBit() toggleBit()
+    Sets the bit at index position \a i to \a value.
 */
 
 /*! \fn void QBitArray::clearBit(int i)
-    Clears the bit at position \a i, i.e. sets it to 0.
+
+    Sets the bit at index position \a i to 0.
+
+    \a i must be a valid index position in the bit array (i.e., 0 <=
+    \a i < size()).
 
     \sa setBit(), toggleBit()
 */
 
-/*!
-    \fn bool QBitArray::at(int i) const
+/*! \fn bool QBitArray::at(int i) const
 
-    Returns the value (0 or 1) of the bit at position \a i.
+    Returns the value of the bit at index position \a i.
+
+    \a i must be a valid index position in the bit array (i.e., 0 <=
+    \a i < size()).
 
     \sa operator[]()
 */
 
-/*!
-    \fn QBitRef QBitArray::operator[](int i)
+/*! \fn QBitRef QBitArray::operator[](int i)
 
-    Implements the [] operator for bit arrays.
+    Returns the bit at index position \a i as a modifiable reference.
 
-    The returned QBitRef is a context object. It makes it possible to
-    get and set a single bit value by its \a i position.
+    \a i must be a valid index position in the bit array (i.e., 0 <=
+    \a i < size()).
 
     Example:
     \code
-    QBitArray a;
-    a[0] = 0;
-    a[1] = 1;
-    a[2] = a[0] ^ a[1];
+        QBitArray a(3);
+        a[0] = false;
+        a[1] = true;
+        a[2] = a[0] ^ a[1];
     \endcode
 
-    The functions testBit(), setBit() and clearBit() are slightly faster.
+    The return value is of type QBitRef, a helper class for QBitArray.
+    When you get an object of type QBitRef, you can assign to
+    it, and the assignment will apply to the bit in the QBitArray
+    from which you got the reference.
 
-    \sa at()
+    The functions testBit(), setBit(), and clearBit() are slightly
+    faster.
+
+    \sa at(), testBit(), setBit(), clearBit()
 */
 
-/*!
-    \fn bool QBitArray::operator[](int i) const
+/*! \fn bool QBitArray::operator[](int i) const
+
     \overload
-
-    Implements the [] operator for constant bit arrays.
 */
 
-/*!
-    \fn bool QBitArray::operator[](uint i)
+/*! \fn bool QBitArray::operator[](uint i)
+
     \overload
-
-    Implements the [] operator for bit arrays.
 */
 
-/*!
-    \fn bool QBitArray::operator[](uint i) const
+/*! \fn bool QBitArray::operator[](uint i) const
+
     \overload
-
-    Implements the [] operator for constant bit arrays.
 */
 
-/*!
-    \fn QBitArray &QBitArray::operator=(const QBitArray &other)
+/*! \fn QBitArray &QBitArray::operator=(const QBitArray &other)
 
-    Assigns the value of \a other to this bit array.
+    Assigns \a other to this bit array and returns a reference to
+    this byte array.
 */
 
-/*!
-    \fn bool QBitArray::operator==(const QBitArray& a) const
+/*! \fn bool QBitArray::operator==(const QBitArray &other) const
 
-    \internal
+    Returns true if \a other is equal to this bit array; otherwise
+    returns false.
+
+    \sa operator!=()
 */
 
+/*! \fn bool QBitArray::operator!=(const QBitArray &other) const
 
-/*!
-    \fn bool QBitArray::operator!=(const QBitArray& a) const
+    Returns true if \a other is not equal to this bit array;
+    otherwise returns false.
 
-    \internal
+    \sa operator==()
 */
-
 
 /*!
     Performs the AND operation between all bits in this bit array and
-    \a a. Returns a reference to this bit array.
+    \a other. Assigns the result to this bit array, and returns a
+    reference to it.
 
     The result has the length of the longest of the two bit arrays,
-    with any missing bits (i.e. if one array is shorter than the
-    other), taken to be 0.
+    with any missing bits (if one array is shorter than the other)
+    taken to be 0.
+
+    Example:
     \code
-    QBitArray a(3), b(2);
-    a[0] = 1;  a[1] = 0;  a[2] = 1;     // a = [1 0 1]
-    b[0] = 1;  b[1] = 0;                // b = [1 0]
-    a &= b;                             // a = [1 0 0]
+        QBitArray a(3);
+        QBitArray b(2);
+        a[0] = 1; a[1] = 0; a[2] = 1;   // a: [ 1, 0, 1 ]
+        b[0] = 1; b[1] = 0;             // b: [ 1, 1 ]
+        a &= b;                         // a: [ 1, 0, 0 ]
     \endcode
 
-    \sa operator|=(), operator^=(), operator~()
+    \sa operator&(), operator|=(), operator^=(), operator~()
 */
 
-QBitArray &QBitArray::operator&=(const QBitArray &a)
+QBitArray &QBitArray::operator&=(const QBitArray &other)
 {
-    resize(qMax(size(), a.size()));
+    resize(qMax(size(), other.size()));
     uchar *a1 = (uchar *)d.data()+1;
-    const uchar *a2 = (const uchar *)a.d.constData() + 1;
-    int n = qMin(d.size(), a.d.size()) - 1;
-    int p = qMax(d.size(), a.d.size()) - 1 - n;
+    const uchar *a2 = (const uchar *)other.d.constData() + 1;
+    int n = qMin(d.size(), other.d.size()) - 1;
+    int p = qMax(d.size(), other.d.size()) - 1 - n;
     while (n-- > 0)
         *a1++ &= *a2++;
     while (p-- > 0)
@@ -306,27 +360,31 @@ QBitArray &QBitArray::operator&=(const QBitArray &a)
 
 /*!
     Performs the OR operation between all bits in this bit array and
-    \a a. Returns a reference to this bit array.
+    \a other. Assigns the result to this bit array, and returns a
+    reference to it.
 
     The result has the length of the longest of the two bit arrays,
-    with any missing bits (i.e. if one array is shorter than the
-    other), taken to be 0.
+    with any missing bits (if one array is shorter than the other)
+    taken to be 0.
+
+    Example:
     \code
-    QBitArray a(3), b(2);
-    a[0] = 1;  a[1] = 0;  a[2] = 1;     // a = [1 0 1]
-    b[0] = 1;  b[1] = 0;                // b = [1 0]
-    a |= b;                             // a = [1 0 1]
+        QBitArray a(3);
+        QBitArray b(2);
+        a[0] = 1; a[1] = 0; a[2] = 1;   // a: [ 1, 0, 1 ]
+        b[0] = 1; b[1] = 0;             // b: [ 1, 1 ]
+        a |= b;                         // a: [ 1, 1, 1 ]
     \endcode
 
-    \sa operator&=(), operator^=(), operator~()
+    \sa operator|(), operator&=(), operator^=(), operator~()
 */
 
-QBitArray &QBitArray::operator|=(const QBitArray &a)
+QBitArray &QBitArray::operator|=(const QBitArray &other)
 {
-    resize(qMax(size(), a.size()));
+    resize(qMax(size(), other.size()));
     uchar *a1 = (uchar *)d.data()+1;
-    const uchar *a2 = (const uchar *)a.d.constData()+1;
-    int n = qMin(d.size(), a.d.size()) - 1;
+    const uchar *a2 = (const uchar *)other.d.constData()+1;
+    int n = qMin(d.size(), other.d.size()) - 1;
     while (n-- > 0)
         *a1++ |= *a2++;
     return *this;
@@ -334,41 +392,49 @@ QBitArray &QBitArray::operator|=(const QBitArray &a)
 
 /*!
     Performs the XOR operation between all bits in this bit array and
-    \a a. Returns a reference to this bit array.
+    \a other. Assigns the result to this bit array, and returns a
+    reference to it.
 
     The result has the length of the longest of the two bit arrays,
-    with any missing bits (i.e. if one array is shorter than the
-    other), taken to be 0.
+    with any missing bits (if one array is shorter than the other)
+    taken to be 0.
+
+    Example:
     \code
-    QBitArray a(3), b(2);
-    a[0] = 1;  a[1] = 0;  a[2] = 1;     // a = [1 0 1]
-    b[0] = 1;  b[1] = 0;                // b = [1 0]
-    a ^= b;                             // a = [0 0 1]
+        QBitArray a(3);
+        QBitArray b(2);
+        a[0] = 1; a[1] = 0; a[2] = 1;   // a: [ 1, 0, 1 ]
+        b[0] = 1; b[1] = 0;             // b: [ 1, 1 ]
+        a ^= b;                         // a: [ 0, 1, 1 ]
     \endcode
 
-    \sa operator&=(), operator|=(), operator~()
+    \sa operator^(), operator&=(), operator|=(), operator~()
 */
 
-QBitArray &QBitArray::operator^=(const QBitArray &a)
+QBitArray &QBitArray::operator^=(const QBitArray &other)
 {
-    resize(qMax(size(), a.size()));
+    resize(qMax(size(), other.size()));
     uchar *a1 = (uchar *)d.data();
-    const uchar *a2 = (const uchar *)a.d.constData();
-    int n = qMin(d.size(), a.d.size()) - 1;
+    const uchar *a2 = (const uchar *)other.d.constData();
+    int n = qMin(d.size(), other.d.size()) - 1;
     while (n-- > 0)
         *a1++ ^= *a2++;
     return *this;
 }
 
 /*!
-    Returns a bit array that contains the inverted bits of this bit array.
+    Returns a bit array that contains the inverted bits of this bit
+    array.
 
     Example:
     \code
-    QBitArray a(3), b;
-    a[0] = 1;  a[1] = 0; a[2] = 1;        // a = [1 0 1]
-    b = ~a;                                // b = [0 1 0]
+        QBitArray a(3);
+        QBitArray b;
+        a[0] = 1; a[1] = 0; a[2] = 1;   // a: [ 1, 0, 1 ]
+        b = ~a;                         // b: [ 0, 1, 0 ]
     \endcode
+
+    \sa operator&(), operator|(), operator^()
 */
 
 QBitArray QBitArray::operator~() const
@@ -391,10 +457,20 @@ QBitArray QBitArray::operator~() const
     Returns the AND result between the bit arrays \a a1 and \a a2.
 
     The result has the length of the longest of the two bit arrays,
-    with any missing bits (i.e. if one array is shorter than the
-    other), taken to be 0.
+    with any missing bits (if one array is shorter than the other)
+    taken to be 0.
 
-    \sa QBitArray::operator&=()
+    Example:
+    \code
+        QBitArray a(3);
+        QBitArray b(2);
+        QBitArray c;
+        a[0] = 1; a[1] = 0; a[2] = 1;   // a: [ 1, 0, 1 ]
+        b[0] = 1; b[1] = 0;             // b: [ 1, 1 ]
+        c = a & b;                      // c: [ 1, 0, 0 ]
+    \endcode
+
+    \sa QBitArray::operator&=(), operator|(), operator^()
 */
 
 QBitArray operator&(const QBitArray &a1, const QBitArray &a2)
@@ -405,15 +481,23 @@ QBitArray operator&(const QBitArray &a1, const QBitArray &a2)
 }
 
 /*!
-    \relates QBitArray
-
     Returns the OR result between the bit arrays \a a1 and \a a2.
 
     The result has the length of the longest of the two bit arrays,
-    with any missing bits (i.e. if one array is shorter than the
-    other), taken to be 0.
+    with any missing bits (if one array is shorter than the other)
+    taken to be 0.
 
-    \sa QBitArray::operator|=()
+    Example:
+    \code
+        QBitArray a(3);
+        QBitArray b(2);
+        QBitArray c;
+        a[0] = 1; a[1] = 0; a[2] = 1;   // a: [ 1, 0, 1 ]
+        b[0] = 1; b[1] = 0;             // b: [ 1, 1 ]
+        c = a | b;                      // c: [ 1, 1, 1 ]
+    \endcode
+
+    \sa QBitArray::operator|=(), operator&(), operator^()
 */
 
 QBitArray operator|(const QBitArray &a1, const QBitArray &a2)
@@ -429,10 +513,20 @@ QBitArray operator|(const QBitArray &a1, const QBitArray &a2)
     Returns the XOR result between the bit arrays \a a1 and \a a2.
 
     The result has the length of the longest of the two bit arrays,
-    with any missing bits (i.e. if one array is shorter than the
-    other), taken to be 0.
+    with any missing bits (if one array is shorter than the other)
+    taken to be 0.
 
-    \sa QBitArray::operator^()
+    Example:
+    \code
+        QBitArray a(3);
+        QBitArray b(2);
+        QBitArray c;
+        a[0] = 1; a[1] = 0; a[2] = 1;   // a: [ 1, 0, 1 ]
+        b[0] = 1; b[1] = 0;             // b: [ 1, 1 ]
+        c = a ^ b;                      // c: [ 0, 1, 1 ]
+    \endcode
+
+    \sa QBitArray::operator^=(), operator&(), operator|()
 */
 
 QBitArray operator^(const QBitArray &a1, const QBitArray &a2)
@@ -442,45 +536,41 @@ QBitArray operator^(const QBitArray &a1, const QBitArray &a2)
     return tmp;
 }
 
-
 /*!
-    \class QBitRef qbitarray.h
+    \class QBitRef
     \reentrant
     \brief The QBitRef class is an internal class, used with QBitArray.
+
+    \internal
 
     The QBitRef is required by the indexing [] operator on bit arrays.
     It is not for use in any other context.
 */
 
-/*!
-    \fn QBitRef::QBitRef (QBitArray& a, int i)
+/*! \fn QBitRef::QBitRef (QBitArray& a, int i)
 
     Constructs a reference to element \a i in the QBitArray \a a.
     This is what QBitArray::operator[] constructs its return value
     with.
 */
 
-/*!
-    \fn QBitRef::operator bool() const
+/*! \fn QBitRef::operator bool() const
 
     Returns the value referenced by the QBitRef.
 */
 
-/*!
-    \fn bool QBitRef::operator!() const
+/*! \fn bool QBitRef::operator!() const
 
     \internal
 */
 
-/*!
-    \fn QBitRef& QBitRef::operator= (const QBitRef& v)
+/*! \fn QBitRef& QBitRef::operator= (const QBitRef& v)
 
     Sets the value referenced by the QBitRef to that referenced by
     QBitRef \a v.
 */
 
-/*!
-    \fn QBitRef& QBitRef::operator= (bool v)
+/*! \fn QBitRef& QBitRef::operator= (bool v)
     \overload
 
     Sets the value referenced by the QBitRef to \a v.
@@ -494,44 +584,43 @@ QBitArray operator^(const QBitArray &a1, const QBitArray &a2)
 /*!
     \relates QBitArray
 
-    Writes bit array \a a to stream \a s.
+    Writes bit array \a a to stream \a out.
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 #ifndef QT_NO_DATASTREAM
-QDataStream &operator<<(QDataStream &s, const QBitArray &a)
+QDataStream &operator<<(QDataStream &out, const QBitArray &ba)
 {
-    Q_UINT32 len = a.size();
-    s << len;                                        // write size of array
-    if (len > 0)                                // write data
-        s.writeRawBytes(a.d, a.d.size());
-    return s;
+    Q_UINT32 len = ba.size();
+    out << len;
+    if (len > 0)
+        out.writeRawBytes(ba.d, ba.d.size());
+    return out;
 }
 
 /*!
     \relates QBitArray
 
-    Reads a bit array into \a a from stream \a s.
+    Reads a bit array into \a ba from stream \a in.
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator>>(QDataStream &s, QBitArray &a)
+QDataStream &operator>>(QDataStream &in, QBitArray &ba)
 {
     Q_UINT32 len;
-    s >> len;
+    in >> len;
     if (!len) {
-        a.d.clear();
+        ba.d.clear();
     } else {
-        a.resize(len); // read size of array
-        if (a.size() != (int)len) {                // resize array
+        ba.resize(len); // read size of array
+        if (ba.size() != (int)len) {                // resize array
             qWarning("QDataStream: Not enough memory to read QBitArray");
             len = 0;
         }
         if (len > 0)                                // read data
-            s.readRawBytes(a.d.data(), a.d.size());
+            in.readRawBytes(ba.d.data(), ba.d.size());
     }
-    return s;
+    return in;
 }
 #endif
-
