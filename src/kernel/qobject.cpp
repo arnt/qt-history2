@@ -66,7 +66,7 @@
   \brief The QObject class is the base class of all Qt objects that can
   deal with signals, slots and events.
 
-  \ingroup objectmodelkernel
+  \ingroup objectmodel
 
   Qt provides a very powerful mechanism for seamless object
   communication; \link metaobjects.html signal/slot
