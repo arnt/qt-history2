@@ -173,7 +173,8 @@ void QDecoration::maximize(QWidget *widget)
 #endif
 */
     {
-        QRegion r = region(widget);
+        QRect dummy(0, 0, 1, 1);
+        QRegion r = region(widget, dummy);
         if (r.isEmpty()) {
             nr = desk;
         } else {
