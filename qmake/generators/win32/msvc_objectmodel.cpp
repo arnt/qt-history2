@@ -675,7 +675,7 @@ bool VCCLCompilerTool::parseOption( const char* option )
 	    else if ( third == '2' )
 		InlineFunctionExpansion = expandAnySuitable;
 	    else
-		found = FALSE; break;
+		found = FALSE;
 	    break;
 	case 'd':
 	    Optimization = optimizeDisabled;
@@ -1550,11 +1550,11 @@ bool VCMIDLTool::parseOption( const char* option )
 	    EnableErrorChecks = midlDisableAll;
 	    break;
 	case 'r':
-	    break;
 	    ErrorCheckRefPointers = _True;
-	case 's':
 	    break;
+	case 's':
 	    ErrorCheckStubData = _True;
+	    break;
 	default:
 	    found = FALSE;
 	}
