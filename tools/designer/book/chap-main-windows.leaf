@@ -638,7 +638,7 @@ properties. Change the action's \Property name property to
 property to pop up the \Widget{Choose an Image} dialog. Click the
 \Button Add button to invoke the \Widget{Choose Images...} dialog.
 Navigate to \c{/tools/designer/examples/colortool/images}; click the
-\c{tabwidget.png} image. Click \Button Open to use it and then click
+\c{designer_tabwidget.png} image. Click \Button Open to use it and then click
 \OK once you are in the \Widget {Choose an Image} dialog. Change the
 \Property{text} property to "Options" and change the
 \Property{menuText} property to "\&Options...".
@@ -657,7 +657,7 @@ Options menu item (the pixmap field) and press \Key Enter. The
 \Widget{Choose an Image} dialog pops up. Click the \Button Add button
 to invoke the \Widget{Choose Images...} dialog. Navigate to
 \c{/tools/designer/examples/colortool/images}; click the
-\c{tabwidget.png}image. Click \Button Open to use the image and then
+\c{designer_tabwidget.png} image. Click \Button Open to use the image and then
 click \OK once you are in the \Widget {Choose an Image} dialog. The
 pixmap now appears next to the Options item in the menu.  
 
@@ -680,7 +680,7 @@ We'll connect and code this action later.
 Right click the first action in the Action Editor, then click
 \Menu{New Action}. Change the action's \Property{name} property to
 "editAddAction". Change its \Property{iconSet} property to
-\c{widgetstack.png}. Change the \Property{text} property to
+\c{designer_widgetstack.png}. Change the \Property{text} property to
 "Add" and the \Property{menuText} property to "\&Add...". Change the
 \Property{accel} property to "Ctrl+A" (press \Key CTRL+A and the key
 combination will automatically appear in the field).
@@ -698,7 +698,7 @@ Add item and press \Key Enter. The \Widget{Choose an Image} dialog
 pops up.Click the \Button Add button to invoke the \Widget{Choose
 Images...} dialog. Navigate to
 \c{/tools/designer/examples/colortool/images}; click the
-\c{tabwidget.png}image. Click \Button Open to use the image and then
+\c{designer_tabwidget.png} image. Click \Button Open to use the image and then
 click \OK once you are in the \Widget {Choose an Image} dialog. The
 pixmap now appears next to the Options item in the menu. Finally,
 move the arrow key to the space to the right of the Add item and
@@ -765,7 +765,7 @@ this action's \Property{name} property to "viewTableAction". Set its
 property to True. We want it to be a toggle action because either the
 user is using this view (it is "on") or another view (it is "off"). We
 set this action to "on" because it will be the default view. Change
-its \Property{iconSet} property to \c{table.png}. Change the
+its \Property{iconSet} property to \c{designer_table.png}. Change the
 \Property{text} property to "View Table" and the \Property{menuText}
 property to "View \&Table". Change the \Property{accel} property to
 "Ctrl+T", and set the \Property{toolTip} property to "View Table
@@ -778,7 +778,7 @@ status bar and in a temporary yellow label next to the toolbar button.
 Right click the viewActionGroup, then click \Menu{New Action}. Change
 this action's \Property{name} property to "viewIconsAction". Set its
 \Property{toggleAction} property to True. Change its
-\Property{iconSet} property to \c{iconview.png}. Change the
+\Property{iconSet} property to \c{designer_iconview.png}. Change the
 \Property{text} property to "View Icons" and the \Property{menuText}
 property to "View \&Icons". Set the \Property{accel} property to
 "Ctrl+I" and change the \Property{toolTip} property to
