@@ -248,7 +248,7 @@
                     <cstring>searchTab</cstring>
                 </property>
                 <attribute name="title">
-                    <string>&amp;Search</string>
+                    <string>Se&amp;arch</string>
                 </attribute>
                 <grid>
                     <property name="name">
@@ -282,7 +282,7 @@
                             <cstring>TextLabel1_2</cstring>
                         </property>
                         <property name="text">
-                            <string>S&amp;earching for:</string>
+                            <string>Searching f&amp;or:</string>
                         </property>
                         <property name="buddy" stdset="0">
                             <cstring>termsEdit</cstring>
