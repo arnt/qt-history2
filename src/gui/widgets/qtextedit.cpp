@@ -2762,7 +2762,7 @@ void QTextEdit::append(const QString &text)
     QTextCursor cursor(d->doc);
     cursor.beginEditBlock();
     cursor.movePosition(QTextCursor::End);
-    cursor.insertBlock();
+    cursor.insertBlock(d->cursor.blockFormat(), d->cursor.charFormat());
     if (f == Qt::PlainText) {
         QString txt = text;
         txt.replace('\n', QChar::ParagraphSeparator);
