@@ -1123,31 +1123,25 @@ void LightStyleV3::drawControlMask( ControlElement control,
 
 QRect LightStyleV3::subRect(SubRect subrect, const QWidget *widget) const
 {
-    QRect rect;
-
     switch (subrect) {
     case SR_PushButtonFocusRect:
 	{
-	    rect = widget->rect();
+	    QRect rect = widget->rect();
  	    int delta = ( pixelMetric( PM_ButtonMargin, widget ) / 3 ) +
 			pixelMetric( PM_DefaultFrameWidth, widget );
 	    rect.addCoords( delta, delta, -delta, -delta );
-  	    break;
+	    return rect;
   	}
 
     case SR_ComboBoxFocusRect:
 	{
-	    rect = QCommonStyle::subRect( SR_ComboBoxFocusRect, widget );
+	    QRect rect = QCommonStyle::subRect( SR_ComboBoxFocusRect, widget );
 	    rect.addCoords( -1, -1, 1, 1 );
-	    break;
+	    return rect;
 	}
-
-    default:
-	rect = QCommonStyle::subRect(subrect, widget);
-	break;
     }
 
-    return rect;
+    return QCommonStyle::subRect(subrect, widget);
 }
 
 void LightStyleV3::drawComplexControl( ComplexControl control,
@@ -1420,8 +1414,6 @@ QRect LightStyleV3::querySubControlMetrics( ComplexControl control,
 					  SubControl sc,
 					  const QStyleOption &data ) const
 {
-    QRect ret;
-
     switch (control) {
     case CC_ComboBox:
 	{
@@ -1430,21 +1422,18 @@ QRect LightStyleV3::querySubControlMetrics( ComplexControl control,
 
 	    switch ( sc ) {
 	    case SC_ComboBoxFrame:
-		ret = widget->rect();
-		break;
+		return widget->rect();
+
 	    case SC_ComboBoxArrow:
-		ret.setRect( widget->width() - fw - sb, fw,
-			     sb, widget->height() - fw*2 );
-		break;
+		return QRect( widget->width() - fw - sb, fw,
+			      sb, widget->height() - fw*2 );
+
 	    case SC_ComboBoxEditField:
-		ret.setRect( fw, fw, widget->width() - fw*2 - sb - 1,
-			     widget->height() - fw*2 );
-		break;
-	    default:
-		break;
+		return QRect( fw, fw, widget->width() - fw*2 - sb - 1,
+			      widget->height() - fw*2 );
 	    }
 
-	    break;
+	    return QCommonStyle::querySubControlMetrics( control, widget, sc, data );
 	}
 
     case CC_ScrollBar:
@@ -1473,54 +1462,40 @@ QRect LightStyleV3::querySubControlMetrics( ComplexControl control,
 	    switch (sc) {
 	    case SC_ScrollBarSubLine:
 		// top/left button
-		ret.setRect(0, 0, sbextent, sbextent);
-		break;
+		return QRect(0, 0, sbextent, sbextent);
 
 	    case SC_ScrollBarAddLine:
 		// bottom/right button
 		if (scrollbar->orientation() == Qt::Horizontal)
-		    ret.setRect(scrollbar->width() - sbextent, 0, sbextent, sbextent);
-		else
-		    ret.setRect(0, scrollbar->height() - sbextent, sbextent, sbextent);
-		break;
+		    return QRect(scrollbar->width() - sbextent, 0, sbextent, sbextent);
+		return QRect(0, scrollbar->height() - sbextent, sbextent, sbextent);
 
 	    case SC_ScrollBarSubPage:
 		// between top/left button and slider
 		if (scrollbar->orientation() == Qt::Horizontal)
-		    ret.setRect(sbextent, 0, sliderstart - sbextent, sbextent);
-		else
-		    ret.setRect(0, sbextent, sbextent, sliderstart - sbextent);
-		break;
+		    return QRect(sbextent, 0, sliderstart - sbextent, sbextent);
+		return QRect(0, sbextent, sbextent, sliderstart - sbextent);
 
 	    case SC_ScrollBarAddPage:
 		// between bottom/right button and slider
 		if (scrollbar->orientation() == Qt::Horizontal)
-		    ret.setRect(sliderstart + sliderlen, 0, maxlen - sliderstart -
-				sliderlen + sbextent, sbextent);
-		else
-		    ret.setRect(0, sliderstart + sliderlen, sbextent, maxlen -
-				sliderstart - sliderlen + sbextent);
-		break;
+		    return QRect(sliderstart + sliderlen, 0, maxlen - sliderstart -
+				 sliderlen + sbextent, sbextent);
+		return QRect(0, sliderstart + sliderlen, sbextent, maxlen -
+			     sliderstart - sliderlen + sbextent);
 
 	    case SC_ScrollBarGroove:
 		if (scrollbar->orientation() == Qt::Horizontal)
-		    ret.setRect(sbextent, 0, maxlen, sbextent );
-		else
-		    ret.setRect(0, sbextent, sbextent, maxlen );
-		break;
+		    return QRect(sbextent, 0, maxlen, sbextent );
+		return QRect(0, sbextent, sbextent, maxlen );
 
 	    case SC_ScrollBarSlider:
 		if (scrollbar->orientation() == Qt::Horizontal)
-		    ret.setRect(sliderstart, 0, sliderlen, sbextent);
-		else
-		    ret.setRect(0, sliderstart, sbextent, sliderlen);
-		break;
-
-	    default:
-		break;
+		    return QRect(sliderstart, 0, sliderlen, sbextent);
+		return QRect(0, sliderstart, sbextent, sliderlen);
 	    }
 
-	    break;
+	    return QCommonStyle::querySubControlMetrics(control, widget, sc, data);
 	}
 
     case CC_Slider:
@@ -1532,37 +1507,24 @@ QRect LightStyleV3::querySubControlMetrics( ComplexControl control,
 	    switch ( sc ) {
 	    case SC_SliderGroove:
 		if ( slider->orientation() == Horizontal )
-		    ret.setRect( 0, tickOffset, slider->width(), thickness );
-		else
-		    ret.setRect( tickOffset, 0, thickness, slider->height() );
-		break;
+		    return QRect( 0, tickOffset, slider->width(), thickness );
+		return QRect( tickOffset, 0, thickness, slider->height() );
 
 	    case SC_SliderHandle:
 		{
 		    int pos = slider->sliderStart();
 		    int len = pixelMetric( PM_SliderLength, widget );
-
 		    if ( slider->orientation() == Horizontal )
-			ret.setRect( pos + 2, tickOffset + 2, len - 4, thickness - 4 );
-		    else
-			ret.setRect( tickOffset + 2, pos + 2, thickness - 4, len - 4 );
-		    break;
+			return QRect( pos + 2, tickOffset + 2, len - 4, thickness - 4 );
+		    return QRect( tickOffset + 2, pos + 2, thickness - 4, len - 4 );
 		}
-
-	    default:
-		ret = QCommonStyle::querySubControlMetrics(control, widget, sc, data);
-		break;
 	    }
 
-	    break;
+	    return QCommonStyle::querySubControlMetrics(control, widget, sc, data);
 	}
-
-    default:
-	ret = QCommonStyle::querySubControlMetrics(control, widget, sc, data);
-	break;
     }
 
-    return ret;
+    return QCommonStyle::querySubControlMetrics(control, widget, sc, data);
 }
 
 QStyle::SubControl LightStyleV3::querySubControl( ComplexControl control,
@@ -1691,15 +1653,12 @@ QSize LightStyleV3::sizeFromContents( ContentsType contents,
 				    const QSize &contentsSize,
 				    const QStyleOption &data ) const
 {
-    QSize ret;
-
     switch (contents) {
     case CT_DockWindow:
 	{
 	    int sw = pixelMetric( PM_SplitterWidth );
-	    ret = QSize( QMAX( sw, contentsSize.width() ),
-			 QMAX( sw, contentsSize.height() ) );
-	    break;
+	    return QSize( QMAX( sw, contentsSize.width() ),
+			  QMAX( sw, contentsSize.height() ) );
 	}
 
     case CT_ComboBox:
@@ -1716,15 +1675,15 @@ QSize LightStyleV3::sizeFromContents( ContentsType contents,
 	    if ( h < 21 )
 		h = 21;
 
-	    ret = QSize( w, h );
-	    break;
+	    return QSize( w, h );
 	}
 
     case CT_PushButton:
 	{
 	    const QPushButton *button = (const QPushButton *) widget;
-	    ret = QCommonStyle::sizeFromContents( contents, widget, contentsSize, data );
-	    int w = ret.width(), h = ret.height();
+	    QSize sz =
+		QCommonStyle::sizeFromContents( contents, widget, contentsSize, data );
+	    int w = sz.width(), h = sz.height();
 	    int dbi = pixelMetric( PM_ButtonDefaultIndicator, widget ) * 2;
 	    int mw = 80 - dbi, mh = 25 - dbi;
 
@@ -1737,8 +1696,7 @@ QSize LightStyleV3::sizeFromContents( ContentsType contents,
 		    h = mh;
 	    }
 
-	    ret = QSize( w, h );
-	    break;
+	    return QSize( w, h );
 	}
 
     case CT_PopupMenuItem:
@@ -1782,16 +1740,11 @@ QSize LightStyleV3::sizeFromContents( ContentsType contents,
 	    if (! mi->text().isNull() && mi->text().find('\t') >= 0)
 		w += 8;
 
-	    ret = QSize(w, h);
-	    break;
+	    return QSize(w, h);
 	}
-
-    default:
-	ret = QCommonStyle::sizeFromContents(contents, widget, contentsSize, data);
-	break;
     }
 
-    return ret;
+    return QCommonStyle::sizeFromContents(contents, widget, contentsSize, data);
 }
 
 int LightStyleV3::styleHint( StyleHint stylehint,
@@ -1799,8 +1752,6 @@ int LightStyleV3::styleHint( StyleHint stylehint,
 			   const QStyleOption &option,
 			   QStyleHintReturn* returnData ) const
 {
-    int ret;
-
     switch (stylehint) {
     case SH_EtchDisabledText:
     case SH_Slider_SnapToValue:
@@ -1811,23 +1762,16 @@ int LightStyleV3::styleHint( StyleHint stylehint,
     case SH_MenuBar_MouseTracking:
     case SH_PopupMenu_MouseTracking:
     case SH_ComboBox_ListMouseTracking:
-	ret = 1;
-	break;
+	return 1;
 
     case SH_MainWindow_SpaceBelowMenuBar:
-	ret = 0;
-	break;
+	return 0;
 
     case SH_ScrollBar_BackgroundMode:
-	ret = NoBackground;
-	break;
-
-    default:
-	ret = QCommonStyle::styleHint(stylehint, widget, option, returnData);
-	break;
+	return NoBackground;
     }
 
-    return ret;
+    return QCommonStyle::styleHint(stylehint, widget, option, returnData);
 }
 
 QPixmap LightStyleV3::stylePixmap( StylePixmap stylepixmap,
