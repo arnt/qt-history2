@@ -3122,10 +3122,12 @@ BYTE* QPSPrinterFontTTF::getTable(const char* name)
   while (x != numTables) {
     if( strncmp((const char *)ptr,name,4) == 0 ) {
       ULONG offset;
+      //ULONG length;
       BYTE *table;
 
       offset = getULONG( ptr + 8 );
-
+      //length = getULONG( ptr + 12 );
+   
       table = offset_table + offset;
       return table;
     }
