@@ -1526,7 +1526,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 				break;
 			    curtag = tags.pop();
 			}
-			
+
 	   		if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
 			    // we are in a li and a new block comes along
 			    if ( nstyle->name() == "ul" || nstyle->name() == "ol" )
@@ -1548,7 +1548,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			}
 		    }
 		}
-		
+
 		QTextCustomItem* custom =  0;
 
 		// some well-known tags, some have a nstyle, some not
@@ -1610,13 +1610,13 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			    linkColor = QColor( attr["link"] );
 			if ( attr.contains( "title" ) )
 			    attribs.replace( "title", attr["title"] );
-			
+
 			if ( textEditMode ) {
 			    if ( attr.contains("style" ) ) {
 				QString a = attr["style"];
 				for ( int s = 0; s < a.contains(';')+1; s++ ) {
 				    QString style = a.section( ';', s, s );
-				    if ( style.startsWith("font-size:" ) && style.endsWith("pt") ) {	
+				    if ( style.startsWith("font-size:" ) && style.endsWith("pt") ) {
 					scaleFontsFactor = double( formatCollection()->defaultFormat()->fn.pointSize() ) /
 							   style.mid( 10, style.length() - 12 ).toInt();
 				    }
@@ -1640,7 +1640,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			attribs.replace( "title", title );
 		    }
 		} // end of well-known tag handling
-		
+
 		if ( !custom ) // try generic custom item
 		    custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
 
@@ -1679,7 +1679,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    curtag.style = nstyle;
 		    if ( int(nstyle->whiteSpaceMode())  != QStyleSheetItem::Undefined )
 			curtag.wsm = nstyle->whiteSpaceMode();
-		
+
 		    /* ignore whitespace for inline elements if there
 		       was already one*/
 		    if ( !textEditMode && curtag.wsm == QStyleSheetItem::WhiteSpaceNormal
@@ -1697,13 +1697,13 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 
 		    if ( nstyle->alignment() != QStyleSheetItem::Undefined )
 			curtag.alignment = nstyle->alignment();
-		
+
 		    if ( (int) nstyle->listStyle() != QStyleSheetItem::Undefined )
 			curtag.liststyle = nstyle->listStyle();
 
 		    if ( nstyle->displayMode() == QStyleSheetItem::DisplayBlock
 			 || nstyle->displayMode() == QStyleSheetItem::DisplayListItem ) {
-			
+
 			if ( nstyle->name() == "ol" || nstyle->name() == "ul" || nstyle->name() == "li") {
 			    QString type = attr["type"];
 			    if ( !type.isEmpty() ) {
@@ -1724,8 +1724,8 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 				}
 			    }
 			}
-			
-			
+
+
 			/* Internally we treat ordered and bullet
 			  lists the same for margin calculations. In
 			  order to have fast pointer compares in the
@@ -1736,7 +1736,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			 */
 			if ( nstyle->name() == "ul" )
 			    curtag.style = sheet_->item( "ol" );
-			
+
 			if ( attr.contains( "align" ) ) {
 			    QString align = attr["align"];
 			    if ( align == "center" )
@@ -1755,12 +1755,12 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			}
 
 			NEWPAR;
-			
+
 			if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
 			    if ( attr.contains( "value " ) )
 				curpar->setListValue( attr["value"].toInt() );
 			}
-			
+
 			if ( attr.contains( "style" ) ) {
 			    QString a = attr["style"];
 			    bool ok = TRUE;
@@ -1920,7 +1920,7 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	    nextStyle = styles.next();
 	    continue;
 	}
-	
+
 	int i, mar;
 	QStyleSheetItem* mainStyle = curStyle->size() ? (*curStyle)[curStyle->size()-1] : 0;
 	if ( mainStyle && mainStyle->displayMode() == QStyleSheetItem::DisplayListItem )
@@ -1989,7 +1989,7 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	    m = QMAX( m, mar );
 	}
 	stylesPar->ubm = m - stylesPar->bottomMargin();
-	
+
 	// do the left margin, simplyfied
 	item = mainStyle;
 	if (stylesPar->ulm > 0 ) {
@@ -2206,16 +2206,16 @@ QString QTextDocument::richText() const
 	}
 
 	QString ps = p->richText();
-	
+
 	  // for the bottom margin we need to know whether we are at the end of a list
 	futureListDepth = 0;
 	if ( listDepth > 0 && p->next() )
 	    futureListDepth = p->next()->listDepth();
-	
+
 	if ( richTextExportStart && richTextExportStart->paragraph() ==p &&
 	     richTextExportStart->index() == 0 )
 	    s += "<selstart/>";
-	
+
 	if ( p->isListItem() ) {
 	    s += "<li";
 	    if ( p->listStyle() != listStyles[listDepth] )
@@ -2244,7 +2244,7 @@ QString QTextDocument::richText() const
 	s += list_is_ordered( listStyles[listDepth] ) ? "</ol>" : "</ul>";
 	listDepth--;
     }
-	
+
     if ( !par )
 	s += "\n</body></html>\n";
 
@@ -2459,7 +2459,7 @@ bool QTextDocument::setSelectionEnd( int id, const QTextCursor &cursor )
 		    c.gotoNextLetter();
 		} while ( c.paragraph() == p );
 	    else
-		c.setParagraph( p->next() );		
+		c.setParagraph( p->next() );
 	}
     }
 
@@ -2567,7 +2567,7 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
     if ( asRichText && !parent() ) {
 	richTextExportStart = &c1;
 	richTextExportEnd = &c2;
-	
+
 	QString sel = richText();
 	int from = sel.find( "<selstart/>" );
 	int to = sel.findRev( "<selend/>" );
@@ -2789,13 +2789,13 @@ bool QTextDocument::find( QTextCursor& cursor, const QString &e, bool cs, bool w
     QString expr = e;
     // if we search for 'word only' than we have to be sure that
     // the expression contains no space or punct character at the
-    // beginning or in the end. Otherwise we would run into a 
-    // endlessloop.    
+    // beginning or in the end. Otherwise we would run into a
+    // endlessloop.
     if ( wo ) {
 	for ( ;; ) {
 	    if ( expr[ 0 ].isSpace() || expr[ 0 ].isPunct() )
 		expr = expr.right( expr.length() - 1 );
-	    else 
+	    else
 		break;
 	}
 	for ( ;; ) {
@@ -2804,7 +2804,7 @@ bool QTextDocument::find( QTextCursor& cursor, const QString &e, bool cs, bool w
 	    else
 		break;
 	}
-    }    
+    }
     for (;;) {
 	if ( p != cursor.paragraph() ) {
 	    p = cursor.paragraph();
@@ -4320,7 +4320,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
     int paintStart = 0;
     for ( i = 0; i < length(); i++ ) {
 	chr = at( i );
-	
+
 	// we flush at end of document
 	bool flush = i== length()-1;
 	if ( !flush ) {
@@ -4401,7 +4401,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 		xstart = at( paintStart )->x;
 		xend = chr->x + str->width( i );
 	    }
-		
+
 	    if ( (clipx == -1 || clipw == -1) || (xend >= clipx && xstart <= clipx + clipw) ) {
 		if ( !chr->isCustom() )
 		    drawString( painter, qstr, paintStart, i - paintStart + 1, xstart, y,
@@ -5019,7 +5019,7 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 	    if ( text->at( j ).c == '\t' ) {
 		start = j+1;
 		break;
-	    }	
+	    }
 	    if( isBreakable( text, j ) ) {
 		numSpaces++;
 	    }
@@ -5487,7 +5487,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 	bool lastWasOwnLineCustomItem = lastBreak == -2;
 	bool hadBreakableChar = lastBreak != -1;
 	bool lastWasHardBreak = lastChr == QChar_linesep;
-	
+
 	// we break if
 	// 1. the last character was a hard break (QChar_linesep) or
 	// 2. the last charater was a own-line custom item (eg. table or ruler) or
@@ -6012,7 +6012,7 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
     QTextFormat format(*this);
     if (!style )
 	return format;
-	
+
     if ( !style->isAnchor() && style->color().isValid() ) {
 	// the style is not an anchor and defines a color.
 	// It might be used inside an anchor and it should
@@ -6093,7 +6093,7 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 	QString a = attr["style"];
 	for ( int s = 0; s < a.contains(';')+1; s++ ) {
 	    QString style = a.section( ';', s, s );
-	    if ( style.startsWith("font-size:" ) && style.endsWith("pt") ) {	
+	    if ( style.startsWith("font-size:" ) && style.endsWith("pt") ) {
 		format.logicalFontSize = 0;
 		format.setPointSize( int( scaleFontsFactor * style.mid( 10, style.length() - 12 ).toInt() ) );
 	    } if ( style.startsWith("font-style:" ) ) {
