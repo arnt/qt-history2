@@ -953,9 +953,6 @@ void VcprojGenerator::initOld()
                         (*libit).replace(QRegExp("qt\\.lib"), ver);
                 }
             }
-
-            if(!project->isActiveConfig("dll") && !project->isActiveConfig("plugin"))
-                project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
         }
     }
 

@@ -296,8 +296,6 @@ void Win32MakefileGenerator::processQtConfig()
                         (*libit).replace(QRegExp("qt\\.lib"), ver);
                 }
             }
-            if (!project->isEmpty("QMAKE_APP_FLAG"))
-                project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_ENTRY"];
         }
     }
 }

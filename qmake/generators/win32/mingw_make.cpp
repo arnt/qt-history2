@@ -176,13 +176,6 @@ void MingwMakefileGenerator::processQtConfig()
                         (*libit).replace(QRegExp("qt\\.lib"), ver);
                 }
             }
-            if(!project->isActiveConfig("dll") && !project->isActiveConfig("plugin")) {
-                project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
-            }
-
-            // QMAKE_LIBS_QT_ENTRY should be first on the link line as it needs qt
-            project->variables()["QMAKE_LIBS"].removeAll(project->variables()["QMAKE_LIBS_QT_ENTRY"].first());
-            project->variables()["QMAKE_LIBS"].prepend(project->variables()["QMAKE_LIBS_QT_ENTRY"].first());
         }
     }
 }
