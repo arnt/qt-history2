@@ -279,19 +279,19 @@ void QWSManager::handleMove(const QPoint &g)
         bool keepLeft = true;
         switch (d->activeRegion) {
         case QDecoration::Top:
-            geom.setTop(geom.y() + delta.y());
+            geom.setTop(geom.top() + delta.y());
             keepTop = false;
             break;
         case QDecoration::Bottom:
-            geom.setBottom(geom.y() + delta.y());
+            geom.setBottom(geom.bottom() + delta.y());
             keepTop = true;
             break;
         case QDecoration::Left:
-            geom.setLeft(geom.x() + delta.x());
+            geom.setLeft(geom.left() + delta.x());
             keepLeft = false;
             break;
         case QDecoration::Right:
-            geom.setRight(geom.x() + delta.x());
+            geom.setRight(geom.right() + delta.x());
             keepLeft = true;
             break;
         case QDecoration::TopRight:
