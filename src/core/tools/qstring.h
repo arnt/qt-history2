@@ -25,7 +25,7 @@
 #endif
 
 #ifndef QT_NO_STL
-# if defined (Q_CC_GNU) && (__GNUC__ - 0 >= 3)
+# if defined (Q_CC_GNU) && (__GNUC__ - 0 >= 3) && !defined(Q_OS_DARWIN)
 // workaround for namespace polluting headers
 #  include <bits/stringfwd.h>
 # elif defined (Q_CC_MSVC_NET) && _MSV_VER < 1310 // Avoids nasty warning for xlocale, line 450
