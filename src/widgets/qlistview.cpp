@@ -3237,7 +3237,9 @@ void QListView::removeColumn( int index )
     }
 
     for ( int i = index; i < (int)d->column.count() - 1; ++i ) {
-	d->column.take( i );
+	QListViewPrivate::Column *c = d->column.take( i );
+	if ( i == index )
+	    delete c;
 	d->column.insert( i, d->column[ i + 1 ] );
     }
     d->column.take( d->column.size() - 1 );
