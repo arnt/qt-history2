@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#43 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#44 $
 **
 ** Implementation of QBuffer class
 **
@@ -67,7 +67,7 @@ QBuffer::QBuffer()
 
 
 /*!
-  Constructs a buffer and sets the buffer contents to \e buf.
+  Constructs a buffer and sets the buffer contents to \a buf.
   \sa setBuffer()
 */
 
@@ -91,12 +91,12 @@ QBuffer::~QBuffer()
 
 
 /*!
-  Replaces the buffer's contents with \e buf.
+  Replaces the buffer's contents with \a buf.
 
   This may not be done while the buffer is \link open() open\endlink.
 
   Note that if you open the buffer in write mode (\c IO_WriteOnly or
-  IO_ReadWrite) and write something into the buffer, \e buf is also
+  IO_ReadWrite) and write something into the buffer, \a buf is also
   modified because QByteArray is an explicitly shared class.
 
   Example:
@@ -137,10 +137,10 @@ bool QBuffer::setBuffer( QByteArray buf )
 */
 
 /*!
-  Opens the file specified by the file name currently set, using the mode \e m.
+  Opens the file specified by the file name currently set, using the mode \a m.
   Returns TRUE if successful, otherwise FALSE.
 
-  The mode parameter \e m must be a combination of the following flags.
+  The mode parameter \a m must be a combination of the following flags.
   <ul>
   <li>\c IO_ReadOnly opens a buffer in read-only mode.
   <li>\c IO_WriteOnly opens a buffer in write-only mode.
@@ -213,7 +213,7 @@ void QBuffer::flush()
 */
 
 /*!
-  Sets the buffer index to \e pos. Returns TRUE if successful, otherwise FALSE.
+  Sets the buffer index to \a pos. Returns TRUE if successful, otherwise FALSE.
   \sa size()
 */
 
@@ -237,7 +237,7 @@ bool QBuffer::at( int pos )
 
 
 /*!
-  Reads at most \e len bytes from the buffer into \e p and returns the
+  Reads at most \a len bytes from the buffer into \a p and returns the
   number of bytes actually read.
 
   Returns -1 if a serious error occurred.
@@ -272,7 +272,7 @@ int QBuffer::readBlock( char *p, uint len )
 }
 
 /*!
-  Writes \e len bytes from \e p into the buffer at the current index,
+  Writes \a len bytes from \a p into the buffer at the current index,
   overwriting any characters there and extending the buffer if necessary.
   Returns the number of bytes actually written.
 
@@ -322,7 +322,7 @@ int QBuffer::writeBlock( const char *p, uint len )
   Reads a line of text.
 
   Reads bytes from the buffer until end-of-line is reached, or up to
-  \e maxlen bytes.
+  \a maxlen bytes.
 
   \sa readBlock()
 */
@@ -382,15 +382,15 @@ int QBuffer::getch()
 	setStatus( IO_ReadError );
 	return -1;
     }
-    return *(a.data()+ioIndex++);
+    return uchar(*(a.data()+ioIndex++));
 }
 
 /*!
-  Writes the character \e ch into the buffer, overwriting
+  Writes the character \a ch into the buffer, overwriting
   the character at the current index, extending the buffer
   if necessary.
 
-  Returns \e ch, or -1 if some error occurred.
+  Returns \a ch, or -1 if some error occurred.
 
   \sa getch(), ungetch()
 */
@@ -421,12 +421,12 @@ int QBuffer::putch( int ch )
 }
 
 /*!
-  Puts the character \e ch back into the buffer and decrements the index if
+  Puts the character \a ch back into the buffer and decrements the index if
   it is not zero.
 
   This function is normally called to "undo" a getch() operation.
 
-  Returns \e ch, or -1 if some error occurred.
+  Returns \a ch, or -1 if some error occurred.
 
   \sa getch(), putch()
 */
