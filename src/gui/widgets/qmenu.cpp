@@ -1576,16 +1576,20 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
     for(QWidget *caused = this; caused;) {
         if (QMenu *m = qt_cast<QMenu*>(caused)) {
             caused = m->d->causedPopup;
-            if (m->d->eventLoop && action->isEnabled()) // synchronous operation
+            if (m->d->eventLoop && (!action || action->isEnabled())) // synchronous operation
                 m->d->syncAction = action;
         } else {
             break;
         }
     }
-    if (action)
-        d->activateAction(action, QAction::Trigger);
-    else if (d->motions > 6)
+    if (action) {
+        if (action->menu())
+            action->menu()->d->setFirstActionActive();
+        else
+            d->activateAction(action, QAction::Trigger);
+    } else if (d->motions > 6) {
         d->hideUpToMenuBar();
+    }
 }
 
 /*!
