@@ -554,10 +554,10 @@ bool Tokenizer::popSkipping()
 /*
   Returns TRUE if the condition evaluates as true, otherwise FALSE.  The
   condition is represented by a string.  Unsophisticated parsing techniques are
-  used.  The preprocessing method could be named StriNg Oriented PreProcessing,
-  as SNOBOL stands for StriNg Oriented symBOlic Language.
+  used.  The preprocessing method could be named StriNg-Oriented PreProcessing,
+  as SNOBOL stands for StriNg-Oriented symBOlic Language.
 */
-bool Tokenizer::isTrue( const QString& condition ) const
+bool Tokenizer::isTrue(const QString &condition)
 {
     int firstOr = -1;
     int firstAnd = -1;

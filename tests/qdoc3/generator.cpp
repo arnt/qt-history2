@@ -11,6 +11,7 @@
 #include "generator.h"
 #include "node.h"
 #include "separator.h"
+#include "tokenizer.h"
 
 QList<Generator *> Generator::generators;
 QMap<QString, QMap<QString, QString> > Generator::fmtLeftMaps;
@@ -597,46 +598,42 @@ void Generator::generateReimplementedFrom( const FunctionNode *func,
     }
 }
 
-const Atom *Generator::generateAtomList( const Atom *atom, const Node *relative,
-					 CodeMarker *marker, bool generate,
-					 int& numAtoms )
+const Atom *Generator::generateAtomList(const Atom *atom, const Node *relative, CodeMarker *marker,
+					bool generate, int &numAtoms)
 {
-    while ( atom != 0 ) {
-	if ( atom->type() == Atom::FormatIf ) {
+    while (atom) {
+	if (atom->type() == Atom::FormatIf) {
 	    int numAtoms0 = numAtoms;
 	    bool rightFormat = ( atom->string() == format() );
-	    atom = generateAtomList( atom->next(), relative, marker,
-				     generate && rightFormat, numAtoms );
-	    if ( atom == 0 )
+	    atom = generateAtomList(atom->next(), relative, marker, generate && rightFormat,
+				    numAtoms);
+	    if (!atom)
 		return 0;
 
-	    if ( atom->type() == Atom::FormatElse ) {
+	    if (atom->type() == Atom::FormatElse) {
 		atom = generateAtomList( atom->next(), relative, marker,
 					 generate && !rightFormat, numAtoms );
-		if ( atom == 0 )
+		if (!atom)
 		    return 0;
 	    }
 
-	    if ( atom->type() == Atom::FormatEndif ) {
-		if ( generate && numAtoms0 == numAtoms ) {
-		    relative->location().warning(
-			    tr("Output format %1 not handled").arg(format()) );
-		    Atom unhandledFormatAtom( Atom::UnhandledFormat, format() );
-		    generateAtomList( &unhandledFormatAtom, relative, marker,
-				      generate, numAtoms );
+	    if (atom->type() == Atom::FormatEndif) {
+		if (generate && numAtoms0 == numAtoms) {
+		    relative->location().warning(tr("Output format %1 not handled").arg(format()));
+		    Atom unhandledFormatAtom(Atom::UnhandledFormat, format());
+		    generateAtomList(&unhandledFormatAtom, relative, marker, generate, numAtoms);
 		}
 		atom = atom->next();
 	    }
-	} else if ( atom->type() == Atom::FormatElse ||
-		    atom->type() == Atom::FormatEndif ) {
+	} else if (atom->type() == Atom::FormatElse || atom->type() == Atom::FormatEndif) {
 	    return atom;
 	} else {
 	    int n = 1;
-	    if ( generate ) {
-		n += generateAtom( atom, relative, marker );
+	    if (generate) {
+		n += generateAtom(atom, relative, marker);
 		numAtoms += n;
 	    }
-	    while ( n-- > 0 )
+	    while (n-- > 0)
 		atom = atom->next();
 	}
     }

@@ -612,37 +612,41 @@ QString HtmlGenerator::generateListOfAllMemberFile(const ClassNode *classe, Code
 void HtmlGenerator::generateClassHierarchy(const Node *relative, CodeMarker *marker,
 					   const QMap<QString, const Node *> &classMap)
 {
-    Set<QString> topLevel;
-#if 0
-    findAllClassesWithNoBaseClass(root, topLevel);
+    QMap<QString, const Node *> topLevel;
+    QMap<QString, const Node *>::ConstIterator c = classMap.begin();
+    while (c != classMap.end()) {
+	const ClassNode *classe = static_cast<const ClassNode *>(*c);
+        if (classe->baseClasses().isEmpty())
+	    topLevel.insert(classe->name(), classe);
+	++c;
+    }
 
-    QStack<QStringList> stack;
-
-    stack.push(topLevel.asList());
+    QStack<QMap<QString, const Node *> > stack;
+    stack.push(topLevel);
 
     out() << "<ul>\n";
-    while ( !stack.isEmpty() ) {
-	QStringList& top = stack.top();
-
-	if ( top.isEmpty() ) {
+    while (!stack.isEmpty()) {
+	if (stack.top().isEmpty()) {
 	    stack.pop();
 	    out() << "</ul>\n";
 	} else {
-	    QString child = *top.begin();
+	    const ClassNode *child = static_cast<const ClassNode *>(*stack.top().begin());
 	    out() << "<li>";
             generateFullName(child, relative, marker);
             out() << "\n";
-	    top.remove(top.begin());
+	    stack.top().remove(stack.top().begin());
 
-	    Set<QString> newTop;
-	    StringSet newTop = chierarchy[child];
-	    if ( !newTop.isEmpty() ) {
-		stack.push( newTop.toIStringList() );
+	    QMap<QString, const Node *> newTop;
+	    foreach (RelatedClass d, child->derivedClasses()) {
+		if (d.access != Node::Private)
+		    newTop.insert(d.node->name(), d.node);
+	    }
+	    if (!newTop.isEmpty()) {
+		stack.push(newTop);
 		out() << "<ul>\n";
 	    }
 	}
     }
-#endif
     out() << "</ul>\n";
 }
 
@@ -1099,9 +1103,9 @@ void HtmlGenerator::findAllClasses(const InnerNode *node)
 	        allClasses.insert((*c)->name(), *c);
                 if ((*c)->status() == Node::Main)
 		    mainClasses.insert((*c)->name(), *c);
-	    }
-            if ((*c)->isInnerNode())
+	    } else if ((*c)->isInnerNode()) {
 	        findAllClasses(static_cast<InnerNode *>(*c));
+	    }
 	}
 	++c;
     }

@@ -59,8 +59,9 @@ public:
     int parenDepth() const { return yyParenDepth; }
     int bracketDepth() const { return yyBracketDepth; }
 
-    static void initialize( const Config& config );
+    static void initialize(const Config &config);
     static void terminate();
+    static bool isTrue(const QString &condition);
 
 protected:
     Tokenizer();
@@ -81,7 +82,6 @@ private:
     int getTokenAfterPreprocessor();
     void pushSkipping( bool skip );
     bool popSkipping();
-    bool isTrue( const QString& condition ) const;
 
     Location yyTokLoc;
     Location yyCurLoc;

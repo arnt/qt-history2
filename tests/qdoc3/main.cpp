@@ -34,7 +34,7 @@ static const struct {
 } defaults[] = {
     { CONFIG_FALSEHOODS, "0" },
     { CONFIG_LANGUAGE, "C++" },
-    { CONFIG_OUTPUTFORMATS, "html" },
+    { CONFIG_OUTPUTFORMATS, "HTML" },
     { CONFIG_TABSIZE, "8" },
     { 0, 0 }
 };
@@ -108,21 +108,22 @@ static void processQdocFile(const QString &fileName)
 	++fn;
     }
 
-    QString lang = config.getString( CONFIG_LANGUAGE );
-    Tree *tree = treeForLanguage( lang );
+    QString lang = config.getString(CONFIG_LANGUAGE);
+    Location langLocation = config.lastLocation();
+
+    Tree *tree = treeForLanguage(lang);
     tree->setVersion(config.getString(CONFIG_VERSION));
     CodeParser *codeParser = CodeParser::parserForLanguage( lang );
     if ( codeParser == 0 )
-	config.lastLocation().fatal( tr("Cannot parse language '%1'")
-				     .arg(lang) );
+	config.lastLocation().fatal(tr("Cannot parse programming language '%1'").arg(lang));
 
-    Set<QString> outputFormats = config.getStringSet( CONFIG_OUTPUTFORMATS );
+    Set<QString> outputFormats = config.getStringSet(CONFIG_OUTPUTFORMATS);
+    Location outputFormatsLocation = config.lastLocation();
 
-    CodeMarker *marker = CodeMarker::markerForLanguage( lang );
-    if ( marker == 0 && !outputFormats.isEmpty() )
-	config.lastLocation().fatal( tr("Cannot output documentation for"
-					" language '%1'")
-				     .arg(lang) );
+    CodeMarker *marker = CodeMarker::markerForLanguage(lang);
+    if (!marker && !outputFormats.isEmpty())
+	langLocation.fatal(tr("Cannot output documentation for programming language '%1'")
+			   .arg(lang));
 
     QStringList headers =
 	    config.getAllFiles( CONFIG_HEADERS, CONFIG_HEADERDIRS,
@@ -148,8 +149,7 @@ static void processQdocFile(const QString &fileName)
     while ( of != outputFormats.end() ) {
 	Generator *generator = Generator::generatorForFormat( *of );
 	if ( generator == 0 )
-	    config.lastLocation().fatal( tr("Unknown output format '%1'")
-					 .arg(*of) );
+	    outputFormatsLocation.fatal(tr("Unknown output format '%1'").arg(*of));
 	generator->generateTree( tree, marker );
 	++of;
     }
@@ -164,7 +164,7 @@ static void processQdocFile(const QString &fileName)
     Location::terminate();
     QDir::setCurrent( prevCurrentDir );
 
-    Q_FOREACH (QTranslator *translator, translators)
+    foreach (QTranslator *translator, translators)
 	delete translator;
 }
 

@@ -1,15 +1,19 @@
+MISC:
+  * get rid of spurious 'global' functions
+
   * implement \ingroup
   * implement \inmodule
+  * implement \table
+  * implement qbook
 
+LINKS:
   * make types be links in Detailed synopses
   * make \sa and \link work
   * make automatic links to function in text work
   * make automatic links in code work
 
-  * implement nice inheritance tree
-  * implement \table
-  * implement qbook
-  * implement ASCII-art inheritance tree
-  * implement links
+NICE FEATURES:
+  * implement inheritance tree for each class (as a PNG)
 
-  * make it run faster
+OTHER:
+  * make qdoc run faster

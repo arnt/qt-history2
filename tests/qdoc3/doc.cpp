@@ -15,6 +15,7 @@
 #include "openedlist.h"
 #include "quoter.h"
 #include "text.h"
+#include "tokenizer.h"
 
 struct Macro
 {
@@ -25,12 +26,12 @@ struct Macro
 
 enum {
     CMD_A, CMD_ABSTRACT, CMD_ALSO, CMD_BASENAME, CMD_BOLD, CMD_BRIEF, CMD_C, CMD_CAPTION,
-    CMD_CHAPTER, CMD_CODE, CMD_ENDABSTRACT, CMD_ENDCHAPTER, CMD_ENDCODE, CMD_ENDFOOTNOTE,
-    CMD_ENDLIST, CMD_ENDOMIT, CMD_ENDPART, CMD_ENDQUOTATION, CMD_ENDSECTION1, CMD_ENDSECTION2,
-    CMD_ENDSECTION3, CMD_ENDSECTION4, CMD_ENDSIDEBAR, CMD_ENDTABLE, CMD_EXPIRE, CMD_FOOTNOTE,
-    CMD_GENERATELIST, CMD_GRANULARITY, CMD_HEADER, CMD_I, CMD_IMAGE, CMD_INCLUDE, CMD_INDEX,
-    CMD_KEYWORD, CMD_L, CMD_LIST, CMD_O, CMD_OMIT, CMD_OMITVALUE, CMD_PART, CMD_PRINTLINE,
-    CMD_PRINTTO, CMD_PRINTUNTIL, CMD_QUOTATION, CMD_QUOTEFILE, CMD_QUOTEFROMFILE,
+    CMD_CHAPTER, CMD_CODE, CMD_ELSE, CMD_ENDABSTRACT, CMD_ENDCHAPTER, CMD_ENDCODE, CMD_ENDFOOTNOTE,
+    CMD_ENDIF, CMD_ENDLIST, CMD_ENDOMIT, CMD_ENDPART, CMD_ENDQUOTATION, CMD_ENDSECTION1,
+    CMD_ENDSECTION2, CMD_ENDSECTION3, CMD_ENDSECTION4, CMD_ENDSIDEBAR, CMD_ENDTABLE, CMD_EXPIRE,
+    CMD_FOOTNOTE, CMD_GENERATELIST, CMD_GRANULARITY, CMD_HEADER, CMD_I, CMD_IF, CMD_IMAGE,
+    CMD_INCLUDE, CMD_INDEX, CMD_KEYWORD, CMD_L, CMD_LIST, CMD_O, CMD_OMIT, CMD_OMITVALUE, CMD_PART,
+    CMD_PRINTLINE, CMD_PRINTTO, CMD_PRINTUNTIL, CMD_QUOTATION, CMD_QUOTEFILE, CMD_QUOTEFROMFILE,
     CMD_QUOTEFUNCTION, CMD_RAW, CMD_ROW, CMD_SECTION1, CMD_SECTION2, CMD_SECTION3, CMD_SECTION4,
     CMD_SIDEBAR, CMD_SKIPLINE, CMD_SKIPTO, CMD_SKIPUNTIL, CMD_SUB, CMD_SUP, CMD_TABLE,
     CMD_TABLEOFCONTENTS, CMD_TARGET, CMD_TT, CMD_UNDERLINE, CMD_VALUE, CMD_WARNING, UNKNOWN_COMMAND
@@ -51,10 +52,12 @@ static struct {
     { "caption", CMD_CAPTION, 0 },
     { "chapter", CMD_CHAPTER, 0 },
     { "code", CMD_CODE, 0 },
+    { "else", CMD_ELSE, 0 },
     { "endabstract", CMD_ENDABSTRACT, 0 },
     { "endchapter", CMD_ENDCHAPTER, 0 },
     { "endcode", CMD_ENDCODE, 0 },
     { "endfootnote", CMD_ENDFOOTNOTE, 0 },
+    { "endif", CMD_ENDIF, 0 },
     { "endlist", CMD_ENDLIST, 0 },
     { "endomit", CMD_ENDOMIT, 0 },
     { "endpart", CMD_ENDPART, 0 },
@@ -71,6 +74,7 @@ static struct {
     { "granularity", CMD_GRANULARITY, 0 },
     { "header", CMD_HEADER, 0 },
     { "i", CMD_I, 0 },
+    { "if", CMD_IF, 0 },
     { "image", CMD_IMAGE, 0 },
     { "include", CMD_INCLUDE, 0 },
     { "index", CMD_INDEX, 0 },
@@ -231,12 +235,14 @@ private:
     QString getArgument( bool verbatim = FALSE );
     QString getOptionalArgument();
     QString getRestOfLine();
-    QString getUntilEnd( int command );
+    QString getUntilEnd(int command);
+
     bool isBlankLine();
     bool isLeftBraceAhead();
     void skipSpacesOnLine();
     void skipSpacesOrOneEndl();
     void skipAllSpaces();
+    void skipToNextPreprocessorCommand();
 
     static int endCommandFor( int command );
     static QString commandName( int command );
@@ -306,6 +312,8 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
     QString x;
     int begin;
     int indent;
+    QStack<bool> preprocessorSkipping;
+    int numPreprocessorSkipping = 0;
 
     while ( pos < len ) {
 	QChar ch = in[pos];
@@ -393,6 +401,21 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    marker = CodeMarker::markerForCode( x );
 		    append( Atom::Code, marker->markedUpCode(x, 0, "") );
 		    break;
+		case CMD_ELSE:
+		    if (preprocessorSkipping.size() > 0) {
+			if (preprocessorSkipping.top()) {
+			    --numPreprocessorSkipping;
+                        } else {
+			    ++numPreprocessorSkipping;
+                        }
+                        preprocessorSkipping.top() = !preprocessorSkipping.top();
+                        (void)getRestOfLine(); // ### should ensure that it's empty
+                        if (numPreprocessorSkipping)
+			    skipToNextPreprocessorCommand();
+		    } else {
+			location().warning(tr("Unexpected '\\%1'").arg(commandName(CMD_ELSE)));
+                    }
+                    break;
 		case CMD_ENDABSTRACT:
 		    if ( closeCommand(command) ) {
 			leavePara();
@@ -411,6 +434,17 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 			append( Atom::FootnoteRight );
 			paraState = InsideMultiLinePara; // ###
 		    }
+		    break;
+		case CMD_ENDIF:
+		    if (preprocessorSkipping.count() > 0) {
+			if (preprocessorSkipping.pop())
+			    --numPreprocessorSkipping;
+                        (void)getRestOfLine(); // ### should ensure that it's empty
+			if (numPreprocessorSkipping)
+			    skipToNextPreprocessorCommand();
+		    } else {
+			location().warning(tr("Unexpected '\\%1'").arg(commandName(CMD_ENDIF)));
+                    }
 		    break;
 		case CMD_ENDLIST:
 		    if ( closeCommand(command) ) {
@@ -482,6 +516,13 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_I:
 		    startFormat( ATOM_FORMATTING_ITALIC, command );
+		    break;
+		case CMD_IF:
+                    preprocessorSkipping.push(!Tokenizer::isTrue(getRestOfLine()));
+                    if (preprocessorSkipping.top())
+			++numPreprocessorSkipping;
+                    if (numPreprocessorSkipping)
+			skipToNextPreprocessorCommand();
 		    break;
 		case CMD_IMAGE:
 		    append( Atom::Image, getArgument() );
@@ -625,7 +666,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    x = getUntilEnd( command );
 		    x = untabifyEtc( x );
 #if 0
-		    append( Atom::RawFormat, "html" ); // ###
+		    append( Atom::RawFormat, "HTML" ); // ###
 		    append( Atom::RawString, x );
 #endif
 		    break;
@@ -803,28 +844,28 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
     }
     leaveValueList();
 
-    if ( openedCommands.top() != CMD_OMIT )
-	location().warning( tr("Missing '\\%1'")
-			   .arg(endCommandName(openedCommands.top())) );
-    if ( priv->extra != 0 &&
-	 priv->extra->granularity < priv->extra->sectioningUnit )
+    if (openedCommands.top() != CMD_OMIT) {
+	location().warning(tr("Missing '\\%1'").arg(endCommandName(openedCommands.top())));
+    } else if (preprocessorSkipping.count() > 0) {
+	location().warning(tr("Missing '\\%1'").arg(commandName(CMD_ENDIF)));
+    }
+    if (priv->extra && priv->extra->granularity < priv->extra->sectioningUnit)
 	priv->extra->granularity = priv->extra->sectioningUnit;
     priv->text.stripFirstAtom();
 }
 
-Location& DocParser::location()
+Location &DocParser::location()
 {
-    while ( !openedInputs.isEmpty() && openedInputs.top() <= pos ) {
+    while (!openedInputs.isEmpty() && openedInputs.top() <= pos) {
 	cachedLoc.pop();
 	cachedPos = openedInputs.pop();
     }
-    while ( cachedPos < pos )
-	cachedLoc.advance( in[cachedPos++] );
+    while (cachedPos < pos)
+	cachedLoc.advance(in[cachedPos++]);
     return cachedLoc;
 }
 
-QString DocParser::detailsUnknownCommand( const Set<QString>& metaCommandSet,
-					  const QString& str )
+QString DocParser::detailsUnknownCommand(const Set<QString> &metaCommandSet, const QString &str)
 {
     Set<QString> commandSet = metaCommandSet;
     int i = 0;
@@ -1115,23 +1156,23 @@ void DocParser::parseAlso()
     }
 }
 
-void DocParser::append( Atom::Type type, const QString& string )
+void DocParser::append(Atom::Type type, const QString &string)
 {
-    if ( priv->text.lastAtom()->type() == Atom::Code &&
-	 priv->text.lastAtom()->string().endsWith("\n\n") )
+    if (priv->text.lastAtom()->type() == Atom::Code
+	&& priv->text.lastAtom()->string().endsWith("\n\n"))
 	priv->text.lastAtom()->chopString();
-    priv->text << Atom( type, string );
+    priv->text << Atom(type, string);
 }
 
-void DocParser::appendChar( QChar ch )
+void DocParser::appendChar(QChar ch)
 {
-    if ( priv->text.lastAtom()->type() != Atom::String )
-	append( Atom::String );
-    if ( ch.isSpace() ) {
-	if ( !priv->text.lastAtom()->string().endsWith(" ") )
-	    priv->text.lastAtom()->appendChar( ' ' );
+    if (priv->text.lastAtom()->type() != Atom::String)
+	append(Atom::String);
+    if (ch.isSpace()) {
+	if (!priv->text.lastAtom()->string().endsWith(" "))
+	    priv->text.lastAtom()->appendChar(' ');
     } else {
-	priv->text.lastAtom()->appendChar( ch );
+	priv->text.lastAtom()->appendChar(ch);
     }
 }
 
@@ -1452,7 +1493,7 @@ QString DocParser::getRestOfLine()
     return t;
 }
 
-QString DocParser::getUntilEnd( int command )
+QString DocParser::getUntilEnd(int command)
 {
     int endCommand = endCommandFor( command );
     QRegExp rx( "\\\\" + commandName(endCommand) + "\\b" );
@@ -1461,7 +1502,7 @@ QString DocParser::getUntilEnd( int command )
 
     if ( end == -1 ) {
 	location().warning( tr("Missing '\\%1'").arg(commandName(endCommand)) );
-	pos = (int) in.length();
+	pos = in.length();
     } else {
 	t = in.mid( pos, end - pos );
 	pos = end + rx.matchedLength();
@@ -1523,6 +1564,18 @@ void DocParser::skipAllSpaces()
 {
     while ( pos < len && in[pos].isSpace() )
 	pos++;
+}
+
+void DocParser::skipToNextPreprocessorCommand()
+{
+    QRegExp rx("\\\\(?:" + commandName(CMD_IF) + "|" + commandName(CMD_ELSE) + "|"
+	       + commandName(CMD_ENDIF) + ")\\b");
+    int end = rx.search(in, pos + 1); // ### + 1 necessary?
+
+    if (end == -1)
+	pos = in.length();
+    else
+	pos = end;
 }
 
 int DocParser::endCommandFor( int command )

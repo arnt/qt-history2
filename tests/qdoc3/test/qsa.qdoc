@@ -11,5 +11,5 @@ exampledirs	= $QUICK/examples
 imagedirs	= $QTDIR/gif
 quick.replaces	= /([Mm]ark)/\\bold{\\1}/
 quick.replaces	= /<b>([^<]+)<\\/b>/\\bold{\\1}/
-outputformats	= HTML
+outputformats	= html
 outputdir	= output/qsa
