@@ -20,7 +20,7 @@
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qpixmap.h"
-#include "qintdict.h"
+#include "qhash.h"
 
 #ifndef Q_Q3PAINTER
 #include "qgc_x11.h"
@@ -73,9 +73,9 @@ CMapEntry::~CMapEntry()
 	XFreeColormap( QPaintDevice::x11AppDisplay(), cmap );
 }
 
-static QIntDict<CMapEntry> *cmap_dict = 0;
+static QHash<int, CMapEntry*> *cmap_dict = 0;
 static bool		    mesa_gl   = FALSE;
-static QIntDict< QMap<int, QRgb> > *qglcmap_dict = 0;
+static QHash<int, QMap<int, QRgb>* > *qglcmap_dict = 0;
 
 static void cleanup_cmaps()
 {
@@ -94,18 +94,18 @@ static void cleanup_cmaps()
 static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 {
     if ( !cmap_dict ) {
-	cmap_dict = new QIntDict<CMapEntry>;
+	cmap_dict = new QHash<int, CMapEntry*>;
 	const char *v = glXQueryServerString( dpy, vi->screen, GLX_VERSION );
 	if ( v )
 	    mesa_gl = strstr(v,"Mesa") != 0;
 	qAddPostRoutine( cleanup_cmaps );
     }
 
-    CMapEntry *x = cmap_dict->find( (long) vi->visualid + ( vi->screen * 256 ) );
-    if ( x )					// found colormap for visual
-	return x->cmap;
+    QHash<int, CMapEntry*>::Iterator it = cmap_dict->find( (long) vi->visualid + ( vi->screen * 256 ) );
+    if (it != cmap_dict->end())
+	return it.data()->cmap; // found colormap for visual
 
-    x = new CMapEntry();
+    CMapEntry *x = new CMapEntry();
 
     XStandardColormap *c;
     int n, i;
@@ -176,7 +176,7 @@ struct TransColor
     long	color;
 };
 
-static QMemArray<TransColor> trans_colors;
+static QVector<TransColor> trans_colors;
 static int trans_colors_init = FALSE;
 
 
@@ -232,7 +232,7 @@ static void find_trans_colors()
 	}
 	XFree( overlayProps );
 	lastsize = j;
-	trans_colors.truncate( lastsize );
+	trans_colors.resize(lastsize);
     }
 }
 
@@ -621,7 +621,10 @@ uint QGLContext::colorIndex( const QColor& c ) const
 	    return c.pixel( screen );		// We're using QColor's cmap
 
 	XVisualInfo *info = (XVisualInfo *) vi;
-	CMapEntry *x = cmap_dict->find( (long) info->visualid + ( info->screen * 256 ) );
+	QHash<int, CMapEntry*>::Iterator it = cmap_dict->find( (long) info->visualid + ( info->screen * 256 ) );
+	CMapEntry *x = 0;
+	if (it != cmap_dict->end())
+	    x = it.data();
 	if ( x && !x->alloc) {		// It's a standard colormap
 	    int rf = (int)(((float)c.red() * (x->scmap.red_max+1))/256.0);
 	    int gf = (int)(((float)c.green() * (x->scmap.green_max+1))/256.0);
@@ -633,10 +636,11 @@ uint QGLContext::colorIndex( const QColor& c ) const
 	    return p;
 	} else {
 	    if (!qglcmap_dict) {
-		qglcmap_dict = new QIntDict< QMap<int, QRgb> >;
+		qglcmap_dict = new QHash< int, QMap<int, QRgb> *>;
 	    }
-	    QMap<int, QRgb> *cmap;
-	    if ((cmap = qglcmap_dict->find((long) info->visualid)) == 0) {
+	    QHash<int, QMap<int, QRgb> *>::Iterator hit = qglcmap_dict->find((long) info->visualid);
+	    QMap<int, QRgb> *cmap = (hit != qglcmap_dict->end()) ? hit.data() : 0;
+	    if (!cmap) {
 		cmap = new QMap<int, QRgb>;
 		qglcmap_dict->insert((long) info->visualid, cmap);
 	    }
