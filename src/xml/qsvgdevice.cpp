@@ -649,6 +649,8 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	dirtyTransform = TRUE;
 	break;
     case PdcSetClip: 
+	// ###
+	break;
     case PdcSetClipRegion:
 	{
 	    d->currentClip++;
@@ -703,7 +705,7 @@ void QSvgDevice::appendChild( QDomElement &e, int c )
 	if ( c == PdcSave )
 	    current = e;
 	// ### optimize application of attributes utilizing <g>
-	if ( c == PdcSetClip || c == PdcSetClipRegion ) {
+	if ( c == PdcSetClipRegion ) {
 	    QDomElement ne;
 	    ne = doc.createElement( "g" );
 	    ne.setAttribute( "style", QString("clip-path:url(#clip%1)").arg(d->currentClip) );
