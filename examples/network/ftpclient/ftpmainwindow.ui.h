@@ -22,12 +22,21 @@
 #include <qftp.h>
 #include <qlineedit.h>
 #include <qspinbox.h>
+#include <qstatusbar.h>
+#include <qmessagebox.h>
 
 #include "connectdialog.h"
 
 void FtpMainWindow::init()
 {
+    stateFtp = new QLabel( tr("Unconnected"), statusBar() );
+    statusBar()->addWidget( stateFtp, 0, TRUE );
+
     ftp = new QFtp( this );
+    connect( ftp, SIGNAL(stateChanged(int)),
+	    SLOT(ftp_stateChanged(int)) );
+    connect( ftp, SIGNAL(doneError(const QString&)),
+	    SLOT(ftp_doneError(const QString&)) );
     connect( ftp, SIGNAL(listInfo(const QUrlInfo &)),
 	    SLOT(ftp_listInfo(const QUrlInfo &)) );
 }
@@ -84,6 +93,36 @@ void FtpMainWindow::changePath( const QString &newPath )
 ** Slots connected to signals of the QFtp class
 **
 *****************************************************************************/
+
+void FtpMainWindow::ftp_stateChanged( int state )
+{
+    switch ( (QFtp::State)state ) {
+	case QFtp::Unconnected:
+	    stateFtp->setText( tr("Unconnected") );
+	    break;
+	case QFtp::HostLookup:
+	    stateFtp->setText( tr("Host lookup") );
+	    break;
+	case QFtp::Connecting:
+	    stateFtp->setText( tr("Connecting") );
+	    break;
+	case QFtp::Connected:
+	    stateFtp->setText( tr("Connected") );
+	    break;
+	case QFtp::LoggedIn:
+	    stateFtp->setText( tr("Logged in") );
+	    break;
+	case QFtp::Closing:
+	    stateFtp->setText( tr("Closing") );
+	    break;
+    }
+}
+
+void FtpMainWindow::ftp_doneError( const QString &msg )
+{
+    if ( QMessageBox::critical( this, tr("FTP Error"), msg, QMessageBox::Ok, QMessageBox::Abort ) == QMessageBox::Abort )
+	ftp->close();
+}
 
 void FtpMainWindow::ftp_listInfo( const QUrlInfo &i )
 {

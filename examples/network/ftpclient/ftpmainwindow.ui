@@ -244,6 +244,7 @@
 </forwards>
 <variables>
     <variable access="private">QFtp *ftp</variable>
+    <variable access="private">QLabel *stateFtp</variable>
 </variables>
 <functions>
     <function type="function" access="private">init()</function>
@@ -253,6 +254,8 @@
     <function type="slot" access="private">removeFile()</function>
     <function type="slot" access="private">connectToHost()</function>
     <function type="slot" access="private">changePath( const QString &amp; newPath )</function>
+    <function type="slot" access="private">ftp_stateChanged( int )</function>
+    <function type="slot" access="private">ftp_doneError( const QString &amp; )</function>
     <function type="slot" access="private">ftp_listInfo( const QUrlInfo &amp; i )</function>
 </functions>
 <layoutdefaults spacing="6" margin="11"/>
