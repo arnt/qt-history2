@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#93 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#92 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#93 $");
 
 
 // Motif style parameters
@@ -63,6 +63,8 @@ static const int motifCheckMarkHMargin	= 2;	// horiz. margins of check mark
   relates to the parent widget.
 
   menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
+
+  \important insertItem clear text pixmap
 
   <img src=qpopmenu-m.gif> <img src=qpopmenu-w.gif>
 
