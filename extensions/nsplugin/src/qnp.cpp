@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#15 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#16 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -1288,7 +1288,7 @@ void QNPWidget::unsetWindow()
   \class QNPInstance qnp.h
   \brief a QObject that is a Web-browser plugin
 
-  Deriving from QNPInstance is creates an object that represents a single
+  Deriving from QNPInstance creates an object that represents a single
   &lt;EMBED&gt; tag in an HTML document.
 
   The QNPInstance is responsible for creating an appropriate window if
