@@ -39,6 +39,15 @@
 #define QGLOBAL_H
 
 
+// ### for beta2, hopefully done before next beta
+// ##############
+#define QT_NO_STYLE_CDE
+#define QT_NO_STYLE_MOTIFPLUS
+#define QT_NO_STYLE_PLATINUM
+#define QT_NO_STYLE_SGI
+#define QT_NO_STYLE_COMPACT
+// ###################
+
 #define QT_VERSION       300
 #define QT_VERSION_STR   "3.0.0-beta2"
 
