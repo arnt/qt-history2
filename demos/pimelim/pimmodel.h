@@ -47,6 +47,7 @@ public:
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
     // specialized interface
+    inline const PimEntry &entry(const QModelIndex &index) const { return entry(index.row()); }
     const PimEntry &entry(int row) const;
     bool appendEntry(const PimEntry &entry);
     bool setEntry(int row, const PimEntry &entry);
