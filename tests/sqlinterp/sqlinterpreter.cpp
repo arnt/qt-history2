@@ -560,17 +560,20 @@ bool ResultSet::sort( const QSqlIndex* index )
 	    return FALSE;
 	}
     }
-
-    sortKey.clear();
-
-    /* init the sort key */
-    for ( i = 0; i < data.count(); ++i ) {
+    for ( i = 0; i < index->count(); ++i ) {
 	int sortField = head.position( index->field( index->count()-1 )->name() );
 	if ( sortField == -1 ) {
 	    env->program().setLastError( "ResultSet: sort field not found:" +
 					 index->field( index->count()-1 )->name() );
 	    return FALSE;
 	}
+    }
+
+    sortKey.clear();
+
+    /* init the sort key */
+    for ( i = 0; i < data.count(); ++i ) {
+	int sortField = head.position( index->field( index->count()-1 )->name() );
 	/* initialize - also handles the common case (sort by one field) */
 	QVariant& v = data[i][sortField];
 	if ( sortKey.find( v ) == sortKey.end() ) {
@@ -583,8 +586,18 @@ bool ResultSet::sort( const QSqlIndex* index )
 	    nl.append( i );
 	}
     }
-    if ( index->isDescending( index->count()-1 ) )
-	reverse( sortKey, data.count() );
+    if ( index->count() > 1 ) {
+	/* reverse logic below */
+	if ( index->isDescending( index->count()-1 ) ) {
+	    /* descending */
+	    if ( !index->isDescending( index->count()-2 ) )
+		reverse( sortKey, data.count() );
+	} else {
+	    /* ascending? */
+	    if ( index->isDescending( index->count()-2 ) )
+		reverse( sortKey, data.count() );
+	}
+    }
     ColumnKey::Iterator it;
     if ( index->count() > 1 ) {
 	/* sort rest of fields */
@@ -615,7 +628,19 @@ bool ResultSet::sort( const QSqlIndex* index )
 		}
 	    }
 	    sortKey = subSort; /* save and continue */
-	    if ( index->isDescending( sortField ) )
+	    if ( idx > 0 ) {
+		/* reverse logic below */
+		if ( index->isDescending( idx ) ) {
+		    /* descending */
+		    if ( !index->isDescending( idx-1 ) )
+			reverse( sortKey, data.count() );
+		} else {
+		    /* ascending? */
+		    if ( index->isDescending( idx-1 ) )
+			reverse( sortKey, data.count() );
+		}
+	    }
+	    if ( idx == 0 && index->isDescending( idx ) )
 		reverse( sortKey, data.count() );
 	}
     }

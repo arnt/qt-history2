@@ -212,7 +212,7 @@ int main( int /*argc*/, char** /*argv*/ )
     env.program().append( new SaveResult( 0 ) );
     env.program().append( new Goto( 5 ) );
     env.program().append( new PushFieldDesc( 0, "id" ) );
-    env.program().append( new Push( QVariant( TRUE, 0 )  ) );
+    env.program().append( new Push( QVariant( FALSE, 0 )  ) );
     env.program().append( new PushFieldDesc( 0, "name" ) );
     env.program().append( new Push( QVariant( TRUE, 0 ) ) );
     env.program().append( new PushList( 4 ) );
