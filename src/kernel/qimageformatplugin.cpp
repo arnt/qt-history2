@@ -70,35 +70,26 @@ QRESULT QImageFormatPluginPrivate::installIOHandler( const QString &format )
 QImageFormatPlugin::QImageFormatPlugin()
 {
     d = new QImageFormatPluginPrivate( this );
+    _iface = d;
 }
 
 QImageFormatPlugin::~QImageFormatPlugin()
 {
 }
 
-QStringList QImageFormatPlugin::keys() const
-{
-    return QStringList();
-}
-
 bool QImageFormatPlugin::loadImage( const QString &format, const QString &filename, QImage *image )
 {
+    Q_UNUSED( format )
+    Q_UNUSED( filename )
+    Q_UNUSED( image )
     return FALSE;
 }
 
 bool QImageFormatPlugin::saveImage( const QString &format, const QString &filename, const QImage &image )
 {
+    Q_UNUSED( format )
+    Q_UNUSED( filename )
+    Q_UNUSED( image )
     return FALSE;
 }
 
-bool QImageFormatPlugin::installIOHandler( const QString &format )
-{
-    return FALSE;
-}
-
-QUnknownInterface *QImageFormatPlugin::iface()
-{
-    QUnknownInterface *i;
-    d->queryInterface( IID_QUnknown, &i );
-    return i;
-}

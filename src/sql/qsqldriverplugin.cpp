@@ -56,6 +56,7 @@ QSqlDriver *QSqlDriverPluginPrivate::create( const QString &key )
 QSqlDriverPlugin::QSqlDriverPlugin()
 {
     d = new QSqlDriverPluginPrivate( this );
+    _iface = d;
 }
 
 QSqlDriverPlugin::~QSqlDriverPlugin()
@@ -63,19 +64,3 @@ QSqlDriverPlugin::~QSqlDriverPlugin()
     // don't delete d, as this is deleted by d
 }
 
-QStringList QSqlDriverPlugin::keys() const
-{
-    return QStringList();
-}
-
-QSqlDriver *QSqlDriverPlugin::create( const QString &key )
-{
-    return 0;
-}
-
-QUnknownInterface *QSqlDriverPlugin::iface()
-{
-    QUnknownInterface *i;
-    d->queryInterface( IID_QUnknown, &i );
-    return i;
-}

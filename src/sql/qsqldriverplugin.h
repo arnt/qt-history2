@@ -2,25 +2,21 @@
 #define QSQLDRIVERPLUGIN_H
 
 #ifndef QT_H
-#include "qobject.h"
+#include "qgplugin.h"
 #include "qstringlist.h"
-#include "qplugin.h"
 #endif // QT_H
 
 class QSqlDriver;
 class QSqlDriverPluginPrivate;
-struct QUnknownInterface;
 
-class Q_EXPORT QSqlDriverPlugin : public QObject
+class Q_EXPORT QSqlDriverPlugin : public QGPlugin
 {
 public:
     QSqlDriverPlugin();
-    virtual ~QSqlDriverPlugin();
+    ~QSqlDriverPlugin();
 
-    virtual QStringList keys() const;
-    virtual QSqlDriver *create( const QString &key );
-
-    QUnknownInterface *iface();
+    virtual QStringList keys() const = 0;
+    virtual QSqlDriver *create( const QString &key ) = 0;
 
 private:
     QSqlDriverPluginPrivate *d;

@@ -2,26 +2,22 @@
 #define QSTYLEPLUGIN_H
 
 #ifndef QT_H
-#include "qobject.h"
+#include "qgplugin.h"
 #include "qstringlist.h"
-#include "qplugin.h"
 #endif // QT_H
 
 class QTextCodec;
 class QTextCodecPluginPrivate;
-struct QUnknownInterface;
 
-class Q_EXPORT QTextCodecPlugin : public QObject
+class Q_EXPORT QTextCodecPlugin : public QGPlugin
 {
 public:
     QTextCodecPlugin();
-    virtual ~QTextCodecPlugin();
+    ~QTextCodecPlugin();
 
-    virtual QStringList keys() const;
-    virtual QTextCodec *createForMib( int mib );
-    virtual QTextCodec *createForName( const QString &name );
-
-    QUnknownInterface *iface();
+    virtual QStringList keys() const = 0;
+    virtual QTextCodec *createForMib( int mib ) = 0;
+    virtual QTextCodec *createForName( const QString &name ) = 0;
 
 private:
     QTextCodecPluginPrivate *d;

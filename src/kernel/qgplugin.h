@@ -1,8 +1,8 @@
-#ifndef QPLUGIN_H
-#define QPLUGIN_H
+#ifndef QGPLUGIN_H
+#define QGPLUGIN_H
 
 #ifndef QT_H
-#include "qglobal.h"
+#include "qobject.h"
 #endif // QT_H
 
 #ifndef Q_EXTERN_C
@@ -74,4 +74,21 @@
 #    endif
 #endif
 
-#endif // QPLUGIN_H
+struct QUnknownInterface;
+
+class Q_EXPORT QGPlugin : public QObject
+{
+    Q_OBJECT
+public:
+    QGPlugin();
+    ~QGPlugin();
+
+    QUnknownInterface* iface();
+
+protected:
+    QUnknownInterface* _iface;
+};
+
+
+
+#endif // QGPLUGIN_H

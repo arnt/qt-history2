@@ -62,30 +62,10 @@ QTextCodec *QTextCodecPluginPrivate::createForName( const QString &name )
 QTextCodecPlugin::QTextCodecPlugin()
 {
     d = new QTextCodecPluginPrivate( this );
+    _iface = d;
 }
 
 QTextCodecPlugin::~QTextCodecPlugin()
 {
 }
 
-QStringList QTextCodecPlugin::keys() const
-{
-    return QStringList();
-}
-
-QTextCodec *QTextCodecPlugin::createForMib( int mib )
-{
-    return 0;
-}
-
-QTextCodec *QTextCodecPlugin::createForName( const QString &name )
-{
-    return 0;
-}
-
-QUnknownInterface *QTextCodecPlugin::iface()
-{
-    QUnknownInterface *i;
-    d->queryInterface( IID_QUnknown, &i );
-    return i;
-}

@@ -83,6 +83,7 @@ bool QStylePluginPrivate::canUnload() const
 QStylePlugin::QStylePlugin()
 {
     d = new QStylePluginPrivate( this );
+    _iface = (QStyleFactoryInterface*)d;
 }
 
 QStylePlugin::~QStylePlugin()
@@ -90,19 +91,3 @@ QStylePlugin::~QStylePlugin()
     // don't delete d, as this is deleted by d
 }
 
-QStringList QStylePlugin::keys() const
-{
-    return QStringList();
-}
-
-QStyle *QStylePlugin::create( const QString &key )
-{
-    return 0;
-}
-
-QUnknownInterface *QStylePlugin::iface()
-{
-    QUnknownInterface *i;
-    d->queryInterface( IID_QUnknown, &i );
-    return i;
-}

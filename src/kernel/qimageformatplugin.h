@@ -2,27 +2,23 @@
 #define QSTYLEPLUGIN_H
 
 #ifndef QT_H
-#include "qobject.h"
+#include "qgplugin.h"
 #include "qstringlist.h"
-#include "qplugin.h"
 #endif // QT_H
 
 class QImageFormat;
 class QImageFormatPluginPrivate;
-struct QUnknownInterface;
 
-class Q_EXPORT QImageFormatPlugin : public QObject
+class Q_EXPORT QImageFormatPlugin : public QGPlugin
 {
 public:
     QImageFormatPlugin();
-    virtual ~QImageFormatPlugin();
+    ~QImageFormatPlugin();
 
-    virtual QStringList keys() const;
+    virtual QStringList keys() const = 0;
     virtual bool loadImage( const QString &format, const QString &filename, QImage *image );
     virtual bool saveImage( const QString &format, const QString &filename, const QImage &image );
-    virtual bool installIOHandler( const QString &format );
-
-    QUnknownInterface *iface();
+    virtual bool installIOHandler( const QString &format ) = 0;
 
 private:
     QImageFormatPluginPrivate *d;

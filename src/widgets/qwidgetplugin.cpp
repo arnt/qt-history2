@@ -119,6 +119,7 @@ bool QWidgetPluginPrivate::canUnload() const
 QWidgetPlugin::QWidgetPlugin()
 {
     d = new QWidgetPluginPrivate( this );
+    _iface = (QWidgetFactoryInterface*)d;
 }
 
 QWidgetPlugin::~QWidgetPlugin()
@@ -126,49 +127,33 @@ QWidgetPlugin::~QWidgetPlugin()
     // don't delete d, as this is deleted by d
 }
 
-QStringList QWidgetPlugin::keys() const
-{
-    return QStringList();
-}
-
-QWidget *QWidgetPlugin::create( const QString &key, QWidget *parent, const char *name )
-{
-    return 0;
-}
-
-QString QWidgetPlugin::group( const QString &widget ) const
+QString QWidgetPlugin::group( const QString & ) const
 {
     return QString::null;
 }
 
-QIconSet QWidgetPlugin::iconSet( const QString &widget ) const
+QIconSet QWidgetPlugin::iconSet( const QString & ) const
 {
     return QIconSet();
 }
 
-QString QWidgetPlugin::includeFile( const QString &widget ) const
+QString QWidgetPlugin::includeFile( const QString & ) const
 {
     return QString::null;
 }
 
-QString QWidgetPlugin::toolTip( const QString &widget ) const
+QString QWidgetPlugin::toolTip( const QString & ) const
 {
     return QString::null;
 }
 
-QString QWidgetPlugin::whatsThis( const QString &widget ) const
+QString QWidgetPlugin::whatsThis( const QString & ) const
 {
     return QString::null;
 }
 
-bool QWidgetPlugin::isContainer( const QString &widget ) const
+bool QWidgetPlugin::isContainer( const QString & ) const
 {
     return FALSE;
 }
 
-QUnknownInterface *QWidgetPlugin::iface()
-{
-    QUnknownInterface *i;
-    d->queryInterface( IID_QUnknown, &i );
-    return i;
-}

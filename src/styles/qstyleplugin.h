@@ -2,25 +2,21 @@
 #define QSTYLEPLUGIN_H
 
 #ifndef QT_H
-#include "qobject.h"
+#include "qgplugin.h"
 #include "qstringlist.h"
-#include "qplugin.h"
 #endif // QT_H
 
 class QStyle;
 class QStylePluginPrivate;
-struct QUnknownInterface;
 
-class Q_EXPORT QStylePlugin : public QObject
+class Q_EXPORT QStylePlugin : public QGPlugin
 {
 public:
     QStylePlugin();
-    virtual ~QStylePlugin();
+    ~QStylePlugin();
 
-    virtual QStringList keys() const;
-    virtual QStyle *create( const QString &key );
-
-    QUnknownInterface *iface();
+    virtual QStringList keys() const = 0;
+    virtual QStyle *create( const QString &key ) = 0;
 
 private:
     QStylePluginPrivate *d;
