@@ -762,10 +762,15 @@ bool QPainter::hasClipping() const
 
 void QPainter::setClipping(bool enable)
 {
-    Q_ASSERT(d->engine);
+    if (!isActive()) {
+        qWarning("QPainter::setClipping(), painter not active, state will be reset by begin");
+        return;
+    }
     d->state->clipEnabled = enable;
-    if (d->engine)
+    if (d->engine) {
         d->engine->setDirty(QPaintEngine::DirtyClip);
+        d->engine->updateState(d->state);
+    }
 }
 
 
