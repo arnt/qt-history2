@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#6 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#7 $
 **
 ** Definition of the abstract layout base class
 **
@@ -49,7 +49,11 @@ public:
     virtual void setGeometry( const QRect& ) = 0;
     virtual SearchResult removeW( QWidget * )=0;
     virtual bool isEmpty() const = 0;
+    virtual bool hasHeightForWidth() const;
+    virtual int heightForWidth( int ) const;
 
+    virtual QWidget *widget();
+    
     int alignment() const { return align; }
     void setAlignment( int a ) { align = a; }
 protected:
@@ -87,6 +91,12 @@ public:
     bool isEmpty() const;
     void setGeometry( const QRect& ) ;
     SearchResult removeW( QWidget * );
+
+    virtual QWidget *widget();
+
+    bool hasHeightForWidth() const;
+    int heightForWidth( int ) const;
+
 private:
     QWidget *wid;
 };

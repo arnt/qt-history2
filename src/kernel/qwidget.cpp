@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#347 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#348 $
 **
 ** Implementation of QWidget class
 **
@@ -3952,7 +3952,7 @@ void QWidget::setLayout( QLayout *l )
   The default implementation returns a value which means <ul>
 
   <li> If there is a QLayout that manages this widget's children, the
-  size policy specified by that layout is used.
+  size policy specified by that layout is used. ##### NO IT ISN'T!
 
   <li> If there is no such QLayout, the widget can be freely resized,
   but prefers to be the size sizeHint() returns.
@@ -3965,4 +3965,20 @@ void QWidget::setLayout( QLayout *l )
 QSizePolicy QWidget::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
+}
+
+
+/*!
+  Returns the preferred height for this widget, given the width  \a w.
+
+  The default implementation returns -1, indicating that the preferred
+  height is independent of the width of the widget.
+
+  \warning Does not look at the widget's layout
+*/
+
+int QWidget::heightForWidth( int w ) const
+{
+    (void)w;
+    return -1;
 }

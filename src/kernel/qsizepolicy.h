@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#9 $
+** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#10 $
 **
 ** Definition of QSizePolicyclass
 **
@@ -48,7 +48,9 @@ public:
 
     QSizePolicy() { data = 0; }
 
-    QSizePolicy( SizeType hor, SizeType ver ): data( hor | (ver<<HSize) ) {}
+    QSizePolicy( SizeType hor, SizeType ver, bool hfw = FALSE ) 
+	: data( hor | (ver<<HSize) | (hfw ? (1<<2*HSize) : 0) ) {}
+
 
     SizeType horData() const { return (SizeType)( data & HMask ); }
     SizeType verData() const { return (SizeType)(( data & VMask ) >> HSize); }
@@ -65,9 +67,12 @@ public:
     }
 
     void setHorData( SizeType d ) { data = (data & ~HMask) | d; }
-    void setVerData( SizeType d ) { data = (data & ~HMask) | d; }
-
-    bool hasWidthForHeight() { return data & ( 1 << 2*HSize ); }
+    void setVerData( SizeType d ) { data = (data & ~(HMask<<HSize)) |
+					   d<<HSize; }
+		
+    void setHeightForWidth( bool b ) { data = b ? data & ~( 1 << 2*HSize )
+					      :  data | ( 1 << 2*HSize ); }
+    bool hasHeightForWidth() { return data & ( 1 << 2*HSize ); }
 
 private:
     QSizePolicy( int i ): data( i ) {}

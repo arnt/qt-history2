@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#70 $
 **
 ** Implementation of layout classes
 **
@@ -73,21 +73,6 @@ private:
     int torow, tocol;
 };
 
-
-#if 0
-//this one gives the "soft max" size -- probably buggy
-static QSize smartMaxPrefSize( QWidget *w )
-{
-    QSize s( QCOORD_MAX, QCOORD_MAX );
-    if ( !w->sizePolicy().horData().preferGrow() )
-	s.setWidth( w->sizeHint().width() );
-    if ( !w->sizePolicy().verData().preferGrow() )
-	s.setHeight( w->sizeHint().height() );
-
-    return s.boundedTo( w->maximumSize() );
-}
-#endif
-
 class QLayoutArray
 {
 public:
@@ -113,9 +98,15 @@ public:
 
     bool removeWidget( QWidget* );
     void setReversed( bool r, bool c ) { hReversed = c; vReversed = r; }
-    void setDirty() { needRecalc = TRUE; }
+    void setDirty() { needRecalc = TRUE; hfw_width = -1; }
 
+    bool hasHeightForWidth();
+    int heightForWidth( int );
+
+    bool findWidget( QWidget* w, int *row, int *col );
+    
 private:
+    void recalcHFW( int w );
     void init();
     QSize findSize( QCOORD QLayoutStruct::*, int ) const;
     void addData ( QLayoutBox *b, bool r = TRUE, bool c = TRUE );
@@ -130,7 +121,11 @@ private:
     QList<QLayoutBox> things;
     QList<QMultiBox> *multi;
     bool needRecalc;
+    bool has_hfw;
+    int hfw_width;
+    int hfw_height;
 };
+
 
 QLayoutArray::QLayoutArray()
 {
@@ -143,6 +138,7 @@ QLayoutArray::QLayoutArray( int nRows, int nCols )
     init();
     setSize( nRows, nCols );
 }
+
 void QLayoutArray::init()
 {
     setDirty();
@@ -151,6 +147,75 @@ void QLayoutArray::init()
     things.setAutoDelete( TRUE );
     hReversed = vReversed = FALSE;
 }
+
+bool QLayoutArray::hasHeightForWidth()
+{
+    setupLayoutData();
+    return has_hfw;
+}
+
+void QLayoutArray::recalcHFW( int w )
+{
+    int h = -1;
+    setupLayoutData();
+
+    //now do qGeomCalc( w )
+	
+    //then go through all children, using colData and heightForWidth()
+    //and put the results in hfw_rowData
+
+    //
+
+    hfw_height = h;
+    hfw_width = w;
+}
+
+int QLayoutArray::heightForWidth( int w )
+{
+    if ( needRecalc || w != hfw_width )
+	recalcHFW( w );
+    return hfw_height;
+}
+
+
+
+bool QLayoutArray::findWidget( QWidget* w, int *row, int *col )
+{
+    QListIterator<QLayoutBox> it( things );
+    QLayoutBox * box;
+    while ( (box=it.current()) != 0 ) {
+	++it;
+	if ( box->item->widget() == w ) {
+	    if ( row )
+		*row = box->row;
+	    if ( col )
+		*col = box->col;
+	    return TRUE;
+	}
+    }
+    if ( multi ) {
+	QListIterator<QMultiBox> it( *multi );
+	QMultiBox * mbox;
+	while ( (mbox=it.current()) != 0 ) {
+	    ++it;
+	    box = mbox->box();
+	    if ( box->item->widget() == w ) {
+		if ( row )
+		    *row = box->row;
+		if ( col )
+		    *col = box->col;
+		return TRUE;
+	    }
+
+	}
+    }
+    return FALSE;
+
+}
+    
+
+
+
 bool QLayoutArray::removeWidget( QWidget *w )
 {
     QListIterator<QLayoutBox> it( things );
@@ -187,23 +252,6 @@ bool QLayoutArray::removeWidget( QWidget *w )
     setDirty();
     return FALSE;
 }
-
-#if 0
-QSizePolicy QLayoutArray::sizePolicy()
-{
-    setupLayoutData();
-    QSizeData ver( QSizeData::Fixed );
-    QSizeData hor( QSizeData::Fixed );
-    for ( int r = 0; r < rr; r++ ) {
-	ver = ver | rowData[r].sizeData;
-    }
-    for ( int c = 0; c < cc; c++ ) {
-	hor = hor | colData[c].sizeData;
-    }
-
-    return QSizePolicy( hor, ver );
-}
-#endif
 
 QSize QLayoutArray::findSize( QCOORD QLayoutStruct::*size, int spacer ) const
 {
@@ -382,6 +430,7 @@ void QLayoutArray::setupLayoutData()
     if ( !needRecalc )
 	return;
 #endif
+    has_hfw = FALSE;
     int i;
     for ( i = 0; i < rr; i++ ) {
 	rowData[i].initParameters();
@@ -394,6 +443,8 @@ void QLayoutArray::setupLayoutData()
     while ( (box=it.current()) != 0 ) {
 	++it;
 	addData( box );
+	has_hfw = has_hfw || box->item->hasHeightForWidth();
+	
     }
 
     if ( multi ) {
@@ -732,6 +783,45 @@ QSize QGridLayout::maximumSize() const
 	       QMIN( 2*margin()+s.height(), QCOORD_MAX ) );
     return s;
 }
+
+
+
+
+/*!
+  Returns whether this layout's preferred height depends on its width.
+*/
+
+bool QGridLayout::hasHeightForWidth() const
+{
+    return ((QGridLayout*)this)->array->hasHeightForWidth();
+}
+
+
+/*!
+  Returns the layout's preferred height when it is \a w pixels wide.
+*/
+
+int QGridLayout::heightForWidth( int w ) const
+{
+    return ((QGridLayout*)this)->array->heightForWidth( w );
+}
+
+
+
+
+/*!
+  Searches for \a w in this layout (not including child layouts).  If
+  \a w is found, it sets \a row and \a col to the row and column and
+  returns TRUE. If \a w is not found, FALSE is returned.
+  
+  \warning If a widget spans  multiple rows/columns, the top-left cell is returne
+*/
+
+bool QGridLayout::findWidget( QWidget* w, int *row, int *col )
+{
+    return array->findWidget( w, row, col );
+}
+
 
 /*!
   Removes \a w from geometry management.
@@ -1237,6 +1327,27 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 }
 
 
+
+/*!
+  Sets the stretch factor for widget \a w to \a stretch and returns
+  TRUE, if \a w is found in this layout (not including child layouts).
+  
+  Returns FALSE if \a w is not found.
+*/
+
+bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
+{
+    int r, c;
+    if ( !findWidget(w, &r, &c ) )
+	return FALSE;
+    if ( horz( dir ) )
+	setColStretch( c, stretch );
+    else
+	setRowStretch( r, stretch );
+    return TRUE;
+}
+
+
 /*!
   \fn QBoxLayout::Direction QBoxLayout::direction() const
 
@@ -1357,6 +1468,3 @@ QVBoxLayout::QVBoxLayout( int autoBorder, const char *name )
 QVBoxLayout::~QVBoxLayout()
 {
 }
-
-
-

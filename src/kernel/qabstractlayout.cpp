@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#11 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -125,6 +125,80 @@ QLayoutItem::~QLayoutItem()
 {
 }
 
+/*!
+  If this item consists of a single QWidget, that widget is returned.
+  The default implementation returns 0;
+*/
+
+QWidget * QLayoutItem::widget()
+{
+    return 0;
+}
+
+
+/*!
+  Returns the widget managed by this item.
+*/
+
+QWidget * QWidgetItem::widget()
+{
+    return wid;
+}
+
+
+/*!
+  Returns TRUE if this layout's preferred height depends on its
+  width. The default implementation returns FALSE;
+
+  Reimplement this function in layout managers that support
+  height for width.
+
+  \sa heightForWidth(), QWidget::heightForWidth()
+*/
+
+bool QLayoutItem::hasHeightForWidth() const
+{
+    return FALSE;
+}
+
+
+
+/*!
+  Returns the preferred height for this layout item, given the width
+  \a w.
+
+  The default implementation returns -1, indicating that the preferred
+  height is independent of the width of the item.  The function
+  hasHeightForWidth() will typically be much faster than calling this
+  function and testing for -1.
+
+  Reimplement this function in layout managers that support
+  height for width. A typical implementation will look like this:
+  \code
+  int MyLayout::heightForWidth( int w ) const
+  {
+      if ( cache_dirty || cached_width != w ) {
+          //Not all C++ compilers support "mutable" yet:
+          MyLayout * mthis = (MyLayout*)this;
+	  int h = calculateHeightForWidth( w );
+          mthis->cached_hfw = h;
+	  return h;
+      }
+      return cached_hfw;
+  }
+  \endcode
+
+  Note that caching is essential, without it layout will take
+  exponential time.  \sa hasHeightForWidth()
+*/
+
+int QLayoutItem::heightForWidth( int ) const
+{
+    return -1;
+}
+
+
+
 static const int HorAlign = Qt::AlignHCenter | Qt::AlignRight | Qt::AlignLeft;
 static const int VerAlign = Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop;
 
@@ -206,6 +280,29 @@ void QWidgetItem::setGeometry( const QRect &r )
 	y = y + ( r.height() - s.height() ) / 2;
 
     wid->setGeometry( x, y, s.width(), s.height() );
+}
+
+
+/*!
+  \reimplementation
+*/
+
+bool QWidgetItem::hasHeightForWidth() const
+{
+    if ( wid->layout() )
+	return wid->layout()->hasHeightForWidth();
+    return wid->sizePolicy().hasHeightForWidth();
+}
+
+/*!
+  \reimplementation
+*/
+
+int QWidgetItem::heightForWidth( int w ) const
+{
+    if ( wid->layout() )
+	return wid->layout()->heightForWidth( w );
+    return wid->heightForWidth( w );
 }
 
 /*!
@@ -537,7 +634,7 @@ QLayoutItem::SearchResult QLayout::removeW( QWidget *w)
   It is the responsibility of the reimplementor to propagate the call
   to sub-layouts.  Returns TRUE if found, FALSE if not found.
 */
-  
+
 
 /*!
   This function is reimplemented in subclasses to
@@ -774,3 +871,4 @@ void QLayout::invalidate()
 {
 
 }
+

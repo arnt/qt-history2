@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#206 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#207 $
 **
 ** Definition of QWidget class
 **
@@ -252,9 +252,12 @@ public:
 
     virtual QSize	sizeHint() const;
     virtual QSizePolicy sizePolicy() const;
-    virtual void	adjustSize();
+
+    virtual int heightForWidth(int) const;
+
+    virtual void  	adjustSize();
     QLayout *		layout() const { return lay_out; }
-    virtual void	reparent( QWidget *parent, WFlags, const QPoint &,
+    virtual void 	reparent( QWidget *parent, WFlags, const QPoint &,
 				  bool showIt=FALSE );
 #ifndef QT_NO_COMPAT
     void		recreate( QWidget *parent, WFlags f, const QPoint & p,

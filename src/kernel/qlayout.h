@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#34 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#35 $
 **
 ** Definition of layout classes
 **
@@ -53,6 +53,10 @@ public:
     int numRows() const;
     int numCols() const;
 
+    bool hasHeightForWidth() const;
+    int heightForWidth( int ) const;
+
+
     QSizePolicy::ExpandData expanding();
     void invalidate();
 
@@ -72,6 +76,7 @@ public:
     enum Corner { TopLeft, TopRight, BottomLeft, BottomRight };
     void setOrigin( Corner );
 protected:
+    bool findWidget( QWidget* w, int *r, int *c );
     bool removeWidget( QWidget * );
     void setGeometry( const QRect& );
     void add( QLayoutItem*, int row, int col );
@@ -108,13 +113,14 @@ public:
 
     Direction direction() const { return dir; }
 
-    //#if 1	//OBSOLETE ?????
     void addSpacing( int size );
     void addStretch( int stretch = 0 );
     void addWidget( QWidget *, int stretch = 0, int alignment = 0 );
     void addLayout( QLayout *layout, int stretch = 0 );
     void addStrut( int );
-    //#endif
+
+    bool setStretchFactor( QWidget*, int stretch );
+
 private:
     //QBoxLayoutData *data;
     Direction dir;
