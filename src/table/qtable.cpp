@@ -5051,7 +5051,7 @@ void QTableHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	QHeader::paintSection( p, index, fr );
     } else {
 	style().drawPrimitive( QStyle::PO_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
-			       colorGroup(), QStyle::PStyle_Sunken );
+			       colorGroup(), QStyle::PStyle_Down );
 	paintSectionLabel( p, index, fr );
     }
 }
