@@ -2643,8 +2643,8 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    // Translate painter and draw the cell
 	    p->translate( colp, rowp );
 	    bool selected = isSelected( r, c );
-	    if ( !( focusStl == FollowStyle && isRowSelection( selectionMode() ) ) &&
-		 selected && !currentInSelection && r == curRow && c == curCol  )
+	    if ( focusStl != FollowStyle && selected && !currentInSelection &&
+		 r == curRow && c == curCol  )
 		selected = FALSE;
 	    paintCell( p, r, c, QRect( colp, rowp, colw, rowh ), selected );
 	    p->translate( -colp, -rowp );
