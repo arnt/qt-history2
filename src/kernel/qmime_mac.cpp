@@ -86,7 +86,8 @@ QMacMime::QMacMime(char t) : type(t)
 */
 QMacMime::~QMacMime()
 {
-    mimes.remove(this);
+    if(!QApplication::closingDown())
+	mimes.remove(this);
 }
 
 ScrapFlavorType qt_mac_mime_type = 'CUTE';
@@ -594,13 +595,6 @@ QList<QByteArray> QMacMimeHFSUri::convertFromMime(QByteArray data, const char* m
     return ret;
 }
 
-static void cleanup_mimes()
-{
-    QMacMime* wm;
-    while((wm = mimes.first()))
-	delete wm;
-}
-
 /*!
   \internal
 
@@ -609,7 +603,7 @@ static void cleanup_mimes()
 void QMacMime::initialize()
 {
     if(mimes.isEmpty()) {
-	qAddPostRoutine(cleanup_mimes);
+	mimes.setAutoDelete(TRUE);
 	new QMacMimeImage;
 	new QMacMimeText;
 	new QMacMimeFileUri;
