@@ -26,8 +26,6 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlCursor;
-
 class QM_EXPORT_SQL QSqlIndex : public QSqlRecord
 {
 public:
