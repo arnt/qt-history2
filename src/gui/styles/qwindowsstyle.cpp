@@ -277,7 +277,7 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
                 ret = qMax(ncm.iScrollHeight, ncm.iScrollWidth);
             else
 #endif
-                ret = QCommonStyle::pixelMetric(metric, opt, widget);
+                ret = QCommonStyle::pixelMetric(pm, opt, widget);
         }
         break;
 #endif
