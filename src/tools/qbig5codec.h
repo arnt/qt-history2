@@ -34,7 +34,7 @@
 #include "qtextcodec.h"
 #endif // QT_H
 
-#ifndef QT_NO_I18N
+#ifndef QT_NO_CODECS
 
 class QBig5Codec : public QTextCodec {
 public:

@@ -30,7 +30,7 @@
 #include "qtextcodec.h"
 #endif // QT_H
 
-#ifndef QT_NO_I18N
+#ifndef QT_NO_CODECS
 
 // ignore this file. it only exists so that some old applications can
 // link. please do not use it.
