@@ -131,18 +131,33 @@ static void report_error(int code, const char *where, const char *what)
 */
 
 /*!
+    \enum QMutex::RecursionMode
+
+    \value Recursive  In this mode, a thread can lock the same mutex
+                      multiple times and the mutex won't be unlocked
+                      until a corresponding number of unlock() calls
+                      have been made.
+
+    \value NonRecursive  In this mode, a thread may only lock a mutex
+                         once.
+
+    \sa QMutex()
+*/
+
+/*!
     Constructs a new mutex. The mutex is created in an unlocked state.
 
-    A recursive mutex is created if \a recursive is true (the
-    default); a normal mutex is created if \a recursive is false.
-    With a recursive mutex, a thread can lock the same mutex multiple
-    times and it will not be unlocked until a corresponding number of
-    unlock() calls have been made.
+    If \a mode is QMutex::Recursive, a thread can lock the same mutex
+    multiple times and the mutex won't be unlocked until a
+    corresponding number of unlock() calls have been made. The
+    default is QMutex::NonRecursive.
+
+    \sa lock(), unlock()
 */
-QMutex::QMutex(bool recursive)
+QMutex::QMutex(RecursionMode mode)
     : d(new QMutexPrivate)
 {
-    d->recursive = recursive;
+    d->recursive = (mode == Recursive);
     d->count = 0;
     report_error(pthread_mutex_init(&d->mutex, NULL), "QMutex", "mutex init");
     report_error(pthread_cond_init(&d->cond, NULL), "QMutex", "cv init");
@@ -236,17 +251,23 @@ void QMutex::unlock()
     }
 }
 
-/*! \obsolete
+/*!
     \fn bool QMutex::locked()
 
     Returns true if the mutex is locked by another thread; otherwise
     returns false.
 
+    It is generally a bad idea to use this function, because code
+    that uses it generally has a race condition. Use tryLock() and
+    unlock() instead.
+
+    \oldcode
+    \newcode
+    \endcode
+
     \warning Due to differing implementations of recursive mutexes on
     various platforms, calling this function from the same thread that
     previously locked the mutex will return undefined results.
-
-    \sa lock(), unlock()
 */
 
 /*!

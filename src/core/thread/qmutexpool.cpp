@@ -79,7 +79,7 @@ Q_CORE_EXPORT QMutexPool *qt_global_mutexpool = 0;
     QMutexPool is destructed.
 */
 QMutexPool::QMutexPool(bool recursive, int size)
-    : mutex(false), count(size), recurs(recursive)
+    : count(size), recurs(recursive)
 {
     mutexes = new QMutex*[count];
     for (int index = 0; index < count; ++index) {
@@ -118,7 +118,7 @@ QMutex *QMutexPool::get(const void *address)
         // we need to check once again that the mutex hasn't been created, since
         // 2 threads could be trying to create a mutex at the same index...
         if (!mutexes[index])
-            mutexes[index] = new QMutex(recurs);
+            mutexes[index] = new QMutex(recurs ? QMutex::Recursive : QMutex::NonRecursive);
     }
 
     return mutexes[index];

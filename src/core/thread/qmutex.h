@@ -26,7 +26,9 @@ class Q_CORE_EXPORT QMutex
     friend class QWaitConditionPrivate;
 
 public:
-    QMutex(bool recursive = false);
+    enum RecursionMode { NonRecursive, Recursive };
+
+    QMutex(RecursionMode mode = NonRecursive);
     ~QMutex();
 
     void lock();
@@ -41,12 +43,16 @@ public:
         unlock();
         return false;
     }
+    inline QT_COMPAT_CONSTRUCTOR QMutex(bool recursive)
+    {
+        new (this) QMutex(recursive ? Recursive : NonRecursive);
+    }
 #endif
 
 private:
     Q_DISABLE_COPY(QMutex)
 
-    QMutexPrivate * d;
+    QMutexPrivate *d;
 };
 
 class Q_CORE_EXPORT QMutexLocker

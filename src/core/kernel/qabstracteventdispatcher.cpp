@@ -87,6 +87,7 @@ QAbstractEventDispatcher::QAbstractEventDispatcher(QObject *parent)
                    "QAbstractEventDispatcher can only be used with threads started with QThread");
         Q_ASSERT_X(!data->eventDispatcher, "QAbstractEventDispatcher",
                    "An event dispatcher has already been created for this thread");
+        Q_UNUSED(data);
     }
 }
 
@@ -107,6 +108,7 @@ QAbstractEventDispatcher::QAbstractEventDispatcher(QAbstractEventDispatcherPriva
                    "QAbstractEventDispatcher can only be used with threads started with QThread");
         Q_ASSERT_X(!data->eventDispatcher, "QAbstractEventDispatcher",
                    "An event dispatcher has already been created for this thread");
+        Q_UNUSED(data);
     }
 }
 

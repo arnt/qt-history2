@@ -17,11 +17,10 @@
 #include <qatomic.h>
 #include "qmutex_p.h"
 
-
-QMutex::QMutex(bool recursive)
+QMutex::QMutex(RecursionMode mode)
 {
     d = new QMutexPrivate;
-    d->recursive = recursive;
+    d->recursive = (mode == Recursive);
     d->owner = 0;
     d->count = 0;
     d->waiters = 0;

@@ -75,7 +75,7 @@ public:
 
 
 Q3SemaphorePrivate::Q3SemaphorePrivate(int m)
-    : mutex(false), value(0), max(m)
+    : value(0), max(m)
 {
 }
 
