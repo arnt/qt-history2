@@ -93,13 +93,13 @@ void AnalogClock::drawClock( QPainter *paint )
     paint->save();
     paint->rotate( 30*(time.hour()%12-3) + time.minute()/2 );
     pts.setPoints( 4, -20,0,  0,-20, 300,0, 0,20 );
-    paint->drawPolygon( pts );
+    paint->drawConvexPolygon( pts );
     paint->restore();
 
     paint->save();
     paint->rotate( (time.minute()-15)*6 );
     pts.setPoints( 4, -10,0, 0,-10, 400,0, 0,10 );
-    paint->drawPolygon( pts );
+    paint->drawConvexPolygon( pts );
     paint->restore();
 
     for ( int i=0; i<12; i++ ) {
