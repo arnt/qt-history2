@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#39 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -42,23 +42,75 @@ static const int BORDER = 3;
 static const int blinkTime  = 500;		// text cursor blink time
 static const int scrollTime = 50;		// mark text scroll time
 
+
+static int tabStopDist( const QFontMetrics &fm )
+{
+    return 8*fm.width( 'x' );
+}
+
+static int textWidthWithTabs( const QFontMetrics &fm,const char *s,int nChars )
+{
+    if ( nChars == -1 )
+	nChars = strlen(s);
+
+    int         dist = 0;
+    const char *tmp  = s;
+    int tabDist = tabStopDist(fm);
+    while ( *tmp && tmp - s < nChars ) {
+	if ( *tmp == '\t') {
+	    dist = ( dist/tabDist + 1 ) * tabDist;
+	} else {
+	    dist += fm.width( tmp, 1 );
+	}
+	tmp++;
+    }
+    return dist;
+}
+
 static int xPosToCursorPos( const char *s, const QFontMetrics &fm,
 			    int xPos, int width )
 {
     const char *tmp;
     int	  dist;
+    int tabDist;
+
     if ( !s )
 	return 0;
     if ( xPos > width )
 	xPos = width;
     if ( xPos <= 0 )
 	return 0;
-    dist = xPos;
-    tmp	 = s;
-    while ( *tmp && dist > 0 )
-	dist -= fm.width( tmp++, 1 );
-    if ( dist < 0 && ( xPos - dist > width || fm.width( tmp - 1, 1)/2 < -dist))
-	tmp--;
+
+    int     distBeforeLastTab = 0;
+    dist    = 0;
+    tmp	    = s;
+    tabDist = tabStopDist(fm);
+    while ( *tmp && dist < xPos ) {
+	if ( *tmp == '\t') {
+	    distBeforeLastTab = dist;
+	    dist = (dist/tabDist + 1) * tabDist;
+	    debug( "t dist = %i", dist );
+	} else {
+	    dist += fm.width( tmp, 1 );
+	    debug( "n dist = %i", dist );
+	}
+	tmp++;
+    }
+    debug( "s dist = %i", dist );
+    if ( dist > xPos ) {
+	if ( dist > width ) {
+	    tmp--;
+	} else {
+	    if ( *(tmp - 1) == '\t' ) { // dist equals a tab stop position
+		if ( xPos - distBeforeLastTab < (dist - distBeforeLastTab)/2 )
+		    tmp--;
+	    } else {
+		if ( fm.width(tmp - 1, 1)/2 < dist-xPos )
+		    tmp--;
+	    }
+	}
+}
+    debug( "pos = %i", tmp - s );
     return tmp - s;
 }
 
@@ -265,11 +317,9 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
     p.setFont( painter->font() );
     p.translate( -updateR.left(), -updateR.top() );
 
-
-    p.setTabStops( 8*fm.width( 'x' ) );
+    p.setTabStops( tabStopDist(fm) );
 
     int yPos = fm.leading()/2 - 1;
-    bool hasMark = FALSE;
     int markX1, markX2;				// in x-coordinate pixels
     markX1 = markX2 = 0;			// avoid gcc warning
     if ( markIsOn ) {
@@ -292,7 +342,6 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 	    markEndX   = tmp;
 	}
 	if ( row >= markBeginY && row <= markEndY ) {
-	    hasMark = TRUE;
 	    if ( row == markBeginY ) {
 		markX1 = markBeginX;
 		if ( row == markEndY ) 		// both marks on same row
@@ -310,18 +359,15 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 	    }
 	}
     }
-    if ( !hasMark ) {
+   if ( markX1 == markX2 ) {
 	p.setPen( g.text() );
 	p.drawText( BORDER,  yPos, width() - BORDER, 1000,
 		    ExpandTabs, *s );
     } else {
 	int sLength = s->length();
-	int xpos1, xpos2;
-	xpos1 = xpos2 = width(); // paranoia..
+	int xpos1   =  BORDER + textWidthWithTabs( fm, s->data(), markX1 );
+	int xpos2   =  BORDER + textWidthWithTabs( fm, s->data(), markX2 ) - 1;
 	if ( markX1 != markX2 ) {
-	    	xpos1 =  BORDER + fm.width( s->data(), markX1 );
-		xpos2 =  xpos1 + fm.width( s->data() + markX1, 
-					       markX2 - markX1 ) - 1;
 		int fillxpos1 = xpos1;
 		int fillxpos2 = xpos2;
 		if ( markX1 == 0 )
@@ -347,7 +393,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
     if ( row == cursorY && cursorOn && !readOnly ) {
 	int cursorPos = QMIN( (int)s->length(), cursorX );
 	int curXPos   = BORDER +
-			fm.width( *s, cursorPos ) - 1;
+			textWidthWithTabs( fm, *s, cursorPos ) - 1;
 	int curYPos   = 0;
 	if ( hasFocus() ) {
 	    p.drawLine( curXPos - 2, curYPos,
@@ -369,7 +415,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 
 int QMultiLineEdit::textWidth( QString *s )
 {
-    int w = fontMetrics().width( *s );
+    int w = textWidthWithTabs( fontMetrics(), *s, -1 );
     return w + 2 * BORDER;
 }
 
@@ -1614,7 +1660,7 @@ int QMultiLineEdit::mapToView( int xIndex, int line )
     QString *s = getString( line );
     xIndex = QMIN( (int)s->length(), xIndex );
     int curXPos   = BORDER +
-		    fontMetrics().width( *s, xIndex ) - 1;
+		    textWidthWithTabs( fontMetrics(), *s, xIndex ) - 1;
     return curXPos;
 }
 
@@ -1630,7 +1676,7 @@ void QMultiLineEdit::updateCellWidth()
     int maxW = 0;
     int w;
     while ( s ) {
-	w = fontMetrics().width( *s ) + 2 * BORDER; 
+	w = textWidth( s );
 	if ( w > maxW )
 	    maxW = w;
 	s = contents->next();
@@ -1710,6 +1756,9 @@ void QMultiLineEdit::setFont( const QFont &font )
 
 void QMultiLineEdit::newMark( int posx, int posy, bool copy )
 {
+    if ( markDragX == posx && markDragY == posy &&
+	 cursorX   == posx && cursorY   == posy )
+	return;
     markDragX  = posx;
     markDragY  = posy;
     cursorX    = posx;
@@ -1783,7 +1832,6 @@ void QMultiLineEdit::clipboardChanged()
     repaint( FALSE );
 #endif
 }
-
 
 
 /*!
