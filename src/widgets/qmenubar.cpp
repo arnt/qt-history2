@@ -1135,8 +1135,16 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
     int item = itemAtPos( e->pos() );
     if ( item == actItem && popupvisible )
 	toggleclose = 1;
-    if ( item >= 0 )
- 	setAltMode( TRUE );
+    if ( item >= 0 ) {
+	QFocusEvent::Reason oldReason = QFocusEvent::reason();
+	QMenuItem *mi = findItem( idAt( item ) );
+	// we know that a popup will open, so set the reason to avoid
+	// itemviews to redraw their selections
+	if ( mi && mi->popup() )
+	    QFocusEvent::setReason( QFocusEvent::Popup );
+	setAltMode( TRUE );
+	QFocusEvent::setReason( oldReason );
+    }
     setActiveItem( item, TRUE, FALSE );
 }
 
