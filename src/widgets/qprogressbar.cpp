@@ -78,6 +78,7 @@ QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
       percentage( -1 ),
       center_indicator( TRUE ),
       auto_indicator( TRUE ),
+      percentage_visible( TRUE ),
       d( 0 )
 {
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
@@ -108,6 +109,7 @@ QProgressBar::QProgressBar( int totalSteps,
       percentage( -1 ),
       center_indicator( TRUE ),
       auto_indicator( TRUE ),
+      percentage_visible( TRUE ),
       d( 0 )
 {
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
@@ -138,16 +140,18 @@ void QProgressBar::reset()
 */
 
 /*!
-  Sets the total number of steps to \a totalSteps.
+  Sets the total number of steps to \a totalSteps. If \a totalSteps is null, 
+  the progress bar will display a busy indicator.
+
   \sa totalSteps()
 */
 
 void QProgressBar::setTotalSteps( int totalSteps )
 {
-    bool clear = totalSteps != total_steps;
+    bool clear = ( totalSteps != total_steps ) || !totalSteps;
     total_steps = totalSteps;
     if ( isVisible() ) {
-	if ( setIndicator(progress_str, progress_val, total_steps) ) {
+	if ( setIndicator(progress_str, progress_val, total_steps) || !total_steps ) {
 	    repaint( clear );
 	    if ( autoMask() )
 		updateMask();
@@ -165,14 +169,14 @@ void QProgressBar::setTotalSteps( int totalSteps )
 
 /*!
   Sets the current amount of progress made to \e progress units of the
-  total number of steps.
+  total number of steps, or moves the busy indicator if totalSteps is null.
   \sa progress(), totalSteps()
 */
 
 void QProgressBar::setProgress( int progress )
 {
     if ( progress == progress_val ||
-	 progress < 0 || progress > total_steps )
+	 progress < 0 || ( ( progress > total_steps ) && total_steps ) )
 	return;
 
     bool needClearing = progress < progress_val;
@@ -235,7 +239,7 @@ void QProgressBar::setCenterIndicator( bool on )
 	return;
     auto_indicator   = FALSE;
     center_indicator = on;
-    repaint( FALSE );
+    repaint( TRUE );
     if ( autoMask() )
 	updateMask();
 }
@@ -263,9 +267,31 @@ void QProgressBar::setIndicatorFollowsStyle( bool on )
     if ( on == auto_indicator )
 	return;
     auto_indicator = on;
-    repaint( FALSE );
+    repaint( TRUE );
     if ( autoMask() )
 	updateMask();
+}
+
+/*!
+  \fn bool QProgressBar::percentageVisible() const
+  
+  Returns whether the current progress value is displayed or not.
+
+  \sa setPercentageVisible, setCenterIndicator
+*/
+
+/*!
+  When set to TRUE (the default), the current progress value is displayed
+  according to the GUI style. Otherwise, no value is displayed.
+
+  \sa indicatorFollowsStyle(), setCenterIndicator()
+*/
+void QProgressBar::setPercentageVisible( bool on )
+{
+    if ( on == percentage_visible )
+	return;
+    percentage_visible = on;
+    repaint( TRUE );
 }
 
 /*!
@@ -276,7 +302,6 @@ void QProgressBar::show()
     setIndicator( progress_str, progress_val, total_steps );
     QFrame::show();
 }
-
 
 void QProgressBar::initFrame()
 {
@@ -354,8 +379,12 @@ void QProgressBar::drawContents( QPainter *p )
 	// a rectangle bordered by background color, all in a sunken panel
 	// with a percentage text display at the end.
 
-	QFontMetrics fm = p->fontMetrics();
-	int textw = fm.width(QString::fromLatin1("100%"));
+	int textw = 0;
+	if ( percentage_visible && total_steps ) {
+	    QFontMetrics fm = p->fontMetrics();
+	    textw = fm.width(QString::fromLatin1("100%"));
+	}
+
 	int u = (bar.width() - textw - 2/*panel*/) / unit_width;
 	int ox = ( bar.width() - (u*unit_width+textw) ) / 2;
 
@@ -376,20 +405,53 @@ void QProgressBar::drawContents( QPainter *p )
 	    for (int i=0; i<nu; i++) {
 		p->fillRect( x+2, bar.y()+vm,
 			     unit_width-2, bar.height()-vm-vm,
-			     colorGroup().brush( QColorGroup::Highlight ) );
+			     palette().active().brush( QColorGroup::Highlight ) );
 		x += unit_width;
 	    }
+	} else {
+	    int bw = u*unit_width + 2;
+	    int x = progress_val % ( (bw-ox) * 2 );
+	    if ( x > bw-ox )
+		x = 2 * (bw-ox) - x;
+	    x += ox + bar.x();
+	    
+	    QRect all( ox + bar.x(), bar.y(), bw-1, bar.height() );
+	    QRect ind( x-9, bar.y(), 18, bar.height() );
+
+	    p->setClipRegion( QRegion( all ) - QRegion( ind ) );
+	    p->eraseRect( all );
+
+	    if ( progress_val > -1 ) { 
+		p->setClipRegion( QRegion( all ) );
+		QColor base = colorGroup().background();
+		QColor high = palette().active().highlight();
+		int dr = ( base.red() - high.red() ) / 10;
+		int dg = ( base.green() - high.green() ) / 10;
+		int db = ( base.blue() - high.blue() ) / 10;
+		for ( int i = 0; i < 10; i++ ) {
+		    QColor d;
+		    d.setRgb( high.red() + dr*i, high.green() + dg*i, high.blue() + db * i );
+		    p->setPen( d );
+		    p->drawLine( x+i, bar.y(), x+i, bar.height() );
+		    if ( i )
+			p->drawLine( x-i, bar.y(), x-i, bar.height() );
+		}
+	    }
+
+	    p->setClipping( FALSE );
 	}
 
 	// ### This part doesn't actually change.
 	const QRect r( ox + bar.x(), bar.y(), u*unit_width + 2, bar.height() );
 	qDrawShadePanel( p, r, colorGroup(), TRUE, 1 );
 
-	// ### This part changes every percentage change.
-	p->setPen( colorGroup().foreground() );
-	erase ( r.x()+r.width(), bar.y(), textw, bar.height() );
-	p->drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
-	    AlignRight | AlignVCenter, progress_str );
+	if ( percentage_visible && total_steps ) {
+	    // ### This part changes every percentage change.
+	    p->setPen( colorGroup().foreground() );
+	    erase ( r.x()+r.width(), bar.y(), textw, bar.height() );
+	    p->drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
+		AlignRight | AlignVCenter, progress_str );
+	}
     } else {
 	if (total_steps) { // Sanity check
 	    int u = bar.width();
@@ -401,16 +463,34 @@ void QProgressBar::drawContents( QPainter *p )
 
 	    p->setPen( colorGroup().highlightedText() );
 	    p->setClipRect( bar.x(), bar.y(), pw, bar.height() );
-	    p->fillRect( bar, colorGroup().brush( QColorGroup::Highlight ) );
-	    p->drawText( bar, AlignCenter, progress_str );
+	    p->fillRect( bar, palette().active().brush( QColorGroup::Highlight ) );
+	    if ( percentage_visible && total_steps )
+		p->drawText( bar, AlignCenter, progress_str );
 
 	    p->setClipRect( bar.x()+pw, bar.y(), bar.width()-pw, bar.height() );
+	} else {
+	    int bw = bar.width();
+	    int x = progress_val % ( bw * 2 );
+	    if ( x > bw )
+		x = 2 * bw - x;
+	    x += bar.x();
+
+	    p->setClipRegion( QRegion( bar ) - QRegion( x, bar.y(), 1, bar.height() ) );
+	    p->eraseRect( bar );
+	    p->setClipRect( bar );
+	    p->setPen( colorGroup().highlight() );
+	    p->drawLine( x, bar.y(), x, bar.height() );
 	}
-	if ( progress_val != total_steps )
-	    p->fillRect( bar, colorGroup().brush( style()==MotifStyle ?
-		QColorGroup::Background : QColorGroup::Base ) );
-	p->setPen( style()==MotifStyle? colorGroup().foreground() : colorGroup().text() );
-	p->drawText( bar, AlignCenter, progress_str );
+
+	if ( total_steps ) {
+	    if ( progress_val != total_steps )
+		p->fillRect( bar, palette().active().brush( style()==MotifStyle ?
+		    QColorGroup::Background : QColorGroup::Base ) );
+	    if ( percentage_visible ) {
+		p->setPen( style()==MotifStyle? colorGroup().foreground() : colorGroup().text() );
+		p->drawText( bar, AlignCenter, progress_str );
+	    }
+	}
     }
 }
 

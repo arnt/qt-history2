@@ -55,6 +55,7 @@ class Q_EXPORT QProgressBar : public QFrame
     Q_PROPERTY( int progress READ progress WRITE setProgress )
     Q_PROPERTY( bool centerIndicator READ centerIndicator WRITE setCenterIndicator )
     Q_PROPERTY( bool indicatorFollowsStyle READ indicatorFollowsStyle WRITE setIndicatorFollowsStyle )
+    Q_PROPERTY( bool percentageVisible READ percentageVisible WRITE setPercentageVisible )
 	
 public:
     QProgressBar( QWidget *parent=0, const char *name=0, WFlags f=0 );
@@ -72,6 +73,9 @@ public:
 
     void        setIndicatorFollowsStyle( bool );
     bool	indicatorFollowsStyle() const;
+
+    bool	percentageVisible() const;
+    void	setPercentageVisible( bool );
 
     void	show();
 
@@ -92,8 +96,9 @@ private:
     int		progress_val;
     int		percentage;
     QString	progress_str;
-    bool        center_indicator;
-    bool        auto_indicator;
+    bool        center_indicator    : 1;
+    bool        auto_indicator	    : 1;
+    bool	percentage_visible  : 1;
     QProgressBarPrivate * d;
     void         initFrame();
 
@@ -125,6 +130,10 @@ inline bool QProgressBar::indicatorFollowsStyle() const
     return auto_indicator;
 }
 
+inline bool QProgressBar::percentageVisible() const
+{
+    return percentage_visible;
+}
 
 #endif // QT_NO_PROGRESSBAR
 
