@@ -1,5 +1,6 @@
 #ifndef PAGES_H
 #define PAGES_H
+
 #include "buildpage.h"
 #include "configpage.h"
 #include "finishpage.h"

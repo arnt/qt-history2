@@ -1,3 +1,6 @@
+#ifndef FOLDERDLGIMPL_H
+#define FOLDERDLGIMPL_H
+
 #include "folderdlg.h"
 
 class WinShell;
@@ -18,3 +21,5 @@ public:
 private:
     void ScanFolder( QString folderPath, QListViewItem* parent );
 };
+
+#endif // FOLDERDLGIMPL_H

@@ -1,5 +1,6 @@
 #ifndef SIDEDECORATIONIMPL_H
 #define SIDEDECORATIONIMPL_H
+
 #include "sidedecoration.h"
 #include "pages.h"
 #include <qpixmap.h>
