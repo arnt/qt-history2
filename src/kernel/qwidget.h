@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#247 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#248 $
 **
 ** Definition of QWidget class
 **
@@ -641,7 +641,7 @@ struct QTLWExtra {
     QSize    fsize;				// rect of frame
     short    incw, inch;			// size increments
     uint     iconic: 1;				// iconified [cur. win32 only]
-    uint     showMode: 2;			// 0 normal, 1 minimized, 2 maximized
+    uint     showMode: 2;			// 0 normal, 1 minimized, 2 maximized, 3 reset
     short    basew, baseh;			// base sizes
 #if defined(_WS_X11_)
     QRect    normalGeometry;			// used by showMin/maximized
