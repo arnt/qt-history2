@@ -144,7 +144,7 @@ void StartDialog::initFileOpen()
     fd->reparent( tab, point );
 
     QObjectList *l = fd->queryList( "QPushButton" );
-    QObjectListIt it( *l );
+    QObjectListIterator it( *l );
     QObject *obj;
     while ( (obj = it.current()) != 0 ) {
         ++it;

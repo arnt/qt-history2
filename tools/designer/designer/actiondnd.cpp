@@ -613,7 +613,7 @@ QPoint QDesignerToolBar::calcIndicatorPos( const QPoint &pos )
 	if ( !children() )
 	    return pnt;
 	pnt = QPoint( 13, 0 );
-	QObjectListIt it( *children() );
+	QObjectListIterator it( *children() );
 	QObject * obj;
 	while( (obj=it.current()) != 0 ) {
 	    ++it;
@@ -635,7 +635,7 @@ QPoint QDesignerToolBar::calcIndicatorPos( const QPoint &pos )
 	if ( !children() )
 	    return pnt;
 	pnt = QPoint( 0, 13 );
-	QObjectListIt it( *children() );
+	QObjectListIterator it( *children() );
 	QObject * obj;
 	while( (obj=it.current()) != 0 ) {
 	    ++it;

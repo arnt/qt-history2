@@ -1596,7 +1596,7 @@ void QLayoutWidget::updateSizePolicy()
 		parentLayout = 0;
 	}
 
-	QObjectListIt it( *children() );
+	QObjectListIterator it( *children() );
 	QObject *o;
 
 	if ( layout()->inherits("QVBoxLayout") ) {

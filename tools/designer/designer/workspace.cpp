@@ -356,7 +356,7 @@ void Workspace::setCurrentProject( Project *pro )
     }
 
     QObjectList l = project->objects();
-    QObjectListIt objs( l );
+    QObjectListIterator objs( l );
     for ( ;objs.current(); ++objs ) {
 	QObject* o = objs.current();
 	(void) new WorkspaceItem( projectItem, o, project );

@@ -86,7 +86,7 @@ ListViewEditor::ListViewEditor( QWidget *parent, QListView *lv, FormWindow *fw )
     // Connect signal-relay to QLineEdit "itemText"
     QObjectList *l = parent->queryList( "QLineEdit", "itemText" );
     QObject *obj;
-    QObjectListIt itemsLineEditIt( *l );
+    QObjectListIterator itemsLineEditIt( *l );
     while ( (obj = itemsLineEditIt.current()) != 0 ) {
         ++itemsLineEditIt;
 	QObject::connect( this,
@@ -111,7 +111,7 @@ ListViewEditor::ListViewEditor( QWidget *parent, QListView *lv, FormWindow *fw )
 
     // Find QLineEdit "colText" and connect
     l = parent->queryList( "QLineEdit", "colText" );
-    QObjectListIt columnsLineEditIt( *l );
+    QObjectListIterator columnsLineEditIt( *l );
     while ( (obj = columnsLineEditIt.current()) != 0 ) {
         ++columnsLineEditIt;
 	QObject::connect( columnsRename,

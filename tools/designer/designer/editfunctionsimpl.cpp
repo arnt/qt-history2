@@ -113,7 +113,7 @@ EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
     // Connect signal-relay to QLineEdit "functionName"
     QObjectList *l = parent->queryList( "QLineEdit", "functionName" );
     QObject *obj;
-    QObjectListIt itemsLineEditIt( *l );
+    QObjectListIterator itemsLineEditIt( *l );
     while ( (obj = itemsLineEditIt.current()) != 0 ) {
         ++itemsLineEditIt;
 	QObject::connect( this,

@@ -2750,7 +2750,7 @@ void Resource::saveChildActions( QAction *a, QTextStream &ts, int indent )
 {
     if ( !a->children() )
 	return;
-    QObjectListIt it( *a->children() );
+    QObjectListIterator it( *a->children() );
     while ( it.current() ) {
 	QObject *o = it.current();
 	++it;

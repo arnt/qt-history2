@@ -419,7 +419,7 @@ void FormWindow::insertWidget()
 	r.setHeight( 2 * grid().y() );
 
     const QObjectList *l = insertParent->children();
-    QObjectListIt it( *l );
+    QObjectListIterator it( *l );
     QWidgetList lst;
     if ( WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
 	for ( ; it.current(); ) {

@@ -242,7 +242,7 @@ void ActionEditor::insertChildActions( ActionItem *i )
 {
     if ( !i->actionGroup() || !i->actionGroup()->children() )
 	return;
-    QObjectListIt it( *i->actionGroup()->children() );
+    QObjectListIterator it( *i->actionGroup()->children() );
     while ( it.current() ) {
 	QObject *o = it.current();
 	++it;
@@ -292,7 +292,7 @@ void ActionEditor::connectionsClicked()
 void ActionEditor::removeAction( QAction *a )
 {
     emit removing( a );
-	
+
     formWindow->actionList().removeRef( a );
     // Remove all connections
     QValueList<MetaDataBase::Connection> conns =
@@ -305,7 +305,7 @@ void ActionEditor::removeAction( QAction *a )
     QActionGroup *ag = (QActionGroup *)a->qt_cast( "QActionGroup" );
     QObjectList *subActions = ( ag ? ag->queryList( "QAction" ) : 0 );
     if ( subActions && subActions->count() ) {
-	QObjectListIt subAction( *subActions );
+	QObjectListIterator subAction( *subActions );
 	while ( subAction.current() ) {
 	    QAction *sa = (QAction*)subAction.current();
 	    ++subAction;

@@ -652,7 +652,7 @@ void Project::save( bool onlyProjectFile )
 	}
 	contents += "\n";
     }
-    
+
     remove_contents( contents, "{SOURCES+=" ); // ### compatibility with early 3.0 betas
     remove_contents( contents, "DBFILE" );
     remove_contents( contents, "LANGUAGE" );
@@ -1291,7 +1291,7 @@ void Project::addObject( QObject *o )
 
 void Project::setObjects( const QObjectList &ol )
 {
-    for ( QObjectListIt it( ol ); it.current(); ++it )
+    for ( QObjectListIterator it( ol ); it.current(); ++it )
 	addObject( it.current() );
 }
 

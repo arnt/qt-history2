@@ -1802,7 +1802,7 @@ void AddActionToToolBarCommand::execute()
 	toolBar->reInsert();
 	QObject::connect( action, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
     } else {
-	QObjectListIt it( *action->children() );
+	QObjectListIterator it( *action->children() );
 	if ( action->children() ) {
 	    int i = 0;
 	    while ( it.current() ) {
@@ -1844,7 +1844,7 @@ void AddActionToToolBarCommand::unexecute()
 	action->removeEventFilter( toolBar );
     } else {
 	if ( action->children() ) {
-	    QObjectListIt it( *action->children() );
+	    QObjectListIterator it( *action->children() );
 	    while ( it.current() ) {
 		QObject *o = it.current();
 		++it;

@@ -464,7 +464,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
     const QObjectList *l = o->inherits( "QDesignerToolBar" ) || o->inherits( "QDesignerPopupMenu" ) ?
 			   0 : o->children();
     if ( l ) {
-	QObjectListIt it( *l );
+	QObjectListIterator it( *l );
 	it.toLast();
 	for ( ; it.current(); --it ) {
 	    if ( !it.current()->isWidgetType() ||

@@ -32,7 +32,7 @@ PreviewWidget::PreviewWidget( QWidget *parent, const char *name )
 {
     // install event filter on child widgets
     QObjectList *l = queryList("QWidget");
-    QObjectListIt it(*l);
+    QObjectListIterator it(*l);
     QObject * obj;
     while ((obj = it.current()) != 0) {
         ++it;

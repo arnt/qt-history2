@@ -182,7 +182,7 @@ void ConnectionItem::setConnection( ConnectionContainer *c )
 
 static void appendChildActions( QAction *action, QStringList &lst )
 {
-    QObjectListIt it( *action->children() );
+    QObjectListIterator it( *action->children() );
     while ( it.current() ) {
 	QObject *o = it.current();
 	++it;
