@@ -663,7 +663,7 @@ void QTextCursor::deletePreviousChar()
 }
 
 /*!
-  \returns true if the cursor contains a selection.
+  Returns true if the cursor contains a selection.
 */
 bool QTextCursor::hasSelection() const
 {
@@ -693,7 +693,7 @@ void QTextCursor::removeSelectedText()
 }
 
 /*!
-  \returns the start of the selection or the current position if the cursor doesn't have a selection.
+  Returns the start of the selection or the current position if the cursor doesn't have a selection.
 */
 int QTextCursor::selectionStart() const
 {
@@ -703,7 +703,7 @@ int QTextCursor::selectionStart() const
 }
 
 /*!
-  \returns the end of the selection or the current position if the cursor doesn't have a selection.
+  Returns the end of the selection or the current position if the cursor doesn't have a selection.
 */
 int QTextCursor::selectionEnd() const
 {
@@ -809,7 +809,7 @@ QTextCharFormat QTextCursor::charFormat() const
 }
 
 /*!
-  \returns true if the cursor is at the start of a block
+  Returns true if the cursor is at the start of a block
 */
 bool QTextCursor::atBlockStart() const
 {
@@ -820,7 +820,7 @@ bool QTextCursor::atBlockStart() const
 }
 
 /*!
-  \returns true if the cursor is at the end of a block
+  Returns true if the cursor is at the end of a block
 */
 bool QTextCursor::atEnd() const
 {

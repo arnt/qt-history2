@@ -67,7 +67,7 @@ QTextDocument::~QTextDocument()
 }
 
 /*!
-  \returns the plain text (without formatting information) contained in the document.
+  Returns the plain text (without formatting information) contained in the document.
 */
 QString QTextDocument::plainText() const
 {
@@ -77,7 +77,7 @@ QString QTextDocument::plainText() const
 }
 
 /*!
-  \returns true if the document is empty (ie. it doesn't contain any text).
+  Returns true if the document is empty (ie. it doesn't contain any text).
 */
 bool QTextDocument::isEmpty() const
 {
@@ -144,7 +144,7 @@ bool QTextDocument::isUndoRedoEnabled() const
 */
 
 /*!
-  \returns true is undo is available.
+  Returns true is undo is available.
 */
 bool QTextDocument::isUndoAvailable() const
 {
@@ -152,7 +152,7 @@ bool QTextDocument::isUndoAvailable() const
 }
 
 /*!
-  \returns true is redo is available.
+  Returns true is redo is available.
 */
 bool QTextDocument::isRedoAvailable() const
 {
@@ -161,7 +161,7 @@ bool QTextDocument::isRedoAvailable() const
 
 
 /*!
-  \returns the document layout for this document.
+  Returns the document layout for this document.
 */
 QAbstractTextDocumentLayout *QTextDocument::documentLayout() const
 {
@@ -170,7 +170,7 @@ QAbstractTextDocumentLayout *QTextDocument::documentLayout() const
 
 
 /*!
-  \returns the title of this document.
+  Returns the title of this document.
 */
 QString QTextDocument::documentTitle() const
 {

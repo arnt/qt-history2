@@ -39,7 +39,7 @@ QTextList::~QTextList()
 }
 
 /*!
-  \returns the number of items in the list.
+  Returns the number of items in the list.
 */
 int QTextList::count() const
 {
@@ -47,7 +47,7 @@ int QTextList::count() const
 }
 
 /*!
-  \returns a QTextCursor positioned at the \a i 'th item in this list.
+  Returns a QTextCursor positioned at the \a i 'th item in this list.
 */
 QTextBlockIterator QTextList::item(int i) const
 {
@@ -65,7 +65,7 @@ QTextBlockIterator QTextList::item(int i) const
 /*!
   \fn QTextListFormat QTextList::format() const
 
-  \returns the format of the list.
+  Returns the format of the list.
 */
 
 int QTextList::itemNumber(const QTextBlockIterator &blockIt) const

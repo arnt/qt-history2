@@ -49,31 +49,31 @@ QTextTableCellProperties::QTextTableCellProperties(const QTextTablePrivate *p, i
 /*!
   \fn int QTextTableCellProperties::row() const
 
-  \returns the row this table cell describes
+  Returns the row this table cell describes
 */
 
 /*!
   \fn int QTextTableCellProperties::col() const
 
-  \returns the col this table cell describes
+  Returns the col this table cell describes
 */
 
 /*!
   \fn int QTextTableCellProperties::rowSpan() const
 
-  \returns the rowSpan of this table cell
+  Returns the rowSpan of this table cell
 */
 
 /*!
   \fn int QTextTableCellProperties::colSpan() const
 
-  \returns the colSpan of this table cell.
+  Returns the colSpan of this table cell.
 */
 
 /*!
   \fn bool QTextTableCellProperties::isValid() const
 
-  \returns if the table cell queried by QTextTable::cellAt describes a
+  Returns if the table cell queried by QTextTable::cellAt describes a
   valid cell.
 */
 
@@ -81,26 +81,26 @@ QTextTableCellProperties::QTextTableCellProperties(const QTextTablePrivate *p, i
 /*!
   \fn QTextCursor QTextTableCellProperties::start() const
 
-  \returns if a QTextCursor pointing to the start of the cell.
+  Returns if a QTextCursor pointing to the start of the cell.
 */
 
 /*!
   \fn QTextCursor QTextTableCellProperties::end() const
 
-  \returns if a QTextCursor pointing to the end of the cell.
+  Returns if a QTextCursor pointing to the end of the cell.
 */
 
 
 /*!
   \fn QTextCursor QTextTableCellProperties::operator==(const QTextTableCellProperties &other) const
 
-  \returns true if the two objects describe the same table cell
+  Returns true if the two objects describe the same table cell
 */
 
 /*!
   \fn QTextCursor QTextTableCellProperties::operator!=(const QTextTableCellProperties &other) const
 
-  \returns true if the two objects do not describe the same table cell
+  Returns true if the two objects do not describe the same table cell
 */
 
 /*!
@@ -136,7 +136,7 @@ QTextTable::~QTextTable()
 
 
 /*!
-  \returns a QTextTableCellProperties object describing the properties
+  Returns a QTextTableCellProperties object describing the properties
   of the table cell at row \a row and column \a col in the table.
 */
 QTextTableCellProperties QTextTable::cellAt(int row, int col) const
@@ -150,7 +150,7 @@ QTextTableCellProperties QTextTable::cellAt(int row, int col) const
 
 
 /*!
-  \returns a QTextTableCellProperties object describing the properties
+  Returns a QTextTableCellProperties object describing the properties
   of the table cell at cursor position \a c.
 */
 QTextTableCellProperties QTextTable::cellAt(const QTextCursor &c) const
@@ -387,7 +387,7 @@ void QTextTable::removeCols(int pos, int num)
 }
 
 /*!
-  \returns the number of rows in the table
+  Returns the number of rows in the table
 */
 int QTextTable::rows() const
 {
@@ -397,7 +397,7 @@ int QTextTable::rows() const
 }
 
 /*!
-  \returns the number of columns in the table
+  Returns the number of columns in the table
 */
 int QTextTable::cols() const
 {
@@ -433,7 +433,7 @@ void QTextTable::setColSpan(int row, int col, int colspan)
 }
 
 /*!
-  \returns a QTextCursor pointing to the start of the row that contains \a c.
+  Returns a QTextCursor pointing to the start of the row that contains \a c.
 */
 QTextCursor QTextTable::rowStart(const QTextCursor &c) const
 {
@@ -444,7 +444,7 @@ QTextCursor QTextTable::rowStart(const QTextCursor &c) const
 }
 
 /*!
-  \returns a QTextCursor pointing to the end of the row that contains \a c.
+  Returns a QTextCursor pointing to the end of the row that contains \a c.
 */
 QTextCursor QTextTable::rowEnd(const QTextCursor &c) const
 {
@@ -455,7 +455,7 @@ QTextCursor QTextTable::rowEnd(const QTextCursor &c) const
 }
 
 /*!
-  \returns a QTextCursor pointing to the start of the table.
+  Returns a QTextCursor pointing to the start of the table.
 */
 QTextCursor QTextTable::start() const
 {
@@ -463,7 +463,7 @@ QTextCursor QTextTable::start() const
 }
 
 /*!
-  \returns a QTextCursor pointing to the end of the table.
+  Returns a QTextCursor pointing to the end of the table.
 */
 QTextCursor QTextTable::end() const
 {
@@ -477,7 +477,7 @@ QTextCursor QTextTable::end() const
 
 /*! \fn QTextTableFormat QTextTable::format() const
 
-  \returns the format of this table.
+  Returns the format of this table.
 */
 
 /*!
