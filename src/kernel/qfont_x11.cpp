@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#179 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#180 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1245,7 +1245,6 @@ QCString QFont_Private::findFont( bool *exact )
 		      slant, size, xdpi, ydpi,
 		      size, xdpi, ydpi );
 	}
-debug("fontset:\n%s",s.data());
 
 	return s;
     } else {
