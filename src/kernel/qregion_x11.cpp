@@ -14,6 +14,8 @@
 
 #include "qt_x11_p.h"
 
+#include <limits.h>
+
 QRegion::QRegionData QRegion::shared_empty = {Q_ATOMIC_INIT(1), 0, 0, 0};
 
 /*
