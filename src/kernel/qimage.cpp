@@ -2104,7 +2104,7 @@ void pnmscale(const QImage& src, QImage& dst)
   \link isGrayscale() grayscale \endlink images with the palette spanning
   256 grays from black to white.
 
-  This function uses code based on:
+  This function uses code based on pnmscale.c by Jef Poskanzer. \license
 
   pnmscale.c - read a portable anymap and scale it
 
