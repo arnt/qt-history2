@@ -358,7 +358,7 @@ void qt_clean_root_win() {
     qt_root_win = 0;
 }
 static bool qt_create_root_win() {
-    if(qt_root_win)
+    if (qt_root_win)
 	return false;
     Rect r;
     int w = 0, h = 0;
@@ -1794,12 +1794,16 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
     if(isTopLevel() && winid && own_id) {
 	if(isResize && isMaximized())
 	    clearWState(WState_Maximized);
-	Rect r;
-	QPoint tl = frameGeometry().topLeft();
-	if(isResize)
-	    SizeWindow((WindowPtr)hd, w, h, 1);
-	if(isMove)
-	    MoveWindowStructure((WindowPtr)hd, x, y);
+	if (qMacVersion() > Qt::MV_10_DOT_2) {
+	    if (isResize)
+		SizeWindow((WindowPtr)hd, w, h, 1);
+	    if (isMove)
+		MoveWindowStructure((WindowPtr)hd, x, y);
+	} else {
+	    Rect r;
+	    SetRect(&r, x, y, x + w, y + h);
+	    SetWindowBounds((WindowPtr)hd, kWindowContentRgn, &r);
+	}
 	dirtyClippedRegion(TRUE);
     }
 
