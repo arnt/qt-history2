@@ -121,7 +121,7 @@ public:
     static bool modalState();
     static bool tryModalHelper(QWidget *widget, QWidget **rettop = 0);
 #ifdef Q_WS_MAC
-    static QWidget *QApplicationPrivate::tryModalHelperMac(QWidget *top);
+    static QWidget *tryModalHelperMac(QWidget *top);
 #endif
 
 
