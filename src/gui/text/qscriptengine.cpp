@@ -330,59 +330,12 @@ static void basic_attributes( int /*script*/, const QString &text, int from, int
 // --------------------------------------------------------------------------------------------------------------------------------------------
 
 
-/*
-According to http://www.microsoft.com/middleeast/Arabicdev/IE6/KBase.asp
-
-1. Find the priority of the connecting opportunities in each word
-2. Add expansion at the highest priority connection opportunity
-3. If more than one connection opportunity have the same highest value,
-   use the opportunity closest to the end of the word.
-
-Following is a chart that provides the priority for connection
-opportunities and where expansion occurs. The character group names
-are those in table 6.6 of the UNICODE 2.0 book.
-
-
-PrioritY	Glyph                   Condition                                       Kashida Location
-
-Arabic_Kashida	User inserted Kashida   The user entered a Kashida in a position.       After the user
-		(Shift+j or Shift+Ê)    Thus, it is the highest priority to insert an   inserted kashida
-					automatic kashida.
-
-Arabic_Seen	Seen, Sad               Connecting to the next character.               After the character.
-					(Initial or medial form).
-
-Arabic_HaaDal	Teh Marbutah, Haa, Dal  Connecting to previous character.               Before the final form
-											of these characters.
-
-Arabic_Alef     Alef, Tah, Lam,         Connecting to previous character.               Before the final form
-		Kaf and Gaf                                                             of these characters.
-
-Arabic_BaRa     Ra, Ya, Alef Maqsurah   Connected to medial BAA                         Before preceding medial Baa
-
-Arabic_Waw	Waw, Ain, Qaf, Fa       Connecting to previous character.               Before the final form of
-											these characters.
-
-Arabic_Normal   Other connecting        Connecting to previous character.               Before the final form
-		characters                                                              of these characters.
-
-
-
-This seems to imply that we have at most one kashida point per arabic word.
-
-*/
-
-
-enum Joining {
-    JNone,
-    JCausing,
-    JDual,
-    JRight,
-    JTransparent
-};
-
 // these groups correspond to the groups defined in the Unicode standard.
-// ##### Should add in syriac as well.
+// Some of these groups are equal whith regards to both joining and line breaking behaviour,
+// and thus have the same enum value
+//
+// I'm not sure the mapping of syriac to arabic enums is correct with regards to justification, but as
+// I couldn't find any better document I'll hope for the best.
 enum ArabicGroup {
     // NonJoining
     ArabicNone,
@@ -391,75 +344,73 @@ enum ArabicGroup {
     // Causing
     Center,
     Kashida,
+
+    // Arabic
     // Dual
     Beh,
     Noon,
+    Meem = Noon,
+    Heh = Noon,
+    KnottedHeh = Noon,
+    HehGoal = Noon,
+    SwashKaf = Noon,
     Yeh,
     Hah,
     Seen,
-    Sad,
+    Sad = Seen,
     Tah,
+    Kaf = Tah,
+    Gaf = Tah,
+    Lam = Tah,
     Ain,
-    Feh,
-    Qaf,
-    Meem,
-    Heh,
-    KnottedHeh,
-    HehGoal,
-    Kaf,
-    SwashKaf,
-    Gaf,
-    Lam,
+    Feh = Ain,
+    Qaf = Ain,
     // Right
     Alef,
     Waw,
     Dal,
+    TehMarbuta = Dal,
     Reh,
-    TehMarbuta,
     HamzaOnHehGoal,
-    YehWithTail,
-    YehBarre
-};
+    YehWithTail = HamzaOnHehGoal,
+    YehBarre = HamzaOnHehGoal,
 
-static const Joining joining_for_group[] = {
-    // NonJoining
-    JNone,
-    // Transparent
-    JTransparent,
-    // Causing
-    JCausing,
-    JCausing,
+    // Syriac
     // Dual
-    JDual,
-    JDual,
-    JDual,
-    JDual,
-    JDual,
-    JDual,
-    JDual,
-    JDual,
-    JDual,
-    JDual,
-    JDual,
-    JDual,
-    JDual,
-    JDual,
-    JDual,
-    JDual,
-    JDual,
-    JDual,
+    Beth = Beh,
+    Gamal = Ain,
+    Heth = Noon,
+    Teth = Hah,
+    Yudh = Noon,
+    Kaph = Noon,
+    Lamadh = Lam,
+    Mim = Noon,
+    Nun = Noon,
+    Semakh = Noon,
+    FinalSemakh = Noon,
+    SyriacE = Ain,
+    Pe = Ain,
+    ReversedPe = Hah,
+    Qaph = Noon,
+    Shin = Noon,
+    Fe = Ain,
+
     // Right
-    JRight,
-    JRight,
-    JRight,
-    JRight,
-    JRight,
-    JRight,
-    JRight,
-    JRight
+    Alaph = Alef,
+    Dalath = Dal,
+    He = Dal,
+    SyriacWaw = Waw,
+    Zain = Alef,
+    YudhHe = Waw,
+    Sadhe = HamzaOnHehGoal,
+    Taw = Dal,
+
+    // Compiler bug? Otherwise ArabicGroupsEnd would be equal to Dal + 1.
+    Dummy = HamzaOnHehGoal,
+    ArabicGroupsEnd
 };
 
-static const unsigned char arabic_group[0x100] = {
+static const unsigned char arabic_group[0x150] = {
     ArabicNone, ArabicNone, ArabicNone, ArabicNone,
     ArabicNone, ArabicNone, ArabicNone, ArabicNone,
     ArabicNone, ArabicNone, ArabicNone, ArabicNone,
@@ -543,11 +494,36 @@ static const unsigned char arabic_group[0x100] = {
     ArabicNone, ArabicNone, Seen, Sad,
     Ain, ArabicNone, ArabicNone, KnottedHeh,
 
+    // 0x700
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+
+    Alaph, Transparent, Beth, Gamal,
+    Gamal, Dalath, Dalath, He,
+    SyriacWaw, Zain, Heth, Teth,
+    Teth, Yudh, YudhHe, Kaph,
+
+    Lamadh, Mim, Nun, Semakh,
+    FinalSemakh, SyriacE, Pe, ReversedPe,
+    Sadhe, Qaph, Dalath, Shin,
+    Taw, Beth, Gamal, Dalath,
+
+    Transparent, Transparent, Transparent, Transparent,
+    Transparent, Transparent, Transparent, Transparent,
+    Transparent, Transparent, Transparent, Transparent,
+    Transparent, Transparent, Transparent, Transparent,
+
+    Transparent, Transparent, Transparent, Transparent,
+    Transparent, Transparent, Transparent, Transparent,
+    Transparent, Transparent, Transparent, ArabicNone,
+    ArabicNone, Zain, Kaph, Fe,
 };
 
 static inline ArabicGroup arabicGroup(unsigned short uc)
 {
-    if ((uc & 0xff00) == 0x0600)
+    if (uc >= 0x0600 && uc < 0x750)
 	return (ArabicGroup) arabic_group[uc-0x600];
     else if (uc == 0x200d)
 	return Center;
@@ -555,10 +531,49 @@ static inline ArabicGroup arabicGroup(unsigned short uc)
 	return ArabicNone;
 }
 
-struct ArabicProperties {
-    unsigned char shape;
-    unsigned char justification;
-};
+
+/*
+According to http://www.microsoft.com/middleeast/Arabicdev/IE6/KBase.asp
+
+1. Find the priority of the connecting opportunities in each word
+2. Add expansion at the highest priority connection opportunity
+3. If more than one connection opportunity have the same highest value,
+   use the opportunity closest to the end of the word.
+
+Following is a chart that provides the priority for connection
+opportunities and where expansion occurs. The character group names
+are those in table 6.6 of the UNICODE 2.0 book.
+
+
+PrioritY	Glyph                   Condition                                       Kashida Location
+
+Arabic_Kashida	User inserted Kashida   The user entered a Kashida in a position.       After the user
+		(Shift+j or Shift+Ê)    Thus, it is the highest priority to insert an   inserted kashida
+					automatic kashida.
+
+Arabic_Seen	Seen, Sad               Connecting to the next character.               After the character.
+					(Initial or medial form).
+
+Arabic_HaaDal	Teh Marbutah, Haa, Dal  Connecting to previous character.               Before the final form
+											of these characters.
+
+Arabic_Alef     Alef, Tah, Lam,         Connecting to previous character.               Before the final form
+		Kaf and Gaf                                                             of these characters.
+
+Arabic_BaRa     Reh, Yeh                Connected to medial Beh                         Before preceding medial Baa
+
+Arabic_Waw	Waw, Ain, Qaf, Feh      Connecting to previous character.               Before the final form of
+											these characters.
+
+Arabic_Normal   Other connecting        Connecting to previous character.               Before the final form
+		characters                                                              of these characters.
+
+
+
+This seems to imply that we have at most one kashida point per arabic word.
+
+*/
+
 
 
 /*
@@ -603,11 +618,45 @@ enum Shape {
     XCausing
 };
 
+
+enum Joining {
+    JNone,
+    JCausing,
+    JDual,
+    JRight,
+    JTransparent
+};
+
+
+static const Joining joining_for_group[ArabicGroupsEnd] = {
+    // NonJoining
+    JNone, // ArabicNone
+    // Transparent
+    JTransparent, // Transparent
+    // Causing
+    JCausing, // Center
+    JCausing, // Kashida
+    // Dual
+    JDual, // Beh
+    JDual, // Noon
+    JDual, // Yeh
+    JDual, // Hah
+    JDual, // Seen
+    JDual, // Tah
+    JDual, // Ain
+    // Right
+    JRight, // Alef
+    JRight, // Waw
+    JRight, // Dal
+    JRight, // Reh
+    JRight  // HamzaOnHehGoal
+};
+
+
 struct JoiningPair {
     Shape form1;
     Shape form2;
 };
-Q_DECLARE_TYPEINFO(JoiningPair, Q_PRIMITIVE_TYPE);
 
 static const JoiningPair joining_table[5][4] =
 // None, Causing, Dual, Right
@@ -618,6 +667,13 @@ static const JoiningPair joining_table[5][4] =
     { { XIsolated, XIsolated }, { XIsolated, XCausing }, { XIsolated, XInitial }, { XIsolated, XIsolated } }, // XIsolated
     { { XIsolated, XIsolated }, { XIsolated, XCausing }, { XIsolated, XMedial }, { XIsolated, XFinal } }, // XCausing
 };
+
+
+struct ArabicProperties {
+    unsigned char shape;
+    unsigned char justification;
+};
+Q_DECLARE_TYPEINFO(ArabicProperties, Q_PRIMITIVE_TYPE);
 
 
 static void getArabicProperties(const unsigned short *chars, int len, ArabicProperties *properties)
