@@ -69,9 +69,9 @@ ProjectGenerator::init()
     }
 
     //the scary stuff
-    if(Option::projfile::do_pwd) 
+    if(Option::projfile::do_pwd)
 	Option::projfile::project_dirs.prepend("*.cpp; *.ui; *.c; *.y; *.l");
-    for(QStringList::Iterator pd = Option::projfile::project_dirs.begin(); pd != Option::projfile::project_dirs.end(); pd++) 
+    for(QStringList::Iterator pd = Option::projfile::project_dirs.begin(); pd != Option::projfile::project_dirs.end(); pd++)
     {
 	QString dir;
 	if(QFile::exists((*pd))) {
@@ -93,7 +93,7 @@ ProjectGenerator::init()
 		regx = regx.right(regx.length() - (s+1));
 	    }
 	    QDir d(dir, regx);
-	    for(int i = 0; i < d.count(); i++) 
+	    for(int i = 0; i < d.count(); i++)
 		addFile(dir + d[i]);
 	}
 	if(!dir.isEmpty() && !v["DEPENDPATH"].contains(dir))
@@ -125,12 +125,12 @@ ProjectGenerator::init()
 				if(!l.contains(src))
 				    l.append(src);
 			    }
-			} else if((*dep_it).right(2) == ".l" && 
+			} else if((*dep_it).right(2) == ".l" &&
 				  file_no_path.left(Option::lex_mod.length()) == Option::lex_mod) {
 			    addConfig("lex_included");
-			} 
+			}
 			if(!h.contains((*dep_it))) {
-			    if(generateMocList((*dep_it)) && !findMocDestination((*dep_it)).isEmpty())	
+			    if(generateMocList((*dep_it)) && !findMocDestination((*dep_it)).isEmpty())
 				h += (*dep_it);
 			}
 		    }
@@ -138,7 +138,7 @@ ProjectGenerator::init()
 	    }
 	}
     }
-    if(h.isEmpty()) 
+    if(h.isEmpty())
 	addConfig("moc", FALSE);
     if(no_qt_files)
 	addConfig("qt", FALSE);
@@ -165,9 +165,9 @@ ProjectGenerator::writeMakefile(QTextStream &t)
     WRITE_VAR("YACCSOURCES");
     WRITE_VAR("SOURCES");
 #undef WRITE_VAR
-    for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it) 
+    for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it)
 	t << (*it) << endl;
-    return true;
+    return TRUE;
 }
 
 bool
@@ -225,7 +225,7 @@ ProjectGenerator::getWritableVar(const QString &v)
 	return "";
 
     QString ret;
-    if(v.right(7) == "_REMOVE") 
+    if(v.right(7) == "_REMOVE")
 	ret = v.left(v.length() - 7) + " -= ";
     else
 	ret = v + " += ";
