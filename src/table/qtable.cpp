@@ -774,7 +774,9 @@ QSize QTableItem::sizeHint() const
     the original cell.
 
   \warning This function only works, if the item has already been
-  inserted into the table using e.g. QTable::setItem().
+  inserted into the table using e.g. QTable::setItem().  This function
+  also checks to make sure if \a rs and \a cs are within the bounds of
+  the table and returns without changing the span if they are not.
 
   \sa rowSpan() colSpan()
 */
@@ -4606,6 +4608,8 @@ void QTable::sortColumn( int col, bool ascending, bool wholeRows )
 
     qsort( items, filledRows, sizeof( SortableTableItem ), cmpTableItems );
 
+    bool updatesEnabled = isUpdatesEnabled();
+    bool viewportUpdatesEnabled = viewport()->isUpdatesEnabled();
     setUpdatesEnabled( FALSE );
     viewport()->setUpdatesEnabled( FALSE );
     for ( i = 0; i < numRows(); ++i ) {
@@ -4628,8 +4632,8 @@ void QTable::sortColumn( int col, bool ascending, bool wholeRows )
 	    }
 	}
     }
-    setUpdatesEnabled( TRUE );
-    viewport()->setUpdatesEnabled( TRUE );
+    setUpdatesEnabled( updatesEnabled );
+    viewport()->setUpdatesEnabled( viewportUpdatesEnabled );
 
     if ( !wholeRows )
 	repaintContents( columnPos( col ), contentsY(),
