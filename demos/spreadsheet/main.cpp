@@ -438,7 +438,7 @@ void SpreadSheet::setupContents()
 
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
-    SpreadSheet sheet(99, 26);
+    SpreadSheet sheet(100, 26);
     sheet.setWindowIcon(QPixmap(":/images/interview.png"));
     app.setMainWidget(&sheet);
     sheet.show();
