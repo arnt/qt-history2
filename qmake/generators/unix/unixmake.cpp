@@ -82,7 +82,7 @@ UnixMakefileGenerator::init()
 	project->variables()["QMAKE_COPY_FILE"].append( "$(COPY) -p" );
     if( project->isEmpty("QMAKE_COPY_DIR") )
 	project->variables()["QMAKE_COPY_DIR"].append( "$(COPY) -pR" );
-    //If the TARGET looks like a path split it into DESTDIR and the resulting TARGET 
+    //If the TARGET looks like a path split it into DESTDIR and the resulting TARGET
     if(!project->isEmpty("TARGET")) {
 	QString targ = project->first("TARGET");
 	int slsh = QMAX(targ.findRev('/'), targ.findRev(Option::dir_sep));
@@ -137,7 +137,7 @@ UnixMakefileGenerator::init()
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
     if(!project->isEmpty("QMAKE_LIBDIR")) {
 	if ( !project->isEmpty("QMAKE_RPATH") )
-	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR", " " + var("QMAKE_RPATH"), 
+	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR", " " + var("QMAKE_RPATH"),
 								  " " + var("QMAKE_RPATH"), "");
 	project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue( "QMAKE_LIBDIR", "-L", " -L", "" );
     }
@@ -165,7 +165,7 @@ UnixMakefileGenerator::init()
 	if ( !is_qt ) {
 	    if ( !project->isEmpty("QMAKE_LIBDIR_QT") ) {
 		if ( !project->isEmpty("QMAKE_RPATH") )
-		    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QT", " " + var("QMAKE_RPATH"), 
+		    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QT", " " + var("QMAKE_RPATH"),
 									  " " + var("QMAKE_RPATH"), "");
 		project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QT", "-L", " -L", "");
 	    }
@@ -177,7 +177,7 @@ UnixMakefileGenerator::init()
     }
     if ( project->isActiveConfig("opengl") ) {
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_OPENGL"];
-	if(!project->isEmpty("QMAKE_LIBDIR_OPENGL")) 
+	if(!project->isEmpty("QMAKE_LIBDIR_OPENGL"))
 	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_OPENGL", "-L", " -L", "");
 	if ( is_qt )
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL_QT"];
@@ -339,7 +339,7 @@ UnixMakefileGenerator::uniqueSetLFlags(const QStringList &list1, QStringList &li
 	    }
 	} else if(QFile::exists((*it))) {
 	    unique = (list2.findIndex((*it)) == -1);
-	} 
+	}
 	if(unique)
 	    ret.append((*it));
     }
@@ -350,7 +350,7 @@ UnixMakefileGenerator::uniqueSetLFlags(const QStringList &list1, QStringList &li
 void
 UnixMakefileGenerator::processPrlVariable(const QString &var, const QStringList &l)
 {
-    if(var == "QMAKE_PRL_LIBS") 
+    if(var == "QMAKE_PRL_LIBS")
 	project->variables()["QMAKE_CURRENT_PRL_LIBS"] += uniqueSetLFlags(l, project->variables()["QMAKE_LIBS"]);
     else
 	MakefileGenerator::processPrlVariable(var, l);
@@ -412,7 +412,7 @@ UnixMakefileGenerator::findLibraries()
 			if(dir.isNull()) {
 			    QString lib_stub;
 			    for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
-				if(QFile::exists(mdd->local_dir + Option::dir_sep + "lib" + stub + 
+				if(QFile::exists(mdd->local_dir + Option::dir_sep + "lib" + stub +
 						 modifs[modif] + "." + (*extit))) {
 				    lib_stub = stub + modifs[modif];
 				    break;
@@ -437,6 +437,7 @@ UnixMakefileGenerator::findLibraries()
 	    }
 	}
     }
+    return FALSE;
 }
 
 void
@@ -484,7 +485,7 @@ UnixMakefileGenerator::processPrlFiles()
 			}
 			QString prl = "/System/Library/Frameworks/" + opt +
 				      ".framework/" + opt + Option::prl_ext;
-			if(processPrlFile(prl)) 
+			if(processPrlFile(prl))
 			    ret = TRUE;
 			l_out.append("-framework");
 		    }
