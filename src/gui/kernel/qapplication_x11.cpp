@@ -3001,7 +3001,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
     switch (event->type) {
 
     case ButtonRelease:                        // mouse event
-	if (!inPopupMode() && pressed_window != widget->winId())
+	if (!inPopupMode() && !QWidget::mouseGrabber() && pressed_window != widget->winId())
             break;
         // fall through intended
     case ButtonPress:
