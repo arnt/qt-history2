@@ -98,7 +98,7 @@ fi
 echo "Removing internal files..." >&2
 cd ${DISTDIR}/qt/src
 ###tmake qtinternal.pro -e "Expand('INTERNAL')" | xargs rm -fv
-rm 	  dialogs/qdeveloper.h \
+rm -fv	  dialogs/qdeveloper.h \
 	  dialogs/qtranslatordialog.h \
 	  kernel/qproperty.h \
 	  kernel/qresource.h \
