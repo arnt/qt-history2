@@ -89,6 +89,8 @@ maximum/minimum sizes, or are deleted.
 
 QFont now supports KOI8R
 
+The reference documentation of the extensions is now integrated with
+the main reference documentation in the qt/html directory.
 
 ****************************************************************************
 *               Changes that might affect runtime behavior                 *
