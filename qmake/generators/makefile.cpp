@@ -582,7 +582,7 @@ MakefileGenerator::generateDependencies(QList<MakefileDependDir*> &dirs, const Q
  		generateDependencies(dirs, (*recurse_list)[i], recurse);
  		QStringList &deplist = findDependencies((*recurse_list)[i]);
  		for(QStringList::Iterator it = deplist.begin(); it != deplist.end(); ++it)
- 		    if(recurse_list->indexOf((*it)) == -1 && (*recuse_list)[i] != fn))
+ 		    if(recurse_list->indexOf((*it)) == -1 && (*recurse_list)[i] != fn)
  			recurse_list->append((*it));
  	    }
   	}
