@@ -186,9 +186,6 @@ void QPicturePaintEngine::updateFont(const QFont &font)
     int pos;
     SERIALIZE_CMD(QPicturePrivate::PdcSetFont);
     QFont fnt = font;
-    // set pixel size to be device independent
-    if (fnt.pointSize() > 0)
-        fnt.setPixelSize(fnt.pointSize());
     d->s << fnt;
     writeCmdLength(pos, QRectF(), false);
 }

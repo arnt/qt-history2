@@ -211,7 +211,7 @@ void Q3SVGPaintEngine::updatePen(const QPen &pen)
     d->dirtyStyle = true;
 }
 
-void Q3SVGPaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
+void Q3SVGPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 {
     d->cbrush = brush;
     d->dirtyStyle = true;
@@ -223,7 +223,7 @@ void Q3SVGPaintEngine::updateFont(const QFont &font)
     d->dirtyStyle = true;
 }
 
-void Q3SVGPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &brush)
+void Q3SVGPaintEngine::updateBackground(Qt::BGMode, const QBrush &)
 {
     d->dirtyStyle = true;
 }
@@ -409,7 +409,7 @@ void Q3SVGPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polygon
 }
 
 void Q3SVGPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF & /* sr */,
-                                 Qt::PixmapDrawingMode mode)
+                                 Qt::PixmapDrawingMode)
 {
     QDomElement e = d->doc.createElement("image");
     e.setAttribute("x", r.x());
@@ -464,7 +464,7 @@ void Q3SVGPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 }
 
 void Q3SVGPaintEngine::drawImage(const QRectF &r, const QImage &im,
-                                 const QRectF &sr, Qt::ImageConversionFlags flags )
+                                 const QRectF &, Qt::ImageConversionFlags)
 {
     QDomElement e = d->doc.createElement("image");
     e.setAttribute("x", r.x());
@@ -1272,7 +1272,7 @@ void Q3SVGPaintEnginePrivate::setStyleProperty(const QString &prop, const QStrin
         else
             pt->setBrush(parseColor(val));
     } else if (prop == "font-size") {
-        font->setPointSizeFloat(float(parseLen(val)));
+        font->setPixelSize(qRound(parseLen(val)));
     } else if (prop == "font-family") {
         font->setFamily(val);
     } else if (prop == "font-style") {
