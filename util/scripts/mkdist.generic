@@ -81,8 +81,8 @@ else
   cvs -Q export -rHEAD qt
   echo "Exporting the latest tmake" >&2
   cvs -Q export -rHEAD tmake
-  TMAKEDIR=$DISTDIR/tmake export TMAKEDIR
-  TMAKEPATH=$TMAKEDIR/lib/linux-g++ export TMAKEPATH           
+  export TMAKEDIR=$DISTDIR/tmake
+  export TMAKEPATH=$TMAKEDIR/lib/linux-g++
 fi
 
 echo "Removing internal files..." >&2
@@ -181,6 +181,11 @@ echo "Generate lex and yacc files for moc..." >&2
 cd ${DISTDIR}/qt/src/moc
 make mocgen.cpp
 
+echo "Removing internal makefiles" >&2
+cd ${DISTDIR}/qt
+find . -name GNUmakefile -o -name Makefile | xargs rm -vf
+rm -f GNUmakefile.inc Makefile.inc
+
 if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}/qt/src/moc
   perl -pi -e 's/^#include \<unistd\.h\>$/\/\* #include <unistd.h> \*\//' lex.yy.c
@@ -198,8 +203,19 @@ if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}
   find qt -type f -print | fmt -1 | \
 	egrep -v '\.(gif|bmp|any|exe)$' | xargs ${curdir}/unix_to_dos
-  tmakearg=-win32
-  tmakeout=Makefile
+
+  cd ${DISTDIR}/qt
+  mkdir mkfiles
+
+  echo "Build Makefiles for Borland C++" >&2
+  export TMAKEPATH=${TMAKEDIR}/lib/win32-borland
+  ${curdir}/buildmakefiles -win32
+  find . -name Makefile | xargs zip -r mkfiles/borland.zip
+
+  echo "Build Makefiles for Microsoft Visual C++" >&2
+  export TMAKEPATH=${TMAKEDIR}/lib/win32-msvc
+  ${curdir}/buildmakefiles -win32
+  find . -name Makefile | xargs zip -r mkfiles/MSVC.zip
 fi
 
 if [ "${platform}" = "x11" ]; then
@@ -207,10 +223,9 @@ if [ "${platform}" = "x11" ]; then
   rm bin/*.bat
   find . -name 'qtwin.*' | xargs rm -vf
   echo 'Building top-level make files...' >&2
-  
-  # mv ${QTDIR}/src/moc/GNUmakefile ${QTDIR}/src/moc/Makefile.in
+
+  export UNIX_MKDIST_QT=1
   ( cd ${QTDIR}/src/moc; TMAKEPATH=$QTDIR/tmake:$TMAKEPATH tmake moc.pro >Makefile.in)
-  rm ${QTDIR}/src/moc/Makefile Makefile.inc
   ${QTDIR}/util/scripts/mkconfigs
   ${QTDIR}/util/scripts/makemake
   (cd ${QTDIR}/src; tmake -t ../tmake/propagate.t qt.pro |
@@ -218,19 +233,15 @@ if [ "${platform}" = "x11" ]; then
   mv ${QTDIR}/util/scripts/propagate ${QTDIR}
   rm -rf ${DISTDIR}/qt/lib ${DISTDIR}/qt/bin
   mkdir ${DISTDIR}/qt/lib ${DISTDIR}/qt/bin
-  tmakearg=-unix
-  tmakeout=Makefile.in
-fi
 
-echo "Build tutorial, example, and extensions Makefiles" >&2
-find ${DISTDIR}/qt/tutorial \
+  echo "Build tutorial, example, and extensions Makefiles" >&2
+  find ${DISTDIR}/qt/tutorial \
      ${DISTDIR}/qt/examples \
      ${DISTDIR}/qt/extensions -name '*.pro' |
     while read pro_file
     do
 	DIR=$(dirname $pro_file)
 	cd $DIR # we are in a subshell
-	rm -f Makefile GNUmakefile
 	TEMPLATE=$(echo $(basename $DIR).t)
 	if [ ! -f $TEMPLATE ]
 	then
@@ -240,11 +251,9 @@ find ${DISTDIR}/qt/tutorial \
 		TEMPLATE=app
 	    fi
 	fi
-	tmake -t ${TEMPLATE} $tmakearg $(basename $pro_file) >$tmakeout
+	tmake -t ${TEMPLATE} $tmakearg $(basename $pro_file) > Makefile.in
     done
-
-echo "Removing GNUmakefiles" >&2
-find ${QTDIR} -name 'GNUmakefile*' -print | xargs rm -vf
+fi
 
 echo "Copying the README, LICENSE etc. files..." >&2
 cd ${DISTDIR}/qt/dist
