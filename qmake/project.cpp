@@ -371,6 +371,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     SKIP_WS(d);
     ScopeIterator *iterator = 0;
     bool scope_failed = false, else_line = false, or_op=false, start_scope=false;
+    char quote = 0;
     int parens = 0, scope_count=0;
     while(*d) {
         if(!parens) {
@@ -391,12 +392,18 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
             }
         }
 
-        if(*d == '(')
+        if(quote) {
+            if(*d == quote) 
+                quote = 0;
+        } else if(*d == '(') {
             ++parens;
-        else if(*d == ')')
+        } else if(*d == ')') {
             --parens;
+        } else if(*d == '"' || *d == '\'') {
+            quote = *d;
+        }
 
-        if(!parens && (*d == ':' || *d == '{' || *d == ')' || *d == '|')) {
+        if(!parens && !quote && (*d == ':' || *d == '{' || *d == ')' || *d == '|')) {
             scope_count++;
             scope = var.trimmed();
             if(*d == ')')

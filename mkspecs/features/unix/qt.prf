@@ -18,7 +18,7 @@ for(QTLIB, QT) {
    else:isEqual(QTLIB, core):qlib = QtCore
    else:isEqual(QTLIB, canvas):qlib = QtCanvas
    else:isEqual(QTLIB, compat):qlib = Qt3Compat
-   else:message("Unknown QT: $$QTLIB):qlib =
+   else:message("Unknown QT: $$QTLIB"):qlib =
    !isEmpty(qlib) {
       target_qt:isEqual(TARGET, qlib) {
          warning($$TARGET cannot have a QT of $$QTLIB)
