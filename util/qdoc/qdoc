@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#173 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#174 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1225,6 +1225,7 @@ sub readc {
 	    $sharon = $2;
 	    $#_ = -1;
 	    foreach ( split( /\n/, $sharon ) ) {
+		s/\s//g;
 		tr|A-Za-z0-9+/| -_|;
 		push @_, pack( "c", 32 + 0.75 * length $_ ) . $_;
 	    }
