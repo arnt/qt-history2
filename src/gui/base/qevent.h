@@ -147,7 +147,9 @@ public:
 	if ( key >= Key_Back && key <= Key_MediaLast )
 	    ignore();
     }
-    QT_COMPAT int	   ascii()	const	{ return k > 255 ? 0 : k; }
+    QT_COMPAT int	   ascii()	const	{
+	return (txt.length() ? txt.unicode()->latin1() : 0);
+    }
 #endif
     ButtonState state()	const	{ return ButtonState(s); }
     ButtonState stateAfter() const;
@@ -265,7 +267,7 @@ public:
 class Q_GUI_EXPORT QIconDragEvent : public QEvent
 {
 public:
-    QIconDragEvent() 
+    QIconDragEvent()
 	: QEvent(IconDrag), accpt(FALSE) {}
 
     bool   isAccepted() const	{ return accpt; }
