@@ -118,18 +118,18 @@ void SettingsDialog::init()
     changed = FALSE;
     selectionChanged = FALSE;
 
-    QString b = settings.readEntry( "/Qt Assistant/3.1/Webbrowser/", "" );
+    QString b = settings.readEntry( "/Qt Assistant/3.1/Webbrowser", "" );
     browserApp->setText( b );
 
     docuFileBox->clear();
-    docuFileList = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles/" );
-    docuTitleList = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocTitles/" );
+    docuFileList = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles" );
+    docuTitleList = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocTitles" );
     QStringList::iterator it = docuTitleList.begin();
     for ( ; it != docuTitleList.end(); ++it )
 	docuFileBox->insertItem( *it );
 
-    catListAvail = settings.readListEntry( "/Qt Assistant/3.1/CategoriesAvailable/" );
-    catListSel = settings.readListEntry( "/Qt Assistant/3.1/CategoriesSelected/" );
+    catListAvail = settings.readListEntry( "/Qt Assistant/3.1/CategoriesAvailable" );
+    catListSel = settings.readListEntry( "/Qt Assistant/3.1/CategoriesSelected" );
 
     insertCategories();
 }
@@ -366,11 +366,11 @@ void SettingsDialog::accept()
 {
     QSettings *settings = new QSettings();
     settings->insertSearchPath( QSettings::Windows, "/Trolltech" );
-    settings->writeEntry( "/Qt Assistant/3.1/AdditionalDocFiles/", docuFileList );
-    settings->writeEntry( "/Qt Assistant/3.1/AdditionalDocTitles/", docuTitleList );
-    settings->writeEntry( "/Qt Assistant/3.1/CategoriesAvailable/", catListAvail );
+    settings->writeEntry( "/Qt Assistant/3.1/AdditionalDocFiles", docuFileList );
+    settings->writeEntry( "/Qt Assistant/3.1/AdditionalDocTitles", docuTitleList );
+    settings->writeEntry( "/Qt Assistant/3.1/CategoriesAvailable", catListAvail );
 
-    settings->writeEntry( "/Qt Assistant/3.1/Webbrowser/", browserApp->text() );
+    settings->writeEntry( "/Qt Assistant/3.1/Webbrowser", browserApp->text() );
 
     hide();
 
@@ -379,7 +379,7 @@ void SettingsDialog::accept()
     QStringList newCatListSel = getCheckedItemList();
     if ( catListSel != newCatListSel || selectionChanged ) {
 	catListSel = newCatListSel;
-	settings->writeEntry( "/Qt Assistant/3.1/CategoriesSelected/", catListSel );
+	settings->writeEntry( "/Qt Assistant/3.1/CategoriesSelected", catListSel );
 	changedCategory = TRUE;
     }
 

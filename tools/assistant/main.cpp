@@ -160,10 +160,10 @@ bool AddDoc::addDocFile( const QString &file )
     QString title = handler.getDocumentationTitle();
     if ( title.isEmpty() )
 	title = fi.absFilePath();
-    addItemToList( "/Qt Assistant/3.1/AdditionalDocFiles/", fi.absFilePath() );
-    addItemToList( "/Qt Assistant/3.1/AdditionalDocTitles/", title );
-    addItemToList( "/Qt Assistant/3.1/CategoriesAvailable/", handler.getCategory() );
-    addItemToList( "/Qt Assistant/3.1/CategoriesSelected/", handler.getCategory() );
+    addItemToList( "/Qt Assistant/3.1/AdditionalDocFiles", fi.absFilePath() );
+    addItemToList( "/Qt Assistant/3.1/AdditionalDocTitles", title );
+    addItemToList( "/Qt Assistant/3.1/CategoriesAvailable", handler.getCategory() );
+    addItemToList( "/Qt Assistant/3.1/CategoriesSelected", handler.getCategory() );
 
     return TRUE;
 }
@@ -180,7 +180,7 @@ void AddDoc::addItemToList( const QString &rcEntry, const QString &item )
     }
     list << item;
     settings.writeEntry( rcEntry, list );
-    settings.writeEntry( "/Qt Assistant/3.1/NewDoc/", TRUE );
+    settings.writeEntry( "/Qt Assistant/3.1/NewDoc", TRUE );
 }
 
 
@@ -245,7 +245,7 @@ int main( int argc, char ** argv )
     QSettings *config = new QSettings();
     config->insertSearchPath( QSettings::Windows, "/Trolltech" );
     if( !catlist.isEmpty() ) {
-	config->writeEntry( keybase + "CategoriesSelected/", catlist );
+	config->writeEntry( keybase + "CategoriesSelected", catlist );
     }
     bool max = config->readBoolEntry( keybase  + "GeometryMaximized", FALSE );
     QString link = config->readEntry( keybase + "Source", "" );

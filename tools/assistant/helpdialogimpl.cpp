@@ -319,7 +319,7 @@ bool HelpDialog::isValidCategory( QString category )
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QStringList list = settings.readListEntry( "/Qt Assistant/3.1/CategoriesSelected/" );
+    QStringList list = settings.readListEntry( "/Qt Assistant/3.1/CategoriesSelected" );
     QStringList::iterator it = list.begin();
     for( ; it != list.end(); ++it ){
 	if( ((*it).lower() == category.lower()) || ( *it == "all" ) )
