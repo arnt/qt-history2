@@ -21,14 +21,13 @@ class QSqlFieldPrivate
 public:
     QSqlFieldPrivate(QSqlField* pd, const QString &name = QString(),
 		     QVariant::Type tpe = QVariant::Invalid): 
-	q(pd), nm(name), ro(false), bin(false), type(tpe)
+	q(pd), nm(name), ro(false), type(tpe)
     {}
     
     QSqlField *q;
     QString nm;
     QVariant val;
     uint ro: 1;
-    uint bin: 1;
     QVariant::Type type;
 };
 
@@ -103,7 +102,6 @@ QSqlField::QSqlField( const QSqlField& other )
     d = new QSqlFieldPrivate(this, other.d->nm, other.d->type);
     d->val = other.d->val;
     d->ro = other.d->ro;
-    d->bin = other.d->bin;
 }
 
 /*!
@@ -115,7 +113,6 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
     d->nm = other.d->nm;
     d->val = other.d->val;
     d->ro = other.d->ro;
-    d->bin = other.d->bin;
     d->type = other.d->type;
     return *this;
 }
@@ -138,7 +135,6 @@ bool QSqlField::operator==(const QSqlField& other) const
     return ( d->nm == other.d->nm &&
 	     d->val == other.d->val &&
 	     d->ro == other.d->ro &&
-	     d->bin == other.d->bin &&
 	     d->type == other.d->type );
 }
 

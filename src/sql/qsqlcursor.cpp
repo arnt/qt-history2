@@ -1333,7 +1333,10 @@ int QSqlCursor::applyPrepared( const QString& q, bool invalidate )
     for ( int j = 0; j < fieldCount; ++j ) {
 	const QSqlField* f = d->editBuffer.field( j );
 	if ( d->editBuffer.isGenerated( j ) ) {
-	    sql->bindValue( cnt, f->value() );
+	    if (f->type() == QVariant::ByteArray)
+		sql->bindValue(cnt, f->value(), QSql::In | QSql::Binary);
+	    else
+		sql->bindValue(cnt, f->value());
 	    cnt++;
 	}
     }
