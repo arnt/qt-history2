@@ -520,7 +520,7 @@ int QGArray::find( const char *d, uint index, uint sz ) const
     uint ii;
     switch ( sz ) {
 	case 1: {				// 8 bit elements
-	    register char *x = data();
+	    register char *x = data() + index;
 	    char v = *d;
 	    for ( i=index; i<shd->len; i++ ) {
 		if ( *x++ == v )
