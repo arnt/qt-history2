@@ -4904,8 +4904,10 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                      header->state & QStyle::Style_Enabled, header->text, -1, &penColor);
         }
     case CE_ToolButtonLabel:
-        if (w && qt_cast<QToolBar *>(w->parentWidget())) {
-            if (const QStyleOptionToolButton *tb = qt_cast<const QStyleOptionToolButton *>(opt)) {
+        if (const QStyleOptionToolButton *tb = qt_cast<const QStyleOptionToolButton *>(opt)) {
+            QStyleOptionToolButton myTb = *tb;
+            myTb.state &= ~Style_AutoRaise;
+            if (w && qt_cast<QToolBar *>(w->parentWidget())) {
                 QRect cr = tb->rect;
                 if (tb->toolButtonStyle != Qt::ToolButtonIconOnly && !tb->text.isEmpty()
                     && (tb->state & QStyle::Style_Down)) {
@@ -4934,10 +4936,10 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                     }
 
                 }
+                QWindowsStyle::drawControl(ce, &myTb, p, w);
+            } else {
+                QWindowsStyle::drawControl(ce, &myTb, p, w);
             }
-            QWindowsStyle::drawControl(ce, opt, p, w);
-        } else {
-            QWindowsStyle::drawControl(ce, opt, p, w);
         }
         break;
     case CE_ToolBoxTab:
