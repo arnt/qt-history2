@@ -673,7 +673,7 @@ void QMenuBar::openActPopup()
 
     QRect  r = itemRect( actItem );
     bool reverse = QApplication::reverseLayout();
-    const int yoffset = (style().styleHint( QStyle::SH_GUIStyle ) == QStyle::WindowsStyle) ? 4 : 1;
+    const int yoffset = 1; //(style().styleHint( QStyle::SH_GUIStyle ) == QStyle::WindowsStyle) ? 4 : 1; ### this breaks designer mainwindow editing
     QPoint pos = r.bottomLeft() + QPoint(0,yoffset);
     if( reverse ) {
 	pos = r.bottomRight() + QPoint(0,yoffset);
