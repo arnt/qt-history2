@@ -1054,7 +1054,7 @@ QFSFileEngine::owner(FileOwner own) const
     return QString("");
 }
 
-bool QFSFileEngine::chmod(uint (/* perms */)
+bool QFSFileEngine::chmod(uint /* perms */)
 {
     return false;
 }
