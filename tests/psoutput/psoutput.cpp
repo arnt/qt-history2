@@ -1,6 +1,7 @@
 #include <qpainter.h>
 #include <qprinter.h>
 #include <qapplication.h>
+#include <qpixmap.h>
 
 
 void drawPoint( QPainter & p, const QRect &r )
@@ -117,7 +118,7 @@ void drawPolyline( QPainter & p, const QRect &r )
 void drawPolygon( QPainter & p, const QRect &r )
 {
     double magic = .57735026918962576451;
-    
+
     QPointArray a( 3 );
     a[0] = QPoint( r.left(), r.center().y() + (int)(r.height()/2*magic) );
     a[1] = QPoint( r.right(), r.center().y() + (int)(r.height()/2*magic) );
@@ -157,6 +158,33 @@ void drawQuadBezier( QPainter & p, const QRect &r )
 
 void drawPixmap( QPainter & p, const QRect &r )
 {
+    const char *fileopen[] = {
+	"    16    13        5            1",
+	". c #040404",
+	"# c #808304",
+	"a c None",
+	"b c #f3f704",
+	"c c #f3f7f3",
+	"aaaaaaaaa...aaaa",
+	"aaaaaaaa.aaa.a.a",
+	"aaaaaaaaaaaaa..a",
+	"a...aaaaaaaa...a",
+	".bcb.......aaaaa",
+	".cbcbcbcbc.aaaaa",
+	".bcbcbcbcb.aaaaa",
+	".cbcb...........",
+	".bcb.#########.a",
+	".cb.#########.aa",
+	".b.#########.aaa",
+	"..#########.aaaa",
+	"...........aaaaa"
+    };
+    double s;
+    s = 1.0 * r.width() / 16;
+    if ( s < r.height() / 13 )
+	s = r.height() / 13;
+    p.scale( s, s );
+    p.drawPixmap( 0,0, QPixmap( fileopen ) );
 }
 
 
