@@ -6,7 +6,7 @@ OBJS=project.o main.o makefile.o unixmake2.o unixmake.o borland_bmake.o \
 #qt code
 QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o \
       qdatastream.o qgarray.o qbuffer.o qglist.o qptrcollection.o qfile.o \
-      qfile_unix.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o \
+      qfile_unix.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o quuid.o \
       qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o \
       qconfig.o
 
@@ -88,6 +88,9 @@ qbitarray.o: @SOURCE_PATH@/src/tools/qbitarray.cpp
 
 qdir.o: @SOURCE_PATH@/src/tools/qdir.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qdir.cpp
+
+quuid.o: @SOURCE_PATH@/src/tools/quuid.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/quuid.cpp
 
 qfileinfo_unix.o: @SOURCE_PATH@/src/tools/qfileinfo_unix.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qfileinfo_unix.cpp

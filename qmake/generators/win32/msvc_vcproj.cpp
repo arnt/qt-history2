@@ -38,10 +38,10 @@
 #include "msvc_vcproj.h"
 #include "option.h"
 #include <qdir.h>
-#include <stdlib.h>
 #include <qregexp.h>
 #include <qdict.h>
 #include <quuid.h>
+#include <stdlib.h>
 
 #if defined(Q_OS_WIN32)
 #include <objbase.h>
