@@ -26,25 +26,36 @@ static void blend_color_argb(ARGB *target, const QSpan *span, ARGB color)
         return;
 
     int alpha = qt_div_255(color.a * span->coverage);
-    int rev_alpha = 255 - alpha;
-    int pr = alpha * color.r;
-    int pg = alpha * color.g;
-    int pb = alpha * color.b;
+    if (!alpha)
+        return;
+    if (alpha != 0xff) {
+        int rev_alpha = 255 - alpha;
+        int pr = alpha * color.r;
+        int pg = alpha * color.g;
+        int pb = alpha * color.b;
 
-    for (int i = span->len; i > 0 ; --i) {
-        int res_alpha = alpha + qt_div_255(rev_alpha * target->a);
-        target->a = res_alpha;
-        if (res_alpha == 255) {
-            qt_alpha_pixel_pm(pr, target->r, rev_alpha);
-            qt_alpha_pixel_pm(pg, target->g, rev_alpha);
-            qt_alpha_pixel_pm(pb, target->b, rev_alpha);
-        } else if (res_alpha != 0) {
-            int ra = rev_alpha * target->a;
-            target->r = (pr + qt_div_255(ra * target->r)) / res_alpha;
-            target->g = (pg + qt_div_255(ra * target->g)) / res_alpha;
-            target->b = (pb + qt_div_255(ra * target->b)) / res_alpha;
+        const ARGB *end = target + span->len;
+        while (target < end) {
+            int res_alpha = alpha + qt_div_255(rev_alpha * target->a);
+            target->a = res_alpha;
+            if (res_alpha == 255) {
+                qt_alpha_pixel_pm(pr, target->r, rev_alpha);
+                qt_alpha_pixel_pm(pg, target->g, rev_alpha);
+                qt_alpha_pixel_pm(pb, target->b, rev_alpha);
+            } else if (res_alpha != 0) {
+                int ra = rev_alpha * target->a;
+                target->r = (pr + qt_div_255(ra * target->r)) / res_alpha;
+                target->g = (pg + qt_div_255(ra * target->g)) / res_alpha;
+                target->b = (pb + qt_div_255(ra * target->b)) / res_alpha;
+            }
+            ++target;
         }
-        ++target;
+    } else {
+        const ARGB *end = target + span->len;
+        while (target < end) {
+            *target = color;
+            ++target;
+        }
     }
 }
 
@@ -54,22 +65,133 @@ static void blend_color_rgb32(ARGB *target, const QSpan *span, ARGB color)
         return;
 
     int alpha = qt_div_255(color.a * span->coverage);
-    int pr = alpha * color.r;
-    int pg = alpha * color.g;
-    int pb = alpha * color.b;
-    int rev_alpha = 255 - alpha;
+    if (!alpha)
+        return;
+    if (alpha != 0xff) {
+        int pr = alpha * color.r;
+        int pg = alpha * color.g;
+        int pb = alpha * color.b;
+        int rev_alpha = 255 - alpha;
 
-    for (int i = span->len; i > 0 ; --i) {
-        qt_alpha_pixel_pm(pr, target->r, rev_alpha);
-        qt_alpha_pixel_pm(pg, target->g, rev_alpha);
-        qt_alpha_pixel_pm(pb, target->b, rev_alpha);
-        target->a = 255;
+        const ARGB *end = target + span->len;
+        while (target < end) {
+            qt_alpha_pixel_pm(pr, target->r, rev_alpha);
+            qt_alpha_pixel_pm(pg, target->g, rev_alpha);
+            qt_alpha_pixel_pm(pb, target->b, rev_alpha);
+            target->a = 255;
+            ++target;
+        }
+    } else {
+        const ARGB *end = target + span->len;
+        while (target < end) {
+            *target = color;
+            ++target;
+        }
+    }
+}
+
+static void blend_argb(ARGB *target, const QSpan *span,
+                       const qreal dx, const qreal dy,
+                       const ARGB *image_bits, const int image_width, const int image_height)
+{
+    // #### take care of non integer dx/dy
+    int x = qRound(dx);
+    int y = qRound(dy);
+    if (y < 0 || y >= image_height)
+        return;
+
+    const ARGB *src = image_bits + y*image_width + x;
+    const ARGB *end = target + span->len;
+    if (x < 0) {
+        src -= x;
+        target -= x;
+        x = 0;
+    }
+    if (end - target > image_width)
+        end = target + image_width;
+
+    while (target < end) {
+        qt_blend_pixel((*src), target, span->coverage);
+        ++target;
+        ++src;
+    }
+}
+
+static void blend_rgb32(ARGB *target, const QSpan *span,
+                        const qreal dx, const qreal dy,
+                        const ARGB *image_bits, const int image_width, const int image_height)
+{
+    // #### take care of non integer dx/dy
+    int x = qRound(dx);
+    int y = qRound(dy);
+//     qDebug("x=%f,y=%f %d/%d image_height=%d", dx, dy, x, y, image_height);
+    if (y < 0 || y >= image_height)
+        return;
+
+    const ARGB *src = image_bits + y*image_width + x;
+    const ARGB *end = target + span->len;
+    if (x < 0) {
+        src -= x;
+        target -= x;
+        x = 0;
+    }
+    if (end - target > image_width)
+        end = target + image_width;
+
+    while (target < end) {
+        qt_blend_pixel_rgb32((*src), target, span->coverage);
+        ++target;
+        ++src;
+    }
+}
+
+static void blend_tiled_argb(ARGB *target, const QSpan *span,
+                             const qreal dx, const qreal dy,
+                             const ARGB *image_bits, const int image_width, const int image_height)
+{
+    // #### take care of non integer dx/dy
+    int x = qRound(dx);
+    int y = qRound(dy);
+    x %= image_width;
+    y %= image_height;
+
+    if (x < 0)
+        x += image_width;
+    if (y < 0)
+        y += image_height;
+
+    const ARGB *src = image_bits + y*image_width;
+    for (int i = x; i < x + span->len; ++i) {
+        qt_blend_pixel(src[i%image_width], target, span->coverage);
         ++target;
     }
 }
 
-static void blend_transformed_bilinear_argb(ARGB *target, const QSpan *span, qreal ix, qreal iy, qreal dx, qreal dy,
-                                            ARGB *image_bits, int image_width, int image_height)
+static void blend_tiled_rgb32(ARGB *target, const QSpan *span,
+                              const qreal dx, const qreal dy,
+                              const ARGB *image_bits, const int image_width, const int image_height)
+{
+    // #### take care of non integer dx/dy
+    int x = qRound(dx);
+    int y = qRound(dy);
+    x %= image_width;
+    y %= image_height;
+
+    if (x < 0)
+        x += image_width;
+    if (y < 0)
+        y += image_height;
+
+    const ARGB *src = image_bits + y*image_width;
+    for (int i = x; i < x + span->len; ++i) {
+        qt_blend_pixel_rgb32(src[i%image_width], target, span->coverage);
+        ++target;
+    }
+}
+
+static void blend_transformed_bilinear_argb(ARGB *target, const QSpan *span,
+                                            const qreal ix, const qreal iy, const qreal dx, const qreal dy,
+                                            const ARGB *image_bits, const int image_width, const int image_height)
 {
     const int fixed_scale = 1 << 16;
     int x = int((ix + dx * span->x) * fixed_scale);
@@ -78,7 +200,8 @@ static void blend_transformed_bilinear_argb(ARGB *target, const QSpan *span, qre
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
-    for (int i = 0; i < span->len; ++i) {
+    const ARGB *end = target + span->len;
+    while (target < end) {
         int x1 = (x >> 16);
         int x2 = x1 + 1;
         int y1 = (y >> 16);
@@ -126,8 +249,9 @@ static void blend_transformed_bilinear_argb(ARGB *target, const QSpan *span, qre
     }
 }
 
-static void blend_transformed_bilinear_rgb32(ARGB *target, const QSpan *span, qreal ix, qreal iy, qreal dx, qreal dy,
-                                             ARGB *image_bits, int image_width, int image_height)
+static void blend_transformed_bilinear_rgb32(ARGB *target, const QSpan *span,
+                                             const qreal ix, const qreal iy, const qreal dx, const qreal dy,
+                                             const ARGB *image_bits, const int image_width, const int image_height)
 {
     const int fixed_scale = 1 << 16;
     int x = int((ix + dx * span->x) * fixed_scale);
@@ -136,7 +260,8 @@ static void blend_transformed_bilinear_rgb32(ARGB *target, const QSpan *span, qr
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
-    for (int i = 0; i < span->len; ++i) {
+    const ARGB *end = target + span->len;
+    while (target < end) {
         int x1 = (x >> 16);
         int x2 = x1 + 1;
         int y1 = (y >> 16);
@@ -184,10 +309,9 @@ static void blend_transformed_bilinear_rgb32(ARGB *target, const QSpan *span, qr
     }
 }
 
-static void blend_transformed_bilinear_tiled_argb(ARGB *target,
-                                                  const QSpan *span,
-                                                  qreal ix, qreal iy, qreal dx, qreal dy,
-                                                  ARGB *image_bits, int image_width, int image_height)
+static void blend_transformed_bilinear_tiled_argb(ARGB *target, const QSpan *span,
+                                                  const qreal ix, const qreal iy, const qreal dx, const qreal dy,
+                                                  const ARGB *image_bits, const int image_width, const int image_height)
 {
     const int fixed_scale = 1 << 16;
     int x = int((ix + dx * span->x) * fixed_scale);
@@ -196,7 +320,8 @@ static void blend_transformed_bilinear_tiled_argb(ARGB *target,
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
-    for (int i = 0; i < span->len; ++i) {
+    const ARGB *end = target + span->len;
+    while (target < end) {
         int x1 = (x >> 16);
         int x2 = (x1 + 1);
         int y1 = (y >> 16);
@@ -254,10 +379,9 @@ static void blend_transformed_bilinear_tiled_argb(ARGB *target,
     }
 }
 
-static void blend_transformed_bilinear_tiled_rgb32(ARGB *target,
-                                                   const QSpan *span,
-                                                   qreal ix, qreal iy, qreal dx, qreal dy,
-                                                   ARGB *image_bits, int image_width, int image_height)
+static void blend_transformed_bilinear_tiled_rgb32(ARGB *target, const QSpan *span,
+                                                   const qreal ix, const qreal iy, const qreal dx, const qreal dy,
+                                                   const ARGB *image_bits, const int image_width, const int image_height)
 {
     const int fixed_scale = 1 << 16;
     int x = int((ix + dx * span->x) * fixed_scale);
@@ -266,7 +390,8 @@ static void blend_transformed_bilinear_tiled_rgb32(ARGB *target,
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
-    for (int i = 0; i < span->len; ++i) {
+    const ARGB *end = target + span->len;
+    while (target < end) {
         int x1 = (x >> 16);
         int x2 = (x1 + 1);
         int y1 = (y >> 16);
@@ -326,8 +451,8 @@ static void blend_transformed_bilinear_tiled_rgb32(ARGB *target,
 
 
 static void blend_transformed_argb(ARGB *target, const QSpan *span,
-                                   qreal ix, qreal iy, qreal dx, qreal dy,
-                                   ARGB *image_bits, int image_width, int image_height)
+                                   const qreal ix, const qreal iy, const qreal dx, const qreal dy,
+                                   const ARGB *image_bits, const int image_width, const int image_height)
 {
     const int fixed_scale = 1 << 16;
     const int half_point = 1 << 15;
@@ -338,7 +463,8 @@ static void blend_transformed_argb(ARGB *target, const QSpan *span,
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
-    for (int i = 0; i < span->len; ++i) {
+    const ARGB *end = target + span->len;
+    while (target < end) {
         int px = (x + half_point) >> 16;
         int py = (y + half_point) >> 16;
 
@@ -357,8 +483,8 @@ static void blend_transformed_argb(ARGB *target, const QSpan *span,
 }
 
 static void blend_transformed_rgb32(ARGB *target, const QSpan *span,
-                                    qreal ix, qreal iy, qreal dx, qreal dy,
-                                    ARGB *image_bits, int image_width, int image_height)
+                                    const qreal ix, const qreal iy, const qreal dx, const qreal dy,
+                                    const ARGB *image_bits, const int image_width, const int image_height)
 {
     const int fixed_scale = 1 << 16;
     const int half_point = 1 << 15;
@@ -369,7 +495,8 @@ static void blend_transformed_rgb32(ARGB *target, const QSpan *span,
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
-    for (int i = 0; i < span->len; ++i) {
+    const ARGB *end = target + span->len;
+        while (target < end) {
         int px = (x + half_point) >> 16;
         int py = (y + half_point) >> 16;
 
@@ -388,8 +515,8 @@ static void blend_transformed_rgb32(ARGB *target, const QSpan *span,
 }
 
 static void blend_transformed_tiled_argb(ARGB *target, const QSpan *span,
-                                         qreal ix, qreal iy, qreal dx, qreal dy,
-                                         ARGB *image_bits, int image_width, int image_height)
+                                         const qreal ix, const qreal iy, const qreal dx, const qreal dy,
+                                         const ARGB *image_bits, const int image_width, const int image_height)
 {
     const int fixed_scale = 1 << 16;
     const int half_point = 1 << 15;
@@ -400,7 +527,8 @@ static void blend_transformed_tiled_argb(ARGB *target, const QSpan *span,
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
-    for (int i = 0; i < span->len; ++i) {
+    const ARGB *end = target + span->len;
+    while (target < end) {
         int px = (x + half_point) >> 16;
         int py = (y + half_point) >> 16;
         px %= image_width;
@@ -420,8 +548,8 @@ static void blend_transformed_tiled_argb(ARGB *target, const QSpan *span,
 }
 
 static void blend_transformed_tiled_rgb32(ARGB *target, const QSpan *span,
-                                          qreal ix, qreal iy, qreal dx, qreal dy,
-                                          ARGB *image_bits, int image_width, int image_height)
+                                          const qreal ix, const qreal iy, const qreal dx, const qreal dy,
+                                          const ARGB *image_bits, const int image_width, const int image_height)
 {
     const int fixed_scale = 1 << 16;
     const int half_point = 1 << 15;
@@ -432,7 +560,8 @@ static void blend_transformed_tiled_rgb32(ARGB *target, const QSpan *span,
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
-    for (int i = 0; i < span->len; ++i) {
+    const ARGB *end = target + span->len;
+    while (target < end) {
         int px = (x + half_point) >> 16;
         int py = (y + half_point) >> 16;
         px %= image_width;
@@ -456,6 +585,8 @@ DrawHelper qDrawHelper[2] =
 {
     { // Layout_ARGB
         blend_color_argb,
+        blend_argb,
+        blend_tiled_argb,
         blend_transformed_argb,
         blend_transformed_tiled_argb,
         blend_transformed_bilinear_argb,
@@ -463,6 +594,8 @@ DrawHelper qDrawHelper[2] =
     },
     { // Layout_RGB32
         blend_color_rgb32,
+        blend_rgb32,
+        blend_tiled_rgb32,
         blend_transformed_rgb32,
         blend_transformed_tiled_rgb32,
         blend_transformed_bilinear_rgb32,

@@ -17,12 +17,13 @@ struct ARGB
     ARGB(uchar alpha, uchar red, uchar green, uchar blue) : b(blue), g(green), r(red), a(alpha) { }
     ARGB(uint rgba) { *((uint*)this) = rgba; }
     ARGB(const QColor &c) : b(c.blue()), g(c.green()), r(c.red()), a(c.alpha()) { }
-    ARGB() : b(0), g(0), r(0), a(0) { }
+    ARGB() { *((uint*)this) = 0; }
+    void operator =(const ARGB &o) { *((uint*)this) = *((uint*)&o); }
     uchar b;
     uchar g;
     uchar r;
     uchar a;
-    QRgb toRgba() { return qRgba(r, g, b, a); }
+    QRgb toRgba() { return *((uint*)this); }
 };
 #else
 struct ARGB
@@ -30,12 +31,13 @@ struct ARGB
     ARGB(uchar alpha, uchar red, uchar green, uchar blue) : a(alpha), r(red), g(green), b(blue) { }
     ARGB(uint rgba) { *((uint*)this) = rgba; }
     ARGB(const QColor &c) : a(c.alpha()), r(c.red()), g(c.green()), b(c.blue()) { }
-    ARGB() : a(0), r(0), g(0), b(0) { }
+    ARGB() { *((uint*)this) = 0; }
+    void operator =(const ARGB &o) { *((uint*)this) = *((uint*)&o); }
     uchar a;
     uchar r;
     uchar g;
     uchar b;
-    QRgb toRgba() { return qRgba(r, g, b, a); }
+    QRgb toRgba() { return *((uint*)this); }
 };
 #endif
 
@@ -54,9 +56,12 @@ struct QSpan
 
 
 typedef void (*BlendColor)(ARGB *target, const QSpan *span, ARGB color);
+typedef void (*Blend)(ARGB *target, const QSpan *span,
+                      const qreal dx, const qreal dy,
+                      const ARGB *image_bits, const int image_width, const int image_height);
 typedef void (*BlendTransformed)(ARGB *target, const QSpan *span,
-                                         qreal ix, qreal iy, qreal dx, qreal dy,
-                                         ARGB *image_bits, int image_width, int image_height);
+                                 const qreal ix, const qreal iy, const qreal dx, const qreal dy,
+                                 const ARGB *image_bits, const int image_width, const int image_height);
 
 struct DrawHelper {
     enum Layout {
@@ -65,6 +70,8 @@ struct DrawHelper {
         Layout_Count
     };
     BlendColor blendColor;
+    Blend blend;
+    Blend blendTiled;
     BlendTransformed blendTransformed;
     BlendTransformed blendTransformedTiled;
     BlendTransformed blendTransformedBilinear;
