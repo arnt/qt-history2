@@ -729,7 +729,7 @@ QSqlIndex QTDSDriver::primaryIndex( const QString& tablename ) const
     t.setForwardOnly( TRUE );
     t.exec( QString( "sp_helpindex '%1'" ).arg( tablename ) );
     if ( t.next() ) {
-	QStringList fNames = QStringList::split( ',', t.value(2).toString().simplified(), FALSE );
+	QStringList fNames = t.value(2).toString().simplified().split(',');
 	QRegExp regx("\\s*(\\S+)(?:\\s+(DESC|desc))?\\s*");
 	for( QStringList::Iterator it = fNames.begin(); it != fNames.end(); ++it ) {
 	    regx.search( *it );

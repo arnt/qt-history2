@@ -439,7 +439,7 @@ static QSqlField qMakeFieldInfo( const QODBCPrivate* p, int i  )
 bool QODBCDriverPrivate::setConnectionOptions( const QString& connOpts )
 {
     // Set any connection attributes
-    QStringList raw = QStringList::split( ';', connOpts );
+    QStringList raw = connOpts.split(';');
     QStringList opts;
     SQLRETURN r = SQL_SUCCESS;
     QMap<QString, QString> connMap;
@@ -561,7 +561,7 @@ void QODBCDriverPrivate::splitTableQualifier(const QString & qualifier, QString 
 	table = qualifier;
 	return;
     }
-    QStringList l = QStringList::split( ".", qualifier, TRUE );
+    QStringList l = qualifier.split('.');
     if ( l.count() > 3 )
 	return; // can't possibly be a valid table qualifier
     int i = 0, n = l.count();

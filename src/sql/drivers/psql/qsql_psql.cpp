@@ -579,8 +579,11 @@ bool QPSQLDriver::open( const QString & db,
 	connectString.append( " port=" ).append( QString::number( port ) );
 
     // add any connect options - the server will handle error detection
-    if ( !connOpts.isEmpty() )
-	connectString += " " + QStringList::split( ';', connOpts ).join( " " );
+    if ( !connOpts.isEmpty() ) {
+        QString opt = connOpts;
+        opt.replace(QChar(';'), QChar(' '), QString::CaseInsensitive);
+	connectString.append(' ').append(opt);
+    }
 
     d->connection = PQconnectdb( connectString.local8Bit() );
     if ( PQstatus( d->connection ) == CONNECTION_BAD ) {

@@ -418,7 +418,7 @@ bool QMYSQLDriver::open( const QString& db,
  
     unsigned int optionFlags = 0;
     
-    QStringList raw = QStringList::split( ';', connOpts );
+    QStringList raw = connOpts.split(';');
     QStringList opts;
     QStringList::ConstIterator it;
     

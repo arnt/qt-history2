@@ -388,7 +388,7 @@ static void qSplitTableQualifier( const QString & qualifier, QString * catalog,
 {
     if ( !catalog || !schema || !table )
 	return;
-    QStringList l = QStringList::split( ".", qualifier, TRUE );
+    QStringList l = qualifier.split('.');
     if ( l.count() > 3 )
 	return; // can't possibly be a valid table qualifier
     int i = 0, n = l.count();
@@ -1074,7 +1074,7 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 	return FALSE;
     }
     // Set connection attributes
-    QStringList raw = QStringList::split( ';', connOpts );
+    QStringList raw = connOpts.split(';');
     QStringList opts;
     QMap<QString, QString> connMap;
     for ( QStringList::ConstIterator it = raw.begin(); it != raw.end(); ++it ) {
