@@ -9,6 +9,11 @@ QBufferedFSFileEngine::QBufferedFSFileEngine()
 {
 }
 
+bool QBufferedFSFileEngine::open(int /* flags */)
+{
+    return false;
+}
+
 bool QBufferedFSFileEngine::open(int /* flags */, FILE *fh)
 {
     Q_D(QBufferedFSFileEngine);

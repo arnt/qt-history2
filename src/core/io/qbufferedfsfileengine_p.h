@@ -38,6 +38,7 @@ class QBufferedFSFileEngine : public QFSFileEngine
 public:
     QBufferedFSFileEngine();
 
+    bool open(int flags);
     bool open(int flags, FILE *fh);
     bool close();
     void flush();
