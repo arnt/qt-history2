@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#5 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#6 $
 **
 ** Implementation of something useful.
 **
@@ -50,7 +50,7 @@ public:
     struct Page {
 	Page( QWidget * widget, const QString & title ):
 	    w( widget ), t( title ), back( 0 ),
-	    backEnabled( TRUE ), nextEnabled( TRUE ), helpEnabled( FALSE ),
+	    backEnabled( TRUE ), nextEnabled( TRUE ), helpEnabled( TRUE ),
 	    isLast( FALSE ), isHelpEnabled( TRUE ), appropriate( TRUE )
 	{}
 	QWidget * w;
@@ -241,6 +241,7 @@ void QWizard::showPage( QWidget * w )
 	d->ws->raiseWidget( i );
 	d->currentPage = i;
 	d->title->repaint();
+	updateButtons();
     }
 }
 
