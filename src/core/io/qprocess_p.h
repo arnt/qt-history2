@@ -20,6 +20,15 @@
 #include <private/qiodevice_p.h>
 #include <qstringlist.h>
 
+#ifdef Q_OS_WIN
+typedef HANDLE Q_PIPE;
+#define INVALID_Q_PIPE INVALID_HANDLE_VALUE
+#else
+typedef int Q_PIPE;
+#define INVALID_Q_PIPE -1
+#endif
+
+
 class QSocketNotifier;
 
 class QProcessPrivate : public QIODevicePrivate
@@ -51,12 +60,12 @@ public:
     QRingBuffer errorReadBuffer;
     QRingBuffer writeBuffer;
 
-    int standardReadPipe[2];
-    int errorReadPipe[2];
-    int writePipe[2];
-    int childStartedPipe[2];
-    void createPipe(int *pipe);
-    void destroyPipe(int *pipe);
+    Q_PIPE standardReadPipe[2];
+    Q_PIPE errorReadPipe[2];
+    Q_PIPE writePipe[2];
+    Q_PIPE childStartedPipe[2];
+    void createPipe(Q_PIPE pipe[2]);
+    void destroyPipe(Q_PIPE pipe[2]);
 
     QSocketNotifier *standardReadSocketNotifier;
     QSocketNotifier *errorReadSocketNotifier;

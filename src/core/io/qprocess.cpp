@@ -43,14 +43,14 @@ QProcessPrivate::QProcessPrivate()
     errorReadSocketNotifier = 0;
     writeSocketNotifier = 0;
     startupSocketNotifier = 0;
-    standardReadPipe[0] = -1;
-    standardReadPipe[1] = -1;
-    errorReadPipe[0] = -1;
-    errorReadPipe[1] = -1;
-    writePipe[0] = -1;
-    writePipe[1] = -1;
-    childStartedPipe[0] = -1;
-    childStartedPipe[1] = -1;
+    standardReadPipe[0] = INVALID_Q_PIPE;
+    standardReadPipe[1] = INVALID_Q_PIPE;
+    errorReadPipe[0] = INVALID_Q_PIPE;
+    errorReadPipe[1] = INVALID_Q_PIPE;
+    writePipe[0] = INVALID_Q_PIPE;
+    writePipe[1] = INVALID_Q_PIPE;
+    childStartedPipe[0] = INVALID_Q_PIPE;
+    childStartedPipe[1] = INVALID_Q_PIPE;
     exitCode = 0;
     crashed = false;
 }
@@ -445,40 +445,7 @@ void QProcess::start(const QString &program, const QStringList &arguments)
 
     d->arguments = arguments;
     d->program = QFile::encodeName(program);
-
-    // Initialize pipes
-    d->createPipe(d->childStartedPipe);
-    d->startupSocketNotifier = new QSocketNotifier(d->childStartedPipe[0],
-                                                   QSocketNotifier::Read, this);
-    connect(d->startupSocketNotifier, SIGNAL(activated(int)),
-            this, SLOT(startupNotification(int)));
-
-    d->createPipe(d->writePipe);
-    d->writeSocketNotifier = new QSocketNotifier(d->writePipe[1],
-                                                 QSocketNotifier::Write, this);
-    connect(d->writeSocketNotifier, SIGNAL(activated(int)),
-            this, SLOT(readyWrite(int)));
-    d->writeSocketNotifier->setEnabled(false);
-
-    d->createPipe(d->standardReadPipe);
-    d->createPipe(d->errorReadPipe);
-
-    d->standardReadSocketNotifier = new QSocketNotifier(d->standardReadPipe[0],
-                                                        QSocketNotifier::Read,
-                                                        this);
-    connect(d->standardReadSocketNotifier, SIGNAL(activated(int)),
-            this, SLOT(readyReadStandardOutput(int)));
-
-    d->errorReadSocketNotifier = new QSocketNotifier(d->errorReadPipe[0],
-                                                     QSocketNotifier::Read,
-                                                     this);
-    connect(d->errorReadSocketNotifier, SIGNAL(activated(int)),
-            this, SLOT(readyReadStandardError(int)));
-
-    // Start the process (platform dependent)
-    d->processState = QProcess::Starting;
-    emit stateChanged(d->processState);
-
+    
     QCoreApplication::flush();
 
     d->startProcess();
