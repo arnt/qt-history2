@@ -48,7 +48,7 @@ public:
 
 #if defined(Q_WS_QWS)
     static QWSDisplay *qwsDisplay();
-    virtual unsigned char * scanLine(int) const;
+    virtual const uchar * scanLine(int) const;
     virtual int bytesPerLine() const;
 #endif
 

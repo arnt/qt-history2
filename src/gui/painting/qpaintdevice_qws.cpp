@@ -69,7 +69,7 @@ QWSDisplay *QPaintDevice::qwsDisplay()
 /*!
     \internal
 */
-unsigned char *QPaintDevice::scanLine(int) const
+const uchar *QPaintDevice::scanLine(int) const
 {
     return 0;
 }
