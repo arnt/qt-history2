@@ -1214,6 +1214,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		int height = image.height();
 		int width = image.width();
 		uchar *b = bits;
+		uint lineFill = (3*width+3)/4*4 - 3*width;
 		for( int y=0; y < height; y++ ) {
 		    QRgb *s = (QRgb*)(image.scanLine( y ));
 		    for( int x=0; x < width; x++ ) {
@@ -1222,6 +1223,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			*b++ = qRed( *s );
 			s++;
 		    }
+		    b += lineFill;
 		}
 
 	    } else {
