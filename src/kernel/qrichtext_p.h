@@ -1064,7 +1064,7 @@ private:
     QTextFormatter *pFormatter;
     int *tabArray;
     int tabStopWidth;
-    void *eData;
+    char *eData;
     QPainter *pntr;
     QTextCommandHistory *commandHistory;
 
@@ -2379,12 +2379,12 @@ inline void QTextParag::setTabStops( int tw )
 
 inline void QTextParag::setExtraData( void *data )
 {
-    eData = data;
+    eData = (char *)data;
 }
 
 inline void *QTextParag::extraData() const
 {
-    return eData;
+    return (void *)eData;
 }
 
 inline void QTextParag::setNewLinesAllowed( bool b )
