@@ -1601,7 +1601,6 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 
 void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
 {
-    bool emitSignals = FALSE;
     QTextCursor oldCursor = *cursor;
     if ( scrollTimer->isActive() )
 	scrollTimer->stop();
@@ -1623,7 +1622,6 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
 		doc->copySelectedText( QTextDocument::Standard );
 	    QApplication::clipboard()->setSelectionMode(FALSE);
 	}
-	emitSignals = TRUE;
 #endif
     }
     emit cursorPositionChanged( cursor );
