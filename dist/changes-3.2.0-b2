@@ -31,8 +31,53 @@ for 3.2 which needs to be run for these compilers.
 *			   Library					   *
 ****************************************************************************
 
+- QFont related classes
+	Many fixes and improvements.
+
 - QMYSQLDriver
-	Better support for MySQL/embedded.
+	Better support for MySQL/embedded. Bind TEXT blob fields as
+	strings instead of byte arrays.
 
 - QTextEdit
 	Implemented insertAt() for LogText mode.
+
+- QWindowsXPStyle
+	Various paint bug fixes.
+
+- QTable
+	Replace old contents when editing. Take hidden rows into
+	account when activating cells. Clear the cell widget when
+	clearing a cell. Fixed a crash.
+
+- QPrinter
+	Mac only: Make printing work again.
+
+- QGLWidget
+	X11 only: Various fixes to make pixmap rendering work better
+	with accelerated nVidia drivers.
+
+- QLineEdit
+ 	Replace all non-printable characters with spaces to avoid
+ 	drawing boxes when using fonts that don't have glyphs for such
+	characters.
+
+- QPainter
+	Qt/Embedded only: Make printing work again.
+
+- QListView
+	Don't move the inline item editor out of the visible area for
+	wide items. Ignore +/- indicator for columns other than the
+	first one. Fixed keyboard handling in Multi selection
+	mode. Don't crash when extremely long item texts are used.
+
+- QApplication
+	Win32 only: Stop compressing mouse move events when a change
+	in the key state is detected - fixes a potential problem with
+	key events being delivered at the wrong time.
+
+- QClipboard
+	X11 only: Various fixes.
+
+- QDockWindow
+	Various layout fixes.
+
