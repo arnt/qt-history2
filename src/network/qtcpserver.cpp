@@ -196,18 +196,16 @@ bool QTcpServer::listen(const QHostAddress &address, Q_UINT16 port)
         return false;
     }
 
-    Qt::NetworkLayerProtocol proto;
-    if (address.isIPv4Address()) {
-        proto = Qt::IPv4Protocol;
-    } else {
+    Qt::NetworkLayerProtocol proto = address.protocol();
 #if defined(Q_NO_IPv6)
+    if (proto == Qt::IPv6Protocol) {
         // If we have no IPv6 support, then we will not be able to
         // listen on an IPv6 interface.
-        // ### Report the error somehow.
+        d->serverSocketError = Qt::SocketOperationUnsupportedError;
+        d->serverSocketErrorString = tr("Socket operation unsupported");
         return false;
-#endif
-        proto = Qt::IPv6Protocol;
     }
+#endif
 
     if (!d->socketLayer.initialize(Qt::TcpSocket, proto)) {
         d->serverSocketError = d->socketLayer.socketError();

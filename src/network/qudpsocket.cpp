@@ -92,10 +92,8 @@
 
 #if defined(QT_NO_IPV6)
 #define QT_ENSURE_INITIALIZED(a) do { \
-    Qt::NetworkLayerProtocol proto; \
-    if (address.isIPv4Address()) { \
-        proto = Qt::IPv4Protocol; \
-    } else { \
+    Qt::NetworkLayerProtocol proto = address.protocol(); \
+    if (proto == Qt::IPv6Protocol) { \
         d->socketError = Qt::UnsupportedSocketOperationError; \
         d->socketErrorStr = tr("This platform does not support IPv6"); \
         return (a); \
@@ -106,12 +104,7 @@
     } while (0)
 #else
 #define QT_ENSURE_INITIALIZED(a) do { \
-    Qt::NetworkLayerProtocol proto; \
-    if (address.isIPv4Address()) { \
-        proto = Qt::IPv4Protocol; \
-    } else { \
-        proto = Qt::IPv6Protocol; \
-    } \
+    Qt::NetworkLayerProtocol proto = address.protocol(); \
     if (!d->socketLayer.isValid() || d->socketLayer.protocol() != proto) \
         if (!d->initSocketLayer(Qt::UdpSocket, proto)) \
             return (a); \

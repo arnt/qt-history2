@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qftp.h"
+#include "qabstractsocket.h"
 
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
 
@@ -1043,10 +1044,10 @@ bool QFtpPI::startNextCmd()
         if (transferConnectionExtended) {
             int port = dtp.setupListener(address);
             currentCmd = "EPRT |";
-            currentCmd += address.isIPv4Address() ? "1" : "2";
+            currentCmd += (address.protocol() == Qt::IPv4Protocol) ? "1" : "2";
             currentCmd += "|" + address.toString() + "|" + QString::number(port);
             currentCmd += "|";
-        } else if (address.isIPv4Address()) {
+        } else if (address.protocol() == Qt::IPv4Protocol) {
             int port = dtp.setupListener(address);
             QString portArg;
             Q_UINT32 ip = address.toIPv4Address();

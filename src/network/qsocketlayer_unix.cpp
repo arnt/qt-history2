@@ -240,7 +240,7 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &addr, Q_UINT16 port)
 #if !defined(QT_NO_IPV6)
     struct sockaddr_in6 sockAddrIPv6;
 
-    if (addr.isIPv6Address()) {
+    if (addr.protocol() == Qt::IPv6Protocol) {
         memset(&sockAddrIPv6, 0, sizeof(sockAddrIPv6));
         sockAddrIPv6.sin6_family = AF_INET6;
         sockAddrIPv6.sin6_port = htons(port);
@@ -254,7 +254,7 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &addr, Q_UINT16 port)
     {}
 #endif
 #endif
-    if (addr.isIPv4Address()) {
+    if (addr.protocol() == Qt::IPv4Protocol) {
         memset(&sockAddrIPv4, 0, sizeof(sockAddrIPv4));
         sockAddrIPv4.sin_family = AF_INET;
         sockAddrIPv4.sin_port = htons(port);
@@ -335,7 +335,7 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
 #if !defined(QT_NO_IPV6)
     struct sockaddr_in6 sockAddrIPv6;
 
-    if (address.isIPv6Address()) {
+    if (address.protocol() == Qt::IPv6Protocol) {
         memset(&sockAddrIPv6, 0, sizeof(sockAddrIPv6));
         sockAddrIPv6.sin6_family = AF_INET6;
         sockAddrIPv6.sin6_port = htons(port);
@@ -345,7 +345,7 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
         sockAddrPtr = (struct sockaddr *) &sockAddrIPv6;
     } else
 #endif
-        if (address.isIPv4Address()) {
+        if (address.protocol() == Qt::IPv4Protocol) {
             memset(&sockAddrIPv4, 0, sizeof(sockAddrIPv4));
             sockAddrIPv4.sin_family = AF_INET;
             sockAddrIPv4.sin_port = htons(port);
@@ -565,7 +565,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG 
 
 #if !defined(QT_NO_IPV6)
     struct sockaddr_in6 sockAddrIPv6;
-    if (host.isIPv6Address()) {
+    if (host.protocol() == Qt::IPv6Protocol) {
 	memset(&sockAddrIPv6, 0, sizeof(sockAddrIPv6));
 	sockAddrIPv6.sin6_family = AF_INET6;
 	sockAddrIPv6.sin6_port = htons(port);
@@ -576,7 +576,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG 
 	sockAddrPtr = (struct sockaddr *)&sockAddrIPv6;
     } else
 #endif
-    if (host.isIPv4Address()) {
+    if (host.protocol() == Qt::IPv4Protocol) {
 	memset(&sockAddrIPv4, 0, sizeof(sockAddrIPv4));
 	sockAddrIPv4.sin_family = AF_INET;
 	sockAddrIPv4.sin_port = htons(port);

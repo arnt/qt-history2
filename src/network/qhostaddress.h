@@ -15,6 +15,7 @@
 #define QHOSTADDRESS_H
 
 #include "qstring.h"
+#include "qabstractsocket.h"
 
 #if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_NETWORK
@@ -51,14 +52,16 @@ public:
     void setAddress(Q_UINT8 *ip6Addr);
     void setAddress(const Q_IPV6ADDR &ip6Addr);
     bool setAddress(const QString &address);
+
 #ifdef QT_COMPAT
-    inline QT_COMPAT bool isIp4Addr() const { return isIPv4Address(); }
     inline QT_COMPAT Q_UINT32 ip4Addr() const { return toIPv4Address(); }
+    inline QT_COMPAT bool isIp4Addr() const { return protocol() == Qt::IPv4Protocol; }
+    inline QT_COMPAT bool isIPv4Address() const { return protocol() == Qt::IPv4Protocol; }
+    inline QT_COMPAT bool isIPv6Address() const { return protocol() == Qt::IPv6Protocol; }
 #endif
 
-    bool isIPv4Address() const;
+    Qt::NetworkLayerProtocol protocol() const;
     Q_UINT32 toIPv4Address() const;
-    bool isIPv6Address() const;
     Q_IPV6ADDR toIPv6Address() const;
 
     QString toString() const;

@@ -984,22 +984,20 @@ void QAbstractSocketPrivate::connectToNextAddress()
 #endif
 
         // Determine its protocol.
-        Qt::NetworkLayerProtocol protocol;
-        if (host.isIPv4Address()) {
-            protocol = Qt::IPv4Protocol;
-        } else {
+        Qt::NetworkLayerProtocol protocol = host.protocol();
 #if defined(Q_NO_IPv6)
+        if (protocol == Qt::IPv4Protocol) {
             // If we have no IPv6 support, then we will not be able to
             // connect. So we just pretend we didn't see this address.
             continue;
-#endif
-            protocol = Qt::IPv6Protocol;
         }
+#endif
 
         // Perhaps reinitialize the socket layer if its protocol
         // doesn't match the address.
         if (!socketLayer.isValid() || socketLayer.protocol() != protocol
             || socketLayer.socketState() != Qt::UnconnectedState) {
+            // ### might fail
             initSocketLayer(q->socketType(), protocol);
         }
 
