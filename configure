@@ -917,7 +917,7 @@ fi
 if [ "$OPT_SHADOW" = "maybe" ]; then
     OPT_SHADOW=no
     if [ "$relpath" != "$outpath" ] && [ '!' -f "$outpath/configure" ]; then
-	if [ -L "$outpath" ]; then
+	if [ -h "$outpath" ]; then
 	    [ "$relpath" -ef "$outpath" ] || OPT_SHADOW=yes
 	else
 	    OPT_SHADOW=yes
