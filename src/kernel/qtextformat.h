@@ -16,6 +16,7 @@ class QTextBlockFormat;
 class QTextCharFormat;
 class QTextListFormat;
 class QTextTableFormat;
+class QTextImageFormat;
 
 class QTextFormat
 {
@@ -26,6 +27,7 @@ public:
 	CharFormat = 2,
 	ListFormat = 3,
 	TableFormat = 4,
+	ImageFormat = 5,
 
 	UserFormat = 100
     };
@@ -68,6 +70,11 @@ public:
 	TableNumRows = 0x4000,
 	TableNumCols = 0x4001,
 
+	// image properties
+	ImageName = 0x5000,
+	ImageWidth = 0x5010,
+	ImageHeight = 0x5011,
+
 	// --
 	UserProperty = 0x10000
     };
@@ -106,11 +113,13 @@ public:
     bool isBlockFormat() const { return inheritsFormatType(BlockFormat); }
     bool isListFormat() const { return inheritsFormatType(ListFormat); }
     bool isTableFormat() const { return inheritsFormatType(TableFormat); }
+    bool isImageFormat() const { return inheritsFormatType(ImageFormat); }
 
     QTextBlockFormat toBlockFormat() const;
     QTextCharFormat toCharFormat() const;
     QTextListFormat toListFormat() const;
     QTextTableFormat toTableFormat() const;
+    QTextImageFormat toImageFormat() const;
 
     bool booleanProperty(int propertyId, bool defaultValue = false) const;
     int intProperty(int propertyId, int defaultValue = 0) const;
@@ -308,6 +317,29 @@ public:
     { return intProperty(TableNumCols, 1); }
 };
 
+class QTextImageFormat : public QTextCharFormat
+{
+public:
+    QTextImageFormat() : QTextCharFormat(ImageFormat) {}
+
+    Q_EXPLICIT QTextImageFormat(const QTextFormatPrivate &priv) : QTextCharFormat(priv) {}
+
+    void setName(const QString &name)
+    { setProperty(ImageName, name); }
+    QString name() const
+    { return stringProperty(ImageName); }
+
+    void setWidth(int width)
+    { setProperty(ImageWidth, width); }
+    int width() const
+    { return intProperty(ImageWidth); }
+
+    void setHeight(int height)
+    { setProperty(ImageHeight, height); }
+    int height() const
+    { return intProperty(ImageHeight); }
+};
+
 class QTextFormatCollection : public QObject
 {
     Q_OBJECT
@@ -330,6 +362,8 @@ public:
     { return format(index, QTextFormat::ListFormat).toListFormat(); }
     QTextTableFormat tableFormat(int index) const
     { return format(index, QTextFormat::TableFormat).toTableFormat(); }
+    QTextImageFormat imageFormat(int index) const
+    { return format(index, QTextFormat::ImageFormat).toImageFormat(); }
 
     int numFormats() const;
 

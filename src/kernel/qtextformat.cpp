@@ -289,6 +289,12 @@ QTextTableFormat QTextFormat::toTableFormat() const
     return QTextTableFormat(*d);
 }
 
+QTextImageFormat QTextFormat::toImageFormat() const
+{
+    if (!isImageFormat())
+	return QTextImageFormat();
+    return QTextImageFormat(*d);
+}
 
 bool QTextFormat::booleanProperty(int propertyId, bool defaultValue) const
 {
