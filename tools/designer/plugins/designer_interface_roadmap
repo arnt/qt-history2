@@ -251,6 +251,8 @@ Comments
     - saveActiveForm
     - saveAllForms
     - closeAll
+    - addColumn/removeColumn (see p4 example requirements)
+    - setColumnIndicator
 
 - DesignerHierarchyViewInterface
 
@@ -272,3 +274,17 @@ Comments
 - DesignerConfigurationInterface
 
   Represents the current configuration of the Qt Designer.
+
+
+Example PlugIn "P4" (Perforce integration)
+------------------------------------------
+
+Requirements:
+-------------
+- Support for commands edit, submit, revert, add, delete, sync, diff
+- toggleable Auto-edit when controlled form is changed
+- getting state of loaded files
+- indicating state of file in the FormList
+- submitting/reverting of multiple files
+- reloading of the form after sync/revert
+
