@@ -614,7 +614,11 @@ public:
 
     QString    &operator+=( const QString &str );
 #ifndef QT_NO_CAST_ASCII
+#if defined(Q_STRICT_INLINING_RULES)
+    inline QString &operator+=( const QByteArray &str );
+#else
     QString    &operator+=( const QByteArray &str );
+#endif
     QString    &operator+=( const char *str );
 #endif
 #ifndef QT_NO_STL

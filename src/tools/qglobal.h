@@ -429,10 +429,10 @@
    such as template specialization nevertheless */
 #  elif defined(__sgi)
 #    define Q_CC_MIPS
+#    define Q_STRICT_INLINING_RULES
 #    if defined(_MIPS_SIM) && (_MIPS_SIM == _ABIO32) /* o32 ABI */
 #      define Q_TYPENAME
 #      define Q_BROKEN_TEMPLATE_SPECIALIZATION
-#      define Q_STRICT_INLINING_RULES
 #      define Q_NO_EXPLICIT_KEYWORD
 #      define Q_INLINE_TEMPLATES inline
 #    elif defined(_COMPILER_VERSION) && (_COMPILER_VERSION < 730) /* 7.2 */
