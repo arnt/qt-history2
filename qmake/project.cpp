@@ -634,30 +634,80 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 {
     int rep, rep_len;
     QRegExp reg_var;
-    int left = 0, right = 0;
-    for(int x = 0; x < 3; x++) {
-	if( x == 0 ) { //just to block out {}'s
-	    reg_var = QRegExp("\\$\\$\\{[a-zA-Z0-9_\\.-]*\\}");
-	    left = 3;
-	    right = 1;
-	} else if(x == 1) { //environment
-	    reg_var = QRegExp("\\$\\$\\([a-zA-Z0-9_\\.-]*\\)");
-	    left = 3;
-	    right = 1;
-	} else if(x == 2) { //normal case
-	    reg_var = QRegExp("\\$\\$[a-zA-Z0-9_\\.-]*");
-	    left = 2;
-	    right = 0;
-	} 
+    for(int x = 0; x < 5; x++) {
+	if( x == 0 ) //function blocked out by {}'s
+	    reg_var = QRegExp("\\$\\$\\{([a-zA-Z0-9_\\.-]*)\\((.*)\\)\\}");
+	else if( x == 1 ) //variables blocked out by {}'s
+	    reg_var = QRegExp("\\$\\$\\{([a-zA-Z0-9_\\.-]*)\\}");
+	else if(x == 2) //environment
+	    reg_var = QRegExp("\\$\\$\\(([a-zA-Z0-9_\\.-]*)\\)");
+	else if(x == 3) //function
+	    reg_var = QRegExp("\\$\\$([a-zA-Z0-9_\\.-]*)\\((.*)\\)");
+	else if(x == 4) //normal variable
+	    reg_var = QRegExp("\\$\\$([a-zA-Z0-9_\\.-]*)");
 	while((rep = reg_var.search(str)) != -1) {
+	    QString replacement;
 	    rep_len = reg_var.matchedLength();
-	    QString rep_var = str.mid(rep + left, rep_len - (left + right)), replacement;
-	    if(rep_var == "LITERAL_WHITESPACE")
-		replacement = "\t";
-	    else if(x == 1) //environment
-		replacement = getenv(rep_var);
-	    else 
-		replacement = place[varMap(rep_var)].join(" ");
+	    if(x == 2) {//environment
+		replacement = getenv(reg_var.cap(1));
+	    } else if(x == 0 || x == 3) { //function 
+		QStringList args = QStringList::split(',', reg_var.cap(2));
+		for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
+		    (*arit) = (*arit).stripWhiteSpace(); // blah, get rid of space
+		if(reg_var.cap(1).lower() == "member") {
+		    if(args.count() < 1 || args.count() > 2) {
+			fprintf(stderr, "%d: member(var, place) requires two arguments.\n", 
+				line_count);
+		    } else {
+			int pos = 0;
+			if(args.count() == 2)
+			    pos = args[1].toInt();
+			const QStringList &var = place[varMap(args.first())];
+			if(!var.count() >= pos)
+			    replacement = var[pos];
+		    }
+		} else if(reg_var.cap(1).lower() == "join") {
+		    if(args.count() < 1 || args.count() > 4) {
+			fprintf(stderr, "%d: join(var, glue, before, after) requires four"
+				"arguments.\n", line_count);
+		    } else {
+			QString glue, before, after;
+			if(args.count() >= 2)
+			    glue = args[1].replace(QRegExp("\""), "");
+			if(args.count() >= 3)
+			    before = args[2].replace(QRegExp("\""), "");
+			if(args.count() == 4)
+			    after = args[3].replace(QRegExp("\""), "");
+			const QStringList &var = place[varMap(args.first())];
+			if(!var.isEmpty())
+			    replacement = before + var.join(glue) + after;
+		    }
+		} else if(reg_var.cap(1).lower() == "find") {
+		    if(args.count() != 2) {
+			fprintf(stderr, "%d find(var, str) requires two arguments\n", 
+				line_count);
+		    } else {
+			QRegExp regx = QRegExp(args[1]);
+			const QStringList &var = place[varMap(args.first())];
+			for(QStringList::ConstIterator vit = var.begin(); 
+			    vit != var.end(); ++vit) {
+			    if((*vit).find(regx) != -1) {
+				if(!replacement.isEmpty())
+				    replacement += " ";
+				replacement += (*vit);
+			    }
+			}
+		    }
+		} else {
+		    fprintf(stderr, "Unknown replace function: %s\n", 
+			    reg_var.cap(1).latin1());		    
+		}
+	    } else { //variable
+		if(reg_var.cap(1) == "LITERAL_WHITESPACE") 
+		    replacement = "\t";
+		else
+		    replacement = place[varMap(reg_var.cap(1))].join(" ");
+	    }
 	    debug_msg(2, "Project parser: (%s) :: %s -> %s", str.latin1(),
 		      str.mid(rep, rep_len).latin1(), replacement.latin1());
 	    str.replace(rep, rep_len, replacement);
