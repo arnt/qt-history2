@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#36 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#37 $
 **
 ** Global type declarations and definitions
 **
@@ -85,7 +85,7 @@
 #define _CC_GNU_
 #elif defined(OBJECTCENTER) || defined(CENTERLINE_CLPP)
 #define _CC_OC_
-#elif defined(_OS_SUN_)
+#elif defined(__SUNPRO_CC)
 #define _CC_SUN_
 #else
 #error "Qt does not recognize this compiler - talk to qt-bugs@troll.no"
