@@ -99,9 +99,9 @@ void QSocketPrivate::close()
     // before the socket does, otherwise libc or the kernel will
     // become unhappy.
     delete rsn;
-    rsn = NULL;
+    rsn = 0;
     delete wsn;
-    wsn = NULL;
+    wsn = 0;
     socket->close();
     rsize = wsize = 0;
     rba.clear(); wba.clear();
@@ -169,7 +169,7 @@ QSocket::QSocket( QObject *parent, const char *name )
     : QObject( parent, name )
 {
     d = new QSocketPrivate( this );
-	setSocketDevice(NULL);
+	setSocketDevice( 0 );
     setFlags( IO_Direct );
     setStatus( IO_Ok );
 }

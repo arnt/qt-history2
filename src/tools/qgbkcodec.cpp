@@ -7455,7 +7455,7 @@ unsigned int qt_UnicodeToGBK(unsigned int code)
 		break;
 	    }
 	}
-        if (cp == NULL || (cp[0] == '\0' && ch != 0))
+        if (cp == 0 || (cp[0] == '\0' && ch != 0))
 	    return 0;
 	return ((cp[0] << 8) | cp[1]);
 }
