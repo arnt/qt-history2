@@ -66,6 +66,7 @@ RSSListing::RSSListing(QWidget *parent)
     connect(&http, SIGNAL(requestFinished(int, bool)),
              this, SLOT(finished(int, bool)));
 
+    connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(fetch()));
     connect(fetchButton, SIGNAL(clicked()), this, SLOT(fetch()));
     connect(abortButton, SIGNAL(clicked()), &http, SLOT(abort()));
 
