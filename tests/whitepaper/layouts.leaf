@@ -1,6 +1,7 @@
 \chapter Layouts
 
  + relieve from calculating and updating the positions yourself
+ + modern dialogs are nested layouts
 
 \section1 Built-in Layout Managers
 
@@ -15,8 +16,8 @@
 \index size of widgets
 
 Qt provides layout managers for organizing child widgets within the
-parent's area. They feature automatic positioning of child widgets,
-automatic resize handling, sensible minimum and default sizes for
+parent widget's area. They feature automatic positioning of child
+widgets, automatic resizing, sensible minimum and default sizes for
 top-level widgets and automatic repositioning when the contents or
 the font changes.
 
@@ -28,9 +29,9 @@ the font changes.
 Qt's built-in layout managers are \Class QHBoxLayout, \Class
 QVBoxLayout and \Class QGridLayout.
 
-  \img qhbox.png QHBox with five children
-  \img qvbox.png QVBox with five children
-  \img qgrid.png QGrid with five children
+  \img qhbox.png QHBox with five child widgets
+  \img qvbox.png QVBox with five child widgets
+  \img qgrid.png QGrid with five child widgets
 
 \index grid layout
 \index hbox
@@ -38,15 +39,15 @@ QVBoxLayout and \Class QGridLayout.
 \index vbox
 \index vertical box layout
 
-\Class QHBoxLayout organizes the child widgets on a single horizontal
-row, from left to right. \Class QVBoxLayout organizes the child
-widgets on a single vertical column, from top to bottom. \Class
-QGridLayout organizes the child widgets in a grid. A single widget
-may span multiple columns and multiple rows.
+\Class QHBoxLayout organizes the child widgets in a single horizontal
+row from left to right. \Class QVBoxLayout organizes the child
+widgets in a single vertical column, from top to bottom. \Class
+QGridLayout organizes the child widgets over a grid of cells. Widgets
+may span multiple cells.
 
-In most cases, Qt's layout managers picks optimal sizes for the
-widgets and the dialogs resize smoothly. When this is not enough,
-developers can refine the layout using one of the following
+In most cases, Qt's layout managers pick optimal sizes for child
+widgets so that windows resize smoothly. If the defaults are
+insufficient, developers can refine the layout using the following
 mechanisms:
 
 \list 1
@@ -55,34 +56,34 @@ mechanisms:
 \index maximum size
 \index minimum size
 
-\i \e {Setting a minimum, a maximum size or a fixed size for some
-   children.}
+\i \e {Setting a minimum size, a maximum size or a fixed size for
+   some child widgets.}
 
 \index stretches
 \index spacer items
 
-\i \e {Adding stretches or spacer items.} Stretches or spacer items
-   fill empty space in a layout.
+\i \e {Adding stretch items or spacer items.} Stretch or spacer
+   items fill empty space in a layout.
 
 \index size policy
 
-\i \e {Changing the size policies of the children.} By calling
-   \Func QWidget::setSizePolicy(), programmers can control whether
-   a child enjoys to grow, accepts to grow or prefers not to grow,
-   and whether it accepts to shrink or prefers not to shrink.
+\i \e {Changing the size policies of the child widgets.} By calling
+   \Func QWidget::setSizePolicy(), programmers can fine tune the
+   resize behavior of a child widget. Child widgets can be set to
+   expand, contract, keep the same size, etc.
 
 \index preferred size
 
 \i \e {Reimplementing QWidget::sizeHint() or
-   QWidget::minimumSizeHint().} These functions return the preferred
-   size and the preferred minimum size for a widget, based on the
-   contents. Built-in widgets provide appropriate reimplementations.
+   QWidget::minimumSizeHint().} These functions return a widget's
+   preferred size and preferred minimum size based on the contents.
+   Built-in widgets provide appropriate reimplementations.
 
 \index relative growth
 \index stretch factors
 
 \i \e {Setting stretch factors.} Stretch factors allow relative
-   growth of children, e.g. two thirds of any extra space made
+   growth of child widgets, e.g. two thirds of any extra space made
    available should be allocated to widget A and one third to widget
    B.
 
@@ -97,10 +98,10 @@ mechanisms:
 \index margin!in layouts
 \index spacing!in layouts
 
-The \e spacing between child widgets managed by one layout and the \e
+The \e spacing between child widgets managed by a layout and the \e
 margin around the whole layout can also be set by the programmer. By
-default, \e {Qt Designer} chooses industry-standard values according
-to the context.
+default, \e {Qt Designer} sets industry-standard values based on the
+context.
 
 \index Arabic
 \index Hebrew
@@ -112,18 +113,21 @@ right-to-left languages (e.g. Arabic and Hebrew).
 
 \section1 Nested Layouts
 
-Layouts can be nested at arbitrary levels. Here's an example dialog
+Layouts can be nested to arbitrary levels. Here's an example dialog
 box, shown at two different sizes:
 
 \img countries-small.gif
 
 \img countries-large.gif
 
-The dialog box is made up of three layouts: a \Class QVBoxLayout that
-groups the push buttons, a \Class QHBoxLayout that groups the country
-listbox and the push buttons and a \Class QVBoxLayout that groups the
-"Select a country" label with the rest of the widget. Here's the
-code:
+The dialog uses three layouts: a \Class QVBoxLayout that groups the
+push buttons, a \Class QHBoxLayout that groups the country listbox
+with the push buttons and a \Class QVBoxLayout that groups the
+"Select a country" label with the rest of the widget. A stretch item
+maintains the gap between the \Button Cancel and \Button Help
+buttons.
+
+The dialog's widgets and layouts are created with the following code:
 
 \quotefile countries.cpp
 \skipuntil setCaption
@@ -131,11 +135,14 @@ code:
 
 \index Designer
 \index Qt Designer
-\index fixed coordinates
+\index fixed positioning
 
-Qt makes layouts so easy that programmers seldom consider positioning
-children at fixed coordinates as an option. And \l {Qt Designer}
-makes layouts easier still; see the relevent section for details.
+Qt makes layouts so easy that programmers rarely use fixed
+positioning.
+
+\l {Qt Designer} makes layouts even easier. With only 17 mouse
+clicks, you can create and lay out the widgets for the dialog shown
+above.
 
 \section1 Custom Layouts
 
@@ -144,26 +151,25 @@ makes layouts easier still; see the relevent section for details.
 \index QLayout
 \index SimpleFlow
 \index custom layouts
+\index flow layouts
 
 Developers can define custom layout managers by subclassing \Class
-QLayout. The \c customlayout example provided with Qt introduces
-three custom layout managers that may serve as a starting point (\c
-BorderLayout, \c CardLayout and \c SimpleFlow).
+QLayout. The \c customlayout example provided with Qt presents three
+custom layout managers, \c BorderLayout, \c CardLayout and \c
+SimpleFlow, which programmers can use and modify.
+
+\index QSplitter
+\index splitters
+
+Qt also includes \Class QSplitter, a splitter bar that end users can
+manipulate. In some design situations, \Class QSplitter may be
+preferable to a layout manager.
 
 \index manual layouts
 
-It is also possible to perform layout manually in a widget by
-reimplementing \Func QWidget::resizeEvent() and by calling \Func
-QWidget::setGeometry() on each child.
-
-\omit
-\section1 Splitters and Dock Windows
-
-\Class QSplitter is not a layout manager, but it competes with \Class
-QHBoxLayout and \Class QVBoxLayout in many areas.
-
-Dock Windows...
-\endomit
+For complete control, it is also possible to perform layout manually
+in a widget by reimplementing \Func QWidget::resizeEvent() and by
+calling \Func QWidget::setGeometry() on each child widget.
 
 \section1 Further Reading
 
