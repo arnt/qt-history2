@@ -624,14 +624,49 @@ void qt_systemWarning( const char *msg, ... )
     \endcode
 
     If \c b is zero, the Q_ASSERT statement will output the following
-    message using the qWarning() function:
+    message using the qFatal() function:
     \code
-	ASSERT: "b == 0" in div.cpp (9)
+    ASSERT: "b == 0" in file div.cpp, line 9
     \endcode
 
-    \sa qWarning(), \link debug.html Debugging\endlink
+    \sa Q_MSG_ASSERT(), qFatal(), \link debug.html Debugging\endlink
 */
 
+/*!
+    \fn void Q_MSG_ASSERT( bool test, const char *msg )
+
+    \relates QApplication
+
+    Prints the message \msg together with the source code file name and
+    line number if \a test is FALSE.
+
+    This is really a macro defined in \c qglobal.h.
+
+    Q_MSG_ASSERT is useful for testing pre- and post-conditions.
+
+    Example:
+    \code
+	//
+	// File: div.cpp
+	//
+
+	#include <qglobal.h>
+
+	int divide( int a, int b )
+	{
+	    Q_MSG_ASSERT( b != 0, "division by zero" );			// this is line 9
+	    return a/b;
+	}
+    \endcode
+
+    If \c b is zero, the Q_MSG_ASSERT statement will output the following
+    message using the qFatal() function:
+    \code
+    ASSERT failure: "division by zero" in file div.cpp, line 9
+    \endcode
+
+    \sa Q_ASSERT(), qFatal(), \link debug.html Debugging\endlink
+*/
 
 /*!
     \fn void Q_CHECK_PTR( void *p )
