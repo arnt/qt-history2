@@ -21,7 +21,7 @@
 #include <qfile.h>
 
 #define QMAKE_VERSION_MAJOR 1
-#define QMAKE_VERSION_MINOR 7
+#define QMAKE_VERSION_MINOR 8
 #define QMAKE_VERSION_PATCH 0
 const char *qmake_version();
 
