@@ -159,6 +159,7 @@ bool QSql::setQuery ( const QString& query )
 	return FALSE;
     if ( query.isNull() || query.length() == 0 )
 	return FALSE;
+    qDebug( "\n### SQL: " + query ); // ###
     return d->sqlResult->reset( query );
 }
 

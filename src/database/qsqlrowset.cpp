@@ -196,9 +196,6 @@ QString QSqlRowset::fieldEqualsValue( const QString& fieldSep, const QSqlIndex &
 */
 bool QSqlRowset::query( const QString & str )
 {
-#ifdef CHECK_RANGE
-    qDebug( "\n### ROWSET SQL: " + str );
-#endif
     setQuery( str );
     return isActive();
 }
