@@ -271,7 +271,7 @@ void QTextBrowser::setSource(const QString& name)
     emit forwardAvailable(stackCount > 0);
 
     if (doSetText)
-        QTextEdit::setText(txt);
+        QTextEdit::setHtml(txt);
 
     if (!anchor.isEmpty()) {
         scrollToAnchor(anchor);
