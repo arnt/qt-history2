@@ -24,15 +24,13 @@
 
     QAbstractSocket is the base class for QTcpSocket and QUdpSocket
     and contains all common functionality of these two classes. If
-    you need a socket, you have three options:
+    you need a socket, you have two options:
 
     \list
     \i  Instantiate QTcpSocket or QUdpSocket.
     \i  Create a native socket descriptor, instantiate
 	QAbstractSocket, and call setSocketDescriptor() to wrap the
 	native socket.
-    \i  Subclass QAbstractSocket and implement your own socket type
-	(e.g., for Unix domain sockets or Windows named pipes).
     \endlist
 
     TCP (Transmission Control Protocol) is a reliable,
@@ -52,21 +50,6 @@
     connectToHost(), and functions like read() and write() use these
     values.
 
-    By default, QAbstractSocket is non-blocking (asynchronous). This
-    can be changed by calling setBlocking(true). In blocking mode,
-    many functions (notably connectToHost(), read(), write(), and
-    close()) do not return until their operation has completed; in
-    non-blocking mode, all functions except waitForReadyRead() return
-    immediately.
-
-    Programming with a blocking socket is radically different from
-    programming with a non-blocking socket. A blocking socket doesn't
-    require an event loop and typically leads to simpler code.
-    However, in a GUI application, blocking sockets should only be
-    used in non-GUI threads, to avoid freezing the user interface.
-    See the network/fortuneclient and network/blockingfortuneclient
-    examples for an overview of both approaches.
-
     At any time, QAbstractSocket has a state (returned by
     socketState()). The initial state is Qt::UnconnectedState. After
     calling connectToHost(), the socket first enters
@@ -75,14 +58,15 @@
     connection has been established, it enters Qt::ConnectedState and
     emits connected(). If an error occurs at any stage, error() is
     emitted. Whenever the state changes, stateChanged() is emitted.
-    For convenience, isValid() returns true if the socket is ready
-    for reading and writing.
+    For convenience, isValid() returns true if the socket is ready for
+    reading and writing.
 
     Read or write data by calling read() or write(), or use the
     convenience functions readLine() and readAll(). QAbstractSocket
-    also inherits getch(), putch(), and ungetch() from QIODevice,
-    which work on single bytes. For every chunk of data that has been
-    written to the socket, the bytesWritten() signal is emitted.
+    also inherits getChar(), putChar(), and ungetChar() from
+    QIODevice, which work on single bytes. For every chunk of data
+    that has been written to the socket, the bytesWritten() signal is
+    emitted.
 
     The readyRead() signal is emitted every time a new chunk of data
     has arrived. bytesAvailable() then returns the number of bytes
@@ -105,11 +89,34 @@
     the peer, as passed to connectToHost(). localPort() and
     localAddress() return the port and address of the local socket.
 
-    Since QAbstractSocket inherits QIODevice, it can be used with
-    QTextStream and QDataStream's stream operators (operator<<() and
-    operator>>()). There is one issue to be aware of, though: In
-    non-blocking mode, you must make sure that enough data is
-    available before attempting to read it using operator>>().
+    QAbstractSocket provides a set of functions that suspend the
+    calling thread until certain signals are emitted. These functions
+    can be used to implement blocking sockets:
+
+    \list
+    \o waitForConnected() blocks until a connection has been established.
+
+    \o waitForReadyRead() blocks until new data is available for
+    reading.
+
+    \o waitForBytesWritten() blocks until one payload of data has been
+    written to the socket.
+
+    \o waitForClosed() blocks until the connection has closed.
+    \endlist
+
+    Programming with a blocking socket is radically different from
+    programming with a non-blocking socket. A blocking socket doesn't
+    require an event loop and typically leads to simpler code.
+    However, in a GUI application, blocking sockets should only be
+    used in non-GUI threads, to avoid freezing the user interface.
+    See the network/fortuneclient and network/blockingfortuneclient
+    examples for an overview of both approaches.
+
+    QAbstractSocket can be used with QTextStream and QDataStream's
+    stream operators (operator<<() and operator>>()). There is one
+    issue to be aware of, though: You must make sure that enough data
+    is available before attempting to read it using operator>>().
 
     \sa QFtp, QHttp, QTcpServer
 */
@@ -562,9 +569,8 @@ void QAbstractSocketPrivate::canWriteNotification(int)
 
 /*! \internal
 
-    Writes pending data in the write buffers to the socket. When in
-    blocking mode, this function blocks until the buffers are empty;
-    otherwise the function writes as much as it can without blocking.
+    Writes pending data in the write buffers to the socket. The
+    function writes as much as it can without blocking.
 
     It is usually invoked by canWriteNotification after one or more
     calls to write().
@@ -1157,27 +1163,7 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, Qt::SocketState 
     return true;
 }
 
-/*!
-    Waits until there is data available for reading, up to \a msecs
-    milliseconds. Returns true if there is data available; otherwise
-    returns false. In the case where it returns false, you can call
-    socketError() to determine the cause of the error.
-
-    This function is blocking regardless of whether setBlocking() was
-    called or not, but is most commonly used in blocking mode to
-    achieve a semi-non-blocking behavior.
-
-    The following example waits up to one second for a line of data
-    to arrive:
-
-    \code
-        if (socket->waitForReadyRead(1000) && socket->canReadLine()) {
-            QByteArray line = socket->readLine();
-            qDebug("Read line: %s", line.ascii());
-        }
-    \endcode
-
-    \sa setBlocking(), readyRead()
+/*! \reimp
 */
 bool QAbstractSocket::waitForReadyRead(int msecs)
 {
@@ -1578,8 +1564,7 @@ void QAbstractSocket::close()
 #endif
     }
 
-    // Wait for pending data to be written. In blocking mode the write
-    // buffer list will always be empty.
+    // Wait for pending data to be written.
     if (d->writeBuffer.size() > 0) {
         if (d->writeSocketNotifier)
             d->writeSocketNotifier->setEnabled(true);

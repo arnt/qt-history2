@@ -82,9 +82,9 @@
     setWorkingDirectory(). By default, processes are run in the
     current working directory of the calling process.
 
-    The QIODevice base class provides a set of functions which allow
-    it to be used without an event loop, by suspending the calling
-    thread until certain signals are emitted:
+    QProcess provides a set of functions which allow it to be used
+    without an event loop, by suspending the calling thread until
+    certain signals are emitted:
 
     \list
     \o waitForStarted() blocks until the process has started.
