@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#498 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#499 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -286,6 +286,34 @@ extern void qt_clear_paintevent_clipping();
 
 void qt_x11_intern_atom( const char *, Atom * );
 void qt_xembed_tab_focus( QWidget*, bool next );
+
+static QList<QWidget>* deferred_map_list = 0;
+void qt_deferred_map_cleanup()
+{
+    delete deferred_map_list;
+    deferred_map_list = 0;
+}
+void qt_deferred_map_add( QWidget* w) 
+{
+    if ( !deferred_map_list ) {
+	deferred_map_list = new QList<QWidget>;
+	qAddPostRoutine( qt_deferred_map_cleanup );
+    }
+    deferred_map_list->append( w );
+};
+void qt_deferred_map_take( QWidget* w )
+{
+    if (deferred_map_list ) {
+	deferred_map_list->remove( w );
+    }
+}
+static bool qt_deferred_map_contains( QWidget* w )
+{
+    if (!deferred_map_list)
+	return FALSE;
+    else
+	return deferred_map_list->contains( w );
+}
 
 
 class QETWidget : public QWidget		// event translator widget
@@ -2100,7 +2128,15 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    qt_set_desktop_properties();
 	    }
 	} else if ( widget ) { // widget properties
-	    if ( event->xproperty.atom == qt_embedded_window ) {
+	    if ( event->xproperty.atom == qt_wm_state ) {
+		widget->createTLExtra(); 
+		widget->extra->topextra->wmstate = 1;
+		if ( qt_deferred_map_contains( widget ) ) {
+		    qt_deferred_map_take( widget );
+		    XMapWindow( appDpy, widget->winId() );
+		}
+	    }
+	    else if ( event->xproperty.atom == qt_embedded_window ) {
 		Atom type;
 		int format;
 		unsigned long length, after;
@@ -2268,8 +2304,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case ReparentNotify:			// window manager reparents
-	if ( event->xreparent.parent != appRootWin
-	     && !QWidget::find((WId)event->xreparent.parent) )
+	if ( event->xreparent.parent == appRootWin ) {
+	    
+	    QTLWExtra*  x = widget->extra? widget->extra->topextra : 0;
+	    if ( x )
+		x->parentWinId = appRootWin;
+	}
+	else if (!QWidget::find((WId)event->xreparent.parent) )
 	    {
 		XWindowAttributes a1, a2;
 		while ( XCheckTypedWindowEvent( widget->x11Display(),
@@ -2280,6 +2321,12 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		Window parent = event->xreparent.parent;
 		// ### this causes two round trips for every top-level
 		// ### window being shown.  to be avoided if possible.
+		
+		// We can drop the entire crect calculation here (it's
+		// already done in translateConfigEvent()
+		// anyway). QWidget::frameGeometry() should do this
+		// calculation instead - Matthias
+
 		XGetWindowAttributes( widget->x11Display(),
 				      widget->winId(), &a1 );
 		qt_ignore_badwindow();

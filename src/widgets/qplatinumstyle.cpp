@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qplatinumstyle.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qplatinumstyle.cpp#2 $
 **
 ** Implementation of Platinum-like style class
 **
@@ -79,6 +79,16 @@ QPlatinumStyle::QPlatinumStyle()
 
 // }
 
+
+
+
+/*! \reimp */
+void QPlatinumStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
+			       const QColorGroup &g,  int lineWidth, 
+			       const QBrush *fill )
+{
+    QWindowsStyle::drawPopupPanel( p, x, y, w, h, g, lineWidth, fill );
+}
 
 /*!
   Draws a press-sensitive shape.
@@ -1330,4 +1340,46 @@ int QPlatinumStyle::maximumSliderDragDistance() const
     return -1;
 }
 
+
+/*! \reimp
+*/
+void QPlatinumStyle::polishPopupMenu( QPopupMenu* p)
+{
+    QWindowsStyle::polishPopupMenu( p );
+}
+
+
+
+/*! \reimp
+*/
+void QPlatinumStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
+				   const QColorGroup &g,
+				   bool act, bool dis )
+{
+    QWindowsStyle::drawCheckMark( p, x, y, w, h, g, act, dis );
+}
+
+
+/*! \reimp
+*/
+int QPlatinumStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& fm )
+{
+    return QWindowsStyle::extraPopupMenuItemWidth( checkable, maxpmw, mi, fm );
+}
+
+/*! \reimp
+*/
+int QPlatinumStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm )
+{
+    return QWindowsStyle::popupMenuItemHeight( checkable, mi, fm );
+}
+
+/*! \reimp
+*/
+void QPlatinumStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
+					const QPalette& pal,
+					bool act, bool enabled, int x, int y, int w, int h)
+{
+    QWindowsStyle::drawPopupMenuItem( p, checkable, maxpmw, tab, mi, pal, act, enabled, x, y, w, h);
+}
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#210 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#211 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1863,4 +1863,12 @@ void QComboBox::setAutoCompletion( bool enable )
 bool QComboBox::autoCompletion() const
 {
     return d->useCompletion;
+}
+
+/*!\reimp
+ */
+void QComboBox::styleChange( GUIStyle)
+{
+    if ( d->ed )
+	d->ed->setGeometry(style().comboButtonRect( 0, 0, width(), height() ));
 }

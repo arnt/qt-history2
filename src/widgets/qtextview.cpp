@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#14 $
 **
 ** Implementation of the QTextView class
 **
@@ -65,7 +65,7 @@
   setPaperColorGroup() or directly define the paper background with
   setPaper(). QTextView supports both plain color and complex pixmap
   backgrounds.
-  
+
   Note that we do not intend to add a full-featured web browser widget
   to Qt (since that would easily double Qt's size and only few
   applications would benefit from it). In particular, the rich text
@@ -76,7 +76,7 @@
   provide rich text input.
 
   For even more, like hypertext capabilities, see QTextBrowser.
-  
+
   \bug No selection possible.
   \bug No table support (yet).
 */
@@ -160,16 +160,16 @@ QTextView::~QTextView()
 /*!
   Changes the contents of the view to the string \a text and the
   context to \a context.
-  
+
   \a text may be interpreted either as plain text or as rich text,
   depending on the textFormat(). The default setting is \c AutoText,
   i.e. the text view autodetects the format from \a text.
-  
+
   The \a context is used to resolve references within the text
   document, for example image sources. It is passed directly to the
   mimeSourceFactory() when quering data.
 
-  \sa text(), setTextFormat
+  \sa text(), setTextFormat()
 */
 void QTextView::setText( const QString& text, const QString& context)
 {

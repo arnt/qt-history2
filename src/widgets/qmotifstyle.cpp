@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#6 $
 **
 ** Implementation of Motif-like style class
 **
@@ -795,7 +795,6 @@ void QMotifStyle::drawSplitter( QPainter *p, int x, int y, int w, int h,
 */
 void QMotifStyle::polishPopupMenu( QPopupMenu* p)
 {
-    p->setFrameStyle( QFrame::Panel | QFrame::Raised );
     p->setLineWidth( defaultFrameWidth() );
     p->setMouseTracking( FALSE );
     p->setCheckable( FALSE );

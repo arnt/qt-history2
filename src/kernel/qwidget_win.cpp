@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#211 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#212 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -94,7 +94,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	setWFlags(WStyle_Tool); // a popup is a tool window
 	setWFlags(WStyle_StaysOnTop); // a popup stays on top
     }
-    
+
     if ( modal )
 	setWFlags( WStyle_Dialog );
 
@@ -683,12 +683,6 @@ QWidget *QWidget::keyboardGrabber()
     return keyboardGrb;
 }
 
-
-bool QWidget::isActiveWindow() const
-{
-     return topLevelWidget() == qApp->activeWindow();
-}
-
 void QWidget::setActiveWindow()
 {
     SetActiveWindow( topLevelWidget()->winId() );
@@ -922,6 +916,13 @@ void QWidget::setSizeIncrement( int w, int h )
     createTLExtra();
     extra->topextra->incw = w;
     extra->topextra->inch = h;
+}
+
+void QWidget::setBaseSize( int w, int h )
+{
+    createTLExtra();
+    extra->topextra->basew = w;
+    extra->topextra->baseh = h;
 }
 
 

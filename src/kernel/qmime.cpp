@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#10 $
 **
 ** Implementation of MIME support
 **
@@ -196,7 +196,7 @@ static QMimeSource* data_internal(const QString& abs_name,
 	QString e = fi.extension(FALSE);
 	QCString mimetype = "application/binary-data"; // #######warwick?
 	const char* imgfmt;
-	if ( extensions.contains(e) ) 
+	if ( extensions.contains(e) )
 	    mimetype = extensions[e].latin1();
 	else if ( ( imgfmt = QImage::imageFormat( abs_name ) ) )
 	    mimetype = QCString("image/")+QCString(imgfmt).lower();
@@ -218,15 +218,15 @@ static QMimeSource* data_internal(const QString& abs_name,
   Returns a reference to the data associated with \a abs_name.  The return
   value only remains valid until a subsequent call to this function for
   the same object, and only if setData() is not called to modify the data.
-  
+
   If there is no data associated with \a abs_name in the factory's
   store, the factory tries to access the local filesystem. If \a
   abs_name isn't an absolute filename, the factory will search for it
   on all defined paths ( see setFilePath() ).
-  
+
   The factory naturally understands all image formats supported by
   QImageIO. Any other mime types are determined by the filename
-  extension. The default settings are 
+  extension. The default settings are
   \code
   setExtensionType("html", "text/utf8");
   setExtensionType("txt", "text/plain");
@@ -299,7 +299,7 @@ QString QMimeSourceFactory::makeAbsolute(const QString& abs_or_rel_name, const Q
 }
 
 /*!
-  A convenience function.
+  A convenience function. See data(const QString& abs_name).
 */
 const QMimeSource* QMimeSourceFactory::data(const QString& abs_or_rel_name, const QString& context) const
 {

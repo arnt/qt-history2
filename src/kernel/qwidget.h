@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#228 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#229 $
 **
 ** Definition of QWidget class
 **
@@ -107,6 +107,9 @@ public:
     QSize	 sizeIncrement() const;
     void	 setSizeIncrement( const QSize & );
     virtual void setSizeIncrement( int w, int h );
+    QSize	 baseSize() const;
+    void	 setBaseSize( const QSize & );
+    void	 setBaseSize( int basew, int baseh );
 
     void	setFixedSize( const QSize & );
     void	setFixedSize( int w, int h );
@@ -252,7 +255,7 @@ public:
     bool		isVisibleTo(QWidget*) const;
     bool		isVisibleToTLW() const;
     bool		isMinimized() const;
-    
+
     virtual QSize	sizeHint() const;
     virtual QSize	minimumSizeHint() const;
     virtual QSizePolicy sizePolicy() const;
@@ -463,9 +466,6 @@ inline bool QWidget::isDesktop() const
 inline bool QWidget::isEnabled() const
 { return !testWState(WState_Disabled); }
 
-inline QRect QWidget::frameGeometry() const
-{ return QRect(fpos,frameSize()); }
-
 inline const QRect &QWidget::geometry() const
 { return crect; }
 
@@ -510,6 +510,9 @@ inline void QWidget::setMaximumSize( const QSize &s )
 
 inline void QWidget::setSizeIncrement( const QSize &s )
 { setSizeIncrement(s.width(),s.height()); }
+
+inline void QWidget::setBaseSize( const QSize &s )
+{ setBaseSize(s.width(),s.height()); }
 
 inline const QColor &QWidget::backgroundColor() const
 { return bg_col; }
@@ -610,12 +613,12 @@ struct QTLWExtra {
     QSize    fsize;				// rect of frame
     short    incw, inch;			// size increments
     uint     iconic: 1;				// iconified [cur. win32 only]
+    short    basew, baseh;			// base sizes
 #if defined(_WS_X11_)
     QRect    normalGeometry;			// used by showMin/maximized
     WId	     parentWinId;			// parent window Id (valid after reparenting)
     uint     embedded : 1;			// window is embedded in another Qt application
-#endif
-#if defined(_WS_X11_)
+    uint     wmstate: 2;			// wmstate trigger
     void    *xic;				// XIM Input Context
 #endif
 };

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#90 $
 **
 ** Implementation of QFrame widget class
 **
@@ -170,6 +170,9 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
   <li> \c Panel draws a rectangular panel that can be raised or sunken.
   <li> \c StyledPanel draws a rectangular panel with a look depending on
   the current GUI style.  It can be raised or sunken.
+  <li> \c PopupPanel is used to draw a frame suitable for popup windows.
+  Its look also depends on the current GUI style,  usually the same as
+  \c StyledPanel.
   <li> \c WinPanel draws a rectangular panel that can be raised or
   sunken, very like those in Windows 95.  Specifying this shape sets
   the line width to 2 pixels.  WinPanel is provided for compatibility.
@@ -194,7 +197,7 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
   frames.  The mid color of the current color group is used for
   drawing middle lines.
 
-  \sa <a href="#picture">Illustration</a>, frameStyle(), 
+  \sa <a href="#picture">Illustration</a>, frameStyle(),
   colorGroup(), QColorGroup
 */
 
@@ -313,6 +316,7 @@ void QFrame::updateFrameWidth()
 
     case Panel:
     case StyledPanel:
+    case PopupPanel:
 	switch ( style ) {
 	case Plain:
 	case Raised:
@@ -550,6 +554,13 @@ void QFrame::drawFrame( QPainter *p )
 	    qDrawPlainRect( p, r, g.foreground(), lwidth );
 	else
 	    style().drawPanel( p, r.x(), r.y(), r.width(), r.height(), g, cstyle == Sunken, lwidth );
+	break;
+
+    case PopupPanel:
+	if ( cstyle == Plain )
+	    qDrawPlainRect( p, r, g.foreground(), lwidth );
+	else
+	    style().drawPopupPanel( p, r.x(), r.y(), r.width(), r.height(), g, lwidth );
 	break;
 
     case WinPanel:

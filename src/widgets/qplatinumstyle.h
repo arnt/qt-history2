@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qplatinumstyle.h#1 $
+** $Id: //depot/qt/main/src/widgets/qplatinumstyle.h#2 $
 **
 ** Definition of Platinum-like style class
 **
@@ -34,6 +34,9 @@ class Q_EXPORT QPlatinumStyle : public QWindowsStyle
     Q_OBJECT
 public:
     QPlatinumStyle();
+    void drawPopupPanel( QPainter *p, int x, int y, int w, int h,
+			 const QColorGroup &,  int lineWidth = 2, 
+			 const QBrush *fill = 0 );
     void drawButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
 		     const QBrush *fill = 0 );
@@ -77,6 +80,18 @@ public:
 
 
     int maximumSliderDragDistance() const;
+    
+    void drawCheckMark( QPainter *p, int x, int y, int w, int h,
+			     const QColorGroup &g,
+			     bool act, bool dis );
+    void polishPopupMenu( QPopupMenu* );
+
+    int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& fm );
+    int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm );
+    void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
+			    const QPalette& pal,
+			    bool act, bool enabled, int x, int y, int w, int h);
+
 
 protected:
     void drawScrollBarBackground( QPainter *p, int x, int y, int w, int h,

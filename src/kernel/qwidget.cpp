@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#420 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#421 $
 **
 ** Implementation of QWidget class
 **
@@ -51,17 +51,21 @@
   rectangular, and they are sorted in a Z-order.  A widget is clipped
   by its parent and by the widgets in front of it.
 
-  A widget without a parent, called a top-level widget, is a window
-  with a frame and a title bar (though it is also possible to create
-  top level widgets without such decoration by the use of <a
+  A widget that isn't embedded in a parent widget is called a
+  top-level widget. Usually, top-level widgets are windows with a
+  frame and a title bar (though it is also possible to create top
+  level widgets without such decoration by the use of <a
   href="#widgetflags">widget flags</a>).  In Qt, QMainWindow and the
   various subclasses of QDialog are the most common top-level windows.
+  
+  A widget without a parent widget is always a top-level widget.
 
-  A widget with a parent is a child window in its parent.  You usually
-  cannot distinguish a child widget from its parent visually.  Most
-  other widgets in Qt are useful only as child widgets.  (You \e can
-  make a e.g. button into a top-level widget, but most people prefer
-  to put their buttons in e.g. dialogs.)
+  The opposite of top-level widgets are child widgets. Those are child
+  windows in their parent widgets.  You usually cannot distinguish a
+  child widget from its parent visually.  Most other widgets in Qt are
+  useful only as child widgets.  (You \e can make a e.g. button into a
+  top-level widget, but most people prefer to put their buttons in
+  e.g. dialogs.)
 
   QWidget has many member functions, but some of them have little
   direct functionality - for example it has a font but never uses it
@@ -125,6 +129,7 @@
 	setMaximumSize(),
 	setMinimumSize(),
 	setSizeIncrement(),
+	setBaseSize(),
 	setFixedSize()
 
   <li> Mode:
@@ -246,7 +251,8 @@
   <li><code>QWidget *parent = 0</code> is the parent of the new widget.
   If it is 0 (the default), the new widget will be a top-level window.
   If not, it will be a child of \e parent, and be constrained by \e
-  parent's geometry.
+  parent's geometry (Unless you specify \c WType_TopLevel as 
+  widget flag).
   <li><code>const char * name = 0</code> is the widget name of the new
   widget.  The widget name is little used at the moment - the
   dumpObjectTree() debugging function uses it, and you can access it using
@@ -506,9 +512,9 @@ inline bool QWidgetMapper::remove( WId id )
   should stay on top of all windows.
   <li> \c WStyle_Dialog indicates, that the window is a logical subwindow
   of its parent, in other words: a dialog. The window will not get its own taskbar entry
-  and be kept on top of its parent by the window system. Usually, it will also be 
-  minimized  when the parent is minized. If not customized, the  window is decorated slightly 
-  less. WStyle_Dialog is implied by WType_Modal. It is implicitely defined when using the 
+  and be kept on top of its parent by the window system. Usually, it will also be
+  minimized  when the parent is minized. If not customized, the  window is decorated slightly
+  less. WStyle_Dialog is implied by WType_Modal. It is implicitely defined when using the
   class QDialog.
   </ul>
 
@@ -725,11 +731,13 @@ void QWidget::createTLExtra()
 	extra->topextra->focusData = 0;
 	extra->topextra->fsize = crect.size();
 	extra->topextra->incw = extra->topextra->inch = 0;
+	extra->topextra->basew = extra->topextra->baseh = 0;
 	extra->topextra->iconic = 0;
 #if defined(_WS_X11_)
 	extra->topextra->normalGeometry = QRect(0,0,-1,-1);
 	extra->topextra->embedded = 0;
 	extra->topextra->parentWinId = 0;
+	extra->topextra->wmstate = 0;
 #endif
 	createTLSysExtra();
     }
@@ -885,21 +893,19 @@ QStyle& QWidget::style() const
   \fn void QWidget::styleChange( GUIStyle oldStyle )
 
   This virtual function is called when the style of the widgets.
-  changes.\e oldStyle is the
+  changes.\a oldStyle is the
   previous GUI style; you can get the new style from style().
 
   Reimplement this function if your widget needs to know when its GUI
-  style changes.  You will almost certainly need to update the widget
-  using either repaint(TRUE) or update().
+  style changes.  The widget will be updated automatically afterwards.
 
-  The default implementation calls update().
+  The default implementation does nothing.
 
-  \sa QApplication::setStyle(), style(), repaint(), update()
+  \sa QApplication::setStyle(), style()
 */
 
 void QWidget::styleChange( GUIStyle )
 {
-    update();
 }
 
 
@@ -1064,6 +1070,13 @@ void QWidget::enabledChange( bool )
   including the window frame.
   \sa geometry(), x(), y(), pos()
 */
+
+QRect QWidget::frameGeometry() const
+{
+    return QRect(fpos,frameSize());
+}
+
+
 
 /*!
   \fn const QRect &QWidget::geometry() const
@@ -1237,6 +1250,22 @@ QSize QWidget::sizeIncrement() const
 {
     return extra && extra->topextra
 	? QSize(extra->topextra->incw,extra->topextra->inch)
+	: QSize(0,0);
+}
+
+/*!
+  Returns the widget base size
+  
+  The base size is used to calculate a proper widget size in case the
+  widget defines sizeIncrement().
+
+  \sa setBaseSize(), setSizeIncrement()
+*/
+
+QSize QWidget::baseSize() const
+{
+    return extra && extra->topextra
+	? QSize(extra->topextra->basew,extra->topextra->baseh)
 	: QSize(0,0);
 }
 
@@ -1812,6 +1841,7 @@ void QWidget::setPalette( const QPalette &p )
 		w->setPalette( pal );
 	}
     }
+    repaint( TRUE );
 }
 
 
@@ -1840,17 +1870,15 @@ void QWidget::setPalette( const QPalette &p, bool fixed )
   previous palette; you can get the new palette from palette().
 
   Reimplement this function if your widget needs to know when its palette
-  changes.  You will almost certainly need to update the widget using
-  either repaint(TRUE) or update().
+  changes. The widget will be updated automatically afterwards.
 
-  The default implementation calls update().
+  The default implementation does nothing.
 
-  \sa setPalette(), palette(), repaint(), update()
+  \sa setPalette(), palette()
 */
 
 void QWidget::paletteChange( const QPalette & )
 {
-    update();
 }
 
 
@@ -2402,6 +2430,21 @@ void QWidget::setKeyCompression(bool compress)
 
 
 /*!
+  Returns TRUE if the top-level widget containing this widget is the
+  active window.
+
+  \sa setActiveWindow(), topLevelWidget()
+*/
+
+bool QWidget::isActiveWindow() const
+{
+    return topLevelWidget() == qApp->activeWindow();
+}
+
+
+
+
+/*!
   Moves the \a second widget around the ring of focus widgets
   so that keyboard focus moves from \a first widget to \a second
   widget when Tab is pressed.
@@ -2509,6 +2552,8 @@ void QWidget::reparentFocusWidgets( QWidget * parent )
 
   The function recreate is renamed to reparent in Qt 2.0.
 */
+
+
 
 /*!
   Returns the size of the window system frame (for top level widgets).
@@ -3714,12 +3759,12 @@ void QWidget::moveEvent( QMoveEvent * )
   The widget will be erased and receive a paint event immediately
   after processing the resize event. No drawing has to (and should) be
   done inside this handler.
-  
+
   Widgets that have been created with the \c WResizeNoErase flag will not
   be erased. Nevertheless, they will receive a paint event for their
   entire area afterwards. Again, no drawing needs to be done inside
   this handler.
-  
+
   The default implementation calls updateMask() if the widget
   has \link QWidget::setAutoMask() automatic masking\endlink
   enabled.
@@ -4134,7 +4179,7 @@ void QWidget::updateGeometry()
 
 
 /*!
-  Sets the widget's GUI style to \e style. Ownership of the style
+  Sets the widget's GUI style to \a style. Ownership of the style
   object is not transfered.
 
   If no style is set, the widget uses the application's style
@@ -4161,5 +4206,7 @@ void QWidget::setStyle( QStyle *style )
 	old.unPolish( this );
 	QWidget::style().polish( this );
 	styleChange(old.guiStyle());
+	if ( isVisibleToTLW() )
+	    repaint( TRUE );
     }
 }

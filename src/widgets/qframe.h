@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#37 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#38 $
 **
 ** Definition of QFrame widget class
 **
@@ -59,6 +59,7 @@ q_properties:
 		 HLine    = 0x0004,			// horizontal line
 		 VLine    = 0x0005,			// vertical line
 		 StyledPanel = 0x0006,			// rectangular panel depending on the GUI style
+		 PopupPanel = 0x0007,			// rectangular panel depending on the GUI style
 		 MShape   = 0x000f			// mask for the shape
     };
     enum Shadow { Plain    = 0x0010,			// plain line

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#224 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#225 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -264,6 +264,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     maxPMWidth = 0;
 
     tab = 0;
+    setFrameStyle( QFrame::PopupPanel | QFrame::Raised );
     style().polishPopupMenu( this );
     setBackgroundMode( PaletteButton );
 }

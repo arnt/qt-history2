@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#246 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#247 $
 **
 ** Implementation of QApplication class
 **
@@ -637,7 +637,7 @@ void QApplication::setStyle( QStyle *style )
 		     && w->testWState(WState_Polished)) { // (and have been polished)
 		    app_style->polish(w);
 		    w->styleChange(old->guiStyle());
-		    if (w->isVisible()){
+		    if ( w->isVisibleToTLW() ){
 			w->update();
 		    }
 		}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#6 $
 **
 ** Implementation of Windows-like style class
 **
@@ -186,6 +186,17 @@ QWindowsStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
     else
 	QStyle::drawPanel( p, x, y, w, h, g, sunken, lineWidth, fill );
 }
+
+
+/*! \reimp */
+void
+QWindowsStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
+			       const QColorGroup &g,  int /* lineWidth */,
+			       const QBrush *fill )
+{
+    qDrawWinPanel( p, x, y,  w, h, g, FALSE, fill );
+}
+
 
 /*! \reimp */
 
@@ -997,7 +1008,6 @@ static const int windowsCheckMarkWidth = 12;       // checkmarks width on window
 */
 void QWindowsStyle::polishPopupMenu( QPopupMenu* p)
 {
-    p->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
     p->setMouseTracking( TRUE );
     p->setCheckable( TRUE );
 
@@ -1047,6 +1057,8 @@ void QWindowsStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
 }
 
 
+/*! \reimp
+*/
 int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& /*fm*/ )
 {
     int w = 2*motifItemHMargin; // a little bit of border can never harm
@@ -1078,6 +1090,8 @@ int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuIte
     return w;
 }
 
+/*! \reimp
+*/
 int QWindowsStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const QFontMetrics& fm )
 {
     int h = 0;
@@ -1097,6 +1111,8 @@ int QWindowsStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const
 
 }
 
+/*! \reimp
+*/
 void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
 				       const QPalette& pal,
 				       bool act, bool enabled, int x, int y, int w, int h)

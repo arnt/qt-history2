@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#8 $
 **
 ** Implementation of the QTextView class
 **
@@ -104,18 +104,18 @@ QTextBrowser::~QTextBrowser()
   In addition to the factory lookup, this functions also checks for
   optional anchors and scrolls the document accordingly.
 
-  If the first tag in the document is "<qml type=detail>", it is
+  If the first tag in the document is \c &lt;qt \ctype=detail&gt;, it is
   displayed as a popup rather than as new document in the browser
   window itself. Otherwise, the document is set normally via
   setText(), with \a name as new context.
-  
+
   If you are using the filesystem access capabilities of the mime
   source factory, you have to ensure that the factory knows about the
   encoding of specified text files, otherwise no data will be
   available. The default factory handles a couple of common file
-  extensions such as \c *.html, \c*.txt with reasonable defaults. See
+  extensions such as \c *.html, \c *.txt with reasonable defaults. See
   QMimeSourceFactory::data() for details.
-  
+
 */
 void QTextBrowser::setSource(const QString& name)
 {
@@ -126,12 +126,12 @@ void QTextBrowser::setSource(const QString& name)
 	source  = name.left( hash );
 	mark = name.mid( hash+1 );
     }
-    
-    if ( source.left(5) == "file:" ) 
+
+    if ( source.left(5) == "file:" )
 	source = source.mid(6);
 
     QString url = mimeSourceFactory()->makeAbsolute( source, context() );
-    
+
     if ( !source.isEmpty() && url != d->curmain ) {
 	const QMimeSource* m = 0;
 	m = mimeSourceFactory()->data( source, context() );
@@ -147,7 +147,7 @@ void QTextBrowser::setSource(const QString& name)
 	d->curmain = url;
 	setText( txt, url );
     }
-    
+
     if ( !mark.isEmpty() ) {
 	url += "#";
 	url += mark;
@@ -155,7 +155,7 @@ void QTextBrowser::setSource(const QString& name)
 
     if ( !d->home )
 	d->home = url;
-    
+
     if ( d->stack.isEmpty() || *d->stack.top() != url) {
 	emit backwardAvailable( !d->stack.isEmpty() );
 	d->stack.push(new QString( url ) );

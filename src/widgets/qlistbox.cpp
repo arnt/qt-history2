@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#257 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#258 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2745,7 +2745,6 @@ void QListBox::resizeEvent( QResizeEvent *e )
 	d->layoutDirty = TRUE;
 	d->updateTimer->stop();
 	doLayout();
-	repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight(), FALSE );
     }
     QScrollView::resizeEvent( e );
     if ( !d->init && isVisible() ) {

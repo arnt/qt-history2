@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#368 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#369 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -55,6 +55,9 @@ extern void qt_clear_paintevent_clipping();
 
 extern bool qt_xdnd_rootwindow_enable( QWidget* w, bool on );
 extern bool qt_nograb();
+
+extern void qt_deferred_map_add( QWidget* ); // defined in qapplication_x11.const
+extern void qt_deferred_map_take( QWidget* );// defined in qapplication_x11.const
 
 static QWidget *mouseGrb    = 0;
 static QWidget *keyboardGrb = 0;
@@ -161,7 +164,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	setWFlags(WStyle_Tool); // a popup is a tool window
 	setWFlags(WStyle_StaysOnTop); // a popup stays on top
     }
-    
+
     if ( sw < 0 ) {				// get the screen size
 	sw = DisplayWidth(dpy,scr);
 	sh = DisplayHeight(dpy,scr);
@@ -394,6 +397,8 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    releaseMouse();
 	if ( keyboardGrb == this )
 	    releaseKeyboard();
+	if ( testWState( WType_TopLevel ) )
+	    qt_deferred_map_take( this );
 	if ( testWFlags(WType_Modal) )		// just be sure we leave modal
 	    qt_leave_modal( this );
 	else if ( testWFlags(WType_Popup) )
@@ -1009,19 +1014,6 @@ QWidget *QWidget::keyboardGrabber()
 
 
 /*!
-  Returns TRUE if the top-level widget containing this widget is the
-  active window.
-
-  \sa setActiveWindow(), topLevelWidget()
-*/
-
-bool QWidget::isActiveWindow() const
-{ // ### should be portable in theory, different from _win in practice
-    return topLevelWidget() == qApp->activeWindow();
-}
-
-
-/*!
   Sets the top-level widget containing this widget to be the active
   window.
 
@@ -1183,7 +1175,13 @@ void QWidget::showWindow()
     clearWState( WState_ForceHide );
     QShowEvent e(FALSE);
     QApplication::sendEvent( this, &e );
-    XMapWindow( x11Display(), winId() );
+    if ( testWFlags(WType_TopLevel) &&
+	 extra && 
+	 extra->topextra && 
+	 extra->topextra->wmstate == 2)
+	qt_deferred_map_add( this );
+    else
+	XMapWindow( x11Display(), winId() );
 }
 
 
@@ -1195,7 +1193,14 @@ void QWidget::showWindow()
 void QWidget::hideWindow()
 {
     deactivateWidgetCleanup();
-    XUnmapWindow( x11Display(), winId() );
+    if ( testWFlags(WType_TopLevel) ) {
+	qt_deferred_map_take( this );
+	XWithdrawWindow( x11Display(), winId(), x11Screen() );
+	if ( extra && extra->topextra && extra->topextra->wmstate ) // wm_state supported
+	    extra->topextra->wmstate = 2; // waiting for wm_state change before next showWindow
+    }
+    else
+	XUnmapWindow( x11Display(), winId() );
     if ( isPopup() )
 	XFlush( x11Display() );
 }
@@ -1340,8 +1345,8 @@ static void do_size_hints( Display *dpy, WId winid, QWExtra *x, XSizeHints *s )
 	    s->flags |= PResizeInc | PBaseSize;
 	    s->width_inc = x->topextra->incw;
 	    s->height_inc = x->topextra->inch;
-	    s->base_width = 0;
-	    s->base_height = 0;
+	    s->base_width = x->topextra->basew;
+	    s->base_height = x->topextra->baseh;
 	}
     }
     s->flags |= PWinGravity;
@@ -1374,7 +1379,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     // We only care about stuff that changes the geometry, or may
     // cause the window manager to change its state
     if ( r.size() == olds && oldp == r.topLeft() &&
-	 (isTopLevel() == FALSE || testWState(WState_USPositionX)) )
+	 (isTopLevel() == FALSE
+	  || !isMove || testWState(WState_USPositionX)) )
 	return;
 
     setCRect( r );
@@ -1510,7 +1516,12 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 /*!
   Sets the size increment of the widget.  When the user resizes the
   window, the size will move in steps of \e w pixels horizontally and
-  \e h pixels vertically.
+  \e h pixels vertically, with baseSize() as basis. Preferred widget sizes are therefore for 
+  non-negative integers \e i and \e j:
+  \code
+  width = baseSize().width() + i * sizeIncrement().width();
+  height = baseSize().height() + j * sizeIncrement().height();
+  \endcode
 
   Note that while you can set the size increment for all widgets, it
   has no effect except for top-level widgets.
@@ -1537,6 +1548,35 @@ void QWidget::setSizeIncrement( int w, int h )
 }
 /*!
   \overload void QWidget::setSizeIncrement( const QSize& )
+*/
+
+
+/*!
+  Sets the base size of the widget.  The base size is important only
+  in combination with size increments. See setSizeIncrement() for details.
+
+  \sa baseSize()
+*/
+
+void QWidget::setBaseSize( int basew, int baseh ) 
+{
+    createTLExtra();
+    QTLWExtra* x = extra->topextra;
+    if ( x->basew == basew && x->baseh == baseh )
+	return;
+    x->basew = basew;
+    x->baseh = baseh;
+    if ( testWFlags(WType_TopLevel) ) {
+	XSizeHints size_hints;
+	size_hints.flags = 0;
+	do_size_hints( x11Display(), winId(), extra, &size_hints );
+    }
+}
+
+
+
+/*!
+  \overload void QWidget::setBaseSize( const QSize& )
 */
 
 /*!

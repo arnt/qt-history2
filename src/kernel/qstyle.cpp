@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#39 $
 **
 ** Implementation of QStyle class
 **
@@ -402,6 +402,17 @@ QStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
     p->setPen( oldPen );			// restore pen
 }
 
+
+/*!
+  Draws a panel suitable as frame for popup windows.
+*/
+void QStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
+		     const QColorGroup &cg, int lineWidth,
+		     const QBrush *fill )
+{
+    drawPanel( p, x, y, w, h, cg, FALSE, lineWidth, fill );
+}
+
 /*!
   \fn void QStyle::drawArrow( QPainter *p, Qt::ArrowType type, bool down, int x, int y, int w, int h, const QColorGroup &g, bool enabled, const QBrush *fill)
   Draws a button indicating direction.
@@ -585,25 +596,47 @@ TODO
 				const QColorGroup &g,
 				bool act, bool dis )
 				
-				###
+Draws a checkmark suitable for checkboxes and checkable menu items.
 				
 */
 /*  \fn void polishPopupMenu( QPopupMenu* p)
-    ###
+
+    Polishes the popup menu \a p according to the GUI style. This is usually means
+    setting the mouse tracking ( QPopupMenu::setMouseTracking() ) and whether
+    the menu is checkable by default ( QPopupMenu::setCheckable() ).
  */
 
 
 /*! \fn int QStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& fm )
- ###
+
+  Returns the extra width of a menu item \a mi, that means all extra
+  pixels besides the space the menu item text requires. \a checkable
+  defines, whether the menu has a check column. \a maxpmw is the
+  maximium width of all iconsets within a check column and \a fm
+  defines the font metrics used to draw the label. This is
+  particulary useful to calculate a suitable size for a submenu
+  indicator or the column separation, including the tab column used to
+  indicate item accelerators.
  */
 
 /* \fn int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm  )
-   ###
+
+   Returns the height of the menu item \a mi. \a checkable
+  defines, whether the menu has a check column, \a fm defines the font
+  metrics used to draw the label.
  */
 
 /* \fn void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
-				    const QPalette& pal, 
+				    const QPalette& pal,
 				    bool act, bool enabled, int x, int y, int w, int h);
-				    
-	###			
+				
+ Draws the menu item \a mi using the painter \a p. The painter is
+ preset to the right font. \a maxpmw is the
+ maximium width of all iconsets within a check column. \a tab
+ specifies the minimum number of pixels necessary to draw all labels
+ of the menu without their accelerators (which are separated by a tab
+ character in the label text). \a pal is the palette, \a act and \a
+ enabled define whether the item is active (i.e. highlighted) or
+ enabled, respectively. Finally, \a x, \a y, \a w and \a h determine
+ the geometry of the entire item.
 */

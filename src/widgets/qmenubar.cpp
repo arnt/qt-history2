@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#144 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#145 $
 **
 ** Implementation of QMenuBar class
 **
@@ -280,7 +280,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 {
     if ( object == parent() && event->type() == QEvent::Resize ) {
 	QResizeEvent *e = (QResizeEvent *)event;
-	int w = e->size().width(); 
+	int w = e->size().width();
 	setGeometry( 0, y(), w, heightForWidth(w) );
 	return FALSE;
     }

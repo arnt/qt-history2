@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#64 $
 **
 ** Implementation of QMainWindow class
 **
@@ -174,7 +174,7 @@ public:
     QToolLayout( int space=-1, const char *name=0 )
 	: QLayout( space, name )  { init(); }
     ~QToolLayout();
-    
+
     void addItem( QLayoutItem *item);
     bool hasHeightForWidth() const { return TRUE; }
     int heightForWidth( int ) const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#31 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#32 $
 **
 ** Definition of QStyle class
 **
@@ -116,6 +116,10 @@ public:
 		    const QColorGroup &, bool sunken=FALSE,
 		    int lineWidth = 1, const QBrush *fill = 0 );
 
+    virtual void drawPopupPanel( QPainter *p, int x, int y, int w, int h,
+				 const QColorGroup &,  int lineWidth = 2, 
+				 const QBrush *fill = 0 );
+
     virtual void drawArrow( QPainter *p, Qt::ArrowType type, bool down,
 		     int x, int y, int w, int h,
 		     const QColorGroup &g, bool enabled, const QBrush *fill = 0 ) = 0;
@@ -211,7 +215,7 @@ public:
     virtual int popupSubmenuIndicatorWidth( const QFontMetrics& fm  ) = 0;
     virtual int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm  ) = 0;
     virtual void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
-				    const QPalette& pal, 
+				    const QPalette& pal,
 				    bool act, bool enabled, int x, int y, int w, int h) = 0;
 
 };
