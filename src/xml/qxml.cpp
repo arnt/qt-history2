@@ -481,7 +481,7 @@ void QXmlNamespaceSupport::processName( const QString& qname,
 	QString& nsuri, QString& localname ) const
 {
     int pos = qname.indexOf( ':' );
-    if ( pos < qname.length() ) {
+    if ( pos != -1 ) {
         // there was a ':'
 	nsuri = uri( qname.left( pos ) );
 	localname = qname.mid( pos+1 );
