@@ -99,7 +99,7 @@
                             </property>
                         </widget>
                         <spacer>
-                            <property name="name">
+                            <property name="name" stdset="0">
                                 <cstring>Spacer11</cstring>
                             </property>
                             <property name="orientation">
@@ -167,7 +167,7 @@
                     </property>
                 </widget>
                 <spacer>
-                    <property name="name">
+                    <property name="name" stdset="0">
                         <cstring>Horizontal Spacing2</cstring>
                     </property>
                     <property name="orientation">
@@ -254,12 +254,6 @@
         <slot>applyClicked()</slot>
     </connection>
     <connection>
-        <sender>buttonCancel</sender>
-        <signal>clicked()</signal>
-        <receiver>WizardEditorBase</receiver>
-        <slot>okClicked()</slot>
-    </connection>
-    <connection>
         <sender>buttonUp</sender>
         <signal>clicked()</signal>
         <receiver>WizardEditorBase</receiver>
@@ -301,17 +295,26 @@
         <receiver>WizardEditorBase</receiver>
         <slot>okClicked()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="protected" language="C++" returnType="void">addClicked()</slot>
-    <slot access="protected" language="C++" returnType="void">applyClicked()</slot>
-    <slot access="protected" language="C++" returnType="void">cancelClicked()</slot>
-    <slot access="protected" language="C++" returnType="void">downClicked()</slot>
-    <slot access="protected" language="C++" returnType="void">helpClicked()</slot>
-    <slot access="protected" language="C++" returnType="void">itemHighlighted(int)</slot>
-    <slot access="protected" language="C++" returnType="void">itemSelected(int)</slot>
-    <slot access="protected" language="C++" returnType="void">okClicked()</slot>
-    <slot access="protected" language="C++" returnType="void">removeClicked()</slot>
-    <slot access="protected" language="C++" returnType="void">upClicked()</slot>
+    <connection>
+        <sender>buttonCancel</sender>
+        <signal>clicked()</signal>
+        <receiver>WizardEditorBase</receiver>
+        <slot>cancelClicked()</slot>
+    </connection>
 </connections>
+<slots>
+    <slot access="protected">init()</slot>
+    <slot access="protected">destroy()</slot>
+    <slot access="protected">addClicked()</slot>
+    <slot access="protected">applyClicked()</slot>
+    <slot access="protected">cancelClicked()</slot>
+    <slot access="protected">downClicked()</slot>
+    <slot access="protected">helpClicked()</slot>
+    <slot access="protected">itemHighlighted(int)</slot>
+    <slot access="protected">itemSelected(int)</slot>
+    <slot access="protected">okClicked()</slot>
+    <slot access="protected">removeClicked()</slot>
+    <slot access="protected">upClicked()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>
