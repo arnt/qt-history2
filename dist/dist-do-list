@@ -1,0 +1,36 @@
+Change the version number in qglobal.h
+Change the version number in various files under qt/dist:	
+	perl -p -i.bak -e 's/1\.30/1.31/g' commercial/* free/* win/* x11/*
+  Diff and double check afterwards
+
+Also change the version number in:
+	qt/html/license.html
+	qt/src/qtx11.pro
+
+    (alternative: Make a system that changes the version number
+     automatically, so we won't have to do this next time)
+
+Pack the distributions.
+	Go through the file list, any files that shouldn't be there?
+
+Test, test and retest.
+
+Update www/dl/index.html
+Update www/dl/locations
+
+Make the file "changes-xxx" under qt/dist
+
+Make mail to send to all customers.
+Make sure the customer list is up to date.
+Distribute to all customers.
+
+Upload free version to ftp.troll.no
+Upload README and INSTALL files to ftp.troll.no in /qt/source
+
+Update the web server with pages from the cvs archive.
+
+Send mail to qt-interest.
+
+Make rpms and upload them to ftp.troll.no
+
+Put the distribution files in lupinella.troll.no:/local/qt/dist
