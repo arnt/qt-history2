@@ -254,18 +254,21 @@ void QDesignerWorkbench::switchToTopLevelMode()
         widgetBoxWrapper->action()->setEnabled(false);
     }
 
+    foreach (QDesignerToolWindow *tw, m_toolWindows) {
+        if (tw != widgetBoxWrapper) {
+            tw->setParent(magicalParent(), Qt::Tool);
+            QRect g = m_geometries.value(tw, tw->geometryHint());
+            tw->resize(g.size());
+            tw->move(g.topLeft());
+        }
+    }
+
     if (m_geometries.isEmpty()) {
         readInSettings();
     } else {
-        foreach (QDesignerToolWindow *tw, m_toolWindows) {
-            if (tw != widgetBoxWrapper) {
-                tw->setParent(magicalParent(), Qt::Tool);
-                QRect g = m_geometries.value(tw, tw->geometryHint());
-                tw->resize(g.size());
-                tw->move(g.topLeft());
-            }
+        foreach (QDesignerToolWindow *tw, m_toolWindows)
             tw->show();
-        }
+
     }
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
