@@ -24,6 +24,8 @@
 *****************************************************************************/
 
 #include "qtextstream.h"
+
+#ifndef QT_NO_TEXTSTREAM
 #include "qtextcodec.h"
 #include "qregexp.h"
 #include "qbuffer.h"
@@ -2084,3 +2086,4 @@ void QTextStream::setCodec( QTextCodec *codec )
     doUnicodeHeader = FALSE;
 }
 
+#endif // QT_NO_TEXTSTREAM

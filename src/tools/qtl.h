@@ -30,7 +30,7 @@
 #include "qstring.h"
 #endif // QT_H
 
-
+#ifndef QT_NO_TEXTSTREAM
 template <class T>
 class QTextOStreamIterator
 {
@@ -52,7 +52,7 @@ public:
     QTextOStreamIterator<T>& operator++() { return *this; }
     QTextOStreamIterator<T>& operator++(int) { return *this; }
 };
-
+#endif //QT_NO_TEXTSTREAM
 
 template <class InputIterator, class OutputIterator>
 inline OutputIterator qCopy( InputIterator _begin, InputIterator _end,

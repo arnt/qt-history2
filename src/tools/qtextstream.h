@@ -31,6 +31,8 @@
 #include "qstring.h"
 #include <stdio.h>
 #endif // QT_H
+
+#ifndef QT_NO_TEXTSTREAM
 class QTextCodec;
 class QTextDecoder;
 
@@ -327,4 +329,5 @@ Q_EXPORT inline QTSManip setprecision( int p )
 }
 #endif
 
+#endif // QT_NO_TEXTSTREAM
 #endif // QTEXTSTREAM_H
