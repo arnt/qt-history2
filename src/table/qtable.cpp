@@ -5578,7 +5578,7 @@ bool QTable::dragEnabled() const
 }
 
 /*!
-    Inserts \a count empty rows at row \a row.
+    Inserts \a count empty rows at row \a row. Also clears the selection(s).
 
     \sa insertColumns() removeRow()
 */
@@ -5604,7 +5604,7 @@ void QTable::insertRows( int row, int count )
 }
 
 /*!
-    Inserts \a count empty columns at column \a col.
+    Inserts \a count empty columns at column \a col.  Also clears the selection(s).
 
     \sa insertRows() removeColumn()
 */
