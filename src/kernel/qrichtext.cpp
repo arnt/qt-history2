@@ -1382,7 +1382,6 @@ void QTextDocument::init()
     minwParag = curParag = 0;
     align = AlignAuto;
     nSelections = 1;
-    addMargs = FALSE;
 
     sheet_ = QStyleSheet::defaultSheet();
 #ifndef QT_NO_MIME
@@ -1412,7 +1411,7 @@ void QTextDocument::init()
     flow_ = new QTextFlow;
     flow_->setWidth( cw );
 
-    leftmargin = rightmargin = 8;
+    leftmargin = rightmargin = 4;
 
     selectionColors[ Standard ] = QApplication::palette().color( QPalette::Active, QColorGroup::Highlight );
     selectionText[ Standard ] = TRUE;
@@ -1582,9 +1581,10 @@ struct Q_EXPORT QTextDocumentTag {
 };
 
 #define NEWPAR       do{ if ( !hasNewPar) { \
-		    if ( curpar->tm == 0 && curpar->prev() ) curpar->prev()->bm = 0; \
+		    if ( curpar->tm == -2 /*incicates linebreak!*/&& \
+			curpar->prev() ) curpar->prev()->ubm = 0; \
 		    curpar = createParag( this, curpar ); } \
-		    curpar->tm = -1; \
+		    curpar->utm = curpar->tm = -1; \
 		    hasNewPar = TRUE; \
 		    curpar->align = curtag.alignment; \
 		    curpar->listS = curtag.liststyle; \
@@ -1704,7 +1704,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    curtag.style = nstyle;
 			}
 			NEWPAR;
-			curpar->tm = 0;
+			curpar->utm = 0;
+			curpar->tm = -2; // indicate line break, see NEWPAR macro
 		    }  else if ( tagname == "hr" ) {
 			emptyTag = TRUE;
 			custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
@@ -1840,7 +1841,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 
 		    if ( nstyle->alignment() != QStyleSheetItem::Undefined )
 			curtag.alignment = nstyle->alignment();
-		    
+		
 		    if ( (int) nstyle->listStyle() != QStyleSheetItem::Undefined )
 			curtag.liststyle = nstyle->listStyle();
 
@@ -1911,16 +1912,16 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    for ( int s = 0; ok && s < a.contains(';')+1; s++ ) {
 				QString style = a.section( ';', s, s );
 				if ( style.startsWith("margin-top:" ) && style.endsWith("px") )
-				    curpar->tm = style.mid(11, style.length() - 13).toInt(&ok);
+				    curpar->utm = style.mid(11, style.length() - 13).toInt(&ok);
 				else if ( style.startsWith("margin-bottom:" ) && style.endsWith("px") )
-				    curpar->bm = style.mid(14, style.length() - 16).toInt(&ok);
+				    curpar->ubm = style.mid(14, style.length() - 16).toInt(&ok);
 				else if ( style.startsWith("margin-left:" ) && style.endsWith("px") )
-				    curpar->rm = style.mid(12, style.length() - 14).toInt(&ok);
+				    curpar->ulm = style.mid(12, style.length() - 14).toInt(&ok);
 				else if ( style.startsWith("margin-right:" ) && style.endsWith("px") )
-				    curpar->lm = style.mid(13, style.length() - 15).toInt(&ok);
+				    curpar->urm = style.mid(13, style.length() - 15).toInt(&ok);
 			    }
 			    if ( !ok ) // be pressmistic
-				curpar->tm = curpar->bm = curpar->rm = curpar->lm = -1;
+				curpar->utm = curpar->ubm = curpar->urm = curpar->ulm = -1;
 			}
 		    }
 		}
@@ -2126,10 +2127,12 @@ static inline int margin_compare( const QStyleSheetItem* style, const QStyleShee
 				   const QStyleSheetItem::Margin m, const  int i ) {
     int sm = style->margin(m);
     int lm = list ? list->margin( m )*listFactor : 0;
-    
-    if ( i != ((sm<0)?0:sm) + ((lm<0)?0:lm) )
-	return i - lm;
-    return 0;
+    int debug = 0;
+    if ( i != QMAX( sm, 0 ) + QMAX( lm, 0) )
+	debug = lm<0?i:i-lm;
+    if ( i != QMAX( sm, 0 ) + QMAX( lm, 0) )
+	return lm<0?i:i-lm;
+    return -1;
 }
 
 /* ### This function should go away. The engine should handle margins
@@ -2142,13 +2145,13 @@ static QString margin_to_string( QStyleSheetItem* style, QStyleSheetItem* list, 
     if ( !style )
 	return QString::null;
     QString s; int m;
-    if ( (m = margin_compare(style, list, listDepth, QStyleSheetItem::MarginLeft, p->leftMargin() ) ) )
+    if ( (m = margin_compare(style, list, listDepth, QStyleSheetItem::MarginLeft, p->leftMargin() ) )  >= 0 )
 	s += QString(!!s?";":"") + "margin-left:" + QString::number( m ) + "px";
-    if ( (m = margin_compare(style, list, listDepth, QStyleSheetItem::MarginRight, p->rightMargin() ) ) )
+    if ( (m = margin_compare(style, list, listDepth, QStyleSheetItem::MarginRight, p->rightMargin() ) ) >= 0 )
 	s += QString(!!s?";":"") + "margin-right:" + QString::number( m ) + "px";
-    if ( (m = margin_compare(style, (listDepth>0&&pastListDepth==0)?list:0, 1, QStyleSheetItem::MarginTop, p->topMargin() ) ) )
+    if ( (m = margin_compare(style, (listDepth>0&&pastListDepth==0)?list:0, 1, QStyleSheetItem::MarginTop, p->topMargin() ) ) >= 0 )
 	s += QString(!!s?";":"") + "margin-top:" + QString::number( m ) + "px";
-    if ( (m = margin_compare(style, (listDepth>0&&futureListDepth==0)?list:0, 1, QStyleSheetItem::MarginBottom, p->bottomMargin() ) ) )
+    if ( (m = margin_compare(style, (listDepth>0&&futureListDepth==0)?list:0, 1, QStyleSheetItem::MarginBottom, p->bottomMargin() ) )  >= 0 )
 	s += QString(!!s?";":"") + "margin-bottom:" + QString::number( m ) + "px";
     if ( !!s )
 	return " style=" + s + "";
@@ -2204,7 +2207,7 @@ QString QTextDocument::richText( QTextParag *p ) const
 	    if ( p->listStyle() != listStyles[listDepth] )
 		s += " type=" + list_style_to_string( p->listStyle() );
 	    s +=align_to_string( p->alignment() );
-	    s += margin_to_string( item_li, list_is_ordered( p->listStyle() ) ? item_ol : item_ul, p, 
+	    s += margin_to_string( item_li, list_is_ordered( p->listStyle() ) ? item_ol : item_ul, p,
 				   pastListDepth, listDepth, futureListDepth );
 	    s +=  list_value_to_string( p->listValue() );
 	    s += direction_to_string( p->direction() );
@@ -3907,6 +3910,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
     : invalid( 0 ), p( pr ), n( nx ), docOrPseudo( d ),  align( 0 ),mSelections( 0 ),
       mStyleSheetItemsVec( 0 ), mFloatingItems( 0 ), listS( QStyleSheetItem::ListDisc ),
       tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ),
+      utm( -1 ), ubm( -1 ), ulm( -1 ), urm( -1 ), uflm( -1 ),
       tArray(0), tabStopWidth(0), eData( 0 )
 {
     listS = QStyleSheetItem::ListDisc;
@@ -5206,138 +5210,106 @@ QTextCursor *QTextParag::redo( QTextCursor *c )
 int QTextParag::topMargin() const
 {
     if ( tm >= 0 )
-	return tm;
-    if ( tm < -1 )
-	return scale( -tm-2, QTextFormat::painter() );
+	return scale( tm, QTextFormat::painter() );
     QStyleSheetItem *item = style();
-    if ( !item ) {
-	( (QTextParag*)this )->tm = -2;
-	return 0;
-    }
-
-    int m = 0;
-    if ( item->margin( QStyleSheetItem::MarginTop ) != QStyleSheetItem::Undefined )
-	m = item->margin( QStyleSheetItem::MarginTop );
-    if ( mStyleSheetItemsVec ) {
-	QStyleSheetItem *it = 0;
+    int m = utm < 0 ? 0 : utm;
+    if ( item ) {
+	if (utm < 0 &&  item->margin( QStyleSheetItem::MarginTop ) != QStyleSheetItem::Undefined )
+	    m = item->margin( QStyleSheetItem::MarginTop );
 	QPtrVector<QStyleSheetItem> * p = prev() ? prev()->mStyleSheetItemsVec : 0;
 	for ( int i = (int)mStyleSheetItemsVec->size() - 2 ; i >= 0; --i ) {
-	    it = (*mStyleSheetItemsVec)[ i ];
-   	    if ( p && i < (int) p->size() &&
-		 ( (*p)[ i ] == it || (*p)[ i ]->displayMode() == QStyleSheetItem::DisplayListItem ) )
+	    item = (*mStyleSheetItemsVec)[ i ];
+	    if ( p && i < (int) p->size() &&
+		 ( (*p)[ i ] == item || (*p)[ i ]->displayMode() == QStyleSheetItem::DisplayListItem ) )
 		break;
-	    int mar = it->margin( QStyleSheetItem::MarginTop );
+	    int mar = item->margin( QStyleSheetItem::MarginTop );
 	    mar = QMAX( mar, 0 );
 	    m = QMAX( m, mar );
 	}
     }
-
-    ( (QTextParag*)this )->tm = -m-2;
-    return m;
+    ( (QTextParag*)this )->tm = m;
+    return scale( m, QTextFormat::painter() );
 }
 
 int QTextParag::bottomMargin() const
 {
-    if (bm >= 0 )
-	return bm;
-    if ( bm < -1 )
-	return scale( -bm-2, QTextFormat::painter() );
+    if ( bm >= 0 )
+	return scale( bm, QTextFormat::painter() );
     QStyleSheetItem *item = style();
-    if ( !item ) {
-	( (QTextParag*)this )->bm = -2;
-	return 0;
-    }
-
-    int m = 0;
-    if ( item->margin( QStyleSheetItem::MarginBottom ) != QStyleSheetItem::Undefined )
-	m = item->margin( QStyleSheetItem::MarginBottom );
-    if ( mStyleSheetItemsVec ) {
-	QStyleSheetItem *it = 0;
+    int m = ubm < 0 ? 0 : ubm;
+    if ( item ) {
+	if (ubm < 0 &&  item->margin( QStyleSheetItem::MarginBottom ) != QStyleSheetItem::Undefined )
+	    m = item->margin( QStyleSheetItem::MarginBottom );
 	QPtrVector<QStyleSheetItem> * n = next() ? next()->mStyleSheetItemsVec : 0;
 	for ( int i = (int)mStyleSheetItemsVec->size() - 2 ; i >= 0; --i ) {
-	    it = (*mStyleSheetItemsVec)[ i ];
+	    item = (*mStyleSheetItemsVec)[ i ];
    	    if ( n && i < (int) n->size() &&
-		 ( (*n)[ i ] == it || (*n)[ i ]->displayMode() == QStyleSheetItem::DisplayListItem ) )
+		 ( (*n)[ i ] == item || (*n)[ i ]->displayMode() == QStyleSheetItem::DisplayListItem ) )
  		break;
-	    int mar = it->margin( QStyleSheetItem::MarginBottom );
+	    int mar = item->margin( QStyleSheetItem::MarginBottom );
 	    mar = QMAX( mar, 0 );
 	    m = QMAX( m, mar );
 	}
     }
-
-    ( (QTextParag*)this )->bm = -m-2;
-    return m;
+    ( (QTextParag*)this )->bm = m;
+    return scale( m, QTextFormat::painter() );
 }
 
 int QTextParag::leftMargin() const
 {
-    if (lm >= 0 )
-	return lm;
-    if ( lm < -1 )
-	return scale( -lm-2, QTextFormat::painter() );
+    if ( lm >= 0 )
+	return scale( lm, QTextFormat::painter() );
     QStyleSheetItem *item = style();
-    if ( !item ) {
-	( (QTextParag*)this )->lm = -2;
-	return 0;
-    }
-    int m = 0;
-    if ( mStyleSheetItemsVec ) {
-	for ( int i = 0; i < (int)mStyleSheetItemsVec->size(); ++i ) {
+    int m = ulm < 0 ? 0 : ulm;
+    if ( item ) {
+	if (ulm < 0 &&  item->margin( QStyleSheetItem::MarginLeft ) != QStyleSheetItem::Undefined )
+	    m = item->margin( QStyleSheetItem::MarginLeft );
+	for ( int i = 0; i < (int)mStyleSheetItemsVec->size()-1; ++i ) {
 	    item = (*mStyleSheetItemsVec)[ i ];
 	    int mar = item->margin( QStyleSheetItem::MarginLeft );
 	    m += mar != QStyleSheetItem::Undefined ? mar : 0;
 	}
     }
-
-    ( (QTextParag*)this )->lm = -m-2;
-    return m;
+    ( (QTextParag*)this )->lm = m;
+    return scale( m, QTextFormat::painter() );
 }
 
 int QTextParag::firstLineMargin() const
 {
-    if (flm >= 0 )
-	return flm;
-    if ( flm < -1 )
-	return scale( -flm-2, QTextFormat::painter() );
+    if ( flm >= 0 )
+	return scale( flm, QTextFormat::painter() );
     QStyleSheetItem *item = style();
-    if ( !item ) {
-	( (QTextParag*)this )->flm = -2;
-	return 0;
-    }
-    int m = 0;
-    if ( mStyleSheetItemsVec ) {
-	for ( int i = 0; i < (int)mStyleSheetItemsVec->size(); ++i ) {
+    int m = uflm < 0 ? 0 : uflm;
+    if ( item ) {
+	if (uflm < 0 &&  item->margin( QStyleSheetItem::MarginFirstLine ) != QStyleSheetItem::Undefined )
+	    m = item->margin( QStyleSheetItem::MarginFirstLine );
+	for ( int i = 0; i < (int)mStyleSheetItemsVec->size()-1; ++i ) {
 	    item = (*mStyleSheetItemsVec)[ i ];
 	    int mar = item->margin( QStyleSheetItem::MarginFirstLine );
 	    m += mar != QStyleSheetItem::Undefined ? mar : 0;
 	}
     }
-
-    ( (QTextParag*)this )->flm = -m-2;
-    return m;
+    ( (QTextParag*)this )->flm = m;
+    return scale( m, QTextFormat::painter() );
 }
 
 int QTextParag::rightMargin() const
 {
     if ( rm >= 0 )
-	return rm;
-    if ( rm < -1 )
-	return scale( -rm-2, QTextFormat::painter() );
+	return scale( rm, QTextFormat::painter() );
     QStyleSheetItem *item = style();
-    if ( !item ) {
-	( (QTextParag*)this )->rm = -2;
-	return 0;
-    }
-    int m = 0;
-    if ( mStyleSheetItemsVec ) {
-	for ( int i = 0; i < (int)mStyleSheetItemsVec->size(); ++i ) {
+    int m = urm < 0 ? 0 : urm;
+    if ( item ) {
+	if (urm < 0 &&  item->margin( QStyleSheetItem::MarginRight ) != QStyleSheetItem::Undefined )
+	    m = item->margin( QStyleSheetItem::MarginRight );
+	for ( int i = 0; i < (int)mStyleSheetItemsVec->size()-1; ++i ) {
 	    item = (*mStyleSheetItemsVec)[ i ];
 	    int mar = item->margin( QStyleSheetItem::MarginRight );
 	    m += mar != QStyleSheetItem::Undefined ? mar : 0;
 	}
     }
-    ( (QTextParag*)this )->rm = -m-2;
-    return m;
+    ( (QTextParag*)this )->rm = m;
+    return scale( m, QTextFormat::painter() );
 }
 
 int QTextParag::lineSpacing() const

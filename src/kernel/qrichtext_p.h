@@ -888,9 +888,6 @@ public:
     void removeChild( QTextDocument *d ) { childList.removeRef( d ); }
     QPtrList<QTextDocument> children() const { return childList; }
 
-    void setAddMargins( bool b ) { addMargs = b; }
-    int addMargins() const { return addMargs; }
-
     bool hasFocusParagraph() const;
     QString focusHref() const;
     QString focusName() const;
@@ -944,7 +941,6 @@ private:
     uint withoutDoubleBuffer : 1;
     uint underlLinks : 1;
     uint nextDoubleBuffered : 1;
-    uint addMargs : 1;
     uint oTextValid : 1;
     uint mightHaveCustomItems : 1;
     int align;
@@ -1363,12 +1359,13 @@ private:
     QPtrVector<QStyleSheetItem> *mStyleSheetItemsVec;
     QPtrList<QTextCustomItem> *mFloatingItems;
     QStyleSheetItem::ListStyle listS;
-    int tm, bm, lm, rm, flm;
+    short tm, bm, lm, rm, flm;
+    short utm, ubm, ulm, urm, uflm;
     QTextFormat *defFormat;
     int *tArray;
-    int tabStopWidth;
+    short tabStopWidth;
     QTextParagData *eData;
-    int list_val;
+    short list_val;
     QColor *bgcol;
     QPaintDevice *paintdevice;
 };
