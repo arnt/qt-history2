@@ -208,13 +208,6 @@ void QTextBrowser::setSource(const QString& name)
     stack.push( 1 );
     stack.push( 2 );
     stack.push( 3 );
-    while ( !stack.isEmpty() )
-	printf("pop item %d\n", stack.pop() );
-
-    for ( QValueStack<QString>::Iterator s = d->stack.begin(); s != d->stack.end(); ++s ) {
-	qDebug("%s", (*s).latin1() );
-    }
-
 }
 
 /*!

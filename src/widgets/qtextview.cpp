@@ -606,19 +606,20 @@ void QTextView::viewportMouseReleaseEvent( QMouseEvent* e )
 
 
 /*!
-  Copies the marked text to the clipboard.  
+  Copies the marked text to the clipboard.
 */
 void QTextView::copy()
 {
 #if defined(_WS_X11_)
     disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
 #endif
+    QString t = richText().selectedText();
 #if defined(_OS_WIN32_)
     // Need to convert NL to CRLF
     QRegExp nl("\\n");
     t.replace( nl, "\r\n" );
 #endif
-    QApplication::clipboard()->setText( richText().selectedText() );
+    QApplication::clipboard()->setText( t );
 #if defined(_WS_X11_)
     connect( QApplication::clipboard(), SIGNAL(dataChanged()),
 	     this, SLOT(clipboardChanged()) );
@@ -729,7 +730,7 @@ void QTextView::keyPressEvent( QKeyEvent * e)
     case Key_Insert:
 	if ( e->state() & ControlButton )
 	    copy();
-#endif	
+#endif
 	break;
     default:
 	unknown++;
@@ -828,9 +829,9 @@ void QTextView::showEvent( QShowEvent* )
 
 void QTextView::clearSelection()
 {
-    if ( !d->selection ) 
+    if ( !d->selection )
 	return; // nothing to do
-    
+
     richText().clearSelection();
     d->selection = FALSE;
     repaintContents( richText().flow()->updateRect(), FALSE );

@@ -32,7 +32,6 @@
 
 #include <qstack.h>
 #include <stdio.h>
-#include <values.h>
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qlayout.h>
@@ -42,6 +41,7 @@
 #include <qdragobject.h>
 #include <qdatetime.h>
 #include <qdrawutil.h>
+#include <limits.h>
 
 class QTextTableCell : public QLayoutItem
 {
@@ -282,7 +282,6 @@ QRichText::QRichText( const QString &doc, const QFont& font,
 
     //set up base style
 
-    QFont font( format.font() );
     base->setDisplayMode(QStyleSheetItem::DisplayInline);
     base->setFontFamily( font.family() );
     base->setFontItalic( font.italic() );
@@ -1716,7 +1715,10 @@ void QTextCursor::drawLine( QPainter* p, int ox, int oy,
 	}
 	else {
 	    c = paragraph->text.charAt( current );
-	    p->drawText(gx+currentx-ox, gy-oy+base, c, c.length());
+	    int l = c.length();
+	    while ( l>0 && c[l-1]=='\n' )
+		l--;
+	    p->drawText(gx+currentx-ox, gy-oy+base, c, l );
 	}
 	if ( selected )
 	    p->setPen( format->color() );
@@ -1929,7 +1931,7 @@ void QTextCursor::insert( QPainter* p, const QString& text )
     }
     else {
 	QString& sref = paragraph->text.getCharAt( current );
-	for ( uint i = 0; i < text.length(); i++ ) {
+	for ( int i = 0; i < (int)text.length(); i++ ) {
 	    sref.insert( currentoffset, text[i] );
 	    if ( text[i] == ' ' && currentoffset < int(sref.length())-1 ) { // not isSpace() to ignore nbsp
 		paragraph->text.insert( current+1, sref.mid( currentoffset+1 ),
@@ -1994,7 +1996,7 @@ void QTextCursor::updateParagraph( QPainter* p )
 	 qDebug("height different ");
 	 if ( paragraph->nextInDocument() )
 	     paragraph->nextInDocument()->invalidateLayout();
-	 flow->invalidateRect( QRect( QPoint(0, uy), QPoint(width, MAXINT-1000) ) );
+	 flow->invalidateRect( QRect( QPoint(0, uy), QPoint(width, INT_MAX-1000) ) );
      } else if ( first == oldfirst && last == oldlast && current != first ) {
 	 flow->invalidateRect( QRect( 0, uy, width, height ) );
      }
@@ -2081,7 +2083,7 @@ void QTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
 
 	QTextCustomItem* custom = item->format->customItem();
 	if ( !custom && !item->c.isEmpty() ) {
-	    lastc = item->c[ item->c.length()-1];
+	    lastc = item->c[ (int) item->c.length()-1];
 	}
 
 	if ( custom && !custom->placeInline() ) {
@@ -2361,7 +2363,7 @@ QTextTable::QTextTable(const QMap<QString, QString> & attr  )
 	    fixwidth = w;
 	} else {
  	    s = s.stripWhiteSpace();
- 	    if ( s.length() > 1 && s[ s.length()-1 ] == '%' )
+ 	    if ( s.length() > 1 && s[ (int)s.length()-1 ] == '%' )
 		stretch = s.left( s.length()-1).toInt();
 	}
     }
@@ -2517,7 +2519,7 @@ QTextTableCell::QTextTableCell(QTextTable* table,
 	    hasFixedWidth = TRUE;
 	} else {
  	    s = s.stripWhiteSpace();
- 	    if ( s.length() > 1 && s[ s.length()-1 ] == '%' )
+ 	    if ( s.length() > 1 && s[ (int)s.length()-1 ] == '%' )
 		stretch_ = s.left( s.length()-1).toInt();
 	}
     }
