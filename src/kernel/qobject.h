@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#139 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#140 $
 **
 ** Definition of QObject class
 **
@@ -141,13 +141,17 @@ signals:
 
 public:
     QObject	*parent() const { return parentObj; }
+    
+    
+public slots:
+    void	deferredDelete();
 
 private slots:
-    void	 cleanupEventFilter();
-    void	 notifyAccessibility( int );
+    void	cleanupEventFilter();
+    void	notifyAccessibility( int );
 
 protected:
-    bool	 activate_filters( QEvent * );
+    bool	activate_filters( QEvent * );
     QConnectionList *receivers( const char* signal ) const;
     QConnectionList *receivers( int signal ) const;
     void	activate_signal( int signal );
@@ -189,7 +193,7 @@ private:
     QObjectPrivate* d;
 
     static QMetaObject* staticQtMetaObject();
-    
+
     friend class QApplication;
     friend class QBaseApplication;
     friend class QWidget;
