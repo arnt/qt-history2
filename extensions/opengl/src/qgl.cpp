@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#33 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#34 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -1746,11 +1746,11 @@ void QGLWidget::setContext( QGLContext *context,
 	if ( !glcx->create( shareContext ? shareContext : oldcx ) )
 	    createFailed = TRUE;
     }
-    if ( deleteOldContext )
-	delete oldcx;
-    if ( createFailed )
+    if ( createFailed ) {
+	if ( deleteOldContext )
+	    delete oldcx;
 	return;
-
+    }
 #if defined(Q_GLX)
     if ( glcx->windowCreated() || glcx->deviceIsPixmap() )
 	return;
@@ -1799,6 +1799,10 @@ void QGLWidget::setContext( QGLContext *context,
     if ( oldcx && oldcx->windowCreated() )
 	glXReleaseBuffersMESA( x11Display(), winId() );
 #endif
+    if ( deleteOldContext )
+	delete oldcx;
+    oldcx = 0;
+
     create( w );
 
     XSetWMColormapWindows( x11Display(), topLevelWidget()->winId(), cmw, 
