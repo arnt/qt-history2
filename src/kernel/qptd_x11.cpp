@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#46 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#45 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#46 $";
 #endif
 
 
@@ -59,7 +59,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#45 $";
 
   Example (scroll widget contents 10 pixels to the right):
   \code
-     bitBlt( myWidget, 10,0, myWidget, 0,0, -1,-1 );
+     bitBlt( myWidget, 10,0, myWidget );
   \endcode
 
   \warning Qt requires that a QApplication object must exist before any paint

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#29 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#30 $
 **
 ** Definition of QPaintDevice class
 **
@@ -80,15 +80,14 @@ protected:
 			int, int, int, int, RasterOp );
 };
 
-
 void bitBlt( QPaintDevice *dst, int dx, int dy,
-	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
-	     RasterOp =CopyROP );
+	     const QPaintDevice *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
+	     RasterOp = CopyROP );
 
 inline
 void bitBlt( QPaintDevice *dst, const QPoint &dp,
-	     const QPaintDevice *src, const QRect  &sr,
-	     RasterOp rop=CopyROP )
+	     const QPaintDevice *src, const QRect &sr = QRect(0,0,-1,-1),
+	     RasterOp rop = CopyROP )
 {
     bitBlt( dst, dp.x(), dp.y(), src, sr.x(), sr.y(), sr.width(), sr.height(),
 	    rop );
