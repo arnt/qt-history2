@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#8 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -9,6 +9,31 @@
 ** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
+
+/*!
+\class QCursor qcursor.h
+
+\brief This class provides a mouse cursor with arbitrary shape and colour.
+
+This class does nothing very remarkable; you can select one of the
+standard mouse cursors or create your own; you can find out what
+cursor you have; you can get the window systems's cursor handle to
+bypass QCursor.  But all in all it's nothing much.
+
+Here are the <a name=cursors>predefined cursors</a>:
+<dl compact>
+<dt> arrowCursor <dd> standard arrow cursor
+<dt> upArrowCursor <dd> upwards arrow
+<dt> crossCursor <dd> crosshair
+<dt> hourGlassCursor <dd> hourglass/watch
+<dt> ibeamCursor <dd> ibeam/text entry
+<dt> sizeVerCursor <dd> vertical resize
+<dt> sizeHorCursor <dd> horizontal resize
+<dt> sizeBDiagCursor <dd> diagonal resize (/)
+<dt> sizeFDiagCursor <dd> diagonal resize (\)
+<dt> sizeAllCursor <dd> all directions resize
+</dl>
+*/
 
 #include "qcursor.h"
 #include "qapp.h"
@@ -22,7 +47,7 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#8 $";
 #endif
 
 
@@ -128,6 +153,13 @@ QCursor *QCursor::locate( int shape )		// get global cursor
 }
 
 
+/*!
+
+This constructor makes a new cursor with the default arrow shape, at the
+default position.
+
+*/
+
 QCursor::QCursor()				// default arrow cursor
 {
     if ( qApp ) {				// not initializing
@@ -142,6 +174,12 @@ QCursor::QCursor()				// default arrow cursor
     }
 }
 
+/*!
+This constructor makes a new cursor with the specified \e shape, at the
+default position.
+
+*/
+
 QCursor::QCursor( int shape )			// cursor with shape
 {
     QCursor *c = locate( shape );
@@ -150,6 +188,16 @@ QCursor::QCursor( int shape )			// cursor with shape
     c->data->ref();
     data = c->data;
 }
+
+
+/*!
+The specify-it-all constructor.
+
+\arg \e bitmap and
+\arg \e mask make up the bitmap
+\arg \e hotX and
+\arg \e hotY define the hot spot of this cursor
+*/
 
 QCursor::QCursor( const QBitMap &bitmap, const QBitMap &mask,
 		  int hotX, int hotY )
@@ -166,11 +214,20 @@ QCursor::QCursor( const QBitMap &bitmap, const QBitMap &mask,
     data->hy = hotY >= 0 ? hotY : bitmap.height()/2;
 }
 
+/*!
+This constructor makes a new cursor exactly like an existing cursor.
+
+*/
+
 QCursor::QCursor( const QCursor &c )
 {
     data = c.data;				// shallow copy
     data->ref();
 }
+
+/*!
+Free the memory allocated for the cursor.
+*/
 
 QCursor::~QCursor()
 {
@@ -178,27 +235,60 @@ QCursor::~QCursor()
 	delete data;
 }
 
+/*!
+This operator allows the programmer to use = to copy cursors.  = and
+== are handled correctly:
+
+\code
+QCursor a, b;
+
+a = b;
+if ( a == b && a == a) {
+    \/ happens
+}
+
+a = a; \/ no memory loss
+\endcode
+
+*/
+
 QCursor &QCursor::operator=( const QCursor &c )
 {
-    c.data->ref();				// avoid trouble when c == c
+    c.data->ref();				// avoid trouble when c == *this
     if ( data->deref() )
 	delete data;
     data = c.data;
     return *this;
 }
 
+/*!
+This is a deep copy; operator= is shallow and faster.
+
+\todo Copy bitmap data
+
+*/
 
 QCursor QCursor::copy() const
 {
-    QCursor c( data->cshape );			// TODO!!! Copy bitmap data
+    QCursor c( data->cshape );
     return c;
 }
 
+/*!
+This function returns the cursor shape (one of the <a
+href=#cursors>global cursors</a> or one of the custom cursors.
+*/
 
 int QCursor::shape() const			// get cursor shape
 {
     return data->cshape;
 }
+
+/*!
+This function sets the cursor shape.  If the argument isn't a valid shape
+number, an arrow cursor will be substituted.
+
+*/
 
 bool QCursor::setShape( int shape )		// set cursor shape
 {
@@ -214,6 +304,11 @@ bool QCursor::setShape( int shape )		// set cursor shape
 }
 
 
+/*!
+Returns the global coordinates of the cursor (really the hot spot).
+Global, not relative to any widget.  See also setPos().
+*/
+
 QPoint QCursor::pos()				// get cursor position
 {
     Window root;
@@ -225,11 +320,22 @@ QPoint QCursor::pos()				// get cursor position
     return QPoint( root_x, root_y );
 }
 
+/*!
+Warps the cursor.  \e x and \e y are in global coordinates, not
+relative to any window.  See also pos().
+*/
+
 void QCursor::setPos( int x, int y )		// set cursor position
 {
     XWarpPointer( qt_xdisplay(), None, qt_xrootwin(), 0, 0, 0, 0, x, y );
 }
 
+
+/*!
+Magic.  This function does nothing at all, you don't need to know it's
+there, but internally it's vital.  It creates the predefined cursors
+and does other initialization.
+*/
 
 void QCursor::update() const			// update/load cursor
 {
@@ -326,6 +432,14 @@ void QCursor::update() const			// update/load cursor
 }
 
 
+/*!
+\warning System dependent!  Don't use this unless you have to.
+
+This function returns the window system's idea of the current cursor.
+Rather than use it, you should <a href=mailto:qt-bugs@troll.no>tell
+us</a> what the portable functions lack.
+*/
+
 Cursor QCursor::handle() const
 {
     if ( !data->hcurs )
@@ -338,6 +452,19 @@ Cursor QCursor::handle() const
 // QCursor stream functions
 //
 
+/*!
+This function isn't meant for humans: It will write the cursor in a
+format which is Qt can read back (even on other CPUs, operating
+systems and window systems).
+
+For global cursors just a 16-bit number (the same as that returned by
+shape()) is written, for bitmapped cursors the bitmap and mask
+(variable size, see QBitMap), hot spot x and y (16 bits each) are
+written as well.
+
+\todo big/little-endianness looks doubtful
+*/
+
 QDataStream &operator<<( QDataStream &s, const QCursor &c )
 {
     s << (INT16)c.data->cshape;			// write shape id to stream
@@ -347,6 +474,12 @@ QDataStream &operator<<( QDataStream &s, const QCursor &c )
     }
     return s;
 }
+
+/*!
+This function will read back a cursor from a stream.  It is intended
+for programs to load and save their state, not for communication with
+humans.  See operator<<() for details.
+*/
 
 QDataStream &operator>>( QDataStream &s, QCursor &c )
 {
