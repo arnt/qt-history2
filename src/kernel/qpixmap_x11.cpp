@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#76 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#75 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#76 $")
 
 
 /*****************************************************************************
@@ -550,7 +550,7 @@ QImage QPixmap::convertToImage() const
 	int  blue_shift	 = highest_bit( blue_mask )  - 7;
 	int  r, g, b;
 
-	uchar *dst;
+	QRgb  *dst;
 	uchar *src;
 	ulong  pixel;
 	int    bppc = xi->bits_per_pixel;
@@ -559,7 +559,7 @@ QImage QPixmap::convertToImage() const
 	    bppc++;
 
 	for ( int y=0; y<h; y++ ) {
-	    dst = image.scanLine( y );
+	    dst = (QRgb *)image.scanLine( y );
 	    src = (uchar *)xi->data + xi->bytes_per_line*y;
 	    for ( int x=0; x<w; x++ ) {
 		switch ( bppc ) {
@@ -615,9 +615,7 @@ QImage QPixmap::convertToImage() const
 		    b = (pixel & blue_mask) >> blue_shift;
 		else
 		    b = (pixel & blue_mask) << -blue_shift;
-		*dst++ = r;
-		*dst++ = g;
-		*dst++ = b;
+		*dst++ = qRgb(r, g, b);
 	    }
 	}
     }
@@ -874,15 +872,17 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	    bppc++;
 
 	for ( int y=0; y<h; y++ ) {
+	    QRgb *p;
 	    src = image.scanLine( y );
 	    dst = newbits + xi->bytes_per_line*y;
+	    p   = (QRgb *)src;
 	    for ( int x=0; x<w; x++ ) {
 		if ( d8 )
 		    pixel = pix[*src++];
 		else {
-		    r = *src++;
-		    g = *src++;
-		    b = *src++;
+		    r = qRed  ( *p );
+		    g = qGreen( *p );
+		    b = qBlue ( *p++ );
 		    r = red_shift   > 0 ? r << red_shift   : r >> -red_shift;
 		    g = green_shift > 0 ? g << green_shift : g >> -green_shift;
 		    b = blue_shift  > 0 ? b << blue_shift  : b >> -blue_shift;
