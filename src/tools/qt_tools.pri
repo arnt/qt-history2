@@ -55,9 +55,9 @@ tools {
 		  $$TOOLS_H/qstrlist.h \
 		  $$TOOLS_H/qstrvec.h \
 		  $$TOOLS_H/qtextstream.h \
-		  $$TOOLS_H/qthreadinstance_p.h \
+		  $$TOOLS_P/qthreadinstance_p.h \
 		  $$TOOLS_H/qthreadstorage.h\
-		  $$TOOLS_H/qunicodetables_p.h \
+		  $$TOOLS_P/qunicodetables_p.h \
 		  $$TOOLS_H/qptrvector.h \
 	          $$TOOLS_H/qvaluelist.h \
 		  $$TOOLS_H/qvaluestack.h \
