@@ -30,7 +30,7 @@ SOURCES =	moc.l		moc.y
 LEXOUT	=	lex.yy.c
 YACCOUT =	y.tab.c
 YACCHDR =	y.tab.h
-TMPCPP	=	moc_gen.cpp
+TMPCPP	=	mocgen.cpp
 TOOLOBJ =	qbuffer.o	\
 		qcollect.o	\
 		qdatetm.o	\
@@ -42,7 +42,7 @@ TOOLOBJ =	qbuffer.o	\
 		qgvector.o	\
 		qiodev.o	\
 		qstring.o
-OBJECTS =	moc_gen.o
+OBJECTS =	mocgen.o
 TARGET	=	moc
 
 ####### Implicit rules
@@ -78,7 +78,7 @@ $(TMPCPP): moc.y $(LEXOUT)
 
 ####### Compile the .cpp files
 
-moc_gen.o: moc_gen.cpp
+mocgen.o: mocgen.cpp
 	$(CC) -c $(CFLAGS) $(YACCCFLAGS) -I$(INCDIR) $? -o $@
 
 qbuffer.o: ../tools/qbuffer.cpp
