@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#75 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#76 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -844,7 +844,7 @@ QXmlInputSource::~QXmlInputSource()
   does not distinguish between the two values - they mean that the end of the
   data was reached.
 
-  \sa fetchData() QXmlSimpleReader::prarse() QXmlSimpleReader::parseContinue()
+  \sa reset() fetchData() QXmlSimpleReader::prarse() QXmlSimpleReader::parseContinue()
 */
 QChar QXmlInputSource::next()
 {
@@ -861,6 +861,19 @@ QChar QXmlInputSource::next()
 	return EndOfData;
     }
     return str[pos++];
+}
+
+/*!
+  This function sets the position used by next() to the beginning of the data
+  returned by data(). This is useful if you want to use the input source for
+  more than one parse.
+
+  \sa next()
+*/
+void QXmlInputSource::reset()
+{
+    nextReturnedEndOfData = FALSE;
+    pos = 0;
 }
 
 /*!

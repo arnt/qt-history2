@@ -32,11 +32,13 @@ int main( int argc, char **argv )
     handler->setListView( namespacePrefix );
     reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", 
                        TRUE );
+    source.reset();
     reader.parse( source );
 
     QListView * prefix = new QListView( container, "table_prefix");    
     handler->setListView( prefix );
     reader.setFeature( "http://xml.org/sax/features/namespaces", FALSE );
+    source.reset();
     reader.parse( source );
 
     QLabel * namespaceLabel = new QLabel( 

@@ -92,7 +92,7 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 	QTime t;
 	t.start();
 	for ( int i=0; i<10; i++ ) {
-	    source.setData( sourceData );
+	    source.reset();
 	    parser.parse( source );
 	}
 	double ms = ((double)t.elapsed()) / 10;
@@ -138,7 +138,7 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 
     QString errorStatus;
     if ( incrementalSteps.isNull() ) {
-	source.setData( sourceData );
+	source.reset();
 	if ( parser.parse( source ) ) {
 	    errorStatus = "Ok";
 	} else {

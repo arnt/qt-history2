@@ -161,6 +161,11 @@ Now we modify the behaviour of the \e reader and change
 to TRUE. The \e http://xml.org/sax/features/namespaces feature has
 still its default setting TRUE.
 
+\printline reset
+
+We have to reset the input source to make the new parsing start from the
+beginning of the document again.
+
 \printline parse
 
 Finally we parse the XML file a second time with the changed reader 

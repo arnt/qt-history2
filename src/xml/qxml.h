@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#36 $
+** $Id: //depot/qt/main/src/xml/qxml.h#37 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -162,6 +162,7 @@ public:
     virtual void fetchData();
     virtual QString data();
     virtual QChar next();
+    virtual void reset();
 
     static const QChar EndOfData;
     static const QChar EndOfDocument;
