@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#43 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#42 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#43 $")
 
 
 /*----------------------------------------------------------------------------
@@ -984,7 +984,7 @@ QFontMetrics::QFontMetrics( const QWidget *widget )
 #endif
     data.widget = TRUE;
     data.w = (QWidget *)widget;
-    data.w->setWFlags( WFont_Metrics );
+    data.w->setWFlags( WExportFontMetrics );
     insertFontMetrics( this );			// register this object
 }
 
@@ -1150,7 +1150,7 @@ QFontInfo::QFontInfo( const QWidget *widget )
 #endif
     data.widget = TRUE;
     data.w = (QWidget *)widget;
-    data.w->setWFlags( WFont_Info );
+    data.w->setWFlags( WExportFontInfo );
     insertFontInfo( this );			// register this object
 }
 
