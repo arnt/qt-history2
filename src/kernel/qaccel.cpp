@@ -377,11 +377,11 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	    }
 	}
 
+	bool eatKey = (PartialMatch == currentState || intermediate.count() );
 	intermediate = partial;
-	bool isPartial = currentState == Qt::PartialMatch;
-	if ( isPartial )
+	if ( eatKey )
 	    e->accept();
-	return isPartial;
+	return eatKey;
     } else if ( n == 0 ) { // found exactly one match
 	clash = -1; // reset
 	if ( currentState == Qt::PartialMatch && mainStatusBar )
