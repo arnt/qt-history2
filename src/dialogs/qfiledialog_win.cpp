@@ -692,7 +692,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	qt_leave_modal( parent );
 
     // Due to a bug on Windows Me, we need to reset the current
-    // directory after using the 
+    // directory
     if ( qWinVersion() == WV_98 && QDir::currentDirPath() != currentDir )
 	QDir::setCurrent( currentDir );
 
