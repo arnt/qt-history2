@@ -301,7 +301,7 @@ void QLineEdit::setText( const QString &text )
     d->parag->truncate( 0 );
     d->parag->append( text );
     deselect();
-    repaint( FALSE );
+    update();
 }
 
 
@@ -317,7 +317,7 @@ void QLineEdit::selectAll()
     d->selectionStart = 0;
     d->cursor->gotoEnd();
     updateSelection();
-    repaint( FALSE );
+    update();
 }
 
 
@@ -331,7 +331,7 @@ void QLineEdit::deselect()
 {
     d->selectionStart = 0;
     d->parag->setSelection( 0, 0, 0);
-    repaint( FALSE );
+    update();
 }
 
 
@@ -407,7 +407,7 @@ void QLineEdit::setMaxLength( int m )
     d->maxLen = m;
     d->parag->truncate( d->maxLen );
     home( FALSE );
-    repaint( FALSE );
+    update();
 }
 
 /*!
@@ -471,7 +471,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    v->fixup( vstr );
 	    if ( old != vstr ) {
 		setText( vstr );
-		repaint( FALSE );
+		update();
 	    }
 	    if ( v->validate( vstr, cursorPos ) == QValidator::Acceptable )
 		emit returnPressed();
@@ -642,7 +642,7 @@ void QLineEdit::focusInEvent( QFocusEvent * e)
     blinkOn();
     if ( e->reason() == QFocusEvent::Tab )
 	selectAll();
-    repaint( FALSE );
+    update();
 }
 
 
@@ -657,7 +657,7 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
     //d->dragTimer.stop();
     if ( d->cursorOn )
 	blinkSlot();
-    repaint( FALSE );
+    update();
 }
 
 /*!\reimp
@@ -840,7 +840,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     d->selectionStart = d->cursor->index();
     par->setSelection( 0, d->selectionStart, d->selectionStart );
     d->releaseTextObjects( &par, &c);
-    repaint( FALSE );
+    update();
     d->mousePressed = TRUE;
 }
 
@@ -888,7 +888,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
     c->place( p, par );
     d->releaseTextObjects( &par, &c );
     updateSelection();
-    repaint( FALSE );
+    update();
 }
 
 /*!\reimp
@@ -938,7 +938,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
     d->getTextObjects(&par, &c);
     c->place( p, par );
     d->releaseTextObjects( &par, &c );
-    repaint( FALSE );
+    update();
 }
 
 
@@ -1003,7 +1003,7 @@ void QLineEdit::cursorForward( bool mark, int steps )
 	    d->cursor->gotoLeft();
     if ( mark )
 	updateSelection();
-    repaint( FALSE );
+    update();
 }
 
 /*!
@@ -1021,7 +1021,7 @@ void QLineEdit::backspace()
 	d->cursor->gotoLeft();
 	d->cursor->remove();
     }
-    repaint( FALSE );
+    update();
 }
 
 /*!
@@ -1037,7 +1037,7 @@ void QLineEdit::del()
 	removeSelectedText();
     else
 	d->cursor->remove();
-    repaint( FALSE );
+    update();
 }
 
 /*!
@@ -1053,7 +1053,7 @@ void QLineEdit::home( bool mark )
 	updateSelection();
     else
 	deselect();
-    repaint( FALSE );
+    update();
 }
 
 /*!
@@ -1070,7 +1070,7 @@ void QLineEdit::end( bool mark )
 	updateSelection();
     else
 	deselect();
-    repaint( FALSE );
+    update();
 }
 
 
@@ -1193,7 +1193,7 @@ void QLineEdit::setFrame( bool enable )
 	return;
 
     d->frame = enable;
-    repaint( FALSE );
+    update();
 }
 
 
@@ -1236,7 +1236,7 @@ void QLineEdit::setEchoMode( EchoMode mode )
 	return;
 
     d->mode = mode;
-    repaint( FALSE );
+    update();
 }
 
 
@@ -1394,7 +1394,7 @@ void QLineEdit::blinkSlot()
 {
     if ( hasFocus() || d->cursorOn ) {
 	d->cursorOn = !d->cursorOn;
-	repaint( FALSE );
+	update();
     }
     if ( hasFocus() )
 	d->blinkTimer.start( QApplication::cursorFlashTime()/2, TRUE );
@@ -1442,7 +1442,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
     d->cursor->setIndex( newPos );
     d->selectionStart = newMarkAnchor;
     d->parag->setSelection( 0, newMarkAnchor, newMarkDrag );
-    repaint( FALSE );
+    update();
     return TRUE;
 }
 
@@ -1480,7 +1480,7 @@ void QLineEdit::insert( const QString &newText )
 	blinkOn();
 	validateAndSet( text, cp, cp, cp );
     }
-    repaint( FALSE );
+    update();
 }
 
 
@@ -1492,7 +1492,7 @@ void QLineEdit::insert( const QString &newText )
 #ifndef QT_NO_COMPAT
 void QLineEdit::repaintArea( int, int )
 {
-    repaint( FALSE );
+    update();
 }
 #endif
 
@@ -1530,7 +1530,7 @@ void QLineEdit::setSelection( int start, int length )
     d->selectionStart = start;
     d->cursor->setIndex( start + length );
     updateSelection();
-    repaint( FALSE );
+    update();
 }
 
 
@@ -1558,7 +1558,7 @@ int QLineEdit::cursorPosition() const
 void QLineEdit::setPalette( const QPalette & p )
 {
     QWidget::setPalette( p );
-    repaint( FALSE );
+    update();
 }
 
 
@@ -1607,7 +1607,7 @@ void QLineEdit::cursorWordForward( bool mark )
 	updateSelection();
     else
 	deselect();
-    repaint( FALSE );
+    update();
 }
 
 
@@ -1623,7 +1623,7 @@ void QLineEdit::cursorWordBackward( bool mark )
 	updateSelection();
     else
 	deselect();
-    repaint( FALSE );
+    update();
 }
 
 
