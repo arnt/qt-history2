@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#31 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -22,12 +22,12 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-#define  TRACE_FS
-#include <qtracefs.h>
+#define  CHECK_MEMORY
+#include <qmemchk.h>
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#31 $";
 #endif
 
 
@@ -51,7 +51,7 @@ static Window	appRootWin;			// X11 root window
 static QWidget *desktopWidget = 0;		// root window widget
 Atom		q_wm_delete_window;		// delete window protocol
 #if defined(DEBUG)
-static bool	appTraceMem = FALSE;		// memory tracing (debugging)
+static bool	appMemChk = FALSE;		// memory checking (debugging)
 #endif
 
 static Window	mouseActWindow = 0;		// window where mouse is
@@ -109,14 +109,16 @@ int main( int argc, char **argv )
 {
     int i;
 #if defined(DEBUG)
-    for ( i=1; i<argc; i++ ) {
+    for ( i=1; i<argc; i++ ) {			// look for -memchk argument
 	if ( *argv[i] != '-' )
 	    break;
-	if ( strcmp(argv[i],"-tracemem") == 0 )
-	    appTraceMem = !appTraceMem;
+	if ( strcmp(argv[i],"-memchk") == 0 )
+	    appMemChk = !appMemChk;
     }
-    if ( appTraceMem )
-	startFSTrace( 32768 );
+    if ( appMemChk ) {				// start memory checking
+	memchkSetBufSize( 100000 );		// 400k buffer
+	memchkStart();
+    }
 #endif
 
     appArgc = argc;				// save arguments
@@ -144,12 +146,6 @@ int main( int argc, char **argv )
 
   // Get command line params
 
-    if ( argc > 2 && strcmp(argv[1],"-display") == 0 ) {
-	appDpyName = argv[2];
-	argc -= 2;
-	argv += 2;
-    }
-
     for ( i=1; i<argc; i++ ) {
 	QString arg = argv[i];
 	if ( arg[0] != '-' )
@@ -157,7 +153,7 @@ int main( int argc, char **argv )
 	else if ( arg == "-display" ) {
 	    if ( ++i < argc ) appDpyName = argv[i];
 	}
-	else if ( arg == "-font" || arg == "-fn" ) {
+	else if ( arg == "-fn" || arg == "-font" ) {
 	    if ( ++i < argc ) appFont = argv[i];
 	}
 	else if ( arg == "-bg" || arg == "-background" ) {
@@ -232,8 +228,8 @@ int main( int argc, char **argv )
     XCloseDisplay( appDpy );			// close X display
 
 #if defined(DEBUG)
-    if ( appTraceMem )
-	stopFSTrace();				// end memory tracing
+    if ( appMemChk )
+	memchkStop();				// finish memory checking
 #endif
     return returnCode;
 }
