@@ -3063,7 +3063,13 @@ QFocusData * QWidget::focusData( bool create )
   If a widget supports multiple character unicode input, it is always
   safe to turn the compression on.
 
-  Note all platforms support this compression, in which case turning it
+  Qt performs key event compression only for printable characters.
+  Modifier keys, cursor movement keys, functon keys and miscellaneous
+  action keys (ie. Escape, Return, Backspace, PrintScreen) will stop key
+  event compression, even if there are more compressible key events
+  available.
+
+  Not all platforms support this compression, in which case turning it
   on will have no effect.
 
   \sa QKeyEvent::text();
