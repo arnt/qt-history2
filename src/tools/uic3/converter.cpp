@@ -325,7 +325,7 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
             prop->setAttributeName("checkable");
         } else if (!isActionGroup && name == QLatin1String("on")) {
             prop->setAttributeName("checked");
-        } else {
+        } else if (isActionGroup || !WidgetInfo::isValidProperty("QAction", name)) {
             fprintf(stderr, "property %s not supported\n", name.latin1());
             delete prop;
             it.remove();
