@@ -40,6 +40,7 @@ void QTableViewPrivate::init()
     q->setHorizontalHeader(horizontal);
 
     tabKeyNavigation = true;
+    fetchMoreEnabled = true;
 }
 
 void QTableViewPrivate::updateVerticalScrollbar()
