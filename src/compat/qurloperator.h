@@ -28,7 +28,7 @@
 class QUrlInfo;
 class QUrlOperatorPrivate;
 
-class Q_KERNEL_EXPORT QUrlOperator : public QObject, public QUrl
+class Q_COMPAT_EXPORT QUrlOperator : public QObject, public QUrl
 {
     friend class QNetworkProtocol;
 

@@ -1310,6 +1310,9 @@ void QWin32GC::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
 {
     QBitmap *mask = (QBitmap *)pixmap.mask();
 
+    int sw = pixmap.width();
+    int sh = pixmap.height();
+
     if ( sw*sh < 8192 && sw*sh < 16*w*h ) {
 	int tw = sw, th = sh;
 	while ( tw*th < 32678 && tw < w/2 )
@@ -1323,8 +1326,8 @@ void QWin32GC::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
 	    qt_fill_tile( &tilemask, *mask );
 	    tile.setMask( tilemask );
 	}
-	drawTile( dgc, x, y, w, h, tile, sx, sy );
+	drawTile( this, x, y, w, h, tile, sx, sy );
     } else {
-	drawTile( dgc, x, y, w, h, pixmap, sx, sy );
+	drawTile( this, x, y, w, h, pixmap, sx, sy );
     }
 }

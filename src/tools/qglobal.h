@@ -874,12 +874,11 @@ class QDataStream;
 #    else
 #      define Q_XML_EXPORT __declspec(dllimport)
 #    endif
-//      Don't use QT_BUILD_COMPAT_LIB for now. Rely on Q_EXPORT sematic for compat lib.
-// #    if defined(QT_BUILD_COMPAT_LIB)
+#    if defined(QT_BUILD_COMPAT_LIB)
 #      define Q_COMPAT_EXPORT __declspec(dllexport)
-// #    else
-// #      define Q_COMPAT_EXPORT __declspec(dllimport)
-// #    endif
+#    else
+#      define Q_COMPAT_EXPORT __declspec(dllimport)
+#    endif
 #    define Q_TEMPLATEDLL
 #    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
 #  elif defined(QT_DLL)		/* use a Qt DLL library */

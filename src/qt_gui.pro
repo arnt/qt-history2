@@ -8,6 +8,9 @@ QCONFIG = kernel
 !nis:DEFINES += QT_NO_NIS
 DEFINES += QT_BUILD_GUI_LIB
 
+# Temporarly build compat into gui, hence the export logics...
+DEFINES += QT_BUILD_COMPAT_LIB 
+
 #platforms
 x11:include($$KERNEL_CPP/qt_x11.pri)
 mac:include($$KERNEL_CPP/qt_mac.pri)
