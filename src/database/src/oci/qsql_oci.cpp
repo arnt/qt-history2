@@ -178,7 +178,7 @@ QSqlField qMakeField( const QOCIPrivate* p, ub4 i )
 	    colLength = 0;
 	QString field((char*)colName);
 	field.truncate(colNameLen);
-	QSqlField f( field, i, type );
+	QSqlField f( field, i-1, type );
 	return f;
     }
     return QSqlField();
@@ -195,7 +195,7 @@ public:
 	OCIDefine 	*dfn;
 	int 		r;
 	for ( int i=1; i <= size; ++i ) {
-	    QSqlField f = qMakeField( d, i );
+	    QSqlField f = qMakeField( d, i+1 );
 	    dataSize = 255; // ###
 	    if ( f.type() == QVariant::DateTime ) {
 	    	r = OCIDefineByPos( d->sql,
@@ -306,7 +306,7 @@ bool QOCIResult::reset ( const QString& query )
 #endif
     }
     cached = FALSE;
-    if ( query.isNull() )
+    if ( query.isNull() || query.length() == 0 )
 	return FALSE;
     r = OCIHandleAlloc( (dvoid *) d->env,
 			(dvoid **) &d->sql,
@@ -450,6 +450,8 @@ bool QOCIResult::fetch( int i )
 	    return FALSE;
 	setAt( at() + 1 );
     }
+    if ( at() == i )
+	return TRUE;
     return FALSE;
 }
 
@@ -507,7 +509,7 @@ QSqlFieldList QOCIResult::fields()
 	qWarning( "QOCIResult::fields: " + qOraWarn( d ) );
 #endif
     for ( ub4 i = 0; i < numCols; ++i ) {
-	QSqlField fi = qMakeField( d, i );
+	QSqlField fi = qMakeField( d, i+1 );
 	if ( isActive() && isValid() )
 	    fi.value() = data( i );
 	fil.append( fi );
