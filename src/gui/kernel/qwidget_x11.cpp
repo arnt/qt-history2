@@ -1044,23 +1044,21 @@ void QWidgetPrivate::setWindowIcon_sys()
 
     QIcon icon = q->windowIcon();
     if (!icon.isNull()) {
-#if 0
-        // ################## PIXMAP
         QSize size = icon.actualSize(QSize(64, 64));
         QPixmap* pm = new QPixmap(icon.pixmap(size));
 
-        if (!pm->mask())
-            pm->setMask(pm->createHeuristicMask());
+        QBitmap mask = pm->mask();
+        if (mask.isNull())
+            mask = pm->createHeuristicMask();
 
         extra->topextra->iconPixmap = pm;
 
         h->icon_pixmap = pm->handle();
         h->flags |= IconPixmapHint;
-        if (pm->mask()) {
-            h->icon_mask = pm->mask()->handle();
+        if (!mask.isNull()) {
+            h->icon_mask = mask.handle();
             h->flags |= IconMaskHint;
         }
-#endif
     } else {
         h->flags &= ~(IconPixmapHint | IconMaskHint);
     }

@@ -885,15 +885,10 @@ void qDrawItem(QPainter *p, Qt::GUIStyle gs,
             x += w - pm.width();
 
         if (!enabled) {
-            // ################## PIXMAP
             if (pm.hasAlphaChannel()) {                        // pixmap with a mask
-                if (!pm.selfMask()) {                // mask is not pixmap itself
-                    QPixmap pmm(pm.mask());
-                    pmm.setMask(*((QBitmap *)&pmm));
-                    pm = pmm;
-                }
+                pm = pm.mask();
             } else if (pm.depth() == 1) {        // monochrome pixmap, no mask
-                pm.setMask(*((QBitmap *)&pm));
+                ;
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
             } else {                                // color pixmap, no mask
                 QString k;

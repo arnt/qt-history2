@@ -765,7 +765,6 @@ void QLabel::paintEvent(QPaintEvent *)
 
 #ifndef QT_NO_MOVIE
     if (mov) {
-        // ### should add movie to qDrawItem
         QRect r = style->itemPixmapRect(cr, align, mov->currentPixmap());
         // ### could resize movie frame at this point
         paint.drawPixmap(r.x(), r.y(), mov->currentPixmap());

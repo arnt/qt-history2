@@ -159,7 +159,6 @@ public:
 
     void setPixmap(const QPixmap &pm)
     {
-        // ############## PIXMAP
         QBitmap mask = pm.mask();
         if (!mask.isNull()) {
             setMask(mask);
