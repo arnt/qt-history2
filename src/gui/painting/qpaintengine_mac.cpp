@@ -744,22 +744,14 @@ QQuickDrawPaintEngine::cleanup()
 void
 QQuickDrawPaintEngine::setupQDPen()
 {
-    //pen color
-    ::RGBColor f;
-    f.red = d->current.pen.color().red()*256;
-    f.green = d->current.pen.color().green()*256;
-    f.blue = d->current.pen.color().blue()*256;
-    RGBForeColor(&f);
-
     //pen size
     int dot = d->current.pen.width();
     if(dot < 1)
 	dot = 1;
     PenSize(dot, dot);
 
-    int	ps = d->current.pen.style();
     Pattern pat;
-    switch(ps) {
+    switch(d->current.pen.style()) {
 	case DotLine:
 	case DashDotLine:
 	case DashDotDotLine:
@@ -773,12 +765,22 @@ QQuickDrawPaintEngine::setupQDPen()
     }
     PenPat(&pat);
 
+    //pen color
+    ::RGBColor f;
+    f.red = d->current.pen.color().red()*256;
+    f.green = d->current.pen.color().green()*256;
+    f.blue = d->current.pen.color().blue()*256;
+    RGBForeColor(&f);
+
     //penmodes
     //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
     //xor doesn't really work on an overlay widget FIXME
     if(d->current.rop != CopyROP && d->pdev->devType() == QInternal::Widget && ((QWidget *)d->pdev)->isDesktop())
         QWidgetPrivate::qt_recreate_root_win();
-    PenMode(ropCodes[d->current.rop]);
+    int penmode = ropCodes[d->current.rop];
+    PenMode(penmode);
+    if(penmode == subPin || penmode == addPin)
+	OpColor(&f);
 }
 
 /*!
@@ -831,29 +833,9 @@ QQuickDrawPaintEngine::setupQDBrush()
 	dense1_pat, dense2_pat, dense3_pat, dense4_pat, dense5_pat, dense6_pat, dense7_pat,
 	hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
 
-    //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
-    //xor doesn't really work on an overlay widget FIXME
-    if(d->current.rop != CopyROP && d->pdev->devType() == QInternal::Widget && ((QWidget *)d->pdev)->isDesktop())
-        QWidgetPrivate::qt_recreate_root_win();
-
-    //color
-    ::RGBColor f;
-    f.red = d->current.brush.color().red()*256;
-    f.green = d->current.brush.color().green()*256;
-    f.blue = d->current.brush.color().blue()*256;
-    RGBForeColor(&f);
-
     d->brush_style_pix = 0;
     int bs = d->current.brush.style();
     if(bs >= Dense1Pattern && bs <= DiagCrossPattern) {
-
-#if 1
-	::RGBColor f;
-	f.green = f.blue = 192*256;
-	f.red = 256*256;
-	RGBForeColor(&f);
-#endif
-
 	QString key;
 	key.sprintf("$qt-brush$%d", bs);
 	d->brush_style_pix = QPixmapCache::find(key);
@@ -871,8 +853,23 @@ QQuickDrawPaintEngine::setupQDBrush()
 	d->brush_style_pix->fill(d->current.brush.color());
     }
 
+    //color
+    ::RGBColor f;
+    f.red = d->current.brush.color().red()*256;
+    f.green = d->current.brush.color().green()*256;
+    f.blue = d->current.brush.color().blue()*256;
+    RGBForeColor(&f);
+
     //penmodes
-    PenMode(ropCodes[d->current.rop]);
+    //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
+    //xor doesn't really work on an overlay widget FIXME
+    if(d->current.rop != CopyROP && d->pdev->devType() == QInternal::Widget && ((QWidget *)d->pdev)->isDesktop())
+        QWidgetPrivate::qt_recreate_root_win();
+
+    int penmode = ropCodes[d->current.rop];
+    PenMode(penmode);
+    if(penmode == subPin || penmode == addPin)
+	OpColor(&f);
 }
 
 /*!

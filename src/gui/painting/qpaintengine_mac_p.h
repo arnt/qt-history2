@@ -21,7 +21,7 @@
   QuickDraw Private data
  *****************************************************************************/
 static int ropCodes[] = {			// ROP translation table
-    patCopy, patOr, patXor, patBic, notPatCopy,
+    patCopy, subPin, patXor, patBic, notPatCopy,
     notPatOr, notPatXor, notPatBic,
     666, 666, 666, 666, 666, 666, 666, 666, 666
 };
