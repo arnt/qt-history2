@@ -1580,7 +1580,7 @@ void QWindowsStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
     if ( !thefill && on && !autoRaised && 
 	( qWinVersion() == WV_2000 || 
 	  qWinVersion() == WV_98 ||
-	  qWinVersion() == WVXP ) )
+	  qWinVersion() == WV_XP ) )
 	thefill = &onfill;
 #else
     if ( !thefill && on && !autoRaised )
