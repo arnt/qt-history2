@@ -150,8 +150,7 @@ static inline void positionCluster( QScriptItem *item, int gfrom,  int glast )
 	lastCmb = cmb;
 	shaped->offsets[gfrom+i].x = p.x() - baseInfo.xoff;
 	shaped->offsets[gfrom+i].y = p.y() - baseInfo.yoff;
-	shaped->advances[gfrom+i].x = 0;
-	shaped->advances[gfrom+i].y = 0;
+	shaped->advances[gfrom+i] = 0;
     }
 }
 
@@ -254,19 +253,42 @@ static void heuristicSetGlyphAttributes( const QString &string, int from, int le
 }
 
 
+static void shaped_allocate( QScriptItem *item, int length )
+{
+    QShapedItem *shaped = item->shaped;
+    shaped->num_glyphs = length;
+    shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
+    shaped->offsets = (offset_t *) realloc( shaped->offsets, shaped->num_glyphs * sizeof( offset_t ) );
+    memset( shaped->offsets, 0, shaped->num_glyphs * sizeof( offset_t ) );
+    shaped->advances = (advance_t *) realloc( shaped->advances, shaped->num_glyphs * sizeof( advance_t ) );
+    item->ascent = item->fontEngine->ascent();
+    item->descent = item->fontEngine->descent();
+}
+
+static void convertToCMap( const QChar *chars, int len, QScriptItem *item )
+{
+    QShapedItem *shaped = item->shaped;
+    shaped_allocate( item, len );
+    int error = item->fontEngine->stringToCMap( chars, len, shaped->glyphs, shaped->advances, &shaped->num_glyphs );
+    if ( error == QFontEngine::OutOfMemory ) {
+	shaped_allocate( item, shaped->num_glyphs );
+	item->fontEngine->stringToCMap( chars, len, shaped->glyphs, shaped->advances, &shaped->num_glyphs );
+    }
+    item->width = 0;
+    for ( int i = 0; i < shaped->num_glyphs; i++ )
+	item->width += shaped->advances[i];
+}
+
 void q_calculateAdvances( QScriptItem *item )
 {
     QShapedItem *shaped = item->shaped;
-    shaped->offsets = (offset_t *) realloc( shaped->offsets, shaped->num_glyphs * sizeof( offset_t ) );
-    memset( shaped->offsets, 0, shaped->num_glyphs * sizeof( offset_t ) );
-    shaped->advances = (offset_t *) realloc( shaped->advances, shaped->num_glyphs * sizeof( offset_t ) );
-    item->ascent = item->fontEngine->ascent();
-    item->descent = item->fontEngine->descent();
+
+    shaped_allocate( item, shaped->num_glyphs );
+
     item->width = 0;
     for ( int i = 0; i < shaped->num_glyphs; i++ ) {
 	QGlyphMetrics gi = item->fontEngine->boundingBox( shaped->glyphs[i] );
-	shaped->advances[i].x = gi.xoff;
-	shaped->advances[i].y = gi.yoff;
+	shaped->advances[i] = gi.xoff;
 // 	qDebug("setting advance of glyph %d to %d", i, gi.xoff );
 	int y = shaped->offsets[i].y + gi.y;
 	item->ascent = QMAX( item->ascent, -y );
@@ -277,17 +299,8 @@ void q_calculateAdvances( QScriptItem *item )
 
 static void basic_shape( int /*script*/, const QString &string, int from, int len, QScriptItem *item )
 {
-    QShapedItem *shaped = item->shaped;
-    shaped->num_glyphs = len;
-    shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
-    int error = item->fontEngine->stringToCMap( string.unicode() + from, len, shaped->glyphs, &shaped->num_glyphs );
-    if ( error == QFontEngine::OutOfMemory ) {
-	shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
-	item->fontEngine->stringToCMap( string.unicode() + from, len, shaped->glyphs, &shaped->num_glyphs );
-    }
-
+    convertToCMap( string.unicode() + from, len, item );
     heuristicSetGlyphAttributes( string, from, len, item );
-    q_calculateAdvances( item );
     heuristicPosition( item );
 }
 
@@ -847,14 +860,7 @@ static void openTypeShape( int script, const QOpenType *openType, const QString 
 {
     QShapedItem *shaped = item->shaped;
 
-    shaped->num_glyphs = len;
-    shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
-    int error = item->fontEngine->stringToCMap( string.unicode()+from, len, shaped->glyphs, &shaped->num_glyphs );
-    if ( error == QFontEngine::OutOfMemory ) {
-	shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
-	item->fontEngine->stringToCMap( string.unicode()+from, len, shaped->glyphs, &shaped->num_glyphs );
-    }
-
+    convertToCMap( string.unicode() + from, len, item );
     heuristicSetGlyphAttributes( string, from, len, item );
 
     unsigned short fa[256];
@@ -911,17 +917,11 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
     shaped->logClusters = (unsigned short *) realloc( shaped->logClusters, len * sizeof( unsigned short ) );
     QChar *shapedChars = (QChar *)malloc( len * sizeof( QChar ) );
 
-    shapedString( text, from, len, shapedChars, &shaped->num_glyphs, (si->analysis.bidiLevel%2),
+    int slen;
+    shapedString( text, from, len, shapedChars, &slen, (si->analysis.bidiLevel%2),
 		  shaped->glyphAttributes, shaped->logClusters );
 
-    shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
-    int error = si->fontEngine->stringToCMap( shapedChars, shaped->num_glyphs, shaped->glyphs, &shaped->num_glyphs );
-    if ( error == QFontEngine::OutOfMemory ) {
-	shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
-	si->fontEngine->stringToCMap( shapedChars, shaped->num_glyphs, shaped->glyphs, &shaped->num_glyphs );
-    }
-
-    q_calculateAdvances( si );
+    convertToCMap( shapedChars, slen, si );
     heuristicPosition( si );
 }
 
@@ -2316,23 +2316,15 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
 	shaped->logClusters[i] = pos;
     }
 
-    shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
-    int error = item->fontEngine->stringToCMap( reordered.unicode(), shaped->num_glyphs, shaped->glyphs, &shaped->num_glyphs );
-    if ( error == QFontEngine::OutOfMemory ) {
-	shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
-	item->fontEngine->stringToCMap( reordered.unicode(), shaped->num_glyphs, shaped->glyphs, &shaped->num_glyphs );
-    }
+    convertToCMap( reordered.unicode(), shaped->num_glyphs, item );
 
 #ifndef QT_NO_XFTFREETYPE
     QOpenType *openType = item->fontEngine->openType();
 
     if ( openType && openType->supportsScript( script ) ) {
 	((QOpenType *) openType)->apply( script, featuresToApply, item, len );
-    } else
-#endif
-    {
-	q_calculateAdvances( item );
     }
+#endif
 
     if ( len > 127 )
 	delete featuresToApply;
@@ -2548,23 +2540,15 @@ static void tibetan_shape( int script, const QString &string, int from, int len,
 	shaped->logClusters[i] = pos;
     }
 
-    shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
-    int error = item->fontEngine->stringToCMap( string.unicode() + from, shaped->num_glyphs, shaped->glyphs, &shaped->num_glyphs );
-    if ( error == QFontEngine::OutOfMemory ) {
-	shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
-	item->fontEngine->stringToCMap( string.unicode() + from, shaped->num_glyphs, shaped->glyphs, &shaped->num_glyphs );
-    }
+    convertToCMap( string.unicode() + from, shaped->num_glyphs, item );
 
 #ifndef QT_NO_XFTFREETYPE
     QOpenType *openType = item->fontEngine->openType();
 
     if ( openType && openType->supportsScript( script ) ) {
 	((QOpenType *) openType)->apply( script, featuresToApply, item, len );
-    } else
-#endif
-    {
-	q_calculateAdvances( item );
     }
+#endif
 
     if ( len > 127 )
 	delete featuresToApply;

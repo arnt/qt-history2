@@ -105,7 +105,7 @@ struct QGlyphMetrics;
 class QChar;
 typedef unsigned short glyph_t;
 struct offset_t;
-typedef offset_t advance_t;
+typedef int advance_t;
 class QOpenType;
 
 class QFontEngine : public QShared
@@ -125,7 +125,7 @@ public:
     virtual ~QFontEngine() = 0;
 
     /* returns 0 as glyph index for non existant glyphs */
-    virtual Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, int *nglyphs ) const = 0;
+    virtual Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const = 0;
 
     virtual QOpenType *openType() const { return 0; }
     virtual int cmap() const = 0;

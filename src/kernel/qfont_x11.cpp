@@ -868,6 +868,7 @@ void QFont::cleanup()
 */
 Qt::HANDLE QFont::handle() const
 {
+    // ##### return something useful
     return 0;
 }
 
@@ -1058,7 +1059,7 @@ int QFontMetrics::leftBearing(QChar ch) const
 
     glyph_t glyphs[10];
     int nglyphs = 9;
-    fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
+    fe->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
     // ### can nglyphs != 1 happen at all? Not currently I think
     QGlyphMetrics gi = fe->boundingBox( glyphs[0] );
     return gi.x;
@@ -1089,7 +1090,7 @@ int QFontMetrics::rightBearing(QChar ch) const
 
     glyph_t glyphs[10];
     int nglyphs = 9;
-    fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
+    fe->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
     // ### can nglyphs != 1 happen at all? Not currently I think
     QGlyphMetrics gi = fe->boundingBox( glyphs[0] );
     return gi.xoff - gi.x - gi.width;
@@ -1238,15 +1239,14 @@ int QFontMetrics::width(QChar ch) const
 	return ((QFontEngineBox *)fe)->size();
 
     glyph_t glyphs[10];
+    advance_t advances[10];
     int nglyphs = 9;
-    fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
+    fe->stringToCMap( &ch, 1, glyphs, advances, &nglyphs );
     // ### can nglyphs != 1 happen at all? Not currently I think
-    QGlyphMetrics gi = fe->boundingBox( glyphs[0] );
+    if ( ch.unicode() < widthCacheSize && advances[0] < 0x100 )
+	d->x11data.widthCache[ ch.unicode() ] = advances[0];
 
-    if ( ch.unicode() < widthCacheSize && gi.xoff < 0x100 )
-	d->x11data.widthCache[ ch.unicode() ] = gi.xoff;
-
-    return gi.xoff;
+    return advances[0];
 }
 
 
@@ -1270,11 +1270,12 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     if ( c.unicode() < widthCacheSize && d->x11data.widthCache[ c.unicode() ] )
 	return d->x11data.widthCache[ c.unicode() ];
 
+#if 0
+    // ### optimise for non complex case
     QFont::Script script;
     SCRIPT_FOR_CHAR( script, c );
     d->load( script );
-
-    // ### optimise for non complex case
+#endif
 
     QTextEngine layout( str,  d );
     layout.itemize( FALSE );
@@ -1336,7 +1337,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
 
     glyph_t glyphs[10];
     int nglyphs = 9;
-    fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
+    fe->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
     QGlyphMetrics gi = fe->boundingBox( glyphs[0] );
     return QRect( gi.x, gi.y, gi.width, gi.height );
 }

@@ -54,7 +54,7 @@ struct offset_t {
     short y;
 };
 
-typedef offset_t advance_t;
+typedef int advance_t;
 
 struct QShapedItem;
 struct QCharAttributes;

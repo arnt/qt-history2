@@ -844,7 +844,7 @@ int QTextEngine::width( int from, int len ) const
 
 // 		qDebug("char: start=%d end=%d / glyph: start = %d, end = %d", charFrom, charEnd, glyphStart, glyphEnd );
 		for ( int i = glyphStart; i < glyphEnd; i++ )
-		    w += shaped->advances[i].x;
+		    w += shaped->advances[i];
 	    }
 	}
     }

@@ -15,7 +15,7 @@ public:
     QFontEngineBox( int size );
     ~QFontEngineBox();
 
-    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, int *nglyphs ) const;
+    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
     void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
@@ -54,7 +54,7 @@ public:
 
     QOpenType *openType() const;
 
-    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, int *nglyphs ) const;
+    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
     void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
@@ -90,7 +90,7 @@ public:
     QFontEngineXLFD( XFontStruct *fs, const char *name, const char *encoding, int cmap );
     ~QFontEngineXLFD();
 
-    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, int *nglyphs ) const;
+    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
     void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );

@@ -102,10 +102,10 @@ int QTextItem::cursorToX( int *cPos, Edge edge )
 
     if ( reverse ) {
 	for ( int i = shaped->num_glyphs-1; i >= glyph_pos; i-- )
-	    x += shaped->advances[i].x;
+	    x += shaped->advances[i];
     } else {
 	for ( int i = 0; i < glyph_pos; i++ )
-	    x += shaped->advances[i].x;
+	    x += shaped->advances[i];
     }
 //     qDebug("cursorToX: pos=%d, gpos=%d x=%d", pos, glyph_pos, x );
     *cPos = pos;
@@ -128,7 +128,7 @@ int QTextItem::xToCursor( int x )
     if ( reverse ) {
 	int width = 0;
 	for ( int i = 0; i < shaped->num_glyphs; i++ ) {
-	    width += shaped->advances[i].x;
+	    width += shaped->advances[i];
 	}
 	x = -x + width;
     }
@@ -146,7 +146,7 @@ int QTextItem::xToCursor( int x )
 	    x_before = x_after;
 	    cp_after = i;
 	    for ( int j = lastCluster; j < newCluster; j++ )
-		x_after += shaped->advances[j].x;
+		x_after += shaped->advances[j];
 	    // 		qDebug("cluster boundary: lastCluster=%d, newCluster=%d, x_before=%d, x_after=%d",
 	    // 		       lastCluster, newCluster, x_before, x_after );
 	    if ( x_after > x )
@@ -325,7 +325,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, Qt::AlignmentFlags align
 		const QCharAttributes *itemAttrs = attrs + si.position;
 
 		const QShapedItem *shaped = si.shaped;
-		const offset_t *advances = shaped->advances;
+		const advance_t *advances = shaped->advances;
 
 		int lastGlyph = 0;
 		int tmpItemWidth = 0;
@@ -338,7 +338,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, Qt::AlignmentFlags align
 		    int glyph = shaped->logClusters[pos];
 		    if ( lastGlyph != glyph ) {
 			while ( lastGlyph < glyph )
-			    tmpItemWidth += advances[lastGlyph++].x;
+			    tmpItemWidth += advances[lastGlyph++];
 			if ( w + tmpWidth + tmpItemWidth > d->lineWidth )
 			    goto found;
 		    }
@@ -358,7 +358,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, Qt::AlignmentFlags align
 		    itemAttrs++;
 		}
 		while ( lastGlyph < shaped->num_glyphs )
-		    tmpItemWidth += advances[lastGlyph++].x;
+		    tmpItemWidth += advances[lastGlyph++];
 		tmpWidth += tmpItemWidth;
 		if ( w + tmpWidth > d->lineWidth )
 		    goto found;
