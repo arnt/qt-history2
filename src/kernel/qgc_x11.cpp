@@ -568,7 +568,7 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 //         d->rop = CopyROP;                          // default ROP
 //     }
 
-    QWidget *w = static_cast<QWidget *>(d->pdev);
+    QWidget *w = d->pdev->devType() == QInternal::Widget ? static_cast<QWidget *>(d->pdev) : 0;
 //     if ( reinit ) {
 // 	QBrush defaultBrush;
 // 	ps->brush = defaultBrush;
