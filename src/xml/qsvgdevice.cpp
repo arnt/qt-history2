@@ -177,6 +177,7 @@ bool QSvgDevice::play( QPainter *painter )
 	return FALSE;
     }
     pt = painter;
+    pt->setPen( Qt::NoPen );
     if ( doc.isNull() ) {
 	qWarning( "QSvgDevice::play: No SVG data set." );
 	return FALSE;
@@ -689,6 +690,11 @@ bool QSvgDevice::play( const QDomNode &node )
 
 	ElementType t = (*qSvgTypeMap)[ node.nodeName() ];
 
+	if ( t == LineElement && pt->pen().style() == Qt::NoPen ) {
+	    QPen p = pt->pen();
+	    p.setStyle( Qt::SolidLine );
+	    pt->setPen( p );
+	}
 	QDomNamedNodeMap attr = node.attributes();
 	if ( attr.contains( "style" ) )
 	    setStyle( attr.namedItem( "style" ).nodeValue() );
