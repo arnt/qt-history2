@@ -818,16 +818,13 @@ void QApplication::initialize( int argc, char **argv )
     Enables remote access to the application if \a enable is set to TRUE.
     You can use the \a appId to give your application a unique identification that can be used
     by the remote control.
-    If \a enable is set to FALSE an existing remote access is terminated.
+    If \a enable is set to FALSE a currently remote access is terminated.
     Remote control access is disabled by default.
     You can call this function any time after having created the app.
 */
-void QApplication::setEnableRemoteControl(bool enable, const QUuid *appId)
+void QApplication::setEnableRemoteControl(bool enable, const QUuid appId)
 {
-    if (appId)
-	application_id = *appId;
-    else
-	application_id = QUuid(0,0,0,0,0,0,0,0,0,0,0);
+    application_id = appId;
 
     if (!enable) {
 

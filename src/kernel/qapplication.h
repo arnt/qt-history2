@@ -371,7 +371,7 @@ private:
 
 #if defined (QT_REMOTE_CONTROL)
 public:
-    void setEnableRemoteControl(bool enable, const QUuid *appId = 0);
+    void setEnableRemoteControl(bool enable, const QUuid appId = QUuid());
     bool remoteControlEnabled() const;
     QUuid applicationId() const;
 #endif
