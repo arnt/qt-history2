@@ -384,7 +384,7 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
     return retstrl;
 }
 
-QString QFileDialog::macGetSaveFileName( const QString &, const QString &, 
+QString QFileDialog::macGetSaveFileName( const QString &initialSelection, const QString &, 
 					 QString *,
 					 QWidget *parent, const char* /*name*/,
 					 const QString& caption )
@@ -397,6 +397,9 @@ QString QFileDialog::macGetSaveFileName( const QString &, const QString &,
     options.optionFlags |= kNavDontConfirmReplacement;
     options.modality = kWindowModalityAppModal;
     options.location.h = options.location.v = -1;
+    options.saveFileName = CFStringCreateWithCharacters(NULL, 
+							(UniChar *)initialSelection.unicode(),
+							initialSelection.length());
     if(!caption.isEmpty())
 	options.windowTitle = CFStringCreateWithCharacters(NULL, (UniChar *)caption.unicode(), 
 							   caption.length());
