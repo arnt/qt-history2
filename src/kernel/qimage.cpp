@@ -2468,7 +2468,7 @@ QImage QImage::smoothScale( const QSize& s, ScaleMode mode ) const
 
     QSize ss = scaleSize( s, mode );
     if ( ss == size() )
-	return *this; // nothing to do
+	return copy(); // nothing to do
 
     if ( depth() == 32 ) {
 	QImage img( ss, 32 );
@@ -2494,10 +2494,13 @@ QImage QImage::smoothScale( const QSize& s, ScaleMode mode ) const
   ScaleMax, the returned image fits at least into the specified rectangle (it
   is a small as possible within the constraints).
 
+  If either the width \a w or the height \a h is 0 or negative, this function
+  returns a null image.
+
   This function uses a quite simple algorithm for doing this task; if you need
   a better quality, use smoothScale() instead.
  
-  \sa smoothScale() xForm()
+  \sa scaleWidth() scaleHeight() smoothScale() xForm()
 */
 QImage QImage::scale( int w, int h, ScaleMode mode ) const
 {
@@ -2511,26 +2514,17 @@ QImage QImage::scale( const QSize& s, ScaleMode mode ) const
 {
     if ( isNull() ) {
 #if defined(QT_CHECK_RANGE)
-	qWarning( "QImage::smoothScale: Image is a null image" );
+	qWarning( "QImage::scale: Image is a null image" );
 #endif
 	return *this;
     }
+    if ( s.width()<=0 || s.height()<=0 )
+	return QImage();
 
     QSize ss = scaleSize( s, mode );
     if ( ss == size() )
 	return *this; // nothing to do
 
-#if 0
-    // ### change this to something nice
-    QPixmap p;
-    p.convertFromImage( *this );
-    QWMatrix wm;
-    wm.scale( (double)ss.width()/width(), (double)ss.height()/height() );
-    p = p.xForm( wm );
-    if ( p.width() != ss.width() || p.height() != ss.height() )
-	p.resize( ss.width(), ss.height() );
-    return p.convertToImage();
-#else
     QImage img;
     QWMatrix wm;
     wm.scale( (double)ss.width()/width(), (double)ss.height()/height() );
@@ -2539,8 +2533,60 @@ QImage QImage::scale( const QSize& s, ScaleMode mode ) const
 //    if ( img.width() != ss.width() || img.height() != ss.height() )
 //	img.resize( ss.width(), ss.height() );
     return img;
-#endif
 }
+
+/*!
+  Returns scaled a copy of the image. The returned image has a width
+  of \a w pixels. This function automatically calculates the height of the
+  image so that the ratio of the image is preserved.
+
+  If the width \a w is 0 or negative, this function returns a null image.
+
+  \sa scale() scaleHeight() smoothScale() xForm()
+*/
+QImage QImage::scaleWidth( int w ) const
+{
+    if ( isNull() ) {
+#if defined(QT_CHECK_RANGE)
+	qWarning( "QImage::scaleWidth: Image is a null image" );
+#endif
+	return *this;
+    }
+    if ( w <= 0 )
+	return QImage();
+
+    QWMatrix wm;
+    double factor = (double) w / width();
+    wm.scale( factor, factor );
+    return xForm( wm );
+}
+
+/*!
+  Returns scaled a copy of the image. The returned image has a height
+  of \a h pixels. This function automatically calculates the width of the
+  image so that the ratio of the image is preserved.
+
+  If the height \a h is 0 or negative, this function returns a null image.
+
+  \sa scale() scaleWidth() smoothScale() xForm()
+*/
+QImage QImage::scaleHeight( int h ) const
+{
+    if ( isNull() ) {
+#if defined(QT_CHECK_RANGE)
+	qWarning( "QImage::scaleHeight: Image is a null image" );
+#endif
+	return *this;
+    }
+    if ( h <= 0 )
+	return QImage();
+
+    QWMatrix wm;
+    double factor = (double) h / height();
+    wm.scale( factor, factor );
+    return xForm( wm );
+}
+
 
 /*!
   This private function calculates the size that is actually used for scaling

@@ -153,6 +153,8 @@ public:
 #endif
     QImage scale( int w, int h, ScaleMode mode=ScaleFree ) const;
     QImage scale( const QSize& s, ScaleMode mode=ScaleFree ) const;
+    QImage scaleWidth( int w ) const;
+    QImage scaleHeight( int h ) const;
     QImage xForm( const QWMatrix &matrix ) const;
 
     QImage	createAlphaMask( int conversion_flags=0 ) const;
