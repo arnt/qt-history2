@@ -278,12 +278,10 @@ QStringList QSettingsSysPrivate::entryList(QString key, bool subkey, bool global
 			int sep = s.find(MACKEY_SEP);
 			if(sep != -1) {
 			    if(subkey) {
-				s = s.left(sep);
-				if(!s.isEmpty() && ret.findIndex(s) == -1) {
-				    QString fix_s = s;
-				    qt_mac_unfix_key(fix_s);
+				QString fix_s = s.left(sep);
+				qt_mac_unfix_key(fix_s);
+				if(!fix_s.isEmpty() && ret.findIndex(fix_s) == -1)
 				    ret << fix_s;
-				}
 			    }
 			} else if(!subkey) {
 			    QString fix_s = s;
