@@ -910,7 +910,7 @@ void QTextEngine::setFont(int from, int length, QFontPrivate *font)
     while ( item < items.size() && items[item].position <= from )
 	item++;
     item--;
-    while (items[item].position < from+length) {
+    while (item < items.size() && items[item].position < from+length) {
 	QScriptItem &si = items[item];
 	QFont::Script script = (QFont::Script)si.analysis.script;
 
