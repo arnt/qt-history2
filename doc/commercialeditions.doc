@@ -24,8 +24,8 @@ you have purchased the Professional Edition or the Enterprise
 Edition.
 \footnote
 If you want to develop free/open source software for
-release using a recognized open source license you can use the 
-\link freeeditions.html Qt Free Edition\endlink.
+release using a recognized open source license you can use one of the 
+\link freeeditions.html Qt Free Editions\endlink.
 \endfootnote
 The purchase of a Qt commercial edition includes technical support and
 upgrades. Qt for Microsoft Windows is only available in the
@@ -33,9 +33,9 @@ Professional and Enterprise Editions.
 
 Qt is supported on the following platforms:
 \list
- \i <b>MS/Windows</b> -- 95, 98, NT 4.0, ME, 2000, and XP
+ \i <b>Microsoft Windows</b> -- 95, 98, NT 4.0, ME, 2000, and XP
  \i <b>Unix/X11</b> -- Linux, Sun Solaris, HP-UX, Compaq Tru64 UNIX,
-	    IBM AIX, SGI IRIX and a wide range of others
+	    IBM AIX, SGI IRIX and many others
  \i <b>Macintosh</b> -- Mac OS X
  \i <b>\link http://www.trolltech.com/products/embedded/index.html
 Qt/Embedded\endlink</b> -- Linux platforms with framebuffer support.
@@ -51,7 +51,7 @@ products.
 To purchase, please visit the
 <a href="https://webshop.trolltech.com/cgi-bin/index.cgi">Trolltech
 webshop</a>. In the webshop, you can generate a Purchase Order, order
-a Quote, or purchase directly using credit card.
+a Quote, or buy directly using a credit card.
 
 For further information and assistance, please contact Trolltech sales:
 
@@ -59,7 +59,7 @@ Email: \link mailto:sales@trolltech.com sales@trolltech.com\endlink
 
 Phone, US office (for North America): <strong>(+1)&nbsp;650-813-1676</strong>
 
-Phone, Norway office (for others): <strong>+47&nbsp;2160&nbsp;4800</strong>
+Phone, Norway office (for the rest of the World): <strong>+47&nbsp;2160&nbsp;4800</strong>
 
 <table border="1" cellpadding="5" cellspacing="0" width="100%">
   <tr>
@@ -68,15 +68,15 @@ Phone, Norway office (for others): <strong>+47&nbsp;2160&nbsp;4800</strong>
     <td width="100" align="center" bgcolor="#a1c410"><b>Enterprise</b></td>
   </tr>
   <tr>
-    <td><b><a href=index.html">Qt Base Modules (Tools, Kernel,
+    <td><b><a href=index.html>Qt Base Modules (Tools, Kernel,
     Widgets, Dialogs)</a></b><br>
-      The platform-independent Qt GUI toolkit and utility classes</td>
+      The platform-independent Qt GUI toolkit and utility classes.</td>
     <td width="100" align="center"><b>X</b></td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
     <td><a href="designer-manual.html"><b>Qt Designer</b></a><br>
-      Visual Qt GUI builder</td>
+      Visual GUI builder.</td>
     <td width="100" align="center"><b>X</b></td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
@@ -88,20 +88,21 @@ Phone, Norway office (for others): <strong>+47&nbsp;2160&nbsp;4800</strong>
   </tr>
   <tr>
     <td><a href="workspace.html"><b>Workspace module</b></a><b><br>
-      </b>Multiple Document Interface (MDI) support</td>
+      </b>Multiple Document Interface (MDI) support.</td>
     <td width="100" align="center"><b>X</b></td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
     <td><a href="opengl.html"><b>OpenGL 3D Graphics module</b></a><b><br>
-      </b>Integration of Qt with OpenGL</td>
+      </b>Integration of Qt with OpenGL.</td>
     <td width="100" align="center"><br>
     </td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
     <td><a href="network.html"><b>Network module</b></a><b><br>
-      </b>Platform-independent classes for sockets, TCP, FTP and asynchronous DNS lookup.</td>
+      </b>Platform-independent classes for sockets, TCP, UDP, FTP,
+      HTTP, and asynchronous DNS lookup.</td>
     <td width="100" align="center"><br>
     </td>
     <td width="100" align="center"><b>X</b></td>
@@ -115,14 +116,14 @@ Phone, Norway office (for others): <strong>+47&nbsp;2160&nbsp;4800</strong>
   </tr>
   <tr>
     <td><a href="table.html"><b>Table module</b></a><br>
-      Flexible and editable table / spreadsheet</td>
+      Flexible and editable table/spreadsheet.</td>
     <td width="100" align="center"><br>
     </td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
     <td><a href="xml.html"><b>XML module</b></a><br>
-      Well-formed XML parser with SAX interface and DOM Level 1.</td>
+      Well-formed XML parsers: SAX2 and DOM Level 1.</td>
     <td width="100" align="center"><br>
     </td>
     <td width="100" align="center"><b>X</b></td>

@@ -270,6 +270,9 @@ QBrush::QBrush( const QBrush &b )
     ++d->ref;
 }
 
+/*!
+    \internal
+*/
 QBrush::QBrush(const QPoint &p1, const QColor &col1, const QPoint &p2, const QColor &col2)
 {
     init(col1, LinearGradientPattern);

@@ -94,24 +94,6 @@
 */
 
 /*!
-    \fn QStyleOption::QStyleOption(QMenuItem*)
-
-    Pass a menu item, \a m.
-*/
-
-/*!
-    \fn QStyleOption::QStyleOption(QMenuItem*, int)
-
-    Pass a menu item and an integer, \a m and \a in1.
-*/
-
-/*!
-    \fn QStyleOption::QStyleOption(QMenuItem*, int, int)
-
-    Pass a menu item and two integers, \a m, \a in1 and \a in2.
-*/
-
-/*!
     \fn QStyleOption::QStyleOption(const QColor&)
 
     Pass a color, \a c.
@@ -849,15 +831,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 		\list
 		\i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
 		\i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
-		\i opt.\link QStyleOption::frameShape() frameShape\endlink()
-		\i opt.\link QStyleOption::frameShadow() frameShadow\endlink()
 		\endlist
 	 \i \e linewidth is the line width for the group box.
     \row \i \e midlinewidth is the mid-line width for the group box.
-    \row \i \e shape is the \link QFrame::frameShape frame shape \endlink
-	    for the group box.
-    \row \i \e shadow is the \link QFrame::frameShadow frame shadow \endlink
-	    for the group box.
     \endtable
 
 

@@ -58,7 +58,7 @@ public:
 /*!
     Constructs a rubber band of shape \a s, with parent \a p.
 
-    By default a rectangular QRubberBand (\a t is \c Rectangle) will
+    By default a rectangular QRubberBand (\a s is \c Rectangle) will
     be set to auto mask, so that the boundry of the rectangle is all
     that is visible. Some styles (for example native Mac OS X) will
     change this and call QWidget::setWindowOpacity() to make the
@@ -169,6 +169,8 @@ QRubberBand::changeEvent(QEvent *ev)
 /*!
     \fn void QRubberBand::move(int x, int y);
 
+    \overload
+
     Moves the rubberband to point (\a x, \a y).
 */
 
@@ -181,6 +183,8 @@ QRubberBand::changeEvent(QEvent *ev)
 /*!
     \fn void QRubberBand::resize(int width, int height);
 
+    \overload
+
     Resizes the rubberband so that its width is \a width, and its
     height is \a height.
 */
@@ -192,7 +196,12 @@ QRubberBand::changeEvent(QEvent *ev)
     \a rect.
 */
 
+/*!
+    \overload
 
+    Changes the rubberband's geometry to have a top-left corner of (\a
+    x, \a y), a width of \a w, and a height of \a h.
+*/
 void QRubberBand::setGeometry(int x, int y, int w, int h)
 {
 #if 1

@@ -995,11 +995,6 @@ void QPicture::detach_helper()
 	delete x;
 }
 
-/*!
-    \fn QPicture QPicture::copy() const
-    Returns a \link shclass.html deep copy\endlink of the picture.
-*/
-
 /*****************************************************************************
   QPainter member functions
  *****************************************************************************/

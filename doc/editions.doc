@@ -20,14 +20,14 @@
 The Qt Professional and Enterprise Editions are the commercial
 versions of \link aboutqt.html Qt\endlink.
 
-Qt Free Edition is the non-commercial version of Qt. It is freely
-available for download.
+The \link freeeditions.html Qt Free Editions\endlink. are
+non-commercial version of Qt. They are freely available for download.
 
 You may write commercial/proprietary/non-free software only if you
-have purchased the Professional or Enterprise Edition. With these
-commercial editions, you also get technical support and upgrades. Qt
-for Microsoft Windows is only available as Professional and Enterprise
-Editions.
+have purchased the \link commercialeditions.html Professional or
+Enterprise Edition\endlink. With these commercial editions, you also
+get technical support and upgrades. Qt for Microsoft Windows is only
+available as Professional and Enterprise Editions.
 
 <table border="1" cellpadding="5" cellspacing="0" width="100%">
   <tr>
@@ -36,14 +36,15 @@ Editions.
     <td width="100" align="center" bgcolor="#a1c410"><b>Enterprise</b></td>
   </tr>
   <tr>
-    <td><b>Qt Base Modules (Tools, Kernel, Widgets, Dialogs)</b><br>
-      The platform-independent Qt GUI toolkit and utility classes</td>
+    <td><b><a href=index.html>Qt Base Modules (Tools, Kernel,
+    Widgets, Dialogs)</a></b><br>
+      The platform-independent Qt GUI toolkit and utility classes.</td>
     <td width="100" align="center"><b>X</b></td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
     <td><a href="designer-manual.html"><b>Qt Designer</b></a><br>
-      Visual Qt GUI builder</td>
+      Visual GUI builder.</td>
     <td width="100" align="center"><b>X</b></td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
@@ -55,20 +56,21 @@ Editions.
   </tr>
   <tr>
     <td><a href="workspace.html"><b>Workspace module</b></a><b><br>
-      </b>Multiple Document Interface (MDI) support</td>
+      </b>Multiple Document Interface (MDI) support.</td>
     <td width="100" align="center"><b>X</b></td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
     <td><a href="opengl.html"><b>OpenGL 3D Graphics module</b></a><b><br>
-      </b>Integration of Qt with OpenGL</td>
+      </b>Integration of Qt with OpenGL.</td>
     <td width="100" align="center"><br>
     </td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
     <td><a href="network.html"><b>Network module</b></a><b><br>
-      </b>Platform-independent classes for sockets, TCP, FTP and asynchronous DNS lookup.</td>
+      </b>Platform-independent classes for sockets, TCP, UDP, FTP,
+      HTTP, and asynchronous DNS lookup.</td>
     <td width="100" align="center"><br>
     </td>
     <td width="100" align="center"><b>X</b></td>
@@ -82,14 +84,14 @@ Editions.
   </tr>
   <tr>
     <td><a href="table.html"><b>Table module</b></a><br>
-      Flexible and editable table / spreadsheet</td>
+      Flexible and editable table/spreadsheet.</td>
     <td width="100" align="center"><br>
     </td>
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
     <td><a href="xml.html"><b>XML module</b></a><br>
-      Well-formed XML parser with SAX interface and DOM Level 1.</td>
+      Well-formed XML parsers: SAX2 and DOM Level 1.</td>
     <td width="100" align="center"><br>
     </td>
     <td width="100" align="center"><b>X</b></td>

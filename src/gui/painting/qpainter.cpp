@@ -2018,7 +2018,7 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index )
     The default, (-1, -1), means all the way to the bottom right of
     the pixmap.
 
-    If \a imask is true \a pm will not be masked to
+    If \a imask is true the \a pixmap will not be masked to
     QPixmap::mask(). Currently when painting on a QPrinter \a imask is
     always true.
 
@@ -2956,6 +2956,10 @@ void QPainter::setRenderHint(QPainter::RenderHint hint, bool enable)
     d->engine->setRenderHint(hint, enable);
 }
 
+/*!
+    Returns a flag that specifies the rendering hints that this
+    painter supports.
+*/
 QPainter::RenderHints QPainter::supportedRenderHints() const
 {
     if (!isActive()) {
@@ -2965,6 +2969,10 @@ QPainter::RenderHints QPainter::supportedRenderHints() const
     return d->engine->supportedRenderHints();
 }
 
+/*!
+    Returns a flag that specifies the rendering hints that are set for
+    this painter.
+*/
 QPainter::RenderHints QPainter::renderHints() const
 {
     if (!isActive()) {
