@@ -204,7 +204,7 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 
 QWidget *QItemDelegate::editor(QWidget *parent,
                                const QStyleOptionViewItem &,
-                               const QModelIndex &index)
+                               const QModelIndex &index) const
 {
     QVariant::Type t = index.model()->data(index, QAbstractItemModel::EditRole).type();
     QWidget *w = QItemEditorFactory::defaultFactory()->createEditor(t, parent);

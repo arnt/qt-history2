@@ -40,7 +40,7 @@ public:
     // editing
     QWidget *editor(QWidget *parent,
                     const QStyleOptionViewItem &option,
-                    const QModelIndex &index);
+                    const QModelIndex &index) const;
 
     void releaseEditor(QWidget *editor, const QModelIndex &index);
     void setEditorData(QWidget *editor, const QModelIndex &index) const;

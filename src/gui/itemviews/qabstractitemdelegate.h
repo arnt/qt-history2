@@ -49,7 +49,7 @@ public:
     // editing
     virtual QWidget *editor(QWidget *parent,
                             const QStyleOptionViewItem &option,
-                            const QModelIndex &index);
+                            const QModelIndex &index) const;
 
     virtual void releaseEditor(QWidget *editor, const QModelIndex &index);
 

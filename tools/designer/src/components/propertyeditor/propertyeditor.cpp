@@ -50,7 +50,7 @@ public:
     void setValue(const QVariant &value);
     QString toString() const;
     
-    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver);
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
 private:
@@ -157,8 +157,8 @@ QString PixmapProperty::toString() const
     return m_core->pixmapCache()->pixmapToName(m_value);
 }
 
-QWidget *PixmapProperty::createEditor(QWidget *parent, QObject *target, 
-                                        const char *receiver)
+QWidget *PixmapProperty::createEditor(QWidget *parent, const QObject *target, 
+                                        const char *receiver) const
 {
     PixmapPropertyEditor *editor = new PixmapPropertyEditor(m_core, m_value, parent);
 

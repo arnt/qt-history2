@@ -66,7 +66,7 @@ QString BoolProperty::toString() const
     return m_value ? QLatin1String("true") : QLatin1String("false");
 }
 
-QWidget *BoolProperty::createEditor(QWidget *parent, QObject *target, const char *receiver)
+QWidget *BoolProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QComboBox *combo = new QComboBox(parent);
     combo->insertStringList(QStringList() << "false" << "true");
@@ -184,7 +184,7 @@ bool PropertyCollection::hasEditor() const
     return false;
 }
 
-QWidget *PropertyCollection::createEditor(QWidget *parent, QObject *target, const char *receiver)
+QWidget *PropertyCollection::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     Q_UNUSED(parent);
     Q_UNUSED(target);
@@ -220,7 +220,7 @@ QString StringProperty::toString() const
     return m_value;
 }
 
-QWidget *StringProperty::createEditor(QWidget *parent, QObject *target, const char *receiver)
+QWidget *StringProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QLineEdit *lineEdit = new QLineEdit(parent);
     if (propertyName() == QLatin1String("objectName")) {
@@ -273,7 +273,7 @@ QString ListProperty::toString() const
     return m_items.at(m_value);
 }
 
-QWidget *ListProperty::createEditor(QWidget *parent, QObject *target, const char *receiver)
+QWidget *ListProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QComboBox *combo = new QComboBox(parent);
     combo->insertStringList(items());
@@ -362,7 +362,7 @@ QString IntProperty::toString() const
     return QString::number(m_value);
 }
 
-QWidget *IntProperty::createEditor(QWidget *parent, QObject *target, const char *receiver)
+QWidget *IntProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QSpinBox *spinBox = new QSpinBox(parent);
     QObject::connect(spinBox, SIGNAL(valueChanged(int)), target, receiver);
@@ -616,7 +616,7 @@ int MapProperty::indexOf(const QVariant &value) const
     return m_keys.indexOf(key);
 }
 
-QWidget *MapProperty::createEditor(QWidget *parent, QObject *target, const char *receiver)
+QWidget *MapProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QComboBox *combo = new QComboBox(parent);
     combo->insertStringList(m_keys);
@@ -655,7 +655,7 @@ FlagsProperty::FlagsProperty(const QMap<QString, QVariant> &items, int value,
 {
 }
 
-QWidget *FlagsProperty::createEditor(QWidget *parent, QObject *target, const char *receiver)
+QWidget *FlagsProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QList<FlagBoxModelItem> l;
     QMapIterator<QString, QVariant> it(items());
@@ -771,7 +771,7 @@ QString DateTimeProperty::toString() const
     return m_value.toString();
 }
 
-QWidget *DateTimeProperty::createEditor(QWidget *parent, QObject *target, const char *receiver)
+QWidget *DateTimeProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QDateTimeEdit *lineEdit = new QDateTimeEdit(parent);
     QObject::connect(lineEdit, SIGNAL(dateTimeChanged(const QDateTime&)), target, receiver);
@@ -814,7 +814,7 @@ QString DateProperty::toString() const
     return m_value.toString();
 }
 
-QWidget *DateProperty::createEditor(QWidget *parent, QObject *target, const char *receiver)
+QWidget *DateProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QDateTimeEdit *lineEdit = new QDateTimeEdit(parent);
     QObject::connect(lineEdit, SIGNAL(dateChanged(const QDate&)), target, receiver);
@@ -857,7 +857,7 @@ QString TimeProperty::toString() const
     return m_value.toString();
 }
 
-QWidget *TimeProperty::createEditor(QWidget *parent, QObject *target, const char *receiver)
+QWidget *TimeProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QDateTimeEdit *lineEdit = new QDateTimeEdit(parent);
     QObject::connect(lineEdit, SIGNAL(timeChanged(const QTime&)), target, receiver);
@@ -905,7 +905,7 @@ QVariant CursorProperty::decoration() const
     return cursorPixmap(m_value.shape());
 }
 
-QWidget *CursorProperty::createEditor(QWidget *parent, QObject *target, const char *receiver)
+QWidget *CursorProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QComboBox *combo = new QComboBox(parent);
 
@@ -1002,7 +1002,7 @@ QPixmap CursorProperty::cursorPixmap(int shape)
     }
 }
 
-void CursorProperty::addCursor(QComboBox *combo, int shape)
+void CursorProperty::addCursor(QComboBox *combo, int shape) const
 {
     combo->insertItem(cursorPixmap(shape), cursorName(shape), shape);
 }
@@ -1024,7 +1024,7 @@ QString KeySequenceProperty::toString() const
     return m_value;
 }
 
-QWidget *KeySequenceProperty::createEditor(QWidget *parent, QObject *target, const char *receiver)
+QWidget *KeySequenceProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     KeySequenceEditor *lineEdit = new KeySequenceEditor(parent);
     QObject::connect(lineEdit, SIGNAL(changed()), target, receiver);
@@ -1066,7 +1066,7 @@ QString PaletteProperty::toString() const
     return QString::null; // ### implement me
 }
 
-QWidget *PaletteProperty::createEditor(QWidget *parent, QObject *target, const char *receiver)
+QWidget *PaletteProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     PaletteEditorButton *btn = new PaletteEditorButton(m_value, parent);
     QObject::connect(btn, SIGNAL(changed()), target, receiver);

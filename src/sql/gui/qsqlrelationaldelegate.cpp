@@ -64,7 +64,7 @@ QSqlRelationalDelegate::~QSqlRelationalDelegate()
 */
 QWidget *QSqlRelationalDelegate::editor(QWidget *parent,
                                         const QStyleOptionViewItem &option,
-                                        const QModelIndex &index)
+                                        const QModelIndex &index) const
 {
     const QSqlRelationalTableModel *sqlModel = qt_cast<const QSqlRelationalTableModel *>(index.model());
     if (!sqlModel || !sqlModel->relationModel(index.column()))

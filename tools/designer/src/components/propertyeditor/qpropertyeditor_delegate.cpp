@@ -119,12 +119,12 @@ void Delegate::setReadOnly(bool readOnly)
 
 QWidget *Delegate::editor(QWidget *parent,
                           const QStyleOptionViewItem &option,
-                          const QModelIndex &index)
+                          const QModelIndex &index) const
 {
     Q_UNUSED(option);
 
     const QAbstractItemModel *model = index.model();
-    IProperty *property = static_cast<const Model*>(model)->privateData(index);
+    const IProperty *property = static_cast<const Model*>(model)->privateData(index);
     if (!isReadOnly() && property && property->hasEditor()) { // ### always true
         QWidget *editor = property->createEditor(parent, this, SLOT(sync()));
         Q_ASSERT(editor);

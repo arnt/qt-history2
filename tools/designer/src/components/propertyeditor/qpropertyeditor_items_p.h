@@ -66,7 +66,7 @@ struct QT_PROPERTYEDITOR_EXPORT IProperty
     virtual QVariant decoration() const = 0;
 
     virtual bool hasEditor() const = 0;
-    virtual QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver) = 0;
+    virtual QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const = 0;
 
     // ### pure
     virtual void updateEditorContents(QWidget *editor) { Q_UNUSED(editor); }
@@ -159,7 +159,7 @@ public:
     inline bool hasEditor() const
     { return false; }
 
-    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver)
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const
     {
         Q_UNUSED(parent);
         Q_UNUSED(target);
@@ -209,7 +209,7 @@ public:
     QString toString() const;
 
     bool hasEditor() const;
-    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver);
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
 
     bool hasExternalEditor() const;
     QWidget *createExternalEditor(QWidget *parent);
@@ -232,7 +232,7 @@ public:
     void setValue(const QVariant &value);
     QString toString() const;
 
-    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver);
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
 
@@ -250,7 +250,7 @@ public:
     void setValue(const QVariant &value);
     QString toString() const;
 
-    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver);
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
 };
@@ -263,7 +263,7 @@ public:
     void setValue(const QVariant &value);
     QString toString() const;
 
-    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver);
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
 };
@@ -279,7 +279,7 @@ public:
     void setValue(const QVariant &value);
     QString toString() const;
 
-    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver);
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
 
@@ -301,7 +301,7 @@ public:
     void setValue(const QVariant &value);
     QString toString() const;
 
-    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver);
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const; 
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
 
@@ -316,7 +316,7 @@ public:
     FlagsProperty(const QMap<QString, QVariant> &items, int m_value,
                   const QString &name);
 
-    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver);
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
 };
@@ -390,7 +390,7 @@ public:
     void setValue(const QVariant &value);
     QString toString() const;
 
-    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver);
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
 };
@@ -403,7 +403,7 @@ public:
     void setValue(const QVariant &value);
     QString toString() const;
 
-    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver);
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
 };
@@ -416,7 +416,7 @@ public:
     void setValue(const QVariant &value);
     QString toString() const;
 
-    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver);
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
 };
@@ -430,14 +430,14 @@ public:
     QString toString() const;
     QVariant decoration() const;
 
-    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver);
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
 
 private:
     static QString cursorName(int shape);
     static QPixmap cursorPixmap(int shape);
-    void addCursor(QComboBox *combo, int shape);
+    void addCursor(QComboBox *combo, int shape) const;
 };
 
 class QT_PROPERTYEDITOR_EXPORT KeySequenceProperty: public AbstractProperty<QKeySequence>
@@ -448,7 +448,7 @@ public:
     void setValue(const QVariant &value);
     QString toString() const;
 
-    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver);
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
 };
@@ -461,7 +461,7 @@ public:
     void setValue(const QVariant &value);
     QString toString() const;
 
-    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver);
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
 };

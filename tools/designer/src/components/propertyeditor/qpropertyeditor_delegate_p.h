@@ -42,7 +42,7 @@ public:
 
     virtual QWidget *editor(QWidget *parent,
                             const QStyleOptionViewItem &option,
-                            const QModelIndex &index);
+                            const QModelIndex &index) const;
 
     virtual void setEditorData(QWidget *editor,
                                const QModelIndex &index) const;

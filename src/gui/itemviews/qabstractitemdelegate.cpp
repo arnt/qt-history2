@@ -170,7 +170,7 @@ QAbstractItemDelegate::~QAbstractItemDelegate()
 */
 QWidget *QAbstractItemDelegate::editor(QWidget *,
                                        const QStyleOptionViewItem &,
-                                       const QModelIndex &)
+                                       const QModelIndex &) const
 {
     return 0;
 }
