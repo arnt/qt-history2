@@ -534,7 +534,7 @@ void QFileDialog::selectFilter(const QString &filter)
 {
     int i = d->fileType->findText(filter);
     if (i >= 0)
-        d->fileType->setCurrentItem(i);
+        d->fileType->setCurrentIndex(i);
 }
 
 /*!
@@ -1312,7 +1312,7 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
         lookIn->addItem(model->fileIcon(current), currentPath);
         item = lookIn->findText(currentPath);
     }
-    lookIn->setCurrentItem(item);
+    lookIn->setCurrentIndex(item);
 
     // Set filetypes or filter
     if (fileMode == QFileDialog::DirectoryOnly) {
@@ -1544,10 +1544,10 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
     int i = lookIn->findText(pth);
     bool block = lookIn->blockSignals(true);
     if (i > -1) {
-        lookIn->setCurrentItem(i);
+        lookIn->setCurrentIndex(i);
     } else {
         lookIn->addItem(icn, pth);
-        lookIn->setCurrentItem(lookIn->count() - 1);
+        lookIn->setCurrentIndex(lookIn->count() - 1);
     }
     lookIn->blockSignals(block);
 }

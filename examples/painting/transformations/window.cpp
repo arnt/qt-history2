@@ -104,7 +104,7 @@ void Window::operationChanged()
 
     QList<Operation> operations;
     for (int i = 0; i < NumTransformedAreas; ++i) {
-        int index = operationComboBoxes[i]->currentItem();
+        int index = operationComboBoxes[i]->currentIndex();
         operations.append(operationTable[index]);
         transformedRenderAreas[i]->setOperations(operations);
     }

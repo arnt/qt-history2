@@ -92,12 +92,12 @@ Window::Window()
 
     fillColor1ComboBox = new QComboBox(this);
     populateWithColors(fillColor1ComboBox);
-    fillColor1ComboBox->setCurrentItem(
+    fillColor1ComboBox->setCurrentIndex(
             fillColor1ComboBox->findText("mediumslateblue"));
 
     fillColor2ComboBox = new QComboBox(this);
     populateWithColors(fillColor2ComboBox);
-    fillColor2ComboBox->setCurrentItem(
+    fillColor2ComboBox->setCurrentIndex(
             fillColor2ComboBox->findText("cornsilk"));
 
     fillGradientLabel = new QLabel(tr("&Fill Gradient:"), this);
@@ -114,7 +114,7 @@ Window::Window()
 
     penColorComboBox = new QComboBox(this);
     populateWithColors(penColorComboBox);
-    penColorComboBox->setCurrentItem(
+    penColorComboBox->setCurrentIndex(
             penColorComboBox->findText("darkslateblue"));
 
     penColorLabel = new QLabel(tr("Pen &Color:"), this);
@@ -174,7 +174,7 @@ Window::Window()
 void Window::fillRuleChanged()
 {
     Qt::FillRule rule =
-        (Qt::FillRule)fillRuleComboBox->itemData(fillRuleComboBox->currentItem(), IdRole).toInt();
+        (Qt::FillRule)fillRuleComboBox->itemData(fillRuleComboBox->currentIndex(), IdRole).toInt();
 
     for (int i = 0; i < NumRenderAreas; ++i)
         renderAreas[i]->setFillRule(rule);
@@ -183,9 +183,9 @@ void Window::fillRuleChanged()
 void Window::fillGradientChanged()
 {
     QColor color1 = qVariant_to<QColor>(fillColor1ComboBox->itemData(
-                fillColor1ComboBox->currentItem(), ColorRole));
+                fillColor1ComboBox->currentIndex(), ColorRole));
     QColor color2 = qVariant_to<QColor>(fillColor2ComboBox->itemData(
-            fillColor2ComboBox->currentItem(), ColorRole));
+            fillColor2ComboBox->currentIndex(), ColorRole));
 
     for (int i = 0; i < NumRenderAreas; ++i)
         renderAreas[i]->setFillGradient(color1, color2);
@@ -194,7 +194,7 @@ void Window::fillGradientChanged()
 void Window::penColorChanged()
 {
     QColor color =
-        qVariant_to<QColor>(penColorComboBox->itemData(penColorComboBox->currentItem(), ColorRole));
+        qVariant_to<QColor>(penColorComboBox->itemData(penColorComboBox->currentIndex(), ColorRole));
 
     for (int i = 0; i < NumRenderAreas; ++i)
         renderAreas[i]->setPenColor(color);

@@ -178,7 +178,7 @@ DemoViewer::DemoViewer(QWidget *parent)
 
     antialias->setChecked(true);
     alpha->setChecked(true);
-    bgMode->setCurrentItem(1);
+    bgMode->setCurrentIndex(1);
     attributes->fillMode = Attributes::Gradient;
 }
 

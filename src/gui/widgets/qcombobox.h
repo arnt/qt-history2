@@ -28,13 +28,17 @@ class Q_GUI_EXPORT QComboBox : public QWidget
     Q_OBJECT
 
     Q_ENUMS(InsertPolicy)
+    Q_ENUMS(SizeAdjustPolicy)
     Q_PROPERTY(bool editable READ isEditable WRITE setEditable)
     Q_PROPERTY(int count READ count)
     Q_PROPERTY(QString currentText READ currentText)
-    Q_PROPERTY(int currentItem READ currentItem WRITE setCurrentItem)
+    Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
     Q_PROPERTY(int maxVisibleItems READ maxVisibleItems WRITE setMaxVisibleItems)
     Q_PROPERTY(int maxCount READ maxCount WRITE setMaxCount)
     Q_PROPERTY(InsertPolicy insertPolicy READ insertPolicy WRITE setInsertPolicy)
+    Q_PROPERTY(SizeAdjustPolicy sizeAdjustPolicy READ sizeAdjustPolicy WRITE setSizeAdjustPolicy)
+    Q_PROPERTY(int minimumContentsLength READ minimumContentsLength WRITE setMinimumContentsLength)
+    Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(bool autoCompletion READ autoCompletion WRITE setAutoCompletion)
     Q_PROPERTY(bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled)
 
@@ -54,9 +58,6 @@ public:
 
     bool duplicatesEnabled() const;
     void setDuplicatesEnabled(bool enable);
-
-    bool autoHide() const;
-    void setAutoHide(bool enable);
 
     inline int findText(const QString &text,
                         QAbstractItemModel::MatchFlags flags =
@@ -90,6 +91,19 @@ public:
     InsertPolicy insertPolicy() const;
     void setInsertPolicy(InsertPolicy policy);
 
+    enum SizeAdjustPolicy {
+        AdjustToContents,
+        AdjustToContentsOnFirstShow,
+        AdjustToMinimumContentsLength
+    };
+
+    SizeAdjustPolicy sizeAdjustPolicy() const;
+    void setSizeAdjustPolicy(SizeAdjustPolicy policy);
+    int minimumContentsLength() const;
+    void setMinimumContentsLength(int characters);
+    QSize iconSize() const;
+    void setIconSize(const QSize &size);
+
     bool isEditable() const;
     void setEditable(bool editable);
     void setLineEdit(QLineEdit *edit);
@@ -106,8 +120,8 @@ public:
     QModelIndex rootModelIndex() const;
     void setRootModelIndex(const QModelIndex &index);
 
-    int currentItem() const;
-    void setCurrentItem(int index);
+    int currentIndex() const;
+    void setCurrentIndex(int index);
 
     QString currentText() const;
 
@@ -135,19 +149,20 @@ public:
     void setItemIcon(int index, const QIcon &icon);
     void setItemData(int index, const QVariant &value, int role = QAbstractItemModel::UserRole);
 
-    QAbstractItemView *itemView() const;
-    void setItemView(QAbstractItemView *itemView);
+    QAbstractItemView *view() const;
+    void setView(QAbstractItemView *itemView);
 
     QSize sizeHint() const;
 
-    virtual void popup();
+    virtual void showPopup();
+    virtual void hidePopup();
 
     void hide();
 
 public slots:
     void clear();
     void clearEditText();
-    virtual void setEditText(const QString &text);
+    void setEditText(const QString &text);
 
 signals:
     void editTextChanged(const QString &);
@@ -162,6 +177,7 @@ protected:
     void changeEvent(QEvent *e);
     void resizeEvent(QResizeEvent *e);
     void paintEvent(QPaintEvent *e);
+    void showEvent(QShowEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
     void keyPressEvent(QKeyEvent *e);
@@ -174,17 +190,20 @@ protected:
 public:
     QT3_SUPPORT_CONSTRUCTOR QComboBox(QWidget *parent, const char *name);
     QT3_SUPPORT_CONSTRUCTOR QComboBox(bool rw, QWidget *parent, const char *name = 0);
+    inline QT3_SUPPORT int currentItem() const { return currentIndex(); }
+    inline QT3_SUPPORT void setCurrentItem(int index) { return setCurrentIndex(index); }
     inline QT3_SUPPORT InsertPolicy insertionPolicy() const { return insertPolicy(); }
     inline QT3_SUPPORT void setInsertionPolicy(InsertPolicy policy) { setInsertPolicy(policy); }
     inline QT3_SUPPORT bool editable() const { return isEditable(); }
+    inline QT3_SUPPORT void popup() { showPopup(); }
     inline QT3_SUPPORT void setCurrentText(const QString& text) {
         int i = findText(text);
         if (i != -1)
-            setCurrentItem(i);
+            setCurrentIndex(i);
         else if (isEditable())
             setEditText(text);
         else
-            setItemText(currentItem(), text);
+            setItemText(currentIndex(), text);
     }
     inline QT3_SUPPORT QString text(int index) const { return itemText(index); }
     inline QT3_SUPPORT QPixmap pixmap(int index) const { return itemIcon(index).pixmap(QSize(22,22)); }
@@ -206,9 +225,6 @@ public:
     inline QT3_SUPPORT void clearEdit() { clearEditText(); }
 #endif
 
-protected:
-    QComboBox(QComboBoxPrivate &dd, QWidget *parent = 0);
-
 private:
     Q_DECLARE_PRIVATE(QComboBox)
     Q_DISABLE_COPY(QComboBox)
@@ -217,6 +233,8 @@ private:
     Q_PRIVATE_SLOT(d, void returnPressed())
     Q_PRIVATE_SLOT(d, void complete())
     Q_PRIVATE_SLOT(d, void resetButton())
+    Q_PRIVATE_SLOT(d, void dataChanged(const QModelIndex &, const QModelIndex &))
+    Q_PRIVATE_SLOT(d, void rowsChanged(const QModelIndex & parent, int start, int end));
 };
 
 #endif // QCOMBOBOX_H

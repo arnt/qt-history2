@@ -38,8 +38,10 @@ public:
     inline void setItems(const QList<FlagBoxModelItem> &items)
     { m_model->setItems(items); }
 
+    inline void hidePopup() {}
+
 private slots:
-    void slotActivated(const QModelIndex &index);
+    void slotActivated(int index);
 
 private:
     FlagBoxModel *m_model;

@@ -20,20 +20,16 @@ FlagBox::FlagBox(QWidget *parent)
     m_model = new FlagBoxModel(this);
     setModel(m_model);
 
-    setAutoHide(false);
-    
-    itemView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    
-    connect(this, SIGNAL(activated(const QModelIndex&)),
-        this, SLOT(slotActivated(const QModelIndex&)));
+    connect(this, SIGNAL(activated(int)),
+        this, SLOT(slotActivated(int)));
 }
 
 FlagBox::~FlagBox()
 {
 }
 
-void FlagBox::slotActivated(const QModelIndex &index)
+void FlagBox::slotActivated(int index)
 {
-    bool checked = model()->data(index, FlagBoxModel::DecorationRole).toBool();
-    model()->setData(index, !checked, FlagBoxModel::DecorationRole);
+    bool checked = itemData(index, FlagBoxModel::DecorationRole).toBool();
+    setItemData(index, !checked, FlagBoxModel::DecorationRole);
 }

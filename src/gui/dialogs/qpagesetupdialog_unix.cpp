@@ -159,7 +159,7 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
 
     for (int i=0; pageSizeNames[i]; ++i)
         d->pageSize->addItem(pageSizeNames[i]);
-    d->pageSize->setCurrentItem(printer->pageSize());
+    d->pageSize->setCurrentIndex(printer->pageSize());
 
 #ifdef PSD_ENABLE_PAPERSOURCE
     for (int i=0; paperSourceNames[i]; ++i)
@@ -169,7 +169,7 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
 
     d->orientation->addItem(tr("Portrait"));
     d->orientation->addItem(tr("Landscape"));
-    d->orientation->setCurrentItem(printer->orientation());
+    d->orientation->setCurrentIndex(printer->orientation());
 
 
     connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
@@ -181,10 +181,10 @@ int QPageSetupDialog::exec()
     int ret = QDialog::exec();
     if (ret == Accepted) {
         // Read out the data
-        d->printer->setPageSize((QPrinter::PageSize)d->pageSize->currentItem());
-        d->printer->setOrientation((QPrinter::Orientation)d->orientation->currentItem());
+        d->printer->setPageSize((QPrinter::PageSize)d->pageSize->currentIndex());
+        d->printer->setOrientation((QPrinter::Orientation)d->orientation->currentIndex());
 #ifdef PSD_ENABLE_PAPERSOURCE
-        d->printer->setPaperSource((QPrinter::PaperSource)d->paperSource->currentItem());
+        d->printer->setPaperSource((QPrinter::PaperSource)d->paperSource->currentIndex());
 #endif
     }
     return ret;

@@ -249,6 +249,7 @@ void TextEdit::setupTextActions()
     comboFont->setEditText(QApplication::font().family());
 
     comboSize = new QComboBox(tb);
+    comboSize->setObjectName("comboSize");
     tb->addWidget(comboSize);
     comboSize->setEditable(true);
 
@@ -257,8 +258,8 @@ void TextEdit::setupTextActions()
 
     connect(comboSize, SIGNAL(activated(const QString &)),
             this, SLOT(textSize(const QString &)));
-    comboSize->setCurrentItem(comboSize->findText(QString::number(QApplication::font()
-                                                                  .pointSize())));
+    comboSize->setCurrentIndex(comboSize->findText(QString::number(QApplication::font()
+                                                                   .pointSize())));
 }
 
 bool TextEdit::load(const QString &f)

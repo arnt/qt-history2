@@ -136,7 +136,7 @@ Window::Window()
 void Window::shapeChanged()
 {
     RenderArea::Shape shape =
-        (RenderArea::Shape)shapeComboBox->itemData(shapeComboBox->currentItem(), IdRole).toInt();
+        (RenderArea::Shape)shapeComboBox->itemData(shapeComboBox->currentIndex(), IdRole).toInt();
     renderArea->setShape(shape);
 }
 
@@ -144,11 +144,11 @@ void Window::penChanged()
 {
     int width = penWidthSpinBox->value();
     Qt::PenStyle style =
-        (Qt::PenStyle)penStyleComboBox->itemData(penStyleComboBox->currentItem(), IdRole).toInt();
+        (Qt::PenStyle)penStyleComboBox->itemData(penStyleComboBox->currentIndex(), IdRole).toInt();
     Qt::PenCapStyle cap =
-        (Qt::PenCapStyle)penCapComboBox->itemData(penCapComboBox->currentItem(), IdRole).toInt();
+        (Qt::PenCapStyle)penCapComboBox->itemData(penCapComboBox->currentIndex(), IdRole).toInt();
     Qt::PenJoinStyle join =
-        (Qt::PenJoinStyle)penJoinComboBox->itemData(penJoinComboBox->currentItem(), IdRole).toInt();
+        (Qt::PenJoinStyle)penJoinComboBox->itemData(penJoinComboBox->currentIndex(), IdRole).toInt();
 
     renderArea->setPen(QPen(Qt::blue, width, style, cap, join));
 }
@@ -156,7 +156,7 @@ void Window::penChanged()
 void Window::brushChanged()
 {
     Qt::BrushStyle style =
-        (Qt::BrushStyle)brushStyleComboBox->itemData(brushStyleComboBox->currentItem(), IdRole).toInt();
+        (Qt::BrushStyle)brushStyleComboBox->itemData(brushStyleComboBox->currentIndex(), IdRole).toInt();
 
     if (style == Qt::LinearGradientPattern) {
         renderArea->setBrush(QBrush(QPoint(0, 0), Qt::red,

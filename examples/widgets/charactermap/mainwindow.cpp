@@ -77,7 +77,7 @@ void MainWindow::findStyles()
         styleCombo->addItem(style);
 
     if (styleCombo->findText(currentItem) == -1)
-        styleCombo->setCurrentItem(0);
+        styleCombo->setCurrentIndex(0);
 }
 
 void MainWindow::insertCharacter(const QString &character)

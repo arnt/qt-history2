@@ -164,9 +164,11 @@ public:
           lineEdit(0),
           container(0),
           insertPolicy(QComboBox::InsertAtBottom),
+          sizeAdjustPolicy(QComboBox::AdjustToContentsOnFirstShow),
+          shownOnce(false),
+          minimumContentsLength(0),
           autoCompletion(true),
           duplicatesEnabled(false),
-          autoHide(true),
           arrowDown(false),
           maxVisibleItems(10),
           maxCount(INT_MAX),
@@ -182,14 +184,19 @@ public:
     void emitActivated(const QModelIndex&);
     void emitHighlighted(const QModelIndex&);
     void resetButton();
+    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void rowsChanged(const QModelIndex & parent, int start, int end);
 
     QAbstractItemModel *model;
     QLineEdit *lineEdit;
     ItemViewContainer *container;
     QComboBox::InsertPolicy insertPolicy;
+    QComboBox::SizeAdjustPolicy sizeAdjustPolicy;
+    bool shownOnce;
+    int minimumContentsLength;
+    QSize iconSize;
     bool autoCompletion;
     bool duplicatesEnabled;
-    bool autoHide;
     bool arrowDown;
     int maxVisibleItems;
     int maxCount;

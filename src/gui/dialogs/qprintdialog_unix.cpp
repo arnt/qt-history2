@@ -1454,7 +1454,7 @@ void QPrintDialogPrivate::setPrinter(QPrinter *p, bool pickUpSettings)
         fileName->setText(p->outputFileName());
 
         // orientation
-        orientationCombo->setCurrentItem((int)p->orientation());
+        orientationCombo->setCurrentIndex((int)p->orientation());
         orientSelected(p->orientation());
 
         // page size
@@ -1462,7 +1462,7 @@ void QPrintDialogPrivate::setPrinter(QPrinter *p, bool pickUpSettings)
         while (n < QPrinter::NPageSize &&
                 indexToPageSize[n] != p->pageSize())
             n++;
-        sizeCombo->setCurrentItem(n);
+        sizeCombo->setCurrentIndex(n);
         paperSizeSelected(n);
 
         // New stuff (Options)

@@ -70,7 +70,7 @@ void setEditorData(QWidget *editor, const QModelIndex &index) const
             currentItem = i;
     }
     if (currentItem >= 0)
-        combo->setCurrentItem(currentItem);
+        combo->setCurrentIndex(currentItem);
 }
 
 void setModelData(QWidget *editor, QAbstractItemModel *model,
@@ -87,7 +87,7 @@ void setModelData(QWidget *editor, QAbstractItemModel *model,
         return;
     }
 
-    int currentItem = combo->currentItem();
+    int currentItem = combo->currentIndex();
     int childColIndex = childModel->fieldIndex(sqlModel->relation(
                             index.column()).displayColumn());
     int childEditIndex = childModel->fieldIndex(sqlModel->relation(

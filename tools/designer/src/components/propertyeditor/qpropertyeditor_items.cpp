@@ -77,14 +77,14 @@ QWidget *BoolProperty::createEditor(QWidget *parent, const QObject *target, cons
 void BoolProperty::updateEditorContents(QWidget *editor)
 {
     if (QComboBox *combo = qt_cast<QComboBox*>(editor)) {
-        combo->setCurrentItem(m_value ? 1 : 0);
+        combo->setCurrentIndex(m_value ? 1 : 0);
     }
 }
 
 void BoolProperty::updateValue(QWidget *editor)
 {
     if (QComboBox *combo = qt_cast<QComboBox*>(editor)) {
-        bool newValue = combo->currentItem() ? true : false;
+        bool newValue = combo->currentIndex() ? true : false;
 
         if (newValue != m_value) {
             m_value = newValue;
@@ -283,14 +283,14 @@ QWidget *ListProperty::createEditor(QWidget *parent, const QObject *target, cons
 void ListProperty::updateEditorContents(QWidget *editor)
 {
     if (QComboBox *combo = qt_cast<QComboBox*>(editor)) {
-        combo->setCurrentItem(m_value);
+        combo->setCurrentIndex(m_value);
     }
 }
 
 void ListProperty::updateValue(QWidget *editor)
 {
     if (QComboBox *combo = qt_cast<QComboBox*>(editor)) {
-        int newValue = combo->currentItem();
+        int newValue = combo->currentIndex();
 
         if (newValue != m_value) {
             m_value = newValue;
@@ -627,7 +627,7 @@ QWidget *MapProperty::createEditor(QWidget *parent, const QObject *target, const
 void MapProperty::updateEditorContents(QWidget *editor)
 {
     if (QComboBox *combo = qt_cast<QComboBox*>(editor)) {
-        combo->setCurrentItem(indexOf(m_value));
+        combo->setCurrentIndex(indexOf(m_value));
     }
 }
 
@@ -932,14 +932,14 @@ QWidget *CursorProperty::createEditor(QWidget *parent, const QObject *target, co
 void CursorProperty::updateEditorContents(QWidget *editor)
 {
     if (QComboBox *combo = qt_cast<QComboBox*>(editor)) {
-        combo->setCurrentItem(m_value.shape());
+        combo->setCurrentIndex(m_value.shape());
     }
 }
 
 void CursorProperty::updateValue(QWidget *editor)
 {
     if (QComboBox *combo = qt_cast<QComboBox*>(editor)) {
-        QCursor newValue(static_cast<Qt::CursorShape>(combo->currentItem()));
+        QCursor newValue(static_cast<Qt::CursorShape>(combo->currentIndex()));
 
         if (newValue.shape() != m_value.shape()) {
             m_value = newValue;

@@ -499,10 +499,10 @@ QString QInputDialog::getItem(QWidget *parent, const QString &caption, const QSt
 #endif
     if (editable) {
         dlg->editableComboBox()->addItems(list);
-        dlg->editableComboBox()->setCurrentItem(current);
+        dlg->editableComboBox()->setCurrentIndex(current);
     } else {
         dlg->comboBox()->addItems(list);
-        dlg->comboBox()->setCurrentItem(current);
+        dlg->comboBox()->setCurrentIndex(current);
     }
 
     bool ok_ = false;
