@@ -1495,6 +1495,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension )
 		    iface->fileFilters( extensionFilterMap );
 		    if ( extensionFilterMap.find( extension ) != extensionFilterMap.end() ) {
 			SourceFile *sf = new SourceFile( currentProject->makeRelative( filename ) );
+			MetaDataBase::addEntry( sf );
 			currentProject->addSourceFile( sf );
 			formList->setProject( currentProject );
 			// ### show source file
@@ -2325,7 +2326,7 @@ QObjectList *MainWindow::runProject()
 	if ( liface && liface->supports( LanguageInterface::AdditionalFiles ) ) {
 	    QList<SourceFile> sources = currentProject->sourceFiles();
 	    for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
-		iiface->exec( 0, f->text() );
+		iiface->exec( f, f->text() );
 	    }
 	}
     }
@@ -2348,6 +2349,15 @@ QObjectList *MainWindow::runProject()
 	    if ( !bps.isEmpty() )
 		iiface->setBreakPoints( o, bps );
 	}
+	
+	for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	    if ( e->project() == currentProject && e->object()->inherits( "SourceFile" ) ) {
+		QValueList<int> bps = MetaDataBase::breakPoints( e->object() );
+		if ( !bps.isEmpty() )
+		    iiface->setBreakPoints( e->object(), bps );
+	    }
+	}
+	
 	iiface->release();
     }
 
@@ -4698,6 +4708,22 @@ void MainWindow::showSourceLine( QObject *o, int line, bool error )
 	    break;
 	}
     }
+
+    if ( !found ) {
+	QList<SourceFile> sources = currentProject->sourceFiles();
+	for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
+	    if ( f == o ) {
+		editSource( f );
+		if ( error )
+		    eiface->setError( line );
+		else
+		    eiface->setStep( line );
+		eiface->release();
+		return;
+	    }
+	}
+    }
+
     if ( !found ) {
 	mblockNewForms = TRUE;
 	openFile( currentProject->makeAbsolute( *qwf_forms->find( (QWidget*)o ) ) );
@@ -4763,6 +4789,14 @@ void MainWindow::breakPointsChanged()
 	if ( qstrcmp( o->name(), e->object()->name() ) == 0 ) {
 	    iiface->setBreakPoints( o, MetaDataBase::breakPoints( e->object() ) );
 	    break;
+	}
+    }
+
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	if ( e->project() == currentProject && e->object()->inherits( "SourceFile" ) ) {
+	    QValueList<int> bps = MetaDataBase::breakPoints( e->object() );
+	    if ( !bps.isEmpty() )
+		iiface->setBreakPoints( e->object(), bps );
 	}
     }
 

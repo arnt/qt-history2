@@ -300,8 +300,11 @@ void Project::parse()
 	QString part = contents.mid( i + QString( "DESIGNER_SOURCES" ).length() );
 	QString s = parse_part( part );
 	QStringList lst = QStringList::split( ' ', s );
-	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it )
-	    sources.append( new SourceFile( makeAbsolute( *it ) ) );
+	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	    SourceFile *f = new SourceFile( makeAbsolute( *it ) );
+	    sources.append( f );
+	    MetaDataBase::addEntry( f );
+	}
     }
 
     updateCustomSettings();

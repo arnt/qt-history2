@@ -467,6 +467,7 @@ void FormList::rmbClicked( QListViewItem *i )
 	    QString fn = QFileDialog::getSaveFileName( QString::null, *extensionFilterMap.begin(), mainWindow );
 	    if ( !fn.isEmpty() ) {
 		SourceFile *sf = new SourceFile( fn );
+		MetaDataBase::addEntry( sf );
 		mainWindow->currProject()->addSourceFile( sf );
 		setProject( mainWindow->currProject() );
 	    }
