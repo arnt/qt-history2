@@ -4919,6 +4919,8 @@ void QTable::hideRow( int row )
     d->hiddenRows.replace( row, new int( leftHeader->sectionSize( row ) ) );
     leftHeader->resizeSection( row, 0 );
     leftHeader->setResizeEnabled( FALSE, row );
+    if ( isRowStretchable(row) )
+	leftHeader->numStretches--;
     rowHeightChanged( row );
 }
 
@@ -4934,6 +4936,8 @@ void QTable::hideColumn( int col )
     d->hiddenCols.replace( col, new int( topHeader->sectionSize( col ) ) );
     topHeader->resizeSection( col, 0 );
     topHeader->setResizeEnabled( FALSE, col );
+    if ( isColumnStretchable(col) )
+	topHeader->numStretches--;
     columnWidthChanged( col );
 }
 
@@ -4949,6 +4953,8 @@ void QTable::showRow( int row )
 	int rh = *h;
 	d->hiddenRows.remove( row );
 	setRowHeight( row, rh );
+	if ( isRowStretchable(row) )
+	    leftHeader->numStretches++;
     } else if ( rowHeight( row ) == 0 ) {
 	setRowHeight( row, 20 );
     }
@@ -4967,6 +4973,8 @@ void QTable::showColumn( int col )
 	int cw = *w;
 	d->hiddenCols.remove( col );
 	setColumnWidth( col, cw );
+	if ( isColumnStretchable( col ) )
+	    topHeader->numStretches++;
     } else if ( columnWidth( col ) == 0 ) {
 	setColumnWidth( col, 20 );
     }
@@ -5062,6 +5070,9 @@ void QTable::adjustRow( int row )
 void QTable::setColumnStretchable( int col, bool stretch )
 {
     topHeader->setSectionStretchable( col, stretch );
+    
+    if ( stretch && d->hiddenCols.find(col) )
+	topHeader->numStretches--;
 }
 
 /*! If \a stretch is TRUE, row \a row is set to be stretchable;
@@ -5078,6 +5089,9 @@ void QTable::setColumnStretchable( int col, bool stretch )
 void QTable::setRowStretchable( int row, bool stretch )
 {
     leftHeader->setSectionStretchable( row, stretch );
+    
+    if ( stretch && d->hiddenRows.find(row) )
+	leftHeader->numStretches--;
 }
 
 /*! Returns TRUE if column \a col is stretchable; otherwise returns
@@ -6011,13 +6025,15 @@ void QTableHeader::updateStretches()
 	bool block = signalsBlocked();
 	blockSignals( TRUE );
 	for ( i = 0; i < (int)stretchable.count(); ++i ) {
-	    if ( !stretchable[ i ] )
+	    if ( !stretchable[ i ] || 
+		 ( stretchable[i] && table->d->hiddenCols[ i ] ) )
 		continue;
 	    pw += sectionSize( i );
 	}
 	pw /= numStretches;
 	for ( i = 0; i < (int)stretchable.count(); ++i ) {
-	    if ( !stretchable[ i ] )
+	    if ( !stretchable[ i ] ||
+		( stretchable[i] && table->d->hiddenCols[ i ] ) )
 		continue;
 	    if ( i == (int)stretchable.count() - 1 &&
 		 sectionPos( i ) + pw < width() )
@@ -6035,13 +6051,15 @@ void QTableHeader::updateStretches()
 	bool block = signalsBlocked();
 	blockSignals( TRUE );
 	for ( i = 0; i < (int)stretchable.count(); ++i ) {
-	    if ( !stretchable[ i ] )
+	    if ( !stretchable[ i ] ||
+		( stretchable[i] && table->d->hiddenRows[i] ) )
 		continue;
 	    ph += sectionSize( i );
 	}
 	ph /= numStretches;
 	for ( i = 0; i < (int)stretchable.count(); ++i ) {
-	    if ( !stretchable[ i ] )
+	    if ( !stretchable[ i ] ||
+		 ( stretchable[i] && table->d->hiddenRows[i] ) )
 		continue;
 	    if ( i == (int)stretchable.count() - 1 && sectionPos( i ) + ph < height() )
 		ph = height() - sectionPos( i );
