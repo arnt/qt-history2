@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#5 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#6 $
 **
 ** Definition of QIconView widget class
 **
@@ -195,7 +195,7 @@ protected:
     virtual void dragEntered();
     virtual void dragLeft();
     virtual void init();
-    
+
     QIconView *view;
     QString itemText;
     QIconSet itemIcon;
@@ -231,7 +231,15 @@ public:
         Multi,
         StrictMulti
     };
-
+    enum AlignMode {
+        East = 0,
+        South
+    };
+    enum ResizeMode {
+        Fixed = 0,
+        Adjust
+    };
+    
     QIconView( QWidget *parent = 0, const char *name = 0 );
     virtual ~QIconView();
 
@@ -272,6 +280,12 @@ public:
     virtual void setSpacing( int sp );
     virtual int spacing();
 
+    virtual void setAlignMode( AlignMode am );
+    virtual AlignMode alignMode() const;
+    
+    virtual void setResizeMode( ResizeMode am );
+    virtual ResizeMode resizeMode() const;
+
 signals:
     void dropped( QDropEvent *e );
     void moved();
@@ -296,6 +310,7 @@ protected:
     virtual void contentsDragMoveEvent( QDragMoveEvent *e );
     virtual void contentsDragLeaveEvent( QDragLeaveEvent *e );
     virtual void contentsDropEvent( QDropEvent *e );
+    virtual void resizeEvent( QResizeEvent* e );
     virtual void keyPressEvent( QKeyEvent *e );
 
     virtual void selectByRubber( QRect oldRubber );

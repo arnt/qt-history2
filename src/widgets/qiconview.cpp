@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#7 $
 **
 ** Definition of QIconView widget class
 **
@@ -106,6 +106,9 @@ struct QIconViewPrivate
     int dragItems;
     int numSelectedItems;
     QPoint oldDragPos;
+    QIconView::AlignMode alignMode;
+    QIconView::ResizeMode resizeMode;
+    int mostOuter;
 };
 
 /*****************************************************************************
@@ -706,6 +709,9 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->spacing = 5;
     d->cleared = FALSE;
     d->numSelectedItems = 0;
+    d->alignMode = East;
+    d->resizeMode = Fixed;
+    d->mostOuter = 0;
 
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
@@ -764,7 +770,7 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
         resizeContents( QMAX( contentsWidth(), w ),
                         QMAX( contentsHeight(), h ) );
     }
-    
+
     d->count++;
 }
 
@@ -1058,6 +1064,34 @@ int QIconView::spacing()
     return d->spacing;
 }
 
+void QIconView::setAlignMode( AlignMode am )
+{
+    if ( d->alignMode == am )
+        return;
+
+    d->alignMode = am;
+    resizeContents( viewport()->width(), viewport()->height() );
+    orderItemsInGrid();
+}
+
+QIconView::AlignMode QIconView::alignMode() const
+{
+    return d->alignMode;
+}
+
+void QIconView::setResizeMode( ResizeMode rm )
+{
+    if ( d->resizeMode == rm )
+        return;
+
+    d->resizeMode = rm;
+}
+
+QIconView::ResizeMode QIconView::resizeMode() const
+{
+    return d->resizeMode;
+}
+
 void QIconView::contentsMousePressEvent( QMouseEvent *e )
 {
     if ( d->currentItem )
@@ -1261,6 +1295,10 @@ void QIconView::contentsDropEvent( QDropEvent *e )
                 if ( item->isSelected() && item != d->currentItem ) {
                     QRect pr = item->rect();
                     item->moveBy( dx, dy );
+                    if ( d->alignMode == East )
+                        d->mostOuter = QMAX( d->mostOuter, dx + item->width() );
+                    else
+                        d->mostOuter = QMAX( d->mostOuter, dy + item->height() );
                     repaintItem( item );
                     repaintContents( pr.x(), pr.y(), pr.width(), pr.height() );
                     w = QMAX( w, item->x() + item->width() + 1 );
@@ -1286,6 +1324,25 @@ void QIconView::contentsDropEvent( QDropEvent *e )
         emit dropped( e );
     else if ( i )
         i->dropped( e );
+}
+
+void QIconView::resizeEvent( QResizeEvent* e )
+{
+    QScrollView::resizeEvent( e );
+#if 0
+    if ( d->resizeMode == Adjust ) {
+        if ( d->alignMode == East && d->mostOuter > e->size().width() ||
+             d->alignMode == South && d->mostOuter > e->size().height() ) {
+            d->mostOuter = 0;
+            orderItemsInGrid();
+            viewport()->repaint( FALSE );
+        } else if ( e->size().width() > e->oldSize().width() && d->mostOuter + 50 < e->size().width() ) {
+            d->mostOuter = 0;
+            orderItemsInGrid();
+            viewport()->repaint( FALSE );
+        }
+    }
+#endif
 }
 
 void QIconView::keyPressEvent( QKeyEvent *e )
@@ -1522,65 +1579,129 @@ void QIconView::insertInGrid( QIconViewItem *item )
     if ( !item )
         return;
 
-    int px = d->spacing;
-    int py = d->spacing;
-    int pw = d->rastX == -1 ? 1 : d->rastX / 2;
-    int ph = d->rastY == -1 ? 1 : d->rastY / 2;
-    bool isFirst = item == d->firstItem;
-
-    if ( item->prev ) {
-        px = item->prev->x();
-        py = item->prev->y();
-        pw = item->prev->width();
-        ph = item->prev->height();
-        if ( d->rastX != - 1 && pw > d->rastX - 1 ) {
-            px = px + pw - d->rastX;
-            pw = d->rastX - 1;
-        }
-        if ( d->rastY != - 1 && ph > d->rastY - 1 ) {
-            py = py + ph - d->rastY;
-            ph = d->rastY - 1;
-        }
-    }
-
     int xpos = 0;
     int ypos = 0;
-    bool nextRow = FALSE;
 
-    if ( d->rastX == -1 ) {
-        xpos = px + pw + d->spacing;
-        if ( xpos + item->width() >= viewport()->width() ) {
-            xpos = d->spacing;
-            nextRow = TRUE;
+    if ( d->alignMode == East ) {
+        int px = d->spacing;
+        int py = d->spacing;
+        int pw = d->rastX == -1 ? 1 : d->rastX / 2;
+        int ph = d->rastY == -1 ? 1 : d->rastY / 2;
+        bool isFirst = item == d->firstItem;
+
+        if ( item->prev ) {
+            px = item->prev->x();
+            py = item->prev->y();
+            pw = item->prev->width();
+            ph = item->prev->height();
+            if ( d->rastX != - 1 && pw > d->rastX - 1 ) {
+                px = px + pw - d->rastX;
+                pw = d->rastX - 1;
+            }
+            if ( d->rastY != - 1 && ph > d->rastY - 1 ) {
+                py = py + ph - d->rastY;
+                ph = d->rastY - 1;
+            }
         }
+
+        bool nextRow = FALSE;
+
+        if ( d->rastX == -1 ) {
+            xpos = px + pw + d->spacing;
+            if ( xpos + item->width() >= viewport()->width() ) {
+                xpos = d->spacing;
+                nextRow = TRUE;
+            }
+        } else {
+            int fact = px / d->rastX;
+
+            if ( !isFirst )
+                xpos = ( fact + 1 ) * d->rastX;
+            else
+                xpos = fact * d->rastX;
+
+            if ( xpos + d->rastX >= viewport()->width() ) {
+                xpos = d->spacing;
+                nextRow = TRUE;
+            }
+            xpos += ( d->rastX - item->width() ) / 2 + d->spacing;
+        }
+
+        if ( d->rastY == -1 ) {
+            if ( !nextRow )
+                ypos = py;
+            else
+                ypos = py + ph + d->spacing;
+        } else {
+            int fact = py / d->rastY;
+
+            if ( !nextRow )
+                ypos = fact * d->rastY;
+            else
+                ypos = ( fact + 1 ) * d->rastY;
+            ypos += ( d->rastY - item->height() ) / 2;
+        }
+        d->mostOuter = QMAX( d->mostOuter, xpos + item->width() );
     } else {
-        int fact = px / d->rastX;
+        int px = d->spacing;
+        int py = d->spacing;
+        int pw = d->rastX == -1 ? 1 : d->rastX / 2;
+        int ph = d->rastY == -1 ? 1 : d->rastY / 2;
+        bool isFirst = item == d->firstItem;
 
-        if ( !isFirst )
-            xpos = ( fact + 1 ) * d->rastX;
-        else
-            xpos = fact * d->rastX;
-
-        if ( xpos + d->rastX >= viewport()->width() ) {
-            xpos = d->spacing;
-            nextRow = TRUE;
+        if ( item->prev ) {
+            px = item->prev->x();
+            py = item->prev->y();
+            pw = item->prev->width();
+            ph = item->prev->height();
+            if ( d->rastX != - 1 && pw > d->rastX - 1 ) {
+                px = px + pw - d->rastX;
+                pw = d->rastX - 1;
+            }
+            if ( d->rastY != - 1 && ph > d->rastY - 1 ) {
+                py = py + ph - d->rastY;
+                ph = d->rastY - 1;
+            }
         }
-        xpos += ( d->rastX - item->width() ) / 2 + d->spacing;
-    }
 
-    if ( d->rastY == -1 ) {
-        if ( !nextRow )
-            ypos = py;
-        else
+        bool nextCol = FALSE;
+
+        if ( d->rastY == -1 ) {
             ypos = py + ph + d->spacing;
-    } else {
-        int fact = py / d->rastY;
+            if ( ypos + item->height() >= viewport()->height() ) {
+                ypos = d->spacing;
+                nextCol = TRUE;
+            }
+        } else {
+            int fact = py / d->rastY;
 
-        if ( !nextRow )
-            ypos = fact * d->rastY;
-        else
-            ypos = ( fact + 1 ) * d->rastY;
-        ypos += ( d->rastY - item->height() ) / 2;
+            if ( !isFirst )
+                ypos = ( fact + 1 ) * d->rastY;
+            else
+                ypos = fact * d->rastY;
+
+            if ( ypos + d->rastY >= viewport()->height() ) {
+                ypos = d->spacing;
+                nextCol = TRUE;
+            }
+            ypos += ( d->rastY - item->height() ) / 2 + d->spacing;
+        }
+
+        if ( d->rastX == -1 ) {
+            if ( !nextCol )
+                xpos = px;
+            else
+                xpos = px + pw + d->spacing;
+        } else {
+            int fact = px / d->rastX;
+
+            if ( !nextCol )
+                xpos = fact * d->rastX;
+            else
+                xpos = ( fact + 1 ) * d->rastX;
+            xpos += ( d->rastX - item->width() ) / 2;
+        }
+        d->mostOuter = QMAX( d->mostOuter, ypos + item->height() );
     }
 
     item->move( xpos, ypos );
