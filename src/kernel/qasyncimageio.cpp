@@ -1316,7 +1316,7 @@ QRgb QGIFFormat::color( uchar index ) const
     if ( index == trans_index || index > ncols )
 	return Q_TRANSPARENT;
     QRgb *map = lcmap ? localcmap : globalcmap;
-    return map[index];
+    return map ? map[index] : 0;
 }
 
 
