@@ -2408,7 +2408,7 @@ int QTextString::width(int idx) const
 		 str += at(pos).c;
 		 pos++;
 	     }
-	     w = c->format()->width( str, off ); 
+	     w = c->format()->width( str, off );
 	 }
      }	
      return w;
@@ -2838,7 +2838,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int bw = 0;
     int cy = 0;
     int curx = -1, cury, curh;
-    bool lastDirection = false; // left to right
+    bool lastDirection = FALSE; // left to right
     int tw = 0;
 
     int selectionStarts[ numSelections ];
@@ -2927,7 +2927,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 
 	//if something (format, etc.) changed, draw what we have so far
 	if ( ( ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && buffer.length() > 0 && buffer[ (int)buffer.length() - 1 ].isSpace() ) ||
-	     lastDirection != chr->rightToLeft || 
+	     lastDirection != chr->rightToLeft ||
 	     lastY != cy || chr->format() != lastFormat || buffer == "\t" || chr->c == '\t' ||
 	     selectionChange || chr->isCustom ) {
 	    drawParagBuffer( painter, buffer, startX, lastY, lastBaseLine, bw, h, drawSelections,
