@@ -4,7 +4,7 @@ TARGET	 = qgfxmatrox
 CONFIG  += qt warn_off plugin
 DESTDIR	 = ../../../gfxdrivers
 
-DEFINES	-= QT_NO_QWS_MATROX
+DEFINES	+= QT_QWS_MATROX
 unix:OBJECTS_DIR = .obj
 
 HEADERS		= ../../../../include/Qt/qgfxmatrox_qws.h \

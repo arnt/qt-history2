@@ -4,7 +4,7 @@ TARGET	 = qgfxshadowfb
 CONFIG  += qt warn_off plugin
 DESTDIR		= ../../../gfxdrivers
 
-DEFINES	-= QT_NO_QWS_SHADOWFB
+DEFINES	+= QT_QWS_SHADOWFB
 unix:OBJECTS_DIR = .obj
 
 HEADERS		= ../../../../include/Qt/qgfxshadowfb_qws.h

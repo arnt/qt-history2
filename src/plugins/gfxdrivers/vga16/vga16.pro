@@ -4,7 +4,7 @@ TARGET	 = qgfxvga16
 CONFIG  += qt warn_off plugin
 DESTDIR	 = ../../../gfxdrivers
 
-DEFINES	-= QT_NO_QWS_VGA16
+DEFINES	+= QT_QWS_VGA16
 unix:OBJECTS_DIR = .obj
 
 HEADERS		= ../../../../include/Qt/qgfxvga16_qws.h

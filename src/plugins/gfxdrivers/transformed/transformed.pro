@@ -4,7 +4,7 @@ TARGET	 = qgfxtransformed
 CONFIG  += qt warn_off plugin
 DESTDIR	 = ../../../gfxdrivers
 
-DEFINES	-= QT_NO_QWS_TRANSFORMED
+DEFINES	+= QT_QWS_TRANSFORMED
 unix:OBJECTS_DIR = .obj
 
 HEADERS		= ../../../../include/Qt/qgfxtransformed_qws.h

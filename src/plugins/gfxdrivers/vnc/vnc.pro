@@ -4,7 +4,7 @@ TARGET	 = qgfxvnc
 CONFIG  += qt warn_off plugin
 DESTDIR	 = ../../../gfxdrivers
 
-DEFINES	-= QT_NO_QWS_VNC
+DEFINES	+= QT_QWS_VNC
 unix:OBJECTS_DIR	= .obj
 
 HEADERS		= ../../../../include/Qt/qgfxvnc_qws.h
