@@ -123,6 +123,7 @@ void ActionEditor::deleteAction()
 		MetaDataBase::removeConnection( formWindow, (*it2).sender, (*it2).signal,
 						(*it2).receiver, (*it2).slot );
 	    delete currentAction;
+	    currentAction = 0;
 	    delete it.current();
 	    break;
 	} else if ( ( (ActionItem*)it.current() )->actionGroup() == currentAction ) {
@@ -133,7 +134,23 @@ void ActionEditor::deleteAction()
 		  it2 != conns.end(); ++it2 )
 		MetaDataBase::removeConnection( formWindow, (*it2).sender, (*it2).signal,
 						(*it2).receiver, (*it2).slot );
+	    QObjectList *subActions = currentAction->queryList( "QAction" );
+	    if ( subActions && subActions->count() ) {
+		QObjectListIt subAction( *subActions );
+		while ( subAction.current() ) {
+		    QAction *action = (QAction*)subAction.current();
+		    ++subAction;
+		    formWindow->actionList().removeRef( action );
+		    conns = MetaDataBase::connections( formWindow, action );
+		    for ( it2 = conns.begin(); it2 != conns.end(); ++it2 )
+			MetaDataBase::removeConnection( formWindow, (*it2).sender, (*it2).signal,
+							(*it2).receiver, (*it2).slot );
+		}
+	    }
+	    delete subActions;
+	    subAction = 0;
 	    delete currentAction;
+	    currentAction = 0;
 	    delete it.current();
 	    break;
 	}
