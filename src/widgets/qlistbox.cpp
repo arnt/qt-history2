@@ -753,7 +753,7 @@ QListBox::~QListBox()
 */
 
 /*!
-  \fn void QLixtBox::mouseButtonClicked (int button, QLixtBoxItem * item, const QPoint & pos)
+  \fn void QListBox::mouseButtonClicked (int button, QListBoxItem * item, const QPoint & pos)
 
   This signal is emitted whenever the user clicks (moues pressed + mouse released)
   into the listbox.
