@@ -417,6 +417,29 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
     int i = 0;
     spec[i++] = GLX_LEVEL;
     spec[i++] = f.plane();
+
+// Experimental
+#if 0 && defined(GLX_VERSION_1_1) && defined(GLX_EXT_visual_info)
+    static bool useTranspExt = FALSE;
+    static bool useTranspExtChecked = FALSE;
+    if ( f.plane() && !useTranspExtChecked && paintDevice ) {
+	const char* es = glXQueryExtensionsString( paintDevice->x11Display(),
+						   paintDevice->x11Screen() );
+	if ( es ) {
+	    QCString estr( es );
+	    useTranspExt = estr.contains( "GLX_EXT_visual_info" );
+	    //# (A bit simplistic; that could theoretically be a substring)
+	}
+	qDebug( "Checking transpExt" );
+	useTranspExtChecked = TRUE;
+    }
+    if ( f.plane() && useTranspExt ) {
+	// Required to avoid non-transparent overlay visual(!) on some systems
+	qDebug( "Using transpExt!" );
+	spec[i++] = GLX_TRANSPARENT_TYPE_EXT;
+	spec[i++] = GLX_TRANSPARENT_INDEX_EXT; //# Depending on format...
+    }
+#endif
     if ( f.doubleBuffer() )
 	spec[i++] = GLX_DOUBLEBUFFER;
     if ( f.depth() ) {
@@ -454,7 +477,8 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
 		spec[i++] = 1;
 	    }
         }
-    } else {
+    }
+    else {
 	spec[i++] = GLX_BUFFER_SIZE;
 	spec[i++] = bufDepth;
     }
