@@ -30,19 +30,9 @@ MainForm::MainForm() :
     sizes << 1 << 3;
     splitter->setSizes( sizes );
 
-    char *qtdir = getenv( "QTDIR" );
-    if ( qtdir ) {
-	path->insertItem( QString(qtdir)+"/src", 0 );
-	path->insertItem( QString(qtdir), 1 );
-    }
-
     QStringList args;
     args << "p4" << "labels";
-    process.setArguments( args );
-    if ( !process.start() ) {
-	QMessageBox::critical( this, tr("Error starting process"),
-		tr("Could not start p4. Please check your path") );
-    }
+    start( args );
 }
 
 MainForm::~MainForm()
@@ -76,11 +66,7 @@ void MainForm::startChanges( QString label )
 
     //qDebug( args.join( " " ) );
     process.kill();
-    process.setArguments( args );
-    if ( !process.start() ) {
-	QMessageBox::critical( this, tr("Error starting process"),
-		tr("Could not start p4. Please check your path") );
-    }
+    start( args );
     QApplication::setOverrideCursor( Qt::waitCursor );
 }
 
@@ -111,11 +97,7 @@ void MainForm::currentChanged( QListViewItem *li )
 	QStringList args;
 	args << "p4" << "describe" << "-du" << li->text(0);
 	//qDebug( args.join( " " ) );
-	process.setArguments( args );
-	if ( !process.start() ) {
-	    QMessageBox::critical( this, tr("Error starting process"),
-		    tr("Could not start p4. Please check your path") );
-	}
+	start( args );
 	QApplication::setOverrideCursor( Qt::waitCursor );
     }
 }
@@ -199,6 +181,23 @@ void MainForm::processExited()
     if ( command == "labels" ) {
 	changesTo->insertItem( "#have", 0 );
 	changesTo->insertItem( "#head", 0 );
+
+	QStringList args;
+	args << "p4" << "dirs" << "//depot/qt/*";
+	start( args );
+    } else if ( command == "dirs" ) {
+	char *qtdir = getenv( "QTDIR" );
+	if ( qtdir ) {
+	    path->insertItem( QString(qtdir)+"/src", 0 );
+	    path->insertItem( QString(qtdir), 1 );
+	}
+	while ( process.canReadLineStdout() ) {
+	    QString depot = process.readLineStdout() + "/src";
+	    if ( depot == "//depot/qt/main/src" )
+		path->insertItem( depot, 2 );
+	    else
+		path->insertItem( depot );
+	}
     } else if ( command == "changes" ) {
 	if ( changeListFrom!=0 ) {
 	    if ( changeListTo==0 ) {
@@ -244,6 +243,15 @@ void MainForm::processExited()
 	QString desc( process.readStdout() );
 	parseDescribe( desc );
 	QApplication::restoreOverrideCursor();
+    }
+}
+
+void MainForm::start( const QStringList& args )
+{
+    process.setArguments( args );
+    if ( !process.start() ) {
+	QMessageBox::critical( this, tr("Error starting process"),
+		tr("Could not start p4. Please check your path") );
     }
 }
 

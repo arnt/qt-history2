@@ -23,6 +23,7 @@ private slots:
     void processExited();
 
 private:
+    void start( const QStringList& args );
     void startChanges( QString label );
     void parseDescribe( const QString& );
     void setDescFilesDiff( const QString&, const QString&, const QString& );
