@@ -111,15 +111,12 @@ void QTextPieceTable::insert_string(int pos, uint strPos, uint length, int forma
 
 void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFormat, UndoCommand::Operation op, int command)
 {
-    // ##### optimise when only appending to the fragment!
     split(pos);
     uint x = fragments.insert_single(pos, 1);
     QTextFragment *X = fragments.fragment(x);
     X->format = format;
     X->stringPosition = strPos;
-    uint w = fragments.prev(x);
-    if (w)
-        unite(w);
+    // no need trying to unite, since paragraph separators are always in a fragment of their own
 
     Q_ASSERT(text.at(strPos) == QTextParagraphSeparator);
     Q_ASSERT(blocks.length()+1 == fragments.length());
@@ -215,9 +212,6 @@ int QTextPieceTable::remove_string(int pos, uint length, UndoCommand::Operation 
     Q_ASSERT(blocks.length() == fragments.length());
     Q_ASSERT(blocks.length() >= pos+(int)length);
 
-    split(pos);
-    split(pos+length);
-
     int b = blocks.findNode(pos);
     uint x = fragments.findNode(pos);
 
@@ -239,13 +233,11 @@ int QTextPieceTable::remove_block(int pos, int *blockFormat, int command, UndoCo
     Q_ASSERT(blocks.length() == fragments.length());
     Q_ASSERT(blocks.length() > pos);
 
-    split(pos);
-    split(pos+1);
-
     int b = blocks.findNode(pos);
     uint x = fragments.findNode(pos);
 
     Q_ASSERT(x && (int)fragments.position(x) == pos);
+    Q_ASSERT(fragments.size(x) == 1);
     Q_ASSERT(text.at(fragments.fragment(x)->stringPosition) == QTextParagraphSeparator);
     Q_ASSERT(b);
 
@@ -287,19 +279,6 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
     split(pos);
     split(pos+length);
 
-    uint b = blocks.findNode(pos);
-    int k;
-    while (1) {
-        k = blocks.position(b) + blocks.size(b);
-        if (k > pos + length)
-            break;
-        split(k-1);
-        split(k);
-        b = blocks.next(b);
-        if (!b)
-            break;
-    };
-
     uint x = fragments.findNode(pos);
     uint end = fragments.findNode(pos+length);
 
@@ -308,7 +287,7 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
         uint n = fragments.next(x);
 
         uint key = fragments.position(x);
-        b = blocks.findNode(key+1);
+        uint b = blocks.findNode(key+1);
 
         QTextFragment *X = fragments.fragment(x);
         UndoCommand c = { UndoCommand::Removed, true,
@@ -497,6 +476,10 @@ bool QTextPieceTable::unite(uint f)
     QTextFragment *nf = fragments.fragment(n);
 
     if (nf->format == ff->format && (ff->stringPosition + (int)ff->size == nf->stringPosition)) {
+        if (text.at(ff->stringPosition) == QTextParagraphSeparator
+            || text.at(nf->stringPosition) == QTextParagraphSeparator)
+            return false;
+
         fragments.setSize(f, ff->size + nf->size);
         fragments.erase_single(n);
         return true;
