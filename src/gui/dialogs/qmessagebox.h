@@ -18,8 +18,8 @@
 
 #ifndef QT_NO_MESSAGEBOX
 
-class  QLabel;
-struct QMessageBoxData;
+class QLabel;
+class QMessageBoxPrivate;
 
 class Q_GUI_EXPORT QMessageBox : public QDialog
 {
@@ -60,6 +60,9 @@ public:
 
     QString buttonText(int button) const;
     void setButtonText(int button, const QString &);
+
+    Qt::TextFormat textFormat() const;
+    void setTextFormat(Qt::TextFormat);
 
     static int information(QWidget *parent, const QString &caption,
                             const QString& text,
@@ -143,9 +146,6 @@ public:
 
     static QPixmap standardIcon(Icon icon);
 
-    Qt::TextFormat textFormat() const;
-    void setTextFormat(Qt::TextFormat);
-
 protected:
     void        resizeEvent(QResizeEvent *);
     void        showEvent(QShowEvent *);
@@ -153,19 +153,11 @@ protected:
     void        keyPressEvent(QKeyEvent *);
     void        changeEvent(QEvent *);
 
-private slots:
-    void        buttonClicked();
-
 private:
-    Q_DISABLE_COPY(QMessageBox)
+    Q_PRIVATE_SLOT(d, void buttonClicked());
 
-    void        init(int, int, int);
-    int                indexOf(int) const;
-    void        resizeButtons();
-    QLabel     *label;
-    QMessageBoxData *mbd;
-    void       *reserved1;
-    void       *reserved2;
+    Q_DISABLE_COPY(QMessageBox)
+    Q_DECLARE_PRIVATE(QMessageBox)
 };
 
 /*

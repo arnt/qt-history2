@@ -31,6 +31,29 @@
 #include "qnc_win.h"
 #endif
 
+#include "qdialog_p.h"
+
+class QMessageBoxPrivate : public QDialogPrivate
+{
+    Q_DECLARE_PUBLIC(QMessageBox)
+public:
+    QMessageBoxPrivate() {}
+    void buttonClicked();
+    void init(int, int, int);
+    int indexOf(int) const;
+    void resizeButtons();
+    QLabel *label;
+
+    int                 numButtons;             // number of buttons
+    QMessageBox::Icon   icon;                   // message box icon
+    QLabel              *iconLabel;              // label holding any icon
+    int                 button[3];              // button types
+    int                 defButton;              // default button (index)
+    int                 escButton;              // escape button (index)
+    QSize               buttonSize;             // button size
+    QPushButton        *pb[3];                  // buttons
+};
+
 /* XPM */
 static const char * const qtlogo_xpm[] = {
 /* width height ncolors chars_per_pixel */
@@ -385,23 +408,6 @@ static const char * const qtlogo_xpm[] = {
 
 */
 
-
-struct QMessageBoxData {
-    QMessageBoxData(QMessageBox* parent) :
-        iconLabel(parent)
-    {
-    }
-
-    int                 numButtons;             // number of buttons
-    QMessageBox::Icon   icon;                   // message box icon
-    QLabel              iconLabel;              // label holding any icon
-    int                 button[3];              // button types
-    int                 defButton;              // default button (index)
-    int                 escButton;              // escape button (index)
-    QSize               buttonSize;             // button size
-    QPushButton        *pb[3];                  // buttons
-};
-
 static const int LastButton = QMessageBox::NoAll;
 
 /*
@@ -439,11 +445,12 @@ const char * mb_texts[] = {
 */
 
 QMessageBox::QMessageBox(QWidget *parent)
-    : QDialog(parent, Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title
-                      | Qt::WStyle_SysMenu)
+    : QDialog(*new QMessageBoxPrivate, parent,
+              Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
 {
+    Q_D(QMessageBox);
     setModal(true);
-    init(Ok, 0, 0);
+    d->init(Ok, 0, 0);
 }
 
 /*!
@@ -511,10 +518,11 @@ QMessageBox::QMessageBox(const QString& caption,
                           const QString &text, Icon icon,
                           int button0, int button1, int button2,
                           QWidget *parent, Qt::WFlags f)
-    : QDialog(parent, f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title
-                        | Qt::WStyle_SysMenu)
+    : QDialog(*new QMessageBoxPrivate, parent,
+              f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
 {
-    init(button0, button1, button2);
+    Q_D(QMessageBox);
+    d->init(button0, button1, button2);
 #ifndef QT_NO_WIDGET_TOPEXTRA
     setWindowTitle(caption);
 #endif
@@ -530,20 +538,20 @@ QMessageBox::QMessageBox(const QString& caption,
 
 QMessageBox::~QMessageBox()
 {
-    delete mbd;
 }
 
 static QString * translatedTextAboutQt = 0;
 
-void QMessageBox::init(int button0, int button1, int button2)
+void QMessageBoxPrivate::init(int button0, int button1, int button2)
 {
+    Q_Q(QMessageBox);
     if (!translatedTextAboutQt) {
         translatedTextAboutQt = new QString;
 
 #if defined(QT_NON_COMMERCIAL)
     QT_NC_MSGBOX
 #else
-        *translatedTextAboutQt = tr(
+        *translatedTextAboutQt = q->tr(
             "<h3>About Qt</h3>"
             "<p>This program uses Qt version %1.</p>"
             "<p>Qt is a C++ toolkit for cross-platform GUI "
@@ -559,86 +567,81 @@ void QMessageBox::init(int button0, int button1, int button2)
 #endif
 
     }
-    label = new QLabel(this);
+    label = new QLabel(q);
     label->setAlignment(Qt::AlignTop);
 
     if ((button2 && !button1) || (button1 && !button0)) {
         qWarning("QMessageBox: Inconsistent button parameters");
         button0 = button1 = button2 = 0;
     }
-    mbd = new QMessageBoxData(this);
-    mbd->icon = NoIcon;
-    mbd->iconLabel.setPixmap(QPixmap());
-    mbd->numButtons = 0;
-    mbd->button[0] = button0;
-    mbd->button[1] = button1;
-    mbd->button[2] = button2;
-    mbd->defButton = -1;
-    mbd->escButton = -1;
+    icon = QMessageBox::NoIcon;
+    iconLabel = new QLabel(q);
+    iconLabel->setPixmap(QPixmap());
+    numButtons = 0;
+    button[0] = button0;
+    button[1] = button1;
+    button[2] = button2;
+    defButton = -1;
+    escButton = -1;
     int i;
     for (i=0; i<3; i++) {
-        int b = mbd->button[i];
-        if ((b & Default)) {
-            if (mbd->defButton >= 0) {
+        int b = button[i];
+        if ((b & QMessageBox::Default)) {
+            if (defButton >= 0) {
                 qWarning("QMessageBox: There can be at most one default button");
             } else {
-                mbd->defButton = i;
+                defButton = i;
             }
         }
-        if ((b & Escape)) {
-            if (mbd->escButton >= 0) {
+        if ((b & QMessageBox::Escape)) {
+            if (escButton >= 0) {
                 qWarning("QMessageBox: There can be at most one escape button");
             } else {
-                mbd->escButton = i;
+                escButton = i;
             }
         }
-        b &= ButtonMask;
+        b &= QMessageBox::ButtonMask;
         if (b == 0) {
             if (i == 0)                       // no buttons, add an Ok button
-                b = Ok;
+                b = QMessageBox::Ok;
         } else if (b < 0 || b > LastButton) {
             qWarning("QMessageBox: Invalid button specifier");
-            b = Ok;
+            b = QMessageBox::Ok;
         } else {
-            if (i > 0 && mbd->button[i-1] == 0) {
+            if (i > 0 && button[i-1] == 0) {
                 qWarning("QMessageBox: Inconsistent button parameters; "
                            "button %d defined but not button %d",
                            i+1, i);
                 b = 0;
             }
         }
-        mbd->button[i] = b;
+        button[i] = b;
         if (b)
-            mbd->numButtons++;
+            numButtons++;
     }
     for (i=0; i<3; i++) {
-        if (i >= mbd->numButtons) {
-            mbd->pb[i] = 0;
+        if (i >= numButtons) {
+            pb[i] = 0;
         } else {
-            QByteArray buttonName = QByteArray::number(i+1);
-            buttonName.prepend("button");
-            mbd->pb[i] = new QPushButton(tr(mb_texts[mbd->button[i]]), this);
-            // ### do we need the object name at all?
-            setObjectName(buttonName);
-            if (mbd->defButton == i) {
-                mbd->pb[i]->setDefault(true);
-                mbd->pb[i]->setFocus();
+            pb[i] = new QPushButton(q->tr(mb_texts[button[i]]), q);
+            if (defButton == i) {
+                pb[i]->setDefault(true);
+                pb[i]->setFocus();
             }
-            mbd->pb[i]->setAutoDefault(true);
-            mbd->pb[i]->setFocusPolicy(Qt::StrongFocus);
-            connect(mbd->pb[i], SIGNAL(clicked()), SLOT(buttonClicked()));
+            pb[i]->setAutoDefault(true);
+            pb[i]->setFocusPolicy(Qt::StrongFocus);
+            q->connect(pb[i], SIGNAL(clicked()), SLOT(buttonClicked()));
         }
     }
     resizeButtons();
-    reserved1 = reserved2 = 0;
 }
 
 
-int QMessageBox::indexOf(int button) const
+int QMessageBoxPrivate::indexOf(int button) const
 {
     int index = -1;
-    for (int i=0; i<mbd->numButtons; i++) {
-        if (mbd->button[i] == button) {
+    for (int i = 0; i < numButtons; i++) {
+        if (this->button[i] == button) {
             index = i;
             break;
         }
@@ -647,18 +650,18 @@ int QMessageBox::indexOf(int button) const
 }
 
 
-void QMessageBox::resizeButtons()
+void QMessageBoxPrivate::resizeButtons()
 {
     int i;
     QSize maxSize;
-    for (i=0; i<mbd->numButtons; i++) {
-        QSize s = mbd->pb[i]->sizeHint();
+    for (i = 0; i < numButtons; i++) {
+        QSize s = pb[i]->sizeHint();
         maxSize.setWidth( qMax(maxSize.width(), s.width()));
         maxSize.setHeight(qMax(maxSize.height(),s.height()));
     }
-    mbd->buttonSize = maxSize;
-    for (i=0; i<mbd->numButtons; i++)
-        mbd->pb[i]->resize(maxSize);
+    buttonSize = maxSize;
+    for (i = 0; i < numButtons; i++)
+        pb[i]->resize(maxSize);
 }
 
 
@@ -677,16 +680,18 @@ void QMessageBox::resizeButtons()
 */
 QString QMessageBox::text() const
 {
-    return label->text();
+    Q_D(const QMessageBox);
+    return d->label->text();
 }
 
 
 void QMessageBox::setText(const QString &text)
 {
-    label->setText(text);
-    bool wordwrap = label->textFormat() == Qt::RichText
-                    || (label->textFormat() == Qt::AutoText && QText::mightBeRichText(text));
-    label->setWordWrap(wordwrap);
+    Q_D(QMessageBox);
+    d->label->setText(text);
+    bool wordwrap = d->label->textFormat() == Qt::RichText
+                    || (d->label->textFormat() == Qt::AutoText && QText::mightBeRichText(text));
+    d->label->setWordWrap(wordwrap);
 }
 
 
@@ -714,13 +719,15 @@ void QMessageBox::setText(const QString &text)
 
 QMessageBox::Icon QMessageBox::icon() const
 {
-    return mbd->icon;
+    Q_D(const QMessageBox);
+    return d->icon;
 }
 
 void QMessageBox::setIcon(Icon icon)
 {
+    Q_D(QMessageBox);
     setIconPixmap(standardIcon(icon));
-    mbd->icon = icon;
+    d->icon = icon;
 }
 
 #ifdef QT_COMPAT
@@ -729,12 +736,13 @@ QMessageBox::QMessageBox(const QString& caption,
                           int button0, int button1, int button2,
                           QWidget *parent, const char *name,
                           bool modal, Qt::WFlags f)
-    : QDialog(parent, f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title
-                        | Qt::WStyle_SysMenu)
+    : QDialog(*new QMessageBoxPrivate, parent,
+              f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
 {
+    Q_D(QMessageBox);
     setObjectName(name);
     setModal(modal);
-    init(button0, button1, button2);
+    d->init(button0, button1, button2);
 #ifndef QT_NO_WIDGET_TOPEXTRA
     setWindowTitle(caption);
 #endif
@@ -743,12 +751,13 @@ QMessageBox::QMessageBox(const QString& caption,
 }
 
 QMessageBox::QMessageBox(QWidget *parent, const char *name)
-    : QDialog(parent, Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title
-                      | Qt::WStyle_SysMenu)
+    : QDialog(*new QMessageBoxPrivate, parent,
+              Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
 {
+    Q_D(QMessageBox);
     setObjectName(name);
     setModal(true);
-    init(Ok, 0, 0);
+    d->init(Ok, 0, 0);
 }
 
 /*!
@@ -813,14 +822,16 @@ QPixmap QMessageBox::standardIcon(Icon icon)
 
 QPixmap QMessageBox::iconPixmap() const
 {
-    return *mbd->iconLabel.pixmap();
+    Q_D(const QMessageBox);
+    return *d->iconLabel->pixmap();
 }
 
 
 void QMessageBox::setIconPixmap(const QPixmap &pixmap)
 {
-    mbd->iconLabel.setPixmap(pixmap);
-    mbd->icon = NoIcon;
+    Q_D(QMessageBox);
+    d->iconLabel->setPixmap(pixmap);
+    d->icon = NoIcon;
 }
 
 
@@ -833,10 +844,9 @@ void QMessageBox::setIconPixmap(const QPixmap &pixmap)
 
 QString QMessageBox::buttonText(int button) const
 {
-    int index = indexOf(button);
-    return index >= 0 && mbd->pb[index]
-            ? mbd->pb[index]->text()
-            : QString();
+    Q_D(const QMessageBox);
+    int index = d->indexOf(button);
+    return index >= 0 && d->pb[index] ? d->pb[index]->text() : QString();
 }
 
 
@@ -850,10 +860,11 @@ QString QMessageBox::buttonText(int button) const
 
 void QMessageBox::setButtonText(int button, const QString &text)
 {
-    int index = indexOf(button);
-    if (index >= 0 && mbd->pb[index]) {
-        mbd->pb[index]->setText(text);
-        resizeButtons();
+    Q_D(QMessageBox);
+    int index = d->indexOf(button);
+    if (index >= 0 && d->pb[index]) {
+        d->pb[index]->setText(text);
+        d->resizeButtons();
     }
 }
 
@@ -863,15 +874,17 @@ void QMessageBox::setButtonText(int button, const QString &text)
     Internal slot to handle button clicks.
 */
 
-void QMessageBox::buttonClicked()
+void QMessageBoxPrivate::buttonClicked()
 {
+    Q_Q(QMessageBox);
+
     int reply = 0;
-    const QObject *s = sender();
-    for (int i=0; i<mbd->numButtons; i++) {
-        if (mbd->pb[i] == s)
-            reply = mbd->button[i];
+    const QObject *s = q->sender();
+    for (int i = 0; i < numButtons; i++) {
+        if (pb[i] == s)
+            reply = button[i];
     }
-    done(reply);
+    q->done(reply);
 }
 
 
@@ -879,24 +892,25 @@ void QMessageBox::buttonClicked()
 */
 QSize QMessageBox::sizeHint() const
 {
+    Q_D(const QMessageBox);
     ensurePolished();
-    label->adjustSize();
-    QSize labelSize(label->size());
-    int n  = mbd->numButtons;
-    int bw = mbd->buttonSize.width();
-    int bh = mbd->buttonSize.height();
+    d->label->adjustSize();
+    QSize labelSize(d->label->size());
+    int n  = d->numButtons;
+    int bw = d->buttonSize.width();
+    int bh = d->buttonSize.height();
     int border = bh / 2 - style()->pixelMetric(QStyle::PM_ButtonDefaultIndicator);
     if (border <= 0)
         border = 10;
     int btn_spacing = style()->styleHint(QStyle::SH_MessageBox_UseBorderForButtonSpacing)
                       ? border : 7;
 #ifndef Q_OS_TEMP
-    int buttons = mbd->numButtons * bw + (n-1) * btn_spacing;
+    int buttons = d->numButtons * bw + (n-1) * btn_spacing;
     int h = bh;
 #else
     int visibleButtons = 0;
-    for (int i = 0; i < mbd->numButtons; ++i)
-        visibleButtons += mbd->pb[i]->isVisible() ? 1 : 0;
+    for (int i = 0; i < d->numButtons; ++i)
+        visibleButtons += d->pb[i]->isVisible() ? 1 : 0;
     int buttons = visibleButtons == 0 ? 0 : visibleButtons * bw + (visibleButtons-1) * btn_spacing;
     int h = visibleButtons == 0 ? 0 : bh;
     n = visibleButtons;
@@ -906,11 +920,11 @@ QSize QMessageBox::sizeHint() const
     else
         h += 2*border;
     int lmargin = 0;
-    if (mbd->iconLabel.pixmap() && mbd->iconLabel.pixmap()->width())  {
-        mbd->iconLabel.adjustSize();
-        lmargin += mbd->iconLabel.width() + border;
-        if (h < mbd->iconLabel.height() + 3*border + bh && n)
-            h = mbd->iconLabel.height() + 3*border + bh;
+    if (d->iconLabel->pixmap() && d->iconLabel->pixmap()->width())  {
+        d->iconLabel->adjustSize();
+        lmargin += d->iconLabel->width() + border;
+        if (h < d->iconLabel->height() + 3*border + bh && n)
+            h = d->iconLabel->height() + 3*border + bh;
     }
     int w = qMax(buttons, labelSize.width() + lmargin) + 2*border;
     QRect screen = QApplication::desktop()->screenGeometry(pos());
@@ -924,14 +938,15 @@ QSize QMessageBox::sizeHint() const
 */
 void QMessageBox::resizeEvent(QResizeEvent *)
 {
+    Q_D(QMessageBox);
     int i;
-    int n  = mbd->numButtons;
-    int bw = mbd->buttonSize.width();
-    int bh = mbd->buttonSize.height();
+    int n  = d->numButtons;
+    int bw = d->buttonSize.width();
+    int bh = d->buttonSize.height();
 #ifdef Q_OS_TEMP
     int visibleButtons = 0;
     for (i = 0; i < n; ++i)
-        visibleButtons += mbd->pb[i]->isVisible() ? 1 : 0;
+        visibleButtons += d->pb[i]->isVisible() ? 1 : 0;
     n  = visibleButtons;
     bw = visibleButtons == 0 ? 0 : bw;
     bh = visibleButtons == 0 ? 0 : bh;
@@ -942,22 +957,22 @@ void QMessageBox::resizeEvent(QResizeEvent *)
     bool useBorder = style()->styleHint(QStyle::SH_MessageBox_UseBorderForButtonSpacing);
     int btn_spacing = useBorder ? border : 7;
     int lmargin = 0;
-    mbd->iconLabel.adjustSize();
-    mbd->iconLabel.move(border, border);
-    if (mbd->iconLabel.pixmap() && mbd->iconLabel.pixmap()->width())
-        lmargin += mbd->iconLabel.width() + border;
-    label->setGeometry(lmargin+border,
-                        border,
-                        width() - lmargin -2*border,
-                        height() - 3*border - bh);
+    d->iconLabel->adjustSize();
+    d->iconLabel->move(border, border);
+    if (d->iconLabel->pixmap() && d->iconLabel->pixmap()->width())
+        lmargin += d->iconLabel->width() + border;
+    d->label->setGeometry(lmargin+border,
+                          border,
+                          width() - lmargin -2*border,
+                          height() - 3*border - bh);
     int extra_space = (width() - bw*n - 2*border - (n-1)*btn_spacing);
     if (useBorder) {
         for (i=0; i<n; i++)
-            mbd->pb[i]->move(border + i*bw + i*btn_spacing + extra_space*(i+1)/(n+1),
+            d->pb[i]->move(border + i*bw + i*btn_spacing + extra_space*(i+1)/(n+1),
                               height() - border - bh);
     } else {
         for (i=0; i<n; i++)
-            mbd->pb[i]->move(border + i*bw + extra_space/2 + i*btn_spacing,
+            d->pb[i]->move(border + i*bw + extra_space/2 + i*btn_spacing,
                               height() - border - bh);
     }
 }
@@ -967,9 +982,10 @@ void QMessageBox::resizeEvent(QResizeEvent *)
 */
 void QMessageBox::keyPressEvent(QKeyEvent *e)
 {
+    Q_D(QMessageBox);
     if (e->key() == Qt::Key_Escape) {
-        if (mbd->escButton >= 0) {
-            QPushButton *pb = mbd->pb[mbd->escButton];
+        if (d->escButton >= 0) {
+            QPushButton *pb = d->pb[d->escButton];
             pb->animateClick();
             e->accept();
             return;
@@ -1008,9 +1024,10 @@ void QMessageBox::showEvent(QShowEvent *e)
 */
 void QMessageBox::closeEvent(QCloseEvent *e)
 {
+    Q_D(QMessageBox);
     QDialog::closeEvent(e);
-    if (mbd->escButton != -1)
-        setResult(mbd->button[mbd->escButton]);
+    if (d->escButton != -1)
+        setResult(d->button[d->escButton]);
 }
 
 /*****************************************************************************
@@ -1272,10 +1289,11 @@ void QMessageBox::about(QWidget *parent, const QString &caption,
 */
 void QMessageBox::changeEvent(QEvent *ev)
 {
+    Q_D(QMessageBox);
     if(ev->type() == QEvent::StyleChange) {
-        if (mbd->icon != NoIcon) {
+        if (d->icon != NoIcon) {
             // Reload icon for new style
-            setIcon(mbd->icon);
+            setIcon(d->icon);
         }
     }
     QWidget::changeEvent(ev);
@@ -1543,11 +1561,11 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
         mb.setIconPixmap(pm);
 #endif
     mb.setButtonText(0, tr("OK"));
-    if (mb.mbd && mb.mbd->pb[0]) {
-        mb.mbd->pb[0]->setAutoDefault(true);
-        mb.mbd->pb[0]->setFocusPolicy(Qt::StrongFocus);
-        mb.mbd->pb[0]->setDefault(true);
-        mb.mbd->pb[0]->setFocus();
+    if (mb.d_func()->pb[0]) {
+        mb.d_func()->pb[0]->setAutoDefault(true);
+        mb.d_func()->pb[0]->setFocusPolicy(Qt::StrongFocus);
+        mb.d_func()->pb[0]->setDefault(true);
+        mb.d_func()->pb[0]->setFocus();
     }
     mb.exec();
 }
@@ -1566,18 +1584,20 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
 
 Qt::TextFormat QMessageBox::textFormat() const
 {
-    return label->textFormat();
+    Q_D(const QMessageBox);
+    return d->label->textFormat();
 }
 
 
 void QMessageBox::setTextFormat(Qt::TextFormat format)
 {
-    label->setTextFormat(format);
+    Q_D(QMessageBox);
+    d->label->setTextFormat(format);
     bool wordwrap = format == Qt::RichText
-                    || (format == Qt::AutoText && QText::mightBeRichText(label->text()));
-    label->setWordWrap(wordwrap);
+                    || (format == Qt::AutoText && QText::mightBeRichText(d->label->text()));
+    d->label->setWordWrap(wordwrap);
 }
 
-
+#define d d_func()
 #include "moc_qmessagebox.cpp"
 #endif
