@@ -1363,7 +1363,8 @@ void MainWindow::activeWindowChanged( QWidget *w )
 {
     QWidget *old = formWindow();
     if ( w && w->inherits( "FormWindow" ) ) {
-	lastActiveFormWindow = (FormWindow*)w;
+	FormWindow *fw = (FormWindow*)w;
+	lastActiveFormWindow = fw;
 	lastActiveFormWindow->updateUndoInfo();
 	emit hasActiveForm( TRUE );
 	if ( formWindow() ) {
@@ -1372,7 +1373,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	    if ( currentTool() != POINTER_TOOL )
 		formWindow()->clearSelection();
 	}
-	workspace()->activeFormChanged( (FormWindow*)w );
+	workspace()->activeFormChanged( fw );
 	setAppropriate( (QDockWindow*)actionEditor->parentWidget(), lastActiveFormWindow->mainContainer()->inherits( "QMainWindow" ) );
 	if ( appropriate( (QDockWindow*)actionEditor->parentWidget() ) )
 	    actionEditor->parentWidget()->show();
@@ -1380,9 +1381,9 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	    actionEditor->parentWidget()->hide();
 
 	actionEditor->setFormWindow( lastActiveFormWindow );
-	if ( wspace && ( (FormWindow*)w )->project() && ( (FormWindow*)w )->project() != currentProject ) {
+	if ( wspace && fw->project() && fw->project() != currentProject ) {
 	    for ( QMap<QAction*, Project *>::Iterator it = projects.begin(); it != projects.end(); ++it ) {
-		if ( *it == ( (FormWindow*)w )->project() ) {
+		if ( *it == fw->project() ) {
 		    projectSelected( it.key() );
 		    break;
 		}
@@ -1410,9 +1411,10 @@ void MainWindow::activeWindowChanged( QWidget *w )
     selectionChanged();
 
     if ( w && w->inherits( "SourceEditor" ) ) {
-	if ( ( (SourceEditor*)w )->formWindow() &&
-	     lastActiveFormWindow != ( (SourceEditor*)w )->formWindow() ) {
-	    activeWindowChanged( ( (SourceEditor*)w )->formWindow() );
+	SourceEditor *se = (SourceEditor*)w;
+	if ( se->formWindow() &&
+	     lastActiveFormWindow != se->formWindow() ) {
+	    activeWindowChanged( se->formWindow() );
 	}
 	actionSearchFind->setEnabled( TRUE );
 	actionSearchIncremetal->setEnabled( TRUE );
@@ -1431,17 +1433,17 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	actionEditRedo->setMenuText( tr( "&Redo" ) );
 	actionEditRedo->setToolTip( textNoAccel( actionEditRedo->menuText()) );
 	if ( hierarchyView->sourceEditor() != w )
-	    hierarchyView->showClasses( (SourceEditor*)w );
+	    hierarchyView->showClasses( se );
 	actionEditor->setFormWindow( 0 );
-	if ( wspace && ( (FormWindow*)w )->project() && ( (FormWindow*)w )->project() != currentProject ) {
+	if ( wspace && se->project() && se->project() != currentProject ) {
 	    for ( QMap<QAction*, Project *>::Iterator it = projects.begin(); it != projects.end(); ++it ) {
-		if ( *it == ( (SourceEditor*)w )->project() ) {
+		if ( *it == se->project() ) {
 		    projectSelected( it.key() );
 		    break;
 		}
 	    }
 	}
-	workspace()->activeEditorChanged( (SourceEditor*)w );
+	workspace()->activeEditorChanged( se );
     } else {
 	actionSearchFind->setEnabled( FALSE );
 	actionSearchIncremetal->setEnabled( FALSE );
