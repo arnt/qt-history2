@@ -170,7 +170,97 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
   \class QTextCodec qtextcodec.h
     \ingroup i18n
   \brief The QTextCodec class provides conversion between text encodings.
+  
+  Throughout all of Qt Unicode is used to store, draw and manipulate
+  strings. A lot of data is however still stored in other
+  encodings. Most japanese documents are for example still stored in
+  Shift-JIS or ISO2022, while Russian users have their documents in
+  koi8-r or CP1251.
+  
+  The set of QTextCodec classes help converting these formats from and to Unicode.
 
+  The supported encodings are:
+  <li> Big5 (Chinese encoding)
+  <li> eucJP (one of the many Japanese encodings)
+  <li> eucKR (Korean)
+  <li> GBK (Chinese encoding)
+  <li> JIS7 (Japanese)
+  <li> Shift-JIS (Japanese)
+  <li> TSCII (Tamil)
+  <li> utf8 (Unicode, 8bit)
+  <li> utf16 (Unicode)
+  <li> KOI8-R (Russian)
+  <li> KOI8-U (Ukrainian)
+  <li> ISO8859-1 (Western)
+  <li> ISO8859-2 (Central Europe)
+  <li> ISO8859-3 (Central Europe)
+  <li> ISO8859-4 (Baltic)
+  <li> ISO8859-5 (Cyrillic)
+  <li> ISO8859-6 (Arabic)
+  <li> ISO8859-7 (Greek)
+  <li> ISO8859-8 (Hebrew, visually ordered)
+  <li> ISO8859-8-i (Hebrew, logically ordered)
+  <li> ISO8859-9 (Turkish)
+  <li> ISO8859-10
+  <li> ISO8859-13
+  <li> ISO8859-14
+  <li> ISO8859-15 (Western)
+  <li> CP 874 
+  <li> CP 1250 (Central Europe)
+  <li> CP 1251 (Cyrillic)
+  <li> CP 1252 (Western)
+  <li> CP 1253 (Greek)
+  <li> CP 1254 (Turkish)
+  <li> CP 1255 (Hebrew)
+  <li> CP 1256 (Arabic)
+  <li> CP 1257 (Baltic)
+  <li> CP 1258
+  <li> Apple Roman
+  <li> TIS-620 (Thai)
+
+  QTextCodecs can be used as follows to convert some locally encoded
+  string to Unicode. Suppose you have some string encoded in russian
+  KOI8-R encoding, and want to convert it to Unicode. The simple way
+  to do this is: 
+  
+  <pre>
+  QCString locallyEncoded = "..."; // text to convert
+  QTextCodec *codec = QTextCodec::codecForName("KOI8-R"); // get the codec for KOI8-R
+  QString unicodeString = codec->toUnicode( locallyEncoded );
+  </pre>
+  
+  After this, <code>unicodeString</code> holds the text converted to Unicode. Converting a string
+  from Unicode to the local encoding is as simple:
+
+  <pre>
+  QString unicodeString = ...;
+  QTextCodec *codec = QTextCodec::codecForName("KOI8-R"); // get the codec for KOI8-R
+  QCString locallyEncoded = codec->fromUnicode( unicodeString );
+  </pre>
+  
+  Some care has to be taken when trying to convert the data in chunks
+  (for example when receiving it over the network). In this case the
+  above approach is too simplistic, because some encodings use more
+  than one byte per character. In this case a character could be split
+  between two chunks of data that are to be converted to Unicode, and
+  the above approach would in the best case loose one char and in some
+  other cases fail completely.
+  
+  The approach to use here is to create a QTextDecoder object for the
+  codec and use this QTextDecoder for the whole decoding process, as
+  shown below: 
+  
+  <pre> 
+  QTextCodec *c = QTextCodec::codecForName( "Shift-JIS" );
+  QTextDecoder *decoder = c->makeDecoder();
+  
+  QString unicodeString;
+  while( receiving_data ) {
+      QByteArray chunk = new_data;
+      unicodeString += decoder->toUnicode( chunk.data(), chunk.length() );
+  }
+  </pre>
+  
   By making objects of subclasses of QTextCodec, support for
   new text encodings can be added to Qt.
 
