@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#306 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#307 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1352,7 +1352,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     } else {
 	if ( isMove )
 	    QApplication::postEvent( this,
-				     new QMoveEvent( r.topLeft(), oldp );
+				     new QMoveEvent( r.topLeft(), oldp ) );
 	if ( isResize )
 	    QApplication::postEvent( this,
 				     new QResizeEvent( r.size(), olds ) );
