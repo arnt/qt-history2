@@ -140,7 +140,7 @@ struct QIconViewPrivate
     QFontMetrics *fm;
     int minLeftBearing, minRightBearing;
     bool containerUpdateLocked;
-    
+
     struct ItemContainer {
 	ItemContainer( ItemContainer *pr, ItemContainer *nx, const QRect &r )
 	    : p( pr ), n( nx ), rect( r ) {
@@ -1985,9 +1985,6 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->firstContainer = d->lastContainer = 0;
     d->containerUpdateLocked = FALSE;
 
-    setHScrollBarMode( AlwaysOff );
-    setVScrollBarMode( Auto );
-
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
@@ -1998,7 +1995,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
 	     this, SLOT( updateContents() ) );
     connect( this, SIGNAL( contentsMoving( int, int ) ),
 	     this, SLOT( movedContents( int, int ) ) );
-    
+
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
 
@@ -3130,14 +3127,6 @@ void QIconView::setAlignMode( AlignMode am )
 
     d->alignMode = am;
 
-    if ( d->alignMode == East ) {
-	setHScrollBarMode( AlwaysOff );
-	setVScrollBarMode( Auto );
-    } else {
-	setVScrollBarMode( AlwaysOff );
-	setHScrollBarMode( Auto );
-    }
-
     viewport()->setUpdatesEnabled( FALSE );
     resizeContents( viewport()->width(), viewport()->height() );
     viewport()->setUpdatesEnabled( TRUE );
@@ -4259,7 +4248,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 {
     if ( pos == QPoint( -1, -1 ) )
 	return;
-    
+
     if ( !d->drawDragShapes ) {
 	d->drawDragShapes = TRUE;
 	return;
@@ -4755,28 +4744,16 @@ void QIconView::sort( bool ascending )
 
 QSize QIconView::sizeHint() const
 {
-    // #### todo
-    // ##### should be mutable
-//     if ( d->dirty )
-// 	( (QIconView*)this )->alignItemsInGrid();
+    if ( d->dirty ) {
+	( (QIconView*)this )->resizeContents( QMAX( 400, contentsWidth() ), 
+					      QMAX( 400, contentsHeight() ) );
+	( (QIconView*)this )->alignItemsInGrid( FALSE );
+    }
+    
+    d->dirty = TRUE;
 
-//     int w = 100;
-//     int h = 100;
-
-//     QIconViewItem *item = d->firstItem;
-//     for ( ; item; item = item->next ) {
-// 	w = QMAX( w, item->x() + item->width() );
-// 	h = QMAX( h, item->y() + item->height() );
-//     }
-
-//     w += d->spacing;
-//     h += d->spacing;
-
-//     d->dirty = TRUE;
-
-//     return QSize( QMIN( 400, w ), QMIN( 400, h ) );
-
-    return QSize( 400, 400 );
+    return QSize( QMIN( 400, contentsWidth() + style().scrollBarExtent().width()), 
+		  QMIN( 400, contentsHeight() + style().scrollBarExtent().height() ) );
 }
 
 /*!

@@ -53,9 +53,8 @@ int main( int argc, char **argv )
 
     QIconView qiconview;
     qiconview.setSelectionMode( QIconView::Extended );
-    qiconview.resize( 600, 480 );
 
-    for ( unsigned int i = 0; i < 2000; i++ )
+    for ( unsigned int i = 0; i < 3000; i++ )
         ( void )new QIconViewItem( &qiconview, QString( "Item %1" ).arg( i + 1 ) );
 
     qiconview.setCaption( "Iconview" );
@@ -66,6 +65,7 @@ int main( int argc, char **argv )
 
     a.setMainWidget( &qiconview );
     qiconview.show();
+    qiconview.resize( qiconview.sizeHint() );
 
     return a.exec();
 }

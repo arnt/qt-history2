@@ -661,6 +661,9 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
     connect( this, SIGNAL( viewportRightPressed() ),
 	     this, SLOT( slotViewportRightClicked() ) );
 
+    setHScrollBarMode( AlwaysOff );
+    setVScrollBarMode( Auto );
+
     setAligning( TRUE );
     setSorting( TRUE );
 }
@@ -854,11 +857,15 @@ void QtFileIconView::viewRight()
 
 void QtFileIconView::flowEast()
 {
+    setHScrollBarMode( AlwaysOff );
+    setVScrollBarMode( Auto );
     setAlignMode( East );
 }
 
 void QtFileIconView::flowSouth()
 {
+    setVScrollBarMode( AlwaysOff );
+    setHScrollBarMode( Auto );
     setAlignMode( South );
 }
 

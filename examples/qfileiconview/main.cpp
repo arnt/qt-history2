@@ -31,7 +31,7 @@ int main( int argc, char **argv )
 	return a.exec();
     } else {
 	FileMainWindow mw;
-	mw.resize( 700, 480 );
+	mw.resize( 680, 480 );
 	a.setMainWidget( &mw );
 	mw.fileView()->setDirectory( "/" );
 	mw.show();
