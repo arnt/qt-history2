@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#16 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -19,7 +19,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#15 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#16 $")
 
 
 #if !defined(QT_HEADER_PS)
@@ -328,11 +328,15 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		QPointArray a = *p[0].ptarr;
 		QPoint pt = a.point( 0 );
 		stream << XCOORD(pt.x()) << ' ' << YCOORD(pt.y()) << " MT\n";
-		for ( int i=1; i<(int)a.size(); i++ ) {
-		    pt = a.point( i );
+		if ( a.size() == 1 )
 		    stream << XCOORD(pt.x()) << ' '
 			   << YCOORD(pt.y()) << " LT\n";
-		}
+		else
+		    for ( int i=1; i<(int)a.size(); i++ ) {
+			pt = a.point( i );
+			stream << XCOORD(pt.x()) << ' '
+			       << YCOORD(pt.y()) << " LT\n";
+		    }
 		stream << "QtStroke\n";
 	    }
 	    break;
