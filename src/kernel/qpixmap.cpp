@@ -356,7 +356,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 	      pixmap.data->bitmap, pixmap.data->optim );
 	data->uninit = FALSE;
 	if ( !isNull() ) {
-	    bitBlt( this, 0, 0, &pixmap, pixmap.width(), pixmap.height(),
+	    bitBlt( this, 0, 0, &pixmap, 0, 0, pixmap.width(), pixmap.height(),
 		    CopyROP, TRUE );
 	    if ( pixmap.mask() )
 		setMask( pixmap.data->selfmask ? *((QBitmap*)(this))
