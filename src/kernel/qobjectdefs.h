@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#37 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#38 $
 **
 ** Macros and definitions related to QObject
 **
@@ -76,6 +76,8 @@ private:								\
 #define Q_OBJECT_FAKE Q_OBJECT
 
 #define Q_BUILDER( comment, pixmap )
+#define Q_METAPROP( name, value )
+#define Q_INSPECTOR( classname )
 						// macro for naming members
 #if defined(_OLD_CPP_)
 #define METHOD(a)	"0""a"
