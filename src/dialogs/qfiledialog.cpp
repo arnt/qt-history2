@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#97 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#98 $
 **
 ** Implementation of QFileDialog class
 **
@@ -111,10 +111,32 @@ static QPixmap * multiColumnListViewIcon = 0;
 static QPixmap * cdToParentIcon = 0;
 static QPixmap * fifteenTransparentPixels = 0;
 
+static QString * tmpString = 0;
+static QString * workingDirectory = 0;
 
-static void makeIcons()
-{
-    if ( !openFolderIcon ) {
+static void cleanup() {
+    delete openFolderIcon;
+    openFolderIcon = 0;
+    delete closedFolderIcon;
+    closedFolderIcon = 0;
+    delete detailViewIcon;
+    detailViewIcon = 0;
+    delete multiColumnListViewIcon;
+    multiColumnListViewIcon = 0;
+    delete cdToParentIcon;
+    cdToParentIcon = 0;
+    delete tmpString;
+    tmpString = 0;
+    delete workingDirectory;
+    workingDirectory = 0;
+}
+
+
+static void makeVariables() {
+    if ( !tmpString ) {
+	qAddPostRoutine( cleanup );
+	tmpString = new QString;
+	workingDirectory = new QString;
 	openFolderIcon = new QPixmap();
 	openFolderIcon->loadFromData( open_gif_data, open_gif_len );
 	closedFolderIcon = new QPixmap();
@@ -206,24 +228,24 @@ struct QFileDialogPrivate {
 
 const char * QFileDialogPrivate::File::text( int column ) const
 {
-    static QString r;
+    makeVariables();
 
     switch( column ) {
     case 0:
-	r = info.fileName();
+	*tmpString = info.fileName();
 	break;
     case 1:
-	r.sprintf( "%d", info.size() );
+	tmpString->sprintf( "%d", info.size() );
 	break;
     case 2:
 	if ( info.isFile() )
-	    r = "File";
+	    *tmpString = "File";
 	else if ( info.isDir() )
-	    r = "Directory";
+	    *tmpString = "Directory";
 	else
-	    r = "Special File";
+	    *tmpString = "Special File";
 	if ( info.isSymLink() )
-	    r.prepend( "Link to " );
+	    tmpString->prepend( "Link to " );
 	break;
     case 3:
 	{
@@ -233,23 +255,23 @@ const char * QFileDialogPrivate::File::text( int column ) const
 	    time_t t1 = epoch.secsTo( info.lastModified() );
 	    struct tm * t2 = ::localtime( &t1 );
 	    if ( strftime( a, 255, "%x  %X", t2 ) > 0 )
-		r = a;
+		*tmpString = a;
 	    else
-		r = "????";
+		*tmpString = "????";
 	}
 	break;
     case 4:
 	if ( info.isReadable() )
-	    r = info.isWritable() ? "Read-write" : "Read-only";
+	    *tmpString = info.isWritable() ? "Read-write" : "Read-only";
 	else
-	    r = info.isWritable() ? "Write-only" : "Inaccessible";
+	    *tmpString = info.isWritable() ? "Write-only" : "Inaccessible";
 	break;
     default:
-	r = "<--->";
+	*tmpString = "<--->";
     }
 
-    r.detach();
-    return r;
+    tmpString->detach();
+    return *tmpString;
 }
 
 
@@ -268,22 +290,23 @@ const QPixmap * QFileDialogPrivate::File::pixmap( int column ) const
 
 const char * QFileDialogPrivate::File::key( int column, bool ascending ) const
 {
-    static QString r;
-    static QDateTime epoch( QDate( 1968, 6, 19 ) );
+    makeVariables();
+    QDateTime epoch( QDate( 1968, 6, 19 ) );
 
     char majorkey = ascending == info.isDir() ? '0' : '1';
 
     if ( info.fileName() == ".." ) {
-	r = ascending ? "0" : "a"; // a > 9
+	*tmpString = ascending ? "0" : "a"; // a > 9
     } else if ( column == 1 ) {
-	r.sprintf( "%c%08d", majorkey, info.size() );
+	tmpString->sprintf( "%c%08d", majorkey, info.size() );
     } else if ( column == 3 ) {
-	r.sprintf( "%c%08d", majorkey, epoch.secsTo( info.lastModified() ) );
+	tmpString->sprintf( "%c%08d",
+			    majorkey, epoch.secsTo( info.lastModified() ) );
     } else {
-	r.sprintf( "%c%s", majorkey, text( column ) );
+	tmpString->sprintf( "%c%s", majorkey, text( column ) );
     }
 
-    return r;
+    return *tmpString;
 }
 
 
@@ -744,6 +767,7 @@ void QFileDialog::init()
     d->stack->setFrameStyle( QFrame::WinPanel + QFrame::Sunken );
 			
     files = new QListView( d->stack, "current directory listing" );
+    files->setSorting( -1, TRUE );
     QFontMetrics fm( fontMetrics() );
     files->addColumn( tr("Name"), 150 );
     files->setColumnWidthMode( 0, QListView::Manual );
@@ -806,7 +830,7 @@ void QFileDialog::init()
     d->fileL = new QLabel( nameEdit, tr("File &name"), this );
     d->typeL = new QLabel( d->types, tr("File &type"), this );
 
-    makeIcons();
+    makeVariables();
 
     d->cdToParent = new QPushButton( this, "cd to parent" );
     d->cdToParent->setPixmap( *cdToParentIcon );
@@ -1090,8 +1114,6 @@ void QFileDialog::rereadDir()
   This signal is emitted when the user has selected a new directory.
 */
 
-static QString filedlg_dir;
-
 // Defined in qapplication.cpp:
 void qt_enter_modal( QWidget* );
 void qt_leave_modal( QWidget* );
@@ -1139,23 +1161,24 @@ QString QFileDialog::getOpenFileName( const char *startWith,
 				      const char *filter,
 				      QWidget *parent, const char *name )
 {
+    makeVariables();
     QString initialSelection;
     if ( startWith && *startWith ) {
 	QFileInfo fi( startWith );
 	if ( fi.exists() && fi.isDir() ) {
-	    filedlg_dir = startWith;
+	    *workingDirectory = startWith;
 	} else if ( fi.exists() && fi.isFile() ) {
-	    filedlg_dir = fi.dirPath( TRUE );
+	    *workingDirectory = fi.dirPath( TRUE );
 	    initialSelection = fi.absFilePath();
 	}
     }
 
-    if ( filedlg_dir.isNull() )
-	filedlg_dir = QDir::currentDirPath();
+    if ( workingDirectory->isNull() )
+	*workingDirectory = QDir::currentDirPath();
 
 #if defined(_WS_WIN_)
 
-    filedlg_dir = QDir::convertSeparators( filedlg_dir );
+    *workingDirectory = QDir::convertSeparators( *workingDirectory );
 
     const int maxstrlen = 256;
     char *file = new char[maxstrlen];
@@ -1186,7 +1209,7 @@ QString QFileDialog::getOpenFileName( const char *startWith,
     ofn.lpstrFilter	= win_filter;
     ofn.lpstrFile	= file;
     ofn.nMaxFile	= maxstrlen;
-    ofn.lpstrInitialDir = filedlg_dir;
+    ofn.lpstrInitialDir = *workingDirectory;
     ofn.lpstrTitle	= "Open";
     ofn.Flags		= (OFN_CREATEPROMPT|OFN_NOCHANGEDIR);
 
@@ -1202,7 +1225,7 @@ QString QFileDialog::getOpenFileName( const char *startWith,
     qt_enter_modal( &dummy );
     if ( GetOpenFileName(&ofn) ) {
 	result = file;
-	filedlg_dir = QFileInfo(file).dirPath();
+	*workingDirectory = QFileInfo(file).dirPath();
     }
     qt_leave_modal( &dummy );
 
@@ -1212,7 +1235,7 @@ QString QFileDialog::getOpenFileName( const char *startWith,
 
 #else
 
-    QFileDialog *dlg = new QFileDialog( filedlg_dir, filter,
+    QFileDialog *dlg = new QFileDialog( *workingDirectory, filter,
 					parent, name, TRUE );
     CHECK_PTR( dlg );
     dlg->setCaption( "Open" );
@@ -1221,7 +1244,7 @@ QString QFileDialog::getOpenFileName( const char *startWith,
     QString result;
     if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->selectedFile();
-	filedlg_dir = dlg->dirPath();
+	*workingDirectory = dlg->dirPath();
     }
     delete dlg;
     return result;
@@ -1272,23 +1295,24 @@ QString QFileDialog::getSaveFileName( const char *startWith,
 				      const char *filter,
 				      QWidget *parent, const char *name )
 {
+    makeVariables();
     QString initialSelection;
     if ( startWith && *startWith ) {
 	QFileInfo fi( startWith );
 	if ( fi.exists() && fi.isDir() ) {
-	    filedlg_dir = startWith;
+	    *workingDirectory = startWith;
 	} else if ( !fi.exists() || fi.isFile() ) {
-	    filedlg_dir = fi.dirPath( TRUE );
+	    *workingDirectory = fi.dirPath( TRUE );
 	    initialSelection = fi.absFilePath();
 	}
     }
 
-    if ( filedlg_dir.isNull() )
-	filedlg_dir = QDir::currentDirPath();
+    if ( workingDirectory->isNull() )
+	*workingDirectory = QDir::currentDirPath();
 
 #if defined(_WS_WIN_)
 
-    filedlg_dir = QDir::convertSeparators( filedlg_dir );
+    *workingDirectory = QDir::convertSeparators( *workingDirectory );
 
     const int maxstrlen = 256;
     char *file = new char[maxstrlen];
@@ -1319,7 +1343,7 @@ QString QFileDialog::getSaveFileName( const char *startWith,
     ofn.lpstrFilter	= win_filter;
     ofn.lpstrFile	= file;
     ofn.nMaxFile	= maxstrlen;
-    ofn.lpstrInitialDir = filedlg_dir;
+    ofn.lpstrInitialDir = *workingDirectory;
     ofn.lpstrTitle	= "Save";
     ofn.Flags		= (OFN_CREATEPROMPT|OFN_NOCHANGEDIR);
 
@@ -1335,7 +1359,7 @@ QString QFileDialog::getSaveFileName( const char *startWith,
     qt_enter_modal( &dummy );
     if ( GetSaveFileName(&ofn) ) {
 	result = file;
-	filedlg_dir = QFileInfo(file).dirPath();
+	*workingDirectory = QFileInfo(file).dirPath();
     }
     qt_leave_modal( &dummy );
 
@@ -1345,7 +1369,7 @@ QString QFileDialog::getSaveFileName( const char *startWith,
 
 #else
 
-    QFileDialog *dlg = new QFileDialog( filedlg_dir, filter, parent, name, TRUE );
+    QFileDialog *dlg = new QFileDialog( *workingDirectory, filter, parent, name, TRUE );
     CHECK_PTR( dlg );
     dlg->setCaption( "Save As" );
     QString result;
@@ -1353,7 +1377,7 @@ QString QFileDialog::getSaveFileName( const char *startWith,
 	dlg->setSelection( initialSelection );
     if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->selectedFile();
-	filedlg_dir = dlg->dirPath();
+	*workingDirectory = dlg->dirPath();
     }
     delete dlg;
     return result;
@@ -1656,6 +1680,7 @@ QString QFileDialog::getExistingDirectory( const char *dir,
 					   QWidget *parent,
 					   const char *name )
 {
+    makeVariables();
     QFileDialog *dialog	= new QFileDialog( parent, name, TRUE );
     dialog->setCaption( dialog->tr("Find Directory") );
 
@@ -1668,14 +1693,14 @@ QString QFileDialog::getExistingDirectory( const char *dir,
     if ( dir && *dir ) {
 	QFileInfo f( dir );
 	if ( f.isDir() ) {
-	    filedlg_dir = dir;
-	    filedlg_dir.detach();
+	    *workingDirectory = dir;
+	    workingDirectory->detach();
 	    dialog->setDir( dir );
 	}
-    } else if ( !filedlg_dir.isEmpty() ) {
+    } else if ( !workingDirectory->isEmpty() ) {
 	QFileInfo f( dir );
 	if ( f.isDir() )
-	    dialog->setDir( filedlg_dir );
+	    dialog->setDir( *workingDirectory );
     }	
 
     QString result;
@@ -1683,8 +1708,8 @@ QString QFileDialog::getExistingDirectory( const char *dir,
 	result = dialog->selectedFile();
 	QFileInfo f( result );
 	if ( f.isDir() ) {
-	    filedlg_dir = result;
-	    filedlg_dir.detach();
+	    *workingDirectory = result;
+	    workingDirectory->detach();
 	} else {
 	    result = 0;
 	}
@@ -1891,7 +1916,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
   box.  \a types must be a null-terminated list of strings; each
   string must be in the format described in the documentation for
   setFilter().
-  
+
   \sa setFilter()
 */
 
@@ -1917,7 +1942,7 @@ void QFileDialog::setFilters( const QStrList & types )
 {
     if ( types.count() < 1 )
 	return;
-    
+
     d->types->clear();
     QStrListIterator it( types );
     it.toFirst();
