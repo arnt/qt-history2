@@ -88,7 +88,7 @@ QRect QMenuBarPrivate::actionRect(QMenuAction *act) const
     QRect ret = act->rect;
     const int fw = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q);
     ret.moveBy(fw, fw);
-    return ret;
+    return QStyle::visualRect(ret, q);
 }
 
 void QMenuBarPrivate::setKeyboardMode(bool b)
@@ -120,15 +120,9 @@ void QMenuBarPrivate::popupAction(QMenuAction *action, bool activateFirst)
         QRect adjustedActionRect = actionRect(action);
         QPoint pos(q->mapToGlobal(QPoint(adjustedActionRect.left(), adjustedActionRect.bottom())));
         QSize popup_size = activeMenu->sizeHint();
-        if(QApplication::reverseLayout()) {
-            pos.setX((pos.x()+adjustedActionRect.width())-popup_size.width());
-            if(pos.x() < 0)
-                pos.setX(0);
-        } else {
-            const int off = pos.x()+popup_size.width() - dh.right();
-            if(off > 0)
-                pos.setX(qMax(0, pos.x()-off));
-        }
+        const int off = pos.x()+popup_size.width() - dh.right();
+        if(off > 0)
+            pos.setX(qMax(0, pos.x()-off));
         if(!defaultPopDown || (pos.y() + popup_size.height() > dh.bottom()))
             pos.setY(qMax(dh.y(), q->mapToGlobal(QPoint(0, adjustedActionRect.top()-popup_size.height())).y()));
         activeMenu->popup(pos);
@@ -212,7 +206,6 @@ QList<QMenuAction*> QMenuBarPrivate::calcActionRects(int max_width, int start) c
     const int hmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q),
               vmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q);
     const int itemSpacing = q->style().pixelMetric(QStyle::PM_MenuBarItemSpacing, q);
-    const bool reverse = QApplication::reverseLayout();
     int x = start == -1 ? hmargin : start + itemSpacing, y = vmargin;
     for(int i = 0; i != ret.count(); i++) {
         QMenuAction *item = ret.at(i);
@@ -236,8 +229,6 @@ QList<QMenuAction*> QMenuBarPrivate::calcActionRects(int max_width, int start) c
                 item->rect.moveLeft(x);
             }
         }
-        if(reverse)
-            item->rect.moveLeft(max_width - item->rect.right());
         item->rect.moveTop(y);
 
         //keep moving along..
@@ -886,7 +877,7 @@ QRect QMenuBar::actionGeometry(QAction *act) const
     const_cast<QMenuBarPrivate*>(d)->updateActions();
     for(QList<QMenuAction*>::ConstIterator it = d->actionItems.begin(); it != d->actionItems.end(); ++it) {
         if((*it)->action == act)
-            return (*it)->rect;
+            return d->actionRect((*it));
     }
     return QRect();
 }
@@ -904,15 +895,14 @@ QSize QMenuBar::minimumSizeHint() const
 */
 QSize QMenuBar::sizeHint() const
 {
-    ensurePolished();
-    QSize ret(0, 0);
-
 #ifdef Q_WS_MAC
-    const bool as_gui_menubar = d->mac_menubar;
+    const bool as_gui_menubar = !d->mac_menubar;
 #else
     const bool as_gui_menubar = true;
 #endif
 
+    ensurePolished();
+    QSize ret(0, 0);
     if(as_gui_menubar) {
         QList<QMenuAction*> actions = d->calcActionRects(width()-(style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this)*2), 0);
         for(int i = 0; i < actions.count(); ++i) {
@@ -952,9 +942,8 @@ QSize QMenuBar::sizeHint() const
 */
 int QMenuBar::heightForWidth(int max_width) const
 {
-
 #ifdef Q_WS_MAC
-    const bool as_gui_menubar = d->mac_menubar;
+    const bool as_gui_menubar = !d->mac_menubar;
 #else
     const bool as_gui_menubar = true;
 #endif
