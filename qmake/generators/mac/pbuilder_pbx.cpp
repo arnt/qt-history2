@@ -379,8 +379,19 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		  << "\t\t\t" << "isa = PBXFileReference;" << "\n"
 		  << "\t\t\t" << "name = \"" << name << "\";" << "\n"
 		  << "\t\t\t" << "path = \"" << file << "\";" << "\n"
-		  << "\t\t\t" << "refType = " << reftypeForFile(file) << ";" << "\n"
-		  << "\t\t" << "};" << "\n";
+		  << "\t\t\t" << "refType = " << reftypeForFile(file) << ";" << "\n";
+		if (ideType() == MAC_XCODE) {
+		    QString filetype;
+		    for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) {
+			if(file.endsWith((*cppit))) {
+			    filetype = "sourcecode.cpp.cpp";
+			    break;
+			}
+		    }
+		    if(!filetype.isNull())
+			t << "\t\t\t" << "lastKnownFileType = " << filetype << ";" << "\n";
+		}
+		t << "\t\t" << "};" << "\n";
 		if(buildable) { //build reference
 		    QString obj_key = file + ".o";
 		    obj_key = keyFor(obj_key);
