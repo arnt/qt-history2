@@ -560,6 +560,7 @@ bool QPainter::end()				// end painting
 #endif
 	return FALSE;
     }
+    killPStack();
 
     if ( testf(ExtDev) )
 	pdev->cmd( QPaintDevice::PdcEnd, this, 0 );
