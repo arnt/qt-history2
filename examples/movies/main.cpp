@@ -11,7 +11,7 @@
 ****************************************************************************/
 
 #include <qapplication.h>
-#include <qfiledialog.h>
+#include <q3filedialog.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
 #include <qpainter.h>
@@ -19,6 +19,7 @@
 #include <qmovie.h>
 #include <qvbox.h>
 
+using namespace Qt;
 
 class MovieScreen : public QFrame {
     Q_OBJECT
@@ -218,9 +219,9 @@ public:
 };
 
 
-// A QFileDialog that chooses movies.
+// A Q3FileDialog that chooses movies.
 //
-class MovieStarter: public QFileDialog {
+class MovieStarter: public Q3FileDialog {
     Q_OBJECT
 public:
     MovieStarter(const char *dir);
@@ -234,7 +235,7 @@ public slots:
 
 
 MovieStarter::MovieStarter(const char *dir)
-    : QFileDialog(dir, "*.gif *.mng")
+    : Q3FileDialog(dir, "*.gif *.mng")
 {
     //behave as in getOpenFilename
     setMode( ExistingFile );
