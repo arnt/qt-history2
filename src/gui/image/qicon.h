@@ -55,7 +55,7 @@ public:
     enum Size { Small, Large, Automatic = Small };
     static QT_COMPAT void setPixmapSize(Size which, const QSize &size);
     static QT_COMPAT QSize pixmapSize(Size which);
-    inline QT_COMPAT void reset(const QPixmap &pixmap, Size size) { *this = QIcon(pixmap); }
+    inline QT_COMPAT void reset(const QPixmap &pixmap, Size /*size*/) { *this = QIcon(pixmap); }
     inline QT_COMPAT void setPixmap(const QPixmap &pixmap, Size, Mode mode = Normal, State state = Off)
         { addPixmap(pixmap, mode, state); }
     inline QT_COMPAT void setPixmap(const QString &fileName, Size, Mode mode = Normal, State state = Off)
