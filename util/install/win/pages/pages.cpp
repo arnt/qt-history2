@@ -33,7 +33,7 @@ ConfigPageImpl::ConfigPageImpl( QWidget* parent, const char* name, WFlags fl )
 	currentInstallation->hide();
 	rebuildInstallation->hide();
     }
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
     // ### these pages should probably be included but all options should be
     // disabled so that the evaluation customer can see how he can configure Qt
     configTabs->removePage( generalTab );
@@ -80,7 +80,7 @@ LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WFlags fl )
     : LicensePage( parent, name, fl )
 {
     customerID->setFocus();
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
     // ### improve text
     licenseInfoHeader->setText( tr("Thank you for your interest in Qt.\n"
 		"Please enter the license information you got for this evaluation version of Qt.") );
@@ -132,7 +132,7 @@ OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
 	    );
     sysGroup->hide();
 #endif
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
     installDocs->setEnabled( FALSE );
     sysMsvc->setEnabled( FALSE );
     sysBorland->setEnabled( FALSE );

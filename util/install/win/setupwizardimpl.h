@@ -94,7 +94,7 @@ private:
     bool persistentEnv;
     int filesToCompile;
     int filesCompiled;
-#if !defined(EVAL)
+#if !defined(EVAL) && !defined(EDU)
     bool usLicense;
 #endif
 
@@ -146,7 +146,7 @@ private:
 
     QCheckListItem *staticItem;
 
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
     QCheckListItem *mysqlPluginInstall;
     QCheckListItem *ociPluginInstall;
     QCheckListItem *odbcPluginInstall;

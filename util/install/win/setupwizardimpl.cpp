@@ -27,7 +27,7 @@
 
 #include <keyinfo.h>
 
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
 #include <check-and-patch.h>
 #endif
 
@@ -388,7 +388,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	QString qt_version_str = archiveHeader->description();
 	if ( !qt_version_str.isEmpty() )
 	    globalInformation.setQtVersionStr( qt_version_str );
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
 	if ( archiveHeader->findExtraData( "compiler" ) == "borland" ) {
 	    sysGroupButton = 1;
 	}
@@ -536,7 +536,7 @@ void SetupWizardImpl::initConnections()
 	connect( configPage->advancedList, SIGNAL(spacePressed(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
 	connect( configPage->advancedList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
 
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
 	connect( configPage->installList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
 #endif
 
@@ -825,7 +825,7 @@ void SetupWizardImpl::doFinalIntegration()
     */
     dirName = shell.createFolder( foldersPage->folderPath->text(), common );
     shell.createShortcut( dirName, common, "Designer", qtDir + "\\bin\\designer.exe", "GUI designer", "", qtDir );
-#if !defined(EVAL)
+#if !defined(EVAL) && !defined(EDU)
     shell.createShortcut( dirName, common, "Reconfigure Qt",
 	    qtDir + "\\bin\\install.exe",
 	    "Reconfigure the Qt library",
@@ -843,7 +843,7 @@ void SetupWizardImpl::doFinalIntegration()
 
     if( qWinVersion() & WV_DOS_based ) {
 	QString description;
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
 	buildQtShortcutText = "Build Qt Examples and Tutorials";
 	description = "Build the Qt Examples and Tutorials";
 #else
@@ -954,7 +954,7 @@ void SetupWizardImpl::configDone()
     if( globalInformation.reconfig() && !configPage->rebuildInstallation->isChecked() )
 	showPage( finishPage );
 
-#if !defined(EVAL)
+#if !defined(EVAL) && !defined(EDU)
     if( !configure.normalExit() || ( configure.normalExit() && configure.exitStatus() ) ) {
 	logOutput( "The configure process failed.\n" );
 	emit wizardPageFailed( indexOf(currentPage()) );
@@ -980,7 +980,7 @@ void SetupWizardImpl::configDone()
 
 void SetupWizardImpl::saveSettings()
 {
-#if !defined(EVAL)
+#if !defined(EVAL) && !defined(EDU)
     QApplication::setOverrideCursor( Qt::waitCursor );
     saveSet( configPage->configList );
     saveSet( configPage->advancedList );
@@ -1122,7 +1122,7 @@ void SetupWizardImpl::showPageProgress()
 	QFile licenseFile( installDir.filePath("LICENSE") );
 	if ( licenseFile.open( IO_WriteOnly ) ) {
 	    ResourceLoader *rcLoader;
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
 	    rcLoader = new ResourceLoader( "LICENSE" );
 #else
 	    if ( usLicense ) {
@@ -1210,7 +1210,7 @@ void SetupWizardImpl::showPageProgress()
 #if defined(Q_OS_WIN32)
 	    QDir installDir( optionsPage->installPath->text() );
 	    QDir windowsFolderDir( shell.windowsFolderName );
-#  if !defined(EVAL)
+#  if !defined(EVAL) && !defined(EDU)
 	    {
 		// move $QTDIR/install.exe to $QTDIR/bin/install.exe
 		// This is done because install.exe is also used to reconfigure Qt
@@ -1252,7 +1252,7 @@ void SetupWizardImpl::showPageProgress()
 		}
 	    }
 #endif
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
 	    QStringList::Iterator it;
 	    QDir lib( optionsPage->installPath->text() );
 	    lib.cd( "lib" );
@@ -1362,7 +1362,7 @@ void SetupWizardImpl::showPageFinish()
 		finishMsg += "The environment variables needed to use Qt have been recorded into your AUTOEXEC.BAT file.\n";
 		finishMsg += "Please review this file, and take action as appropriate depending on your operating system to get them into the persistent environment. (Windows Me users, run MsConfig)\n\n";
 	    }
-#  if defined(EVAL)
+#  if defined(EVAL) || defined(EDU)
 	    finishMsg += QString( "To build the examples and tutorials, use the"
 				  "\"Build the Qt Examples and Tutorials\""
 				  "icon which has been installed into your Start-Menu." );
@@ -1588,7 +1588,7 @@ void SetupWizardImpl::configPageChanged()
 	configPage->advancedList->setSelected( configPage->advancedList->currentItem(), true );
 	optionSelected( configPage->advancedList->currentItem() );
     }
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
     else if ( configPage->installList->isVisible() ) {
 	configPage->installList->setSelected( configPage->installList->currentItem(), true );
 	optionSelected( configPage->installList->currentItem() );
@@ -1598,7 +1598,7 @@ void SetupWizardImpl::configPageChanged()
 
 void SetupWizardImpl::licenseChanged()
 {
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
     int ret = trCheckIt( licensePage->evalName->text().latin1(),
 	    licensePage->evalCompany->text().latin1(),
 	    licensePage->evalSerialNumber->text().latin1() );
@@ -1830,7 +1830,7 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 void SetupWizardImpl::setInstallStep( int step )
 {
     QString captionTxt;
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
     captionTxt = tr("Qt Evaluation Version Installation Wizard");
 #else
     if( globalInformation.reconfig() )
@@ -1858,7 +1858,7 @@ void SetupWizardImpl::timerFired()
 
 void SetupWizardImpl::readLicense( QString filePath)
 {
-#if !defined(EVAL)
+#if !defined(EVAL) && !defined(EDU)
     QFile licenseFile( filePath );
 
     if( licenseFile.open( IO_ReadOnly ) ) {
@@ -1896,7 +1896,7 @@ void SetupWizardImpl::readLicense( QString filePath)
 
 void SetupWizardImpl::writeLicense( QString filePath )
 {
-#if !defined(EVAL)
+#if !defined(EVAL) && !defined(EDU)
     QFile licenseFile( filePath );
 
     if( licenseFile.open( IO_WriteOnly | IO_Translate ) ) {
@@ -1952,7 +1952,7 @@ void SetupWizardImpl::readLicenseAgreement()
 {
     // Intropage
     ResourceLoader *rcLoader;
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
     rcLoader = new ResourceLoader( "LICENSE" );
 #else
     if ( usLicense ) {

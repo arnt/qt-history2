@@ -93,12 +93,18 @@ SideDecorationImpl::SideDecorationImpl( QWidget* parent, const char* name, WFlag
 	QString versionStr = globalInformation.qtVersionStr();
 	versionStr.replace( QRegExp(" Evaluation"), "" );
 	versionLabel->setText( versionLabel->text() + " " + versionStr );
+#elif defined(EDU)
+	QString versionStr = globalInformation.qtVersionStr();
+	versionStr.replace( QRegExp(" Educational"), "" );
+	versionLabel->setText( versionLabel->text() + " " + versionStr );
 #else
 	versionLabel->setText( versionLabel->text() + " " + globalInformation.qtVersionStr() );
 #endif
     }
 #if defined(EVAL)
     editionLabel->setText( "Evaluation Version" );
+#elif defined(EDU)
+    editionLabel->setText( "Educational Edition" );
 #else
     editionLabel->setText( "" );
 #endif

@@ -39,15 +39,18 @@ INCLUDEPATH	+= $(QTDIR)/src/3rdparty $(QTDIR)/util/install/archive
 
 win32:RC_FILE	= install.rc
 
-# Comment out one of the following lines to build the installer for 
+# Comment out one of the following lines to build the installer for:
+#
 #  - a Qt/Windows evaluation version (eval),
 #  - a Qt/Windows evaluation version that can be burned on CD and
 #    distributed on tradeshows (eval-cd)
 #  - the QSA pre-release (qsa)
+#  - educational version (edu)
 #
 #CONFIG += eval
 #CONFIG += eval-cd
 #CONFIG += qsa
+CONFIG += edu
 
 
 unix:LIBS		+= -L$(QTDIR)/util/install/archive -larq
@@ -58,15 +61,27 @@ INCLUDEPATH		+= ../keygen
 #
 #  qsa     -> eval-cd and eval
 #  eval-cd -> eval
+#  eval    -> (none)
+#  edu     -> (none)
 #
 # For the code this means that the following defines are defined:
 #
 # eval   : EVAL
 # eval-cd: EVAL, EVAL_CD
 # qsa    : EVAL, EVAL_CD, QSA
+# edu    : EDU
 #
-qsa:CONFIG += eval-cd
-eval-cd:CONFIG += eval
+
+qsa {
+    CONFIG += eval-cd
+    DEFINES		+= QSA
+}
+
+eval-cd {
+    CONFIG += eval
+    DEFINES		+= EVAL_CD
+}
+
 eval {
     !exists($(QTEVAL)/src) {
 	error(You must set the QTEVAL environment variable to the directory where you checked out //depot/qteval/main in order to be able to build the evaluation version of install.)
@@ -76,9 +91,13 @@ eval {
     SOURCES		+= $(QTEVAL)/src/check-and-patch.cpp
     INCLUDEPATH		+= $(QTEVAL)/src
 }
-eval-cd {
-    DEFINES		+= EVAL_CD
-}
-qsa {
-    DEFINES		+= QSA
+
+edu {
+    !exists($(QTEVAL)/src) {
+	error(You must set the QTEVAL environment variable to the directory where you checked out //depot/qteval/main in order to be able to build the evaluation version of install.)
+    }
+    DEFINES		+= EDU
+    win32:RC_FILE	= install-edu.rc
+    SOURCES		+= $(QTEVAL)/src/check-and-patch.cpp
+    INCLUDEPATH		+= $(QTEVAL)/src
 }

@@ -26,7 +26,7 @@ public:
     ~BuildPageImpl() {}
     QString title() const
     {
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
 	return "Building Qt Examples and Tutorial";
 #else
 	return "Building Qt";
@@ -34,7 +34,7 @@ public:
     }
     QString shortTitle() const
     {
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
 	return "Build Qt Examples";
 #else
 	return "Build Qt";
@@ -106,7 +106,7 @@ public:
     QString shortTitle() const
     { return "License information"; }
 
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
     QLineEdit* evalName;
     QLineEdit* evalCompany;
     QLineEdit* evalSerialNumber;

@@ -25,7 +25,7 @@
 
 void SetupWizardImpl::cleanDone()
 {
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
     prepareEnvironment();
 #  if defined(Q_OS_WIN32)
     if( qWinVersion() & WV_NT_based ) {
@@ -459,7 +459,7 @@ void SetupWizardImpl::prepareEnvironment()
 
 void SetupWizardImpl::showPageConfig()
 {
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
     setBackEnabled( buildPage, false );
 
     static bool alreadyInitialized = FALSE;
@@ -894,7 +894,7 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
     if ( i->rtti() != QCheckListItem::RTTI )
 	return;
 
-#if defined(EVAL)
+#if defined(EVAL) || defined(EDU)
     if ( i == mysqlPluginInstall ) {
 	configPage->explainOption->setText( tr(
 		    "Installs the MySQL 3.x database driver."
