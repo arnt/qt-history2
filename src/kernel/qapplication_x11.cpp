@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#425 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#426 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2151,7 +2151,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		bool grab = g != 0;
 		
 		QEvent::Type type = event->xclient.message_type == qt_unicode_key_press?
-			       QEvent::KeyPress:QEvent::KeyRelease;
+			       QEvent::KeyPress : QEvent::KeyRelease;
 		
 		short *s = event->xclient.data.s;
 		QChar c;

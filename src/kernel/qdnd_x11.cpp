@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#72 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -609,10 +609,11 @@ void qt_handle_xdnd_finished( QWidget *, const XEvent * xe )
 
 bool QDragManager::eventFilter( QObject * o, QEvent * e)
 {
-    if ( o != dragSource ) {
+    if ( o != dragSource && o != qApp ) {
 	//debug( "unexpected event for object %p - %s/%s",
 	//       o, o->name( "unnamed" ), o->className() );
 	o->removeEventFilter( this );
+	qApp->removeEventFilter( this );
 	if ( !dragSource )
 	    qApp->exit_loop();
 	return FALSE;
@@ -622,6 +623,7 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	if ( e->type() == QEvent::KeyRelease &&
 	     ((QKeyEvent*)e)->key() == Key_Escape ) {
 	    dragSource->removeEventFilter( this );
+	    qApp->removeEventFilter( this );
 	    object = 0;
 	    dragSource = 0;
 	    beingCancelled = FALSE;
@@ -633,50 +635,56 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 
     ASSERT( object != 0 );
 
-    if ( e->type() == QEvent::MouseMove ) {
-	QMouseEvent* me = (QMouseEvent *)e;
-	move( dragSource->mapToGlobal( me->pos() ) );
-	updateMode(me->stateAfter());
-	return TRUE;
-    } else if ( e->type() == QEvent::MouseButtonRelease ) {
-	if ( willDrop )
-	    drop();
-	else
-	    cancel();
-	dragSource->removeEventFilter( this );
-	object = 0;
-	dragSource = 0;
-	beingCancelled = FALSE;
-	qApp->exit_loop();
-	return TRUE;
-    } else if ( e->type() == QEvent::KeyPress ) {
-	QKeyEvent *ke = ((QKeyEvent*)e);
-	if ( ke->key() == Key_Escape ) {
-	    cancel();
+    if ( o == dragSource ) {
+	if ( e->type() == QEvent::MouseMove ) {
+	    QMouseEvent* me = (QMouseEvent *)e;
+	    move( dragSource->mapToGlobal( me->pos() ) );
+	    updateMode(me->stateAfter());
+	    return TRUE;
+	} else if ( e->type() == QEvent::MouseButtonRelease ) {
+	    if ( willDrop )
+		drop();
+	    else
+		cancel();
 	    dragSource->removeEventFilter( this );
+	    qApp->removeEventFilter( this );
 	    object = 0;
 	    dragSource = 0;
 	    beingCancelled = FALSE;
 	    qApp->exit_loop();
 	    return TRUE;
-	}
-	updateMode(ke->stateAfter());
-    } else if ( e->type() == QEvent::KeyRelease ) {
-	QKeyEvent *ke = ((QKeyEvent*)e);
-	updateMode(ke->stateAfter());
-    } else if ( e->type() == QEvent::DragResponse ) {
-	if ( ((QDragResponseEvent *)e)->dragAccepted() ) {
-	    if ( !willDrop ) {
-		willDrop = TRUE;
-		updateCursor();
+	} else if ( e->type() == QEvent::DragResponse ) {
+	    if ( ((QDragResponseEvent *)e)->dragAccepted() ) {
+		if ( !willDrop ) {
+		    willDrop = TRUE;
+		    updateCursor();
+		}
+	    } else {
+		if ( willDrop ) {
+		    willDrop = FALSE;
+		    updateCursor();
+		}
 	    }
-	} else {
-	    if ( willDrop ) {
-		willDrop = FALSE;
-		updateCursor();
-	    }
+	    return TRUE;
 	}
-	return TRUE;
+    } else if ( o == qApp ) {
+	if ( e->type() == QEvent::KeyPress ) {
+	    QKeyEvent *ke = ((QKeyEvent*)e);
+	    if ( ke->key() == Key_Escape ) {
+		cancel();
+		dragSource->removeEventFilter( this );
+		qApp->removeEventFilter( this );
+		object = 0;
+		dragSource = 0;
+		beingCancelled = FALSE;
+		qApp->exit_loop();
+		return TRUE;
+	    }
+	    updateMode(ke->stateAfter());
+	} else if ( e->type() == QEvent::KeyRelease ) {
+	    QKeyEvent *ke = ((QKeyEvent*)e);
+	    updateMode(ke->stateAfter());
+	}
     }
 
     return FALSE;
@@ -1206,6 +1214,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     if ( object ) {
 	cancel();
 	dragSource->removeEventFilter( this );
+	qApp->removeEventFilter( this );
 	beingCancelled = FALSE;
     }
 
@@ -1217,6 +1226,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     object = o;
     dragSource = (QWidget *)(object->parent());
     dragSource->installEventFilter( this );
+    qApp->installEventFilter( this );
     qt_xdnd_source_current_time = qt_x_clipboardtime;
     XSetSelectionOwner( qt_xdisplay(), qt_xdnd_selection,
 			dragSource->topLevelWidget()->winId(),
