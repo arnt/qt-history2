@@ -260,31 +260,34 @@ struct QLineEditPrivate {
   right mouse button menu presents some of the editing commands to
   the user.
     \target desc
-  \list
-  \i \e Left Arrow - moves the cursor one character to the left.
-  \i \e Right Arrow - moves the cursor one character to the right.
-  \i \e Backspace - deletes the character to the left of the cursor.
-  \i \e Home - moves the cursor to the beginning of the line.
-  \i \e End - moves the cursor to the end of the line.
-  \i \e Delete - deletes the character to the right of the cursor.
-  \i \e Shift+Left Arrow - moves and selects text one character to the left.
-  \i \e Shift+Right Arrow - moves and selects text one character to the right.
-  \i \e Ctrl+A - moves the cursor to the beginning of the line.
-  \i \e Ctrl+B - moves the cursor one character to the left.
-  \i \e Ctrl+C - copies the selected text to the clipboard. (Windows also
-  supports Ctrl+Insert for this operation.)
-  \i \e Ctrl+D - deletes the character to the right of the cursor.
-  \i \e Ctrl+E - moves the cursor to the end of the line.
-  \i \e Ctrl+F - moves the cursor one character to the right.
-  \i \e Ctrl+H - deletes the character to the left of the cursor.
-  \i \e Ctrl+K - deletes to the end of the line.
-  \i \e Ctrl+V - pastes the clipboard text into line edit. (Windows also
-  supports Shift+Insert for this operation.)
-  \i \e Ctrl+X - deletes the selected text and copies it to the clipboard.
+  \table
+  \header \i Key \i Action
+  \row \i \e Left \i Move the cursor one character to the left
+  \row \i \e Right \i Move the cursor one character to the right
+  \row \i \e Backspace \i Delete the character to the left of the cursor
+  \row \i \e Delete \i Delete the character to the right of the cursor
+  \row \i \e Ctrl+Backspace \i Delete the word to the left of the cursor
+  \row \i \e Ctrl+Delete \i Delete the word to the right of the cursor
+  \row \i \e Home \i Move the cursor to the beginning of the line
+  \row \i \e End \i Move the cursor to the end of the line
+  \row \i \e Shift+Left \i Move and select text one character to the left
+  \row \i \e Shift+Right \i Move and select text one character to the right
+  \row \i \e Ctrl+A \i Move the cursor to the beginning of the line
+  \row \i \e Ctrl+B \i Move the cursor one character to the left
+  \row \i \e Ctrl+C \i Copy the selected text to the clipboard (also \e
+		       Ctrl+Insert on Windows)
+  \row \i \e Ctrl+D \i Delete the character to the right of the cursor
+  \row \i \e Ctrl+E \i Move the cursor to the end of the line
+  \row \i \e Ctrl+F \i Move the cursor one character to the right
+  \row \i \e Ctrl+H \i Delete the character to the left of the cursor
+  \row \i \e Ctrl+K \i Delete to the end of the line
+  \row \i \e Ctrl+V \i Paste the clipboard text into line edit (also \e
+		       Shift+Insert on Windows)
+  \row \i \e Ctrl+X \i Delete the selected text and copies it to the clipboard
   (Windows also supports Shift+Delete for this operation.)
-  \i \e Ctrl+Z - undoes the last operation.
-  \i \e Ctrl+Y - redoes the last undone operation.
-  \endlist
+  \row \i \e Ctrl+Z \i Undo the last operation
+  \row \i \e Ctrl+Y \i Redo the last operation
+  \endtable
 
   Any other key sequence, that represents a valid character, will cause the
   character to be inserted into the line.
