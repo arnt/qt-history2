@@ -165,6 +165,10 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	t << " " << (*cppit);
     t << endl << endl;
     if(!project->isActiveConfig("no_batch")) {
+	// Batchmode doesn't use the non implicit rules QMAKE_RUN_CXX & QMAKE_RUN_CC
+	project->variables().remove("QMAKE_RUN_CXX");
+	project->variables().remove("QMAKE_RUN_CC");
+
 	QDict<void> source_directories;
 	source_directories.insert(".", (void*)1);
 	if(!project->isEmpty("MOC_DIR"))
@@ -191,9 +195,9 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 		continue;
 	    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
 		t << "{" << it.currentKey() << "}" << (*cppit) << "{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
-		  << var("QMAKE_RUN_CXX_IMP").replace( QRegExp( "\\$@" ), var("OBJECTS_DIR") ) << endl << "\t$<" << endl << "<<" << endl << endl;
+		  << var("QMAKE_RUN_CXX_IMP_BATCH").replace( QRegExp( "\\$@" ), var("OBJECTS_DIR") ) << endl << "\t$<" << endl << "<<" << endl << endl;
 	    t << "{" << it.currentKey() << "}" << ".c{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
-	      << var("QMAKE_RUN_CC_IMP").replace( QRegExp( "\\$@" ), var("OBJECTS_DIR") ) << endl << "\t$<" << endl << "<<" << endl << endl;
+	      << var("QMAKE_RUN_CC_IMP_BATCH").replace( QRegExp( "\\$@" ), var("OBJECTS_DIR") ) << endl << "\t$<" << endl << "<<" << endl << endl;
 	}
     } else {
 	for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
