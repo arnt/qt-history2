@@ -1450,7 +1450,7 @@ QCoreGraphicsPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     Q_ASSERT(isActive());
 
     CGMutablePathRef path = CGPathCreateMutable();
-    const float ow = r.width()*xRnd/100, oh = r.height()*yRnd/100;
+    const float ow = r.width()*xRnd/200, oh = r.height()*yRnd/200;
     CGAffineTransform transform = CGAffineTransformMake(ow, 0, 0, oh, r.left(), r.top());
     float fw = r.width() / ow, fh = r.height() / oh;
     CGPathMoveToPoint(path, &transform, fw, fh/2);
