@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#103 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#104 $
 **
 ** Implementation of QRadioButton class
 **
@@ -188,7 +188,6 @@ bool QRadioButton::hitButton( const QPoint &pos ) const
 void QRadioButton::drawButton( QPainter *paint )
 {
     QPainter	*p = paint;
-    GUIStyle	 gs = style();
     QColorGroup	 g  = colorGroup();
     int		 x, y;
 
