@@ -376,7 +376,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
             // are not used under NT.
             if (td==QInternal::Pixmap && ((QPixmap *)dst)->isQBitmap()) {
                 MaskBlt(dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
-                        sx, sy, MAKEROP4(0x00aa0000,SRCCOPY));
+                        sx, sy, MAKEROP4(0x00aa0000, SRCCOPY));
 #ifdef Q_OS_TEMP
             } else if ((GetTextColor(dst_dc) & 0xffffff) != 0 &&
                         ts==QInternal::Pixmap && ((QPixmap *)src)->isQBitmap()) {
@@ -385,33 +385,28 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
                 HGDIOBJ oldsrc = SelectObject(bsrc_dc, bsrc);
                 BitBlt(bsrc_dc, 0, 0, sw, sh, src_dc, 0, 0, SRCCOPY);
                 MaskBlt(dst_dc, dx, dy, sw, sh, bsrc_dc, sx, sy, mask->hbm(),
-                         sx, sy, MAKEROP4(0x00aa0000,SRCCOPY);
+                         sx, sy, MAKEROP4(0x00aa0000, SRCCOPY);
                 DeleteObject(SelectObject(bsrc_dc, oldsrc));
                 DeleteDC(bsrc_dc);
 #endif
             } else {
                 MaskBlt(dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
-                        sx, sy, MAKEROP4(0x00aa0000,SRCCOPY));
+                        sx, sy, MAKEROP4(0x00aa0000, SRCCOPY));
             }
         }
     } else {
         if (td==QInternal::Pixmap && ((QPixmap *)dst)->isQBitmap()) {
-            BitBlt(dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[qt_map_rop_for_bitmaps(rop)]);
+            BitBlt(dst_dc, dx, dy, sw, sh, src_dc, sx, sy, SRCCOPY);
         } else if (src_pm && td==QInternal::Pixmap && ((QPixmap *)dst)->data->realAlphaBits) {
             QPixmap *dst_pm = (QPixmap *)dst;
-            if (rop == Qt::CopyROP) {
-                src_pm->convertToAlphaPixmap();
-                QPixmap::bitBltAlphaPixmap(dst_pm, dx, dy, src_pm, sx, sy, sw, sh, true);
+            src_pm->convertToAlphaPixmap();
+            if (dst_pm->mask()) {
+                int width = qMin(dst_pm->mask()->width()-dx, sw);
+                int height = qMin(dst_pm->mask()->height()-dy, sh);
+                MaskBlt(dst_dc, dx, dy, width, height, src_pm->hdc, sx, sy, dst_pm->mask()->hbm(),
+                        dx, dy, MAKEROP4(0x00aa0000,SRCCOPY));
             } else {
-                src_pm->convertToAlphaPixmap();
-                if (dst_pm->mask()) {
-                    int width = qMin(dst_pm->mask()->width()-dx, sw);
-                    int height = qMin(dst_pm->mask()->height()-dy, sh);
-                    MaskBlt(dst_dc, dx, dy, width, height, src_pm->hdc, sx, sy, dst_pm->mask()->hbm(),
-                            dx, dy, MAKEROP4(0x00aa0000,SRCCOPY));
-                } else {
-                    BitBlt(dst_dc, dx, dy, sw, sh, src_pm->hdc, sx, sy, SRCCOPY);
-                }
+                BitBlt(dst_dc, dx, dy, sw, sh, src_pm->hdc, sx, sy, SRCCOPY);
             }
 #ifdef Q_OS_TEMP
         } else if ((GetTextColor(dst_dc) & 0xffffff) != 0 &&
@@ -420,12 +415,12 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
             HBITMAP bsrc = CreateBitmap(sw, sh, 1, 1, NULL);
             HGDIOBJ oldsrc = SelectObject(bsrc_dc, bsrc);
             BitBlt(bsrc_dc, 0, 0, sw, sh, src_dc, 0, 0, SRCCOPY);
-            BitBlt(dst_dc, dx, dy, sw, sh, bsrc_dc, sx, sy, ropCodes[rop]);
+            BitBlt(dst_dc, dx, dy, sw, sh, bsrc_dc, sx, sy, SRCCOPY);
             DeleteObject(SelectObject(bsrc_dc, oldsrc));
             DeleteObject(bsrc_dc);
 #endif
         } else {
-            BitBlt(dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop]);
+            BitBlt(dst_dc, dx, dy, sw, sh, src_dc, sx, sy, SRCCOPY);
         }
     }
     if (src_tmp)
