@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#20 $
 **
 ** Implementation of QRegion class
 **
@@ -14,7 +14,7 @@
 #include "qbuffer.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#20 $");
 
 
 /*!
@@ -86,6 +86,8 @@ void QRegion::detach()
 
 void QRegion::cmd( int id, void *param, const QRegion *r1, const QRegion *r2 )
 {
+    return; // XXXXXXXXXXXXXXXXXXXX HAAVARD - YOU DON'T NEED THIS ANY MORE
+
     QBuffer buf( data->bop );
     QDataStream s( &buf );
     buf.open( IO_WriteOnly );

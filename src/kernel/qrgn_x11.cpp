@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#30 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#30 $");
 
 
 static QRegion *empty_region = 0;
@@ -212,7 +212,8 @@ bool QRegion::isNull() const
 
 bool QRegion::isEmpty() const
 {
-    return data->bop.isNull() || XEmptyRegion( data->rgn );
+    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX HAAAAAAAAAAAAAAAAAVARD
+    return /*data->bop.isNull() ||*/ XEmptyRegion( data->rgn );
 }
 
 
