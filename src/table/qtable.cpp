@@ -2044,7 +2044,7 @@ void QTable::init( int rows, int cols )
     dEnabled = FALSE;
     setSorting( FALSE );
 
-    mousePressed = FALSE;
+    unused = TRUE; // It's unused, ain't it? :)
 
     selMode = Multi;
 
@@ -3488,7 +3488,6 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
 void QTable::contentsMousePressEventEx( QMouseEvent* e )
 {
     shouldClearSelection = FALSE;
-    mousePressed = TRUE;
     if ( isEditing() ) {
 	if ( !cellGeometry( editRow, editCol ).contains( e->pos() ) ) {
 	    endEdit( editRow, editCol, TRUE, edMode != Editing );
@@ -3641,7 +3640,7 @@ void QTable::setEditMode( EditMode mode, int row, int col )
 
 void QTable::contentsMouseMoveEvent( QMouseEvent *e )
 {
-    if ( !mousePressed )
+    if ( (e->state() & MouseButtonMask) == NoButton )
 	return;
     int tmpRow = rowAt( e->pos().y() );
     int tmpCol = columnAt( e->pos().x() );
@@ -3650,10 +3649,8 @@ void QTable::contentsMouseMoveEvent( QMouseEvent *e )
 
 #ifndef QT_NO_DRAGANDDROP
     if ( dragEnabled() && startDragRow != -1 && startDragCol != -1 ) {
-	if ( QPoint( dragStartPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
-	    mousePressed = FALSE;
+	if (QPoint(dragStartPos - e->pos()).manhattanLength() > QApplication::startDragDistance())
 	    startDrag();
-	}
 	return;
     }
 #endif
@@ -3695,8 +3692,6 @@ void QTable::doValueChanged()
 
 void QTable::doAutoScroll()
 {
-    if ( !mousePressed )
-	return;
     QPoint pos = QCursor::pos();
     pos = mapFromGlobal( pos );
     pos -= QPoint( leftHeader->width(), topHeader->height() );
@@ -3772,7 +3767,6 @@ void QTable::contentsMouseReleaseEvent( QMouseEvent *e )
     if ( pressedRow == curRow && pressedCol == curCol )
 	emit clicked( curRow, curCol, e->button(), e->pos() );
 
-    mousePressed = FALSE;
     if ( e->button() != LeftButton )
 	return;
     if ( shouldClearSelection ) {
@@ -6247,7 +6241,6 @@ void QTable::startDrag()
 	return;
 
     startDragRow = startDragCol = -1;
-    mousePressed = FALSE;
 
     QDragObject *drag = dragObject();
     if ( !drag )
@@ -6318,7 +6311,7 @@ void QTable::setEnabled( bool b )
 
 QTableHeader::QTableHeader( int i, QTable *t,
 			    QWidget *parent, const char *name )
-    : QHeader( i, parent, name ), startPos(-1),
+    : QHeader( i, parent, name ), mousePressed(FALSE), startPos(-1),
       table( t ), caching( FALSE ), resizedSection(-1),
       numStretches( 0 )
 {
@@ -6328,7 +6321,6 @@ QTableHeader::QTableHeader( int i, QTable *t,
     stretchable.resize( i );
     states.fill( Normal, -1 );
     stretchable.fill( FALSE, -1 );
-    mousePressed = FALSE;
     autoScrollTimer = new QTimer( this );
     connect( autoScrollTimer, SIGNAL( timeout() ),
 	     this, SLOT( doAutoScroll() ) );
@@ -6589,12 +6581,12 @@ void QTableHeader::mousePressEvent( QMouseEvent *e )
 
 void QTableHeader::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( !mousePressed
+    if ( (e->state() & MouseButtonMask) != LeftButton // Using LeftButton simulates old behavior.
 #ifndef QT_NO_CURSOR
-	|| cursor().shape() != ArrowCursor
+         || cursor().shape() != ArrowCursor
 #endif
-	    || ( ( e->state() & ControlButton ) == ControlButton &&
-	   ( orientation() == Horizontal
+         || ( ( e->state() & ControlButton ) == ControlButton &&
+              ( orientation() == Horizontal
 	     ? table->columnMovingEnabled() : table->rowMovingEnabled() ) ) ) {
 	QHeader::mouseMoveEvent( e );
 	return;

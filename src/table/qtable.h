@@ -492,7 +492,7 @@ private:
     bool mCols : 1;
     bool asc : 1;
     bool doSort : 1;
-    bool mousePressed : 1;
+    bool unused : 1;
     bool readOnly : 1;
     bool shouldClearSelection : 1;
     bool dEnabled : 1;
