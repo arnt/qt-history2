@@ -189,8 +189,26 @@ signals:
     void linkClicked( const QString& );
     void cursorPositionChanged( QTextCursor *c );
     void selectionChanged();
-    
+
 protected:
+    enum KeyboardAction {
+	ActionBackspace,
+	ActionDelete,
+	ActionReturn,
+	ActionKill
+    };
+
+    enum MoveDirection {
+	MoveLeft,
+	MoveRight,
+	MoveUp,
+	MoveDown,
+	MoveHome,
+	MoveEnd,
+	MovePgUp,
+	MovePgDown
+    };
+
     void setFormat( QTextFormat *f, int flags );
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void keyPressEvent( QKeyEvent *e );
@@ -212,6 +230,12 @@ protected:
     QTextCursor *textCursor() const;
     void setDocument( QTextDocument *doc );
 #endif
+    void ensureCursorVisible();
+    void placeCursor( const QPoint &pos, QTextCursor *c = 0 );
+    void moveCursor( int direction, bool shift, bool control );
+    void moveCursor( int direction, bool control );
+    void removeSelectedText();
+    void doKeyboardAction( int action );
 
 private slots:
     void formatMore();
@@ -224,22 +248,6 @@ private slots:
     void setRealWidth( int w );
 
 private:
-    enum MoveDirection {
-	MoveLeft,
-	MoveRight,
-	MoveUp,
-	MoveDown,
-	MoveHome,
-	MoveEnd,
-	MovePgUp,
-	MovePgDown
-    };
-    enum KeyboardAction {
-	ActionBackspace,
-	ActionDelete,
-	ActionReturn
-    };
-
     struct Q_EXPORT UndoRedoInfo {
 	enum Type { Invalid, Insert, Delete, Backspace, Return, RemoveSelected };
 	UndoRedoInfo( QTextDocument *d ) : type( Invalid ), doc( d )
@@ -258,13 +266,7 @@ private:
     virtual bool isReadOnly() const { return TRUE; }
     virtual bool linksEnabled() const { return FALSE; }
     void init();
-    void ensureCursorVisible();
     void drawCursor( bool visible );
-    void placeCursor( const QPoint &pos, QTextCursor *c = 0 );
-    void moveCursor( int direction, bool shift, bool control );
-    void moveCursor( int direction, bool control );
-    void removeSelectedText();
-    void doKeyboardAction( int action );
     void checkUndoRedoInfo( UndoRedoInfo::Type t );
     void updateCurrentFormat();
     void handleReadOnlyKeyEvent( QKeyEvent *e );

@@ -263,6 +263,15 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 	clearUndoRedoInfo = FALSE;
 
 	break;
+    case Key_F16: // Copy key on Sun keyboards
+	copy();
+	break;
+    case Key_F18:  // Paste key on Sun keyboards
+	paste();
+	break;
+    case Key_F20:  // Cut key on Sun keyboards
+	cut();
+	break;
     default: {
 	    if ( e->text().length() && !( e->state() & AltButton ) &&
 		 ( !e->ascii() || e->ascii() >= 32 ) ||
@@ -289,23 +298,59 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 	    }
 	    if ( e->state() & ControlButton ) {
 		switch ( e->key() ) {
-		case Key_C:
+		case Key_C: case Key_F16: // Copy key on Sun keyboards
 		    copy();
 		    break;
 		case Key_V:
 		    paste();
 		    break;
-		case Key_X: {
+		case Key_X: 
 		    cut();
-		} break;
+		    break;
 		case Key_I: case Key_T: case Key_Tab:
 		    indent();
 		    break;
 		case Key_A:
+#if defined(_WS_X11_)
 		    moveCursor( MoveHome, e->state() & ShiftButton, FALSE );
+#else
+		    selectAll( TRUE );
+#endif
+		    break;
+		case Key_B:
+		    moveCursor( MoveLeft, e->state() & ShiftButton, FALSE );
+		    break;
+		case Key_F:
+		    moveCursor( MoveRight, e->state() & ShiftButton, FALSE );
+		    break;
+		case Key_D:
+		    if ( doc->hasSelection( QTextDocument::Standard ) ) {
+			removeSelectedText();
+			break;
+		    }
+		    doKeyboardAction( ActionDelete );
+		    clearUndoRedoInfo = FALSE;
+		    break;
+		case Key_H:
+		    if ( doc->hasSelection( QTextDocument::Standard ) ) {
+			removeSelectedText();
+			break;
+		    }
+		    if ( !cursor->parag()->prev() &&
+			 cursor->atParagStart() )
+			break;
+
+		    doKeyboardAction( ActionBackspace );
+		    clearUndoRedoInfo = FALSE;
 		    break;
 		case Key_E:
 		    moveCursor( MoveEnd, e->state() & ShiftButton, FALSE );
+		    break;
+		case Key_N:
+		    moveCursor( MoveDown, e->state() & ShiftButton, FALSE );
+		    break;
+		case Key_P:
+		    moveCursor( MoveUp, e->state() & ShiftButton, FALSE );
 		    break;
 		case Key_Z:
 		    undo();
@@ -313,11 +358,19 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 		case Key_Y:
 		    redo();
 		    break;
+		case Key_K:
+		    doKeyboardAction( ActionKill );
+		    break;
+		case Key_Insert:
+#if defined(_WS_WIN_)
+		    copy();
+#endif
+		    break;
 		}
 		break;
 	    }
 	}
-    }
+    }	
 
     if ( clearUndoRedoInfo )
 	undoRedoInfo.clear();
@@ -382,6 +435,22 @@ void QTextView::doKeyboardAction( int action )
 	cursor->splitAndInsertEmtyParag();
 	if ( cursor->parag()->prev() )
 	    lastFormatted = cursor->parag()->prev();
+	break;
+    case ActionKill:
+	checkUndoRedoInfo( UndoRedoInfo::Delete );
+	if ( !undoRedoInfo.valid() ) {
+	    undoRedoInfo.id = cursor->parag()->paragId();
+	    undoRedoInfo.index = cursor->index();
+	    undoRedoInfo.text = QString::null;
+	}
+	if ( cursor->atParagEnd() ) {
+	    undoRedoInfo.text += cursor->parag()->at( cursor->index() )->c;
+	    if ( cursor->remove() )
+		undoRedoInfo.text += "\n";
+	} else {
+	    undoRedoInfo.text += cursor->parag()->string()->toString().mid( cursor->index() );
+	    cursor->killLine();
+	}
 	break;
     }
 

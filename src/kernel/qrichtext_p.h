@@ -122,7 +122,7 @@ public:
 
     QTextDocument *document() const { return doc; }
     void setDocument( QTextDocument *d );
-    
+
     QTextParag *parag() const;
     int index() const;
     void setParag( QTextParag *s, bool restore = TRUE );
@@ -143,6 +143,7 @@ public:
     void insert( const QString &s, bool checkNewLine );
     void splitAndInsertEmtyParag( bool ind = TRUE, bool updateIds = TRUE );
     bool remove();
+    void killLine();
     void indent();
 
     bool atParagStart();

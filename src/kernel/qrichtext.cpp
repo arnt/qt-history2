@@ -842,6 +842,19 @@ bool QTextCursor::remove()
     return FALSE;
 }
 
+void QTextCursor::killLine()
+{
+    if ( atParagEnd() )
+	return;
+    string->remove( idx, string->length() - idx - 1 );
+    int h = string->rect().height();
+    string->format( -1, TRUE );
+    if ( h != string->rect().height() )
+	invalidateNested();
+    else if ( doc->parent() )
+	doc->nextDoubleBuffered = TRUE;
+}
+
 void QTextCursor::indent()
 {
     int oi = 0, ni = 0;
