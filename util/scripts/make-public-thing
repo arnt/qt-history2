@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#23 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#24 $
 
 $base = "/tmp/striptree-$$";
 $days_stored = 60;
@@ -147,7 +147,7 @@ if ( !$skipdoc ) {
     for B in *.html *.gif *.jpg
     do
       C=$base/cvs/qt/html/\${B},v
-      rsync -avz bahamas:/local/lib/cvs/qt/\$B,v \$C
+      rsync -avz bahamas:/local/lib/cvs/qt/html/\$B,v \$C
       [ -f \$C ] && rcs -l \$C
       ci -q -mnone -t-'' -u \$B \$C
     done
