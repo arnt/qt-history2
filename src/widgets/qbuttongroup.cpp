@@ -277,8 +277,8 @@ void QButtonGroup::remove( QButton *button )
 	item = buttons->at(i);
 	if (item && item->button == button) {
 	    buttons->removeAt(i);
-	    item->button->setGroup(0);
-	    item->button->disconnect(this);
+	    button->setGroup(0);
+	    button->disconnect(this);
 	    return;
 	}
     }
