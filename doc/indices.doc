@@ -48,7 +48,7 @@ General
 Getting Started
 </th>
 <th bgcolor=#a2c511 width=33%>
-What´s New
+What's New
 </th>
 </tr>
 <tr>
@@ -93,7 +93,7 @@ Overviews
 \list
 \i \link classes.html   All Classes\endlink
 \i \link mainclasses.html   Main Classes\endlink
-\i \link grouped.html   Grouped Classes\endlink
+\i \link groups.html   Grouped Classes\endlink
 \i \link annotated.html   Annotated Classes\endlink
 \i \link hierarchy.html   Inheritance Hierarchy\endlink
 \i \link functions.html   All Functions (long) \endlink
@@ -152,8 +152,8 @@ Appendix
 <td valign=top>
 \list
   \i \link qmake.html  qmake \endlink
-  \i \link designer-manual.html  Qt Designer \endlink
-  \i \link linguist-manual.html  Qt Linguist \endlink
+  \i \link designer-manual.book  Qt Designer \endlink
+  \i \link linguist-manual.book  Qt Linguist \endlink
   \i \link qembed.html  QEmbed - inline files/images \endlink
   \i \link qvfb-qws.html  QVFb - virtual framebuffer for Qt/Embedded \endlink
 \endlist

@@ -432,7 +432,7 @@ error. Following error codes are defined in \c QNetworkProtocol:
   \i \c QNetworkProtocol::ErrUnsupported - The operation is not supported by the protocol
   \i \c QNetworkProtocol::ErrParse - Parse error of the URL
   \i \c QNetworkProtocol::ErrLoginIncorrect - You needed to login but the username and or password are wrong
-  \i \c QNetworkProtocol::ErrHostNotFound - The specified host (in the URL) couldn´t be found
+  \i \c QNetworkProtocol::ErrHostNotFound - The specified host (in the URL) couldn't be found
   \i \c QNetworkProtocol::ErrListChildren - An error occurred while listing the children
   \i \c QNetworkProtocol::ErrMkDir - An error occurred when creating a directory
   \i \c QNetworkProtocol::ErrRemove -An error occurred while removing a child
