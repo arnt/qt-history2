@@ -357,7 +357,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    yyOut += arg;
 		    yyOut += QString( "</em>" );
 		    setKindHasToBe( Doc::Fn, command );
-		}		    
+		}
 		break;
 	    case hash( 'a', 3 ):
 		consume( "arg" );
@@ -1010,7 +1010,7 @@ void Doc::setClassHierarchy( const QMap<QString, StringSet>& hierarchy )
 
 void Doc::printHtmlIncludeHeader( HtmlWriter& out, const QString& fileName )
 {
-    out.printfMeta( "<p><tt>#include &lt;<a href=%s>%s</a>&gt;</tt>\n",
+    out.printfMeta( "<p><tt>#include &lt;<a href=\"%s\">%s</a>&gt;</tt>\n",
 		    config->verbatimHref(fileName).latin1(),
 		    fileName.latin1() );
 }
@@ -1035,7 +1035,7 @@ QString Doc::htmlQuoteList()
 
 	QMap<QString, QString>::ConstIterator p = (*q).begin();
 	while ( p != (*q).end() ) {
-	    html += QString( "<li><a href=%1>%2</a>\n" ).arg( p.key() )
+	    html += QString( "<li><a href=\"%1\">%2</a>\n" ).arg( p.key() )
 		    .arg( *p );
 	    ++p;
 	}
@@ -1050,7 +1050,7 @@ QString Doc::htmlHeaderFileList()
     QString html = QString( "<ul>\n" );
     StringSet::ConstIterator h = hflist.begin();
     while ( h != hflist.end() ) {
-	html += QString( "<li><a href=%1>%2</a>\n" )
+	html += QString( "<li><a href=\"%1\">%2</a>\n" )
 		.arg( config->verbatimHref(*h).latin1() ).arg( *h );
 	++h;
     }
@@ -1708,8 +1708,9 @@ QString Doc::finalHtml() const
 	while ( (k = yyOut.find(*megaRegExp, k)) != -1 ) {
 	    if ( yyOut[k + 1] != QChar('<') ) {
 		QString t = megaRegExp->cap( 0 ).mid( 1 ).simplifyWhiteSpace();
-		yyOut.replace( k + 1, t.length(), QString("<a href=%1>%2</a>")
-						  .arg(indices[t]).arg(t) );
+		yyOut.replace( k + 1, t.length(),
+			       QString("<a href=\"%1\">%2</a>")
+			       .arg(indices[t]).arg(t) );
 	    }
 	    k += megaRegExp->matchedLength() + 1;
 	}

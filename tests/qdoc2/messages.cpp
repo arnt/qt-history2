@@ -64,12 +64,29 @@ void setParanoiaEnabled( bool enabled )
 }
 #endif
 
+static QString currentDirectory;
+
 void warning( int level, const Location& loc, const char *message, ... )
 {
     if ( warningLevel <= level )
 	return;
     if ( omit(message) )
 	return;
+
+    QString filename = loc.shortFilePath();
+    QString filenameBase = loc.filePath();
+    filenameBase
+	= filenameBase.left( filenameBase.length()-filename.length()-1 );
+    if ( filenameBase.length() == 0 )
+	filenameBase = "/";
+    if ( currentDirectory != filenameBase ) {
+	if ( currentDirectory.length() )
+	    fprintf( stderr, "make: Leaving directory `%s'\n",
+		     currentDirectory.latin1() );
+	currentDirectory = filenameBase;
+	fprintf( stderr, "qdoc: Entering directory `%s'\n",
+		 currentDirectory.latin1() );
+    }
 
     va_list ap;
 

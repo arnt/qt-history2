@@ -122,7 +122,7 @@ void HtmlWriter::puts( const char *str )
 
 void HtmlWriter::printFnord()
 {
-    putsMeta( "<a href=http://www.kbuxton.com/discordia/fnord.html>fnord</a>" );
+    putsMeta( "<a href=\"http://www.kbuxton.com/discordia/fnord.html\">fnord</a>" );
 }
 
 void HtmlWriter::initStatic()

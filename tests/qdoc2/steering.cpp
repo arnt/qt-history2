@@ -269,7 +269,7 @@ void Steering::emitHtml() const
 
 		c = (*classes).begin();
 		while ( c != (*classes).end() ) {
-		    out.printfMeta( "<li><a href=%s>%s</a>\n",
+		    out.printfMeta( "<li><a href=\"%s\">%s</a>\n",
 				    config->classRefHref((*c)->name()).latin1(),
 				    (*c)->name().latin1() );
 		    if ( !(*c)->whatsThis().isEmpty() )
@@ -297,7 +297,7 @@ void Steering::emitHtml() const
 	HtmlWriter out( config->verbatimHref((*ex)->fileName()) );
 	out.setTitle( (*ex)->fileName() );
 	(*ex)->printHtml( out );
-	++ex;	
+	++ex;
     }
 
     /*

@@ -21,22 +21,25 @@
 /* tmake ignore Q_OBJECT */
 
 /*
-  What is parsing?  Even though source files and header files are written in the
-  same language (C++), qdoc distinguishes them.  It first reads the header files
-  using a parser that looks for declarations and class definitions.  Then it
-  reads the source files using another parser that looks for slashasterbang
-  comments.  Both parsers have much in common, but they are also quite
-  different.  For that reason, they are tangled here in one file.
 
-  The two parsers are quite peculiar.  They look like typical recursive-descent
-  parsers (supposedly one of the least maintainable and most hard to read
-  parsing techniques).  However, these beasts have very little to do with
-  Standard C++.  They parse something that could be called Intuitive C++, or
-  ad hoc C++.  They are quite gross in the details.  The header parser will try
-  to parse anything that starts with 'class' as a class definition, until it
-  meets something that doesn't fit.  What does it do then?  If your answer is
-  backtrack, you're wrong.  It just looks for something to hold on and goes on,
-  without ever emitting a warning about syntax.
+  What is parsing?  Even though source files and header files are
+  written in the same language (C++), qdoc distinguishes them.  It
+  first reads the header files using a parser that looks for
+  declarations and class definitions.  Then it reads the source files
+  using another parser that looks for slashasterbang comments.  Both
+  parsers have much in common, but they are also quite different.  For
+  that reason, they are tangled here in one file.
+
+  The two parsers are quite peculiar.  They look like typical
+  recursive-descent parsers (supposedly one of the least maintainable
+  and most hard to read parsing techniques).  However, these beasts
+  have very little to do with Standard C++.  They parse something that
+  could be called Intuitive C++, or ad hoc C++.  They are quite gross
+  in the details.  The header parser will try to parse anything that
+  starts with 'class' as a class definition, until it meets something
+  that doesn't fit.  What does it do then?  If your answer is
+  backtrack, you're wrong.  It just looks for something to hold on and
+  goes on, without ever emitting a warning about syntax.
 */
 
 /*
@@ -717,8 +720,8 @@ static void matchDocsAndStuff( Steering *steering )
 			  Check consistency of '\a' and parameter names.
 			*/
 			StringSet docp = fn->parameterNames();
-			StringSet declp =
-				((FunctionDecl *) decl)->parameterNames();
+			StringSet declp 
+			    = ((FunctionDecl *) decl)->parameterNames();
 			StringSet diff;
 			StringSet::ConstIterator s;
 
@@ -821,8 +824,8 @@ static void matchDocsAndStuff( Steering *steering )
 		delete doc;
 	} else {
 	    if ( matchFunctionDecl(0) ) {
-		Decl *decl = steering->resolveMangled(
-				     yyLastDecl->mangledName() );
+		Decl *decl;
+		decl = steering->resolveMangled( yyLastDecl->mangledName() );
 		// signals are defined in MOC files
 		if ( decl != 0 && decl->kind() == Decl::Function &&
 		     !((FunctionDecl *) decl)->isSignal() )

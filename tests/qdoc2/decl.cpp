@@ -32,7 +32,7 @@ static void printHtmlDataType( HtmlWriter& out, const CodeChunk& type,
 static void printHtmlListEntry( HtmlWriter& out, const QString& funcName,
 				const QString& className )
 {
-    out.printfMeta( "<li><a href=%s#%s>%s</a>\n",
+    out.printfMeta( "<li><a href=\"%s#%s\">%s</a>\n",
 		    config->classRefHref(className).latin1(),
 		    Decl::anchor(funcName).latin1(), funcName.latin1() );
 }
@@ -73,7 +73,7 @@ static QString htmlShortName( const Decl *decl )
 		 decl->fullMangledName().latin1() );
     } else if ( (config->isInternal() || !decl->internal()) &&
 		!decl->obsolete() ) {
-	html = QString( "<a href=#%1>%2</a>" ).arg( decl->anchor() )
+	html = QString( "<a href=\"#%1\">%2</a>" ).arg( decl->anchor() )
 	       .arg( html );
     }
     return html;
@@ -100,7 +100,7 @@ static void printHtmlLongMembers( HtmlWriter& out,
 
 	    if ( (*m)->reimplements() != 0 ) {
 		QString className = (*m)->reimplements()->context()->name();
-		out.printfMeta( "<p>Reimplemented from <a href=%s",
+		out.printfMeta( "<p>Reimplemented from <a href=\"%s\"",
 				config->classRefHref(className).latin1() );
 		if ( (*m)->reimplements()->doc() != 0 )
 		    out.printfMeta( "#%s",
@@ -117,7 +117,7 @@ static void printHtmlLongMembers( HtmlWriter& out,
 		r = by.begin();
 		while ( r != by.end() ) {
 		    QString className = (*r)->context()->fullName();
-		    out.printfMeta( "<a href=%s",
+		    out.printfMeta( "<a href=\"%s\"",
 				    config->classRefHref(className).latin1() );
 		    if ( (*r)->doc() != 0 )
 			out.printfMeta( "#%s", (*r)->anchor().latin1() );
@@ -604,7 +604,7 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
     out.setTitle( name() + QString(" Class") );
     out.setHeading( name() + QString(" Class Reference") );
     if ( classDoc() != 0 && !classDoc()->module().isEmpty() )
-	out.setSubHeading( QString("[ <a href=%1.html>%2 module</a> ]")
+	out.setSubHeading( QString("[ <a href=\"%1.html\">%2 module</a> ]")
 			   .arg(classDoc()->module())
 			   .arg(classDoc()->module()) );
 
@@ -618,7 +618,7 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 			    classDoc()->extension().latin1() );
     }
 
-    out.putsMeta( "<a href=#details>More...</a>\n" );
+    out.putsMeta( "<a href=\"#details\">More...</a>\n" );
 
     if ( !hfile.isEmpty() )
 	Doc::printHtmlIncludeHeader( out, hfile );
@@ -651,7 +651,7 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 	}
     }
 
-    out.printfMeta( "<p><a href=%s>List of all member functions.</a>\n",
+    out.printfMeta( "<p><a href=\"%s\">List of all member functions.</a>\n",
 		    config->classMembersHref(name()).latin1() );
 
     child = publicChildren().begin();
@@ -661,7 +661,7 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 	++child;
     }
 
-    child = importantChildren().begin(); 
+    child = importantChildren().begin();
     while ( child != importantChildren().end() ) {
 	tangle( *child, &importantInheritedMembers, &importantInheritedMembers,
 		&importantInheritedMembers, &importantInheritedMembers,
@@ -669,7 +669,7 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 	++child;
     }
 
-    child = protectedChildren().begin(); 
+    child = protectedChildren().begin();
     while ( child != protectedChildren().end() ) {
 	tangle( *child, &protectedMembers, &protectedSlots, 0,
 		&staticProtectedMembers, &memberTypes, &memberFunctions );
@@ -677,7 +677,7 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
     }
 
     if ( config->isInternal() ) {
-	child = privateChildren().begin(); 
+	child = privateChildren().begin();
 	while ( child != privateChildren().end() ) {
 	    tangle( *child, &privateMembers, &privateSlots, 0,
 		    &staticPrivateMembers, &memberTypes, &memberFunctions );
@@ -991,7 +991,7 @@ void ClassDecl::emitHtmlListOfAllMemberFunctions() const
     out.setHeading( QString("Complete Member List for ") + name() );
 
     out.printfMeta( "<p>This is the complete list of member functions for\n"
-		    "<a href=%s>%s</a>, including all inherited members.\n\n",
+		    "<a href=\"%s\">%s</a>, including inherited members.\n\n",
 		    config->classRefHref(fullName()).latin1(),
 		    name().latin1() );
     out.putsMeta( "<ul>\n" );

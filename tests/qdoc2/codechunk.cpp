@@ -96,7 +96,7 @@ void CodeChunk::append( const QString& lexeme )
 	  new lexeme?
 	*/
 	if ( needSpace[category(s.right(1)[0])][category(lexeme[0])] )
-	    s += QChar( '\xa0' );
+	    s += ' ';
     }
     s += lexeme;
 }
@@ -128,14 +128,7 @@ void CodeChunk::appendHotspot()
 
 QString CodeChunk::toString() const
 {
-    QString t = s;
-    int i;
-
-    for ( i = 0; i < (int) t.length(); i++ ) {
-	if ( t[i] == QChar('\xa0') )
-	    t[i] = QChar( ' ' );
-    }
-    return t;
+    return s;
 }
 
 void CodeChunk::printHtml( HtmlWriter& out, const QString& baseHref,
@@ -165,7 +158,7 @@ void CodeChunk::printHtml( HtmlWriter& out, const QString& baseHref,
     while ( TRUE ) {
 	if ( i == myhspot ) {
 	    if ( !hotspotHtml.isEmpty() ) {
-		out.putsMeta( "\xa0" );
+		out.putsMeta( " " );
 		out.putsMeta( hotspotHtml.latin1() );
 	    }
 	}
@@ -176,7 +169,7 @@ void CodeChunk::printHtml( HtmlWriter& out, const QString& baseHref,
 	    if ( baseHref.isEmpty() ) {
 		out.puts( b.latin1() );
 	    } else {
-		out.printfMeta( "<a href=%s>", baseHref.latin1() );
+		out.printfMeta( "<a href=\"%s\">", baseHref.latin1() );
 		out.puts( b.latin1() );
 		out.putsMeta( "</a>" );
 	    }

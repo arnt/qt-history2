@@ -13,8 +13,8 @@ Resolver::Resolver()
 {
     if ( opParenParen == 0 ) {
 	opParenParen = new QString( "operator()" );
-	aHrefEq = new QString( "<a href=" );
-	rAngle = new QString( ">" );
+	aHrefEq = new QString( "<a href=\"" );
+	rAngle = new QString( "\">" );
 	slashA = new QString( "</a>" );
     }
 }
@@ -56,7 +56,7 @@ QString Resolver::href( const QString& name, const QString& text ) const
 	left = text;
     }
 
-    if ( k < name.length() )
+    if ( k < (int)name.length() )
 	link = resolvefn( name.left(k) );
     else
 	link = resolve( name );
