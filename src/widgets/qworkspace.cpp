@@ -1864,11 +1864,11 @@ QSize QWorkspaceChild::minimumSizeHint() const
 {
     if ( !childWidget )
 	return QFrame::minimumSizeHint();
-    
+
     QSize ms( childWidget->minimumSize() );
     if ( ms.isEmpty() )
  	ms = childWidget->minimumSizeHint();
-    
+
     int th = titlebar ? titlebar->sizeHint().height() : 0;
     int ts = titlebar ? TITLEBAR_SEPARATION : 0;
     int tb = titlebar ? titlebar->border : 0;
@@ -1962,7 +1962,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	break;
     }
 
-    return FALSE;
+    return QFrame::eventFilter(o, e);
 }
 
 
@@ -2053,7 +2053,7 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
 		  childWidget->minimumWidth()) + 2 * tb + 2 * frameWidth();
     int mh = QMAX(childWidget->minimumSizeHint().height(),
 		  childWidget->minimumHeight()) + 2 * tb +  2 * frameWidth() + ts + th + 1;
- 
+
     QSize mpsize( geometry().right() - pp.x() + 1,
 		  geometry().bottom() - pp.y() + 1 );
     mpsize = mpsize.expandedTo( minimumSize() ).expandedTo( QSize(mw, mh) );
