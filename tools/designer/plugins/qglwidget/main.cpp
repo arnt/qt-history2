@@ -123,9 +123,10 @@ unsigned long OpenGLWidgetInterface::addRef()
 
 unsigned long OpenGLWidgetInterface::release()
 {
-    if ( !--ref )
+    if ( !--ref ) {
 	delete this;
-
+	return 0;
+    }
     return ref;
 }
 
