@@ -16,6 +16,12 @@
 \row \o QChar::nbsp \o QChar::Nbsp
 \row \o QChar::null \o QChar::Null
 \row \o QChar::replacement \o QChar::ReplacementCharacter
+\row \o QComboBox::NoInsertion \o QComboBox::NoInsert
+\row \o QComboBox::AtTop \o QComboBox::InsertAtTop
+\row \o QComboBox::AtCurrent \o QComboBox::InsertAtCurrent
+\row \o QComboBox::AtBottom \o QComboBox::InsertAtBottom
+\row \o QComboBox::AfterCurrent \o QComboBox::InsertAfterCurrent
+\row \o QComboBox::BeforeCurrent \o QComboBox::InsertBeforeCurrent
 \row \o QDir::DefaultFilter \o QDir::NoFilter
 \row \o QDir::DefaultSort \o QDir::NoSort
 \row \o QEvent::AccelOverride \o QCoreEvent::ShortcutOverride
@@ -99,6 +105,10 @@
 \row \o QStyle::Style_Sunken \o QStyle::State_Sunken 
 \row \o QStyle::Style_Top \o QStyle::State_Top 
 \row \o QStyle::Style_Up \o QStyle::State_Up 
+\row \o QTabBar::RoundedAbove \o QTabBar::RoundedNorth
+\row \o QTabBar::RoundedBelow \o QTabBar:: RoundedSouth
+\row \o QTabBar::TriangularAbove \o QTabBar:: TriangularNorth
+\row \o QTabBar::TriangularBelow \o QTabBar:: TriangularSouth
 \row \o QTextEdit::MovePgDown \o QTextEdit::MovePageDown
 \row \o QTextEdit::MovePgUp \o QTextEdit::MovePageUp
 \row \o QToolButton::Right \o QToolButton::BesideIcon
