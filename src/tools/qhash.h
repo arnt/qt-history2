@@ -74,6 +74,7 @@ struct Q_CORE_EXPORT QHashData
     void mightGrow();
     void hasShrunk();
     void rehash(int hint);
+    void free();
     Node *firstNode();
     static Node *nextNode(Node *node);
 #ifndef QT_NO_QHASH_BACKWARD_ITERATORS
@@ -375,8 +376,7 @@ Q_OUTOFLINE_TEMPLATE void QHash<Key, T>::freeData(QHashData *x)
 	    cur = next;
 	}
     }
-    delete [] x->buckets;
-    delete x;
+    x->free();
 }
 
 template <class Key, class T>

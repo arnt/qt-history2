@@ -225,3 +225,9 @@ void QHashData::rehash(int hint)
 	delete [] oldBuckets;
     }
 }
+
+void QHashData::free()
+{
+    delete [] buckets;
+    delete this;
+}
