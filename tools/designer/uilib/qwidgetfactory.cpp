@@ -1793,6 +1793,7 @@ void QWidgetFactory::loadExtraSource()
 
 QString QWidgetFactory::translate( const QString& sourceText, const QString& comment )
 {
+    // ### 4.0 use the <class> name, not the widget name
     return qApp->translate( toplevel->name(), sourceText.utf8(),
 			    comment.utf8(), QApplication::UnicodeUTF8 );
 }
