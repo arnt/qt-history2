@@ -455,13 +455,13 @@ void QFrame::drawFrame(QPainter *p)
 {
     QPoint      p1, p2;
     QStyleOptionFrame opt;
+    opt.init(this);
     int frameShape  = d->frameStyle & QFrame::MShape;
     int frameShadow = d->frameStyle & QFrame::MShadow;
 
     int lw = 0;
     int mlw = 0;
     opt.rect = frameRect();
-    opt.palette = palette();
     switch (frameShape) {
     case QFrame::Box:
     case QFrame::HLine:
@@ -477,17 +477,10 @@ void QFrame::drawFrame(QPainter *p)
     }
     opt.lineWidth = lw;
     opt.midLineWidth = mlw;
-    opt.state = QStyle::State_None;
-    if (isEnabled())
-        opt.state |= QStyle::State_Enabled;
     if (frameShadow == Sunken)
         opt.state |= QStyle::State_Sunken;
     else if (frameShadow == Raised)
         opt.state |= QStyle::State_Raised;
-    if (hasFocus())
-        opt.state |= QStyle::State_HasFocus;
-    if (testAttribute(Qt::WA_UnderMouse))
-        opt.state |= QStyle::State_MouseOver;
 
     switch (frameShape) {
     case Box:

@@ -162,18 +162,11 @@ void QDockWidgetTitleButton::paintEvent(QPaintEvent *)
     QPainter p(this);
 
     QRect r = rect();
-    QStyleOption opt(0);
-    opt.rect = r;
-    opt.palette = palette();
-    opt.state = QStyle::State_AutoRaise;
-    if (isEnabled()) {
-        opt.state |= QStyle::State_Enabled;
-        if (underMouse()) {
-            opt.state |= QStyle::State_MouseOver;
-            if (!isChecked() && !isDown())
-                opt.state |= QStyle::State_Raised;
-        }
-    }
+    QStyleOption opt;
+    opt.init(this);
+    opt.state |= QStyle::State_AutoRaise;
+    if (isEnabled() && underMouse() && !isChecked() && !isDown())
+        opt.state |= QStyle::State_Raised;
     if (isChecked())
         opt.state |= QStyle::State_On;
     if (isDown())

@@ -114,8 +114,6 @@ static QStyleOptionButton getStyleOption(const QRadioButton *btn)
     opt.icon = btn->icon();
     if (btn->isDown())
         opt.state |= QStyle::State_Down;
-    if (btn->testAttribute(Qt::WA_UnderMouse))
-        opt.state |= QStyle::State_MouseOver;
     opt.state |= (btn->isChecked() ? QStyle::State_On : QStyle::State_Off);
     return opt;
 }

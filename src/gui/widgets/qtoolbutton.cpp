@@ -238,8 +238,6 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
         opt.state |= QStyle::State_On;
     if (autoRaise)
         opt.state |= QStyle::State_AutoRaise;
-    if (q->underMouse() && (opt.state & QStyle::State_Enabled))
-        opt.state |= QStyle::State_MouseOver;
     if (!checked && !down)
         opt.state |= QStyle::State_Raised;
 

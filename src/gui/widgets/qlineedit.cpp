@@ -1837,15 +1837,10 @@ void QLineEdit::paintEvent(QPaintEvent *)
     if (d->frame) {
         int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
         QStyleOptionFrame opt;
-        opt.rect = r;
-        opt.palette = pal;
+        opt.init(this);
         opt.lineWidth = frameWidth;
         opt.midLineWidth = 0;
-        opt.state = QStyle::State_None | QStyle::State_Sunken;
-        if (hasFocus())
-            opt.state |= QStyle::State_HasFocus;
-        if (testAttribute(Qt::WA_UnderMouse))
-            opt.state |= QStyle::State_MouseOver;
+        opt.state |= QStyle::State_Sunken;
         style()->drawPrimitive(QStyle::PE_FrameLineEdit, &opt, &p, this);
 
         r.addCoords(frameWidth, frameWidth, -frameWidth, -frameWidth);

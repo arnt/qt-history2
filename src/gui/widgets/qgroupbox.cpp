@@ -220,8 +220,6 @@ void QGroupBox::paintEvent(QPaintEvent *event)
     opt.rect = frameRect;
 
     opt.state |= QStyle::State_Sunken;
-    if (testAttribute(Qt::WA_UnderMouse))
-        opt.state |= QStyle::State_MouseOver;
     opt.lineWidth = 1;
     opt.midLineWidth = 0;
 

@@ -166,6 +166,8 @@ void QStyleOption::init(const QWidget *widget)
         state |= QStyle::State_Enabled;
     if (widget->hasFocus())
         state |= QStyle::State_HasFocus;
+    if (widget->underMouse())
+        state |= QStyle::State_MouseOver;
     if (widget->window()->isActiveWindow())
         state |= QStyle::State_Active;
 
