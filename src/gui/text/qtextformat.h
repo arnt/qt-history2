@@ -270,7 +270,7 @@ public:
     { return floatProperty(FontPointSize); }
 
     inline void setFontWeight(int weight)
-    { setProperty(FontWeight, weight, QFont::Normal); }
+    { setProperty(FontWeight, weight); }
     inline int fontWeight() const
     { return intProperty(FontWeight, QFont::Normal); }
 
@@ -300,7 +300,7 @@ public:
     { return boolProperty(FontFixedPitch); }
 
     inline void setTextColor(const QColor &color)
-    { setProperty(TextColor, color, QColor()); }
+    { setProperty(TextColor, color); }
     inline QColor textColor() const
     { return colorProperty(TextColor); }
 
@@ -329,9 +329,9 @@ public:
     { return intProperty(TableCellColumnSpan, 1); }
 
     inline void setTableCellBackgroundColor(const QColor &color)
-    { setProperty(TableCellBackgroundColor, color, QColor()); }
+    { setProperty(TableCellBackgroundColor, color); }
     inline QColor tableCellBackgroundColor() const
-    { return colorProperty(TableCellBackgroundColor, QColor()); }
+    { return colorProperty(TableCellBackgroundColor); }
 
 };
 
@@ -390,7 +390,7 @@ public:
     { return boolProperty(BlockNonBreakableLines); }
 
     inline void setBackgroundColor(const QColor &color)
-    { setProperty(BlockBackgroundColor, color, QColor()); }
+    { setProperty(BlockBackgroundColor, color); }
     inline QColor backgroundColor() const
     { return colorProperty(BlockBackgroundColor); }
 };
@@ -531,7 +531,7 @@ public:
     { return QFlag(intProperty(BlockAlignment, Qt::AlignAuto)); }
 
     inline void setBackgroundColor(const QColor &color)
-    { setProperty(TableBackgroundColor, color, QColor()); }
+    { setProperty(TableBackgroundColor, color); }
     inline QColor backgroundColor() const
     { return colorProperty(TableBackgroundColor); }
 };
