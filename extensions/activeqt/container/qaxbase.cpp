@@ -1208,8 +1208,8 @@ private:
     QByteArray createPrototype(FUNCDESC *funcdesc, ITypeInfo *typeinfo, const QList<QByteArray> &names,
         QByteArray &type, QList<QByteArray> &parameters);
     
-    QByteArray usertypeToString(const TYPEDESC &tdesc, ITypeInfo *info, const char *function);
-    QByteArray guessTypes(const TYPEDESC &tdesc, ITypeInfo *info, const char *function);
+    QByteArray usertypeToString(const TYPEDESC &tdesc, ITypeInfo *info, const QByteArray &function);
+    QByteArray guessTypes(const TYPEDESC &tdesc, ITypeInfo *info, const QByteArray &function);
     
     // ### from qmetaobject.cpp
     enum ProperyFlags  {
@@ -1233,7 +1233,7 @@ private:
             Bindable            = 0x00200000
     };
     
-    QList<QByteArray> paramList(const char *proto)
+    QList<QByteArray> paramList(const QByteArray &proto)
     {
         QByteArray prototype(proto);
         QByteArray parameters = prototype.mid(prototype.indexOf('(') + 1);
@@ -1243,10 +1243,10 @@ private:
         return plist;
     }
     
-    QByteArray replacePrototype(const char *prototype)
+    QByteArray replacePrototype(const QByteArray &prototype)
     {
         QByteArray proto(prototype);
-        
+
         QList<QByteArray> plist = paramList(prototype);
         for (int p = 0; p < plist.count(); ++p) {
             QByteArray param(plist.at(p));
@@ -1284,27 +1284,27 @@ private:
         QByteArray realPrototype;
     };
     QMap<QByteArray, Method> signal_list;
-    inline void addSignal(const char *type, const char *prototype, const char *parameters)
+    inline void addSignal(const QByteArray &prototype, const QByteArray &parameters)
     {
-        QByteArray proto = replacePrototype(prototype);
+        QByteArray proto(replacePrototype(prototype));
         
         Method &signal = signal_list[proto];
-        signal.type = type;
+        signal.type = 0;
         signal.parameters = parameters;
         signal.flags = QMetaMember::Public;
         if (proto != prototype)
             signal.realPrototype = prototype;
     }
     
-    void addChangedSignal(const char *function, const char *type, int memid);
+    void addChangedSignal(const QByteArray &function, const QByteArray &type, int memid);
     
-    inline bool hasSignal(const char *prototype)
+    inline bool hasSignal(const QByteArray &prototype)
     {
         return signal_list.contains(prototype);
     }
     
     QMap<QByteArray, Method> slot_list;
-    inline void addSlot(const char *type, const char *prototype, const char *parameters, int flags = QMetaMember::Public)
+    inline void addSlot(const QByteArray &type, const QByteArray &prototype, const QByteArray &parameters, int flags = QMetaMember::Public)
     {
         QByteArray proto = replacePrototype(prototype);
         
@@ -1316,18 +1316,18 @@ private:
             slot.realPrototype = prototype;
     }
     
-    void addSetterSlot(const char *property);
+    void addSetterSlot(const QByteArray &property);
     
-    inline bool hasSlot(const char *prototype)
+    inline bool hasSlot(const QByteArray &prototype)
     {
         return slot_list.contains(prototype);
     }
     
     QMap<QByteArray, QPair<QByteArray, int> > property_list;
-    void addProperty(const char *type, const char *name, int flags)
+    void addProperty(const QByteArray &type, const QByteArray &name, int flags)
     {
         QPair<QByteArray, int> &prop = property_list[name];
-        if (type && qstrcmp(type, "HRESULT"))
+        if (!type.isEmpty() && type != "HRESULT")
             prop.first = replaceType(type);
         prop.second |= flags;
         QVariant::Type vartype = QVariant::nameToType(prop.first);
@@ -1339,23 +1339,23 @@ private:
             prop.second |= QVariant::UserType << 24;
     }
     
-    inline bool hasProperty(const char *name)
+    inline bool hasProperty(const QByteArray &name)
     {
         return property_list.contains(name);
     }
     
-    inline QByteArray propertyType(const char *name)
+    inline QByteArray propertyType(const QByteArray &name)
     {
         return property_list.value(name).first;
     }
     
     QMap<QByteArray, QList<QPair<QByteArray, int> > > enum_list;
-    inline void addEnumValue(const char *enumname, const char *key, int value)
+    inline void addEnumValue(const QByteArray &enumname, const QByteArray &key, int value)
     {
         enum_list[enumname].append(QPair<QByteArray, int>(key, value));
     }
     
-    inline bool hasEnum(const char *enumname)
+    inline bool hasEnum(const QByteArray &enumname)
     {
         return enum_list.contains(enumname);
     }
@@ -1385,9 +1385,9 @@ MetaObjectGenerator::MetaObjectGenerator(QAxBase *ax, QAxBasePrivate *dptr)
     
     iid_propNotifySink = IID_IPropertyNotifySink;
     
-    addSignal(0, "signal(QString,int,void*)", "name,argc,argv");
-    addSignal(0, "exception(int,QString,QString,QString)", "code,source,disc,help");
-    addSignal(0, "propertyChanged(QString)", "name");
+    addSignal("signal(QString,int,void*)", "name,argc,argv");
+    addSignal("exception(int,QString,QString,QString)", "code,source,disc,help");
+    addSignal("propertyChanged(QString)", "name");
     addProperty("QString", "control", Readable|Writable|Designable|Scriptable|Stored|Editable|StdCppSet);
 }
 
@@ -1397,7 +1397,7 @@ MetaObjectGenerator::~MetaObjectGenerator()
     if (typelib) typelib->Release();
 }
 
-QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInfo *info, const char *function)
+QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInfo *info, const QByteArray &function)
 {
     HREFTYPE usertype = tdesc.hreftype;
     if (tdesc.vt != VT_USERDEFINED)
@@ -1446,7 +1446,7 @@ QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInf
     return typeName;
 }
 
-QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *info, const char *function)
+QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *info, const QByteArray &function)
 {
     QByteArray str;
     switch (tdesc.vt) {
@@ -1726,7 +1726,7 @@ void MetaObjectGenerator::readEnumInfo()
     }
 }
 
-void MetaObjectGenerator::addChangedSignal(const char *function, const char *type, int memid)
+void MetaObjectGenerator::addChangedSignal(const QByteArray &function, const QByteArray &type, int memid)
 {
     QAxEventSink *eventSink = d->eventSink.value(iid_propNotifySink);
     if (!eventSink && d->useEventSink) {
@@ -1738,12 +1738,12 @@ void MetaObjectGenerator::addChangedSignal(const char *function, const char *typ
     signalName += "Changed";
     QByteArray signalProto = signalName + "(" + replaceType(type) + ")";
     if (!hasSignal(signalProto))
-        addSignal(0, signalProto, function);
+        addSignal(signalProto, function);
     if (eventSink)
         eventSink->addProperty(memid, function, signalProto);
 }
 
-void MetaObjectGenerator::addSetterSlot(const char *property)
+void MetaObjectGenerator::addSetterSlot(const QByteArray &property)
 {
     QByteArray set;
     QByteArray prototype(property);
@@ -2159,7 +2159,6 @@ void MetaObjectGenerator::readEventInfo()
                         }
                         
                         QByteArray function;
-                        QByteArray type;
                         QByteArray prototype;
                         QList<QByteArray> parameters;
                         int flags = 0;
@@ -2178,6 +2177,7 @@ void MetaObjectGenerator::readEventInfo()
                         
                         // get event function prototype
                         function = names.at(0);
+                        QByteArray type; // dummy - we don't care about return values for signals
                         prototype = createPrototype(/*in*/ funcdesc, eventinfo, names, /*out*/type, parameters);
                         if (!hasSignal(prototype)) {
                             QByteArray pnames;
@@ -2186,7 +2186,7 @@ void MetaObjectGenerator::readEventInfo()
                                 if (p < parameters.count() - 1)
                                     pnames += ',';
                             }
-                            addSignal(type, prototype, pnames);
+                            addSignal(prototype, pnames);
                         }
                         if (eventSink)
                             eventSink->addSignal(funcdesc->memid, prototype);
