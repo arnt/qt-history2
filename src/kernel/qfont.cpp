@@ -1439,7 +1439,7 @@ QDataStream &operator<<( QDataStream &s, const QFont &font )
     if ( s.version() <= 3 ) {
 	Q_INT16 pointSize = (Q_INT16) font.d->request.pointSize;
 	if ( pointSize == -1 )
-	    pointSize = (Q_INT16)QFontInfo( font ).pointSize();
+	    pointSize = (Q_INT16)QFontInfo( font ).pointSize() * 10;
 	s << pointSize;
     } else {
 	s << (Q_INT16) font.d->request.pointSize;
