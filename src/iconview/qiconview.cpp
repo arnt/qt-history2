@@ -5814,6 +5814,19 @@ QString QIconView::useDescription() const
 }
 #endif
 
+/*! \reimp */
+void QIconView::windowActivationChange( bool )
+{
+    if ( !isVisible() )
+	return;
+
+    const QColorGroup acg = palette().active();
+    const QColorGroup icg = palette().inactive();
+
+    if ( acg != icg )
+	viewport()->update();
+}
+
 #include "qiconview.moc"
 
 #endif // QT_NO_ICONVIEW

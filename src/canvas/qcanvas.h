@@ -357,6 +357,8 @@ protected:
     void drawContents( QPainter*, int cx, int cy, int cw, int ch );
     QSize sizeHint() const;
 
+    void windowActivationChange( bool );
+
 private:
     QCanvas* viewing;
     class Data;

@@ -4119,6 +4119,18 @@ QString	QListBox::typeDescription() const
 
 #endif
 
+/*! \reimp */
+void QListBox::windowActivationChange( bool )
+{
+    if ( !isVisible() )
+	return;
+
+    const QColorGroup acg = palette().active();
+    const QColorGroup icg = palette().inactive();
+    
+    if ( acg != icg )
+	viewport()->update();
+}
 
 /*! Returns 0.
 

@@ -406,6 +406,7 @@ protected:
     virtual void paintEmptyArea( QPainter *, const QRect & );
     void enabledChange( bool );
     void styleChange( QStyle& );
+    void windowActivationChange( bool );
 
 #ifndef QT_NO_ACCESSIBILITY
     QString stateDescription() const;

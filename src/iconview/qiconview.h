@@ -449,6 +449,7 @@ protected:
     QIconViewItem *makeRowLayout( QIconViewItem *begin, int &y, bool &changed );
 
     void styleChange( QStyle& );
+    void windowActivationChange( bool );
 
 #ifndef QT_NO_ACCESSIBILITY
     QString stateDescription() const;

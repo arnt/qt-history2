@@ -380,6 +380,8 @@ protected:
     virtual void insertWidget( int row, int col, QWidget *w );
     int indexOf( int row, int col ) const;
 
+    void windowActivationChange( bool );
+
 #ifndef QT_NO_ACCESSIBILITY
     QString stateDescription() const;
     QString typeDescription() const;

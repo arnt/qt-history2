@@ -206,6 +206,8 @@ protected:
     void setDocument( QTextDocument *doc );
     virtual QPopupMenu *createPopupMenu();
 
+    void windowActivationChange( bool );
+
 protected slots:
     virtual void doChangeInterval();
 

@@ -181,6 +181,7 @@ protected:
 #endif
 
     virtual QPopupMenu *createPopupMenu();
+    void windowActivationChange( bool );
 
 #ifndef QT_NO_ACCESSIBILTY
     QString stateDescription() const;

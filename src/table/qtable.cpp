@@ -4741,6 +4741,18 @@ QString	QTable::typeDescription() const
 
 #endif
 
+/*! \reimp */
+void QTable::windowActivationChange( bool )
+{
+    if ( !isVisible() )
+	return;
+
+    const QColorGroup acg = palette().active();
+    const QColorGroup icg = palette().inactive();
+
+    if ( acg != icg )
+	viewport()->update();
+}
 
 /* \class QTableHeader qtable.h
   module table

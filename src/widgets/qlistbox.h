@@ -265,6 +265,8 @@ protected:
 
     void doLayout() const;
 
+    void windowActivationChange( bool );
+
 #ifndef QT_NO_COMPAT
     bool itemYPos( int index, int *yPos ) const;
     int findItem( int yPos ) const { return index(itemAt(QPoint(0,yPos)) ); }

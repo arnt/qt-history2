@@ -3216,4 +3216,17 @@ void QTextView::setSelectionAttributes( int selNum, const QColor &back, bool inv
     doc->setInvertSelectionText( selNum, invertText );
 }
 
+/*! \reimp */
+void QTextView::windowActivationChange( bool )
+{
+    if ( !isVisible() )
+	return;
+
+    const QColorGroup acg = palette().active();
+    const QColorGroup icg = palette().inactive();
+
+    if ( acg != icg )
+	viewport()->update();
+}
+
 #endif
