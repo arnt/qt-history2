@@ -41,7 +41,9 @@
 #include "qbitmap.h"
 #include "qt_windows.h"
 #include <shlobj.h>
-
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#include "qaccessible.h"
+#endif
 
 static HCURSOR *cursor = 0;
 static QDragObject *global_src = 0;
@@ -277,6 +279,9 @@ void QDragManager::cancel( bool /* deleteSource */ )
 	restoreCursor = FALSE;
     }
 #endif
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::DragDropEnd );
+#endif
 }
 
 
@@ -434,6 +439,10 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     dragSource = (QWidget *)(object->parent());
     global_src = o;
     global_src->setTarget(0);
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::DragDropStart );
+#endif
 
     const char* fmt;
     for (int i=0; (fmt=object->format(i)); i++)
