@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#21 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#22 $
 **
 ** Definition of QPixmap class
 **
@@ -52,12 +52,13 @@ public:
 
     static  QPixmap grabWindow( WId, int x=0, int y=0, int w=-1, int h=-1 );
 
+    bool    enableImageCache( bool enable );
+
     QPixmap		xForm( const Q2DMatrix & );
     static  Q2DMatrix	trueMatrix( const Q2DMatrix &, int w, int h );
 
     bool    convertToImage( QImage * )	const;
     bool    convertFromImage( const QImage * );
-    bool    cacheImage( bool enable );
 
     static  const char *imageFormat( const char *fileName );
     bool    load( const char *fileName, const char *format=0 );
