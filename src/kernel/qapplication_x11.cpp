@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#130 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#131 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -36,7 +36,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#130 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#131 $")
 
 
 /*****************************************************************************
@@ -116,7 +116,7 @@ public:
 
 #if defined(_OS_SUN_) || defined(_OS_HPUX_) || defined(_OS_LINUX_) || \
     defined(_OS_SOLARIS_) || defined(_OS_SCO_) || defined(_OS_OSF_) || \
-    defiend(_OS_ULTRIX_)
+    defined(_OS_ULTRIX_)
 typedef void (*SIG_HANDLER)(int);
 #elif defined(_OS_IRIX_)
 typedef int (*SIG_HANDLER)(int);
