@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#36 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#37 $
 **
 ** Implementation of date and time classes
 **
@@ -26,11 +26,11 @@
 #elif defined(UNIX)
 #include <sys/time.h>
 #include <unistd.h>
-#undef  gettimeofday
+#undef	gettimeofday
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetime.cpp#36 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetime.cpp#37 $")
 
 
 static const ulong FIRST_DAY	 = 2361222L;	// Julian day for 17520914
@@ -71,7 +71,6 @@ const char *QDate::weekdayNames[] ={
   around 8000AD, by which time we expect Qt to be obsolete.
 
   \sa QTime, QDateTime
-
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -85,16 +84,7 @@ const char *QDate::weekdayNames[] ={
 
 QDate::QDate( int y, int m, int d )
 {
-#if defined(CHECK_RANGE)
-    if ( !isValid(y,m,d) )
-	warning( "QDate: Invalid date" );
-#endif
-    jd = greg2jul( y, m, d );
-#if defined(DEBUG)
-    ASSERT( year() == y );
-    ASSERT( month() == m );
-    ASSERT( day() == d );
-#endif
+    setYMD( y, m, d );
 }
 
 
@@ -250,11 +240,14 @@ bool QDate::setYMD( int y, int m, int d )
 {
     if ( !isValid(y,m,d) ) {
 #if defined(CHECK_RANGE)
-	 warning( "QDate::setYMD: Invalid date" );
+	 warning( "QDate::setYMD: Invalid date %04d/%02d/%02d", y, m, d );
 #endif
 	 return FALSE;
     }
     jd = greg2jul( y, m, d );
+#if defined(DEBUG)
+    ASSERT( year() == y && month() == m && day() == d );
+#endif
     return TRUE;
 }
 
@@ -355,7 +348,7 @@ QDate QDate::currentDate()
 
 bool QDate::isValid( int y, int m, int d )
 {
-    if ( y <= 99 )
+    if ( y >= 0 && y <= 99 )
 	y += 1900;
     else if ( y < FIRST_YEAR || (y == FIRST_YEAR && (m < 9 ||
 						    (m == 9 && d < 14))) )
@@ -372,6 +365,12 @@ bool QDate::leapYear( int y )
 {
     return y % 4 == 0 && y % 100 != 0 || y % 400 == 0;
 }
+
+/*----------------------------------------------------------------------------
+  \internal
+  Converts a Gregorian date to a Julian day.
+  \sa jul2greg()
+ ----------------------------------------------------------------------------*/
 
 ulong QDate::greg2jul( int y, int m, int d )
 {
@@ -390,8 +389,14 @@ ulong QDate::greg2jul( int y, int m, int d )
     return (146097L*c)/4 + (1461*ya)/4 + (153*m+2)/5 + d + 1721119L;
 }
 
+/*----------------------------------------------------------------------------
+  \internal
+  Converts a Julian day to a Gregorian date.
+  \sa greg2jul()
+ ----------------------------------------------------------------------------*/
+
 void QDate::jul2greg( ulong jd, int &y, int &m, int &d )
-{						// Julian day -> Gregorian date
+{
     ulong x;
     ulong j = jd - 1721119L;
     y = (int) ((j*4 - 1) / 146097L);
@@ -431,6 +436,8 @@ void QDate::jul2greg( ulong jd, int &y, int &m, int &d )
   depends on the underlying operating system.  Some operating systems
   (e.g. Linux) support a one-millisecond resolution, while others (MS-DOS
   and Windows 3.1) support only a 55 millisecond resolution.
+
+  \sa QDate, QDateTime
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -445,23 +452,13 @@ void QDate::jul2greg( ulong jd, int &y, int &m, int &d )
 
 QTime::QTime( int h, int m, int s, int ms )
 {
-#if defined(CHECK_RANGE)
-    if ( !isValid(h,m,s,ms) )
-	warning( "QTime: Invalid time" );
-#endif
-    ds = (h*SECS_PER_HOUR + m*SECS_PER_MIN + s)*1000 + ms;
-#if defined(DEBUG)
-    ASSERT( hour() == h );
-    ASSERT( minute() == m );
-    ASSERT( second() == s );
-    ASSERT( msec() == ms );
-#endif
+    setHMS( h, m, s, ms );
 }
 
 
 /*----------------------------------------------------------------------------
   Returns TRUE if the time is valid, or FALSE if the time is invalid or
-  null.  The time 23:30:55.746 is valid, while 24:12:30 is invalid.
+  null.	 The time 23:30:55.746 is valid, while 24:12:30 is invalid.
  ----------------------------------------------------------------------------*/
 
 bool QTime::isValid() const
@@ -530,9 +527,10 @@ bool QTime::setHMS( int h, int m, int s, int ms )
 {
     if ( !isValid(h,m,s,ms) ) {
 #if defined(CHECK_RANGE)
-	 warning( "QTime::setHMS: Invalid time" );
+	warning( "QTime::setHMS Invalid time %02d:%02d:%02d.%03d", h, m, s,
+		 ms );
 #endif
-	 return FALSE;
+	return FALSE;
     }
     ds = (h*SECS_PER_HOUR + m*SECS_PER_MIN + s)*1000 + ms;
     return TRUE;
@@ -635,8 +633,8 @@ QTime QTime::currentTime()
 bool QTime::currentTime( QTime *ct )
 {
     if ( !ct ) {
-#if defined(DEBUG)
-	warning("QTime::currentTime( QTime * ) called with null pointer");
+#if defined(CHECK_NULL)
+	warning( "QTime::currentTime(QTime *): Null pointer not allowed" );
 #endif
 	return FALSE;
     }
@@ -677,7 +675,7 @@ bool QTime::currentTime( QTime *ct )
 
 #else
 
-    time_t ltime;		// no millisecond resolution!!
+    time_t ltime;			// no millisecond resolution!!
     ::time( &ltime );
     tm *t = localtime( &ltime );
     ct->ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
@@ -705,10 +703,10 @@ bool QTime::isValid( int h, int m, int s, int ms )
 /*----------------------------------------------------------------------------
   Sets the time to the current time, e.g. for timing:
   \code
-  QTime t;
-  t.start();				// start clock
-  ... // some lengthy task
-  debug( "%d\n", t.elapsed() );		// prints # msecs elapsed
+    QTime t;
+    t.start();				// start clock
+    ... // some lengthy task
+    debug( "%d\n", t.elapsed() );		// prints # msecs elapsed
   \endcode
 
   \sa restart(), elapsed()
@@ -762,14 +760,13 @@ long QTime::elapsed()
   \ingroup tools
   \ingroup time
 
-  QDateTime provides high precision date and time functions since it
-  can work with Gregorian dates up to about year 8000.
+  QDateTime provides high precision date and time functions since it can work
+  with Gregorian dates up to about year 8000.
 
-  Most countries that use the Gregorian calendar switched to it
-  between 1550 and 1920.
+  Most countries that use the Gregorian calendar switched to it between 1550
+  and 1920.
 
-  \sa QDate QTime
-
+  \sa QDate, QTime
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -792,14 +789,14 @@ QDateTime::QDateTime( const QDate &date )
  ----------------------------------------------------------------------------*/
 
 QDateTime::QDateTime( const QDate &date, const QTime &time )
-    : d(date), t(time)				// set date and time
+    : d(date), t(time)
 {
 }
 
 
 /*----------------------------------------------------------------------------
   \fn bool QDateTime::isNull() const
-  Returns TRUE if both the date and the time are null.  A null date is invalid.
+  Returns TRUE if both the date and the time are null.	A null date is invalid.
   \sa QDate::isNull(), QTime::isNull()
  ----------------------------------------------------------------------------*/
 
@@ -890,7 +887,6 @@ QDateTime QDateTime::addSecs( long nsecs ) const
 
 /*----------------------------------------------------------------------------
   Returns the number of days between this datetime and \e dt.
-
   \sa addDays() secsTo()
  ----------------------------------------------------------------------------*/
 
@@ -906,7 +902,7 @@ long QDateTime::daysTo( const QDateTime &dt ) const
   \code
     QDateTime dt = QDateTime::currentDateTime();
     QDateTime x( QDate(dt.year(),12,24), QTime(17,00) );
-    debug( "There are %d seconds to christmas", dt.secsTo(x) );
+    debug( "There are %d seconds to Christmas", dt.secsTo(x) );
   \endcode
 
   \sa addSecs() daysTo()
@@ -921,6 +917,7 @@ long QDateTime::secsTo( const QDateTime &dt ) const
 /*----------------------------------------------------------------------------
   Returns TRUE if this datetime is equal to \e dt, or FALSE if
   they are different.
+  \sa operator!=()
  ----------------------------------------------------------------------------*/
 
 bool QDateTime::operator==( const QDateTime &dt ) const
@@ -931,6 +928,7 @@ bool QDateTime::operator==( const QDateTime &dt ) const
 /*----------------------------------------------------------------------------
   Returns TRUE if this datetime is different from \e dt, or FALSE if
   they are equal.
+  \sa operator==()
  ----------------------------------------------------------------------------*/
 
 bool QDateTime::operator!=( const QDateTime &dt ) const
