@@ -17,6 +17,8 @@ public:
     int cursorPos;
     bool cursorOn;
     QTextLayout *layout;
+    double scale;
+    int width;
 };
 
 
@@ -29,6 +31,8 @@ EditWidget::EditWidget( QWidget *parent,  const char * name )
     d->cursorOn = FALSE;
     d->cursorPos = 0;
     d->layout = 0;
+    d->scale = 1.;
+    d->width = 150;
 }
 
 EditWidget::~EditWidget()
@@ -66,28 +70,51 @@ void EditWidget::mousePressEvent( QMouseEvent *e )
 
 void EditWidget::keyPressEvent ( QKeyEvent *e )
 {
-    switch( e->key() ) {
-    case Key_Left:
-	d->cursorPos = d->layout->previousCursorPosition( d->cursorPos );
-	break;
-    case Key_Right:
-	d->cursorPos = d->layout->nextCursorPosition( d->cursorPos );
-	break;
-    case Key_Backspace:
-	if ( d->cursorPos )
-	    d->text.remove( --d->cursorPos, 1 );
-	break;
-    case Key_Delete: {
-	int nextChar = d->layout->nextCursorPosition( d->cursorPos );
-	d->text.remove( d->cursorPos, nextChar - d->cursorPos );
-	break;
-    }
-    default:
-	if ( !e->text().isEmpty() ) {
-	    d->text.insert( d->cursorPos, e->text() );
-	    d->cursorPos += e->text().length();
+    if (e->state() & Qt::ControlButton) {
+	switch( e->key() ) {
+	case Key_Plus:
+	    d->scale += .1;
+	    break;
+	case Key_Minus:
+	    d->scale -= .1;
+	    if (d->scale <0.1)
+		d->scale = 0.1;
+	    break;
+	case Key_Left:
+	    d->width--;
+	    if (d->width < 20)
+		d->width = 20;
+	    break;
+	case Key_Right:
+	    d->width++;
+	    break;
+	default:
+	    break;
 	}
-	break;
+    } else {
+	switch( e->key() ) {
+	case Key_Left:
+	    d->cursorPos = d->layout->previousCursorPosition( d->cursorPos );
+	    break;
+	case Key_Right:
+	    d->cursorPos = d->layout->nextCursorPosition( d->cursorPos );
+	    break;
+	case Key_Backspace:
+	    if ( d->cursorPos )
+		d->text.remove( --d->cursorPos, 1 );
+	    break;
+	case Key_Delete: {
+	    int nextChar = d->layout->nextCursorPosition( d->cursorPos );
+	    d->text.remove( d->cursorPos, nextChar - d->cursorPos );
+	    break;
+	}
+	default:
+	    if ( !e->text().isEmpty() ) {
+		d->text.insert( d->cursorPos, e->text() );
+		d->cursorPos += e->text().length();
+	    }
+	    break;
+	}
     }
     qDebug("cursorPos at %d",  d->cursorPos );
     recalculate();
@@ -103,11 +130,20 @@ void EditWidget::resizeEvent( QResizeEvent * )
 void EditWidget::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    p.drawRect( 10, 10, width()-20, height()-20 );
+    p.scale(d->scale, d->scale);
+    int y = 0;
     for ( int i = 0; i < d->layout->numLines(); i++ ) {
 	QTextLine line = d->layout->lineAt(i);
 	line.draw(&p, 0, 0);
+// 	qDebug("line at %d/%d textWidth %d", line.x(), line.y(), line.textWidth());
+	y = qMax(y, line.y() + line.ascent() + line.descent());
+	if (d->cursorPos >= line.from() && d->cursorPos <= line.from() + line.length()) {
+	    int x = line.cursorToX(d->cursorPos);
+// 	    qDebug("cursorPos at %d", x);
+	    p.drawLine(x, line.y(), x, line.y()+line.ascent()+line.descent());
+	}
     }
+    p.drawRect(10, 10, d->width, y);
 }
 
 
@@ -126,7 +162,7 @@ void EditWidget::recalculate()
     int leading = QFontMetrics(d->font).leading();
     int x = 10;
     int y = 10 - leading;
-    int lw = width() - 20;
+    int lw = d->width;
 
     int from = 0;
     while (from < d->text.length()) {
@@ -136,5 +172,5 @@ void EditWidget::recalculate()
 	from += l.length();
     }
 
-    qDebug("layout took %dms (%dus/char)", t.elapsed(), t.elapsed()*1000/qMax(d->text.length(),1) );
+    qDebug("layout with width %d took %dms (%dus/char)", d->width, t.elapsed(), t.elapsed()*1000/qMax(d->text.length(),1) );
 }
