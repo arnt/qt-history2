@@ -153,7 +153,7 @@ private:
     static enum ColorModel { d8, d32 } colormodel;
     union {
 	QRgb argb;
-	struct {
+	struct D8 {
 	    QRgb argb;
 	    uchar pix;
 	    uchar invalid;
