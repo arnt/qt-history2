@@ -1,6 +1,6 @@
 contains(sql-drivers, all ) {
         sql-driver +=   psql mysql odbc oci tds db2 sqlite ibase
-}			
+}
 
 contains(sql-drivers, psql) {
         HEADERS +=      drivers/psql/qsql_psql.h
@@ -9,13 +9,13 @@ contains(sql-drivers, psql) {
 
         win32 {
                 !contains( LIBS, .*libpq.* ):LIBS *= libpqdll.lib
-#               win32-msvc: { 
+#               win32-msvc: {
 #                       LIBS *= delayimp.lib
 #                       QMAKE_LFLAGS += /DELAYLOAD:libpqdll.dll
 #               }
 #               win32-borland: {
 #                       QMAKE_LFLAGS += /dlibpqdll.dll
-#               }		
+#               }
         }
 }
 
@@ -27,7 +27,7 @@ contains(sql-drivers, mysql) {
         win32 {
                 !contains( LIBS, .*mysql.* ):LIBS    *= libmysql.lib
 
-#               win32-msvc: { 
+#               win32-msvc: {
 #                       LIBS *= delayimp.lib
 #                       QMAKE_LFLAGS += /DELAYLOAD:libmysql.dll
 #               }
@@ -36,7 +36,7 @@ contains(sql-drivers, mysql) {
 #               }
         }
 }
-	
+
 contains(sql-drivers, odbc) {
         HEADERS += drivers/odbc/qsql_odbc.h
         SOURCES += drivers/odbc/qsql_odbc.cpp
@@ -57,13 +57,13 @@ contains(sql-drivers, oci) {
 
         win32 {
                 LIBS += oci.lib
-#               win32-msvc: { 
+#               win32-msvc: {
 #                       LIBS *= delayimp.lib
 #                       QMAKE_LFLAGS += /DELAYLOAD:oci.dll
 #               }
 #               win32-borland: {
 #                       QMAKE_LFLAGS += /doci.dll
-#               }		
+#               }
         }
 }
 
@@ -76,13 +76,13 @@ contains(sql-drivers, tds) {
         win32 {
                 !win32-borland:LIBS += NTWDBLIB.LIB
                 win32-borland:LIBS += $(BCB)/lib/PSDK/NTWDBLIB.LIB
-#               win32-msvc: { 
+#               win32-msvc: {
 #                       LIBS *= delayimp.lib
 #                       QMAKE_LFLAGS += /DELAYLOAD:ntwdblib.dll
 #               }
 #               win32-borland: {
 #                       QMAKE_LFLAGS += /dntwdblib.dll
-#               }		
+#               }
         }
 }
 
@@ -127,9 +127,6 @@ contains(sql-drivers, sqlite) {
                                 ../3rdparty/sqlite/legacy.c \
                                 ../3rdparty/sqlite/main.c \
                                 ../3rdparty/sqlite/opcodes.c \
-                                ../3rdparty/sqlite/os_mac.c \
-                                ../3rdparty/sqlite/os_unix.c \
-                                ../3rdparty/sqlite/os_win.c \
                                 ../3rdparty/sqlite/pager.c \
                                 ../3rdparty/sqlite/parse.c \
                                 ../3rdparty/sqlite/pragma.c \
@@ -148,8 +145,11 @@ contains(sql-drivers, sqlite) {
                                 ../3rdparty/sqlite/vdbe.c \
                                 ../3rdparty/sqlite/vdbemem.c \
                                 ../3rdparty/sqlite/where.c
+                unix:SOURCES += ../3rdparty/sqlite/os_unix.c
+                mac:SOURCES +=  ../3rdparty/sqlite/os_mac.c
+                win:SOURCES +=  ../3rdparty/sqlite/os_unix.c
         }
- 
+
         HEADERS +=      drivers/sqlite/qsql_sqlite.h
         SOURCES +=      drivers/sqlite/qsql_sqlite.cpp
 }
