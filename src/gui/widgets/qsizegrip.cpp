@@ -174,6 +174,7 @@ QSize QSizeGrip::sizeHint() const
 void QSizeGrip::paintEvent(QPaintEvent *e)
 {
     QPainter painter(this);
+    // ### This setClipRegion should not be necessary. Style should draw correctly
     painter.setClipRegion(e->region());
     QStyleOption opt(0);
     opt.rect = rect();
