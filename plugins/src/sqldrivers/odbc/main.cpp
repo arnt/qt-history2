@@ -43,7 +43,7 @@ public:
     QODBCDriverPlugin();
 
     QSqlDriver* create( const QString & );
-    QStringList featureList() const;
+    QStringList keys() const;
 };
 
 QODBCDriverPlugin::QODBCDriverPlugin()
@@ -60,7 +60,7 @@ QSqlDriver* QODBCDriverPlugin::create( const QString &name )
     return 0;
 }
 
-QStringList QODBCDriverPlugin::featureList() const
+QStringList QODBCDriverPlugin::keys() const
 {
     QStringList l;
     l.append("QODBC3");

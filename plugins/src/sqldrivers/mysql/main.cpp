@@ -43,7 +43,7 @@ public:
     QMYSQLDriverPlugin();
 
     QSqlDriver* create( const QString & );
-    QStringList featureList() const;
+    QStringList keys() const;
 };
 
 QMYSQLDriverPlugin::QMYSQLDriverPlugin()
@@ -60,7 +60,7 @@ QSqlDriver* QMYSQLDriverPlugin::create( const QString &name )
     return 0;
 }
 
-QStringList QMYSQLDriverPlugin::featureList() const
+QStringList QMYSQLDriverPlugin::keys() const
 {
     QStringList l;
     l  << "QMYSQL3";
