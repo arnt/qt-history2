@@ -5635,8 +5635,9 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
 
 	// check for hidden files
 	// #### todo make this work on windows
-	if ( !bShowHiddenFiles && inf.name() != ".." ) {
-	    if ( inf.name()[ 0 ] == QChar( '.' ) )
+	if ( !bShowHiddenFiles ) {
+	    QFileInfo fileinf( inf.name() );
+	    if ( fileinf.isHidden() )
 		continue;
 	}
 

@@ -94,6 +94,7 @@ public:
     bool	isReadable()	const;
     bool	isWritable()	const;
     bool	isExecutable()	const;
+    bool 	isHidden()      const;
 
 #ifndef QT_NO_DIR //###
     bool	isRelative()	const;

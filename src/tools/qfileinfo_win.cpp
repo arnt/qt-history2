@@ -559,3 +559,13 @@ QString QFileInfo::fileName() const
 	return fn.mid( p + 1 );
     }
 }
+
+bool QFileInfo::isHidden() const
+{
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based )
+	return GetFileAttributesW( (TCHAR*)qt_winTchar( inf.name(), TRUE ) ) & FILE_ATTRIBUTE_HIDDEN;    
+#endif
+    return GetFileAttributesA( (TCHAR*)qt_winTchar( inf.name(), TRUE ) ) & FILE_ATTRIBUTE_HIDDEN;
+
+}
