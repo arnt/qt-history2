@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.22 1997/11/24 07:49:12 aavit Exp $
+** $Id: misc.doc,v 2.23 1998/03/17 09:25:33 aavit Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,73 +8,73 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.22 1997/11/24 07:49:12 aavit Exp $";
+static char ident[] = "$Id: misc.doc,v 2.23 1998/03/17 09:25:33 aavit Exp $";
 #endif
 
 
 /*! \page license.html
 
-<title>Qt License Statement</title>
+<title>Qt Free Edition License Statement</title>
 </head><body bgcolor="#ffffff">
 <p>
-This is the free software license for Qt version 1.31; it mainly
+This is license for Qt Free Edition version 1.32; it mainly
 covers development of free software for the free software community.
 We believe that it does not constrain development of free software
 noticeably.  (<a href="mailto:info@troll.no">Write to us</a> if you
 feel hampered, and we may be able to do something about it.)
 <p>
 <p>
-The <a href="http://www.troll.no/pricing.html">professional</a> license 
-is much less restrictive than this one.
+The <a href="http://www.troll.no/pricing.html">Professional
+Edition</a> license is much less restrictive than this one.
 <p>
 <hr>
 <p>
-<h1 align=center>TROLL TECH FREE SOFTWARE LICENSE</h1>
+<h1 align=center>QT FREE EDITION LICENSE</h1>
 <p>
-Copyright &copy; 1992-1997 Troll Tech AS.  All rights reserved.
+Copyright &copy; 1992-1998 Troll Tech AS.  All rights reserved.
 <p>
 <p>
-This is the free software license for Qt version 1.30; it covers
+This is the license for Qt Free Edition version 1.32; it covers
 private use, use of third-party application programs based on Qt, and
 development of free software for the free software community.
 <p>
 <h2 align=center>COPYRIGHT AND RESTRICTIONS</h2>
 <p>
-The Qt toolkit is a product of Troll Tech AS. This license is limited to
+The Qt toolkit is a product of Troll Tech AS. The Qt Free Edition is limited to
 use with the X Window System.
 <p>
 <p>
-You may copy this version of the Qt toolkit provided that the entire
+You may copy this version of the Qt Free Edition provided that the entire
 archive is distributed unchanged and as a whole, including this notice.
 <p>
 <p>
-You may use this version of the Qt toolkit to compile, link and run
+You may use this version of the Qt Free Edition to compile, link and run
 application programs legally developed by third parties.
 <p>
 <p>
-You may use the Qt toolkit to create application programs provided that:
+You may use the Qt Free Edition to create application programs provided that:
 <ul>
 <li>You accept this license.
-<li>Your software does not require modifications to Qt.
+<li>Your software does not require modifications to Qt Free Edition.
 <li>You satisfy ONE of the following three requirements
  <dl>
  <dt>EITHER 
- <dd>Users of your software can obtain source code for the software, freely
- modify the source code (possibly with restrictions on copyright
- notices, attributions and legal responsibility), and freely
- redistribute original or modified versions of the software.
- <dt>OR 
+ <dd>Users of your software can freely obtain source code for the
+ software, freely modify the source code (possibly with restrictions
+ on copyright notices, attributions and legal responsibility), and
+ freely redistribute original or modified versions of the software.
+ <dt>OR
  <dd>Your software is distributed under the GNU GENERAL PUBLIC LICENSE,
  version 2 or later, as defined by the Free Software Foundation.
- <dt>OR 
+ <dt>OR
  <dd>Your software is distributed under the GNU LIBRARY GENERAL PUBLIC 
  LICENSE, version 2 or later, as defined by the Free Software Foundation.
  </dl>
 </ul>
 <p>
 <p>
-If you are paid to develop something with Qt or it is a part of your job
-the following conditions also apply:
+If you are paid to develop something with Qt Free Edition or it is a
+part of your job the following conditions also apply:
 <ul>
 <li>Your software must not require libraries, programs, data or
     documentation that are not available outside your organization in
@@ -90,23 +90,24 @@ the following conditions also apply:
 </ul>
 <p>
 <p>
-You may also use the Qt toolkit to create reusable components (such as
+You may also use the Qt Free Edition to create reusable components (such as
 libraries) provided that you accept the terms above, and in addition that:
 <ul>
 <li>Your components' license includes the following text:
 <blockquote>
 [Your package] requires the Qt library, which is copyright Troll Tech
-AS.  Freely distributable programs may generally use Qt for free, see
-[README.QT] for details.
+AS.  Freely distributable programs may generally use Qt Free Edition
+free of charge, see [README.QT] for details.
 </blockquote>
 <li>README.QT is distributed along with your components.
-<li>Qt is not distributed <em>as an integral part</em> of your components.
+<li>Qt Free Edition is not distributed <em>as an integral part</em> of
+your components.
 </ul>
 <p>
 <h2 align=center>LIMITATIONS OF LIABILITY</h2>
 <p>
 Troll Tech AS makes no obligation under this license to support or upgrade
-Qt, or assist in the use of Qt.
+Qt Free Edition, or assist in the use of Qt Free Edition.
 <p>
 <p>
 In no event shall Troll Tech AS be liable for any lost revenue or profits
@@ -115,8 +116,9 @@ even if Troll Tech has been advised of the possibility of such damages.
 <p>
 <p>
 <strong>
-QT IS PROVIDED AS IS WITH NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY
-OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+QT FREE EDITION IS PROVIDED AS IS WITH NO WARRANTY OF ANY KIND,
+INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE.
 </strong>
 <p>
 <hr>
