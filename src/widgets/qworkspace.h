@@ -69,9 +69,6 @@ private slots:
     void closeAllWindows();
     void normalizeActiveWindow();
     void minimizeActiveWindow();
-    void closeMaximizedWindow();
-    void normalizeMaximizedWindow();
-    void minimizeMaximizedWindow();
     void showOperationMenu();
     void popupOperationMenu( const QPoint& );
     void operationMenuActivated( int );
