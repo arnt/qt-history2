@@ -92,7 +92,119 @@ void QMainWindowPrivate::init()
     widget, such as a text edit, drawing canvas or QWorkspace (for MDI
     applications).
 
-    \sa QDockWidget, QToolBar
+    \tableofcontents
+
+    \section1 Behavior of Dock Widgets
+
+    \target dock-widget-separators
+    \section2 Dock Widget Separators
+
+    QMainWindow uses separators to separate QDockWidgets from each
+    other and the centralWidget(). These separators let the user
+    control the size of QDockWidgets by dragging the boundary between
+    them.
+
+    QDockWidgets can be as large or as small as the user wishes,
+    between the \l minimumSizeHint() (or \l minimumSize()) and \l
+    maximumSize() of each QDockWidget.  When a QDockWidget reaches its
+    minimum size, space will be taken from other QDockWidgets in the
+    direction of the user's drag, if possible.  Once all QDockWidgets
+    have reached their minimum sizes, further dragging does nothing.
+    When a QDockWidget reaches it maximium size, space will be given
+    to other QDockWidgets in the opposite direction of the user's
+    drag, if possible.  Once all QDockWidgets have reached their
+    minimum size, futher dragging does nothing.
+
+    \target dragging-dock-widgets
+    \section2 Dragging Dock Widgets
+
+    QDockWidget displays a titlebar to let the user drag the dock
+    widget to a new location.  A QDockWidget can be moved to any
+    location provided enough space is available.  QMainWindow will \e
+    not resize itself to a larger size in an attempt to provide more
+    space.
+
+    A QRubberBand is shown while dragging the QDockWidget.  This
+    QRubberBand provides an indication to the user about where the
+    QDockWidget will be placed when the mouse button is released.
+
+    \section2 Dragging over Neighbors
+
+    All un-nested QDockWidgets in the same Qt::DockWidgetArea are
+    considered neighbors.  When dragging a QDockWidget over its
+    neighbor
+
+    \list
+
+    \i QMainWindow will split the neighbor perpendicularly to the
+    direction of the QDockWidgets.
+
+    \i QMainWindow will swap the position of the QDockWidget being
+    dragged and its neighbor once the user has dragged the mouse past
+    the center point of the neighboring QDockWidget.
+
+    \endlist
+
+    \section2 Dragging over other QDockWidgets
+
+    When dragging nested QDockWidgets, or when dragging to a different
+    Qt::DockWidgetArea, QMainWindow will split the QDockWindow under
+    the mouse. \e Note: the QDockWidget under the mouse will only be
+    split by the QDockWidget being dragged if both can fit in the
+    space currently occupied by the QDockWidget under the mouse.
+
+    A QDockWidget can be split horizontally or vertically, with the
+    QDockWidget being dragged being placed in one of four possible
+    locations.
+
+    ### QDockWidget X diagram goes here
+
+    When dragging a nested QDockWidget
+
+    \section2 Dragging to a Different Qt::DockWidgetArea
+
+    The QDockWidget::floatable property controls feedback during
+    dragging:
+
+    \list
+
+    \i \c true - When dragging over the centralWidget(), QMainWindow
+    choose a Qt::DockWindowArea based on the position of the mouse
+    pointer.  If the mouse is within 50 pixels of the
+    centralWidget()'s edge, the adjacent Qt::DockWindowArea is chosen.
+    When dragging into the corners of these 50 pixel regions, the
+    current corner() configuration is used to make the decision.
+    Otherwise, the QRubberBand is shown under the mouse pointer, as
+    above.
+
+    \i \c false - When dragging over the centralWidget(), QMainWindow
+    chooses a Qt::DockWindowArea based on the distance between the
+    mouse pointer and the center of the centralWidget().  If the mouse
+    comes within 50 pixels of the centralWidget()'s edge, the adjacent
+    Qt::DockWindowArea is always chosen.  When dragging into the
+    corners of these 50 pixel regions, the current corner()
+    configuration is used to make the decision.
+
+    \endlist
+
+    In either case, dragging the mouse over another QDockWidget causes
+    QMainWindow to choose the other QDockWidget's Qt::DockWindowArea.
+
+    ### QMainWindow X diagram goes here
+
+    \section2 Dragging outside the QMainWindow
+
+    Again, the QDockWidget::floatable property controls feedback during
+    dragging. When the QDockWidget::floatable property is \c false,
+    dragging outside of the QMainWindow will show the rubberband over
+    the QDockWidget's current location.  This indicates that the
+    QDockWidget cannot be moved outside of the QMainWindow. When the
+    QDockWidget::floatable property is \c true, dragging outside of
+    the QMainWindow will show the QRubberBand under the mouse pointer.
+    This indicates that the QDockWidget will be floating when the
+    mouse button is released.
+
+    \sa QMenuBar, QToolBar, QStatusBar, QDockWidget
 */
 
 /*!
