@@ -13,7 +13,6 @@
 ****************************************************************************/
 
 #include "qplatformdefs.h"
-
 #include "qpaintengine_x11.h"
 
 #include "qfont.h"
@@ -24,8 +23,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qpaintdevice.h" // tmp
 #include "qpainter.h" // tmp
-
-#include <private/qt_x11_p.h>
+#include "qcoreevent.h"
 
 #include "qpainter_p.h"
 #include <private/qtextlayout_p.h>
@@ -47,6 +45,8 @@
 #include "qtextstream.h"
 #include "qbuffer.h"
 #endif
+
+#include <private/qt_x11_p.h>
 
 #define d d_func()
 #define q q_func()
@@ -1001,8 +1001,8 @@ void QX11PaintEngine::updateBrush(QPainterState *ps)
                 pm = QBitmap(dd, dd, pat, true);
                 QPixmapCache::insert(key, pm);
             }
-	    if ( d->cbrush.d->pixmap )
-		delete d->cbrush.d->pixmap;
+	    if ( d->cbrush.pixmap() )
+		delete d->cbrush.pixmap();
 	    d->cbrush.d->pixmap = new QPixmap( pm );
         }
 	pm = *d->cbrush.d->pixmap;

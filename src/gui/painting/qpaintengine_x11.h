@@ -74,9 +74,9 @@ protected:
     friend class QFontEngineXft;
     friend class QFontEngineXLFD;
 
+private:
     Q_DECL_PRIVATE(QX11PaintEngine);
 
-private:
 #if defined(Q_DISABLE_COPY)
     QX11PaintEngine(const QX11PaintEngine &);
     QX11PaintEngine &operator=(const QX11PaintEngine &);

@@ -35,6 +35,8 @@
 #include <private/qunicodetables_p.h>
 
 #include <limits.h>
+#define d d_func()
+#define q q_func()
 
 // defined in qfontdatbase_x11.cpp
 extern int qt_mib_for_xlfd_encoding( const char *encoding );
