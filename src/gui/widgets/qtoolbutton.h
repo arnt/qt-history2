@@ -41,8 +41,6 @@ public:
     };
 
     QToolButton(QWidget * parent=0);
-
-    QToolButton(Qt::ArrowType type, QWidget *parent=0);
     ~QToolButton();
 
     QSize sizeHint() const;
@@ -50,10 +48,10 @@ public:
 
     Qt::IconSize iconSize() const;
     Qt::ToolButtonStyle toolButtonStyle() const;
-    Qt::ArrowType arrowType() const;
 
-    void setIcon(const QIcon &icon);
-    
+    Qt::ArrowType arrowType() const;
+    void setArrowType(Qt::ArrowType type);
+
     void setMenu(QMenu* menu);
     QMenu* menu() const;
     void showMenu();
@@ -70,7 +68,6 @@ public slots:
     void setIconSize(Qt::IconSize size);
     void setToolButtonStyle(Qt::ToolButtonStyle style);
     void setDefaultAction(QAction *);
-    void setArrowType(Qt::ArrowType type);
 
 signals:
     void triggered(QAction *);
