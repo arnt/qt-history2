@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#5 $
 **
 **  Splitter widget
 **
@@ -389,3 +389,18 @@ void QSplitter::recalc()
 
 
 
+
+
+/*!
+  Sets the proportion of available space allocated for the first widget to
+  \a f.  A value of 0.5 means equal space for the two widgets, 
+  1.0 means the second widget receives all the space.
+
+  If the widgets have minimum/maximum sizes, the ratio will be adjusted.
+*/
+
+void QSplitter::setRatio( float f )
+{
+    ratio = (int)(f*256);
+    doResize();
+}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#1 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#2 $
 **
 **  Splitter widget
 **
@@ -28,6 +28,7 @@ public:
     void setOrientation( Orientation );
     Orientation orientation() const { return orient; }
 
+    void setRatio( float f );
 
     bool event( QEvent * );
 protected:
