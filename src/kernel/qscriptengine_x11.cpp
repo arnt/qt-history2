@@ -314,7 +314,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Other, Other, Other, Other,
 
     //Tamil
-    Invalid, Invalid, VowelMark, VowelMark,
+    Invalid, Invalid, VowelMark, Other,
     Invalid, IndependentVowel, IndependentVowel, IndependentVowel,
     IndependentVowel, IndependentVowel, IndependentVowel, Invalid,
     Invalid, Invalid, IndependentVowel, IndependentVowel,
@@ -739,7 +739,7 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
 
     // Tamil
-    None, None, Above, Post,
+    None, None, Above, None,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
@@ -1225,8 +1225,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	if (form(*uc) == Consonant || (script == QFont::Bengali && form(*uc) == IndependentVowel)) {
 	    beginsWithRa = (properties & HasReph) && ((len > 2) && *uc == ra && *(uc+1) == halant);
 
-	    if (beginsWithRa && script == QFont::Kannada &&
-		form(*(uc+2)) == Control)
+	    if (beginsWithRa && form(*(uc+2)) == Control)
 		beginsWithRa = false;
 
 	    base = (beginsWithRa ? 2 : 0);
@@ -1267,7 +1266,8 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 		}
 	    }
 	    for (i = len-1; i > base; i--) {
-		if (position[i] != Consonant)
+		if (position[i] != Consonant
+		    && (position[i] != Control || script == QFont::Kannada))
 		    continue;
 
 		Position charPosition = indic_position(uc[i]);
@@ -1323,6 +1323,10 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
  	    if (beginsWithRa && base != 0) {
 		int toPos = base+1;
 		if ( toPos < len && uc[toPos] == nukta )
+		    toPos++;
+		if ( toPos < len && uc[toPos] == halant )
+		    toPos++;
+		if ( toPos < len && uc[toPos] == 0x200d )
 		    toPos++;
 		if ( toPos < len-1 && uc[toPos] == ra && uc[toPos+1] == halant )
 		    toPos += 2;
@@ -1398,6 +1402,10 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	// all reordering happens now to the chars after the base
 	int fixed = base+1;
 	if ( fixed < len && uc[fixed] == nukta )
+	    fixed++;
+	if ( fixed < len && uc[fixed] == halant )
+	    fixed++;
+	if ( fixed < len && uc[fixed] == 0x200d )
 	    fixed++;
 
 #ifdef INDIC_DEBUG
@@ -1538,9 +1546,12 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	    where[i] = TRUE;
 	if (control) {
 	    for (i = 2; i < len; ++i) {
-		if (form(reordered[i]) == Control && reordered[i] == 0x200d) {
+		if (reordered[i] == 0x200d /* ZWJ */ ) {
 		    where[i-1] = TRUE;
 		    where[i-2] = TRUE;
+		} else if (reordered[i] == 0x200c /* ZWNJ */) {
+		    where[i-1] = FALSE;
+		    where[i-2] = FALSE;
 		}
 	    }
 	}
@@ -1555,15 +1566,17 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 'r', 'e', 's' ));
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'b', 'l', 'w', 's' ));
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'a', 'b', 'v', 's' ));
-	if (script == QFont::Tamil)
+
+	if (reordered[len-1] != halant || base != len-2) {
 	    where[base] = true;
-	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 's', 't', 's' ), where);
+	    openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 's', 't', 's' ), where);
+	}
 
 	// halant forms
-	if (reordered[len-1] == halant || script == QFont::Malayalam) {
+	if (base < len-1 && reordered[base+1] == halant || script == QFont::Malayalam) {
 	    // The hlnt feature needs to get always applied for malayalam according to the MS docs.
-// 	    memset(where, 0, len*sizeof(bool));
-// 	    where[len-1] = where[len-2] = TRUE;
+// 	    memset(where, script == QFont::Malayalam ? 1 : 0, len*sizeof(bool));
+// 	    where[base] = where[base+1] = TRUE;
 	    openType->applyGSUBFeature(FT_MAKE_TAG( 'h', 'a', 'l', 'n' ));
 	}
 
@@ -1683,9 +1696,10 @@ static int indic_nextSyllableBoundary( int script, const QString &s, int start, 
 	IDEBUG("state[%d]=%d (uc=%4x)", pos, newState, uc[pos].unicode() );
 	switch( newState ) {
 	case Control:
-	    if (uc[pos].unicode() == 0x200d) // Zero width joiner
-		newState = state;
-	    break;
+	    newState = state;
+	    if (state == Halant)
+		break;
+	    goto finish;
 	case Consonant:
 	    if ( state == Halant )
 		break;
