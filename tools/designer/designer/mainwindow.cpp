@@ -3851,8 +3851,8 @@ void MainWindow::closeEvent( QCloseEvent *e )
 	    return;
 	}
     }
-    hide();
     writeConfig();
+    hide();    
     e->accept();
 
     if ( client ) {
