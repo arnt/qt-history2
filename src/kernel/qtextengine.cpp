@@ -153,7 +153,7 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
     item.analysis.reserved = 0;
 
     if ( control.singleLine ) {
-	for ( int i = start+1; i <= stop; i++ ) {
+	for ( int i = start; i <= stop; i++ ) {
 
 	    unsigned short uc = text[i].unicode();
 	    QFont::Script s = (QFont::Script)scriptForChar( uc );
@@ -167,7 +167,7 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
 	    }
 	}
     } else {
-	for ( int i = start+1; i <= stop; i++ ) {
+	for ( int i = start; i <= stop; i++ ) {
 
 	    unsigned short uc = text[i].unicode();
 	    QFont::Script s = (QFont::Script)scriptForChar( uc );
