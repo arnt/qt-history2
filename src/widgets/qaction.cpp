@@ -499,7 +499,7 @@ QString QAction::toolTip() const
 }
 
 /*!
-  Set the delay for the status tip.  By default this is TRUE, meaning that the status tip is
+  Set the the status bar tip delay to \a delay for the status tip.  By default this is TRUE, meaning that the status tip is
   shown at the same time as the tool tip.  If it is FALSE, then the status tip is fired at on
   the mouse over.  This will effect all QActions created after this call, not previously-created ones.
   \sa QToolTipGroup::setDelay() setStatusTip()
