@@ -103,6 +103,19 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     opt.shape = shape;
     opt.text = ptab->text;
     opt.icon = ptab->icon;
+
+    int totalTabs = tabList.size();
+    if (tab == 0) {
+        if (totalTabs > 1)
+            opt.position = QStyleOptionTab::Beginning;
+        else
+            opt.position = QStyleOptionTab::OnlyOneTab;
+    } else if (tab == totalTabs - 1) {
+        opt.position = QStyleOptionTab::End;
+    } else {
+        opt.position = QStyleOptionTab::Middle;
+    }
+
     return opt;
 }
 
@@ -604,8 +617,11 @@ QSize QTabBar::tabSizeHint(int index) const
 {
     if (const QTabBarPrivate::Tab *tab = d->at(index)) {
         QSize iconSize = tab->icon.iconSize(QIconSet::Small);
-        return QSize(fontMetrics().width(tab->text) + iconSize.width() + 5,
-                     qMax(fontMetrics().height()+10,iconSize.height())); // ### use style
+        const QFontMetrics fm = fontMetrics();
+        QSize csz(fm.width(tab->text) + iconSize.width() + 5,
+                  qMax(fm.height() + 10, iconSize.height()));
+        QStyleOptionTab opt = d->getStyleOption(index);
+        return style().sizeFromContents(QStyle::CT_TabBarTab, &opt, csz, fm, this);
     }
     return QSize();
 }

@@ -211,7 +211,12 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
     case PM_ButtonShiftVertical:
         ret = 1;
         break;
-
+    case PM_TabBarTabShiftHorizontal:
+        ret = 0;
+        break;
+    case PM_TabBarTabShiftVertical:
+        ret = 2;
+        break;
     case PM_MaximumDragDistance:
         ret = 60;
         break;

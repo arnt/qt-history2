@@ -160,7 +160,6 @@ public:
     int alignment;
     QWidget* leftCornerWidget;
     QWidget* rightCornerWidget;
-    QRect paneRect;
 };
 
 #define d d_func()
@@ -181,7 +180,6 @@ void QTabWidgetPrivate::init()
     QObject::connect(stack, SIGNAL(widgetRemoved(int)), q, SLOT(removeTab(int)));
     q->setTabBar(new QTabBar(q));
 
-    stack->setFrameStyle(QFrame::Panel | QFrame::Raised);
 #ifdef Q_OS_TEMP
     pos = QTabWidget::Bottom;
 #endif
@@ -583,7 +581,6 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         else if (alignment == Qt::AlignRight)
             tabx += width() - t.width() - rcw;
     }
-    d->paneRect.setRect(0, exty, width(), exth);
     d->tabs->setGeometry(tabx, taby, t.width(), t.height());
 
     d->stack->setGeometry(0, stacky, width(), height() - (exth-overlap) -
@@ -871,8 +868,8 @@ void QTabWidget::tabRemoved(int index)
 void QTabWidget::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    QStyleOption opt(0);
-    opt.rect = d->paneRect;
+    QStyleOptionFrame opt(0);
+    opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_Default;
     if (isEnabled())
@@ -881,7 +878,8 @@ void QTabWidget::paintEvent(QPaintEvent *)
         opt.state |= QStyle::Style_Top;
     else if (tabPosition() == QTabWidget::Bottom)
         opt.state |= QStyle::Style_Bottom;
-    style().drawPrimitive(QStyle::PE_TabBarBase, &opt, &p, this);
+    opt.rect = style().subRect(QStyle::SR_PanelTab, &opt, fontMetrics(), this);
+    style().drawPrimitive(QStyle::PE_PanelTabWidget, &opt, &p, this);
 }
 
 /*!

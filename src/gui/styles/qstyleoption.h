@@ -94,15 +94,18 @@ struct QStyleOptionButton : public QStyleOption {
 
 struct QStyleOptionTab : public QStyleOption {
     enum { Type = SO_Tab };
+    enum TabPosition { Beginning, Middle, End, OnlyOneTab };
     QTabBar::Shape shape;
     QString text;
     QIconSet icon;
     int row;
+    TabPosition position;
     QStyleOptionTab(int version) : QStyleOption(version, SO_Tab), row(0) {}
     QDOC_PROPERTY(QTabBar::Shape shape);
     QDOC_PROPERTY(QString text);
     QDOC_PROPERTY(QIconSet icon);
     QDOC_PROPERTY(int row);
+    QDOC_PROPERTY(TabPosition position);
 };
 
 struct QStyleOptionProgressBar : public QStyleOption

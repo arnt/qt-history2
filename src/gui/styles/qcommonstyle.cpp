@@ -498,8 +498,16 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         }
         p->setPen(oldPen);
         break; }
+    case PE_PanelTabWidget: {
+        QStyleOptionFrame frOpt(0);
+        frOpt.rect = opt->rect;
+        frOpt.state = opt->state;
+        frOpt.palette = opt->palette;
+        frOpt.lineWidth = 1;
+        frOpt.midLineWidth = 0;
+        drawPrimitive(PE_Panel, &frOpt, p, widget);
+        break; }
     case PE_PanelLineEdit:
-    case PE_PanelTabWidget:
     case PE_WindowFrame:
         drawPrimitive(PE_Panel, opt, p, widget);
         break;
@@ -1066,8 +1074,12 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
     case CE_TabBarLabel:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
             QRect tr = tab->rect;
-            if (tab->state & Style_Selected)
-                tr.setBottom(tr.bottom() - pixelMetric(QStyle::PM_DefaultFrameWidth, tab, widget));
+            if (tab->state & Style_Selected) {
+                tr.setBottom(tr.bottom() - pixelMetric(QStyle::PM_TabBarTabShiftVertical,
+                             tab, widget));
+                tr.setRight(tr.right() - pixelMetric(QStyle::PM_TabBarTabShiftHorizontal,
+                            tab, widget));
+            }
 
             int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
             if (!styleHint(SH_UnderlineShortcut, opt, widget))
@@ -1351,6 +1363,10 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
         else
             r.setRect(x + 5, y, h / 2, h - margin * 2);
         break; }
+    case SR_PanelTab:
+        r = opt->rect;
+        r.setY(r.y() + 25);
+        break;
     default:
         break;
     }
@@ -2220,8 +2236,6 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
 
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
-        ret = 0;
-        break;
 
     case PM_MenuFrameWidth:
     case PM_SpinBoxFrameWidth:
@@ -2330,6 +2344,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
 
     case PM_TabBarTabShiftHorizontal:
+        ret = 0;
     case PM_TabBarTabShiftVertical:
         ret = 2;
         break;
@@ -2504,6 +2519,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, c
     case CT_Header:
     case CT_Slider:
     case CT_ProgressBar:
+    case CT_TabBarTab:
         // just return the contentsSize for now
         // fall through intended
     default:

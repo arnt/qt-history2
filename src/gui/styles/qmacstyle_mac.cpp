@@ -51,7 +51,7 @@
 static inline bool isQDPainter(const QPainter *p)
 {
     QPaintEngine *engine = p->device()->paintEngine();
-    if(engine->type() == QPaintEngine::MacPrinter)
+    if (engine->type() == QPaintEngine::MacPrinter)
         engine = static_cast<QMacPrintEngine*>(engine)->paintEngine();
     return engine && engine->type() == QPaintEngine::QuickDraw;
 }
@@ -59,7 +59,7 @@ static inline bool isQDPainter(const QPainter *p)
 void qt_mac_set_port(const QPainter *p)
 {
     QPaintEngine *engine = p->d_ptr->engine;
-    if(engine->type() == QPaintEngine::MacPrinter)
+    if (engine->type() == QPaintEngine::MacPrinter)
         engine = static_cast<QMacPrintEngine*>(engine)->paintEngine();
 
     QQuickDrawPaintEngine *mpe = 0;
@@ -331,9 +331,7 @@ public:
                                               const QPoint &pt, const QWidget *w = 0) const;
     QRect HIThemeQuerySubControlMetrics(QStyle::ComplexControl cc, const QStyleOptionComplex *opt,
                                         QStyle::SubControl sc, const QWidget *w = 0) const;
-    QSize HIThemeSizeFromContents(QStyle::ContentsType ct, const QStyleOption *opt,
-                                  const QSize &contentsSize, const QFontMetrics &fm,
-                                  const QWidget *w = 0) const;
+    void HIThemeAdjustButtonSize(QStyle::ContentsType ct, QSize &sz, const QWidget *w);
     int HIThemePixelMetric(QStyle::PixelMetric metric, const QStyleOption *opt,
                            const QWidget *widget) const;
 
@@ -355,9 +353,7 @@ public:
                                              const QWidget *w = 0) const;
     QRect AppManQuerySubControlMetrics(QStyle::ComplexControl cc, const QStyleOptionComplex *opt,
                                        QStyle::SubControl sc, const QWidget *w = 0) const;
-    QSize AppManSizeFromContents(QStyle::ContentsType ct, const QStyleOption *opt,
-                                 const QSize &contentsSize, const QFontMetrics &fm,
-                                 const QWidget *widget = 0) const;
+    void AppManAdjustButtonSize(QStyle::ContentsType ct, QSize &sz, const QWidget *w);
     int AppManPixelMetric(QStyle::PixelMetric metric, const QStyleOption *opt,
                           const QWidget *widget) const;
 
@@ -424,9 +420,17 @@ const ThemeWindowType QtWinType = kThemeUtilityWindow; // Window type we use for
 /*****************************************************************************
   QMacCGStyle utility functions
  *****************************************************************************/
+static inline int qt_mac_hitheme_tab_version()
+{
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_TIGER)
+        return 1;
+    return 0;
+}
+
 /*
   Hackish method of finding out whether the window is active or not
  */
+
 static inline bool qAquaActive(const QPalette &pal)
 {
     return (pal.currentColorGroup() == QPalette::Active);
@@ -1019,7 +1023,7 @@ bool QMacStylePrivate::focusable(const QWidget *w) const
     return (w && !w->isTopLevel() && w->parentWidget() &&
             (qt_cast<const QAbstractSpinBox *>(w) || qt_cast<const QComboBox *>(w)
 #ifdef QT_COMPAT
-              || w->inherits("QListBox") || w->inherits("QListView") 
+              || w->inherits("QListBox") || w->inherits("QListView")
 #endif
 //           || (w->inherits("QTextEdit") && static_cast<const QTextEdit *>(w)->isReadOnly())
              || (qt_cast<const QFrame *>(w) && qt_cast<const QLineEdit *>(w)
@@ -1602,14 +1606,20 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                 q->QWindowsStyle::drawPrimitive(pe, opt, p, w);
             }
         }
-    case QStyle::PE_TabBarBase: {
+    case QStyle::PE_PanelTabWidget: {
         HIThemeTabPaneDrawInfo tpdi;
-        tpdi.version = 0;
+        tpdi.version = qt_mac_hitheme_tab_version();
         tpdi.state = tds;
         tpdi.direction = kThemeTabNorth;
         if (opt->state & QStyle::Style_Bottom)
             tpdi.direction = kThemeTabSouth;
         tpdi.size = kHIThemeTabSizeNormal;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+        if (tpdi.version == 1) {
+            tpdi.kind = kHIThemeTabKindNormal;
+            tpdi.adornment = kHIThemeTabPaneAdornmentNormal;
+        }
+#endif
         HIRect hirect = qt_hirectForQRect(opt->rect, p);
         HIThemeDrawTabPane(&hirect, &tpdi, cg, kHIThemeOrientationNormal);
         break; }
@@ -1935,7 +1945,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
     case QStyle::CE_TabBarTab:
         if (const QStyleOptionTab *tabOpt = qt_cast<const QStyleOptionTab *>(opt)) {
             HIThemeTabDrawInfo tdi;
-            tdi.version = qt_mac_hitheme_version;
+            tdi.version = qt_mac_hitheme_tab_version();
             tdi.style = kThemeTabNonFront;
             if (tabOpt->state & QStyle::Style_Selected) {
                 if(!qAquaActive(tabOpt->palette))
@@ -1961,29 +1971,65 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 tdi.adornment = kHIThemeTabAdornmentFocus;
             else
                 tdi.adornment = kHIThemeTabAdornmentNone;
-            QRect tabrect = tabOpt->rect;
-            tabrect.setHeight(tabrect.height()
-                                + q->pixelMetric(QStyle::PM_TabBarBaseOverlap, tabOpt, w));
-            HIRect hirect = qt_hirectForQRect(tabrect, p);
+            QRect tabRect = tabOpt->rect;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+            if (tdi.version == 1) {
+                tdi.kind = kHIThemeTabKindNormal;
+                if (tabOpt->position == QStyleOptionTab::Beginning)
+                    tdi.position = kHIThemeTabPositionFirst;
+                else if (tabOpt->position == QStyleOptionTab::Middle)
+                    tdi.position = kHIThemeTabPositionMiddle;
+                else if (tabOpt->position == QStyleOptionTab::End)
+                    tdi.position = kHIThemeTabPositionLast;
+                else
+                    tdi.position = kHIThemeTabPositionOnly;
+                if (tabOpt->position != QStyleOptionTab::End)
+                    tabRect.setWidth(tabRect.width() + 1);
+            } else if (tdi.version == 0)
+#endif
+            {
+                tabRect.setHeight(tabRect.height() + q->pixelMetric(QStyle::PM_TabBarBaseOverlap, tabOpt, w));
+            }
+            HIRect hirect = qt_hirectForQRect(tabRect, p);
             HIThemeDrawTab(&hirect, &tdi, cg, kHIThemeOrientationNormal, 0);
-            if (!(opt->state & QStyle::Style_Selected)) {
-                HIThemeTabPaneDrawInfo tpdi;
-                tpdi.version = 0;
-                tpdi.state = tds;
-                tpdi.direction = tdi.direction;
-                tpdi.size = tdi.size;
-                const int FUDGE = 20;
-                QRect panerect(tabOpt->rect.x() - FUDGE, tabOpt->rect.bottom() - 2,
-                               2 * FUDGE + tabOpt->rect.width(),
-                               q->pixelMetric(QStyle::PM_TabBarBaseHeight, tabOpt, w));
-                if (tdi.direction == kThemeTabSouth)
-                    panerect.moveBy(0, (-tabOpt->rect.height() + 2));
-                p->save();
-                p->setClipRect(tabOpt->rect.x(), panerect.y(), tabOpt->rect.width(),
-                               panerect.height());
-                hirect = qt_hirectForQRect(panerect, p);
-                HIThemeDrawTabPane(&hirect, &tpdi, cg, kHIThemeOrientationNormal);
-                p->restore();
+            if (tdi.version == 0) {
+                if (!(opt->state & QStyle::Style_Selected)) {
+                    HIThemeTabPaneDrawInfo tpdi;
+                    tpdi.version = 0;
+                    tpdi.state = tds;
+                    tpdi.direction = tdi.direction;
+                    tpdi.size = tdi.size;
+                    const int FUDGE = 20;
+                    QRect panerect(tabOpt->rect.x() - FUDGE, tabOpt->rect.bottom() - 2,
+                            2 * FUDGE + tabOpt->rect.width(),
+                            q->pixelMetric(QStyle::PM_TabBarBaseHeight, tabOpt, w));
+                    if (tdi.direction == kThemeTabSouth)
+                        panerect.moveBy(0, (-tabOpt->rect.height() + 2));
+                    p->save();
+                    p->setClipRect(tabOpt->rect.x(), panerect.y(), tabOpt->rect.width(),
+                            panerect.height());
+                    hirect = qt_hirectForQRect(panerect, p);
+                    HIThemeDrawTabPane(&hirect, &tpdi, cg, kHIThemeOrientationNormal);
+                    p->restore();
+                }
+            } else {
+                // Draw the little line for the tabs.
+                if (tabOpt->position != QStyleOptionTab::End) {
+                    QCFType<HIShapeRef> tabShape;
+                    HIRect hirect2 = qt_hirectForQRect(tabRect);
+                    HIThemeGetTabShape(&hirect2, &tdi, &tabShape);
+                    HIShapeGetBounds(tabShape, &hirect2);
+                    QRect newRect = qrectForHIRect(hirect2);
+                    QColor curCol = opt->state & QStyle::Style_Selected ? QColor(0, 0, 255, 30)
+                                                                        : QColor(0, 0, 0, 51);
+                    p->save();
+                    p->setPen(curCol);
+                    // I don't like these y-components in the QPoint thing, but it seems that
+                    // the bounds for the tab shape a a bit bigger than the actual tab.
+                    p->drawLine(newRect.topRight() - QPoint(1, -5),
+                                newRect.bottomRight() - QPoint(1, 2));
+                    p->restore();
+                }
             }
         }
         break;
@@ -2051,6 +2097,14 @@ QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *o
     case QStyle::SR_ProgressBarContents:
         r = opt->rect;
         break;
+    case QStyle::SR_PanelTab: {
+        HIRect hirect = qt_hirectForQRect(opt->rect);
+        QCFType<HIShapeRef> shape;
+        HIThemeGetTabPaneContentShape(&hirect, kThemeTabNorth, kHIThemeTabSizeNormal, &shape);
+        HIShapeGetBounds(shape, &hirect);
+        r = qrectForHIRect(hirect);
+        r.setY(r.y() + 4);
+        break; }
     case QStyle::SR_ToolBarButtonContents:
     case QStyle::SR_ToolBarButtonMenu:
     default:
@@ -2708,139 +2762,6 @@ QRect QMacStylePrivate::HIThemeQuerySubControlMetrics(QStyle::ComplexControl cc,
     return ret;
 }
 
-QSize QMacStylePrivate::HIThemeSizeFromContents(QStyle::ContentsType ct, const QStyleOption *opt,
-                                                const QSize &csz, const QFontMetrics &fm,
-                                                const QWidget *widget) const
-{
-    QSize sz(csz);
-    switch (ct) {
-    case QStyle::CT_SpinBox:
-        sz.setWidth(sz.width() + macSpinBoxSep);
-        break;
-    case QStyle::CT_TabWidget:
-        sz.setWidth(sz.width() + 15);
-        break;
-    case QStyle::CT_TabBarTab: {
-        SInt32 tabh = sz.height();
-        switch (qt_aqua_size_constrain(widget)) {
-        case QAquaSizeUnknown:
-        case QAquaSizeLarge: {
-            GetThemeMetric(kThemeLargeTabHeight, &tabh);
-            SInt32 overlap;
-            GetThemeMetric(kThemeMetricTabFrameOverlap, &overlap);
-            tabh += overlap;
-            break; }
-        case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                GetThemeMetric(kThemeMetricMiniTabHeight, &tabh);
-                SInt32 overlap;
-                GetThemeMetric(kThemeMetricMiniTabFrameOverlap, &overlap);
-                tabh += overlap;
-                break;
-            }
-#endif
-        case QAquaSizeSmall: {
-            GetThemeMetric(kThemeSmallTabHeight, &tabh);
-            SInt32 overlap;
-            GetThemeMetric(kThemeMetricSmallTabFrameOverlap, &overlap);
-            tabh += overlap;
-            break; }
-        }
-        if(sz.height() > tabh)
-            sz.setHeight(tabh);
-        break; }
-    case QStyle::CT_PushButton:
-        sz = q->QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
-        sz = QSize(sz.width() + 16, sz.height());
-        break;
-    case QStyle::CT_MenuItem:
-        if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
-            int maxpmw = mi->maxIconWidth;
-            int w = sz.width(),
-                h = sz.height();
-            if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
-                w = 10;
-                SInt16 ash;
-                GetThemeMenuSeparatorHeight(&ash);
-                h = ash;
-            } else {
-                h = qMax(h, fm.height() + 2);
-                if (!mi->icon.isNull())
-                    h = qMax(h, mi->icon.pixmap(QIconSet::Small, QIconSet::Normal).height() + 4);
-            }
-            if (mi->text.contains('\t'))
-                w += 12;
-            if (mi->menuItemType == QStyleOptionMenuItem::SubMenu)
-                w += 20;
-            if (maxpmw)
-                w += maxpmw + 6;
-            // add space for a check. All items have place for a check too.
-            w += 20;
-            if (widget && ::qt_cast<QComboBox*>(widget->parentWidget())
-                    && widget->parentWidget()->isVisible()) {
-                QStyleOptionComboBox cmb(0);
-                cmb.init(widget->parentWidget());
-                cmb.editable = false;
-                cmb.parts = QStyle::SC_ComboBoxEditField;
-                cmb.activeParts = QStyle::SC_None;
-                w = qMax(w, q->querySubControlMetrics(QStyle::CC_ComboBox, &cmb,
-                                                      QStyle::SC_ComboBoxEditField,
-                                                      widget->parentWidget())
-                            .width());
-            } else {
-                w += 12;
-            }
-            sz = QSize(w, h);
-        }
-        break;
-    case QStyle::CT_ToolBarButton:
-        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            sz = btn->icon.pixmap(QIconSet::Large, QIconSet::Normal).size() + QSize(7, 7);
-            if (!btn->text.isEmpty()) {
-                sz.rheight() += fm.lineSpacing();
-                sz.rwidth() = qMax(sz.width(), fm.width(btn->text));
-            }
-            if (btn->features & QStyleOptionButton::HasMenu)
-                sz.rwidth() += 12;
-        }
-        break;
-    default:
-        sz = q->QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
-    }
-    QSize macsz;
-    if (qt_aqua_size_constrain(widget, ct, sz, &macsz) != QAquaSizeUnknown) {
-        if (macsz.width() != -1)
-            sz.setWidth(macsz.width());
-        if (macsz.height() != -1)
-            sz.setHeight(macsz.height());
-    }
-
-    // Adjust size to within Aqua guidelines
-    if (ct == QStyle::CT_PushButton || ct == QStyle::CT_ToolButton) {
-        ThemeButtonKind bkind = kThemePushButton;
-        if (ct == QStyle::CT_ToolButton)
-            bkind = kThemeBevelButton;
-        if (qt_aqua_size_constrain(widget) == QAquaSizeSmall) {
-            if(bkind == kThemeBevelButton)
-                bkind = kThemeSmallBevelButton;
-        }
-        HIThemeButtonDrawInfo bdi;
-        bdi.version = qt_mac_hitheme_version;
-        bdi.state = kThemeStateActive;
-        bdi.kind = bkind;
-        bdi.value = kThemeButtonOff;
-        bdi.adornment = kThemeAdornmentNone;
-        HIRect macRect, myRect;
-        myRect = CGRectMake(0, 0, sz.width(), sz.height());
-        HIThemeGetButtonBackgroundBounds(&myRect, &bdi, &macRect);
-        sz.setWidth(sz.width() + int(macRect.size.width - myRect.size.width));
-        sz.setHeight(sz.height() + int(macRect.size.height - myRect.size.height));
-    }
-
-    return sz;
-}
-
 int QMacStylePrivate::HIThemePixelMetric(QStyle::PixelMetric metric, const QStyleOption *opt,
                                          const QWidget *widget) const
 {
@@ -2875,6 +2796,28 @@ int QMacStylePrivate::HIThemePixelMetric(QStyle::PixelMetric metric, const QStyl
         break;
     }
     return ret;
+}
+
+void QMacStylePrivate::HIThemeAdjustButtonSize(QStyle::ContentsType ct, QSize &sz, const QWidget *widget)
+{
+    ThemeButtonKind bkind = kThemePushButton;
+    if (ct == QStyle::CT_ToolButton)
+        bkind = kThemeBevelButton;
+    if (qt_aqua_size_constrain(widget) == QAquaSizeSmall) {
+        if(bkind == kThemeBevelButton)
+            bkind = kThemeSmallBevelButton;
+    }
+    HIThemeButtonDrawInfo bdi;
+    bdi.version = qt_mac_hitheme_version;
+    bdi.state = kThemeStateActive;
+    bdi.kind = bkind;
+    bdi.value = kThemeButtonOff;
+    bdi.adornment = kThemeAdornmentNone;
+    HIRect macRect, myRect;
+    myRect = CGRectMake(0, 0, sz.width(), sz.height());
+    HIThemeGetButtonBackgroundBounds(&myRect, &bdi, &macRect);
+    sz.setWidth(sz.width() + int(macRect.size.width - myRect.size.width));
+    sz.setHeight(sz.height() + int(macRect.size.height - myRect.size.height));
 }
 
 void QMacStylePrivate::AppManPolish(QWidget *w)
@@ -3226,7 +3169,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
         qt_mac_set_port(p);
         DrawThemePopupArrow(qt_glb_mac_rect(opt->rect, p), orientation, size, tds, 0, 0);
         break; }
-    case QStyle::PE_TabBarBase:
+    case QStyle::PE_PanelTabWidget:
         qt_mac_set_port(p);
         DrawThemeTabPane(qt_glb_mac_rect(opt->rect, p), tds);
         break;
@@ -3236,8 +3179,8 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
     }
 }
 
-void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyleOption *opt, QPainter *p,
-                     const QWidget *widget) const
+void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyleOption *opt,
+                                         QPainter *p, const QWidget *widget) const
 {
     ThemeDrawState tds = getDrawState(opt->state, opt->palette);
     switch (ce) {
@@ -3606,31 +3549,6 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 tabr.moveBy(0, -q->pixelMetric(QStyle::PM_TabBarBaseOverlap, tab, widget));
             qt_mac_set_port(p);
             DrawThemeTab(qt_glb_mac_rect(tabr, p, false), tts, ttd, 0, 0);
-            if (!(tab->state & QStyle::Style_Selected)) {
-                //The "fudge" is just so the left and right side doesn't
-                //get drawn onto my widget (not sure it will really happen)
-                const int fudge = 20;
-                QRect pr = QRect(tab->rect.x() - fudge, tab->rect.bottom() - 2,
-                                 tab->rect.width() + (fudge * 2),
-                                 q->pixelMetric(QStyle::PM_TabBarBaseHeight, tab, widget));
-                if (ttd == kThemeTabSouth)
-                    pr.moveBy(0, -(tab->rect.height() + 2));
-                p->save();
-                p->setClipRect(QRect(pr.x() + fudge, pr.y(), pr.width() - (fudge * 2), pr.height()));
-                qt_mac_set_port(p);
-                ThemeDrawState tabpane_tds = kThemeStateActive;
-                if (qAquaActive(tab->palette)) {
-                    if (!(tab->state & QStyle::Style_Enabled))
-                        tabpane_tds = kThemeStateUnavailable;
-                } else {
-                    if (!(tab->state & QStyle::Style_Enabled))
-                        tabpane_tds = kThemeStateInactive;
-                    else
-                        tabpane_tds = kThemeStateUnavailableInactive;
-                }
-                DrawThemeTabPane(qt_glb_mac_rect(pr, p), tabpane_tds);
-                p->restore();
-            }
         }
         break;
     case QStyle::CE_ToolBarButton:
@@ -3695,6 +3613,10 @@ QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *op
     case QStyle::SR_ToolBarButtonContents:
     case QStyle::SR_ToolBarButtonMenu:
         r = q->QWindowsStyle::subRect(sr, opt, fm, widget);
+        break;
+    case QStyle::SR_PanelTab:
+        r = opt->rect;
+        r.setY(r.y() + q->pixelMetric(QStyle::PM_TabBarBaseHeight) + q->pixelMetric(QStyle::PM_TabBarBaseOverlap) + 12);
         break;
     default:
         r = q->QWindowsStyle::subRect(sr, opt, fm, widget);
@@ -4334,131 +4256,6 @@ QRect QMacStylePrivate::AppManQuerySubControlMetrics(QStyle::ComplexControl cc, 
     }
     return ret;
 }
-QSize QMacStylePrivate::AppManSizeFromContents(QStyle::ContentsType ct, const QStyleOption *opt, const QSize &csz,
-                           const QFontMetrics &fm, const QWidget *widget) const
-{
-    QSize sz(csz);
-    switch (ct) {
-    case QStyle::CT_SpinBox:
-        sz.setWidth(sz.width() + macSpinBoxSep);
-        break;
-    case QStyle::CT_TabWidget:
-        sz.setWidth(sz.width() + 15);
-        break;
-    case QStyle::CT_TabBarTab: {
-        SInt32 tabh = sz.height();
-        switch (qt_aqua_size_constrain(widget)) {
-        case QAquaSizeUnknown:
-        case QAquaSizeLarge: {
-            GetThemeMetric(kThemeLargeTabHeight, &tabh);
-            SInt32 overlap;
-            GetThemeMetric(kThemeMetricTabFrameOverlap, &overlap);
-            tabh += overlap;
-            break; }
-        case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                GetThemeMetric(kThemeMetricMiniTabHeight, &tabh);
-                SInt32 overlap;
-                GetThemeMetric(kThemeMetricMiniTabFrameOverlap, &overlap);
-                tabh += overlap;
-                break;
-            }
-        case QAquaSizeSmall: {
-            GetThemeMetric(kThemeSmallTabHeight, &tabh);
-            SInt32 overlap;
-            GetThemeMetric(kThemeMetricSmallTabFrameOverlap, &overlap);
-            tabh += overlap;
-            }
-#endif
-	default:
-            break; 
-        }
-        if(sz.height() > tabh)
-            sz.setHeight(tabh);
-        break; }
-    case QStyle::CT_PushButton:
-        sz = q->QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
-        sz = QSize(sz.width() + 16, sz.height()); // No idea why, but it was in the old style.
-        break;
-    case QStyle::CT_MenuItem:
-        if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
-            int maxpmw = mi->maxIconWidth;
-            int w = sz.width(),
-                h = sz.height();
-            if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
-                w = 10;
-                SInt16 ash;
-                GetThemeMenuSeparatorHeight(&ash);
-                h = ash;
-            } else {
-                h = qMax(h, fm.height() + 2);
-                if (!mi->icon.isNull())
-                    h = qMax(h, mi->icon.pixmap(QIconSet::Small, QIconSet::Normal).height() + 4);
-            }
-            if (mi->text.contains('\t'))
-                w += 12;
-            if (mi->menuItemType == QStyleOptionMenuItem::SubMenu)
-                w += 20;
-            if (maxpmw)
-                w += maxpmw + 6;
-            // add space for a check. All items have place for a check too.
-            w += 20;
-            if (widget && qt_cast<QComboBox*>(widget->parentWidget())
-                    && widget->parentWidget()->isVisible()) {
-                QStyleOptionComboBox cmb(0);
-                cmb.init(widget->parentWidget());
-                cmb.editable = false;
-                cmb.parts = QStyle::SC_ComboBoxEditField;
-                cmb.activeParts = QStyle::SC_None;
-                w = qMax(w, q->querySubControlMetrics(QStyle::CC_ComboBox, &cmb, QStyle::SC_ComboBoxEditField,
-                                                   widget->parentWidget())
-                            .width());
-            } else {
-                w += 12;
-            }
-            sz = QSize(w, h);
-        }
-        break;
-    case QStyle::CT_ToolBarButton:
-        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            sz = btn->icon.pixmap(QIconSet::Large, QIconSet::Normal).size() + QSize(7, 7);
-            if (!btn->text.isEmpty()) {
-                sz.rheight() += fm.lineSpacing();
-                sz.rwidth() = qMax(sz.width(), fm.width(btn->text));
-            }
-            if (btn->features & QStyleOptionButton::HasMenu)
-                sz.rwidth() += 12;
-        }
-        break;
-    default:
-        sz = q->QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
-    }
-    QSize macsz;
-    if(qt_aqua_size_constrain(widget, ct, sz, &macsz) != QAquaSizeUnknown) {
-        if(macsz.width() != -1)
-            sz.setWidth(macsz.width());
-        if(macsz.height() != -1)
-            sz.setHeight(macsz.height());
-    }
-    // Adjust size to within Aqua guidelines
-    if (ct == QStyle::CT_PushButton || ct == QStyle::CT_ToolButton) {
-        ThemeButtonKind bkind = kThemePushButton;
-        if (ct == QStyle::CT_ToolButton)
-            bkind = kThemeBevelButton;
-        if (qt_aqua_size_constrain(widget) == QAquaSizeSmall) {
-            if(bkind == kThemeBevelButton)
-                bkind = kThemeSmallBevelButton;
-        }
-        ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
-        Rect macRect, myRect;
-        SetRect(&myRect, 0, 0, sz.width(), sz.height());
-        GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
-        sz.setWidth(sz.width() + (myRect.left - macRect.left) + (macRect.right - myRect.right));
-        sz.setHeight(sz.height() + (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
-    }
-    return sz;
-}
 
 int QMacStylePrivate::AppManPixelMetric(QStyle::PixelMetric metric, const QStyleOption *opt,
                                         const QWidget *widget) const
@@ -4493,6 +4290,23 @@ int QMacStylePrivate::AppManPixelMetric(QStyle::PixelMetric metric, const QStyle
         break;
     }
     return ret;
+}
+
+void QMacStylePrivate::AppManAdjustButtonSize(QStyle::ContentsType ct, QSize &sz, const QWidget *widget)
+{
+    ThemeButtonKind bkind = kThemePushButton;
+    if (ct == QStyle::CT_ToolButton)
+        bkind = kThemeBevelButton;
+    if (qt_aqua_size_constrain(widget) == QAquaSizeSmall) {
+        if (bkind == kThemeBevelButton)
+            bkind = kThemeSmallBevelButton;
+    }
+    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
+    Rect macRect, myRect;
+    SetRect(&myRect, 0, 0, sz.width(), sz.height());
+    GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
+    sz.setWidth(sz.width() + (myRect.left - macRect.left) + (macRect.right - myRect.right));
+    sz.setHeight(sz.height() + (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
 }
 
 /*!
@@ -5126,14 +4940,122 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl cc, const QStyleOptionCom
 }
 
 /*! \reimp */
-QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &sz,
-                                  const QFontMetrics &fm, const QWidget *w) const
+QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &csz,
+                                  const QFontMetrics &fm, const QWidget *widget) const
 {
-    if (d->useHITheme)
-	return d->HIThemeSizeFromContents(ct, opt, sz, fm, w);
-    return d->AppManSizeFromContents(ct, opt, sz, fm, w);
+    QSize sz(csz);
+    switch (ct) {
+    case QStyle::CT_SpinBox:
+        sz.setWidth(sz.width() + macSpinBoxSep);
+        break;
+    case QStyle::CT_TabWidget:
+        sz.setWidth(sz.width() + 15);
+        break;
+    case QStyle::CT_TabBarTab:
+        if (QSysInfo::MacintoshVersion < QSysInfo::MV_TIGER) {
+            SInt32 tabh = sz.height();
+            SInt32 overlap = 0;
+            switch (qt_aqua_size_constrain(widget)) {
+            case QAquaSizeUnknown:
+            case QAquaSizeLarge:
+                GetThemeMetric(kThemeLargeTabHeight, &tabh);
+                GetThemeMetric(kThemeMetricTabFrameOverlap, &overlap);
+                break;
+            case QAquaSizeMini:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                    GetThemeMetric(kThemeMetricMiniTabHeight, &tabh);
+                    GetThemeMetric(kThemeMetricMiniTabFrameOverlap, &overlap);
+                    break;
+                }
+            case QAquaSizeSmall: {
+                GetThemeMetric(kThemeSmallTabHeight, &tabh);
+                GetThemeMetric(kThemeMetricSmallTabFrameOverlap, &overlap);
+            }
+#endif
+            default:
+                break;
+            }
+            tabh += overlap;
+            if(sz.height() > tabh)
+                sz.setHeight(tabh);
+        } else {
+            QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
+        }
+        break;
+    case QStyle::CT_PushButton:
+        sz = QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
+        sz = QSize(sz.width() + 16, sz.height()); // No idea why, but it was in the old style.
+        break;
+    case QStyle::CT_MenuItem:
+        if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
+            int maxpmw = mi->maxIconWidth;
+            int w = sz.width(),
+                h = sz.height();
+            if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
+                w = 10;
+                SInt16 ash;
+                GetThemeMenuSeparatorHeight(&ash);
+                h = ash;
+            } else {
+                h = qMax(h, fm.height() + 2);
+                if (!mi->icon.isNull())
+                    h = qMax(h, mi->icon.pixmap(QIconSet::Small, QIconSet::Normal).height() + 4);
+            }
+            if (mi->text.contains('\t'))
+                w += 12;
+            if (mi->menuItemType == QStyleOptionMenuItem::SubMenu)
+                w += 20;
+            if (maxpmw)
+                w += maxpmw + 6;
+            // add space for a check. All items have place for a check too.
+            w += 20;
+            if (widget && qt_cast<QComboBox*>(widget->parentWidget())
+                    && widget->parentWidget()->isVisible()) {
+                QStyleOptionComboBox cmb(0);
+                cmb.init(widget->parentWidget());
+                cmb.editable = false;
+                cmb.parts = QStyle::SC_ComboBoxEditField;
+                cmb.activeParts = QStyle::SC_None;
+                w = qMax(w, querySubControlMetrics(QStyle::CC_ComboBox, &cmb, QStyle::SC_ComboBoxEditField,
+                                                   widget->parentWidget())
+                            .width());
+            } else {
+                w += 12;
+            }
+            sz = QSize(w, h);
+        }
+        break;
+    case QStyle::CT_ToolBarButton:
+        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
+            sz = btn->icon.pixmap(QIconSet::Large, QIconSet::Normal).size() + QSize(7, 7);
+            if (!btn->text.isEmpty()) {
+                sz.rheight() += fm.lineSpacing();
+                sz.rwidth() = qMax(sz.width(), fm.width(btn->text));
+            }
+            if (btn->features & QStyleOptionButton::HasMenu)
+                sz.rwidth() += 12;
+        }
+        break;
+    default:
+        sz = QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
+    }
+    QSize macsz;
+    if (qt_aqua_size_constrain(widget, ct, sz, &macsz) != QAquaSizeUnknown) {
+        if (macsz.width() != -1)
+            sz.setWidth(macsz.width());
+        if (macsz.height() != -1)
+            sz.setHeight(macsz.height());
+    }
+    // Adjust size to within Aqua guidelines
+    if (ct == QStyle::CT_PushButton || ct == QStyle::CT_ToolButton) {
+        if (d->useHITheme)
+            d->HIThemeAdjustButtonSize(ct, sz, widget);
+        else
+            d->AppManAdjustButtonSize(ct, sz, widget);
+    }
+    return sz;
 }
-
 
 void QMacStyle::drawItem(QPainter *p, const QRect &r,
                           int flags, const QPalette &pal, bool enabled,
@@ -5141,7 +5063,5 @@ void QMacStyle::drawItem(QPainter *p, const QRect &r,
 {
     QWindowsStyle::drawItem(p, r, flags | Qt::NoAccel, pal, enabled, text, len, penColor);
 }
-
-
 
 #endif
