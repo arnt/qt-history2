@@ -234,7 +234,8 @@ First we activate the driver by calling \l QSqlDatabase::addDatabase(),
 passing the name of the driver we wish to use for this connection. At
 the time of writing the available drivers are: QODBC3 (Open Database
 Connectivity), QOCI8 (Oracle 8 and 9), QTDS7 (Sybase Adaptive Server and 
-Microsoft SQL Server), QPSQL7 (PostgreSQL 6 and 7) and QMYSQL3 (MySQL).
+Microsoft SQL Server), QPSQL7 (PostgreSQL 6 and 7), QMYSQL3 (MySQL) and 
+QDB2 (IBM DB2).
 Note that some of these drivers aren't included in the Qt Free Edition; 
 see the \c README files for details.
 
