@@ -198,9 +198,20 @@ void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
 	w = ms.width();
     if ( h < ms.height() )
 	h = ms.height();
-    tlw->resize( w, h );
-    if ( QApplication::reverseLayout() && tlw->size() == QSize(w,h) )
-	tlw->move( tlw->x() + ( np.x()-p.x() ), tlw->y() );
+
+    if (QApplication::reverseLayout()) {
+	if (tlw->isTopLevel()) {
+	    int x = tlw->geometry().x() + ( np.x()-p.x() );
+	    int y = tlw->geometry().y();
+	    tlw->setGeometry(x,y,w,h);
+	} else {
+	    tlw->resize( w, h );
+	    if (tlw->size() == QSize(w,h))
+		tlw->move( tlw->x() + ( np.x()-p.x() ), tlw->y() );
+	}
+    } else {
+	tlw->resize( w, h );
+    }
 #ifdef Q_WS_WIN
     MSG msg;
     while( PeekMessage( &msg, winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ) )
