@@ -72,9 +72,11 @@ static inline double nan()
 #   define ULLONG_MAX Q_UINT64_C(18446744073709551615)
 #endif
 
-static char *qdtoa(double d, int mode, int ndigits, int *decpt,
+extern "C" {
+    static char *qdtoa(double d, int mode, int ndigits, int *decpt,
     	    	    int *sign, char **rve, char **digits_str);
-static double qstrtod(const char *s00, char const **se, bool *ok);
+    static double qstrtod(const char *s00, char const **se, bool *ok);
+}		    
 static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
 static Q_ULLONG qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok);
 
@@ -2796,6 +2798,7 @@ static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base
     return (acc);
 }
 
+extern "C" {
 
 /*	From: NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp */
 /* $FreeBSD: src/lib/libc/stdlib/netbsd_strtod.c,v 1.2.2.2 2001/03/02 17:14:15 tegge Exp $	*/
@@ -5154,3 +5157,4 @@ static char *qdtoa (double d, int mode, int ndigits, int *decpt, int *sign, char
     return s0;
 }
 
+}
