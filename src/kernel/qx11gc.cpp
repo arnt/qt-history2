@@ -570,13 +570,14 @@ void qt_draw_transformed_rect( QPainter *p,  int x, int y, int w,  int h, bool f
  */
 
 QX11GC::QX11GC(const QPaintDevice *target)
+    : QAbstractGC()
 {
     d = new QX11GCPrivate;
 
     d->dpy = QPaintDevice::x11AppDisplay();
     d->scrn = QPaintDevice::x11AppScreen();
     d->hd = target->handle();
-    d->pdev = (QPaintDevice*)target;
+    d->pdev = const_cast<QPaintDevice *>(target);
     x11Data = 0; // prob. move to the d obj.
 }
 
@@ -613,7 +614,7 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
     
     setActive(true);
 
-    QPixmap::x11SetDefaultScreen( d->pdev->x11Screen() );
+    QPixmap::x11SetDefaultScreen(x11Screen());
 
 //     const QWidget *copyMe = 0;
 //     if ((d->pdev = const_cast<QPaintDevice*>(redirected(d->pdev, &redirection_offset)))) {

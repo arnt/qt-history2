@@ -26,6 +26,11 @@
 #include "qdragobject.h"
 #include "qcursor.h"
 
+#ifdef Q_Q4PAINTER
+#include "qx11gc.h"
+#define QPaintDevice QX11GC
+#endif
+
 #include "qt_x11_p.h"
 
 #include "qwidget_p.h"

@@ -26,6 +26,16 @@
 #include "qdatetime.h"
 #include "qcursor.h"
 #include "qstack.h"
+
+// Paint event clipping magic
+extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
+extern void qt_clear_paintevent_clipping();
+
+#ifdef Q_Q4PAINTER
+#include "qx11gc.h"
+#define QPaintDevice QX11GC
+#endif
+
 #include "qt_x11_p.h"
 #include <stdlib.h>
 
@@ -43,10 +53,6 @@ void qt_updated_rootinfo();
 #define d d_func()
 #define q q_func()
 
-// Paint event clipping magic
-extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
-extern void qt_clear_paintevent_clipping();
-
 extern bool qt_dnd_enable( QWidget* w, bool on );
 extern bool qt_nograb();
 
@@ -58,10 +64,6 @@ extern Time qt_x_time;
 
 int qt_x11_create_desktop_on_screen = -1;
 
-#ifdef Q_Q4PAINTER
-#include "qx11gc.h"
-#define QPaintDevice QX11GC
-#endif
 
 /*****************************************************************************
   QWidget member functions
@@ -329,7 +331,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	else
 	    setWState( WState_Visible );
 
+#ifdef Q_Q4PAINTER
+	QX11GCData* xd = static_cast<QX11GC *>(deviceGC)->getX11Data(true);
+#else
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
+#endif	
 
 	// find which screen the window is on...
 	xd->x_screen = QPaintDevice::x11AppScreen(); // by default, use the default :)
@@ -348,7 +354,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 			    XVisualIDFromVisual( (Visual*)x11AppVisual(x11Screen()) ) );
 	xd->x_colormap = a.colormap;
 	xd->x_defcolormap = ( a.colormap == x11AppColormap( x11Screen() ) );
+#ifdef Q_Q4PAINTER
+	static_cast<QX11GC *>(deviceGC)->setX11Data(xd);
+#else
 	setX11Data( xd );
+#endif	
     } else if ( desktop ) {			// desktop widget
 	id = (WId)parentw;			// id = root window
 	QWidget *otherDesktop = find( id );	// is there another desktop?
