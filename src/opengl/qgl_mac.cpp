@@ -51,6 +51,7 @@ extern QPoint posInWindow(QWidget *); //qwidget_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle); //qregion_mac.cpp
 extern QRegion qt_mac_convert_mac_region(RgnHandle); //qregion_mac.cpp
+extern QPoint posInWindow(QWidget *); //qwidget_mac.cpp
 
 /*****************************************************************************
   QGLFormat UNIX/AGL-specific code
@@ -70,12 +71,10 @@ bool QGLFormat::hasOpenGLOverlays()
 /*****************************************************************************
   QGLContext AGL-specific code
  *****************************************************************************/
-QPoint posInWindow(QWidget *); //qwidget_mac.cpp
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
     cx = NULL;
-    GDHandle dev = GetMainDevice(); //doesn't handle multiple heads, fixme!
-    vi = chooseMacVisual(dev);
+    vi = chooseMacVisual(GetMainDevice());
     if(!vi)
         return false;
 
