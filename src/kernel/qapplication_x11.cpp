@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#382 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#383 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -116,13 +116,13 @@ char *_Xsetlocale(int category, const char *locale)
 // resolve the conflict between X11's FocusIn and QEvent::FocusIn
 const int XFocusOut = FocusOut;
 const int XFocusIn = FocusIn;
-#undef FocusOut;
-#undef FocusIn;
+#undef FocusOut
+#undef FocusIn
 
 const int XKeyPress = KeyPress;
 const int XKeyRelease = KeyRelease;
-#undef KeyPress;
-#undef KeyRelease;
+#undef KeyPress
+#undef KeyRelease
 
 /*****************************************************************************
   Internal variables and functions
@@ -800,7 +800,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
     if ( XSupportsLocale() ) {
 	if(XSetLocaleModifiers ("") == NULL)
 	{
-	    fprintf(stderr,"Cannot set locale modifiers.\n");
+	    debug("Qt: Cannot set locale modifiers");
 	} else {
 	    xim = XOpenIM( appDpy, 0, 0, 0 );
 #if 0
@@ -808,15 +808,15 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    if ( qstrlen(lm=XSetLocaleModifiers( "" )) ) {
 		xim = XOpenIM( appDpy, 0, 0, 0 );
 	    } else if ( qstrlen(lm=XSetLocaleModifiers( "@im=none" )) ) {
-		fprintf(stderr,"Disabling input methods for this locale. %s\n",lm);
+		debug("Qt: Disabling input methods for this locale, %s",lm);
 		xim = XOpenIM( appDpy, 0, 0, 0 );
 	    } else {
-		fprintf(stderr,"No valid input methods.\n");
+		debug("Qt: No valid input methods");
 	    }
 #endif
 	}
     } else {
-	fprintf(stderr,"Locales not supported on X server.\n");
+	debug("Qt: Locales not supported on X server");
     }
 
     if ( xim ) {
@@ -827,7 +827,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	        xim_style = xim_preferred_style;
 		break;
 	    } else if (styles->supported_styles[i] ==
-			XIMPreeditNothing | XIMStatusNothing ) {
+			(XIMPreeditNothing | XIMStatusNothing) ) {
 	        if ( !xim_style )
 		    xim_style =
 			XIMPreeditNothing | XIMStatusNothing;
