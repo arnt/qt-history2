@@ -1,4 +1,4 @@
-#define Q_INITGUID
+#include "qinitguid.h"
 #include "qcomponentinterface.h"
 #ifndef QT_NO_STYLE
 #include "qstyleinterface.h"
@@ -6,7 +6,6 @@
 #ifndef QT_NO_SQL
 #include "qsqldriverinterface.h"
 #endif
-#undef Q_INITGUID
 
 #ifndef QT_NO_COMPONENT
 

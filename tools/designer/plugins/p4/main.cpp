@@ -1,6 +1,5 @@
-#define Q_INITGUID
+#include <qinitguid.h>
 #include "../designerinterface.h"
-#undef Q_INITGUID
 #include "p4.h"
 
 #include <qcleanuphandler.h>

@@ -1,7 +1,5 @@
-#define Q_INIT_INTERFACES
-#define Q_INITGUID
+#include <qinitguid.h>
 #include <qcomponentinterface.h>
-#undef Q_INIT_INTERFACES
 #include "designerappiface.h"
 #include "mainwindow.h"
 #include "formwindow.h"

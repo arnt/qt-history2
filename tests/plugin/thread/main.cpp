@@ -1,6 +1,5 @@
-#define Q_INITGUID
+#include <qinitguid.h>
 #include "../tools/designer/plugins/designerinterface.h"
-#undef Q_INITGUID
 
 #include <qaction.h>
 #include <qapplication.h>
