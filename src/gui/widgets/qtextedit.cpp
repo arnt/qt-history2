@@ -122,8 +122,7 @@ public:
 
     bool cursorMoveKeyEvent(QKeyEvent *e);
 
-    inline void updateCurrentCharFormat() { updateCurrentCharFormat(cursor.charFormat()); }
-    void updateCurrentCharFormat(const QTextCharFormat &newFormat);
+    void updateCurrentCharFormat();
 
     void indent();
     void outdent();
@@ -245,9 +244,9 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
     return true;
 }
 
-void QTextEditPrivate::updateCurrentCharFormat(const QTextCharFormat &newFormat)
+void QTextEditPrivate::updateCurrentCharFormat()
 {
-    currentCharFormat = newFormat;
+    currentCharFormat = cursor.charFormat();
 
     emit q->currentCharFormatChanged(currentCharFormat);
     // compat signals
