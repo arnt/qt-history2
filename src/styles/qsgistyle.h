@@ -42,6 +42,7 @@
 #include "qmotifstyle.h"
 #include "qpalette.h"
 #include "qguardedptr.h"
+#include "qwidget.h"
 #endif // QT_H
 
 #ifndef QT_NO_STYLE_SGI
