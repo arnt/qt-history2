@@ -17,7 +17,6 @@
 #include <qheaderview.h>
 #include <qlistview.h>
 #include <qtreeview.h>
-#include <qitemselectionmodel.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qlineedit.h>
@@ -29,6 +28,7 @@
 #include <qsignal.h>
 #include <qtoolbutton.h>
 #include <qmessagebox.h>
+
 #ifdef Q_WS_WIN
 #include <qwindowsstyle.h>
 #endif
@@ -37,9 +37,12 @@
 #include <private/qunicodetables_p.h>
 #include <qmacstyle_mac.h>
 #endif
-#include <qdebug.h>
 
-#include <private/qdialog_p.h>
+#include <qdebug.h>
+#include <private/qfiledialog_p.h>
+
+#define d d_func()
+#define q q_func()
 
 const char *qt_file_dialog_filter_reg_exp =
     "([a-zA-Z0-9]*)\\(([a-zA-Z0-9_.*? +;#\\[\\]]*)\\)$";
@@ -96,115 +99,6 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
     if (key != Qt::Key_Escape)
         e->accept();
 }
-
-class QFileDialogPrivate : public QDialogPrivate
-{
-    Q_DECLARE_PUBLIC(QFileDialog)
-public:
-    QFileDialogPrivate();
-
-    // private slots
-    void backClicked();
-    void upClicked();
-    void mkdirClicked();
-    void showListClicked();
-    void showDetailClicked();
-    void enterSubdir(const QModelIndex &index);
-    void keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers);
-    void selectionChanged(const QItemSelection &selection);
-    void fileNameChanged(const QString &text);
-    void lookInChanged(const QString &text);
-    void useFilter(const QString &filter);
-    void setCurrentDir(const QString &path);
-    void showContextMenu(const QPoint &pos);
-    void renameCurrent();
-    void deleteCurrent();
-    void reload();
-    void lookInReturnPressed();
-    void sortByName();
-    void sortBySize();
-    void sortByDate();
-    void setUnsorted();
-    void showHidden();
-
-    // setup
-    void setup(const QString &directory, const QStringList &nameFilter);
-    void setupActions();
-    void setupListView(const QModelIndex &index, QGridLayout *grid);
-    void setupTreeView(const QModelIndex &index, QGridLayout *grid);
-    void setupToolButtons(const QModelIndex &index, QGridLayout *grid);
-    void setupWidgets(QGridLayout *grid);
-
-    // other
-    void updateButtons(const QModelIndex &index);
-    void setRootIndex(const QModelIndex &index);
-    QModelIndex rootIndex() const;
-    void setDirSorting(QDir::SortFlags sort);
-    void setDirFilter(QDir::Filters filter);
-    QDir::Filters filterForMode(QFileDialog::FileMode mode);
-    QAbstractItemView::SelectionMode selectionMode(QFileDialog::FileMode mode);
-    QModelIndex matchDir(const QString &text, const QModelIndex &first) const;
-    QModelIndex matchName(const QString &name, const QModelIndex &first) const;
-
-    // inlined stuff
-    inline QString tr(const char *text) const { return QObject::tr(text); }
-    inline QString toNative(const QString &path) const
-        { return QDir::convertSeparators(path); }
-    inline QString toInternal(const QString &path) const
-        {
-#if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
-            QString n(path);
-            for (int i = 0; i < (int)n.length(); ++i)
-                if (n[i] == '\\') n[i] = '/';
-            return n;
-#else // the compile should optimize away this
-            return path;
-#endif
-        }
-
-    // static stuff
-    static QString encodeFileName(const QString &filename);
-    static QString workingDirectory(const QString &path);
-    static QString initialSelection(const QString &path);
-
-    // data
-    QDirModel *model;
-    QItemSelectionModel *selections;
-    QListView *listView;
-    QTreeView *treeView;
-    QFileDialog::FileMode fileMode;
-    QFileDialog::AcceptMode acceptMode;
-
-    QList<QPersistentModelIndex> history;
-
-    QComboBox *lookIn;
-    QFileDialogLineEdit *fileName;
-    QFileDialogLineEdit *lookInEdit;
-    QComboBox *fileType;
-
-    QAction *openAction;
-    QAction *renameAction;
-    QAction *deleteAction;
-
-    QAction *reloadAction;
-    QAction *sortByNameAction;
-    QAction *sortBySizeAction;
-    QAction *sortByDateAction;
-    QAction *unsortedAction;
-    QAction *showHiddenAction;
-
-    QPushButton *acceptButton;
-    QPushButton *cancelButton;
-
-    QToolButton *back;
-    QToolButton *toParent;
-    QToolButton *newFolder;
-    QToolButton *detailMode;
-    QToolButton *listMode;
-};
-
-#define d d_func()
-#define q q_func()
 
 /*!
   \class QFileDialog
@@ -2135,7 +2029,11 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
 
 #if defined(Q_WS_WIN)
     if (::qt_cast<QWindowsStyle*>(qApp->style()))
-        return qt_win_get_open_file_names(filter, &qt_working_dir, parent, caption, selectedFilter);
+        return qt_win_get_open_file_names(filter,
+                                          &qt_working_dir,
+                                          parent,
+                                          caption,
+                                          selectedFilter);
 #elif defined(Q_WS_MAC)
     if (::qt_cast<QMacStyle*>(qApp->style())) {
         QStringList sl = qt_mac_get_open_file_names(filter, &qt_working_dir, parent, caption,

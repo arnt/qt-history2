@@ -1,0 +1,139 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#ifndef QFILEDIALOG_P_H
+#define QFILEDIALOG_P_H
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include <private/qdialog_p.h>
+#include <qitemselectionmodel.h>
+
+class QFileDialogLineEdit;
+
+class QFileDialogPrivate : public QDialogPrivate
+{
+    Q_DECLARE_PUBLIC(QFileDialog)
+public:
+    QFileDialogPrivate();
+
+    // private slots
+    void backClicked();
+    void upClicked();
+    void mkdirClicked();
+    void showListClicked();
+    void showDetailClicked();
+    void enterSubdir(const QModelIndex &index);
+    void keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers);
+    void selectionChanged(const QItemSelection &selection);
+    void fileNameChanged(const QString &text);
+    void lookInChanged(const QString &text);
+    void useFilter(const QString &filter);
+    void setCurrentDir(const QString &path);
+    void showContextMenu(const QPoint &pos);
+    void renameCurrent();
+    void deleteCurrent();
+    void reload();
+    void lookInReturnPressed();
+    void sortByName();
+    void sortBySize();
+    void sortByDate();
+    void setUnsorted();
+    void showHidden();
+
+    // setup
+    void setup(const QString &directory, const QStringList &nameFilter);
+    void setupActions();
+    void setupListView(const QModelIndex &index, QGridLayout *grid);
+    void setupTreeView(const QModelIndex &index, QGridLayout *grid);
+    void setupToolButtons(const QModelIndex &index, QGridLayout *grid);
+    void setupWidgets(QGridLayout *grid);
+
+    // other
+    void updateButtons(const QModelIndex &index);
+    void setRootIndex(const QModelIndex &index);
+    QModelIndex rootIndex() const;
+    void setDirSorting(QDir::SortFlags sort);
+    void setDirFilter(QDir::Filters filter);
+    QDir::Filters filterForMode(QFileDialog::FileMode mode);
+    QAbstractItemView::SelectionMode selectionMode(QFileDialog::FileMode mode);
+    QModelIndex matchDir(const QString &text, const QModelIndex &first) const;
+    QModelIndex matchName(const QString &name, const QModelIndex &first) const;
+
+    // inlined stuff
+    inline QString tr(const char *text) const { return QObject::tr(text); }
+    inline QString toNative(const QString &path) const
+        { return QDir::convertSeparators(path); }
+    inline QString toInternal(const QString &path) const
+        {
+#if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
+            QString n(path);
+            for (int i = 0; i < (int)n.length(); ++i)
+                if (n[i] == '\\') n[i] = '/';
+            return n;
+#else // the compile should optimize away this
+            return path;
+#endif
+        }
+
+    // static stuff
+    static QString encodeFileName(const QString &filename);
+    static QString workingDirectory(const QString &path);
+    static QString initialSelection(const QString &path);
+
+    // data
+    QDirModel *model;
+    QItemSelectionModel *selections;
+    QListView *listView;
+    QTreeView *treeView;
+    QFileDialog::FileMode fileMode;
+    QFileDialog::AcceptMode acceptMode;
+
+    QList<QPersistentModelIndex> history;
+
+    QComboBox *lookIn;
+    QFileDialogLineEdit *fileName;
+    QFileDialogLineEdit *lookInEdit;
+    QComboBox *fileType;
+
+    QAction *openAction;
+    QAction *renameAction;
+    QAction *deleteAction;
+
+    QAction *reloadAction;
+    QAction *sortByNameAction;
+    QAction *sortBySizeAction;
+    QAction *sortByDateAction;
+    QAction *unsortedAction;
+    QAction *showHiddenAction;
+
+    QPushButton *acceptButton;
+    QPushButton *cancelButton;
+
+    QToolButton *back;
+    QToolButton *toParent;
+    QToolButton *newFolder;
+    QToolButton *detailMode;
+    QToolButton *listMode;
+};
+
+#endif // QFILEDIALOG_P_H

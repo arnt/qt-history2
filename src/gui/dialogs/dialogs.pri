@@ -10,6 +10,7 @@ HEADERS += \
 	dialogs/qdialog_p.h \
 	dialogs/qerrormessage.h \
 	dialogs/qfiledialog.h \
+	dialogs/qfiledialog_p.h \
 	dialogs/qfontdialog.h \
 	dialogs/qinputdialog.h \
 	dialogs/qmessagebox.h \

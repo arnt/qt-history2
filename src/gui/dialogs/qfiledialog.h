@@ -19,6 +19,7 @@
 #include <QtGui/qdialog.h>
 
 class QModelIndex;
+class QItemSelection;
 class QFileIconProvider;
 class QFileDialogPrivate;
 class QAbstractItemDelegate;
