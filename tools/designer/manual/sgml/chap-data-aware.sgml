@@ -1,0 +1,835 @@
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[
+<!ENTITY qd "<emphasis>Qt Designer</>">
+<!ENTITY st "<classname>QSqlTable</>">
+<!ENTITY sd "<classname>QSqlDialog</>">
+<!ENTITY ok "<guibutton>OK</>">
+<!ENTITY i "<literal>INSERT</>">
+<!ENTITY d "<literal>DELETE</>">
+<!ENTITY u "<literal>UPDATE</>">
+]>
+
+<chapter id="using-data-aware-widgets">
+<title>Using Data-Aware Widgets</>
+
+<note><para>@@@@@ TODO Insert Screenshots @@@@@</para></note>
+
+<para>
+This chapter shows you how to use Qt's data-aware widgets from within
+&qd;. If you wish to run the examples or
+create your own applications using these widgets you need access to
+a SQL database and a Qt database driver that can connect to the
+database. The current drivers that Qt supports are QODBC (Open Database
+Connectivity), QOCI (Oracle), QPSQL6 (PostgreSQL 6), QPSQL7 (PostgreSQL
+7) and QMYSQL (MySQL). 
+</para>
+
+<para>
+Although you can use the Qt data-aware widgets to browse and edit data in
+SQL databases without having to write any SQL, a basic
+understanding of SQL is highly recommended. We assume some familiarity
+with <literal>SELECT</>, &i;, &u; and
+&d; statements and with the concept of foreign keys. A
+standard text covering SQL databases is <citetitle pubwork="book">An
+Introduction to Database Systems (7th ed.)</> by C. J. Date, ISBN
+0201385902. 
+</para>
+
+<para>
+Note that the examples in this chapter all use the tables, views and
+records which are defined in the
+<filename>designer/eg/book.sql</> file. This file has been
+tested with PostgreSQL 6. You may need to modify the SQL in this file to
+recreate the example database on your own system.
+</para>
+
+<sect1 id="setting-up-database-connections">
+<title>Setting Up Database Connections</>
+
+    <para>
+    There are two aspects of database connections that we must consider.
+    Firstly the connection we wish to use within <emphasis>Qt
+    Designer</> itself, and secondly the connection we wish to use
+    in the applications that we create.
+    </para>
+
+    <sect2 id="setting-up-qt-designers-connections">
+	<title>Setting Up &qd;'s Connections</>
+
+	<para>
+	Choose <guimenuitem>Edit|Database Connections</> from the menu
+	bar. The Database Connections dialog will appear. Click
+	<guibutton>New Connection</>. For applications that use a single
+	database it will probably be most convenient to use the default
+	connection name of "(default)". If you use more than one
+	database give each one a unique name. A driver must be chosen
+	from the Driver combo box. The database name may be available in
+	the Database Name combo box or may have to be typed in. The
+	database name, username, password and hostname should be
+	provided by your database systems administrator. When the
+	Connection information has been completed click
+	<guibutton>Connect</>. If the connection is made the connection
+	name will appear in the list box on the left hand side of the
+	dialog. You can now close the dialog; the connection will remain
+	in force until you delete it or quit &qd;. 
+	</para>
+
+	<para>
+	&qd; can remember database connection settings in
+	<application>qmake</> project files. Create a new project, e.g.
+	choose <guimenuitem>File|New Project</> and complete the Project
+	Settings dialog. Next time you start <emphasis>Qt Designer</>
+	instead of opening individual <literal>.ui</> files open the
+	<literal>.pro</> project file instead and &qd; will
+	automatically make the connections you have set up. (See <xref
+	linkend="using-project-files"> "Using Project Files".) Opening a
+	project file will also cause &qd; to load in the list of forms
+	associated with the project into the Form List window. In most
+	of the discussion that follows we will assume that you have made
+	the connection and use project files so that the connection is
+	always live when you work in &qd;.
+	</para>
+
+    </sect2>
+
+    <sect2 id="setting-up-connections-for-applications">
+    <title>Setting Up Connections for Applications</>
+
+	<para>
+	The applications you create must make their own connections to
+	the SQL database. 
+<example><title>create_connections() function</><programlisting>
+bool create_connections()
+{
+    // create the default database connection
+    QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );
+    defaultDB-&gt;setDatabaseName( "books" );
+    defaultDB-&gt;setUserName( "booksuser" );
+    defaultDB-&gt;setPassword( "bookspw" );
+    defaultDB-&gt;setHostName( "bookshost" );
+    if ( ! defaultDB-&gt;open() ) { 
+	qWarning( "Failed to open books database: " + 
+		  defaultDB-&gt;lastError().driverText() );
+	qWarning( defaultDB-&gt;lastError().databaseText() );
+	return false;
+    }
+
+    return true;
+}
+</programlisting></example>
+	We call <function>addDatabase</> passing it the name of the
+	driver we wish to use. We then set the connection information by
+	calling the <literal>set...</> functions. Finally we attempt to
+	open the connection. If we succeed we return true, otherwise we
+	output some error information and return false. 
+<example><title>From <filename>designer/eg/book1/main.cpp</></><programlisting>
+int main( int argc, char *argv[] ) 
+{
+    QApplication app( argc, argv );
+
+    if ( ! create_connections() ) 
+	return 1;
+
+    BookForm bookForm;
+    app.setMainWidget( &amp;bookForm );
+    bookForm.show();
+
+    return app.exec();
+}
+</programlisting></example>
+	All the examples presented in this chapter call
+	<function>create_connections</> after creating the
+	<classname>QApplication</> object in their <filename>main.cpp</>
+	file and make use of the default connection. If you need to
+	connect to multiple databases use the two-argument form of
+	<function>addDatabase</>, passing it both the name of the driver
+	and a unique identifier. This is explained in the <ulink
+	url="http://doc.trolltech.com/sql.html">Qt SQL Module
+	documentation</>.
+	</para>
+
+    </sect2>
+</sect1>
+
+<sect1 id="using-qsqltable">
+<title>Using &st;</>
+
+    <para>
+    &st;s may be placed on any form and provide browsing of database
+    tables and views. &st;s can also be used to insert new records or
+    update or delete existing records, but inserting data usually
+    requires some subclassing. If we wish to present records using a
+    form view (perhaps combining several tables and views) we would use
+    a &sd; or <classname>QSqlWidget</>.
+    </para>
+
+    <sect2 id="quickly-viewing-a-database-table">
+    <title>Quickly Viewing a Database Table</>
+
+	<para>
+	Start a new project by clicking <guimenuitem>File|New
+	Project</>. Complete the dialog by entering a project name and a
+	project file name. In our first example the project is
+	called 'Book' and the project file
+	<filename>designer/eg/book1/book.pro</>. Now click
+	<guimenuitem>Edit|Database Connections</>. Fill in the
+	connection information appropriate to your database then press
+	<guibutton>Connect</>. The connection name should now appear in
+	the left hand list box. (If this doesn't happen you'll need to
+	contact your database systems administrator for help.) Close the
+	dialog.
+	</para>
+
+	<para>
+	Click <guimenuitem>File|New</>. The New Form dialog presents us
+	with a number of form templates to choose from. Choose the
+	'Dialog' form and click &ok;. Now click
+	<guimenuitem>File|Save</>. You will be prompted for a filename,
+	call it <filename>book.ui</>. 
+	</para>
+
+	<para>
+	If you look at the widget toolbar to the right of the
+	<classname>QTable</> toolbutton you should see the
+	&st; toolbutton. Click the
+	&st; toolbutton and then click on the form to
+	place the &st; on the form. Now click on the
+	form again and click the <guibutton>Lay out Vertically</>
+	toolbar button. We now need to connect the form's
+	&st; to a table or view in the database.
+	Click the &st; and look at the very last
+	property, 'Database', in the Property window. Expand this
+	property by clicking the + sign. The Connection field is already
+	filled in with the default connection. Click on the Table field
+	and choose the book_view view. Now click
+	<guimenuitem>Preview|Preview Form</>; the form will run and the
+	table will automatically display all the records.
+	</para>
+
+	<para>
+	This example shows how quick and easy it is to use
+	&st; to show the contents of a database table
+	or view. In real applications we will need more functionality,
+	for example choosing which fields to display and in what order,
+	displaying more than one table and relating the tables together.
+	</para>
+
+	<sidebar><title>A Note on Foreign Keys</title>
+	<para>
+	In most relational databases tables contain fields which are
+	foreign keys into other tables. In our book database example the
+	formatid in the book table is a foreign key into the format
+	table, and the authorid in the book table is a foreign key into
+	the author table. When we present a form to the end user we do
+	not usually want the foreign key itself to be visible but rather
+	the text associated with it. Thus, we would want the format name
+	to appear rather than the format id when we show the book table.
+	Whilst this can be achieved programmatically, e.g. using
+	calculated fields, it is far easier to create a view that
+	encompases the fields we wish to make visible to the user. A
+	view also places the burden of work on the database rather than
+	the client application. In the examples we have created the
+	book_view view to demonstrate this approach.
+	</para>
+	</sidebar>
+
+    </sect2>
+
+    <sect2 id="relating-two-tables-together">
+    <title>Relating Two Tables Together (Drilldown)</>
+
+	<para>
+	Databases often have pairs of tables that are related. For
+	example an invoice table might list the numbers, dates and
+	customers for invoices, but not the actual invoice items which
+	the invoiceitem table might store. In the book database we 
+	wish to have a &st; that we can use to browse
+	through the authors and a second &st; to show
+	the books they've written. To achieve this using &qd; we will
+	need to subclass. 
+	</para>
+
+	<para>
+	Subclassing one of the &st;s would lead us up
+	a blind alley. Subclassing the &st;s would
+	allow us to connect the two tables together using Qt's
+	signals/slots mechanism -- but to properly relate the tables we
+	need to have access to their underlying database cursors and
+	signals/slots are not appropriate for this. So we will need to
+	subclass the form that holds the &st;s since
+	the form has access to all its components.
+	</para>
+
+	<para>
+	Open the book project if it isn't already in &qd;. We will
+	modify this project to show two &st;s that
+	relate the author table to the book_view view. Click the
+	book_view &st; and then click the <guibutton>Break
+	Layout</> toolbutton. Drag the top of the
+	&st; down so that it only occupies the top
+	half of the form. Since we're going to be subclassing it is a
+	good idea to give our own names to the widgets we are going to
+	use since we will be referring to them in code. Click the
+	book_view &st; and change its name to "BookQSqlTable".
+	Click the form and change its name to "BookFormBase". (Our
+	subclass will be called "BookForm".) Now click on the
+	&st; toolbutton and click on the top half of
+	the form. Change this &st;'s name to
+	"AuthorQSqlTable" and set its Table property to author.
+	Shift+Click the bottom &st; so that both
+	&st;s are selected and then click the <guibutton>Lay out
+	Vertically (in Splitter)</> toolbar button. Click on the form
+	and click the <guibutton>Lay out Vertically</> toolbar button. 
+	</para>
+
+	<para>
+	Run the form by clicking <guimenuitem>Preview|Preview Form</>.
+	All the authors are displayed in the top &st;
+	and all the books are displayed in the bottom
+	&st;. Unfortunately we only want the books of
+	the currently selected author showing in the bottom
+	&st;. We also want to choose which fields are
+	displayed and their order of display. Refining our query is
+	achieved by subclassing. &qd;'s table editor is used to set the
+	properties of displayed tables.
+	</para>
+
+	<sidebar><title>Using the Table Editor</>
+	<para>
+	The table editor is invoked by right clicking the
+	&st; and left clicking the
+	<guimenuitem>Edit</> menu item. The right hand half of the Edit
+	Table dialog is where we choose the fields we wish to display,
+	their order and their labels. The procedure for creating columns
+	is as follows:
+	<orderedlist numeration="arabic">
+	<listitem><para>Click the <guibutton>New Column</>
+	button</para></listitem> 
+	<listitem><para>Click the triangle at the right hand side of the
+	Field combobox to drop down the list of available
+	fields</para></listitem>
+	<listitem><para>Click the field you wish to include at this
+	point</para></listitem>
+	<listitem><para><emphasis>Optionally</> edit the Label if the
+	default isn't appropriate</para></listitem>
+	<listitem><para><emphasis>Optionally</> click the Pixmap
+	<guibutton>...</> button to choose a pixmap to be displayed to
+	the left of the column's label</para></listitem>
+	</orderedlist>
+	Repeat the steps listed above for each column you wish to add.
+	Once all the fields have been added you can change their
+	ordering by using the blue up and down arrow buttons. At any
+	point you can press <guibutton>Apply</> to see how the table
+	will look. Finally click the &ok; button to save the
+	properties you have set. You can always return to the table
+	editor to change these settings later.
+	</para>
+	</sidebar>
+
+	<para>
+	Use the table editor to change the appearance of the
+	&st;s: make the author table display the
+	forename and surname with labels "Forename" and "Surname" and
+	make the book_view &st; display the "Title",
+	"Price" and "Format". 
+	</para>
+
+	<para>
+	Now that we have set up the visual design we need to create a
+	slot on the form so that as the user navigates through the
+	author table the book view can be updated to show only those
+	books written by the current author. We will be passing a
+	<classname>QSqlRecord</> pointer to the slot so we need to
+	create a forward declaration of this class, then we need to
+	create the slot and connect it.
+	<itemizedlist mark="bullet" spacing="compact">
+	<listitem><para>Click <guimenuitem>Edit|Form Settings</> to
+	invoke the Form Settings dialog. Click the <guibutton>New
+	Forward</> button and replace the text in the edit box under the
+	New Forward button with <literal>class QSqlRecord;</>. Now click
+	&ok;.</para></listitem>
+	<listitem><para>Click <guimenuitem>Edit|Slots</> to invoke the
+	Edit Slots dialog. Click the <guibutton>New Slot</> button and
+	change the default slot name in the Slot edit box to
+	<literal>slotNewAuthor(const SqlRecord *)</>. Now click
+	&ok;.</para></listitem>
+	<listitem><para>Click on the <guibutton>Connect Signals/Slots</>
+	toolbar button then click on the author table and drag to the
+	form; release the mouse button over the form. The Edit Connections
+	dialog should appear with the signals list entitled Signals
+	(AuthorSqlTable) and the slots list entitled Slots
+	(BookFormBase). Click the currentChanged signal. The list of
+	slots will change to show our slotNewAuthor slot; click
+	slotNewAuthor to make the connection. Now click
+	&ok;.</para></listitem>
+	</itemizedlist>
+	</para>
+
+	<para>
+	Run the application in preview mode: the author
+	&st; will show all the authors and the
+	book_view &st; will show all the books. &qd;
+	has put most of the pieces in place but to make the new slot
+	work we need to subclass the form so that we can set up a
+	signal/slot connection between the author
+	&st; and the book_view
+	&st;. 
+	</para>
+
+    </sect2>
+
+    <sect2 id="subclassing-to-link-qsqltable-widgets-together">
+    <title>Subclassing to Link &st; Widgets Together</title>
+
+	<para>
+	We create a new header file for our subclass,
+	<filename>designer/eg/book2/bookform.h</filename>: 
+<example><title>From <filename>designer/eg/book2/bookform.h</></><programlisting>
+#include &lt;qapplication.h&gt;
+#include &lt;qsqldatabase.h&gt;
+#include &lt;qsqltable.h&gt;
+#include "book.h"
+
+class QSqlRecord;
+
+class BookForm : public BookFormBase
+{
+    Q_OBJECT
+public slots:
+    void slotNewAuthor( const QSqlRecord *authorRecord );
+};
+</programlisting></example>
+	We include <filename>book.h</filename> which is the header file
+	automatically generated by &qd; and which contains the
+	superclass. All we are concerned with here is making the slot we
+	created in &qd; active. (Remember to add <filename>bookform.h</>
+	and <filename>bookform.cpp</> to the <filename>book.pro</>
+	project file and run <application>qmake</> to update the
+	<filename>Makefile</>.
+	</para>
+
+	<para>
+<example><title>BookForm slotNewAuthor from 
+<filename>designer/eg/book2/bookform.cpp</></><programlisting>
+void BookForm::slotNewAuthor( const QSqlRecord *authorRecord )
+{
+    BookSqlTable-&gt;setFilter( 
+	"book_view.authorid=" + authorRecord-&gt;value( "id" ).toString() );
+    BookSqlTable-&gt;refresh();
+}
+</programlisting></example>
+	Whenever the AuthorSqlTable's current author changes a signal is
+	sent to the slotNewAuthor slot with a reference to the new
+	author's record. The BookSqlTable's filter is set to select only
+	the book_view records whose authorid's are equal to the id of
+	the current author in the author table. After changing the
+	filter we call <function>refresh()</> on BookSqlTable to
+	repopulate it with the new filter in force.
+	</para>
+
+	<para>
+	When this example is run initially all the authors and
+	<emphasis>all</> the books are shown. However once the user
+	navigates through the author records only those books with a
+	matching authorid are shown. We want to show only the relevant
+	books, even when the form is initally run, but to achieve this
+	we need control of the underlying cursor which subclassing the
+	form alone does not provide. 
+	</para>
+
+	<para>
+<example><title>AuthorCursor from <filename>designer/eg/book3/bookform.h</></><programlisting>
+class AuthorCursor : public QSqlCursor
+{
+    public:
+	AuthorCursor();
+};
+</programlisting></example>
+	We create our own cursor subclass based on <classname>QSqlCursor</>. 
+	</para>
+
+	<para>
+<example><title>BookForm class from <filename>designer/eg/book3/bookform.h</></><programlisting>
+class BookForm : public BookFormBase
+{
+    Q_OBJECT
+public:
+    BookForm( QWidget * parent = 0, const char * name = 0, bool modal = FALSE, WFlags f = 0 );
+public slots:
+    void slotNewAuthor( const QSqlRecord *authorRecord );
+private:
+    AuthorCursor authorCursor;
+};
+</programlisting></example>
+	The BookForm subclass now includes a BookForm constructor as
+	well as an AuthorCursor.
+	</para>
+
+	<para>
+<example><title>AuthorCursor from <filename>designer/eg/book3/bookform.cpp</></><programlisting>
+AuthorCursor::AuthorCursor() :
+    QSqlCursor( "author" )
+{
+    setDisplayLabel( "forename", "Forename" );
+    setDisplayLabel( "surname", "Surname" );
+}
+</programlisting></example>
+	The AuthorCursor's constructor sets the table name to author and
+	the display labels for the fields we wish to display.
+	</para>
+
+	<para>
+<example><title>BookForm constructor from <filename>designer/eg/book3/bookform.cpp</></><programlisting>
+BookForm::BookForm( QWidget * parent, const char * name, bool modal, WFlags f ) :
+    BookFormBase( parent, name, modal, f )
+{
+    AuthorSqlTable-&gt;setCursor( &amp;authorCursor );
+    AuthorSqlTable-&gt;refresh();
+    QSqlRecord firstAuthor = AuthorSqlTable-&gt;currentFieldSelection();
+    BookSqlTable-&gt;setFilter( 
+	"book_view.authorid=" + firstAuthor.value( "id" ).toString() );
+    BookSqlTable-&gt;refresh();
+}
+</programlisting></example>
+	The BookForm constructor sets the AuthorSqlTable's cursor to the
+	authorCursor that we created. At first glance this may seem no
+	different from leaving &qd; to handle this, but what we have
+	done is to force the construction of the cursor
+	<emphasis>before</> the construction of the form so that when we
+	call <function>refresh()</> on the AuthorSqlTable we will get a
+	valid record. This small change ensures that when the example is
+	run it correctly displays the books of only the first author
+	rather than all the books. When the user navigates through the
+	author records the correct books are displayed in the
+	BookSqlTable as before.
+	</para>
+
+	<para>
+	Note that further examples of subclassing QSqlCursors and
+	QSqlTables are given in the <ulink
+	url="http://doc.trolltech.com/sql.html">Qt SQL Module
+	documentation</>, especially the Custom Editor Widgets and
+	Subclassing QSqlCursor sections.
+	</para>
+
+    </sect2>
+
+    <sect2 id="editing-records-in-a-qsqltable">
+	<title>Editing Records in a &st;</>
+
+	<para>
+	Displaying database data is useful in itself but we often want
+	to insert, update or delete the records that we are browsing.
+	For database <emphasis>tables</> we can edit records in-place in
+	the &st;. For database <emphasis>views</> we
+	cannot edit records in-place. The reason that views are
+	different from tables is that not all drivers support editable
+	views. Whilst it is theoretically possible to emulate editable
+	views by starting a transaction, performing the edits on each of
+	the underlying tables concerned and completing and commiting the
+	transaction, not all drivers support transactions: without
+	editable views or transactions it may not be possible to
+	guarantee consistent view updates so views displayed in
+	&st;s should always be set to read only.
+	</para>
+
+	<sect3 id="editing-table-records">
+	    <title>Editing Table Records</>
+
+	<para>
+	The author table's &st; already provides &u; and
+	&d; operations. &i; will not work
+	however because there is no way for the user to enter an author
+	id. The solution is a simple extension to our AuthorCursor
+	subclass.
+<example><title>AuthorCursor from <filename>designer/eg/book4/bookform.h</></><programlisting>
+class AuthorCursor : public QSqlCursor
+{
+    public:
+	AuthorCursor();
+	QSqlRecord *primeInsert();
+};
+</programlisting></example>
+	We add a declaration for the <function>primeInsert</> function
+	since we need to reimplement it.
+<example><title>AuthorCursor from <filename>designer/eg/book4/bookform.cpp</></><programlisting>
+QSqlRecord *AuthorCursor::primeInsert()
+{
+    QSqlRecord *record = editBuffer();
+    QSqlQuery q( "SELECT nextval( 'author_seq' );" );
+    if ( q.next() ) {
+	record-&gt;setValue( "id", q.value( 0 ) );
+    }
+
+    return record;
+}
+</programlisting></example>
+	The implementation of the function is straightforward: we
+	acquire a pointer to the cursor's internal edit buffer, generate
+	the next unique author id and set the edit buffer's value to the
+	new id. (Note that not all databases support sequences or the
+	<function>nextval</> function.)
+	</para>
+
+	<para>
+	We can now browse, &i;, &u; and
+	&d; records in the author table. Browsing is
+	supported by clicking records and by using the arrow keys. Once
+	a record is active (highlighted) we can edit the database. Press
+	the <keycap>Insert</> key to &i; a new record;
+	press <keycap>F2</> to &u; the current record;
+	press the <keycap>Delete</> key to &d; the
+	current record. All these operations take place live and
+	immediately. (Users can be given the opportunity to confirm
+	their edits by setting the &st;'s confirmEdits property to
+	True.)
+	</para>
+
+	</sect3>
+
+	<sect3 id="editing-view-records">
+	    <title>Editing View Records</>
+
+	<para>
+	Since we cannot edit views in-place we will need to create a
+	pop-up dialog which contains the details of the book the user
+	wishes to edit. To achieve this we need to make the book_view
+	read only, set up some buttons which the user can press to
+	invoke the dialog and finally create the dialog itself. 
+	</para>
+
+	<para>
+	Click on the book_view &st;; click on the readOnly property and
+	set it to True.
+	</para>
+
+	<para>
+	Right click on the form and click the <guimenuitem>Break
+	Layout</> menu item from the pop up menu. Make some space below
+	the book view &st; e.g. by dragging the bottom of the form down.
+	Insert a button at the bottom of the form: click the
+	<guibutton>PushButton</> toolbar button then click the bottom of
+	the form. Now insert two more buttons to the right of the first
+	one. Shift+Click the buttons then click the <guibutton>Lay Out
+	Horizontally</> toolbar button. Click the form and then click
+	the <guibutton>Lay Out Vertically</> toolbar button.
+	</para>
+
+	<para>
+	Click the first (left-most) button and change its name to
+	"InsertBookPushButton" and its text to "&amp;Insert Book". Click
+	the second (middle) button and change its name to
+	"UpdateBookPushButton" and its text to "&amp;Update Book". Click
+	the third (right-most) button and change its name to
+	"DeleteBookPushButton" and its text to "&amp;Delete Book".
+	</para>
+
+	<para>
+	Click <guimenuitem>Edit|Slots</> to invoke the Edit Slots
+	dialog. Click the <guibutton>New Slot</> button and replace the
+	default slot name with <literal>slotInsertBook()</>. Click the
+	<guibutton>New Slot</> button again and replace the default slot
+	with <literal>slotUpdateBook()</>. Create one more slot called
+	<literal>slotDeleteBook()</>. Click &ok; to save the
+	new slots. 
+	</para>
+
+	<para>
+	Click the <guibutton>Connect Signals/Slots</> toolbar button
+	then click the Insert Book <classname>QPushButton</> and drag to
+	the form; release the mouse over the form. The Edit Connections
+	dialog will appear showing Signals for the InsertBookPushButton
+	and Slots for BookFormBase. Click the clicked() signal and the
+	slotInsertBook() slot. Click &ok;. In the same way
+	connect the Update Book <classname>QPushButton</>'s clicked()
+	signal to the slotUpdateBook() slot and connect the Delete Book
+	<classname>QPushButton</>'s clicked() signal to the
+	slotDeleteBook() slot.
+	</para>
+	
+	<para>
+	The buttons will invoke a &sd; through which
+	the user will be able to &i;, &u; or &d; records in the book
+	table. To make the slots available in our subclass we need a few
+	additions to our code.
+<example><title>BookForm from <filename>designer/eg/book5/bookform.h</></><programlisting>
+class BookForm : public BookFormBase
+{
+    Q_OBJECT
+public:
+    BookForm( QWidget * parent = 0, const char * name = 0, bool modal = FALSE, WFlags f = 0 );
+public slots:
+    void slotNewAuthor( const QSqlRecord *authorRecord );
+    void slotInsertBook();
+    void slotUpdateBook();
+    void slotDeleteBook();
+private:
+    AuthorCursor authorCursor;
+};
+</programlisting></example>
+	Our BookForm class now contains declarations for the slots we
+	created; we need to do this because we will be reimplementing
+	them. For now we will just put stub functions in the
+	implementation file:
+<example><title>BookForm from <filename>designer/eg/book5/bookform.cpp</></><programlisting>
+void BookForm::slotInsertBook() {}
+void BookForm::slotUpdateBook() {}
+void BookForm::slotDeleteBook() {}
+</programlisting></example>
+	We will put the appropriate code into these stubs once we have
+	created the pop-up dialog which the user will use to edit the
+	book table: this is covered in <xref
+	linkend="subclassing-to-specialise-the-form"> "Subclassing to
+	Specialise the Form". 
+	</para>
+
+	</sect3>
+
+    </sect2>
+
+</sect1>
+
+<sect1 id="using-qdialog-to-create-data-aware-forms">
+<title>Using &sd; to Create Data-Aware Forms</title>
+
+<para>
+The &sd; class provides an easy way of generating data aware forms. In
+this section we will explain how to create a simple &sd; that provides
+browsing and editing of the book table. We will then specialise the
+dialog and integrate it with the book_view &st;.
+</para>
+
+<sect1 id="browsing-a-table-through-a-qsqldialog-form">
+<title>Browsing a Table through a &sd; Form</>
+<!-- Do a form over the book table with navigation: book6 -->
+
+<para>
+Click <guimenuitem>File|New</> to invoke the New Form dialog. Click the
+SQL Dialog template and then click &ok;. The SQL Form Wizard will
+appear on the "Choose the Database and Table" page. The Connection list
+box in the middle will show the "(default)" connection. (If no
+connection is shown you can create a connection by clicking the
+<guibutton>Setup Database Connections</> button: see <xref
+linkend="setting-up-qt-designers-connections"> "Setting Up &qd;'s
+Connections".) The Table list box will be empty. Click the "(default)"
+connection (or whichever connection you wish to use if there are
+several), and the Table list box will update to show the tables and views
+available through that connection. Click the table you wish to use, for
+our example, the book table. Click the <guibutton>Next</> button.
+The "Autopopulate Form" page shows the id field in the left hand list
+box (available fields) and the remaining fields, formatid, authorid,
+price and title in the right hand list box (fields to place on the
+form). We will accept the defaults so simply click the
+<guibutton>Next</> button. The "Navigation and Editing" page allows us
+to choose navigation and editing buttons that we can have placed on the
+form; again we will accept the defaults so click the <guibutton>Next</>
+button. The "SQL" page allows us to set up a filter and sorting. Click
+the title field and the right pointing blue arrow to have the form sort
+in order of title. (The white two headed arrow button is used to change
+the sort order between ascending and descending.) Click the
+<guibutton>Finish</> button.
+</para>
+
+<para>
+Click <guimenuitem>File|Save</> and call the form
+<filename>editbook.ui</>. For ease of reference we will rename the form:
+click the form and change its name to "EditBookFormBase" and its caption
+to "Edit Book". If you click the <classname>QLineEdit</> box to the
+right of the price field you will see that its name has been set
+automatically to "QLineEditprice". Run the form in preview mode (press
+Ctrl+T) and navigate through the book records.
+</para>
+
+<important>
+<para>Note: Whenever we create a new file for a project we must add it
+to the <literal>.pro</> project file and run <application>qmake</> on
+the project file so that the new form is included in the build, e.g.
+<literal>qmake book.pro &gt; Makefile</>.
+</para>
+</important>
+
+<para>
+To make our &sd; available to the user we must update our code slightly: 
+<example><title>slotInsertBook from <filename>designer/eg/book6/bookform.cpp</></><programlisting>
+void BookForm::slotInsertBook()
+{
+    EditBookFormBase *dialog = new EditBookFormBase();
+    dialog-&gt;exec();
+}
+</programlisting></example>
+We put the same code into <literal>slotDeleteBook</> and
+<literal>slotUpdateBook</>. The effect of this is that whichever button
+the user presses on the main form the same Edit Book dialog will appear.
+In the following sections we will specialise the dialog to remove its
+buttons and change its behaviour so that it only provides &i; if the user
+clicked the main form's Insert Book button, only provides &u; if the
+user clicked the Update Book button and similarly for the Delete Book
+button. We will also improve the appearance of the form and subclass
+it to provide &i;. We will deal with the foreign key fields in <xref
+linkend="using-foreign-keys-in-a-qsqldialog-form"> "Using Foreign Keys
+in a &sd; Form".
+</para>
+
+    <sect2 id="subclassing-the-qsqldialog-form">
+    <title>Subclassing the &sd; Form</>
+
+	<sect3 id="subclassing-to-provide-insert">
+	<title>Subclassing to Provide &i;</>
+	<!-- book7 -->
+
+	<para>
+	</para>
+
+	</sect3>
+
+	<sect3 id="subclassing-to-specialise-the-form">
+	<title>Subclassing to Specialise the Form</>
+	<!-- book8 -->
+	<para>
+	Create two new files, <filename>editbookform.h</> and
+	<filename>editbookform.cpp</>. (Don't forget to add them to the
+	project file, <filename>book.pro</> in our examples, and run
+	<application>qmake</> to update the <filename>Makefile</>.) We
+	will create the EditBookForm class in these files.
+	</para>
+
+	<para>
+	</para>
+
+	</sect3>
+
+    </sect2>
+
+</sect1>
+
+<sect1 id="using-foreign-keys-in-a-qsqldialog-form">
+<title>Using Foreign Keys in a &sd; Form</>
+<!-- book9 -->
+
+<para>
+intro - custom controls
+</para>
+
+    <sect2 id="creating-custom-widgets">
+    <title>Creating Custom Widgets</>
+    <!-- AuthorComboBox and FormatComboBox -->
+
+    <para>
+    </para>
+
+    </sect2>
+
+    <sect2 id="subclassing-the-custom-widgets">
+    <title>Subclassing the Custom Widgets</>
+    <!-- AuthorComboBox and FormatComboBox book10 -->
+
+    <para>
+    </para>
+
+    </sect2>
+
+
+</sect1>
+
+<note><para>@@@@@ TODO QSqlWidget @@@@@</para></note>
+
+</chapter>
