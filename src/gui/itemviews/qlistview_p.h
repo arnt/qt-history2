@@ -339,8 +339,8 @@ public:
 
     // used when items are static
     QVector<int> flowPositions;
-    QVector<int> wrapPositions;
-    QVector<int> wrapStartRows;
+    QVector<int> segmentPositions;
+    QVector<int> segmentStartRows;
 
     // timers
     int startLayoutTimer;
