@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#97 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#98 $
 **
 ** Definition of QApplication class
 **
@@ -165,7 +165,6 @@ public:
 
 signals:
     void	     lastWindowClosed();
-    void	     unknownTranslation( const char *, const char * );
 
 public slots:
     void	     quit();
