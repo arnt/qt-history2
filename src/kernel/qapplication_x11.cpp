@@ -4514,7 +4514,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	return TRUE;
 
     if ( event->type == MotionNotify ) { // mouse move
-	if (event->xmotion.root != appRootWin)
+	if (event->xmotion.root != RootWindow(appDpy, x11Screen()))
 	    return FALSE;
 
 	XMotionEvent lastMotion = event->xmotion;
