@@ -366,12 +366,6 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
                 if(cmb->editable())
                     w = cmb->lineEdit();
             }
-#warning "come back and touch this up --> tws"
-#if 0
-            else if(QSpinWidget *spw = ::qt_cast<QSpinWidget *>(w)) { //transfer to the editor
-                w = spw->editWidget();
-            }
-#endif
         } else {
             w = 0;
         }
