@@ -1476,17 +1476,17 @@ void QFileDialogPrivate::setup(const QString &directory,
     QObject::connect(unsortedAction, SIGNAL(triggered()), q, SLOT(setUnsorted()));
     QObject::connect(showHiddenAction, SIGNAL(triggered()), q, SLOT(showHidden()));
 
-    QObject::connect(lview, SIGNAL(doubleClicked(QModelIndex,ButtonState)),
+    QObject::connect(lview, SIGNAL(doubleClicked(QModelIndex,const QMouseEvent*)),
                      q, SLOT(doubleClicked(QModelIndex)));
-    QObject::connect(tview, SIGNAL(doubleClicked(QModelIndex,ButtonState)),
+    QObject::connect(tview, SIGNAL(doubleClicked(QModelIndex,const QMouseEvent*)),
                      q, SLOT(doubleClicked(QModelIndex)));
     QObject::connect(selections, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                      q, SLOT(currentChanged(QModelIndex,QModelIndex)));
-    QObject::connect(lview, SIGNAL(keyPressed(QModelIndex,Key,ButtonState)),
-                     q, SLOT(keyPressed(QModelIndex,Key,ButtonState)));
-    QObject::connect(tview, SIGNAL(keyPressed(QModelIndex,Key,ButtonState)),
-                     q, SLOT(keyPressed(QModelIndex,Key,ButtonState)));
-    QObject::connect(tview->header(), SIGNAL(sectionPressed(int,ButtonState)),
+    QObject::connect(lview, SIGNAL(keyPressed(QModelIndex,const QKeyEvent*)),
+                     q, SLOT(keyPressed(QModelIndex,const QKeyEvent*)));
+    QObject::connect(tview, SIGNAL(keyPressed(QModelIndex,const QKeyEvent*)),
+                     q, SLOT(keyPressed(QModelIndex,const QKeyEvent*)));
+    QObject::connect(tview->header(), SIGNAL(sectionPressed(int,const QMouseEvent*)),
                      q, SLOT(headerPressed(int)));
 
     // labels
