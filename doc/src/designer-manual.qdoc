@@ -142,7 +142,7 @@ and provides different kinds of forms for each of these. The first choice
 that you face when creating a new user interface is to decide which kind of
 form you will be using; for example, you may require a dialog rather than
 a generic custom widget. New forms can be created by opening the \key File
-menu and selecting the \key{New Form...} option, or by pressing \key{Ctrl+N}.
+menu and selecting the \key{New Form...} option, or by pressing \key{Ctrl N}.
 
 \table
 \row \i
@@ -177,7 +177,7 @@ onto the form.
 
 \table
 \row \i
-\l{designer-editing-mode.html}{\inlineimage designer-editing-modes.png}
+\inlineimage designer-editing-modes.png
 \i \bold{Editing modes:} In \l{designer-editing-mode.html}{form editing mode},
 we can change the appearance of the form, add layouts, and edit the properties
 of each widget.
@@ -200,27 +200,49 @@ This is achieved by dragging each \e Label from the \e Display section
 of the toolbox onto the form. We add some spinboxes and a combobox from
 the \e Input section of the toolbox, some spacers from the \e Spacers
 section, and two push buttons from the \e Buttons section.
+
+Widgets and spacers can be moved around on the form by dragging them to
+their new locations. A widget can be resized by dragging the resize handles
+that appear when it is selected - click the left mouse button over the
+widget to select it. It can be helpful to resize label widgets
+so that all of their text is displayed, but this is not necessary as they
+will be displayed fully when we add them to a layout.
 It is useful to place the widgets where they are needed on the form
-because it helps visualize how it will appear when it is finished.
+because it helps visualize how it will appear when it is finished, but
+we do not need to fine tune the positions of widgets - this task
+is the responsibility of the form's layout objects which we will add
+later.
 
 \image designer-dialog-initial.png
 
-The label text and initial values are changed by using the Property
-Editor. This can be accessed by opening the \e Tools menu in \QD's main
-window and selecting \e{Property Editor}, or by pressing \key{Ctrl+I}.
+The label text and initial values are changed in the Property Editor.
+This can be accessed by opening the \e Tools menu in \QD's main
+window and selecting \e{Property Editor}, or by pressing \key{Ctrl I}.
+The Property Editor always shows the properties of the currently selected
+object, so we just need to select each of the widgets in turn to access
+their properties.
+
 For the labels, we only need to change the \c text properties; for the
 spinboxes, we must change the \c value, \c minimum, and \c maximum
 properties.
+The dialog's window title can also be changed using the Property Editor:
+click on the form itself to access the dialog's properties.
 
 \table
 \row \i
-\l{designer-editing-mode.html#EditingWidgets}{\inlineimage designer-property-editor.png}
-\i \bold{The Property Editor:} Widgets
+\inlineimage designer-property-editor-link.png
+\i \bold{The Property Editor:} All designable widget properties can be
+edited in the \l{designer-editing-mode.html#PropertyEditor}{Property Editor}
+window.
+
+The properties can be edited by using the controls provided; the type of
+control supplied for each property depends on the type of data it contains.
+Any changes made to the properties cause the widget to be updated immediately.
 \endtable
 
-Widgets and spacers can be moved around on the form by dragging them to
-their new locations. Widgets can be resized 
-
+Once all the widgets are in position, they need to be placed into one or
+more layouts. These will ensure that the widgets are the correct size, and
+are corectly positioned on the form.
 
 \target CreatingALayout
 \section1 Creating a Layout
@@ -231,9 +253,17 @@ and set the form's overall layout. \QD provides all the standard types of
 layout, making it simple to experiment with different ways of arranging
 components.
 
-At any point during editing, we can experiment with the layout of the widgets
-on the form by selecting one of the standard Qt layouts. These can be selected
-in \QD's tool bar or from the form's context menu.
+At any point during editing, we can experiment with the layout of widgets
+in the form by selecting a group of objects, and applying a layout to them.
+Any of the standard Qt layouts (horizontal, vertical, and grid) can be used.
+To apply a layout to a selection of objects, click the appropriate icon
+in \QD's tool bar, or select the layout from the form's context menu.
+
+We begin laying out our dialog by putting each label and its associated
+input widget into horizontal layouts, and we put the push buttons into a
+horizontal layout with the horizontal spacer.
+
+\image designer-dialog-layout.png
 
 
 
@@ -256,36 +286,58 @@ in \QD's tool bar or from the form's context menu.
 /*!
 \page designer-editing-mode.html
 
-\title Editing Mode
+\title Form Editing Mode
 
 \image designer-editing-mode.png
 
 \section1 Overview
 
-In \QD's editing mode, items can be dragged from the main window's toolbox to
-a form, edited, dragged around on the form, and even dragged between forms.
+In \QD's form editing mode, items can be dragged from the main window's
+toolbox to a form, edited, resized, dragged around on the form, and even
+dragged between forms. Their properties can be modified interactively, so
+that changes can be seen immediately.
 The editing interface is intuitive for simple operations, and still provides
 support for flexible layout features.
 
-\target EditingWidgets
-\section1 Editing Widgets
+\target EditingItems
+\section1 Editing Items
 
-In editing mode
+Items on the form are selected by clicking on them with the left mouse
+button. When a widget is selected, resize handles are shown at each corner
+and at the midpoint of each of its sides, indicating that it can be resized.
 
-\section2 Selecting
+\image designer-selecting-widgets.png
 
-Widgets are selected by clicking on them with the left mouse button. When
-selected, resize handles are shown at the corners and on each edge of the
-widget, indicating that the widget can be resized.
+When selected, the normal clipboard operations can be performed on a widget
+to cut, copy, and paste it. All of these operations are recorded in an undo
+buffer to enable changes to be undone and redone as necessary. The
+shortcuts used to perform all of these actions are described in the table
+below.
 
-The Property Editor always shows the properties of the currently selected
-widget.
+Widgets are not unique objects; you can make as many copies of them as you
+need. To quickly duplicate a widget, you can clone it by holding down the
+\key Ctrl key and dragging it. This allows widgets to be copied and placed
+on the form much more quickly than with clipboard operations.
+
+\table
+\header \i Action     \i Shortcut
+\row    \i Cut        \i \key{Ctrl X}
+\row    \i Copy       \i \key{Ctrl C}
+\row    \i Paste      \i \key{Ctrl V}
+\row    \i Clone item \i \key{Ctrl drag} (left mouse button)
+\endtable
+
+The \l{#PropertyEditor}{Property Editor} always display the properties of
+the currently selected item on the form.
 
 
 
 \section2 Dragging
 
-\section2 Resizing
+\target PropertyEditor
+\section1 The Property Editor
+
+\image designer-property-editor.png
 
 
 \table
@@ -297,6 +349,10 @@ onto the form.
 
 Widgets can also be "cloned" on the form: Holding down \key Ctrl and dragging
 the widget creates a copy of the widget that can be dragged to a new position.
+\endtable
+
+\table
+\row \i 
 \endtable
 
 \section1 Layout Managers
@@ -312,7 +368,37 @@ Before the form can be used The widgets on the form are
 /*!
 \page designer-connection-mode.html
 
-\title Connection Mode
+\title Connection Editing Mode
 
 \image designer-connection-mode.png
+
+\section1 Overview
+
+\QD's connection editing mode allows objects in a form to be connected
+together using Qt's signals and slots mechanism. Both widgets and layout
+objects can be connected via an intuitive connection interface, and \QD
+will present a menu of compatible signals and slots to use. When the form
+is saved, the connections are preserved so that they will be ready for use
+when your project is built.
+
+\section1 Connecting Objects
+
+To begin connecting objects, enter connection mode by selecting \e ###
+from the \e ### menu, or give keyboard focus to the form and press
+\key ###. When the cursor is over an object that can be used in a
+connection, the object will be highlighted, and can be connected to
+other objects on the form.
+
+\image designer-connection-highlight.png
+
+To make a connection, hold down the left mouse button over a highlighted
+object and drag the cursor towards the object you want to connect it to.
+As you do this, a line will extend from the source object to the cursor.
+If the cursor is over another object in the form, the line will end with
+an arrow head, indicating that the two objects can be connected together
+if you release the mouse button.
+
+\image designer-making-connection.png
+
+
 */
