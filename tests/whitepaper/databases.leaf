@@ -10,21 +10,20 @@
   \index Sybase
   \index TDS
 
-The Qt SQL module provides a cross-platform API (application
-programmer interface) for accessing SQL databases. Qt includes native
-drivers for Oracle, Microsoft SQL Server, Sybase Adaptive Server,
-PostgreSQL, MySQL and ODBC. The drivers work on all supported
-platforms and programs can access multiple databases using multiple
-drivers simultaneously.
+The Qt SQL module provides a cross-platform interface for accessing
+SQL databases. Qt includes native drivers for Oracle, Microsoft SQL
+Server, Sybase Adaptive Server, PostgreSQL, MySQL and ODBC. The
+drivers work on all supported platforms by Qt, and programs can
+access multiple databases using multiple drivers simultaneously.
 
 Programmers can easily execute any arbitrary SQL statements. Qt also
 provides a high-level C++ interface that programmers can use to
 generate the appropriate SQL statements automatically.
 
   \index keys
-  \index unique keys
+  \index primary keys
 
-Any Qt widget, including custom widgets, can be made data-aware. Qt
+Any Qt widget, including custom widgets, can be made data aware. Qt
 also includes some database-specific convenience widgets, to simplify
 the creation of dialogs and windows that present records as forms or
 in tables. Data-aware widgets automatically support browsing,
@@ -68,8 +67,8 @@ navigated using the \Func QSqlQuery::next() function:
     }
 \endcode
 Field values are indexed in the order they appear in the \c SELECT
-statement. \Class QSqlQuery also provides the first(), prev(), last()
-and seek() navigation functions.
+statement. \Class QSqlQuery also provides the \Func first(), \Func
+prev(), \Func last() and \Func seek() navigation functions.
 
   \index DELETE
   \index INSERT
@@ -109,6 +108,7 @@ achieved using \c {ORDER BY} and \c WHERE clauses in the SQL
 statements used by \Class QSqlQuery.
 
   \index calculated fields
+  \index foreign keys
 
 Calculated fields are useful both for real calculations (e.g.
 calculating totals) and for performing foreign key lookups, (e.g. to
@@ -164,18 +164,20 @@ editing, and can provide ready-made insert, update and delete buttons.
 Both editable widgets, \Class QDataTable and \Class QDataBrowser, have
 both a popup context menu and keyboard shortcuts for editing records.
 
+  \index foreign keys
+
 Programmers can manipulate data retrieved from the database before it
 is displayed, e.g. by implementing a slot and connecting it to the
 \Func primeInsert() and \Func primeUpdate() signals. Data can also be
 manipulated or actions logged just before changes are written back to
 the database, for example, converting a foreign key's display text
-into its id by implementing a slot connected to \Func beforeInsert(),
+into its ID by implementing a slot connected to \Func beforeInsert(),
 \Func beforeUpdate() and \Func beforeDelete().
 
 Developers can create their own forms for displaying database records.
 Unlike older toolkits that duplicate their widgets with data-aware
 versions, any Qt widget (including custom widgets) can be made
-data-aware. All that is necessary is to include the widget in a \Class
+data aware. All that is necessary is to include the widget in a \Class
 QSqlForm and set up a property map to relate the relevant database
 field to the widget that will present and edit the field's data.
 
@@ -190,9 +192,16 @@ invoked with the current record's key as a parameter.
 
   \index Designer
   \index Qt Designer
+  \index wizards
 
 Qt's SQL module is fully integrated with \l {Qt Designer}. \l {Qt
 Designer} can preview database forms and tables using live data if
-desired, allowing programmers to browse, delete and update records.
-\l {Qt Designer} has templates and wizards to make creating database
+desired, allowing developers to browse, delete and update records. \l
+{Qt Designer} has templates and wizards to make creating database
 forms fast and simple.
+
+\section1 Further Reading
+
+\list
+\i http://doc.trolltech.com/3.0/sql.html
+\endlist
