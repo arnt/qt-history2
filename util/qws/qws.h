@@ -38,18 +38,23 @@ class QWSWindow
 {
     friend class QWSServer;
 public:
-    QWSWindow(int i, QWSClient* client) : id(i), c(client), pending_acks(0)
+    QWSWindow(int i, QWSClient* client) : id(i), c(client), pending_acks(0),
+	    last_focus_time(0)
 	{ }
 
     int winId() const { return id; }
     bool forClient(const QWSClient* cl) const { return cl==c; }
     QWSClient* client() const { return c; }
     QRegion allocation() const { return allocated_region; }
+    bool hidden() const { return requested_region.isEmpty(); }
+    bool partiallyObscured() const { return requested_region!=allocated_region; }
+    bool fullyObscured() const { return allocated_region.isEmpty(); }
 
     void addAllocation( QRegion, bool isAck = FALSE );
     bool removeAllocation( QRegion );
 
     void focus(bool get);
+    int focusPriority() const { return last_focus_time; }
 
 private:
     int id;
@@ -57,6 +62,7 @@ private:
     short int pending_acks;
     QRegion requested_region;
     QRegion allocated_region;
+    int last_focus_time;
 };
 
 /*********************************************************************
@@ -104,6 +110,8 @@ private:
     void invokeSetSelectionOwner( QWSSetSelectionOwnerCommand *cmd );
     void invokeConvertSelection( QWSConvertSelectionCommand *cmd );
     void invokeSetFocus( QWSRequestFocusCommand *cmd, QWSClient *client );
+
+    void setFocus( QWSWindow*, bool gain );
 
     void initIO();
     void handleMouseData();

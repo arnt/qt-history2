@@ -657,17 +657,15 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
         return;
      }
     setWindowRegion( changingw, region );
+    if ( focusw == changingw && region.isEmpty() )
+	setFocus(changingw,FALSE);
 }
 
 
-void QWSServer::invokeSetFocus( QWSRequestFocusCommand *cmd,
-				   QWSClient *client )
+void QWSServer::invokeSetFocus( QWSRequestFocusCommand *cmd, QWSClient *client )
 {
     int winId = cmd->simpleData.windowid;
     int gain = cmd->simpleData.flag;
-#if 1
-    qDebug( "QWSServer::invokeSetFocus winId %d flag %d)", winId, gain );
-#endif
 
     if ( gain != 0 && gain != 1 ) {
 	qWarning( "Only 0(lose) and 1(gain) supported" );
@@ -675,24 +673,39 @@ void QWSServer::invokeSetFocus( QWSRequestFocusCommand *cmd,
     }
 
     QWSWindow* changingw = findWindow(winId, client);
-    if ( !changingw ) {
-	qWarning("Invalid window handle %08x", winId);
-	return;
-    }
+
     if ( !changingw->forClient(client) ) {
        qWarning("Disabled: clients changing other client's focus");
         return;
-     }
+    }
+
+    setFocus(changingw, gain);
+}
+
+void QWSServer::setFocus( QWSWindow* changingw, bool gain )
+{
     if ( gain ) {
 	if ( focusw != changingw ) {
 	    if ( focusw ) focusw->focus(0);
 	    focusw = changingw;
 	    focusw->focus(1);
 	}
-    } else {
+    } else if ( focusw == changingw ) {
 	changingw->focus(0);
 	focusw = 0;
-	// ### pass focus to some other window...
+	// pass focus to window which most recently got it...
+	QWSWindow* bestw=0;
+	for (uint i=0; i<windows.count(); i++) {
+	    QWSWindow* w = windows.at(i);
+	    if ( bestw != changingw &&
+		    !w->hidden() &&
+		    (!bestw || bestw->focusPriority() < w->focusPriority()) )
+		bestw = w;
+	}
+	if ( !bestw )
+	    bestw = changingw; // must be the only one
+	focusw = bestw;
+	focusw->focus(1);
     }
 }
 
@@ -846,9 +859,13 @@ bool QWSWindow::removeAllocation(QRegion r)
     return FALSE;
 }
 
+static int global_focus_time_counter=0;
+
 void QWSWindow::focus(bool get)
 {
-    qDebug( "QWSWindow::focus" );
+    qDebug( "QWSWindow::focus %s %d", get?"on":"off", id );
+    if ( get )
+	last_focus_time = global_focus_time_counter++;
     QWSFocusEvent event;
     event.type = QWSEvent::Focus;
     event.window = id;
