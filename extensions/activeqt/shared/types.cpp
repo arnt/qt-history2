@@ -484,6 +484,11 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QString &type, b
     case QVariant::UserType:
 	{
 	    QVariant::UserData userData(qvar.toUserType());
+#ifdef QAX_SERVER
+            QString subType = userData.description();
+            if (subType.endsWith("*"))
+                subType.truncate(subType.length() - 1);
+#endif
 	    if (userData.description() == "IDispatch**") {
 		arg.vt = VT_DISPATCH;
 		arg.pdispVal = *(IDispatch**)qvar.constData();
@@ -504,6 +509,15 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QString &type, b
 		arg.punkVal = (IUnknown*)qvar.constData();
 		if ( arg.punkVal )
 		    arg.punkVal->AddRef();
+#ifdef QAX_SERVER
+            } else if (qAxFactory()->metaObject(subType)) {
+                arg.vt = VT_DISPATCH;
+                if (!qvar.constData()) {
+                    arg.pdispVal = 0;
+                } else {
+                    qAxFactory()->createObjectWrapper(static_cast<QObject*>(userData.data()), &arg.pdispVal);
+                }
+#endif
 	    } else {
 		return false;
 	    }
@@ -758,7 +772,17 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const QString &hint )
 		    var = QPixmap();
 		}
 	    } else {
-                var = QVariant(QVariant::UserData(disp, "IDispatch*"));
+#ifdef QAX_SERVER
+                IAxServerBase *iface = 0;
+                if (disp && !hint.startsWith("IDispatch*"))
+                    disp->QueryInterface(IID_IAxServerBase, (void**)&iface);
+                if (iface) {
+                    QObject *qObj = iface->qObject();
+                    iface->Release();
+                    var = QVariant::UserData(qObj, qObj->className());                    
+                } else
+#endif
+                var = QVariant::UserData(disp, hint.latin1());
 	    }
 	}
 	break;
