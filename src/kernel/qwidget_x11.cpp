@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#214 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#215 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -28,7 +28,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#214 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#215 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -670,13 +670,21 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
 	mask_pixmap = mask.handle();
     }
-    XWMHints wm_hints;				// window manager hints
-    wm_hints.input = True;
-    wm_hints.icon_pixmap = icon_pixmap;
-    wm_hints.icon_mask = mask_pixmap;
-    wm_hints.flags = IconPixmapHint | IconMaskHint;
-    XSetWMHints( dpy, winId(), &wm_hints );
+    XWMHints *h = XGetWMHints( dpy, winId() );    
+    XWMHints  wm_hints;
+    bool got_hints = h != 0;     
+    if ( !got_hints ) {
+	h = &wm_hints;
+	h->flags = 0;
+    }
+    h->icon_pixmap = icon_pixmap;
+    h->icon_mask   = mask_pixmap;
+    h->flags |= IconPixmapHint | IconMaskHint;
+    XSetWMHints( dpy, winId(), h );
+    if ( got_hints )
+	XFree( h );
 }
+
 
 /*!
   Sets the text of the window's icon to \e iconText.
