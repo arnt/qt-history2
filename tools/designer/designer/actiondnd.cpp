@@ -139,6 +139,18 @@ bool QDesignerToolBar::eventFilter( QObject *o, QEvent *e )
 	QMouseEvent *ke = (QMouseEvent*)e;
 	buttonMouseMoveEvent( ke, o );
 	return TRUE;
+    } else if ( e->type() == QEvent::DragEnter ) {
+	QDragEnterEvent *de = (QDragEnterEvent*)e;
+	if ( de->provides( "application/x-designer-actions" ) ||
+	     de->provides( "application/x-designer-actiongroup" ) ||
+	     de->provides( "application/x-designer-separator" ) )
+	    de->accept();
+    } else if ( e->type() == QEvent::DragMove ) {
+	QDragMoveEvent *de = (QDragMoveEvent*)e;
+	if ( de->provides( "application/x-designer-actions" ) ||
+	     de->provides( "application/x-designer-actiongroup" ) ||
+	     de->provides( "application/x-designer-separator" ) )
+	    de->accept();
     }
 	
     return QToolBar::eventFilter( o, e );
