@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#112 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#113 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -513,6 +513,14 @@ void QFont::initFontInfo() const
     f->s.dirty   = FALSE;
 }
 
+inline int maxIndex(XFontStruct *f)
+{
+    return
+	((f->max_byte1 - f->min_byte1)
+		*(f->max_char_or_byte2 - f->min_char_or_byte2 + 1)
+	    + f->max_char_or_byte2 - f->min_char_or_byte2);
+}
+
 
 /*!
   Loads the font.
@@ -564,8 +572,7 @@ void QFont::load( HANDLE ) const
 #endif
 	}
 	int size = (f->max_bounds.ascent + f->max_bounds.descent) *
-		   f->max_bounds.width *
-		   (f->max_char_or_byte2 - f->min_char_or_byte2) / 8;
+		   f->max_bounds.width * maxIndex(f) / 8;
 	// If we get a cache overflow, we make room for this font only
 	if ( size > fontCache->maxCost() + reserveCost )
 	    fontCache->setMaxCost( size + reserveCost );
@@ -1009,14 +1016,63 @@ int QFontMetrics::descent() const
     return printerAdjusted(FS->max_bounds.descent - 1);
 }
 
+inline bool inFont(XFontStruct *f, QChar ch )
+{
+    if ( f->max_byte1 ) {
+	return ch.cell >= f->min_char_or_byte2
+	    && ch.cell <= f->max_char_or_byte2
+	    && ch.row >= f->min_byte1
+	    && ch.row <= f->max_byte1;
+    } else if ( ch.row ) {
+	uint ch16 = ch.cell+ch.row*256;
+	return ch16 >= f->min_char_or_byte2
+	    && ch16 <= f->max_char_or_byte2;
+    } else {
+	return ch.cell >= f->min_char_or_byte2
+	    && ch.cell <= f->max_char_or_byte2;
+    }
+}
+
 /*!
   Returns TRUE if \a ch is a valid character in the font.
 */
-bool QFontMetrics::inFont(char ch) const
+bool QFontMetrics::inFont(QChar ch) const
 {
     XFontStruct *f = FS;
-    return (uint)(uchar)ch >= f->min_char_or_byte2
-        && (uint)(uchar)ch <= f->max_char_or_byte2;
+    return ::inFont(f,ch);
+}
+
+inline XCharStruct* charStr(XFontStruct *f, QChar ch)
+{
+    // Optimized - inFont() is merged in here.
+
+    if ( !f->per_char )
+	return &f->max_bounds;
+    if ( !inFont(f,ch) )
+	ch = QChar(f->default_char%256,f->default_char/256);
+
+    if ( f->max_byte1 ) {
+	if ( !(ch.cell >= f->min_char_or_byte2
+	    && ch.cell <= f->max_char_or_byte2
+	    && ch.row >= f->min_byte1
+	    && ch.row <= f->max_byte1) )
+	    ch = QChar(f->default_char%256,f->default_char/256);
+	return f->per_char + 
+	    ((ch.row - f->min_byte1)
+		    * (f->max_char_or_byte2 - f->min_char_or_byte2 + 1)
+		+ ch.cell - f->min_char_or_byte2);
+    } else if ( ch.row ) {
+	uint ch16 = ch.cell+ch.row*256;
+	if ( !(ch16 >= f->min_char_or_byte2
+	    && ch16 <= f->max_char_or_byte2) )
+	    ch = QChar(f->default_char%256,f->default_char/256);
+	return f->per_char + ch16;
+    } else {
+	if ( !( ch.cell >= f->min_char_or_byte2
+	    && ch.cell <= f->max_char_or_byte2) )
+	    ch = QChar(f->default_char);
+	return f->per_char + ch.cell - f->min_char_or_byte2;
+    }
 }
 
 /*!
@@ -1027,18 +1083,13 @@ bool QFontMetrics::inFont(char ch) const
   This value is negative if the pixels of the character extend
   to the left of the logical origin.
 
-  <em>See width(char) for a graphical description of this metric.</em>
+  <em>See width(QChar) for a graphical description of this metric.</em>
 
-  \sa rightBearing(char), minLeftBearing(), width()
+  \sa rightBearing(QChar), minLeftBearing(), width()
 */
-int QFontMetrics::leftBearing(char ch) const
+int QFontMetrics::leftBearing(QChar ch) const
 {
-    XFontStruct *f = FS;
-    if ( !inFont(ch) )
-	ch = f->default_char;
-    XCharStruct* cs = f->per_char ? f->per_char + (ch - f->min_char_or_byte2)
-			: &f->max_bounds;
-    return printerAdjusted(cs->lbearing);
+    return printerAdjusted(charStr(FS,ch)->lbearing);
 }
 
 /*!
@@ -1053,20 +1104,16 @@ int QFontMetrics::leftBearing(char ch) const
 
   \sa leftBearing(char), minRightBearing(), width()
 */
-int QFontMetrics::rightBearing(char ch) const
+int QFontMetrics::rightBearing(QChar ch) const
 {
-    XFontStruct *f = FS;
-    if ( !inFont(ch) )
-	ch = f->default_char;
-    XCharStruct* cs = f->per_char ? f->per_char + (ch - f->min_char_or_byte2)
-			: &f->max_bounds;
+    XCharStruct* cs = charStr(FS,ch);
     return printerAdjusted(cs->width - cs->rbearing);
 }
 
 /*!
-  Returns the maximum left bearing of the font.
+  Returns the minimum left bearing of the font.
 
-  The left bearing of the font is the smallest leftBearing(char)
+  This is the smallest leftBearing(char)
   of all characters in the font.
 
   \sa minRightBearing(), leftBearing(char)
@@ -1078,9 +1125,9 @@ int QFontMetrics::minLeftBearing() const
 }
 
 /*!
-  Returns the maximum right bearing of the font.
+  Returns the minimum right bearing of the font.
 
-  The right bearing of the font is the smallest rightBearing(char)
+  This is the smallest rightBearing(char)
   of all characters in the font.
 
   \sa minLeftBearing(), rightBearing(char)
@@ -1094,7 +1141,7 @@ int QFontMetrics::minRightBearing() const
 	XFontStruct *f = FS;
 	if ( f->per_char ) {
 	    XCharStruct *c = f->per_char;
-	    int nc = f->max_char_or_byte2 - f->min_char_or_byte2 + 1;
+	    int nc = maxIndex(f)+1;
 	    int mx = c->width - c->rbearing;
 	    for ( int i=1; i < nc; i++ ) {
 		int nmx = c[i].width - c[i].rbearing;
@@ -1177,14 +1224,9 @@ int QFontMetrics::lineSpacing() const
   \sa boundingRect()
 */
 
-int QFontMetrics::width( char ch ) const
+int QFontMetrics::width( QChar ch ) const
 {
-    XFontStruct *f = FS;
-    if ( !inFont(ch) )
-	ch = f->default_char;
-    XCharStruct* cs = f->per_char ? f->per_char + ((uchar)ch - f->min_char_or_byte2)
-			: &f->max_bounds;
-    return printerAdjusted(cs->width);
+    return printerAdjusted(charStr(FS,ch)->width);
 }
 
 /*!

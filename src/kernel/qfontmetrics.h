@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#42 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#43 $
 **
 ** Definition of QFontMetrics class
 **
@@ -48,14 +48,14 @@ public:
     int		minRightBearing() const;
     int		maxWidth()	const;
 
-    bool	inFont(char)	const;
+    bool	inFont(QChar)	const;
 
-    int		leftBearing(char) const;
-    int		rightBearing(char) const;
+    int		leftBearing(QChar) const;
+    int		rightBearing(QChar) const;
     int		width( const QString &, int len = -1 ) const;
-    int		width( char ) const;
+    int		width( QChar ) const;
     QRect	boundingRect( const QString &, int len = -1 ) const;
-    QRect	boundingRect( char ) const;
+    QRect	boundingRect( QChar ) const;
     QRect	boundingRect( int x, int y, int w, int h, int flags,
 			      const QString& str, int len=-1, int tabstops=0,
 			      int *tabarray=0, char **intern=0 ) const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#147 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#148 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1724,15 +1724,15 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 */
 
 /*!
-  \overload void QPainter::drawText( const QPoint &p, QString, int len )
+  \overload void QPainter::drawText( const QPoint &p, const QString&, int len )
 */
 
 /*!
-  \overload void QPainter::drawText( const QRect &r, int tf, QString, int len, QRect *br, char **i )
+  \overload void QPainter::drawText( const QRect &r, int tf, const QString&, int len, QRect *br, char **i )
 */
 
 /*!
-  \overload QRect QPainter::boundingRect( const QRect &r, int tf, QString, int len, char **i )
+  \overload QRect QPainter::boundingRect( const QRect &r, int tf, const QString&, int len, char **i )
 */
 
 
@@ -1922,7 +1922,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     bool singleline = (tf & SingleLine) == SingleLine;
     bool showprefix = (tf & ShowPrefix) == ShowPrefix;
 
-    int	 spacewidth = CWIDTH( ' ' );	// width of space char
+    int	 spacewidth = CWIDTH( QChar(' ') );	// width of space char
 
     nlines = 0;
     index  = 1;					// first index contains BEGLINE
@@ -1936,7 +1936,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     if ( tabstops )
 	localTabStops = tabstops;
     else
-	localTabStops = fm.width('x')*8;       	// default to 8 times x
+	localTabStops = fm.width(QChar('x'))*8;       	// default to 8 times x
 
     while ( k < len ) {				// convert string to codes
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#39 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -160,7 +160,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	QFontMetrics fm = paint.fontMetrics();
 	int h = fm.height();
 	while ( len ) {
-	    tw = fm.width( str, len ) + 2*fm.width( ' ' );
+	    tw = fm.width( str, len ) + 2*fm.width(QChar(' '));
 	    if ( tw < cr.width() )
 		break;
 	    len--;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#102 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#103 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -1307,12 +1307,11 @@ QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
   \sa width()
 */
 
-QRect QFontMetrics::boundingRect( char ch ) const
+QRect QFontMetrics::boundingRect( QChar ch ) const
 {
-    char tmp[2];
-    tmp[1] = '\0';
-    tmp[0] = ch;
-    return boundingRect( tmp, 1 );
+    QString str;
+    str += ch;
+    return boundingRect( str, 1 );
 }
 
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#104 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#105 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -60,7 +60,7 @@ static const int scrollTime = 50;		// mark text scroll time
 
 static int tabStopDist( const QFontMetrics &fm )
 {
-    return 8*fm.width( 'x' );
+    return 8*fm.width( QChar('x') );
 }
 
 //  NOTE: only appropriate for whole lines.
