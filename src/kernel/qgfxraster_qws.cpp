@@ -620,12 +620,7 @@ void QScreenCursor::drawCursor()
 	{
 	    for (int col = startCol; col < endCol; col++)
 	    {
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		srcval = col & 0x1 ? clut[*(srcptr+(col-1))] :
-				     clut[*(srcptr+(col+1))];
-#else
 		srcval = clut[*(srcptr+col)];
-#endif
 		av = srcval >> 24;
 		if (av == 0xff) {
 		    *(dptr+col) = qt_convRgbTo16(srcval);
@@ -3702,10 +3697,17 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	      }
 	    }
 	    while ( count-- ) {
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		dput = (get_value_8(srcdepth,&srcdata) << 24);
+		dput |= (get_value_8(srcdepth,&srcdata) << 16);
+		dput |= (get_value_8(srcdepth,&srcdata) << 8);
+		dput |= get_value_8(srcdepth,&srcdata);
+#else
 		dput = get_value_8(srcdepth,&srcdata);
 		dput |= (get_value_8(srcdepth,&srcdata) << 8);
 		dput |= (get_value_8(srcdepth,&srcdata) << 16);
 		dput |= (get_value_8(srcdepth,&srcdata) << 24);
+#endif
 		if(myrop==XorROP) {
 		  *((PackType*)myptr) ^= dput;
 		} else if(myrop==NotROP) {
