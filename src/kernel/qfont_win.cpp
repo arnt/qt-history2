@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#36 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -28,7 +28,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#36 $");
 
 
 static HANDLE stock_sysfont = 0;
@@ -510,15 +510,15 @@ int QFontMetrics::leftBearing(char ch) const
 {
     ABC abc;
     GetCharABCWidths(hdc(),ch,ch,&abc);
-    return a.abcA;
+    return abc.abcA;
 }
 
 
-int QFontMetrics::rightBearing(char) const
+int QFontMetrics::rightBearing(char ch) const
 {
     ABC abc;
     GetCharABCWidths(hdc(),ch,ch,&abc);
-    return a.abcC;
+    return abc.abcC;
 }
 
 
@@ -549,7 +549,7 @@ int QFontMetrics::rightBearing() const
 	int mr = abc[0].abcC;
 	for (int i=1; i<n; i++) {
 	    ml = QMIN(ml,abc[i].abcA);
-	    mr = QMIN(mr,abc[i].abcC);
+	    mr = QMAX(mr,abc[i].abcC);
 	}
 	def->lbearing = ml;
 	def->rbearing = mr;
