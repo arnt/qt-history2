@@ -506,6 +506,8 @@ template <class Key, class T>
 void QMap<Key,T>::free(QMapData *d)
 {
     register QMapData::Node *p = d->header.right;
+    if (p == d->header.parent)
+	p = d->header.left;
     d->header.left = d->header.right = 0;
     while (p != &d->header) {
 	register QMapData::Node *n = p->parent;
