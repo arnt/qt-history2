@@ -3,7 +3,6 @@
 
 #ifndef QT_H
 #include <qobject.h>
-#include <qtextcursor.h>
 #endif // QT_H
 
 class QTextFormatCollection;
@@ -78,8 +77,8 @@ public:
         FindAnything
     };
 
-    QTextCursor find(const QString &exp, QString::CaseSensitivity cs = QString::CaseSensitive,
-                     FindMode mode = FindAnything, const QTextCursor &start = QTextCursor()) const;
+    QTextCursor find(const QString &exp, int from = 0, QString::CaseSensitivity cs = QString::CaseSensitive, FindMode mode = FindAnything) const;
+    QTextCursor find(const QString &exp, const QTextCursor &from, QString::CaseSensitivity cs, FindMode mode) const;
 
 signals:
     void contentsChanged();

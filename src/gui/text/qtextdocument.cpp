@@ -222,23 +222,20 @@ QString QTextDocument::anchorAt(const QPoint& pos) const
     having the match selected if \a expr was found; otherwise returns
     a null cursor.
 
-    If \a startPosition is a null cursor (the default) the search begins at the
-    beginning of the document; otherwise it starts at the position of the cursor
-    within the document. If the cursor has a selection then the search starts
-    at the end of the selection. This allows re-using the same cursor for subsequent
-    searches.
+    If \a from is 0 (the default) the search begins from the beginning of
+    the document; otherwise from the specified position.
 
     If \a cs is QString::CaseSensitive (the default), the search is case sensitive; 
     otherwise the search is case insensitive. If \a mode is FindAnything 
     the default) the search looks for any matching; otherwise it searches
     for whole matches only.
  */
-QTextCursor QTextDocument::find(const QString &expr, QString::CaseSensitivity cs, FindMode mode, const QTextCursor &start) const
+QTextCursor QTextDocument::find(const QString &expr, int from, QString::CaseSensitivity cs, FindMode mode) const
 {
     if (expr.isEmpty())
         return QTextCursor();
 
-    int pos = (start.isNull() ? 0 : start.selectionEnd());
+    int pos = from;
 
     QTextBlockIterator block = d->pieceTable->blocksFind(pos);
     while (!block.atEnd()) {
@@ -268,5 +265,24 @@ QTextCursor QTextDocument::find(const QString &expr, QString::CaseSensitivity cs
     }
 
     return QTextCursor();
+}
+
+/*!
+    Finds the next occurrence of the string, \a expr. Returns a cursor
+    having the match selected if \a expr was found; otherwise returns
+    a null cursor.
+
+    If the \a from cursor has a selection the search begins after the
+    selection; otherwise from the position of the cursor.
+
+    If \a cs is QString::CaseSensitive (the default), the search is case sensitive; 
+    otherwise the search is case insensitive. If \a mode is FindAnything 
+    the default) the search looks for any matching; otherwise it searches
+    for whole matches only.
+ */
+QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, QString::CaseSensitivity cs, FindMode mode) const
+{
+    const int pos = (from.isNull() ? 0 : from.selectionEnd());
+    return find(expr, pos, cs, mode);
 }
 
