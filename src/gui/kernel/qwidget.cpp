@@ -4027,7 +4027,8 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
 
     Q_Q(QWidget);
     data.is_closing = 1;
-    bool wasDeleted = false;
+
+    QPointer<QWidget> that = q;
 
 #ifdef QT3_SUPPORT
     bool isMain = (QApplicationPrivate::main_widget == q);
@@ -4035,20 +4036,18 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
     bool quitOnClose = q->testAttribute(Qt::WA_QuitOnClose);
 
     if (mode != CloseNoEvent) {
-        QPointer<QWidget> that = q;
         QCloseEvent e;
         if (mode == CloseWithSpontaneousEvent)
             QApplication::sendSpontaneousEvent(q, &e);
         else
             QApplication::sendEvent(q, &e);
-        wasDeleted = that.isNull();
-        if (!wasDeleted && !e.isAccepted()) {
+        if (!that.isNull() && !e.isAccepted()) {
             data.is_closing = 0;
             return false;
         }
     }
 
-    if (!wasDeleted && !q->isExplicitlyHidden())
+    if (!that.isNull() && !q->isExplicitlyHidden())
         q->hide();
 
 #ifdef QT3_SUPPORT
@@ -4072,7 +4071,7 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
             QApplicationPrivate::emitLastWindowClosed();
     }
 
-    if (!wasDeleted) {
+    if (!that.isNull()) {
         data.is_closing = 0;
         if (q->testAttribute(Qt::WA_DeleteOnClose)) {
             q->setAttribute(Qt::WA_DeleteOnClose, false);
