@@ -820,20 +820,21 @@ void QTextDocument::print(QPrinter *printer) const
     layout->setPaintDevice(printer);
     doc->setPageSize(body.size());
 
-    QRect view(0, 0, body.width(), body.height());
+    QRectF view(0, 0, body.width(), body.height());
     p.translate(body.left(), body.top());
 
     int page = 1;
     do {
         QAbstractTextDocumentLayout::PaintContext ctx;
         p.setClipRect(view);
-        ctx.rect = view;
+        ctx.rect = view.toRect();
         layout->draw(&p, ctx);
 
         p.setClipping(false);
         p.setFont(font);
-        p.drawText(view.right() - p.fontMetrics().width(QString::number(page)),
-                view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page));
+        QString pageString = QString::number(page);
+        p.drawText(qRound(view.right() - p.fontMetrics().width(pageString)),
+                   qRound(view.bottom() + p.fontMetrics().ascent() + 5*dpiy/72), pageString);
 
         view.translate(0, body.height());
         p.translate(0 , -body.height());
