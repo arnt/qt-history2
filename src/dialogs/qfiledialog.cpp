@@ -2500,8 +2500,11 @@ void QFileDialog::init()
 	     this, SLOT(selectDirectoryOrFile(QListBoxItem *)) );
     connect( d->moreFiles, SIGNAL( selectionChanged() ),
 	     this, SLOT( listBoxSelectionChanged() ) );
+// ### Why was this put here in the first place ?
+#if 0
     connect( d->moreFiles, SIGNAL(highlighted(QListBoxItem *)),
-	     this, SLOT(updateFileNameEdit(QListBoxItem *)) );
+      this, SLOT(updateFileNameEdit(QListBoxItem *)) );
+#endif
     connect( d->moreFiles, SIGNAL( rightButtonPressed( QListBoxItem *, const QPoint & ) ),
 	     this, SLOT( popupContextMenu( QListBoxItem *, const QPoint & ) ) );
 
