@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/workspace/qworkspace.h#9 $
+** $Id: //depot/qt/main/src/workspace/qworkspace.h#10 $
 **
 ** Definition of the QWorkspace class
 **
@@ -61,7 +61,7 @@ public:
     QWidgetList windowList() const;
 
     QSize sizeHint() const;
-    
+
     bool scrollBarsEnabled() const;
     void setScrollBarsEnabled( bool enable );
 
@@ -105,8 +105,8 @@ private:
     void maximizeWindow( QWidget* w);
     void minimizeWindow( QWidget* w);
     void normalizeWindow( QWidget* w);
-    
-    void updateScrollbars();
+
+    QRect updateScrollbars();
 
     QPopupMenu* popup;
     QWorkspacePrivate* d;
