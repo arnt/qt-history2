@@ -167,23 +167,18 @@ QVariant QMYSQLResult::data( int field )
     switch ( type ) {
     case QVariant::Int:
 	return QVariant( val.toInt() );
-	break;
     case QVariant::Double:
 	return QVariant( val.toDouble() );
-	break;
     case QVariant::Date:
 	return QVariant( QDate::fromString( val, Qt::ISODate )  );
-	break;
     case QVariant::Time:
 	return QVariant( QTime::fromString( val, Qt::ISODate ) );
-	break;
     case QVariant::DateTime:
 	if ( d->fieldTypes[ field ] == FIELD_TYPE_TIMESTAMP ) {
 	    // TIMESTAMPS have the format yyyyMMddhhmmss
 	    val.insert(4, "-").insert(7, "-").insert(10, 'T').insert(13, ':').insert(16, ':');
 	}
         return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
-	break;
     case QVariant::ByteArray: {
 	MYSQL_FIELD* f = mysql_fetch_field_direct( d->result, field );
 	if ( ! ( f->flags & BLOB_FLAG ) )
@@ -192,13 +187,11 @@ QVariant QMYSQLResult::data( int field )
 	QByteArray ba;
 	ba.duplicate( d->row[field], fl[field] );
 	return QVariant( ba );
-	break;
     }
     default:
     case QVariant::String:
     case QVariant::CString:
 	return QVariant( val );
-	break;
     }
 #ifdef QT_CHECK_RANGE
     qWarning("QMYSQLResult::data: unknown data type");

@@ -348,7 +348,6 @@ QVariant QPSQLResult::data( int i )
 #ifdef QT_CHECK_RANGE
 	qWarning("QPSQLResult::data: unknown data type");
 #endif
-	return QVariant();
     }
     return QVariant();
 }
