@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#83 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#82 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#83 $");
 
 
 /*!
@@ -309,8 +309,10 @@ void QScrollBar::stepChange()
 
 void QScrollBar::rangeChange()
 {
+    debug( "yo" );
     positionSliderFromValue();
-    PRIV->drawControls( ADD_PAGE | SLIDER | SUB_PAGE, pressedControl );
+    PRIV->drawControls( ADD_LINE | ADD_PAGE | SLIDER | SUB_PAGE | SUB_LINE,
+			pressedControl );
 }
 
 
@@ -392,9 +394,7 @@ void QScrollBar::resizeEvent( QResizeEvent * )
 
 void QScrollBar::paintEvent( QPaintEvent *event )
 {
-    QPainter p;
-    p.begin( this );
-
+    QPainter p( this );
     if ( event )
 	p.setClipRect( event->rect() );
 
@@ -407,7 +407,6 @@ void QScrollBar::paintEvent( QPaintEvent *event )
     }
     PRIV->drawControls( ADD_LINE | SUB_LINE | ADD_PAGE | SUB_PAGE | SLIDER,
 			pressedControl, &p );
-    p.end();
 }
 
 
