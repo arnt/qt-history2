@@ -277,9 +277,11 @@ void QProcessManager::remove( QProc *p )
 
 void QProcessManager::removeMe()
 {
-    qprocess_cleanup_procmanager.remove( &QProcessPrivate::procManager );
-    QProcessPrivate::procManager = 0;
-    delete this;
+    if ( procList->count() == 0 ) {
+	qprocess_cleanup_procmanager.remove( &QProcessPrivate::procManager );
+	QProcessPrivate::procManager = 0;
+	delete this;
+    }
 }
 
 void QProcessManager::sigchldHnd( int fd )
@@ -678,6 +680,10 @@ bool QProcess::start( QStringList *env )
 	// error forking
 	goto error;
     }
+
+    // Must add signal handlers immediately in case process exits quickly.
+    d->newProc( pid, this );
+
     // test if exec was successful
     if ( fd[1] )
 	close( fd[1] );
@@ -687,6 +693,8 @@ bool QProcess::start( QStringList *env )
 	    int n = ::read( fd[0], &buf, 1 );
 	    if ( n==1 ) {
 		// socket was not closed => error
+		QProcessPrivate::procManager->remove( d->proc );
+		d->proc = 0;
 		goto error;
 	    } else if ( n==-1 ) {
 		if ( errno==EAGAIN || errno==EINTR )
@@ -697,12 +705,10 @@ bool QProcess::start( QStringList *env )
 	}
     }
 
-
     ::close( sStdin[0] );
     ::close( sStdout[1] );
     ::close( sStderr[1] );
 
-    d->newProc( pid, this );
     d->proc->socketStdin = sStdin[1];
     d->proc->socketStdout = sStdout[0];
     d->proc->socketStderr = sStderr[0];
