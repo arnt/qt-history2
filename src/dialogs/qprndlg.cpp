@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprndlg.cpp#9 $
+** $Id: //depot/qt/main/src/dialogs/qprndlg.cpp#10 $
 **
 ** Implementation of QPrintDialog class for X-Windows
 **
@@ -19,7 +19,7 @@
 #include "qpushbt.h"
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprndlg.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprndlg.cpp#10 $")
 
 
 //
@@ -189,25 +189,17 @@ void QPrintDialog::printerOrFileSelected( int index )
     QLabel      *printFileL	= WIDGET(this,QLabel,"printFileLabel");
     QLineEdit   *printFile	= WIDGET(this,QLineEdit,"printFile");
     QPushButton *browseButton   = WIDGET(this,QPushButton,"browseButton");
-    if ( index == 0 ) {				// printer
-	printerNameL->enable();
-	printerName->enable();
-	printCommandL->enable();
-	printCommand->enable();
-	printFileL->disable();
-	printFile->disable();
-	browseButton->disable();
-    }
-    else {					// file
-	printerNameL->disable();
-	printerName->disable();
-	printCommandL->disable();
-	printCommand->disable();
-	printFileL->enable();
-	printFile->enable();
-	browseButton->enable();
-    }
+    bool 	 toPrinter = index == 0;
+
+    printerNameL ->setEnabled( toPrinter );
+    printerName  ->setEnabled( toPrinter );
+    printCommandL->setEnabled( toPrinter );
+    printCommand ->setEnabled( toPrinter );
+    printFileL   ->setEnabled( !toPrinter );
+    printFile    ->setEnabled( !toPrinter );
+    browseButton ->setEnabled( !toPrinter );
 }
+
 
 void QPrintDialog::browseClicked()
 {
@@ -221,6 +213,7 @@ void QPrintDialog::browseClicked()
     }
 }
 
+
 void QPrintDialog::okClicked()
 {
     QLineEdit	*printerName	= WIDGET(this,QLineEdit,"printerName");
@@ -231,7 +224,7 @@ void QPrintDialog::okClicked()
     printer->setPrinterName( printerName->text() );
     printer->setPrintProgram( printCommand->text() );
     printer->setOutputFileName( printFile->text() );
-    printer->setOutputToFile( !printFile->isDisabled() );
+    printer->setOutputToFile( printFile->isEnabled() );
     printer->setOrientation((QPrinter::Orientation)orientation->currentItem());
     printer->setPageSize( (QPrinter::PageSize)pageSize->currentItem() );
     accept();
