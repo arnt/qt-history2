@@ -708,8 +708,7 @@ QFile::ungetch(int character)
     if (character == EOF)                        // cannot unget EOF
         return character;
 #ifndef QT_NO_FILE_BUFFER
-    char *ch = d->buffer.isEmpty() ? d->buffer.alloc(1) : d->buffer.take(1);
-    *ch = (char)character;
+    d->buffer.push(character);
 #else
     qWarning("must implement...");
     character = -1;

@@ -84,6 +84,7 @@ public:
     char *alloc(uint buflen);
     char *take(uint maxsize, uint *realsize=0);
     void free(uint buflen);
+    void push(char c);
     inline void truncate(uint len) { curr_used -= len; }
 
     inline int growth() const { return buff_growth; }
@@ -147,6 +148,12 @@ inline void QCircularBuffer::free(uint size)
     } else {
         start_off = 0;
     }
+}
+
+inline void QCircularBuffer::push(char ch)
+{
+    curr_used++;
+    buf[start_buff].insert(start_off, ch);
 }
 
 class QVirtualDestructor {
