@@ -1241,7 +1241,6 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	}
 	break; }
     case inGrow: {
-	qDebug("here goes..");
 	Rect limits;
 	SetRect(&limits, -2, 0, 0, 0);
 	if(QWExtra   *extra = widget->extraData())
