@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#42 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#43 $
 **
 ** Implementation of QDns class.
 **
@@ -1635,22 +1635,22 @@ void QDns::setLabel( const QHostAddress & address )
 
   \value A  IPv4 addresses.  By far the most common type.
 
-  \value Aaaa  Ipv6 addresses.  So far mostly unused.
+  \value Aaaa  IPv6 addresses.  So far mostly unused.
 
   \value Mx  Mail eXchanger names.  Used for mail delivery.
 
   \value Srv  SeRVer names.  Generic record type for finding
   servers.  So far mostly unused.
 
-  \value Cname  canonical name.  Maps from nicknames to the true
+  \value Cname  Canonical names.  Maps from nicknames to the true
   name (the canonical name) for a host.
 
-  \value Ptr  name PoinTeR.  Maps from IPv4 or IPv6 addresses to hostnames.
+  \value Ptr  name PoinTeRs.  Maps from IPv4 or IPv6 addresses to hostnames.
 
-  \value Txt  arbitrary text for domains.
+  \value Txt  arbitrary TeXT for domains.
 
   We expect that some support for the
-  <a href="http://www.dns.net/dnsrd/rfc/rfc2535.html">RFC-2535</a>
+  \link http://www.dns.net/dnsrd/rfc/rfc2535.html RFC-2535 \endlink
   extensions will be added in future versions.
 */
 
@@ -1682,7 +1682,7 @@ void QDns::startQuery()
 }
 
 /*!
-  The three functions QDns::QDns( QString, RecordType ), QDns::setLabel()
+  The three functions QDns::QDns(QString, RecordType), QDns::setLabel()
   and QDns::setRecordType() may start a DNS lookup. This function handles
   setting up the single shot timer.
 */
