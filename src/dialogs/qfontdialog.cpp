@@ -416,11 +416,6 @@ QFont QFontDialog::getFont( bool *ok, const QFont *def,
     if ( def )
 	dlg->setFont( *def );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    if ( parent && parent->icon() && !parent->icon()->isNull() )
-	dlg->setIcon( *parent->icon() );
-    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
-	dlg->setIcon( *qApp->mainWidget()->icon() );
-
     dlg->setCaption( tr("Select Font") );
 #endif
 

@@ -49,7 +49,7 @@ Q_OBJECT
 class QPushButton;
 class QDialogPrivate;
 
-class Q_EXPORT QDialog : public QWidget			// dialog widget
+class Q_EXPORT QDialog : public QWidget
 {
 friend class QPushButton;
     Q_OBJECT
@@ -62,10 +62,11 @@ public:
 
     enum DialogCode { Rejected, Accepted };
 
-    int		result()  const { return rescode; }
+    int		result() const { return rescode; }
 
     void	show();
     void	hide();
+    void	polish();
     void	move( int x, int y );
     void	move( const QPoint &p );
     void	resize( int w, int h );
@@ -77,12 +78,12 @@ public:
     Orientation	orientation() const;
 
     void	setExtension( QWidget* extension );
-    QWidget* extension() const;
+    QWidget*	extension() const;
 
     QSize	sizeHint() const;
     QSize	minimumSizeHint() const;
 
-    void setSizeGripEnabled(bool);
+    void setSizeGripEnabled( bool );
     bool isSizeGripEnabled() const;
 
 public slots:
@@ -100,16 +101,16 @@ protected:
     void	keyPressEvent( QKeyEvent * );
     void	closeEvent( QCloseEvent * );
     void	resizeEvent( QResizeEvent * );
-    void 	contextMenuEvent( QContextMenuEvent * );
-    bool 	eventFilter( QObject *, QEvent * );
-    void     adjustPosition( QWidget*);
+    void	contextMenuEvent( QContextMenuEvent * );
+    bool	eventFilter( QObject *, QEvent * );
+    void	adjustPosition( QWidget*);
 
 private:
     void	setDefault( QPushButton * );
     void		hideDefault();
     int		rescode;
     uint	did_move   : 1;
-    uint 	has_relpos : 1;
+    uint	has_relpos : 1;
     uint	did_resize : 1;
     uint	in_loop: 1;
     void adjustPositionInternal( QWidget*, bool useRelPos = FALSE );

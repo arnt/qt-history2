@@ -5,7 +5,7 @@
 **
 ** Created : 950503
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the dialogs module of the Qt GUI Toolkit.
 **
@@ -436,12 +436,6 @@ static const char * const mb_texts[] = {
 QMessageBox::QMessageBox( QWidget *parent, const char *name )
     : QDialog( parent, name, TRUE, WStyle_Customize | WStyle_DialogBorder | WStyle_Title | WStyle_SysMenu )
 {
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    if ( parent && parent->icon() && !parent->icon()->isNull() )
-        QDialog::setIcon( *parent->icon() );
-    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
-        QDialog::setIcon( *qApp->mainWidget()->icon() );
-#endif
     init( Ok, 0, 0 );
 }
 
@@ -512,13 +506,6 @@ QMessageBox::QMessageBox( const QString& caption,
 			  bool modal, WFlags f )
     : QDialog( parent, name, modal, f | WStyle_Customize | WStyle_DialogBorder | WStyle_Title | WStyle_SysMenu )
 {
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    if ( parent && parent->icon() && !parent->icon()->isNull() )
-        QDialog::setIcon( *parent->icon() );
-    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
-        QDialog::setIcon( *qApp->mainWidget()->icon() );
-#endif
-
     init( button0, button1, button2 );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     setCaption( caption );
@@ -1159,19 +1146,19 @@ void QMessageBox::about( QWidget *parent, const QString &caption,
                                        parent, "qt_msgbox_simple_about_box", TRUE,
 				       WDestructiveClose);
     Q_CHECK_PTR( mb );
-    QPixmap i;
 #ifndef QT_NO_WIDGET_TOPEXTRA
+    QPixmap i;
     if ( parent && parent->icon())
-        i = *(parent->icon());
+	i = *(parent->icon());
     if ( i.isNull() && parent &&
-         parent->topLevelWidget()->icon() )
-        i = *(parent->topLevelWidget()->icon());
+	 parent->topLevelWidget()->icon() )
+	i = *(parent->topLevelWidget()->icon());
     if ( i.isNull() && qApp && qApp->mainWidget() &&
-         qApp->mainWidget()->icon() )
-        i = *(qApp->mainWidget()->icon());
-#endif
+	 qApp->mainWidget()->icon() )
+	i = *(qApp->mainWidget()->icon());
     if ( !i.isNull() )
-        mb->setIconPixmap( i );
+	mb->setIconPixmap( i );
+#endif
     mb->exec();
 }
 

@@ -3367,11 +3367,6 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 
     Q_CHECK_PTR( dlg );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    if ( parent && parent->icon() && !parent->icon()->isNull() )
-	dlg->setIcon( *parent->icon() );
-    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
-	dlg->setIcon( *qApp->mainWidget()->icon() );
-
     if ( !caption.isNull() )
 	dlg->setCaption( caption );
     else
@@ -3488,11 +3483,6 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 
     Q_CHECK_PTR( dlg );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    if ( parent && parent->icon() && !parent->icon()->isNull() )
-	dlg->setIcon( *parent->icon() );
-    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
-	dlg->setIcon( *qApp->mainWidget()->icon() );
-
     if ( !caption.isNull() )
 	dlg->setCaption( caption );
     else
@@ -4393,11 +4383,6 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 
     Q_CHECK_PTR( dlg );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    if ( parent && parent->icon() && !parent->icon()->isNull() )
-	dlg->setIcon( *parent->icon() );
-    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
-	dlg->setIcon( *qApp->mainWidget()->icon() );
-
     if ( !caption.isNull() )
 	dlg->setCaption( caption );
     else
@@ -5499,11 +5484,6 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 
     Q_CHECK_PTR( dlg );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    if ( parent && parent->icon() && !parent->icon()->isNull() )
-	dlg->setIcon( *parent->icon() );
-    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
-	dlg->setIcon( *qApp->mainWidget()->icon() );
-
     if ( !caption.isNull() )
 	dlg->setCaption( caption );
     else

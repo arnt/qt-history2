@@ -413,6 +413,24 @@ bool QDialog::eventFilter( QObject *o, QEvent *e )
     return QWidget::eventFilter( o, e );
 }
 
+/*! \reimp */
+void QDialog::polish()
+{
+#ifndef QT_NO_WIDGET_TOPEXTRA
+    if ( !icon() || icon()->isNull() ) {
+	QWidget *mw = parent() ? (QWidget *)parent() : 0;
+    	if ( mw && mw->icon() && !mw->icon()->isNull() )
+	    setIcon( *mw->icon() );
+	else {
+	    mw = qApp && qApp->mainWidget() ? qApp->mainWidget() : 0;
+	    if ( mw && mw->icon() && !mw->icon()->isNull() )
+		setIcon( *mw->icon() );
+	}
+    }
+#endif
+    QWidget::polish();
+}
+
 /*****************************************************************************
   Event handlers
  *****************************************************************************/

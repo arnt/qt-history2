@@ -125,14 +125,6 @@ QInputDialog::QInputDialog( const QString &label, QWidget* parent,
 			    const char* name, bool modal, Type type )
     : QDialog( parent, name, modal )
 {
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    if ( parent && parent->icon() && !parent->icon()->isNull() )
-	setIcon( *parent->icon() );
-    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() &&
-	      !qApp->mainWidget()->icon()->isNull() )
-	setIcon( *qApp->mainWidget()->icon() );
-#endif
-
     d = new QInputDialogPrivate;
     d->lineEdit = 0;
     d->spinBox = 0;

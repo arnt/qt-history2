@@ -837,13 +837,6 @@ static void qpd_cleanup_globaldialog()
 QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     : QDialog( parent, name, TRUE )
 {
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    if ( parent && parent->icon() && !parent->icon()->isNull() )
-	QDialog::setIcon( *parent->icon() );
-    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
-	QDialog::setIcon( *qApp->mainWidget()->icon() );
-#endif
-
     d = new QPrintDialogPrivate;
     d->numCopies = 1;
 
