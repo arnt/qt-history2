@@ -124,6 +124,8 @@ Eksempler:
 ----------
     sheet.h
 
+    modal dialog.
+
 Gjort:
 ------
 
