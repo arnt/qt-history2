@@ -39,6 +39,7 @@
 #include <stdlib.h>
 #include <qdir.h>
 #include <qglobal.h>
+#include <qregexp.h>
 
 QString Option::ui_ext;
 QString Option::h_ext;
@@ -108,7 +109,7 @@ Option::parseCommandLine(int argc, char **argv)
 		    fprintf(stderr, "Failure to open file: %s\n", var.latin1());
 		    return FALSE;
 		}
-	    } else if(opt == "unix") { 
+	    } else if(opt == "unix") {
 		Option::mode = UNIX_MODE;
 	    } else if(opt == "win32") {
 		Option::mode = WIN_MODE;
@@ -131,7 +132,7 @@ Option::parseCommandLine(int argc, char **argv)
     }
     if(!(Option::output.state() & IO_Open))
 	Option::output.open(IO_WriteOnly | IO_Translate, stdout);
-    if(Option::cachefile.isNull() || Option::cachefile.isEmpty()) 
+    if(Option::cachefile.isNull() || Option::cachefile.isEmpty())
 	Option::cachefile = ".qmake.cache";
 
     Option::moc_mod = "moc_";
@@ -159,7 +160,7 @@ static void fixEnvVariables(QString &x)
 	x.replace(rep, rep_len, QString(getenv(x.mid(rep + 2, rep_len - 3).latin1())));
 }
 
-QString 
+QString
 Option::fixPathToTargetOS(QString in)
 {
     fixEnvVariables(in);

@@ -41,6 +41,7 @@
 #include <qfile.h>
 #include <qtextstream.h>
 #include <time.h>
+#include <qregexp.h>
 #include "option.h"
 
 MakefileGenerator::MakefileGenerator(QMakeProject *p) : project(p), init_already(FALSE), moc_aware(FALSE)
@@ -93,7 +94,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 		    depends[fn_target].append(mocFile);
 		    project->variables()["_SRCMOC"].append(mocFile);
 		}
-		else if(fi.extension(FALSE) == (Option::h_ext.latin1()+1) && 
+		else if(fi.extension(FALSE) == (Option::h_ext.latin1()+1) &&
 			project->variables()["HEADERS"].findIndex(fn_target) != -1) {
 		    mocFile += Option::moc_mod + fi.baseName() + Option::cpp_ext;
 		    project->variables()["_HDRMOC"].append(mocFile);
@@ -129,7 +130,7 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 		inc = s.mid(10, s.length() - 11);
 	    else
 		continue;
-		
+
 	    QString fqn;
 	    if(QFile::exists(inc))
 		fqn = inc;
@@ -253,8 +254,8 @@ MakefileGenerator::init()
 	    QFileInfo fi((*it));
 	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
 	    impls.append(impl);
-#ifndef MOC_YACC_LEX_HACKS 
-	    v["SOURCES"].append(impl); 
+#ifndef MOC_YACC_LEX_HACKS
+	    v["SOURCES"].append(impl);
 #endif
 	}
 #ifndef MOC_YACC_LEX_HACKS
@@ -372,10 +373,10 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
 	    continue;
 
 	QString &hdr = mocablesFromMOC[(*sit)];
-	t << (*oit) << ": " << (*sit) << " \\\n\t\t" 
-	  << hdr << " \\\n\t\t"  
+	t << (*oit) << ": " << (*sit) << " \\\n\t\t"
+	  << hdr << " \\\n\t\t"
 	  << depends[hdr].join(" \\\n\t\t");
-	if ( !project->variables()["OBJECTS_DIR"].isEmpty() || 
+	if ( !project->variables()["OBJECTS_DIR"].isEmpty() ||
 	     !project->variables()["MOC_DIR"].isEmpty() ||
 	     project->variables()["TMAKE_RUN_CXX_IMP"].isEmpty()) {
 	    QString p = var("TMAKE_RUN_CXX");
@@ -391,7 +392,7 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
 void
 MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
 {
-    QStringList &l = project->variables()[src];    
+    QStringList &l = project->variables()[src];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QString &m = mocablesToMOC[(*it)];
 	if ( !m.isEmpty())
@@ -403,13 +404,13 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
 void
 MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 {
-    QStringList &l = project->variables()[src];    
+    QStringList &l = project->variables()[src];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
 	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext;
 	QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::h_ext;
 
-	t << impl << ": " << (*it) << " \\\n\t\t"  
+	t << impl << ": " << (*it) << " \\\n\t\t"
 	  << depends[(*it)].join(" \\\n\t\t") << "\n\t"
 	  << "$(YACC) $(YACCFLAGS) " << (*it) << "\n\t"
 	  << "-rm -f " << impl << " " << decl << "\n\t"
@@ -423,12 +424,12 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 void
 MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 {
-    QStringList &l = project->variables()[src];    
+    QStringList &l = project->variables()[src];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
 	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
 
-	t << impl << ": " << (*it) << " \\\n\t\t"  
+	t << impl << ": " << (*it) << " \\\n\t\t"
 	  << depends[(*it)].join(" \\\n\t\t") << "\n\t"
 	  << "$(LEX) $(LEXFLAGS) " << (*it) << "\n\t"
 	  << "-rm -f " << impl << " " << "\n\t"

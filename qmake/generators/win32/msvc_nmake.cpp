@@ -38,12 +38,13 @@
 #include "msvc_nmake.h"
 #include "option.h"
 #include <time.h>
+#include <qregexp.h>
 #include <stdlib.h>
 #include <qdir.h>
 
 NmakeMakefileGenerator::NmakeMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(FALSE)
 {
-    
+
 }
 
 bool
@@ -52,20 +53,20 @@ NmakeMakefileGenerator::writeMakefile(QTextStream &t)
     writeHeader(t);
     if(!project->variables()["TMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
 	t << "all clean:" << "\n\t"
-	  << "@echo \"Some of the required modules (" 
+	  << "@echo \"Some of the required modules ("
 	  << var("TMAKE_FAILED_REQUIREMENTS") << ") are not available.\"" << "\n\t"
 	  << "@echo \"Skipped.\"" << endl << endl;
 	return TRUE;
     }
 
-    if(project->variables()["TEMPLATE"].first() == "app" || 
+    if(project->variables()["TEMPLATE"].first() == "app" ||
        project->variables()["TEMPLATE"].first() == "lib") {
 	writeNmakeParts(t);
 	return MakefileGenerator::writeMakefile(t);
-    }	
+    }
     else if(project->variables()["TEMPLATE"].first() == "subdirs") {
 	writeSubDirs(t);
-	return TRUE; 
+	return TRUE;
     }
     return FALSE;
 }
@@ -106,7 +107,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "SRCMOC	=	" << varList("SRCMOC") << endl;
     t << "OBJMOC	=	" << varList("OBJMOC") << endl;
     t << "DIST	=	" << varList("DISTFILES") << endl;
-    t << "TARGET	=	" 
+    t << "TARGET	=	"
       << varGlue("TARGET",project->variables()["DESTDIR"].first(),"",project->variables()["TARGET_EXT"].first())
       << endl;
     t << endl;
@@ -122,10 +123,10 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "all: " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
     t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS");
     if(!project->variables()["TMAKE_APP_OR_DLL"].isEmpty()) {
-	t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(TARGET) @<< " << "\n\t  " 
+	t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(TARGET) @<< " << "\n\t  "
 	  << "$(OBJECTS) $(OBJMOC) $(LIBS)";
     } else {
-	t << "\n\t" << "$(LIB) /OUT:$(TARGET) @<<" << "\n\t  " 
+	t << "\n\t" << "$(LIB) /OUT:$(TARGET) @<<" << "\n\t  "
 	  << "$(OBJECTS) $(OBJMOC)";
     }
     t << endl << "<<" << endl;
@@ -147,8 +148,8 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	t << " -o " << Option::output.name();
     t << endl << endl;
 
-    t << "dist:" << "\n\t" 
-      << "$(ZIP) " << var("PROJECT") << ".zip " 
+    t << "dist:" << "\n\t"
+      << "$(ZIP) " << var("PROJECT") << ".zip "
       << var("PROJECT") << ".pro $(SOURCES) $(HEADERS) $(DIST)" << endl << endl;
 
     t << "clean:" << "\n\t"
@@ -183,7 +184,7 @@ NmakeMakefileGenerator::init()
            project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
           (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
 	    project->variables()["TMAKE_QT_DLL"].append("1");
-	    if ( (project->variables()["TARGET"].first() == "qt") && 
+	    if ( (project->variables()["TARGET"].first() == "qt") &&
 		 !project->variables()["TMAKE_LIB_FLAG"].isEmpty() )
 		project->variables()["CONFIG"].append("dll");
 	}
@@ -246,7 +247,7 @@ NmakeMakefileGenerator::init()
 	    project->variables()["DEFINES"].append("NO_DEBUG");
 	}
 	const char *foo = project->variables()["TARGET"].first().latin1();
-	if ( (project->variables()["TARGET"].first() == "qt") && 
+	if ( (project->variables()["TARGET"].first() == "qt") &&
 	     !project->variables()["TMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["TMAKE_QT_DLL"].isEmpty()) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
@@ -300,7 +301,7 @@ NmakeMakefileGenerator::init()
     QStringList &l = project->variables()["TMAKE_FILETAGS"];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QStringList &gdmf = project->variables()[(*it)];
-	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner) 
+	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner)
 	    (*inner) = Option::fixPathToTargetOS((*inner));
     }
 
@@ -334,6 +335,6 @@ NmakeMakefileGenerator::init()
 	project->variables()["TMAKE_CLEAN"].append(project->variables()["TARGET"].first() + ".pdb");
 	project->variables()["TMAKE_CLEAN"].append("vc*.pdb");
 	project->variables()["TMAKE_CLEAN"].append(project->variables()["TARGET"].first() + ".ilk");
-    } 
+    }
 
 }

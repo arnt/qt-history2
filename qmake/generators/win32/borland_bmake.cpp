@@ -38,12 +38,13 @@
 #include <qdir.h>
 #include "borland_bmake.h"
 #include "option.h"
+#include <qregexp.h>
 #include <time.h>
 #include <stdlib.h>
 
 BorlandMakefileGenerator::BorlandMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(FALSE)
 {
-    
+
 }
 
 bool
@@ -52,20 +53,20 @@ BorlandMakefileGenerator::writeMakefile(QTextStream &t)
     writeHeader(t);
     if(!project->variables()["TMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
 	t << "all clean:" << "\n\t"
-	  << "@echo \"Some of the required modules (" 
+	  << "@echo \"Some of the required modules ("
 	  << var("TMAKE_FAILED_REQUIREMENTS") << ") are not available.\"" << "\n\t"
 	  << "@echo \"Skipped.\"" << endl << endl;
 	return TRUE;
     }
 
-    if(project->variables()["TEMPLATE"].first() == "app" || 
+    if(project->variables()["TEMPLATE"].first() == "app" ||
        project->variables()["TEMPLATE"].first() == "lib") {
 	writeBorlandParts(t);
 	return MakefileGenerator::writeMakefile(t);
-    }	
+    }
     else if(project->variables()["TEMPLATE"].first() == "subdirs") {
 	writeSubDirs(t);
-	return TRUE; 
+	return TRUE;
     }
     return FALSE;
 }
@@ -106,7 +107,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     t << "SRCMOC	=	" << varList("SRCMOC") << endl;
     t << "OBJMOC	=	" << varList("OBJMOC") << endl;
     t << "DIST	=	" << varList("DISTFILES") << endl;
-    t << "TARGET	=	" 
+    t << "TARGET	=	"
       << varGlue("TARGET",project->variables()["DESTDIR"].first(),"",project->variables()["TARGET_EXT"].first())
       << endl;
     t << endl;
@@ -190,7 +191,7 @@ BorlandMakefileGenerator::init()
 	       project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
 	      (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
 	    project->variables()["TMAKE_QT_DLL"].append("1");
-	    if ( (project->variables()["TARGET"].first() == "qt") && 
+	    if ( (project->variables()["TARGET"].first() == "qt") &&
 		 !project->variables()["TMAKE_LIB_FLAG"].isEmpty() )
 		project->variables()["CONFIG"].append("dll");
 	}
@@ -252,7 +253,7 @@ BorlandMakefileGenerator::init()
 	if ( !project->isActiveConfig("debug") ) {
 	    project->variables()["DEFINES"].append("NO_DEBUG");
 	}
-	if ( (project->variables()["TARGET"].first() == "qt") && 
+	if ( (project->variables()["TARGET"].first() == "qt") &&
 	     !project->variables()["TMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["TMAKE_QT_DLL"].isEmpty()) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");

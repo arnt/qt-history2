@@ -41,6 +41,7 @@
 #include <stdlib.h>
 #include <qfile.h>
 #include <qdir.h>
+#include <qregexp.h>
 #include <qtextstream.h>
 
 int line_count;
@@ -84,17 +85,17 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 		}
 		QString func = scope.left(lparen);
 		QStringList args = QStringList::split(',', scope.mid(lparen+1, rparen - lparen - 1));
-		for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) 
+		for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
 		    (*arit) = (*arit).stripWhiteSpace(); /* blah, get rid of space */
 		test = doProjectTest(func, args, place);
 	    }
-	    else test = isActiveConfig(scope.stripWhiteSpace()); 
+	    else test = isActiveConfig(scope.stripWhiteSpace());
 
 	    if(invert_test)
 		test = !test;
 	    if(!test) {
 		if(Option::debug_level)
-		    printf("Project Parser: %s:%d : Test (%s) failed.\n", file.latin1(), line_count, 
+		    printf("Project Parser: %s:%d : Test (%s) failed.\n", file.latin1(), line_count,
 			   scope.latin1());
 		return TRUE;
 	    }
@@ -116,7 +117,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     while((rep = reg_var.match(vals, 0, &rep_len)) != -1) {
 	const QString &replacement = place[vals.mid(rep + 2, rep_len - 2)].join(" ");
 	if(Option::debug_level >= 2)
-	    printf("Project parser: (%s) :: %s -> %s\n", vals.latin1(), 
+	    printf("Project parser: (%s) :: %s -> %s\n", vals.latin1(),
 		   vals.mid(rep, rep_len).latin1(), replacement.latin1());
 	vals.replace(rep, rep_len, replacement);
     }
@@ -125,7 +126,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     QStringList &varlist = place[var = var.stripWhiteSpace()]; /* varlist is the list in the symbol table */
     QStringList vallist = QStringList::split(' ', vals);  /* vallist is the broken up list of values */
     if(Option::debug_level)
-	printf("Project Parser: %s:%d :%s: :%s: (%s)\n", file.latin1(), line_count, 
+	printf("Project Parser: %s:%d :%s: :%s: (%s)\n", file.latin1(), line_count,
 	       var.latin1(), op.latin1(), vallist.join(" :: ").latin1());
 
     /* now do the operation */
@@ -142,7 +143,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     }
     if(var == "REQUIRES") /* special case to get communicated to backends! */
 	doProjectCheckReqs(vallist);
-	
+
     return TRUE;
 }
 
@@ -160,7 +161,7 @@ QMakeProject::read(const char *file, QMap<QString, QStringList> &place)
 	    s += t.readLine().stripWhiteSpace();
 	    if(s.right(1) == "\\") {
 		s.truncate(s.length() - 1);
-		s += " ";		
+		s += " ";
 	    }
 	    else {
 		if(!(ret = parse(file, s, place)))
@@ -176,7 +177,7 @@ QMakeProject::read(const char *file, QMap<QString, QStringList> &place)
 bool
 QMakeProject::read(const char *project)
 {
-    
+
     if(cfile.isEmpty()) {
 	/* parse the cache */
 	if(Option::do_cache) {
@@ -207,7 +208,7 @@ QMakeProject::read(const char *project)
 	    if(!getenv("MKSPEC")) {
 		fprintf(stderr, "MKSPEC has not been set, so mkspec cannot be deduced.\n");
 		return FALSE;
-	    }	
+	    }
 	    Option::specfile = getenv("MKSPEC");
 	}
 	if(Option::specfile.find(QDir::separator()) == -1) {
@@ -260,7 +261,7 @@ QMakeProject::read(const char *project)
 bool
 QMakeProject::isActiveConfig(const QString &x)
 {
-    if(x.isEmpty()) 
+    if(x.isEmpty())
 	return TRUE;
     if(Option::mode == Option::UNIX_MODE && x == "unix")
 	return TRUE;
@@ -284,11 +285,11 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	    return FALSE;
 	}
 	return vars[args[0]].findIndex(args[1]) != -1;
-	    
+
     } else if(func == "include") {
 	QString file = args.first();
 	file.replace(QRegExp("\""), "");
-	if(Option::debug_level) 
+	if(Option::debug_level)
 	    printf("Project Parser: Including file %s.\n", file.latin1());
 	int l = line_count;
 	bool r = read(file.latin1(), place);

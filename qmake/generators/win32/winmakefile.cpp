@@ -40,12 +40,13 @@
 #include "project.h"
 #include "option.h"
 #include <qstring.h>
+#include <qregexp.h>
 #include <qstringlist.h>
 #include <qdir.h>
 
 Win32MakefileGenerator::Win32MakefileGenerator(QMakeProject *p) : MakefileGenerator(p)
 {
-    
+
 }
 
 
@@ -78,8 +79,8 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     t << endl << endl;
 
     t << "tmake_all:";
-    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) { 
-	t << "\n\t" 
+    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
+	t << "\n\t"
 	  << "cd " << (*sdirit) << "\n\t"
 	  << "$(TMAKE) " << (*sdirit) << ".pro -o $(MAKEFILE)" << "\n\t"
 	  << "@cd ..";
@@ -87,7 +88,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     t << endl << endl;
 
     t << "clean:";
-    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) { 
+    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
 	t << "\n\t"
 	  << "cd " << (*sdirit) << "\n\t"
 	  << "$(MAKE) clean" << "\n\t"

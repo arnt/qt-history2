@@ -49,6 +49,7 @@
 #include <fcntl.h>
 #include "option.h"
 #include <qnamespace.h>
+#include <qregexp.h>
 
 #if defined(_OS_WIN32_)
 Qt::WindowsVersion qt_winver;
@@ -56,7 +57,7 @@ Qt::WindowsVersion qt_winver;
 
 extern int line_count;
 extern "C" void yyerror(const char *foo)
-{ 
+{
     printf("%d: %s\n", line_count, foo);
 }
 
@@ -68,7 +69,7 @@ main(int argc, char **argv)
 	return 666;
 
     QMakeProject proj;
-    for(QStringList::Iterator pfile = Option::project_files.begin(); 
+    for(QStringList::Iterator pfile = Option::project_files.begin();
 	pfile != Option::project_files.end(); pfile++) {
 	/* read project.. */
 	if(!proj.read((*pfile))) {

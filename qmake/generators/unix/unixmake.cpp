@@ -38,11 +38,12 @@
 #include "unixmake.h"
 #include "option.h"
 #include <time.h>
+#include <qregexp.h>
 #include <qfile.h>
 
 UnixMakefileGenerator::UnixMakefileGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(FALSE)
 {
-    
+
 }
 
 bool
@@ -51,20 +52,20 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
     writeHeader(t);
     if(!project->variables()["TMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
 	t << "all clean:" << "\n\t"
-	  << "@echo \"Some of the required modules (" 
+	  << "@echo \"Some of the required modules ("
 	  << var("TMAKE_FAILED_REQUIREMENTS") << ") are not available.\"" << "\n\t"
 	  << "@echo \"Skipped.\"" << endl << endl;
 	return TRUE;
     }
-	
-    if(project->variables()["TEMPLATE"].first() == "app" || 
+
+    if(project->variables()["TEMPLATE"].first() == "app" ||
        project->variables()["TEMPLATE"].first() == "lib") {
 	writeMakeParts(t);
 	return MakefileGenerator::writeMakefile(t);
     }
     else if(project->variables()["TEMPLATE"].first() == "subdirs") {
 	writeSubdirs(t);
-	return TRUE; 
+	return TRUE;
     }
     return FALSE;
 }
@@ -96,7 +97,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "TAR     = "	<< var("TMAKE_TAR") << endl;
     t << "GZIP    = " << var("TMAKE_GZIP") << endl;
     t << endl;
-    
+
     /* files */
     t << "####### Files" << endl << endl;
     t << "HEADERS = " << varList("HEADERS") << endl;
@@ -150,7 +151,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << var("DESTDIR_TARGET") << ": $(OBJECTS) $(OBJMOC) $(SUBLIBS) " << var("TARGETDEPS");
 	if(project->variables()["TMAKE_HPUX_SHLIB"].isEmpty()) {
 	    t << "\n\t"
-	      << "-rm -f $(TARGET) $(TARGET0) $(TARGET1) $(TARGET2)\n\t" 
+	      << "-rm -f $(TARGET) $(TARGET0) $(TARGET1) $(TARGET2)\n\t"
 	      << var("TMAKE_LINK_SHLIB_CMD") << "\n\t"
 	      << varGlue("TMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET0)")  << "\n\t"
 	      << varGlue("TMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET1)") << "\n\t"
@@ -158,12 +159,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
 	else {
 	    t << "\n\t"
-	      << "-rm -f $(TARGET) $(TARGET0)" << "\n\t" 
+	      << "-rm -f $(TARGET) $(TARGET0)" << "\n\t"
 	      << var("TMAKE_LINK_SHLIB_CMD") << "\n\t"
 	      << varGlue("TMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET0)");
 	}
 	if ( !project->variables()["TMAKE_HPUX_SHLIB"].isEmpty() ) {
-	    t << "\n\t" 
+	    t << "\n\t"
 	      << "-rm -f " << var("DESTDIR") << "$(TARGET)\n\t"
 	      << "-rm -f " << var("DESTDIR") << "$(TARGET0)\n\t"
 	      << "-mv $(TARGET) $(TARGET0) " << var("DESTDIR") << endl << endl;
@@ -172,14 +173,14 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << "-rm -f " << var("DESTDIR") << "$(TARGET)\n\t"
 	      << "-rm -f " << var("DESTDIR") << "$(TARGET0)\n\t"
 	      << "-rm -f " << var("DESTDIR") << "$(TARGET1)\n\t"
-	      << "-rm -f " << var("DESTDIR") << "$(TARGET2)\n\t" 
+	      << "-rm -f " << var("DESTDIR") << "$(TARGET2)\n\t"
 	      << "-mv $(TARGET) $(TARGET0) $(TARGET1) $(TARGET2) " << var("DESTDIR") << endl << endl;
 	}
 	t << endl << endl;
 
 	t << "staticlib: $(TARGETA)" << endl << endl;
 	t << "$(TARGETA): $(UICDECLS) $(OBJECTS) $(OBJMOC)" << var("TARGETDEPS") << "\n\t"
-	  << "-rm -f $(TARGETA) " << var("TMAKE_AR_CMD") 
+	  << "-rm -f $(TARGETA) " << var("TMAKE_AR_CMD")
 	  << varGlue("TMAKE_RANLIB","",""," $(TARGETA)") << endl << endl;
     }
     else {
@@ -190,7 +191,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << var("TMAKE_AR_CMD") << "\n\t"
 	  << varGlue("TMAKE_RANLIB","",""," $(TARGET)") << endl << endl;
     }
-    
+
     t << "moc: $(SRCMOC)" << endl << endl;
 
     t << "qmake: " << "\n\t"
@@ -217,7 +218,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isActiveConfig("staticlib") && project->variables()["TMAKE_APP_FLAG"].isEmpty()) {
 	t << "-rm -f $(TARGET0) $(TARGET1) $(TARGET2) $(TARGETA)" << "\n\t";
     }
-    t << varGlue("TMAKE_CLEAN","-rm -f "," ","") << "\n\t" 
+    t << varGlue("TMAKE_CLEAN","-rm -f "," ","") << "\n\t"
       << "-rm -f *~ core" << "\n\t"
       << varGlue("CLEAN_FILES","-rm -f "," ","") << endl << endl;
     t << "####### Sub-libraries" << endl << endl;
@@ -232,7 +233,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString outdir = project->variables()["MOC_DIR"].first();
 	QString qt_dot_h = Option::fixPathToLocalOS(project->variables()["PRECOMPH"].first());
 	t << "###### Combined headers" << endl << endl;
-	t << outdir << "allmoc.cpp: " << qt_dot_h << " " << " \\\n\t\t" 
+	t << outdir << "allmoc.cpp: " << qt_dot_h << " " << " \\\n\t\t"
 	  << varList("HEADERS_ORIG") << "\n\t"
 	  << "echo '#include \"" << qt_dot_h << "\"' >" << outdir << "allmoc.cpp" << "\n\t"
 	  << "$(CXX) -E -DQT_MOC_CPP $(CXXFLAGS) $(INCPATH) >" << outdir << "allmoc.h " << outdir << "allmoc.cpp" << "\n\t"
@@ -356,11 +357,11 @@ UnixMakefileGenerator::init()
 	if ( !project->isActiveConfig("debug") ) {
 	    project->variables()["DEFINES"].append("NO_DEBUG");
 	}
-	if ( !(((project->variables()["TARGET"].first() == "qt") || 
+	if ( !(((project->variables()["TARGET"].first() == "qt") ||
 		(project->variables()["TARGET"].first() == "qt-mt")) &&
                !project->variables()["TMAKE_LIB_FLAG"].isEmpty())) {
 	    if(!project->variables()["TMAKE_LIBDIR_QT"].isEmpty())
-		project->variables()["TMAKE_LIBDIR_FLAGS"].append("-L" + 
+		project->variables()["TMAKE_LIBDIR_FLAGS"].append("-L" +
 							       project->variables()["TMAKE_LIBDIR_QT"].first());
 	    if (project->isActiveConfig("thread") && !project->variables()["TMAKE_LIBS_QT_THREAD"].isEmpty()) {
 	        project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_QT_THREAD"];
@@ -372,7 +373,7 @@ UnixMakefileGenerator::init()
     if ( project->isActiveConfig("opengl") ) {
 	project->variables()["INCLUDEPATH"] += project->variables()["TMAKE_INCDIR_OPENGL"];
 	if(!project->variables()["TMAKE_LIBDIR_OPENGL"].isEmpty())
-	    project->variables()["TMAKE_LIBDIR_FLAGS"].append("-L" + 
+	    project->variables()["TMAKE_LIBDIR_FLAGS"].append("-L" +
 							  project->variables()["TMAKE_LIBDIR_OPENGL"].first());
 	project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_OPENGL"];
     }
@@ -384,7 +385,7 @@ UnixMakefileGenerator::init()
     }
     if ( project->isActiveConfig("x11lib") ) {
 	if(!project->variables()["TMAKE_LIBDIR_X11"].isEmpty())
-	    project->variables()["TMAKE_LIBDIR_FLAGS"].append("-L" + 
+	    project->variables()["TMAKE_LIBDIR_FLAGS"].append("-L" +
 							      project->variables()["TMAKE_LIBDIR_X11"].first());
 	project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_X11"];
     }
