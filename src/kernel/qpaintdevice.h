@@ -50,6 +50,7 @@ class QGfx;
 
 class QIODevice;
 class QString;
+class QTextItem;
 
 
 #if defined(Q_WS_X11)
@@ -71,6 +72,7 @@ union QPDevCmdParam {
     const QBrush	*brush;
     const QRegion	*rgn;
     const QWMatrix	*matrix;
+    const QTextItem     *textItem;
     QIODevice		*device;
 };
 
@@ -171,7 +173,8 @@ public:
 	PdcDrawImage = 18, // rect,image
 	PdcDrawText2 = 19, // point,str
 	PdcDrawText2Formatted = 20, // rect,ival,str
-	PdcDrawLast = PdcDrawText2Formatted,
+	PdcDrawTextItem = 21,
+	PdcDrawLast = PdcDrawTextItem,
 
 	// no painting commands below PdcDrawLast.
 

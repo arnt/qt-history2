@@ -6267,41 +6267,27 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
             d->pageStream << "BZ\n";
         }
         break;
-    case PdcDrawText2: {
-        QString tmp = *p[1].str;
-	QTextLayout layout( tmp, paint );
-	layout.beginLayout();
-	layout.beginLine( 0xfffffff );
-	while ( !layout.atEnd() )
-	    layout.addCurrentItem();
-	int ascent;
-	layout.endLine( 0, 0, Qt::AlignLeft, &ascent, 0 );
-	QTextEngine *engine = layout.d;
-	for ( int i = 0; i < layout.numItems(); i++ ) {
-	    QScriptItem &si = engine->items[i];
-	    int len = engine->length( i );
-	    bool allSpace = TRUE;
-	    for ( int j = 0; j < len; j++ )
-		if ( !::isSpace( tmp.unicode()[j+si.position] ) ) {
-		    allSpace = FALSE;
-		    break;
-		}
-
-	    if ( allSpace )
-		continue;
-	    si.y -= ascent;
-
-	    if ( d->currentSet != d->currentUsed || d->scriptUsed != si.analysis.script || !d->currentFontFile ) {
-		d->currentUsed = d->currentSet;
-		d->setFont( d->currentSet, si.analysis.script );
-	    }
-	    if( d->currentFontFile ) // better not crash in case somethig goes wrong.
-		d->currentFontFile->drawText( d->pageStream, *p[0].point, engine, i, tmp, d, paint);
-	}
-        break;
-    }
+    case PdcDrawText2:
+	// we use drawTextItem instead
+	return TRUE;
     case PdcDrawText2Formatted:
-        return FALSE;                   // uses QPainter instead
+        return TRUE;
+    case PdcDrawTextItem: {
+	const QTextItem *ti = p[1].textItem;
+	QScriptItem &si = ti->engine->items[ti->item];
+	int len = ti->engine->length( ti->item );
+	if ( si.isSpace || si.isObject )
+	    return FALSE;
+
+	if ( d->currentSet != d->currentUsed || d->scriptUsed != si.analysis.script || !d->currentFontFile ) {
+	    d->currentUsed = d->currentSet;
+	    d->setFont( d->currentSet, si.analysis.script );
+	}
+	if( d->currentFontFile ) // better not crash in case somethig goes wrong.
+	    d->currentFontFile->drawText( d->pageStream, *p[0].point, ti->engine, ti->item,
+					  ti->engine->string.mid( si.position, len ), d, paint);
+        return FALSE;
+    }
     case PdcDrawPixmap: {
         if ( p[1].pixmap->isNull() )
             break;

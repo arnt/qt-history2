@@ -3024,8 +3024,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	param[0].point = &p;
 	param[1].str = &string;
 	param[2].ival = QFont::Latin;
-	bool retval = pdev->cmd(QPaintDevice::PdcDrawText2, this, param);
-	if ( !retval || !hd )
+	if ( !pdev->cmd(QPaintDevice::PdcDrawText2, this, param) )
 	    return;
     }
 
@@ -3118,6 +3117,16 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 */
 void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
 {
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[2];
+	QPoint p(x, y);
+	param[0].point = &p;
+	param[1].textItem = &ti;
+	bool retval = pdev->cmd(QPaintDevice::PdcDrawTextItem, this, param);
+	if ( !retval || !hd )
+	    return;
+    }
+
     QTextEngine *engine = ti.engine;
     QScriptItem *si = &engine->items[ti.item];
 

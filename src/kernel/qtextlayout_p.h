@@ -50,6 +50,7 @@ public:
 private:
     friend class QTextLayout;
     friend class QPainter;
+    friend class QPSPrinter;
     QTextItem( int i, QTextEngine *e ) : item( i ), engine( e ) {}
     int item;
     QTextEngine *engine;
