@@ -666,10 +666,10 @@ bool QVariantToVoidStar(const QVariant &var, void *data, const QByteArray &typeN
         *(QByteArray*)data = var.toByteArray();
         break;
     case QVariant::LongLong:
-        *(Q_LLONG*)data = var.toLongLong();
+        *(Q_LONGLONG*)data = var.toLongLong();
         break;
     case QVariant::ULongLong:
-        *(Q_ULLONG*)data = var.toULongLong();
+        *(Q_ULONGLONG*)data = var.toULongLong();
         break;
     case QVariant::Rect:
         *(QRect*)data = var.toRect();
