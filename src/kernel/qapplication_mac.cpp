@@ -60,12 +60,12 @@
 
 //#define QMAC_LAME_TIME_LIMITED
 #ifdef QMAC_LAME_TIME_LIMITED
-#include <qtimer.h>
-#include <qmessagebox.h>
+#  include <qtimer.h>
+#  include <qmessagebox.h>
 #endif
 
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
-#include "qmenubar.h"
+#  include "qmenubar.h"
 #endif
 
 #include <errno.h>
@@ -86,22 +86,22 @@
 #endif
 
 #ifdef Q_WS_MAC9
-#define QMAC_EVENT_NOWAIT 0.01
+#  define QMAC_EVENT_NOWAIT 0.01
 #else
-#define QMAC_EVENT_NOWAIT kEventDurationNoWait
+#  define QMAC_EVENT_NOWAIT kEventDurationNoWait
 #endif
 
 #ifdef Q_WS_MACX
-#include <sys/time.h>
-#include <sys/select.h>
-#include <unistd.h>
-#include <qdir.h>
+#  include <sys/time.h>
+#  include <sys/select.h>
+#  include <unistd.h>
+#  include <qdir.h>
 #elif defined(Q_WS_MAC9)
-#include <ctype.h>
+#  include <ctype.h>
 #endif
 
 #if defined(QT_THREAD_SUPPORT)
-#include "qthread.h"
+#  include "qthread.h"
 #endif
 
 //for qt_mac.h
@@ -256,6 +256,19 @@ enum {
     kEventQtRequestTimer = 14,
     kEventQtRequestWakeup = 15
 };
+static bool request_updates_pending = FALSE;
+void qt_event_request_updates()
+{
+    if(request_updates_pending)
+	return;
+    request_updates_pending = TRUE;
+
+    EventRef upd = NULL;
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagate, GetCurrentEventTime(),
+		kEventAttributeUserEvent, &upd);
+    PostEventToQueue( GetMainEventQueue(), upd, kEventPriorityHigh );
+    ReleaseEvent(upd);
+}
 void qt_event_request_updates(QWidget *w, QRegion &r)
 {
     w->createExtra();
@@ -270,23 +283,13 @@ void qt_event_request_updates(QWidget *w, QRegion &r)
     EventRef upd = NULL;
     CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagate, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &upd);
+    void *handle = w->handle();
+    SetEventParameter(upd, kEventParamDirectObject, typeWindowRef, sizeof(WindowRef), &handle);
     SetEventParameter(upd, kEventParamQWidget, typeQWidget, sizeof(w), &w);
     PostEventToQueue( GetMainEventQueue(), upd, kEventPriorityStandard );
     ReleaseEvent(upd);
 }
-static bool request_updates_pending = FALSE;
-void qt_event_request_updates()
-{
-    if(request_updates_pending)
-	return;
-    request_updates_pending = TRUE;
 
-    EventRef upd = NULL;
-    CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagate, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &upd);
-    PostEventToQueue( GetMainEventQueue(), upd, kEventPriorityHigh );
-    ReleaseEvent(upd);
-}
 #ifndef QMAC_QMENUBAR_NO_NATIVE
 static bool request_menubarupdate_pending = FALSE;
 void qt_event_request_menubarupdate()
@@ -477,20 +480,6 @@ void qt_cleanup()
   Platform specific global and internal functions
  *****************************************************************************/
 
-void qt_save_rootinfo()				// save new root info
-{
-}
-
-void qt_updated_rootinfo()
-{
-
-}
-
-bool qt_wstate_iconified( WId )
-{
-    return FALSE;
-}
-
 void qAddPostRoutine( QtCleanUpFunction p)
 {
     if ( !postRList ) {
@@ -499,7 +488,6 @@ void qAddPostRoutine( QtCleanUpFunction p)
     }
     postRList->prepend( p );
 }
-
 
 void qRemovePostRoutine( QtCleanUpFunction p )
 {
@@ -1547,19 +1535,33 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
     case kEventClassQt:
 	remove_context_timer = FALSE;
 	if(ekind == kEventQtRequestPropagate) {
-	    QWidget *widget = NULL;
-	    GetEventParameter(event, kEventParamQWidget, typeQWidget, NULL,
-			      sizeof(widget), NULL, &widget);
-	    if(widget && widget->extra && widget->extra->has_dirty_area) {
-		widget->extra->has_dirty_area = FALSE;
-		if(!widget->extra->dirty_area.isEmpty())
-		    widget->repaint(widget->extra->dirty_area);
+	    bool send_to_window = TRUE;
+	    WindowRef wid;
+	    GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
+			      sizeof(WindowRef), NULL, &wid);
+	    if(QWidget *tl_widget = QWidget::find( (WId)wid )) {
+		send_to_window = FALSE;
+		QWidget *widget = NULL;
+		GetEventParameter(event, kEventParamQWidget, typeQWidget, NULL,
+				  sizeof(widget), NULL, &widget);
+		if(widget && widget->extra && widget->extra->has_dirty_area) {
+		    widget->extra->has_dirty_area = FALSE;
+		    QRegion r = widget->extra->dirty_area;
+		    widget->extra->dirty_area = QRegion();
+		    if(qt_paint_children(widget, r, 0)) {
+			QWidget *tlw = widget->topLevelWidget();
+			r.translate(tlw->x(), tlw->y());
+			qt_paint_children(tlw, r, 0);
+		    }
+		}
 	    } else {
 		request_updates_pending = FALSE;
+	    }
+	    if(send_to_window) {
 		QApplication::sendPostedEvents();
 		if(QWidgetList *list   = qApp->topLevelWidgets()) {
 		    for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
-			if ( !widget->isHidden() )
+			if ( !widget->isHidden() ) 
 			    widget->propagateUpdates();
 		    }
 		    delete list;
@@ -2354,7 +2356,6 @@ void  QApplication::setCursorFlashTime( int msecs )
     cursor_flash_time = msecs;
 }
 
-
 int QApplication::cursorFlashTime()
 {
     return cursor_flash_time;
@@ -2365,13 +2366,11 @@ void QApplication::setDoubleClickInterval( int ms )
     mouse_double_click_time = ms;
 }
 
-
 //FIXME: What is the default value on the Mac?
 int QApplication::doubleClickInterval()
 {
     return mouse_double_click_time;
 }
-
 
 void QApplication::setWheelScrollLines( int n )
 {

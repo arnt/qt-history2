@@ -46,8 +46,7 @@
 #include <qcursor.h>
 #include <qtimer.h>
 #ifdef Q_WS_MACX
-#include <CGContext.h>
-#include <CGImage.h>
+#include <ApplicationServices/ApplicationServices.h>
 #endif
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 #  include <qmenubar.h>
@@ -156,17 +155,16 @@ enum paint_children_ops {
     PC_NoPaint = 0x04,
     PC_NoErase = 0x08
 };
-void qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_ForceErase)
+bool qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_ForceErase)
 {
     if(!p || !p->isVisible() || r.isEmpty() || qApp->closingDown() || qApp->startingUp())
-	return;
+	return FALSE;
     QPoint point(posInWindow(p));
     r.translate(point.x(), point.y());
     r &= p->clippedRegion(FALSE); //at least sanity check the bounds
     if(r.isEmpty())
-	return;
+	return FALSE;
 
-    bool r_is_empty = FALSE; //when we get here r is definetly not empty
     if(QObjectList * childObjects=(QObjectList*)p->children()) {
 	QObjectListIt it(*childObjects);
 	for(it.toLast(); it.current(); --it) {
@@ -178,43 +176,42 @@ void qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_ForceErase)
 		    r -= wr;
 		    wr.translate( -(point.x() + w->x()), -(point.y() + w->y()) );
 		    qt_paint_children(w, wr, ops);
-		    if((r_is_empty = r.isEmpty()))
-			break;
+		    if(r.isEmpty())
+			return TRUE;
 		}
 	    }
 	}
     }
 
-    if(!r_is_empty) {
-	r.translate(-point.x(), -point.y());
-	if(p->extra && p->extra->has_dirty_area)
-	    p->extra->dirty_area -= r;
-	bool erase = !(ops & PC_NoErase) && ((ops & PC_ForceErase) || !p->testWFlags(QWidget::WRepaintNoErase));
-	if((ops & PC_NoPaint)) {
-	    if(erase) 
-		p->erase(r);
+    r.translate(-point.x(), -point.y());
+    if(p->extra && p->extra->has_dirty_area)
+	p->extra->dirty_area -= r;
+    bool erase = !(ops & PC_NoErase) && ((ops & PC_ForceErase) || !p->testWFlags(QWidget::WRepaintNoErase));
+    if((ops & PC_NoPaint)) {
+	if(erase) 
+	    p->erase(r);
+    } else {
+	if(ops & PC_Now) {
+	    clean_wndw_rgn("**paint_children",p, r);
+	    p->repaint(r, erase);
 	} else {
-	    if(ops & PC_Now) {
+	    bool painted = FALSE;
+	    if(!p->testWState(QWidget::WState_BlockUpdates)) {
+		painted = TRUE;
 		clean_wndw_rgn("**paint_children",p, r);
 		p->repaint(r, erase);
-	    } else {
-		bool painted = FALSE;
-		if(!p->testWState(QWidget::WState_BlockUpdates)) {
-		    painted = TRUE;
-		    clean_wndw_rgn("**paint_children",p, r);
-		    p->repaint(r, erase);
-		} else if(erase) {
-		    erase = FALSE;
-		    p->erase(r);
-		}
-		if(!painted) {
-		    QRegion pa(r);
-		    pa.translate(point.x(), point.y());
-		    p->update(pa.boundingRect()); //last try
-		}
+	    } else if(erase) {
+		erase = FALSE;
+		p->erase(r);
+	    }
+	    if(!painted) {
+		QRegion pa(r);
+		pa.translate(point.x(), point.y());
+		p->update(pa.boundingRect()); //last try
 	    }
 	}
     }
+    return FALSE;
 }
 
 static QPtrList<QWidget> qt_root_win_widgets;
@@ -1075,7 +1072,7 @@ void QWidget::update( int x, int y, int w, int h )
 	if ( h < 0 )
 	    h = crect.height() - y;
 	if ( w && h ) {
-#if 0
+#if 1
 	    QRegion r(x, y, w, h);
 	    qt_event_request_updates(this, r);
 	    debug_wndw_rgn("update", this, r);
