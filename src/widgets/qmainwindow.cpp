@@ -836,7 +836,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
     QMainWindowPrivate::ToolBarDock *dummy;
     t = d->findToolbar( tb, dummy );
     QMainWindowPrivate::ToolBar *me = t;
-    t->extraOffset = rect_pos( d->oldPosRect, o ) + rect_pos( dockArea, o ); // ##### vertical special pos is wrong!!
+    t->extraOffset = rect_pos( d->oldPosRect, o ) + rect_pos( dockArea, o ); // ##### vertical extraOffset is wrong!!
     if ( rows.isEmpty() ) {
 	relative = 0;
     } else {
@@ -856,7 +856,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 		QRect ir = it.key().intersect( d->oldPosRect );
 		if ( rect_extend( ir, o, TRUE ) < 3 )
 		    continue;
-		if ( rect_extend( ir, o, TRUE ) < ( 2 * rect_extend( it.key(), o, TRUE ) ) / 3 ) {
+		if ( rect_extend( ir, o, TRUE ) < ( 3 * rect_extend( it.key(), o, TRUE ) ) / 4 ) {
 		    if ( rect_pos( ir, o, TRUE ) <= rect_pos( it.key(), o, TRUE ) ) {
 #ifdef QMAINWINDOW_DEBUG
 			qDebug( "above" );
@@ -2004,7 +2004,7 @@ void QMainWindow::triggerLayout( bool deleteLayout )
   If the mouse is not in any docking area, Unmanaged is returned as docking area.
 */
 
-QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &rect, 
+QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &rect,
 						    QToolBar *tb, QRect *r2 )
 {
     // calculate some values for docking areas
