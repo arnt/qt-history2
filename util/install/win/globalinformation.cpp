@@ -5,8 +5,8 @@ GlobalInformation::GlobalInformation() :
     _reconfig( FALSE )
 {
 #if defined(Q_OS_WIN32)
-    _sysId = Borland;
-#elif defined(Q_OS_MAC)
+    _sysId = Other;
+#elif defined(Q_OS_MACX)
     _sysId = MACX;
 #else
     _sysId = MingW32;
@@ -84,7 +84,7 @@ QString GlobalInformation::text(Text t) const
 	if (t == Mkspec)
 	    str = "win32-watcom";
 	else if (t == MakeTool)
-	    str = "nmake.exe"; //?
+	    str = "wmake.exe";
 	break;
     case Intel:
 	if (t == Mkspec)

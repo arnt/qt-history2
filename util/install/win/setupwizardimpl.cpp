@@ -479,6 +479,21 @@ SetupWizardImpl::SetupWizardImpl( QWidget* parent, const char* name, bool modal,
 	regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.1", "InstallDir", QEnvironment::LocalMachine );
     if (!regValue.isEmpty())
 	globalInformation.setSysId(GlobalInformation::MSVCNET);
+
+    while (globalInformation.sysId() == GlobalInformation::Other) {
+	globalInformation.setSysId(GlobalInformation::Borland);
+	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
+	    break;
+	globalInformation.setSysId(GlobalInformation::MSVCNET);
+	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
+	    break;
+	globalInformation.setSysId(GlobalInformation::MinGW);
+	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
+	    break;
+	globalInformation.setSysId(GlobalInformation::Watcom);
+	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
+	    break;
+    }
 #endif
 
     if ( archiveHeader ) {
@@ -1802,7 +1817,9 @@ void SetupWizardImpl::showPageFinish()
                         "programs in the examples folder.\n\nFor further information please consult the "
 			"README.txt file included in the installation folder.";
 #else
-	    finishMsg = QString( "Qt has been installed to " ) + optionsPage->installPath->text() + " and is ready to use.";
+	    finishMsg = QString( "Qt has been installed to %1 and is ready to use.\n"
+		        "You might have to logoff and logon for changes to the environment to have an effect.").
+			arg(optionsPage->installPath->text());
 #  if defined(QSA)
 	    finishMsg = QString( "\nQSA has been installed to " ) + optionsPageQsa->installPath->text() + " and is ready to use.";
 #  endif
