@@ -927,13 +927,13 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     QItemSelectionModel::SelectionFlags command = selectionCommand(index, e);
     if ((command & QItemSelectionModel::Current) == 0)
         d->pressedPosition = pos + offset;
-    
+
     if (index.isValid())
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-    
+
     QRect rect(d->pressedPosition - offset, pos);
     setSelection(rect.normalize(), command);
-    
+
     emit pressed(index, e->button(), e->modifiers());
     if (e->button() == Qt::LeftButton && itemWasSelected && selectionModel()->isSelected(index))
         edit(index, SelectedClicked, e);
@@ -1001,8 +1001,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 /*!
     This function is called when a mouse release event \a e
     occurs. It will emit the clicked() signal if an item was being
-    pressed and will send a context menu event if it is a right-mouse
-    button release.
+    pressed.
 
     \sa contextMenuEvent()
 */
@@ -1021,10 +1020,6 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
 
     if (index == d->pressedIndex)
         emit clicked(index, e->button(), e->modifiers());
-    if (e->button() == Qt::RightButton) {
-        QContextMenuEvent me(QContextMenuEvent::Mouse, pos);
-        QApplication::sendEvent(this, &me);
-    }
 }
 
 /*!
