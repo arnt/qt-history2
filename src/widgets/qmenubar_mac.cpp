@@ -63,6 +63,9 @@ void qt_mac_command_set_enabled(UInt32 cmd, bool b)
 
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 
+static bool qt_mac_no_menubar_icons = FALSE;
+void qt_mac_set_no_menubar_icons(bool b) { qt_mac_no_menubar_icons = b; } //backdoor to disable menubar icons
+
 //internal class
 class QMenuBar::MacPrivate {
 public:
@@ -455,12 +458,14 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 	    if(item->isSeparator()) {
 		ChangeMenuItemAttributes(ret, id, kMenuItemAttrSeparator, 0);
 	    } else {
-		if(item->pixmap()) { 		    //handle pixmaps..
-		    IconRef ico = qt_mac_create_iconref(*item->pixmap());
-		    SetMenuItemIconHandle(ret, id, kMenuIconRefType, (Handle)ico);
-		} else if(item->iconSet()) {
-		    IconRef ico = qt_mac_create_iconref(item->iconSet()->pixmap(QIconSet::Small, QIconSet::Normal));
-		    SetMenuItemIconHandle(ret, id, kMenuIconRefType, (Handle)ico);
+		if(!qt_mac_no_menubar_icons) {
+		    if(item->pixmap()) { 		    //handle pixmaps..
+			IconRef ico = qt_mac_create_iconref(*item->pixmap());
+			SetMenuItemIconHandle(ret, id, kMenuIconRefType, (Handle)ico);
+		    } else if(item->iconSet()) {
+			IconRef ico = qt_mac_create_iconref(item->iconSet()->pixmap(QIconSet::Small, QIconSet::Normal));
+			SetMenuItemIconHandle(ret, id, kMenuIconRefType, (Handle)ico);
+		    }
 		}
 		if(item->isEnabled())
 		    EnableMenuItem(ret, id);
@@ -666,7 +671,6 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
 	HiliteMenu(0);
     return false;
 }
-
 
 static bool qt_mac_no_native_menubar = false;
 void qt_mac_set_no_native_menubar(bool b) { qt_mac_no_native_menubar = b; } //backdoor to disable menubars
