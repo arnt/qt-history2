@@ -226,23 +226,37 @@ void QColor::initGlobalColors()
     stdcol[ 0].setPixel( COLOR0_PIX );
     stdcol[ 1].setPixel( COLOR1_PIX );
 
-    stdcol[ 2].setRgb(   0,   0,   0 );
-    stdcol[ 3].setRgb( 255, 255, 255 );
-    stdcol[ 4].setRgb( 128, 128, 128 );
-    stdcol[ 5].setRgb( 160, 160, 164 );
-    stdcol[ 6].setRgb( 192, 192, 192 );
-    stdcol[ 7].setRgb( 255,   0,   0 );
-    stdcol[ 8].setRgb(   0, 255,   0 );
-    stdcol[ 9].setRgb(   0,   0, 255 );
-    stdcol[10].setRgb(   0, 255, 255 );
-    stdcol[11].setRgb( 255,   0, 255 );
-    stdcol[12].setRgb( 255, 255,   0 );
-    stdcol[13].setRgb( 128,   0,   0 );
-    stdcol[14].setRgb(   0, 128,   0 );
-    stdcol[15].setRgb(   0,   0, 128 );
-    stdcol[16].setRgb(   0, 128, 128 );
-    stdcol[17].setRgb( 128,   0, 128 );
-    stdcol[18].setRgb( 128, 128,   0 );
+    // From the "The Palette Manager: How and Why" by Ron Gery, March 23,
+    // 1992, archived on MSDN:
+    // 	The Windows system palette is broken up into two sections,
+    // 	one with fixed colors and one with colors that can be changed
+    // 	by applications. The system palette predefines 20 entries;
+    // 	these colors are known as the static or reserved colors and
+    // 	consist of the 16 colors found in the Windows version 3.0 VGA
+    // 	driver and 4 additional colors chosen for their visual appeal.
+    // 	The DEFAULT_PALETTE stock object is, as the name implies, the
+    // 	default palette selected into a device context (DC) and consists
+    // 	of these static colors. Applications can set the remaining 236
+    // 	colors using the Palette Manager.
+    // The 20 reserved entries have indices in [0,9] and [246,255]. We
+    // reuse 17 of them.
+    stdcol[ 2].setRgb(   0,   0,   0 );   // index 0     black
+    stdcol[ 3].setRgb( 255, 255, 255 );   // index 255   white
+    stdcol[ 4].setRgb( 128, 128, 128 );   // index 248   medium gray
+    stdcol[ 5].setRgb( 160, 160, 164 );   // index 247   light gray
+    stdcol[ 6].setRgb( 192, 192, 192 );   // index 7     light gray
+    stdcol[ 7].setRgb( 255,   0,   0 );   // index 249   red
+    stdcol[ 8].setRgb(   0, 255,   0 );   // index 250   green
+    stdcol[ 9].setRgb(   0,   0, 255 );   // index 252   blue
+    stdcol[10].setRgb(   0, 255, 255 );   // index 254   cyan
+    stdcol[11].setRgb( 255,   0, 255 );   // index 253   magenta
+    stdcol[12].setRgb( 255, 255,   0 );   // index 251   yellow
+    stdcol[13].setRgb( 128,   0,   0 );   // index 1     dark red
+    stdcol[14].setRgb(   0, 128,   0 );   // index 2     dark green
+    stdcol[15].setRgb(   0,   0, 128 );   // index 4     dark blue
+    stdcol[16].setRgb(   0, 128, 128 );   // index 6     dark cyan
+    stdcol[17].setRgb( 128,   0, 128 );   // index 5     dark magenta
+    stdcol[18].setRgb( 128, 128,   0 );   // index 3     dark yellow
 }
 
 /*!
