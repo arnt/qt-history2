@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#107 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#108 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#107 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#108 $");
 
 
 /*!
@@ -259,6 +259,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	if ( f ) { // ### this thinks alt and meta are the same
 	    if ( ke->key() == Key_Alt || ke->key() == Key_Meta ) {
 		if ( windowsaltactive || actItem >= 0 ) {
+		    ke->accept();
 		    setWindowsAltMode( FALSE, -1 );
 		} else {
 		    windowsaltactive = 1;
@@ -271,8 +272,9 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	    }
 	}
 	// ### ! block all accelerator events when the menu bar is active
-	if ( qApp && qApp->focusWidget() == this )
+	if ( qApp && qApp->focusWidget() == this ) {
 	    return TRUE;
+	}
     }
 
     // look for Alt release
@@ -294,6 +296,9 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 		tlw->removeEventFilter( this );
 		tlw->installEventFilter( this );
 	    }
+	    QKeyEvent * ke = (QKeyEvent *) event;
+	    ke->accept();
+	    return TRUE;
 	} else if ( (event->type() == Event_KeyPress ||
 		     event->type() == Event_KeyRelease) &&
 		    !(((QKeyEvent *)event)->key() == Key_Alt ||
@@ -947,6 +952,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	    }
 	}
     }
+    e->accept();
 }
 
 
