@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		= qt warn_on release 
+CONFIG		+= qt warn_on
 HEADERS		= finddialog.h \
 		  msgedit.h \
 		  phrase.h \
@@ -24,5 +24,4 @@ SOURCES		= finddialog.cpp \
 INCLUDEPATH	= ../pics \
 		  ../shared
 DESTDIR	= $(QTDIR)/bin
-unix:LIBS += -lpthread
 INCLUDEPATH	+= $(QTDIR)/src/kernel
