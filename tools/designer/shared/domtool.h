@@ -22,8 +22,10 @@
 #define DOMTOOL_H
 
 #include <qvariant.h>
-#include <qdom.h>
 #include <qnamespace.h>
+
+class QDomElement;
+class QDomDocument;
 
 class DomTool : public Qt
 {
