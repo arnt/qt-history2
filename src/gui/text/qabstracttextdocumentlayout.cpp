@@ -277,7 +277,7 @@ const QTextDocument *QAbstractTextDocumentLayout::document() const
 /*!
     \fn QString QAbstractTextDocumentLayout::anchorAt(const QPoint &position) const
 
-    Returns the name of the anchor at the given \a position, or an empty
+    Returns the reference of the anchor at the given \a position, or an empty
     string if no anchor exists at that point.
 */
 QString QAbstractTextDocumentLayout::anchorAt(const QPoint& pos) const
@@ -289,7 +289,7 @@ QString QAbstractTextDocumentLayout::anchorAt(const QPoint& pos) const
     QTextDocumentPrivate *pieceTable = qt_cast<const QTextDocument *>(parent())->docHandle();
     QTextDocumentPrivate::FragmentIterator it = pieceTable->find(cursorPos);
     QTextCharFormat fmt = pieceTable->formatCollection()->charFormat(it->format);
-    return fmt.anchorName();
+    return fmt.anchorHref();
 }
 
 #include "moc_qabstracttextdocumentlayout.cpp"
