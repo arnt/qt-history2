@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#76 $
 **
 ** Implementation of QScrollView class
 **
@@ -324,7 +324,7 @@ void QScrollView::updateScrollBars()
     if ( showv ) {
 	if ( needv ) {
 	    d->vbar.setRange( 0, contentsHeight()-porth );
-	    d->vbar.setSteps( d->vbar.lineStep(), porth );
+	    d->vbar.setSteps( QScrollView::d->vbar.lineStep(), porth );
 	} else {
 	    d->vbar.setRange( 0, 0 );
 	}
@@ -332,7 +332,7 @@ void QScrollView::updateScrollBars()
     if ( showh ) {
 	if ( needh ) {
 	    d->hbar.setRange( 0, contentsWidth()-portw );
-	    d->hbar.setSteps( d->hbar.lineStep(), portw );
+	    d->hbar.setSteps( QScrollView::d->hbar.lineStep(), portw );
 	} else {
 	    d->hbar.setRange( 0, 0 );
 	}

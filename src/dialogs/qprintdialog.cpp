@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#57 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#58 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -762,7 +762,7 @@ QGroupBox * QPrintDialog::setupOptions()
 
     d->firstPage = new QSpinBox( 1, 9999, 1, g, "first page" );
     d->firstPage->setValue( 1 );
-    d->firstPage->setMinimumSize( d->firstPage->sizeHint() );
+    d->firstPage->setMinimumSize( QPrintDialog::d->firstPage->sizeHint() );
     horiz->addWidget( d->firstPage, 1 );
     connect( d->firstPage, SIGNAL(valueChanged(int)),
 	     this, SLOT(setFirstPage(int)) );
@@ -776,7 +776,7 @@ QGroupBox * QPrintDialog::setupOptions()
 
     d->lastPage = new QSpinBox( 1, 9999, 1, g, "last page" );
     d->lastPage->setValue( 9999 );
-    d->lastPage->setMinimumSize( d->lastPage->sizeHint() );
+    d->lastPage->setMinimumSize( QPrintDialog::d->lastPage->sizeHint() );
     horiz->addWidget( d->lastPage, 1 );
     connect( d->lastPage, SIGNAL(valueChanged(int)),
 	     this, SLOT(setLastPage(int)) );
@@ -834,7 +834,7 @@ QGroupBox * QPrintDialog::setupOptions()
 
     d->copies = new QSpinBox( 1, 99, 1, g, "copies" );
     d->copies->setValue( 1 );
-    d->copies->setMinimumSize( d->copies->sizeHint() );
+    d->copies->setMinimumSize( QPrintDialog::d->copies->sizeHint() );
     horiz->addWidget( d->copies, 1 );
     connect( d->copies, SIGNAL(valueChanged(int)),
 	     this, SLOT(setNumCopies(int)) );
@@ -1038,14 +1038,14 @@ void QPrintDialog::printRangeSelected( int id )
 void QPrintDialog::setFirstPage( int fp )
 {
     if ( d->printer )
-	d->lastPage->setRange( fp, QMAX(fp,d->printer->maxPage()) );
+	d->lastPage->setRange( fp, QMAX(fp, QPrintDialog::d->printer->maxPage()) );
 }
 
 
 void QPrintDialog::setLastPage( int lp )
 {
     if ( d->printer )
-	d->firstPage->setRange( QMIN(lp,d->printer->minPage()), lp );
+	d->firstPage->setRange( QMIN(lp, QPrintDialog::d->printer->minPage()), lp );
 }
 
 
