@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#2 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -41,7 +41,7 @@ public:
     };
 
     QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi );
-    
+
     virtual ~QtFileIconViewItem();
 
     ItemType type()
@@ -88,7 +88,10 @@ public slots:
 
 signals:
     void directoryChanged( const QString & );
-
+    void startReadDir( int dirs );
+    void readNextDir();
+    void readDirDone();
+    
 protected slots:
     void itemDoubleClicked( QtIconViewItem *i );
     void slotDropped( QMimeSource *mime );

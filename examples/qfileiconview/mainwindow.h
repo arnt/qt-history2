@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.h#1 $
+** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.h#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -15,6 +15,8 @@
 
 class QtFileIconView;
 class DirectoryView;
+class QProgressBar;
+class QLabel;
 
 class FileMainWindow : public QMainWindow
 {
@@ -27,16 +29,21 @@ public:
     DirectoryView *dirList() { return dirlist; }
 
     void show();
-    
+
 protected:
     void setup();
 
     QtFileIconView *fileview;
     DirectoryView *dirlist;
-
+    QProgressBar *progress;
+    QLabel *label;
+    
 protected slots:
     void directoryChanged( const QString & );
-
+    void slotStartReadDir( int dirs );
+    void slotReadNextDir();
+    void slotReadDirDone();
+    
 };
 
 #endif

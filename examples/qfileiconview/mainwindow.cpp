@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#2 $
+** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -13,6 +13,9 @@
 #include "../dirview/dirview.h"
 
 #include <qsplitter.h>
+#include <qprogressbar.h>
+#include <qlabel.h>
+#include <qstatusbar.h>
 
 FileMainWindow::FileMainWindow()
     : QMainWindow()
@@ -48,9 +51,39 @@ void FileMainWindow::setup()
              fileview, SLOT ( setDirectory( const QString & ) ) );
     connect( fileview, SIGNAL( directoryChanged( const QString & ) ),
              this, SLOT( directoryChanged( const QString & ) ) );
+    connect( fileview, SIGNAL( startReadDir( int ) ),
+             this, SLOT( slotStartReadDir( int ) ) );
+    connect( fileview, SIGNAL( readNextDir() ),
+             this, SLOT( slotReadNextDir() ) );
+    connect( fileview, SIGNAL( readDirDone() ),
+             this, SLOT( slotReadDirDone() ) );
+
+    progress = new QProgressBar( statusBar() );
+    statusBar()->addWidget( progress, TRUE );
+    label = new QLabel( statusBar() );
+    statusBar()->addWidget( label, TRUE );
 }
 
 void FileMainWindow::directoryChanged( const QString &dir )
 {
     setCaption( dir );
+}
+
+void FileMainWindow::slotStartReadDir( int dirs )
+{
+    label->setText( tr( " Reading Directory..." ) );
+    progress->reset();
+    progress->setTotalSteps( dirs );
+}
+
+void FileMainWindow::slotReadNextDir()
+{
+    int p = progress->progress();
+    progress->setProgress( ++p );
+}
+
+void FileMainWindow::slotReadDirDone()
+{
+    label->setText( tr( " Reading Directory Done." ) );
+    progress->setProgress( progress->totalSteps() );
 }
