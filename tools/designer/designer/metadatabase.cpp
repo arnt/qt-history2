@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -475,7 +475,9 @@ void MetaDataBase::setupConnections( QObject *o, const QValueList<LanguageInterf
 		     formfile->project()->objectForFakeFormFile( formfile );
 	if ( !sender )
 	    continue;
-	MetaDataBase::addConnection( formfile->formWindow() ? formfile->formWindow() : formfile,
+	MetaDataBase::addConnection( formfile->formWindow() ?
+				     (QObject*)formfile->formWindow() :
+				     (QObject*)formfile,
 				     sender,
 				     (*cit).signal.latin1(),
 				     formfile->formWindow() ?
