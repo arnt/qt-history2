@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#62 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#61 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#62 $")
 
 
 declare(QListM, QListBoxItem);
@@ -119,13 +119,13 @@ int MyListBoxItem::width(const QListBox *lb ) const
   \fn QListBoxItem::QListBoxItem()
 
   Constructs an empty list box item.
--*/
+*/
 
 /*!
   \fn QListBoxItem::~QListBoxItem()
 
   Destroys the item.
--*/
+*/
 
 
 /*!
@@ -150,7 +150,7 @@ int MyListBoxItem::width(const QListBox *lb ) const
   Implement this function to return the width of your item
 
   \sa paint(), height()
--*/
+*/
 
 /*!
   \fn const char *QListBoxItem::text() const
@@ -158,7 +158,7 @@ int MyListBoxItem::width(const QListBox *lb ) const
   Returns the text of the item, which is used for sorting.
 
   \sa setText()
--*/
+*/
 
 /*!
   \fn const QPixmap *QListBoxItem::pixmap() const
@@ -166,7 +166,7 @@ int MyListBoxItem::width(const QListBox *lb ) const
    Returns the pixmap connected with the item, if any.
 
    The default implementation of this function returns a null pointer.
--*/
+*/
 
 
 /*!
@@ -176,7 +176,7 @@ int MyListBoxItem::width(const QListBox *lb ) const
   The text is not shown unless explicitly drawn in paint().
 
   \sa text()
--*/
+*/
 
 
 /*!
@@ -187,11 +187,11 @@ int MyListBoxItem::width(const QListBox *lb ) const
   different fonts, you have to make your own subclass of QListBoxItem.
 
   \sa QListBox, QListBoxItem
--*/
+*/
 
 
 /*!
-  Constructs a list box item showing the text \e s.
+  Constructs a list box item showing the text \e text.
  */
 QListBoxText::QListBoxText( const char *text )
     :QListBoxItem()
@@ -222,7 +222,7 @@ void QListBoxText::paint( QPainter *p )
   Returns the height of a line of text.
 
   \sa paint(), width()
--*/
+*/
 
 int QListBoxText::height(const QListBox *lb ) const
 {
@@ -236,7 +236,7 @@ int QListBoxText::height(const QListBox *lb ) const
   Returns the width of this line.
 
   \sa paint(), height()
--*/
+*/
 
 int QListBoxText::width(const QListBox *lb ) const
 {
@@ -248,11 +248,11 @@ int QListBoxText::width(const QListBox *lb ) const
   \brief QListBoxPixmap provides list box items with a pixmap.
 
   \sa QListBox, QListBoxItem
--*/
+*/
 
 /*!
   Creates a new list box item showing the pixmap \e pixmap.
--*/
+*/
 
 QListBoxPixmap::QListBoxPixmap( const QPixmap &pixmap )
     : QListBoxItem()
@@ -262,7 +262,7 @@ QListBoxPixmap::QListBoxPixmap( const QPixmap &pixmap )
 
 /*!
   Destroys the item.
--*/
+*/
 
 QListBoxPixmap::~QListBoxPixmap()
 {
@@ -272,7 +272,7 @@ QListBoxPixmap::~QListBoxPixmap()
   \fn const QPixmap *QListBoxPixmap::pixmap() const
 
   Returns the pixmap connected with the item.
--*/
+*/
 
 
 /*!
@@ -288,7 +288,7 @@ void QListBoxPixmap::paint( QPainter *p )
   Returns the height of the pixmap.
 
   \sa paint(), width()
--*/
+*/
 
 int QListBoxPixmap::height( const QListBox * ) const
 {
@@ -299,7 +299,7 @@ int QListBoxPixmap::height( const QListBox * ) const
   Returns the width of the pixmap.
 
   \sa paint(), height()
--*/
+*/
 
 int QListBoxPixmap::width( const QListBox * ) const
 {
@@ -314,9 +314,9 @@ int QListBoxPixmap::width( const QListBox * ) const
 
   \ingroup realwidgets
 
-  Each item in a QListBox can contain either a text or a pixmap.  One of
-  the items can be the current item.  The highlighted() signal is emitted
-  when the user highlights a new current item; selected() is emitted when
+  Each item in a QListBox contains a QListBoxItem.  One of the items
+  can be the current item.  The highlighted() signal is emitted when
+  the user highlights a new current item; selected() is emitted when
   the user double-clicks on an item or presses return when an item is
   highlighted.
 
@@ -330,15 +330,18 @@ int QListBoxPixmap::width( const QListBox * ) const
   removed as necessary.	 setAutoScrollBar() can be used to force a
   specific policy.
 
-  If you need to insert other types, you must define new classes which
-  inherit QListBoxItem.
--*/
+  If you need to insert other types than texts and pixmaps, you must
+  define new classes which inherit QListBoxItem.  
+
+  \warning The list box assumes ownership of all list box items
+  and will delete them when they are not needed. 
+*/
 
 
 /*!
   Constructs a list box.  The arguments are passed directly to the
   QTableView constructor.
--*/
+*/
 
 QListBox::QListBox( QWidget *parent, const char *name )
     : QTableView( parent, name )
@@ -373,7 +376,7 @@ QListBox::QListBox( QWidget *parent, const char *name )
 
 /*!
   Destroys the list box.  Deletes all list box items.
--*/
+*/
 
 QListBox::~QListBox()
 {
@@ -387,7 +390,7 @@ QListBox::~QListBox()
   This signal is emitted when the user highlights a new current item.
 
   \sa selected()
--*/
+*/
 
 /*!
   \fn void QListBox::selected( int index )
@@ -395,11 +398,11 @@ QListBox::~QListBox()
   or presses return when an item is highlighted.
 
   \sa highlighted()
--*/
+*/
 
 /*!
   Reimplements QWidget::setFont() to update the list box line height.
--*/
+*/
 
 void QListBox::setFont( const QFont &font )
 {
@@ -411,7 +414,7 @@ void QListBox::setFont( const QFont &font )
 
 /*!
   Returns the number of items in the list box.
--*/
+*/
 
 uint QListBox::count() const
 {
@@ -426,7 +429,7 @@ uint QListBox::count() const
   \e index is too large, the operation is ignored.
 
   \sa insertItem(), inSort()
--*/
+*/
 
 void QListBox::insertStrList( const QStrList *list, int index )
 {
@@ -460,7 +463,7 @@ void QListBox::insertStrList( const QStrList *list, int index )
   of the list.	If \e index is too large, the operation is ignored.
 
   \sa insertItem(), inSort()
--*/
+*/
 
 void QListBox::insertStrList( const char **strings, int numStrings, int index )
 {
@@ -493,7 +496,7 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
   box, \e lbi is inserted at the end of the list.
 
   \sa insertStrList()
--*/
+*/
 
 void QListBox::insertItem( const QListBoxItem *lbi, int index )
 {
@@ -521,7 +524,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
   If \e index is negative, \e text is inserted at the end of the list.
 
   \sa insertStrList()
--*/
+*/
 
 void QListBox::insertItem( const char *text, int index )
 {
@@ -550,7 +553,7 @@ void QListBox::insertItem( const char *text, int index )
   If \e index is negative, \e pixmap is inserted at the end of the list.
 
   \sa insertStrList()
--*/
+*/
 
 void QListBox::insertItem( const QPixmap &pixmap, int index )
 {
@@ -583,7 +586,7 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
   lexicographically less than any string.
 
   \sa insertItem()
--*/
+*/
 
 void QListBox::inSort( const QListBoxItem *lbi )
 {
@@ -603,7 +606,7 @@ void QListBox::inSort( const QListBoxItem *lbi )
 
 /*!
   /overload void QListBox::inSort( const char *text )
--*/
+*/
 
 void QListBox::inSort( const char *text )
 {
@@ -624,7 +627,7 @@ void QListBox::inSort( const char *text )
 /*!
   Removes the item at position \e index.
   \sa insertItem(), clear()
--*/
+*/
 
 void QListBox::removeItem( int index )
 {
@@ -645,7 +648,7 @@ void QListBox::removeItem( int index )
 /*!
   Deletes all items in the list.
   \sa removeItem(), setStrList()
--*/
+*/
 
 void QListBox::clear()
 {
@@ -660,7 +663,7 @@ void QListBox::clear()
   Returns a pointer to the text at position \e index, or 0 if there is no
   text there.
   \sa pixmap()
--*/
+*/
 
 const char *QListBox::text( int index ) const
 {
@@ -674,7 +677,7 @@ const char *QListBox::text( int index ) const
   Returns a pointer to the pixmap at position \e index, or 0 if there is no
   pixmap there.
   \sa text()
--*/
+*/
 
 const QPixmap *QListBox::pixmap( int index ) const
 {
@@ -690,7 +693,7 @@ const QPixmap *QListBox::pixmap( int index ) const
   The operation is ignored if \e index is out of range.
 
   \sa insertItem(), removeItem()
--*/
+*/
 
 void QListBox::changeItem( const char *text, int index )
 {
@@ -706,7 +709,7 @@ void QListBox::changeItem( const char *text, int index )
   The operation is ignored if \e index is out of range.
 
   \sa insertItem(), removeItem()
--*/
+*/
 
 void QListBox::changeItem( const QPixmap &pixmap, int index )
 {
@@ -722,7 +725,7 @@ void QListBox::changeItem( const QPixmap &pixmap, int index )
   index is negative or too large, changeItem() does nothing.
 
   \sa insertItem(), removeItem()
--*/
+*/
 
 void QListBox::changeItem( const QListBoxItem *lbi, int index )
 {
@@ -739,7 +742,7 @@ void QListBox::changeItem( const QListBoxItem *lbi, int index )
   The default setting is TRUE.
 
   \sa setAutoUpdate()
--*/
+*/
 
 bool QListBox::autoUpdate() const
 {
@@ -760,7 +763,7 @@ bool QListBox::autoUpdate() const
   auto-update is off, strange things can happen.
 
   \sa autoUpdate()
--*/
+*/
 
 void QListBox::setAutoUpdate( bool enable )
 {
@@ -770,7 +773,7 @@ void QListBox::setAutoUpdate( bool enable )
 /*!
   Returns the number of visible items.	This may change at any time
   since the user may resize the widget.
--*/
+*/
 
 int QListBox::numItemsVisible() const
 {
@@ -782,7 +785,7 @@ int QListBox::numItemsVisible() const
   or -1 if no item has been selected.
 
   \sa topItem()
--*/
+*/
 
 int QListBox::currentItem() const
 {
@@ -793,7 +796,7 @@ int QListBox::currentItem() const
   Sets the highlighted item to the item at position \e index in the list.
   The highlighting is moved and the list box scrolled as necessary.
   \sa currentItem()
--*/
+*/
 
 void QListBox::setCurrentItem( int index )
 {
@@ -812,7 +815,7 @@ void QListBox::setCurrentItem( int index )
   Scrolls the list box so the current (highlighted) item is
   centered in the list box.
   \sa currentItem(), setTopItem()
--*/
+*/
 
 void QListBox::centerCurrentItem()
 {
@@ -832,7 +835,7 @@ void QListBox::centerCurrentItem()
 /*!
   Returns index of the item that is on the top line of the list box.
   \sa setTopItem(), currentItem()
--*/
+*/
 
 int QListBox::topItem() const
 {
@@ -843,7 +846,7 @@ int QListBox::topItem() const
   Scrolls the list box so the item at position \e index in the list
   becomes the top row of the list box.
   \sa topItem(), centerCurrentItem()
--*/
+*/
 
 void QListBox::setTopItem( int index )
 {
@@ -855,7 +858,7 @@ void QListBox::setTopItem( int index )
 /*!
   Returns TRUE if drag-selection is enabled, otherwise FALSE.
   \sa setDragSelect(), autoScroll()
--*/
+*/
 
 bool QListBox::dragSelect() const
 {
@@ -872,7 +875,7 @@ bool QListBox::dragSelect() const
   The default setting is TRUE.
 
   \sa drawSelect(), setAutoScroll()
--*/
+*/
 
 void QListBox::setDragSelect( bool enable )
 {
@@ -882,7 +885,7 @@ void QListBox::setDragSelect( bool enable )
 /*!
   Returns TRUE if auto-scrolling is enabled, otherwise FALSE.
   \sa setAutoScroll, dragSelect()
--*/
+*/
 
 bool QListBox::autoScroll() const
 {
@@ -901,7 +904,7 @@ bool QListBox::autoScroll() const
   The default setting is TRUE.
 
   \sa autoScroll(), setDragSelect()
--*/
+*/
 
 void QListBox::setAutoScroll( bool enable )
 {
@@ -911,7 +914,7 @@ void QListBox::setAutoScroll( bool enable )
 /*!
   Returns TRUE if the list box has an automatic (vertical) scroll bar.
   \sa setAutoScrollBar(), autoBottomScrollBar()
--*/
+*/
 
 bool QListBox::autoScrollBar() const
 {
@@ -928,7 +931,7 @@ bool QListBox::autoScrollBar() const
   The default setting is TRUE.
 
   \sa autoScrollBar(), setScrollBar(), setAutoBottomScrollBar()
--*/
+*/
 
 void QListBox::setAutoScrollBar( bool enable )
 {
@@ -941,7 +944,7 @@ void QListBox::setAutoScrollBar( bool enable )
 /*!
   Returns TRUE if the list box has a (vertical) scroll bar.
   \sa setScrollBar(), autoScrollBar(), bottomScrollBar()
--*/
+*/
 
 bool QListBox::scrollBar() const
 {
@@ -955,7 +958,7 @@ bool QListBox::scrollBar() const
   The default setting is FALSE.
 
   \sa scrollBar(), setAutoScrollBar(), setBottomScrollBar()
--*/
+*/
 
 void QListBox::setScrollBar( bool enable )
 {
@@ -968,7 +971,7 @@ void QListBox::setScrollBar( bool enable )
 /*!
   Returns TRUE if the list box has an automatic bottom scroll bar.
   \sa setAutoBottomScrollBar(), autoScrollBar()
--*/
+*/
 
 bool QListBox::autoBottomScrollBar() const
 {
@@ -985,7 +988,7 @@ bool QListBox::autoBottomScrollBar() const
   The default setting is TRUE.
 
   \sa autoBottomScrollBar(), setBottomScrollBar(), setAutoScrollBar()
--*/
+*/
 
 void QListBox::setAutoBottomScrollBar( bool enable )
 {
@@ -998,7 +1001,7 @@ void QListBox::setAutoBottomScrollBar( bool enable )
 /*!
   Returns TRUE if the list box has a bottom scroll bar.
   \sa setBottomScrollBar(), autoBottomScrollBar(), scrollBar()
--*/
+*/
 
 bool QListBox::bottomScrollBar() const
 {
@@ -1012,7 +1015,7 @@ bool QListBox::bottomScrollBar() const
   The default setting is FALSE.
 
   \sa bottomScrollBar(), setAutoBottomScrollBar(), setScrollBar()
--*/
+*/
 
 void QListBox::setBottomScrollBar( bool enable )
 {
@@ -1025,7 +1028,7 @@ void QListBox::setBottomScrollBar( bool enable )
 /*!
   Returns TRUE if smooth list box scrolling is enabled, otherwise FALSE.
   \sa setSmoothScrolling()
--*/
+*/
 
 bool QListBox::smoothScrolling() const
 {
@@ -1039,7 +1042,7 @@ bool QListBox::smoothScrolling() const
   The default setting is TRUE.
 
   \sa smoothScrolling()
--*/
+*/
 
 void QListBox::setSmoothScrolling( bool enable )
 {
@@ -1052,7 +1055,7 @@ void QListBox::setSmoothScrolling( bool enable )
 
 /*!
   Returns a pointer to the item at position \e index.
--*/
+*/
 
 QListBoxItem *QListBox::item( int index ) const
 {
@@ -1063,7 +1066,7 @@ QListBoxItem *QListBox::item( int index ) const
 
 /*!
   Returns the height of the item at position \e index in pixels.
--*/
+*/
 
 int QListBox::cellHeight( int index )
 {
@@ -1077,7 +1080,7 @@ int QListBox::cellHeight( int index )
 /*!
   Returns the standard item height (in pixels), or -1 if the list box has
   variable item height.
--*/
+*/
 
 int QListBox::itemHeight() const
 {
@@ -1087,7 +1090,7 @@ int QListBox::itemHeight() const
 
 /*!
   Returns the height (in pixels) of item at \e index.
--*/
+*/
 
 int QListBox::itemHeight( int index ) const
 {
@@ -1097,7 +1100,7 @@ int QListBox::itemHeight( int index ) const
 /*!
   Returns TRUE if the item at position \e index is at least partly
   visible.
--*/
+*/
 
 bool QListBox::itemVisible( int index )
 {
@@ -1111,7 +1114,7 @@ bool QListBox::itemVisible( int index )
   and highlighting.
 
   \sa QTableView::paintCell()
--*/
+*/
 
 void QListBox::paintCell( QPainter *p, int row, int col )
 {
@@ -1156,7 +1159,7 @@ void QListBox::paintCell( QPainter *p, int row, int col )
 /*!
   Handles mouse press events.  Makes the clicked item the current item.
   \sa currentItem()
--*/
+*/
 
 void QListBox::mousePressEvent( QMouseEvent *e )
 {
@@ -1168,7 +1171,7 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 
 /*!
   Handles mouse release events.
--*/
+*/
 
 void QListBox::mouseReleaseEvent( QMouseEvent *e )
 {
@@ -1183,7 +1186,7 @@ void QListBox::mouseReleaseEvent( QMouseEvent *e )
 /*!
   Handles mouse double click events.  Emits the selected() signal for
   the item that was double-clicked.
--*/
+*/
 
 void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 {
@@ -1196,7 +1199,7 @@ void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
   Handles mouse move events.  Scrolls the list box is auto-scroll
   is enabled.
   \sa autoScroll()
--*/
+*/
 
 void QListBox::mouseMoveEvent( QMouseEvent *e )
 {
@@ -1233,7 +1236,7 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
   \c Enter makes the list box emit the selected() signal.
 
   \sa selected(), setCurrentItem()
--*/
+*/
 
 void QListBox::keyPressEvent( QKeyEvent *e )
 {
@@ -1299,7 +1302,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
   Handles focus events.	 Repaints, and sets the current item to
   first one if there is no current item.
   \sa keyPressEvent(), focusOutEvent()
--*/
+*/
 
 void QListBox::focusInEvent( QFocusEvent * )
 {
@@ -1312,7 +1315,7 @@ void QListBox::focusInEvent( QFocusEvent * )
 /*!
   Handles resize events.  Updates internal parameters for the new list box
   size.
--*/
+*/
 
 void QListBox::resizeEvent( QResizeEvent *e )
 {
@@ -1322,7 +1325,7 @@ void QListBox::resizeEvent( QResizeEvent *e )
 
 /*!
   Handles timer events.	 Does auto-scrolling.
--*/
+*/
 
 void QListBox::timerEvent( QTimerEvent * )
 {
@@ -1346,7 +1349,7 @@ void QListBox::timerEvent( QTimerEvent * )
   outside the visible area.
 
   \sa findItem
--*/
+*/
 
 bool QListBox::itemYPos( int index, int *yPos ) const
 {
@@ -1359,7 +1362,7 @@ bool QListBox::itemYPos( int index, int *yPos ) const
   \e yPos.
 
   \sa itemYPos()
--*/
+*/
 
 int QListBox::findItem( int yPos ) const
 {
@@ -1369,7 +1372,7 @@ int QListBox::findItem( int yPos ) const
 /*!
   Repaints the item at position \e index in the list.  Erases the line
   first if \e erase is TRUE.
--*/
+*/
 
 void QListBox::updateItem( int index, bool erase )
 {
@@ -1379,7 +1382,7 @@ void QListBox::updateItem( int index, bool erase )
 /*!
   Deletes all items in the list.  Protected function that does NOT
   update the list box.
--*/
+*/
 
 void QListBox::clearList()
 {
@@ -1402,7 +1405,7 @@ void QListBox::clearList()
 /*!
   Traverses the list and finds an item with the maximum width, and
   updates the internal list box structures accordingly.
--*/
+*/
 
 void QListBox::updateCellWidth()
 {
@@ -1424,7 +1427,7 @@ void QListBox::updateCellWidth()
   Inserts a new list box item.
 
   The caller must also call update() if autoUpdate() is TRUE.
--*/
+*/
 
 void QListBox::insertDangerously( const QListBoxItem *lbi, int index,
 				  bool updateCellWidth	)
@@ -1446,7 +1449,7 @@ void QListBox::insertDangerously( const QListBoxItem *lbi, int index,
 /*!
   \internal
   Changes a list box item.
--*/
+*/
 
 void QListBox::changeDangerously( const QListBoxItem *lbi, int index )
 {
@@ -1476,7 +1479,7 @@ void QListBox::changeDangerously( const QListBoxItem *lbi, int index )
 /*!
   \internal
   Updates the num-rows setting in the table view.
--*/
+*/
 
 void QListBox::updateNumRows( bool updateWidth )
 {
