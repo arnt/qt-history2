@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#4 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#5 $
 **
 ** Definition of something or other
 **
@@ -43,7 +43,7 @@ public:
     QSize exclusiveIndicatorSize() const;
     void drawExclusiveIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
 				 bool on, bool down = FALSE, bool enabled = TRUE );
-
+    void drawExclusiveIndicatorMask( QPainter *p, int x, int y, int, int, bool );
     void scrollBarMetrics( const QScrollBar*,  int *, int *, int * );
     void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
 

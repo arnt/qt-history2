@@ -63,6 +63,8 @@ void QWindowsStyle::drawIndicator( QPainter* p,
     }
 }
 
+
+
 /*!
   Reimplementation from QStyle
 
@@ -272,6 +274,20 @@ void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
     }
 
 }
+
+
+/*!
+  Draws the mask of a mark indicating the state of an exclusive choice
+*/
+void
+QWindowsStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on */)
+{
+    QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
+    drawExclusiveIndicator(p , x, y, w, h, g, FALSE, FALSE, FALSE );
+    //p->fillRect(x, y, w, h, color1);
+}
+
+
 
 /*!
   Reimplementation from QStyle
@@ -607,15 +623,15 @@ void QWindowsStyle::drawSlider( QPainter *p,
     // **340**
     // ***0***
 
-    
-    
+
+
     const QColor c0 = g.shadow();
     const QColor c1 = g.dark();
     //    const QColor c2 = g.button();
     const QColor c3 = g.midlight();
     const QColor c4 = g.light();
 
-    
+
     int x1 = x;
     int x2 = x+w-1;
     int y1 = y;
@@ -625,14 +641,14 @@ void QWindowsStyle::drawSlider( QPainter *p,
 	qDrawWinButton( p, QRect(x,y,w,h), g, FALSE, &g.fillButton() );
 	return;
     }
-    
+
     QBrush oldBrush = p->brush();
     p->setBrush( g.fillButton() );
     p->setPen( NoPen );
     p->drawRect( x,y,w,h );
     p->setBrush( oldBrush );
 
-    
+
     enum  { SlUp, SlDown, SlLeft, SlRight } dir;
 
     if ( orient == Horizontal )
@@ -645,7 +661,7 @@ void QWindowsStyle::drawSlider( QPainter *p,
 	    dir = SlLeft;
 	else
 	    dir = SlRight;
-    
+
     switch ( dir ) {
     case SlUp:
 	y1 = y1 + w/2;
@@ -748,12 +764,12 @@ QWindowsStyle::drawSliderMask( QPainter *p,
 	p->fillRect(x, y, w, h, color1);
 	return;
     }
-    
+
     int x1 = x;
     int x2 = x+w-1;
     int y1 = y;
     int y2 = y+h-1;
-    
+
     enum  { SlUp, SlDown, SlLeft, SlRight } dir;
 
     if ( orient == Horizontal )
@@ -766,7 +782,7 @@ QWindowsStyle::drawSliderMask( QPainter *p,
 	    dir = SlLeft;
 	else
 	    dir = SlRight;
-    
+
     switch ( dir ) {
     case SlUp:
 	y1 = y1 + w/2;
@@ -799,7 +815,7 @@ QWindowsStyle::drawSliderMask( QPainter *p,
 	break;
     }
 
-    
+
     p->setBrush(color1);
     p->setPen(color1);
     p->drawPolygon( a );

@@ -109,6 +109,23 @@ void QMotifStyle::drawExclusiveIndicator( QPainter* p,
     p->drawPolyline( a );			// draw bottom part
 }
 
+
+/*!
+  Draws the mask of a mark indicating the state of an exclusive choice
+*/
+void
+QMotifStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int, int, bool /* on */)
+{
+    p->setBrush( Qt::color1 );
+    p->setPen( Qt::color1 );
+
+    QPointArray a;
+    a.setPoints( 4, 0,6, 6,0, 12,6, 6, 12 );
+    a.translate(x,y);
+    p->drawPolygon( a );
+}
+
+
 /*!
   Reimplementation from QStyle
 

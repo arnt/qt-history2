@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#4 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#5 $
 **
 ** Definition of something or other
 **
@@ -45,6 +45,7 @@ public:
     QSize exclusiveIndicatorSize() const;
     void drawExclusiveIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
 				 bool on, bool down = FALSE, bool enabled = TRUE );
+    void drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int h, bool on);
 
 
     void drawComboButton( QPainter *p, int x, int y, int w, int h,
