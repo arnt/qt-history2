@@ -63,6 +63,7 @@ void error(const char *msg = "Invalid argument")
     fprintf(stderr, "Usage: moc [options] <header-file>\n"
 	    "    -o<file>           Write output to file rather than stdout\n"
 	    "    -I<dir>            Add dir to the include path for header files\n"
+	    "    -E                 Preprocess only; do not generate meta object code\n"
 	    "    -D<macro>[=<def>]  Define macro, with optional definition\n"
 	    "    -U<macro>          Undefine macro\n"
 	    "    -i                 Do not generate an #include statement\n"
@@ -77,6 +78,7 @@ int main(int argc, char **argv)
 {
     bool autoInclude = true;
     Preprocessor::macros["Q_MOC_RUN"] = "";
+    bool onlyPreprocess = false;
     Moc moc;
     QByteArray filename;
     QByteArray output;
@@ -101,6 +103,9 @@ int main(int argc, char **argv)
 		output = argv[++n];
 	    } else
 		output = opt.mid(1);
+	    break;
+	case 'E': // only preprocessor
+	    onlyPreprocess = true;
 	    break;
 	case 'i': // no #include statement
 	    if (more)
@@ -225,13 +230,17 @@ int main(int argc, char **argv)
     QByteArray input = Preprocessor::preprocessed(moc.filename, in);
     fclose(in);
 
-    // 2. tokenize
-    moc.symbols = Scanner::scan(input);
+    if (onlyPreprocess) {
+	fprintf(out, "%s\n", input.constData());
+    } else {
+	// 2. tokenize
+	moc.symbols = Scanner::scan(input);
 
-
-    moc.moc(out);
+	// 3. and moc
+	moc.moc(out);
+    }
 
     if (output.size())
-        fclose(out);
+	fclose(out);
     return 0;
 }
