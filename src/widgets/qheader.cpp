@@ -1356,6 +1356,7 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 	r.setLeft( r.left() + pixw + 2 );
     }
 
+    p->setPen(colorGroup().buttonText());
     p->drawText ( r, AlignAuto|AlignVCenter|SingleLine, s );
 
     int arrowWidth = orient == Qt::Horizontal ? height() / 2 : width() / 2;
