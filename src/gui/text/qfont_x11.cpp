@@ -457,7 +457,7 @@ void QFont::setRawName(const QString &name)
     extern bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int screen);
 
     if (! qt_fillFontDef(qt_fixXLFD(name.toLatin1()), &d->request, d->screen)) {
-        qWarning("QFont::setRawMode(): Invalid XLFD: \"%s\"", name.latin1());
+        qWarning("QFont::setRawName(): Invalid XLFD: \"%s\"", name.latin1());
 
         setFamily(name);
         setRawMode(true);
