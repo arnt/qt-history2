@@ -257,13 +257,13 @@ inline QPoint QRect::center() const
 { return QPoint((x1+x2)/2, (y1+y2)/2); }
 
 inline int QRect::width() const
-{ return  x2 - x1; }
+{ return  x2 - x1 + 1; }
 
 inline int QRect::height() const
-{ return  y2 - y1; }
+{ return  y2 - y1 + 1; }
 
 inline QSize QRect::size() const
-{ return QSize(x2 - x1, y2-y1); }
+{ return QSize(width(), height()); }
 
 inline void QRect::moveBy(int dx, int dy)
 {
@@ -371,8 +371,8 @@ inline void QRect::setHeight(int h)
 
 inline void QRect::setSize(const QSize &s)
 {
-    x2 = (QCOORD)(s.width()  + x1);
-    y2 = (QCOORD)(s.height() + y1);
+    x2 = (QCOORD)(s.width()  + x1 - 1);
+    y2 = (QCOORD)(s.height() + y1 - 1);
 }
 
 inline bool QRect::contains(int x, int y, bool proper) const
