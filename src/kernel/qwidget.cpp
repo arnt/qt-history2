@@ -4005,8 +4005,10 @@ bool QWidget::close( bool alsoDelete )
     is_closing = 0;
     if ( alsoDelete )
 	delete this;
-    else if ( testWFlags(WDestructiveClose) )
+    else if ( testWFlags(WDestructiveClose) ) {
+	clearWFlags(WDestructiveClose);
 	deleteLater();
+    }
     return TRUE;
 }
 
