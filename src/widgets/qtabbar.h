@@ -150,7 +150,8 @@ protected:
     void mouseReleaseEvent ( QMouseEvent * );
     void keyPressEvent( QKeyEvent * );
     void styleChange( QStyle& );
-
+    void fontChange ( const QFont & );
+    
     QPtrList<QTab> * tabList();
 
 private slots:

@@ -1241,4 +1241,10 @@ void QTab::setTabBar( QTabBar *newTb )
     tb = newTb;
 }
 
+void QTabBar::fontChange( const QFont & oldFont )
+{
+    layoutTabs();
+    QWidget::fontChange( oldFont );
+}
+
 #endif
