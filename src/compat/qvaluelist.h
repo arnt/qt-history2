@@ -70,7 +70,7 @@ public:
 
     typedef QValueListIterator<T> Iterator;
     typedef QValueListConstIterator<T> ConstIterator;
-    typedef QLinkedList<T>::size_type size_type;
+    typedef typename QLinkedList<T>::size_type size_type;
 
     /**
      * API
