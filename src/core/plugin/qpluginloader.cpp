@@ -25,9 +25,10 @@
     \mainclass
     \ingroup plugins
 
-    ###this class is very similar to QLibrary, plus the instance()
-    function. Add documention here after QLibrary's documentation was
-    reviewed.
+    ###this class is very similar to QLibrary, except that there are
+    no system-specific locations to look for plugins, plus the
+    instance() function. Add documention here after QLibrary's
+    documentation was reviewed.
 
 */
 QPluginLoader::QPluginLoader(QObject *parent)

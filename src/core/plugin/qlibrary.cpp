@@ -40,13 +40,15 @@
     An instance of a QLibrary object operates on a single shared
     object file (or library, or DLL) and provide access to the
     functionality in the library in a platform independent way. You
-    can either pass a filename in the constructor, or set it
-    explicitly with setFilename(). If the file cannot be found,
-    QLibrary probes different platform specific file suffixes, like
-    ".so" on Unix, ".dylib" on the Mac or ".dll" on MS-Windows. This
-    makes it possible to specify shared libraries through only the
-    basename, so the same code will work on different operating system
-    platforms.
+    can either pass a file name in the constructor, or set it
+    explicitly with setFileName(). When loading the library, QLibrary
+    searches in all system-specific library locations
+    (e.g. LD_LIBRARY_PATH on Unix), unless the file name specifies an
+    absolute file path. If the file cannot be found, QLibrary probes
+    different platform specific file suffixes, like ".so" on Unix,
+    ".dylib" on the Mac or ".dll" on MS-Windows. This makes it
+    possible to specify shared libraries through only the basename, so
+    the same code will work on different operating system platforms.
 
     The most important functions are load() to dynamically load the
     library file, isLoaded() to know whether loading was successful,
@@ -599,11 +601,14 @@ QLibrary::~QLibrary()
     \brief the file name of the share object file
 
     When setting the file name, the platform specific file suffixes
-    can be omitted. If the file cannot be found, QLibrary probes
-    different platform specific file suffixes, like ".so" on Unix,
-    ".dylib" on the Mac or ".dll" on MS-Windows. This makes it
-    possible to specify shared libraries through only the basename, so
-    the same code will work on different operating system platforms.
+    can be omitted. When loading the library, QLibrary searches in all
+    system-specific library locations (e.g. LD_LIBRARY_PATH on Unix),
+    unless the file name specifies an absolute file path. If the file
+    cannot be found, QLibrary probes different platform specific file
+    suffixes, like ".so" on Unix, ".dylib" on the Mac or ".dll" on
+    MS-Windows. This makes it possible to specify shared libraries
+    through only the basename, so the same code will work on different
+    operating system platforms.
 
     The current list of supported suffixes is:
     \list
