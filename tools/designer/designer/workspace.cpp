@@ -143,7 +143,7 @@ void WorkspaceItem::paintCell( QPainter *p, const QColorGroup &cg, int column, i
     QColorGroup g( cg );
     g.setColor( QColorGroup::Base, backgroundColor() );
     g.setColor( QColorGroup::Foreground, Qt::black );
-    
+
     if ( type() == FormSourceType && !formFile->hasFormCode() )
 	g.setColor( QColorGroup::Text, Qt::gray );
     else
@@ -204,7 +204,7 @@ void WorkspaceItem::fillCompletionList( QStringList& completion )
 	completion += formFile->fileName();
 	break;
     case SourceFileType:
-	completion += sourceFile->fileName();
+	completion += sourceFile->codeFile();
 	break;
     }
 }
@@ -382,9 +382,7 @@ void Workspace::formFileRemoved( FormFile* ff )
 
 void Workspace::update()
 {
-    qDebug("Workspace::update ");
     completionDirty = TRUE;
-    // #### rebuild completion list
     triggerUpdate();
 }
 
@@ -491,7 +489,7 @@ void Workspace::itemClicked( int button, QListViewItem *i )
 	return;
 
     closeAutoOpenItems();
-    
+
     WorkspaceItem* wi = (WorkspaceItem*)i;
     if ( wi->type() == WorkspaceItem::SourceFileType )
 	mainWindow->editSource( wi->sourceFile );

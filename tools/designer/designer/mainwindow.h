@@ -192,8 +192,8 @@ public slots:
     void fileNew();
     void fileClose();
     void fileCloseProject(); // not visible in menu, called from fileClose
-    void fileOpen() { fileOpen( "", "", "" ); }
-    void fileOpen( const QString &filter, const QString &extension, const QString &filename = "" );
+    void fileOpen();
+    void fileOpen( const QString &filter, const QString &extension, const QString &filename = "" , bool inProject = TRUE );
     bool fileSave();
     bool fileSaveForm(); // not visible in menu, called from fileSave
     bool fileSaveProject(); // not visible in menu, called from fileSaveProject
@@ -230,6 +230,8 @@ public slots:
     void editPixmapCollection();
     void editDatabaseConnections();
     void editPreferences();
+    
+    void projectInsertFile();
 
     void searchFind();
     void searchIncremetalFindMenu();

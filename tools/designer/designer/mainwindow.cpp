@@ -1298,7 +1298,6 @@ void MainWindow::createNewProject( const QString &lang )
     QAction *a = new QAction( pro->projectName(), pro->projectName(), 0, actionGroupProjects, 0, TRUE );
     projects.insert( a, pro );
     addRecentlyOpened( pro->makeAbsolute( pro->fileName() ), recentlyProjects );
-    a->setOn( TRUE );
     projectSelected( a );
 }
 
@@ -1351,7 +1350,6 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	    for ( QMap<QAction*, Project *>::Iterator it = projects.begin(); it != projects.end(); ++it ) {
 		if ( *it == ( (FormWindow*)w )->project() ) {
 		    projectSelected( it.key() );
-		    it.key()->setOn( TRUE );
 		    break;
 		}
 	    }
@@ -1397,7 +1395,6 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	    for ( QMap<QAction*, Project *>::Iterator it = projects.begin(); it != projects.end(); ++it ) {
 		if ( *it == ( (SourceEditor*)w )->project() ) {
 		    projectSelected( it.key() );
-		    it.key()->setOn( TRUE );
 		    break;
 		}
 	    }
@@ -2470,6 +2467,7 @@ void MainWindow::closeAllForms()
 
 void MainWindow::projectSelected( QAction *a )
 {
+    a->setOn( TRUE );
     if ( currentProject )
 	currentProject->setActive( FALSE );
     Project *p = *projects.find( a );
@@ -2493,7 +2491,6 @@ void MainWindow::openProject( const QString &fn )
     pro->setModified( FALSE );
     QAction *a = new QAction( pro->projectName(), pro->projectName(), 0, actionGroupProjects, 0, TRUE );
     projects.insert( a, pro );
-    a->setOn( TRUE );
     projectSelected( a );
 }
 

@@ -724,6 +724,16 @@ void MainWindow::setupProjectActions()
 
     projectMenu->insertSeparator();
 
+    a = new QAction( tr( "Insert File ..." ), QPixmap(), tr( "&Insert File ..." ), CTRL + Key_I, this, 0 );
+    a->setStatusTip( tr("Inserts a file into the current project") );
+    a->setWhatsThis( tr("<b>Insert File</b>"
+			"<p>Use the filedialog to select the file you want to "
+			"insert into the current project</p>" ) );
+    connect( a, SIGNAL( activated() ), this, SLOT( projectInsertFile() ) );
+    a->setEnabled( FALSE );
+    connect( this, SIGNAL( hasNonDummyProject(bool) ), a, SLOT( setEnabled(bool) ) );
+    a->addTo( projectMenu );
+    
     QAction* actionEditProjectSettings = new QAction( tr( "Project Settings..." ), QPixmap(),
 					  tr( "&Project Settings..." ), 0, this, 0 );
     actionEditProjectSettings->setStatusTip( tr("Opens a dialog to change the settings of the project") );
@@ -1032,7 +1042,6 @@ void MainWindow::fileCloseProject()
 	currentProject = 0;
 	if ( lastValid ) {
 	    projectSelected( lastValid );
-	    lastValid->setOn( TRUE );
 	    statusBar()->message( tr( currentProject->projectName() + " project selected...") );
 	}
 	if ( !windows.isEmpty() ) {
@@ -1047,8 +1056,17 @@ void MainWindow::fileCloseProject()
     }
 }
 
+void MainWindow::fileOpen() // as called by the menu
+{
+    fileOpen( "", "", "", FALSE ); 
+}
 
-void MainWindow::fileOpen( const QString &filter, const QString &extension, const QString &fn )
+void MainWindow::projectInsertFile()
+{
+    fileOpen( "", "" );
+}
+
+void MainWindow::fileOpen( const QString &filter, const QString &extension, const QString &fn, bool inProject  )
 {
     statusBar()->message( tr( "Select a file...") );
 
@@ -1060,6 +1078,8 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 	it++;
     }
 
+    Project* project = inProject ? currentProject : eProject;
+    
     QStringList additionalSources;
 
     {
@@ -1072,7 +1092,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 	    QStringList list = manager.featureList();
 	    for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
 		filterlist << *it;
-	    LanguageInterface *iface = MetaDataBase::languageInterface( currentProject->language() );
+	    LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
 	    if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
 		QMap<QString, QString> extensionFilterMap;
 		iface->fileFilters( extensionFilterMap );
@@ -1100,15 +1120,17 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 		addRecentlyOpened( filename, recentlyProjects );
 		openProject( filename );
 	    } else if ( fi.extension() == "ui" && ( extension.isEmpty() || extension.find( ";ui" ) != -1 ) ) {
+		if ( !inProject )
+		    setCurrentProject( eProject );
 		openFormWindow( filename );
 		addRecentlyOpened( filename, recentlyFiles );
 	    } else if ( !extension.isEmpty() && extension.find( ";" + fi.extension() ) != -1 ||
 			additionalSources.find( fi.extension() ) != additionalSources.end() ) {
-		LanguageInterface *iface = MetaDataBase::languageInterface( currentProject->language() );
+		LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
 		if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
-		    SourceFile *sf = currentProject->findSourceFile( currentProject->makeRelative( filename ) );
+		    SourceFile *sf = project->findSourceFile( project->makeRelative( filename ) );
 		    if ( !sf )
-			sf = new SourceFile( currentProject->makeRelative( filename ), FALSE, currentProject );
+			sf = new SourceFile( project->makeRelative( filename ), FALSE, project );
 		    editSource( sf );
 		}
 	    } else if ( extension.isEmpty() ) {
@@ -1133,6 +1155,8 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 		    statusBar()->message( tr( "Nothing to load in %1").arg( filename ), 3000 );
 		    return;
 		}
+		if ( !inProject )
+		    setCurrentProject( eProject );
 		addRecentlyOpened( filename, recentlyFiles );
 		for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
 		    openFormWindow( *it, FALSE );
