@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#29 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#30 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#30 $");
 
 
 struct QPrintDialogPrivate
@@ -643,29 +643,24 @@ QGroupBox * QPrintDialog::setupPaper()
     d->pageSize = QPrinter::A4;
     tll->addWidget( rb );
 
-    rb = new QRadioButton( "A3", g, "Letter" );
+    rb = new QRadioButton( "B5", g, "B5" );
     rb->setMinimumSize( rb->sizeHint() );
-    d->paperSize->insert( rb, 4 ); // 4
-    tll->addWidget( rb );
-
-    rb = new QRadioButton( "B5", g, "Letter" );
-    rb->setMinimumSize( rb->sizeHint() );
-    d->paperSize->insert( rb, 4 ); // 4
+    d->paperSize->insert( rb, 0 );
     tll->addWidget( rb );
 
     rb = new QRadioButton( "Letter (8½ x 11in)", g, "Letter" );
     rb->setMinimumSize( rb->sizeHint() );
-    d->paperSize->insert( rb, 4 ); // 4
+    d->paperSize->insert( rb, 4 );
     tll->addWidget( rb );
 
     rb = new QRadioButton( "Legal", g, "Letter" );
     rb->setMinimumSize( rb->sizeHint() );
-    d->paperSize->insert( rb, 4 ); // 4
+    d->paperSize->insert( rb, 1 );
     tll->addWidget( rb );
 
     rb = new QRadioButton( "Executive", g, "Letter" );
     rb->setMinimumSize( rb->sizeHint() );
-    d->paperSize->insert( rb, 4 ); // 4
+    d->paperSize->insert( rb, 2 );
     tll->addWidget( rb );
 
     tll->activate();
