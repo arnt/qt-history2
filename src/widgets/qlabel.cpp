@@ -1,7 +1,7 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#5 $
 **
-** Implementation of QLineEdit class
+** Implementation of QLabel class
 **
 ** Author  : Eirik Eng
 ** Created : 941215
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#5 $";
 #endif
 
 
