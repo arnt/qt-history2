@@ -248,9 +248,9 @@ void QWidget::create(WId window, bool initializeWindow, bool /*destroyOldWindow*
         }
         setAttribute(Qt::WA_SetCursor);
 #ifndef QT_NO_WIDGET_TOPEXTRA
-        qwsDisplay()->nameRegion(winId(), name(""), caption());
+        qwsDisplay()->nameRegion(winId(), objectName(), windowTitle());
 #else
-        qwsDisplay()->nameRegion(winId(), name(""), QString::null);
+        qwsDisplay()->nameRegion(winId(), objectName(), QString::null);
 #endif
     }
 
@@ -282,10 +282,10 @@ void QWidget::create(WId window, bool initializeWindow, bool /*destroyOldWindow*
         // declare the widget's object name as window role
 
         qt_fbdpy->addProperty(id,QT_QWS_PROPERTY_WINDOWNAME);
-        qt_fbdpy->setProperty(id,QT_QWS_PROPERTY_WINDOWNAME,0,name());
+        qt_fbdpy->setProperty(id,QT_QWS_PROPERTY_WINDOWNAME,0,objectName().latin1());
 
         // If we are session managed, inform the window manager about it
-        if (d->extra && !d->extra->mask.isNull()) {
+        if (d->extra && !d->extra->mask.isEmpty()) {
             data->req_region = d->extra->mask;
             data->req_region.translate(data->crect.x(),data->crect.y());
             data->req_region &= data->crect; //??? this is optional
@@ -822,7 +822,7 @@ void QWidget::setWindowState(uint newstate)
         if (oldstate == 0) { //normal
             d->topData()->normalGeometry = geometry();
         } else if (oldstate == Qt::WState_FullScreen) {
-            reparent(0, d->topData()->savedFlags, QPoint(0,0));
+            reparent_sys(0, d->topData()->savedFlags, QPoint(0,0),  false);
             needShow = true;
         } else if (oldstate == Qt::WState_Minimized) {
             needShow = true;
@@ -834,10 +834,11 @@ void QWidget::setWindowState(uint newstate)
             needShow = false;
         } else if (state == Qt::WState_FullScreen) {
             d->topData()->savedFlags = getWFlags();
-            reparent(0, Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_NoBorder |
-                      // preserve some widget flags
-                      (getWFlags() & 0xffff0000),
-                      QPoint(0, 0));
+            reparent_sys(0, Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_NoBorder |
+                         // preserve some widget flags
+                         (getWFlags() & 0xffff0000),
+                         QPoint(0, 0),
+                         false);
             const QRect screen = qApp->desktop()->screenGeometry(qApp->desktop()->screenNumber(this));
             move(screen.topLeft());
             resize(screen.size());
@@ -875,7 +876,7 @@ void QWidget::raise()
 {
     QWidget *p = parentWidget();
     if (p && p->d->children.contains(this)) {
-        p->d->children.remove(this);
+        p->d->children.removeAll(this);
         p->d->children.append(this);
     }
     if (isTopLevel()) {
@@ -928,7 +929,7 @@ void QWidget::lower()
 {
     QWidget *p = parentWidget();
     if (p && p->d->children.contains(this)) {
-        p->d->children.remove(this);
+        p->d->children.removeAll(this);
         p->d->children.insert(0, this);
     }
     if (isTopLevel()) {
@@ -949,7 +950,7 @@ void QWidget::stackUnder(QWidget* w)
         return;
     int loc = p->d->children.indexOf(w);
     if (loc >= 0 && p->d->children.contains(this)) {
-        p->d->children.remove(this);
+        p->d->children.removeAll(this);
         p->d->children.insert(loc, this);
     }
     if (p) {
@@ -1028,7 +1029,7 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             QPoint dd = QPoint(td2.x()-td1.x(), td2.y()-td1.y());
             data->req_region.translate(dd.x(), dd.y());
         } else {
-            if (d->extra && !d->extra->mask.isNull()) {
+            if (d->extra && !d->extra->mask.isEmpty()) {
                 data->req_region = d->extra->mask;
                 data->req_region.translate(data->crect.x(),data->crect.y());
                 data->req_region &= data->crect; //??? this is optional
@@ -1201,7 +1202,8 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if (maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX) {
         qWarning("QWidget::setMaximumSize: (%s/%s) "
                 "The largest allowed size is (%d,%d)",
-                 name("unnamed"), className(), QWIDGETSIZE_MAX,
+                 objectName().isEmpty() ? "unnamed" : objectName().latin1(),
+                 metaObject()->className(), QWIDGETSIZE_MAX,
                 QWIDGETSIZE_MAX);
         maxw = qMin(maxw, QWIDGETSIZE_MAX);
         maxh = qMin(maxh, QWIDGETSIZE_MAX);
@@ -1209,7 +1211,8 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if (maxw < 0 || maxh < 0) {
         qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
                 "are not possible",
-                name("unnamed"), className(), maxw, maxh);
+                 objectName().isEmpty() ? "unnamed" : objectName().latin1(),
+                 metaObject()->className(), maxw, maxh);
         maxw = qMax(maxw, 0);
         maxh = qMax(maxh, 0);
     }
@@ -1436,7 +1439,7 @@ void QWidget::updateRequestedRegion(const QPoint &gpos)
             data->req_region = QRegion();
         } else {
             data->req_region = QRect(gpos,data->crect.size());
-            if (d->extra && !d->extra->mask.isNull()) {
+            if (d->extra && !d->extra->mask.isEmpty()) {
                 QRegion maskr = d->extra->mask;
                 maskr.translate(gpos.x(), gpos.y());
                 data->req_region &= maskr;
@@ -1598,13 +1601,13 @@ void QWidget::setMask(const QRegion& region)
 
     d->createExtra();
 
-    if (region.isNull() && d->extra->mask.isNull())
+    if (region.isEmpty() && d->extra->mask.isEmpty())
         return;
 
     d->extra->mask = region;
 
     if (isTopLevel()) {
-        if (!region.isNull()) {
+        if (!region.isEmpty()) {
             data->req_region = d->extra->mask;
             data->req_region.translate(data->crect.x(),data->crect.y()); //###expensive?
             data->req_region &= data->crect; //??? this is optional
@@ -1646,7 +1649,7 @@ void QWidget::clearMask()
 /*!
     \internal
 */
-QGfx * QWidget::graphicsContext(bool clip_children) const
+QGfx *QWidget::graphicsContext(bool /*clip_children*/) const
 {
 #ifdef QT_OLD_GFX
     QGfx * qgfx_qws;

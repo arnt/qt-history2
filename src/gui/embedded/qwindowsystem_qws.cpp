@@ -408,9 +408,7 @@ QWSClient::QWSClient(QObject* parent, int socket, int id)
 
 QWSClient::~QWSClient()
 {
-    while(cursors.begin()!=cursors.end()) {
-        cursors.remove(cursors.begin());
-    }
+    cursors.clear();
 }
 
 void QWSClient::setIdentity(const QString& i)
@@ -868,11 +866,11 @@ void QWSServer::clientClosed()
             if (w->forClient(cl)) {
                 releaseMouse(w);
                 releaseKeyboard(w);
-                exposed += w->allocation();
+                exposed += w->allocatedRegion();
                 rgnMan->remove(w->allocationIndex());
                 if (focusw == w)
                     setFocus(focusw,0);
-                windows.remove(w);
+                windows.removeAll(w);
 #ifndef QT_NO_QWS_PROPERTIES
                 manager()->removeProperties(w->winId());
 #endif
@@ -1372,7 +1370,7 @@ void QWSServer::sendQCopEvent(QWSClient *c, const QByteArray &ch,
             event.simpleData.ldata;
 
     // combine channel, message and data into one block of raw bytes
-    QByteArray raw(l);
+    QByteArray raw(l, 0);
     char *d = (char*)raw.data();
     memcpy(d, ch.data(), event.simpleData.lchannel);
     d += event.simpleData.lchannel;
@@ -1689,7 +1687,7 @@ void QWSServer::invokeRegion(QWSRegionCommand *cmd, QWSClient *client)
         return;
     }
 
-    bool containsMouse = changingw->allocation().contains(mousePosition);
+    bool containsMouse = changingw->allocatedRegion().contains(mousePosition);
 
     QRegion region;
     region.setRects(cmd->rectangles, cmd->simpleData.nrectangles);
@@ -1709,7 +1707,7 @@ void QWSServer::invokeRegion(QWSRegionCommand *cmd, QWSClient *client)
         setFocus(changingw,false);
 
     // if the window under our mouse changes, send update.
-    if (containsMouse != changingw->allocation().contains(mousePosition))
+    if (containsMouse != changingw->allocatedRegion().contains(mousePosition))
         updateClientCursorPos();
 }
 
@@ -1976,7 +1974,7 @@ void QWSServer::invokeSelectCursor(QWSSelectCursorCommand *cmd, QWSClient *clien
         QWSCursorMap cursMap = client->cursors;
         QWSCursorMap::Iterator it = cursMap.find(id);
         if (it != cursMap.end()) {
-            curs = it.data();
+            curs = it.value();
         }
     }
     if (curs == 0) {
@@ -1992,7 +1990,7 @@ void QWSServer::invokeSelectCursor(QWSSelectCursorCommand *cmd, QWSClient *clien
             nextCursor = curs;
         else
             setCursor(curs);
-    } else if (win && win->allocation().contains(mousePosition)) {
+    } else if (win && win->allocatedRegion().contains(mousePosition)) {
         // A non-grabbing window can only set the cursor shape if the
         // cursor is within its allocated region.
         setCursor(curs);
@@ -2229,7 +2227,7 @@ void QWSServer::lowerWindow(QWSWindow *changingw, int /*alt*/)
 
     //lower: must remove region from window first.
     QRegion visible;
-    visible = changingw->allocation();
+    visible = changingw->allocatedRegion();
     for (int i=0; i<windows.size(); ++i) {
         QWSWindow* w = windows.at(i);
         if (w != changingw)
@@ -2237,7 +2235,7 @@ void QWSServer::lowerWindow(QWSWindow *changingw, int /*alt*/)
         if (visible.isEmpty())
             break; //widget will be totally hidden;
     }
-    QRegion exposed = changingw->allocation() - visible;
+    QRegion exposed = changingw->allocatedRegion() - visible;
 
     //change position in list:
     for (int i=0; i<windows.size(); ++i) {
@@ -2259,7 +2257,7 @@ void QWSServer::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
 {
     if (!changingw) return;
 
-    QRegion oldAlloc(changingw->allocation());
+    QRegion oldAlloc(changingw->allocatedRegion());
     oldAlloc.translate(dx, dy);
     QRegion newRegion(changingw->requested_region);
     newRegion.translate(dx, dy);
@@ -2274,20 +2272,20 @@ void QWSServer::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
     QWSDisplay::grab(true);
     QRegion exposed = setWindowRegion(changingw, newRegion);
 /*
-    for (int i = 0; i < changingw->allocation().rects().count(); i++)
+    for (int i = 0; i < changingw->allocatedRegion().rects().count(); i++)
         qDebug("newAlloc %d, %d %dx%d",
-            changingw->allocation().rects()[i].x(),
-            changingw->allocation().rects()[i].y(),
-            changingw->allocation().rects()[i].width(),
-            changingw->allocation().rects()[i].height());
+            changingw->allocatedRegion().rects()[i].x(),
+            changingw->allocatedRegion().rects()[i].y(),
+            changingw->allocatedRegion().rects()[i].width(),
+            changingw->allocatedRegion().rects()[i].height());
 */
     // add exposed areas
-    changingw->exposed = changingw->allocation() - oldAlloc;
+    changingw->exposed = changingw->allocatedRegion() - oldAlloc;
 
     rgnMan->commit();
 
     // safe to blt now
-    QRegion cr(changingw->allocation());
+    QRegion cr(changingw->allocatedRegion());
     cr &= oldAlloc;
 
     QSize s = QSize(swidth, sheight);
@@ -2336,7 +2334,7 @@ QRegion QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
     if (changingw) {
         changingw->requested_region = r;
         r = r - serverRegion;
-        exposed = changingw->allocation() - r;
+        exposed = changingw->allocatedRegion() - r;
     } else {
         exposed = serverRegion-r;
         serverRegion = r;
@@ -2356,14 +2354,14 @@ QRegion QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
         QWSWindow* w = windows.at(i);
         if (w == changingw) {
             windex = i;
-            extra_allocation = r - w->allocation();
+            extra_allocation = r - w->allocatedRegion();
             deeper = true;
         } else if (deeper) {
             w->removeAllocation(rgnMan, r);
-            r -= w->allocation();
+            r -= w->allocatedRegion();
         } else {
             //higher windows
-            r -= w->allocation();
+            r -= w->allocatedRegion();
         }
         if (r.isEmpty()) {
             break; // Nothing left for deeper windows
@@ -2394,7 +2392,7 @@ void QWSServer::exposeRegion(QRegion r, int start)
             break; // Nothing left for deeper windows
         QWSWindow* w = windows.at(i);
         w->addAllocation(rgnMan, r);
-        r -= w->allocation();
+        r -= w->allocatedRegion();
     }
     dirtyBackground |= r;
 }
@@ -2468,7 +2466,7 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
         init = 1;
     }
 
-    int c = spec.find(':');
+    int c = spec.indexOf(':');
     QString mouseProto;
     QString mouseDev;
     if (c >= 0) {
@@ -2532,7 +2530,7 @@ void QWSServer::openKeyboard()
     QStringList keyboard = keyboards.split(" ");
     for (QStringList::Iterator k=keyboard.begin(); k!=keyboard.end(); ++k) {
         QString spec = *k;
-        int colon=spec.find(':');
+        int colon=spec.indexOf(':');
         if (colon>=0) {
             type = spec.left(colon);
             device = spec.mid(colon+1);
@@ -2699,7 +2697,7 @@ void QWSServer::refreshBackground()
         if (r.isEmpty())
             return; // Nothing left for deeper windows
         QWSWindow* w = windows.at(i);
-        r -= w->allocation();
+        r -= w->allocatedRegion();
     }
     paintBackground(r);
 }

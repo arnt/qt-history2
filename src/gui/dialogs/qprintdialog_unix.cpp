@@ -638,7 +638,7 @@ static char *parseNsswitchPrintersEntry(QList<QPrinterDescription> *printers, ch
 
             if (source == "user") {
                 lastStatus = parsePrintcap(printers,
-                        QDir::homeDirPath() + "/.printers");
+                        QDir::homePath() + "/.printers");
             } else if (source == "files") {
                 bool found;
                 defaultPrinter = parsePrintersConf(printers, &found);
@@ -941,7 +941,7 @@ QGroupBox *QPrintDialogUnix::setupPrinterSettings()
 {
     QGroupBox *g = new QGroupBox(tr("Printer settings"), this, "settings group box");
 
-    QBoxLayout *tll = new QBoxLayout(g, QBoxLayout::Down);
+    QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
     d->colorMode = new QPrintDialogUnixButtonGroup(this);
     d->colorMode->hide();
     connect(d->colorMode, SIGNAL(clicked(int)),
@@ -967,7 +967,7 @@ QGroupBox *QPrintDialogUnix::setupDestination()
     QGroupBox *g = new QGroupBox(tr("Print destination"),
                                    this, "destination group box");
 
-    QBoxLayout *tll = new QBoxLayout(g, QBoxLayout::Down);
+    QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
 
     d->printerOrFile = new QPrintDialogUnixButtonGroup(this);
     d->printerOrFile->hide();
@@ -1135,8 +1135,8 @@ QGroupBox *QPrintDialogUnix::setupOptions()
     QGroupBox *g = new QGroupBox(tr("Options"),
                                    this, "options group box");
 
-    QBoxLayout *lay = new QBoxLayout(g, QBoxLayout::LeftToRight);
-    QBoxLayout *tll = new QBoxLayout(lay, QBoxLayout::Down);
+    QBoxLayout *lay = new QBoxLayout(QBoxLayout::LeftToRight, g);
+    QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, lay);
 
     d->printRange = new QPrintDialogUnixButtonGroup(this);
     d->printRange->hide();
@@ -1189,7 +1189,7 @@ QGroupBox *QPrintDialogUnix::setupOptions()
              this, SLOT(setLastPage(int)));
 
     lay->addSpacing(25);
-    tll = new QBoxLayout(lay, QBoxLayout::Down);
+    tll = new QBoxLayout(QBoxLayout::Down, lay);
 
     // print order
     QRadioButton *rb = new QRadioButton(tr("Print first page first"),
@@ -1247,7 +1247,9 @@ QGroupBox *QPrintDialogUnix::setupPaper()
     QGroupBox *g = new QGroupBox(tr("Paper format"),
                                    this, "Paper format");
 
-    QBoxLayout *tll = new QBoxLayout(g, QBoxLayout::Down, 12, 0);
+    QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
+    tll->setMargin(12);
+    tll->setSpacing(0);
     d->pageSize = QPrinter::A4;
 
     // page orientation
@@ -1317,7 +1319,7 @@ void QPrintDialogUnix::printerOrFileSelected(int id)
         fileNameEditChanged(d->fileName->text());
         if (!d->fileName->isModified() && d->fileName->text().isEmpty()) {
             QString home = QLatin1String(::getenv("HOME"));
-            QString cur = QDir::currentDirPath();
+            QString cur = QDir::currentPath();
             if (home.at(home.length()-1) != '/')
                 home += '/';
             if (cur.at(cur.length()-1) != '/')
@@ -1588,7 +1590,9 @@ void QPrintDialogUnixPrivate::init()
 {
     numCopies = 1;
 
-    QBoxLayout *tll = new QBoxLayout(q, QBoxLayout::Down, 12, 0);
+    QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, q);
+    tll->setMargin(12);
+    tll->setSpacing(0);
 
     // destination
     QGroupBox *g;

@@ -85,12 +85,12 @@ QCopChannel::QCopChannel(const QCString& channel, QObject* parent, const char* n
     // do we need a new channel list ?
     QCopClientMap::Iterator it = qcopClientMap->find(channel);
     if (it != qcopClientMap->end()) {
-        it.data().append(this);
+        it.value().append(this);
         return;
     }
 
     it = qcopClientMap->insert(channel, QList<QCopChannel*>());
-    it.data().append(this);
+    it.value().append(this);
 
     // inform server about this channel
     qt_fbdpy->registerChannel(channel);
@@ -106,9 +106,9 @@ QCopChannel::~QCopChannel()
 {
     QCopClientMap::Iterator it = qcopClientMap->find(d->channel);
     Q_ASSERT(it != qcopClientMap->end());
-    it.data().remove(this);
+    it.value().removeAll(this);
     // still any clients connected locally ?
-    if (it.data().isEmpty()) {
+    if (it.value().isEmpty()) {
         QByteArray data;
         QDataStream s(data, IO_WriteOnly);
         s << d->channel;
@@ -289,14 +289,14 @@ void QCopChannel::registerChannel(const QString &ch, QWSClient *cl)
       it = qcopServerMap->insert(ch, QList<QWSClient*>());
 
     // If this is the first client in the channel, announce the channel as being created.
-    if (it.data().count() == 0) {
+    if (it.value().count() == 0) {
       QWSServerSignalBridge* qwsBridge = new QWSServerSignalBridge();
       connect(qwsBridge, SIGNAL(newChannel(QString)), qwsServer, SIGNAL(newChannel(QString)));
       qwsBridge->emitNewChannel(ch);
       delete qwsBridge;
     }
 
-    it.data().append(cl);
+    it.value().append(cl);
 }
 
 /*!
@@ -311,10 +311,10 @@ void QCopChannel::detach(QWSClient *cl)
 
     QCopServerMap::Iterator it = qcopServerMap->begin();
     for (; it != qcopServerMap->end(); it++) {
-      if (it.data().contains(cl)) {
-        it.data().remove(cl);
+      if (it.value().contains(cl)) {
+        it.value().removeAll(cl);
         // If this was the last client in the channel, announce the channel as dead.
-        if (it.data().count() == 0) {
+        if (it.value().count() == 0) {
           QWSServerSignalBridge* qwsBridge = new QWSServerSignalBridge();
           connect(qwsBridge, SIGNAL(removedChannel(QString)), qwsServer, SIGNAL(removedChannel(QString)));
           qwsBridge->emitRemovedChannel(it.key());
@@ -351,15 +351,15 @@ void QCopChannel::answer(QWSClient *cl, const QCString &ch,
             Q_ASSERT(qcopServerMap);
             QCopServerMap::Iterator it = qcopServerMap->find(c);
             if (it != qcopServerMap->end()) {
-                Q_ASSERT(it.data().contains(cl));
-                it.data().remove(cl);
-                if (it.data().isEmpty()) {
+                Q_ASSERT(it.value().contains(cl));
+                it.value().removeAll(cl);
+                if (it.value().isEmpty()) {
                   // If this was the last client in the channel, announce the channel as dead
                   QWSServerSignalBridge* qwsBridge = new QWSServerSignalBridge();
                   connect(qwsBridge, SIGNAL(removedChannel(QString)), qwsServer, SIGNAL(removedChannel(QString)));
                   qwsBridge->emitRemovedChannel(it.key());
                   delete qwsBridge;
-                  qcopServerMap->remove(it);
+                  qcopServerMap->erase(it);
                 }
             }
             return;

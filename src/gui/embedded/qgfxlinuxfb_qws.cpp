@@ -537,7 +537,7 @@ void QLinuxFbScreen::insert_entry(int pos,int start,int end)
     qDebug("Insert entry: %d, %d -> %d", pos, start, end);
 #endif
 
-    if (start < *lowest) {
+    if (start < (int)*lowest) {
         *lowest = start;
 #ifdef DEBUG_CACHE
         qDebug("    moved lowest to %d", *lowest);
@@ -583,7 +583,7 @@ uchar * QLinuxFbScreen::cache(int amount, int optim)
     qt_fbdpy->grab();
 
     int startp = cacheStart + (*entryp+1) * sizeof(QPoolEntry);
-    if (startp >= *lowest) {
+    if (startp >= (int)*lowest) {
         // We don't have room for another cache QPoolEntry.
 #ifdef DEBUG_CACHE
         qDebug("No room for pool entry in VRAM");

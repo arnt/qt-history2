@@ -269,7 +269,7 @@ void QPixmap::deref()
 {
     if (data && data->deref()) {                        // last reference lost
         if (qws_trackPixmapData)
-            QwsPixmap::pixmapData->remove(data);
+            QwsPixmap::pixmapData->removeAll(data);
         if (data->mask)
             delete data->mask;
         if (data->clut)
@@ -674,6 +674,12 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 
 QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
 {
+    Q_UNUSED(window);
+    Q_UNUSED(x);
+    Q_UNUSED(y);
+    Q_UNUSED(w);
+    Q_UNUSED(h);
+
     //#############################
     QPixmap pm;
 #ifdef QT_OLD_GFX

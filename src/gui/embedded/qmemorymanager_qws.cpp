@@ -713,7 +713,7 @@ void QMemoryManager::deletePixmap(PixmapID id)
     } else {
         free((*it).data);
     }
-    pixmap_map.remove(it);
+    pixmap_map.erase(it);
 }
 
 void QMemoryManager::findPixmap(PixmapID id, int width, int depth, uchar** address, int* xoffset, int* linestep)

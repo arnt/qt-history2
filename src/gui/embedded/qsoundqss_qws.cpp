@@ -146,7 +146,7 @@ private:
                     return;
                 if (qstrncmp(d,"WAVE",4) != 0) {
                     // skip
-                    if (chunk.size > 1000000000 || !dev->at(dev->at()+chunk.size-4))
+                    if (chunk.size > 1000000000 || !dev->seek(dev->at()+chunk.size-4))
                         return;
                 }
             } else if (qstrncmp(chunk.id,"fmt ",4) == 0) {
@@ -159,7 +159,7 @@ private:
                 }
             } else {
                 // ignored chunk
-                if (chunk.size > 1000000000 || !dev->at(dev->at()+chunk.size))
+                if (chunk.size > 1000000000 || !dev->seek(dev->at()+chunk.size))
                     return;
             }
         }
@@ -429,7 +429,7 @@ void  QWSSoundServerPrivate::feedDevice(int fd)
                 for (int i = 0; i < active.size(); ++i) {
                     bucket = active.at(i);
                     if (bucket->finished()) {
-                        active.remove(bucket);
+                        active.removeAll(bucket);
                         delete bucket;
                     }
                 }
@@ -482,9 +482,9 @@ void QWSSoundClient::play(const QString& filename)
 {
     QFileInfo fi(filename);
 #ifndef QT_NO_TEXTCODEC
-    QByteArray u = ("PLAY " + fi.absFilePath() + "\n").utf8();
+    QByteArray u = ("PLAY " + fi.absoluteFilePath() + "\n").utf8();
 #else
-    QByteArray u = ("PLAY " + fi.absFilePath() + "\n").latin1();
+    QByteArray u = ("PLAY " + fi.absoluteFilePath() + "\n").latin1();
 #endif
     writeBlock(u.data(), u.length());
 }

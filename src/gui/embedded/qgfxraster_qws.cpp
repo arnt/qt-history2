@@ -6109,7 +6109,7 @@ QScreen *qt_get_screen(int display_id, const char *spec)
 {
     QString displaySpec(spec);
     QString driver = displaySpec;
-    int colon = displaySpec.find(':');
+    int colon = displaySpec.indexOf(':');
     if (colon >= 0)
         driver.truncate(colon);
 

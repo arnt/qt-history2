@@ -93,7 +93,7 @@
 */
 void QWSDecoration::close(QWidget *widget)
 {
-    widget->close(false);
+    widget->close();
 }
 
 

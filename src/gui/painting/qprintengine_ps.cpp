@@ -5262,8 +5262,10 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     outStream << "%!PS-Adobe-1.0";
     QPaintDeviceMetrics m(printer);
     scale = 1;// ################# 72. / ((float) m.logicalDpiY());
-    uint mtop, mleft, mbottom, mright;
-    printer->margins(&mtop, &mleft, &mbottom, &mright);
+    uint mtop = pageRect.top() - paperRect.top();
+    uint mleft = pageRect.left() - paperRect.left();
+    uint mbottom = paperRect.bottom() - pageRect.bottom();
+    uint mright = paperRect.right() - pageRect.right();
     int width = pageRect.width(); // #################### m.width();
     int height = pageRect.height(); // ##########3 m.height();
     if (finished && pageCount == 1 && copies == 1 &&
