@@ -279,10 +279,13 @@ void QAquaFocusWidget::drawFocusRect(QPainter *p) const
         qt_mac_set_port(p);
         QRect r(fo, fo,  width() - (fo*2), height() - (fo*2));
         DrawThemeFocusRect(qt_glb_mac_rect(r, p, TRUE, QRect(1, 1, 1, 1)), true);
-    } else {
+    }
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+    else {
         HIRect rect = CGRectMake(fo, fo, width() - 2 * fo, height() - 2 * fo);
         HIThemeDrawFocusRect(&rect, true, QMacCGContext(p), kHIThemeOrientationNormal);
     }
+#endif
 }
 
 class QMacStylePrivate : public QObject
@@ -844,6 +847,7 @@ static QAquaWidgetSize qt_mac_get_size_for_painter(QPainter *p)
     return qt_aqua_size_constrain(0);
 }
 
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
 static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *slider,
                           HIThemeTrackDrawInfo *tdi, const QWidget *needToRemoveMe)
 {
@@ -860,7 +864,6 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
             tdi->kind = kThemeMediumSlider;
         break;
     case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
         if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
             if (isScrollbar)
                 tdi->kind = kThemeMiniScrollBar;
@@ -868,7 +871,6 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
                 tdi->kind = kThemeMiniSlider;
             break;
         }
-#endif
     case QAquaSizeSmall:
         if (isScrollbar)
             tdi->kind = kThemeSmallScrollBar;
@@ -902,6 +904,7 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
         tdi->trackInfo.scrollbar.viewsize = slider->pageStep;
     }
 }
+#endif
 
 static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *slider,
                           const QPainter *p, ThemeTrackDrawInfo *tdi, const QWidget *needToRemove)
@@ -1267,6 +1270,7 @@ void QMacStylePrivate::doFocus(QWidget *w)
 
 void QMacStylePrivate::HIThemePolish(QWidget *w)
 {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     addWidget(w);
     QPixmap px(0, 0, 32);
     if (qt_mac_is_metal(w)) {
@@ -1314,10 +1318,14 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
         tb->setAutoRaise(true);
     }
     q->QWindowsStyle::polish(w);
+#else
+    Q_UNUSED(w);
+#endif
 }
 
 void QMacStylePrivate::HIThemeUnPolish(QWidget *w)
 {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     removeWidget(w);
     if (::qt_cast<QMenu*>(w) || qt_mac_is_metal(w)) {
         QPalette pal = w->palette();
@@ -1331,10 +1339,14 @@ void QMacStylePrivate::HIThemeUnPolish(QWidget *w)
     if (::qt_cast<QRubberBand*>(w))
         w->setWindowOpacity(1.0);
     q->QWindowsStyle::unPolish(w);
+#else
+    Q_UNUSED(w);
+#endif
 }
 
 void QMacStylePrivate::HIThemePolish(QApplication *app)
 {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     QPalette pal = app->palette();
     QPixmap px(200, 200, 32);
     QPainter p(&px);
@@ -1351,11 +1363,15 @@ void QMacStylePrivate::HIThemePolish(QApplication *app)
     pal.setBrush(QPalette::Background, background);
     pal.setBrush(QPalette::Button, background);
     app->setPalette(pal);
+#else
+    Q_UNUSED(app);
+#endif
 }
 
 void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const QStyleOption *opt,
                                             QPainter *p, const QWidget *w) const
 {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     ThemeDrawState tds = getDrawState(opt->state, opt->palette);
     QMacCGContext cg(p);
     switch (pe) {
@@ -1626,11 +1642,15 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
     default:
         q->QWindowsStyle::drawPrimitive(pe, opt, p, w);
     }
+#else
+    q->QWindowsStyle::drawPrimitive(pe, opt, p, w);
+#endif
 }
 
 void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyleOption *opt,
                                           QPainter *p, const QWidget *w) const
 {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     ThemeDrawState tds = getDrawState(opt->state, opt->palette);
     QMacCGContext cg(p);
     switch (ce) {
@@ -2066,11 +2086,15 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
     default:
         q->QWindowsStyle::drawControl(ce, opt, p, w);
     }
+#else
+    q->QWindowsStyle::drawControl(ce, opt, p, w);
+#endif
 }
 
 QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *opt,
                                        const QFontMetrics &fm, const QWidget *widget) const
 {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     QRect r;
     switch (sr) {
     case QStyle::SR_PushButtonContents:
@@ -2112,12 +2136,16 @@ QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *o
         break;
     }
     return r;
+#else
+    return q->QWindowsStyle::subRect(sr, opt, fm, widget);
+#endif
 }
 
 void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                                                  const QStyleOptionComplex *opt,
                                                  QPainter *p, const QWidget *widget) const
 {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     ThemeDrawState tds = getDrawState(opt->state, opt->palette);
     QMacCGContext cg(p);
     switch (cc) {
@@ -2520,6 +2548,9 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
     default:
         q->QWindowsStyle::drawComplexControl(cc, opt, p, widget);
     }
+#else
+    q->QWindowsStyle::drawComplexControl(cc, opt, p, widget);
+#endif
 }
 
 QStyle::SubControl QMacStylePrivate::HIThemeQuerySubControl(QStyle::ComplexControl cc,
@@ -2527,6 +2558,7 @@ QStyle::SubControl QMacStylePrivate::HIThemeQuerySubControl(QStyle::ComplexContr
                                                             const QPoint &pt,
                                                             const QWidget *widget) const
 {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     QStyle::SubControl sc = QStyle::SC_None;
     switch (cc) {
     case QStyle::CC_Slider:
@@ -2632,6 +2664,9 @@ QStyle::SubControl QMacStylePrivate::HIThemeQuerySubControl(QStyle::ComplexContr
         sc = q->QWindowsStyle::querySubControl(cc, opt, pt, widget);
     }
     return sc;
+#else
+    return q->QWindowsStyle::querySubControl(cc, opt, pt, widget);
+#endif
 }
 
 QRect QMacStylePrivate::HIThemeQuerySubControlMetrics(QStyle::ComplexControl cc,
@@ -2639,6 +2674,7 @@ QRect QMacStylePrivate::HIThemeQuerySubControlMetrics(QStyle::ComplexControl cc,
                                                       QStyle::SubControl sc,
                                                       const QWidget *widget) const
 {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     QRect ret;
     switch (cc) {
     case QStyle::CC_Slider:
@@ -2760,11 +2796,15 @@ QRect QMacStylePrivate::HIThemeQuerySubControlMetrics(QStyle::ComplexControl cc,
         ret = q->QWindowsStyle::querySubControlMetrics(cc, opt, sc, widget);
     }
     return ret;
+#else
+    return q->QWindowsStyle::querySubControlMetrics(cc, opt, sc, widget);
+#endif
 }
 
 int QMacStylePrivate::HIThemePixelMetric(QStyle::PixelMetric metric, const QStyleOption *opt,
                                          const QWidget *widget) const
 {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     SInt32 ret = 0;
     switch(metric) {
     case QStyle::PM_TitleBarHeight:
@@ -2796,10 +2836,14 @@ int QMacStylePrivate::HIThemePixelMetric(QStyle::PixelMetric metric, const QStyl
         break;
     }
     return ret;
+#else
+    return q->QWindowsStyle::pixelMetric(metric, opt, widget);
+#endif
 }
 
 void QMacStylePrivate::HIThemeAdjustButtonSize(QStyle::ContentsType ct, QSize &sz, const QWidget *widget)
 {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     ThemeButtonKind bkind = kThemePushButton;
     if (ct == QStyle::CT_ToolButton)
         bkind = kThemeBevelButton;
@@ -2818,6 +2862,11 @@ void QMacStylePrivate::HIThemeAdjustButtonSize(QStyle::ContentsType ct, QSize &s
     HIThemeGetButtonBackgroundBounds(&myRect, &bdi, &macRect);
     sz.setWidth(sz.width() + int(macRect.size.width - myRect.size.width));
     sz.setHeight(sz.height() + int(macRect.size.height - myRect.size.height));
+#else
+    Q_UNUSED(ct);
+    Q_UNUSED(sz);
+    Q_UNUSED(widget);
+#endif
 }
 
 void QMacStylePrivate::AppManPolish(QWidget *w)
