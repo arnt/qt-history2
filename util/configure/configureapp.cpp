@@ -480,7 +480,7 @@ void Configure::parseCmdLine()
     }
 
     if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
-	if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" )
+	if( licenseInfo[ "PRODUCTS" ] == "qt-internal" )
 	    qmakeConfig += "internal";
     }
     for( QStringList::Iterator dis = disabledModules.begin(); dis != disabledModules.end(); ++dis ) {
@@ -1297,7 +1297,7 @@ void Configure::readLicense()
 	licenseFile.close();
     }
     if( QFile::exists( dictionary[ "QT_SOURCE_TREE" ] + "/LICENSE.TROLL" ) ) {
-	licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
+	licenseInfo[ "PRODUCTS" ] = "qt-internal";
 	dictionary[ "QMAKE_INTERNAL" ] = "yes";
     } else if ( !licenseFile.exists() ) {
 	cout << "License file not found in " << QDir::homeDirPath() << endl;
