@@ -33,9 +33,12 @@ static bool createDir( const QString& fullPath )
     for( QStringList::Iterator it = hierarchy.begin(); it != hierarchy.end(); ++it ) {
 	pathComponent = *it + QDir::separator();
 	tmpPath += pathComponent;
-	success = dirTmp.mkdir( tmpPath );
+	if (!dirTmp.exists(tmpPath))
+	    success = dirTmp.mkdir( tmpPath );
+	if (!success)
+	    return false;
     }
-    return success;
+    return true;
 }
 
 QArchive::QArchive( const QString& archivePath )
