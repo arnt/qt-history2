@@ -4,8 +4,6 @@
 
 #include "renderthread.h"
 
-uint RenderThread::colormap[ColormapSize];
-
 RenderThread::RenderThread(QObject *parent)
     : QThread(parent)
 {
@@ -26,14 +24,32 @@ RenderThread::~RenderThread()
     wait();
 }
 
+void RenderThread::render(double centerX, double centerY, double scaleFactor,
+                          QSize resultSize)
+{
+    QMutexLocker locker(&mutex);
+
+    this->centerX = centerX;
+    this->centerY = centerY;
+    this->scaleFactor = scaleFactor;
+    this->resultSize = resultSize;
+
+    if (!isRunning()) {
+        start(LowPriority);
+    } else {
+        restart = true;
+        condition.wakeOne();
+    }
+}
+
 void RenderThread::run()
 {
     forever {
         mutex.lock();
         QSize resultSize = this->resultSize;
-        float scaleFactor = this->scaleFactor;
-        float centerX = this->centerX;
-        float centerY = this->centerY;
+        double scaleFactor = this->scaleFactor;
+        double centerX = this->centerX;
+        double centerY = this->centerY;
         mutex.unlock();
 
         int halfWidth = resultSize.width() / 2;
@@ -42,8 +58,8 @@ void RenderThread::run()
 
         int limit = 4;
 
-        for (int pass = 0; pass < 32; ++pass) {
-            const int MaxPrecision = 32 * (pass + 3);
+        for (int pass = 0; pass < 8; ++pass) {
+            const int MaxPrecision = (1 << (2 * pass + 6)) + 32;
 
             for (int y = -halfHeight; y < halfHeight; ++y) {
                 if (restart)
@@ -54,16 +70,16 @@ void RenderThread::run()
                 uint *scanLine =
                         reinterpret_cast<uint *>(image.scanLine(y + halfHeight));
                 for (int x = -halfWidth; x < halfWidth; ++x) {
-                    float ax = centerX + (x * scaleFactor);
-                    float ay = centerY + (y * scaleFactor);
-                    float a1 = ax;
-                    float b1 = ay;
+                    double ax = centerX + (x * scaleFactor);
+                    double ay = centerY + (y * scaleFactor);
+                    double a1 = ax;
+                    double b1 = ay;
                     int numPasses = 0;
 
                     do {
                         ++numPasses;
-                        float a2 = (a1 * a1) - (b1 * b1) + ax;
-                        float b2 = (2 * a1 * b1) + ay;
+                        double a2 = (a1 * a1) - (b1 * b1) + ax;
+                        double b2 = (2 * a1 * b1) + ay;
                         a1 = a2;
                         b1 = b2;
                     } while (numPasses < MaxPrecision
@@ -87,29 +103,11 @@ void RenderThread::run()
     }
 }
 
-void RenderThread::render(float centerX, float centerY, float scaleFactor,
-                          QSize resultSize)
+uint RenderThread::rgbFromWaveLength(double wave)
 {
-    QMutexLocker locker(&mutex);
-
-    this->centerX = centerX;
-    this->centerY = centerY;
-    this->scaleFactor = scaleFactor;
-    this->resultSize = resultSize;
-
-    if (!isRunning()) {
-        start(LowPriority);
-    } else {
-        restart = true;
-        condition.wakeOne();
-    }
-}
-
-uint RenderThread::rgbFromWaveLength(float wave)
-{
-    float r = 0.0;
-    float g = 0.0;
-    float b = 0.0;
+    double r = 0.0;
+    double g = 0.0;
+    double b = 0.0;
 
     if (wave >= 380.0 && wave <= 440.0) {
         r = -1.0 * (wave - 440.0) / (440.0 - 380.0);
@@ -130,7 +128,7 @@ uint RenderThread::rgbFromWaveLength(float wave)
         r = 1.0;
     }
 
-    float s = 1.0;
+    double s = 1.0;
     if (wave > 700.0)
         s = 0.3 + 0.7 * (780.0 - wave) / (780.0 - 700.0);
     else if (wave <  420.0)

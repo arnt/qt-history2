@@ -13,33 +13,30 @@ class MandelbrotWidget : public QWidget
 public:
     MandelbrotWidget(QWidget *parent = 0);
 
-    QSize sizeHint() const;
-
-public slots:
-    void drawRenderedImage(const QImage &image);
-
 protected:
     void paintEvent(QPaintEvent *event);
+    void resizeEvent(QResizeEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void wheelEvent(QWheelEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
-    void wheelEvent(QWheelEvent *event);
-    void resizeEvent(QResizeEvent *event);
-    void keyPressEvent(QKeyEvent *event);
+
+private slots:
+    void drawRenderedImage(const QImage &image);
 
 private:
     void zoom(double zoomFactor);
     void scroll(int deltaX, int deltaY);
 
-    double centerX;
-    double centerY;
-    double prevScale;
-    double curScale;
-
+    RenderThread thread;
+    QPixmap pixmap;
     QPoint lastDragPos;
     QPoint pixmapDrawPoint;
-    QPixmap pixmap;
-    RenderThread thread;
+    double centerX;
+    double centerY;
+    double pixmapScale;
+    double curScale;
 };
 
 #endif

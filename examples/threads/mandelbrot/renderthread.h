@@ -16,7 +16,7 @@ public:
     RenderThread(QObject *parent = 0);
     ~RenderThread();
 
-    void render(float centerX, float centerY, float scaleFactor,
+    void render(double centerX, double centerY, double scaleFactor,
                 QSize resultSize);
 
 signals:
@@ -26,19 +26,19 @@ protected:
     void run();
 
 private:
-    uint rgbFromWaveLength(float wave);
+    uint rgbFromWaveLength(double wave);
 
     QMutex mutex;
     QWaitCondition condition;
-    float centerX;
-    float centerY;
-    float scaleFactor;
+    double centerX;
+    double centerY;
+    double scaleFactor;
     QSize resultSize;
     bool restart;
     bool abort;
 
     enum { ColormapSize = 512 };
-    static uint colormap[ColormapSize];
+    uint colormap[ColormapSize];
 };
 
 #endif
