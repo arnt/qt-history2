@@ -543,6 +543,7 @@ void FormFile::parseCode( const QString &txt )
 	    slot.returnType = (*it).returnType;
 	    newSlots << slot;
 	    funcs.insert( (*it).name, (*it).body );
+	    setFormWindowModified( TRUE );
 	}
 	MetaDataBase::setFunctionComments( formWindow(), (*it).name, (*it).comments );
     }
