@@ -82,7 +82,7 @@ public:
 	Close,
 	List,
 	Cd,
-//###	Get,
+	Get,
 //###	Put,
 //###	Copy,
 //###	Remove,
@@ -97,6 +97,7 @@ public:
     int close();
     int list( const QString &dir=QString::null );
     int cd( const QString &dir );
+    int get( const QString &file );
 
     int currentId() const;
     Command currentCommand() const;
@@ -104,6 +105,9 @@ public:
 signals:
     void connectState( int );
     void listInfo( const QUrlInfo& );
+    void newData( const QByteArray& );
+    void dataSize( int );
+    void dataProgress( int );
 
     void start( int );
     void finishedSuccess( int );
@@ -143,7 +147,8 @@ private:
 
 private slots:
     void startNextCommand();
-    void piFinished( int, const QString& );
+    void piFinishedOk( const QString& );
+    void piError( const QString& );
     void piConnectState( int );
 
 protected slots:

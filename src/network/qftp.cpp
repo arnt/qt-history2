@@ -115,11 +115,6 @@ class QFtpPI : public QObject
     Q_OBJECT
 
 public:
-    enum FinishState {
-	Ok,
-	Error
-    };
-
     QFtpPI( QObject *parent=0 );
 
     void connectToHost( const QString &host, Q_UINT16 port );
@@ -128,12 +123,20 @@ public:
     bool sendCommand( const QString &cmd )
     { return sendCommands( QStringList( cmd ) ); }
 
+    void clearPendingCommands()
+    {
+	pendingCommands.clear();
+	currentCommand = QString::null;
+	state = Idle;
+    }
+
     static bool parseDir( const QString &buffer, const QString &userName, QUrlInfo *info );
 
 signals:
     void connectState( int );
     void listInfo( const QUrlInfo& );
-    void finished( int, const QString& );
+    void finishedOk( const QString& );
+    void error( const QString& );
 
 private slots:
     void hostFound();
@@ -160,13 +163,6 @@ private:
 
     bool processReply();
     bool startNextCmd();
-    void fatalError( const QString &text )
-    {
-	emit finished( Error, text );
-	pendingCommands.clear();
-	currentCommand = QString::null;
-	state = Idle;
-    }
 
     QSocket commandSocket;
     QFtpDTP dtp; // the PI has a DTP which is not the design of RFC 959, but it
@@ -224,7 +220,8 @@ void QFtpPI::connectToHost( const QString &host, Q_UINT16 port )
 
 /*
   Sends the sequence of commands \a cmds to the FTP server. When the commands
-  are all done or an error occured, the finished() signal is emitted.
+  are all done the finishedOk() signal is emitted. When error occurs, the
+  error() signal is emitted.
 
   If there are pending commands in the queue this functions returns FALSE and
   the \a cmds are not added to the queue; otherwise it returns TRUE.
@@ -235,7 +232,7 @@ bool QFtpPI::sendCommands( const QStringList &cmds )
 	return FALSE;
 
     if ( commandSocket.state()!=QSocket::Connected || state!=Idle ) {
-	emit finished( Error, tr( "Not connected" ) );
+	emit error( tr( "Not connected" ) );
 	return TRUE; // there are no pending commands
     }
 
@@ -273,10 +270,10 @@ void QFtpPI::error( int e )
 {
     if ( e == QSocket::ErrHostNotFound ) {
 	emit connectState( QFtp::CsHostNotFound );
-	emit finished( Error, tr( "Host %1 not found" ).arg( commandSocket.peerName() ) );
+	emit error( tr( "Host %1 not found" ).arg( commandSocket.peerName() ) );
     } else if ( e == QSocket::ErrConnectionRefused ) {
 	emit connectState( QFtp::CsConnectionRefused );
-	emit finished( Error, tr( "Connection refused to host %1" ).arg( commandSocket.peerName() ) );
+	emit error( tr( "Connection refused to host %1" ).arg( commandSocket.peerName() ) );
     }
 }
 
@@ -367,7 +364,7 @@ bool QFtpPI::processReply()
 		return TRUE;
 	    } else if ( replyCode[0] == 2 ) {
 		state = Idle;
-		emit finished( Ok, tr( "Connected to host %1" ).arg( commandSocket.peerName() ) );
+		emit finishedOk( tr( "Connected to host %1" ).arg( commandSocket.peerName() ) );
 		break;
 	    }
 	    // ### error handling
@@ -415,9 +412,9 @@ bool QFtpPI::processReply()
 	case Idle:
 	    if ( outOfOrderError.isNull() ) {
 		if ( !startNextCmd() )
-		    emit finished( Ok, replyText );
+		    emit finishedOk( replyText );
 	    } else {
-		fatalError( outOfOrderError );
+		emit error( outOfOrderError );
 		outOfOrderError = QString::null;
 	    }
 	    break;
@@ -425,7 +422,7 @@ bool QFtpPI::processReply()
 	    // ### do nothing
 	    break;
 	case Failure:
-	    fatalError( replyText );
+	    emit error( replyText );
 	    break;
     }
 #if defined(QFTPPI_DEBUG)
@@ -746,8 +743,10 @@ void QFtp::init()
 	    SIGNAL(connectState(int)) );
     connect( &d->pi, SIGNAL(listInfo(const QUrlInfo&)),
 	    SIGNAL(listInfo(const QUrlInfo&)) );
-    connect( &d->pi, SIGNAL(finished(int,const QString&)),
-	    SLOT(piFinished(int,const QString&)) );
+    connect( &d->pi, SIGNAL(finishedOk( const QString& )),
+	    SLOT(piFinishedOk( const QString& )) );
+    connect( &d->pi, SIGNAL(error(const QString&)),
+	    SLOT(piError(const QString&)) );
 }
 
 /*!
@@ -797,6 +796,15 @@ void QFtp::init()
   This signal is emitted ###
 */
 /*!  \fn void QFtp::doneError( const QString &detail )
+  This signal is emitted ###
+*/
+/*!  \fn void QFtp::newData( const QByteArray &data )
+  This signal is emitted ###
+*/
+/*!  \fn void QFtp::dataSize( int size )
+  This signal is emitted ###
+*/
+/*!  \fn void QFtp::dataProgress( int size )
   This signal is emitted ###
 */
 
@@ -899,6 +907,28 @@ int QFtp::cd( const QString &dir )
 }
 
 /*!
+  Downloads the file \a file from the server. The downloaded file is reported
+  in chunks by the newData() signal.
+
+  This function returns immediately; it returns a unique identifier for the
+  scheduled command.
+
+  When the command is started the start() signal is emitted. When it is
+  finished, either the finishedSuccess() or finishedError() signal is emitted.
+
+  \sa newData() dataSize() dataProgress() start() finishedSuccess() finishedError()
+*/
+int QFtp::get( const QString &file )
+{
+    QStringList cmds;
+    cmds << "SIZE " + file + "\r\n";
+    cmds << "TYPE I\r\n";
+    cmds << "PASV\r\n";
+    cmds << "RETR " + file + "\r\n";
+    return addCommand( Get, cmds );
+}
+
+/*!
   Returns the identifier of the FTP command currently executed or 0 if there is
   no command executed.
 
@@ -956,54 +986,60 @@ void QFtp::startNextCommand()
     }
 }
 
-void QFtp::piFinished( int status, const QString &text )
+void QFtp::piFinishedOk( const QString& )
 {
     QFtpPrivate *d = ::d( this );
     QFtpCommand *c = d->pending.getFirst();
     if ( c == 0 )
 	return;
 
-    if ( status == QFtpPI::Ok ) {
-	if ( c->command == Close ) {
-	    // The order of in which the slots are called is arbitrary, so
-	    // disconnect the SIGNAL-SIGNAL temporary to make sure that we
-	    // don't get the finishedSuccess() signal before the connectState()
-	    // signal.
-	    if ( d->redirectConnectState ) {
-		d->redirectConnectState = FALSE;
-		connect( &d->pi, SIGNAL(connectState(int)),
-			this, SIGNAL(connectState(int)) );
-		disconnect( &d->pi, SIGNAL(connectState(int)),
-			this, SLOT(piConnectState(int)) );
-	    } else {
-		d->redirectConnectState = TRUE;
-		disconnect( &d->pi, SIGNAL(connectState(int)),
-			this, SIGNAL(connectState(int)) );
-		connect( &d->pi, SIGNAL(connectState(int)),
-			this, SLOT(piConnectState(int)) );
-		return;
-	    }
+    if ( c->command == Close ) {
+	// The order of in which the slots are called is arbitrary, so
+	// disconnect the SIGNAL-SIGNAL temporary to make sure that we
+	// don't get the finishedSuccess() signal before the connectState()
+	// signal.
+	if ( d->redirectConnectState ) {
+	    d->redirectConnectState = FALSE;
+	    connect( &d->pi, SIGNAL(connectState(int)),
+		    this, SIGNAL(connectState(int)) );
+	    disconnect( &d->pi, SIGNAL(connectState(int)),
+		    this, SLOT(piConnectState(int)) );
+	} else {
+	    d->redirectConnectState = TRUE;
+	    disconnect( &d->pi, SIGNAL(connectState(int)),
+		    this, SIGNAL(connectState(int)) );
+	    connect( &d->pi, SIGNAL(connectState(int)),
+		    this, SLOT(piConnectState(int)) );
+	    return;
 	}
-	emit finishedSuccess( c->id );
-
-	d->pending.removeFirst();
-	if ( d->pending.isEmpty() )
-	    emit doneSuccess();
-	else
-	    startNextCommand();
-    } else {
-	emit finishedError( c->id, text );
-
-	d->pending.clear();
-	emit doneError( text );
     }
+    emit finishedSuccess( c->id );
+
+    d->pending.removeFirst();
+    if ( d->pending.isEmpty() )
+	emit doneSuccess();
+    else
+	startNextCommand();
+}
+
+void QFtp::piError( const QString &text )
+{
+    QFtpPrivate *d = ::d( this );
+    QFtpCommand *c = d->pending.getFirst();
+
+    d->pi.clearPendingCommands();
+
+    emit finishedError( c->id, text );
+
+    d->pending.clear();
+    emit doneError( text );
 }
 
 void QFtp::piConnectState( int state )
 {
     emit connectState( state );
     if ( state == CsClosed )
-	piFinished( QFtpPI::Ok, tr( "Connection closed" ) );
+	piFinishedOk( tr( "Connection closed" ) );
 }
 
 //
