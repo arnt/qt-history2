@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#67 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -837,6 +837,9 @@ void QDragManager::drop()
 {
     if ( !qt_xdnd_current_target )
 	return;
+
+    delete qt_xdnd_deco;
+    qt_xdnd_deco = 0;
 
     XClientMessageEvent drop;
     drop.type = ClientMessage;
