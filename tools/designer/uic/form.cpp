@@ -574,11 +574,11 @@ void Uic::createFormDecl( const QDomElement &e )
 
     out << "protected slots:" << endl;
     out << "    virtual void languageChange();" << endl;
-
     if ( !protectedSlots.isEmpty() ) {
 	out << endl;
 	writeFunctionsDecl( protectedSlots, protectedSlotTypes, protectedSlotSpecifier );
     }
+    out << endl;
 
     // create all private stuff
     if ( !privateFuncts.isEmpty() || !privateVars.isEmpty() || !imageMembers.isEmpty() ) {
