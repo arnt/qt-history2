@@ -131,6 +131,11 @@ QPicture::QPicture( int formatVersion )
 {
     d = new QPicturePrivate;
 
+#if defined(QT_CHECK_RANGE)
+    if ( formatVersion == 0 )
+	qWarning( "QPicture: invalid format version 0" );
+#endif
+
     // still accept the 0 default from before Qt 3.0.
     if ( formatVersion > 0 && formatVersion != (int)mfhdr_maj ) {
 	d->formatMajor = formatVersion;
@@ -355,7 +360,8 @@ bool QPicture::play( QPainter *painter )
     Q_UINT32 nrecords;
     s >> c >> clen;
     Q_ASSERT( c == PdcBegin );
-    if ( !( d->formatMajor >= 1 && d->formatMajor <= 3 )) {
+    // bounding rect was introduced in ver 4. Read in checkFormat().
+    if ( d->formatMajor >= 4 ) {
 	Q_INT32 dummy;
 	s >> dummy >> dummy >> dummy >> dummy;
     }
@@ -492,7 +498,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		break;
 	    case PdcDrawPixmap: {
 		QPixmap pixmap;
-		if ( d->formatMajor >=1 && d->formatMajor <= 3 ) {
+		if ( d->formatMajor < 4 ) {
 		    s >> p >> pixmap;
 		    painter->drawPixmap( p, pixmap );
 		} else {
@@ -503,7 +509,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		break;
 	    case PdcDrawImage: {
 		QImage image;
-		if ( d->formatMajor >=1 && d->formatMajor <= 3 ) {
+		if ( d->formatMajor < 4 ) {
 		    s >> p >> image;
 		    painter->drawImage( p, image );
 		} else {
@@ -666,7 +672,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	s << (Q_UINT16)0 << (Q_UINT16)formatMajor << (Q_UINT16)formatMinor;
 	s << (Q_UINT8)c << (Q_UINT8)sizeof(Q_INT32);
 	brect = QRect();
-	if ( !( formatMajor >= 1 && formatMajor <= 3 )) {
+	if ( formatMajor >= 4 ) {
 	    s << (Q_INT32)brect.left() << (Q_INT32)brect.top()
 	      << (Q_INT32)brect.width() << (Q_INT32)brect.height();
 	}
@@ -683,7 +689,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	int brect_start = data_start + 2*sizeof(Q_INT16) + 2*sizeof(Q_UINT8);
 	int pos = pictb.at();
 	pictb.at( brect_start );
-	if ( !( formatMajor >= 1 && formatMajor <= 3 )) { // bounding rectangle
+	if ( formatMajor >= 4 ) { // bounding rectangle
 	    s << (Q_INT32)brect.left() << (Q_INT32)brect.top()
 	      << (Q_INT32)brect.width() << (Q_INT32)brect.height();
 	}
@@ -773,7 +779,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	    br = *p[0].rect;
 	    break;
 	case PdcDrawPixmap:
-	    if ( formatMajor >=1 && formatMajor <= 3 ) {
+	    if ( formatMajor < 4 ) {
 		s << *p[0].point;
 		s << *p[1].pixmap;
 		br = QRect( *p[0].point, p[1].pixmap->size() );
@@ -784,7 +790,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	    }
 	    break;
 	case PdcDrawImage:
-	    if ( formatMajor >=1 && formatMajor <= 3 ) {
+	    if ( formatMajor < 4 ) {
 		QPoint pt( p[0].point->x(), p[0].point->y() );
 		s << pt;
 		s << *p[1].image;
