@@ -48,8 +48,8 @@
 #include "qtl.h"
 #include "qptrvector.h"
 
-// needed for QT_TRANSLATE_NOOP
-#include "qobject.h"
+#undef QT_TRANSLATE_NOOP
+#define QT_TRANSLATE_NOOP( context, sourceText ) sourceText
 
 #include <limits.h>
 
