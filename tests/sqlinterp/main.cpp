@@ -181,7 +181,6 @@ int main( int /*argc*/, char** /*argv*/ )
     env.program().append( new Close( 0 ) );
 #endif
 
-#if 0
     /* select some records using a range scan */
     env.program().append( new Open( 0, FILENAME ) );
     env.program().append( new PushFieldDesc( 0, "id", 19 ) );
@@ -203,7 +202,6 @@ int main( int /*argc*/, char** /*argv*/ )
     env.program().append( new PushList( 1 ) );
     env.program().append( new Sort( 0 ) );
     env.program().append( new Close( 0 ) );
-#endif
 
 #if 0
     /* select all records and sort */

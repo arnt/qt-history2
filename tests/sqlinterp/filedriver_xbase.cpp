@@ -663,3 +663,9 @@ bool FileDriver::drop()
 #endif
     return TRUE;
 }
+
+bool FileDriver::clearMarked()
+{
+    d->marked.clear();
+    return TRUE;
+}

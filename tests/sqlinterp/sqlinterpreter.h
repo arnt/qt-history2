@@ -39,6 +39,7 @@ public:
     bool createIndex( const QSqlRecord* index, bool unique );
     bool drop();
     bool fieldDescription( const QString& name, QVariant& v );
+    bool clearMarked();
 
 protected:
     virtual void setName( const QString& name ) { nm = name; }
@@ -1262,6 +1263,28 @@ public:
 	if ( !b )
 	    env->program().setLastError( drv.lastError() );
 	return b;
+    }
+};
+
+
+/*  Clears all marked records from the file identified by 'id'.
+*/
+
+class ClearMarked : public Label
+{
+public:
+    ClearMarked( const QVariant& id, const QVariant& name,
+	      const QString& label = QString::null )
+	: Label( id, name, label ) {}
+    QString name() const { return "ClearMarked"; }
+    int exec( Interpreter::Environment* env )
+    {
+	Interpreter::FileDriver& drv = env->fileDriver( p1.toInt() );
+	if ( !drv.clearMarked() ) {
+	    env->program().setLastError("ClearMarked: unable to clear marks!" );
+	    return 0;
+	}
+	return 1;
     }
 };
 
