@@ -86,7 +86,7 @@ public:
     Protocol protocol() const;
     PGconn *connection();
 
-    QString escapeIdentifier(const QString &identifier) const;
+    QString escapeIdentifier(const QString &identifier, IdentifierType type) const;
     QString formatValue(const QSqlField &field,
                                      bool trimStrings) const;
 

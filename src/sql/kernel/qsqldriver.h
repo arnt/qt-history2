@@ -38,6 +38,8 @@ public:
     enum StatementType { WhereStatement, SelectStatement, UpdateStatement,
                          InsertStatement, DeleteStatement };
 
+    enum IdentifierType { FieldName, TableName };
+
     explicit QSqlDriver(QObject *parent=0);
     ~QSqlDriver();
     virtual bool isOpen() const;
@@ -62,7 +64,7 @@ public:
 #endif
     virtual QString formatValue(const QSqlField& field, bool trimStrings = false) const;
 
-    virtual QString escapeIdentifier(const QString &identifier) const;
+    virtual QString escapeIdentifier(const QString &identifier, IdentifierType type) const;
     virtual QString sqlStatement(StatementType type, const QString &tableName,
                                  const QSqlRecord &rec, bool preparedStatement) const;
 
