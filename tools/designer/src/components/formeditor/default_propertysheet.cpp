@@ -30,7 +30,7 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
         QMetaProperty p = meta->property(index);
         setVisible(index, p.isDesignable(m_object));
     }
-    
+
     // ### disable the overrided properties
 
     createFakeProperty("focusPolicy");
@@ -48,49 +48,34 @@ void QDesignerPropertySheet::createFakeProperty(const QString &propertyName, con
     if (index != -1) {
         setVisible(index, false);
         QVariant v = value.isValid() ? value : metaProperty(index);
-        m_fakeProperties.append(qMakePair(propertyName, v));
+        m_fakeProperties.insert(index, v);
     }
 }
 
 bool QDesignerPropertySheet::isFakeProperty(int index) const
 {
-    return !(index < meta->propertyCount());
+    return m_fakeProperties.contains(index);
 }
 
 int QDesignerPropertySheet::count() const
 {
-    return meta->propertyCount() + m_fakeProperties.count();
+    return meta->propertyCount();
 }
 
 int QDesignerPropertySheet::indexOf(const QString &name) const
 {
-    int index = -1;
-    
-    for (int i=0; i<m_fakeProperties.count(); ++i) {
-        if (m_fakeProperties.at(i).first == name) {
-            index = meta->propertyCount() + i;
-            break;
-        }
-    }
-    
-    if (index == -1)
-        index = meta->indexOfProperty(name.toLatin1());
-    
-    return index;
+    return meta->indexOfProperty(name.toLatin1());
 }
 
 QString QDesignerPropertySheet::propertyName(int index) const
 {
-    if (isFakeProperty(index))
-        return m_fakeProperties.at(index - meta->propertyCount()).first;
-        
     return QString::fromLatin1(meta->property(index).name());
 }
 
 QString QDesignerPropertySheet::propertyGroup(int index) const
 {
     QString g = m_info.value(index).group;
-    
+
     if (g.isEmpty() && propertyName(index).startsWith("accessible"))
         return QString::fromLatin1("Accessibility");
 
@@ -108,9 +93,9 @@ void QDesignerPropertySheet::setPropertyGroup(int index, const QString &group)
 QVariant QDesignerPropertySheet::property(int index) const
 {
     if (isFakeProperty(index)) {
-        return m_fakeProperties.at(index - meta->propertyCount()).second;
+        return m_fakeProperties.value(index);
     }
-    
+
     QMetaProperty p = meta->property(index);
     QVariant v = p.read(m_object);
 
@@ -139,14 +124,14 @@ QVariant QDesignerPropertySheet::property(int index) const
 
         qVariantSet(v, e, "EnumType");
     }
-    
+
     return v;
 }
 
 QVariant QDesignerPropertySheet::metaProperty(int index) const
 {
     Q_ASSERT(!isFakeProperty(index));
-    
+
     QMetaProperty p = meta->property(index);
     QVariant v = p.read(m_object);
 
@@ -171,7 +156,7 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
 
         qVariantSet(v, e, "EnumType");
     }
-    
+
     return v;
 }
 
@@ -180,27 +165,26 @@ QVariant QDesignerPropertySheet::resolvePropertyValue(const QVariant &value) con
     QVariant v;
     EnumType e;
     FlagType f;
-    
+
     if (qVariantGet(value, f, "FlagType"))
         v = f.value;
     else if (qVariantGet(value, e, "EnumType"))
         v = e.value;
     else
         v = value;
-    
+
     return v;
 }
 
 void QDesignerPropertySheet::setFakeProperty(int index, const QVariant &value)
 {
     Q_ASSERT(isFakeProperty(index));
-    Q_ASSERT(propertyName(index) == m_fakeProperties[index - meta->propertyCount()].first);
 
     FlagType f;
     EnumType e;
 
-    QVariant &v = m_fakeProperties[index - meta->propertyCount()].second;
-    
+    QVariant &v = m_fakeProperties[index];
+
     if (qVariantGet(value, f, "FlagType") || qVariantGet(value, e, "EnumType")) {
         v = value;
     } else if (qVariantGet(v, f, "FlagType")) {
@@ -243,7 +227,7 @@ bool QDesignerPropertySheet::isVisible(int index) const
 {
     if (isFakeProperty(index))
         return true;
-        
+
     QMetaProperty p = meta->property(index);
     return p.isWritable() && m_info.value(index).visible;
 }

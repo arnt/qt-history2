@@ -41,9 +41,9 @@ public:
     virtual void setProperty(int index, const QVariant &value);
     virtual bool isChanged(int index) const;
     virtual void setChanged(int index, bool changed);
-    
+
     void createFakeProperty(const QString &propertyName, const QVariant &value = QVariant());
-    
+
 protected:
     bool isFakeProperty(int index) const;
     QVariant resolvePropertyValue(const QVariant &value) const;
@@ -65,7 +65,7 @@ protected:
     };
 
     QHash<int, Info> m_info;
-    QList< QPair<QString, QVariant> > m_fakeProperties;
+    QHash<int, QVariant> m_fakeProperties;
 };
 
 class QDesignerPropertySheetFactory: public DefaultExtensionFactory
