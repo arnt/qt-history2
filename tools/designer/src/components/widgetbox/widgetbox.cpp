@@ -65,8 +65,8 @@ static QIcon createIconSet(const QString &name)
 }
 
 static QDomElement childElement(QDomNode node, const QString &tag,
-                                const QString &attr_name = QString(),
-                                const QString &attr_value = QString())
+                                const QString &attr_name,
+                                const QString &attr_value)
 {
     if (node.isElement()) {
         QDomElement elt = node.toElement();
