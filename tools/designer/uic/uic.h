@@ -30,7 +30,8 @@
 class Uic : public Qt
 {
 public:
-    Uic( QTextStream& out, QDomDocument doc, bool decl, bool subcl, const QString &trm, const QString& subclname );
+    Uic( QTextStream& out, QDomDocument doc, bool decl, bool subcl, const QString &trm, const QString& subclname,
+	 bool omitForwardDecls );
 
     void createFormDecl( const QDomElement &e );
     void createFormImpl( const QDomElement &e );
@@ -88,6 +89,7 @@ private:
     QString formName;
     QString lastItem;
     QString trmacro;
+    bool nofwd;
 
     struct Buddy
     {

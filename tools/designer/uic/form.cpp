@@ -86,6 +86,7 @@ void Uic::createFormDecl( const QDomElement &e )
     QMap<QString, CustomInclude> customWidgetIncludes;
 
     // at first the images, we need to ensure the names are unique
+    QMap<QString, int> customWidgets;
     QStringList forwardDecl;
     QStringList forwardDecl2;
     QString exportMacro;
@@ -104,8 +105,10 @@ void Uic::createFormDecl( const QDomElement &e )
 		    WidgetDatabaseRecord *r = new WidgetDatabaseRecord;
 		    while ( !n3.isNull() ) {
 			if ( n3.tagName() == "class" ) {
-			    forwardDecl << n3.firstChild().toText().data();
 			    cl = n3.firstChild().toText().data();
+			    if ( !nofwd )
+				forwardDecl << cl;
+			    customWidgets.insert( cl, 0 );
 			    r->name = cl;
 			} else if ( n3.tagName() == "header" ) {
 			    CustomInclude ci;
@@ -214,7 +217,8 @@ void Uic::createFormDecl( const QDomElement &e )
 		continue; // hide qlayoutwidgets
 	    if ( s == "Line" )
 		s = "QFrame";
-	    forwardDecl += s;
+	    if ( !(nofwd && customWidgets.contains(s)) )
+		forwardDecl += s;
 	    if ( s.mid( 1 ) == "ListBox" || s.mid( 1 ) == "ListView" || s.mid( 1 ) == "IconView" )
 		forwardDecl += "Q" + s.mid( 1 ) + "Item";
 	    if ( s == "QDataTable" ) { // other convenience classes which are used in QDataTable signals, and thus should be forward-declared by uic for us

@@ -1,4 +1,4 @@
-.TH uic 1 "21 June 2000" "Trolltech AS" \" -*- nroff -*-
+.TH uic 1 "2 July 2001" "Trolltech AS" \" -*- nroff -*-
 .\"
 .\" Copyright 2000 Trolltech AS.  All rights reserved.
 .\"
@@ -59,11 +59,14 @@ Write output to
 .I file
 rather than to stdout.
 .TP
+.I "-nofwd"
+Omit forward declarations of custom classes in the generated
+header file. This is necessary if typedef classes are used.
+.TP
 .I "-tr func"
 Use 
 .I func(sourceText, comment)
-rather than trUtf8(sourceText, comment) for i18n.
-
+rather than trUtf8(sourceText, comment) for internationalization.
 
 .SH USAGE
 .B uic

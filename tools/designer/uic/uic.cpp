@@ -89,8 +89,9 @@ QString Uic::mkStdSet( const QString& prop )
 
   The class Uic encapsulates the user interface compiler (uic).
  */
-Uic::Uic( QTextStream &outStream, QDomDocument doc, bool decl, bool subcl, const QString &trm, const QString& subClass  )
-    : out( outStream ), trmacro( trm )
+Uic::Uic( QTextStream &outStream, QDomDocument doc, bool decl, bool subcl, const QString &trm, const QString& subClass,
+	  bool omitForwardDecls )
+    : out( outStream ), trmacro( trm ), nofwd( omitForwardDecls )
 {
     defMargin = BOXLAYOUT_DEFAULT_MARGIN;
     defSpacing = BOXLAYOUT_DEFAULT_SPACING;
@@ -1198,6 +1199,7 @@ int main( int argc, char * argv[] )
     const char* headerFile = 0;
     const char* outputFile = 0;
     const char* trmacro = 0;
+    bool nofwd = FALSE;
     bool fix = FALSE;
     for ( int n = 1; n < argc && error == 0; n++ ) {
 	QCString arg = argv[n];
@@ -1222,6 +1224,8 @@ int main( int argc, char * argv[] )
 		    headerFile = argv[++n];
 		} else
 		    headerFile = &opt[1];
+	    } else if ( opt == "nofwd" ) {
+		nofwd = TRUE;
 	    } else if ( opt == "subdecl" ) {
 		subcl = TRUE;
 		if ( !(n < argc-2) ) {
@@ -1270,18 +1274,19 @@ int main( int argc, char * argv[] )
 		 "   %s  [options]  <uifile>\n"
 		 "Generate implementation:\n"
 		 "   %s  [options] -impl <headerfile> <uifile>\n"
-		 "\t<headerfile>	name of the declaration file\n"
+		 "\t<headerfile>\tname of the declaration file\n"
 		 "Generate subclass declaration:\n"
 		 "   %s  [options] -subdecl <classname> <headerfile> <uifile>\n"
-		 "\t<classname>	name of the subclass to generate\n"
-		 "\t<headerfile>	declaration file of the baseclass\n"
+		 "\t<classname>\tname of the subclass to generate\n"
+		 "\t<headerfile>\tdeclaration file of the baseclass\n"
 		 "Generate subclass implementation:\n"
 		 "   %s  [options] -subimpl <classname> <headerfile> <uifile>\n"
-		 "\t<classname>	name of the subclass to generate\n"
-		 "\t<headerfile>	declaration file of the subclass\n"
+		 "\t<classname>\tname of the subclass to generate\n"
+		 "\t<headerfile>\tdeclaration file of the subclass\n"
 		 "Options:\n"
-		 "\t-o file	Write output to file rather than stdout\n"
-		 "\t-tr func	Use func(...) rather than tr(...) for i18n\n"
+		 "\t-o file\t\tWrite output to file rather than stdout\n"
+		 "\t-nofwd\t\tOmit forward declarations of custom classes\n"
+		 "\t-tr func\tUse func(...) rather than trUtf8(...) for i18n\n"
 		 , argv[0], argv[0], argv[0], argv[0], argv[0]);
 	exit( 1 );
     }
@@ -1338,7 +1343,7 @@ int main( int argc, char * argv[] )
 	out << "#include \"" << headerFile << "\"" << endl << endl;
     }
 
-    Uic( out, doc, !impl, subcl, trmacro ? trmacro : "trUtf8", className );
+    Uic( out, doc, !impl, subcl, trmacro ? trmacro : "trUtf8", className, nofwd );
 
     if ( !protector.isEmpty() ) {
 	out << endl;
