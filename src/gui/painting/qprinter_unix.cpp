@@ -42,6 +42,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 class QPrinterUnixPrivate : public QPrinterPrivate
 {
 public:
+    bool marginsSpecified;
     uint topMargin;
     uint leftMargin;
     uint bottomMargin;
@@ -114,11 +115,8 @@ QPrinter::QPrinter( PrinterMode m )
 	    res = 600;
     }
 
-    d = 0;
-    QPrinterUnixPrivate *tmp = new QPrinterUnixPrivate;
-    margins( &(tmp->topMargin), &(tmp->leftMargin),
-	     &(tmp->bottomMargin), &(tmp->rightMargin) );
-    d = tmp;
+    d = new QPrinterUnixPrivate;
+    D->marginsSpecified = false;
     d->printerOptions = 0;
     setOptionEnabled( PrintToFile, TRUE );
     setOptionEnabled( PrintPageRange, TRUE );
@@ -503,7 +501,7 @@ int QPrinter::metric( int m ) const
 	if ( res != 72 )
 	    val = (val * res + 36) / 72;
 	if ( !fullPage() ) {
-	    if ( d )
+	    if ( D->marginsSpecified )
 		val -= D->leftMargin + D->rightMargin;
 	    else
 		val -= 2*margins().width();
@@ -514,7 +512,7 @@ int QPrinter::metric( int m ) const
 	if ( res != 72 )
 	    val = (val * res + 36) / 72;
 	if ( !fullPage() ) {
-	    if ( d )
+	    if ( D->marginsSpecified )
 		val -= D->topMargin + D->bottomMargin;
 	    else
 		val -= 2*margins().height();
@@ -571,7 +569,7 @@ int QPrinter::metric( int m ) const
 */
 QSize QPrinter::margins() const
 {
-    if ( d )
+    if ( D->marginsSpecified )
 	return QSize( D->leftMargin, D->topMargin );
 
     if (orient == Portrait)
@@ -598,7 +596,7 @@ QSize QPrinter::margins() const
 */
 void QPrinter::margins( uint *top, uint *left, uint *bottom, uint *right ) const
 {
-    if ( !d ) {
+    if ( !D->marginsSpecified ) {
 	int x = orient == Portrait ? res/2 : res/3;
 	int y = orient == Portrait ? res/3 : res/2;
 	*top = *bottom = y;
@@ -625,6 +623,7 @@ void QPrinter::setMargins( uint top, uint left, uint bottom, uint right )
     D->leftMargin = left;
     D->bottomMargin = bottom;
     D->rightMargin = right;
+    D->marginsSpecified = TRUE;
 }
 
 /*! \internal */
