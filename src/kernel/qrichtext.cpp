@@ -7405,7 +7405,7 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 
 int QTextTable::minimumWidth() const
 {
-    return (layout ? layout->minimumSize().width() : 0) + 2 * outerborder;
+    return fixwidth ? fixwidth : ((layout ? layout->minimumSize().width() : 0) + 2 * outerborder);
 }
 
 void QTextTable::resize( int nwidth )
