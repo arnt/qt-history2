@@ -1407,7 +1407,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	setLineWidth( 2 );
 	setMinimumSize( 128, 0 );
     } else {
-	setFrameStyle( QFrame::Panel | QFrame::Raised );
+	setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
 	setLineWidth( 2 );
 	setMinimumSize( 128, 0 );
     }
