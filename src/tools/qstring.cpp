@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#16 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#16 $";
 #endif
 
 
@@ -569,6 +569,10 @@ int QString::contains( const char *str, bool cs ) const
     return count;
 }
 
+/*!
+Returns the \e len bytes long (plus final \0) leftmost substring of
+itself, or a deep copy of itself if \e len >= size().
+*/
 
 QString QString::left( uint len ) const		// get left substring
 {
@@ -589,6 +593,11 @@ QString QString::left( uint len ) const		// get left substring
     }
 }
 
+/*!
+Returns the \e len bytes long (plus final \0) rightmost substring of
+itself, or a deep copy of itself if \e len >= size().
+*/
+
 QString QString::right( uint len ) const	// get right substring
 {
     if ( isEmpty() ) {
@@ -608,6 +617,10 @@ QString QString::right( uint len ) const	// get right substring
     }
 }
 
+/*!  Returns the at most \e len bytes long (plus final \0) substring
+starting at offset \e index.
+
+If \e index is out of range, an empty string is returned. */
 QString QString::mid( uint index, uint len ) const // get mid substring
 {
     uint slen = strlen( data() );
@@ -625,6 +638,9 @@ QString QString::mid( uint index, uint len ) const // get mid substring
     }
 }
 
+/*!  Returns a deep copy of itself extended (at the end of the string)
+to \width characters (plus final \0) with \e fill characters. */
+
 QString QString::leftJustify( uint width, char fill ) const
 {
     QString tmp;
@@ -640,6 +656,10 @@ QString QString::leftJustify( uint width, char fill ) const
 	tmp = copy();
     return tmp;
 }
+
+/*!  Returns a deep copy of itself extended (at the head of the
+string) to \width characters (plus final \0) with \e fill
+characters. */
 
 QString QString::rightJustify( uint width, char fill ) const
 {
@@ -657,6 +677,12 @@ QString QString::rightJustify( uint width, char fill ) const
     return tmp;
 }
 
+/*!  Converts the string to lower case and returns a reference to the
+string.  At present it only handles 7-bit ASCII, or whatever the
+system tolower() handles (if $LC_CTYPE is set, most unices do the
+Right Thing).
+
+\todo Non-ASCII character set support */
 
 QString &QString::lower()			// convert to lower case
 {
@@ -670,6 +696,13 @@ QString &QString::lower()			// convert to lower case
     return *this;
 }
 
+/*!  Converts the string to upper case and returns a reference to the
+string.  At present it only handles 7-bit ASCII, or whatever the
+system toupper() handles (if $LC_CTYPE is set, most unices do the
+Right Thing).
+
+\todo Non-ASCII character set support */
+
 QString &QString::upper()			// convert to upper case
 {
     if ( !isEmpty() ) {
@@ -682,6 +715,17 @@ QString &QString::upper()			// convert to upper case
     return *this;
 }
 
+
+/*!  Insert \e s into the string at (before) position \e index.  If \e
+index is too large, \e s is inserted at the end of the string.
+
+\code{{
+QString a;
+
+a = "Qt is cool";
+a.insert( 5, " inordinately");
+ASSERT (strcmp(a, "Qt is inordinately cool") == 0);
+}} */
 
 QString &QString::insert( uint index, const char *s )
 {						// insert s into string
@@ -703,6 +747,17 @@ QString &QString::insert( uint index, const char *s )
     return *this;
 }
 
+/*!  Insert \e c into the string at (before) position \e index.  If \e
+index is too large, \e c is inserted at the end of the string.
+
+\code{{
+QString a;
+
+a = "Qt is cool";
+a.insert( 32000, '!');
+ASSERT (strcmp(a, "Qt is cool!") == 0);
+}} */
+
 QString &QString::insert( uint index, char c )	// insert char
 {
     char buf[2];
@@ -710,6 +765,21 @@ QString &QString::insert( uint index, char c )	// insert char
     buf[1] = '\0';
     return insert( index, buf );
 }
+
+/*!  Delete \e len characters starting at \e index from the string.
+If \e index is too big, nothing happens.  If \e len is valid, but \e len
+is too large, the rest of the string is deleted.
+
+\code{{
+QString a;
+
+a = "Qt is not cool (ha ha ha)";
+\/ you really oughtn't to use random large numbers like this:
+a.remove( 14, 32000 );
+ASSERT (strcmp(a, "Qt is not cool") == 0);
+a.remove( 6, 4);
+ASSERT (strcmp(a, "Qt is cool") == 0);
+}} */
 
 QString &QString::remove( uint index, uint len )// remove part of string
 {
@@ -724,6 +794,21 @@ QString &QString::remove( uint index, uint len )// remove part of string
     return *this;
 }
 
+/*!  Replace \e len characters starting at \e index from the string
+with \e s.  If \e index is too big, nothing is deleted and \e s is
+inserted at the end of the string.  If \e index is valid, but \e len
+is too large, \e str replaces the rest of the string.
+
+\code{{
+QString a;
+
+a = "Qt is cool";
+a.replace( 6, 9999, "bug-free" );
+ASSERT (strcmp(a, "Qt is bug-free") == 0);
+a.replace( 3, 2, "will soon be");
+ASSERT (strcmp(a, "Qt will soon be bug-free") == 0);
+}} */
+
 QString &QString::replace( uint index, uint len, const char *s )
 {						// replace part of string
     remove( index, len );
@@ -731,6 +816,11 @@ QString &QString::replace( uint index, uint len, const char *s )
     return *this;
 }
 
+
+/*!  Return the string interpreted as a <code>long</code>.  If \e ok
+is non-NULL, \e *ok will be set to TRUE if there are no conceivable
+errors, and FALSE if the string isn't a number at all, or if there's
+trailing garbage. */
 
 long QString::toLong( bool *ok ) const		// convert string to long
 {
@@ -744,6 +834,11 @@ long QString::toLong( bool *ok ) const		// convert string to long
     }
     return val;
 }
+
+/*!  Return the string interpreted as an <code>unsigned long</code>.
+If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
+conceivable errors, and FALSE if the string isn't a number at all, or
+if there's trailing garbage. */
 
 ulong QString::toULong( bool *ok ) const	// convert string to ulong
 {
