@@ -2585,7 +2585,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	QString parStr( str.left( len ) );
 #ifndef QT_NO_REGEXP
 	if ( noaccel || showprefix )
-		parStr.replace( QRegExp( "&" ), "" );
+		parStr.replace( QRegExp( "&(?!&)" ), "" );
 	// compatible behaviour to the old implementation. Replace tabs by spaces
 	parStr.replace( QRegExp( "\t" ), " " );
 #endif
