@@ -1823,8 +1823,9 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 	    QApplication::clipboard()->setSelectionMode(FALSE);
 	}
 #endif
+    } 
 #ifndef QT_NO_CLIPBOARD
-    } else if ( e->button() == MidButton && !isReadOnly() ) {
+    else if ( e->button() == MidButton && !isReadOnly() ) {
         // only do middle-click pasting on systems that have selections (ie. X11)
         if (QApplication::clipboard()->supportsSelection()) {
             drawCursor( FALSE );
