@@ -1014,11 +1014,11 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	fe->fontDef.fixedPitch    = best_family->fixedPitch;
 	fe->fontDef.stretch       = best_style->key.stretch;
 
-#ifndef Q_WS_WIN
 	if ( fp ) {
 	    QFontCache::Key key( request, script, fp->screen );
 	    QFontCache::instance->insertEngine( key, fe );
 
+#ifndef Q_WS_WIN
 	    for ( int i = 0; i < QFont::NScripts; ++i ) {
 		if ( i == script ) continue;
 
@@ -1028,8 +1028,8 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 		key.script = i;
 		QFontCache::instance->insertEngine( key, fe );
 	    }
-	}
 #endif
+	}
     } else {
 	if ( request.family.isEmpty() ) {
 	    FM_DEBUG( "returning box engine" );
