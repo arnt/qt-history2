@@ -432,7 +432,7 @@ void MainWindow::setupToolbox()
     dw->setCloseMode( QDockWindow::Always );
     addToolBar( dw, Qt::DockLeft );
     toolBox = new QToolBox( dw );
-    toolBox->setPageBackgroundMode( PaletteLight );
+    toolBox->setPageBackgroundMode( PaletteBase );
     dw->setWidget( toolBox );
     dw->setFixedExtentWidth( 160 );
     dw->setCaption( tr( "Toolbox" ) );

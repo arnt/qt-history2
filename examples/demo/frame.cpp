@@ -91,7 +91,7 @@ void Frame::setCategories( const QPtrList<CategoryInterface> &l )
     dw->setCloseMode( QDockWindow::Always );
 
     toolBox = new QToolBox( dw );
-    toolBox->setPageBackgroundMode( PaletteDark );
+    toolBox->setPageBackgroundMode( PaletteBase );
     dw->setWidget( toolBox );
 
     dw->setCaption( tr( "Demo Categories" ) );
