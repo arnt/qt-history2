@@ -171,28 +171,28 @@
 /*
    The compiler, must be one of: (Q_CC_x)
 
-     SYM	  - Symantec C++ for both PC and Macintosh
-     MPW	  - MPW C++
+     SYM - Symantec C++ for both PC and Macintosh
+     MPW - MPW C++
      MWERKS - Metrowerks CodeWarrior
-     MSVC	  - Microsoft Visual C/C++
-     BOR	  - Borland/Turbo C++
-     WAT	  - Watcom C++
-     GNU	  - GNU C++
+     MSVC - Microsoft Visual C/C++
+     BOR - Borland/Turbo C++
+     WAT - Watcom C++
+     GNU - GNU C++
      COMEAU - Comeau C++
-     EDG	  - Edison Design Group C++
-     OC	  - CenterLine C++
-     SUN	  - Sun C++
-     MIPS	  - MIPSpro C++
-     DEC	  - DEC C++
-     HP	  - HPUX C++
-     HPACC  - HPUX ANSI C++
-     USLC	  - SCO UnixWare C++
-     CDS	  - Reliant C++
-     KAI	  - KAI C++
-     HIGHC  - MetaWare High C/C++
-     INTEL  - Intel C++
+     EDG - Edison Design Group C++
+     OC - CenterLine C++
+     SUN - Sun C++
+     MIPS - MIPSpro C++
+     DEC - DEC C++
+     HP - HPUX C++
+     HPACC - HPUX ANSI C++
+     USLC - SCO UnixWare C++
+     CDS - Reliant C++
+     KAI - KAI C++
+     HIGHC - MetaWare High C/C++
+     INTEL - Intel C++
 
-   Should be sorted most-authoritative to least-authoritative
+   Should be sorted most to least authoritative.
 */
 
 /* Symantec C++ is now Digital Mars? */
