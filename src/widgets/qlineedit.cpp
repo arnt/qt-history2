@@ -591,7 +591,8 @@ QString QLineEdit::text() const
 {
     // only change the text if we need to, this ensure that multiple
     // calls to text() will get the same shared value.
-    QString s = d->parag->string()->toString( FALSE );
+    const QTextString *ts = d->parag->string(); // workaround VC++ and Borland
+    QString s = ts->toString( FALSE ); // with FALSE we don't fix spaces (nbsp)
     s.remove( s.length() - 1, 1 ); // get rid of trailing space
 
     return stripString( s );
