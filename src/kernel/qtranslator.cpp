@@ -37,10 +37,8 @@
 
 #include "qplatformdefs.h"
 
-// POSIX Large File Support redefines truncate -> truncate64
-#if defined(truncate)
-# undef truncate
-#endif
+// POSIX Large File Support redefines truncate as truncate64
+#undef truncate
 
 #include "qtranslator.h"
 
@@ -61,7 +59,7 @@
 #define QT_USE_MMAP
 #endif
 
-// most of the headers below are already included in qplatformdefs.h...
+// most of the headers below are already included in qplatformdefs.h
 // also this lacks Large File support but that's probably irrelevant
 #if defined(QT_USE_MMAP)
 // for mmap
@@ -72,11 +70,8 @@
 #include <errno.h>
 // for htonl
 #include <netinet/in.h>
-#else
-// appropriate stuff here
 #endif
 
-// for qsort
 #include <stdlib.h>
 
 /*
@@ -85,8 +80,9 @@ $ mcookie
 $
 */
 
-static const int magic_length = 16;
-static const uchar magic[magic_length] = { // magic number for the file
+// magic number for the file
+static const int MagicLength = 16;
+static const uchar magic[MagicLength] = {
     0x3c, 0xb8, 0x64, 0x18, 0xca, 0xef, 0x9c, 0x95,
     0xcd, 0x21, 0x1c, 0xbf, 0x60, 0xa1, 0xbd, 0xdd
 };
@@ -185,7 +181,7 @@ public:
 	unmapPointer( 0 ), unmapLength( 0 ),
 	messageArray( 0 ), offsetArray( 0 ), contextArray( 0 )
 #ifndef QT_NO_TRANSLATION_BUILDER
-	,messages( 0 )
+	, messages( 0 )
 #endif
     { }
     // QTranslator must finalize this before deallocating it
@@ -430,7 +426,6 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     // realname is now the fully qualified name of a readable file.
 
 #if defined(QT_USE_MMAP)
-    // unix (if mmap supported)
 
 #ifndef MAP_FILE
 #define MAP_FILE 0
@@ -467,12 +462,11 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     d->unmapPointer = tmp;
     d->unmapLength = st.st_size;
 #else
-    // windows, or unix without mmap
     QFile f( realname );
     if ( !f.exists() )
 	return FALSE;
     d->unmapLength = f.size();
-    d->unmapPointer = new char[d->unmapLength]; // ### really not
+    d->unmapPointer = new char[d->unmapLength];
     bool ok = FALSE;
     if ( f.open(IO_ReadOnly) ) {
 	ok = d->unmapLength ==
@@ -486,50 +480,65 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     }
 #endif
 
-    // now that we've read it and all, check that it has the right
-    // magic number, and forget all about it if it doesn't.
-    if ( memcmp( (const void *)(d->unmapPointer), magic, magic_length ) ) {
+    return do_load( (const uchar *) d->unmapPointer, d->unmapLength );
+}
+
+/*!
+  \overload
+  \fn bool QTranslator::load( const uchar *data, int len )
+
+  Loads the .qm file data \a data of length \a len into the
+  translator.
+
+  The data is not copied. The caller must be able to guarantee that \a data
+  will not be deleted or modified.
+*/
+
+bool QTranslator::do_load( const uchar *data, int len )
+{
+    if ( len < MagicLength || memcmp( data, magic, MagicLength ) != 0 ) {
 	clear();
 	return FALSE;
     }
-    // prepare to read
-    QByteArray tmpArray;
-    tmpArray.setRawData( d->unmapPointer, d->unmapLength );
-    QDataStream s( tmpArray, IO_ReadOnly );
-    if ( !s.device()->at(magic_length) )
-	return FALSE;
 
-    // read
+    QByteArray array;
+    array.setRawData( (const char *) data, len );
+    QDataStream s( array, IO_ReadOnly );
+    bool ok = TRUE;
+
+    s.device()->at( MagicLength );
+
     Q_UINT8 tag = 0;
     Q_UINT32 length = 0;
     s >> tag >> length;
     while ( tag && length ) {
 	if ( tag == QTranslatorPrivate::Contexts && !d->contextArray ) {
 	    d->contextArray = new QByteArray;
-	    d->contextArray->setRawData( tmpArray.data()+s.device()->at(),
+	    d->contextArray->setRawData( array.data() + s.device()->at(),
 					 length );
 	} else if ( tag == QTranslatorPrivate::Hashes && !d->offsetArray ) {
 	    d->offsetArray = new QByteArray;
-	    d->offsetArray->setRawData( tmpArray.data()+s.device()->at(),
+	    d->offsetArray->setRawData( array.data() + s.device()->at(),
 					length );
 	} else if ( tag == QTranslatorPrivate::Messages && !d->messageArray ) {
 	    d->messageArray = new QByteArray;
-	    d->messageArray->setRawData( tmpArray.data()+s.device()->at(),
+	    d->messageArray->setRawData( array.data() + s.device()->at(),
 					 length );
 	}
-	if ( !s.device()->at(s.device()->at() + length) )
-	    return FALSE;
+	if ( !s.device()->at(s.device()->at() + length) ) {
+	    ok = FALSE;
+	    break;
+	}
 	tag = 0;
 	length = 0;
 	if ( !s.atEnd() )
 	    s >> tag >> length;
     }
+    array.resetRawData( (const char *) data, len );
 
-    tmpArray.resetRawData( d->unmapPointer, d->unmapLength );
-    if ( qApp && qApp->translators && qApp->translators->contains(this) ) {
+    if ( qApp && qApp->translators && qApp->translators->contains(this) )
 	qApp->setReverseLayout( qt_detectRTLLanguage() );
-    }
-    return TRUE;
+    return ok;
 }
 
 #ifndef QT_NO_TRANSLATION_BUILDER
@@ -550,7 +559,7 @@ bool QTranslator::save( const QString & filename, SaveMode mode )
 	squeeze( mode );
 
 	QDataStream s( &f );
-	s.writeRawBytes( (const char *)magic, magic_length );
+	s.writeRawBytes( (const char *)magic, MagicLength );
 	Q_UINT8 tag;
 
 	if ( d->offsetArray != 0 ) {
@@ -595,28 +604,32 @@ void QTranslator::clear()
 #endif
 	d->unmapPointer = 0;
 	d->unmapLength = 0;
-	if ( d->messageArray )
-	    d->messageArray->resetRawData( d->messageArray->data(),
-					   d->messageArray->size() );
-	if ( d->offsetArray )
-	    d->offsetArray->resetRawData( d->offsetArray->data(),
-					  d->offsetArray->size() );
-	if ( d->contextArray )
-	    d->contextArray->resetRawData( d->contextArray->data(),
-					   d->contextArray->size() );
     }
-    delete d->messageArray;
-    d->messageArray = 0;
-    delete d->offsetArray;
-    d->offsetArray = 0;
-    delete d->contextArray;
-    d->contextArray = 0;
+
+    if ( d->messageArray ) {
+	d->messageArray->resetRawData( d->messageArray->data(),
+				       d->messageArray->size() );
+	delete d->messageArray;
+	d->messageArray = 0;
+    }
+    if ( d->offsetArray ) {
+	d->offsetArray->resetRawData( d->offsetArray->data(),
+				      d->offsetArray->size() );
+	delete d->offsetArray;
+	d->offsetArray = 0;
+    }
+    if ( d->contextArray ) {
+	d->contextArray->resetRawData( d->contextArray->data(),
+				       d->contextArray->size() );
+	delete d->contextArray;
+	d->contextArray = 0;
+    }
 #ifndef QT_NO_TRANSLATION_BUILDER
     delete d->messages;
     d->messages = 0;
 #endif
 
-    if ( qApp && qApp->loopLevel() && !wasEmpty ) {
+    if ( !wasEmpty && qApp && qApp->loopLevel() ) {
 	qApp->setReverseLayout( qt_detectRTLLanguage() );
 
 	QWidgetList *list = QApplication::topLevelWidgets();

@@ -118,6 +118,10 @@ public:
 	       const QString & directory = QString::null,
 	       const QString & search_delimiters = QString::null,
 	       const QString & suffix = QString::null );
+    bool load( const uchar *data, int len ) {
+	clear();
+	return do_load( data, len );
+    }
 
     void clear();
 
@@ -145,13 +149,14 @@ public:
     bool isEmpty() const;
 
 private:
-    QTranslatorPrivate * d;
-
-private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QTranslator( const QTranslator & );
     QTranslator &operator=( const QTranslator & );
 #endif
+
+    bool do_load( const uchar *data, int len );
+
+    QTranslatorPrivate * d;
 };
 
 #endif // QT_NO_TRANSLATION
