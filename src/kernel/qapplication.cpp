@@ -797,6 +797,9 @@ QApplication::Type QApplication::type() const
   visual and \a colormap are non-zero, the application will use those as
   the default Visual and Colormap contexts.
 
+  \warning Qt only supports TrueColor visuals at depths higher than 8
+  bits-per-pixel.
+
   This is available only on X11.
 */
 
@@ -821,6 +824,9 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
   \a argc command line arguments in \a argv. If \a
   visual and \a colormap are non-zero, the application will use those as
   the default Visual and Colormap contexts.
+
+  \warning Qt only supports TrueColor visuals at depths higher than 8
+  bits-per-pixel.
 
   This is available only on X11.
 
@@ -1120,8 +1126,11 @@ QStyle& QApplication::style()
 	     !(app_style = QStyleFactory::create( "CDE" ) ) &&
 	     !(app_style = QStyleFactory::create( "Aqua" ) ) &&
 	     !(app_style = QStyleFactory::create( "SGI" ) ) &&
-	     !(app_style = QStyleFactory::create( "Compact" ) ) &&
-	     !(app_style = QStyleFactory::create( QStyleFactory::keys()[0]  ) ) )
+	     !(app_style = QStyleFactory::create( "Compact" ) )
+#ifndef QT_NO_STRINGLIST
+	    && !(app_style = QStyleFactory::create( QStyleFactory::keys()[0]  ) )
+#endif
+	)
 	    qFatal( "No %s style available!", style.latin1() );
     }
 
