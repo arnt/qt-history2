@@ -15,10 +15,7 @@
 #include <sys/wait.h>
 #include <sys/socket.h>
 #else
-#include <io.h>
-#include <fcntl.h>
-#include <process.h>
-#include <direct.h>
+#include <Windows.h>
 #endif
 
 //class Q_EXPORT QProcess : public QObject
@@ -84,10 +81,10 @@ private:
     pid_t pid;
     ssize_t stdinBufRead;
 #else
-    int pipeStdin[2];
-    int pipeStdout[2];
-    int pipeStderr[2];
-    int pid;
+    HANDLE pipeStdin[2];
+    HANDLE pipeStdout[2];
+    HANDLE pipeStderr[2];
+    PROCESS_INFORMATION pid;
 #endif
 
     void init();

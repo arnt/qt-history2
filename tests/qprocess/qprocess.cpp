@@ -192,86 +192,91 @@ bool QProcess::start()
     return TRUE;
 #else
     // open the pipes
-    if ( _pipe( pipeStdin, 1024, O_BINARY | O_NOINHERIT ) == -1 ) {
+    SECURITY_ATTRIBUTES secAtt = { sizeof( SECURITY_ATTRIBUTES ), NULL, TRUE };
+    if ( !CreatePipe( &pipeStdin[0], &pipeStdin[1], &secAtt, 0 ) ) {
 	return FALSE;
     }
-    if ( _pipe( pipeStdout, 1024, O_BINARY | O_NOINHERIT ) == -1 ) {
+    if ( !CreatePipe( &pipeStdout[0], &pipeStdout[1], &secAtt, 0 ) ) {
 	return FALSE;
     }
-    if ( _pipe( pipeStderr, 1024, O_BINARY | O_NOINHERIT ) == -1 ) {
+    if ( !CreatePipe( &pipeStderr[0], &pipeStderr[1], &secAtt, 0 ) ) {
 	return FALSE;
     }
-    int foo = _fileno( stdin );
-    int hStdin  = _dup( 0 );//_fileno(stdin) );
-    int hStdout = _dup( 1 );//_fileno(stdout) );
-    int hStderr = _dup( 2 );//_fileno(stderr) );
-    if ( _dup2( pipeStdin[0], 0 ) != 0 ) {//_fileno(stdin) ) != 0 ) {
+#if 0
+    HANDLE hStdin  = GetStdHandle( STD_INPUT_HANDLE );
+    HANDLE hStdout = GetStdHandle( STD_OUTPUT_HANDLE );
+    HANDLE hStderr = GetStdHandle( STD_ERROR_HANDLE );
+    if ( !SetStdHandle( STD_INPUT_HANDLE, pipeStdin[0] ) ) {
 	return FALSE;
     }
-    if ( _dup2( pipeStdout[1], 1 ) != 0 ) {//_fileno(stdout) ) != 0 ) {
+    if ( !SetStdHandle( STD_OUTPUT_HANDLE, pipeStdout[0] ) ) {
 	return FALSE;
     }
-    if ( _dup2( pipeStderr[1], 2 ) != 0 ) {//_fileno(stderr) ) != 0 ) {
+    if ( !SetStdHandle( STD_ERROR_HANDLE, pipeStderr[0] ) ) {
 	return FALSE;
     }
-    close( pipeStdin[0] );
-    close( pipeStdout[1] );
-    close( pipeStderr[1] );
+//    close( pipeStdin[0] );
+//    close( pipeStdout[1] );
+//    close( pipeStderr[1] );
+#endif
 
     // construct the arguments for spawn
-    const char** arglist = new const char*[ arguments.count() + 2 ];
-    arglist[0] = command.latin1();
-    int i = 1;
+    QString args;
+    args = command.latin1();
     for ( QStringList::Iterator it = arguments.begin(); it != arguments.end(); ++it ) {
-	arglist[ i++ ] = (*it).latin1();
+	args += (*it).latin1();
     }
-    arglist[i] = 0;
 
     // spawn
-    QApplication::flushX();
-    char buffer[_MAX_PATH];
-    if ( _getcwd( buffer, _MAX_PATH ) == NULL ) {
-	delete[] arglist;
-	return FALSE;
-    }
-    _chdir( workingDir.absPath().latin1() );
-    pid = _spawnvp( P_NOWAIT, command.latin1(), arglist );
-    _chdir( buffer );
+    char *argsC = new char[args.length()+1];
+    strcpy( argsC, args.latin1() );
+    STARTUPINFO startupInfo = { sizeof (STARTUPINFO), 0, 0, 0,
+	CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+	0, 0, 0,
+	STARTF_USESTDHANDLES,
+	0, 0, 0,
+	pipeStdin[0], pipeStdout[1], pipeStderr[1] };
 
+    if  ( !CreateProcess( 0, argsC, 0, 0, TRUE, 0, 0, workingDir.absPath().latin1(), &startupInfo, &pid ) )
+        return FALSE;
+    delete[] argsC;
+
+#if 0
     // duplicate copy of original std??? back
-    if ( _dup2( hStdin, 0 ) != 0 ) {//_fileno(stdin) ) != 0 ) {
+    if ( !SetStdHandle( STD_INPUT_HANDLE, hStdin ) ) {
 	return FALSE;
     }
-    if ( _dup2( hStdout, 1 ) != 0 ) {//_fileno(stdout) ) != 0 ) {
+    if ( !SetStdHandle( STD_OUTPUT_HANDLE, hStdout ) ) {
 	return FALSE;
     }
-    if ( _dup2( hStdout, 2 ) != 0 ) {//_fileno(stdout) ) != 0 ) {
+    if ( !SetStdHandle( STD_ERROR_HANDLE, hStderr ) ) {
 	return FALSE;
     }
-    close( hStdin );
-    close( hStdout );
-    close( hStderr );
+//    close( hStdin );
+//    close( hStdout );
+//    close( hStderr );
+#endif
 
     // setup notifiers for the sockets
-    notifierStdin = new QSocketNotifier( pipeStdin[1],
-	    QSocketNotifier::Write, this );
-    notifierStdout = new QSocketNotifier( pipeStdout[0],
-	    QSocketNotifier::Read, this );
-    notifierStderr = new QSocketNotifier( pipeStderr[0],
-	    QSocketNotifier::Read, this );
-    connect( notifierStdin, SIGNAL(activated(int)),
-	    this, SLOT(socketWrite(int)) );
-    connect( notifierStdout, SIGNAL(activated(int)),
-	    this, SLOT(socketRead(int)) );
-    connect( notifierStderr, SIGNAL(activated(int)),
-	    this, SLOT(socketRead(int)) );
-    notifierStdin->setEnabled( TRUE );
-    notifierStdout->setEnabled( TRUE );
-    notifierStderr->setEnabled( TRUE );
+//    notifierStdin = new QSocketNotifier( pipeStdin[1],
+//	    QSocketNotifier::Write, this );
+//    notifierStdout = new QSocketNotifier( pipeStdout[0],
+//	    QSocketNotifier::Read, this );
+//    notifierStderr = new QSocketNotifier( pipeStderr[0],
+//	    QSocketNotifier::Read, this );
+//    connect( notifierStdin, SIGNAL(activated(int)),
+//	    this, SLOT(socketWrite(int)) );
+//    connect( notifierStdout, SIGNAL(activated(int)),
+//	    this, SLOT(socketRead(int)) );
+//    connect( notifierStderr, SIGNAL(activated(int)),
+//	    this, SLOT(socketRead(int)) );
+//    notifierStdin->setEnabled( TRUE );
+//    notifierStdout->setEnabled( TRUE );
+//    notifierStderr->setEnabled( TRUE );
+
 //char buf[1024];
 //int u = read( pipeStdout[0], buf, 1024 );
     // cleanup and return
-    delete[] arglist;
     return TRUE;
 #endif
 }
@@ -364,11 +369,12 @@ int QProcess::exitStatus()
 void QProcess::dataStdin( const QByteArray& buf )
 {
     stdinBuf.enqueue( new QByteArray(buf) );
-    notifierStdin->setEnabled( TRUE );
+    if ( notifierStdin != 0 )
+        notifierStdin->setEnabled( TRUE );
 #if defined(UNIX)
     socketWrite( socketStdin[1] );
 #else
-    socketWrite( pipeStdin[1] );
+    socketWrite( 0 );
 #endif
 }
 
@@ -506,11 +512,15 @@ void QProcess::socketWrite( int fd )
 QByteArray QProcess::readStdout()
 {
     const int defsize = 1024;
-    int r, i = 0;
+    unsigned long r, i = 0;
+    OVERLAPPED ov;
+    ov.Offset = 0;
+    ov.OffsetHigh = 0;
     QByteArray readBuffer;
     do {
 	readBuffer.resize( (i+1) * defsize );
-	r = _read( pipeStdout[0], readBuffer.data() + (i*defsize), defsize );
+//	ReadFile( pipeStdout[0], readBuffer.data() + (i*defsize), defsize, &r, &ov );
+	PeekNamedPipe( pipeStdout[0], readBuffer.data() + (i*defsize), defsize, &r, 0, 0 );
 	i++;
     } while ( r == defsize );
     readBuffer.resize( (i-1) * defsize + r );

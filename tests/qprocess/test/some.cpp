@@ -26,7 +26,7 @@ int main( int argc, char **argv )
     QProcess proc( "cat" );
 #else
     QDir dir( "cat/Debug" );
-    QProcess proc( path.absFilePath("cat").latin1() );
+    QProcess proc( dir.absFilePath("cat").latin1() );
 #endif
 
     QLineEdit *in = new QLineEdit( &vb );
