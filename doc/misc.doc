@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.1 1995/08/02 14:31:06 agulbra Exp $
+** $Id: misc.doc,v 1.2 1995/08/02 15:59:07 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,12 +8,13 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.1 1995/08/02 14:31:06 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 1.2 1995/08/02 15:59:07 agulbra Exp $";
 #endif
 
 /*! \page license.html
 
 <title>Qt License Statement</title>
+</head><body>
 
 <h1>All Rights Reserved</h1>
 
@@ -58,6 +59,7 @@ OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 /*! \page troll.html
 
 <title>Troll Tech Contact Information</title>
+</head><body>
 
 <h1>Contact Information for Troll Tech</h1>
 
@@ -83,6 +85,7 @@ and other Qt-related mail. */
 /*! \page qt.html
 
 <title>Qt toolkit - overview</title>
+</head><body>
 
 This is the announcement of Qt 0.9, the first public beta version.
 
