@@ -1902,6 +1902,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     covered by the following licenses:
 
     \legalese
+    \code
 
     Copyright (c) 1991 by AT&T.
 
@@ -1918,6 +1919,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 
     This product includes software developed by the University of
     California, Berkeley and its contributors.
+    \endcode
 */
 
 /*!

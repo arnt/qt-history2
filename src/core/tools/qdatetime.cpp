@@ -457,6 +457,7 @@ int QDate::daysInYear() const
     2002 has week number 1 in the year 2003.
 
     \legalese
+    \code
 
     Copyright (c) 1989 The Regents of the University of California.
     All rights reserved.
@@ -472,6 +473,7 @@ int QDate::daysInYear() const
     THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
     IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
     WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+    \endcode
 
     \sa isValid()
 */
