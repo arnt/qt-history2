@@ -17,7 +17,6 @@
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 #include <qapplication.h>
-#include <qkeycode.h>
 #include "globjwin.h"
 #include "glbox.h"
 
@@ -44,18 +43,35 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
     GLBox* c = new GLBox( f, "glbox");
 
     // Create the three sliders; one for each rotation axis
-    QSlider* x = new QSlider ( 0, 360, 60, 0, QSlider::Vertical, this, "xsl" );
+    QSlider* x = new QSlider (this);
+    x->setObjectName("xsl");
+    x->setOrientation(QSlider::Vertical);
+    x->setMinimum(0);
+    x->setMaximum(360);
+    x->setPageStep(60);
+    x->setValue(0);
     x->setTickmarks( QSlider::Left );
-    QObject::connect( x, SIGNAL(valueChanged(int)),c,SLOT(setXRotation(int)) );
+    connect( x, SIGNAL(valueChanged(int)), c, SLOT(setXRotation(int)) );
 
-    QSlider* y = new QSlider ( 0, 360, 60, 0, QSlider::Vertical, this, "ysl" );
+    QSlider* y = new QSlider (this);
+    y->setObjectName("ysl");
+    y->setOrientation(QSlider::Vertical);
+    y->setMinimum(0);
+    y->setMaximum(360);
+    y->setPageStep(60);
+    y->setValue(0);
     y->setTickmarks( QSlider::Left );
-    QObject::connect( y, SIGNAL(valueChanged(int)),c,SLOT(setYRotation(int)) );
+    connect( y, SIGNAL(valueChanged(int)), c, SLOT(setYRotation(int)) );
 
-    QSlider* z = new QSlider ( 0, 360, 60, 0, QSlider::Vertical, this, "zsl" );
+    QSlider* z = new QSlider (this);
+    z->setObjectName("zsl");
+    z->setOrientation(QSlider::Vertical);
+    z->setMinimum(0);
+    z->setMaximum(360);
+    z->setPageStep(60);
+    z->setValue(0);
     z->setTickmarks( QSlider::Left );
-    QObject::connect( z, SIGNAL(valueChanged(int)),c,SLOT(setZRotation(int)) );
-
+    connect( z, SIGNAL(valueChanged(int)), c, SLOT(setZRotation(int)) );
 
     // Now that we have all the widgets, put them into a nice layout
 
