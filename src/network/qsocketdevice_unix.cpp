@@ -178,14 +178,14 @@ int QSocketDevicePrivate::createNewSocket()
 void QSocketDevice::close()
 {
     if (d->fd == -1)                // already closed
-        return false;
+        return;// false;
     ::close(d->fd);
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug("QSocketDevice::close: Closed socket %x", d->device->d->fd);
 #endif
     d->fd = -1;
     d->fetchConnectionParameters();
-    return true;
+    return;// true;
 }
 
 
