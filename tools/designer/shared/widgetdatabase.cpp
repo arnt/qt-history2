@@ -442,8 +442,8 @@ int WidgetDatabase::startCustom()
     return dbcustom;
 }
 
-/*!  Returns the iconset which represents the class registered as \a
-  id.
+/*!
+  Returns the iconset which represents the class registered as \a id.
 */
 
 QIconSet WidgetDatabase::iconSet( int id )
@@ -457,9 +457,9 @@ QIconSet WidgetDatabase::iconSet( int id )
 	r->icon = new QIconSet( PixmapChooser::loadPixmap( r->iconSet, PixmapChooser::Small ),
 				PixmapChooser::loadPixmap( r->iconSet, PixmapChooser::Large ) );
     return *r->icon;
-#endif
-
+#else
     return QIconSet();
+#endif
 }
 
 /*!

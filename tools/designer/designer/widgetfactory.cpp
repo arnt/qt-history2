@@ -398,7 +398,9 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutT
 	    }
 	}
     }
+#if !defined(Q_STATEMENT_NOT_REACHED)
     return 0;
+#endif
 }
 
 void WidgetFactory::deleteLayout( QWidget *widget )
@@ -426,7 +428,9 @@ FormWindow *find_formwindow( QWidget *w )
 	    return 0;
 	w = w->parentWidget();
     }
+#if !defined(Q_STATEMENT_NOT_REACHED)
     return 0;
+#endif
 }
 
 /*!  Factory functions for creating a widget of the type \a className
