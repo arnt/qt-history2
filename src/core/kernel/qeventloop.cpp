@@ -237,6 +237,7 @@ void QEventLoop::exit(int retcode)
     d->quitnow  = true;
     d->exitloop = true;
     d->shortcut = true;
+    wakeUp();
 }
 
 

@@ -25,7 +25,6 @@
 extern uint qGlobalPostedEventsCount();
 extern HINSTANCE qWinAppInst();
 
-static DWORD qt_gui_thread = 0;
 // Simpler timers are needed when Qt does not have the event loop,
 // such as for plugins.
 #ifndef Q_OS_TEMP
@@ -309,7 +308,7 @@ static HWND qt_create_sn_window(QEventLoop *eventLoop)
 
 void QEventLoop::init()
 {
-    qt_gui_thread = GetCurrentThreadId();
+    d->threadId = GetCurrentThreadId();
     d->sn_win = 0;
 
 #ifdef Q_WIN_EVENT_NOTIFIER
@@ -721,12 +720,8 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 
 void QEventLoop::wakeUp()
 {
-    if (GetCurrentThreadId() != qt_gui_thread)
-        QT_WA({
-            PostThreadMessageW(qt_gui_thread, WM_NULL, 0, 0);
-        } , {
-            PostThreadMessageA(qt_gui_thread, WM_NULL, 0, 0);
-        });
+    QT_WA({ PostThreadMessageW(d->threadId, WM_NULL, 0, 0);} ,
+          { PostThreadMessageA(d->threadId, WM_NULL, 0, 0); });
 }
 
 int QEventLoop::timeToWait() const

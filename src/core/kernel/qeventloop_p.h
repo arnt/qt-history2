@@ -154,6 +154,7 @@ public:
     QSNDict sn_write;
     QSNDict sn_except;
 
+    DWORD threadId;
     HWND sn_win;
 
 #ifdef Q_WIN_EVENT_NOTIFIER
