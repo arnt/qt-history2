@@ -37,6 +37,10 @@ if you have queries.}
 
 \img dependencies.png Qt/X11 Dependencies
 
+Note: You must compile with \e both Xft and XRender support to get
+alpha transparency support for pixmaps and images.  Configuring with
+XRender support only is not enough.
+
 \target win
 \section1 Qt/Windows
 

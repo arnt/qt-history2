@@ -2233,7 +2233,8 @@ Qt/X11 only:
 
  $XRN  -no-xrender ........ Do not compile XRender support.
  $XRY  -xrender ........... Compile XRender support.
-			 Requires X11/extensions/Xrender.h and libXrender.
+			 Requires Xft support (see -xft below),
+			 X11/extensions/Xrender.h and libXrender
 
  $XFTN  -no-xft ............ Do not compile Xft (anti-aliased font) support.
  $XFTY  -xft ............... Compile Xft support.
