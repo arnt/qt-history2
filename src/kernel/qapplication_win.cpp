@@ -2500,7 +2500,7 @@ static int translateKeyCode( int key )		// get Qt::Key_... code
     return code;
 }
 
-Q_EXPORT int qt_translateKeyCode(int key)
+Q_GUI_EXPORT int qt_translateKeyCode(int key)
 {
     return translateKeyCode(key);
 }
