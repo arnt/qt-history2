@@ -702,7 +702,7 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
     } else if (! style().styleHint(QStyle::SH_ScrollBar_ScrollWhenPointerLeavesControl)) {
 	// stop scrolling when the mouse pointer leaves a control
 	// similar to push buttons
-	if ( pressedControl != pointOver( e->pos() ) ) {
+	if ( pressedControl != (uint)pointOver( e->pos() ) ) {
 	    drawControls( pressedControl, QStyle::SC_None );
 	    stopAutoRepeat();
 	} else if ( !repeater ) {
