@@ -368,7 +368,7 @@ int QFontMetrics::rightBearing(QChar ch) const
 
 int QFontMetrics::width( QChar ch ) const
 {
-    if ( ::isMark( ch ) )
+    if ( ::category( ch ) == QChar::Mark_NonSpacing )
 	return 0;
 
     QFont::Script script;
