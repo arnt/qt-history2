@@ -482,6 +482,20 @@ bool QAccel::eventFilter( QObject *o, QEvent *e )
                  ( e->type() == QEvent::Accel ||
                    e->type() == QEvent::AccelAvailable) &&
                  d->watch && d->watch->isVisible() ) {
+
+	/* if we live in a MDI subwindow, ignore the event if we are
+	   not the active document window */
+	QWidget* w = (QWidget*) parent();
+	while ( w && !w->testWFlags( WSubWindow ) )
+	    w = w->parentWidget( TRUE );
+	if ( w && w->isVisible() ) { // we are in a subwindow indeed
+	    QWidget* fw = qApp->focusWidget();
+	    while ( fw && fw != w )
+		fw = fw->parentWidget( TRUE );
+	    if ( w != fw ) // focus widget not in our subwindow
+		return FALSE; 
+	}
+
 	QKeyEvent *k = (QKeyEvent *)e;
 	int key = k->key();
 	if ( k->state() & ShiftButton )
