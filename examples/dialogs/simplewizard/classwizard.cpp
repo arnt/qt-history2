@@ -97,7 +97,7 @@ void ClassWizard::accept()
     }
 
     QFile headerFile(outputDir + "/" + header);
-    if (!headerFile.open(QFile::WriteOnly | QFile::Translate)) {
+    if (!headerFile.open(QFile::WriteOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Simple Wizard"),
                              tr("Cannot write file %1:\n%2")
                              .arg(headerFile.fileName())
@@ -153,7 +153,7 @@ void ClassWizard::accept()
     }
 
     QFile implementationFile(outputDir + "/" + implementation);
-    if (!implementationFile.open(QFile::WriteOnly | QFile::Translate)) {
+    if (!implementationFile.open(QFile::WriteOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Simple Wizard"),
                              tr("Cannot write file %1:\n%2")
                              .arg(implementationFile.fileName())
