@@ -10,7 +10,7 @@ main(int argc, char** argv)
     QApplication app(argc,argv);
 
     // Tests every QString function.
-    #define USE_Qt200_QString // or Q2String if you prefer
+    //#define USE_Qt200_QString // or Q2String if you prefer
 
     int err=0;
     #define TEST(A,E) /*printf("%d\n",__LINE__);*/\
@@ -63,6 +63,9 @@ main(int argc, char** argv)
     #endif
 
     QString a;
+
+    printf("sizeof(a) == %d",sizeof(a));
+
     QString b(10);
     QString bb((int)0);
     QString c("String C");

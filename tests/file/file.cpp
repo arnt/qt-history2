@@ -46,7 +46,7 @@ int main()
     printf("Testing userbug...\n");
     {
 	QFile file("file.txt");
-	if(!file.open(IO_ReadOnly | IO_Translate))
+	if(!file.open(IO_ReadOnly))
 	{
 	    // ... error
 	}
