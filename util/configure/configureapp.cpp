@@ -59,6 +59,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "ACCESSIBILITY" ]   = "yes";
     dictionary[ "BIG_CODECS" ]	    = "yes";
     dictionary[ "TABLET" ]	    = "no";
+    dictionary[ "OPENGL" ]	    = "yes";
 
     dictionary[ "STYLE_WINDOWS" ]   = "yes";
     dictionary[ "STYLE_MOTIF" ]	    = "yes";
@@ -419,6 +420,9 @@ void Configure::parseCmdLine()
     for( QStringList::Iterator it = disabledModules.begin(); it != disabledModules.end(); ++it )
 	qmakeConfig.remove( (*it) );
 
+    if( !qmakeConfig.contains("opengl") )
+	dictionary[ "OPENGL" ] = "no";
+    
     if( ( dictionary[ "REDO" ] != "yes" ) && ( dictionary[ "HELP" ] != "yes" ) )
 	saveCmdLine();
 }
@@ -871,7 +875,8 @@ void Configure::displayConfig()
     cout << "Accessibility support......." << dictionary[ "ACCESSIBILITY" ] << endl;
     cout << "Big Textcodecs.............." << dictionary[ "BIG_CODECS" ] << endl;
     cout << "Tablet support.............." << dictionary[ "TABLET" ] << endl;
-    cout << "STL support................." << dictionary[ "STL" ] << endl << endl;
+    cout << "STL support................." << dictionary[ "STL" ] << endl;
+    cout << "OpenGL support.............." << dictionary[ "OPENGL" ] << endl << endl;
 
     cout << "Image formats:" << endl;
     cout << "GIF support................." << dictionary[ "GIF" ] << endl;
