@@ -444,7 +444,7 @@
     <name>QErrorMessage</name>
     <message>
         <source>&amp;Show this message again</source>
-        <translation>Diese Meldungen nocheinmal an&amp;zeigen</translation>
+        <translation>Diese Meldungen noch einmal an&amp;zeigen</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -1395,7 +1395,7 @@ nach
     </message>
     <message>
         <source>Unknown Location</source>
-        <translation>Unbekannter Adress</translation>
+        <translation>Unbekannte Adresse</translation>
     </message>
     <message>
         <source>OK</source>
