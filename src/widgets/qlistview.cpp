@@ -3234,6 +3234,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 */
 void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 {
+    qDebug("contentsMouseReleaseEvent");
     bool emitClicked = !d->pressedItem || d->buttonDown;
     d->buttonDown = FALSE;
     // delete and disconnect autoscroll timer, if we have one
@@ -3468,7 +3469,6 @@ void QListView::doAutoScroll()
 
 void QListView::focusInEvent( QFocusEvent *e )
 {
-    d->buttonDown = FALSE;
     if ( d->focusItem )
 	repaintItem( d->focusItem );
     else if ( firstChild() && e->reason() != QFocusEvent::Mouse ) {
