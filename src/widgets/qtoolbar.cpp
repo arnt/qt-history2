@@ -610,7 +610,7 @@ void QToolBar::createPopup()
 	    if ( p.y() > height()-d->extension->height()/j )
 	        hide = TRUE;
 	}
-	if ( hide ) {
+	if ( hide && !w->isHidden() ) {
 	    if ( w->inherits( "QToolButton" ) ) {
 	        QToolButton *b = (QToolButton*)w;
 	        QString s = b->textLabel();
