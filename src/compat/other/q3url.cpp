@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QUrl class.
+** Implementation of Q3Url class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qurl.h"
+#include "q3url.h"
 
 #ifndef QT_NO_URL
 
@@ -22,7 +22,7 @@
 
 Q_CORE_EXPORT bool qt_resolve_symlinks = true;
 
-class QUrlPrivate
+class Q3UrlPrivate
 {
 public:
     QString protocol;
@@ -64,9 +64,9 @@ static void slashify(QString& s, bool allowMultiple = true)
 
 
 /*!
-    \class QUrl qurl.h
+    \class Q3Url qurl.h
 
-    \brief The QUrl class provides a URL parser and simplifies working with URLs.
+    \brief The Q3Url class provides a URL parser and simplifies working with URLs.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -77,10 +77,10 @@ static void slashify(QString& s, bool allowMultiple = true)
 
     \module network
 
-    The QUrl class is provided for simple work with URLs. It can
+    The Q3Url class is provided for simple work with URLs. It can
     parse, decode, encode, etc.
 
-    QUrl works with the decoded path and encoded query in turn.
+    Q3Url works with the decoded path and encoded query in turn.
 
     Example:
 
@@ -118,26 +118,26 @@ static void slashify(QString& s, bool allowMultiple = true)
     in the path, although this is okay (but not recommended) for the
     query.
 
-    QUrl is normally used like this:
+    Q3Url is normally used like this:
 
     \code
-    QUrl url("http://www.trolltech.com");
+    Q3Url url("http://www.trolltech.com");
     // or
-    QUrl url("file:/home/myself/Mail", "Inbox");
+    Q3Url url("file:/home/myself/Mail", "Inbox");
     \endcode
 
     You can then access and manipulate the various parts of the URL.
 
-    To make it easy to work with QUrls and QStrings, QUrl implements
+    To make it easy to work with Q3Urls and QStrings, Q3Url implements
     the necessary cast and assignment operators so you can do
     following:
 
     \code
-    QUrl url("http://www.trolltech.com");
+    Q3Url url("http://www.trolltech.com");
     QString s = url;
     // or
     QString s("http://www.trolltech.com");
-    QUrl url(s);
+    Q3Url url(s);
     \endcode
 
     Use the static functions, encode() and decode() to encode or
@@ -147,9 +147,9 @@ static void slashify(QString& s, bool allowMultiple = true)
 
     If you want to use a URL to work on a hierarchical structure (e.g.
     a local or remote filesystem), you might want to use the subclass
-    QUrlOperator.
+    Q3UrlOperator.
 
-    \sa QUrlOperator
+    \sa Q3UrlOperator
 */
 
 
@@ -157,9 +157,9 @@ static void slashify(QString& s, bool allowMultiple = true)
     Constructs an empty URL that is invalid.
 */
 
-QUrl::QUrl()
+Q3Url::Q3Url()
 {
-    d = new QUrlPrivate;
+    d = new Q3UrlPrivate;
     d->isValid = false;
     d->port = -1;
     d->cleanPathDirty = true;
@@ -172,9 +172,9 @@ QUrl::QUrl()
     assumed.
 */
 
-QUrl::QUrl(const QString& url)
+Q3Url::Q3Url(const QString& url)
 {
-    d = new QUrlPrivate;
+    d = new Q3UrlPrivate;
     d->protocol = "file";
     d->port = -1;
     parse(url);
@@ -184,9 +184,9 @@ QUrl::QUrl(const QString& url)
     Copy constructor. Copies the data of \a url.
 */
 
-QUrl::QUrl(const QUrl& url)
+Q3Url::Q3Url(const Q3Url& url)
 {
-    d = new QUrlPrivate;
+    d = new Q3UrlPrivate;
     *d = *url.d;
 }
 
@@ -194,7 +194,7 @@ QUrl::QUrl(const QUrl& url)
     Returns true if \a url is relative; otherwise returns false.
 */
 
-bool QUrl::isRelativeUrl(const QString &url)
+bool Q3Url::isRelativeUrl(const QString &url)
 {
     int colon = url.indexOf(':');
     int slash = url.indexOf('/');
@@ -209,20 +209,20 @@ bool QUrl::isRelativeUrl(const QString &url)
 
     For example, the path of
     \code
-    QUrl url("ftp://ftp.trolltech.com/qt/source", "qt-2.1.0.tar.gz");
+    Q3Url url("ftp://ftp.trolltech.com/qt/source", "qt-2.1.0.tar.gz");
     \endcode
     will be "/qt/srource/qt-2.1.0.tar.gz".
 
     On the other hand,
     \code
-    QUrl url("ftp://ftp.trolltech.com/qt/source", "/usr/local");
+    Q3Url url("ftp://ftp.trolltech.com/qt/source", "/usr/local");
     \endcode
     will result in a new URL, "ftp://ftp.trolltech.com/usr/local",
     because "/usr/local" isn't relative.
 
     Similarly,
     \code
-    QUrl url("ftp://ftp.trolltech.com/qt/source", "file:/usr/local");
+    Q3Url url("ftp://ftp.trolltech.com/qt/source", "file:/usr/local");
     \endcode
     will result in a new URL, with "/usr/local" as the path
     and "file" as the protocol.
@@ -235,13 +235,13 @@ bool QUrl::isRelativeUrl(const QString &url)
     to true.
 */
 
-QUrl::QUrl(const QUrl& url, const QString& relUrl, bool checkSlash)
+Q3Url::Q3Url(const Q3Url& url, const QString& relUrl, bool checkSlash)
 {
-    d = new QUrlPrivate;
+    d = new Q3UrlPrivate;
     QString rel = relUrl;
     slashify(rel);
 
-    QUrl urlTmp(url);
+    Q3Url urlTmp(url);
     if (!urlTmp.isValid()) {
         urlTmp.reset();
     }
@@ -292,7 +292,7 @@ QUrl::QUrl(const QUrl& url, const QString& relUrl, bool checkSlash)
     Destructor.
 */
 
-QUrl::~QUrl()
+Q3Url::~Q3Url()
 {
     delete d;
     d = 0;
@@ -305,7 +305,7 @@ QUrl::~QUrl()
     \sa setProtocol()
 */
 
-QString QUrl::protocol() const
+QString Q3Url::protocol() const
 {
     return d->protocol;
 }
@@ -317,7 +317,7 @@ QString QUrl::protocol() const
     \sa protocol()
 */
 
-void QUrl::setProtocol(const QString& protocol)
+void Q3Url::setProtocol(const QString& protocol)
 {
     d->protocol = protocol;
     if (hasHost())
@@ -330,7 +330,7 @@ void QUrl::setProtocol(const QString& protocol)
     \sa setUser() setPassword()
 */
 
-QString QUrl::user() const
+QString Q3Url::user() const
 {
     return  d->user;
 }
@@ -341,7 +341,7 @@ QString QUrl::user() const
     \sa user() setPassword()
 */
 
-void QUrl::setUser(const QString& user)
+void Q3Url::setUser(const QString& user)
 {
     d->user = user;
 }
@@ -353,7 +353,7 @@ void QUrl::setUser(const QString& user)
     \sa setUser() setPassword()
 */
 
-bool QUrl::hasUser() const
+bool Q3Url::hasUser() const
 {
     return !d->user.isEmpty();
 }
@@ -367,7 +367,7 @@ bool QUrl::hasUser() const
     \sa setPassword() setUser()
 */
 
-QString QUrl::password() const
+QString Q3Url::password() const
 {
     return d->pass;
 }
@@ -381,7 +381,7 @@ QString QUrl::password() const
     \sa password() setUser()
 */
 
-void QUrl::setPassword(const QString& pass)
+void Q3Url::setPassword(const QString& pass)
 {
     d->pass = pass;
 }
@@ -396,7 +396,7 @@ void QUrl::setPassword(const QString& pass)
     \sa setPassword() setUser()
 */
 
-bool QUrl::hasPassword() const
+bool Q3Url::hasPassword() const
 {
     return !d->pass.isEmpty();
 }
@@ -407,7 +407,7 @@ bool QUrl::hasPassword() const
     \sa setHost() hasHost()
 */
 
-QString QUrl::host() const
+QString Q3Url::host() const
 {
     return d->host;
 }
@@ -418,7 +418,7 @@ QString QUrl::host() const
     \sa host() hasHost()
 */
 
-void QUrl::setHost(const QString& host)
+void Q3Url::setHost(const QString& host)
 {
     d->host = host;
     if (!d->protocol.isNull() && d->protocol != "file")
@@ -432,7 +432,7 @@ void QUrl::setHost(const QString& host)
     \sa setHost()
 */
 
-bool QUrl::hasHost() const
+bool Q3Url::hasHost() const
 {
     return !d->host.isEmpty();
 }
@@ -443,7 +443,7 @@ bool QUrl::hasHost() const
     \sa setPort()
 */
 
-int QUrl::port() const
+int Q3Url::port() const
 {
     return d->port;
 }
@@ -454,7 +454,7 @@ int QUrl::port() const
     \sa port()
 */
 
-void QUrl::setPort(int port)
+void Q3Url::setPort(int port)
 {
     d->port = port;
 }
@@ -465,7 +465,7 @@ void QUrl::setPort(int port)
     \sa setPort()
 */
 
-bool QUrl::hasPort() const
+bool Q3Url::hasPort() const
 {
     return d->port >= 0;
 }
@@ -476,7 +476,7 @@ bool QUrl::hasPort() const
     \sa path() hasPath()
 */
 
-void QUrl::setPath(const QString& path)
+void Q3Url::setPath(const QString& path)
 {
     d->path = path;
     slashify(d->path);
@@ -490,7 +490,7 @@ void QUrl::setPath(const QString& path)
     \sa path() setPath()
 */
 
-bool QUrl::hasPath() const
+bool Q3Url::hasPath() const
 {
     return !d->path.isEmpty();
 }
@@ -501,7 +501,7 @@ bool QUrl::hasPath() const
     \sa query() encode()
 */
 
-void QUrl::setQuery(const QString& txt)
+void Q3Url::setQuery(const QString& txt)
 {
     d->queryEncoded = txt;
 }
@@ -512,7 +512,7 @@ void QUrl::setQuery(const QString& txt)
     \sa setQuery() decode()
 */
 
-QString QUrl::query() const
+QString Q3Url::query() const
 {
     return d->queryEncoded;
 }
@@ -523,7 +523,7 @@ QString QUrl::query() const
     \sa setRef() hasRef() decode()
 */
 
-QString QUrl::ref() const
+QString Q3Url::ref() const
 {
     return d->refEncoded;
 }
@@ -534,7 +534,7 @@ QString QUrl::ref() const
     \sa ref() hasRef() encode()
 */
 
-void QUrl::setRef(const QString& txt)
+void Q3Url::setRef(const QString& txt)
 {
     d->refEncoded = txt;
 }
@@ -545,7 +545,7 @@ void QUrl::setRef(const QString& txt)
     \sa setRef()
 */
 
-bool QUrl::hasRef() const
+bool Q3Url::hasRef() const
 {
     return !d->refEncoded.isEmpty();
 }
@@ -555,7 +555,7 @@ bool QUrl::hasRef() const
     is invalid if it cannot be parsed, for example.
 */
 
-bool QUrl::isValid() const
+bool Q3Url::isValid() const
 {
     return d->isValid;
 }
@@ -565,7 +565,7 @@ bool QUrl::isValid() const
     invalidates it.
 */
 
-void QUrl::reset()
+void Q3Url::reset()
 {
     d->protocol = "file";
     d->user = "";
@@ -583,7 +583,7 @@ void QUrl::reset()
     Parses the \a url.
 */
 
-bool QUrl::parse(const QString& url)
+bool Q3Url::parse(const QString& url)
 {
     QString url_(url);
     slashify(url_);
@@ -844,7 +844,7 @@ bool QUrl::parse(const QString& url)
     assumed.
 */
 
-QUrl& QUrl::operator=(const QString& url)
+Q3Url& Q3Url::operator=(const QString& url)
 {
     reset();
     parse(url);
@@ -856,21 +856,21 @@ QUrl& QUrl::operator=(const QString& url)
     Assigns the data of \a url to this class.
 */
 
-QUrl& QUrl::operator=(const QUrl& url)
+Q3Url& Q3Url::operator=(const Q3Url& url)
 {
     *d = *url.d;
     return *this;
 }
 
 /*!
-    \fn bool QUrl::operator!=(const QUrl &url) const
+    \fn bool Q3Url::operator!=(const Q3Url &url) const
 
     Returns true if this URL and \a url are not equal; otherwise
     returns false.
 */
 
 /*!
-    \fn bool QUrl::operator!=(const QString &url) const
+    \fn bool Q3Url::operator!=(const QString &url) const
 
     \overload
 
@@ -883,7 +883,7 @@ QUrl& QUrl::operator=(const QUrl& url)
     otherwise returns false.
 */
 
-bool QUrl::operator==(const QUrl& url) const
+bool Q3Url::operator==(const Q3Url& url) const
 {
     if (!isValid() || !url.isValid())
         return false;
@@ -909,9 +909,9 @@ bool QUrl::operator==(const QUrl& url) const
     true if \a url is equal to this url; otherwise returns false.
 */
 
-bool QUrl::operator==(const QString& url) const
+bool Q3Url::operator==(const QString& url) const
 {
-    QUrl u(url);
+    Q3Url u(url);
     return (*this == u);
 }
 
@@ -926,7 +926,7 @@ bool QUrl::operator==(const QString& url) const
     \sa fileName()
 */
 
-void QUrl::setFileName(const QString& name)
+void Q3Url::setFileName(const QString& name)
 {
     QString fn(name);
     slashify(fn);
@@ -959,7 +959,7 @@ void QUrl::setFileName(const QString& name)
     \sa decode()
 */
 
-QString QUrl::encodedPathAndQuery()
+QString Q3Url::encodedPathAndQuery()
 {
     QString p = path();
     if (p.isEmpty())
@@ -982,7 +982,7 @@ QString QUrl::encodedPathAndQuery()
     \sa encode()
 */
 
-void QUrl::setEncodedPathAndQuery(const QString& pathAndQuery)
+void Q3Url::setEncodedPathAndQuery(const QString& pathAndQuery)
 {
     d->cleanPathDirty = true;
     int pos = pathAndQuery.indexOf('?');
@@ -1008,7 +1008,7 @@ extern bool qt_resolve_symlinks; // defined in qapplication.cpp
 
     \sa setPath() hasPath()
 */
-QString QUrl::path(bool correct) const
+QString Q3Url::path(bool correct) const
 {
     if (!correct)
         return d->path;
@@ -1072,7 +1072,7 @@ QString QUrl::path(bool correct) const
     Returns true if the URL is a local file; otherwise returns false.
 */
 
-bool QUrl::isLocalFile() const
+bool Q3Url::isLocalFile() const
 {
     return d->protocol == "file";
 }
@@ -1086,7 +1086,7 @@ bool QUrl::isLocalFile() const
     \sa setFileName()
 */
 
-QString QUrl::fileName() const
+QString Q3Url::fileName() const
 {
     if (d->path.isEmpty() || d->path.endsWith("/")
 #ifdef Q_WS_WIN
@@ -1104,7 +1104,7 @@ QString QUrl::fileName() const
     \sa setPath() hasPath()
 */
 
-void QUrl::addPath(const QString& pa)
+void Q3Url::addPath(const QString& pa)
 {
     if (pa.isEmpty())
         return;
@@ -1135,7 +1135,7 @@ void QUrl::addPath(const QString& pa)
     \sa setPath() hasPath()
 */
 
-QString QUrl::dirPath() const
+QString Q3Url::dirPath() const
 {
     if (path().isEmpty())
         return QString::null;
@@ -1156,14 +1156,14 @@ QString QUrl::dirPath() const
 
     \code
         QString url = http://www.trolltech.com
-        QUrl::encode(url);
+        Q3Url::encode(url);
         // url is now "http%3A//www%20trolltech%20com"
     \endcode
 
   \sa decode()
 */
 
-void QUrl::encode(QString& url)
+void Q3Url::encode(QString& url)
 {
     if (url.isEmpty())
         return;
@@ -1212,14 +1212,14 @@ static uchar hex_to_int(uchar c)
 
     \code
         QString url = "http%3A//www%20trolltech%20com"
-        QUrl::decode(url);
+        Q3Url::decode(url);
         // url is now "http://www.trolltech.com"
     \endcode
 
     \sa encode()
 */
 
-void QUrl::decode(QString& url)
+void Q3Url::decode(QString& url)
 {
     if (url.isEmpty())
         return;
@@ -1255,7 +1255,7 @@ void QUrl::decode(QString& url)
     \sa encode() decode()
 */
 
-QString QUrl::toString(bool encodedPath, bool forcePrependProtocol) const
+QString Q3Url::toString(bool encodedPath, bool forcePrependProtocol) const
 {
     QString res, p = path();
     if (encodedPath)
@@ -1305,10 +1305,10 @@ QString QUrl::toString(bool encodedPath, bool forcePrependProtocol) const
 /*!
     Composes a string version of the URL and returns it.
 
-    \sa QUrl::toString()
+    \sa Q3Url::toString()
 */
 
-QUrl::operator QString() const
+Q3Url::operator QString() const
 {
     return toString();
 }
@@ -1319,7 +1319,7 @@ QUrl::operator QString() const
     \sa setPath()
 */
 
-bool QUrl::cdUp()
+bool Q3Url::cdUp()
 {
     d->path += "/..";
     d->cleanPathDirty = true;
