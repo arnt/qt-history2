@@ -678,6 +678,7 @@ enum Flags  {
 %type  <string>		complete_class_name
 %type  <string>		qualified_class_name
 %type  <string>		elaborated_type_specifier
+%type  <string>		whatever
 
 %type  <arg_list>	argument_declaration_list
 %type  <arg_list>	arg_declaration_list
@@ -685,6 +686,7 @@ enum Flags  {
 %type  <string>		abstract_decl_opt
 %type  <string>		abstract_decl
 %type  <arg>		argument_declaration
+%type  <arg>		opt_exception_argument
 %type  <string>		cv_qualifier_list_opt
 %type  <string>		cv_qualifier_list
 %type  <string>		cv_qualifier
@@ -693,6 +695,7 @@ enum Flags  {
 %type  <string>		decl_specs_opt
 %type  <string>		decl_specs
 %type  <string>		type_specifier
+%type  <string>		fct_specifier
 %type  <string>		declarator
 %type  <string>		ptr_operator
 %type  <string>		ptr_operators
@@ -829,8 +832,8 @@ storage_class_specifier:  AUTO
 			| EXTERN
 			;
 
-fct_specifier:		  INLINE
-			| VIRTUAL
+fct_specifier:		  INLINE                { }
+			| VIRTUAL               { }
 			;
 
 type_specifier:		  CONST			{ $$ = "const"; }
@@ -904,7 +907,7 @@ arg_declaration_list_opt:	/* empty */	{ $$ = tmpArgList; }
 			| arg_declaration_list	{ $$ = $1; }
 			;
 
-opt_exception_argument:		/* empty */
+opt_exception_argument:		/* empty */     { $$ = 0; }
 			| argument_declaration
 			;
 
@@ -1067,7 +1070,7 @@ class_specifier:	  full_class_head
 whatever:		  IDENTIFIER
 			| simple_type_name
 			| type_specifier
-			| storage_class_specifier
+			| storage_class_specifier { $$ = ""; }
 			| fct_specifier
 			;
 
@@ -1272,8 +1275,8 @@ access_specifier:	  PRIVATE		{ $$=Private; }
 			| PUBLIC		{ $$=Public; }
 			;
 
-operator_name:		  decl_specs_opt IDENTIFIER ptr_operators_opt
-			| decl_specs_opt simple_type_name ptr_operators_opt
+operator_name:		  decl_specs_opt IDENTIFIER ptr_operators_opt { }
+			| decl_specs_opt simple_type_name ptr_operators_opt { }
 			| '+'
 			| '-'
 			| '*'
@@ -1401,7 +1404,7 @@ member_declarator_list:	  member_declarator
 			| member_declarator_list ',' member_declarator
 			;
 
-member_declarator:	  declarator
+member_declarator:	  declarator             { }
 			| IDENTIFIER ':'	 { expLevel = 0; }
 			  const_expression
 			| ':'			 { expLevel = 0; }
@@ -1435,7 +1438,7 @@ enum_tail:		  IDENTIFIER '{'   enum_list opt_komma
 			;
 
 opt_identifier:		  /* empty */
-			| IDENTIFIER
+			| IDENTIFIER 		 { }
 			;
 
 enum_list:		  /* empty */
