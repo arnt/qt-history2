@@ -127,7 +127,7 @@ void WriteInitialization::accept(DomWidget *node)
             parentClass == QLatin1String("QWizard"))
         parentWidget.clear();
 
-    if (node != m_widgetChain.top())
+    if (m_widgetChain.size() != 1)
         output << option.indent << varName << " = new " << className << "(" << parentWidget << ");\n";
 
     parentWidget = savedParentWidget;
