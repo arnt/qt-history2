@@ -40,8 +40,8 @@
 
 #include "qlist.h"
 #include "qtextcodecfactory.h"
-#ifndef QT_NO_CODECS
 #include "qutfcodec.h"
+#ifndef QT_NO_CODECS
 #include "qrtlcodec.h"
 #include "qtsciicodec.h"
 #endif // QT_NO_CODECS
@@ -2230,6 +2230,8 @@ int QLatin1Codec::heuristicContentMatch(const char* chars, int len) const
 static void setupBuiltinCodecs()
 {
     (void)new QLatin1Codec;
+    (void)new QUtf8Codec;
+    (void)new QUtf16Codec;
 
 #ifndef QT_NO_CODECS
     int i = 0;
@@ -2237,8 +2239,6 @@ static void setupBuiltinCodecs()
         (void)new QSimpleTextCodec( i );
     } while( unicodevalues[i++].mib != LAST_MIB );
 
-    (void)new QUtf8Codec;
-    (void)new QUtf16Codec;
     (void)new QHebrewCodec;
     (void)new QTsciiCodec;
 #endif // QT_NO_CODECS

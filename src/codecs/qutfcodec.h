@@ -42,7 +42,7 @@
 #include "qtextcodec.h"
 #endif // QT_H
 
-#ifndef QT_NO_CODECS
+#ifndef QT_NO_TEXTCODEC
 
 class Q_EXPORT QUtf8Codec : public QTextCodec {
 public:
@@ -67,5 +67,5 @@ public:
     int heuristicContentMatch(const char* chars, int len) const;
 };
 
-#endif //QT_NO_CODECS
+#endif //QT_NO_TEXTCODEC
 #endif // QUTFCODEC_H
