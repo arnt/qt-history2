@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#148 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#149 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#148 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#149 $")
 
 
 /*****************************************************************************
@@ -782,15 +782,12 @@ bool QPainter::begin( const QPaintDevice *pd )
 	end();
 	return begin( pd );
     }
-    else if ( pd == 0 ) {
+    if ( pd == 0 ) {
 #if defined(CHECK_NULL)
-	warning( "QPainter::begin:  Paint device cannot be null" );
+	warning( "QPainter::begin: Paint device cannot be null" );
 #endif
 	return FALSE;
     }
-
-    bool reinit = flags != IsStartingUp;	// 2nd or 3rd etc. time called
-    flags = IsActive | DirtyFont;		// init flags
 
     if ( pdev_dict ) {				// redirected paint device?
 	pdev = pdev_dict->find( (long)pd );
@@ -800,6 +797,17 @@ bool QPainter::begin( const QPaintDevice *pd )
     else
 	pdev = (QPaintDevice *)pd;
 
+    if ( pdev->paintingActive() ) {		// somebody paints already
+#if defined(CHECK_STATE)
+	warning( "QPainter::begin: Another QPainter is already painting "
+		 "this device\n\tA paint device can only be painted by "
+		 "one QPainter at a time" );
+#endif
+	return FALSE;
+    }
+
+    bool reinit = flags != IsStartingUp;	// 2nd or 3rd etc. time called
+    flags = IsActive | DirtyFont;		// init flags
     int dt = pdev->devType();			// get the device type
 
     if ( (pdev->devFlags & PDF_EXTDEV) != 0 )	// this is an extended device
