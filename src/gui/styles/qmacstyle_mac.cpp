@@ -470,7 +470,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         return ret;
 
     if(sz != QAquaSizeSmall && sz != QAquaSizeLarge && sz != QAquaSizeMini) {
-        qDebug("Not sure how to return this..");
+        qDebug("Not sure how to return this...");
         return ret;
     }
     if(widg && widg->testAttribute(Qt::WA_SetFont)) //if you're using a custom font, no constraints for you!
@@ -1197,11 +1197,21 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
         w->setPalette(pal);
     }
 
-    if (::qt_cast<QRubberBand*>(w))
-        w->setWindowOpacity(0.25);
-
-    if (QTitleBar *tb = ::qt_cast<QTitleBar *>(w))
+    if (QToolButton *btn = qt_cast<QToolButton*>(w)) {
+        btn->setAutoRaise(false);
+    }
+#ifndef QT_NO_MAINWINDOW
+    else if(QToolBar *bar = qt_cast<QToolBar*>(w)) {
+        QLayout *layout = bar->layout();
+        layout->setSpacing(0);
+        layout->setMargin(0);
+    }
+#endif
+    else if(QRubberBand *rubber = qt_cast<QRubberBand*>(w)) {
+        rubber->setWindowOpacity(0.25);
+    } else if(QTitleBar *tb = qt_cast<QTitleBar *>(w)) {
         tb->setAutoRaise(true);
+    }
     q->QWindowsStyle::polish(w);
 }
 
@@ -2254,6 +2264,95 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                     sc = sc << 1;
                     tbw = tbw >> 1;
                 }
+            }
+        }
+        break;
+    case QStyle::CC_ToolButton:
+        if (const QStyleOptionToolButton *tb = qt_cast<const QStyleOptionToolButton *>(opt)) {
+            ThemeButtonKind bkind = kThemeBevelButton;
+            switch (qt_aqua_size_constrain(widget)) {
+            case QAquaSizeUnknown:
+            case QAquaSizeLarge:
+                bkind = kThemeBevelButton;
+                break;
+            case QAquaSizeMini:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3) && 0
+                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                    bkind = kThemeMiniBevelButton;
+                    break;
+                }
+#endif
+            case QAquaSizeSmall:
+                bkind = kThemeSmallBevelButton;
+                break;
+            }
+
+            QRect button, menuarea;
+            button   = q->querySubControlMetrics(cc, tb, QStyle::SC_ToolButton, widget);
+            menuarea = q->querySubControlMetrics(cc, tb, QStyle::SC_ToolButtonMenu, widget);
+	    QStyle::SFlags bflags = tb->state,
+            mflags = tb->state;
+            if (tb->parts & QStyle::SC_ToolButton)
+                bflags |= QStyle::Style_Down;
+            if (tb->parts & QStyle::SC_ToolButtonMenu)
+                mflags |= QStyle::Style_Down;
+
+            if (tb->parts & QStyle::SC_ToolButton) {
+                if(bflags & (QStyle::Style_Down | QStyle::Style_On | QStyle::Style_Raised)) {
+                    HIThemeButtonDrawInfo bdi;
+                    bdi.version = qt_mac_hitheme_version;
+                    bdi.state = tds;
+                    bdi.adornment = kThemeAdornmentNone;
+                    bdi.kind = bkind;
+                    bdi.value = kThemeButtonOff;
+                    if (tb->state & QStyle::Style_HasFocus && QMacStyle::focusRectPolicy(widget)
+                            != QMacStyle::FocusDisabled)
+                        bdi.adornment |= kThemeAdornmentFocus;
+                    if (tb->state & (QStyle::Style_On | QStyle::Style_Down))
+                        bdi.value |= kThemeStatePressed;
+
+                    QRect off_rct(0, 0, 0, 0);
+                    HIRect myRect, macRect;
+                    myRect = CGRectMake(tb->rect.x(), tb->rect.y(), tb->rect.width(), tb->rect.height());
+                    HIThemeGetButtonBackgroundBounds(&myRect, &bdi, &macRect);
+                    off_rct.setRect(int(myRect.origin.x - macRect.origin.x),
+                                    int(myRect.origin.y - macRect.origin.y),
+                                    int(macRect.size.width - myRect.size.width),
+                                    int(macRect.size.height - myRect.size.height));
+
+                    // If the background color is set then make the toolbutton
+                    // translucent so the background color is visible
+                    if (tb->palette.color(tb->bgRole) != Qt::white) {
+                        p->fillRect(tb->rect, tb->palette.color(tb->bgRole));
+                        bdi.state = kThemeStateInactive;
+                    }
+                    static_cast<QMacStyleQDPainter *>(p)->setport();
+                    myRect = qt_hirectForQRect(button, p, false, off_rct);
+                    HIThemeDrawButton(&myRect, &bdi, cg, kHIThemeOrientationNormal, 0);
+                }
+            }
+
+            if (tb->parts & QStyle::SC_ToolButtonMenu) {
+                HIThemeButtonDrawInfo bdi;
+                bdi.version = qt_mac_hitheme_version;
+                bdi.state = tds;
+                bdi.value = kThemeButtonOff;
+                bdi.adornment = kThemeAdornmentNone;
+                bdi.value = bkind;
+                if (tb->state & QStyle::Style_HasFocus && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
+                    bdi.adornment |= kThemeAdornmentFocus;
+                if (tb->state & (QStyle::Style_On | QStyle::Style_Down) || (tb->activeParts & QStyle::SC_ToolButtonMenu))
+                    bdi.value |= kThemeStatePressed;
+                HIRect hirect = qt_hirectForQRect(menuarea, p, false);
+                HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
+                QRect r(menuarea.x() + ((menuarea.width() / 2) - 4), menuarea.height() - 8, 8, 8);
+                HIThemePopupArrowDrawInfo padi;
+                padi.version = qt_mac_hitheme_version;
+                padi.state = tds;
+                padi.orientation = kThemeArrowDown;
+                padi.size = kThemeArrow7pt;
+                hirect = qt_hirectForQRect(r, p);
+                HIThemeDrawPopupArrow(&hirect, &padi, cg, kHIThemeOrientationNormal);
             }
         }
         break;
