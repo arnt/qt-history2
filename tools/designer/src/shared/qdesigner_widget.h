@@ -249,18 +249,18 @@ private:
 class QT_SHARED_EXPORT QDesignerLabel : public QLabel
 {
     Q_OBJECT
-    Q_PROPERTY(QString buddy READ buddyWidget WRITE setBuddyWidget)
+    Q_PROPERTY(QByteArray buddy READ buddyWidget WRITE setBuddyWidget)
 public:
     QDesignerLabel(QWidget *parent = 0)
         : QLabel(parent) {}
 
-    inline void setBuddyWidget(const QString &b)
+    inline void setBuddyWidget(const QByteArray &b)
     {
         myBuddy = b;
         updateBuddy();
     }
 
-    inline QString buddyWidget() const
+    inline QByteArray buddyWidget() const
     { return myBuddy; }
 
 protected:
@@ -273,7 +273,7 @@ protected:
 private:
     void updateBuddy();
 
-    QString myBuddy;
+    QByteArray myBuddy;
 };
 
 class QT_SHARED_EXPORT Line : public QFrame

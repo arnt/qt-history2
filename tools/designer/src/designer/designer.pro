@@ -51,6 +51,7 @@ HEADERS += \
     preferenceinterface.h \
     pluginpreferences.h \
     preferencedialog.h \
+    saveformastemplate.h \
     newform.h
 
 SOURCES += main.cpp \
@@ -70,9 +71,12 @@ SOURCES += main.cpp \
     qdesigner_plugins.cpp \
     pluginpreferences.cpp \
     preferencedialog.cpp \
+    saveformastemplate.cpp \
     newform.cpp
 
-FORMS += newform.ui
+FORMS += \
+    newform.ui \
+    saveformastemplate.ui
 
 mac {
     ICON = designer.icns
