@@ -788,7 +788,7 @@ void QDataBrowser::updateBoundary()
 	    break;
 
 	case BeforeBeginning:
-	    emit firstRecordAvailable( TRUE );
+	    emit firstRecordAvailable( FALSE );
 	    emit prevRecordAvailable( FALSE );
 	    emit nextRecordAvailable( TRUE );
 	    emit lastRecordAvailable( TRUE );
@@ -812,7 +812,7 @@ void QDataBrowser::updateBoundary()
 	    emit firstRecordAvailable( TRUE );
 	    emit prevRecordAvailable( TRUE );
 	    emit nextRecordAvailable( FALSE );
-	    emit lastRecordAvailable( TRUE );
+	    emit lastRecordAvailable( FALSE );
 	    break;
 	}
     }
