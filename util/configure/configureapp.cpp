@@ -546,9 +546,7 @@ void Configure::generateOutputVars()
 	dictionary[ "QMAKE_OUTDIR" ] += "_static";
     }
 
-    if( dictionary[ "REMOTE" ] == "no" ) {
-        qmakeVars += "DEFINES += QT_NO_REMOTE";
-    } else {
+    if( dictionary[ "REMOTE" ] == "yes" ) {
 	qmakeConfig += "remote";
     }
 
