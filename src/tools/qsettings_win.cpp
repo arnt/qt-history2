@@ -574,6 +574,9 @@ QString QSettingsPrivate::sysReadEntry(const QString &key, const QString &def, b
 #ifndef Q_OS_TEMP
 	result = QString::fromLocal8Bit( array );
 #endif
+    
+    if ( array.size() == 2 && result.isNull() )
+	result = "";
 
     char *data = array.data();
     array.resetRawData( data, array.size() );
