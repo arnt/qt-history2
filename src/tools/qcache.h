@@ -24,7 +24,7 @@ class QCache
 	if (f == &n) f = n.n;
 	total -= n.c;
 	qDelete(n.t);
-	map.remove(n.k);
+	map.remove(Key(n.k));
     }
     inline T &relink(const Key &key) {
 	Node &n = map[key];
