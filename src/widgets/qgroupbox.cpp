@@ -34,21 +34,34 @@
 #include "qdrawutil.h"
 #include "qapplication.h"
 
-// NOT REVISED
+
+// REVISED: arnt
 /*!
   \class QGroupBox qgroupbox.h
   \brief The QGroupBox widget provides a group box frame with a title.
 
   \ingroup organizers
 
-  The intended use of a group box is to show that a number of widgets
-  (i.e. child widgets) are logically related.  QPrintDialog is a good
-  example; each of its three panes is one group box.
+  A group box provides a frame, a title and a keyboard shortcut, and
+  displays various other widgets inside itself.  The title is on top,
+  the keyboard shortcut moves keyboard focus to one of the group box'
+  child widgets, and the child widgets are arranged in an array inside
+  the frame.
 
-  Qt also provides a more specialized group box, QButtonGroup, that is
-  very useful for organizing buttons in a group.
+  The simplest way to use it is to create a group box with the desired
+  number of columns and orientation, and then just create widgets with
+  the group box as parent.
 
-  <img src=qgrpbox-m.png> <img src=qgrpbox-w.png>
+  However, it is also possible to change the orientation() and number
+  of columns() after construction, or to ignore all the automatic
+  layout support and manage all that yourself.
+
+  QGroupBox also lets you set the title() (normally set in the
+  constructor) and if you so please, even the title's alignment().
+
+  <img src=qgrpbox-w.png>
+
+  \sa QButtonGroup
 */
 
 
@@ -56,6 +69,8 @@
   Constructs a group box widget with no title.
 
   The \e parent and \e name arguments are passed to the QWidget constructor.
+
+  This constructor does not do automatic layout.
 */
 
 QGroupBox::QGroupBox( QWidget *parent, const char *name )
@@ -68,6 +83,8 @@ QGroupBox::QGroupBox( QWidget *parent, const char *name )
   Constructs a group box with a title.
 
   The \e parent and \e name arguments are passed to the QWidget constructor.
+
+  This constructor does not do automatic layout.
 */
 
 QGroupBox::QGroupBox( const QString &title, QWidget *parent, const char *name )
@@ -93,7 +110,7 @@ QGroupBox::QGroupBox( int strips, Orientation orientation,
 }
 
 /*!
-  Constructs a group box with a \a title. Child widgets will be arranged
+  Constructs a group box titled \a title. Child widgets will be arranged
   in \a strips rows or columns (depending on \a orientation).
 
   The \e parent and \e name arguments are passed to the QWidget constructor.
@@ -142,7 +159,7 @@ void QGroupBox::setTextSpacer()
   Sets the group box title text to \a title, and add a focus-change
   accelerator if the \a title contains & followed by an appropriate
   letter.  This produces "User information" with the U underscored and
-  Alt-U moves the keyboard focus into the group.
+  Alt-U moves the keyboard focus into the group:
 
   \code
     g->setTitle( "&User information" );
@@ -215,8 +232,7 @@ void QGroupBox::resizeEvent( QResizeEvent *e )
     calculateFrame();
 }
 
-/*!
-  Handles paint events for the group box.
+/*! \reimp
 
   \internal
   overrides QFrame::paintEvent
@@ -247,9 +263,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 }
 
 
-/*!
-  \reimp
- */
+/*! \reimp */
 void QGroupBox::updateMask(){
     int		tw  = 0;
     QRect	cr  = rect();
@@ -295,7 +309,7 @@ void QGroupBox::updateMask(){
   than 0 then the empty cell has a fixed height or width.
   If the groupbox is oriented horizontally then the empty cell has a fixed
   height and if oriented vertically it has a fixed width.
-  
+
   Use this method to separate the widgets in the groupbox or to skip
   the next free cell. For performance reasons call this method after
   calling setColumnLayout(), setColumns() or setOrientation(). It is in
@@ -305,7 +319,7 @@ void QGroupBox::updateMask(){
 void QGroupBox::addSpace( int size )
 {
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
-    
+
     // Torbens hack for the builder. The builder does
     // not like the QGridLayout and associated magic.
     if ( nCols == -1 && nRows == -1 )
@@ -314,14 +328,14 @@ void QGroupBox::addSpace( int size )
     if ( row >= nRows || col >= nCols )
 	grid->expand( row+1, col+1 );
 
-    if ( size > 0 )
-    {
-	QSpacerItem *spacer = new QSpacerItem( ( dir == Horizontal ) ? 0 : size,
-					       ( dir == Vertical ) ? 0 : size, 
-					       QSizePolicy::Fixed, QSizePolicy::Fixed );
+    if ( size > 0 ) {
+	QSpacerItem *spacer 
+	    = new QSpacerItem( ( dir == Horizontal ) ? 0 : size,
+			       ( dir == Vertical ) ? 0 : size,
+			       QSizePolicy::Fixed, QSizePolicy::Fixed );
 	grid->addItem( spacer, row, col );
     }
-    
+
     skip();
 }
 
@@ -337,10 +351,10 @@ int QGroupBox::columns() const
 }
 
 /*!
-  Changes the numbers of columns.Usually it is no good idea
-  to use the method since it is slow. Better set the numbers of columns directly
-  in the constructor.
-  
+  Changes the numbers of columns to \a c. Usually it is no good idea
+  to use the method since it is slow (it does a complete layout).
+  Better set the numbers of columns directly in the constructor.
+
   \sa column() setColumnLayout()
 */
 void QGroupBox::setColumns( int c )
@@ -351,15 +365,15 @@ void QGroupBox::setColumns( int c )
 /*!
   \fn Orientation QGroupBox::orientation() const
   Returns the current orientation of the groupbox.
-  
+
   \sa setOrientation()
 */
 
 /*!
   Changes the orientation of the groupbox. Usually it is no good idea
-  to use the method since it is slow. Better set the orientation directly
-  in the constructor.
-  
+  to use the method since it is slow (it does a complete layout).
+  Better set the orientation directly in the constructor.
+
   \sa orientation()
 */
 void QGroupBox::setOrientation( Qt::Orientation o )
@@ -368,11 +382,12 @@ void QGroupBox::setOrientation( Qt::Orientation o )
 }
 
 /*!
-  Changes the layout of the group box. This function is only useful in combination
-  with the default constructor that does not take any layout information.
-  This function will put all existing children in the new layout. Nevertheless is
-  is not good programming style to call this function after children have been inserted.
-  
+  Changes the layout of the group box. This function is only useful in
+  combination with the default constructor that does not take any
+  layout information. This function will put all existing children in
+  the new layout. Nevertheless is is not good programming style to
+  call this function after children have been inserted.
+
   \sa setOrientation() setColumns()
  */
 void QGroupBox::setColumnLayout(int columns, Orientation direction)
@@ -398,7 +413,7 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
     nCols = -1;
     nRows = -1;
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
-    
+
     // Torbens hack for the builder. I dont want to
     // have this QGridLayout. I want to make it on
     // my own.
@@ -409,7 +424,7 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
 	nRows = -1;
 	return;
     }
-    
+
     dir = direction;
     if ( dir == Horizontal ) {
       nCols = columns;
@@ -547,3 +562,11 @@ void QGroupBox::calculateFrame()
     setFrameRect( QRect(0,0,0,0) );		//  then use client rect
 }
 
+
+
+/*! \reimp */
+
+void QGroupBox::focusInEvent( QFocusEvent * )
+{ // note no call to super
+    fixFocus();
+}
