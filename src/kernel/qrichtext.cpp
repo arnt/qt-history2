@@ -2017,6 +2017,10 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 	    parag->format();
 	
 	if ( !parag->rect().intersects( QRect( cx, cy, cw, ch ) ) ) {
+	    QRect pr( parag->rect() );
+	    pr.setWidth( parag->document()->width() );
+	    if ( pr.intersects( QRect( cx, cy, cw, ch ) ) )
+		p->fillRect( pr.intersect( QRect( cx, cy, cw, ch ) ), cg.brush( QColorGroup::Base ) );
 	    if ( parag->rect().y() > cy + ch ) {
 		tmpCursor = 0;
 		if ( buf_pixmap && buf_pixmap->height() > 300 ) {
