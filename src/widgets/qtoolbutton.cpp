@@ -858,7 +858,7 @@ void QToolButton::popupTimerDone()
     }
 #endif
     QPoint p;
-    QRect screen = qApp->desktop()->screenGeometry( this );
+    QRect screen = qApp->desktop()->availableGeometry( this );
     if ( horizontal ) {
 	if ( QApplication::reverseLayout() ) {
 	    if ( mapToGlobal( QPoint( 0, rect().bottom() ) ).y() + d->popup->sizeHint().height() <= screen.height() ) {
