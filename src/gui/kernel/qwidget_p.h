@@ -238,6 +238,14 @@ public:
     static int instanceCounter;  // Current number of widget instances
     static int maxInstances;     // Maximum number of widget instances
 
+    inline Qt::WState testWState(Qt::WState s) const
+        { return QFlag(data.widget_state & s); }
+
+    inline Qt::WFlags testWFlags(Qt::WFlags f) const
+        { return QFlag(data.widget_flags & f); }
+
+
+
     QWidgetData data;
 
     QWExtra *extra;

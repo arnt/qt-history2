@@ -1934,7 +1934,7 @@ QWidget *QApplication::findWidget(const QObjectList& list,
         if (list.at(i)->isWidgetType()) {
           w = static_cast<QWidget*>(list.at(i));
             if (w->isVisible() && !w->testAttribute(Qt::WA_TransparentForMouseEvents) &&  w->geometry().contains(pos)
-                 && w->requestedRegion().contains(qt_screen->mapToDevice(w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height())))) {
+                 && w->d->requestedRegion().contains(qt_screen->mapToDevice(w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height())))) {
                 if (!rec)
                     return w;
                 QWidget *c = findChildWidget(w, w->mapFromParent(pos));
@@ -1962,7 +1962,7 @@ QWidget *QApplication::topLevelAt(const QPoint &pos)
         QWidget *w = list[i];
         if (w != QApplication::desktop() &&
              w->isVisible() && w->geometry().contains(pos)
-             && w->allocatedRegion().contains(qt_screen->mapToDevice(w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height()))))
+             && w->d->allocatedRegion().contains(qt_screen->mapToDevice(w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height()))))
             return w;
     }
     return 0;
@@ -2871,7 +2871,7 @@ bool QETWidget::translateKeyEvent(const QWSKeyEvent *event, bool grab) /* grab i
         QChar ch(event->simpleData.unicode);
         if (ch.unicode() != 0xffff)
             text += ch;
-        ascii = ch.latin1();
+        ascii = ch.toLatin1();
     }
     code = event->simpleData.keycode;
 
@@ -2955,7 +2955,7 @@ void QETWidget::updateRegion()
        data->req_region = data->crect;
     }
     data->req_region = qt_screen->mapToDevice(data->req_region, QSize(qt_screen->width(), qt_screen->height()));
-    updateRequestedRegion(mapToGlobal(QPoint(0,0)));
+    d->updateRequestedRegion(mapToGlobal(QPoint(0,0)));
     QRegion r(data->req_region);
 #ifndef QT_NO_QWS_MANAGER
     QRegion wmr;
@@ -2968,7 +2968,7 @@ void QETWidget::updateRegion()
     if (isVisible())
         qwsDisplay()->requestRegion(winId(), r);
 
-    setChildrenAllocatedDirty();
+    d->setChildrenAllocatedDirty();
     data->paintable_region_dirty = true;
     qwsUpdateActivePainters();
 }
