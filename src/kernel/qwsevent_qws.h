@@ -211,11 +211,11 @@ struct QWSPCOPMessageEvent : QWSEvent {
     void setData( char *d, int len, bool allocateMem = TRUE ) {
 	QWSEvent::setData( d, len, allocateMem );
 	char* p = (char*) rawDataPtr;
-	channel = QCString( p, simpleData.lchannel );
+	channel = QCString( p, simpleData.lchannel + 1 );
 	p += simpleData.lchannel;
-	message = QCString( p, simpleData.lmessage );
+	message = QCString( p, simpleData.lmessage + 1 );
 	p += simpleData.lmessage;
-	data.assign( p, simpleData.ldata );
+	data.duplicate( p, simpleData.ldata );
     }
 
     struct SimpleData {
