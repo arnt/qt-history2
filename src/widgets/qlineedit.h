@@ -113,8 +113,12 @@ public:
     void setAlignment( int flag );
     int alignment() const;
 
+#ifndef QT_NO_COMPAT    
     void	cursorLeft( bool mark, int steps = 1 );
     void	cursorRight( bool mark, int steps = 1 );
+#endif
+    void	cursorForward( bool mark, int steps = 1 );
+    void	cursorBackward( bool mark, int steps = 1 );
     void	cursorWordForward( bool mark );
     void	cursorWordBackward( bool mark );
     void	backspace();
@@ -155,52 +159,31 @@ protected:
     void	focusOutEvent( QFocusEvent * );
     void	paintEvent( QPaintEvent * );
     void	resizeEvent( QResizeEvent * );
-    void	leaveEvent( QEvent * );
 #ifndef QT_NO_DRAGANDDROP
     void	dragEnterEvent( QDragEnterEvent * );
     void	dropEvent( QDropEvent * );
 #endif
 
+#ifndef QT_NO_COMPAT    
     void	repaintArea( int, int );
-
+#endif
+    
 private slots:
     void	clipboardChanged();
     void	blinkSlot();
-    void	dragScrollSlot();
 #ifndef QT_NO_DRAGANDDROP
     void 	doDrag();
 #endif
 
 private:
-    // kept
-    void	newMark( int pos, bool copy=TRUE );
-    void	markWord( int pos );
-    int		lastCharVisible() const;
-    int		minMark() const;
-    int		maxMark() const;
-
-    void	init();
-
-    QString	tbuf;
-    QLineEditPrivate * d;
-    int		cursorPos;
-    int		offset;
-    int		maxLen;
-    int		markAnchor;
-    int		markDrag;
-    bool	cursorOn;
-    bool	dragScrolling;
-    bool	scrollingLeft;
-    int		alignmentFlag;
-    bool	ed;
-
-    void updateOffset();
-    int xPosToCursorPos( int ) const;
+    void init();
     void blinkOn();
-    void makePixmap() const;
-    void undoInternal();
-    void redoInternal();
-
+    void updateOffset();
+    void updateSelection();
+    void removeSelectedText();
+    
+    QLineEditPrivate * d;
+    
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QLineEdit( const QLineEdit & );
