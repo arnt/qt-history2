@@ -915,7 +915,7 @@ void QWidget::showWindow()
     int sm = SW_SHOW;
     if ( isTopLevel() ) {
 #ifdef Q_OS_TEMP
-	//	    sm = SW_SHOWMAXIMIZED;
+//    sm = SW_SHOWMAXIMIZED;
 #else
 	switch ( topData()->showMode ) {
 	case 1:
@@ -932,9 +932,8 @@ void QWidget::showWindow()
 	topData()->showMode = 0; // reset
     }
     if ( testWFlags(WStyle_Tool) || isPopup() )
-	sm |= SW_SHOWNOACTIVATE;
+	sm = SW_SHOWNOACTIVATE;
     ShowWindow( winId(), sm );
-
     UpdateWindow( winId() );
 }
 
