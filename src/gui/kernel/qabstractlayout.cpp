@@ -1138,12 +1138,12 @@ void QLayout::addChildWidget(QWidget *w)
     if (w->testAttribute(Qt::WA_LaidOut)) {
         QLayout *l = pw->layout();
         if (l && removeWidgetRecursively(l, w))
-            qWarning("QLayout::addChildWidget: widget is already in a layout; moved to new layout");
+            qWarning("QLayout::addChildWidget: %s is already in a layout; moved to new layout", w->metaObject()->className());
     }
     if (!pw && !mw) {
         qWarning("QLayout::addChildWidget: add layout to parent before adding children to layout.");
     } else if (pw && mw && pw != mw) {
-        qWarning("QLayout::addChildWidget: widget in wrong parent; moved to correct parent");
+        qWarning("QLayout::addChildWidget: %s in wrong parent; moved to correct parent", w->metaObject()->className());
         pw = 0;
     }
     if (!pw && mw)
