@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#72 $
 **
 ** Implementation of QMenuData class
 **
@@ -466,7 +466,7 @@ int QMenuData::insertItem( const QIconSet& icon,
 
   The \a popup must be deleted by the programmer or by its parent
   widget.  It is not deleted when this menu item is removed or when
-  the menu is deleted.  
+  the menu is deleted.
 
   The menu item is assigned the identifier \a id or an automatically
   generated identifier if \a id is < 0. The generated identifiers
@@ -496,7 +496,7 @@ int QMenuData::insertItem( const QString &text, QPopupMenu *popup,
 
   The \a popup must be deleted by the programmer or by its parent
   widget.  It is not deleted when this menu item is removed or when
-  the menu is deleted.  
+  the menu is deleted.
 
   The menu item is assigned the identifier \a id or an automatically
   generated identifier if \a id is < 0. The generated identifiers
@@ -577,7 +577,7 @@ int QMenuData::insertItem( const QIconSet& icon,
 
   The \a popup must be deleted by the programmer or by its parent
   widget.  It is not deleted when this menu item is removed or when
-  the menu is deleted.  
+  the menu is deleted.
 
   The menu item is assigned the identifier \a id or an automatically
   generated identifier if \a id is < 0. The generated identifiers
@@ -608,7 +608,7 @@ int QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 
   The \a popup must be deleted by the programmer or by its parent
   widget.  It is not deleted when this menu item is removed or when
-  the menu is deleted.  
+  the menu is deleted.
 
   The menu item is assigned the identifier \a id or an automatically
   generated identifier if \a id is < 0. The generated identifiers
@@ -790,13 +790,46 @@ QPixmap *QMenuData::pixmap( int id ) const
     return mi ? mi->pixmap() : 0;
 }
 
-/*!
+/*!\obsolete
   Changes the text of the menu item \a id. If the item has an icon,
-  the icon remains unchanged.  
+  the icon remains unchanged.
   \sa text()
 */
 
 void QMenuData::changeItem( const QString &text, int id )
+{
+    changeItem( id, text);
+}
+
+/*!\obsolete
+  Changes the pixmap of the menu item \a id. If the item has an icon,
+  the icon remains unchanged.
+  \sa pixmap()
+*/
+
+void QMenuData::changeItem( const QPixmap &pixmap, int id )
+{
+    changeItem( id, pixmap );
+}
+
+/*!\obsolete
+  Changes the icon and text of the menu item \a id.
+  \sa pixmap()
+*/
+
+void QMenuData::changeItem( const QIconSet &icon, const QString &text, int id )
+{
+    changeItem( id, icon, text );
+}
+
+
+/*!
+  Changes the text of the menu item \a id. If the item has an icon,
+  the icon remains unchanged.
+  \sa text()
+*/
+
+void QMenuData::changeItem( int id, const QString &text )
 {
     QMenuData *parent;
     QMenuItem *mi = findItem( id, &parent );
@@ -814,11 +847,11 @@ void QMenuData::changeItem( const QString &text, int id )
 
 /*!
   Changes the pixmap of the menu item \a id. If the item has an icon,
-  the icon remains unchanged.  
+  the icon remains unchanged.
   \sa pixmap()
 */
 
-void QMenuData::changeItem( const QPixmap &pixmap, int id )
+void QMenuData::changeItem( int id, const QPixmap &pixmap )
 {
     QMenuData *parent;
     QMenuItem *mi = findItem( id, &parent );
@@ -840,11 +873,35 @@ void QMenuData::changeItem( const QPixmap &pixmap, int id )
 }
 
 /*!
+  Changes the icon and text of the menu item \a id.
+  \sa pixmap()
+*/
+
+void QMenuData::changeItem( int id, const QIconSet &icon, const QString &text )
+{
+    changeItem(id, text);
+    changeItemIconSet(id,  icon);
+}
+
+/*!
+  Changes the icon and pixmap of the menu item \a id.
+  \sa pixmap()
+*/
+
+void QMenuData::changeItem( int id, const QIconSet &icon, const QPixmap &pixmap )
+{
+    changeItem(id, pixmap);
+    changeItemIconSet(id,  icon);
+}
+
+
+
+/*!
   Changes the icon of the menu item \a id.
   \sa pixmap()
 */
 
-void QMenuData::changeItemIconSet( const QIconSet &icon, int id )
+void QMenuData::changeItemIconSet( int id, const QIconSet &icon )
 {
     QMenuData *parent;
     QMenuItem *mi = findItem( id, &parent );
@@ -858,29 +915,6 @@ void QMenuData::changeItemIconSet( const QIconSet &icon, int id )
 	else
 	    parent->menuContentsChanged();
     }
-}
-
-
-/*!
-  Changes the icon and text of the menu item \a id.
-  \sa pixmap()
-*/
-
-void QMenuData::changeItem( const QIconSet &icon, const QString &text, int id )
-{
-    changeItem(text, id);
-    changeItemIconSet(icon, id);
-}
-
-/*!
-  Changes the icon and pixmap of the menu item \a id.
-  \sa pixmap()
-*/
-
-void QMenuData::changeItem( const QIconSet &icon, const QPixmap &pixmap, int id )
-{
-    changeItem(pixmap, id);
-    changeItemIconSet(icon, id);
 }
 
 

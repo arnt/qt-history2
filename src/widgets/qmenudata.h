@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#60 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#61 $
 **
 ** Definition of QMenuData class
 **
@@ -105,7 +105,7 @@ public:
 
     uint	count() const;
 
-    
+
     int		insertItem( const QString &text,
 			    const QObject *receiver, const char* member,
 			    int accel = 0, int id = -1, int index = -1 );
@@ -122,19 +122,19 @@ public:
 			    int accel = 0, int id = -1, int index = -1 );
 
 
-    
-    
+
+
     int		insertItem( const QString &text, int id=-1, int index=-1 );
-    int		insertItem( const QIconSet& icon, 
+    int		insertItem( const QIconSet& icon,
 			    const QString &text, int id=-1, int index=-1 );
-    
+
     int		insertItem( const QString &text, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
     int		insertItem( const QIconSet& icon,
 			    const QString &text, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
-    
-    
+
+
     int		insertItem( const QPixmap &pixmap, int id=-1, int index=-1 );
     int		insertItem( const QIconSet& icon,
 			    const QPixmap &pixmap, int id=-1, int index=-1 );
@@ -144,8 +144,8 @@ public:
 			    const QPixmap &pixmap, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
 
-    
-    
+
+
     void	insertSeparator( int index=-1 );
 
     void	removeItem( int id )		{ removeItemAt(indexOf(id)); }
@@ -158,11 +158,16 @@ public:
     QIconSet    *iconSet( int id )	const;
     QString text( int id )		const;
     QPixmap    *pixmap( int id )	const;
+
     
-    void	changeItem( const QString &text, int id );
-    void	changeItem( const QPixmap &pixmap, int id );
-    void	changeItem( const QIconSet &icon, const QString &text, int id );
-    void	changeItem( const QIconSet &icon, const QPixmap &pixmap, int id );
+    void	changeItem( int id, const QString &text );
+    void	changeItem( int id, const QPixmap &pixmap );
+    void	changeItem( int id, const QIconSet &icon, const QString &text );
+    void	changeItem( int id, const QIconSet &icon, const QPixmap &pixmap );
+
+    void	changeItem( const QString &text, int id ); // obsolete
+    void	changeItem( const QPixmap &pixmap, int id ); // obsolete
+    void	changeItem( const QIconSet &icon, const QString &text, int id ); // obsolete
 
 
     bool	isItemEnabled( int id ) const;
@@ -206,7 +211,7 @@ private:
 			   const QIconSet*, int, int );
     void	removePopup( QPopupMenu * );
     virtual void	setAllDirty( bool );
-    void	changeItemIconSet( const QIconSet &icon, int id );
+    void	changeItemIconSet( int id, const QIconSet &icon );
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
