@@ -851,11 +851,6 @@ void QApplication::setMainWidget( QWidget *mainWidget )
     main_widget = mainWidget;
 }
 
-Qt::WindowsVersion QApplication::winVersion()
-{
-    return (Qt::WindowsVersion) qWinVersion();
-}
-
 #ifndef QT_NO_CURSOR
 
 /*****************************************************************************
