@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#4 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#5 $
 **
 ** Definition of QTabBar class
 **
@@ -37,17 +37,23 @@ public:
     QTabBar( QWidget * parent = 0, const char * name = 0 );
    ~QTabBar();
 
-    void  show();
+    void show();
 
     virtual int addTab( QTab * );
 
-    void  setTabEnabled( int, bool );
-    bool  isTabEnabled( int ) const;
+    void setTabEnabled( int, bool );
+    bool isTabEnabled( int ) const;
 
     QSize sizeHint() const;
 
     int currentTab() const;
     int keyboardFocusTab() const;
+
+    QTab * tab( int );
+
+public slots:
+    void setCurrentTab( int );
+    void setCurrentTab( QTab * );
 
 signals:
     void  selected( int );
