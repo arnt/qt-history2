@@ -31,6 +31,15 @@ QString DeclResolver::resolve( const QString& name ) const
     } else if ( y->kind() == Decl::Class ) {
 	return config->classRefHref( y->fullName() );
     } else {
+	if ( y->kind() == Decl::Function ) {
+	    const Decl * z = y;
+	    while ( z && z->internal() )
+		z = z->reimplements();
+	    if ( y->internal() && z && !z->internal() )
+		y = z;
+	    if ( y->internal() )
+		return QString::null;
+	}
 	QString t;
 	if ( y->relatesContext() != (Decl *) c )
 	    t = config->classRefHref( y->relatesContext()->fullName() );

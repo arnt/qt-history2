@@ -1404,7 +1404,7 @@ void Doc::setLink( const QString& link, const QString& title )
     }
 
     /*
-      If there are '\keyword' commands in this Doc, find out their full address.
+      If there are '\keyword' commands here, find out their full addresses.
      */
     if ( !kwords.isEmpty() ) {
 	int k = link.find( QChar('#') );
