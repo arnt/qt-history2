@@ -3287,12 +3287,6 @@ bool QXmlSimpleReader::parseDoctype()
 		parseOk = parseExternalID();
 		break;
 	    case MP:
-		if ( lexicalHnd ) {
-		    if ( !lexicalHnd->startDTD( d->doctype, d->publicId, d->systemId ) ) {
-			d->error = lexicalHnd->errorString();
-			goto parseError;
-		    }
-		}
 		next_eat_ws();
 		break;
 	    case PER:
@@ -3328,6 +3322,12 @@ bool QXmlSimpleReader::parseDoctype()
 		break;
 	    case Doctype2:
 		d->doctype = name();
+		if ( lexicalHnd ) {
+		    if ( !lexicalHnd->startDTD( d->doctype, d->publicId, d->systemId ) ) {
+			d->error = lexicalHnd->errorString();
+			goto parseError;
+		    }
+		}
 		break;
 	    case Sys:
 		if ( !parseOk ) {
