@@ -388,7 +388,7 @@
                                     <cstring>familybuddy</cstring>
                                 </property>
                                 <property name="text">
-                                    <string>&amp;Family:</string>
+                                    <string>F&amp;amily:</string>
                                 </property>
                                 <property name="buddy" stdset="0">
                                     <cstring>familycombo</cstring>
