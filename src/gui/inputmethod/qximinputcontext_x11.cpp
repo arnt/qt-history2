@@ -62,8 +62,8 @@ XIMStyle QXIMInputContext::xim_style = 0;
 static const XIMStyle xim_default_style = XIMPreeditCallbacks | XIMStatusNothing;
 
 
-#ifdef USE_X11R6_XIM
 extern "C" {
+#ifdef USE_X11R6_XIM
     static void xim_create_callback(XIM /*im*/,
                                     XPointer client_data,
                                     XPointer /*call_data*/)
@@ -83,6 +83,7 @@ extern "C" {
         XRegisterIMInstantiateCallback(X11->display, 0, 0, 0,
                                        (XIMProc) xim_create_callback, reinterpret_cast<char *>(qic));
     }
+#endif // USE_X11R6_XIM
 
     static int xic_start_callback(XIC, XPointer client_data, XPointer) {
 	QXIMInputContext *qic = (QXIMInputContext *) client_data;
@@ -235,8 +236,6 @@ extern "C" {
 	return 0;
     }
 }
-#endif // USE_X11R6_XIM
-
 
 void QXIMInputContext::ICData::clear()
 {
