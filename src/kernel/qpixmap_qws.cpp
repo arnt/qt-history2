@@ -654,6 +654,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     } else
 	memset( dptr, 0xff, dbytes );
 
+    int xbpl, p_inc;
     if ( depth1 ) {
 	xbpl  = (w+7)/8;
 	p_inc = dbpl - xbpl;
