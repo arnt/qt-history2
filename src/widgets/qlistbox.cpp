@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#198 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#199 $
 **
 ** Implementation of QListBox widget class
 **
@@ -894,6 +894,9 @@ int QListBox::currentItem() const
 /*!
   Sets the highlighted item to the item at position \e index in the list.
   The highlighting is moved and the list box scrolled as necessary.
+
+  If autoUpdate() is enabled, the display is updated accordingly.
+
   \sa currentItem()
 */
 
@@ -905,11 +908,13 @@ void QListBox::setCurrentItem( int index )
 	return;
     int oldCurrent = current;
     current	   = index;
-    if ( itemVisible( current ) )
-	updateItem( current, FALSE );
-    else
-	centerCurrentItem();
-    updateItem( oldCurrent );
+    if ( autoUpdate() ) {
+	if ( itemVisible( current ) )
+	    updateItem( current, FALSE );
+	else
+	    centerCurrentItem();
+	updateItem( oldCurrent );
+    }
     QString tmp;
     if ( item( currentItem() ) )
 	tmp = item( currentItem() )->text();
