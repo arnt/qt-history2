@@ -5,6 +5,8 @@ HEADERS		= qplugin.h \
 		  qwidgetfactory.h \
 		  qwidgetplugin.h \
 		  qwidgetinterface.h \
+		  qactionplugin.h \
+		  qactioninterface.h \
 		  plugmainwindow.h
 		  
 SOURCES		= main.cpp \
@@ -12,6 +14,7 @@ SOURCES		= main.cpp \
 		  qactionfactory.cpp \
 		  qwidgetfactory.cpp \
 		  qwidgetplugin.cpp \
+		  qactionplugin.cpp \
 		  plugmainwindow.cpp
 
 unix:LIBS	+= -ldl
