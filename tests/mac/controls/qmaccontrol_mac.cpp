@@ -392,9 +392,3 @@ QMacControl::trackControlEvent(QMacTrackEvent *te)
 }
 
 #endif
-
-
-
-
-
-\

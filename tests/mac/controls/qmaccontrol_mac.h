@@ -25,6 +25,7 @@ class QMacControl;
 class QMacControlPrivate;
 typedef short ControlPartCode;
 typedef long unsigned int OSType;
+typedef struct OpaqueControlRef *ControlRef;
 extern const OSType qControlWidgetTag;
 extern const OSType qControlWidgetCreator;
 
