@@ -490,11 +490,29 @@ bool QPainter::end()				// end painting
 
 void QPainter::flush()
 {
+
 }
 
-//FIXME: Implement this
-void QPainter::setBackgroundColor( const QColor & )
+void QPainter::setBackgroundColor( const QColor &c )
 {
+    if ( !isActive() ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QPainter::setBackgroundColor: Call begin() first" );
+#endif
+	return;
+    }
+    bg_col = c;
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[1];
+	param[0].color = &bg_col;
+	if ( !pdev->cmd( QPaintDevice::PdcSetBkColor, this, param ) || !hd )
+	    return;
+    }
+    if ( !penRef )
+	updatePen();				// update pen setting
+    if ( !brushRef )
+	updateBrush();				// update brush setting
+
 }
 
 void QPainter::setBackgroundMode( BGMode m)
