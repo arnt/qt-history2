@@ -505,9 +505,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
     const int h = r.height();
     const bool sunken = flags & ( Style_Sunken | Style_Down | Style_On );
     const int defaultFrameWidth = pixelMetric( PM_DefaultFrameWidth );
-    const bool hot = ( flags & Style_MouseOver ) && ( flags & Style_Enabled ) && r.contains( d->mousePos );
-    if ( !hot )
-	flags &= ~Style_MouseOver;
+    bool hot = ( flags & Style_MouseOver ) && ( flags & Style_Enabled );
 
     switch ( pe ) {
     case PE_ButtonCommand:
@@ -726,12 +724,16 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 	break;
 
     case PE_ScrollBarSubLine:
+	if ( !r.contains( d->mousePos ) )
+	    flags &= ~Style_MouseOver;
 	drawPrimitive( PE_ButtonCommand, p, r, cg, flags, data );
 	drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowLeft : PE_ArrowUp),
 		      p, r, cg, Style_Enabled | flags);
 	break;
 
     case PE_ScrollBarAddLine:
+	if ( !r.contains( d->mousePos ) )
+	    flags &= ~Style_MouseOver;
 	drawPrimitive( PE_ButtonCommand, p, r, cg, flags, data );
 	drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowRight : PE_ArrowDown),
 		      p, r, cg, Style_Enabled | flags);
@@ -739,12 +741,16 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_ScrollBarSubPage:
     case PE_ScrollBarAddPage:
+	if ( !r.contains( d->mousePos ) )
+	    flags &= ~Style_MouseOver;
 	if ( r.isValid() )
 	    qDrawShadePanel( p, x, y, w, h, cg, FALSE, 1, hot ? &cg.brush( QColorGroup::Midlight ) : &cg.brush( QColorGroup::Button ) );
 	break;
 
     case PE_ScrollBarSlider:
 	{
+	    if ( !r.contains( d->mousePos ) )
+		flags &= ~Style_MouseOver;
 	    drawPrimitive(PE_ButtonBevel, p, r, cg, flags | Style_Enabled | Style_Raised);
 	    if ( flags & Style_Horizontal ) {
 		const int sliderM =  r.y() + r.width() / 2;
@@ -1090,6 +1096,8 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	    }
 
 	    if (( sub & SC_SliderHandle ) && handle.isValid()) {
+		if ( !handle.contains( d->mousePos ) )
+		    flags &= ~Style_MouseOver;
 		drawPrimitive( PE_ButtonBevel, p, handle, cg, flags );
 
 		if ( slider->orientation() == Horizontal ) {

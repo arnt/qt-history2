@@ -188,6 +188,8 @@ void QCheckBox::drawButton( QPainter *paint )
 	kf |= 4;				// active vs. normal colorgroup
     if( topLevelWidget() != qApp->activeWindow())
 	kf |= 8;
+    if ( hasMouse() )
+	kf |= 16;
 
     kf |= state() << 4;
     QTextOStream os(&pmkey);
