@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#2 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#3 $
 **
 ** Definition of QPrinter class
 **
@@ -20,67 +20,78 @@
 class QPrinter : public QPaintDevice
 {
 public:
-    QPrinter( const char *name=0 );
+    QPrinter();
    ~QPrinter();
+
+    enum Orientation { Portrait, Landscape };
 
     const char *printerName()	const;
     void	setPrinterName( const char * );
     const char *docName()	const;
     void	setDocName( const char * );
+    const char *creator()	const;
+    void	setCreator( const char * );
+    Orientation orientation()	const;
+    void	setOrientation( Orientation );
     int		fromPage()	const;
     int		toPage()	const;
     void	setFromTo( int fromPage, int toPage );
-    int		minPages()	const;
-    int		maxPages()	const;
-    void	setMinMax( int minPages, int maxPages );
+    int		minPage()	const;
+    int		maxPage()	const;
+    void	setMinMax( int minPage, int maxPage );
     int		numCopies()	const;
     void	setNumCopies( int );
-    const char *creator()	const;
-    void	setCreator( const char * );
 
+    bool	newPage();
     bool	abort();
     bool	aborted()	const;
-    bool	page();
 
-    static bool select( QPrinter *, QWidget *parent );
+    bool	select( QWidget *parent );
 
 protected:
-    bool	cmd( int, QPDevCmdParam * );
+    bool	cmd( int, QPainter *, QPDevCmdParam * );
 
 private:
-    QString	pname;
-    QString	dname;
-    QString	cname;
+#if defined(_WS_X11_)
+    QPaintDevice *prn;
+#endif
     int		state;
-    short	fromp, top;
-    short	minp, maxp;
+    QString	printer_name;
+    QString	doc_name;
+    QString	creator_name;
+    Orientation	orient;
+    short	from_pg, to_pg;
+    short	min_pg,  max_pg;
     short	ncopies;
 };
 
 
 inline const char *QPrinter::printerName() const
-{ return pname; }
+{ return printer_name; }
 
 inline const char *QPrinter::docName() const
-{ return dname; }
+{ return doc_name; }
+
+inline const char *QPrinter::creator() const
+{ return creator_name; }
+
+inline QPrinter::Orientation QPrinter::orientation() const
+{ return orient; }
 
 inline int QPrinter::fromPage() const
-{ return fromp; }
+{ return from_pg; }
 
 inline int QPrinter::toPage() const
-{ return top; }
+{ return to_pg; }
 
-inline int QPrinter::minPages() const
-{ return minp; }
+inline int QPrinter::minPage() const
+{ return min_pg; }
 
-inline int QPrinter::maxPages() const
-{ return maxp; }
+inline int QPrinter::maxPage() const
+{ return max_pg; }
 
 inline int QPrinter::numCopies() const
 { return ncopies; }
-
-inline const char *QPrinter::creator() const
-{ return cname; }
 
 
 #endif // QPRINTER_H

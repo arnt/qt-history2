@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#2 $
 **
 ** Implementation of QPrinter class for Windows
 **
@@ -16,19 +16,25 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#2 $";
 #endif
 
 
-QPrinter::QPrinter( const char *name )
-    : QPaintDevice( PDT_PRINTER | PDF_EXTDEV )
+// QPrinter states
+
+#define PST_IDLE	0
+#define PST_ACTIVE	1
+#define PST_ERROR	2
+#define PST_ABORTED	3
+
+
+QPrinter::QPrinter()
+    : QPaintDevice( PDT_PRINTER | PDF_EXTDEV )	  // set device type
 {
-    pname = name;
-    if ( pname.isEmpty() ) {
-	// get default printer
-    }
-    fromp = top = ncopies = 1;
-    minp  = maxp = 0;
+    orient = Portrait;
+    from_pg = to_pg  = ncopies = 1;
+    min_pg  = max_pg = 0;
+    state = PST_IDLE;
 }
 
 QPrinter::~QPrinter()
@@ -36,41 +42,31 @@ QPrinter::~QPrinter()
 }
 
 
-void QPrinter::setPrinterName( const char *name )
+bool QPrinter::newPage()
 {
-    pname = name;
-}
-
-void QPrinter::setDocName( const char *name )
-{
-    dname = name;
-}
-
-void QPrinter::setCreator( const char *creator )
-{
-    cname = creator;
+    if ( hdc && state == PST_ACTIVE ) {
+	if ( EndPage(hdc) != SP_ERROR && StartPage(hdc) != SP_ERROR )
+	    return TRUE;
+	state = PST_ERROR;
+    }
+    return FALSE;
 }
 
 
-void QPrinter::setFromTo( int fromPage, int toPage )
+bool QPrinter::abort()
 {
-    fromp = fromPage;
-    top = toPage;
+    if ( state == PST_ACTIVE )
+	state = PST_ABORTED;
+    return state == PST_ABORTED;
 }
 
-void QPrinter::setMinMax( int minPages, int maxPages )
+bool QPrinter::aborted() const
 {
-    minp = minPages;
-    maxp = maxPages;
-}
-
-void QPrinter::setNumCopies( int numCopies )
-{
-    ncopies = numCopies;
+    return state == PST_ABORTED;
 }
 
 
-bool QPrinter::select( QPrinter *p, QWidget *parent )
+bool QPrinter::select( QWidget *parent )
 {
     if ( parent == 0 )
 	parent = qApp->mainWidget();
@@ -79,17 +75,17 @@ bool QPrinter::select( QPrinter *p, QWidget *parent )
     pd.lStructSize = sizeof(PRINTDLG);
     pd.Flags	 = PD_RETURNDC;
     pd.hwndOwner = parent ? parent->id() : QApplication::desktop()->id();
-    pd.nFromPage = p->fromp;
-    pd.nToPage	 = p->top;
-    pd.nMinPage	 = p->minp;
-    pd.nMaxPage	 = p->maxp;
-    pd.nCopies	 = p->ncopies;
+    pd.nFromPage = from_pg;
+    pd.nToPage	 = to_pg;
+    pd.nMinPage	 = min_pg;
+    pd.nMaxPage	 = max_pg;
+    pd.nCopies	 = ncopies;
     bool result = PrintDlg( &pd );
     if ( result ) {				// get values from dlg
-	p->fromp   = pd.nFromPage;
-	p->top	   = pd.nToPage;
-	p->ncopies = pd.nCopies;
-	p->hdc	   = pd.hDC;
+	from_pg = pd.nFromPage;
+	to_pg	= pd.nToPage;
+	ncopies = pd.nCopies;
+	hdc	= pd.hDC;
     }
     if ( pd.hDevMode )
 	GlobalFree( pd.hDevMode );
@@ -99,23 +95,45 @@ bool QPrinter::select( QPrinter *p, QWidget *parent )
 }
 
 
-bool QPrinter::cmd( int c, QPDevCmdParam *p )
+bool QPrinter::cmd( int c, QPainter *, QPDevCmdParam *p )
 {
     if ( c ==  PDC_BEGIN ) {			// begin; start printing
-	ASSERT( hdc != 0 );
+	bool err = state == PST_IDLE;
+	if ( !err && !hdc ) {
+	    select( 0 );
+	    if ( !hdc )
+		err = TRUE;
+	}
 	DOCINFO di;
 	di.cbSize      = sizeof(DOCINFO);
-	di.lpszDocName = dname;
+	di.lpszDocName = doc_name;
 	di.lpszOutput  = 0;
-	ASSERT( StartDoc( hdc, &di ) != SP_ERROR );
-	ASSERT( StartPage( hdc ) > 0 );
+	if ( !err && StartDoc(hdc, &di) == SP_ERROR )
+	    err = TRUE;
+	if ( !err && StartPage(hdc) == SP_ERROR )
+	    err = TRUE;
+	if ( err ) {
+	    if ( hdc ) {
+		DeleteDC( hdc );
+		hdc = 0;
+	    }
+	    state = PST_ERROR;
+	}
+	else
+	    state = PST_ACTIVE;
     }
-    if ( c == PDC_END ) {			// end; printing done
-	ASSERT( hdc != 0 );
-	ASSERT( EndPage( hdc ) > 0 );
-	ASSERT( EndDoc( hdc ) != SP_ERROR );
-	DeleteDC( hdc );
-	hdc = 0;
+    else if ( c == PDC_END ) {
+	if ( hdc ) {
+	    EndPage( hdc );			// end; printing done
+	    EndDoc( hdc );
+	    DeleteDC( hdc );
+	    hdc = 0;
+	}
+	state = PST_IDLE;
+    }
+    else {					// all other commands...
+	if ( state != PST_ACTIVE )		// aborted or error
+	    return FALSE;
     }
     return TRUE;
 }
