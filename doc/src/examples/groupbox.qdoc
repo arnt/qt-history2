@@ -1,45 +1,128 @@
-/*
-    The following comments used to be in the source code. Write them
-    as a walk-through instead:
-*/
+/*!
+    \example widgets/groupbox
+    \title Group Boxes Example
 
-/*
-    Set up a main window and populate it with four group boxes:
-    an exclusive radio button group, a non-exclusive checkbox group,
-    an exclusive radio button group with an enabling checkbox, and
-    a group box with normal push buttons.
-*/
+    The Group Box example shows how to use the different kinds of group
+    boxes in Qt.
 
-/*
-    Creates a group box to display radio buttons in, and a button group
-    to manage them. The button group is exclusive by default, so only
-    one radio button can be checked at any given time. We check the
-    first radio button to ensure that the button group contains one
-    checked button.
+    Group boxes are container widgets that organize buttons into groups,
+    both logically and on screen. They manage the interactions between
+    the user and the application so that you do not have to enforce
+    simple constraints. *
+
+    Group boxes are usually used to organize check boxes and radio
+    buttons into exclusive groups. 
+
+    \image groupbox-example.png
+
+    The Group Boxes example consists of a single \c Window class that
+    is used to show four group boxes: an exclusive radio button group,
+    a non-exclusive checkbox group, an exclusive radio button group
+    with an enabling checkbox, and a group box with normal push buttons.
+
+    \section1 Window Class Definition
+
+    The \c Window class is a subclass of \c QWidget that is used to
+    display a number of group boxes. The class definition contains
+    functions to construct each group box and populate it with different
+    selections of button widgets:
+
+    \quotefromfile widgets/groupbox/window.h
+    \skipto class Window :
+    \printuntil /^\}/
+
+    In the example, the widget will be used as a top-level window, so
+    the constructor is defined so that we do not have to specify a parent
+    widget.
+
+    \section1 Window Class Implementation
+
+    The constructor creates a grid layout and fills it with each of the
+    group boxes that are to be displayed:
+
+    \quotefromfile widgets/groupbox/window.cpp
+    \skipto Window::Window
+    \printuntil /^\}/
+
+    The functions used to create each group box each return a
+    \c QGroupBox to be inserted into the grid layout.
+
+    \skipto createFirstExclusiveGroup
+    \printuntil radio1->setChecked
+
+    The first group box contains and manages three radio buttons. Since
+    the group box contains only radio buttons, it is exclusive by
+    default, so only one radio button can be checked at any given time.
+    We check the first radio button to ensure that the button group
+    contains one checked button.
+
+    \printuntil /^\}/
 
     We use a vertical layout within the group box to present the
-    buttons in the form of a vertical list.
-*/
+    buttons in the form of a vertical list, and return the group
+    box to the constructor.
 
-/*
-    Creates an exclusive button group and display radio buttons in a
-    group box. The group box is made checkable, and is set to be initially
-    unchecked - this means that the group box itself must be checked
-    before any of the radio buttons inside can be checked.
-*/
+    The second group box is itself checkable, providing a convenient
+    way to disable all the buttons inside it. Initially, it is
+    unchecked, so the group box itself must be checked before any of
+    the radio buttons inside can be checked.
 
-/*
-    Creates a group box to display checkboxes in, and a button group to
-    manage them. The button group is configured to be non-exclusive, so
-    that each checkbox can be checked independently of the others.
+    \skipto createSecondExclusiveGroup
+    \printuntil groupBox->setChecked
 
-    We use a vertical layout within the group box to present the
-    buttons in the form of a vertical list.
-*/
+    The group box contains three exclusive radio buttons, and an
+    independent checkbox. For consistency, one radio button must be
+    checked at all times, so we ensure that the first one is initially
+    checked.
 
-/*
-    Creates a group box without a button group to manage its contents.
+    \skipto QRadioButton *radio1
+    \printuntil checkBox->setChecked
 
-    We create three push buttons: a normal button, a flat button, and
-    a button that pops up a menu when clicked.
+    The buttons are arranged in the same way as those in the first
+    group box.
+
+    \skipto QVBoxLayout
+    \printuntil /^\}/
+
+    The third group box is constructed with a "flat" style that is
+    better suited to certain types of dialog.
+
+    \skipto createNonExclusiveGroup
+    \printuntil groupBox->setFlat
+
+    This group box contains only checkboxes, so it is non-exclusive by
+    default. This means that each checkbox can be checked independently
+    of the others.
+
+    \skipto QCheckBox
+    \printuntil tristateBox->setState
+
+    Again, we use a vertical layout within the group box to present
+    the buttons in the form of a vertical list.
+
+    \skipto QVBoxLayout
+    \printuntil /^\}/
+
+    The final group box contains only push buttons and, like the
+    second group box, it is checkable.
+
+    \skipto createPushButtonGroup
+    \printuntil groupBox->setChecked
+
+    We create a normal button, a toggle button, and a flat push button:
+
+    \skipto pushButton
+    \printuntil setFlat
+
+    Push buttons can be used to display popup menus. We create one, and
+    attach a simple menu to it:
+
+    \skipto popupButton
+    \printuntil setMenu
+
+    Finally, we lay out the widgets vertically, and return the group box
+    that we created:
+
+    \skipto vbox
+    \printuntil /^\}/
 */
