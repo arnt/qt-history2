@@ -1963,8 +1963,8 @@ int QFontMetrics::height() const
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
 
-    return QMAX(engine->ascent() + engine->descent(),
-		latin_engine->ascent() + latin_engine->descent());
+    return (QMAX(engine->ascent(), latin_engine->ascent()) +
+	    QMAX(engine->descent(), latin_engine->descent()) + 1);
 }
 
 /*!
@@ -1998,8 +1998,9 @@ int QFontMetrics::lineSpacing() const
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
 
-    return QMAX(engine->leading() + engine->ascent() + engine->descent(),
-		latin_engine->leading() + latin_engine->ascent() + latin_engine->descent());
+    return (QMAX(engine->leading(), latin_engine->leading()) +
+	    QMAX(engine->ascent(), latin_engine->ascent()) +
+	    QMAX(engine->descent(), latin_engine->descent()) + 1);
 }
 
 /*!

@@ -2994,7 +2994,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     if ( cfont.d->strikeOut ) textFlags |= Qt::StrikeOut;
 
     if ( bg_mode == OpaqueMode )
-	qt_draw_background( this, x, y-ascent, right-left, ascent+descent);
+	qt_draw_background( this, x, y-ascent, right-left, ascent+descent+1);
 
     for ( int i = start; i < end; i++ ) {
 	QTextItem ti;

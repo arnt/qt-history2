@@ -46,9 +46,9 @@ int QFontEngine::lineThickness() const
   int lth = score / 700;
 
   // looks better with thicker line for small pointsizes
-  if(lth < 2 && score >= 1050) 
+  if(lth < 2 && score >= 1050)
       lth = 2;
-  else if(lth == 0) 
+  else if(lth == 0)
       lth = 1;
   return lth;
 }
@@ -224,14 +224,14 @@ QFontEngineMac::boundingBox(const glyph_t *, const advance_t *advances, const qo
     const advance_t *end = advances + numGlyphs;
     while(end > advances)
 	w += *(--end);
-    return glyph_metrics_t(0, -(ascent()), w, ascent()+descent(), w, 0);
+    return glyph_metrics_t(0, -(ascent()), w, ascent()+descent()+1, w, 0);
 }
 
 glyph_metrics_t
 QFontEngineMac::boundingBox(glyph_t glyph)
 {
     int w = doTextTask((QChar*)&glyph, 0, 1, 1, WIDTH);
-    return glyph_metrics_t(0, -(ascent()), w, ascent()+descent(), w, 0 );
+    return glyph_metrics_t(0, -(ascent()), w, ascent()+descent()+1, w, 0 );
 }
 
 bool
@@ -245,7 +245,7 @@ QFontEngineMac::calculateCost()
 {
     // ### don't know how to get the number of glyphs from the font,
     // ### so default to 1024
-    cache_cost = (ascent() + descent()) * maxCharWidth() * 1024;
+    cache_cost = (ascent() + descent() + 1) * maxCharWidth() * 1024;
 }
 
 int

@@ -2910,7 +2910,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 		//qDebug("finalizing line: ascent = %d, descent=%d lineleft=%d lineright=%d", ascent, descent,lineLeft, lineRight  );
 		left = QMIN( left, lineLeft );
 		right = QMAX( right, lineRight );
-		height += ascent + descent;
+		height += ascent + descent + 1;
 		add = 0;
 		if ( linesep )
 		    textLayout.nextItem();
@@ -2975,7 +2975,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
 	    if ( painter->bg_mode == Qt::OpaqueMode )
 		qt_draw_background( painter, r.x()+lb + ti.x(), r.y() + yoff + ti.y() - ti.ascent(),
-				    ti.width(), ti.ascent() + ti.descent());
+				    ti.width(), ti.ascent() + ti.descent() + 1);
 #endif
 	    painter->drawTextItem( r.x()+lb, r.y() + yoff, ti, textFlags );
 	}

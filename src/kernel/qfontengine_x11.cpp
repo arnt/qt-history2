@@ -706,7 +706,7 @@ int QFontEngineXLFD::ascent() const
 
 int QFontEngineXLFD::descent() const
 {
-    return (int)(_fs->descent*_scale);
+    return (int)((_fs->descent-1)*_scale);
 }
 
 int QFontEngineXLFD::leading() const
@@ -1810,7 +1810,7 @@ int QFontEngineXft::ascent() const
 
 int QFontEngineXft::descent() const
 {
-    return (int)(_font->descent*_scale);
+    return (int)((_font->descent-1)*_scale);
 }
 
 // #### use Freetype to determine this

@@ -235,7 +235,7 @@ glyph_metrics_t QFontEngine::boundingBox( const glyph_t *glyphs,
     while( end > advances )
 	w += *(--end);
 
-    return glyph_metrics_t(0, -ascent(), w, ascent()+descent(), w, 0 );
+    return glyph_metrics_t(0, -ascent(), w, ascent()+descent()+1, w, 0 );
 }
 
 glyph_metrics_t QFontEngine::boundingBox( glyph_t glyph )
@@ -264,7 +264,7 @@ int QFontEngine::ascent() const
 
 int QFontEngine::descent() const
 {
-    return memorymanager->fontDescent(handle()) + 1;
+    return memorymanager->fontDescent(handle());
 }
 
 int QFontEngine::leading() const
