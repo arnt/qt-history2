@@ -19,7 +19,7 @@ SHELL =	/bin/sh
 
 INCPATH =	-I$(INCDIR) -I/usr/X11R6/include
 LINK	=	$(CC) -shared
-LIBS	=	$(LFLAGS) -L/usr/X11R6/lib -lMesaGL -lXext -lm
+LIBS	=	$(LFLAGS) -L/usr/X11R6/lib -lMesaGL -lXext -lXmu -lm
 MOC	=	moc
 
 ####### Files
