@@ -3064,10 +3064,20 @@ int QAxEventFilter( MSG *pMsg )
     return 0;
 }
 
+Q_EXPORT int qt_translateKeyCode(int);
+
 HRESULT WINAPI QAxServerBase::TranslateAcceleratorW( MSG *pMsg )
 {
     if ( pMsg->message != WM_KEYDOWN || !isWidget )
 	return S_FALSE;
+
+    DWORD dwKeyMod = 0;
+    if (::GetKeyState(VK_SHIFT) < 0)
+	dwKeyMod |= 1;	// KEYMOD_SHIFT
+    if (::GetKeyState(VK_CONTROL) < 0)
+	dwKeyMod |= 2;	// KEYMOD_CONTROL
+    if (::GetKeyState(VK_MENU) < 0)
+	dwKeyMod |= 4;	// KEYMOD_ALT
 
     switch ( LOWORD( pMsg->wParam ) ) {
     case VK_TAB:
@@ -3106,6 +3116,22 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW( MSG *pMsg )
 	break;
 
     default:
+	if (isUIActive && qt.widget->focusWidget()) {
+	    int state = NoButton;
+	    if (dwKeyMod & 1)
+		state |= ShiftButton;
+	    if (dwKeyMod & 2)
+		state |= ControlButton;
+	    if (dwKeyMod & 4)
+		state |= AltButton;
+
+	    int key = qt_translateKeyCode(pMsg->wParam);
+	    QKeyEvent override(QEvent::AccelOverride, key, 0, state);
+	    override.ignore();
+	    QApplication::sendEvent(qt.widget->focusWidget(), &override);
+	    if (override.isAccepted())
+		return S_FALSE;
+	}
 	break;
     }
 
@@ -3116,14 +3142,6 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW( MSG *pMsg )
     m_spClientSite->QueryInterface( IID_IOleControlSite, (void**)&controlSite );
     if ( !controlSite )
 	return S_FALSE;
-
-    DWORD dwKeyMod = 0;
-    if (::GetKeyState(VK_SHIFT) < 0)
-	dwKeyMod += 1;	// KEYMOD_SHIFT
-    if (::GetKeyState(VK_CONTROL) < 0)
-	dwKeyMod += 2;	// KEYMOD_CONTROL
-    if (::GetKeyState(VK_MENU) < 0)
-	dwKeyMod += 4;	// KEYMOD_ALT
 
     HRESULT hres = controlSite->TranslateAcceleratorW(pMsg, dwKeyMod);
 
