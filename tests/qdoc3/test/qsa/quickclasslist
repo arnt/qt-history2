@@ -63,6 +63,7 @@ QHeader
 QHttp
 QIconDrag
 QIconView
+QImage
 QImageDrag
 QInputDialog
 QIntValidator
