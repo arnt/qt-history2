@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.h#11 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.h#12 $
 **
 ** Definition of QFileDialog class
 **
@@ -249,13 +249,15 @@ signals:
     void fileHighlighted( const QString& );
     void fileSelected( const QString& );
     void dirEntered( const QString& );
-    void showPreview( const QUrl &, const QUrlInfo & );
+    void showPreview( const QUrl & );
 
 protected slots:
     void detailViewSelectionChanged();
     void listBoxSelectionChanged();
     void changeMode( int );
-
+    void slotIsDir();
+    void slotIsFile();
+    
 private slots:
     void fileSelected( int );
     void fileHighlighted( int );
@@ -314,7 +316,7 @@ private:
     };
 
     void init();
-    bool trySetSelection( const QUrlInfo&, const QUrl &, bool );
+    bool trySetSelection( bool isDir, const QUrl &, bool );
     void deleteFile( const QString &filename );
     void popupContextMenu( const QString &filename, bool withSort,
                            PopupAction &action, const QPoint &p );

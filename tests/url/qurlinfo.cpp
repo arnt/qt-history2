@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qurlinfo.cpp#10 $
+** $Id: //depot/qt/main/tests/url/qurlinfo.cpp#11 $
 **
 ** Implementation of QFileDialog class
 **
@@ -88,6 +88,8 @@ QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
 QUrlInfo::QUrlInfo()
 {
     d = new QUrlInfoPrivate;
+    d->isDir = FALSE;
+    d->isFile = TRUE;
 }
 
 QUrlInfo::QUrlInfo( const QUrl &path, const QString &file )
@@ -208,21 +210,4 @@ bool QUrlInfo::isReadable() const
 bool QUrlInfo::isExecutable() const
 {
     return d->isExecutable;
-}
-
-QString QUrlInfo::makeUrl( const QUrl &path, bool withProtocolWhenLocal ) const
-{
-    QString url = QString::null;
-    if ( path.isLocalFile() ) {
-	if ( withProtocolWhenLocal ) {
-	    url = path.protocol();
-	    url += "://";
-	}
-	url = path.path();
-	url += "/" + d->name;
-    } else if ( path.protocol() == "ftp" ) {
-	url = path + /*.protocol() + "://" + path.host() + path.path() + "/" +*/ d->name;
-    }
-
-    return url;
 }

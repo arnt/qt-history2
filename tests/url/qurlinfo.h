@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qurlinfo.h#7 $
+** $Id: //depot/qt/main/tests/url/qurlinfo.h#8 $
 **
 ** Implementation of QFileDialog class
 **
@@ -69,8 +69,6 @@ public:
     bool isWritable() const;
     bool isReadable() const;
     bool isExecutable() const;
-
-    QString makeUrl( const QUrl &path, bool withProtocolWhenLocal = FALSE ) const;
 
 private:
     QUrlInfoPrivate *d;

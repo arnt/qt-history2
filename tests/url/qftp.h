@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qftp.h#3 $
+** $Id: //depot/qt/main/tests/url/qftp.h#4 $
 **
 ** Implementation of QFileDialog class
 **
@@ -37,11 +37,11 @@
 class QFtp : public QNetworkProtocol
 {
     Q_OBJECT
-    
+
 public:
     QFtp();
     virtual ~QFtp();
-    
+
     virtual void openConnection( QUrl *url );
     virtual bool isOpen();
     virtual void close();
@@ -51,11 +51,12 @@ public:
     virtual void remove( const QString &filename );
     virtual void rename( const QString &oldname, const QString &newname );
     virtual void copy( const QStringList &files, const QString &dest, bool move );
+    virtual void isDir();
+    virtual void isFile();
 
-    virtual QUrlInfo makeInfo() const;
     virtual QNetworkProtocol *copy() const;
     virtual QString toString() const;
-    
+
 protected:
     enum Command {
 	List = 0,
@@ -69,7 +70,7 @@ protected:
     QString extraData;
     Command command;
     bool connectionReady;
-    
+
 protected slots:
     void hostFound();
     void connected();
@@ -83,7 +84,7 @@ protected slots:
 signals:
     void newEntry( const QUrlInfo & );
     void listFinished();
-    
+
 };
 
 #endif

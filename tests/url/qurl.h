@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qurl.h#18 $
+** $Id: //depot/qt/main/tests/url/qurl.h#19 $
 **
 ** Implementation of QFileDialog class
 **
@@ -121,10 +121,12 @@ public:
     virtual void copy( const QString &from, const QString &to );
     virtual void copy( const QStringList &files, const QString &dest, bool move );
 
+    virtual void isDir();
+    virtual void isFile();
+    
     virtual void setNameFilter( const QString &nameFilter );
     QString nameFilter() const;
 
-    virtual QUrlInfo makeInfo() const;
     virtual QUrlInfo info( const QString &entry ) const;
     operator QString() const;
     virtual QString toString() const;
@@ -139,6 +141,8 @@ public:
     void emitItemChanged( const QString &oldname, const QString &newname );
     void emitError( int ecode, const QString &msg );
     void emitData( const QString &d );
+    void emitUrlIsDir();
+    void emitUrlIsFile();
     
 signals:
     void entry( const QUrlInfo & );
@@ -149,6 +153,8 @@ signals:
     void itemChanged( const QString &oldname, const QString &newname );
     void error( int ecode, const QString &msg );
     void data( const QString & );
+    void urlIsDir();
+    void urlIsFile();
     
 protected:
     virtual void reset();
@@ -203,6 +209,16 @@ inline void QUrl::emitError( int ecode, const QString &msg )
 inline void QUrl::emitData( const QString &d )
 {
     emit data( d );
+}
+
+inline void QUrl::emitUrlIsDir()
+{
+    emit urlIsDir();
+}
+
+inline void QUrl::emitUrlIsFile()
+{
+    emit urlIsFile();
 }
 
 #endif

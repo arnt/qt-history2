@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qftp.cpp#4 $
+** $Id: //depot/qt/main/tests/url/qftp.cpp#5 $
 **
 ** Implementation of QFileDialog class
 **
@@ -134,17 +134,21 @@ void QFtp::copy( const QStringList &/*files*/, const QString &/*dest*/, bool /*m
 {
 }
 
-QUrlInfo QFtp::makeInfo() const
-{
-    // #### todo
-    QUrlInfo inf;
-    inf.setDir( TRUE );
-    return inf;
-}
-
 QNetworkProtocol *QFtp::copy() const
 {
     return new QFtp;
+}
+
+void QFtp::isDir()
+{
+    // #### todo
+    if ( url )
+	url->emitUrlIsDir();
+}
+
+void QFtp::isFile()
+{
+    // #### todo
 }
 
 QString QFtp::toString() const

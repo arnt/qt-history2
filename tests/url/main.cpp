@@ -10,9 +10,12 @@ int main( int argc, char* argv[]  )
     // register FTP
     qRegisterNetworkProtocol( "ftp", new QFtp );
     
-    QString s = QFileDialog::getOpenFileName();
+    /*QStringList lst*/ QString s = QFileDialog::getOpenFileName();
     qDebug ( "file: %s", s.latin1() );
-
+//     QStringList::Iterator it = lst.begin();
+//     for ( ; it != lst.end(); ++it )
+// 	qDebug( "%s", ( *it ).latin1() );
+    
     a.exec();
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qurl.cpp#33 $
+** $Id: //depot/qt/main/tests/url/qurl.cpp#34 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1019,6 +1019,30 @@ void QUrl::copy( const QStringList &files, const QString &dest, bool move )
 
 }
 
+void QUrl::isDir()
+{
+    if ( isLocalFile() ) {
+	if ( QFileInfo( path() ).isDir() )
+	    emit urlIsDir();
+	else
+	    emit urlIsFile();
+    } else if ( d->networkProtocol ) {
+	d->networkProtocol->isDir();
+    }
+}
+
+void QUrl::isFile()
+{
+    if ( isLocalFile() ) {
+	if ( QFileInfo( path() ).isFile() )
+	    emit urlIsFile();
+	else
+	    emit urlIsDir();
+    } else if ( d->networkProtocol ) {
+	d->networkProtocol->isFile();
+    }
+}
+
 void QUrl::setNameFilter( const QString &nameFilter )
 {
     d->nameFilter = nameFilter;
@@ -1027,23 +1051,6 @@ void QUrl::setNameFilter( const QString &nameFilter )
 QString QUrl::nameFilter() const
 {
     return d->nameFilter;
-}
-
-QUrlInfo QUrl::makeInfo() const
-{
-    if ( d->entryMap.contains( "." ) )
-	return d->entryMap[ "." ];
-
-    if ( isLocalFile() ) {
-	QFileInfo inf( d->path );
-	return QUrlInfo( inf.fileName(), 0/*permissions*/, inf.owner(), inf.group(),
-			 inf.size(), inf.lastModified(), inf.lastRead(), inf.isDir(), inf.isFile(),
-			 inf.isSymLink(), inf.isWritable(), inf.isReadable(), inf.isExecutable() );
-    } else if ( d->networkProtocol ) {
-	return d->networkProtocol->makeInfo();
-    }
-
-    return QUrlInfo();
 }
 
 QString QUrl::toString() const
