@@ -18,23 +18,22 @@ class SlidersGroup : public QGroupBox
 
 public:
     SlidersGroup(Qt::Orientation orientation, const QString &title,
-                 QWidget *parent);
+                 QWidget *parent = 0);
 
 signals:
-    void valueChanged(int);
+    void valueChanged(int value);
 
 public slots:
-    void setValue(int);
-    void setMinimum(int);
-    void setMaximum(int);
-    void invertAppearance(bool);
-    void invertControls(bool);
+    void setValue(int value);
+    void setMinimum(int value);
+    void setMaximum(int value);
+    void invertAppearance(bool invert);
+    void invertControls(bool invert);
 
 private:
     QDial *dial;
     QScrollBar *scrollBar;
     QSlider *slider;
-
 };
 
 class Window : public QWidget
@@ -43,13 +42,6 @@ class Window : public QWidget
 
 public:
     Window();
-
-signals:
-    void valueChanged(int);
-    void minimumChanged(int);
-    void maximumChanged(int);
-    void appearanceInverted(bool);
-    void controlsInverted(bool);
 
 public slots:
     void setValue(int);
