@@ -2063,6 +2063,12 @@ QDomNode::NodeType QDomElement::nodeType() const
   return ElementNode;
 }
 
+void QDomElement::setTagName( const QString& name )
+{
+  if ( impl )
+    impl->m_name = name;
+}
+
 QString QDomElement::tagName() const
 {
   if ( !impl )
@@ -3400,6 +3406,36 @@ QDomElement QDomDocument::createElement( const QString& tagname, const QRect& re
   str.setNum( rect.width() );
   e.setAttribute( "width", str );
   str.setNum( rect.height() );
+  e.setAttribute( "height", str );
+
+  return e;
+}
+
+QDomElement QDomDocument::createElement( const QString& tagname, const QPoint& p )
+{
+  if ( !impl )
+    return QDomElement();
+  QDomElement e( createElement( tagname ) );
+
+  QString str;
+  str.setNum( p.x() );
+  e.setAttribute( "x", str );
+  str.setNum( p.y() );
+  e.setAttribute( "y", str );
+
+  return e;
+}
+
+QDomElement QDomDocument::createElement( const QString& tagname, const QSize& s )
+{
+  if ( !impl )
+    return QDomElement();
+  QDomElement e( createElement( tagname ) );
+
+  QString str;
+  str.setNum( s.width() );
+  e.setAttribute( "width", str );
+  str.setNum( s.height() );
   e.setAttribute( "height", str );
 
   return e;

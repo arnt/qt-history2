@@ -8,6 +8,7 @@
 #include <qpen.h>
 #include <qpoint.h>
 #include <qsize.h>
+#include <qvariant.h>
 
 class QWidget;
 class QLayout;
@@ -245,6 +246,8 @@ class QDomCharacterData;
     QDomNodeList              elementsByTagName( const QString& tagname );
     // Qt extension factories
     QDomElement createElement( const QString& tagname, const QRect& rect );
+    QDomElement createElement( const QString& tagname, const QPoint& rect );
+    QDomElement createElement( const QString& tagname, const QSize& rect );
     QDomElement createElement( const QString& tagname, const QPen& rect );
     QDomElement createElement( const QString& tagname, const QFont& rect );
 
@@ -372,6 +375,7 @@ class QDomCharacterData;
     QDomElement& operator= ( const QDomElement& );
     ~QDomElement();
 
+    void setTagName( const QString& name );
     QString  tagName() const;
     QString  attribute( const QString& name ) const;
     void     setAttribute( const QString& name, const QString& value );
@@ -400,6 +404,9 @@ class QDomCharacterData;
     QWidget* toWidget( QWidget* parent = 0 ) const;
     QLayout* toLayout( QWidget* parent ) const;
     QLayout* toLayout( QLayout* parent = 0 ) const;
+
+    QVariant property( const QString& name, QVariant::Type ) const;
+    void setProperty( const QString& name, const QVariant& prop );
 
     QString text() const;
 

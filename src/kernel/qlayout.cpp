@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#116 $
 **
 ** Implementation of layout classes
 **
@@ -1335,7 +1335,6 @@ bool QGridLayout::configure( const QDomElement& element )
 	      addMultiCellWidget( w, r, r + multirow - 1, c, c + multicol - 1, align );
 	    else
 	      addWidget( w, r, c, align );
-	    w->configure( res );
 	  }
 	  else if ( l )
 	  {
@@ -1343,7 +1342,6 @@ bool QGridLayout::configure( const QDomElement& element )
 	      addMultiCell( l, r, r + multirow - 1, c, c + multicol - 1, align );
 	    else
 	      addLayout( l, r, c );
-	    l->configure( res );
 	  }
 
 	  if ( cell.hasAttribute( "size" ) )

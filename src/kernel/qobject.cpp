@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#208 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#209 $
 **
 ** Implementation of QObject class
 **
@@ -2825,6 +2825,9 @@ bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
   QVariant::Type type = QVariant::nameToType( p->type );
   QString name( p->name );
 
+  return setProperty( name, element.property( name, type ) );
+}
+/*
   switch( type )
   {
   case QVariant::String:
@@ -2952,5 +2955,5 @@ bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
 
   return FALSE;
 }
-
+*/
 #endif // QT_BUILDER
