@@ -470,7 +470,7 @@ void QProcess::closeStdin()
 
 
 /*!
-  The process has output data to either stdout or stderr.
+  The process has outputted data to either stdout or stderr.
 */
 void QProcess::socketRead( int fd )
 {
@@ -505,23 +505,6 @@ void QProcess::socketRead( int fd )
 	    d->socketStderr[0] = 0;
 	    return;
 	}
-
-	/* ### just have to think what to do best
-	if ( err[ 0 ] == 0 && out[ 0 ] == 0 ) {
-	    int s;
-	    waitpid( d->pid, &s, WNOHANG );
-	    if ( WIFEXITED( s ) ) {
-		d->pid = 0;
-		int ret = WEXITSTATUS( s );
-
-		if ( ret == 0 )
-		    emit finished();
-		else
-		    emit failed();
-	    }
-	    return;
-	}
-	*/
     }
 
     buffer[n] = 0;

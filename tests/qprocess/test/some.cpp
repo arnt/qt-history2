@@ -113,6 +113,7 @@ Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int 
 	    return;
 	}
     } else {
+	hideAfterExit = FALSE;
 	if ( !proc->launch( "Foo Bla Fnord Test Hmpfl" ) ) {
 	    qWarning( "Could not start process" );
 	    return;

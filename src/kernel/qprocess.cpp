@@ -179,7 +179,7 @@ bool QProcess::launch( const QString& buf )
     if ( start() ) {
 	connect( this, SIGNAL(wroteStdin()),
 		this, SLOT(closeStdin()) );
-	dataStdout( buf );
+	dataStdin( buf );
 	return TRUE;
     } else {
 	return FALSE;
@@ -193,7 +193,7 @@ bool QProcess::launch( const QByteArray& buf )
     if ( start() ) {
 	connect( this, SIGNAL(wroteStdin()),
 		this, SLOT(closeStdin()) );
-	dataStdout( buf );
+	dataStdin( buf );
 	return TRUE;
     } else {
 	return FALSE;
