@@ -77,7 +77,7 @@ bool CExeModule::StartMonitor()
 CExeModule _Module;
 
 BEGIN_OBJECT_MAP(ObjectMap)
-OBJECT_ENTRY(CLSID_QActiveX, QActiveX)
+OBJECT_ENTRY(CLSID_QActiveX, QActiveX )
 END_OBJECT_MAP()
 
 

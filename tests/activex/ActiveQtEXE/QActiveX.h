@@ -1,17 +1,16 @@
 // QActiveX.h : Declaration of the CQActiveX
 
-#ifndef __QEXETEST_H_
-#define __QEXETEST_H_
+#ifndef __QACTIVEX_H_
+#define __QACTIVEX_H_
 
 #include "resource.h"       // main symbols
 #include <atlctl.h>
 
-#include "QActiveX.h"
 #include "TestWidget.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // QActiveX
-class ATL_NO_VTABLE QActiveX : 
+class QActiveX : 
 	public CComObjectRootEx<CComSingleThreadModel>,
 	public IDispatchImpl<IQActiveX, &IID_IQActiveX, &LIBID_ACTIVEQTEXELib>,
 	public CComControl<QActiveX>,
@@ -28,11 +27,21 @@ class ATL_NO_VTABLE QActiveX :
 	public IDataObjectImpl<QActiveX>,
 	public IProvideClassInfo2Impl<&CLSID_QActiveX, &DIID__IQActiveXEvents, &LIBID_ACTIVEQTEXELib>,
 	public IPropertyNotifySinkCP<QActiveX>,
-	public CComCoClass<QActiveX, &CLSID_QActiveX>,
-	public CTestWidget
+	public CComCoClass<QActiveX, &CLSID_QActiveX>
 {
 public:
-	QActiveX();
+	QActiveX()
+	{
+		m_bWindowOnly = true;
+		m_pWidget = NULL;
+	}
+	virtual ~QActiveX()
+	{
+		if ( m_pWidget )
+		{
+			delete m_pWidget;
+		}
+	}
 
 DECLARE_REGISTRY_RESOURCEID(IDR_QEXETEST)
 
@@ -78,6 +87,7 @@ BEGIN_MSG_MAP(QActiveX)
 	DEFAULT_REFLECTION_HANDLER()
 	MESSAGE_HANDLER(WM_MOVE, OnMove)
 	MESSAGE_HANDLER(WM_SIZE, OnSize)
+	MESSAGE_HANDLER(WM_CREATE, OnCreate)
 END_MSG_MAP()
 // Handler prototypes:
 //  LRESULT MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
@@ -89,11 +99,40 @@ END_MSG_MAP()
 
 // IQActiveX
 public:
-	LRESULT OnMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-	LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-	HRESULT OnDraw(ATL_DRAWINFO& di);
+	LRESULT OnMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		if ( m_pWidget && m_pWidget->m_bWidgetReady )
+		{
+			m_pWidget->move( LOWORD( lParam ), HIWORD( lParam ) );
+		}
+		return 0;
+	}
+	LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		int w,h;
+		if ( m_pWidget && m_pWidget->m_bWidgetReady )
+		{
+			w = LOWORD( lParam );
+			h = HIWORD( lParam );
+			m_pWidget->resize( LOWORD( lParam ), HIWORD( lParam ) );
+		}
+		return 0;
+	}
+	HRESULT OnDraw(ATL_DRAWINFO& di)
+	{
+		return S_OK;
+	}
+	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		if ( m_pWidget = new CTestWidget() )
+		{
+			m_pWidget->attachToControl( m_hWnd );
+			m_pWidget->InitWidget();
+		}
+		return 0;
+	}
 private:
-	void ScreenToClient( RECT* pRect );
+	CTestWidget* m_pWidget;
 };
 
-#endif //__QEXETEST_H_
+#endif

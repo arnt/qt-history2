@@ -9,8 +9,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CTestWidget::CTestWidget() :
-	QActiveXBase( NULL, NULL, WStyle_Customize | WStyle_NoBorder ) 
+CTestWidget::CTestWidget()
 {
 	m_bWidgetReady = false;
 	m_pLCD = NULL;

@@ -7,9 +7,15 @@
 class QActiveXBase : public QWidget 
 {
 public:
-	QActiveXBase( QWidget* pParent = NULL, const char* pName = NULL, WFlags f = 0 ) : QWidget( pParent, pName, f ) {};
+	QActiveXBase( QWidget* pParent = NULL, const char* pName = NULL, WFlags f = WStyle_Customize | WStyle_NoBorderEx ) : QWidget( pParent, pName, f )
+	{
+		setFocusPolicy( QWidget::StrongFocus );
+	};
 
-protected:
+	void attachToControl( HWND hCtrl )
+	{
+		create( hCtrl );	// Grab the control window, and get rid of our old window
+	}
 	virtual void InitWidget() = 0;
 	virtual void UnInitWidget() = 0;
 

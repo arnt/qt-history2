@@ -25,11 +25,12 @@ private:
 	QLCDNumber* m_pLCD;
 	QMultiLineEdit* m_pEdit;
 
+public:
 // These are pure virtual functions in the baseclass
-protected:
 	virtual void InitWidget();
 	virtual void UnInitWidget();
 
+protected:
 // Event handlers
 	virtual void resizeEvent( QResizeEvent* pEvent );
 	virtual void closeEvent( QCloseEvent* pEvent );
