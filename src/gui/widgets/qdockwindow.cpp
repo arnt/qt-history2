@@ -89,7 +89,7 @@ QSize QDockWindowTitleButton::sizeHint() const
 
     int dim = 0;
     if (!icon().isNull()) {
-        const QPixmap pm = icon().pixmap(QIconSet::Small, QIconSet::Normal);
+        const QPixmap pm = icon().pixmap(QIconSet::Automatic, QIconSet::Normal);
         dim = qMax(pm.width(), pm.height());
     }
 
@@ -98,17 +98,17 @@ QSize QDockWindowTitleButton::sizeHint() const
 
 void QDockWindowTitleButton::enterEvent(QEvent *event)
 {
-    update();
+    if (isEnabled()) update();
     QAbstractButton::enterEvent(event);
 }
 
 void QDockWindowTitleButton::leaveEvent(QEvent *event)
 {
-    update();
+    if (isEnabled()) update();
     QAbstractButton::leaveEvent(event);
 }
 
-void QDockWindowTitleButton::paintEvent(QPaintEvent *event)
+void QDockWindowTitleButton::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
 
@@ -117,22 +117,24 @@ void QDockWindowTitleButton::paintEvent(QPaintEvent *event)
     opt.rect = r;
     opt.palette = palette();
     opt.state = QStyle::Style_AutoRaise;
-    if (isEnabled())
+    if (isEnabled()) {
         opt.state |= QStyle::Style_Enabled;
+        if (underMouse()) {
+            opt.state |= QStyle::Style_MouseOver;
+            if (!isChecked() && !isDown())
+                opt.state |= QStyle::Style_Raised;
+        }
+    }
     if (isChecked())
         opt.state |= QStyle::Style_On;
     if (isDown())
         opt.state |= QStyle::Style_Down;
-    if (underMouse()) {
-        opt.state |= QStyle::Style_MouseOver;
-        if (!isChecked() && !isDown())
-            opt.state |= QStyle::Style_Raised;
-    }
     style().drawPrimitive(QStyle::PE_ButtonTool, &opt, &p, this);
 
     r.addCoords(2, 2, -2, -2);
-    const QPixmap pm = icon().pixmap(QIconSet::Small, QIconSet::Normal);
-    p.drawPixmap(r.x() + (r.width() - pm.width()) / 2, r.y() + (r.height() - pm.height()) / 2, pm);
+    const QPixmap pm =
+        icon().pixmap(QIconSet::Automatic, isEnabled() ? QIconSet::Normal : QIconSet::Disabled);
+    style().drawItem(&p, r, Qt::AlignCenter, palette(), isEnabled(), pm);
 }
 
 QDockWindowTitle::QDockWindowTitle(QDockWindow *tw)
@@ -345,8 +347,8 @@ void QDockWindowTitle::paintEvent(QPaintEvent *)
         const int indent = p.fontMetrics().descent();
         r.addCoords(indent, 0, -indent, 0);
 
-	p.setPen(pal.color(QPalette::Foreground));
-	p.drawText(r, Qt::AlignLeft, dockwindow->windowTitle());
+	style().drawItem(&p, r, Qt::AlignLeft, pal,
+                         isEnabled(), dockwindow->windowTitle());
     }
 }
 
@@ -617,6 +619,7 @@ void QDockWindow::setCurrentArea(QDockWindow *after, Qt::Orientation direction)
     d->currentArea = area;
 
     Q_ASSERT_X(false, "QDockWindow::place", "place after specified dock window is unimplemented");
+    Q_UNUSED(direction);
 }
 
 void QDockWindow::changeEvent(QEvent *event)
