@@ -1,9 +1,20 @@
+/****************************************************************************
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#2 $
+**
+**  Table header
+**
+**  Created:  961105
+**
+** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
+**
+*****************************************************************************/
+#include "qheader.h"
+
 #include "qpainter.h"
 #include "qdrawutl.h"
 
 #include "qcursor.h"
 #include "qbitmap.h"
-#include "qheader.h"
 static const int MINSIZE  = 8;
 static const int MARKSIZE = 32;
 
@@ -68,6 +79,19 @@ static unsigned char vsplitm_bits[] = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, };
 
 
+/*!
+  \class QHeader qheader.h
+  \brief The QHeader widget class provides a table header.
+
+  This is a table heading of the type used in a list view. It gives
+  the user the opportunity to resize and move the columns (or rows for
+  vertical headings.)
+
+  This class can be used without a table view, if you need to control
+  table-like structures.
+
+ */
+
 
 
 /*!
@@ -84,13 +108,10 @@ QHeader::QHeader( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a header with \a n sections.
+  Constructs a horizontal header with \a n sections.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
-
-  \internal
-  TODO:
-  The \e orientation must be QHeader::Vertical or QHeader::Horizontal.
+  
 */
 
 QHeader::QHeader( int n,  QWidget *parent, const char *name )
@@ -100,7 +121,104 @@ QHeader::QHeader( int n,  QWidget *parent, const char *name )
     init( n );
 }
 
+/*!
+  Destroys the header.
+ */
+QHeader::~QHeader() 
+{
+}
 
+/*!
+  \fn void QHeader::sectionClicked (int) 
+  
+  This signal is emitted when a part of the header is clicked. In a
+  list view, this signal would typically be connected to a slot which sorts
+  the specified column.
+*/
+
+/*!
+  \fn void QHeader::sizeChange() 
+
+  This signal is emitted when the user has changed the size of some
+  of the parts of the header. This signal is typically connected to a slot
+  which resizes all columns, finding the sizes from cellSize().
+  
+*/
+
+/*!
+  \fn void QHeader::moved (int from, int to) 
+
+  This signal is emitted when the user has moved column \a from to 
+  position \a to. This signal is typically connected to a slot which 
+  is similar to the following:
+
+  \code
+       //payload is an array containing the column data
+       void MyTable::moveCol( int fromIdx, int toIdx )
+       {
+	   if ( fromIdx == toIdx )
+	       return;
+	   MyType tmp = payload[fromIdx];
+	   if ( fromIdx < toIdx ) {
+	       for ( int i = fromIdx; i < toIdx - 1; i++ ) {
+		   payload[i] = payload[i+1];
+	       }
+	       payload[toIdx-1] = tmp;
+	   } else {
+	       for ( int i = fromIdx; i > toIdx ; i-- ) {
+		   payload[i] = payload[i-1];
+	       }
+	       payload[toIdx] = tmp;
+	   }
+	   // redisplay logic goes here
+	   // and probably a repaint
+       }      
+
+  \endcode
+  */
+
+/*!
+  \fn int QHeader::cellSize( int i ) const
+
+  Returns the size in pixels of section \a i of the header.
+  */
+
+/*!
+  \fn int QHeader::count() const
+  
+  Returns the number of sections in the header.
+*/
+
+/*!
+  \fn QHeader::Orientation QHeader::orientation() const
+
+  Returns \c Horizontal if the header is horizontal, \c Vertical if
+  the header is vertical.
+
+  */
+
+/*!
+  \fn void QHeader::setTracking( bool enable )
+
+  Sets tracking if \a enable is TRUE, otherwise turns off tracking.
+  If tracking is on, the sizeChange() signal is emitted continuously
+  while the mouse is moved, otherwise it is only emitted when the 
+  mouse button is released.
+
+  \sa tracking()
+  */
+
+/*!
+  \fn bool QHeader::tracking() const
+
+  Returns TRUE if tracking is on, FALSE otherwise.
+
+  \sa setTracking()
+  */
+
+/*!
+  What do you think it does?
+ */
 void QHeader::init( int n )
 {
     if ( !hSplitCur )
@@ -120,6 +238,7 @@ void QHeader::init( int n )
 	labels[i] = "Boring";
     labels[n] = 0; 
     setMouseTracking( TRUE );
+    trackingIsOn = FALSE;
 }
 
 void QHeader::recalc()
@@ -514,10 +633,8 @@ void QHeader::resizeEvent( QResizeEvent * )
 
 /*!
   Returns the recommended size of the QHeader. Only the thickness is
-  interesting, the other dimension is taken from the current size of this
-  widget.
+  interesting, the other dimension is taken from the current size.
 */
-
 QSize QHeader::sizeHint()
 {
     if ( orient == Horizontal )
