@@ -232,12 +232,14 @@ const QSqlDriver* QSql::driver() const
 */
 bool QSql::seek( int i, bool relative )
 {
+    preSeek();
     checkDetach();
     if ( isActive() ) {
         int actualIdx;
 	if ( !relative ) { // random seek
 	    if ( i < 0 ) {
 		d->sqlResult->setAt( QSqlResult::BeforeFirst );
+		postSeek();
 		return FALSE;
 	    }
 	    actualIdx = i;
@@ -247,18 +249,23 @@ bool QSql::seek( int i, bool relative )
 	    	case QSqlResult::BeforeFirst:
 		    if ( i > 0 )
 		    	actualIdx = i;
-		    else
+		    else {
+			postSeek();
 			return FALSE;
+		    }
 		    break;
 		case QSqlResult::AfterLast:
 		    if ( i < 0 )
 		    	actualIdx = i;
-		    else
+		    else {
+			postSeek();
 			return FALSE;
+		    }
 		    break;
 		default:
 		    if ( ( at() + i ) < 0  ) {
 		    	d->sqlResult->setAt( QSqlResult::BeforeFirst );
+			postSeek();
 			return FALSE;
 		    }
 		    actualIdx = i;
@@ -269,22 +276,28 @@ bool QSql::seek( int i, bool relative )
 	if ( actualIdx == ( at() + 1 ) ) {
 	    if ( !d->sqlResult->fetchNext() ) {
 	    	d->sqlResult->setAt( QSqlResult::AfterLast );
+		postSeek();
 		return FALSE;
 	    }
 	}
 	if ( actualIdx == ( at() - 1 ) ) {
 	    if ( !d->sqlResult->fetchPrevious() ) {
 	    	d->sqlResult->setAt( QSqlResult::BeforeFirst );
+		postSeek();
 		return FALSE;
 	    }
 	}
 	if ( !d->sqlResult->fetch( actualIdx ) ) {
 	    d->sqlResult->setAt( QSqlResult::AfterLast );
+	    postSeek();
 	    return FALSE;
 	}
+	postSeek();
 	return TRUE;
-    } else
+    } else {
+	postSeek();
 	return FALSE;
+    }
 }
 
 /*! Retrieves the next record in the result, if available.  Note that the result must be in an active
@@ -303,21 +316,29 @@ bool QSql::seek( int i, bool relative )
 
 bool QSql::next()
 {
+    preSeek();
     checkDetach();
+    bool b = FALSE;
     if ( isActive() ) {
 	switch ( at() ) {
 	    case QSqlResult::BeforeFirst:
-	    	return d->sqlResult->fetchFirst();
+		b = d->sqlResult->fetchFirst();
+		postSeek();
+	    	return b;
 	    case QSqlResult::AfterLast:
+		postSeek();
 		return FALSE;
 	    default:
 		if ( !d->sqlResult->fetchNext() ) {
 		    d->sqlResult->setAt( QSqlResult::AfterLast );
+		    postSeek();
 		    return FALSE;
 		}
+		postSeek();
         	return TRUE;
 	}
     }
+    postSeek();
     return FALSE;
 }
 
@@ -337,21 +358,29 @@ bool QSql::next()
 
 bool QSql::previous()
 {
+    preSeek();
     checkDetach();
+    bool b = FALSE;
     if ( isActive() ) {
 	switch ( at() ) {
 	    case QSqlResult::BeforeFirst:
+		postSeek();
 		return FALSE;
 	    case QSqlResult::AfterLast:
-		return d->sqlResult->fetchLast();
+		b = d->sqlResult->fetchLast();
+		postSeek();
+		return b;
 	    default:
 		if ( !d->sqlResult->fetchPrevious() ) {
 		    d->sqlResult->setAt( QSqlResult::BeforeFirst );
+		    postSeek();
 		    return FALSE;
 		}
+		postSeek();
         	return TRUE;
 	}
     }
+    postSeek();
     return FALSE;
 }
 
@@ -362,9 +391,15 @@ bool QSql::previous()
 
 bool QSql::first()
 {
+    preSeek();
     checkDetach();
-    if ( isActive() )
-	return d->sqlResult->fetchFirst();
+    bool b = FALSE;
+    if ( isActive() ) {
+	b = d->sqlResult->fetchFirst();
+	postSeek();
+	return b;
+    }
+    postSeek();
     return FALSE;
 }
 
@@ -375,9 +410,14 @@ bool QSql::first()
 
 bool QSql::last()
 {
+    preSeek();
     checkDetach();
-    if ( isActive() )
-	return d->sqlResult->fetchLast();
+    bool b = FALSE;
+    if ( isActive() ) {
+	b = d->sqlResult->fetchLast();
+	postSeek();
+	return b;
+    }
     return FALSE;
 }
 
@@ -498,7 +538,7 @@ bool QSql::checkDetach()
 
 void QSql::preSeek()
 {
-    
+
 }
 
 
@@ -508,7 +548,7 @@ void QSql::preSeek()
 
 void QSql::postSeek()
 {
-    
+
 }
 
 
