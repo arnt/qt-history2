@@ -17,6 +17,7 @@ embedded:include($$KERNEL_CPP/qt_qws.pri)
 
 #modules
 include($$KERNEL_CPP/qt_gui.pri)
+include($$KERNEL_CPP/qt_gfx.pri)
 include($$CANVAS_CPP/qt_canvas.pri)
 include($$TABLE_CPP/qt_table.pri)
 include($$WIDGETS_CPP/qt_widgets.pri)

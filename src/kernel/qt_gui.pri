@@ -44,6 +44,7 @@ kernel {
 		  $$KERNEL_H/qpolygonscanner.h \
 		  $$KERNEL_H/qprinter.h \
 		  $$KERNEL_H/qrect.h \
+		  $$KERNEL_H/qregion.h \
 		  $$KERNEL_H/qsessionmanager.h \
 		  $$KERNEL_H/qsize.h \
 		  $$KERNEL_H/qsizegrip.h \
@@ -84,6 +85,7 @@ kernel {
 		  $$KERNEL_CPP/qprinter_win.cpp \
 		  $$KERNEL_CPP/qpaintdevice_win.cpp \
 		  $$KERNEL_CPP/qpainter_win.cpp \
+		  $$KERNEL_CPP/qregion_win.cpp \
 		  $$KERNEL_CPP/qsound_win.cpp \
 		  $$KERNEL_CPP/qwidget_win.cpp \
 		  $$KERNEL_CPP/qole_win.c \
@@ -91,11 +93,13 @@ kernel {
 		  $$KERNEL_CPP/qguieventloop_win.cpp
 
 	wince-* {
-		SOURCES -= $$KERNEL_CPP/qfontengine_win.cpp
-		SOURCES += $$KERNEL_CPP/qfontengine_wce.cpp
+		SOURCES -= $$KERNEL_CPP/qfontengine_win.cpp \
+			   $$KERNEL_CPP/qregion_win.cpp
+		SOURCES += $$KERNEL_CPP/qfontengine_wce.cpp \
+			   $$KERNEL_CPP/qregion_wce.cpp
 		}
 
-	unix:x11 {
+		unix:x11 {
 	      SOURCES += $$KERNEL_CPP/qapplication_x11.cpp \
 		          $$KERNEL_CPP/qclipboard_x11.cpp \
 			  $$KERNEL_CPP/qcolor_x11.cpp \
@@ -137,8 +141,10 @@ kernel {
 			  $$KERNEL_CPP/qfontengine_mac.cpp
         } else:unix {
 	   SOURCES += $$KERNEL_CPP/qprinter_unix.cpp \
-	              $$KERNEL_CPP/qpsprinter.cpp 
+	              $$KERNEL_CPP/qpsprinter.cpp
         }
+
+	unix:SOURCES += $$KERNEL_CPP/qregion_unix.cpp
 
 	SOURCES += \
 		  $$KERNEL_CPP/qabstractlayout.cpp \
@@ -176,6 +182,7 @@ kernel {
 		  $$KERNEL_CPP/qpolygonscanner.cpp \
 		  $$KERNEL_CPP/qprinter.cpp \
 		  $$KERNEL_CPP/qrect.cpp \
+		  $$KERNEL_CPP/qregion.cpp \
 		  $$KERNEL_CPP/qrichtext.cpp \
 		  $$KERNEL_CPP/qrichtext_p.cpp \
 		  $$KERNEL_CPP/qscriptengine.cpp \
