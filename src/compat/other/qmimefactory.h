@@ -58,9 +58,9 @@ private:
     QMimeSourceFactoryData* d;
 };
 
-Q_COMPAT_EXPORT QPixmap qPixmapFromMimeSource_helper(const QString &abs_name);
+Q_COMPAT_EXPORT QPixmap qPixmapFromMimeSource(const QString &abs_name);
 
-Q_COMPAT_EXPORT QImage qImageFromMimeSource_helper(const QString &abs_name);
+Q_COMPAT_EXPORT QImage qImageFromMimeSource(const QString &abs_name);
 
 #endif // QT_NO_MIMEFACTORY
 

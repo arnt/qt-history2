@@ -525,7 +525,7 @@ QPixmap qPixmapFromMimeSource(const QString &abs_name)
     return pix;
 }
 
-QImage qImageFromMimeSource_helper(const QString &abs_name)
+QImage qImageFromMimeSource(const QString &abs_name)
 {
     const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data(abs_name);
     if (!m) {
