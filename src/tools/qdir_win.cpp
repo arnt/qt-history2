@@ -105,23 +105,25 @@ QString QDir::homeDirPath()
 QString QDir::canonicalPath() const
 {
     QString r;
-
-    char cur[PATH_MAX];
-    QT_GETCWD( cur, PATH_MAX );
     QT_WA( {
+	TCHAR cur[PATH_MAX];
+	::_wgetcwd( cur, PATH_MAX );
 	if ( ::_wchdir( (TCHAR*)dPath.ucs2() ) >= 0 ) {
 	    TCHAR tmp[PATH_MAX];
 	    if ( ::_wgetcwd( tmp, PATH_MAX ) )
 		r = QString::fromUcs2( (ushort*)tmp );
 	}
+	::_wchdir( cur );
     } , {
+	char cur[PATH_MAX];
+	QT_GETCWD( cur, PATH_MAX );
 	if ( QT_CHDIR(qt_win95Name(dPath)) >= 0 ) {
 	    char tmp[PATH_MAX];
 	    if ( QT_GETCWD( tmp, PATH_MAX ) )
 		r = QString::fromLocal8Bit( tmp );
 	}
+	QT_CHDIR( cur );
     } );
-    QT_CHDIR( cur );
     slashify( r );
     return r;
 }
