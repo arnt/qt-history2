@@ -13504,18 +13504,14 @@ void
 QAquaStyle::drawListViewItem( QPainter *p, int, int y, int w, int, const QColorGroup & cg,
 			       QListViewItem *child, uint ctrls)
 {
-    int bx = w / 2, linebot = y + child->height()/2;
     if(ctrls & ListViewExpand) {
+	int bx = w / 2, linebot = y + child->height()/2;
 	p->setPen( cg.text() );
 	QPointArray a;
 	if ( child->isOpen() )
-	    a.setPoints( 3, bx-2, linebot-2,
-			 bx, linebot+2,
-			 bx+2, linebot-2 ); //RightArrow
+	    a.setPoints( 3, bx-4, linebot-4, bx+4, linebot-4, bx, linebot+4); //DownArrow
 	else
-	    a.setPoints( 3, bx-2, linebot-2,
-			 bx+2, linebot,
-			 bx-2, linebot+2 ); //DownArrow
+	    a.setPoints( 3, bx-4, linebot-4, bx+4, linebot, bx-4, linebot+4); //RightArrow
 	p->setBrush( cg.text() );
 	p->drawPolygon( a );
 	p->setBrush( NoBrush );
