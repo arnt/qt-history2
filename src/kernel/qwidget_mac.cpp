@@ -1641,7 +1641,7 @@ void QWidget::raise()
 
 void QWidget::lower()
 {
-    if(!isDesktop())
+    if(isDesktop())
 	return;
 
     if(isTopLevel()) {
