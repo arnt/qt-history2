@@ -1100,22 +1100,28 @@
     /*!
 	Interlace-friendly style
     */
-# define QT_NO_STYLE_INTERLACE
+# ifndef QT_NO_STYLE_INTERLACE
+#  define QT_NO_STYLE_INTERLACE
+# endif
 #endif
 
 #if defined(QT_NO_STYLE_WINDOWS)
     /*!
 	Compact Windows style
     */
-# define QT_NO_STYLE_COMPACT
+# ifndef QT_NO_STYLE_COMPACT
+#  define QT_NO_STYLE_COMPACT
+#endif
     /*!
 	Platinum style
     */
-# define QT_NO_STYLE_PLATINUM
+# ifndef QT_NO_STYLE_PLATINUM
+#  define QT_NO_STYLE_PLATINUM
+# endif
     /*!
 	Aqua style
     */
-# if !defined(QT_NO_STYLE_AQUA)
+# ifndef QT_NO_STYLE_AQUA
 #  define QT_NO_STYLE_AQUA
 # endif
 #endif
@@ -1124,15 +1130,21 @@
     /*!
 	CDE style
     */
-# define QT_NO_STYLE_CDE
+# ifndef QT_NO_STYLE_CDE
+#  define QT_NO_STYLE_CDE
+# endif
     /*!
 	SGI style
     */
-# define QT_NO_STYLE_SGI
+# ifndef QT_NO_STYLE_SGI
+#  define QT_NO_STYLE_SGI
+# endif
     /*!
 	Motif-plus style
     */
-# define QT_NO_STYLE_MOTIFPLUS
+# ifndef QT_NO_STYLE_MOTIFPLUS
+#  define QT_NO_STYLE_MOTIFPLUS
+# endif
 #endif
 
 /*!
