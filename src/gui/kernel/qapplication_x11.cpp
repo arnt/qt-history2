@@ -710,10 +710,10 @@ bool QApplication::x11_apply_settings()
         ds >> timestamp;
     }
 
-    QSettings settings;
-    settingsstamp = settings.lastModificationTime("/qt/font");
-    if (! settingsstamp.isValid())
-	return false;
+    QSettings settings(Qt::UserScope, QLatin1String("Trolltech"), QLatin1String("Qt"));
+    settingsstamp = QFileInfo(settings.path()).lastModified();
+    if (!settingsstamp.isValid())
+        return false;
 
     if (appliedstamp && appliedstamp == settingsstamp.toTime_t())
         return true;
@@ -725,44 +725,23 @@ bool QApplication::x11_apply_settings()
     /*
       Qt settings. This is now they are written into the datastream.
 
-      /qt/Palette/ *             - QPalette
-      /qt/font                   - QFont
-      /qt/libraryPath            - QStringList
-      /qt/style                  - QString
-      /qt/doubleClickInterval    - int
-      /qt/cursorFlashTime        - int
-      /qt/wheelScrollLines       - int
-      /qt/colorSpec              - QString
-      /qt/defaultCodec           - QString
-      /qt/globalStrut            - QSize
-      /qt/GUIEffects             - QStringList
-      /qt/Font Substitutions/ *  - QStringList
-      /qt/Font Substitutions/... - QStringList
+      Palette                    - QPalette
+      font                       - QFont
+      libraryPath                - QStringList
+      style                      - QString
+      doubleClickInterval        - int
+      cursorFlashTime            - int
+      wheelScrollLines           - int
+      colorSpec                  - QString
+      defaultCodec               - QString
+      globalStrut                - QSize
+      GUIEffects                 - QStringList
+      Font Substitutions/ *      - QStringList
+      Font Substitutions/...     - QStringList
     */
 
-    QString str;
-    QStringList strlist;
-    int i, num;
-    QPalette pal(QApplication::palette());
-    strlist = settings.readListEntry("/qt/Palette/active");
-    if (strlist.count() == QPalette::NColorRoles) {
-        for (i = 0; i < QPalette::NColorRoles; i++)
-            pal.setColor(QPalette::Active, (QPalette::ColorRole) i,
-                         QColor(strlist[i]));
-    }
-    strlist = settings.readListEntry("/qt/Palette/inactive");
-    if (strlist.count() == QPalette::NColorRoles) {
-        for (i = 0; i < QPalette::NColorRoles; i++)
-            pal.setColor(QPalette::Inactive, (QPalette::ColorRole) i,
-                         QColor(strlist[i]));
-    }
-    strlist = settings.readListEntry("/qt/Palette/disabled");
-    if (strlist.count() == QPalette::NColorRoles) {
-        for (i = 0; i < QPalette::NColorRoles; i++)
-            pal.setColor(QPalette::Disabled, (QPalette::ColorRole) i,
-                         QColor(strlist[i]));
-    }
-
+    QPalette pal = settings.value(QLatin1String("Palette"),
+                                    QApplication::palette()).toPalette();
     // workaround for KDE 3.0, which messes up the buttonText value of
     // the disabled palette in QSettings
     if (pal.color(QPalette::Disabled, QPalette::ButtonText)
@@ -770,26 +749,21 @@ bool QApplication::x11_apply_settings()
         pal.setColor(QPalette::Disabled, QPalette::ButtonText,
                      pal.color(QPalette::Disabled, QPalette::Foreground));
     }
-
     if (pal != *qt_std_pal && pal != QApplication::palette()) {
         QApplication::setPalette(pal);
         *qt_std_pal = pal;
     }
 
-    QFont font(QApplication::font());
-    // read new font
-    str = settings.readEntry("/qt/font");
-    if (! str.isNull() && ! str.isEmpty()) {
-        font.fromString(str);
-
-        if (font != QApplication::font())
-            QApplication::setFont(font);
-    }
+    QFont font = settings.value(QLatin1String("font"), QApplication::font()).toFont();
+    if (font != QApplication::font())
+        QApplication::setFont(font);
 
     // read library (ie. plugin) path list
     QString libpathkey =
-        QString("/qt/%1.%2/libraryPath").arg(QT_VERSION >> 16).arg((QT_VERSION & 0xff00) >> 8);
-    QStringList pathlist = settings.readListEntry(libpathkey, ':');
+        QString(QLatin1String("%1.%2/libraryPath"))
+                    .arg(QT_VERSION >> 16)
+                    .arg((QT_VERSION & 0xff00) >> 8);
+    QStringList pathlist = settings.value(libpathkey).toString().split(QLatin1Char(':'));
     if (! pathlist.isEmpty()) {
         QStringList::ConstIterator it = pathlist.begin();
         while (it != pathlist.end())
@@ -798,101 +772,102 @@ bool QApplication::x11_apply_settings()
 
     // read new QStyle
     extern bool qt_explicit_app_style; // defined in qapplication.cpp
-    QString stylename = settings.readEntry("/qt/style");
+    QString stylename = settings.value(QLatin1String("style")).toString();
     if (!stylename.isEmpty() && !qt_explicit_app_style) {
         QApplication::setStyle(stylename);
         // took the style from the user settings, so mark the explicit flag false
         qt_explicit_app_style = false;
     }
 
-    num =
-        settings.readNumEntry("/qt/doubleClickInterval",
-                              QApplication::doubleClickInterval());
+    int num =
+        settings.value(QLatin1String("doubleClickInterval"),
+                        QApplication::doubleClickInterval()).toInt();
     QApplication::setDoubleClickInterval(num);
 
     num =
-        settings.readNumEntry("/qt/cursorFlashTime",
-                              QApplication::cursorFlashTime());
+        settings.value(QLatin1String("cursorFlashTime"),
+                        QApplication::cursorFlashTime()).toInt();
     QApplication::setCursorFlashTime(num);
 
     num =
-        settings.readNumEntry("/qt/wheelScrollLines",
-                              QApplication::wheelScrollLines());
+        settings.value(QLatin1String("wheelScrollLines"),
+                        QApplication::wheelScrollLines()).toInt();
     QApplication::setWheelScrollLines(num);
 
-    QString colorspec = settings.readEntry("/qt/colorSpec", "default");
-    if (colorspec == "normal")
+    QString colorspec = settings.value(QLatin1String("colorSpec"),
+                                        QVariant(QLatin1String("default"))).toString();
+    if (colorspec == QLatin1String("normal"))
         QApplication::setColorSpec(QApplication::NormalColor);
-    else if (colorspec == "custom")
+    else if (colorspec == QLatin1String("custom"))
         QApplication::setColorSpec(QApplication::CustomColor);
-    else if (colorspec == "many")
+    else if (colorspec == QLatin1String("many"))
         QApplication::setColorSpec(QApplication::ManyColor);
-    else if (colorspec != "default")
-        colorspec = "default";
+    else if (colorspec != QLatin1String("default"))
+        colorspec = QLatin1String("default");
 
-    QString defaultcodec = settings.readEntry("/qt/defaultCodec", "none");
-    if (defaultcodec != "none") {
+    QString defaultcodec = settings.value(QLatin1String("defaultCodec"),
+                                            QVariant(QLatin1String("none"))).toString();
+    if (defaultcodec != QLatin1String("none")) {
         QTextCodec *codec = QTextCodec::codecForName(defaultcodec.latin1());
         if (codec)
             qApp->setDefaultCodec(codec);
     }
 
-    QStringList strut = settings.readListEntry("/qt/globalStrut");
-    if (! strut.isEmpty()) {
-        if (strut.count() == 2) {
-            QSize sz(strut[0].toUInt(), strut[1].toUInt());
+    QSize strut = settings.value(QLatin1String("globalStrut")).toSize();
+    if (strut.isValid())
+        QApplication::setGlobalStrut(strut);
 
-            if (sz.isValid())
-                QApplication::setGlobalStrut(sz);
-        }
-    }
+    QStringList effects = settings.value(QLatin1String("GUIEffects")).toStringList();
+    QApplication::setEffectEnabled(Qt::UI_General,
+                                    effects.contains(QLatin1String("general")));
+    QApplication::setEffectEnabled(Qt::UI_AnimateMenu,
+                                    effects.contains(QLatin1String("animatemenu")));
+    QApplication::setEffectEnabled(Qt::UI_FadeMenu,
+                                    effects.contains(QLatin1String("fademenu")));
+    QApplication::setEffectEnabled(Qt::UI_AnimateCombo,
+                                    effects.contains(QLatin1String("animatecombo")));
+    QApplication::setEffectEnabled(Qt::UI_AnimateTooltip,
+                                    effects.contains(QLatin1String("animatetooltip")));
+    QApplication::setEffectEnabled(Qt::UI_FadeTooltip,
+                                    effects.contains(QLatin1String("fadetooltip")));
+    QApplication::setEffectEnabled(Qt::UI_AnimateToolBox,
+                                    effects.contains(QLatin1String("animatetoolbox")));
 
-    QStringList effects = settings.readListEntry("/qt/GUIEffects");
-
-    QApplication::setEffectEnabled(Qt::UI_General, effects.contains("general"));
-    QApplication::setEffectEnabled(Qt::UI_AnimateMenu, effects.contains("animatemenu"));
-    QApplication::setEffectEnabled(Qt::UI_FadeMenu, effects.contains("fademenu"));
-    QApplication::setEffectEnabled(Qt::UI_AnimateCombo, effects.contains("animatecombo"));
-    QApplication::setEffectEnabled(Qt::UI_AnimateTooltip, effects.contains("animatetooltip"));
-    QApplication::setEffectEnabled(Qt::UI_FadeTooltip, effects.contains("fadetooltip"));
-    QApplication::setEffectEnabled(Qt::UI_AnimateToolBox, effects.contains("animatetoolbox"));
-
-    QStringList fontsubs =
-        settings.entryList("/qt/Font Substitutions");
+    settings.beginGroup(QLatin1String("Font Substitutions"));
+    QStringList fontsubs = settings.childGroups();
     if (!fontsubs.isEmpty()) {
-        QStringList subs;
-        QString fam, skey;
         QStringList::Iterator it = fontsubs.begin();
-        while (it != fontsubs.end()) {
-            fam = (*it++);
-            skey = "/qt/Font Substitutions/" + fam;
-            subs = settings.readListEntry(skey);
+        for (; it != fontsubs.end(); ++it) {
+            QString fam = *it;
+            QStringList subs = settings.value(fam).toStringList();
             QFont::insertSubstitutions(fam, subs);
         }
     }
+    settings.endGroup();
 
     qt_broken_wm =
-        settings.readBoolEntry("/qt/brokenWindowManager", qt_broken_wm);
+        settings.value(QLatin1String("brokenWindowManager"), qt_broken_wm).toBool();
 
     qt_resolve_symlinks =
-        settings.readBoolEntry("/qt/resolveSymlinks", true);
+        settings.value(QLatin1String("resolveSymlinks"), true).toBool();
 
     qt_use_rtl_extensions =
-        settings.readBoolEntry("/qt/useRtlExtensions", false);
+        settings.value(QLatin1String("useRtlExtensions"), false).toBool();
 
     qt_has_accelerated_xrender =
         settings.readBoolEntry("/qt/hasAcceleratedXrender", false);
 
 #ifndef QT_NO_XIM
     if (xim_preferred_style == 0) {
-        QString ximInputStyle = settings.readEntry("/qt/XIMInputStyle", "on the spot");
-        if (ximInputStyle == "on the spot")
+        QString ximInputStyle = settings.value(QLatin1String("XIMInputStyle"),
+                                                QVariant(QLatin1String("on the spot"))).toString();
+        if (ximInputStyle == QLatin1String("on the spot"))
             xim_preferred_style = XIMPreeditCallbacks | XIMStatusNothing;
-        else if (ximInputStyle == "over the spot")
+        else if (ximInputStyle == QLatin1String("over the spot"))
             xim_preferred_style = XIMPreeditPosition | XIMStatusNothing;
-        else if (ximInputStyle == "off the spot")
+        else if (ximInputStyle == QLatin1String("off the spot"))
             xim_preferred_style = XIMPreeditArea | XIMStatusArea;
-        else if (ximInputStyle == "root")
+        else if (ximInputStyle == QLatin1String("root"))
             xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
     }
 #endif
@@ -1855,29 +1830,30 @@ void qt_init(QApplicationPrivate *priv, int,
             // read some non-GUI settings when not using the X server...
 
             if (QApplication::desktopSettingsAware()) {
-                QSettings settings;
+                QSettings settings(Qt::UserScope, QLatin1String("Trolltech"), QLatin1String("Qt"));
 
                 // read library (ie. plugin) path list
-                QString libpathkey = QString("/qt/%1.%2/libraryPath")
+                QString libpathkey = QString(QLatin1String("%1.%2/libraryPath"))
                                      .arg(QT_VERSION >> 16)
                                      .arg((QT_VERSION & 0xff00) >> 8);
                 QStringList pathlist =
-                    settings.readListEntry(libpathkey, ':');
+                    settings.value(libpathkey).toString().split(QLatin1Char(':'));
                 if (! pathlist.isEmpty()) {
                     QStringList::ConstIterator it = pathlist.begin();
                     while (it != pathlist.end())
                         QApplication::addLibraryPath(*it++);
                 }
 
-                QString defaultcodec = settings.readEntry("/qt/defaultCodec", "none");
-                if (defaultcodec != "none") {
+                QString defaultcodec = settings.value(QLatin1String("defaultCodec"),
+                                                        QVariant(QLatin1String("none"))).toString();
+                if (defaultcodec != QLatin1String("none")) {
                     QTextCodec *codec = QTextCodec::codecForName(defaultcodec.latin1());
                     if (codec)
                         qApp->setDefaultCodec(codec);
                 }
 
                 qt_resolve_symlinks =
-                    settings.readBoolEntry("/qt/resolveSymlinks", true);
+                    settings.value(QLatin1String("resolveSymlinks"), true).toBool();
             }
         }
     }

@@ -4530,8 +4530,8 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
 
 #ifdef Q_WS_X11
     // append qsettings fontpath
-    QSettings settings;
-    embedFonts = settings.readBoolEntry("/qt/embedFonts", true);
+    QSettings settings(Qt::UserScope, QLatin1String("Trolltech"), QLatin1String("Qt"));
+    embedFonts = settings.value(QLatin1String("embedFonts"), true).toBool();
 
     if (embedFonts) {
         int npaths;
@@ -4585,7 +4585,7 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
         XFreeFontPath(font_path);
 
         // append qsettings fontpath
-        QStringList fp = settings.readListEntry("/qt/fontPath", ':');
+        QStringList fp = settings.value(QLatin1String("fontPath")).toString().split(':');
         if (!fp.isEmpty())
             fontpath += fp;
     }

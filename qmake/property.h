@@ -16,11 +16,11 @@
 
 #include <qstring.h>
 
-class QSettings;
+class QCoreSettings;
 
 class QMakeProperty
 {
-    QSettings *sett;
+    QCoreSettings *sett;
     QString keyBase(bool =true) const;
     bool initSettings();
     QString value(QString, bool just_check);

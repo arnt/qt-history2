@@ -1036,6 +1036,18 @@ public:
 
     Q_DECLARE_FLAGS(RectangleEdges, RectangleEdge);
 
+    // Documented in qcoresettings.cpp
+    enum SettingsFormat {
+        NativeFormat,
+        IniFormat
+    };
+
+    enum SettingsScope {
+        UserScope,
+        SystemScope,
+        GlobalScope = SystemScope
+    };
+
     // "handle" type for system objects. Documented as \internal in
     // qapplication.cpp
 #if defined(Q_WS_MAC)

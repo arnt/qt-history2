@@ -11,7 +11,7 @@ CFLAGS	    =	/c /Fo$@ \
 		/DQT_NO_TEXTCODEC /DQT_NO_UNICODETABLES /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL \
 		/DQT_NO_COMPRESS /DUNICODE /DHAVE_QCONFIG_CPP /DQT_BUILD_QMAKE /DQT_NO_THREAD
 CXXFLAGS    =   $(CFLAGS)
-LFLAGS	    =	
+LFLAGS	    =
 LIBS	    =	ole32.lib advapi32.lib
 LINKQMAKE   =	link $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
 ADDCLEAN    =	vc60.pdb qmake.pdb qmake.ilk
@@ -66,15 +66,17 @@ QTOBJS= \
 	qlocale.obj \
 	qmap.obj \
 	qregexp.obj \
-	qsettings.obj \
-	qsettings_win.obj \
+	qcoresettings.obj \
+	qcoresettings_win.obj \
 	qstring.obj \
 	qstringlist.obj \
 	qstringmatcher.obj \
 	qtextstream.obj \
 	qunicodetables.obj \
 	quuid.obj \
-	qvector.obj 
+	qvector.obj \
+        qcorevariant.obj \
+        qmetatype.obj
 
 first all: qmake.exe
 
@@ -172,11 +174,17 @@ qbitarray.obj: ..\src\core\tools\qbitarray.cpp
 qdir.obj: ..\src\core\io\qdir.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qdir.cpp
 
-qsettings.obj: ..\src\core\io\qsettings.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qsettings.cpp
+qcoresettings.obj: ..\src\core\io\qcoresettings.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qcoresettings.cpp
 
-qsettings_win.obj: ..\src\core\io\qsettings_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qsettings_win.cpp
+qcoresettings_win.obj: ..\src\core\io\qcoresettings_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qcoresettings_win.cpp
+
+qcorevariant.obj: ..\src\core\kernel\qcorevariant.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qcorevariant.cpp
+
+qmetatype.obj: ..\src\core\kernel\qmetatype.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qmetatype.cpp
 
 qfileinfo.obj: ..\src\core\io\qfileinfo.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileinfo.cpp

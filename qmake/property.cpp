@@ -13,7 +13,7 @@
 
 #include "property.h"
 #include "option.h"
-#include <qsettings.h>
+#include <qcoresettings.h>
 #include <qdir.h>
 #include <qmap.h>
 #include <qstringlist.h>
@@ -36,17 +36,17 @@ bool QMakeProperty::initSettings()
 {
     if(sett)
         return true;
-    sett = new QSettings;
+    sett = new QCoreSettings(Qt::UserScope, "Trolltech", "QMake");
     return true;
 }
 
 QString
 QMakeProperty::keyBase(bool version) const
 {
-    QString ret = "/QMake/properties/";
-    if(version)
-        ret += QString(qmake_version()) + "/";
-    return ret;
+    if (version)
+        return QString(qmake_version()) + "/";
+
+    return QString();
 }
 
 
@@ -76,25 +76,31 @@ QMakeProperty::value(QString v, bool just_check)
     }
 
     if(initSettings()) {
-        bool ok;
         int slash = v.lastIndexOf('/');
-        QString ret = sett->readEntry(keyBase(slash == -1) + v, QString::null, &ok);
+        QCoreVariant var = sett->value(keyBase(slash == -1) + v);
+        bool ok = var.isValid();
+        QString ret = var.toString();
         if(!ok) {
             QString version = qmake_version();
             if(slash != -1) {
                 version = v.left(slash-1);
                 v = v.mid(slash+1);
             }
-            QStringList subs = sett->subkeyList(keyBase(false));
+            sett->beginGroup(keyBase(false));
+            QStringList subs = sett->childGroups();
+            sett->endGroup();
             subs.sort();
-            for(QStringList::Iterator it = subs.end()-1; it != subs.end(); --it) {
-                if((*it).isEmpty() || (*it) > version)
+            for (int x = subs.count() - 1; x >= 0; x--) {
+                QString s = subs[x];
+                if(s.isEmpty() || s > version)
                     continue;
-                ret = sett->readEntry(keyBase(false) + (*it) + "/" + v, QString::null, &ok);
-                if(ok) {
+                var = sett->value(keyBase(false) + s + "/" + v);
+                ok = var.isValid();
+                ret = var.toString();
+                if (ok) {
                     if(!just_check)
                         debug_msg(1, "Fell back from %s -> %s for '%s'.", version.latin1(),
-                                  (*it).latin1(), v.latin1());
+                                  s.latin1(), v.latin1());
                     return ret;
                 }
             }
@@ -116,7 +122,7 @@ void
 QMakeProperty::setValue(QString var, const QString &val)
 {
     if(initSettings())
-        sett->writeEntry(keyBase() + var, val);
+        sett->setValue(keyBase() + var, val);
 }
 
 bool
@@ -125,16 +131,21 @@ QMakeProperty::exec()
     bool ret = true;
     if(Option::qmake_mode == Option::QMAKE_QUERY_PROPERTY) {
         if(Option::prop::properties.isEmpty() && initSettings()) {
-            QStringList subs = sett->subkeyList(keyBase(false));
+            sett->beginGroup(keyBase(false));
+            QStringList subs = sett->childGroups();
+            sett->endGroup();
             subs.sort();
-            for(QStringList::Iterator it = subs.end()-1; it != subs.end(); --it) {
-                if((*it).isEmpty())
+            for(int x = subs.count() - 1; x >= 0; x--) {
+                QString s = subs[x];
+                if(s.isEmpty())
                     continue;
-                QStringList keys = sett->entryList(keyBase(false) + (*it));
+                sett->beginGroup(keyBase(false) + s);
+                QStringList keys = sett->childKeys();
+                sett->endGroup();
                 for(QStringList::Iterator it2 = keys.begin(); it2 != keys.end(); it2++) {
-                    QString ret = sett->readEntry(keyBase(false) + (*it) + "/" + (*it2));
-                    if((*it) != qmake_version())
-                        fprintf(stdout, "%s/", (*it).latin1());
+                    QString ret = sett->value(keyBase(false) + s + "/" + (*it2)).toString();
+                    if(s != qmake_version())
+                        fprintf(stdout, "%s/", s.latin1());
                     fprintf(stdout, "%s:%s\n", (*it2).latin1(), ret.latin1());
                 }
             }

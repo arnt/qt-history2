@@ -9,7 +9,8 @@ QOBJS=qchar.o qstring.o qstringmatcher.o qtextstream.o qiodevice.o qglobal.o \
       qbytearray.o qbytearraymatcher.o qdatastream.o qbuffer.o qlist.o qfile.o \
       qfileengine_unix.o qregexp.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
       qfileinfo.o qdatetime.o qstringlist.o qfileengine.o qioengine.o qtemporaryfile.o \
-      qmap.o qconfig.o qunicodetables.o qsettings.o qlocale.o qlinkedlist.o @QMAKE_QTOBJS@
+      qmap.o qconfig.o qunicodetables.o qcoresettings.o qcorevariant.o qmetatype.o \
+      qlocale.o qlinkedlist.o @QMAKE_QTOBJS@
 
 #all sources, used for the depend target
 DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makefile.cpp generators/unix/unixmake2.cpp \
@@ -27,11 +28,12 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makef
 	   @SOURCE_PATH@/src/core/io/qdir.cpp @SOURCE_PATH@/src/core/plugin/quuid.cpp \
 	   @SOURCE_PATH@/src/core/io/qfileinfo.cpp @SOURCE_PATH@/src/core/tools/qdatetime.cpp \
 	   @SOURCE_PATH@/src/core/tools/qstringlist.cpp @SOURCE_PATH@/src/core/tools/qmap.cpp \
-	   @SOURCE_PATH@/src/core/global/qconfig.cpp @SOURCE_PATH@/src/core/io/qsettings.cpp \
-	   @SOURCE_PATH@/src/core/io/qurl.cpp @SOURCE_PATH@/src/core/io/qsettings_mac.cpp \
+	   @SOURCE_PATH@/src/core/global/qconfig.cpp @SOURCE_PATH@/src/core/io/qcoresettings.cpp \
+	   @SOURCE_PATH@/src/core/io/qurl.cpp @SOURCE_PATH@/src/core/io/qcoresettings_mac.cpp \
 	   @SOURCE_PATH@/src/core/tools/qlocale.cpp @SOURCE_PATH@/src/core/tools/qlinkedlist.cpp \
 	   @SOURCE_PATH@/src/core/tools/qhash.cpp @SOURCE_PATH@/src/core/kernel/qcore_mac.cpp \
 	   @SOURCE_PATH@/src/core/io/qioengine.cpp @SOURCE_PATH@/src/core/io/qtemporaryfile.cpp \
+           @SOURCE_PATH@/src/core/kernel/qcorevariant.cpp @SOURCE_PATH@/src/core/kernel/qmetatype.cpp
 
 CXXFLAGS= @QMAKE_CFLAGS@ \
 	-I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
@@ -80,14 +82,20 @@ qbytearray.o: @SOURCE_PATH@/src/core/tools/qbytearray.cpp
 qbytearraymatcher.o: @SOURCE_PATH@/src/core/tools/qbytearraymatcher.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $<
 
-qsettings.o: @SOURCE_PATH@/src/core/io/qsettings.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qsettings.cpp
+qcoresettings.o: @SOURCE_PATH@/src/core/io/qcoresettings.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qcoresettings.cpp
+
+qcorevariant.o: @SOURCE_PATH@/src/core/kernel/qcorevariant.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/kernel/qcorevariant.cpp
+
+qmetatype.o: @SOURCE_PATH@/src/core/kernel/qmetatype.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/kernel/qmetatype.cpp
 
 qcore_mac.o: @SOURCE_PATH@/src/core/kernel/qcore_mac.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/kernel/qcore_mac.cpp
 
-qsettings_mac.o: @SOURCE_PATH@/src/core/io/qsettings_mac.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qsettings_mac.cpp
+qcoresettings_mac.o: @SOURCE_PATH@/src/core/io/qcoresettings_mac.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qcoresettings_mac.cpp
 
 qurl.o: @SOURCE_PATH@/src/core/io/qurl.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qurl.cpp

@@ -1437,13 +1437,13 @@ QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
 
 #ifndef QT_NO_SETTINGS
     if (!customSet) {
-        QSettings settings;
-        settings.insertSearchPath(QSettings::Windows, "/Trolltech");
+        QSettings settings(Qt::UserScope, QLatin1String("Trolltech"), QLatin1String("Qt"));
         for (int i = 0; i < 2*8; ++i) {
-            bool ok = false;
-            QRgb rgb = (QRgb)settings.readNumEntry("/Qt/customColors/" + QString::number(i), 0, &ok);
-            if (ok)
+            QVariant v = settings.value(QLatin1String("customColors/") + QString::number(i));
+            if (v.isValid()) {
+                QRgb rgb = v.toUInt();
                 cusrgb[i] = rgb;
+            }
         }
     }
 #endif
@@ -1541,10 +1541,9 @@ QColorDialog::~QColorDialog()
 {
 #ifndef QT_NO_SETTINGS
     if (!customSet) {
-        QSettings settings;
-        settings.insertSearchPath(QSettings::Windows, "/Trolltech");
+        QSettings settings(Qt::UserScope, QLatin1String("Trolltech"), QLatin1String("Qt"));
         for (int i = 0; i < 2*8; ++i)
-            settings.writeEntry("/Qt/customColors/" + QString::number(i), (int)cusrgb[i]);
+            settings.setValue(QLatin1String("customColors/") + QString::number(i), (int)cusrgb[i]);
     }
 #endif
 }

@@ -27,13 +27,14 @@ HEADERS += \
 	kernel/qshortcut.h \
 	kernel/qshortcutmap_p.h \
 	kernel/qsizepolicy.h \
-	kernel/qsound.h \	
-	kernel/qstackedlayout.h \	
+	kernel/qsound.h \
+	kernel/qstackedlayout.h \
 	kernel/qtooltip.h \
 	kernel/qvariant.h \
 	kernel/qwhatsthis.h \
 	kernel/qwidget.h \
-	kernel/qwindowdefs.h
+	kernel/qwindowdefs.h \
+	kernel/qsettings.h
 
 SOURCES += \
 	kernel/qabstractlayout.cpp \
@@ -53,11 +54,12 @@ SOURCES += \
 	kernel/qshortcut.cpp \
 	kernel/qshortcutmap.cpp \
 	kernel/qsound.cpp \
-	kernel/qstackedlayout.cpp \	
+	kernel/qstackedlayout.cpp \
 	kernel/qtooltip.cpp \
 	kernel/qvariant.cpp \
 	kernel/qwhatsthis.cpp \
-	kernel/qwidget.cpp
+	kernel/qwidget.cpp \
+	kernel/qsettings.cpp
 
 
 win32 {
@@ -105,7 +107,7 @@ embedded {
 		kernel/qinputcontext_qws.cpp \
 		kernel/qsound_qws.cpp \
 		kernel/qwidget_qws.cpp
-		
+
 }
 
 !x11:mac {

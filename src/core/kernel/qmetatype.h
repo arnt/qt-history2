@@ -18,6 +18,10 @@
 #include "qglobal.h"
 #endif // QT_H
 
+#ifdef Bool // ### we seem to pick up a macro Bool --> int somewhere
+#undef Bool
+#endif
+
 class QDataStream;
 
 class Q_CORE_EXPORT QMetaType {

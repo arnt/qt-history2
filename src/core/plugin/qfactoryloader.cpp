@@ -13,7 +13,7 @@
 
 #include <qdir.h>
 #include <qdebug.h>
-#include <qsettings.h>
+#include <qcoresettings.h>
 #include "qmutex.h"
 #include "qfactoryinterface.h"
 #include "qfactoryloader_p.h"
@@ -50,7 +50,7 @@ QFactoryLoader::QFactoryLoader(const char *iid,
     filters << QLatin1String("*.so");
 #endif
 
-    QSettings settings;
+    QCoreSettings settings(Qt::UserScope, QLatin1String("Trolltech"));
 
     for (int i = 0; i < paths.count(); ++i) {
         QString path = paths.at(i) + suffix;
@@ -65,13 +65,13 @@ QFactoryLoader::QFactoryLoader(const char *iid,
                 library->release();
                 continue;
             }
-            QString regkey = QString::fromLatin1("/Trolltech/Qt Factory Cache %1.%2/%3:/%4")
+            QString regkey = QString::fromLatin1("Qt Factory Cache %1.%2/%3:/%4")
                              .arg((QT_VERSION & 0xff0000) >> 16)
                              .arg((QT_VERSION & 0xff00) >> 8)
                              .arg(QLatin1String(iid))
                              .arg(fileName);
             QStringList reg, keys;
-            reg = settings.readListEntry(regkey);
+            reg = settings.value(regkey).toStringList();
             if (reg.count() && library->lastModified == reg[0]) {
                 keys = reg;
                 keys.removeFirst();
@@ -89,7 +89,7 @@ QFactoryLoader::QFactoryLoader(const char *iid,
                 reg.clear();
                 reg << library->lastModified;
                 reg += keys;
-                settings.writeEntry(regkey, reg);
+                settings.setValue(regkey, reg);
             }
             if (!keys.isEmpty()) {
                 d->libraryList += library;

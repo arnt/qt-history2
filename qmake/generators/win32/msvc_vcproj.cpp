@@ -20,7 +20,7 @@
 #include <qhash.h>
 #include <quuid.h>
 #include <stdlib.h>
-#include <qsettings.h>
+#include <qcoresettings.h>
 
 //#define DEBUG_SOLUTION_GEN
 //#define DEBUG_PROJECT_GEN
@@ -43,9 +43,9 @@ bool use_net2003_version()
     current_version = 70;
 
     // Get registry entries for both versions
-    QSettings setting;
-    QString path2002 = setting.readEntry(_regNet2002);
-    QString path2003 = setting.readEntry(_regNet2003);
+    QCoreSettings setting("\\HKEY_LOCAL_MACHINE\\Software", Qt::NativeFormat);
+    QString path2002 = setting.value(_regNet2002).toString();
+    QString path2003 = setting.value(_regNet2003).toString();
 
     if(path2002.isNull() || path2003.isNull()) {
         // Only have one MSVC, so use that one
@@ -116,7 +116,7 @@ bool VcprojGenerator::writeMakefile(QTextStream &t)
         debug_msg(1, "Generator: MSVC.NET: Writing solution file");
         writeSubDirs(t);
         return true;
-    } else 
+    } else
     // Generate single configuration project file
     if((project->first("TEMPLATE") == "vcapp" ||
         project->first("TEMPLATE") == "vclib") &&
@@ -400,7 +400,7 @@ bool VcprojGenerator::hasBuiltinCompiler(const QString &file)
     if (file.endsWith(".c"))
         return true;
     // Resource files
-    if (file.endsWith(".rc")) 
+    if (file.endsWith(".rc"))
         return true;
     return false;
 }

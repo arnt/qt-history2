@@ -14,12 +14,13 @@ HEADERS +=  \
 	io/qiodevice.h \
 	io/qiodevice_p.h \
 	io/qtextstream.h \
-	io/qsettings.h \
-	io/qsettings_p.h \
 	io/qtemporaryfile.h \
         io/qresource.h \
         io/qresourceengine_p.h \
-	io/qurl.h
+	io/qurl.h \
+	io/qcoresettings.h \
+	io/qcoresettings_p.h
+
 
 SOURCES += \
 	io/qbuffer.cpp \
@@ -32,17 +33,17 @@ SOURCES += \
 	io/qiodevice.cpp \
 	io/qioengine.cpp \
 	io/qtextstream.cpp \
-	io/qsettings.cpp \
 	io/qtemporaryfile.cpp \
         io/qresource.cpp \
         io/qresourceengine.cpp \
-	io/qurl.cpp
+	io/qurl.cpp \
+	io/qcoresettings.cpp
 
 win32 {
 	wince-*:SOURCES += io/qfileengine_wce.cpp
 	else:SOURCES += io/qfileengine_win.cpp 
-	SOURCES += io/qsettings_win.cpp
+	SOURCES += io/qcoresettings_win.cpp
 } else:unix {
 	SOURCES += io/qfileengine_unix.cpp 
-	mac:SOURCES += io/qsettings_mac.cpp
+	mac:SOURCES += io/qcoresettings_mac.cpp
 }

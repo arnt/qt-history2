@@ -19,7 +19,8 @@
 #include <qfileinfo.h>
 #include <qmutex.h>
 #include <qmap.h>
-#include <qsettings.h>
+#include <qcoresettings.h>
+#include <qdatetime.h>
 #ifdef Q_OS_MAC
 #  include <private/qcore_mac_p.h>
 #endif
@@ -411,14 +412,14 @@ bool QLibraryPrivate::isPlugin()
 
     QFileInfo fileinfo(fileName);
     lastModified  = fileinfo.lastModified().toString(Qt::ISODate);
-    QString regkey = QString::fromLatin1("/Trolltech/Qt Plugin Cache %1.%2/%3")
+    QString regkey = QString::fromLatin1("Qt Plugin Cache %1.%2/%3")
                      .arg((QT_VERSION & 0xff0000) >> 16)
                      .arg((QT_VERSION & 0xff00) >> 8)
                      .arg(fileName);
     QStringList reg;
 
-    QSettings settings;
-    reg = settings.readListEntry(regkey);
+    QCoreSettings settings(Qt::UserScope, QLatin1String("Trolltech"));
+    reg = settings.value(regkey).toStringList();
     if (reg.count() == 3 &&lastModified == reg[2]) {
         qt_version = reg[0].toUInt(0, 16);
         key = reg[1].latin1();
@@ -457,7 +458,7 @@ bool QLibraryPrivate::isPlugin()
         queried << QString::number(qt_version,16)
                 << QLatin1String(key)
                 << lastModified;
-        settings.writeEntry(regkey, queried);
+        settings.setValue(regkey, queried);
     }
 
     if (!success) {

@@ -57,9 +57,9 @@ int main(int argc, char * argv[])
         + QString::number((QT_VERSION >> 8) & 0xff)
         + QLatin1String("/"));
 
-    QSettings config;
-    config.insertSearchPath(QSettings::Windows, QLatin1String("/Trolltech"));
-    QStringList pluginPaths = config.readListEntry(keybase + QLatin1String("PluginPaths"));
+    QSettings config(Qt::UserScope, QLatin1String("Trolltech"));
+    QStringList pluginPaths
+                    = config.value(keybase + QLatin1String("PluginPaths")).toStringList();
     if (pluginPaths.count())
         QCoreApplication::setLibraryPaths(pluginPaths);
 
