@@ -237,7 +237,9 @@ QSqlTable::~QSqlTable()
 
 void QSqlTable::addColumn( const QSqlField* field )
 {
-    if ( cursor() && field && cursor()->isVisible( field->name() ) && !cursor()->primaryIndex().field( field->name() ) ) {
+    if ( cursor() && field && 
+	 cursor()->isVisible( field->name() ) &&
+ 	 !cursor()->primaryIndex().field( field->name() ) ) {
 	setNumCols( numCols() + 1 );
 	d->colIndex.append( cursor()->position( field->name() ) );
 	if ( field->isReadOnly() )
@@ -1419,8 +1421,9 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 	}
     }
     else {
-	if ( d->cursor->seek( row ) )
+	if ( d->cursor->seek( row ) ) {
 	    paintField( p, d->cursor->field( indexOf( col ) ), cr, selected );
+	}
     }
 }
 
@@ -1446,9 +1449,9 @@ void QSqlTable::paintField( QPainter * p, const QSqlField* field,
     if ( !field )
 	return;
     QString text;
-    if ( field->isNull() )
+    if ( field->isNull() ) {
 	text = nullText();
-    else {
+    } else {
 	const QVariant val = field->value();
 	text = val.toString();
 	if ( val.type() == QVariant::Bool )
@@ -1473,8 +1476,8 @@ int QSqlTable::fieldAlignment( const QSqlField* field )
 
 void QSqlTable::addColumns( const QSqlRecord& fieldList )
 {
-    for ( uint j = 0; j < fieldList.count(); ++j )
-	addColumn( fieldList.field(j) );
+    for ( uint j = 0; j < fieldList.count(); ++j ) 
+	addColumn( fieldList.field(j) ); 
 }
 
 /*!  If the \a sql driver supports query sizes, the number of rows in
@@ -1676,17 +1679,17 @@ QSqlRecord QSqlTable::currentFieldSelection() const
 }
 
 /*! Sorts column \a col in ascending order.
-  
+
   \sa setSorting()
 */
 
 void QSqlTable::sortAscending( int col )
 {
-    sortColumn( col, TRUE );    
+    sortColumn( col, TRUE );
 }
 
 /*! Sorts column \a col in descending order.
-  
+
   \sa setSorting()
 */
 
@@ -1721,17 +1724,17 @@ void QSqlTable::refresh()
 
 /*! \fn void QSqlTable::beforeInsert( QSqlRecord* buf )
   This signal is emitted just before the cursor's edit buffer is inserted into the database.
-  The \a buf parameter points to the record buffer being inserted.  
+  The \a buf parameter points to the record buffer being inserted.
 */
 
 /*! \fn void QSqlTable::beforeUpdate( QSqlRecord* buf )
   This signal is emitted just before the cursor's edit buffer is updated in the database.
-  The \a buf parameter points to the record buffer being updated.  
+  The \a buf parameter points to the record buffer being updated.
 */
 
 /*! \fn void QSqlTable::beforeDelete( QSqlRecord* buf )
   This signal is emitted just before the currently selected record is deleted from the database.
-  The \a buf parameter points to the record buffer being deleted.  
+  The \a buf parameter points to the record buffer being deleted.
 */
 
 /*! \fn void QSqlTable::cursorChanged( QSqlCursor::Mode mode )

@@ -40,21 +40,29 @@
 #ifndef QT_H
 #include "qstring.h"
 #include "qvariant.h"
-#include "qvaluelist.h"
-#include "qmap.h"
 #include "qsqlfield.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class Q_EXPORT QValueList< QSqlField >;
-template class Q_EXPORT QMap< QString, int >;
-// MOC_SKIP_END
-#endif
+// #if defined(Q_TEMPLATEDLL)
+// // MOC_SKIP_BEGIN
+// template class Q_EXPORT QValueList< QSqlField >;
+// template class Q_EXPORT QMap< QString, int >;
+// // MOC_SKIP_END
+// #endif
 
 class QSqlRecordPrivate;
+
+class QSqlRecordShared : public QShared
+{
+public:    
+    QSqlRecordShared( QSqlRecordPrivate* sqlRecordPrivate )
+    : d( sqlRecordPrivate )
+    {}
+    virtual ~QSqlRecordShared();
+    QSqlRecordPrivate* d;
+};
 
 class Q_EXPORT QSqlRecord
 {
@@ -68,11 +76,13 @@ public:
     virtual void         setValue( int i, const QVariant& val );
     virtual void         setValue( const QString& name, const QVariant& val );
     int                  position( const QString& name ) const;
-    QSqlField*           field( int i ) const;
-    QSqlField*           field( const QString& name ) const;
+    QString              fieldName( int i ) const;
+    QSqlField*           field( int i );
+    QSqlField*           field( const QString& name );
+    const QSqlField*     field( int i ) const;
+    const QSqlField*     field( const QString& name ) const;
 
     virtual void         append( const QSqlField& field );
-    virtual void         prepend( const QSqlField& field );
     virtual void         insert( int pos, const QSqlField& field );
     virtual void         remove( int pos );
 
@@ -91,12 +101,11 @@ public:
     QString              displayLabel( const QString& name ) const;
     virtual void         setVisible( const QString& name, bool visible );
     bool                 isVisible( const QString& name ) const;
-
+   
 private:
-    void                 init();
-    QSqlField*           findField( int i ) const;
-    QSqlField*           findField( const QString& name ) const;
-    QSqlRecordPrivate*   d;
+    void                 deref();
+    bool                 checkDetach();
+    QSqlRecordShared*    sh;
 };
 
 #endif	// QT_NO_SQL

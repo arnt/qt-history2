@@ -100,9 +100,9 @@ QSqlIndex::~QSqlIndex()
 /*! Sets the name of the index to \a n.
 */
 
-void QSqlIndex::setName( const QString& name ) 
-{ 
-    nm = name; 
+void QSqlIndex::setName( const QString& name )
+{
+    nm = name;
 }
 
 /*!  \fn QString QSqlIndex::name() const
@@ -182,8 +182,8 @@ QString QSqlIndex::toString( const QString& prefix ) const
   \a cursorName.
 */
 void QSqlIndex::setCursorName( const QString& cursorName )
-{ 
-    cursor = cursorName; 
+{
+    cursor = cursorName;
 }
 
 #endif

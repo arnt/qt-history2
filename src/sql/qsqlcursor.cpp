@@ -265,7 +265,7 @@ QString QSqlCursor::toString( const QString& prefix, const QString& sep ) const
     bool comma = FALSE;
 
     for ( uint i = 0; i < count(); ++i ){
-	const QString fname = field( i )->name();
+	const QString fname = fieldName( i );
 	if ( !isCalculated( fname ) && isGenerated( fname ) ) {
 	    if( comma )
 		pflist += sep + " ";
@@ -296,8 +296,8 @@ QSqlIndex QSqlCursor::primaryIndex( bool prime ) const
 {
     if ( prime ) {
 	for ( uint i = 0; i < d->priIndx.count(); ++i ) {
-	    const QString fn = d->priIndx.field( i )->name();
-	    d->priIndx.field( i )->setValue( field( fn )->value() );
+	    const QString fn = d->priIndx.fieldName( i );
+	    d->priIndx.setValue( i, value( fn ) );
 	}
     }
     return d->priIndx;
@@ -596,7 +596,7 @@ QString QSqlCursor::toString( const QSqlIndex& i, QSqlRecord* rec, const QString
     for( uint j = 0; j < i.count(); ++j ){
 	if( separator )
 	    filter += " " + sep + " " ;
-	QString fn = i.field(j)->name();
+	QString fn = i.fieldName( j );
 	QSqlField* f = rec->field( fn );
 	filter += toString( prefix, f, fieldSep );
 	separator = TRUE;
