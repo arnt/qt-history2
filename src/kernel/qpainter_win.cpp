@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#90 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#90 $");
 
 
 /*
@@ -1814,13 +1814,13 @@ static void drawTile( QPainter *p, int x, int y, int w, int h,
 		      const QPixmap &pixmap, int xOffset, int yOffset )
 {
     int yPos, xPos, drawH, drawW, yOff, xOff;
-    yPos = y; 
+    yPos = y;
     yOff = yOffset;
     while( yPos < y + h ) {
 	drawH = pixmap.height() - yOff;    // Cropping first row
 	if ( yPos + drawH > y + h )	   // Cropping last row
 	    drawH = y + h - yPos;
-	xPos = x; 
+	xPos = x;
 	xOff = xOffset;
 	while( xPos < x + w ) {
 	    drawW = pixmap.width() - xOff; // Cropping first column
@@ -1852,20 +1852,6 @@ static void fillTile(  QPixmap *tile, const QPixmap &pixmap )
     }
 }
 
-/*!
-  Draws a tiled \a pixmap in the specified rectangle.
-
-  \arg \a (x,y,w,h) is the rectangle to be filled.
-  \arg \a (sx,sy) spefify an offset in the pixmap.
-
-  The pixmap is clipped if a \link QPixmap::setMask() mask\endlink has
-  been set.
-
-  Calling drawTiledPixmap() is similar to calling drawPixmap()
-  several times to fill (tile) an area with a pixmap.
-
-  \sa drawPixmap()
-*/
 
 void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 				const QPixmap &pixmap, int sx, int sy )
