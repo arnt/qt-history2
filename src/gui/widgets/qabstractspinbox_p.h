@@ -48,7 +48,7 @@ enum Button {
     ButtonMask = 0x008,
     Up = 0x010,
     Down = 0x020,
-    DirectionMask = 0x040,
+    DirectionMask = 0x040
 };
 
 class QAbstractSpinBoxPrivate : public QWidgetPrivate
