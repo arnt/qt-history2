@@ -373,7 +373,7 @@ bool QPicture::play( QPainter *painter )
     QDataStream s;
     s.setDevice( &d->pictb );			// attach data stream to buffer
     s.device()->at( 10 );			// go directly to the data
-    s.setVersion( d->formatMajor != 4 ? d->formatMajor : 3 );
+    s.setVersion( d->formatMajor < 4 ? d->formatMajor : 3 );
 
     Q_UINT8  c, clen;
     Q_UINT32 nrecords;
