@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#294 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#295 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -412,6 +412,7 @@ void QPainter::cleanup()
 {
     cleanup_gc_cache();
     cleanup_gc_array( qt_xdisplay() );
+    QPointArray::cleanBuffers();
 }
 
 
@@ -1252,17 +1253,18 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
     bool do_close = close && !(x1 == x2 && y1 == y2);
 
     if ( close && cbrush.style() != NoBrush ) {	// draw filled polygon
-	XFillPolygon( dpy, hd, gc_brush, (XPoint*)a.data(), a.size(),
+	XFillPolygon( dpy, hd, gc_brush, (XPoint*)a.shortPoints(), a.size(),
 		      Nonconvex, CoordModeOrigin );
 	if ( cpen.style() == NoPen ) {		// draw fake outline
-	    XDrawLines( dpy, hd, gc_brush, (XPoint*)a.data(), a.size(),
+	    XDrawLines( dpy, hd, gc_brush, (XPoint*)a.shortPoints(), a.size(),
 			CoordModeOrigin );
 	    if ( do_close )
 		XDrawLine( dpy, hd, gc_brush, x1, y1, x2, y2 );
 	}
     }
     if ( cpen.style() != NoPen ) {		// draw outline
-	XDrawLines( dpy, hd, gc, (XPoint*)a.data(), a.size(), CoordModeOrigin);
+	XDrawLines( dpy, hd, gc, (XPoint*)a.shortPoints(), a.size(), 
+		    CoordModeOrigin);
 	if ( do_close )
 	    XDrawLine( dpy, hd, gc, x1, y1, x2, y2 );
     }
@@ -1327,8 +1329,8 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 	}
     }
     if ( cpen.style() != NoPen )
-	XDrawPoints( dpy, hd, gc, (XPoint*)(pa.data()+index), npoints,
-		     CoordModeOrigin );
+	XDrawPoints( dpy, hd, gc, (XPoint*)(pa.shortPoints( index, npoints )), 
+		     npoints, CoordModeOrigin );
 }
 
 
@@ -1983,7 +1985,8 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	}
     }
     if ( cpen.style() != NoPen )
-	XDrawSegments( dpy, hd, gc, (XSegment*)(pa.data()+index), nlines );
+	XDrawSegments( dpy, hd, gc,
+		       (XSegment*)(pa.shortPoints( index, nlines*2 )),nlines );
 }
 
 
@@ -2028,8 +2031,8 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	}
     }
     if ( cpen.style() != NoPen )
-	XDrawLines( dpy, hd, gc, (XPoint*)(pa.data()+index), npoints,
-		    CoordModeOrigin );
+	XDrawLines( dpy, hd, gc, (XPoint*)(pa.shortPoints( index, npoints )), 
+		    npoints, CoordModeOrigin );
 }
 
 
@@ -2091,18 +2094,20 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
     bool closed = x1 == x2 && y1 == y2;
 
     if ( cbrush.style() != NoBrush ) {		// draw filled polygon
-	XFillPolygon( dpy, hd, gc_brush, (XPoint*)(pa.data()+index),
+	XFillPolygon( dpy, hd, gc_brush,
+		      (XPoint*)(pa.shortPoints( index, npoints )),
 		      npoints, Complex, CoordModeOrigin );
 	if ( cpen.style() == NoPen ) {		// draw fake outline
-	    XDrawLines( dpy, hd, gc_brush, (XPoint*)(pa.data()+index),
+	    XDrawLines( dpy, hd, gc_brush,
+			(XPoint*)(pa.shortPoints( index, npoints )),
 			npoints, CoordModeOrigin );
 	    if ( !closed )
 		XDrawLine( dpy, hd, gc_brush, x1, y1, x2, y2 );
 	}
     }
     if ( cpen.style() != NoPen ) {		// draw outline
-	XDrawLines( dpy, hd, gc, (XPoint*)(pa.data()+index), npoints,
-		    CoordModeOrigin );
+	XDrawLines( dpy, hd, gc, (XPoint*)(pa.shortPoints( index, npoints )),
+		    npoints, CoordModeOrigin );
 	if ( !closed )
 	    XDrawLine( dpy, hd, gc, x1, y1, x2, y2 );
     }
@@ -2148,7 +2153,7 @@ void QPainter::drawQuadBezier( const QPointArray &a, int index )
     }
     if ( cpen.style() != NoPen ) {
 	pa = pa.quadBezier();
-	XDrawLines( dpy, hd, gc, (XPoint*)pa.data(), pa.size(),
+	XDrawLines( dpy, hd, gc, (XPoint*)pa.shortPoints(), pa.size(),
 		    CoordModeOrigin);
     }
 }
@@ -2569,9 +2574,9 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		QBrush oldBrush = cbrush;
 		setBrush( backgroundColor() );
 		updateBrush();
-		XFillPolygon( dpy, hd, gc_brush, (XPoint*)a.data(), 4,
+		XFillPolygon( dpy, hd, gc_brush, (XPoint*)a.shortPoints(), 4,
 			      Nonconvex, CoordModeOrigin );
-		XDrawLines( dpy, hd, gc_brush, (XPoint*)a.data(), 5,
+		XDrawLines( dpy, hd, gc_brush, (XPoint*)a.shortPoints(), 5,
 			    CoordModeOrigin );
 		setBrush( oldBrush );
 	    }

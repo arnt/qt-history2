@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#64 $
 **
 ** Implementation of QPointArray class
 **
@@ -96,6 +96,8 @@ const double Q_PI   = 3.14159265358979323846;   // pi
   and works with shallow copies by default.
 */
 
+uint QPointArray::splen = 0;
+void* QPointArray::sp = 0;
 
 /*****************************************************************************
   QPointArray member functions
@@ -182,6 +184,7 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
   \link shclass.html deep copy\endlink of the array.
 */
 
+
 /*!
   Fills the point array with the point \e p.
   If \e size is specified as different from -1, then the array will be
@@ -191,13 +194,15 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
   (only when \e size != -1).
 
   \sa resize()
-*/
+
+########## go away - provided by QArray now?
 
 bool QPointArray::fill( const QPoint &p, int size )
 {
     QPointData p2( p.x(), p.y() );
     return QArray<QPointData>::fill( p2, size );
 }
+*/
 
 
 /*!
@@ -206,11 +211,11 @@ bool QPointArray::fill( const QPoint &p, int size )
 
 void QPointArray::translate( int dx, int dy )
 {
-    register QPointData *p = data();
+    register QPoint *p = data();
     register int i = size();
+    QPoint pt( dx, dy );
     while ( i-- ) {
-	p->x += (Qpnta_t)dx;
-	p->y += (Qpnta_t)dy;
+	*p += pt;
 	p++;
     }
 }
@@ -222,9 +227,9 @@ void QPointArray::translate( int dx, int dy )
 
 void QPointArray::point( uint index, int *x, int *y ) const
 {
-    QPointData p = QArray<QPointData>::at( index );
-    *x = (int)p.x;
-    *y = (int)p.y;
+    QPoint p = QArray<QPoint>::at( index );
+    *x = (int)p.x();
+    *y = (int)p.y();
 }
 
 /*!
@@ -233,8 +238,7 @@ void QPointArray::point( uint index, int *x, int *y ) const
 
 QPoint QPointArray::point( uint index ) const
 {
-    QPointData p = QArray<QPointData>::at( index );
-    return QPoint( (QCOORD)p.x, (QCOORD)p.y );
+    return QArray<QPoint>::at( index );
 }
 
 /*!
@@ -243,10 +247,7 @@ QPoint QPointArray::point( uint index ) const
 
 void QPointArray::setPoint( uint index, int x, int y )
 {
-    QPointData p;
-    p.x = (Qpnta_t)x;
-    p.y = (Qpnta_t)y;
-    QArray<QPointData>::at( index ) = p;
+    QArray<QPoint>::at( index ) = QPoint( x, y );
 }
 
 /*!
@@ -410,13 +411,15 @@ bool QPointArray::putPoints( int index, int nPoints, int firstx, int firsty,
 /*!
   Returns the point at position \e index in the array.
   \sa operator[]
-*/
 
+##################goaway
 QPoint QPointArray::at( uint index ) const
 {
     QPointData p = QArray<QPointData>::at( index );
     return QPoint( (QCOORD)p.x, (QCOORD)p.y );
 }
+
+*/
 
 /*!
   \fn QPointVal QPointArray::operator[]( int index )
@@ -452,20 +455,20 @@ QRect QPointArray::boundingRect() const
 {
     if ( isEmpty() )
 	return QRect( 0, 0, 0, 0 );		// null rectangle
-    register QPointData *pd = data();
+    register QPoint *pd = data();
     int minx, maxx, miny, maxy;
-    minx = maxx = pd->x;
-    miny = maxy = pd->y;
+    minx = maxx = pd->x();
+    miny = maxy = pd->y();
     pd++;
     for ( int i=1; i<(int)size(); i++ ) {	// find min+max x and y
-	if ( pd->x < minx )
-	    minx = pd->x;
-	else if ( pd->x > maxx )
-	    maxx = pd->x;
-	if ( pd->y < miny )
-	    miny = pd->y;
-	else if ( pd->y > maxy )
-	    maxy = pd->y;
+	if ( pd->x() < minx )
+	    minx = pd->x();
+	else if ( pd->x() > maxx )
+	    maxx = pd->x();
+	if ( pd->y() < miny )
+	    miny = pd->y();
+	else if ( pd->y() > maxy )
+	    maxy = pd->y();
 	pd++;
     }
     return QRect( QPoint(minx,miny), QPoint(maxx,maxy) );
@@ -513,13 +516,13 @@ void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
 	while ( npts-- ) {
 	    if ( i >= (int)size() )			// wrap index
 		i = 0;
-	    a.QArray<QPointData>::at( j++ ) = QArray<QPointData>::at( i++ );
+	    a.QArray<QPoint>::at( j++ ) = QArray<QPoint>::at( i++ );
 	}
     } else {
 	while ( npts-- ) {
 	    if ( i < 0 )				// wrap index
 		i = (int)size()-1;
-	    a.QArray<QPointData>::at( j++ ) = QArray<QPointData>::at( i-- );
+	    a.QArray<QPoint>::at( j++ ) = QArray<QPoint>::at( i-- );
 	}
     }
     *this = a;
@@ -938,20 +941,20 @@ QPointArray QPointArray::quadBezier() const
     float ay = yvec[3] - (y0 + cy + by);
     float t = dt;
 
-    pd->x = (Qpnta_t)xvec[0];
-    pd->y = (Qpnta_t)yvec[0];
+    pd->rx() = (QCOORD)xvec[0];
+    pd->ry() = (QCOORD)yvec[0];
     pd++;
     m -= 2;
 
     while ( m-- ) {
-	pd->x = (Qpnta_t)qRound( ((ax * t + bx) * t + cx) * t + x0 );
-	pd->y = (Qpnta_t)qRound( ((ay * t + by) * t + cy) * t + y0 );
+	pd->rx() = (QCOORD)qRound( ((ax * t + bx) * t + cx) * t + x0 );
+	pd->ry() = (QCOORD)qRound( ((ay * t + by) * t + cy) * t + y0 );
 	pd++;
 	t += dt;
     }
 
-    pd->x = (Qpnta_t)xvec[3];
-    pd->y = (Qpnta_t)yvec[3];
+    pd->rx() = (QCOORD)xvec[3];
+    pd->ry() = (QCOORD)yvec[3];
 
     return p;
 #else
@@ -1058,3 +1061,54 @@ QDataStream &operator>>( QDataStream &s, QPointArray &a )
   the value of the point referenced by \a point.
 */
 
+
+/*!
+  \internal
+
+  Converts the point coords to short (16bit) size, compatible with
+  X11's XPoint structure. The pointer returned points to a static
+  array, so its contents will be overwritten the next time this
+  function is called.
+*/
+
+void* QPointArray::shortPoints( int index = 0, int nPoints = -1 ) const
+{
+    typedef struct {
+	short x, y;
+    } x11Point;
+
+    if ( isNull() || !nPoints )
+	return 0;
+    QPoint* p = data();
+    p += index;
+    uint i = nPoints < 0 ? size() : nPoints;
+    if ( splen < i ) {
+	if ( sp )
+	    delete[] sp;
+	sp = new x11Point[i];
+	splen = i;
+    }
+    x11Point* ps = (x11Point*)sp;
+    while ( i-- ) {
+	ps->x = (short)p->x();
+	ps->y = (short)p->y();
+	p++;
+	ps++;
+    }
+    return sp;
+}
+
+
+/*!
+  \internal
+
+  Deallocates the internal buffer used by shortPoints().
+*/
+
+void QPointArray::cleanBuffers()
+{
+    if ( sp )
+	delete[] sp;
+    sp = 0;
+    splen = 0;
+}

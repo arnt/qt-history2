@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.h#40 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.h#41 $
 **
 ** Definition of QPointArray class
 **
@@ -32,29 +32,6 @@
 #endif // QT_H
 
 
-/*****************************************************************************
-  QPointData struct; platform dependent element i QPointArray
- *****************************************************************************/
-
-#if defined(_WS_WIN32_)
-typedef long Qpnta_t;
-#else
-typedef short Qpnta_t;
-#endif
-
-struct QPointData {				// platform dependent point
-    QPointData() {}
-    QPointData( int xp, int yp )  { x=(Qpnta_t)xp; y=(Qpnta_t)yp; }
-    QPointData( const QPoint &p ) { x=(Qpnta_t)p.x(); y=(Qpnta_t)p.y(); }
-#if defined(_WS_MAC_)
-    Qpnta_t y;
-    Qpnta_t x;
-#else
-    Qpnta_t x;
-    Qpnta_t y;
-#endif
-};
-
 
 /*****************************************************************************
   QPointVal class; a context class for QPointArray::operator[]
@@ -65,18 +42,18 @@ class QPointArray;
 class Q_EXPORT QPointVal
 {
 public:
-    QPointVal( QPointData *ptr ) : p(ptr) {}
+    QPointVal( QPoint *ptr ) : p(ptr) {}
     bool operator==( const QPointVal &point ) const;
     bool operator!=( const QPointVal &point ) const;
     QPointVal &operator=( const QPointVal &point );
     QPointVal &operator=( const QPoint &point );
     QPointVal &operator+=( const QPoint &point );
     QPointVal &operator-=( const QPoint &point );
-	       operator QPoint() const	{ return QPoint(p->x,p->y); }
-    int	       x() const		{ return (int)p->x; }
-    int	       y() const		{ return (int)p->y; }
+	       operator QPoint() const	{ return *p; }
+    int	       x() const		{ return (int)p->x(); }
+    int	       y() const		{ return (int)p->y(); }
 private:
-    QPointData *p;
+    QPoint *p;
 };
 
 
@@ -85,22 +62,20 @@ private:
  *****************************************************************************/
 
 #if defined(Q_TEMPLATEDLL)
-template class Q_EXPORT QArray<QPointData>;
+template class Q_EXPORT QArray<QPoint>;
 #endif
 
-class Q_EXPORT QPointArray : public QArray<QPointData>
+class Q_EXPORT QPointArray : public QArray<QPoint>
 {
 public:
     QPointArray() {}
-    QPointArray( int size ) : QArray<QPointData>( size ) {}
-    QPointArray( const QPointArray &a ) : QArray<QPointData>( a ) {}
+    QPointArray( int size ) : QArray<QPoint>( size ) {}
+    QPointArray( const QPointArray &a ) : QArray<QPoint>( a ) {}
     QPointArray( const QRect &r, bool closed=FALSE );
     QPointArray( int nPoints, const QCOORD *points );
 
     QPointArray	 &operator=( const QPointArray &a )
 	{ return (QPointArray&)assign( a ); }
-
-    bool    fill( const QPoint &p, int size = -1 );
 
     QPointArray copy() const
 	{ QPointArray tmp; return *((QPointArray*)&tmp.duplicate(*this)); }
@@ -116,15 +91,13 @@ public:
     bool    putPoints( int index, int nPoints, const QCOORD *points );
     bool    putPoints( int index, int nPoints, int firstx, int firsty, ... );
 
-    QPoint  at( uint i ) const;
     QPointVal operator[]( int i )
 		{ return QPointVal( data()+i ); }
     QPointVal operator[]( uint i )
 		{ return QPointVal( data()+i ); }
-    QPoint operator[]( int i ) const
-		{ return (QPoint)QPointVal( data()+i ); }
+
     QPoint operator[]( uint i ) const
-		{ return (QPoint)QPointVal( data()+i ); }
+		{ return QArray<QPoint>::at( i ); }
 
     QRect   boundingRect() const;
 
@@ -133,6 +106,13 @@ public:
     void    makeArc( int x, int y, int w, int h, int a1, int a2, const QWMatrix& );
 
     QPointArray quadBezier() const;
+
+    void*  shortPoints( int index = 0, int nPoints = -1 ) const;
+    static void cleanBuffers();
+
+protected:
+    static uint splen;
+    static void* sp;
 };
 
 
@@ -155,39 +135,35 @@ inline void QPointArray::setPoint( uint i, const QPoint &p )
 
 inline bool QPointVal::operator==( const QPointVal &pointval ) const
 {
-    return p->x == pointval.p->x && p->y == pointval.p->y;
+    return *p == *pointval.p;
 }
 
 inline bool QPointVal::operator!=( const QPointVal &pointval ) const
 {
-    return p->x != pointval.p->x && p->y != pointval.p->y;
+    return *p != *pointval.p;
 }
 
 inline QPointVal &QPointVal::operator=( const QPointVal &pointval )
 {
-    p->x = pointval.p->x;
-    p->y = pointval.p->y;
+    *p = *pointval.p;
     return *this;
 }
 
 inline QPointVal &QPointVal::operator=( const QPoint &point )
 {
-    p->x = (Qpnta_t)point.x();
-    p->y = (Qpnta_t)point.y();
+    *p = point;
     return *this;
 }
 
 inline QPointVal &QPointVal::operator+=( const QPoint &point )
 {
-    p->x += (Qpnta_t)point.x();
-    p->y += (Qpnta_t)point.y();
+    *p += point;
     return *this;
 }
 
 inline QPointVal &QPointVal::operator-=( const QPoint &point )
 {
-    p->x -= (Qpnta_t)point.x();
-    p->y -= (Qpnta_t)point.y();
+    *p -= point;
     return *this;
 }
 
