@@ -102,7 +102,7 @@ QFontListView::QFontListView(QWidget *parent)
     : QGenericTreeView(parent)
 {
     setModel(new QFontListModel(parent));
-    showRootDecoration(false);
+    setRootIsDecorated(false);
     QGenericHeader *h = header();
     h->setResizeMode(QGenericHeader::Stretch, 0);
     h->hide();

@@ -1307,7 +1307,7 @@ void QFileDialogPrivate::setup()
     tview->setModel(model);
     tview->viewport()->setAcceptDrops(true);
     tview->setSelectionModel(selections);
-    tview->showRootDecoration(false);
+    tview->setRootIsDecorated(false);
     tview->header()->setResizeMode(QGenericHeader::Custom);
     tview->header()->setResizeMode(QGenericHeader::Stretch, 0);
     tview->header()->setSortIndicator(0, Qt::DescendingOrder);

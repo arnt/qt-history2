@@ -1038,7 +1038,7 @@ QGroupBox *QPrintDialogUnix::setupDestination()
     d->model = new QPrinterModel(d->printers, this);
     d->view = new QGenericTreeView(g);
     d->view->setModel(d->model);
-    d->view->showRootDecoration(false);
+    d->view->setRootIsDecorated(false);
     d->view->header()->setResizeMode(QGenericHeader::Stretch, 2);
 
     // bang the best default into the listview

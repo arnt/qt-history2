@@ -208,19 +208,19 @@ void QGenericTreeView::setIndentation(int i)
 }
 
 /*!
-  \property QGenericTreeView::showRootDecoration
+  \property QGenericTreeView::rootIsDecorated
   \brief whether to show controls for opening and closing items
 
   This property holds whether root items are displayed with controls for opening and
   closing them.
 */
 
-bool QGenericTreeView::isRootDecorationShown() const
+bool QGenericTreeView::rootIsDecorated() const
 {
     return d->rootDecoration;
 }
 
-void QGenericTreeView::showRootDecoration(bool show)
+void QGenericTreeView::setRootIsDecorated(bool show)
 {
 
     d->rootDecoration = show;
