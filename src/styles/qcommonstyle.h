@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.h#16 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.h#17 $
 **
 ** Definition of QCommonStyle class
 **
@@ -140,14 +140,6 @@ public:
 
     // header
     void drawHeaderSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down );
-
-    // spin widget
-    virtual void drawSpinWidgetButton( QPainter *p, int x, int y, int w, int h,
-				       const QColorGroup &g, QSpinWidget *sw,
-				       bool downbtn, bool enabled, bool down );
-    virtual void drawSpinWidgetSymbol( QPainter *p, int x, int y, int w, int h,
-				       const QColorGroup &g, QSpinWidget *sw,
-				       bool downbtn, bool enabled, bool down );
 
     // groupbox
     void drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#42 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#43 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -183,75 +183,6 @@ void QCommonStyle::drawHeaderSection( QPainter *p, int x, int y, int w, int h,
 {
     drawPrimitive(PO_ButtonBevel, p, QRect(x, y, w, h), g,
 		  down ? PStyle_Sunken : PStyle_Default);
-}
-
-/*! \reimp */
-void QCommonStyle::drawSpinWidgetButton( QPainter *p, int x, int y, int w,
-					 int h, const QColorGroup &g,
-					 QSpinWidget * /* sw */,
-					 bool /* downbtn */, bool /* enabled */,
-					 bool down )
-{
-    drawPrimitive(PO_ButtonBevel, p, QRect(x, y, w, h), g,
-		  down ? PStyle_Sunken : PStyle_Default);
-}
-
-/*! \reimp */
-void QCommonStyle::drawSpinWidgetSymbol( QPainter *p, int x, int y, int w,
-					 int h, const QColorGroup &g,
-					 QSpinWidget *sw, bool downbtn,
-					 bool /* enabled */, bool down )
-{
-    p->save();
-    if ( sw->buttonSymbols() == QSpinWidget::PlusMinus ) {
-	p->setPen( g.buttonText() );
-	p->setBrush( g.buttonText() );
-
-	int length;
-	if ( w <= 8 || h <= 6 )
-	    length = QMIN( w-2, h-2 );
-	else
-	    length = QMIN( 2*w / 3, 2*h / 3 );
-
-	if ( !(length & 1) )
-	    length -=1;
-	int xmarg = ( w - length ) / 2;
-	int ymarg = ( h - length ) / 2;
-
-	p->drawLine( x + xmarg, ( y + h / 2 - 1 ),
-		     x + xmarg + length - 1, ( y + h / 2 - 1 ) );
-	if ( !downbtn )
-	    p->drawLine( ( x+w / 2 ) - 1, y + ymarg,
-			 ( x+w / 2 ) - 1, y + ymarg + length - 1 );
-    } else {
-	int sw = w-4;
-	if ( sw < 3 )
-	    return;
-	else if ( !(sw & 1) )
-	    sw--;
-	sw -= ( sw / 7 ) * 2;	// Empty border
-	int sh = sw/2 + 2;        // Must have empty row at foot of arrow
-
-	int sx = x + w / 2 - sw / 2 - 1;
-	int sy = y + h / 2 - sh / 2 - 1;
-
-	QPointArray a;
-	if ( downbtn )
-	    a.setPoints( 3,  0, 1,  sw-1, 1,  sh-2, sh-1 );
-	else
-	    a.setPoints( 3,  0, sh-1,  sw-1, sh-1,  sh-2, 1 );
-	int bsx = 0;
-	int bsy = 0;
-	if ( down ) {
-	    bsx = pixelMetric(PM_ButtonShiftHorizontal);
-	    bsy = pixelMetric(PM_ButtonShiftVertical);
-	}
-	p->translate( sx + bsx, sy + bsy );
-	p->setPen( g.buttonText() );
-	p->setBrush( g.buttonText() );
-	p->drawPolygon( a );
-    }
-    p->restore();
 }
 
 /*! \reimp */
@@ -835,8 +766,34 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 		    return w->rect();
 		default: break;
 	    }
-	}
-	break;
+	    break; }
+	
+	case CC_ComboBox: {
+	    int x = 0, y = 0, wi = w->width(), he = w->height();
+	    int xpos = x;
+	    bool reverse = QApplication::reverseLayout();
+	    QRect re;
+	    
+	    if ( !reverse )
+		xpos += wi - 2 - 16;
+	    
+	    switch ( sc ) {
+		case SC_ComboBoxButton:
+		    return QRect(0, 0, wi, he);
+		    break;
+		case SC_ComboBoxArrow:
+		    return QRect(xpos, y+2, 16, he-4);
+		    break;
+		case SC_ComboBoxFocusRect:
+		case SC_ComboBoxEditField:
+		    re.setRect(x+3, y+3, wi-6-16, he-6);
+		    if( reverse )
+			re.moveBy( 2 + 16, 0 );
+		    return re;
+		default: break;
+	    }
+	break; }
+
 	default: break;
     }
     return QRect();

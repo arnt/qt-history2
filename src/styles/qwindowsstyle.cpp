@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#51 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#52 $
 **
 ** Implementation of Windows-like style class
 **
@@ -50,6 +50,7 @@
 #include "qlabel.h"
 #include "qimage.h"
 #include "qpushbutton.h"
+#include "qcombobox.h"
 #include "qwidget.h"
 #include "qrangecontrol.h"
 #include "qscrollbar.h"
@@ -1913,8 +1914,23 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 		drawSubControl( SC_SpinWidgetFrame, p, w, r, cg, flags,
 				subActive, data );
 	    }
-	    break;
-	}
+	    break; }
+	
+	case CC_ComboBox: {
+	    if ( sub != SC_None ) {
+		drawSubControl( sub, p, w, r, cg, flags, subActive, data );
+	    } else {
+		drawSubControl( SC_ComboBoxButton, p, w, r, cg, flags,
+				subActive, data );
+		drawSubControl( SC_ComboBoxArrow, p, w, r, cg, flags,
+				subActive, data );
+		drawSubControl( SC_ComboBoxEditField, p, w, r, cg, flags,
+				subActive, data );
+		drawSubControl( SC_ComboBoxFocusRect, p, w, r, cg, flags,
+				subActive, data );
+	    }
+	    break; }
+	
 	default:
 	    QCommonStyle::drawComplexControl( ctrl, p, w, r, cg, flags, sub,
 					      subActive, data );
@@ -1964,9 +1980,48 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	break; }
 
     case SC_SpinWidgetFrame:
-	qDrawWinPanel( p, r, cg, TRUE );//cstyle == Sunken );
+	qDrawWinPanel( p, r, cg, TRUE ); //cstyle == Sunken );
 	break;
 
+    case SC_ComboBoxButton: {
+	qDrawWinPanel( p, r, cg, TRUE, w->isEnabled() ?
+		       &cg.brush( QColorGroup::Base ):
+		       &cg.brush( QColorGroup::Background ) );
+	break; }
+	
+    case SC_ComboBoxArrow: {
+	int xpos = r.x();
+	if( !QApplication::reverseLayout() )
+	    xpos += r.width() - 2 - 16;
+	QRect ar = querySubControlMetrics( CC_ComboBox, w,
+					   SC_ComboBoxArrow );
+	qDrawWinPanel( p, ar, cg, FALSE, // SUNKEN
+		       &cg.brush( QColorGroup::Button ) );
+
+	QRect ra( ar.x()+2, ar.y()+2, ar.width()-4, ar.width()-4 );
+	if ( w->isEnabled() )
+	    flags |= PStyle_Enabled;
+	drawPrimitive( PO_ArrowDown, p, ra, cg, flags );
+	break; }
+	
+    case SC_ComboBoxEditField: {
+	QComboBox * cb = (QComboBox *) w;
+	QRect re = querySubControlMetrics( CC_ComboBox, w, 
+					   SC_ComboBoxEditField );
+	if ( cb->hasFocus() && !cb->editable() )
+	    p->fillRect( re.x(), re.y(), re.width(), re.height(),
+			 cg.brush( QColorGroup::Highlight ) );	
+        break; }
+	
+    case SC_ComboBoxFocusRect: {
+	QComboBox * cb = (QComboBox *) w;
+	if ( cb->hasFocus() && !cb->editable() ) {
+	    QRect re = querySubControlMetrics( CC_ComboBox, w, 
+					       SC_ComboBoxFocusRect );
+	    drawPrimitive(PO_FocusRect, p, re, cg );
+	}
+	break;}
+	
     default:
 	break;
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#93 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#94 $
 **
 ** Definition of QStyle class
 **
@@ -233,9 +233,10 @@ public:
 	SC_SpinWidgetEditField =	0x00000008,
 	SC_SpinWidgetButtonField =	0x00000010,
 
-	SC_ComboBoxEditField =	0x00000001,
-	SC_ComboBoxArrow =	0x00000002,
-	SC_ComboBoxFocusRect =	0x00000004
+	SC_ComboBoxButton =	0x00000020,
+	SC_ComboBoxEditField =	0x00000021,
+	SC_ComboBoxArrow =	0x00000022,
+	SC_ComboBoxFocusRect =	0x00000024
 
 	/*
 	  SC_MenuItemCheck =	0x00000001,
@@ -551,12 +552,12 @@ public:
     virtual int spinBoxFrameWidth() const = 0;
 
     // spin widget
-    virtual void drawSpinWidgetButton( QPainter *p, int x, int y, int w, int h,
-				       const QColorGroup &g, QSpinWidget* sw,
-				       bool downbtn, bool enabled, bool down ) = 0;
-    virtual void drawSpinWidgetSymbol( QPainter *p, int x, int y, int w, int h,
-				       const QColorGroup &g, QSpinWidget* sw,
-				       bool downbtn, bool enabled, bool down ) = 0;
+//     virtual void drawSpinWidgetButton( QPainter *p, int x, int y, int w, int h,
+// 				       const QColorGroup &g, QSpinWidget* sw,
+// 				       bool downbtn, bool enabled, bool down ) = 0;
+//     virtual void drawSpinWidgetSymbol( QPainter *p, int x, int y, int w, int h,
+// 				       const QColorGroup &g, QSpinWidget* sw,
+// 				       bool downbtn, bool enabled, bool down ) = 0;
 
     // groupbox
     virtual void drawGroupBoxTitle( QPainter *p,int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled ) = 0;
