@@ -49,6 +49,7 @@
 #include "qradiobutton.h"
 #include "qcombobox.h"
 #include "qlineedit.h"
+#include "qspinbox.h"
 #include "qdrawutil.h"
 #include "qscrollbar.h"
 #include "qtabbar.h"
@@ -409,6 +410,14 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 	drawMotifPlusShade( p, r, cg, bool(flags & Style_Sunken));
 	break;
 
+    case PE_SpinWidgetUp:
+	drawPrimitive(PE_ArrowUp, p, r, cg, flags, data);
+	break;
+
+    case PE_SpinWidgetDown:
+	drawPrimitive(PE_ArrowDown, p, r, cg, flags, data);
+	break;
+
     case PE_Indicator:
 	{
 	    QBrush fill;
@@ -762,7 +771,8 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 			     br.bottom() - dbi);
 	    }
 
-	    br.addCoords(1, 1, -1, -1);
+	    if (button->hasFocus())
+		br.addCoords(1, 1, -1, -1);
 	    drawPrimitive(PE_ButtonCommand, p, br, cg, how);
 	    break;
 	}
@@ -1213,6 +1223,45 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 	    break;
 	}
 
+    case CC_SpinWidget:
+	{
+	    const QSpinWidget * sw = (const QSpinWidget *) widget;
+	    SFlags flags = Style_Default;
+
+	    if (controls & SC_SpinWidgetFrame)
+		drawMotifPlusShade(p, r, cg, TRUE, &cg.brush(QColorGroup::Base));
+
+	    if (controls & SC_SpinWidgetUp) {
+		flags = Style_Enabled;
+		if (active == SC_SpinWidgetUp )
+		    flags |= Style_Down;
+
+		PrimitiveElement pe;
+		if ( sw->buttonSymbols() == QSpinWidget::PlusMinus )
+		    pe = PE_SpinWidgetPlus;
+		else
+		    pe = PE_SpinWidgetUp;
+
+		drawPrimitive(pe, p, r, cg, flags);
+	    }
+
+	    if (controls & SC_SpinWidgetDown) {
+		flags = Style_Enabled;
+		if (active == SC_SpinWidgetDown )
+		    flags |= Style_Down;
+
+		PrimitiveElement pe;
+		if ( sw->buttonSymbols() == QSpinWidget::PlusMinus )
+		    pe = PE_SpinWidgetMinus;
+		else
+		    pe = PE_SpinWidgetDown;
+
+		drawPrimitive(pe, p, r, cg, flags);
+	    }
+
+	    break;
+	}
+
     default:
 	QMotifStyle::drawComplexControl(control, p, widget, r, cg, how,
 					controls, active, data);
@@ -1228,6 +1277,46 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
     QRect rect;
 
     switch (control) {
+    case CC_SpinWidget:
+	{
+	    int fw = pixelMetric( PM_SpinBoxFrameWidth, 0 );
+	    QSize bs;
+	    bs.setHeight( (widget->height() + 1)/2 );
+	    if ( bs.height() < 11 )
+		bs.setHeight( 11 );
+	    bs.setWidth( bs.height() ); // 1.6 -approximate golden mean
+	    bs = bs.expandedTo( QApplication::globalStrut() );
+	    int y = 0;
+	    int x, lx, rx, h;
+	    x = widget->width() - y - bs.width();
+	    lx = fw;
+	    rx = x - fw * 2;
+	    h = bs.height() * 2;
+
+	    switch ( subcontrol ) {
+	    case SC_SpinWidgetUp:
+		rect.setRect(x, y, bs.width(), bs.height());
+		rect.addCoords(1, 0, 0, -1);
+		break;
+	    case SC_SpinWidgetDown:
+		rect.setRect(x, y + bs.height(), bs.width(), bs.height());
+		rect.addCoords(1, 1, 0, 0);
+		break;
+	    case SC_SpinWidgetButtonField:
+		rect.setRect(x, y, bs.width(), h - 2*fw);
+		break;
+	    case SC_SpinWidgetEditField:
+		rect.setRect(lx, fw, rx, h - 2*fw);
+		break;
+	    case SC_SpinWidgetFrame:
+		rect.setRect( widget->x(), widget->y(),
+			      widget->width() - bs.width(), h);
+	    default:
+		break;
+	    }
+	    break;
+	}
+
     case CC_ComboBox:
 	{
 	    const QComboBox *combobox = (const QComboBox *) widget;
