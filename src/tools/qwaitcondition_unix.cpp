@@ -225,6 +225,7 @@ void QWaitCondition::wakeAll()
 bool QWaitCondition::wait(unsigned long time)
 {
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_lock( &mutex );
 
     int ret;
     if (time != ULONG_MAX) {
@@ -244,6 +245,8 @@ bool QWaitCondition::wait(unsigned long time)
     if (ret && ret != ETIMEDOUT)
 	qWarning("Wait condition wait failure: %s",strerror(ret));
 #endif
+
+    pthread_mutex_unlock( &mutex );
 
     return (ret == 0);
 }
