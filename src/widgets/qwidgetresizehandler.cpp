@@ -219,7 +219,8 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
     geom = QRect( geom.topLeft(), geom.size().expandedTo( widget->minimumSize() ).expandedTo( QSize(mw,mh) ).
 		  boundedTo( childWidget->maximumSize() + QSize( 2*fw, 2*fw + extrahei +1 ) ) );
 
-    if ( geom != widget->geometry() && !widget->parentWidget() || widget->parentWidget()->rect().intersects( geom ) )
+    if ( geom != widget->geometry() && 
+	( widget->isTopLevel() || widget->parentWidget()->rect().intersects( geom ) ) )
 	widget->setGeometry( geom );
 
 #if defined(Q_WS_WIN)
