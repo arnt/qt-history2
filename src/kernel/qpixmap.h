@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#6 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#7 $
 **
 ** Definition of QPixMap class
 **
@@ -35,6 +35,8 @@ public:
 #endif
 
     void   erase();
+
+    static QPixMap *grabWindow( WId, int x=0, int y=0, int w=-1, int h=-1 );
 
 protected:
     QPixMap( int w, int h, const char *data );
