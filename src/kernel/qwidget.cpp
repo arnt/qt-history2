@@ -4110,7 +4110,7 @@ bool QWidget::event( QEvent *e )
 	    if ( k->key() == Key_Backtab ||
 		 (k->key() == Key_Tab &&
 		  (k->state() & ShiftButton)) ) {
-		QFocusEvent::setReason( QFocusEvent::Tab );
+		QFocusEvent::setReason( QFocusEvent::Backtab );
 		res = focusNextPrevChild( FALSE );
 		QFocusEvent::resetReason();
 

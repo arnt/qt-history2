@@ -243,7 +243,7 @@ public:
     bool   gotFocus()	const { return type() == FocusIn; }
     bool   lostFocus()	const { return type() == FocusOut; }
 
-    enum Reason { Mouse, Tab, ActiveWindow, Popup, Shortcut, Other };
+    enum Reason { Mouse, Tab, Backtab, ActiveWindow, Popup, Shortcut, Other };
     static Reason reason();
     static void setReason( Reason reason );
     static void resetReason();

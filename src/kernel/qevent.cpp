@@ -737,7 +737,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   \ingroup event
 
   Focus events are sent to widgets when the keyboard input focus
-  changes.  This happens due to a mouse action, the Tab key,
+  changes.  This happens due to a mouse action, the Tab or Backtab keys,
   the window system, a keyboard shortcut, or some other application-specific issue. The actual reason for a specific event is obtained by
   reason() in the appropriate event handler.
 
@@ -764,6 +764,7 @@ QFocusEvent::Reason QFocusEvent::prev_reason = QFocusEvent::Other;
 
   \value Mouse  the focus change happened because of a mouse action.
   \value Tab  the focus change happened because of a Tab press
+  \value Backtab  the focus change happened because of a Backtab press
         (possibly including Shift/Control).
   \value ActiveWindow  the window system made this window (in)active.
   \value Popup  the application opened/closed a popup that grabbed/released focus.

@@ -335,7 +335,7 @@ New mode "uses drop down", where members are shown in a separate
 subwidget such as a combobox or a submenu (enable with
 setUsesDropDown(TRUE) )
 
-All new functions: 
+All new functions:
 	void add(QAction*);
 	void addSeparator();
 	void addedTo( QWidget *actionWidget, QWidget *container, QAction *a );
@@ -431,6 +431,8 @@ Enter/Leave handling fixed.
 New events: QContextMenuEvent, QIMEvent
 QWheelevent now carries an orientation to differentiate between
 horizontal and vertical wheels.
+
+QFocusEvent: new reason Backtab (previously only Tab). ###
 
 
 QFile
@@ -531,7 +533,7 @@ QIconView
 Extended findItem() to support ComparismFlags. Support for
 soft-hyphens when doing word wrap.
 
-New signal: 
+New signal:
 	contextMenuRequested( QIconViewItem*, const QPoint& pos);
 
 
@@ -628,7 +630,7 @@ QLineEdit
 
 New property: bool dragEnabled
 
-New signal: 
+New signal:
 	contextMenuRequested( QIconViewItem*, const QPoint& pos);
 
 New functions:

@@ -705,7 +705,7 @@ void QLineEdit::imStartEvent( QIMEvent *e )
 {
     d->preeditStart = cursorPosition();
     d->preeditLength = 0;
-    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, 
+    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0,
 	d->cursor->parag()->rect().height(), TRUE );
     e->accept();
 }
@@ -746,7 +746,7 @@ void QLineEdit::focusInEvent( QFocusEvent * e)
 {
     d->cursorOn = FALSE;
     blinkOn();
-    if ( e->reason() == QFocusEvent::Tab )
+    if ( e->reason() == QFocusEvent::Tab || e->reason() == QFocusEvent::Backtab )
 	selectAll();
     update();
     setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
