@@ -2782,10 +2782,25 @@ QTextCursor *QTextDocument::redo( QTextCursor *c )
     return commandHistory->redo( c );
 }
 
-bool QTextDocument::find( QTextCursor& cursor, const QString &expr, bool cs, bool wo, bool forward )
+bool QTextDocument::find( QTextCursor& cursor, const QString &e, bool cs, bool wo, bool forward )
 {
     removeSelection( Standard );
     QTextParagraph *p = 0;
+    QString expr = e;
+    if ( wo ) {
+	for ( ;; ) {
+	    if ( expr[ 0 ].isSpace() || expr[ 0 ].isPunct() )
+		expr = expr.right( expr.length() - 1 );
+	    else 
+		break;
+	}
+	for ( ;; ) {
+	    if ( expr[ expr.length() - 1 ].isSpace() || expr[ expr.length() - 1 ].isPunct() )
+		expr = expr.left( expr.length() - 1 );
+	    else
+		break;
+	}
+    }    
     for (;;) {
 	if ( p != cursor.paragraph() ) {
 	    p = cursor.paragraph();
