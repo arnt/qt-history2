@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.h#7 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.h#8 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -10,7 +10,7 @@
 **
 ** Created : 940927
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
@@ -34,12 +34,17 @@ private:
     QTextStream stream;
     int		pageCount;
     bool	dirtyMatrix;
+    bool	dirtyNewPage;
     QString	fontsUsed;
     friend class QPrinter;
 
 private:	// Disabled copy constructor and operator=
     QPSPrinter( const QPSPrinter & ):QPaintDevice(0) {}
     QPSPrinter &operator=( const QPSPrinter & ) { return *this; }
+
+    void matrixSetup( QPainter * );
+    void orientationSetup();
+    void newPageSetup( QPainter * );
 };
 
 

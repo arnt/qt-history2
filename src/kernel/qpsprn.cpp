@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#32 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -18,8 +18,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#31 $");
-
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#32 $");
 
 #if !defined(QT_HEADER_PS)
      // produced from qpshdr.txt
@@ -41,34 +40,35 @@ static char *ps_header =
 "/tmp matrix def end /ARC { ArcDict begin /ang2 ED /ang1 ED /h ED /w ED /y\n"
 "ED /x ED tmp CM pop x w 2 div add y h 2 div add TR 1 h w div neg scale\n"
 "ang2 0 ge {0 0 w 2 div ang1 ang1 ang2 add arc } {0 0 w 2 div ang1 ang1\n"
-"ang2 add arcn} ifelse tmp SM end } D /QI { GS /Courier findfont [ 12 0 0\n"
-"-12 0 0 ] makefont setfont clippath pathbbox 3 index /PageX ED 0 index\n"
-"/PageY ED 3 2 roll exch sub neg /PageH ED sub neg /PageW ED PageX PageY TR\n"
-"1 -1 scale /defM matrix CM def } D /QP { GR showpage } D /P { NP MT 0.5\n"
-"0.5 rmoveto 0 -1 RL -1 0 RL 0 1 RL CP PCol SC fill } D /M { /Cy ED /Cx ED\n"
-"} D /L { NP Cx Cy MT /Cy ED /Cx ED Cx Cy LT QS } D /DL { 4 2 roll NP MT LT\n"
-"QS } D /RDict 4 dict def /R { RDict begin /h ED /w ED /y ED /x ED NP x y\n"
-"MT 0 h RL w 0 RL 0 h neg RL CP QF QS end } D /RRDict 6 dict def /RR {\n"
-"RRDict begin /yr ED /xr ED /h ED /w ED /y ED /x ED xr 0 le yr 0 le or {x y\n"
-"w h R} {xr 100 ge yr 100 ge or {x y w h E} { /rx xr w mul 200 div def /ry\n"
-"yr h mul 200 div def /rx2 rx 2 mul def /ry2 ry 2 mul def NP x rx add y MT\n"
-"x w add rx2 sub y rx2 ry2 90 -90 ARC x w add rx2 sub y h add ry2 sub rx2\n"
-"ry2 0 -90 ARC x y h add ry2 sub rx2 ry2 270 -90 ARC x y rx2 ry2 180 -90\n"
-"ARC CP QF QS } ifelse } ifelse end } D /EDict 5 dict def EDict begin /tmp\n"
-"matrix def end /E { EDict begin /h ED /w ED /y ED /x ED tmp CM pop x w 2\n"
-"div add y h 2 div add translate 1 h w div scale NP 0 0 w 2 div 0 360 arc\n"
-"tmp SM QF QS end } D /A { 16 div exch 16 div exch NP ARC QS } D /PieDict 6\n"
-"dict def /PIE { PieDict begin /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED NP\n"
-"x w 2 div add y h 2 div add MT x y w h ang1 16 div ang2 16 div ARC CP QF\n"
-"QS end } D /CH { 16 div exch 16 div exch NP ARC CP QF QS } D /BZ { curveto\n"
-"QS } D /CRGB { 255 div 3 1 roll 255 div 3 1 roll 255 div 3 1 roll } D /SV\n"
-"{ BSt LWi PSt Cx Cy WFi OMo BCol PCol BkCol /nS nS 1 add def GS } D /RS {\n"
-"nS 0 gt { GR /BkCol ED /PCol ED /BCol ED /OMo ED /WFi ED /Cy ED /Cx ED\n"
-"/PSt ED /LWi ED /BSt ED /nS nS 1 sub def } if } D /BC { CRGB BkCol astore\n"
-"pop } D /B { CRGB BCol astore pop /BSt ED } D /PE { CRGB PCol astore pop\n"
-"/LWi ED /PSt ED } D /ST { defM setmatrix concat } D /T { 3 1 roll MT PCol\n"
-"SC show } D /BFDict 2 dict def /BF { BSt 9 ge BSt 14 le and { BFDict begin\n"
-"GS WFi { clip } { eoclip } ifelse defM SM pathbbox 3 index 3 index\n"
+"ang2 add arcn} ifelse tmp SM end } D /QI { /savedContext save def clippath\n"
+"pathbbox 3 index /PageX ED 0 index /PageY ED 3 2 roll exch sub neg /PageH\n"
+"ED sub neg /PageW ED PageX PageY TR 1 -1 scale /defM matrix CM def /Cx 0\n"
+"def /Cy 0 def 255 255 255 BC /OMo false def 1 0 0 0 0 PE 0 0 0 0 B } D /QP\n"
+"{ savedContext restore showpage } D /P { NP MT 0.5 0.5 rmoveto 0 -1 RL -1\n"
+"0 RL 0 1 RL CP PCol SC fill } D /M { /Cy ED /Cx ED } D /L { NP Cx Cy MT\n"
+"/Cy ED /Cx ED Cx Cy LT QS } D /DL { 4 2 roll NP MT LT QS } D /RDict 4 dict\n"
+"def /R { RDict begin /h ED /w ED /y ED /x ED NP x y MT 0 h RL w 0 RL 0 h\n"
+"neg RL CP QF QS end } D /RRDict 6 dict def /RR { RRDict begin /yr ED /xr\n"
+"ED /h ED /w ED /y ED /x ED xr 0 le yr 0 le or {x y w h R} {xr 100 ge yr\n"
+"100 ge or {x y w h E} { /rx xr w mul 200 div def /ry yr h mul 200 div def\n"
+"/rx2 rx 2 mul def /ry2 ry 2 mul def NP x rx add y MT x w add rx2 sub y rx2\n"
+"ry2 90 -90 ARC x w add rx2 sub y h add ry2 sub rx2 ry2 0 -90 ARC x y h add\n"
+"ry2 sub rx2 ry2 270 -90 ARC x y rx2 ry2 180 -90 ARC CP QF QS } ifelse }\n"
+"ifelse end } D /EDict 5 dict def EDict begin /tmp matrix def end /E {\n"
+"EDict begin /h ED /w ED /y ED /x ED tmp CM pop x w 2 div add y h 2 div add\n"
+"translate 1 h w div scale NP 0 0 w 2 div 0 360 arc tmp SM QF QS end } D /A\n"
+"{ 16 div exch 16 div exch NP ARC QS } D /PieDict 6 dict def /PIE { PieDict\n"
+"begin /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED NP x w 2 div add y h 2 div\n"
+"add MT x y w h ang1 16 div ang2 16 div ARC CP QF QS end } D /CH { 16 div\n"
+"exch 16 div exch NP ARC CP QF QS } D /BZ { curveto QS } D /CRGB { 255 div\n"
+"3 1 roll 255 div 3 1 roll 255 div 3 1 roll } D /SV { BSt LWi PSt Cx Cy WFi\n"
+"OMo BCol PCol BkCol /nS nS 1 add def GS } D /RS { nS 0 gt { GR /BkCol ED\n"
+"/PCol ED /BCol ED /OMo ED /WFi ED /Cy ED /Cx ED /PSt ED /LWi ED /BSt ED\n"
+"/nS nS 1 sub def } if } D /BC { CRGB BkCol astore pop } D /B { CRGB BCol\n"
+"astore pop /BSt ED } D /PE { CRGB PCol astore pop /LWi ED /PSt ED LWi 0 eq\n"
+"{ 0.3 /LWi ED } if } D /ST { defM setmatrix concat } D /T { 3 1 roll MT\n"
+"PCol SC show } D /BFDict 2 dict def /BF { BSt 9 ge BSt 14 le and { BFDict\n"
+"begin GS WFi { clip } { eoclip } ifelse defM SM pathbbox 3 index 3 index\n"
 "translate 4 2 roll 3 2 roll exch sub /h ED sub /w ED OMo { NP 0 0 MT 0 h\n"
 "RL w 0 RL 0 h neg RL CP BkCol SC fill } if BCol SC 0.3 SW BSt 9 eq BSt 11\n"
 "eq or { 0 4 h { NP dup 0 exch MT w exch LT S } for } if BSt 10 eq BSt 11\n"
@@ -79,8 +79,8 @@ static char *ps_header =
 "dup 0 exch MT w add w exch LT S } for } ifelse } if GR end } if } D /LArr[\n"
 "[] [] [ 10 3 ] [ 3 10 ] [ 3 3 ] [ 3 3 ] [ 5 3 3 3 ] [ 3 5 3 3 ] [ 5 3 3 3\n"
 "3 3 ] [ 3 5 3 3 3 3 ] ] def /GPS { PSt 1 ge PSt 5 le and { { LArr PSt 1\n"
-"sub 2 mul get } { LArr PSt 2 mul 1 sub get } ifelse } { [] } ifelse } D QI\n"
-"%%EndProlog\n";
+"sub 2 mul get } { LArr PSt 2 mul 1 sub get } ifelse } { [] } ifelse } D\n"
+"%%EndProlog";
 #endif
 
 
@@ -262,9 +262,11 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 {
     if ( c == PDC_BEGIN ) {			// start painting
-	pageCount   = 1;			// initialize state
-	dirtyMatrix = TRUE;
-	fontsUsed   = "";
+	pageCount    = 1;			// initialize state
+	dirtyMatrix  = TRUE;
+	dirtyNewPage = FALSE;			// setup done by QPainter
+	                                        // for the first page.
+	fontsUsed    = "";
 	const char *title   = printer->docName();
 	const char *creator = printer->creator();
 	if ( !title )				// default document name
@@ -284,9 +286,9 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    stream << "/#copies " << printer->numCopies() << " def\n";
 
 #if defined(QT_HEADER_PS)
-	QFile f( "/usr/lib/qtheader.ps" );	// read predefined PS header
+	QFile f( "/usr/lib/qpshdr.txt" );	// read predefined PS header
 	if ( !f.open(IO_ReadOnly|IO_Raw) )
-	    fatal( "Cannot open /usr/lib/qtheader.ps" );
+	    fatal( "Cannot open /usr/lib/qpshdr.txt" );
 	QByteArray a(f.size());
 	f.readBlock( a.data(), f.size() );
 	f.close();
@@ -294,12 +296,9 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 #else
 	stream << ps_header;
 #endif
-
 	stream << "\n%%Page: " << pageCount << ' ' << pageCount << endl;
-	if ( printer->orientation() == QPrinter::Landscape ) {
-	    stream << "PageW 0 TR 90 rotate\n";
-	    stream << "/defM matrix CM def\n";
-	}
+	stream << "QI\n";
+	orientationSetup();
 	return TRUE;
     }
 
@@ -313,25 +312,10 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     }
 
     if ( c >= PDC_DRAW_FIRST && c <= PDC_DRAW_LAST ) {
-	if ( dirtyMatrix ) {
-	    QWMatrix tmp;
-	    if ( paint->hasViewXForm() ) {
-		QRect viewport = paint->viewport();
-		QRect window   = paint->window();
-		tmp.translate( viewport.x(), viewport.y() );
-		tmp.scale( 1.0 * viewport.width()  / window.width(),
-			   1.0 * viewport.height() / window.height() );
-		tmp.translate( -window.x(), -window.y() );
-	    }
-	    if ( paint->hasWorldXForm() ) {
-		tmp = paint->worldMatrix() * tmp;
-	    }
-	    stream << "[ "
-		   << tmp.m11() << ' ' << tmp.m12() << ' '
-		   << tmp.m21() << ' ' << tmp.m22() << ' '
-		   << tmp.dx()	<< ' ' << tmp.dy()  << " ] ST\n";
-	    dirtyMatrix = FALSE;
-	}
+	if ( dirtyMatrix ) 
+	    matrixSetup( paint );
+	if ( dirtyNewPage ) 
+	    newPageSetup( paint );
     }
 
     switch( c ) {
@@ -541,9 +525,12 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 #endif
 	    break;
 	case PDC_PRT_NEWPAGE:
-	    stream << "showpage\n";
+	    stream << "QP\n";
 	    pageCount++;
 	    stream << "\n%%Page: " << pageCount << ' ' << pageCount << endl;
+	    stream << "QI\n";
+	    dirtyNewPage = TRUE;
+	    orientationSetup();
 	    break;
 	case PDC_PRT_ABORT:
 	    break;
@@ -552,3 +539,67 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     }
     return TRUE;
 }
+
+void QPSPrinter::matrixSetup( QPainter *paint )
+{
+    QWMatrix tmp;
+    if ( paint->hasViewXForm() ) {
+	QRect viewport = paint->viewport();
+	QRect window   = paint->window();
+	tmp.translate( viewport.x(), viewport.y() );
+	tmp.scale( 1.0 * viewport.width()  / window.width(),
+		   1.0 * viewport.height() / window.height() );
+	tmp.translate( -window.x(), -window.y() );
+    }
+    if ( paint->hasWorldXForm() ) {
+	tmp = paint->worldMatrix() * tmp;
+    }
+    stream << "[ "
+	   << tmp.m11() << ' ' << tmp.m12() << ' '
+	   << tmp.m21() << ' ' << tmp.m22() << ' '
+	   << tmp.dx()	<< ' ' << tmp.dy()  << " ] ST\n";
+    dirtyMatrix = FALSE;
+}
+
+void QPSPrinter::orientationSetup()
+{
+    if ( printer->orientation() == QPrinter::Landscape ) {
+	stream << "PageW 0 TR 90 rotate\n";
+	stream << "/defM matrix CM def\n";
+    }
+
+}
+
+void QPSPrinter::newPageSetup( QPainter *paint )
+{
+    QPDevCmdParam param[1];
+    QFont  defaultFont;			// default drawing tools
+    QPen   defaultPen;
+    QBrush defaultBrush;
+
+    param[0].color = &paint->backgroundColor();
+    if ( *param[0].color != white )
+	cmd( PDC_SETBKCOLOR, paint, param );
+
+    param[0].ival = paint->backgroundMode();
+    if (param[0].ival != TransparentMode )
+	cmd( PDC_SETBKMODE, paint, param );
+
+    param[0].font = &paint->font();
+    cmd( PDC_SETFONT, paint, param );
+
+    param[0].pen = &paint->pen();
+    if (*param[0].pen != defaultPen )
+	cmd( PDC_SETPEN, paint,param );
+
+    param[0].brush = &paint->brush();
+    if (*param[0].brush != defaultBrush )
+	cmd( PDC_SETBRUSH, paint, param);
+
+    if ( paint->hasViewXForm() || paint->hasWorldXForm() )
+	matrixSetup( paint );
+
+    dirtyNewPage = FALSE;
+}
+
+

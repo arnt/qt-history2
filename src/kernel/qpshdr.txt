@@ -1,5 +1,5 @@
 %
-% $Id: //depot/qt/main/src/kernel/qpshdr.txt#12 $
+% $Id: //depot/qt/main/src/kernel/qpshdr.txt#13 $
 %
 % Postscript routines for QPSPrinter class
 %
@@ -102,8 +102,7 @@ end
 
 
 /QI {
-    GS
-    /Courier findfont [ 12 0 0 -12 0 0 ] makefont setfont
+    /savedContext save def
     clippath pathbbox
     3 index /PageX ED
     0 index /PageY ED
@@ -115,12 +114,19 @@ end
     PageX PageY TR
     1 -1 scale
     /defM matrix CM def		% default transformation matrix
+    /Cx  0 def			% reset current x position
+    /Cy  0 def			% reset current y position
+    255 255 255 BC
+    /OMo false def
+    1 0 0 0 0 PE
+    0 0 0 0 B
 } D
 
 /QP {				% show page
-    GR
+    savedContext restore
     showpage
 } D
+
 
 /P {				% PDC_DRAWPOINT [x y]
     NP
@@ -386,6 +392,6 @@ end
     { [] } ifelse			% out of range => solid line
 } D
 
-QI
-
 %%EndProlog
+
+
