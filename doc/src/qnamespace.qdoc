@@ -264,17 +264,21 @@
     \value Sunday
 */
 
-/*! \enum Qt::ScaleMode
+/*! 
+    \enum Qt::ScaleMode
 
     This enum type defines the different ways of scaling a size.
 
     \img scaling.png
 
-    \value ScaleFree  The size is scaled freely. The ratio is not preserved.
-    \value ScaleMin  The size is scaled to a rectangle as large as possible
-                     inside a given rectangle, preserving the aspect ratio.
-    \value ScaleMax  The size is scaled to a rectangle as small as possible
-                     outside a given rectangle, preserving the aspect ratio.
+    \value IgnoreAspectRatio  The size is scaled freely. The ratio is not
+                              preserved.
+    \value KeepAspectRatio    The size is scaled to a rectangle as large as
+                              possible inside a given rectangle, preserving
+                              the aspect ratio.
+    \value KeepAspectRatioByExpanding  The size is scaled to a rectangle as
+                              small as possible outside a given rectangle,
+                              preserving the aspect ratio.
 
     \sa QSize::scale(), QImage::scale(), QImage::smoothScale()
 */
