@@ -107,7 +107,7 @@ QVariant::Type qDecodeMYSQLType( int mysqltype, uint flags )
     case FIELD_TYPE_TINY_BLOB :
     case FIELD_TYPE_MEDIUM_BLOB :
     case FIELD_TYPE_LONG_BLOB :
-	type = QVariant::ByteArray;
+	type = (flags & BINARY_FLAG) ? QVariant::ByteArray : QVariant::CString;
 	break;
     default:
     case FIELD_TYPE_ENUM :
@@ -704,7 +704,7 @@ QString QMYSQLDriver::formatValue( const QSqlField* field, bool trimStrings ) co
 	    // buffer has to be at least length*2+1 bytes
 	    char* buffer = new char[ ba.size() * 2 + 1 ];
 	    /*uint escapedSize =*/ mysql_escape_string( buffer, ba.data(), ba.size() );
-            r = QString( "'%1'" ).arg( buffer );
+	    r = QString( "'%1'" ).arg( buffer );
 	    delete[] buffer;
 	}
 	break;
