@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#169 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#170 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#169 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#170 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1098,7 +1098,7 @@ void QWidget::internalResize( int w, int h )
 {
     if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;			// tell window manager
-	size_hints.flags = PSize;
+	size_hints.flags = USSize;
 	size_hints.width = w;
 	size_hints.height = h;
 	do_size_hints( dpy, winid, extra, &size_hints );
@@ -1152,7 +1152,10 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     setCRect( r );
     if ( !isVisible() ) {
 	deferMove( oldp );
-	deferResize( olds );
+	if ( isTopLevel() )			// force internalSetGeometry
+	    deferResize( QSize(-olds.width(), -olds.height()) );
+	else
+	    deferResize( olds );
 	return;
     }
     cancelMove();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#170 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#171 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#170 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#171 $");
 
 
 /*!
@@ -438,6 +438,7 @@ static inline short decompress_b( uint n )
     return (short)((int)(n & 0xffff) + QCOORD_MIN);
 }
 
+
 void QWidget::deferMove( const QPoint &oldPos )
 {
     uint n = (uint)deferredMoves->find( (long)this );
@@ -449,9 +450,17 @@ void QWidget::deferMove( const QPoint &oldPos )
 
 void QWidget::deferResize( const QSize &oldSize )
 {
+    int w = oldSize.width();
+    int h = oldSize.height();
     uint n = (uint)deferredResizes->find( (long)this );
-    if ( !n ) {
-	n = compress(oldSize.width(),oldSize.height());
+    if ( n ) {
+	if ( w < 0 && decompress_a(n) > 0 ) {	// did setGeometry
+	    deferredResizes->take( (long)this );
+	    n = compress(-decompress_a(n),-decompress_b(n));
+	    deferredResizes->insert( (long)this, (int *)n );
+	}
+    } else {
+	n = compress(w,h);
 	deferredResizes->insert( (long)this, (int *)n );
     }
 }
@@ -460,11 +469,13 @@ void QWidget::deferResize( const QSize &oldSize )
 void QWidget::cancelMove()
 {
     deferredMoves->take( (long)this );
+    ASSERT( deferredMoves->find((long)this) == 0 );
 }
 
 void QWidget::cancelResize()
 {
     deferredResizes->take( (long)this );
+    ASSERT( deferredResizes->find((long)this) == 0 );
 }
 
 
@@ -476,12 +487,16 @@ void QWidget::sendDeferredEvents()
 {
     uint m = (uint)deferredMoves->find((long)this);
     uint r = (uint)deferredResizes->find((long)this);
-    if ( m && r )
+    if ( m && r && decompress_a(r) < 0 ) {
+	// Hack: the old width is negative to indicate that we wanted
+	// to setGeometry and not move + resize.
 	internalSetGeometry( x(), y(), width(), height() );
-    else if ( m )
-	internalMove( x(), y() );
-    else if ( r )
-	internalResize( width(), height() );
+    } else {
+	if ( m )
+	    internalMove( x(), y() );
+	if ( r )
+	    internalResize( width(), height() );
+    }
     if ( m ) {
 	deferredMoves->take( (long)this );
 	QMoveEvent e( pos(), QPoint(decompress_a(m), decompress_b(m)) );
@@ -489,7 +504,9 @@ void QWidget::sendDeferredEvents()
     }
     if ( r ) {
 	deferredResizes->take( (long)this );
-	QResizeEvent e( size(), QSize(decompress_a(r), decompress_b(r)) );
+	int w = decompress_a(r);
+	int h = decompress_b(r);
+	QResizeEvent e( size(), QSize(QABS(w),QABS(h)) );
 	QApplication::sendEvent( this, &e );
     }
 }
