@@ -295,6 +295,7 @@ cat << EOF
 
 all:
 	@echo This version of Qt has been ported to these operating systems:
+	@echo
 EOF
 echo ../makefiles/*-* | fmt -1 | sed -e 's-.*/--' -e 's/-.*//' | fmt -1 | uniq | fmt -70 | sed 's/^/	@echo "	"/'
 cat << EOF

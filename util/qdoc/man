@@ -207,7 +207,7 @@ foreach $url ( sort keys %name ) { #'qstring.html'
     print M ".TH ", $name, " 3qt \"", $day, " ", $mname, " ", 1900+$year,
 "\" \"Troll Tech AS\" \\\" -*- nroff -*-
 .\\\" Copyright 1992-1996 Troll Tech AS.  All rights reserved.  See the
-.\\\" LICENCE file included in the distribution for a complete licence
+.\\\" LICENSE file included in the distribution for a complete licence
 .\\\" statement.
 .\\\"
 .\\\" hilit19 workaround: \"
@@ -219,7 +219,7 @@ foreach $url ( sort keys %name ) { #'qstring.html'
 ".SH \"SEE ALSO\"
 .BR http://www.troll.no/qt/", $url, "
 .SH COPYRIGHT
-Copyright 1992-1996 Troll Tech AS.  See the LICENCE file included in
+Copyright 1992-1996 Troll Tech AS.  See the LICENSE file included in
 the distribution for a complete licence statement.
 .SH AUTHOR
 Generated automatically from the source code.

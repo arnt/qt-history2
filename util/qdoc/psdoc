@@ -22,7 +22,7 @@ $initstr =
 Troll Tech AS
 .sp 2
 .sz 36
-Qt 0.98 beta
+Qt 0.99 beta
 .sz 24
 Tutorial and Reference
 .sz 18
@@ -308,7 +308,7 @@ sub parsetutfile {
 
 
 undef $/;
-chdir "/local/qt/doc/html" || die;
+chdir $ENV{"QTDIR"} . "/doc/html" || die;
 
 $roff = "";
 
@@ -343,40 +343,40 @@ for $a ( sort grep( /-members.html$/, readdir( DIR ) ) ) {
 }
 closedir DIR;
 
-open( O, "> /tmp/qtdoc-0.98.me" ) || die;
+open( O, "> /tmp/qtdoc-0.99.me" ) || die;
 print O $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-0.98.me\n";
+print "/tmp/qtdoc-0.99.me\n";
 
-open( O, "| groff -me -Tps > /tmp/qtdoc-0.98-a4.ps" ) || die;
+open( O, "| groff -me -Tps > /tmp/qtdoc-0.99-a4.ps" ) || die;
 print O $a4, $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-0.98-a4.ps\n";
+print "/tmp/qtdoc-0.99-a4.ps\n";
 
-open( O, "| groff -me -Tps > /tmp/qtdoc-0.98-letter.ps" ) || die;
+open( O, "| groff -me -Tps > /tmp/qtdoc-0.99-letter.ps" ) || die;
 print O $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-0.98-letter.ps\n";
+print "/tmp/qtdoc-0.99-letter.ps\n";
 
-open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-0.98-a4.ps |" )
+open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-0.99-a4.ps |" )
     || die;
 $_ = <I>;
 close I;
 s/\n%[^\n]*//gs; # strip all comments except the first - this isn't viewable
-open( O, "> /tmp/qtdoc-0.98-a4-2.ps" ) || die;
+open( O, "> /tmp/qtdoc-0.99-a4-2.ps" ) || die;
 print O $_;
 close O;
-print "/tmp/qtdoc-0.98-a4-2.ps\n";
+print "/tmp/qtdoc-0.99-a4-2.ps\n";
 
-open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-0.98-letter.ps |" )
+open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-0.99-letter.ps |" )
     || die;
 $_ = <I>;
 close I;
 s/\n%[^\n]*//gs; # strip all comments except the first - this isn't viewable
-open( O, "> /tmp/qtdoc-0.98-letter-2.ps" ) || die;
+open( O, "> /tmp/qtdoc-0.99-letter-2.ps" ) || die;
 print O $_;
 close O;
-print "/tmp/qtdoc-0.98-letter-2.ps\n";
+print "/tmp/qtdoc-0.99-letter-2.ps\n";
 
 foreach ( keys %delete ) {
     unlink $_ if ( -f $_ );
