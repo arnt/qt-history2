@@ -16,19 +16,21 @@
 #define QREGEXP_H
 
 #ifndef QT_H
-#include "qstringlist.h"
+#include "qstring.h"
 #endif // QT_H
 
 struct QRegExpPrivate;
+class QStringList;
 
 class Q_CORE_EXPORT QRegExp
 {
 public:
+    enum PatternSyntax { RegExp, Wildcard };
     enum CaretMode { CaretAtZero, CaretAtOffset, CaretWontMatch };
 
     QRegExp();
     explicit QRegExp(const QString &pattern, QString::CaseSensitivity cs = QString::CaseSensitive,
-		     bool wildcard = false);
+		     PatternSyntax syntax = RegExp);
     QRegExp(const QRegExp &rx);
     ~QRegExp();
     QRegExp &operator=(const QRegExp &rx);
@@ -40,14 +42,29 @@ public:
     bool isValid() const;
     QString pattern() const;
     void setPattern(const QString &pattern);
-    bool caseSensitive() const;
-    void setCaseSensitive(bool sensitive);
-#ifndef QT_NO_REGEXP_WILDCARD
-    bool wildcard() const;
-    void setWildcard(bool wildcard);
+    QString::CaseSensitivity caseSensitivity() const;
+    void setCaseSensitivity(QString::CaseSensitivity cs);
+#ifdef QT_COMPAT
+    inline QT_COMPAT bool caseSensitive() const { return caseSensitivity() == QString::CaseSensitive; }
+    inline QT_COMPAT void setCaseSensitive(bool sensitive)
+    { setCaseSensitive(sensitive ? QString::CaseSensitive : QString::CaseInsensitive); }
 #endif
-    bool minimal() const;
-    void setMinimal(bool minimal);
+#ifndef QT_NO_REGEXP_WILDCARD
+    PatternSyntax patternSyntax() const;
+    void setPatternSyntax(PatternSyntax syntax);
+#ifdef QT_COMPAT
+    inline QT_COMPAT bool wildcard() const { return patternSyntax() == Wildcard; }
+    inline QT_COMPAT void setWildcard(bool wildcard)
+    { setPatternSyntax(wildcard ? Wildcard : RegExp); }
+#endif
+#endif
+
+    bool isMinimalMatching() const;
+    void setMinimalMatching(bool minimal);
+#ifdef QT_COMPAT
+    inline QT_COMPAT bool minimal() const { return isMinimalMatching(); }
+    inline QT_COMPAT void setMinimal(bool minimal) { setMinimalMatching(minimal); }
+#endif
 
     bool exactMatch(const QString &str) const;
 
@@ -65,7 +82,12 @@ public:
     static QString escape(const QString &str);
 
 #ifdef QT_COMPAT
-    QRegExp(const QString &pattern, bool caseSensitive, bool wildcard = false);
+    inline QRegExp(const QString &pattern, bool cs, bool wildcard = false)
+    {
+        new (this)
+            QRegExp(pattern, cs ? QString::CaseSensitive : QString::CaseInsensitive,
+                    wildcard ? Wildcard : RegExp);
+    }
 #endif
 
 private:

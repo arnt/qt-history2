@@ -16,11 +16,10 @@
 
 #include "qbitarray.h"
 #include "qcache.h"
-#include "qcleanuphandler.h"
 #include "qmap.h"
 #include "qlist.h"
 #include "qvector.h"
-#include "qstring.h"
+#include "qstringlist.h"
 #include "qalgorithms.h"
 
 #include "qthreadstorage.h"
@@ -350,7 +349,7 @@
     Note that quantifiers are "greedy". They will match as much text
     as they can. For example, \bold{0+} will match as many zeros as it
     can from the first zero it finds, e.g. '2.\underline{000}5'.
-    Quantifiers can be made non-greedy, see setMinimal().
+    Quantifiers can be made non-greedy, see setMinimalMatching().
 
     \target capturing-text
     \section1 Capturing Text
@@ -445,9 +444,9 @@
 
     Most command shells such as \e bash or \e cmd.exe support "file
     globbing", the ability to identify a group of files by using
-    wildcards. The setWildcard() function is used to switch between
-    regexp and wildcard mode. Wildcard matching is much simpler than
-    full regexps and has only four features:
+    wildcards. The setPatternSyntax() function is used to switch
+    between regexp and wildcard mode. Wildcard matching is much
+    simpler than full regexps and has only four features:
 
     \table
     \row \i \bold{c}
@@ -475,7 +474,7 @@
 
     \code
         QRegExp rx("*.txt");
-        rx.setWildcard(true);
+        rx.setPatternSyntax(QRegExp::Wildcard);
         rx.exactMatch("README.txt");        // returns true
         rx.exactMatch("welcome.txt.bak");   // returns false
     \endcode
@@ -500,12 +499,12 @@
     but can be applied to all the quantifiers in the pattern. For
     example, to match the Perl regexp \bold{ro+?m} requires:
     \code
-    QRegExp rx("ro+m");
-    rx.setMinimal(true);
+        QRegExp rx("ro+m");
+        rx.setMinimalMatching(true);
     \endcode
 
     The equivalent of Perl's \c{/i} option is
-    setCaseSensitive(false).
+    setCaseSensitivity(QString::CaseInsensitive).
 
     Perl's \c{/g} option can be emulated using a \link
     #cap_in_a_loop loop \endlink.
@@ -545,7 +544,7 @@
     Non-capturing parentheses are also supported, with the same
     (?:pattern) syntax.
 
-    See QStringList::split() and QStringList::join() for equivalents
+    See QString::split() and QStringList::join() for equivalents
     to Perl's split and join functions.
 
     Note: because C++ transforms \\'s they must be written \e twice in
@@ -653,11 +652,11 @@
     not very versatile -- the code will break if we add any more
     fields. A simpler and better solution is to look for the
     separator, '\\t' in this case, and take the surrounding text. The
-    QStringList split() function can take a separator string or regexp
+    QString::split() function can take a separator string or regexp
     as an argument and split a string accordingly.
 
     \code
-    QStringList field = QStringList::split("\t", str);
+	QStringList field = str.split("\t");
     \endcode
 
     Here field[0] is the company, field[1] the web address and so on.
@@ -665,11 +664,11 @@
     To imitate the matching of a shell we can use wildcard mode.
 
     \code
-    QRegExp rx("*.html");         // invalid regexp: * doesn't quantify anything
-    rx.setWildcard(true);         // now it's a valid wildcard regexp
-    rx.exactMatch("index.html");  // returns true
-    rx.exactMatch("default.htm"); // returns false
-    rx.exactMatch("readme.txt");  // returns false
+        QRegExp rx("*.html");
+        rx.setPatternSyntax(QRegExp::Wildcard);
+        rx.exactMatch("index.html");                // returns true
+        rx.exactMatch("default.htm");               // returns false
+        rx.exactMatch("readme.txt");                // returns false
     \endcode
 
     Wildcard matching can be convenient because of its simplicity, but
@@ -679,15 +678,16 @@
     also match 'test.html.bak'. A full regexp gives us the precision
     we need, \bold{.*\\.html?$}.
 
-    QRegExp can match case insensitively using setCaseSensitive(), and
-    can use non-greedy matching, see setMinimal(). By default QRegExp
-    uses full regexps but this can be changed with setWildcard().
-    Searching can be forward with search() or backward with
-    searchRev(). Captured text can be accessed using capturedTexts()
-    which returns a string list of all captured strings, or using
-    cap() which returns the captured string for the given index. The
-    pos() function takes a match index and returns the position in the
-    string where the match was made (or -1 if there was no match).
+    QRegExp can match case insensitively using setCaseSensitivity(),
+    and can use non-greedy matching, see setMinimalMatching(). By
+    default QRegExp uses full regexps but this can be changed with
+    setWildcard(). Searching can be forward with search() or backward
+    with searchRev(). Captured text can be accessed using
+    capturedTexts() which returns a string list of all captured
+    strings, or using cap() which returns the captured string for the
+    given index. The pos() function takes a match index and returns
+    the position in the string where the match was made (or -1 if
+    there was no match).
 
     \sa QRegExpValidator QString QStringList
 
@@ -895,12 +895,12 @@ public:
     };
 #endif
 
-    QRegExpEngine(QString::CaseSensitivity caseSensitive) { setup(caseSensitive); }
-    QRegExpEngine(const QString &rx, QString::CaseSensitivity caseSensitive);
+    QRegExpEngine(QString::CaseSensitivity cs) { setup(cs); }
+    QRegExpEngine(const QString &rx, QString::CaseSensitivity cs);
     ~QRegExpEngine();
 
     bool isValid() const { return valid; }
-    QString::CaseSensitivity caseSensitive() const { return cs; }
+    QString::CaseSensitivity caseSensitivity() const { return cs; }
     const QString &errorString() const { return yyError; }
     int numCaptures() const { return officialncap; }
     void match(const QString &str, int pos, bool minimal, bool oneTest, int caretIndex,
@@ -1007,7 +1007,7 @@ private:
 #endif
 
     enum { InitialState = 0, FinalState = 1 };
-    void setup(QString::CaseSensitivity caseSensitive);
+    void setup(QString::CaseSensitivity cs);
     int setupState(int match);
 
     /*
@@ -1215,9 +1215,9 @@ private:
     int mmOneTestMatchedLen; // length of partial match
 };
 
-QRegExpEngine::QRegExpEngine(const QString &rx, QString::CaseSensitivity caseSensitive)
+QRegExpEngine::QRegExpEngine(const QString &rx, QString::CaseSensitivity cs)
 {
-    setup(caseSensitive);
+    setup(cs);
     valid = (parse(rx.unicode(), rx.length()) == rx.length());
     if (!valid) {
 #ifndef QT_NO_REGEXP_OPTIM
@@ -3132,10 +3132,10 @@ struct QRegExpPrivate
     QString pattern; // regular-expression or wildcard pattern
     QString rxpattern; // regular-expression pattern
 #ifndef QT_NO_REGEXP_WILDCARD
-    bool wc : 1; // wildcard mode?
+    QRegExp::PatternSyntax patternSyntax : 1;
 #endif
-    bool min : 1; // minimal matching? (instead of maximal)
-    QString::CaseSensitivity cs : 1; // case sensitive?
+    bool min : 1;
+    QString::CaseSensitivity cs : 1;
 #ifndef QT_NO_REGEXP_CAPTURE
     QString t; // last string passed to QRegExp::search() or searchRev()
     QStringList capturedCache; // what QRegExp::capturedTexts() returned last
@@ -3150,7 +3150,7 @@ static QCache<QString, QRegExpEngine> engineCache;
 #endif
 
 static void regexpEngine(QRegExpEngine *&eng, const QString &pattern,
-                         QString::CaseSensitivity caseSensitive, bool deref)
+                         QString::CaseSensitivity cs, bool deref)
 {
 #if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD) || defined(QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION)
     engineCache.ensure_constructed();
@@ -3163,14 +3163,14 @@ static void regexpEngine(QRegExpEngine *&eng, const QString &pattern,
     if (!deref) {
 #if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD) || defined(QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION)
         eng = engineCache.take(pattern);
-        if (eng == 0 || eng->caseSensitive() != caseSensitive) {
+        if (eng == 0 || eng->caseSensitivity() != cs) {
             delete eng;
         } else {
             ++eng->ref;
             return;
         }
 #endif
-        eng = new QRegExpEngine(pattern, caseSensitive);
+        eng = new QRegExpEngine(pattern, cs);
         return;
     }
 
@@ -3192,7 +3192,7 @@ static void prepareEngine(QRegExpPrivate *priv)
 {
     if (priv->eng == 0) {
 #ifndef QT_NO_REGEXP_WILDCARD
-        if (priv->wc)
+        if (priv->patternSyntax == QRegExp::Wildcard)
             priv->rxpattern = wc2rx(priv->pattern);
         else
 #endif
@@ -3249,7 +3249,7 @@ QRegExp::QRegExp()
 {
     priv = new QRegExpPrivate;
 #ifndef QT_NO_REGEXP_WILDCARD
-    priv->wc = false;
+    priv->patternSyntax = RegExp;
 #endif
     priv->min = false;
     priv->cs = QString::CaseSensitive;
@@ -3259,44 +3259,22 @@ QRegExp::QRegExp()
     Constructs a regular expression object for the given \a pattern
     string. The pattern must be given using wildcard notation if \a
     wildcard is true (default is false). The pattern is case
-    sensitive, unless \a cs is Qt::CaseInsensitive. Matching is greedy
-    (maximal), but can be changed by calling setMinimal().
+    sensitive, unless \a cs is Qt::CaseInsensitive. Matching is
+    greedy (maximal), but can be changed by calling
+    setMinimalMatching().
 
-    \sa setPattern() setCaseSensitive() setWildcard() setMinimal()
+    \sa setPattern(), setCaseSensitivity(), setPatternSyntax(), setMinimalMatching()
 */
-QRegExp::QRegExp(const QString &pattern, QString::CaseSensitivity cs, bool wildcard)
+QRegExp::QRegExp(const QString &pattern, QString::CaseSensitivity cs, PatternSyntax syntax)
 {
     priv = new QRegExpPrivate;
     priv->pattern = pattern;
 #ifndef QT_NO_REGEXP_WILDCARD
-    priv->wc = wildcard;
+    priv->patternSyntax = syntax;
 #endif
     priv->min = false;
     priv->cs = cs;
 }
-
-#ifdef QT_COMPAT
-/*!
-    \overload
-
-    Constructs a regular expression object for the given \a pattern
-    string. The pattern must be given using wildcard notation if \a
-    wildcard is true (default is false). The pattern is not case
-    sensitive, unless \a caseSensitive is true.
-
-    \sa setPattern() setCaseSensitive() setWildcard() setMinimal()
-*/
-QRegExp::QRegExp(const QString &pattern, bool caseSensitive, bool wildcard)
-{
-    priv = new QRegExpPrivate;
-    priv->pattern = pattern;
-#ifndef QT_NO_REGEXP_WILDCARD
-    priv->wc = wildcard;
-#endif
-    priv->min = false;
-    priv->cs = caseSensitive ? QString::CaseSensitive : QString::CaseInsensitive;
-}
-#endif
 
 /*!
     Constructs a regular expression as a copy of \a rx.
@@ -3320,7 +3298,7 @@ QRegExp::~QRegExp()
 
 /*!
     Copies the regular expression \a rx and returns a reference to the
-    copy. The case sensitivity, wildcard and minimal matching options
+    copy. The case sensitivity, wildcard, and minimal matching options
     are also copied.
 */
 QRegExp &QRegExp::operator=(const QRegExp &rx)
@@ -3333,7 +3311,7 @@ QRegExp &QRegExp::operator=(const QRegExp &rx)
     priv->pattern = rx.priv->pattern;
     priv->rxpattern = rx.priv->rxpattern;
 #ifndef QT_NO_REGEXP_WILDCARD
-    priv->wc = rx.priv->wc;
+    priv->patternSyntax = rx.priv->patternSyntax;
 #endif
     priv->min = rx.priv->min;
     priv->cs = rx.priv->cs;
@@ -3357,7 +3335,7 @@ bool QRegExp::operator==(const QRegExp &rx) const
 {
     return priv->pattern == rx.priv->pattern &&
 #ifndef QT_NO_REGEXP_WILDCARD
-           priv->wc == rx.priv->wc &&
+           priv->patternSyntax == rx.priv->patternSyntax &&
 #endif
            priv->min == rx.priv->min &&
            priv->cs == rx.priv->cs;
@@ -3418,7 +3396,7 @@ bool QRegExp::isValid() const
 /*!
     Returns the pattern string of the regular expression. The pattern
     has either regular expression syntax or wildcard syntax, depending
-    on wildcard().
+    on patternSyntax().
 
     \sa setPattern()
 */
@@ -3442,61 +3420,61 @@ void QRegExp::setPattern(const QString &pattern)
 }
 
 /*!
-    Returns true if case sensitivity is enabled; otherwise returns
-    false. The default is true.
+    Returns \c QString::CaseSensitive if the regexp is matched case
+    sensitively; otherwise returns \c QString::CaseInsensitive.
 
-    \sa setCaseSensitive()
+    \sa setCaseSensitivy()
 */
-bool QRegExp::caseSensitive() const
+QString::CaseSensitivity QRegExp::caseSensitivity() const
 {
-    return priv->cs == QString::CaseSensitive ? true : false;
+    return priv->cs;
 }
 
 /*!
-    Sets case sensitive matching to \a sensitive.
+    Sets case sensitive matching to \a cs.
 
-    If \a sensitive is true, \bold{\\.txt$} matches \c{readme.txt} but
-    not \c{README.TXT}.
+    If \a sensitive is \c QString::CaseSensitive, \bold{\\.txt$}
+    matches \c{readme.txt} but not \c{README.TXT}.
 
-    \sa caseSensitive()
+    \sa caseSensitivy()
 */
-void QRegExp::setCaseSensitive(bool sensitive)
+void QRegExp::setCaseSensitivity(QString::CaseSensitivity cs)
 {
-    if (sensitive != (priv->cs == QString::CaseSensitive)) {
-        priv->cs = sensitive ? QString::CaseSensitive : QString::CaseInsensitive;
+    if ((bool)cs != (bool)priv->cs) {
+        priv->cs = cs;
         invalidateEngine(priv);
     }
 }
 
 #ifndef QT_NO_REGEXP_WILDCARD
 /*!
-    Returns true if wildcard mode is enabled; otherwise returns false.
-    The default is false.
+    Returns \c Wildcard if wildcard mode is enabled; otherwise
+    returns \c RegExp. The default is \c RegExp.
 
-    \sa setWildcard()
+    \sa setPatternSyntax()
 */
-bool QRegExp::wildcard() const
+QRegExp::PatternSyntax QRegExp::patternSyntax() const
 {
-    return priv->wc;
+    return priv->patternSyntax;
 }
 
 /*!
     Sets the wildcard mode for the regular expression. The default is
-    false.
+    \c RegExp.
 
-    Setting \a wildcard to true enables simple shell-like wildcard
-    matching. (See \link #wildcard-matching wildcard matching
-    (globbing) \endlink.)
+    Setting \a syntax to \c Wildcard enables simple shell-like
+    wildcard matching. (See \link #wildcard-matching wildcard
+    matching (globbing) \endlink.)
 
     For example, \bold{r*.txt} matches the string \c{readme.txt} in
     wildcard mode, but does not match \c{readme}.
 
-    \sa wildcard(), exactMatch()
+    \sa patternSyntax(), exactMatch()
 */
-void QRegExp::setWildcard(bool wildcard)
+void QRegExp::setPatternSyntax(PatternSyntax syntax)
 {
-    if (wildcard != priv->wc) {
-        priv->wc = wildcard;
+    if ((bool)syntax != (bool)priv->patternSyntax) {
+        priv->patternSyntax = syntax;
         invalidateEngine(priv);
     }
 }
@@ -3506,9 +3484,9 @@ void QRegExp::setWildcard(bool wildcard)
     Returns true if minimal (non-greedy) matching is enabled;
     otherwise returns false.
 
-    \sa setMinimal()
+    \sa setMinimalMatching()
 */
-bool QRegExp::minimal() const
+bool QRegExp::isMinimalMatching() const
 {
     return priv->min;
 }
@@ -3528,9 +3506,9 @@ bool QRegExp::minimal() const
     \bold{<b>[^<]*\</b>} instead, although this will still fail for
     nested tags.
 
-    \sa minimal()
+    \sa isMinimalMatching()
 */
-void QRegExp::setMinimal(bool minimal)
+void QRegExp::setMinimalMatching(bool minimal)
 {
     priv->min = minimal;
 }
@@ -3599,8 +3577,8 @@ bool QRegExp::exactMatch(const QString &str) const
     Although const, this function sets matchedLength(),
     capturedTexts() and pos().
 
-    If the QRegExp is a wildcard expression (see setWildcard()) and
-    want to test a string against the whole wildcard expression,
+    If the QRegExp is a wildcard expression (see setPatternSyntax())
+    and want to test a string against the whole wildcard expression,
     use exactMatch() instead of this function.
 
     \sa searchRev(), exactMatch()
