@@ -675,14 +675,6 @@ void QTextEdit::init()
     viewport()->setFocusPolicy( WheelFocus );
     viewport()->installEventFilter( this );
     installEventFilter( this );
-
-#if 0 // ### background paper test code
-    QBrush *b = new QBrush( red, QPixmap( "/home/reggie/kde2/share/wallpapers/All-Good-People-1.jpg" ) );
-    doc->setPaper( b );
-    QPalette pal( palette() );
-    pal.setBrush( QColorGroup::Base, *b );
-    setPalette( pal );
-#endif
 }
 
 void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw, int ch )
