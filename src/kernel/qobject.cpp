@@ -1567,28 +1567,38 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 
   disconnect() is typically used in three ways, as the following examples
   show.
-
   <ol>
   <li> Disconnect everything connected to an object's signals:
   \code
-    disconnect( myObject );
+    disconnect( myObject, 0, 0, 0 );
   \endcode
-  <li> Disconnect everything connected to a signal:
+  equivalent to the non-static overloaded function
   \code
-    disconnect( myObject, SIGNAL(mySignal()) );
+    myObject->disconnect();
+  \endcode
+  <li> Disconnect everything connected to a specific signal:
+  \code
+    disconnect( myObject, SIGNAL(mySignal()), 0, 0 );
+  \endcode
+  equivalent to the non-static overloaded function
+  \code
+    myObject->disconnect( SIGNAL(mySignal()) );
   \endcode
   <li> Disconnect a specific receiver.
   \code
     disconnect( myObject, 0, myReceiver, 0 );
   \endcode
+  equivalent to the non-static overloaded function
+  \code
+    myObject->disconnect(  myReceiver );
+  \endcode
   </ol>
 
-  0 may be used as a wildcard in three of the four arguments, meaning
-  "any signal", "any receiving object" or "any slot in the receiving
-  object" respectively.
+  0 may be used as a wildcard, meaning "any signal", "any receiving
+  object" or "any slot in the receiving object" respectively.
 
-  The \e sender has no default and may never be 0.  (You cannot
-  disconnect signals from more than one object.)
+  The \e sender may never be 0.  (You cannot disconnect signals from
+  more than one object.)
 
   If \e signal is 0, it disconnects \e receiver and \e member from any
   signal.  If not, only the specified signal is disconnected.
