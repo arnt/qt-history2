@@ -336,6 +336,7 @@ QWhatsThisPrivate::QWhatsThisPrivate()
 {
     instance = this;
     qApp->installEventFilter(this);
+    QApplication::setOverrideCursor(whatsThisCursor, FALSE);
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::ContextHelpStart );
 #endif
@@ -345,6 +346,7 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 {
     if (button)
 	button->setOn(false);
+    QApplication::restoreOverrideCursor();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::ContextHelpEnd );
 #endif
