@@ -260,7 +260,6 @@ MainWindow::MainWindow( bool asClient )
     delete w;
 
     statusBar()->setSizeGripEnabled( TRUE );
-
 }
 
 MainWindow::~MainWindow()
@@ -518,12 +517,13 @@ void MainWindow::setupSerachActions()
     actionSearchGotoLine->setEnabled( FALSE );
 
 #if defined(HAVE_KDE)
-    KToolBar *tb = new KToolBar( this, "Edit" );
+    KToolBar *tb = new KToolBar( this, "Search" );
     tb->setFullSize( FALSE );
 #else
-    QToolBar *tb = new QToolBar( this, "Edit" );
+    QToolBar *tb = new QToolBar( this, "Search" );
     tb->setCloseMode( QDockWindow::Undocked );
 #endif
+    addToolBar( tb, tr( "Search" ) );
 
     actionSearchFind->addTo( tb );
     incrementalSearch = new QLineEdit( tb );
@@ -3548,44 +3548,16 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + "View/HierarchyView", actionWindowHierarchyView->isOn() );
     config.writeEntry( keybase + "View/FormList", actionWindowFormList->isOn() );
 
-    QList<QToolBar> tbl;
-    ToolBarDock da[] = { Left, Right, Top, Bottom, Minimized, TornOff };
-    QMap< QString, int > docks;
-    QMap< QString, int > indices;
-    QMap< QString, int > nls;
-    QMap< QString, int > eos;
-    int j = 0;
-    int i;
-    for ( i = 0; i < 6; ++i ) {
-	tbl = toolBars( da[ i ] );
-	QToolBar *tb = tbl.first();
-	while ( tb ) {
-	    ToolBarDock dock;
-	    int index;
-	    bool nl;
-	    int extraOffset;
-	    if ( getLocation( tb, dock, index, nl, extraOffset ) ) {
-		docks[ QString::number( j ) + tb->label() ] = dock;
-		indices[ QString::number( j ) + tb->label() ] = index;
-		nls[ QString::number( j ) + tb->label() ] = nl;
-		eos[ QString::number( j ) + tb->label() ] = extraOffset;
-		++j;
-	    }
-	    tb = tbl.next();
-	}
-    }
-    QString fn = QDir::homeDirPath() + "/.designerrc";
-    QFile file( fn + "tb" );
-    file.open( IO_WriteOnly );
-    QDataStream s( &file );
-    s << docks;
-    s << indices;
-    s << nls;
-    s << eos;
+    QString fn = QDir::homeDirPath() + "/.designerrctb2";
+    QFile f( fn );
+    f.open( IO_WriteOnly );
+    QTextStream ts( &f );
+    ts << *this;
+    f.close();
 
     QList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
     config.writeEntry( keybase + "CustomWidgets/num", (int)lst->count() );
-    j = 0;
+    int j = 0;
     QDir::home().mkdir( ".designer" );
     for ( MetaDataBase::CustomWidget *w = lst->first(); w; w = lst->next() ) {
 	QStringList l;
@@ -3767,31 +3739,16 @@ void MainWindow::readConfig()
 	s >> eos;
     }
 
-    if ( tbconfig ) {
-	QMap< QString, int >::Iterator dit, iit;
-	QMap< QString, int >::Iterator nit, eit;
-	dit = docks.begin();
-	iit = indices.begin();
-	nit = nls.begin();
-	eit = eos.begin();
-	QObjectList *l = queryList( "QToolBar" );
-	if ( !l )
-	    return;
-	for ( ; dit != docks.end(); ++dit, ++iit, ++nit, ++eit ) {
-	    QString n = dit.key();
-	    while ( n[ 0 ].isNumber() )
-		n.remove( 0, 1 );
-	    QToolBar *tb = 0;
-	    for ( tb = (QToolBar*)l->first(); tb; tb = (QToolBar*)l->next() ) {
-		if ( tb->label() == n )
-		    break;
-	    }
-	    if ( !tb )
-		continue;
-	    moveToolBar( tb, (ToolBarDock)*dit, (bool)*nit, *iit, *eit );
-	}
-	delete l;
-    }
+     if ( tbconfig ) {
+	 QApplication::sendPostedEvents();
+	 QString fn = QDir::homeDirPath() + "/.designerrc" + "tb2";
+	 QFile f( fn );
+	 if ( f.open( IO_ReadOnly ) ) {
+	     QTextStream ts( &f );
+	     ts >> *this;
+	     f.close();
+	 }
+     }
 
     rebuildCustomWidgetGUI();
 }
