@@ -1683,7 +1683,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
                                   int pressure, int xTilt, int yTilt,
 				  const QPair<int,int> &uId )
   Construct a tablet event of type \a t.  The position of when the event occurred is given
-  int \a pos and \a globalPos.  \a Device contains the \link TabletDevice device type\endlink,
+  int \a pos and \a globalPos.  \a device contains the \link TabletDevice device type\endlink,
   \a pressure contains the pressure exerted on the \a device, \a xTilt and \a yTilt contain
   \a device's degree of tilt from the X and Y axis respectively.  The \a uId contains an
   event id.
