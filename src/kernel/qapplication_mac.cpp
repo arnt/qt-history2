@@ -1113,7 +1113,6 @@ static key_sym key_syms[] = {
 { kHelpCharCode, MAP_KEY(Qt::Key_Help) },
 { kDeleteCharCode, MAP_KEY(Qt::Key_Delete) },
 //ascii maps, for debug
-{ '-', MAP_KEY(Qt::Key_hyphen) },
 { ':', MAP_KEY(Qt::Key_Colon) },
 { ';', MAP_KEY(Qt::Key_Semicolon) },
 { '<', MAP_KEY(Qt::Key_Less) },
@@ -1168,14 +1167,6 @@ static int get_key(int key)
 #ifdef DEBUG_KEY_MAPS
     qDebug("**Mapping key: %d", key);
 #endif
-    for(int i = 0; key_syms[i].qt_code; i++) {
-	if(key_syms[i].mac_code == key) {
-#ifdef DEBUG_KEY_MAPS
-	    qDebug("got key: %s", key_syms[i].desc);
-#endif
-	    return key_syms[i].qt_code;
-	}
-    }
 
     //general cases..
     if(key >= '0' && key <= '9') {
@@ -1184,12 +1175,22 @@ static int get_key(int key)
 #endif
 	return (key - '0') + Qt::Key_0;
     }
-    char tup = toupper(key);
-    if(tup >= 'A' && tup <= 'Z') {
+
+    if((key >= 'A' && key <= 'Z') || (key >= 'a' && key <= 'z')) {
+	char tup = toupper(key);
 #ifdef DEBUG_KEY_MAPS
 	qDebug("General case Qt::Key_%c %d", tup, (tup - 'A') + Qt::Key_A);
 #endif
 	return (tup - 'A') + Qt::Key_A;
+    }
+
+    for(int i = 0; key_syms[i].qt_code; i++) {
+	if(key_syms[i].mac_code == key) {
+#ifdef DEBUG_KEY_MAPS
+	    qDebug("got key: %s", key_syms[i].desc);
+#endif
+	    return key_syms[i].qt_code;
+	}
     }
 
 #ifdef DEBUG_KEY_MAPS
@@ -1800,7 +1801,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		}
 	    }
 	    if(!isAccel) {
-		if((modifiers & Qt::ControlButton) && mychar == ' ') { //eat it
+		if((modifiers & Qt::ControlButton) && mychar == Key_Space) { //eat it
 		    if(etype == QEvent::KeyPress) {
 			QIMEvent event(QEvent::IMStart, QString::null, -1);
 			QApplication::sendSpontaneousEvent(widget, &event);
