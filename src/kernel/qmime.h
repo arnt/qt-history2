@@ -135,10 +135,6 @@ public:
 #endif
 #if defined(Q_WS_MAC)
 
-#ifndef QT_H
-#include "qptrlist.h" // down here for GCC 2.7.* compatibility
-#endif // QT_H
-
 /*
   Encapsulation of conversion between MIME and Mac flavor.
   Not need on X11, as the underlying protocol uses the MIME standard

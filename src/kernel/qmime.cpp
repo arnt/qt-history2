@@ -22,8 +22,6 @@
 #include "qdir.h"
 #include "qdragobject.h"
 #include "qcleanuphandler.h"
-#include "qapplication.h" // ### for now
-#include "qclipboard.h" // ### for now
 
 /*!
     \class QMimeSource qmime.h
@@ -100,8 +98,8 @@ QMimeSource::~QMimeSource()
 
 
 /*!
-    Returns TRUE if the object can provide the data in format \a
-    mimeType; otherwise returns FALSE.
+    Returns true if the object can provide the data in format \a
+    mimeType; otherwise returns false.
 
     If you inherit from QMimeSource, for consistency reasons it is
     better to implement the more abstract canDecode() functions such
@@ -112,9 +110,9 @@ bool QMimeSource::provides(const char* mimeType) const
     const char* fmt;
     for (int i=0; (fmt = format(i)); i++) {
 	if ( !qstricmp(mimeType,fmt) )
-	    return TRUE;
+	    return true;
     }
-    return FALSE;
+    return false;
 }
 
 
@@ -147,7 +145,7 @@ public:
     QMap<QString, QString> extensions;
     QStringList path;
     QMimeSource* last;
-    QPtrList<QMimeSourceFactory> factories;
+    QList<QMimeSourceFactory*> factories;
 };
 
 
@@ -248,7 +246,7 @@ QMimeSource* QMimeSourceFactory::dataInternal(const QString& abs_name, const QMa
     if ( fi.isReadable() ) {
 
 	// get the right mimetype
-	QString e = fi.extension(FALSE);
+	QString e = fi.extension(false);
 	QByteArray mimetype("application/octet-stream");
 	const char* imgfmt;
 	if ( extensions.contains(e) )
@@ -322,12 +320,12 @@ QMimeSource* QMimeSourceFactory::dataInternal(const QString& abs_name, const QMa
     to use the mime source factory to access URL referenced data over
     a network.
 */
-const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
+const QMimeSource *QMimeSourceFactory::data(const QString& abs_name) const
 {
     if ( d->stored.contains(abs_name) )
 	return d->stored[abs_name];
 
-    QMimeSource* r = 0;
+    const QMimeSource *r = 0;
     if (abs_name.isEmpty())
 	return r;
     QStringList::Iterator it;
@@ -350,7 +348,7 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
 	}
     }
 
-    static bool looping = FALSE;
+    static bool looping = false;
     if ( !r && this == defaultFactory() ) {
 	// we found no mime-source and we are the default factory, so
 	// we know all the other installed mime-source factories, so
@@ -358,31 +356,29 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
 	if ( !looping ) {
 	    // to avoid endless recustions, don't enter the loop below
 	    // if data() got called from within the loop below
-	    looping = TRUE;
-	    QPtrListIterator<QMimeSourceFactory> it( d->factories );
-	    QMimeSourceFactory *f;
-	    while ( ( f = it.current() ) ) {
-		++it;
-		if ( f == this )
+	    looping = true;
+	    for (int i = 0; i < d->factories.size(); ++i) {
+		const QMimeSourceFactory *f = d->factories.at(i);
+		if (f == this)
 		    continue;
-		r = (QMimeSource*)f->data( abs_name );
-		if ( r ) {
-		    looping = FALSE;
+		r = static_cast<const QMimeSource *>(f->data(abs_name));
+		if (r) {
+		    looping = false;
 		    return r;
 		}
 	    }
-	    looping = FALSE;
+	    looping = false;
 	}
     } else if ( !r ) {
 	// we are not the default mime-source factory, so ask the
 	// default one for the mime-source, as this one will loop over
 	// all installed mime-source factories and ask these
-	r = (QMimeSource*)defaultFactory()->data( abs_name );
+	r = static_cast<const QMimeSource *>(defaultFactory()->data(abs_name));
     }
 
 
     delete d->last;
-    d->last = r;
+    d->last = const_cast<QMimeSource *>(r);
     return r;
 }
 
@@ -444,7 +440,7 @@ QString QMimeSourceFactory::makeAbsolute(const QString& abs_or_rel_name, const Q
 	return context;
     QFileInfo c( context );
     if (!c.isDir()) {
-	QFileInfo r( c.dir(TRUE), abs_or_rel_name );
+	QFileInfo r( c.dir(true), abs_or_rel_name );
 	return r.absFilePath();
     } else {
 	QDir d(context);
@@ -585,7 +581,7 @@ void QMimeSourceFactory::addFactory( QMimeSourceFactory *f )
 
 void QMimeSourceFactory::removeFactory( QMimeSourceFactory *f )
 {
-    QMimeSourceFactory::defaultFactory()->d->factories.removeRef( f );
+    QMimeSourceFactory::defaultFactory()->d->factories.remove(f);
 }
 
 #endif // QT_NO_MIME
