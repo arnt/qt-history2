@@ -248,8 +248,12 @@ int QTextDocument::numPages() const
 
 
 /*!
-    Insert the arbitrary piece of HTML formatted text in \a html into
-    the document at the current cursor position.
+    Clears the text and replaces it with the arbitrary piece of HTML
+    formatted text in the \a html string.
+
+    The HTML formatting is respected as much as possible, i.e.
+    "<b>bold</b> text" will have the text "bold text" with the first
+    word having a character format with a bold font weight.
 */
 void QTextDocument::setHtml(const QString &html)
 {

@@ -609,7 +609,15 @@ bool QTextCursor::movePosition(MoveOperation op, MoveMode mode, int n)
     character format.
 
     If there is a selection, the selection is deleted and replaced by
-    \a text.
+    \a text, for example:
+    \code
+    cursor.clearSelection();
+    cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+    cursor.insertText("Hello World");
+    \endcode
+    This clears any existing selection, selects the word at the cursor
+    (i.e. from position() forward), and replaces the selection with
+    the phrase "Hello World".
 
     \sa charFormat() hasSelection()
 */
