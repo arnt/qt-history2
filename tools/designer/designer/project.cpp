@@ -205,7 +205,11 @@ void Project::setUiFiles( const QStringList &lst )
 
 bool Project::isValid() const
 {
-    return TRUE; // #### do actual checking here....
+     // #### do more checking here?
+    if ( filename.isEmpty() || proName.isEmpty() )
+	return FALSE;
+
+    return TRUE;
 }
 
 bool Project::hasFormWindow( FormWindow* fw ) const
@@ -247,8 +251,9 @@ QString Project::makeRelative( const QString &f )
 
 void Project::save()
 {
-    if ( proName == "<No Project>" )
+    if ( proName == "<No Project>" || filename.isEmpty() )
 	return;
+
     QFile f( filename );
     QString contents;
     if ( f.open( IO_ReadOnly ) ) {
@@ -434,8 +439,10 @@ void Project::saveConnections()
     if ( inSaveConnections )
 	return;
     inSaveConnections = TRUE;
-    if ( !QFile::exists( dbFile ) )
-	setDatabaseDescription( QFileInfo( filename ).dirPath( TRUE ) + "/" + "database.db" );
+    if ( !QFile::exists( dbFile ) ) {
+	QFileInfo fi( fileName() );
+	setDatabaseDescription( fi.baseName() + ".db" );
+    }
 
     Config conf( dbFile );
     conf.setGroup( "Connections" );
