@@ -362,8 +362,9 @@ QString qt_win_get_open_file_name(const QString &initialSelection,
 
     fi = result;
     *initialDirectory = fi.path();
-    *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
-    return fi.absolutePath();
+    if (selectedFilter)
+        *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
+    return fi.absoluteFilePath();
 }
 
 QString qt_win_get_save_file_name(const QString &initialSelection,
@@ -446,8 +447,9 @@ QString qt_win_get_save_file_name(const QString &initialSelection,
 
     fi = result;
     *initialDirectory = fi.path();
-    *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
-    return fi.absolutePath();
+    if (selectedFilter)
+        *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
+    return fi.absoluteFilePath();
 }
 
 QStringList qt_win_get_open_file_names(const QString &filter,
@@ -504,7 +506,7 @@ QStringList qt_win_get_open_file_names(const QString &filter,
             if (ofn->lpstrFile[offset] == 0) {
                 // Only one file selected; has full path
                 fi.setFile(fileOrDir);
-                QString res = fi.absolutePath();
+                QString res = fi.absoluteFilePath();
                 if (!res.isEmpty())
                     result.append(res);
             }
@@ -514,7 +516,7 @@ QStringList qt_win_get_open_file_names(const QString &filter,
                 QString f;
                 while(!(f = QString::fromUtf16((ushort*)ofn->lpstrFile+offset)).isEmpty()) {
                     fi.setFile(dir, f);
-                    QString res = fi.absolutePath();
+                    QString res = fi.absoluteFilePath();
                     if (!res.isEmpty())
                         result.append(res);
                     offset += f.length() + 1;
@@ -536,7 +538,7 @@ QStringList qt_win_get_open_file_names(const QString &filter,
             if (ofn->lpstrFile[offset] == '\0') {
                 // Only one file selected; has full path
                 fi.setFile(QString::fromLocal8Bit(fileOrDir));
-                QString res = fi.absolutePath();
+                QString res = fi.absoluteFilePath();
                 if (!res.isEmpty())
                     result.append(res);
             }
@@ -546,7 +548,7 @@ QStringList qt_win_get_open_file_names(const QString &filter,
                 QByteArray f;
                 while (!(f = QByteArray(ofn->lpstrFile + offset)).isEmpty()) {
                     fi.setFile(dir, QString::fromLocal8Bit(f));
-                    QString res = fi.absolutePath();
+                    QString res = fi.absoluteFilePath();
                     if (!res.isEmpty())
                         result.append(res);
                     offset += f.length() + 1;
@@ -565,7 +567,8 @@ QStringList qt_win_get_open_file_names(const QString &filter,
 
     if (!result.isEmpty()) {
         *initialDirectory = fi.path();    // only save the path if there is a result
-        *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
+        if (selectedFilter)
+            *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
     }
     return result;
 }
