@@ -164,7 +164,8 @@ Directory::Directory( Directory * parent, const QString& filename )
 
 Directory::Directory( QListView * parent, const QString& filename )
     : QListViewItem( parent ), f(filename),
-      showDirsOnly( ( (DirectoryView*)parent )->showDirsOnly() )
+      showDirsOnly( ( (DirectoryView*)parent )->showDirsOnly() ),
+      pix( 0 )
 {
     p = 0;
     readable = QDir( fullName() ).isReadable();
