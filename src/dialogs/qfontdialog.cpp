@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QFontDialog
 **
@@ -540,7 +540,7 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 #endif
 
 #ifdef SHOW_FONTS_IN_FAMILIES
-#include <qpainter.h>
+#include "qpainter.h"
 
 class QListBoxFontText : public QListBoxText
 {

@@ -64,7 +64,7 @@
 #include "qptrdict.h"
 #include "qstringlist.h"
 #include "qcleanuphandler.h"
-#include <private/qrichtext_p.h>
+#include "private/qrichtext_p.h"
 
 #include <stdlib.h>
 #include <math.h>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Japanese Font utilities for X11
 **
@@ -35,7 +35,7 @@
 **
 **********************************************************************/
 
-#include <private/qfontcodecs_p.h>
+#include "private/qfontcodecs_p.h"
 
 #ifndef QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS

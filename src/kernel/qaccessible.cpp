@@ -5,8 +5,8 @@
 #include "qptrdict.h"
 #include "qmetaobject.h"
 #include "qpluginmanager.h"
-#include "stdlib.h"
 #include "qapplication.h"
+#include <stdlib.h>
 
 /*!
   \class QAccessible qaccessible.h

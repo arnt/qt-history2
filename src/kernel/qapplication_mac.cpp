@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Mac startup routines and event handling
 **
@@ -28,17 +28,14 @@
 **********************************************************************/
 
 // NOT REVISED
-#include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include "qglobal.h"
 #include "qt_mac.h"
 
 #include "qapplication.h"
-#include <private/qapplication_p.h>
-#include <private/qcolor_p.h>
+#include "private/qapplication_p.h"
+#include "private/qcolor_p.h"
 #include "qwidget.h"
-#include <private/qwidget_p.h>
+#include "private/qwidget_p.h"
 #include "qobjectlist.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
@@ -61,6 +58,11 @@
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 #include "qmenubar.h"
 #endif
+
+#include <errno.h>
+#include <stdlib.h>
+#include <stdio.h>
+
 
 /*****************************************************************************
   QApplication debug facilities

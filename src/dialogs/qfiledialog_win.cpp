@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QFileDialog Windows-specific functionality
 **
@@ -32,7 +32,7 @@
 #ifndef QT_NO_FILEDIALOG
 
 #include "qapplication.h"
-#include <private/qapplication_p.h>
+#include "private/qapplication_p.h"
 #include "qt_windows.h"
 #include "qregexp.h"
 #include "qbuffer.h"

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QTextCodec class
 **
@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qrtlcodec.h"
-#include <private/qcomplextext_p.h>
+#include "private/qcomplextext_p.h"
 
 #ifndef QT_NO_CODECS
 

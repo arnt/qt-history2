@@ -49,11 +49,11 @@
 #include "qclipboard.h"
 #include "qcursor.h"
 #include "qstylefactory.h"
-#include <stdlib.h>
 #include "qcomponentfactory.h"
+#include <stdlib.h>
 
 #if defined(QT_REMOTE_CONTROL)
-#include <private/qremotecontrol_p.h>
+#include "private/qremotecontrol_p.h"
 #endif
 
 #if defined(QT_THREAD_SUPPORT)
@@ -61,7 +61,7 @@
 #endif
 
 #if defined( Q_OS_WIN32 )
-#include <qwinfunctions.h>
+#include "qwinfunctions.h"
 #endif
 
 
