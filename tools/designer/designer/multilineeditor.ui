@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>485</width>
+            <width>598</width>
             <height>307</height>
         </rect>
     </property>
@@ -90,7 +90,7 @@
                             </property>
                         </widget>
                         <spacer>
-                            <property name="name" stdset="0">
+                            <property name="name">
                                 <cstring>Spacer3</cstring>
                             </property>
                             <property name="orientation">
@@ -155,14 +155,11 @@
         <slot>helpClicked()</slot>
     </connection>
 </connections>
-<includes>
-    <include location="local" impldecl="in implementation">multilineeditor.ui.h</include>
-</includes>
 <slots>
-    <slot access="">applyClicked()</slot>
-    <slot access="">okClicked()</slot>
-    <slot access="">cancelClicked()</slot>
-    <slot access="">helpClicked()</slot>
+    <slot>applyClicked()</slot>
+    <slot>okClicked()</slot>
+    <slot>cancelClicked()</slot>
+    <slot>helpClicked()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -32,15 +32,15 @@ SyntaxHighlighter_HTML::SyntaxHighlighter_HTML()
     QString normalFamily = qApp->font().family();
     QString commentFamily = "times";
     int normalWeight = qApp->font().weight();
-    
+
     addFormat( Standard,
 	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::black ) );
     addFormat( Keyword,
-	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::red ) );
+	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkRed ) );
     addFormat( Attribute,
-	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::green ) );
+	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkGreen ) );
     addFormat( AttribValue,
-	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::magenta ) );
+	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkYellow ) );
 
 }
 
@@ -55,24 +55,24 @@ void SyntaxHighlighter_HTML::process( QTextDocument *doc, QTextParag *string, in
     QTextFormat *formatKeyword = format( Keyword );
     QTextFormat *formatAttribute = format( Attribute );
     QTextFormat *formatAttribValue = format( AttribValue );
-    
+
     const int StateStandard  = 0;
     const int StateTag       = 1;
     const int StateAttribute = 2;
-    const int StateAttribVal = 3;    
-    
+    const int StateAttribVal = 3;
+
     QString buffer = "";
 
     int state = StateStandard;
-    
-    
+
+
     if ( string->prev() ) {
 	if ( string->prev()->endState() == -1 )
 	    process( doc, string->prev(), 0, FALSE );
 	state = string->prev()->endState();
     }
-    
-        
+
+
     int i = 0;
     for ( ;; ) {
 	QChar c = string->at( i )->c;
@@ -111,7 +111,7 @@ void SyntaxHighlighter_HTML::process( QTextDocument *doc, QTextParag *string, in
 	}
 	else if ( state == StateAttribute ) {
 	    buffer += c;
-	    string->setFormat( i, 1, formatAttribute, FALSE );	    
+	    string->setFormat( i, 1, formatAttribute, FALSE );	
 	}
 	else if ( state == StateAttribVal ) {
 	    buffer += c;
@@ -124,7 +124,7 @@ void SyntaxHighlighter_HTML::process( QTextDocument *doc, QTextParag *string, in
 	else if ( state == StateStandard ) {
 	    string->setFormat( i, 1, formatStandard, FALSE );
 	}
-	    
+	
 	i++;	
 	if ( i >= string->length() )
 	    break;
