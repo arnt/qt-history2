@@ -46,7 +46,7 @@ void DatabaseSupport::initPreview( const QString &connection, const QString &tab
 	con = QSqlDatabase::database( connection );
     else
 	con = QSqlDatabase::database();
-    frm = new QSqlForm( o, table );
+    frm = new QSqlForm( o );
     for ( QMap<QString, QString>::Iterator it = dbControls.begin(); it != dbControls.end(); ++it ) {
 	QObject *chld = parent->child( it.key(), "QWidget" );
 	if ( !chld )
