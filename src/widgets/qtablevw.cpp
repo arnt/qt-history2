@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#78 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#77 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#78 $");
 
 
 const int sbDim = 16;
@@ -993,7 +993,7 @@ int QTableView::lastRowVisible() const
 {
     int cellMaxY;
     int row = findRawRow( maxViewY(), &cellMaxY );
-    if ( row == -1 ) {				// maxViewY() past end?
+    if ( row == -1 || row >= nRows ) {		// maxViewY() past end?
 	row = nRows - 1;			// yes: return last row
     } else {
 	if ( testTableFlags(Tbl_cutCellsV) && cellMaxY > maxViewY() ) {
@@ -1020,7 +1020,7 @@ int QTableView::lastColVisible() const
 {
     int cellMaxX;
     int col = findRawCol( maxViewX(), &cellMaxX );
-    if ( col == -1 ) {				// maxViewX() past end?
+    if ( col == -1 || col >= nCols ) {		// maxViewX() past end?
 	col = nCols - 1;			// yes: return last col
     } else {
 	if ( testTableFlags(Tbl_cutCellsH) && cellMaxX > maxViewX() ) {
