@@ -22,6 +22,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <stdlib.h>
 
 #define Q_FS_FAT
 #define QT_STATBUF	struct _stat		// non-ANSI defs
