@@ -46,7 +46,7 @@
 /*****************************************************************************
   QSettings debug facilities
  *****************************************************************************/
-#define DEBUG_SETTINGS_KEYS
+//#define DEBUG_SETTINGS_KEYS
 
 static QString *qt_mac_settings_base = NULL;
 QString cfstring2qstring(CFStringRef); //qglobal.cpp
