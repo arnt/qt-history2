@@ -42,6 +42,7 @@ class PropertyEditor;
 class QListBox;
 class QIconView;
 class QMultiLineEdit;
+class QTable;
 
 class Command : public Qt
 {
@@ -75,7 +76,8 @@ public:
 	PopulateListBox,
 	PopulateIconView,
 	PopulateListView,
-	PopulateMultiLineEdit
+	PopulateMultiLineEdit,
+	PopulateTable
     };
 
     QString name() const;
@@ -581,5 +583,37 @@ private:
     bool wasChanged;
 
 };
+
+class PopulateTableCommand : public Command
+{
+public:
+    struct Row
+    {
+	QString text;
+	QPixmap pix;
+    };
+
+    struct Column
+    {
+	QString text;
+	QPixmap pix;
+	QString field;
+    };
+
+    PopulateTableCommand( const QString &n, FormWindow *fw, QTable *t,
+			  const QValueList<Row> &rows,
+			  const QValueList<Column> &columns );
+
+    void execute();
+    void unexecute();
+    Type type() const { return PopulateTable; }
+
+private:
+    QValueList<Row> oldRows, newRows;
+    QValueList<Column> oldColumns, newColumns;
+    QTable *table;
+
+};
+
 
 #endif

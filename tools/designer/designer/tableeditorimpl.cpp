@@ -3,14 +3,10 @@
 #include "formwindow.h"
 #include <qlabel.h>
 #include <qcombobox.h>
+#include <qheader.h>
+#include <qlistbox.h>
+#include <qlineedit.h>
 
-/*
- *  Constructs a TableEditor which is a child of 'parent', with the
- *  name 'name' and widget flags set to 'f'
- *
- *  The dialog will by default be modeless, unless you set 'modal' to
- *  TRUE to construct a modal dialog.
- */
 TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw, const char* name, bool modal, WFlags fl )
     : TableEditorBase( parent, name, modal, fl ), editTable( (QTable*)editWidget ), formWindow( fw )
 {
@@ -18,120 +14,120 @@ TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw,
 	labelFields->hide();
 	comboFields->hide();
     }
+
+    readFromTable();
 }
 
-/*
- *  Destroys the object and frees any allocated resources
- */
 TableEditor::~TableEditor()
 {
-    // no need to delete child widgets, Qt does it all for us
 }
 
-/*
- * protected slot
- */
 void TableEditor::columnDownClicked()
 {
-    qWarning( "TableEditor::columnDownClicked() not yet implemented!" );
 }
-/*
- * protected slot
- */
-void TableEditor::columnTextChanged( const QString & )
+
+void TableEditor::columnTextChanged( const QString &s )
 {
-    qWarning( "TableEditor::columnTextChanged( const QString & ) not yet implemented!" );
+    if ( listColumns->currentItem() == -1 )
+	return;
+    listColumns->changeItem( s, listColumns->currentItem() );
+    if ( table->horizontalHeader()->iconSet( listColumns->currentItem() ) )
+	table->horizontalHeader()->setLabel( listColumns->currentItem(),
+					     *table->horizontalHeader()->iconSet( listColumns->currentItem() ), s );
+    else
+	table->horizontalHeader()->setLabel( listColumns->currentItem(), s );
 }
-/*
- * protected slot
- */
+
 void TableEditor::columnUpClicked()
 {
-    qWarning( "TableEditor::columnUpClicked() not yet implemented!" );
 }
-/*
- * protected slot
- */
-void TableEditor::currentColumnChanged( QListBoxItem * )
+
+void TableEditor::currentColumnChanged( QListBoxItem *i )
 {
-    qWarning( "TableEditor::currentColumnChanged( QListBoxItem * ) not yet implemented!" );
+    if ( !i )
+	return;
+    editColumnText->blockSignals( TRUE );
+    editColumnText->setText( i->text() );
+    if ( i->pixmap() )
+	labelColumnPixmap->setPixmap( *i->pixmap() );
+    else
+	labelColumnPixmap->setText( "" );
+    editColumnText->blockSignals( FALSE );
+
+    // ### field stuff
 }
-/*
- * protected slot
- */
+
 void TableEditor::currentFieldChanged( const QString & )
 {
-    qWarning( "TableEditor::currentFieldChanged( const QString & ) not yet implemented!" );
 }
-/*
- * protected slot
- */
-void TableEditor::currentRowChanged( QListBoxItem * )
+
+void TableEditor::currentRowChanged( QListBoxItem *i )
 {
-    qWarning( "TableEditor::currentRowChanged( QListBoxItem * ) not yet implemented!" );
+    if ( !i )
+	return;
+    editRowText->blockSignals( TRUE );
+    editRowText->setText( i->text() );
+    if ( i->pixmap() )
+	labelRowPixmap->setPixmap( *i->pixmap() );
+    else
+	labelRowPixmap->setText( "" );
+    editRowText->blockSignals( FALSE );
 }
-/*
- * protected slot
- */
+
 void TableEditor::deleteColumnClicked()
 {
-    qWarning( "TableEditor::deleteColumnClicked() not yet implemented!" );
 }
-/*
- * protected slot
- */
+
 void TableEditor::deleteRowClicked()
 {
-    qWarning( "TableEditor::deleteRowClicked() not yet implemented!" );
 }
-/*
- * protected slot
- */
+
 void TableEditor::newColumnClicked()
 {
-    qWarning( "TableEditor::newColumnClicked() not yet implemented!" );
+    table->setNumCols( table->numCols() + 1 );
+    table->horizontalHeader()->setLabel( table->numCols() - 1, QString::number( table->numCols() ) );
+    listColumns->insertItem( QString::number( table->numCols() ) );
+    QListBoxItem *i = listColumns->item( listColumns->count() - 1 );
+    listColumns->setCurrentItem( i );
+    listColumns->setSelected( i, TRUE );
 }
-/*
- * protected slot
- */
+
 void TableEditor::newRowClicked()
 {
-    qWarning( "TableEditor::newRowClicked() not yet implemented!" );
+    table->setNumRows( table->numRows() + 1 );
+    table->verticalHeader()->setLabel( table->numRows() - 1, QString::number( table->numRows() ) );
+    listRows->insertItem( QString::number( table->numRows() ) );
+    QListBoxItem *i = listRows->item( listRows->count() - 1 );
+    listRows->setCurrentItem( i );
+    listRows->setSelected( i, TRUE );
 }
-/*
- * protected slot
- */
+
 void TableEditor::okClicked()
 {
-    qWarning( "TableEditor::okClicked() not yet implemented!" );
 }
-/*
- * protected slot
- */
+
 void TableEditor::rowDownClicked()
 {
-    qWarning( "TableEditor::rowDownClicked() not yet implemented!" );
 }
-/*
- * protected slot
- */
-void TableEditor::rowTextChanged( const QString & )
+
+void TableEditor::rowTextChanged( const QString &s )
 {
-    qWarning( "TableEditor::rowTextChanged( const QString & ) not yet implemented!" );
+    if ( listRows->currentItem() == -1 )
+	return;
+    listRows->changeItem( s, listRows->currentItem() );
+    if ( table->verticalHeader()->iconSet( listRows->currentItem() ) )
+	table->verticalHeader()->setLabel( listRows->currentItem(),
+					     *table->verticalHeader()->iconSet( listRows->currentItem() ), s );
+    else
+	table->verticalHeader()->setLabel( listRows->currentItem(), s );
 }
-/*
- * protected slot
- */
+
 void TableEditor::rowUpClicked()
 {
-    qWarning( "TableEditor::rowUpClicked() not yet implemented!" );
 }
-/*
- * protected slot
- */
+
 void TableEditor::applyClicked()
 {
-    qWarning( "TableEditor::applyClicked() not yet implemented!" );
 }
 
 void TableEditor::chooseRowPixmapClicked()
@@ -148,4 +144,45 @@ void TableEditor::chooseColPixmapClicked()
 
 void TableEditor::deleteColPixmapClicked()
 {
+}
+
+void TableEditor::readFromTable()
+{
+    QHeader *cols = editTable->horizontalHeader();
+    table->setNumCols( cols->count() );
+    for ( int i = 0; i < cols->count(); ++i ) {
+	if ( editTable->horizontalHeader()->iconSet( i ) ) {
+	    table->horizontalHeader()->setLabel( i, *editTable->horizontalHeader()->iconSet( i ),
+						 editTable->horizontalHeader()->label( i ) );
+	    listColumns->insertItem( editTable->horizontalHeader()->iconSet( i )->pixmap(),
+				     editTable->horizontalHeader()->label( i ) );
+	} else {
+	    table->horizontalHeader()->setLabel( i, editTable->horizontalHeader()->label( i ) );
+	    listColumns->insertItem( editTable->horizontalHeader()->label( i ) );
+	}
+    }
+
+    if ( listColumns->firstItem() ) {
+	listColumns->setCurrentItem( listColumns->firstItem() );
+	listColumns->setSelected( listColumns->firstItem(), TRUE );
+    }
+
+    QHeader *rows = editTable->verticalHeader();
+    table->setNumRows( rows->count() );
+    for ( int i = 0; i < rows->count(); ++i ) {
+	if ( editTable->verticalHeader()->iconSet( i ) ) {
+	    table->verticalHeader()->setLabel( i, *editTable->verticalHeader()->iconSet( i ),
+					       editTable->verticalHeader()->label( i ) );
+	    listRows->insertItem( editTable->verticalHeader()->iconSet( i )->pixmap(),
+				  editTable->verticalHeader()->label( i ) );
+	} else {
+	    table->verticalHeader()->setLabel( i, editTable->verticalHeader()->label( i ) );
+	    listRows->insertItem( editTable->verticalHeader()->label( i ) );
+	}
+    }
+
+    if ( listRows->firstItem() ) {
+	listRows->setCurrentItem( listRows->firstItem() );
+	listRows->setSelected( listRows->firstItem(), TRUE );
+    }
 }

@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>623</width>
-            <height>353</height>
+            <width>619</width>
+            <height>351</height>
         </rect>
     </property>
     <property name="caption">
@@ -34,6 +34,9 @@
             </property>
             <property name="numCols">
                 <number>1</number>
+            </property>
+            <property name="readOnly">
+                <bool>true</bool>
             </property>
         </widget>
         <widget class="QLayoutWidget" row="1" column="0" rowspan="1" colspan="2">

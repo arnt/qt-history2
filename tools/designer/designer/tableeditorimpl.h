@@ -36,6 +36,9 @@ protected slots:
     void deleteColPixmapClicked();
 
 private:
+    void readFromTable();
+
+private:
     QTable *editTable;
     FormWindow *formWindow;
 

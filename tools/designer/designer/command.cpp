@@ -39,6 +39,7 @@
 #include <qmultilineedit.h>
 #include <qstack.h>
 #include <qheader.h>
+#include <qtable.h>
 
 CommandHistory::CommandHistory( int s )
     : current( -1 ), steps( s ), savedAt( -1 )
@@ -1240,4 +1241,22 @@ void PopulateMultiLineEditCommand::unexecute()
     mlined->setText( oldText );
     MetaDataBase::setPropertyChanged( mlined, "text", wasChanged );
     formWindow()->emitUpdateProperties( mlined );
+}
+
+// ------------------------------------------------------------
+
+PopulateTableCommand::PopulateTableCommand( const QString &n, FormWindow *fw, QTable *t,
+					    const QValueList<Row> &rows,
+					    const QValueList<Column> &columns )
+    : Command( n, fw ), newRows( rows ), newColumns( columns ), table( t )
+{
+
+}
+
+void PopulateTableCommand::execute()
+{
+}
+
+void PopulateTableCommand::unexecute()
+{
 }
