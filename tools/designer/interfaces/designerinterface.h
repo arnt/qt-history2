@@ -149,6 +149,7 @@ struct DesignerFormWindow
     virtual bool isWidgetSelected( QWidget * ) const = 0;
     virtual QWidgetList selectedWidgets() const = 0;
     virtual QWidget *currentWidget() const = 0;
+    virtual QWidget *form() const = 0;
     virtual void setCurrentWidget( QWidget * ) = 0;
     virtual QList<QAction> actionList() const = 0;
     virtual void addAction( QAction * ) = 0;

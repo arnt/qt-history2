@@ -484,6 +484,11 @@ QWidget *DesignerFormWindowImpl::currentWidget() const
     return 0;
 }
 
+QWidget *DesignerFormWindowImpl::form() const
+{
+    return formWindow;
+}
+
 void DesignerFormWindowImpl::setCurrentWidget( QWidget * )
 {
 }

@@ -155,6 +155,7 @@ public:
     bool isWidgetSelected( QWidget * ) const;
     QWidgetList selectedWidgets() const;
     QWidget *currentWidget() const;
+    QWidget *form() const;
     void setCurrentWidget( QWidget * );
     QList<QAction> actionList() const;
     void addAction( QAction * );
