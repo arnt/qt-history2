@@ -517,7 +517,7 @@ Q_LONG QFile::readBlock( char *p, Q_ULONG len )
     Q_ULONG nread = 0;					// number of bytes read
     if ( !ungetchBuffer.isEmpty() ) {
 	// need to add these to the returned string.
-	int l = ungetchBuffer.length();
+	uint l = ungetchBuffer.length();
 	while( nread < l ) {
 	    *p = ungetchBuffer[ l - nread - 1 ];
 	    p++;
