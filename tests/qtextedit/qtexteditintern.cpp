@@ -345,17 +345,18 @@ void QTextEditCursor::gotoPageDown( QTextEdit *view )
 
 void QTextEditCursor::gotoWordLeft()
 {
+    gotoLeft();
     tmpIndex = -1;
-    QString s( string->string()->toString() );
+    QTextEditString *s = string->string();
     bool allowSame = FALSE;
     for ( int i = idx - 1; i >= 0; --i ) {
-	if ( !s[ i ].isNumber() && !s[ i ].isLetter() && s[ i ] != '_'  && idx - i > 1 ) {
-	    if ( !allowSame &&  s[ i ] == s[ idx ] )
+	if ( s->at( i ).c.isSpace() || s->at( i ).c == '\t' ) {
+	    if ( !allowSame && s->at( i ).c == s->at( idx ).c )
 		continue;
-	    idx = i;
+	    idx = i + 1;
 	    return;
 	}
-	if ( !allowSame && s[ i ] != s[ idx ] )
+	if ( !allowSame && s->at( i ).c != s->at( idx ).c )
 	    allowSame = TRUE;
     }
 
@@ -370,16 +371,16 @@ void QTextEditCursor::gotoWordLeft()
 void QTextEditCursor::gotoWordRight()
 {
     tmpIndex = -1;
-    QString s( string->string()->toString() );
+    QTextEditString *s = string->string();
     bool allowSame = FALSE;
-    for ( int i = idx + 1; i < (int)s.length(); ++i ) {
-	if ( !s[ i ].isNumber() && !s[ i ].isLetter() && s[ i ] != '_'  && i - idx > 1 ) {
-	    if ( !allowSame &&  s[ i ] == s[ idx ] )
+    for ( int i = idx + 1; i < (int)s->length(); ++i ) {
+	if ( s->at( i ).c.isSpace() || s->at( i ).c == '\t' ) {
+	    if ( !allowSame &&  s->at( i ).c == s->at( idx ).c )
 		continue;
 	    idx = i;
 	    return;
 	}
-	if ( !allowSame && s[ i ] != s[ idx ] )
+	if ( !allowSame && s->at( i ).c != s->at( idx ).c )
 	    allowSame = TRUE;
     }
 
