@@ -233,6 +233,11 @@ static HANDLE openlock( const QString &name, int type )
     int fd = open( QFile::encodeName( lockfile ),
 		   O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
 
+    if ( fd < 0 ) {
+ 	// failed to open the lock file, most likely because of permissions
+	return fd;
+    }
+
     struct flock fl;
     fl.l_type = type;
     fl.l_whence = SEEK_SET;
@@ -251,6 +256,11 @@ static HANDLE openlock( const QString &name, int type )
 */
 static void closelock( HANDLE fd )
 {
+    if ( fd < 0 ) {
+	// the lock file is not open
+	return;
+    }
+
     struct flock fl;
     fl.l_type = F_UNLCK;
     fl.l_whence = SEEK_SET;
@@ -819,7 +829,7 @@ QSettings::QSettings()
 /*!
   Creates a settings object. If \a format is 'Ini' the settings will
   be stored in a text file, using the Unix strategy (see above). If \a format
-  is 'Native', the settings will be stored in a platform specific way 
+  is 'Native', the settings will be stored in a platform specific way
   (ie. the Windows registry).
 */
 QSettings::QSettings( Format format )
@@ -1924,7 +1934,7 @@ void QSettings::setDefaultProduct( const QString &product )
 
 /*!
     Returns the current default product.
-    
+
     \sa setDefaultProduct()
 */
 QString QSettings::defaultProduct()
@@ -1966,7 +1976,7 @@ void QSettings::resetGroup()
 
 /*!
     Returns the current key prefix, or a null string if there is no key prefix set.
-    
+
     \sa beginGroup();
 */
 QString QSettings::group() const
