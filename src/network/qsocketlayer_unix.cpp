@@ -65,7 +65,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 
 // Tru64 redefines accept -> _accept with _XOPEN_SOURCE_EXTENDED
 static inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
-{ return ::accept(s, addr, addrlen); }
+{ return ::accept(s, addr, static_cast<socklen_t*>(addrlen)); }
 #if defined(accept)
 # undef accept
 #endif
@@ -663,7 +663,7 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
 
     // Determine the socket type (UDP/TCP)
     int value = 0;
-    QT_SOCKLEN_T valueSize = sizeof(int);
+    QT_SOCKOPTLEN_T valueSize = sizeof(int);
     if (::getsockopt(socketDescriptor, SOL_SOCKET, SO_TYPE, &value, &valueSize) == 0) {
         if (value == SOCK_STREAM)
             socketType = QAbstractSocket::TcpSocket;
