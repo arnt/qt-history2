@@ -1888,7 +1888,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     \ingroup text
     \mainclass
 
-    It is initialized with a country/language pair in its constructor
+    It is initialized with a language/country pair in its constructor
     and offers number-to-string and string-to-number conversion
     functions similar to those in QString.
 
