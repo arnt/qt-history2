@@ -728,7 +728,7 @@ bool QTextEdit::event( QEvent *e )
 	    case Key_E:
 	    case Key_F:
 	    case Key_H:
-	    case Key_I: 
+	    case Key_I:
 	    case Key_K:
 	    case Key_N:
 	    case Key_P:
@@ -1594,7 +1594,8 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 	placeCursor( e->pos(), &c );
 #ifndef QT_NO_NETWORKPROTOCOL
 	if ( c.parag() && c.parag()->at( c.index() ) &&
-	     c.parag()->at( c.index() )->format()->isAnchor() ) {
+	     c.parag()->at( c.index() )->format()->isAnchor() &&
+	     !c.parag()->at( c.index() )->format()->anchorHref().isEmpty() ) {
 #ifndef QT_NO_CURSOR
 	    viewport()->setCursor( pointingHandCursor );
 #endif
