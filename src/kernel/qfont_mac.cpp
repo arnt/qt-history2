@@ -242,6 +242,13 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
     free(buf);
     return ret;
 }
+static inline int do_text_task( const QFontPrivate *d, const QChar &c, uchar task)
+{
+    if(task != GIMME_WIDTH || c.row())
+	return do_text_task(d, QString(c), 0, 1, task);
+    return CharWidth(c.latin1());     //latin1 optimization
+}
+
 
 /* Qt platform dependant functions */
 int QFontMetrics::lineSpacing() const
@@ -274,7 +281,7 @@ int QFontMetrics::descent() const
 
 int QFontMetrics::width(QChar c) const
 {
-    return charWidth( QString( c ), 0 );
+    return do_text_task(FI, c, GIMME_WIDTH);
 }
 
 int QFontMetrics::charWidth( const QString &s, int pos ) const
@@ -461,7 +468,7 @@ QString QFontPrivate::lastResortFont() const
 
 QRect QFontPrivate::boundingRect( const QChar &ch )
 {
-    return QRect( 0,-(fin->ascent()), do_text_task(this, QString(ch), 0, 1, GIMME_WIDTH),
+    return QRect( 0,-(fin->ascent()), do_text_task(this, ch, GIMME_WIDTH),
 		  fin->ascent() + fin->descent());
 }
 
