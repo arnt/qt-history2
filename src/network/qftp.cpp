@@ -2139,7 +2139,7 @@ void QFtp::operationPut( QNetworkOperation *op )
 bool QFtp::checkConnection( QNetworkOperation *op )
 {
     QFtpPrivate *d = ::d( this );
-    if ( state() == Unconnected ) {
+    if ( state() == Unconnected && !d->npWaitForLoginDone ) {
 	connect( this, SIGNAL(listInfo(const QUrlInfo &)),
 		this, SLOT(npListInfo(const QUrlInfo &)) );
 	connect( this, SIGNAL(done(bool)),
