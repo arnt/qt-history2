@@ -5327,7 +5327,7 @@ void QListView::setCurrentItem( QListViewItem * i )
 
 QListViewItem * QListView::currentItem() const
 {
-    return d ? d->focusItem : 0;
+    return d->focusItem;
 }
 
 
