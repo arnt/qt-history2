@@ -218,7 +218,7 @@ HKEY QSettingsSysPrivate::openKey( const QString &key, bool write, bool remove )
     }
 
     wchar_t empty_t[] = L""; // workaround for Borland
-    if ( res != ERROR_SUCCESS && local ) {
+    if ( res != ERROR_SUCCESS && local && d->globalScope ) {
 	QT_WA( {
 	    if ( write && !remove )
 		res = RegCreateKeyExW( local, (TCHAR*)f.ucs2(), 0, empty_t, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
