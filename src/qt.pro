@@ -111,6 +111,7 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$TOOLS_H/qvector.h \
 		  $$WIDGETS_H/qbttngrp.h \
 		  $$WIDGETS_H/qbutton.h \
+		  $$WIDGETS_H/qbuttonrow.h \
 		  $$WIDGETS_H/qchkbox.h \
 		  $$WIDGETS_H/qcombo.h \
 		  $$WIDGETS_H/qframe.h \
@@ -212,6 +213,7 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  tools/qtstream.cpp \
 		  widgets/qbttngrp.cpp \
 		  widgets/qbutton.cpp \
+		  widgets/qbuttonrow.cpp \
 		  widgets/qchkbox.cpp \
 		  widgets/qwhatsthis.cpp \
 		  widgets/qcombo.cpp \
