@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#87 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -44,7 +44,8 @@ class QTipLabel : public QLabel
     Q_OBJECT
 public:
     QTipLabel() : QLabel( 0, "toolTipTip",
-			  WStyle_Customize | WStyle_NoBorder | WStyle_Tool )
+			  WStyle_StaysOnTop +
+			  WStyle_Customize + WStyle_NoBorder + WStyle_Tool )
     {
 	setAutoMask( FALSE );
     }
@@ -977,7 +978,7 @@ void QToolTipGroup::setDelay( bool enable )
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.81 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.82 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
