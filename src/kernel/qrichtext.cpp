@@ -6021,6 +6021,7 @@ void QTextFormatCollection::updateStyles()
 	++it;
 	f->updateStyle();
     }
+    updateKeys();
 }
 
 void QTextFormatCollection::updateFontSizes( int base )
@@ -6039,6 +6040,7 @@ void QTextFormatCollection::updateFontSizes( int base )
     f->fn.setPointSize( f->stdPointSize );
     styleSheet()->scaleFont( f->fn, f->logicalFontSize );
     f->update();
+    updateKeys();
 }
 
 void QTextFormatCollection::updateFontAttributes( const QFont &f, const QFont &old )
@@ -6069,7 +6071,30 @@ void QTextFormatCollection::updateFontAttributes( const QFont &f, const QFont &o
 	fm->fn.setUnderline( f.underline() );
 	fm->update();
     }
+    updateKeys();
 }
+
+
+// the keys in cKey have changed, rebuild the hashtable
+void QTextFormatCollection::updateKeys()
+{
+    if ( cKey.isEmpty() )
+	return;
+    cKey.setAutoDelete( FALSE );
+    QTextFormat** formats = new QTextFormat*[  cKey.count() + 1];
+    QTextFormat **f = formats;
+    QDictIterator<QTextFormat> it( cKey );
+    while ( ( *f = it.current() ) ) {
+       ++it;
+       ++f;
+    }
+    cKey.clear();
+    for ( f = formats; *f; f++ )
+       cKey.insert( (*f)->key(), *f );
+    cKey.setAutoDelete( TRUE );
+}
+
+
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

@@ -1622,6 +1622,9 @@ public:
     void setPaintDevice( QPaintDevice * );
 
 private:
+    void updateKeys();
+    
+private:
     QTextFormat *defFormat, *lastFormat, *cachedFormat;
     QDict<QTextFormat> cKey;
     QTextFormat *cres;
