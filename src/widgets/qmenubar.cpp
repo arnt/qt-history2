@@ -30,6 +30,7 @@
 #include "qdrawutil.h"
 #include "qapplication.h"
 #include "qguardedptr.h"
+#include "qmainwindow.h"
 #include <ctype.h>
 
 class QMenuDataData {
@@ -268,6 +269,8 @@ void QMenuBar::menuContentsChanged()
     if ( isVisible() ) {
 	calculateRects();
 	update();
+	if ( parent() && parent()->inherits( "QMainWindow" ) )
+	    ( (QMainWindow*)parent() )->triggerLayout();
     }
 }
 

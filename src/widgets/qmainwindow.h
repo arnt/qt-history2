@@ -120,6 +120,7 @@ private:
     virtual void setToolTipGroup( QToolTipGroup * );
 
     friend class QToolBar;
+    friend class QMenuBar;
 };
 
 
