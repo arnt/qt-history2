@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#23 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#24 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -439,16 +439,16 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
     {
     case Dir:
 	if ( !QDir( itemFileName ).isReadable() )
-	    itemIcon = *iconFolderLocked;
+	    setIcon( *iconFolderLocked, FALSE );
 	else
-	    itemIcon = *iconFolder;
+	    setIcon( *iconFolder, FALSE );
 	setAllowDrop( QDir( itemFileName ).isReadable() );
 	break;
     case File:
-	itemIcon = *iconFile;
+	setIcon( *iconFile, FALSE );
 	break;
     case Link:
-	itemIcon = *iconLink;
+	setIcon( *iconLink, FALSE );
 	break;
     }
 
