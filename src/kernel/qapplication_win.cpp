@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#292 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#293 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2576,14 +2576,16 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		    SetWindowTextA( winId(), txt.ascii() );
 	    }
 	}
-	if ( isVisible() ) {
-	    QResizeEvent e( newSize, oldSize );
-	    QApplication::sendEvent( this, &e );
-	} else {
-	    QResizeEvent * e = new QResizeEvent( newSize, oldSize );
-	    QApplication::postEvent( this, e );
+	if ( msg.wParam != SIZE_MINIMIZED ) {
+	    if ( isVisible() ) {
+		QResizeEvent e( newSize, oldSize );
+		QApplication::sendEvent( this, &e );
+	    } else {
+		QResizeEvent *e = new QResizeEvent( newSize, oldSize );
+		QApplication::postEvent( this, e );
+	    }
 	}
-	if ( !testWFlags(WResizeNoErase)  && isVisibleToTLW() )
+	if ( !testWFlags(WResizeNoErase) && isVisibleToTLW() )
 	    repaint( TRUE );
     } else if ( msg.message == WM_MOVE ) {	// move event
 	int a = (int) (short) LOWORD(msg.lParam);
