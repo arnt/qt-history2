@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#10 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#11 $
 **
 ** Definition of event classes
 **
@@ -38,6 +38,7 @@
 #define Event_Hide		   18		// before widget is hidden
 #define Event_Close		   19		// request to close widget
 #define Event_Quit		   20		// request to quit application
+#define Event_AccelInserted	   50		// internal
 #define Event_User		 1000		// first user event id
 
 
