@@ -30,6 +30,8 @@ void WriteInitialization::accept(DomUI *node)
     m_widgetChain.push(0);
     m_layoutChain.push(0);
 
+    m_pixmapFunction = node->elementPixmapFunction();
+
     m_externPixmap = node->elementImages() == 0;
     if (m_externPixmap)
         m_pixmapFunction = QLatin1String("QPixmap::fromMimeSource");
