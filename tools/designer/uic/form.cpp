@@ -128,15 +128,15 @@ void Uic::createFormDecl( const QDomElement &e )
 
     QStringList globalIncludes, localIncludes;
     int wid = WidgetDatabase::idFromClassName( objClass );
-    if ( wid != -1 ) {
-	globalIncludes += WidgetDatabase::includeFile( wid );
-    } else {
+    {
 	QMap<QString, CustomInclude>::Iterator it = customWidgetIncludes.find( objClass );
 	if ( it != customWidgetIncludes.end() ) {
 	    if ( ( *it ).location == "global" )
 		globalIncludes += (*it).header;
 	    else
 		localIncludes += (*it).header;
+	} else {
+	    globalIncludes += WidgetDatabase::includeFile( wid );
 	}
     }
 
