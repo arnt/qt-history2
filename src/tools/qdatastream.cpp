@@ -482,7 +482,7 @@ static Q_INT64 read_int_ascii( QDataStream *s )
     }
     buf[n] = '\0';
 
-#if defined(__LP64__)
+#if defined(__LP64__) || defined(Q_OS_OSF)
     // sizeof(long) == 8
     return strtol(buf, (char **)0, 10);
 #else
