@@ -96,6 +96,11 @@ Q*Dict must use QString, so the QIntDict and QPtrDict hackery
  can use any ket type)
 Add activate_signal(const char* signal, QString) for fast QString signals
 Split Q1String, QByteArray, etc. out of qstring.h, making it cheaper to #include.
+Move QString(int) to private!!!
+DND QPictures - as WMF/etc.?
+QRegion transformations.  Windows can do some stuff.
+Add Alpha versions of qRgb & friends.
+Redo QT_H stuff for all header files.
 
 
 ARNT'S THINGS:
