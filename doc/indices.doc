@@ -1,0 +1,88 @@
+/****************************************************************************
+** $Id: indices.doc,v 1.1 1995/08/02 14:31:06 agulbra Exp $
+**
+** Miscellaneous index pages
+**
+** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+#if defined(DEBUG)
+static char ident[] = "$Id: indices.doc,v 1.1 1995/08/02 14:31:06 agulbra Exp $";
+#endif
+
+/*! \page index.html
+
+<title>Qt toolkit - documentation home page</title>
+</head><body>
+
+<h1>Qt Documentation Home Page</h1>
+
+<strong> This documentation is far from complete.  Remember, Qt is
+still not at version 1.0. </strong>
+
+<p>
+
+Here are the main index pages: <ul>
+<li><a href=hierarchy.html>Class overview</a>
+<li><a href=classes.html>Alphabetical list</a>
+<li><a href=topicals.html>Other index pages</a>
+</ul>
+
+<p>
+
+Here are some introductory pages and pages about the central concepts
+in Qt: <ul>
+<li><a href=faq.html>FAQ</a>
+<li><a href=metaobjects.html>Signals, slots and the Meta Object Compiler</a>
+<li><a href=fontmatch.html>Font matching</a>
+</ul>
+
+<p>
+
+And, finally, some meta-information: <ul>
+<li><a href=troll.html>Troll Tech contact information</a>
+<li><a href=license.html>License statement for Qt</a>
+</ul>
+
+<p>
+
+There is a mailing list for Qt users.  Send a message containing the
+single word "subscribe" to <a
+href=mailto:qt-interest-request@nvg.unit.no>qt-interest-request@nvg.unit.no</a>
+to join the list.  You will receive a receipt from the list server
+within a few minutes. */
+
+
+/*! \page topicals.html
+
+<title>Qt toolkit - topical index pages</title>
+</head><body>
+
+<h1>Topical Index pages</h1>
+
+<ul>
+<li><a href=tools.html>General utility classes</a>
+<li><a href=headers.html>Header files</a>
+<li><a href=enums.html>enum types</a>
+<li><a href=examples.html>Example programs</a>
+</ul>
+
+*/
+
+/*! \defgroup tools.html
+
+  <h1>The Tool Classes</h1>
+
+  The tool classes are general-purpose classes that may be used
+  independently of the GUI classes.
+
+  */
+
+/*! \defgroup fonts.html
+
+  <h1>Font-related Classes</h1>
+
+  See also <a href=fontmatch.html>Font matching.</a>
+
+  */

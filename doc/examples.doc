@@ -1,0 +1,35 @@
+/****************************************************************************
+** $Id: examples.doc,v 1.1 1995/08/02 14:31:06 agulbra Exp $
+**
+** Documentation for the examples
+**
+** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+#if defined(DEBUG)
+static char ident[] = "$Id: examples.doc,v 1.1 1995/08/02 14:31:06 agulbra Exp $";
+#endif
+
+/*! \example wheel/wheel.cpp
+
+  <h1>Color Wheel</h1>
+
+  This example draws a color wheel.  It shows how to use color, world
+  transformation and QPainter. */
+
+/*! \example connect/connect.cpp
+
+  <h1>A graphical hello world</h1>
+
+  This example shows very simple mouse-based user interaction and
+  painting without any world transform matrix or other advanced
+  features.  Run the program, click the button, move the mouse,
+  release the button, and watch the lines get drawn. */
+
+/*! \example cursor/cursor.cpp
+
+  <h1>Cursors</h1>
+
+  This example shows how to do tricks with the mouse cursor.
+*/

@@ -1,0 +1,325 @@
+/****************************************************************************
+** $Id: misc.doc,v 1.1 1995/08/02 14:31:06 agulbra Exp $
+**
+** Miscellaneous documentation that doesn't fit anywhere else
+**
+** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+#if defined(DEBUG)
+static char ident[] = "$Id: misc.doc,v 1.1 1995/08/02 14:31:06 agulbra Exp $";
+#endif
+
+/*! \page license.html
+
+<title>Qt License Statement</title>
+
+<h1>All Rights Reserved</h1>
+
+Copyright 1992-1995 Troll Tech AS.  All rights reserved.
+
+<p>
+
+Qt is a product of Troll Tech AS and is provided for use on computers
+running the Linux operating system.
+
+<p>
+
+Users may copy this beta version of the Qt toolkit provided that the
+entire archive is distributed as a whole, including this notice.
+
+<p>
+
+Users may use the Qt toolkit to create programs provided that these
+programs are either for internal/own use or freely distributable.  THIS
+BETA VERSION OF QT MAY NOT BE USED IN COMMERCIAL PROGRAMS.
+
+<p>
+
+Troll Tech makes no obligation to support or upgrade Qt, or assist in
+use of Qt.
+
+<p>
+
+In no event shall Troll Tech be liable for any lost revenue or profits or
+other special, indirect or consequential damages, even if Troll Tech has
+been advised of the possibility of such damages.
+
+<p><strong>
+
+QT IS PROVIDED AS IS WITH NO WARRANTY OF ANY KIND, INCLUDING THE WARRANY
+OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+
+</strong>
+
+*/
+
+/*! \page troll.html
+
+<title>Troll Tech Contact Information</title>
+
+<h1>Contact Information for Troll Tech</h1>
+
+<h2>Snail mail</h2>
+
+Troll Tech<br>
+Postboks 6133 Etterstad<br>
+N-0602 Oslo<br>
+Norway<br>
+
+<h2>Electronically</h2>
+
+Fax: +47 22 64 69 49.
+
+<p>
+
+E-mail: <a href=mailto:info@troll.no>info@troll.no</a> for general
+enquiries, <a href=mailto:www@troll.no>www@troll.no</a> for comments
+about our WWW pages, or <a
+href=mailto:qt-bugs@troll.no>qt-bugs@troll.no</a> for Qt bug reports
+and other Qt-related mail. */
+
+/*! \page qt.html
+
+<title>Qt toolkit - overview</title>
+
+This is the announcement of Qt 0.9, the first public beta version.
+
+<h1>Qt announcement</h1>
+
+Troll Tech is proud to relase a free beta-version of Qt (pronounced:
+"cute") for X-Windows/Linux.
+
+<p>
+
+Qt is an object-oriented framework for developing graphical user interface
+applications.
+
+<p>
+
+It is ftp'able from sunsite.unc.edu in /pub/Linux/Incoming, hopefully
+soon /pub/Linux/devel/c++, and from ftp.nvg.unit.no in /pub/linux/qt.
+
+<p>
+
+The documentation can be browsed on the web at <a href=http://www.troll.no/>
+http://www.troll.no/</a> where you will also find other Qt-related links.
+
+<p>
+
+About Qt:
+
+<p>
+
+Qt consists of a rich C++ library (around 100 classes) and a meta-object
+system that extends C++ with new concepts called signals and slots.
+Signals and slots define clean and natural object interfaces for creating
+independent objects.
+This makes Qt very suitable for true component programming.
+
+<p>
+
+A "hello world" application under Qt is only 8 lines of C++ code:
+
+<pre>
+    #include <qmsgbox.h>
+    #include <qapp.h>
+
+    int main( int argc, char **argv )
+    {
+        QApplication a( argc, argv );
+        return QMessageBox::message( "Attention", "Hello, world!" );
+    }
+</pre>
+
+Qt dramatically cuts down on development time and complexity in
+writing user interface software for X-Windows/Linux.
+It allows the programmer to focus directly on the programming task,
+and not mess around with low-level X11 code.
+
+<p>
+
+Qt is very fast and compact because it is based direcly on Xlib and not
+Motif or X Intrinsics.
+Qt's widgets (user interface objects) emulate Motif look and feel.
+
+<p>
+
+Qt supports advanced features such as drawing transformed graphics,
+including drawing rotated text and pixmaps.
+Pixmaps can be loaded and saved using several image formats.
+An image class makes it easy to implement image processing algorithms.
+
+<p>
+
+Qt is definitely not a toy. It is a professional product that compares
+well to any commercial GUI class library.
+
+<p>
+
+If you find any bugs, send a report to qt-bugs@troll.no.
+
+<p>
+
+If you create a nice Qt program and want us to distribute it as a
+contribution to Qt, send us a line at info@troll.no.
+
+<p>
+
+
+Here are the main features of Qt:
+
+<ul>
+<li> Qt Widgets:
+<ul>
+<li>    Button
+<li>    Button group
+<li>    Check box
+<li>    Combo box
+<li>    Dialog
+<li>    Frame
+<li>    Group box
+<li>    Label
+<li>    LCD number
+<li>    Line editor
+<li>    List box
+<li>    Menu bar
+<li>    Message box
+<li>    Popup menu
+<li>    Push button
+<li>    Radio button
+<li>    Scroll bar
+<li>    Table
+<li>    View
+</ul>
+
+
+<li> User Interface Functionality:
+<ul>
+<li>   Accelerators
+<li>   Color support:
+<ul>
+<li>	RGB-based color
+<li>	HSV conversions
+<li>	Color group
+<li>	Palette
+</ul>
+<li>   Cursor
+<li>   Font
+<li>   Painter
+<li>   Paint devices:
+<ul>
+<li>	Widget
+<li>	Pixmap/Bitmap
+<li>	Picture (meta-file)
+</ul>
+<li>   Painter tools:
+<ul>
+<li>	Pen
+<li>	Brush
+<li>	Region
+<li>	Transform Matrix
+</ul>
+<li>   Image (abstract pixmap)
+<li>   Data types:
+<ul>
+<li>	Point
+<li>	Size
+<li>	Rect
+<li>	Point array
+</ul>
+<li>   Events:
+<ul>
+<li>	Mouse events
+<li>	Keyboard events
+<li>	Timer events
+<li>	and more...
+</ul>
+</ul>
+<li> General Toolkit:
+<ul>
+<li>   Array
+<li>   Bit array
+<li>   Byte array
+<li>   String
+<li>   Date and time classes
+<li>   Template/macro-based collections and iterators:
+<ul>
+<li>	List and List iterator
+<li>	Dict and Dict iterator
+<li>	Queue
+<li>	Stack
+<li>	Vector
+<li>	Cache and Cache iterator
+</ul>
+<li>   IO devices:
+<ul>
+<li>	Buffer
+<li>	File
+</ul>
+<li>   Binary IO stream (for serialization)
+<li>   Text IO stream
+<li>   Regular expression parsing
+</ul>
+</ul>
+*/
+
+/*! \page faq.html
+
+<title>Qt toolkit - FAQ</title>
+</head><body>
+<h1>
+Frequently Asked Questions
+</h1>
+
+Here is this week's top eleven Qt questions:
+<ol>
+<li>Q: Does there exist a FAQ for Qt? <p>
+    A: This shouldn't be a FAQ any more, so naturally this answer won't be
+       in the next version of the FAQ. <p>
+<li>Q: Will Qt continue to be free? <p>
+    A: We will continue to release binary versions for linux, and they will
+       be free for non-commercial purposes.  The source, and other versions
+       than for linux, will not be free. <p>
+       The commercial versions of Qt will include the source code. <p>
+<li>Q: What other versions of Qt exist/are planned? <p>
+    A: We're working on versions for several other version of Unix, Windows
+       and OS/2.  The other versions are not as complete as the linux version
+       yet. <p>
+<li>Q: When will v1.0 be released? <p>
+    A: We plan to release 1.0 for linux on November 1st.  Other
+       platforms will follow. <p>
+<li>Q: Will v1.0 include... <p>
+    A: v1.0 will not include resources or an interactive GUI designer.  It
+       will include postscript output, geometry management and much more
+       documentation. <p>
+<li>Q: Who is Troll Tech and what are your future plans? <p>
+    A: Troll Tech consists of three talented, hard-working programmers who
+       work day and night to finish Qt, and enjoy it.  We started the
+       company about a year ago, but parts of Qt were written for earlier
+       projects.  The first line of code was written in 1992. <p>
+       Most of our income comes from a contract with a beta customer;
+       we develop code based on Qt for the Norwegian division of a small
+       American company called AT&T. <p>
+<li>Q: Can I use Qt's classes without writing a graphical user interface? <p>
+    A: Quite a few of the classes can be used independently of the user
+       interface.  See <a href=tools.html>utility classes,</a>  There are
+       also a few classes that will work without the GUI only by chance. <p>
+<li>Q: I have (linker, compiler) errors. <p>
+    A: gcc 2.5.8 will not work with Qt.  You need libc 4.6.27 at the
+       very least, 4.7 is recommended.  We use gcc 2.6.2, 2.6.3 and
+       2.7.0; all work. <p>
+       If you use gcc 2.6, binutils 2.5.2.6 is recommended.  If you use
+       gcc 2.7, binutils 2.5.2l.17 or later is recommended. <p>
+       The a.out library in Qt 0.91b will only work with
+       gcc 2.6/binutils 2.5.2.6; we will provide an a.out library for
+       gcc 2.7/binutils 2.5.2l.17 on request. <p>
+<li>Q: Where can I find Qt? <p>
+    A: The latest version of Qt can be downloaded from <a
+        href=ftp://ftp.nvg.unit.no/pub/linux/qt>ftp.nvg.unit.no in
+	/pub/linux/qt</a> or (less often updated) from <a
+	href=ftp://sunsite.unc.edu/pub/Linux/devel/c++>sunsite.unc.edu
+	in /pub/Linux/devel/c++	(or /pub/Linux/Incoming).</a>
+</ol>
+*/
