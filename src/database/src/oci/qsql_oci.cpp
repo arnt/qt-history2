@@ -41,6 +41,53 @@ QSqlError makeError( const QString& err, int type, const QOCIPrivate* p )
     return QSqlError("QOCI: " + err, OraWarn(p), type );
 }
 
+QVariant::Type qDecodeOCIType( int ocitype )
+{
+    QVariant::Type type = QVariant::Invalid;
+    switch ( ocitype ) {
+    case SQLT_STR:
+    case SQLT_VST:
+    case SQLT_CHR:
+    case SQLT_AFC:
+    case SQLT_VCS:
+    case SQLT_AVC:
+	type = QVariant::String;
+	break;
+    case SQLT_INT:
+	type = QVariant::Int;
+	break;
+    case SQLT_FLT:
+    case SQLT_NUM:
+    case SQLT_VNU:
+    case SQLT_UIN:
+	type = QVariant::Double;
+	break;
+    case SQLT_LNG:
+    case SQLT_VBI:
+    case SQLT_BIN:
+    case SQLT_LBI:
+    case SQLT_LVC:
+    case SQLT_LVB:
+    case SQLT_BLOB:
+    case SQLT_CLOB:
+    case SQLT_FILE:
+    case SQLT_RDD:
+    case SQLT_NTY:
+    case SQLT_REF:
+    case SQLT_RID:
+	type = QVariant::ByteArray;
+	break;
+    case SQLT_DAT:
+    case SQLT_ODT:
+	type = QVariant::DateTime;
+	break;
+    default:
+	type = QVariant::Invalid;
+	break;
+    }
+    return type;
+}
+
 QSqlFieldInfo makeFieldInfo( const QOCIPrivate* p, ub4 i )
 {
     qDebug("making field info for field:" + QString::number(i));
@@ -111,54 +158,15 @@ QSqlFieldInfo makeFieldInfo( const QOCIPrivate* p, ub4 i )
 	if ( r != 0 )
 	    qWarning( OraWarn( p ) );
 #endif
-	switch ( colType ) {
-        case SQLT_STR:
-        case SQLT_VST:
-        case SQLT_CHR:
-        case SQLT_AFC:
-        case SQLT_VCS:
-        case SQLT_AVC:
-	    type = QVariant::String;
-	    break;
-        case SQLT_INT:
-	    type = QVariant::Int;
-	    break;
-        case SQLT_FLT:
-        case SQLT_NUM:
-        case SQLT_VNU:
-        case SQLT_UIN:
-	    type = QVariant::Double;
-	    break;
-        case SQLT_LNG:
-        case SQLT_VBI:
-        case SQLT_BIN:
-        case SQLT_LBI:
-        case SQLT_LVC:
-        case SQLT_LVB:
-        case SQLT_BLOB:
-        case SQLT_CLOB:
-        case SQLT_FILE:
-        case SQLT_RDD:
-        case SQLT_NTY:
-        case SQLT_REF:
-        case SQLT_RID:
-	    type = QVariant::ByteArray;
-	    break;
-        case SQLT_DAT:
-        case SQLT_ODT:
-	    type = QVariant::DateTime;
+	type = qDecodeOCIType( colType );
+	if ( type == QVariant::DateTime )
 	    colLength = 7;
-	    break;
-	default:
-	    colLength = 0;
-	    type = QVariant::Invalid;
-	    break;
-	}
+	if ( type == QVariant::Invalid )
+	    colLength = 0;	    
 	QString field((char*)colName);
 	field.truncate(colNameLen);
 	return QSqlFieldInfo( field, type, colLength, colPrecision );
     }
-    qDebug("Returning invalid field");
     return QSqlFieldInfo( "", QVariant::Invalid, 0, 0 );
 }
 
@@ -289,6 +297,48 @@ QStringList QOCIDriver::tables() const
     return tl;
 }
 
+QStringList QOCIDriver::tables( const QString& user ) const
+{
+    QSql t = createResult();
+    t << "select table_name from user_tables;";
+    QStringList tl;
+    while ( t.next() )
+	tl.append( t[0].toString() );
+    return tl;
+    Q_CONST_UNUSED( user );
+}
+
+QSqlFieldInfoList QOCIDriver::fields( const QString& tablename ) const
+{
+    QSql t = createResult();
+    QString stmt ("select column_name, data_type, data_length, data_precision  "
+		  "from user_tab_columns "
+		  "where table_name='%1';" );
+    t << stmt.arg( tablename );
+    QSqlFieldInfoList fil;
+    while ( t.next() ) 
+	fil.append( QSqlFieldInfo( t[0].toString(), qDecodeOCIType(t[1].toInt()), t[2].toInt(), t[3].toInt() ));	
+    return fil;
+}
+    
+QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
+{
+    QSql t = createResult();
+    QString stmt ("select b.column_name, b.data_type, b.data_length, b.data_precision "
+		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
+		  "where a.constraint_type='P' "
+		  "and a.table_name='%1' "
+		  "and c.index_name = a.constraint_name "
+		  "and b.column_name = c.column_name "
+		  "and b.table_name = a.table_name;" );
+    t << stmt.arg( tablename );
+    QSqlIndex idx( tablename );
+    if ( t.next() ) 
+	idx.append( QSqlFieldInfo( t[0].toString(), qDecodeOCIType(t[1].toInt()), t[2].toInt(), t[3].toInt() ));	
+    return idx;
+    return QSqlIndex();
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 QOCIResultInfo::QOCIResultInfo( const QOCIPrivate* p )
@@ -389,7 +439,7 @@ public:
     {
 	return ( *ind.at( i ) == -1 );
     }
-    
+
 private:
     char* create( int position, int size )
     {
