@@ -1716,6 +1716,9 @@ void Project::formOpened( FormWindow *fw )
 
 QString Project::locationOfObject( QObject *o )
 {
+    if ( !o )
+	return QString::null;
+
     if ( MainWindow::self ) {
 	QWidgetList windows = MainWindow::self->qWorkspace()->windowList();
 	for ( QWidget *w = windows.first(); w; w = windows.next() ) {
