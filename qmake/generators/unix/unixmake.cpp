@@ -149,10 +149,10 @@ UnixMakefileGenerator::init()
 
     MakefileGenerator::init();
     if(project->isActiveConfig("resource_fork")) {
-        if(!project->isEmpty("QMAKE_APP_FLAG")) {
+        if(!project->isEmpty("QMAKE_APP_FLAG") && !project->isEmpty("TARGET")) {
             if(project->isEmpty("DESTDIR"))
                 project->values("DESTDIR").append("");
-            project->variables()["DESTDIR"].first() += project->variables()["TARGET"].first() +
+            project->variables()["DESTDIR"].first() += project->first("TARGET") +
                                                        ".app/Contents/MacOS/";
             project->variables()["QMAKE_PKGINFO"].append(project->first("DESTDIR") + "../PkgInfo");
             project->variables()["ALL_DEPS"] += project->first("QMAKE_PKGINFO");
