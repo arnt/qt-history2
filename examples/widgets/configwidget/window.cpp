@@ -41,8 +41,6 @@ Window::Window()
 
 void Window::createIcons()
 {
-    QPixmap pixmap;
-
     OptionButton *configButton = new OptionButton(104, 104, 0, contentsWidget);
     configButton->setIcon(QIcon(":/images/config.png"));
     configButton->setText(tr("Configuration"));
