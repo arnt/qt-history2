@@ -1340,9 +1340,12 @@ bool QUriDrag::decode( const QMimeSource* e, QList<QByteArray>& l )
 	    while (c < payload.size() && data[c] && data[c]!='\r'
 		    && data[c] != '\n')
 		c++;
-	    QByteArray s(data+f,c-f+1);
-	    if ( s[0] != '#' ) // non-comment?
-		l.append( s );
+     
+            if (c - f > 0 && data[f] != '#') {
+	        QByteArray s(data+f, c-f);
+		l.append(s);
+            }
+            
 	    // Skip junk
 	    while (c < payload.size() && data[c] &&
 		    (data[c]=='\n' || data[c]=='\r'))
