@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#159 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#160 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -582,8 +582,12 @@ void QComboBox::removeItem( int index )
     if ( index != cnt-1 )
 	reIndex();
     if ( index == d->current ) {
-	if ( d->ed )
-	    d->ed->setText( d->current == cnt - 1 ? "" : text( d->current ) );
+	if ( d->ed ) {
+	    QString s = "";
+	    if (d->current < cnt - 1)
+		s = text( d->current );
+	    d->ed->setText( s );
+	}
 	else
 	    repaint();
 	currentChanged();
