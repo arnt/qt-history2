@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#41 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#40 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#41 $";
 #endif
 
 
@@ -202,8 +202,9 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
     qPRCreate( this, old_ident );
     setBackgroundColor( bgc );			// restore colors
     setForegroundColor( fgc );
-    resize( s );				// restore size
-    move( p );					// set new position
+    setGeometry( p.x(), p.y(), s.width(), s.height() );
+//    resize( s );				// restore size
+//    move( p );					// set new position
     if ( was_disabled )
 	disable();
     if ( showIt )
