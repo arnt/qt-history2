@@ -4,6 +4,11 @@
 
 #include "qsocket.h"
 #include "qtextstream.h"
+#include "qmap.h"
+#include "qstring.h"
+#include "qstringlist.h"
+#include "qcstring.h"
+#include "qbuffer.h"
 
 /****************************************************
  *

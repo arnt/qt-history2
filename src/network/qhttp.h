@@ -2,13 +2,8 @@
 #define VV_HTTP_H
 
 #ifndef QT_H
-#include <qmap.h>
-#include <qstring.h>
-#include <qstringlist.h>
-#include <qobject.h>
-#include <qcstring.h>
-#include <qbuffer.h>
-#include <qserversocket.h>
+#include "qobject.h"
+#include "qserversocket.h"
 #endif // QT_H
 
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
