@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += console
+CONFIG += console qt_no_compat_warning
 CONFIG -= resource_fork
 build_all:CONFIG += release
 

@@ -2,7 +2,7 @@ TEMPLATE = lib
 
 QT += compat
 
-CONFIG += qt
+CONFIG += qt 
 CONFIG += staticlib
 DEFINES += QT_PROPERTYEDITOR_LIBRARY
 

@@ -17,7 +17,7 @@ LIBS += -lQtDesigner
 
 # Input
 SOURCES += plugin.cpp
-CONFIG += qt warn_on
+CONFIG += qt warn_on qt_no_compat_warning
 OBJECTS_DIR=.obj/debug-shared
 MOC_DIR=.moc/debug-shared
 
