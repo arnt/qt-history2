@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpen.h#10 $
+** $Id: //depot/qt/main/src/kernel/qpen.h#11 $
 **
 ** Definition of QPen class
 **
@@ -49,9 +49,9 @@ public:
 private:
     void	detach();
 #if defined(_WS_WIN_)
-    bool	update( HDC );
+    void	update( HDC );
 #elif defined(_WS_PM_)
-    bool	update( HPS );
+    void	update( HPS );
 #endif
     void	init( const QColor &, uint, PenStyle );
     struct QPenData : QShared {			// pen data
