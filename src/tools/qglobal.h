@@ -38,9 +38,14 @@
 #ifndef QGLOBAL_H
 #define QGLOBAL_H
 
-#define QT_VERSION       310
+#define QT_MAJOR_VERSION 3
+#define QT_MINOR_VERSION 0
+#define QT_PATCH_VERSION 5
 #define QT_VERSION_STR   "3.1.0-snapshot"
-
+/*
+   QT_VERSION is ( QT_MAJOR_VERSION<<16+QT_MINOR_VERSION<<8+QT_PATCH_VERSION)
+ */
+#define QT_VERSION 0x031000
 
 /*
    The operating system, must be one of: (Q_OS_x)
@@ -607,6 +612,11 @@ extern bool qt_winunicode;
 #else // everything...
 #include <qconfig.h>
 #endif
+#endif
+
+
+#ifndef QT_BUILD_KEY
+#define QT_BUILD_KEY "*"
 #endif
 
 // prune to local config
