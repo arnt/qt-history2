@@ -133,11 +133,18 @@ void MyGl::initializeGL()
 
     // Install a custom colormap
     QColormap * p = new QColormap( this );
-    p->setEntry( 0, qRgb( 255, 255, 255 ) );
-    for ( int x = 1; x < 256; x++ )
-	p->setEntry( x, qRgb( 0, x, x ) );
+    p->setRgb( 0, qRgb( 255, 255, 255 ) );
+    for ( int x = 1; x < p->size(); x++ )
+	p->setRgb( x, qRgb( 0, x, x ) );
 
-    setColormap( *p );    
+    QRgb c;
+    for ( int x = 0; x < p->size(); x++ ) {
+	c = p->rgb( x );
+	qDebug( "Index %d = R: %d, G: %d, B: %d", x, qRed(c), qBlue(c),
+	        qGreen(c) );
+
+    }
+    
 }
 
 void MyGl::resizeGL( int width, int height )
