@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of the QDockArea class.
+** Implementation of the Q3DockArea class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -28,14 +28,14 @@
 struct DockData
 {
     DockData() : w(0), rect() {}
-    DockData(QDockWindow *dw, const QRect &r) : w(dw), rect(r) {}
-    QDockWindow *w;
+    DockData(Q3DockWindow *dw, const QRect &r) : w(dw), rect(r) {}
+    Q3DockWindow *w;
     QRect rect;
 
     Q_DUMMY_COMPARISON_OPERATOR(DockData)
 };
 
-static int fix_x(QDockWindow* w, int width = -1) {
+static int fix_x(Q3DockWindow* w, int width = -1) {
     if (QApplication::reverseLayout()) {
         if (width < 0)
             width = w->width();
@@ -43,7 +43,7 @@ static int fix_x(QDockWindow* w, int width = -1) {
     }
     return w->x();
 }
-static int fix_x(QDockWindow* w, int x, int width = -1) {
+static int fix_x(Q3DockWindow* w, int x, int width = -1) {
     if (QApplication::reverseLayout()) {
         if (width < 0)
             width = w->width();
@@ -52,7 +52,7 @@ static int fix_x(QDockWindow* w, int x, int width = -1) {
     return x;
 }
 
-static QPoint fix_pos(QDockWindow* w) {
+static QPoint fix_pos(Q3DockWindow* w) {
     if (QApplication::reverseLayout()) {
         QPoint p = w->pos();
         p.rx() = w->parentWidget()->width() - p.x() - w->width();
@@ -62,29 +62,29 @@ static QPoint fix_pos(QDockWindow* w) {
 }
 
 
-void QDockAreaLayout::setGeometry(const QRect &r)
+void Q3DockAreaLayout::setGeometry(const QRect &r)
 {
     QLayout::setGeometry(r);
     layoutItems(r);
 }
 
-QLayoutItem *QDockAreaLayout::itemAt(int) const
+QLayoutItem *Q3DockAreaLayout::itemAt(int) const
 {
     return 0; //###
 }
 
-QLayoutItem *QDockAreaLayout::takeAt(int)
+QLayoutItem *Q3DockAreaLayout::takeAt(int)
 {
     return 0; //###
 }
 
-QSize QDockAreaLayout::sizeHint() const
+QSize Q3DockAreaLayout::sizeHint() const
 {
     if (dockWindows->isEmpty())
         return QSize(0, 0);
 
     if (dirty) {
-        QDockAreaLayout *that = (QDockAreaLayout *) this;
+        Q3DockAreaLayout *that = (Q3DockAreaLayout *) this;
         that->layoutItems(geometry());
     }
 
@@ -95,7 +95,7 @@ QSize QDockAreaLayout::sizeHint() const
     int ph = 0;
     int pw = 0;
     for (int i = 0; i < dockWindows->size(); ++i) {
-        QDockWindow *dw = dockWindows->at(i);
+        Q3DockWindow *dw = dockWindows->at(i);
         int plush = 0, plusw = 0;
         if (dw->isHidden())
             continue;
@@ -119,12 +119,12 @@ QSize QDockAreaLayout::sizeHint() const
     return QSize(w, 0);
 }
 
-bool QDockAreaLayout::hasHeightForWidth() const
+bool Q3DockAreaLayout::hasHeightForWidth() const
 {
     return orient == Horizontal;
 }
 
-void QDockAreaLayout::init()
+void Q3DockAreaLayout::init()
 {
     dirty = true;
     cached_width = 0;
@@ -133,7 +133,7 @@ void QDockAreaLayout::init()
     cached_wfh = -1;
 }
 
-void QDockAreaLayout::invalidate()
+void Q3DockAreaLayout::invalidate()
 {
     dirty = true;
     cached_width = 0;
@@ -167,7 +167,7 @@ static int space_left(const QRect &r, int pos, Qt::Orientation o)
     }
 }
 
-static int dock_extent(QDockWindow *w, Qt::Orientation o, int maxsize)
+static int dock_extent(Q3DockWindow *w, Qt::Orientation o, int maxsize)
 {
     if (o == Qt::Horizontal)
         return qMin(maxsize, qMax(w->sizeHint().width(), w->fixedExtent().width()));
@@ -175,7 +175,7 @@ static int dock_extent(QDockWindow *w, Qt::Orientation o, int maxsize)
         return qMin(maxsize, qMax(w->sizeHint().height(), w->fixedExtent().height()));
 }
 
-static int dock_strut(QDockWindow *w, Qt::Orientation o)
+static int dock_strut(Q3DockWindow *w, Qt::Orientation o)
 {
     if (o != Qt::Horizontal) {
         int wid;
@@ -190,7 +190,7 @@ static int dock_strut(QDockWindow *w, Qt::Orientation o)
     }
 }
 
-static void set_geometry(QDockWindow *w, int pos, int sectionpos, int extent, int strut, Qt::Orientation o)
+static void set_geometry(Q3DockWindow *w, int pos, int sectionpos, int extent, int strut, Qt::Orientation o)
 {
     if (o == Qt::Horizontal)
         w->setGeometry(fix_x(w, pos, extent), sectionpos, extent, strut);
@@ -208,9 +208,9 @@ static int point_pos(const QPoint &p, Qt::Orientation o, bool swap = false)
     return o == Qt::Horizontal ? (swap ? p.y() : p.x()) : (swap ? p.x() : p.y());
 }
 
-static void shrink_extend(QDockWindow *dw, int &dockExtend, int /*spaceLeft*/, Qt::Orientation o)
+static void shrink_extend(Q3DockWindow *dw, int &dockExtend, int /*spaceLeft*/, Qt::Orientation o)
 {
-    QToolBar *tb = qt_cast<QToolBar*>(dw);
+    Q3ToolBar *tb = qt_cast<Q3ToolBar*>(dw);
     if (o == Qt::Horizontal) {
         int mw = 0;
         if (!tb)
@@ -228,12 +228,12 @@ static void shrink_extend(QDockWindow *dw, int &dockExtend, int /*spaceLeft*/, Q
     }
 }
 
-static void place_line(QList<DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextent, int tbstrut, int maxsize, QDockAreaLayout *)
+static void place_line(QList<DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextent, int tbstrut, int maxsize, Q3DockAreaLayout *)
 {
-    QDockWindow *last = 0;
+    Q3DockWindow *last = 0;
     QRect lastRect;
     for (QList<DockData>::Iterator it = lastLine.begin(); it != lastLine.end(); ++it) {
-        if (tbstrut != -1 && qt_cast<QToolBar*>((*it).w))
+        if (tbstrut != -1 && qt_cast<Q3ToolBar*>((*it).w))
             (*it).rect.setHeight(tbstrut);
         if (!last) {
             last = (*it).w;
@@ -264,20 +264,20 @@ static void place_line(QList<DockData> &lastLine, Qt::Orientation o, int linestr
 }
 
 
-QSize QDockAreaLayout::minimumSize() const
+QSize Q3DockAreaLayout::minimumSize() const
 {
     if (dockWindows->isEmpty())
         return QSize(0, 0);
 
     if (dirty) {
-        QDockAreaLayout *that = (QDockAreaLayout *) this;
+        Q3DockAreaLayout *that = (Q3DockAreaLayout *) this;
         that->layoutItems(geometry());
     }
 
     int s = 0;
 
     for (int i = 0; i < dockWindows->size(); ++i) {
-        QDockWindow *dw = dockWindows->at(i);
+        Q3DockWindow *dw = dockWindows->at(i);
         if (dw->isHidden())
             continue;
         s = qMax(s, dock_strut(dw, orientation()));
@@ -288,7 +288,7 @@ QSize QDockAreaLayout::minimumSize() const
 
 
 
-int QDockAreaLayout::layoutItems(const QRect &rect, bool testonly)
+int Q3DockAreaLayout::layoutItems(const QRect &rect, bool testonly)
 {
     if (dockWindows->isEmpty())
         return 0;
@@ -314,7 +314,7 @@ int QDockAreaLayout::layoutItems(const QRect &rect, bool testonly)
 
     // go through all widgets in the dock
     for (int i = 0; i < dockWindows->size(); ++i) {
-        QDockWindow *dw = dockWindows->at(i);
+        Q3DockWindow *dw = dockWindows->at(i);
         if (dw->isHidden())
             continue;
         ++visibleWindows;
@@ -362,7 +362,7 @@ int QDockAreaLayout::layoutItems(const QRect &rect, bool testonly)
         // do some calculations and add the remember the rect which the docking widget requires for the placing
         QRect dwRect(pos, sectionpos, dockExtend, dock_strut(dw, orientation() ));
         lastLine.append(DockData(dw, dwRect));
-        if (qt_cast<QToolBar*>(dw))
+        if (qt_cast<Q3ToolBar*>(dw))
             tbstrut = qMax(tbstrut, dock_strut(dw, orientation()));
         linestrut = qMax(dock_strut(dw, orientation()), linestrut);
         add_size(dockExtend, pos, orientation());
@@ -380,7 +380,7 @@ int QDockAreaLayout::layoutItems(const QRect &rect, bool testonly)
 
     bool hadResizable = false;
     for (int i = 0; i < dockWindows->size(); ++i) {
-        QDockWindow *dw = dockWindows->at(i);
+        Q3DockWindow *dw = dockWindows->at(i);
         if (!dw->isVisibleTo(parentWidget))
             continue;
         hadResizable = hadResizable || dw->isResizeEnabled();
@@ -389,13 +389,13 @@ int QDockAreaLayout::layoutItems(const QRect &rect, bool testonly)
     return sectionpos + linestrut;
 }
 
-int QDockAreaLayout::heightForWidth(int w) const
+int Q3DockAreaLayout::heightForWidth(int w) const
 {
     if (dockWindows->isEmpty() && parentWidget)
         return parentWidget->minimumHeight();
 
     if (cached_width != w) {
-        QDockAreaLayout * mthis = (QDockAreaLayout*)this;
+        Q3DockAreaLayout * mthis = (Q3DockAreaLayout*)this;
         mthis->cached_width = w;
         int h = mthis->layoutItems(QRect(0, 0, w, 0), true);
         mthis->cached_hfw = h;
@@ -405,10 +405,10 @@ int QDockAreaLayout::heightForWidth(int w) const
     return cached_hfw;
 }
 
-int QDockAreaLayout::widthForHeight(int h) const
+int Q3DockAreaLayout::widthForHeight(int h) const
 {
     if (cached_height != h) {
-        QDockAreaLayout * mthis = (QDockAreaLayout*)this;
+        Q3DockAreaLayout * mthis = (Q3DockAreaLayout*)this;
         mthis->cached_height = h;
         int w = mthis->layoutItems(QRect(0, 0, 0, h), true);
         mthis->cached_wfh = w;
@@ -421,31 +421,31 @@ int QDockAreaLayout::widthForHeight(int h) const
 
 
 /*!
-    \class QDockArea qdockarea.h
-    \brief The QDockArea class manages and lays out QDockWindows.
+    \class Q3DockArea qdockarea.h
+    \brief The Q3DockArea class manages and lays out Q3DockWindows.
 
     \ingroup application
 
-    A QDockArea is a container which manages a list of
-    \l{QDockWindow}s which it lays out within its area. In cooperation
-    with the \l{QDockWindow}s it is responsible for the docking and
-    undocking of \l{QDockWindow}s and moving them inside the dock
-    area. QDockAreas also handle the wrapping of \l{QDockWindow}s to
-    fill the available space as compactly as possible. QDockAreas can
-    contain QToolBars since QToolBar is a QDockWindow subclass.
+    A Q3DockArea is a container which manages a list of
+    \l{Q3DockWindow}s which it lays out within its area. In cooperation
+    with the \l{Q3DockWindow}s it is responsible for the docking and
+    undocking of \l{Q3DockWindow}s and moving them inside the dock
+    area. Q3DockAreas also handle the wrapping of \l{Q3DockWindow}s to
+    fill the available space as compactly as possible. Q3DockAreas can
+    contain Q3ToolBars since Q3ToolBar is a Q3DockWindow subclass.
 
-    QMainWindow contains four QDockAreas which you can use for your
-    QToolBars and QDockWindows, so in most situations you do not need
-    to use the QDockArea class directly. Although QMainWindow contains
+    QMainWindow contains four Q3DockAreas which you can use for your
+    Q3ToolBars and Q3DockWindows, so in most situations you do not need
+    to use the Q3DockArea class directly. Although QMainWindow contains
     support for its own dock areas it isn't convenient for adding new
-    QDockAreas. If you need to create your own dock areas we suggest
-    that you create a subclass of QWidget and add your QDockAreas to
+    Q3DockAreas. If you need to create your own dock areas we suggest
+    that you create a subclass of QWidget and add your Q3DockAreas to
     your subclass.
 
-    \img qmainwindow-qdockareas.png QMainWindow's QDockAreas
+    \img qmainwindow-qdockareas.png QMainWindow's Q3DockAreas
 
     \target lines
-    \e Lines. QDockArea uses the concept of lines. A line is a
+    \e Lines. Q3DockArea uses the concept of lines. A line is a
     horizontal region which may contain dock windows side-by-side. A
     dock area may have room for more than one line. When dock windows
     are docked into a dock area they are usually added at the right
@@ -454,7 +454,7 @@ int QDockAreaLayout::widthForHeight(int h) const
     empty lines or gaps in non-empty lines. Dock windows can be lined
     up to minimize wasted space using the lineUp() function.
 
-    The QDockArea class maintains a position list of all its child
+    The Q3DockArea class maintains a position list of all its child
     dock windows. Dock windows are added to a dock area from position
     0 onwards. Dock windows are laid out sequentially in position
     order from left to right, and in the case of multiple lines of
@@ -464,8 +464,8 @@ int QDockAreaLayout::widthForHeight(int h) const
     position can be determined with hasDockWindow(). The position can
     be changed with moveDockWindow().
 
-    To dock or undock a dock window use QDockWindow::dock() and
-    QDockWindow::undock() respectively. If you want to control which
+    To dock or undock a dock window use Q3DockWindow::dock() and
+    Q3DockWindow::undock() respectively. If you want to control which
     dock windows can dock in a dock area use setAcceptDockWindow(). To
     see if a dock area contains a particular dock window use
     \l{hasDockWindow()}; to see how many dock windows a dock area
@@ -487,7 +487,7 @@ int QDockAreaLayout::widthForHeight(int h) const
 */
 
 /*!
-    \property QDockArea::handlePosition
+    \property Q3DockArea::handlePosition
     \brief where the dock window splitter handle is placed in the dock
     area
 
@@ -495,7 +495,7 @@ int QDockAreaLayout::widthForHeight(int h) const
 */
 
 /*!
-    \property QDockArea::orientation
+    \property Q3DockArea::orientation
     \brief the dock area's orientation
 
     There is no default value; the orientation is specified in the
@@ -503,7 +503,7 @@ int QDockAreaLayout::widthForHeight(int h) const
 */
 
 /*!
-    \enum QDockArea::HandlePosition
+    \enum Q3DockArea::HandlePosition
 
     A dock window has two kinds of handles, the dock window handle
     used for dragging the dock window, and the splitter handle used to
@@ -522,14 +522,14 @@ int QDockAreaLayout::widthForHeight(int h) const
 */
 
 /*!
-    Constructs a QDockArea with orientation \a o, HandlePosition \a h,
+    Constructs a Q3DockArea with orientation \a o, HandlePosition \a h,
     parent \a parent and called \a name.
 */
 
-QDockArea::QDockArea(Orientation o, HandlePosition h, QWidget *parent, const char *name)
+Q3DockArea::Q3DockArea(Orientation o, HandlePosition h, QWidget *parent, const char *name)
     : QWidget(parent, name), orient(o), layout(0), hPos(h)
 {
-    layout = new QDockAreaLayout(this, o, &dockWindows, 0, 0, "toollayout");
+    layout = new Q3DockAreaLayout(this, o, &dockWindows, 0, 0, "toollayout");
     installEventFilter(this);
 }
 
@@ -545,23 +545,23 @@ QDockArea::QDockArea(Orientation o, HandlePosition h, QWidget *parent, const cha
     area.
 */
 
-QDockArea::~QDockArea()
+Q3DockArea::~Q3DockArea()
 {
     while (!dockWindows.isEmpty())
         delete dockWindows.takeFirst();
 }
 
 /*!
-    Moves the QDockWindow \a w within the dock area. If \a w is not
+    Moves the Q3DockWindow \a w within the dock area. If \a w is not
     already docked in this area, \a w is docked first. If \a index is
     -1 or larger than the number of docked widgets, \a w is appended
     at the end, otherwise it is inserted at the position \a index.
 */
 
-void QDockArea::moveDockWindow(QDockWindow *w, int index)
+void Q3DockArea::moveDockWindow(Q3DockWindow *w, int index)
 {
     invalidateFixedSizes();
-    QDockWindow *dockWindow = 0;
+    Q3DockWindow *dockWindow = 0;
     int dockWindowIndex = findDockWindow(w);
     if (dockWindowIndex == -1) {
         dockWindow = w;
@@ -590,7 +590,7 @@ void QDockArea::moveDockWindow(QDockWindow *w, int index)
     }
 
     w->dockArea = this;
-    w->curPlace = QDockWindow::InDock;
+    w->curPlace = Q3DockWindow::InDock;
     w->updateGui();
 
     if (index != -1 && index < (int)dockWindows.count()) {
@@ -606,7 +606,7 @@ void QDockArea::moveDockWindow(QDockWindow *w, int index)
     set to \a w's index position; otherwise \a *index is set to -1.
 */
 
-bool QDockArea::hasDockWindow(QDockWindow *w, int *index)
+bool Q3DockArea::hasDockWindow(Q3DockWindow *w, int *index)
 {
     int i = dockWindows.indexOf(w);
     if (index)
@@ -614,12 +614,12 @@ bool QDockArea::hasDockWindow(QDockWindow *w, int *index)
     return i != -1;
 }
 
-int QDockArea::lineOf(int index)
+int Q3DockArea::lineOf(int index)
 {
-    QList<QDockWindow *> lineStarts = layout->lineStarts();
+    QList<Q3DockWindow *> lineStarts = layout->lineStarts();
     int i = 0;
     for (; i < lineStarts.size(); ++i) {
-        QDockWindow *w = lineStarts.at(i);
+        Q3DockWindow *w = lineStarts.at(i);
         if (dockWindows.indexOf(w) >= index)
             return i;
     }
@@ -634,17 +634,17 @@ int QDockArea::lineOf(int index)
     rectangle of the dock window and \a swap specifies whether or not
     the orientation of the docked widget needs to be changed.
 
-    This function is used internally by QDockWindow. You shouldn't
+    This function is used internally by Q3DockWindow. You shouldn't
     need to call it yourself.
 */
 
-void QDockArea::moveDockWindow(QDockWindow *w, const QPoint &p, const QRect &r, bool swap)
+void Q3DockArea::moveDockWindow(Q3DockWindow *w, const QPoint &p, const QRect &r, bool swap)
 {
     invalidateFixedSizes();
     int mse = -10;
     bool hasResizable = false;
     for (int i = 0; i < dockWindows.size(); ++i) {
-        QDockWindow *dw = dockWindows.at(i);
+        Q3DockWindow *dw = dockWindows.at(i);
         if (dw->isHidden())
             continue;
         if (dw->isResizeEnabled())
@@ -661,9 +661,9 @@ void QDockArea::moveDockWindow(QDockWindow *w, const QPoint &p, const QRect &r, 
             mse = qMax(w->fixedExtent().height(), mse);
     }
 
-    QDockWindow *dockWindow = 0;
+    Q3DockWindow *dockWindow = 0;
     int dockWindowIndex = findDockWindow(w);
-    QList<QDockWindow *> lineStarts = layout->lineStarts();
+    QList<Q3DockWindow *> lineStarts = layout->lineStarts();
     QList<QRect> lines = layout->lineList();
     bool wasAloneInLine = false;
     QPoint pos = mapFromGlobal(p);
@@ -756,7 +756,7 @@ void QDockArea::moveDockWindow(QDockWindow *w, const QPoint &p, const QRect &r, 
         qDebug("insert in line %d, and insert that line: %d", dockLine, insertLine);
         qDebug("     (btw, we have %d lines)", lines.count());
 #endif
-        QDockWindow *dw = 0;
+        Q3DockWindow *dw = 0;
         if (dockLine >= (int)lines.count()) { // insert after last line
             dockWindows.append(dockWindow);
             dockWindow->setNewLine(true);
@@ -781,7 +781,7 @@ void QDockArea::moveDockWindow(QDockWindow *w, const QPoint &p, const QRect &r, 
 #if defined(QDOCKAREA_DEBUG)
             qDebug("search line start of %d", searchLine);
 #endif
-            QDockWindow *lsw = lineStarts.at(searchLine);
+            Q3DockWindow *lsw = lineStarts.at(searchLine);
             int index = dockWindows.indexOf(lsw);
             if (index == -1) { // the linestart widget hasn't been found, try to find it harder
                 if (lsw == w && dockWindowIndex <= dockWindows.count())
@@ -838,7 +838,7 @@ void QDockArea::moveDockWindow(QDockWindow *w, const QPoint &p, const QRect &r, 
 #if defined(QDOCKAREA_DEBUG)
                     qDebug("give the widget at %d a newline", index);
 #endif
-                    QDockWindow* nldw = dockWindows.at(index);
+                    Q3DockWindow* nldw = dockWindows.at(index);
                     if (nldw)
                         nldw->setNewLine(true);
                 }
@@ -871,19 +871,19 @@ void QDockArea::moveDockWindow(QDockWindow *w, const QPoint &p, const QRect &r, 
     (the default) newlines in the area will be fixed.
 
     You should never need to call this function yourself. Use
-    QDockWindow::dock() and QDockWindow::undock() instead.
+    Q3DockWindow::dock() and Q3DockWindow::undock() instead.
 */
 
-void QDockArea::removeDockWindow(QDockWindow *w, bool makeFloating, bool swap, bool fixNewLines)
+void Q3DockArea::removeDockWindow(Q3DockWindow *w, bool makeFloating, bool swap, bool fixNewLines)
 {
     w->removeEventFilter(this);
-    QDockWindow *dockWindow = 0;
+    Q3DockWindow *dockWindow = 0;
     int i = findDockWindow(w);
     if (i == -1)
         return;
     dockWindow = dockWindows.at(i);
     dockWindows.removeAt(i);
-    QList<QDockWindow *> lineStarts = layout->lineStarts();
+    QList<Q3DockWindow *> lineStarts = layout->lineStarts();
     if (fixNewLines && lineStarts.contains(dockWindow) && i < dockWindows.count())
         dockWindows.at(i)->setNewLine(true);
     if (makeFloating) {
@@ -898,12 +898,12 @@ void QDockArea::removeDockWindow(QDockWindow *w, bool makeFloating, bool swap, b
         setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 }
 
-int QDockArea::findDockWindow(QDockWindow *w)
+int Q3DockArea::findDockWindow(Q3DockWindow *w)
 {
     return dockWindows.indexOf(w);
 }
 
-void QDockArea::updateLayout()
+void Q3DockArea::updateLayout()
 {
     layout->invalidate();
     layout->activate();
@@ -912,14 +912,14 @@ void QDockArea::updateLayout()
 /*! \reimp
  */
 
-bool QDockArea::eventFilter(QObject *o, QEvent *e)
+bool Q3DockArea::eventFilter(QObject *o, QEvent *e)
 {
     if (e->type() == QEvent::Close) {
-        if (qt_cast<QDockWindow*>(o)) {
+        if (qt_cast<Q3DockWindow*>(o)) {
             o->removeEventFilter(this);
             QApplication::sendEvent(o, e);
             if (((QCloseEvent*)e)->isAccepted())
-                removeDockWindow((QDockWindow*)o, false, false);
+                removeDockWindow((Q3DockWindow*)o, false, false);
             return true;
         }
     }
@@ -931,7 +931,7 @@ bool QDockArea::eventFilter(QObject *o, QEvent *e)
     Invalidates the offset of the next dock window in the dock area.
  */
 
-void QDockArea::invalidNextOffset(QDockWindow *dw)
+void Q3DockArea::invalidNextOffset(Q3DockWindow *dw)
 {
     int i = dockWindows.indexOf(dw);
     if (i == -1 || i >= (int)dockWindows.count() - 1)
@@ -941,20 +941,20 @@ void QDockArea::invalidNextOffset(QDockWindow *dw)
 }
 
 /*!
-    \property QDockArea::count
+    \property Q3DockArea::count
     \brief the number of dock windows in the dock area
 */
-int QDockArea::count() const
+int Q3DockArea::count() const
 {
     return dockWindows.count();
 }
 
 /*!
-    \property QDockArea::empty
+    \property Q3DockArea::empty
     \brief whether the dock area is empty
 */
 
-bool QDockArea::isEmpty() const
+bool Q3DockArea::isEmpty() const
 {
     return dockWindows.isEmpty();
 }
@@ -964,7 +964,7 @@ bool QDockArea::isEmpty() const
     Returns a list of the dock windows in the dock area.
 */
 
-QList<QDockWindow *> QDockArea::dockWindowList() const
+QList<Q3DockWindow *> Q3DockArea::dockWindowList() const
 {
     return dockWindows;
 }
@@ -976,10 +976,10 @@ QList<QDockWindow *> QDockArea::dockWindowList() const
     be changed.
 */
 
-void QDockArea::lineUp(bool keepNewLines)
+void Q3DockArea::lineUp(bool keepNewLines)
 {
     for (int i = 0; i < dockWindows.size(); ++i) {
-        QDockWindow *dw = dockWindows.at(i);
+        Q3DockWindow *dw = dockWindows.at(i);
         dw->setOffset(0);
         if (!keepNewLines)
             dw->setNewLine(false);
@@ -987,7 +987,7 @@ void QDockArea::lineUp(bool keepNewLines)
     layout->activate();
 }
 
-QDockArea::DockWindowData *QDockArea::dockWindowData(QDockWindow *w)
+Q3DockArea::DockWindowData *Q3DockArea::dockWindowData(Q3DockWindow *w)
 {
     DockWindowData *data = new DockWindowData;
     data->index = findDockWindow(w);
@@ -995,10 +995,10 @@ QDockArea::DockWindowData *QDockArea::dockWindowData(QDockWindow *w)
         delete data;
         return 0;
     }
-    QList<QDockWindow *> lineStarts = layout->lineStarts();
+    QList<Q3DockWindow *> lineStarts = layout->lineStarts();
     int i = -1;
     for (int j = 0; j < dockWindows.size(); ++j) {
-        QDockWindow *dw = dockWindows.at(j);
+        Q3DockWindow *dw = dockWindows.at(j);
         if (lineStarts.contains(dw))
             ++i;
         if (dw == w)
@@ -1011,7 +1011,7 @@ QDockArea::DockWindowData *QDockArea::dockWindowData(QDockWindow *w)
     return data;
 }
 
-void QDockArea::dockWindow(QDockWindow *dockWindow, DockWindowData *data)
+void Q3DockArea::dockWindow(Q3DockWindow *dockWindow, DockWindowData *data)
 {
     if (!data)
         return;
@@ -1026,7 +1026,7 @@ void QDockArea::dockWindow(QDockWindow *dockWindow, DockWindowData *data)
     if (dockWindows.isEmpty()) {
         dockWindows.append(dockWindow);
     } else {
-        QList<QDockWindow *> lineStarts = layout->lineStarts();
+        QList<Q3DockWindow *> lineStarts = layout->lineStarts();
         int index = 0;
         if (lineStarts.count() > data->line)
             index = dockWindows.indexOf(lineStarts.at(data->line));
@@ -1035,7 +1035,7 @@ void QDockArea::dockWindow(QDockWindow *dockWindow, DockWindowData *data)
         bool firstTime = true;
         int offset = data->offset;
         for (int i = index; i < dockWindows.size(); ++i) {
-            QDockWindow *dw = dockWindows.at(i);
+            Q3DockWindow *dw = dockWindows.at(i);
             if (!firstTime && lineStarts.contains(dw))
                 break;
             if (offset <
@@ -1072,14 +1072,14 @@ void QDockArea::dockWindow(QDockWindow *dockWindow, DockWindowData *data)
     \sa setAcceptDockWindow()
 */
 
-bool QDockArea::isDockWindowAccepted(QDockWindow *dw)
+bool Q3DockArea::isDockWindowAccepted(Q3DockWindow *dw)
 {
     if (!dw)
         return false;
     if (forbiddenWidgets.contains(dw))
         return false;
 
-    QMainWindow *mw = qt_cast<QMainWindow*>(parentWidget());
+    Q3MainWindow *mw = qt_cast<Q3MainWindow*>(parentWidget());
     if (!mw)
         return true;
     if (!mw->hasDockWindow(dw))
@@ -1099,7 +1099,7 @@ bool QDockArea::isDockWindowAccepted(QDockWindow *dw)
     \sa isDockWindowAccepted()
 */
 
-void QDockArea::setAcceptDockWindow(QDockWindow *dw, bool accept)
+void Q3DockArea::setAcceptDockWindow(Q3DockWindow *dw, bool accept)
 {
     if (accept)
         forbiddenWidgets.removeAll(dw);
@@ -1107,10 +1107,10 @@ void QDockArea::setAcceptDockWindow(QDockWindow *dw, bool accept)
         forbiddenWidgets.append(dw);
 }
 
-void QDockArea::invalidateFixedSizes()
+void Q3DockArea::invalidateFixedSizes()
 {
     for (int i = 0; i < dockWindows.size(); ++i) {
-        QDockWindow *dw = dockWindows.at(i);
+        Q3DockWindow *dw = dockWindows.at(i);
         if (orientation() == Qt::Horizontal)
             dw->setFixedExtentWidth(-1);
         else
@@ -1118,7 +1118,7 @@ void QDockArea::invalidateFixedSizes()
     }
 }
 
-int QDockArea::maxSpace(int hint, QDockWindow *dw)
+int Q3DockArea::maxSpace(int hint, Q3DockWindow *dw)
 {
     int index = findDockWindow(dw);
     if (index == -1 || index + 1 >= (int)dockWindows.count()) {
@@ -1127,7 +1127,7 @@ int QDockArea::maxSpace(int hint, QDockWindow *dw)
         return dw->height();
     }
 
-    QDockWindow *w = 0;
+    Q3DockWindow *w = 0;
     int i = 0;
     do {
         w = dockWindows.at(index + (++i));
@@ -1138,7 +1138,7 @@ int QDockArea::maxSpace(int hint, QDockWindow *dw)
         return dw->height();
     }
     int min = 0;
-    QToolBar *tb = qt_cast<QToolBar*>(w);
+    Q3ToolBar *tb = qt_cast<Q3ToolBar*>(w);
     if (orientation() == Horizontal) {
         w->setFixedExtentWidth(-1);
         if (!tb)
@@ -1166,11 +1166,11 @@ int QDockArea::maxSpace(int hint, QDockWindow *dw)
     return hint;
 }
 
-void QDockArea::setFixedExtent(int d, QDockWindow *dw)
+void Q3DockArea::setFixedExtent(int d, Q3DockWindow *dw)
 {
-    QList<QDockWindow *> lst;
+    QList<Q3DockWindow *> lst;
     for (int i = 0; i < dockWindows.size(); ++i) {
-        QDockWindow *w = dockWindows.at(i);
+        Q3DockWindow *w = dockWindows.at(i);
         if (w->isHidden())
             continue;
         if (orientation() == Horizontal) {
@@ -1188,7 +1188,7 @@ void QDockArea::setFixedExtent(int d, QDockWindow *dw)
             lst.append(w);
     }
     for (int i = 0; i < lst.size(); ++i) {
-        QDockWindow *w = lst.at(i);
+        Q3DockWindow *w = lst.at(i);
         if (orientation() == Horizontal)
             w->setFixedExtentHeight(d);
         else
@@ -1196,12 +1196,12 @@ void QDockArea::setFixedExtent(int d, QDockWindow *dw)
     }
 }
 
-bool QDockArea::isLastDockWindow(QDockWindow *dw)
+bool Q3DockArea::isLastDockWindow(Q3DockWindow *dw)
 {
     int i = dockWindows.indexOf(dw);
     if (i == -1 || i >= (int)dockWindows.count() - 1)
         return true;
-    QDockWindow *w = 0;
+    Q3DockWindow *w = 0;
     if ((w = dockWindows.at(++i))) {
         if (orientation() == Horizontal && dw->y() < w->y())
             return true;
@@ -1216,7 +1216,7 @@ bool QDockArea::isLastDockWindow(QDockWindow *dw)
 #ifndef QT_NO_TEXTSTREAM
 
 /*!
-    \relates QDockArea
+    \relates Q3DockArea
 
     Writes the layout of the dock windows in dock area \a dockArea to
     the text stream \a ts.
@@ -1224,13 +1224,13 @@ bool QDockArea::isLastDockWindow(QDockWindow *dw)
     \sa operator>>()
 */
 
-QTextStream &operator<<(QTextStream &ts, const QDockArea &dockArea)
+QTextStream &operator<<(QTextStream &ts, const Q3DockArea &dockArea)
 {
     QString str;
-    QList<QDockWindow *> l = dockArea.dockWindowList();
+    QList<Q3DockWindow *> l = dockArea.dockWindowList();
 
     for (int i = 0; i < l.size(); ++i) {
-        QDockWindow *dw = l.at(i);
+        Q3DockWindow *dw = l.at(i);
         str += "[" + QString(dw->windowTitle()) + "," + QString::number((int)dw->offset()) +
                "," + QString::number((int)dw->newLine()) + "," + QString::number(dw->fixedExtent().width()) +
                "," + QString::number(dw->fixedExtent().height()) + "," + QString::number((int)!dw->isHidden()) + "]";
@@ -1241,7 +1241,7 @@ QTextStream &operator<<(QTextStream &ts, const QDockArea &dockArea)
 }
 
 /*!
-    \relates QDockArea
+    \relates Q3DockArea
 
     Reads the layout description of the dock windows in dock area \a
     dockArea from the text stream \a ts and restores it. The layout
@@ -1251,7 +1251,7 @@ QTextStream &operator<<(QTextStream &ts, const QDockArea &dockArea)
     \sa operator<<()
 */
 
-QTextStream &operator>>(QTextStream &ts, QDockArea &dockArea)
+QTextStream &operator>>(QTextStream &ts, Q3DockArea &dockArea)
 {
     QString s = ts.readLine();
 
@@ -1260,7 +1260,7 @@ QTextStream &operator>>(QTextStream &ts, QDockArea &dockArea)
     enum State { Pre, Name, Offset, NewLine, Width, Height, Visible, Post };
     int state = Pre;
     QChar c;
-    QList<QDockWindow *> l = dockArea.dockWindowList();
+    QList<Q3DockWindow *> l = dockArea.dockWindowList();
 
     for (int i = 0; i < s.length(); ++i) {
         c = s[i];
@@ -1275,7 +1275,7 @@ QTextStream &operator>>(QTextStream &ts, QDockArea &dockArea)
         }
         if (state == Visible && c == ']') {
             for (int j = 0; j < l.size(); ++j) {
-                QDockWindow *dw = l.at(j);
+                Q3DockWindow *dw = l.at(j);
                 if (QString(dw->windowTitle()) == name) {
                     dw->setNewLine((bool)newLine.toInt());
                     dw->setOffset(offset.toInt());

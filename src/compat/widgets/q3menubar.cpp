@@ -91,7 +91,7 @@ extern int qt_xfocusout_grab_counter; // defined in qapplication_x11.cpp
     \printline
 
     In most main window style applications you would use the menuBar()
-    provided in QMainWindow, adding \l{Q3PopupMenu}s to the menu bar
+    provided in Q3MainWindow, adding \l{Q3PopupMenu}s to the menu bar
     and adding \l{QAction}s to the popup menus.
 
     Example (from \l action/application.cpp):
@@ -364,7 +364,7 @@ void Q3MenuBar::performDelayedContentsChanged()
     if (isVisible()) {
         update();
 #ifndef QT_NO_MAINWINDOW
-        QMainWindow *mw = qt_cast<QMainWindow*>(parent());
+        Q3MainWindow *mw = qt_cast<Q3MainWindow*>(parent());
         if (mw) {
             mw->triggerLayout();
             mw->update();
@@ -482,7 +482,7 @@ bool Q3MenuBar::eventFilter(QObject *object, QEvent *event)
 {
     if (object == parent() && object
 #ifndef QT_NO_TOOLBAR
-         && !qt_cast<QToolBar*>(object)
+         && !qt_cast<Q3ToolBar*>(object)
 #endif
          && event->type() == QEvent::Resize) {
         QResizeEvent *e = (QResizeEvent *)event;
@@ -808,7 +808,7 @@ void Q3MenuBar::show()
 #endif
 
 #ifndef QT_NO_MAINWINDOW
-    QMainWindow *mw = qt_cast<QMainWindow*>(parent());
+    Q3MainWindow *mw = qt_cast<Q3MainWindow*>(parent());
     if (mw) //### ugly workaround
         mw->triggerLayout();
 #endif
@@ -826,7 +826,7 @@ void Q3MenuBar::hide()
     setAltMode(false);
     hidePopups();
 #ifndef QT_NO_MAINWINDOW
-    QMainWindow *mw = qt_cast<QMainWindow*>(parent());
+    Q3MainWindow *mw = qt_cast<Q3MainWindow*>(parent());
     if (mw) //### ugly workaround
         mw->triggerLayout();
 #endif
@@ -1568,7 +1568,7 @@ QSize Q3MenuBar::sizeHint() const
 QSize Q3MenuBar::minimumSize() const
 {
 #ifndef QT_NO_TOOLBAR
-    QToolBar *tb = qt_cast<QToolBar*>(parent());
+    Q3ToolBar *tb = qt_cast<Q3ToolBar*>(parent());
     if (tb)
         return sizeHint();
 #endif

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of the QDockWindow class.
+** Definition of the Q3DockWindow class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -21,22 +21,22 @@
 
 #ifndef QT_NO_MAINWINDOW
 
-class QDockWindowHandle;
-class QDockWindowTitleBar;
+class Q3DockWindowHandle;
+class Q3DockWindowTitleBar;
 class QPainter;
-class QDockWindowResizeHandle;
+class Q3DockWindowResizeHandle;
 class QBoxLayout;
 class QHBoxLayout;
 class QVBoxLayout;
-class QDockArea;
+class Q3DockArea;
 class QWidgetResizeHandler;
-class QMainWindow;
-class QDockAreaLayout;
-class QDockWindowPrivate;
-class QToolBar;
+class Q3MainWindow;
+class Q3DockAreaLayout;
+class Q3DockWindowPrivate;
+class Q3ToolBar;
 class QWindowsXPStyle;
 
-class Q_COMPAT_EXPORT QDockWindow : public Q3Frame
+class Q_COMPAT_EXPORT Q3DockWindow : public Q3Frame
 {
     Q_OBJECT
     Q_ENUMS(CloseMode Place)
@@ -51,29 +51,29 @@ class Q_COMPAT_EXPORT QDockWindow : public Q3Frame
     Q_PROPERTY(int offset READ offset  WRITE setOffset)
     Q_PROPERTY(Place place READ place)
 
-    friend class QDockWindowHandle;
-    friend class QDockWindowTitleBar;
-    friend class QDockArea;
-    friend class QDockAreaLayout;
-    friend class QMainWindow;
+    friend class Q3DockWindowHandle;
+    friend class Q3DockWindowTitleBar;
+    friend class Q3DockArea;
+    friend class Q3DockAreaLayout;
+    friend class Q3MainWindow;
     friend class QCEMainWindow;
-    friend class QToolBar;
+    friend class Q3ToolBar;
     friend class QWindowsXPStyle;
 
 public:
     enum Place { InDock, OutsideDock };
     enum CloseMode { Never = 0, Docked = 1, Undocked = 2, Always = Docked | Undocked };
 
-    QDockWindow(Place p = InDock, QWidget* parent=0, const char* name=0, WFlags f = 0);
-    QDockWindow(QWidget* parent, const char* name=0, WFlags f = 0);
-    ~QDockWindow();
+    Q3DockWindow(Place p = InDock, QWidget* parent=0, const char* name=0, WFlags f = 0);
+    Q3DockWindow(QWidget* parent, const char* name=0, WFlags f = 0);
+    ~Q3DockWindow();
 
     virtual void setWidget(QWidget *w);
     QWidget *widget() const;
 
     Place place() const { return curPlace; }
 
-    QDockArea *area() const;
+    Q3DockArea *area() const;
 
     virtual void setCloseMode(int m);
     bool isCloseEnabled() const;
@@ -121,7 +121,7 @@ public:
 
 signals:
     void orientationChanged(Orientation o);
-    void placeChanged(QDockWindow::Place p);
+    void placeChanged(Q3DockWindow::Place p);
     void visibilityChanged(bool);
 
 public slots:
@@ -145,7 +145,7 @@ private slots:
     void toggleVisible() { if (!isVisible()) show(); else hide(); }
 
 private:
-    QDockWindow(Place p, QWidget* parent, const char* name, WFlags f, bool toolbar);
+    Q3DockWindow(Place p, QWidget* parent, const char* name, WFlags f, bool toolbar);
 
     void handleMove(const QPoint &pos, const QPoint &gp, bool drawRect);
     void updateGui();
@@ -156,15 +156,15 @@ private:
     void updatePosition(const QPoint &globalPos );
     QWidget *areaAt(const QPoint &gp);
     void removeFromDock(bool fixNewLines = true);
-    void swapRect(QRect &r, Qt::Orientation o, const QPoint &offset, QDockArea *area);
+    void swapRect(QRect &r, Qt::Orientation o, const QPoint &offset, Q3DockArea *area);
     void init();
 
 private:
-    QDockWindowHandle *horHandle, *verHandle;
-    QDockWindowTitleBar *titleBar;
+    Q3DockWindowHandle *horHandle, *verHandle;
+    Q3DockWindowTitleBar *titleBar;
     QWidget *wid;
     QPainter *unclippedPainter;
-    QDockArea *dockArea, *tmpDockArea;
+    Q3DockArea *dockArea, *tmpDockArea;
     QRect currRect;
     Place curPlace;
     Place state;
@@ -179,7 +179,7 @@ private:
     QPoint startOffset;
     int offs;
     QSize fExtent;
-    QDockWindowResizeHandle *hHandleTop, *hHandleBottom, *vHandleLeft, *vHandleRight;
+    Q3DockWindowResizeHandle *hHandleTop, *hHandleBottom, *vHandleLeft, *vHandleRight;
     QVBoxLayout *hbox;
     QHBoxLayout *vbox;
     QBoxLayout *childBox;
@@ -187,16 +187,16 @@ private:
     QPoint lastPos;
     QSize lastSize;
     QWidgetResizeHandler *widgetResizeHandler;
-    QDockWindowPrivate *d;
+    Q3DockWindowPrivate *d;
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QDockWindow(const QDockWindow &);
-    QDockWindow& operator=(const QDockWindow &);
+    Q3DockWindow(const Q3DockWindow &);
+    Q3DockWindow& operator=(const Q3DockWindow &);
 #endif
 };
 
-inline QDockArea *QDockWindow::area() const
+inline Q3DockArea *Q3DockWindow::area() const
 {
     return dockArea;
 }

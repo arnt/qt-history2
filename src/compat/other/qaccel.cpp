@@ -112,7 +112,7 @@
                         SLOT(printDoc()));           // printDoc() slot
     \endcode
 
-    \sa QKeyEvent QWidget::keyPressEvent() 
+    \sa QKeyEvent QWidget::keyPressEvent()
     QLabel::setBuddy() QKeySequence
     \link guibooks.html#fowler GUI Design Handbook: Keyboard Shortcuts \endlink.
 */
@@ -222,7 +222,7 @@ bool QAccelManager::correctSubWindow(QWidget* w, QAccelPrivate* priv) {
 
     /* if we live in a floating dock window, keep our parent's
      * accelerators working */
-    if (tlw->isDialog() && tlw->parentWidget() && ::qt_cast<QDockWindow*>(tlw))
+    if (tlw->isDialog() && tlw->parentWidget() && ::qt_cast<Q3DockWindow*>(tlw))
         return tlw->parentWidget()->topLevelWidget() == wtlw;
 
     if (wtlw  != tlw)

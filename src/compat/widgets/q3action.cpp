@@ -79,7 +79,7 @@
     that at this point there is no menu or toolbar action, we'll add
     them next:
 
-    \skipto new QToolBar
+    \skipto new Q3ToolBar
     \printline
     \skipto fileSaveAction->addTo
     \printline
@@ -995,13 +995,13 @@ void Q3Action::toolButtonToggled(bool on)
 /*!
     Adds this action to widget \a w.
 
-    Currently actions may be added to QToolBar and Q3PopupMenu widgets.
+    Currently actions may be added to Q3ToolBar and Q3PopupMenu widgets.
 
     An action added to a tool bar is automatically displayed as a tool
     button; an action added to a pop up menu appears as a menu option.
 
     addTo() returns true if the action was added successfully and
-    false otherwise. (If \a w is not a QToolBar or Q3PopupMenu the
+    false otherwise. (If \a w is not a Q3ToolBar or Q3PopupMenu the
     action will not be added and false will be returned.)
 
     \sa removeFrom()
@@ -1009,12 +1009,12 @@ void Q3Action::toolButtonToggled(bool on)
 bool Q3Action::addTo(QWidget* w)
 {
 #ifndef QT_NO_TOOLBAR
-    if (::qt_cast<QToolBar*>(w)) {
+    if (::qt_cast<Q3ToolBar*>(w)) {
         if (objectName() == QLatin1String("qt_separator_action")) {
-            ((QToolBar*)w)->addSeparator();
+            ((Q3ToolBar*)w)->addSeparator();
         } else {
             QString bname = objectName() + QLatin1String("_action_button");
-            QToolButton* btn = new QToolButton((QToolBar*) w);
+            QToolButton* btn = new QToolButton((Q3ToolBar*) w);
             btn->setObjectName(bname);
             addedTo(btn, w);
             btn->setToggleButton(d->toggleaction);
@@ -1193,7 +1193,7 @@ void Q3Action::clearStatusText()
 bool Q3Action::removeFrom(QWidget* w)
 {
 #ifndef QT_NO_TOOLBAR
-    if (::qt_cast<QToolBar*>(w)) {
+    if (::qt_cast<Q3ToolBar*>(w)) {
         QList<QToolButton*>::Iterator it(d->toolbuttons.begin());
         QToolButton* btn;
         while (it != d->toolbuttons.end()) {
@@ -1710,7 +1710,7 @@ void Q3ActionGroup::addSeparator()
 bool Q3ActionGroup::addTo(QWidget *w)
 {
 #ifndef QT_NO_TOOLBAR
-    if (qt_cast<QToolBar*>(w)) {
+    if (qt_cast<Q3ToolBar*>(w)) {
         if (d->dropdown) {
             if (!d->exclusive) {
                 QList<Q3Action*>::Iterator it(d->actions.begin());
@@ -1719,7 +1719,7 @@ bool Q3ActionGroup::addTo(QWidget *w)
 
                 Q3Action *defAction = *it;
 
-                QToolButton* btn = new QToolButton((QToolBar*) w, "qt_actiongroup_btn");
+                QToolButton* btn = new QToolButton((Q3ToolBar*) w, "qt_actiongroup_btn");
                 addedTo(btn, w);
                 connect(btn, SIGNAL(destroyed()), SLOT(objectDestroyed()));
                 d->menubuttons.append(btn);
@@ -1867,7 +1867,7 @@ bool Q3ActionGroup::removeFrom(QWidget* w)
         (*it)->removeFrom(w);
 
 #ifndef QT_NO_TOOLBAR
-    if (::qt_cast<QToolBar*>(w)) {
+    if (::qt_cast<Q3ToolBar*>(w)) {
         QList<QComboBox*>::Iterator cb(d->comboboxes.begin());
         while (cb != d->comboboxes.end()) {
             QComboBox *box = *cb;

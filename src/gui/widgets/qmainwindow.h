@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QMainWindow class.
+** Definition of Q3MainWindow class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -26,15 +26,15 @@
 class QMenuBar;
 class QStatusBar;
 class QToolTipGroup;
-class QMainWindowPrivate;
-class QMainWindowLayout;
+class Q3MainWindowPrivate;
+class Q3MainWindowLayout;
 class QPopupMenu;
 template<class T> class QList;
 
-class Q_COMPAT_EXPORT QMainWindow: public QWidget
+class Q_COMPAT_EXPORT Q3MainWindow: public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QMainWindow)
+    Q_DECLARE_PRIVATE(Q3MainWindow)
 
     Q_PROPERTY(bool rightJustification READ rightJustification WRITE setRightJustification DESIGNABLE false)
     Q_PROPERTY(bool usesBigPixmaps READ usesBigPixmaps WRITE setUsesBigPixmaps)
@@ -43,8 +43,8 @@ class Q_COMPAT_EXPORT QMainWindow: public QWidget
     Q_PROPERTY(bool opaqueMoving READ opaqueMoving WRITE setOpaqueMoving)
 
 public:
-    QMainWindow(QWidget* parent=0, const char* name=0, WFlags f = WType_TopLevel);
-    ~QMainWindow();
+    Q3MainWindow(QWidget* parent=0, const char* name=0, WFlags f = WType_TopLevel);
+    ~Q3MainWindow();
 
 #ifndef QT_NO_MENUBAR
     QMenuBar * menuBar() const;
@@ -59,17 +59,17 @@ public:
 
     virtual void setDockEnabled(Dock dock, bool enable);
     bool isDockEnabled(Dock dock) const;
-    bool isDockEnabled(QDockArea *area) const;
-    virtual void setDockEnabled(QDockWindow *tb, Dock dock, bool enable);
-    bool isDockEnabled(QDockWindow *tb, Dock dock) const;
-    bool isDockEnabled(QDockWindow *tb, QDockArea *area) const;
+    bool isDockEnabled(Q3DockArea *area) const;
+    virtual void setDockEnabled(Q3DockWindow *tb, Dock dock, bool enable);
+    bool isDockEnabled(Q3DockWindow *tb, Dock dock) const;
+    bool isDockEnabled(Q3DockWindow *tb, Q3DockArea *area) const;
 
-    virtual void addDockWindow(QDockWindow *, Dock = DockTop, bool newLine = false);
-    virtual void addDockWindow(QDockWindow *, const QString &label,
+    virtual void addDockWindow(Q3DockWindow *, Dock = DockTop, bool newLine = false);
+    virtual void addDockWindow(Q3DockWindow *, const QString &label,
                                 Dock = DockTop, bool newLine = false);
-    virtual void moveDockWindow(QDockWindow *, Dock = DockTop);
-    virtual void moveDockWindow(QDockWindow *, Dock, bool nl, int index, int extraOffset = -1);
-    virtual void removeDockWindow(QDockWindow *);
+    virtual void moveDockWindow(Q3DockWindow *, Dock = DockTop);
+    virtual void moveDockWindow(Q3DockWindow *, Dock, bool nl, int index, int extraOffset = -1);
+    virtual void removeDockWindow(Q3DockWindow *);
 
     void show();
     void hide();
@@ -84,38 +84,38 @@ public:
 
     bool eventFilter(QObject*, QEvent*);
 
-    bool getLocation(QDockWindow *tb, Dock &dock, int &index, bool &nl, int &extraOffset) const;
+    bool getLocation(Q3DockWindow *tb, Dock &dock, int &index, bool &nl, int &extraOffset) const;
 
-    QList<QDockWindow *> dockWindows(Dock dock) const;
-    QList<QDockWindow *> dockWindows() const;
+    QList<Q3DockWindow *> dockWindows(Dock dock) const;
+    QList<Q3DockWindow *> dockWindows() const;
     void lineUpDockWindows(bool keepNewLines = false);
 
     bool isDockMenuEnabled() const;
 
     // compatibility stuff
-    bool hasDockWindow(QDockWindow *dw);
+    bool hasDockWindow(Q3DockWindow *dw);
 #ifndef QT_NO_TOOLBAR
-    void addToolBar(QDockWindow *, Dock = DockTop, bool newLine = false);
-    void addToolBar(QDockWindow *, const QString &label,
+    void addToolBar(Q3DockWindow *, Dock = DockTop, bool newLine = false);
+    void addToolBar(Q3DockWindow *, const QString &label,
                      Dock = DockTop, bool newLine = false);
-    void moveToolBar(QDockWindow *, Dock = DockTop);
-    void moveToolBar(QDockWindow *, Dock, bool nl, int index, int extraOffset = -1);
-    void removeToolBar(QDockWindow *);
+    void moveToolBar(Q3DockWindow *, Dock = DockTop);
+    void moveToolBar(Q3DockWindow *, Dock, bool nl, int index, int extraOffset = -1);
+    void removeToolBar(Q3DockWindow *);
 
     bool toolBarsMovable() const;
-    QList<QToolBar *> toolBars(Dock dock) const;
+    QList<Q3ToolBar *> toolBars(Dock dock) const;
     void lineUpToolBars(bool keepNewLines = false);
 #endif
 
-    virtual QDockArea *dockingArea(const QPoint &p);
-    QDockArea *leftDock() const;
-    QDockArea *rightDock() const;
-    QDockArea *topDock() const;
-    QDockArea *bottomDock() const;
+    virtual Q3DockArea *dockingArea(const QPoint &p);
+    Q3DockArea *leftDock() const;
+    Q3DockArea *rightDock() const;
+    Q3DockArea *topDock() const;
+    Q3DockArea *bottomDock() const;
 
     virtual bool isCustomizable() const;
 
-    bool appropriate(QDockWindow *dw) const;
+    bool appropriate(Q3DockWindow *dw) const;
 
     enum DockWindows { OnlyToolBars, NoToolBars, AllDockWindows };
     virtual QPopupMenu *createDockWindowMenu(DockWindows dockWindows = AllDockWindows) const;
@@ -128,7 +128,7 @@ public slots:
     virtual void setOpaqueMoving(bool);
     virtual void setDockMenuEnabled(bool);
     virtual void enterWhatsThis();
-    virtual void setAppropriate(QDockWindow *dw, bool a);
+    virtual void setAppropriate(Q3DockWindow *dw, bool a);
     virtual void customize();
 
     // compatibility stuff
@@ -137,11 +137,11 @@ public slots:
 signals:
     void pixmapSizeChanged(bool);
     void usesTextLabelChanged(bool);
-    void dockWindowPositionChanged(QDockWindow *);
+    void dockWindowPositionChanged(Q3DockWindow *);
 
 #ifndef QT_NO_TOOLBAR
     // compatibility stuff
-    void toolBarPositionChanged(QToolBar *);
+    void toolBarPositionChanged(Q3ToolBar *);
 #endif
 
 protected slots:
@@ -169,67 +169,67 @@ private:
     virtual void setToolTipGroup(QToolTipGroup *);
 #endif
 
-    friend class QDockWindow;
+    friend class Q3DockWindow;
     friend class QMenuBarPrivate;
 #ifdef QT_COMPAT
     friend class Q3MenuBar;
 #endif
     friend class QHideDock;
-    friend class QToolBar;
-    friend class QMainWindowLayout;
+    friend class Q3ToolBar;
+    friend class Q3MainWindowLayout;
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QMainWindow(const QMainWindow &);
-    QMainWindow& operator=(const QMainWindow &);
+    Q3MainWindow(const Q3MainWindow &);
+    Q3MainWindow& operator=(const Q3MainWindow &);
 #endif
 };
 
 #ifndef QT_NO_TOOLBAR
-inline void QMainWindow::addToolBar(QDockWindow *w, ToolBarDock dock, bool newLine)
+inline void Q3MainWindow::addToolBar(Q3DockWindow *w, ToolBarDock dock, bool newLine)
 {
     addDockWindow(w, dock, newLine);
 }
 
-inline void QMainWindow::addToolBar(QDockWindow *w, const QString &label,
+inline void Q3MainWindow::addToolBar(Q3DockWindow *w, const QString &label,
                               ToolBarDock dock, bool newLine)
 {
     addDockWindow(w, label, dock, newLine);
 }
 
-inline void QMainWindow::moveToolBar(QDockWindow *w, ToolBarDock dock)
+inline void Q3MainWindow::moveToolBar(Q3DockWindow *w, ToolBarDock dock)
 {
     moveDockWindow(w, dock);
 }
 
-inline void QMainWindow::moveToolBar(QDockWindow *w, ToolBarDock dock, bool nl, int index, int extraOffset)
+inline void Q3MainWindow::moveToolBar(Q3DockWindow *w, ToolBarDock dock, bool nl, int index, int extraOffset)
 {
     moveDockWindow(w, dock, nl, index, extraOffset);
 }
 
-inline void QMainWindow::removeToolBar(QDockWindow *w)
+inline void Q3MainWindow::removeToolBar(Q3DockWindow *w)
 {
     removeDockWindow(w);
 }
 
-inline bool QMainWindow::toolBarsMovable() const
+inline bool Q3MainWindow::toolBarsMovable() const
 {
     return dockWindowsMovable();
 }
 
-inline void QMainWindow::lineUpToolBars(bool keepNewLines)
+inline void Q3MainWindow::lineUpToolBars(bool keepNewLines)
 {
     lineUpDockWindows(keepNewLines);
 }
 
-inline void QMainWindow::setToolBarsMovable(bool b)
+inline void Q3MainWindow::setToolBarsMovable(bool b)
 {
     setDockWindowsMovable(b);
 }
 #endif
 
 #ifndef QT_NO_TEXTSTREAM
-Q_COMPAT_EXPORT QTextStream &operator<<(QTextStream &, const QMainWindow &);
-Q_COMPAT_EXPORT QTextStream &operator>>(QTextStream &, QMainWindow &);
+Q_COMPAT_EXPORT QTextStream &operator<<(QTextStream &, const Q3MainWindow &);
+Q_COMPAT_EXPORT QTextStream &operator>>(QTextStream &, Q3MainWindow &);
 #endif
 
 #endif // QT_NO_MAINWINDOW

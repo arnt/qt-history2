@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QToolBar class.
+** Implementation of Q3ToolBar class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -60,27 +60,27 @@ static const char * const arrow_h_xpm[] = {
     "+..++..++",
     "..++..+++"};
 
-class QToolBarExtensionWidget;
+class Q3ToolBarExtensionWidget;
 
-class QToolBarPrivate
+class Q3ToolBarPrivate
 {
 public:
-    QToolBarPrivate() : moving(false) {
+    Q3ToolBarPrivate() : moving(false) {
     }
 
     bool moving;
-    QToolBarExtensionWidget *extension;
+    Q3ToolBarExtensionWidget *extension;
     QPopupMenu *extensionPopup;
 
     QMap<QAction *, QWidget *> actions;
 };
 
 
-class QToolBarSeparator : public QWidget
+class Q3ToolBarSeparator : public QWidget
 {
     Q_OBJECT
 public:
-    QToolBarSeparator(Orientation, QToolBar *parent, const char* name=0);
+    Q3ToolBarSeparator(Orientation, Q3ToolBar *parent, const char* name=0);
 
     QSize sizeHint() const;
     Orientation orientation() const { return orient; }
@@ -94,12 +94,12 @@ private:
     Orientation orient;
 };
 
-class QToolBarExtensionWidget : public QWidget
+class Q3ToolBarExtensionWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    QToolBarExtensionWidget(QWidget *w);
+    Q3ToolBarExtensionWidget(QWidget *w);
     void setOrientation(Orientation o);
     QToolButton *button() const { return tb; }
 
@@ -116,7 +116,7 @@ private:
 
 };
 
-QToolBarExtensionWidget::QToolBarExtensionWidget(QWidget *w)
+Q3ToolBarExtensionWidget::Q3ToolBarExtensionWidget(QWidget *w)
     : QWidget(w, "qt_dockwidget_internal")
 {
     tb = new QToolButton(this, "qt_toolbar_ext_button");
@@ -124,7 +124,7 @@ QToolBarExtensionWidget::QToolBarExtensionWidget(QWidget *w)
     setOrientation(Horizontal);
 }
 
-void QToolBarExtensionWidget::setOrientation(Orientation o)
+void Q3ToolBarExtensionWidget::setOrientation(Orientation o)
 {
     orient = o;
     if (orient == Horizontal)
@@ -134,12 +134,12 @@ void QToolBarExtensionWidget::setOrientation(Orientation o)
     layOut();
 }
 
-void QToolBarExtensionWidget::layOut()
+void Q3ToolBarExtensionWidget::layOut()
 {
     tb->setGeometry(2, 2, width() - 4, height() - 4);
 }
 
-QToolBarSeparator::QToolBarSeparator(Orientation o , QToolBar *parent,
+Q3ToolBarSeparator::Q3ToolBarSeparator(Orientation o , Q3ToolBar *parent,
                                      const char* name)
     : QWidget(parent, name)
 {
@@ -151,19 +151,19 @@ QToolBarSeparator::QToolBarSeparator(Orientation o , QToolBar *parent,
 
 
 
-void QToolBarSeparator::setOrientation(Orientation o)
+void Q3ToolBarSeparator::setOrientation(Orientation o)
 {
     orient = o;
 }
 
-void QToolBarSeparator::changeEvent(QEvent *ev)
+void Q3ToolBarSeparator::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange)
         setOrientation(orient);
     QWidget::changeEvent(ev);
 }
 
-QSize QToolBarSeparator::sizeHint() const
+QSize Q3ToolBarSeparator::sizeHint() const
 {
     int extent = style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent,
                                       this);
@@ -173,7 +173,7 @@ QSize QToolBarSeparator::sizeHint() const
         return QSize(0, extent);
 }
 
-void QToolBarSeparator::paintEvent(QPaintEvent *)
+void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QStyle::SFlags flags = QStyle::Style_Default;
@@ -189,8 +189,8 @@ void QToolBarSeparator::paintEvent(QPaintEvent *)
 
 
 /*!
-    \class QToolBar qtoolbar.h
-    \brief The QToolBar class provides a movable panel containing
+    \class Q3ToolBar qtoolbar.h
+    \brief The Q3ToolBar class provides a movable panel containing
     widgets such as tool buttons.
 
     \ingroup application
@@ -199,43 +199,43 @@ void QToolBarSeparator::paintEvent(QPaintEvent *)
     A toolbar is a panel that contains a set of controls, usually
     represented by small icons. It's purpose is to provide quick
     access to frequently used commands or options. Within a
-    QMainWindow the user can drag toolbars within and between the
+    Q3MainWindow the user can drag toolbars within and between the
     \link QDockArea dock areas\endlink. Toolbars can also be dragged
     out of any dock area to float freely as top-level windows.
 
-    QToolBar is a specialization of QDockWindow, and so provides all
+    Q3ToolBar is a specialization of QDockWindow, and so provides all
     the functionality of a QDockWindow.
 
-    To use QToolBar you simply create a QToolBar as a child of a
-    QMainWindow, create a number of QToolButton widgets (or other
+    To use Q3ToolBar you simply create a Q3ToolBar as a child of a
+    Q3MainWindow, create a number of QToolButton widgets (or other
     widgets) in left to right (or top to bottom) order and call
     addSeparator() when you want a separator. When a toolbar is
     floated the caption used is the label given in the constructor
     call. This can be changed with setLabel().
 
     \quotefile action/application.cpp
-    \skipto new QToolBar
+    \skipto new Q3ToolBar
     \printuntil fileSaveAction
 
     This extract from the \l application/application.cpp example shows
-    the creation of a new toolbar as a child of a QMainWindow and
+    the creation of a new toolbar as a child of a Q3MainWindow and
     adding two QActions.
 
     You may use most widgets within a toolbar, with QToolButton and
     QComboBox being the most common.
 
-    If you create a new widget on an already visible QToolBar, this
+    If you create a new widget on an already visible Q3ToolBar, this
     widget will automatically become visible without needing a show()
     call. (This differs from every other Qt widget container. We
     recommend calling show() anyway since we hope to fix this anomaly
     in a future release.)
 
-    QToolBars, like QDockWindows, are located in \l{QDockArea}s or
-    float as top-level windows. QMainWindow provides four QDockAreas
+    Q3ToolBars, like QDockWindows, are located in \l{QDockArea}s or
+    float as top-level windows. Q3MainWindow provides four QDockAreas
     (top, left, right and bottom). When you create a new toolbar (as
-    in the example above) as a child of a QMainWindow the toolbar will
+    in the example above) as a child of a Q3MainWindow the toolbar will
     be added to the top dock area. You can move it to another dock
-    area (or float it) by calling QMainWindow::moveDockWindow(). QDock
+    area (or float it) by calling Q3MainWindow::moveDockWindow(). QDock
     areas lay out their windows in \link qdockarea.html#lines
     Lines\endlink.
 
@@ -265,12 +265,12 @@ void QToolBarSeparator::paintEvent(QPaintEvent *)
     \img qdockwindow.png Toolbar (dock window)
     \caption A floating QToolbar (dock window)
 
-    \sa QToolButton QMainWindow \link http://www.iarchitect.com/visual.htm Parts of Isys on Visual Design\endlink \link guibooks.html#fowler GUI Design Handbook: Tool Bar\endlink.
+    \sa QToolButton Q3MainWindow \link http://www.iarchitect.com/visual.htm Parts of Isys on Visual Design\endlink \link guibooks.html#fowler GUI Design Handbook: Tool Bar\endlink.
 */
 
 /*!
-    \fn QToolBar::QToolBar(const QString &label,
-              QMainWindow *, ToolBarDock = Top,
+    \fn Q3ToolBar::Q3ToolBar(const QString &label,
+              Q3MainWindow *, ToolBarDock = Top,
               bool newLine = false, const char * name = 0);
     \obsolete
 */
@@ -284,10 +284,10 @@ void QToolBarSeparator::paintEvent(QPaintEvent *)
     placed on a new line in the dock area.
 */
 
-QToolBar::QToolBar(const QString &label,
-                    QMainWindow * parent, QMainWindow::ToolBarDock dock,
+Q3ToolBar::Q3ToolBar(const QString &label,
+                    Q3MainWindow * parent, Q3MainWindow::ToolBarDock dock,
                     bool newLine, const char * name)
-    : QDockWindow(InDock, parent, name, 0, true)
+    : Q3DockWindow(InDock, parent, name, 0, true)
 {
     mw = parent;
     init();
@@ -302,18 +302,18 @@ QToolBar::QToolBar(const QString &label,
 
     The toolbar is called \a name and is a child of \a parent and is
     managed by \a mainWindow. The \a label and \a newLine parameters
-    are passed straight to QMainWindow::addDockWindow(). \a name and
-    the widget flags \a f are passed on to the QDockWindow constructor.
+    are passed straight to Q3MainWindow::addDockWindow(). \a name and
+    the widget flags \a f are passed on to the Q3DockWindow constructor.
 
     Use this constructor if you want to create torn-off (undocked,
     floating) toolbars or toolbars in the \link QStatusBar status
     bar\endlink.
 */
 
-QToolBar::QToolBar(const QString &label, QMainWindow * mainWindow,
+Q3ToolBar::Q3ToolBar(const QString &label, Q3MainWindow * mainWindow,
                     QWidget * parent, bool newLine, const char * name,
                     WFlags f)
-    : QDockWindow(InDock, parent, name, f, true)
+    : Q3DockWindow(InDock, parent, name, f, true)
 {
     mw = mainWindow;
     init();
@@ -322,7 +322,7 @@ QToolBar::QToolBar(const QString &label, QMainWindow * mainWindow,
     setParent(parent);
 
     if (mainWindow)
-        mainWindow->addToolBar(this, label, QMainWindow::DockUnmanaged, newLine);
+        mainWindow->addToolBar(this, label, Q3MainWindow::DockUnmanaged, newLine);
 }
 
 
@@ -334,25 +334,25 @@ QToolBar::QToolBar(const QString &label, QMainWindow * mainWindow,
     requiring a newline.
 */
 
-QToolBar::QToolBar(QMainWindow * parent, const char * name)
-    : QDockWindow(InDock, parent, name, 0, true)
+Q3ToolBar::Q3ToolBar(Q3MainWindow * parent, const char * name)
+    : Q3DockWindow(InDock, parent, name, 0, true)
 {
     mw = parent;
     init();
 
     if (parent)
-        parent->addToolBar(this, QString::null, QMainWindow::DockTop);
+        parent->addToolBar(this, QString::null, Q3MainWindow::DockTop);
 }
 
 /*!
     \internal
 
   Common initialization code. Requires that \c mw and \c o are set.
-  Does not call QMainWindow::addDockWindow().
+  Does not call Q3MainWindow::addDockWindow().
 */
-void QToolBar::init()
+void Q3ToolBar::init()
 {
-    d = new QToolBarPrivate;
+    d = new Q3ToolBarPrivate;
     d->extension = 0;
     d->extensionPopup = 0;
     sw = 0;
@@ -367,7 +367,7 @@ void QToolBar::init()
     \reimp
 */
 
-QToolBar::~QToolBar()
+Q3ToolBar::~Q3ToolBar()
 {
     delete d;
     d = 0;
@@ -377,14 +377,14 @@ QToolBar::~QToolBar()
     \reimp
 */
 
-void QToolBar::setOrientation(Orientation o)
+void Q3ToolBar::setOrientation(Orientation o)
 {
-    QDockWindow::setOrientation(o);
+    Q3DockWindow::setOrientation(o);
     if (d->extension)
         d->extension->setOrientation(o);
     QObjectList childs = children();
     for (int i = 0; i < childs.size(); ++i) {
-        QToolBarSeparator* w = qt_cast<QToolBarSeparator*>(childs.at(i));
+        Q3ToolBarSeparator* w = qt_cast<Q3ToolBarSeparator*>(childs.at(i));
         if (w)
             w->setOrientation(o);
     }
@@ -394,28 +394,28 @@ void QToolBar::setOrientation(Orientation o)
     Adds a separator to the right/bottom of the toolbar.
 */
 
-void QToolBar::addSeparator()
+void Q3ToolBar::addSeparator()
 {
-    (void) new QToolBarSeparator(orientation(), this, "toolbar separator");
+    (void) new Q3ToolBarSeparator(orientation(), this, "toolbar separator");
 }
 
 /*!
     \reimp
 */
 
-void QToolBar::styleChange(QStyle &oldStyle)
+void Q3ToolBar::styleChange(QStyle &oldStyle)
 {
     boxLayout()->setSpacing(style().pixelMetric(QStyle::PM_ToolBarItemSpacing));
-    QDockWindow::styleChange(oldStyle);
+    Q3DockWindow::styleChange(oldStyle);
 }
 
 /*!
     \reimp.
 */
 
-void QToolBar::show()
+void Q3ToolBar::show()
 {
-    QDockWindow::show();
+    Q3DockWindow::show();
     if (mw)
         mw->triggerLayout(false);
     checkForExtension(size());
@@ -426,18 +426,18 @@ void QToolBar::show()
     \reimp
 */
 
-void QToolBar::hide()
+void Q3ToolBar::hide()
 {
-    QDockWindow::hide();
+    Q3DockWindow::hide();
     if (mw)
         mw->triggerLayout(false);
 }
 
 /*!
-    Returns a pointer to the QMainWindow which manages this toolbar.
+    Returns a pointer to the Q3MainWindow which manages this toolbar.
 */
 
-QMainWindow * QToolBar::mainWindow() const
+Q3MainWindow * Q3ToolBar::mainWindow() const
 {
     return mw;
 }
@@ -447,7 +447,7 @@ QMainWindow * QToolBar::mainWindow() const
     Sets the widget \a w to be expanded if this toolbar is requested
     to stretch.
 
-    The request to stretch might occur because QMainWindow
+    The request to stretch might occur because Q3MainWindow
     right-justifies the dock area the toolbar is in, or because this
     toolbar's isVerticalStretchable() or isHorizontalStretchable() is
     set to true.
@@ -455,11 +455,11 @@ QMainWindow * QToolBar::mainWindow() const
     If you call this function and the toolbar is not yet stretchable,
     setStretchable() is called.
 
-    \sa QMainWindow::setRightJustification(), setVerticalStretchable(),
+    \sa Q3MainWindow::setRightJustification(), setVerticalStretchable(),
     setHorizontalStretchable()
 */
 
-void QToolBar::setStretchableWidget(QWidget * w)
+void Q3ToolBar::setStretchableWidget(QWidget * w)
 {
     sw = w;
     boxLayout()->setStretchFactor(w, 1);
@@ -477,9 +477,9 @@ void QToolBar::setStretchableWidget(QWidget * w)
     \reimp
 */
 
-bool QToolBar::event(QEvent * e)
+bool Q3ToolBar::event(QEvent * e)
 {
-    bool r =  QDockWindow::event(e);
+    bool r =  Q3DockWindow::event(e);
     // After the event filters have dealt with it, do our stuff.
     if (e->type() == QEvent::ChildInserted) {
         QObject * child = ((QChildEvent*)e)->child();
@@ -508,20 +508,20 @@ bool QToolBar::event(QEvent * e)
 
 
 /*!
-    \property QToolBar::label
+    \property Q3ToolBar::label
     \brief the toolbar's label.
 
     If the toolbar is floated the label becomes the toolbar window's
     caption. There is no default label text.
 */
 
-void QToolBar::setLabel(const QString & label)
+void Q3ToolBar::setLabel(const QString & label)
 {
     l = label;
     setWindowTitle(l);
 }
 
-QString QToolBar::label() const
+QString Q3ToolBar::label() const
 {
     return l;
 }
@@ -531,7 +531,7 @@ QString QToolBar::label() const
     Deletes all the toolbar's child widgets.
 */
 
-void QToolBar::clear()
+void Q3ToolBar::clear()
 {
     QObjectList childs = children();
     for (int i = 0; i < childs.size(); ++i) {
@@ -545,25 +545,25 @@ void QToolBar::clear()
     \reimp
 */
 
-QSize QToolBar::minimumSize() const
+QSize Q3ToolBar::minimumSize() const
 {
     if (orientation() == Horizontal)
-        return QSize(0, QDockWindow::minimumSize().height());
-    return QSize(QDockWindow::minimumSize().width(), 0);
+        return QSize(0, Q3DockWindow::minimumSize().height());
+    return QSize(Q3DockWindow::minimumSize().width(), 0);
 }
 
 /*!
     \reimp
 */
 
-QSize QToolBar::minimumSizeHint() const
+QSize Q3ToolBar::minimumSizeHint() const
 {
     if (orientation() == Horizontal)
-        return QSize(0, QDockWindow::minimumSizeHint().height());
-    return QSize(QDockWindow::minimumSizeHint().width(), 0);
+        return QSize(0, Q3DockWindow::minimumSizeHint().height());
+    return QSize(Q3DockWindow::minimumSizeHint().width(), 0);
 }
 
-void QToolBar::createPopup()
+void Q3ToolBar::createPopup()
 {
     if (!d->extensionPopup) {
         d->extensionPopup = new QPopupMenu(this, "qt_dockwidget_internal");
@@ -571,7 +571,7 @@ void QToolBar::createPopup()
     }
 
     if (!d->extension) {
-        d->extension = new QToolBarExtensionWidget(this);
+        d->extension = new Q3ToolBarExtensionWidget(this);
         d->extension->setOrientation(orientation());
         d->extension->button()->setPopup(d->extensionPopup);
         d->extension->button()->setPopupDelay(-1);
@@ -674,9 +674,9 @@ void QToolBar::createPopup()
     \reimp
 */
 
-void QToolBar::resizeEvent(QResizeEvent *e)
+void Q3ToolBar::resizeEvent(QResizeEvent *e)
 {
-    QDockWindow::resizeEvent(e);
+    Q3DockWindow::resizeEvent(e);
     checkForExtension(e->size());
 }
 
@@ -686,14 +686,14 @@ void QToolBar::resizeEvent(QResizeEvent *e)
     This function is called when an action is triggered. The relevant
     information is passed in the event \a e.
 */
-void QToolBar::actionEvent(QActionEvent *e)
+void Q3ToolBar::actionEvent(QActionEvent *e)
 {
     // ################ temporary hack to see something in the toolbars
     if (e->type() == QEvent::ActionAdded) {
         QAction *a = e->action();
         QWidget *w;
         if (a->isSeparator()) {
-            w = new QToolBarSeparator(orientation(), this, "toolbar separator");
+            w = new Q3ToolBarSeparator(orientation(), this, "toolbar separator");
         } else {
             QToolButton* btn = new QToolButton(this);
             btn->setToggleButton(a->isCheckable());
@@ -725,7 +725,7 @@ void QToolBar::actionEvent(QActionEvent *e)
 }
 
 
-void QToolBar::checkForExtension(const QSize &sz)
+void Q3ToolBar::checkForExtension(const QSize &sz)
 {
     if (!isVisible())
         return;
@@ -764,7 +764,7 @@ void QToolBar::checkForExtension(const QSize &sz)
     \reimp
 */
 
-void QToolBar::setMinimumSize(int, int)
+void Q3ToolBar::setMinimumSize(int, int)
 {
 }
 

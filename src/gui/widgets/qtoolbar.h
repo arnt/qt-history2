@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QToolBar class.
+** Definition of Q3ToolBar class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -21,31 +21,29 @@
 
 #ifndef QT_NO_TOOLBAR
 
-class QMainWindow;
-class QAbstractButton;
-class QBoxLayout;
-class QToolBarPrivate;
+class Q3MainWindow;
+class Q3ToolBarPrivate;
 
-class Q_COMPAT_EXPORT QToolBar: public QDockWindow
+class Q_COMPAT_EXPORT Q3ToolBar: public Q3DockWindow
 {
     Q_OBJECT
     Q_PROPERTY(QString label READ label WRITE setLabel)
 
 public:
-    QToolBar(const QString &label,
-              QMainWindow *, ToolBarDock = DockTop,
+    Q3ToolBar(const QString &label,
+              Q3MainWindow *, ToolBarDock = DockTop,
               bool newLine = false, const char* name=0);
-    QToolBar(const QString &label, QMainWindow *, QWidget *,
+    Q3ToolBar(const QString &label, Q3MainWindow *, QWidget *,
               bool newLine = false, const char* name=0, WFlags f = 0);
-    QToolBar(QMainWindow* parent=0, const char* name=0);
-    ~QToolBar();
+    Q3ToolBar(Q3MainWindow* parent=0, const char* name=0);
+    ~Q3ToolBar();
 
     void addSeparator();
 
     void show();
     void hide();
 
-    QMainWindow * mainWindow() const;
+    Q3MainWindow * mainWindow() const;
 
     virtual void setStretchableWidget(QWidget *);
 
@@ -73,17 +71,17 @@ private slots:
 private:
     void init();
     void checkForExtension(const QSize &sz);
-    QToolBarPrivate * d;
-    QMainWindow * mw;
+    Q3ToolBarPrivate * d;
+    Q3MainWindow * mw;
     QWidget * sw;
     QString l;
 
-    friend class QMainWindow;
+    friend class Q3MainWindow;
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QToolBar(const QToolBar &);
-    QToolBar& operator=(const QToolBar &);
+    Q3ToolBar(const Q3ToolBar &);
+    Q3ToolBar& operator=(const Q3ToolBar &);
 #endif
 };
 

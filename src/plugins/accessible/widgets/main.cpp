@@ -43,13 +43,13 @@ QStringList AccessibleFactory::keys() const
     list << "QTable";
     list << "QDialog";
     list << "QMessageBox";
-    list << "QMainWindow";
+    list << "Q3MainWindow";
     list << "QLabel";
     list << "QLCDNumber";
     list << "QGroupBox";
     list << "QStatusBar";
     list << "QProgressBar";
-    list << "QToolBar";
+    list << "Q3ToolBar";
     list << "QMenuBar";
     list << "QPopupMenu";
     list << "QHeader";
@@ -59,9 +59,9 @@ QStringList AccessibleFactory::keys() const
     list << "QSizeGrip";
     list << "QSplitter";
     list << "QSplitterHandle";
-    list << "QToolBarSeparator";
-    list << "QDockWindowHandle";
-    list << "QDockWindowResizeHandle";
+    list << "Q3ToolBarSeparator";
+    list << "Q3DockWindowHandle";
+    list << "Q3DockWindowResizeHandle";
     list << "QTipLabel";
     list << "QFrame";
     list << "QWidgetStack";
@@ -124,7 +124,7 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleWidget(widget, Dialog);
     } else if (classname == "QMessageBox") {
         iface = new QAccessibleWidget(widget, AlertMessage);
-    } else if (classname == "QMainWindow") {
+    } else if (classname == "Q3MainWindow") {
         iface = new QAccessibleWidget(widget, Application);
     } else if (classname == "QLabel" || classname == "QLCDNumber") {
         iface = new QAccessibleDisplay(widget);
@@ -134,8 +134,8 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleWidget(widget, StatusBar);
     } else if (classname == "QProgressBar") {
         iface = new QAccessibleDisplay(widget);
-    } else if (classname == "QToolBar") {
-        QToolBar *tb = (QToolBar*)widget;
+    } else if (classname == "Q3ToolBar") {
+        Q3ToolBar *tb = (Q3ToolBar*)widget;
         iface = new QAccessibleWidget(widget, ToolBar, tb->label());
     } else if (classname == "QMenuBar") {
         iface = new QAccessibleMenuBar(widget);
@@ -155,11 +155,11 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleWidget(widget, Splitter);
     } else if (classname == "QSplitterHandle") {
         iface = new QAccessibleWidget(widget, Grip);
-    } else if (classname == "QToolBarSeparator") {
+    } else if (classname == "Q3ToolBarSeparator") {
         iface = new QAccessibleWidget(widget, Separator);
-    } else if (classname == "QDockWindowHandle") {
+    } else if (classname == "Q3DockWindowHandle") {
         iface = new QAccessibleWidget(widget, Grip);
-    } else if (classname == "QDockWindowResizeHandle") {
+    } else if (classname == "Q3DockWindowResizeHandle") {
         iface = new QAccessibleWidget(widget, Grip);
     } else if (classname == "QTipLabel") {
         iface = new QAccessibleWidget(widget, ToolTip);

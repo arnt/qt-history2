@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of the QDockArea class.
+** Definition of the Q3DockArea class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -27,21 +27,21 @@
 
 class QSplitter;
 class QBoxLayout;
-class QDockAreaLayout;
+class Q3DockAreaLayout;
 class QMouseEvent;
-class QDockWindowResizeHandle;
-class QDockAreaPrivate;
+class Q3DockWindowResizeHandle;
+class Q3DockAreaPrivate;
 class QTextStream;
 
-class Q_COMPAT_EXPORT QDockAreaLayout : public QLayout
+class Q_COMPAT_EXPORT Q3DockAreaLayout : public QLayout
 {
     Q_OBJECT
-    friend class QDockArea;
+    friend class Q3DockArea;
 
 public:
-    QDockAreaLayout(QWidget* parent, Qt::Orientation o, QList<QDockWindow *> *wl, int space = -1, int margin = -1, const char *name = 0)
+    Q3DockAreaLayout(QWidget* parent, Qt::Orientation o, QList<Q3DockWindow *> *wl, int space = -1, int margin = -1, const char *name = 0)
         : QLayout(parent, space, margin, name), orient(o), dockWindows(wl), parentWidget(parent) { init(); }
-    ~QDockAreaLayout() {}
+    ~Q3DockAreaLayout() {}
 
     void addItem(QLayoutItem *) {}
     bool hasHeightForWidth() const;
@@ -55,7 +55,7 @@ public:
     void invalidate();
     Qt::Orientation orientation() const { return orient; }
     QList<QRect> lineList() const { return lines; }
-    QList<QDockWindow *> lineStarts() const { return ls; }
+    QList<Q3DockWindow *> lineStarts() const { return ls; }
 
 protected:
     void setGeometry(const QRect&);
@@ -67,17 +67,17 @@ private:
     bool dirty;
     int cached_width, cached_height;
     int cached_hfw, cached_wfh;
-    QList<QDockWindow *> *dockWindows;
+    QList<Q3DockWindow *> *dockWindows;
     QWidget *parentWidget;
     QList<QRect> lines;
-    QList<QDockWindow *> ls;
+    QList<Q3DockWindow *> ls;
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QDockAreaLayout(const QDockAreaLayout &);
-    QDockAreaLayout &operator=(const QDockAreaLayout &);
+    Q3DockAreaLayout(const Q3DockAreaLayout &);
+    Q3DockAreaLayout &operator=(const Q3DockAreaLayout &);
 #endif
 };
 
-class Q_COMPAT_EXPORT QDockArea : public QWidget
+class Q_COMPAT_EXPORT Q3DockArea : public QWidget
 {
     Q_OBJECT
     Q_ENUMS(HandlePosition)
@@ -86,22 +86,22 @@ class Q_COMPAT_EXPORT QDockArea : public QWidget
     Q_PROPERTY(bool empty READ isEmpty)
     Q_PROPERTY(HandlePosition handlePosition READ handlePosition)
 
-    friend class QDockWindow;
-    friend class QDockWindowResizeHandle;
-    friend class QDockAreaLayout;
+    friend class Q3DockWindow;
+    friend class Q3DockWindowResizeHandle;
+    friend class Q3DockAreaLayout;
 
 public:
     enum HandlePosition { Normal, Reverse };
 
-    QDockArea(Orientation o, HandlePosition h = Normal, QWidget* parent=0, const char* name=0);
-    ~QDockArea();
+    Q3DockArea(Orientation o, HandlePosition h = Normal, QWidget* parent=0, const char* name=0);
+    ~Q3DockArea();
 
-    void moveDockWindow(QDockWindow *w, const QPoint &globalPos, const QRect &rect, bool swap);
-    void removeDockWindow(QDockWindow *w, bool makeFloating, bool swap, bool fixNewLines = true);
-    void moveDockWindow(QDockWindow *w, int index = -1);
-    bool hasDockWindow(QDockWindow *w, int *index = 0);
+    void moveDockWindow(Q3DockWindow *w, const QPoint &globalPos, const QRect &rect, bool swap);
+    void removeDockWindow(Q3DockWindow *w, bool makeFloating, bool swap, bool fixNewLines = true);
+    void moveDockWindow(Q3DockWindow *w, int index = -1);
+    bool hasDockWindow(Q3DockWindow *w, int *index = 0);
 
-    void invalidNextOffset(QDockWindow *dw);
+    void invalidNextOffset(Q3DockWindow *dw);
 
     Orientation orientation() const { return orient; }
     HandlePosition handlePosition() const { return hPos; }
@@ -109,10 +109,10 @@ public:
     bool eventFilter(QObject *, QEvent *);
     bool isEmpty() const;
     int count() const;
-    QList<QDockWindow *> dockWindowList() const;
+    QList<Q3DockWindow *> dockWindowList() const;
 
-    bool isDockWindowAccepted(QDockWindow *dw);
-    void setAcceptDockWindow(QDockWindow *dw, bool accept);
+    bool isDockWindowAccepted(Q3DockWindow *dw);
+    void setAcceptDockWindow(Q3DockWindow *dw, bool accept);
 
 public slots:
     void lineUp(bool keepNewLines);
@@ -124,38 +124,38 @@ private:
         int offset;
         int line;
         QSize fixedExtent;
-        QPointer<QDockArea> area;
+        QPointer<Q3DockArea> area;
     };
 
-    int findDockWindow(QDockWindow *w);
+    int findDockWindow(Q3DockWindow *w);
     int lineOf(int index);
-    DockWindowData *dockWindowData(QDockWindow *w);
-    void dockWindow(QDockWindow *dockWindow, DockWindowData *data);
+    DockWindowData *dockWindowData(Q3DockWindow *w);
+    void dockWindow(Q3DockWindow *dockWindow, DockWindowData *data);
     void updateLayout();
     void invalidateFixedSizes();
-    int maxSpace(int hint, QDockWindow *dw);
-    void setFixedExtent(int d, QDockWindow *dw);
-    bool isLastDockWindow(QDockWindow *dw);
+    int maxSpace(int hint, Q3DockWindow *dw);
+    void setFixedExtent(int d, Q3DockWindow *dw);
+    bool isLastDockWindow(Q3DockWindow *dw);
 
 private:
     Orientation orient;
-    QList<QDockWindow *> dockWindows;
-    QDockAreaLayout *layout;
+    QList<Q3DockWindow *> dockWindows;
+    Q3DockAreaLayout *layout;
     HandlePosition hPos;
-    QList<QDockWindow *> forbiddenWidgets;
-    QDockAreaPrivate *d;
+    QList<Q3DockWindow *> forbiddenWidgets;
+    Q3DockAreaPrivate *d;
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QDockArea(const QDockArea &);
-    QDockArea& operator=(const QDockArea &);
+    Q3DockArea(const Q3DockArea &);
+    Q3DockArea& operator=(const Q3DockArea &);
 #endif
 
 };
 
 #ifndef QT_NO_TEXTSTREAM
-Q_COMPAT_EXPORT QTextStream &operator<<(QTextStream &, const QDockArea &);
-Q_COMPAT_EXPORT QTextStream &operator>>(QTextStream &, QDockArea &);
+Q_COMPAT_EXPORT QTextStream &operator<<(QTextStream &, const Q3DockArea &);
+Q_COMPAT_EXPORT QTextStream &operator>>(QTextStream &, Q3DockArea &);
 #endif
 
 #endif

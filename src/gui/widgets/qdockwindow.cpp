@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of the QDockWindow class.
+** Implementation of the Q3DockWindow class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -39,16 +39,16 @@ static bool default_opaque = true;
 static bool default_opaque = false;
 #endif
 
-class QDockWindowPrivate
+class Q3DockWindowPrivate
 {
 };
 
-class QDockWindowResizeHandle : public QWidget
+class Q3DockWindowResizeHandle : public QWidget
 {
     Q_OBJECT
 
 public:
-    QDockWindowResizeHandle(Qt::Orientation o, QWidget *parent, QDockWindow *w, const char* /*name*/=0);
+    Q3DockWindowResizeHandle(Qt::Orientation o, QWidget *parent, Q3DockWindow *w, const char* /*name*/=0);
     void setOrientation(Qt::Orientation o);
     Qt::Orientation orientation() const { return orient; }
 
@@ -70,28 +70,28 @@ private:
     bool mousePressed;
     QPainter *unclippedPainter;
     QPoint lastPos, firstPos;
-    QDockWindow *dockWindow;
+    Q3DockWindow *dockWindow;
 
 };
 
-QDockWindowResizeHandle::QDockWindowResizeHandle(Qt::Orientation o, QWidget *parent,
-                                                  QDockWindow *w, const char *)
+Q3DockWindowResizeHandle::Q3DockWindowResizeHandle(Qt::Orientation o, QWidget *parent,
+                                                  Q3DockWindow *w, const char *)
     : QWidget(parent, "qt_dockwidget_internal"), mousePressed(false), unclippedPainter(0), dockWindow(w)
 {
     setOrientation(o);
 }
 
-QSize QDockWindowResizeHandle::sizeHint() const
+QSize Q3DockWindowResizeHandle::sizeHint() const
 {
     int sw = 2 * style().pixelMetric(QStyle::PM_SplitterWidth, this) / 3;
     return (style().sizeFromContents(QStyle::CT_DockWindow, this, QSize(sw, sw)).
             expandedTo(QApplication::globalStrut()));
 }
 
-void QDockWindowResizeHandle::setOrientation(Qt::Orientation o)
+void Q3DockWindowResizeHandle::setOrientation(Qt::Orientation o)
 {
     orient = o;
-    if (o == QDockArea::Horizontal) {
+    if (o == Q3DockArea::Horizontal) {
 #ifndef QT_NO_CURSOR
         setCursor(splitVCursor);
 #endif
@@ -104,7 +104,7 @@ void QDockWindowResizeHandle::setOrientation(Qt::Orientation o)
     }
 }
 
-void QDockWindowResizeHandle::mousePressEvent(QMouseEvent *e)
+void Q3DockWindowResizeHandle::mousePressEvent(QMouseEvent *e)
 {
     e->ignore();
     if (e->button() != LeftButton)
@@ -118,7 +118,7 @@ void QDockWindowResizeHandle::mousePressEvent(QMouseEvent *e)
         drawLine(e->globalPos());
 }
 
-void QDockWindowResizeHandle::mouseMoveEvent(QMouseEvent *e)
+void Q3DockWindowResizeHandle::mouseMoveEvent(QMouseEvent *e)
 {
     if (!mousePressed)
         return;
@@ -165,7 +165,7 @@ void QDockWindowResizeHandle::mouseMoveEvent(QMouseEvent *e)
         drawLine(e->globalPos());
 }
 
-void QDockWindowResizeHandle::mouseReleaseEvent(QMouseEvent *e)
+void Q3DockWindowResizeHandle::mouseReleaseEvent(QMouseEvent *e)
 {
     if (mousePressed) {
         if (!dockWindow->opaqueMoving()) {
@@ -176,7 +176,7 @@ void QDockWindowResizeHandle::mouseReleaseEvent(QMouseEvent *e)
             dockWindow->area()->invalidNextOffset(dockWindow);
         if (orientation() == Horizontal) {
             int dy;
-            if (dockWindow->area()->handlePosition() == QDockArea::Normal || orientation() != dockWindow->area()->orientation())
+            if (dockWindow->area()->handlePosition() == Q3DockArea::Normal || orientation() != dockWindow->area()->orientation())
                 dy = e->globalPos().y() - firstPos.y();
             else
                 dy =  firstPos.y() - e->globalPos().y();
@@ -192,7 +192,7 @@ void QDockWindowResizeHandle::mouseReleaseEvent(QMouseEvent *e)
             }
         } else {
             int dx;
-            if (dockWindow->area()->handlePosition() == QDockArea::Normal || orientation() != dockWindow->area()->orientation())
+            if (dockWindow->area()->handlePosition() == Q3DockArea::Normal || orientation() != dockWindow->area()->orientation())
                 dx = e->globalPos().x() - firstPos.x();
             else
                 dx = firstPos.x() - e->globalPos().x();
@@ -213,7 +213,7 @@ void QDockWindowResizeHandle::mouseReleaseEvent(QMouseEvent *e)
     mousePressed = false;
 }
 
-void QDockWindowResizeHandle::paintEvent(QPaintEvent *)
+void Q3DockWindowResizeHandle::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     style().drawPrimitive(QStyle::PE_DockWindowResizeHandle, &p, rect(), palette(),
@@ -223,7 +223,7 @@ void QDockWindowResizeHandle::paintEvent(QPaintEvent *)
                            QStyle::Style_Horizontal : QStyle::Style_Default));
 }
 
-void QDockWindowResizeHandle::startLineDraw()
+void Q3DockWindowResizeHandle::startLineDraw()
 {
     if (unclippedPainter)
         endLineDraw();
@@ -237,7 +237,7 @@ void QDockWindowResizeHandle::startLineDraw()
     unclippedPainter->setPen(QPen(gray, orientation() == Horizontal ? height() : width()));
 }
 
-void QDockWindowResizeHandle::endLineDraw()
+void Q3DockWindowResizeHandle::endLineDraw()
 {
     if (!unclippedPainter)
         return;
@@ -245,7 +245,7 @@ void QDockWindowResizeHandle::endLineDraw()
     unclippedPainter = 0;
 }
 
-void QDockWindowResizeHandle::drawLine(const QPoint &globalPos)
+void Q3DockWindowResizeHandle::drawLine(const QPoint &globalPos)
 {
 #ifdef MAC_DRAG_HACK
     QPoint start = mapTo(topLevelWidget(), QPoint(0, 0));
@@ -270,22 +270,22 @@ void QDockWindowResizeHandle::drawLine(const QPoint &globalPos)
     }
 }
 
-static QPoint realWidgetPos(QDockWindow *w)
+static QPoint realWidgetPos(Q3DockWindow *w)
 {
-    if (!w->parentWidget() || w->place() == QDockWindow::OutsideDock)
+    if (!w->parentWidget() || w->place() == Q3DockWindow::OutsideDock)
         return w->pos();
     return w->parentWidget()->mapToGlobal(w->geometry().topLeft());
 }
 
-class QDockWindowHandle : public QWidget
+class Q3DockWindowHandle : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(QString windowTitle READ windowTitle)
-    friend class QDockWindow;
-    friend class QDockWindowTitleBar;
+    friend class Q3DockWindow;
+    friend class Q3DockWindowTitleBar;
 
 public:
-    QDockWindowHandle(QDockWindow *dw);
+    Q3DockWindowHandle(Q3DockWindow *dw);
     void updateGui();
 
     QSize minimumSizeHint() const;
@@ -314,7 +314,7 @@ private slots:
     void minimize();
 
 private:
-    QDockWindow *dockWindow;
+    Q3DockWindow *dockWindow;
     QPoint offset;
     QToolButton *closeButton;
     QTimer *timer;
@@ -325,14 +325,14 @@ private:
     QPointer<QWidget> oldFocus;
 };
 
-class QDockWindowTitleBar : public QTitleBar
+class Q3DockWindowTitleBar : public QTitleBar
 {
     Q_OBJECT
-    friend class QDockWindow;
-    friend class QDockWindowHandle;
+    friend class Q3DockWindow;
+    friend class Q3DockWindowHandle;
 
 public:
-    QDockWindowTitleBar(QDockWindow *dw);
+    Q3DockWindowTitleBar(Q3DockWindow *dw);
     void updateGui();
     void setOpaqueMoving(bool b) { opaque = b; }
 
@@ -346,7 +346,7 @@ protected:
     void keyReleaseEvent(QKeyEvent *e);
 
 private:
-    QDockWindow *dockWindow;
+    Q3DockWindow *dockWindow;
     QPoint offset;
     uint mousePressed : 1;
     uint hadDblClick : 1;
@@ -356,7 +356,7 @@ private:
 
 };
 
-QDockWindowHandle::QDockWindowHandle(QDockWindow *dw)
+Q3DockWindowHandle::Q3DockWindowHandle(Q3DockWindow *dw)
     : QWidget(dw, "qt_dockwidget_internal"), dockWindow(dw),
       closeButton(0), opaque(default_opaque), mousePressed(false)
 {
@@ -368,7 +368,7 @@ QDockWindowHandle::QDockWindowHandle(QDockWindow *dw)
 #endif
 }
 
-void QDockWindowHandle::paintEvent(QPaintEvent *e)
+void Q3DockWindowHandle::paintEvent(QPaintEvent *e)
 {
     if ((!dockWindow->dockArea || mousePressed) && !opaque)
         return;
@@ -387,7 +387,7 @@ void QDockWindowHandle::paintEvent(QPaintEvent *e)
     QWidget::paintEvent(e);
 }
 
-void QDockWindowHandle::keyPressEvent(QKeyEvent *e)
+void Q3DockWindowHandle::keyPressEvent(QKeyEvent *e)
 {
     if (!mousePressed)
         return;
@@ -397,7 +397,7 @@ void QDockWindowHandle::keyPressEvent(QKeyEvent *e)
     }
 }
 
-void QDockWindowHandle::keyReleaseEvent(QKeyEvent *e)
+void Q3DockWindowHandle::keyReleaseEvent(QKeyEvent *e)
 {
     if (!mousePressed)
         return;
@@ -407,7 +407,7 @@ void QDockWindowHandle::keyReleaseEvent(QKeyEvent *e)
     }
 }
 
-void QDockWindowHandle::mousePressEvent(QMouseEvent *e)
+void Q3DockWindowHandle::mousePressEvent(QMouseEvent *e)
 {
     if (!dockWindow->dockArea)
         return;
@@ -426,7 +426,7 @@ void QDockWindowHandle::mousePressEvent(QMouseEvent *e)
         qApp->installEventFilter(dockWindow);
 }
 
-void QDockWindowHandle::mouseMoveEvent(QMouseEvent *e)
+void Q3DockWindowHandle::mouseMoveEvent(QMouseEvent *e)
 {
     if (!mousePressed || e->pos() == offset)
         return;
@@ -436,7 +436,7 @@ void QDockWindowHandle::mouseMoveEvent(QMouseEvent *e)
         dockWindow->updatePosition(e->globalPos());
 }
 
-void QDockWindowHandle::mouseReleaseEvent(QMouseEvent *e)
+void Q3DockWindowHandle::mouseReleaseEvent(QMouseEvent *e)
 {
     ctrlDown = false;
     qApp->removeEventFilter(dockWindow);
@@ -458,22 +458,22 @@ void QDockWindowHandle::mouseReleaseEvent(QMouseEvent *e)
         dockWindow->titleBar->mousePressed = false;
 }
 
-void QDockWindowHandle::minimize()
+void Q3DockWindowHandle::minimize()
 {
     if (!dockWindow->area())
         return;
 
-    QMainWindow *mw = qt_cast<QMainWindow*>(dockWindow->area()->parentWidget());
+    Q3MainWindow *mw = qt_cast<Q3MainWindow*>(dockWindow->area()->parentWidget());
     if (mw && mw->isDockEnabled(dockWindow, Qt::DockMinimized))
         mw->moveDockWindow(dockWindow, Qt::DockMinimized);
 }
 
-void QDockWindowHandle::resizeEvent(QResizeEvent *)
+void Q3DockWindowHandle::resizeEvent(QResizeEvent *)
 {
     updateGui();
 }
 
-void QDockWindowHandle::updateGui()
+void Q3DockWindowHandle::updateGui()
 {
     if (!closeButton) {
         closeButton = new QToolButton(this, "qt_close_button1");
@@ -504,7 +504,7 @@ void QDockWindowHandle::updateGui()
     }
 }
 
-void QDockWindowHandle::changeEvent(QEvent *ev)
+void Q3DockWindowHandle::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange) {
         if (closeButton)
@@ -513,7 +513,7 @@ void QDockWindowHandle::changeEvent(QEvent *ev)
     QWidget::changeEvent(ev);
 }
 
-QSize QDockWindowHandle::minimumSizeHint() const
+QSize Q3DockWindowHandle::minimumSizeHint() const
 {
     if (!dockWindow->dockArea)
         return QSize(0, 0);
@@ -523,14 +523,14 @@ QSize QDockWindowHandle::minimumSizeHint() const
     return QSize(0, wh);
 }
 
-QSizePolicy QDockWindowHandle::sizePolicy() const
+QSizePolicy Q3DockWindowHandle::sizePolicy() const
 {
     if (dockWindow->orientation() != Horizontal)
         return QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     return QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 }
 
-void QDockWindowHandle::mouseDoubleClickEvent(QMouseEvent *e)
+void Q3DockWindowHandle::mouseDoubleClickEvent(QMouseEvent *e)
 {
     e->ignore();
     if (e->button() != LeftButton)
@@ -541,7 +541,7 @@ void QDockWindowHandle::mouseDoubleClickEvent(QMouseEvent *e)
     hadDblClick = true;
 }
 
-QDockWindowTitleBar::QDockWindowTitleBar(QDockWindow *dw)
+Q3DockWindowTitleBar::Q3DockWindowTitleBar(Q3DockWindow *dw)
     : QTitleBar(0, dw, "qt_dockwidget_internal"), dockWindow(dw),
       mousePressed(false), hadDblClick(false), opaque(default_opaque)
 {
@@ -552,7 +552,7 @@ QDockWindowTitleBar::QDockWindowTitleBar(QDockWindow *dw)
     connect(this, SIGNAL(doClose()), dockWindow, SLOT(hide()));
 }
 
-void QDockWindowTitleBar::keyPressEvent(QKeyEvent *e)
+void Q3DockWindowTitleBar::keyPressEvent(QKeyEvent *e)
 {
     if (!mousePressed)
         return;
@@ -562,7 +562,7 @@ void QDockWindowTitleBar::keyPressEvent(QKeyEvent *e)
     }
 }
 
-void QDockWindowTitleBar::keyReleaseEvent(QKeyEvent *e)
+void Q3DockWindowTitleBar::keyReleaseEvent(QKeyEvent *e)
 {
     if (!mousePressed)
         return;
@@ -572,7 +572,7 @@ void QDockWindowTitleBar::keyReleaseEvent(QKeyEvent *e)
     }
 }
 
-void QDockWindowTitleBar::mousePressEvent(QMouseEvent *e)
+void Q3DockWindowTitleBar::mousePressEvent(QMouseEvent *e)
 {
     QStyle::SubControl tbctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos());
     if (tbctrl > QStyle::SC_TitleBarLabel) {
@@ -610,7 +610,7 @@ void QDockWindowTitleBar::mousePressEvent(QMouseEvent *e)
 #endif
 }
 
-void QDockWindowTitleBar::mouseMoveEvent(QMouseEvent *e)
+void Q3DockWindowTitleBar::mouseMoveEvent(QMouseEvent *e)
 {
     if (!mousePressed) {
         QTitleBar::mouseMoveEvent(e);
@@ -622,7 +622,7 @@ void QDockWindowTitleBar::mouseMoveEvent(QMouseEvent *e)
     dockWindow->handleMove(e->pos() - offset, e->globalPos(), !opaque);
 }
 
-void QDockWindowTitleBar::mouseReleaseEvent(QMouseEvent *e)
+void Q3DockWindowTitleBar::mouseReleaseEvent(QMouseEvent *e)
 {
     if (!mousePressed) {
         QTitleBar::mouseReleaseEvent(e);
@@ -634,7 +634,7 @@ void QDockWindowTitleBar::mouseReleaseEvent(QMouseEvent *e)
     if (oldFocus)
         oldFocus->setFocus();
 
-    if (dockWindow->place() == QDockWindow::OutsideDock)
+    if (dockWindow->place() == Q3DockWindow::OutsideDock)
         dockWindow->raise();
 
     if(dockWindow->opaqueMoving())
@@ -651,13 +651,13 @@ void QDockWindowTitleBar::mouseReleaseEvent(QMouseEvent *e)
     }
 }
 
-void QDockWindowTitleBar::resizeEvent(QResizeEvent *e)
+void Q3DockWindowTitleBar::resizeEvent(QResizeEvent *e)
 {
     updateGui();
     QTitleBar::resizeEvent(e);
 }
 
-void QDockWindowTitleBar::updateGui()
+void Q3DockWindowTitleBar::updateGui()
 {
     if (dockWindow->isCloseEnabled()) {
         setWFlags(getWFlags() | WStyle_SysMenu);
@@ -666,31 +666,31 @@ void QDockWindowTitleBar::updateGui()
     }
 }
 
-void QDockWindowTitleBar::mouseDoubleClickEvent(QMouseEvent *)
+void Q3DockWindowTitleBar::mouseDoubleClickEvent(QMouseEvent *)
 {
     emit doubleClicked();
     hadDblClick = true;
 }
 
 /*!
-    \class QDockWindow qdockwindow.h
-    \brief The QDockWindow class provides a widget which can be docked
-    inside a QDockArea or floated as a top level window on the
+    \class Q3DockWindow qdockwindow.h
+    \brief The Q3DockWindow class provides a widget which can be docked
+    inside a Q3DockArea or floated as a top level window on the
     desktop.
 
     \ingroup application
     \mainclass
 
     This class handles moving, resizing, docking and undocking dock
-    windows. QToolBar is a subclass of QDockWindow so the
+    windows. Q3ToolBar is a subclass of Q3DockWindow so the
     functionality provided for dock windows is available with the same
     API for toolbars.
 
-    \img qmainwindow-qdockareas.png QDockWindows in a QDockArea
-    \caption Two QDockWindows (\l{QToolBar}s) in a \l QDockArea
+    \img qmainwindow-qdockareas.png Q3DockWindows in a Q3DockArea
+    \caption Two Q3DockWindows (\l{Q3ToolBar}s) in a \l Q3DockArea
 
-    \img qdockwindow.png A QDockWindow
-    \caption A Floating QDockWindow
+    \img qdockwindow.png A Q3DockWindow
+    \caption A Floating Q3DockWindow
 
     If the user drags the dock window into the dock area the dock
     window will be docked. If the user drags the dock area outside any
@@ -710,27 +710,27 @@ void QDockWindowTitleBar::mouseDoubleClickEvent(QMouseEvent *)
     control whether or not a dock window has a close button with
     setCloseMode().
 
-    QMainWindow provides four dock areas (top, left, right and bottom)
+    Q3MainWindow provides four dock areas (top, left, right and bottom)
     which can be used by dock windows. For many applications using the
-    dock areas provided by QMainWindow is sufficient. (See the \l
-    QDockArea documentation if you want to create your own dock
-    areas.) In QMainWindow a right-click popup menu (the dock window
+    dock areas provided by Q3MainWindow is sufficient. (See the \l
+    Q3DockArea documentation if you want to create your own dock
+    areas.) In Q3MainWindow a right-click popup menu (the dock window
     menu) is available which lists dock windows and can be used to
     show or hide them. (The popup menu only lists dock windows that
     have a \link QWidget::setWindowTitle() caption\endlink.)
 
-    When you construct a dock window you \e must pass it a QDockArea
-    or a QMainWindow as its parent if you want it docked. Pass 0 for
+    When you construct a dock window you \e must pass it a Q3DockArea
+    or a Q3MainWindow as its parent if you want it docked. Pass 0 for
     the parent if you want it floated.
 
     \code
-    QToolBar *fileTools = new QToolBar(this, "File Actions");
+    Q3ToolBar *fileTools = new Q3ToolBar(this, "File Actions");
     moveDockWindow(fileTools, Left);
     \endcode
 
-    In the example above we create a new QToolBar in the constructor
-    of a QMainWindow subclass (so that the \e this pointer points to
-    the QMainWindow). By default the toolbar will be added to the \c
+    In the example above we create a new Q3ToolBar in the constructor
+    of a Q3MainWindow subclass (so that the \e this pointer points to
+    the Q3MainWindow). By default the toolbar will be added to the \c
     Top dock area, but we've moved it to the \c Left dock area.
 
     A dock window is often used to contain a single widget. In these
@@ -757,9 +757,9 @@ void QDockWindowTitleBar::mouseDoubleClickEvent(QMouseEvent *)
 
     Dock windows can be docked and undocked using dock() and undock().
     A dock window's orientation can be set with setOrientation(). You
-    can also use QDockArea::moveDockWindow(). If you're using a
-    QMainWindow, QMainWindow::moveDockWindow() and
-    QMainWindow::removeDockWindow() are available.
+    can also use Q3DockArea::moveDockWindow(). If you're using a
+    Q3MainWindow, Q3MainWindow::moveDockWindow() and
+    Q3MainWindow::removeDockWindow() are available.
 
     A dock window can have some preferred settings, for example, you
     can set a preferred offset from the left edge (or top edge for
@@ -782,16 +782,16 @@ void QDockWindowTitleBar::mouseDoubleClickEvent(QMouseEvent *)
 */
 
 /*!
-    \enum QDockWindow::Place
+    \enum Q3DockWindow::Place
 
-    This enum specifies the possible locations for a QDockWindow:
+    This enum specifies the possible locations for a Q3DockWindow:
 
-    \value InDock  Inside a QDockArea.
+    \value InDock  Inside a Q3DockArea.
     \value OutsideDock  Floating as a top level window on the desktop.
 */
 
 /*!
-    \enum QDockWindow::CloseMode
+    \enum Q3DockWindow::CloseMode
 
     This enum type specifies when (if ever) a dock window has a close
     button.
@@ -810,55 +810,55 @@ void QDockWindowTitleBar::mouseDoubleClickEvent(QMouseEvent *)
 */
 
 /*!
-    \fn void QDockWindow::setHorizontalStretchable(bool b)
+    \fn void Q3DockWindow::setHorizontalStretchable(bool b)
     \obsolete
 */
 /*!
-    \fn void QDockWindow::setVerticalStretchable(bool b)
+    \fn void Q3DockWindow::setVerticalStretchable(bool b)
     \obsolete
 */
 /*!
-    \fn bool QDockWindow::isHorizontalStretchable() const
+    \fn bool Q3DockWindow::isHorizontalStretchable() const
     \obsolete
 */
 /*!
-    \fn bool QDockWindow::isVerticalStretchable() const
+    \fn bool Q3DockWindow::isVerticalStretchable() const
     \obsolete
 */
 /*!
-    \fn void QDockWindow::orientationChanged(Orientation o)
+    \fn void Q3DockWindow::orientationChanged(Orientation o)
 
     This signal is emitted when the orientation of the dock window is
     changed. The new orientation is \a o.
 */
 
 /*!
-    \fn void QDockWindow::placeChanged(QDockWindow::Place p)
+    \fn void Q3DockWindow::placeChanged(Q3DockWindow::Place p)
 
     This signal is emitted when the dock window is docked (\a p is \c
     InDock), undocked (\a p is \c OutsideDock) or moved inside the
     the dock area.
 
-    \sa QDockArea::moveDockWindow(), QDockArea::removeDockWindow(),
-    QMainWindow::moveDockWindow(), QMainWindow::removeDockWindow()
+    \sa Q3DockArea::moveDockWindow(), Q3DockArea::removeDockWindow(),
+    Q3MainWindow::moveDockWindow(), Q3MainWindow::removeDockWindow()
 */
 
 /*!
-    \fn void QDockWindow::visibilityChanged(bool visible)
+    \fn void Q3DockWindow::visibilityChanged(bool visible)
 
     This signal is emitted when the visibility of the dock window
     relatively to its dock area is changed. If \a visible is true, the
-    QDockWindow is now visible to the dock area, otherwise it has been
+    Q3DockWindow is now visible to the dock area, otherwise it has been
     hidden.
 
     A dock window can be hidden if it has a close button which the
-    user has clicked. In the case of a QMainWindow a dock window can
+    user has clicked. In the case of a Q3MainWindow a dock window can
     have its visibility changed (hidden or shown) by clicking its name
-    in the dock window menu that lists the QMainWindow's dock windows.
+    in the dock window menu that lists the Q3MainWindow's dock windows.
 */
 
 /*!
-    \fn QDockArea *QDockWindow::area() const
+    \fn Q3DockArea *Q3DockWindow::area() const
 
     Returns the dock area in which this dock window is docked, or 0 if
     the dock window is floating.
@@ -866,22 +866,22 @@ void QDockWindowTitleBar::mouseDoubleClickEvent(QMouseEvent *)
 
 // DOC: Can't use \property 'cos it thinks the thing returns a bool.
 /*!
-    \fn Place QDockWindow::place() const
+    \fn Place Q3DockWindow::place() const
 
     This function returns where the dock window is placed. This is
     either \c InDock or \c OutsideDock.
 
-    \sa QDockArea::moveDockWindow(), QDockArea::removeDockWindow(),
-    QMainWindow::moveDockWindow(), QMainWindow::removeDockWindow()
+    \sa Q3DockArea::moveDockWindow(), Q3DockArea::removeDockWindow(),
+    Q3MainWindow::moveDockWindow(), Q3MainWindow::removeDockWindow()
 */
 
 
 /*!
-    Constructs a QDockWindow with parent \a parent, called \a name and
+    Constructs a Q3DockWindow with parent \a parent, called \a name and
     with widget flags \a f.
 */
 
-QDockWindow::QDockWindow(QWidget* parent, const char* name, WFlags f)
+Q3DockWindow::Q3DockWindow(QWidget* parent, const char* name, WFlags f)
     : Q3Frame(parent, name, f | WType_Dialog | WStyle_Customize | WStyle_NoBorder)
 {
     curPlace = InDock;
@@ -890,23 +890,23 @@ QDockWindow::QDockWindow(QWidget* parent, const char* name, WFlags f)
 }
 
 /*!
-    Constructs a QDockWindow with parent \a parent, called \a name and
+    Constructs a Q3DockWindow with parent \a parent, called \a name and
     with widget flags \a f.
 
     If \a p is \c InDock, the dock window is docked into a dock area
-    and \a parent \e must be a QDockArea or a QMainWindow. If the \a
-    parent is a QMainWindow the dock window will be docked in the main
+    and \a parent \e must be a Q3DockArea or a Q3MainWindow. If the \a
+    parent is a Q3MainWindow the dock window will be docked in the main
     window's \c Top dock area.
 
     If \a p is \c OutsideDock, the dock window is created as a floating
     window.
 
-    We recommend creating the dock area \c InDock with a QMainWindow
-    as parent then calling QMainWindow::moveDockWindow() to move the
+    We recommend creating the dock area \c InDock with a Q3MainWindow
+    as parent then calling Q3MainWindow::moveDockWindow() to move the
     dock window where you want it.
 */
 
-QDockWindow::QDockWindow(Place p, QWidget *parent, const char *name, WFlags f)
+Q3DockWindow::Q3DockWindow(Place p, QWidget *parent, const char *name, WFlags f)
     : Q3Frame(parent, name, f | WType_Dialog | WStyle_Customize | WStyle_NoBorder)
 {
     curPlace = p;
@@ -917,7 +917,7 @@ QDockWindow::QDockWindow(Place p, QWidget *parent, const char *name, WFlags f)
 /*! \internal
 */
 
-QDockWindow::QDockWindow(Place p, QWidget *parent, const char *name, WFlags f, bool toolbar)
+Q3DockWindow::Q3DockWindow(Place p, QWidget *parent, const char *name, WFlags f, bool toolbar)
     : Q3Frame(parent, name, f | WType_Dialog | WStyle_Customize | WStyle_NoBorder)
 {
     curPlace = p;
@@ -925,10 +925,10 @@ QDockWindow::QDockWindow(Place p, QWidget *parent, const char *name, WFlags f, b
     init();
 }
 
-class QDockWindowGridLayout : public QGridLayout
+class Q3DockWindowGridLayout : public QGridLayout
 {
 public:
-    QDockWindowGridLayout(QWidget *parent, int nRows, int nCols)
+    Q3DockWindowGridLayout(QWidget *parent, int nRows, int nCols)
         : QGridLayout(parent, nRows, nCols) {};
 
     QSizePolicy::ExpandData expanding() const
@@ -937,7 +937,7 @@ public:
     }
 };
 
-void QDockWindow::init()
+void Q3DockWindow::init()
 {
     wid = 0;
     unclippedPainter = 0;
@@ -957,14 +957,14 @@ void QDockWindow::init()
     widgetResizeHandler = new QWidgetResizeHandler(this);
     widgetResizeHandler->setMovingEnabled(false);
 
-    titleBar      = new QDockWindowTitleBar(this);
-    verHandle     = new QDockWindowHandle(this);
-    horHandle     = new QDockWindowHandle(this);
+    titleBar      = new Q3DockWindowTitleBar(this);
+    verHandle     = new Q3DockWindowHandle(this);
+    horHandle     = new Q3DockWindowHandle(this);
 
-    vHandleLeft   = new QDockWindowResizeHandle(Qt::Vertical, this, this, "vert. handle");
-    vHandleRight  = new QDockWindowResizeHandle(Qt::Vertical, this, this, "vert. handle");
-    hHandleTop    = new QDockWindowResizeHandle(Qt::Horizontal, this, this, "horz. handle");
-    hHandleBottom = new QDockWindowResizeHandle(Qt::Horizontal, this, this, "horz. handle");
+    vHandleLeft   = new Q3DockWindowResizeHandle(Qt::Vertical, this, this, "vert. handle");
+    vHandleRight  = new Q3DockWindowResizeHandle(Qt::Vertical, this, this, "vert. handle");
+    hHandleTop    = new Q3DockWindowResizeHandle(Qt::Horizontal, this, this, "horz. handle");
+    hHandleBottom = new Q3DockWindowResizeHandle(Qt::Horizontal, this, this, "horz. handle");
 
     // Creating inner layout
     hbox          = new QVBoxLayout();
@@ -982,7 +982,7 @@ void QDockWindow::init()
 
     // Set up the initial handle layout for Vertical
     // Handle layout will change on calls to setOrienation()
-    QGridLayout *glayout = new QDockWindowGridLayout(this, 3, 3);
+    QGridLayout *glayout = new Q3DockWindowGridLayout(this, 3, 3);
     glayout->setResizeMode(QLayout::Minimum);
     glayout->addMultiCellWidget(hHandleTop,    0, 0, 1, 1);
     glayout->addMultiCellWidget(hHandleBottom, 2, 2, 1, 1);
@@ -1002,18 +1002,18 @@ void QDockWindow::init()
     if (parentWidget())
         parentWidget()->installEventFilter(this);
     QWidget *mw = parentWidget();
-    QDockArea *da = qt_cast<QDockArea*>(parentWidget());
+    Q3DockArea *da = qt_cast<Q3DockArea*>(parentWidget());
     if (da) {
         if (curPlace == InDock)
             da->moveDockWindow(this);
         mw = da->parentWidget();
     }
-    if (qt_cast<QMainWindow*>(mw)) {
+    if (qt_cast<Q3MainWindow*>(mw)) {
         if (place() == InDock) {
             Dock myDock = Qt::DockTop;
             // make sure we put the window in the correct dock.
             if (dockArea) {
-                QMainWindow *mainw = (QMainWindow*)mw;
+                Q3MainWindow *mainw = (Q3MainWindow*)mw;
                 // I'm not checking if it matches the top because I've
                 // done the assignment to it above.
                 if (dockArea == mainw->leftDock())
@@ -1023,10 +1023,10 @@ void QDockWindow::init()
                 else if (dockArea == mainw->bottomDock())
                     myDock = Qt::DockBottom;
             }
-            ((QMainWindow*)mw)->addDockWindow(this, myDock);
+            ((Q3MainWindow*)mw)->addDockWindow(this, myDock);
         }
-        moveEnabled = ((QMainWindow*)mw)->dockWindowsMovable();
-        opaque = ((QMainWindow*)mw)->opaqueMoving();
+        moveEnabled = ((Q3MainWindow*)mw)->dockWindowsMovable();
+        opaque = ((Q3MainWindow*)mw)->opaqueMoving();
     }
 
     updateGui();
@@ -1044,10 +1044,10 @@ void QDockWindow::init()
     Sets the orientation of the dock window to \a o. The orientation
     is propagated to the layout boxLayout().
 
-    \warning All undocked QToolBars will always have a horizontal orientation.
+    \warning All undocked Q3ToolBars will always have a horizontal orientation.
 */
 
-void QDockWindow::setOrientation(Orientation o)
+void Q3DockWindow::setOrientation(Orientation o)
 {
     QGridLayout *glayout = (QGridLayout*)layout();
     glayout->removeWidget(hHandleTop);
@@ -1086,32 +1086,32 @@ void QDockWindow::setOrientation(Orientation o)
     Destroys the dock window and its child widgets.
 */
 
-QDockWindow::~QDockWindow()
+Q3DockWindow::~Q3DockWindow()
 {
     qApp->removeEventFilter(this);
     if (area())
         area()->removeDockWindow(this, false, false);
-    QDockArea *a = area();
+    Q3DockArea *a = area();
     if (!a && dockWindowData)
-        a = ((QDockArea::DockWindowData*)dockWindowData)->area;
-    QMainWindow *mw = a ? qt_cast<QMainWindow*>(a->parentWidget()) : 0;
+        a = ((Q3DockArea::DockWindowData*)dockWindowData)->area;
+    Q3MainWindow *mw = a ? qt_cast<Q3MainWindow*>(a->parentWidget()) : 0;
     if (mw)
         mw->removeDockWindow(this);
 
-    delete (QDockArea::DockWindowData*)dockWindowData;
+    delete (Q3DockArea::DockWindowData*)dockWindowData;
 }
 
 /*!  \reimp
 */
 
-void QDockWindow::resizeEvent(QResizeEvent *e)
+void Q3DockWindow::resizeEvent(QResizeEvent *e)
 {
     Q3Frame::resizeEvent(e);
     updateGui();
 }
 
 
-void QDockWindow::swapRect(QRect &r, Qt::Orientation o, const QPoint &offset, QDockArea *)
+void Q3DockWindow::swapRect(QRect &r, Qt::Orientation o, const QPoint &offset, Q3DockArea *)
 {
     Q_UNUSED(r);
     Q_UNUSED(o);
@@ -1134,7 +1134,7 @@ void QDockWindow::swapRect(QRect &r, Qt::Orientation o, const QPoint &offset, QD
 #endif
 }
 
-QWidget *QDockWindow::areaAt(const QPoint &gp)
+QWidget *Q3DockWindow::areaAt(const QPoint &gp)
 {
     QWidget *w = qApp->widgetAt(gp);
 
@@ -1142,14 +1142,14 @@ QWidget *QDockWindow::areaAt(const QPoint &gp)
         w = parentWidget()->childAt(parentWidget()->mapFromGlobal(gp));
 
     while (w) {
-        if (qt_cast<QDockArea*>(w)) {
-            QDockArea *a = (QDockArea*)w;
+        if (qt_cast<Q3DockArea*>(w)) {
+            Q3DockArea *a = (Q3DockArea*)w;
             if (a->isDockWindowAccepted(this))
                 return w;
         }
-        if (qt_cast<QMainWindow*>(w)) {
-            QMainWindow *mw = (QMainWindow*)w;
-            QDockArea *a = mw->dockingArea(mw->mapFromGlobal(gp));
+        if (qt_cast<Q3MainWindow*>(w)) {
+            Q3MainWindow *mw = (Q3MainWindow*)w;
+            Q3DockArea *a = mw->dockingArea(mw->mapFromGlobal(gp));
             if (a && a->isDockWindowAccepted(this))
                 return a;
         }
@@ -1158,7 +1158,7 @@ QWidget *QDockWindow::areaAt(const QPoint &gp)
     return 0;
 }
 
-void QDockWindow::handleMove(const QPoint &pos, const QPoint &gp, bool drawRect)
+void Q3DockWindow::handleMove(const QPoint &pos, const QPoint &gp, bool drawRect)
 {
     if (!unclippedPainter)
         return;
@@ -1175,9 +1175,9 @@ void QDockWindow::handleMove(const QPoint &pos, const QPoint &gp, bool drawRect)
     if (titleBar->ctrlDown || horHandle->ctrlDown || verHandle->ctrlDown)
         w = 0;
     currRect.moveBy(pos.x(), pos.y());
-    if (!qt_cast<QDockArea*>(w)) {
-        if (startOrientation != Horizontal && qt_cast<QToolBar*>(this))
-            swapRect(currRect, Horizontal, startOffset, (QDockArea*)w);
+    if (!qt_cast<Q3DockArea*>(w)) {
+        if (startOrientation != Horizontal && qt_cast<Q3ToolBar*>(this))
+            swapRect(currRect, Horizontal, startOffset, (Q3DockArea*)w);
         if (drawRect) {
             unclippedPainter->setPen(QPen(gray, 3));
             QRect dr(currRect);
@@ -1202,7 +1202,7 @@ void QDockWindow::handleMove(const QPoint &pos, const QPoint &gp, bool drawRect)
         return;
     }
 
-    QDockArea *area = (QDockArea*)w;
+    Q3DockArea *area = (Q3DockArea*)w;
     if(area->isVisible()) {
         state = InDock;
         Orientation o = (area ? area->orientation() :
@@ -1223,7 +1223,7 @@ void QDockWindow::handleMove(const QPoint &pos, const QPoint &gp, bool drawRect)
     }
 }
 
-void QDockWindow::updateGui()
+void Q3DockWindow::updateGui()
 {
     if (curPlace == OutsideDock) {
         hbox->setMargin(2);
@@ -1283,7 +1283,7 @@ void QDockWindow::updateGui()
 
             if (area()) {
                 if (orientation() == Horizontal) {
-                    if (area()->handlePosition() == QDockArea::Normal) {
+                    if (area()->handlePosition() == Q3DockArea::Normal) {
                         hHandleBottom->show();
                         hHandleTop->hide();
                     } else {
@@ -1296,7 +1296,7 @@ void QDockWindow::updateGui()
                         vHandleRight->hide();
                     vHandleLeft->hide();
                 } else {
-                    if ((area()->handlePosition() == QDockArea::Normal) != QApplication::reverseLayout()) {
+                    if ((area()->handlePosition() == Q3DockArea::Normal) != QApplication::reverseLayout()) {
                         vHandleRight->show();
                         vHandleLeft->hide();
                     } else {
@@ -1324,7 +1324,7 @@ void QDockWindow::updateGui()
     }
 }
 
-void QDockWindow::updatePosition(const QPoint &globalPos)
+void Q3DockWindow::updatePosition(const QPoint &globalPos)
 {
     if (curPlace == OutsideDock && state == InDock)
         lastSize = size();
@@ -1345,7 +1345,7 @@ void QDockWindow::updatePosition(const QPoint &globalPos)
             bool differentDocks = false;
             if (dockArea && dockArea != tmpDockArea) {
                 differentDocks = true;
-                delete (QDockArea::DockWindowData*)dockWindowData;
+                delete (Q3DockArea::DockWindowData*)dockWindowData;
                 dockWindowData = dockArea->dockWindowData(this);
                 dockArea->removeDockWindow(this, false, false);
             }
@@ -1365,15 +1365,15 @@ void QDockWindow::updatePosition(const QPoint &globalPos)
         }
     } else {
         if (dockArea) {
-            QMainWindow *mw = (QMainWindow*)dockArea->parentWidget();
-            if (qt_cast<QMainWindow*>(mw) &&
-                 (!mw->isDockEnabled(QMainWindow::DockTornOff) ||
-                   !mw->isDockEnabled(this, QMainWindow::DockTornOff)))
+            Q3MainWindow *mw = (Q3MainWindow*)dockArea->parentWidget();
+            if (qt_cast<Q3MainWindow*>(mw) &&
+                 (!mw->isDockEnabled(Q3MainWindow::DockTornOff) ||
+                   !mw->isDockEnabled(this, Q3MainWindow::DockTornOff)))
                 return;
-            delete (QDockArea::DockWindowData*)dockWindowData;
+            delete (Q3DockArea::DockWindowData*)dockWindowData;
             dockWindowData = dockArea->dockWindowData(this);
             dockArea->removeDockWindow(this, true,
-                startOrientation != Horizontal && qt_cast<QToolBar*>(this));
+                startOrientation != Horizontal && qt_cast<Q3ToolBar*>(this));
         }
         dockArea = 0;
         QPoint topLeft = currRect.topLeft();
@@ -1387,7 +1387,7 @@ void QDockWindow::updatePosition(const QPoint &globalPos)
         move(topLeft);
     }
 
-    if (curPlace == InDock && state == OutsideDock && !qt_cast<QToolBar*>(this)) {
+    if (curPlace == InDock && state == OutsideDock && !qt_cast<Q3ToolBar*>(this)) {
         if (lastSize != QSize(-1, -1))
             resize(lastSize);
     }
@@ -1401,7 +1401,7 @@ void QDockWindow::updatePosition(const QPoint &globalPos)
     tmpDockArea = 0;
     if (doAdjustSize) {
         QApplication::sendPostedEvents(this, QEvent::LayoutHint);
-        if (qt_cast<QToolBar*>(this))
+        if (qt_cast<Q3ToolBar*>(this))
             adjustSize();
         setAttribute(WA_Resized, false); // Ensures size is recalculated (non-opaque).
         show();
@@ -1419,7 +1419,7 @@ void QDockWindow::updatePosition(const QPoint &globalPos)
     \sa boxLayout()
 */
 
-void QDockWindow::setWidget(QWidget *w)
+void Q3DockWindow::setWidget(QWidget *w)
 {
     wid = w;
     boxLayout()->addWidget(w);
@@ -1432,12 +1432,12 @@ void QDockWindow::setWidget(QWidget *w)
     \sa setWidget()
 */
 
-QWidget *QDockWindow::widget() const
+QWidget *Q3DockWindow::widget() const
 {
     return wid;
 }
 
-void QDockWindow::startRectDraw(const QPoint &so, bool drawRect)
+void Q3DockWindow::startRectDraw(const QPoint &so, bool drawRect)
 {
     state = place();
     if (unclippedPainter)
@@ -1462,7 +1462,7 @@ void QDockWindow::startRectDraw(const QPoint &so, bool drawRect)
     startOffset = mapFromGlobal(so);
 }
 
-void QDockWindow::endRectDraw(bool drawRect)
+void Q3DockWindow::endRectDraw(bool drawRect)
 {
     if (!unclippedPainter)
         return;
@@ -1480,7 +1480,7 @@ void QDockWindow::endRectDraw(bool drawRect)
 /*!
   \reimp
 */
-void QDockWindow::drawFrame(QPainter *p)
+void Q3DockWindow::drawFrame(QPainter *p)
 {
     if (place() == InDock) {
         Q3Frame::drawFrame(p);
@@ -1502,7 +1502,7 @@ void QDockWindow::drawFrame(QPainter *p)
 /*!
   \reimp
 */
-void QDockWindow::drawContents(QPainter *p)
+void Q3DockWindow::drawContents(QPainter *p)
 {
     QStyle::SFlags flags = QStyle::Style_Default;
     if (titleBar->isActive())
@@ -1512,7 +1512,7 @@ void QDockWindow::drawContents(QPainter *p)
 }
 
 /*!
-    \property QDockWindow::resizeEnabled
+    \property Q3DockWindow::resizeEnabled
     \brief whether the dock window is resizeable
 
     A resizeable dock window can be resized using splitter-like
@@ -1527,7 +1527,7 @@ void QDockWindow::drawContents(QPainter *p)
     \sa setVerticallyStretchable() setHorizontallyStretchable()
 */
 
-void QDockWindow::setResizeEnabled(bool b)
+void Q3DockWindow::setResizeEnabled(bool b)
 {
     resizeEnabled = b;
     hbox->setMargin(b ? 0 : 2);
@@ -1535,7 +1535,7 @@ void QDockWindow::setResizeEnabled(bool b)
 }
 
 /*!
-    \property QDockWindow::movingEnabled
+    \property Q3DockWindow::movingEnabled
     \brief whether the user can move the dock window within the dock
     area, move the dock window to another dock area, or float the dock
     window.
@@ -1543,24 +1543,24 @@ void QDockWindow::setResizeEnabled(bool b)
     This property is true by default.
 */
 
-void QDockWindow::setMovingEnabled(bool b)
+void Q3DockWindow::setMovingEnabled(bool b)
 {
     moveEnabled = b;
     updateGui();
 }
 
-bool QDockWindow::isResizeEnabled() const
+bool Q3DockWindow::isResizeEnabled() const
 {
     return resizeEnabled;
 }
 
-bool QDockWindow::isMovingEnabled() const
+bool Q3DockWindow::isMovingEnabled() const
 {
     return moveEnabled;
 }
 
 /*!
-    \property QDockWindow::closeMode
+    \property Q3DockWindow::closeMode
     \brief the close mode of a dock window
 
     Defines when (if ever) the dock window has a close button. The
@@ -1570,7 +1570,7 @@ bool QDockWindow::isMovingEnabled() const
     The default is \c Never.
 */
 
-void QDockWindow::setCloseMode(int m)
+void Q3DockWindow::setCloseMode(int m)
 {
     cMode = m;
     if (place() == InDock) {
@@ -1589,19 +1589,19 @@ void QDockWindow::setCloseMode(int m)
     \sa setCloseMode()
 */
 
-bool QDockWindow::isCloseEnabled() const
+bool Q3DockWindow::isCloseEnabled() const
 {
     return  ((cMode & Docked) == Docked && place() == InDock ||
               (cMode & Undocked) == Undocked && place() == OutsideDock);
 }
 
-int QDockWindow::closeMode() const
+int Q3DockWindow::closeMode() const
 {
     return cMode;
 }
 
 /*!
-    \property QDockWindow::horizontallyStretchable
+    \property Q3DockWindow::horizontallyStretchable
     \brief whether the dock window is horizontally stretchable.
 
     A dock window is horizontally stretchable if you call
@@ -1610,16 +1610,16 @@ int QDockWindow::closeMode() const
     \sa setResizeEnabled()
 
     \bug Strecthability is broken. You must call setResizeEnabled(TRUE) to get
-    proper behavior and even then QDockWindow does not limit stretchablilty.
+    proper behavior and even then Q3DockWindow does not limit stretchablilty.
 */
 
-void QDockWindow::setHorizontallyStretchable(bool b)
+void Q3DockWindow::setHorizontallyStretchable(bool b)
 {
     stretchable[Horizontal] = b;
 }
 
 /*!
-    \property QDockWindow::verticallyStretchable
+    \property Q3DockWindow::verticallyStretchable
     \brief whether the dock window is vertically stretchable.
 
     A dock window is vertically stretchable if you call
@@ -1628,26 +1628,26 @@ void QDockWindow::setHorizontallyStretchable(bool b)
     \sa setResizeEnabled()
 
     \bug Strecthability is broken. You must call setResizeEnabled(TRUE) to get
-    proper behavior and even then QDockWindow does not limit stretchablilty.
+    proper behavior and even then Q3DockWindow does not limit stretchablilty.
 */
 
-void QDockWindow::setVerticallyStretchable(bool b)
+void Q3DockWindow::setVerticallyStretchable(bool b)
 {
     stretchable[Vertical] = b;
 }
 
-bool QDockWindow::isHorizontallyStretchable() const
+bool Q3DockWindow::isHorizontallyStretchable() const
 {
     return isResizeEnabled() || stretchable[Horizontal];
 }
 
-bool QDockWindow::isVerticallyStretchable() const
+bool Q3DockWindow::isVerticallyStretchable() const
 {
     return isResizeEnabled() || stretchable[Vertical];
 }
 
 /*!
-    \property QDockWindow::stretchable
+    \property Q3DockWindow::stretchable
     \brief whether the dock window is stretchable in the current
     orientation()
 
@@ -1657,10 +1657,10 @@ bool QDockWindow::isVerticallyStretchable() const
     \sa setResizeEnabled()
 
     \bug Strecthability is broken. You must call setResizeEnabled(TRUE) to get
-    proper behavior and even then QDockWindow does not limit stretchablilty.
+    proper behavior and even then Q3DockWindow does not limit stretchablilty.
 */
 
-bool QDockWindow::isStretchable() const
+bool Q3DockWindow::isStretchable() const
 {
     if (orientation() == Horizontal)
         return isHorizontallyStretchable();
@@ -1673,31 +1673,31 @@ bool QDockWindow::isStretchable() const
     \sa orientationChanged()
 */
 
-Qt::Orientation QDockWindow::orientation() const
+Qt::Orientation Q3DockWindow::orientation() const
 {
     if (dockArea)
         return dockArea->orientation();
-    if (qt_cast<QToolBar*>(this))
+    if (qt_cast<Q3ToolBar*>(this))
         return Horizontal;
-    return (((QDockWindow*)this)->boxLayout()->direction() == QBoxLayout::LeftToRight ||
-             ((QDockWindow*)this)->boxLayout()->direction() == QBoxLayout::RightToLeft ?
+    return (((Q3DockWindow*)this)->boxLayout()->direction() == QBoxLayout::LeftToRight ||
+             ((Q3DockWindow*)this)->boxLayout()->direction() == QBoxLayout::RightToLeft ?
              Horizontal : Vertical);
 }
 
-int QDockWindow::offset() const
+int Q3DockWindow::offset() const
 {
     return offs;
 }
 
 /*!
-    \property QDockWindow::offset
+    \property Q3DockWindow::offset
     \brief the dock window's preferred offset from the dock area's
     left edge (top edge for vertical dock areas)
 
     The default is 0.
 */
 
-void QDockWindow::setOffset(int o)
+void Q3DockWindow::setOffset(int o)
 {
     offs = o;
 }
@@ -1708,7 +1708,7 @@ void QDockWindow::setOffset(int o)
     \sa setFixedExtentWidth() setFixedExtentHeight()
 */
 
-QSize QDockWindow::fixedExtent() const
+QSize Q3DockWindow::fixedExtent() const
 {
     return fExtent;
 }
@@ -1720,7 +1720,7 @@ QSize QDockWindow::fixedExtent() const
     \sa setFixedExtentHeight()
 */
 
-void QDockWindow::setFixedExtentWidth(int w)
+void Q3DockWindow::setFixedExtentWidth(int w)
 {
     fExtent.setWidth(w);
 }
@@ -1732,13 +1732,13 @@ void QDockWindow::setFixedExtentWidth(int w)
     \sa setFixedExtentWidth()
 */
 
-void QDockWindow::setFixedExtentHeight(int h)
+void Q3DockWindow::setFixedExtentHeight(int h)
 {
     fExtent.setHeight(h);
 }
 
 /*!
-    \property QDockWindow::newLine
+    \property Q3DockWindow::newLine
     \brief whether the dock window prefers to start a new line in the
     dock area.
 
@@ -1746,12 +1746,12 @@ void QDockWindow::setFixedExtentHeight(int h)
     line in the dock area.
 */
 
-void QDockWindow::setNewLine(bool b)
+void Q3DockWindow::setNewLine(bool b)
 {
     nl = b;
 }
 
-bool QDockWindow::newLine() const
+bool Q3DockWindow::newLine() const
 {
     return nl;
 }
@@ -1768,7 +1768,7 @@ bool QDockWindow::newLine() const
     \sa setWidget() setOrientation()
 */
 
-QBoxLayout *QDockWindow::boxLayout()
+QBoxLayout *Q3DockWindow::boxLayout()
 {
     return childBox;
 }
@@ -1776,7 +1776,7 @@ QBoxLayout *QDockWindow::boxLayout()
 /*! \reimp
  */
 
-QSize QDockWindow::sizeHint() const
+QSize Q3DockWindow::sizeHint() const
 {
     QSize sh(Q3Frame::sizeHint());
     if (place() == InDock)
@@ -1794,7 +1794,7 @@ QSize QDockWindow::sizeHint() const
 /*! \reimp
  */
 
-QSize QDockWindow::minimumSize() const
+QSize Q3DockWindow::minimumSize() const
 {
     QSize ms(Q3Frame::minimumSize());
     if (place() == InDock)
@@ -1812,7 +1812,7 @@ QSize QDockWindow::minimumSize() const
 /*! \reimp
  */
 
-QSize QDockWindow::minimumSizeHint() const
+QSize Q3DockWindow::minimumSizeHint() const
 {
     QSize msh(Q3Frame::minimumSize());
     if (place() == InDock)
@@ -1828,11 +1828,11 @@ QSize QDockWindow::minimumSizeHint() const
 }
 
 /*! \internal */
-void QDockWindow::undock(QWidget *w)
+void Q3DockWindow::undock(QWidget *w)
 {
-    QMainWindow *mw = 0;
+    Q3MainWindow *mw = 0;
     if (area())
-        mw = qt_cast<QMainWindow*>(area()->parentWidget());
+        mw = qt_cast<Q3MainWindow*>(area()->parentWidget());
     if (mw && !mw->isDockEnabled(this, DockTornOff))
         return;
     if ((place() == OutsideDock && !w))
@@ -1842,9 +1842,9 @@ void QDockWindow::undock(QWidget *w)
     if (topLevelWidget())
         p = topLevelWidget()->pos() + QPoint(20, 20);
     if (dockArea) {
-        delete (QDockArea::DockWindowData*)dockWindowData;
+        delete (Q3DockArea::DockWindowData*)dockWindowData;
         dockWindowData = dockArea->dockWindowData(this);
-        dockArea->removeDockWindow(this, true, orientation() != Horizontal && qt_cast<QToolBar*>(this));
+        dockArea->removeDockWindow(this, true, orientation() != Horizontal && qt_cast<Q3ToolBar*>(this));
     }
     dockArea = 0;
     if (lastPos != QPoint(-1, -1) && lastPos.x() > 0 && lastPos.y() > 0)
@@ -1857,7 +1857,7 @@ void QDockWindow::undock(QWidget *w)
     updateGui();
     emit orientationChanged(orientation());
     QApplication::sendPostedEvents(this, QEvent::LayoutHint);
-    if (qt_cast<QToolBar*>(this))
+    if (qt_cast<Q3ToolBar*>(this))
         adjustSize();
     if (!w) {
         if (!parentWidget() || parentWidget()->isVisible()) {
@@ -1876,17 +1876,17 @@ void QDockWindow::undock(QWidget *w)
 }
 
 /*!
-    \fn void QDockWindow::undock()
+    \fn void Q3DockWindow::undock()
 
-    Undocks the QDockWindow from its current dock area if it is
+    Undocks the Q3DockWindow from its current dock area if it is
     docked; otherwise does nothing.
 
-    \sa dock() QDockArea::moveDockWindow(),
-    QDockArea::removeDockWindow(), QMainWindow::moveDockWindow(),
-    QMainWindow::removeDockWindow()
+    \sa dock() Q3DockArea::moveDockWindow(),
+    Q3DockArea::removeDockWindow(), Q3MainWindow::moveDockWindow(),
+    Q3MainWindow::removeDockWindow()
 */
 
-void QDockWindow::removeFromDock(bool fixNewLines)
+void Q3DockWindow::removeFromDock(bool fixNewLines)
 {
     if (dockArea)
         dockArea->removeDockWindow(this, false, false, fixNewLines);
@@ -1902,24 +1902,24 @@ void QDockWindow::removeFromDock(bool fixNewLines)
     deleted), nothing happens.
 
     The dock window will dock with the dock area regardless of the return value
-    of QDockArea::isDockWindowAccepted().
+    of Q3DockArea::isDockWindowAccepted().
 
-    \sa undock() QDockArea::moveDockWindow(),
-    QDockArea::removeDockWindow(), QMainWindow::moveDockWindow(),
-    QMainWindow::removeDockWindow(), QDockArea::isDockWindowAccepted()
+    \sa undock() Q3DockArea::moveDockWindow(),
+    Q3DockArea::removeDockWindow(), Q3MainWindow::moveDockWindow(),
+    Q3MainWindow::removeDockWindow(), Q3DockArea::isDockWindowAccepted()
 
 */
 
-void QDockWindow::dock()
+void Q3DockWindow::dock()
 {
-    if (!(QDockArea::DockWindowData*)dockWindowData ||
-         !((QDockArea::DockWindowData*)dockWindowData)->area)
+    if (!(Q3DockArea::DockWindowData*)dockWindowData ||
+         !((Q3DockArea::DockWindowData*)dockWindowData)->area)
         return;
     curPlace = InDock;
     lastPos = pos();
     lastSize = size();
-    ((QDockArea::DockWindowData*)dockWindowData)->
-        area->dockWindow(this, (QDockArea::DockWindowData*)dockWindowData);
+    ((Q3DockArea::DockWindowData*)dockWindowData)->
+        area->dockWindow(this, (Q3DockArea::DockWindowData*)dockWindowData);
     emit orientationChanged(orientation());
     emit placeChanged(place());
 }
@@ -1927,7 +1927,7 @@ void QDockWindow::dock()
 /*! \reimp
  */
 
-void QDockWindow::hideEvent(QHideEvent *e)
+void Q3DockWindow::hideEvent(QHideEvent *e)
 {
     Q3Frame::hideEvent(e);
 }
@@ -1935,7 +1935,7 @@ void QDockWindow::hideEvent(QHideEvent *e)
 /*! \reimp
  */
 
-void QDockWindow::showEvent(QShowEvent *e)
+void Q3DockWindow::showEvent(QShowEvent *e)
 {
     if (curPlace == OutsideDock && (parent() && parent()->objectName() == QLatin1String("qt_hide_dock"))) {
         QRect sr = qApp->desktop()->availableGeometry(this);
@@ -1950,7 +1950,7 @@ void QDockWindow::showEvent(QShowEvent *e)
 }
 
 /*!
-    \property QDockWindow::opaqueMoving
+    \property Q3DockWindow::opaqueMoving
     \brief whether the dock window will be shown normally whilst it is
     being moved.
 
@@ -1962,7 +1962,7 @@ void QDockWindow::showEvent(QShowEvent *e)
     in a future release.
 */
 
-void QDockWindow::setOpaqueMoving(bool b)
+void Q3DockWindow::setOpaqueMoving(bool b)
 {
     opaque = b;
     horHandle->setOpaqueMoving(b);
@@ -1970,12 +1970,12 @@ void QDockWindow::setOpaqueMoving(bool b)
     titleBar->setOpaqueMoving(b);
 }
 
-bool QDockWindow::opaqueMoving() const
+bool Q3DockWindow::opaqueMoving() const
 {
     return opaque;
 }
 
-void QDockWindow::updateSplitterVisibility(bool visible)
+void Q3DockWindow::updateSplitterVisibility(bool visible)
 {
     if (area() && isResizeEnabled()) {
         if (orientation() == Horizontal) {
@@ -1995,7 +1995,7 @@ void QDockWindow::updateSplitterVisibility(bool visible)
 }
 
 /*! \reimp */
-bool QDockWindow::eventFilter(QObject * o, QEvent *e)
+bool Q3DockWindow::eventFilter(QObject * o, QEvent *e)
 {
     if (!o->isWidgetType())
         return false;
@@ -2022,7 +2022,7 @@ bool QDockWindow::eventFilter(QObject * o, QEvent *e)
 }
 
 /*! \reimp */
-bool QDockWindow::event(QEvent *e)
+bool Q3DockWindow::event(QEvent *e)
 {
     switch (e->type()) {
     case QEvent::WindowDeactivate:
@@ -2051,21 +2051,21 @@ bool QDockWindow::event(QEvent *e)
 /*!
     Returns the dock window's title.
 */
-QString QDockWindow::windowTitle() const
+QString Q3DockWindow::windowTitle() const
 {
     return titleBar->windowTitle();
 }
 
 /*! \reimp */
-void QDockWindow::contextMenuEvent(QContextMenuEvent *e)
+void Q3DockWindow::contextMenuEvent(QContextMenuEvent *e)
 {
     QObject *o = this;
     while (o) {
-        if (qt_cast<QMainWindow*>(o))
+        if (qt_cast<Q3MainWindow*>(o))
             break;
         o = o->parent();
     }
-    if (!o || ! ((QMainWindow*)o)->showDockMenu(e->globalPos()))
+    if (!o || ! ((Q3MainWindow*)o)->showDockMenu(e->globalPos()))
         e->ignore();
 }
 

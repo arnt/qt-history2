@@ -111,8 +111,8 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
         return &QScrollBar::staticMetaObject;
     else if (widgetName == QLatin1String("QFrame"))
         return &QFrame::staticMetaObject;
-    else if (widgetName == QLatin1String("QMainWindow"))
-        return &QMainWindow::staticMetaObject;
+    else if (widgetName == QLatin1String("Q3MainWindow"))
+        return &Q3MainWindow::staticMetaObject;
     else if (widgetName == QLatin1String("QToolBox"))
         return &QToolBox::staticMetaObject;
     else if (widgetName == QLatin1String("Line"))

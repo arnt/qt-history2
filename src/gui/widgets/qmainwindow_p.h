@@ -16,13 +16,13 @@
 
 #include <private/qwidget_p.h>
 
-class QMainWindowLayout;
+class Q3MainWindowLayout;
 
-class QMainWindowPrivate : public QWidgetPrivate
+class Q3MainWindowPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC(QMainWindow)
+    Q_DECLARE_PUBLIC(Q3MainWindow)
 public:
-    QMainWindowPrivate()
+    Q3MainWindowPrivate()
         :  mb(0), sb(0), ttg(0), mc(0), tll(0), mwl(0), ubp(false), utl(false),
            justify(false), movable(true), opaque(false), dockMenu(true)
     {
@@ -34,7 +34,7 @@ public:
         docks.insert(Qt::DockTornOff, true);
     }
 
-    ~QMainWindowPrivate()
+    ~Q3MainWindowPrivate()
     {
     }
 
@@ -49,7 +49,7 @@ public:
     QWidget * mc;
 
     QBoxLayout * tll;
-    QMainWindowLayout * mwl;
+    Q3MainWindowLayout * mwl;
 
     uint ubp :1;
     uint utl :1;
@@ -58,15 +58,15 @@ public:
     uint opaque :1;
     uint dockMenu :1;
 
-    QDockArea *topDock, *bottomDock, *leftDock, *rightDock;
+    Q3DockArea *topDock, *bottomDock, *leftDock, *rightDock;
 
-    QList<QDockWindow *> dockWindows;
+    QList<Q3DockWindow *> dockWindows;
     QMap<Qt::Dock, bool> docks;
     QStringList disabledDocks;
     QHideDock *hideDock;
 
     QPointer<QPopupMenu> rmbMenu, tbMenu, dwMenu;
-    QMap<QDockWindow*, bool> appropriate;
+    QMap<Q3DockWindow*, bool> appropriate;
 };
 
 #endif /* __QMAINWINDOW_P_H__ */
