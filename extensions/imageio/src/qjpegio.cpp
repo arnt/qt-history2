@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/imageio/src/qjpegio.cpp#3 $
+** $Id: //depot/qt/main/extensions/imageio/src/qjpegio.cpp#4 $
 **
 ** Implementation of JPEG QImage IOHandler
 **
@@ -60,16 +60,19 @@ public:
 
     static boolean fill_input_buffer(j_decompress_ptr cinfo)
     {
+	int num_read;
 	my_jpeg_source_mgr* src = (my_jpeg_source_mgr*)cinfo->src;
 	QIODevice* dev = src->iio->ioDevice();
 	src->next_input_byte = src->buffer;
-	src->bytes_in_buffer = dev->readBlock((char*)src->buffer, max_buf);
-	if ( src->bytes_in_buffer <= 0 ) {
+	num_read = dev->readBlock((char*)src->buffer, max_buf);
+	if ( num_read <= 0 ) {
 	    // Insert a fake EOI marker - as per jpeglib recommendation
 	    src->buffer[0] = (JOCTET) 0xFF;
 	    src->buffer[1] = (JOCTET) JPEG_EOI;
 	    src->bytes_in_buffer = 2;
 	}
+	else
+	    src->bytes_in_buffer = num_read;
 	return TRUE;
     }
 
