@@ -44,6 +44,7 @@
 #include <qworkspace.h>
 #include <qprintdialog.h>
 #include <qprinter.h>
+#define private public // huhu :-))
 #include <qfontdialog.h>
 #include <qcolordialog.h>
 #include <qtextbrowser.h>
