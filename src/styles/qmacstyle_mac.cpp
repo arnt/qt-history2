@@ -58,6 +58,8 @@
 #include "qwidgetlist.h"
 #include "private/qaquastyle_p.h"
 
+#define QMAC_NO_MACSTYLE_ANIMATE //just disable animations for now
+
 //externals
 RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
@@ -142,7 +144,6 @@ QMacStylePrivate::~QMacStylePrivate()
     if(progressbar)
 	DisposeControl(progressbar);
 }
-#define QMAC_NO_MACSTYLE_ANIMATE
 void QMacStylePrivate::doAnimate(QAquaAnimate::Animates)
 {
 #ifndef QMAC_NO_MACSTYLE_ANIMATE
@@ -853,6 +854,10 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    ttdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
 	else if(subActive == SC_SliderHandle)
 	    ttdi.trackInfo.slider.pressState = kThemeThumbPressed;
+	if(sldr->backgroundPixmap())
+	    p->drawPixmap(r, *sldr->backgroundPixmap());
+	else
+	    p->fillRect(r, sldr->backgroundColor());
 	((QMacPainter *)p)->noop();
 	DrawThemeTrack(&ttdi, NULL, NULL, 0);
 	if ( sub & SC_SliderTickmarks )
