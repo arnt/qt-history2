@@ -78,7 +78,7 @@ void MainWindow::openFile()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Choose a data file"), "", "*.cht");
-    
+
     if (!fileName.isEmpty()) {
         QFile file(fileName);
 
@@ -92,7 +92,7 @@ void MainWindow::openFile()
             do {
                 line = stream.readLine();
                 if (!line.isEmpty()) {
-                
+
                     model->insertRows(row, 1, QModelIndex());
 
                     QStringList pieces = line.split(",", QString::SkipEmptyParts);
@@ -106,7 +106,7 @@ void MainWindow::openFile()
             } while (!line.isEmpty());
 
             file.close();
-            if (pieChart->isShown())
+            if (!pieChart->isExplicitlyHidden())
                 pieChart->raise();
         }
     }
@@ -116,7 +116,7 @@ void MainWindow::saveFile()
 {
     QString fileName = QFileDialog::getSaveFileName(this,
         tr("Save file as"), "", "*.cht");
-    
+
     if (!fileName.isEmpty()) {
         QFile file(fileName);
         QTextStream stream(&file);
@@ -142,5 +142,5 @@ void MainWindow::saveFile()
 
 void MainWindow::updateWindowsMenu()
 {
-    pieWindowAction->setChecked(pieChart->isShown());
+    pieWindowAction->setChecked(!pieChart->isExplicitlyHidden());
 }
