@@ -33,7 +33,7 @@
 <!-- -->distributors can make bug-fixes etc. without having to
 <!-- -->change all packages which link to the binary.
 <li>The Qt Free Edition can be used to
-<!-- -->run commercial software written with the Qt Profession Edition
+<!-- -->run commercial software written with the Qt Professional Edition
 <!-- -->without having to install another library or worse, link statically.
 </font></i>
 </ul>
