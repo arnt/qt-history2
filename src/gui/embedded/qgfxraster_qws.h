@@ -103,7 +103,7 @@ typedef unsigned int PackType;
   This is used by blt() to set up the pointer to the mask for
   Little/BigEndianMask alpha types.
 */
-inline  unsigned char * find_pointer(unsigned char * base,int x,int y,
+inline  unsigned char *find_pointer(unsigned char * base,int x,int y,
                                                int w, int linestep, int &astat,
                                                unsigned char &ahold,
                                                bool is_bigendian, bool rev)
@@ -133,6 +133,18 @@ inline  unsigned char * find_pointer(unsigned char * base,int x,int y,
 
     return ret;
 }
+
+inline  unsigned const char *find_pointer(unsigned const char * base,int x,int y,
+                                               int w, int linestep, int &astat,
+                                               unsigned char &ahold,
+                                               bool is_bigendian, bool rev)
+{
+    return  find_pointer(const_cast<unsigned char *>(base), x, y,
+                         w, linestep, astat, ahold, is_bigendian, rev);
+}
+
+
+
 
 //===========================================================================
 
@@ -289,22 +301,22 @@ protected:
 
     virtual void setSourcePen();
     unsigned char *scanLine(int i) { return buffer+(i*lstep); }
-    unsigned char *srcScanLine(int i) { return srcbits + (i*srclinestep); }
+    unsigned const char *srcScanLine(int i) { return srcbits + (i*srclinestep); }
 
     // Convert to/from different bit depths
-    unsigned int get_value_32(int sdepth,unsigned char **srcdata,
+    unsigned int get_value_32(int sdepth,unsigned const char **srcdata,
                            bool reverse=false);
-    unsigned int get_value_24(int sdepth,unsigned char **srcdata,
+    unsigned int get_value_24(int sdepth,unsigned const char **srcdata,
                            bool reverse=false);
-    unsigned int get_value_16(int sdepth,unsigned char **srcdata,
+    unsigned int get_value_16(int sdepth,unsigned const char **srcdata,
                            bool reverse=false);
-    unsigned int get_value_15(int sdepth,unsigned char **srcdata,
+    unsigned int get_value_15(int sdepth,unsigned const char **srcdata,
                            bool reverse=false);
-    unsigned int get_value_8(int sdepth,unsigned char **srcdata,
+    unsigned int get_value_8(int sdepth,unsigned const char **srcdata,
                            bool reverse=false);
-    unsigned int get_value_4(int sdepth,unsigned char **srcdata,
+    unsigned int get_value_4(int sdepth,unsigned const char **srcdata,
                            bool reverse=false);
-    unsigned int get_value_1(int sdepth,unsigned char **srcdata,
+    unsigned int get_value_1(int sdepth,unsigned const char **srcdata,
                            bool reverse=false);
 
 protected:
@@ -318,7 +330,7 @@ protected:
 
     SourceType srctype;
     QScreen::PixelType srcpixeltype;
-    unsigned char * srcbits;
+    unsigned const char * srcbits;
     unsigned char * const buffer;
 
     QScreen::PixelType pixeltype;
@@ -435,7 +447,7 @@ protected:
     virtual void drawThickLine(int,int,int,int);
     virtual void drawThickPolyline(const QPointArray &,int,int);
 
-    void buildSourceClut(QRgb *,int);
+    void buildSourceClut(const QRgb *cols ,int numcols);
     void processSpans(int n, QPoint* point, int* width);
 
     // Optimised vertical line drawing
@@ -447,9 +459,9 @@ protected:
 #if defined(Q_OS_QNX6) // need a different signature for QNX acceleration, override to accel
     virtual void hlineUnclipped(int x,int x1,int y){unsigned char *l=scanLine(y);hlineUnclipped(x,x1,l);};
 #endif
-    void hImageLineUnclipped(int,int,unsigned char *,unsigned char *,bool);
-    void hAlphaLineUnclipped(int,int,unsigned char *,unsigned char *,
-                             unsigned char *);
+    void hImageLineUnclipped(int x1, int x2, unsigned char *l, unsigned const char *srcdata, bool reverse);
+    void hAlphaLineUnclipped(int x1, int x2, unsigned char *l, unsigned const char *srcdata,
+                             unsigned const char *alphas);
     void drawPointUnclipped(int, unsigned char*);
 
     void calcPacking(void *,int,int,int&,int&,int&);

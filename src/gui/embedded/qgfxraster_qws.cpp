@@ -122,7 +122,7 @@ inline void gfxSetRgb24(unsigned char *d, int r, int g, int b)
     *(d+2) = r;
 }
 
-inline unsigned int gfxGetRgb24(unsigned char *d)
+inline unsigned int gfxGetRgb24(unsigned const char *d)
 {
     return *d | (*(d+1)<<8) | (*(d+2)<<16);
 }
@@ -564,7 +564,7 @@ void QScreenCursor::drawCursor()
 
     unsigned char *dest = fb_start + (y + startRow) * linestep
                             + x * depth/8;
-    unsigned char *srcptr = data->cursor + startRow * data->width;
+    unsigned const char *srcptr = data->cursor + startRow * data->width;
 
     QRgb *clut = data->clut;
 
@@ -1706,7 +1706,7 @@ void QGfxRasterBase::setSourcePen()
 }
 
 /*!
-  \fn QGfxRasterBase::get_value_32(int sdepth, unsigned char **srcdata,
+  \fn QGfxRasterBase::get_value_32(int sdepth, unsigned const char **srcdata,
                                     bool reverse)
 
   \internal
@@ -1725,13 +1725,13 @@ void QGfxRasterBase::setSourcePen()
 */
 
 GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
-                       int sdepth, unsigned char **srcdata, bool reverse)
+                       int sdepth, unsigned const char ** srcdata, bool reverse)
 {
 // Convert between pixel values for different depths
 // reverse can only be true if sdepth == depth
     unsigned int ret;
     if(sdepth==32) {
-        ret = *((unsigned int *)(*srcdata));
+        ret = *reinterpret_cast<unsigned const int *>(*srcdata);
         if(reverse) {
             (*srcdata)-=4;
         } else {
@@ -1744,12 +1744,12 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
 #endif
 #if !defined(QT_NO_IMAGE_16_BIT) || !defined(QT_NO_QWS_DEPTH_16)
     } else if(sdepth==16) {
-        unsigned short int hold=*((unsigned short int *)(*srcdata));
+        unsigned short int hold=*reinterpret_cast<unsigned const short int *>(*srcdata);
         ret = qt_conv16ToRgb(hold);
         (*srcdata)+=2;
 #endif
     } else if(sdepth==8) {
-        unsigned char val=*((*srcdata));
+        unsigned char val=*(*srcdata);
         if(src_normal_palette) {
             ret=((val >> 5) << 16)  | ((val >> 6) << 8) | (val >> 5);
         } else {
@@ -1787,7 +1787,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
 }
 
 /*!
-  \fn QGfxRasterBase::get_value_24(int sdepth, unsigned char **srcdata,
+  \fn QGfxRasterBase::get_value_24(int sdepth, unsigned const char **srcdata,
                                     bool reverse)
 
   \internal
@@ -1808,7 +1808,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
 */
 
 GFX_INLINE unsigned int QGfxRasterBase::get_value_24(
-                       int sdepth, unsigned char **srcdata, bool reverse)
+                       int sdepth, unsigned const char **srcdata, bool reverse)
 {
     unsigned int ret;
     if (sdepth == 24) {
@@ -1824,7 +1824,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_24(
     return ret;
 }
 
-/*! \fn QGfxRasterBase::get_value_16(int sdepth, unsigned char **srcdata,
+/*! \fn QGfxRasterBase::get_value_16(int sdepth, unsigned const char **srcdata,
         bool reverse)
 
   \internal
@@ -1846,12 +1846,12 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_24(
 
 // reverse can only be true if sdepth == depth
 GFX_INLINE unsigned int QGfxRasterBase::get_value_16(
-                       int sdepth, unsigned char **srcdata, bool reverse)
+                       int sdepth, unsigned const char **srcdata, bool reverse)
 {
 #if !defined(QT_NO_IMAGE_16_BIT) || !defined(QT_NO_QWS_DEPTH_16)
     unsigned int ret = 0;
     if (sdepth == 16) {
-        unsigned short int hold = *((unsigned short int *)(*srcdata));
+        unsigned short int hold = *reinterpret_cast<unsigned const short int *>(*srcdata);
         if(reverse) {
             (*srcdata)-=2;
         } else {
@@ -1886,7 +1886,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_16(
         }
         ret=srcclut[ret];
     } else if (sdepth == 32) {
-        unsigned int hold = *((unsigned int *)(*srcdata));
+        unsigned int hold = *reinterpret_cast<unsigned const int *>(*srcdata);
         ret=qt_convRgbTo16(hold);
         (*srcdata)+=4;
     } else {
@@ -1900,7 +1900,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_16(
 }
 
 /*! \fn QGfxRasterBase::get_value_8(
-        int sdepth, unsigned char **srcdata, bool reverse)
+        int sdepth, unsigned const char **srcdata, bool reverse)
 
 \internal
 
@@ -1922,12 +1922,12 @@ table are performed.
 
 // reverse can only be true if sdepth == depth
 GFX_INLINE unsigned int QGfxRasterBase::get_value_8(
-                       int sdepth, unsigned char **srcdata, bool reverse)
+                       int sdepth, unsigned const char **srcdata, bool reverse)
 {
     unsigned int ret;
 
     if(sdepth==8) {
-        unsigned char val=*((unsigned char *)(*srcdata));
+        unsigned char val=*(*srcdata);
         // If source!=QImage, then the palettes will be the same
         if(src_normal_palette) {
             ret=val;
@@ -1958,7 +1958,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_8(
         ret = transclut[ret];
     } else if(sdepth==32) {
         unsigned int r,g,b;
-        unsigned int hold=*((unsigned int *)(*srcdata));
+        unsigned int hold=*reinterpret_cast<unsigned const int *>(*srcdata);
         r=(hold & 0xff0000) >> 16;
         g=(hold & 0x00ff00) >> 8;
         b=(hold & 0x0000ff);
@@ -1968,7 +1968,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_8(
         (*srcdata)+=4;
     } else if(sdepth==16) {
         unsigned int r,g,b;
-        unsigned short int hold=*((unsigned short int *)(*srcdata));
+        unsigned short int hold=*reinterpret_cast<unsigned const short int *>(*srcdata);
         r=((hold & (0x1f << 11)) >> 11) << 3;
         g=((hold & (0x3f << 5)) >> 5) << 2;
         b=(hold & 0x1f) << 3;
@@ -1999,7 +1999,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_8(
 }
 
 /*!
-\fn unsigned int QGfxRasterBase::get_value_4(int sdepth, unsigned char **srcdata, bool reverse)
+\fn unsigned int QGfxRasterBase::get_value_4(int sdepth, unsigned const char **srcdata, bool reverse)
 
 \internal
 
@@ -2019,7 +2019,7 @@ table are performed.
 
 // reverse can only be true if sdepth == depth
 GFX_INLINE unsigned int QGfxRasterBase::get_value_4(
-                       int sdepth, unsigned char **srcdata, bool reverse)
+                       int sdepth, unsigned const char **srcdata, bool reverse)
 {
     unsigned int ret;
 
@@ -2071,7 +2071,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_4(
         }
         ret = transclut[ret];
     } else if (sdepth == 8) {
-        unsigned char val=*((unsigned char *)(*srcdata));
+        unsigned char val=*(*srcdata);
         ret = transclut[val];
         if(reverse)
             (*srcdata)--;
@@ -2079,7 +2079,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_4(
             (*srcdata)++;
     } else if(sdepth==32) {
         unsigned int r,g,b;
-        unsigned int hold=*((unsigned int *)(*srcdata));
+        unsigned int hold=*reinterpret_cast<unsigned const int*>(*srcdata);
         r=(hold & 0xff0000) >> 16;
         g=(hold & 0x00ff00) >> 8;
         b=(hold & 0x0000ff);
@@ -2094,7 +2094,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_4(
 }
 
 /*!
-\fn unsigned int QGfxRasterBase::get_value_1(int sdepth, unsigned char **srcdata, bool reverse)
+\fn unsigned int QGfxRasterBase::get_value_1(int sdepth, unsigned const char **srcdata, bool reverse)
 
 \internal
 
@@ -2116,7 +2116,7 @@ table are performed.
 
 // reverse can only be true if sdepth == depth
 GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
-                       int sdepth, unsigned char **srcdata, bool reverse)
+                       int sdepth, unsigned const char **srcdata, bool reverse)
 {
     unsigned int ret;
 
@@ -2155,7 +2155,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
             }
         }
     } else if(sdepth==32) {
-        unsigned int hold=*((unsigned int *)(*srcdata));
+        unsigned int hold=*reinterpret_cast<unsigned const int *>(*srcdata);
         unsigned int r,g,b;
         r=(hold & 0xff0000) >> 16;
         g=(hold & 0x00ff00) >> 8;
@@ -2435,7 +2435,7 @@ a palette).
 */
 
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
+void QGfxRaster<depth,type>::buildSourceClut(const QRgb * cols,int numcols)
 {
     if (!cols) {
         useBrush();
@@ -3405,7 +3405,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped(int x1,int x2,unsigned ch
 /*!
 \fn void QGfxRaster<depth,type>::hImageLineUnclipped(int x1,int x2,
                                                     unsigned char *l,
-                                                    unsigned char *srcdata,
+                                                    unsigned const char *srcdata,
                                                     bool reverse)
 
 \internal
@@ -3427,7 +3427,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped(int x1,int x2,unsigned ch
 template <const int depth, const int type>
 GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1,int x2,
                                                     unsigned char *l,
-                                                    unsigned char *srcdata,
+                                                    unsigned const char *srcdata,
                                                     bool reverse)
 {
     int w = x2-x1+1;
@@ -3892,15 +3892,15 @@ pixel data and \a alphas is the alpha channel for the SeparateAlpha mode.
 template <const int depth, const int type>
 GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
                                                     unsigned char* l,
-                                                    unsigned char * srcdata,
-                                                    unsigned char * alphas)
+                                                    unsigned const char * srcdata,
+                                                    unsigned const char * alphas)
 {
     int w=x2-x1+1;
     if (depth == 32) {
         // First read in the destination line
-        unsigned int *myptr = (unsigned int *)l;
-        unsigned int *alphaptr = (unsigned int *)alphabuf;
-        unsigned char * avp=alphas;
+        unsigned int *myptr = reinterpret_cast<unsigned int *>(l);
+        unsigned int *alphaptr = reinterpret_cast<unsigned int *>(alphabuf);
+        unsigned const char * avp=alphas;
         int loopc;
 
         unsigned int *temppos = myptr+x1;
@@ -3908,7 +3908,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
             *(alphaptr++) = *(temppos++);
 
         // Now blend with source data
-        unsigned char * srcptr=srcdata;
+        unsigned const char * srcptr=srcdata;
         unsigned int srcval;
 
         if(srctype==SourceImage) {
@@ -3919,7 +3919,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
             srcval=srccol;
         }
 
-        alphaptr = (unsigned int *)alphabuf;
+        alphaptr = reinterpret_cast<unsigned int *>(alphabuf);
         for(loopc=0;loopc<w;loopc++) {
             int r,g,b;
             if(srctype==SourceImage)
@@ -3957,7 +3957,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
         }
 
         // Now write it all out
-        alphaptr = (unsigned int *)alphabuf;
+        alphaptr = reinterpret_cast<unsigned int *>(alphabuf);
 
         myptr += x1;
         while (w--) {
@@ -3971,14 +3971,14 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
     } else if (depth == 24) {
         // First read in the destination line
         unsigned char *myptr = l;
-        unsigned char *alphaptr = (unsigned char *)alphabuf;
-        unsigned char *avp = alphas;
+        unsigned char *alphaptr = reinterpret_cast<unsigned char *>(alphabuf);
+        unsigned const char *avp = alphas;
         int loopc;
 
         memcpy(alphabuf, myptr+x1*3, w*3);
 
         // Now blend with source data
-        unsigned char * srcptr=srcdata;
+        unsigned const char * srcptr=srcdata;
         unsigned int srcval;
 
         if(srctype==SourceImage) {
@@ -3989,7 +3989,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
             srcval=srccol;
         }
 
-        alphaptr = (unsigned char *)alphabuf;
+        alphaptr = reinterpret_cast<unsigned char *>(alphabuf);
         for(loopc=0;loopc<w;loopc++) {
             int r,g,b;
             if(srctype==SourceImage)
@@ -4029,41 +4029,41 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
 #if !defined(QT_NO_IMAGE_16_BIT) || !defined(QT_NO_QWS_DEPTH_16)
     } else if (depth == 16) {
         // First read in the destination line
-        unsigned short int *myptr = (unsigned short int *)l;
-        unsigned int *alphaptr = (unsigned int *)alphabuf;
+        unsigned short int *myptr = reinterpret_cast<unsigned short int *>(l);
+        unsigned int *alphaptr = reinterpret_cast<unsigned int *>(alphabuf);
         int loopc;
 
 #ifdef QWS_NO_WRITE_PACKING
         unsigned short int *temppos = myptr + x1;
         for (int i = 0; i < w; i++)
-            *(alphaptr++) = get_value_32(16,(unsigned char **)&temppos);
+            *(alphaptr++) = get_value_32(16,reinterpret_cast<unsigned char **>(&temppos));
 #else
         int frontadd, backadd, count;
         calcPacking(myptr,x1,x2,frontadd,backadd,count);
         myptr+=x1;
 
-        unsigned short int *temppos = myptr;
+        unsigned const short int *temppos = myptr;
 
         int loopc2;
         for(loopc2=0;loopc2<frontadd;loopc2++)
-            *(alphaptr++)=get_value_32(16,(unsigned char **)&temppos);
+            *(alphaptr++)=get_value_32(16,reinterpret_cast<unsigned const char **>(&temppos));
 
         PackType temp2;
-        unsigned char * cp;
+        unsigned const char * cp;
         for(loopc2=0;loopc2<count;loopc2++) {
-            temp2=*((PackType *)temppos);
-            cp=(unsigned char *)&temp2;
+            temp2=*reinterpret_cast<const PackType *>(temppos);
+            cp=reinterpret_cast<unsigned const char *>(&temp2);
             *(alphaptr++)=get_value_32(16,&cp);
             *(alphaptr++)=get_value_32(16,&cp);
             temppos += 2;
         }
 
         for(loopc2=0;loopc2<backadd;loopc2++)
-            *(alphaptr++)=get_value_32(16,(unsigned char **)&temppos);
+            *(alphaptr++)=get_value_32(16, reinterpret_cast<unsigned const char **>(&temppos));
 #endif
 
         // Now blend with source data
-        unsigned char *srcptr=srcdata;
+        unsigned const char *srcptr=srcdata;
         unsigned int srcval;
 
         if(srctype==SourceImage) {
@@ -4084,7 +4084,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
 
         int av = calpha;
         alphaptr = (unsigned int *)alphabuf;
-        unsigned char *avp = alphas;
+        unsigned const char *avp = alphas;
         for (loopc=0;loopc<w;loopc++) {
             switch (astype) {
                 case 0:
@@ -4101,7 +4101,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
 
             int r,g,b;
             if (av == 255) {
-                unsigned char *stmp = (unsigned char *)&srcval;
+                unsigned const char *stmp = reinterpret_cast<unsigned const char *>(&srcval);
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
                 stmp++;
                 r = *stmp++;
@@ -4113,7 +4113,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
                 r = *stmp;
 #endif
             } else {
-                unsigned char *tmp=(unsigned char *)alphaptr;
+                unsigned const char *tmp=reinterpret_cast<unsigned const char *>(alphaptr);
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
                 tmp++;
                 r = *tmp++;
@@ -4125,7 +4125,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
                 r = *tmp;
 #endif
                 if (av) {
-                    unsigned char *stmp = (unsigned char *)&srcval;
+                    unsigned const char *stmp = reinterpret_cast<unsigned const char *>(&srcval);
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
                     stmp++;
                     r += ((*stmp++-r) * av) >> 8;
@@ -4142,7 +4142,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
         }
 
         // Now write it all out
-        alphaptr = (unsigned int *)alphabuf;
+        alphaptr = reinterpret_cast<unsigned int *>(alphabuf);
 
 #ifdef QWS_NO_WRITE_PACKING
         myptr += x1;
@@ -4154,7 +4154,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
           }
         }
 #else
-        myptr=(unsigned short int *)l;
+        myptr=reinterpret_cast<unsigned short int *>(l);
         calcPacking(myptr,x1,x2,frontadd,backadd,count);
         myptr+=x1;
 
@@ -4183,9 +4183,9 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
             #define DUFF_WRITE_WORD put=*(alphaptr++); put|=(*(alphaptr++) << 16); \
                                *myptr2++ = put;
 #endif
-            PackType *myptr2 = (PackType*)myptr;
+            PackType *myptr2 = reinterpret_cast<PackType*>(myptr);
             myptr += count * 2;
-            PackType *end2 = (PackType*)myptr;
+            PackType *end2 = reinterpret_cast<PackType*>(myptr);
             switch(count%8){
                 case 0:
                     while (myptr2 != end2) {
@@ -4217,7 +4217,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
         myptr+=x1;
         int loopc;
 
-        unsigned char * avp=alphas;
+        unsigned const char * avp=alphas;
 
         unsigned char * tempptr=myptr;
 
@@ -4228,7 +4228,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
 
         // Now blend with source data
 
-        unsigned char * srcptr;
+        unsigned const char * srcptr;
         unsigned int srcval = 0;
         if(srctype==SourceImage) {
             srcptr=srcdata;
@@ -4256,7 +4256,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
             g = (srcval & 0xff00) >> 8;
             b = srcval & 0xff;
 
-            unsigned char * tmp=(unsigned char *)&alphabuf[loopc];
+            unsigned char * tmp=reinterpret_cast<unsigned char *>(&alphabuf[loopc]);
 
             if(myrop==XorROP) {
               if(av==255) {
@@ -4285,7 +4285,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
         unsigned char *myptr = l;
         myptr+=x1/2;
 
-        unsigned char *avp=alphas;
+        unsigned const char *avp=alphas;
         unsigned char *tempptr=myptr;
 
         int loopc = 0;
@@ -4325,7 +4325,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
 
         // Now blend with source data
 
-        unsigned char * srcptr;
+        unsigned const char * srcptr;
         unsigned int srcval = 0;
         if(srctype==SourceImage) {
             srcptr=srcdata;
@@ -4352,7 +4352,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
             g = (srcval & 0xff00) >> 8;
             b = srcval & 0xff;
 
-            unsigned char *tmp = (unsigned char *)&alphabuf[loopc];
+            unsigned char *tmp = reinterpret_cast<unsigned char *>(&alphabuf[loopc]);
 
             if(av==255) {
                 alphabuf[loopc] = qRgb(r,g,b);
@@ -5112,6 +5112,7 @@ static GFX_INLINE unsigned char *find_pointer_4(unsigned char * base,int x,int y
     return ret;
 }
 
+
 /*!
 \fn void QGfxRaster<depth,type>::scroll(int rx,int ry,int w,int h,int sx, int sy)
 
@@ -5245,7 +5246,7 @@ void QGfxRaster<depth,type>::blt(int rx,int ry,int w,int h, int sx, int sy)
     QRect cr(rx, ry, w, h);
 
     unsigned char *l = scanLine(ry);
-    unsigned char *srcline = srcScanLine(j+srcoffs.y());
+    unsigned const char *srcline = srcScanLine(j+srcoffs.y());
     int right = rx+w-1;
 
     // Fast path for 8/16/32 bit same-depth opaque blit. (ie. the common case)
@@ -5266,7 +5267,7 @@ void QGfxRaster<depth,type>::blt(int rx,int ry,int w,int h, int sx, int sy)
                             if (x2 < x) break;
                         }
                         if (plot) {
-                            unsigned char *srcptr=srcline+(x-rx+srcoffs.x())*bytesPerPixel;
+                            unsigned const char *srcptr=srcline+(x-rx+srcoffs.x())*bytesPerPixel;
                             unsigned char *destptr = l + x*bytesPerPixel;
                             memmove(destptr, srcptr, (x2-x+1) * bytesPerPixel);
                         }
@@ -5287,7 +5288,7 @@ void QGfxRaster<depth,type>::blt(int rx,int ry,int w,int h, int sx, int sy)
                             if (x2 < x) break;
                         }
                         if (plot) {
-                            unsigned char *srcptr=srcline+(x-rx+srcoffs.x())*bytesPerPixel;
+                            unsigned const char *srcptr=srcline+(x-rx+srcoffs.x())*bytesPerPixel;
                             unsigned char *destptr = l + x*bytesPerPixel;
                             memmove(destptr, srcptr, (x2-x+1) * bytesPerPixel);
                         }
@@ -5299,7 +5300,7 @@ void QGfxRaster<depth,type>::blt(int rx,int ry,int w,int h, int sx, int sy)
                 }
             }
         } else {
-            unsigned char *srcptr = srcline + srcoffs.x()*bytesPerPixel;
+            unsigned const char *srcptr = srcline + srcoffs.x()*bytesPerPixel;
             unsigned char *destptr = l + rx*bytesPerPixel;
             int bytes = w * bytesPerPixel;
             for (; j!=tj; j+=dj,destptr+=dl,srcptr+=sl) {
@@ -5326,7 +5327,7 @@ void QGfxRaster<depth,type>::blt(int rx,int ry,int w,int h, int sx, int sy)
             }
         }
 
-        unsigned char *srcptr = 0;
+        unsigned const char *srcptr = 0;
         for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
             bool plot = mustclip ? inClip(rx,ry,&cr) : true;
             int x=rx;
@@ -5352,7 +5353,7 @@ void QGfxRaster<depth,type>::blt(int rx,int ry,int w,int h, int sx, int sy)
                                  src_little_endian =  !src_little_endian;
 #endif
                         } else if (srcdepth == 4) {
-                            srcptr = find_pointer_4(srcbits,(x-rx)+srcoffs.x(),
+                            srcptr = find_pointer_4(const_cast<unsigned char*>(srcbits),(x-rx)+srcoffs.x(),
                                          j+srcoffs.y(), x2-x, srclinestep,
                                          monobitcount, monobitval, reverse
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
@@ -5426,7 +5427,7 @@ void QGfxRaster<depth,type>::stretchBlt(int rx,int ry,int w,int h,
                                          int sw,int sh)
 {
     QRect cr;
-    unsigned char * srcptr;
+    unsigned const char * srcptr;
     unsigned char * data = new unsigned char [(w*depth)/8];
     rx+=xoffs;
     ry+=yoffs;
@@ -5486,7 +5487,7 @@ void QGfxRaster<depth,type>::stretchBlt(int rx,int ry,int w,int h,
         if(yp!=pyp) {
             for(loopc=0;loopc<w;loopc++) {
                 int sp=(int) (((double) loopc)*xfac);
-                unsigned char * p=srcScanLine(yp)+(sp*mulfac);
+                unsigned const char * p=srcScanLine(yp)+(sp*mulfac);
                 if(depth==32) {
                     unsigned int val=get_value_32(srcdepth,&p);
                     unsigned int * dp=(unsigned int *)data;
