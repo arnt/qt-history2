@@ -1469,6 +1469,101 @@ void PropertyFontItem::childValueChanged( PropertyItem *child )
 
 // --------------------------------------------------------------
 
+PropertyDatabaseItem::PropertyDatabaseItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName )
+    : PropertyItem( l, after, prop, propName )
+{
+    box = new QHBox( listview->viewport() );
+    box->hide();
+    lined = new QLineEdit( box );
+    button = new QPushButton( "...", box );
+    button->setFixedWidth( 20 );
+    box->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
+    box->setLineWidth( 2 );
+    lined->setFrame( FALSE );
+    lined->setReadOnly( TRUE );
+    box->setFocusProxy( lined );
+    box->installEventFilter( listview );
+    lined->installEventFilter( listview );
+    button->installEventFilter( listview );
+}
+
+void PropertyDatabaseItem::createChildren()
+{
+    PropertyItem *i = this;
+    i = new PropertyListItem( listview, i, this, tr( "Table" ), TRUE );
+    addChild( i );
+    i = new PropertyListItem( listview, i, this, tr( "Field" ), TRUE );
+    addChild( i );
+}
+
+void PropertyDatabaseItem::initChildren()
+{
+    PropertyItem *item = 0;
+    QStringList lst = value().toStringList();
+    for ( int i = 0; i < childCount(); ++i ) {
+	item = PropertyItem::child( i );
+	if ( item->name() == tr( "Table" ) ) {
+	    if ( lst.count() > 0 )
+		item->setValue( QVariant( QStringList( lst[ 0 ] ) ) );
+	} else if ( item->name() == tr( "Field" ) ) {
+	    if ( lst.count() > 1 )
+		item->setValue( QVariant( QStringList( lst[ 1 ] ) ) );
+	}
+    }
+}
+
+PropertyDatabaseItem::~PropertyDatabaseItem()
+{
+    delete (QHBox*)box;
+}
+
+void PropertyDatabaseItem::showEditor()
+{
+    PropertyItem::showEditor();
+    placeEditor( box );
+    if ( !box->isVisible() || !lined->hasFocus() ) {
+	box->show();
+	setFocus( lined );
+    }
+}
+
+void PropertyDatabaseItem::hideEditor()
+{
+    PropertyItem::hideEditor();
+    box->hide();
+}
+
+void PropertyDatabaseItem::setValue( const QVariant &v )
+{
+    if ( value() == v )
+	return;
+
+    QStringList lst = v.toStringList();
+    if ( lst.count() ) {
+	QString s = lst[ 0 ];
+	if ( lst.count() > 1 )
+	    s += "." + lst[ 1 ];
+	setText( 1, s );
+	lined->setText( s );
+    }
+    PropertyItem::setValue( v );
+}
+
+bool PropertyDatabaseItem::hasSubItems() const
+{
+    return TRUE;
+}
+
+void PropertyDatabaseItem::childValueChanged( PropertyItem * )
+{
+    QStringList lst;
+    lst << ( (PropertyListItem*)PropertyItem::child( 0 ) )->currentItem() << ( (PropertyListItem*)PropertyItem::child( 1 ) )->currentItem();
+    setValue( lst );
+    notifyValueChange();
+}
+
+// --------------------------------------------------------------
+
 PropertySizePolicyItem::PropertySizePolicyItem( PropertyList *l, PropertyItem *after, PropertyItem *prop,
 						const QString &propName )
     : PropertyItem( l, after, prop, propName )
@@ -2038,6 +2133,15 @@ void PropertyList::setupProperties()
 	    item->setChanged( TRUE, FALSE );
     }
 
+    if ( editor->formWindow()->mainContainer() != w && 
+	 ( editor->formWindow()->mainContainer()->inherits( "QDesignerSqlWidget" ) ||
+	   editor->formWindow()->mainContainer()->inherits( "QDesignerSqlDialog" ) ) ) {
+	item = new PropertyDatabaseItem( this, item, 0, "database" );
+	setPropertyValue( item );
+	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
+	    item->setChanged( TRUE, FALSE );
+    }
+    
     if ( w->inherits( "CustomWidget" ) ) {
 	MetaDataBase::CustomWidget *cw = ( (CustomWidget*)w )->customWidget();
 	if ( cw ) {
@@ -2063,7 +2167,8 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
 {
     switch ( t ) {
     case QVariant::String:
-	item = new PropertyTextItem( this, item, 0, name, TRUE, editor->widget()->inherits( "QLabel" ) || editor->widget()->inherits( "QTextView" ) );
+	item = new PropertyTextItem( this, item, 0, name, TRUE, 
+				     editor->widget()->inherits( "QLabel" ) || editor->widget()->inherits( "QTextView" ) );
 	break;
     case QVariant::CString:
 	item = new PropertyTextItem( this, item, 0, name, FALSE, FALSE, TRUE );
@@ -2084,7 +2189,10 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
 	item = new PropertyIntItem( this, item, 0, name, FALSE );
 	break;
     case QVariant::StringList:
-	item = new PropertyListItem( this, item, 0, name, TRUE );
+	if ( name == "database" )
+	    item = new PropertyDatabaseItem( this, item, 0, name );
+	else
+	    item = new PropertyListItem( this, item, 0, name, TRUE );
 	break;
     case QVariant::Rect:
 	item = new PropertyCoordItem( this, item, 0, name, PropertyCoordItem::Rect );
@@ -2262,7 +2370,7 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 	    ( (PropertyIntItem*)i )->setValue( MetaDataBase::spacing( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ) ) );
 	} else if ( i->name() == "layoutMargin" ) {
 	    ( (PropertyIntItem*)i )->setValue( MetaDataBase::margin( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ) ) );
-	} else if ( i->name() == "toolTip" || i->name() == "whatsThis" ) {
+	} else if ( i->name() == "toolTip" || i->name() == "whatsThis" || i->name() == "database" ) {
 	    i->setValue( MetaDataBase::fakeProperty( editor->widget(), i->name() ) );
 	} else if ( editor->widget()->inherits( "CustomWidget" ) ) {
 	    MetaDataBase::CustomWidget *cw = ( (CustomWidget*)editor->widget() )->customWidget();

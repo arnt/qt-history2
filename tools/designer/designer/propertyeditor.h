@@ -352,7 +352,7 @@ private:
     QGuardedPtr<QLabel> pixPrev;
     QPushButton *button;
     bool iconSet;
-    
+
 };
 
 
@@ -434,6 +434,32 @@ private:
 
 };
 
+
+class PropertyDatabaseItem : public QObject,
+			     public PropertyItem
+{
+    Q_OBJECT
+
+public:
+    PropertyDatabaseItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName );
+    ~PropertyDatabaseItem();
+
+    virtual void createChildren();
+    virtual void initChildren();
+
+    virtual void showEditor();
+    virtual void hideEditor();
+
+    virtual void setValue( const QVariant &v );
+    virtual bool hasSubItems() const;
+    virtual void childValueChanged( PropertyItem *child );
+
+private:
+    QGuardedPtr<QLineEdit> lined;
+    QGuardedPtr<QPushButton> button;
+    QGuardedPtr<QHBox> box;
+
+};
 
 class PropertyList : public QListView
 {
