@@ -117,8 +117,8 @@ bool QEnvironment::removeUninstall( QString displayName )
 	return true;
     }
     else {
-	if( RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_WRITE, &key ) == ERROR_SUCCESS )
-	    RegDeleteKey( key, displayName.local8Bit() );
+	if( RegOpenKeyExA( HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_WRITE, &key ) == ERROR_SUCCESS )
+	    RegDeleteKeyA( key, displayName.local8Bit() );
 	return true;
     }
     return false;
