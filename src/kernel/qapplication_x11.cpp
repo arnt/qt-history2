@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#571 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#572 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -75,8 +75,10 @@
 
 #ifndef X11R4
 #include <X11/Xlocale.h>
+#if (XlibSpecificationRelease < 6 )
+#define NO_X11R6_XIM
 #endif
-
+#endif
 
 #if defined(_OS_IRIX_)
 #include <bstring.h>
@@ -736,13 +738,14 @@ static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
  *****************************************************************************/
 //Ming-Che 05/10
 
+#if !defined(NO_XIM) && !defined(NO_X11R6_XIM)
 static
 void xim_destroy_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*call_data*/)
 {
 	QApplication::close_xim();
 	XRegisterIMInstantiateCallback(appDpy,0,0,0,(XIDProc )QApplication::create_xim,0);
 }
-
+#endif
 /*!
   \internal
 */
@@ -753,12 +756,13 @@ void QApplication::create_xim()
     qt_xim = XOpenIM( appDpy, 0, 0, 0 );
 
 	if ( qt_xim ) {
+#ifndef NO_X11R6_XIM
 		XIMCallback	destroy;
 		destroy.callback=xim_destroy_callback;
 		destroy.client_data=NULL;
 		if (XSetIMValues(qt_xim,XNDestroyCallback,&destroy,NULL)!=NULL)
 			qWarning( "Xlib dosn't support destroy callback");
-
+#endif
 	    XIMStyles *styles=0;
 	    XGetIMValues(qt_xim, XNQueryInputStyle, &styles, NULL, NULL);
 	    if ( styles ) {
@@ -807,7 +811,9 @@ void QApplication::create_xim()
 			  "  See InputMethod documentation.");
 		close_xim();
 	    } else {
+#ifndef NO_X11R6_XIM
 		XUnregisterIMInstantiateCallback(appDpy,0,0,0,(XIDProc )create_xim,0);		
+#endif
 		QWidgetList *list= qApp->topLevelWidgets();
 		QWidgetListIt it(*list);
 		while(it.current()) {
@@ -1078,11 +1084,18 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	if (ximServer) ximServerName.prepend("@im=");
 	if ( !XSupportsLocale() )
 	    qDebug("Qt: Locales not supported on X server");
+#ifdef NO_X11R6_XIM
+	else if ( XSetLocaleModifiers ("") == NULL )
+	    qDebug("Qt: Cannot set locale modifiers");
+	else if ( !noxim )
+	    QApplication::create_xim(); //###????
+#else
 	else if ( ximServer && XSetLocaleModifiers (ximServerName.ascii()) == NULL )
 	    qDebug("Qt: Cannot set locale modifiers: %s",ximServerName.ascii());
-	else if ( !noxim && XRegisterIMInstantiateCallback(appDpy,0,0,0,
-			       (XIDProc )QApplication::create_xim, 0));
-	
+	else if ( !noxim )
+	    XRegisterIMInstantiateCallback(appDpy,0,0,0,
+			       (XIDProc )QApplication::create_xim, 0);
+#endif	
 #endif
 	// Always use the locale codec, since we have no examples of non-local
 	// XIMs, and since we cannot get a sensible answer about the encoding
