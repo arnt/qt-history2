@@ -1875,14 +1875,13 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         HIViewSetFrame((HIViewRef)q->winId(), &bounds);
         qt_event_request_window_change();
 
-#if 0
-        WindowPtr window = qt_mac_window_for(q);
-        if(isMove)
-            MoveWindow(window, x, y, false);
-        if(isResize)
-            SizeWindow(window, w, h, true);
-#else
         Rect r; SetRect(&r, x, y, x+w, y+h);
+#if 0
+        HIViewSetDrawingEnabled((HIViewRef)q->winId(), false);
+        SetWindowBounds(qt_mac_window_for(q), kWindowContentRgn, &r);
+        HIViewSetDrawingEnabled((HIViewRef)q->winId(), true);
+        q->update();
+#else
         SetWindowBounds(qt_mac_window_for(q), kWindowContentRgn, &r);
 #endif
     } else {
