@@ -5,8 +5,7 @@ win32:CONFIG	-= dll
 SOURCES		= qwidgetfactory.cpp \
 		  ../shared/domtool.cpp
 
-HEADERS		= qwidgetfactory.h \
-		  ../shared/domtool.h
+HEADERS		= ../shared/domtool.h
 
 sql:SOURCES += 		  ../designer/database.cpp
 sql:HEADERS +=		  ../designer/database2.h

@@ -130,9 +130,7 @@ QString qwf_currFileName = "";
 
   This class is not included in the Qt library itself. To use it you
   must link against \c libqui.so (Unix) or \c qui.lib (Windows), which is
-  built into \c $(QTDIR)/lib if you built \e{Qt Designer}. Also to be
-  able to include qwidgetfactory.h you must add
-  \c $(QTDIR)/tools/designer/uilib to your project's include path.
+  built into \c $(QTDIR)/lib if you built \e{Qt Designer}.
 
   See the Creating Dynamic Dialogs from .ui Files section of the \link
   designer-manual.book Qt Designer manual\endlink for an example.
