@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#13 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#14 $
 **
 ** Definition of QWidget class
 **
@@ -100,8 +100,8 @@ public:
   // Widget management functions
 
     virtual void show();			// show widget
-    void    hide();				// hide widget
-    bool    close( bool forceKill=FALSE );	// close widget
+    virtual void hide();			// hide widget
+    virtual bool close( bool forceKill=FALSE );	// close widget
     bool    isVisible()	const { return testFlag(WState_Visible); }
     bool    isActive()	const { return testFlag(WState_Active); }
     void    raise();				// raise widget
