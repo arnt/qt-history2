@@ -28,6 +28,7 @@
 
 #ifndef QT_H
 #include "qconnection.h"
+#include "qstrlist.h"
 #endif // QT_H
 
 
@@ -41,19 +42,17 @@ class QPixmap;
 // Takes a pointer to the parent as parameter
 typedef QObject* (*QObjectFactory)( QObject* );
 
-struct QMetaEnumerator
-{
-    char	*name;
-    int		 value;
-};
 
 struct QMetaEnum
 {
-    char	*name;
-    int		 nEnumerators;
-    QMetaEnumerator *enumerators;
-
-    QStringList enumeratorNames();
+    char *name;
+    int count;
+    struct Item
+    {
+	char *name;
+	int value;
+    };
+    Item *items;
 };
 
 struct QMetaProperty
@@ -63,33 +62,33 @@ struct QMetaProperty
 	 sspec(Unspecified),gspec(Unspecified),state(0)
     {
     }
-    
+
     char        *name;
     QMember      set;
     QMember      get;
     char        *type;
     QMetaEnum   *enumType;
-    bool readOnly() { return get != 0 && set == 0; }
-    bool writeOnly() { return get == 0 && set != 0; }
-    bool readWrite() { return get != 0 && set != 0; }
-    bool isValid() { return !testState( UnresolvedEnum) ; }
-    
+    bool readable() const { return get != 0; }
+    bool writeable() const { return set != 0; }
+    bool isValid() const { return !testState( UnresolvedEnum) ; }
+
     enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
-    
+
     Specification sspec;
     Specification gspec;
-    
+
     enum State  {
 	UnresolvedEnum = 0x00000001
     };
-    
+
     inline bool testState( State s ) const
 	{ return ((uint)state & s) == (uint)s; }
     inline void setState( State s )
 	{ state |= s; }
     inline void clearState( State s )
 	{ state &= ~s; }
-    
+
+private:
     uint state;
 };
 
@@ -136,13 +135,13 @@ public:
     int            nProperties( bool=FALSE ) const;
     QMetaProperty *property( int index ) const;
     QMetaProperty *property( const char* name, bool super = FALSE ) const;
-    QStringList    propertyNames( bool=TRUE ) const;
+    QStrList    propertyNames( bool super=TRUE ) const;
     QMetaEnum     *enumerator( const char* name, bool super = FALSE ) const;
 
     int		       nMetaProperties( bool=FALSE ) const;
     QMetaMetaProperty *metaProperty( int index ) const;
     const char        *metaProperty( const char* name, bool super = FALSE ) const;
-    QStringList        metaPropertyNames( bool=TRUE ) const;
+    QStrList        metaPropertyNames( bool=TRUE ) const;
 
     void setFactory( QObjectFactory f );
     QObjectFactory factory() const;

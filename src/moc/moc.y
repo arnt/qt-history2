@@ -1725,12 +1725,12 @@ int generateEnums()
     int i = 0;
     for ( QListIterator<Enum> it( enums ); it.current(); ++it, ++i ) {
 	fprintf( out, "    enums[%i].name = \"%s\";\n", i, (const char*)it.current()->name );
-	fprintf( out, "    enums[%i].nEnumerators = %i;\n", i, (const char*)it.current()->count() );
-	fprintf( out, "    enums[%i].enumerators = new QMetaEnumerator[%i];\n", i, (const char*)it.current()->count() );
+	fprintf( out, "    enums[%i].count = %i;\n", i, (const char*)it.current()->count() );
+	fprintf( out, "    enums[%i].items = new QMetaEnum::Item[%i];\n", i, (const char*)it.current()->count() );
 	Enum::Iterator eit = it.current()->begin();
 	for( int k = 0; eit != it.current()->end(); ++eit, ++k ) {
-	    fprintf( out, "    enums[%i].enumerators[%i].name = \"%s\";\n", i, k, (*eit).ascii() );
-	    fprintf( out, "    enums[%i].enumerators[%i].value = (int)%s::%s;\n", i, k, (const char*)className, (*eit).ascii() );
+	    fprintf( out, "    enums[%i].items[%i].name = \"%s\";\n", i, k, (*eit).ascii() );
+	    fprintf( out, "    enums[%i].items[%i].value = (int)%s::%s;\n", i, k, (const char*)className, (*eit).ascii() );
 	}
     }
 

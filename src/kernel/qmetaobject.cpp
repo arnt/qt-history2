@@ -468,31 +468,31 @@ void QMetaObject::setFactory( QObjectFactory f )
     d->objectFactory = f;
 }
 
-QStringList QMetaObject::propertyNames( bool super ) const
+QStrList QMetaObject::propertyNames( bool super ) const
 {
-    QStringList l;
+    QStrList l( FALSE );
     for( int i = 0; i < d->nPropData; ++i )
-	l.append( d->propData[i].name );
+	l.inSort( d->propData[i].name );
 
-    if ( superclass && super )
-	l += superclass->propertyNames( super );
+    if ( superclass && super ) {
+	QStrList sl = superclass->propertyNames( super );
+	for ( QStrListIterator slit( sl ); slit.current(); ++slit )
+	    l.inSort ( slit.current() );
+    }
 
     if ( l.count() < 2 )
 	return l;
 
-    qBubbleSort( l );
-
     // Remove dups
-    QStringList::Iterator it = l.begin();
-    QString old = *(it++);
-    while( it != l.end() ) {
-	if ( old == *it ) {
-	    it = l.remove( it );
+    QStrListIterator it( l );
+    const char* old = it.current();
+    ++it;
+    while( it.current() ) {
+	if ( strcmp( old, it.current() ) == 0 ) {
+	    l.removeRef( old );
 	}
-	else {
-	    old = *it;
-	    ++it;
-	}
+	old = it.current();
+	++it;
     }
     return l;
 }
@@ -508,14 +508,14 @@ bool QMetaObject::inherits( const char* clname ) const
     return FALSE;
 }
 
-QStringList QMetaEnum::enumeratorNames()
-{
-    QStringList l;
-    for( int i = 0; i < nEnumerators; ++i )
-	l.append( enumerators[i].name );
+// QStrList QMetaEnum::enumeratorNames() const
+// {
+//     QStrList l( FALSE );
+//     for( int i = 0; i < nEnumerators; ++i )
+// 	l.append( enumerators[i].name );
 
-    return l;
-}
+//     return l;
+// }
 
 QMetaMetaProperty* QMetaObject::metaProperty( int index ) const
 {
@@ -545,19 +545,20 @@ const char* QMetaObject::metaProperty( const char* name, bool super ) const
     return 0;
 }
 
-QStringList QMetaObject::metaPropertyNames( bool super ) const
+QStrList QMetaObject::metaPropertyNames( bool super ) const
 {
-    QStringList l;
+    QStrList l (FALSE);
     for( int i = 0; i < d->nMetaPropData; ++i )
-	l.append( d->metaPropData[i].name );
+	l.inSort( d->metaPropData[i].name );
 
-    if ( superclass && super )
-	l += superclass->metaPropertyNames( super );
+    if ( superclass && super ) {
+	QStrList sl = superclass->metaPropertyNames( super );
+	for ( QStrListIterator slit( sl ); slit.current(); ++slit )
+	    l.inSort ( slit.current() );
+    }
 
     if ( l.count() < 2 )
 	return l;
-
-    qBubbleSort( l );
 
     return l;
 }
@@ -661,7 +662,7 @@ QMetaObject* QMetaObjectInit::metaObject( const char* classname )
     // Perhaps someone did not call init
     init();
 
-    for( int i = 0; i < n_meta_list; ++i ) 
+    for( int i = 0; i < n_meta_list; ++i )
 	if ( strcmp( meta_list[i]->className(), classname ) == 0 )
 	    return meta_list[i];
 

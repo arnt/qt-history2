@@ -2093,13 +2093,14 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 
 
     if ( p->enumType ) {
-	if ( value.type() != QVariant::String )
+	if ( value.type() != QVariant::String && value.type() != QVariant::CString )
 	    return FALSE;
-	for( int i = 0; i < p->enumType->nEnumerators; ++i ) {
-	    if ( value.toString() == (const char*)p->enumType->enumerators[i].name ) {
+	QCString s = value.toCString();
+	for( int i = 0; i < p->enumType->count; ++i ) {
+	    if ( s == p->enumType->items[i].name ) {
 		ProtoInt m;
 		m = *((ProtoInt*)&p->set);
-		(this->*m)( p->enumType->enumerators[i].value );
+		(this->*m)( p->enumType->items[i].value );
 		return TRUE;
 	    }
 	}
@@ -2406,9 +2407,9 @@ bool QObject::property( const char *name, QVariant* value ) const
 	ProtoInt m;
 	m = *((ProtoInt*)&p->get);
 	int x = (int) (this->*m)();
-	for( int i = 0; i < p->enumType->nEnumerators; ++i ) {
-	    if ( x == p->enumType->enumerators[i].value ) {
-		value->setValue( p->enumType->enumerators[i].name );
+	for( int i = 0; i < p->enumType->count; ++i ) {
+	    if ( x == p->enumType->items[i].value ) {
+		value->setValue( p->enumType->items[i].name );
 		return TRUE;
 	    }
 	}
