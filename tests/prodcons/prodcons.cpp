@@ -2,6 +2,7 @@
 #include <qapplication.h>
 #include <qwidget.h>
 #include <qpushbutton.h>
+#include <qcheckbox.h>
 #include <qprogressbar.h>
 #include <qlayout.h>
 #include <qevent.h>
@@ -12,10 +13,10 @@
 
 #include <stdio.h>
 
-// 20kb buffer
+// 50kb buffer
 #define BUFSIZE (50*1000)
 #define PRGSTEP (BUFSIZE / 100)
-#define BLKSIZE (2)
+#define BLKSIZE (50)
 QByteArray bytearray;
 
 
@@ -231,12 +232,14 @@ private:
     ConsThread *cons;
 
     QPushButton *startbutton, *stopbutton;
+    QCheckBox *loopcheckbox;
     QProgressBar *prodbar, *consbar;
+    bool stopped;
 };
 
 
 ProdCons::ProdCons()
-    : QWidget(0, "producer consumer widget"), prod(0), cons(0)
+    : QWidget(0, "producer consumer widget"), prod(0), cons(0), stopped(FALSE)
 {
     startbutton = new QPushButton("&Start", this);
     connect(startbutton, SIGNAL(clicked()), SLOT(go()));
@@ -244,6 +247,9 @@ ProdCons::ProdCons()
     stopbutton = new QPushButton("S&top", this);
     connect(stopbutton, SIGNAL(clicked()), SLOT(stop()));
     stopbutton->setEnabled(FALSE);
+
+    loopcheckbox = new QCheckBox("Loop", this);
+    loopcheckbox->setChecked(FALSE);
 
     prodbar = new QProgressBar(BUFSIZE, this);
     consbar = new QProgressBar(BUFSIZE, this);
@@ -253,6 +259,7 @@ ProdCons::ProdCons()
 			       arg(BUFSIZE), this));
     vbox->addWidget(startbutton);
     vbox->addWidget(stopbutton);
+    vbox->addWidget(loopcheckbox);
     vbox->addWidget(new QLabel("Producer progress:", this));
     vbox->addWidget(prodbar);
     vbox->addWidget(new QLabel("Consumer progress:", this));
@@ -278,6 +285,8 @@ ProdCons::~ProdCons()
 
 void ProdCons::go()
 {
+    stopped = FALSE;
+
     mutex.lock();
     startbutton->setEnabled(FALSE);
     stopbutton->setEnabled(TRUE);
@@ -313,6 +322,8 @@ void ProdCons::stop()
 
     startbutton->setEnabled(TRUE);
     stopbutton->setEnabled(FALSE);
+
+    stopped = TRUE;
 }
 
 
@@ -330,8 +341,14 @@ void ProdCons::customEvent(QCustomEvent *e)
 		prodbar->setProgress(pe->size());
 
 	    // reap the threads
-	    if (pe->done())
+	    if (pe->done()) {
+		bool loop = (loopcheckbox->isChecked() && ! stopped);
+
 		stop();
+
+		if (loop)
+		    go();
+	    }
 
 	    break;
 	}
@@ -345,11 +362,6 @@ void ProdCons::customEvent(QCustomEvent *e)
 		ce->size() == BUFSIZE ||
 		ce->size() - consbar->progress() >= PRGSTEP)
 		consbar->setProgress(ce->size());
-
-	    /*
-	      if (ce->size() == BUFSIZE)
-	      stop();
-	    */
 
 	    break;
 	}
