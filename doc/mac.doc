@@ -162,9 +162,15 @@ used whenever a default menubar is needed.
 
 \section1 Limitations
 
-QCustomMenuItems are not supported in Mac native menubars, they are supported
+\list
+
+\i QCustomMenuItems are not supported in Mac native menubars, they are supported
 in popupmenus that are not in the Mac native menubar.
 
+\i Items with accelerators that have more than one keystroke
+(QKeySequence) will not be honored, and the first key will be used.
+
+\endlist
 */
 
 
