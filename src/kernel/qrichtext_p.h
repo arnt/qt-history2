@@ -49,7 +49,6 @@
 #include "qstringlist.h"
 #include "qstylesheet.h"
 #include "qvaluestack.h"
-#include "private/qcomplextext_p.h"
 #endif // QT_H
 
 #ifndef QT_NO_RICHTEXT
@@ -143,7 +142,6 @@ private:
     }
     QTextStringChar( const QTextStringChar & ) {
     }
-    friend class QComplexText;
     friend class QTextParagraph;
 };
 
@@ -449,7 +447,7 @@ public:
 	:  xpos(0), ypos(-1), width(-1), height(0), parent( p )
     {}
     virtual ~QTextCustomItem();
-    virtual void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, 
+    virtual void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 		      const QPalette &pal, bool selected ) = 0;
 
     virtual void adjustToPainter( QPainter* );
@@ -512,7 +510,7 @@ public:
 
     QString richText() const;
 
-    void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, 
+    void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	       const QPalette &pal, bool selected );
 
 private:
@@ -535,7 +533,7 @@ public:
     virtual ~QTextHorizontalLine();
 
     void adjustToPainter( QPainter* );
-    void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, 
+    void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	      const QPalette &pal, bool selected );
     QString richText() const;
 
@@ -582,7 +580,7 @@ public:
     virtual void unregisterFloatingItem( QTextCustomItem* item );
 #endif
     virtual QRect boundingRect() const;
-    virtual void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch, 
+    virtual void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch,
 				   const QPalette &pal, bool selected );
 
     virtual int adjustFlow( int  y, int w, int h ); // adjusts y according to the defined pagesize. Returns the shift.
@@ -641,7 +639,7 @@ public:
     QTextDocument* richText()  const { return richtext; }
     QTextTable* table() const { return parent; }
 
-    void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, 
+    void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	       const QPalette &cg, bool selected );
 
     QBrush *backGround() const { return background; }
@@ -1118,53 +1116,14 @@ struct Q_EXPORT QTextParagraphSelection
 struct Q_EXPORT QTextLineStart
 {
     QTextLineStart() : y( 0 ), baseLine( 0 ), h( 0 )
-#ifndef QT_NO_COMPLEXTEXT
-	, bidicontext( 0 )
-#endif
     {  }
     QTextLineStart( int y_, int bl, int h_ ) : y( y_ ), baseLine( bl ), h( h_ ),
 	w( 0 )
-#ifndef QT_NO_COMPLEXTEXT
-	, bidicontext( 0 )
-#endif
     {  }
-#ifndef QT_NO_COMPLEXTEXT
-    QTextLineStart( QBidiContext *c, QBidiStatus s ) : y(0), baseLine(0), h(0),
-	status( s ), bidicontext( c ) { if ( bidicontext ) bidicontext->ref(); }
-#endif
-
-    virtual ~QTextLineStart()
-    {
-#ifndef QT_NO_COMPLEXTEXT
-	if ( bidicontext && bidicontext->deref() )
-	    delete bidicontext;
-#endif
-    }
-
-#ifndef QT_NO_COMPLEXTEXT
-    void setContext( QBidiContext *c ) {
-	if ( c == bidicontext )
-	    return;
-	if ( bidicontext && bidicontext->deref() )
-	    delete bidicontext;
-	bidicontext = c;
-	if ( bidicontext )
-	    bidicontext->ref();
-    }
-    QBidiContext *context() const { return bidicontext; }
-#endif
 
 public:
     int y, baseLine, h;
-#ifndef QT_NO_COMPLEXTEXT
-    QBidiStatus status;
-#endif
     int w;
-
-private:
-#ifndef QT_NO_COMPLEXTEXT
-    QBidiContext *bidicontext;
-#endif
 };
 
 #if defined(Q_TEMPLATEDLL)
@@ -1288,8 +1247,8 @@ public:
     void setAlignment( int a );
     int alignment() const;
 
-    void paint( QPainter &painter, const QPalette &pal, QTextCursor *cursor = 0, 
-		bool drawSelections = FALSE, int clipx = -1, int clipy = -1, 
+    void paint( QPainter &painter, const QPalette &pal, QTextCursor *cursor = 0,
+		bool drawSelections = FALSE, int clipx = -1, int clipy = -1,
 		int clipw = -1, int cliph = -1 );
 
     int topMargin() const;
@@ -1368,10 +1327,10 @@ private:
 #ifndef QT_NO_TEXTCUSTOMITEM
     QPtrList<QTextCustomItem> &floatingItems() const;
 #endif
-    inline QBrush backgroundBrush( const QPalette &pal ) { 
-	if ( bgcol ) 
-	    return *bgcol; 
-	return pal.brush( QPalette::Base ); 
+    inline QBrush backgroundBrush( const QPalette &pal ) {
+	if ( bgcol )
+	    return *bgcol;
+	return pal.brush( QPalette::Base );
     }
     void invalidateStyleCache();
 

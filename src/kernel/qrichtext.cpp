@@ -35,7 +35,6 @@
 #include "qptrstack.h"
 #include "qptrdict.h"
 #include "qstyle.h"
-#include "private/qcomplextext_p.h"
 #include "qcleanuphandler.h"
 #include "qtextengine_p.h"
 #include <private/qunicodetables_p.h>
