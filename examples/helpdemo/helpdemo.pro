@@ -1,5 +1,6 @@
 TEMPLATE    =app
 CONFIG	    += qt warn_on debug
+QCONFIG     += network
 SOURCES	    += helpdemo.cpp main.cpp
 HEADERS	    += helpdemo.h
 FORMS	    = helpdemobase.ui

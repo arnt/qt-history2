@@ -100,7 +100,7 @@ public:
 	: string( s ), font( f ){};
     ~MyMenuItem(){}
 
-    void paint( QPainter* p, const QColorGroup& /*cg*/, bool /*act*/, bool /*enabled*/, int x, int y, int w, int h )
+    void paint( QPainter* p, const QPalette& /*pal*/, bool /*act*/, bool /*enabled*/, int x, int y, int w, int h )
     {
 	p->setFont ( font );
 	p->drawText( x, y, w, h, AlignLeft | AlignVCenter | DontClip | ShowPrefix, string );
@@ -156,7 +156,6 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     options->insertItem( "&Normal Font", this, SLOT(normal()) );
     options->insertSeparator();
 
-    options->polish(); // adjust system settings
     QFont f = options->font();
     f.setBold( TRUE );
     boldID = options->insertItem( new MyMenuItem( "Bold", f ) );

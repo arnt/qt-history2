@@ -65,7 +65,7 @@ void MetalStyle::polish( QApplication *app)
     QPixmap button( 1, 1 ); button.fill( gold );
 
     QPixmap background(marble_xpm);
-    QPixmap dark( 1, 1 ); dark.fill( red.dark() );
+    QPixmap dark( 1, 1 ); dark.fill( QColor(red).dark() );
     QPixmap mid( stone1_xpm );
     QPixmap light( stone1_xpm );//1, 1 ); light.fill( green );
 

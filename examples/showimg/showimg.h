@@ -25,7 +25,7 @@ class ImageViewer : public QWidget
 {
     Q_OBJECT
 public:
-    ImageViewer( QWidget *parent=0, const char *name=0, int wFlags=0 );
+    ImageViewer( QWidget *parent=0, const char *name=0, WFlags wFlags=0 );
     ~ImageViewer();
     bool	loadImage( const QString& );
 protected:

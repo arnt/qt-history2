@@ -1,4 +1,5 @@
 TEMPLATE	= app
+QCONFIG += sql
 CONFIG+= qt warn_on release
 win32:CONFIG+= console
 HEADERS		= 

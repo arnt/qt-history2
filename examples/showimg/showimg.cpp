@@ -30,7 +30,7 @@
   The menu uses a single slot to simplify the process of adding
   more items to the options menu.
 */
-ImageViewer::ImageViewer( QWidget *parent, const char *name, int wFlags )
+ImageViewer::ImageViewer( QWidget *parent, const char *name, WFlags wFlags )
     : QWidget( parent, name, wFlags ),
       conversion_flags( PreferDither ),
       helpmsg( 0 )

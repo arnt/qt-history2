@@ -1,5 +1,6 @@
 TEMPLATE 	= app
 CONFIG		+= qt warn_off release
+QCONFIG         += sql
 HEADERS		= frame.h \
 		  categoryinterface.h \
 		  qthumbwheel.h \

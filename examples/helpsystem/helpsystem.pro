@@ -1,5 +1,6 @@
 TEMPLATE = app
 
+QCONFIG += network
 SOURCES += main.cpp tooltip.cpp mainwindow.cpp whatsthis.cpp
 HEADERS += tooltip.h mainwindow.h whatsthis.h
 

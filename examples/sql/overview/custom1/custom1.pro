@@ -1,4 +1,5 @@
 TEMPLATE    =	app
+QCONFIG += sql
 CONFIG+=	qt warn_on release
 HEADERS	    =	main.h
 SOURCES	    =	main.cpp ../connection.cpp
