@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#18 $
 **
 ** Implementation of QScrollView class
 **
@@ -265,6 +265,9 @@ void QScrollView::resize( int w, int h )
     updateScrollBars();
 }
 
+/*!
+An override - ensures scrollbars are correct size upon resize.
+*/
 void QScrollView::resize( const QSize& s )
 {
     resize(s.width(),s.height());
