@@ -3,6 +3,7 @@
 <include location="local" impldecl="in declaration">finddialog.h</include>
 <include location="global" impldecl="in declaration">qmap.h</include>
 <include location="global" impldecl="in declaration">qguardedptr.h</include>
+<include location="global" impldecl="in implementation">qlineedit.h</include>
 <include location="global" impldecl="in implementation">qstatusbar.h</include>
 <include location="global" impldecl="in implementation">qurl.h</include>
 <include location="global" impldecl="in implementation">qpainter.h</include>
@@ -20,6 +21,7 @@
 <include location="global" impldecl="in implementation">qsimplerichtext.h</include>
 <include location="global" impldecl="in implementation">qpaintdevicemetrics.h</include>
 <include location="global" impldecl="in implementation">qcombobox.h</include>
+<include location="global" impldecl="in implementation">qaccel.h</include>
 <forward>class HelpDialog;</forward>
 <forward>class HelpWindow;</forward>
 <variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
@@ -34,8 +36,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>930</width>
-            <height>772</height>
+            <width>926</width>
+            <height>770</height>
         </rect>
     </property>
     <property name="caption">
@@ -410,6 +412,10 @@
     connect( browser, SIGNAL( highlighted( const QString &amp; ) ), statusBar(), SLOT( message( const QString &amp; ) ) );
     connect( actionZoomIn, SIGNAL( activated() ), browser, SLOT( zoomIn() ) );
     connect( actionZoomOut, SIGNAL( activated() ), browser, SLOT( zoomOut() ) ); 
+    
+    QAccel *a = new QAccel( this );
+    a-&gt;insertItem( CTRL+Key_L, 100 );
+    a-&gt;connectItem( 100, helpDock-&gt;editIndex, SLOT( setFocus() ) );
 }</function>
     <function name="destroy()" >{
     
