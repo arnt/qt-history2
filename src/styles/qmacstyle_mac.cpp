@@ -77,6 +77,7 @@ void QMacStylePainter::setport()
 #include <string.h>
 
 //externals
+QPixmap qt_mac_convert_iconref(IconRef, int, int); //qpixmap_mac.cpp
 RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
@@ -236,8 +237,8 @@ void QMacStylePrivate::PolicyState::watchObject(QObject *o)
 }
 void QMacStylePrivateObjectWatcher::destroyedObject(QObject *o)
 {
-    QMacStylePrivate::PolicyState::focusMap.remove((QWidget*)o);
-    QMacStylePrivate::PolicyState::sizeMap.remove((QWidget*)o);
+    QMacStylePrivate::PolicyState::focusMap.erase((QWidget*)o);
+    QMacStylePrivate::PolicyState::sizeMap.erase((QWidget*)o);
 }
 QMacStylePrivate::QMacStylePrivate() : QAquaAnimate()
 {
@@ -264,11 +265,11 @@ bool QMacStylePrivate::doAnimate(QAquaAnimate::Animates as)
     } else if(as == AquaListViewItemOpen) {
 	for(QMap<QListViewItem*, int>::Iterator it = lviState.lvis.begin(); it != lviState.lvis.end(); ++it) {
 	    QListViewItem *i = it.key();
-	    int &frame = it.data();
+	    int &frame = it.value();
 	    if(i->isOpen()) {
 		if(frame == 4) {
 		    stopAnimate(AquaListViewItemOpen, i);
-		    lviState.lvis.remove(it);
+		    lviState.lvis.erase(it);
 		    if(lviState.lvis.isEmpty())
 			break;
 		} else {
@@ -277,7 +278,7 @@ bool QMacStylePrivate::doAnimate(QAquaAnimate::Animates as)
 	    } else {
 		if(frame == 0) {
 		    stopAnimate(AquaListViewItemOpen, i);
-		    lviState.lvis.remove(it);
+		    lviState.lvis.erase(it);
 		    if(lviState.lvis.isEmpty())
 			break;
 		} else {
@@ -412,23 +413,16 @@ void QMacStyle::polish(QApplication* app)
     QBrush background(pc, px);
     pal.setBrush(QPalette::Background, background);
     pal.setBrush(QPalette::Button, background);
-    app->setPalette(pal, TRUE);
+    app->setPalette(pal);
 }
 
 /*! \reimp */
 void QMacStyle::polish(QWidget* w)
 {
-	w->setBackgroundOrigin(QWidget::AncestorOrigin);
-    if(!w->isTopLevel() && !w->inherits("QSplitter") &&
-       w->backgroundPixmap() &&
-       qApp->palette().brush(QPalette::Active, QPalette::Background).pixmap() &&
-	w->backgroundPixmap()->serialNumber() ==
-       qApp->palette().brush(QPalette::Active, QPalette::Background).pixmap()->serialNumber())
-	w->setBackgroundOrigin(QWidget::AncestorOrigin);
     d->addWidget(w);
 
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
-    if(w->parentWidget() && w->parentWidget()->inherits("QGroupBox") && !w->ownPalette() &&
+    if(w->parentWidget() && w->parentWidget()->inherits("QGroupBox") && !w->testAttribute(QWidget::WA_SetPalette) &&
        w->parentWidget()->parentWidget() && w->parentWidget()->parentWidget()->inherits("QGroupBox")) {
 	QPalette pal = w->palette();
 	QPixmap px(200, 200, 32);
@@ -2259,12 +2253,24 @@ QPixmap QMacStyle::stylePixmap( PixmapType pixmaptype, const QPixmap &pixmap,
 				const QPalette &pal, const QStyleOption &opt ) const
 {
     switch(pixmaptype) {
+    case PT_Pressed:
     case PT_Disabled: {
 	QImage img;
 	img = pixmap;
+	int h, s, v;
+	QColor hsvColor;
 	for(int y = 0; y < img.height(); y++) {
-	    for(int x = 0; x < img.width(); x++)
-		img.setPixel(x, y, QColor(img.pixel(x, y)).light().rgb());
+	    for(int x = 0; x < img.width(); x++) {
+		QColor(img.pixel(x, y)).getHsv(&h, &s, &v);
+		if(pixmaptype == PT_Pressed) {
+		    s = (s / 2);
+		    v = (v / 2) + 117; //a little less than half 128 (ie 0xFF/2)
+		} else if(pixmaptype == PT_Disabled) {
+		    s = (s / 2);
+		}
+		hsvColor.setHsv(h, s, v);
+		img.setPixel(x, y, hsvColor.rgb());
+	    }
 	}
 	QPixmap ret(img);
 	if(pixmap.mask())
@@ -2297,11 +2303,7 @@ QPixmap QMacStyle::stylePixmap(StylePixmap stylepixmap,  const QWidget *widget, 
 	break;
     }
     if(icon) {
-	QPixmap ret(32, 32);
-	QMacSavedPortInfo pi(&ret);
-	Rect rect;
-	SetRect(&rect, 0, 0, ret.width(), ret.height());
-	PlotIconRef(&rect, kAlignNone, kTransformNone, kIconServicesNormalUsageFlag, icon);
+	QPixmap ret = qt_mac_convert_iconref(icon, 64, 64);
 	ReleaseIconRef(icon);
 	return ret;
     }
@@ -2329,7 +2331,7 @@ QPixmap QMacStyle::stylePixmap(StylePixmap stylepixmap,  const QWidget *widget, 
 */
 void QMacStyle::setFocusRectPolicy( QWidget *w, FocusRectPolicy policy )
 {
-    QMacStylePrivate::PolicyState::focusMap.replace( w, policy );
+    QMacStylePrivate::PolicyState::focusMap.insert( w, policy );
     QMacStylePrivate::PolicyState::watchObject(w);
     if (w->hasFocus()) {
 	w->clearFocus();
@@ -2359,7 +2361,7 @@ QMacStyle::FocusRectPolicy QMacStyle::focusRectPolicy( QWidget *w )
 */
 void QMacStyle::setWidgetSizePolicy( QWidget *w, WidgetSizePolicy policy )
 {
-    QMacStylePrivate::PolicyState::sizeMap.replace( w, policy );
+    QMacStylePrivate::PolicyState::sizeMap.insert( w, policy );
     QMacStylePrivate::PolicyState::watchObject(w);
 }
 
@@ -2377,8 +2379,11 @@ QMacStyle::WidgetSizePolicy QMacStyle::widgetSizePolicy( QWidget *w )
 	if (QMacStylePrivate::PolicyState::sizeMap.contains(w))
 	    ret = QMacStylePrivate::PolicyState::sizeMap[w];
 	if(ret == SizeDefault) {
-	    for(QWidget *p = w->parentWidget(TRUE); ret == SizeDefault && p; p = p->parentWidget(TRUE))
+	    for(QWidget *p = w->parentWidget(); ret == SizeDefault && p; p = p->parentWidget()) {
 		ret = widgetSizePolicy(p);
+		if(p->isTopLevel())
+		    break;
+	    }
 	}
     }
     return ret;

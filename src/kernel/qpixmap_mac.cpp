@@ -861,3 +861,20 @@ IconRef qt_mac_create_iconref(const QPixmap &px) {
 
 }
 
+QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height) 
+{
+    QPixmap ret(width, height);
+    Rect rect;
+    SetRect(&rect, 0, 0, width, height);
+    {
+	QMacSavedPortInfo pi(&ret);
+	PlotIconRef(&rect, kAlignNone, kTransformNone, kIconServicesNormalUsageFlag, icon);
+    }
+    if(!IsIconRefMaskEmpty(icon)) {
+	QBitmap mask(width, height, TRUE);
+	QMacSavedPortInfo pi(&mask);
+	PlotIconRef(&rect, kAlignNone, kTransformNone, kIconServicesNormalUsageFlag, icon);
+	ret.setMask(mask);
+    }
+    return ret;
+}

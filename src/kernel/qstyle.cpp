@@ -1762,10 +1762,27 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
     \value SP_CustomBase  base value for custom ControlElements. All
-	values above this are reserved for custom use. Therefore,
+	values below this are reserved for interna Qt usage. Therefore,
 	custom values must be greater than this value.
 
     \sa stylePixmap()
+*/
+
+
+/*!
+  \enum QStyle::PixmapType
+
+  This enum represents the effects performed on a pixmap to achieve a GUI style's
+  perferred way of representing the image in different states.
+
+  \value PT_Disabled  a disabled pixmap (drawn on disabled widgets)
+  \value PT_Pressed   a pressed pixmap (drawn on pressed toolbuttons)
+
+  \value PT_CustomBase base value for custom PixmapTypes. All values
+     below this are reserved for internal Qt usage. Therefore, custom
+     values must be greater than this value.
+
+  \sa stylePixmap()
 */
 
 /*

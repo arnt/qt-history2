@@ -701,6 +701,7 @@ public:
 
     enum PixmapType {
 	PT_Disabled,
+	PT_Pressed,
 
 	// do not add any values below/greater than this
 	PT_CustomBase =		0xf0000000
