@@ -3,7 +3,7 @@
    NOTICE */
 
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayoutengine.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qlayoutengine.cpp#7 $
 **
 ** Implementation of QLayout functionality
 **
@@ -128,8 +128,7 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int count, int pos,
     } else { //extra space
 	int n = count;
 	int space_left = space - spacerCount*spacer;
-#if 0
-	//first give to the fixed ones: //#### covered by algorithm below(?)
+	//first give to the fixed ones, and handle non-expansiveness
 	for ( i = 0; i < count; i++ ) {
 	    if ( !chain[i].done && ( chain[i].maximumSize <= chain[i].sizeHint
 				     || wannaGrow && !chain[i].expansive )) {
@@ -140,7 +139,6 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int count, int pos,
 		n--;
 	    }
 	}
-#endif
 	extraspace =  space_left;
 #if 1
 	/*
@@ -148,7 +146,7 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int count, int pos,
 	  If there are more deficit pixels than surplus pixels,
 	  give the minimum size items what they need, and repeat.
 	  Otherwise give to the maximum size items.
-	  
+	
 	  I have a wonderful mathematical proof for the correctness of
 	  this principle, but unfortunately this comment is too
 	  small to contain it.
@@ -179,7 +177,7 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int count, int pos,
 	    if ( deficit > 0 && surplus <= deficit ) {
 		//give to the ones that have too little
 		for ( i = 0; i < count; i++ ) {
-		    if ( !chain[i].done && 
+		    if ( !chain[i].done &&
 			 chain[i].size < chain[i].sizeHint ) {
 			chain[i].size = chain[i].sizeHint;
 			chain[i].done = TRUE;
@@ -192,7 +190,7 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int count, int pos,
 	    if ( surplus > 0 && surplus >= deficit ) {
 		//take from the ones that have too much
 		for ( i = 0; i < count; i++ ) {
-		    if ( !chain[i].done && 
+		    if ( !chain[i].done &&
 			 chain[i].size > chain[i].maximumSize ) {
 			chain[i].size = chain[i].maximumSize;
 			chain[i].done = TRUE;
