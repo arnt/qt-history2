@@ -748,46 +748,41 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node)
     if (!style.isEmpty())
 	out() << "    <style>" << style << "</style>\n";
 
-    QString linkString;
+    navigationLinks = "";
 
     if (node && !node->links().empty()) {
-        QTextStream linkStream(&linkString, QIODevice::WriteOnly);
         QPair<QString,QString> linkPair;
 
         if (node->links().contains(Node::PreviousLink)) {
             linkPair = node->links()[Node::PreviousLink];
             out() << "    <link rel=\"prev\" href=\""
                   << linkPair.first << "\" />\n";
-            linkStream << "<a href=\"" << protect(linkPair.first) << "\">"
-                       << "[" << protect(linkPair.second) << "]</a>\n";
+            navigationLinks += "[Previous: <a href=\"" + protect(linkPair.first) + "\">"
+                            + protect(linkPair.second) + "</a>]\n";
         }
         if (node->links().contains(Node::ContentsLink)) {
             linkPair = node->links()[Node::ContentsLink];
             out() << "    <link rel=\"contents\" href=\""
                   << linkPair.first << "\" />\n";
-            linkStream << "<a href=\"" << protect(linkPair.first) << "\">"
-                       << "[" << protect(linkPair.second) << "]</a>\n";
+            navigationLinks += "[<a href=\"" + protect(linkPair.first) + "\">"
+                            + protect(linkPair.second) + "</a>]\n";
         }
         if (node->links().contains(Node::NextLink)) {
             linkPair = node->links()[Node::NextLink];
             out() << "    <link rel=\"next\" href=\""
                   << linkPair.first << "\" />\n";
-            linkStream << "<a href=\"" << protect(linkPair.first) << "\">"
-                       << "[" << protect(linkPair.second) << "]</a>\n";
+            navigationLinks += "[Next: <a href=\"" + protect(linkPair.first) + "\">"
+                            + protect(linkPair.second) + "</a>]\n";
         }
         if (node->links().contains(Node::IndexLink)) {
             linkPair = node->links()[Node::IndexLink];
             out() << "    <link rel=\"index\" href=\""
                   << linkPair.first << "\" />\n";
-            linkStream << "<a href=\"" << protect(linkPair.first) << "\">"
-                       << "[" << protect(linkPair.second) << "]</a>\n";
         }
         if (node->links().contains(Node::StartLink)) {
             linkPair = node->links()[Node::StartLink];
             out() << "    <link rel=\"start\" href=\""
                   << linkPair.first << "\" />\n";
-            linkStream << "<a href=\"" << protect(linkPair.first) << "\">"
-                       << "[" << protect(linkPair.second) << "]</a>\n";
         }
     }
     out() << "</head>\n"
@@ -795,7 +790,7 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node)
 	  << QString(postHeader).replace("\\" + COMMAND_VERSION, tre->version());
 
     if (node && !node->links().empty())
-        out() << "<p>\n" << linkString << "</p>\n";
+        out() << "<p>\n" << navigationLinks << "</p>\n";
 }
 
 void HtmlGenerator::generateTitle( const QString& title )
@@ -803,8 +798,11 @@ void HtmlGenerator::generateTitle( const QString& title )
     out() << "<h1 align=\"center\">" << protect( title ) << "</h1>\n";
 }
 
-void HtmlGenerator::generateFooter( const Node * /* node */ )
+void HtmlGenerator::generateFooter( const Node *node )
 {
+    if (node && !node->links().empty())
+        out() << "<p>\n" << navigationLinks << "</p>\n";
+
     out() << QString(footer).replace("\\" + COMMAND_VERSION, tre->version())
 	  << QString(address).replace("\\" + COMMAND_VERSION, tre->version())
 	  << "</body>\n"

@@ -106,6 +106,7 @@ private:
     QString footer;
     QString address;
     QString project;
+    QString navigationLinks;
     const Tree *tre;
     QMap<QString, const Node *> allClasses;
     QMap<QString, const Node *> mainClasses;
