@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#35 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#34 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#35 $";
 #endif
 
 
@@ -282,6 +282,7 @@ void QWidget::setFont( const QFont &font )	// set font
     gc = qXChangeGC( gc, fid, bg_col.pixel(), fg_col.pixel(),
 		     !testFlag(WPaintUnclipped) );
     fnt = font;
+    update();
 }
 
 QCursor QWidget::cursor() const			// get cursor
