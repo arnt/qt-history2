@@ -538,7 +538,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	    else
 		qAquaPixmap("chk_act_f", px);
 	}
-	p->drawPixmap( r.x(), r.y(), px, 0, 2 ); //2
+	p->drawPixmap( r.x(), r.y(), px, 0, 1 );
 	break; }
 
     case PE_IndicatorMask: {
@@ -565,7 +565,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	    else
 		qAquaPixmap("radio_f", px);
 	}
-	p->drawPixmap( r.x(), r.y(), px, 0, 1 );
+	p->drawPixmap( r.x(), r.y(), px, 0, 0 );
 	break; }
 
     case PE_ExclusiveIndicatorMask: {
@@ -1333,24 +1333,31 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	break; }
 
     case CC_SpinWidget: {
-	QString wstr = QString::number( r.width() );
-	QString hstr = QString::number( r.height() );
 	QPixmap btn;
 	if(sub & SC_SpinWidgetUp) {
+	    QRect sr = visualRect( querySubControlMetrics( CC_SpinWidget, widget,
+							   SC_SpinWidgetUp ), widget );
+	    QString wstr = QString::number( sr.width() );
+	    QString hstr = QString::number( sr.height() );
 	    if ( subActive & SC_SpinWidgetUp )
 		qAquaPixmap( "spinbtn_up_on_" + wstr + "_" + hstr, btn );
 	    else
 		qAquaPixmap( "spinbtn_up_off_" + wstr + "_" + hstr, btn );
-	    p->drawPixmap( r.x(), r.y(), btn );
-	} else if(sub & SC_SpinWidgetDown) {
+	    p->drawPixmap( sr.x(), sr.y(), btn );
+	}
+	if(sub & SC_SpinWidgetDown) {
+	    QRect sr = visualRect( querySubControlMetrics( CC_SpinWidget, widget,
+							   SC_SpinWidgetDown ), widget );
+	    QString wstr = QString::number( sr.width() );
+	    QString hstr = QString::number( sr.height() );
 	    if ( subActive & SC_SpinWidgetDown )
 		qAquaPixmap( "spinbtn_down_on_" + wstr + "_" + hstr, btn );
 	    else
 		qAquaPixmap( "spinbtn_down_off_" + wstr + "_" + hstr, btn );
-	    p->drawPixmap( r.x(), r.y(), btn );
-	} else if(SC_SpinWidgetFrame) {
-	    QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, sub, subActive, data);
-	}
+	    p->drawPixmap( sr.x(), sr.y(), btn );
+	} 
+	if(sub & SC_SpinWidgetFrame) 
+	    QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, SC_SpinWidgetFrame, subActive, data);
 	break; }
 
     case CC_Slider: {
