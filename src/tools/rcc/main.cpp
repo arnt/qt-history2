@@ -47,7 +47,7 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
         qWarning("%s is not a valid resource file.", resource.latin1());
         return false;
     }
-    for(QDomElement child = root.firstChild().toElement(); !child.isNull(); 
+    for(QDomElement child = root.firstChild().toElement(); !child.isNull();
         child = child.nextSibling().toElement()) {
         if(child.tagName() == QLatin1String("qresource")) {
             QFileInfoList files;
@@ -60,9 +60,9 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
                     QFileInfo file(res.firstChild().toText().data());
                     if(!file.exists() || file.isDir()) {
                         QDir dir;
-                        if(!file.exists()) 
+                        if(!file.exists())
                             dir = QDir(file.path(), file.fileName());
-                        else 
+                        else
                             dir = QDir(file.filePath(), "*");
                         QFileInfoList subFiles = dir.entryInfoList();
                         for(int subFile = 0; subFile < subFiles.count(); subFile++) {
@@ -97,18 +97,18 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
                         compressRatio = 0;
                 }
                 if(verbose)
-                    qDebug("Read file %s [Compressed %d%%]", inputQFile.fileName().latin1(), 
+                    qDebug("Read file %s [Compressed %d%%]", inputQFile.fileName().latin1(),
                            compressRatio);
 
                 //header
-                const QString location = QDir::cleanPath(resource_root + "/" + 
-                                                         prefix + "/" + 
+                const QString location = QDir::cleanPath(resource_root + "/" +
+                                                         prefix + "/" +
                                                          inputQFile.fileName());
                 QByteArray resource_name;
                 {
                     const QChar *data = location.unicode();
                     for(int i = 0; i < location.length(); i++) {
-                        if(!(data+i)->row() && 
+                        if(!(data+i)->row() &&
                            ((data+i)->cell() >= 'A' && (data+i)->cell() <= 'Z') ||
                            ((data+i)->cell() >= '0' && (data+i)->cell() <= '9') ||
                            ((data+i)->cell() >= 'a' && (data+i)->cell() <= 'z') ||
@@ -136,7 +136,7 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
                 out << "static uchar " << resource_name << "[] = {" << endl;
                 out << "\t0x12, 0x15, 0x19, 0x78, //header" << endl;
                 out << "\t0x01, //version" << endl;
-                out << "\t" << (uchar) lang.language() << ", " 
+                out << "\t" << (uchar) lang.language() << ", "
                     << (uchar)lang.country() << ", //lang" << endl;
                 out << "\t" << flags << ", //flags" << endl;
 
@@ -175,7 +175,7 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
                 out << "\n};" << endl;
 
                 //QMetaResource
-                out << "Q_GLOBAL_STATIC_WITH_ARGS(QMetaResource, resource_" 
+                out << "Q_GLOBAL_STATIC_WITH_ARGS(QMetaResource, resource_"
                     << resource_name << ", (" << resource_name << "))" << endl;
                 if(created)
                     created->append("resource_" + resource_name);
@@ -193,39 +193,39 @@ main(int argc, char **argv)
     QStringList files;
 
     //parse options
-    char *error_msg = 0;
-    for (int i = 1; i < argc && !error_msg; i++) {
+    QString error_msg;
+    for (int i = 1; i < argc && error_msg.isEmpty(); i++) {
 	if (argv[i][0] == '-') {   // option
             QByteArray opt = argv[i] + 1;
 	    if (opt == "o") {
                 if (!(i < argc-1)) {
-                    error_msg = "Missing output name";
+                    error_msg = QLatin1String("Missing output name");
                     break;
                 }
                 output_file = argv[++i];
             } else if(opt == "name") {
                 if (!(i < argc-1)) {
-                    error_msg = "Missing target name";
+                    error_msg = QLatin1String("Missing target name");
                     break;
                 }
                 init_name = argv[++i];
             } else if(opt == "root") {
                 if (!(i < argc-1)) {
-                    error_msg = "Missing root path";
+                    error_msg = QLatin1String("Missing root path");
                     break;
                 }
                 resource_root = QDir::cleanPath(argv[++i]);
                 if(resource_root.isEmpty() || resource_root[0] != '/')
-                    error_msg = "Root must start with a /";
+                    error_msg = QLatin1String("Root must start with a /");
             } else if(opt == "compress") {
                 if (!(i < argc-1)) {
-                    error_msg = "Missing compression level";
+                    error_msg = QLatin1String("Missing compression level");
                     break;
                 }
                 compress_level = QString(argv[++i]).toInt();
             } else if(opt == "threshold") {
                 if (!(i < argc-1)) {
-                    error_msg = "Missing compression threshold";
+                    error_msg = QLatin1String("Missing compression threshold");
                     break;
                 }
                 compress_threshold = QString(argv[++i]).toInt();
@@ -239,7 +239,7 @@ main(int argc, char **argv)
             } else if(opt == "no-compress") {
                 compress_level = 0;
             } else {
-                error_msg = "Unknown option";
+                error_msg = QString(QLatin1String("Unknown option: '%1'")).arg(argv[i]);
             }
         } else {
             if(!QFile::exists(argv[i])) {
@@ -249,10 +249,10 @@ main(int argc, char **argv)
             files.append(argv[i]);
         }
     }
-    if (!files.size() || error_msg || show_help) {
+    if (!files.size() || !error_msg.isEmpty() || show_help) {
 	fprintf(stderr, "Qt resource compiler\n");
-	if (error_msg)
-	    fprintf(stderr, "%s: %s\n", argv[0], error_msg);
+	if (!error_msg.isEmpty())
+	    fprintf(stderr, "%s: %s\n", argv[0], error_msg.latin1());
         fprintf(stderr, "Usage: %s  [options] <inputs>\n\n"
                 "Options:\n"
                 "\t-o file           Write output to file rather than stdout\n"
