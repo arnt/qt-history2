@@ -181,7 +181,8 @@
 static int  systemWordSize = 0;
 static bool systemBigEndian;
 
-static const int DefaultStreamVersion = 3;
+static const int DefaultStreamVersion = 4;
+// 4 is default in Qt 3.0
 // 3 is default in Qt 2.1
 // 2 is the Qt 2.0.x format
 // 1 is the Qt 1.x format
@@ -373,7 +374,7 @@ void QDataStream::setByteOrder( int bo )
 /*!
   \fn int QDataStream::version() const
   Returns the version number of the data serialization format.
-  In Qt 2.1, this number is by default 3.
+  In Qt 3.0, this number is by default 4.
   \sa setVersion()
 */
 
@@ -392,6 +393,8 @@ void QDataStream::setByteOrder( int bo )
 
   For Qt 2.0.x compatibility, use \a v == 2 (Not required for reading in
   Qt 2.1).
+
+  for Qt 2.1.x and Qt 2.2.x compatibility, use \a v == 3.
 
   \sa version()
 */
@@ -504,12 +507,12 @@ QDataStream &QDataStream::operator>>( Q_INT32 &i )
 
 /*!
   \fn QDataStream &QDataStream::operator>>( Q_ULONG &i )
-  Reads an unsigned integer of the systems word length 
+  Reads an unsigned integer of the systems word length
   from the stream and returns a reference to the stream.
 */
 
 /*!
-  Reads a signed integer of the systems word length 
+  Reads a signed integer of the systems word length
   from the stream and returns a reference to the stream.
 */
 
@@ -780,12 +783,12 @@ QDataStream &QDataStream::operator<<( Q_INT32 i )
 
 /*!
   \fn QDataStream &QDataStream::operator<<( Q_ULONG i )
-  Writes an unsigned integer of system word length to the 
+  Writes an unsigned integer of system word length to the
   stream and returns a reference to the stream.
 */
 
 /*!
-  Writes a signed integer of system word length to the stream and 
+  Writes a signed integer of system word length to the stream and
   returns a reference to the stream.
 */
 

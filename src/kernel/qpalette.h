@@ -67,7 +67,7 @@ public:
     // Do not change the order, the serialization format depends on it
     enum ColorRole { Foreground, Button, Light, Midlight, Dark, Mid,
 		     Text, BrightText, ButtonText, Base, Background, Shadow,
-		     Highlight, HighlightedText,
+		     Highlight, HighlightedText, Link, LinkVisited,
 		     NColorRoles };
 
     const QColor &color( ColorRole ) const;
@@ -90,6 +90,8 @@ public:
     const QColor &shadow()	const	{ return br[Shadow].color(); }
     const QColor &highlight()	const	{ return br[Highlight].color(); }
     const QColor &highlightedText() const{return br[HighlightedText].color(); }
+    const QColor &link()        const   { return br[Link].color(); }
+    const QColor &linkVisited() const   { return br[LinkVisited].color(); }
 
     bool	operator==( const QColorGroup &g ) const;
     bool	operator!=( const QColorGroup &g ) const
@@ -156,7 +158,7 @@ public:
     void setForegroundColorForMode( ColorGroup, Qt::BackgroundMode,  const QColor& );
 
     const QPixmap *backgroundPixmapForMode( ColorGroup, Qt::BackgroundMode );
-    void setBackgroundPixmapForMode( ColorGroup, Qt::BackgroundMode, const QPixmap& );	
+    void setBackgroundPixmapForMode( ColorGroup, Qt::BackgroundMode, const QPixmap& );
 
 private:
     void	detach();

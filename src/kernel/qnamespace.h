@@ -686,6 +686,8 @@ public:
 	PaletteHighlight,
 	PaletteHighlightedText,
 	PaletteButtonText,
+	PaletteLink,
+	PaletteLinkVisited,
 	X11ParentRelative
     };
 

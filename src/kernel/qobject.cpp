@@ -1915,9 +1915,11 @@ QMetaObject* QObject::staticMetaObject()
         { "PaletteHighlight",  (int) Qt::PaletteHighlight },
         { "PaletteHighlightedText",  (int) Qt::PaletteHighlightedText },
         { "PaletteButtonText",  (int) Qt::PaletteButtonText },
+	{ "PaletteLink", (int) Qt::PaletteLink },
+	{ "PaletteLinkVisited", (int) Qt::PaletteLinkVisited },
         { "X11ParentRelative",  (int) Qt::X11ParentRelative }
     };
-	
+
     static const QMetaEnum enum_tbl[] = {
 	{ "Alignment", 10, enum_0, TRUE },
 	{ "Orientation", 2, enum_1, FALSE },

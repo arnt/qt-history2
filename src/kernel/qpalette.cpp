@@ -142,6 +142,10 @@
   \value BrightText a text color that is very different from \c
   Foreground and contrasts well with e.g. \c Dark.
 
+  \value Link a text color used for hyperlinks.
+
+  \value LinkVisited a test color used for previously visited hyperlinks.
+
   Note that text colors can be used for things other than just words;
   text colors are \e usually used for text, but it's quite common to
   have lines, icons and so on that belong with a text color logically.
@@ -226,6 +230,8 @@ Such long lists of arguments are rather error-prone.
     br[Shadow]          = Qt::black;
     br[Highlight]       = Qt::darkBlue;
     br[HighlightedText] = Qt::white;
+    br[Link]            = Qt::blue;
+    br[LinkVisited]     = Qt::magenta;
 }
 
 
@@ -255,6 +261,8 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &background,
     br[Shadow]          = Qt::black;
     br[Highlight]       = Qt::darkBlue;
     br[HighlightedText] = Qt::white;
+    br[Link]            = Qt::blue;
+    br[LinkVisited]     = Qt::magenta;
 }
 
 /*!
@@ -401,6 +409,20 @@ void QColorGroup::setBrush( ColorRole r, const QBrush &b )
 /*!
   \fn const QColor & QColorGroup::highlightedText() const
   Returns the highlighted text color of the color group.
+
+  \sa ColorRole
+*/
+
+/*!
+  \fn const QColor & QColorGroup::link() const
+  Returns the link text color of the color group.
+
+  \sa ColorRole
+*/
+
+/*!
+  \fn const QColor & QColorGroup::linkVisited() const
+  Returns the visited link text color of the color group.
 
   \sa ColorRole
 */
@@ -803,6 +825,7 @@ bool QPalette::operator==( const QPalette &p ) const
 QDataStream &operator<<( QDataStream &s, const QColorGroup &g )
 {
     if ( s.version() == 1 ) {
+	// Qt 1.x
 	s << g.foreground()
 	  << g.background()
 	  << g.light()
@@ -811,7 +834,11 @@ QDataStream &operator<<( QDataStream &s, const QColorGroup &g )
 	  << g.text()
 	  << g.base();
     } else {
-	for( int r = 0 ; r < QColorGroup::NColorRoles ; r++ )
+	int max = QColorGroup::NColorRoles;
+	if ( s.version() <= 3) // Qt 2.x
+	    max = 14;
+
+	for( int r = 0 ; r < max ; r++ )
 	    s << g.brush( (QColorGroup::ColorRole)r);
     }
     return s;
@@ -827,6 +854,7 @@ QDataStream &operator<<( QDataStream &s, const QColorGroup &g )
 QDataStream &operator>>( QDataStream &s, QColorGroup &g )
 {
     if ( s.version() == 1 ) {
+	// Qt 1.x
 	QColor fg, bg, light, dark, mid, text, base;
 	s >> fg >> bg >> light >> dark >> mid >> text >> base;
 	QPalette p( bg );
@@ -839,8 +867,12 @@ QDataStream &operator>>( QDataStream &s, QColorGroup &g )
 	n.setColor( QColorGroup::Base, base );
 	g = n;
     } else {
+	int max = QColorGroup::NColorRoles;
+	if (s.version() <= 3) // Qt 2.x
+	    max = 14;
+
 	QBrush tmp;
-	for( int r = 0 ; r < QColorGroup::NColorRoles; r++ ) {
+	for( int r = 0 ; r < max; r++ ) {
 	    s >> tmp;
 	    g.setBrush( (QColorGroup::ColorRole)r, tmp);
 	}
@@ -1009,6 +1041,12 @@ const QColor &QPalette::backgroundColorForMode( ColorGroup cg, Qt::BackgroundMod
     case Qt::PaletteHighlightedText:
 	cr = QColorGroup::HighlightedText;
 	break;
+    case Qt::PaletteLink:
+	cr = QColorGroup::Link;
+	break;
+    case Qt::PaletteLinkVisited:
+	cr = QColorGroup::LinkVisited;
+	break;
     }
 
     return color(cg, cr);
@@ -1018,7 +1056,7 @@ void QPalette::setBackgroundColorForMode( ColorGroup cg, Qt::BackgroundMode mode
 {
     switch (mode) {
     case Qt::PaletteBackground:
-    default:	
+    default:
 	setColor(cg, QColorGroup::Background, color);
 	break;
     case Qt::PaletteForeground:
@@ -1060,6 +1098,12 @@ void QPalette::setBackgroundColorForMode( ColorGroup cg, Qt::BackgroundMode mode
     case Qt::PaletteHighlightedText:
 	setColor(cg, QColorGroup::HighlightedText, color);
 	break;
+    case Qt::PaletteLink:
+	setColor(cg, QColorGroup::Link, color);
+	break;
+    case Qt::PaletteLinkVisited:
+	setColor(cg, QColorGroup::LinkVisited, color);
+	break;
     }
 }
 
@@ -1098,7 +1142,7 @@ const QPixmap *QPalette::backgroundPixmapForMode( ColorGroup cg,  Qt::Background
 
     switch (mode) {
     case Qt::PaletteBackground:
-    default:	
+    default:
 	cr = QColorGroup::Background;
 	break;
     case Qt::PaletteForeground:
@@ -1139,6 +1183,12 @@ const QPixmap *QPalette::backgroundPixmapForMode( ColorGroup cg,  Qt::Background
 	break;
     case Qt::PaletteHighlightedText:
 	cr = QColorGroup::HighlightedText;
+	break;
+    case Qt::PaletteLink:
+	cr = QColorGroup::Link;
+	break;
+    case Qt::PaletteLinkVisited:
+	cr = QColorGroup::LinkVisited;
 	break;
     }
 
@@ -1192,6 +1242,12 @@ void QPalette::setBackgroundPixmapForMode( ColorGroup cg, Qt::BackgroundMode mod
 	break;
     case Qt::PaletteHighlightedText:
 	cr = QColorGroup::HighlightedText;
+	break;
+    case Qt::PaletteLink:
+	cr = QColorGroup::Link;
+	break;
+    case Qt::PaletteLinkVisited:
+	cr = QColorGroup::LinkVisited;
 	break;
     }
 
