@@ -32,6 +32,8 @@
  *
  *********************************************************************/
 
+#ifndef QT_NO_QWS_PROPERTIES
+
 class QWSPropertyManager
 {
 public:
@@ -67,5 +69,5 @@ private:
 
 };
 
-
-#endif
+#endif //QT_NO_QWS_PROPERTIES
+#endif //QWSPROPERTY_H

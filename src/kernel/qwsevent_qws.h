@@ -83,6 +83,7 @@ struct QWSCreationEvent : QWSEvent {
     } simpleData;	
 };
 
+#ifndef QT_NO_QWS_PROPERTIES
 struct QWSPropertyNotifyEvent : QWSEvent {
     QWSPropertyNotifyEvent() 
 	: QWSEvent( QWSEvent::PropertyNotify, sizeof( simpleData ),
@@ -97,7 +98,7 @@ struct QWSPropertyNotifyEvent : QWSEvent {
 	int state;
     } simpleData;
 };
-
+#endif
 
 struct QWSSelectionClearEvent : QWSEvent {
     QWSSelectionClearEvent() 
@@ -153,7 +154,7 @@ struct QWSRegionModifiedEvent : QWSEvent {
 
     QRect *rectangles;
 };
-
+#ifndef QT_NO_QWS_PROPERTIES
 struct QWSPropertyReplyEvent : QWSEvent {
     QWSPropertyReplyEvent() 
 	: QWSEvent( QWSEvent::PropertyReply, sizeof( simpleData ),
@@ -171,5 +172,5 @@ struct QWSPropertyReplyEvent : QWSEvent {
     } simpleData;
     char *data;
 };
-
+#endif //QT_NO_QWS_PROPERTIES
 #endif

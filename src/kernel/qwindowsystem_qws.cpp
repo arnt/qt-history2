@@ -168,7 +168,7 @@ void QWSClient::sendRegionModifyEvent( int winid, QRegion exposed, bool ack )
     sendEvent( &event );
 }
 
-
+#ifndef QT_NO_QWS_PROPERTIES
 void QWSClient::sendPropertyNotifyEvent( int property, int state )
 {
     QWSPropertyNotifyEvent event;
@@ -187,7 +187,7 @@ void QWSClient::sendPropertyReplyEvent( int property, int len, char *data )
     event.setData( data, len );
     sendEvent( &event );
 }
-
+#endif //QT_NO_QWS_PROPERTIES
 void QWSClient::sendSelectionClearEvent( int windowid )
 {
     QWSSelectionClearEvent event;
@@ -481,6 +481,7 @@ void QWSServer::doClient( QWSClient *client )
 	case QWSCommand::RegionDestroy:
 	    invokeRegionDestroy( (QWSRegionDestroyCommand*)cs->command, cs->client );
 	    break;
+#ifndef QT_NO_QWS_PROPERTIES
 	case QWSCommand::AddProperty:
 	    invokeAddProperty( (QWSAddPropertyCommand*)cs->command );
 	    break;
@@ -493,6 +494,7 @@ void QWSServer::doClient( QWSClient *client )
 	case QWSCommand::GetProperty:
 	    invokeGetProperty( (QWSGetPropertyCommand*)cs->command, cs->client );
 	    break;
+#endif
 	case QWSCommand::SetSelectionOwner:
 	    invokeSetSelectionOwner( (QWSSetSelectionOwnerCommand*)cs->command );
 	    break;
@@ -638,13 +640,13 @@ void QWSServer::sendKeyEvent(int unicode, int keycode, int modifiers, bool isPre
 	(*it)->sendEvent(&event);
     }
 }
-
+#ifndef QT_NO_QWS_PROPERTIES
 void QWSServer::sendPropertyNotifyEvent( int property, int state )
 {
     for ( ClientIterator it = client.begin(); it != client.end(); ++it )
 	( *it )->sendPropertyNotifyEvent( property, state );
 }
-
+#endif
 void QWSServer::invokeCreate( QWSCreateCommand *, QWSClient *client )
 {
     QWSCreationEvent event;
@@ -804,7 +806,7 @@ void QWSServer::invokeSetAltitude( const QWSChangeAltitudeCommand *cmd,
     else
 	raiseWindow( changingw, alt );
 }
-
+#ifndef QT_NO_QWS_PROPERTIES
 void QWSServer::invokeAddProperty( QWSAddPropertyCommand *cmd )
 {
     qDebug( "QWSServer::invokeAddProperty %d %d", cmd->simpleData.windowid,
@@ -863,6 +865,7 @@ void QWSServer::invokeGetProperty( QWSGetPropertyCommand *cmd, QWSClient *client
 	delete [] data;
     }
 }
+#endif //QT_NO_QWS_PROPERTIES
 
 void QWSServer::invokeSetSelectionOwner( QWSSetSelectionOwnerCommand *cmd )
 {

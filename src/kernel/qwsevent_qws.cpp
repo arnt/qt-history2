@@ -20,12 +20,14 @@ QWSEvent *QWSEvent::factory( int type )
     case QWSEvent::Creation:
 	event = new QWSCreationEvent;
 	break;
+#ifndef QT_NO_QWS_PROPERTIES
     case QWSEvent::PropertyNotify:
 	event = new QWSPropertyNotifyEvent;
 	break;
     case QWSEvent::PropertyReply:
 	event = new QWSPropertyReplyEvent;
 	break;
+#endif // QT_NO_QWS_PROPERTIES	
     case QWSEvent::SelectionClear:
 	event = new QWSSelectionClearEvent;
 	break;

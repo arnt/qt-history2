@@ -147,10 +147,11 @@ public:
     
     void sendMouseEvent(const QPoint& pos, int state);
     void sendPropertyNotifyEvent( int property, int state );
+#ifndef QT_NO_QWS_PROPERTIES
     QWSPropertyManager *manager() {
 	return &propertyManager;
     }
-
+#endif
     QWSWindow *windowAt( const QPoint& pos );
 
     // For debugging only at this time
@@ -188,10 +189,12 @@ private:
     void invokeRegionMove( const QWSRegionMoveCommand *cmd, QWSClient *client );
     void invokeRegionDestroy( QWSRegionDestroyCommand *cmd, QWSClient *client );
     void invokeSetAltitude( const QWSChangeAltitudeCommand *cmd, QWSClient *client );
+#ifndef QT_NO_QWS_PROPERTIES
     void invokeAddProperty( QWSAddPropertyCommand *cmd );
     void invokeSetProperty( QWSSetPropertyCommand *cmd );
     void invokeRemoveProperty( QWSRemovePropertyCommand *cmd );
     void invokeGetProperty( QWSGetPropertyCommand *cmd, QWSClient *client );
+#endif //QT_NO_QWS_PROPERTIES
     void invokeSetSelectionOwner( QWSSetSelectionOwnerCommand *cmd );
     void invokeConvertSelection( QWSConvertSelectionCommand *cmd );
     void invokeSetFocus( QWSRequestFocusCommand *cmd, QWSClient *client );
@@ -229,7 +232,9 @@ private:
     QGfx *gfx;
 
     ClientMap client;
+#ifndef QT_NO_QWS_PROPERTIES
     QWSPropertyManager propertyManager;
+#endif
     struct SelectionOwner {
 	int windowid;
 	struct Time {

@@ -702,11 +702,12 @@ void QWSDisplay::setSelectionOwner( int winId, const QTime &time )
 
 void QWSDisplay::convertSelection( int winId, int selectionProperty, const QString &mimeTypes )
 {
+#ifndef QT_NO_QWS_PROPERTIES
     // ### we need the atom/property thingy like in X here
     addProperty( winId, 999 );
     setProperty( winId, 999,
 		 (int)QWSPropertyManager::PropReplace, QCString( mimeTypes.latin1() ) );
-
+#endif
     QWSConvertSelectionCommand cmd;
     cmd.simpleData.requestor = winId;
     cmd.simpleData.selection = selectionProperty;
@@ -1676,7 +1677,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 {
     if ( qwsEventFilter(event) )			// send through app filter
 	return 1;
-
+#ifndef QT_NO_QWS_PROPERTIES
     if ( event->type == QWSEvent::PropertyNotify ) {
 	//QWSPropertyNotifyEvent *e = (QWSPropertyNotifyEvent*)event;
     } else if ( event->type == QWSEvent::PropertyReply ) {
@@ -1684,7 +1685,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	desktop()->qwsDisplay()->getPropertyLen = e->simpleData.len;
 	desktop()->qwsDisplay()->getPropertyData = e->data;
     }
-
+#endif //QT_NO_QWS_PROPERTIES
     QETWidget *widget = (QETWidget*)QWidget::find( (WId)event->window() );
 
     QETWidget *keywidget=0;

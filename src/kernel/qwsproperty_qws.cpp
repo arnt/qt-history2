@@ -19,6 +19,8 @@
 *****************************************************************************/
 
 #include "qwsproperty_qws.h"
+
+#ifndef QT_NO_QWS_PROPERTIES
 #include "qwscommand_qws.h"
 #include "qwindowsystem_qws.h"
 
@@ -154,3 +156,4 @@ char *QWSPropertyManager::createKey( int winId, int property ) const
 
     return key;
 }
+#endif //QT_NO_QWS_PROPERTIES
