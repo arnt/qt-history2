@@ -131,7 +131,9 @@ void Configure::parseCmdLine()
 
 	else if( (*args) == "-qconfig" ) {
 	    ++args;
-	    dictionary[ "QCONFIG" ] = (*args);
+	    if (args==configCmdLine.end())
+		break;
+ 	    dictionary[ "QCONFIG" ] = (*args);
 	}
 
 	else if( (*args) == "-release" )
@@ -151,6 +153,8 @@ void Configure::parseCmdLine()
 
 	else if( (*args) == "-spec" ) {
 	    ++args;
+	    if (args==configCmdLine.end())
+		break;
 	    dictionary[ "QMAKESPEC" ] = (*args);
 	}
 
@@ -281,12 +285,18 @@ void Configure::parseCmdLine()
 
 	else if( (*args) == "-D" ) {
 	    ++args;
+	    if (args==configCmdLine.end())
+		break;
             qmakeDefines += (*args);
         } else if( (*args) == "-I" ) {
 	    ++args;
+	    if (args==configCmdLine.end())
+		break;
 	    qmakeIncludes += (*args);
 	} else if( (*args) == "-L" ) {
 	    ++args;
+	    if (args==configCmdLine.end())
+		break;
 	    qmakeLibs += (*args);
 	}
 
@@ -320,11 +330,15 @@ void Configure::parseCmdLine()
 
 	else if( ( (*args) == "-override-version" ) || ( (*args) == "-version-override" ) ){
 	    ++args;
+	    if (args==configCmdLine.end())
+		break;
 	    dictionary[ "VERSION" ] = (*args);
 	}
 
 	else if( (*args) == "-saveconfig" ) {
 	    ++args;
+	    if (args==configCmdLine.end())
+		break;
 	    dictionary[ "CUSTOMCONFIG" ] = "_" + (*args);
 	}
 
