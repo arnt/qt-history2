@@ -448,19 +448,20 @@ QIconSet QAbstractButton::icon() const
     return d->icon;
 }
 
+
 /*!
-  \property QAbstractButton::mnemonic
-  \brief the mnemonic associated with the button
+  \property QAbstractButton::shortcut
+  \brief the mnemonic key associated with the button
 */
 
-void QAbstractButton::setMnemonic(const QKeySequence & mnemonic)
+void QAbstractButton::setShortcut(const QKeySequence & key)
 {
-    d->mnemonic = mnemonic;
+    d->shortcut = key;
 }
 
-QKeySequence QAbstractButton::mnemonic() const
+QKeySequence QAbstractButton::shortcut() const
 {
-    return d->mnemonic;
+    return d->shortcut;
 }
 /*!
   \property QAbstractButton::checkable
@@ -853,6 +854,13 @@ void QAbstractButton::changeEvent(QEvent *ev)
 }
 
 #ifdef QT_COMPAT
+QIconSet *QAbstractButton::iconSet() const
+{
+    if (!d->icon.isNull())
+        return const_cast<QIconSet*>(&d->icon);
+    return 0;
+}
+
 QAbstractButton::QAbstractButton(QWidget *parent, const char *name, WFlags f)
     :QWidget(*new QAbstractButtonPrivate, parent, f)
 {

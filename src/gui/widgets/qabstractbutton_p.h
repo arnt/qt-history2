@@ -17,7 +17,7 @@ public:
 
     QString text;
     QIconSet icon;
-    QKeySequence mnemonic;
+    QKeySequence shortcut;
     uint checkable :1;
     uint checked :1;
     uint autoRepeat :1;

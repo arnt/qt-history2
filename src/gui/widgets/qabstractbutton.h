@@ -31,26 +31,25 @@ class Q_GUI_EXPORT QAbstractButton : public QWidget
     Q_DECLARE_PRIVATE(QAbstractButton);
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_PROPERTY(QIconSet icon READ icon WRITE setIcon)
-    Q_PROPERTY(QKeySequence mnemonic READ accel WRITE setMnemonic)
+    Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
     Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
     Q_PROPERTY(bool autoRepeat READ autoRepeat WRITE setAutoRepeat)
     Q_PROPERTY(bool autoExclusive READ autoExclusive WRITE setAutoExclusive DESIGNABLE false)
-
     QDOC_PROPERTY(bool down READ isDown WRITE setDown)
 
 public:
     QAbstractButton(QWidget* parent=0);
     ~QAbstractButton();
 
-    void setText(const QString &);
+    void setText(const QString &text);
     QString text() const;
 
-    void setIcon(const QIconSet &);
+    void setIcon(const QIconSet &icon);
     QIconSet icon() const;
 
-    void setMnemonic(const QKeySequence&);
-    QKeySequence mnemonic() const;
+    void setShortcut(const QKeySequence &key);
+    QKeySequence shortcut() const;
 
     void setCheckable(bool);
     bool isCheckable() const;
@@ -102,13 +101,16 @@ public:
 #ifdef QT_COMPAT
     QAbstractButton(QWidget *parent, const char *name, WFlags f=0);
     inline QT_COMPAT bool isOn() const { return isChecked(); }
+    inline QT_COMPAT QPixmap *pixmap() const { return 0; } // help styles compile
+    QT_COMPAT QIconSet *iconSet() const;
+    inline QT_COMPAT void setIconSet(const QIconSet &icon){ setIcon(icon); }
 public slots:
     inline QT_COMPAT void setOn(bool b) { setChecked(b); }
 public:
     inline QT_COMPAT bool isToggleButton() const { return isCheckable(); }
     inline QT_COMPAT void setToggleButton(bool b) { setCheckable(b); }
-    inline QT_COMPAT void setAccel(const QKeySequence &key) { setMnemonic(key); }
-    inline QT_COMPAT QKeySequence accel() const { return mnemonic(); }
+    inline QT_COMPAT void setAccel(const QKeySequence &key) { setShortcut(key); }
+    inline QT_COMPAT QKeySequence accel() const { return shortcut(); }
 #endif
 
 private:
