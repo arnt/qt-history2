@@ -2041,17 +2041,16 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 	Rect macRect, myRect;
 	SetRect(&myRect, 0, 0, w->width(), w->height());
 	GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
-	int offx = myRect.left - macRect.left, offy = myRect.top - macRect.top,
-	    offw = (myRect.left - macRect.left) + (macRect.right - myRect.right),
-	    offh = (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom);
+	int offx = myRect.left - macRect.left;
+	int offy = myRect.top - macRect.top;
+	int offw = offx + (macRect.right - myRect.right);
+	int offh = offy + (macRect.bottom - myRect.bottom);
 	myRect.left   += offx;
 	myRect.top    += offy;
 	myRect.right  -= offw;
 	myRect.bottom -= offh;
-	myRect.bottom -= 2; //account for the shadow of the pushbutton? ##Sam
 	GetThemeButtonContentBounds(&myRect, bkind, &info, &macRect);
-	ret.setRect(macRect.left - offx, macRect.top - offy,
-		    (macRect.right + offw) - (macRect.left - offx), macRect.bottom + offh);
+	ret.setCoords(macRect.left, macRect.top + w->fontMetrics().ascent(), macRect.right, macRect.bottom + w->fontMetrics().descent());
 	break; }
     case SR_ProgressBarLabel:
     case SR_ProgressBarGroove:
