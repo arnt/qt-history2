@@ -63,6 +63,10 @@ QComLibrary::~QComLibrary()
 {
     if ( autoUnload() )
 	unload();
+    if ( libiface )
+	libiface->release();
+    if ( entry )
+	entry->release();
 }
 
 bool QComLibrary::unload()
