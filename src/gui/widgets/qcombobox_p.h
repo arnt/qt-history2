@@ -175,6 +175,7 @@ public:
           skipCompletion(false) {}
     ~QComboBoxPrivate() {}
     void init();
+    ItemViewContainer* viewContainer();
     QStyleOptionComboBox getStyleOption() const;
     void updateLineEditGeometry();
     void returnPressed();
