@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#31 $
 **
 ** Definition of QIconView widget class
 **
@@ -137,7 +137,7 @@ signals:
 protected:
     void keyPressEvent( QKeyEvent *e );
     void focusOutEvent( QFocusEvent *e );
-    
+
 protected:
     QIconViewItem *item;
     QString startText;
@@ -889,23 +889,6 @@ bool QIconViewItem::acceptDrop( QMimeSource *mime )
 	;
     return FALSE;
 }
-
-/*!
-  Returns the QDragObject of this item, which should be use for dragging.
-
-  The default implementation returns NULL. Subclasses should implement this.
-
-  \sa QFileIconViewItem::dragObject()
-*/
-
-QDragObject *QIconViewItem::dragObject()
-{
-    return 0;
-}
-
-/*!
-  Starts in-place renaming.
-*/
 
 void QIconViewItem::rename()
 {

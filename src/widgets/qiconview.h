@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#15 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#16 $
 **
 ** Definition of QIconView widget class
 **
@@ -65,23 +65,23 @@ public:
     QIconDragItem();
     QIconDragItem( const QRect &r );
     virtual ~QIconDragItem();
-    
+
     virtual bool operator<( const QIconDragItem &icon );
     virtual bool operator==( const QIconDragItem &icon );
 	
     virtual QRect rect() const;
     virtual QString key() const;
-    
+
     virtual void setRect( const QRect &r );
-    
+
 protected:
     virtual void makeKey();
 
     QRect rect_;
     QString key_;
 	
-};    
-    
+};
+
 /*****************************************************************************
  *
  * Class QIconDrag
@@ -101,12 +101,12 @@ public:
 
     void setIcons( const QIconList &list_ );
     void append( const QIconDragItem &icon_ );
-    
+
     virtual const char* format( int i ) const;
     virtual QByteArray encodedData( const char* mime ) const;
-  
+
     static bool canDecode( QMimeSource* e );
-  
+
     static bool decode( QMimeSource* e, QIconList &list_ );
 
 protected:
@@ -183,7 +183,6 @@ public:
     virtual void setViewMode( QIconSet::Size mode );
 
     virtual bool acceptDrop( QMimeSource *mime );
-    virtual QDragObject *dragObject();
 
     virtual void rename();
 
@@ -343,7 +342,7 @@ protected:
     void setDragObjectIsKnown( bool b );
     void setIconDragData( const QValueList<QIconDragItem> &lst );
     void setNumDragItems( int num );
-    
+
 private:
     QIconViewPrivate *d;
 
