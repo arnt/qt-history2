@@ -258,6 +258,8 @@
     <variable access="private">QFtp *ftp</variable>
     <variable access="private">QLabel *stateFtp</variable>
     <variable access="private">QString currentFtpDir</variable>
+    <variable access="private">QIODevice *getDev</variable>
+    <variable access="private">QIODevice *putDev</variable>
 </variables>
 <functions>
     <function type="function" access="private">init()</function>
@@ -268,6 +270,7 @@
     <function type="slot" access="private">removeFile()</function>
     <function type="slot" access="private">changePath( const QString &amp; newPath )</function>
     <function type="slot" access="private">ftp_commandStarted()</function>
+    <function type="slot" access="private">ftp_commandFinished()</function>
     <function type="slot" access="private">ftp_done( bool error )</function>
     <function type="slot" access="private">ftp_stateChanged( int state )</function>
     <function type="slot" access="private">ftp_listInfo( const QUrlInfo &amp; i )</function>

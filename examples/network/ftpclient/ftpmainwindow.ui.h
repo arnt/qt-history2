@@ -26,6 +26,7 @@
 #include <qmessagebox.h>
 #include <qfiledialog.h>
 #include <qprogressdialog.h>
+#include <qapplication.h>
 
 #include "connectdialog.h"
 #include "ftpviewitem.h"
@@ -35,9 +36,14 @@ void FtpMainWindow::init()
     stateFtp = new QLabel( tr("Unconnected"), statusBar() );
     statusBar()->addWidget( stateFtp, 0, TRUE );
 
+    getDev = 0;
+    putDev = 0;
+
     ftp = new QFtp( this );
     connect( ftp, SIGNAL(commandStarted(int)),
 	    SLOT(ftp_commandStarted()) );
+    connect( ftp, SIGNAL(commandFinished(int,bool)),
+	    SLOT(ftp_commandFinished()) );
     connect( ftp, SIGNAL(done(bool)),
 	    SLOT(ftp_done(bool)) );
     connect( ftp, SIGNAL(stateChanged(int)),
@@ -65,14 +71,33 @@ void FtpMainWindow::uploadFile()
     if ( fileName.isNull() )
 	return;
 
-    QFile file( fileName );
-    if ( !file.open( IO_ReadOnly ) ) {
+    putDev = new QFile( fileName );
+    if ( !putDev->open( IO_ReadOnly ) ) {
 	QMessageBox::critical( this, tr("Upload error"),
 		tr("Can't open file '%1' for reading.").arg(fileName) );
+	delete putDev;
+	putDev = 0;
 	return;
     }
+
+    QProgressDialog progress(
+	    tr("Uploading file..."),
+	    tr("Cancel"),
+	    0,
+	    this,
+	    "upload progress dialog",
+	    TRUE );
+    connect( ftp, SIGNAL(dataTransferProgress(int,int)),
+	    &progress, SLOT(setProgress(int,int)) );
+    connect( ftp, SIGNAL(commandFinished(int,bool)),
+	    &progress, SLOT(reset()) );
+    connect( &progress, SIGNAL(cancelled()),
+	    ftp, SLOT(abort()) );
+
     QFileInfo fi( fileName );
-    ftp->put( file.readAll(), fi.fileName() );
+    ftp->put( putDev, fi.fileName() );
+    progress.exec(); // ### takes a lot of time!!!
+
     ftp->list();
 }
 
@@ -93,11 +118,12 @@ void FtpMainWindow::downloadFile()
 
     // create file on the heap because it has to be valid throughout the whole
     // asynchronous download operation
-    QFile *file = new QFile( fileName );
-    if ( !file->open( IO_WriteOnly ) ) {
+    getDev = new QFile( fileName );
+    if ( !getDev->open( IO_WriteOnly ) ) {
 	QMessageBox::critical( this, tr("Download error"),
 		tr("Can't open file '%1' for writing.").arg(fileName) );
-	delete file;
+	delete getDev;
+	getDev = 0;
 	return;
     }
 
@@ -108,21 +134,15 @@ void FtpMainWindow::downloadFile()
 	    this,
 	    "download progress dialog",
 	    TRUE );
-
     connect( ftp, SIGNAL(dataTransferProgress(int,int)),
 	    &progress, SLOT(setProgress(int,int)) );
-
     connect( ftp, SIGNAL(commandFinished(int,bool)),
 	    &progress, SLOT(reset()) );
-
     connect( &progress, SIGNAL(cancelled()),
 	    ftp, SLOT(abort()) );
 
-    ftp->get( item->text(0), file );
+    ftp->get( item->text(0), getDev );
     progress.exec(); // ### takes a lot of time!!!
-
-    // the get is finished when we get here, so we can safely cleanup
-    delete file;
 }
 
 void FtpMainWindow::removeFile()
@@ -180,10 +200,26 @@ void FtpMainWindow::changePathOrDownload( QListViewItem *item )
 
 void FtpMainWindow::ftp_commandStarted()
 {
+    QApplication::setOverrideCursor( QCursor(Qt::WaitCursor) );
     if ( ftp->currentCommand() == QFtp::List ) {
 	remoteView->clear();
 	if ( currentFtpDir != "/" )
 	    new FtpViewItem( remoteView, FtpViewItem::Directory, "..", "", "" );
+    }
+}
+
+void FtpMainWindow::ftp_commandFinished()
+{
+    QApplication::restoreOverrideCursor();
+
+    if ( ftp->currentCommand() == QFtp::Get ) {
+	// cleanup when the get is finished
+	delete getDev;
+	getDev = 0;
+    } else if ( ftp->currentCommand() == QFtp::Get ) {
+	// cleanup when the get is finished
+	delete putDev;
+	putDev = 0;
     }
 }
 
