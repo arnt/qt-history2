@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#3 $
 **
 ** Implementation of QRegExp class
 **
@@ -19,7 +19,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#3 $";
 #endif
 
 
@@ -39,7 +39,7 @@ const ushort CLO	= 0x8007;		// Kleene closure	*
 const ushort END	= 0x0000;
 
 // ---------------------------------------------------------------------------
-// QRegExp class member functions
+// QRegExp member functions
 //
 
 QRegExp::QRegExp()
@@ -90,14 +90,14 @@ int QRegExp::match( const char *str, int index, int *len ) const
     char   *ep = 0;
 
     if ( *d == BOL )				// match from beginning of line
-	ep = matchsub( d, p, p );
+	ep = matchstr( d, p, p );
     else {
 	if ( (*d & 0x8000) == 0 ) {
 	    while ( *p && *p != (char)*d )	// find first char occurrence
 		p++;
 	}
 	while ( *p ) {				// regular match
-	    if ( (ep=matchsub(d,p,(char*)str+index)) )
+	    if ( (ep=matchstr(d,p,(char*)str+index)) )
 		break;
 	    p++;
 	}
@@ -121,7 +121,7 @@ inline bool iswordchar( int x )
 }
 
 
-char *QRegExp::matchsub( ushort *rxd, char *str, char *bol ) const
+char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 {
     register char *p = str;
     ushort *d = rxd;
@@ -184,7 +184,7 @@ char *QRegExp::matchsub( ushort *rxd, char *str, char *bol ) const
 		d++;
 		char *end;
 		while ( p >= first_p ) {	// go backwards
-		    if ( (end = matchsub(d,p,bol)) )
+		    if ( (end = matchstr(d,p,bol)) )
 			return end;
 		    --p;
 		}
@@ -243,7 +243,7 @@ static int char_val( char **str )		// get char value
     int v = 0;
     if ( *p == '\\' ) {				// escaped code
 	p++;
-	if ( *p == 0 || *p == ']' ) {		// it is just a '/'
+	if ( *p == 0 ) {			// it is just a '\'
 	    (*str)++;
 	    return '\\';
 	}
@@ -296,7 +296,8 @@ static int char_val( char **str )		// get char value
 }
 
 
-ushort *dump( ushort *p )				// DEBUG !!!
+#if defined(DEBUG)
+ushort *dump( ushort *p )			// DEBUG !!!
 {
     while ( *p != END ) {
 	switch ( *p++ ) {
@@ -345,6 +346,7 @@ ushort *dump( ushort *p )				// DEBUG !!!
     debug( "\tEND" );
     return p+1;
 }
+#endif // DEBUG
 
 
 //
@@ -496,5 +498,50 @@ void QRegExp::compile()
 	}
     }
     GEN( END );
-// DEBUGGING!!!    dump( rxdata );
+//  dump( rxdata );	// comment this out for debugging!!!
+}
+
+
+// ---------------------------------------------------------------------------
+// QString member functions that use QRegExp
+//
+
+int QString::find( const QRegExp &r, int index ) const
+{						// find substring
+    return (uint)index >= size() ? -1 : r.match( data(), index );
+}
+
+int QString::findRev( const QRegExp &r, int index ) const
+{						// reverse find substring
+    if ( index < 0 ) {				// neg index ==> start from end
+	if ( size() )
+	    index = size() - 1;
+	else					// empty string
+	    return -1;
+    }
+    else if ( (uint)index >= size() )		// bad index
+	return -1;
+    while( index >= 0 ) {
+	if ( r.match(data(),index) == index )
+	    return index;
+	index--;
+    }
+    return -1;
+}
+
+int QString::contains( const QRegExp &r ) const
+{						// get # substrings
+    int count = 0;
+    register char *d = data();
+    if ( !d )					// null string
+	return 0;
+    int index = -1;
+    while ( TRUE ) {				// count overlapping matches
+	index = r.match( d, index+1 );
+	if ( index >= 0 )
+	    count++;
+	else
+	    break;
+    }
+    return count;
 }
