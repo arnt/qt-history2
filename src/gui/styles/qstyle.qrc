@@ -1,0 +1,22 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/trolltech/styles/commonstyle">
+<file>images/back-16.png</file>
+<file>images/cdr-16.png</file>
+<file>images/computer-16.png</file>
+<file>images/desktop-16.png</file>
+<file>images/dirclosed-16.png</file>
+<file>images/dirlink-16.png</file>
+<file>images/diropen-16.png</file>
+<file>images/dvd-16.png</file>
+<file>images/file-16.png</file>
+<file>images/filecontents-16.png</file>
+<file>images/fileinfo-16.png</file>
+<file>images/filelink-16.png</file>
+<file>images/floppy-16.png</file>
+<file>images/harddrive-16.png</file>
+<file>images/newdirectory-16.png</file>
+<file>images/parentdir-16.png</file>
+<file>images/viewdetailed-16.png</file>
+<file>images/viewlist-16.png</file>
+</qresource>
+</RCC>

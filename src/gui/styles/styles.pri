@@ -14,6 +14,8 @@ SOURCES += \
 	styles/qstyleplugin.cpp \
 	styles/qcommonstyle.cpp
 
+RESOURCES += styles/qstyle.qrc
+
 contains( styles, all ) {
 	styles = mac windows windowsxp
 }

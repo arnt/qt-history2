@@ -3056,44 +3056,45 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap standardPixmap, const QStyle
     case SP_FileDialogEnd:
         return QPixmap(filedialog_end_xpm);
     case SP_FileDialogToParent:
-        return QPixmap(filedialog_toparent_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/parentdir-16.png");
     case SP_FileDialogNewFolder:
-        return QPixmap(filedialog_newfolder_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/newdirectory-16.png");
     case SP_FileDialogDetailedView:
-        return QPixmap(filedialog_detailedview_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/viewdetailed-16.png");
     case SP_FileDialogInfoView:
-        return QPixmap(filedialog_previewinfoview_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/fileinfo-16.png");
     case SP_FileDialogContentsView:
-        return QPixmap(filedialog_previewcontentsview_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/filecontents-16.png");
     case SP_FileDialogListView:
-        return QPixmap(filedialog_mclistview_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/viewlist-16.png");
     case SP_FileDialogBack:
-        return QPixmap(filedialog_back_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/back-16.png");
     case SP_DriveHDIcon:
-        return QPixmap(drive_hd_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/harddrive-16.png");
     case SP_TrashIcon:
         return QPixmap(trashcan_xpm);
     case SP_DriveFDIcon:
+        return QPixmap(":/trolltech/styles/commonstyle/images/floppy-16.png");
     case SP_DriveNetIcon:
         break; // Grab from Windows
     case SP_DesktopIcon:
-        return QPixmap(commonstyle_desktop16_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/desktop-16.png");
     case SP_ComputerIcon:
-        return QPixmap(commonstyle_computer16_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/computer-16.png");
     case SP_DriveCDIcon:
-        return QPixmap(commonstyle_cdr16_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/cdr-16.png");
     case SP_DriveDVDIcon:
-        return QPixmap(commonstyle_dvd16_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/dvd-16.png");
     case SP_DirOpenIcon:
-        return QPixmap(commonstyle_diropen16_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/diropen-16.png");
     case SP_DirClosedIcon:
-        return QPixmap(commonstyle_dirclosed16_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/dirclosed-16.png");
     case SP_DirLinkIcon:
-        return QPixmap(dir_link_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/dirlink-16.png");
     case SP_FileIcon:
-        return QPixmap(file_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/file-16.png");
     case SP_FileLinkIcon:
-        return QPixmap(file_link_xpm);
+        return QPixmap(":/trolltech/styles/commonstyle/images/filelink-16.png");
     default:
         break;
     }
