@@ -35,50 +35,45 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 @Doc 
 //
 @Text @Begin
-@Place x { 4.50c } y { 15.25c }
+@Place x { 14.375c } y { 3.5c }
 {
-2.0 @Scale @WatermarkColour @Colour 0d @Rotate
+1.7 @Scale @WatermarkColour @Colour 270d @Rotate
 { 0.75 1.0 } @Scale @F @Verbatim { connect( button, SIGNAL(clicked()), qApp, SLOT(quit()) ); }
 }
 @Place
-    x { 3.125c }
-    y { 18.0c }
+    x { 16.75c }
+    y { 20.5c }
 {
-0.75 @Scale @WatermarkColour @Colour 90d @Rotate
+0.75 @Scale @WatermarkColour @Colour
 { Qt"/"Embedded @CDot Qt"/"Mac @CDot Qt"/"Windows @CDot Qt"/"X11 }
 }
 @Place 
-    x { 27.375c }
-    y { 29.0c }
+    x { 1c }
+    y { 1c }
 {
-0.75 @Scale 90d @Rotate @IncludeGraphic { "../../class-chart/combobox.eps.gz" }
+0.625 @Scale @IncludeGraphic { "../../class-chart/combobox.eps.gz" }
 }
 @Place 
-    x { 26.50c }
-    y { 3.65c }
+    x { 13c }
+    y { 1c }
 {
-0.75 @Scale black @Colour 90d @Rotate
-Slope @Font 9.25c @Wide { ragged nohyphen } @Break {
-Qt is a C++ toolkit for cross-platform GUI and application
-development. In addition to the Qt C++ class library, the toolkit
-includes tools like Qt Designer that make writing applications fast
-and straightforward. Qt's multiplatform abilities and
-internationalization support means that Qt applications can reach the
-widest darkgrey @Colour{mark}et. 
+23c @Wide 0.75 @Scale black @Colour
+Slope @Font { clines nohyphen } @Break {
+Qt is a C++ toolkit for cross-platform GUI and application development. In addition to the Qt C++ class library, the toolkit includes tools like Qt Designer that make
+writing applications fast and straightforward. Qt's multiplatform abilities and internationalization support means that Qt applications can reach the widest darkgrey @Colour{mark}et. }
 }
-}
-@Place
-    x { 28.00c }
-    y { 13.25c }
-{
-90d @Rotate 1.8 @Scale @B { www.trolltech.com   @CDot   doc.trolltech.com }
-}
+#@Place
+#    x { 28.00c }
+#    y { 13.25c }
+#{
+#90d @Rotate 1.8 @Scale @B { www.trolltech.com   @CDot   doc.trolltech.com }
+#}
 @Place 
-    x { 15.00c }
-    y { 24.30c }
+    x { 22.85c }
+    y { 7.75c }
 {
-0.75 @Scale 90d @Rotate @WatermarkColour @Colour 
-{ 0.75 1.0 } @Scale @F @Verbatim @Begin 
+0.75 @Scale @WatermarkColour @Colour 
+{ 0.75 1.0 } @Scale 0.75v @Break @F @Verbatim @Begin 
 #include <qapplication.h>
 #include <qlabel.h>
 int main( int argc, char **argv )
@@ -94,8 +89,8 @@ int main( int argc, char **argv )
 }
 @End @Verbatim
 }
-@Place x { 3.5c } y { 4.9c }
-{ 0.75 @Scale @WatermarkColour @Colour 90d @Rotate rlines @Break { 
+@Place x { 1c } y { 3.0c }
+{ 0.75 @Scale @WatermarkColour @Colour lines @Break { 
 AIX
 BSDI
 FreeBSD
@@ -116,8 +111,8 @@ Windows 2000
 Windows XP
 }
 }
-@Place x { 3.07c } y { 30.50c }
-{ 0.5 @Scale @WatermarkColour @Colour 90d @Rotate rlines @Break { 
+@Place x { 29.35c } y { 10.5c }
+{ 0.5 @Scale @WatermarkColour @Colour rlines @Break { 
 utf16 @CDot Unicode
 utf8 @CDot Unicode
 Big5 @CDot Chinese
@@ -158,14 +153,14 @@ ISO8859-1 @CDot Western
 Apple Roman
 } 
 }
-@Place x { 26.7c } y { 29.10c }
-{ 0.75 @Scale grey @Colour 90d @Rotate
-{ CHA300606NO-12"/"02"  "Copyright @CopyRight 2002 Trolltech AS. All Rights Reserved. @Sup{1.0}}}
-@Place x { 26.5c } y { 1c }
-{ 0.25 @Scale 90d @Rotate
+@Place x { 38.5c } y { 1c }
+{ 0.75 @Scale grey @Colour 90d @Rotate {
+CHA300606NO-12"/"02 @Sup{1.0}"    "Copyright @CopyRight 2002 Trolltech AS. All Rights Reserved.}}
+@Place x { 29.4c } y { 4.85c }
+{ 0.25 @Scale 
 @IncludeGraphic { "../../class-chart/square_trolltech.eps.gz" } }
 @CD 
-{} @Scale 
+0.575 @Scale 
 @Diag 
     margin { 0.3f }
     outline { shadowbox }
@@ -173,16 +168,16 @@ Apple Roman
     {
     @Tbl 
 	font { Helvetica Bold }
-	marginhorizontal { 0.7f }
+	marginhorizontal { 1.4f }
 	aformat { @Cell A | 
 		  @Cell B | @Cell C | @Cell D | @Cell E |
 		  @Cell F | @Cell G | @Cell H | @Cell I | @Cell J |
-		  @Cell K | @Cell L | @Cell M | @Cell N | @Cell O |
+		  @Cell K | @Cell L | @Cell M | @Cell N | @Cell marginhorizontal { 2.5f } O |
 		  @Cell P | @Cell Q | @Cell R | @Cell S }
 	bformat { @StartHSpan @Cell A | 
 		  @HSpan | @HSpan | @HSpan | @HSpan |
 		  @Cell F | @Cell G | @Cell H | @Cell I | @Cell J |
-		  @Cell K | @Cell L | @Cell M | @Cell N | @Cell O |
+		  @Cell K | @Cell L | @Cell M | @Cell N | @Cell marginhorizontal { 2.5f } O |
 		  @Cell P | @Cell Q | @Cell R | @Cell S }
 	cformat { @StartHSpan 
 		  @Cell height { 2.0c } 
@@ -194,7 +189,7 @@ Apple Roman
 	dformat { @Cell A | 
 		  @Cell B | @Cell C | @Cell D | @Cell E |
 		  @Cell F | @Cell G | @Cell width { 10f } indent { right } H | @Cell I | @Cell J |
-		  @Cell K | @Cell L | @Cell M | @Cell N | @Cell O |
+		  @Cell K | @Cell L | @Cell M | @Cell N | @Cell marginhorizontal { 2.5f } O |
 		  @Cell P | @Cell Q | @Cell R | @Cell S }
     {
 	@Rowc
@@ -724,7 +719,6 @@ Apple Roman
     @LVRCurveArrow from { QVALIDATOR } to { QDOUBLEVALIDATOR } bias { 1.5f } zindent { 0.2f }
     @LVRCurveArrow from { QVALIDATOR } to { QINTVALIDATOR } bias { 1.5f } zindent { 0.2f }
     @LVRCurveArrow from { QVALIDATOR } to { QREGEXPVALIDATOR } bias { 1.5f } zindent { 0.2f }
-    @HVHCurveArrow from { QEDITORFACTORY } to { QSQLEDITORFACTORY }
-    hfrac { 0 } hbias { 15.0f }
+    @HVHCurveArrow from { QEDITORFACTORY } to { QSQLEDITORFACTORY } hfrac { 0 } hbias { 15.0f }
 }
 @End @Text

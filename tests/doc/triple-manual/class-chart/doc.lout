@@ -73,10 +73,12 @@
 ###############################################################################
 
 @Use { @DocumentSetup
-  @PageType		{ A3	@OrIfPlain Other} # page type (width, height)
+  @PageType		{ Other	@OrIfPlain Other} # page type (width, height)
   # @PageWidth		{ 80s			} # page width if type Other
   # @PageHeight		{ 66f			} # page height if type Other
-  @PageOrientation	{ Landscape		} # Portrait, Landscape, etc.
+  @PageWidth		{ 15.75i		} # page width if type Other
+  @PageHeight		{ 9.25i			} # page height if type Other
+  @PageOrientation	{ Portrait		} # Portrait, Landscape, etc.
   # @PageBackground	{  			} # background of each page
   @TopMargin		{ 1.0c	@OrIfPlain 6f	} # top margin of all pages
   @FootMargin		{ 1.0c	@OrIfPlain 6f	} # bottom margin of all pages
@@ -209,6 +211,7 @@
   # @ExampleFormat	{ {@B { word @NumSep number title: } &2s} @Insert body }
   # @ProofWord		{ proof			} # "Proof" word, etc.
   # @PageHeaders	{ Simple		} # None Simple Titles NoTitles
+  @PageHeaders		{ None			} # None Simple Titles NoTitles
   # @PageNumbers	{ Arabic		} # page numbers
   # @FirstPageNumber	{ 1			} # number of first page 
   # @IntroPageNumbers	{ Roman			} # intro page numbers
