@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#222 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#223 $
 **
 ** Implementation of QApplication class
 **
@@ -79,6 +79,82 @@
   according to the \e -geometry option.	 To preserve this functionality,
   you must set your defaults before setMainWidget() and any overrides
   after.
+  
+  <strong>Groups of functions:</strong>
+  <ul>
+     <li> System settings:
+	desktopSettingsAware(),
+	setDesktopSettingsAware(),
+	cursorFlashTime(),
+	setCursorFlashTime(),
+	doubleClickInterval(),
+	setDoubleClickInterval(),
+	palette(),
+	setPalette(),
+	font(),
+	setFont(),
+	fontMetrics().
+
+     <li> Color usage:
+	colorSpec(),
+	setColorSpec().
+
+     <li> Text handling:
+	setDefaultCodec(),
+	installTranslator(),
+	removeTranslator()
+	translate().
+
+     <li> Certain widgets:
+	mainWidget(),
+	setMainWidget(),
+	allWidgets(),
+	topLevelWidgets(),
+	desktop(),
+	activePopupWidget(),
+	activeModalWidget(),
+	clipboard(),
+	focusWidget(),
+	activeWindow(),
+	widgetAt().
+
+     <li> Event handling:
+	exec(),
+	processEvents(),
+	processOneEvent(),
+	enter_loop(),
+	exit_loop(),
+	exit(),
+	sendEvent(),
+	postEvent(),
+	sendPostedEvents(),
+	removePostedEvents(),
+	notify(),
+	x11EventFilter(),
+	x11ProcessEvent(),
+	winEventFilter().
+
+     <li> X Window System synchronization:
+	flushX(),
+	syncX().
+
+     <li> GUI Styles:
+	style(),
+	setStyle(),
+	polish().
+
+     <li> Advanced caret handling:
+	hasGlobalMouseTracking(),
+	setGlobalMouseTracking(),
+	overrideCursor(),
+	setOverrideCursor(),
+	restoreOverrideCursor().
+	
+     <li> Misc:
+	startingUp(),
+	closingDown(),
+	quit().
+  </ul>
 
   While Qt is not optimized or designed for writing non-GUI programs,
   it's possible to use <a href="tools.html">some of its classes</a>
@@ -124,6 +200,7 @@ static bool makeqdevel = FALSE;		// developer tool needed?
 static QDeveloper* qdevel = 0;		// developer tool
 static QWidget *desktopWidget	= 0;		// root window widget
 static QTextCodec *default_codec	= 0;		// root window widget
+bool QApplication::app_exit_loop = FALSE;	// flag to exit local loop
 
 
 //Definitions for posted events.
@@ -261,6 +338,7 @@ void process_cmdline( int* argcptr, char ** argv )
   <li> \c -bg or \c -background \e color, sets the default background color
 	and an application palette (light and dark shades are calculated).
   <li> \c -fg or \c -foreground \e color, sets the default foreground color.
+  <li> \c -btn or \c -button \e color, sets the default button color.
   <li> \c -name \e name, sets the application name.
   <li> \c -title \e title, sets the application title (caption).
   <li> \c -visual \c TrueColor, forces the application to use a TrueColor visual
@@ -973,11 +1051,13 @@ void QApplication::exit( int retcode )
     connect( quitButton, SIGNAL(clicked()), qApp, SLOT(quit()) );
   \endcode
 
-  \sa exit()
+  \sa exit(), aboutToQuit()
 */
 
 void QApplication::quit()
 {
+    if ( !qApp->quit_now )
+	emit aboutToQuit();
     QApplication::exit( 0 );
 }
 
@@ -992,6 +1072,20 @@ void QApplication::quit()
   widgets but no main widget. You can then connect it to the quit() slot.
 
   \sa mainWidget(), topLevelWidgets(), QWidget::isTopLevel()
+*/
+
+/*!
+  \fn void QApplication::aboutToQuit()
+
+  This signal is emitted when the application is about to
+  quit. This may happen either after a call to quit() from inside the
+  applicaton or when the users shuts down the entire desktop session.
+
+  The signal is particularly useful if your application has to do some
+  last-second cleanups. Note that no user interaction is possible at
+  this state.
+
+  \sa quit()
 */
 
 
@@ -1670,5 +1764,41 @@ void QApplication::setDesktopSettingsAware( bool on )
 bool QApplication::desktopSettingsAware()
 {
     return obey_desktop_settings;
+}
+
+
+/*!
+  This function enters the main event loop (recursively).
+  Do not call it unless you really know what you are doing.
+  \sa exit_loop()
+*/
+
+int QApplication::enter_loop()
+{
+    loop_level++;
+    quit_now = FALSE;
+
+    bool old_app_exit_loop = app_exit_loop;
+    app_exit_loop = FALSE;
+
+    while ( !quit_now && !app_exit_loop )
+	processNextEvent( TRUE );
+
+    app_exit_loop = old_app_exit_loop;
+    loop_level--;
+
+    return 0;
+}
+
+
+/*!
+  This function leaves from a recursive call to the main event loop.
+  Do not call it unless you are an expert.
+  \sa enter_loop()
+*/
+
+void QApplication::exit_loop()
+{
+    app_exit_loop = TRUE;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#114 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#115 $
 **
 ** Definition of QApplication class
 **
@@ -69,9 +69,6 @@ public:
     static void	     setOverrideCursor( const QCursor &, bool replace=FALSE );
     static void	     restoreOverrideCursor();
 
-    static void   setCusorFlashTime( int );
-    static int   cursorFlashTime();
-
     static bool	     hasGlobalMouseTracking();
     static void	     setGlobalMouseTracking( bool enable );
 
@@ -129,14 +126,17 @@ public:
     void	     removeTranslator( QTranslator * );
     QString	     translate( const char * scope, const char * key ) const;
 
-    static void      setWinStyleHighlightColor( const QColor & );
-    static const QColor&   winStyleHighlightColor();
+    static void 	setWinStyleHighlightColor( const QColor & );
+    static const QColor& 	winStyleHighlightColor();
 
-    static void	    setDesktopSettingsAware( bool );
-    static bool	    desktopSettingsAware();
+    static void 	setDesktopSettingsAware( bool );
+    static bool 	desktopSettingsAware();
 
-    static void	    setDoubleClickInterval( int );
-    static int      doubleClickInterval();
+    static void 	setCusorFlashTime( int );
+    static int 	cursorFlashTime();
+    
+    static void 	setDoubleClickInterval( int );
+    static int 	doubleClickInterval();
 
 #if defined(_WS_WIN_)
     static WindowsVersion winVersion();
@@ -157,6 +157,7 @@ public:
 
 signals:
     void	     lastWindowClosed();
+    void	     aboutToQuit();
 public slots:
     void	     quit();
 
@@ -177,6 +178,7 @@ private:
     static int	     app_tracking;
     static bool	     is_app_running;
     static bool	     is_app_closing;
+    static bool	     app_exit_loop;
     static int	     loop_level;
     static QWidget  *main_widget;
     static QWidget  *focus_widget;
