@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#9 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#10 $
 **
 ** Definition of QIconView widget class
 **
@@ -52,57 +52,7 @@ class QFocusEvent;
 
 struct QIconViewPrivate;
 class QIconViewItem;
-
-/*****************************************************************************
- *
- * Class QIconViewItemDrag
- *
- *****************************************************************************/
-
-class QIconViewItemDrag : public QDragObject
-{
-public:
-    QIconViewItemDrag( QWidget *source = 0, const char *name = 0 )
-        : QDragObject( source, name )  {}
-
-    virtual const char *format( int ) const
-    { return 0; }
-
-    virtual QByteArray encodedData( const char * ) const
-    { return QByteArray(); }
-
-    virtual bool provides( const char *mime ) const {
-        if ( QString( mime ) == "application/iconview-items" )
-            return TRUE;
-        return FALSE;
-    }
-
-};
-
-/*****************************************************************************
- *
- * Class QIconViewItemLineEdit
- *
- *****************************************************************************/
-
-class QIconViewItemLineEdit : public QMultiLineEdit
-{
-    Q_OBJECT
-
-public:
-    QIconViewItemLineEdit( const QString &text, QWidget *parent, QIconViewItem *theItem, const char *name = 0 );
-
-signals:
-    void escapePressed();
-
-protected:
-    void keyPressEvent( QKeyEvent *e );
-
-protected:
-    QIconViewItem *item;
-    QString startText;
-
-};
+class QIconViewItemLineEdit;
 
 /*****************************************************************************
  *
@@ -116,7 +66,7 @@ class QIconViewItem : public QObject
 
     Q_OBJECT
 
-public:
+	public:
     QIconViewItem( QIconView *parent );
     QIconViewItem( QIconView *parent, QIconViewItem *after );
     QIconViewItem( QIconView *parent, const QString &text );
@@ -177,12 +127,12 @@ public:
 
     virtual void rename();
 
-public slots:
-    virtual void setText( const QString &text );
+    public slots:
+	virtual void setText( const QString &text );
     virtual void setIcon( const QIconSet &icon );
 
-protected slots:
-    virtual void renameItem();
+    protected slots:
+	virtual void renameItem();
     virtual void cancelRenameItem();
 
 protected:
@@ -226,19 +176,19 @@ class QIconView : public QScrollView
 
     Q_OBJECT
 
-public:
+	public:
     enum SelectionMode {
-        Single = 0,
-        Multi,
-        StrictMulti
+	Single = 0,
+	Multi,
+	StrictMulti
     };
     enum AlignMode {
-        East = 0,
-        South
+	East = 0,
+	South
     };
     enum ResizeMode {
-        Fixed = 0,
-        Adjust
+	Fixed = 0,
+	Adjust
     };
 
     QIconView( QWidget *parent = 0, const char *name = 0 );
@@ -249,7 +199,7 @@ public:
 
     virtual int index( QIconViewItem *item );
 
-    virtual QIconViewItem *firstItem()  const;
+    virtual QIconViewItem *firstItem()	const;
     virtual QIconViewItem *lastItem()  const;
     virtual QIconViewItem *currentItem()  const;
     virtual void setCurrentItem( QIconViewItem *item );
@@ -300,8 +250,8 @@ signals:
     void currentChanged();
     void currentChanged( QIconViewItem *item );
 
-protected slots:
-    virtual void doAutoScroll();
+    protected slots:
+	virtual void doAutoScroll();
 
 protected:
     virtual void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
@@ -317,7 +267,7 @@ protected:
     virtual void keyPressEvent( QKeyEvent *e );
     virtual void focusInEvent( QFocusEvent *e );
     virtual void focusOutEvent( QFocusEvent *e );
-    
+
     virtual void selectByRubber( QRect oldRubber );
     virtual void drawRubber( QPainter *p );
     virtual QDragObject *dragObject();
