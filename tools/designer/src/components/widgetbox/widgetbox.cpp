@@ -625,10 +625,17 @@ signals:
 
 protected:
     WidgetCollectionModel *model() const { return m_model; }
+    virtual void contextMenuEvent (QContextMenuEvent *e);
+    
 
 private:
     WidgetCollectionModel *m_model;
 };
+
+void WidgetBoxView::contextMenuEvent (QContextMenuEvent *e)
+{
+    e->accept();
+}
 
 /*******************************************************************************
 ** WidgetBoxListView
