@@ -34,18 +34,23 @@
 **
 **********************************************************************/
 
+#ifndef QSQLNAVIGATOR_H
+#define QSQLNAVIGATOR_H
+
 #ifndef QT_H
 #include "qglobal.h"
 #endif // QT_H
 
-#ifndef QSQLNAVIGATOR_H
-#define QSQLNAVIGATOR_H
+#ifndef QT_NO_SQL
 
-class Q_EXPORT QSqlNavigator 
+class QSqlCursor;
+class QSqlForm;
+
+class Q_EXPORT QSqlNavigator
 {
 public:
     QSqlNavigator();
-    
+
     void insertRecord();
     void updateRecord();
     void deleteRecord();
@@ -55,6 +60,10 @@ public:
     void prevRecord();
     void clearForm();
     
+    virtual QSqlCursor* defaultCursor();        
+    virtual QSqlForm* defaultForm();            
+
 };
 
+#endif
 #endif
