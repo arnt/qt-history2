@@ -231,8 +231,8 @@ void ConfigureQtDialogImpl::execute()
 //     args += "-platform " + entry;
 
 
-    args += "\"CONFIG += " + qmakeConfig + "\"";
-	args += "\"DEFINES += " + qmakeDefines + "\"";
+    args += "\"CONFIG+=" + qmakeConfig + "\"";
+	args += "\"DEFINES+=" + qmakeDefines + "\"";
     args += "OBJECTS_DIR=.obj/" + qmakeOutDir;
     args += "MOC_DIR=.moc/" + qmakeOutDir;
     args += qmakeVars;
