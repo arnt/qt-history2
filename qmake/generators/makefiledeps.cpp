@@ -187,6 +187,8 @@ bool QMakeSourceFileInfo::mocable(const QString &file)
 
 QString QMakeSourceFileInfo::mocFile(const QString &file)
 {
+    if (!files)
+        return QString();
     if(SourceFile *node = files->lookupFile(file))
         return node->mocfile.local();
     return QString();
