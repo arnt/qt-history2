@@ -2654,14 +2654,15 @@ int QApplication::enter_loop()
     if ( !loop_level ) {
 	quit_now = FALSE;
 	emit aboutToQuit();
-	QWidgetList *list = topLevelWidgets();
-	QWidgetListIt it(*list);
-	QWidget * w;
-	while( (w=it.current()) != 0 ) {
-	    ++it;
-	    if ( w->testWFlags( WDestructiveClose ) )
-		delete w;
-	}
+	//### qt-bugs/arc-09/18433
+// 	QWidgetList *list = topLevelWidgets();
+// 	QWidgetListIt it(*list);
+// 	QWidget * w;
+// 	while( (w=it.current()) != 0 ) {
+// 	    ++it;
+// 	    if ( w->testWFlags( WDestructiveClose ) )
+// 		delete w;
+// 	}
     }
 
     return 0;
