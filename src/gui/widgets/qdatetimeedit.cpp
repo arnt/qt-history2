@@ -527,7 +527,7 @@ void QDateTimeEdit::setCurrentSection(Section section)
 {
     const QDateTimeEditPrivate::Section s = (QDateTimeEditPrivate::Section)section;
     if (s != QDateTimeEditPrivate::NoSection)
-        d->edit->setCursorPosition(d->sectionNode((QDateTimeEditPrivate::Section)section).pos);
+        d->edit->setCursorPosition(d->sectionNode(s).pos);
 }
 
 /*!
@@ -677,11 +677,8 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 {
 //    const QDateTimeEditPrivate::Section s = d->currentsection;
     bool select = true;
-    if ((e->key() == Qt::Key_Backspace
-#ifdef Q_WS_X11
-         || (e->key() == Qt::Key_H && e->key() & Qt::ControlButton)
-#endif
-        ) && !d->edit->hasSelectedText()) {
+    if ((e->key() == Qt::Key_Backspace || (e->key() == Qt::Key_H && e->key() & Qt::ControlButton))
+        && !d->edit->hasSelectedText()) {
         const int pos = d->edit->cursorPosition();
         const QDateTimeEditPrivate::Section s = d->sections.last().section;
         const int suffixStart = d->sectionPos(s) + d->sectionLength(s);
