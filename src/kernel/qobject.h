@@ -94,16 +94,20 @@ public:
     QObjectList findChildren(const char *name) const;
 
     // MOC_SKIP_BEGIN
+#ifndef QT_MOC_CPP
     template<typename T>
     T findChild(const char *name, T* = 0) const;
     template<typename T>
     QList<T> findChildren(const char *name, T* = 0) const;
+#endif //QT_MOC_CPP
     // MOC_SKIP_END    
 #ifndef QT_NO_REGEXP
     QObjectList findChildren(const QRegExp &re) const;
     // MOC_SKIP_BEGIN
+#ifndef QT_MOC_CPP
     template<typename T>
     QList<T> findChildren(const QRegExp &re, T* = 0) const;
+#endif
     // MOC_SKIP_END
 #endif
     
