@@ -341,7 +341,7 @@ fi
 if [ "x$DO_ID" = "xyes" ]; then
     status "Marking \$ID\$..."
     for a in `find $DISTDIR/qt/`; do
-	if [ -f $a ] && [ ! -L $a ] && grep '\$Id.*\$' $a >/dev/null 2>&1; then
+	if [ -f $a ] && [ ! -x $a ] && [ ! -L $a ] && grep '\$Id.*\$' $a >/dev/null 2>&1; then
 	    execut=444
 	    [ -x $a ] && execut=555
 
@@ -530,7 +530,7 @@ copy_platform_files() {
     for a in `find $dir`; do
 	a_file=`echo $a | sed "s,$dir,,"`
 	o_file=$a_file
-	[ -z $a_file ] && continue
+	{ [ -z $a_file ] || [ -d $a ] } && continue
 
 	if [ "$platform" = "qws" ]; then
 	    case `basename $a` in
@@ -546,7 +546,7 @@ copy_platform_files() {
 	final_dir=`dirname $o_dir/$o_file`
 	[ ! -d $final_dir ] && mkdir -p $final_dir
 	[ -f $o_dir/$o_file ] && rm -f $o_dir/$o_file
-	if [ -f $dir/$a_file ] && [ ! -e $o_dir/$o_file ]; then
+	if [ -f $dir/$a_file ] && [ ! -e $o_dir/$o_file ] && [ ! -x $dir/$a_dir ]; then
 	    sed -e "s/%YEAR%/$year/g" -e "s/%VERSION%/${BRANCH}${TYPE}/g" \
 		-e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $dir/$a_file >${TMP_FILE}
 	    if [ "$TYPE" = "-snapshot" ]; then
@@ -769,7 +769,23 @@ for plat in mac win x11 qws; do
 	    [ "$DO_GZIP" = "yes" ] && gzip -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.gz"
 	    [ "$DO_BZIP" = "yes" ] && bzip2 -z -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.bz2"
 	elif [ "$plat" = "win" ]; then
-	    find "${PLATNAME}" | zip -rml9 $OUT_TREE/${PLATNAME}.zip -@ >/dev/null 2>&1
+	    status "Text files..."
+	    { for fl in `find "${PLATNAME}"`; do
+		extn=`echo $fl | sed "s,.*\.,,"`
+		case $extn in
+		dll|gif|png|jpg|bmp|any|pic|ppm|exe|zip|qm)  ;;
+		*)   echo $fl ;;
+		esac
+	   done } | zip -l9q $OUT_TREE/${PLATNAME}.zip -@
+
+	   status "Binary files..."
+	    { for fl in `find "${PLATNAME}"`; do
+		extn=`echo $fl | sed "s,.*\.,,"`
+		case $extn in
+		dll|gif|png|jpg|bmp|any|pic|ppm|exe|zip|qm) echo $fl ;;
+		*)   ;;
+		esac
+	   done } | zip -9q $OUT_TREE/${PLATNAME}.zip -@
 	fi
 	)
 
