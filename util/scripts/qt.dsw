@@ -50,7 +50,7 @@ Package=<4>
     Project_Dep_Name uic
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name uilib
+    Project_Dep_Name qui
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name wizards
@@ -129,13 +129,13 @@ Package=<4>
     Project_Dep_Name qt
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name uilib
+    Project_Dep_Name qtmain
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "uilib"=.\tools\designer\uilib\uilib.dsp - Package Owner=<4>
+Project: "qui"=.\tools\designer\uilib\qui.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
