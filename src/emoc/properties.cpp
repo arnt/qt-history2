@@ -20,3 +20,7 @@ static const char* TorbensHack[] = {
 
   0
 };
+
+static const char* TorbensLayout[] = {
+  "QLayout", "QGridLayout", "QHBoxLayout", "QVBoxLayout", 0
+};

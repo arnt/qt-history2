@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/emoc/moc.y#3 $
+** $Id: //depot/qt/main/src/emoc/moc.y#4 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1894,7 +1894,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 1.3 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 1.4 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2045,8 +2045,28 @@ void generateClass()		      // generate C++ source code for a class
 //
     if ( ( Q_BUILDERdetected && !Q_FACTORYdetected ) || Q_INSPECTORdetected )
     {
-        fprintf( out, "static QObject *factory( QObject* _parent )\n{\n" );
-        fprintf( out, "    return new %s( (QWidget*)_parent );\n}\n\n", (const char*)className );
+        // Torbens incrdible hack start here
+        bool layout = FALSE;
+        int tl = 0;
+	while( !layout && TorbensLayout[tl] )
+	{
+	  if ( className == TorbensLayout[tl++] )
+	    layout = TRUE;
+	}
+
+	if ( layout )
+	{
+	    fprintf( out, "static QObject *factory( QObject* _parent )\n{\n" );
+	    fprintf( out, "    if ( _parent == 0 ) retyrn new %s;\n");
+	    fprintf( out, "    if ( _parent->inherits( \"QLayout\" ) return new %s( (QLayout*)_parent );\n");
+	    fprintf( out, "    return new %s( (QWidget*)_parent );\n}\n\n", (const char*)className );
+	}
+	else
+	{
+	    // The hack ends here
+	    fprintf( out, "static QObject *factory( QObject* _parent )\n{\n" );
+	    fprintf( out, "    return new %s( (QWidget*)_parent );\n}\n\n", (const char*)className );
+	}
     }
     
 //
