@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#67 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#68 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -617,7 +617,7 @@ QDomImplementationPrivate* QDomImplementationPrivate::clone()
   Normally you will use the function QDomDocument::implementation() to get the
   implementation object.
 
-  For further information about the Document Objct Model see
+  For further information about the Document Object Model see
   <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
