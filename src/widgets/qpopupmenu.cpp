@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#195 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#196 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -326,7 +326,7 @@ QString QPopupMenu::accelString( int k )
   Although a popup menu is always a top level widget, if a parent is
   passed, the popup menu will be deleted on destruction of that parent
   (as with any other QObject).
-  
+
 */
 
 QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
@@ -1653,8 +1653,9 @@ void QPopupMenu::updateRow( int row )
   at the specified \e global position \a pos.  To translate a widget's
   local coordinates into global coordinates, use QWidget::mapToGlobal().
 
-  The return code is the ID of the selected item, or -1 if no item is
-  selected (normally because the user presses Escape).
+  The return code is the ID of the selected item in either the popup
+  menu or one of its submenus, or -1 if no item is selected (normally
+  because the user presses Escape).
 
   Note that all signals are emitted as usual.  If you connect a menu
   item to a slot and call the menu's exec(), you get the result both
@@ -1679,16 +1680,40 @@ int QPopupMenu::exec( const QPoint & pos, int indexAtPoint )
 
     syncMenu = this;
     syncMenuId = -1;
-    connect( this, SIGNAL(activated(int)),
-	     this, SLOT(modalActivation(int)) );
+    
+    connectModal( this, TRUE );
     popup(pos,indexAtPoint);
     qApp->enter_loop();
-    disconnect( this, SIGNAL(activated(int)),
-		this, SLOT(modalActivation(int)) );
-    syncMenu = 0;
+    connectModal( this, FALSE );
 
+    syncMenu = 0;
     return syncMenuId;
 }
+
+
+
+/*
+  connect the popup and all its submenus to modalActivation() if
+  doConnect is true, otherwise disconnect.
+ */
+void QPopupMenu::connectModal(QPopupMenu* receiver, bool doConnect)
+{
+    if ( doConnect )
+	connect( this, SIGNAL(activated(int)),
+		 receiver, SLOT(modalActivation(int)) );
+    else
+	disconnect( this, SIGNAL(activated(int)),
+		    receiver, SLOT(modalActivation(int)) );
+    
+    QMenuItemListIt it(*mitems);
+    register QMenuItem *mi;
+    while ( (mi=it.current()) ) {
+	++it;
+	if ( mi->popup() && mi->popup() != receiver && mi->popup()->parentMenu == this ) //avoid circularity
+	    mi->popup()->connectModal( receiver, doConnect );
+    }
+}
+
 
 /*!  Execute this popup synchronously.
 
