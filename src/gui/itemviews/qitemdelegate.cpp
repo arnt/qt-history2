@@ -63,6 +63,9 @@ public:
     purpose allows the editing mechanism to be customized and developed
     independently from the model and view.
 
+    The QItemDelegate class is one of the \l{Model/View Classes}
+    and is part of Qt's \l{Model/View Programming}{model/view framework}.
+
     Delegates can be used to manipulate data in two complementary ways:
     by processing events in the normal manner, or by implementing a
     custom editor widget. The item delegate takes the approach of providing

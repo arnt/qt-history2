@@ -136,6 +136,9 @@ void QBinTree<T>::init(const QRect &area, int depth, NodeType type, int index)
     \c QListBox and \c QIconView classes, but using the more flexible
     approach provided by Qt's model/view architecture.
 
+    The QListView class is one of the \l{Model/View Classes}
+    and is part of Qt's \l{Model/View Programming}{model/view framework}.
+
     QListView implements the interfaces defined by the
     QAbstractItemView class to allow it to display data provided by
     models derived from the QAbstractItemModel class.

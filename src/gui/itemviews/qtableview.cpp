@@ -115,6 +115,9 @@ void QTableViewPrivate::updateHorizontalScrollbar()
     previously provided by the \c QTable class, but using the more
     flexible approach provided by Qt's model/view architecture.
 
+    The QTableView class is one of the \l{Model/View Classes}
+    and is part of Qt's \l{Model/View Programming}{model/view framework}.
+
     QTableView implements the interfaces defined by the
     QAbstractItemView class to allow it to display data provided by
     models derived from the QAbstractItemModel class.

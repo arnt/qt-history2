@@ -103,6 +103,9 @@ void QAbstractItemViewPrivate::init()
     keyboard and mouse navigation, viewport scrolling, item editing,
     and selections.
 
+    The QAbstractItemView class is one of the \l{Model/View Classes}
+    and is part of Qt's \l{Model/View Programming}{model/view framework}.
+
     The view classes that inherit QAbstractItemView only need
     to implement their own view-specific functionality, such as
     drawing items, returning the geometry of items, finding items,

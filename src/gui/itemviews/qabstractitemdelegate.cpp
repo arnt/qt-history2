@@ -28,6 +28,9 @@
     for delegates in the model/view architecture. Delegates display
     individual items in views, and handle the editing of model data.
 
+    The QAbstractItemDelegate class is one of the \l{Model/View Classes}
+    and is part of Qt's \l{Model/View Programming}{model/view framework}.
+
     To render an item in a custom way, you must implement paint() and
     sizeHint(). The QItemDelegate class provides default implementations for
     these functions; if you do not need custom rendering, subclass that

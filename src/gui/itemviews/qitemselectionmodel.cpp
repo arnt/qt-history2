@@ -31,6 +31,9 @@
     two-dimensional block of cells in a table. A selection range has a
     top(), left() a bottom(), right() and a parent().
 
+    The QItemSelectionRange class is one of the \l{Model/View Classes}
+    and is part of Qt's \l{Model/View Programming}{model/view framework}.
+
     The model items contained in the selection range can be obtained
     by using the items() function. Use
     QItemSelectionModel::selectedIndexes() to get a list of all
@@ -235,6 +238,9 @@ QModelIndexList QItemSelectionRange::indexes() const
   selection ranges, see QItemSelectionRange. It provides functions for
   creating and manipulating selections, and selecting a range of items
   from a model.
+
+  The QItemSelection class is one of the \l{Model/View Classes}
+  and is part of Qt's \l{Model/View Programming}{model/view framework}.
 
   An item selection can be constructed and initialized to contain a
   range of items from an existing model. The following example constructs
@@ -476,6 +482,9 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
   A QItemSelectionModel keeps track of the selected items in a view, or
   in several views onto the same model. It also keeps track of the
   currently selected item in a view.
+
+  The QItemSelectionModel class is one of the \l{Model/View Classes}
+  and is part of Qt's \l{Model/View Programming}{model/view framework}.
 
   The selected items are stored using ranges. Whenever you want to
   modify the selected items use select() and provide either a

@@ -37,6 +37,9 @@
     the Qt's model/view architecture for consistency with the item view
     classes.
 
+    The QHeaderView class is one of the \l{Model/View Classes} and is
+    part of Qt's \l{Model/View Programming}{model/view framework}.
+
     Each header has an orientation() and a number of sections, given by
     the count() function. Sections can be moved and resized using
     moveSection() and resizeSection(); they can be hidden and shown
