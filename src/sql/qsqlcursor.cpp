@@ -595,18 +595,18 @@ QSqlIndex QSqlCursor::index( const char* fieldName ) const
 
 bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
 {
-    QString fieldList = toString(QString::null); // our table synonym
+    QString fieldList = toString( d->nm );
     if ( fieldList.isEmpty() )
-        return FALSE;
-    QString str = "select " + fieldList + " from " + d->nm;
-
+	return FALSE;
+    QString str= "select " + fieldList;
+    str += " from " + d->nm;
     if ( !filter.isEmpty() ) {
 	d->ftr = filter;
 	str += " where " + filter;
     } else
 	d->ftr = QString::null;
     if ( sort.count() > 0 )
-	str += " order by " + sort.toString(QString::null);
+	str += " order by " + sort.toString( d->nm );
     d->srt = sort;
     return exec( str );
 }
@@ -681,7 +681,7 @@ bool QSqlCursor::select( const QSqlIndex& sort )
 
 bool QSqlCursor::select( const QSqlIndex & filter, const QSqlIndex & sort )
 {
-    return select( toString( filter, this, QString::null, "=", "and" ), sort );
+    return select( toString( filter, this, d->nm, "=", "and" ), sort );
 }
 
 /*!
@@ -1052,9 +1052,9 @@ QSqlRecord* QSqlCursor::primeUpdate()
     QSqlRecord* buf = editBuffer( TRUE );
     QSqlIndex idx = primaryIndex( FALSE );
     if ( !idx.isEmpty() )
-	d->editIndex = toString( primaryIndex( FALSE ), buf, QString::null, "=", "and" );
+	d->editIndex = toString( primaryIndex( FALSE ), buf, d->nm, "=", "and" );
     else
-	d->editIndex = toString( buf, QString::null, "=", "and" );
+	d->editIndex = toString( buf, d->nm, "=", "and" );
     return buf;
 }
 
@@ -1229,9 +1229,9 @@ int QSqlCursor::del( bool invalidate )
 {
     QSqlIndex idx = primaryIndex( FALSE );
     if ( idx.isEmpty() )
-	return del( toString( &d->editBuffer, QString::null, "=", "and" ), invalidate );
+	return del( toString( &d->editBuffer, d->nm, "=", "and" ), invalidate );
     else
-	return del( toString( primaryIndex(), &d->editBuffer, QString::null,
+	return del( toString( primaryIndex(), &d->editBuffer, d->nm,
 			  "=", "and" ), invalidate );
 }
 
