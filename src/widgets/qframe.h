@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#11 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#12 $
 **
 ** Definition of QFrame widget class
 **
@@ -34,20 +34,22 @@ public:
 	   Sunken   = 0x0030,			// sunken shadow effect
 	   MShadow  = 0x00f0 };
 
-    int		frameStyle()	const { return fstyle; }
+    int		frameStyle()	const;
+    int		frameShape()	const;
+    int		frameShadow()	const;
     void	setFrameStyle( int );
 
-    bool	lineShapesOk()	const { return lineok; }
+    bool	lineShapesOk()	const;
 
-    int		lineWidth()	const { return lwidth; }
+    int		lineWidth()	const;
     void	setLineWidth( int );
 
-    int		midLineWidth()	const { return mwidth; }
+    int		midLineWidth()	const;
     void	setMidLineWidth( int );
 
-    int		frameWidth()	const { return fwidth; }
+    int		frameWidth()	const;
     QRect	frameRect()	const;
-    QRect	contentsRect()	const;		// get rectangle inside frame
+    QRect	contentsRect()	const;
 
 protected:
     void	setFrameRect( const QRect & );
@@ -66,6 +68,28 @@ private:
     short	fwidth;
     short	lineok;
 };
+
+
+inline int QFrame::frameStyle() const
+{ return fstyle; }
+
+inline int QFrame::frameShape() const
+{ return fstyle & MShape; }
+
+inline int QFrame::frameShadow() const
+{ return fstyle & MShadow; }
+
+inline bool QFrame::lineShapesOk() const
+{ return lineok; }
+
+inline int QFrame::lineWidth() const
+{ return lwidth; }
+
+inline int QFrame::midLineWidth() const
+{ return mwidth; }
+
+inline int QFrame::frameWidth() const
+{ return fwidth; }
 
 
 #endif // QFRAME_H
