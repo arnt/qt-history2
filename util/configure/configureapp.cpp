@@ -1203,7 +1203,7 @@ void Configure::generateConfigfiles()
 	outStream << "# endif" << endl;
 	outStream << "#endif" << endl << endl;
 	outStream << "VS_VERSION_INFO VERSIONINFO" << endl;
-	outStream << "\tFILEVERSION 1,0,0,1" << endl;
+	outStream << "\tFILEVERSION " << major << "," << minor << "," << patch << ",1" << endl;
 	outStream << "\tPRODUCTVERSION " << prodVer << endl;
 	outStream << "\tFILEFLAGSMASK 0x3fL" << endl;
 	outStream << "#ifdef _DEBUG" << endl;
@@ -1221,7 +1221,7 @@ void Configure::generateConfigfiles()
 	outStream << "\t\t\tBEGIN" << endl;
 	outStream << "\t\t\t\tVALUE \"CompanyName\", \"Trolltech AS\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"FileDescription\", \"Qt\\0\"" << endl;
-	outStream << "\t\t\t\tVALUE \"FileVersion\", \"1,0,0,1\\0\"" << endl;
+	outStream << "\t\t\t\tVALUE \"FileVersion\", \"" << major << "," << minor << "," << patch << ",1\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"InternalName\", \"" << internalName << "\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"LegalCopyright\", \"Copyright (C) 2003 Trolltech\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"LegalTrademarks\", \"\\0\"" << endl;
