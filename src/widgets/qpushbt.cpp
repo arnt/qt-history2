@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#21 $
 **
 ** Implementation of QPushButton class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#21 $";
 #endif
 
 
@@ -60,7 +60,7 @@ static void resizeDefButton( QPushButton *b )
 	wx = -wx;
 	hx = -hx;
     }
-    QRect r = b->clientRect();
+    QRect r = b->geometry();
     b->QWidget::setGeometry( r.x()-wx/2, r.y()-hx/2,
 			     r.width()+wx, r.height()+hx );
 }
