@@ -797,7 +797,8 @@ bool QSqlDatabase::rollback()
 
 void QSqlDatabase::setDatabaseName(const QString& name)
 {
-    d->dbname = name;
+    if (isValid())
+        d->dbname = name;
 }
 
 /*!
@@ -814,7 +815,8 @@ void QSqlDatabase::setDatabaseName(const QString& name)
 
 void QSqlDatabase::setUserName(const QString& name)
 {
-    d->uname = name;
+    if (isValid())
+        d->uname = name;
 }
 
 /*!
@@ -834,7 +836,8 @@ void QSqlDatabase::setUserName(const QString& name)
 
 void QSqlDatabase::setPassword(const QString& password)
 {
-    d->pword = password;
+    if (isValid())
+        d->pword = password;
 }
 
 /*!
@@ -850,7 +853,8 @@ void QSqlDatabase::setPassword(const QString& password)
 
 void QSqlDatabase::setHostName(const QString& host)
 {
-    d->hname = host;
+    if (isValid())
+        d->hname = host;
 }
 
 /*!
@@ -867,7 +871,8 @@ void QSqlDatabase::setHostName(const QString& host)
 
 void QSqlDatabase::setPort(int p)
 {
-    d->port = p;
+    if (isValid())
+        d->port = p;
 }
 
 /*!
@@ -1082,7 +1087,8 @@ QSqlRecord QSqlDatabase::record(const QString& tablename) const
 
 void QSqlDatabase::setConnectOptions(const QString& options)
 {
-    d->connOptions = options;
+    if (isValid())
+        d->connOptions = options;
 }
 
 /*!
