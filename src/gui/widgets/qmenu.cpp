@@ -1344,9 +1344,9 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
         if(action->action->menu()) {
             action->action->menu()->d->setFirstActionActive();
         } else {
+            d->hideUpToMenuBar();
             if(action)
                 d->activateAction(action->action, QAction::Trigger);
-            d->hideUpToMenuBar();
         }
     }
 }
@@ -1557,8 +1557,8 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             if(d->currentAction->action->menu()) {
                 d->popupAction(d->currentAction, 20, true);
             } else {
-                d->activateAction(d->currentAction->action, QAction::Trigger);
                 d->hideUpToMenuBar();
+                d->activateAction(d->currentAction->action, QAction::Trigger);
             }
             key_consumed = true;
             break; }
@@ -1612,8 +1612,8 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                 d->setCurrentAction(next_action, 20, true);
                 if(!next_action->action->menu()) {
                     key_consumed = true;
-                    d->activateAction(next_action->action, QAction::Trigger);
                     d->hideUpToMenuBar();
+                    d->activateAction(next_action->action, QAction::Trigger);
                 }
             }
         }
