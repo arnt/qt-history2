@@ -407,9 +407,10 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     if ( regValue.length() )
 	sysGroupButton = 1;
 
-    // MSVC.NET takes presedence over 6.0
+    // MSVC.NET 7.0 & 7.1 takes presedence over 6.0
     regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0", "InstallDir", QEnvironment::LocalMachine );
-    if ( regValue.length() )
+    QString regValue2 = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.1", "InstallDir", QEnvironment::LocalMachine );
+    if ( QMAX( regValue.length(), regValue2.length() ) )
 	sysGroupButton = 0;
 #endif
 
@@ -797,7 +798,7 @@ void SetupWizardImpl::installIcons( const QString& iconFolder, const QString& di
 void SetupWizardImpl::doFinalIntegration()
 {
 #if defined(Q_OS_WIN32)
-    // install the precompiled MS dev integration
+    // install the precompiled MS integration
     QDir installDir( optionsPage->installPath->text() );
     if ( globalInformation.sysId() == GlobalInformation::MSVC ) {
 	QDir addinsDir( foldersPage->devSysPath->text() );
@@ -805,8 +806,22 @@ void SetupWizardImpl::doFinalIntegration()
 	if ( copyFile( installDir.filePath("qmsdev.dll"), addinsDir.filePath("qmsdev.dll") ) ) {
 	    installDir.remove( "qmsdev.dll" );
 	}
+	installDir.remove( "QMsNetSetup.msi" );
+    } else if ( globalInformation.sysId() == GlobalInformation::MSVCNET ){
+	if ( optionsPage->installNETIntegration->isChecked() ) {
+	    QProcess proc( installDir.filePath("QMsNetSetup.msi") );
+	    proc.start();
+
+	    // ## Should we wait, or continue?
+	    // Wait until child process exits.
+	    PROCESS_INFORMATION *pi = (PROCESS_INFORMATION *)proc.processIdentifier();
+	    WaitForSingleObject( pi->hProcess, INFINITE );
+	}
+	installDir.remove( "qmsdev.dll" );
+	installDir.remove( "QMsNetSetup.msi" );
     } else {
 	installDir.remove( "qmsdev.dll" );
+	installDir.remove( "QMsNetSetup.msi" );
     }
 
     QString dirName, examplesName, tutorialsName;
@@ -1213,7 +1228,9 @@ void SetupWizardImpl::showPageFolders()
 	}
 	foldersPage->devSysPath->setText( devPath );
     } else if ( globalInformation.sysId() == GlobalInformation::MSVCNET ) {
-	QString devPath = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VS", "ProductDir", QEnvironment::LocalMachine );
+	QString devPath = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.1\\Setup\\VS", "ProductDir", QEnvironment::LocalMachine );
+	if ( !devPath.length() )
+	    devPath = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VS", "ProductDir", QEnvironment::LocalMachine );
 	foldersPage->devSysPath->setText( devPath );
     }
 #endif

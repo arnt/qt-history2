@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>OptionsPage</class>
 <widget class="QWidget">
     <property name="name">
@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>449</width>
-            <height>303</height>
+            <width>431</width>
+            <height>308</height>
         </rect>
     </property>
     <property name="caption">
@@ -27,17 +27,11 @@
         </property>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>Layout24</cstring>
+                <cstring>layout10</cstring>
             </property>
             <vbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>0</number>
-                </property>
-                <property name="spacing">
-                    <number>6</number>
                 </property>
                 <widget class="QGroupBox">
                     <property name="name">
@@ -84,6 +78,12 @@
                                 <widget class="QLineEdit">
                                     <property name="name">
                                         <cstring>installPath</cstring>
+                                    </property>
+                                    <property name="frameShape">
+                                        <enum>LineEditPanel</enum>
+                                    </property>
+                                    <property name="frameShadow">
+                                        <enum>Sunken</enum>
                                     </property>
                                 </widget>
                                 <widget class="QPushButton">
@@ -139,6 +139,9 @@
                             <property name="text">
                                 <string>Build T&amp;utorials</string>
                             </property>
+                            <property name="accel">
+                                <string>Alt+U</string>
+                            </property>
                             <property name="checked">
                                 <bool>true</bool>
                             </property>
@@ -150,6 +153,9 @@
                             <property name="text">
                                 <string>&amp;Skip Build Step</string>
                             </property>
+                            <property name="accel">
+                                <string>Alt+S</string>
+                            </property>
                         </widget>
                         <widget class="QCheckBox" row="4" column="0">
                             <property name="name">
@@ -157,6 +163,9 @@
                             </property>
                             <property name="text">
                                 <string>Install &amp;documentation</string>
+                            </property>
+                            <property name="accel">
+                                <string>Alt+D</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -181,13 +190,98 @@
                         <property name="spacing">
                             <number>6</number>
                         </property>
-                        <widget class="QRadioButton">
+                        <widget class="QLayoutWidget">
                             <property name="name">
-                                <cstring>sysMsvcNet</cstring>
+                                <cstring>layout10</cstring>
                             </property>
-                            <property name="text">
-                                <string>Microsoft Visual C++ .&amp;NET</string>
-                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLayoutWidget">
+                                    <property name="name">
+                                        <cstring>layout9</cstring>
+                                    </property>
+                                    <vbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <property name="spacing">
+                                            <number>0</number>
+                                        </property>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>sysMsvcNet</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>Microsoft Visual C++ .&amp;NET</string>
+                                            </property>
+                                            <property name="accel">
+                                                <string>Alt+N</string>
+                                            </property>
+                                        </widget>
+                                        <spacer>
+                                            <property name="name">
+                                                <cstring>spacer3</cstring>
+                                            </property>
+                                            <property name="orientation">
+                                                <enum>Vertical</enum>
+                                            </property>
+                                            <property name="sizeType">
+                                                <enum>Minimum</enum>
+                                            </property>
+                                            <property name="sizeHint">
+                                                <size>
+                                                    <width>9</width>
+                                                    <height>14</height>
+                                                </size>
+                                            </property>
+                                        </spacer>
+                                    </vbox>
+                                </widget>
+                                <widget class="QLayoutWidget">
+                                    <property name="name">
+                                        <cstring>layout7</cstring>
+                                    </property>
+                                    <vbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <property name="spacing">
+                                            <number>0</number>
+                                        </property>
+                                        <widget class="QCheckBox">
+                                            <property name="name">
+                                                <cstring>installNETIntegration</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>Install .NET AddIn</string>
+                                            </property>
+                                            <property name="accel">
+                                                <string>Alt+N</string>
+                                            </property>
+                                            <property name="checked">
+                                                <bool>true</bool>
+                                            </property>
+                                        </widget>
+                                        <widget class="QLabel">
+                                            <property name="name">
+                                                <cstring>textLabel1</cstring>
+                                            </property>
+                                            <property name="paletteForegroundColor">
+                                                <color>
+                                                    <red>100</red>
+                                                    <green>100</green>
+                                                    <blue>100</blue>
+                                                </color>
+                                            </property>
+                                            <property name="text">
+                                                <string>(Requires .Net framework)</string>
+                                            </property>
+                                        </widget>
+                                    </vbox>
+                                </widget>
+                            </hbox>
                         </widget>
                         <widget class="QRadioButton">
                             <property name="name">
@@ -196,6 +290,9 @@
                             <property name="text">
                                 <string>Microsoft &amp;Visual C++</string>
                             </property>
+                            <property name="accel">
+                                <string>Alt+V</string>
+                            </property>
                         </widget>
                         <widget class="QRadioButton">
                             <property name="name">
@@ -203,6 +300,9 @@
                             </property>
                             <property name="text">
                                 <string>&amp;Borland C++</string>
+                            </property>
+                            <property name="accel">
+                                <string>Alt+V</string>
                             </property>
                         </widget>
                     </vbox>
@@ -220,7 +320,7 @@
                     <property name="sizeHint">
                         <size>
                             <width>20</width>
-                            <height>49</height>
+                            <height>18</height>
                         </size>
                     </property>
                 </spacer>

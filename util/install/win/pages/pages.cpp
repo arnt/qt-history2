@@ -169,6 +169,7 @@ OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
 	    QString( globalInformation.qtVersionStr() ).replace( QRegExp("\\s"), "" ).replace( QRegExp("-"), "" )
 	    );
     installPath->setValidator( new InstallPathValidator( this ) );
+    connect( sysMsvcNet, SIGNAL(toggled(bool)), installNETIntegration, SLOT(setEnabled(bool)) );
 #elif defined(Q_OS_MACX)
     // ### the replace for Windows is done because qmake has problems with
     // spaces and Borland has problems with "-" in the filenames -- I don't
