@@ -328,8 +328,11 @@ void QActionPrivate::update( uint upd )
 
 QString QActionPrivate::menuText() const
 {
-    if ( menutext.isNull() )
-	return text;
+    if ( menutext.isNull() ) {
+	QString t(text);
+	t.replace('&', "&&");
+	return t;
+    }
     return menutext;
 }
 
@@ -629,7 +632,10 @@ void QAction::setMenuText( const QString& text )
     d->update();
 }
 
-QString QAction::menuText() const { return d->menuText(); }
+QString QAction::menuText() const
+{
+    return d->menuText(); 
+}
 
 /*!
     \property QAction::toolTip
