@@ -18,7 +18,8 @@
 
 class QDomElement;
 class QDomDocument;
-class QMap;
+class QDomNodeList;
+template <class Key, class T> class QMap;
 
 class DomTool : public Qt
 {

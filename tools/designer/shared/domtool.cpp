@@ -353,14 +353,14 @@ void DomTool::fixDocument( QDomDocument& doc )
     if ( e.tagName() != "UI" )
 	return;
 
-    //QMap<QString,QString> classNames;
-    //classNames[""] = "";
+//     QMap<QString,QString> classNames;
+//     classNames[""] = "";
     QMap<QString,QString> propertyNames;
-    classNames["resizeable"] = "resizable"; // we need to fix a spelling error in 3.0
+    propertyNames["resizeable"] = "resizable"; // we need to fix a spelling error in 3.0
 
     // rename classes and properties
-    //nl = doc.elementsByTagName( "class" );
-    //fixNodeList( nl, classNames );
+//     nl = doc.elementsByTagName( "class" );
+//     fixNodeList( nl, classNames );
     nl = doc.elementsByTagName( "property" );
     fixNodeList( nl, propertyNames );
 
