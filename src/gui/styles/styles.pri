@@ -30,6 +30,7 @@ contains( styles, mac ) {
 		styles += windows
 	}
 }
+else:DEFINES += QT_NO_STYLE_MAC
 
 contains( styles, cde ) {
 	HEADERS += styles/qcdestyle.h
@@ -40,6 +41,7 @@ contains( styles, cde ) {
 		styles += motif
 	}
 }
+else:DEFINES += QT_NO_STYLE_CDE
 
 contains( styles, motifplus ) {
 	HEADERS += styles/qmotifplusstyle.h
@@ -49,6 +51,7 @@ contains( styles, motifplus ) {
 		styles += motif
 	}
 }
+else:DEFINES += QT_NO_STYLE_MOTIFPLUS
 
 contains( styles, interlace ) {
 	HEADERS += styles/qinterlacestyle.h
@@ -58,6 +61,7 @@ contains( styles, interlace ) {
 		styles += windows
 	}
 }
+else:DEFINES += QT_NO_STYLE_INTERLACE
 
 contains( styles, platinum ) {
 	HEADERS += styles/qplatinumstyle.h
@@ -67,6 +71,7 @@ contains( styles, platinum ) {
 		styles += windows
 	}
 }
+else:DEFINES += QT_NO_STYLE_PLATINUM
 
 contains( styles, windowsxp ) {
 	HEADERS += styles/qwindowsxpstyle.h
@@ -76,6 +81,7 @@ contains( styles, windowsxp ) {
 		styles += windows
 	}
 }
+else:DEFINES += QT_NO_STYLE_WINDOWSXP
 
 contains( styles, sgi ) {
 	HEADERS += styles/qsgistyle.h
@@ -85,6 +91,7 @@ contains( styles, sgi ) {
 		styles += motif
 	}
 }
+else:DEFINES += QT_NO_STYLE_SGI
 
 contains( styles, compact ) {
 	HEADERS += styles/qcompactstyle.h
@@ -94,6 +101,7 @@ contains( styles, compact ) {
 		styles += windows
 	}
 }
+else:DEFINES += QT_NO_STYLE_COMPACT
 
 wince-*:styles += pocketpc
 contains( styles, pocketpc ) {
@@ -105,13 +113,16 @@ contains( styles, pocketpc ) {
 		styles += windows
 	}
 }
+else:DEFINES += QT_NO_STYLE_POCKETPC
 				
 contains( styles, windows ) {
 	HEADERS += styles/qwindowsstyle.h
 	SOURCES += styles/qwindowsstyle.cpp
 }
+else:DEFINES += QT_NO_STYLE_WINDOWS
 
 contains( styles, motif ) {
 	HEADERS += styles/qmotifstyle.h
 	SOURCES += styles/qmotifstyle.cpp
 }
+else:DEFINES += QT_NO_STYLE_MOTIF
