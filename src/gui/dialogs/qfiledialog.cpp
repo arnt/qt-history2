@@ -34,6 +34,7 @@
 #ifdef Q_WS_MAC
 #include <qmacstyle_mac.h>
 #endif
+#include <qdebug.h>
 
 #include <private/qdialog_p.h>
 
@@ -967,8 +968,8 @@ void QFileDialog::lookInChanged(const QString &text)
 {
     if (d->lookInEdit->hasFocus()) {
 
-        // if the last character is '/', then don't autocomplete
-        if (text[text.length() - 1] == QDir::separator())
+        // if we hanve no path or the last character is '/', then don't autocomplete
+        if (text.isEmpty() || text[text.length() - 1] == QDir::separator())
             return;
 
         int key = d->lookInEdit->lastKeyPressed();
@@ -977,20 +978,18 @@ void QFileDialog::lookInChanged(const QString &text)
 
         // text is the local path format (on windows separator is '\\')
         QModelIndex result;
-        if (!text.isEmpty()) {
-            int s = text.lastIndexOf(QDir::separator());
-            QString pth = d->revert(s == 0 ? QDir::rootPath() : text.left(s)); // to internal format
-            QModelIndex dirIndex = d->model->index(pth);
-            QString searchText = text.section(QDir::separator(), -1);
-            int rowCount = d->model->rowCount(dirIndex);
-            QModelIndexList indices = d->model->match(d->model->index(0, 0, dirIndex),
-                                                      QAbstractItemModel::DisplayRole,
-                                                      searchText, rowCount);
-            for (int i = 0; i < indices.count(); ++i) {
-                if (d->model->isDir(indices.at(i))) {
-                    result = indices.at(i);
-                    break;
-                }
+        int s = text.lastIndexOf(QDir::separator());
+        QString pth = d->revert(s == 0 ? QDir::rootPath() : text.left(s)); // to internal format
+        QModelIndex dirIndex = d->model->index(pth);
+        QString searchText = text.section(QDir::separator(), -1);
+        int rowCount = d->model->rowCount(dirIndex);
+        QModelIndexList indices = d->model->match(d->model->index(0, 0, dirIndex),
+                                                  QAbstractItemModel::DisplayRole,
+                                                  searchText, rowCount);
+        for (int i = 0; i < indices.count(); ++i) {
+            if (d->model->isDir(indices.at(i))) {
+                result = indices.at(i);
+                break;
             }
         }
 
@@ -1277,11 +1276,19 @@ void QFileDialogPrivate::setup(const QString &directory,
         QIcon icons = model->icon(index);
         lookIn->insertItem(icons, convert(path));
     }
+
+    // insert the home path
     QModelIndex home = model->index(QDir::homePath()); // home
     lookIn->insertItem(model->icon(home), convert(QDir::homePath()));
-    lookIn->insertItem(model->icon(current), directory);
-    int c = lookIn->findItem(convert(directory), QAbstractItemModel::MatchExactly);
-    lookIn->setCurrentItem(c >= 0 ? c : 0);
+
+    // if it is not already in the list, insert the current directory
+    QString currentPath = convert(model->path(current)); // native
+    int item = lookIn->findItem(currentPath, QAbstractItemModel::MatchExactly);
+    if (item < 0) {
+        lookIn->insertItem(model->icon(current), currentPath);
+        item = lookIn->findItem(currentPath, QAbstractItemModel::MatchExactly);
+    }
+    lookIn->setCurrentItem(item);
 
     // Set filetypes or filter
     if (fileMode == QFileDialog::DirectoryOnly) {
@@ -1502,6 +1509,8 @@ void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
 
 void QFileDialogPrivate::updateButtons(const QModelIndex &index)
 {
+    if (!index.isValid()) // "My Computer" is already in the list
+        return;
     toParent->setEnabled(index.isValid());
     back->setEnabled(history.count() > 0);
     QString pth = convert(d->model->path(index)); // to native format
