@@ -17,6 +17,7 @@
 
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 
+#include "qlabel.h"
 #include "qmenu.h"
 #include "qpainter.h"
 #include "private/qpainter_p.h"
@@ -354,7 +355,7 @@ void QMacStyleQD::polish(QWidget* w)
     }
 #endif
     else if(w->inherits("QTipLabel")) {   // QTipLabel is declared in qtooltip.cpp :-(
-        QLabel *label = (QLabel*)w;
+        QLabel *label = static_cast<QLabel *>(w);
         label->setFrameStyle(QFrame::NoFrame);
         label->setLineWidth(1);
         label->setWindowOpacity(0.95);
