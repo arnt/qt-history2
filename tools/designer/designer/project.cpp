@@ -838,20 +838,25 @@ void Project::saveConnections()
     if ( inSaveConnections )
 	return;
     inSaveConnections = TRUE;
+
     if ( dbFile.isEmpty() ) {
 	QFileInfo fi( fileName() );
-	dbFile = fi.baseName() + ".db";
-	save( TRUE );
-    }
-
-    if ( !QFile::exists( makeAbsolute( dbFile ) ) ) {
-	QFileInfo fi( fileName() );
 	setDatabaseDescription( fi.baseName() + ".db" );
-	save( TRUE );
     }
+    QFile f( makeAbsolute( dbFile ) );
+
+    if ( dbConnections.isEmpty() ) {
+	if ( f.exists() )
+	    f.remove();
+	setDatabaseDescription( "" );
+	modified = TRUE;
+	save( TRUE );
+	inSaveConnections = FALSE;
+	return;
+    }
+    save( TRUE );
 
     /* .db xml */
-    QFile f( makeAbsolute( dbFile ) );
     if ( f.open( IO_WriteOnly | IO_Translate ) ) {
 	QTextStream ts( &f );
 	ts.setCodec( QTextCodec::codecForName( "UTF-8" ) );
