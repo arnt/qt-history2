@@ -114,14 +114,13 @@ static void initWinTabFunctions();	// resolve the WINTAB api functions
 #ifndef WM_GETOBJECT
 #define WM_GETOBJECT                    0x003D
 #endif
-#ifndef WM_THEMECHANGED
-#define WM_THEMECHANGED                 0x031A
-#endif
-
-
 
 extern IAccessible *qt_createWindowsAccessible( QAccessibleInterface *object );
 #endif // QT_ACCESSIBILITY_SUPPORT
+
+#ifndef WM_THEMECHANGED
+#define WM_THEMECHANGED                 0x031A
+#endif
 
 static UINT WM95_MOUSEWHEEL = 0;
 
