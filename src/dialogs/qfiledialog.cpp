@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#267 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#268 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1895,6 +1895,9 @@ void QFileDialog::init()
     }
 
     nameEdit->setFocus();
+
+    connect( nameEdit, SIGNAL( returnPressed() ),
+	     okB, SIGNAL( clicked() ) );
 }
 
 /*!

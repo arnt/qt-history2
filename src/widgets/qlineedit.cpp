@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#233 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#234 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -385,8 +385,8 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		repaint();
 	    if ( v->validate( tbuf, cursorPos ) == QValidator::Acceptable )
 		emit returnPressed();
+	    e->ignore();
 	}
-	e->ignore();
 	return;
     }
     QString t = e->text();
