@@ -76,7 +76,6 @@ struct QHeaderData
 	}
 	clicks_default = TRUE;
 	resize_default = TRUE;
-	was_reordered = FALSE;
 	clicks.fill( clicks_default );
 	resize.fill( resize_default );
 	move = TRUE;
@@ -99,12 +98,11 @@ struct QHeaderData
     uint move : 1;
     uint clicks_default : 1; // default value for new clicks bits
     uint resize_default : 1; // default value for new resize bits
-    uint was_reordered : 1;
     bool sortDirection;
     int sortColumn;
     int count;
     bool positionsDirty;
-    
+
     void calculatePositions(){
 	// positions is sorted by index, not by section
 	positionsDirty = FALSE;
@@ -825,22 +823,22 @@ void QHeader::removeLabel( int section )
 	d->s2i[i] = d->s2i[i+1];
     d->s2i.resize( n  );
 
-    if ( d->was_reordered ) {
+    if ( isUpdatesEnabled() ) {
 	for ( i = 0; i < n; ++i )
 	    if ( d->s2i[i] > index )
 		--d->s2i[i];
     }
-    
+
     for ( i = index; i < n; ++i )
 	d->i2s[i] = d->i2s[i+1];
     d->i2s.resize( n );
 
-    if ( d->was_reordered ) {
+    if ( isUpdatesEnabled() ) {
 	for ( i = 0; i < n ; ++i )
 	    if ( d->i2s[i] > section )
 		--d->i2s[i];
     }
-    
+
     if ( isUpdatesEnabled() )
 	d->calculatePositions();
     update();
@@ -1381,7 +1379,6 @@ int QHeader::mapToIndex( int section ) const
 
 void QHeader::moveSection( int section, int toIndex )
 {
-    d->was_reordered = TRUE;
     int fromIndex = mapToIndex( section );
     if ( fromIndex == toIndex ||
 	 fromIndex < 0 || fromIndex > count() ||
