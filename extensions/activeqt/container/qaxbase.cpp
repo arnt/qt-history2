@@ -34,6 +34,7 @@
 #include <qptrdict.h>
 #include <qsettings.h>
 #include <qmetaobject.h>
+#include <qcache.h>
 
 #include <ctype.h>
 
@@ -372,6 +373,124 @@ private:
     long ref;
 };
 
+class QAxMetaObject
+{
+public:
+    QAxMetaObject()
+	: metaObject( 0 ), enums( 0 ), numEnums( 0 )
+    {
+    }
+
+    ~QAxMetaObject()
+    {
+	QMetaObject *metaobj = metaObject;
+
+	int i;
+	// clean up class info
+	for ( i = 0; i < metaobj->numClassInfo(); ++i ) {
+	    QClassInfo *info = (QClassInfo*)metaobj->classInfo( i );
+	    delete [] (char*)info->name;
+	    delete [] (char*)info->value;
+	}
+	if ( metaobj->numClassInfo() )
+	    delete [] (QClassInfo*)metaobj->classInfo( 0 );
+
+	// clean up slot info
+	for ( i = 0; i < metaobj->numSlots(); ++i ) {
+	    const QMetaData *slot_data = metaobj->slot( i );
+	    QUMethod *slot = (QUMethod*)slot_data->method;
+	    if ( slot ) {
+		delete [] (char*)slot->name;
+		for ( int p = 0; p < slot->count; ++p ) {
+		    const QUParameter *param = &(slot->parameters[p]);
+		    delete [] (char*)param->name;
+		    if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
+			// delete uEnum arrays, but not the strings (shared with the QMetaEnum)
+			QUEnum *uEnum = (QUEnum*)param->typeExtra;
+			delete [] (QUEnumItem*)uEnum->items;
+			delete uEnum;
+		    } else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
+			const char *type = (const char*)param->typeExtra;
+			delete [] (char*)type;
+		    }
+		}
+		delete [] (QUParameter*)slot->parameters;
+		delete slot;
+	    }
+	    delete [] (char*)slot_data->name;
+	}
+	if ( metaobj->numSlots() )
+	    delete [] (QMetaData*)metaobj->slot( 0 );
+
+	// clean up signal info
+	for ( i = 2; i < metaobj->numSignals(); ++i ) { // 0 and 1 are static signals
+	    const QMetaData *signal_data = metaobj->signal( i );
+	    QUMethod *signal = (QUMethod*)signal_data->method;
+	    if ( signal ) {
+		delete [] (char*)signal->name;
+		for ( int p = 0; p < signal->count; ++p ) {
+		    const QUParameter *param = &(signal->parameters[p]);
+		    delete [] (char*)param->name;
+		    if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
+			// delete uEnum arrays, but not the strings (shared with the QMetaEnum)
+			QUEnum *uEnum = (QUEnum*)param->typeExtra;
+			delete [] (QUEnumItem*)uEnum->items;
+			delete uEnum;
+		    } else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
+			const char *type = (const char*)param->typeExtra;
+			delete [] (char*)type;
+		    }
+		}
+		delete [] (QUParameter*)signal->parameters;
+		delete signal;
+	    }
+	    delete [] (char*)signal_data->name;
+	}
+	if ( metaobj->numSignals() )
+	    delete [] (QMetaData*)metaobj->signal( 0 );
+
+	// clean up properties
+	for ( i = 0; i < metaobj->numProperties(); ++i ) {
+	    const QMetaProperty *property = metaobj->property( i );
+	    delete [] (char*)property->n;
+	    delete [] (char*)property->t;
+	}
+	if ( metaobj->numProperties() )
+	    delete [] (QMetaProperty*)metaobj->property( 0 );
+
+	// clean up enums
+	if ( enums ) {
+	    for ( i = 0; i < numEnums; ++i ) {
+		for ( uint j = 0; j < enums[i].count; ++j ) {
+		    QMetaEnum::Item item = enums[i].items[j];
+		    delete[] (char*)item.key;
+		}
+		delete [] (char*)enums[i].name;
+		delete [] (QMetaEnum::Item*)enums[i].items;
+	    }
+	    delete [] (QMetaEnum*)enums;
+	}
+	delete metaobj;
+    }
+
+    QMetaObject *metaObject;
+
+    QMetaEnum *enums;
+    int numEnums;
+};
+
+static QCache<QAxMetaObject> *mo_cache = 0;
+static int mo_cache_ref = 0;
+
+static QCache<QAxMetaObject> *metaObjectCache()
+{
+    if ( !mo_cache ) {
+	mo_cache = new QCache<QAxMetaObject>;
+	mo_cache->setAutoDelete( TRUE );
+	mo_cache->setMaxCost( 5 );
+    }
+    return mo_cache;
+}
 
 /*
     \internal
@@ -383,8 +502,11 @@ class QAxBasePrivate
 public:
     QAxBasePrivate()
 	: useEventSink( TRUE ), useMetaObject( TRUE ), useClassInfo( TRUE ),
-	  ptr( 0 ), disp( 0 ), propWritable( 0 )
-    {}
+	  cachedMetaObject( FALSE ), ptr( 0 ), disp( 0 ), propWritable( 0 ),
+	  metaobj( 0 )
+    {
+	mo_cache_ref++;
+    }
 
     ~QAxBasePrivate()
     {
@@ -393,6 +515,11 @@ public:
 
 	delete propWritable;
 	propWritable = 0;
+
+	if ( !--mo_cache_ref ) {
+	    delete mo_cache;
+	    mo_cache = 0;
+	}
     }
 
     IDispatch *dispatch()
@@ -406,16 +533,16 @@ public:
     }
 
     QDict<QAxEventSink> eventSink;
-    bool useEventSink :1;
-    bool useMetaObject:1;
-    bool useClassInfo :1;
+    bool useEventSink	    :1;
+    bool useMetaObject	    :1;
+    bool useClassInfo	    :1;
+    bool cachedMetaObject   :1;
 
     IUnknown *ptr;
     IDispatch *disp;
 
     QMap<QCString, bool> *propWritable;
-    QMetaEnum *enums;
-    int numEnums;
+    QAxMetaObject *metaobj;
 };
 
 
@@ -683,94 +810,9 @@ void QAxBase::clear()
 
     ctrl = QString::null;
 
-    if ( metaobj ) {
-	int i;
-	// clean up class info
-	for ( i = 0; i < metaobj->numClassInfo(); ++i ) {
-	    QClassInfo *info = (QClassInfo*)metaobj->classInfo( i );
-	    delete [] (char*)info->name;
-	    delete [] (char*)info->value;
-	}
-	if ( metaobj->numClassInfo() )
-	    delete [] (QClassInfo*)metaobj->classInfo( 0 );
+    if ( d->metaobj && !d->cachedMetaObject )
+	delete d->metaobj;
 
-	// clean up slot info
-	for ( i = 0; i < metaobj->numSlots(); ++i ) {
-	    const QMetaData *slot_data = metaobj->slot( i );
-	    QUMethod *slot = (QUMethod*)slot_data->method;
-	    if ( slot ) {
-		delete [] (char*)slot->name;
-		for ( int p = 0; p < slot->count; ++p ) {
-		    const QUParameter *param = &(slot->parameters[p]);
-		    delete [] (char*)param->name;
-		    if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
-			// delete uEnum arrays, but not the strings (shared with the QMetaEnum)
-			QUEnum *uEnum = (QUEnum*)param->typeExtra;
-			delete [] (QUEnumItem*)uEnum->items;
-			delete uEnum;
-		    } else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
-			const char *type = (const char*)param->typeExtra;
-			delete [] (char*)type;
-		    }
-		}
-		delete [] (QUParameter*)slot->parameters;
-		delete slot;
-	    }
-	    delete [] (char*)slot_data->name;
-	}
-	if ( metaobj->numSlots() )
-	    delete [] (QMetaData*)metaobj->slot( 0 );
-
-	// clean up signal info
-	for ( i = 2; i < metaobj->numSignals(); ++i ) { // 0 and 1 are static signals
-	    const QMetaData *signal_data = metaobj->signal( i );
-	    QUMethod *signal = (QUMethod*)signal_data->method;
-	    if ( signal ) {
-		delete [] (char*)signal->name;
-		for ( int p = 0; p < signal->count; ++p ) {
-		    const QUParameter *param = &(signal->parameters[p]);
-		    delete [] (char*)param->name;
-		    if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
-			// delete uEnum arrays, but not the strings (shared with the QMetaEnum)
-			QUEnum *uEnum = (QUEnum*)param->typeExtra;
-			delete [] (QUEnumItem*)uEnum->items;
-			delete uEnum;
-		    } else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
-			const char *type = (const char*)param->typeExtra;
-			delete [] (char*)type;
-		    }
-		}
-		delete [] (QUParameter*)signal->parameters;
-		delete signal;
-	    }
-	    delete [] (char*)signal_data->name;
-	}
-	if ( metaobj->numSignals() )
-	    delete [] (QMetaData*)metaobj->signal( 0 );
-
-	// clean up properties
-	for ( i = 0; i < metaobj->numProperties(); ++i ) {
-	    const QMetaProperty *property = metaobj->property( i );
-	    delete [] (char*)property->n;
-	    delete [] (char*)property->t;
-	}
-	if ( metaobj->numProperties() )
-	    delete [] (QMetaProperty*)metaobj->property( 0 );
-
-	// clean up enums
-	if ( d->enums ) {
-	    for ( i = 0; i < d->numEnums; ++i ) {
-		for ( uint j = 0; j < d->enums[i].count; ++j ) {
-		    QMetaEnum::Item item = d->enums[i].items[j];
-		    delete[] (char*)item.key;
-		}
-		delete [] (char*)d->enums[i].name;
-		delete [] (QMetaEnum::Item*)d->enums[i].items;
-	    }
-	    delete [] (QMetaEnum*)d->enums;
-	}
-    }
-    delete metaobj;
     metaobj = 0;
 }
 
@@ -930,18 +972,7 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
 
     if ( tdesc.vt & VT_BYREF )
 	str += "&";
-/*
-    if ( type.isEmpty() )
-	type = typedescToQString( tdesc );
 
-    if ( type == "USERDEFINED" ) {
-	if ( function.contains( "Color" ) || function.contains( "color" ) )
-	    return "QColor";
-    } else if ( type == "USERDEFINED*" ) {
-	if ( function.contains( "Font" ) || function.contains( "font" ) )
-	    return "QFont";
-    }
-*/
     return str;
 }
 
@@ -1093,27 +1124,40 @@ QMetaObject *QAxBase::metaObject() const
     // create class information
     CComPtr<IProvideClassInfo> classinfo;
     d->ptr->QueryInterface( IID_IProvideClassInfo, (void**)&classinfo );
-#ifndef QAX_NO_CLASSINFO
-    if ( classinfo && d->useClassInfo ) {
+    QString coClassID;
+    if ( classinfo ) {
 	CComPtr<ITypeInfo> info;
 	classinfo->GetClassInfo( &info );
 	TYPEATTR *typeattr = 0;
 	if ( info )
 	    info->GetTypeAttr( &typeattr );
 
+	if ( typeattr ) {
+	    QUuid clsid( typeattr->guid );
+	    coClassID = clsid.toString().upper();
+#ifndef QAX_NO_CLASSINFO
 	// UUID
-	if ( typeattr && !infolist.find( "CoClass" ) ) {
-	    QUuid uuid( typeattr->guid );
-	    QString uuidstr = uuid.toString().upper();
-	    uuidstr = iidnames.readEntry( "/CLSID/" + uuidstr + "/Default", uuidstr );
-	    infolist.insert( "CoClass", new QString( uuidstr ) );
-	    QString version( "%1.%1" );
-	    version = version.arg( typeattr->wMajorVerNum ).arg( typeattr->wMinorVerNum );
-	    infolist.insert( "Version", new QString( version ) );
+	    if ( d->useClassInfo && !infolist.find( "CoClass" ) ) {
+		QString coClassIDstr = iidnames.readEntry( "/CLSID/" + coClassID + "/Default", coClassID );
+		infolist.insert( "CoClass", new QString( coClassIDstr ) );
+		QString version( "%1.%1" );
+		version = version.arg( typeattr->wMajorVerNum ).arg( typeattr->wMinorVerNum );
+		infolist.insert( "Version", new QString( version ) );
+	    }
+#endif
 	    info->ReleaseTypeAttr( typeattr );
 	}
     }
-#endif
+
+    if ( mo_cache && !coClassID.isEmpty() ) {
+	d->metaobj = metaObjectCache()->find( coClassID );
+	that->metaobj = d->metaobj ? d->metaobj->metaObject : 0;
+	if ( metaobj ) {
+	    d->cachedMetaObject = TRUE;
+	    return metaobj;
+	}
+    }
+    d->metaobj = new QAxMetaObject;
 
     IDispatch *disp = d->dispatch();
     if ( disp ) {
@@ -1204,8 +1248,8 @@ QMetaObject *QAxBase::metaObject() const
 	    ++index;
 	    ++enum_it;
 	}
-	d->enums = enum_data;
-	d->numEnums = enumlist.count();
+	d->metaobj->enums = enum_data;
+	d->metaobj->numEnums = enumlist.count();
 
 	// read type information
 	while ( info ) {
@@ -1925,6 +1969,12 @@ QMetaObject *QAxBase::metaObject() const
 	0, 0 );
 #endif
 
+    d->metaobj->metaObject = metaobj;
+    if ( !coClassID.isEmpty() ) {
+	metaObjectCache()->insert( coClassID, d->metaobj );
+	d->cachedMetaObject = TRUE;
+    }
+
     return metaobj;
 }
 
@@ -2436,11 +2486,11 @@ QAxObject *QAxBase::querySubObject( const QCString &name, const QVariant &var )
     switch ( res.vt ) {
     case VT_DISPATCH:
 	if ( res.pdispVal )
-	    object = new QAxObject( res.pdispVal, qObject(), name );
+	    object = new QAxObject( res.pdispVal, qObject(), QCString( qObject()->name() ) + "/" + name );
 	break;
     case VT_UNKNOWN:
 	if ( res.punkVal )
-	    object = new QAxObject( res.punkVal, qObject(), name );
+	    object = new QAxObject( res.punkVal, qObject(), QCString( qObject()->name() ) + "/" + name  );
 	break;
     case VT_EMPTY:
 #ifdef QT_CHECK_STATE
