@@ -1,6 +1,9 @@
-The Qt 2.x series is not binary compatible with the 1.x series. This
-means programs compiled for Qt 1.x must be recompiled to work with Qt
-2.0. Qt 2.0 is also not completely source compatible with 1.x.
 
-See porting.html for information on how to port an existing program to
-Qt 2.0.
+The Qt version 2.x series is not binary compatible with the 1.x
+series. This means programs compiled with Qt version 1.x must be
+recompiled to work with Qt 2.0.
+
+Qt 2.0 is mostly, but not completely, source compatible with Qt 1.x.
+See the document "Porting from Qt 1.x to Qt 2.0" in the Online
+Reference Documentation for information on how to port an existing
+Qt 1.x-based program to Qt 2.0.
