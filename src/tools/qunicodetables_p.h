@@ -42,9 +42,10 @@ inline QChar lower( const QChar &c )
 #ifndef QT_NO_UNICODETABLES
     uchar row = c.row();
     uchar cell = c.cell();
-    if ( QUnicodeTables::unicode_info[row][cell] != QChar::Letter_Uppercase )
+    const Q_UINT16 * const ci = QUnicodeTables::case_info[row];
+    if ( QUnicodeTables::unicode_info[row][cell] != QChar::Letter_Uppercase || !ci )
 	return c;
-    Q_UINT16 lower = *( QUnicodeTables::case_info[row] + cell );
+    Q_UINT16 lower = ci[cell];
     if ( lower == 0 )
 	return c;
     return lower;
@@ -60,9 +61,10 @@ inline QChar upper( const QChar &c )
 #ifndef QT_NO_UNICODETABLES
     uchar row = c.row();
     uchar cell = c.cell();
-    if ( QUnicodeTables::unicode_info[row][cell] != QChar::Letter_Lowercase )
+    const Q_UINT16 * const ci = QUnicodeTables::case_info[row];
+    if ( QUnicodeTables::unicode_info[row][cell] != QChar::Letter_Lowercase || !ci )
 	return c;
-    Q_UINT16 upper = *(QUnicodeTables::case_info[row]+cell);
+    Q_UINT16 upper = ci[cell];
     if ( upper == 0 )
 	return c;
     return upper;
@@ -76,7 +78,7 @@ inline QChar upper( const QChar &c )
 inline QChar::Direction direction( const QChar &c )
 {
 #ifndef QT_NO_UNICODETABLES
-    const Q_UINT8 *rowp = QUnicodeTables::direction_info[c.row()];
+    const Q_UINT8 * const rowp = QUnicodeTables::direction_info[c.row()];
     return (QChar::Direction) ( *(rowp+c.cell()) & 0x1f );
 #else
     Q_UNUSED(c);
@@ -87,7 +89,7 @@ inline QChar::Direction direction( const QChar &c )
 inline bool mirrored( const QChar &c )
 {
 #ifndef QT_NO_UNICODETABLES
-    const Q_UINT8 *rowp = QUnicodeTables::direction_info[c.row()];
+    const Q_UINT8 * const rowp = QUnicodeTables::direction_info[c.row()];
     return *(rowp+c.cell())>128;
 #else
     Q_UNUSED(c);
@@ -115,7 +117,7 @@ inline QChar mirroredChar( const QChar &ch )
 inline QChar::Joining joining( const QChar &ch )
 {
 #ifndef QT_NO_UNICODETABLES
-    const Q_UINT8 *rowp = QUnicodeTables::direction_info[ch.row()];
+    const Q_UINT8 * const rowp = QUnicodeTables::direction_info[ch.row()];
     return (QChar::Joining) ((*(rowp+ch.cell()) >> 5) &0x3);
 #else
     Q_UNUSED(ch);
@@ -132,7 +134,7 @@ inline bool isMark( const QChar &ch )
 inline unsigned char combiningClass( const QChar &ch )
 {
 #ifndef QT_NO_UNICODETABLES
-    const Q_UINT8 *rowp = QUnicodeTables::combining_info[ch.row()];
+    const Q_UINT8 * const rowp = QUnicodeTables::combining_info[ch.row()];
     return *(rowp+ch.cell());
 #else
     Q_UNUSED(ch);

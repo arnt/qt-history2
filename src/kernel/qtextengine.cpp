@@ -277,7 +277,8 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 		case QChar::DirAN:
 		    if ( !first ) {
 			appendItems( items, sor, eor, control, dir, unicode );
-			dir = direction( unicode[eor] ); status.eor = dir;
+			dir = eor < length ? direction( unicode[eor] ) : control.basicDirection();
+			status.eor = dir;
 		    }
 		    break;
 		case QChar::DirES:
@@ -299,7 +300,8 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
 			    }
 			    eor = current - 1;
 			    appendItems( items, sor, eor, control, dir, unicode );
-			    dir = direction( unicode[eor] ); status.eor = dir;
+			    dir = eor < length ? direction( unicode[eor] ) : control.basicDirection();
+			    status.eor = dir;
 			} else {
 			    if(status.eor != QChar::DirL) {
 				appendItems( items, sor, eor, control, dir, unicode );

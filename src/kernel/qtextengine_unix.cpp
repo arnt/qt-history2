@@ -185,7 +185,7 @@ int QTextEngine::width( int from, int len ) const
 	int pos = item.position;
 	int ilen = length( i );
 // 	qDebug("item %d: from %d len %d", i, pos, ilen );
-	if ( pos > from + len )
+	if ( pos >= from + len )
 	    break;
 	if ( pos + ilen > from ) {
 	    const QShapedItem *shaped = shape( i );

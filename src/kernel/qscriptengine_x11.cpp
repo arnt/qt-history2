@@ -1382,7 +1382,7 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
 	featuresToApply = new unsigned short[ 2*len ];
 
 
-    shaped->glyphAttributes = (GlyphAttributes *)realloc( shaped->glyphAttributes, len * 2 * sizeof( GlyphAttributes ) );
+    shaped->glyphAttributes = (GlyphAttributes *)realloc( shaped->glyphAttributes, len * 3 * sizeof( GlyphAttributes ) + 1 );
 
     QString reordered = analyzeSyllables( script, string, from, len, featuresToApply, shaped->glyphAttributes );
     shaped->num_glyphs = reordered.length();
@@ -1406,7 +1406,7 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
 #endif
 
     if ( len > 127 )
-	delete featuresToApply;
+	delete [] featuresToApply;
 }
 
 
