@@ -456,15 +456,20 @@ public:
 
 #if defined(Q_WS_QWS) //&& defined(QT_OLD_GFX)
     virtual QGfx *graphicsContext(bool clip_children=true) const;
-#endif
-#if defined(Q_WS_X11)
+#elif defined(Q_WS_X11)
     QX11Info *x11Info() const;
     Qt::HANDLE xftPictureHandle() const;
     Qt::HANDLE xftDrawHandle() const;
 #elif defined(Q_WS_MAC)
     Qt::HANDLE macCGHandle() const;
 #endif
+
+#if defined(Q_WS_WIN)
+    HDC winHDC() const;
+#else
     Qt::HANDLE handle() const;
+#endif
+
 
 
     void setAttribute(Qt::WidgetAttribute, bool = true);

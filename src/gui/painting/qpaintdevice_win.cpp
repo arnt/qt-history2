@@ -21,6 +21,15 @@
 #include <private/qapplication_p.h>
 #include "qt_windows.h"
 
+
+Q_GUI_EXPORT HDC qt_winHDC(const QPaintDevice *device) {
+    if (device->devType() == QInternal::Widget)
+        return static_cast<const QWidget *>(device)->winHDC();
+    else if (device->devType() == QInternal::Pixmap)
+        return static_cast<const QPixmap *>(device)->winHDC();
+    return 0;
+}
+
 QPaintDevice::QPaintDevice(uint devflags)
 {
     if (!qApp) {                                // global constructor
@@ -37,15 +46,6 @@ QPaintDevice::~QPaintDevice()
     if (paintingActive())
         qWarning("QPaintDevice: Cannot destroy paint device that is being "
                   "painted.  Be sure to QPainter::end() painters!");
-}
-
-Qt::HANDLE QPaintDevice::handle() const
-{
-    if (devType() == QInternal::Widget)
-        return static_cast<const QWidget *>(this)->handle();
-    else if (devType() == QInternal::Pixmap)
-        return static_cast<const QPixmap *>(this)->handle();
-    return 0;
 }
 
 int QPaintDevice::metric(int) const
@@ -104,17 +104,17 @@ static void qDrawTransparentPixmap(HDC hdc_dest, bool destIsPixmap,
     if (newPixmap) {
         bs = new QPixmap(src_width, src_height, src_depth,
                           QPixmap::NormalOptim);
-        BitBlt((HDC)bs->handle(), 0, 0, src_width, src_height,
+        BitBlt(bs->winHDC(), 0, 0, src_width, src_height,
                hdc_src, 0, src_offset, SRCCOPY);
         QBitmap masknot(src_width, src_height, false, QPixmap::NormalOptim);
-        BitBlt((HDC)masknot.handle(), 0, 0, src_width, src_height,
+        BitBlt(masknot.winHDC(), 0, 0, src_width, src_height,
                hdc_mask, 0, mask_offset, NOTSRCCOPY);
-        BitBlt((HDC)bs->handle(), 0, 0, src_width, src_height,
-               (HDC)masknot.handle(), 0, 0, SRCAND);
+        BitBlt(bs->winHDC(), 0, 0, src_width, src_height,
+               masknot.winHDC(), 0, 0, SRCAND);
     }
     BitBlt(hdc, nx, ny, sw, sh, hdc_mask, sx, sy-src_offset+mask_offset,
             SRCAND);
-    BitBlt(hdc, nx, ny, sw, sh, (HDC)bs->handle(), sx, sy-src_offset, SRCPAINT);
+    BitBlt(hdc, nx, ny, sw, sh, bs->winHDC(), sx, sy-src_offset, SRCPAINT);
     *blackSourcePixmap = bs;
 
     if (hdc_buf) {                                // blt off-screen buffer
@@ -276,8 +276,8 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     if (td == QInternal::Pixmap)
         ((QPixmap*)dst)->detach();                // changes shared pixmap
 
-    HDC src_dc = (HDC)src->handle();
-    HDC dst_dc = (HDC)dst->handle();
+    HDC src_dc = qt_winHDC(src);
+    HDC dst_dc = qt_winHDC(dst);
     bool src_tmp = false, dst_tmp = false;
     int  src_offset = 0;
 
@@ -347,7 +347,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
                 mask_dc = mask->multiCellHandle();
                 mask_offset = mask->multiCellOffset();
             } else {
-                mask_dc = (HDC)mask->handle();
+                mask_dc = mask->winHDC();
                 mask_offset = 0;
             }
             qDrawTransparentPixmap(dst_dc, td == QInternal::Pixmap,
@@ -395,10 +395,10 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
             if (dst_pm->mask()) {
                 int width = qMin(dst_pm->mask()->width()-dx, sw);
                 int height = qMin(dst_pm->mask()->height()-dy, sh);
-                MaskBlt(dst_dc, dx, dy, width, height, (HDC)src_pm->handle(), sx, sy,
+                MaskBlt(dst_dc, dx, dy, width, height, src_pm->winHDC(), sx, sy,
                         dst_pm->mask()->hbm(), dx, dy, MAKEROP4(0x00aa0000,SRCCOPY));
             } else {
-                BitBlt(dst_dc, dx, dy, sw, sh, (HDC)src_pm->handle(), sx, sy, SRCCOPY);
+                BitBlt(dst_dc, dx, dy, sw, sh, src_pm->winHDC(), sx, sy, SRCCOPY);
             }
 #ifdef Q_OS_TEMP
         } else if ((GetTextColor(dst_dc) & 0xffffff) != 0 &&

@@ -6328,6 +6328,16 @@ void QWidget::setShortcutEnabled(int id, bool enable)
         qApp->d->shortcutMap.setShortcutEnabled(this, id, enable);
 }
 
+#if defined (Q_WS_WIN)
+/*!
+    Returns the window system handle of the widget, for low-level
+    access. Using this function is not portable.
+*/
+HDC QWidget::winHDC() const
+{
+    return (HDC) d->hd;
+}
+#else
 /*!
     Returns the window system handle of the widget, for low-level
     access. Using this function is not portable.
@@ -6339,5 +6349,6 @@ Qt::HANDLE QWidget::handle() const
 {
     return d->hd;
 }
+#endif
 
 #include "moc_qwidget.cpp"

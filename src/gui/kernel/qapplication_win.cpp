@@ -1007,7 +1007,7 @@ static void drawTile(HDC hdc, int x, int y, int w, int h,
                        xOff, yOff+pixmap->multiCellOffset(), SRCCOPY);
             } else {
                 BitBlt(hdc, xPos, yPos,
-                       drawW, drawH, (HDC)pixmap->handle(),
+                       drawW, drawH, pixmap->winHDC(),
                        xOff, yOff, SRCCOPY);
             }
             xPos += drawW;

@@ -68,7 +68,7 @@ public:
         return n.offset == 0 && n.size == max_height;
     }
     QPixmap *sharedPixmap() const { return pixmap; }
-    HDC             handle()            const { return (HDC)pixmap->handle(); }
+    HDC             handle()            const { return pixmap->winHDC(); }
     HBITMAP  hbm()            const { return pixmap->hbm(); }
     int             allocCell(int height);
     void     freeCell(int offset, int height);
@@ -430,10 +430,10 @@ int QPixmap::metric(int m) const
         QPixmap *spm;
         if (data->mcp) {
             spm = DATA_MCPI_MCP->sharedPixmap();
-            dc  = (HDC)spm->handle();
+            dc  = spm->winHDC();
         } else {
             spm = 0;
-            dc  = (HDC)handle();
+            dc  = winHDC();
         }
         switch (m) {
             case QPaintDeviceMetrics::PdmDpiX:
@@ -835,7 +835,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
         dc = DATA_MCPI_MCP->handle();
         sy = DATA_MCPI_OFFSET;
     } else {
-        dc = (HDC)handle();
+        dc = winHDC();
         sy = 0;
     }
 
@@ -923,7 +923,7 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
         dc = pm.DATA_MCPI_MCP->handle();
         sy = pm.DATA_MCPI_OFFSET;
     } else {
-        dc = (HDC)pm.handle();
+        dc = pm.winHDC();
         sy = 0;
     }
     HDC src_dc = GetDC(window);
@@ -972,7 +972,7 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
                 dc = DATA_MCPI_MCP->handle();
                 sy = DATA_MCPI_OFFSET;
             } else {
-                dc = (HDC)handle();
+                dc = winHDC();
                 sy = 0;
             }
             HDC pm_dc;
@@ -981,7 +981,7 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
                 pm_dc = pm.multiCellHandle();
                 pm_sy = pm.multiCellOffset();
             } else {
-                pm_dc = (HDC)pm.handle();
+                pm_dc = pm.winHDC();
                 pm_sy = 0;
             }
 #ifndef Q_OS_TEMP
@@ -1119,7 +1119,7 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
         pm_dc = pm.multiCellHandle();
         pm_sy = pm.multiCellOffset();
     } else {
-        pm_dc = (HDC)pm.handle();
+        pm_dc = pm.winHDC();
         pm_sy = 0;
     }
     pm.data->uninit = false;

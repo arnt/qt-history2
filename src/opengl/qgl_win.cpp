@@ -22,6 +22,7 @@
 
 #include <windows.h>
 
+Q_GUI_EXPORT HDC qt_winHDC(const QPaintDevice *device);
 
 class QGLCmapPrivate
 {
@@ -475,7 +476,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         if (glFormat.plane())
             return false;                // Pixmaps can't have overlay
         win = 0;
-        myDc = (HDC)d->paintDevice->handle();
+        myDc = static_cast<QPixmap*>(d->paintDevice)->winHDC();
     }
     else {
         win = ((QWidget*)d->paintDevice)->winId();
@@ -789,7 +790,7 @@ void QGLContext::makeCurrent()
     if (win)
         dc = GetDC(win);
     else
-        dc = (HDC)d->paintDevice->handle();
+        dc = qt_winHDC(d->paintDevice);
     if (QColor::hPal()) {
         SelectPalette(dc, QColor::hPal(), false);
         RealizePalette(dc);
@@ -870,7 +871,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
         return;
     if (deviceIsPixmap()) {
         winId = 0;
-        glHdc = (HDC)d->paintDevice->handle();
+        glHdc = qt_winHDC(d->paintDevice);
     } else {
         winId = ((QWidget*)d->paintDevice)->winId();
         glHdc = GetDC(winId);

@@ -661,6 +661,7 @@ static inline HFONT systemFont()
 #define DEFAULT_GUI_FONT 17
 #endif
 
+extern HDC qt_winHDC(const QPaintDevice *dev);
 
 static
 QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
@@ -679,7 +680,7 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
 
     HDC hdc;
     if (paintdevice) {
-        hdc = paintdevice->paintEngine()->handle();
+        hdc = qt_winHDC(paintdevice);
     } else if (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) {
         hdc = GetDC(0);
     } else {

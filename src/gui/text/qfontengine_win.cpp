@@ -279,8 +279,6 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 
 void QFontEngineWin::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
 {
-    HDC old_hdc = hdc;
-    hdc = p->handle();
     QPainterState *state = p->painterState();
 
     double scale = 1.;
@@ -422,7 +420,6 @@ void QFontEngineWin::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
     if (nat_xf)
         p->nativeXForm(false);
 #endif
-    hdc = old_hdc;
 }
 
 glyph_metrics_t QFontEngineWin::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
