@@ -967,11 +967,11 @@ void Parser::emitConstants( const QValueList<QVariant>& constants )
     yyProg->append( new PushSeparator );
     while ( v != constants.end() ) {
 	QValueList<QVariant>::ConstIterator w = (*v).listBegin();
-	QValueList<QVariant> nameExpr = (*++w).toList();
+	QString name = (*++w).toList()[2].toString();
 	QVariant valueExpr = *++w;
 
 	yyProg->append( new PushSeparator );
-	emitExpr( nameExpr );
+	yyProg->append( new Push(name) );
 	emitExpr( valueExpr );
 	yyProg->append( new MakeList );
 	++v;
@@ -2058,10 +2058,11 @@ void Parser::matchSelectStatement()
 	selectColumnNames.append( QString::null );
     } else {
 	while ( TRUE ) {
-	    int start = yyPos - 1 + 1;
+	    int start = yyPos;
 	    selectColumns.append( matchScalarExpr() );
-	    int end = yyPos - 1;
-	    selectColumnNames.append( yyIn.mid(start, end - start) );
+	    int end = yyPos;
+	    selectColumnNames.append( yyIn.mid(start, end - start)
+				      .stripWhiteSpace() );
 
 	    if ( yyTok != Tok_Comma )
 		break;
