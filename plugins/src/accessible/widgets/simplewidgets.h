@@ -29,6 +29,7 @@ public:
     Role	role(int child) const;
 
     int		relationTo(int child, const QAccessibleInterface *other, int otherChild) const;
+    int		navigate(Relation, int entry, QAccessibleInterface **target) const;
 };
 
 class QAccessibleLineEdit : public QAccessibleWidget

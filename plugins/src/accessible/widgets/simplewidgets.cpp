@@ -183,11 +183,32 @@ int QAccessibleDisplay::relationTo(int child, const QAccessibleInterface *other,
     if (label) {
 	if (o == label->buddy())
 	    relation |= Label;
-    } else if (groupbox) {
+    } else if (groupbox && !groupbox->title().isEmpty()) {
 	if (groupbox->children().contains(o))
 	    relation |= Label;
     }
     return relation;
+}
+
+/*! \reimp */
+int QAccessibleDisplay::navigate(Relation rel, int entry, QAccessibleInterface **target) const
+{
+    *target = 0;
+    if (rel == Labelled) {
+	QObject *targetObject = 0;
+        QLabel *label = qt_cast<QLabel*>(object());
+	QGroupBox *groupbox = qt_cast<QGroupBox*>(object());
+	if (label) {
+	    if (entry == 1)
+		targetObject = label->buddy();
+	} else if (groupbox && !groupbox->title().isEmpty()) {
+	    rel = Child;
+	}
+	QAccessible::queryAccessibleInterface(targetObject, target);
+	if (*target)
+	    return 0;
+    }
+    return QAccessibleWidget::navigate(rel, entry, target);
 }
 
 /*!
