@@ -704,39 +704,42 @@ void QWorkspace::handleUndock(QDockWindow *w)
 		    break;
 		}
 	    }
-	    QWidget *l, *p = NULL;
+
+	    QWidget *l, *nearest = NULL, *furthest;
 	    for ( it.toFirst(); it.current(); ++it ) {
 		l = it.current();
-		if ( l != w && y >= l->y() && l->y() + l->height() > y) {
-		    if(l->rect().intersects(QRect(x, y, w->width(), w->height())) ||
-		       (left && l->x() < maxRect.width() / 2) || (!left && l->x() > maxRect.width() / 2)) 
-			p = (!p || (((left && l->x() < p->x()) || (!left && l->x() > p->x())) && 
-				    ((y - l->y()) < (y - p->y())))) ? l : p;
+		if ( l != w && y == l->y() ) {
+		    if(!nearest) {
+			nearest = l;
+		    } else if(nearest->x() == x) {
+			nearest = l;
+			break;
+		    } else if(left && (l->x() - x) < (nearest->x() - x)) {
+			nearest = l;
+		    } else if(!left && (x - l->x()) < (x - nearest->x())) {
+			nearest = l;
+		    }
 		}
 	    }
-	    if(!p || !p->rect().intersects(QRect(x, y, w->width(), w->height()))) {
-		wpos = QPoint(x, y);
+	    if(!nearest || !nearest->rect().intersects(QRect(x, y, w->width(), w->height()))) {
+		wpos = QPoint(x, y); //best possible outcome
 		possible = 1;
 		break;
 	    }
-	    for ( it.toFirst(); it.current(); ++it ) {
+	    for ( furthest = nearest, it.toFirst(); it.current(); ++it ) {
 		l = it.current();
-		if ( l != w && l->y() == p->y() ) {
-		     if( (left  && (l->x() + l->width()) > (p->x() + p->width())) ||
-			 (!left && (l->x() < p->x()) ) ) {
-			 p = l;
-		     }
-		}
+		if ( l != w && l->y() == nearest->y() &&
+		     ((left  && (l->x() == nearest->x() + nearest->width())) ||
+		      (!left && (l->x() + l->width() == nearest->x()) )))
+		    furthest = l;
 	    }
-	    QPoint sc_pt;
+
+	    QPoint sc_pt(x, y);
 	    place_score sc;
-	    if(left) {
-		sc_pt = QPoint(p->x() + p->width(), p->y());
-		sc.x = (sc_pt.x() + w->width()) * 2;
-	    } else {
-		sc_pt = QPoint(p->x() - w->width(), p->y());
-		sc.x = ((maxRect.width() - sc_pt.x()) * 2) + 1;
-	    }
+	    if(left) 
+		sc.x = (x + w->width()) * 2;
+	    else 
+		sc.x = ((maxRect.width() - x) * 2) + 1;
 	    sc.y = sc_pt.y();
 	    for ( it.toFirst(); it.current(); ++it ) {
 		l = it.current();
@@ -747,12 +750,17 @@ void QWorkspace::handleUndock(QDockWindow *w)
 		}
 	    }
 	    if(maxRect.contains(sc_pt) && 
-	       (!possible || (score.o && !sc.o && score.x < sc.x))) {
+	       (!possible || (score.o && !sc.o) || 
+		((score.o || !sc.o) && score.x < sc.x))) {
 		wpos = sc_pt;
 		score = sc;
 		possible = 1;
 	    }
-	    y += p->height();
+	    y += nearest->height();
+	    if(left)
+		x = maxRect.x();
+	    else
+		x = maxRect.right() - w->width();
 	}
     }
     if(!possible) { //fallback to less knowledgeable algorhythm
