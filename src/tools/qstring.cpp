@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#201 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#202 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -36,7 +36,7 @@
 
 /* -------------------------------------------------------------------------
  * unicode information
- * these tables are generated from the unicode reference file 
+ * these tables are generated from the unicode reference file
  * ftp://ftp.unicode.org/Public/2.1-Update3/UnicodeData-2.1.8.txt
  *
  * Lars Knoll <knoll@mpi-hd.mpg.de>
@@ -2003,6 +2003,7 @@ static const Q_UINT16 cb_fe [] = {
     0, 0, 0, 0, 0, 0, 0, 0,
 };
 
+#if 0 // not used
 static const Q_UINT16 *combining_info [256] = {
      0, 0, 0, cb_3, cb_4, cb_5, cb_6, 0,
      0, cb_9, cb_a, cb_b, cb_c, cb_d, cb_e, cb_f,
@@ -2037,6 +2038,8 @@ static const Q_UINT16 *combining_info [256] = {
      0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, cb_fb, 0, 0, cb_fe, 0,
 };
+#endif
+
 
 static const Q_UINT8 dir_0 [] = {
     10, 10, 10, 10, 10, 10, 10, 10,
@@ -13199,7 +13202,7 @@ QString QString::visual(int index, int len)
 
     delete [] level;
     delete [] dir;
-    
+
     QString ret(chars, len);
     delete chars;
     return ret;
@@ -13598,16 +13601,16 @@ QString &QString::operator=( const char *str )
     s.truncate( 5 );				// s == "trunc"
   \endcode
 
+  In Qt 1.x, it was possible to "truncate" a string to a longer
+  length.  This is no longer possible.
+  
   \sa setLength()
 */
-//### different behaviour than 1.x - but insignificant?
+
 void QString::truncate( uint newLen )
 {
     if ( newLen < d->len )
 	setLength( newLen );
-	
-    //### Is there any point in extending the array if newlen > d->len ?
-    // (Qt 1.x did, but there, one could access the data directly...)
 }
 
 /*!
