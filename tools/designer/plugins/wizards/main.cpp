@@ -1,6 +1,7 @@
 #define Q_UUIDIMPL
 #include <qcleanuphandler.h>
 #include "../designerinterface.h"
+#include <qfeatures.h>
 #include <qwidget.h>
 #include "sqlformwizardimpl.h"
 

@@ -37,6 +37,7 @@
 #include "qsqlcursor.h"
 
 #ifndef QT_NO_SQL
+
 #include "qsqldriver.h"
 #include "qsqlresult.h"
 #include "qdatetime.h"

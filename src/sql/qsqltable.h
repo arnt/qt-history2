@@ -37,6 +37,10 @@
 #ifndef QSQLTABLE_H
 #define QSQLTABLE_H
 
+#include "qfeatures.h"
+
+#ifndef QT_NO_SQL
+
 #ifndef QT_H
 #include "qstring.h"
 #include "qvariant.h"
@@ -47,8 +51,6 @@
 #include "qsqlnavigator.h"
 #include "qiconset.h"
 #endif // QT_H
-
-#ifndef QT_NO_SQL
 
 class QPainter;
 class QSqlField;

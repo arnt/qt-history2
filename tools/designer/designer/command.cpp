@@ -29,6 +29,7 @@
 #include "formlist.h"
 #include "actioneditorimpl.h"
 
+#include <qfeatures.h>
 #include <qwidget.h>
 #include <qmetaobject.h>
 #include <qapplication.h>

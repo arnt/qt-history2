@@ -37,13 +37,15 @@
 #ifndef QSQLNAVIGATOR_H
 #define QSQLNAVIGATOR_H
 
+#include "qfeatures.h"
+
+#ifndef QT_NO_SQL
+
 #ifndef QT_H
 #include "qglobal.h"
 #include "qsqlerror.h"
 #include "qsqlindex.h"
 #endif // QT_H
-
-#ifndef QT_NO_SQL
 
 class QSqlCursor;
 class QSqlForm;

@@ -37,11 +37,13 @@
 #ifndef QSQLEDITORFACTORY_H
 #define QSQLEDITORFACTORY_H
 
+#include "qfeatures.h"
+
+#ifndef QT_NO_SQL
+
 #ifndef QT_H
 #include "qeditorfactory.h"
 #endif // QT_H
-
-#ifndef QT_NO_SQL
 
 class QSqlField;
 

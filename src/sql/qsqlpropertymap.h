@@ -37,12 +37,14 @@
 #ifndef QSQLPROPERTYMAP_H
 #define QSQLPROPERTYMAP_H
 
+#include "qfeatures.h"
+
+#ifndef QT_NO_SQL
+
 #ifndef QT_H
 #include "qvariant.h"
 #include "qmap.h"
 #endif // QT_H
-
-#ifndef QT_NO_SQL
 
 class QWidget;
 

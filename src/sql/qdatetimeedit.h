@@ -37,6 +37,10 @@
 #ifndef QDATETIMEEDIT_H
 #define QDATETIMEEDIT_H
 
+#include "qfeatures.h"
+
+#ifndef QT_NO_SQL
+
 #ifndef QT_H
 #include "qwidget.h"
 #include "qvalidator.h"
@@ -46,8 +50,6 @@
 #include "qframe.h"
 #endif // QT_H
 
-#ifndef QT_NO_SQL
-
 class QNumEditPrivate;
 class QDateTimeEditLabelPrivate;
 
@@ -56,7 +58,7 @@ class Q_EXPORT QDateTimeEditBase : public QFrame
     Q_OBJECT
 public:
     QDateTimeEditBase( QWidget * parent = 0,
-                       const char * name = "QDateTimeEditBase" );
+		       const char * name = "QDateTimeEditBase" );
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 

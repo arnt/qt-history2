@@ -37,12 +37,14 @@
 #ifndef QSQLFIELD_H
 #define QSQLFIELD_H
 
+#include "qfeatures.h"
+
+#ifndef QT_NO_SQL
+
 #ifndef QT_H
 #include "qstring.h"
 #include "qvariant.h"
 #endif // QT_H
-
-#ifndef QT_NO_SQL
 
 class QSqlFieldPrivate;
 

@@ -34,12 +34,13 @@
 **
 **********************************************************************/
 
+#include "qsqlpropertymap.h"
+
 #ifndef QT_NO_SQL
 
 #include "qwidget.h"
 #include "qcleanuphandler.h"
 #include "qobjcoll.h"
-#include "qsqlpropertymap.h"
 
 /*!
   \class QSqlPropertyMap qsqlpropertymap.h

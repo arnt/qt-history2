@@ -34,10 +34,11 @@
 **
 **********************************************************************/
 
+#include "qsqlform.h"
+
 #ifndef QT_NO_SQL
 
 #include "qsqlfield.h"
-#include "qsqlform.h"
 #include "qsqlpropertymap.h"
 #include "qsqlrecord.h"
 #include "qstringlist.h"

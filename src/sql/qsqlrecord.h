@@ -37,14 +37,16 @@
 #ifndef QSQLRECORD_H
 #define QSQLRECORD_H
 
+#include "qfeatures.h"
+
+#ifndef QT_NO_SQL
+
 #ifndef QT_H
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qvariant.h"
 #include "qsqlfield.h"
 #endif // QT_H
-
-#ifndef QT_NO_SQL
 
 // #if defined(Q_TEMPLATEDLL)
 // // MOC_SKIP_BEGIN

@@ -37,12 +37,14 @@
 #ifndef QSQLFORM_H
 #define QSQLFORM_H
 
+#include "qfeatures.h"
+
+#ifndef QT_NO_SQL
+
 #ifndef QT_H
 #include "qobject.h"
 #include "qmap.h"
 #endif // QT_H
-
-#ifndef QT_NO_SQL
 
 class QSqlField;
 class QSqlRecord;

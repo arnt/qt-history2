@@ -37,14 +37,16 @@
 #ifndef QSQLCURSOR_H
 #define QSQLCURSOR_H
 
+#include "qfeatures.h"
+
+#ifndef QT_NO_SQL
+
 #ifndef QT_H
 #include "qsqlrecord.h"
 #include "qstringlist.h"
 #include "qsqlquery.h"
 #include "qsqlindex.h"
 #endif // QT_H
-
-#ifndef QT_NO_SQL
 
 class QSqlDatabase;
 class QSqlCursorPrivate;

@@ -37,6 +37,10 @@
 #ifndef QSQLDRIVER_H
 #define QSQLDRIVER_H
 
+#include "qfeatures.h"
+
+#ifndef QT_NO_SQL
+
 #ifndef QT_H
 #include "qobject.h"
 #include "qstring.h"
@@ -46,8 +50,6 @@
 #include "qsqlindex.h"
 #include "qstringlist.h"
 #endif // QT_H
-
-#ifndef QT_NO_SQL
 
 class QSqlDatabase;
 
@@ -59,8 +61,8 @@ public:
     QSqlDriver( QObject * parent=0, const char * name=0 );
     ~QSqlDriver();
 
-    bool 	          isOpen() const;
-    bool 	          isOpenError() const;
+    bool	          isOpen() const;
+    bool	          isOpenError() const;
 
     virtual bool          beginTransaction();
     virtual bool          commitTransaction();
@@ -88,8 +90,8 @@ protected:
     virtual void          setOpenError( bool e );
     virtual void	  setLastError( const QSqlError& e );
 private:
-    int 	          dbState;
-    QSqlError 	          error;
+    int	          dbState;
+    QSqlError	          error;
 #if defined(Q_DISABLE_COPY)
     QSqlDriver( const QSqlDriver & );
     QSqlDriver &operator=( const QSqlDriver & );

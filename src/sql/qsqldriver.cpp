@@ -35,13 +35,14 @@
 **********************************************************************/
 
 #include "qsqldriver.h"
-#include "qdatetime.h"
 
 #ifndef QT_NO_SQL
 
+#include "qdatetime.h"
+
 // database states
-#define DBState_Open	    	0x0001
-#define DBState_OpenError   	0x0002
+#define DBState_Open		0x0001
+#define DBState_OpenError	0x0002
 
 /*!
   \class QSqlDriver qsqldriver.h
@@ -100,7 +101,7 @@ QSqlDriver::~QSqlDriver()
 //void QSqlDriver::destroyResult( QSqlResult* r ) const
 //{
 //    if ( r )
-//    	delete r;
+//	delete r;
 //}
 
 /*!  Returns TRUE if the database connection is open, FALSE otherwise.
@@ -302,7 +303,7 @@ QString QSqlDriver::nullText() const
 
   The default implementation returns the value formatted as a string
   according to the following rules:
-  
+
   <ul>
 
   <li> If \a field is null, nullText() is returned.
@@ -320,7 +321,7 @@ QString QSqlDriver::nullText() const
 
   <li> For any other field type toString() will be called on its value
   and the result returned.
-  
+
   </ul>
 
   \sa QVariant::toString().
@@ -336,19 +337,19 @@ QString QSqlDriver::formatValue( const QSqlField* field ) const
 	case QVariant::Date:
 	    if ( field->value().toDate().isValid() )
 		r = "'" + field->value().toDate().toString( Qt::ISODate ) + "'";
-	    else 
+	    else
 		r = nullText();
 	    break;
 	case QVariant::Time:
 	    if ( field->value().toTime().isValid() )
 		r = "'" + field->value().toTime().toString( Qt::ISODate ) + "'";
-	    else 
+	    else
 		r = nullText();
 	    break;
 	case QVariant::DateTime:
 	    if ( field->value().toDateTime().isValid() )
 		r = "'" + field->value().toDateTime().toString( Qt::ISODate ) + "'";
-	    else 
+	    else
 		r = nullText();
 	    break;
 	case QVariant::String:
@@ -378,13 +379,3 @@ QString QSqlDriver::formatValue( const QSqlField* field ) const
 }
 
 #endif // QT_NO_SQL
-
-
-
-
-
-
-
-
-
-

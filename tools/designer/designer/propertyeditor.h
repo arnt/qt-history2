@@ -21,6 +21,7 @@
 #ifndef PROPERTYEDITOR_H
 #define PROPERTYEDITOR_H
 
+#include <qfeatures.h>
 #include <qvariant.h>
 #include <qlistview.h>
 #include <qlist.h>

@@ -38,6 +38,8 @@
 #ifndef QSQLDIALOG_H
 #define QSQLDialog_H
 
+#include "qfeatures.h"
+
 #ifndef QT_NO_SQL
 
 #ifndef QT_H

@@ -37,6 +37,7 @@
 #endif
 #include "actiondnd.h"
 
+#include <qfeatures.h>
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qobject.h>

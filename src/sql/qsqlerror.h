@@ -37,11 +37,13 @@
 #ifndef QSQLERROR_H
 #define QSQLERROR_H
 
+#include "qfeatures.h"
+
+#ifndef QT_NO_SQL
+
 #ifndef QT_H
 #include "qstring.h"
 #endif // QT_H
-
-#ifndef QT_NO_SQL
 
 class Q_EXPORT QSqlError
 {
@@ -54,26 +56,26 @@ public:
 	Unknown
     };
     QSqlError(  const QString& driverText = QString::null,
-    		const QString& databaseText = QString::null,
+		const QString& databaseText = QString::null,
 		int type = QSqlError::None,
 		int number = -1 );
     QSqlError( const QSqlError& other );
     QSqlError& operator=( const QSqlError& other );
     virtual ~QSqlError();
-    
-    QString 	driverText() const;
+
+    QString	driverText() const;
     virtual void setDriverText( const QString& driverText );
-    QString 	databaseText() const;
+    QString	databaseText() const;
     virtual void setDatabaseText( const QString& databaseText );
     int		type() const;
     virtual void setType( int type );
     int		number() const;
     virtual void setNumber( int number );
 private:
-    QString 	driverError;
+    QString	driverError;
     QString	databaseError;
     int		errorType;
-    int 	errorNumber;
+    int	errorNumber;
 };
 
 #endif // QT_NO_SQL

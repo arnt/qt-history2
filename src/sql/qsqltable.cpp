@@ -35,6 +35,9 @@
 **********************************************************************/
 
 #include "qsqltable.h"
+
+#ifndef QT_NO_SQL
+
 #include "qsqldriver.h"
 #include "qsqleditorfactory.h"
 #include "qsqlpropertymap.h"
@@ -47,7 +50,6 @@
 #include "qbitarray.h"
 #include "qvaluelist.h"
 
-#ifndef QT_NO_SQL
 
 // void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
 // {

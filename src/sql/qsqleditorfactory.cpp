@@ -34,11 +34,12 @@
 **
 **********************************************************************/
 
-#include "qsqlfield.h"
-#include "qcleanuphandler.h"
 #include "qsqleditorfactory.h"
 
 #ifndef QT_NO_SQL
+
+#include "qsqlfield.h"
+#include "qcleanuphandler.h"
 
 /*!
   \class QSqlEditorFactory qsqleditorfactory.h
@@ -96,8 +97,8 @@ QSqlEditorFactory * QSqlEditorFactory::defaultFactory()
     return defaultfactory;
 }
 
-/*! 
-  
+/*!
+
   Replaces the default editor factory with \a factory. All QSqlTable
   and QSqlForm instantiations will use this new factory for creating
   field editors. <em>QSqlEditorFactory takes ownership of factory,
@@ -122,7 +123,7 @@ void QSqlEditorFactory::installDefaultFactory( QSqlEditorFactory * factory )
   \a variant.  If \a variant is invalid, 0 is returned.
 */
 
-QWidget * QSqlEditorFactory::createEditor( QWidget * parent, 
+QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
 					   const QVariant & variant )
 {
     return QEditorFactory::createEditor( parent, variant );
@@ -134,7 +135,7 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
 
 */
 
-QWidget * QSqlEditorFactory::createEditor( QWidget * parent, 
+QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
 					   const QSqlField * field )
 {
     QVariant v = field->value();
@@ -142,5 +143,3 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
 }
 
 #endif // QT_NO_SQL
-
-

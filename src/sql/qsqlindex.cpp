@@ -36,7 +36,6 @@
 
 #include "qsqlindex.h"
 
-
 #ifndef QT_NO_SQL
 
 #include "qsqlcursor.h"
