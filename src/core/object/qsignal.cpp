@@ -184,26 +184,28 @@ bool qInvokeSlot(QObject *obj, const char *slotName,
     QByteArray sig;
     sig.reserve(512);
     sig.append(slotName).append('(');
-    if (val0.name())
-        sig.append(val0.name()).append(',');
-    if (val1.name())
-        sig.append(val1.name()).append(',');
-    if (val2.name())
-        sig.append(val2.name()).append(',');
-    if (val3.name())
-        sig.append(val3.name()).append(',');
-    if (val4.name())
-        sig.append(val4.name()).append(',');
-    if (val5.name())
-        sig.append(val5.name()).append(',');
-    if (val6.name())
-        sig.append(val6.name()).append(',');
-    if (val7.name())
-        sig.append(val7.name()).append(',');
-    if (val8.name())
-        sig.append(val8.name()).append(',');
-    if (val9.name())
+    if (val0.name()
+        && sig.append(val0.name()).append(',')
+        && val1.name()
+        && sig.append(val1.name()).append(',')
+        && val2.name()
+        && sig.append(val2.name()).append(',')
+        && val3.name()
+        && sig.append(val3.name()).append(',')
+        && val4.name()
+        && sig.append(val4.name()).append(',')
+        && val5.name()
+        && sig.append(val5.name()).append(',')
+        && val6.name()
+        && sig.append(val6.name()).append(',')
+        && val7.name()
+        && sig.append(val7.name()).append(',')
+        && val8.name()
+        && sig.append(val8.name()).append(',')
+        && val9.name())
+    {
         sig.append(val9.name()).append(',');
+    }
     if (sig.endsWith(','))
         sig.truncate(sig.length() - 1);
     sig.append(')');
