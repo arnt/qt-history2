@@ -284,7 +284,7 @@ bool EditorInterfaceImpl::eventFilter( QObject *o, QEvent *e )
     } else if ( e->type() == QEvent::FocusIn && dIface ) {
 	updateTimer->start( 5000, FALSE );
     }
-	
+
     return QObject::eventFilter( o, e );
 }
 
@@ -297,6 +297,6 @@ void EditorInterfaceImpl::update()
 int EditorInterfaceImpl::numLines() const
 {
     if ( !viewManager || !viewManager->currentView() )
-	return;
+	return 0;
     return ( (CppEditor*)viewManager->currentView() )->paragraphs();
 }
