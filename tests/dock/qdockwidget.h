@@ -37,14 +37,17 @@ public:
     bool isHorizontalStretchable() const;
     bool isVerticalStretchable() const;
     bool isStretchable() const;
-    
+
     void setOffset( int o );
     int offset() const;
-    
+
     void setFixedExtendWidth( int w );
     void setFixedExtendHeight( int h );
     QSize fixedExtend() const;
     bool hasFixedExtend() const;
+
+    void setNewLine( bool b );
+    bool newLine() const;
     
     QSize sizeHint() const;
     QSize minimumSize() const;
@@ -84,6 +87,7 @@ private:
     bool stretchable[ 2 ];
     int offs;
     QSize fExtend;
+    bool nl;
     
 };
 

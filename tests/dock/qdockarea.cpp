@@ -134,7 +134,7 @@ static int start_pos( const QRect &r, Qt::Orientation o )
 {
     if ( o == Qt::Horizontal ) {
 	if ( !qApp->reverseLayout() )
-	    return r.x();
+	    return QMAX( 0, r.x() );
 	else
 	    return r.x() + r.width();
     } else {
@@ -211,7 +211,7 @@ static int size_extend( const QSize &s, Qt::Orientation o )
     return s.height();
 }
 
-static void finish_line( const QValueList<DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextend )
+static void place_line( const QValueList<DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextend )
 {
     QDockWidget *last = 0;
     QRect lastRect;
@@ -224,7 +224,7 @@ static void finish_line( const QValueList<DockData> &lastLine, Qt::Orientation o
 	if ( !last->isStretchable() )
 	    set_geometry( last, lastRect.x(), lastRect.y(), lastRect.width(), lastRect.height(), o );
 	else
-	    set_geometry( last, lastRect.x(), lastRect.y(), (*it).rect.x() - lastRect.x(), 
+	    set_geometry( last, lastRect.x(), lastRect.y(), (*it).rect.x() - lastRect.x(),
 			  last->isResizeEnabled() ? linestrut : lastRect.height(), o );
 
 	last = (*it).w;
@@ -235,7 +235,7 @@ static void finish_line( const QValueList<DockData> &lastLine, Qt::Orientation o
     if ( !last->isStretchable() )
 	set_geometry( last, lastRect.x(), lastRect.y(), lastRect.width(), lastRect.height(), o );
     else
-	set_geometry( last, lastRect.x(), lastRect.y(), fullextend - lastRect.x(), 
+	set_geometry( last, lastRect.x(), lastRect.y(), fullextend - lastRect.x(),
 		      last->isResizeEnabled() ? linestrut : lastRect.height(), o );
 }
 
@@ -245,7 +245,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	return 0;
     QListIterator<QDockWidget> it( *dockWidgets );
     QDockWidget *dw = 0;
-    int start = start_pos( r, orientation() ) + 1;
+    int start = start_pos( r, orientation() );
     int pos = start;
     int sectionpos = 0;
     int linestrut = 0;
@@ -253,8 +253,9 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
     while ( ( dw = it.current() ) != 0 ) {
  	++it;
 	if ( !lastLine.isEmpty() &&
-	     space_left( r, pos, orientation() ) < dock_extend( dw, orientation() ) ) {
-	    finish_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
+	     ( space_left( r, pos, orientation() ) < dock_extend( dw, orientation() ) || dw->newLine() ) ) {
+	    if ( !testonly )
+		place_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
 	    lastLine.clear();
 	    sectionpos += linestrut;
 	    linestrut = 0;
@@ -266,7 +267,8 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	linestrut = QMAX( dock_strut( dw, orientation() ), linestrut );
 	add_size( dock_extend( dw, orientation() ), pos, orientation() );
     }
-    finish_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
+    if ( !testonly )
+	place_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
     return sectionpos + linestrut;
 }
 

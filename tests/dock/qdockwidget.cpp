@@ -381,7 +381,7 @@ void QDockWidgetTitleBar::updateGui()
 QDockWidget::QDockWidget( QWidget *parent, const char *name )
     : QFrame( parent, name, WStyle_Customize | WStyle_NoBorderEx ), curPlace( OutsideDock ),
       wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), closeEnabled( FALSE ), resizeEnabled( FALSE ),
-      addY( 0 ), addX( 0 ), offs( 0 ), fExtend( -1, -1 )
+      addY( 0 ), addX( 0 ), offs( 0 ), fExtend( -1, -1 ), nl( FALSE )
 {
     titleBar = new QDockWidgetTitleBar( this );
     handle = new QDockWidgetHandle( this );
@@ -662,6 +662,16 @@ bool QDockWidget::hasFixedExtend() const
     if ( orientation() == Horizontal )
 	return fExtend.width() != -1;
     return fExtend.height() != -1;
+}
+
+void QDockWidget::setNewLine( bool b )
+{
+    nl = b;
+}
+
+bool QDockWidget::newLine() const
+{
+    return nl;
 }
 
 #include "qdockwidget.moc"
