@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#38 $
 **
 ** Implementation of QRect class
 **
@@ -13,7 +13,7 @@
 #include "qrect.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#38 $");
 
 
 /*!
@@ -53,7 +53,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#37 $");
 
 /*!
   \fn QRect::QRect()
-  Constructs a rectangle with undefined position and size.
+  Constructs an invalid rectangle.
 */
 
 /*!

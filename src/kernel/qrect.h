@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#30 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#31 $
 **
 ** Definition of QRect class
 **
@@ -18,7 +18,7 @@
 class QRect					// rectangle class
 {
 public:
-    QRect()	{}
+    QRect()	{ x1 = y1 = 1; x2 = y2 = 0; }
     QRect( const QPoint &topleft, const QPoint &bottomright );
     QRect( const QPoint &topleft, const QSize &size );
     QRect( int left, int top, int width, int height );
