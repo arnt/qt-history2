@@ -197,7 +197,6 @@ const char* QClipboardWatcher::format( int n ) const
     memcpy(buffer, buffer+realsize, typesize);
     *(buffer + realsize) = '\0';
     ret = buffer;
-    qDebug("::format non-special %s", ret);
 
  format_end:
     if(infos)
