@@ -838,7 +838,10 @@ void QDockWindow::updateGui()
 void QDockWindow::updatePosition( const QPoint &globalPos )
 {
     bool doAdjustSize = curPlace != state && state == OutsideDock;
+    bool doUpdate = TRUE;
+    bool doOrientationChange = TRUE;
     if ( state != curPlace && state == InDock ) {
+	doUpdate = FALSE;
 	curPlace = state;
 	emit placeChanged( curPlace );
 	updateGui();
@@ -848,12 +851,25 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 
     if ( state == InDock ) {
 	if ( tmpDockArea ) {
+	    bool differentDocks = FALSE;
 	    if ( dockArea && dockArea != tmpDockArea ) {
+		differentDocks = TRUE;
 		delete (QDockArea::DockWindowData*)dockWindowData;
 		dockWindowData = dockArea->dockWindowData( this );
 		dockArea->removeDockWindow( this, FALSE, FALSE );
 	    }
 	    dockArea = tmpDockArea;
+	    if ( differentDocks ) {
+		if ( doUpdate ) {
+		    doUpdate = FALSE;
+		    curPlace = state;
+		    emit placeChanged( curPlace );
+		    updateGui();
+		}
+		emit orientationChanged( tmpDockArea->orientation() );
+		QApplication::sendPostedEvents();
+		doOrientationChange = FALSE;
+	    }
 	    dockArea->moveDockWindow( this, globalPos, currRect, startOrientation != oo );
 	}
     } else {
@@ -865,12 +881,13 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 	dockArea = 0;
 	move( currRect.topLeft() );
     }
-    if ( state != curPlace && state == OutsideDock ) {
+    if ( doUpdate ) {
 	curPlace = state;
 	emit placeChanged( curPlace );
 	updateGui();
     }
-    emit orientationChanged( orientation() );
+    if ( doOrientationChange )
+	emit orientationChanged( orientation() );
     tmpDockArea = 0;
     if ( doAdjustSize ) {
 	QApplication::sendPostedEvents( this, QEvent::LayoutHint );
