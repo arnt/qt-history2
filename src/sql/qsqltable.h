@@ -62,7 +62,8 @@ class Q_EXPORT QSqlTable : public QTable
     Q_PROPERTY( QString falseText READ falseText WRITE setFalseText )
     Q_PROPERTY( bool confirmEdits READ confirmEdits WRITE setConfirmEdits )
     Q_PROPERTY( bool confirmCancels READ confirmCancels WRITE setConfirmCancels )
-    Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
+    Q_PROPERTY( QString filter READ filter WRITE setFilter )
+    Q_PROPERTY( QStringList sort READ sort WRITE setSort )
 
 public:
     QSqlTable ( QWidget * parent = 0, const char * name = 0 );
@@ -80,24 +81,27 @@ public:
     bool         confirmEdits() const;
     bool         confirmCancels() const;
     bool         autoDelete() const;
-    bool         isReadOnly() const;
     bool         isColumnReadOnly( int col ) const;
+    QString      filter() const;
+    QStringList  sort() const;
 
-    virtual void setCursor( QSqlCursor* cursor = 0, bool autoPopulate = TRUE, bool autoDelete = FALSE );
+    virtual void setCursor( QSqlCursor* cursor = 0, bool autoPopulate = FALSE, bool autoDelete = FALSE );
     virtual void setNullText( const QString& nullText );
     virtual void setTrueText( const QString& trueText );
     virtual void setFalseText( const QString& falseText );
     virtual void setConfirmEdits( bool confirm );
     virtual void setConfirmCancels( bool confirm );
     virtual void setAutoDelete( bool enable );
-    virtual void setReadOnly( bool b );
     virtual void setColumnReadOnly( int col, bool b );
+    virtual void setFilter( const QString& filter );
+    virtual void setSort( const QStringList& sort );
+    virtual void setSort( const QSqlIndex& sort );
 
     QSqlCursor*  cursor() const;
 
     void         sortColumn ( int col, bool ascending = TRUE,
 			      bool wholeRows = FALSE );
-    void         refresh( QSqlIndex idx );
+    void         refresh( const QSqlIndex& idx );
     QString      text ( int row, int col ) const;
     QVariant     value ( int row, int col ) const;
     QSqlRecord   currentFieldSelection() const;
@@ -156,7 +160,7 @@ protected:
     void         activateNextCell();
     int          indexOf( uint i ) const;
     void         reset();
-    void         setSize( const QSqlCursor* sql );
+    void         setSize( QSqlCursor* sql );
     void         setNumRows ( int r );
     void         repaintCell( int row, int col );
     void         paintCell ( QPainter * p, int row, int col, const QRect & cr,
@@ -180,7 +184,7 @@ private slots:
 private:
     void         init();
     QWidget*     beginEdit ( int row, int col, bool replace );
-    void         refresh( QSqlCursor* cursor, QSqlIndex idx = QSqlIndex() );
+    void         refresh( QSqlCursor* cursor, const QSqlIndex& idx = QSqlIndex() );
     void         setNumCols ( int r );
     void         updateRow( int row );
     void         endInsert();

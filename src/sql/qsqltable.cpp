@@ -51,7 +51,7 @@
 //     qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 //     qDebug(msg);
 //     for ( uint j = 0; j < cursor->count(); ++j ) {
-// 	qDebug(cursor->field(j)->name() + " type:" + QString(cursor->field(j)->value().typeName()) + " value:" + cursor->field(j)->value().toString() );
+//	qDebug(cursor->field(j)->name() + " type:" + QString(cursor->field(j)->value().typeName()) + " value:" + cursor->field(j)->value().toString() );
 //     }
 // }
 
@@ -61,7 +61,6 @@ public:
     QSqlTablePrivate()
 	: haveAllRows( FALSE ),
 	  continuousEdit( FALSE ),
-	  ro( TRUE ),
 	  editorFactory( 0 ),
 	  propertyMap( 0 ),
 	  cursor( 0 ),
@@ -74,7 +73,9 @@ public:
 	  confEdits( FALSE ),
 	  confCancs( FALSE ),
 	  cancelMode( FALSE ),
-	  autoDelete( FALSE )
+	  autoDelete( FALSE ),
+	  ftr(),
+	  srt()
     {}
     ~QSqlTablePrivate() { if ( propertyMap ) delete propertyMap; }
 
@@ -85,7 +86,6 @@ public:
     ColReadOnly  colReadOnly;
     bool         haveAllRows;
     bool         continuousEdit;
-    bool         ro;
     QSqlEditorFactory* editorFactory;
     QSqlPropertyMap* propertyMap;
     QString trueTxt;
@@ -103,6 +103,8 @@ public:
     bool cancelMode;
     bool autoDelete;
     int lastAt;
+    QString ftr;
+    QStringList srt;
 };
 
 /*! \enum Confirm
@@ -239,7 +241,7 @@ void QSqlTable::addColumn( const QSqlField* field )
 {
     if ( cursor() && field &&
 	 cursor()->isVisible( field->name() ) &&
- 	 !cursor()->primaryIndex().field( field->name() ) ) {
+	 !cursor()->primaryIndex().field( field->name() ) ) {
 	setNumCols( numCols() + 1 );
 	d->colIndex.append( cursor()->position( field->name() ) );
 	if ( field->isReadOnly() )
@@ -300,31 +302,6 @@ void QSqlTable::setColumn( uint col, const QSqlField* field )
     }
 }
 
-/*!  Sets the table's readonly flag to \a b.  Note that if the
-  underlying cursor cannot be edited (see QSqlCursor::setMode()), this
-  function will have no effect.
-
-  \sa setCursor() isReadOnly()
-
-*/
-
-void QSqlTable::setReadOnly( bool b )
-{
-    d->ro = b;
-}
-
-/*!  Returns TRUE if the table is readonly, otherwise FALSE is
-  returned.
-
-  \sa setReadOnly()
-
-*/
-
-bool QSqlTable::isReadOnly() const
-{
-    return d->ro;
-}
-
 /*!  Sets the \a column's readonly flag to \a b.  Readonly columns
   cannot be edited. Note that if the underlying cursor cannot be
   edited, this function will have no effect.
@@ -352,6 +329,74 @@ bool QSqlTable::isColumnReadOnly( int col ) const
     if ( col >= numCols() )
 	return FALSE;
     return d->colReadOnly[ col ];
+}
+
+/*! Returns the current filter used on the displayed data.  If there
+  is no current cursor, QString::null is returned.
+
+  \sa setFilter() setCursor()
+
+ */
+
+QString QSqlTable::filter() const
+{
+    if ( cursor() )
+	return cursor()->filter();
+    return QString::null;
+}
+
+/*! Sets the filter to be used on the displayed data to \a filter.  To
+  display the filtered data, use refresh().
+
+  \sa refresh() filter()
+*/
+
+void QSqlTable::setFilter( const QString& filter )
+{
+    d->ftr = filter;
+}
+
+/*! Sets the sort to be used on the displayed data to \a sort.  If
+  there is no current cursor, there is no effect. To display the
+  filtered data, use refresh().
+
+  \sa sort()
+*/
+
+void QSqlTable::setSort( const QStringList& sort )
+{
+    d->srt = sort;
+}
+
+/*! Sets the sort to be used on the displayed data to \a sort.  If
+  there is no current cursor, there is no effect.
+
+  \sa sort()
+*/
+
+void QSqlTable::setSort( const QSqlIndex& sort )
+{
+    d->srt = sort.toStringList( QString::null, TRUE );
+}
+
+
+/*! Returns the current sort used on the displayed data as a list of
+  strings.  Each field is in the form:
+
+  "\a cursorname.\a fieldname ASC" (for ascending sort) or
+  "\a cursorname.\a fieldname DESC" (for descending sort)
+
+  If there is no current cursor, an empty string list is returned.
+
+  \sa setSort()
+
+ */
+
+QStringList QSqlTable::sort() const
+{
+    if ( cursor() )
+	return cursor()->sort().toStringList( QString::null, TRUE );
+    return QStringList();
 }
 
 /*! If \a confirm is TRUE, all edits will be confirmed with the user
@@ -461,9 +506,9 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 	    }
 	}
 	if ( ke->key() == Key_Escape && d->mode == QSqlTable::Update ) {
- 	    if ( confirmCancels() && !d->cancelMode )
- 		conf = confirmCancel( QSqlTable::Update );
- 	    if ( conf == Yes ){
+	    if ( confirmCancels() && !d->cancelMode )
+		conf = confirmCancel( QSqlTable::Update );
+	    if ( conf == Yes ){
 		endUpdate();
 	    } else {
 		editorWidget->setActiveWindow();
@@ -493,9 +538,9 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
     case QEvent::FocusOut:
 	repaintCell( currentRow(), currentColumn() );
 	if ( !d->cancelMode && editorWidget && o == editorWidget && (d->mode == QSqlTable::Insert) && !d->continuousEdit) {
- 	    setCurrentCell( r, c );
- 	    endEdit( r, c, TRUE, FALSE );
- 	    return TRUE;
+	    setCurrentCell( r, c );
+	    endEdit( r, c, TRUE, FALSE );
+	    return TRUE;
 	}
 	break;
     case QEvent::FocusIn:
@@ -995,14 +1040,34 @@ QSqlTable::Confirm  QSqlTable::confirmCancel( QSqlTable::Mode )
   \sa QSql
 */
 
-void QSqlTable::refresh( QSqlCursor* cursor, QSqlIndex idx )
+void QSqlTable::refresh( QSqlCursor* cursor, const QSqlIndex& idx )
 {
+    if ( !cursor )
+	return;
     bool seekPrimary = (idx.count() ? TRUE : FALSE );
     QSqlIndex pi;
     if ( seekPrimary )
 	pi = idx;
     QApplication::setOverrideCursor( Qt::waitCursor );
-    cursor->select( cursor->filter(), cursor->sort() );
+    QString currentFilter = cursor->filter();
+    if ( currentFilter.isEmpty() )
+	currentFilter = d->ftr;
+    QStringList currentSort = cursor->sort().toStringList( QString::null, TRUE );
+    if ( !currentSort.count() )
+	currentSort = d->srt;
+    QSqlIndex newSort;
+    for ( uint i = 0; i < currentSort.count(); ++i ) {
+	QString f = currentSort[i];
+	bool desc = FALSE;
+	if ( f.mid( f.length()-3 ) == "ASC" )
+	    f = f.mid( 0, f.length()-3 );
+	if ( f.mid( f.length()-4 ) == "DESC" ) {
+	    desc = TRUE;
+	    f = f.mid( 0, f.length()-4 );
+	}
+	newSort.append( *(cursor->field( f.simplifyWhiteSpace() )), desc );
+    }
+    cursor->select( currentFilter, newSort );
     setSize( cursor );
     if ( seekPrimary ) {
 	// ###
@@ -1164,6 +1229,8 @@ void QSqlTable::reset()
 	horizontalHeader()->setSortIndicator( -1 );
     if ( d->autoDelete )
 	delete d->cursor;
+    d->ftr = QString::null;
+    d->srt.clear();
 }
 
 /*!  Returns the index of the field within the current SQL query based
@@ -1409,9 +1476,9 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
     QTable::paintCell(p,row,col,cr, false);  // empty cell
 
     if( hasFocus() && (row == currentRow()) && (col == currentColumn()) ){
- 	p->fillRect( 1, 1, cr.width() - 3, cr.height() - 3,
+	p->fillRect( 1, 1, cr.width() - 3, cr.height() - 3,
 		     colorGroup().brush( QColorGroup::Highlight ) );
- 	p->setPen( colorGroup().highlightedText() );
+	p->setPen( colorGroup().highlightedText() );
 	p->drawRect( 1,1, cr.width()-3,cr.height()-3 );
     } else {
 	p->setPen( colorGroup().text() );
@@ -1495,12 +1562,16 @@ void QSqlTable::addColumns( const QSqlRecord& fieldList )
 
 /*!  If the \a sql driver supports query sizes, the number of rows in
   the table is set to the size of the query.  Otherwise, the table
-  dynamically resizes itself as it is scrolled.
+  dynamically resizes itself as it is scrolled.  If \q sql is not
+  active, it is made active by issuing a select() on the cursor using
+  the current filter and current sort of \a sql.
 
 */
 
-void QSqlTable::setSize( const QSqlCursor* sql )
+void QSqlTable::setSize( QSqlCursor* sql )
 {
+    if ( !sql->isActive() )
+	sql->select( sql->filter(), sql->sort() );
     if ( sql->driver()->hasQuerySizeSupport() ) {
 	setVScrollBarMode( Auto );
 	disconnect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
@@ -1514,15 +1585,16 @@ void QSqlTable::setSize( const QSqlCursor* sql )
     }
 }
 
-/*!  Displays \a cursor in the table.  If autopopulate is TRUE (the
-  default), columns are automatically created based upon the fields in
-  the \a cursor record.  If \a autoDelete is TRUE (the default is
-  FALSE), the table will take ownership of \a cursor and delete it
-  when appropriate.  If the \a cursor is read only, the table becomes
-  read only.  The table adopts the cursor's driver's definition
-  representing NULL values as strings.
+/*!  Sets \a cursor as the data source for the table.  To force the
+  display of the data from \a cursor, use refresh(). If autopopulate
+  is TRUE (the default is FALSE), columns are automatically created
+  based upon the fields in the \a cursor record.  If \a autoDelete is
+  TRUE (the default is FALSE), the table will take ownership of \a
+  cursor and delete it when appropriate.  If the \a cursor is read
+  only, the table becomes read only.  The table adopts the cursor's
+  driver's definition representing NULL values as strings.
 
-  \sa setReadOnly() setAutoDelete() QSqlDriver::nullText()
+  \sa refresh() setReadOnly() setAutoDelete() QSqlDriver::nullText()
 
 */
 
@@ -1534,9 +1606,6 @@ void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelet
 	d->cursor = cursor;
 	if ( autoPopulate )
 	    addColumns( *d->cursor );
-	if ( !d->cursor->isActive() )
-	    d->cursor->select();
-	setSize( d->cursor );
 	setReadOnly( d->cursor->isReadOnly() );
 	setNullText(d->cursor->driver()->nullText() );
 	setAutoDelete( autoDelete );
@@ -1618,7 +1687,7 @@ void QSqlTable::takeItem ( QTableItem * )
   specified, the first record matching the index is selected.
 */
 
-void QSqlTable::refresh( QSqlIndex idx )
+void QSqlTable::refresh( const QSqlIndex& idx )
 {
     if ( d->cursor )
 	refresh( d->cursor, idx );
@@ -1756,5 +1825,3 @@ void QSqlTable::refresh()
 */
 
 #endif
-
-

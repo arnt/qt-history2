@@ -191,6 +191,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 //			    table->horizontalHeader()->setLabel( i, (*fit).name );
 		    }
 	    }
+	    table->refresh();
 	}
     }
 

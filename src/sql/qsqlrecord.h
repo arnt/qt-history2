@@ -39,6 +39,7 @@
 
 #ifndef QT_H
 #include "qstring.h"
+#include "qstringlist.h"
 #include "qvariant.h"
 #include "qsqlfield.h"
 #endif // QT_H
@@ -56,7 +57,7 @@ class QSqlRecordPrivate;
 
 class QSqlRecordShared : public QShared
 {
-public:    
+public:
     QSqlRecordShared( QSqlRecordPrivate* sqlRecordPrivate )
     : d( sqlRecordPrivate )
     {}
@@ -92,6 +93,7 @@ public:
     uint                 count() const;
     virtual QString      toString( const QString& prefix = QString::null,
 				   const QString& sep = "," ) const;
+    virtual QStringList  toStringList( const QString& prefix = QString::null ) const;
 
     virtual void         setGenerated( const QString& name, bool generated );
     bool                 isGenerated( const QString& name ) const;
@@ -101,8 +103,9 @@ public:
     QString              displayLabel( const QString& name ) const;
     virtual void         setVisible( const QString& name, bool visible );
     bool                 isVisible( const QString& name ) const;
-   
+
 private:
+    QString              createField( int i, const QString& prefix ) const;
     void                 deref();
     bool                 checkDetach();
     QSqlRecordShared*    sh;
@@ -110,4 +113,3 @@ private:
 
 #endif	// QT_NO_SQL
 #endif
-

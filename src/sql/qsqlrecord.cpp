@@ -53,10 +53,10 @@ public:
 	info( const info& other )
 	    : field( other.field ), nogen( other.nogen ), align( other.align ), label( other.label ),
 	      visible( other.visible )
-        {
+	{
 	}
 	info& operator=(const info& other)
-        {
+	{
 	    field = other.field;
 	    nogen = other.nogen;
 	    align = other.align;
@@ -141,13 +141,13 @@ QSqlRecordShared::~QSqlRecordShared()
     functions which alter other characteristics of the record, for
     example, changing the display label associated with a particular
     field when displaying that field on screen.
-    
+
     QSqlRecord is implicitly shared. This means you can make copies of
     the record in time O(1). If multiple QSqlRecord instances share
     the same data and one is modifying the record's data then this
     modifying instance makes a copy and modifies its private copy -
-    thus it does not affect other instances. 
-    
+    thus it does not affect other instances.
+
 */
 
 
@@ -271,16 +271,16 @@ int QSqlRecord::position( const QString& name ) const
 
 */
 
-QSqlField* QSqlRecord::field( int i ) 
+QSqlField* QSqlRecord::field( int i )
 {
     checkDetach();
     if ( !sh->d->contains( i ) ) {
-#ifdef QT_CHECK_RANGE    
+#ifdef QT_CHECK_RANGE
 	qWarning( "QSqlRecord::field: index out of range: " + QString::number( i ) );
-#endif    
+#endif
 	return 0;
     }
-    return &sh->d->fieldInfo( i )->field;    
+    return &sh->d->fieldInfo( i )->field;
 }
 
 /*!  Returns a pointer to the field with name \a name within the
@@ -292,9 +292,9 @@ QSqlField* QSqlRecord::field( int i )
 QSqlField* QSqlRecord::field( const QString& name )
 {
     checkDetach();
-    if ( !sh->d->contains( position( name ) ) ) 
+    if ( !sh->d->contains( position( name ) ) )
 	return 0;
-    return &sh->d->fieldInfo( position( name ) )->field;    
+    return &sh->d->fieldInfo( position( name ) )->field;
 }
 
 
@@ -492,7 +492,7 @@ void QSqlRecord::setDisplayLabel( const QString& name, const QString& label )
 
 QString QSqlRecord::displayLabel( const QString& name ) const
 {
-    if ( !field( name ) ||  !sh->d->fieldInfo( position( name ) ) ) 
+    if ( !field( name ) ||  !sh->d->fieldInfo( position( name ) ) )
 	return name;
     QString ret = sh->d->fieldInfo( position( name ) )->label;
     if ( ret.isNull() )
@@ -531,29 +531,60 @@ bool QSqlRecord::isVisible( const QString& name ) const
 }
 
 /*!  Returns a comma-separated list of all field names as a string.
+  Only generated fields are included in the list (see isGenerated() ).
   This string is suitable, for example, for generating a SQL SELECT
-  statement.  If a \a prefix is specified, it is prepended before all
-  field names.
+  statement.  If a \a prefix is specified, all fields are prefixed in
+  the form:
 
+  "\a prefix.\a fieldname"
 */
 
 QString QSqlRecord::toString( const QString& prefix, const QString& sep ) const
 {
     QString pflist;
-    QString pfix =  prefix.isNull() ? QString::null : prefix + ".";
     bool comma = FALSE;
-
     for ( uint i = 0; i < count(); ++i ){
 	if ( isGenerated( field(i)->name() ) ) {
 	    if( comma )
 		pflist += sep + " ";
-	    pflist += pfix + field(i)->name();
+	    pflist += createField( i, prefix );
 	    comma = TRUE;
 	}
     }
     return pflist;
 }
 
+/*!
+
+  Returns a list of all field names used in the Record.  Only
+  generated fields are included in the list (see isGenerated() ). If
+  \a prefix is supplied, all fields are prefixed in the form:
+
+  "\a prefix.\a fieldname"
+
+*/
+
+QStringList QSqlRecord::toStringList( const QString& prefix = QString::null ) const
+{
+    QStringList s;
+    for ( uint i = 0; i < count(); ++i ) {
+	if ( isGenerated( field(i)->name() ) )
+	    s += createField( i, prefix );
+    }
+    return s;
+}
+
+/*! \internal
+*/
+
+QString QSqlRecord::createField( int i, const QString& prefix ) const
+{
+    QString f;
+    if ( prefix.isNull() )
+	f = prefix + ".";
+    f += field( i )->name();
+    return f;
+}
 
 /*!  Returns the number of fields in the record.
 

@@ -157,23 +157,66 @@ void QSqlIndex::setDescending( int i, bool desc )
 }
 
 /*! \reimp
+
+  Returns a comma-separated list of all field names as a string.  This
+  string is suitable, for example, for generating a SQL SELECT
+  statement.  Only generated fields are included in the list (see
+  isGenerated() ). If a \a prefix is specified, it is prepended before
+  all field names in the form:
+
+  "\a prefix.\a fieldname"
+
+  If \a sep is specified, each field is separated by \a sep.  If \a
+  verbose is TRUE (the default), each field contains a suffix
+  indicating ASCending or DESCending sort.
+
 */
 
-QString QSqlIndex::toString( const QString& prefix ) const
+QString QSqlIndex::toString( const QString& prefix, const QString& sep, bool verbose ) const
 {
     QString s;
     bool comma = FALSE;
     for ( uint i = 0; i < count(); ++i ) {
 	if( comma )
-	    s += ", ";
-	if ( !prefix.isNull() )
-	    s += prefix + ".";
-	s += field( i )->name();
-	if ( isDescending( i ) )
-	    s += " desc";
+	    s += sep + " ";
+	s += createField( i, prefix, verbose );
 	comma = TRUE;
     }
     return s;
+}
+
+/*! \reimp
+
+  Returns a list of all field names used in the index.  Only generated
+  fields are included in the list (see isGenerated() ). If \a prefix is
+  supplied, all fields are prefixed in the form:
+
+  "\a prefix.\a fieldname"
+
+  If \a verbose is TRUE (the default), each field contains a
+  suffix indicating an ASCending or DESCending sort.
+
+*/
+QStringList QSqlIndex::toStringList( const QString& prefix, bool verbose ) const
+{
+    QStringList s;
+    for ( uint i = 0; i < count(); ++i )
+	s += createField( i, prefix, verbose );
+    return s;
+}
+
+/*! \internal
+*/
+
+QString QSqlIndex::createField( int i, const QString& prefix, bool verbose ) const
+{
+    QString f;
+    if ( !prefix.isNull() )
+	f += prefix + ".";
+    f += field( i )->name();
+    if ( verbose )
+	f += " " + QString( ( isDescending( i ) ? "DESC" : "ASC" ) );
+    return f;
 }
 
 /*! \fn QString QSqlIndex::cursorName() const

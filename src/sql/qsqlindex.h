@@ -38,6 +38,8 @@
 #define QSQLINDEX_H
 
 #ifndef QT_H
+#include "qstring.h"
+#include "qstringlist.h"
 #include "qsqlfield.h"
 #include "qsqlrecord.h"
 #endif // QT_H
@@ -49,6 +51,8 @@
 template class Q_EXPORT QValueList<bool>;
 // MOC_SKIP_END
 #endif
+
+class QSqlCursor;
 
 class Q_EXPORT QSqlIndex : public QSqlRecord
 {
@@ -68,9 +72,14 @@ public:
     bool             isDescending( int i ) const;
     virtual void     setDescending( int i, bool desc );
 
-    QString          toString( const QString& prefix = QString::null ) const;
+    QString          toString( const QString& prefix = QString::null,
+			       const QString& sep = ",",
+			       bool verbose = TRUE ) const;
+    QStringList      toStringList( const QString& prefix = QString::null,
+				   bool verbose = TRUE ) const;
 
 private:
+    QString          createField( int i, const QString& prefix, bool verbose ) const;
     QString          cursor;
     QString          nm;
     QValueList<bool> sorts;
@@ -78,5 +87,3 @@ private:
 
 #endif	// QT_NO_SQL
 #endif
-
-
