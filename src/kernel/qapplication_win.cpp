@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#283 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#284 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2267,18 +2267,40 @@ static int asciiToKeycode(char a, int state)
 }
 
 static
-QChar imechar_to_unicode(DWORD c)
+QChar wmchar_to_unicode(DWORD c)
 {
+    // qt_winMB2QString is the generalization of this function.
+
     if ( qt_winver == Qt::WV_NT ) {
 	ushort uc = (ushort)c;
 	return QChar(uc&0xff,(uc>>8)&0xff);
     } else {
 	char mb[2];
-	mb[0] = (c>>8)&0xff;
-	mb[1] = c&0xff;
+	mb[0] = c&0xff;
+	mb[1] = 0;
 	ushort wc[1];
 	MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
-	    mb, 2, wc, 1);
+	    mb, -1, wc, 1);
+	return QChar(wc[0]);
+    }
+}
+
+static
+QChar imechar_to_unicode(DWORD c)
+{
+    // qt_winMB2QString is the generalization of this function.
+
+    if ( qt_winver == Qt::WV_NT ) {
+	ushort uc = (ushort)c;
+	return QChar(uc&0xff,(uc>>8)&0xff);
+    } else {
+	char mb[3];
+	mb[0] = (c>>8)&0xff;
+	mb[1] = c&0xff;
+	mb[2] = 0;
+	ushort wc[1];
+	MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
+	    mb, -1, wc, 1);
 	return QChar(wc[0]);
     }
 }
@@ -2301,8 +2323,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 
     if ( msg.message == WM_CHAR ) {
 	// a multi-character key not found by our look-ahead
-	QString s;
-	s += (char)msg.wParam;
+	QString s = wmchar_to_unicode(msg.wParam);
 	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab, s );
 	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab, s );
     }
@@ -2327,28 +2348,34 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		// Found a XXX_CHAR
 		uch = charType == WM_IME_CHAR
 			? imechar_to_unicode(wm_char.wParam)
-			: QChar(wm_char.wParam&0xff,(wm_char.wParam>>8)&0xff);
-		if ( t == WM_SYSKEYDOWN && !uch.row() &&
-		     isalpha(uch.cell()) && (msg.lParam & KF_ALTDOWN) ) {
+			: wmchar_to_unicode(wm_char.wParam);
+		if ( t == WM_SYSKEYDOWN &&
+		     uch.isLetter() && (msg.lParam & KF_ALTDOWN) ) {
 		    // (See doc of WM_SYSCHAR)
-    		    uch = QChar((char)tolower(uch.cell())); //Alt-letter
+    		    uch = uch.lower(); //Alt-letter
 		}
 		if ( !code && !uch.row() )
 		    code = asciiToKeycode(uch.cell(), state);
-	    }
-	    else {
+	    } else {
 		// No XXX_CHAR; deduce uch from XXX_KEYDOWN params
 		if ( msg.wParam == VK_DELETE )
 		    uch = QChar((char)0x7f); // Windows doesn't know this one.
 		else {
+		    /*
+
+		    With this code, deadkeys don't work (we get the accent
+		    here, then the accented character later).
+
 		    if ( qt_winver == Qt::WV_NT ) {
-			uch = QChar((ushort)MapVirtualKey( msg.wParam, 2 ));
+			uch = wmchar_to_unicode(
+			    (ushort)MapVirtualKey( msg.wParam, 2 ));
 		    } else {
-			// ### Should perhaps cast to char?
-			uch = QChar((ushort)MapVirtualKeyA( msg.wParam, 2 ));
+			uch = wmchar_to_unicode(
+			    (ushort)MapVirtualKeyA( msg.wParam, 2 ));
 		    }
+		    */
 		}
-		if ( !code )
+		if ( !code && !uch.row() )
 		    code = asciiToKeycode( uch.cell(), state);
 	    }
 
