@@ -310,9 +310,8 @@ static void readUnicodeData()
             qFatal("case diff not in range at codepoint %x: othercase=%x", codepoint, data.otherCase);
         data.p.caseDiff = data.otherCase - codepoint;
 
-        if (!properties[UD_DigitValue].isEmpty()) {
+        if (!properties[UD_DigitValue].isEmpty())
             data.p.digitValue = properties[UD_DigitValue].toInt();
-        }
 
         // decompositition
         QByteArray decomposition = properties[UD_Decomposition];
@@ -515,8 +514,8 @@ static void dump(int from, int to)
 }
 
 struct PropertyBlock {
-    PropertyBlock() { mapped = -1; }
-    int mapped;
+    PropertyBlock() { index = -1; }
+    int index;
     QList<int> properties;
     bool operator ==(const PropertyBlock &other) { return properties == other.properties; }
 };
@@ -525,51 +524,95 @@ static QByteArray createPropertyInfo()
 {
     qDebug("createPropertyInfo:");
 
-    const int BLOCKSIZE=128;
-    const int END = 0x110000;
+    const int BMP_BLOCKSIZE=32;
+    const int BMP_SHIFT = 5;
+    const int BMP_END = 0x11000;
+    const int SMP_END = 0x110000;
+    const int SMP_BLOCKSIZE = 256;
+    const int SMP_SHIFT = 8;
 
     QList<PropertyBlock> blocks;
     QList<int> blockMap;
 
-    for (int block = 0; block < END/BLOCKSIZE; ++block) {
+    int used = 0;
+
+    for (int block = 0; block < BMP_END/BMP_BLOCKSIZE; ++block) {
         PropertyBlock b;
-        for (int i = 0; i < BLOCKSIZE; ++i) {
-            int uc = block*BLOCKSIZE + i;
+        for (int i = 0; i < BMP_BLOCKSIZE; ++i) {
+            int uc = block*BMP_BLOCKSIZE + i;
             UnicodeData d = unicodeData.value(uc, UnicodeData(uc));
             b.properties.append(d.propertyIndex);
         }
         int index = blocks.indexOf(b);
         if (index == -1) {
             index = blocks.size();
+            b.index = used;
+            used += BMP_BLOCKSIZE;
             blocks.append(b);
         }
-        blockMap.append(index);
+        blockMap.append(blocks.at(index).index);
     }
 
     int bmp_blocks = blocks.size();
+    Q_ASSERT(blockMap.size() == BMP_END/BMP_BLOCKSIZE);
 
-    int bmp_block_data = (blocks.size()*BLOCKSIZE)*2;
-    int bmp_trie = END/BLOCKSIZE*2;
+    for (int block = BMP_END/SMP_BLOCKSIZE; block < SMP_END/SMP_BLOCKSIZE; ++block) {
+        PropertyBlock b;
+        for (int i = 0; i < SMP_BLOCKSIZE; ++i) {
+            int uc = block*SMP_BLOCKSIZE + i;
+            UnicodeData d = unicodeData.value(uc, UnicodeData(uc));
+            b.properties.append(d.propertyIndex);
+        }
+        int index = blocks.indexOf(b);
+        if (index == -1) {
+            index = blocks.size();
+            b.index = used;
+            used += SMP_BLOCKSIZE;
+            blocks.append(b);
+        }
+        blockMap.append(blocks.at(index).index);
+    }
+
+    int bmp_block_data = bmp_blocks*BMP_BLOCKSIZE*2;
+    int bmp_trie = BMP_END/BMP_BLOCKSIZE*2;
     int bmp_mem = bmp_block_data + bmp_trie;
-    qDebug("    %d unique blocks.",blocks.size());
+    qDebug("    %d unique blocks in BMP.",blocks.size());
     qDebug("        block data uses: %d bytes", bmp_block_data);
     qDebug("        trie data uses : %d bytes", bmp_trie);
-    qDebug("        properties use : %d bytes", uniqueProperties.size()*8);
     qDebug("        memory usage: %d bytes", bmp_mem);
 
-    Q_ASSERT(blockMap.size() == END/BLOCKSIZE);
+    int smp_block_data = (blocks.size()- bmp_blocks)*SMP_BLOCKSIZE*2;
+    int smp_trie = (SMP_END-BMP_END)/SMP_BLOCKSIZE*2;
+    int smp_mem = smp_block_data + smp_trie;
+    qDebug("    %d unique blocks in SMP.",blocks.size()-bmp_blocks);
+    qDebug("        block data uses: %d bytes", smp_block_data);
+    qDebug("        trie data uses : %d bytes", smp_trie);
+
+    qDebug("\n        properties use : %d bytes", uniqueProperties.size()*8);
+    qDebug("    memory usage: %d bytes", bmp_mem+smp_mem + uniqueProperties.size()*8);
 
     QByteArray out;
-    out += "static const unsigned short uc_property_trie[] = {";
+    out += "static const unsigned short uc_property_trie[] = {\n";
 
     // first write the map
-    for (int i = 0; i < blockMap.size(); ++i) {
+    out += "    // BMP";
+    for (int i = 0; i < BMP_END/BMP_BLOCKSIZE; ++i) {
         if (!(i % 8)) {
-            if (!(i % (0x10000/BLOCKSIZE)))
+            if (!((i*BMP_BLOCKSIZE) % 0x1000))
                 out += "\n";
             out += "\n    ";
         }
-        out += QByteArray::number(blockMap.at(i)*BLOCKSIZE + blockMap.size());
+        out += QByteArray::number(blockMap.at(i) + blockMap.size());
+        out += ", ";
+    }
+    out += "\n\n    // SMP";
+    for (int i = BMP_END/BMP_BLOCKSIZE; i < blockMap.size(); ++i) {
+        if (!(i % 8)) {
+            if (!(i % (0x10000/SMP_BLOCKSIZE)))
+                out += "\n";
+            out += "\n    ";
+        }
+        out += QByteArray::number(blockMap.at(i) + blockMap.size());
         out += ", ";
     }
     out += "\n";
@@ -584,9 +627,16 @@ static QByteArray createPropertyInfo()
             out += ", ";
         }
     }
+
     out += "\n};\n\n"
 
-           "#define GET_PROP_INDEX(ucs4) (uc_property_trie[uc_property_trie[ucs4>>7] + (ucs4%0x7f)])\n\n"
+           "#define GET_PROP_INDEX(ucs4) \\\n"
+           "       (ucs4 < 0x" + QByteArray::number(BMP_END, 16) + " \\\n"
+           "        ? (uc_property_trie[uc_property_trie[ucs4>>" + QByteArray::number(BMP_SHIFT) +
+           "] + (ucs4 & 0x" + QByteArray::number(BMP_BLOCKSIZE-1, 16)+ ")]) \\\n"
+           "        : (uc_property_trie[uc_property_trie[((ucs4 - 0x" + QByteArray::number(BMP_END, 16) +
+           ")>>" + QByteArray::number(SMP_SHIFT) + ") + 0x" + QByteArray::number(BMP_END/BMP_BLOCKSIZE, 16) + "]"
+           " + (ucs4 & 0x" + QByteArray::number(SMP_BLOCKSIZE-1, 16) + ")]))\n\n"
 
            "struct UC_Properties {\n"
            "    uint category : 8 /* 5 needed */;\n"
@@ -657,7 +707,7 @@ static QByteArray createPropertyInfo()
            "int QUnicodeTables::digitValue(uint ucs4)\n"
            "{\n"
            "    int val = GET_PROP(ucs4)->digit_value;\n"
-           "    return val == 0xf ? -1 : val;"
+           "    return val == 0xf ? -1 : val;\n"
            "}\n\n"
 
            "bool QUnicodeTables::mirrored(uint ucs4)\n"
@@ -703,7 +753,9 @@ int main(int, char **)
     readDerivedAge();
 
     computeUniqueProperties();
-    QByteArray out = createPropertyInfo();
+    QByteArray properties = createPropertyInfo();
+
+
 
     QFile f("qunicodetables.cpp");
     f.open(IO_WriteOnly|IO_Truncate);
@@ -726,7 +778,7 @@ int main(int, char **)
         "#include \"qunicodetables_p.h\"\n\n";
 
     f.writeBlock(header.data(), header.length());
-    f.writeBlock(out.data(), out.length());
+    f.writeBlock(properties.data(), properties.length());
 
 #ifdef DEBUG
     dump(0, 0x7f);
