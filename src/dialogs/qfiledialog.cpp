@@ -1961,31 +1961,15 @@ QString QFileDialogPrivate::File::text( int column ) const
 #else
 	    uint size = info.size();
 #endif
-#if defined(QT_LARGEFILE_SUPPORT)
-	    // ### strictly speaking, the following code should not
-	    // ### be needed if QT_ABI_QT4 is defined and in Qt 4, on
-	    // ### platforms where QUrlInfo::size() can return 64-bit
+#if defined(QT_LARGEFILE_SUPPORT) && defined(Q_OS_UNIX)
+	    // ### the following code should not be needed as soon
+	    // ### as QUrlInfo::size() can return 64-bit
 	    if ( size > INT_MAX ) {
-#if defined(Q_OS_UNIX)
 		struct stat buffer;
 		if ( ::stat( QFile::encodeName(info.name()), &buffer ) == 0 ) {
-		    off_t n = buffer.st_size;
-		    // ### use QString::number() instead when it has support
-		    // ### for 64-bit integers (off_t) on all platforms
-		    if ( n > 0 ) {
-			char charbuf[21*sizeof(QChar)];
-			QChar *buf = (QChar*)charbuf;
-			QChar *p = &buf[20];
-			uint len = 0;
-			do {
-		            *--p = "0123456789"[(int)(n%10)];
-			    n /= 10;
-			    ++len;
-			} while ( n );
-			return QString( p, len );
-		    }
+		    Q_ULLONG size64 = (Q_ULLONG)buffer.st_size;
+		    return QString::number(size64);
 		}
-#endif
 	    }
 #endif
 	    return QString::number(size);
