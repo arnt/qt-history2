@@ -366,7 +366,7 @@
   There are also some \e really obscure events.  They are listed in
   qevent.h and you need to reimplement event() to handle them.  The
   default implementation of event() handles Tab and shift-Tab (to move
-  the keyboard focus), and passes on every other event to one of the
+  the keyboard focus), and passes on most other events to one of the
   more specialized handlers above.
 
   When writing a widget, there are a few more things to look out
@@ -377,11 +377,9 @@
 
   <li>It is almost always useful to reimplement sizePolicy or at least
   sizeHint(), so users of your class can set up layout management more
-  easily.
-
-  sizePolicy() lets you supply good defaults for the layout management
-  handling, so that other widgets can contain and manage yours easily.
-  sizeHint() indicates a "good" size for the widget.
+  easily.  sizePolicy() lets you supply good defaults for the layout
+  management handling, so that other widgets can contain and manage
+  yours easily.  sizeHint() indicates a "good" size for the widget.
 
   <li>If your widget is a top-level window, setCaption() and setIcon() set
   the title bar and icon respectively.
@@ -3255,9 +3253,9 @@ void QWidget::sendHideEventsToChildren( bool spontaneous )
   guarantee since the initialization of the subclasses might not be
   finished.
 
-  After this function, the widget has a proper font and palette and
-  QApplication::polish() has been called. 
-  
+  After this function, the wiget has a proper font and palette and
+  QApplication::polish() has been called.
+
   Remember to call QWidget's implementation when reimplementing this
   function.
 
@@ -3735,7 +3733,7 @@ bool QWidget::event( QEvent *e )
 	    if ( !own_font && !isDesktop() ) {
 		if ( QApplication::font( this ).isCopyOf( QApplication::font() ) )
 		    setFont( default_font( parentWidget() ) );
-		else 
+		else
 		    setFont( QApplication::font( this ) );
 		own_font = FALSE;
 	    }
@@ -3744,7 +3742,7 @@ bool QWidget::event( QEvent *e )
 	    if ( !own_palette && !isDesktop() ) {
 		if ( QApplication::palette( this ).isCopyOf( QApplication::palette() ) )
 		    setPalette( default_palette( parentWidget() ) );
-		else 
+		else
 		    setPalette( QApplication::palette( this ) );
 		own_palette = FALSE;
 	    }
