@@ -374,12 +374,12 @@ QByteArray qCompress(const uchar* data, int nbytes, int compressionLevel)
 QByteArray qUncompress(const uchar* data, int nbytes)
 {
     if (!data) {
-        qWarning("qUncompress: data is NULL.");
+        qWarning("qUncompress: Data is null");
         return QByteArray();
     }
     if (nbytes <= 4) {
         if (nbytes < 4 || (data[0]!=0 || data[1]!=0 || data[2]!=0 || data[3]!=0))
-            qWarning("qUncompress: Input data is corrupted.");
+            qWarning("qUncompress: Input data is corrupted");
         return QByteArray();
     }
     ulong expectedSize = (data[0] << 24) | (data[1] << 16) |
@@ -398,13 +398,13 @@ QByteArray qUncompress(const uchar* data, int nbytes)
                 baunzip.resize(len);
             break;
         case Z_MEM_ERROR:
-            qWarning("qUncompress: Z_MEM_ERROR: Not enough memory.");
+            qWarning("qUncompress: Z_MEM_ERROR: Not enough memory");
             break;
         case Z_BUF_ERROR:
             len *= 2;
             break;
         case Z_DATA_ERROR:
-            qWarning("qUncompress: Z_DATA_ERROR: Input data is corrupted.");
+            qWarning("qUncompress: Z_DATA_ERROR: Input data is corrupted");
             break;
         }
     } while (res == Z_BUF_ERROR);
@@ -720,7 +720,7 @@ QByteArray &QByteArray::operator=(const char *str)
         if (d->ref != 1 || len > d->alloc || (len < d->size && len < d->alloc >> 1))
             realloc(len);
         x = d;
-        memcpy(x->data, str, len+1); // include null terminator
+        memcpy(x->data, str, len + 1); // include null terminator
         x->size = len;
     }
     ++x->ref;
@@ -1222,10 +1222,10 @@ void QByteArray::realloc(int alloc)
         Data *x = static_cast<Data *>(qMalloc(sizeof(Data) + alloc));
         if (!x)
             return;
-        ::memcpy(x->array, d->data, qMin(alloc, d->alloc) + 1);
+        x->size = qMin(alloc, d->size);
+        ::memcpy(x->array, d->data, x->size);
+        x->array[x->size] = '\0';
         x->ref = 1;
-        x->size = d->size;
-        x->data = x->array;
         x = qAtomicSetPtr(&d, x);
         if (!--x->ref)
             qFree(x);
@@ -1233,10 +1233,10 @@ void QByteArray::realloc(int alloc)
         Data *x = static_cast<Data *>(qRealloc(d, sizeof(Data) + alloc));
         if (!x)
             return;
-        x->data = x->array;
         d = x;
     }
     d->alloc = alloc;
+    d->data = d->array;
 }
 
 void QByteArray::expand(int i)
@@ -2873,7 +2873,7 @@ Q_LLONG QByteArray::toLongLong(bool *ok, int base) const
 {
 #if defined(QT_CHECK_RANGE)
     if (base != 0 && (base < 2 || base > 36)) {
-        qWarning("QByteArray::toLongLong: Invalid base (%d)", base);
+        qWarning("QByteArray::toLongLong: Invalid base %d", base);
         base = 10;
     }
 #endif

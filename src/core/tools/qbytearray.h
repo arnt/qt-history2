@@ -80,7 +80,7 @@ public:
     ~QByteArray();
 
     inline QByteArray &operator=(const QByteArray &);
-    QByteArray &operator=(const char  *);
+    QByteArray &operator=(const char *str);
 
     inline int size() const;
     bool isEmpty() const;
