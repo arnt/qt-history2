@@ -43,11 +43,11 @@ struct QDockWindowLayoutInfo
     uint is_sep     : 1;
     uint is_dummy   : 1;
     uint is_dropped : 1;
-    uint is_act     : 1; // active tab?
+    uint reserved   : 29;
 
     inline QDockWindowLayoutInfo(QLayoutItem *i)
-	: item(i), cur_pos(-1), cur_size(-1), min_size(1), max_size(~0u),
-	  is_sep(0), is_dummy(0), is_dropped(0), is_act(0)
+	: item(i), cur_pos(-1), cur_size(-1), min_size(1), max_size(-1),
+	  is_sep(0), is_dummy(0), is_dropped(0), reserved(0)
     { }
 };
 
