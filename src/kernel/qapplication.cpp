@@ -2327,7 +2327,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    while ( w ) {
 		QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->state());
 		me.spont = mouse->spontaneous();
-		res = internalNotify( w, &me );
+		res = internalNotify( w, w == receiver ? mouse : &me );
 		e->spont = FALSE;
 		if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
 		    break;
@@ -2361,7 +2361,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    while ( w ) {
 		QWheelEvent we(relpos, wheel->globalPos(), wheel->delta(), wheel->state(), wheel->orientation());
 		we.spont = wheel->spontaneous();
-		res = internalNotify( w, &we );
+		res = internalNotify( w,  w == receiver ? wheel : &we );
 		e->spont = FALSE;
 		if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
 		    break;
@@ -2379,12 +2379,12 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
     case QEvent::ContextMenu:
 	{
 	    QWidget* w = (QWidget*)receiver;
-	    QContextMenuEvent *cevent = (QContextMenuEvent*) e;
-	    QPoint relpos = cevent->pos();
+	    QContextMenuEvent *context = (QContextMenuEvent*) e;
+	    QPoint relpos = context->pos();
 	    while ( w ) {
-		QContextMenuEvent ce(cevent->reason(), relpos, cevent->globalPos(), cevent->state());
+		QContextMenuEvent ce(context->reason(), relpos, context->globalPos(), context->state());
 		ce.spont = e->spontaneous();
-		res = internalNotify( w, &ce );
+		res = internalNotify( w,  w == receiver ? context : &ce );
 		e->spont = FALSE;
 
 		if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
@@ -2394,9 +2394,9 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		w = w->parentWidget();
 	    }
 	    if ( res )
-		cevent->accept();
+		context->accept();
 	    else
-		cevent->ignore();
+		context->ignore();
 	}
     break;
 #if defined (QT_TABLET_SUPPORT)
@@ -2412,7 +2412,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 				tablet->pressure(), tablet->xTilt(), tablet->yTilt(),
 				tablet->uniqueId());
 		te.spont = e->spontaneous();
-		res = internalNotify( w, &te );
+		res = internalNotify( w, w == receiver ? tablet : &te );
 		e->spont = FALSE;
 		if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
 		    break;
