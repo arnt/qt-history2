@@ -337,7 +337,7 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
     QModelIndex item;
     QList<QItemSelectionRange>::const_iterator it;
     if (d->currentSelection)
-	joined += d->currentSelection->ranges;S
+	joined += d->currentSelection->ranges;
     for (int i = 0; i < model()->rowCount(parent); ++i) {
 	 item = model()->index(i, column, parent);
 	 for (it = joined.begin(); it != joined.end(); ++it) {
