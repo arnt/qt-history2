@@ -38,13 +38,15 @@
 #ifndef QPLUGINMANAGER_H
 #define QPLUGINMANAGER_H
 
-#ifndef QT_NO_PLUGIN
-
 #ifndef QT_H
 #include "qplugin.h"
 #include "qdict.h"
 #include "qdir.h"
 #endif // QT_H
+
+#ifndef QT_NO_PLUGIN
+
+class QApplicationInterface;
 
 #if 1 // internal class to provide signal functionality to QPlugInManager
 class Q_EXPORT QPlugInManagerSignalEmitter : public QObject
@@ -67,11 +69,10 @@ class Q_EXPORT QPlugInManager
 {
 public:
     QPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so",
-	QPlugIn::LibraryPolicy pol = QPlugIn::Default, const char* fn = 0 )
-	: defPol( pol )
+	 QApplicationInterface* appIface = 0, QPlugIn::LibraryPolicy pol = QPlugIn::Default )
+	: appInterface( appIface ), defPol( pol )
     {
 	signalEmitter = new QPlugInManagerSignalEmitter;
-	defFunction = fn;
 	// Every library is unloaded on destruction of the manager
 	libDict.setAutoDelete( TRUE );
 	plugDict.setAutoDelete( FALSE );
@@ -115,7 +116,7 @@ public:
 	if ( libDict[file] )
 	    return 0;
 
-	Type* plugin = new Type( file, defPol, defFunction );
+	Type* plugin = new Type( file, appInterface, defPol );
 	bool useful = FALSE;
 
 	if ( plugin->load() ) {
@@ -275,11 +276,11 @@ public:
 
 private:
     QPlugInManagerSignalEmitter* signalEmitter;
+    QApplicationInterface* appInterface;
     QDict<Type> plugDict;	    // Dict to match requested feature with plugin
     QDict<Type> libDict;	    // Dict to match library file with plugin
 
     QPlugIn::LibraryPolicy defPol;
-    QString defFunction;
 };
 
 #endif
