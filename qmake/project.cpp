@@ -631,20 +631,29 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
     int rep, rep_len;
     QRegExp reg_var;
     int left = 0, right = 0;
-    for(int x = 0; x < 2; x++) {
-	if( x == 0 ) {
+    for(int x = 0; x < 3; x++) {
+	if( x == 0 ) { //just to block out {}'s
 	    reg_var = QRegExp("\\$\\$\\{[a-zA-Z0-9_\\.-]*\\}");
 	    left = 3;
 	    right = 1;
-	} else if(x == 1) {
+	} else if(x == 1) { //environment
+	    reg_var = QRegExp("\\$\\$\\([a-zA-Z0-9_\\.-]*\\)");
+	    left = 3;
+	    right = 1;
+	} else if(x == 2) { //normal case
 	    reg_var = QRegExp("\\$\\$[a-zA-Z0-9_\\.-]*");
 	    left = 2;
 	    right = 0;
-	}
+	} 
 	while((rep = reg_var.search(str)) != -1) {
 	    rep_len = reg_var.matchedLength();
-	    QString rep_var = varMap(str.mid(rep + left, rep_len - (left + right)));
-	    QString replacement = rep_var == "LITERAL_WHITESPACE" ? QString("\t") : place[rep_var].join(" ");
+	    QString rep_var = str.mid(rep + left, rep_len - (left + right)), replacement;
+	    if(rep_var == "LITERAL_WHITESPACE")
+		replacement = "\t";
+	    else if(x == 1) //environment
+		replacement = getenv(rep_var);
+	    else
+		place[varMap(rep_var)].join(" ");
 	    debug_msg(2, "Project parser: (%s) :: %s -> %s", str.latin1(),
 		   str.mid(rep, rep_len).latin1(), replacement.latin1());
 	    str.replace(rep, rep_len, replacement);
