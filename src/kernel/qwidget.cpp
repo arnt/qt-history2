@@ -3131,14 +3131,11 @@ bool QWidget::isActiveWindow() const
     }
 #endif
 #if defined(Q_WS_WIN32)
-    HWND parent = ::GetParent( tlw->winId() );
-    HWND topparent = 0;
+    HWND parent = tlw->winId();
+    HWND topparent = GetActiveWindow();
     while ( parent ) {
-	topparent = parent;
 	parent = ::GetParent( parent );
-    }
-    if ( topparent ) {
-	if ( topparent == GetActiveWindow() )
+	if ( parent && parent == topparent )
 	    return TRUE;
     }
 #endif
