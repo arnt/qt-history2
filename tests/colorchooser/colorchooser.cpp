@@ -68,7 +68,6 @@ private:
 static const int pWidth = 200;
 static const int pHeight = 200;
 
-
 class QColorLuminancePicker : public QWidget
 {
     Q_OBJECT
@@ -133,7 +132,6 @@ void QColorLuminancePicker::mousePressEvent( QMouseEvent *m )
     setVal( y2val(m->y()) );
 }
 
-
 void QColorLuminancePicker::setVal( int v ) 
 {
     if ( val == v )
@@ -149,7 +147,6 @@ void QColorLuminancePicker::setCol( int h, int s )
     setCol( h, s, val );
     emit newHsv( h, s, val );
 }
-
 
 void QColorLuminancePicker::paintEvent( QPaintEvent * )
 {
@@ -189,16 +186,9 @@ int QColorPicker::satPt( const QPoint &pt )
 void QColorPicker::setCol( const QPoint &pt ) 
 { setCol( huePt(pt), satPt(pt) ); }
 
-
-
-
-
-
-
 QColorPicker::QColorPicker(QWidget* parent=0, const char* name=0)
     : QFrame( parent, name )
 {
-
     setCol( 150, 255 ); 
     
     QImage img( pHeight, pWidth, 32 );
@@ -241,7 +231,6 @@ void QColorPicker::setCol( int h, int s )
     repaint( r, FALSE );
 }
 
-
 void QColorPicker::mouseMoveEvent( QMouseEvent *m )
 {
     QPoint p = m->pos() - contentsRect().topLeft();
@@ -256,7 +245,6 @@ void QColorPicker::mousePressEvent( QMouseEvent *m )
     emit newCol( hue, sat );
 }
 
-
 void QColorPicker::drawContents(QPainter* p)
 {
     QRect r = contentsRect();
@@ -270,7 +258,6 @@ void QColorPicker::drawContents(QPainter* p)
     
 }
 
-
 class QColNumLineEdit;
 class QColorShowLabel;
 
@@ -280,14 +267,11 @@ class QColorShower : public QWidget
 public:
     QColorShower( QWidget *parent, const char *name = 0 );
 
-    QRgb currentColor() const { return curCol; }
-    
-public:
     //things that don't emit signals
     void setHsv( int h, int s, int v );
     void setRgb( QRgb rgb );
     //    void setRGB( );
-
+    QRgb currentColor() const { return curCol; }
 signals:
     void newCol( QRgb rgb );
 private slots:    
@@ -324,7 +308,6 @@ public:
     }
     int val() const { return text().toInt(); }
 };
-
 
 class QColorShowLabel : public QFrame
 {
@@ -475,15 +458,13 @@ void QColorShower::setHsv(  int h, int s, int v )
     showCurrentColor();
 }
 
-
-
-
-
 class QColorDialogPrivate : public QObject
 {
 Q_OBJECT
 public:
-    QColorDialogPrivate( ColorChooser *p );
+    QColorDialogPrivate( QColorDialog *p );
+    QRgb currentColor() const { return cs->currentColor(); }
+    
 private slots:    
     void addCustom();
 
@@ -526,7 +507,6 @@ void QColorDialogPrivate::newColorTypedIn( QRgb rgb )
     lp->setCol( h, s, v);
 }
 
-
 void QColorDialogPrivate::newCustom( int r, int c )
 {
     newRgb( cusrgb[r+c*2] ); //###
@@ -539,10 +519,8 @@ void QColorDialogPrivate::newStandard( int r, int c )
     custom->setSelected(-1,-1);
 }
 
-
-QColorDialogPrivate::QColorDialogPrivate( ColorChooser *dialog )
+QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog )
 {
-
     QHBoxLayout *topLay = new QHBoxLayout( dialog, 12, 6 );
     QVBoxLayout *leftLay = new QVBoxLayout;
     topLay->addLayout( leftLay );
@@ -613,7 +591,6 @@ QColorDialogPrivate::QColorDialogPrivate( ColorChooser *dialog )
     connect( cp, SIGNAL(newCol(int,int)), lp, SLOT(setCol(int,int)) );
     connect( lp, SIGNAL(newHsv(int,int,int)), this, SLOT(newHsv(int,int,int)) );
 
-    
     rightLay->addStretch();
 
     cs = new QColorShower( dialog );
@@ -625,10 +602,7 @@ QColorDialogPrivate::QColorDialogPrivate( ColorChooser *dialog )
 					     dialog );
     rightLay->addWidget( addCusBt );
     connect( addCusBt, SIGNAL(clicked()), this, SLOT(addCustom()) );
-
-    
 }
-
 
 void QColorDialogPrivate::addCustom()
 {
@@ -638,13 +612,46 @@ void QColorDialogPrivate::addCustom()
     }
 }
 
-
-
-ColorChooser::ColorChooser(QWidget* parent, const char* name) :
-    QDialog(parent, name, TRUE ) //modal
+QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
+    QDialog(parent, name, modal )
 {
     d = new QColorDialogPrivate( this );
+}
 
+
+
+/*!
+  Pops up a color dialog letting the user choose a color and returns
+  the RGB value of that color. Returns \c RGB_INVALID if the user
+  cancels the dialog. All colors used by the dialog will be
+  deallocated before this function returns.
+*/
+
+QRgb QColorDialog::getColor( QWidget *parent, const char *name )
+{
+    int allocContext = QColor::enterAllocContext();
+    QColorDialog *dlg = new QColorDialog( parent, name, TRUE );  //modal
+    int resultCode = dlg->exec();
+    QColor::leaveAllocContext();
+    QRgb result;
+    if ( resultCode == QDialog::Accepted )
+	result = dlg->selectedColor();
+    else 
+	result = RGB_INVALID;
+    QColor::destroyAllocContext(allocContext);
+    
+    return result;
+}
+
+
+
+/*!
+  Returns the currently selected color of the dialog.
+*/
+
+QRgb QColorDialog::selectedColor() const
+{
+    return d->currentColor();
 }
 
 
@@ -654,11 +661,16 @@ main(int argc, char** argv)
     QApplication app(argc, argv);
     QApplication::setFont( QFont("Helvetica") );
 
-    ColorChooser m;
-    m.show();
 
+    QColor c(QColorDialog::getColor()); 
+    QLabel l( "Hello, world", 0 ); 
+    l.setBackgroundColor( c );
+    l.show();
+	   
     QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
 
-    //    return app.exec();
+    return app.exec();
 }
 #include "colorchooser.moc"
+
+
