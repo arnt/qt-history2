@@ -1854,14 +1854,14 @@ void qt_init(QApplicationPrivate *priv, int,
                         }
                     }
                     // get the min/max value for pressure!
-                    any = static_cast<XAnyClassPtr>(devs->inputclassinfo);
+                    any = (XAnyClassPtr) ( devs->inputclassinfo );
                     if (dev == devStylus) {
                         qt_curr_events_stylus = curr_event_count;
                         for (j = 0; j < devs->num_classes; j++) {
                             if (any->c_class == ValuatorClass) {
-                                v = reinterpret_cast<XValuatorInfoPtr>(any);
-                                a = reinterpret_cast<XAxisInfoPtr>(reinterpret_cast<char *>(v +
-                                                              sizeof(XValuatorInfo)));
+                                v = (XValuatorInfoPtr) any;
+                                a = (XAxisInfoPtr) ((char *) v +
+                                                    sizeof (XValuatorInfo));
 #if defined (Q_OS_IRIX)
                                 max_pressure = a[WAC_PRESSURE_I].max_value;
 #else
@@ -1870,8 +1870,7 @@ void qt_init(QApplicationPrivate *priv, int,
                                 // got the max pressure no need to go further...
                                 break;
                             }
-                            any = reinterpret_cast<XAnyClassPtr>(reinterpret_cast<char *>(any
-                                                                                 + any->length));
+                            any = (XAnyClassPtr) ((char *) any + any->length);
                         }
                     } else {
                         qt_curr_events_eraser = curr_event_count;
