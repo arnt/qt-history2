@@ -12,6 +12,8 @@
 
 #include <qdirectpainter_qws.h>
 #include <qapplication.h>
+#include <qwidget.h>
+#include <qevent.h>
 
 class DirectPainterExample : public QWidget {
 public:
