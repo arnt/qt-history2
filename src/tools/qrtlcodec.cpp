@@ -142,7 +142,7 @@ static QChar::Direction findBasicDirection(QString str)
     {
 	if(str.at(pos).category() == QChar::Po)
 	{
-	    if( str[pos+1].direction() < 2 ) return QChar::DirR;
+	    if( str.at(pos+1).direction() < 2 ) return QChar::DirR;
 	    else break; // no letter next to the mark... don't know
 	}
 	pos++;
@@ -153,7 +153,7 @@ static QChar::Direction findBasicDirection(QString str)
     {
 	if(str.at(pos).category() == QChar::Po)
 	{
-	    if( str[pos-1].direction() < 2 ) return QChar::DirL;
+	    if( str.at(pos-1).direction() < 2 ) return QChar::DirL;
 	    else break; // no letter next to the mark... don't know
 	}
 	pos--;
@@ -350,12 +350,12 @@ bool QHebrewCodec::to8bit(const QChar ch, QCString *rstr) const
 	} else if ( ch.row == 0x20 ) {
 	    if ( ch.cell == 0x3E )
 	    {
-		*rstr += 0xAF;
+		*rstr += (char)0xAF;
 		converted = TRUE;
 	    }
 	    else if ( ch.cell == 0x17 )
 	    {
-		*rstr += 0xCF;
+		*rstr += (char)0xCF;
 		converted = TRUE;
 	    }
 	} else {
@@ -445,11 +445,11 @@ bool QArabicCodec::to8bit(const QChar ch, QCString *rstr) const
 	if ( ch.cell < 0x80 )
 	    *rstr += ch.cell;
 	else if( ch.cell == 0xA0 )
-	    *rstr += 0xA0;
+	    *rstr += (char)0xA0;
 	else if( ch.cell == 0xA4 )
-	    *rstr += 0xA4;
+	    *rstr += (char)0xA4;
 	else if( ch.cell == 0xAd )
-	    *rstr += 0xAd;
+	    *rstr += (char)0xAd;
 	else
 	    converted = FALSE;
     }
