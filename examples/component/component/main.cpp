@@ -1,7 +1,10 @@
+#include "../interfaces/printinterface.h"
+
 #include <qcomponentfactory.h>
 
 class Component : public QComponentRegistrationInterface, 
-		  public QComponentFactoryInterface
+		  public QComponentFactoryInterface,
+		  public PrintInterface
 {
 public:
     Component();
@@ -14,10 +17,16 @@ public:
 
     QRESULT createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface **iface, QUnknownInterface *outer );
 
+    void sayHello();
+
     static QUuid cid;
 };
 
-QUuid Component::cid = QUuid(0x1d8518cd, 0xe8f5, 0x4366, 0x99, 0xe8, 0x87, 0x9f, 0xd7, 0xe4, 0x82, 0xde );
+// {8AA0BD9B-8136-47F3-8C4F-BC8C08E93D34} 
+QUuid Component::cid = QUuid( 0x8aa0bd9b, 0x8136, 0x47f3, 0x8c, 0x4f, 0xbc, 0x8c, 0x08, 0xe9, 0x3d, 0x34 );
+
+// {1DA52229-5C33-40C3-925C-53777D39E458} 
+// QUuid Component::cid = QUuid( 0x1da52229, 0x5c33, 0x40c3, 0x92, 0x5c, 0x53, 0x77, 0x7d, 0x39, 0xe4, 0x58 );
 
 Component::Component()
 {
@@ -32,6 +41,8 @@ QRESULT Component::queryInterface( const QUuid &iid, QUnknownInterface **iface )
 	*iface = (QComponentRegistrationInterface*)this;
     else if ( iid == IID_QComponentFactory )
 	*iface = (QComponentFactoryInterface*)this;
+    else if ( iid == IID_Print )
+	*iface = (PrintInterface*)this;
     else
 	return QE_NOINTERFACE;
 
@@ -61,6 +72,11 @@ QRESULT Component::createInstance( const QUuid &cid, const QUuid &iid, QUnknownI
     }
 
     return QE_NOCOMPONENT;
+}
+
+void Component::sayHello()
+{
+    qDebug( "Hi there!" );
 }
 
 Q_EXPORT_COMPONENT()

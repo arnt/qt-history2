@@ -1,11 +1,13 @@
 #include <qcomponentfactory.h>
 
+#include "../interfaces/printinterface.h"
+
 int main( int argc, char **argv )
 {
-    QInterfacePtr<QUnknownInterface> iface;
+    QInterfacePtr<PrintInterface> iface;
 
-    if ( QComponentFactory::createInstance( "Qt.Example", IID_QUnknown, &iface ) == QS_OK ) {
-	qDebug( "Component has been loaded" );
+    if ( QComponentFactory::createInstance( "Qt.Example", IID_Print, (QUnknownInterface**)&iface ) == QS_OK ) {
+	iface->sayHello();
     }
 
     return 0;
