@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#70 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#69 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#70 $")
 
 
 /*****************************************************************************
@@ -1338,7 +1338,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     ulong maxws = ws<<16, maxhs=hs<<16;
     uchar *p	= dptr;
     int	  x, xbpl;
-    int	  pbpl, p_inc;
+    int	  p_inc;
     bool  msbfirst = xi->bitmap_bit_order == MSBFirst;
 
     if ( depth1 ) {
