@@ -2263,9 +2263,6 @@ bool QTextEdit::focusNextPrevChild( bool n )
 
 void QTextEdit::setFormat( QTextFormat *f, int flags )
 {
-    if ( isReadOnly() )
-	return;
-
     if ( doc->hasSelection( QTextDocument::Standard ) ) {
 	drawCursor( FALSE );
 	QString str = doc->selectedText( QTextDocument::Standard );
