@@ -16,7 +16,7 @@
 
 #include "demowidget.h"
 
-#include <qwmatrix.h>
+#include <qmatrix.h>
 
 class RotatingGradient : public DemoWidget
 {
@@ -25,7 +25,7 @@ public:
     void paintEvent(QPaintEvent *);
     void timerEvent(QTimerEvent *e);
 private:
-    QWMatrix matrix;
+    QMatrix matrix;
     QPixmap pixmap;
 };
 
