@@ -1,8 +1,11 @@
 .TH moc 1 "3 December 1995" "Troll Tech AS" \" -*- nroff -*-
-.\" $Id: //depot/qt/main/src/moc/moc.1#1 $
+.\"
+.\" $Id: //depot/qt/main/src/moc/moc.1#2 $
 .\"
 .\" Copyright 1992-1995 Troll Tech AS.  All rights reserved.
 .\" 
+.\" This file is part of Qt.
+."\ 
 .\" Qt is a product of Troll Tech AS and is provided for use on computers
 .\" running the Linux operating system.
 .\" 
@@ -39,7 +42,7 @@ and
 sections from a C++ header or source file and generates one C++ source
 file containing meta mbject information for the classes.  See
 .B http://www.troll.no/qt/moc.html
-for more information, or your local Qt document tree.
+for more information, or your local Qt HTML documentation.
 .PP
 In brief, the meta object system is a structure used by Qt (see
 .BR http://www.troll.no/ )
@@ -90,7 +93,13 @@ Treat all non-signal members as slots, for internal debugging
 purposes.  This is not useful for programming Qt clients.
 .SH USAGE
 .B moc
-is typically used with a class declaration like this skeleton:
+is almost always invoked by
+.BR make (1),
+not by hand.
+.PP
+.B moc
+is typically used with an input file containing class declarations
+like this skeleton:
 .PP
 .in +5
 class YourClass : public QObject {
@@ -220,6 +229,8 @@ class someClass : public QObject {
 public slots:
 .br
     void apply(void (*applyFunction)(QList*, void*), char*);
+.br
+};
 .in -5
 .PP
 You can work around this restriction like this:
@@ -239,6 +250,8 @@ class someClass : public QObject {
 public slots:
 .br
     void apply( ApplyFunctionType, char *);
+.br
+};
 .in -5
 .PP
 (It may sometimes be even better to replace the function pointer with
