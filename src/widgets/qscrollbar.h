@@ -38,10 +38,11 @@ class QTimer;
 class Q_EXPORT QScrollBar : public QWidget, public QRangeControl
 {
     Q_OBJECT
-    Q_PROPERTY( int, "minValue", privMinValue, privSetMinValue )
-    Q_PROPERTY( int, "maxValue", privMaxValue, privSetMaxValue )
-    Q_PROPERTY( int, "lineStep", privLineStep, privSetLineStep )
-    Q_PROPERTY( int, "pageStep", privPageStep, privSetPageStep )
+    Q_PROPERTY( int, "minValue", minValue, setMinValue )
+    Q_PROPERTY( int, "maxValue", maxValue, setMaxValue )
+    Q_PROPERTY( int, "lineStep", lineStep, setLineStep )
+    Q_PROPERTY( int, "pageStep", pageStep, setPageStep )
+    Q_PROPERTY( int, "value", value, setValue )
     Q_PROPERTY( bool, "tracking", tracking, setTracking )
     Q_PROPERTY( bool, "draggingSlider", draggingSlider, 0 )
     // ##### Q_PROPERTY( Orientation, "orientation", orientation, setOrientation )
@@ -62,6 +63,17 @@ public:
     virtual void setPalette( const QPalette & );
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
+
+    int	 minValue() const;
+    int	 maxValue() const;
+    void setMinValue( int );
+    void setMaxValue( int );
+    int	 lineStep() const;
+    int	 pageStep() const;
+    void setLineStep( int );
+    void setPageStep( int );
+    int  value() const;
+    void setValue( int );
 
 signals:
     void	valueChanged( int value );
@@ -116,15 +128,6 @@ private:
     void drawControls( uint controls, uint activeControl ) const;
     void drawControls( uint controls, uint activeControl,
 				QPainter *p ) const;
-
-    int	 privMinValue() const;
-    int	 privMaxValue() const;
-    void privSetMinValue( int );
-    void privSetMaxValue( int );
-    int	 privLineStep() const;
-    int	 privPageStep() const;
-    void privSetLineStep( int );
-    void privSetPageStep( int );
     
     uint pressedControl	 : 8;
     uint track		 : 1;

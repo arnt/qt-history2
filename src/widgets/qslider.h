@@ -39,7 +39,16 @@ struct QSliderData;
 class Q_EXPORT QSlider : public QWidget, public QRangeControl
 {
     Q_OBJECT
-
+    Q_PROPERTY( int, "minValue", minValue, setMinValue )
+    Q_PROPERTY( int, "maxValue", maxValue, setMaxValue )
+    Q_PROPERTY( int, "lineStep", lineStep, setLineStep )
+    Q_PROPERTY( int, "pageStep", pageStep, setPageStep )
+    Q_PROPERTY( int, "value", value, setValue )
+    Q_PROPERTY( bool, "tracking", tracking, setTracking )
+    // ##### Q_PROPERTY( Orientation, "orientation", orientation, setOrientation )
+    Q_PROPERTY( TickSetting, "tickmarks", tickmarks, setTickmarks )
+    Q_PROPERTY( int, "tickInterval", tickInterval, setTickInterval )
+	
 public:
     enum TickSetting { NoMarks = 0, Above = 1, Left = Above,
 		       Below = 2, Right = Below, Both = 3 };
@@ -47,7 +56,7 @@ public:
     QSlider( Orientation, QWidget *parent, const char *name=0 );
     QSlider( int minValue, int maxValue, int pageStep, int value, Orientation,
 	     QWidget *parent, const char *name=0 );
-    
+
     virtual void	setOrientation( Orientation );
     Orientation orientation() const;
     virtual void	setTracking( bool enable );
@@ -57,12 +66,22 @@ public:
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
     QSize	minimumSizeHint() const;
-    
+
     virtual void setTickmarks( TickSetting );
     TickSetting tickmarks() const { return ticks; }
 
     virtual void setTickInterval( int );
     int 	tickInterval() const { return tickInt; }
+
+    int	 minValue() const;
+    int	 maxValue() const;
+    void setMinValue( int );
+    void setMaxValue( int );
+    int	 lineStep() const;
+    int	 pageStep() const;
+    void setLineStep( int );
+    void setPageStep( int );
+    int  value() const;
 
 public slots:
     virtual void	setValue( int );

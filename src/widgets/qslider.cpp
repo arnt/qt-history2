@@ -1063,3 +1063,74 @@ void QSlider::styleChange( QStyle& old )
     QWidget::styleChange( old );
 }
 
+/*!
+  \reimp
+*/
+int QSlider::minValue() const
+{
+    return minValue();
+}
+
+/*!
+  \reimp
+*/
+int QSlider::maxValue() const
+{
+    return maxValue();
+}
+
+/*!
+  A convenience function which just calls
+  setRange( i, maxValue() )
+  
+  \sa setRange()
+*/
+void QSlider::setMinValue( int i )
+{
+    setRange( i, maxValue() );
+}
+
+/*!
+  A convenience function which just calls
+  setRange( minValue(), i )
+  
+  \sa setRange()
+*/
+void QSlider::setMaxValue( int i )
+{
+    setRange( minValue(), i );
+}
+
+/*!
+  \reimp
+*/
+int QSlider::lineStep() const
+{
+    return lineStep();
+}
+
+/*!
+  \reimp
+*/
+int QSlider::pageStep() const
+{
+    return pageStep();
+}
+
+void QSlider::setLineStep( int i )
+{
+    setSteps( i, pageStep() );
+}
+
+void QSlider::setPageStep( int i )
+{
+    setSteps( lineStep(), i );
+}
+
+/*!
+  \reimp
+*/
+int QSlider::value() const
+{
+    return value();
+}

@@ -808,68 +808,84 @@ void QScrollBar::styleChange( QStyle& old )
     QWidget::styleChange( old );
 }
 
-/*
-  Used to implement property.
+/*!
+  \reimp
 */
-int QScrollBar::privMinValue() const
+int QScrollBar::minValue() const
 {
     return minValue();
 }
 
-/*
-  Used to implement property.
+/*!
+  \reimp
 */
-int QScrollBar::privMaxValue() const
+int QScrollBar::maxValue() const
 {
     return maxValue();
 }
 
-/*
-  Used to implement property.
+/*!
+  A convenience function which just calls
+  setRange( i, maxValue() )
+  
+  \sa setRange()
 */
-void QScrollBar::privSetMinValue( int i )
+void QScrollBar::setMinValue( int i )
 {
     setRange( i, maxValue() );
 }
 
-/*
-  Used to implement property.
+/*!
+  A convenience function which just calls
+  setRange( minValue(), i )
+  
+  \sa setRange()
 */
-void QScrollBar::privSetMaxValue( int i )
+void QScrollBar::setMaxValue( int i )
 {
     setRange( minValue(), i );
 }
 
-/*
-  Used to implement property.
+/*!
+  \reimp
 */
-int QScrollBar::privLineStep() const
+int QScrollBar::lineStep() const
 {
     return lineStep();
 }
 
-/*
-  Used to implement property.
+/*!
+  \reimp
 */
-int QScrollBar::privPageStep() const
+int QScrollBar::pageStep() const
 {
     return pageStep();
 }
 
-/*
-  Used to implement property.
-*/
-void QScrollBar::privSetLineStep( int i )
+void QScrollBar::setLineStep( int i )
 {
     setSteps( i, pageStep() );
 }
 
-/*
-  Used to implement property.
-*/
-void QScrollBar::privSetPageStep( int i )
+void QScrollBar::setPageStep( int i )
 {
     setSteps( lineStep(), i );
+}
+
+/*!
+  \reimp
+*/
+int QScrollBar::value() const
+{
+    return value();
+}
+
+/*!
+  \reimp
+*/
+void QScrollBar::setValue( int i )
+{
+    setValue( i );
 }
 
 #undef ADD_LINE_ACTIVE
