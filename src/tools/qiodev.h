@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.h#6 $
+** $Id: //depot/qt/main/src/tools/qiodev.h#7 $
 **
 ** Definition of QIODevice class
 **
@@ -34,8 +34,8 @@
 #define IO_WriteOnly		0x0002		// writeable device
 #define IO_ReadWrite		0x0003		// read+write device
 #define IO_Append		0x0004		// append
-#define IO_Translate		0x0008		// translate CR+LF
-#define IO_Truncate		0x0010		// truncate device
+#define IO_Truncate		0x0008		// truncate device
+#define IO_Translate		0x0010		// translate CR+LF
 #define IO_ModeMask		0x00ff
 
 // IO device state
