@@ -1458,7 +1458,7 @@ void QPainter::setClipping( bool enable )
         return;
     }
 
-    if ( !isActive() || enable == testf(ClipOn) )
+    if ( enable == testf(ClipOn) )
         return;
 
     setf( ClipOn, enable );
