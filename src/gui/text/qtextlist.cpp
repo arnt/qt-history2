@@ -178,9 +178,7 @@ QString QTextListItem::text() const
 	case QTextListFormat::ListLowerAlpha:
 	case QTextListFormat::ListUpperAlpha:
 	    {
-		char baseChar = 'a';
-		if (style == QTextListFormat::ListUpperAlpha)
-		    baseChar = 'A';
+		const char baseChar = style == QTextListFormat::ListUpperAlpha ? 'A' : 'a';
 
 		int c = item;
 		while (c > 0) {
@@ -193,10 +191,9 @@ QString QTextListItem::text() const
 	default:
 	    Q_ASSERT(false);
     }
-    // ### rtl
     if (blockFormat.direction() == QTextBlockFormat::RightToLeft)
-	return result.prepend(QString::fromLatin1("."));
-    return result + QString::fromLatin1(".");
+	return result.prepend(QChar('.'));
+    return result + QChar('.');
 
 }
 
