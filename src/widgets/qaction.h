@@ -104,7 +104,7 @@ public:
     bool isVisible() const;
     virtual bool addTo( QWidget* );
     virtual bool removeFrom( QWidget* );
-
+    
 protected:
     virtual void addedTo( QWidget *actionWidget, QWidget *container );
     virtual void addedTo( int index, QPopupMenu *menu );
@@ -131,6 +131,7 @@ private:
     void init();
 
     friend class QActionGroup;
+    friend class QActionGroupPrivate;
     QActionPrivate* d;
 
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=

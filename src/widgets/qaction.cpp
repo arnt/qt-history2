@@ -138,8 +138,9 @@ public:
 #endif
     uint enabled : 1;
     uint visible : 1;
-    uint toggleaction :1;
+    uint toggleaction : 1;
     uint on : 1;
+    uint forceDisabled : 1;
 #ifndef QT_NO_TOOLTIP
     QToolTipGroup tipGroup;
 #endif
@@ -176,7 +177,7 @@ QActionPrivate::QActionPrivate()
       key( 0 ), accel( 0 ), accelid( 0 ),
 #endif
       enabled( TRUE ), visible( TRUE ), toggleaction( FALSE ), on( FALSE ),
-      tipGroup( 0 ), d_group( 0 )
+      tipGroup( 0 ), d_group( 0 ), forceDisabled( FALSE )
 {
     menuitems.setAutoDelete( TRUE );
     comboitems.setAutoDelete( TRUE );
@@ -754,6 +755,8 @@ bool QAction::isOn() const
 */
 void QAction::setEnabled( bool enable )
 {
+    d->forceDisabled = !enable;
+	
     if ( (bool)d->enabled == enable )
 	return;
 
@@ -1130,7 +1133,12 @@ void QAction::objectDestroyed()
 void QActionGroupPrivate::update( const QActionGroup* that )
 {
     for ( QPtrListIterator<QAction> it( actions ); it.current(); ++it ) {
-	it.current()->setEnabled( that->isEnabled() );
+	if ( that->isEnabled() && !it.current()->d->forceDisabled )
+	    it.current()->setEnabled( TRUE );
+	else if ( !that->isEnabled() && it.current()->isEnabled() ) {
+	    it.current()->setEnabled( FALSE );
+	    it.current()->d->forceDisabled = FALSE;
+	}
 	it.current()->setVisible( that->isVisible() );
     }
     for ( QPtrListIterator<QComboBox> cb( comboboxes ); cb.current(); ++cb ) {
