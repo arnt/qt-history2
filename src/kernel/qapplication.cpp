@@ -2990,6 +2990,254 @@ bool QApplication::reverseLayout()
 }
 
 
+#ifndef QT_NO_ACCEL
+extern bool qt_dispatchAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
+extern bool qt_tryComposeUnicode( QWidget*, QKeyEvent* ); // def in qaccel.cpp
+#endif
+/*! \reimp
+ */
+bool QApplication::notify(QObject *receiver, QEvent *e)
+{
+    bool res = QKernelApplication::notify(receiver, e);
+
+    if (res)
+	return res;
+
+    switch ( e->type() ) {
+#ifndef QT_NO_ACCEL
+    case QEvent::Accel:
+    {
+	QKeyEvent* key = (QKeyEvent*) e;
+	res = notify_helper( receiver, e );
+
+	if ( !res && !key->isAccepted() )
+	    res = qt_dispatchAccelEvent( (QWidget*)receiver, key );
+
+	// next lines are for compatibility with Qt <= 3.0.x: old
+	// QAccel was listening on toplevel widgets
+	if ( !res && !key->isAccepted() && !((QWidget*)receiver)->isTopLevel() )
+	    res = notify_helper( ((QWidget*)receiver)->topLevelWidget(), e );
+	break;
+    }
+#endif //QT_NO_ACCEL
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease:
+    case QEvent::AccelOverride:
+    {
+	QWidget* w = (QWidget*)receiver;
+	QKeyEvent* key = (QKeyEvent*) e;
+#ifndef QT_NO_ACCEL
+	if ( qt_tryComposeUnicode( w, key ) )
+	    break;
+#endif
+	bool def = key->isAccepted();
+	while ( w ) {
+	    if ( def )
+		key->accept();
+	    else
+		key->ignore();
+	    res = notify_helper( w, e );
+	    if ( res || key->isAccepted() )
+		break;
+	    w = w->parentWidget( TRUE );
+	}
+    }
+    break;
+    case QEvent::MouseButtonPress:
+	if ( e->spontaneous() ) {
+	    QWidget* fw = (QWidget*)receiver;
+	    while ( fw->focusProxy() )
+		fw = fw->focusProxy();
+	    if ( fw->isEnabled() && fw->focusPolicy() & QWidget::ClickFocus ) {
+		QFocusEvent::setReason( QFocusEvent::Mouse);
+		fw->setFocus();
+		QFocusEvent::resetReason();
+	    }
+	}
+	// fall through intended
+    case QEvent::MouseButtonRelease:
+    case QEvent::MouseButtonDblClick:
+    case QEvent::MouseMove:
+    {
+	QWidget* w = (QWidget*)receiver;
+	QMouseEvent* mouse = (QMouseEvent*) e;
+	QPoint relpos = mouse->pos();
+	while ( w ) {
+	    QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->state());
+	    me.spont = mouse->spontaneous();
+	    res = notify_helper( w, w == receiver ? mouse : &me );
+	    e->spont = FALSE;
+	    if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
+		break;
+
+	    relpos += w->pos();
+	    w = w->parentWidget();
+	}
+	if ( res )
+	    mouse->accept();
+	else
+	    mouse->ignore();
+    }
+    break;
+#ifndef QT_NO_WHEELEVENT
+    case QEvent::Wheel:
+    {
+	if ( e->spontaneous() ) {
+	    QWidget* fw = (QWidget*)receiver;
+	    while ( fw->focusProxy() )
+		fw = fw->focusProxy();
+	    if ( fw->isEnabled() && (fw->focusPolicy() & QWidget::WheelFocus) == QWidget::WheelFocus ) {
+		QFocusEvent::setReason( QFocusEvent::Mouse);
+		fw->setFocus();
+		QFocusEvent::resetReason();
+	    }
+	}
+
+	QWidget* w = (QWidget*)receiver;
+	QWheelEvent* wheel = (QWheelEvent*) e;
+	QPoint relpos = wheel->pos();
+	while ( w ) {
+	    QWheelEvent we(relpos, wheel->globalPos(), wheel->delta(), wheel->state(), wheel->orientation());
+	    we.spont = wheel->spontaneous();
+	    res = notify_helper( w,  w == receiver ? wheel : &we );
+	    e->spont = FALSE;
+	    if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
+		break;
+
+	    relpos += w->pos();
+	    w = w->parentWidget();
+	}
+	if ( res )
+	    wheel->accept();
+	else
+	    wheel->ignore();
+    }
+    break;
+#endif
+    case QEvent::ContextMenu:
+    {
+	QWidget* w = (QWidget*)receiver;
+	QContextMenuEvent *context = (QContextMenuEvent*) e;
+	QPoint relpos = context->pos();
+	while ( w ) {
+	    QContextMenuEvent ce(context->reason(), relpos, context->globalPos(), context->state());
+	    ce.spont = e->spontaneous();
+	    res = notify_helper( w,  w == receiver ? context : &ce );
+	    e->spont = FALSE;
+
+	    if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
+		break;
+
+	    relpos += w->pos();
+	    w = w->parentWidget();
+	}
+	if ( res )
+	    context->accept();
+	else
+	    context->ignore();
+    }
+    break;
+#if defined (QT_TABLET_SUPPORT)
+    case QEvent::TabletMove:
+    case QEvent::TabletPress:
+    case QEvent::TabletRelease:
+    {
+	QWidget *w = (QWidget*)receiver;
+	QTabletEvent *tablet = (QTabletEvent*)e;
+	QPoint relpos = tablet->pos();
+	while ( w ) {
+	    QTabletEvent te(tablet->pos(), tablet->globalPos(), tablet->device(),
+			    tablet->pressure(), tablet->xTilt(), tablet->yTilt(),
+			    tablet->uniqueId());
+	    te.spont = e->spontaneous();
+	    res = notify_helper( w, w == receiver ? tablet : &te );
+	    e->spont = FALSE;
+	    if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
+		break;
+
+	    relpos += w->pos();
+	    w = w->parentWidget();
+	}
+	if ( res )
+	    tablet->accept();
+	else
+	    tablet->ignore();
+	chokeMouse = tablet->isAccepted();
+    }
+    break;
+#endif
+    default:
+	res = notify_helper( receiver, e );
+	break;
+    }
+
+}
+
+bool QApplication::notify_helper( QObject *receiver, QEvent * e)
+{
+    bool consumed = false;
+
+    if (receiver->isWidgetType()) {
+	QWidget *widget = (QWidget*)receiver;
+
+	// toggle HasMouse widget state on enter and leave
+	if ( e->type() == QEvent::Enter || e->type() == QEvent::DragEnter )
+	    widget->setAttribute(QWidget::WA_UnderMouse, true);
+	else if ( e->type() == QEvent::Leave || e->type() == QEvent::DragLeave )
+	    widget->setAttribute(QWidget::WA_UnderMouse, false);
+
+	// throw away any mouse-tracking-only mouse events
+	if ( e->type() == QEvent::MouseMove &&
+	     (((QMouseEvent*)e)->state()&QMouseEvent::MouseButtonMask) == 0 &&
+	     !widget->hasMouseTracking() ) {
+	    consumed = true;
+	    goto handled;
+	} else if ( !widget->isEnabled() ) { // throw away mouse events to disabled widgets
+	    switch(e->type()) {
+	    case QEvent::MouseButtonPress:
+	    case QEvent::MouseButtonRelease:
+	    case QEvent::MouseButtonDblClick:
+	    case QEvent::MouseMove:
+		( (QMouseEvent*) e)->ignore();
+		consumed = true;
+		goto handled;
+#ifndef QT_NO_DRAGANDDROP
+	    case QEvent::DragEnter:
+	    case QEvent::DragMove:
+		( (QDragMoveEvent*) e)->ignore();
+		goto handled;
+
+	    case QEvent::DragLeave:
+	    case QEvent::DragResponse:
+		goto handled;
+
+	    case QEvent::Drop:
+		( (QDropEvent*) e)->ignore();
+		goto handled;
+#endif
+#ifndef QT_NO_WHEELEVENT
+	    case QEvent::Wheel:
+		( (QWheelEvent*) e)->ignore();
+		goto handled;
+#endif
+	    case QEvent::ContextMenu:
+		( (QContextMenuEvent*) e)->ignore();
+		goto handled;
+	    default:
+		break;
+	    }
+	}
+
+    }
+
+    consumed = QKernelApplication::notify_helper(receiver, e);
+
+ handled:
+    e->spont = false;
+    return consumed;
+}
+
+
 /*!
   \class QSessionManager qsessionmanager.h
   \brief The QSessionManager class provides access to the session manager.

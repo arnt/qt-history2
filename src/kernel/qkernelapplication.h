@@ -92,4 +92,9 @@ inline bool QKernelApplication::sendEvent( QObject *receiver, QEvent *event )
 inline bool QKernelApplication::sendSpontaneousEvent( QObject *receiver, QEvent *event )
 { if ( event ) event->spont = TRUE; return self ? self->notify( receiver, event ) : FALSE; }
 
+inline void QKernelApplication::sendPostedEvents() { sendPostedEvents( 0, 0 ); }
+
+inline void QKernelApplication::processEvents() { processEvents( 3000 ); }
+
+
 #endif

@@ -357,6 +357,7 @@ private:
     ushort spont : 1;
 
     friend class QKernelApplication;
+    friend class QApplication;
     friend class QAccelManager;
     friend class QBaseApplication;
     friend class QETWidget;

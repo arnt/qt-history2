@@ -235,6 +235,9 @@ public:
     bool             tryLock();
 #endif
 
+    bool notify(QObject *, QEvent *);
+
+
 signals:
     void	     lastWindowClosed();
     void	     aboutToQuit();
@@ -259,6 +262,8 @@ public:
 
 #endif // QT_NO_COMPAT
 private:
+    bool notify_helper( QObject *receiver, QEvent * e);
+
     void construct( int &argc, char **argv, Type );
     void initialize();
     void init_precmdline();
