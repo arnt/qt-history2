@@ -3036,5 +3036,6 @@ void QWSInputMethod::setFont( const QFont& )
     \value Raise The window has been raised to the top of the desktop.
     \value Lower The window has been lowered.
     \value Geometry The window has changed size or position.
+    \value Active The window has become the active window (has keyboard focus).
 */
 
