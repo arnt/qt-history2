@@ -119,6 +119,13 @@
     \sa size(), resize()
 */
 
+/*! \fn void QVarLengthArray::clear()
+
+    Removes all the elements from the array.
+
+    Same as resize(0).
+*/
+
 /*! \fn void QVarLengthArray::resize(int size)
 
     Sets the size of the array to \a size. If \a size is greater than

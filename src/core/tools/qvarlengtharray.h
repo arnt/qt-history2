@@ -38,6 +38,7 @@ public:
     inline int count() const { return s; }
     inline bool isEmpty() const { return (s == 0); }
     inline void resize(int size) { realloc(size, qMax(size, a)); }
+    inline void clear() { resize(0); }
 
     inline int capacity() const { return a; }
     inline void reserve(int size) { if (size > a) realloc(s, size); }
