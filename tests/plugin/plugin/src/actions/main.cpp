@@ -1,12 +1,14 @@
 #include "../../../qactioninterface.h"
 #include "../../../qcleanuphandler.h"
 #include "../../../qapplicationinterfaces.h"
+#include "../../../qwidgetfactory.h"
 
 #include <qaction.h>
 #include <qpopupmenu.h>
 #include <qdialog.h>
 #include <qapplication.h>
 #include <qvariant.h>
+#include <qinputdialog.h>
 
 #ifdef _WS_WIN_
 #undef LIBEXPORT
@@ -28,12 +30,14 @@ public:
     QStringList featureList();
     QAction* create( const QString &actionname, QObject* parent = 0 );
 
-    QCleanUpHandler<QAction>* actions;
+    QCleanUpHandler<QAction> actions;
+    QCleanUpHandler<QWidget> widgets;
     QStrList queryInterfaceList() const;
 
 public slots:
-    void onOpenModalDialog();
-    void turnOnText();
+    void openDialog();
+    void toggleText();
+    void selectWidget();
 
 protected:
     QAction* actionTurnOnText;
@@ -45,13 +49,11 @@ private:
 TestInterface::TestInterface()
 {
     cIface = 0;
-    actions = new QCleanUpHandler<QAction>;
 }
 
 TestInterface::~TestInterface()
 {
     delete cIface;
-    delete actions;
 }
 
 QStringList TestInterface::featureList()
@@ -60,6 +62,7 @@ QStringList TestInterface::featureList()
 
     list << "Open Dialog";
     list << "Show Text";
+    list << "Set central widget";
 
     return list;
 }
@@ -76,33 +79,40 @@ QStrList TestInterface::queryInterfaceList() const
 QAction* TestInterface::create( const QString& actionname, QObject* parent )
 {
     if ( actionname == "Open Dialog" ) {
-	QAction* a = new QAction( actionname, QIconSet(), "Open &dialog", Qt::CTRL + Qt::Key_D, parent, actionname, FALSE );
-	connect( a, SIGNAL(activated()), this, SLOT(onOpenModalDialog()) );
-	actions->addCleanUp( a );
+	QAction* a = new QAction( actionname, QIconSet(), "Open &dialog", Qt::CTRL + Qt::Key_D, parent, actionname );
+	connect( a, SIGNAL(activated()), this, SLOT(openDialog()) );
+	actions.addCleanUp( a );
 	return a;
     } else if ( actionname == "Show Text" ) {
 	actionTurnOnText = new QAction( actionname, QIconSet(), "&Show Text", Qt::CTRL + Qt::Key_T, parent, actionname, TRUE );
-	connect( actionTurnOnText, SIGNAL(activated()), this, SLOT(turnOnText()) );
-	actions->addCleanUp( actionTurnOnText );
+	connect( actionTurnOnText, SIGNAL(activated()), this, SLOT(toggleText()) );
+	actions.addCleanUp( actionTurnOnText );
 	return actionTurnOnText;
-    } else 
+    } else if ( actionname == "Set central widget" ) {
+	QAction* a = new QAction( actionname, QIconSet(), "Set central &widget", Qt::CTRL + Qt::Key_W, parent, actionname );
+	connect( a, SIGNAL(activated()), this, SLOT(selectWidget()) );
+	actions.addCleanUp( a );
+	return a;
+    } else {
 	return 0;
+    }
 }
 
-void TestInterface::onOpenModalDialog()
+void TestInterface::openDialog()
 {
     QVariant obj;
     QClientInterface* ifc;
     if ( (  ifc = clientInterface( "PlugMainWindowInterface" ) ) )
 	ifc->requestProperty( "mainWindow", obj );
-    QDialog dialog( (QWidget*)obj.toUInt(), 0, TRUE );
-    dialog.show();
+    QDialog* dialog = new QDialog( 0, 0, FALSE );
+    widgets.addCleanUp( dialog );
+    dialog->show();
 }
 
-void TestInterface::turnOnText()
+void TestInterface::toggleText()
 {
     QClientInterface* ifc; 
-    if ( ( ifc = clientInterface("PlugMainWindowInterface") ) ) {
+    if ( ( ifc = clientInterface( "PlugMainWindowInterface" ) ) ) {
 	QVariant onOff;
 	ifc->requestProperty( "usesTextLabel", onOff );
 	bool on = onOff.toBool();
@@ -117,6 +127,18 @@ void TestInterface::turnOnText()
     }
 }
 
+void TestInterface::selectWidget()
+{
+    QClientInterface* ifc;
+    if ( ( ifc = clientInterface( "PlugMainWindowInterface" ) ) ) {
+	bool ok = FALSE;
+	QString wc = QInputDialog::getText( "Set central widget", "Enter widget class", "QWidget", &ok );
+	if ( ok ) {
+	    ifc->requestSetProperty( "centralWidget", wc );
+	}
+    }
+}
+
 #if defined(__cplusplus )
 extern "C"
 {
@@ -127,19 +149,16 @@ LIBEXPORT QActionInterface* loadInterface()
     return new TestInterface();
 }
 
-LIBEXPORT bool onConnect( QApplication* myapp )
+LIBEXPORT bool onConnect( QApplication* theApp )
 {
-    qDebug("I've been loaded by %p");
+    qDebug("Action-Plugin: I've been loaded by %p", theApp );
     return TRUE;
 }
 
-LIBEXPORT bool onDisconnect( QApplication* myapp )
+LIBEXPORT bool onDisconnect( QApplication* theApp )
 {
-    if ( myapp ) {
-        qDebug("I've been unloaded by %p", myapp);
-    } else {
-	qDebug("I've been unloaded on application destruction" );
-    }
+    qDebug("Action-Plugin: I've been unloaded by %p", theApp);
+
     return TRUE;
 }
 
