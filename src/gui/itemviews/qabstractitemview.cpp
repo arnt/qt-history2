@@ -1226,7 +1226,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     }
 
     switch (e->key()) {
-    // ignoreed keys
+    // ignored keys
     case Qt::Key_Down:
     case Qt::Key_Up:
     case Qt::Key_Left:
@@ -1249,9 +1249,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         emit activated(currentIndex());
         break;
     case Qt::Key_Space:
-        selectionModel()->select(currentIndex(),
-                                 selectionCommand(currentIndex(), e));
-    case Qt::Key_Delete:
+        selectionModel()->select(currentIndex(), selectionCommand(currentIndex(), e));
         break;
     case Qt::Key_F2:
         if (!edit(currentIndex(), EditKeyPressed, e))
