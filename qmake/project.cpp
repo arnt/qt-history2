@@ -155,8 +155,10 @@ QMakeProject::read(const char *file, QMap<QString, QStringList> &place)
 	while ( !t.eof() ) {
 	    line_count++;
 	    s += t.readLine().stripWhiteSpace();
-	    if(s.right(1) == "\\")
+	    if(s.right(1) == "\\") {
 		s.truncate(s.length() - 1);
+		s += " ";		
+	    }
 	    else {
 		if(!(ret = parse(s, place)))
 		    break;
