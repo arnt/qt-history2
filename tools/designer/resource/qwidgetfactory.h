@@ -50,6 +50,7 @@ private:
     void loadActions( const QDomElement &e );
     void loadToolBars( const QDomElement &e );
     void loadMenuBar( const QDomElement &e );
+    void loadFunctions( const QDomElement &e );
 
 private:
     struct Image {
@@ -70,6 +71,15 @@ private:
 	QString field;
     };
 
+    struct EventFunction
+    {
+	EventFunction() {}
+	EventFunction( const QString &e, const QString &f )
+	    : events( e ), functions( f ) {}
+	QStringList events;
+	QStringList functions;
+    };
+    
     QValueList<Image> images;
     QWidget *toplevel;
     QListViewItem *lastItem;
@@ -79,7 +89,9 @@ private:
     QMap<QString, QString> buddies;
     QMap<QTable*, QValueList<Field> > fieldMaps;
     QList<QAction> actionList;
-
+    QMap<QObject *, EventFunction> eventMap;
+    QString functions;
+    
 };
 
 #endif

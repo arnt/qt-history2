@@ -14,6 +14,7 @@
 #include "../designer/filterinterface.h"
 #include "../shared/editorinterface.h"
 #include "../shared/templatewizardiface.h"
+#include "../shared/eventinterface.h"
 
 /*
  * Interfaces for MainWindow access

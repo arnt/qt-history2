@@ -3,8 +3,7 @@
 
 #include <qcomponentinterface.h>
 #include <qstringlist.h>
-
-class QObject;
+#include <qobject.h>
 
 // {9958cfbc-64f9-44ce-a65e-2c6c11969a7b}
 Q_GUID( IID_EventInterface,
@@ -15,7 +14,9 @@ class EventInterface : public QUnknownInterface
 public:
     virtual QStringList featureList() const = 0;
     virtual QStringList events( QObject *obj ) const = 0;
-
+    virtual void setEventHandler( QObject *obj, const QString &event, const QString &function ) = 0;
+    virtual void execute( QObject *obj, const QString &str ) = 0;
+    
 };
 
 #endif

@@ -971,8 +971,11 @@ QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o )
     if ( !eventInterfaceManager )
 	return QValueList<MetaDataBase::EventDescription>();
 
-    QStringList lst = ( (EventInterface*)eventInterfaceManager->queryInterface( "Events" ) )->events( o );
+    EventInterface *iface = (EventInterface*)eventInterfaceManager->queryInterface( "Events" );
     QValueList<MetaDataBase::EventDescription> list;
+    if ( !iface )
+	return list;
+    QStringList lst = iface->events( o );
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	EventDescription d;
 	d.name = get_function_name( *it );

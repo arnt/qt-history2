@@ -1,3 +1,5 @@
+#include "../plugins/designerinterface.h"
+
 #include "qwidgetfactory.h"
 #include <widgetdatabase.h>
 #include <widgetinterface.h>
@@ -17,6 +19,7 @@
 #include <qobjectlist.h>
 #include <qsqlrecord.h>
 #include <qsqldatabase.h>
+#include <stdlib.h>
 
 // include all Qt widgets we support
 #include <qpushbutton.h>
@@ -57,6 +60,7 @@
 #include <qmenubar.h>
 
 static QList<QWidgetFactory> widgetFactories;
+static QInterfaceManager<EventInterface> *eventInterfaceManager = 0;
 
 
 /*!
@@ -159,6 +163,10 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     while ( menubar.tagName() != "menubar" && !menubar.isNull() )
 	menubar = menubar.nextSibling().toElement();
 
+    QDomElement functions = firstWidget;
+    while ( functions.tagName() != "functions" && !functions.isNull() )
+	functions = functions.nextSibling().toElement();
+
     if ( !imageCollection.isNull() )
 	widgetFactory->loadImageCollection( imageCollection );
 
@@ -183,6 +191,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	widgetFactory->loadConnections( connections, connector );
     if ( !tabOrder.isNull() )
 	widgetFactory->loadTabOrder( tabOrder );
+    if ( !functions.isNull() )
+	widgetFactory->loadFunctions( functions );
 
     if ( widgetFactory->toplevel ) {
 	if ( widgetFactory->toplevel->inherits( "QDesignerSqlWidget" ) )
@@ -218,6 +228,26 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	    }
 	    table->refresh();
 	}
+	
+	if ( !eventInterfaceManager ) {
+	    QString dir = getenv( "QTDIR" );
+	    dir += "/lib";
+	    eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir, "*qscript*.dll; *qscript*.so" );
+	}
+
+	if ( eventInterfaceManager ) {
+	    EventInterface *eventInterface = (EventInterface*)eventInterfaceManager->queryInterface( "Events" );
+	    eventInterface->execute( widgetFactory->toplevel, widgetFactory->functions );
+	    for ( QMap<QObject *, EventFunction>::Iterator it = widgetFactory->eventMap.begin();
+		  it != widgetFactory->eventMap.end(); ++it ) {
+		QStringList::Iterator eit, fit;
+		for ( eit = (*it).events.begin(), fit = (*it).functions.begin(); eit != (*it).events.end(); ++eit, ++fit ) {
+		    QString func = *fit;
+		    eventInterface->setEventHandler( it.key(), *eit, func );
+		}
+	    }
+	}
+
     }
 
     for ( QMap<QString, QString>::Iterator it = widgetFactory->buddies.begin(); it != widgetFactory->buddies.end(); ++it ) {
@@ -515,6 +545,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	}
     }
 
+    EventFunction ef;
 
     while ( !n.isNull() ) {
 	if ( n.tagName() == "spacer" ) {
@@ -570,10 +601,15 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    createItem( n, w );
 	} else if ( n.tagName() == "column" || n.tagName() == "row" ) {
 	    createColumn( n, w );
+	} else if ( n.tagName() == "event" ) {
+	    ef.events.append( n.attribute( "name" ) );
+	    ef.functions.append( n.attribute( "function" ) );
 	}
 
 	n = n.nextSibling().toElement();
     }
+
+    eventMap.insert( obj, ef );
 
     return w;
 }
@@ -1293,4 +1329,20 @@ void QWidgetFactory::loadMenuBar( const QDomElement &e )
 	}
 	n = n.nextSibling().toElement();
     }
+}
+
+void QWidgetFactory::loadFunctions( const QDomElement &e )
+{
+    QDomElement n = e.firstChild().toElement();
+    QMap<QString, QString> bodies;
+    QString s;
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "function" ) {
+	    QString name = n.attribute( "name" );
+	    QString body = n.firstChild().toText().data();
+	    s += "function " + name + body + "\n";
+	}
+	n = n.nextSibling().toElement();
+    }
+    functions = s;
 }
