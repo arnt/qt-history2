@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.30 1999/03/18 01:37:57 warwick Exp $
+** $Id: porting.doc,v 1.31 1999/03/18 01:49:15 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -29,6 +29,27 @@
 
 <h1 align=center> Porting to Qt 2.0 </h1><br clear="all">
 
+<p>
+You're probably looking at this page because you want to port
+your application from Qt 1.x to Qt 2.0, but to be sure, let's
+review the good reasons to do this:
+<ul>
+ <li>To get access to all the new Qt 2.0 features like the QML
+	subset of HTML for formatted labels, tooltips, etc.
+	and the much easier to use layout classes and widgets.
+ <li>To make your application truly international, with support
+	for Unicode and translations for the languages of the world.
+ <li>To allow your application to fit into the new look of the
+	Unix desktop, with configuration, very powerful "themes".
+ <li>To stay up-to-date with the version of Qt that gets all the
+	new features and bug-fixes.
+ <li>To get more speed and smoother widgets display with all the
+	new anti-flicker changes to Qt.
+ <li>Most of all though, you want to port to Qt 2.0
+	so that your Wheel Mouse works!
+</ul>
+
+<p>
 The Qt 2.x series is not binary compatible with the 1.x series.
 This means programs compiled for Qt 1.x must be recompiled to work
 with Qt 2.0.  Qt 2.0 is also not completely <em>source</em> compatible
@@ -47,9 +68,16 @@ To port code using Qt 1.x to use Qt 2.0:
  <li> Be sure your code compiles on all your target platforms with Qt 1.x.
  <li> Recompile with Qt 2.0.  For each error, search below for related
 	identifiers (eg. function names, class names).
+ <li> If you get stuck, ask on the qt-interest mailing list, or
+	Troll Tech Technical Support if you're a professional edition
+	licensee.
 </ul>
 
 
+And remember, if you port early, you'll be in good company - some very
+major projects are being ported now, so there is plenty of expertise
+in the collective conscious that is the Qt Developer Community!
+</p>
 
 
 <hr>
