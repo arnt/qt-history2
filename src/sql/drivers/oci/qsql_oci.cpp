@@ -698,11 +698,13 @@ bool QOCIResult::cacheNext()
 	    }
 	    if ( isForwardOnly() ) {
 		fs.setValue( i, v );
-		fs.field( i )->setNull( cols->isNull(i) );
+		if ( cols->isNull( i ) )
+		    fs.field( i )->setNull();
 	    } else {
 		QSqlField f( QString::null, v.type() );
 		f.setValue( v );
-		f.setNull( cols->isNull(i) );
+		if ( cols->isNull( i ) )
+		    f.setNull();
 		rowCache[currentRecord][i] = f;
 	    }
 	}
