@@ -656,15 +656,25 @@ bool QTextCursor::place( const QPoint &p, QTextParagraph *s, bool link )
     QPoint pos( p );
     QRect r;
     QTextParagraph *str = s;
-    if ( pos.y() < s->rect().y() )
+    if ( pos.y() < s->rect().y() ) {
 	pos.setY( s->rect().y() );
+#ifdef Q_WS_MACX
+	pos.setX( s->rect().x() );
+#endif
+    }
     while ( s ) {
 	r = s->rect();
 	r.setWidth( document() ? document()->width() : QWIDGETSIZE_MAX );
 	if ( s->isVisible() )
 	    str = s;
-	if ( pos.y() >= r.y() && pos.y() <= r.y() + r.height() || !s->next() )
+	if ( pos.y() >= r.y() && pos.y() <= r.y() + r.height() )
 	    break;
+	if ( !s->next() ) {
+#ifdef Q_WS_MACX
+	    pos.setX( s->rect().x() + s->rect().width() );
+#endif
+	    break;
+	}
 	s = s->next();
     }
 
