@@ -44,6 +44,8 @@ public:
         qreal y;
         ElementType type;
 
+        operator QPointF () const { return QPointF(x, y); }
+
         bool operator==(const Element &e) const { return x == e.x && y == e.y && type == e.type; }
     };
 
