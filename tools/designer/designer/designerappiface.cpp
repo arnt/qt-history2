@@ -10,6 +10,8 @@
 #include <qobjectlist.h>
 #include <qstatusbar.h>
 #include "project.h"
+#include "metadatabase.h"
+#include "widgetfactory.h"
 
 /*
  * Application Interface
@@ -40,6 +42,10 @@ QUnknownInterface *DesignerApplicationInterfaceImpl::queryInterface( const QGuid
 	iface = new DesignerMainWindowInterfaceImpl( this );
     else if ( guid == IID_DesignerProjectInterface )
 	iface = new DesignerProjectInterfaceImpl( this );
+    else if ( guid == IID_DesignerMetaDatabaseInterface )
+	iface = new DesignerMetaDatabaseInterfaceImpl( this );
+    else if ( guid == IID_DesignerWidgetFactoryInteface )
+	iface = new DesignerWidgetFactoryInterfaceImpl( this );
 
     if ( iface )
 	iface->addRef();
@@ -1052,4 +1058,90 @@ void DesignerProjectInterfaceImpl::closeDatabase( const QString &connection )
     if ( !mainWindow || !mainWindow->currProject() )
 	return;
     return mainWindow->currProject()->closeDatabase( connection );
+}
+
+
+
+
+
+DesignerMetaDatabaseInterfaceImpl::DesignerMetaDatabaseInterfaceImpl( QUnknownInterface *i )
+    : DesignerMetaDatabaseInterface(), appIface( i ), ref( 0 )
+{
+    appIface->addRef();
+}
+
+QUnknownInterface *DesignerMetaDatabaseInterfaceImpl::queryInterface( const QGuid &guid )
+{
+    return appIface->queryInterface( guid );
+}
+
+unsigned long DesignerMetaDatabaseInterfaceImpl::addRef()
+{
+    return ref++;
+}
+
+unsigned long DesignerMetaDatabaseInterfaceImpl::release()
+{
+    if ( !--ref ) {
+	appIface->release();
+	delete this;
+	return 0;
+    }
+
+    return ref;
+}
+
+void DesignerMetaDatabaseInterfaceImpl::setFakeProperty( QObject *o, const QString &property, const QVariant& value )
+{
+    MetaDataBase::setFakeProperty( o, property, value );
+}
+
+QVariant DesignerMetaDatabaseInterfaceImpl::fakeProperty( QObject * o, const QString &property )
+{
+    return MetaDataBase::fakeProperty( o, property );
+}
+
+void DesignerMetaDatabaseInterfaceImpl::setPropertyChanged( QObject *o, const QString &property, bool changed )
+{
+    MetaDataBase::setPropertyChanged( o, property, changed );
+}
+
+bool DesignerMetaDatabaseInterfaceImpl::isPropertyChanged( QObject *o, const QString &property )
+{
+    return MetaDataBase::isPropertyChanged( o, property );
+}
+
+
+
+
+DesignerWidgetFactoryInterfaceImpl::DesignerWidgetFactoryInterfaceImpl( QUnknownInterface *i )
+    : DesignerWidgetFactoryInterface(), appIface( i )
+{
+    appIface->addRef();
+}
+
+QUnknownInterface *DesignerWidgetFactoryInterfaceImpl::queryInterface( const QGuid &guid )
+{
+    return appIface->queryInterface( guid );
+}
+
+unsigned long DesignerWidgetFactoryInterfaceImpl::addRef()
+{
+    return ref++;
+}
+
+unsigned long DesignerWidgetFactoryInterfaceImpl::release()
+{
+    if ( !--ref ) {
+	appIface->release();
+	delete this;
+	return 0;
+    }
+
+    return ref;
+}
+
+QWidget *DesignerWidgetFactoryInterfaceImpl::create( const char *className, QWidget *parent, const char *name )
+{
+    return WidgetFactory::create( WidgetDatabase::idFromClassName( className ), parent, name );
 }

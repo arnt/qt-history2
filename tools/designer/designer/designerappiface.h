@@ -268,4 +268,42 @@ private:
 
 };
 
+class DesignerMetaDatabaseInterfaceImpl : public DesignerMetaDatabaseInterface
+{
+public:
+    DesignerMetaDatabaseInterfaceImpl( QUnknownInterface *i );
+
+    QUnknownInterface *queryInterface( const QGuid & );
+    unsigned long addRef();
+    unsigned long release();
+
+    void setFakeProperty( QObject *o, const QString &property, const QVariant& value );
+    QVariant fakeProperty( QObject * o, const QString &property );
+    void setPropertyChanged( QObject *o, const QString &property, bool changed );
+    bool isPropertyChanged( QObject *o, const QString &property );
+
+private:
+    QUnknownInterface *appIface;
+    unsigned long ref;
+
+};
+
+class DesignerWidgetFactoryInterfaceImpl : public DesignerWidgetFactoryInterface
+{
+public:
+    DesignerWidgetFactoryInterfaceImpl( QUnknownInterface *i );
+
+    QUnknownInterface *queryInterface( const QGuid & );
+    unsigned long addRef();
+    unsigned long release();
+
+
+    QWidget *create( const char *className, QWidget *parent, const char *name = 0 );
+
+private:
+    QUnknownInterface *appIface;
+    unsigned long ref;
+
+};
+
 #endif

@@ -145,13 +145,26 @@ void SqlFormWizard::setupPage1()
     QStringList lst = proIface->databaseConnectionList();
     listBoxConnection->insertStringList( lst );
 }
-
 void SqlFormWizard::accept()
 {
+    if ( !appIface )
+	return;
+
     DesignerProjectInterface *proIface = (DesignerProjectInterface*)appIface->queryInterface( IID_DesignerProjectInterface );
-    if ( !widget || !proIface ) {
+    DesignerMetaDatabaseInterface *mdbIface = (DesignerMetaDatabaseInterface*)appIface->queryInterface( IID_DesignerMetaDatabaseInterface );
+    if ( !widget || !proIface || !mdbIface ) {
 	SqlFormWizardBase::accept();
 	return;
+    }
+
+    QString conn = editConnection->text();
+    QString table = editTable->text();
+    QStringList lst;
+    lst << conn << table << "";
+
+    if ( !conn.isEmpty() && !table.isEmpty() ) {
+	mdbIface->setFakeProperty( widget, "database", lst );
+	mdbIface->setPropertyChanged( widget, "database", TRUE );
     }
 
     proIface->openDatabase( editConnection->text() );
@@ -197,4 +210,5 @@ void SqlFormWizard::accept()
     proIface->closeDatabase( editConnection->text() );
 
     SqlFormWizardBase::accept();
+
 }

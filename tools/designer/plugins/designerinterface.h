@@ -8,6 +8,7 @@
 
 #include <qcomponentinterface.h>
 #include <qvariant.h>
+#include <qobject.h>
 #include "../designer/actioninterface.h"
 #include "../shared/widgetinterface.h"
 #include "../designer/filterinterface.h"
@@ -206,5 +207,31 @@ Q_GUID(IID_DesignerHierarchyViewInterface,
 // {4F5BA81F-520D-4a59-95DD-BDB8B5B24190}
 Q_GUID(IID_DesignerConfigurationInterface,
 0x4f5ba81f, 0x520d, 0x4a59, 0x95, 0xdd, 0xbd, 0xb8, 0xb5, 0xb2, 0x41, 0x90);
+
+// {41ed19be-efca-42ed-aaad-1f2e502ca5fa}
+Q_GUID( IID_DesignerMetaDatabaseInterface,
+	0x41ed19be, 0xefca, 0x42ed, 0xaa, 0xad, 0x1f, 0x2e, 0x50, 0x2c, 0xa5, 0xfa );
+
+interface DesignerMetaDatabaseInterface : public QUnknownInterface
+{
+    virtual void setFakeProperty( QObject *o, const QString &property, const QVariant& value ) = 0;
+    virtual QVariant fakeProperty( QObject * o, const QString &property ) = 0;
+    virtual void setPropertyChanged( QObject *o, const QString &property, bool changed ) = 0;
+    virtual bool isPropertyChanged( QObject *o, const QString &property ) = 0;
+
+};
+
+// {e61b28ef-63af-4b4f-9382-dd9c5a4ac277}
+
+Q_GUID( IID_DesignerWidgetFactoryInteface,
+	0xe61b28ef, 0x63af, 0x4b4f, 0x93, 0x82, 0xdd, 0x9c, 0x5a, 0x4a, 0xc2, 0x77 );
+
+interface DesignerWidgetFactoryInterface : public QUnknownInterface
+{
+    virtual QWidget *create( const char *className, QWidget *parent, const char *name = 0 ) = 0;
+    // ### need more stuff
+
+
+};
 
 #endif //DESIGNERINTERFACE_H
