@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#53 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#54 $
 
 $snapshotversion=200;
 $base = "/tmp/striptree-$$";
@@ -143,16 +143,11 @@ cd ../..
 
 # Package Windows-only source files separately
 # REMAINING ISSUES: Borland vs. MSVC++ makefiles
-WINFILES='src/Makefile.win32-dll '`find src -name '*_win.*'; find include -name '*_win.*'`
-rm -f \$WINZIP
+WINFILES=`( echo src/Makefile.win32-dll; find src include -name \'*_win.*\' ) | fmt -10000`
 WINZIP=/local/qt/dist/qtwin$snapshotversion-`date +%Y%m%d`-snapshot.zip
 rm -f \$WINZIP
-echo sex
-echo zip -9 \$WINZIP \$WINFILES 
-echo sexsex
-zip -9 \$WINZIP \$WINFILES 
-rm \$WINFILES
-rm -rf $base/cvs/qt/*/*/*_win.*
+zip -9 `echo \$WINZIP \$WINFILES`
+rm `echo \$WINZIP \$WINFILES`
 
 # THERE SHOULD BE NO WINDOWS STUFF AFTER THIS POINT
 
