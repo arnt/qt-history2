@@ -141,7 +141,7 @@ int QUtf8Codec::heuristicContentMatch(const char* chars, int len) const
 
 
 class QUtf8Decoder : public QTextDecoder {
-    ushort uc;
+    uint uc;
     int need;
     bool headerDone;
 public:
