@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#73 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#74 $
 **
 ** Implementation of QFile class
 **
@@ -171,7 +171,7 @@ bool QFile::exists() const
 bool QFile::exists( const QString &fileName )
 {
 #if defined(CHECK_NULL)
-    ASSERT( fileName != 0 );
+    ASSERT( fileName != QString::null );
 #endif
     return ACCESS( fileName, F_OK ) == 0;
 }
@@ -197,7 +197,7 @@ bool QFile::remove()
 
 bool QFile::remove( const QString &fileName )
 {
-    if ( fileName == 0 || fileName[0] == '\0' ) {
+    if ( fileName == QString::null || fileName[0] == '\0' ) {
 #if defined(CHECK_NULL)
         warning( "QFile::remove: Empty or NULL file name" );
 #endif
