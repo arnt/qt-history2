@@ -151,7 +151,7 @@ void P4FStat::processExited()
 			headrev = head.toInt();
 			QStringList haveRevEntry = entries.grep( "... haveRev" );
 			if ( haveRevEntry.count() ) {
-			    QString have = QStringList::split( ' ', headRevEntry[0] )[2];
+			    QString have = QStringList::split( ' ', haveRevEntry[0] )[2];
 			    haverev = have.toInt();
 			}
 
