@@ -59,6 +59,7 @@ public:
     QString absFileName() const;
 
     bool supportsCodeFile() const { return !codeExtension().isEmpty(); }
+    QString codeComment() const;
     QString codeFile() const;
     QString code();
     bool isCodeEdited() const;
