@@ -107,7 +107,14 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << varGlue("DEFINES","-D"," -D","") << endl;
     t << "LEXFLAGS = " << var("QMAKE_LEXFLAGS") << endl;
     t << "YACCFLAGS= " << var("QMAKE_YACCFLAGS") << endl;
-    t << "INCPATH  = " << varGlue("INCLUDEPATH","-I", " -I", "") << " -I" << specdir() << endl;
+    t << "INCPATH  = " << "-I" << specdir();
+    {
+	QString pwd = fileFixify(QDir::currentDirPath());
+	if(pwd.isEmpty())
+	    pwd = ".";
+	t << " -I" << pwd;
+    }
+    t << varGlue("INCLUDEPATH"," -I", " -I", "") << endl;
 
     if(!project->isActiveConfig("staticlib")) {
 	t << "LINK     = ";
