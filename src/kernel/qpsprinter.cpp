@@ -2045,11 +2045,6 @@ static int addPsFontNameExtension( const QFont &f, QString &ps, const psfont *ps
   return type;
 }
 
-static QString makePSFontName( const QFont &f, int *listpos = 0, int *ftype = 0 )
-{
-    return qt_makePSFontName( f, listpos, ftype );
-}
-
 /* static  */ // doesn't work because we need the friend decl from qfontdatabase
 QString qt_makePSFontName( const QFont &f, int *listpos, int *ftype)
 {
@@ -2091,6 +2086,11 @@ QString qt_makePSFontName( const QFont &f, int *listpos, int *ftype)
   if ( ftype )
       *ftype = type;
   return ps;
+}
+
+static QString makePSFontName( const QFont &f, int *listpos = 0, int *ftype = 0 )
+{
+    return qt_makePSFontName( f, listpos, ftype );
 }
 
 static void appendReplacements( QStringList &list, const psfont * const * replacements, int type, float xscale = 100. )
