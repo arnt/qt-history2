@@ -118,7 +118,6 @@ protected:
     virtual void cursorUp( bool mark=FALSE );
     virtual void cursorDown( bool mark=FALSE );
     virtual void backspace();
-    virtual void del();
     virtual void home( bool mark=FALSE );
     virtual void end( bool mark=FALSE );
 
