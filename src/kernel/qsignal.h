@@ -70,6 +70,9 @@ public:
 
 signals:
     void signal( const QVariant& );
+#ifndef QT_NO_COMPAT
+    void intSignal( int );
+#endif
 
 private:
     QVariant val;
