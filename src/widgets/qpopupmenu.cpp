@@ -416,11 +416,11 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	updateSize();
     }
 
-    QWidget *desktop = QApplication::desktop();
-    int sw = desktop->width();			// screen width
-    int sh = desktop->height();			// screen height
-    int sx = desktop->x();			// screen pos
-    int sy = desktop->y();
+    QRect screen = QApplication::desktop()->geometry( QApplication::desktop()->screenNumber( pos ) );
+    int sw = screen.width();			// screen width
+    int sh = screen.height();			// screen height
+    int sx = screen.x();			// screen pos
+    int sy = screen.y();
     int x  = pos.x();
     int y  = pos.y();
     if ( indexAtPoint > 0 )			// don't subtract when < 0
@@ -429,9 +429,9 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     int h  = height();
 
     if ( snapToMouse ) {
-	if ( x+w > sw )
+	if ( x+w > sx+sw )
 	    x = mouse.x()-w;
-	if ( y+h > sh )
+	if ( y+h > sy+sh )
 	    y = mouse.y()-h;
 	if ( x < sx )
 	    x = mouse.x();
@@ -439,10 +439,10 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	    y = sh - h;
     }
 
-    if ( x+w > sw )				// the complete widget must
-	x = sw - w;				//   be visible
-    if ( y+h > sh )
-	y = sh - h;
+    if ( x+w > sx+sw )				// the complete widget must
+	x = sx+sw - w;				//   be visible
+    if ( y+h > sy+sh )
+	y = sy+sh - h;
     if ( x < sx )
 	x = sx;
     if ( y < sy )
