@@ -236,6 +236,7 @@ static void sn_cleanup()
     DestroyWindow(sn_win);
     sn_win = 0;
     for ( int i=0; i<3; i++ ) {
+	(*sn_vec[i])->deleteAll();
 	delete *sn_vec[i];
 	*sn_vec[i] = 0;
     }
@@ -296,10 +297,8 @@ static void sn_init()
     qt_sn_msg = RegisterWindowMessageA( "QtSNEvent" );
 #endif
     sn_win = qt_create_sn_window();
-    for ( int i=0; i<3; i++ ) {
+    for ( int i=0; i<3; i++ )
 	*sn_vec[i] = new QSNDict;
-	(*sn_vec[i])->setAutoDelete( TRUE );
-    }
 }
 
 void qt_sn_activate_fd( int sockfd, int type )
