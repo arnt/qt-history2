@@ -432,65 +432,40 @@ int QKeySequence::decodeString(const QString& str)
  */
 QString QKeySequence::encodeString(int key)
 {
-    // Note: that the order that things are searched here correspond to the way
-    // accel's are presented on the Mac. So, the order is important.
-    bool plus_next = true;
     QString s;
-    if ( (key & META) == META ) {
-	if ( plus_next && !s.isEmpty() )
-	    s += QAccel::tr( "+" );
-	plus_next = TRUE;
-	QString meta = QAccel::tr( "Meta" );
-#ifdef QMAC_META
-	if(meta == "Meta") {
-	    plus_next = FALSE;
-	    meta = QMAC_META;
-	}
-#endif
-	s += meta;
+#if defined(Q_OS_MAC)
+    // On MAC the order is Meta, Alt, Shift, Control.
+    if ((key & META) == META)
+	s += QMAC_META;
+    if ((key & ALT) == ALT)
+	s += QMAC_ALT;
+    if ((key & SHIFT) == SHIFT)
+	s += QMAC_SHIFT;
+    if ((key & CTRL) == CTRL)
+	s += QMAC_CTRL;
+#else
+    // On other systems the order is Meta, Control, Alt, Shift
+    if ((key & META) == META)
+	s += QAccel::tr("Meta");
+    if ((key & CTRL) == CTRL ) {
+	if (!s.isEmpty())
+	    s += QAccel::tr("+");
+	s += QAccel::tr("Ctrl");
     }
     if ((key & ALT) == ALT) {
-	if (plus_next && !s.isEmpty())
+	if (!s.isEmpty())
 	    s += QAccel::tr("+");
-	plus_next = true;
-	QString alt = QAccel::tr("Alt");
-#ifdef QMAC_ALT
-	if(alt == "Alt") {
-	    plus_next = false;
-	    alt = QMAC_ALT;
-	}
-#endif
-	s += alt;
+	s += QAccel::tr("Alt");
     }
-    if ( (key & SHIFT) == SHIFT ) {
-	if ( plus_next && !s.isEmpty() )
-	    s += QAccel::tr( "+" );
-	plus_next = TRUE;
-	QString shift = QAccel::tr( "Shift" );
-#ifdef QMAC_SHIFT
-	if(shift == "Shift") {
-	    plus_next = false;
-	    shift = QMAC_SHIFT;
-	}
-#endif
-	s += shift;
+    if ((key & SHIFT) == SHIFT) {
+	if (!s.isEmpty())
+	    s += QAccel::tr("+");
+	s += QAccel::tr("Shift");
     }
-    if ( (key & CTRL) == CTRL ) {
-	if ( plus_next && !s.isEmpty() )
-	    s += QAccel::tr( "+" );
-	plus_next = TRUE;
-	QString ctrl = QAccel::tr( "Ctrl" );
-#ifdef QMAC_CTRL
-	if(ctrl == "Ctrl") {
-	    plus_next = FALSE;
-	    ctrl = QMAC_CTRL;
-	}
 #endif
-	s += ctrl;
-    }
 
 
-    key &= ~(SHIFT | CTRL | ALT | META );
+    key &= ~(SHIFT | CTRL | ALT | META);
     QString p;
 
     if (key && key < Key_Escape) {
@@ -526,13 +501,13 @@ QString QKeySequence::encodeString(int key)
 	    }
 	}
     }
-    if (s.isEmpty()) {
-	s = p;
-    } else {
-	if(plus_next)
-	    s += QAccel::tr("+");
-	s += p;
-    }
+
+#ifndef Q_OS_MAC
+    if (!s.isEmpty())
+	s += QAccel::tr("+");
+#endif
+
+    s += p;
     return s;
 }
 
