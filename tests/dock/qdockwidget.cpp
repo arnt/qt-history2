@@ -219,6 +219,7 @@ QDockWidget::QDockWidget( QWidget *parent, const char *name )
     setLineWidth( 2 );
     updateGui();
     setCloseEnabled( TRUE );
+    setResizeEnabled( TRUE );
 }
 
 void QDockWidget::resizeEvent( QResizeEvent *e )

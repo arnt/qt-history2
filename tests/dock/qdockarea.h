@@ -32,13 +32,14 @@ private:
     void setupLayout();
     void setupHorizontalLayout();
     void setupVerticalLayout();
-    
+
 private:
     Orientation orient;
     QList<QDockWidgetData> dockWidgets;
+    QList<QWidget> insertedSplitters;
     QBoxLayout *layout;
     int sections;
-    
+
 };
 
 #endif
