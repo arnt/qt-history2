@@ -81,6 +81,8 @@ public:
     virtual void updateEditorContents(QWidget *editor, const QModelIndex &item) const;
     virtual void updateEditorGeometry(QWidget *editor, const QItemOptions &options, const QModelIndex &item) const;
 
+    inline const QGenericItemModel *itemModel() const { return m; }
+
     // non-widget editors
 //     virtual void event( QEvent *e, QItemOptions *options, const QModelIndex &item );
 //     virtual void keyPressEvent( QKeyEvent *e, QItemOptions *options, const QModelIndex &item );
