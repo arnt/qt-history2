@@ -441,7 +441,7 @@ inline bool QCoreVariant::isDetached() const
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
 
-template<typename T> T QVariant_to(const QCoreVariant &v, T * = 0)
+template<typename T> T qVariant_to(const QCoreVariant &v, T * = 0)
 {
     const int vid = qt_variant_metatype_id<T>(static_cast<T *>(0));
     if (vid == v.userType())
@@ -456,7 +456,7 @@ template<typename T> T QVariant_to(const QCoreVariant &v, T * = 0)
 
 #else
 
-template<typename T> T QVariant_to(const QCoreVariant &v)
+template<typename T> T qVariant_to(const QCoreVariant &v)
 {
     const int vid = qt_variant_metatype_id<T>(static_cast<T *>(0));
     if (vid == v.userType())
