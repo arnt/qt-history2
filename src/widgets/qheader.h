@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#17 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#18 $
 **
 ** Definition of QHeader widget class (table header)
 **
@@ -16,6 +16,7 @@
 #include "qtablevw.h"
 #endif // QT_H
 
+struct QHeaderData;
 
 class QHeader : public QTableView
 {
@@ -78,7 +79,7 @@ protected:
 
 private:
     void	init( int );
-    //    void	recalc();
+
     void	paintRect( int p, int s );
     void	markLine( int idx );
     void	unMarkLine( int idx );
@@ -94,18 +95,14 @@ private:
     int		handleIdx;
     int		oldHIdxSize;
     int		moveToIdx;
-    enum State { Idle, Sliding, Pressed, Moving };
+    enum State { Idle, Sliding, Pressed, Moving, Blocked };
     State	state;
     QCOORD	clickPos;
     bool	trackingIsOn;
 
-    QArray<QCOORD>	sizes;
-    QArray<char*>	labels;
-    QArray<int>	        a2l;
-    QArray<int>	        l2a;
-
-
     Orientation orient;
+
+    QHeaderData *data;
 
 private:	// Disabled copy constructor and operator=
     QHeader( const QHeader & );
@@ -117,8 +114,6 @@ inline QHeader::Orientation QHeader::orientation() const
 {
     return orient;
 }
-
-inline int QHeader::count() const { return labels.size() - 1; }
 
 inline void QHeader::setTracking( bool enable ) { trackingIsOn = enable; }
 inline bool QHeader::tracking() const { return trackingIsOn; }

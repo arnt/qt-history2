@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#38 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -13,6 +13,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 #include "qbitmap.h"
+#include "qbitarry.h"
 
 static const int MINSIZE  = 8;
 static const int MARKSIZE = 32;
@@ -82,6 +83,20 @@ static unsigned char vsplitm_bits[] = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, };
 
 
+struct QHeaderData 
+{
+    QArray<QCOORD>	sizes;
+    QArray<char*>	labels;
+    QArray<int>	        a2l;
+    QArray<int>	        l2a;
+
+    QBitArray           clicks;
+    QBitArray           resize;
+    bool		move;
+    
+};
+
+
 /*!
   \class QHeader qheader.h
   \brief The QHeader class provides a table header.
@@ -132,8 +147,8 @@ QHeader::QHeader( int n,  QWidget *parent, const char *name )
 QHeader::~QHeader()
 {
     for ( int i=0; i < count(); i++ )
-	if ( labels[i] )                      // Avoid purify complaints
-	    delete [] (char *)labels[i];
+	if ( data->labels[i] )                      // Avoid purify complaints
+	    delete [] (char *)data->labels[i];
 }
 
 /*!
@@ -187,10 +202,15 @@ int QHeader::cellPos( int i ) const
 
 
 /*!
-  \fn int QHeader::count() const
-
   Returns the number of sections in the header.
 */
+
+int QHeader::count() const 
+{ 
+    return data->labels.size() - 1; 
+}
+
+
 
 /*!
   \fn QHeader::Orientation QHeader::orientation() const
@@ -234,16 +254,25 @@ void QHeader::init( int n )
 				 );
     state = Idle;
 
-    sizes.resize(n+1);
-    labels.resize(n+1);
-    a2l.resize(n+1);
-    l2a.resize(n+1);
+    data = new QHeaderData;
+    
+    
+    data->sizes.resize(n+1);
+    data->labels.resize(n+1);
+    data->a2l.resize(n+1);
+    data->l2a.resize(n+1);
+    data->clicks.resize(n+1);
+    data->resize.resize(n+1);
     for ( int i = 0; i < n ; i ++ ) {
-	labels[i] = 0;
-	sizes[i] = 88;
-	a2l[i] = i;
-	l2a[i] = i;
+	data->labels[i] = 0;
+	data->sizes[i] = 88;
+	data->a2l[i] = i;
+	data->l2a[i] = i;
     }
+    data->clicks.fill( TRUE );
+    data->resize.fill( TRUE );
+    data->move = TRUE;
+    
     setFrameStyle( QFrame::NoFrame );
 
     if ( orient == Horizontal ) {
@@ -259,10 +288,10 @@ void QHeader::init( int n )
     }
     handleIdx = 0;
     //################
-    labels[n] = 0;
-    sizes[n] = 0;
-    a2l[n] = 0;
-    l2a[n] = 0;
+    data->labels[n] = 0;
+    data->sizes[n] = 0;
+    data->a2l[n] = 0;
+    data->l2a[n] = 0;
     //#############
     setMouseTracking( TRUE );
     trackingIsOn = FALSE;
@@ -388,23 +417,23 @@ void QHeader::moveAround( int fromIdx, int toIdx )
 	return;
     int i;
 
-    int idx = a2l[fromIdx];
+    int idx = data->a2l[fromIdx];
     if ( fromIdx < toIdx ) {
 	for ( i = fromIdx; i < toIdx - 1; i++ ) {
 	    int t;
-	    a2l[i] = t = a2l[i+1];
-	    l2a[t] = i;
+	    data->a2l[i] = t = data->a2l[i+1];
+	    data->l2a[t] = i;
 	}
-	a2l[toIdx-1] = idx;
-	l2a[idx] = toIdx-1;
+	data->a2l[toIdx-1] = idx;
+	data->l2a[idx] = toIdx-1;
     } else {
 	for ( i = fromIdx; i > toIdx ; i-- ) {
 	    int t;
-	    a2l[i] = t = a2l[i-1];
-	    l2a[t] = i;
+	    data->a2l[i] = t = data->a2l[i-1];
+	    data->l2a[t] = i;
 	}
-	a2l[toIdx] = idx;
-	l2a[idx] = toIdx;
+	data->a2l[toIdx] = idx;
+	data->l2a[idx] = toIdx;
     }
 }
 
@@ -440,7 +469,7 @@ void QHeader::paintCell( QPainter *p, int row, int col )
 
     int logIdx = mapToLogical(i);
 
-    const char *s = labels[logIdx];
+    const char *s = data->labels[logIdx];
     int d = 0;
     if ( style() == WindowsStyle  &&
 	 i==handleIdx && ( state == Pressed || state == Moving ) )
@@ -477,14 +506,20 @@ void QHeader::mousePressEvent( QMouseEvent *m )
     while ( i <= (int) count() ) {
 	if ( i+1 <= count() &&  pPos(i+1) - MINSIZE/2 < c &&
 	     c < pPos(i+1) + MINSIZE/2 ) {
-	    handleIdx = i+1;
-	    oldHIdxSize = cellSize( i );
-	    state = Sliding;
+		handleIdx = i+1;
+		oldHIdxSize = cellSize( i );
+	    if ( data->resize.testBit(i) ) 
+		state = Sliding;
+	    else
+		state = Blocked;
 	    break;
 	} else if ( pPos(i)  < c && c < pPos( i+1 ) ) {
 	    handleIdx = i;
 	    moveToIdx = -1;
-	    state = Pressed;
+	    if ( data->clicks.testBit(i) )
+		state = Pressed;
+	    else
+		state = Blocked;
 	    clickPos = c;
 	    repaint(sRect( handleIdx ));
 	    break;
@@ -523,6 +558,9 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
 	}
 	break;
     }
+    case Blocked:
+	//nothing
+	break;
     default:
 	debug("QHeader::mouseReleaseEvent() (%s) no state", name("unnamed") );
 	break;
@@ -536,7 +574,8 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 	bool hit = FALSE;
 	int i = 0;
 	while ( i <= (int) count() ) {
-	    if ( i && pPos(i) - MINSIZE/2 < s && s < pPos(i) + MINSIZE/2 ) {
+	    if ( i && pPos(i) - MINSIZE/2 < s && s < pPos(i) + MINSIZE/2 &&
+		 data->resize.testBit(i-1) ) {
 		hit = TRUE;
 		if ( orient == Horizontal )
 		    setCursor( *hSplitCur );
@@ -555,7 +594,8 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 		   name( "unnamed" ) );
 	    break;
 	case Pressed:
-	    if ( QABS( s - clickPos ) > 4 ) {
+	case Blocked:
+	    if ( QABS( s - clickPos ) > 4 && data->move ) {
 		state = Moving;
 		moveToIdx = -1;
 		if ( orient == Horizontal )
@@ -598,8 +638,8 @@ void QHeader::handleColumnResize( int handleIdx, int s, bool final )
     int oldPos = pPos( handleIdx );
     int delta = s - oldPos;
     int lIdx = mapToLogical(handleIdx - 1);
-    int oldSize = sizes[lIdx];
-    int newSize = sizes[lIdx] = oldSize + delta;
+    int oldSize = data->sizes[lIdx];
+    int newSize = data->sizes[lIdx] = oldSize + delta;
     int repaintPos = QMIN( oldPos, s );
     repaint(repaintPos-2, 0, width(), height());
     if ( tracking() && oldSize != newSize )
@@ -629,11 +669,11 @@ QRect QHeader::sRect( int i )
 void QHeader::setLabel( int i, const char *s, int size )
 {
     if ( i >= 0 && i < count() ) {
-	if ( labels[i] )                      // Avoid purify complaints
-	    delete [] (char *)labels[i];
-	labels[i] = qstrdup(s);
+	if ( data->labels[i] )                      // Avoid purify complaints
+	    delete [] (char *)data->labels[i];
+	data->labels[i] = qstrdup(s);
 	if ( size >= 0 )
-	    sizes[i] = size;
+	    data->sizes[i] = size;
     }
     repaint();
 }
@@ -644,7 +684,7 @@ void QHeader::setLabel( int i, const char *s, int size )
 */
 const char* QHeader::label( int i )
 {
-    return labels[i];
+    return data->labels[i];
 }
 
 /*!
@@ -656,20 +696,20 @@ const char* QHeader::label( int i )
 int QHeader::addLabel( const char *s, int size )
 {
     int n = count() + 1; //###########
-    labels.resize( n + 1 );
-    labels[n-1] = qstrdup(s);
-    sizes.resize( n + 1 );
+    data->labels.resize( n + 1 );
+    data->labels[n-1] = qstrdup(s);
+    data->sizes.resize( n + 1 );
     if ( size < 0 ) {
 	QFontMetrics fm = fontMetrics();
         size = -fm.minLeftBearing()
             +fm.width( s )
             -fm.minRightBearing() + QH_MARGIN*2;
     }
-    sizes[n-1] = size;
-    a2l.resize( n + 1 );
-    l2a.resize( n + 1 );
-    a2l[n-1] = n-1;
-    l2a[n-1] = n-1;
+    data->sizes[n-1] = size;
+    data->a2l.resize( n + 1 );
+    data->l2a.resize( n + 1 );
+    data->a2l[n-1] = n-1;
+    data->l2a[n-1] = n-1;
     //    recalc();
     if ( orient == Horizontal )
 	setNumCols( n );
@@ -750,7 +790,7 @@ int QHeader::pPos( int i ) const
  */
 int QHeader::pSize( int i ) const
 {
-    return sizes[mapToLogical(i)];
+    return data->sizes[mapToLogical(i)];
 }
 
 
@@ -794,7 +834,7 @@ int QHeader::cellWidth( int col )
 
 int QHeader::mapToLogical( int a ) const
 {
-    return a2l[ a ];
+    return data->a2l[ a ];
 }
 
 
@@ -804,7 +844,7 @@ int QHeader::mapToLogical( int a ) const
 
 int QHeader::mapToActual( int l ) const
 {
-    return l2a[ l ];
+    return data->l2a[ l ];
 }
 
 
@@ -816,35 +856,54 @@ int QHeader::mapToActual( int l ) const
 
 void QHeader::setCellSize( int i, int s )
 {
-    sizes[i] = s;
+    data->sizes[i] = s;
 }
 
 
 /*!
-  Not implemented
+  Enable user resizing of column \a i if \a enable is TRUE, disable otherwise.
+  If \a i is negative, resizing is enabled/disabled for all columns.
+  
+  \sa setMovingEnabled(), setClickEnabled()
 */
 
-void QHeader::setResizeEnabled( bool, int )
+void QHeader::setResizeEnabled( bool enable, int i )
 {
-
+    if ( i < 0 ) {
+	data->resize.fill( enable );
+    } else {
+	data->resize[i] = enable;
+    }
 }
 
 
 /*!
-  Not implemented
+    Enable the user to exchange  columns if \a enable is TRUE, 
+    disable otherwise.
+  
+  \sa setClickEnabled(), setResizeEnabled()
 */
 
-void QHeader::setMovingEnabled( bool )
+void QHeader::setMovingEnabled( bool enable )
 {
-
+    data->move = enable;
 }
 
 
 /*!
-  Not implemented
+  Enable clicking in column \a i if \a enable is TRUE, disable otherwise.
+  If \a i is negative, clicking is enabled/disabled for all columns.
+  
+  If enabled, the sectionClicked() signal is emitted when the user clicks.
+  
+  \sa setMovingEnabled(), setResizeEnabled()
 */
 
-void QHeader::setClickEnabled( bool, int )
+void QHeader::setClickEnabled( bool enable, int i )
 {
-
+    if ( i < 0 ) {
+	data->clicks.fill( enable );
+    } else {
+	data->clicks[i] = enable;
+    }
 }
