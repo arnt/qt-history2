@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 ############################################################################
-# $Id: //depot/qt/main/bin/syncqt#14 $
+# $Id: //depot/qt/main/bin/syncqt#15 $
 #
 # Synchronizes Qt header files - internal Troll Tech tool.
 #   - Creates symlinks on Unix.
@@ -16,7 +16,7 @@ $fast=0;
 $basedir = $ENV{"QTDIR"};
 $includedir = $basedir . "/include";
 
-$showonly = undef;
+$showonly = 0;
 
 while ( $#ARGV >= 0 ) {
     if ( $ARGV[0] eq "-fast" ) {
@@ -28,7 +28,9 @@ while ( $#ARGV >= 0 ) {
 	    $includedir = `pwd` ."/". $includedir;
 	}
     } elsif ( $ARGV[0] eq "-show" ) {
-	$showonly++;
+	$showonly = 1;
+    } elsif ( $ARGV[0] eq "-showp" ) {
+	$showonly = 2;
     }
     shift;
 }
@@ -55,10 +57,12 @@ foreach $p ( @dirs ) {
     push @p_files, @ff;
 }
 
-if ( $showonly ) {
+if ( $showonly == 1 ) {
     foreach ( @files ) {
 	print "$_\n";
     }
+    exit( 0 );
+} elsif ( $showonly == 2 ) {
     foreach ( @p_files ) {
 	print "$_\n";
     }
@@ -75,10 +79,7 @@ if ( check_unix() ) {
 	    print "symlink created for $f\n";
 	}
     }
-    if ( ! -d "private" ) {
-	mkdir "private", 0777;
-    }
-    chdir "private";
+    chdir "qprivate";
     foreach $f ( @p_files ) {
 	$h = $f;
 	$h =~ s-.*/--g;
@@ -96,7 +97,7 @@ if ( check_unix() ) {
     foreach $f ( @p_files ) {
 	$h = $f;
 	$h =~ s-.*/--g;
-	sync_files("$basedir/$f", "$includedir/private/$h", $fast);
+	sync_files("$basedir/$f", "$includedir/qprivate/$h", $fast);
     }
 }
 
