@@ -148,7 +148,8 @@ QFontEngine::Error QFontEngineFT::stringToCMap( const QChar *str, int len, QGlyp
 	    if ( ::category(str[i]) == QChar::Mark_NonSpacing )
 		rendered_glyphs[g]->advance = 0;
 	}
-	glyphs[i].advance = rendered_glyphs[g]->advance;
+	glyphs[i].advance.x = rendered_glyphs[g]->advance;
+	glyphs[i].advance.y = 0;
     }
     return NoError;
 }
@@ -205,7 +206,7 @@ void QFontEngineFT::draw( QPaintEngine *p, int x, int y, const QTextItem &si, in
 	if( glyph->width != 0 && glyph->height != 0 && glyph->pitch != 0)
 	    gfx->blt(myx,myy,myw,glyph->height,0,0);
 
-	x += g->advance;
+	x += g->advance.x;
     }
 #ifdef DEBUG_LOCKS
     qDebug("unaccelerated drawText unlock");
@@ -227,7 +228,7 @@ glyph_metrics_t QFontEngineFT::boundingBox( const QGlyphLayout *glyphs, int numG
     int w = 0;
     const QGlyphLayout *end = glyphs + numGlyphs;
     while( end > glyphs )
-	w += (--end)->advance;
+	w += (--end)->advance.x;
     w = (w*_scale)>>8;
     return glyph_metrics_t(0, -ascent(), w, ascent()+descent()+1, w, 0 );
 }
@@ -328,7 +329,8 @@ void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs) const
 	    rendered_glyphs[g] = new QGlyph;
 	    render(face, g, rendered_glyphs[g], smooth);
 	}
-	glyphs[i].advance = (rendered_glyphs[g]->advance);//*_scale)>>8;
+	glyphs[i].advance.x = (rendered_glyphs[g]->advance);//*_scale)>>8;
+	glyphs[i].advance.y = 0;
     }
 }
 
@@ -361,8 +363,10 @@ QFontEngine::Error QFontEngineBox::stringToCMap(const QChar *, int len, QGlyphLa
 	glyphs[i].glyph = 0;
     *nglyphs = len;
 
-    for(int i = 0; i < len; i++)
-	(glyphs++)->advance = _size;
+    for(int i = 0; i < len; i++) {
+	(glyphs++)->advance.x = _size;
+	(glyphs++)->advance.y = 0;
+    }
 
     return NoError;
 }

@@ -489,8 +489,9 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
 		}
 	    } else {
 		while ( back ) {
-		    glyphs[i].offset.x -= glyphs[i-(back--)].advance.x;
-		    glyphs[i].offset.y -= -glyphs[i-(back--)].advance.y;
+		    glyphs[i].offset.x -= glyphs[i-back].advance.x;
+		    glyphs[i].offset.y -= -glyphs[i-back].advance.y;
+		    --back;
 		}
 	    }
 // 	    qDebug("   ->\tadv=%d\tpos=(%d/%d)",
