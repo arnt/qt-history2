@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#28 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#29 $
 **
 ** Implementation of Network Extension Library
 **
@@ -45,7 +45,6 @@ QFtp::QFtp()
 	     this, SLOT( closed() ) );
     connect( commandSocket, SIGNAL( readyRead() ),
 	     this, SLOT( readyRead() ) );
-
     connect( dataSocket, SIGNAL( hostFound() ),
 	     this, SLOT( dataHostFound() ) );
     connect( dataSocket, SIGNAL( connected() ),
@@ -66,7 +65,6 @@ QFtp::~QFtp()
 void QFtp::operationListChildren( QNetworkOperation *op )
 {
     commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
-    passiveMode = TRUE;
 }
 
 void QFtp::operationMkDir( QNetworkOperation *op )
@@ -237,10 +235,11 @@ void QFtp::readyRead()
 	QStringList lst = QStringList::split( ',', s );
 	int port = ( lst[ 4 ].toInt() << 8 ) + lst[ 5 ].toInt();
 	dataSocket->connectToHost( lst[ 0 ] + "." + lst[ 1 ] + "." + lst[ 2 ] + "." + lst[ 3 ], port );
-    } else if ( s.left( 3 ) == "250" && operationInProgress() &&
+    } else if ( s.left( 3 ) == "250" && operationInProgress() && !passiveMode &&
 		operationInProgress()->operation() == OpListChildren ) { // cwd succesfully, list dir
 	commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
 	emit start( operationInProgress() );
+	passiveMode = TRUE;
     } else if ( s.left( 3 ) == "530" ) { // Login incorrect
 	close();
 	QString msg( tr( "Login Incorrect" ) );
@@ -252,6 +251,7 @@ void QFtp::readyRead()
 	}
 	clearOperationQueue();
 	emit finished( op );
+	reinitCommandSocket();
     } else
 	;//qWarning( "unknown result: %s", s.data() );
 }
@@ -275,6 +275,26 @@ void QFtp::dataClosed()
     emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
     passiveMode = FALSE;
     emit finished( operationInProgress() );
+
+    disconnect( dataSocket, SIGNAL( hostFound() ),
+		this, SLOT( dataHostFound() ) );
+    disconnect( dataSocket, SIGNAL( connected() ),
+		this, SLOT( dataConnected() ) );
+    disconnect( dataSocket, SIGNAL( closed() ),
+		this, SLOT( dataClosed() ) );
+    disconnect( dataSocket, SIGNAL( readyRead() ),
+		this, SLOT( dataReadyRead() ) );
+    delete dataSocket;
+    dataSocket = new QSocket( this );
+    connect( dataSocket, SIGNAL( hostFound() ),
+	     this, SLOT( dataHostFound() ) );
+    connect( dataSocket, SIGNAL( connected() ),
+	     this, SLOT( dataConnected() ) );
+    connect( dataSocket, SIGNAL( closed() ),
+	     this, SLOT( dataClosed() ) );
+    connect( dataSocket, SIGNAL( readyRead() ),
+	     this, SLOT( dataReadyRead() ) );
+    reinitCommandSocket();
 }
 
 void QFtp::dataReadyRead()
@@ -303,4 +323,27 @@ void QFtp::dataReadyRead()
 	    }
 	}
     }
+}
+
+void QFtp::reinitCommandSocket()
+{
+    commandSocket->close();
+    disconnect( commandSocket, SIGNAL( hostFound() ),
+		this, SLOT( hostFound() ) );
+    disconnect( commandSocket, SIGNAL( connected() ),
+		this, SLOT( connected() ) );
+    disconnect( commandSocket, SIGNAL( closed() ),
+		this, SLOT( closed() ) );
+    disconnect( commandSocket, SIGNAL( readyRead() ),
+		this, SLOT( readyRead() ) );
+    delete commandSocket;
+    commandSocket = new QSocket( this );
+    connect( commandSocket, SIGNAL( hostFound() ),
+	     this, SLOT( hostFound() ) );
+    connect( commandSocket, SIGNAL( connected() ),
+	     this, SLOT( connected() ) );
+    connect( commandSocket, SIGNAL( closed() ),
+	     this, SLOT( closed() ) );
+    connect( commandSocket, SIGNAL( readyRead() ),
+	     this, SLOT( readyRead() ) );
 }
