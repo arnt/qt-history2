@@ -106,7 +106,15 @@ extern "C" {
 #define XP_UNIX
 #endif
 
+
+// This is to allow mingw support on windows without altering the sun header files
+#if defined(Q_CC_GNU) && defined(Q_WS_WIN) && !defined(_MSC_VER)
+#define _MSC_VER 1
 #include "npapi.h"
+#undef _MSC_VER
+#elif
+#include "npapi.h"
+#endif
 
 #ifdef Q_WS_X11
 #undef XP_UNIX
