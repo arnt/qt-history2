@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#244 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#245 $
 **
 ** Implementation of QListBox widget class
 **
@@ -652,7 +652,7 @@ void QListBox::setFont( const QFont &font )
 
 uint QListBox::count() const
 {
-    if ( d->count >= 0 )
+    if ( d->count > 0 )
 	return d->count;
 
     int c = 0;
@@ -782,8 +782,7 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
 	index = count();
     int i = 0;
     while ( (numStrings<0 && strings[i]!=0) || i<numStrings ) {
-	insertItem( new QListBoxText(
-			    QString::fromLatin1(strings[i])),
+	insertItem( new QListBoxText( QString::fromLatin1(strings[i])),
 		    index + i );
 	i++;
     }
@@ -807,8 +806,6 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
     if ( !lbi )
 	return;
 #endif
-
-    d->count++;
 
     if ( index < 0 )
 	index = count();
@@ -839,6 +836,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 	    item->n = 0;
 	}
     }
+    d->count++;
     triggerUpdate( TRUE );
 }
 
@@ -2176,7 +2174,7 @@ void QListBox::tryGeometry( int rows, int columns ) const
 	d->rowPos[r] = 0;
     r = c = 0;
     QListBoxItem * i = d->head;
-    while ( i && c < columns) {
+    while ( i && c < columns ) {
 	if ( i == d->current ) {
 	    d->currentRow = r;
 	    d->currentColumn = c;
@@ -2782,8 +2780,8 @@ QListBox * QListBoxItem::listBox() const
 
 /*!
   Removes \a item from the listbox and causes an update of the screen
-  display.  The item is not deleted. You should normally not need to
-  call this function, as QListBoxItem::~QListBoxItem() calls it. The
+  display.  The item is not deleted.  You should normally not need to
+  call this function, as QListBoxItem::~QListBoxItem() calls it.  The
   normal way to delete an item is \c delete.
 
   \sa QListBox::insertItem()
