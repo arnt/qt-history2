@@ -83,7 +83,7 @@ public:
 
     void activateItemAt( int index ); // ### virtual in QMenuData 3.0
 
-#ifdef QMAC_QMENUBAR_NATIVE
+#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     static void cleanup();
 #endif
 
@@ -148,7 +148,7 @@ private:
 
     friend class QPopupMenu;
 
-#if defined( Q_WS_MAC ) && defined( QMAC_QMENUBAR_NATIVE )
+#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     friend class QWidget;
     void macCreateNativeMenubar();
     void macRemoveNativeMenubar();

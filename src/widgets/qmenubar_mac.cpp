@@ -1,7 +1,5 @@
 #include <qglobal.h>
-#ifdef Q_WS_MAC
-
-#ifdef QMAC_QMENUBAR_NATIVE
+#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
 
 #include <ctype.h>
 #include "qt_mac.h"
@@ -311,5 +309,4 @@ void QMenuBar::macUpdatePopup(MenuRef mr)
     } 
 }
 
-#endif //QMENUBAR_NATIVE
 #endif //WS_MAC

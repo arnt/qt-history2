@@ -52,7 +52,7 @@
 #include "qabstractlayout.h"
 #include "qtextcodec.h"
 #include <qcursor.h>
-#if defined(QMAC_QMENUBAR_NATIVE)
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
 #  include <qmenubar.h>
 #endif
 
@@ -438,7 +438,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	    QWidget *w = (QWidget *)obj;
 	    if(((WId)w->hd) == old_winid)
 		w->hd = hd; //all my children hd's are now mine!
-#ifdef QMAC_QMENUBAR_NATIVE  //make sure menubars are fixed
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)  //make sure menubars are fixed
 	    if(w->inherits("QMenuBar") ) {
 		QMenuBar *mb = (QMenuBar *)w;
 		int was_eaten = mb->mac_eaten_menubar;
@@ -1046,7 +1046,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 #if 0
 		paint_children(topLevelWidget(), upd, PC_Now | PC_NoPaint);
 #endif
-
 	    }
 	}
     }

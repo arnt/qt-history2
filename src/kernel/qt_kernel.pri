@@ -152,7 +152,7 @@ kernel {
 			  $$KERNEL_CPP/qwidget_mac.cpp \
 			  $$KERNEL_CPP/qnpsupport.cpp \
 			  $$KERNEL_CPP/qfont_mac.cpp
-             DEFINES += QMAC_QMENUBAR_NATIVE ONE_PIXEL_LOCK
+             DEFINES += ONE_PIXEL_LOCK
         }
 
 	unix:SOURCES += $$KERNEL_CPP/qpsprinter.cpp \

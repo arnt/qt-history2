@@ -66,7 +66,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qcursor.h"
 
-#if defined( QMAC_QMENUBAR_TOPLEVEL ) || defined(QMAC_QMENUBAR_NATIVE)
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
 #include "qmenubar.h"
 #endif
 
@@ -283,7 +283,7 @@ void qt_cleanup()
     QFont::cleanup();
     QColor::cleanup();
 
-#ifdef QMAC_QMENUBAR_NATIVE
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
     QMenuBar::cleanup();
 #endif
 }
@@ -790,18 +790,6 @@ bool qt_set_socket_handler( int, int, QObject *, bool )
 QMAC_PASCAL void 
 QApplication::qt_idle_timer_callbk(EventLoopTimerRef, void *)
 {
-#ifdef QMAC_QMENUBAR_NATIVE
-    QMenuBar::macUpdateMenuBar();
-#endif
-
-#ifndef QT_NO_CLIPBOARD
-    //manufacture an event so the clipboard can see if it has changed
-    if(qt_clipboard) {
-	QEvent ev(QEvent::Clipboard);
-	QApplication::sendEvent(qt_clipboard, &ev);
-    }
-#endif
-
     QApplication::sendPostedEvents();
 
     if ( qt_preselect_handler ) {
@@ -903,12 +891,21 @@ bool QApplication::processNextEvent( bool canWait )
 	    if(ret != eventLoopTimedOutErr && ret != eventLoopQuitErr) {
 		activateNullTimers();       //try to send null timers..
 		sendPostedEvents(); 	    //send posted events if the event queue is empty
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
+		QMenuBar::macUpdateMenuBar();
+#endif
 		//take this moment to try to propagate..
 		QWidgetList *list   = qApp->topLevelWidgets();
 		for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
 		    if ( !widget->isHidden() && !widget->isDesktop())
 			widget->propagateUpdates();
 		}
+#ifndef QT_NO_CLIPBOARD
+		if(qt_clipboard) { //manufacture an event so the clipboard can see if it has changed
+		    QEvent ev(QEvent::Clipboard);
+		    QApplication::sendEvent(qt_clipboard, &ev);
+		}
+#endif
 	    }
 	} while(1);
 	sendPostedEvents();
@@ -1145,7 +1142,7 @@ bool QApplication::do_mouse_down( Point *pt )
 		widget->showMaximized();
 	}
 	break;
-#ifdef QMAC_QMENUBAR_NATIVE
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
     case inMenuBar:
 	MenuSelect(*pt); //allow menu tracking
 	break;
@@ -1487,18 +1484,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		if(QWidget *tlw = widget->topLevelWidget()) {
 		    tlw->raise();
 		    if(tlw->isTopLevel() && !tlw->isPopup() &&
-		       (tlw->isModal() || !tlw->isDialog())) {
-#ifdef QMAC_QMENUBAR_TOPLEVEL
-			if(IsMenuBarVisible()) {
-			    if(QObject *mb = tlw->child(0, "QMenuBar", FALSE)) {
-				QMenuBar *bar = (QMenuBar *)mb;
-				if(bar->isTopLevel() && bar->isVisible())
-				    HideMenuBar();
-			    }
-			}
-#endif
+		       (tlw->isModal() || !tlw->isDialog())) 
 			app->setActiveWindow(tlw);
-		    }
 		}
 	    }
 
@@ -1588,7 +1575,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		    QApplication::sendEvent( widget->topLevelWidget(), &a );
 		    if ( a.isAccepted() )
 			isAccel = TRUE;
-#ifdef QMAC_QMENUBAR_NATIVE //In native menubar mode we offer the event to the menubar...
+#if !defined(QMAC_QMENUBAR_NO_NATIVE) //In native menubar mode we offer the event to the menubar...
 		    if( !isAccel ) {
 			MenuRef menu;
 			MenuItemIndex idx;
@@ -1641,18 +1628,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		widget->raise();
 		QWidget *tlw = widget->topLevelWidget();
 		if(tlw->isTopLevel() && !tlw->isPopup() &&
-		   (tlw->isModal() || !tlw->isDialog())) {
-#ifdef QMAC_QMENUBAR_TOPLEVEL
-		    if(IsMenuBarVisible()) {
-			if(QObject *mb = tlw->child(0, "QMenuBar", FALSE)) {
-			    QMenuBar *bar = (QMenuBar *)mb;
-			    if(bar->isTopLevel() && bar->isVisible())
-				HideMenuBar();
-			}
-		    }
-#endif
+		   (tlw->isModal() || !tlw->isDialog())) 
 		    app->setActiveWindow(tlw);
-		}
 		if (widget->focusWidget())
 		    widget->focusWidget()->setFocus();
 		else
@@ -1675,7 +1652,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	break;
 
     case kEventClassMenu:
-#ifdef QMAC_QMENUBAR_NATIVE
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	if(ekind == kEventMenuOpening) {
 	    Boolean first;
 	    GetEventParameter(event, kEventParamMenuFirstOpen, typeBoolean, NULL, sizeof(first), NULL, &first);
@@ -1699,7 +1676,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    GetEventParameter(event, kEventParamDirectObject, typeHICommand, NULL, sizeof(cmd), NULL, &cmd);
 	    if(cmd.commandID == kHICommandQuit)
 		qApp->closeAllWindows();
-#ifdef QMAC_QMENUBAR_NATIVE //offer it to the menubar..
+#if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
 	    else
 		QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex);
 #endif

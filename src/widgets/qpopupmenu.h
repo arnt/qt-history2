@@ -152,7 +152,7 @@ private:
     QAccel     *autoaccel;
 #endif
 
-#if defined( Q_WS_MAC ) && defined( QMAC_QMENUBAR_NATIVE )
+#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     uint mac_dirty_popup : 1;
 #endif
 

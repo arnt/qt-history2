@@ -333,7 +333,7 @@ void QPopupMenu::menuContentsChanged()
 	p->updateSize();
 	p->update();
     }
-#if defined( Q_WS_MAC ) && defined( QMAC_QMENUBAR_NATIVE )
+#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     mac_dirty_popup = 1;
 #endif
 }
