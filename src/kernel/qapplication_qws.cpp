@@ -1280,8 +1280,8 @@ extern void qws_mapPixmaps( bool from );
 void QWSDisplay::setTransformation( int t )
 {
 #ifndef QT_NO_QWS_TRANSFORMED
-    QRect mwr = qt_screen->mapToDevice(qt_maxWindowRect,
-	QSize(qt_screen->width(), qt_screen->height()) );
+
+    bool isFullScreen = qt_maxWindowRect == QRect(0, 0, qt_screen->width(), qt_screen->height());
 
     QPixmapCache::clear();
     QFontCache::instance->clear();
@@ -1306,7 +1306,11 @@ void QWSDisplay::setTransformation( int t )
 	QWidget * w;
 	while ( (w=it.current()) != 0 ) {
 	    ++it;
-	    if ( !w->testWFlags(Qt::WType_Desktop) ) {
+	    if ( w->testWFlags(Qt::WType_Desktop) ) {
+		//nothing
+	    } else if ( w->testWState(Qt::WState_FullScreen) ) {
+		w->resize( qt_screen->width(), qt_screen->height() );
+	    } else {
 		QETWidget *etw = (QETWidget*)w;
 		etw->updateRegion();
 		if ( etw->isVisible() ) {
@@ -1319,8 +1323,9 @@ void QWSDisplay::setTransformation( int t )
     }
 
     // only update the mwr if it is full screen.
-    if ( mwr == QRect(0, 0, qt_screen->deviceWidth(), qt_screen->deviceHeight()) )
-	qt_setMaxWindowRect( mwr );
+    if ( isFullScreen )
+	qt_setMaxWindowRect( QRect(0,0, qt_screen->width(), qt_screen->height() ) );
+
 #endif
 }
 #endif

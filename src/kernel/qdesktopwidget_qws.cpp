@@ -74,7 +74,12 @@ const QRect& QDesktopWidget::availableGeometry( int screen ) const
 const QRect& QDesktopWidget::screenGeometry( int ) const
 {
     // use max window rect?
+#ifdef QT_QWS_DYNAMIC_TRANSFORMATION
+    static QRect r;
+    r = frameGeometry();
+#else
     static QRect r = frameGeometry();
+#endif
     return r;
 }
 

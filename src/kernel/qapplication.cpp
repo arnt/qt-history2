@@ -384,8 +384,10 @@ void qt_setMaxWindowRect(const QRect& r)
     QWidgetList l = QApplication::topLevelWidgets();
     for (int i = 0; i < l.size(); ++i) {
 	QWidget *w = l.at(i);
-	if ( w->isVisible() && w->isMaximized() )
+	if (w->isVisible() && w->isMaximized()) {
 	    w->showMaximized();
+	    w->showNormal(); //#### flicker
+	}
     }
 }
 
