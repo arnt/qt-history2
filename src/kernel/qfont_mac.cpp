@@ -149,12 +149,14 @@ static inline void qstring_to_pstring(QString s, int len, Str255 str, TextEncodi
     mapping.otherEncoding = encoding;
     mapping.mappingVersion = kUnicodeUseLatestMapping;
 
-    if(CreateUnicodeToTextInfo(&mapping, &info) != noErr)
-      Q_ASSERT(0);
-
+    if(CreateUnicodeToTextInfo(&mapping, &info) != noErr) {
+	qDebug("That can't happen! %s:%d", __FILE__, __LINE__);
+	return;
+    }
     const int unilen = len * 2;
     const UniChar *unibuf = (UniChar *)s.unicode(); //don't use pos here! FIXME
     ConvertFromUnicodeToPString(info, unilen, unibuf, str);
+    DisposeUnicodeToTextInfo(&info);
 }
 
 /* font information */
