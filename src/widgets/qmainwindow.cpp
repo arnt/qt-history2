@@ -469,7 +469,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
     int n = dock->count();
     if ( n == 0 )
 	return 0;
-    // #### Reggie: We have to do the full calculation also in test mode, because even if the 
+    // #### Reggie: We have to do the full calculation also in test mode, because even if the
     // #### width has not changed the order of the toolbars may has changed which means we
     // #### the whole geometry has changed and we have to recalculate everything
 //     if ( !testonly ) {
@@ -483,7 +483,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	    a.init();
 	    a.empty = FALSE;
 	    a.sizeHint = tb->t->sizeHint().width();
-	    a.expansive = tb->t->stretchable() || fill;
+	    a.expansive = tb->t->orientation() == Qt::Horizontal && tb->t->stretchable() || fill;
 		
 	    tb->tmpnl = FALSE;
 		
@@ -492,7 +492,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 		    tb->tmpnl = TRUE;
 		if ( tb->t->stretchable() )
 		    tb->tmpnl = TRUE;
-	    }		    
+	    }		
 	    prev = tb;
 	}
     }
@@ -542,7 +542,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	if ( next )
 	    fillLine = fillLine || next->t->orientation() == Qt::Horizontal && next->t->stretchable();
     }
-    
+
     return y - r.y() - spacing();
 }
 
@@ -1226,7 +1226,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 	while ( t ) {
 	    if ( pos.y() >= t->t->y() && pos.y() <= t->t->y() + t->t->height() )
 		maybe = t;
-	    if ( pos.x() >= t->t->x() && pos.x() <= t->t->x() + t->t->width() ) {
+	    if ( QRect( t->t->pos(), t->t->size() ).contains( pos ) ) {
 		if ( pos.y() >= t->t->y() && pos.y() <= t->t->y() + t->t->height() ) {
 		    if ( pos.y() < t->t->y() + t->t->height() / 2 )
 			ipos = QMainWindowPrivate::Before;
@@ -1262,7 +1262,8 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 	}
     }
 
-    return 0;
+    ipos = QMainWindowPrivate::TotalAfter;
+    return dock->last();
 }
 
 /*!  Sets up the geometry management of this window.  Called
@@ -1678,14 +1679,14 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarD
 	if ( w > ms && ipos != QMainWindowPrivate::TotalAfter )
 	    w = ms; // #### should be calced somehow
 	if ( t && t->t )
-	    h = t->t->height();
+	    QMIN( w, h = t->t->height() );
 	else if ( o != tb->orientation() )
 	    h = QMIN( h, 30 );
     } else {
 	if ( h > ms && ipos != QMainWindowPrivate::TotalAfter )
 	    h = ms; // #### should be calced somehow
 	if ( t && t->t )
-	    w = t->t->width();
+	    w = QMIN( w, t->t->width() );
 	else if ( o != tb->orientation() )
 	    w = QMIN( w, 30 );
     }
@@ -1708,25 +1709,25 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarD
 	    case QMainWindowPrivate::Before: {
 		hasRect = TRUE;
 		if ( o == Qt::Horizontal )
-		    r = QRect( t->t->x() - w / 2, t->t->y(), w, QMAX( h, t->t->height() ) );
+		    r = QRect( t->t->x() - w / 2, t->t->y(), w, h );
 		else
-		    r = QRect( t->t->x(), t->t->y() - h / 2, QMAX( w, t->t->width() ), h );
+		    r = QRect( t->t->x(), t->t->y() - h / 2, w, h );
 	    } break;
 	    case QMainWindowPrivate::After: {
 		hasRect = TRUE;
 		if ( o == Qt::Horizontal )
-		    r = QRect( t->t->x() + t->t->width() - w / 2, t->t->y(), w, QMAX( h, t->t->height() ) );
+		    r = QRect( t->t->x() + t->t->width() - w / 2, t->t->y(), w, h );
 		else
-		    r = QRect( t->t->x(), t->t->y() + t->t->height() - h / 2, QMAX( w, t->t->width() ), h );
+		    r = QRect( t->t->x(), t->t->y() + t->t->height() - h / 2, w, h );
 	    } break;
 	    case QMainWindowPrivate::TotalAfter: {
 		hasRect = TRUE;
 		if ( o == Qt::Horizontal )
-		    r = QRect( t->t->x() + t->t->width(), t->t->y(), w, QMAX( h, t->t->height() ) );
+		    r = QRect( t->t->x() + t->t->width(), t->t->y(), w, h );
 		else
-		    r = QRect( t->t->x(), t->t->y() + t->t->height(), QMAX( w, t->t->width() ), h );
+		    r = QRect( t->t->x(), t->t->y() + t->t->height(), w, h );
 	    } break;
-	    }
+	}
 	}
 	
 	if ( hasRect )
