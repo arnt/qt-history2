@@ -38,15 +38,17 @@ rm -f $OUTDIR/config.tests/x11/xft.lib
 XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XCONFIG`
 LIBDIRS="$IN_LIBDIRS $XDIRS /usr/shlib /usr/lib /lib"
 F=
-for LIBDIR in $LIBDIRS; do
-    LIBS="Xft2 Xft"
-    for LIB in $LIBS; do
-	FOUND_LIB=`ls ${LIBDIR}/lib${LIB}.* 2>/dev/null`
-	if [ ! -z "$FOUND_LIB" ]; then
-	    F="$LIB"
- 	    [ "$VERBOSE" = "yes" ] && echo "  Found lib$LIB in $LIBDIR"
-	    break
-	fi
+LIBS="Xft2 Xft"
+for LIB in $LIBS; do
+    for LIBDIR in $LIBDIRS; do
+	EXTENSIONS="a so sl"
+	for E in $EXTENSIONS; do
+	    if [ -f "$LIBDIR/lib$LIB.$E" ]; then
+		F="$LIB"
+		[ "$VERBOSE" = "yes" ] && echo "  Found lib$LIB.$E in $LIBDIR"
+		break
+	    fi
+        done
     done
     [ -n "$F" ] && break
 done
@@ -163,7 +165,7 @@ if [ "$XFT" != "yes" ]; then
     [ "$VERBOSE" = "yes" ] && echo "Xft disabled."
     exit 0
 else
-    [ "$VERBOSE" = "yes" ] && echo "Xft enabled LIB='$LIBXFT'."
+    [ "$VERBOSE" = "yes" ] && echo "Xft enabled."
     [ "$XFTNAMEUNPARSE" = "no" ] && \
 	echo "xftnameunparse" > $OUTDIR/config.tests/x11/xft.cfg
     [ "$XFT2_HEADER" = "yes" ] && \
