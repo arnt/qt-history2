@@ -120,19 +120,19 @@ public:
     inline int rowSpacing( int r ) const { return rSpacing[r]; }
     inline int colSpacing( int c ) const { return cSpacing[c]; }
 
-    void setReversed( bool r, bool c ) { hReversed = c; vReversed = r; }
-    bool horReversed() const { return hReversed; }
-    bool verReversed() const { return vReversed; }
-    void setDirty() { needRecalc = TRUE; hfw_width = -1; }
-    bool isDirty() const { return needRecalc; }
+    inline void setReversed( bool r, bool c ) { hReversed = c; vReversed = r; }
+    inline bool horReversed() const { return hReversed; }
+    inline bool verReversed() const { return vReversed; }
+    inline void setDirty() { needRecalc = TRUE; hfw_width = -1; }
+    inline bool isDirty() const { return needRecalc; }
     bool hasHeightForWidth( int space );
     int heightForWidth( int, int, int );
     int minimumHeightForWidth( int, int, int );
 
     bool findWidget( QWidget* w, int *row, int *col );
 
-    void getNextPos( int &row, int &col ) { row = nextR; col = nextC; }
-    uint count() const
+    inline void getNextPos( int &row, int &col ) { row = nextR; col = nextC; }
+    inline uint count() const
     { return things.count() + ( multi ? multi->count() : 0 ); }
     QRect cellGeometry( int row, int col ) const;
 
@@ -729,6 +729,10 @@ void QGridLayoutData::setupHfwLayoutData( int spacing )
 
 void QGridLayoutData::distribute( QRect r, int spacing )
 {
+    bool visualHReversed = hReversed;
+    if ( QApplication::reverseLayout() )
+	visualHReversed = !visualHReversed;
+
     setupLayoutData( spacing );
 
     qGeomCalc( colData, 0, cc, r.x(), r.width(), spacing );
@@ -751,7 +755,7 @@ void QGridLayoutData::distribute( QRect r, int spacing )
 	int y = rData[box->row].pos;
 	int w = colData[box->col].size;
 	int h = rData[box->row].size;
-	if ( hReversed )
+	if ( visualHReversed )
 	    x = r.left() + r.right() - x - w + 1;
 	if ( vReversed )
 	    y = r.top() + r.bottom() - y - h + 1;
@@ -777,7 +781,7 @@ void QGridLayoutData::distribute( QRect r, int spacing )
 	    int w = x2p - x;
 	    int h = y2p - y;
 	    // this code is copied from above:
-	    if ( hReversed )
+	    if ( visualHReversed )
 		x = r.left() + r.right() - x - w + 1;
 	    if ( vReversed )
 		y = r.top() + r.bottom() - y - h + 1;
@@ -1133,8 +1137,6 @@ void QGridLayout::init( int nRows, int nCols )
 {
     setSupportsMargin( TRUE );
     data = new QGridLayoutData( nRows, nCols );
-    if ( QApplication::reverseLayout() )
-	data->setReversed( FALSE, TRUE );
 }
 
 /*!
@@ -1480,8 +1482,6 @@ QGridLayout::Corner QGridLayout::origin() const
 */
 void QGridLayout::invalidate()
 {
-    data->setReversed( FALSE, QApplication::reverseLayout() );
-
     QLayout::invalidate();
     QLayout::setGeometry( QRect() ); // for binary compatibility (?)
     data->setDirty();
