@@ -601,6 +601,9 @@ bool QClipboard::event( QEvent *e )
     XEvent *xevent = (XEvent *)(((QCustomEvent *)e)->data());
     Display *dpy = qt_xdisplay();
 
+    if ( !xevent )
+	return TRUE;
+
     switch ( xevent->type ) {
 
     case SelectionClear:

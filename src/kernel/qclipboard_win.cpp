@@ -389,6 +389,10 @@ bool QClipboard::event( QEvent *e )
 	return QObject::event( e );
 
     MSG *m = (MSG *)((QCustomEvent*)e)->data();
+    if ( !m ) {
+	renderAllFormats();
+	return TRUE;
+    }
 
     bool propagate=FALSE;
     switch ( m->message ) {

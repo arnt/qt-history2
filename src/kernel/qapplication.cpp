@@ -973,6 +973,14 @@ QWidget *QApplication::activeModalWidget()
 
 QApplication::~QApplication()
 {
+#ifndef QT_NO_CLIPBOARD
+    // flush clipboard contents
+    if ( qt_clipboard ) {
+	QCustomEvent event( QEvent::Clipboard );
+	QApplication::sendEvent( qt_clipboard, &event );
+    }
+#endif
+
     if ( eventloop )
 	eventloop->appClosingDown();
     if ( postRList ) {
