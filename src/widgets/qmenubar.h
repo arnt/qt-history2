@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#45 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#46 $
 **
 ** Definition of QMenuBar class
 **
@@ -72,7 +72,6 @@ protected:
     void	focusInEvent( QFocusEvent * );
     void	focusOutEvent( QFocusEvent * );
     void	resizeEvent( QResizeEvent * );
-    void	enterEvent( QEvent * );
     void	leaveEvent( QEvent * );
     void	menuContentsChanged();
     void	menuStateChanged();
@@ -97,7 +96,7 @@ private:
 
     virtual void	setActItem( int, bool = FALSE );
     virtual void	setWindowsAltMode( bool, int = 0 );
-    
+
     void setActiveItem( int index, bool show = TRUE, bool activate_first_item = TRUE );
     void setAltMode( bool );
 
@@ -114,7 +113,7 @@ private:
     uint	waitforalt : 1;
     uint	popupvisible  : 1;
     uint	hasmouse : 1;
-    
+
     friend class QPopupMenu;
 
 private:	// Disabled copy constructor and operator=

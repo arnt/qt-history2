@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#166 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#167 $
 **
 ** Implementation of QMenuBar class
 **
@@ -355,7 +355,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	
 	return FALSE;
     }
-    
+
     // look for Alt release
     if ( ((QWidget*)object)->focusWidget() == object ||
 	 (object->parent() == 0 && ((QWidget*)object)->focusWidget() == 0) ) {
@@ -363,7 +363,8 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	     event->type() == QEvent::KeyRelease &&
 	     (((QKeyEvent *)event)->key() == Key_Alt ||
 	      ((QKeyEvent *)event)->key() == Key_Meta) ) {
-	    setActiveItem( 0, FALSE );
+	    if ( !hasmouse || actItem < 0 ) 
+		setActiveItem( 0, FALSE );
 	    setAltMode( TRUE );
 	    if ( object->parent() )
 		object->removeEventFilter( this );
@@ -848,23 +849,19 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 {
     int item = itemAtPos( e->pos() );
     if ( style() == WindowsStyle && !mouseBtDn && !popupvisible) {
-	if ( item >= 0 )
+	if ( item >= 0 ) {
+	    if ( !hasmouse ) {
+		hasmouse = 1;
+		if ( actItem == item )
+		    actItem = -1; // trigger update
+	    }
 	    setActiveItem( item, FALSE );
+	}
 	return;
     }
 
     if ( item >= 0 )
 	setActiveItem( item, TRUE, FALSE );
-}
-
-
-/*!  Handles enter events for the menu bar.
-*/
-
-void QMenuBar::enterEvent( QEvent * e )
-{
-    hasmouse = 1;
-    QFrame::enterEvent( e );
 }
 
 
@@ -985,7 +982,7 @@ void QMenuBar::resizeEvent( QResizeEvent * )
  */
 void QMenuBar::setActItem( int , bool )
 {
-    
+
 }
 
 /*!  Sets actItem to \a i and calls repaint for the
@@ -1005,7 +1002,7 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 	mi = mitems->at( i );
     if ( mi && !mi->isEnabled() )
 	return;
-    
+
     popupvisible = i >= 0 ? (show) : 0;
 
     if ( i < 0 || actItem < 0 ) {
@@ -1032,7 +1029,7 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 
     if ( actItem < 0 || !popupvisible || !mi  )
 	return;
-    
+
     QPopupMenu *popup = mi->popup();
     if ( popup ) {
 	hidePopups();
@@ -1048,7 +1045,7 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 }
 
 
-void QMenuBar::setAltMode( bool enable ) 
+void QMenuBar::setAltMode( bool enable )
 {
     waitforalt = 0;
     if ( enable ) {
@@ -1064,7 +1061,7 @@ void QMenuBar::setAltMode( bool enable )
 }
 
 
-/*!  
+/*!
   Wins the second price for the most stupid virtual function in Qt.
   First price went to setActItem()
   \sa setActItem
