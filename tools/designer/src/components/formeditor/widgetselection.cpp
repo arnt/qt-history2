@@ -142,10 +142,13 @@ void WidgetHandle::mousePressEvent(QMouseEvent *e)
 {
     e->accept();
 
-    if (!widget || e->button() != Qt::LeftButton || !active)
+    if (!formWindow->hasFeature(FormWindow::EditFeature))
         return;
 
-    if (!formWindow->hasFeature(FormWindow::EditFeature))
+    if (!(widget && e->button() == Qt::LeftButton))
+        return;
+
+    if (!(active || type == TaskMenu))
         return;
 
     QWidget *container = widget->parentWidget();
