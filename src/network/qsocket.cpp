@@ -813,7 +813,7 @@ Q_ULONG QSocket::bytesAvailable() const
   \sa bytesAvailable()
 */
 
-int QSocket::waitForMore( int msecs ) const
+Q_ULONG QSocket::waitForMore( int msecs ) const
 {
     if ( d->socket == 0 )
 	return 0;
@@ -831,7 +831,7 @@ int QSocket::waitForMore( int msecs ) const
   \sa bytesAvailable()
 */
 
-int QSocket::bytesToWrite() const
+Q_ULONG QSocket::bytesToWrite() const
 {
     return d->wsize;
 }

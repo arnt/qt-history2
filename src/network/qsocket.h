@@ -94,8 +94,8 @@ public:
     bool	 atEnd() const;
 
     Q_ULONG	 bytesAvailable() const;
-    int		 waitForMore( int msecs ) const;
-    int		 bytesToWrite() const;
+    Q_ULONG	 waitForMore( int msecs ) const;
+    Q_ULONG	 bytesToWrite() const;
 
     Q_LONG	 readBlock( char *data, Q_ULONG maxlen );
     Q_LONG	 writeBlock( const char *data, Q_ULONG len );
