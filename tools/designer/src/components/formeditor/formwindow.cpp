@@ -230,7 +230,6 @@ void FormWindow::init()
     m_currentWidget = 0;
     oldRectValid = false;
     drawRubber = false;
-    checkedSelectionsForMove = false;
 
     targetContainer = 0;
     hadOwnPalette = false;
@@ -316,8 +315,6 @@ void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
 
     if (e->buttons() != Qt::LeftButton)
         return;
-
-    checkedSelectionsForMove = false;
 
     bool inLayout = LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout;
     // ### && w->parentWidget() is managed?
@@ -758,11 +755,6 @@ void FormWindow::resizeWidget(QWidget *widget, const QRect &geometry)
     m_commandHistory->push(cmd);
 }
 
-void FormWindow::invalidCheckedSelections()
-{
-    checkedSelectionsForMove = false;
-}
-
 void FormWindow::raiseChildSelections(QWidget *w)
 {
     QList<QWidget*> l = qFindChildren<QWidget*>(w);
@@ -853,8 +845,6 @@ QList<QWidget*> FormWindow::checkSelectionsForMove(QWidget *w)
 
     QMap<QWidget *, QPoint> moving;
 
-    checkedSelectionsForMove = true;
-
     QList<QWidget*> l = qFindChildren<QWidget*>(w->parentWidget());
     if (!l.isEmpty()) {
         QHashIterator<QWidget *, WidgetSelection *> it(usedSelections);
@@ -884,10 +874,7 @@ QList<QWidget*> FormWindow::checkSelectionsForMove(QWidget *w)
 
 QList<QWidget*> FormWindow::selectedWidgets() const
 {
-    QList<QWidget*> widgets;
-    for (QHash<QWidget *, WidgetSelection *>::ConstIterator it = usedSelections.begin(); it != usedSelections.end(); ++it)
-        widgets.append(it.value()->widget());
-    return widgets;
+    return usedSelections.keys();
 }
 
 void FormWindow::raiseSelection(QWidget *w)
@@ -941,18 +928,13 @@ void FormWindow::handleKeyReleaseEvent(QWidget *w, QKeyEvent *e)
 
 void FormWindow::selectAll()
 {
-    checkedSelectionsForMove = false;
-    blockSignals(true);
-    QList<QWidget*> l = qFindChildren<QWidget*>(mainContainer());
-    QListIterator<QWidget*> it(l);
-    while (it.hasNext()) {
-        QWidget *w = it.next();
-        if (w->isVisibleTo(this) && isManaged(w)) {
-            selectWidget(w);
-        }
+    bool blocked = blockSignals(true);
+    foreach (QWidget *widget, m_widgets) {
+        if (widget->isVisibleTo(this))
+            selectWidget(widget);
     }
 
-    blockSignals(false);
+    blockSignals(blocked);
     emitSelectionChanged();
 }
 
@@ -1000,7 +982,10 @@ void FormWindow::deleteWidgets(const QList<QWidget*> &widget_list)
 
 void FormWindow::deleteWidgets()
 {
-    deleteWidgets(usedSelections.keys());
+    QList<QWidget*> selection = selectedWidgets();
+    simplifySelection(&selection);
+
+    deleteWidgets(selection);
 }
 
 QString FormWindow::fileName() const

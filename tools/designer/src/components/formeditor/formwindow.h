@@ -228,7 +228,6 @@ protected:
 
 private slots:
     void selectionChangedTimerDone();
-    void invalidCheckedSelections();
     void updateDirty();
     void checkSelection();
     void checkSelectionNow();
@@ -296,7 +295,6 @@ private:
     QList<QWidget*> m_widgets;
     QSet<QWidget*> m_insertedWidgets;
 
-    bool checkedSelectionsForMove;
     QList<WidgetSelection *> selections;
     QHash<QWidget *, WidgetSelection *> usedSelections;
 
