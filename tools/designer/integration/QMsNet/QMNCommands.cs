@@ -1,5 +1,6 @@
 using EnvDTE;
 using System;
+using System.IO;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Diagnostics;
@@ -35,38 +36,228 @@ namespace QMsNet
 		string filename = fileparts.Length > 0 ? fileparts[0] : "";
 		string ext = fileparts.Length > 1 ? fileparts[1] : "";
 
-		foreach ( VCFileConfiguration vfc in (IVCCollection)vf.FileConfigurations ) {
-		    VCCustomBuildTool cbt = (VCCustomBuildTool)vfc.Tool;
-		    cbt.Description		= "Moc'ing " + vf.Name + "...";
-		    cbt.AdditionalDependencies  = "$(QTDIR)\\bin\\moc.exe";
-		    cbt.Outputs			= "$(IntDir)\\moc\\moc_" + filename + ".cpp";
-		    cbt.CommandLine		= cbt.AdditionalDependencies + " " +
-						  vf.FullPath + " " +
-						  "-o " +
-						  cbt.Outputs;
-		}
+		// Moc'ing a CPP ------------------------------------
+		if ( vf.Name.EndsWith(".cpp") ) {
+		    if ( DialogResult.No == MessageBox.Show( "Normally one only Moc headerfiles.\n\r" +
+							     "Are you sure you want to continue Moc'ing the sourcefile?",
+							     "Moc sourcefile?", 
+							     MessageBoxButtons.YesNo ) )
+			return;
 
+		    if ( !vp.CanAddFile( filename + ".moc" ) )
+			throw new System.Exception( "*** Couldn't add moc file to project" );
+
+		    addFileInFilter( vp, "Generated MOC Files", filename + ".moc" );
+		    VCFile mf = (VCFile)((IVCCollection)vp.files).Item( filename + ".moc" );
+
+		    addMStep( mf, filename, true );
+		// Moc'ing a H --------------------------------------
+		} else {
+		    addMStep( vf, filename, false );
+		    addFileInFilter( vp, "Generated MOC Files", "moc_" + filename + ".cpp" );
+		}
 		Connect.applicationObject.StatusBar.Text = "Moc step added to file...";
 	    }
 	    catch( System.Exception e ) {
-		Debug.Write( e.Message + "\r\n" + e.StackTrace.ToString(),
-			     "Couldn't addMocStep()" );
+		Say( e, "Couldn't addMocStep()" );
+	    }
+	}
+	
+	private static bool addMStep( VCFile file, string filename, bool local ) 
+	{
+	    try {
+		foreach ( VCFileConfiguration vfc in (IVCCollection)file.FileConfigurations ) {
+		    VCCustomBuildTool cbt = (VCCustomBuildTool)vfc.Tool;
+		    cbt.AdditionalDependencies  = "$(QTDIR)\\bin\\moc.exe";
+		    if ( local ) {
+			cbt.Description = "Moc'ing " + filename + ".cpp...";
+			cbt.Outputs	    =  filename + ".moc";
+			cbt.CommandLine = cbt.AdditionalDependencies + " " + filename + ".cpp -o " + cbt.Outputs;
+			
+		    } else {
+			cbt.Description = "Moc'ing " + file.Name + "...";
+			cbt.Outputs	    = "moc_" + filename + ".cpp";
+			cbt.CommandLine = cbt.AdditionalDependencies + " " + file.RelativePath + " -o " + cbt.Outputs;
+			Console.WriteLine( @"Added moc step for H file" );
+		    }
+		}
+		return true;
+	    }
+	    catch( System.Exception e ) {
+		Say( e, "Couldn't addMStep()" );
+	    }
+	    return false;
+	}
+
+	private static void addFileInFilter( VCProject project, string filterName, string fileName ) 
+	{
+	    try {
+		VCFilter vfilt = (VCFilter)((IVCCollection)project.Filters).Item( filterName );
+
+		if ( vfilt == null )
+		    if ( !project.CanAddFilter( filterName ) )
+			throw new System.Exception( "Project can't add filter" + filterName );
+
+		project.AddFilter( filterName );
+		vfilt = (VCFilter)((IVCCollection)project.Filters).Item( filterName );
+		vfilt.AddFile( fileName );
+	    }
+	    catch( System.Exception e ) {
+		Say( e, "Couldn't addFileInFilter()" );
 	    }
 	}
 
 	public static void makeProjectDll() 
 	{
-	    ProjectItem itm = Connect.applicationObject
-		.ActiveDocument.ProjectItem;
-	    VCProject prj = (VCProject)((VCProjectItem)itm.Object).Project;
-	    foreach ( VCConfiguration pc in (IVCCollection)prj.Configurations ) {
-		pc.ConfigurationType = ConfigurationTypes.typeDynamicLibrary;
-		VCLinkerTool lt = (VCLinkerTool)((IVCCollection)pc.Tools).Item("VCLinkerTool");
+	    try {
+		Document doc = Connect.applicationObject.ActiveDocument;
+		if ( doc == null ) {
+		    Connect.applicationObject.StatusBar.Text = "Cannot convert project to Dll target... No project open";
+		    return;
+		}
+		ProjectItem itm = doc.ProjectItem;
+		VCProject prj = (VCProject)((VCProjectItem)itm.Object).Project;
+		foreach ( VCConfiguration pc in (IVCCollection)prj.Configurations ) {
+		    pc.ConfigurationType = ConfigurationTypes.typeDynamicLibrary;
+		    VCLinkerTool lt = (VCLinkerTool)((IVCCollection)pc.Tools).Item("VCLinkerTool");
 
-		int index = lt.OutputFile.LastIndexOf( '.' );
-		string filename = lt.OutputFile.Substring( 0, index );
-		lt.OutputFile = filename + ".dll";
+		    int index = lt.OutputFile.LastIndexOf( '.' );
+		    string filename = lt.OutputFile.Substring( 0, index );
+		    lt.OutputFile = filename + ".dll";
+		}
 	    }
+	    catch( System.Exception e ) {
+		Say( e, "Couldn't makeProjectDll()" );
+	    }
+	}
+
+	public static void newQtProject() 
+	{
+	    NewQtProject prj = new NewQtProject();
+	    prj.ShowDialog();
+	    if ( prj.DialogResult != DialogResult.OK )
+		return;
+
+	    FileInfo inf = new FileInfo( prj.txtProjectName.Text );
+	    FileInfo resinf = new FileInfo( Connect.addinInstance.SatelliteDllPath );
+	    string tempPath = resinf.DirectoryName + "\\baseTemplates";
+	    string filename = inf.Name.EndsWith(".pro") ? inf.Name.Substring( 0, inf.Name.Length-4 ) : inf.Name;
+	    
+	    // Generate template project
+	    if ( prj.optApplication.Checked ) {
+		int opt = prj.optSDI.Checked ? 1 : prj.optMDI.Checked ? 2 : 3;
+		newQtAppProject( inf.DirectoryName,
+				 filename,
+				 tempPath,
+				 opt );
+	    } else {
+		newQtLibProject( inf.DirectoryName, 
+				 filename, 
+				 tempPath,
+				 prj.optDynamic.Checked );
+	    }
+
+	    try {
+		// Make qmake generate a vcproj for project
+		System.Diagnostics.Process tmp = new System.Diagnostics.Process();
+		tmp.StartInfo.FileName = "qmake";
+		tmp.StartInfo.Arguments = "-tp vc " + filename + ".pro";
+		tmp.StartInfo.WorkingDirectory = inf.DirectoryName;
+		tmp.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+		tmp.Start();
+		if ( tmp.WaitForExit(10000) ) {
+		    if ( prj.chkAddToSolution.Checked ) {
+			// Add it to the current Solution
+			try {
+			    Connect.applicationObject.Solution.AddFromFile( 
+				inf.DirectoryName + "\\" + filename + ".vcproj", false );
+			}
+			catch ( System.Exception ) {
+			    MessageBox.Show( "*** Couldn't add project to Solution!\n\r" +
+					     "Does a project with the same name already exist in the Solution?" );
+			    return;
+			}
+		    } else {
+			// Close the current Solution, and add the new project
+			Connect.applicationObject.Solution.Close( false ); /// ### Do we get a question here?
+			Connect.applicationObject.Solution.AddFromFile( 
+			    inf.DirectoryName + "\\" + filename + ".vcproj", false );
+		    }
+		} else {
+		    tmp.Kill();
+		    MessageBox.Show( "*** QMake never ended (10sec limit)\n\r" +
+			"Please verify that the correct qmake.exe is in your path.\n\r\n\r" +
+			"Path = " + Environment.GetEnvironmentVariable("PATH"),
+			"QMake didn't finish" );
+		}
+		// Start designer with the given .pro file
+		Connect.extLoader.loadDesigner( inf.DirectoryName + "\\" + filename + ".pro", false );
+	    }
+	    catch ( System.Exception e ) {
+		MessageBox.Show( "*** Couldn't start QMake!   " +
+		    "Please verify that qmake.exe is in your path.\n\r\n\r" +
+		    "Path = " + Environment.GetEnvironmentVariable("PATH"),
+		    "Not starting QMake" );
+		Say( e, "Couldn't run qmake [Path not correct?]" );
+	    }
+	}
+
+	private static void newQtAppProject( string path, string filename, string res, int opt ) {
+	    try {
+		if ( opt == 1 ) {
+		    // Single Document Interface ----------
+		    // copy identical files
+		    File.Copy( res + "\\appSDI\\appSDI.pro", path + "\\" + filename + ".pro", true );
+		    File.Copy( res + "\\appSDI\\main.cpp", path + "\\main.cpp", true );
+		    File.Copy( res + "\\appSDI\\mainwindow.ui", path + "\\mainwindow.ui", true );
+		    File.Copy( res + "\\appSDI\\sdiwindow.h", path + "\\sdiwindow.h", true );
+		    // manipulate mdiwindow.cpp
+		    StreamReader inF  = new StreamReader( res + "\\appSDI\\sdiwindow.cpp" );
+		    StreamWriter outF = new StreamWriter( path + "\\sdiwindow.cpp", false );
+		    string contents = inF.ReadToEnd();
+		    contents = contents.Replace( "QMSNETPROJECTNAME", filename );
+		    outF.Write( contents );
+		    outF.Close();
+		} else if ( opt == 2 ) {
+		    // Multiple Documents Interface -------
+		    // copy identical files
+		    File.Copy( res + "\\appMDI\\appMDI.pro", path + "\\" + filename + ".pro", true );
+		    File.Copy( res + "\\appMDI\\main.cpp", path + "\\main.cpp", true );
+		    File.Copy( res + "\\appSDI\\mainwindow.ui", path + "\\mainwindow.ui", true );
+		    File.Copy( res + "\\appMDI\\mdiwindow.h", path + "\\mdiwindow.h", true );
+		    // manipulate mdiwindow.cpp
+		    StreamReader inF  = new StreamReader( res + "\\appMDI\\mdiwindow.cpp" );
+		    StreamWriter outF = new StreamWriter( path + "\\mdiwindow.cpp", false );
+		    string contents = inF.ReadToEnd();
+		    contents = contents.Replace( "QMSNETPROJECTNAME", filename );
+		    outF.Write( contents );
+		    outF.Close();
+		} else {
+		    // Dialog Interface -------------------
+		    // copy identical files
+		    File.Copy( res + "\\appDialog\\appDialog.pro", path + "\\" + filename + ".pro", true );
+		    File.Copy( res + "\\appDialog\\main.cpp", path + "\\main.cpp", true );
+		    File.Copy( res + "\\appDialog\\maindialog.ui", path + "\\maindialog.ui", true );
+		}
+	    }
+	    catch( System.Exception e ) {
+		Say( e, "Couldn't newQtAppProject() [Are templates available/accessible?]" );
+	    }
+	}
+
+	private static void newQtLibProject( string path, string filename, string res, bool dyn ) {
+	    try{
+		StreamWriter outF = new StreamWriter( path, false );
+		MessageBox.Show( "Filename: " + filename + "\nPath: " + path + "\nDyn: " + dyn, "Hello" );
+	    }
+	    catch( System.Exception e ) {
+		Say( e, "Couldn't newQtAppProject() [Are templates available/accessible?]" );
+	    }
+	}
+
+	private static void Say ( System.Exception e, String caption ) 
+	{
+	    Debug.Write( e.Message + "\r\n" + e.StackTrace.ToString(), caption );
 	}
     }
 }

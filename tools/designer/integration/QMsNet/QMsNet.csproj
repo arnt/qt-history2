@@ -97,6 +97,11 @@
                     AssemblyName = "Microsoft.VisualStudio.VCProjectEngine"
                     HintPath = "..\..\..\..\..\..\..\..\Program Files\Microsoft Visual Studio .NET\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.VCProjectEngine.dll"
                 />
+                <Reference
+                    Name = "system.directoryservices"
+                    AssemblyName = "system.directoryservices"
+                    HintPath = "..\..\..\..\..\..\..\..\windows\microsoft.net\framework\v1.0.3705\system.directoryservices.dll"
+                />
             </References>
         </Build>
         <Files>
@@ -120,6 +125,16 @@
                     RelPath = "ExtLoader.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NewProject.cs"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NewProject.resx"
+                    DependentUpon = "NewProject.cs"
+                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "QMNCommands.cs"

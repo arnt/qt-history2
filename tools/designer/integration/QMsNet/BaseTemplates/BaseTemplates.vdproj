@@ -1,0 +1,396 @@
+"DeployProject"
+{
+"VSVersion" = "3:700"
+"ProjectType" = "8:{5443560e-dbb4-11d2-8724-00a0c9a8b90c}"
+"IsWebType" = "8:FALSE"
+"ProjectName" = "8:BaseTemplates"
+"LanguageId" = "3:1033"
+"CodePage" = "3:1252"
+"UILanguageId" = "3:1033"
+"SccProjectName" = "8:"
+"SccLocalPath" = "8:"
+"SccAuxPath" = "8:"
+"SccProvider" = "8:"
+    "Hierarchy"
+    {
+        "Entry"
+        {
+        "MsmKey" = "8:_10CBFD0CC9B04FDC94B9203EDA131277"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\HOME\\MARIUS\\SOURCE\\MAIN\\TOOLS\\DESIGNER\\INTEGRATION\\QMSNET\\BASETEMPLATES\\APPMDI\\MAINWINDOW.UI"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4416566E008A438B9E39D84406CE8666"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\HOME\\MARIUS\\SOURCE\\MAIN\\TOOLS\\DESIGNER\\INTEGRATION\\QMSNET\\BASETEMPLATES\\APPMDI\\MDIWINDOW.CPP"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9410C7C812BF4548A049383BB06024A3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\HOME\\MARIUS\\SOURCE\\MAIN\\TOOLS\\DESIGNER\\INTEGRATION\\QMSNET\\BASETEMPLATES\\APPMDI\\MAIN.CPP"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9A65F4E9E5484C7D971BB37BFDE18C5A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\HOME\\MARIUS\\SOURCE\\MAIN\\TOOLS\\DESIGNER\\INTEGRATION\\QMSNET\\BASETEMPLATES\\APPSDI\\MAIN.CPP"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A2A9C464971E4314B656A8A37E7854F7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\HOME\\MARIUS\\SOURCE\\MAIN\\TOOLS\\DESIGNER\\INTEGRATION\\QMSNET\\BASETEMPLATES\\APPMDI\\APPMDI.PRO"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A6ED288BC629454093C052AC144B8655"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\HOME\\MARIUS\\SOURCE\\MAIN\\TOOLS\\DESIGNER\\INTEGRATION\\QMSNET\\BASETEMPLATES\\APPMDI\\MDIWINDOW.H"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A9F38DA0621640BD918FB36A3CD9BFCC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\HOME\\MARIUS\\SOURCE\\MAIN\\TOOLS\\DESIGNER\\INTEGRATION\\QMSNET\\BASETEMPLATES\\APPSDI\\MAINWINDOW.UI"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_BCC0BE41D86C4B83A42E7A2B6F809AD3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\HOME\\MARIUS\\SOURCE\\MAIN\\TOOLS\\DESIGNER\\INTEGRATION\\QMSNET\\BASETEMPLATES\\APPSDI\\APPSDI.PRO"
+        }
+    }
+    "Configurations"
+    {
+        "Debug"
+        {
+        "DisplayName" = "8:Debug"
+        "IsDebugOnly" = "11:TRUE"
+        "IsReleaseOnly" = "11:FALSE"
+        "OutputFilename" = "8:Debug\\BaseTemplates.msm"
+        "PackageFilesAs" = "3:2"
+        "PackageFileSize" = "3:-2147483648"
+        "CabType" = "3:1"
+        "Compression" = "3:2"
+        "SignOutput" = "11:FALSE"
+        "CertificateFile" = "8:"
+        "PrivateKeyFile" = "8:"
+        "TimeStampServer" = "8:"
+        "InstallerBootstrapper" = "3:1"
+        }
+        "Release"
+        {
+        "DisplayName" = "8:Release"
+        "IsDebugOnly" = "11:FALSE"
+        "IsReleaseOnly" = "11:TRUE"
+        "OutputFilename" = "8:Release\\BaseTemplates.msm"
+        "PackageFilesAs" = "3:2"
+        "PackageFileSize" = "3:-2147483648"
+        "CabType" = "3:1"
+        "Compression" = "3:2"
+        "SignOutput" = "11:FALSE"
+        "CertificateFile" = "8:"
+        "PrivateKeyFile" = "8:"
+        "TimeStampServer" = "8:"
+        "InstallerBootstrapper" = "3:1"
+        }
+    }
+    "Deployable"
+    {
+        "CustomAction"
+        {
+        }
+        "DefaultFeature"
+        {
+        "Name" = "8:DefaultFeature"
+        "Title" = "8:"
+        "Description" = "8:"
+        }
+        "File"
+        {
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_10CBFD0CC9B04FDC94B9203EDA131277"
+            {
+            "SourcePath" = "8:appMDI\\mainwindow.ui"
+            "TargetName" = "8:mainwindow.ui"
+            "Tag" = "8:"
+            "Folder" = "8:_A0E981CD27DB4F96B1AE9ACD7FD2008A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_4416566E008A438B9E39D84406CE8666"
+            {
+            "SourcePath" = "8:appMDI\\mdiwindow.cpp"
+            "TargetName" = "8:mdiwindow.cpp"
+            "Tag" = "8:"
+            "Folder" = "8:_A0E981CD27DB4F96B1AE9ACD7FD2008A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9410C7C812BF4548A049383BB06024A3"
+            {
+            "SourcePath" = "8:appMDI\\main.cpp"
+            "TargetName" = "8:main.cpp"
+            "Tag" = "8:"
+            "Folder" = "8:_A0E981CD27DB4F96B1AE9ACD7FD2008A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9A65F4E9E5484C7D971BB37BFDE18C5A"
+            {
+            "SourcePath" = "8:appSDI\\main.cpp"
+            "TargetName" = "8:main.cpp"
+            "Tag" = "8:"
+            "Folder" = "8:_BEAF4EFABC574D5F8BEC9BB0700511AF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A2A9C464971E4314B656A8A37E7854F7"
+            {
+            "SourcePath" = "8:appMDI\\appMDI.pro"
+            "TargetName" = "8:appMDI.pro"
+            "Tag" = "8:"
+            "Folder" = "8:_A0E981CD27DB4F96B1AE9ACD7FD2008A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A6ED288BC629454093C052AC144B8655"
+            {
+            "SourcePath" = "8:appMDI\\mdiwindow.h"
+            "TargetName" = "8:mdiwindow.h"
+            "Tag" = "8:"
+            "Folder" = "8:_A0E981CD27DB4F96B1AE9ACD7FD2008A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A9F38DA0621640BD918FB36A3CD9BFCC"
+            {
+            "SourcePath" = "8:appSDI\\mainwindow.ui"
+            "TargetName" = "8:mainwindow.ui"
+            "Tag" = "8:"
+            "Folder" = "8:_BEAF4EFABC574D5F8BEC9BB0700511AF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BCC0BE41D86C4B83A42E7A2B6F809AD3"
+            {
+            "SourcePath" = "8:appSDI\\appSDI.pro"
+            "TargetName" = "8:appSDI.pro"
+            "Tag" = "8:"
+            "Folder" = "8:_BEAF4EFABC574D5F8BEC9BB0700511AF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+        }
+        "FileType"
+        {
+        }
+        "Folder"
+        {
+            "{777C097F-0ED8-11D3-8D6C-00A0C9CFCEE6}:_2173DA7E1B0A406E9F09CC35538EE030"
+            {
+            "Name" = "8:#1910"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:CommonFilesFolder"
+                "Folders"
+                {
+                }
+            }
+            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_F6B9B06EC6FE498EA7A5F04CBA49DF46"
+            {
+            "DefaultLocation" = "8:[TARGETDIR]"
+            "DisplayName" = "8:Module Retargetable Folder"
+            "Description" = "8:"
+            "Name" = "8:Module Retargetable Folder"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:TRUE"
+            "Property" = "8:NEWRETARGETABLEPROPERTY1"
+                "Folders"
+                {
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_00C41348228E41ADB97795641EC55028"
+                    {
+                    "Name" = "8:baseTemplates"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_444D6572A56C4764B9EB3554FE2C128D"
+                        "Folders"
+                        {
+                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_A0E981CD27DB4F96B1AE9ACD7FD2008A"
+                            {
+                            "Name" = "8:appMDI"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_9B5288A655D3437D9FD376ECE7F98ED3"
+                                "Folders"
+                                {
+                                }
+                            }
+                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_BEAF4EFABC574D5F8BEC9BB0700511AF"
+                            {
+                            "Name" = "8:appSDI"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_BD3A33AF74F440F9A9B923077F445579"
+                                "Folders"
+                                {
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        "Shortcut"
+        {
+        }
+        "Sequences"
+        {
+        }
+        "Registry"
+        {
+            "HKLM"
+            {
+                "Keys"
+                {
+                }
+            }
+            "HKCU"
+            {
+                "Keys"
+                {
+                }
+            }
+            "HKCR"
+            {
+                "Keys"
+                {
+                }
+            }
+            "HKU"
+            {
+                "Keys"
+                {
+                }
+            }
+            "HKPU"
+            {
+                "Keys"
+                {
+                }
+            }
+        }
+        "ProjectOutput"
+        {
+        }
+        "Module"
+        {
+        "ModuleSignature" = "8:MergeModule.7E1EFBA6542E482A94BF01BAE74A10B8"
+        "Version" = "8:1.0.0.0"
+        "Title" = "8:BaseTemplates"
+        "Subject" = "8:"
+        "Author" = "8:Trolltech AS"
+        "Keywords" = "8:Templates QMsNet"
+        "Comments" = "8:Base templates for the QMsNet integration for Qt"
+        "SearchPath" = "8:"
+        "UseSystemSearchPath" = "11:TRUE"
+        }
+        "MergeModule"
+        {
+        }
+    }
+}

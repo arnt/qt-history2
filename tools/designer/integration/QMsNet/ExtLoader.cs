@@ -46,7 +46,8 @@ namespace QMsNet
 			    file += ".pro";
 			}
 		    }
-		    file = "-client \"" + file +"\"";
+		    if ( file.Length > 0 )
+			file = "-client \"" + file +"\"";
 		}
 		catch( System.Exception ) {}
 
@@ -106,7 +107,6 @@ namespace QMsNet
 	    foreach( Window wnd in Connect.applicationObject.Windows )
 		if ( wnd.Caption == "" )
 		    wnd.Close( vsSaveChanges.vsSaveChangesNo );
-	
 	}
     }
 }

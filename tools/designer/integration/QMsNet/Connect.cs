@@ -18,7 +18,7 @@ namespace QMsNet
 	// Variabels ------------------------------------------------
 	public static _DTE applicationObject = null;
 	public static AddIn addinInstance = null;
-	public ExtLoader extLoader;
+	public static ExtLoader extLoader = null;
 
 	// Functions ------------------------------------------------
 	public Connect(){}
@@ -107,10 +107,10 @@ namespace QMsNet
 		if( executeOption == EnvDTE.vsCommandExecOption.vsCommandExecOptionDoDefault ) {
 		    if ( commandName == Resource.NewQtProjectFullCommand ) {
 			handled = true;
-			MessageBox.Show( "New Qt Project", "Command" );
+			QMNCommands.newQtProject();
 		    } else if ( commandName == Resource.MakeQtProjectFullCommand ) {
 			handled = true;
-			MessageBox.Show( "Make Qt Project", "Command" );
+			QMNCommands.newQtProject();
 		    } else if ( commandName == Resource.LoadDesignerFullCommand ) {
 			handled = true;
 			extLoader.loadDesigner( "", true );

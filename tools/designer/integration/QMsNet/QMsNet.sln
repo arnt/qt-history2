@@ -5,6 +5,8 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "QMsNetSetup", "QMsNetSetup\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QMsNetResources", "QMsNetResources\QMsNetResources.vcproj", "{CD876F78-C61A-4313-BE83-145C9B8143BD}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "BaseTemplates", "BaseTemplates\BaseTemplates.vdproj", "{96439805-D245-4891-AFD2-15DDA27911EE}"
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		ConfigName.0 = Debug
@@ -24,6 +26,9 @@ Global
 		{CD876F78-C61A-4313-BE83-145C9B8143BD}.Debug.Build.0 = Debug|Win32
 		{CD876F78-C61A-4313-BE83-145C9B8143BD}.Release.ActiveCfg = Release|Win32
 		{CD876F78-C61A-4313-BE83-145C9B8143BD}.Release.Build.0 = Release|Win32
+		{96439805-D245-4891-AFD2-15DDA27911EE}.Debug.ActiveCfg = Debug
+		{96439805-D245-4891-AFD2-15DDA27911EE}.Release.ActiveCfg = Release
+		{96439805-D245-4891-AFD2-15DDA27911EE}.Release.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
