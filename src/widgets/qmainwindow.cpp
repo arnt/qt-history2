@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#57 $
 **
 ** Implementation of QMainWindow class
 **
@@ -1048,7 +1048,7 @@ void QMainWindow::triggerLayout()
   the funky docking.
 */
 
-void QMainWindow::moveToolBar( QToolBar */* t*/ , QMouseEvent * /*e*/ )
+void QMainWindow::moveToolBar( QToolBar* /*t*/ , QMouseEvent * /*e*/ )
 {
 #if 0
     if ( e->type() == QEvent::MouseButtonPress ) {
