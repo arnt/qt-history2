@@ -94,7 +94,15 @@ public:
     void insert( pointer pos, const T& x );
     void insert( pointer pos, size_t n, const T& x );
     void reserve( size_t n );
-    void clear();
+
+    void clear()
+    {
+	delete[] start;
+	start = 0;
+	finish = 0;
+	end = 0;
+    }
+
 
     pointer start;
     pointer finish;
