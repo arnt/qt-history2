@@ -310,8 +310,9 @@ void TextEdit::filePrint()
     if (!currentEditor)
         return;
 #ifndef QT_NO_PRINTER
-    QPrinter printer(QPrinter::HighResolution);
-    //printer.setFullPage(true);
+    // ### change back to highres, when it works
+    QPrinter printer(QPrinter::ScreenResolution);
+    printer.setFullPage(true);
 
     QPrintDialog *dlg = new QPrintDialog(&printer, this);
     if (dlg->exec() == QDialog::Accepted) {
@@ -333,20 +334,26 @@ void TextEdit::filePrint()
         layout->setPageSize(QSize(body.width(), INT_MAX));
 
         QRect view(0, 0, body.width(), body.height());
-        int page = 1;
         p.translate(body.left(), body.top());
+
+        int page = 1;
         do {
             QAbstractTextDocumentLayout::PaintContext ctx;
             ctx.palette = palette();
             p.setClipRect(view);
             layout->draw(&p, ctx);
-            view.moveBy(0, body.height());
-            p.translate(0 , -body.height());
+
+            p.setClipping(false);
             p.setFont(font);
             p.drawText(view.right() - p.fontMetrics().width(QString::number(page)),
                        view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page));
-            if (view.top()  >= layout->rootFrameSize().height())
+
+            view.moveBy(0, body.height());
+            p.translate(0 , -body.height());
+
+            if (view.top() >= layout->rootFrameSize().height())
                 break;
+
             printer.newPage();
             page++;
         } while (true);
