@@ -213,4 +213,4 @@ enum Token {
     INCOMPLETE
 };
 
-#endif
+#endif // TOKEN_H

@@ -30,4 +30,5 @@ enum moc_status {
 };
 
 #endif
-#endif
+
+#endif // MWERKS_MAC_H

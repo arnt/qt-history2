@@ -17,4 +17,4 @@
 // if the output revision changes, you MUST change it in qobjectdefs.h too
 enum { mocOutputRevision = 54 };          // moc format output revision
 
-#endif
+#endif // OUTPUTREVISION_H

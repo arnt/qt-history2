@@ -207,4 +207,4 @@ inline void Moc::next(Token token, const char *msg)
 
 QByteArray normalizeType(const char *s, bool fixScope = false);
 
-#endif
+#endif // MOC_H

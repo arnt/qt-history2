@@ -20,7 +20,7 @@
 
 struct Symbol
 {
-    Symbol():lineNum(-1),token(NOTOKEN), from(0),len(-1){}
+    Symbol() : lineNum(-1),token(NOTOKEN), from(0),len(-1) {}
     Symbol(int lineNum, Token token, const QByteArray &lexem, int from = 0, int len=-1):
         lineNum(lineNum), token(token),lexem_data(lexem),from(from), len(len){}
     Symbol(int lineNum, PP_Token token, const QByteArray &lexem, int from = 0, int len=-1):
@@ -35,4 +35,4 @@ Q_DECLARE_TYPEINFO(Symbol, Q_MOVABLE_TYPE);
 
 typedef QVector<Symbol> Symbols;
 
-#endif
+#endif // SYMBOLS_H

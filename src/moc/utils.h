@@ -54,5 +54,4 @@ inline bool is_hex_char(char s)
        );
 }
 
-
-#endif
+#endif // UTILS_H

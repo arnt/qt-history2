@@ -21,4 +21,4 @@ public:
     static Symbols scan(const QByteArray &input);
 };
 
-#endif
+#endif // SCANNER_H

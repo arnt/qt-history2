@@ -31,4 +31,4 @@ public:
     static QByteArray preprocessed(const QByteArray &filename, FILE *file);
 };
 
-#endif
+#endif // PREPROCESSOR_H
