@@ -1,4 +1,4 @@
-IDEDIR = $$QT_BUILD_TREE/tools/designer
+IDEDIR = $$QT_SOURCE_TREE/tools/designer
 DESTDIR = $$QT_BUILD_TREE/plugins/designer
 
 INCLUDEPATH += \
