@@ -23,12 +23,7 @@
 #include <pwd.h>
 #include <signal.h>
 #include <dlfcn.h>
-#ifdef RTLD_GLOBAL
-// On Tru64 5.0 and better
-#define QT_RTLD_FLAGS	RTLD_LAZY|RTLD_GLOBAL
-#else
 #define QT_RTLD_FLAGS	RTLD_LAZY
-#endif
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
