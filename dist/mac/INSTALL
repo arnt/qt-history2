@@ -7,9 +7,8 @@ the directories where you choose to install Qt.
 
 1.  Unpack the archive if you have not done so already:
 
-	cd /Developer/
-	gunzip %DISTNAME%.tar.gz	# uncompress the archive
-	tar xf %DISTNAME%.tar	# unpack it
+	cd /Developer
+	gnutar xzf Full_Path_to_Directory_You_Unpacked_To/%DISTNAME%.tar.gz
 
     This creates the directory /Developer/%DISTNAME% containing the
     files from the main archive.
@@ -18,12 +17,12 @@ the directories where you choose to install Qt.
 
 	mv %DISTNAME% qt
 
-    The rest of this file assumes that Qt is installed in /Developer/qt.
+    The rest of this file assumes that Qt is unpacked in /Developer/qt.
 
 
 2.  Set some environment variables in the file .profile (or .login,
-    depending on your shell) in your home directory. (Create the
-    file if it is not there already.)
+    depending on your shell) in your home directory. Create the
+    file if it is not there already.
 
 	QTDIR		   - wherever you installed Qt
 	PATH		   - to locate the moc program and other Qt tools
@@ -54,18 +53,22 @@ the directories where you choose to install Qt.
         * variables. If you experience any error messages with the above
         * instructions, you may want to replace them with:
         *
-	*  setenv QTDIR /DEveloper/qt
+	*  setenv QTDIR /Developer/qt
 	*  setenv PATH $QTDIR/bin:$PATH
 	*  setenv MANPATH $QTDIR/doc/man
 	*  setenv DYLD_LIBRARY_PATH $QTDIR/lib
 
     After you have done this, you will need to login again, or
     re-source the profile before continuing.
+    
+    To re-source your profile type:
+    source .login 
+    or
+    source .profile
 
 
-3.  Install your license file as $HOME/.qt-license.
-    For the free edition and evaluation version, you do not need a license
-    file.
+3.  If you have the commercial edition of Qt, install your license
+    file as $HOME/.qt-license.
 
 4.  Building.
 

@@ -1,4 +1,4 @@
-			  INSTALLING Qt Version %VERSION% FOR X11
+			  INSTALLING Qt/X11 Version %VERSION%
 
 
 You may need to be logged in as root, depending on the permissions of
@@ -57,6 +57,9 @@ the directories where you choose to install Qt.
 
     On AIX set LIBPATH and on HP-UX set SHLIB_PATH instead of LD_LIBRARY_PATH.
 
+    If you use SGI MIPSpro o32 or Sun WorkShop 5.0 you need to run the
+    qt32castcompat script found in $QTDIR/bin before compiling Qt.
+
 
 3.  Install your license file as $HOME/.qt-license.
     For the free edition and evaluation version, you do not need a license
@@ -84,7 +87,8 @@ the directories where you choose to install Qt.
 
     If your platform or compiler is not supported, please contact us at
     qt-bugs@trolltech.com so that we can assist you. If it is supported
-    but you have problems, see http://www.trolltech.com/platforms/
+    but you have problems, see http://www.trolltech.com/platforms/ for
+    information on known issues.
 
 
     At this point you have binaries created in $QTDIR (eg. $QTDIR/lib/
