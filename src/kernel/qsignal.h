@@ -21,7 +21,7 @@
 #endif // QT_H
 
 
-class Q_EXPORT QSignal : public QObject
+class Q_KERNEL_EXPORT QSignal : public QObject
 {
     Q_OBJECT
 

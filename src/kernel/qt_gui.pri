@@ -6,10 +6,12 @@ kernel {
 		  $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
 		  $$KERNEL_H/qapplication.h \
+#		  $$KERNEL_H/qasyncio.h \
 		  $$KERNEL_H/qbitmap.h \
 		  $$KERNEL_H/qbrush.h \
 		  $$KERNEL_H/qclipboard.h \
 		  $$KERNEL_H/qcolor.h \
+		  $$KERNEL_P/qcolor_p.h \
 		  $$KERNEL_H/qcursor.h \
 		  $$KERNEL_H/qdesktopwidget.h \
 		  $$KERNEL_H/qdragobject.h \
@@ -22,6 +24,9 @@ kernel {
 		  $$KERNEL_H/qgif.h \
 		  $$KERNEL_H/qguieventloop.h\
 		  $$KERNEL_H/qiconset.h \
+		  $$KERNEL_H/qimage.h \
+		  $$KERNEL_P/qimageformatinterface_p.h \
+		  $$KERNEL_H/qimageformatplugin.h \
 		  $$KERNEL_H/qkeycode.h \
 		  $$KERNEL_H/qkeysequence.h \
 		  $$KERNEL_H/qlayout.h \
@@ -38,6 +43,8 @@ kernel {
 		  $$KERNEL_H/qpictureformatplugin.h \
 		  $$KERNEL_H/qpixmap.h \
 		  $$KERNEL_H/qpixmapcache.h \
+		  $$KERNEL_H/qpointarray.h \
+		  $$KERNEL_H/qpolygonscanner.h \
 		  $$KERNEL_H/qprinter.h \
 		  $$KERNEL_H/qregion.h \
 		  $$KERNEL_H/qsessionmanager.h \
@@ -70,7 +77,6 @@ kernel {
 		  $$KERNEL_CPP/qcursor_win.cpp \
 		  $$KERNEL_CPP/qdesktopwidget_win.cpp \
 		  $$KERNEL_CPP/qdnd_win.cpp \
-		  $$KERNEL_CPP/qeventloop_win.cpp \
 		  $$KERNEL_CPP/qfont_win.cpp \
 		  $$KERNEL_CPP/qinputcontext_win.cpp \
 		  $$KERNEL_CPP/qmime_win.cpp \
@@ -143,9 +149,12 @@ kernel {
 		  $$KERNEL_CPP/qabstractlayout.cpp \
 		  $$KERNEL_CPP/qaccel.cpp \
 		  $$KERNEL_CPP/qapplication.cpp \
+		  $$KERNEL_CPP/qasyncimageio.cpp \
+#		  $$KERNEL_CPP/qasyncio.cpp \
 		  $$KERNEL_CPP/qbitmap.cpp \
 		  $$KERNEL_CPP/qclipboard.cpp \
 		  $$KERNEL_CPP/qcolor.cpp \
+		  $$KERNEL_CPP/qcolor_p.cpp \
 		  $$KERNEL_CPP/qcursor.cpp \
 		  $$KERNEL_CPP/qdragobject.cpp \
 		  $$KERNEL_CPP/qdrawutil.cpp \
@@ -155,6 +164,8 @@ kernel {
 		  $$KERNEL_CPP/qfontdatabase.cpp \
 		  $$KERNEL_CPP/qguieventloop.cpp \
 		  $$KERNEL_CPP/qiconset.cpp \
+		  $$KERNEL_CPP/qimage.cpp \
+		  $$KERNEL_CPP/qimageformatplugin.cpp \
 		  $$KERNEL_CPP/qkeysequence.cpp \
 		  $$KERNEL_CPP/qlayout.cpp \
 		  $$KERNEL_CPP/qlayoutengine.cpp \
@@ -165,6 +176,8 @@ kernel {
 		  $$KERNEL_CPP/qpalette.cpp \
 		  $$KERNEL_CPP/qpicture.cpp \
 		  $$KERNEL_CPP/qpictureformatplugin.cpp \
+		  $$KERNEL_CPP/qpointarray.cpp \
+		  $$KERNEL_CPP/qpolygonscanner.cpp \
 		  $$KERNEL_CPP/qimage_gui.cpp \
 		  $$KERNEL_CPP/qpixmap.cpp \
 		  $$KERNEL_CPP/qpixmapcache.cpp \
@@ -181,7 +194,8 @@ kernel {
 		  $$KERNEL_CPP/qtextengine.cpp \
 		  $$KERNEL_CPP/qtextlayout.cpp \
 		  $$KERNEL_CPP/qvariant_gui.cpp \
-		  $$KERNEL_CPP/qwidget.cpp
+		  $$KERNEL_CPP/qwidget.cpp \
+		  $$KERNEL_CPP/qwmatrix.cpp
 
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \
 			  $$KERNEL_H/qfontdatabase.h

@@ -22,7 +22,7 @@
 class QRegExpEngine;
 struct QRegExpPrivate;
 
-class Q_EXPORT QRegExp
+class Q_KERNEL_EXPORT QRegExp
 {
 public:
     enum CaretMode { CaretAtZero, CaretAtOffset, CaretWontMatch };

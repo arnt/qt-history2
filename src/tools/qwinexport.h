@@ -72,7 +72,7 @@ Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<QString, int>; // for Qtopia
 Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, QString>; // for Qtopia
 #endif
 
-#if defined(Q_DEFINED_QMEMARRAY)  && !defined(Q_EXPORTED_QMEMARRAY_BASIC_TEMPLATES)   
+#if defined(Q_DEFINED_QMEMARRAY)  && !defined(Q_EXPORTED_QMEMARRAY_BASIC_TEMPLATES)
 #define Q_EXPORTED_QMEMARRAY_BASIC_TEMPLATES
 Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<int>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<bool>;
@@ -134,7 +134,7 @@ Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrVector<QWidget>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrVector<QConnectionList>;
 #endif
 
-#if defined(Q_DEFINED_QVALUELIST)  && !defined(Q_EXPORTED_QVALUELIST_BASIC_TEMPLATES) 
+#if defined(Q_DEFINED_QVALUELIST)  && !defined(Q_EXPORTED_QVALUELIST_BASIC_TEMPLATES)
 #define Q_EXPORTED_QVALUELIST_BASIC_TEMPLATES
 Q_TEMPLATE_EXTERN template class Q_EXPORT QValueListIterator<bool>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QValueList<bool>;
@@ -210,11 +210,6 @@ QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QVector<Holder>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QList<bool>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QList<int>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QList<uint>;
-#endif
-
-#if defined(Q_DEFINED_QOBJECTLIST) && !defined(Q_EXPORTED_QOBJECTLISTCLEANUPHANDLER_TEMPLATES)
-#define Q_EXPORTED_QOBJECTLISTCLEANUPHANDLER_TEMPLATES
-Q_TEMPLATE_EXTERN template class Q_EXPORT QList<QObject*>;
 #endif
 
 // MOC_SKIP_END

@@ -3,7 +3,7 @@
 
 #include <qnamespace.h>
 
-class Q_EXPORT QEvent: public Qt		// event base class
+class Q_KERNEL_EXPORT QEvent: public Qt		// event base class
 {
 public:
     enum Type {
@@ -121,7 +121,7 @@ private:
     friend class QETWidget;
 };
 
-class Q_EXPORT QTimerEvent : public QEvent
+class Q_KERNEL_EXPORT QTimerEvent : public QEvent
 {
 public:
     QTimerEvent( int timerId )
@@ -131,7 +131,7 @@ protected:
     int	  id;
 };
 
-class Q_EXPORT QChildEvent : public QEvent
+class Q_KERNEL_EXPORT QChildEvent : public QEvent
 {
 public:
     QChildEvent( Type type, QObject *child )
@@ -147,7 +147,7 @@ protected:
     QObject *c;
 };
 
-class Q_EXPORT QCustomEvent : public QEvent
+class Q_KERNEL_EXPORT QCustomEvent : public QEvent
 {
 public:
     QCustomEvent( int type );

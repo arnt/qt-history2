@@ -23,12 +23,12 @@
 #define q q_func()
 
 extern bool qt_winEventFilter( MSG* msg, long &result );
-extern bool activateTimer( uint id );		// activate timer
-extern void activateZeroTimers();
-extern bool winPeekMessage( MSG*, HWND, UINT, UINT, UINT);
-extern bool winGetMessage( MSG*, HWND, UINT, UINT);
+Q_KERNEL_EXPORT bool activateTimer( uint id );		// activate timer
+Q_KERNEL_EXPORT void activateZeroTimers();
+Q_KERNEL_EXPORT bool winPeekMessage( MSG*, HWND, UINT, UINT, UINT);
+Q_KERNEL_EXPORT bool winGetMessage( MSG*, HWND, UINT, UINT);
 
-extern int numZeroTimers;
+Q_KERNEL_EXPORT int numZeroTimers;
 
 void QGuiEventLoop::init()
 {
@@ -178,6 +178,11 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
     QKernelApplication::sendPostedEvents();
 
     return TRUE;
+}
+
+void QGuiEventLoop::flush()
+{
+
 }
 
 

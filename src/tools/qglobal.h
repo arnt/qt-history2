@@ -844,11 +844,23 @@ class QDataStream;
 #    if defined(QT_DLL)
 #      undef QT_DLL
 #    endif
+#    if defined(QT_KERNEL_LIB)
+#      define Q_KERNEL_EXPORT __declspec(dllexport)
+#    else
+#      define Q_KERNEL_EXPORT __declspec(dllimport)
+#    endif
+#    if defined(QT_GUI_LIB)
+#      define Q_GUI_EXPORT __declspec(dllexport)
+#    else
+#      define Q_GUI_EXPORT __declspec(dllimport)
+#    endif
 #    define Q_EXPORT  __declspec(dllexport)
 #    define Q_TEMPLATEDLL
 #    define Q_TEMPLATE_EXTERN
 #    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
 #  elif defined(QT_DLL)		/* use a Qt DLL library */
+#    define Q_KERNEL_EXPORT __declspec(dllimport)
+#    define Q_GUI_EXPORT __declspec(dllimport)
 #    define Q_EXPORT  __declspec(dllimport)
 #    define Q_TEMPLATEDLL
 #    ifndef Q_TEMPLATE_EXTERN
@@ -880,30 +892,39 @@ class QDataStream;
 #  define Q_EXPORT
 #endif
 
+#ifndef Q_KERNEL_EXPORT
+#  define Q_KERNEL_EXPORT
+#endif
+
+#ifndef Q_GUI_EXPORT
+#  define Q_GUI_EXPORT
+#endif
 
 //
 // Some platform specific stuff
 //
 
 #if defined(Q_WS_WIN)
-extern Q_EXPORT bool qt_winunicode;
+extern bool qt_winunicode;
+Q_KERNEL_EXPORT bool qt_winUnicode();
 #endif
+
 
 
 //
 // System information
 //
 
-Q_EXPORT const char *qVersion();
-Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
-Q_EXPORT bool qSharedBuild();
+Q_KERNEL_EXPORT const char *qVersion();
+Q_KERNEL_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
+Q_KERNEL_EXPORT bool qSharedBuild();
 #if defined(Q_OS_MAC)
 int qMacVersion();
 #elif defined(Q_WS_WIN)
-Q_EXPORT int qWinVersion();
+Q_KERNEL_EXPORT int qWinVersion();
 #if defined(UNICODE)
-#define QT_WA( uni, ansi ) if ( qt_winunicode ) { uni } else { ansi }
-#define QT_WA_INLINE( uni, ansi ) ( qt_winunicode ? uni : ansi )
+#define QT_WA( uni, ansi ) if ( qt_winUnicode() ) { uni } else { ansi }
+#define QT_WA_INLINE( uni, ansi ) ( qt_winUnicode() ? uni : ansi )
 #else
 #define QT_WA( uni, ansi ) ansi
 #define QT_WA_INLINE( uni, ansi ) ansi
@@ -944,13 +965,13 @@ Q_EXPORT int qWinVersion();
 #  define QT_DEBUG
 #endif
 
-Q_EXPORT void qDebug( const char *, ... )	// print debug message
+Q_KERNEL_EXPORT void qDebug( const char *, ... )	// print debug message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_EXPORT void qWarning( const char *, ... )	// print warning message
+Q_KERNEL_EXPORT void qWarning( const char *, ... )	// print warning message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
@@ -961,13 +982,13 @@ Q_EXPORT void qWarning( const char *, ... )	// print warning message
 #  define qWarning qt_noop(),1?(void)0:qWarning
 #endif
 
-Q_EXPORT void qSystemWarning( const char *, ... )	// print system message
+Q_KERNEL_EXPORT void qSystemWarning( const char *, ... )	// print system message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
+Q_KERNEL_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
 #if defined(Q_CC_GNU)
     __attribute__ ((format (printf, 1, 2)))
 #endif
@@ -975,7 +996,7 @@ Q_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
 
 inline void qt_noop() {}
 
-Q_EXPORT void qt_assert(const char *assertion, const char *file, int line);
+Q_KERNEL_EXPORT void qt_assert(const char *assertion, const char *file, int line);
 
 #if !defined(Q_ASSERT)
 #  ifndef QT_NO_DEBUG
@@ -985,7 +1006,7 @@ Q_EXPORT void qt_assert(const char *assertion, const char *file, int line);
 #  endif
 #endif
 
-Q_EXPORT void qt_assert_x(const char *where, const char *what, const char *file, int line);
+Q_KERNEL_EXPORT void qt_assert_x(const char *where, const char *what, const char *file, int line);
 
 #if !defined(Q_ASSERT_X)
 #  ifndef QT_NO_DEBUG
@@ -995,7 +1016,7 @@ Q_EXPORT void qt_assert_x(const char *where, const char *what, const char *file,
 #  endif
 #endif
 
-Q_EXPORT void qt_check_pointer(const char *, int);
+Q_KERNEL_EXPORT void qt_check_pointer(const char *, int);
 
 #ifndef QT_NO_DEBUG
 #  define Q_CHECK_PTR(p) {if(!(p))qt_check_pointer(__FILE__,__LINE__);}
@@ -1006,28 +1027,28 @@ Q_EXPORT void qt_check_pointer(const char *, int);
 enum QtMsgType { QtDebugMsg, QtSystemMsg, QtWarningMsg, QtFatalMsg };
 
 typedef void (*QtMsgHandler)(QtMsgType, const char *);
-Q_EXPORT QtMsgHandler qInstallMsgHandler( QtMsgHandler );
+Q_KERNEL_EXPORT QtMsgHandler qInstallMsgHandler( QtMsgHandler );
 
-Q_EXPORT void qSuppressObsoleteWarnings( bool = true );
+Q_KERNEL_EXPORT void qSuppressObsoleteWarnings( bool = true );
 
-Q_EXPORT void qObsolete( const char *obj, const char *oldfunc, const char *newfunc );
-Q_EXPORT void qObsolete( const char *obj, const char *oldfunc );
-Q_EXPORT void qObsolete( const char *message );
+Q_KERNEL_EXPORT void qObsolete( const char *obj, const char *oldfunc, const char *newfunc );
+Q_KERNEL_EXPORT void qObsolete( const char *obj, const char *oldfunc );
+Q_KERNEL_EXPORT void qObsolete( const char *message );
 
 
 //
 // Install paths from configure
 //
 
-Q_EXPORT const char *qInstallPath();
-Q_EXPORT const char *qInstallPathDocs();
-Q_EXPORT const char *qInstallPathHeaders();
-Q_EXPORT const char *qInstallPathLibs();
-Q_EXPORT const char *qInstallPathBins();
-Q_EXPORT const char *qInstallPathPlugins();
-Q_EXPORT const char *qInstallPathData();
-Q_EXPORT const char *qInstallPathTranslations();
-Q_EXPORT const char *qInstallPathSysconf();
+Q_KERNEL_EXPORT const char *qInstallPath();
+Q_KERNEL_EXPORT const char *qInstallPathDocs();
+Q_KERNEL_EXPORT const char *qInstallPathHeaders();
+Q_KERNEL_EXPORT const char *qInstallPathLibs();
+Q_KERNEL_EXPORT const char *qInstallPathBins();
+Q_KERNEL_EXPORT const char *qInstallPathPlugins();
+Q_KERNEL_EXPORT const char *qInstallPathData();
+Q_KERNEL_EXPORT const char *qInstallPathTranslations();
+Q_KERNEL_EXPORT const char *qInstallPathSysconf();
 
 
 class QBool
@@ -1209,11 +1230,11 @@ template <> inline void qDelete(QFunctionPointerWithArgs &) { }
 #endif
 
 
-Q_EXPORT void *qMalloc(size_t size);
-Q_EXPORT void qFree(void *ptr);
-Q_EXPORT void *qRealloc(void *ptr, size_t size);
-Q_EXPORT int qRand(void);
-Q_EXPORT void *qMemCopy(void *dest, const void *src, size_t n);
+Q_KERNEL_EXPORT void *qMalloc(size_t size);
+Q_KERNEL_EXPORT void qFree(void *ptr);
+Q_KERNEL_EXPORT void *qRealloc(void *ptr, size_t size);
+Q_KERNEL_EXPORT int qRand(void);
+Q_KERNEL_EXPORT void *qMemCopy(void *dest, const void *src, size_t n);
 
 
 //

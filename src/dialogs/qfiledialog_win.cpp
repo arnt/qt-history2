@@ -66,7 +66,7 @@ static void resolveLibs()
 #endif
 
 	triedResolve = TRUE;
-	if ( qt_winunicode ) {
+	if ( qt_winUnicode() ) {
 	    QLibrary lib("shell32");
 	    lib.setAutoUnload( FALSE );
 

@@ -31,7 +31,6 @@
 
 QVariant::Private QVariant::shared_invalid = { Q_ATOMIC_INIT(1), Invalid, true, {0} };
 
-
 static void construct(QVariant::Private *x, const void *v)
 {
     if (v) {
@@ -815,7 +814,6 @@ static bool canCast(QVariant::Private *d, QVariant::Type t)
     }
 }
 
-extern const QVariant::Handler qt_kernel_variant_handler;
 const QVariant::Handler qt_kernel_variant_handler = {
     construct,
     clear,
@@ -826,6 +824,12 @@ const QVariant::Handler qt_kernel_variant_handler = {
     cast,
     canCast
 };
+
+Q_KERNEL_EXPORT const QVariant::Handler *qKernelVariantHandler()
+{
+    return &qt_kernel_variant_handler;
+}
+
 
 const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
 

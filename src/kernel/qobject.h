@@ -22,6 +22,7 @@
 #include "qstring.h"
 #include "qbytearray.h"
 #include "qkernelevent.h"
+#include "qlist.h"
 #endif // QT_H
 
 #define QT_TR_NOOP(x) (x)
@@ -35,9 +36,30 @@ class QWidgetPrivate;
 class QObjectUserData;
 #endif
 template<typename T>class QList;
-typedef QList<QObject *> QObjectList;
 
-class Q_EXPORT QObject: public Qt
+class Q_KERNEL_EXPORT QObjectList : private QList<QObject*>
+{
+public:
+    using QList<QObject*>::append;
+    using QList<QObject*>::at;
+    using QList<QObject*>::clear;
+    using QList<QObject*>::contains;
+    using QList<QObject*>::findIndex;
+    using QList<QObject*>::first;
+    using QList<QObject*>::indexOf;
+    using QList<QObject*>::insert;
+    using QList<QObject*>::isEmpty;
+    using QList<QObject*>::last;
+    using QList<QObject*>::prepend;
+    using QList<QObject*>::remove;
+    using QList<QObject*>::setAutoDelete;
+    using QList<QObject*>::size;
+    using QList<QObject*>::take;
+
+    using QList<QObject*>::operator!;
+};
+
+class Q_KERNEL_EXPORT QObject: public Qt
 {
     Q_OBJECT
     Q_PROPERTY( QByteArray objectName READ objectName WRITE setObjectName )
@@ -222,7 +244,7 @@ inline bool QObject::isAncestorOf(const QObject *child) const
 
 
 #ifndef QT_NO_USERDATA
-class Q_EXPORT QObjectUserData {
+class Q_KERNEL_EXPORT QObjectUserData {
 public:
     virtual ~QObjectUserData();
 };

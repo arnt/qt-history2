@@ -104,7 +104,7 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
     ++refcount;
 
 #ifndef Q_OS_TEMP
-    if ( qt_winver != Qt::WV_95 && qt_winver != Qt::WV_NT ) {
+    if ( qWinVersion() != Qt::WV_95 && qWinVersion() != Qt::WV_NT ) {
 	screenCount = 0;
 	// Trying to get the function pointers to Win98/2000 only functions
 	user32hnd = LoadLibraryA( "user32.dll" );
@@ -339,7 +339,7 @@ QWidget *QDesktopWidget::screen( int /*screen*/ )
 */
 const QRect& QDesktopWidget::availableGeometry( int screen ) const
 {
-    if ( qt_winver != Qt::WV_95 && qt_winver != Qt::WV_NT ) {
+    if ( qWinVersion() != Qt::WV_95 && qWinVersion() != Qt::WV_NT ) {
 	if ( screen < 0 || screen >= d->screenCount )
 	    screen = d->primaryScreen;
 
@@ -373,7 +373,7 @@ const QRect& QDesktopWidget::availableGeometry( int screen ) const
 */
 const QRect& QDesktopWidget::screenGeometry( int screen ) const
 {
-    if ( qt_winver != Qt::WV_95 && qt_winver != Qt::WV_NT ) {
+    if ( qWinVersion() != Qt::WV_95 && qWinVersion() != Qt::WV_NT ) {
 	if ( screen < 0 || screen >= d->screenCount )
 	    screen = d->primaryScreen;
 
@@ -404,7 +404,7 @@ const QRect& QDesktopWidget::screenGeometry( int screen ) const
 */
 int QDesktopWidget::screenNumber( QWidget *widget ) const
 {
-    if ( qt_winver != Qt::WV_95 && qt_winver != Qt::WV_NT ) {
+    if ( qWinVersion() != Qt::WV_95 && qWinVersion() != Qt::WV_NT ) {
 	if ( !widget )
 	    return d->primaryScreen;
 	QRect frame = widget->frameGeometry();
@@ -437,7 +437,7 @@ int QDesktopWidget::screenNumber( QWidget *widget ) const
 */
 int QDesktopWidget::screenNumber( const QPoint &point ) const
 {
-    if ( qt_winver != Qt::WV_95 && qt_winver != Qt::WV_NT ) {
+    if ( qWinVersion() != Qt::WV_95 && qWinVersion() != Qt::WV_NT ) {
 	for ( int i = 0; i < d->screenCount; ++i ) {
 	    if ( d->rects->at(i).contains( point ) )
 		return i;

@@ -4,7 +4,7 @@
 tools {
 	CODECS_P		= codecs
 	HEADERS += \
-#$$CODECS_H/qasmocodec.h \
+# 		$$CODECS_H/qasmocodec.h \
 		$$CODECS_H/qbig5codec.h \
 		  $$CODECS_H/qeucjpcodec.h \
 		  $$CODECS_H/qeuckrcodec.h \
@@ -21,8 +21,8 @@ tools {
 		  $$CODECS_H/qtextcodecplugin.h
 
 	SOURCES += \
-#$$CODECS_CPP/qasmocodec.cpp \
-		$$CODECS_CPP/qbig5codec.cpp \
+#		  $$CODECS_CPP/qasmocodec.cpp \
+		  $$CODECS_CPP/qbig5codec.cpp \
 		  $$CODECS_CPP/qeucjpcodec.cpp \
 		  $$CODECS_CPP/qeuckrcodec.cpp \
 		  $$CODECS_CPP/qisciicodec.cpp \

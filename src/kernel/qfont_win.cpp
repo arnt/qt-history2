@@ -163,7 +163,7 @@ void QFontPrivate::load( QFont::Script script )
 	subs_list += QFont::substitutes( *it );
     family_list += subs_list;
 
-    if(qt_winver & Qt::WV_DOS_based && req.family.lower() == "ms sans serif") {
+    if(qWinVersion() & Qt::WV_DOS_based && req.family.lower() == "ms sans serif") {
 	// small hack for Dos based machines to get the right font for non
 	// latin text when using the default font.
 	family_list << "Arial" << "Tahoma" << "Verdana";
@@ -360,7 +360,7 @@ int QFontMetrics::width( QChar ch ) const
     Q_ASSERT( engine != 0 );
 
 #ifndef Q_Q4PAINTER
-    if ( qt_winver & Qt::WV_NT_based && painter )
+    if ( qWinVersion() & Qt::WV_NT_based && painter )
 	painter->nativeXForm( TRUE );
 #endif
 
@@ -371,7 +371,7 @@ int QFontMetrics::width( QChar ch ) const
     engine->stringToCMap( &ch, 1, glyphs, advances, &nglyphs, FALSE );
 
 #ifndef Q_Q4PAINTER
-    if ( qt_winver & Qt::WV_NT_based && painter )
+    if ( qWinVersion() & Qt::WV_NT_based && painter )
 	painter->nativeXForm( FALSE );
 #endif
 
@@ -385,7 +385,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	return 0;
 
 #ifndef Q_Q4PAINTER
-    if ( qt_winver & Qt::WV_NT_based && painter )
+    if ( qWinVersion() & Qt::WV_NT_based && painter )
 	painter->nativeXForm( TRUE );
 #endif
 
@@ -394,11 +394,11 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     int w = layout.width( pos, 1 );
 
 #ifndef Q_Q4PAINTER
-    if ( qt_winver & Qt::WV_NT_based && painter )
+    if ( qWinVersion() & Qt::WV_NT_based && painter )
 	painter->nativeXForm( FALSE );
 #endif
 
-    if ( (qt_winver & Qt::WV_NT_based) == 0 ) {
+    if ( (qWinVersion() & Qt::WV_NT_based) == 0 ) {
 	QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
 	Q_ASSERT( engine != 0 );
 	w -= TMX.tmOverhang;

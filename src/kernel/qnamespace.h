@@ -20,7 +20,7 @@
 #endif // QT_H
 
 
-class Q_EXPORT Qt {
+class Q_KERNEL_EXPORT Qt {
 #ifdef Q_MOC_RUN
     Q_OBJECT
     Q_ENUMS( Orientation TextFormat BackgroundMode DateFormat )
@@ -899,7 +899,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WidgetState);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowFlags);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::StringComparisonMode);
 
-class Q_EXPORT QInternal {
+class Q_KERNEL_EXPORT QInternal {
 public:
     enum PaintDeviceFlags {
 	UndefinedDevice = 0x00,
@@ -916,8 +916,8 @@ public:
 };
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QFlags<Qt::WidgetState>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QFlags<Qt::WindowFlags>;
+Q_TEMPLATE_EXTERN template class Q_KERNEL_EXPORT QFlags<Qt::WidgetState>;
+Q_TEMPLATE_EXTERN template class Q_KERNEL_EXPORT QFlags<Qt::WindowFlags>;
 // MOC_SKIP_END
 #endif
 

@@ -5,7 +5,17 @@
 #include "qkernelapplication.h"
 #include "qtranslator.h"
 
-class QKernelApplicationPrivate : public QObjectPrivate
+class Q_KERNEL_EXPORT QTranslatorList : private QList<QTranslator*>
+{
+public:
+    using QList<QTranslator*>::prepend;
+    using QList<QTranslator*>::remove;
+    using QList<QTranslator*>::isEmpty;
+    using QList<QTranslator*>::constBegin;
+    using QList<QTranslator*>::constEnd;
+};
+
+class Q_KERNEL_EXPORT QKernelApplicationPrivate : public QObjectPrivate
 {
     Q_DECL_PUBLIC(QKernelApplication);
 public:
@@ -15,7 +25,7 @@ public:
     int &argc;
     char **argv;
 #ifndef QT_NO_TRANSLATION
-    QList<QTranslator*> translators;
+    QTranslatorList translators;
 #endif
 #ifndef QT_NO_COMPONENT
     QStringList *app_libpaths;

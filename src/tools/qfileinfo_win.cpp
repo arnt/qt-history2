@@ -279,7 +279,7 @@ QString QFileInfo::readLink() const
 #endif // QT_NO_COMPONENT
 }
 
-Q_EXPORT int qt_ntfs_permission_lookup = 1;
+Q_KERNEL_EXPORT int qt_ntfs_permission_lookup = 1;
 
 QString QFileInfo::owner() const
 {

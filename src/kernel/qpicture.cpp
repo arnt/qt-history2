@@ -23,10 +23,6 @@
 #include "qdatastream.h"
 #include "qpaintdevicemetrics.h"
 
-#ifndef QT_NO_SVG
-#include "private/qsvgdevice_p.h"
-#endif
-
 /*!
     \class QPicture qpicture.h
     \brief The QPicture class is a paint device that records and
@@ -225,10 +221,10 @@ bool QPicture::load( QIODevice *dev, const char *format )
 	bool result = io.read();
 	if ( result ) {
 	    operator=( io.picture() );
-	} else if ( format ) 
+	} else if ( format )
 #else
 	bool result = FALSE;
-#endif    
+#endif
 	{
 		qWarning( "QPicture::load: No such picture format: %s", format );
 	}
@@ -273,10 +269,10 @@ bool QPicture::save( const QString &fileName, const char *format )
 	bool result = io.write();
 	if ( result ) {
 	    operator=( io.picture() );
-	} else if ( format ) 
+	} else if ( format )
 #else
 	bool result = FALSE;
-#endif    
+#endif
 	{
 	    qWarning( "QPicture::save: No such picture format: %s", format );
 	}
@@ -309,10 +305,10 @@ bool QPicture::save( QIODevice *dev, const char *format )
 	bool result = io.write();
 	if ( result ) {
 	    operator=( io.picture() );
-	} else if ( format ) 
+	} else if ( format )
 #else
 	bool result = FALSE;
-#endif    
+#endif
 	{
 	    qWarning( "QPicture::save: No such picture format: %s", format );
 	}
@@ -1216,7 +1212,7 @@ QList<QByteArray> QPicture::inputFormats()
 }
 
 #ifndef QT_NO_STRINGLIST
-static QStringList qToStringList(const QList<QByteArray> arr) 
+static QStringList qToStringList(const QList<QByteArray> arr)
 {
     QStringList list;
     for (int i = 0; i < arr.count(); ++i)
@@ -1307,7 +1303,7 @@ QList<QByteArray> QPicture::outputFormats()
     \sa QPicture QPixmap QFile
 */
 
-struct QPictureIOData 
+struct QPictureIOData
 {
     QPicture	pi;				// picture
     int		iostat;				// IO status
@@ -1826,7 +1822,7 @@ QList<QByteArray> QPictureIO::inputFormats()
 	    result.append((*it)->format);
     }
     qHeapSort(result);
-    
+
     return result;
 }
 
@@ -1918,7 +1914,7 @@ bool QPictureIO::read()
     }
     d->iostat = 1;					// assume error
 
-    if ( h && h->read_picture ) 
+    if ( h && h->read_picture )
 	(*h->read_picture)( this );
 
     if ( file.isOpen() ) {			// picture was read using file

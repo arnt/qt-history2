@@ -29,9 +29,9 @@ static DWORD qt_gui_thread = 0;
 // Simpler timers are needed when Qt does not have the event loop,
 // such as for plugins.
 #ifndef Q_OS_TEMP
-Q_EXPORT bool	qt_win_use_simple_timers = TRUE;
+extern Q_KERNEL_EXPORT bool	qt_win_use_simple_timers = TRUE;
 #else
-Q_EXPORT bool	qt_win_use_simple_timers = FALSE;
+extern Q_KERNEL_EXPORT bool	qt_win_use_simple_timers = FALSE;
 #endif
 void CALLBACK   qt_simple_timer_func( HWND, UINT, UINT, DWORD );
 
@@ -39,12 +39,12 @@ static TimerVec  *timerVec = 0;
 static TimerDict *timerDict = 0;
 
 static bool	dispatchTimer( uint, MSG * );
-Q_EXPORT bool	activateTimer( uint );
-Q_EXPORT void	activateZeroTimers();
+Q_KERNEL_EXPORT bool	activateTimer( uint );
+Q_KERNEL_EXPORT void	activateZeroTimers();
 
-Q_EXPORT int	 numZeroTimers	= 0;		// number of full-speed timers
+extern Q_KERNEL_EXPORT int	 numZeroTimers	= 0;		// number of full-speed timers
 
-Q_EXPORT bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
+Q_KERNEL_EXPORT bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax, UINT wRemoveMsg )
 {
     QT_WA( {
@@ -54,7 +54,7 @@ Q_EXPORT bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
     } );
 }
 
-bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
+Q_KERNEL_EXPORT bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
     QT_WA( {
 	return PostMessage( hWnd, msg, wParam, lParam );
@@ -63,7 +63,7 @@ bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
     } );
 }
 
-Q_EXPORT bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
+Q_KERNEL_EXPORT bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax )
 {
     QT_WA( {
@@ -226,7 +226,7 @@ static QSNDict *sn_except = 0;
 
 static QSNDict**sn_vec[3] = { &sn_read, &sn_write, &sn_except };
 
-uint	qt_sn_msg	  = 0;			// socket notifier message
+extern Q_KERNEL_EXPORT uint	qt_sn_msg	  = 0;			// socket notifier message
 // static HWND sn_win	  = 0;			// win msg via this window
 
 
@@ -257,7 +257,7 @@ static void sn_init()
     }
 }
 
-void qt_sn_activate_fd( int, int )
+Q_KERNEL_EXPORT void qt_sn_activate_fd( int, int )
 {
 //     QSNDict  *dict = *sn_vec[type];
 //     QSockNot *sn   = dict ? (*dict)[sockfd] : 0;

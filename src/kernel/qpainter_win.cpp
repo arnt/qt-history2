@@ -429,7 +429,7 @@ void QPainter::updatePen()
     }
 #ifndef Q_OS_TEMP
     if ( ( ( testf( ExtDev ) && cpen.width() != 0 ) || cpen.width() > 1 ) &&
-	 ( qt_winver & WV_NT_based || ps == SolidLine ) ) {
+	 ( qWinVersion() & WV_NT_based || ps == SolidLine ) ) {
 	LOGBRUSH lb;
 	lb.lbStyle = 0;
 	lb.lbColor = pix;
@@ -662,11 +662,11 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	qWarning( "QPainter::begin: Paint device cannot be null" );
 	return FALSE;
     }
-    if(pd->devType() == QInternal::Widget && 
+    if(pd->devType() == QInternal::Widget &&
        !static_cast<const QWidget*>(pd)->testWState(WState_InPaintEvent)) {
 	qWarning("QPainter::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
-	return false;
+ 	return false;
     }
 
     const QWidget *copyMe = 0;
@@ -784,7 +784,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	if ( pdev->handle() )
 	    hdc = pdev->handle();
 	flags |= (NoCache | RGBColor);
-	if ( qt_winver & WV_DOS_based )
+	if ( qWinVersion() & WV_DOS_based )
 	    flags |= VolatileDC;
     } else if ( dt == QInternal::System ) {	// system-dependent device
 	hdc = pdev->handle();
@@ -895,7 +895,7 @@ bool QPainter::end()
     } else if ( pdev->devType() == QInternal::Pixmap ) {
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->optimization() == QPixmap::MemoryOptim &&
-	     ( qt_winver & WV_DOS_based ) )
+	     ( qWinVersion() & WV_DOS_based ) )
 	    pm->allocCell();
     }
 
@@ -1352,7 +1352,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
     }
     bool path = FALSE;
 #ifndef Q_OS_TEMP
-    if ( (qt_winver & WV_DOS_based) && cpen.width() > 1 ) {
+    if ( (qWinVersion() & WV_DOS_based) && cpen.width() > 1 ) {
 	// on DOS based systems caps and joins are only supported on paths, so let's use them.
 	BeginPath( hdc );
 	path = TRUE;

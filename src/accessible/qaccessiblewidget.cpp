@@ -34,7 +34,7 @@ QString buddyString(const QWidget *widget)
     if (!parent)
 	return QString();
     QObjectList ol = parent->queryList("QLabel", 0, FALSE, FALSE);
-    for (int i = 0; i < ol.count(); ++i) {
+    for (int i = 0; i < ol.size(); ++i) {
 	QLabel *label = static_cast<QLabel*>(ol.at(i));
 	if (label->buddy() == widget)
 	    return label->text();
@@ -169,7 +169,7 @@ int QAccessibleWidget::childAt(int x, int y) const
     int ccount = childCount();
 
     // a complex child
-    if (list.count() < ccount) {
+    if (list.size() < ccount) {
 	for (int i = 1; i <= ccount; ++i) {
 	    if (rect(i).contains(x, y))
 		return i;
@@ -178,20 +178,14 @@ int QAccessibleWidget::childAt(int x, int y) const
     }
 
     QPoint rp = w->mapFromGlobal(QPoint(x, y));
-    QList<QObject*>::Iterator it = list.begin();
     QWidget *child = 0;
-    int index = 1;
-    while (it != list.end()) {
-	child = (QWidget*)*it;
+    for (int i = 0; i<list.size(); ++i) {
+	child = static_cast<QWidget *>(list.at(i));
 	if (!child->isTopLevel() && !child->isHidden() && child->geometry().contains(rp)) {
-	    return index;
+	    return i + 1;
 	}
-	++it;
-	++index;
     }
-    if (index > list.count())
-	return 0;
-    return index;
+    return -1;
 }
 
 /*! \reimp */
@@ -260,9 +254,9 @@ QList<QObject*> ConnectionObject::senders() const
     return senders;
 }
 
-/*! 
+/*!
     Registers \a signal as a controlling signal.
-    
+
     An object is a Controller to any other object connected to a controlling signal.
 */
 void QAccessibleWidget::addControllingSignal(const QString &signal)
@@ -274,9 +268,9 @@ void QAccessibleWidget::addControllingSignal(const QString &signal)
 }
 
 /*!
-    Sets the value of this interface implementation to \a value. 
-    
-    The default implementation of text() return the set value for 
+    Sets the value of this interface implementation to \a value.
+
+    The default implementation of text() return the set value for
     the Value text.
 
     Note that the object wrapped by this interface is not modified.
@@ -288,8 +282,8 @@ void QAccessibleWidget::setValue(const QString &value)
 
 /*!
     Sets the description of this interface implementation to \a desc.
-    
-    The default implementation of text() return the set value for 
+
+    The default implementation of text() return the set value for
     the Description text.
 
     Note that the object wrapped by this interface is not modified.
@@ -301,8 +295,8 @@ void QAccessibleWidget::setDescription(const QString &desc)
 
 /*!
     Sets the help of this interface implementation to \a help.
-    
-    The default implementation of text() return the set value for 
+
+    The default implementation of text() return the set value for
     the Help text.
 
     Note that the object wrapped by this interface is not modified.
@@ -314,8 +308,8 @@ void QAccessibleWidget::setHelp(const QString &help)
 
 /*!
     Sets the accelerator of this interface implementation to \a accel.
-    
-    The default implementation of text() return the set value for 
+
+    The default implementation of text() return the set value for
     the Accelerator text.
 
     Note that the object wrapped by this interface is not modified.
@@ -328,7 +322,7 @@ void QAccessibleWidget::setAccelerator(const QString &accel)
 /*!
     Sets the default action of this interface implementation to \a defAction,
     and the name of that action to \a name.
-    
+
     The default implementation of defaultAction() return the set
     default action, and the default implementation of actionText() returns the
     set name for the Name text of the default action.
@@ -438,7 +432,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
     QObject *targetObject = 0;
 
     QObjectList childList = widget()->queryList("QWidget", 0, FALSE, FALSE);
-    bool complexWidget = childList.count() < childCount();
+    bool complexWidget = childList.size() < childCount();
 
     switch (relation) {
     // Hierarchical
@@ -451,7 +445,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 		return entry;
 	    return -1;
 	}else {
-	    if (entry > 0 && childList.count() >= entry)
+	    if (entry > 0 && childList.size() >= entry)
 		targetObject = childList.at(entry - 1);
 	}
 	break;
@@ -612,7 +606,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	    }
 	}
 	break;
-    case Covered: 
+    case Covered:
 	if (entry > 0) {
 	    QObject *parent = parentObject();
 	    QAccessibleInterface *pIface = 0;
@@ -706,7 +700,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	    ConnectionObject *connectionObject = (ConnectionObject*)object();
 	    QList<QObject*> allSenders = connectionObject->senders();
 	    QList<QObject*> senders;
-	    for (int s = 0; s < allSenders.count(); ++s) {
+	    for (int s = 0; s < allSenders.size(); ++s) {
 		QAccessibleInterface *test = 0;
 		QObject *sender = allSenders.at(s);
 		QAccessible::queryAccessibleInterface(sender, &test);
@@ -716,7 +710,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 		    senders << sender;
 		test->release();
 	    }
-	    if (entry <= senders.count())
+	    if (entry <= senders.size())
 		targetObject = senders.at(entry-1);
 	}
 	break;
@@ -728,7 +722,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 		QList<QObject*> receivers = connectionObject->receiverList(d->primarySignals.at(sig).ascii());
 		allReceivers += receivers;
 	    }
-	    if (entry <= allReceivers.count())
+	    if (entry <= allReceivers.size())
 		targetObject = allReceivers.at(entry-1);
 	}
 	break;
@@ -743,7 +737,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 int QAccessibleWidget::childCount() const
 {
     QObjectList cl = widget()->queryList("QWidget", 0, FALSE, FALSE);
-    return cl.count();
+    return cl.size();
 }
 
 /*! \reimp */

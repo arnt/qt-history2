@@ -102,9 +102,9 @@ static UINT prsAdjust(PACKET p, HCTX hTab);
 static void initWinTabFunctions();	// resolve the WINTAB api functions
 #endif
 
-extern bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
+Q_KERNEL_EXPORT bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 			    UINT wMsgFilterMax, UINT wRemoveMsg );
-extern bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
+Q_KERNEL_EXPORT bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 
 #if defined(__CYGWIN32__)
 #define __INSIDE_CYGWIN32__
@@ -258,11 +258,11 @@ QRgb qt_colorref2qrgb(COLORREF col)
   Internal variables and functions
  *****************************************************************************/
 
-extern char      appName[];
-extern char      appFileName[];
-extern HINSTANCE appInst;			// handle to app instance
-extern HINSTANCE appPrevInst;			// handle to prev app instance
-extern int appCmdShow;				// main window show command
+extern Q_KERNEL_EXPORT char      appName[];
+extern Q_KERNEL_EXPORT char      appFileName[];
+extern Q_KERNEL_EXPORT HINSTANCE appInst;			// handle to app instance
+extern Q_KERNEL_EXPORT HINSTANCE appPrevInst;			// handle to prev app instance
+extern Q_KERNEL_EXPORT int appCmdShow;				// main window show command
 static HWND	 curWin		= 0;		// current window
 static HDC	 displayDC	= 0;		// display device context
 #ifdef Q_OS_TEMP
@@ -524,7 +524,7 @@ static void qt_set_windows_resources()
     pal.setColor( QPalette::Link, Qt::blue );
     pal.setColor( QPalette::LinkVisited, Qt::magenta );
 
-    if ( qt_winver != Qt::WV_NT && qt_winver != Qt::WV_95 ) {
+    if ( qWinVersion() != Qt::WV_NT && qWinVersion() != Qt::WV_95 ) {
 	if ( pal.midlight() == pal.button() )
 	    pal.setColor( QPalette::Midlight, pal.button().color().light(110) );
 	if ( pal.background() != pal.base() ) {
@@ -562,7 +562,7 @@ static void qt_set_windows_resources()
 	menu.setColor( QPalette::Disabled, QPalette::Text, disabled );
 	menu.setColor( QPalette::Disabled, QPalette::Highlight,
 		      QColor(qt_colorref2qrgb(GetSysColor(
-						  qt_winver == Qt::WV_XP ? COLOR_MENUHILIGHT :
+						  qWinVersion() == Qt::WV_XP ? COLOR_MENUHILIGHT :
 						  COLOR_HIGHLIGHTTEXT))) );
 	menu.setColor( QPalette::Disabled, QPalette::HighlightedText,
 		      QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
@@ -575,12 +575,12 @@ static void qt_set_windows_resources()
 		      menu.color(QPalette::Active, QPalette::Foreground));
 	menu.setColor( QPalette::Inactive, QPalette::ButtonText,
 		      menu.color(QPalette::Active, QPalette::ButtonText));
-	if ( qt_winver != Qt::WV_NT && qt_winver != Qt::WV_95 )
+	if ( qWinVersion() != Qt::WV_NT && qWinVersion() != Qt::WV_95 )
 	    menu.setColor( QPalette::Inactive, QPalette::Button,
 			  pal.color(QPalette::Inactive, QPalette::Dark));
 	QApplication::setPalette( menu, TRUE, "QPopupMenu");
 
-	if ( qt_winver == Qt::WV_XP ) {
+	if ( qWinVersion() == Qt::WV_XP ) {
 	    BOOL isFlat;
 	    SystemParametersInfo( 0x1022 /*SPI_GETFLATMENU*/, 0, &isFlat, 0 );
 	    if ( isFlat ) {
@@ -814,7 +814,7 @@ const QString qt_reg_winclass( Qt::WFlags flags )	// register window class
 #else
 	style = CS_DBLCLKS;
 #endif
-	if ( qt_winver == Qt::WV_XP )
+	if ( qWinVersion() == Qt::WV_XP )
 	    style |= 0x00020000;		// CS_DROPSHADOW
 	icon  = FALSE;
     }
@@ -931,7 +931,7 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 
 Qt::WindowsVersion QApplication::winVersion()
 {
-    return qt_winver;
+    return (Qt::WindowsVersion) qWinVersion();
 }
 
 #ifndef QT_NO_CURSOR
@@ -1171,8 +1171,8 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
 
 static bool inLoop = FALSE;
 static int inputcharset = CP_ACP;
-extern uint qt_sn_msg;
-extern void qt_sn_activate_fd( int sockfd, int type );
+extern Q_KERNEL_EXPORT uint qt_sn_msg;
+extern Q_KERNEL_EXPORT void qt_sn_activate_fd( int sockfd, int type );
 
 #define RETURN(x) { inLoop=FALSE;return x; }
 
@@ -3446,7 +3446,7 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	animate_ui = enable;
 	break;
     }
-    if ( desktopSettingsAware() && !( qt_winver == WV_95 || qt_winver == WV_NT ) ) {
+    if ( desktopSettingsAware() && !( qWinVersion() == WV_95 || qWinVersion() == WV_NT ) ) {
 	// we know that they can be used when we are here
 	UINT api;
 	switch (effect) {
@@ -3454,7 +3454,7 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	    api = SPI_SETMENUANIMATION;
 	    break;
 	case UI_FadeMenu:
-	    if ( qt_winver == WV_98 )
+	    if ( qWinVersion() == WV_98 )
 		return;
 	    api = SPI_SETMENUFADE;
 	    break;
@@ -3465,7 +3465,7 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	    api = SPI_SETTOOLTIPANIMATION;
 	    break;
 	case UI_FadeTooltip:
-	    if ( qt_winver == WV_98 )
+	    if ( qWinVersion() == WV_98 )
 		return;
 	    api = SPI_SETTOOLTIPFADE;
 	    break;
@@ -3487,7 +3487,7 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
     if ( QColor::numBitPlanes() < 16 )
 	return FALSE;
 
-    if ( !effect_override && desktopSettingsAware() && !( qt_winver == WV_95 || qt_winver == WV_NT ) ) {
+    if ( !effect_override && desktopSettingsAware() && !( qWinVersion() == WV_95 || qWinVersion() == WV_NT ) ) {
 	// we know that they can be used when we are here
 	BOOL enabled = FALSE;
 	UINT api;
@@ -3496,7 +3496,7 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    api = SPI_GETMENUANIMATION;
 	    break;
 	case UI_FadeMenu:
-	    if ( qt_winver == WV_98 )
+	    if ( qWinVersion() == WV_98 )
 		return FALSE;
 	    api = SPI_GETMENUFADE;
 	    break;
@@ -3504,13 +3504,13 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    api = SPI_GETCOMBOBOXANIMATION;
 	    break;
 	case UI_AnimateTooltip:
-	    if ( qt_winver == WV_98 )
+	    if ( qWinVersion() == WV_98 )
 		api = SPI_GETMENUANIMATION;
 	    else
 		api = SPI_GETTOOLTIPANIMATION;
 	    break;
 	case UI_FadeTooltip:
-	    if ( qt_winver == WV_98 )
+	    if ( qWinVersion() == WV_98 )
 		return FALSE;
 	    api = SPI_GETTOOLTIPFADE;
 	    break;

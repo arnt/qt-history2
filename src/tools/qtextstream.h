@@ -28,7 +28,7 @@ class QTextDecoder;
 
 class QTextStreamPrivate;
 
-class Q_EXPORT QTextStream				// text stream class
+class Q_KERNEL_EXPORT QTextStream				// text stream class
 {
 public:
     enum Encoding { Locale, Latin1, Unicode, UnicodeNetworkOrder,
@@ -161,7 +161,7 @@ private:	// Disabled copy constructor and operator=
 
 typedef QTextStream QTS;
 
-class Q_EXPORT QTextIStream : public QTextStream {
+class Q_KERNEL_EXPORT QTextIStream : public QTextStream {
 public:
     QTextIStream( const QString* s ) :
 	QTextStream((QString*)s,IO_ReadOnly) { }
@@ -177,7 +177,7 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-class Q_EXPORT QTextOStream : public QTextStream {
+class Q_KERNEL_EXPORT QTextOStream : public QTextStream {
 public:
     QTextOStream( QString* s ) :
 	QTextStream(s,IO_WriteOnly) { }
@@ -249,7 +249,7 @@ inline QChar QTextStream::ts_getc()
 typedef QTextStream & (*QTSFUNC)(QTextStream &);// manipulator function
 typedef int (QTextStream::*QTSMFI)(int);	// manipulator w/int argument
 
-class Q_EXPORT QTSManip {			// text stream manipulator
+class Q_KERNEL_EXPORT QTSManip {			// text stream manipulator
 public:
     QTSManip( QTSMFI m, int a ) { mf=m; arg=a; }
     void exec( QTextStream &s ) { (s.*mf)(arg); }
@@ -258,37 +258,37 @@ private:
     int	   arg;					// member function argument
 };
 
-Q_EXPORT inline QTextStream &operator>>( QTextStream &s, QTSFUNC f )
+Q_KERNEL_EXPORT inline QTextStream &operator>>( QTextStream &s, QTSFUNC f )
 { return (*f)( s ); }
 
-Q_EXPORT inline QTextStream &operator<<( QTextStream &s, QTSFUNC f )
+Q_KERNEL_EXPORT inline QTextStream &operator<<( QTextStream &s, QTSFUNC f )
 { return (*f)( s ); }
 
-Q_EXPORT inline QTextStream &operator<<( QTextStream &s, QTSManip m )
+Q_KERNEL_EXPORT inline QTextStream &operator<<( QTextStream &s, QTSManip m )
 { m.exec(s); return s; }
 
-Q_EXPORT QTextStream &bin( QTextStream &s );	// set bin notation
-Q_EXPORT QTextStream &oct( QTextStream &s );	// set oct notation
-Q_EXPORT QTextStream &dec( QTextStream &s );	// set dec notation
-Q_EXPORT QTextStream &hex( QTextStream &s );	// set hex notation
-Q_EXPORT QTextStream &endl( QTextStream &s );	// insert EOL ('\n')
-Q_EXPORT QTextStream &flush( QTextStream &s );	// flush output
-Q_EXPORT QTextStream &ws( QTextStream &s );	// eat whitespace on input
-Q_EXPORT QTextStream &reset( QTextStream &s );	// set default flags
+Q_KERNEL_EXPORT QTextStream &bin( QTextStream &s );	// set bin notation
+Q_KERNEL_EXPORT QTextStream &oct( QTextStream &s );	// set oct notation
+Q_KERNEL_EXPORT QTextStream &dec( QTextStream &s );	// set dec notation
+Q_KERNEL_EXPORT QTextStream &hex( QTextStream &s );	// set hex notation
+Q_KERNEL_EXPORT QTextStream &endl( QTextStream &s );	// insert EOL ('\n')
+Q_KERNEL_EXPORT QTextStream &flush( QTextStream &s );	// flush output
+Q_KERNEL_EXPORT QTextStream &ws( QTextStream &s );	// eat whitespace on input
+Q_KERNEL_EXPORT QTextStream &reset( QTextStream &s );	// set default flags
 
-Q_EXPORT inline QTSManip qSetW( int w )
+Q_KERNEL_EXPORT inline QTSManip qSetW( int w )
 {
     QTSMFI func = &QTextStream::width;
     return QTSManip(func,w);
 }
 
-Q_EXPORT inline QTSManip qSetFill( int f )
+Q_KERNEL_EXPORT inline QTSManip qSetFill( int f )
 {
     QTSMFI func = &QTextStream::fill;
     return QTSManip(func,f);
 }
 
-Q_EXPORT inline QTSManip qSetPrecision( int p )
+Q_KERNEL_EXPORT inline QTSManip qSetPrecision( int p )
 {
     QTSMFI func = &QTextStream::precision;
     return QTSManip(func,p);

@@ -28,7 +28,7 @@ typedef QPtrListIterator<QFileInfo> QFileInfoListIterator;
 class QStringList;
 
 
-class Q_EXPORT QDir
+class Q_KERNEL_EXPORT QDir
 {
 public:
     enum FilterSpec { Dirs	    = 0x001,

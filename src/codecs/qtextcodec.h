@@ -25,19 +25,19 @@ class QTextCodec;
 class QIODevice;
 class QFont;
 
-class Q_EXPORT QTextEncoder {
+class Q_KERNEL_EXPORT QTextEncoder {
 public:
     virtual ~QTextEncoder();
     virtual QByteArray fromUnicode(const QString& uc, int& lenInOut) = 0;
 };
 
-class Q_EXPORT QTextDecoder {
+class Q_KERNEL_EXPORT QTextDecoder {
 public:
     virtual ~QTextDecoder();
     virtual QString toUnicode(const char* chars, int len) = 0;
 };
 
-class Q_EXPORT QTextCodec {
+class Q_KERNEL_EXPORT QTextCodec {
 public:
     virtual ~QTextCodec();
 

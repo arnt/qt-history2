@@ -20,7 +20,7 @@
 
 #include <stdlib.h>
 
-bool      Q_EXPORT qt_resolve_symlinks = TRUE;
+Q_KERNEL_EXPORT bool qt_resolve_symlinks = TRUE;
 
 class QUrlPrivate
 {

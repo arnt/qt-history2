@@ -25,7 +25,7 @@
 #include "qwin32pixmapgc.h"
 #endif
 
-extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
+const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
 #define DATA_HBM	 data->hbm_or_mcpi.hbm
 #define DATA_MCPI	 data->hbm_or_mcpi.mcpi
@@ -145,7 +145,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     }
     data->w = w;
     data->h = h;
-    if ( data->optim == MemoryOptim && ( qt_winver & WV_DOS_based ) ) {
+    if ( data->optim == MemoryOptim && ( qWinVersion() & WV_DOS_based ) ) {
 	hdc = 0;
 	if ( allocCell() >= 0 )			// successful
 	    return;
@@ -381,7 +381,7 @@ void QPixmap::setOptimization( Optimization optimization )
 	    delete data->maskpm;
 	    data->maskpm = 0;
 	}
-	if ( qt_winver & WV_DOS_based )
+	if ( qWinVersion() & WV_DOS_based )
 	    allocCell();
     } else {
 	if ( data->mcp )
@@ -1193,7 +1193,7 @@ int QMultiCellPixmap::allocCell( int height )
     QMCPFreeNode *n = free_list->first();
     for(int i = 0; (i < free_list->size()) && (n->size < height); ++i)
 	n = free_list->at(i);			// find free space
-    if ( (n == free_list->last()) 
+    if ( (n == free_list->last())
 	 && (n->size < height))			// not enough space
 	return -1;
     int offset = n->offset;
@@ -1311,7 +1311,7 @@ static int index_of_mcp_list( int width, bool mono, int *size=0 )
 */
 int QPixmap::allocCell()
 {
-    if ( qt_winver & WV_NT_based )		// only for NT based systems
+    if ( qWinVersion() & WV_NT_based )		// only for NT based systems
 	return -1;
     if ( !mcp_lists_init )
 	init_mcp();

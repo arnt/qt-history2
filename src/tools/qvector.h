@@ -8,7 +8,7 @@
 #include <new>
 #endif // QT_H
 
-struct Q_EXPORT QVectorData
+struct Q_KERNEL_EXPORT QVectorData
 {
     QAtomic ref;
     int alloc, size;

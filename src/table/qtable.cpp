@@ -34,7 +34,6 @@
 #include "qevent.h"
 #include "qlistbox.h"
 #include "qstyle.h"
-#include "qdatatable.h"
 
 #include <stdlib.h>
 #include <limits.h>
@@ -6254,7 +6253,7 @@ void QTable::setEnabled( bool b )
 QTableHeader::QTableHeader( int i, QTable *t,
 			    QWidget *parent, const char *name )
     : QHeader( i, parent, name ), startPos(-1),
-      table( t ), caching( FALSE ), resizedSection(-1), 
+      table( t ), caching( FALSE ), resizedSection(-1),
       numStretches( 0 )
 {
     setIsATableHeader( TRUE );

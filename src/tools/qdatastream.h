@@ -23,7 +23,7 @@ template<typename T> class QList;
 template<typename T> class QLinkedList;
 
 #ifndef QT_NO_DATASTREAM
-class Q_EXPORT QDataStream				// data stream class
+class Q_KERNEL_EXPORT QDataStream				// data stream class
 {
 public:
     QDataStream();

@@ -34,7 +34,7 @@ typedef struct _GUID
 #endif
 #endif
 
-struct Q_EXPORT QUuid
+struct Q_KERNEL_EXPORT QUuid
 {
     QUuid()
     {
@@ -138,8 +138,8 @@ struct Q_EXPORT QUuid
 };
 
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QUuid & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QUuid & );
+Q_KERNEL_EXPORT QDataStream &operator<<( QDataStream &, const QUuid & );
+Q_KERNEL_EXPORT QDataStream &operator>>( QDataStream &, QUuid & );
 #endif
 
 #endif //QUUID_H

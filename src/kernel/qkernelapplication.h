@@ -25,7 +25,7 @@ class QTextCodec;
 class QTranslator;
 class QEventLoop;
 
-class Q_EXPORT QKernelApplication : public QObject
+class Q_KERNEL_EXPORT QKernelApplication : public QObject
 {
     Q_OBJECT
     Q_DECL_PRIVATE(QKernelApplication);

@@ -22,7 +22,7 @@
 
 #ifndef QT_NO_NETWORKPROTOCOL
 
-class Q_EXPORT QLocalFs : public QNetworkProtocol
+class Q_KERNEL_EXPORT QLocalFs : public QNetworkProtocol
 {
     Q_OBJECT
 

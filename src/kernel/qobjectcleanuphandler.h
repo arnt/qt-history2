@@ -23,7 +23,7 @@
 #define Q_DEFINED_QOBJECTLIST
 #include "qwinexport.h"
 
-class Q_EXPORT QObjectCleanupHandler : public QObject
+class Q_KERNEL_EXPORT QObjectCleanupHandler : public QObject
 {
     Q_OBJECT
 

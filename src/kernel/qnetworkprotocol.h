@@ -31,7 +31,7 @@ class QUrlOperator;
 class QNetworkProtocolPrivate;
 template <class T> class QList;
 
-class Q_EXPORT QNetworkProtocolFactoryBase
+class Q_KERNEL_EXPORT QNetworkProtocolFactoryBase
 {
 public:
    virtual QNetworkProtocol *createObject() = 0;
@@ -48,7 +48,7 @@ public:
 
 };
 
-class Q_EXPORT QNetworkProtocol : public QObject
+class Q_KERNEL_EXPORT QNetworkProtocol : public QObject
 {
     Q_OBJECT
 
@@ -164,7 +164,7 @@ private:	// Disabled copy constructor and operator=
 
 class QNetworkOperationPrivate;
 
-class Q_EXPORT QNetworkOperation : public QObject
+class Q_KERNEL_EXPORT QNetworkOperation : public QObject
 {
     Q_OBJECT
     friend class QUrlOperator;

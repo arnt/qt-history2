@@ -20,12 +20,12 @@ inline uint qHash(unsigned int key) { return (uint) key; }
 inline uint qHash(signed long key) { return (uint) key; }
 inline uint qHash(unsigned long key) { return (uint) key; }
 
-uint qHash(const QByteArray &key);
-uint qHash(const QString &key);
+Q_KERNEL_EXPORT uint qHash(const QByteArray &key);
+Q_KERNEL_EXPORT uint qHash(const QString &key);
 
 template <class T> inline uint qHash(const T *key) { return (uint) key; }
 
-struct Q_EXPORT QHashData
+struct Q_KERNEL_EXPORT QHashData
 {
     struct Node {
 	Node *next;

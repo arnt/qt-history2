@@ -19,10 +19,8 @@
 #include "qsize.h"
 #include "qsizepolicy.h"
 
-
 extern const QVariant::Handler qt_gui_variant_handler;
-extern const QVariant::Handler qt_kernel_variant_handler;
-
+Q_KERNEL_EXPORT const QVariant::Handler *qKernelVariantHandler();
 
 static void construct(QVariant::Private *x, const void *v)
 {
@@ -91,7 +89,7 @@ static void construct(QVariant::Private *x, const void *v)
 	    x->value.ptr = new QCursor(*static_cast<const QCursor *>(v));
 	    break;
 	default:
-	    qt_kernel_variant_handler.construct(x, v);
+	    qKernelVariantHandler()->construct(x, v);
 	}
 	x->is_null = false;
     } else {
@@ -162,7 +160,7 @@ static void construct(QVariant::Private *x, const void *v)
 	    x->value.ptr = new QCursor;
 	    break;
 	default:
-	    qt_kernel_variant_handler.construct(x, v);
+	    qKernelVariantHandler()->construct(x, v);
 	}
 
     }
@@ -236,7 +234,7 @@ static void clear(QVariant::Private *p)
 	delete static_cast<QPen *>(p->value.ptr);
 	break;
     default:
-	qt_kernel_variant_handler.clear(p);
+	qKernelVariantHandler()->clear(p);
 	break;
     }
 
@@ -288,7 +286,7 @@ static bool isNull(const QVariant::Private *d)
     case QVariant::Pen:
 	break;
     default:
-	return qt_kernel_variant_handler.isNull(d);
+	return qKernelVariantHandler()->isNull(d);
     }
     return d->is_null;
 }
@@ -373,7 +371,7 @@ static void load(QVariant::Private *d, QDataStream &s)
 	s >> *static_cast<QPen *>(d->value.ptr);
 	break;
     default:
-	qt_kernel_variant_handler.load(d, s);
+	qKernelVariantHandler()->load(d, s);
 	return;
     }
 }
@@ -456,7 +454,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
 	s << *static_cast<QPen *>(d->value.ptr);
 	break;
     default:
-	qt_kernel_variant_handler.save(d, s);
+	qKernelVariantHandler()->save(d, s);
     }
 }
 
@@ -533,7 +531,7 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
     default:
 	break;
     }
-    return qt_kernel_variant_handler.compare(a, b);
+    return qKernelVariantHandler()->compare(a, b);
 }
 
 
@@ -604,7 +602,7 @@ static void cast(QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
 	break;
     }
     if (!converted)
-	qt_kernel_variant_handler.cast(d, t, result, ok);
+	qKernelVariantHandler()->cast(d, t, result, ok);
 }
 
 static bool canCast(QVariant::Private *d, QVariant::Type t)
@@ -630,7 +628,7 @@ static bool canCast(QVariant::Private *d, QVariant::Type t)
     default:
 	break;
     }
-    return qt_kernel_variant_handler.canCast(d, t);
+    return qKernelVariantHandler()->canCast(d, t);
 }
 
 
@@ -758,19 +756,6 @@ const QVariant::Handler qt_gui_variant_handler = {
     Constructs a new variant with a size policy value, \a val.
 */
 
-#define Q_VARIANT_TO(f) \
-Q##f QVariant::to##f() const { \
-    if ( d->type == f ) \
-        return *static_cast<Q##f *>(d->value.ptr); \
-    Q##f ret; \
-    handler->cast(d, f, &ret, 0); \
-    return ret; \
-}
-
-Q_VARIANT_TO(Font);
-Q_VARIANT_TO(Color);
-Q_VARIANT_TO(KeySequence);
-
 /*!
   \fn QFont QVariant::toFont() const
 
@@ -786,13 +771,6 @@ Q_VARIANT_TO(KeySequence);
 
     \sa asPixmap()
 */
-QPixmap QVariant::toPixmap() const
-{
-    if (d->type != Pixmap)
-	return QPixmap();
-
-    return *static_cast<QPixmap *>(d->value.ptr);
-}
 
 /*!
     Returns the variant as a QImage if the variant has type() Image;
@@ -800,27 +778,12 @@ QPixmap QVariant::toPixmap() const
 
     \sa asImage()
 */
-const QImage QVariant::toImage() const
-{
-    if (d->type != Image)
-	return QImage();
-
-    return *static_cast<QImage *>(d->value.ptr);
-}
-
 /*!
     Returns the variant as a QBrush if the variant has type() Brush;
     otherwise returns a default brush (with all black colors).
 
     \sa asBrush()
 */
-QBrush QVariant::toBrush() const
-{
-    if (d->type != Brush)
-	return QBrush();
-
-    return *static_cast<QBrush *>(d->value.ptr);
-}
 
 /*!
     Returns the variant as a QPoint if the variant has type() Point;
@@ -828,13 +791,6 @@ QBrush QVariant::toBrush() const
 
     \sa asPoint()
 */
-QPoint QVariant::toPoint() const
-{
-    if (d->type != Point)
-	return QPoint();
-
-    return *static_cast<QPoint *>(d->value.ptr);
-}
 
 /*!
     Returns the variant as a QRect if the variant has type() Rect;
@@ -842,13 +798,6 @@ QPoint QVariant::toPoint() const
 
     \sa asRect()
 */
-QRect QVariant::toRect() const
-{
-    if (d->type != Rect)
-	return QRect();
-
-    return *static_cast<QRect *>(d->value.ptr);
-}
 
 /*!
     Returns the variant as a QSize if the variant has type() Size;
@@ -856,13 +805,6 @@ QRect QVariant::toRect() const
 
     \sa asSize()
 */
-QSize QVariant::toSize() const
-{
-    if (d->type != Size)
-	return QSize();
-
-    return *static_cast<QSize *>(d->value.ptr);
-}
 
 /*!
   \fn QColor QVariant::toColor() const
@@ -873,62 +815,29 @@ QSize QVariant::toSize() const
     \sa asColor()
 */
 
-#ifndef QT_NO_PALETTE
 /*!
     Returns the variant as a QPalette if the variant has type()
     Palette; otherwise returns a completely black palette.
 
     \sa asPalette()
 */
-QPalette QVariant::toPalette() const
-{
-    if (d->type != Palette)
-	return QPalette();
 
-    return *static_cast<QPalette *>(d->value.ptr);
-}
-
-#ifndef QT_NO_COMPAT
 /*!
     Returns the variant as a QColorGroup if the variant has type()
     ColorGroup; otherwise returns an empty color group.
 */
-QColorGroup QVariant::toColorGroup() const
-{
-    if (d->type != ColorGroup)
-	return QColorGroup();
-    return *static_cast<QColorGroup *>(d->value.ptr);
-}
-#endif
-#endif //QT_NO_PALETTE
-#ifndef QT_NO_ICONSET
 /*!
     Returns the variant as a QIconSet if the variant has type()
     IconSet; otherwise returns an icon set of null pixmaps.
 
     \sa asIconSet()
 */
-QIconSet QVariant::toIconSet() const
-{
-    if (d->type != IconSet)
-	return QIconSet();
-
-    return *static_cast<QIconSet *>(d->value.ptr);
-}
-#endif //QT_NO_ICONSET
 /*!
     Returns the variant as a QPointArray if the variant has type()
     PointArray; otherwise returns an empty QPointArray.
 
     \sa asPointArray()
 */
-const QPointArray QVariant::toPointArray() const
-{
-    if (d->type != PointArray)
-	return QPointArray();
-
-    return *static_cast<QPointArray *>(d->value.ptr);
-}
 
 /*!
     Returns the variant as a QBitmap if the variant has type() Bitmap;
@@ -936,13 +845,6 @@ const QPointArray QVariant::toPointArray() const
 
     \sa asBitmap()
 */
-QBitmap QVariant::toBitmap() const
-{
-    if (d->type != Bitmap)
-	return QBitmap();
-
-    return *static_cast<QBitmap *>(d->value.ptr);
-}
 
 /*!
     Returns the variant as a QRegion if the variant has type() Region;
@@ -950,29 +852,12 @@ QBitmap QVariant::toBitmap() const
 
     \sa asRegion()
 */
-QRegion QVariant::toRegion() const
-{
-    if (d->type != Region)
-	return QRegion();
-
-    return *static_cast<QRegion *>(d->value.ptr);
-}
-
 /*!
     Returns the variant as a QCursor if the variant has type() Cursor;
     otherwise returns the default arrow cursor.
 
     \sa asCursor()
 */
-QCursor QVariant::toCursor() const
-{
-#ifndef QT_NO_CURSOR
-    if (d->type != Cursor)
-	return QCursor();
-#endif
-
-    return *static_cast<QCursor *>(d->value.ptr);
-}
 
 #ifndef QT_NO_ACCEL
 
@@ -997,24 +882,9 @@ QCursor QVariant::toCursor() const
 
     \sa asPen()
 */
-QPen QVariant::toPen() const
-{
-    if (d->type != Pen)
-	return QPen();
-
-    return *static_cast<QPen*>(d->value.ptr);
-}
 
 /*!
     Returns the variant as a QSizePolicy if the variant has type()
     SizePolicy; otherwise returns an undefined (but legal) size
     policy.
 */
-
-QSizePolicy QVariant::toSizePolicy() const
-{
-    if (d->type == SizePolicy)
-	return *static_cast<QSizePolicy *>(d->value.ptr);
-
-    return QSizePolicy();
-}

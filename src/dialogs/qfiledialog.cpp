@@ -500,7 +500,7 @@ static void resolveLibs()
 	}
 #endif
 	triedResolve = TRUE;
-	if ( qt_winunicode ) {
+	if ( qt_winUnicode() ) {
 	    QLibrary lib("shell32");
 	    lib.setAutoUnload( FALSE );
 	    ptrExtractIconEx = (PtrExtractIconEx) lib.resolve( "ExtractIconExW" );
@@ -2572,7 +2572,7 @@ void QFileDialog::init()
 
     d->previewContents = new QToolButton( this, "preview info view" );
 #if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
-    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
+    if ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP  )
 #else
     if ( !qstrcmp(style().className(), "QWindowsStyle") )
 #endif
@@ -3301,7 +3301,7 @@ void QFileDialog::rereadDir()
   \sa selectedFilter()
 */
 
-extern bool qt_resolve_symlinks; // defined in qapplication.cpp
+extern Q_KERNEL_EXPORT bool qt_resolve_symlinks; // defined in qapplication.cpp
 bool Q_EXPORT qt_use_native_dialogs = TRUE;
 
 /*!
@@ -5623,7 +5623,7 @@ static bool isRoot( const QUrl &u )
 }
 
 #if defined(Q_WS_WIN)
-extern int qt_ntfs_permission_lookup;
+extern Q_KERNEL_EXPORT int qt_ntfs_permission_lookup;
 #endif
 
 void QFileDialog::urlStart( QNetworkOperation *op )

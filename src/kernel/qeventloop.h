@@ -25,7 +25,7 @@ class QTimer;
 
 class QEventLoopPrivate;
 
-class Q_EXPORT QEventLoop : public QObject
+class Q_KERNEL_EXPORT QEventLoop : public QObject
 {
     Q_OBJECT
 

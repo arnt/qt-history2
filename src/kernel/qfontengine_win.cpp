@@ -109,7 +109,7 @@ int QFontEngine::underlinePosition() const
 
 HDC QFontEngine::dc() const
 {
-    if ( hdc || (qt_winver & Qt::WV_NT_based) ) // either NT_based or Printer
+    if ( hdc || (qWinVersion() & Qt::WV_NT_based) ) // either NT_based or Printer
 	return hdc;
     Q_ASSERT( shared_dc != 0 && hfont != 0 );
     if ( shared_dc_font != hfont ) {
@@ -222,7 +222,7 @@ QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool 
 #ifndef Q_OS_TEMP
     // TextOutW doesn't work for symbol fonts on Windows 95!
     // since we're using glyph indices we don't care for ttfs about this!
-    if ( qt_winver == Qt::WV_95 && !ttf &&
+    if ( qWinVersion() == Qt::WV_95 && !ttf &&
 	 ( _name == "Marlett" || _name == "Symbol" || _name == "Webdings" || _name == "Wingdings" ) )
 	    useTextOutA = TRUE;
 #endif
@@ -240,7 +240,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
 
     if ( advances ) {
 	HDC hdc = dc();
-	int overhang = (qt_winver & Qt::WV_DOS_based) ? tm.a.tmOverhang : 0;
+	int overhang = (qWinVersion() & Qt::WV_DOS_based) ? tm.a.tmOverhang : 0;
 	for( int i = 0; i < len; i++ ) {
 	    SIZE  size;
 	    GetTextExtentPoint32W( hdc, (wchar_t *)str, 1, &size );
@@ -260,7 +260,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
 void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
 {
 #ifndef Q_Q4PAINTER
-    bool nat_xf = (qt_winver & Qt::WV_NT_based) && p->txop >= QPainter::TxScale;
+    bool nat_xf = (qWinVersion() & Qt::WV_NT_based) && p->txop >= QPainter::TxScale;
 
     bool force_bitmap = p->rop != QPainter::CopyROP;
     force_bitmap |= p->txop >= QPainter::TxScale
@@ -501,7 +501,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     // Q_Q4PAINTER begins here...
     HDC old_hdc = hdc;
     hdc = p->handle();
-    bool nat_xf = (qt_winver & Qt::WV_NT_based) && p->d->txop >= QPainter::TxScale;
+    bool nat_xf = (qWinVersion() & Qt::WV_NT_based) && p->d->txop >= QPainter::TxScale;
 
     bool force_bitmap = p->d->state->rasterOp != QPainter::CopyROP;
     force_bitmap |= p->d->txop >= QPainter::TxScale
@@ -771,7 +771,7 @@ glyph_metrics_t QFontEngineWin::boundingBox( glyph_t glyph )
 	WCHAR ch = glyph;
 	BOOL res = GetTextExtentPoint32W( dc(), &ch, 1, &s );
 	Q_UNUSED( res );
-	int overhang = (qt_winver & Qt::WV_DOS_based) ? tm.a.tmOverhang : 0;
+	int overhang = (qWinVersion() & Qt::WV_DOS_based) ? tm.a.tmOverhang : 0;
 	return glyph_metrics_t( 0, -tm.a.tmAscent, s.cx, tm.a.tmHeight, s.cx-overhang, 0 );
     } else {
 	DWORD res = 0;
@@ -1016,7 +1016,7 @@ QFontEngineBox::QFontEngineBox( int size )
     : _size( size )
 {
     cache_cost = 1;
-    hdc = (qt_winver & Qt::WV_NT_based) ? GetDC( 0 ) : shared_dc;
+    hdc = (qWinVersion() & Qt::WV_NT_based) ? GetDC( 0 ) : shared_dc;
 #ifndef Q_OS_TEMP
     hfont = (HFONT)GetStockObject( ANSI_VAR_FONT );
 #endif

@@ -12,7 +12,13 @@
 
 #include "qmutexpool_p.h"
 
-QMutexPool *qt_global_mutexpool = 0;
+QMutexPool *static_qt_global_mutexpool = 0;
+
+QMutexPool *qt_global_mutexpool_func()
+{
+    return static_qt_global_mutexpool;
+}
+
 
 
 /*!

@@ -20,8 +20,6 @@
 
 //#define Q_IME_DEBUG
 
-extern Qt::WindowsVersion qt_winver;
-
 /* Active Input method support on Win95/98/NT */
 #include <objbase.h>
 #include <initguid.h>
@@ -168,7 +166,7 @@ bool qt_use_rtl_extensions = FALSE;
 
 void QInputContext::init()
 {
-    if ( qt_winver < Qt::WV_2000 ) {
+    if ( qWinVersion() < Qt::WV_2000 ) {
 	// try to get the Active IMM COM object on Win95/98/NT, where english versions don't
 	// support the regular Windows input methods.
 	if ( CoCreateInstance(CLSID_CActiveIMM, NULL, CLSCTX_INPROC_SERVER,
@@ -261,7 +259,7 @@ static LONG getCompositionString( HIMC himc, DWORD dwIndex, LPVOID lpbuf, DWORD 
     else
 #endif
     {
-	if( qt_winver != Qt::WV_95 ) {
+	if( qWinVersion() != Qt::WV_95 ) {
 	    len = ImmGetCompositionStringW( himc, dwIndex, lpbuf, dBufLen );
 	}
 #ifndef Q_OS_TEMP

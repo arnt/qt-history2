@@ -1265,7 +1265,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
     else if ( d > 8 ) {
 	// some windows printer drivers on 95/98 can't handle 32 bit DIBs,
 	// so we have to use 24 bits in that case.
-	if ( qt_winver & Qt::WV_DOS_based )
+	if ( qWinVersion() & Qt::WV_DOS_based )
 	    d = 24;
 	else
 	    d = 32;

@@ -45,8 +45,28 @@ private: \
     inline const Class* q_func() const { return static_cast<const Class *>(q_ptr); } \
     friend class Class
 
+class Q_KERNEL_EXPORT QObjectUserDataList : private QList<QObjectUserData *>
+{
+public:
+    using QList<QObjectUserData*>::setAutoDelete;
+    using QList<QObjectUserData*>::insert;
+    using QList<QObjectUserData*>::at;
+    using QList<QObjectUserData*>::size;
+};
 
-class QObjectPrivate
+class Q_KERNEL_EXPORT QObjectPointerList : private QList<QObjectPointer>
+{
+public:
+    using QList<QObjectPointer>::at;
+    using QList<QObjectPointer>::size;
+    using QList<QObjectPointer>::remove;
+    using QList<QObjectPointer>::prepend;
+    using QList<QObjectPointer>::clear;
+    using QList<QObjectPointer>::setAutoDelete;
+
+};
+
+class Q_KERNEL_EXPORT QObjectPrivate
 {
     Q_DECL_PUBLIC( QObject );
 protected:
@@ -117,10 +137,10 @@ public:
 
 
     QObjectList children;
-    QList<QObjectPointer> eventFilters;
+    QObjectPointerList eventFilters;
 
 #ifndef QT_NO_USERDATA
-    QList<QObjectUserData *> userData;
+    QObjectUserDataList userData;
 #endif
 
     mutable const QMetaObject *polished;

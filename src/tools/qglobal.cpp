@@ -158,6 +158,7 @@ int qMacVersion()
 Qt::MacintoshVersion qt_macver = (Qt::MacintoshVersion)qMacVersion();
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN) || defined(Q_OS_TEMP)
 bool qt_winunicode;
+bool qt_winUnicode() { return qt_winunicode; }
 # ifdef Q_OS_TEMP
   DWORD qt_cever = 0;
 # endif // Q_OS_TEMP
@@ -807,7 +808,7 @@ QtMsgHandler qInstallMsgHandler( QtMsgHandler h )
     Deliberately not exported as part of the Qt API, but used in both
     qsimplerichtext.cpp and qgfxraster_qws.cpp
 */
-unsigned int qt_int_sqrt( unsigned int n )
+Q_KERNEL_EXPORT unsigned int qt_int_sqrt( unsigned int n )
 {
     // n must be in the range 0...UINT_MAX/2-1
     if ( n >= ( UINT_MAX>>2 ) ) {

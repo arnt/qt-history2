@@ -7,7 +7,7 @@
 
 class QString;
 
-class Q_EXPORT QChar {
+class Q_KERNEL_EXPORT QChar {
 public:
     QChar();
 #ifndef QT_NO_CAST_FROM_ASCII

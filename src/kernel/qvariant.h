@@ -20,6 +20,26 @@
 #include "qbytearray.h"
 #endif // QT_H
 
+#ifdef QT_GUI_LIB
+#include "qpixmap.h"
+#include "qimage.h"
+#include "qfont.h"
+#include "qcolor.h"
+#include "qpalette.h"
+#include "qbrush.h"
+#include "qpen.h"
+#include "qrect.h"
+#include "qsize.h"
+#include "qpoint.h"
+#include "qsizepolicy.h"
+#include "qbitmap.h"
+#include "qpointarray.h"
+#include "qiconset.h"
+#include "qkeysequence.h"
+#include "qcursor.h"
+#include "qregion.h"
+#endif
+
 #ifndef QT_NO_VARIANT
 class QString;
 class QFont;
@@ -54,7 +74,7 @@ template <class Type> class QList;
 template <class Key, class Type> class QMap;
 class QApplicationPrivate;
 
-class Q_EXPORT QVariant
+class Q_KERNEL_EXPORT QVariant
 {
  public:
     enum Type {
@@ -518,6 +538,148 @@ inline QPen& QVariant::asPen()
 { return *static_cast<QPen *>(castOrDetach(Pen)); }
 inline QSizePolicy& QVariant::asSizePolicy()
 { return *static_cast<QSizePolicy *>(castOrDetach(SizePolicy)); }
+
+inline QPixmap QVariant::toPixmap() const
+{
+    if (d->type != Pixmap)
+	return QPixmap();
+
+    return *static_cast<QPixmap *>(d->value.ptr);
+}
+
+inline const QImage QVariant::toImage() const
+{
+    if (d->type != Image)
+	return QImage();
+
+    return *static_cast<QImage *>(d->value.ptr);
+}
+
+inline QBrush QVariant::toBrush() const
+{
+    if (d->type != Brush)
+	return QBrush();
+
+    return *static_cast<QBrush *>(d->value.ptr);
+}
+
+inline QPoint QVariant::toPoint() const
+{
+    if (d->type != Point)
+	return QPoint();
+
+    return *static_cast<QPoint *>(d->value.ptr);
+}
+
+inline QRect QVariant::toRect() const
+{
+    if (d->type != Rect)
+	return QRect();
+
+    return *static_cast<QRect *>(d->value.ptr);
+}
+
+inline QSize QVariant::toSize() const
+{
+    if (d->type != Size)
+	return QSize();
+
+    return *static_cast<QSize *>(d->value.ptr);
+}
+
+#ifndef QT_NO_PALETTE
+inline QPalette QVariant::toPalette() const
+{
+    if (d->type != Palette)
+	return QPalette();
+
+    return *static_cast<QPalette *>(d->value.ptr);
+}
+
+#ifndef QT_NO_COMPAT
+inline QColorGroup QVariant::toColorGroup() const
+{
+    if (d->type != ColorGroup)
+	return QColorGroup();
+    return *static_cast<QColorGroup *>(d->value.ptr);
+}
+#endif
+#endif //QT_NO_PALETTE
+
+inline QPen QVariant::toPen() const
+{
+    if (d->type != Pen)
+	return QPen();
+
+    return *static_cast<QPen*>(d->value.ptr);
+}
+
+inline QSizePolicy QVariant::toSizePolicy() const
+{
+    if (d->type == SizePolicy)
+	return *static_cast<QSizePolicy *>(d->value.ptr);
+
+    return QSizePolicy();
+}
+
+inline QCursor QVariant::toCursor() const
+{
+#ifndef QT_NO_CURSOR
+    if (d->type != Cursor)
+	return QCursor();
+#endif
+
+    return *static_cast<QCursor *>(d->value.ptr);
+}
+
+inline QRegion QVariant::toRegion() const
+{
+    if (d->type != Region)
+	return QRegion();
+
+    return *static_cast<QRegion *>(d->value.ptr);
+}
+
+inline QBitmap QVariant::toBitmap() const
+{
+    if (d->type != Bitmap)
+	return QBitmap();
+
+    return *static_cast<QBitmap *>(d->value.ptr);
+
+}
+
+inline const QPointArray QVariant::toPointArray() const
+{
+    if (d->type != PointArray)
+	return QPointArray();
+
+    return *static_cast<QPointArray *>(d->value.ptr);
+}
+
+#ifndef QT_NO_ICONSET
+inline QIconSet QVariant::toIconSet() const
+{
+    if (d->type != IconSet)
+	return QIconSet();
+
+    return *static_cast<QIconSet *>(d->value.ptr);
+}
+#endif //QT_NO_ICONSET
+
+
+#define Q_VARIANT_TO(f) \
+inline Q##f QVariant::to##f() const { \
+    if ( d->type == f ) \
+        return *static_cast<Q##f *>(d->value.ptr); \
+    Q##f ret; \
+    handler->cast(d, f, &ret, 0); \
+    return ret; \
+}
+
+Q_VARIANT_TO(Font);
+Q_VARIANT_TO(Color);
+Q_VARIANT_TO(KeySequence);
 
 #endif // QT_GUI_LIB
 

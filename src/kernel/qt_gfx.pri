@@ -105,7 +105,7 @@ png {
 	    unix:LIBS  += -lpng
 	    win32:LIBS += libpng.lib
 	} else {
-	    INCLUDEPATH  += 3rdparty/libpng
+	    INCLUDEPATH  += 3rdparty/libpng 3rdparty/zlib
 	    SOURCES	+= 3rdparty/libpng/png.c \
 		  3rdparty/libpng/pngerror.c \
 		  3rdparty/libpng/pngget.c \

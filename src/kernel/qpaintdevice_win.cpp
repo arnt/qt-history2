@@ -392,7 +392,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    DeleteObject( SelectObject(dst_dc, b) );
 	}
 #ifndef Q_OS_TEMP
-	else if ( (qt_winver & Qt::WV_DOS_based) || qt_bitblt_bsm ) {
+	else if ( (qWinVersion() & Qt::WV_DOS_based) || qt_bitblt_bsm ) {
 	    HDC mask_dc;
 	    int mask_offset;
 	    if ( mask->isMultiCellPixmap() ) {

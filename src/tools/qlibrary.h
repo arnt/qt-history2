@@ -23,7 +23,7 @@
 
 class QLibraryPrivate;
 
-class Q_EXPORT QLibrary
+class Q_KERNEL_EXPORT QLibrary
 {
 public:
     QLibrary( const QString& filename );
