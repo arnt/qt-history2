@@ -4,7 +4,8 @@ TARGET		= moc
 
 CONFIG 		= console release qtinc yacc lex_included yacc_no_name_mangle
 DEFINES	       += QT_MOC QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT \
-		  QT_NO_STL QT_NO_COMPRESS QT_NO_DATASTREAM QT_NO_TEXTCODEC
+		  QT_NO_STL QT_NO_COMPRESS QT_NO_DATASTREAM QT_NO_TEXTCODEC \
+		  QT_NO_UNICODETABLES
 win32:DEFINES  += QT_NODLL
 DESTDIR         = ../../bin
 
@@ -13,18 +14,14 @@ INCLUDEPATH	= $$QT_SOURCE_TREE/include ../tools . $$QT_SOURCE_TREE/arch/$$ARCH
 DEPENDPATH	+= $$QT_SOURCE_TREE/include ../tools .
 LIBS		=
 OBJECTS_DIR	= .
-SOURCES		= ../compat/qptrcollection.cpp	\
-		  ../tools/qbitarray.cpp	\
+SOURCES		= ../tools/qbitarray.cpp	\
 		  ../tools/qbytearray.cpp	\
+		  ../tools/qhash.cpp	\
 		  ../tools/qdatetime.cpp	\
 		  ../tools/qfile.cpp		\
 		  ../tools/qdir.cpp		\
 		  ../tools/qfileinfo.cpp	\
-		  ../compat/qgdict.cpp		\
-		  ../compat/qglist.cpp		\
-		  ../compat/qgvector.cpp	\
 		  ../tools/qglobal.cpp		\
-		  ../tools/qhash.cpp		\
 		  ../tools/qiodevice.cpp	\
 		  ../tools/qlist.cpp		\
 		  ../tools/qregexp.cpp		\

@@ -57,11 +57,10 @@ void yyerror(const char *msg);
 
 #include "qplatformdefs.h"
 #include "qdatetime.h"
-#include "qdict.h"
+#include "qhash.h"
+#include "qlist.h"
 #include "qfile.h"
 #include "qdir.h"
-#include "qptrlist.h"
-#include "qstrlist.h"
 #include "qstringlist.h"
 #ifdef MOC_MWERKS_PLUGIN
 # ifdef Q_OS_DARWIN
@@ -90,6 +89,7 @@ void yyerror(const char *msg);
 #undef VOID
 #endif
 
+ typedef QList<QByteArray> QStrList;
 
 static inline bool isIdentChar(char x)
 {						// Avoid bug in isalnum
@@ -323,7 +323,7 @@ public:
     QByteArray type;
 };
 
-class ArgList : public QPtrList<Argument> {	// member function arg list
+class ArgList : public QList<Argument *> {	// member function arg list
     bool cloned;
     int defargs;
 public:
@@ -333,28 +333,34 @@ public:
 
     /* the clone has one default argument less, the orignal has all default arguments removed */
     ArgList* magicClone() {
-	Argument *firstDefault = first();
-	while (firstDefault && !firstDefault->isDefault)
-	    firstDefault = next();
+	Argument *firstDefault = 0;
+	for (int i = 0; i < size(); ++i) {
+	    if (at(i)->isDefault) {
+		firstDefault = at(i);
+		break;
+	    }
+	}
 	if (!firstDefault)
 	    return 0;
-	if (!defargs)
-	    for (first(); current(); next())
-		if (current()->isDefault)
+	if (!defargs) {
+	    for (int i = 0; i < size(); ++i) {
+		if (at(i)->isDefault)
 		    ++defargs;
+	    }
+	}
 	cloned = TRUE;
 	ArgList* l = new ArgList;
 	l->defargs = defargs;
-	for (first(); current(); next())
-	    l->append(new Argument(current()->leftType,
-				     current()->rightType,
-				     current()->name,
-				     (current() != firstDefault && current()->isDefault)));
-	for (first(); current();) {
-	    if (current()->isDefault)
-		remove();
-	    else
-		next();
+	for (int i = 0; i < size(); ++i) {
+	    Argument *current = at(i);
+	    l->append(new Argument(current->leftType,
+				   current->rightType,
+				   current->name,
+				   (current != firstDefault && current->isDefault)));
+	}
+	for (int i = size()-1; i >= 0; --i) {
+	    if (at(i)->isDefault)
+		removeAt(i);
 	}
 	return l;
     }
@@ -379,22 +385,27 @@ struct Function					// member function meta data
    ~Function() { delete args; }
 };
 
-class FuncList : public QPtrList<Function> {	// list of member functions
+class FuncList : public QList<Function *> {	// list of member functions
 public:
     FuncList(bool autoDelete = FALSE) { setAutoDelete(autoDelete); }
 
     FuncList find(const char* name)  {
 	FuncList result;
-	for (QPtrListIterator<Function> it(*this); it.current(); ++it) {
-	    if (it.current()->name == name)
-		result.append(it.current());
+	for (int i = 0; i < size(); ++i) {
+	    Function *f = at(i);
+	    if (f->name == name)
+		result.append(f);
 	}
 	return result;
     }
 
-    int compareItems(QPtrCollection::Item s1, QPtrCollection::Item s2) {
-	if (((Function*)s1)->name == ((Function*)s2)->name) return 0;
-	return (((Function*)s1)->name < ((Function*)s2)->name ? -1 : 1);
+    void insertSorted(Function *f) {
+	int i = 0;
+	// ### could be done with a binary search
+	for (; i < size(); ++i)
+	    if (at(i)->name >= f->name)
+		break;
+	insert(i, f);
     }
 };
 
@@ -405,7 +416,7 @@ public:
     bool set;
 };
 
-class EnumList : public QPtrList<Enum> {		// list of property enums
+class EnumList : public QList<Enum *> {		// list of property enums
 public:
     EnumList() { setAutoDelete(TRUE); }
 };
@@ -476,7 +487,7 @@ struct Property
     }
 };
 
-class PropList : public QPtrList<Property> {	// list of properties
+class PropList : public QList<Property *> {	// list of properties
 public:
     PropList() { setAutoDelete(TRUE); }
 };
@@ -491,7 +502,7 @@ struct ClassInfo
     QByteArray value;
 };
 
-class ClassInfoList : public QPtrList<ClassInfo> {	// list of class infos
+class ClassInfoList : public QList<ClassInfo *> {	// list of class infos
 public:
     ClassInfoList() { setAutoDelete(TRUE); }
 };
@@ -1464,11 +1475,12 @@ property:		IDENTIFIER IDENTIFIER
 				    checkPropertyName($2);
 				    Q_PROPERTYdetected = TRUE;
 				    // Avoid duplicates
-				    for(QPtrListIterator<Property> lit(g->props); lit.current(); ++lit) {
-					if (lit.current()->name == $2) {
+				    for (int propindex = 0; propindex < g->props.size(); ++propindex) {
+					Property *p = g->props.at(propindex);
+					if (p->name == $2) {
 					    if (displayWarnings)
 						moc_err("Property '%s' defined twice.",
-							 (const char*)lit.current()->name);
+							 (const char*)p->name);
 					}
 				    }
 				    g->props.append(new Property(lineNo, $1, $2,
@@ -1962,10 +1974,10 @@ struct NamespaceInfo
 {
     QByteArray name;
     int pLevelOnEntering; // Parenthesis level on entering the namespace
-    QDict<char> definedClasses; // Classes defined in the namespace
+    QHash<QByteArray, bool> definedClasses; // Classes defined in the namespace
 };
 
-QPtrList<NamespaceInfo> namespaces;
+QList<NamespaceInfo *> namespaces;
 
 void enterNameSpace(const char *name = 0)	 // prepare for new class
 {
@@ -1986,17 +1998,16 @@ void leaveNameSpace()				 // prepare for new class
 {
     NamespaceInfo *tmp = namespaces.last();
     namespacePLevel = tmp->pLevelOnEntering;
-    namespaces.remove();
+    namespaces.removeLast();
 }
 
 QByteArray nameQualifier()
 {
-    QPtrListIterator<NamespaceInfo> iter(namespaces);
-    NamespaceInfo *tmp;
     QByteArray qualifier;
-    for(; (tmp = iter.current()) ; ++iter) {
-	if (!tmp->name.isNull()) {  // If not unnamed namespace
-	    qualifier += tmp->name;
+    for (int i = 0; i < namespaces.size(); ++i) {
+	NamespaceInfo *n = namespaces.at(i);
+	if (!n->name.isNull()) {  // If not unnamed namespace
+	    qualifier += n->name;
 	    qualifier += "::";
 	}
     }
@@ -2006,13 +2017,12 @@ QByteArray nameQualifier()
 int openNameSpaceForMetaObject(FILE *out)
 {
     int levels = 0;
-    QPtrListIterator<NamespaceInfo> iter(namespaces);
-    NamespaceInfo *tmp;
     QByteArray indent;
-    for(; (tmp = iter.current()) ; ++iter) {
-	if (!tmp->name.isNull()) {  // If not unnamed namespace
+    for (int i = 0; i < namespaces.size(); ++i) {
+	NamespaceInfo *n = namespaces.at(i);
+	if (!n->name.isNull()) {  // If not unnamed namespace
 	    fprintf(out, "%snamespace %s {\n", (const char *)indent,
-		     (const char *) tmp->name);
+		     (const char *) n->name);
 	    indent += "    ";
 	    levels++;
 	}
@@ -2054,7 +2064,7 @@ void registerClassInNamespace()
 {
     if (namespaces.count() == 0)
 	return;
-    namespaces.last()->definedClasses.insert((const char *)g->className,(char*)1);
+    namespaces.last()->definedClasses.insert(g->className,true);
 }
 
 
@@ -2164,10 +2174,11 @@ int strreg(const char *s)
     int idx = 0;
     if (!s)
 	s = "";
-    for(QStrListIterator i(g->strings); i.current(); ++i) {
-	if (strcmp(s, i.current()) == 0)
+    for (int i = 0; i < g->strings.size(); ++i) {
+	QByteArray str = g->strings.at(i);
+	if (strcmp(s, str) == 0)
 	    return idx;
-	idx += strlen(i.current()) + 1;
+	idx += str.length() + 1;
     }
     g->strings.append(s);
     return idx;
@@ -2278,22 +2289,20 @@ void generateFuncs(FuncList *list, const char *functype)
 	return;
     fprintf(out, "\n // %ss: signature, parameters, type, tag, flags\n", functype);
 
-    Function *f;
-    for (f=list->first(); f; f=list->next()) {
+    for (int i = 0; i < list->size(); ++i) {
+	Function *f = list->at(i);
 
 	QByteArray sig = f->name + '(';
 	QByteArray args;
 
-	int count = 0;
-	Argument *a = f->args->first();
-	while (a) {
-	    if (count++) {
+	for (int j = 0; j < f->args->size(); ++j) {
+	    Argument *a = f->args->at(j);
+	    if (j) {
 		sig += ",";
 		args += ",";
 	    }
 	    sig += a->type;
 	    args += a->name;
-	    a = f->args->next();
 	}
 	sig += ')';
 
@@ -2315,27 +2324,24 @@ void generateMetacall()
 
     fprintf(out, "    if (_id < 0)\n        return _id;\n");
     fprintf(out, "    ");
-    Function *f;
 
     bool needElse = false;
     if(!g->slots.isEmpty()) {
 	needElse = true;
 	fprintf(out, "if (_c == QMetaObject::InvokeSlot) {\n");
         fprintf(out, "        switch (_id) {\n");
-	int slotindex = -1;
-	for (f = g->slots.first(); f; f = g->slots.next()) {
-	    slotindex ++;
+	for (int slotindex = 0; slotindex < g->slots.size(); ++slotindex) {
+	    Function *f = g->slots.at(slotindex);
 	    fprintf(out, "        case %d: ", slotindex);
 	    if (!f->type.isEmpty())
 		fprintf(out, "{ %s _r = ", (const char *)rmRef(f->type));
 	    fprintf(out, "%s(", (const char *)f->name);
 	    int offset = 1;
-	    Argument* a = f->args->first();
-	    while (a) {
-		fprintf(out, "*(%s*)_a[%d]", (const char *)rmRef(a->type), offset++);
-		a = f->args->next();
-		if (a)
+	    for (int j = 0; j < f->args->size(); ++j) {
+		Argument *a = f->args->at(j);
+		if (j)
 		    fprintf(out, ",");
+		fprintf(out, "*(%s*)_a[%d]", (const char *)rmRef(a->type), offset++);
 	    }
 	    fprintf(out, ");");
 	    if (!f->type.isEmpty()) {
@@ -2355,20 +2361,18 @@ void generateMetacall()
 	needElse = true;
 	fprintf(out, "if (_c == QMetaObject::EmitSignal) {\n");
         fprintf(out, "        switch (_id) {\n");
-	int signalindex = -1;
-	for (f = g->signals.first(); f; f = g->signals.next()) {
-	    signalindex ++;
+	for (int signalindex = 0; signalindex < g->signals.size(); ++signalindex) {
+	    Function *f = g->signals.at(signalindex);
 	    fprintf(out, "        case %d: ", signalindex);
 	    if (!f->type.isEmpty())
 		fprintf(out, "{ %s _r = ", (const char *)rmRef(f->type));
 	    fprintf(out, "%s(", (const char *)f->name);
 	    int offset = 1;
-	    Argument* a = f->args->first();
-	    while (a) {
-		fprintf(out, "*(%s*)_a[%d]", (const char *)rmRef(a->type), offset++);
-		a = f->args->next();
-		if (a)
+	    for (int j = 0; j < f->args->size(); ++j) {
+		Argument *a = f->args->at(j);
+		if (j)
 		    fprintf(out, ",");
+		fprintf(out, "*(%s*)_a[%d]", (const char *)rmRef(a->type), offset++);
 	    }
 	    fprintf(out, ");");
 	    if (!f->type.isEmpty()) {
@@ -2384,29 +2388,30 @@ void generateMetacall()
     }
 
     if (!g->props.isEmpty()) {
-	Property *p;
-	bool needAnything = FALSE;
-	for (p = g->props.first(); p && p->read.isEmpty(); p = g->props.next());
-	bool needGet = (p != 0);
-	needAnything |= needGet;
-	for (p = g->props.first(); p && p->write.isEmpty(); p = g->props.next());
-	bool needSet = (p != 0);
-	needAnything |= needSet;
-	for (p = g->props.first(); p && p->reset.isEmpty(); p = g->props.next());
-	bool needReset = (p != 0);
-	needAnything |= needReset;
-	for (p = g->props.first(); p && !isPropFunction(p->designable); p = g->props.next());
-	bool needDesignable = (p != 0);
-	needAnything |= needDesignable;
-	for (p = g->props.first(); p && !isPropFunction(p->scriptable); p = g->props.next());
-	bool needScriptable = (p != 0);
-	needAnything |= needScriptable;
-	for (p = g->props.first(); p && !isPropFunction(p->stored); p = g->props.next());
-	bool needStored = (p != 0);
-	needAnything |= needStored;
-	for (p = g->props.first(); p && !isPropFunction(p->editable); p = g->props.next());
-	bool needEditable = (p != 0);
-	needAnything |= needEditable;
+	bool needGet = false;
+	bool needSet = false;
+	bool needReset = false;
+	bool needDesignable = false;
+	bool needScriptable = false;
+	bool needStored = false;
+	bool needEditable = false;
+	for (int i = 0; i < g->props.size(); ++i) {
+	    Property *p = g->props.at(i);
+	    needGet |= !p->read.isEmpty();
+	    needSet |= !p->write.isEmpty();
+	    needReset |= !p->reset.isEmpty();
+	    needDesignable |= isPropFunction(p->designable);
+	    needScriptable |= isPropFunction(p->scriptable);
+	    needStored |= isPropFunction(p->stored);
+	    needEditable |= isPropFunction(p->editable);
+	}
+	bool needAnything = needGet
+			    | needSet
+			    | needReset
+			    | needDesignable
+			    | needScriptable
+			    | needStored
+			    | needEditable;
 	if (!needAnything)
 	    goto skip_properties;
 	fprintf(out, "\n#ifndef QT_NO_PROPERTIES\n     ");
@@ -2418,9 +2423,8 @@ void generateMetacall()
 	    fprintf(out, "if (_c == QMetaObject::ReadProperty) {\n");
 	    fprintf(out, "        void *_v = _a[0];\n");
 	    fprintf(out, "        switch (_id) {\n");
-	    int propindex = -1;
-	    for (p = g->props.first(); p; p = g->props.next()) {
-		++propindex;
+	    for (int propindex = 0; propindex < g->props.size(); ++propindex) {
+		Property *p = g->props.at(propindex);
 		if (p->read.isEmpty())
 		    continue;
 		if (p->gspec == Property::PointerSpec)
@@ -2453,9 +2457,8 @@ void generateMetacall()
 	    fprintf(out, "if (_c == QMetaObject::WriteProperty) {\n");
 	    fprintf(out, "        void *_v = _a[0];\n");
 	    fprintf(out, "        switch (_id) {\n");
-	    int propindex = -1;
-	    for (p = g->props.first(); p; p = g->props.next()) {
-		++propindex;
+	    for (int propindex = 0; propindex < g->props.size(); ++propindex) {
+		Property *p = g->props.at(propindex);
 		if (p->write.isEmpty())
 		    continue;
 		if (isFlagType(p->type)) {
@@ -2481,9 +2484,8 @@ void generateMetacall()
 	    needElse = true;
 	    fprintf(out, "if (_c == QMetaObject::ResetProperty) {\n");
 	    fprintf(out, "        switch (_id) {\n");
-	    int propindex = -1;
-	    for (p = g->props.first(); p; p = g->props.next()) {
-		++propindex;
+	    for (int propindex = 0; propindex < g->props.size(); ++propindex) {
+		Property *p = g->props.at(propindex);
 		if (p->reset.isEmpty())
 		    continue;
 		fprintf(out, "        case %d: %s(); break;\n",
@@ -2502,9 +2504,8 @@ void generateMetacall()
 	    fprintf(out, "if (_c == QMetaObject::QueryPropertyDesignable) {\n");
 	    fprintf(out, "        bool *_b = (bool*)_a[0];\n");
 	    fprintf(out, "        switch (_id) {\n");
-	    int propindex = -1;
-	    for (p = g->props.first(); p; p = g->props.next()) {
-		++propindex;
+	    for (int propindex = 0; propindex < g->props.size(); ++propindex) {
+		Property *p = g->props.at(propindex);
 		if (!isPropFunction(p->designable))
 		    continue;
 		fprintf(out, "        case %d: *_b = %s(); break;\n",
@@ -2522,9 +2523,8 @@ void generateMetacall()
 	    fprintf(out, "if (_c == QMetaObject::QueryPropertyScriptable) {\n");
 	    fprintf(out, "        bool *_b = (bool*)_a[0];\n");
 	    fprintf(out, "        switch (_id) {\n");
-	    int propindex = -1;
-	    for (p = g->props.first(); p; p = g->props.next()) {
-		++propindex;
+	    for (int propindex = 0; propindex < g->props.size(); ++propindex) {
+		Property *p = g->props.at(propindex);
 		if (!isPropFunction(p->scriptable))
 		    continue;
 		fprintf(out, "        case %d: *_b = %s(); break;\n",
@@ -2542,9 +2542,8 @@ void generateMetacall()
 	    fprintf(out, "if (_c == QMetaObject::QueryPropertyStored) {\n");
 	    fprintf(out, "        bool *_b = (bool*)_a[0];\n");
 	    fprintf(out, "        switch (_id) {\n");
-	    int propindex = -1;
-	    for (p = g->props.first(); p; p = g->props.next()) {
-		++propindex;
+	    for (int propindex = 0; propindex < g->props.size(); ++propindex) {
+		Property *p = g->props.at(propindex);
 		if (!isPropFunction(p->stored))
 		    continue;
 		fprintf(out, "        case %d: *_b = %s(); break;\n",
@@ -2562,9 +2561,8 @@ void generateMetacall()
 	    fprintf(out, "if (_c == QMetaObject::QueryPropertyEditable) {\n");
 	    fprintf(out, "        bool *_b = (bool*)_a[0];\n");
 	    fprintf(out, "        switch (_id) {\n");
-	    int propindex = -1;
-	    for (p = g->props.first(); p; p = g->props.next()) {
-		++propindex;
+	    for (int propindex = 0; propindex < g->props.size(); ++propindex) {
+		Property *p = g->props.at(propindex);
 		if (!isPropFunction(p->editable))
 		    continue;
 		fprintf(out, "        case %d: *_b = %s(); break;\n",
@@ -2603,15 +2601,11 @@ void generateSignal(Function *f, int index)
     }
 
     int offset = 1;
-    Argument* a = f->args->first();
-    while (a) { // argument list
-	fprintf(out, "%s _t%d%s",
-		 (const char *)a->leftType,
-		 offset++,
-		 (const char *)a->rightType);
-	a = f->args->next();
-	if (a)
+    for (int j = 0; j < f->args->size(); ++j) {
+	Argument *a = f->args->at(j);
+	if (j)
 	    fprintf(out, ", ");
+	fprintf(out, "%s _t%d%s", (const char *)a->leftType, offset++, (const char *)a->rightType);
     }
     fprintf(out, ")\n{\n");
     if (!f->type.isEmpty())
@@ -2636,11 +2630,10 @@ void generateSignal(Function *f, int index)
 
 int enumIndex(const char* type)
 {
-    int index = 0;
-    for(QPtrListIterator<Enum> lit(g->enums); lit.current(); ++lit) {
-	if (lit.current()->name == type)
-	    return index;
-	index++;
+    for (int i = 0; i < g->enums.size(); ++i) {
+	Enum *e = g->enums.at(i);
+	if (e->name == type)
+	    return i;
     }
     return -1;
 }
@@ -2675,23 +2668,26 @@ void generateEnums(int &index)
     fprintf(out, "\n // enums: name, flags, count, data\n");
 
     index += 4 * g->enums.count();
-    for (QPtrListIterator<Enum> it(g->enums); it.current(); ++it) {
+    for (int i = 0; i < g->enums.size(); ++i) {
+	Enum *e = g->enums.at(i);
 	fprintf(out, "    %4d, 0x%.1x, %4d, %4d,\n",
-		 strreg(it.current()->name),
-		 it.current()->set ? 1 : 0,
-		 it.current()->count(),
+		 strreg(e->name),
+		 e->set ? 1 : 0,
+		 e->count(),
 		 index);
-	index += it.current()->count() * 2;
+	index += e->count() * 2;
     }
 
     fprintf(out, "\n // enum data: key, value\n");
 
-    for (QPtrListIterator<Enum> it2(g->enums); it2.current(); ++it2) {
-	for(QStrListIterator eit(*it2.current()); eit.current(); ++eit) {
+    for (int i = 0; i < g->enums.size(); ++i) {
+	Enum *e = g->enums.at(i);
+	for (int j = 0; j < e->size(); ++j) {
+	    const QByteArray &val = e->at(j);
 	    fprintf(out, "    %4d, %s::%s,\n",
-		     strreg(eit.current()),
+		     strreg(val),
 		     (const char*) g->className,
-		     eit.current());
+		     val.constData());
 	}
     }
 }
@@ -2709,12 +2705,12 @@ void generateProps()
     // specify get function, for compatibiliy we accept functions
     // returning pointers, or const char * for QByteArray.
     //
-    for(QPtrListIterator<Property> it(g->props); it.current();) {
-	Property* p = it.current();
-	++it;
+    for (int i = 0; i < g->props.size(); ++i) {
+	Property *p = g->props.at(i);
 	if (!p->read.isEmpty()) {
 	    FuncList candidates = g->propfuncs.find(p->read);
-	    for (Function* f = candidates.first(); f; f = candidates.next()) {
+	    for (int j = 0; j < candidates.size(); ++j) {
+		Function *f = candidates.at(j);
 		if (f->qualifier != "const") // get functions must be const
 		    continue;
 		if (f->args && !f->args->isEmpty()) // and must not take any arguments
@@ -2745,50 +2741,50 @@ void generateProps()
     //
 
     fprintf(out, "\n // properties: name, type, flags\n");
-    for(QPtrListIterator<Property> it(g->props); it.current(); ++it) {
-
+    for (int i = 0; i < g->props.size(); ++i) {
+	Property *p = g->props.at(i);
 	int flags = Invalid;
-	if (!isVariantType(it.current()->type)) {
+	if (!isVariantType(p->type)) {
 	    flags |= EnumOrFlag;
 	} else {
-	    flags |= qvariant_nameToType(it.current()->type) << 24;
+	    flags |= qvariant_nameToType(p->type) << 24;
 	}
-	if (!it.current()->read.isEmpty())
+	if (!p->read.isEmpty())
 	    flags |= Readable;
-	if (!it.current()->write.isEmpty()) {
+	if (!p->write.isEmpty()) {
 	    flags |= Writable;
-	    if (it.current()->stdCppSet())
+	    if (p->stdCppSet())
 		flags |= StdCppSet;
 	}
-	if (!it.current()->reset.isEmpty())
+	if (!p->reset.isEmpty())
 	    flags |= Resetable;
 
-	if (it.current()->override)
+	if (p->override)
 	    flags |= Override;
 
-	if (it.current()->designable.isEmpty())
+	if (p->designable.isEmpty())
 	    flags |= ResolveDesignable;
-	else if (it.current()->designable != "false")
+	else if (p->designable != "false")
 	    flags |= Designable;
 
-	if (it.current()->scriptable.isEmpty())
+	if (p->scriptable.isEmpty())
 	    flags |= ResolveScriptable;
-	else if (it.current()->scriptable != "false")
+	else if (p->scriptable != "false")
 	    flags |= Scriptable;
 
-	if (it.current()->stored.isEmpty())
+	if (p->stored.isEmpty())
 	    flags |= ResolveStored;
-	else if (it.current()->stored != "false")
+	else if (p->stored != "false")
 	    flags |= Stored;
 
-	if (it.current()->editable.isEmpty())
+	if (p->editable.isEmpty())
 	    flags |= ResolveEditable;
-	else if (it.current()->editable != "false")
+	else if (p->editable != "false")
 	    flags |= Editable;
 
 	fprintf(out, "    %4d, %4d, 0x%.8x,\n",
-		 strreg(it.current()->name),
-		 strreg(it.current()->type),
+		 strreg(p->name),
+		 strreg(p->type),
 		 flags);
     }
 }
@@ -2806,10 +2802,12 @@ void generateClassInfos()
 
     fprintf(out, "\n // classinfo: key, value\n");
 
-    for(QPtrListIterator<ClassInfo> it(g->infos); it.current(); ++it)
+    for (int i = 0; i < g->infos.size(); ++i) {
+	ClassInfo *c = g->infos.at(i);
 	fprintf(out, "    %4d, %4d,\n",
-		 strreg(it.current()->name),
-		 strreg(it.current()->value));
+		 strreg(c->name),
+		 strreg(c->value));
+    }
 }
 
 
@@ -2881,16 +2879,14 @@ void generateClass()		      // generate C++ source code for a class
 	    if (!g->includePath.isEmpty() && g->includePath.right(1) != "/")
 		g->includePath += "/";
 
-	    g->includeFiles.first();
-	    while (g->includeFiles.current()) {
-		QByteArray inc = g->includeFiles.current();
+	    for (int i = 0; i < g->includeFiles.size(); ++i) {
+		QByteArray inc = g->includeFiles.at(i);
 		if (inc[0] != '<' && inc[0] != '"') {
 		    if (!g->includePath.isEmpty() && g->includePath != "./")
 			inc.prepend(g->includePath);
 		    inc = "\"" + inc + "\"";
 		}
 		fprintf(out, "#include %s\n", (const char *)inc);
-		g->includeFiles.next();
 	    }
 	}
 	fprintf(out, "#include <%sqmetaobject.h>\n", (const char*)g->qtPath);
@@ -2962,12 +2958,13 @@ void generateClass()		      // generate C++ source code for a class
     fprintf(out, "static const char qt_meta_stringdata_%s[] = {\n", (const char*)g->className);
     fprintf(out, "    \"");
     int col = 0;
-    for (const char *s = g->strings.first(); s; s = g->strings.next()) {
+    for (int i = 0; i < g->strings.size(); ++i) {
+	QByteArray s = g->strings.at(i);
 	if (col && col + strlen(s) >= 72) {
 	    fprintf(out, "\"\n    \"");
 	    col = 0;
 	}
-	fprintf(out, "%s\\0", s);
+	fprintf(out, "%s\\0", s.constData());
 	col += strlen(s)+2;
     }
     fprintf(out, "\"\n};\n\n");
@@ -3013,9 +3010,10 @@ void generateClass()		      // generate C++ source code for a class
     fprintf(out, "    if (!strcmp(clname, qt_meta_stringdata_%s))\n"
 		  "\treturn (void*)this;\n",
 	     (const char*)qualifiedClassName());
-    for (const char* cname = g->multipleSuperClasses.first(); cname; cname = g->multipleSuperClasses.next())
-	fprintf(out, "    if (!strcmp(clname, \"%s\"))\n"
-		      "\treturn (%s*)this;\n", cname, cname);
+    for (int i = 0; i < g->multipleSuperClasses.size(); ++i) {
+	const char *cname = g->multipleSuperClasses.at(i);
+	fprintf(out, "    if (!strcmp(clname, \"%s\"))\n\treturn (%s*)this;\n", cname, cname);
+    }
     if (!g->superClassName.isEmpty() && !isQObject)
 	fprintf(out, "    return %s::qt_metacast(clname);\n",
 		 (const char*)purestSuperClassName());
@@ -3031,13 +3029,9 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Generate internal signal functions
 //
-    if (!g->signals.isEmpty()) {
-	int signalindex = -1;
-	for (Function *f = g->signals.first(); f; f = g->signals.next())
-	    generateSignal(f, ++signalindex);
-    }
+    for (int signalindex = 0; signalindex < g->signals.size(); ++signalindex)
+	generateSignal(g->signals.at(signalindex), signalindex);
 }
-
 
 ArgList *addArg(Argument *a)			// add argument to list
 {
@@ -3049,8 +3043,9 @@ ArgList *addArg(Argument *a)			// add argument to list
 void addEnum()
 {
     // Avoid duplicates
-    for(QPtrListIterator<Enum> lit(g->enums); lit.current(); ++lit) {
-	if (lit.current()->name == tmpEnum->name)
+    for (int i = 0; i < g->enums.size(); ++i) {
+	Enum *e = g->enums.at(i);
+	if (e->name == tmpEnum->name)
 	{
 	    if (displayWarnings)
 		moc_err("Enum %s defined twice.", (const char*)tmpEnum->name);
@@ -3094,10 +3089,10 @@ void addMember(Member m)
 	case SignalMember:
 	    // Important for the cloning: the inSort is done by name
 	    // only, not by signatures.
-	    g->signals.inSort(tmpFunc);
+	    g->signals.insertSorted(tmpFunc);
 	    break;
 	case SlotMember:
-	    g->slots.inSort(tmpFunc);
+	    g->slots.insertSorted(tmpFunc);
 	    // fall through ...
 	case PropertyCandidateMember:
 	    if (!tmpFunc->name.isEmpty() && tmpFunc->access == Public)
@@ -3105,7 +3100,7 @@ void addMember(Member m)
 	}
 	ArgList *args = tmpFunc->args;
 	if (!args || !(args = args->magicClone()))
-	break;
+	    break;
 	tmpFunc = new Function(*tmpFunc);
 	tmpFunc->args = args;
     }
