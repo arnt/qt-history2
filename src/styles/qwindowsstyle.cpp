@@ -259,6 +259,8 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 		p->setPen( QPen( cg.text(), 1 ) );
 	    else
 		p->setPen( QPen( cg.dark(), 1 ) );
+	    if ( flags & Style_NoChange )
+		p->setBrush( cg.brush( QColorGroup::Button ) );
 	    p->drawRect( r.x()+1, r.y()+1, 11, 11 );
 	}
 	if (! (flags & Style_Off)) {
@@ -266,20 +268,20 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	    int i, xx, yy;
 	    xx = rr.x() + 3;
 	    yy = rr.y() + 5;
-	    
+
 	    for ( i=0; i<3; i++ ) {
 		a.setPoint( 2*i,   xx, yy );
 		a.setPoint( 2*i+1, xx, yy+2 );
 		xx++; yy++;
 	    }
-	    
+
 	    yy -= 2;
 	    for ( i=3; i<7; i++ ) {
 		a.setPoint( 2*i,   xx, yy );
 		a.setPoint( 2*i+1, xx, yy+2 );
 		xx++; yy--;
 	    }
-	    	    
+
 	    p->drawLineSegments( a );
 	}
 #endif

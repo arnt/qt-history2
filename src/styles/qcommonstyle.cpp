@@ -217,11 +217,13 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 		p->setPen( QPen( cg.highlightedText(), 2 ) );
 	}
 
+	if ( flags & Style_NoChange )
+	    p->setBrush( cg.brush( QColorGroup::Button ) );
 	p->drawRect( x+marg, y+2, w-4, h-4 );
 	/////////////////////
 	x++;
 	y++;
-	if ( flags & Style_On ) {
+	if ( ( flags & Style_On) || ( flags & Style_NoChange ) ) {
 	    QPointArray a( 7*2 );
 	    int i, xx = x+1+marg, yy=y+5;
 	    for ( i=0; i<3; i++ ) {
