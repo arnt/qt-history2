@@ -20,7 +20,8 @@ HEADERS	+= helpwindow.h \
 TARGET	= assistant
 
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
-DEFINES	+= QT_INTERNAL_NETWORK QT_INTERNAL_XML
+!network:DEFINES	+= QT_INTERNAL_NETWORK
+!xml: DEFINES		+= QT_INTERNAL_XML
 include( ../../src/qt_professional.pri )
 DESTDIR	= ../../bin
 

@@ -47,7 +47,6 @@ DocuParser *DocuParser::createParser( const QString &fileName )
     
     QString str;
     int read = 0;
-    int pos;
     int maxlen = 1024;
     int majVer = 0, minVer = 0, serVer = 0;
     static QRegExp re( "assistantconfig +version=\"(\\d)\\.(\\d)\\.(\\d)\"", FALSE );

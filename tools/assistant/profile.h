@@ -102,7 +102,7 @@ inline void Profile::addProperty( const QString &name,
 
 inline bool Profile::hasDocFile( const QString &name )
 {
-    return docs.contains( name ) > 0;    
+    return docs.contains( name );    
 }
 
 #endif
