@@ -853,7 +853,7 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
 */
 bool QItemSelectionModel::rowIntersectsSelection(int row, const QModelIndex &parent) const
 {
-    if (parent.isValid() &&model() != parent.model())
+    if (parent.isValid() && model() != parent.model())
          return false;
     // check current selection
     for (int i = 0; i < d->currentSelection.count(); ++i)

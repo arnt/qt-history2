@@ -1093,24 +1093,23 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 
     QRect rect;
     int logical;
-    int width = d->viewport->width();
-    int height = d->viewport->height();
     bool highlight = false;
-    QFont fnt(painter.font()); // save the painter font
+    const int width = d->viewport->width();
+    const int height = d->viewport->height();
+    const bool active = isActiveWindow();
+    const QFont fnt(painter.font()); // save the painter font
     for (int i = start; i <= end; ++i) {
         if (sections.at(i).hidden)
             continue;
         logical = sections.at(i).logical;
         if (orientation() == Qt::Horizontal) {
             rect.setRect(sectionViewportPosition(logical), 0, sectionSize(logical), height);
-            highlight = d->highlightSelected
-                        && d->selectionModel->columnIntersectsSelection(logical, root());
+            highlight = d->selectionModel->columnIntersectsSelection(logical, root());
         } else {
             rect.setRect(0, sectionViewportPosition(logical), width, sectionSize(logical));
-            highlight = d->highlightSelected
-                        && d->selectionModel->rowIntersectsSelection(logical, root());
+            highlight = d->selectionModel->rowIntersectsSelection(logical, root());
         }
-        if (highlight) {
+        if (d->highlightSelected && highlight && active) {
             QFont bf(fnt);
             bf.setBold(true);
             painter.setFont(bf);
@@ -1266,7 +1265,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     if (d->clickableSections) {
         if (logicalIndex == d->pressed) {
             state = QStyle::Style_Down;
-        } else {
+        } else if (d->highlightSelected) {
             bool selected = false;
             if (d->orientation == Qt::Horizontal)
                 selected = selectionModel()->isColumnSelected(logicalIndex, QModelIndex());
