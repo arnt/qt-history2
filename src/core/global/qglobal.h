@@ -1474,6 +1474,7 @@ Q_CORE_EXPORT void *qMalloc(size_t size);
 Q_CORE_EXPORT void qFree(void *ptr);
 Q_CORE_EXPORT void *qRealloc(void *ptr, size_t size);
 Q_CORE_EXPORT int qRand(void);
+Q_CORE_EXPORT void qSeedRand(int seed);
 Q_CORE_EXPORT void *qMemCopy(void *dest, const void *src, size_t n);
 Q_CORE_EXPORT void *qMemSet(void *dest, int c, size_t n);
 

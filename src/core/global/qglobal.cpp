@@ -643,6 +643,7 @@ void *qMalloc(size_t size) { return ::malloc(size); }
 void qFree(void *ptr) { ::free(ptr); }
 void *qRealloc(void *ptr, size_t size) { return ::realloc(ptr, size); }
 int qRand(void) { return ::rand(); }
+void qSeedRand(int seed) { ::srand(seed); }
 void *qMemCopy(void *dest, const void *src, size_t n) { return memcpy(dest, src, n); }
 void *qMemSet(void *dest, int c, size_t n) { return memset(dest, c, n); }
 
