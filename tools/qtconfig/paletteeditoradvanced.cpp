@@ -21,34 +21,6 @@
 #include <qpainter.h>
 #include <qgroupbox.h>
 
-/*!
-    Class used by PaletteEditor for bold combobox items
-*/
-
-class BoldListBoxText : public QListBoxText
-{
-public:
-    BoldListBoxText( QString text, QListBox* lb = 0 );
-
-protected:
-    virtual void paint( QPainter* );
-};
-
-BoldListBoxText::BoldListBoxText( QString text, QListBox* lb )
-    : QListBoxText( lb )
-{
-    setText( text );
-}
-
-void BoldListBoxText::paint( QPainter* painter )
-{
-    QFont f = painter->font();
-    f.setBold( TRUE );
-    painter->setFont( f );
-
-    QListBoxText::paint( painter );
-}
-
 PaletteEditorAdvanced::PaletteEditorAdvanced( QWidget * parent,
                                               const char * name, bool modal, Qt::WFlags f )
     : PaletteEditorAdvancedBase( parent, name, modal, f ), selectedPalette(0)
@@ -555,17 +527,9 @@ void PaletteEditorAdvanced::setupBackgroundMode( Qt::BackgroundMode mode )
 
     if (initRole > 8 ) {
         comboEffect->setCurrentItem( initRole - 9 );
-        if ( comboEffect->listBox() ) {
-            QString text = comboEffect->currentText();
-            comboEffect->listBox()->changeItem( new BoldListBoxText( text ), initRole - 9 );
-        }
     }
     else {
         comboCentral->setCurrentItem( initRole );
-        if ( comboCentral->listBox() ) {
-            QString text = comboCentral->currentText();
-            comboCentral->listBox()->changeItem( new BoldListBoxText( text ), initRole );
-        }
     }
 }
 
