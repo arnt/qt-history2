@@ -1203,7 +1203,7 @@ void QX11PaintEngine::drawPolyline(const QPointArray &a, int index, int npoints)
     }
 }
 
-int global_polygon_shape = Complex;
+static int global_polygon_shape = Complex;
 
 void QX11PaintEngine::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
 {

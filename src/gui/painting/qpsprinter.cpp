@@ -4719,7 +4719,7 @@ static void emitBits( char *out, int & byte, int & bit,
 #include <qdatetime.h>
 #endif
 
-QByteArray compress( const QImage & image, bool gray ) {
+static QByteArray compress( const QImage & image, bool gray ) {
 #ifdef DEBUG_COMPRESS
     QTime t;
     t.start();
