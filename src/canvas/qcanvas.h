@@ -392,7 +392,9 @@ private slots:
 class QM_EXPORT_CANVAS QCanvasPixmap : public QPixmap
 {
 public:
+#ifndef QT_NO_IMAGEIO
     QCanvasPixmap(const QString& datafilename);
+#endif
     QCanvasPixmap(const QImage& image);
     QCanvasPixmap(const QPixmap&, const QPoint& hotspot);
     ~QCanvasPixmap();
@@ -421,14 +423,19 @@ class QM_EXPORT_CANVAS QCanvasPixmapArray
 {
 public:
     QCanvasPixmapArray();
+#ifndef QT_NO_IMAGEIO
     QCanvasPixmapArray(const QString& datafilenamepattern, int framecount=0);
+#endif
     // this form is deprecated
     QCanvasPixmapArray(QPtrList<QPixmap>, QPtrList<QPoint> hotspots);
+
     QCanvasPixmapArray(QValueList<QPixmap>, QPointArray hotspots = QPointArray() );
     ~QCanvasPixmapArray();
 
+#ifndef QT_NO_IMAGEIO
     bool readPixmaps(const QString& datafilenamepattern, int framecount=0);
     bool readCollisionMasks(const QString& filenamepattern);
+#endif
 
     // deprecated
     bool operator!(); // Failure check.
@@ -441,7 +448,9 @@ public:
 	{ return (uint)framecount; }
 
 private:
+#ifndef QT_NO_IMAGEIO
     bool readPixmaps(const QString& datafilenamepattern, int framecount, bool maskonly);
+#endif
 
     void reset();
     int framecount;
