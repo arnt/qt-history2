@@ -330,7 +330,7 @@
 //
 
 #if defined(Q_NO_BOOL_TYPE)
-enum { false, true } bool;
+typedef int bool;
 #endif
 
 typedef unsigned char	uchar;

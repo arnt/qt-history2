@@ -482,8 +482,8 @@ void QDoubleValidator::setDecimals( int decimals )
 
   QRegExpValidator contains a regular expression, "regexp", used to
   determine whether an input string is \c Acceptable, \c Intermediate or
-  \c Invalid. 
-  
+  \c Invalid.
+
   The regexp is treated as if it begins with the start of string
   assertion, <tt>^</tt>, and ends with the end of string assertion
   <tt>$</tt> so the match is against the entire input string, or from
@@ -541,7 +541,7 @@ void QDoubleValidator::setDecimals( int decimals )
     v.validate( "a12345Z", 0 );	// Returns Invalid
     v.validate( "A12345Z", 0 );	// Returns Valid
     v.validate( "B12", 0 );	// Returns Intermediate
-    
+
     // Match most 'readme' files
     rx.setPattern( "read\\S?me(\.(txt|asc|1st))?" );
     rx.setCaseSensitive( FALSE );
@@ -550,7 +550,7 @@ void QDoubleValidator::setDecimals( int decimals )
     v.validate( "README.1ST", 0 );  // Returns Valid
     v.validate( "read me.txt", 0 ); // Returns Invalid
     v.validate( "readm", 0 );	    // Returns Intermediate
-    
+
   \endcode
 
   \sa QRegExp QIntValidator QDoubleValidator
@@ -607,7 +607,7 @@ QRegExpValidator::~QRegExpValidator()
 
 QValidator::State QRegExpValidator::validate( QString& input, int& pos ) const
 {
-    if ( ((QRegExp&) r).match(input) ) {
+    if ( ((QRegExp&) r).exactMatch(input) ) {
 	return Acceptable;
     } else if ( ((QRegExp&) r).matchedLength() == (int) input.length() ) {
 	return Intermediate;

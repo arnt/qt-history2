@@ -459,7 +459,7 @@ int Tokenizer::getTokenAfterPreprocessor()
 	    popSkipping();
 	}
     } else if ( directive == QString("define") ) {
-	if ( versionX->match(condition) )
+	if ( versionX->exactMatch(condition) )
 	    config->setVersion( versionX->cap(1) );
     }
 
@@ -563,7 +563,7 @@ bool Tokenizer::isTrue( const QString& condition ) const
     if ( t[0] == QChar('(') && t.right(1)[0] == QChar(')') )
 	return isTrue( t.mid(1, t.length() - 2) );
 
-    if ( definedX->match(t) )
+    if ( definedX->exactMatch(t) )
 	return config->isDef( definedX->cap(1) );
     else
 	return config->isTrue( t );

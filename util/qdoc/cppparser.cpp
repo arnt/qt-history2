@@ -210,7 +210,7 @@ static bool matchDataType( CodeChunk *type, QString *var = 0 )
 		  illustrate inside a C++ comment, because the explanation does
 		  not fit on one line.
 		*/
-		if ( varComment.match(yyTokenizer->previousLexeme()) )
+		if ( varComment.exactMatch(yyTokenizer->previousLexeme()) )
 		    *var = varComment.cap( 1 );
 	    }
 	}

@@ -89,7 +89,7 @@
     (globbing) mode which works in a similar way to command shells. A
     good text on regexps is <i>Mastering Regular Expressions: Powerful
     Techniques for Perl and Other Tools</i> by Jeffrey E. Friedl, ISBN
-    1565922573. 
+    1565922573.
 
     Experienced regexp users may prefer to skip the introduction and
     go directly to the relevant information:
@@ -120,8 +120,8 @@
     <b>x{1,1}</b> means match an <b>x</b> which occurs at least once and
     at most once. We'll look at assertions and more complex expressions
     later. Note that regexps cannot be used to check for balanced
-    brackets or tags (unless you know the maximum level of nesting). 
-    
+    brackets or tags (unless you know the maximum level of nesting).
+
 
     We'll start by writing a regexp to match integers in the range 0 to
     99. We will require at least one digit so we will start with
@@ -180,7 +180,7 @@
     another word boundary". The <b>\b</b> assertion matches at a \e
     position in the regexp not a \e character in the regexp. A word
     boundary is any non-word character such as a space a newline or the
-    beginning or end of the string. 
+    beginning or end of the string.
 
     For our third example we want to replace ampersands with the HTML
     entity '\&amp;'. The regexp to match is simple: <b>\&</b>, i.e.
@@ -191,7 +191,7 @@
     assertion and our regexp becomes: <b>\&(?!amp;)</b>. The negative
     lookahead assertion is introduced with '(?!' and finishes at the
     ')'. It means that the text it contains, 'amp;' in our example, must
-    \e not follow the expression that preceeds it. 
+    \e not follow the expression that preceeds it.
 
     Regexps provide a rich language that can be used in a variety of
     ways. For example suppose we want to count all the occurrences of
@@ -201,7 +201,7 @@
     '\b' so we don't get 'Ericsson' etc. The second regexp actually
     matches more than we want, 'Eric', 'Erik', 'Eiric' and 'Eirik'.
 
-    We will implement some the examples above in the 
+    We will implement some the examples above in the
     <a href="#code-examples">code examples</a> section.
 
     <a name="characters-and-abbreviations-for-sets-of-characters">
@@ -215,7 +215,7 @@
     <li><b>\\</b><b>c</b> A character that follows a backslash matches the
     character itself except where mentioned below. For example if you
     wished to match a literal caret at the beginning of a string you
-    would write <b>\^</b>. 
+    would write <b>\^</b>.
 
     <li><b>\\</b><b>a</b> This matches the ASCII bell character (BEL, 0x07).
     <li><b>\\</b><b>f</b> This matches the ASCII form feed character (FF, 0x0C).
@@ -234,8 +234,8 @@
     <li><b>\\</b><b>S</b> This matches a non-whitespace.
     <li><b>\\</b><b>w</b> This matches a word character (see QChar::isLetterOrNumber()).
     <li><b>\\</b><b>W</b> This matches a non-word character.
-    <li><b>\\</b><b>n</b> The n<sup>th</sup> 
-    <a href="#capturing-text">backreference</a>, e.g. \1, \2, etc. 
+    <li><b>\\</b><b>n</b> The n<sup>th</sup>
+    <a href="#capturing-text">backreference</a>, e.g. \1, \2, etc.
     </ul>
 
     <em>Note that the C++ compiler transforms backslashes in strings so
@@ -259,17 +259,17 @@
     <b>[^abc]</b> matches anything \e except 'a' or 'b' or 'c'.
 
     <li><b>-</b> The dash is used to indicate a range of characters, for
-    example <b>[W-Z]</b> matches 'W' or 'X' or 'Y' or 'Z'. 
+    example <b>[W-Z]</b> matches 'W' or 'X' or 'Y' or 'Z'.
 
     </ul>
-    
+
     Using the predefined character set abbreviations is more portable
     than using character ranges across platforms and languages. For
     example, <b>[0-9]</b> matches a digit in Western alphabets but
-    <b>\d</b> matches a digit in \e any alphabet. 
+    <b>\d</b> matches a digit in \e any alphabet.
 
     Note that in most regexp literature sets of characters are called
-    "character classes". 
+    "character classes".
 
     <a name="quantifiers"><b>Quantifiers</b></a>
 
@@ -367,7 +367,7 @@
 
     Assertions make some statement about the text at the point where
     they occur in the regexp but they do not match any characters.
-    In the following list <b><i>E</i></b> stands for any expression. 
+    In the following list <b><i>E</i></b> stands for any expression.
 
     <ul>
     <li><b>^</b> If the caret is the first character in the regexp
@@ -448,19 +448,19 @@
     For example if we are in wildcard mode and have strings which
     contain filenames we could identify HTML files with <b>*.html</b>.
     This will match zero or more characters followed by a dot followed
-    by 'h', 't', 'm' and 'l'. 
+    by 'h', 't', 'm' and 'l'.
 
     <a name="perl-users"><b>Notes for Perl Users</b></a>
 
     Most of the character class abbreviations supported by Perl are
-    supported by QRegExp, see 
+    supported by QRegExp, see
     <a href="#characters-and-abbreviations-for-sets-of-characters">
     characters and abbreviations for sets of characters</a>.
 
     QRegExp's quantifiers are the same as Perl's greedy quantifiers.
     Non-greedy matching cannot be applied to individual quantifiers, but
     can be applied to all the quantifiers in the pattern. For example,
-    to match the Perl regex <b>ro+?m</b> requires: 
+    to match the Perl regex <b>ro+?m</b> requires:
     \code
     QRegExp rx( "ro+m" );
     rx.setMinimal( TRUE );
@@ -469,7 +469,7 @@
     The equivalent of Perl's <tt>/i</tt> option is
     setCaseSensitive(FALSE).
 
-    Perl's <tt>/g</tt> option can be emulated using a 
+    Perl's <tt>/g</tt> option can be emulated using a
     <a href="#cap_in_a_loop">loop</a>.
 
     In QRegExp <b>.</b> matches any character, therefore all QRegExp
@@ -483,7 +483,7 @@
     a loop.
 
     Perl's $& is cap(0) or capturedTexts()[0]. There are no QRegExp
-    equivalents for $`, $' or $+. $1, $2 etc correspond to 
+    equivalents for $`, $' or $+. $1, $2 etc correspond to
     cap(1) or capturedTexts()[1], cap(2) or capturedTexts()[2], etc.
 
     To substitute a pattern use QString::replace().
@@ -495,7 +495,7 @@
     assertions (?=pattern) and (?!pattern) are supported with the same
     syntax as Perl. Perl's lookbehind assertions, "independent"
     subexpressions and conditional expressions are not supported.
-    
+
     Non-capturing parenthesis are also supported, with the same
     (?:pattern) syntax.
 
@@ -511,16 +511,16 @@
     QRegExp rx( "^\\d\\d?$" );	// Match integers 0 to 99
     rx.search( "123" );		// Returns -1 (no match)
     rx.search( "-6" );		// Returns -1 (no match)
-    rx.search( "6" );		// Returns 0 (matched as position 0) 
+    rx.search( "6" );		// Returns 0 (matched as position 0)
     \endcode
 
     The third string matches '<u>6</u>'. This is a simple validation
-    regexp for integers in the range 0 to 99. 
+    regexp for integers in the range 0 to 99.
 
     \code
     QRegExp rx( "^\\S+$" );	// Match strings which have no whitespace
     rx.search( "Hello world" );	// Returns -1 (no match)
-    rx.search( "This_is-OK" );	// Returns 0 (matched at position 0) 
+    rx.search( "This_is-OK" );	// Returns 0 (matched at position 0)
     \endcode
 
     The second string matches '<u>This_is-OK</u>'. We've used the
@@ -534,7 +534,7 @@
     \code
     QRegExp rx( "\\b(mail|letter|correspondence)\\b" );
     rx.search( "I sent you an email" );	    // Returns -1 (no match)
-    rx.search( "Please write the letter" ); // Returns 17 (matched at position 17) 
+    rx.search( "Please write the letter" ); // Returns 17 (matched at position 17)
     \endcode
 
     The second string matches "Please write the <u>letter</u>". The word
@@ -544,7 +544,7 @@
     \code
     QString captured = rx.cap( 1 ); // captured contains "letter"
     \endcode
-    
+
     This will capture the text from the first set of capturing
     parenthesis (counting capturing left parenthesis from left to
     right). The parenthesis are counted from 1 since cap( 0 ) is the
@@ -616,7 +616,7 @@
 
     To immitate the matching of a shell we can use wildcard mode.
 
-    \code 
+    \code
     QRegExp rx( "*.html" );	// Invalid regexp: * doesn't quantify anything
     rx.setWildcard( TRUE );	// Now its a valid wildcard regexp
     rx.search( "index.html" );	// Returns 0 (matched at position 0)
@@ -3210,7 +3210,7 @@ bool QRegExp::operator==( const QRegExp& rx ) const
 */
 
 /*!
-  Returns TRUE if the pattern string is empty, otherwise FALSE.  
+  Returns TRUE if the pattern string is empty, otherwise FALSE.
 
   If you call match() with an empty pattern on an empty string it will
   return TRUE otherwise it returns FALSE since match() operates over the
@@ -3375,7 +3375,7 @@ void QRegExp::setMinimal( bool minimal )
 
   \sa search() searchRev() QRegExpValidator
 */
-bool QRegExp::match( const QString& str )
+bool QRegExp::exactMatch( const QString& str )
 {
 #ifndef QT_NO_REGEXP_CAPTURE
     priv->t = str;
@@ -3397,7 +3397,7 @@ bool QRegExp::match( const QString& str )
 
   This version does not set matchedLength(), capturedTexts() and friends.
 */
-bool QRegExp::match( const QString& str ) const
+bool QRegExp::exactMatch( const QString& str ) const
 {
    return eng->match(str, 0, priv->min, TRUE)[0] == 0 &&
 	  eng->matchedLength() == (int) str.length();
@@ -3572,7 +3572,7 @@ int QRegExp::matchedLength()
     QRegExp rx( "(\\d+)(\\s*)(cm|inch(es)?)" );
     int pos = rx.search( "Length: 36 inches" );
     QStringList list = rx.capturedTexts();
-    // list is now ( "36 inches", "36", " ", "inches", "es" ). 
+    // list is now ( "36 inches", "36", " ", "inches", "es" ).
     \endcode
 
     The above example also captures elements
@@ -3583,7 +3583,7 @@ int QRegExp::matchedLength()
     QRegExp rx( "(\\d+)(?:\\s*)(cm|inch(?:es)?)" );
     int pos = rx.search( "Length: 36 inches" );
     QStringList list = rx.capturedTexts();
-    // list is now ( "36 inches", "36", "inches" ). 
+    // list is now ( "36 inches", "36", "inches" ).
   \endcode
 
   Some regexps can match an indeterminate number of times. For example
@@ -3592,7 +3592,7 @@ int QRegExp::matchedLength()
   list of all the numbers matched. However, after calling
   <tt>rx.search(str)</tt>, capturedTexts() will return the list ( "12",
   "12" ), i.e. the entire match was "12" and the first subexpression
-  matched was "12". The correct approach is to use cap() in a 
+  matched was "12". The correct approach is to use cap() in a
   <a href="#cap_in_a_loop">loop</a>.
 
   The order of elements in the string list is as follows. The first
@@ -3642,10 +3642,10 @@ QStringList QRegExp::capturedTexts()
     \code
     QRegExp rx( "(\\d+)" );
     str = "Offsets: 12 14 99 231 7";
-    QStringList list; 
+    QStringList list;
     pos = 0;
     while ( pos >= 0 ) {
-	pos = rx.search( str, pos ); 
+	pos = rx.search( str, pos );
 	if ( pos > -1 ) {
 	    list += rx.cap( 1 );
 	    pos  += rx.matchedLength();
@@ -3658,7 +3658,7 @@ QStringList QRegExp::capturedTexts()
   element, cap( 0 ), is the entire matching string. Each subsequent
   element corresponds to the next capturing open left parenthesis. Thus
   cap( 1 ) is the text of the first capturing parenthesis, cap( 2 ) is
-  the text of the second and so on. 
+  the text of the second and so on.
 
   \sa search() pos() capturedTexts()
 */

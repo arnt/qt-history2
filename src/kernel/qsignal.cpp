@@ -129,7 +129,7 @@ QSignal::~QSignal()
 bool QSignal::connect( const QObject *receiver, const char *member )
 {
     QRegExp regexp( "*(*[int]*)", TRUE, TRUE );
-    if ( regexp.match( member ) )
+    if ( regexp.exactMatch( member ) )
 	return QObject::connect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
     return QObject::connect( (QObject *)this, SIGNAL(signal(const QVariant&)),
 			     receiver, member );
@@ -143,7 +143,7 @@ bool QSignal::connect( const QObject *receiver, const char *member )
 bool QSignal::disconnect( const QObject *receiver, const char *member )
 {
     QRegExp regexp( "*(*[int]*)", TRUE, TRUE );
-    if ( regexp.match( member ) )
+    if ( regexp.exactMatch( member ) )
 	return QObject::disconnect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
     return QObject::disconnect( (QObject *)this, SIGNAL(signal(const QVariant&)),
 				receiver, member );

@@ -63,7 +63,7 @@ static bool isYes( const QString& val )
 static bool isYes( const QString& key, const QStringList& val )
 {
     if ( val.count() != 1 ||
-	 !QRegExp(QString("yes|no|true|false")).match(val.first()) ) {
+	 !QRegExp(QString("yes|no|true|false")).exactMatch(val.first()) ) {
 	warning( 1, "Entry '%s' in configuration file should be 'yes' or 'no'",
 		 key.latin1() );
 	return FALSE;
@@ -274,7 +274,7 @@ Config::Config( int argc, char **argv )
 		super = TRUE;
 	    } else if ( opt == QString("-S") ) {
 		super = FALSE;
-	    } else if ( QRegExp(QString("-W[0-4]")).match(opt) ) {
+	    } else if ( QRegExp(QString("-W[0-4]")).exactMatch(opt) ) {
 		wlevel = opt[2].unicode() - QChar( '0' ).unicode();
 	    } else if ( opt == QString("-Wnone") ) {
 		wlevel = -1;
@@ -355,17 +355,18 @@ QString Config::findDepth( const QString& name,
 
 bool Config::isTrue( const QString& condition ) const
 {
-    return !falsesym.match( condition );
+    return !falsesym.exactMatch( condition );
 }
+
 
 bool Config::isDef( const QString& symbol ) const
 {
-    return defsym.match( symbol );
+    return defsym.exactMatch( symbol );
 }
 
 bool Config::generateHtmlFile( const QString& fileName ) const
 {
-    return onlyfn.match( fileName );
+    return onlyfn.exactMatch( className );
 }
 
 bool Config::matchLine( QString *key, QStringList *val )

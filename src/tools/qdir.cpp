@@ -160,7 +160,7 @@ QDir::QDir()
 
   If \a path is "" or null, QDir uses "." (the current directory).  If
   \e nameFilter is "" or null, QDir uses "*" (all files).
-  
+
   Note that \a path need not exist.
 
   \sa exists(), setPath(), setNameFilter(), setFilter(), setSorting()
@@ -1040,7 +1040,7 @@ bool QDir::match( const QStringList &filters, const QString &fileName )
 #else
 	QRegExp rx( *sit, TRUE, TRUE );  // ..while others are.
 #endif
-	if ( rx.match(fileName) )
+	if ( rx.exactMatch(fileName) )
 	    return TRUE;
 	++sit;
     }

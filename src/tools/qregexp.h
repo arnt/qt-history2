@@ -71,8 +71,8 @@ public:
     bool minimal() const;
     void setMinimal( bool minimal );
 
-    bool match( const QString& str );
-    bool match( const QString& str ) const;
+    bool exactMatch( const QString& str );
+    bool exactMatch( const QString& str ) const;
 #ifndef QT_NO_COMPAT
     int match( const QString& str, int index, int *len = 0,
 	       bool indexIsStart = TRUE );
