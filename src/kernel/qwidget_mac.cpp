@@ -94,8 +94,11 @@ static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_era
 	    if( (*it)->isWidgetType() ) {
 		QWidget *w = (QWidget *)(*it);
 		if ( w->topLevelWidget() == p->topLevelWidget() && w->isVisible() ) {
-		    QRegion wr = QRegion(w->geometry()) & r;
+		    QRegion wr = w->clippedRegion(FALSE);
+		    wr.translate(-point.x(), -point.y());
+		    wr &= r;
 		    if ( !wr.isEmpty() ) {
+			r -= wr;
 			wr.translate( -w->x(), -w->y() );
 			paint_children(w, wr, now, force_erase);
 		    }
@@ -104,24 +107,21 @@ static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_era
 	}
     }
 
-    QRegion pa(p->clippedRegion());
-    pa.translate( -point.x(), -point.y() );
-    pa &= r;
-    if(!pa.isEmpty()) {
+    if(!r.isEmpty()) {
 	bool painted = FALSE, erase = force_erase || !p->testWFlags(QWidget::WRepaintNoErase);
 	if(now) {
 	    if(!p->testWState(QWidget::WState_BlockUpdates)) {
 		painted = TRUE;
-		p->repaint(pa, erase);
+		p->repaint(r, erase);
 	    } else if(erase) {
 		erase = FALSE;
-		p->erase(pa);
+		p->erase(r);
 	    }
 	}
 	if(!painted) {
-	    QRegion pa2(pa);
-	    pa2.translate(point.x(), point.y());
-	    InvalWindowRgn((WindowPtr)p->handle(), (RgnHandle)pa2.handle());
+	    QRegion pa(r);
+	    pa.translate(point.x(), point.y());
+	    InvalWindowRgn((WindowPtr)p->handle(), (RgnHandle)pa.handle());
 	}
     }
 }
@@ -725,6 +725,7 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 	qt_clear_paintevent_clipping( this );
 	clearWState( WState_InPaintEvent );
 
+#if 1
 	//clean this area now..
 	QPoint p(posInWindow(this));
 	QRegion clean(reg);
@@ -732,6 +733,7 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 	clean &= clippedRegion();
 	if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd)))
 	    QDFlushPortBuffer(GetWindowPort((WindowPtr)hd), (RgnHandle)clean.handle());
+#endif
     }
 }
 
@@ -884,39 +886,59 @@ void QWidget::raise()
     if(isTopLevel()) {
 	BringToFront((WindowPtr)hd);
 	setActiveWindow();
-    } else {
-	QWidget *p = parentWidget();
-	if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
+    } else if(QWidget *p = parentWidget()) {
+
+	QRegion clp;
+	if(isVisible())
+	    clp = clippedRegion(FALSE);
+	if ( p->childObjects && p->childObjects->findRef(this) >= 0 )
 	    p->childObjects->append( p->childObjects->take() );
-	dirtyClippedRegion(TRUE);
-	InvalWindowRect((WindowPtr)hd, mac_rect(posInWindow(this), geometry().size()));
+	if(isVisible()) {
+	    dirtyClippedRegion(TRUE);
+	    clp ^= clippedRegion(FALSE);
+	    InvalWindowRgn((WindowPtr)hd, (RgnHandle)clp.handle());
+	}
     }
 }
 
 void QWidget::lower()
 {
-    QWidget *p = parentWidget();
-    if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
-	p->childObjects->insert( 0, p->childObjects->take() );
     if ( isTopLevel() )
 	SendBehind((WindowPtr)handle(), NULL);
-    else if(p) {
-	dirtyClippedRegion(TRUE);
-	InvalWindowRect((WindowPtr)hd, mac_rect(posInWindow(this), geometry().size()));
+    else if(QWidget *p = parentWidget()) {
+	QRegion clp;
+	if(isVisible())
+	    clp = clippedRegion(FALSE);
+	if ( p->childObjects && p->childObjects->findRef(this) >= 0 )
+	    p->childObjects->insert( 0, p->childObjects->take() );
+	if(isVisible()) {
+	    dirtyClippedRegion(TRUE);
+	    clp ^= clippedRegion(FALSE);
+	    InvalWindowRgn((WindowPtr)hd, (RgnHandle)clp.handle());
+	}
     }
 }
 
 
 void QWidget::stackUnder( QWidget *w )
 {
+    if ( !w || isTopLevel() )
+	return;
+
     QWidget *p = parentWidget();
-    if ( !p || !w || isTopLevel() || p != w->parentWidget() )
+    if(!p || p != w->parentWidget())
 	return;
     int loc = p->childObjects->findRef(w);
+    QRegion clp;
+    if(isVisible())
+	clp = clippedRegion(FALSE);
     if ( loc >= 0 && p->childObjects && p->childObjects->findRef(this) >= 0 )
 	p->childObjects->insert( loc, p->childObjects->take() );
-    dirtyClippedRegion(TRUE);
-    InvalWindowRect((WindowPtr)hd, mac_rect(posInWindow(this), geometry().size()));
+    if(isVisible()) {
+	dirtyClippedRegion(TRUE);
+	clp ^= clippedRegion(FALSE);
+	InvalWindowRgn((WindowPtr)hd, (RgnHandle)clp.handle());
+    }
 }
 
 
@@ -991,7 +1013,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		QPoint tp(posInWindow(parent));
 		int px = tp.x(), py = tp.y();
 
-		if( isMove && !oldregion.isEmpty() ) {
+		if( (isMove || isResize && testWFlags(WNorthWestGravity)) && !oldregion.isEmpty() ) 
+		{
 		    //save the window state, and do the grunt work
 		    int ow = olds.width(), oh = olds.height();
 		    QMacSavedPortInfo saveportstate(this);
@@ -1145,7 +1168,7 @@ void QWidget::erase( const QRegion& reg )
     } else {
 	p.fillRect(rr, bg_col);
     }
-#if 0
+#if 1
     p.flush();
 #endif
     p.end();
@@ -1318,14 +1341,19 @@ void QWidget::setAcceptDrops( bool on )
 
 void QWidget::setMask( const QRegion &region )
 {
-    dirtyClippedRegion(TRUE);
-    if ( isVisible() && parentWidget() && !isTopLevel() ) 
-	InvalWindowRect((WindowPtr)hd, mac_rect(posInWindow(this), geometry().size()));
-
     createExtra();
     if ( region.isNull() && extra->mask.isNull() )
 	return;
+
+    QRegion clp;
+    if(isVisible())
+	clp = clippedRegion(FALSE);
     extra->mask = region;
+    if(isVisible()) {
+	dirtyClippedRegion(TRUE);
+	clp ^= clippedRegion(FALSE);
+	InvalWindowRgn((WindowPtr)hd, (RgnHandle)clp.handle());
+    }
 }
 
 void QWidget::setMask( const QBitmap &bitmap )
@@ -1353,7 +1381,7 @@ void QWidget::propagateUpdates()
 	QRegion rgn(r);
 	rgn.translate(-x(), -y());
 	ValidWindowRgn((WindowPtr)hd, (RgnHandle)rgn.handle()); 
-	paint_children(this, rgn, TRUE, TRUE);
+	paint_children( this, rgn, TRUE, FALSE );
     }
     DisposeRgn(r);
 }

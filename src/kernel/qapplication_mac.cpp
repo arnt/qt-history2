@@ -197,6 +197,33 @@ public:
     void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
 };
 
+static EventTypeSpec events[] = {
+    { kEventClassMouse, kEventMouseWheelMoved },
+    { kEventClassMouse, kEventMouseDown },
+    { kEventClassMouse, kEventMouseUp },
+    { kEventClassMouse, kEventMouseDragged },
+    { kEventClassMouse, kEventMouseMoved },
+
+    { kEventClassKeyboard, kEventRawKeyUp },
+    { kEventClassKeyboard, kEventRawKeyDown },
+    { kEventClassKeyboard, kEventRawKeyRepeat },
+
+//    { kEventClassWindow, kEventWindowUpdate },
+    { kEventClassWindow, kEventWindowActivated },
+    { kEventClassWindow, kEventWindowDeactivated },
+    { kEventClassWindow, kEventWindowShown },
+    { kEventClassWindow, kEventWindowHidden },
+    { kEventClassWindow, kEventWindowContextualMenuSelect },
+
+    { kEventClassApplication, kEventAppActivated },
+    { kEventClassApplication, kEventAppDeactivated },
+
+    { kEventClassMenu, kEventMenuOpening },
+    { kEventClassMenu, kEventMenuTargetItem },
+
+    { kEventClassCommand, kEventCommandProcess }
+};
+
 void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 {
     // Set application name
@@ -222,31 +249,6 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 	QWidget *tlw = new QWidget(NULL, "empty_widget", Qt::WDestructiveClose);
 	tlw->hide();
 
-	static EventTypeSpec events[] = {
-	    { kEventClassMouse, kEventMouseWheelMoved },
-	    { kEventClassMouse, kEventMouseDown },
-	    { kEventClassMouse, kEventMouseUp },
-	    { kEventClassMouse, kEventMouseDragged },
-	    { kEventClassMouse, kEventMouseMoved },
-	    { kEventClassWindow, kEventWindowShown },
-	    { kEventClassWindow, kEventWindowHidden },
-
-	    { kEventClassKeyboard, kEventRawKeyUp },
-	    { kEventClassKeyboard, kEventRawKeyDown },
-	    { kEventClassKeyboard, kEventRawKeyRepeat },
-
-	    { kEventClassWindow, kEventWindowUpdate },
-	    { kEventClassWindow, kEventWindowActivated },
-	    { kEventClassWindow, kEventWindowDeactivated },
-
-	    { kEventClassApplication, kEventAppActivated },
-	    { kEventClassApplication, kEventAppDeactivated },
-
-	    { kEventClassMenu, kEventMenuOpening },
-	    { kEventClassMenu, kEventMenuTargetItem },
-
-	    { kEventClassCommand, kEventCommandProcess }
-	};
 	InstallEventHandler( GetApplicationEventTarget(),
 			     NewEventHandlerUPP(QApplication::globalEventProcessor),
 			     GetEventTypeCount(events), events,
@@ -889,9 +891,10 @@ bool QApplication::processNextEvent( bool canWait )
 		    widget->propagateUpdates();
 	    }
 
-	    ret = ReceiveNextEvent( 0, 0, canWait ? kEventDurationForever : QMAC_EVENT_NOWAIT,  TRUE, &event );
+	    ret = ReceiveNextEvent( GetEventTypeCount(events), events, 
+				    canWait ? kEventDurationForever : QMAC_EVENT_NOWAIT,  TRUE, &event );
 #else
-	    ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
+	    ret = ReceiveNextEvent( GetEventTypeCount(events), events, QMAC_EVENT_NOWAIT, TRUE, &event );
 #endif
 
 	    if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr)
@@ -1614,6 +1617,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
     }
     case kEventClassWindow:
     {
+	if(ekind == kEventWindowContextualMenuSelect )
+	    qDebug("fun..");
+	
+
 	WindowRef wid;
 	GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
 			  sizeof(WindowRef), NULL, &wid);
