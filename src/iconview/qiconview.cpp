@@ -3242,9 +3242,11 @@ void QIconView::doAutoScroll()
 {
     QRect oldRubber = QRect( *d->rubber );
 
-    QPoint pos = QCursor::pos();
-    pos = viewport()->mapFromGlobal( pos );
-    pos = viewportToContents( pos );
+    QPoint vp = viewport()->mapFromGlobal( QCursor::pos() );
+    QPoint pos = viewportToContents( vp );
+
+    if ( pos == d->rubber->bottomRight() )
+	return;
 
     d->rubber->setRight( pos.x() );
     d->rubber->setBottom( pos.y() );
@@ -3338,14 +3340,14 @@ void QIconView::doAutoScroll()
 	    emit selectionChanged( d->currentItem );
     }
 
-    if ( !QRect( 0, 0, viewport()->width(), viewport()->height() ).contains( pos ) &&
+    if ( !QRect( 50, 50, viewport()->width()-100, viewport()->height()-100 ).contains( vp ) &&
 	 !d->scrollTimer ) {
 	d->scrollTimer = new QTimer( this );
 
 	connect( d->scrollTimer, SIGNAL( timeout() ),
 		 this, SLOT( doAutoScroll() ) );
 	d->scrollTimer->start( 100, FALSE );
-    } else if ( QRect( 0, 0, viewport()->width(), viewport()->height() ).contains( pos ) &&
+    } else if ( QRect( 50, 50, viewport()->width()-100, viewport()->height()-100 ).contains( vp ) &&
 		d->scrollTimer ) {
 	disconnect( d->scrollTimer, SIGNAL( timeout() ),
 		    this, SLOT( doAutoScroll() ) );
