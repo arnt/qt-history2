@@ -219,6 +219,10 @@ public:
 	} \
 	~QAxFactoryList() { qDeleteAll(factories); } \
 	QStringList featureList() const {  return factoryKeys; } \
+	const QMetaObject *metaObject(const QString&key) const { \
+	    QAxFactoryInterface *f = factories[key]; \
+	    return f ? f->metaObject(key) : 0; \
+	} \
 	QWidget *create(const QString &key, QWidget *parent, const char *name) { \
 	    QAxFactoryInterface *f = factories[key]; \
 	    return f ? f->create(key, parent, name) : 0; \
