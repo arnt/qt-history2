@@ -294,9 +294,10 @@ void QLinkedList<T>::prepend(const T &t)
 }
 
 template <typename T>
-int QLinkedList<T>::removeAll(const T &t)
+int QLinkedList<T>::removeAll(const T &_t)
 {
     detach();
+    const T t = _t;
     Node *i = e->n;
     int c = 0;
     while (i != e) {

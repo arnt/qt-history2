@@ -445,9 +445,10 @@ Q_OUTOFLINE_TEMPLATE void QList<T>::clear()
 }
 
 template <typename T>
-Q_OUTOFLINE_TEMPLATE int QList<T>::removeAll(const T &t)
+Q_OUTOFLINE_TEMPLATE int QList<T>::removeAll(const T &_t)
 {
     detach();
+    const T t = _t;
     int count=0, i=0;
     Node *n;
     while (i < p.size())
