@@ -5,13 +5,13 @@ isEmpty(QMAKE_RCC) {
 
 isEmpty(RCC_DIR):RCC_DIR = .
 isEmpty(QMAKE_RESOURCE_PREFIX):QMAKE_RESOURCE_PREFIX = /tmp/
-isEmpty(QMAKE_MOD_RCC):QMAKE_MOD_RCC = resource
+isEmpty(QMAKE_MOD_RCC):QMAKE_MOD_RCC = qrc
 
-resource_split {
-   rcc.output  = $$RCC_DIR/$${first(QMAKE_MOD_RCC)}_${QMAKE_FILE_BASE}$${first(QMAKE_EXT_CPP)}
-} else {
+resource_combine {
    rcc.CONFIG += combine
-   rcc.output  = $$RCC_DIR/$${first(QMAKE_MOD_RCC)}$${first(QMAKE_EXT_CPP)}
+   rcc.output  = $$RCC_DIR/$${first(QMAKE_MOD_RCC)}_combined$${first(QMAKE_EXT_CPP)}
+} else {
+   rcc.output = $$RCC_DIR/$${first(QMAKE_MOD_RCC)}_${QMAKE_FILE_BASE}$${first(QMAKE_EXT_CPP)}
 }
 !contains(QMAKE_RESOURCE_FLAGS, -root):!isEmpty(QMAKE_RESOURCE_ROOT):QMAKE_RESOURCE_FLAGS += -root $$QMAKE_RESOURCE_ROOT
 !contains(QMAKE_RESOURCE_FLAGS, -name) {
