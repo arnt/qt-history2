@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#42 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#42 $");
 
 
 /*!
@@ -46,6 +46,9 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#41 $");
   If you need to, we recommend that you connect the signals which feed
   the display() slot to another slot as well and store the value
   there.
+
+  \warning The current version of QLCDNumber does not work well
+  with background pixmaps.
 
   Incidentally, QLCDNumber is the very oldest part of Qt, tracing back
   to a BASIC program on the <a
@@ -236,7 +239,7 @@ static char *getSegments( char ch )		// gets list of segments for ch
 /*!
   Constructs an LCD number, sets the number of digits to 5, the base
   to decimal, the decimal point mode to 'small' and the frame style to
-  a raised box.
+  a raised box. The segmentStyle() is set to \c Outline.
 
   The \e parent and \e name arguments are passed to the QFrame constructor.
 
@@ -254,7 +257,7 @@ QLCDNumber::QLCDNumber( QWidget *parent, const char *name )
 /*!
   Constructs an LCD number, sets the number of digits to \e numDigits, the
   base to decimal, the decimal point mode to 'small' and the frame style
-  to a raised box.
+  to a raised box.  The segmentStyle() is set to \c Outline.
 
   The \e parent and \e name arguments are passed to the QFrame constructor.
 
@@ -280,6 +283,7 @@ void QLCDNumber::init()
     base       = DEC;
     smallPoint = FALSE;
     setNumDigits( ndigits );
+    setSegmentStyle( Outline );
 }
 
 /*!
@@ -758,6 +762,13 @@ void QLCDNumber::drawDigit( const QPoint &pos, QPainter &p, int segLen,
 }
 
 
+static void addPoint( QPointArray &a, const QPoint &p )
+{
+    uint n = a.size();
+    a.resize( n + 1 );
+    a.setPoint( n, p );
+}
+
 /*!
   \internal
 */
@@ -767,146 +778,289 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 {
     QPoint pt = pos;
     QColorGroup g = colorGroup();
-    QColor lightColor,darkColor;
+    QColor lightColor,darkColor,fgColor;
     if ( erase ){
 	lightColor = g.background();
 	darkColor  = g.background();
+	fgColor    = g.background();
     } else {
 	lightColor = g.light();
 	darkColor  = g.dark();
+	fgColor    = g.foreground();
     }
     int width = segLen/5;
 
-    if ( isFilledStyle() ) {
+#define LINETO(X,Y) addPoint( a, QPoint(pt.x() + (X),pt.y() + (Y)))
+#define LIGHT 
+#define DARK 
 
+    if ( fill ) {
+	QPointArray a(0);
+
+	//The following is an exact copy of the switch below.
+	//don't make any changes here
+	switch ( segmentNo ) {
+	case 0 :
+	    p.moveTo(pt);
+	    LIGHT;
+	    LINETO(segLen - 1,0);
+	    DARK;
+	    LINETO(segLen - width - 1,width);
+	    LINETO(width,width);
+	    LINETO(0,0);
+	    break;
+	case 1 :
+	    pt.ry()++;
+	    p.moveTo(pt);
+	    LIGHT;
+	    LINETO(width,width);
+	    DARK;
+	    LINETO(width,segLen - width/2 - 2);
+	    LINETO(0,segLen - 2);
+	    LIGHT;
+	    LINETO(0,0);
+	    break;
+	case 2 :
+	    pt.rx() += (QCOORD)(segLen - 1);
+	    pt.ry()++;
+	    p.moveTo(pt);
+	    DARK;
+	    LINETO(0,segLen - 2);
+	    LINETO(-width,segLen - width/2 - 2);
+	    LIGHT;
+	    LINETO(-width,width);
+	    LINETO(0,0);
+	    break;
+	case 3 :
+	    pt.ry() += (QCOORD)segLen;
+	    p.moveTo(pt);
+	    LIGHT;
+	    LINETO(width,-width/2);
+	    LINETO(segLen - width - 1,-width/2);
+	    LINETO(segLen - 1,0);
+	    DARK;
+	    if (width & 1) {		// adjust for integer division error
+		LINETO(segLen - width - 3,width/2 + 1);
+		LINETO(width + 2,width/2 + 1);
+	    } else {
+		LINETO(segLen - width - 1,width/2);
+		LINETO(width,width/2);
+	    }
+	    LINETO(0,0);
+	    break;
+	case 4 :
+	    pt.ry() += (QCOORD)(segLen + 1);
+	    p.moveTo(pt);
+	    LIGHT;
+	    LINETO(width,width/2);
+	    DARK;
+	    LINETO(width,segLen - width - 2);
+	    LINETO(0,segLen - 2);
+	    LIGHT;
+	    LINETO(0,0);
+	    break;
+	case 5 :
+	    pt.rx() += (QCOORD)(segLen - 1);
+	    pt.ry() += (QCOORD)(segLen + 1);
+	    p.moveTo(pt);
+	    DARK;
+	    LINETO(0,segLen - 2);
+	    LINETO(-width,segLen - width - 2);
+	    LIGHT;
+	    LINETO(-width,width/2);
+	    LINETO(0,0);
+	    break;
+	case 6 :
+	    pt.ry() += (QCOORD)(segLen*2);
+	    p.moveTo(pt);
+	    LIGHT;
+	    LINETO(width,-width);
+	    LINETO(segLen - width - 1,-width);
+	    LINETO(segLen - 1,0);
+	    DARK;
+	    LINETO(0,0);
+	    break;
+	case 7 :
+	    if ( smallPoint )	// if smallpoint place'.' between other digits
+		pt.rx() += (QCOORD)(segLen + width/2);
+	    else
+		pt.rx() += (QCOORD)(segLen/2);
+	    pt.ry() += (QCOORD)(segLen*2);
+	    p.moveTo(pt);
+	    DARK;
+	    LINETO(width,0);
+	    LINETO(width,-width);
+	    LIGHT;
+	    LINETO(0,-width);
+	    LINETO(0,0);
+	    break;
+	case 8 :
+	    pt.ry() += (QCOORD)(segLen/2 + width);
+	    pt.rx() += (QCOORD)(segLen/2 - width/2 + 1);
+	    p.moveTo(pt);
+	    DARK;
+	    LINETO(width,0);
+	    LINETO(width,-width);
+	    LIGHT;
+	    LINETO(0,-width);
+	    LINETO(0,0);
+	    break;
+	case 9 :
+	    pt.ry() += (QCOORD)(3*segLen/2 + width);
+	    pt.rx() += (QCOORD)(segLen/2 - width/2 + 1);
+	    p.moveTo(pt);
+	    DARK;
+	    LINETO(width,0);
+	    LINETO(width,-width);
+	    LIGHT;
+	    LINETO(0,-width);
+	    LINETO(0,0);
+	    break;
+#if defined(CHECK_RANGE)
+	default :
+	    warning( "QLCDNumber::drawSegment: Internal error."
+		     "  Illegal segment id: %d\n", segmentNo );
+#endif
+	}
+	// End exact copy
+	p.setPen( fgColor );
+	p.setBrush( fgColor );
+	p.drawPolygon( a );
+	p.setBrush( NoBrush );
+
+	pt = pos;
     } 
+#undef LINETO
+#undef LIGHT
+#undef DARK
+
 #define LINETO(X,Y) p.lineTo(QPoint(pt.x() + (X),pt.y() + (Y)))
 #define LIGHT p.setPen(lightColor)
 #define DARK  p.setPen(darkColor)
-
-    switch ( segmentNo ) {
-    case 0 :
-	p.moveTo(pt);
-	LIGHT;
-	LINETO(segLen - 1,0);
-	DARK;
-	LINETO(segLen - width - 1,width);
-	LINETO(width,width);
-	LINETO(0,0);
-	break;
-    case 1 :
-	pt.ry()++;
-	p.moveTo(pt);
-	LIGHT;
-	LINETO(width,width);
-	DARK;
-	LINETO(width,segLen - width/2 - 2);
-	LINETO(0,segLen - 2);
-	LIGHT;
-	LINETO(0,0);
-	break;
-    case 2 :
-	pt.rx() += (QCOORD)(segLen - 1);
-	pt.ry()++;
-	p.moveTo(pt);
-	DARK;
-	LINETO(0,segLen - 2);
-	LINETO(-width,segLen - width/2 - 2);
-	LIGHT;
-	LINETO(-width,width);
-	LINETO(0,0);
-	break;
-    case 3 :
-	pt.ry() += (QCOORD)segLen;
-	p.moveTo(pt);
-	LIGHT;
-	LINETO(width,-width/2);
-	LINETO(segLen - width - 1,-width/2);
-	LINETO(segLen - 1,0);
-	DARK;
-	if (width & 1) {		// adjust for integer division error
-	    LINETO(segLen - width - 3,width/2 + 1);
-	    LINETO(width + 2,width/2 + 1);
-	} else {
-	    LINETO(segLen - width - 1,width/2);
+    if ( shadow )
+	switch ( segmentNo ) {
+	case 0 :
+	    p.moveTo(pt);
+	    LIGHT;
+	    LINETO(segLen - 1,0);
+	    DARK;
+	    LINETO(segLen - width - 1,width);
+	    LINETO(width,width);
+	    LINETO(0,0);
+	    break;
+	case 1 :
+	    pt.ry()++;
+	    p.moveTo(pt);
+	    LIGHT;
+	    LINETO(width,width);
+	    DARK;
+	    LINETO(width,segLen - width/2 - 2);
+	    LINETO(0,segLen - 2);
+	    LIGHT;
+	    LINETO(0,0);
+	    break;
+	case 2 :
+	    pt.rx() += (QCOORD)(segLen - 1);
+	    pt.ry()++;
+	    p.moveTo(pt);
+	    DARK;
+	    LINETO(0,segLen - 2);
+	    LINETO(-width,segLen - width/2 - 2);
+	    LIGHT;
+	    LINETO(-width,width);
+	    LINETO(0,0);
+	    break;
+	case 3 :
+	    pt.ry() += (QCOORD)segLen;
+	    p.moveTo(pt);
+	    LIGHT;
+	    LINETO(width,-width/2);
+	    LINETO(segLen - width - 1,-width/2);
+	    LINETO(segLen - 1,0);
+	    DARK;
+	    if (width & 1) {		// adjust for integer division error
+		LINETO(segLen - width - 3,width/2 + 1);
+		LINETO(width + 2,width/2 + 1);
+	    } else {
+		LINETO(segLen - width - 1,width/2);
+		LINETO(width,width/2);
+	    }
+	    LINETO(0,0);
+	    break;
+	case 4 :
+	    pt.ry() += (QCOORD)(segLen + 1);
+	    p.moveTo(pt);
+	    LIGHT;
 	    LINETO(width,width/2);
-	}
-	LINETO(0,0);
-	break;
-    case 4 :
-	pt.ry() += (QCOORD)(segLen + 1);
-	p.moveTo(pt);
-	LIGHT;
-	LINETO(width,width/2);
-	DARK;
-	LINETO(width,segLen - width - 2);
-	LINETO(0,segLen - 2);
-	LIGHT;
-	LINETO(0,0);
-	break;
-    case 5 :
-	pt.rx() += (QCOORD)(segLen - 1);
-	pt.ry() += (QCOORD)(segLen + 1);
-	p.moveTo(pt);
-	DARK;
-	LINETO(0,segLen - 2);
-	LINETO(-width,segLen - width - 2);
-	LIGHT;
-	LINETO(-width,width/2);
-	LINETO(0,0);
-	break;
-    case 6 :
-	pt.ry() += (QCOORD)(segLen*2);
-	p.moveTo(pt);
-	LIGHT;
-	LINETO(width,-width);
-	LINETO(segLen - width - 1,-width);
-	LINETO(segLen - 1,0);
-	DARK;
-	LINETO(0,0);
-	break;
-    case 7 :
-	if ( smallPoint )	// if smallpoint place'.' between other digits
-	    pt.rx() += (QCOORD)(segLen + width/2);
-	else
-	    pt.rx() += (QCOORD)(segLen/2);
-	pt.ry() += (QCOORD)(segLen*2);
-	p.moveTo(pt);
-	DARK;
-	LINETO(width,0);
-	LINETO(width,-width);
-	LIGHT;
-	LINETO(0,-width);
-	LINETO(0,0);
-	break;
-    case 8 :
-	pt.ry() += (QCOORD)(segLen/2 + width);
-	pt.rx() += (QCOORD)(segLen/2 - width/2 + 1);
-	p.moveTo(pt);
-	DARK;
-	LINETO(width,0);
-	LINETO(width,-width);
-	LIGHT;
-	LINETO(0,-width);
-	LINETO(0,0);
-	break;
-    case 9 :
-	pt.ry() += (QCOORD)(3*segLen/2 + width);
-	pt.rx() += (QCOORD)(segLen/2 - width/2 + 1);
-	p.moveTo(pt);
-	DARK;
-	LINETO(width,0);
-	LINETO(width,-width);
-	LIGHT;
-	LINETO(0,-width);
-	LINETO(0,0);
-	break;
+	    DARK;
+	    LINETO(width,segLen - width - 2);
+	    LINETO(0,segLen - 2);
+	    LIGHT;
+	    LINETO(0,0);
+	    break;
+	case 5 :
+	    pt.rx() += (QCOORD)(segLen - 1);
+	    pt.ry() += (QCOORD)(segLen + 1);
+	    p.moveTo(pt);
+	    DARK;
+	    LINETO(0,segLen - 2);
+	    LINETO(-width,segLen - width - 2);
+	    LIGHT;
+	    LINETO(-width,width/2);
+	    LINETO(0,0);
+	    break;
+	case 6 :
+	    pt.ry() += (QCOORD)(segLen*2);
+	    p.moveTo(pt);
+	    LIGHT;
+	    LINETO(width,-width);
+	    LINETO(segLen - width - 1,-width);
+	    LINETO(segLen - 1,0);
+	    DARK;
+	    LINETO(0,0);
+	    break;
+	case 7 :
+	    if ( smallPoint )	// if smallpoint place'.' between other digits
+		pt.rx() += (QCOORD)(segLen + width/2);
+	    else
+		pt.rx() += (QCOORD)(segLen/2);
+	    pt.ry() += (QCOORD)(segLen*2);
+	    p.moveTo(pt);
+	    DARK;
+	    LINETO(width,0);
+	    LINETO(width,-width);
+	    LIGHT;
+	    LINETO(0,-width);
+	    LINETO(0,0);
+	    break;
+	case 8 :
+	    pt.ry() += (QCOORD)(segLen/2 + width);
+	    pt.rx() += (QCOORD)(segLen/2 - width/2 + 1);
+	    p.moveTo(pt);
+	    DARK;
+	    LINETO(width,0);
+	    LINETO(width,-width);
+	    LIGHT;
+	    LINETO(0,-width);
+	    LINETO(0,0);
+	    break;
+	case 9 :
+	    pt.ry() += (QCOORD)(3*segLen/2 + width);
+	    pt.rx() += (QCOORD)(segLen/2 - width/2 + 1);
+	    p.moveTo(pt);
+	    DARK;
+	    LINETO(width,0);
+	    LINETO(width,-width);
+	    LIGHT;
+	    LINETO(0,-width);
+	    LINETO(0,0);
+	    break;
 #if defined(CHECK_RANGE)
-    default :
-	warning( "QLCDNumber::drawSegment: Internal error."
-		 "  Illegal segment id: %d\n", segmentNo );
+	default :
+	    warning( "QLCDNumber::drawSegment: Internal error."
+		     "  Illegal segment id: %d\n", segmentNo );
 #endif
-    }
+	}
 
 #undef LINETO
 #undef LIGHT
@@ -915,10 +1069,33 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 
 
 /*!
-  Sets the style of the QLCDNumber to filled (flat) if \a f is TRUE.
+  Sets the style of the QLCDNumber to \a s. 
+  <ul>
+  <li>\c Outline gives raised segments filled with the background color. 
+  <li>\c Filled gives raised segments filled with the foreground color.
+  <li>\c Flat gives flat segments filled with the foreground color.
+  
+  \sa segmentStyle()
 */
 
-int QLCDNumber::setFilledStyle( bool f )
+void QLCDNumber::setSegmentStyle( SegmentStyle s )
 {
-    filled = f;
+    fill = ( s == Flat || s == Filled );
+    shadow = ( s == Outline || s == Filled );
+}
+
+
+/*!
+  Returns the style of the QLCDNumber.
+  \sa setSegmentStyle()
+*/
+
+QLCDNumber::SegmentStyle QLCDNumber::segmentStyle() const
+{
+    ASSERT( fill || shadow );
+    if ( !fill && shadow )
+	return Outline;
+    if ( fill && shadow )
+	return Filled;
+    return Flat;
 }
