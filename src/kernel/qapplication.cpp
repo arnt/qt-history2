@@ -1072,7 +1072,7 @@ QStyle& QApplication::style()
 	     !(app_style = QStyleFactory::create( "SGI" ) ) &&
 	     !(app_style = QStyleFactory::create( "Compact" ) )
 #ifndef QT_NO_STRINGLIST
-	    && !(app_style = QStyleFactory::create( QStyleFactory::keys()[0]  ) )
+	    && (QStyleFactory::keys().isEmpty() || !(app_style = QStyleFactory::create( QStyleFactory::keys()[0] )) )
 #endif
 	)
 	    qFatal( "No %s style available!", style.latin1() );
