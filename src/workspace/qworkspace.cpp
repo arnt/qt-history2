@@ -60,6 +60,7 @@
 #include "qstyle.h"
 
 // magic non-mdi things
+#include "qdockarea.h"
 #include "qstatusbar.h"
 #include "qmainwindow.h"
 #include "qdockwindow.h"
@@ -67,10 +68,6 @@
 
 #define BUTTON_WIDTH	16
 #define BUTTON_HEIGHT	14
-
-enum { Yes, No, Default } toplevel = Default;
-static QGuardedPtr<QMainWindow> mainwindow = 0;
-
 
 /*!
   \class QWorkspace qworkspace.h
@@ -228,6 +225,11 @@ public:
     QScrollBar *vbar, *hbar;
     QWidget *corner;
     int yoffset, xoffset;
+
+    // toplevel mdi fu
+    QWorkspace::WindowMode toplevel;
+    QGuardedPtr<QMainWindow> mainwindow;
+    QPtrList<QDockWindow> dockwindows;
 };
 
 /*!
@@ -245,6 +247,8 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->py = 0;
     d->becomeActive = 0;
     d->autoFocusChange = FALSE;
+    d->toplevel = Default;
+    d->mainwindow = 0;
 #if defined(Q_WS_WIN)
     d->popup = new QPopupMenu( this, "qt_internal_mdi_popup" );
     d->toolPopup = new QPopupMenu( this, "qt_internal_mdi_popup" );
@@ -422,7 +426,7 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	emit windowActivated( 0 );
 	return;
     }
-    if ( toplevel != Yes && !isVisibleTo( 0 ) ) {
+    if ( d->toplevel != Yes && !isVisibleTo( 0 ) ) {
 	d->becomeActive = w;
 	return;
     }
@@ -489,7 +493,7 @@ QWidget* QWorkspace::activeWindow() const
 
 void QWorkspace::place( QWidget* w)
 {
-    if(toplevel == Yes && w->isTopLevel())
+    if(d->toplevel == Yes && w->isTopLevel())
 	return;
 
     int overlap, minOverlap = 0;
@@ -682,19 +686,142 @@ void QWorkspace::resizeEvent( QResizeEvent * )
 
 }
 
+void QWorkspace::handleUndock(QDockWindow *w)
+{
+    int overlap, minOverlap = 0;
+    int possible;
+
+    QRect r1(0, 0, 0, 0);
+    QRect r2(0, 0, 0, 0);
+    QDesktopWidget *dw = qApp->desktop();
+    QRect maxRect = dw->screenGeometry(dw->screenNumber(d->mainwindow));
+    int x = maxRect.left(), y = maxRect.top();
+    QPoint wpos(maxRect.left(), maxRect.top());
+
+    bool firstPass = TRUE;
+
+    do {
+	if ( y + w->height() > maxRect.bottom() ) {
+	    overlap = -1;
+	} else if( x + w->width() > maxRect.right() ) {
+	    overlap = -2;
+	} else {
+	    overlap = 0;
+
+	    r1.setRect(x, y, w->width(), w->height());
+
+	    QWidget *l;
+	    QPtrListIterator<QDockWindow> it( d->dockwindows );
+	    while ( it.current () ) {
+		l = it.current();
+		++it;
+		if (! d->icons.contains(l) && ! l->isHidden() && l != w ) {
+		    r2.setRect(l->x(), l->y(), l->width(), l->height());
+
+		    if (r2.intersects(r1)) {
+			r2.setCoords(QMAX(r1.left(), r2.left()),
+				     QMAX(r1.top(), r2.top()),
+				     QMIN(r1.right(), r2.right()),
+				     QMIN(r1.bottom(), r2.bottom())
+				     );
+
+			overlap += (r2.right() - r2.left()) *
+				   (r2.bottom() - r2.top());
+		    }
+		}
+	    }
+	}
+
+	if (overlap == 0) {
+	    wpos = QPoint(x, y);
+	    break;
+	}
+
+	if (firstPass) {
+	    firstPass = FALSE;
+	    minOverlap = overlap;
+	} else if ( overlap >= 0 && overlap < minOverlap) {
+	    minOverlap = overlap;
+	    wpos = QPoint(x, y);
+	}
+
+	if ( overlap > 0 ) {
+	    possible = maxRect.right();
+	    if ( possible - w->width() > x) possible -= w->width();
+
+	    QWidget *l;
+	    QPtrListIterator<QDockWindow> it( d->dockwindows );
+	    while ( it.current () ) {
+		l = it.current();
+		++it;
+		if (! d->icons.contains(l) && ! l->isHidden() && l != w ) {
+		    r2.setRect(l->x(), l->y(), l->width(), l->height());
+
+		    if( ( y < r2.bottom() ) && ( r2.top() < w->height() + y ) ) {
+			if( r2.right() > x )
+			    possible = possible < r2.right() ?
+				       possible : r2.right();
+
+			if( r2.left() - w->width() > x )
+			    possible = possible < r2.left() - w->width() ?
+				       possible : r2.left() - w->width();
+		    }
+		}
+	    }
+
+	    x = possible;
+	} else if ( overlap == -2 ) {
+	    x = maxRect.left();
+	    possible = maxRect.bottom();
+
+	    if ( possible - w->height() > y ) possible -= w->height();
+
+	    QWidget *l;
+	    QPtrListIterator<QDockWindow> it( d->dockwindows );
+	    while ( it.current () ) {
+		l = it.current();
+		++it;
+		if (l != w && ! d->icons.contains(w)) {
+		    r2.setRect(l->x(), l->y(), l->width(), l->height());
+
+		    if( r2.bottom() > y)
+			possible = possible < r2.bottom() ?
+				   possible : r2.bottom();
+
+		    if( r2.top() - w->height() > y )
+			possible = possible < r2.top() - w->height() ?
+				   possible : r2.top() - w->height();
+		}
+	    }
+
+	    y = possible;
+	}
+    } while( overlap != 0 && overlap != -1 );
+
+    bool ishidden = w->isHidden();
+    QSize olds(w->size());
+    if(w->place() == QDockWindow::InDock)
+	w->undock();
+    w->setGeometry(QRect(wpos, olds));
+    if(!ishidden)
+	w->show();
+    else
+	w->hide();
+}
+
 /*! \reimp */
 void QWorkspace::showEvent( QShowEvent *e )
 {
     /* This is all magic, be carefull when playing with this code - this tries to allow people to 
        use QWorkspace as a high level abstraction for window management, but removes enforcement that
        QWorkspace be used as an MDI. */
-    if(toplevel == Default) {
-	toplevel = No;
+    if(d->toplevel == Default) {
+	d->toplevel = No;
 #if defined( Q_WS_MACX ) && !defined( QMAC_QMENUBAR_NO_NATIVE )
 	QWidget *o = topLevelWidget();
 	if(o->inherits("QMainWindow")) {
-	    mainwindow = (QMainWindow*)o;
-	    toplevel = Yes;
+	    d->mainwindow = (QMainWindow*)o;
+	    d->toplevel = Yes;
 	    const QObjectList *c = o->children();
 	    for(QObjectListIt it(*c); it; ++it) {
 		if((*it)->isWidgetType() && !((QWidget *)(*it))->isTopLevel() &&
@@ -703,14 +830,14 @@ void QWorkspace::showEvent( QShowEvent *e )
 		   !(*it)->inherits("QDockArea") && !(*it)->inherits("QWorkspace") &&
 		   !(*it)->inherits("QMenuBar") &&
 		   !(*it)->inherits("QStatusBar") && !(*it)->inherits("QSizeHandle")) {
-		    toplevel = No;
+		    d->toplevel = No;
 		    break;
 		}
 	    }
 	}
 #endif
     }
-    if(toplevel == Yes) {
+    if(d->toplevel == Yes) {
 	QWidget *o = topLevelWidget();
 	const QObjectList *c = o->children();
 	for(QObjectListIt it(*c); it; ++it) {	
@@ -721,39 +848,40 @@ void QWorkspace::showEvent( QShowEvent *e )
 		continue;
 	    if(w->inherits("QDockArea")) {
 		if(const QObjectList *dock_c = w->children()) {
-		    QPtrList<QToolBar> list;
+		    QPtrList<QToolBar> tb_list;
 		    for(QObjectListIt dock_it(*dock_c); dock_it; ++dock_it) {
-			if(!(*dock_it)->isWidgetType() || !((QWidget*)(*dock_it))->isVisible())
+			if(!(*dock_it)->isWidgetType())
 			    continue;
 			if((*dock_it)->inherits("QToolBar")) {
-			    list.append((QToolBar *)(*dock_it));
+			    tb_list.append((QToolBar *)(*dock_it));
 			} else if ((*dock_it)->inherits("QDockWindow")) {
 			    QDockWindow *dw = (QDockWindow*)(*dock_it);
-			    QRect oldr(dw->mapTo(o, QPoint(0, 0)), dw->size());
-			    dw->undock();
-			    dw->setGeometry(oldr);
+			    dw->move(dw->mapTo(o, QPoint(0, 0)));
+			    d->dockwindows.append(dw);
 			} else {
 			    qDebug("not sure what to do with %s %s", (*dock_it)->className(),
 				   (*dock_it)->name());
 			}
 		    }
-		    if(list.count()) {
-			if(list.count() == 1) {
-			    QToolBar *tb = list.first();
-			    tb->undock();
-			    tb->move(0, 10);
-			} else {
-			    QDockWindow *dw = new QDockWindow(QDockWindow::OutsideDock, 
-							      w->parentWidget(), "magicdock");
-			    dw->setResizeEnabled(TRUE);
-			    dw->setCaption(o->caption());
-			    QSize os(w->size());
-			    w->reparent(dw, QPoint(0, 0));
-			    dw->setWidget(w);
-			    w->setMinimumSize(os);
-			    dw->move(0, 10);
+		    if(tb_list.count() == 1) {
+			QToolBar *tb = tb_list.first();
+			tb->move(0, 0);
+			d->dockwindows.prepend(tb);
+		    } else if(tb_list.count()) {
+			QDockWindow *dw = new QDockWindow(QDockWindow::OutsideDock, 
+							  w->parentWidget(), "QMagicDock");
+			dw->setResizeEnabled(TRUE);
+			dw->setCaption(o->caption());
+			QSize os(w->size());
+			if(!w->isHidden())
 			    dw->show();
-			}
+			w->reparent(dw, QPoint(0, 0));
+			dw->setWidget(w);
+			dw->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+			dw->setGeometry(0, 0, os.width(), os.height() + dw->sizeHint().height());
+			d->dockwindows.prepend(dw);
+			((QDockArea*)w)->setAcceptDockWindow(dw, FALSE);
+			w->show();
 		    }
 		}
 	    } else if(w->inherits("QStatusBar")) {
@@ -765,6 +893,10 @@ void QWorkspace::showEvent( QShowEvent *e )
 		w->reparent(this, w->testWFlags(~(0)) | WType_TopLevel, w->pos());
 	    }
 	}
+	//setup dockwindows
+	for(QPtrListIterator<QDockWindow> dw_it(d->dockwindows); (*dw_it); ++dw_it) 
+	    handleUndock((*dw_it));
+
 	QWidget *w = new QWidget(NULL, "QDoesNotExist", WStyle_Customize | WStyle_NoBorder);
 	QDesktopWidget *dw = QApplication::desktop();
 	w->setGeometry(dw->screenGeometry(dw->screenNumber(topLevelWidget())));
@@ -773,7 +905,7 @@ void QWorkspace::showEvent( QShowEvent *e )
 	setGeometry(0, 0, w->width(), w->height());
     }
 
-    //done with that nastiness, onto your regularly schedualed television..
+    //done with that nastiness, on with your regularly schedualed programming..
     if ( d->maxWindow && !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this))
 	showMaximizeControls();
     QWidget::showEvent( e );
@@ -1569,7 +1701,7 @@ void QWorkspace::tile()
 QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 				  const char *name )
     : QFrame( parent, name,
-	      (toplevel == Yes ? WType_TopLevel : 0 ) | WStyle_Customize | 
+	      (parent->windowMode() == QWorkspace::Yes ? WType_TopLevel : 0 ) | WStyle_Customize | 
 	      WStyle_MinMax | WStyle_SysMenu | WDestructiveClose | WNoMousePropagation | WSubWindow )
 {
     statusbar = 0;
@@ -1673,7 +1805,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     connect( widgetResizeHandler, SIGNAL( activate() ),
 	     this, SLOT( activate() ) );
     widgetResizeHandler->setExtraHeight( th + 1 );
-    if(toplevel == Yes && isTopLevel())
+    if(parent->windowMode() == QWorkspace::Yes && isTopLevel())
 	widgetResizeHandler->setActive( FALSE );
 }
 
@@ -1687,7 +1819,7 @@ bool QWorkspaceChild::event( QEvent *e )
 {
     switch(e->type()) {
     case QEvent::WindowDeactivate:
-	if(toplevel == Yes && statusbar) {
+	if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::Yes && statusbar) {
 	    QSize newsize(width(), height() - statusbar->height());
 	    if(statusbar->parentWidget() == this)
 		statusbar->hide();
@@ -1697,8 +1829,9 @@ bool QWorkspaceChild::event( QEvent *e )
 	break;
     case QEvent::WindowActivate:
 	activate();
-	if(toplevel == Yes && mainwindow) 
-	    setStatusBar( mainwindow->statusBar() );
+	if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::Yes && 
+	   ((QWorkspace*) parentWidget() )->d->mainwindow) 
+	    setStatusBar( ((QWorkspace*) parentWidget() )->d->mainwindow->statusBar() );
 	break;
     default:
 	break;
@@ -1708,7 +1841,7 @@ bool QWorkspaceChild::event( QEvent *e )
 
 void QWorkspaceChild::setStatusBar( QStatusBar *sb ) 
 {
-    if(toplevel == Yes) {
+    if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::Yes) {
 	QSize newsize;
 	if(sb) {
 	    sb->show();
@@ -2215,7 +2348,7 @@ void QWorkspaceChild::internalRaise()
 	     c->windowWidget()->testWFlags( WStyle_StaysOnTop ) )
 	     c->raise();
     }
-    if(toplevel == Yes && isTopLevel())
+    if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::Yes && isTopLevel())
 	setActiveWindow();
 
     setUpdatesEnabled( TRUE );
@@ -2407,6 +2540,16 @@ void QWorkspace::scrollBarChanged()
 	child->setGeometry( child->x() + hor, child->y() + ver, child->width(), child->height() );
     }
     updateWorkspace();
+}
+
+QWorkspace::WindowMode QWorkspace::windowMode() const
+{
+    return d->toplevel;
+}
+
+void QWorkspace::setWindowMode(QWorkspace::WindowMode m)
+{
+    d->toplevel = m;
 }
 
 #ifndef QT_NO_STYLE

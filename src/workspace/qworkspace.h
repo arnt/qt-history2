@@ -55,6 +55,7 @@ class QWorkspaceChild;
 class QShowEvent;
 class QWorkspacePrivate;
 class QPopupMenu;
+class QDockWindow;
 
 class QM_EXPORT_WORKSPACE QWorkspace : public QWidget
 {
@@ -74,6 +75,10 @@ public:
 
     void setPaletteBackgroundColor( const QColor & );
     void setPaletteBackgroundPixmap( const QPixmap & );
+
+    enum WindowMode { Yes, No, Default };
+    void setWindowMode(WindowMode);
+    WindowMode windowMode() const;
 
 signals:
     void windowActivated( QWidget* w);
@@ -108,6 +113,7 @@ private slots:
     void scrollBarChanged();
 
 private:
+    void handleUndock( QDockWindow* w);
     void insertIcon( QWidget* w);
     void removeIcon( QWidget* w);
     void place( QWidget* );
