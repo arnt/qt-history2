@@ -401,7 +401,7 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
 
 bool QSqlCursor::select()
 {
-    return select( sort(), filter() );
+    return select( filter(), sort() );
 }
 
 /*!  \overload
