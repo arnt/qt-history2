@@ -3633,10 +3633,17 @@ void QWidget::hide()
 {
     if ( testWState(WState_ForceHide) )
 	return;
+
     setWState( WState_ForceHide );
 
     if ( testWFlags(WType_Popup) )
 	qApp->closePopup( this );
+
+    // Move test modal here.  Otherwise, a modal dialog could get
+    // destroyed and we lose all access to its parent because we haven't
+    // left modality.  (Eg. modal Progress Dialog)
+    if ( testWFlags(WType_Dialog) && testWFlags(WShowModal) )
+	qt_leave_modal( this );
 
 #if defined(Q_WS_WIN)
     if ( isTopLevel() && !isPopup() && parentWidget() && isActiveWindow() )
@@ -3672,9 +3679,6 @@ void QWidget::hide()
 				 new QEvent( QEvent::LayoutHint) );
 
     sendHideEventsToChildren( FALSE );
-
-    if ( testWFlags(WType_Dialog) && testWFlags(WShowModal) )
-	qt_leave_modal( this );
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::ObjectHide );
