@@ -50,11 +50,6 @@
 #endif
 #include <string.h>
 
-static const int TxNone      = 0;		// transformation codes
-static const int TxTranslate = 1;		// also in qpainter.cpp
-static const int TxScale     = 2;
-static const int TxRotShear  = 3;
-
 class paintevent_item;
 class QPainterPrivate
 {
@@ -1953,7 +1948,7 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, QPai
     }
 }
 
-void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int *ulChars, int nUlChars)
+void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
 {
 #if 0
     if( testf(ExtDev) || txop >= TxScale ) {
@@ -1999,38 +1994,12 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int *ulChars, int
 #endif
     updatePen();
 
-    int textFlags = 0;
     if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
     if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
     if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
 
     fe->draw(this, x,  y, engine->glyphs( &si ), engine->advances( &si ),
 	     engine->offsets( &si ), si.num_glyphs, si.analysis.bidiLevel % 2, textFlags);
-
-    if ( ulChars ) {
-        int ulpos = fe->underlinePosition();
-	int lineWidth = fe->lineThickness();
-	// draw underlines
-        for ( int i = 0; i < nUlChars; i++ ) {
-	  // ### fix for ligatures and indic syllables
-            int from = si.position;
-            int x1 = ti.cursorToX( ulChars[i] - from );
-            int x2 = ti.cursorToX( ulChars[i] + 1 - from );
-            if ( x2 > x1 )
-                x2--;
-            else if ( x1 > x2 ) {
-                int tmp = x2;
-                x2 = x1;
-                x1 = tmp + 1;
-            }
-	    Rect r;
-	    SetRect(&r, x1, (y + ulpos) - (lineWidth / 2),
-		    x2, (y + ulpos) + (lineWidth / 2));
-	    if(!(r.bottom - r.top))
-	        r.bottom++;
-	    PaintRect(&r);
-        }
-    }
 
 }
 

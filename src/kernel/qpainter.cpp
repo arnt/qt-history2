@@ -53,6 +53,7 @@
 #include <string.h>
 
 #include "qtextlayout_p.h"
+#include "qfontengine_p.h"
 
 #ifndef QT_NO_TRANSFORMATIONS
 typedef QPtrStack<QWMatrix> QWMatrixStack;
@@ -1541,11 +1542,6 @@ void QPainter::resetXForm()
     setViewXForm( FALSE );
 }
 
-static const int TxNone      = 0;		// transformation codes
-static const int TxTranslate = 1;		// copy in qpainter_*.cpp
-static const int TxScale     = 2;
-static const int TxRotShear  = 3;
-
 /*!
   \internal
   Updates an internal integer transformation matrix.
@@ -2844,6 +2840,12 @@ void qt_format_text( const QFont& font, const QRect &_r,
     } else {
 	textLayout.beginLayout();
 
+	// break underline chars into items of their own
+	for( int i = 0; i < numUnderlines; i++ ) {
+	    textLayout.setBoundary( underlinePositions[i] );
+	    textLayout.setBoundary( underlinePositions[i]+1 );
+	}
+
 	int lineWidth = wordbreak ? r.width() : INT_MAX;
 
 	int add = 0;
@@ -2941,23 +2943,18 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    }
 	}
 
-	int * ulChars = underlinePositions;
+	int cUlChar = 0;
 	for ( int i = 0; i < textLayout.numItems(); i++ ) {
 	    QTextItem ti = textLayout.itemAt( i );
 // 	    qDebug("Item %d: from=%d,  to=%d,  space=%d", i, ti.from(),  ti.length(), ti.isSpace() );
 	    if ( ti.isObject() || ti.isSpace() )
 		continue;
-	    int nUlChars = 0;
-	    if ( !noaccel && numUnderlines ) {
-		int from = ti.from();
-		int len = ti.length();
-		for ( nUlChars = 0; nUlChars < numUnderlines && ulChars[nUlChars] <= from + len; nUlChars++ );
+	    int textFlags = 0;
+	    if ( !noaccel && numUnderlines > cUlChar && ti.from() == underlinePositions[cUlChar] ) {
+		textFlags = QFontEngine::Underline;
+		cUlChar++;
 	    }
-	    painter->drawTextItem( r.x(), r.y() + yoff, ti, ulChars, nUlChars );
-	    if ( nUlChars ) {
-		ulChars += nUlChars;
-		numUnderlines -= nUlChars;
-	    }
+	    painter->drawTextItem( r.x(), r.y() + yoff, ti, textFlags );
 	}
 
 	if ( restoreClipping ) {

@@ -173,12 +173,6 @@ inline double qcos( double a ) { return qsincos(a,TRUE); }
   QPainter member functions
  *****************************************************************************/
 
-static const int TxNone      = 0;		// transformation codes
-static const int TxTranslate = 1;		// also in qpainter.cpp
-static const int TxScale     = 2;
-static const int TxRotShear  = 3;
-
-
 void QPainter::initialize()
 {
 }
@@ -1836,7 +1830,7 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 }
 
 
-void QPainter::drawTextItem( int x,  int y, const QTextItem &ti )
+void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
 {
     if ( testf(DirtyFont) ) {
 	updateFont();
@@ -1858,19 +1852,12 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti )
 
     bool rightToLeft = si.analysis.bidiLevel % 2;
 
-    fe->draw( this, x,  y, shaped->glyphs, shaped->advances,
-		  shaped->offsets, shaped->num_glyphs, rightToLeft );
+    if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
+    if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
+    if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
 
-    if ( cfont.underline() || cfont.strikeOut() ) {
-	QFontMetrics fm = fontMetrics();
-	int lw = fm.lineWidth();
-	gfx->setBrush( cpen.color() );
-	if ( cfont.underline() )		// draw underline effect
-	    gfx->fillRect( x, y+fm.underlinePos(), si.width, lw );
-	if ( cfont.strikeOut() )		// draw strikeout effect
-	    gfx->fillRect( x, y-fm.strikeOutPos(), si.width, lw );
-	gfx->setBrush( cbrush );
-    }
+    fe->draw( this, x,  y, shaped->glyphs, shaped->advances,
+		  shaped->offsets, shaped->num_glyphs, rightToLeft, textFlags );
 
 }
 

@@ -260,8 +260,8 @@ public:
 			  const QString&, int len = -1, QRect *br=0,
 			  QTextParag **intern=0 );
 
-    void drawTextItem( int x, int y, const QTextItem &ti, int *ulChars = 0, int nUlChars = 0 );
-    void drawTextItem( const QPoint& p, const QTextItem &ti );
+    void drawTextItem( int x, int y, const QTextItem &ti, int textflags = 0 );
+    void drawTextItem( const QPoint& p, const QTextItem &ti, int textflags = 0 );
 
     QRect	boundingRect( int x, int y, int w, int h, int flags,
 			      const QString&, int len = -1, QTextParag **intern=0 );
@@ -381,6 +381,8 @@ protected:
 	QPoint	internalCurrentPos;
 #endif
 #if defined(Q_WS_WIN)
+    friend class QFontEngineWin;
+    friend class QFontEngineBox;
     QT_WIN_PAINTER_MEMBERS
 #elif defined(Q_WS_X11)
     friend class QFontEngineXLFD;
@@ -415,6 +417,13 @@ private:	// Disabled copy constructor and operator=
     QPainter( const QPainter & );
     QPainter &operator=( const QPainter & );
 #endif
+
+    enum TransformationCodes {
+	TxNone      = 0,		// transformation codes
+	TxTranslate = 1,		// copy in qpainter_*.cpp
+	TxScale     = 2,
+	TxRotShear  = 3
+    };
 };
 
 
@@ -676,9 +685,9 @@ inline void QPainter::drawText( int x, int y, int w, int h, int tf,
     drawText( r, tf, str, len, br, i );
 }
 
-inline void QPainter::drawTextItem( const QPoint& p, const QTextItem &ti )
+inline void QPainter::drawTextItem( const QPoint& p, const QTextItem &ti, int textflags )
 {
-    drawTextItem( p.x(), p.y(), ti );
+    drawTextItem( p.x(), p.y(), ti, textflags );
 }
 
 inline QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,

@@ -4,6 +4,7 @@
 #include "qapplication_p.h"
 
 #include <qpaintdevice.h>
+#include <qpainter.h>
 #include <limits.h>
 
 // defined in qtextengine_win.cpp
@@ -195,10 +196,19 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
 void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	   const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags )
 {
-    Q_UNUSED( p );
-    HDC hdc = dc();
-    unsigned int options =  ttf ? ETO_GLYPH_INDEX : 0;
+    bool nat_xf = ( (qt_winver & Qt::WV_NT_based) && p->txop >= QPainter::TxScale );
 
+    HDC hdc = dc();
+
+    if ( p->txop == QPainter::TxTranslate )
+	p->map( x, y, &x, &y );
+    else {
+	QT_WA( { 
+	    p->nativeXForm( TRUE );
+	}, {
+	    // #### fixme for rotations on DOS based
+	} );
+    }
     if ( textFlags & Underline || textFlags & StrikeOut ) {
 	LOGFONT lf = logfont;
 	lf.lfUnderline = (textFlags & Underline);
@@ -206,6 +216,8 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	HFONT hf = QT_WA_INLINE( CreateFontIndirectW( &lf ), CreateFontIndirectA( (LOGFONTA*)&lf ) );
 	SelectObject( hdc, hf );
     }
+
+    unsigned int options =  ttf ? ETO_GLYPH_INDEX : 0;
 
     int xo = x;
 
@@ -275,6 +287,10 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	Rectangle( hdc, xo, yp, x, yp + lw );
 
     }
+
+    if ( nat_xf )
+	p->nativeXForm( FALSE );
+
 }
 
 glyph_metrics_t QFontEngineWin::boundingBox( const glyph_t *glyphs,

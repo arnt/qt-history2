@@ -285,12 +285,6 @@ static inline bool obtain_brush( void **ref, HBRUSH *brush, uint pix )
   QPainter member functions
  *****************************************************************************/
 
-static const int TxNone      = 0;		// transformation codes
-static const int TxTranslate = 1;		// also in qpainter.cpp
-static const int TxScale     = 2;
-static const int TxRotShear  = 3;
-
-
 void QPainter::initialize()
 {
     stock_nullPen    = (HPEN)GetStockObject( NULL_PEN );
@@ -2278,6 +2272,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     if ( !isActive() )
 	return;
 
+#if 0
 #ifndef Q_OS_TEMP
     bool nat_xf = ( (qt_winver & WV_NT_based) && txop >= TxScale );
 #else
@@ -2472,6 +2467,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	    map( x, y, &x, &y );
 	}
     }
+#endif
 
     // we can't take the complete string here as we would otherwise
     // get quadratic behaviour when drawing long strings in parts.
@@ -2557,30 +2553,19 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	}
     }
 
+#if 0
     if ( nat_xf )
 	nativeXForm( FALSE );
+#endif
 }
 
 
 
-void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int *ulChars, int nUlChars )
+void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
 {
-    bool nat_xf = ( (qt_winver & WV_NT_based) && txop >= TxScale );
-
     if ( testf(ExtDev) ) {
 	// ### FIXME
 	return;
-    }
-
-
-    if ( txop == TxTranslate )
-	map( x, y, &x, &y );
-    else {
-	QT_WA( { 
-	    nativeXForm( TRUE );
-	}, {
-	    // #### fixme for rotations on DOS based
-	} );
     }
 
     QTextEngine *engine = ti.engine;
@@ -2599,7 +2584,6 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int *ulChars, i
     fe->hdc = hdc;
     SelectObject( hdc, fe->hfont );
 
-    int textFlags = 0;
     if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
     if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
     if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
@@ -2607,33 +2591,6 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int *ulChars, i
     fe->draw( this, x,  y, engine->glyphs( &si ), engine->advances( &si ),
 	      engine->offsets( &si ), si.num_glyphs, rightToLeft, textFlags );
     fe->hdc = oldDC;
-
-    if ( ulChars ) {
-	uint pix = COLOR_VALUE(cpen.data->color);
-	HBRUSH tbrush = CreateSolidBrush( pix );
-	SelectObject( hdc, tbrush );
-
-	// draw underlines
-	for ( int i = 0; i < nUlChars; i++ ) {
-	    // ### fix for ligatures and indic syllables
-	    int from = si.position;
-	    int x1 = ti.cursorToX( ulChars[i] - from );
-	    int x2 = ti.cursorToX( ulChars[i] + 1 - from );
-	    if ( x2 > x1 )
-		x2--;
-	    else if ( x1 > x2 ) {
-		int tmp = x2;
-		x2 = x1;
-		x1 = tmp + 1;
-	    }
-	    int ulpos = fe->underlinePosition();
-	    Rectangle( hdc, x + x1, y + ulpos, x + x2, y + ulpos + fe->lineThickness() );
-	}
-	SelectObject( hdc, hbrush );
-	DeleteObject( tbrush );
-    }
-    if ( nat_xf )
-	nativeXForm( FALSE );
 }
 
 

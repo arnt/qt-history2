@@ -538,12 +538,6 @@ static inline void release_gc( void *ref )
   QPainter member functions
  *****************************************************************************/
 
-static const int TxNone      = 0;		// transformation codes
-static const int TxTranslate = 1;		// also in qpainter.cpp
-static const int TxScale     = 2;
-static const int TxRotShear  = 3;
-
-
 /*!
   \internal
 
@@ -3175,7 +3169,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 /*! \internal
     Draws the text item \a ti at position \a (x, y ).
 */
-void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int *ulChars, int nUlChars )
+void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
 {
     if ( testf(ExtDev) || txop >= TxScale ) {
         if ( txop >= TxScale ) {
@@ -3289,32 +3283,12 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int *ulChars, i
 
     bool rightToLeft = si.analysis.bidiLevel % 2;
 
-    int textFlags = 0;
     if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
     if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
     if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
 
     fe->draw( this, x,  y, engine->glyphs( &si ), engine->advances( &si ),
 	      engine->offsets( &si ), si.num_glyphs, rightToLeft, textFlags );
-
-    if ( ulChars ) {
-	// draw underlines
-	for ( int i = 0; i < nUlChars; i++ ) {
-	    // ### fix for ligatures and indic syllables
-	    int from = si.position;
-	    int x1 = ti.cursorToX( ulChars[i] - from );
-	    int x2 = ti.cursorToX( ulChars[i] + 1 - from );
-	    if ( x2 > x1 )
-		x2--;
-	    else if ( x1 > x2 ) {
-		int tmp = x2;
-		x2 = x1;
-		x1 = tmp + 1;
-	    }
-	    int ulpos = fe->underlinePosition();
-	    XFillRectangle( dpy, hd, gc, x + x1, y + ulpos, x2-x1, fe->lineThickness() );
-	}
-    }
 }
 
 /*!
