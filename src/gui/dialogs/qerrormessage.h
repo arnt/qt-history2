@@ -17,20 +17,17 @@
 
 #ifndef QT_H
 #include "qdialog.h"
-#include "qhash.h"
 #endif // QT_H
 
 #ifndef QT_NO_ERRORMESSAGE
-class QPushButton;
-class QCheckBox;
-class QLabel;
-class QTextView;
-class QStringList;
+
+class QErrorMessagePrivate;
 
 class Q_GUI_EXPORT QErrorMessage: public QDialog {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QErrorMessage)
 public:
-    QErrorMessage(QWidget* parent=0, const char* name=0);
+    QErrorMessage(QWidget* parent = 0);
     ~QErrorMessage();
 
     static QErrorMessage * qtHandler();
@@ -40,16 +37,6 @@ public slots:
 
 protected:
     void done(int);
-
-private:
-    QPushButton * ok;
-    QCheckBox * again;
-    QTextView * errors;
-    QLabel * icon;
-    QStringList * pending;
-    QHash<QString, int> doNotShow;
-
-    bool nextPending();
 
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
     QErrorMessage(const QErrorMessage &);

@@ -80,7 +80,7 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
     else if (widgetName == QLatin1String("QSplitter"))
         return &QSplitter::staticMetaObject;
     else if (widgetName == QLatin1String("QTextEdit"))
-        return &QTextEdit::staticMetaObject;
+        return &Q3TextEdit::staticMetaObject;
     else if (widgetName == QLatin1String("QLabel"))
         return &QLabel::staticMetaObject;
     else if (widgetName == QLatin1String("QTabWidget"))

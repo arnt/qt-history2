@@ -185,13 +185,6 @@ public:
 
     void insert(QStyleSheetItem* item);
 
-#ifndef QT_NO_TEXTCUSTOMITEM
-    virtual Q3TextCustomItem* tag(const QString& name,
-                                  const QMap<QString, QString> &attr,
-                                  const QString& context,
-                                  const QMimeSourceFactory& factory,
-                                  bool emptyTag, Q3TextDocument *doc) const;
-#endif
     static QString escape(const QString&);
     static QString convertFromPlainText(const QString&,
                                          QStyleSheetItem::WhiteSpaceMode mode = QStyleSheetItem::WhiteSpacePre);

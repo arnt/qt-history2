@@ -38,11 +38,11 @@
   The QMultiLineEdit was a simple editor widget in former Qt versions.  Qt
   3.0 includes a new richtext engine which obsoletes QMultiLineEdit. It is
   still included for compatibility reasons. It is now a subclass of
-  \l QTextEdit, and provides enough of the old QMultiLineEdit API to keep old
+  \l Q3TextEdit, and provides enough of the old QMultiLineEdit API to keep old
   applications working.
 
   If you implement something new with QMultiLineEdit, we suggest using
-  \l QTextEdit instead and call QTextEdit::setTextFormat(Qt::PlainText).
+  \l Q3TextEdit instead and call Q3TextEdit::setTextFormat(Qt::PlainText).
 
   Although most of the old QMultiLineEdit API is still available, there is
   a few difference. The old QMultiLineEdit operated on lines, not on
@@ -54,11 +54,11 @@
 
   Applications which made normal and reasonable use of QMultiLineEdit
   should still work without problems. Some odd usage will require some
-  porting. In these cases, it may be better to use \l QTextEdit now.
+  porting. In these cases, it may be better to use \l Q3TextEdit now.
 
   <img src=qmlined-m.png> <img src=qmlined-w.png>
 
-  \sa QTextEdit
+  \sa Q3TextEdit
 */
 
 /*!
@@ -108,7 +108,7 @@ class QMultiLineEditData
 */
 
 QMultiLineEdit::QMultiLineEdit(QWidget *parent , const char *name)
-    : QTextEdit(parent, name)
+    : Q3TextEdit(parent, name)
 {
     d = new QMultiLineEditData;
     setTextFormat(Qt::PlainText);
@@ -340,7 +340,7 @@ void QMultiLineEdit::setCursorPosition(int line, int col, bool mark)
 {
     if (!mark)
         selectAll(false);
-    QTextEdit::setCursorPosition(line, col);
+    Q3TextEdit::setCursorPosition(line, col);
     if (mark)
         document()->setSelectionEnd(Q3TextDocument::Standard, *textCursor());
 }
@@ -390,7 +390,7 @@ void QMultiLineEdit::setEdited(bool e)
 /*!  \property QMultiLineEdit::edited
   \brief whether the document has been edited by the user
 
-  This is the same as QTextEdit's "modifed" property.
+  This is the same as Q3TextEdit's "modifed" property.
 */
 bool QMultiLineEdit::edited() const
 {
@@ -432,7 +432,7 @@ void QMultiLineEdit::cursorWordBackward(bool mark)
 
 void QMultiLineEdit::insertAt(const QString &s, int line, int col, bool mark)
 {
-    QTextEdit::insertAt(s, line, col);
+    Q3TextEdit::insertAt(s, line, col);
     if (mark)
         setSelection(line, col, line, col + s.length());
 }

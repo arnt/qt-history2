@@ -706,7 +706,7 @@ class Q_GUI_EXPORT Q3TextDocument : public QObject
     friend class Q3TextTableCell;
 #endif
     friend class Q3TextCursor;
-    friend class QTextEdit;
+    friend class Q3TextEdit;
     friend class Q3TextParagraph;
 
 public:
@@ -831,6 +831,14 @@ public:
     Q3TextParagraph *draw(QPainter *p, int cx, int cy, int cw, int ch, const QPalette &pal,
                       bool onlyChanged = false, bool drawCursor = false, Q3TextCursor *cursor = 0,
                       bool resetChanged = true);
+
+#ifndef QT_NO_TEXTCUSTOMITEM
+    static Q3TextCustomItem* tag(QStyleSheet *sheet, const QString& name,
+                                 const QMap<QString, QString> &attr,
+                                 const QString& context,
+                                 const QMimeSourceFactory& factory,
+                                 bool emptyTag, Q3TextDocument *doc);
+#endif
 
 #ifndef QT_NO_TEXTCUSTOMITEM
     void registerCustomItem(Q3TextCustomItem *i, Q3TextParagraph *p);

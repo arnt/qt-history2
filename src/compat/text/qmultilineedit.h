@@ -16,7 +16,7 @@
 #define QMULTILINEEDIT_H
 
 #ifndef QT_H
-#include "qtextedit.h"
+#include "q3textedit.h"
 #endif // QT_H
 
 #ifndef QT_NO_MULTILINEEDIT
@@ -25,7 +25,7 @@ class QMultiLineEditCommand;
 class QValidator;
 class QMultiLineEditData;
 
-class Q_GUI_EXPORT QMultiLineEdit : public QTextEdit
+class Q_GUI_EXPORT QMultiLineEdit : public Q3TextEdit
 {
     Q_OBJECT
     Q_PROPERTY(int numLines READ numLines)

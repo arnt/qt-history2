@@ -18,14 +18,14 @@
 #ifndef QT_H
 #include "qpixmap.h"
 #include "qcolor.h"
-#include "qtextedit.h"
+#include "q3textedit.h"
 #endif // QT_H
 
 #ifndef QT_NO_TEXTBROWSER
 
 class QTextBrowserData;
 
-class Q_GUI_EXPORT QTextBrowser : public QTextEdit
+class Q_GUI_EXPORT QTextBrowser : public Q3TextEdit
 {
     Q_OBJECT
     Q_PROPERTY(QString source READ source WRITE setSource)
@@ -35,7 +35,7 @@ class Q_GUI_EXPORT QTextBrowser : public QTextEdit
     Q_OVERRIDE(bool readOnly DESIGNABLE false SCRIPTABLE false)
     Q_OVERRIDE(bool undoRedoEnabled DESIGNABLE false SCRIPTABLE false)
 
-    friend class QTextEdit;
+    friend class Q3TextEdit;
 
 public:
     QTextBrowser(QWidget* parent=0, const char* name=0);

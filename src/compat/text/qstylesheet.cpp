@@ -16,7 +16,6 @@
 
 #ifndef QT_NO_RICHTEXT
 
-#include "private/qrichtext_p.h"
 #include "qlayout.h"
 #include "qpainter.h"
 #include "qcleanuphandler.h"
@@ -1314,45 +1313,6 @@ const QStyleSheetItem* QStyleSheet::item(const QString& name) const
         return 0;
     return styles.value(name);
 }
-
-/*!
-    \preliminary
-
-    Generates an internal object for the tag called \a name, given the
-    attributes \a attr, and using additional information provided by
-    the mime source factory \a factory.
-
-    \a context is the optional context of the document, i.e. the path
-    to look for relative links. This becomes important if the text
-    contains relative references, for example within image tags.
-    QSimpleRichText always uses the default mime source factory (see
-    \l{QMimeSourceFactory::defaultFactory()}) to resolve these
-    references. The context will then be used to calculate the
-    absolute path. See QMimeSourceFactory::makeAbsolute() for details.
-
-    \a emptyTag and \a doc are for internal use only.
-
-    This function should not be used in application code.
-*/
-#ifndef QT_NO_TEXTCUSTOMITEM
-Q3TextCustomItem* QStyleSheet::tag( const QString& name,
-                                   const QMap<QString, QString> &attr,
-                                   const QString& context,
-                                   const QMimeSourceFactory& factory,
-                                   bool /*emptyTag */, Q3TextDocument *doc) const
-{
-    const QStyleSheetItem* style = item(name);
-    // first some known  tags
-    if (!style)
-        return 0;
-    if (style->name() == "img")
-        return new QTextImage(doc, attr, context, (QMimeSourceFactory&)factory);
-    if (style->name() == "hr")
-        return new QTextHorizontalLine(doc, attr, context, (QMimeSourceFactory&)factory );
-   return 0;
-}
-#endif
-
 
 /*!  Auxiliary function. Converts the plain text string \a plain to a
     rich text formatted paragraph while preserving most of its look.

@@ -1690,7 +1690,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                     }  else if (tagname == "hr") {
                         emptyTag = space = true;
 #ifndef QT_NO_TEXTCUSTOMITEM
-                        custom = sheet_->tag(tagname, attr, contxt, *factory_ , emptyTag, this);
+                        custom = tag(sheet_, tagname, attr, contxt, *factory_ , emptyTag, this);
 #endif
                     } else if (tagname == "table") {
                         emptyTag = space = true;
@@ -1774,7 +1774,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
 
 #ifndef QT_NO_TEXTCUSTOMITEM
                 if (!custom) // try generic custom item
-                    custom = sheet_->tag(tagname, attr, contxt, *factory_ , emptyTag, this);
+                    custom = tag(sheet_, tagname, attr, contxt, *factory_ , emptyTag, this);
 #endif
                 if (!nstyle && !custom) // we have no clue what this tag could be, ignore it
                     continue;
@@ -3367,6 +3367,46 @@ void Q3TextDocument::setDefaultFormat(const QFont &font, const QColor &color)
         p = p->next();
     }
 }
+
+
+/*!
+    \preliminary
+
+    Generates an internal object for the tag called \a name, given the
+    attributes \a attr, and using additional information provided by
+    the mime source factory \a factory.
+
+    \a context is the optional context of the document, i.e. the path
+    to look for relative links. This becomes important if the text
+    contains relative references, for example within image tags.
+    QSimpleRichText always uses the default mime source factory (see
+    \l{QMimeSourceFactory::defaultFactory()}) to resolve these
+    references. The context will then be used to calculate the
+    absolute path. See QMimeSourceFactory::makeAbsolute() for details.
+
+    \a emptyTag and \a doc are for internal use only.
+
+    This function should not be used in application code.
+*/
+#ifndef QT_NO_TEXTCUSTOMITEM
+Q3TextCustomItem* Q3TextDocument::tag(QStyleSheet *sheet, const QString& name,
+                                        const QMap<QString, QString> &attr,
+                                        const QString& context,
+                                        const QMimeSourceFactory& factory,
+                                        bool /*emptyTag */, Q3TextDocument *doc)
+{
+    const QStyleSheetItem* style = sheet->item(name);
+    // first some known  tags
+    if (!style)
+        return 0;
+    if (style->name() == "img")
+        return new QTextImage(doc, attr, context, (QMimeSourceFactory&)factory);
+    if (style->name() == "hr")
+        return new QTextHorizontalLine(doc, attr, context, (QMimeSourceFactory&)factory );
+   return 0;
+}
+#endif
+
 
 #ifndef QT_NO_TEXTCUSTOMITEM
 void Q3TextDocument::registerCustomItem(Q3TextCustomItem *i, Q3TextParagraph *p)

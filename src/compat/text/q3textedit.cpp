@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of the QTextEdit class.
+** Implementation of the Q3TextEdit class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qtextedit.h"
+#include "q3textedit.h"
 
 #ifndef QT_NO_TEXTEDIT
 
@@ -60,10 +60,10 @@ struct QUndoRedoInfoPrivate
     Q3TextString text;
 };
 
-class QTextEditPrivate
+class Q3TextEditPrivate
 {
 public:
-    QTextEditPrivate()
+    Q3TextEditPrivate()
         :preeditStart(-1),preeditLength(-1),ensureCursorVisibleInShowEvent(false),
          tabChangesFocus(false),
 #ifndef QT_NO_CLIPBOARD
@@ -74,7 +74,7 @@ public:
          maxLogLines(-1),
          logOffset(0),
 #endif
-         autoFormatting((uint)QTextEdit::AutoAll),
+         autoFormatting((uint)Q3TextEdit::AutoAll),
          cursorRepaintMode(false),
          cursorBlinkActive(false)
 
@@ -96,12 +96,12 @@ public:
     QTimer *trippleClickTimer;
     QPoint trippleClickPoint;
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    QTextEditOptimPrivate * od;
+    Q3TextEditOptimPrivate * od;
     bool optimMode : 1;
     int maxLogLines;
     int logOffset;
 #endif
-    QTextEdit::AutoFormatting autoFormatting;
+    Q3TextEdit::AutoFormatting autoFormatting;
     uint cursorRepaintMode : 1;
     uint cursorBlinkActive : 1;
 };
@@ -182,8 +182,8 @@ const char* QRichTextDrag::format(int i) const
 static bool block_set_alignment = false;
 
 /*!
-    \class QTextEdit qtextedit.h
-    \brief The QTextEdit widget provides a powerful single-page rich text editor.
+    \class Q3TextEdit qtextedit.h
+    \brief The Q3TextEdit widget provides a powerful single-page rich text editor.
 
     \ingroup basic
     \ingroup text
@@ -193,11 +193,11 @@ static bool block_set_alignment = false;
 
     \section1 Introduction and Concepts
 
-    QTextEdit is an advanced WYSIWYG viewer/editor supporting rich
+    Q3TextEdit is an advanced WYSIWYG viewer/editor supporting rich
     text formatting using HTML-style tags. It is optimized to handle
     large documents and to respond quickly to user input.
 
-    QTextEdit has four modes of operation:
+    Q3TextEdit has four modes of operation:
     \table
     \header \i Mode \i Command \i Notes
     \row \i Plain Text Editor \i setTextFormat(PlainText)
@@ -226,7 +226,7 @@ static bool block_set_alignment = false;
     <sup>1.</sup><small>A more complete API that supports setting
     margins, images, etc., is planned for a later Qt release.</small>
 
-    QTextEdit can be used as a syntax highlighting editor when used in
+    Q3TextEdit can be used as a syntax highlighting editor when used in
     conjunction with QSyntaxHighlighter.
 
     We recommend that you always call setTextFormat() to set the mode
@@ -236,7 +236,7 @@ static bool block_set_alignment = false;
     append() will assume that the text they are given is rich text.
     insert() simply inserts the text it is given.
 
-    QTextEdit works on paragraphs and characters. A paragraph is a
+    Q3TextEdit works on paragraphs and characters. A paragraph is a
     formatted string which is word-wrapped to fit into the width of
     the widget. By default when reading plain text, one newline
     signify a paragraph. A document consists of zero or more
@@ -256,7 +256,7 @@ static bool block_set_alignment = false;
     cursor.
     \endlist
 
-    QTextEdit can display images (using QMimeSourceFactory), lists and
+    Q3TextEdit can display images (using QMimeSourceFactory), lists and
     tables. If the text is too large to view within the text edit's
     viewport, scrollbars will appear. The text edit can load both
     plain text and HTML files (a subset of HTML 3.2 and 4). The
@@ -271,7 +271,7 @@ static bool block_set_alignment = false;
     If you just need to display a small piece of rich text use QLabel
     or QSimpleRichText.
 
-    If you create a new QTextEdit, and want to allow the user to edit
+    If you create a new Q3TextEdit, and want to allow the user to edit
     rich text, call setTextFormat(Qt::RichText) to ensure that the
     text is treated as rich text. (Rich text uses HTML tags to set
     text formatting attributes. See QStyleSheet for information on the
@@ -289,9 +289,9 @@ static bool block_set_alignment = false;
     efficient way to add reasonable online help facilities to
     applications, and to provide a basis for rich text editors.
 
-    \section1 Using QTextEdit as a Display Widget
+    \section1 Using Q3TextEdit as a Display Widget
 
-    QTextEdit can display a large HTML subset, including tables and
+    Q3TextEdit can display a large HTML subset, including tables and
     images.
 
     The text is set or replaced using setText() which deletes any
@@ -356,13 +356,13 @@ static bool block_set_alignment = false;
     \c{<a name="anchor">} with scrollToAnchor(). The find() function
     can be used to find and select a given string within the text.
 
-    A read-only QTextEdit provides the same functionality as the
+    A read-only Q3TextEdit provides the same functionality as the
     (obsolete) QTextView. (QTextView is still supplied for
     compatibility with old code.)
 
     \section2 Read-only key bindings
 
-    When QTextEdit is used read-only the key-bindings are limited to
+    When Q3TextEdit is used read-only the key-bindings are limited to
     navigation, and text may only be selected with the mouse:
     \table
     \header \i Keypresses \i Action
@@ -386,11 +386,11 @@ static bool block_set_alignment = false;
     The text displayed in a text edit has a \e context. The context is
     a path which the text edit's QMimeSourceFactory uses to resolve
     the locations of files and images. It is passed to the
-    mimeSourceFactory() when quering data. (See QTextEdit() and
+    mimeSourceFactory() when quering data. (See Q3TextEdit() and
     \l{context()}.)
 
     \target logtextmode
-    \section2 Using QTextEdit in LogText Mode
+    \section2 Using Q3TextEdit in LogText Mode
 
     Setting the text format to \c LogText puts the widget in a special
     mode which is optimized for very large texts. In this mode editing
@@ -426,7 +426,7 @@ static bool block_set_alignment = false;
     Stylesheets can also be used in LogText mode. To create and use a
     custom tag, you could do the following:
     \code
-    QTextEdit * log = new QTextEdit(this);
+    Q3TextEdit * log = new Q3TextEdit(this);
     log->setTextFormat(Qt::LogText);
     QStyleSheetItem * item = new QStyleSheetItem(log->styleSheet(), "mytag");
     item->setColor("red");
@@ -448,9 +448,9 @@ static bool block_set_alignment = false;
     \i Lines are equivalent to paragraphs.
     \endlist
 
-    \section1 Using QTextEdit as an Editor
+    \section1 Using Q3TextEdit as an Editor
 
-    All the information about using QTextEdit as a display widget also
+    All the information about using Q3TextEdit as a display widget also
     applies here.
 
     The current format's attributes are set with setItalic(),
@@ -466,7 +466,7 @@ static bool block_set_alignment = false;
     selectedText(). The selection can be copied to the clipboard with
     copy(), or cut to the clipboard with cut(). It can be deleted with
     removeSelectedText(). The entire text can be selected (or
-    unselected) using selectAll(). QTextEdit supports multiple
+    unselected) using selectAll(). Q3TextEdit supports multiple
     selections. Most of the selection functions operate on the default
     selection, selection 0. If the user presses a non-selecting key,
     e.g. a cursor key without also holding down Shift, all selections
@@ -483,7 +483,7 @@ static bool block_set_alignment = false;
     returnPressed() is emitted. The isModified() function will return
     true if the text has been modified.
 
-    QTextEdit provides command-based undo and redo. To set the depth
+    Q3TextEdit provides command-based undo and redo. To set the depth
     of the command history use setUndoDepth() which defaults to 100
     steps. To undo or redo the last operation call undo() or redo().
     The signals undoAvailable() and redoAvailable() indicate whether
@@ -550,7 +550,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \enum QTextEdit::AutoFormattingFlags
+    \enum Q3TextEdit::AutoFormattingFlags
 
     \value AutoNone Do not perform any automatic formatting
     \value AutoBulletList Only automatically format bulletted lists
@@ -559,7 +559,7 @@ static bool block_set_alignment = false;
 
 
 /*!
-    \enum QTextEdit::KeyboardAction
+    \enum Q3TextEdit::KeyboardAction
 
     This enum is used by doKeyboardAction() to specify which action
     should be executed:
@@ -587,7 +587,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \enum QTextEdit::VerticalAlignment
+    \enum Q3TextEdit::VerticalAlignment
 
     This enum is used to set the vertical alignment of the text.
 
@@ -597,7 +597,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \enum QTextEdit::TextInsertionFlags
+    \enum Q3TextEdit::TextInsertionFlags
 
     \internal
 
@@ -608,7 +608,7 @@ static bool block_set_alignment = false;
 
 
 /*!
-    \fn void QTextEdit::copyAvailable(bool yes)
+    \fn void Q3TextEdit::copyAvailable(bool yes)
 
     This signal is emitted when text is selected or de-selected in the
     text edit.
@@ -625,7 +625,7 @@ static bool block_set_alignment = false;
 
 
 /*!
-    \fn void QTextEdit::textChanged()
+    \fn void Q3TextEdit::textChanged()
 
     This signal is emitted whenever the text in the text edit changes.
 
@@ -633,14 +633,14 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \fn void QTextEdit::selectionChanged()
+    \fn void Q3TextEdit::selectionChanged()
 
     This signal is emitted whenever the selection changes.
 
     \sa setSelection() copyAvailable()
 */
 
-/*!  \fn Q3TextDocument *QTextEdit::document() const
+/*!  \fn Q3TextDocument *Q3TextEdit::document() const
 
     \internal
 
@@ -648,7 +648,7 @@ static bool block_set_alignment = false;
   edit.
 */
 
-/*!  \fn void QTextEdit::setDocument(Q3TextDocument *doc)
+/*!  \fn void Q3TextEdit::setDocument(Q3TextDocument *doc)
 
     \internal
 
@@ -662,7 +662,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \enum QTextEdit::CursorAction
+    \enum Q3TextEdit::CursorAction
 
     This enum is used by moveCursor() to specify in which direction
     the cursor should be moved:
@@ -705,7 +705,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \property QTextEdit::overwriteMode
+    \property Q3TextEdit::overwriteMode
     \brief the text edit's overwrite mode
 
     If false (the default) characters entered by the user are inserted
@@ -716,7 +716,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \fn void QTextEdit::setCurrentFont(const QFont &f)
+    \fn void Q3TextEdit::setCurrentFont(const QFont &f)
 
     Sets the font of the current format to \a f.
 
@@ -727,7 +727,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \property QTextEdit::undoDepth
+    \property Q3TextEdit::undoDepth
     \brief the depth of the undo history
 
     The maximum number of steps in the undo/redo history. The default
@@ -737,7 +737,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \fn void QTextEdit::undoAvailable(bool yes)
+    \fn void Q3TextEdit::undoAvailable(bool yes)
 
     This signal is emitted when the availability of undo changes. If
     \a yes is true, then undo() will work until undoAvailable(false)
@@ -747,7 +747,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \fn void QTextEdit::modificationChanged(bool m)
+    \fn void Q3TextEdit::modificationChanged(bool m)
 
     This signal is emitted when the modification status of the
     document has changed. If \a m is true, the document was modified,
@@ -757,7 +757,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \fn void QTextEdit::redoAvailable(bool yes)
+    \fn void Q3TextEdit::redoAvailable(bool yes)
 
     This signal is emitted when the availability of redo changes. If
     \a yes is true, then redo() will work until redoAvailable(false)
@@ -767,7 +767,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \fn void QTextEdit::currentFontChanged(const QFont &f)
+    \fn void Q3TextEdit::currentFontChanged(const QFont &f)
 
     This signal is emitted if the font of the current format has
     changed.
@@ -778,7 +778,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \fn void QTextEdit::currentColorChanged(const QColor &c)
+    \fn void Q3TextEdit::currentColorChanged(const QColor &c)
 
     This signal is emitted if the color of the current format has
     changed.
@@ -789,7 +789,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \fn void QTextEdit::currentVerticalAlignmentChanged(VerticalAlignment a)
+    \fn void Q3TextEdit::currentVerticalAlignmentChanged(VerticalAlignment a)
 
     This signal is emitted if the vertical alignment of the current
     format has changed.
@@ -800,7 +800,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \fn void QTextEdit::currentAlignmentChanged(int a)
+    \fn void Q3TextEdit::currentAlignmentChanged(int a)
 
     This signal is emitted if the alignment of the current paragraph
     has changed.
@@ -811,13 +811,13 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \fn void QTextEdit::cursorPositionChanged(Q3TextCursor *c)
+    \fn void Q3TextEdit::cursorPositionChanged(Q3TextCursor *c)
 
     \internal
 */
 
 /*!
-    \fn void QTextEdit::cursorPositionChanged(int para, int pos)
+    \fn void Q3TextEdit::cursorPositionChanged(int para, int pos)
 
     \overload
 
@@ -829,7 +829,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \fn void QTextEdit::clicked(int para, int pos)
+    \fn void Q3TextEdit::clicked(int para, int pos)
 
     This signal is emitted when the mouse is clicked on the paragraph
     \a para at character position \a pos.
@@ -837,7 +837,7 @@ static bool block_set_alignment = false;
     \sa doubleClicked()
 */
 
-/*! \fn void QTextEdit::doubleClicked(int para, int pos)
+/*! \fn void Q3TextEdit::doubleClicked(int para, int pos)
 
   This signal is emitted when the mouse is double-clicked on the
   paragraph \a para at character position \a pos.
@@ -847,14 +847,14 @@ static bool block_set_alignment = false;
 
 
 /*!
-    \fn void QTextEdit::returnPressed()
+    \fn void Q3TextEdit::returnPressed()
 
     This signal is emitted if the user pressed the Return or the Enter
     key.
 */
 
 /*!
-    \fn Q3TextCursor *QTextEdit::textCursor() const
+    \fn Q3TextCursor *Q3TextEdit::textCursor() const
 
     Returns the text edit's text cursor.
 
@@ -863,11 +863,11 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    Constructs an empty QTextEdit called \a name, with parent \a
+    Constructs an empty Q3TextEdit called \a name, with parent \a
     parent.
 */
 
-QTextEdit::QTextEdit(QWidget *parent, const char *name)
+Q3TextEdit::Q3TextEdit(QWidget *parent, const char *name)
     : QScrollView(parent, name, WStaticContents | WNoAutoErase),
       doc(new Q3TextDocument(0)), undoRedoInfo(doc)
 {
@@ -875,7 +875,7 @@ QTextEdit::QTextEdit(QWidget *parent, const char *name)
 }
 
 /*!
-    Constructs a QTextEdit called \a name, with parent \a parent. The
+    Constructs a Q3TextEdit called \a name, with parent \a parent. The
     text edit will display the text \a text using context \a context.
 
     The \a context is a path which the text edit's QMimeSourceFactory
@@ -894,7 +894,7 @@ QTextEdit::QTextEdit(QWidget *parent, const char *name)
     "path/to/look/in/target.html".
 */
 
-QTextEdit::QTextEdit(const QString& text, const QString& context,
+Q3TextEdit::Q3TextEdit(const QString& text, const QString& context,
                       QWidget *parent, const char *name)
     : QScrollView(parent, name, WStaticContents | WNoAutoErase),
       doc(new Q3TextDocument(0)), undoRedoInfo(doc)
@@ -907,7 +907,7 @@ QTextEdit::QTextEdit(const QString& text, const QString& context,
     \reimp
 */
 
-QTextEdit::~QTextEdit()
+Q3TextEdit::~Q3TextEdit()
 {
     delete undoRedoInfo.d;
     undoRedoInfo.d = 0;
@@ -920,11 +920,11 @@ QTextEdit::~QTextEdit()
     delete d;
 }
 
-void QTextEdit::init()
+void Q3TextEdit::init()
 {
     viewport()->setAttribute(WA_PaintOnScreen); // disable double buffering on the viewport
 
-    d = new QTextEditPrivate;
+    d = new Q3TextEditPrivate;
     doc->formatCollection()->setPaintDevice(this);
     undoEnabled = true;
     readonly = true;
@@ -1003,7 +1003,7 @@ void QTextEdit::init()
     installEventFilter(this);
 }
 
-void QTextEdit::paintDocument(bool drawAll, QPainter *p, int cx, int cy, int cw, int ch)
+void Q3TextEdit::paintDocument(bool drawAll, QPainter *p, int cx, int cy, int cw, int ch)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     Q_ASSERT(!d->optimMode);
@@ -1044,7 +1044,7 @@ void QTextEdit::paintDocument(bool drawAll, QPainter *p, int cx, int cy, int cw,
     \reimp
 */
 
-void QTextEdit::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
+void Q3TextEdit::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -1068,7 +1068,7 @@ void QTextEdit::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
     \reimp
 */
 
-void QTextEdit::drawContents(QPainter *p)
+void Q3TextEdit::drawContents(QPainter *p)
 {
     if (horizontalScrollBar()->isVisible() &&
          verticalScrollBar()->isVisible()) {
@@ -1089,7 +1089,7 @@ void QTextEdit::drawContents(QPainter *p)
     \reimp
 */
 
-bool QTextEdit::event(QEvent *e)
+bool Q3TextEdit::event(QEvent *e)
 {
     if (e->type() == QEvent::AccelOverride && !isReadOnly()) {
         QKeyEvent* ke = (QKeyEvent*) e;
@@ -1195,7 +1195,7 @@ bool QTextEdit::event(QEvent *e)
     provide keyboard navigation and text editing.
 */
 
-void QTextEdit::keyPressEvent(QKeyEvent *e)
+void Q3TextEdit::keyPressEvent(QKeyEvent *e)
 {
     changeIntervalTimer->stop();
     interval = 10;
@@ -1539,7 +1539,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
 /*!
     \reimp
 */
-void QTextEdit::imStartEvent(QIMEvent *e)
+void Q3TextEdit::imStartEvent(QIMEvent *e)
 {
     if (isReadOnly()) {
         e->ignore();
@@ -1554,7 +1554,7 @@ void QTextEdit::imStartEvent(QIMEvent *e)
 /*!
     \reimp
 */
-void QTextEdit::imComposeEvent(QIMEvent *e)
+void Q3TextEdit::imComposeEvent(QIMEvent *e)
 {
     if (isReadOnly()) {
         e->ignore();
@@ -1594,7 +1594,7 @@ void QTextEdit::imComposeEvent(QIMEvent *e)
 /*!
     \reimp
 */
-void QTextEdit::imEndEvent(QIMEvent *e)
+void Q3TextEdit::imEndEvent(QIMEvent *e)
 {
     if (isReadOnly()) {
         e->ignore();
@@ -1623,7 +1623,7 @@ static bool qtextedit_ignore_readonly = false;
     key event handler.
 */
 
-void QTextEdit::doKeyboardAction(KeyboardAction action)
+void Q3TextEdit::doKeyboardAction(KeyboardAction action)
 {
     if (isReadOnly() && !qtextedit_ignore_readonly)
         return;
@@ -1760,7 +1760,7 @@ void QTextEdit::doKeyboardAction(KeyboardAction action)
     emit textChanged();
 }
 
-void QTextEdit::readFormats(Q3TextCursor &c1, Q3TextCursor &c2, Q3TextString &text, bool fillStyles)
+void Q3TextEdit::readFormats(Q3TextCursor &c1, Q3TextCursor &c2, Q3TextString &text, bool fillStyles)
 {
 #ifndef QT_NO_DATASTREAM
     QDataStream styleStream(&undoRedoInfo.styleInformation, IO_WriteOnly);
@@ -1809,7 +1809,7 @@ void QTextEdit::readFormats(Q3TextCursor &c1, Q3TextCursor &c2, Q3TextString &te
     \sa removeSelectedText()
 */
 
-void QTextEdit::removeSelection(int selNum)
+void Q3TextEdit::removeSelection(int selNum)
 {
     doc->removeSelection(selNum);
     repaintChanged();
@@ -1822,7 +1822,7 @@ void QTextEdit::removeSelection(int selNum)
     \sa selectedText removeSelection()
 */
 
-void QTextEdit::removeSelectedText(int selNum)
+void Q3TextEdit::removeSelectedText(int selNum)
 {
     Q3TextCursor c1 = doc->selectionStartCursor(selNum);
     c1.restoreState();
@@ -1888,7 +1888,7 @@ void QTextEdit::removeSelectedText(int selNum)
     should be selected.
 */
 
-void QTextEdit::moveCursor(CursorAction action, bool select)
+void Q3TextEdit::moveCursor(CursorAction action, bool select)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode)
@@ -1972,7 +1972,7 @@ void QTextEdit::moveCursor(CursorAction action, bool select)
     \overload
 */
 
-void QTextEdit::moveCursor(CursorAction action)
+void Q3TextEdit::moveCursor(CursorAction action)
 {
     resetInputContext();
     switch (action) {
@@ -2022,7 +2022,7 @@ void QTextEdit::moveCursor(CursorAction action)
     \reimp
 */
 
-void QTextEdit::resizeEvent(QResizeEvent *e)
+void Q3TextEdit::resizeEvent(QResizeEvent *e)
 {
     QScrollView::resizeEvent(e);
     if (doc->visibleWidth() == 0)
@@ -2033,7 +2033,7 @@ void QTextEdit::resizeEvent(QResizeEvent *e)
     \reimp
 */
 
-void QTextEdit::viewportResizeEvent(QResizeEvent *e)
+void Q3TextEdit::viewportResizeEvent(QResizeEvent *e)
 {
     QScrollView::viewportResizeEvent(e);
     if (e->oldSize().width() != e->size().width()) {
@@ -2052,7 +2052,7 @@ void QTextEdit::viewportResizeEvent(QResizeEvent *e)
     \sa setCursorPosition()
 */
 
-void QTextEdit::ensureCursorVisible()
+void Q3TextEdit::ensureCursorVisible()
 {
     // Not visible or the user is draging the window, so don't position to caret yet
     if (!isUpdatesEnabled() || !isVisible() || isHorizontalSliderPressed() || isVerticalSliderPressed()) {
@@ -2073,7 +2073,7 @@ void QTextEdit::ensureCursorVisible()
 /*!
     \internal
 */
-void QTextEdit::sliderReleased()
+void Q3TextEdit::sliderReleased()
 {
     if (d->ensureCursorVisibleInShowEvent && isVisible()) {
         d->ensureCursorVisibleInShowEvent = false;
@@ -2087,14 +2087,14 @@ void QTextEdit::sliderReleased()
     If \a visible is true, the cursor is shown; otherwise it is
     hidden.
 */
-void QTextEdit::drawCursor(bool visible)
+void Q3TextEdit::drawCursor(bool visible)
 {
     d->cursorRepaintMode = true;
     blinkCursorVisible = visible;
     viewport()->update(cursor->topParagraph()->rect());
 }
 
-void QTextEdit::viewportPaintEvent(QPaintEvent *e)
+void Q3TextEdit::viewportPaintEvent(QPaintEvent *e)
 {
     if (d->cursorRepaintMode) {
         drawCursor_helper(blinkCursorVisible);
@@ -2108,7 +2108,7 @@ void QTextEdit::viewportPaintEvent(QPaintEvent *e)
 /*!
     \internal
 */
-void QTextEdit::drawCursor_helper(bool visible)
+void Q3TextEdit::drawCursor_helper(bool visible)
 {
     if (!isUpdatesEnabled() ||
          !viewport()->isUpdatesEnabled() ||
@@ -2166,7 +2166,7 @@ enum {
     \reimp
 */
 #ifndef QT_NO_WHEELEVENT
-void QTextEdit::contentsWheelEvent(QWheelEvent *e)
+void Q3TextEdit::contentsWheelEvent(QWheelEvent *e)
 {
     if (isReadOnly()) {
         if (e->state() & ControlButton) {
@@ -2185,7 +2185,7 @@ void QTextEdit::contentsWheelEvent(QWheelEvent *e)
     \reimp
 */
 
-void QTextEdit::contentsMousePressEvent(QMouseEvent *e)
+void Q3TextEdit::contentsMousePressEvent(QMouseEvent *e)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -2291,7 +2291,7 @@ void QTextEdit::contentsMousePressEvent(QMouseEvent *e)
     \reimp
 */
 
-void QTextEdit::contentsMouseMoveEvent(QMouseEvent *e)
+void Q3TextEdit::contentsMouseMoveEvent(QMouseEvent *e)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -2328,7 +2328,7 @@ void QTextEdit::contentsMouseMoveEvent(QMouseEvent *e)
     updateCursor(e->pos());
 }
 
-void QTextEdit::copyToClipboard()
+void Q3TextEdit::copyToClipboard()
 {
 #ifndef QT_NO_CLIPBOARD
     if (QApplication::clipboard()->supportsSelection()) {
@@ -2350,7 +2350,7 @@ void QTextEdit::copyToClipboard()
     \reimp
 */
 
-void QTextEdit::contentsMouseReleaseEvent(QMouseEvent * e)
+void Q3TextEdit::contentsMouseReleaseEvent(QMouseEvent * e)
 {
     if (!inDoubleClick) { // could be the release of a dblclick
         int para = 0;
@@ -2445,7 +2445,7 @@ void QTextEdit::contentsMouseReleaseEvent(QMouseEvent * e)
     \reimp
 */
 
-void QTextEdit::contentsMouseDoubleClickEvent(QMouseEvent * e)
+void Q3TextEdit::contentsMouseDoubleClickEvent(QMouseEvent * e)
 {
     if (e->button() != Qt::LeftButton) {
         e->ignore();
@@ -2528,7 +2528,7 @@ void QTextEdit::contentsMouseDoubleClickEvent(QMouseEvent * e)
     \reimp
 */
 
-void QTextEdit::contentsDragEnterEvent(QDragEnterEvent *e)
+void Q3TextEdit::contentsDragEnterEvent(QDragEnterEvent *e)
 {
     if (isReadOnly() || !QTextDrag::canDecode(e)) {
         e->ignore();
@@ -2542,7 +2542,7 @@ void QTextEdit::contentsDragEnterEvent(QDragEnterEvent *e)
     \reimp
 */
 
-void QTextEdit::contentsDragMoveEvent(QDragMoveEvent *e)
+void Q3TextEdit::contentsDragMoveEvent(QDragMoveEvent *e)
 {
     if (isReadOnly() || !QTextDrag::canDecode(e)) {
         e->ignore();
@@ -2558,7 +2558,7 @@ void QTextEdit::contentsDragMoveEvent(QDragMoveEvent *e)
     \reimp
 */
 
-void QTextEdit::contentsDragLeaveEvent(QDragLeaveEvent *)
+void Q3TextEdit::contentsDragLeaveEvent(QDragLeaveEvent *)
 {
     inDnD = false;
 }
@@ -2567,7 +2567,7 @@ void QTextEdit::contentsDragLeaveEvent(QDragLeaveEvent *)
     \reimp
 */
 
-void QTextEdit::contentsDropEvent(QDropEvent *e)
+void Q3TextEdit::contentsDropEvent(QDropEvent *e)
 {
     if (isReadOnly())
         return;
@@ -2650,7 +2650,7 @@ void QTextEdit::contentsDropEvent(QDropEvent *e)
 /*!
     \reimp
 */
-void QTextEdit::contentsContextMenuEvent(QContextMenuEvent *e)
+void Q3TextEdit::contentsContextMenuEvent(QContextMenuEvent *e)
 {
     clearUndoRedo();
     mousePressed = false;
@@ -2701,13 +2701,13 @@ void QTextEdit::contentsContextMenuEvent(QContextMenuEvent *e)
 }
 
 
-void QTextEdit::autoScrollTimerDone()
+void Q3TextEdit::autoScrollTimerDone()
 {
     if (mousePressed)
         handleMouseMove( viewportToContents(viewport()->mapFromGlobal(QCursor::pos()) ));
 }
 
-void QTextEdit::handleMouseMove(const QPoint& pos)
+void Q3TextEdit::handleMouseMove(const QPoint& pos)
 {
     if (!mousePressed)
         return;
@@ -2781,7 +2781,7 @@ void QTextEdit::handleMouseMove(const QPoint& pos)
 
 /*! \internal */
 
-void QTextEdit::placeCursor(const QPoint &pos, Q3TextCursor *c, bool link)
+void Q3TextEdit::placeCursor(const QPoint &pos, Q3TextCursor *c, bool link)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode)
@@ -2798,7 +2798,7 @@ void QTextEdit::placeCursor(const QPoint &pos, Q3TextCursor *c, bool link)
 }
 
 
-void QTextEdit::updateMicroFocusHint()
+void Q3TextEdit::updateMicroFocusHint()
 {
     Q3TextCursor c(*cursor);
     if (d->preeditStart != -1)
@@ -2816,7 +2816,7 @@ void QTextEdit::updateMicroFocusHint()
 
 
 
-void QTextEdit::formatMore()
+void Q3TextEdit::formatMore()
 {
     if (!lastFormatted)
         return;
@@ -2854,7 +2854,7 @@ void QTextEdit::formatMore()
         interval = qMax(0, interval);
 }
 
-void QTextEdit::doResize()
+void Q3TextEdit::doResize()
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (!d->optimMode)
@@ -2875,7 +2875,7 @@ void QTextEdit::doResize()
 
 /*! \internal */
 
-void QTextEdit::doChangeInterval()
+void Q3TextEdit::doChangeInterval()
 {
     interval = 0;
 }
@@ -2884,7 +2884,7 @@ void QTextEdit::doChangeInterval()
     \reimp
 */
 
-bool QTextEdit::eventFilter(QObject *o, QEvent *e)
+bool Q3TextEdit::eventFilter(QObject *o, QEvent *e)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (!d->optimMode && (o == this || o == viewport())) {
@@ -2920,7 +2920,7 @@ bool QTextEdit::eventFilter(QObject *o, QEvent *e)
 /*!
   \obsolete
  */
-void QTextEdit::insert(const QString &text, bool indent,
+void Q3TextEdit::insert(const QString &text, bool indent,
                         bool checkNewLine, bool removeSelected)
 {
     uint f = 0;
@@ -2941,7 +2941,7 @@ void QTextEdit::insert(const QString &text, bool indent,
     CheckNewLines is set, newline characters in \a text result in hard
     line breaks (i.e. new paragraphs). If \c checkNewLine is not set,
     the behavior of the editor is undefined if the \a text contains
-    newlines. (It is not possible to change QTextEdit's newline handling
+    newlines. (It is not possible to change Q3TextEdit's newline handling
     behavior, but you can use QString::replace() to preprocess text
     before inserting it.) If \c RemoveSelected is set, any selected
     text (in selection 0) is removed before the text is inserted.
@@ -2954,7 +2954,7 @@ void QTextEdit::insert(const QString &text, bool indent,
 */
 
 
-void QTextEdit::insert(const QString &text, uint insertionFlags)
+void Q3TextEdit::insert(const QString &text, uint insertionFlags)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode)
@@ -3031,7 +3031,7 @@ void QTextEdit::insert(const QString &text, uint insertionFlags)
     Inserts \a text in the paragraph \a para at position \a index.
 */
 
-void QTextEdit::insertAt(const QString &text, int para, int index)
+void Q3TextEdit::insertAt(const QString &text, int para, int index)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -3057,7 +3057,7 @@ void QTextEdit::insertAt(const QString &text, int para, int index)
     is performance critical.
 */
 
-void QTextEdit::insertParagraph(const QString &text, int para)
+void Q3TextEdit::insertParagraph(const QString &text, int para)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -3100,7 +3100,7 @@ void QTextEdit::insertParagraph(const QString &text, int para)
     Removes the paragraph \a para.
 */
 
-void QTextEdit::removeParagraph(int para)
+void Q3TextEdit::removeParagraph(int para)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode)
@@ -3144,7 +3144,7 @@ void QTextEdit::removeParagraph(int para)
     \sa undoAvailable() redo() undoDepth()
 */
 
-void QTextEdit::undo()
+void Q3TextEdit::undo()
 {
     clearUndoRedo();
     if (isReadOnly() || !doc->commands()->isUndoAvailable() || !undoEnabled)
@@ -3195,7 +3195,7 @@ void QTextEdit::undo()
     \sa redoAvailable() undo() undoDepth()
 */
 
-void QTextEdit::redo()
+void Q3TextEdit::redo()
 {
     if (isReadOnly() || !doc->commands()->isRedoAvailable() || !undoEnabled)
         return;
@@ -3232,10 +3232,10 @@ void QTextEdit::redo()
 
     If there is no text in the clipboard nothing happens.
 
-    \sa pasteSubType() cut() QTextEdit::copy()
+    \sa pasteSubType() cut() Q3TextEdit::copy()
 */
 
-void QTextEdit::paste()
+void Q3TextEdit::paste()
 {
 #ifndef QT_NO_MIMECLIPBOARD
     if (isReadOnly())
@@ -3254,7 +3254,7 @@ void QTextEdit::paste()
 #endif
 }
 
-void QTextEdit::checkUndoRedoInfo(UndoRedoInfo::Type t)
+void Q3TextEdit::checkUndoRedoInfo(UndoRedoInfo::Type t)
 {
     if (undoRedoInfo.valid() && t != undoRedoInfo.type) {
         clearUndoRedo();
@@ -3268,7 +3268,7 @@ void QTextEdit::checkUndoRedoInfo(UndoRedoInfo::Type t)
     Although used extensively internally you shouldn't need to call
     this yourself.
 */
-void QTextEdit::repaintChanged()
+void Q3TextEdit::repaintChanged()
 {
     if (!isUpdatesEnabled() || !viewport()->isUpdatesEnabled())
         return;
@@ -3277,7 +3277,7 @@ void QTextEdit::repaintChanged()
 }
 
 #ifndef QT_NO_MIME
-QTextDrag *QTextEdit::dragObject(QWidget *parent) const
+QTextDrag *Q3TextEdit::dragObject(QWidget *parent) const
 {
     if (!doc->hasSelection(Q3TextDocument::Standard) ||
          doc->selectedText(Q3TextDocument::Standard).isEmpty())
@@ -3297,10 +3297,10 @@ QTextDrag *QTextEdit::dragObject(QWidget *parent) const
 
     If there is no selected text (in selection 0) nothing happens.
 
-    \sa QTextEdit::copy() paste() pasteSubType()
+    \sa Q3TextEdit::copy() paste() pasteSubType()
 */
 
-void QTextEdit::cut()
+void Q3TextEdit::cut()
 {
     if (isReadOnly())
         return;
@@ -3309,7 +3309,7 @@ void QTextEdit::cut()
     updateMicroFocusHint();
 }
 
-void QTextEdit::normalCopy()
+void Q3TextEdit::normalCopy()
 {
 #ifndef QT_NO_MIME
     QTextDrag *drag = dragObject();
@@ -3327,7 +3327,7 @@ void QTextEdit::normalCopy()
     \sa hasSelectedText() copyAvailable()
 */
 
-void QTextEdit::copy()
+void Q3TextEdit::copy()
 {
 #ifndef QT_NO_CLIPBOARD
 # ifdef QT_TEXTEDIT_OPTIMIZATION
@@ -3347,7 +3347,7 @@ void QTextEdit::copy()
     Re-indents the current paragraph.
 */
 
-void QTextEdit::indent()
+void Q3TextEdit::indent()
 {
     if (isReadOnly())
         return;
@@ -3370,7 +3370,7 @@ void QTextEdit::indent()
     was moved; otherwise returns false.
  */
 
-bool QTextEdit::focusNextPrevChild(bool n)
+bool Q3TextEdit::focusNextPrevChild(bool n)
 {
     if (!isReadOnly() || !linksEnabled())
         return false;
@@ -3390,7 +3390,7 @@ bool QTextEdit::focusNextPrevChild(bool n)
   f which are specified by the \a flags are used.
 */
 
-void QTextEdit::setFormat(Q3TextFormat *f, int flags)
+void Q3TextEdit::setFormat(Q3TextFormat *f, int flags)
 {
     if (doc->hasSelection(Q3TextDocument::Standard)) {
         drawCursor(false);
@@ -3444,7 +3444,7 @@ void QTextEdit::setFormat(Q3TextFormat *f, int flags)
     \reimp
 */
 
-void QTextEdit::setPalette(const QPalette &p)
+void Q3TextEdit::setPalette(const QPalette &p)
 {
     QScrollView::setPalette(p);
     if (textFormat() == PlainText) {
@@ -3466,7 +3466,7 @@ void QTextEdit::setPalette(const QPalette &p)
   \sa setAlignment()
 */
 
-void QTextEdit::setParagType(QStyleSheetItem::DisplayMode dm,
+void Q3TextEdit::setParagType(QStyleSheetItem::DisplayMode dm,
                               QStyleSheetItem::ListStyle listStyle)
 {
     if (isReadOnly())
@@ -3516,7 +3516,7 @@ void QTextEdit::setParagType(QStyleSheetItem::DisplayMode dm,
     horizontally).
 */
 
-void QTextEdit::setAlignment(int a)
+void Q3TextEdit::setAlignment(int a)
 {
     if (isReadOnly() || block_set_alignment)
         return;
@@ -3554,7 +3554,7 @@ void QTextEdit::setAlignment(int a)
     emit textChanged();
 }
 
-void QTextEdit::updateCurrentFormat()
+void Q3TextEdit::updateCurrentFormat()
 {
     int i = cursor->index();
     if (i > 0)
@@ -3588,7 +3588,7 @@ void QTextEdit::updateCurrentFormat()
     \sa italic()
 */
 
-void QTextEdit::setItalic(bool b)
+void Q3TextEdit::setItalic(bool b)
 {
     Q3TextFormat f(*currentFormat);
     f.setItalic(b);
@@ -3603,7 +3603,7 @@ void QTextEdit::setItalic(bool b)
     \sa bold()
 */
 
-void QTextEdit::setBold(bool b)
+void Q3TextEdit::setBold(bool b)
 {
     Q3TextFormat f(*currentFormat);
     f.setBold(b);
@@ -3618,7 +3618,7 @@ void QTextEdit::setBold(bool b)
     \sa underline()
 */
 
-void QTextEdit::setUnderline(bool b)
+void Q3TextEdit::setUnderline(bool b)
 {
     Q3TextFormat f(*currentFormat);
     f.setUnderline(b);
@@ -3632,7 +3632,7 @@ void QTextEdit::setUnderline(bool b)
     \sa family() setCurrentFont()
 */
 
-void QTextEdit::setFamily(const QString &fontFamily)
+void Q3TextEdit::setFamily(const QString &fontFamily)
 {
     Q3TextFormat f(*currentFormat);
     f.setFamily(fontFamily);
@@ -3649,7 +3649,7 @@ void QTextEdit::setFamily(const QString &fontFamily)
     \sa pointSize() setCurrentFont() setFamily()
 */
 
-void QTextEdit::setPointSize(int s)
+void Q3TextEdit::setPointSize(int s)
 {
     Q3TextFormat f(*currentFormat);
     f.setPointSize(s);
@@ -3663,7 +3663,7 @@ void QTextEdit::setPointSize(int s)
     \sa color() setPaper()
 */
 
-void QTextEdit::setColor(const QColor &c)
+void Q3TextEdit::setColor(const QColor &c)
 {
     Q3TextFormat f(*currentFormat);
     f.setColor(c);
@@ -3678,7 +3678,7 @@ void QTextEdit::setColor(const QColor &c)
     \sa color() setPaper()
 */
 
-void QTextEdit::setVerticalAlignment(VerticalAlignment a)
+void Q3TextEdit::setVerticalAlignment(VerticalAlignment a)
 {
     Q3TextFormat f(*currentFormat);
     f.setVAlign((Q3TextFormat::VerticalAlignment)a);
@@ -3686,7 +3686,7 @@ void QTextEdit::setVerticalAlignment(VerticalAlignment a)
     setFormat(f2, Q3TextFormat::VAlign);
 }
 
-void QTextEdit::setFontInternal(const QFont &f_)
+void Q3TextEdit::setFontInternal(const QFont &f_)
 {
     Q3TextFormat f(*currentFormat);
     f.setFont(f_);
@@ -3695,7 +3695,7 @@ void QTextEdit::setFontInternal(const QFont &f_)
 }
 
 
-QString QTextEdit::text() const
+QString Q3TextEdit::text() const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode)
@@ -3720,7 +3720,7 @@ QString QTextEdit::text() const
     formatting tags.
 */
 
-QString QTextEdit::text(int para) const
+QString Q3TextEdit::text(int para) const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode && (d->od->numLines >= para)) {
@@ -3748,7 +3748,7 @@ QString QTextEdit::text(int para) const
 
     The optional \a context is a path which the text edit's
     QMimeSourceFactory uses to resolve the locations of files and
-    images. (See \l{QTextEdit::QTextEdit()}.) It is passed to the text
+    images. (See \l{Q3TextEdit::Q3TextEdit()}.) It is passed to the text
     edit's QMimeSourceFactory when quering data.
 
     Note that the undo/redo history is cleared by this function.
@@ -3756,7 +3756,7 @@ QString QTextEdit::text(int para) const
     \sa text(), setTextFormat()
 */
 
-void QTextEdit::setText(const QString &text, const QString &context)
+void Q3TextEdit::setText(const QString &text, const QString &context)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -3806,7 +3806,7 @@ void QTextEdit::setText(const QString &text, const QString &context)
 }
 
 /*!
-    \property QTextEdit::text
+    \property Q3TextEdit::text
     \brief the text edit's text
 
     There is no default text.
@@ -3817,7 +3817,7 @@ void QTextEdit::setText(const QString &text, const QString &context)
     depending on the textFormat(). The default setting is \c AutoText,
     i.e. the text edit auto-detects the format of the text.
 
-    For richtext, calling text() on an editable QTextEdit will cause
+    For richtext, calling text() on an editable Q3TextEdit will cause
     the text to be regenerated from the textedit. This may mean that
     the QString returned may not be exactly the same as the one that
     was set.
@@ -3827,7 +3827,7 @@ void QTextEdit::setText(const QString &text, const QString &context)
 
 
 /*!
-    \property QTextEdit::readOnly
+    \property Q3TextEdit::readOnly
     \brief whether the text edit is read-only
 
     In a read-only text edit the user can only navigate through the
@@ -3867,7 +3867,7 @@ void QTextEdit::setText(const QString &text, const QString &context)
     modify the cursor position.
 */
 
-bool QTextEdit::find(const QString &expr, bool cs, bool wo, bool forward,
+bool Q3TextEdit::find(const QString &expr, bool cs, bool wo, bool forward,
                       int *para, int *index)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
@@ -3912,7 +3912,7 @@ bool QTextEdit::find(const QString &expr, bool cs, bool wo, bool forward,
     return found;
 }
 
-void QTextEdit::blinkCursor()
+void Q3TextEdit::blinkCursor()
 {
     bool cv = cursorVisible;
     blinkCursorVisible = !blinkCursorVisible;
@@ -3926,7 +3926,7 @@ void QTextEdit::blinkCursor()
     \sa getCursorPosition()
 */
 
-void QTextEdit::setCursorPosition(int para, int index)
+void Q3TextEdit::setCursorPosition(int para, int index)
 {
     Q3TextParagraph *p = doc->paragAt(para);
     if (!p)
@@ -3952,7 +3952,7 @@ void QTextEdit::setCursorPosition(int para, int index)
     \sa setCursorPosition()
 */
 
-void QTextEdit::getCursorPosition(int *para, int *index) const
+void Q3TextEdit::getCursorPosition(int *para, int *index) const
 {
     if (!para || !index)
         return;
@@ -3978,7 +3978,7 @@ void QTextEdit::getCursorPosition(int *para, int *index) const
     \sa getSelection() selectedText
 */
 
-void QTextEdit::setSelection(int paraFrom, int indexFrom,
+void Q3TextEdit::setSelection(int paraFrom, int indexFrom,
                               int paraTo, int indexTo, int selNum)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
@@ -4042,7 +4042,7 @@ void QTextEdit::setSelection(int paraFrom, int indexFrom,
     \sa setSelection() selectedText
 */
 
-void QTextEdit::getSelection(int *paraFrom, int *indexFrom,
+void Q3TextEdit::getSelection(int *paraFrom, int *indexFrom,
                               int *paraTo, int *indexTo, int selNum) const
 {
     if (!paraFrom || !paraTo || !indexFrom || !indexTo)
@@ -4069,7 +4069,7 @@ void QTextEdit::getSelection(int *paraFrom, int *indexFrom,
 }
 
 /*!
-    \property QTextEdit::textFormat
+    \property Q3TextEdit::textFormat
     \brief the text format: rich text, plain text, log text or auto text.
 
     The text format is one of the following:
@@ -4089,7 +4089,7 @@ void QTextEdit::getSelection(int *paraFrom, int *indexFrom,
     \endlist
 */
 
-void QTextEdit::setTextFormat(TextFormat format)
+void Q3TextEdit::setTextFormat(TextFormat format)
 {
     doc->setTextFormat(format);
 #ifdef QT_TEXTEDIT_OPTIMIZATION
@@ -4097,7 +4097,7 @@ void QTextEdit::setTextFormat(TextFormat format)
 #endif
 }
 
-Qt::TextFormat QTextEdit::textFormat() const
+Qt::TextFormat Q3TextEdit::textFormat() const
 {
     return doc->textFormat();
 }
@@ -4107,7 +4107,7 @@ Qt::TextFormat QTextEdit::textFormat() const
     considered to have one paragraph, so 1 is returned in this case.
 */
 
-int QTextEdit::paragraphs() const
+int Q3TextEdit::paragraphs() const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -4122,7 +4122,7 @@ int QTextEdit::paragraphs() const
     is no paragraph with index \a para.
 */
 
-int QTextEdit::linesOfParagraph(int para) const
+int Q3TextEdit::linesOfParagraph(int para) const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -4145,7 +4145,7 @@ int QTextEdit::linesOfParagraph(int para) const
     This function ignores newlines.
 */
 
-int QTextEdit::paragraphLength(int para) const
+int Q3TextEdit::paragraphLength(int para) const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -4172,7 +4172,7 @@ int QTextEdit::paragraphLength(int para) const
     paragraphs and get the number of lines from each one individually.
 */
 
-int QTextEdit::lines() const
+int Q3TextEdit::lines() const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -4197,7 +4197,7 @@ int QTextEdit::lines() const
     index is out of range) -1 is returned.
 */
 
-int QTextEdit::lineOfChar(int para, int index)
+int Q3TextEdit::lineOfChar(int para, int index)
 {
     Q3TextParagraph *p = doc->paragAt(para);
     if (!p)
@@ -4211,7 +4211,7 @@ int QTextEdit::lineOfChar(int para, int index)
     return line;
 }
 
-void QTextEdit::setModified(bool m)
+void Q3TextEdit::setModified(bool m)
 {
     bool oldModified = modified;
     modified = m;
@@ -4222,16 +4222,16 @@ void QTextEdit::setModified(bool m)
 }
 
 /*!
-    \property QTextEdit::modified
+    \property Q3TextEdit::modified
     \brief whether the document has been modified by the user
 */
 
-bool QTextEdit::isModified() const
+bool Q3TextEdit::isModified() const
 {
     return modified;
 }
 
-void QTextEdit::setModified()
+void Q3TextEdit::setModified()
 {
     if (!isModified())
         setModified(true);
@@ -4243,7 +4243,7 @@ void QTextEdit::setModified()
     \sa setItalic()
 */
 
-bool QTextEdit::italic() const
+bool Q3TextEdit::italic() const
 {
     return currentFormat->font().italic();
 }
@@ -4254,7 +4254,7 @@ bool QTextEdit::italic() const
     \sa setBold()
 */
 
-bool QTextEdit::bold() const
+bool Q3TextEdit::bold() const
 {
     return currentFormat->font().bold();
 }
@@ -4266,7 +4266,7 @@ bool QTextEdit::bold() const
     \sa setUnderline()
 */
 
-bool QTextEdit::underline() const
+bool Q3TextEdit::underline() const
 {
     return currentFormat->font().underline();
 }
@@ -4277,7 +4277,7 @@ bool QTextEdit::underline() const
     \sa setFamily() setCurrentFont() setPointSize()
 */
 
-QString QTextEdit::family() const
+QString Q3TextEdit::family() const
 {
     return currentFormat->font().family();
 }
@@ -4288,7 +4288,7 @@ QString QTextEdit::family() const
     \sa setFamily() setCurrentFont() setPointSize()
 */
 
-int QTextEdit::pointSize() const
+int Q3TextEdit::pointSize() const
 {
     return currentFormat->font().pointSize();
 }
@@ -4299,7 +4299,7 @@ int QTextEdit::pointSize() const
     \sa setColor() setPaper()
 */
 
-QColor QTextEdit::color() const
+QColor Q3TextEdit::color() const
 {
     return currentFormat->color();
 }
@@ -4314,7 +4314,7 @@ QColor QTextEdit::color() const
     currentFont() instead.
 */
 
-QFont QTextEdit::font() const
+QFont Q3TextEdit::font() const
 {
     return QScrollView::font();
 }
@@ -4325,7 +4325,7 @@ QFont QTextEdit::font() const
     \sa setCurrentFont() setFamily() setPointSize()
 */
 
-QFont QTextEdit::currentFont() const
+QFont Q3TextEdit::currentFont() const
 {
     return currentFormat->font();
 }
@@ -4337,12 +4337,12 @@ QFont QTextEdit::currentFont() const
     \sa setAlignment()
 */
 
-int QTextEdit::alignment() const
+int Q3TextEdit::alignment() const
 {
     return currentAlignment;
 }
 
-void QTextEdit::startDrag()
+void Q3TextEdit::startDrag()
 {
 #ifndef QT_NO_DRAGANDDROP
     mousePressed = false;
@@ -4367,7 +4367,7 @@ void QTextEdit::startDrag()
     \sa selectedText
 */
 
-void QTextEdit::selectAll(bool select)
+void Q3TextEdit::selectAll(bool select)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -4390,7 +4390,7 @@ void QTextEdit::selectAll(bool select)
 #endif
 }
 
-void QTextEdit::UndoRedoInfo::clear()
+void Q3TextEdit::UndoRedoInfo::clear()
 {
     if (valid()) {
         if (type == Insert || type == Return)
@@ -4419,7 +4419,7 @@ void QTextEdit::UndoRedoInfo::clear()
     \sa removeSelectedText() cut()
 */
 
-void QTextEdit::del()
+void Q3TextEdit::del()
 {
     if (doc->hasSelection(Q3TextDocument::Standard)) {
         removeSelectedText();
@@ -4430,7 +4430,7 @@ void QTextEdit::del()
 }
 
 
-QTextEdit::UndoRedoInfo::UndoRedoInfo(Q3TextDocument *dc)
+Q3TextEdit::UndoRedoInfo::UndoRedoInfo(Q3TextDocument *dc)
     : type(Invalid), doc(dc)
 {
     d = new QUndoRedoInfoPrivate;
@@ -4439,12 +4439,12 @@ QTextEdit::UndoRedoInfo::UndoRedoInfo(Q3TextDocument *dc)
     index = -1;
 }
 
-QTextEdit::UndoRedoInfo::~UndoRedoInfo()
+Q3TextEdit::UndoRedoInfo::~UndoRedoInfo()
 {
     delete d;
 }
 
-bool QTextEdit::UndoRedoInfo::valid() const
+bool Q3TextEdit::UndoRedoInfo::valid() const
 {
     return id >= 0 &&  type != Invalid;
 }
@@ -4455,7 +4455,7 @@ bool QTextEdit::UndoRedoInfo::valid() const
   Resets the current format to the default format.
 */
 
-void QTextEdit::resetFormat()
+void Q3TextEdit::resetFormat()
 {
     setAlignment(Qt::AlignAuto);
     setParagType(QStyleSheetItem::DisplayBlock, QStyleSheetItem::ListDisc);
@@ -4468,7 +4468,7 @@ void QTextEdit::resetFormat()
     \sa setStyleSheet()
 */
 
-QStyleSheet* QTextEdit::styleSheet() const
+QStyleSheet* Q3TextEdit::styleSheet() const
 {
     return doc->styleSheet();
 }
@@ -4481,20 +4481,20 @@ QStyleSheet* QTextEdit::styleSheet() const
     \sa styleSheet()
 */
 
-void QTextEdit::setStyleSheet(QStyleSheet* styleSheet)
+void Q3TextEdit::setStyleSheet(QStyleSheet* styleSheet)
 {
     doc->setStyleSheet(styleSheet);
 }
 
 /*!
-    \property QTextEdit::paper
+    \property Q3TextEdit::paper
     \brief the background (paper) brush.
 
     The brush that is currently used to draw the background of the
     text edit. The initial setting is an empty brush.
 */
 
-void QTextEdit::setPaper(const QBrush& pap)
+void Q3TextEdit::setPaper(const QBrush& pap)
 {
     doc->setPaper(new QBrush(pap));
     QPalette pal = palette();
@@ -4513,7 +4513,7 @@ void QTextEdit::setPaper(const QBrush& pap)
         updateContents();
 }
 
-QBrush QTextEdit::paper() const
+QBrush Q3TextEdit::paper() const
 {
     if (doc->paper())
         return *doc->paper();
@@ -4521,14 +4521,14 @@ QBrush QTextEdit::paper() const
 }
 
 /*!
-    \property QTextEdit::linkUnderline
+    \property Q3TextEdit::linkUnderline
     \brief whether hypertext links will be underlined
 
     If true (the default) hypertext links will be displayed
     underlined. If false links will not be displayed underlined.
 */
 
-void QTextEdit::setLinkUnderline(bool b)
+void Q3TextEdit::setLinkUnderline(bool b)
 {
     if (doc->underlineLinks() == b)
         return;
@@ -4536,7 +4536,7 @@ void QTextEdit::setLinkUnderline(bool b)
     repaintChanged();
 }
 
-bool QTextEdit::linkUnderline() const
+bool Q3TextEdit::linkUnderline() const
 {
     return doc->underlineLinks();
 }
@@ -4549,7 +4549,7 @@ bool QTextEdit::linkUnderline() const
  */
 
 #ifndef QT_NO_MIME
-void QTextEdit::setMimeSourceFactory(QMimeSourceFactory* factory)
+void Q3TextEdit::setMimeSourceFactory(QMimeSourceFactory* factory)
 {
     doc->setMimeSourceFactory(factory);
 }
@@ -4561,7 +4561,7 @@ void QTextEdit::setMimeSourceFactory(QMimeSourceFactory* factory)
     \sa setMimeSourceFactory()
 */
 
-QMimeSourceFactory* QTextEdit::mimeSourceFactory() const
+QMimeSourceFactory* Q3TextEdit::mimeSourceFactory() const
 {
     return doc->mimeSourceFactory();
 }
@@ -4572,14 +4572,14 @@ QMimeSourceFactory* QTextEdit::mimeSourceFactory() const
     all the text if the text edit is \a w pixels wide.
 */
 
-int QTextEdit::heightForWidth(int w) const
+int Q3TextEdit::heightForWidth(int w) const
 {
     int oldw = doc->width();
     doc->doLayout(0, w);
     int h = doc->height();
     doc->setWidth(oldw);
     doc->invalidate();
-    ((QTextEdit*)this)->formatMore();
+    ((Q3TextEdit*)this)->formatMore();
     return h;
 }
 
@@ -4591,7 +4591,7 @@ int QTextEdit::heightForWidth(int w) const
     undo/redo history as well, use insertParagraph().
 */
 
-void QTextEdit::append(const QString &text)
+void Q3TextEdit::append(const QString &text)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -4641,11 +4641,11 @@ void QTextEdit::append(const QString &text)
 }
 
 /*!
-    \property QTextEdit::hasSelectedText
+    \property Q3TextEdit::hasSelectedText
     \brief whether some text is selected in selection 0
 */
 
-bool QTextEdit::hasSelectedText() const
+bool Q3TextEdit::hasSelectedText() const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode)
@@ -4656,7 +4656,7 @@ bool QTextEdit::hasSelectedText() const
 }
 
 /*!
-    \property QTextEdit::selectedText
+    \property Q3TextEdit::selectedText
     \brief The selected text (from selection 0) or an empty string if
     there is no currently selected text (in selection 0).
 
@@ -4666,7 +4666,7 @@ bool QTextEdit::hasSelectedText() const
     \sa hasSelectedText
 */
 
-QString QTextEdit::selectedText() const
+QString Q3TextEdit::selectedText() const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode)
@@ -4676,7 +4676,7 @@ QString QTextEdit::selectedText() const
         return doc->selectedText(Q3TextDocument::Standard, textFormat() == RichText);
 }
 
-bool QTextEdit::handleReadOnlyKeyEvent(QKeyEvent *e)
+bool Q3TextEdit::handleReadOnlyKeyEvent(QKeyEvent *e)
 {
     switch(e->key()) {
     case Key_Down:
@@ -4756,13 +4756,13 @@ bool QTextEdit::handleReadOnlyKeyEvent(QKeyEvent *e)
     \sa text
 */
 
-QString QTextEdit::context() const
+QString Q3TextEdit::context() const
 {
     return doc->context();
 }
 
 /*!
-    \property QTextEdit::documentTitle
+    \property Q3TextEdit::documentTitle
     \brief the title of the document parsed from the text.
 
     For \c PlainText the title will be an empty string. For \c
@@ -4770,12 +4770,12 @@ QString QTextEdit::context() const
     if present, otherwise an empty string.
 */
 
-QString QTextEdit::documentTitle() const
+QString Q3TextEdit::documentTitle() const
 {
     return doc->attributes()["title"];
 }
 
-void QTextEdit::makeParagVisible(Q3TextParagraph *p)
+void Q3TextEdit::makeParagVisible(Q3TextParagraph *p)
 {
     setContentsPos(contentsX(), qMin(p->rect().y(), contentsHeight() - visibleHeight()));
 }
@@ -4787,7 +4787,7 @@ void QTextEdit::makeParagVisible(Q3TextParagraph *p)
     the HTML anchor tag, e.g. \c{<a name="target">}.
 */
 
-void QTextEdit::scrollToAnchor(const QString& name)
+void Q3TextEdit::scrollToAnchor(const QString& name)
 {
     if (!isVisible()) {
         d->scrollToAnchor = name;
@@ -4820,7 +4820,7 @@ void QTextEdit::scrollToAnchor(const QString& name)
     otherwise QString::null is returned.
 */
 
-QString QTextEdit::anchorAt(const QPoint& pos, AnchorAttribute attr)
+QString Q3TextEdit::anchorAt(const QPoint& pos, AnchorAttribute attr)
 {
     Q3TextCursor c(doc);
     placeCursor(pos, &c);
@@ -4835,7 +4835,7 @@ QString QTextEdit::anchorAt(const QPoint& pos, AnchorAttribute attr)
     return QString::null;
 }
 
-void QTextEdit::documentWidthChanged(int w)
+void Q3TextEdit::documentWidthChanged(int w)
 {
     resizeContents(qMax(visibleWidth(), w), contentsHeight());
 }
@@ -4845,11 +4845,11 @@ void QTextEdit::documentWidthChanged(int w)
   This function does nothing
 */
 
-void QTextEdit::updateStyles()
+void Q3TextEdit::updateStyles()
 {
 }
 
-void QTextEdit::setDocument(Q3TextDocument *dc)
+void Q3TextEdit::setDocument(Q3TextDocument *dc)
 {
     if (dc == doc)
         return;
@@ -4871,10 +4871,10 @@ void QTextEdit::setDocument(Q3TextDocument *dc)
     If there is no text with format \a subtype in the clipboard
     nothing happens.
 
-    \sa paste() cut() QTextEdit::copy()
+    \sa paste() cut() Q3TextEdit::copy()
 */
 
-void QTextEdit::pasteSubType(const QByteArray &subtype)
+void Q3TextEdit::pasteSubType(const QByteArray &subtype)
 {
 #ifndef QT_NO_MIMECLIPBOARD
     QMimeSource *m = QApplication::clipboard()->data(d->clipboard_mode);
@@ -4884,7 +4884,7 @@ void QTextEdit::pasteSubType(const QByteArray &subtype)
 
 /*! \internal */
 
-void QTextEdit::pasteSubType(const QByteArray& subtype, QMimeSource *m)
+void Q3TextEdit::pasteSubType(const QByteArray& subtype, QMimeSource *m)
 {
 #ifndef QT_NO_MIME
     QByteArray st = subtype;
@@ -5002,7 +5002,7 @@ void QTextEdit::pasteSubType(const QByteArray& subtype, QMimeSource *m)
     into the text edit at the current text cursor position. Any
     selected text (in selection 0) is first deleted.
 */
-void QTextEdit::pasteSpecial(const QPoint& pt)
+void Q3TextEdit::pasteSpecial(const QPoint& pt)
 {
     QByteArray st = pickSpecial(QApplication::clipboard()->data(d->clipboard_mode),
                                true, pt);
@@ -5011,7 +5011,7 @@ void QTextEdit::pasteSpecial(const QPoint& pt)
 }
 #endif
 #ifndef QT_NO_MIME
-QByteArray QTextEdit::pickSpecial(QMimeSource* ms, bool always_ask, const QPoint& pt)
+QByteArray Q3TextEdit::pickSpecial(QMimeSource* ms, bool always_ask, const QPoint& pt)
 {
     if (ms)  {
 #ifndef QT_NO_POPUPMENU
@@ -5058,9 +5058,9 @@ QByteArray QTextEdit::pickSpecial(QMimeSource* ms, bool always_ask, const QPoint
 #endif // QT_NO_CLIPBOARD
 
 /*!
-    \enum QTextEdit::WordWrap
+    \enum Q3TextEdit::WordWrap
 
-    This enum defines the QTextEdit's word wrap modes.
+    This enum defines the Q3TextEdit's word wrap modes.
 
     \value NoWrap Do not wrap the text.
 
@@ -5083,7 +5083,7 @@ QByteArray QTextEdit::pickSpecial(QMimeSource* ms, bool always_ask, const QPoint
 */
 
 /*!
-    \property QTextEdit::wordWrap
+    \property Q3TextEdit::wordWrap
     \brief the word wrap mode
 
     The default mode is \c WidgetWidth which causes words to be
@@ -5096,7 +5096,7 @@ QByteArray QTextEdit::pickSpecial(QMimeSource* ms, bool always_ask, const QPoint
     \sa WordWrap, wrapColumnOrWidth, wrapPolicy,
 */
 
-void QTextEdit::setWordWrap(WordWrap mode)
+void Q3TextEdit::setWordWrap(WordWrap mode)
 {
     if (wrapMode == mode)
         return;
@@ -5138,13 +5138,13 @@ void QTextEdit::setWordWrap(WordWrap mode)
 #endif
 }
 
-QTextEdit::WordWrap QTextEdit::wordWrap() const
+Q3TextEdit::WordWrap Q3TextEdit::wordWrap() const
 {
     return wrapMode;
 }
 
 /*!
-    \property QTextEdit::wrapColumnOrWidth
+    \property Q3TextEdit::wrapColumnOrWidth
     \brief the position (in pixels or columns depending on the wrap mode) where text will be wrapped
 
     If the wrap mode is \c FixedPixelWidth, the value is the number of
@@ -5155,7 +5155,7 @@ QTextEdit::WordWrap QTextEdit::wordWrap() const
 
     \sa wordWrap
 */
-void QTextEdit::setWrapColumnOrWidth(int value)
+void Q3TextEdit::setWrapColumnOrWidth(int value)
 {
     wrapWidth = value;
     if (wrapMode == FixedColumnWidth) {
@@ -5178,7 +5178,7 @@ void QTextEdit::setWrapColumnOrWidth(int value)
     formatMore();
 }
 
-int QTextEdit::wrapColumnOrWidth() const
+int Q3TextEdit::wrapColumnOrWidth() const
 {
     if (wrapMode == WidgetWidth)
         return visibleWidth();
@@ -5187,7 +5187,7 @@ int QTextEdit::wrapColumnOrWidth() const
 
 
 /*!
-    \enum QTextEdit::WrapPolicy
+    \enum Q3TextEdit::WrapPolicy
 
     This enum defines where text can be wrapped in word wrap mode.
 
@@ -5203,7 +5203,7 @@ int QTextEdit::wrapColumnOrWidth() const
 */
 
 /*!
-    \property QTextEdit::wrapPolicy
+    \property Q3TextEdit::wrapPolicy
     \brief the word wrap policy, at whitespace or anywhere
 
     Defines where text can be wrapped when word wrap mode is not \c
@@ -5213,7 +5213,7 @@ int QTextEdit::wrapColumnOrWidth() const
     \sa wordWrap
 */
 
-void QTextEdit::setWrapPolicy(WrapPolicy policy)
+void Q3TextEdit::setWrapPolicy(WrapPolicy policy)
 {
     if (wPolicy == policy)
         return;
@@ -5235,7 +5235,7 @@ void QTextEdit::setWrapPolicy(WrapPolicy policy)
     formatMore();
 }
 
-QTextEdit::WrapPolicy QTextEdit::wrapPolicy() const
+Q3TextEdit::WrapPolicy Q3TextEdit::wrapPolicy() const
 {
     return wPolicy;
 }
@@ -5246,7 +5246,7 @@ QTextEdit::WrapPolicy QTextEdit::wrapPolicy() const
     \sa cut() removeSelectedText() setText()
 */
 
-void QTextEdit::clear()
+void Q3TextEdit::clear()
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -5271,17 +5271,17 @@ void QTextEdit::clear()
     emit cursorPositionChanged(cursor->paragraph()->paragId(), cursor->index());
 }
 
-int QTextEdit::undoDepth() const
+int Q3TextEdit::undoDepth() const
 {
     return document()->undoDepth();
 }
 
 /*!
-    \property QTextEdit::length
+    \property Q3TextEdit::length
     \brief the number of characters in the text
 */
 
-int QTextEdit::length() const
+int Q3TextEdit::length() const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode)
@@ -5292,21 +5292,21 @@ int QTextEdit::length() const
 }
 
 /*!
-    \property QTextEdit::tabStopWidth
+    \property Q3TextEdit::tabStopWidth
     \brief the tab stop width in pixels
 */
 
-int QTextEdit::tabStopWidth() const
+int Q3TextEdit::tabStopWidth() const
 {
     return document()->tabStopWidth();
 }
 
-void QTextEdit::setUndoDepth(int d)
+void Q3TextEdit::setUndoDepth(int d)
 {
     document()->setUndoDepth(d);
 }
 
-void QTextEdit::setTabStopWidth(int ts)
+void Q3TextEdit::setTabStopWidth(int ts)
 {
     document()->setTabStops(ts);
     doc->invalidate();
@@ -5320,7 +5320,7 @@ void QTextEdit::setTabStopWidth(int ts)
     \reimp
 */
 
-QSize QTextEdit::sizeHint() const
+QSize Q3TextEdit::sizeHint() const
 {
     // cf. QScrollView::sizeHint()
     ensurePolished();
@@ -5330,7 +5330,7 @@ QSize QTextEdit::sizeHint() const
     return sz.expandedTo(QSize(12 * h, 8 * h));
 }
 
-void QTextEdit::clearUndoRedo()
+void Q3TextEdit::clearUndoRedo()
 {
     if (!undoEnabled)
         return;
@@ -5353,7 +5353,7 @@ void QTextEdit::clearUndoRedo()
   returns true.
 */
 
-bool QTextEdit::getFormat(int para, int index, QFont *font, QColor *color, VerticalAlignment *verticalAlignment)
+bool Q3TextEdit::getFormat(int para, int index, QFont *font, QColor *color, VerticalAlignment *verticalAlignment)
 {
     if (!font || !color)
         return false;
@@ -5385,7 +5385,7 @@ bool QTextEdit::getFormat(int para, int index, QFont *font, QColor *color, Verti
   Returns false if \a para is out of range otherwise returns true.
 */
 
-bool QTextEdit::getParagraphFormat(int para, QFont *font, QColor *color,
+bool Q3TextEdit::getParagraphFormat(int para, QFont *font, QColor *color,
                                     VerticalAlignment *verticalAlignment, int *alignment,
                                     QStyleSheetItem::DisplayMode *displayMode,
                                     QStyleSheetItem::ListStyle *listStyle,
@@ -5415,7 +5415,7 @@ bool QTextEdit::getParagraphFormat(int para, QFont *font, QColor *color,
     menu. Ownership of the popup menu is transferred to the caller.
 */
 
-QPopupMenu *QTextEdit::createPopupMenu(const QPoint& pos)
+QPopupMenu *Q3TextEdit::createPopupMenu(const QPoint& pos)
 {
     Q_UNUSED(pos)
 #ifndef QT_NO_POPUPMENU
@@ -5472,7 +5472,7 @@ QPopupMenu *QTextEdit::createPopupMenu(const QPoint& pos)
     returns 0.
 */
 
-QPopupMenu *QTextEdit::createPopupMenu()
+QPopupMenu *Q3TextEdit::createPopupMenu()
 {
     return 0;
 }
@@ -5481,7 +5481,7 @@ QPopupMenu *QTextEdit::createPopupMenu()
     \reimp
 */
 
-void QTextEdit::setFont(const QFont &f)
+void Q3TextEdit::setFont(const QFont &f)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -5509,7 +5509,7 @@ void QTextEdit::setFont(const QFont &f)
 }
 
 /*!
-    \fn QTextEdit::zoomIn()
+    \fn Q3TextEdit::zoomIn()
 
     \overload
 
@@ -5521,7 +5521,7 @@ void QTextEdit::setFont(const QFont &f)
 */
 
 /*!
-    \fn QTextEdit::zoomOut()
+    \fn Q3TextEdit::zoomOut()
 
     \overload
 
@@ -5541,7 +5541,7 @@ void QTextEdit::setFont(const QFont &f)
     \sa zoomOut()
 */
 
-void QTextEdit::zoomIn(int range)
+void Q3TextEdit::zoomIn(int range)
 {
     QFont f(QScrollView::font());
     f.setPointSize(QFontInfo(f).pointSize() + range);
@@ -5556,7 +5556,7 @@ void QTextEdit::zoomIn(int range)
     \sa zoomIn()
 */
 
-void QTextEdit::zoomOut(int range)
+void Q3TextEdit::zoomOut(int range)
 {
     QFont f(QScrollView::font());
     f.setPointSize(qMax(1, QFontInfo(f).pointSize() - range));
@@ -5569,7 +5569,7 @@ void QTextEdit::zoomOut(int range)
     change the size of any images.
 */
 
-void QTextEdit::zoomTo(int size)
+void Q3TextEdit::zoomTo(int size)
 {
     QFont f(QScrollView::font());
     f.setPointSize(size);
@@ -5577,7 +5577,7 @@ void QTextEdit::zoomTo(int size)
 }
 
 /*!
-   QTextEdit is optimized for large amounts text. One of its
+   Q3TextEdit is optimized for large amounts text. One of its
    optimizations is to format only the visible text, formatting the rest
    on demand, e.g. as the user scrolls, so you don't usually need to
    call this function.
@@ -5588,7 +5588,7 @@ void QTextEdit::zoomTo(int size)
     would call this function first.
 */
 
-void QTextEdit::sync()
+void Q3TextEdit::sync()
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -5610,7 +5610,7 @@ void QTextEdit::sync()
     \reimp
 */
 
-void QTextEdit::setEnabled(bool b)
+void Q3TextEdit::setEnabled(bool b)
 {
     QScrollView::setEnabled(b);
     if (textFormat() == PlainText) {
@@ -5630,7 +5630,7 @@ void QTextEdit::setEnabled(bool b)
     palette().
 */
 
-void QTextEdit::setSelectionAttributes(int selNum, const QColor &back, bool invertText)
+void Q3TextEdit::setSelectionAttributes(int selNum, const QColor &back, bool invertText)
 {
     if (selNum < 1)
         return;
@@ -5643,7 +5643,7 @@ void QTextEdit::setSelectionAttributes(int selNum, const QColor &back, bool inve
 /*!
     \reimp
 */
-void QTextEdit::changeEvent(QEvent *ev)
+void Q3TextEdit::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::ActivationChange) {
         if (!isActiveWindow() && scrollTimer)
@@ -5654,7 +5654,7 @@ void QTextEdit::changeEvent(QEvent *ev)
     QScrollView::changeEvent(ev);
 }
 
-void QTextEdit::setReadOnly(bool b)
+void Q3TextEdit::setReadOnly(bool b)
 {
     if (readonly == b)
         return;
@@ -5676,7 +5676,7 @@ void QTextEdit::setReadOnly(bool b)
     required.
 */
 
-void QTextEdit::scrollToBottom()
+void Q3TextEdit::scrollToBottom()
 {
     sync();
     setContentsPos(contentsX(), contentsHeight() - visibleHeight());
@@ -5687,9 +5687,9 @@ void QTextEdit::scrollToBottom()
     coordinates, or an invalid rectangle if \a para is out of range.
 */
 
-QRect QTextEdit::paragraphRect(int para) const
+QRect Q3TextEdit::paragraphRect(int para) const
 {
-    QTextEdit *that = (QTextEdit *)this;
+    Q3TextEdit *that = (Q3TextEdit *)this;
     that->sync();
     Q3TextParagraph *p = doc->paragAt(para);
     if (!p)
@@ -5702,7 +5702,7 @@ QRect QTextEdit::paragraphRect(int para) const
     coordinates).
 */
 
-int QTextEdit::paragraphAt(const QPoint &pos) const
+int Q3TextEdit::paragraphAt(const QPoint &pos) const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -5727,7 +5727,7 @@ int QTextEdit::paragraphAt(const QPoint &pos) const
     \a *para is set to the character's paragraph.
 */
 
-int QTextEdit::charAt(const QPoint &pos, int *para) const
+int Q3TextEdit::charAt(const QPoint &pos, int *para) const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
@@ -5751,7 +5751,7 @@ int QTextEdit::charAt(const QPoint &pos, int *para) const
     Sets the background color of the paragraph \a para to \a bg.
 */
 
-void QTextEdit::setParagraphBackgroundColor(int para, const QColor &bg)
+void Q3TextEdit::setParagraphBackgroundColor(int para, const QColor &bg)
 {
     Q3TextParagraph *p = doc->paragAt(para);
     if (!p)
@@ -5765,7 +5765,7 @@ void QTextEdit::setParagraphBackgroundColor(int para, const QColor &bg)
     default color is used again.
 */
 
-void QTextEdit::clearParagraphBackground(int para)
+void Q3TextEdit::clearParagraphBackground(int para)
 {
     Q3TextParagraph *p = doc->paragAt(para);
     if (!p)
@@ -5780,7 +5780,7 @@ void QTextEdit::clearParagraphBackground(int para)
     background set
 */
 
-QColor QTextEdit::paragraphBackgroundColor(int para) const
+QColor Q3TextEdit::paragraphBackgroundColor(int para) const
 {
     Q3TextParagraph *p = doc->paragAt(para);
     if (!p)
@@ -5792,7 +5792,7 @@ QColor QTextEdit::paragraphBackgroundColor(int para) const
 }
 
 /*!
-    \property QTextEdit::undoRedoEnabled
+    \property Q3TextEdit::undoRedoEnabled
     \brief whether undo/redo is enabled
 
     When changing this property, the undo/redo history is cleared.
@@ -5800,7 +5800,7 @@ QColor QTextEdit::paragraphBackgroundColor(int para) const
     The default is true.
 */
 
-void QTextEdit::setUndoRedoEnabled(bool b)
+void Q3TextEdit::setUndoRedoEnabled(bool b)
 {
     undoRedoInfo.clear();
     doc->commands()->clear();
@@ -5808,7 +5808,7 @@ void QTextEdit::setUndoRedoEnabled(bool b)
     undoEnabled = b;
 }
 
-bool QTextEdit::isUndoRedoEnabled() const
+bool Q3TextEdit::isUndoRedoEnabled() const
 {
     return undoEnabled;
 }
@@ -5817,7 +5817,7 @@ bool QTextEdit::isUndoRedoEnabled() const
     Returns true if undo is available; otherwise returns false.
 */
 
-bool QTextEdit::isUndoAvailable() const
+bool Q3TextEdit::isUndoAvailable() const
 {
     return undoEnabled && (doc->commands()->isUndoAvailable() || undoRedoInfo.valid());
 }
@@ -5826,12 +5826,12 @@ bool QTextEdit::isUndoAvailable() const
     Returns true if redo is available; otherwise returns false.
 */
 
-bool QTextEdit::isRedoAvailable() const
+bool Q3TextEdit::isRedoAvailable() const
 {
     return undoEnabled && doc->commands()->isRedoAvailable();
 }
 
-void QTextEdit::ensureFormatted(Q3TextParagraph *p)
+void Q3TextEdit::ensureFormatted(Q3TextParagraph *p)
 {
     while (!p->isValid()) {
         if (!lastFormatted)
@@ -5841,7 +5841,7 @@ void QTextEdit::ensureFormatted(Q3TextParagraph *p)
 }
 
 /*! \internal */
-void QTextEdit::updateCursor(const QPoint & pos)
+void Q3TextEdit::updateCursor(const QPoint & pos)
 {
     if (isReadOnly() && linksEnabled()) {
         Q3TextCursor c = *cursor;
@@ -5891,13 +5891,13 @@ void QTextEdit::updateCursor(const QPoint & pos)
 
   \sa setCursorPosition()
 */
-void QTextEdit::placeCursor(const QPoint &pos, Q3TextCursor *c)
+void Q3TextEdit::placeCursor(const QPoint &pos, Q3TextCursor *c)
 {
     placeCursor(pos, c, false);
 }
 
 /*! \internal */
-void QTextEdit::clipboardChanged()
+void Q3TextEdit::clipboardChanged()
 {
 #ifndef QT_NO_CLIPBOARD
     // don't listen to selection changes
@@ -5906,7 +5906,7 @@ void QTextEdit::clipboardChanged()
     selectAll(false);
 }
 
-/*! \property QTextEdit::tabChangesFocus
+/*! \property Q3TextEdit::tabChangesFocus
   \brief whether TAB changes focus or is accepted as input
 
   In some occasions text edits should not allow the user to input
@@ -5915,12 +5915,12 @@ void QTextEdit::clipboardChanged()
 
 */
 
-void QTextEdit::setTabChangesFocus(bool b)
+void Q3TextEdit::setTabChangesFocus(bool b)
 {
     d->tabChangesFocus = b;
 }
 
-bool QTextEdit::tabChangesFocus() const
+bool Q3TextEdit::tabChangesFocus() const
 {
     return d->tabChangesFocus;
 }
@@ -5938,7 +5938,7 @@ static void qSwap(int * a, int * b)
 }
 
 /*! \internal */
-bool QTextEdit::checkOptimMode()
+bool Q3TextEdit::checkOptimMode()
 {
     bool oldMode = d->optimMode;
     if (textFormat() == LogText) {
@@ -5951,7 +5951,7 @@ bool QTextEdit::checkOptimMode()
     // when changing mode - try to keep selections and text
     if (oldMode != d->optimMode) {
         if (d->optimMode) {
-            d->od = new QTextEditOptimPrivate;
+            d->od = new Q3TextEditOptimPrivate;
             connect(scrollTimer, SIGNAL(timeout()), this, SLOT(optimDoAutoScroll()));
             disconnect(doc, SIGNAL(minimumWidthChanged(int)), this, SLOT(documentWidthChanged(int)));
             disconnect(scrollTimer, SIGNAL(timeout()), this, SLOT(autoScrollTimerDone()));
@@ -5974,7 +5974,7 @@ bool QTextEdit::checkOptimMode()
 }
 
 /*! \internal */
-QString QTextEdit::optimText() const
+QString Q3TextEdit::optimText() const
 {
     QString str, tmp;
 
@@ -5984,8 +5984,8 @@ QString QTextEdit::optimText() const
     // concatenate all strings
     int i;
     int offset;
-    QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator it;
-    QTextEditOptimPrivate::Tag * ftag = 0;
+    QMap<int,Q3TextEditOptimPrivate::Tag *>::ConstIterator it;
+    Q3TextEditOptimPrivate::Tag * ftag = 0;
     for (i = 0; i < d->od->numLines; i++) {
         if (d->od->lines[LOGOFFSET(i)].isEmpty()) { // CR lines are empty
             str += "\n";
@@ -6007,7 +6007,7 @@ QString QTextEdit::optimText() const
 }
 
 /*! \internal */
-void QTextEdit::optimSetText(const QString &str)
+void Q3TextEdit::optimSetText(const QString &str)
 {
     optimRemoveSelection();
 // this is just too slow - but may have to go in due to compatibility reasons
@@ -6039,9 +6039,9 @@ void QTextEdit::optimSetText(const QString &str)
 
   Append \a tag to the tag list.
 */
-QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag(int index, const QString & tag)
+Q3TextEditOptimPrivate::Tag * Q3TextEdit::optimAppendTag(int index, const QString & tag)
 {
-    QTextEditOptimPrivate::Tag * t = new QTextEditOptimPrivate::Tag, * tmp;
+    Q3TextEditOptimPrivate::Tag * t = new Q3TextEditOptimPrivate::Tag, * tmp;
 
     if (d->od->tags == 0)
         d->od->tags = t;
@@ -6067,9 +6067,9 @@ QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag(int index, const QString 
 
   Insert \a tag in the tag - according to line and index numbers
 */
-QTextEditOptimPrivate::Tag *QTextEdit::optimInsertTag(int line, int index, const QString &tag)
+Q3TextEditOptimPrivate::Tag *Q3TextEdit::optimInsertTag(int line, int index, const QString &tag)
 {
-    QTextEditOptimPrivate::Tag *t = new QTextEditOptimPrivate::Tag, *tmp;
+    Q3TextEditOptimPrivate::Tag *t = new Q3TextEditOptimPrivate::Tag, *tmp;
 
     if (d->od->tags == 0)
         d->od->tags = t;
@@ -6083,7 +6083,7 @@ QTextEditOptimPrivate::Tag *QTextEdit::optimInsertTag(int line, int index, const
     t->prev = 0;
 
     // find insertion pt. in tag struct.
-    QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator it;
+    QMap<int,Q3TextEditOptimPrivate::Tag *>::ConstIterator it;
     if ((it = d->od->tagIndex.find(LOGOFFSET(line))) != d->od->tagIndex.end()) {
         tmp = *it;
         if (tmp->index >= index) { // the exisiting tag may be placed AFTER the one we want to insert
@@ -6148,7 +6148,7 @@ QTextEditOptimPrivate::Tag *QTextEdit::optimInsertTag(int line, int index, const
   only thing that is detected.
 
 */
-void QTextEdit::optimParseTags(QString * line, int lineNo, int indexOffset)
+void Q3TextEdit::optimParseTags(QString * line, int lineNo, int indexOffset)
 {
     int len = line->length();
     int i, startIndex = -1, endIndex = -1, escIndex = -1;
@@ -6156,7 +6156,7 @@ void QTextEdit::optimParseTags(QString * line, int lineNo, int indexOffset)
     bool tagOpen, tagClose;
     int bold = 0, italic = 0, underline = 0;
     QString tagStr;
-    QStack<QTextEditOptimPrivate::Tag *> tagStack;
+    QStack<Q3TextEditOptimPrivate::Tag *> tagStack;
 
     for (i = 0; i < len; i++) {
         tagOpen = (*line)[i] == '<';
@@ -6191,7 +6191,7 @@ void QTextEdit::optimParseTags(QString * line, int lineNo, int indexOffset)
             state = 0;
             endIndex = i;
             if (!tagStr.isEmpty()) {
-                QTextEditOptimPrivate::Tag * tag, * cur, * tmp;
+                Q3TextEditOptimPrivate::Tag * tag, * cur, * tmp;
                 bool format = true;
 
                 if (tagStr == "b")
@@ -6214,14 +6214,14 @@ void QTextEdit::optimParseTags(QString * line, int lineNo, int indexOffset)
                     tag = optimAppendTag(startIndex, tagStr);
                 // everything that is not a b, u or i tag is considered
                 // to be a color tag.
-                tag->type = format ? QTextEditOptimPrivate::Format
-                            : QTextEditOptimPrivate::Color;
+                tag->type = format ? Q3TextEditOptimPrivate::Format
+                            : Q3TextEditOptimPrivate::Color;
                 if (tagStr[0] == '/') {
                     // this is a right-tag - search for the left-tag
                     // and possible parent tag
                     cur = tag->prev;
                     if (!cur) {
-                        qWarning("QTextEdit::optimParseTags: no left-tag for '<%s>' in line %d.",
+                        qWarning("Q3TextEdit::optimParseTags: no left-tag for '<%s>' in line %d.",
                                   tag->tag.latin1(), tag->line + 1);
                         return; // something is wrong - give up
                     }
@@ -6243,7 +6243,7 @@ void QTextEdit::optimParseTags(QString * line, int lineNo, int indexOffset)
                                     }
                                     break;
                                 } else if (!cur->leftTag) {
-                                    qWarning("QTextEdit::optimParseTags: mismatching %s-tag for '<%s>' in line %d.", cur->tag[0] == '/' ? "left" : "right", cur->tag.latin1(), cur->line + 1);
+                                    qWarning("Q3TextEdit::optimParseTags: mismatching %s-tag for '<%s>' in line %d.", cur->tag[0] == '/' ? "left" : "right", cur->tag.latin1(), cur->line + 1);
                                     return; // something is amiss - give up
                                 }
                             }
@@ -6312,10 +6312,10 @@ static int qStrWidth(const QString& str, int tabWidth, const QFontMetrics& fm)
     return strWidth;
 }
 
-bool QTextEdit::optimHasBoldMetrics(int line)
+bool Q3TextEdit::optimHasBoldMetrics(int line)
 {
-    QTextEditOptimPrivate::Tag *t;
-    QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator it;
+    Q3TextEditOptimPrivate::Tag *t;
+    QMap<int,Q3TextEditOptimPrivate::Tag *>::ConstIterator it;
     if ((it = d->od->tagIndex.find(line)) != d->od->tagIndex.end()) {
         t = *it;
         while (t && t->line == line) {
@@ -6334,7 +6334,7 @@ bool QTextEdit::optimHasBoldMetrics(int line)
   Append \a str to the current text buffer. Parses each line to find
   formatting tags.
 */
-void QTextEdit::optimAppend(const QString &str)
+void Q3TextEdit::optimAppend(const QString &str)
 {
     if (str.isEmpty() || str.isNull() || d->maxLogLines == 0)
         return;
@@ -6425,7 +6425,7 @@ static void qStripTags(QString *line)
     Inserts the text into \a line at index \a index.
 */
 
-void QTextEdit::optimInsert(const QString& text, int line, int index)
+void Q3TextEdit::optimInsert(const QString& text, int line, int index)
 {
     if (text.isEmpty() || d->maxLogLines == 0)
         return;
@@ -6440,8 +6440,8 @@ void QTextEdit::optimInsert(const QString& text, int line, int index)
 
     QStringList strl = text.split('\n');
     int numNewLines = strl.count() - 1;
-    QTextEditOptimPrivate::Tag *tag = 0;
-    QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator ii;
+    Q3TextEditOptimPrivate::Tag *tag = 0;
+    QMap<int,Q3TextEditOptimPrivate::Tag *>::ConstIterator ii;
     int x;
 
     if (numNewLines == 0) {
@@ -6553,10 +6553,10 @@ void QTextEdit::optimInsert(const QString& text, int line, int index)
 
   Returns the first open left-tag appearing before line \a line.
  */
-QTextEditOptimPrivate::Tag * QTextEdit::optimPreviousLeftTag(int line)
+Q3TextEditOptimPrivate::Tag * Q3TextEdit::optimPreviousLeftTag(int line)
 {
-    QTextEditOptimPrivate::Tag * ftag = 0;
-    QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator it;
+    Q3TextEditOptimPrivate::Tag * ftag = 0;
+    QMap<int,Q3TextEditOptimPrivate::Tag *>::ConstIterator it;
     if ((it = d->od->tagIndex.find(LOGOFFSET(line))) != d->od->tagIndex.end())
         ftag = it.value();
     if (!ftag) {
@@ -6590,9 +6590,9 @@ QTextEditOptimPrivate::Tag * QTextEdit::optimPreviousLeftTag(int line)
   first open color tag appearing before \a tag and use that tag to
   color the string.
 */
-void QTextEdit::optimSetTextFormat(Q3TextDocument * td, Q3TextCursor * cur,
+void Q3TextEdit::optimSetTextFormat(Q3TextDocument * td, Q3TextCursor * cur,
                                     Q3TextFormat * f, int start, int end,
-                                    QTextEditOptimPrivate::Tag * tag)
+                                    Q3TextEditOptimPrivate::Tag * tag)
 {
     int formatFlags = Q3TextFormat::Bold | Q3TextFormat::Italic |
                       Q3TextFormat::Underline;
@@ -6601,15 +6601,15 @@ void QTextEdit::optimSetTextFormat(Q3TextDocument * td, Q3TextCursor * cur,
     cur->setIndex(end);
     td->setSelectionEnd(0, *cur);
     QStyleSheetItem * ssItem = styleSheet()->item(tag->tag);
-    if (!ssItem || tag->type == QTextEditOptimPrivate::Format) {
+    if (!ssItem || tag->type == Q3TextEditOptimPrivate::Format) {
         f->setBold(tag->bold);
         f->setItalic(tag->italic);
         f->setUnderline(tag->underline);
-        if (tag->type == QTextEditOptimPrivate::Format) {
+        if (tag->type == Q3TextEditOptimPrivate::Format) {
             // check to see if there are any open color tags prior to
             // this format tag
             tag = tag->prev;
-            while (tag && (tag->type == QTextEditOptimPrivate::Format ||
+            while (tag && (tag->type == Q3TextEditOptimPrivate::Format ||
                             tag->leftTag)) {
                 tag = tag->leftTag ? tag->parent : tag->prev;
             }
@@ -6642,7 +6642,7 @@ void QTextEdit::optimSetTextFormat(Q3TextDocument * td, Q3TextCursor * cur,
 }
 
 /*! \internal */
-void QTextEdit::optimDrawContents(QPainter * p, int clipx, int clipy,
+void Q3TextEdit::optimDrawContents(QPainter * p, int clipx, int clipy,
                                    int clipw, int cliph)
 {
     QFontMetrics fm(QScrollView::font());
@@ -6683,8 +6683,8 @@ void QTextEdit::optimDrawContents(QPainter * p, int clipx, int clipy,
     // add tag formatting
     if (d->od->tags) {
         int i = startLine;
-        QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator it;
-        QTextEditOptimPrivate::Tag * tag = 0, * tmp = 0;
+        QMap<int,Q3TextEditOptimPrivate::Tag *>::ConstIterator it;
+        Q3TextEditOptimPrivate::Tag * tag = 0, * tmp = 0;
         Q3TextCursor cur(td);
         // Step 1 - find previous left-tag
         tmp = optimPreviousLeftTag(i);
@@ -6808,7 +6808,7 @@ void QTextEdit::optimDrawContents(QPainter * p, int clipx, int clipy,
 }
 
 /*! \internal */
-void QTextEdit::optimMousePressEvent(QMouseEvent * e)
+void Q3TextEdit::optimMousePressEvent(QMouseEvent * e)
 {
     if (e->button() != LeftButton)
         return;
@@ -6831,7 +6831,7 @@ void QTextEdit::optimMousePressEvent(QMouseEvent * e)
 }
 
 /*! \internal */
-void QTextEdit::optimMouseReleaseEvent(QMouseEvent * e)
+void Q3TextEdit::optimMouseReleaseEvent(QMouseEvent * e)
 {
     if (e->button() != LeftButton)
         return;
@@ -6868,7 +6868,7 @@ void QTextEdit::optimMouseReleaseEvent(QMouseEvent * e)
 }
 
 /*! \internal */
-void QTextEdit::optimMouseMoveEvent(QMouseEvent * e)
+void Q3TextEdit::optimMouseMoveEvent(QMouseEvent * e)
 {
     mousePos = e->pos();
     optimDoAutoScroll();
@@ -6876,7 +6876,7 @@ void QTextEdit::optimMouseMoveEvent(QMouseEvent * e)
 }
 
 /*! \internal */
-void QTextEdit::optimDoAutoScroll()
+void Q3TextEdit::optimDoAutoScroll()
 {
     if (!mousePressed)
         return;
@@ -6955,7 +6955,7 @@ void QTextEdit::optimDoAutoScroll()
   Returns the index of the character in the string \a str that is
   currently under the mouse pointer.
 */
-int QTextEdit::optimCharIndex(const QString &str, int mx) const
+int Q3TextEdit::optimCharIndex(const QString &str, int mx) const
 {
     QFontMetrics fm(QScrollView::font());
     int i = 0;
@@ -6981,7 +6981,7 @@ int QTextEdit::optimCharIndex(const QString &str, int mx) const
 }
 
 /*! \internal */
-void QTextEdit::optimSelectAll()
+void Q3TextEdit::optimSelectAll()
 {
     d->od->selStart.line = d->od->selStart.index = 0;
     d->od->selEnd.line = d->od->numLines - 1;
@@ -6993,7 +6993,7 @@ void QTextEdit::optimSelectAll()
 }
 
 /*! \internal */
-void QTextEdit::optimRemoveSelection()
+void Q3TextEdit::optimRemoveSelection()
 {
     d->od->selStart.line = d->od->selEnd.line = -1;
     d->od->selStart.index = d->od->selEnd.index = -1;
@@ -7001,7 +7001,7 @@ void QTextEdit::optimRemoveSelection()
 }
 
 /*! \internal */
-void QTextEdit::optimSetSelection(int startLine, int startIdx,
+void Q3TextEdit::optimSetSelection(int startLine, int startIdx,
                                        int endLine, int endIdx)
 {
     d->od->selStart.line = startLine;
@@ -7011,7 +7011,7 @@ void QTextEdit::optimSetSelection(int startLine, int startIdx,
 }
 
 /*! \internal */
-bool QTextEdit::optimHasSelection() const
+bool Q3TextEdit::optimHasSelection() const
 {
     if (d->od->selStart.line != d->od->selEnd.line ||
          d->od->selStart.index != d->od->selEnd.index)
@@ -7020,7 +7020,7 @@ bool QTextEdit::optimHasSelection() const
 }
 
 /*! \internal */
-QString QTextEdit::optimSelectedText() const
+QString Q3TextEdit::optimSelectedText() const
 {
     QString str;
 
@@ -7048,7 +7048,7 @@ QString QTextEdit::optimSelectedText() const
 }
 
 /*! \internal */
-bool QTextEdit::optimFind(const QString & expr, bool cs, bool /*wo*/,
+bool Q3TextEdit::optimFind(const QString & expr, bool cs, bool /*wo*/,
                                bool fw, int * para, int * index)
 {
     bool found = false;
@@ -7089,7 +7089,7 @@ bool QTextEdit::optimFind(const QString & expr, bool cs, bool /*wo*/,
 }
 
 /*! \reimp */
-void QTextEdit::polishEvent(QEvent*)
+void Q3TextEdit::polishEvent(QEvent*)
 {
     // this will ensure that the last line is visible if text have
     // been added to the widget before it is shown
@@ -7098,7 +7098,7 @@ void QTextEdit::polishEvent(QEvent*)
 }
 
 /*!
-    Sets the maximum number of lines a QTextEdit can hold in \c
+    Sets the maximum number of lines a Q3TextEdit can hold in \c
     LogText mode to \a limit. If \a limit is -1 (the default), this
     signifies an unlimited number of lines.
 
@@ -7107,7 +7107,7 @@ void QTextEdit::polishEvent(QEvent*)
     top of the buffer it could result in an unbalanced tag pair, i.e.
     the left formatting tag is removed before the right one.
  */
-void QTextEdit::setMaxLogLines(int limit)
+void Q3TextEdit::setMaxLogLines(int limit)
 {
     d->maxLogLines = limit;
     if (d->maxLogLines < -1)
@@ -7117,11 +7117,11 @@ void QTextEdit::setMaxLogLines(int limit)
 }
 
 /*!
-    Returns the maximum number of lines QTextEdit can hold in \c
+    Returns the maximum number of lines Q3TextEdit can hold in \c
     LogText mode. By default the number of lines is unlimited, which
     is signified by a value of -1.
  */
-int QTextEdit::maxLogLines() const
+int Q3TextEdit::maxLogLines() const
 {
     return d->maxLogLines;
 }
@@ -7130,14 +7130,14 @@ int QTextEdit::maxLogLines() const
     Check if the number of lines in the buffer is limited, and uphold
     that limit when appending new lines.
  */
-void QTextEdit::optimCheckLimit(const QString& str)
+void Q3TextEdit::optimCheckLimit(const QString& str)
 {
     if (d->maxLogLines > -1 && d->maxLogLines == d->od->numLines) {
         // NB! Removing the top line in the buffer will potentially
         // destroy the structure holding the formatting tags - if line
         // spanning tags are used.
-        QTextEditOptimPrivate::Tag *t = d->od->tags, *tmp, *itr;
-        QList<QTextEditOptimPrivate::Tag *> lst;
+        Q3TextEditOptimPrivate::Tag *t = d->od->tags, *tmp, *itr;
+        QList<Q3TextEditOptimPrivate::Tag *> lst;
         while (t) {
             t->line -= 1;
             // unhook the ptr from the tag structure
@@ -7178,7 +7178,7 @@ void QTextEdit::optimCheckLimit(const QString& str)
             itr = itr->next;
         }
         // ...in the tag index as well
-        QMap<int, QTextEditOptimPrivate::Tag *>::Iterator idx;
+        QMap<int, Q3TextEditOptimPrivate::Tag *>::Iterator idx;
         if ((idx = d->od->tagIndex.find(d->logOffset)) != d->od->tagIndex.end())
             d->od->tagIndex.erase(idx);
 
@@ -7197,7 +7197,7 @@ void QTextEdit::optimCheckLimit(const QString& str)
 #endif // QT_TEXTEDIT_OPTIMIZATION
 
 /*!
-    \property QTextEdit::autoFormatting
+    \property Q3TextEdit::autoFormatting
     \brief the enabled set of auto formatting features
 
     The value can be any combination of the values in the \c
@@ -7208,21 +7208,21 @@ void QTextEdit::optimCheckLimit(const QString& str)
     AutoBulletList; future versions of Qt may offer more.
 */
 
-void QTextEdit::setAutoFormatting(AutoFormatting features)
+void Q3TextEdit::setAutoFormatting(AutoFormatting features)
 {
     d->autoFormatting = features;
 }
 
-QTextEdit::AutoFormatting QTextEdit::autoFormatting() const
+Q3TextEdit::AutoFormatting Q3TextEdit::autoFormatting() const
 {
     return d->autoFormatting;
 }
 
 /*!
-    Returns the QSyntaxHighlighter set on this QTextEdit. 0 is
+    Returns the QSyntaxHighlighter set on this Q3TextEdit. 0 is
     returned if no syntax highlighter is set.
  */
-QSyntaxHighlighter * QTextEdit::syntaxHighlighter() const
+QSyntaxHighlighter * Q3TextEdit::syntaxHighlighter() const
 {
     if (document()->preProcessor())
         return ((QSyntaxHighlighterInternal *) document()->preProcessor())->highlighter;

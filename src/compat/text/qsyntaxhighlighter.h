@@ -21,7 +21,7 @@
 #include "qstring.h"
 #endif // QT_H
 
-class QTextEdit;
+class Q3TextEdit;
 class QSyntaxHighlighterInternal;
 class QSyntaxHighlighterPrivate;
 class Q3TextParagraph;
@@ -31,7 +31,7 @@ class Q_GUI_EXPORT QSyntaxHighlighter : public Qt
     friend class QSyntaxHighlighterInternal;
 
 public:
-    QSyntaxHighlighter(QTextEdit *textEdit);
+    QSyntaxHighlighter(Q3TextEdit *textEdit);
     virtual ~QSyntaxHighlighter();
 
     virtual int highlightParagraph(const QString &text, int endStateOfLastPara) = 0;
@@ -39,7 +39,7 @@ public:
     void setFormat(int start, int count, const QFont &font, const QColor &color);
     void setFormat(int start, int count, const QColor &color);
     void setFormat(int start, int count, const QFont &font);
-    QTextEdit *textEdit() const { return edit; }
+    Q3TextEdit *textEdit() const { return edit; }
 
     void rehighlight();
 
@@ -47,7 +47,7 @@ public:
 
 private:
     Q3TextParagraph *para;
-    QTextEdit *edit;
+    Q3TextEdit *edit;
     QSyntaxHighlighterPrivate *d;
 
 };

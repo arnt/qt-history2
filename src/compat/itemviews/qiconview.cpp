@@ -33,7 +33,7 @@
 #include "qtimer.h"
 #include "qcursor.h"
 #include "qapplication.h"
-#include "qtextedit.h"
+#include "q3textedit.h"
 #include "qvbox.h"
 #include "qtooltip.h"
 #include "qbitmap.h"
@@ -397,7 +397,7 @@ public:
 
 #ifndef QT_NO_TEXTEDIT
 
-class QIconViewItemLineEdit : public QTextEdit
+class QIconViewItemLineEdit : public Q3TextEdit
 {
     friend class QIconViewItem;
 
@@ -421,7 +421,7 @@ private:
 
 QIconViewItemLineEdit::QIconViewItemLineEdit(const QString &text, QWidget *parent,
                                               QIconViewItem *theItem, const char *name)
-    : QTextEdit(parent, name), item(theItem), startText(text)
+    : Q3TextEdit(parent, name), item(theItem), startText(text)
 {
     setFrameStyle(QFrame::Plain | QFrame::Box);
     setLineWidth(1);
@@ -451,7 +451,7 @@ void QIconViewItemLineEdit::keyPressEvent(QKeyEvent *e)
                 e->key() == Key_Return) {
         item->renameItem();
     } else {
-        QTextEdit::keyPressEvent(e);
+        Q3TextEdit::keyPressEvent(e);
         sync();
         resize(width(), document()->height() + 2);
 

@@ -87,7 +87,7 @@ public:
 private:
     QSyntaxHighlighter *highlighter;
 
-    friend class QTextEdit;
+    friend class Q3TextEdit;
 };
 
 #endif // QT_NO_SYNTAXHIGHLIGHTER

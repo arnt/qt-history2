@@ -44,9 +44,9 @@
     \ingroup text
     \mainclass
 
-    This class extends QTextEdit (in read-only mode), adding some
+    This class extends Q3TextEdit (in read-only mode), adding some
     navigation functionality so that users can follow links in
-    hypertext documents. The contents of QTextEdit is set with
+    hypertext documents. The contents of Q3TextEdit is set with
     setText(), but QTextBrowser has an additional function,
     setSource(), which makes it possible to set the text to a named
     document. The name is looked up in the text view's mime source
@@ -62,7 +62,7 @@
     the text to the very first document displayed. The linkClicked()
     signal is emitted when the user clicks a link.
 
-    By using QTextEdit::setMimeSourceFactory() you can provide your
+    By using Q3TextEdit::setMimeSourceFactory() you can provide your
     own subclass of QMimeSourceFactory. This makes it possible to
     access data from anywhere, for example from a network or from a
     database. See QMimeSourceFactory::data() for details.
@@ -81,8 +81,8 @@
     \l{setStyleSheet()}; see QStyleSheet for details.
 
     If you want to provide your users with editable rich text use
-    QTextEdit. If you want a text browser without hypertext navigation
-    use QTextEdit, and use QTextEdit::setReadOnly() to disable
+    Q3TextEdit. If you want a text browser without hypertext navigation
+    use Q3TextEdit, and use Q3TextEdit::setReadOnly() to disable
     editing. If you just need to display a small piece of rich text
     use QSimpleRichText or QLabel.
 
@@ -112,7 +112,7 @@ public:
     parent.
 */
 QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
-    : QTextEdit(parent, name)
+    : Q3TextEdit(parent, name)
 {
     setReadOnly(true);
     d = new QTextBrowserData;
@@ -271,7 +271,7 @@ void QTextBrowser::setSource(const QString& name)
     emit forwardAvailable(stackCount > 0);
 
     if (dosettext)
-        QTextEdit::setText(txt, url);
+        Q3TextEdit::setText(txt, url);
 
     if (!mark.isEmpty())
         scrollToAnchor(mark);
@@ -408,7 +408,7 @@ void QTextBrowser::keyPressEvent(QKeyEvent * e)
             return;
         }
     }
-    QTextEdit::keyPressEvent(e);
+    Q3TextEdit::keyPressEvent(e);
 }
 
 class QTextDetailPopup : public QWidget
@@ -512,7 +512,7 @@ void QTextBrowser::setText(const QString &txt, const QString &context)
     d->textOrSourceChanged = true;
     d->curmark = "";
     d->curmain = "";
-    QTextEdit::setText(txt, context);
+    Q3TextEdit::setText(txt, context);
 }
 
 void QTextBrowser::emitHighlighted(const QString &s)

@@ -17,27 +17,27 @@
 
 #ifndef QT_NO_SYNTAXHIGHLIGHTER
 #include <private/qrichtext_p.h>
-#include "qtextedit.h"
+#include "q3textedit.h"
 #include "qtimer.h"
 
 /*!
     \class QSyntaxHighlighter qsyntaxhighlighter.h
     \brief The QSyntaxHighlighter class is a base class for
-    implementing QTextEdit syntax highlighters.
+    implementing Q3TextEdit syntax highlighters.
 
     \ingroup basic
     \ingroup text
 
     A syntax highligher automatically highlights parts of the text in
-    a QTextEdit. Syntax highlighters are often used when the user is
+    a Q3TextEdit. Syntax highlighters are often used when the user is
     entering text in a specific format (for example, source code) and
     help the user to read the text and identify syntax errors.
 
-    To provide your own syntax highlighting for QTextEdit, you must
+    To provide your own syntax highlighting for Q3TextEdit, you must
     subclass QSyntaxHighlighter and reimplement highlightParagraph().
 
     When you create an instance of your QSyntaxHighlighter subclass,
-    pass it the QTextEdit that you want the syntax highlighting to be
+    pass it the Q3TextEdit that you want the syntax highlighting to be
     applied to. After this your highlightParagraph() function will be
     called automatically whenever necessary. Use your
     highlightParagraph() function to apply formatting (e.g. setting
@@ -50,7 +50,7 @@
     textEdit
 */
 
-QSyntaxHighlighter::QSyntaxHighlighter(QTextEdit *textEdit)
+QSyntaxHighlighter::QSyntaxHighlighter(Q3TextEdit *textEdit)
     : para(0), edit(textEdit), d(new QSyntaxHighlighterPrivate)
 {
     textEdit->document()->setPreProcessor(new QSyntaxHighlighterInternal(this));
@@ -158,9 +158,9 @@ void QSyntaxHighlighter::setFormat(int start, int count, const QFont &font)
 }
 
 /*!
-    \fn QTextEdit *QSyntaxHighlighter::textEdit() const
+    \fn Q3TextEdit *QSyntaxHighlighter::textEdit() const
 
-    Returns the QTextEdit on which this syntax highlighter is
+    Returns the Q3TextEdit on which this syntax highlighter is
     installed
 */
 

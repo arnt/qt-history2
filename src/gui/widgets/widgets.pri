@@ -48,6 +48,7 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qstackedbox.h \
 	widgets/qtabbar.h \
 	widgets/qtabwidget.h \
+	widgets/qtextedit.h \
 	widgets/qtitlebar_p.h \
 	widgets/qabstractslider_p.h \
 	widgets/qtoolbar.h \
@@ -55,7 +56,7 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qtoolbutton.h \
 	widgets/qvalidator.h \
 	widgets/qvbox.h \
-	widgets/qdatetimeedit.h \
+#	widgets/qdatetimeedit.h \
 	widgets/qwidgetinterface_p.h \
 	widgets/qwidgetplugin.h \
         widgets/qrubberband.h \
@@ -105,13 +106,14 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qstatusbar.cpp \
 	widgets/qtabbar.cpp \
 	widgets/qtabwidget.cpp \
+	widgets/qtextedit.cpp \
 	widgets/qtitlebar.cpp \
 	widgets/qtoolbar.cpp \
 	widgets/qtoolbox.cpp \
 	widgets/qtoolbutton.cpp \
 	widgets/qvalidator.cpp \
 	widgets/qvbox.cpp \
-	widgets/qdatetimeedit.cpp \
+#	widgets/qdatetimeedit.cpp \
 	widgets/qeffects.cpp \
 	widgets/qwidgetplugin.cpp \
         widgets/qrubberband.cpp \

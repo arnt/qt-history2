@@ -8,10 +8,10 @@ DEFINES += QT_BUILD_COMPAT_LIB
 include(tools/tools.pri)
 include(sql/sql.pri)
 include(other/other.pri)
-include(text/text.pri)
 include(itemviews/itemviews.pri)
 include(widgets/widgets.pri)
 include(dialogs/dialogs.pri)
+include(text/text.pri)
 
 mac:LIBS += -framework Carbon
 

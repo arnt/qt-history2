@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of the QTextEdit class.
+** Definition of the Q3TextEdit class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -39,16 +39,16 @@ class Q3TextParagraph;
 class Q3TextFormat;
 class QFont;
 class QColor;
-class QTextEdit;
+class Q3TextEdit;
 class QTextBrowser;
 class Q3TextString;
 struct QUndoRedoInfoPrivate;
 class QPopupMenu;
-class QTextEditPrivate;
+class Q3TextEditPrivate;
 class QSyntaxHighlighter;
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-class QTextEditOptimPrivate
+class Q3TextEditOptimPrivate
 {
 public:
     // Note: no left-tag has any value for leftTag or parent, and
@@ -67,7 +67,7 @@ public:
         Tag * next;
         QString tag;
     };
-    QTextEditOptimPrivate()
+    Q3TextEditOptimPrivate()
     {
         len = numLines = maxLineWidth = 0;
         selStart.line = selStart.index = -1;
@@ -86,7 +86,7 @@ public:
         tags = lastTag = 0;
         tagIndex.clear();
     }
-    ~QTextEditOptimPrivate()
+    ~Q3TextEditOptimPrivate()
     {
         clearTags();
     }
@@ -104,7 +104,7 @@ public:
 };
 #endif
 
-class Q_GUI_EXPORT QTextEdit : public QScrollView
+class Q_GUI_EXPORT Q3TextEdit : public QScrollView
 {
     friend class QTextBrowser;
     friend class QSyntaxHighlighter;
@@ -191,10 +191,10 @@ public:
         RemoveSelected = 0x0004
     };
 
-    QTextEdit(const QString& text, const QString& context = QString::null,
+    Q3TextEdit(const QString& text, const QString& context = QString::null,
                QWidget* parent=0, const char* name=0);
-    QTextEdit(QWidget* parent=0, const char* name=0);
-    virtual ~QTextEdit();
+    Q3TextEdit(QWidget* parent=0, const char* name=0);
+    virtual ~Q3TextEdit();
     void setPalette(const QPalette &);
 
     QString text() const;
@@ -510,11 +510,11 @@ private:
     QString optimSelectedText() const;
     bool optimFind(const QString & str, bool, bool, bool, int *, int *);
     void optimParseTags(QString * str, int lineNo = -1, int indexOffset = 0);
-    QTextEditOptimPrivate::Tag * optimPreviousLeftTag(int line);
+    Q3TextEditOptimPrivate::Tag * optimPreviousLeftTag(int line);
     void optimSetTextFormat(Q3TextDocument *, Q3TextCursor *, Q3TextFormat * f,
-                             int, int, QTextEditOptimPrivate::Tag * t);
-    QTextEditOptimPrivate::Tag * optimAppendTag(int index, const QString & tag);
-    QTextEditOptimPrivate::Tag * optimInsertTag(int line, int index, const QString & tag);
+                             int, int, Q3TextEditOptimPrivate::Tag * t);
+    Q3TextEditOptimPrivate::Tag * optimAppendTag(int index, const QString & tag);
+    Q3TextEditOptimPrivate::Tag * optimInsertTag(int line, int index, const QString & tag);
     void optimCheckLimit(const QString& str);
     bool optimHasBoldMetrics(int line);
 
@@ -546,7 +546,7 @@ private:
     WrapPolicy wPolicy;
     int wrapWidth;
     QString pressedLink;
-    QTextEditPrivate *d;
+    Q3TextEditPrivate *d;
     bool inDoubleClick : 1;
     bool mousePressed : 1;
     bool cursorVisible : 1;
@@ -561,26 +561,26 @@ private:
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QTextEdit(const QTextEdit &);
-    QTextEdit &operator=(const QTextEdit &);
+    Q3TextEdit(const Q3TextEdit &);
+    Q3TextEdit &operator=(const Q3TextEdit &);
 #endif
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QTextEdit::AutoFormatting)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Q3TextEdit::AutoFormatting)
 
-inline Q3TextDocument *QTextEdit::document() const
+inline Q3TextDocument *Q3TextEdit::document() const
 {
     return doc;
 }
 
-inline Q3TextCursor *QTextEdit::textCursor() const
+inline Q3TextCursor *Q3TextEdit::textCursor() const
 {
     return cursor;
 }
 
-inline void QTextEdit::setCurrentFont(const QFont &f)
+inline void Q3TextEdit::setCurrentFont(const QFont &f)
 {
-    QTextEdit::setFontInternal(f);
+    Q3TextEdit::setFontInternal(f);
 }
 
 #endif //QT_NO_TEXTEDIT
