@@ -26,10 +26,10 @@
 #define QTOOLBAR_P_H
 
 #include <qaction.h>
-#include <qframe.h>
+#include <qwidget.h>
 #include <qtoolbar.h>
 
-#include <private/qframe_p.h>
+#include <private/qwidget_p.h>
 
 /*
     internal class to associate a widget with an action
@@ -62,7 +62,7 @@ struct QToolBarItem {
 class QToolBarExtension;
 class QToolBarHandle;
 
-class QToolBarPrivate : public QFramePrivate
+class QToolBarPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QToolBar)
 

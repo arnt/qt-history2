@@ -14,7 +14,7 @@
 #ifndef QTOOLBAR_H
 #define QTOOLBAR_H
 
-#include <qframe.h>
+#include <qwidget.h>
 
 class QToolBarPrivate;
 
@@ -22,7 +22,7 @@ class QAction;
 class QIcon;
 class QMainWindow;
 
-class Q_GUI_EXPORT QToolBar : public QFrame
+class Q_GUI_EXPORT QToolBar : public QWidget
 {
     Q_DECLARE_PRIVATE(QToolBar)
     Q_OBJECT
@@ -97,6 +97,7 @@ protected:
     void actionEvent(QActionEvent *event);
     void changeEvent(QEvent *event);
     void childEvent(QChildEvent *event);
+    void paintEvent(QPaintEvent *event);
     void resizeEvent(QResizeEvent *event);
     bool event(QEvent *event);
 

@@ -44,12 +44,11 @@
 
 void QToolBarPrivate::init()
 {
-    q->setFrameStyle(QFrame::ToolBarPanel | QFrame::Raised);
     q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
 
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, q);
-    layout->setMargin(0);
     layout->setAlignment(Qt::AlignLeft);
+    layout->setMargin(q->style().pixelMetric(QStyle::PM_DockWindowFrameWidth, 0, q));
     layout->setSpacing(q->style().pixelMetric(QStyle::PM_ToolBarItemSpacing, 0, q));
 
     handle = new QToolBarHandle(q);
@@ -175,7 +174,7 @@ int QToolBarPrivate::indexOf(QAction *action) const
     Constructs a QToolBar with the given \a parent.
 */
 QToolBar::QToolBar(QWidget *parent)
-    : QFrame(*new QToolBarPrivate, parent, 0)
+    : QWidget(*new QToolBarPrivate, parent, 0)
 {
     d->init();
 }
@@ -185,7 +184,7 @@ QToolBar::QToolBar(QWidget *parent)
     Constructs a QToolBar with the given \a parent and \a name.
 */
 QToolBar::QToolBar(QWidget *parent, const char *name)
-    : QFrame(*new QToolBarPrivate, parent, 0)
+    : QWidget(*new QToolBarPrivate, parent, 0)
 {
     d->init();
     setObjectName(name);
@@ -650,7 +649,21 @@ void QToolBar::childEvent(QChildEvent *event)
             }
         }
     }
-    QFrame::childEvent(event);
+    QWidget::childEvent(event);
+}
+
+/*! \reimp */
+void QToolBar::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+    QPainter p(this);
+    QStyleOptionFrame frame;
+    frame.rect = rect();
+    frame.palette = palette();
+    frame.state = QStyle::Style_None;
+    frame.lineWidth = style().pixelMetric(QStyle::PM_DockWindowFrameWidth);
+    frame.midLineWidth = 0;
+    style().drawPrimitive(QStyle::PE_PanelDockWindow, &frame, &p, this);
 }
 
 /*! \reimp */
@@ -661,6 +674,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
                                    || box->direction() == QBoxLayout::RightToLeft)
                                   ? Qt::Horizontal
                                   : Qt::Vertical;
+    const int margin = box->margin();
 
     // calculate the real size hint for the toolbar - even including
     // hidden buttons/tb items
@@ -694,14 +708,14 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 
     if (hidden_count > 0) {
 	if (orientation == Qt::Horizontal) {
-	    d->extension->setGeometry(width() - d->extension->sizeHint().width() - frameWidth(),
-				      frameWidth(),
-				      d->extension->sizeHint().width() - frameWidth()*2,
-				      height() - frameWidth()*2);
+	    d->extension->setGeometry(width() - d->extension->sizeHint().width() - margin,
+				      margin,
+				      d->extension->sizeHint().width() - margin*2,
+				      height() - margin*2);
         } else {
-	    d->extension->setGeometry(frameWidth(),
-				      height() - d->extension->sizeHint().height() - frameWidth()*2,
-				      width() - frameWidth()*2,
+	    d->extension->setGeometry(margin,
+				      height() - d->extension->sizeHint().height() - margin*2,
+				      width() - margin*2,
 				      d->extension->sizeHint().height());
         }
 
@@ -732,7 +746,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
     }
     d->old_size = size();
 
-    QFrame::resizeEvent(event);
+    QWidget::resizeEvent(event);
 }
 
 /*! \reimp */
@@ -747,7 +761,7 @@ bool QToolBar::event(QEvent *event)
     default:
         break;
     }
-    return QFrame::event(event);
+    return QWidget::event(event);
 }
 
 /*!
