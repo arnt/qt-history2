@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#19 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#19 $";
 #endif
 
 
@@ -598,7 +598,7 @@ static void insertTimer( const TimerInfo *ti )	// insert timer info into list
 	t = timerList->next();
 	index++;
     }
-    timerList->insertAt( ti, index );		// inserts sorted
+    timerList->insert( index, ti );		// inserts sorted
 }
 
 static inline void getTime( timeval &t )	// get time of day
