@@ -4541,7 +4541,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int i, y, h, baseLine;
     i = y =h = baseLine = 0;
     QRect cursorRect;
-    drawSelections &= mSelections != 0;
+    drawSelections &= ( mSelections != 0 );
     // macintosh full-width selection style
     int fullSelectionWidth = 0;
     if ( drawSelections && QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
@@ -4568,17 +4568,17 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    // we flush at end of line
 	    flush |= nextchr->lineStart;
 	    // we flush on format changes
-	    flush |= nextchr->format() != chr->format();
+	    flush |= ( nextchr->format() != chr->format() );
 	    // we flush on anchor changes
-	    flush |= nextchr->isAnchor() != chr->isAnchor();
+	    flush |= ( nextchr->isAnchor() != chr->isAnchor() );
 	    // we flush on start of run
 	    flush |= nextchr->startOfRun;
 	    // we flush on bidi changes
-	    flush |= nextchr->rightToLeft != chr->rightToLeft;
+	    flush |= ( nextchr->rightToLeft != chr->rightToLeft );
 	    // we flush on tab
-	    flush |= chr->c == '\t';
+	    flush |= ( chr->c == '\t' );
 	    // we flush on soft hypens
-	    flush |= chr->c.unicode() == 0xad;
+	    flush |= ( chr->c.unicode() == 0xad );
 	    // we flush on custom items
 	    flush |= chr->isCustom();
 	    // we flush before custom items
@@ -4587,7 +4587,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    if ((alignment() & Qt::AlignJustify) == Qt::AlignJustify )
 		flush |= chr->c.isSpace();
 	    // we flush when the string is getting too long
-	    flush |= i - paintStart >= 256;
+	    flush |= ( i - paintStart >= 256 );
 	    // we flush when the selection state changes
 	    if ( drawSelections ) {
 		for ( QMap<int, QTextParagSelection>::ConstIterator it = mSelections->begin();
