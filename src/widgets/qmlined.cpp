@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#30 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -82,8 +82,6 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     curXPos = 0;
 
     setTableFlags( Tbl_autoVScrollBar|Tbl_autoHScrollBar|
-		   //Tbl_cutCellsV | //////###########
-		   //Tbl_scrollLastVCell  |
 		   Tbl_smoothVScrolling |
 		   Tbl_clipCellPainting
 		   );
@@ -102,7 +100,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     setCursor( ibeamCursor );
     ((QScrollBar*)verticalScrollBar())->setCursor( arrowCursor );
     ((QScrollBar*)horizontalScrollBar())->setCursor( arrowCursor );
-    insert( "", -1 );
+    insertLine( "", -1 );
     dummy          = TRUE;
     dragScrolling  = FALSE;
     dragMarking    = FALSE;
@@ -145,7 +143,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 
   This signal is emitted when the text is changed by  
   an event or by a slot. Not that the signal is not emitted when 
-  you call a non-slot function such as insert().
+  you call a non-slot function such as insertLine().
 */
 
 
@@ -551,7 +549,7 @@ void QMultiLineEdit::deselect()
 void QMultiLineEdit::setText( const char *s )
 {
     clear();
-    insert( s, -1 );
+    insertLine( s, -1 );
     emit textChanged();
 }
 
@@ -562,7 +560,7 @@ void QMultiLineEdit::setText( const char *s )
 
 void QMultiLineEdit::append( const char *s )
 {
-    insert( s, -1 );
+    insertLine( s, -1 );
     emit textChanged();
 }
 
@@ -833,27 +831,87 @@ void QMultiLineEdit::pageUp( bool mark )
 	updateCell( oldY, 0, FALSE );
 }
 
+
+
+
+
+/*!
+  Inserts \a txt at line number \a row, after character number \a col
+  in the line. 
+  If \a txt contains newline characters, new lines are inserted.
+*/
+
+void QMultiLineEdit::insertAt( const char *txt, int line, int col )
+{
+    line = QMAX( QMIN( line, numLines() - 1), 0 );
+    col = QMAX( QMIN( col,  lineLength( line )), 0 );
+
+    QString *oldLine = getString( line );
+    ASSERT( oldLine );
+
+    QString t;
+    if ( txt )
+	t.setRawData( txt, strlen(txt) + 1 );
+    else
+	t = "";
+
+    int from = 0;
+
+    int to = t.find( '\n' );
+    if ( to < 0 ) { //just one line
+	oldLine->insert( col, t );
+	int w = textWidth( oldLine );
+	setWidth( QMAX( cellWidth(), w ) );
+    } else { //multiline
+	setAutoUpdate( FALSE );
+	QString newString = oldLine->mid( col, oldLine->length() );
+	oldLine->remove( col, oldLine->length() );
+	*oldLine += t.left( to );
+	line++;
+	if ( line >= numLines() ) {
+	    insertLine( "", numLines() );
+	}
+	from = to + 1;
+	while ( (to = t.find( '\n', from )) > 0 ) {
+	    insertLine( t.mid( from, to - from ), line++ );
+	    from = to + 1;
+	}
+	int lastLen = t.length() - from;
+	newString.prepend( t.right( lastLen ) );
+	insertLine( newString, line );
+	updateCellWidth();
+	setAutoUpdate( TRUE );
+	repaint( FALSE );
+    }
+    textDirty = TRUE;
+    ASSERT( numLines() != 0 );
+    makeVisible();
+    if ( txt )
+	t.resetRawData( txt, strlen(txt) + 1 );
+}
+
+
 /*!
   Inserts \a s at line number \a row. If \a row is less than zero, or
   larger than the number of rows, the new text is put at the end.
   If \a s contains newline characters, several lines are inserted.
 */
 
-void QMultiLineEdit::insert( const char *txt, int line )
+void QMultiLineEdit::insertLine( const char *txt, int line )
 {
     if ( dummy && numLines() == 1 && getString( 0 )->isEmpty() ) {
 	contents->remove( (uint)0 );
-	//debug ("insert: removing dummy, %d", count() );
+	//debug ("insertLine: removing dummy, %d", count() );
 	dummy = FALSE;
     }
 
-    QString s;
+    QString t;
     if ( txt )
-	s.setRawData( txt, strlen(txt) + 1 );
+	t.setRawData( txt, strlen(txt) + 1 );
     else
-	s = "";
+	t = "";
 
-    int to = s.find( '\n' );
+    int to = t.find( '\n' );
     if ( to < 0 ) { //just one line
 	QString *txtCopy = new QString( txt );
 	if ( line < 0 || !contents->insert( line, txtCopy ) )
@@ -870,12 +928,12 @@ void QMultiLineEdit::insert( const char *txt, int line )
 	if ( line < 0 || line >= numLines() )
 	    line = numLines();
 	while ( to >= 0 ) {
-	    insert( s.mid( from, to - from ), line++ );
+	    insertLine( t.mid( from, to - from ), line++ );
 	    from = to + 1;
-	    to = s.find( '\n', from );
+	    to = t.find( '\n', from );
 	}
-	int lastLen = s.length() - from;
-	insert( s.right( lastLen ), line );
+	int lastLen = t.length() - from;
+	insertLine( t.right( lastLen ), line );
 	setNumRows( contents->count() );
 	updateCellWidth();
     }
@@ -883,7 +941,7 @@ void QMultiLineEdit::insert( const char *txt, int line )
     ASSERT( numLines() != 0 );
     makeVisible();
     if ( txt )
-	s.resetRawData( txt, strlen(txt) + 1 );
+	t.resetRawData( txt, strlen(txt) + 1 );
 }
 
 /*!
@@ -903,7 +961,7 @@ void QMultiLineEdit::remove( int row )
     contents->remove( row );
     if ( contents->count() == 0 ) {
 	//debug( "remove: last one gone, inserting dummy" );
-	insert( "", -1 );
+	insertLine( "", -1 );
 	dummy = TRUE;
     }
     setNumRows( contents->count() );
@@ -952,7 +1010,7 @@ void QMultiLineEdit::newLine()
     bool recalc = cursorX != (int)s->length() && textWidth( s ) == cellWidth();
     QString newString = s->mid( cursorX, s->length() );
     s->remove( cursorX, s->length() );
-    insert( newString, cursorY + 1 );
+    insertLine( newString, cursorY + 1 );
     cursorRight( FALSE );
     curXPos  = 0;
     if ( recalc )
@@ -1224,7 +1282,7 @@ void QMultiLineEdit::del()
 		contents->remove( markBeginY + 1 );
 	    markIsOn = FALSE;
 	    if ( contents->isEmpty() )
-		insert( "", -1 );
+		insertLine( "", -1 );
 
 	    cursorX  = markBeginX;
 	    cursorY  = markBeginY;
@@ -1544,48 +1602,18 @@ void QMultiLineEdit::paste()
     if ( !t.isEmpty() ) {
 	if ( hasMarkedText() )
 	    turnMarkOff();
-	QString *s = getString( cursorY );
-	ASSERT( s );
+
+
 	uchar *p = (uchar *) t.data();
 	while ( *p ) {		// unprintable becomes space
 	    if ( *p < 32 && *p != '\n')
 		*p = 32;
 	    p++;
 	}
-
-	int from = 0;
-
-	int to = t.find( '\n' );
-	if ( to < 0 ) { //just one line
-	    s->insert( cursorX, t );
-	    int w = textWidth( s );
-	    setWidth( QMAX( cellWidth(), w ) );
-	    cursorX  = t.length();
-	} else { //multiline
-	    setAutoUpdate( FALSE );
-	    QString newString = s->mid( cursorX, s->length() );
-	    s->remove( cursorX, s->length() );
-	    *s += t.left( to );
-	    cursorY++;
-	    if ( cursorY >= numLines() ) {
-		insert( "", numLines() );
-	    }
-	    from = to + 1;
-	    while ( (to = t.find( '\n', from )) > 0 ) {
-		insert( t.mid( from, to - from ), cursorY++ );
-		from = to + 1;
-	    }
-	    int lastLen = t.length() - from;
-	    newString.prepend( t.right( lastLen ) );
-	    insert( newString, cursorY );
-	    cursorX = lastLen;
-	    updateCellWidth();
-	    setAutoUpdate( TRUE );
-	    repaint( FALSE );
-	}
+	insertAt( t, cursorY, cursorX );
 	markIsOn = FALSE;
+	curXPos  = 0;
     }
-    curXPos  = 0;
 }
 
 
@@ -1599,7 +1627,7 @@ void QMultiLineEdit::clear()
     while ( contents->remove() ) 
 	;
     cursorX = cursorY = 0;
-    insert( "", -1 );
+    insertLine( "", -1 );
     dummy = TRUE;
     repaint( TRUE );
 }
@@ -1712,4 +1740,32 @@ void QMultiLineEdit::setWidth( int w )
     setCellWidth( w );
     setAutoUpdate( u );
     
+}
+
+
+/*!
+  Sets the cursor position to character number \a col in line number \a line.
+  The parameters are adjusted to lie within the legal range.
+*/
+
+void QMultiLineEdit::setCursorPosition( int line, int col )
+{
+    cursorY = QMAX( QMIN( line, numLines() - 1), 0 );
+    cursorX = QMAX( QMIN( col,  lineLength( cursorY )), 0 );
+    curXPos = 0;
+}
+
+
+
+/*!
+  Sets \a line to the current line and \a col to the current character 
+  position within that line.
+*/
+
+void QMultiLineEdit::getCursorPosition( int *line, int *col )
+{
+    if ( line )
+	*line = cursorY;
+    if ( col )
+	*col = cursorX;
 }

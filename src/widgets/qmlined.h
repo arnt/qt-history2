@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.h#20 $
+** $Id: //depot/qt/main/src/widgets/qmlined.h#21 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -34,8 +34,11 @@ public:
     bool	isOverwriteMode();
 
     void	setFont( const QFont &font );
-    virtual void insert( const char *s, int line = -1 );
+    virtual void insertLine( const char *s, int line = -1 );
+    virtual void insertAt( const char *s, int line, int col );
 
+    void	setCursorPosition( int line, int col );
+    void	getCursorPosition( int *line, int *col );
     bool	atBeginning() const;
     bool	atEnd() const;
 
