@@ -25,7 +25,7 @@ TARGET		= cppeditor
 DESTDIR		= ../../../../plugins/designer
 VERSION		= 1.0.0
 unix:LIBS	+= -leditor
-win32:LIBS	+= $(QTDIR)/lib/editor.lib
+win32:LIBS	+= $(QTDIR)/lib/editor100.lib
 INCLUDEPATH	+= $(QTDIR)/src/kernel $(QTDIR)/tools/designer/interfaces $(QTDIR)/tools/designer/editor
 
 target.path=$$plugins.path
