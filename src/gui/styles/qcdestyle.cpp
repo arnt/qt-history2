@@ -169,8 +169,9 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
                 p->setPen(opt->palette.foreground().color());
             p->drawLineSegments(a);
         }
-    }
-        break;
+        if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
+            p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
+    } break;
     case PE_IndicatorRadioButton:
         {
             QRect r = opt->rect;
@@ -199,8 +200,9 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             p->setBrush(on ? opt->palette.brush(QPalette::Dark) :
                          opt->palette.brush(QPalette::Background));
             p->drawPolygon(a);
-            break;
-        }
+            if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
+                p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
+        } break;
 
     case PE_IndicatorRadioButtonMask:
         {

@@ -397,17 +397,20 @@ QRect QStyle::itemPixmapRect(const QRect &rect, int alignment, const QPixmap &pi
 void QStyle::drawItemText(QPainter *painter, const QRect &rect, int alignment, const QPalette &pal,
                           bool enabled, const QString& text, const QColor *penColor) const
 {
-    int x, y, w, h;
-    rect.getRect(&x, &y, &w, &h);
-
     painter->setPen(penColor ? *penColor : pal.foreground().color());
     if (!text.isEmpty()) {
-        if (!enabled && styleHint(SH_EtchDisabledText)) {
-            painter->setPen(pal.light().color());
-            painter->drawText(x+1, y+1, w, h, alignment, text);
-            painter->setPen(pal.text().color());
+        if (!enabled) {
+            if (styleHint(SH_DitherDisabledText)) {
+                painter->drawText(rect, alignment, text);
+                painter->fillRect(rect, QBrush(painter->background().color(), Qt::Dense5Pattern));
+                return;
+            } else if (styleHint(SH_EtchDisabledText)) {
+                painter->setPen(pal.light().color());
+                painter->drawText(rect.adjusted(1, 1, 1, 1), alignment, text);
+                painter->setPen(pal.text().color());
+            }
         }
-        painter->drawText(x, y, w, h, alignment, text);
+        painter->drawText(rect, alignment, text);
     }
 }
 

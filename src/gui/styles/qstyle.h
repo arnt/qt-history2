@@ -459,6 +459,7 @@ public:
 
     enum StyleHint {
         SH_EtchDisabledText,
+        SH_DitherDisabledText,
         SH_ScrollBar_MiddleClickAbsolutePosition,
         SH_ScrollBar_ScrollWhenPointerLeavesControl,
         SH_TabBar_SelectMouseType,

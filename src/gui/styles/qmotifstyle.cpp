@@ -319,6 +319,8 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             qDrawShadePanel(p, opt->rect, opt->palette, !showUp,
                             pixelMetric(PM_DefaultFrameWidth), &fill);
         }
+        if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
+            p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
         break; }
 
     case PE_IndicatorRadioButton: {
@@ -369,7 +371,8 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         a.setPoints(INTARRLEN(bottom_pts), bottom_pts);
         a.translate(opt->rect.x(), opt->rect.y());
         p->drawPolyline(a);
-
+        if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
+            p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
         break; }
 
     case PE_IndicatorRadioButtonMask: {
@@ -572,6 +575,8 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
 #undef CLEFT
 #undef CTOP
 #undef CBOT
+        if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
+            p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
         break; }
 
     case PE_IndicatorDockWindowResizeHandle: {
@@ -1039,10 +1044,16 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                                           QRect(x+w-menuitem->tabWidth-motifItemHMargin-motifItemFrame,
                                                 y+motifItemVMargin, menuitem->tabWidth, h-2*motifItemVMargin));
                     int xv = vr.x();
-                    p->drawText(xv, y+m, menuitem->tabWidth, h-2*m, text_flags, s.mid(t+1));
+                    QRect tr(xv, y+m, menuitem->tabWidth, h-2*m);
+                    p->drawText(tr, text_flags, s.mid(t+1));
+                    if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
+                        p->fillRect(tr, QBrush(p->background().color(), Qt::Dense5Pattern));
                     s = s.left(t);
                 }
-                p->drawText(xvis, y+m, w - xm - menuitem->tabWidth + 1, h-2*m, text_flags, s.left(t));
+                QRect tr(xvis, y+m, w - xm - menuitem->tabWidth + 1, h-2*m);
+                p->drawText(tr, text_flags, s.left(t));
+                if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
+                    p->fillRect(tr, QBrush(p->background().color(), Qt::Dense5Pattern));
             }
             if (menuitem->menuItemType == QStyleOptionMenuItem::SubMenu) {           // draw sub menu arrow
                 int dim = (h-2*motifItemFrame) / 2;
@@ -2269,6 +2280,7 @@ QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *w
     case SH_ProgressDialog_CenterCancelButton:
     case SH_Menu_SpaceActivatesItem:
     case SH_ScrollView_FrameOnlyAroundContents:
+    case SH_DitherDisabledText:
         ret = 1;
         break;
 
