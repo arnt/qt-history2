@@ -182,7 +182,7 @@ else
 	    . $HOME/.qt-license >/dev/null 2>&1
 	    if [ -z "$LicenseKey" ]
 	    then
-		echo 
+		echo
 		echo "You are using an old license file."
 		echo
 		echo "Please install the license file supplied by Trolltech,"
@@ -1903,7 +1903,7 @@ fi
 CACHEFILE=$outpath/.qmake.cache
 [ -f $CACHEFILE ] && rm -f $CACHEFILE
 cat >>$CACHEFILE <<EOF
-CONFIG += $QMAKE_CONFIG dylib create_prl link_prl
+CONFIG += $QMAKE_CONFIG dylib
 QMAKESPEC = $XPLATFORM
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
@@ -2057,9 +2057,9 @@ do
     test -d $dir || mkdir -p $dir
     N=$outpath/$dir/Makefile
     QMAKE_EXTRA_ARGS="\"QMAKE_ABSOLUTE_SOURCE_PATH=$relpath/$dir\""
-    if [ "$SPEC" != "$QMAKESPEC" ] || ! ls -l mkspecs/default | grep $QMAKESPEC >/dev/null 
+    if [ "$SPEC" != "$QMAKESPEC" ] || ! ls -l mkspecs/default | grep $QMAKESPEC >/dev/null
     then
-       echo "USING $SPEC FOR QMAKE" 
+       echo "USING $SPEC FOR QMAKE"
        QMAKE_EXTRA_ARGS="-spec $SPEC $QMAKE_EXTRA_ARGS"
     fi
     PIPE="$outpath/bin/qmake $QMAKE_SWITCHES $QMAKE_EXTRA_ARGS -o $N $a"
