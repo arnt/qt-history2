@@ -208,7 +208,9 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 QAccessibleInterface *QToolBarSeparator::accessibleInterface()
 {
-    return new QAccessibleWidget( this, QAccessible::Separator );
+    return new QAccessibleWidget( this, QAccessible::Separator, QString::null, 
+	QString::null, QString::null, QString::null, 
+	QString::null, QString::null, QAccessible::Unavailable );
 }
 #endif
 

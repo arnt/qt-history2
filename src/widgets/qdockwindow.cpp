@@ -49,6 +49,9 @@
 #include "qmainwindow.h"
 #include "qtimer.h"
 #include "qtooltip.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#include "qaccessiblewidget.h"
+#endif
 
 #if defined( Q_WS_MAC )
 #define MAC_DRAG_HACK
@@ -81,6 +84,10 @@ protected:
     void mouseMoveEvent( QMouseEvent * );
     void mousePressEvent( QMouseEvent * );
     void mouseReleaseEvent( QMouseEvent * );
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
 
 private:
     void startLineDraw();
@@ -286,7 +293,14 @@ void QDockWindowResizeHandle::drawLine( const QPoint &globalPos )
     }
 }
 
-
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+QAccessibleInterface *QDockWindowResizeHandle::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::Separator, QString::null, 
+	QString::null, QString::null, QString::null, 
+	QString::null, QString::null, QAccessible::Moveable );
+}
+#endif
 
 
 static QPoint realWidgetPos( QWidget *w )
@@ -321,6 +335,9 @@ protected:
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
     void mouseDoubleClickEvent( QMouseEvent *e );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
 
 private slots:
     void minimize();
@@ -328,12 +345,11 @@ private slots:
 private:
     QDockWindow *dockWindow;
     QPoint offset;
-    bool mousePressed;
     QToolButton *closeButton;
-    bool hadDblClick;
     QTimer *timer;
-    bool opaque;
-
+    uint opaque		: 1;
+    uint mousePressed	: 1;
+    uint hadDblClick	: 1;
 };
 
 QDockWindowHandle::QDockWindowHandle( QDockWindow *dw )
@@ -472,6 +488,16 @@ void QDockWindowHandle::mouseDoubleClickEvent( QMouseEvent *e )
     hadDblClick = TRUE;
 }
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+QAccessibleInterface *QDockWindowHandle::accessibleInterface()
+{
+    return new QAccessibleWidget( this, QAccessible::Grip, dockWindow->caption(), 
+	QString::null, QString::null, QString::null, 
+	QString::null, QString::null, QAccessible::Moveable );
+}
+#endif
+
+
 class QDockWindowTitleBar : public QTitleBar
 {
     Q_OBJECT
@@ -495,10 +521,10 @@ signals:
 private:
     QDockWindow *dockWindow;
     QPoint offset;
-    bool mousePressed;
     QToolButton *closeButton;
-    bool hadDblClick;
-    bool opaque;
+    uint mousePressed	: 1;
+    uint hadDblClick	: 1;
+    uint opaque		: 1;
 
 };
 
