@@ -1599,16 +1599,17 @@ You should now have added the following declarations to your includes
 The regex we've used can be broken up into the following pieces:
 \code
 Regex:    ^ \\s* (\\d+) \\s+ (\\d+) \\s+ (\\d+) \\s+ (\\S+.*) $
-Pieces:   A B    C      B    C      B    C      B    D        E
+Pieces:   A B    C      D    C      D    C      D    E        F
 Captures:        cap(1)      cap(2)      cap(3)      cap(4)
 \endcode
 Piece A says the regex must match from the beginning of the string,
-and piece E says the regex must match to the end of the string: so
-the regex must match the whole string or not match at all. The 'B'
-pieces match zero or more whitespaces (i.e. the gaps between each
-number), and the 'C' pieces match one or more digits, i.e. the
-numbers. Piece D matches one or more non-whitespace followed by
-anything else, i.e. the name of the color.
+and piece F says the regex must match to the end of the string: so the
+regex must match the whole string or not match at all. The 'B' piece
+matches zero or more whitespaces (i.e. any leading whitespace), and
+the D pieces match one or more whitespaces (i.e. the gaps between each
+number). The 'C' pieces match one or more digits, i.e. the numbers.
+Piece E matches one or more non-whitespace followed by anything else,
+i.e. the name of the color.
 
 The parentheses are used to \e capture the parts of the match that
 they enclose. The captured parts are numbered from 1.
