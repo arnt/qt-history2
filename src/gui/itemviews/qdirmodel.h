@@ -27,7 +27,8 @@ class Q_GUI_EXPORT QFileIconProvider
 public:
     QFileIconProvider();
     virtual ~QFileIconProvider();
-    virtual QIcon computerIcon() const;
+    enum IconType { Computer, Desktop, Trashcan, Network, Drive, Folder, File };
+    virtual QIcon icon(IconType type) const;
     virtual QIcon icon(const QFileInfo &info) const;
     virtual QString type(const QFileInfo &info) const;
 

@@ -30,6 +30,17 @@
   \brief The QFileIconProvider class provides file icon for the QDirModel class.
 */
 
+/*!
+  \enum QFileIconProvider::IconType
+  \value Computer
+  \value Desktop
+  \value Trashcan
+  \value Network
+  \value Drive
+  \value Folder
+  \value File
+*/
+
 class QFileIconProviderPrivate
 {
     Q_DECLARE_PUBLIC(QFileIconProvider)
@@ -46,6 +57,8 @@ public:
     QIcon ram;
     QIcon network;
     QIcon computer;
+    QIcon desktop;
+    QIcon trashcan;
     QIcon generic;
 
     QFileIconProvider *q_ptr;
@@ -68,6 +81,8 @@ QFileIconProviderPrivate::QFileIconProviderPrivate()
     generic = ram = harddisk; // FIXME
     network = QIcon(style->standardPixmap(QStyle::SP_DriveNetIcon));
     computer = QIcon(style->standardPixmap(QStyle::SP_ComputerIcon));
+    desktop = QIcon(style->standardPixmap(QStyle::SP_DesktopIcon));
+    trashcan = QIcon(style->standardPixmap(QStyle::SP_TrashIcon));
 }
 
 /*!
@@ -90,12 +105,30 @@ QFileIconProvider::~QFileIconProvider()
 }
 
 /*!
-  Returns an icon set for the computer.
+  Returns an icon set for the given \a type.
 */
 
-QIcon QFileIconProvider::computerIcon() const
+QIcon QFileIconProvider::icon(IconType type) const
 {
-    return d_ptr->computer;
+    switch (type) {
+    case Computer:
+        return d_ptr->computer;
+    case Desktop:
+        return d_ptr->desktop;
+    case Trashcan:
+        return d_ptr->trashcan;
+    case Network:
+        return d_ptr->network;
+    case Drive:
+        return d_ptr->generic;
+    case Folder:
+        return d_ptr->directory;
+    case File:
+        return d_ptr->file;
+    default:
+        break;
+    };
+    return QIcon();
 }
 
 /*!
@@ -191,7 +224,7 @@ public:
     QFileInfoList rootChildren() const;
 
     inline QIcon rootIcon() const {
-        return iconProvider->computerIcon();
+        return iconProvider->icon(QFileIconProvider::Computer);
     }
 
     inline QFileInfoList entryInfoList(const QString &path) const {
