@@ -1767,12 +1767,12 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 }
 
 QStringList
-MakefileGenerator::fileFixify(QStringList files, const QString &out_dir, const QString &in_dir, bool force_fix) const
+MakefileGenerator::fileFixify(const QStringList& files, const QString &out_dir, const QString &in_dir, bool force_fix) const
 {
     if(files.isEmpty())
 	return files;
     QStringList ret;
-    for(QStringList::Iterator it = files.begin(); it != files.end(); ++it) {
+    for(QStringList::ConstIterator it = files.begin(); it != files.end(); ++it) {
 	if(!(*it).isEmpty()) 
 	    ret << fileFixify((*it), out_dir, in_dir, force_fix);
     }
@@ -1780,8 +1780,9 @@ MakefileGenerator::fileFixify(QStringList files, const QString &out_dir, const Q
 }
 
 QString
-MakefileGenerator::fileFixify(QString file, const QString &out_d, const QString &in_d, bool force_fix) const
+MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const QString &in_d, bool force_fix) const
 {
+    QString file = file0;
     if(file.isEmpty())
 	return file;
     int depth = 4;
