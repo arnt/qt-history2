@@ -902,6 +902,11 @@ void QMacStyle::drawControl(ControlElement element,
 	if(!widget)
 	    break;
 	QPushButton *btn = (QPushButton *)widget;
+	if(btn->isFlat() && !(how & Style_Down)) {
+	    btn->erase();
+	    break;
+	}
+
 	d->addWidget(btn);
 	if(btn->isToggleButton() && btn->isOn())
 	    tds = kThemeStatePressed;
