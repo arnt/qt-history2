@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#21 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#21 $";
 #endif
 
 /*!
@@ -28,7 +28,7 @@ user for his name.
 
 The default key bindings are described in keyPressEvent(); they cannot
 be customized except by inheriting the class.  When the user clicks on
-the text, the cursor will jump to where the text is.
+the text, the cursor will be moved to the point being clicked at.
 
 \todo cleaner focus
 \todo clipboard, cut, paste
@@ -104,14 +104,14 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     t		= "";
 }
 
-/*! Nohthing to look out for here. */
+/*! Cleans up when a QLineEdit dies. */
 QLineEdit::~QLineEdit()
 {
     delete pm;
 }
 
-/*!  Replaces the text currently in the line with \e s.  If necessary,
-the line is resized to make space. */
+/*!  Replaces the text currently in the line with \e s.  If necessary
+the string is truncated to fit maxLength(). */
 void QLineEdit::setText( const char *s )
 {
     if ( t == s )				// no change
@@ -125,10 +125,17 @@ void QLineEdit::setText( const char *s )
     emit textChanged( t.data() );
 }
 
-/*! Returns a reference to the text currently in the line.  This isn't
-guaranteed to be valid for very long - it will tend to be, but may
-become corrupted when the line editor exits, or even when the text in
-the editor grows beyond a certain limit. */
+  /*! 
+  Returns a reference to the text currently in the line.  This isn't
+  guaranteed to be valid for very long - it will tend to be, but may
+  become corrupted when the line editor exits, or even when the text in
+  the editor grows beyond a certain limit. If you need to store the text,
+  make a copy of it. This can convienently be done with a QString object:
+  \code
+  QString s = linEd->text();  // makes a copy and stores it in s
+  \endcode
+  */
+
 char *QLineEdit::text() const
 {
     return t.data();
@@ -136,12 +143,12 @@ char *QLineEdit::text() const
 
 
 /*! Set the maximum length of the text in the editor.  If the text is
-currently too lone, it is chopped off at the limit. */
+currently too long, it is chopped off at the limit. */
 void QLineEdit::setMaxLength( int m )
 {
     maxLen = (uint) m;
     if ( t.length() > maxLen ) {
-	t.resize( maxLen + 1 ); // Include \0
+	t.resize( maxLen + 1 );                       // Include \0
 	if ( cursorPos > maxLen ) {
 	    offset = maxLen;
 	    end();
@@ -262,7 +269,7 @@ void QLineEdit::focusInEvent( QFocusEvent * )
         return;
     inTextFocus = TRUE;
 //    debug( "IN focus" );
-    pm = new QPixmap( width(), height() );
+    pm = new QPixmap( width(), height() );   // used for flicker-free update
     CHECK_PTR( pm );
     startTimer( blinkTime );
     cursorOn = TRUE;
@@ -280,7 +287,7 @@ void QLineEdit::focusOutEvent( QFocusEvent * )
 //    debug( "OUT focus" );
     killTimers();
     delete pm;
-    pm = 0;
+    pm       = 0;
     cursorOn = TRUE;
     paint();
 }
@@ -362,8 +369,8 @@ void QLineEdit::pixmapPaint()
 {
     QPainter p;
     p.begin( pm );
-    p.setFont( fontRef() );
-    p.fillRect( rect(), colorGroup().background() );
+    p.setFont( font() );
+    p.fillRect( rect(), backgroundColor() );
     paintText( &p, pm->size() , TRUE );
     p.end();
     bitBlt( this, 0, 0, pm, 0, 0, -1, -1 );
@@ -418,10 +425,11 @@ void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
 }
 
 
-/*! Moves the cursor leftwards one character, restarts the blink
+  /*! Moves the cursor leftwards one character, restarts the blink
   timer, and returns TRUE.
 
-  Or finds that it can't move the cursor leftwards, and returns FALSE. */
+  Returns FALSE if the cursor is already at the leftmost position.
+  */
 
 bool QLineEdit::cursorLeft()
 {
@@ -437,11 +445,11 @@ bool QLineEdit::cursorLeft()
     return FALSE;
 }
 
-/*! Moves the cursor rightwards one character, restarts the blink
+  /*! Moves the cursor rightwards one character, restarts the blink
   timer, and returns TRUE.
 
-  Or finds that it can't move the cursor rightwards, and returns
-  FALSE. */
+  Returns FALSE if the cursor is already at the rightmost position.
+  */
 
 
 bool QLineEdit::cursorRight()
@@ -467,16 +475,18 @@ bool QLineEdit::cursorRight()
 }
 
 
-/*! If it can delete leftwards, does that and returns TRUE, othewise
-  it returns FALSE */
+  /*! If it can delete leftwards, does that and returns TRUE, othewise
+  it returns FALSE
+  */
 bool QLineEdit::backspace()
 {
     return cursorLeft() ? remove() : FALSE;
 }
 
 
-/*! If it can delete rightwards, does that and returns TRUE, othewise
-  it returns FALSE */
+  /*! If it can delete rightwards, does that and returns TRUE, othewise
+  it returns FALSE
+  */
 bool QLineEdit::remove()
 {
     if ( cursorPos != strlen(t) ) {
@@ -486,9 +496,10 @@ bool QLineEdit::remove()
     return FALSE;
 }
 
-/*! Moves the text cursor to the left end of the line, restarts the
+  /*! Moves the text cursor to the left end of the line, restarts the
   blink timer, and returns TRUE.  Or, if the cursor is already there,
-  returns FALSE. */
+  returns FALSE.
+  */
 
 bool QLineEdit::home()
 {
@@ -504,9 +515,10 @@ bool QLineEdit::home()
 }
 
 
-/*! Moves the text cursor to the right end of the line, restarts the
+  /*! Moves the text cursor to the right end of the line, restarts the
   blink timer, and returns TRUE.  Or, if the cursor is already there,
-  returns FALSE. */
+  returns FALSE. 
+  */
 
 bool QLineEdit::end()
 {
