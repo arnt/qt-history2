@@ -68,7 +68,7 @@ class Q_CORE_EXPORT QThreadPrivate : public QObjectPrivate
 public:
     QThreadPrivate();
 
-    QMutex *mutex() const;
+    mutable QMutex mutex;
 
     bool running;
     bool finished;

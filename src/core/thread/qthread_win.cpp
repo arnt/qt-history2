@@ -89,7 +89,7 @@ void QThreadPrivate::finish(void *arg, bool lockAnyway)
     QThreadPrivate *d = thr->d_func();
 
     if (lockAnyway)
-        d->mutex()->lock();
+        d->mutex.lock();
     d->running = false;
     d->finished = true;
     if (d->terminated)
@@ -108,7 +108,7 @@ void QThreadPrivate::finish(void *arg, bool lockAnyway)
     d->id = 0;
 
     if (lockAnyway)
-        d->mutex()->unlock();
+        d->mutex.unlock();
 }
 
 
@@ -145,7 +145,7 @@ void QThread::usleep(unsigned long usecs)
 void QThread::start(Priority priority)
 {
     Q_D(QThread);
-    QMutexLocker locker(d->mutex());
+    QMutexLocker locker(&d->mutex);
 
     if (d->running && !d->finished) {
         qWarning("Thread is already running");
@@ -224,7 +224,7 @@ void QThread::start(Priority priority)
 void QThread::terminate()
 {
     Q_D(QThread);
-    QMutexLocker locker(d->mutex());
+    QMutexLocker locker(&d->mutex);
     if (!d->running)
         return;
     if (!d->terminationEnabled) {
@@ -239,7 +239,7 @@ void QThread::terminate()
 bool QThread::wait(unsigned long time)
 {
     Q_D(QThread);
-    QMutexLocker locker(d->mutex());
+    QMutexLocker locker(&d->mutex);
 
     if (d->id == GetCurrentThreadId()) {
         qWarning("Thread tried to wait on itself");
@@ -280,9 +280,9 @@ void QThread::setTerminationEnabled(bool enabled)
 {
     QThread *thr = currentQThread();
     QThreadPrivate *d = thr->d_func();
-    Q_ASSERT_X(thr != 0, "QThread::setTerminationEnabled()", 
+    Q_ASSERT_X(thr != 0, "QThread::setTerminationEnabled()",
                "Current thread was not started with QThread.");
-    QMutexLocker locker(d->mutex());
+    QMutexLocker locker(&d->mutex);
     d->terminationEnabled = enabled;
     if (enabled && d->terminatePending) {
         d->terminated = true;

@@ -290,6 +290,10 @@ void QMetaObject::addGuard(QObject **ptr)
     if (!*ptr)
         return;
     QConnectionList *list = ::connectionList();
+    if (!list) {
+        *ptr = 0;
+        return;
+    }
     QMutexLocker locker(&list->mutex);
     list->addConnection(*ptr, GUARDED_SIGNAL, reinterpret_cast<QObject*>(ptr), 0);
 }
@@ -301,6 +305,8 @@ void QMetaObject::removeGuard(QObject **ptr)
     if (!*ptr)
         return;
     QConnectionList *list = ::connectionList();
+    if (!list)
+        return;
     QMutexLocker locker(&list->mutex);
     list->removeConnection(*ptr, GUARDED_SIGNAL, reinterpret_cast<QObject*>(ptr), 0);
 }
@@ -310,6 +316,10 @@ void QMetaObject::removeGuard(QObject **ptr)
 void QMetaObject::changeGuard(QObject **ptr, QObject *o)
 {
     QConnectionList *list = ::connectionList();
+    if (!list) {
+        *ptr = 0;
+        return;
+    }
     QMutexLocker locker(&list->mutex);
     if (*ptr)
         list->removeConnection(*ptr, GUARDED_SIGNAL, reinterpret_cast<QObject*>(ptr), 0);
@@ -578,8 +588,8 @@ QObject::~QObject()
     d->blockSig = 0; // unblock signals so we always emit destroyed()
     emit destroyed(this);
 
-    {
-        QConnectionList *list = ::connectionList();
+    QConnectionList *list = ::connectionList();
+    if (list) {
         QMutexLocker locker(&list->mutex);
         list->remove(this);
     }
@@ -2063,6 +2073,8 @@ bool QMetaObject::connect(const QObject *sender, int signal_index,
                           const QObject *receiver, int member_index, int type, int *types)
 {
     QConnectionList *list = ::connectionList();
+    if (!list)
+        return false;
     QMutexLocker locker(&list->mutex);
     list->addConnection(const_cast<QObject *>(sender), signal_index,
                         const_cast<QObject *>(receiver), member_index, type, types);
@@ -2078,6 +2090,8 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
     if (!sender)
         return false;
     QConnectionList *list = ::connectionList();
+    if (!list)
+        return false;
     QMutexLocker locker(&list->mutex);
     return list->removeConnection(const_cast<QObject*>(sender), signal_index,
                                   const_cast<QObject*>(receiver), member_index);
@@ -2165,6 +2179,8 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
     const QThread * const currentQThread = QThread::currentQThread();
 
     QConnectionList *list = ::connectionList();
+    if (!list)
+        return;
     QMutexLocker locker(&list->mutex);
 
     QList<int> connections = list->shash.values(obj);

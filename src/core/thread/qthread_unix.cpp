@@ -92,7 +92,7 @@ void *QThreadPrivate::start(void *arg)
 void QThreadPrivate::finish(void *arg)
 {
     QThread *thr = reinterpret_cast<QThread *>(arg);
-    QMutexLocker locker(thr->d->mutex());
+    QMutexLocker locker(&thr->d->mutex);
 
     thr->d->running = false;
     thr->d->finished = true;
@@ -220,7 +220,7 @@ void QThread::usleep(unsigned long usecs)
 */
 void QThread::start(Priority priority)
 {
-    QMutexLocker locker(d->mutex());
+    QMutexLocker locker(&d->mutex);
     if (d->running)
         d->thread_done.wait(locker.mutex());
 
@@ -350,7 +350,7 @@ void QThread::start(Priority priority)
 */
 void QThread::terminate()
 {
-    QMutexLocker locker(d->mutex());
+    QMutexLocker locker(&d->mutex);
 
     if (!d->thread_id)
         return;
@@ -382,7 +382,7 @@ void QThread::terminate()
 */
 bool QThread::wait(unsigned long time)
 {
-    QMutexLocker locker(d->mutex());
+    QMutexLocker locker(&d->mutex);
 
     if (d->thread_id == pthread_self()) {
         qWarning("QThread::wait: thread tried to wait on itself");
