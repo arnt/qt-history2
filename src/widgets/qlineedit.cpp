@@ -509,16 +509,18 @@ void QLineEdit::init()
 
 void QLineEdit::setText( const QString &text )
 {
-    QString maskText;
+    QString newText;
     if ( hasMask() ) {
-	maskText = maskString( 0, text );
-	maskText += clearString( maskText.length(), d->maskList->count() - maskText.length() );
-    } else
-	maskText = text;
+	newText = maskString( 0, text );
+	newText += clearString( newText.length(), d->maskList->count() - newText.length() );
+    } else {
+	newText = text;
+	newText.truncate( d->maxLen );
+    }
     d->undoRedoInfo.clear();
     QString oldText = this->text( FALSE );
     d->parag->truncate( 0 );
-    d->parag->append( maskText );
+    d->parag->append( newText );
     d->parag->commands()->clear();
     d->cursor->setIndex( d->parag->length() - 1 );
     if ( hasFocus() )
@@ -528,8 +530,8 @@ void QLineEdit::setText( const QString &text )
 	updateOverwriteSelection();
     update();
     setEdited( FALSE );
-    if ( oldText != maskText ) {
-	emit textChanged( stripString( maskText ) );
+    if ( oldText != newText ) {
+	emit textChanged( stripString( newText ) );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
