@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#111 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#112 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -1204,6 +1204,11 @@ QFontMetrics::QFontMetrics( const QFont &font )
     font.handle();
     fin = font.d->fin;
     painter = 0;
+    flags = 0;
+    if ( font.underline() )
+	setUnderlineFlag();
+    if ( font.strikeOut() )
+	setStrikeOutFlag();
 }
 
 /*!
@@ -1222,6 +1227,7 @@ QFontMetrics::QFontMetrics( const QPainter *p )
     painter->updateFont();
     painter->setf( QPainter::FontMet );
     fin = painter->cfont.d->fin;
+    flags = 0;
     insertFontMetrics( this );
 }
 
@@ -1230,7 +1236,7 @@ QFontMetrics::QFontMetrics( const QPainter *p )
 */
 
 QFontMetrics::QFontMetrics( const QFontMetrics &fm )
-    : fin(fm.fin), painter(fm.painter)
+    : fin(fm.fin), painter(fm.painter), flags(fm.flags)
 {
     if ( painter )
 	insertFontMetrics( this );
@@ -1257,6 +1263,7 @@ QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
 	removeFontMetrics( this );
     fin = fm.fin;
     painter = fm.painter;
+    flags = fm.flags;
     if ( painter )
 	insertFontMetrics( this );
     return *this;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#131 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#132 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -100,8 +100,8 @@ public:
     XFontSet	    fontSet() const;
     const QFontDef *spec()  const;
     int		    lineWidth() const;
+    const QTextCodec *mapper() const;
     void	    reset();
-    const QTextCodec *mapper() const { return cmapper; }
 private:
     QFontInternal( const QString & );
     void computeLineWidth();
@@ -156,6 +156,11 @@ inline int QFontInternal::lineWidth() const
 inline int QFontInternal::xResolution() const
 {
     return xres;
+}
+
+inline const QTextCodec *QFontInternal::mapper() const
+{
+    return cmapper;
 }
 
 inline void QFontInternal::reset()
@@ -1056,7 +1061,7 @@ void *QFontMetrics::fontStruct() const
 {
     if ( painter ) {
 	painter->cfont.handle();
-	return f->d->fin->fontStruct();
+	return painter->cfont.d->fin->fontStruct();
     } else {
 	return fin->fontStruct();
     }
@@ -1066,7 +1071,7 @@ void *QFontMetrics::fontSet() const
 {
     if ( painter ) {
 	painter->cfont.handle();
-	return painter->cfont->d->fin->fontSet();
+	return painter->cfont.d->fin->fontSet();
     } else {
 	return fin->fontSet();
     }
@@ -1076,14 +1081,14 @@ const QTextCodec *QFontMetrics::mapper() const
 {
     if ( painter ) {
 	painter->cfont.handle();
-	return painter->cfont->d->fin->mapper();
+	return painter->cfont.d->fin->mapper();
     } else {
 	return fin->mapper();
     }
 }
 
 #undef  FS
-#define FS (painter ? (XFontStruct*)fontStruct() : fin->fontStruct)
+#define FS (painter ? (XFontStruct*)fontStruct() : fin->fontStruct())
 #undef  SET
 #define SET ((XFontSet)fontSet())
 
@@ -1099,7 +1104,7 @@ int QFontMetrics::printerAdjusted(int val) const
     if ( painter && painter->device() &&
 	 painter->device()->devType() == PDT_PRINTER) {
 	painter->cfont.handle();
-	int xres = painter->cfont.fin->xResolution();
+	int xres = painter->cfont.d->fin->xResolution();
 	return qRound((val*0.75)/(xres*1.0));
     } else {
 	return val;
@@ -1474,7 +1479,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 
     if ( len < 0 )
 	len = str.length();
-    XFontStruct    *f = FS;
+    XFontStruct *f = FS;
     int direction;
     int ascent;
     int descent;
@@ -1482,19 +1487,12 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 
     bool underline;
     bool strikeOut;
-    if ( type() == FontInternal ) {
+    if ( painter ) {
+	underline = painter->cfont.underline();
+	strikeOut = painter->cfont.strikeOut();
+    } else {
 	underline = underlineFlag();
 	strikeOut = strikeOutFlag();
-    } else if ( type() == Widget && u.w ) {	
-	const QFont &f = u.w->font();
-	underline = f.underline();
-	strikeOut = f.strikeOut();
-    } else if ( type() == Painter && u.p ) {
-	const QFont &f = u.p->font();
-	underline = f.underline();
-	strikeOut = f.strikeOut();
-    } else {
-	underline = strikeOut = FALSE;
     }
 
     if ( f ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#48 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#49 $
 **
 ** Definition of QFontMetrics class
 **
@@ -86,6 +86,12 @@ private:
 
     QFontInternal *fin;
     QPainter      *painter;
+    int		   flags;
+
+    bool    underlineFlag()  const { return (flags & 0x1) != 0; }
+    bool    strikeOutFlag()  const { return (flags & 0x2) != 0; }
+    void    setUnderlineFlag()	   { flags |= 0x1; }
+    void    setStrikeOutFlag()	   { flags |= 0x2; }
 
     friend class QWidget;
     friend class QPainter;
