@@ -457,8 +457,13 @@ void QMotif::appStartingUp()
 	XtFree( (char *) displays );
 
     int argc;
+    char **argv = new char*[argc];
+
     if ( ! display_found ) {
 	argc = qApp->argc();
+        for (int i = 0; i < argc; ++i)
+            argv[i] = qApp->argv()[i];
+
 	XtDisplayInitialize( d->appContext,
 			     QX11Info::appDisplay(),
 			     qApp->objectName(),
@@ -466,7 +471,7 @@ void QMotif::appStartingUp()
 			     d->options,
 			     d->numOptions,
 			     &argc,
-			     qApp->argv() );
+			     argv );
     }
 
     // open a second connection to the X server... QMotifWidget and
@@ -480,6 +485,9 @@ void QMotif::appStartingUp()
     }
 
     argc = qApp->argc();
+    for (int i = 0; i < argc; ++i)
+        argv[i] = qApp->argv()[i];
+
     XtDisplayInitialize(d->appContext,
 			d->display,
 			qApp->objectName(),
@@ -487,8 +495,10 @@ void QMotif::appStartingUp()
 			d->options,
 			d->numOptions,
 			&argc,
-			qApp->argv());
+                        argv);
     XSync(d->display, False);
+
+    delete [] argv;
 
     // setup event dispatchers
     d->hookMeUp();
