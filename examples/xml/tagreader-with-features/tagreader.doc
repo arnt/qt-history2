@@ -18,10 +18,9 @@ $Id$
   \e http://xml.org/sax/features/namespaces and
   \e http://xml.org/sax/features/namespace-prefixes are set.
 
-<!-- 
   This example is thoroughly explained in a 
-  <a href="xml-sax-walkthrough.html">walkthrough</a>.
---> 
+  <a href="xml-sax-features-walkthrough.html">walkthrough</a>.
+
   <hr>
  
   Header file:
