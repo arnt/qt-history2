@@ -12,8 +12,9 @@ CONFIG		+= builder
 # unix:LIBS	+= -lpng -lz
 
 # for now, dunno how to make this configurable, also requires a #define in qapplication_x11.cpp
-unix:LIBS += $$TMAKE_LIBS_X11SM -lpthread
-DEFINES += QT_SM_SUPPORT QT_THREAD_SUPPORT
+unix:LIBS += $$TMAKE_LIBS_X11SM
+DEFINES += QT_SM_SUPPORT
+# DEFINES += QT_THREAD_SUPPORT
 
 #DEFINES	+= QT_NO_ASCII_CAST
 #DEFINES	+= QT_NO_CAST_ASCII
@@ -122,6 +123,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qsocketnotifier.h \
 		  $$KERNEL_H/qstyle.h \
 		  $$KERNEL_H/qstylesheet.h \
+		  $$KERNEL_H/qthread.h \
 		  $$KERNEL_H/qtimer.h \
 		  $$KERNEL_H/qurl.h \
 		  $$KERNEL_H/qlocalfs.h \
@@ -132,7 +134,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qwidgetlist.h \
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwmatrix.h \
-		  $$KERNEL_H/qthread.h \
+		  $$KERNEL_H/qvariant.h \
 		  $$TOOLS_H/qarray.h \
 		  $$TOOLS_H/qasciicache.h \
 		  $$TOOLS_H/qasciidict.h \
@@ -240,8 +242,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 
 # DO NOT sort directories - dependency order = tools,kernel,widgets,dialogs
 
-win32:SOURCES	= kernel/qthread_win.cpp \
-		  kernel/qapplication_win.cpp \
+win32:SOURCES	= kernel/qapplication_win.cpp \
 		  kernel/qclipboard_win.cpp \
 		  kernel/qcolor_win.cpp \
 		  kernel/qcursor_win.cpp \
@@ -254,12 +255,12 @@ win32:SOURCES	= kernel/qthread_win.cpp \
 		  kernel/qpainter_win.cpp \
 		  kernel/qregion_win.cpp \
 		  kernel/qwidget_win.cpp \
+		  kernel/qthread_win.cpp \
 		  dialogs/qfiledialog_win.cpp
 
 win32:SOURCES  += kernel/qole_win.c
 
-unix:SOURCES    = kernel/qthread_unix.cpp \
-		  kernel/qapplication_x11.cpp \
+unix:SOURCES    =  kernel/qapplication_x11.cpp \
 		  kernel/qclipboard_x11.cpp \
 		  kernel/qcolor_x11.cpp \
 		  kernel/qcursor_x11.cpp \
@@ -271,7 +272,8 @@ unix:SOURCES    = kernel/qthread_unix.cpp \
 		  kernel/qpaintdevice_x11.cpp \
 		  kernel/qpainter_x11.cpp \
 		  kernel/qregion_x11.cpp \
-		  kernel/qwidget_x11.cpp
+		  kernel/qwidget_x11.cpp \
+		  kernel/qthread_unix.cpp
 
 unix:SOURCES   += dialogs/qprintdialog.cpp \
 		  kernel/qpsprinter.cpp \
@@ -366,6 +368,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qurlinfo.cpp \
 		  kernel/qwidget.cpp \
 		  kernel/qwmatrix.cpp \
+		  kernel/qvariant.cpp \
 		  widgets/qbuttongroup.cpp \
 		  widgets/qbutton.cpp \
 		  widgets/qcanvas.cpp \
@@ -467,17 +470,6 @@ ZLIB_SOURCES	= 3rdparty/zlib/adler32.c \
 
 png:SOURCES    += $$PNG_SOURCES
 zlib:SOURCES   += $$ZLIB_SOURCES
-
-builder:HEADERS+= $$KERNEL_H/qdom.h \
-		  $$KERNEL_H/qvariant.h \
-		  $$KERNEL_H/qxml.h \
-		  $$WIDGETS_H/qaction.h
-		
-builder:SOURCES+= kernel/qdom.cpp \
-		  kernel/qdomext.cpp \
-		  kernel/qvariant.cpp \
-		  kernel/qxml.cpp \
-		  widgets/qaction.cpp
 
 TARGET		= qt
 VERSION		= 2.1.0
