@@ -112,8 +112,8 @@ struct CoMatrix
       words.  Some operations are performed on words for more efficiency.
     */
     union {
-    Q_UINT8 b[52];
-    Q_UINT32 w[13];
+    quint8 b[52];
+    quint32 w[13];
     };
 
     CoMatrix() { memset( b, 0, 52 ); }
