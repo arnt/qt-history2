@@ -1,8 +1,8 @@
 The libraries included here are the original packages, unpacked, and
 with their version number removed from the directory name (for version
-information, see the README files in the directories).  The following
-have been removed:
-    
+information, see the README files in the directories).  Some bugs have
+been fixed.  The following have been removed:
+ 
     zlib/contrib - a collection of non-zlib code
     zlib/msdos   - Zlib for a platform never supported by Qt ;-)
 
