@@ -2953,7 +2953,23 @@ int QTable::addSelection( const QTableSelection &s )
 	return -1;
     QTableSelection *sel = new QTableSelection( s );
     selections.append( sel );
-    viewport()->repaint( FALSE );
+
+    QRect topLeft = cellGeometry( sel->topRow(), sel->leftCol() );
+    QRect bottomRight = cellGeometry( sel->bottomRow(), sel->rightCol() );
+
+    int x1 = topLeft.x();
+    int y1 = topLeft.y();
+    int x2 = bottomRight.x() + bottomRight.width();
+    int y2 = bottomRight.y() + bottomRight.height();
+
+    if ( y2 <= y1 )
+	y2 = contentsY() + contentsHeight();
+    if ( x2 <= x1 )
+	x2 = contentsX() + contentsWidth();
+
+    QRect r( QPoint( x1, y1 ), QPoint( x2, y2 ) );
+    repaintContents( r, FALSE );
+
     return selections.count() - 1;
 }
 
