@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#27 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#28 $
 **
 ** Definition of layout classes
 **
@@ -42,15 +42,17 @@ public:
     ~QGridLayout();
 
     QSize sizeHint();
+    QSize minimumSize();
+    QSize maximumSize();
 
     virtual void setRowStretch( int row, int stretch );
     virtual void setColStretch( int col, int stretch );
 
     int numRows() const;
     int numCols() const;
-    
-    QSizePolicy sizePolicy();
-    //    void clearCache();
+
+    QSizePolicy::Expansiveness expansive();
+    void invalidate();
 #if 0
     void add( QWidget*, int row, int col );
     void add( QWidget*, int row1, int row2, int col1, int col2 );
@@ -60,7 +62,7 @@ public:
 
     // void setAlignment( QWidget* );
 
-#if 1	//OBSOLETE
+	//OBSOLETE (?????)
     void addWidget( QWidget *, int row, int col, int align = 0 );
     void addMultiCellWidget( QWidget *, int fromRow, int toRow,
 			       int fromCol, int toCol, int align = 0 );
@@ -68,7 +70,7 @@ public:
     void addRowSpacing( int row, int minsize );
     void addColSpacing( int col, int minsize );
     void expand( int rows, int cols );
-#endif
+    //END OBSOLETE (?????)
     enum Corner { TopLeft, TopRight, BottomLeft, BottomRight };
     void setOrigin( Corner );
 protected:

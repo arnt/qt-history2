@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#2 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -373,18 +373,46 @@ void QLayout::setMenuBar( QMenuBar *w )
 
 
 
-/*!
-  Returns the size policy of this layout. The default implementation
-  gives a layout that can be freely resized, but that prefers to be of
-  the size specified by sizeHint().
 
+/*!
+  Returns the minimum size of this layout. This is the smallest size
+  that the layout can have, while still respecting the specifications.
+
+  The default implementation allows unlimited resizing.
 */
 
-QSizePolicy QLayout::sizePolicy()
+QSize QLayout::minimumSize()
 {
-    return QSizePolicy( QSizePolicy::PrefSize, QSizePolicy::PrefSize );
+    return QSize( 0, 0 );
 }
 
+
+/*!
+  Returns the maximum size of this layout. This is the largest size
+  that the layout can have, while still respecting the specifications.
+
+  The default implementation allows unlimited resizing.
+*/
+
+QSize QLayout::maximumSize()
+{
+    return QSize( QCOORD_MAX, QCOORD_MAX );
+}
+
+
+/*!
+  Returns whether this layout can make use of more space than
+  sizeHint().  A value of Vertical or Horizontal means that it wants
+  to grow in only one dimension, while BothDirections means that it wants to
+  grow in both dimensions.
+
+  The default implementation returns NoDirection.
+*/
+
+QSizePolicy::Expansiveness QLayout::expansive()
+{
+    return QSizePolicy::NoDirection;
+}
 
 /*!  Redoes the layout for mainWidget().  You should generally not
   need to call this, as it is automatically called at most appropriate
@@ -402,6 +430,7 @@ bool QLayout::activate()
     // unnecessary in that case too.
 
 #if 1
+    invalidate(); //######### need to invalidate all child layouts!!!
     QSize s = mainWidget()->size();
     int mbh = menubar ? menubar->heightForWidth( s.width() ) : 0;
     setGeometry( QRect( outsideBorder, mbh + outsideBorder,
@@ -411,3 +440,16 @@ bool QLayout::activate()
     return TRUE;
 }
 
+
+
+
+/*!
+  Invalidates any cached information in this layout.
+
+  The default implementation does nothing.
+*/
+
+void QLayout::invalidate()
+{
+
+}

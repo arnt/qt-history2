@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#1 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#2 $
 **
 ** Definition of the abstract layout base class
 **
@@ -40,6 +40,7 @@ public:
     QLayout( QWidget *parent, int border=0, int autoBorder=-1,
 	     const char *name=0 );
     QLayout( int autoBorder=-1, const char *name=0 );
+
     virtual ~QLayout();
     int defaultBorder() const { return insideSpacing; }
     int margin() const { return outsideBorder; }
@@ -58,10 +59,12 @@ public:
 #if 1	//OBSOLETE
     bool activate();
 #endif
-    virtual QSizePolicy sizePolicy();
-    
+    virtual QSizePolicy::Expansiveness expansive();
     virtual QSize sizeHint() = 0;
-    //    virtual void clearCache();
+    virtual QSize minimumSize();
+    virtual QSize maximumSize();
+
+    virtual void invalidate();
     virtual void setGeometry( const QRect& );
     virtual bool removeWidget( QWidget * ) = 0;
 protected:

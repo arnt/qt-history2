@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#54 $
 **
 ** Implementation of layout classes
 **
@@ -39,9 +39,10 @@ public:
     Type type() const { return myType; }
 
     QSize sizeHint() const;
-    QSizePolicy sizePolicy() const;
-    
-    
+    QSize minimumSize() const;
+    QSize maximumSize() const;
+    QSizePolicy::Expansiveness expansive() const;
+
     void setAlignment( int a ) { align = a; }
     void setGeometry( const QRect& );
 
@@ -61,6 +62,7 @@ private:
     void init();
 };
 
+
 class QMultiBox
 {
 public:
@@ -74,6 +76,43 @@ private:
 };
 
 
+//### These functions calculates max/min sizes from sizePolicy()
+//### this should perhaps be QWidget member functions???
+
+static QSize smartMinSize( QWidget *w )
+{
+    QSize s(0,0);
+    if ( !w->sizePolicy().horData().mayShrink() )
+	s.setWidth( w->sizeHint().width() );
+    if ( !w->sizePolicy().verData().mayShrink() )
+	s.setHeight( w->sizeHint().height() );
+
+    return s.expandedTo( w->minimumSize() );
+}
+
+static QSize smartMaxSize( QWidget *w )
+{
+    QSize s( QCOORD_MAX, QCOORD_MAX );
+    if ( !w->sizePolicy().horData().mayGrow() )
+	s.setWidth( w->sizeHint().width() );
+    if ( !w->sizePolicy().verData().mayGrow() )
+	s.setHeight( w->sizeHint().height() );
+
+    return s.boundedTo( w->maximumSize() );
+}
+
+//this one gives the "soft max" size
+static QSize smartMaxPrefSize( QWidget *w )
+{
+    QSize s( QCOORD_MAX, QCOORD_MAX );
+    if ( !w->sizePolicy().horData().preferGrow() )
+	s.setWidth( w->sizeHint().width() );
+    if ( !w->sizePolicy().verData().preferGrow() )
+	s.setHeight( w->sizeHint().height() );
+
+    return s.boundedTo( w->maximumSize() );
+}
+
 QLayoutBox::QLayoutBox( QLayout *l )
 {
     init();
@@ -86,15 +125,28 @@ QLayoutBox::QLayoutBox( QWidget *w )
     myType = Widget;
     wid = w;
 }
+
+//####### should be hPol, vPol as parameters???
 QLayoutBox::QLayoutBox( int w, int h, bool hStretch, bool vStretch )
 {
     init();
     myType = Spacer;
-    width = w;
-    height = h;
+    width = QMAX( 0, w );
+    height = QMAX( 0, h );
+
+    QSizePolicy::SizeType hPol = QSizePolicy::NoGrow; 
+    QSizePolicy::SizeType vPol = QSizePolicy::NoGrow; 
+
+    if ( hStretch )
+	hPol = QSizePolicy::WannaGrow;
+    else if ( w < 0 )
+	hPol = QSizePolicy::MayGrow;
+    if ( vStretch )
+	vPol = QSizePolicy::WannaGrow;
+    else if ( h < 0 )
+	vPol = QSizePolicy::MayGrow;
     
-    sizeP = QSizePolicy(hStretch ? QSizePolicy::WannaGrow : QSizePolicy::Fixed,
-			vStretch ? QSizePolicy::WannaGrow : QSizePolicy::Fixed);
+    sizeP = QSizePolicy( hPol, vPol );
 }
 
 void QLayoutBox::init()
@@ -113,14 +165,14 @@ void QLayoutBox::setGeometry( const QRect &r )
     case Spacer:
 	break;
     case Layout:
+	    //### layoutHint...
 	lay->setGeometry( r );
 	break;
-    case Widget:
-	if ( align ) {
-	    //### layoutHint...
-	    QSize s = r.size().boundedTo( wid->maximumSize() );
-	    int x = r.x();
-	    int y = r.y();
+    case Widget: {
+	QSize s = r.size().boundedTo( smartMaxSize( wid ) );
+	int x = r.x();
+	int y = r.y();
+
 	    if ( align & Qt::AlignHCenter )
 		x = x + ( r.width() - s.width() ) / 2;
 	    else if ( align & Qt::AlignRight )
@@ -129,17 +181,16 @@ void QLayoutBox::setGeometry( const QRect &r )
 		y = y + ( r.height() - s.height() ) / 2;
 	    else if ( align & Qt::AlignBottom )
 		y = y + ( r.height() - s.height() );
+
 	    wid->setGeometry( x, y, s.width(), s.height() );
-	} else {
-	    wid->setGeometry( r );
-	}
+    }
 	break;
     case Error:
 	warning( "QLayout error: uninitialized case D." );
 	break;
     }
 }
-
+#if 0
 QSizePolicy QLayoutBox::sizePolicy() const
 {
     switch ( myType ) {
@@ -155,6 +206,61 @@ QSizePolicy QLayoutBox::sizePolicy() const
     }
     return QSizePolicy();
 
+}
+#endif
+
+QSizePolicy::Expansiveness QLayoutBox::expansive() const
+{
+    switch ( myType ) {
+    case Spacer:
+	return sizeP.expansive();
+    case Layout:
+	return lay->expansive();
+    case Widget:
+	return wid->sizePolicy().expansive();
+    case Error:
+	warning( "QLayout error: uninitialized case B." );
+	break;
+    }
+    return QSizePolicy::NoDirection;
+}
+
+
+
+
+
+QSize QLayoutBox::minimumSize() const
+{
+    switch ( myType ) {
+    case Spacer:
+	return QSize( sizeP.horData().mayShrink() ? 0 : width,
+		      sizeP.verData().mayShrink() ? 0 : height );;
+    case Layout:
+	return lay->minimumSize();
+    case Widget:
+	return smartMinSize( wid );
+    case Error:
+	warning( "QLayout error: uninitialized case A." );
+	break;
+    }
+    return QSize( 0, 0 );
+}
+
+QSize QLayoutBox::maximumSize() const
+{
+    switch ( myType ) {
+    case Spacer:
+	return QSize( sizeP.horData().mayGrow() ? QCOORD_MAX : width,
+		      sizeP.verData().mayGrow() ? QCOORD_MAX : height );
+    case Layout:
+	return lay->maximumSize();
+    case Widget:
+	return smartMaxSize( wid );
+    case Error:
+	warning( "QLayout error: uninitialized case E." );
+	break;
+    }
+    return QSize( QCOORD_MAX, QCOORD_MAX );
 }
 
 QSize QLayoutBox::sizeHint() const
@@ -173,7 +279,7 @@ QSize QLayoutBox::sizeHint() const
 		      wid->minimumHeight() == 0 ?
 		      wid->sizeHint().height() : wid->minimumHeight() );
     case Error:
-	warning( "QLayout error: uninitialized case A." );
+	warning( "QLayout error: uninitialized case F." );
 	break;
     }
     return QSize( 0, 0 );
@@ -182,13 +288,16 @@ QSize QLayoutBox::sizeHint() const
 
 struct LayoutStruct
 {
-    void init() { minSize = 0; stretch = 0; }
-
+    void init() { stretch = 0; initParameters(); }
+    void initParameters() { minimumSize = sizeHint = 0; 
+    maximumSize = QCOORD_MAX; expansive = empty = FALSE; }
     //permanent storage:
     int stretch;
     //parameters:
-    int minSize;
-    QSizeData sizeData;
+    QCOORD sizeHint;
+    QCOORD maximumSize;
+    QCOORD minimumSize;
+    bool expansive;
     bool empty;
     //temporary storage:
     bool done;
@@ -223,41 +332,56 @@ static void geomCalc( QArray<LayoutStruct> &chain, int count, int pos,
 		      int space, int spacer )
 {
     typedef int fixed;
-    int sumMin = 0;
+    int cHint = 0;
+    int cMin = 0;
+    int cMax = 0;
     int sumStretch = 0;
     int spacerCount = 0;
 
     bool wannaGrow = FALSE; // anyone who really wants to grow?
-    bool canShrink = FALSE; // anyone who could be persuaded to shrink?
-    
+    //    bool canShrink = FALSE; // anyone who could be persuaded to shrink?
+
     int i; //some hateful compilers do not handle for loops correctly
     for ( i = 0; i < count; i++ ) {
 	chain[i].done = FALSE;
-	sumMin += chain[i].minSize;
+	cHint += chain[i].sizeHint;
+	cMin += chain[i].minimumSize;
+	cMax += chain[i].maximumSize;
 	sumStretch += chain[i].stretch;
 	if ( !chain[i].empty )
 	    spacerCount++;
-	wannaGrow = wannaGrow || chain[i].sizeData.preferGrow();
-	canShrink = canShrink || chain[i].sizeData.mayShrink();
+	wannaGrow = wannaGrow || chain[i].expansive;
     }
+
     if ( spacerCount )
 	spacerCount -= 1; //only spacers between things
-    if ( space < sumMin + spacerCount*spacer ) {
-	//Not enogh space... Lets just give out minimum sizes.
-	//######## here we need to look at canShrink
-	for ( int i = 0; i < count; i++ )
-	    chain[i].size = chain[i].minSize;
+    if ( space < cMin + spacerCount*spacer ) {
+	debug("not enough space");
+	for ( int i = 0; i < count; i++ ) {
+	    chain[i].size = chain[i].minimumSize;
+	    chain[i].done = TRUE;
+	}
+    } else if ( space < cHint + spacerCount*spacer ) {
+	//####### Lets just give out sizeHints
+	for ( int i = 0; i < count; i++ ) {
+	    chain[i].size = chain[i].sizeHint;
+	    chain[i].done = TRUE;
+	}
     } else {
+	//to much space
 	int n = count;
 	int space_left = space - spacerCount*spacer;
+
+	//first give to the fixed ones:
+	
 	for ( i = 0; i < count; i++ ) {
-	    if ( !chain[i].done && ( wannaGrow ?
-				     !chain[i].sizeData.preferGrow() : 
-				     !chain[i].sizeData.mayGrow() )) {
+	    if ( !chain[i].done && ( chain[i].maximumSize <= chain[i].sizeHint 
+				     || wannaGrow && !chain[i].expansive )) {
+		//########we need to do it properly
 		//	    debug( "We have fixed size in %d", i );
-		chain[i].size = chain[i].minSize;
+		chain[i].size = chain[i].sizeHint;
 		chain[i].done = TRUE;
-		space_left -= chain[i].minSize;
+		space_left -= chain[i].sizeHint;
 		sumStretch -= chain[i].stretch;
 		n--;
 	    }
@@ -278,11 +402,11 @@ static void geomCalc( QArray<LayoutStruct> &chain, int count, int pos,
 		int w = fRound( fp_w );
 		chain[i].size = w;
 		fp_w -= toFixed( w ); //give the difference to the next
-		if ( w < chain[i].minSize ) {
+		if ( w < chain[i].sizeHint ) {
 		    chain[i].done = TRUE;
-		    chain[i].size = chain[i].minSize;
+		    chain[i].size = chain[i].sizeHint;
 		    finished = FALSE;
-		    space_left -= chain[i].minSize;
+		    space_left -= chain[i].sizeHint;
 		    sumStretch -= chain[i].stretch;
 		    n--;
 		    break;
@@ -309,7 +433,12 @@ public:
 
     void add( QLayoutBox*, int row, int col );
     void add( QLayoutBox*, int row1, int row2, int col1, int col2  );
-    QSize minSize( int );
+    QSize sizeHint( int );
+    QSize minimumSize( int );
+    QSize maximumSize( int );
+
+    QSizePolicy::Expansiveness expansive();
+
     void distribute( QRect, int );
     int numRows() const { return rr; }
     int numCols() const { return cc; }
@@ -317,13 +446,14 @@ public:
 	{ setSize( QMAX(rows,rr), QMAX(cols,cc) ); }
     void setRowStretch( int r, int s ) { expand(r+1,0); rowData[r].stretch=s; }
     void setColStretch( int c, int s ) { expand(0,c+1); colData[c].stretch=s; }
-    QSizePolicy sizePolicy();
+
     bool removeWidget( QWidget* );
     void setReversed( bool r, bool c ) { hReversed = c; vReversed = r; }
-    //	  void setDirty() { needRecalc = TRUE; }
+    void setDirty() { needRecalc = TRUE; }
 
 private:
     void init();
+    QSize findSize( QCOORD LayoutStruct::*, int );
     void addData ( QLayoutBox *b, bool r = TRUE, bool c = TRUE );
     void setSize( int rows, int cols );
     void setupLayoutData();
@@ -335,7 +465,7 @@ private:
     QArray<LayoutStruct> colData;
     QList<QLayoutBox> things;
     QList<QMultiBox> *multi;
-    //	  bool needRecalc;
+    bool needRecalc;
 };
 
 QLayoutArray::QLayoutArray()
@@ -351,7 +481,7 @@ QLayoutArray::QLayoutArray( int nRows, int nCols )
 }
 void QLayoutArray::init()
 {
-    //	  needRecalc = TRUE;
+    setDirty();
     multi = 0;
     rr = cc = 0;
     things.setAutoDelete( TRUE );
@@ -386,9 +516,10 @@ bool QLayoutArray::removeWidget( QWidget *w )
 	    }
 	}
     }
+    setDirty();
     return FALSE;
 }
-
+#if 0
 QSizePolicy QLayoutArray::sizePolicy()
 {
     setupLayoutData();
@@ -400,18 +531,19 @@ QSizePolicy QLayoutArray::sizePolicy()
     for ( int c = 0; c < cc; c++ ) {
 	hor = hor | colData[c].sizeData;
     }
-    
+
     return QSizePolicy( hor, ver );
 }
+#endif
 
-QSize QLayoutArray::minSize( int spacer )
+QSize QLayoutArray::findSize( QCOORD LayoutStruct::*size, int spacer )
 {
     setupLayoutData();
     int w = 0;
     int h = 0;
     int n = 0;
     for ( int r = 0; r < rr; r++ ) {
-	h = h + rowData[r].minSize;
+	h = h + rowData[r].*size;
 	if ( !rowData[r].empty )
 	    n++;
     }
@@ -419,14 +551,48 @@ QSize QLayoutArray::minSize( int spacer )
 	h += (n-1)*spacer;
     n = 0;
     for ( int c = 0; c < cc; c++ ) {
-	w = w + colData[c].minSize;
+	w = w + colData[c].*size;
 	if ( !colData[c].empty )
 	    n++;
     }
     if ( n )
 	w += (n-1)*spacer;
-
+    w = QMIN( QCOORD_MAX, w );//not 32-bit safe
+    h = QMIN( QCOORD_MAX, h ); 
+    
     return QSize(w,h);
+}
+
+QSizePolicy::Expansiveness QLayoutArray::expansive()
+{
+    setupLayoutData();
+    bool hExp = FALSE;
+    bool vExp = FALSE;
+
+    for ( int r = 0; r < rr; r++ ) {
+       vExp = vExp ||  rowData[r].expansive;
+    }
+    for ( int c = 0; c < cc; c++ ) {
+	hExp = hExp ||  colData[c].expansive;
+    }
+
+    return (QSizePolicy::Expansiveness) (( hExp ? QSizePolicy::Horizontal : 0 )
+		  | ( vExp ? QSizePolicy::Vertical : 0 ) );
+}
+
+QSize QLayoutArray::sizeHint( int spacer )
+{
+    return findSize( &LayoutStruct::sizeHint, spacer );
+}
+
+QSize QLayoutArray::maximumSize( int spacer )
+{
+    return findSize( &LayoutStruct::maximumSize, spacer );
+}
+
+QSize QLayoutArray::minimumSize( int spacer )
+{
+    return findSize( &LayoutStruct::minimumSize, spacer );
 }
 
 void QLayoutArray::setSize( int r, int c )
@@ -455,6 +621,7 @@ void QLayoutArray::add( QLayoutBox *box, int row, int col )
     box->row = row;
     box->col = col;
     things.append( box );
+    setDirty();
 }
 
 void QLayoutArray::add( QLayoutBox *box,  int row1, int row2,
@@ -467,22 +634,34 @@ void QLayoutArray::add( QLayoutBox *box,  int row1, int row2,
     if ( !multi )
 	multi = new QList<QMultiBox>;
     multi->append( mbox );
+    setDirty();
 }
 
 void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 {
-    QSize min = box->sizeHint();
+    QSize hint = box->sizeHint();
+    QSize minS = box->minimumSize();
+    QSize maxS = box->maximumSize();
+
     if ( c ) {
-    colData[box->col].minSize = QMAX( min.width(),
-				      colData[box->col].minSize );
-    colData[box->col].sizeData = box->sizePolicy().horData() &
-				  colData[box->col].sizeData;
+    colData[box->col].sizeHint = QMAX( hint.width(),
+				      colData[box->col].sizeHint );
+    colData[box->col].minimumSize = QMAX( minS.width(),
+				      colData[box->col].minimumSize );
+    colData[box->col].maximumSize = QMIN( maxS.width(),
+				      colData[box->col].maximumSize );
+    colData[box->col].expansive = colData[box->col].expansive |
+				  (box->expansive() & QSizePolicy::Horizontal);
     }
     if ( r ) {
-    rowData[box->row].minSize = QMAX( min.height(),
-				      rowData[box->row].minSize );
-    rowData[box->row].sizeData = box->sizePolicy().verData() &
-				  rowData[box->row].sizeData;
+    rowData[box->row].sizeHint = QMAX( hint.height(),
+				      rowData[box->row].sizeHint );
+    rowData[box->row].minimumSize = QMAX( minS.height(),
+				      rowData[box->row].minimumSize );
+    rowData[box->row].maximumSize = QMIN( maxS.height(),
+				      rowData[box->row].maximumSize );
+    rowData[box->row].expansive = rowData[box->row].expansive |
+				  (box->expansive() & QSizePolicy::Vertical);
     }
     if ( box->type() != QLayoutBox::Spacer ) {
 	//#### spacers do not get borders. This is ugly, but compatible.
@@ -496,18 +675,15 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 
 void QLayoutArray::setupLayoutData()
 {
+    //#### to introduce caching, uncomment the two next lines:
     //	  if ( !needRecalc )
     //		return;
     int i;
     for ( i = 0; i < rr; i++ ) {
-	rowData[i].minSize = 0;
-	rowData[i].sizeData  = QSizeData::PrefMin; //all TRUE
-	rowData[i].empty = TRUE;
+	rowData[i].initParameters();
     }
     for ( i = 0; i < cc; i++ ) {
-	colData[i].minSize = 0;
-	colData[i].sizeData = QSizeData::PrefMin;
-	colData[i].empty = TRUE;
+	colData[i].initParameters();
     }
     QListIterator<QLayoutBox> it( things );
     QLayoutBox * box;
@@ -527,37 +703,38 @@ void QLayoutArray::setupLayoutData()
 	    int r2 = mbox->torow;
 	    int c2 = mbox->tocol;
 	    int w = 0;
-	    QSize min = box->sizeHint();
+	    QSize hint = box->sizeHint();
 	    if ( r1 == r2 ) {
 		addData( box, TRUE, FALSE );
 	    } else {
+		    //###distribute the sizes somehow.
 		int r;
 		for ( r = r1; r <= r2; r++ )
-		    w += rowData[r].minSize;
-		if ( w < min.height() ) {
+		    w += rowData[r].sizeHint;
+		if ( w < hint.height() ) {
 		    debug( "Overtall multicell" );
-		    //distribute the size somehow.
 		}
 	    }
 	    if ( c1 == c2 ) {
 		addData( box, FALSE, TRUE );
 	    } else {
+		    //###distribute the sizes somehow.
 		int c;
 		for ( c = c1; c <= c2; c++ )
-		    w += colData[c].minSize;
-		if ( w < min.width() ) {
+		    w += colData[c].sizeHint;
+		if ( w < hint.width() ) {
 		    debug( "Overwide multicell" );
-		    //distribute the size somehow.
 		}
 	    }
 	}
     }
 
-    //	  needRecalc = FALSE;
+    needRecalc = FALSE;
 }
 
 void QLayoutArray::distribute( QRect r, int spacing )
 {
+    //setDirty(); (???) --- so we know that it is clean
     setupLayoutData();
 
     geomCalc( colData, cc, r.x(), r.width(), spacing );
@@ -810,16 +987,40 @@ int QGridLayout::numCols() const
 
 
 /*!
-  Returns the minimum size needed by this grid.
+  Returns the preferred size of this grid.
 */
 
 QSize QGridLayout::sizeHint()
 {
-    QSize s =  array->minSize( defaultBorder() );
+    QSize s =  array->sizeHint( defaultBorder() );
     if ( isTopLevel() )
 	s += QSize( 2*margin(), 2*margin() );
     return s;
 }
+/*!
+  Returns the minimum size needed by this grid.
+*/
+
+QSize QGridLayout::minimumSize()
+{
+    QSize s =  array->minimumSize( defaultBorder() );
+    if ( isTopLevel() )
+	s += QSize( 2*margin(), 2*margin() );
+    return s;
+}
+/*!
+  Returns the maximum size needed by this grid.
+*/
+
+QSize QGridLayout::maximumSize()
+{
+    QSize s =  array->maximumSize( defaultBorder() );
+    if ( isTopLevel() )
+	QSize( QMIN( 2*margin()+s.width(), QCOORD_MAX ),
+	       QMIN( 2*margin()+s.height(), QCOORD_MAX ) );
+    return s;
+}
+
 /*!
   Removes \a w from geometry management.
  */
@@ -980,13 +1181,14 @@ void QGridLayout::addColSpacing( int col, int minsize )
 }
 
 
+
 /*!
-  Returns the size policy of this layout.
+  Returns the expansiveness of this layout
 */
 
-QSizePolicy QGridLayout::sizePolicy()
+QSizePolicy::Expansiveness QGridLayout::expansive()
 {
-    return array->sizePolicy();
+    return array->expansive();
 }
 
 /*!
@@ -998,17 +1200,15 @@ void QGridLayout::setOrigin( Corner c )
     array->setReversed( c == BottomLeft || c == BottomRight,
 			c == TopRight || c == BottomRight );
 }
-
-#if 0
 /*!
   Resets cached information.
 */
 
-void QGridLayout::clearCache()
+void QGridLayout::invalidate()
 {
-
+    array->setDirty();
 }
-#endif
+
 
 
 
@@ -1158,7 +1358,7 @@ void QBoxLayout::addLayout( QLayout *layout, int stretch )
 */
 void QBoxLayout::addSpacing( int size )
 {
-    //################ not correct: extra insideSpacing
+    //### hack in QGridLayout: spacers do not get insideSpacing
 
     if ( horz( dir ) ) {
 	int n = numCols();
@@ -1179,17 +1379,18 @@ void QBoxLayout::addSpacing( int size )
 */
 void QBoxLayout::addStretch( int stretch )
 {
-    //################ not correct: extra insideSpacing
+    //### hack in QGridLayout: spacers do not get insideSpacing
+
     if ( horz( dir ) ) {
 	int n = numCols();
 	expand( 1, n+1 );
-	QLayoutBox *b = new QLayoutBox(0,0,TRUE,FALSE);
+	QLayoutBox *b = new QLayoutBox(0,-1,TRUE,FALSE);
 	add( b, 0, n ) ;
 	setColStretch( n, stretch );
     } else {
 	int n = numRows();
 	expand( n+1, 1 );
-	QLayoutBox *b = new QLayoutBox(0,0,FALSE,TRUE);
+	QLayoutBox *b = new QLayoutBox(-1,0,FALSE,TRUE);
 	add( b, n, 0 ) ;
 	//	QGridLayout::addRowSpacing( n, 0 ) ;
 	setRowStretch( n, stretch );
@@ -1204,7 +1405,17 @@ void QBoxLayout::addStretch( int stretch )
 
 void QBoxLayout::addStrut( int size )
 {
-    warning( "QBoxLayout::addStrut( %d ), not yet implemented", size );
+    warning( "QBoxLayout::addStrut( %d ), not yet tested", size );
+
+    if ( horz( dir ) ) {
+	expand( 1, 1 );
+	QGridLayout::addRowSpacing( 0, size ) ;
+    } else {
+	expand( 1, 1 );
+	QGridLayout::addColSpacing( 0, size ) ;
+    }
+
+
 }
 
 /*!
@@ -1376,3 +1587,4 @@ QVBoxLayout::QVBoxLayout( int autoBorder, const char *name )
 QVBoxLayout::~QVBoxLayout()
 {
 }
+

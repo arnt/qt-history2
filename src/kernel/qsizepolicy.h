@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#1 $
+** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#2 $
 **
 ** Definition of QSizePolicy class
 **
@@ -61,6 +61,9 @@ public:
 		      PrefSize = MayShrink | MayGrow,
 		      PrefMin = MayShrink | WannaGrow };
 
+    enum Expansiveness { NoDirection = 0, Horizontal = 1, Vertical = 2,
+			 BothDirections = Horizontal | Vertical };
+
     QSizePolicy() { data = 0; }
     QSizePolicy( TriState hGrow, bool hShrink,
 		   TriState vGrow, bool vShrink );
@@ -71,6 +74,12 @@ public:
 	data = hor.data | (ver.data<<HSize); }
     QSizeData horData() { return QSizeData( data & HMask ); }
     QSizeData verData() { return QSizeData(( data & VMask ) >> HSize); }
+
+    Expansiveness expansive() {
+	int r = (horData().preferGrow() ? Horizontal : 0)
+		|(verData().preferGrow() ? Vertical : 0);
+	return (Expansiveness)r;
+    }
 
     void setHorData( QSizeData d ) { data = (data & ~HMask) | d.data; }
     void setVerData( QSizeData d ) { data = (data & ~HMask) | d.data; }
