@@ -80,7 +80,7 @@ public:
     QSize sizeHint() const;
     QSize minimumSize() const;
     QSize minimumSizeHint() const;
-    
+
     void activateItemAt( int index ); // ### virtual in QMenuData 3.0
 
 signals:
@@ -101,6 +101,8 @@ protected:
     void	menuContentsChanged();
     void	menuStateChanged();
     void 	styleChange( QStyle& );
+    int		itemAtPos( const QPoint & );
+    void	hidePopups();
 
 private slots:
     void	subActivated( int itemId );
@@ -117,13 +119,11 @@ private:
     void	tryKeyEvent( QPopupMenu *, QKeyEvent * );
     void	goodbye( bool cancelled = FALSE );
     void	openActPopup();
-    void	hidePopups();
 
     void setActiveItem( int index, bool show = TRUE, bool activate_first_item = TRUE );
     void setAltMode( bool );
 
     int		calculateRects( int max_width = -1 );
-    int		itemAtPos( const QPoint & );
     QRect	itemRect( int item );
 
     void	setupAccelerators();
