@@ -28,21 +28,21 @@ void ConfigToolboxDialog::init()
 {
     listViewTools->setSorting( -1 );
     listViewCommon->setSorting( -1 );
-    
+
     ListViewDnd *toolsDnd = new ListViewDnd( listViewTools );
     toolsDnd->setDragMode( ListViewDnd::External | ListViewDnd::NullDrop | ListViewDnd::Flat );
 
     ListViewDnd *commonDnd = new ListViewDnd( listViewCommon );
     commonDnd->setDragMode( ListViewDnd::Both | ListViewDnd::Move | ListViewDnd::Flat );
-    
+
     QObject::connect( toolsDnd, SIGNAL( dropped( QListViewItem * ) ),
 			commonDnd, SLOT( confirmDrop( QListViewItem * ) ) );
     QObject::connect( commonDnd, SIGNAL( dropped( QListViewItem * ) ),
 			commonDnd, SLOT( confirmDrop( QListViewItem * ) ) );
-    
+
     QDict<QListViewItem> groups;
     QAction *a;
-    for ( a = MainWindow::self->toolActions.last(); 
+    for ( a = MainWindow::self->toolActions.last();
 	  a;
 	  a = MainWindow::self->toolActions.prev() ) {
 	QString grp = ( (WidgetAction*)a )->group();
@@ -63,7 +63,7 @@ void ConfigToolboxDialog::init()
 	i->setText( 0, a->text() );
 	i->setPixmap( 0, a->iconSet().pixmap() );
     }
-    
+
 }
 
 
@@ -130,7 +130,7 @@ void ConfigToolboxDialog::moveToolUp()
     QListViewItem *item = listViewCommon->firstChild();
     for ( int i = 0; i < listViewCommon->childCount(); ++i ) {
 	next = item->itemBelow();
-	if ( item->isSelected() && (i > 0) && !item->itemAbove()->isSelected() ) 
+	if ( item->isSelected() && (i > 0) && !item->itemAbove()->isSelected() )
 	    item->itemAbove()->moveItem( item );
 	item = next;
     }
@@ -144,7 +144,7 @@ void ConfigToolboxDialog::moveToolDown()
     QListViewItem *item = listViewCommon->lastItem();
     for ( int i = 0; i < count; ++i ) {
 	next = item->itemAbove();
-	if ( item->isSelected() && (i > 0) && !item->itemBelow()->isSelected() ) 
+	if ( item->isSelected() && (i > 0) && !item->itemBelow()->isSelected() )
 	    item->moveItem( item->itemBelow() );
 	item = next;
     }
@@ -157,7 +157,7 @@ void ConfigToolboxDialog::moveToolDown()
 	//    break;
 	//}
 	//item = item->itemBelow();
- //   }		
+ //   }
 }
 
 
@@ -198,7 +198,7 @@ void ConfigToolboxDialog::ok()
     QListViewItem *item = listViewCommon->firstChild();
     for ( int j = 0; j < listViewCommon->childCount(); item = item->itemBelow(), ++j ) {
         QAction *a = 0;
-	for ( a = MainWindow::self->toolActions.last(); 
+	for ( a = MainWindow::self->toolActions.last();
 	    a;
 	    a = MainWindow::self->toolActions.prev() ) {
 	    if ( a->text() == item->text( 0 ) )
