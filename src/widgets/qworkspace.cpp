@@ -342,7 +342,7 @@ static bool inCaptionChange = FALSE;
 
 class QWorkspaceChildTitleBar;
 
-class Q_EXPORT QWorkspaceChildTitleLabel : public QLabel
+class Q_EXPORT QWorkspaceChildTitleLabel : public QFrame
 {
     Q_OBJECT
 public:
@@ -362,10 +362,12 @@ protected:
     void paintEvent( QPaintEvent* );
     void resizeEvent( QResizeEvent* );
 
-    void drawLabel( const QString& );
+    void drawLabel();
     void frameChanged();
 
 private:
+    void cutText();
+
     QPixmap buffer;
     QColor leftc, aleftc, ileftc;
     QColor rightc, arightc, irightc;
@@ -373,6 +375,7 @@ private:
     int leftm;
     int rightm;
     QString titletext;
+    QString cuttext;
 };
 
 class Q_EXPORT QWorkspaceChildTitleBar : public QWidget
@@ -1313,9 +1316,6 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
     border = 2;
 
     titleL = new QWorkspaceChildTitleLabel( this, "__workspace_child_title_bar" );
-    titleL->setTextFormat( PlainText );
-    titleL->setIndent( 2 );
-
     closeB = new QToolButton( this, "close" );
     QToolTip::add( closeB, tr( "Close" ) );
     closeB->setFocusPolicy( NoFocus );
@@ -1338,6 +1338,11 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
     connect( shadeB, SIGNAL( clicked() ),
 	     this, SIGNAL( doShade() ) );
     
+    iconL = new QLabel( this, "icon" );
+    iconL->setAlignment( AlignCenter );
+    iconL->setFocusPolicy( NoFocus );
+    iconL->installEventFilter( this );
+
     if ( window ) {
 	if ( !window->testWFlags( WStyle_Tool ) ) {
 	    closeB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
@@ -1345,6 +1350,16 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 	    iconB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	    shadeB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	    shadeB->hide();
+	    if ( !window->testWFlags( WStyle_MinMax ) ) {
+		maxB->hide();
+		iconB->hide();
+	    }
+	    if ( !window->testWFlags( WStyle_SysMenu ) ) {
+		iconL->hide();
+		closeB->hide();
+		maxB->hide();
+		iconB->hide();
+	    }
 	} else {
 	    titleHeight = 14;
 	    border = 1;
@@ -1359,15 +1374,12 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 		iconB->resize( titleHeight+2, titleHeight+2 );
 		shadeB->resize( titleHeight+2, titleHeight+2 );
 	    }
-	    
 	    maxB->hide();
 	    iconB->hide();
+	    iconL->hide();
+	    if ( !window->testWFlags( WStyle_MinMax ) )
+		shadeB->hide();
         }
-	if ( !window->testWFlags( WStyle_MinMax ) ) {
-	    maxB->hide();
-	    iconB->hide();
-	    shadeB->hide();
-	}
     } else if ( iconMode ) {
         titleHeight = 18;
 	closeB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
@@ -1402,7 +1414,6 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
     }
 
     titleL->installEventFilter( this );
-    titleL->setAlignment( AlignLeft | AlignVCenter | SingleLine );
     QFont f = font();
     f.setBold( TRUE );
 #ifdef _WS_WIN_ // Don't scale fonts on X
@@ -1410,16 +1421,6 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 	f.setPointSize( f.pointSize() - 1 );
 #endif
     titleL->setFont( f );
-
-    iconL = new QLabel( this, "icon" );
-    iconL->setAlignment( AlignCenter );
-    iconL->setFocusPolicy( NoFocus );
-    iconL->installEventFilter( this );
-
-    if ( window && ( !window->testWFlags( WStyle_SysMenu )
-	|| window->testWFlags( WStyle_Tool ) ) )
-	iconL->hide();
-
 }
 
 QWorkspaceChildTitleBar::~QWorkspaceChildTitleBar()
@@ -1539,10 +1540,11 @@ void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
 	bottom--;
     }
 
-    right-=2;
+    if ( right != width() )
+	right-=2;
 
     titleL->setRightMargin( win32 ? width() - right : 0 );
-    titleL->setLeftMargin( win32 ? left : 0 );
+    titleL->setLeftMargin( 2 + (win32 ? left : 0) );
 	
     if ( win32 || (imode && !isActive()) ) {
 	titleL->setGeometry( QRect( QPoint( win32 ? 0 : left, 0 ),
@@ -2333,7 +2335,7 @@ void QWorkspaceChild::move( int x, int y )
 }
 
 QWorkspaceChildTitleLabel::QWorkspaceChildTitleLabel( QWorkspaceChildTitleBar* parent, const char* name )
-    : QLabel( parent, name, WRepaintNoErase | WResizeNoErase )
+    : QFrame( parent, name, WRepaintNoErase | WResizeNoErase )
 {
 #ifdef _WS_WIN_ // ask system properties on windows
     aleftc = colorref2qrgb(GetSysColor(COLOR_ACTIVECAPTION));
@@ -2358,41 +2360,48 @@ QWorkspaceChildTitleLabel::QWorkspaceChildTitleLabel( QWorkspaceChildTitleBar* p
     atextc = palette().active().highlightedText();
     itextc = palette().inactive().background();
 #endif
-    
-    setActive( FALSE );
 }
 
 void QWorkspaceChildTitleLabel::setText( const QString& text )
 {
     titletext = text;
+    cutText();
+}
+
+void QWorkspaceChildTitleLabel::cutText()
+{
     QFontMetrics fm( font() );
 
-    int maxw = contentsRect().width() - leftm - rightm - indent();
+    int maxw = contentsRect().width() - leftm - rightm;
 
-    if ( fm.width( text+"m" ) > maxw ) {
+    if ( fm.width( titletext+"m" ) > maxw ) {
 	QToolTip::remove( this );
-	QToolTip::add( this, text );
-	int i = text.length();
-	while ( (fm.width(text.left( i ) + "...")  > maxw) && i>0 )
+	QToolTip::add( this, titletext );
+	int i = titletext.length();
+	while ( (fm.width(titletext.left( i ) + "...")  > maxw) && i>0 )
 	    i--;
-	drawLabel( text.left( i ) + "..." );
+	cuttext = titletext.left( i ) + "...";
+	drawLabel();
     } else {
 	QToolTip::remove( this );
-	drawLabel( text );
+	cuttext = titletext;
     }
+    drawLabel();
 }
 
 void QWorkspaceChildTitleLabel::setLeftMargin( int x )
 {
     leftm = x;
+    cutText();
 }
 
 void QWorkspaceChildTitleLabel::setRightMargin( int x )
 {
     rightm = x;
+    cutText();
 }
 
-void QWorkspaceChildTitleLabel::drawLabel( const QString& text )
+void QWorkspaceChildTitleLabel::drawLabel()
 {
     if ( buffer.isNull() )
 	return;
@@ -2421,16 +2430,19 @@ void QWorkspaceChildTitleLabel::drawLabel( const QString& text )
     }
     drawFrame( &p );
     p.setPen( textc );
-    p.drawText( indent()+contentsRect().x() + leftm, contentsRect().y(), 
-	contentsRect().width() - rightm, contentsRect().height(), alignment(), text );
+    p.drawText( contentsRect().x() + leftm, contentsRect().y(), 
+	contentsRect().width() - rightm, contentsRect().height(), 
+	AlignLeft | AlignVCenter | SingleLine, cuttext );
+    
     p.end();
 
-    update();
+    // why does it flicker using update()?
+    repaint( FALSE );
 }
 
 void QWorkspaceChildTitleLabel::frameChanged()
 {
-    setText( titletext );
+    cutText();
 }
 
 void QWorkspaceChildTitleLabel::paintEvent( QPaintEvent* )
@@ -2440,10 +2452,10 @@ void QWorkspaceChildTitleLabel::paintEvent( QPaintEvent* )
 
 void QWorkspaceChildTitleLabel::resizeEvent( QResizeEvent* e )
 {
-    QLabel::resizeEvent( e );
+    QFrame::resizeEvent( e );
 
     buffer.resize( size() );
-    setText( titletext );
+    cutText();  
 }
 
 void QWorkspaceChildTitleLabel::setActive( bool a )
@@ -2458,7 +2470,7 @@ void QWorkspaceChildTitleLabel::setActive( bool a )
 	rightc = irightc;
     }
 
-    setText( titletext );
+    drawLabel();
 }
 
 #include "qworkspace.moc"
