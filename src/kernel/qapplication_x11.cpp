@@ -2084,8 +2084,9 @@ void qt_init_internal( int *argcptr, char **argv,
 
 #if !defined(Q_OS_IRIX)
 	// XFree86 divides a stylus and eraser into 2 devices, so we must do for both...
-	const char XFREENAMESTYLUS[] = "stylus";
-	const char XFREENAMEERASER[] = "eraser";
+	const QString XFREENAMESTYLUS = "stylus";
+	const QString XFREENAMEPEN = "pen";
+	const QString XFREENAMEERASER = "eraser";
 #endif
 
 	devices = XListInputDevices( appDpy, &ndev);
@@ -2095,15 +2096,18 @@ void qt_init_internal( int *argcptr, char **argv,
 	}
 	dev = NULL;
 	for ( devs = devices, i = 0; i < ndev; i++, devs++ ) {
-	    gotStylus = gotEraser = FALSE;
+	    gotEraser = FALSE;
 #if defined(Q_OS_IRIX)
-	    if ( !strncmp( devs->name, WACOM_NAME, sizeof(WACOM_NAME) - 1 ) ) {
-		gotStylus = TRUE;
+	    gotStylus = ( !strncmp(devs->name,
+				   WACOM_NAME, sizeof(WACOM_NAME) - 1) )
 #else
-	    if ( !strncmp( devs->name, XFREENAMESTYLUS, sizeof(XFREENAMESTYLUS) - 1 ) )
-		gotStylus = TRUE;
-	    else if ( !strncmp( devs->name, XFREENAMEERASER, sizeof(XFREENAMEERASER) - 1 ) )
-		gotEraser = TRUE;
+	    QString devName = devs->name;
+	    devName = devName.lower();
+	    gotStylus = ( devName.startsWith(XFREENAMEPEN)
+			  || devName.startsWith(XFREENAMESTYLUS) );
+	    if ( !gotStylus )
+		gotEraser = devName.startsWith( XFREENAMEERASER );
+
 	    if ( gotStylus || gotEraser ) {
 #endif
 		// I only wanted to do this once, so wrap pointers around these
