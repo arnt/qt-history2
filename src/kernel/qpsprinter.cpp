@@ -301,6 +301,74 @@ static const char * const ps_header[] = {
 "  } ifelse",
 "} D",
 
+// general image drawing routine
+"/di", // width height image 1|8|24 mask|false x y
+"{",
+"  gsave"
+"    translate",
+"    dup false ne {", // have a mask, see if we can use it
+"      /languagelevel where {",
+"	pop", // % languagelevel2, we can use image mask and dicts
+"       2 languagelevel ge",
+"    } { false }",
+"    {",
+"	/ma exch d",
+"	8 eq {",
+"	  /decode [1 0] d",
+"	  /DeviceGray",
+"	} {",
+"	  /decode [0 1 0 1 0 1] d",
+"	  /DeviceRGB",
+"	} ifelse",
+"	setcolorspace",
+"	/im exch d",
+"	/height exch def",
+"	/width exch def",
+"	/Image <<",
+"         /ImageType 1",
+"         /Width width",
+"         /Height height",
+"         /ImageMatrix [1 0 0 1 0 0]",
+"         /MultipleDataSources false",
+"	  /DataSource im",
+"	  /BitsPerComponent 8",
+"	  /Decode decode",
+"	>> d",
+"	/Mask <<",
+"	  /ImageType 1",
+"	  /Width width",
+"	  /Height height",
+"	  /ImageMatrix [1 0 0 1 0 0]",
+"	  /DataSource ma",
+"	  /BitsPerComponent 1",
+"	  /Decode [0 1]",
+"	>> d",
+"	<<",
+"	  /ImageType 3",
+"	  /DataDict Image",
+"	  /MaskDict Mask",
+"	  /InterleaveType 3",
+"	>> image",
+"      } if",
+"    } {",
+"      pop % no mask or can't use it, get rid of it",
+"      dup 1 eq { % bitmap",
+"	pop",
+"	false exch [1 0 0 1 0 0] exch % width height false matrix image",
+"	imagemask",
+"      } {",
+"	 8 [1 0 0 1 0 0] % width height image 8|24 8 matrix",
+"	 4 2 roll",
+"	 8 eq { % grayscale",
+"	   image",
+"	 } { %color",
+"	   QCI",
+"	 } ifelse",
+"      } ifelse",
+"    } ifelse",
+"  grestore    ",
+"} d",
+
 "/defM matrix d",
 
 "/BF {",                                // brush fill
@@ -6168,7 +6236,6 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
 	const char *op;
 	const char *bits;
 	
-#if 0
 	bool hasMask = img.hasAlphaBuffer();
 	if ( hasMask ) {
 	    out = ::compress( img.createAlphaMask(), TRUE );
@@ -6178,32 +6245,26 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
 	    ps_r7( pageStream, out, out.size() );
 	    pageStream << "pop\n";
 	}
-#endif
-	
+
 	if ( img.depth() == 1 ) {
 	    size = (width*height+7)/8;
-	    op = "imagemask";
-	    bits = " false[";
-	    gray = TRUE;
+	    bits = "1 ";
 	} else if ( gray ) {
 	    size = width*height;
-	    op = "image";
-	    bits = " 8[";
+	    bits = "8 ";
         } else {
 	    size = width*height*3;
-	    op = "QCI";
-	    bits = " 8[";
+	    bits = "24 ";
         }
+	
 	out = ::compress( img, gray );
-        if ( x || y )
-            pageStream << x << " " << y << " TR\n";
 	pageStream << "/sl " << size << " string d\n"
 		   << "sl uc\n";
 	ps_r7( pageStream, out, out.size() );
 	pageStream << "pop\n"
-		   << width << ' ' << height << bits << scaleX << " 0 0 " << scaleY << " 0 0]{sl}" << op << "\n";
-        if ( x || y )
-            pageStream << -x << " " << -y << " TR\n";
+	    // ##### readd scalx and scaley
+		   << width << ' ' << height << "{sl}" << bits << (hasMask ? "mask " : "false ")
+		   << x << ' ' << y << "di\n";
     }
 }
 
