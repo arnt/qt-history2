@@ -3923,7 +3923,7 @@ bool QWidget::event( QEvent *e )
 		if ( k->isAccepted() || w->isTopLevel() )
 		    break;
 		if ( w->parentWidget() && w->parentWidget()->focusProxy() == this )
-		    w = w->parentWidget();
+		    w = w->parentWidget(); //### This breaks KDE, so fix it again
 		w = w->parentWidget();
 		k->accept();
 	    }
@@ -3939,7 +3939,7 @@ bool QWidget::event( QEvent *e )
 		if ( k->isAccepted() || w->isTopLevel() )
 		    break;
 		if ( w->parentWidget() && w->parentWidget()->focusProxy() == this )
-		    w = w->parentWidget();
+		    w = w->parentWidget(); //### This breaks KDE, so fix it again
 		w = w->parentWidget();
 	    }
 	    }
