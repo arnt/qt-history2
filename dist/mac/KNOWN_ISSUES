@@ -3,19 +3,20 @@ This is a general Qt/Mac guide, this will outline known issues in Qt/Mac:
 
 MacOSX:
 
-Applications *must* be run out of a bundle (something like widgets.app/). MacOSX needs this 
-to dispatch events correctly, as well as gaining access to the menubar. If using GDB you must
-run with the *full* path to the executable.
+Applications *must* be run out of a bundle (something like
+widgets.app/). MacOSX needs this to dispatch events correctly, as well as
+gaining access to the menubar. If using GDB you must run with the *full*
+path to the executable.
 
-CodeWarrior and Project Builder are not support currently. CodeWarrior 7.0 is being evaluated 
-and hopefully support will be added shortly, our current recommendation is to use project files
-with qmake (documentation located in QTDIR/docs/qmake.html), this will only generate unix style 
-makefiles for now - however when CodeWarrior and/or Project Builder is supported we will integrate
-the support with qmake and you can continue as you worked before except having qmake generate
-project files for your IDE.
-
-QProcess does not seem to work very well on MacOSX, please don't use it at the moment until we
-can verify the problems currently acknowledged in it.
+CodeWarrior and Project Builder are not support currently. CodeWarrior 7.0
+has been evaluated however turned out to have trouble linking against a Qt
+compiled with CW7. We are in contact with Metrowerks about the problem and
+hopefully a solution will be found, in the meantime, our current
+recommendation is to use project files with qmake (documentation located in
+QTDIR/docs/qmake.html), this will only generate unix style makefiles for
+now - however when CodeWarrior and/or Project Builder is supported we will
+integrate the support with qmake and you can continue as you worked before
+except having qmake generate project files for your IDE.
 
 ---
 As always please contact us at TrollTech with concerns/questions, more directly for technical 
