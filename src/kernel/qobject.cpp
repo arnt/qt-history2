@@ -57,20 +57,6 @@
 
 class QObjectPrivate
 {
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-public:
-    QObjectPrivate()
-
-	: accessible( 0 )
-    {}
-    ~QObjectPrivate()
-    {
-	if ( accessible )
-	    accessible->release();
-    }
-
-    QAccessibleInterface *accessible;
-#endif
 };
 
 // NOT REVISED
@@ -372,8 +358,6 @@ QObject::QObject( QObject *parent, const char *name )
     sigSender = 0;
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    d = new QObjectPrivate;
-
     connect( this, SIGNAL( accessibilityChanged(int) ), SLOT( notifyAccessibility(int) ) );
 #endif
 }
@@ -457,7 +441,6 @@ QObject::~QObject()
 	}
 	delete childObjects;
     }
-    delete d;
 }
 
 
@@ -674,11 +657,6 @@ bool QObject::event( QEvent *e )
     case QEvent::ChildRemoved:
 	childEvent( (QChildEvent*)e );
 	return TRUE;
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    case QEvent::Accessibility:
-	accessibilityEvent( e );
-	return TRUE;
-#endif
     default:
 	break;
     }
@@ -1891,52 +1869,14 @@ void QObject::notifyAccessibility( int reason )
 }
 
 /*!
-  Returns the QAccessibleInterface for this object. This function
-  calls createAccessibilityInterface() if neccessary.
-
-  \sa accessibilityEvent()
-*/
-QAccessibleInterface *QObject::accessibilityInterface() const
-{
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    if ( d->accessible )
-	return d->accessible;
-
-    QObject *that = (QObject*)this;
-    d->accessible = that->createAccessibilityInterface();
-    if ( d->accessible )
-	d->accessible->addRef();
-    return d->accessible;
-#else
-    return 0;
-#endif
-}
-
-/*!
   Reimplement this function for QObject subclasses that are accessible,
   and return a new object that implements the QAccessibleInterface.
 
   The default implementation return always NULL.
 */
-QAccessibleInterface *QObject::createAccessibilityInterface()
+QAccessibleInterface *QObject::accessibleInterface()
 {
     return 0;
-}
-
-
-/*!
-  This event handler is called when an accessibility tool requests
-  information about this object.
-
-  Reimplement this function to update the QAccessibleInterface implementation of
-  this widget with the appropriate data for your widget.
-
-  The default implementation does nothing.
-
-  \sa accessibilityInterface(), accessibilityChanged()
-*/
-void QObject::accessibilityEvent( QEvent * )
-{
 }
 
 #ifndef QT_NO_TRANSLATION // Otherwise we have a simple inline version

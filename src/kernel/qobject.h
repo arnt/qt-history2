@@ -136,7 +136,7 @@ public:
     virtual QVariant property( const char *name ) const;
 #endif // QT_NO_PROPERTIES
 
-    QAccessibleInterface *accessibilityInterface() const;
+    virtual QAccessibleInterface *accessibleInterface();
 
 signals:
     void	 destroyed();
@@ -167,9 +167,6 @@ protected:
     virtual void timerEvent( QTimerEvent * );
     virtual void childEvent( QChildEvent * );
     virtual void customEvent( QCustomEvent * );
-
-    virtual void accessibilityEvent( QEvent * );
-    virtual QAccessibleInterface* createAccessibilityInterface();
 
     virtual void connectNotify( const char *signal );
     virtual void disconnectNotify( const char *signal );
