@@ -575,7 +575,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	dndchild->clearWState(WState_DND); // reset this widget
 	dndchild->setAcceptDrops( TRUE ); // the new top-level will accept drops
     }
-    QCustomEvent e( QEvent::Reparent, 0 );
+    QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
 }
 
@@ -901,7 +901,7 @@ void QWidget::setCaption( const QString &caption )
 	return; // for less flicker
     topData()->caption = caption;
     XSetWMName( x11Display(), winId(), qstring_to_xtp(caption) );
-    QCustomEvent e( QEvent::CaptionChange, 0 );
+    QEvent e( QEvent::CaptionChange );
     QApplication::sendEvent( this, &e );
 }
 
@@ -943,7 +943,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
     XSetWMHints( x11Display(), winId(), h );
     if ( got_hints )
 	XFree( (char *)h );
-    QCustomEvent e( QEvent::IconChange, 0 );
+    QEvent e( QEvent::IconChange );
     QApplication::sendEvent( this, &e );
 }
 
@@ -1380,7 +1380,7 @@ void QWidget::showMinimized()
 	    clearWState( WState_Visible );
 	}
     }
-    QCustomEvent e( QEvent::ShowMinimized, 0 );
+    QEvent e( QEvent::ShowMinimized );
     QApplication::sendEvent( this, &e );
 }
 
@@ -1444,7 +1444,7 @@ void QWidget::showMaximized()
 	resize( sw, sh );
     }
     show();
-    QCustomEvent e( QEvent::ShowMaximized, 0 );
+    QEvent e( QEvent::ShowMaximized );
     QApplication::sendEvent( this, &e );
     setWState(WState_Maximized);
 }
@@ -1474,7 +1474,7 @@ void QWidget::showNormal()
 	}
     }
     show();
-    QCustomEvent e( QEvent::ShowNormal, 0 );
+    QEvent e( QEvent::ShowNormal );
     QApplication::sendEvent( this, &e );
 }
 

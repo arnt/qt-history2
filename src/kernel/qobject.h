@@ -135,20 +135,19 @@ private slots:
 
 protected:
     bool	 activate_filters( QEvent * );
-    QConnectionList *receivers( const char *signal ) const;
-    void	 activate_signal( const char *signal );
-    void	 activate_signal( const char *signal, short );
-    void	 activate_signal( const char *signal, int );
-    void	 activate_signal( const char *signal, long );
-    void	 activate_signal( const char *signal, const char * );
-    void	 activate_signal_bool( const char *signal, bool );
-    void	 activate_signal_string( const char *signal, QString );
-    void	 activate_signal_strref( const char *signal, const QString & );
+    QConnectionList *receivers( const char* signal ) const;
+    QConnectionList *receivers( int signal ) const;
+    void	 activate_signal( int signal );
+    void	 activate_signal( int signal, short );
+    void	 activate_signal( int signal, int );
+    void	 activate_signal( int signal, long );
+    void	 activate_signal( int signal, const char * );
+    void	 activate_signal_bool( int signal, bool );
+    void	 activate_signal_string( int signal, QString );
+    void	 activate_signal_strref( int signal, const QString & );
 
     const QObject *sender();
 
-
-    virtual void initMetaObject();
     static QMetaObject* staticMetaObject();
 
     virtual void timerEvent( QTimerEvent * );
@@ -160,9 +159,6 @@ protected:
 				   const char *member );
     static QCString normalizeSignalSlot( const char *signalSlot );
 
-    static  void badSuperclassWarning( const char *className,
-				       const char *superclassName );
-
 private:
     uint	isSignal   : 1;
     uint	isWidget   : 1;
@@ -172,12 +168,11 @@ private:
     uint	wasDeleted : 1;
     uint	isTree : 1;
 
-    QMetaObject *queryMetaObject() const;
     static QMetaObject *metaObj;
     const char	*objname;
     QObject	*parentObj;
     QObjectList *childObjects;
-    QSignalDict *connections;
+    QSignalVec *connections;
     QObjectList *senderObjects;
     QObjectList *eventFilters;
     void * d;

@@ -41,7 +41,7 @@
 #ifndef QT_H
 #include "qconnection.h"
 #include "qlist.h"
-#include "qasciidict.h"
+#include "qvector.h"
 #endif // QT_H
 
 
@@ -76,26 +76,26 @@ template class Q_EXPORT QAsciiDictIterator<QConnectionList>;
 #endif
 
 
-class Q_EXPORT QSignalDict : public QAsciiDict<QConnectionList>
+class Q_EXPORT QSignalVec : public QVector<QConnectionList>
 {
 public:
-    QSignalDict(int size=17,bool cs=TRUE,bool ck=TRUE)
-	: QAsciiDict<QConnectionList>(size,cs,ck) {}
-    QSignalDict( const QSignalDict &dict )
-	: QAsciiDict<QConnectionList>(dict) {}
-   ~QSignalDict() { clear(); }
-    QSignalDict &operator=(const QSignalDict &dict)
-	{ return (QSignalDict&)QAsciiDict<QConnectionList>::operator=(dict); }
+    QSignalVec(int size=17 )
+	: QVector<QConnectionList>(size) {}
+    QSignalVec( const QSignalVec &dict )
+	: QVector<QConnectionList>(dict) {}
+   ~QSignalVec() { clear(); }
+    QSignalVec &operator=(const QSignalVec &dict)
+	{ return (QSignalVec&)QVector<QConnectionList>::operator=(dict); }
+    QConnectionList* at( uint index ) const  {
+	return index >= size()? 0 : QVector::at(index);
+    }
+    bool  insert( uint index, const QConnectionList* d ) {
+	if (index >= size() )
+	    resize( 2*index + 1);
+	return QVector::insert(index, d);
+    }
 };
 
-class Q_EXPORT QSignalDictIt : public QAsciiDictIterator<QConnectionList>
-{
-public:
-    QSignalDictIt( const QSignalDict &d )
-	: QAsciiDictIterator<QConnectionList>(d) {}
-    QSignalDictIt &operator=(const QSignalDictIt &i)
-	{ return (QSignalDictIt&)QAsciiDictIterator<QConnectionList>::operator=(i); }
-};
 
 
 #endif // QSIGNALSLOTIMP_H

@@ -85,8 +85,6 @@ public:							\
     const char *className() const;			\
     static QMetaObject* staticMetaObject();		\
     QT_TR_FUNCTION					\
-protected:						\
-    void initMetaObject();				\
 private:						\
     static QMetaObject *metaObj;
 
@@ -121,8 +119,7 @@ class QEvent;
 struct QMetaData;
 class QConnectionList;
 class QConnectionListIt;
-class QSignalDict;
-class QSignalDictIt;
+class QSignalVec;
 class QObjectList;
 class QObjectListIt;
 class QMemberDict;

@@ -140,9 +140,9 @@ void ConnectionEditor::signalChanged()
     for( int i = 0; i < n; ++i ) {
 	// accept only public slots. For the form window, also accept protected slots
 	QMetaData* md =  receiver->metaObject()->slot( i, TRUE  );
-	if ( ( (receiver->metaObject()->slot_access( i, TRUE ) == QMetaData::Public) ||
+	if ( ( (receiver->metaObject()->slot( i, TRUE )->access == QMetaData::Public) ||
 	       ( formWindow->isMainContainer( (QWidget*)receiver ) &&
-		 receiver->metaObject()->slot_access(i, TRUE) == QMetaData::Protected) ) &&
+		 receiver->metaObject()->slot(i, TRUE)->access == QMetaData::Protected) ) &&
 	     !ignoreSlot( md->name ) &&
 	     checkConnectArgs( signal.data(), receiver, md->name ) )
 	    slotBox->insertItem( md->name );

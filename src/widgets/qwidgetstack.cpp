@@ -274,11 +274,9 @@ void QWidgetStack::raiseWidget( QWidget * w )
 
     if ( isVisible() ) {
 	emit aboutToShow( w );
-	if ( receivers( SIGNAL(aboutToShow(int)) ) ) {
-	    int i = id( w );
-	    if ( i >= 0 )
-		emit aboutToShow( i );
-	}
+	int i = id( w );
+	if ( i >= 0 )
+	    emit aboutToShow( i );
     }
 
     w->setGeometry( invisible->geometry() );

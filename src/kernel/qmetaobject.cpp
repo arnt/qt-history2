@@ -120,6 +120,11 @@ QObjectDictionary *objectDict = 0;		// global object dictionary
 class QMetaObjectPrivate
 {
 public:
+    QMetaObjectPrivate() :
+#ifndef QT_NO_PROPERTIES
+	enumData(0), numEnumData(0),propData(0),numPropData(0),
+#endif
+	classInfo(0), numClassInfo(0), slotAccess(0),sigOffset(-1) {}
 #ifndef QT_NO_PROPERTIES
     QMetaEnum     *enumData;			// enumeration types
     int		   numEnumData;
@@ -129,6 +134,8 @@ public:
     QClassInfo    *classInfo;			// class information
     int            numClassInfo;
     QMetaData::Access* slotAccess; // ### remove 3.0
+
+    int sigOffset;
 };
 
 
@@ -174,47 +181,6 @@ static int optDictSize( int n )
   QMetaObject member functions
  *****************************************************************************/
 
-// ### To disappear in Qt 3.0
-
-/*!\internal
- */
-QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
-			  QMetaData *slot_data,	  int n_slots,
-			  QMetaData *signal_data, int n_signals )
-{
-    if ( !objectDict ) {			// first meta object created
-	objectDict
-	    = new QObjectDictionary( 211,
-				     TRUE,	// no copying of keys
-				     FALSE );	// case sensitive
-	CHECK_PTR( objectDict );
-	objectDict->setAutoDelete( TRUE );	// use as master dict
-    }
-
-    classname = class_name;			// set meta data
-    superclassname = superclass_name;
-    slotDict = init( slotData = slot_data, n_slots );
-    signalDict = init( signalData = signal_data, n_signals );
-
-    objectDict->insert( classname, this );	// insert into object dict
-
-    superclass = objectDict->find( superclassname ); // get super class meta object
-
-
-    d = new QMetaObjectPrivate;
-    reserved = 0;
-
-#ifndef QT_NO_PROPERTIES
-    d->enumData = 0;
-    d->numEnumData = 0;
-    d->propData = 0;
-    d->numPropData = 0;
-#endif
-    d->classInfo = 0;
-    d->numClassInfo = 0;
-    d->slotAccess = 0;
-}
-
 /*!\internal
  */
 QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
@@ -256,6 +222,8 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 
     superclass = objectDict->find( superclassname ); // get super class meta object
 
+    signaloffset = superclass ? superclass->numSignals( TRUE ) : 0;
+    slotoffset = superclass ? superclass->numSlots( TRUE ) : 0;
 }
 
 /*!\internal
@@ -313,16 +281,10 @@ QMetaObject::~QMetaObject()
  */
 int QMetaObject::numSlots( bool super ) const	// number of slots
 {
-    if ( !super )
-	return slotDict ? slotDict->count() : 0;
-    int n = 0;
-    register QMetaObject *meta = (QMetaObject *)this;
-    while ( meta ) {				// for all super classes...
-	if ( meta->slotDict )
-	    n += meta->slotDict->count();
-	meta = meta->superclass;
-    }
-    return n;
+    int n = slotDict ? slotDict->count() : 0;
+    if ( !super || !superclass )
+	return n;
+    return n + superclass->numSlots( super );
 }
 
 /*!
@@ -334,41 +296,12 @@ int QMetaObject::numSlots( bool super ) const	// number of slots
  */
 int QMetaObject::numSignals( bool super ) const	// number of signals
 {
-    if ( !super )
-	return signalDict ? signalDict->count() : 0;
-    int n = 0;
-    register QMetaObject *meta = (QMetaObject *)this;
-    while ( meta ) {				// for all super classes...
-	if ( meta->signalDict )
-	    n += meta->signalDict->count();
-	meta = meta->superclass;
-    }
-    return n;
+    int n = signalDict ? signalDict->count() : 0;
+    if ( !super || !superclass )
+	return n;
+    return n + superclass->numSignals( super );
 }
 
-
-/*!  \internal
-  Returns the meta data of the slot with the name \a n or 0 if no
-  such slot exists.
-
-  If \a super is TRUE,  inherited slots are included.
- */
-QMetaData *QMetaObject::slot( const char *n, bool super ) const
-{
-    return mdata( SLOT_CODE, n, super );	// get slot meta data
-}
-
-/*!  \internal
-  Returns the meta data of the signal with the name \a n or 0 if no
-  such signal exists.
-
-  If \a super is TRUE, include inherited signals.
-
- */
-QMetaData *QMetaObject::signal( const char *n, bool super ) const
-{
-    return mdata( SIGNAL_CODE, n, super );	// get signal meta data
-}
 
 /*!  \internal
   Returns the meta data of the slot with index \a index or 0 if no
@@ -378,7 +311,12 @@ QMetaData *QMetaObject::signal( const char *n, bool super ) const
  */
 QMetaData *QMetaObject::slot( int index, bool super ) const
 {
-    return mdata( SLOT_CODE, index, super );	// get slot meta data
+    int idx = index - slotOffset();
+    if ( slotDict && idx >= 0 && idx < (int) slotDict->count() )
+	return slotData + idx;
+    if ( !super || !superclass )
+	return 0;
+    return superclass->slot( index, super );
 }
 
 /*!  \internal
@@ -389,9 +327,58 @@ QMetaData *QMetaObject::slot( int index, bool super ) const
  */
 QMetaData *QMetaObject::signal( int index, bool super ) const
 {
-    return mdata( SIGNAL_CODE, index, super );	// get signal meta data
+    int idx = index - signalOffset();
+    if ( signalDict && idx >= 0 && idx < (int) signalDict->count() )
+	return signalData + idx;
+    if ( !super || !superclass )
+	return 0;
+    return superclass->signal( index, super );
 }
 
+
+/*! \internal
+  \fn  int signalOffset() const;
+  
+  Returns the signal offset for this metaobject.
+  
+*/
+
+/*! \internal
+  Returns the index of the signal with name \n or -1 if no such signal exists.
+
+  If  \a super is TRUE, inherited signals are included.
+ */
+int QMetaObject::findSignal( const char* n, bool super ) const
+{
+    QMetaData *md = signalDict ? signalDict->find( n ) : 0;
+    if ( md ) 
+	return signalOffset() + ( md - signalData );
+    if ( !super || !superclass) 
+	return -1;
+    return superclass->findSignal( n, super );
+}
+
+/*! \internal
+  \fn  int slotOffset() const;
+  
+  Returns the slot offset for this metaobject.
+  
+*/
+
+/*! \internal
+  Returns the index of the slot with name \n or -1 if no such slot exists.
+
+  If  \a super is TRUE, inherited slots are included.
+ */
+int QMetaObject::findSlot( const char* n, bool super ) const
+{
+    QMetaData *md = slotDict ? slotDict->find( n ) : 0;
+    if ( md ) 
+	return slotOffset() + ( md - slotData );
+    if ( !super || !superclass) 
+	return -1;
+    return superclass->findSlot( n, super );
+}
 
 /*!\internal
  */
@@ -416,75 +403,11 @@ QMetaObject *QMetaObject::new_metaobject( const char *classname,
 
 /*!\internal
  */
-QMetaObject *QMetaObject::new_metaobject( const char *classname,
-					  const char *superclassname,
-					  QMetaData *slot_data,	int n_slots,
-					  QMetaData *signal_data,int n_signals)
-{
-    return new QMetaObject( classname, superclassname, slot_data, n_slots,
-			    signal_data, n_signals );
-}
-
-/*!\internal
- */
 QMetaData *QMetaObject::new_metadata( int numEntries )
 {
     return numEntries > 0 ? new QMetaData[numEntries] : 0;
 }
 
-/*!\internal
-  
-  Binary compatibility workaround, removed in 3.0 ###
- */
-QMetaData::Access *QMetaObject::new_metaaccess( int numEntries )
-{
-    return numEntries > 0 ? new QMetaData::Access[numEntries] : 0;
-}
-
-/*!\internal
-  
-  Binary compatibility workaround, removed in 3.0 ###
- */
-void QMetaObject::set_slot_access( QMetaData::Access* access )
-{
-    d->slotAccess = access;
-}
-
-/*!\internal
-  
-  Binary compatibility workaround, removed in 3.0 ###
- */
-QMetaData::Access QMetaObject::slot_access(int index, bool super )
-{
-    register QMetaObject *meta = (QMetaObject *)this;
-    QMetaData::Access *md;
-    QMemberDict *dict;
-    while ( TRUE ) {
-	dict = meta->slotDict;
-	int n = dict ? dict->count() : 0;
-	if ( super ) {
-	    if ( index >= n ) {			// try the superclass
-		index -= n;
-		meta = meta->superclass;
-		if ( !meta )			// there is no superclass
-		    return QMetaData::Private;
-		continue;
-	    }
-	}
-	if ( index >= 0 && index < n ) {
-	    md = meta->d->slotAccess;
-	    if ( md )
-		return md[n-index-1];
-	    else
-		return QMetaData::Private;
-	} else {				// bad index
-	    return QMetaData::Private;
-	}
-    }
-#if !defined(Q_NO_DEAD_CODE)
-    return QMetaData::Private;
-#endif
-}
 
 #ifndef QT_NO_PROPERTIES
 /*!\internal
@@ -531,76 +454,6 @@ QMemberDict *QMetaObject::init( QMetaData *data, int n )
     }
     return dict;
 }
-
-
-/*!\internal
- */
-QMetaData *QMetaObject::mdata( int code, const char *name, bool super ) const
-{
-    QMetaObject *meta = (QMetaObject *)this;
-    QMemberDict *dict;
-    while ( TRUE ) {
-	switch ( code ) {			// find member
-	case SLOT_CODE:   dict = meta->slotDict;   break;
-	case SIGNAL_CODE: dict = meta->signalDict; break;
-	default:	      return 0;		// should not happen
-	}
-
-	if ( dict ) {
-	    QMetaData *md = dict->find(name);
-	    if ( md )
-		return md;
-	}
-	if ( super && meta->superclass )	// try for super class
-	    meta = meta->superclass;
-	else					// not found
-	    return 0;
-    }
-#if !defined(Q_NO_DEAD_CODE)
-    return 0;
-#endif
-}
-
-/*!\internal
- */
-QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
-{
-    register QMetaObject *meta = (QMetaObject *)this;
-    QMetaData *md;
-    QMemberDict *dict;
-    while ( TRUE ) {
-	switch ( code ) {			// find member
-	case SLOT_CODE:   dict = meta->slotDict;   break;
-	case SIGNAL_CODE: dict = meta->signalDict; break;
-	default:	      return 0;		// should not happen
-	}
-	int n = dict ? dict->count() : 0;
-	if ( super ) {
-	    if ( index >= n ) {			// try the superclass
-		index -= n;
-		meta = meta->superclass;
-		if ( !meta )			// there is no superclass
-		    return 0;
-		continue;
-	    }
-	}
-	if ( index >= 0 && index < n ) {
-	    switch ( code ) {			// find member
-	    case SLOT_CODE:	  md = meta->slotData;	break;
-	    case SIGNAL_CODE: md = meta->signalData; break;
-	    default:	  md = 0;	// eliminates compiler warning
-	    }
-	    if ( md )
-		return &(md[n-index-1]);
-	} else {				// bad index
-	    return 0;
-	}
-    }
-#if !defined(Q_NO_DEAD_CODE)
-    return 0;
-#endif
-}
-
 
 /*!
   Returns the number of class information available for this class.

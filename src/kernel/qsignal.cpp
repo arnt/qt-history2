@@ -113,8 +113,6 @@ QMetaObject *QSignal::metaObj = 0;
 QSignal::QSignal( QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    if ( !metaObj )				// will create object dict
-	initMetaObject();
     isSignal = TRUE;
     d = 0;
     val = 0;
@@ -204,7 +202,7 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 */
 void  QSignal::activate()
 {
-    activate_signal("x(int)", val );
+    activate_signal( metaObject()->signalOffset(), val );
 }
 
 
@@ -231,15 +229,6 @@ void QSignal::dummy(int)				// just for the meta object
 #endif
 }
 
-void QSignal::initMetaObject()			// initialize meta object
-{
-    if ( metaObj )
-	return;
-    if ( qstrcmp(QObject::className(), "QObject") != 0 )
-	badSuperclassWarning("QWidget","QObject");
-    (void)staticMetaObject();
-}
-
 QMetaObject* QSignal::staticMetaObject()
 {
     if ( metaObj )
@@ -251,9 +240,15 @@ QMetaObject* QSignal::staticMetaObject()
     QMetaData *signal_tbl = QMetaObject::new_metadata(1);
     signal_tbl[0].name = "x(int)";
     signal_tbl[0].ptr = *((QMember*)&v2_0);
+    signal_tbl[0].access = QMetaData::Public;
     metaObj = QMetaObject::new_metaobject(
 	"QSignal", "QObject",
 	0, 0,
-	signal_tbl, 1 );
+	signal_tbl, 1,
+#ifndef QT_NO_PROPERTIES
+	0, 0,
+	0, 0,
+#endif // QT_NO_PROPERTIES
+	0, 0);
     return metaObj;
 }

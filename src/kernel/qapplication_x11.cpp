@@ -2655,8 +2655,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	qt_x_time = event->xproperty.time;
 	if ( event->xproperty.window == appRootWin ) { // root properties
 	    if ( event->xproperty.atom == qt_selection_sentinel ) {
-		if (clipboard()->receivers(SIGNAL(dataChanged())) &&
-		    qt_check_selection_sentinel( event ) )
+		if (qt_check_selection_sentinel( event ) )
 		    emit clipboard()->dataChanged();
 	    } else if ( obey_desktop_settings ) {
 		if ( event->xproperty.atom == qt_resource_manager )

@@ -320,7 +320,7 @@ static void remove_tree( QObject* obj )
 QObject::QObject( QObject *parent, const char *name )
 {
     if ( !objectDict )				// will create object dict
-	initMetaObject();
+	(void) staticMetaObject();
     objname       = name ? qstrdup(name) : 0;   // set object name
     childObjects  = 0;				// no children yet
     connections   = 0;				// no connections yet
@@ -394,10 +394,10 @@ QObject::~QObject()
 	delete tmp;
     }
     if ( connections ) {			// disconnect receivers
-	QSignalDictIt it(*connections);
-	QConnectionList *clist;
-	while ( (clist=it.current()) ) {	// for each signal...
-	    ++it;
+	for ( int i = 0; i < (int) connections->size(); i++ ) {
+	    QConnectionList* clist = (*connections)[i]; // for each signal...
+	    if ( !clist )
+		continue;
 	    register QConnection *c;
 	    QConnectionListIt cit(*clist);
 	    while( (c=cit.current()) ) {	// for each connected slot...
@@ -475,8 +475,7 @@ const char *QObject::className() const
 
 bool QObject::isA( const char *clname ) const
 {
-    QMetaObject *meta = queryMetaObject();
-    return meta ? qstrcmp(clname,meta->className()) == 0 : FALSE;
+    return qstrcmp(clname, className() ) == 0;
 }
 
 /*!
@@ -502,8 +501,7 @@ bool QObject::isA( const char *clname ) const
 
 bool QObject::inherits( const char *clname ) const
 {
-    QMetaObject *meta = queryMetaObject();
-    return meta? meta->inherits( clname ) : FALSE;
+    return metaObject()->inherits( clname );
 }
 
 /*!
@@ -732,6 +730,7 @@ bool QObject::activate_filters( QEvent *e )
     }
     return FALSE;				// don't do anything with it
 }
+
 
 /*!
   \fn bool QObject::signalsBlocked() const
@@ -994,16 +993,30 @@ QObjectList *QObject::queryList( const char *inheritsClass,
   This function is for internal use.
 */
 
-QConnectionList *QObject::receivers( const char *signal ) const
+QConnectionList *QObject::receivers( const char* signal ) const
 {
     if ( connections && signal ) {
 	if ( *signal == '2' ) {			// tag == 2, i.e. signal
 	    QCString s = qt_rmWS( signal+1 );
-	    return connections->find( (const char*)s );
+	    return receivers( metaObject()->findSignal( (const char*)s, TRUE ) );
 	} else {
-	    return connections->find( signal );
+	    return receivers( metaObject()->findSignal(signal, TRUE ) );
 	}
     }
+    return 0;
+}
+
+/*!
+  Returns a list of objects/slot pairs that are connected to the
+  signal, or 0 if nothing is connected to it.
+
+  This function is for internal use.
+*/
+
+QConnectionList *QObject::receivers( int signal ) const
+{
+    if ( connections && signal >= 0 )
+	return connections->at( signal );
     return 0;
 }
 
@@ -1253,8 +1266,12 @@ static void err_info_about_candidates( int code,
 	}
 	QMetaData *rm = 0;
 	switch ( code ) {
-	    case SLOT_CODE:   rm = mo->slot( newname, TRUE );	  break;
-	    case SIGNAL_CODE: rm = mo->signal( newname, TRUE ); break;
+	case SLOT_CODE:	  
+	    rm = mo->slot( mo->findSlot( newname, TRUE ), TRUE );   
+	    break;
+	case SIGNAL_CODE:
+	    rm = mo->signal( mo->findSignal( newname, TRUE ), TRUE );   
+	    break;
 	}
 	if ( rm ) {
 	    qWarning("QObject::%s:  Candidate: %s", func, newname.data());
@@ -1372,31 +1389,6 @@ QCString QObject::normalizeSignalSlot( const char *signalSlot )
 }
 
 
-/* tmake ignore Q_OBJECT */
-/* tmake ignore Q_OBJECT */
-
-/*!
-  Internal function, called from initMetaObject(). Used to emit a warning
-  when a class containing the macro Q_OBJECT inherits from a class that
-  does not contain it.
-*/
-
-void QObject::badSuperclassWarning( const char *className,
-				    const char *superclassName )
-{
-#if defined(CHECK_NULL)
-    qWarning(
-    "%s::initMetaObject(): Warning:\n"
-    "    The class \"%s\" contains the Q_OBJECT macro, but inherits from the\n"
-    "    \"%s\" class, which does not contain the Q_OBJECT macro.\n"
-    "    Signal/slot behavior is undefined.\n",
-    className, className,
-    superclassName );
-#else
-    Q_UNUSED( className )
-    Q_UNUSED( superclassName )
-#endif
-}
 
 /*!
   \overload bool QObject::connect( const QObject *sender, const char *signal, const char *member ) const
@@ -1481,17 +1473,17 @@ bool QObject::connect( const QObject *sender,	const char *signal,
     signal = signal_name;
     member = member_name;
 
-    QMetaObject *smeta = sender->queryMetaObject();
-    if ( !smeta )				// no meta object
-	return FALSE;
+    QMetaObject *smeta = sender->metaObject();
 
 #if defined(CHECK_RANGE)
     if ( !check_signal_macro( sender, signal, "connect", "bind" ) )
 	return FALSE;
 #endif
     signal++;					// skip member type code
-    QMetaData *sm;
-    if ( !(sm=smeta->signal(signal,TRUE)) ) {	// no such signal
+    
+    int signal_index = smeta->findSignal( signal, TRUE );
+    
+    if ( signal_index < 0  ) {	// no such signal
 #if defined(CHECK_RANGE)
 	err_member_notfound( SIGNAL_CODE, sender, signal, "connect" );
 	err_info_about_candidates( SIGNAL_CODE, smeta, signal, "connect" );
@@ -1499,6 +1491,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 #endif
 	return FALSE;
     }
+    QMetaData *sm = smeta->signal( signal_index, TRUE );
     signal = sm->name;				// use name from meta object
 
     int membcode = member[0] - '0';		// get member code
@@ -1511,15 +1504,19 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	return FALSE;
 #endif
     member++;					// skip code
+    
+    QMetaObject *rmeta = r->metaObject();
     QMetaData   *rm = 0;
-    QMetaObject *rmeta = r->queryMetaObject();
-    if ( !rmeta )				// no meta object
-	return FALSE;
+
     switch ( membcode ) {			// get receiver member
-	case SLOT_CODE:	  rm = rmeta->slot( member, TRUE );   break;
-	case SIGNAL_CODE: rm = rmeta->signal( member, TRUE ); break;
+	case SLOT_CODE:	  
+	    rm = rmeta->slot( rmeta->findSlot( member, TRUE ), TRUE );   
+	    break;
+	case SIGNAL_CODE:
+	    rm = rmeta->signal( rmeta->findSignal( member, TRUE ), TRUE );   
+	    break;
     }
-    if ( !rm ) {				// no such member
+    if ( !rm ) {
 #if defined(CHECK_RANGE)
 	err_member_notfound( membcode, r, member, "connect" );
 	err_info_about_candidates( membcode, rmeta, member, "connect" );
@@ -1535,16 +1532,17 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 		 r->className(), member );
 #endif
     if ( !s->connections ) {			// create connections dict
-	s->connections = new QSignalDict( 7, TRUE, FALSE );
+	s->connections = new QSignalVec( 7 );
 	CHECK_PTR( s->connections );
 	s->connections->setAutoDelete( TRUE );
     }
-    QConnectionList *clist = s->connections->find( signal );
+
+    QConnectionList *clist = s->connections->at( signal_index );
     if ( !clist ) {				// create receiver list
 	clist = new QConnectionList;
 	CHECK_PTR( clist );
 	clist->setAutoDelete( TRUE );
-	s->connections->insert( signal, clist );
+	s->connections->insert( signal_index, clist );
     }
     QConnection *c = new QConnection(r, rm->ptr, rm->name);
     CHECK_PTR( c );
@@ -1659,12 +1657,15 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	    return FALSE;
 #endif
 	member++;
-	QMetaObject *rmeta = r->queryMetaObject();
-	if ( !rmeta )				// no meta object
-	    return FALSE;
+	QMetaObject *rmeta = r->metaObject();
+	
 	switch ( membcode ) {			// get receiver member
-	    case SLOT_CODE:   rm = rmeta->slot( member, TRUE );	  break;
-	    case SIGNAL_CODE: rm = rmeta->signal( member, TRUE ); break;
+	    case SLOT_CODE:   
+		rm = rmeta->slot( rmeta->findSlot( member, TRUE ), TRUE );	  
+		break;
+	    case SIGNAL_CODE: 
+		rm = rmeta->signal( rmeta->findSignal( member, TRUE ), TRUE ); 
+		break;
 	}
 	if ( !rm ) {				// no such member
 #if defined(CHECK_RANGE)
@@ -1679,11 +1680,10 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
     QConnectionList *clist;
     register QConnection *c;
     if ( signal == 0 ) {			// any/all signals
-	QSignalDictIt it(*(s->connections));
-	while ( (clist=it.current()) ) {	// for all signals...
-	    // Tricky hack to avoid UTF conversion.
-	    const char *curkey = it.currentKey();
-	    ++it;
+	for ( int i = 0; i < (int) s->connections->size(); i++ ) {
+	    clist = (*s->connections)[i]; // for all signals...
+	    if ( !clist )
+		continue;
 	    c = clist->first();
 	    while ( c ) {			// for all receivers...
 		if ( r == 0 ) {			// remove all receivers
@@ -1700,12 +1700,10 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 		}
 	    }
 	    if ( r == 0 )			// disconnect all receivers
-		s->connections->remove( curkey );
+		s->connections->insert( i, 0 );
 	}
 	s->disconnectNotify( 0 );
-    }
-
-    else {					// specific signal
+    } else {					// specific signal
 	signal_name = qt_rmWS( signal );
 	signal = signal_name.data();
 #if defined(CHECK_RANGE)
@@ -1713,18 +1711,22 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	    return FALSE;
 #endif
 	signal++;
-	clist = s->connections->find( signal );
-	if ( !clist ) {
+ 	
+ 	QMetaObject *smeta = s->metaObject();
+ 	if ( !smeta )			// no meta object
+ 	    return FALSE;
+ 	int signal_index = smeta->findSignal( signal, TRUE );
+ 	if ( signal_index < 0 ) {
 #if defined(CHECK_RANGE)
-	    QMetaObject *smeta = s->queryMetaObject();
-	    if ( !smeta )			// no meta object
-		return FALSE;
-	    if ( !smeta->signal(signal,TRUE) )
-		qWarning( "QObject::disconnect: No such signal %s::%s",
-			 s->className(), signal );
+  		qWarning( "QObject::disconnect: No such signal %s::%s",
+  			 s->className(), signal );
 #endif
-	    return FALSE;
-	}
+ 		return FALSE;
+ 	}
+ 	clist = s->connections->at( signal_index );
+ 	if ( !clist )
+  	    return FALSE;
+ 	
 	c = clist->first();
 	while ( c ) {				// for all receivers...
 	    if ( r == 0 ) {			// remove all receivers
@@ -1740,7 +1742,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	    }
 	}
 	if ( r == 0 )				// disconnect all receivers
-	    s->connections->remove( signal );
+	    s->connections->insert( signal_index, 0 );
 	s->disconnectNotify( signal_name );
     }
     return TRUE;
@@ -1756,7 +1758,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 
 void QObject::destroyed()
 {
-    activate_signal( "destroyed()" );
+    activate_signal( 0 );
 }
 
 
@@ -1772,28 +1774,6 @@ void QObject::cleanupEventFilter()
 }
 
 
-/*!
-  \internal
-  Returns the meta object for this object. If necessary, calls
-  initMetaObject().
-  \sa metaObject()
-*/
-
-QMetaObject *QObject::queryMetaObject() const
-{
-    register QObject *x = (QObject *)this;	// fake const
-    QMetaObject *m = x->metaObject();
-    if ( !m ) {					// not meta object
-	x->initMetaObject();			//   then try to create it
-	m = x->metaObject();
-    }
-#if defined(CHECK_NULL)
-    if ( !m )					// still no meta object: error
-	qWarning( "QObject: Object %s::%s has no meta object",
-		 x->className(), x->name( "unnamed" ) );
-#endif
-    return m;
-}
 
 #ifndef QT_NO_TRANSLATION // Otherwise we have a simple inline version
 
@@ -1836,19 +1816,11 @@ QString QObject::tr( const char *text, const char * comment )
 
 #endif
 
+
 /*!
   Initializes the \link metaObject() meta object\endlink of this
   object. This method is automatically executed on demand.
   \sa metaObject()
-*/
-void QObject::initMetaObject()
-{
-    staticMetaObject();
-}
-
-
-/*!
-  The functionality of initMetaObject(), provided as a static function.
 */
 QMetaObject* QObject::staticMetaObject()
 {
@@ -1860,16 +1832,13 @@ QMetaObject* QObject::staticMetaObject()
     QMetaData *slot_tbl = new QMetaData[1];
     slot_tbl[0].name = "cleanupEventFilter()";
     slot_tbl[0].ptr = *((QMember*)&v1_0);
-
-    //### remove 3.0, replace with slot_tbl[0].access = QMetaData::Private;
-    QMetaData::Access *slot_tbl_access = new QMetaData::Access[1];
-    slot_tbl_access[0] = QMetaData::Private;
-
+    slot_tbl[0].access = QMetaData::Private;
     typedef void(QObject::*m2_t0)();
     m2_t0 v2_0 = &QObject::destroyed;
     QMetaData *signal_tbl = new QMetaData[1];
     signal_tbl[0].name = "destroyed()";
     signal_tbl[0].ptr = *((QMember*)&v2_0);
+    signal_tbl[0].access = QMetaData::Protected;
 #ifndef QT_NO_PROPERTIES
     QMetaProperty *props_tbl = new QMetaProperty[1];
     typedef const char*(QObject::*m3_t0)()const;
@@ -1932,7 +1901,6 @@ QMetaObject* QObject::staticMetaObject()
 	enum_tbl, 3,
 #endif
         0, 0 );
-    metaObj->set_slot_access( slot_tbl_access ); // ### remove 3.0
     return metaObj;
 }
 
@@ -1940,70 +1908,73 @@ QMetaObject* QObject::staticMetaObject()
   \internal
 
   Signal activation with the most frequently used parameter/argument
-  types.  All other combinations are generated by the meta object
-  compiler.
-*/
-void QObject::activate_signal( const char *signal )
+    types.  All other combinations are generated by the meta object
+    compiler.
+  */
+void QObject::activate_signal( int signal )
 {
-    if ( !connections )
-	return;
-    QConnectionList *clist = connections->find( signal );
-    if ( !clist || signalsBlocked() )
-	return;
+    if ( !connections || signalsBlocked() || signal < 0 )
+  	return;
+    QConnectionList *clist = connections->at( signal );
+    if ( !clist )
+  	return;
     typedef void (QObject::*RT)();
     RT r;
-    QConnectionListIt it(*clist);
     register QConnection *c;
     register QObject *object;
-    while ( (c=it.current()) ) {
-	++it;
-	object = c->object();
-	::sigSender = this;
-#ifdef Q_FP_CCAST_BROKEN
-	r = reinterpret_cast<RT>(*(c->member()));
-#else
-	r = (RT)*(c->member());
-#endif
-	(object->*r)();
+    if ( clist->count() == 1 ) {
+ 	c = clist->first();
+  	object = c->object();
+  	sigSender = this;
+  	r = (RT)*(c->member());
+  	(object->*r)();
+    } else {
+ 	QConnectionListIt it(*clist);
+ 	while ( (c=it.current()) ) {
+ 	    ++it;
+ 	    object = c->object();
+ 	    sigSender = this;
+ 	    r = (RT)*(c->member());
+ 	    (object->*r)();
+ 	}
     }
 }
 
 /*!
-  \overload void QObject::activate_signal( const char *signal, short )
+   \overload void QObject::activate_signal( int signal, short )
 */
 
 /*!
-  \overload void QObject::activate_signal( const char *signal, int )
+  \overload void QObject::activate_signal( int signal, int )
 */
 
 /*!
-  \overload void QObject::activate_signal( const char *signal, long )
+   \overload void QObject::activate_signal( int signal, long )
 */
 
 /*!
-  \overload void QObject::activate_signal( const char *signal, const char * )
+   \overload void QObject::activate_signal( int signal, const char * )
 */
 
 
 #define ACTIVATE_SIGNAL_WITH_PARAM(FNAME,TYPE)				      \
-void QObject::FNAME( const char *signal, TYPE param )			      \
+void QObject::FNAME( int signal, TYPE param )				      \
 {									      \
-    if ( !connections )							      \
-	return;								      \
-    QConnectionList *clist = connections->find( signal );		      \
-    if ( !clist || signalsBlocked() )					      \
+    if ( !connections || signalsBlocked() || signal < 0 )		      \
+ 	return;								      \
+    QConnectionList *clist = connections->at( signal );			      \
+    if ( !clist )						      	      \
 	return;								      \
     typedef void (QObject::*RT0)();					      \
     typedef void (QObject::*RT1)( TYPE );				      \
     RT0 r0;								      \
     RT1 r1;								      \
-    QConnectionListIt it(*clist);					      \
     register QConnection *c;						      \
     register QObject *object;						      \
-    while ( (c=it.current()) ) {					      \
-	++it;								      \
-	object = c->object();						      \
-	::sigSender = this;					      \
+    if ( clist->count() == 1 ) { 					      \
+	c = clist->first(); 						      \
+	object = c->object(); 						      \
+	sigSender = this;					      	      \
 	if ( c->numArgs() ) {						      \
 	    r1 = (RT1)*(c->member());					      \
 	    (object->*r1)( param );					      \
@@ -2011,7 +1982,21 @@ void QObject::FNAME( const char *signal, TYPE param )			      \
 	    r0 = (RT0)*(c->member());					      \
 	    (object->*r0)();						      \
 	}								      \
-    }									      \
+    } else { 								      \
+        QConnectionListIt it(*clist);					      \
+        while ( (c=it.current()) ) {					      \
+   	    ++it;							      \
+	    object = c->object();					      \
+	    sigSender = this;						      \
+	    if ( c->numArgs() ) {					      \
+	        r1 = (RT1)*(c->member());				      \
+	        (object->*r1)( param );					      \
+	    } else {							      \
+	        r0 = (RT0)*(c->member());				      \
+	        (object->*r0)();					      \
+	    }								      \
+        } 								      \
+    } 									      \
 }
 
 // We don't want to duplicate too much text so...
@@ -2023,19 +2008,6 @@ ACTIVATE_SIGNAL_WITH_PARAM( activate_signal, const char * )
 ACTIVATE_SIGNAL_WITH_PARAM( activate_signal_bool, bool )
 ACTIVATE_SIGNAL_WITH_PARAM( activate_signal_string, QString )
 ACTIVATE_SIGNAL_WITH_PARAM( activate_signal_strref, const QString & )
-
-/*!
-  \fn void QObject::activate_signal_bool (const char * signal, bool)
-  \internal
-*/
-/*!
-  \fn void QObject::activate_signal_string (const char * signal, QString)
-  \internal
-*/
-/*!
-  \fn void QObject::activate_signal_strref (const char * signal, const QString & )
-  \internal
-*/
 
 
 /*****************************************************************************
@@ -2109,8 +2081,9 @@ void QObject::dumpObjectInfo()
 {
 #if defined(DEBUG)
     qDebug( "OBJECT %s::%s", className(), name( "unnamed" ) );
-    qDebug( "  SIGNALS OUT" );
     int n = 0;
+    /*
+    qDebug( "  SIGNALS OUT" );
     if ( connections ) {
 	QSignalDictIt it(*connections);
 	QConnectionList *clist;
@@ -2129,6 +2102,7 @@ void QObject::dumpObjectInfo()
     }
     if ( n == 0 )
 	qDebug( "\t<None>" );
+    */
     qDebug( "  SIGNALS IN" );
     n = 0;
     if ( senderObjects ) {
@@ -2239,9 +2213,8 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     typedef void (QObject::*ProtoSizePolicy)( QSizePolicy );
     typedef void (QObject::*RProtoSizePolicy)( const QSizePolicy& );
 
-    QMetaObject* meta = queryMetaObject();
-    if ( !meta )
-	return FALSE;
+    QMetaObject* meta = metaObject();
+
     const QMetaProperty* p = meta->property( name, TRUE );
     if ( !p || !p->writable() )
 	return FALSE;
@@ -2914,9 +2887,8 @@ QVariant QObject::property( const char *name ) const
     typedef const QSizePolicy* (QObject::*PProtoSizePolicy)() const;
     typedef const QSizePolicy& (QObject::*RProtoSizePolicy)() const;
 
-    QMetaObject* meta = queryMetaObject();
-    if ( !meta )
-	return value;
+    QMetaObject* meta = metaObject();
+
     const QMetaProperty* p = meta->property( name, TRUE );
     if ( !p )
 	return value;

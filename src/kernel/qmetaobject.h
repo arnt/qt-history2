@@ -80,7 +80,6 @@ public:
     const char*	name() const { return n; }	// name of the property
 
     bool writable() const;
-    bool writeable() const;			// ### remove in 3.0
     bool isValid() const;
 
     bool isSetType() const;
@@ -115,7 +114,7 @@ public:
 	UnresolvedDesignable = 0x00000010,
 	NotDesignable        = 0x00000020,
 	NotStored            = 0x00000040,
-	StdSet 	             = 0x00000080 
+	StdSet 	             = 0x00000080
     };
 
     bool testFlags( uint f ) const;
@@ -140,9 +139,6 @@ class Q_EXPORT QMetaObject			// meta object class
 public:
     QMetaObject( const char *class_name, const char *superclass_name,
 		 QMetaData *slot_data,	int n_slots,
-		 QMetaData *signal_data, int n_signals );
-    QMetaObject( const char *class_name, const char *superclass_name,
-		 QMetaData *slot_data,	int n_slots,
 		 QMetaData *signal_data, int n_signals,
 #ifndef QT_NO_PROPERTIES
 		 QMetaProperty *prop_data, int n_props,
@@ -163,14 +159,17 @@ public:
     int  	numSlots( bool super = FALSE ) const;
     int		numSignals( bool super = FALSE ) const;
 
+    int 		findSlot( const char *, bool super = FALSE ) const;
+    int 		findSignal( const char *, bool super = FALSE ) const;
+    
     QMetaData	*slot( int index, bool super = FALSE ) const;
     QMetaData	*signal( int index, bool super = FALSE ) const;
 
-    QMetaData	*slot( const char *, bool super = FALSE ) const;
-    QMetaData	*signal( const char *, bool super = FALSE ) const;
-
     QStrList	slotNames( bool super = FALSE ) const;
     QStrList	signalNames( bool super = FALSE ) const;
+    
+    int 		slotOffset() const;
+    int 		signalOffset() const;
 
     int		numClassInfo( bool super = FALSE ) const;
     QClassInfo 	*classInfo( int index, bool super = FALSE ) const;
@@ -193,13 +192,7 @@ public:
 					QMetaEnum *enum_data, int n_enums,
 #endif
 					QClassInfo * class_info, int n_info );
-    static QMetaObject	*new_metaobject( const char *, const char *,
-					QMetaData *, int,
-					QMetaData *, int );
     static QMetaData		*new_metadata( int );
-    static QMetaData::Access		*new_metaaccess( int ); // ### remove in 3.0
-    void set_slot_access( QMetaData::Access* ); 		// ### remove in 3.0
-    QMetaData::Access slot_access(int index, bool super = FALSE ); // ### remove in 3.0
     static QMetaEnum 		*new_metaenum( int );
     static QMetaEnum::Item 	*new_metaenum_item( int );
 #ifndef QT_NO_PROPERTIES
@@ -207,10 +200,9 @@ public:
 #endif
     static QClassInfo 		*new_classinfo( int );
 
+
 private:
     QMemberDict		*init( QMetaData *, int );
-    QMetaData		*mdata( int code, const char *, bool ) const;
-    QMetaData		*mdata( int code, int index, bool super ) const;
 
     const char		*classname;			// class name
     const char		*superclassname;		// super class name
@@ -222,6 +214,8 @@ private:
     QMetaData		*signalData;			// signal meta data
     QMemberDict 	*signalDict;			// signal dictionary
     QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;
+    int signaloffset;
+    int slotoffset;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -230,10 +224,14 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+inline int QMetaObject::slotOffset() const
+{ return slotoffset; }
+
+inline int QMetaObject::signalOffset() const
+{ return signaloffset; }
+
 #ifndef QT_NO_PROPERTIES
 inline bool QMetaProperty::writable() const
-{ return set != 0; }
-inline bool QMetaProperty::writeable() const
 { return set != 0; }
 inline bool QMetaProperty::testFlags( uint f ) const
 { return (flags & (uint)f) != (uint)0; }

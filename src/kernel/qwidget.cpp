@@ -772,8 +772,7 @@ QWidget::~QWidget()
 	    qApp->quit();
     } else if ( isTopLevel() && !isPopup() ) {
 	    hide();
-	    if ( qApp && qApp->receivers(SIGNAL(lastWindowClosed()))
-		 && noMoreToplevels() )
+	    if ( noMoreToplevels() )
 		emit qApp->lastWindowClosed();
     }
     if ( focusWidget() == this )
@@ -3399,7 +3398,7 @@ void QWidget::hide()
     if ( isTopLevel() && !isPopup() && parentWidget() && isActiveWindow() )
 	parentWidget()->setActiveWindow();	// Activate parent
 #endif
-    
+
     hideWindow();
 
     if ( !testWState(WState_Visible) ) {
@@ -3571,9 +3570,7 @@ bool QWidget::close( bool alsoDelete )
 	if ( accept ) {
 	    hide();
 	    if ( alsoDelete || testWFlags(WDestructiveClose) ) {
-		if ( checkLastWindowClosed
-		     && qApp->receivers(SIGNAL(lastWindowClosed()))
-		     && noMoreToplevels() )
+		if ( checkLastWindowClosed && noMoreToplevels() )
 		    emit qApp->lastWindowClosed();
 		if ( isMain )
 		    qApp->quit();
@@ -3583,9 +3580,7 @@ bool QWidget::close( bool alsoDelete )
 	}
     }
     if ( accept ) {	// last window closed?
-	if ( checkLastWindowClosed
-	     && qApp->receivers(SIGNAL(lastWindowClosed()))
-	     && noMoreToplevels() )
+	if ( checkLastWindowClosed && noMoreToplevels() )
 	    emit qApp->lastWindowClosed();
 	if ( isMain )
 	    qApp->quit();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#193 $
+** $Id: //depot/qt/main/src/moc/moc.y#194 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -311,7 +311,7 @@ int	   tmpYYStart;				// Used to store the lexers current mode
 int	   tmpYYStart2;				// Used to store the lexers current mode
 						// (if tmpYYStart is already used)
 
-const int  formatRevision = 9;			// moc output format revision
+const int  formatRevision = 10;			// moc output format revision
 
 %}
 
@@ -1844,32 +1844,13 @@ void generateFuncs( FuncList *list, char *functype, int num )
 
     }
 
-    //### remove 3.0
-    if ( qstrcmp( functype, "slot" )  == 0 ) {
-	if ( list->count() )
-	    fprintf(out,"    QMetaData::Access *%s_tbl_access = QMetaObject::new_metaaccess(%d);\n",
-		    functype, list->count() );
-	else
-	    fprintf(out,"    QMetaData::Access *%s_tbl_access = 0;\n",
-		    functype );
-    }
-
-
     for ( f=list->first(); f; f=list->next() ) {
 	fprintf( out, "    %s_tbl[%d].name = \"%s\";\n",
 		 functype, list->at(), (const char*)f->type );
 	fprintf( out, "    %s_tbl[%d].ptr = (QMember)v%d_%d;\n",
 		 functype, list->at(), num, list->at() );
-
-/* ### do this in 3.0:
 	fprintf( out, "    %s_tbl[%d].access = QMetaData::%s;\n",
 		 functype, list->at(), f->accessAsString() );
-
-### for now:
-*/
-	if ( qstrcmp( functype, "slot" ) == 0 )
-	    fprintf( out, "    %s_tbl_access[%d] = QMetaData::%s;\n",
-		     functype, list->at(), f->accessAsString() );
     }
 }
 
@@ -2468,7 +2449,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#193 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#194 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2543,17 +2524,6 @@ void generateClass()		      // generate C++ source code for a class
 //
     fprintf( out, "QMetaObject *%s::metaObj = 0;\n\n", (const char*)qualifiedClassName());
 
-//
-// Generate initMetaObject member function
-//
-    fprintf( out, "void %s::initMetaObject()\n{\n", (const char*)qualifiedClassName() );
-    fprintf( out, "    if ( metaObj )\n\treturn;\n" );
-    fprintf( out, "    if ( qstrcmp(%s::className(), \"%s\") != 0 )\n"
-	          "\tbadSuperclassWarning(\"%s\",\"%s\");\n",
-             (const char*)qualifiedSuperclassName(), (const char*)qualifiedSuperclassName(),
-             (const char*)qualifiedClassName(), (const char*)qualifiedSuperclassName() );
-    fprintf( out, "    (void) staticMetaObject();\n");
-    fprintf( out, "}\n\n");
 
 //
 // Generate tr member function ### 3.0 one function
@@ -2637,9 +2607,6 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "\t0, 0 );\n" );
 
 
-    //### remove 3.0
-    fprintf( out, "    metaObj->set_slot_access( slot_tbl_access );\n" );
-
 //
 // Finish property array in staticMetaObject()
 //
@@ -2651,12 +2618,14 @@ void generateClass()		      // generate C++ source code for a class
 // End of function staticMetaObject()
 //
 
+
 //
 // Generate internal signal functions
 //
     Function *f;
     f = signals.first();			// make internal signal methods
     static bool included_list_stuff = FALSE;
+    int sigindex = 0;
     while ( f ) {
 	QCString typstr = "";			// type string
 	QCString valstr = "";			// value string
@@ -2723,8 +2692,8 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, " %s )\n{\n", (const char*)argstr );
 
 	if ( predef_call_func ) {
-	    fprintf( out, "    %s( \"%s(%s)\"", predef_call_func,
-		     (const char*)f->name, (const char*)typstr );
+	    fprintf( out, "    %s( staticMetaObject()->signalOffset() + %d",
+		     predef_call_func, sigindex++ );
 	    if ( !valstr.isEmpty() )
 		fprintf( out, ", %s", (const char*)valstr );
 	    fprintf( out, " );\n}\n" );
@@ -2732,13 +2701,13 @@ void generateClass()		      // generate C++ source code for a class
 	    continue;
 	}
 
-
 	fprintf( out,"    // No builtin function for signal parameter type %s\n",
 		 (const char*)typstr );
 	int nargs = f->args->count();
-	fprintf( out, "    QConnectionList *clist = receivers(\"%s(%s)\");\n",
-		 (const char*)f->name, (const char*)typstr );
-	fprintf( out, "    if ( !clist || signalsBlocked() )\n\treturn;\n" );
+	fprintf( out, "    if ( signalsBlocked() )\n\treturn;\n" );
+	fprintf( out, "    QConnectionList *clist = receivers( staticMetaObject()->signalOffset() + %d );\n",
+		 sigindex++ );
+	fprintf( out, "    if ( !clist )\n\treturn;\n" );
 	if ( nargs ) {
 	    for ( i=0; i<=nargs; i++ ) {
 		fprintf( out, "    typedef void (QObject::*RT%d)(%s);\n",
@@ -2754,9 +2723,9 @@ void generateClass()		      // generate C++ source code for a class
 	} else {
 	    fprintf( out, "    RT r;\n" );
 	}
-	fprintf( out, "    QConnectionListIt it(*clist);\n" );
 	fprintf( out, "    QConnection   *c;\n" );
 	fprintf( out, "    QSenderObject *object;\n" );
+	fprintf( out, "    QConnectionListIt it(*clist);\n" );
 	fprintf( out, "    while ( (c=it.current()) ) {\n" );
 	fprintf( out, "\t++it;\n" );
 	fprintf( out, "\tobject = (QSenderObject*)c->object();\n" );
