@@ -1361,15 +1361,22 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 p->setMatrix(m, true);
             }
             if (selected) {
-                tr.setBottom(tr.bottom() - pixelMetric(QStyle::PM_TabBarTabShiftVertical,
-                             tab, widget));
-                tr.setRight(tr.right() - pixelMetric(QStyle::PM_TabBarTabShiftHorizontal,
-                            tab, widget));
+                tr.setBottom(tr.bottom() - pixelMetric(QStyle::PM_TabBarTabShiftVertical, tab,
+                                                       widget));
+                tr.setRight(tr.right() - pixelMetric(QStyle::PM_TabBarTabShiftHorizontal, tab,
+                                                     widget));
             }
 
             int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
             if (!styleHint(SH_UnderlineShortcut, opt, widget))
                 alignment |= Qt::TextHideMnemonic;
+            if (!tab->icon.isNull()) {
+                QPixmap tabIcon = tab->icon.pixmap(Qt::SmallIconSize,
+                                                   tab->state & Style_Enabled ? QIcon::Normal
+                                                                              : QIcon::Disabled);
+                p->drawPixmap(tr.left() + 6, tr.center().y() - tabIcon.height() / 2, tabIcon);
+                tr.setLeft(tr.left() + tabIcon.width() + 4);
+            }
             drawItem(p, tr, alignment, tab->palette, tab->state & Style_Enabled, tab->text);
             
             if (verticalTabs)

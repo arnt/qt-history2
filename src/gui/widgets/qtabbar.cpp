@@ -289,20 +289,36 @@ void QTabBarPrivate::layoutTabs()
     bool vertTabs = verticalTabs(shape);
     if (!vertTabs) {
         int x = 0;
-        for (int i = 0; i < tabList.count(); ++i) {
+        int maxHeight = 0;
+        int i;
+        for (i = 0; i < tabList.count(); ++i) {
             QSize sz = q->tabSizeHint(i);
             tabList[i].rect = QRect(x, 0, sz.width(), sz.height());
+            maxHeight = qMax(maxHeight, sz.height());
             x += sz.width();
         }
+        
+        // Go through the list again and make sure we have a consistent height
+        for (i = 0; i < tabList.count(); ++i)
+            tabList[i].rect.setHeight(maxHeight);
+
         last = x;
         available = size.width();
     } else {
         int y = 0;
-        for (int i = 0; i < tabList.count(); ++i) {
+        int i;
+        int maxWidth = 0;
+        for (i = 0; i < tabList.count(); ++i) {
             QSize sz = q->tabSizeHint(i);
             tabList[i].rect = QRect(0, y, sz.width(), sz.height());
+            maxWidth = qMax(0, sz.width());
             y += sz.height();
         }
+        
+        // Consistent width
+        for (i = 0; i < tabList.count(); ++i)
+            tabList[i].rect.setWidth(maxWidth);
+
         last = y;
         available = size.height();
     }
