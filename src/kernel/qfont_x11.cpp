@@ -2063,7 +2063,7 @@ int QFontMetrics::width(QChar ch) const
     }
     
     XCharStruct *xcs = charStr(qfs->codec, ((XFontStruct *) qfs->handle), ch, 0);
-    return xcs ? xcs->width : d->request.pointSize * 3 / 40;
+    return xcs ? xcs->width : 0;
 }
 
 
@@ -2093,7 +2093,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     }
 
     XCharStruct *xcs = charStr(qfs->codec, ((XFontStruct *) qfs->handle), str, pos);
-    return xcs ? xcs->width : d->request.pointSize * 3 / 40;
+    return xcs ? xcs->width : 0;
 }
 
 
