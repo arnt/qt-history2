@@ -103,3 +103,5 @@ TRANSLATIONS	= translations/demo_ar.ts \
 		  translations/demo_de.ts \
 		  translations/demo_fr.ts \
 		  translations/demo_iw.ts
+
+PRECOMPILED_HEADER = demo_pch.h
