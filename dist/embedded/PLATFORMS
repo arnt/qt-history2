@@ -6,13 +6,7 @@ Linux and gcc.
 
 Supported platforms and compilers:
 
-  generic       - Use g++ of host machine.
   x86           - Use g++ of host machine, add x86 options.
-  arm           - Use arm-linux-g++ as compiler.
-  mips          - Use mipsel-linux-g++ as compiler.
-  ipaq          - Use arm config, add iPAQ options (eg. touchpanel).
-  sharp         - Use arm config, add SHARP Zaurus options (eg. touchpanel).
-
 
 Compilation problems:
 
@@ -21,7 +15,7 @@ Compilation problems:
 
 Example:
 
-  ./configure -embedded arm -shared -debug
+  ./configure -embedded x86 -shared -debug
 
 Customization:
 
