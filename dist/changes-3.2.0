@@ -256,6 +256,16 @@ be opened from Qt Assistant.
 	This new QSqlCursor subclass provides browsing of general SQL
 	SELECT statements.
 
+- QSqlDatabase
+	Added overloaded tables() call which can return tables, views
+	and/or system tables.
+
+- QPSQLDriver
+	Calling tables() with no arguments will only return table names,
+	instead of table and view names as in Qt 3.1.
+	The new tables() call in QSqlDatabase can be used to get
+	table and/or view names.
+
 - QString
 	Added 64 bit support. Added the new functions: multiArg(),
 	reserve(), capacity(), squeeze(). Added case insensitive
