@@ -525,7 +525,7 @@ void QWidgetFactory::unpackByteArray( QDataStream& in, QByteArray& array )
 }
 
 void QWidgetFactory::unpackCString( const UibStrTable& strings, QDataStream& in,
-				    QCString& cstr )
+				    QByteArray& cstr )
 {
     Q_UINT32 n;
     unpackUInt32( in, n );

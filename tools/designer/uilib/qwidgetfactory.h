@@ -105,7 +105,7 @@ private:
     void unpackUInt32( QDataStream& in, Q_UINT32& n );
     void unpackByteArray( QDataStream& in, QByteArray& array );
     void unpackCString( const UibStrTable& strings, QDataStream& in,
-			QCString& cstr );
+			QByteArray& cstr );
     void unpackString( const UibStrTable& strings, QDataStream& in,
 		       QString& str );
     void unpackStringSplit( const UibStrTable& strings, QDataStream& in,
