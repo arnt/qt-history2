@@ -24,6 +24,7 @@ LIBS += -L../../lib \
     -luilib \
     -lsignalsloteditor \
     -lbuddyeditor \
+    -ltabordereditor \
     -ltaskmenu \
     -lshared \
     -lQtDesigner

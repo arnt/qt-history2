@@ -1,0 +1,30 @@
+TEMPLATE = lib
+CONFIG += qt
+CONFIG += staticlib
+QT += xml
+
+TARGET = tabordereditor
+DEFINES += QT_TABORDEREDITOR_LIBRARY
+
+DESTDIR = ../../../lib
+
+INCLUDEPATH += ../../lib/sdk \
+    ../../shared \
+    ../../uilib \
+    ../../lib/extension \
+    ../tabordereditor
+
+
+HEADERS += \
+    tabordereditor.h \
+    tabordereditor_plugin.h \
+    tabordereditor_tool.h \
+    tabordereditor_global.h
+
+SOURCES += \
+    tabordereditor.cpp \
+    tabordereditor_tool.cpp \
+    tabordereditor_plugin.cpp \
+    tabordereditor_instance.cpp
+
+include(../../sharedcomponents.pri)

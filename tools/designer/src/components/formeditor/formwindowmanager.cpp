@@ -175,7 +175,7 @@ void FormWindowManager::addFormWindow(AbstractFormWindow *w)
 
     connect(formWindow, SIGNAL(selectionChanged()), this, SLOT(slotUpdateActions()));
     connect(formWindow->commandHistory(), SIGNAL(commandExecuted()), this, SLOT(slotUpdateActions()));
-    connect(formWindow, SIGNAL(editModeChanged(AbstractFormWindow::EditMode)), this, SLOT(slotUpdateActions()));
+    connect(formWindow, SIGNAL(toolChanged(int)), this, SLOT(slotUpdateActions()));
 
     m_formWindows.append(formWindow);
     emit formWindowAdded(formWindow);

@@ -7,6 +7,7 @@ SUBDIRS = propertyeditor \
     formeditor \
     widgetbox \
     buddyeditor \
-    taskmenu
+    taskmenu \
+    tabordereditor
 
 

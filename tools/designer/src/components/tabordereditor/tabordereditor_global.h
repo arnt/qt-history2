@@ -11,12 +11,19 @@
 **
 ****************************************************************************/
 
-#include <buddyeditor/buddyeditor_plugin.h>
-#include <signalsloteditor/signalsloteditor_plugin.h>
-#include <tabordereditor/tabordereditor_plugin.h>
+#ifndef TABORDEREDITOR_GLOBAL_H
+#define TABORDEREDITOR_GLOBAL_H
 
-#include <QtCore/qplugin.h>
+#include <qglobal.h>
 
-Q_IMPORT_PLUGIN(SignalSlotEditorPlugin)
-Q_IMPORT_PLUGIN(BuddyEditorPlugin)
-Q_IMPORT_PLUGIN(TabOrderEditorPlugin)
+#ifdef Q_OS_WIN
+#ifdef QT_TABORDEREDITOR_LIBRARY
+# define QT_TABORDEREDITOR_EXPORT
+#else
+# define QT_TABORDEREDITOR_EXPORT
+#endif
+#else
+#define QT_TABORDEREDITOR_EXPORT
+#endif
+
+#endif // TABORDEREDITOR_GLOBAL_H
