@@ -11,7 +11,7 @@ AnalogClock::AnalogClock(QWidget *parent)
     timer->start(5000);
 
     setWindowTitle(tr("Analog Clock"));
-    resize(100, 100);
+    resize(200, 200);
 }
 
 void AnalogClock::paintEvent(QPaintEvent *)
