@@ -1825,7 +1825,6 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
         QByteArray type;
         QByteArray prototype;
         QList<QByteArray> parameters;
-        int flags = 0;
         
         // parse function description
         BSTR bstrNames[256];
@@ -1859,10 +1858,8 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
         case INVOKE_PROPERTYGET: // property
         case INVOKE_PROPERTYPUT:
             if (funcdesc->cParams - funcdesc->cParamsOpt <= 1) {
-                flags = Readable;
-                if (funcdesc->invkind == INVOKE_PROPERTYGET)
-                    flags |= Readable;
-                else
+                int flags = Readable;
+                if (funcdesc->invkind != INVOKE_PROPERTYGET)
                     flags |= Writable;
                 if (!(funcdesc->wFuncFlags & FUNCFLAG_FNONBROWSABLE))
                     flags |= Designable;
@@ -1879,7 +1876,7 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
                 }
                 addProperty(type, function, flags);
 
-                if (funcdesc->cParams <= 1) {
+                if (funcdesc->cParams < 1) {
                     // don't generate slots for incomplete properties
                     if (type.isEmpty())
                         break;
@@ -2860,6 +2857,35 @@ int QAxBase::qt_metacall(QMetaObject::Call call, int id, void **v)
     return id;
 }
 
+#ifdef QT_CHECK_STATE
+static void qax_noSuchFunction(int disptype, const QByteArray &name, const QByteArray &function, const QAxBase *that)
+{
+    const QMetaObject *metaObject = that->metaObject();
+    const char *coclass = metaObject->classInfo(metaObject->indexOfClassInfo("CoClass")).value();
+
+    if (disptype == DISPATCH_METHOD) {
+        qWarning("QAxBase::dynamicCallHelper: %s: No such method in %s [%s]", name.data(), that->control().latin1(), coclass ? coclass: "unknown");
+        qWarning("\tCandidates are:");
+        for (int i = 0; i < metaObject->slotCount(); ++i) {
+            QByteArray signature = metaObject->slot(i).signature();
+            if (signature.toLower().startsWith(function.toLower()))
+                qWarning("\t\t%s", signature.data());
+        }
+    } else {
+        qWarning("QAxBase::dynamicCallHelper: %s: No such property in %s [%s]", name.data(), that->control().latin1(), coclass ? coclass: "unknown");
+        if (!function.isEmpty()) {
+            qWarning("\tCandidates are:");
+            char f0 = function.toLower().at(0);
+            for (int i = metaObject->propertyOffset(); i < metaObject->propertyCount(); ++i) {
+                QByteArray signature(metaObject->property(i).name());
+                if (!signature.isEmpty() && signature.toLower().at(0) == f0)
+                    qWarning("\t\t%s", signature.data());
+            }
+        }
+    }
+}
+#endif
+
 /*!
     \internal
 */
@@ -2953,6 +2979,11 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
             }
             
             varc = vars.count();
+        } else if (id < 0 && !function.toLower().startsWith("set")) {
+#ifdef QT_CHECK_STATE
+            qax_noSuchFunction(disptype, name, function, this);
+            qWarning("Searching type library...");
+#endif
         }
     } else {
         id = metaObject()->indexOfProperty(name);
@@ -3009,17 +3040,7 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
     
     if (dispid == DISPID_UNKNOWN) {
 #ifdef QT_CHECK_STATE
-        const char *coclass = metaObject()->classInfo(metaObject()->indexOfClassInfo("CoClass")).value();
-        qWarning("QAxBase::dynamicCallHelper: %s: No such method or property in %s [%s]", name.data(), control().latin1(),
-            coclass ? coclass: "unknown");
-        
-        if (disptype == DISPATCH_METHOD) {
-            for (int i = 0; i < metaObject()->slotCount(); ++i) {
-                QByteArray signature = metaObject()->slot(i).signature();
-                if (signature.startsWith(function))
-                    qWarning("\tDid you mean %s?", signature.data());
-            }
-        }
+        qax_noSuchFunction(disptype, name, function, this);
 #endif
         return false;
     }
