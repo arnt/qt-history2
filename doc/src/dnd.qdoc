@@ -24,6 +24,25 @@
 
     \tableofcontents
 
+    \section1 Configuration
+
+    The QApplication object provides some properties that are related
+    to drag and drop operations:
+
+    \list
+    \i \l{QApplication::startDragTime} describes the amount of time in
+       milliseconds that the user must hold down a mouse button over an
+       object before a drag will begin.
+    \i \l{QApplication::startDragDistance} indicates how far the user has to
+       move the mouse while holding down a mouse button before the movement
+       will be interpreted as dragging. Use of high values for this quantity
+       prevents accidental dragging when the user only meant to click on an
+       object.
+    \endlist
+
+    These quantities provide sensible default values for you to use if you
+    provide drag and drop support in your widgets.
+
     \section1 Dragging
 
     To start a drag, create a QDrag object, and call its
@@ -124,8 +143,9 @@
     If the target understands the \c LinkAction action, it should store its
     own reference to the original information; the source does not need to
     perform any further processing on the data. The most common use of drag
-    and drop actions is when performing a Move within the same widget: see
-    the \link #advanced Advanced Drag and Drop\endlink section below.
+    and drop actions is when performing a Move within the same widget: See
+    the section on \l{#DropActions}{Drop Actions} for more information about
+    this feature.
 
     The other major use of drag actions is when using a reference type
     such as text/uri-list, where the dragged data are actually references
@@ -160,156 +180,154 @@
     To support an additional media type, simply set the data in the QMimeData
     object with the \l{QMimeData::setData()}{setData()} function, supplying
     the full MIME type and a QByteArray containing the data in the appropriate
-    format.
+    format. The following code takes a pixmap from a label and stores it
+    as a Portable Network Graphics (PNG) file in a QMimeData object:
 
-    \omit
-    ### Include an example here.
-    \endomit
+    \quotefromfile snippets/separations/finalwidget.cpp
+    \skipto QByteArray output
+    \printuntil mimeData->setData
 
-    \section1 The Clipboard
+    Of course, for this case we could have simply used
+    \l{QMimeData::setPixmap()}{setPixmap()} instead, but the above code
+    provides more control over the image's data format.
 
-    The QDragObject, QDragEnterEvent, QDragMoveEvent, and QDropEvent
-    classes are all subclasses of QMimeSource: the class of objects which
-    provide typed information. If you base your data transfers on
-    QDragObject, you not only get drag and drop facilities, but you
-    also get traditional cut and paste. The QClipboard has two
-    functions:
-    \code
-        setData(QMimeSource*)
-        QMimeSource* data()const
-    \endcode
-    With these functions you can take the information related to
-    drag and drop operations, and trivially put it on the clipboard:
-    \code
-    void MyWidget::copy()
-    {
-        QApplication::clipboard()->setData(
-            new QTextDrag(myHighlightedText()));
-    }
-
-    void MyWidget::paste()
-    {
-        QString text;
-        if (QTextDrag::decode(QApplication::clipboard()->data(), text))
-            insertText(text);
-    }
-    \endcode
-    You can even use QDragObject subclasses as part of file IO. For
-    example, if your application has a subclass of QDragObject that
-    encodes CAD designs in DXF format, your saving and loading code might
-    be:
-    \code
-    void MyWidget::save()
-    {
-        QFile out(current_file_name);
-        if (out.open(IO_WriteOnly)) {
-            MyCadDrag tmp(current_design);
-            out.writeBlock(tmp->encodedData("image/x-dxf"));
-        }
-    }
-
-    void MyWidget::load()
-    {
-        QFile in(current_file_name);
-        if (in.open(IO_ReadOnly)) {
-            if (!MyCadDrag::decode(in.readAll(), current_design)) {
-                QMessageBox::warning(this, "Format error",
-                    tr("The file \"%1\" is not in any supported format")
-                    .arg(current_file_name));
-            }
-        }
-    }
-    \endcode
-    Note how the QDragObject subclass is called "MyCadDrag", not
-    "MyDxfDrag": because in the future you might extend it to provide
-    DXF, DWG, SVF, WMF, or even QPicture data to other applications.
-
-    \target advanced
-    \section1 Advanced Drag and Drop
+    \target DropActions
+    \section1 Drop Actions
 
     In the clipboard model, the user can \e cut or \e copy the source
     information, then later paste it. Similarly in the drag and drop
     model, the user can drag a \e copy of the information or they can drag
     the information itself to a new place (\e moving it). The
-    drag and drop model however has an additional complication for the
-    programmer: the program doesn't know whether the user wants to cut or
-    copy until the drop (paste) is done! For dragging between
-    applications, it makes no difference, but for dragging within an
-    application, the application must take a little extra care not to
-    tread on its own feet. For example, to drag text around in a document,
-    the drag start point and the drop event might look like this:
+    drag and drop model has an additional complication for the programmer:
+    The program doesn't know whether the user wants to cut or copy the
+    information until the operation is complete. This often makes no
+    difference when dragging information between applications, but within
+    an application it is important to check which drop action was used.
 
-    \code
-    void MyEditor::startDrag()
-    {
-        QDragObject *d = new QTextDrag(myHighlightedText(), this);
-        if (d->drag() && d->target() != this)
-            cutMyHighlightedText();
-    }
+    We can reimplement the mouseMoveEvent() for a widget, and start a drag
+    and drop operation with a combination of possible drop actions. For
+    example, we may want to ensure that dragging always moves objects in
+    the widget:
 
-    void MyEditor::dropEvent(QDropEvent* event)
-    {
-        QString text;
+    \quotefromfile snippets/draganddrop/dragwidget.cpp
+    \skipto mouseMoveEvent
+    \printuntil drag->start
+    \skipto ...
+    \printuntil ...
+    \skipto /^\}/
+    \printuntil /^\}/
 
-        if (QTextDrag::decode(event, text)) {
-            if (event->source() == this && event->action() == QDropEvent::Move) {
-                // Careful not to tread on my own feet
-                event->acceptAction();
-                moveMyHighlightedTextTo(event->pos());
-            } else {
-                pasteTextAt(text, event->pos());
-            }
-        }
-    }
-    \endcode
+    The action returned by the start() function may default to a
+    \c CopyAction if the information is dropped into another application
+    but, if it is dropped in another widget in the same application, we
+    may obtain a different drop action.
 
-    Some widgets are more specific than just a "yes" or "no" response when
-    data is dragged onto them. For example, a CAD program might only
-    accept drops of text onto text objects in the view. In these cases,
-    the \link QWidget::dragMoveEvent() dragMoveEvent()\endlink is used and
-    an \e area is given for which the drag is accepted or ignored:
-    \code
-    void MyWidget::dragMoveEvent(QDragMoveEvent* event)
-    {
-        if (QTextDrag::canDecode(event)) {
-            MyCadItem *item = findMyItemAt(event->pos());
-            if (item)
-                 event->accept();
-        }
-    }
-    \endcode
-    If the computations to find objects are particularly slow, you might
-    achieve improved performance if you tell the system an area for which
-    you promise the acceptance persists:
-    \code
-    void MyWidget::dragMoveEvent(QDragMoveEvent* event)
-    {
-        if (QTextDrag::canDecode(event)) {
-            MyCadItem* item = findMyItemAt(event->pos());
-            if (item) {
-                QRect r = item->areaRelativeToMeClippedByAnythingInTheWay();
-                if (item->type() == MyTextType)
-                    event->accept(r);
-                else
-                    event->ignore(r);
-            }
-        }
-    }
-    \endcode
+    The proposed drop actions can be filtered in a widget's dragMoveEvent()
+    function. However, it is possible to accept all proposed actions and
+    let the user decide which they want to accept later:
+
+    \quotefromfile snippets/draganddrop/dragwidget.cpp
+    \skipto dragMoveEvent
+    \printuntil /^\}/
+
+    When a drop occurs in the widget, the dropEvent() handler function is
+    called, and we can deal with each possible action in turn. First, we
+    deal with drag and drop operations within the same widget:
+
+    \quotefromfile snippets/draganddrop/dragwidget.cpp
+    \skipto dropEvent
+    \printuntil return
+
+    In this case, we refuse to deal with move operations. Each type of drop
+    action that we accept is checked and dealt with accordingly:
+
+    \skipto if
+    \printuntil Process the data
+    \skipto }
+    \printuntil Process the data
+    \skipto }
+    \printto End of quote
+    \skipto ...
+    \printuntil ...
+    \skipto /^\}/
+    \printuntil /^\}/
+
+    Note that we checked for individual drop actions in the above code. It is
+    often more helpful to check for the presence of each action in the value
+    supplied by possibleActions() and set the accepted action with the event's
+    setDropAction() function.
+
+    \section1 Drop Rectangles
+
+    The widget's dragMoveEvent() can be used to restrict drops to certain parts
+    of the widget by only accepting the proposed drop actions when the cursor
+    is within those areas. For example, the following code accepts any proposed
+    drop actions when the cursor is over a child widget (\c dropFrame):
+
+    \quotefromfile snippets/droprectangle/window.cpp
+    \skipto dragMoveEvent
+    \printuntil /^\}/
 
     The dragMoveEvent() can also be used if you need to give visual
-    feedback as the drag progresses, to start timers, to scroll the
-    window, or whatever is appropriate (don't forget to stop the scrolling
-    and timers in a dragLeaveEvent() though).
+    feedback during a drag and drop operation, to scroll the window, or
+    whatever is appropriate.
 
-    The QApplication object (available as the \c qApp global) also
-    provides some drag and drop related functions:
-    \l{QApplication::setStartDragTime()},
-    \l{QApplication::setStartDragDistance()}, and their corresponding
-    getters, \l{QApplication::startDragTime()} and
-    \l{QApplication::startDragDistance()}.
+    \section1 The Clipboard
 
-    \section1 Inter-Operating with Other Applications
+    Applications can also communicate with each other by putting data on
+    the clipboard. To access this, you need to obtain a QClipboard object
+    from the QApplication object:
+
+    \quotefromfile widgets/charactermap/mainwindow.cpp
+    \skipto QApplication::clipboard
+    \printuntil QApplication::clipboard
+
+    The QMimeData class is used to represent data that is transferred to and
+    from the clipboard. To put data on the clipboard, you can use the
+    setText(), setImage(), and setPixmap() convenience functions for common
+    data types. These functions are similar to those found in the QMimeData
+    class, except that they also take an additional argument that controls
+    where the data is stored: If \l{QClipboard::Mode}{Clipboard} is
+    specified, the data is placed on the clipboard; if
+    \l{QClipboard::Mode}{Selection} is specified, the data is placed in the
+    mouse selection (on X11 only). By default, data is put on the clipboard.
+
+    For example, we can copy the contents of a QLineEdit to the clipboard
+    with the following code:
+
+    \quotefromfile widgets/charactermap/mainwindow.cpp
+    \skipto clipboard->setText
+    \printuntil clipboard->setText
+
+    Data with different MIME types can also be put on the clipboard.
+    Construct a QMimeData object and set data with setData() function in
+    the way described in the previous section; this object can then be
+    put on the clipboard with the
+    \l{QClipboard::setMimeData()}{setMimeData()} function.
+
+    The QClipboard class can notify the application about changes to the
+    data it contains via its \l{QClipboard::dataChanged()}{dataChanged()}
+    signal. For example, we can monitor the clipboard by connecting this
+    signal to a slot in a widget:
+
+    \quotefromfile snippets/clipboard/clipwindow.cpp
+    \skipto connect(clipboard
+    \printuntil connect(clipboard
+
+    The slot connected to this signal can read the data on the clipboard
+    using one of the MIME types that can be used to represent it:
+
+    \skipto ClipWindow::updateClipboard
+    \printuntil data =
+    \skipto ...
+    \printuntil ...
+    \skipto /^\}/
+    \printuntil /^\}/
+
+    The \l{QClipboard::selectionChanged()}{selectionChanged()} signal can
+    be used on X11 to monitor the mouse selection.
+
+    \section1 Interoperating with Other Applications
 
     On X11, the public \l{http://www.newplanetsoftware.com/xdnd/}{XDND protocol}
     is used, while on Windows Qt uses the OLE standard, and Qt/Mac uses the
@@ -329,6 +347,7 @@
     and Trolltech. Here is the original copyright notice:
 
     \legalese
+    \code
 
     Copyright 1996 Daniel Dardailler.
 
@@ -344,6 +363,8 @@
 
     Modifications Copyright 1999 Matt Koss, under the same license as
     above.
+    \endcode
 
     \omit NOTE: The copyright notice is from qmotifdnd_x11.cpp. \endomit
+
 */
