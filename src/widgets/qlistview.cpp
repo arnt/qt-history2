@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#345 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#346 $
 **
 ** Implementation of QListView widget class
 **
@@ -461,15 +461,15 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after,
 }
 
 /*!
-  Resorts all child items of this item using the last
+  (Re)sorts all child items of this item using the last
   sorting configuration (sort column and direction)
 */
 
-void QListViewItem::resort()
+void QListViewItem::sort()
 {
     lsc = 9999; // ### some stupid value
     if ( firstChild() )
-	firstChild()->resort();
+	firstChild()->sort();
     if ( listView() ) {
 	sortChildItems( listView()->d->sortcolumn, listView()->d->ascending );
 	listView()->triggerUpdate();
@@ -3692,14 +3692,14 @@ void QListView::changeSortColumn( int column )
 }
 
 /*!
-  Resorts the listview using the last sorting configuration (sort column
+  (Re)sorts the listview using the last sorting configuration (sort column
   and ascending/descending)
 */
 
-void QListView::resort()
+void QListView::sort()
 {
     if ( d->r )
-	d->r->resort();
+	d->r->sort();
 }
 
 /*! Sets the advisory item margin which list items may use to \a m.
