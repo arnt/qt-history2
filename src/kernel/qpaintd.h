@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#24 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#25 $
 **
 ** Definition of QPaintDevice class
 **
@@ -32,8 +32,8 @@
 
 #define PDF_EXTDEV	0x10
 #define PDF_PAINTACTIVE 0x20
-#define PDF_FONTMET	0x30
-#define PDF_FONTINF	0x40
+#define PDF_FONTMET	0x40
+#define PDF_FONTINF	0x80
 
 
 // Painter device command param (defined in qpaintdc.h)
