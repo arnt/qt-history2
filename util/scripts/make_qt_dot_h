@@ -4,7 +4,22 @@ HEADERS=$( /bin/ls -l q*.h | egrep -v "$BOGUS" | awk '{ print $9 }' )
 HEADMARK='Q[A-Z][A-Z][A-Z]*_H'
 STARTMARK='#ifndef QT_H'
 ENDMARK='#endif \/\/ QT_H'
-echo "#define QT_H"
+echo "\
+/****************************************************************************
+**
+** Qt GUI Toolkit
+**
+** This header file efficiently includes all Qt GUI Toolkit functionality.
+**
+** Generated : $(date)
+**
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+#ifndef QT_H
+#define QT_H"
+TAIL="#endif"
 
 
 #grep "#define $HEADMARK" $HEADERS /dev/null |
@@ -38,7 +53,22 @@ BEGIN {
 }
 END {
     done=0
-    # Bubble sort...
+    # Bubble sort by name...
+    while (!done) {
+	done=1
+	for (i=2; i<N; i++) {
+	    for (j=1; j<i; j++) {
+		if (FILE[j] > FILE[i]) {
+		    t=FILE[i]
+		    FILE[i]=FILE[j]
+		    FILE[j]=t
+		    done=0
+		}
+	    }
+	}
+    }
+    done=0
+    # Bubble sort by dependency...
     while (!done) {
 	done=1
 	for (i=2; i<N; i++) {
@@ -83,3 +113,4 @@ q" | ed $i
 	fi
     done
 fi
+echo "$TAIL"
