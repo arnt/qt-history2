@@ -4,16 +4,18 @@
 #include <stdlib.h>
 
 Main::Main(QWidget* parent, const char* name, int f) :
-    QWidget(parent, name, f)
+    QWidget(parent, name, /*WStyle_Customize | WStyle_Tool |*/ WStyle_NoBorder)
 {
     QRegion rgn;
     for (int i=0; i<100; i++) {
-	int x=rand()%width();
-	int y=rand()%height();
-	int w=rand()%(width()-x);
-	int h=rand()%(height()-y);
+	const int outside=0;
+	int x=rand()%(width()+2*outside)-outside;
+	int y=rand()%(height()+2*outside)-outside;
+	int w=rand()%(width()-x+outside);
+	int h=rand()%(height()-y+outside);
 	rgn = rgn.unite(QRegion(x,y,w,h));
     }
+    //rgn = QRegion(0,0,width(),height());
     setMask(rgn);
 }
 
