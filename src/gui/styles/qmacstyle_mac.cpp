@@ -141,6 +141,7 @@ static inline ThemeTabDirection getTabDirection(QTabBar::Shape shape)
     case QTabBar::TriangularSouth:
         ttd = kThemeTabSouth;
         break;
+    default:  // Added to remove the warning, since all values are taken care of, really!
     case QTabBar::RoundedNorth:
     case QTabBar::TriangularNorth:
         ttd = kThemeTabNorth;
@@ -5143,6 +5144,34 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
                               const QWidget *w) const
 {
     switch (pe) {
+    case PE_FrameTabBarBase:
+        if (const QStyleOptionTabBarBase *tbb
+                = qstyleoption_cast<const QStyleOptionTabBarBase *>(opt)) {
+            QRegion region(tbb->rect);
+            region -= tbb->tabBarRect;
+            p->save();
+            p->setClipRegion(region);
+            QStyleOptionTabWidgetFrame twf;
+            twf.QStyleOption::operator=(*tbb);
+            twf.shape  = tbb->shape;
+            switch (getTabDirection(twf.shape)) {
+            case kThemeTabNorth:
+                twf.rect = twf.rect.adjusted(0, 0, 0, 10);
+                break;
+            case kThemeTabSouth:
+                twf.rect = twf.rect.adjusted(0, -10, 0, 0);
+                break;
+            case kThemeTabWest:
+                twf.rect = twf.rect.adjusted(0, 0, 10, 0);
+                break;
+            case kThemeTabEast:
+                twf.rect = twf.rect.adjusted(0, -10, 0, 0);
+                break;
+            }
+            drawPrimitive(PE_FrameTabWidget, &twf, p, w);
+            p->restore();
+        }
+        break;
     default:
         if (d->useHITheme)
             d->HIThemeDrawPrimitive(pe, opt, p, w);
