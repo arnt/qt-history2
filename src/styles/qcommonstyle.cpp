@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#43 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#44 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -152,28 +152,6 @@ void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool sel
 	p->drawPolygon( a );
 	p->setBrush( NoBrush );
     }
-#endif
-}
-
-
-/*! \reimp */
-QStyle::ScrollControl QCommonStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p )
-{
-#ifndef QT_NO_SCROLLBAR
-    if ( !sb->rect().contains( p ) )
-	return NoScroll;
-    int sliderMin, sliderMax, sliderLength, buttonDim, pos;
-    scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
-    pos = (sb->orientation() == QScrollBar::Horizontal)? p.x() : p.y();
-    if ( pos < sliderMin )
-	return SubLine;
-    if ( pos < sliderStart )
-	return SubPage;
-    if ( pos < sliderStart + sliderLength )
-	return Slider;
-    if ( pos < sliderMax + sliderLength )
-	return AddPage;
-    return AddLine;
 #endif
 }
 
@@ -487,7 +465,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 				  const QRect &r,
 				  const QColorGroup &cg,
 				  PFlags flags,
-				  void * ) const
+				  void *data ) const
 {
     switch (op) {
     case PO_ButtonCommand:
@@ -504,19 +482,19 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	p->drawRect(r);
 	p->setPen(oldPen);
 	break; }
-    
+
     case PO_SpinWidgetPlus:
     case PO_SpinWidgetMinus: {
 	p->save();
 	int fw = pixelMetric( PM_DefaultFrameWidth, 0 );
 	QRect br;
-	br.setRect( r.x() + fw, r.y() + fw, r.width() - fw*2, 
+	br.setRect( r.x() + fw, r.y() + fw, r.width() - fw*2,
 		    r.height() - fw*2 );
 
 	p->fillRect( br, cg.brush( QColorGroup::Button ) );
 	p->setPen( cg.buttonText() );
 	p->setBrush( cg.buttonText() );
-	
+
 	int length;
 	int x = r.x(), y = r.y(), w = r.width(), h = r.height();
 	if ( w <= 8 || h <= 6 )
@@ -531,7 +509,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 
 	p->drawLine( x + xmarg, ( y + h / 2 - 1 ),
 		     x + xmarg + length - 1, ( y + h / 2 - 1 ) );
-	if ( op == PO_SpinWidgetPlus )	    
+	if ( op == PO_SpinWidgetPlus )
 	    p->drawLine( ( x+w / 2 ) - 1, y + ymarg,
 			 ( x+w / 2 ) - 1, y + ymarg + length - 1 );
 	p->restore();
@@ -542,7 +520,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	p->save();
 	int fw = pixelMetric( PM_DefaultFrameWidth, 0 );
 	QRect br;
-	br.setRect( r.x() + fw, r.y() + fw, r.width() - fw*2, 
+	br.setRect( r.x() + fw, r.y() + fw, r.width() - fw*2,
 		    r.height() - fw*2 );
 	p->fillRect( br, cg.brush( QColorGroup::Button ) );
 	int x = r.x(), y = r.y(), w = r.width(), h = r.height();
@@ -574,7 +552,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	p->drawPolygon( a );
 	p->restore();
 	break; }
-    
+
     default:
 	break;
     }
@@ -602,11 +580,11 @@ void QCommonStyle::drawControl( ControlElement element,
 	if (button->isDown())
 	    flags |= PStyle_Sunken;
 
-	drawPrimitive(PO_ButtonCommand, p, r, cg, flags);
+	drawPrimitive(PO_ButtonCommand, p, r, cg, flags, data);
 
 	if (button->hasFocus())
 	    drawPrimitive(PO_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
-			  cg, flags);
+			  cg, flags, data);
 	break; }
 
     case CE_PushButtonLabel: {
@@ -626,7 +604,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	if (button->isMenuButton()) {
 	    int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
 	    QRect ar(ir.right() - mbi, ir.y() + 2, mbi - 4, ir.height() - 4);
-	    drawPrimitive(PO_ArrowDown, p, ar, cg, flags);
+	    drawPrimitive(PO_ArrowDown, p, ar, cg, flags, data);
 	    ir.setWidth(ir.width() - mbi);
 	}
 
@@ -654,7 +632,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	break; }
 
     case CE_PushButtonMask:
-	drawPrimitive(PO_ButtonCommand, p, r, cg, PStyle_Default);
+	drawPrimitive(PO_ButtonCommand, p, r, cg, PStyle_Default, data);
 	break;
     }
 }
@@ -715,7 +693,6 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 				       SCFlags subActive,
 				       void *data ) const
 {
-
 }
 
 
@@ -727,6 +704,8 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 					    SubControl sc,
 					    void *data ) const
 {
+    QRect rect;
+
     switch ( control ) {
 	case CC_SpinWidget: {
 	    if ( !w )
@@ -795,20 +774,133 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	break; }
 
 	default: break;
+
+    case CC_ScrollBar: {
+	if (! w)
+	    break;
+
+	QScrollBar *scrollbar = (QScrollBar *) w;
+	int sliderstart = 0;
+	int sbextent = pixelMetric(PM_ScrollBarExtent, w);
+	int maxlen = ((scrollbar->orientation() == Qt::Horizontal) ?
+		      scrollbar->width() : scrollbar->height()) - (sbextent * 2);
+	int sliderlen;
+	int sbstart;
+
+	if (data)
+	    sliderstart = *((int*) data);
+	else
+	    sliderstart = sbextent;
+
+	// calculate slider length
+	if (scrollbar->maxValue() != scrollbar->minValue()) {
+	    sliderlen = (scrollbar->pageStep() * maxlen)/
+			(scrollbar->maxValue() -
+			 scrollbar->minValue() +
+			 scrollbar->pageStep());
+
+	    uint range = scrollbar->maxValue() - scrollbar->minValue();
+	    if ( sliderlen < 9 || range > INT_MAX / 2 )
+		sliderlen = 9;
+	    if ( sliderlen > maxlen )
+		sliderlen = maxlen;
+	} else
+	    sliderlen = maxlen;
+
+	switch (sc) {
+	case SC_ScrollBarSubLine:
+	    // top/left button
+	    rect.setRect(0, 0, sbextent, sbextent);
+	    break;
+
+	case SC_ScrollBarAddLine:
+	    // bottom/right button
+	    if (scrollbar->orientation() == Qt::Horizontal)
+		rect.setRect(scrollbar->width() - sbextent, 0, sbextent, sbextent);
+	    else
+		rect.setRect(0, scrollbar->height() - sbextent, sbextent, sbextent);
+	    break;
+
+	case SC_ScrollBarSubPage:
+	    // between top/left button and slider
+	    if (scrollbar->orientation() == Qt::Horizontal)
+		rect.setRect(sbextent, 0, sliderstart - sbextent, sbextent);
+	    else
+		rect.setRect(0, sbextent, sbextent, sliderstart - sbextent);
+	    break;
+
+	case SC_ScrollBarAddPage:
+	    // between bottom/right button and slider
+	    if (scrollbar->orientation() == Qt::Horizontal)
+		rect.setRect(sliderstart + sliderlen, 0,
+			     maxlen - sliderstart - sliderlen + sbextent, sbextent);
+	    else
+		rect.setRect(0, sliderstart + sliderlen,
+			     sbextent, maxlen - sliderstart - sliderlen + sbextent);
+	    break;
+
+	case SC_ScrollBarGroove:
+	    if (scrollbar->orientation() == Qt::Horizontal)
+		rect.setRect(sbextent, 0, scrollbar->width() - sbextent * 2,
+			     scrollbar->height());
+	    else
+		rect.setRect(0, sbextent, scrollbar->width(),
+			     scrollbar->height() - sbextent * 2);
+	    break;
+
+	case SC_ScrollBarSlider:
+	    if (scrollbar->orientation() == Qt::Horizontal)
+		rect.setRect(sliderstart, 0, sliderlen, sbextent);
+	    else
+		rect.setRect(0, sliderstart, sbextent, sliderlen);
+
+	    break;
+
+	default:
+	    break;
+	}
+
+	break; }
+
+    default:
+	break;
     }
-    return QRect();
+
+    return rect;
 }
 
 
 /*!
   Returns the subcontrol in a complex control.
 */
-QCommonStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
-						       const QWidget *widget,
-						       const QPoint &pos,
-						       void *data ) const
+QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
+						 const QWidget *widget,
+						 const QPoint &pos,
+						 void *data ) const
 {
-    return SC_None;
+    SubControl ret = SC_None;
+
+    switch (control) {
+    case CC_ScrollBar: {
+	QRect r;
+	uint ctrl = SC_ScrollBarAddLine;
+
+	// we can do this because subcontrols were designed to be masks as well...
+	while (ret == SC_None && ctrl < SC_ScrollBarGroove) {
+	    r = querySubControlMetrics(control, widget, (QStyle::SubControl) ctrl, data);
+	    if (r.isValid() && r.contains(pos))
+		ret = (QStyle::SubControl) ctrl;
+
+	    ctrl <<= 1;
+	}
+
+	break; }
+
+    default:
+	break;
+    }
+
+    return ret;
 }
 
 
@@ -845,6 +937,14 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 2;
 	break;
 
+    case PM_ScrollBarExtent:
+	ret = 16;
+	break;
+
+    case PM_ScrollBarMaximumDragDistance:
+	ret = -1;
+	break;
+
     default:
 	ret = 0;
 	break;
@@ -865,7 +965,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
     QSize sz(contentsSize);
 
     switch (contents) {
-    case CT_PushButtonContents: {
+    case CT_PushButton: {
 	QPushButton *button = (QPushButton *) widget;
 	int w = contentsSize.width(),
 	    h = contentsSize.height(),
@@ -900,7 +1000,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget *, void **) const
     int ret;
 
     switch (sh) {
-    case SH_ScrollBarBackgroundMode:
+    case SH_ScrollBar_BackgroundMode:
 	ret = QWidget::PaletteBackground;
 	break;
 

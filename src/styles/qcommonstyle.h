@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.h#17 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.h#18 $
 **
 ** Definition of QCommonStyle class
 **
@@ -60,16 +60,16 @@ private:
 public:
     // ### 8< - Make it compile!
     QRect buttonRect( int x, int y, int w, int h ) const {
-	return QRect( x, y, w, h ); 
+	return QRect( x, y, w, h );
     }
     QRect pushButtonContentsRect( const QPushButton & b ) const {
-	return QRect( b.x(), b.y(), b.width(), b.height() ); 
+	return QRect( b.x(), b.y(), b.width(), b.height() );
     }
     int menuButtonIndicatorWidth( int h ) const {
-	return h; 
+	return h;
     }
     // ### 8<
-    
+
     virtual void drawPrimitive( PrimitiveOperation op,
 				QPainter *p,
 				const QRect &r,
@@ -127,9 +127,6 @@ public:
     // tabbars
     void tabbarMetrics( const QTabBar*, int&, int&, int& ) const;
     void drawTab( QPainter*, const QTabBar*, QTab*, bool selected );
-
-    // scrollbars
-    ScrollControl scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p );
 
     //menubars
     void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,

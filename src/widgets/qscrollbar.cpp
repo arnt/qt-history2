@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#184 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#185 $
 **
 ** Implementation of QScrollBar class
 **
@@ -239,7 +239,7 @@ void QScrollBar::init()
 {
     track = TRUE;
     sliderPos = 0;
-    pressedControl = QStyle::NoScroll;
+    pressedControl = QStyle::SC_None;
     clickedAt = FALSE;
     setFocusPolicy( NoFocus );
 
@@ -247,7 +247,7 @@ void QScrollBar::init()
     d = 0;
 
     setBackgroundMode((Qt::BackgroundMode)
-		      style().styleHint(QStyle::SH_ScrollBarBackgroundMode));
+		      style().styleHint(QStyle::SH_ScrollBar_BackgroundMode));
 
     if ( orient == Horizontal )
 	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
@@ -297,7 +297,7 @@ void QScrollBar::setOrientation( Orientation orientation )
 
 bool QScrollBar::draggingSlider() const
 {
-    return pressedControl == QStyle::Slider;
+    return pressedControl == QStyle::SC_ScrollBarSlider;
 }
 
 
@@ -311,7 +311,7 @@ void QScrollBar::setPalette( const QPalette &p )
 {
     QWidget::setPalette( p );
     setBackgroundMode((Qt::BackgroundMode)
-		      style().styleHint(QStyle::SH_ScrollBarBackgroundMode));
+		      style().styleHint(QStyle::SH_ScrollBar_BackgroundMode));
 }
 
 
@@ -320,12 +320,12 @@ void QScrollBar::setPalette( const QPalette &p )
 QSize QScrollBar::sizeHint() const
 {
     constPolish();
-    QSize sbextent = style().scrollBarExtent();
+    int sbextent = style().pixelMetric(QStyle::PM_ScrollBarExtent, this);
 
     if ( orient == Horizontal ) {
-	return QSize( 30, sbextent.height() );
+	return QSize( 30, sbextent );
     } else {
-	return QSize( sbextent.width(), 30 );
+	return QSize( sbextent, 30 );
     }
 }
 
@@ -340,8 +340,10 @@ void QScrollBar::valueChange()
     int tmp = sliderPos;
     positionSliderFromValue();
     if ( tmp != sliderPos )
-	drawControls( QStyle::AddPage | QStyle::Slider | QStyle::SubPage,
-		      pressedControl );
+	drawControls(QStyle::SC_ScrollBarAddPage |
+		     QStyle::SC_ScrollBarSubPage |
+		     QStyle::SC_ScrollBarSlider,
+		     pressedControl );
     emit valueChanged(value());
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     emit accessibilityChanged( QAccessible::ValueChanged );
@@ -366,9 +368,14 @@ void QScrollBar::stepChange()
 void QScrollBar::rangeChange()
 {
     positionSliderFromValue();
-    drawControls( QStyle::AddLine | QStyle::AddPage | QStyle::Slider |
-		  QStyle::SubPage | QStyle::SubLine | QStyle::First | QStyle::Last,
-		  pressedControl );
+    drawControls(QStyle::SC_ScrollBarAddLine |
+		 QStyle::SC_ScrollBarSubLine |
+		 QStyle::SC_ScrollBarAddPage |
+		 QStyle::SC_ScrollBarSubPage |
+		 QStyle::SC_ScrollBarFirst   |
+		 QStyle::SC_ScrollBarLast    |
+		 QStyle::SC_ScrollBarSlider,
+		 pressedControl );
 }
 
 
@@ -381,7 +388,7 @@ void QScrollBar::doAutoRepeat()
     if ( clickedAt ){
 	if ( repeater )
 	    repeater->changeInterval( repeatTime );
-	action( (QStyle::ScrollControl) pressedControl );
+	action( (QStyle::SubControl) pressedControl );
 	QApplication::syncX();
     } else {
 	stopAutoRepeat();
@@ -501,9 +508,14 @@ void QScrollBar::resizeEvent( QResizeEvent * )
 void QScrollBar::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    drawControls( QStyle::AddLine | QStyle::SubLine | QStyle::AddPage |
-		  QStyle::SubPage | QStyle::Slider | QStyle::First | QStyle::Last,
-		  pressedControl, &p );
+    drawControls(QStyle::SC_ScrollBarAddLine |
+		 QStyle::SC_ScrollBarSubLine |
+		 QStyle::SC_ScrollBarAddPage |
+		 QStyle::SC_ScrollBarSubPage |
+		 QStyle::SC_ScrollBarFirst   |
+		 QStyle::SC_ScrollBarLast    |
+		 QStyle::SC_ScrollBarSlider,
+		 pressedControl, &p );
 }
 
 static QCOORD sliderStartPos = 0;
@@ -512,8 +524,12 @@ static QCOORD sliderStartPos = 0;
 */
 void QScrollBar::mousePressEvent( QMouseEvent *e )
 {
+    bool midButtonAbsPos =
+	style().styleHint(QStyle::SH_ScrollBar_MiddleClickAbsolutePosition,
+			  this);
+
     if ( !(e->button() == LeftButton ||
-	   (/*style() == MotifStyle &&*/ e->button() == MidButton) ) )
+	   (midButtonAbsPos && e->button() == MidButton) ) )
 	return;
 
     if ( maxValue() == minValue() ) // nothing to be done
@@ -525,22 +541,34 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
     clickedAt	   = TRUE;
     pressedControl = pointOver( e->pos() );
 
-    if ( (pressedControl == QStyle::AddPage ||
-	  pressedControl == QStyle::SubPage ||
-	  pressedControl == QStyle::Slider ) &&
-	 /*style() == MotifStyle &&*/
-	 e->button() == MidButton ) {
-	int sliderMin, dummy2, dummy3, sliderLength;
-	metrics( sliderMin, dummy2, sliderLength, dummy3 );
+    if ( (pressedControl == QStyle::SC_ScrollBarAddPage ||
+	  pressedControl == QStyle::SC_ScrollBarSubPage ||
+	  pressedControl == QStyle::SC_ScrollBarSlider ) &&
+	 midButtonAbsPos && e->button() == MidButton ) {
+	QRect sr = style().querySubControlMetrics(QStyle::CC_ScrollBar, this,
+						  QStyle::SC_ScrollBarSlider,
+						  (void *) &sliderPos),
+	      gr = style().querySubControlMetrics(QStyle::CC_ScrollBar, this,
+						  QStyle::SC_ScrollBarGroove,
+						  (void *) &sliderPos);
+	int sliderMin, sliderLength;
+	if (HORIZONTAL) {
+	    sliderMin = gr.x();
+	    sliderLength = sr.width();
+	} else {
+	    sliderMin = gr.y();
+	    sliderLength = sr.height();
+	}
+
 	int newSliderPos = (HORIZONTAL ? e->pos().x() : e->pos().y())
 			   - sliderLength/2;
 	newSliderPos = QMAX( sliderMin, newSliderPos );
 	setValue( sliderPosToRangeValue(newSliderPos) );
 	sliderPos = newSliderPos;
-	pressedControl = QStyle::Slider;
+	pressedControl = QStyle::SC_ScrollBarSlider;
     }
 
-    if ( pressedControl == QStyle::Slider ) {
+    if ( pressedControl == QStyle::SC_ScrollBarSlider ) {
 	clickOffset = (QCOORD)( (HORIZONTAL ? e->pos().x() : e->pos().y())
 				- sliderPos );
 	slidePrevVal   = value();
@@ -550,9 +578,9 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	emit accessibilityChanged( QAccessible::ScrollingStart );
 #endif
-    } else if ( pressedControl != QStyle::NoScroll ) {
+    } else if ( pressedControl != QStyle::SC_None ) {
 	drawControls( pressedControl, pressedControl );
-	action( (QStyle::ScrollControl) pressedControl );
+	action( (QStyle::SubControl) pressedControl );
 	startAutoRepeat();
     }
 }
@@ -569,13 +597,13 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
     if ( e->stateAfter() ) // some other button is still pressed
 	return;
 
-    QStyle::ScrollControl tmp = (QStyle::ScrollControl) pressedControl;
+    QStyle::SubControl tmp = (QStyle::SubControl) pressedControl;
     clickedAt = FALSE;
     stopAutoRepeat();
     mouseMoveEvent( e );  // Might have moved since last mouse move event.
-    pressedControl = QStyle::NoScroll;
+    pressedControl = QStyle::SC_None;
 
-    if (tmp == QStyle::Slider) {
+    if (tmp == QStyle::SC_ScrollBarSlider) {
 	directSetValue( calculateValueFromSlider() );
 	emit sliderReleased();
 	if ( value() != prevValue() ) {
@@ -603,28 +631,45 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	return;
     }
 
-    if ( !clickedAt || !(e->state() & LeftButton ||
-			 ((e->state() & MidButton) /*&&
-			  style() == MotifStyle*/)) )
+    bool mcab = style().styleHint(QStyle::SH_ScrollBar_MiddleClickAbsolutePosition,
+				  this);
+    if ( ! clickedAt || ! (e->state() & LeftButton ||
+			   ((e->state() & MidButton) && mcab)))
 	return;
+
     int newSliderPos;
-    if ( pressedControl == QStyle::Slider ) {
-	int sliderMin, sliderMax;
-	sliderMinMax( sliderMin, sliderMax );
+    if ( pressedControl == QStyle::SC_ScrollBarSlider ) {
+	QRect gr = style().querySubControlMetrics(QStyle::CC_ScrollBar, this,
+						  QStyle::SC_ScrollBarGroove,
+						  (void *) &sliderPos);
+	QRect sr = style().querySubControlMetrics(QStyle::CC_ScrollBar, this,
+						  QStyle::SC_ScrollBarSlider,
+						  (void *) &sliderPos);
+	int sliderMin, sliderMax, sliderLength;
+
+	if (HORIZONTAL) {
+	    sliderLength = sr.width();
+	    sliderMin = gr.x();
+	    sliderMax = gr.right() - sliderLength + 1;
+	} else {
+	    sliderLength = sr.height();
+	    sliderMin = gr.y();
+	    sliderMax = gr.bottom() - sliderLength + 1;
+	}
+
 	QRect r = rect();
-	int m = style().maximumSliderDragDistance();
+	int m = style().pixelMetric(QStyle::PM_ScrollBarMaximumDragDistance, this);
 	if ( m >= 0 ) {
 	    if ( orientation() == Horizontal )
 		r.setRect( r.x() - m, r.y() - 2*m, r.width() + 2*m, r.height() + 4*m );
 	    else
 		r.setRect( r.x() - 2*m, r.y() - m, r.width() + 4*m, r.height() + 2*m );
-	    if ( style() == WindowsStyle && !r.contains( e->pos() ) )
+	    if (! r.contains( e->pos()))
 		newSliderPos = sliderStartPos;
 	    else
 		newSliderPos = (HORIZONTAL ? e->pos().x() :
 				e->pos().y()) -clickOffset;
-	}
-	else
+	} else
 	    newSliderPos = (HORIZONTAL ? e->pos().x() :
 			    e->pos().y()) -clickOffset;
 
@@ -646,18 +691,19 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	}
 	slidePrevVal = newVal;
 	sliderPos = (QCOORD)newSliderPos;
-	drawControls( QStyle::AddPage | QStyle::Slider | QStyle::SubPage,
+	drawControls( QStyle::SC_ScrollBarAddPage |
+		      QStyle::SC_ScrollBarSlider  |
+		      QStyle::SC_ScrollBarSubPage,
 		      pressedControl );
-    }
-    else if ( style() == WindowsStyle ) {
+    } else if (! style().styleHint(QStyle::SH_ScrollBar_ScrollWhenPointerLeavesControl)) {
 	// stop scrolling when the mouse pointer leaves a control
 	// similar to push buttons
 	if ( (int)pressedControl != pointOver( e->pos() ) ) {
-	    drawControls( pressedControl, QStyle::NoScroll );
+	    drawControls( pressedControl, QStyle::SC_None );
 	    stopAutoRepeat();
 	} else if ( !repeater ) {
 	    drawControls( pressedControl, pressedControl );
-	    action( (QStyle::ScrollControl) pressedControl );
+	    action( (QStyle::SubControl) pressedControl );
 	    startAutoRepeat();
 	}
     }
@@ -679,16 +725,9 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 
 QRect QScrollBar::sliderRect() const
 {
-    int sliderMin, sliderMax, sliderLength, buttonDim;
-    metrics( sliderMin, sliderMax, sliderLength, buttonDim );
-    int b = style() == MotifStyle ? MOTIF_BORDER : 0;
-
-    if ( HORIZONTAL )
-	return QRect( sliderStart(), b,
-		      sliderLength, height() - b*2 );
-    else
-	return QRect( b, sliderStart(),
-		      width() - b*2, sliderLength );
+    return style().querySubControlMetrics(QStyle::CC_ScrollBar, this,
+					  QStyle::SC_ScrollBarSlider,
+					  (void *) &sliderPos);
 }
 
 void QScrollBar::positionSliderFromValue()
@@ -701,70 +740,85 @@ int QScrollBar::calculateValueFromSlider() const
     return sliderPosToRangeValue( sliderPos );
 }
 
-
-void QScrollBar::sliderMinMax( int &sliderMin, int &sliderMax) const
+QStyle::SubControl QScrollBar::pointOver(const QPoint &p) const
 {
-    int dummy1, dummy2;
-    metrics( sliderMin, sliderMax, dummy1, dummy2 );
+    return style().querySubControl(QStyle::CC_ScrollBar, this, p, (void *) &sliderPos);
 }
-
-
-void QScrollBar::metrics( int &sliderMin, int &sliderMax,
-			  int &sliderLength, int& buttonDim ) const
-{
-
-    style().scrollBarMetrics( this, sliderMin, sliderMax, sliderLength, buttonDim);
-}
-
-
-QStyle::ScrollControl QScrollBar::pointOver(const QPoint &p) const
-{
-    return style().scrollBarPointOver(this, sliderStart(), p);
-}
-
 
 int QScrollBar::rangeValueToSliderPos( int v ) const
 {
-    int sliderMin, sliderMax;
-    sliderMinMax( sliderMin, sliderMax );
+    QRect gr = style().querySubControlMetrics(QStyle::CC_ScrollBar, this,
+					      QStyle::SC_ScrollBarGroove,
+					      (void *) &sliderPos);
+    QRect sr = style().querySubControlMetrics(QStyle::CC_ScrollBar, this,
+					      QStyle::SC_ScrollBarSlider,
+					      (void *) &sliderPos);
+    int sliderMin, sliderMax, sliderLength;
+
+    if (HORIZONTAL) {
+	sliderLength = sr.width();
+	sliderMin = gr.x();
+	sliderMax = gr.right() - sliderLength + 1;
+    } else {
+	sliderLength = sr.height();
+	sliderMin = gr.y();
+	sliderMax = gr.bottom() - sliderLength + 1;
+    }
+
     return positionFromValue( v, sliderMax-sliderMin ) + sliderMin;
 }
 
 int QScrollBar::sliderPosToRangeValue( int pos ) const
 {
-    int sliderMin, sliderMax;
-    sliderMinMax( sliderMin, sliderMax );
+    QRect gr = style().querySubControlMetrics(QStyle::CC_ScrollBar, this,
+					      QStyle::SC_ScrollBarGroove,
+					      (void *) &sliderPos);
+    QRect sr = style().querySubControlMetrics(QStyle::CC_ScrollBar, this,
+					      QStyle::SC_ScrollBarSlider,
+					      (void *) &sliderPos);
+    int sliderMin, sliderMax, sliderLength;
+
+    if (HORIZONTAL) {
+	sliderLength = sr.width();
+	sliderMin = gr.x();
+	sliderMax = gr.right() - sliderLength + 1;
+    } else {
+	sliderLength = sr.height();
+	sliderMin = gr.y();
+	sliderMax = gr.bottom() - sliderLength + 1;
+    }
+
     return  valueFromPosition( pos - sliderMin, sliderMax - sliderMin );
 }
 
 
-void QScrollBar::action( QStyle::ScrollControl control )
+void QScrollBar::action( QStyle::SubControl control )
 {
     switch( control ) {
-    case QStyle::AddLine:
+    case QStyle::SC_ScrollBarAddLine:
 	emit nextLine();
 	addLine();
 	break;
-    case QStyle::SubLine:
+    case QStyle::SC_ScrollBarSubLine:
 	emit prevLine();
 	subtractLine();
 	break;
-    case QStyle::AddPage:
+    case QStyle::SC_ScrollBarAddPage:
 	emit nextPage();
 	addPage();
 	break;
-    case QStyle::SubPage:
+    case QStyle::SC_ScrollBarSubPage:
 	emit prevPage();
 	subtractPage();
 	break;
-    case QStyle::First:
+    case QStyle::SC_ScrollBarFirst:
 	emit valueChanged( minValue() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	emit accessibilityChanged( QAccessible::ValueChanged );
 #endif
 	setValue( minValue() );
 	break;
-    case QStyle::Last:
+    case QStyle::SC_ScrollBarLast:
 	emit valueChanged( maxValue() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	emit accessibilityChanged( QAccessible::ValueChanged );
@@ -773,10 +827,9 @@ void QScrollBar::action( QStyle::ScrollControl control )
 	break;
     default:
 #if defined(QT_CHECK_RANGE)
-	    qWarning( "QScrollBar::action: (%s) internal error", name() );
-#else
-	    ;
+	qWarning( "QScrollBar::action: (%s) internal error", name() );
 #endif
+	break;
     }
 }
 
@@ -791,11 +844,11 @@ void QScrollBar::drawControls( uint controls, uint activeControl ) const
 void QScrollBar::drawControls( uint controls, uint activeControl,
 			       QPainter *p ) const
 {
-
-    style().drawScrollBarControls( p, this, sliderStart(), controls,
-				   activeControl);
-    return;
-
+    style().drawComplexControl(QStyle::CC_ScrollBar, p, this, rect(), colorGroup(),
+			       QStyle::CStyle_Default,
+			       (QStyle::SubControl) controls,
+			       (QStyle::SubControl) activeControl,
+			       (void *) &sliderPos);
 }
 
 /*!\reimp
@@ -804,7 +857,7 @@ void QScrollBar::styleChange( QStyle& old )
 {
     positionSliderFromValue();
     setBackgroundMode((Qt::BackgroundMode)
-		      style().styleHint(QStyle::SH_ScrollBarBackgroundMode));
+		      style().styleHint(QStyle::SH_ScrollBar_BackgroundMode));
     QWidget::styleChange( old );
 }
 

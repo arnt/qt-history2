@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#19 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#20 $
 **
 ** Definition of Windows-like style class
 **
@@ -151,11 +151,6 @@ public:
 
     void tabbarMetrics( const QTabBar*, int&, int&, int& ) const;
     void drawTab( QPainter*, const QTabBar*, QTab*, bool selected );
-
-    void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&) const;
-    void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart,
-                                uint controls, uint activeControl );
-
 
     int sliderLength() const;
     void drawSlider( QPainter *p,

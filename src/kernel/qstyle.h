@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#94 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#95 $
 **
 ** Definition of QStyle class
 **
@@ -107,7 +107,7 @@ public:
 	PO_ArrowDown,
 	PO_ArrowRight,
 	PO_ArrowLeft,
-	
+
 	PO_SpinWidgetUp,
 	PO_SpinWidgetDown,
 	PO_SpinWidgetPlus,
@@ -204,32 +204,30 @@ public:
 
     enum ComplexControl{
 	CC_SpinWidget,
-	CC_ComboBox
+	CC_ComboBox,
+	CC_ScrollBar
+
 	/*
-	  CC_ScrollBar,
 	  CC_Slider,
-	  CC_MenuItem, 
+	  CC_MenuItem,
 	*/
     };
 
     enum SubControl {
-	SC_None = 		0x00000000,
+	SC_None =			0x00000000,
 
-	/*
-	  ,
+	SC_ScrollBarAddLine =		0x00000001,
+	SC_ScrollBarSubLine =		0x00000002,
+	SC_ScrollBarAddPage =		0x00000004,
+	SC_ScrollBarSubPage =		0x00000008,
+	SC_ScrollBarFirst =		0x00000010,
+	SC_ScrollBarLast =		0x00000020,
+	SC_ScrollBarSlider =		0x00000040,
+	SC_ScrollBarGroove =		0x00000080,
 
-	  SC_ScrollBarAddLine = 	0x00000001,
-	  SC_ScrollBarSubLine = 	0x00000002,
-	  SC_ScrollBarAddPage = 	0x00000004,
-	  SC_ScrollBarSubPage = 	0x00000008,
-	  SC_ScrollBarFirst = 	0x00000010,
-	  SC_ScrollBarLast = 	0x00000020,
-	  SC_ScrollBarSlider = 	0x00000040,
-	  SC_ScrollBarNoScroll = 	0x00000080,
-	*/
-	SC_SpinWidgetUp = 		0x00000001,
-	SC_SpinWidgetDown = 		0x00000002,
-	SC_SpinWidgetFrame = 		0x00000004,
+	SC_SpinWidgetUp =		0x00000001,
+	SC_SpinWidgetDown =		0x00000002,
+	SC_SpinWidgetFrame =		0x00000004,
 	SC_SpinWidgetEditField =	0x00000008,
 	SC_SpinWidgetButtonField =	0x00000010,
 
@@ -239,11 +237,10 @@ public:
 	SC_ComboBoxFocusRect =	0x00000024
 
 	/*
-	  SC_MenuItemCheck =	0x00000001,
-	  SC_MenuItemLabel =	0x00000002,
-	  SC_MenuItemAccel =	0x00000004,
-	  SC_MenuItemSubMenu =	0x00000008,
-
+	  SC_MenuItemCheck =		0x00000001,
+	  SC_MenuItemLabel =		0x00000002,
+	  SC_MenuItemAccel =		0x00000004,
+	  SC_MenuItemSubMenu =		0x00000008,
 	*/
     };
     typedef uint SCFlags;
@@ -277,7 +274,10 @@ public:
 	PM_ButtonShiftVertical,
 
 	PM_DefaultFrameWidth,
-	PM_SpinBoxFrameWidth
+	PM_SpinBoxFrameWidth,
+
+	PM_ScrollBarExtent,
+	PM_ScrollBarMaximumDragDistance
 
 	/*
 	  PM_PopupFrameWidth,
@@ -308,7 +308,7 @@ public:
 
 
     enum ContentsType {
-	CT_PushButtonContents
+	CT_PushButton
     };
 
     virtual QSize sizeFromContents( ContentsType contents,
@@ -317,7 +317,9 @@ public:
 				    void *data = 0 ) const = 0;
 
     enum StyleHint  {
-	SH_ScrollBarBackgroundMode
+	SH_ScrollBar_BackgroundMode,
+	SH_ScrollBar_MiddleClickAbsolutePosition,
+	SH_ScrollBar_ScrollWhenPointerLeavesControl
 
 	/*
 	  FH_TabBarCentered
@@ -450,17 +452,16 @@ public:
 				      const QTabWidget * tw );
 
     // scrollbars
-    enum ScrollControl { AddLine = 0x1 , SubLine  = 0x2 , AddPage = 0x4,
-			 SubPage = 0x8 , First = 0x10, Last = 0x20,
-			 Slider  = 0x40, NoScroll = 0x80 };
-
+    enum ScrollControl { AddLine = 0x8001 , SubLine  = 0x8002 , AddPage = 0x8004,
+     			 SubPage = 0x8008 , First = 0x8010, Last = 0x8020,
+    			 Slider  = 0x8040, NoScroll = 0x8080 };
     virtual void scrollBarMetrics( const QScrollBar*,
-				   int&, int&, int&, int&) const = 0;
+     				   int&, int&, int&, int&) const;
     virtual void drawScrollBarControls( QPainter*,  const QScrollBar*,
-					int sliderStart, uint controls,
-					uint activeControl ) = 0;
+     					int sliderStart, uint controls,
+					uint activeControl );
     virtual ScrollControl scrollBarPointOver( const QScrollBar*,
-					      int sliderStart, const QPoint& ) = 0;
+ 					      int sliderStart, const QPoint& );
 
     // sliders
     virtual int sliderLength() const = 0;

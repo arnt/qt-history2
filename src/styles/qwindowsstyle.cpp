@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#52 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#53 $
 **
 ** Implementation of Windows-like style class
 **
@@ -129,7 +129,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
     switch (op) {
     case PO_ButtonCommand:
     case PO_ButtonBevel:
-	qDrawWinButton(p, r, cg, flags & PStyle_Sunken);
+	qDrawWinButton(p, r, cg, flags & PStyle_Sunken, &cg.brush(QColorGroup::Button));
 	break;
 
     case PO_FocusRect:
@@ -253,6 +253,10 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	ret = 1;
 	break;
 
+    case PM_ScrollBarMaximumDragDistance:
+	ret = 20;
+	break;
+
     default:
 	ret = QCommonStyle::pixelMetric(metric, widget);
 	break;
@@ -272,7 +276,7 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 {
     QSize sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, data);
 
-    if (contents == CT_PushButtonContents) {
+    if (contents == CT_PushButton) {
 	QPushButton *button = (QPushButton *) widget;
 	int w = sz.width(), h = sz.height();
 
@@ -721,163 +725,6 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
     } else {
         QCommonStyle::drawTab( p, tb, t, selected );
     }
-#endif
-}
-
-
-#define HORIZONTAL      (sb->orientation() == QScrollBar::Horizontal)
-#define VERTICAL        !HORIZONTAL
-#define WINDOWS_BORDER  2
-#define SLIDER_MIN      9 // ### wtf does this have to do with windows?
-
-/*!\reimp
- */
-void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb,
-                                      int &sliderMin, int &sliderMax,
-                                      int &sliderLength, int&buttonDim ) const
-{
-#ifndef QT_NO_SCROLLBAR
-    int maxLength;
-    int b = 0;
-    int length = HORIZONTAL ? sb->width()  : sb->height();
-    int extent = HORIZONTAL ? sb->height() : sb->width();
-
-    if ( length > ( extent - b*2 - 1 )*2 + b*2  )
-        buttonDim = extent - b*2;
-    else
-        buttonDim = ( length - b*2 )/2 - 1;
-
-    sliderMin = b + buttonDim;
-    maxLength  = length - b*2 - buttonDim*2;
-
-    if ( sb->maxValue() == sb->minValue() ) {
-        sliderLength = maxLength;
-    } else {
-        sliderLength = (sb->pageStep()*maxLength)/
-                        (sb->maxValue()-sb->minValue()+sb->pageStep());
-        uint range = sb->maxValue()-sb->minValue();
-        if ( sliderLength < SLIDER_MIN || range > INT_MAX/2 )
-            sliderLength = SLIDER_MIN;
-        if ( sliderLength > maxLength )
-            sliderLength = maxLength;
-    }
-    sliderMax = sliderMin + maxLength - sliderLength;
-#endif
-}
-
-
-/*!\reimp
- */
-void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
-{
-#ifndef QT_NO_SCROLLBAR
-#define ADD_LINE_ACTIVE ( activeControl == AddLine )
-#define SUB_LINE_ACTIVE ( activeControl == SubLine )
-    QColorGroup g  = sb->colorGroup();
-
-    int sliderMin, sliderMax, sliderLength, buttonDim;
-    scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
-
-    if (sliderStart > sliderMax) { // sanity check
-        sliderStart = sliderMax;
-    }
-
-    int b = 0;
-    int dimB = buttonDim;
-    QRect addB;
-    QRect subB;
-    QRect addPageR;
-    QRect subPageR;
-    QRect sliderR;
-    int addX, addY, subX, subY;
-    int length = HORIZONTAL ? sb->width()  : sb->height();
-    int extent = HORIZONTAL ? sb->height() : sb->width();
-
-    if ( HORIZONTAL ) {
-        subY = addY = ( extent - dimB ) / 2;
-        subX = b;
-        addX = length - dimB - b;
-    } else {
-        subX = addX = ( extent - dimB ) / 2;
-        subY = b;
-        addY = length - dimB - b;
-    }
-
-    subB.setRect( subX,subY,dimB,dimB );
-    addB.setRect( addX,addY,dimB,dimB );
-
-    int sliderEnd = sliderStart + sliderLength;
-    int sliderW = extent - b*2;
-    if ( HORIZONTAL ) {
-        subPageR.setRect( subB.right() + 1, b,
-                          sliderStart - subB.right() - 1 , sliderW );
-        addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
-        sliderR .setRect( sliderStart, b, sliderLength, sliderW );
-    } else {
-        subPageR.setRect( b, subB.bottom() + 1, sliderW,
-                          sliderStart - subB.bottom() - 1 );
-        addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
-        sliderR .setRect( b, sliderStart, sliderW, sliderLength );
-    }
-
-    bool maxedOut = (sb->maxValue() == sb->minValue());
-    if ( controls & AddLine ) {
-        qDrawWinPanel( p, addB.x(), addB.y(),
-                       addB.width(), addB.height(), g,
-                       ADD_LINE_ACTIVE, &g.brush( QColorGroup::Button ) );
-        drawArrow( p, VERTICAL ? DownArrow : RightArrow,
-                   ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
-                   addB.width()-4, addB.height()-4, g, !maxedOut );
-    }
-    if ( controls & SubLine ) {
-        qDrawWinPanel( p, subB.x(), subB.y(),
-                       subB.width(), subB.height(), g,
-                       SUB_LINE_ACTIVE, &g.brush( QColorGroup::Button )  );
-        drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
-                   SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
-                   subB.width()-4, subB.height()-4, g, !maxedOut );
-    }
-    QBrush br =
-        g.brush( QColorGroup::Light ).pixmap() ?
-                 g.brush( QColorGroup::Light )     :
-                 QBrush(g.light(), Dense4Pattern);
-    p->setBrush( br );
-    p->setPen( NoPen );
-    p->setBackgroundMode( OpaqueMode );
-    if ( maxedOut ) {
-        p->drawRect( sliderR );
-    } else {
-        if ( (controls & SubPage && SubPage == activeControl) ||
-             (controls  & AddPage && AddPage == activeControl) ) {
-            QBrush b = p->brush();
-            QColor c = p->backgroundColor();
-//          p->fillRect( AddPage == activeControl? addPageR : subPageR, g.fillDark() );
-            p->setBackgroundColor( g.dark() );
-            p->setBrush( QBrush(g.shadow(), Dense4Pattern) );
-            p->drawRect( AddPage == activeControl? addPageR : subPageR );
-            p->setBackgroundColor( c );
-            p->setBrush( b );
-        }
-        if ( controls & SubPage && SubPage != activeControl)
-            p->drawRect( subPageR );
-        if ( controls & AddPage && AddPage != activeControl)
-            p->drawRect( addPageR );
-        if ( controls & Slider ) {
-            if ( !maxedOut ) {
-                QPoint bo = p->brushOrigin();
-                p->setBrushOrigin(sliderR.topLeft());
-                qDrawWinPanel( p, sliderR.x(), sliderR.y(),
-                                 sliderR.width(), sliderR.height(), g,
-                                 FALSE, &g.brush( QColorGroup::Button ) );
-                p->setBrushOrigin(bo);
-            }
-        }
-    }
-    // ### perhaps this should not be able to accept focus if maxedOut?
-    if ( sb->hasFocus() && (controls & Slider) )
-        drawFocusRect(p, QRect(sliderR.x()+2, sliderR.y()+2,
-                               sliderR.width()-5, sliderR.height()-5), g,
-                      &sb->backgroundColor());
 #endif
 }
 
@@ -1900,41 +1747,125 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 					SCFlags sub,
 					SCFlags subActive, void * data ) const
 {
-    switch( ctrl ) {
-	case CC_SpinWidget: {
-	    if ( sub != SC_None ) {
-		// draw only specified component
-		drawSubControl( sub, p, w, r, cg, flags, subActive, data );
-	    } else {
-		// draw the whole thing
-		drawSubControl( SC_SpinWidgetUp, p, w, r, cg, flags,
-				subActive, data );
-		drawSubControl( SC_SpinWidgetDown, p, w, r, cg, flags,
-				subActive, data );
-		drawSubControl( SC_SpinWidgetFrame, p, w, r, cg, flags,
-				subActive, data );
-	    }
-	    break; }
-	
-	case CC_ComboBox: {
-	    if ( sub != SC_None ) {
-		drawSubControl( sub, p, w, r, cg, flags, subActive, data );
-	    } else {
-		drawSubControl( SC_ComboBoxButton, p, w, r, cg, flags,
-				subActive, data );
-		drawSubControl( SC_ComboBoxArrow, p, w, r, cg, flags,
-				subActive, data );
-		drawSubControl( SC_ComboBoxEditField, p, w, r, cg, flags,
-				subActive, data );
-		drawSubControl( SC_ComboBoxFocusRect, p, w, r, cg, flags,
-				subActive, data );
-	    }
-	    break; }
-	
-	default:
-	    QCommonStyle::drawComplexControl( ctrl, p, w, r, cg, flags, sub,
-					      subActive, data );
+    switch (ctrl) {
+    case CC_ScrollBar: {
+	if (! w)
 	    break;
+
+	QScrollBar *scrollbar = (QScrollBar *) w;
+	QRect addline, subline, addpage, subpage, slider;
+	bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
+
+	subline = querySubControlMetrics(ctrl, w, SC_ScrollBarSubLine, data);
+	addline = querySubControlMetrics(ctrl, w, SC_ScrollBarAddLine, data);
+	subpage = querySubControlMetrics(ctrl, w, SC_ScrollBarSubPage, data);
+	addpage = querySubControlMetrics(ctrl, w, SC_ScrollBarAddPage, data);
+	slider  = querySubControlMetrics(ctrl, w, SC_ScrollBarSlider, data);
+
+	if (sub & SC_ScrollBarSubLine) {
+	    drawPrimitive(PO_ButtonBevel, p, subline, cg,
+			  PStyle_Enabled | ((subActive == SC_ScrollBarSubLine) ?
+					    PStyle_Sunken :
+					    PStyle_Default));
+	    drawPrimitive(PO_ArrowUp, p, subline, cg,
+			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			  ((subActive == SC_ScrollBarSubLine) ?
+			   PStyle_Sunken :
+			   PStyle_Default));
+	}
+
+	if (sub & SC_ScrollBarAddLine) {
+	    drawPrimitive(PO_ButtonBevel, p, addline, cg,
+			  PStyle_Enabled | ((subActive == SC_ScrollBarAddLine) ?
+					    PStyle_Sunken :
+					    PStyle_Default));
+	    drawPrimitive(PO_ArrowDown, p, addline, cg,
+			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			  ((subActive == SC_ScrollBarAddLine) ?
+			   PStyle_Sunken :
+			   PStyle_Default));
+	}
+
+	QBrush br = (cg.brush(QColorGroup::Light).pixmap() ?
+		     cg.brush(QColorGroup::Light) :
+		     QBrush(cg.light(), Dense4Pattern));
+
+	p->setBrush(br);
+	p->setPen(NoPen);
+	p->setBackgroundMode(OpaqueMode);
+
+	if (maxedOut) {
+	    p->drawRect(r);
+	} else {
+	    if (((sub & SC_ScrollBarSubPage) && subActive == SC_ScrollBarSubPage) ||
+		((sub & SC_ScrollBarAddPage) && subActive == SC_ScrollBarAddPage)) {
+		QBrush b = p->brush();
+		QColor c = p->backgroundColor();
+		p->setBackgroundColor( cg.dark() );
+		p->setBrush( QBrush(cg.shadow(), Dense4Pattern) );
+		p->drawRect( subActive == SC_ScrollBarAddPage ? addpage : subpage );
+		p->setBackgroundColor( c );
+		p->setBrush( b );
+	    }
+
+	    if ( sub & SC_ScrollBarSubPage && subActive != SC_ScrollBarSubPage)
+		p->drawRect( subpage );
+	    if ( sub & SC_ScrollBarAddPage && subActive != SC_ScrollBarAddPage)
+		p->drawRect( addpage );
+
+	    if ( sub & SC_ScrollBarSlider ) {
+		if ( !maxedOut ) {
+		    QPoint bo = p->brushOrigin();
+		    p->setBrushOrigin(slider.topLeft());
+		    drawPrimitive(PO_ButtonBevel, p, slider, cg, FALSE);
+		    p->setBrushOrigin(bo);
+		}
+	    }
+	}
+
+	// ### perhaps this should not be able to accept focus if maxedOut?
+	if ( scrollbar->hasFocus() && (sub & SC_ScrollBarSlider) ) {
+	    QRect fr(slider.x() + 2, slider.y() + 2,
+		     slider.width() - 5, slider.height() - 5);
+	    drawPrimitive(PO_FocusRect, p, fr, cg, PStyle_Default);
+	}
+
+	break; }
+
+    case CC_SpinWidget: {
+	if ( sub != SC_None ) {
+	    // draw only specified component
+	    drawSubControl( sub, p, w, r, cg, flags, subActive, data );
+	} else {
+	    // draw the whole thing
+	    drawSubControl( SC_SpinWidgetUp, p, w, r, cg, flags,
+			    subActive, data );
+	    drawSubControl( SC_SpinWidgetDown, p, w, r, cg, flags,
+			    subActive, data );
+	    drawSubControl( SC_SpinWidgetFrame, p, w, r, cg, flags,
+			    subActive, data );
+	}
+	break; }
+
+       case CC_ComboBox: {
+            if ( sub != SC_None ) {
+                drawSubControl( sub, p, w, r, cg, flags, subActive, data );
+            } else {
+                drawSubControl( SC_ComboBoxButton, p, w, r, cg, flags,
+                                subActive, data );
+                drawSubControl( SC_ComboBoxArrow, p, w, r, cg, flags,
+                                subActive, data );
+                drawSubControl( SC_ComboBoxEditField, p, w, r, cg, flags,
+                                subActive, data );
+                drawSubControl( SC_ComboBoxFocusRect, p, w, r, cg, flags,
+                                subActive, data );
+            }
+            break; }
+
+    default:
+	QCommonStyle::drawComplexControl( ctrl, p, w, r, cg, flags, sub,
+					  subActive, data );
+	break;
     }
 }
 
@@ -1957,7 +1888,7 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	}
 	if ( sw->buttonSymbols() == QSpinWidget::PlusMinus )
 	    op = PO_SpinWidgetPlus;
-	
+
 	drawPrimitive(PO_ButtonBevel, p, r, cg, flags);
 	drawPrimitive(op, p, r, cg, flags);
     	break; }
@@ -1966,15 +1897,15 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	QSpinWidget * sw = (QSpinWidget *) w;
 	PFlags flags = PStyle_Default;
 	PrimitiveOperation op = PO_SpinWidgetDown;
-	
+
 	flags |= PStyle_Enabled;
 	if (subActive == subCtrl) {
 	    flags |= PStyle_On;
 	    flags |= PStyle_Sunken;
-	}	
+	}
 	if ( sw->buttonSymbols() == QSpinWidget::PlusMinus )
 	    op = PO_SpinWidgetMinus;
-	
+
 	drawPrimitive(PO_ButtonBevel, p, r, cg, flags);
 	drawPrimitive(op, p, r, cg, flags);
 	break; }
