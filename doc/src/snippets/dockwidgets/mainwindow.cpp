@@ -65,20 +65,13 @@ void MainWindow::setupContents()
 
 void MainWindow::setupDockWindow()
 {
-    contentsWindow = new QDockWidget(tr("Contents"), this);
+    contentsWindow = new QDockWidget(tr("Table of Contents"), this);
     contentsWindow->setAllowedAreas(Qt::LeftDockWidgetArea
                                   | Qt::RightDockWidgetArea);
     addDockWidget(Qt::LeftDockWidgetArea, contentsWindow);
 
-    QFrame *contentsFrame = new QFrame(contentsWindow);
-    QLabel *contentsLabel = new QLabel(tr("Table of Contents"), contentsFrame);
-    headingList = new QListWidget(contentsFrame);
-
-    QVBoxLayout *contentsLayout = new QVBoxLayout(contentsFrame);
-    contentsLayout->addWidget(contentsLabel);
-    contentsLayout->addWidget(headingList);
-
-    contentsWindow->setWidget(contentsFrame);
+    headingList = new QListWidget(contentsWindow);
+    contentsWindow->setWidget(headingList);
 }
 
 void MainWindow::setupMenus()
