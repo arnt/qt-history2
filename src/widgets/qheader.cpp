@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#78 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -224,6 +224,7 @@ void QHeader::init( int n )
 	data->sizes[i] = 88;
 	data->a2l[i] = i;
 	data->l2a[i] = i;
+	data->labels[i] = 0;
     }
     data->clicks.fill( TRUE );
     data->resize.fill( TRUE );
@@ -898,7 +899,7 @@ void QHeader::paintEvent( QPaintEvent *e )
 		     ? e->rect().left()
 		     : e->rect().top();
     int id = cellAt( pos );
-    if ( id < 0 ) 
+    if ( id < 0 )
 	if ( pos > 0 )
 	    return;
 	else
