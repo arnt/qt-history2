@@ -1448,7 +1448,7 @@ bool QMetaProperty::write(QObject *obj, const QVariant &value) const
         }
         if (t == QVariant::Invalid)
             return false;
-        if (t != QVariant::LastType && (t != (uint)value.userType() || (t < QVariant::UserType && !v.convert((QVariant::Type)t))))
+        if (t != QVariant::LastType && t != (uint)value.userType() && (t < QVariant::UserType && !v.convert((QVariant::Type)t)))
             return false;
     }
 
