@@ -70,6 +70,55 @@ struct QMotifPlusStylePrivate
 static QMotifPlusStylePrivate * singleton = 0;
 
 
+static void drawMotifPlusShade(QPainter *p,
+			       const QRect &r,
+			       const QColorGroup &g,
+			       bool sunken,
+			       const QBrush *fill = 0)
+{
+    QPen oldpen = p->pen();
+    QPointArray a(4);
+    int x, y, w, h;
+
+    r.rect(&x, &y, &w, &h);
+
+    if (sunken) p->setPen(g.dark()); else p->setPen(g.light());
+    a.setPoint(0, x, y + h - 1);
+    a.setPoint(1, x, y);
+    a.setPoint(2, x, y);
+    a.setPoint(3, x + w - 1, y);
+    p->drawLineSegments(a);
+
+    if (sunken) p->setPen(Qt::black); else p->setPen(g.button());
+    a.setPoint(0, x + 1, y + h - 2);
+    a.setPoint(1, x + 1, y + 1);
+    a.setPoint(2, x + 1, y + 1);
+    a.setPoint(3, x + w - 2, y + 1);
+    p->drawLineSegments(a);
+
+    if (sunken) p->setPen(g.button()); else p->setPen(g.dark());
+    a.setPoint(0, x + 2, y + h - 2);
+    a.setPoint(1, x + w - 2, y + h - 2);
+    a.setPoint(2, x + w - 2, y + h - 2);
+    a.setPoint(3, x + w - 2, y + 2);
+    p->drawLineSegments(a);
+
+    if (sunken) p->setPen(g.light()); else p->setPen(Qt::black);
+    a.setPoint(0, x + 1, y + h - 1);
+    a.setPoint(1, x + w - 1, y + h - 1);
+    a.setPoint(2, x + w - 1, y + h - 1);
+    a.setPoint(3, x + w - 1, y);
+    p->drawLineSegments(a);
+
+    if (fill)
+	p->fillRect(x + 2, y + 2, w - 4, h - 4, *fill);
+    else
+	p->fillRect(x + 2, y + 2, w - 4, h - 4, QBrush(g.button()));
+
+    p->setPen(oldpen);
+}
+
+
 /*!
   \class QMotifPlusStyle qmotifplusstyle.h
   \brief The QMotifPlusStyle class provides a more sophisticated Motif-ish look and feel.
@@ -78,7 +127,7 @@ static QMotifPlusStylePrivate * singleton = 0;
  This class implements a Motif-ish look and feel with more
  sophisticated bevelling as used by the GIMP Toolkit (GTK+) for
  Unix/X11.
- */
+*/
 
 /*!
   Constructs a QMotifPlusStyle
@@ -95,10 +144,10 @@ QMotifPlusStyle::QMotifPlusStyle(bool hoveringHighlight) : QMotifStyle(TRUE)
         singleton->ref++;
 
     useHoveringHighlight = hoveringHighlight;
+    useHoveringHighlight = TRUE;
 }
 
-/*!\reimp
- */
+/*! \reimp */
 QMotifPlusStyle::~QMotifPlusStyle()
 {
     if ( singleton && singleton->ref-- <= 0) {
@@ -107,47 +156,15 @@ QMotifPlusStyle::~QMotifPlusStyle()
     }
 }
 
-/*!\reimp
-*/
-QSize QMotifPlusStyle::scrollBarExtent() const
-{
-    return QSize( 15, 15 );
-}
 
-/*!\reimp
-*/
-int QMotifPlusStyle::buttonDefaultIndicatorWidth() const
-{
-    return 5;
-}
-
-/*!\reimp
-*/
-int QMotifPlusStyle::sliderThickness() const
-{
-    return 15;
-}
-
-/*!\reimp
-*/
-int QMotifPlusStyle::buttonMargin() const
-{
-    return 2;
-}
-
-/*!
-  \reimp
-*/
-
+/*! \reimp */
 void QMotifPlusStyle::polish(QPalette &)
 {
 
 }
 
 
-/*!
-  \reimp
-*/
+/*! \reimp */
 void QMotifPlusStyle::polish(QWidget *widget)
 {
     if (widget->inherits("QFrame") &&
@@ -164,24 +181,22 @@ void QMotifPlusStyle::polish(QWidget *widget)
         widget->layout()->setMargin(2);
 
     if (useHoveringHighlight) {
-        if (widget->inherits("QButton") ||
-            widget->inherits("QComboBox"))
-            widget->installEventFilter(this);
+	if (widget->inherits("QButton") ||
+	    widget->inherits("QComboBox"))
+	    widget->installEventFilter(this);
 
-        if (widget->inherits("QScrollBar") ||
-            widget->inherits("QSlider")) {
-            widget->setMouseTracking(TRUE);
-            widget->installEventFilter(this);
-        }
+	if (widget->inherits("QScrollBar") ||
+	    widget->inherits("QSlider")) {
+	    widget->setMouseTracking(TRUE);
+	    widget->installEventFilter(this);
+	}
     }
 
     QMotifStyle::polish(widget);
 }
 
 
-/*!
-  \reimp
-*/
+/*! \reimp */
 void QMotifPlusStyle::unPolish(QWidget *widget)
 {
     widget->removeEventFilter(this);
@@ -189,9 +204,7 @@ void QMotifPlusStyle::unPolish(QWidget *widget)
 }
 
 
-/*!
-  \reimp
-*/
+/*! \reimp */
 void QMotifPlusStyle::polish(QApplication *app)
 {
     QPalette pal = app->palette();
@@ -313,1030 +326,636 @@ void QMotifPlusStyle::polish(QApplication *app)
 }
 
 
-/*!
-  \reimp
-*/
+/*! \reimp */
 void QMotifPlusStyle::unPolish(QApplication *app)
 {
     app->setPalette(singleton->oldpalette);
 }
 
 
-/*!
-  \reimp
-*/
+/*! \reimp */
 void QMotifPlusStyle::polishPopupMenu(QPopupMenu *menu)
 {
     menu->setMouseTracking(TRUE);
 }
 
 
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::drawPushButton(QPushButton *button, QPainter *p)
+
+/*! \reimp */
+int QMotifPlusStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
-    int x1, y1, x2, y2;
-    button->rect().coords(&x1, &y1, &x2, &y2);
+    int ret;
 
-    if (button->isDefault())
-        drawButton(p, x1, y1, x2 - x1 + 1, y2 - y1 + 1,
-                   qApp->palette().active(), TRUE);
+    switch (metric) {
+    case PM_ScrollBarExtent:
+	ret = 15;
+	break;
 
-    if (button->isDefault() || button->autoDefault()) {
-        x1 += buttonDefaultIndicatorWidth();
-        y1 += buttonDefaultIndicatorWidth();
-        x2 -= buttonDefaultIndicatorWidth();
-        y2 -= buttonDefaultIndicatorWidth();
+    case PM_ButtonDefaultIndicator:
+	ret = 5;
+	break;
+
+    case PM_ButtonMargin:
+	ret = 4;
+	break;
+
+    case PM_SliderThickness:
+	ret = 15;
+	break;
+
+    case PM_IndicatorWidth:
+    case PM_IndicatorHeight:
+	ret = 10;
+	break;
+
+    case PM_ExclusiveIndicatorWidth:
+    case PM_ExclusiveIndicatorHeight:
+	ret = 11;
+	break;
+
+    default:
+	ret = QMotifStyle::pixelMetric(metric, widget);
+	break;
     }
 
-    QBrush fill;
-    if (button->isDown() || button->isOn())
-        fill = button->colorGroup().brush(QColorGroup::Mid);
-    else
-        fill = button->colorGroup().brush(QColorGroup::Button);
-
-    if ( !button->isFlat() || button->isOn() || button->isDown() )
-        drawButton(p, x1, y1, x2 - x1 + 1, y2 - y1 + 1,
-                   button->colorGroup(), button->isOn() || button->isDown(), &fill);
+    return ret;
 }
 
 
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::drawButton(QPainter *p, int x, int y, int w, int h,
-                                 const QColorGroup &g,
-                                 bool sunken, const QBrush *fill)
+/*! \reimp */
+void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
+				     QPainter *p,
+				     const QRect &r,
+				     const QColorGroup &cg,
+				     SFlags flags,
+				     void **data ) const
 {
-    QPen oldpen = p->pen();
-    QPointArray a(4);
-
-    if (sunken) p->setPen(g.dark());
-    else p->setPen(g.light());
-
-    a.setPoint(0, x, y + h - 1);
-    a.setPoint(1, x, y);
-    a.setPoint(2, x, y);
-    a.setPoint(3, x + w - 1, y);
-
-    p->drawLineSegments(a);
-
-    if (sunken) p->setPen(black);
-    else p->setPen(g.button());
-
-    a.setPoint(0, x + 1, y + h - 2);
-    a.setPoint(1, x + 1, y + 1);
-    a.setPoint(2, x + 1, y + 1);
-    a.setPoint(3, x + w - 2, y + 1);
-
-    p->drawLineSegments(a);
-
-    if (sunken) p->setPen(g.button());
-    else p->setPen(g.dark());
-
-    a.setPoint(0, x + 2, y + h - 2);
-    a.setPoint(1, x + w - 2, y + h - 2);
-    a.setPoint(2, x + w - 2, y + h - 2);
-    a.setPoint(3, x + w - 2, y + 2);
-
-    p->drawLineSegments(a);
-
-    if (sunken) p->setPen(g.light());
-    else p->setPen(black);
-
-    a.setPoint(0, x + 1, y + h - 1);
-    a.setPoint(1, x + w - 1, y + h - 1);
-    a.setPoint(2, x + w - 1, y + h - 1);
-    a.setPoint(3, x + w - 1, y);
-
-    p->drawLineSegments(a);
-
-    if ( fill )
-        p->fillRect(x + 2, y + 2, w - 4, h - 4, *fill);
-    else
-        p->fillRect(x + 2, y + 2, w - 4, h - 4, QBrush(g.button()));
-
-    p->setPen(oldpen);
-}
-
-
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::drawBevelButton(QPainter *p, int x, int y, int w, int h,
-                                      const QColorGroup &g,
-                                      bool sunken, const QBrush *fill)
-{
-    drawButton(p, x, y, w, h, g, sunken, fill);
-}
-
-
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::getButtonShift(int &x, int &y ) const
-{
-    x = y = 0;
-}
-
-
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::drawComboButton(QPainter *p, int x, int y, int w, int h,
-                                      const QColorGroup &g, bool sunken,
-                                      bool editable, bool,
-                                      const QBrush *fill)
-{
-    drawButton(p, x, y, w, h, g, sunken, fill);
-
-    if (editable) {
-        QRect r = comboButtonRect(x, y, w, h);
-        drawButton(p, r.x() - defaultFrameWidth(),
-                   r.y() - defaultFrameWidth(),
-                   r.width() + (defaultFrameWidth() * 2),
-                   r.height() + (defaultFrameWidth() * 2),
-                   g, TRUE);
-    }
-
-    int indent = ((y + h) / 2) - 6;
-    int xpos = x;
-    if( QApplication::reverseLayout() )
-        xpos += indent;
-    else
-        xpos += w - indent - 13;
-    drawArrow(p, Qt::DownArrow, TRUE, xpos, indent,
-        13, 13, g, TRUE, fill);
-}
-
-
-/*!
-  \reimp
-*/
-QRect QMotifPlusStyle::comboButtonRect( int x, int y, int w, int h ) const
-{
-    QRect r(x + (defaultFrameWidth() * 2), y + (defaultFrameWidth() * 2),
-            w - (defaultFrameWidth() * 4), h - (defaultFrameWidth() * 4));
-
-    int indent = ((y + h) / 2) - defaultFrameWidth();
-    r.setRight(r.right() - indent - 13);
-    if( QApplication::reverseLayout() )
-        r.moveBy( indent + 13, 0 );
-    return r;
-}
-
-
-/*!
-  \reimp
-*/
-QRect QMotifPlusStyle::comboButtonFocusRect(int x, int y, int w, int h ) const
-{
-    return comboButtonRect(x, y, w, h);
-}
-
-
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::drawPanel(QPainter *p, int x, int y, int w, int h,
-                                const QColorGroup &g, bool sunken,
-                                int, const QBrush *)
-{
-    QPen oldpen = p->pen();
-    QPointArray a(4);
-
-    if (sunken)
-        p->setPen(g.dark());
-    else
-        p->setPen(g.light());
-
-    a.setPoint(0, x, y + h - 1);
-    a.setPoint(1, x, y);
-    a.setPoint(2, x, y);
-    a.setPoint(3, x + w - 1, y);
-
-    p->drawLineSegments(a);
-
-    if (sunken)
-        p->setPen(black);
-    else
-        p->setPen(g.button());
-
-    a.setPoint(0, x + 1, y + h - 2);
-    a.setPoint(1, x + 1, y + 1);
-    a.setPoint(2, x + 1, y + 1);
-    a.setPoint(3, x + w - 2, y + 1);
-
-    p->drawLineSegments(a);
-
-    if (sunken)
-        p->setPen(g.button());
-    else
-        p->setPen(g.dark());
-
-    a.setPoint(0, x + 2, y + h - 2);
-    a.setPoint(1, x + w - 2, y + h - 2);
-    a.setPoint(2, x + w - 2, y + h - 2);
-    a.setPoint(3, x + w - 2, y + 2);
-
-    p->drawLineSegments(a);
-
-    if (sunken)
-        p->setPen(g.light());
-    else
-        p->setPen(black);
-
-    a.setPoint(0, x + 1, y + h - 1);
-    a.setPoint(1, x + w - 1, y + h - 1);
-    a.setPoint(2, x + w - 1, y + h - 1);
-    a.setPoint(3, x + w - 1, y);
-
-    p->drawLineSegments(a);
-
-    p->setPen(oldpen);
-}
-
-
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::drawIndicator(QPainter *p, int x, int y ,int w, int h,
-                               const QColorGroup &g, int state,
-                               bool, bool)
-{
-    QBrush fill;
-    if (state != QButton::Off)
-        fill = g.brush(QColorGroup::Mid);
-    else
-        fill = g.brush(QColorGroup::Button);
-
-    if (state == QButton::NoChange) {
-        qDrawPlainRect(p, x, y, w, h, g.text(), 1, &fill);
-        p->drawLine(x + w - 1, y, x, y + h - 1);
-    } else {
-        drawButton(p, x, y, w, h, g, (state != QButton::Off), &fill);
-    }
-}
-
-
-/*!
-  \reimp
-*/
-QSize QMotifPlusStyle::indicatorSize() const
-{
-    return QSize(10, 10);
-}
-
-
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::drawExclusiveIndicator(QPainter *p, int x, int y,
-                                             int w, int h,
-                                             const QColorGroup &g, bool on,
-                                             bool, bool)
-{
-    QPen oldpen =  p->pen();
-
-    p->fillRect(x, y, w, h, g.button());
-
-    QPointArray thick(8);
-    QPointArray thin(4);
-
-    if (on) {
-        thick.setPoint(0, x, y + (h / 2));
-        thick.setPoint(1, x + (w / 2), y);
-        thick.setPoint(2, x + 1, y + (h / 2));
-        thick.setPoint(3, x + (w / 2), y + 1);
-        thick.setPoint(4, x + (w / 2), y);
-        thick.setPoint(5, x + w - 1, y + (h / 2));
-        thick.setPoint(6, x + (w / 2), y + 1);
-        thick.setPoint(7, x + w - 2, y + (h / 2));
-
-        p->setPen(g.dark());
-        p->drawLineSegments(thick);
-
-        thick.setPoint(0, x + 1, y + (h / 2) + 1);
-        thick.setPoint(1, x + (w / 2), y + h - 1);
-        thick.setPoint(2, x + 2, y + (h / 2) + 1);
-        thick.setPoint(3, x + (w / 2), y + h - 2);
-        thick.setPoint(4, x + (w / 2), y + h - 1);
-        thick.setPoint(5, x + w - 2, y + (h / 2) + 1);
-        thick.setPoint(6, x + (w / 2), y + h - 2);
-        thick.setPoint(7, x + w - 3, y + (h / 2) + 1);
-
-        p->setPen(g.light());
-        p->drawLineSegments(thick);
-
-        thin.setPoint(0, x + 2, y + (h / 2));
-        thin.setPoint(1, x + (w / 2), y + 2);
-        thin.setPoint(2, x + (w / 2), y + 2);
-        thin.setPoint(3, x + w - 3, y + (h / 2));
-
-        p->setPen(black);
-        p->drawLineSegments(thin);
-
-        thin.setPoint(0, x + 3, y + (h / 2) + 1);
-        thin.setPoint(1, x + (w / 2), y + h - 3);
-        thin.setPoint(2, x + (w / 2), y + h - 3);
-        thin.setPoint(3, x + w - 4, y + (h / 2) + 1);
-
-        p->setPen(g.mid());
-        p->drawLineSegments(thin);
-    } else {
-        thick.setPoint(0, x, y + (h / 2));
-        thick.setPoint(1, x + (w / 2), y);
-        thick.setPoint(2, x + 1, y + (h / 2));
-        thick.setPoint(3, x + (w / 2), y + 1);
-        thick.setPoint(4, x + (w / 2), y);
-        thick.setPoint(5, x + w - 1, y + (h / 2));
-        thick.setPoint(6, x + (w / 2), y + 1);
-        thick.setPoint(7, x + w - 2, y + (h / 2));
-
-        p->setPen(g.light());
-        p->drawLineSegments(thick);
-
-        thick.setPoint(0, x + 2, y + (h / 2) + 1);
-        thick.setPoint(1, x + (w / 2), y + h - 2);
-        thick.setPoint(2, x + 3, y + (h / 2) + 1);
-        thick.setPoint(3, x + (w / 2), y + h - 3);
-        thick.setPoint(4, x + (w / 2), y + h - 2);
-        thick.setPoint(5, x + w - 3, y + (h / 2) + 1);
-        thick.setPoint(6, x + (w / 2), y + h - 3);
-        thick.setPoint(7, x + w - 4, y + (h / 2) + 1);
-
-        p->setPen(g.dark());
-        p->drawLineSegments(thick);
-
-        thin.setPoint(0, x + 2, y + (h / 2));
-        thin.setPoint(1, x + (w / 2), y + 2);
-        thin.setPoint(2, x + (w / 2), y + 2);
-        thin.setPoint(3, x + w - 3, y + (h / 2));
-
-        p->setPen(g.button());
-        p->drawLineSegments(thin);
-
-        thin.setPoint(0, x + 1, y + (h / 2) + 1);
-        thin.setPoint(1, x + (w / 2), y + h - 1);
-        thin.setPoint(2, x + (w / 2), y + h - 1);
-        thin.setPoint(3, x + w - 2, y + (h / 2) + 1);
-
-        p->setPen(black);
-        p->drawLineSegments(thin);
-
-    }
-
-    p->setPen(oldpen);
-}
-
-
-/*!
-  \reimp
-*/
-QSize QMotifPlusStyle::exclusiveIndicatorSize() const
-{
-    return QSize(11, 11);
-}
-
-
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::drawMenuBarItem(QPainter *p, int x, int y, int w, int h,
-                                      QMenuItem *mi, QColorGroup &g,
-                                      bool active, bool, bool)
-{
-    bool enabled = mi->isEnabled();
-    if (enabled && active)
-        drawButton(p, x, y, w, h, singleton->prelight_palette.active(), FALSE);
-    else
-        p->fillRect( x, y, w, h, g.button() );
-
-    drawItem(p, x, y, w, h, AlignCenter | ShowPrefix | DontClip | SingleLine,
-             g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText());
-}
-
-
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::drawPopupMenuItem(QPainter *p, bool checkable,
-                                        int maxpmw, int tab, QMenuItem *mi,
-                                        const QPalette &pl, bool act,
-                                        bool enabled,
-                                        int x, int y, int w, int h)
-{
-    QPalette pal = (act && enabled) ? singleton->prelight_palette : pl;
-    const QColorGroup & g = pal.active();
-    QColorGroup itemg = (! enabled) ? pal.disabled() : pal.active();
-
-    if (checkable)
-        maxpmw = QMAX(maxpmw, 15);
-
-    int checkcol = maxpmw;
-
-    if (mi && mi->isSeparator()) {
-        p->setPen( g.dark() );
-        p->drawLine( x, y, x+w, y );
-        p->setPen( g.light() );
-        p->drawLine( x, y+1, x+w, y+1 );
-        return;
-    }
-
-    if ( act && enabled )
-        drawButton(p, x, y, w, h, g, FALSE, &g.brush(QColorGroup::Button));
-    else
-        p->fillRect(x, y, w, h, g.brush( QColorGroup::Button ));
-
-    if ( !mi )
-        return;
-
-    if ( mi->isChecked() ) {
-        if ( mi->iconSet() ) {
-            qDrawShadePanel( p, x+2, y+2, checkcol, h-2*2,
-                             g, TRUE, 1, &g.brush( QColorGroup::Midlight ) );
-        }
-    } else if ( !act ) {
-        p->fillRect(x+2, y+2, checkcol, h-2*2,
-                    g.brush( QColorGroup::Button ));
-    }
-
-    if ( mi->iconSet() ) {              // draw iconset
-        QIconSet::Mode mode = (enabled) ? QIconSet::Normal : QIconSet::Disabled;
-
-        if (act && enabled)
-            mode = QIconSet::Active;
-
-	QPixmap pixmap;
-	if ( checkable && mi->isChecked() )
-	    pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode, QIconSet::On );
-	else
-	    pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
-
-        int pixw = pixmap.width();
-        int pixh = pixmap.height();
-
-        QRect cr( x + 2, y+2, checkcol, h-2*2 );
-        QRect pmr( 0, 0, pixw, pixh );
-
-        pmr.moveCenter(cr.center());
-
-        p->setPen( itemg.text() );
-        p->drawPixmap( pmr.topLeft(), pixmap );
-
-    } else if (checkable) {
-        int mw = checkcol;
-        int mh = h - 4;
-
-        if (mi->isChecked())
-            drawCheckMark(p, x+2, y+2, mw, mh, itemg, act, ! enabled);
-    }
-
-    p->setPen( g.buttonText() );
-
-    QColor discol;
-    if (! enabled) {
-        discol = itemg.text();
-        p->setPen( discol );
-    }
-
-    if (mi->custom()) {
-        p->save();
-        mi->custom()->paint(p, itemg, act, enabled, x + checkcol + 4, y + 2,
-                            w - checkcol - tab - 3, h - 4);
-        p->restore();
-    }
-
-    QString s = mi->text();
-    if ( !s.isNull() ) {                        // draw text
-        int t = s.find( '\t' );
-        int m = 2;
-        const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
-        if ( t >= 0 ) {                         // draw tab text
-            p->drawText( x+w-tab-2-2,
-                         y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
-        }
-        p->drawText(x + checkcol + 4, y + 2, w - checkcol -tab - 3, h - 4,
-                    text_flags, s, t);
-    } else if (mi->pixmap()) {
-        QPixmap *pixmap = mi->pixmap();
-
-        if (pixmap->depth() == 1) p->setBackgroundMode(OpaqueMode);
-        p->drawPixmap(x + checkcol + 2, y + 2, *pixmap);
-        if (pixmap->depth() == 1) p->setBackgroundMode(TransparentMode);
-    }
-
-    if (mi->popup()) {
-        int hh = h / 2;
-
-        drawArrow(p, RightArrow, (act) ? mi->isEnabled() : FALSE,
-                  x + w - hh - 6, y + (hh / 2), hh, hh, g, mi->isEnabled());
-    }
-}
-
-/*!
-  \reimp
-*/
-int QMotifPlusStyle::defaultFrameWidth() const
-{
-    return 2;
-}
-
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::drawArrow(QPainter *p, ArrowType type, bool down,
-                                int x, int y, int w, int h,
-                                const QColorGroup &g, bool, const QBrush *)
-{
-    QPen oldpen = p->pen();
-    QBrush oldbrush = p->brush();
-    p->save();
-
-    QPointArray poly(3);
-
-    p->setBrush(g.button());
-
-    switch (type) {
-    case UpArrow:
-        {
-            poly.setPoint(0, x + (w / 2), y );
-            poly.setPoint(1, x, y + h - 1);
-            poly.setPoint(2, x + w - 1, y + h - 1);
-
-            p->drawPolygon(poly);
-
-            if (down)
-                p->setPen(g.button());
-            else
-                p->setPen(g.dark());
-            p->drawLine(x + 1, y + h - 2, x + w - 2, y + h - 2);
-
-            if (down)
-                p->setPen(g.light());
-            else
-                p->setPen(black);
-            p->drawLine(x, y + h - 1, x + w - 1, y + h - 1);
-
-            if (down)
-                p->setPen(g.button());
-            else
-                p->setPen(g.dark());
-            p->drawLine(x + w - 2, y + h - 1, x + (w / 2), y + 1);
-
-            if (down)
-                p->setPen(g.light());
-            else
-                p->setPen(black);
-            p->drawLine(x + w - 1, y + h - 1, x + (w / 2), y);
-
-            if (down)
-                p->setPen(black);
-            else
-                p->setPen(g.button());
-            p->drawLine(x + (w / 2), y + 1, x + 1, y + h - 1);
-
-            if (down)
-                p->setPen(g.dark());
-            else
-                p->setPen(g.light());
-            p->drawLine(x + (w / 2), y, x, y + h - 1);
-
-            break;
-        }
-
-    case DownArrow:
-        {
-            poly.setPoint(0, x + w - 1, y);
-            poly.setPoint(1, x, y);
-            poly.setPoint(2, x + (w / 2), y + h - 1);
-
-            p->drawPolygon(poly);
-
-            if (down)
-                p->setPen(black);
-            else
-                p->setPen(g.button());
-            p->drawLine(x + w - 2, y + 1, x + 1, y + 1);
-
-            if (down)
-                p->setPen(g.dark());
-            else
-                p->setPen(g.light());
-            p->drawLine(x + w - 1, y, x, y);
-
-            if (down)
-                p->setPen(black);
-            else
-                p->setPen(g.button());
-            p->drawLine(x + 1, y, x + (w / 2), y + h - 2);
-
-            if (down)
-                p->setPen(g.dark());
-            else
-                p->setPen(g.light());
-            p->drawLine(x, y, x + (w / 2), y + h - 1);
-
-            if (down)
-                p->setPen(g.button());
-            else
-                p->setPen(g.dark());
-            p->drawLine(x + (w / 2), y + h - 2, x + w - 2, y);
-
-            if (down)
-                p->setPen(g.light());
-            else
-                p->setPen(black);
-            p->drawLine(x + (w / 2), y + h - 1, x + w - 1, y);
-
-            break;
-        }
-
-    case LeftArrow:
-        {
-            poly.setPoint(0, x, y + (h / 2));
-            poly.setPoint(1, x + w - 1, y + h - 1);
-            poly.setPoint(2, x + w - 1, y);
-
-            p->drawPolygon(poly);
-
-            if (down)
-                p->setPen(g.button());
-            else
-                p->setPen(g.dark());
-            p->drawLine(x + 1, y + (h / 2), x + w - 1, y + h - 1);
-
-            if (down)
-                p->setPen(g.light());
-            else
-                p->setPen(black);
-            p->drawLine(x, y + (h / 2), x + w - 1, y + h - 1);
-
-            if (down)
-                p->setPen(g.button());
-            else
-                p->setPen(g.dark());
-            p->drawLine(x + w - 2, y + h - 1, x + w - 2, y + 1);
-
-            if (down)
-                p->setPen(g.light());
-            else
-                p->setPen(black);
-            p->drawLine(x + w - 1, y + h - 1, x + w - 1, y);
-
-            if (down)
-                p->setPen(black);
-            else
-                p->setPen(g.button());
-            p->drawLine(x + w - 1, y + 1, x + 1, y + (h / 2));
-
-            if (down)
-                p->setPen(g.dark());
-            else
-                p->setPen(g.light());
-            p->drawLine(x + w - 1, y, x, y + (h / 2));
-
-            break;
-        }
-
-    case RightArrow:
-        {
-            poly.setPoint(0, x + w - 1, y + (h / 2));
-            poly.setPoint(1, x, y);
-            poly.setPoint(2, x, y + h - 1);
-
-            p->drawPolygon(poly);
-            if (down)
-                p->setPen(black);
-            else
-                p->setPen(g.button());
-            p->drawLine( x + w - 1, y + (h / 2), x + 1, y + 1);
-
-            if (down)
-                p->setPen(g.dark());
-            else
-                p->setPen(g.light());
-            p->drawLine(x + w - 1, y + (h / 2), x, y);
-
-            if (down)
-                p->setPen(black);
-            else
-                p->setPen(g.button());
-            p->drawLine(x + 1, y + 1, x + 1, y + h - 2);
-
-            if (down)
-                p->setPen(g.dark());
-            else
-                p->setPen(g.light());
-            p->drawLine(x, y, x, y + h - 1);
-
-            if (down)
-                p->setPen(g.button());
-            else
-                p->setPen(g.dark());
-            p->drawLine(x + 1, y + h - 2, x + w - 1, y + (h / 2));
-
-            if (down)
-                p->setPen(g.light());
-            else
-                p->setPen(black);
-            p->drawLine(x, y + h - 1, x + w - 1, y + (h / 2));
-
-            break;
-        }
-    }
-
-    p->restore();
-    p->setBrush(oldbrush);
-    p->setPen(oldpen);
-}
-
-
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::scrollBarMetrics(const QScrollBar *scrollbar,
-                                       int &sliderMin, int &sliderMax,
-                                       int &sliderLength, int &buttonDim) const
-{
-    QMotifStyle::scrollBarMetrics(scrollbar, sliderMin, sliderMax,
-                                  sliderLength, buttonDim);
-
-    sliderMin += 1;
-    sliderMax -= 1;
-
-    return;
-}
-
-
-#define HORIZONTAL      (sb->orientation() == QScrollBar::Horizontal)
-#define VERTICAL        !HORIZONTAL
-#define MOTIF_BORDER    defaultFrameWidth()
-#define SLIDER_MIN      buttonDim
-
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
-                                             int sliderStart, uint controls,
-                                             uint activeControl )
-{
-#define ADD_LINE_ACTIVE ( activeControl == AddLine )
-#define SUB_LINE_ACTIVE ( activeControl == SubLine )
-    QColorGroup g  = sb->colorGroup();
-    QColorGroup pg = singleton->prelight_palette.active();
-
-    int sliderMin, sliderMax, sliderLength, buttonDim;
-    scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
-
-    if (sliderStart > sliderMax) { // sanity check
-        sliderStart = sliderMax;
-    }
-
-    int b = MOTIF_BORDER;
-    int dimB = buttonDim;
-    QRect addB;
-    QRect subB;
-    QRect addPageR;
-    QRect subPageR;
-    QRect sliderR;
-    int addX, addY, subX, subY;
-    int length = HORIZONTAL ? sb->width()  : sb->height();
-    int extent = HORIZONTAL ? sb->height() : sb->width();
-
-    if ( HORIZONTAL ) {
-        subY = addY = ( extent - dimB ) / 2;
-        subX = b;
-        addX = length - dimB - b;
-    } else {
-        subX = addX = ( extent - dimB ) / 2;
-        subY = b;
-        addY = length - dimB - b;
-    }
-
-    subB.setRect( subX,subY,dimB,dimB );
-    addB.setRect( addX,addY,dimB,dimB );
-
-    int sliderEnd = sliderStart + sliderLength;
-    int sliderW = extent - b*2;
-    if ( HORIZONTAL ) {
-        subPageR.setRect( subB.right() + 1, b,
-                          sliderStart - subB.right() - 1 , sliderW );
-        addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
-        sliderR .setRect( sliderStart, b, sliderLength, sliderW );
-    } else {
-        subPageR.setRect( b, subB.bottom() + 1, sliderW,
-                          sliderStart - subB.bottom() - 1 );
-        addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
-        sliderR .setRect( b, sliderStart, sliderW, sliderLength );
-    }
-
-    bool scrollbarUpdate = FALSE;
-    if (singleton->hovering) {
-        if (addB.contains(singleton->mousePos)) {
-            scrollbarUpdate = (singleton->scrollbarElement == AddLine);
-            singleton->scrollbarElement = AddLine;
-        } else if (subB.contains(singleton->mousePos)) {
-            scrollbarUpdate = (singleton->scrollbarElement == SubLine);
-            singleton->scrollbarElement = SubLine;
-        } else if (sliderR.contains(singleton->mousePos)) {
-            scrollbarUpdate = (singleton->scrollbarElement == Slider);
-            singleton->scrollbarElement = Slider;
-        } else
-            singleton->scrollbarElement = 0;
-    } else
-        singleton->scrollbarElement = 0;
-
-    if (scrollbarUpdate) return;
-
-    if ( controls == ( AddLine | SubLine | AddPage | SubPage |
-                       Slider | First | Last ) )
-        drawButton(p, sb->rect().x(), sb->rect().y(),
-                   sb->rect().width(), sb->rect().height(), g, TRUE,
-                   &g.brush(QColorGroup::Mid));
-
-    if ( controls & AddLine )
-        drawArrow( p, VERTICAL ? DownArrow : RightArrow,
-                   ADD_LINE_ACTIVE, addB.x(), addB.y(),
-                   addB.width(), addB.height(),
-                   (ADD_LINE_ACTIVE ||
-                    singleton->scrollbarElement == AddLine) ? pg : g, TRUE );
-    if ( controls & SubLine )
-        drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
-                   SUB_LINE_ACTIVE, subB.x(), subB.y(),
-                   subB.width(), subB.height(),
-                   (SUB_LINE_ACTIVE ||
-                    singleton->scrollbarElement == SubLine) ? pg : g, TRUE );
-
-    QBrush fill = g.brush( QColorGroup::Mid );
-    if (sb->backgroundPixmap() ){
-        fill = QBrush( g.mid(), *sb->backgroundPixmap() );
-    }
-
-    if ( controls & SubPage )
-        p->fillRect( subPageR, fill );
-
-    if ( controls & AddPage )
-        p->fillRect( addPageR, fill );
-
-    if ( controls & Slider ) {
-        QPoint bo = p->brushOrigin();
-        p->setBrushOrigin(sliderR.topLeft());
-        if ( sliderR.isValid() ) {
-            drawBevelButton( p, sliderR.x(), sliderR.y(),
-                             sliderR.width(), sliderR.height(),
-                             (activeControl & Slider ||
-                              singleton->scrollbarElement == Slider) ? pg : g,
-                             FALSE,
-                             (activeControl & Slider ||
-                              singleton->scrollbarElement == Slider) ?
-                             &pg.brush( QColorGroup::Button ) :
-                             &g.brush( QColorGroup::Button ) );
-        }
-
-        p->setBrushOrigin(bo);
-    }
-
-}
-
-
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab,
-                              bool selected)
-{
-    QColorGroup g = tabbar->colorGroup();
-    QPen oldpen = p->pen();
-    QRect fr(tab->rect());
-
-    if (! selected) {
-        if (tabbar->shape() == QTabBar::RoundedAbove ||
-            tabbar->shape() == QTabBar::TriangularAbove) {
-            fr.setTop(fr.top() + 2);
-        } else {
-            fr.setBottom(fr.bottom() - 2);
-        }
-    }
-
-    fr.setWidth(fr.width() - 3);
-
-    p->fillRect(fr.left() + 1, fr.top() + 1, fr.width() - 2, fr.height() - 2,
-                (selected) ? g.brush(QColorGroup::Button)
-                           : g.brush(QColorGroup::Mid));
-
-    if (tabbar->shape() == QTabBar::RoundedAbove) {
-        // "rounded" tabs on top
-        fr.setBottom(fr.bottom() - 1);
-
-        p->setPen(g.light());
-        p->drawLine(fr.left(), fr.top() + 1, fr.left(), fr.bottom() - 1);
-        p->drawLine(fr.left() + 1, fr.top(), fr.right() - 1, fr.top());
-        if (! selected) p->drawLine(fr.left(), fr.bottom(),
-                                    fr.right() + 3, fr.bottom());
-
-        if (fr.left() == 0)
-            p->drawLine(fr.left(), fr.bottom(), fr.left(), fr.bottom() + 1);
-
-        p->setPen(g.dark());
-        p->drawLine(fr.right() - 1, fr.top() + 2,
-                    fr.right() - 1, fr.bottom() - 1);
-
-        p->setPen(black);
-        p->drawLine(fr.right(), fr.top() + 1, fr.right(), fr.bottom() - 1);
-    } else if (tabbar->shape() == QTabBar::RoundedBelow) {
-        // "rounded" tabs on bottom
-        fr.setTop(fr.top() + 1);
-
-        p->setPen(g.dark());
-        p->drawLine(fr.right() + 3, fr.top() - 1,
-                    fr.right() - 1, fr.top() - 1);
-        p->drawLine(fr.right() - 1, fr.top(),
-                    fr.right() - 1, fr.bottom() - 2);
-        p->drawLine(fr.right() - 1, fr.bottom() - 2,
-                    fr.left() + 2,  fr.bottom() - 2);
-        if (! selected) {
-            p->drawLine(fr.right(), fr.top() - 1,
-                        fr.left() + 1,  fr.top() - 1);
-
-            if (fr.left() != 0)
-                p->drawPoint(fr.left(), fr.top() - 1);
-        }
-
-        p->setPen(black);
-        p->drawLine(fr.right(), fr.top(),
-                    fr.right(), fr.bottom() - 2);
-        p->drawLine(fr.right() - 1, fr.bottom() - 1,
-                    fr.left(), fr.bottom() - 1);
-        if (! selected)
-            p->drawLine(fr.right() + 3, fr.top(), fr.left(), fr.top());
-        else
-            p->drawLine(fr.right() + 3, fr.top(), fr.right(), fr.top());
-
-        p->setPen(g.light());
-        p->drawLine(fr.left(), fr.top() + 1,
-                    fr.left(), fr.bottom() - 2);
-
-        if (selected) {
-            p->drawPoint(fr.left(), fr.top());
-            if (fr.left() == 0)
-                p->drawPoint(fr.left(), fr.top() - 1);
-
-            p->setPen(g.button());
-            p->drawLine(fr.left() + 2, fr.top() - 1, fr.left() + 1, fr.top() - 1);
-        }
-    } else {
-        // triangular drawing code
-        QCommonStyle::drawTab(p, tabbar, tab, selected);
-    }
-
-    p->setPen(oldpen);
-}
-
-
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::drawSlider(QPainter *p, int x, int y, int w, int h,
-                                 const QColorGroup &g, Orientation orientation,
-                                 bool, bool)
-{
-    QRect sliderR(x, y, w, h);
-    QColorGroup cg = g;
-
-    if ( (singleton->hovering && sliderR.contains(singleton->mousePos)) ||
-         singleton->sliderActive )
-        cg = singleton->prelight_palette.active();
-
-    if (orientation == Horizontal) {
-        drawButton(p, x, y, w / 2, h, cg, FALSE,
-                   &cg.brush(QColorGroup::Button));
-        drawButton(p, x + (w / 2), y, w / 2, h, cg, FALSE,
-                   &cg.brush(QColorGroup::Button));
-    } else {
-        drawButton(p, x, y, w, h / 2, cg, FALSE,
-                   &cg.brush(QColorGroup::Button));
-        drawButton(p, x, y + (h / 2), w, h / 2, cg, FALSE,
-                   &cg.brush(QColorGroup::Button));
+    switch (pe) {
+    case PE_ButtonCommand:
+    case PE_ButtonBevel:
+    case PE_ButtonTool:
+    case PE_HeaderSection:
+	drawMotifPlusShade( p, r, cg, bool(flags & (Style_Down | Style_On)));
+	break;
+
+    case PE_Panel:
+    case PE_PanelPopup:
+    case PE_PanelMenuBar:
+    case PE_PanelDockWindow:
+	drawMotifPlusShade( p, r, cg, bool(flags & Style_Sunken));
+	break;
+
+    case PE_Indicator:
+	{
+	    QBrush fill;
+	    if (flags & Style_On)
+		fill = cg.brush(QColorGroup::Mid);
+	    else
+		fill = cg.brush(QColorGroup::Button);
+
+	    if (flags & Style_NoChange) {
+		qDrawPlainRect(p, r, cg.text(), 1, &fill);
+		p->drawLine(r.topRight(), r.bottomLeft());
+	    } else
+		drawMotifPlusShade(p, r, cg, (flags & Style_On), &fill);
+	    break;
+	}
+
+    case PE_ExclusiveIndicator:
+	{
+	    QPen oldpen =  p->pen();
+	    QPointArray thick(8);
+	    QPointArray thin(4);
+	    int x, y, w, h;
+	    r.rect(&x, &y, &w, &h);
+
+	    p->fillRect(x, y, w, h, cg.button());
+
+
+	    if (flags & Style_On) {
+		thick.setPoint(0, x, y + (h / 2));
+		thick.setPoint(1, x + (w / 2), y);
+		thick.setPoint(2, x + 1, y + (h / 2));
+		thick.setPoint(3, x + (w / 2), y + 1);
+		thick.setPoint(4, x + (w / 2), y);
+		thick.setPoint(5, x + w - 1, y + (h / 2));
+		thick.setPoint(6, x + (w / 2), y + 1);
+		thick.setPoint(7, x + w - 2, y + (h / 2));
+		p->setPen(cg.dark());
+		p->drawLineSegments(thick);
+
+		thick.setPoint(0, x + 1, y + (h / 2) + 1);
+		thick.setPoint(1, x + (w / 2), y + h - 1);
+		thick.setPoint(2, x + 2, y + (h / 2) + 1);
+		thick.setPoint(3, x + (w / 2), y + h - 2);
+		thick.setPoint(4, x + (w / 2), y + h - 1);
+		thick.setPoint(5, x + w - 2, y + (h / 2) + 1);
+		thick.setPoint(6, x + (w / 2), y + h - 2);
+		thick.setPoint(7, x + w - 3, y + (h / 2) + 1);
+		p->setPen(cg.light());
+		p->drawLineSegments(thick);
+
+		thin.setPoint(0, x + 2, y + (h / 2));
+		thin.setPoint(1, x + (w / 2), y + 2);
+		thin.setPoint(2, x + (w / 2), y + 2);
+		thin.setPoint(3, x + w - 3, y + (h / 2));
+		p->setPen(Qt::black);
+		p->drawLineSegments(thin);
+
+		thin.setPoint(0, x + 3, y + (h / 2) + 1);
+		thin.setPoint(1, x + (w / 2), y + h - 3);
+		thin.setPoint(2, x + (w / 2), y + h - 3);
+		thin.setPoint(3, x + w - 4, y + (h / 2) + 1);
+		p->setPen(cg.mid());
+		p->drawLineSegments(thin);
+	    } else {
+		thick.setPoint(0, x, y + (h / 2));
+		thick.setPoint(1, x + (w / 2), y);
+		thick.setPoint(2, x + 1, y + (h / 2));
+		thick.setPoint(3, x + (w / 2), y + 1);
+		thick.setPoint(4, x + (w / 2), y);
+		thick.setPoint(5, x + w - 1, y + (h / 2));
+		thick.setPoint(6, x + (w / 2), y + 1);
+		thick.setPoint(7, x + w - 2, y + (h / 2));
+		p->setPen(cg.light());
+		p->drawLineSegments(thick);
+
+		thick.setPoint(0, x + 2, y + (h / 2) + 1);
+		thick.setPoint(1, x + (w / 2), y + h - 2);
+		thick.setPoint(2, x + 3, y + (h / 2) + 1);
+		thick.setPoint(3, x + (w / 2), y + h - 3);
+		thick.setPoint(4, x + (w / 2), y + h - 2);
+		thick.setPoint(5, x + w - 3, y + (h / 2) + 1);
+		thick.setPoint(6, x + (w / 2), y + h - 3);
+		thick.setPoint(7, x + w - 4, y + (h / 2) + 1);
+		p->setPen(cg.dark());
+		p->drawLineSegments(thick);
+
+		thin.setPoint(0, x + 2, y + (h / 2));
+		thin.setPoint(1, x + (w / 2), y + 2);
+		thin.setPoint(2, x + (w / 2), y + 2);
+		thin.setPoint(3, x + w - 3, y + (h / 2));
+		p->setPen(cg.button());
+		p->drawLineSegments(thin);
+
+		thin.setPoint(0, x + 1, y + (h / 2) + 1);
+		thin.setPoint(1, x + (w / 2), y + h - 1);
+		thin.setPoint(2, x + (w / 2), y + h - 1);
+		thin.setPoint(3, x + w - 2, y + (h / 2) + 1);
+		p->setPen(Qt::black);
+		p->drawLineSegments(thin);
+	    }
+
+	    p->setPen(oldpen);
+	    break;
+	}
+
+    case PE_ArrowDown:
+    case PE_ArrowLeft:
+    case PE_ArrowRight:
+    case PE_ArrowUp:
+	{
+	    QPen oldpen = p->pen();
+	    QBrush oldbrush = p->brush();
+	    QPointArray poly(3);
+	    bool down = (flags & Style_Down);
+	    int x, y, w, h;
+	    r.rect(&x, &y, &w, &h);
+
+	    p->save();
+	    p->setBrush(cg.button());
+
+	    switch (pe) {
+	    case PE_ArrowUp:
+		{
+		    poly.setPoint(0, x + (w / 2), y );
+		    poly.setPoint(1, x, y + h - 1);
+		    poly.setPoint(2, x + w - 1, y + h - 1);
+		    p->drawPolygon(poly);
+
+		    if (down)
+			p->setPen(cg.button());
+		    else
+			p->setPen(cg.dark());
+		    p->drawLine(x + 1, y + h - 2, x + w - 2, y + h - 2);
+
+		    if (down)
+			p->setPen(cg.light());
+		    else
+			p->setPen(black);
+		    p->drawLine(x, y + h - 1, x + w - 1, y + h - 1);
+
+		    if (down)
+			p->setPen(cg.button());
+		    else
+			p->setPen(cg.dark());
+		    p->drawLine(x + w - 2, y + h - 1, x + (w / 2), y + 1);
+
+		    if (down)
+			p->setPen(cg.light());
+		    else
+			p->setPen(black);
+		    p->drawLine(x + w - 1, y + h - 1, x + (w / 2), y);
+
+		    if (down)
+			p->setPen(black);
+		    else
+			p->setPen(cg.button());
+		    p->drawLine(x + (w / 2), y + 1, x + 1, y + h - 1);
+
+		    if (down)
+			p->setPen(cg.dark());
+		    else
+			p->setPen(cg.light());
+		    p->drawLine(x + (w / 2), y, x, y + h - 1);
+		    break;
+		}
+
+	    case PE_ArrowDown:
+		{
+		    poly.setPoint(0, x + w - 1, y);
+		    poly.setPoint(1, x, y);
+		    poly.setPoint(2, x + (w / 2), y + h - 1);
+		    p->drawPolygon(poly);
+
+		    if (down)
+			p->setPen(black);
+		    else
+			p->setPen(cg.button());
+		    p->drawLine(x + w - 2, y + 1, x + 1, y + 1);
+
+		    if (down)
+			p->setPen(cg.dark());
+		    else
+			p->setPen(cg.light());
+		    p->drawLine(x + w - 1, y, x, y);
+
+		    if (down)
+			p->setPen(black);
+		    else
+			p->setPen(cg.button());
+		    p->drawLine(x + 1, y, x + (w / 2), y + h - 2);
+
+		    if (down)
+			p->setPen(cg.dark());
+		    else
+			p->setPen(cg.light());
+		    p->drawLine(x, y, x + (w / 2), y + h - 1);
+
+		    if (down)
+			p->setPen(cg.button());
+		    else
+			p->setPen(cg.dark());
+		    p->drawLine(x + (w / 2), y + h - 2, x + w - 2, y);
+
+		    if (down)
+			p->setPen(cg.light());
+		    else
+			p->setPen(black);
+		    p->drawLine(x + (w / 2), y + h - 1, x + w - 1, y);
+		    break;
+		}
+
+	    case PE_ArrowLeft:
+		{
+		    poly.setPoint(0, x, y + (h / 2));
+		    poly.setPoint(1, x + w - 1, y + h - 1);
+		    poly.setPoint(2, x + w - 1, y);
+		    p->drawPolygon(poly);
+
+		    if (down)
+			p->setPen(cg.button());
+		    else
+			p->setPen(cg.dark());
+		    p->drawLine(x + 1, y + (h / 2), x + w - 1, y + h - 1);
+
+		    if (down)
+			p->setPen(cg.light());
+		    else
+			p->setPen(black);
+		    p->drawLine(x, y + (h / 2), x + w - 1, y + h - 1);
+
+		    if (down)
+			p->setPen(cg.button());
+		    else
+			p->setPen(cg.dark());
+		    p->drawLine(x + w - 2, y + h - 1, x + w - 2, y + 1);
+
+		    if (down)
+			p->setPen(cg.light());
+		    else
+			p->setPen(black);
+		    p->drawLine(x + w - 1, y + h - 1, x + w - 1, y);
+
+		    if (down)
+			p->setPen(black);
+		    else
+			p->setPen(cg.button());
+		    p->drawLine(x + w - 1, y + 1, x + 1, y + (h / 2));
+
+		    if (down)
+			p->setPen(cg.dark());
+		    else
+			p->setPen(cg.light());
+		    p->drawLine(x + w - 1, y, x, y + (h / 2));
+		    break;
+		}
+
+	    case PE_ArrowRight:
+		{
+		    poly.setPoint(0, x + w - 1, y + (h / 2));
+		    poly.setPoint(1, x, y);
+		    poly.setPoint(2, x, y + h - 1);
+		    p->drawPolygon(poly);
+
+		    if (down)
+			p->setPen(black);
+		    else
+			p->setPen(cg.button());
+		    p->drawLine( x + w - 1, y + (h / 2), x + 1, y + 1);
+
+		    if (down)
+			p->setPen(cg.dark());
+		    else
+			p->setPen(cg.light());
+		    p->drawLine(x + w - 1, y + (h / 2), x, y);
+
+		    if (down)
+			p->setPen(black);
+		    else
+			p->setPen(cg.button());
+		    p->drawLine(x + 1, y + 1, x + 1, y + h - 2);
+
+		    if (down)
+			p->setPen(cg.dark());
+		    else
+			p->setPen(cg.light());
+		    p->drawLine(x, y, x, y + h - 1);
+
+		    if (down)
+			p->setPen(cg.button());
+		    else
+			p->setPen(cg.dark());
+		    p->drawLine(x + 1, y + h - 2, x + w - 1, y + (h / 2));
+
+		    if (down)
+			p->setPen(cg.light());
+		    else
+			p->setPen(black);
+		    p->drawLine(x, y + h - 1, x + w - 1, y + (h / 2));
+		    break;
+		}
+
+	    default:
+		break;
+	    }
+
+	    p->restore();
+	    p->setBrush(oldbrush);
+	    p->setPen(oldpen);
+   	    break;
+	}
+
+    default:
+	QMotifStyle::drawPrimitive(pe, p, r, cg, flags, data);
+	break;
     }
 }
 
 
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::drawSliderGroove(QPainter *p, int x, int y, int w, int h,
-                                       const QColorGroup& g, QCOORD,
-                                       Orientation )
+void QMotifPlusStyle::drawControl( ControlElement element,
+				   QPainter *p,
+				   const QWidget *widget,
+				   const QRect &r,
+				   const QColorGroup &cg,
+				   SFlags how,
+				   void **data = 0 ) const
 {
-    drawButton(p, x, y, w, h, g, TRUE, &g.brush(QColorGroup::Mid));
+    switch (element) {
+    case CE_PushButton:
+	{
+	    const QPushButton *button = (const QPushButton *) widget;
+	    QRect br = r;
+	    int dbi = pixelMetric(PM_ButtonDefaultIndicator, widget);
+
+	    if (button->isEnabled())
+		how |= Style_Enabled;
+	    if (button->isOn())
+		how |= Style_On;
+	    if (button->isDown())
+		how |= Style_Down;
+	    else if (! button->isFlat() && ! (how & Style_Down))
+		how |= Style_Raised;
+
+	    if (button->isDefault() || button->autoDefault()) {
+		if ( button->isDefault())
+		    drawMotifPlusShade(p, br, cg, TRUE,
+				       &cg.brush(QColorGroup::Background));
+
+		br.setCoords(br.left()   + dbi,
+			     br.top()    + dbi,
+			     br.right()  - dbi,
+			     br.bottom() - dbi);
+	    }
+
+	    br.addCoords(1, 1, -1, -1);
+	    drawPrimitive(PE_ButtonCommand, p, br, cg, how);
+	    break;
+	}
+
+    case CE_MenuBarItem:
+	{
+	    if (! data)
+		break;
+
+	    QMenuItem *mi = (QMenuItem *) data[0];
+	    bool enabled = mi->isEnabled();
+	    bool active = how & Style_Active;
+	    if (enabled && active)
+		drawMotifPlusShade(p, r, singleton->prelight_palette.active(), FALSE);
+	    else
+		p->fillRect(r, cg.button());
+
+	    drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine,
+		     cg, enabled, mi->pixmap(), mi->text(), -1, &cg.buttonText());
+	    break;
+	}
+
+
+#ifndef QT_NO_POPUPMENU
+    case CE_PopupMenuItem:
+	{
+	    if (! widget || ! data)
+		break;
+
+	    QPopupMenu *popupmenu = (QPopupMenu *) widget;
+	    QMenuItem *mi = (QMenuItem *) data[0];
+	    if ( !mi )
+		break;
+
+	    int tab = *((int *) data[1]);
+	    int maxpmw = *((int *) data[2]);
+	    bool dis = ! mi->isEnabled();
+	    bool checkable = popupmenu->isCheckable();
+	    bool act = how & Style_Selected;
+	    int x, y, w, h;
+	    const QColorGroup &g = ((act && !dis) ?
+				    singleton->prelight_palette.active() : cg);
+
+	    r.rect(&x, &y, &w, &h);
+
+
+	    if (checkable)
+		maxpmw = QMAX(maxpmw, 15);
+
+	    int checkcol = maxpmw;
+
+	    if (mi && mi->isSeparator()) {
+		p->setPen( g.dark() );
+		p->drawLine( x, y, x+w, y );
+		p->setPen( g.light() );
+		p->drawLine( x, y+1, x+w, y+1 );
+		return;
+	    }
+
+	    if ( act && !dis )
+		drawMotifPlusShade(p, QRect(x, y, w, h), g, FALSE,
+				   &g.brush(QColorGroup::Button));
+	    else
+		p->fillRect(x, y, w, h, g.brush( QColorGroup::Button ));
+
+	    if ( !mi )
+		return;
+
+	    if ( mi->isChecked() ) {
+		if ( mi->iconSet() ) {
+		    qDrawShadePanel( p, x+2, y+2, checkcol, h-2*2,
+				     g, TRUE, 1, &g.brush( QColorGroup::Midlight ) );
+		}
+	    } else if ( !act ) {
+		p->fillRect(x+2, y+2, checkcol, h-2*2,
+			    g.brush( QColorGroup::Button ));
+	    }
+
+	    if ( mi->iconSet() ) {              // draw iconset
+		QIconSet::Mode mode = (!dis) ? QIconSet::Normal : QIconSet::Disabled;
+
+		if (act && !dis)
+		    mode = QIconSet::Active;
+
+		QPixmap pixmap;
+		if ( checkable && mi->isChecked() )
+		    pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode,
+						    QIconSet::On );
+		else
+		    pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
+
+		int pixw = pixmap.width();
+		int pixh = pixmap.height();
+
+		QRect cr( x + 2, y+2, checkcol, h-2*2 );
+		QRect pmr( 0, 0, pixw, pixh );
+
+		pmr.moveCenter(cr.center());
+
+		p->setPen( cg.text() );
+		p->drawPixmap( pmr.topLeft(), pixmap );
+
+	    } else if (checkable) {
+		int mw = checkcol;
+		int mh = h - 4;
+
+		if (mi->isChecked()) {
+		    SFlags cflags = Style_Default;
+		    if (! dis)
+			cflags |= Style_Enabled;
+		    if (act)
+			cflags |= Style_On;
+
+		    drawPrimitive(PE_CheckMark, p, QRect(x+2, y+2, mw, mh), cg, cflags);
+		}
+	    }
+
+	    p->setPen( g.buttonText() );
+
+	    QColor discol;
+	    if (dis) {
+		discol = cg.text();
+		p->setPen( discol );
+	    }
+
+	    if (mi->custom()) {
+		p->save();
+		mi->custom()->paint(p, cg, act, !dis, x + checkcol + 4, y + 2,
+				    w - checkcol - tab - 3, h - 4);
+		p->restore();
+	    }
+
+	    QString s = mi->text();
+	    if ( !s.isNull() ) {                        // draw text
+		int t = s.find( '\t' );
+		int m = 2;
+		const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+		if ( t >= 0 ) {                         // draw tab text
+		    p->drawText( x+w-tab-2-2,
+				 y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
+		}
+		p->drawText(x + checkcol + 4, y + 2, w - checkcol -tab - 3, h - 4,
+			    text_flags, s, t);
+	    } else if (mi->pixmap()) {
+		QPixmap *pixmap = mi->pixmap();
+
+		if (pixmap->depth() == 1) p->setBackgroundMode(OpaqueMode);
+		p->drawPixmap(x + checkcol + 2, y + 2, *pixmap);
+		if (pixmap->depth() == 1) p->setBackgroundMode(TransparentMode);
+	    }
+
+	    if (mi->popup()) {
+		int hh = h / 2;
+		drawPrimitive(PE_ArrowRight, p,
+			      QRect(x + w - hh - 6, y + (hh / 2), hh, hh), g,
+			      ((act && mi->isEnabled()) ?
+			       Style_Down : Style_Default) |
+			      ((mi->isEnabled()) ? Style_Enabled : Style_Default));
+	    }
+	    break;
+	}
+#endif // QT_NO_POPUPMENU
+
+    default:
+	QMotifStyle::drawControl(element, p, widget, r, cg, how, data);
+	break;
+    }
 }
 
 
-/*!
-  \reimp
-*/
+QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
+{
+    QRect rect;
+
+    switch (r) {
+    case SR_PushButtonFocusRect:
+	{
+	    const QPushButton *button = (const QPushButton *) widget;
+	    int dfi = pixelMetric(PM_ButtonDefaultIndicator, widget);
+
+	    rect = button->rect();
+	    if (button->isDefault() || button->autoDefault())
+		rect.addCoords(dfi, dfi, -dfi, -dfi);
+
+	    break;
+	}
+
+    default:
+	rect = QMotifStyle::subRect(r, widget);
+	break;
+    }
+
+    return rect;
+}
+
+
+/*! \reimp */
 bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 {
     switch(event->type()) {
@@ -1360,135 +979,427 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 
     case QEvent::Enter:
         {
-            if (object->isWidgetType()) {
-                singleton->hoverWidget = (QWidget *) object;
-                if (singleton->hoverWidget->isEnabled()) {
-                    if (object->inherits("QScrollBar") ||
-                        object->inherits("QSlider")) {
-                        singleton->hoverWidget->repaint(FALSE);
-                    } else if (object->inherits("QPushButton")) {
-                        QPalette pal = singleton->hoverWidget->palette();
+            if (! object->isWidgetType())
+		break;
 
-                        if (singleton->hoverWidget->ownPalette())
-                            singleton->hoverPalette = new QPalette(pal);
+	    singleton->hoverWidget = (QWidget *) object;
+	    if (singleton->hoverWidget->isEnabled()) {
+		if (object->inherits("QScrollBar") ||
+		    object->inherits("QSlider")) {
+		    singleton->hoverWidget->update(); // repaint(FALSE);
+		} else if (object->inherits("QPushButton")) {
+		    QPalette pal = singleton->hoverWidget->palette();
 
-                        pal.setColor(QPalette::Active, QColorGroup::Button,
-                                     singleton->prelight_palette.color(QPalette::Active,
-                                                               QColorGroup::Button));
-                        pal.setColor(QPalette::Inactive, QColorGroup::Button,
-                                     singleton->prelight_palette.color(QPalette::Inactive,
-                                                               QColorGroup::Button));
-                        singleton->hoverWidget->setPalette(pal);
-                    } else
-                        singleton->hoverWidget->setPalette(singleton->prelight_palette);
-                } else
-                    singleton->hoverWidget = 0;
-            }
+		    if (singleton->hoverWidget->ownPalette())
+			singleton->hoverPalette = new QPalette(pal);
 
-            break;
-        }
+		    pal.setColor(QPalette::Active, QColorGroup::Button,
+				 singleton->prelight_palette.color(QPalette::Active,
+								   QColorGroup::Button));
+		    pal.setColor(QPalette::Inactive, QColorGroup::Button,
+				 singleton->prelight_palette.color(QPalette::Inactive,
+								   QColorGroup::Button));
+		    singleton->hoverWidget->setPalette(pal);
+		} else
+		    singleton->hoverWidget->setPalette(singleton->prelight_palette);
+	    } else
+		singleton->hoverWidget = 0;
+
+	    break;
+	}
 
     case QEvent::Leave:
-        {
-            if (object == singleton->hoverWidget) {
-                if (singleton->hoverPalette) {
-                    singleton->hoverWidget->setPalette(*(singleton->hoverPalette));
-                    delete singleton->hoverPalette;
-                    singleton->hoverPalette = 0;
-                } else {
-                    singleton->hoverWidget->unsetPalette();
-                }
+	{
+	    if (object != singleton->hoverWidget)
+		break;
 
-                singleton->hoverWidget = 0;
-            }
+	    if (singleton->hoverPalette) {
+		singleton->hoverWidget->setPalette(*(singleton->hoverPalette));
+		delete singleton->hoverPalette;
+		singleton->hoverPalette = 0;
+	    } else {
+		singleton->hoverWidget->unsetPalette();
+	    }
 
-            break;
-        }
+	    singleton->hoverWidget = 0;
+
+
+	    break;
+	}
 
     case QEvent::MouseMove:
-        {
-            if (object->isWidgetType() &&
-                object == singleton->hoverWidget) {
-                if (object->inherits("QScrollBar") ||
-                    object->inherits("QSlider")) {
-                    singleton->mousePos = ((QMouseEvent *) event)->pos();
-                    singleton->hovering
-                        = (((QMouseEvent *) event)->button() == NoButton);
-                    singleton->hoverWidget->repaint(FALSE);
-                    singleton->hovering = FALSE;
-                }
-            }
+	{
+	    if (! object->isWidgetType() ||
+		object != singleton->hoverWidget)
+		break;
 
-            break;
-        }
+	    if (object->inherits("QScrollBar") ||
+		object->inherits("QSlider")) {
+		singleton->mousePos = ((QMouseEvent *) event)->pos();
+		singleton->hovering
+		    = (((QMouseEvent *) event)->button() == NoButton);
+		singleton->hoverWidget->update(); // repaint(FALSE);
+		singleton->hovering = FALSE;
+	    }
+
+	    break;
+	}
 
     default:
-        {
-            ;
-        }
+	break;
     }
 
     return QMotifStyle::eventFilter(object, event);
 }
 
-/*!\reimp
- */
-void QMotifPlusStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation,
-                                bool highlight, const QColorGroup &cg,
-                                bool /*drawBorder*/ )
-{
-    p->save();
-    p->translate( r.x(), r.y() );
 
-    unsigned int i;
 
-    if (orientation == Qt::Vertical) {
-        drawButton(p, r.x(), r.y(), r.width(), toolBarHandleExtent(),
-                   cg, FALSE, &cg.brush(((highlight) ?
-                                         QColorGroup::Highlight :
-                                         QColorGroup::Button)));
+// /*!
+//   \reimp
+// */
+// void QMotifPlusStyle::drawPushButton(QPushButton *button, QPainter *p)
+// {
+//     int x1, y1, x2, y2;
+//     button->rect().coords(&x1, &y1, &x2, &y2);
 
-        if (r.width() > 8) {
-            QPointArray a( 2 * ((r.width()-8)/3) );
+//     if (button->isDefault())
+//         drawButton(p, x1, y1, x2 - x1 + 1, y2 - y1 + 1,
+//                    qApp->palette().active(), TRUE);
 
-            int x = 3 + (r.width()%3)/2;
-            p->setPen( cg.dark() );
-            for( i=0; 2*i < a.size(); i ++ ) {
-                a.setPoint( 2*i, x+1+3*i, 6 );
-                a.setPoint( 2*i+1, x+2+3*i, 3 );
-            }
-            p->drawPoints( a );
-            p->setPen( cg.light() );
-            for( i=0; 2*i < a.size(); i++ ) {
-                a.setPoint( 2*i, x+3*i, 5 );
-                a.setPoint( 2*i+1, x+1+3*i, 2 );
-            }
-            p->drawPoints( a );
-        }
-    } else {
-        drawButton(p, r.x(), r.y(), toolBarHandleExtent(), r.height(),
-                   cg, FALSE, &cg.brush(((highlight) ?
-                                         QColorGroup::Highlight :
-                                         QColorGroup::Button)));
+//     if (button->isDefault() || button->autoDefault()) {
+//         x1 += buttonDefaultIndicatorWidth();
+//         y1 += buttonDefaultIndicatorWidth();
+//         x2 -= buttonDefaultIndicatorWidth();
+//         y2 -= buttonDefaultIndicatorWidth();
+//     }
 
-        if ( r.height() > 8 ) {
-            QPointArray a( 2 * ((r.height()-8)/3) );
+//     QBrush fill;
+//     if (button->isDown() || button->isOn())
+//         fill = button->colorGroup().brush(QColorGroup::Mid);
+//     else
+//         fill = button->colorGroup().brush(QColorGroup::Button);
 
-            int y = 3 + (r.height()%3)/2;
-            p->setPen( cg.dark() );
-            for( i=0; 2*i < a.size(); i ++ ) {
-                a.setPoint( 2*i, 5, y+1+3*i );
-                a.setPoint( 2*i+1, 2, y+2+3*i );
-            }
-            p->drawPoints( a );
-            p->setPen( cg.light() );
-            for( i=0; 2*i < a.size(); i++ ) {
-                a.setPoint( 2*i, 4, y+3*i );
-                a.setPoint( 2*i+1, 1, y+1+3*i );
-            }
-            p->drawPoints( a );
-        }
-    }
-    p->restore();
-}
+//     if ( !button->isFlat() || button->isOn() || button->isDown() )
+//         drawButton(p, x1, y1, x2 - x1 + 1, y2 - y1 + 1,
+//                    button->colorGroup(), button->isOn() || button->isDown(), &fill);
+// }
+
+// /*!
+//   \reimp
+// */
+// void QMotifPlusStyle::drawComboButton(QPainter *p, int x, int y, int w, int h,
+//                                       const QColorGroup &g, bool sunken,
+//                                       bool editable, bool,
+//                                       const QBrush *fill)
+// {
+//     drawButton(p, x, y, w, h, g, sunken, fill);
+
+//     if (editable) {
+//         QRect r = comboButtonRect(x, y, w, h);
+//         drawButton(p, r.x() - defaultFrameWidth(),
+//                    r.y() - defaultFrameWidth(),
+//                    r.width() + (defaultFrameWidth() * 2),
+//                    r.height() + (defaultFrameWidth() * 2),
+//                    g, TRUE);
+//     }
+
+//     int indent = ((y + h) / 2) - 6;
+//     int xpos = x;
+//     if( QApplication::reverseLayout() )
+//         xpos += indent;
+//     else
+//         xpos += w - indent - 13;
+//     drawArrow(p, Qt::DownArrow, TRUE, xpos, indent,
+//         13, 13, g, TRUE, fill);
+// }
+
+
+// /*!
+//   \reimp
+// */
+// QRect QMotifPlusStyle::comboButtonRect( int x, int y, int w, int h ) const
+// {
+//     QRect r(x + (defaultFrameWidth() * 2), y + (defaultFrameWidth() * 2),
+//             w - (defaultFrameWidth() * 4), h - (defaultFrameWidth() * 4));
+
+//     int indent = ((y + h) / 2) - defaultFrameWidth();
+//     r.setRight(r.right() - indent - 13);
+//     if( QApplication::reverseLayout() )
+//         r.moveBy( indent + 13, 0 );
+//     return r;
+// }
+
+
+// /*!
+//   \reimp
+// */
+// QRect QMotifPlusStyle::comboButtonFocusRect(int x, int y, int w, int h ) const
+// {
+//     return comboButtonRect(x, y, w, h);
+// }
+
+// #define HORIZONTAL      (sb->orientation() == QScrollBar::Horizontal)
+// #define VERTICAL        !HORIZONTAL
+// #define MOTIF_BORDER    defaultFrameWidth()
+// #define SLIDER_MIN      buttonDim
+
+// /*!
+//   \reimp
+// */
+// void QMotifPlusStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
+//                                              int sliderStart, uint controls,
+//                                              uint activeControl )
+// {
+// #define ADD_LINE_ACTIVE ( activeControl == AddLine )
+// #define SUB_LINE_ACTIVE ( activeControl == SubLine )
+//     QColorGroup g  = sb->colorGroup();
+//     QColorGroup pg = singleton->prelight_palette.active();
+
+//     int sliderMin, sliderMax, sliderLength, buttonDim;
+//     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
+
+//     if (sliderStart > sliderMax) { // sanity check
+//         sliderStart = sliderMax;
+//     }
+
+//     int b = MOTIF_BORDER;
+//     int dimB = buttonDim;
+//     QRect addB;
+//     QRect subB;
+//     QRect addPageR;
+//     QRect subPageR;
+//     QRect sliderR;
+//     int addX, addY, subX, subY;
+//     int length = HORIZONTAL ? sb->width()  : sb->height();
+//     int extent = HORIZONTAL ? sb->height() : sb->width();
+
+//     if ( HORIZONTAL ) {
+//         subY = addY = ( extent - dimB ) / 2;
+//         subX = b;
+//         addX = length - dimB - b;
+//     } else {
+//         subX = addX = ( extent - dimB ) / 2;
+//         subY = b;
+//         addY = length - dimB - b;
+//     }
+
+//     subB.setRect( subX,subY,dimB,dimB );
+//     addB.setRect( addX,addY,dimB,dimB );
+
+//     int sliderEnd = sliderStart + sliderLength;
+//     int sliderW = extent - b*2;
+//     if ( HORIZONTAL ) {
+//         subPageR.setRect( subB.right() + 1, b,
+//                           sliderStart - subB.right() - 1 , sliderW );
+//         addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
+//         sliderR .setRect( sliderStart, b, sliderLength, sliderW );
+//     } else {
+//         subPageR.setRect( b, subB.bottom() + 1, sliderW,
+//                           sliderStart - subB.bottom() - 1 );
+//         addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
+//         sliderR .setRect( b, sliderStart, sliderW, sliderLength );
+//     }
+
+//     bool scrollbarUpdate = FALSE;
+//     if (singleton->hovering) {
+//         if (addB.contains(singleton->mousePos)) {
+//             scrollbarUpdate = (singleton->scrollbarElement == AddLine);
+//             singleton->scrollbarElement = AddLine;
+//         } else if (subB.contains(singleton->mousePos)) {
+//             scrollbarUpdate = (singleton->scrollbarElement == SubLine);
+//             singleton->scrollbarElement = SubLine;
+//         } else if (sliderR.contains(singleton->mousePos)) {
+//             scrollbarUpdate = (singleton->scrollbarElement == Slider);
+//             singleton->scrollbarElement = Slider;
+//         } else
+//             singleton->scrollbarElement = 0;
+//     } else
+//         singleton->scrollbarElement = 0;
+
+//     if (scrollbarUpdate) return;
+
+//     if ( controls == ( AddLine | SubLine | AddPage | SubPage |
+//                        Slider | First | Last ) )
+//         drawButton(p, sb->rect().x(), sb->rect().y(),
+//                    sb->rect().width(), sb->rect().height(), g, TRUE,
+//                    &g.brush(QColorGroup::Mid));
+
+//     if ( controls & AddLine )
+//         drawArrow( p, VERTICAL ? DownArrow : RightArrow,
+//                    ADD_LINE_ACTIVE, addB.x(), addB.y(),
+//                    addB.width(), addB.height(),
+//                    (ADD_LINE_ACTIVE ||
+//                     singleton->scrollbarElement == AddLine) ? pg : g, TRUE );
+//     if ( controls & SubLine )
+//         drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
+//                    SUB_LINE_ACTIVE, subB.x(), subB.y(),
+//                    subB.width(), subB.height(),
+//                    (SUB_LINE_ACTIVE ||
+//                     singleton->scrollbarElement == SubLine) ? pg : g, TRUE );
+
+//     QBrush fill = g.brush( QColorGroup::Mid );
+//     if (sb->backgroundPixmap() ){
+//         fill = QBrush( g.mid(), *sb->backgroundPixmap() );
+//     }
+
+//     if ( controls & SubPage )
+//         p->fillRect( subPageR, fill );
+
+//     if ( controls & AddPage )
+//         p->fillRect( addPageR, fill );
+
+//     if ( controls & Slider ) {
+//         QPoint bo = p->brushOrigin();
+//         p->setBrushOrigin(sliderR.topLeft());
+//         if ( sliderR.isValid() ) {
+//             drawBevelButton( p, sliderR.x(), sliderR.y(),
+//                              sliderR.width(), sliderR.height(),
+//                              (activeControl & Slider ||
+//                               singleton->scrollbarElement == Slider) ? pg : g,
+//                              FALSE,
+//                              (activeControl & Slider ||
+//                               singleton->scrollbarElement == Slider) ?
+//                              &pg.brush( QColorGroup::Button ) :
+//                              &g.brush( QColorGroup::Button ) );
+//         }
+
+//         p->setBrushOrigin(bo);
+//     }
+
+// }
+
+
+// /*!
+//   \reimp
+// */
+// void QMotifPlusStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab,
+//                               bool selected)
+// {
+//     QColorGroup g = tabbar->colorGroup();
+//     QPen oldpen = p->pen();
+//     QRect fr(tab->rect());
+
+//     if (! selected) {
+//         if (tabbar->shape() == QTabBar::RoundedAbove ||
+//             tabbar->shape() == QTabBar::TriangularAbove) {
+//             fr.setTop(fr.top() + 2);
+//         } else {
+//             fr.setBottom(fr.bottom() - 2);
+//         }
+//     }
+
+//     fr.setWidth(fr.width() - 3);
+
+//     p->fillRect(fr.left() + 1, fr.top() + 1, fr.width() - 2, fr.height() - 2,
+//                 (selected) ? g.brush(QColorGroup::Button)
+//                            : g.brush(QColorGroup::Mid));
+
+//     if (tabbar->shape() == QTabBar::RoundedAbove) {
+//         // "rounded" tabs on top
+//         fr.setBottom(fr.bottom() - 1);
+
+//         p->setPen(g.light());
+//         p->drawLine(fr.left(), fr.top() + 1, fr.left(), fr.bottom() - 1);
+//         p->drawLine(fr.left() + 1, fr.top(), fr.right() - 1, fr.top());
+//         if (! selected) p->drawLine(fr.left(), fr.bottom(),
+//                                     fr.right() + 3, fr.bottom());
+
+//         if (fr.left() == 0)
+//             p->drawLine(fr.left(), fr.bottom(), fr.left(), fr.bottom() + 1);
+
+//         p->setPen(g.dark());
+//         p->drawLine(fr.right() - 1, fr.top() + 2,
+//                     fr.right() - 1, fr.bottom() - 1);
+
+//         p->setPen(black);
+//         p->drawLine(fr.right(), fr.top() + 1, fr.right(), fr.bottom() - 1);
+//     } else if (tabbar->shape() == QTabBar::RoundedBelow) {
+//         // "rounded" tabs on bottom
+//         fr.setTop(fr.top() + 1);
+
+//         p->setPen(g.dark());
+//         p->drawLine(fr.right() + 3, fr.top() - 1,
+//                     fr.right() - 1, fr.top() - 1);
+//         p->drawLine(fr.right() - 1, fr.top(),
+//                     fr.right() - 1, fr.bottom() - 2);
+//         p->drawLine(fr.right() - 1, fr.bottom() - 2,
+//                     fr.left() + 2,  fr.bottom() - 2);
+//         if (! selected) {
+//             p->drawLine(fr.right(), fr.top() - 1,
+//                         fr.left() + 1,  fr.top() - 1);
+
+//             if (fr.left() != 0)
+//                 p->drawPoint(fr.left(), fr.top() - 1);
+//         }
+
+//         p->setPen(black);
+//         p->drawLine(fr.right(), fr.top(),
+//                     fr.right(), fr.bottom() - 2);
+//         p->drawLine(fr.right() - 1, fr.bottom() - 1,
+//                     fr.left(), fr.bottom() - 1);
+//         if (! selected)
+//             p->drawLine(fr.right() + 3, fr.top(), fr.left(), fr.top());
+//         else
+//             p->drawLine(fr.right() + 3, fr.top(), fr.right(), fr.top());
+
+//         p->setPen(g.light());
+//         p->drawLine(fr.left(), fr.top() + 1,
+//                     fr.left(), fr.bottom() - 2);
+
+//         if (selected) {
+//             p->drawPoint(fr.left(), fr.top());
+//             if (fr.left() == 0)
+//                 p->drawPoint(fr.left(), fr.top() - 1);
+
+//             p->setPen(g.button());
+//             p->drawLine(fr.left() + 2, fr.top() - 1, fr.left() + 1, fr.top() - 1);
+//         }
+//     } else {
+//         // triangular drawing code
+//         QCommonStyle::drawTab(p, tabbar, tab, selected);
+//     }
+
+//     p->setPen(oldpen);
+// }
+
+
+// /*!
+//   \reimp
+// */
+// void QMotifPlusStyle::drawSlider(QPainter *p, int x, int y, int w, int h,
+//                                  const QColorGroup &g, Orientation orientation,
+//                                  bool, bool)
+// {
+//     QRect sliderR(x, y, w, h);
+//     QColorGroup cg = g;
+
+//     if ( (singleton->hovering && sliderR.contains(singleton->mousePos)) ||
+//          singleton->sliderActive )
+//         cg = singleton->prelight_palette.active();
+
+//     if (orientation == Horizontal) {
+//         drawButton(p, x, y, w / 2, h, cg, FALSE,
+//                    &cg.brush(QColorGroup::Button));
+//         drawButton(p, x + (w / 2), y, w / 2, h, cg, FALSE,
+//                    &cg.brush(QColorGroup::Button));
+//     } else {
+//         drawButton(p, x, y, w, h / 2, cg, FALSE,
+//                    &cg.brush(QColorGroup::Button));
+//         drawButton(p, x, y + (h / 2), w, h / 2, cg, FALSE,
+//                    &cg.brush(QColorGroup::Button));
+//     }
+// }
+
+
+// /*!
+//   \reimp
+// */
+// void QMotifPlusStyle::drawSliderGroove(QPainter *p, int x, int y, int w, int h,
+//                                        const QColorGroup& g, QCOORD,
+//                                        Orientation )
+// {
+//     drawButton(p, x, y, w, h, g, TRUE, &g.brush(QColorGroup::Mid));
+// }
+
+
 #endif // QT_NO_STYLE_MOTIFPLUS

@@ -69,73 +69,96 @@ public:
 
     void polishPopupMenu(QPopupMenu *menu);
 
-    int defaultFrameWidth() const;
+    void drawPrimitive( PrimitiveElement pe,
+			QPainter *p,
+			const QRect &r,
+			const QColorGroup &cg,
+			SFlags flags = Style_Default,
+			void **data = 0 ) const;
 
-    void drawArrow(QPainter *p, ArrowType type, bool down,
-                   int x, int y, int w, int h,
-                   const QColorGroup &g, bool,
-                   const QBrush * = 0);
+    void drawControl( ControlElement element,
+		      QPainter *p,
+		      const QWidget *widget,
+		      const QRect &r,
+		      const QColorGroup &cg,
+		      SFlags how = Style_Default,
+		      void **data = 0 ) const;
 
-    void drawMenuBarItem( QPainter *p, int x, int y, int w, int h,
-                          QMenuItem *mi, QColorGroup &g, bool active,
-                          bool down, bool hasFocus );
-    void drawPopupMenuItem( QPainter *p, bool checkable, int maxpmw, int tab,
-                            QMenuItem *mi, const QPalette &pl, bool act,
-                            bool enabled, int x, int y, int w, int h );
+    QRect subRect(SubRect r, const QWidget *widget) const;
 
-    void drawPushButton(QPushButton *button, QPainter *p);
-    void drawButton(QPainter *p, int x, int y, int w, int h,
-                    const QColorGroup &g, bool sunken = FALSE,
-                    const QBrush *fill = 0);
-    void drawBevelButton(QPainter *p, int x, int y, int w, int h,
-                         const QColorGroup &g, bool sunken = FALSE,
-                         const QBrush *fill = 0);
-    void getButtonShift(int &x, int &y) const;
+    int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
 
-    void drawComboButton(QPainter *p, int x, int y, int w, int h,
-                         const QColorGroup &g, bool sunken = FALSE,
-                         bool editable = FALSE, bool = TRUE,
-                         const QBrush *fill = 0);
-    QRect comboButtonRect(int x, int y, int w, int h) const;
-    QRect comboButtonFocusRect(int x, int y, int w, int h) const;
+    /*
+      int defaultFrameWidth() const;
 
-    void drawIndicator(QPainter *p, int x, int y ,int w, int h,
-                       const QColorGroup &g, int state,
-                       bool = FALSE, bool = TRUE);
-    QSize indicatorSize() const;
+      void drawArrow(QPainter *p, ArrowType type, bool down,
+      int x, int y, int w, int h,
+      const QColorGroup &g, bool,
+      const QBrush * = 0);
 
-    void drawExclusiveIndicator(QPainter *p, int x, int y ,int w, int h,
-                                const QColorGroup &g, bool on,
-                                bool = FALSE, bool = TRUE);
-    QSize exclusiveIndicatorSize() const;
+      void drawMenuBarItem( QPainter *p, int x, int y, int w, int h,
+      QMenuItem *mi, QColorGroup &g, bool active,
+      bool down, bool hasFocus );
+      void drawPopupMenuItem( QPainter *p, bool checkable, int maxpmw, int tab,
+      QMenuItem *mi, const QPalette &pl, bool act,
+      bool enabled, int x, int y, int w, int h );
 
-    void drawPanel(QPainter * p, int x, int y, int w, int h,
-                   const QColorGroup &g, bool sunken = FALSE,
-                   int = 1, const QBrush * = 0);
+      void drawPushButton(QPushButton *button, QPainter *p);
+      void drawButton(QPainter *p, int x, int y, int w, int h,
+      const QColorGroup &g, bool sunken = FALSE,
+      const QBrush *fill = 0);
+      void drawBevelButton(QPainter *p, int x, int y, int w, int h,
+      const QColorGroup &g, bool sunken = FALSE,
+      const QBrush *fill = 0);
+      void getButtonShift(int &x, int &y) const;
 
-    void scrollBarMetrics( const QScrollBar *,
-                           int &, int &, int &, int & ) const;
-    void drawScrollBarControls(QPainter* p, const QScrollBar* sb,
-                               int sliderStart, uint controls,
-                               uint activeControl);
+      void drawComboButton(QPainter *p, int x, int y, int w, int h,
+      const QColorGroup &g, bool sunken = FALSE,
+      bool editable = FALSE, bool = TRUE,
+      const QBrush *fill = 0);
+      QRect comboButtonRect(int x, int y, int w, int h) const;
+      QRect comboButtonFocusRect(int x, int y, int w, int h) const;
 
-    void drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab, bool selected);
+      void drawIndicator(QPainter *p, int x, int y ,int w, int h,
+      const QColorGroup &g, int state,
+      bool = FALSE, bool = TRUE);
+      QSize indicatorSize() const;
 
-    void drawSlider(QPainter *p, int x, int y, int w, int h,
-                    const QColorGroup &g, Orientation orientation,
-                    bool, bool);
-    void drawSliderGroove(QPainter *p, int x, int y, int w, int h,
-                          const QColorGroup& g, QCOORD,
-                          Orientation );
-    void drawToolBarHandle( QPainter *p, const QRect &r,
-                            Qt::Orientation orientation,
-                            bool highlight, const QColorGroup &cg,
-                            bool drawBorder = FALSE );
+      void drawExclusiveIndicator(QPainter *p, int x, int y ,int w, int h,
+      const QColorGroup &g, bool on,
+      bool = FALSE, bool = TRUE);
+      QSize exclusiveIndicatorSize() const;
 
-    QSize scrollBarExtent() const;
-    int buttonDefaultIndicatorWidth() const;
-    int buttonMargin() const;
-    int sliderThickness() const;
+      void drawPanel(QPainter * p, int x, int y, int w, int h,
+      const QColorGroup &g, bool sunken = FALSE,
+      int = 1, const QBrush * = 0);
+
+      void scrollBarMetrics( const QScrollBar *,
+      int &, int &, int &, int & ) const;
+      void drawScrollBarControls(QPainter* p, const QScrollBar* sb,
+      int sliderStart, uint controls,
+      uint activeControl);
+
+      void drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab, bool selected);
+
+      void drawSlider(QPainter *p, int x, int y, int w, int h,
+      const QColorGroup &g, Orientation orientation,
+      bool, bool);
+      void drawSliderGroove(QPainter *p, int x, int y, int w, int h,
+      const QColorGroup& g, QCOORD,
+      Orientation );
+      void drawToolBarHandle( QPainter *p, const QRect &r,
+      Qt::Orientation orientation,
+      bool highlight, const QColorGroup &cg,
+      bool drawBorder = FALSE );
+
+      QSize scrollBarExtent() const;
+      int buttonDefaultIndicatorWidth() const;
+      int buttonMargin() const;
+      int sliderThickness() const;
+    */
+
+
 protected:
     bool eventFilter(QObject *, QEvent *);
 
