@@ -126,6 +126,7 @@ public:
 
     void fill(uint pixel);
 
+    bool hasAlphaChannel() const;
     void setAlphaChannel(const QImage &alphaChannel);
     QImage alphaChannel() const;
 #ifndef QT_NO_IMAGE_DITHER_TO_1

@@ -1664,8 +1664,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     pixmap.data->h = h;
     pixmap.data->d = dd;
 
-    if (image.format() == QImage::Format_ARGB32
-        || image.format() == QImage::Format_ARGB32_Premultiplied) {
+    if (image.hasAlphaChannel()) {
         QBitmap m = QBitmap::fromImage(image.createAlphaMask(flags));
         pixmap.setMask(m);
     }

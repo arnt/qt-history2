@@ -54,13 +54,14 @@ struct QImageData {        // internal image data
     uchar **jumptable;
 #endif
     QImage::Format format;
-    bool own_data;
     int bytes_per_line;
     int ser_no;               // serial number
 
     qreal  dpmx;                // dots per meter X (or 0)
     qreal  dpmy;                // dots per meter Y (or 0)
     QPoint  offset;           // offset in pixels
+    uint own_data : 1;
+    uint has_alpha_clut : 1;
 
 #ifndef QT_NO_IMAGE_TEXT
     QMap<QImageTextKeyLang, QString> text_lang;
@@ -178,6 +179,7 @@ QImageData * QImageData::create(const QSize &size, QImage::Format format, int nu
     d->height = height;
     d->depth = depth;
     d->format = format;
+    d->has_alpha_clut = false;
 
     d->bytes_per_line = ((width * d->depth + 31) >> 5) << 2; // bytes per scanline (must be multiple of 8)
 
@@ -838,6 +840,7 @@ QImage QImage::copy(const QRect& r) const
         image.d->dpmx = d->dpmx;
         image.d->dpmy = d->dpmy;
         image.d->offset = d->offset;
+        image.d->has_alpha_clut = d->has_alpha_clut;
 #ifndef QT_NO_IMAGE_TEXT
         image.d->text_lang = d->text_lang;
 #endif
@@ -923,6 +926,7 @@ QImage QImage::copy(const QRect& r) const
     image.d->dpmx = dotsPerMeterX();
     image.d->dpmy = dotsPerMeterY();
     image.d->offset = offset();
+    image.d->has_alpha_clut = d->has_alpha_clut;
 #ifndef QT_NO_IMAGE_TEXT
     image.d->text_lang = d->text_lang;
 #endif
@@ -1093,6 +1097,8 @@ void QImage::setColorTable(const QVector<QRgb> colors)
         return;
     detach();
     d->colortable = colors;
+    for (int i = 0; i < d->colortable.size(); ++i)
+        d->has_alpha_clut |= (qAlpha(d->colortable.at(i)) != 255);
 }
 
 /*!
@@ -1178,6 +1184,7 @@ void QImage::setColor(int i, QRgb c)
     detach();
     Q_ASSERT(i < numColors());
     d->colortable[i] = c;
+    d->has_alpha_clut |= (qAlpha(c) != 255);
 }
 
 /*!
@@ -4014,7 +4021,7 @@ bool QImage::isDetached() const
 }
 
 
-/*
+/*!
     Sets the alpha channel of this image to \a alphaChannel.
 
     If \a alphaChannel is an 8 bit grayscale image, the intensity
@@ -4024,19 +4031,12 @@ bool QImage::isDetached() const
 
     The image will be converted to the format
     Format_ARGB32_Premultiplied if the function succeeds.
-
-    This function has no effect if the image is not 32 bit.
 */
 
 void QImage::setAlphaChannel(const QImage &alphaChannel)
 {
     if (!d)
         return;
-
-    if (d->depth != 32) {
-        qWarning("QImage::setAlphaChannel(), image must be 32-bit");
-        return;
-    }
 
     int w = d->width;
     int h = d->height;
@@ -4096,19 +4096,15 @@ void QImage::setAlphaChannel(const QImage &alphaChannel)
 }
 
 
-/*
+/*!
     Extracts the alpha channel from this image as an 8 bit gray scale
     image and returns it.
-
-    The alphachannel is only accessible for 32 bit images.
 */
 
 QImage QImage::alphaChannel() const
 {
-    if (!d || d->depth != 32) {
-        qWarning("QImage::alphaChannel(), image is not 32 bit");
+    if (!d)
         return QImage();
-    }
 
     int w = d->width;
     int h = d->height;
@@ -4120,7 +4116,21 @@ QImage QImage::alphaChannel() const
     for (int i=0; i<256; ++i)
         image.setColor(i, qRgb(i, i, i));
 
-    if (d->format == Format_ARGB32 || d->format == Format_ARGB32_Premultiplied) {
+    if (d->format == Format_Indexed8 && hasAlphaChannel()) {
+        const uchar *src_data = d->data;
+        uchar *dest_data = image.d->data;
+        for (int y=0; y<h; ++y) {
+            const QRgb *src = (const QRgb *) src_data;
+            uchar *dest = dest_data;
+            for (int x=0; x<w; ++x) {
+                *dest = qAlpha(d->colortable.at(*src));
+                ++dest;
+                ++src;
+            }
+            src_data += d->bytes_per_line;
+            dest_data += image.d->bytes_per_line;
+        }
+    } else if (d->format == Format_ARGB32 || d->format == Format_ARGB32_Premultiplied) {
         const uchar *src_data = d->data;
         uchar *dest_data = image.d->data;
         for (int y=0; y<h; ++y) {
@@ -4139,6 +4149,16 @@ QImage QImage::alphaChannel() const
     }
 
     return image;
+}
+
+/*!
+    Returns true if the image has an alpha channel.
+*/
+bool QImage::hasAlphaChannel() const
+{
+    return d && (d->format == Format_ARGB32_Premultiplied
+                 || d->format == Format_ARGB32
+                 || (d->format == Format_Indexed8 && d->has_alpha_clut));
 }
 
 
