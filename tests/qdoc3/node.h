@@ -21,8 +21,8 @@ public:
     enum Type { Namespace, Class, Fake, Enum, Typedef, Function, Property };
     enum Access { Public, Protected, Private };
 
-    // the order is important for inheritedStatus()
-    enum Status { Commendable, Preliminary, Deprecated, Obsolete };
+    // the order is important
+    enum Status { Obsolete, Deprecated, Preliminary, Commendable };
 
     virtual ~Node();
 
@@ -233,7 +233,6 @@ public:
     void setConst( bool conste ) { con = conste; }
     void setStatic( bool statique ) { sta = statique; }
     void setOverload( bool overlode );
-    void setReimplementation( bool reimp ) { rei = reimp; }
     void addParameter( const Parameter& parameter );
     void borrowParameterNames( const FunctionNode *source );
     void setReimplementedFrom( FunctionNode *from );
@@ -244,7 +243,6 @@ public:
     bool isConst() const { return con; }
     bool isStatic() const { return sta; }
     bool isOverload() const { return ove; }
-    bool isReimplementation() const { return rei; }
     int overloadNumber() const;
     const QValueList<Parameter>& parameters() const { return params; }
     QStringList parameterNames() const;
@@ -260,7 +258,6 @@ private:
     bool con;
     bool sta;
     bool ove;
-    bool rei;
     QValueList<Parameter> params;
     const FunctionNode *rf;
     QValueList<FunctionNode *> rb;

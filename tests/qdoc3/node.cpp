@@ -31,7 +31,7 @@ Node::Status Node::inheritedStatus() const
     Status parentStatus = Commendable;
     if ( par != 0 )
 	parentStatus = inheritedStatus();
-    return (Status) QMAX( (int) sta, (int) parentStatus );
+    return QMIN( sta, parentStatus );
 }
 
 InnerNode::~InnerNode()
@@ -330,7 +330,7 @@ Parameter& Parameter::operator=( const Parameter& p )
 
 FunctionNode::FunctionNode( InnerNode *parent, const QString& name )
     : LeafNode( Function, parent, name ), met( Plain ), vir( NonVirtual ),
-      con( FALSE ), sta( FALSE ), ove( FALSE ), rei( FALSE ), rf( 0 )
+      con( FALSE ), sta( FALSE ), ove( FALSE ), rf( 0 )
 {
 }
 

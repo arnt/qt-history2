@@ -247,7 +247,13 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
 	}
     } else if ( command == COMMAND_REIMP ) {
 	if ( node != 0 && node->type() == Node::Function ) {
-	    ((FunctionNode *) node)->setReimplementation( TRUE );
+	    FunctionNode *func = (FunctionNode *) node;
+	    if ( func->reimplementedFrom() == 0 ) {
+		doc.location().warning( tr("Cannot find base function for '\\%1'")
+					.arg(COMMAND_REIMP) );
+	    } else {
+		func->setAccess( Node::Private );
+	    }
 	} else {
 	    doc.location().warning( tr("Ignored '\\%1'").arg(COMMAND_REIMP) );
 	}
