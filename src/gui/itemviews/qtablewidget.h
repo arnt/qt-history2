@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTABLEVIEW_H
-#define QTABLEVIEW_H
+#ifndef QTABLEWIDGET_H
+#define QTABLEWIDGET_H
 
 #ifndef QT_H
 #include <qgenerictableview.h>
@@ -22,12 +22,12 @@
 #include <qstring.h>
 #endif
 
-class Q_GUI_EXPORT QTableViewItem
+class Q_GUI_EXPORT QTableWidgetItem
 {
 
 public:
-    QTableViewItem() : edit(true), select(true) {}
-    ~QTableViewItem() {}
+    QTableWidgetItem() : edit(true), select(true) {}
+    ~QTableWidgetItem() {}
 
     inline QString text() const { return data(QAbstractItemModel::DisplayRole).toString(); }
     inline QIconSet iconSet() const { return data(QAbstractItemModel::DecorationRole).toIconSet(); }
@@ -39,8 +39,8 @@ public:
     inline void setEditable(bool editable) { edit = editable; }
     inline void setSelectable(bool selectable) { select = selectable; }
 
-    bool operator ==(const QTableViewItem &other) const;
-    inline bool operator !=(const QTableViewItem &other) const { return !operator==(other); }
+    bool operator ==(const QTableWidgetItem &other) const;
+    inline bool operator !=(const QTableWidgetItem &other) const { return !operator==(other); }
 
     QVariant data(int role) const;
     void setData(int role, const QVariant &value);
@@ -61,22 +61,22 @@ private:
     uint select : 1;
 };
 
-class QTableViewPrivate;
+class QTableWidgetPrivate;
 
-class Q_GUI_EXPORT QTableView : public QGenericTableView
+class Q_GUI_EXPORT QTableWidget : public QGenericTableView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTableView)
+    Q_DECLARE_PRIVATE(QTableWidget)
 
 public:
-    QTableView(QWidget *parent = 0);
-    ~QTableView();
+    QTableWidget(QWidget *parent = 0);
+    ~QTableWidget();
 
     void setRowCount(int rows);
     void setColumnCount(int columns);
 
-    QTableViewItem item(int row, int column) const;
-    void setItem(int row, int column, const QTableViewItem &item);
+    QTableWidgetItem item(int row, int column) const;
+    void setItem(int row, int column, const QTableWidgetItem &item);
 
     void setText(int row, int column, const QString &text);
     void setIconSet(int row, int column, const QIconSet &iconSet);

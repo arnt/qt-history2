@@ -28,6 +28,7 @@
 #include <qmessagebox.h>
 #include <qpainter.h>
 #include <qeventloop.h>
+#include <qevent.h>
 #include <qsimplerichtext.h>
 #include <qpaintdevicemetrics.h>
 #include <qfontdatabase.h>

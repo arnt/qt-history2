@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTREEVIEW_H
-#define QTREEVIEW_H
+#ifndef QTREEWIDGET_H
+#define QTREEWIDGET_H
 
 #ifndef QT_H
 #include <qgenerictreeview.h>
@@ -22,20 +22,20 @@
 #include <qstring.h>
 #endif
 
-class QTreeView;
+class QTreeWidget;
 class QTreeModel;
 
-class Q_GUI_EXPORT QTreeViewItem
+class Q_GUI_EXPORT QTreeWidgetItem
 {
     friend class QTreeModel;
 public:
-    QTreeViewItem(QTreeView *view);
-    QTreeViewItem(QTreeViewItem *parent);
-    virtual ~QTreeViewItem();
+    QTreeWidgetItem(QTreeWidget *view);
+    QTreeWidgetItem(QTreeWidgetItem *parent);
+    virtual ~QTreeWidgetItem();
 
-    inline const QTreeViewItem *parent() const { return par; }
-    inline const QTreeViewItem *child(int index) const { return children.at(index); }
-    inline QTreeViewItem *child(int index) { return children.at(index); }
+    inline const QTreeWidgetItem *parent() const { return par; }
+    inline const QTreeWidgetItem *child(int index) const { return children.at(index); }
+    inline QTreeWidgetItem *child(int index) { return children.at(index); }
     inline int childCount() const { return children.count(); }
 
     inline int columnCount() const { return c; }
@@ -56,18 +56,18 @@ public:
     inline void setEditable(bool editable) { edit = editable; }
     inline void setSelectable(bool selectable) { select = selectable; }
 
-    inline bool operator ==(const QTreeViewItem &other) const
+    inline bool operator ==(const QTreeWidgetItem &other) const
         { return par == other.par && children == other.children; }
-    inline bool operator !=(const QTreeViewItem &other) const { return !operator==(other); }
+    inline bool operator !=(const QTreeWidgetItem &other) const { return !operator==(other); }
 
     QVariant data(int column, int role) const;
     void setData(int column, int role, const QVariant &value);
 
 private:
-    QTreeViewItem();
+    QTreeWidgetItem();
 
-    QTreeViewItem *par;
-    QList<QTreeViewItem*> children;
+    QTreeWidgetItem *par;
+    QList<QTreeWidgetItem*> children;
 
     struct Data {
         Data() {}
@@ -80,22 +80,22 @@ private:
     };
 
     QVector< QVector<Data> > values;
-    QTreeView *view;
+    QTreeWidget *view;
     int c;
     uint edit : 1;
     uint select : 1;
 };
 
-class QTreeViewPrivate;
+class QTreeWidgetPrivate;
 
-class Q_GUI_EXPORT QTreeView : public QGenericTreeView
+class Q_GUI_EXPORT QTreeWidget : public QGenericTreeView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTreeView)
+    Q_DECLARE_PRIVATE(QTreeWidget)
 
-    friend class QTreeViewItem;
+    friend class QTreeWidgetItem;
 public:
-    QTreeView(QWidget *parent = 0);
+    QTreeWidget(QWidget *parent = 0);
 
     void setColumnCount(int columns);
     void setColumnText(int column, const QString &text);
@@ -104,7 +104,7 @@ public:
     QIconSet columnIconSet(int column) const;
 
 protected:
-    void append(QTreeViewItem *item);
+    void append(QTreeWidgetItem *item);
 };
 
 #endif

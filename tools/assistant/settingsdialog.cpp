@@ -24,7 +24,6 @@
 #include <qfileinfo.h>
 #include <qlineedit.h>
 #include <qlistbox.h>
-#include <qlistview.h>
 #include <qmessagebox.h>
 #include <qsettings.h>
 #include <qtimer.h>

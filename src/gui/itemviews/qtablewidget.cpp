@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qtableview.h"
+#include "qtablewidget.h"
 #include <qgenericheader.h>
 #include <private/qgenerictableview_p.h>
 
@@ -45,9 +45,9 @@ public:
     QString columnText(int column) const;
     QIconSet columnIconSet(int column) const;
 
-    void setItem(int row, int column, const QTableViewItem &item);
-    QTableViewItem item(int row, int column) const;
-    QTableViewItem item(const QModelIndex &index) const;
+    void setItem(int row, int column, const QTableWidgetItem &item);
+    QTableWidgetItem item(int row, int column) const;
+    QTableWidgetItem item(const QModelIndex &index) const;
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
                       QModelIndex::Type type = QModelIndex::View) const;
@@ -66,9 +66,9 @@ public:
 
 private:
     int r, c;
-    QVector<QTableViewItem> table;
-    QVector<QTableViewItem> leftHeader;
-    QVector<QTableViewItem> topHeader;
+    QVector<QTableWidgetItem> table;
+    QVector<QTableWidgetItem> leftHeader;
+    QVector<QTableWidgetItem> topHeader;
 };
 
 QTableModel::QTableModel(int rows, int columns, QObject *parent)
@@ -225,27 +225,27 @@ QIconSet QTableModel::columnIconSet(int column) const
     return data(index, QAbstractItemModel::DecorationRole).toIconSet();
 }
 
-void QTableModel::setItem(int row, int column, const QTableViewItem &item)
+void QTableModel::setItem(int row, int column, const QTableWidgetItem &item)
 {
     table[tableIndex(row, column)] = item;
 }
 
-QTableViewItem QTableModel::item(int row, int column) const
+QTableWidgetItem QTableModel::item(int row, int column) const
 {
     return table.at(tableIndex(row, column));
 }
 
-QTableViewItem QTableModel::item(const QModelIndex &index) const
+QTableWidgetItem QTableModel::item(const QModelIndex &index) const
 {
     if (!isValid(index))
-        return QTableViewItem();
+        return QTableWidgetItem();
     if (index.type() == QModelIndex::VerticalHeader)
         return leftHeader.at(index.row());
     else if (index.type() == QModelIndex::HorizontalHeader)
         return topHeader.at(index.column());
     else
         return table.at(tableIndex(index.row(), index.column()));
-    return QTableViewItem();
+    return QTableWidgetItem();
 }
 
 QModelIndex QTableModel::index(int row, int column, const QModelIndex &, QModelIndex::Type type) const
@@ -307,7 +307,7 @@ int QTableModel::tableIndex(int row, int column) const
 }
 
 
-bool QTableViewItem::operator ==(const QTableViewItem &other) const
+bool QTableWidgetItem::operator ==(const QTableWidgetItem &other) const
 {
     if (values.count() != other.values.count()
         || edit != other.edit
@@ -321,7 +321,7 @@ bool QTableViewItem::operator ==(const QTableViewItem &other) const
     return true;
 }
 
-QVariant QTableViewItem::data(int role) const
+QVariant QTableWidgetItem::data(int role) const
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     for (int i = 0; i < values.count(); ++i)
@@ -330,7 +330,7 @@ QVariant QTableViewItem::data(int role) const
     return QVariant();
 }
 
-void QTableViewItem::setData(int role, const QVariant &value)
+void QTableWidgetItem::setData(int role, const QVariant &value)
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     for (int i = 0; i < values.count(); ++i) {
@@ -344,8 +344,8 @@ void QTableViewItem::setData(int role, const QVariant &value)
 
 
 /*!
-    \class QTableView qtableview.h
-    \brief The QTableView class provides a table view that uses the
+    \class QTableWidget qtablewidget.h
+    \brief The QTableWidget class provides a table view that uses the
     predefined QTableModel model.
 
     \ingroup model-view
@@ -364,11 +364,11 @@ void QTableViewItem::setData(int role, const QVariant &value)
     \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
-class QTableViewPrivate : public QGenericTableViewPrivate
+class QTableWidgetPrivate : public QGenericTableViewPrivate
 {
-    Q_DECLARE_PUBLIC(QTableView)
+    Q_DECLARE_PUBLIC(QTableWidget)
 public:
-    QTableViewPrivate() : QGenericTableViewPrivate() {}
+    QTableWidgetPrivate() : QGenericTableViewPrivate() {}
     inline QTableModel *model() const { return ::qt_cast<QTableModel*>(q_func()->model()); }
 };
 
@@ -379,16 +379,16 @@ public:
     Creates a new table view with the given \a parent. The table view
     uses a QTableModel to hold its data.
 */
-QTableView::QTableView(QWidget *parent)
-    : QGenericTableView(*new QTableViewPrivate, parent)
+QTableWidget::QTableWidget(QWidget *parent)
+    : QGenericTableView(*new QTableWidgetPrivate, parent)
 {
     setModel(new QTableModel(0, 0, this));
 }
 
 /*!
-    Destroys this QTableView.
+    Destroys this QTableWidget.
 */
-QTableView::~QTableView()
+QTableWidget::~QTableWidget()
 {
 }
 
@@ -399,7 +399,7 @@ QTableView::~QTableView()
 
     \sa setColumnCount()
 */
-void QTableView::setRowCount(int rows)
+void QTableWidget::setRowCount(int rows)
 {
     d->model()->setRowCount(rows);
 }
@@ -411,7 +411,7 @@ void QTableView::setRowCount(int rows)
 
     \sa setRowCount()
 */
-void QTableView::setColumnCount(int columns)
+void QTableWidget::setColumnCount(int columns)
 {
     d->model()->setColumnCount(columns);
 }
@@ -421,7 +421,7 @@ void QTableView::setColumnCount(int columns)
 
     \sa setItem() text() iconSet()
 */
-QTableViewItem QTableView::item(int row, int column) const
+QTableWidgetItem QTableWidget::item(int row, int column) const
 {
     return d->model()->item(row, column);
 }
@@ -431,7 +431,7 @@ QTableViewItem QTableView::item(int row, int column) const
 
     \sa item() setText() setIconSet()
 */
-void QTableView::setItem(int row, int column, const QTableViewItem &item)
+void QTableWidget::setItem(int row, int column, const QTableWidgetItem &item)
 {
     d->model()->setItem(row, column, item);
 }
@@ -441,7 +441,7 @@ void QTableView::setItem(int row, int column, const QTableViewItem &item)
 
     \sa text() setIconSet() setItem()
 */
-void QTableView::setText(int row, int column, const QString &text)
+void QTableWidget::setText(int row, int column, const QString &text)
 {
     d->model()->setText(row, column, text);
 }
@@ -451,7 +451,7 @@ void QTableView::setText(int row, int column, const QString &text)
 
     \sa iconSet() setText() setItem()
 */
-void QTableView::setIconSet(int row, int column, const QIconSet &iconSet)
+void QTableWidget::setIconSet(int row, int column, const QIconSet &iconSet)
 {
     d->model()->setIconSet(row, column, iconSet);
 }
@@ -461,7 +461,7 @@ void QTableView::setIconSet(int row, int column, const QIconSet &iconSet)
 
     \sa setText() iconSet()
 */
-QString QTableView::text(int row, int column) const
+QString QTableWidget::text(int row, int column) const
 {
     return d->model()->text(row, column);
 }
@@ -471,7 +471,7 @@ QString QTableView::text(int row, int column) const
 
     \sa setIconSet() text()
 */
-QIconSet QTableView::iconSet(int row, int column) const
+QIconSet QTableWidget::iconSet(int row, int column) const
 {
     return d->model()->iconSet(row, column);
 }
@@ -481,7 +481,7 @@ QIconSet QTableView::iconSet(int row, int column) const
 
     \sa rowText() setRowIconSet()
 */
-void QTableView::setRowText(int row, const QString &text)
+void QTableWidget::setRowText(int row, const QString &text)
 {
     d->model()->setRowText(row, text);
 }
@@ -491,7 +491,7 @@ void QTableView::setRowText(int row, const QString &text)
 
     \sa rowIconSet() setRowText()
 */
-void QTableView::setRowIconSet(int row, const QIconSet &iconSet)
+void QTableWidget::setRowIconSet(int row, const QIconSet &iconSet)
 {
     d->model()->setRowIconSet(row, iconSet);
 }
@@ -501,7 +501,7 @@ void QTableView::setRowIconSet(int row, const QIconSet &iconSet)
 
     \sa setRowText() rowIconSet()
 */
-QString QTableView::rowText(int row) const
+QString QTableWidget::rowText(int row) const
 {
     return d->model()->rowText(row);
 }
@@ -511,7 +511,7 @@ QString QTableView::rowText(int row) const
 
     \sa setRowIconSet() rowText()
 */
-QIconSet QTableView::rowIconSet(int row) const
+QIconSet QTableWidget::rowIconSet(int row) const
 {
     return d->model()->rowIconSet(row);
 }
@@ -521,7 +521,7 @@ QIconSet QTableView::rowIconSet(int row) const
 
     \sa columnText() setColumnIconSet()
 */
-void QTableView::setColumnText(int column, const QString &text)
+void QTableWidget::setColumnText(int column, const QString &text)
 {
     d->model()->setColumnText(column, text);
 }
@@ -531,7 +531,7 @@ void QTableView::setColumnText(int column, const QString &text)
 
     \sa columnIconSet() setColumnText()
 */
-void QTableView::setColumnIconSet(int column, const QIconSet &iconSet)
+void QTableWidget::setColumnIconSet(int column, const QIconSet &iconSet)
 {
     d->model()->setColumnIconSet(column, iconSet);
 }
@@ -541,7 +541,7 @@ void QTableView::setColumnIconSet(int column, const QIconSet &iconSet)
 
     \sa setColumnText() columnIconSet()
 */
-QString QTableView::columnText(int column) const
+QString QTableWidget::columnText(int column) const
 {
     return d->model()->columnText(column);
 }
@@ -551,7 +551,7 @@ QString QTableView::columnText(int column) const
 
     \sa setColumnIconSet() columnText()
 */
-QIconSet QTableView::columnIconSet(int column) const
+QIconSet QTableWidget::columnIconSet(int column) const
 {
     return d->model()->columnIconSet(column);
 }

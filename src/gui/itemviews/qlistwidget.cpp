@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qlistview.h"
+#include "qlistwidget.h"
 #include <private/qgenericlistview_p.h>
 
 class QListModel : public QAbstractListModel
@@ -19,9 +19,9 @@ class QListModel : public QAbstractListModel
 public:
     QListModel(QObject *parent = 0);
 
-    QListViewItem item(int row) const;
-    void setItem(int row, const QListViewItem &item);
-    void append(const QListViewItem &item);
+    QListWidgetItem item(int row) const;
+    void setItem(int row, const QListWidgetItem &item);
+    void append(const QListWidgetItem &item);
 
     int rowCount() const;
 
@@ -35,7 +35,7 @@ public:
     bool isEditable(const QModelIndex &index) const;
 
 private:
-    QList<QListViewItem> lst;
+    QList<QListWidgetItem> lst;
 };
 
 QListModel::QListModel(QObject *parent)
@@ -43,15 +43,15 @@ QListModel::QListModel(QObject *parent)
 {
 }
 
-QListViewItem QListModel::item(int row) const
+QListWidgetItem QListModel::item(int row) const
 {
     if (row >= 0 && row < (int)lst.count())
         return lst.at(row);
     else
-        return QListViewItem(); // FIXME we need invalid?
+        return QListWidgetItem(); // FIXME we need invalid?
 }
 
-void QListModel::setItem(int row, const QListViewItem &item)
+void QListModel::setItem(int row, const QListWidgetItem &item)
 {
     if (row >= 0 && row < (int)lst.count())
         lst[row] = item;
@@ -80,7 +80,7 @@ bool QListModel::setData(const QModelIndex &index, int role, const QVariant &val
 
 bool QListModel::insertRows(int row, const QModelIndex &, int)
 {
-    QListViewItem item;
+    QListWidgetItem item;
     if (row < rowCount())
         lst.insert(row, item);
     else
@@ -111,7 +111,7 @@ bool QListModel::isEditable(const QModelIndex &index) const
     return lst.at(index.row()).isEditable();
 }
 
-void QListModel::append(const QListViewItem &item)
+void QListModel::append(const QListWidgetItem &item)
 {
     lst.append(item);
     int row = lst.count() - 1;
@@ -119,57 +119,57 @@ void QListModel::append(const QListViewItem &item)
 }
 
 /*!
-    \class QListViewItem
+    \class QListWidgetItem
 */
 
 /*!
-    \fn QListViewItem::QListViewItem()
+    \fn QListWidgetItem::QListWidgetItem()
 */
 
 /*!
-    \fn QListViewItem::~QListViewItem()
+    \fn QListWidgetItem::~QListWidgetItem()
 */
 
 /*!
-    \fn QString QListViewItem::text() const
+    \fn QString QListWidgetItem::text() const
 */
 
 /*!
-    \fn QIconSet QListViewItem::iconSet() const
+    \fn QIconSet QListWidgetItem::iconSet() const
 */
 
 /*!
-    \fn bool QListViewItem::isEditable() const
+    \fn bool QListWidgetItem::isEditable() const
 */
 
 /*!
-    \fn bool QListViewItem::isSelectable() const
+    \fn bool QListWidgetItem::isSelectable() const
 */
 
 /*!
-    \fn void QListViewItem::setText(const QString &text)
+    \fn void QListWidgetItem::setText(const QString &text)
 */
 
 /*!
-    \fn void QListViewItem::setIconSet(const QIconSet &iconSet)
+    \fn void QListWidgetItem::setIconSet(const QIconSet &iconSet)
 */
 
 /*!
-    \fn void QListViewItem::setEditable(bool editable)
+    \fn void QListWidgetItem::setEditable(bool editable)
 */
 
 /*!
-    \fn void QListViewItem::setSelectable(bool selectable)
+    \fn void QListWidgetItem::setSelectable(bool selectable)
 */
 
 /*!
-    \fn bool QListViewItem::operator !=(const QListViewItem &other)
+    \fn bool QListWidgetItem::operator !=(const QListWidgetItem &other)
 */
 
 /*!
 */
 
-bool QListViewItem::operator ==(const QListViewItem &other) const
+bool QListWidgetItem::operator ==(const QListWidgetItem &other) const
 {
     if (values.count() != other.values.count()
         || edit != other.edit
@@ -187,7 +187,7 @@ bool QListViewItem::operator ==(const QListViewItem &other) const
 /*!
 */
 
-QVariant QListViewItem::data(int role) const
+QVariant QListWidgetItem::data(int role) const
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     for (int i = 0; i < values.count(); ++i) {
@@ -200,7 +200,7 @@ QVariant QListViewItem::data(int role) const
 /*!
 */
 
-void QListViewItem::setData(int role, const QVariant &value)
+void QListWidgetItem::setData(int role, const QVariant &value)
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     for (int i = 0; i < values.count(); ++i) {
@@ -212,11 +212,11 @@ void QListViewItem::setData(int role, const QVariant &value)
     values.append(Data(role, value));
 }
 
-class QListViewPrivate : public QGenericListViewPrivate
+class QListWidgetPrivate : public QGenericListViewPrivate
 {
-    Q_DECLARE_PUBLIC(QListView)
+    Q_DECLARE_PUBLIC(QListWidget)
 public:
-    QListViewPrivate() : QGenericListViewPrivate() {}
+    QListWidgetPrivate() : QGenericListViewPrivate() {}
     inline QListModel *model() const { return ::qt_cast<QListModel*>(q_func()->model()); }
 };
 
@@ -224,8 +224,8 @@ public:
 #define q q_func()
 
 #ifdef QT_COMPAT
-QListView::QListView(QWidget *parent, const char* name)
-    : QGenericListView(*new QListViewPrivate(), parent)
+QListWidget::QListWidget(QWidget *parent, const char* name)
+    : QGenericListView(*new QListWidgetPrivate(), parent)
 {
     setModel(new QListModel(this));
     setObjectName(name);
@@ -233,14 +233,14 @@ QListView::QListView(QWidget *parent, const char* name)
 #endif
 
 /*!
-    \class QListView
+    \class QListWidget
 */
 
 /*!
 */
 
-QListView::QListView(QWidget *parent)
-    : QGenericListView(*new QListViewPrivate(), parent)
+QListWidget::QListWidget(QWidget *parent)
+    : QGenericListView(*new QListWidgetPrivate(), parent)
 {
     setModel(new QListModel(this));
     model()->setParent(this);
@@ -249,14 +249,14 @@ QListView::QListView(QWidget *parent)
 /*!
 */
 
-QListView::~QListView()
+QListWidget::~QListWidget()
 {
 }
 
 /*!
 */
 
-void QListView::setText(int row, const QString &text)
+void QListWidget::setText(int row, const QString &text)
 {
     model()->setData(model()->index(row,0), QAbstractItemModel::DisplayRole, text);
 }
@@ -264,7 +264,7 @@ void QListView::setText(int row, const QString &text)
 /*!
 */
 
-void QListView::setIconSet(int row, const QIconSet &iconSet)
+void QListWidget::setIconSet(int row, const QIconSet &iconSet)
 {
     model()->setData(model()->index(row,0), QAbstractItemModel::DecorationRole, iconSet);
 }
@@ -272,7 +272,7 @@ void QListView::setIconSet(int row, const QIconSet &iconSet)
 /*!
 */
 
-QString QListView::text(int row) const
+QString QListWidget::text(int row) const
 {
     return model()->data(model()->index(row,0), QAbstractItemModel::DisplayRole).toString();
 }
@@ -280,7 +280,7 @@ QString QListView::text(int row) const
 /*!
 */
 
-QIconSet QListView::iconSet(int row) const
+QIconSet QListWidget::iconSet(int row) const
 {
     return model()->data(model()->index(row,0), QAbstractItemModel::DecorationRole).toIconSet();
 }
@@ -288,7 +288,7 @@ QIconSet QListView::iconSet(int row) const
 /*!
 */
 
-QListViewItem QListView::item(int row) const
+QListWidgetItem QListWidget::item(int row) const
 {
     return d->model()->item(row);
 }
@@ -296,7 +296,7 @@ QListViewItem QListView::item(int row) const
 /*!
 */
 
-void QListView::setItem(int row, const QListViewItem &item)
+void QListWidget::setItem(int row, const QListWidgetItem &item)
 {
     d->model()->setItem(row, item);
 }
@@ -304,7 +304,7 @@ void QListView::setItem(int row, const QListViewItem &item)
 /*!
 */
 
-void QListView::appendItem(const QListViewItem &item)
+void QListWidget::appendItem(const QListWidgetItem &item)
 {
     d->model()->append(item);
 }

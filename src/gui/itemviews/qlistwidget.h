@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QLISTVIEW_H
-#define QLISTVIEW_H
+#ifndef QLISTWIDGET_H
+#define QLISTWIDGET_H
 
 #ifndef QT_H
 #include <qgenericlistview.h>
@@ -22,12 +22,12 @@
 #include <qvector.h>
 #endif
 
-class Q_GUI_EXPORT QListViewItem
+class Q_GUI_EXPORT QListWidgetItem
 {
 
 public:
-    QListViewItem()  : edit(true), select(true) {}
-    ~QListViewItem() {}
+    QListWidgetItem()  : edit(true), select(true) {}
+    ~QListWidgetItem() {}
 
     inline QString text() const { return data(QAbstractItemModel::DisplayRole).toString(); }
     inline QIconSet iconSet() const { return data(QAbstractItemModel::DecorationRole).toIconSet(); }
@@ -41,8 +41,8 @@ public:
     inline void setEditable(bool editable) { edit = editable; }
     inline void setSelectable(bool selectable) { select = selectable; }
 
-    bool operator ==(const QListViewItem &other) const;
-    inline bool operator !=(const QListViewItem &other) const { return !operator==(other); }
+    bool operator ==(const QListWidgetItem &other) const;
+    inline bool operator !=(const QListWidgetItem &other) const { return !operator==(other); }
 
     QVariant data(int role) const;
     void setData(int role, const QVariant &value);
@@ -63,28 +63,28 @@ private:
     uint select : 1;
 };
 
-class QListViewPrivate;
+class QListWidgetPrivate;
 
-class Q_GUI_EXPORT QListView : public QGenericListView
+class Q_GUI_EXPORT QListWidget : public QGenericListView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QListView)
+    Q_DECLARE_PRIVATE(QListWidget)
 
 public:
 #ifdef QT_COMPAT
-    QListView(QWidget *parent, const char* name);
+    QListWidget(QWidget *parent, const char* name);
 #endif
-    QListView(QWidget *parent = 0);
-    ~QListView();
+    QListWidget(QWidget *parent = 0);
+    ~QListWidget();
 
     void setText(int row, const QString &text);
     void setIconSet(int row, const QIconSet &iconSet);
     QString text(int row) const;
     QIconSet iconSet(int row) const;
 
-    QListViewItem item(int row) const;
-    void setItem(int row, const QListViewItem &item);
-    void appendItem(const QListViewItem &item);
+    QListWidgetItem item(int row) const;
+    void setItem(int row, const QListWidgetItem &item);
+    void appendItem(const QListWidgetItem &item);
 };
 
 #endif

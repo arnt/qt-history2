@@ -18,7 +18,6 @@
 
 #include <qdialog.h>
 #include <qstringlist.h>
-#include <qlistview.h>
 
 class SettingsDialog : public QDialog
 {

@@ -20,7 +20,7 @@
 #include "docuparser.h"
 
 #include <qlistbox.h>
-#include <qlistview.h>
+#include <q3listview.h>
 #include <qmap.h>
 #include <qstringlist.h>
 #include <qvalidator.h>
