@@ -25,7 +25,7 @@
 #include "projectsettingsinterfaceimpl.h"
 #include "sourcetemplateinterfaceimpl.h"
 
-class CommonInterface : public QComponentInterface
+class CommonInterface : public QComponentInformationInterface
 {
 public:
     CommonInterface();
@@ -50,7 +50,7 @@ private:
 };
 
 CommonInterface::CommonInterface()
-    : QComponentInterface(), ref( 0 )
+    : ref( 0 )
 {
     langIface = new LanguageInterfaceImpl;
     langIface->addRef();
@@ -75,8 +75,8 @@ QRESULT CommonInterface::queryInterface( const QUuid &uuid, QUnknownInterface** 
     *iface = 0;
     if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_QComponent )
-	*iface = (QComponentInterface*)this;
+    else if ( uuid == IID_QComponentInformation )
+	*iface = (QComponentInformationInterface*)this;
     else if ( uuid == IID_Editor )
 	*iface = new EditorInterfaceImpl;
     else if ( uuid == IID_Language )
