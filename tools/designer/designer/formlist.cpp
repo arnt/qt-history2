@@ -211,14 +211,16 @@ void FormList::setProject( Project *pro )
     }
 
     QValueList<PixmapCollection::Pixmap> pixmaps = project->pixmapCollection()->pixmaps();
-    for ( QValueList<PixmapCollection::Pixmap>::Iterator it = pixmaps.begin(); it != pixmaps.end(); ++it ) {
-	FormListItem *item = new FormListItem( imageParent, (*it).name, "", 0 );
-	QPixmap pix( (*it).pix );
-	QImage img = pix.convertToImage();
-	img = img.smoothScale( 20, 20 );
-	pix.convertFromImage( img );
-	item->setPixmap( 0, pix );
-	item->setType( FormListItem::Image );
+    {
+	for ( QValueList<PixmapCollection::Pixmap>::Iterator it = pixmaps.begin(); it != pixmaps.end(); ++it ) {
+	    FormListItem *item = new FormListItem( imageParent, (*it).name, "", 0 );
+	    QPixmap pix( (*it).pix );
+	    QImage img = pix.convertToImage();
+	    img = img.smoothScale( 20, 20 );
+	    pix.convertFromImage( img );
+	    item->setPixmap( 0, pix );
+	    item->setType( FormListItem::Image );
+	}
     }
 
 }
