@@ -1492,7 +1492,6 @@ struct Q_EXPORT Tag {
 };
 
 #define NEWPAR       do{ if ( !hasNewPar ) curpar = createParag( this, curpar ); \
-		    curpar->setBreakable( curtag.style->whiteSpaceMode() == QStyleSheetItem::WhiteSpaceNormal ); \
 		    hasNewPar = TRUE; \
 		    space = TRUE; \
 		    QPtrVector<QStyleSheetItem> vec( (uint)tags.count() + 1); \
@@ -1689,7 +1688,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    curtag.style = nstyle;
 		    curtag.name = tagname;
 		    curtag.style = nstyle;
-		    curtag.wsm = nstyle->whiteSpaceMode();
+		    if ( nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal )
+			curtag.wsm = nstyle->whiteSpaceMode();
 		    curtag.liststyle = chooseListStyle( nstyle, attr, curtag.liststyle );
 		    curtag.format = curtag.format.makeTextFormat( nstyle, attr );
 		    if ( nstyle->alignment() != QStyleSheetItem::Undefined )
@@ -1699,7 +1699,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			 curpar->length() <= 1
 			 && nstyle->displayMode() == QStyleSheetItem::DisplayBlock  ) {
 			// do not do anything, we reuse the paragraph we have
-		    } else if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline ) {
+		    } else if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline && nstyle->displayMode() != QStyleSheetItem::DisplayNone ) {
 			NEWPAR;
 		    }
 		

@@ -192,7 +192,7 @@ public:
 			    bool emptyTag, QTextDocument *doc ) const;
 
     static QString escape( const QString& );
-    static QString convertFromPlainText( const QString& );
+    static QString convertFromPlainText( const QString&, QStyleSheetItem::WhiteSpaceMode mode = QStyleSheetItem::WhiteSpacePre );
     static bool mightBeRichText( const QString& );
 
     virtual void scaleFont( QFont& font, int logicalSize ) const;

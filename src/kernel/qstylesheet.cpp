@@ -1232,10 +1232,15 @@ QTextCustomItem* QStyleSheet::tag(  const QString& name,
 /*!
   Auxiliary function. Converts the plain text string \a plain to a
   rich text formatted paragraph while preserving its look.
+  
+  \a mode defines the whitespace mode. Possible values are \c
+  QStyleSheetItem::WhiteSpacePre (no wrapping, all whitespaces
+  preserved) and \c QStyleSheetItem::WhiteSpaceNormal (wrapping,
+  simplified whitespaces).
 
   \sa escape()
  */
-QString QStyleSheet::convertFromPlainText( const QString& plain)
+QString QStyleSheet::convertFromPlainText( const QString& plain, QStyleSheetItem::WhiteSpaceMode mode )
 {
     int col = 0;
     QString rich;
@@ -1248,15 +1253,14 @@ QString QStyleSheet::convertFromPlainText( const QString& plain)
 		rich += "<br>";
 	    col = 0;
 	}
-	else if ( plain[i] == '\t' ){
+	else if ( mode == QStyleSheetItem::WhiteSpacePre && plain[i] == '\t' ){
 	    rich += 0x00a0U;
-	    // while ( col / 4.0 != int( col/4 ) ) { // weird
 	    while ( col % 4 ) {
 		rich += 0x00a0U;
 		++col;
 	    }
 	}
-	else if ( plain[i].isSpace() )
+	else if ( mode == QStyleSheetItem::WhiteSpacePre && plain[i].isSpace() )
 	    rich += 0x00a0U;
 	else if ( plain[i] == '<' )
 	    rich +="&lt;";
