@@ -70,7 +70,7 @@
 
     Returns the timer's id.
 
-    \sa QTimerEvent::timerId().
+    \sa QTimerEvent::timerId()
 */
 
 /*!
