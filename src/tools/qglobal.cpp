@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#2 $
 **
 ** Global functions
 **
@@ -17,7 +17,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglobal.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglobal.cpp#2 $";
 #endif
 
 
@@ -133,7 +133,7 @@ void fatal( const char *msg, ... )		// print message and exit
 bool chk_pointer( bool c, const char *n, int l )// fatal error if c is TRUE
 {
     if ( c )
-	fatal( "%s: Illegal memory reference detected in line %d", n, l );
+	fatal( "In file %s, line %d: Out of memory", n, l );
     return TRUE;
 }
 
