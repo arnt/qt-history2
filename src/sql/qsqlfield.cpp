@@ -285,32 +285,38 @@ struct QSqlFieldInfoPrivate
 /*!
     \class QSqlFieldInfo qsqlfield.h
     \ingroup database
-    \brief The QSqlFieldInfo class stores additional data to describe a SQL field.
+    \brief The QSqlFieldInfo class stores meta data associated with a SQL field.
     \preliminary
     \module sql
 
-    All values have to be set in the constructor and can be retrieved using the corresponding
-    getter functions.
+    QSqlFieldInfo objects only store meta data; field values are
+    stored in QSqlField objects.
 
-    A QSqlFieldInfo stores only meta-data that describes a field in a table and not actual field values like QSqlField.
-
-    \sa QSqlField
+    All values must be set in the constructor, and may be retrieved
+    using isRequired(), type(), length(), precision(), defaultValue(),
+    name(), isGenerated() and typeID().
 */
 
 /*!
   Constructs a QSqlFieldInfo with the following parameters:
   \list
   \i \a name  the name of the field.
-  \i \a typ   its type in a QVariant.
-  \i \a required  greater than 0 if it is required, 0 if its value can be NULL
-	and less than 0 if it cannot be determined whether the field is required or not.
-  \i \a len  the length of the field. Note that for non-character types some databases return
-	either the length in bytes or the number of digits. -1 if the length cannot be determined.
-  \i \a prec  the precision of the field, or -1 if the field has no precision or it cannot be determined.
-  \i \a defValue  the default value that is inserted into the table if none is specified by the user.
-	QVariant() if there is no default value or it cannot be determined.
-  \i \a typeID  the internal typeID of the database system (only useful for low-level programming). 0 if unknown.
-  \i \a generated  indicates whether this field should be included in auto-generated SQL statments, e.g. in QSqlCursor.
+  \i \a typ   the field's type in a QVariant.
+  \i \a required  greater than 0 if the field is required, 0 if its value can
+  be NULL and less than 0 if it cannot be determined whether the field
+  is required or not.
+  \i \a len  the length of the field. Note that for non-character
+  types some databases return either the length in bytes or the number
+  of digits. -1 signifies that the length cannot be determined.
+  \i \a prec  the precision of the field, or -1 if the field has no
+  precision or it cannot be determined.
+  \i \a defValue  the default value that is inserted into the table if
+  none is specified by the user. QVariant() if there is no default
+  value or it cannot be determined.
+  \i \a typeID  the internal typeID of the database system (only
+  useful for low-level programming). 0 if unknown.
+  \i \a generated  TRUE indicates that this field should be included
+  in auto-generated SQL statments, e.g. in QSqlCursor.
   \endlist
 */
 QSqlFieldInfo::QSqlFieldInfo( const QString& name,
@@ -340,7 +346,9 @@ QSqlFieldInfo::QSqlFieldInfo( const QSqlFieldInfo & other )
     d = new QSqlFieldInfoPrivate( *(other.d) );
 }
 
-/*! Creates a QSqlFieldInfo object with the type and the name of the QSqlField \a other
+/*!
+    Creates a QSqlFieldInfo object with the type and the name of the
+    QSqlField \a other.
 */
 QSqlFieldInfo::QSqlFieldInfo( const QSqlField & other, bool generated )
 {
@@ -362,7 +370,7 @@ QSqlFieldInfo::~QSqlFieldInfo()
     delete d;
 }
 
-/*! Assigns \a other to this fieldinfo and returns a reference to it.
+/*! Assigns \a other to this field info and returns a reference to it.
 */
 QSqlFieldInfo& QSqlFieldInfo::operator=( const QSqlFieldInfo& other )
 {
@@ -373,7 +381,7 @@ QSqlFieldInfo& QSqlFieldInfo::operator=( const QSqlFieldInfo& other )
 
 /*! Returns TRUE if this fieldinfo is equal to \a f; otherwise returns FALSE.
 
-   Two fieldinfos are considered equal when all their attributes match.
+   Two field infos are considered equal when all their attributes match.
 */
 bool QSqlFieldInfo::operator==( const QSqlFieldInfo& f ) const
 {
@@ -387,9 +395,11 @@ bool QSqlFieldInfo::operator==( const QSqlFieldInfo& f ) const
 		d->generated == f.d->generated );
 }
 
-/*! Returns a value greater than 0 if the fiels is required (no NULL values possible),
-    0 if it isn't required (NULL values are allowed) or less than 0
-    if it cannot be determined whether the field is required or not.
+/*!
+    Returns a value greater than 0 if the field is required (NULL
+    values are not allowed), 0 if it isn't required (NULL values are
+    allowed) or less than 0 if it cannot be determined whether the
+    field is required or not.
 */
 int QSqlFieldInfo::isRequired() const
 { return d->required; }
@@ -399,10 +409,12 @@ int QSqlFieldInfo::isRequired() const
 QVariant::Type QSqlFieldInfo::type() const
 { return d->typ; }
 
-/*! Returns the length of this field. For fields storing text the return value is the maximum
-   amount of characters the field can hold. For non-character field some database systems
-   return the amount of bytes needed or the number of digits allowed.
-   If the length cannot be determined -1 is returned.
+/*!
+    Returns the length of this field. For fields storing text the
+    return value is the maximum number of characters the field can
+    hold. For non-character fields some database systems return the
+    number of bytes needed or the number of digits allowed. If the
+    length cannot be determined -1 is returned.
 */
 int QSqlFieldInfo::length() const
 { return d->len; }
@@ -413,9 +425,11 @@ int QSqlFieldInfo::length() const
 int QSqlFieldInfo::precision() const
 { return d->prec; }
 
-/*! Returns the default value of this field or an empty QVariant if the field has no default
-   value or the value couldn't be determined. The default value is the value inserted in the
-   database when it was not explicitely specified by the user.
+/*!
+    Returns the default value of this field or an empty QVariant if
+    the field has no default value or the value couldn't be
+    determined. The default value is the value inserted in the
+    database when it was not explicitly specified by the user.
 */
 QVariant QSqlFieldInfo::defaultValue() const
 { return d->defValue; }
@@ -425,14 +439,19 @@ QVariant QSqlFieldInfo::defaultValue() const
 QString QSqlFieldInfo::name() const
 { return d->name; }
 
-/*! Returns the internal type identifier as returned from the database system.
-    This information is only useful for low-level database programming.
+/*!
+    Returns the internal type identifier as returned from the database system.
     The return value is 0 if the type is unknown.
+
+    \warning This information is only useful for low-level database
+    programming and is \e not database independent.
 */
 int QSqlFieldInfo::typeID() const
 { return d->typeID; }
 
-/*! Returns whether this field should be included in auto-generated SQL statments, e.g. in QSqlCursor.
+/*!
+    Returns TRUE if this field should be included in auto-generated
+    SQL statments, e.g. in QSqlCursor; otherwise returns FALSE.
 */
 bool QSqlFieldInfo::isGenerated() const
 { return d->generated; }

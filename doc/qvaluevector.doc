@@ -463,7 +463,7 @@
 */
 
 /*! \fn void QValueVector::reserve( size_type n )
-  Increses the vector's capacity.  If \a n is less than or equal to
+  Increases the vector's capacity.  If \a n is less than or equal to
   capacity(), nothing happens.  Otherwise, additional memory is
   allocated so that capacity() will be increased to a value greater
   than or equal to \a n.  All iterators will then become invalidated.

@@ -628,12 +628,14 @@ void QSqlRecord::setValue( const QString& name, const QVariant& val )
 /*!
     \class QSqlRecordInfo qsqlrecord.h
     \ingroup database
-    \brief The QSqlRecordInfo class encapsulates a set of database field meta information.
+    \brief The QSqlRecordInfo class encapsulates a set of database field meta data.
     \preliminary
     \module sql
 
-    This class is a QValueList that holds a set of database field meta information. It offers some
-    convenience functions to retrieve and find QSqlFieldInfo objects.
+    This class is a QValueList that holds a set of database field meta
+    data. Use contains() to see if a given field name exists in the
+    record, and use find() to get a QSqlFieldInfo record for a named
+    field.
 
     \sa QValueList, QSqlFieldInfo
 */
@@ -664,8 +666,10 @@ QSqlRecordInfo::size_type QSqlRecordInfo::contains( const QString& fieldName ) c
     return i;
 }
 
-/*! Returns the first match of the field named \a fieldName.
-    An empty QSqlFieldInfo object is returned if no field could be found.
+/*!
+    Returns a QSqlFieldInfo object for the first field in the record
+    which has the field name \a fieldName. If no matching field is
+    found then an empty QSqlFieldInfo object is returned.
 */
 QSqlFieldInfo QSqlRecordInfo::find( const QString& fieldName ) const
 {
