@@ -1322,6 +1322,15 @@ void QPainter::drawPie(int x, int y, int w, int h, int a, int alen)
 	if(!pdev->cmd(QPaintDevice::PdcDrawPie, this, param) || !pdev->handle())
 	    return;
     }
+    if((a + alen) == (360*16)) {
+	bool extdev = testf(ExtDev);
+	if(extdev)
+	    clearf(ExtDev);
+	drawEllipse(x, y, w, h);
+	if(extdev)
+	    setf(ExtDev);
+	return;
+    }
 #if 1
     QPointArray pa;
     pa.makeArc(x, y, w, h, a, alen, xmat); // arc polyline
