@@ -17,7 +17,8 @@ public:
     enum EditMode 
     {
         WidgetEditMode,
-        ConnectionEditMode
+        ConnectionEditMode,
+        TabOrderEditMode
     };
 
     enum FeatureFlag 

@@ -1756,20 +1756,20 @@ void FormWindow::showOrderIndicators()
     }
     int order = 1;
 
-    QListIterator<QWidget*> it(widgets());
-    while (it.hasNext()) {
-        QWidget* w = it.next();
-
-        if (qt_cast<QLayoutWidget*>(w) || w == mainContainer())
+    foreach (QWidget *widget, widgets()) {
+        if (qt_cast<QLayoutWidget*>(widget) 
+                || widget == mainContainer()
+                || !widget->isShown()
+                || !canBeBuddy(widget))
             continue;
-
-        if (w->isShown() && canBeBuddy(w)) {
-            OrderIndicator* ind = new OrderIndicator(order++, w, this);
-            orderIndicators.append(ind);
-            if (!stackedWidgets.contains(w))
-                stackedWidgets.append(w);
-        }
+            
+        OrderIndicator* ind = new OrderIndicator(order++, widget, this);
+        orderIndicators.append(ind);
+            
+        if (!stackedWidgets.contains(widget))
+            stackedWidgets.append(widget);
     }
+    
     updateOrderIndicators();
 }
 
@@ -1783,8 +1783,9 @@ void FormWindow::updateOrderIndicators()
 {
     int order = 1;
     foreach (QWidget *w, stackedWidgets) {
-        foreach (OrderIndicator *indicator, orderIndicators)
+        foreach (OrderIndicator *indicator, orderIndicators) {
             indicator->setOrder(order, w);
+        }
 
         ++order;
     }
@@ -1830,8 +1831,11 @@ bool FormWindow::canBeBuddy(QWidget *w) const
 {
     if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(core()->extensionManager(), w)) {
         int index = sheet->indexOf("focusPolicy");
-        if (index != -1)
-            return sheet->property(index).toInt() != Qt::NoFocus;
+        if (index != -1) {
+            bool ok = false;
+            Qt::FocusPolicy q = (Qt::FocusPolicy) Utils::valueOf(sheet->property(index), &ok);
+            return ok && q != Qt::NoFocus;
+        }
     }
     
     return false;
@@ -2014,14 +2018,25 @@ void FormWindow::setEditMode(EditMode mode)
     if (m_editMode == mode)
         return;
         
+    if (mode == TabOrderEditMode)
+        hideOrderIndicators();
+        
     m_editMode = mode;
     
-    if (m_editMode == WidgetEditMode) {
-        m_mainContainer->raise();
-    } else {
-        m_signalSlotEditor->updateBackground();
-        m_signalSlotEditor->raise();
-        m_signalSlotEditor->updateLines();
+    switch (m_editMode) {
+        case WidgetEditMode:
+            m_mainContainer->raise();
+            break;
+            
+        case ConnectionEditMode:
+            m_signalSlotEditor->updateBackground();
+            m_signalSlotEditor->raise();
+            m_signalSlotEditor->updateLines();
+            break;
+            
+        case TabOrderEditMode:
+            showOrderIndicators();
+            break;
     }
             
     emit editModeChanged(mode);

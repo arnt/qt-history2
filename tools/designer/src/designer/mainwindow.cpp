@@ -149,6 +149,7 @@ void MainWindow::enableFormActions(bool enable)
     m_showGrid->setEnabled(enable);
     m_widgetEditMode->setEnabled(enable);
     m_connectionEditMode->setEnabled(enable);
+    m_tabOrderEditMode->setEnabled(enable);
 }
 
 void MainWindow::windowChanged()
@@ -160,6 +161,7 @@ void MainWindow::windowChanged()
         m_readOnly->setChecked(!fw->hasFeature(AbstractFormWindow::EditFeature));
         m_widgetEditMode->setChecked(fw->editMode() == AbstractFormWindow::WidgetEditMode);
         m_connectionEditMode->setChecked(fw->editMode() == AbstractFormWindow::ConnectionEditMode);
+        m_tabOrderEditMode->setChecked(fw->editMode() == AbstractFormWindow::TabOrderEditMode);
     } else {
         //### re-enable when the bug in QAbstractItemView::reset() is fixed
         if (ObjectInspector *objectInspector = core->objectInspector())
@@ -313,12 +315,18 @@ void MainWindow::setupMenuBar()
     menu->addSeparator();
     m_widgetEditMode = menu->addAction(tr("Edit Widgets"));
     m_widgetEditMode->setCheckable(true);
+    
     m_connectionEditMode = menu->addAction(tr("Edit Connections"));
     m_connectionEditMode->setCheckable(true);
+    
+    m_tabOrderEditMode = menu->addAction(tr("Edit Tab order"));
+    m_tabOrderEditMode->setCheckable(true);
+    
     QActionGroup *editModeGrp = new QActionGroup(this);
     editModeGrp->setExclusive(true);
     editModeGrp->addAction(m_widgetEditMode);
     editModeGrp->addAction(m_connectionEditMode);
+    editModeGrp->addAction(m_tabOrderEditMode);
     connect(editModeGrp, SIGNAL(triggered(QAction*)), this, SLOT(editMode(QAction*)));
 
     m_readOnly = menu->addAction(tr("Read-Only"));
@@ -392,8 +400,12 @@ void MainWindow::editMode(QAction *action)
     if (AbstractFormWindow *fw = m_formManager->activeFormWindow()) {
         if (action == m_widgetEditMode)
             fw->setEditMode(AbstractFormWindow::WidgetEditMode);
-        else
+        else if (action == m_connectionEditMode)
             fw->setEditMode(AbstractFormWindow::ConnectionEditMode);
+        else if (action == m_tabOrderEditMode)
+            fw->setEditMode(AbstractFormWindow::TabOrderEditMode);
+        else
+            Q_ASSERT(0);
     }
 }
 

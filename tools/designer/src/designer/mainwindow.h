@@ -85,6 +85,7 @@ private:
     QAction *m_readOnly;
     QAction *m_widgetEditMode;
     QAction *m_connectionEditMode;
+    QAction *m_tabOrderEditMode;
     QMenu *m_menuWindow;
     bool mCloseForm;
     bool mSettingsSaved;

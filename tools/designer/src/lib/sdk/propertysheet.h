@@ -43,4 +43,21 @@ struct FlagType
     QMap<QString, QVariant> items;
 };
 
+namespace Utils 
+{
+
+inline int valueOf(const QVariant &value, bool *ok = false)
+{
+    EnumType e;
+    FlagType f;
+    if (qVariantGet(value, e, "EnumType"))
+        return e.value.toInt(ok);
+    else if (qVariantGet(value, f, "FlagType")) 
+        return f.value.toInt(ok);
+        
+    return value.toInt(ok);
+}
+
+} // namespace Utils
+
 #endif // PROPERTYSHEET_H
