@@ -170,7 +170,7 @@ class Q_EXPORT QListView: public QScrollView
     friend class QListViewItemIterator;
     friend class QListViewItem;
 
-    Q_COMPONENT
+    Q_OBJECT
 public:
     QListView( QWidget * parent = 0, const char *name = 0 );
     ~QListView();

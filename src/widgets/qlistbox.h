@@ -44,7 +44,7 @@ class Q_EXPORT QListBox : public QScrollView
 {
     friend class QListBoxItem;
 
-    Q_COMPONENT
+    Q_OBJECT
 public:
     QListBox( QWidget *parent=0, const char *name=0, WFlags f=0  );
    ~QListBox();
