@@ -526,7 +526,10 @@ bool QToolBar::event( QEvent * e )
 	     && qstrcmp("qt_dockwidget_internal", child->name()) != 0 ) {
 	    boxLayout()->addWidget( (QWidget*)child );
 	    if ( isVisible() ) {
-		if ( ((QWidget*)child)->testWState( WState_CreatedHidden ) )
+		// toolbar compatibility: we auto show widgets that
+		// are not explicitely hidden
+		if ( ((QWidget*)child)->testWState(WState_Hidden|WState_ExplicitShowHide)
+		     == WState_Hidden)
 		    ((QWidget*)child)->show();
 		checkForExtension( size() );
 	    }

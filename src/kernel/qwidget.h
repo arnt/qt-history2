@@ -603,6 +603,8 @@ private:
     void	 deleteTLSysExtra();
     void	 deactivateWidgetCleanup();
     void	 internalSetGeometry( int, int, int, int, bool );
+    void	 internalShow(bool informParent);
+    void	 internalHide();
     void	 reparentFocusWidgets( QWidget * );
     QFocusData	*focusData( bool create );
     void         setBackgroundFromMode();
@@ -827,10 +829,10 @@ inline bool QWidget::isVisibleToTLW() const // obsolete
 { return isVisible(); }
 
 inline bool QWidget::isHidden() const
-{ return testWState(WState_ForceHide); }
+{ return testWState(WState_Hidden); }
 
 inline bool QWidget::isShown() const
-{ return !testWState(WState_ForceHide); }
+{ return !testWState(WState_Hidden); }
 
 inline void QWidget::move( const QPoint &p )
 { move( p.x(), p.y() ); }

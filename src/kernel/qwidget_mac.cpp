@@ -105,7 +105,7 @@ bool qt_mac_update_sizer(QWidget *w, int up=0)
     w->createTLExtra();
     w->extra->topextra->resizer += up;
     if(w->extra->topextra->resizer ||
-       (w->extra->maxw && w->extra->maxh && w->extra->maxw == w->extra->minw && w->extra->maxh == w->extra->minh)) 
+       (w->extra->maxw && w->extra->maxh && w->extra->maxw == w->extra->minw && w->extra->maxh == w->extra->minh))
 	ChangeWindowAttributes((WindowRef)w->handle(), 0, kWindowResizableAttribute);
     else
 	ChangeWindowAttributes((WindowRef)w->handle(), kWindowResizableAttribute, 0);
@@ -486,7 +486,7 @@ QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, voi
 	Point where;
 	GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, NULL,
 			  sizeof(where), NULL, &where);
-	bool ok;	
+	bool ok;
 	if(!qApp->do_mouse_down(&where, &ok)) {
 	    if(!ok)
 		return noErr;
@@ -683,7 +683,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     }
     if(dialog && !testWFlags(WShowModal) && parentWidget() && parentWidget()->testWFlags(WShowModal))
 	setWFlags(WShowModal);
-    if(!testWFlags(WStyle_Customize) && !(desktop || popup) && !testWFlags(WShowModal)) 
+    if(!testWFlags(WStyle_Customize) && !(desktop || popup) && !testWFlags(WShowModal))
 	setWFlags(WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu);
 
     if(desktop) {                            // desktop widget
@@ -1037,10 +1037,10 @@ void QWidget::reparentSys(QWidget *parent, WFlags f, const QPoint &p,
     QSize    s	    = size();
     QString capt= caption();
     widget_flags = f;
-    clearWState(WState_Created | WState_Visible | WState_ForceHide);
+    clearWState(WState_Created | WState_Visible | WState_Hidden | WState_ExplicitShowHide);
     create();
-    if(isTopLevel() || (!parent || parent->isVisible()))
-	setWState(WState_ForceHide);	// new widgets do not show up in already visible parents
+    if ( isTopLevel() || (!parent || parent->isVisible() ) )
+	setWState(WState_Hidden);
     if(dropable)
 	setAcceptDrops(FALSE);
 
@@ -1446,7 +1446,7 @@ void QWidget::showWindow()
 		if (r.right() > avail.right())
 		    movex = avail.right() - r.width();
 		// +2 to prevent going under the menu bar
-		move( QMAX( avail.left(), movex), QMAX( avail.top() + 2, movey )); 
+		move( QMAX( avail.left(), movex), QMAX( avail.top() + 2, movey ));
 	}
     }
     fstrut_dirty = TRUE;
@@ -1556,7 +1556,7 @@ void QWidget::showMaximized()
 	    bounds.right -= tlextra->fright;
 	    bounds.bottom -= tlextra->fbottom;
 	}
-	QRect orect(geometry().x(), geometry().y(), width(), height()), 
+	QRect orect(geometry().x(), geometry().y(), width(), height()),
 	    nrect(bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top);
 	if(orect.size() == nrect.size())
 	    return; //nah.. no real point..
@@ -1694,7 +1694,7 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
     if(extra) {				// any size restrictions?
 	if(isTopLevel()) {
 	    qt_mac_update_sizer(this);
-	    if(extra->maxw && extra->maxh && extra->maxw == extra->minw && extra->maxh == extra->minh) 
+	    if(extra->maxw && extra->maxh && extra->maxw == extra->minw && extra->maxh == extra->minh)
 		ChangeWindowAttributes((WindowRef)handle(), 0, kWindowFullZoomAttribute);
 	    else
 		ChangeWindowAttributes((WindowRef)handle(), kWindowFullZoomAttribute, 0);
@@ -2253,7 +2253,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 	    for(QObjectListIterator it(*chldn); it.current() && it.current() != last; ++it) {
 		if((*it)->isWidgetType() && !(*it)->wasDeleted) {
 		    w = (QWidget *)(*it);
-		    if(!w->isTopLevel() && w->isVisible() && 
+		    if(!w->isTopLevel() && w->isVisible() &&
 #if 0
 		       w->x() + w->width() > 0 && w->x() < widg->width() &&
 		       w->y() + w->height() > 0 && w->y() < w->height()

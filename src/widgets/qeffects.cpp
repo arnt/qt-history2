@@ -141,8 +141,6 @@ void QAlphaWidget::run( int time )
     showWidget = TRUE;
     qApp->installEventFilter( this );
 
-    widget->setWState( WState_Visible );
-
     move( widget->geometry().x(),widget->geometry().y() );
     resize( widget->size().width(), widget->size().height() );
 
@@ -247,14 +245,11 @@ void QAlphaWidget::render()
 	if ( widget ) {
 	    if ( !showWidget ) {
 		widget->hide();
-		widget->setWState( WState_ForceHide );
-		widget->clearWState( WState_Visible );
 	    } else if ( duration ) {
 		BackgroundMode bgm = widget->backgroundMode();
 		QColor erc = widget->eraseColor();
 		const QPixmap *erp = widget->erasePixmap();
 
-		widget->clearWState( WState_Visible );
 		widget->setBackgroundMode( NoBackground );
 		widget->show();
 		if ( bgm != FixedColor && bgm != FixedPixmap ) {
@@ -268,14 +263,12 @@ void QAlphaWidget::render()
 		    widget->setErasePixmap( *erp );
 		}
 	    } else {
-		widget->clearWState( WState_Visible );
 		widget->show();
 	    }
 	}
 	q_blend = 0;
 	deleteLater();
     } else {
-	widget->clearWState( WState_ForceHide );
 	alphaBlend();
 	pm = mixed;
 	repaint( FALSE );
@@ -492,8 +485,6 @@ void QRollEffect::run( int time )
 
     connect( &anim, SIGNAL(timeout()), this, SLOT(scroll()));
 
-    widget->setWState( WState_Visible );
-
     move( widget->geometry().x(),widget->geometry().y() );
     resize( QMIN( currentWidth, totalWidth ), QMIN( currentHeight, totalHeight ) );
 
@@ -513,7 +504,6 @@ void QRollEffect::run( int time )
 void QRollEffect::scroll()
 {
     if ( !done ) {
-	widget->clearWState( WState_ForceHide );
 	int tempel = checkTime.elapsed();
 	if ( elapsed >= tempel )
 	    elapsed++;
@@ -565,14 +555,11 @@ void QRollEffect::scroll()
 	if ( widget ) {
 	    if ( !showWidget ) {
 		widget->hide();
-		widget->setWState( WState_ForceHide );
-		widget->clearWState( WState_Visible );
 	    } else {
 		BackgroundMode bgm = widget->backgroundMode();
 		QColor erc = widget->eraseColor();
 		const QPixmap *erp = widget->erasePixmap();
 
-		widget->clearWState( WState_Visible );
 		widget->setBackgroundMode( NoBackground );
 		widget->show();
 		if ( bgm != FixedColor && bgm != FixedPixmap ) {

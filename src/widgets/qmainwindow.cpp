@@ -415,9 +415,8 @@ protected:
     bool eventFilter( QObject *o, QEvent *e ) {
 	if ( o == this || !o->isWidgetType() )
 	    return QWidget::eventFilter( o, e );
-	if ( e->type() == QEvent::Hide ||
-	     e->type() == QEvent::Show ||
-	     e->type() == QEvent::ShowToParent )
+	if ( e->type() == QEvent::HideToParent ||
+	     e->type() == QEvent::ShowToParent)
 	    updateState();
 	return QWidget::eventFilter( o, e );
     }

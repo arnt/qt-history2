@@ -59,13 +59,6 @@
 #include "qscrollbar.h"
 #include "qstyle.h"
 
-// magic non-mdi things
-#include "qtimer.h"
-#include "qdockarea.h"
-#include "qstatusbar.h"
-#include "qmainwindow.h"
-#include "qdockwindow.h"
-#include "qtoolbar.h"
 
 #define BUTTON_WIDTH	16
 #define BUTTON_HEIGHT	14
@@ -150,7 +143,6 @@ public:
     void adjustToFullscreen();
     void adjustSize();
 
-    void setStatusBar(QStatusBar *);
     QWidget* windowWidget() const;
     QWidget* iconWidget() const;
 
@@ -179,7 +171,6 @@ public slots:
     void move( int x, int y );
 
 protected:
-    bool event(QEvent * );
     void enterEvent( QEvent * );
     void leaveEvent( QEvent * );
     void childEvent( QChildEvent* );
@@ -197,7 +188,6 @@ private:
     QGuardedPtr<QWidget> lastfocusw;
     QWidgetResizeHandler *widgetResizeHandler;
     QTitleBar* titlebar;
-    QGuardedPtr<QStatusBar> statusbar;
     QGuardedPtr<QTitleBar>  iconw;
     QSize windowSize;
     QSize shadeRestore;
@@ -212,7 +202,6 @@ private:
 #endif
 };
 
-class QMainWindow;
 
 class QWorkspacePrivate {
 public:
@@ -238,11 +227,6 @@ public:
     QScrollBar *vbar, *hbar;
     QWidget *corner;
     int yoffset, xoffset;
-
-    // toplevel mdi fu
-    QWorkspace::WindowMode wmode;
-    QGuardedPtr<QMainWindow> mainwindow;
-    QPtrList<QDockWindow> dockwindows, newdocks;
 };
 
 static bool isChildOf( QWidget * child, QWidget * parent )
@@ -264,22 +248,6 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     init();
 }
 
-#ifdef QT_WORKSPACE_WINDOWMODE
-/*!
-  Constructs a workspace with a \a parent and a \a name. This constructor will also set the
-  WindowMode to \a mode.
-
-  \sa windowMode()
- */
-QWorkspace::QWorkspace( QWorkspace::WindowMode mode, QWidget *parent, const char *name )
-    : QWidget( parent, name, WNoMousePropagation )
-{
-    init();
-    d->wmode = mode;
-}
-#endif
-
-
 /*!
     \internal
 */
@@ -294,12 +262,6 @@ QWorkspace::init()
     d->px = 0;
     d->py = 0;
     d->becomeActive = 0;
-#if defined( QT_WORKSPACE_WINDOWMODE ) && defined( Q_WS_MAC )
-    d->wmode = AutoDetect;
-#else
-    d->wmode = MDI;
-#endif
-    d->mainwindow = 0;
 #if defined(Q_WS_WIN)
     d->popup = new QPopupMenu( this, "qt_internal_mdi_popup" );
     d->toolPopup = new QPopupMenu( this, "qt_internal_mdi_popup" );
@@ -451,8 +413,6 @@ void QWorkspace::childEvent( QChildEvent * e)
 
 	if ( hasBeenHidden )
 	    w->hide();
-	else if ( !isVisible() ) 	// that's a case were we don't receive a showEvent in time. Tricky.
-	    child->show();
 
 	if ( wasMaximized )
 	    w->showMaximized();
@@ -494,7 +454,7 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	emit windowActivated( 0 );
 	return;
     }
-    if ( d->wmode == MDI && !isVisibleTo( 0 ) ) {
+    if ( !isVisible() ) {
 	d->becomeActive = w;
 	return;
     }
@@ -511,9 +471,6 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
     while ( it.current () ) {
      	QWorkspaceChild* c = it.current();
 	++it;
-	if(windowMode() == QWorkspace::TopLevel && c->isTopLevel() &&
-	    c->windowWidget() == w && !c->isActive())
-	    c->setActiveWindow();
 	if (c->windowWidget() == w)
 	    d->active = c;
 	else
@@ -578,10 +535,6 @@ void QWorkspace::place( QWidget* w)
     QPtrList<QWidget> widgets;
     for(QPtrListIterator<QWorkspaceChild> it( d->windows ); it.current(); ++it)
 	widgets.append((*it));
-    if(d->wmode == TopLevel) {
-	for(QPtrListIterator<QDockWindow> it( d->dockwindows ); it.current(); ++it)
-	    widgets.append((*it));
-    }
 
     int overlap, minOverlap = 0;
     int possible;
@@ -589,10 +542,6 @@ void QWorkspace::place( QWidget* w)
     QRect r1(0, 0, 0, 0);
     QRect r2(0, 0, 0, 0);
     QRect maxRect = rect();
-    if(d->wmode == TopLevel) {
-	const QDesktopWidget *dw = qApp->desktop();
-	maxRect = dw->availableGeometry(dw->screenNumber(topLevelWidget()));
-    }
     int x = maxRect.left(), y = maxRect.top();
     QPoint wpos(maxRect.left(), maxRect.top());
 
@@ -706,13 +655,6 @@ void QWorkspace::place( QWidget* w)
     }
     while( overlap != 0 && overlap != -1 );
 
-#if 0
-    if(windowMode() == QWorkspace::TopLevel && wpos.y()) {
-	QPoint fr = w->topLevelWidget()->frameGeometry().topLeft(),
-		r = w->topLevelWidget()->geometry().topLeft();
-	wpos += QPoint(r.x() - fr.x(), r.y() - fr.y());
-    }
-#endif
     w->move(wpos);
     updateWorkspace();
 }
@@ -791,263 +733,9 @@ void QWorkspace::resizeEvent( QResizeEvent * )
 
 }
 
-void QWorkspace::handleUndock(QDockWindow *w)
-{
-    const QDesktopWidget *dw = qApp->desktop();
-    QRect maxRect = dw->availableGeometry(dw->screenNumber(d->mainwindow));
-    QPoint wpos(maxRect.left(), maxRect.top());
-    int possible = 0;
-    if(!qt_cast<QToolBar*>(w)) {
-	struct place_score { int o, x, y; } score;
-	int left = 1, x = wpos.x(), y = wpos.y();
-	QPtrListIterator<QDockWindow> it( d->dockwindows );
-	while(1) {
-	    if(y + w->height() > maxRect.bottom()) {
-		if(left) {
-		    x = maxRect.right() - w->width();
-		    y = maxRect.top();
-		    left = 0;
-		} else {
-		    break;
-		}
-	    }
-
-	    QDockWindow *l, *nearest = NULL, *furthest;
-	    for ( it.toFirst(); it.current(); ++it ) {
-		l = it.current();
-		if ( l != w && y == l->y() ) {
-		    if(!nearest) {
-			nearest = l;
-		    } else if(l->x() == x) {
-			nearest = l;
-			break;
-		    } else if(left && (l->x() - x) < (nearest->x() - x)) {
-			nearest = l;
-		    } else if(!left && (x - l->x()) < (x - nearest->x())) {
-			nearest = l;
-		    }
-		}
-	    }
-	    QRect r2(x, y, w->width(), w->height());
-	    if(!nearest || !nearest->geometry().intersects(r2)) {
-		wpos = QPoint(x, y); //best possible outcome
-		possible = 2;
-		break;
-	    }
-
-	    QDockWindow *o = NULL;
-	    int overlap = 0;
-	    for( it.toFirst(); it.current(); ++it ) {
-		l = it.current();
-		if ( l != w && l->geometry().intersects(QRect(QPoint(x, y), w->size()))) {
-		    overlap++;
-		    o = l;
-		}
-	    }
-	    if(o && overlap == 1 && w->isVisible() && !o->isVisible()) {
-		wpos = QPoint(x, y);
-		possible = 2;
-		while(d->dockwindows.remove(o));
-		d->newdocks.append(o);
-		if(d->newdocks.count() == 1)
-		    QTimer::singleShot(0, this, SLOT(dockWindowsShow()));
-		break;
-	    }
-
-	    for ( furthest = nearest, it.toFirst(); it.current(); ++it ) {
-		l = it.current();
-		if ( l != w && l->y() == nearest->y() &&
-		     ((left  && (l->x() == nearest->x() + nearest->width())) ||
-		      (!left && (l->x() + l->width() == nearest->x()) )))
-		    furthest = l;
-	    }
-	    if(left)
-		x = furthest->x() + furthest->width();
-	    else
-		x = furthest->x() - w->width();
-
-	    QPoint sc_pt(x, y);
-	    place_score sc;
-	    if(left)
-		sc.x = (x + w->width()) * 2;
-	    else
-		sc.x = ((maxRect.width() - x) * 2) + 1;
-	    sc.y = sc_pt.y();
-	    for( sc.o = 0, it.toFirst(); it.current(); ++it ) {
-		l = it.current();
-		if ( l != w && l->geometry().intersects(QRect(sc_pt, w->size())))
-		    sc.o++;
-	    }
-	    if(maxRect.contains(QRect(sc_pt, w->size())) &&
-	       (!possible || (sc.o < score.o) ||
-		((score.o || sc.o == score.o) && score.x < sc.x))) {
-		wpos = sc_pt;
-		score = sc;
-		possible = 1;
-	    }
-	    y += nearest->height();
-	    if(left)
-		x = maxRect.x();
-	    else
-		x = maxRect.right() - w->width();
-	}
-	if(!possible || (possible == 1 && score.o)) { //fallback to less knowledgeable function
-	    place(w);
-	    wpos = w->pos();
-	}
-    }
-
-    bool ishidden = w->isHidden();
-    QSize olds(w->size());
-    if(w->place() == QDockWindow::InDock)
-	w->undock();
-    w->move(wpos);
-    w->resize(olds);
-    if(!ishidden)
-	w->show();
-    else
-	w->hide();
-}
-
-void QWorkspace::dockWindowsShow()
-{
-    QPtrList<QDockWindow> lst = d->newdocks;
-    d->newdocks.clear();
-    for(QPtrListIterator<QDockWindow> dw_it(lst); (*dw_it); ++dw_it) {
-	if(d->dockwindows.find((*dw_it)) != -1)
-	    continue;
-	handleUndock((*dw_it));
-	d->dockwindows.append((*dw_it));
-    }
-}
-
 /*! \reimp */
 void QWorkspace::showEvent( QShowEvent *e )
 {
-    /* This is all magic, be carefull when playing with this code - this tries to allow people to
-       use QWorkspace as a high level abstraction for window management, but removes enforcement that
-       QWorkspace be used as an MDI. */
-    if(d->wmode == AutoDetect) {
-	d->wmode = MDI;
-	QWidget *o = topLevelWidget();
-	if(qt_cast<QMainWindow*>(o)) {
-	    d->wmode = TopLevel;
-	    const QObjectList *c = o->children();
-	    for(QObjectListIterator it(*c); it; ++it) {
-		if((*it)->isWidgetType() && !((QWidget *)(*it))->isTopLevel() &&
-		   !qt_cast<QHBox*>(*it) && !qt_cast<QVBox*>(*it) &&
-		   !qt_cast<QWorkspaceChild*>(*it) && !(*it)->inherits("QHideDock") &&
-		   !qt_cast<QDockArea*>(*it) && !qt_cast<QWorkspace*>(*it) &&
-		   !qt_cast<QMenuBar*>(*it) && !qt_cast<QStatusBar*>(*it)) {
-		    d->wmode = MDI;
-		    break;
-		}
-	    }
-	}
-    }
-    if(d->wmode == TopLevel) {
-	QWidget *o = topLevelWidget();
-	d->mainwindow = qt_cast<QMainWindow*>(o);
-	const QObjectList children = *o->children();
-	for(QObjectListIterator it(children); it; ++it) {
-	    if(!(*it)->isWidgetType())
-		continue;
-	    QWidget *w = (QWidget *)(*it);
-	    if(w->isTopLevel())
-		continue;
-	    if(qt_cast<QDockArea*>(w)) {
-		const QObjectList *dock_c = w->children();
-		if(dock_c) {
-		    QPtrList<QToolBar> tb_list;
-		    for(QObjectListIterator dock_it(*dock_c); dock_it; ++dock_it) {
-			if(!(*dock_it)->isWidgetType())
-			    continue;
-			if(qt_cast<QToolBar*>(*dock_it)) {
-			    tb_list.append((QToolBar *)(*dock_it));
-			} else if (qt_cast<QDockWindow*>(*dock_it)) {
-			    QDockWindow *dw = (QDockWindow*)(*dock_it);
-			    dw->move(dw->mapToGlobal(QPoint(0, 0)));
-			    d->newdocks.append(dw);
-			} else {
-			    qDebug("not sure what to do with %s %s", (*dock_it)->className(),
-				   (*dock_it)->name());
-			}
-		    }
-		    if(tb_list.count() == 1) {
-			QToolBar *tb = tb_list.first();
-			tb->move(0, 0);
-			d->newdocks.prepend(tb);
-		    } else if(tb_list.count()) {
-			QDockWindow *dw = new QDockWindow(QDockWindow::OutsideDock,
-							  w->parentWidget(),
-							  QString("QMagicDock_") + w->name());
-			dw->installEventFilter(this);
-			dw->setResizeEnabled(TRUE);
-			dw->setCloseMode( QDockWindow::Always );
-			dw->setResizeEnabled(FALSE);
-#ifndef QT_NO_WIDGET_TOPEXTRA
-			dw->setCaption(o->caption());
-#endif
-			QSize os(w->size());
-			if(w->layout() && w->layout()->hasHeightForWidth()) {
-			    w->layout()->invalidate();
-			    os.setHeight(w->layout()->heightForWidth(os.width()));
-			}
-			if(!w->isHidden())
-			    dw->show();
-			w->reparent(dw, QPoint(0, 0));
-			dw->setWidget(w);
-			dw->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
-			dw->setGeometry(0, 0, os.width(), os.height() + dw->sizeHint().height());
-			d->newdocks.prepend(dw);
-			((QDockArea*)w)->setAcceptDockWindow(dw, FALSE);
-			w->show();
-		    }
-		}
-		w->installEventFilter(this);
-	    } else if(qt_cast<QStatusBar*>(w)) {
-		if(activeWindow()) {
-		    QWorkspaceChild *c;
-		    if ( ( c = findChild(activeWindow()) ) )
-			c->setStatusBar((QStatusBar*)w);
-		}
-	    } else if(qt_cast<QWorkspaceChild*>(w)) {
-		w->reparent(this, w->testWFlags(~(0)) | WType_TopLevel, w->pos());
-	    }
-	}
-	dockWindowsShow(); //now place and undock windows discovered
-
-	QWidget *w = new QWidget(NULL, "QDoesNotExist",
-				 WType_Dialog | WStyle_Customize | WStyle_NoBorder);
-//	if(qApp->mainWidget() == o)
-//	    QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
-	QDesktopWidget *dw = QApplication::desktop();
-	w->setGeometry(dw->availableGeometry(dw->screenNumber(o)));
-	o->reparent(w, QPoint(0, 0), TRUE);
-	{
-	    QMenuBar *mb = 0;
-	    if(qt_cast<QMainWindow*>(o))
-		mb = ((QMainWindow *)o)->menuBar();
-	    if(!mb)
-		mb = (QMenuBar*)o->child(NULL, "QMenuBar");
-	    if(mb)
-		mb->reparent(w, QPoint(0, 0));
-	}
-	reparent(w, QPoint(0,0));
-	setGeometry(0, 0, w->width(), w->height());
-#if 0
-	/* Hide really isn't acceptable because I need to make the rest of Qt
-	   think it is visible, so instead I set it to an empty mask. I'm not
-	   sure what problems this is going to create, hopefully everything will
-	   be happy (or not even notice since this is mostly intended for Qt/Mac) */
-//	w->setMask(QRegion());
-//	w->show();
-#else
-	w->hide();
-#endif
-    }
-
-    //done with that nastiness, on with your regularly schedueled programming..
     if ( d->maxWindow && !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this))
 	showMaximizeControls();
     QWidget::showEvent( e );
@@ -1287,29 +975,6 @@ QWidgetList QWorkspace::windowList( WindowOrder order ) const
 /*!\reimp*/
 bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 {
-    if(d->wmode == TopLevel && d->mainwindow && o->parent() == d->mainwindow) {
-	if((e->type() == QEvent::ChildInserted || e->type() == QEvent::Reparent) &&
-	    qt_cast<QDockArea*>(o) && !((QWidget*)o)->isVisible()) {
-	    QChildEvent *ce = (QChildEvent*)e;
-	    if(!qt_cast<QDockWindow*>(ce->child())) {
-		qDebug("No idea what to do..");
-		return FALSE;
-	    }
-	    QDockWindow *w = (QDockWindow*)ce->child();
-	    if(d->newdocks.find(w) == -1 && d->dockwindows.find(w) == -1) {
-		if(qt_cast<QToolBar*>(w))
-		    d->newdocks.prepend(w);
-		else
-		    d->newdocks.append(w);
-		if(d->newdocks.count() == 1)
-		    QTimer::singleShot(0, this, SLOT(dockWindowsShow()));
-	    }
-	} else if(e->type() == QEvent::Hide && !e->spontaneous() && !qstrncmp(o->name(), "QMagicDock_", 11)) {
-//	    d->mainwindow->close();
-	}
-	return QWidget::eventFilter(o, e);
-    }
-
     static QTime* t = 0;
     static QWorkspace* tc = 0;
 #ifndef QT_NO_MENUBAR
@@ -1343,9 +1008,8 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
     }
 #endif
     switch ( e->type() ) {
-    case QEvent::Hide:
     case QEvent::HideToParent:
-	if ( !o->isA( "QWorkspaceChild" ) || !isVisible() || e->spontaneous() )
+	if ( !o->isA( "QWorkspaceChild" ) )
 	    break;
 	if ( d->active == o ) {
 	    int a = d->focus.find( d->active );
@@ -1391,7 +1055,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 	    }
 	}
 	break;
-    case QEvent::Show:
+    case QEvent::ShowToParent:
 	if ( o->isA("QWorkspaceChild") && !d->focus.containsRef( (QWorkspaceChild*)o ) )
 	    d->focus.append( (QWorkspaceChild*)o );
 	updateWorkspace();
@@ -1986,10 +1650,8 @@ void QWorkspace::tile()
 QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 				  const char *name )
     : QFrame( parent, name,
-	      (parent->windowMode() == QWorkspace::TopLevel ? (WStyle_MinMax | WStyle_SysMenu | WType_TopLevel) :
-	       WStyle_NoBorder ) | WStyle_Customize | WDestructiveClose | WNoMousePropagation | WSubWindow )
+	      WStyle_NoBorder | WStyle_Customize | WDestructiveClose | WNoMousePropagation | WSubWindow )
 {
-    statusbar = 0;
     setMouseTracking( TRUE );
     act = FALSE;
     iconw = 0;
@@ -2012,7 +1674,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	}
     }
 
-    if ( window && window->testWFlags( WStyle_Title ) && parent->windowMode() != QWorkspace::TopLevel ) {
+    if ( window && window->testWFlags( WStyle_Title ) ) {
 	titlebar = new QTitleBar( window, this, "qt_ws_titlebar" );
 	connect( titlebar, SIGNAL( doActivate() ),
 		 this, SLOT( activate() ) );
@@ -2096,10 +1758,6 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     connect( widgetResizeHandler, SIGNAL( activate() ),
 	     this, SLOT( activate() ) );
     widgetResizeHandler->setExtraHeight( th + contentsRect().y() );
-    if(parent->windowMode() == QWorkspace::TopLevel && isTopLevel()) {
-	move(0, 0);
-	widgetResizeHandler->setActive( FALSE );
-    }
     if ( childWidget->minimumSize() == childWidget->maximumSize() )
 	widgetResizeHandler->setActive( QWidgetResizeHandler::Resize, FALSE );
     setBaseSize( baseSize() );
@@ -2120,69 +1778,8 @@ QWorkspaceChild::~QWorkspaceChild()
     }
 }
 
-bool QWorkspaceChild::event( QEvent *e )
+void QWorkspaceChild::moveEvent( QMoveEvent * )
 {
-    if(((QWorkspace*)parentWidget())->windowMode() == QWorkspace::TopLevel) {
-	switch(e->type()) {
-	case QEvent::Close:
-	    if(windowWidget()) {
-		if(!windowWidget()->close()) {
-		    if(((QWorkspace*) parentWidget() )->d->active == this)
-			((QWorkspace*) parentWidget() )->activateWindow(0);
-		    return TRUE;
-		}
-	    }
-	    break;
-#if 0
-	case QEvent::WindowDeactivate:
-	    if(statusbar) {
-		QSize newsize(width(), height() - statusbar->height());
-		if(statusbar->parentWidget() == this)
-		    statusbar->hide();
-		statusbar = 0;
-		resize(newsize);
-	    }
-	    break;
-#endif
-	case QEvent::WindowActivate:
-	    if(((QWorkspace*)parentWidget())->activeWindow() == windowWidget())
-		activate();
-	    if(statusbar)
-		statusbar->show();
-	    else if(((QWorkspace*) parentWidget() )->d->mainwindow)
-		setStatusBar(((QWorkspace*) parentWidget() )->d->mainwindow->statusBar());
-	    break;
-	default:
-	    break;
-	}
-    }
-    return QWidget::event(e);
-}
-
-void QWorkspaceChild::setStatusBar( QStatusBar *sb )
-{
-    if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::TopLevel) {
-	QSize newsize;
-	if(sb) {
-	    sb->show();
-	    if(sb != statusbar) {
-		sb->reparent(this, QPoint(0, height()), TRUE);
-		newsize = QSize(width(), height() + sb->height());
-	    }
-	}
-	statusbar = sb;
-	if(!newsize.isNull())
-	    resize(newsize);
-    }
-}
-
-void QWorkspaceChild::moveEvent( QMoveEvent *e )
-{
-    if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::TopLevel && !e->spontaneous()) {
-	QPoint p = parentWidget()->topLevelWidget()->pos();
-	if(x() < p.x() || y() < p.y())
-	    move(QMAX(x(), p.x()), QMAX(y(), p.y()));
-    }
     ((QWorkspace*) parentWidget() )->updateWorkspace();
 }
 
@@ -2204,12 +1801,6 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 		    r.width(), r.height() - th );
     } else {
 	cr = r;
-    }
-
-    if(statusbar && statusbar->isVisible()) {
-	int sh = statusbar->height();
-	statusbar->setGeometry(r.x(), r.bottom() - sh, r.width(), sh);
-	cr.setBottom(cr.bottom() - sh);
     }
 
     if (!childWidget)
@@ -2273,15 +1864,9 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	return FALSE;
 
     switch ( e->type() ) {
-    case QEvent::Show:
+    case QEvent::ShowToParent:
 	if ( ((QWorkspace*)parentWidget())->d->focus.find( this ) < 0 )
 	    ((QWorkspace*)parentWidget())->d->focus.append( this );
-	if ( isVisibleTo( parentWidget() ) )
-	    break;
-	if (( (QShowEvent*)e)->spontaneous() )
-	    break;
-	// fall through
-    case QEvent::ShowToParent:
 	if ( windowWidget() && windowWidget()->testWFlags( WStyle_StaysOnTop ) ) {
 	    internalRaise();
 	    show();
@@ -2310,17 +1895,15 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	    delete iconw->parentWidget();
 	}
 	break;
-    case QEvent::Hide:
     case QEvent::HideToParent:
-	if ( !childWidget->isVisibleTo( this ) ) {
-	    QWidget * w = iconw;
-	    if ( w && ( w = w->parentWidget() ) ) {
-		((QWorkspace*)parentWidget())->removeIcon( w );
-		delete w;
-	    }
-	    hide();
+    {
+	QWidget * w = iconw;
+	if ( w && ( w = w->parentWidget() ) ) {
+	    ((QWorkspace*)parentWidget())->removeIcon( w );
+	    delete w;
 	}
-	break;
+	    hide();
+    } break;
     case QEvent::CaptionChange:
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	setCaption( childWidget->caption() );
@@ -2344,7 +1927,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 		    im = pm;
 		    pm = im.smoothScale( iconSize, iconSize );
 		}
-	    } else 
+	    } else
 #endif
 	    {
 		pm.resize( iconSize, iconSize );
@@ -2928,30 +2511,6 @@ void QWorkspace::scrollBarChanged()
     \value CreationOrder The windows are returned in the order of their creation
     \value StackingOrder The windows are returned in the order of their stacking
 */
-
-#ifdef QT_WORKSPACE_WINDOWMODE
-/*!
-    \enum QWorkspace::WindowMode
-
-    Determines the Windowing Model QWorkspace will use for sub-windows.
-
-    \value TopLevel Subwindows are treated as toplevel windows
-    \value MDI Subwindows are organized in an MDI interface
-    \value AutoDetect QWorkspace will detect whether TopLevel or MDI is appropriate
-*/
-
-/*!
-   The windowing model influences how the subwindows are actually created.
-   For most platforms the default behavior of a workspace is to operate in
-   MDI mode, with Qt/Mac the default mode is AutoDetect.
-*/
-#else
-/*! \internal */
-#endif
-QWorkspace::WindowMode QWorkspace::windowMode() const
-{
-    return d->wmode;
-}
 
 #ifndef QT_NO_STYLE
 /*!\reimp */

@@ -721,10 +721,10 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     QColor   bgc    = bg_col;			// save colors
     QString capt= caption();
     widget_flags = f;
-    clearWState( WState_Created | WState_Visible | WState_ForceHide );
+    clearWState(WState_Created | WState_Visible | WState_Hidden | WState_ExplicitShowHide);
     create();
     if ( isTopLevel() || (!parent || parent->isVisible() ) )
-	setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
+	setWState(WState_Hidden);
 
     const QObjectList *chlist = children();
     if ( chlist ) {				// reparent children

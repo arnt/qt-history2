@@ -495,10 +495,10 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
     QSize    s	    = size();
     QString capt= caption();
     widget_flags = f;
-    clearWState( WState_Created | WState_Visible | WState_ForceHide );
+    clearWState(WState_Created | WState_Visible | WState_Hidden | WState_ExplicitShowHide);
     create();
     if ( isTopLevel() || (!parent || parent->isVisible() ) )
-	setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
+	setWState(WState_Hidden);
     const QObjectList *chlist = children();
     if ( chlist ) {				// reparent children
 	QObjectListIterator it( *chlist );
@@ -918,7 +918,7 @@ void QWidget::showWindow()
 	    break;
 	case 2:
 	    sm = SW_SHOWMAXIMIZED;
-#endif 
+#endif
 	    break;	default:
 	    sm = SW_SHOW;
 	    break;
@@ -1600,7 +1600,7 @@ static void qt_tablet_init()
 		qWarning( "There is no packet queue for the tablet.\n"
 		"The tablet will not work" );
 	}
-        
+
     }
 }
 

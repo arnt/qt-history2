@@ -55,26 +55,13 @@ class QWorkspaceChild;
 class QShowEvent;
 class QWorkspacePrivate;
 class QPopupMenu;
-class QDockWindow;
 
 class QM_EXPORT_WORKSPACE QWorkspace : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY( bool scrollBarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled )
 
-#ifdef QT_WORKSPACE_WINDOWMODE
 public:
-#endif
-    enum WindowMode { TopLevel, MDI, AutoDetect };
-    WindowMode windowMode() const;
-#ifdef QT_WORKSPACE_WINDOWMODE
-private:
-#endif
-
-public:
-#ifdef QT_WORKSPACE_WINDOWMODE
-    QWorkspace( WindowMode mode, QWidget* parent=0, const char* name=0 );
-#endif
     QWorkspace( QWidget* parent=0, const char* name=0 );
 
     ~QWorkspace();
@@ -126,12 +113,10 @@ private slots:
     void operationMenuAboutToShow();
     void toolMenuAboutToShow();
     void activatePreviousWindow(); // ### remove in Qt 4.0
-    void dockWindowsShow();
     void scrollBarChanged();
 
 private:
     void init();
-    void handleUndock( QDockWindow* w);
     void insertIcon( QWidget* w);
     void removeIcon( QWidget* w);
     void place( QWidget* );

@@ -2024,16 +2024,9 @@ bool QDockWindow::event( QEvent *e )
 	if ( place() == OutsideDock && isTopLevel() && parentWidget()
 	     && parentWidget()->isActiveWindow() )
 	    return TRUE;
-    case QEvent::Hide:
-	if ( !isHidden() )
-	    break;
-	// fall through
     case QEvent::HideToParent:
 	emit visibilityChanged( FALSE );
 	break;
-    case QEvent::Show:
-	if ( e->spontaneous() )
-	    break;
     case QEvent::ShowToParent:
 	emit visibilityChanged( TRUE );
 	break;
