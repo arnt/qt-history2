@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#10 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#11 $
 **
 ** Definition of QPainter class
 **
@@ -101,6 +101,7 @@ public:
     void	setClipping( bool );		// set clipping on/off
     bool	hasClipping() const { return testf(ClipOn); }
     void	setClipRect( const QRect & );	// set clip rectangle
+    void	setClipRect( int x, int y, int w, int h );
     void	setClipRegion( const QRegion &);// set clip region
 
   // Graphics drawing functions
@@ -265,6 +266,11 @@ inline PaintUnit QPainter::unit() const
 inline void QPainter::setBrushOrigin( const QPoint &p )
 {
     setBrushOrigin( p.x(), p.y() );
+}
+
+inline void QPainter::setClipRect( int x, int y, int w, int h )
+{
+    setClipRect( QRect(x,y,w,h) );
 }
 
 inline void QPainter::drawPoint( const QPoint &p )
