@@ -78,7 +78,7 @@ private:
         loops = l;
         callback = NewCallBack(GetMovieTimeBase(movie), callBackAtExtremes|callBackAtInterrupt);
         if(!movieCallbackProc)
-            movieCallbackProc = NewQTCallBackUPP(movieEnd);
+            movieCallbackProc = NewQTCallBackUPP(QTCallBackProcPtr(movieEnd));
         CallMeWhen(callback, movieCallbackProc, (long)this, triggerAtStop, 0, 0);
         cleanups.append(this);
     }

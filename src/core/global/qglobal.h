@@ -195,7 +195,6 @@
 #  define Q_CC_MWERKS
 /* "explicit" recognized since 4.0d1 */
 #  define QMAC_PASCAL pascal
-#  define Q_NO_USING_KEYWORD /* ### check "using" status */
 
 #elif defined(_MSC_VER)
 #  define Q_CC_MSVC

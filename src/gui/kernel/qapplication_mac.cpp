@@ -1536,7 +1536,7 @@ bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, Win
     return !SendEventToEventTarget(event, GetEventDispatcherTarget());
 }
 
-QMAC_PASCAL OSStatus
+OSStatus
 QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
 {
     QApplication *app = (QApplication *)data;
