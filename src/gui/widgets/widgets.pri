@@ -29,7 +29,6 @@ HEADERS += \
         widgets/qlcdnumber.h \
         widgets/qlineedit.h \
         widgets/qlineedit_p.h \
-        widgets/qlistbox.h \
         widgets/qmainwindow.h \
         widgets/qmainwindowlayout_p.h \        
         widgets/qmenu.h \
@@ -90,7 +89,6 @@ SOURCES += \
         widgets/qlabel.cpp \
         widgets/qlcdnumber.cpp \
         widgets/qlineedit.cpp \
-        widgets/qlistbox.cpp \
         widgets/qmainwindow.cpp \
         widgets/qmainwindowlayout.cpp \
         widgets/qmenu.cpp \

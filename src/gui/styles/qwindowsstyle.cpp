@@ -23,7 +23,6 @@
 #include "qdrawutil.h" // for now
 #include "qevent.h"
 #include "qlabel.h"
-#include "qlistbox.h"
 #include "qmenu.h"
 #include "qpainter.h"
 #include "qpushbutton.h"

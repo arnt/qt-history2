@@ -29,7 +29,6 @@
 #include <qcheckbox.h>
 #include <qradiobutton.h>
 #include <qcombobox.h>
-#include <qlistbox.h>
 #include <private/qtitlebar_p.h>
 #include <qlistview.h>
 #include <qcleanuphandler.h>
