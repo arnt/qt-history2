@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#18 $
 **
 ** Implementation of QColor class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#18 $";
 #endif
 
 
@@ -52,6 +52,8 @@ color and save it in the internal table.
 </ol>
 
 This method seems to work well even with thousands of allocated colors.
+
+\sa QPallette.
 */
 
 // --------------------------------------------------------------------------
