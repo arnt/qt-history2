@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.60 1999/06/02 23:35:29 ettrich Exp $
+** $Id: porting.doc,v 1.61 1999/06/03 22:05:52 paul Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -322,6 +322,13 @@ This hack:
   use_sub_string( &my_string[index] )
  should be replaced by:
   use_sub_string( my_string.mid(index) )
+
+<dt><b>QString(const char*, int) is removed</b></dt>
+<dd>
+The QString constructor taking a const char* and an integer is removed.
+Use of this constructor was error-prone, since the length included the
+'\0' terminator. Use QString::left(int) or QString::fromLatin1( const char*,
+int ) -- in both cases the int parameter signifies the number of characters.
 
 <dt><b>QString(int) is private</b></dt>
 <dd>
