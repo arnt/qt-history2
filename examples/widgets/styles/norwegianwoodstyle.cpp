@@ -7,40 +7,24 @@ static const QPalette::ColorGroup groups[NumGroups] = {
     QPalette::Active, QPalette::Disabled, QPalette::Inactive
 };
 
-static void drawRoundRect(QPainter *painter, int x, int y, int width,
-                          int height, int minorSide)
+static QPainterPath roundRectPath(const QRect &rect)
 {
-    int rx = (200 * minorSide) / width;
-    int ry = (200 * minorSide) / height;
-    painter->drawRoundRect(x, y, width, height, rx, ry);
-}
+    int radius = qMin(rect.width(), rect.height()) / 2;
 
-static QRegion roundRectRegion(const QRect &rect, int radius)
-{
-    int diameter = (2 * radius) - 1;
+    int x1, y1, x2, y2;
+    rect.getCoords(&x1, &y1, &x2, &y2);
 
-    QPolygon polygon;
-    polygon << QPoint(rect.x() + radius, rect.y())
-            << QPoint(rect.x() + rect.width() - radius, rect.y())
-            << QPoint(rect.x() + rect.width(), rect.y() + radius)
-            << QPoint(rect.x() + rect.width(),
-                      rect.y() + rect.height() - radius)
-            << QPoint(rect.x() + rect.width() - radius,
-                      rect.y() + rect.height())
-            << QPoint(rect.x() + radius, rect.y() + rect.height())
-            << QPoint(rect.x(), rect.y() + rect.height() - radius)
-            << QPoint(rect.x(), rect.y() + radius);
-
-    QRegion region(polygon);
-    region |= QRegion(rect.x(), rect.y(), diameter, diameter, QRegion::Ellipse);
-    region |= QRegion(rect.x() + rect.width() - diameter, rect.y(),
-                      diameter, diameter, QRegion::Ellipse);
-    region |= QRegion(rect.x(), rect.y() + rect.height() - diameter,
-                      diameter, diameter, QRegion::Ellipse);
-    region |= QRegion(rect.x() + rect.width() - diameter,
-                      rect.y() + rect.width() - diameter,
-                      diameter, diameter, QRegion::Ellipse);
-    return region;
+    QPainterPath path;
+    path.moveTo(x1 + radius, y1);
+    path.lineTo(x2 - radius, y1);
+    path.arcTo(QRect(x2 - 2 * radius, y1, 2 * radius, 2 * radius), 90.0, -90.0);
+    path.lineTo(x2, y2 - radius);
+    path.arcTo(QRect(x2 - 2 * radius, y2 - 2 * radius, 2 * radius, 2 * radius), 0.0, -90.0);
+    path.lineTo(x1 + radius, y2);
+    path.arcTo(QRect(x1, y2 - 2 * radius, 2 * radius, 2 * radius), -90.0, -90.0);
+    path.lineTo(x1, y1 + radius);
+    path.arcTo(QRect(x1, y1, 2 * radius, 2 * radius), -180.0, -90.0);
+    return path;
 }
 
 static inline int buttonThickness(int side)
@@ -120,6 +104,8 @@ void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
     switch (element) {
     case PE_PanelButtonCommand:
         {
+            painter->setRenderHint(QPainter::Antialiasing, true);
+
             const QStyleOptionButton *buttonOption =
                     qstyleoption_cast<const QStyleOptionButton *>(option);
             bool isFlat = (buttonOption->features & QStyleOptionButton::Flat);
@@ -129,15 +115,16 @@ void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
             QRect insideRect = option->rect.adjusted(thickness, thickness,
                                                      -thickness, -thickness);
 
-            QRegion outside = roundRectRegion(option->rect, minorSide);
-
-            QRegion inside = roundRectRegion(insideRect, minorSide - thickness);
+            QPainterPath outside = roundRectPath(option->rect);
+            QPainterPath inside = roundRectPath(insideRect);
+/*
             QPolygon sunnySide;
             sunnySide << QPoint(x, y)
                       << QPoint(x + width - 1, y)
                       << QPoint(x + width - 1 - minorSide, y + minorSide)
                       << QPoint(x + minorSide, y + height - 1 - minorSide)
                       << QPoint(x, y + height - 1);
+*/
 
             QPen oldPen = painter->pen();
 
@@ -154,14 +141,16 @@ void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
                 brush = option->palette.button();
             }
 
-            painter->setClipRegion(inside);
-            painter->fillRect(option->rect, brush);
+            painter->fillPath(inside, brush);
             if ((option->state & (State_Down | State_On)) == State_On) {
-                painter->fillRect(option->rect,
+                painter->fillPath(inside,
                                   QBrush(brush.color(), Qt::Dense4Pattern));
             }
 
-            painter->setClipRegion((QRegion(sunnySide) - inside) & outside);
+#if 0
+            QPainterPath inBetween = inside;
+            inBetween.addPath(outside);
+            painter->setClipPath(inBetween);
             painter->fillRect(option->rect,
                     (option->state & (State_Down | State_On)
                      ? QBrush(option->palette.dark().color(), sunkenDarkImage)
@@ -169,7 +158,7 @@ void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
 
             if (option->state & (State_Raised | State_Down | State_On)) {
                 sunnySide[0] = QPoint(x + width - 1, y + width - 1);
-                painter->setClipRegion((QRegion(sunnySide) - inside) & outside);
+                painter->setClipPath((QPath(sunnySide) - inside) & outside);
 
                 painter->fillRect(option->rect,
                         (option->state & (State_Down | State_On)
@@ -177,10 +166,12 @@ void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
                                   sunkenLightImage)
                          : option->palette.dark()));
             }
+#endif
             painter->setClipping(false);
             painter->setPen(option->palette.foreground().color());
-            drawRoundRect(painter, x, y, width - 1, height - 1, minorSide);
+            painter->drawPath(outside);
             painter->setPen(oldPen);
+            painter->setRenderHint(QPainter::Antialiasing, false);
         }
         break;
     default:
