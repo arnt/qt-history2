@@ -416,6 +416,7 @@ public:
     void registerCustomItem( QTextCustomItem *i, QTextParag *p );
     void unregisterCustomItem( QTextCustomItem *i, QTextParag *p );
 
+    void setFlow( QTextFlow *f );
     QTextFlow *flow() const { return flow_; }
     bool verticalBreak() const { return pages; }
     void setVerticalBreak( bool b ) { pages = b; }
@@ -1490,6 +1491,13 @@ inline void QTextDocument::setTabStops( int tw )
 inline QString QTextDocument::originalText() const
 {
     return oText;
+}
+
+inline void QTextDocument::setFlow( QTextFlow *f )
+{
+    if ( flow_ ) 
+	delete flow_; 
+    flow_ = f; 
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
