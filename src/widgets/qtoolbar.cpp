@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#47 $
 **
 ** Implementation of QToolBar class
 **
@@ -385,6 +385,21 @@ void QToolBar::setLabel( const QString & label )
 QString QToolBar::label() const
 {
     return l;
+}
+
+
+/*!
+  Clears the toolbar, deleting all childwidgets.
+ */
+void QToolBar::clear()
+{
+    if ( !children() )
+	return;
+    QObjectList list = *children();
+    for (QObjectListIt it(list); it.current(); ++it) {
+        if ( it.current()->isWidgetType() )
+            delete it.current();
+    }
 }
 
 
