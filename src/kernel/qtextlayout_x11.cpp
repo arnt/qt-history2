@@ -75,7 +75,7 @@ int QTextItem::length() const
 }
 
 
-int QTextItem::cursorToX( int *cPos, Edge edge = Leading )
+int QTextItem::cursorToX( int *cPos, Edge edge )
 {
     int pos = *cPos;
     QScriptItem &si = engine->items[item];
@@ -177,7 +177,7 @@ bool QTextItem::isObject() const
 
 
 
-QTextLayout::QTextLayout( const QString &string, QPainter *p = 0 )
+QTextLayout::QTextLayout( const QString &string, QPainter *p )
 {
     QFontPrivate *f = p ? p->font().d : QApplication::font().d;
     d = new QTextEngine( string, f );
@@ -478,7 +478,7 @@ void QTextLayout::endLayout()
 }
 
 
-int QTextLayout::nextCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const
+int QTextLayout::nextCursorPosition( int oldPos, CursorMode mode ) const
 {
     qDebug("looking for next cursor pos for %d", oldPos );
     const QCharAttributes *attributes = d->attributes();
@@ -497,7 +497,7 @@ int QTextLayout::nextCursorPosition( int oldPos, CursorMode mode = SkipCharacter
     return oldPos;
 }
 
-int QTextLayout::previousCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const
+int QTextLayout::previousCursorPosition( int oldPos, CursorMode mode ) const
 {
     qDebug("looking for previous cursor pos for %d", oldPos );
     const QCharAttributes *attributes = d->attributes();
