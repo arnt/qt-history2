@@ -57,27 +57,29 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool adjus
 	    result += "ulong";
 	}
     }
+
     while (t != e) {
-	result += *t;
-	if (*t == '<') {
+	char c = *t++;
+	result += c;
+	if (c == '<') {
 	    //template recursion
-	    const char* tt = ++t;
+	    const char* tt = t;
 	    int templdepth = 1;
-	    while (*++t) {
-		if (*t == '<')
+	    while (t != e) {
+		c = *t++;
+		if (c == '<')
 		    ++templdepth;
-		if (*t == '>')
+		if (c == '>')
 		    --templdepth;
 		if (templdepth == 0) {
-		    result += normalizeTypeInternal(tt, t, false);
-		    result += *t;
-		    if (t[1] == '>')
+		    result += normalizeTypeInternal(tt, t-1, false);
+		    result += c;
+		    if (*t == '>')
 			result += ' '; // avoid >>
 		    break;
 		}
 	    }
 	}
-	++t;
     }
     return result;
 }
@@ -170,10 +172,12 @@ bool Moc::until(Token target) {
 	if (t == target
 	    && braceCount <= 0
 	    && brackCount <= 0
-	    && parenCount <= 0)
+	    && parenCount <= 0
+	    && (target != RANGLE || angleCount <= 0))
 	    return true;
 
-	if (braceCount < 0 || brackCount < 0 || parenCount < 0) {
+	if (braceCount < 0 || brackCount < 0 || parenCount < 0
+	    || (target == RANGLE && angleCount < 0)) {
 	    --index;
 	    break;
 	}
@@ -449,7 +453,15 @@ void Moc::moc(FILE *out)
 		    parseSignals(&def);
 		    break;
 		case SLOTS:
-		    parseSlots(access, &def);
+		    switch (lookup(-1)) {
+		    case PUBLIC:
+		    case PROTECTED:
+		    case PRIVATE:
+			parseSlots(access, &def);
+			break;
+		    default:
+			error("Missing access specifier for slots");
+		    }
 		    break;
 		case Q_OBJECT_TOKEN:
 		    def.hasQObject = true;

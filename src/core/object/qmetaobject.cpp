@@ -655,26 +655,27 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool adjus
 	}
     }
     while (t != e) {
-	result += *t;
-	if ( *t == '<' ) {
+	char c = *t++;
+	result += c;
+	if (c == '<') {
 	    //template recursion
-	    const char* tt = ++t;
+	    const char* tt = t;
 	    int templdepth = 1;
-	    while (*++t) {
-		if ( *t == '<' )
+	    while (t != e) {
+		c = *t++;
+		if (c == '<')
 		    ++templdepth;
-		if ( *t == '>' )
+		if (c == '>')
 		    --templdepth;
 		if (templdepth == 0) {
-		    result += normalizeTypeInternal(tt, t, false);
-		    result += *t;
-		    if (t[1] == '>' )
+		    result += normalizeTypeInternal(tt, t-1, false);
+		    result += c;
+		    if (*t == '>')
 			result += ' '; // avoid >>
 		    break;
 		}
 	    }
 	}
-	++t;
     }
     return result;
 }
