@@ -409,12 +409,12 @@ void QSocket::tryConnecting()
 	    return;
 	}
 	emit hostFound();
+	d->addr = l[0]; // just use the first address
 	d->state = Connecting; // enter the next if clause
     }
 
     if ( d->state == Connecting ) {
-	// ### hack: just use the first address
-	if ( d->socket->connect( l[0], d->port ) == FALSE ) {
+	if ( d->socket->connect( d->addr, d->port ) == FALSE ) {
 	    if ( d->socket->error() == QSocketDevice::NoError ) {
 		if ( d->wsn )
 		    d->wsn->setEnabled( TRUE );
