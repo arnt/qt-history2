@@ -547,8 +547,8 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
 
 void QGenericTreeView::scrollContentsBy(int dx, int dy)
 {
-    int max_dx = horizontalScrollBar()->pageStep() * 10;
-    int max_dy = verticalScrollBar()->pageStep() * 10;
+    int max_dx = horizontalScrollBar()->pageStep() * 20;
+    int max_dy = verticalScrollBar()->pageStep() * 20;
 
     // no need to do a lot of work if we are going to redraw the whole thing anyway
     if (QABS(dx) > max_dx || QABS(dy) > max_dy) {
@@ -568,24 +568,15 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
             dx = d->header->offset() - offset;
             d->header->setOffset(offset);
         }
+        horizontalScrollBar()->repaint();
     }
 
     if (dy) {
-
-//         qDebug("dy %d", dy);
-        
         int current_value = verticalScrollBar()->value();
         int previous_value = current_value + dy; // -(-dy)
-        
-//         qDebug("current value %d", current_value);
-//         qDebug("previous value %d", previous_value);
-        
-        int current_item = current_value / d->verticalFactor;
+        int current_item = current_value / d->verticalFactor; // the first visible  item on the page
         int previous_item = previous_value / d->verticalFactor;
-        
-//         qDebug("current item %d", current_item);
-//         qDebug("previous item %d", previous_item);
-        
+
         QItemOptions options;
         getViewOptions(&options);
         QFontMetrics fontMetrics(this->fontMetrics());
@@ -593,14 +584,12 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
         const QGenericTreeViewItem *items = d->items.constData();
         QModelIndex current_index = items[current_item].index;
         QModelIndex previous_index = items[previous_item].index;
+        
         int current_height = delegate->sizeHint(fontMetrics, options, current_index).height();
         int previous_height = delegate->sizeHint(fontMetrics, options, previous_index).height();
         int current_y = d->coordinateAt(current_value, current_height);
         int previous_y = d->coordinateAt(previous_value, previous_height);
         
-//         qDebug("current y %d", current_y);
-//         qDebug("previous y %d", previous_y);
-
         dy = current_y - previous_y;        
         if (current_item > previous_item)
             for (int i = previous_item; i < current_item; ++i)
@@ -608,8 +597,8 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
         else if (current_item < previous_item)
             for (int i = previous_item; i > current_item; --i)
                 dy += delegate->sizeHint(fontMetrics, options, items[i].index).height();
-        
-//         qDebug("dy %d", dy);
+
+        verticalScrollBar()->repaint();
     }
     
     d->viewport->scroll(dx, dy);
@@ -617,18 +606,12 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
 
 void QGenericTreeView::contentsChanged()
 {
-    contentsChanged(QModelIndex(), QModelIndex());
+    QAbstractItemView::contentsChanged(QModelIndex(), QModelIndex());
 }
 
-void QGenericTreeView::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModelIndex &)
 {
-    // FIXME: items height may have changed: relayout ?
-    QAbstractItemView::contentsChanged(topLeft, bottomRight);
-}
-
-void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
-{
-    if (topLeft.isValid() && bottomRight.isValid() && isVisible())
+    if (isVisible())
         d->relayout(model()->parent(topLeft));
 }
 

@@ -72,7 +72,6 @@ protected slots:
 protected:
     QGenericTreeView(QGenericTreeViewPrivate &dd, QAbstractItemModel *model, QWidget *parent = 0);
     void scrollContentsBy(int dx, int dy);
-    void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
