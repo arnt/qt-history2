@@ -113,6 +113,7 @@ public:
     QSocketPrivate();
    ~QSocketPrivate();
     void close();
+    void connectionClosed();
 
     QSocket::State	state;			// connection state
     QString		host;			// host name
@@ -164,6 +165,19 @@ void QSocketPrivate::close()
     rsize = wsize = 0;
     rba.clear(); wba.clear();
     rindex = windex = 0;
+}
+
+void QSocketPrivate::connectionClosed()
+{
+    // We keep the open state in case there's unread incoming data
+    state = QSocket::Idle;
+    if ( rsn )
+	rsn->setEnabled( FALSE );
+    if ( wsn )
+	wsn->setEnabled( FALSE );
+    socket->close();
+    wba.clear();
+    windex = wsize = 0;
 }
 
 /*!
@@ -575,7 +589,7 @@ void QSocket::close()
     }
     setFlags( IO_Sequential );
     setStatus( IO_Ok );
-	d->close();
+    d->close();
     d->state = Idle;
 }
 
@@ -1185,15 +1199,7 @@ void QSocket::sn_read( bool force )
 #if defined(QSOCKET_DEBUG)
 	    qDebug( "QSocket (%s): sn_read: Connection closed", name() );
 #endif
-	    // We keep the open state in case there's unread incoming data
-	    d->state = Idle;
-	    if ( d->rsn )
-		d->rsn->setEnabled( FALSE );
-	    if ( d->wsn )
-		d->wsn->setEnabled( FALSE );
-	    d->socket->close();
-	    d->wba.clear();			// clear write buffer
-	    d->windex = d->wsize = 0;
+	    d->connectionClosed();
 	    emit connectionClosed();
 	    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 	    return;
@@ -1234,7 +1240,13 @@ void QSocket::sn_read( bool force )
 		memcpy(a->data(),buf,nread);
 	    }
 	}
-	if ( nread <= 0 ) {
+	if ( nread == 0 ) {
+#if defined(QSOCKET_DEBUG)
+	    qDebug( "QSocket (%s): sn_read: Connection closed", name() );
+#endif
+	    d->connectionClosed();
+	    emit connectionClosed();
+	} else if ( nread < 0 ) {
 	    if ( d->socket->error() == QSocketDevice::NoError ) {
 		// all is fine
 		QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
