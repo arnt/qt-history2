@@ -66,6 +66,186 @@ QPolygon QPainterPrivate::draw_helper_xpolygon(const void *data, ShapeType shape
 }
 
 
+/*
+  Sets the shape as a clipregion on the painter
+*/
+void QPainterPrivate::draw_helper_setclip(const void *data, bool winding, ShapeType shape)
+{
+#ifdef QT_DEBUG_DRAW
+    printf(" -> setclip()\n");
+#endif
+    QRegion clip;
+    switch (shape) {
+    case EllipseShape:
+        clip = QRegion(reinterpret_cast<const QRectF*>(data)->toRect(), QRegion::Ellipse);
+        break;
+    case PathShape:
+        clip = QRegion(reinterpret_cast<const QPainterPath*>(data)->toFillPolygon().toPointArray(),
+                       reinterpret_cast<const QPainterPath*>(data)->fillMode() == QPainterPath::Winding);
+        break;
+    case RectangleShape:
+        clip = QRegion(reinterpret_cast<const QRectF*>(data)->toRect());
+        break;
+    default:
+        clip = QRegion(reinterpret_cast<const QPolygon*>(data)->toPointArray(), winding);
+        break;
+    }
+    QRegion currentClip = q->clipRegion();
+    if (!currentClip.isEmpty())
+        clip &= currentClip;
+    q->setClipRegion(clip);
+}
+
+
+/*
+  Fallback implementation of fill linear gradient. Sets a clipregion matching the shape to
+  fill and calls qt_fill_linear_gradient (lots of drawlines) for the region in question
+*/
+void QPainterPrivate::draw_helper_fill_lineargradient(const void *data, bool winding, ShapeType type)
+{
+#ifdef QT_DEBUG_DRAW
+    printf(" -> fill_lineargradient()\n");
+#endif
+    q->save();
+    draw_helper_setclip(data, winding, type);
+    QRect bounds = state->clipRegion.boundingRect();
+    qt_fill_linear_gradient(bounds, q, state->brush);
+    q->restore();
+}
+
+
+/*
+  Fallback implementation of fill alpha. Creates an alpha pixmap and sets a clipmask matching
+  the primitive type to fill (no clip for rects though), then tiles the pixmap across the
+  area.
+*/
+void QPainterPrivate::draw_helper_fill_alpha(const void *data, bool winding, ShapeType type)
+{
+#ifdef QT_DEBUG_DRAW
+    printf(" -> fill_alpha()\n");
+#endif
+    const int BUFFERSIZE = 16;
+    QImage image(BUFFERSIZE, BUFFERSIZE, 32);
+    image.fill(state->brush.color().rgb());
+    image.setAlphaBuffer(true);
+    QPixmap pm(image);
+
+    QRect bounds;
+
+    if (type != RectangleShape) {
+        q->save();
+        draw_helper_setclip(data, winding, type);
+        bounds = state->clipRegion.boundingRect();
+    } else {
+        bounds = reinterpret_cast<const QRectF *>(data)->toRect();
+    }
+
+    q->drawTiledPixmap(bounds, pm);
+
+    if (type != RectangleShape)
+        q->restore();
+}
+
+
+/*
+  Fallback implementation of fill patterns.
+*/
+void QPainterPrivate::draw_helper_fill_pattern(const void *data, bool winding, ShapeType type)
+{
+#ifdef QT_DEBUG_DRAW
+    printf(" -> fill_pattern()\n");
+#endif
+    QPixmap pattern = qt_pixmapForBrush(state->brush.style(), true);
+    if (state->bgMode == Qt::TransparentMode)
+        pattern.setMask(*static_cast<QBitmap *>(&pattern));
+
+    q->save();
+    q->setPen(state->brush.color());
+
+    QRect bounds;
+    if (type != RectangleShape) {
+        draw_helper_setclip(data, winding, type);
+        bounds = state->clipRegion.boundingRect();
+    } else {
+        bounds = reinterpret_cast<const QRectF *>(data)->toRect();
+    }
+
+    q->drawTiledPixmap(bounds, pattern);
+
+    q->restore();
+}
+
+
+/*!
+  Fallback implementation for stroking. Will transform coordinates if necesary.
+*/
+void QPainterPrivate::draw_helper_stroke_normal(const void *data, ShapeType shape, uint emulate)
+{
+#ifdef QT_DEBUG_DRAW
+    printf(" -> stroke normal()\n");
+#endif
+    QBrush originalBrush = state->brush;
+    q->setBrush(Qt::NoBrush);
+    engine->updateState(state);
+    if (shape == PathShape) {
+        Q_ASSERT_X(engine->hasFeature(QPaintEngine::PainterPaths), "draw_helper",
+                   "PathShape is only used when engine supports painterpaths.");
+        engine->drawPath(emulate & QPaintEngine::CoordTransform
+                         ? *reinterpret_cast<const QPainterPath *>(data) * state->matrix
+                         : *reinterpret_cast<const QPainterPath *>(data));
+    } else {
+        if (emulate & QPaintEngine::CoordTransform) {
+            // Engine cannot transform
+            QPolygon xformed = draw_helper_xpolygon(data, shape);
+            engine->drawPolygon(xformed, QPaintEngine::PolylineMode);
+        } else {
+            // Engine does transformation
+            if (shape == EllipseShape)
+                engine->drawEllipse(*reinterpret_cast<const QRectF *>(data));
+            else if (shape == RectangleShape)
+                engine->drawRect(*reinterpret_cast<const QRectF *>(data));
+            else
+                engine->drawPolygon(*reinterpret_cast<const QPolygon *>(data),
+                                    QPaintEngine::PolylineMode);
+        }
+    }
+    q->setBrush(originalBrush);
+}
+
+
+/*!
+  Fallback implementation for path based stroking. This function is used to emulate
+  pen width transformation.
+*/
+void QPainterPrivate::draw_helper_stroke_pathbased(const void *data, ShapeType shape)
+{
+#ifdef QT_DEBUG_DRAW
+    printf(" -> stroke pathbased()\n");
+#endif
+    QPainterPath path;
+    switch (shape) {
+    case EllipseShape:
+        path.addEllipse(*reinterpret_cast<const QRectF*>(data));
+        break;
+    case RectangleShape:
+        path.addRect(*reinterpret_cast<const QRectF*>(data));
+        break;
+    case PathShape:
+        path = *reinterpret_cast<const QPainterPath*>(data);
+        break;
+    default:
+        path.addPolygon(*reinterpret_cast<const QPolygon*>(data));
+        break;
+    }
+    QPainterPathStroker stroker;
+    stroker.setWidth(state->pen.width());
+    stroker.setStyle(state->pen.style());
+    stroker.setCapStyle(state->pen.capStyle());
+    stroker.setJoinStyle(state->pen.joinStyle());
+    q->fillPath(stroker.createStroke(path), QBrush(state->pen.color()));
+}
+
+
 // ### make this inline when the X11 define has been removed
 void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType type,
                                   DrawOperation operation)
@@ -92,8 +272,9 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
             || emulationSpecifier & QPaintEngine::AlphaStroke))
         outlineMode = PathBased;
 
-    // Do the filling for gradients or alpha.
     if (op & FillDraw) {
+
+        // Custom fill, gradients, alpha and patterns
         if ((emulationSpecifier & QPaintEngine::LinearGradients)
             || (emulationSpecifier & QPaintEngine::AlphaFill)
             || (emulationSpecifier & QPaintEngine::PatternTransform)) {
@@ -117,50 +298,15 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
                     }
                 }
             } else {
-                QRectF bounds;
-                q->save();
-                QRegion clip;
-                switch (shape) {
-                case EllipseShape:
-                    bounds = *reinterpret_cast<const QRectF*>(data);
-                    clip = QRegion(bounds.toRect(), QRegion::Ellipse);
-                    break;
-                case PathShape:
-                    clip = QRegion(reinterpret_cast<const QPainterPath*>(data)->toFillPolygon().toPointArray(),
-                                reinterpret_cast<const QPainterPath*>(data)->fillMode() == QPainterPath::Winding);
-                    bounds = clip.boundingRect();
-                    break;
-                case RectangleShape:
-                    bounds = *reinterpret_cast<const QRectF*>(data);
-                    clip = QRegion(bounds.toRect());
-                    break;
-                default:
-                    bounds = reinterpret_cast<const QPolygon*>(data)->boundingRect();
-                    clip = QRegion(reinterpret_cast<const QPolygon*>(data)->toPointArray(), winding);
-                    break;
-                }
-                QRegion currentClip = q->clipRegion();
-                if (!currentClip.isEmpty())
-                    clip &= currentClip;
-                q->setClipRegion(clip);
-                if (emulationSpecifier & QPaintEngine::LinearGradients) {
-                    qt_fill_linear_gradient(bounds.toRect(), q, state->brush);
-                } else if (emulationSpecifier & QPaintEngine::AlphaFill) { // AlphaFill
-                    const int BUFFERSIZE = 16;
-                    QImage image(BUFFERSIZE, BUFFERSIZE, 32);
-                    image.fill(state->brush.color().rgb());
-                    image.setAlphaBuffer(true);
-                    QPixmap pm(image);
-                    q->drawTiledPixmap(bounds.toRect(), pm);
-                } else { // PatternTransform
-                    QPixmap pattern = qt_pixmapForBrush(state->brush.style(), true);
-                    if (state->bgMode == Qt::TransparentMode)
-                        pattern.setMask(*static_cast<QBitmap *>(&pattern));
-                    q->setPen(state->brush.color());
-                    q->drawTiledPixmap(bounds.toRect(), pattern);
-                }
-                q->restore();
+                if (emulationSpecifier & QPaintEngine::LinearGradients)
+                    draw_helper_fill_lineargradient(data, winding, shape);
+                else if (emulationSpecifier & QPaintEngine::AlphaFill)
+                    draw_helper_fill_alpha(data, winding, shape);
+                else if (emulationSpecifier & QPaintEngine::PatternTransform)
+                    draw_helper_fill_pattern(data, winding, shape);
             }
+
+            // XFormed fills
         } else if (emulationSpecifier & QPaintEngine::CoordTransform) {
             outlineMode = None;
             q->save();
@@ -181,8 +327,9 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
                                     winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
             }
             q->restore();
+
+            // Normal fills, custom outlining only, which is done later.
         } else {
-            // Custom outlining only, do standard draw...
             QPen oldPen = state->pen;
             q->setPen(Qt::NoPen);
             engine->updateState(state);
@@ -218,61 +365,9 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
     // Do the outlining...
     if (op & StrokeDraw) {
         if (outlineMode == Normal && state->pen.style() != Qt::NoPen) {
-            QBrush originalBrush = state->brush;
-            q->setBrush(Qt::NoBrush);
-            engine->updateState(state);
-            if (shape == PathShape) {
-                Q_ASSERT_X(engine->hasFeature(QPaintEngine::PainterPaths), "draw_helper",
-                           "PathShape is only used when engine supports painterpaths.");
-                QPainterPath pathCopy = *reinterpret_cast<const QPainterPath *>(data);
-                if (emulationSpecifier & QPaintEngine::CoordTransform)
-                    pathCopy = pathCopy * state->matrix;
-                engine->drawPath(pathCopy);
-            } else {
-                QPaintEngine::PolygonDrawMode mode;
-                if (shape == LineShape)
-                    mode = QPaintEngine::PolylineMode;
-                else if (winding)
-                    mode = QPaintEngine::WindingMode;
-                else
-                    mode = QPaintEngine::OddEvenMode;
-                if (!engine->hasFeature(QPaintEngine::CoordTransform)) {
-                    // Engine cannot transform
-                    QPolygon xformed = draw_helper_xpolygon(data, shape);
-                    engine->drawPolygon(xformed, mode);
-                } else {
-                    // Engine does transformation
-                    if (shape == EllipseShape)
-                        engine->drawEllipse(*reinterpret_cast<const QRectF *>(data));
-                    else if (shape == RectangleShape)
-                        engine->drawRect(*reinterpret_cast<const QRectF *>(data));
-                    else
-                        engine->drawPolygon(*reinterpret_cast<const QPolygon *>(data), mode);
-                }
-            }
-            q->setBrush(originalBrush);
+            draw_helper_stroke_normal(data, shape, emulationSpecifier);
         } else if (outlineMode == PathBased) {
-            QPainterPath path;
-            switch (shape) {
-            case EllipseShape:
-                path.addEllipse(*reinterpret_cast<const QRectF*>(data));
-                break;
-            case RectangleShape:
-                path.addRect(*reinterpret_cast<const QRectF*>(data));
-                break;
-            case PathShape:
-                path = *reinterpret_cast<const QPainterPath*>(data);
-                break;
-            default:
-                path.addPolygon(*reinterpret_cast<const QPolygon*>(data));
-                break;
-            }
-            QPainterPathStroker stroker;
-            stroker.setWidth(state->pen.width());
-            stroker.setStyle(state->pen.style());
-            stroker.setCapStyle(state->pen.capStyle());
-            stroker.setJoinStyle(state->pen.joinStyle());
-            q->fillPath(stroker.createStroke(path), QBrush(state->pen.color()));
+            draw_helper_stroke_pathbased(data, shape);
         }
     } // end of stroking
 }

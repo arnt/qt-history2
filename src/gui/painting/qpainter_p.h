@@ -189,6 +189,14 @@ public:
     void draw_helper(const void *data, bool winding, ShapeType type,
                      DrawOperation operation = StrokeAndFillDraw);
 
+    // Refactored draw_helper functionallity
+    void draw_helper_setclip(const void *data, bool winding, ShapeType type);
+    void draw_helper_fill_lineargradient(const void *data, bool winding, ShapeType type);
+    void draw_helper_fill_alpha(const void *data, bool winding, ShapeType type);
+    void draw_helper_fill_pattern(const void *data, bool winding, ShapeType type);
+    void draw_helper_stroke_normal(const void *data, ShapeType type, uint emulate);
+    void draw_helper_stroke_pathbased(const void *data, ShapeType type);
+
     void updateMatrix();
     void updateInvMatrix();
     void init();
