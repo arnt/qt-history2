@@ -331,6 +331,10 @@
 */
 
 /*! \fn QValueVector::QValueVector( std::vector<T>& v )
+  \internal
+*/
+
+/*! \fn QValueVector::QValueVector( const std::vector<T>& v )
   Constructs a copy of \a v.
 
   This operation costs O(1) time because QValueVector is shared

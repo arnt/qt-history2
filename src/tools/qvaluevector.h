@@ -240,7 +240,13 @@ public:
     }
 
 #ifndef QT_NO_STL
-    QValueVector( std::vector<T>& v )
+    QValueVector( std::vector<T>& v ) // ### remove in 4.0
+    {
+	sh = new QValueVectorPrivate<T>( v.size() );
+	qCopy( v.begin(), v.end(), begin() );
+    }
+
+    QValueVector( const std::vector<T>& v )
     {
 	sh = new QValueVectorPrivate<T>( v.size() );
 	qCopy( v.begin(), v.end(), begin() );
