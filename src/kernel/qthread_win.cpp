@@ -283,7 +283,7 @@ void QNonRecursiveMutexPrivate::unlock()
     protect.leave();
 }
 
-bool QNonRecursiveMutexPrivate::trylock();
+bool QNonRecursiveMutexPrivate::trylock()
 {
     protect.enter();
 
