@@ -375,7 +375,7 @@ void QIconDragItem::setData( const QByteArray &d )
   \class QIconDrag qiconview.h
 
   \brief The QIconDrag is the drag object which is used for moving items in the iconview
- 
+
   \ingroup draganddrop
 
   The QIconDrag is the drag object which is used for moving items in the
@@ -1632,7 +1632,7 @@ void QIconViewItem::calcTmpText()
   \brief The QIconView class
 
   \ingroup advanced
-  
+
   The QIconView provides a widget which can contain lots of iconview items which can
   be selected, dragged and so on.
 
@@ -4118,6 +4118,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 
 void QIconView::focusInEvent( QFocusEvent *e )
 {
+    d->mousePressed = FALSE;
     if ( d->currentItem )
 	repaintItem( d->currentItem );
     else if ( d->firstItem && e->reason() != QFocusEvent::Mouse ) {

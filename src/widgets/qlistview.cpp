@@ -268,7 +268,7 @@ struct QListViewPrivate
   directory aren't entered into the tree until they need to.
 */
 
-/*!  
+/*!
   Constructs a new top-level list view item in the QListView \a parent.
 */
 
@@ -3275,6 +3275,7 @@ void QListView::doAutoScroll()
 
 void QListView::focusInEvent( QFocusEvent *e )
 {
+    d->buttonDown = FALSE;
     if ( d->focusItem )
 	repaintItem( d->focusItem );
     else if ( firstChild() && e->reason() != QFocusEvent::Mouse ) {

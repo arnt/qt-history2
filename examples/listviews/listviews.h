@@ -23,6 +23,7 @@ class QLabel;
 class QPainter;
 class QColorGroup;
 class QObjectList;
+class QPopupMenu;
 
 // -----------------------------------------------------------------
 
@@ -152,12 +153,14 @@ protected:
 
     QListView *messages, *folders;
     QLabel *message;
+    QPopupMenu* menu;
 
     QList<Folder> lstFolders;
 
 protected slots:
     void slotFolderChanged( QListViewItem* );
     void slotMessageChanged( QListViewItem* );
+    void slotRMB( QListViewItem*, const QPoint &, int );
 
 };
 

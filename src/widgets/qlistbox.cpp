@@ -2168,6 +2168,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 
 void QListBox::focusInEvent( QFocusEvent *e )
 {
+    d->mousePressRow = -1;
+    d->mousePressColumn = -1;
     if ( e->reason() != QFocusEvent::Mouse && !d->current && d->head ) {
 	d->current = d->head;
 	updateItem( d->head );

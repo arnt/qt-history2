@@ -14,6 +14,7 @@
 #include <qpainter.h>
 #include <qpalette.h>
 #include <qobjectlist.h>
+#include <qpopupmenu.h>
 
 // -----------------------------------------------------------------
 
@@ -121,6 +122,11 @@ ListViews::ListViews( QWidget *parent, const char *name )
     messages->setColumnAlignment( 1, Qt::AlignRight );
     messages->setAllColumnsShowFocus( TRUE );
     messages->setShowSortIndicator( TRUE );
+    menu = new QPopupMenu( messages );
+    for( int i = 1; i <= 10; i++ )
+	menu->insertItem( QString( "Context Item %1" ).arg( i ) );
+    connect(messages, SIGNAL( rightButtonPressed( QListViewItem *, const QPoint& , int ) ),
+	    this, SLOT( slotRMB( QListViewItem *, const QPoint &, int ) ) );
     vsplitter->setResizeMode( messages, QSplitter::KeepSize );
 
     message = new QLabel( vsplitter );
@@ -193,6 +199,13 @@ void ListViews::setupFolders()
     for ( Folder* f = lstFolders.first(); f; f = lstFolders.next() )
 	(void)new FolderListItem( folders, f );
 }
+
+void ListViews::slotRMB( QListViewItem* Item, const QPoint & point, int )
+{
+    if( Item )
+	menu->popup( point );
+}
+
 
 void ListViews::slotFolderChanged( QListViewItem *i )
 {
