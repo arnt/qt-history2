@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#191 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#192 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <limits.h>
 
 /* -------------------------------------------------------------------------
  * unicode information
@@ -9110,7 +9111,7 @@ QChar::Category QChar::category() const
 QChar::Direction QChar::direction() const
 {
   const Q_UINT8 *rowp = direction_info[row];
-  if(!rowp) return QChar::L;
+  if(!rowp) return QChar::DirL;
   return (Direction) ( *(rowp+cell) &0xf );
 }
 
@@ -9121,7 +9122,7 @@ QChar::Direction QChar::direction() const
 QChar::Joining QChar::joining() const
 {
   const Q_UINT8 *rowp = direction_info[row];
-  if(!rowp) return QChar::other;
+  if(!rowp) return QChar::OtherJoining;
   return (Joining) ((*(rowp+cell) >> 4) &0x7);
 }
 
@@ -9157,15 +9158,15 @@ QString QChar::decomposition() const
 
 /*!
   The tag belonging to the composition of the char.
-  Returns QChar::single if no decomposition exists
+  Returns QChar::Single if no decomposition exists
   */
 QChar::Decomposition QChar::decompositionTag() const
 {
   const Q_UINT16 *r = decomp_info[row];
-  if(!r) return QChar::single;
+  if(!r) return QChar::Single;
 
   Q_UINT16 pos = r[cell];
-  if(!pos) return QChar::single;
+  if(!pos) return QChar::Single;
 
   return (QChar::Decomposition) decomp_map[pos];
 }
@@ -9263,7 +9264,7 @@ QChar::Decomposition QLigature::tag()
     if(current())
 	return (QChar::Decomposition) decomp_map[current()];
 	
-    return QChar::canonical;
+    return QChar::Canonical;
 }    
 
 int QLigature::match(QString & str, unsigned int index)
@@ -9315,13 +9316,13 @@ static inline QChar::Decomposition format(QChar ch, QString & str,
 	
 	
     if (left && right)
-	return QChar::medial;
+	return QChar::Medial;
     if (left)
-	return QChar::initial;
+	return QChar::Initial;
     if (right)
-	return QChar::final;
+	return QChar::Final;
 	
-    return QChar::isolated;
+    return QChar::Isolated;
 } // format()
 
 /*! 
@@ -9382,15 +9383,15 @@ static inline bool is_arabic(unsigned short x) {
 
 static inline bool is_neutral(QChar &ch) {
     QChar::Direction dir = ch.direction();
-    return ((dir == QChar::B) ||
-	    (dir == QChar::S) ||
-	    (dir == QChar::WS) ||
-	    (dir == QChar::ON));
+    return ((dir == QChar::DirB) ||
+	    (dir == QChar::DirS) ||
+	    (dir == QChar::DirWS) ||
+	    (dir == QChar::DirON));
 }
 
 /*!
-  This function returns the basic directionality of the string (QChar::R for
-  right to left and QChar::L for left to right). Useful to find the right 
+  This function returns the basic directionality of the string (QChar::DirR for
+  right to left and QChar::DirL for left to right). Useful to find the right 
   alignment.
   */
 QChar::Direction QString::basicDirection()
@@ -9405,12 +9406,12 @@ QChar::Direction QString::basicDirection()
 	   (at(pos).direction() > 1)) // not R and not L
 	pos++;
 	
-    if ((at(pos).direction() == QChar::R) ||
+    if ((at(pos).direction() == QChar::DirR) ||
 	(at(pos) == RLE) ||
 	(at(pos) == RLO))
-	return QChar::R;
+	return QChar::DirR;
 
-    return QChar::L;
+    return QChar::DirL;
 }
 
 // reverses part of the QChar array to get visual ordering
@@ -9486,7 +9487,7 @@ QString & QString::visual(int index, int len)
 	   (at(pos).direction() > 1)) // not R and not L
 	pos++;
 	
-    if ((at(pos).direction() == QChar::R) ||
+    if ((at(pos).direction() == QChar::DirR) ||
 	(at(pos) == RLE) ||
 	(at(pos) == RLO))
 	base = 1;
@@ -9523,14 +9524,14 @@ QString & QString::visual(int index, int len)
 	    stack.push(new QBidiState(clevel, override));
 	    if (clevel < 254)
 		clevel += 1 + clevel % 2;
-	    override = QChar::R;
+	    override = QChar::DirR;
 	}
 	else if (at(pos) == LRO) {
 	    code_count++;
 	    stack.push(new QBidiState(clevel, override));
 	    if (clevel < 254)
 		clevel += 2 - clevel % 2;
-	    override = QChar::L;
+	    override = QChar::DirL;
 	}
 	else if (at(pos) == PDF) {
 	    code_count++;
@@ -9556,36 +9557,36 @@ QString & QString::visual(int index, int len)
 	int i;
 
 	switch (at(pos).direction()) {
-	case QChar::EN:
+	case QChar::DirEN:
 	    i   = pos-1;
 	    while ((i >= 0) &&
-		   !(at(i).direction() == QChar::AN) &&
-		   !((at(i).direction() == QChar::R) && 
+		   !(at(i).direction() == QChar::DirAN) &&
+		   !((at(i).direction() == QChar::DirR) && 
 		     is_arabic(at(i).direction())) &&
-		   !(at(i).direction() == QChar::B))
+		   !(at(i).direction() == QChar::DirB))
 		i--;
 			
 	    if ((i >= 0) &&
-		((at(i).direction() == QChar::AN) ||
+		((at(i).direction() == QChar::DirAN) ||
 		 is_arabic(at(i).direction())))
-		dir[pos] = QChar::AN;
+		dir[pos] = QChar::DirAN;
 			
 	    break;
-	case QChar::ES:
-	case QChar::CS:
+	case QChar::DirES:
+	case QChar::DirCS:
 	    if ((pos > 0) && (pos < l-1) &&
 		(dir[pos-1] == dir[pos+1]))
 		dir[pos] = dir[pos-1];
 	    else
-		dir[pos] = QChar::ON;
+		dir[pos] = QChar::DirON;
 			
 	    break;
-	case QChar::ET:
-	    if (((pos > 0) && (dir[pos-1] == QChar::EN)) || 
-		((pos < l-1) && (dir[pos+1] == QChar::EN)))
-		dir[pos] = QChar::EN;
+	case QChar::DirET:
+	    if (((pos > 0) && (dir[pos-1] == QChar::DirEN)) || 
+		((pos < l-1) && (dir[pos+1] == QChar::DirEN)))
+		dir[pos] = QChar::DirEN;
 	    else
-		dir[pos] = QChar::ON;
+		dir[pos] = QChar::DirON;
 			
 	    break;
 	default:
@@ -9601,7 +9602,7 @@ QString & QString::visual(int index, int len)
 	    if (pos > 0)
 		l = at(pos-1).direction();
 	    else
-		l = (base == 0 ? QChar::L : QChar::R);
+		l = (base == 0 ? QChar::DirL : QChar::DirR);
 
 	    int i = pos;
 			
@@ -9611,26 +9612,26 @@ QString & QString::visual(int index, int len)
 	    if (i < (int)l-1)
 		r = at(i+1).direction();
 	    else
-		r = (base == 0 ? QChar::L : QChar::R);
+		r = (base == 0 ? QChar::DirL : QChar::DirR);
 			
 	    for (int j=pos; j <= i; j++) {
 		if (r == l)
 		    dir[j] = l;
 		else
-		    dir[j] = (base == 0 ? QChar::L : QChar::R);
+		    dir[j] = (base == 0 ? QChar::DirL : QChar::DirR);
 	    }
 	}
     }
 	
     // implicit level pass
-    QChar::Direction prec = (base == 0 ? QChar::L : QChar::R);
+    QChar::Direction prec = (base == 0 ? QChar::DirL : QChar::DirR);
 	
     for (pos = 0; pos < l; pos++) {
 	if (level[pos] % 2) {
 	    switch (dir[pos]) {
-	    case QChar::L:
-	    case QChar::AN:
-	    case QChar::EN:
+	    case QChar::DirL:
+	    case QChar::DirAN:
+	    case QChar::DirEN:
 		level[pos] += 1;
 		break;
 	    default:
@@ -9638,17 +9639,17 @@ QString & QString::visual(int index, int len)
 	    }
 	} else {
 	    switch (dir[pos]) {
-	    case QChar::L:
+	    case QChar::DirL:
 				// do nothing
 		break;
-	    case QChar::R:
+	    case QChar::DirR:
 		level[pos] += 1;
 		break;
-	    case QChar::EN:
-		if (prec == QChar::L)
+	    case QChar::DirEN:
+		if (prec == QChar::DirL)
 		    break;
 				// fall through
-	    case QChar::AN:
+	    case QChar::DirAN:
 		level[pos] += 2;
 		break;
 	    default:
@@ -11292,12 +11293,12 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
   it has trailing garbage.
 */
 
-long QString::toLong( bool *ok ) const
+long QString::toLong( bool *ok, int base ) const
 {
     const QChar *p = unicode();
     long val=0;
     int l = length();
-    const long max_mult = 214748364;
+    const long max_mult = INT_MAX / base;
     bool is_ok = FALSE;
     int neg = 0;
     if ( !p )
@@ -11312,13 +11313,27 @@ long QString::toLong( bool *ok ) const
 	l--;
 	p++;
     }
-    if ( !l || !ucisdigit(*p) )
+
+    // NOTE: toULong() code is similar
+    if ( !l || (!ucisdigit(*p) && !(*p >= 'a' && *p <= 'z'
+				    || *p >= 'A' && *p <= 'Z')) )
 	goto bye;
-    while ( l && ucisdigit(*p) ) {
+    while ( l && (ucisdigit(*p) || (*p >= 'a' && *p <= 'z'
+                                    || *p >= 'A' && *p <= 'Z') ) ) {
 	l--;
-	if ( val > max_mult || (val == max_mult && (*p-'0') > 7+neg) )
+	int dv;
+	if ( ucisdigit(*p) ) {
+	    dv = p->digitValue();
+	} else {
+	    if ( *p >= 'a' && *p <= 'z' )
+		dv = *p - 'a' + 10;
+	    else
+		dv = *p - 'A' + 10;
+	}
+	if ( val > max_mult || (val == max_mult && dv > (INT_MAX%base)+neg) )
 	    goto bye;
-	val = 10*val + (*p++ - '0');
+	val = base*val + dv;
+	p++;
     }
     if ( neg )
 	val = -val;
@@ -11341,7 +11356,7 @@ bye:
   or if it has trailing garbage.
 */
 
-ulong QString::toULong( bool *ok ) const
+ulong QString::toULong( bool *ok, int base ) const
 {
     const QChar *p = unicode();
     ulong val=0;
@@ -11354,14 +11369,29 @@ ulong QString::toULong( bool *ok ) const
 	l--,p++;
     if ( *p == '+' )
 	l--,p++;
-    if ( !l || !ucisdigit(*p) )
+
+    // NOTE: toLong() code is similar
+    if ( !l || (!ucisdigit(*p) && !(*p >= 'a' && *p <= 'z'
+				    || *p >= 'A' && *p <= 'Z')) )
 	goto bye;
-    while ( l && ucisdigit(*p) ) {
+    while ( l && (ucisdigit(*p) || (*p >= 'a' && *p <= 'z'
+                                    || *p >= 'A' && *p <= 'Z') ) ) {
 	l--;
-	if ( val > max_mult || (val == max_mult && (*p-'0') > 5) )
+	int dv;
+	if ( ucisdigit(*p) ) {
+	    dv = p->digitValue();
+	} else {
+	    if ( *p >= 'a' && *p <= 'z' )
+		dv = *p - 'a' + 10;
+	    else
+		dv = *p - 'A' + 10;
+	}
+	if ( val > max_mult || (val == max_mult && dv > (UINT_MAX%base)) )
 	    goto bye;
-	val = 10*val + (*p++ - '0');
+	val = base*val + dv;
+	p++;
     }
+
     while ( l && ucisspace(*p) )			// skip trailing space
 	l--,p++;
     if ( !l )
@@ -11380,9 +11410,9 @@ bye:
   it has trailing garbage.
 */
 
-short QString::toShort( bool *ok ) const
+short QString::toShort( bool *ok, int base ) const
 {
-    long v = toLong( ok );
+    long v = toLong( ok, base );
     if ( ok && *ok && (v < -32768 || v > 32767) ) {
 	*ok = FALSE;
 	v = 0;
@@ -11398,9 +11428,9 @@ short QString::toShort( bool *ok ) const
   it has trailing garbage.
 */
 
-ushort QString::toUShort( bool *ok ) const
+ushort QString::toUShort( bool *ok, int base ) const
 {
-    ulong v = toULong( ok );
+    ulong v = toULong( ok, base );
     if ( ok && *ok && (v > 65535) ) {
 	*ok = FALSE;
 	v = 0;
@@ -11417,9 +11447,9 @@ ushort QString::toUShort( bool *ok ) const
   or if it has trailing garbage.
 */
 
-int QString::toInt( bool *ok ) const
+int QString::toInt( bool *ok, int base ) const
 {
-    return (int)toLong( ok );
+    return (int)toLong( ok, base );
 }
 
 /*!
@@ -11430,9 +11460,9 @@ int QString::toInt( bool *ok ) const
   or if it has trailing garbage.
 */
 
-uint QString::toUInt( bool *ok ) const
+uint QString::toUInt( bool *ok, int base ) const
 {
-    return (uint)toULong( ok );
+    return (uint)toULong( ok, base );
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#103 $
+** $Id: //depot/qt/main/src/tools/qstring.h#104 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -72,25 +72,25 @@ public:
     // Unicode information
     enum Category
     {
-      none, Mn, Mc, Nd, No, Zs, Zl, Zp, Cc, Co, Cn, Lu,
+      NoCategory, Mn, Mc, Nd, No, Zs, Zl, Zp, Cc, Co, Cn, Lu,
       Ll, Lt, Lm, Lo, Pd, Ps, Pe, Po, Sm, Sc, So
     };
 
     enum Direction
     {
-      L, R, EN, ES, ET, AN, CS, B, S, WS, ON
+      DirL, DirR, DirEN, DirES, DirET, DirAN, DirCS, DirB, DirS, DirWS, DirON
     };
 
     enum Decomposition
     {
-        single, canonical, font, noBreak, initial, medial,
-        final, isolated, circle, super, sub, vertical,
-        wide, narrow, small, square, compat, fraction
+        Single, Canonical, Font, NoBreak, Initial, Medial,
+        Final, Isolated, Circle, Super, Sub, Vertical,
+        Wide, Narrow, Small, Square, Compat, Fraction
     };
 
     enum Joining
     {
-      other, Dual, Right, Center, Unknown
+      OtherJoining, Dual, Right, Center, Unknown
     };                                                                         
 
     bool isSpace() const;
@@ -296,12 +296,12 @@ public:
     QString    &replace( uint index, uint len, const QChar*, uint clen );
     QString    &replace( const QRegExp &, const QString & );
 
-    short	toShort( bool *ok=0 )	const;
-    ushort	toUShort( bool *ok=0 )	const;
-    int		toInt( bool *ok=0 )	const;
-    uint	toUInt( bool *ok=0 )	const;
-    long	toLong( bool *ok=0 )	const;
-    ulong	toULong( bool *ok=0 )	const;
+    short	toShort( bool *ok=0, int base=10 )	const;
+    ushort	toUShort( bool *ok=0, int base=10 )	const;
+    int		toInt( bool *ok=0, int base=10 )	const;
+    uint	toUInt( bool *ok=0, int base=10 )	const;
+    long	toLong( bool *ok=0, int base=10 )	const;
+    ulong	toULong( bool *ok=0, int base=10 )	const;
     float	toFloat( bool *ok=0 )	const;
     double	toDouble( bool *ok=0 )	const;
 
