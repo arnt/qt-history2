@@ -205,6 +205,24 @@ bool QAbstractItemModel::greater(const QModelIndex &left, const QModelIndex &rig
     return left.row() > right.row();
 }
 
+QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role, const QVariant &value, int hits) const
+{
+    QModelIndexList result;
+    QString val = value.toString();
+    QModelIndex idx;
+    QModelIndex par = parent(start);
+    int hit = 0;
+    int col = start.column();
+    for (int row = start.row(); row < rowCount(par) && hit < hits; ++row) {
+        idx = index(row, col, par);
+        if (data(idx, role).toString().startsWith(val)) {
+            result.append(idx);
+            ++hit;
+        }
+    }
+    return result;
+}
+
 #if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QModelIndex &idx)
