@@ -32,19 +32,45 @@
 
 #endif
 
+#ifndef HINSTANCE
 Q_DECLARE_HANDLE(HINSTANCE);
+#endif
+#ifndef HDC
 Q_DECLARE_HANDLE(HDC);
+#endif
+#ifndef HWND
 Q_DECLARE_HANDLE(HWND);
+#endif
+#ifndef HFONT
 Q_DECLARE_HANDLE(HFONT);
+#endif
+#ifndef HPEN
 Q_DECLARE_HANDLE(HPEN);
+#endif
+#ifndef HBRUSH
 Q_DECLARE_HANDLE(HBRUSH);
+#endif
+#ifndef HBITMAP
 Q_DECLARE_HANDLE(HBITMAP);
+#endif
+#ifndef HICON
 Q_DECLARE_HANDLE(HICON);
+#endif
+#ifndef HCURSOR
 typedef HICON HCURSOR;
+#endif
+#ifndef HPALETTE
 Q_DECLARE_HANDLE(HPALETTE);
+#endif
+#ifndef HRGN
 Q_DECLARE_HANDLE(HRGN);
+#endif
+#ifndef HMONITOR
 Q_DECLARE_HANDLE(HMONITOR);
+#endif
+#ifndef HRESULT
 typedef long HRESULT;
+#endif
 
 typedef struct tagMSG MSG;
 typedef HWND WId;
