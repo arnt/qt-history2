@@ -90,14 +90,17 @@ static inline HDC alloc_mem_dc( HBITMAP hbm, HBITMAP *old_hbm )
 
 void QPixmap::initAlphaPixmap( uchar *bytes, int length, BITMAPINFO *bmi )
 {
-    HDC dc = handle();
+    if ( data->mcp )
+	freeCell( TRUE );
+    if ( !hdc )
+	hdc = alloc_mem_dc( 0, &data->old_hbm );
 
-    HBITMAP hBitmap = CreateDIBSection( dc, bmi, DIB_RGB_COLORS, (void**)&data->realAlphaBits, NULL, 0 );
+    HBITMAP hBitmap = CreateDIBSection( hdc, bmi, DIB_RGB_COLORS, (void**)&data->realAlphaBits, NULL, 0 );
     if ( bytes )
 	memcpy( data->realAlphaBits, bytes, length );
 
-    DeleteObject( SelectObject( dc, data->old_hbm ) );
-    data->old_hbm = (HBITMAP)SelectObject( dc, hBitmap );
+    DeleteObject( SelectObject( hdc, data->old_hbm ) );
+    data->old_hbm = (HBITMAP)SelectObject( hdc, hBitmap );
     DATA_HBM = hBitmap;
 }
 
