@@ -24,7 +24,6 @@
 #include "../interfaces/widgetinterface.h"
 
 #include "qwidgetfactory.h"
-#include <widgetdatabase.h>
 #include <qfeatures.h>
 #include "../integration/kdevelop/kdewidgets.h"
 #include "../designer/config.h"
@@ -40,6 +39,7 @@
 #include <zlib.h>
 #include <qobjectlist.h>
 #include <stdlib.h>
+#include <qinterfacemanager.h>
 
 #ifndef QT_NO_SQL
 #include <qsqlrecord.h>
@@ -88,6 +88,7 @@ static QList<QWidgetFactory> widgetFactories;
 static QInterfaceManager<EventInterface> *eventInterfaceManager = 0;
 static QInterfaceManager<InterpreterInterface> *interpreterInterfaceManager = 0;
 static QInterfaceManager<LanguageInterface> *languageInterfaceManager = 0;
+static QInterfaceManager<WidgetInterface> *widgetInterfaceManager = 0;
 
 
 /*!
@@ -510,7 +511,12 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 	return w;
 
     // try to create it using the loaded widget plugins
-    WidgetInterface *iface = widgetManager()->queryInterface( className );
+    if ( !widgetInterfaceManager ) {
+	QString dir = getenv( "QTDIR" );
+	dir += "/plugins";
+	widgetInterfaceManager = new QInterfaceManager<WidgetInterface>( IID_WidgetInterface, dir );
+    }
+    WidgetInterface *iface = widgetInterfaceManager->queryInterface( className );
     if ( iface ) {
 	w = iface->create( className, parent, name );
 	iface->release();

@@ -1,21 +1,16 @@
 TEMPLATE	= lib
-OBJECTS_DIR	= .
 CONFIG		+= qt warn_on release
 win32:CONFIG	+= static
 win32:CONFIG	-= dll
 SOURCES		= qwidgetfactory.cpp \
-		  ../shared/widgetdatabase.cpp \
 		  ../shared/domtool.cpp \
 		  ../integration/kdevelop/kdewidgets.cpp \
-		  ../designer/config.cpp \
-		  ../designer/pixmapchooser.cpp
+		  ../designer/config.cpp
 
 HEADERS		= qwidgetfactory.h \
-		  ../shared/widgetdatabase.h \
 		  ../shared/domtool.h \
 		  ../integration/kdevelop/kdewidgets.h \
-		  ../designer/config.h \
-		  ../designer/pixmapchooser.h
+		  ../designer/config.h
 
 sql:SOURCES += 		  ../designer/database.cpp
 sql:HEADERS +=		  ../designer/database.h

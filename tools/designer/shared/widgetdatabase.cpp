@@ -554,7 +554,7 @@ QIconSet WidgetDatabase::iconSet( int id )
     WidgetDatabaseRecord *r = at( id );
     if ( !r )
 	return QIconSet();
-#if !defined(UIC)
+#if !defined(UIC) && !defined(RESOURCE)
     if ( !r->icon )
 	r->icon = new QIconSet( PixmapChooser::loadPixmap( r->iconSet, PixmapChooser::Small ),
 				PixmapChooser::loadPixmap( r->iconSet, PixmapChooser::Large ) );
