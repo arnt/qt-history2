@@ -68,7 +68,7 @@ static ulong embedData( QTextStream& out, const uchar* input, int nbytes )
     for ( int i=0; i<(int)len; i++ ) {
 	if ( (i%14) == 0 ) {
 	    s += "\n    ";
-	    out << (const char*)s;
+	    out << s.latin1();
 	    s.truncate( 0 );
 	}
 	uint v = (uchar)
@@ -85,7 +85,7 @@ static ulong embedData( QTextStream& out, const uchar* input, int nbytes )
 	    s += ',';
     }
     if ( s.length() )
-	out << (const char*)s;
+	out << s.latin1();
     return len;
 }
 
@@ -155,7 +155,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	if ( e->depth == 1 )
 	    img = img.convertBitOrder(QImage::BigEndian);
 	out << s.sprintf( "static const unsigned char %s_data[] = {",
-			  (const char *)e->cname );
+			  e->cname.latin1() );
 #ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
 	e->compressed =
 #endif
@@ -163,7 +163,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << "\n};\n\n";
 	if ( e->numColors ) {
 	    out << s.sprintf( "static const QRgb %s_ctable[] = {",
-			      (const char *)e->cname );
+			      e->cname.latin1() );
 	    embedData( out, e->colorTable, e->numColors );
 	    out << "\n};\n\n";
 	}
