@@ -34,6 +34,7 @@ class QtGpSolidFill : public QtGpBrush { };
 class QtGpPath { };
 class QtGpImage { };
 class QtGpBitmap : public QtGpImage { };
+class QtGpFont { };
 
 struct QtGpStartupInput { Q_UINT32 version; void *cb; BOOL b1; BOOL b2; };
 
@@ -70,6 +71,9 @@ public:
     QtGpBrush *brush;
 
     QtGpSolidFill *cachedSolidBrush;
+
+    QColor penColor;
+    QColor brushColor;
 
     uint usesTempDC : 1;
     uint usePen : 1;

@@ -1649,6 +1649,9 @@ typedef int (__stdcall *PtrGdipDrawLine) (QtGpGraphics *, QtGpPen *,
                                           float x1, float y1, float x2, float y2);
 typedef int (__stdcall *PtrGdipDrawPath) (QtGpGraphics *, QtGpPen *, QtGpPath *);
 typedef int (__stdcall *PtrGdipDrawPolygon) (QtGpGraphics *, QtGpPen *, const QPointF *, int);
+typedef int (__stdcall *PtrGdipDrawDriverString) (QtGpGraphics *, Q_UINT16 *, int, const QtGpFont *,
+                                                  const QtGpBrush *, const QPointF *, int,
+                                                  const QtGpMatrix *);
 
 typedef int (__stdcall *PtrGdipCreateMatrix2) (float, float, float, float, float, float, QtGpMatrix **);
 typedef int (__stdcall *PtrGdipDeleteMatrix) (QtGpMatrix *);
@@ -1689,6 +1692,10 @@ typedef int (__stdcall *PtrGdipGetImageGraphicsContext)(QtGpImage *, QtGpGraphic
 typedef int (__stdcall *PtrGdipGetImageWidth)(QtGpImage *, uint *);
 typedef int (__stdcall *PtrGdipGetImageHeight)(QtGpImage *, uint *);
 typedef int (__stdcall *PtrGdipDisposeImage)(QtGpImage *);
+
+typedef int (__stdcall *PtrGdipCreateFontFromDC)(HDC hdc, QtGpFont **);
+typedef int (__stdcall *PtrGdipCreateFontFromLogfontW) (HDC, const LOGFONTW *, QtGpFont **);
+typedef int (__stdcall *PtrGdipDeleteFont)(QtGpFont *);
 }
 
 static PtrGdiplusStartup GdiplusStartup = 0;                 // GdiplusStartup
@@ -1712,6 +1719,7 @@ static PtrGdipResetClip GdipResetClip = 0;                   // Graphics::ResetC
 static PtrGdipSetClipRegion GdipSetClipRegion = 0;           // Graphics::SetClipRegion(region)
 static PtrGdipSetSmoothingMode GdipSetSmoothingMode = 0;     // Graphics::SetSmoothingMode(mode)
 static PtrGdipSetTransform GdipSetTransform = 0;             // Graphics::SetTransform(matrix)
+static PtrGdipDrawDriverString GdipDrawDriverString = 0;     // Graphics::DrawDriverString(...)
 
 static PtrGdipCreateMatrix2 GdipCreateMatrix2 = 0;           // Matrix::Matrix(a, b, c, d, dx, dy)
 static PtrGdipDeleteMatrix GdipDeleteMatrix = 0;             // Matrix::~Matrix()
@@ -1746,7 +1754,11 @@ static PtrGdipCreateBitmapFromScan0 GdipCreateBitmapFromScan0 = 0;      // Bitma
 static PtrGdipGetImageGraphicsContext GdipGetImageGraphicsContext = 0;  // Graphics Image.getContext();
 static PtrGdipGetImageWidth GdipGetImageWidth = 0;
 static PtrGdipGetImageHeight GdipGetImageHeight = 0;
-static PtrGdipDisposeImage GdipDisposeImage = 0;                        // Image::~Image()
+static PtrGdipDisposeImage GdipDisposeImage = 0;             // Image::~Image()
+
+static PtrGdipCreateFontFromDC GdipCreateFontFromDC = 0;     // Font::Font(HDC);
+static PtrGdipCreateFontFromLogfontW GdipCreateFontFromLogfontW = 0;    // Font::Font(HDC, HFONT)
+static PtrGdipDeleteFont GdipDeleteFont = 0;                 // Font::~Font();
 
 static void qt_resolve_gdiplus()
 {
@@ -1788,6 +1800,7 @@ static void qt_resolve_gdiplus()
     GdipDrawPolygon              = (PtrGdipDrawPolygon)        lib.resolve("GdipDrawPolygon");
     GdipDrawRectangle            = (PtrGdipDrawRectangle)      lib.resolve("GdipDrawRectangle");
     GdipDrawImageRectRect        = (PtrGdipDrawImageRectRect)  lib.resolve("GdipDrawImageRectRect");
+    GdipDrawDriverString         = (PtrGdipDrawDriverString)   lib.resolve("GdipDrawDriverString");
 
     // Matrix functions
     GdipCreateMatrix2            = (PtrGdipCreateMatrix2)      lib.resolve("GdipCreateMatrix2");
@@ -1831,6 +1844,12 @@ static void qt_resolve_gdiplus()
     GdipGetImageHeight          = (PtrGdipGetImageHeight)      lib.resolve("GdipGetImageHeight");
     GdipDisposeImage            = (PtrGdipDisposeImage)        lib.resolve("GdipDisposeImage");
 
+    // Font functions
+    GdipCreateFontFromDC         = (PtrGdipCreateFontFromDC)   lib.resolve("GdipCreateFontFromDC");
+    GdipCreateFontFromLogfontW   = (PtrGdipCreateFontFromLogfontW)
+                                   lib.resolve("GdipCreateFontFromLogfontW");
+    GdipDeleteFont               = (PtrGdipDeleteFont)         lib.resolve("GdipDeleteFont");
+
     Q_ASSERT(GdiplusStartup);
     Q_ASSERT(GdiplusShutdown);
     Q_ASSERT(GdipCreateFromHDC);
@@ -1851,6 +1870,7 @@ static void qt_resolve_gdiplus()
     Q_ASSERT(GdipDrawPath);
     Q_ASSERT(GdipDrawPolygon) ;
     Q_ASSERT(GdipDrawRectangle);
+    Q_ASSERT(GdipDrawDriverString);
     Q_ASSERT(GdipCreateMatrix2);
     Q_ASSERT(GdipDeleteMatrix);
     Q_ASSERT(GdipCreateRegionHrgn);
@@ -1878,6 +1898,9 @@ static void qt_resolve_gdiplus()
     Q_ASSERT(GdipGetImageWidth);
     Q_ASSERT(GdipGetImageHeight);
     Q_ASSERT(GdipDisposeImage);
+    Q_ASSERT(GdipCreateFontFromDC);
+    Q_ASSERT(GdipCreateFontFromLogfontW);
+    Q_ASSERT(GdipDeleteFont);
 
     QGdiplusPaintEngine::initialize();
     qt_gdiplus_support = true;
@@ -1979,6 +2002,8 @@ void QGdiplusPaintEngine::updatePen(const QPen &pen)
 {
 //     d->pen->SetWidth(ps->pen.width());
 //     d->pen->SetColor(conv(ps->pen.color()));
+    d->penColor = pen.color();
+
     int status;
     status = GdipSetPenWidth(d->pen, pen.width());
     Q_ASSERT(status == 0);
@@ -1998,7 +2023,7 @@ void QGdiplusPaintEngine::updatePen(const QPen &pen)
 
 void QGdiplusPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 {
-    QColor c = brush.color();
+    d->brushColor = brush.color();
     if (d->temporaryBrush) {
         d->temporaryBrush = false;
 //         delete d->brush;
@@ -2274,8 +2299,21 @@ void QGdiplusPaintEngine::cleanup()
 }
 
 
-void QGdiplusPaintEngine::drawTextItem(const QPointF &, const QTextItem &, int)
+void QGdiplusPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int flag)
 {
+    HDC dc = ti.fontEngine->dc();
+    QtGpFont *font;
+    GdipCreateFontFromLogfontW(dc, &ti.fontEngine->logfont, &font);
+
+    GdipSetSolidFillColor(d->cachedSolidBrush, d->penColor.rgb());
+
+    uint flags = 1 | 4; // CmapLookup | RealizedAdvance
+
+    GdipDrawDriverString(d->graphics,
+                         (Q_UINT16*)ti.chars, ti.num_glyphs, font, d->cachedSolidBrush, &p, flags, 0);
+
+    GdipSetSolidFillColor(d->cachedSolidBrush, d->brushColor.rgb());
+    GdipDeleteFont(font);
 }
 
 static QtGpBitmap *qt_convert_to_gdipbitmap(const QPixmap *pixmap, QImage *image)
