@@ -228,9 +228,10 @@ void MainForm::load( const QString& filename )
 	setCaption( QString( "Color Tool -- %1" ).arg( m_filename ) );
 	statusBar()->message( QString( "Loaded '%1'" ).
 				arg( m_filename ), 3000 );
-	m_table_dirty = TRUE;
-	m_icons_dirty = TRUE;
+	QWidget *visible = colorWidgetStack->visibleWidget();
+	m_icons_dirty = !(m_table_dirty = visible == tablePage);
 	populate();
+	m_icons_dirty = !(m_table_dirty = visible != tablePage);
 	m_changed = FALSE;
     }
     else
@@ -324,14 +325,14 @@ void MainForm::editCopy()
     if ( !text.isNull() ) {
 	QColor color = m_colors[text];
 	switch ( m_clip_as ) {
-	case CLIP_AS_HEX: text = color.name(); break;
-	case CLIP_AS_NAME: break;
-	case CLIP_AS_RGB:
-		text = QString( "%1,%2,%3" ).
-		       arg( color.red() ).
-		       arg( color.green() ).
-		       arg( color.blue() );
-		break;
+	    case CLIP_AS_HEX: text = color.name(); break;
+	    case CLIP_AS_NAME: break;
+	    case CLIP_AS_RGB:
+		    text = QString( "%1,%2,%3" ).
+			arg( color.red() ).
+			arg( color.green() ).
+			arg( color.blue() );
+		    break;
 	}
 	clipboard->setText( text );
 	statusBar()->message( "Copied '" + text + "' to the clipboard" );

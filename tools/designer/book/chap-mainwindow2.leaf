@@ -17,7 +17,7 @@ allows users to create, edit and save lists of colors. Each color has
 a user defined name and an RGB (Red, Green Blue) value. 
 
 This application presents the user with a view of a set of colors and
-their names. We will provide two views (using a \Class QWidgetStack)
+their names. We will provide two views (using a \l QWidgetStack)
 which the user can switch between. The tabular view will show each
 color as a small square followed by its name and hex value. It will
 also provide the option of an indicator to show whether or not the
@@ -147,7 +147,7 @@ For the \c colortool application we want to start with a main window
 form. When we create this form, \QD will present a wizard which we can
 use to automatically create menu and toolbar options and automatically
 create the relevant signal/slot connections. For every menu option or
-toolbar button, \QD will create a single \Class QAction (see the
+toolbar button, \QD will create a single \l QAction (see the
 \l{Actions and Action Groups} sidebar).
 
 \sidebar Actions and Action Groups
@@ -162,7 +162,7 @@ to press \Key Ctrl+S, or to click the \Button Save toolbar button
 or to click the \Menu File|Save menu option. Although the means of
 invoking the action are all different, the underlying operation is the
 same and we don't want to duplicate the code that performs the
-operation. In Qt we can create an action (a \Class QAction object)
+operation. In Qt we can create an action (a \l QAction object)
 which will call the appropriate function when the action is invoked. We
 can assign an accelerator, (e.g. \Key Ctrl+S), to an action. We
 can also add an action to a menu item and to a toolbar button.
@@ -175,7 +175,7 @@ buttons, are updated.
 Some actions should operate together like radio buttons. For example, if
 we have left align, center align and right align actions, only one
 should be 'on' at any one time. An \e {action group} (a
-\Class QActionGroup object) is used to group a set of actions together.
+\l QActionGroup object) is used to group a set of actions together.
 If the action group's \c {exclusive} property is TRUE then only one of
 the actions in the group can be on at any one time. If the user changes
 the state of an action in an action group where \c {exclusive} is TRUE,
@@ -213,7 +213,7 @@ main widget to the main window.
 
 Click \Menu File|New to invoke the \Widget{New File} dialog, click
 "Main Window" to create a main window form, then click \OK. A new
-\Class QMainWindow form will be created and the \Widget{Main Window
+\l QMainWindow form will be created and the \Widget{Main Window
 Wizard} will pop up.
 
 \section2 Using the Main Window Wizard
@@ -553,7 +553,7 @@ and clicking Delete Toolbar.
 \index Previewing!Toolbars
 If you preview an application you'll find that all the toolbars can be
 dragged to different docking points (top, left, right and bottom of a
-\Class QMainWindow or subclass), or dragged out of the application as
+\l QMainWindow or subclass), or dragged out of the application as
 independent tool windows. 
 
 \img qd-chapmainwin-previewing.png
@@ -723,26 +723,26 @@ menu items automatically stay in sync.
 
 Most main-window style applications consist of a menu bar, a toolbar,
 a status bar and a central widget. We've already created a menu bar
-and toolbar, and since we've created a \Class QMainWindow (via the
+and toolbar, and since we've created a \l QMainWindow (via the
 main window wizard), we also have a status bar. Widgets commonly used
-as an application's main widget are \Class QListView (which provides a
-tree view), \Class QTable and \Class QTextEdit. Since we want to
+as an application's main widget are \l QListView (which provides a
+tree view), \l QTable and \l QTextEdit. Since we want to
 provide our users with two different views of the same data, we'll use
-a \Class QWidgetStack as our main widget. The \Class QWidgetStack has
+a \l QWidgetStack as our main widget. The \l QWidgetStack has
 no visual representation of its own; you place one or more widgets on
-each \Class QWidgetStack "page", as if each page was a form in its own
+each \l QWidgetStack "page", as if each page was a form in its own
 right, and then provide the user with some mechanism for switching
-between pages. (This is similar in principle to using a \Class
+between pages. (This is similar in principle to using a \l
 QTabWidget.) We want to provide our users with two views: a tabular
 view that lists colours and their names, and an icon-based view that
 shows color swatches. In our example we only place a single widget on
-each \Class QWidgetStack page; but this merely reflects the
+each \l QWidgetStack page; but this merely reflects the
 application's design -- we could have placed any number of widgets on
 each page.
 
 Click the Toolbox's Containers item, then click WidgetStack. Click
 roughly in the middle of the form to place the widget stack. Change
-the WidgetStack's \Property{name} property to "WidgetStack".
+the widget stack's \Property{name} property to "colorWidgetStack".
 
 \sidebar Widget Placement
 
@@ -763,11 +763,11 @@ in chapter two, where we create several dialogs.
 \endsidebar
 
 Click the form itself, then click the \Button{Lay Out Vertically}
-toolbar button. The WidgetStack now fills the entire form. We're now
-ready to populate the WidgetStack's pages with widgets.
+toolbar button. The widget stack now fills the entire form. We're now
+ready to populate the widget stack's pages with widgets.
 
 Click the Toolbox's Views item. Click Table, then click roughly in the
-middle of the WidgetStack. Change the table's \Property{name} property
+middle of the widget stack. Change the table's \Property{name} property
 to "colorTable", change its \Property{numRows} property to "0", and
 its \Property{readOnly} property to "True". 
 
@@ -783,19 +783,19 @@ Label line edit. Change column 2's label to "Hex". In the same way
 change column 3's label to "Web". (The reference section provides full
 information on this dialog.) Click \OK to close the dialog.
 
-Click the WidgetStack, then click the \Button{Lay Out Vertically}
-toolbar button. The table now fits inside the WidgetStack, and will
-resize with the WidgetStack (which in turn will resize with the form:
+Click the widget stack, then click the \Button{Lay Out Vertically}
+toolbar button. The table now fits inside the widget stack, and will
+resize with the widget stack (which in turn will resize with the form:
 try clicking \Key Ctrl+T to preview and resize the previewed form).
 
 Click the "page" object in Object Explorer. Change its name to
 "tablePage".
 
-We're now ready to create the next page. Right click the WidgetStack,
+We're now ready to create the next page. Right click the widget stack,
 then click \Menu{Add Page} on the context menu. The table has
-"disappeared", or rather the new WidgetStack page obscures the
-first WidgetStack page which contains the table. Click IconView in the
-Toolbox, then click roughly in the middle of the WidgetStack. Change
+"disappeared", or rather the new widget stack page obscures the
+first widget stack page which contains the table. Click IconView in the
+Toolbox, then click roughly in the middle of the widget stack. Change
 the IconView's \Property{name} property to "colorIconView" and change
 its \Property{resizeMode} property to "Adjust".
 
@@ -805,13 +805,13 @@ popup its context menu, then click \Menu{Edit...} to invoke the
 \Widget{Edit IconView} dialog. Click \Button{Delete Item} to delete
 the default item, then click \OK. 
 
-Click the WidgetStack, then click the \Button{Lay Out Vertically}
-toolbar button. The icon view now fits inside the WidgetStack. 
+Click the widget stack, then click the \Button{Lay Out Vertically}
+toolbar button. The icon view now fits inside the widget stack. 
 
 Click the "page" object in Object Explorer. Change its name to
 "iconsPage".
 
-Right click the WidgetStack, then click \Menu{Previous Page}.
+Right click the widget stack, then click \Menu{Previous Page}.
 
 That completes the user interface design for our application's main
 window. Note that if you preview the form clicking the "View" menu
@@ -882,7 +882,7 @@ the declaration, or (for preference) in the implementation. Right
 click "Includes (in Implementation)", then click \Menu{Edit}. Use the
 dialog that pops up to enter "qcolor.h" and "qstring.h". Since we're
 going to use the clipboard we'll need access to the global clipboard
-object via \Class QApplication, so also add "qapplication.h" and
+object via \l QApplication, so also add "qapplication.h" and
 "qclipboard.h". We'll also be doing some drawing (e.g. the color
 swatches), so add "qpainter.h" too, then close the dialog. 
 
@@ -949,9 +949,9 @@ color in the table view and changed to the icon view, we must ensure
 that the icon view does not show the deleted color.
 
 Click \Button{New} to create a new connection. Change the Sender to
-"WidgetStack", the Signal to "aboutToShow(int)", and the Receiver to
+"colorWidgetStack", the Signal to "aboutToShow(int)", and the Receiver to
 "MainForm". Create a new slot called "aboutToShow()" and make this the
-Slot that the WidgetStack's "aboutToShow(int)" signal connects to. The
+Slot that the widget stack's "aboutToShow(int)" signal connects to. The
 signal includes the ID of the widget that is about to be shown; but we
 don't need it so we create a slot that doesn't take any parameters.
 
@@ -1013,8 +1013,8 @@ then click \Button{Replace All}. Click \Button{Close}.
 \printuntil ColorTool
 
 We define some useful constants for our form since it's easier to
-remember "CLIP_AS_RGB" than "2". The two \Class{QString}s are used by
-\Class QSettings when we come to load and save user preferences;
+remember "CLIP_AS_RGB" than "2". The two \l{QString}s are used by
+\l QSettings when we come to load and save user preferences;
 they're explained when we cover \Func{loadOptions()} and
 \Func{saveOptions()}. Note that we can insert any valid C++ into a
 \c{.ui.h} file including constant declarations as we've done here and
@@ -1078,17 +1078,17 @@ that shows the color, so we create a pixmap of the required size.
 
 We now create a iterator for our color map, and iterate over every
 color. The color map has the user's color names as its keys, and
-\Class QColor instances as values. We retrieve the color and fill our
+\l QColor instances as values. We retrieve the color and fill our
 pixmap with that color. We then set the "Name" column (column
 \c{COL_NAME}), to have the color's name (\c{it.key()}) and the pixmap
-we've just filled with that color. \Class{QColor}'s \Func{name()}
+we've just filled with that color. \l{QColor}'s \Func{name()}
 function returns a string that is the hex representation of a color,
 e.g. "#12AB2F"; we retrieve this and set the second ("Hex") column to
 this value.
 
 If the user wants to see if which colors are web colors we create a
-\Class QCheckTableItem, and check it if it is a web color. (We'll
-cover \Func{isWebColor()} shortly.) We then insert this \Class
+\l QCheckTableItem, and check it if it is a web color. (We'll
+cover \Func{isWebColor()} shortly.) We then insert this \l
 QCheckTableItem into the "Web" column.
 
 Having populated the table we call \Func{adjustColumn()} to ensure
@@ -1100,7 +1100,7 @@ up-to-date.
 
 If the icon view is "dirty" we \Func{clear()} it of any existing data.
 We then iterate over each color in our color map. For each color we
-create a new \Class QIconViewItem; we label the item with the user's
+create a new \l QIconViewItem; we label the item with the user's
 color name and provide a pixmap (generated by \Func{colorSwatch()},
 covered shortly) in the relevant color. Finally we set
 \c{m_icons_dirty} to "FALSE", since it is now up-to-date.
@@ -1121,7 +1121,7 @@ values are all in the set (0, 51, 102, 153, 204, 255).
 \printuntil }
 
 We create a pixmap of a suitable size and fill it with white. We then
-create a \Class QPainter which we'll use to paint on the pixmap. We
+create a \l QPainter which we'll use to paint on the pixmap. We
 don't want a pen because we don't want an outline around the shape we
 draw. We draw an ellipse (which will be circular since we draw in an
 80 x 80 pixel square). We return the resultant pixmap.
@@ -1175,8 +1175,7 @@ following:
 \printuntil {
 \skipto exit
 \printline
-\skipto }
-\skipto }
+\skipline
 \printline
 
 This ensures that our application will cleanly terminate. Later we'll
@@ -1265,7 +1264,7 @@ This function looks up the color name in the colors map and retrieves
 the color the name refers to. It then displays the name, hex value and
 whether the color is a web color in the status bar.
 
-Note that \Class QMainWindow only creates a status bar if you actually
+Note that \l QMainWindow only creates a status bar if you actually
 use one. Since we haven't used one up until now we've had no problem,
 but if we were to try compiling we'd get an error because we're now
 using a status bar but haven't declared the relevant header. Click
@@ -1274,19 +1273,256 @@ Object Explorer's Members tab and add a "qstatusbar.h" to the
 Implementation)", click \Menu{New}, enter "qstatusbar.h" then press
 \Key Enter.)
 
+\section2 Changing Views
+
+Frustratingly, we have not yet been able to see the icon view in
+action because there's been no code in place to switch views. We'll
+address this issue now.
+
+We have already created a \Func{changeView()} slot that is called when
+the user clicks one of the view toolbar buttons or menu options, so we
+just need to write in the code.
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::changeView
+\printuntil }
+
+(If you're cutting and pasting the code don't forget to name the \l
+QAction parameter "action".)
+
 Try saving (press \Key Ctrl+S), making and running the application.
 Move to different colors and see the status bar indicating the color
 you are on.
 
 \section2 Editing the Code: File Handling
 
+Since the X Consortium has already defined a file format for relating
+colors to color names we will use their format rather than creating
+one specially for the application. This has the advantage that we will
+be able to read and write \File{rgb.txt}, and that our format will be
+familiar to many users.
+
+\section3 fileNew()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::fileNew
+\printuntil clearData
+\printuntil }
+\printuntil }
+
+This function doesn't load or save any data; it simply checks to see
+if it is okay to clear the existing data (with the call to
+\Func{okToClear()} which we'll look at next), and if it is okay, it
+initialises the form.
+
+\section3 okToClear()
+
+Before we can create a new set of colors, or load an existing set, we
+must check to see if there are any unsaved changes. If there are, we
+must give the user the opportunity of saving their data. That's what
+this function does.
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::okToClear
+\printuntil return TRUE
+\printuntil }
+
+If the data has changed (\c{m_changed} is TRUE), we present the user
+with a message box offering the option of saving their data, or
+cancelling the current operation (e.g. not loading a new file, or not
+creating a new set of colors), or abandoning their changes and
+continuing. We make the \Button{Save} button the default button
+(pressed by \Key Enter) and the \Button{Cancel} button the escape
+button (pressed by \Key Esc). 
+
+Since we're using a \l QMessageBox we need to include the relevant
+header. (Right click "Includes (in Implementation)", then click
+\Menu{New}. Type "qmessagebox.h" and press \Key Enter.)
+
+\section3 fileOpen()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::fileOpen
+\printuntil statusBar
+\printuntil }
+
+If it isn't okay to clear the data (i.e. the user has unsaved changes
+and clicked \Button{Cancel} in the message box poped up by
+\Func{okToClear()}), we simply return. Otherwise we ask the user for a
+filename using one of \l QFileDialog's static functions, and if we
+got the filename we attempt to load the file.
+
+Since we're using a \l QFileDialog we need to include the relevant
+header. (Right click "Includes (in Implementation)", then click
+\Menu{New}. Type "qfiledialog.h" and press \Key Enter.)
+
+\section3 load()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::load
+\printuntil Failed
+\printuntil }
+
+Before loading new data, we clear out any existing data. The format of
+an \File{rgb.txt} file is:
+\code
+RED WHITESPACE GREEN WHITESPACE BLUE WHITESPACE NAME
+\endcode
+
+Where RED, GREEN and BLUE are decimal numbers in the range 0..255
+taking up three characters padded with leading spaces where necessary.
+The WHITESPACE between the colors is usually a single space, and
+between BLUE and the NAME two tabs. The NAME may include whitespace.
+For example:
+\code
+  0 191 255		deep sky blue
+176  48  96		maroon
+199  21 133		medium violet red
+\endcode
+
+The file may also include comment lines; these begin with '!' for
+example.
+
+There are numerous approaches we could have taken to parsing these
+files, but we've opted for a simple regular expression (regex). The
+regex is more "liberal" regarding the whitespace in the input than the
+format demands.
+
+If a line matches the regex we create a new entry in the \c{m_colors}
+\l QMap, setting its text to be the name of the color 
+(\c{regex.cap( 4 )}), and its value to be a new \l QColor created from
+the red, green and blue values. Lines that don't match the regex are
+treated as comments and are stored in the \c{m_comments} string list.
+(When we save the file we write all the comments out first even if
+they appeared in the middle of the file.)
+
+Once we've populated the \c{m_colors} map we mark the visible view as
+"dirty" and call \Func{populate()} to update it. We then mark the
+visible view as not dirty and the non-visible view as dirty. This
+ensures that when user changes the view, the view they switch to will
+be updated. We could have simply marked both views as dirty and
+updated them both, but it is more efficient to update "lazily", after
+all the user may only ever use one view, so why waste their time
+updating the other one.
+
+Since we're using \l QFile and \l QRegExp we need to include the
+relevant headers. (Right click "Includes (in Implementation)", then
+click \Menu{New}. Type "qfile.h" and press \Key Enter. Repeat this
+process to add "qregexp.h".)
+
+\sidebar The Regular Expression
+
+The regex we've used can be broken up into the following pieces:
+\code
+Regex:    ^ \\s* (\\d+) \\s+ (\\d+) \\s+ (\\d+) \\s+ (\\S+.*) $
+Pieces:   A B    C      B    C      B    C      B    D        E
+Captures:        cap(1)      cap(2)      cap(3)      cap(4)
+\endcode
+Piece A says the regex must match from the beginning of the string,
+and piece E says the regex must match to the end of the string: so
+the regex must match the whole string or not match at all. The 'B'
+pieces match zero or more whitespaces (i.e. the gaps between each
+number), and the 'C' pieces match one or more digits, i.e. the
+numbers. Piece D matches one or more non-whitespace followed by
+anything else, i.e. the name of the color.
+
+The parentheses are used to \e capture the parts of the match that
+they enclose. The captured parts are numbered from 1.
+
+For more information on regexes see the \l QRegExp documentation.
+
+\endsidebar
+
+\section3 fileSaveAs()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::fileSaveAs
+\printuntil statusBar
+\printuntil }
+
+If the user attempts to save data that has been edited but not saved
+previously, or if they want to save some existing data under a new
+name, this slot is called. The user is presented with a standard file
+dialog which they can use to choose a filename. If the filename
+already exists they are given the option of continuing (overwriting)
+or cancelling. If the filename doesn't exist or does but the user has
+elected to continue the \c{m_filename} member is set and
+\Func{fileSave()} is called.
+
+\section3 fileSave()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::fileSave
+\printuntil Failed
+\printuntil }
+
+If there is no current filename we call \Func{fileSaveAs()}; that
+function will call this one if the user provides a filename.
+
+We write out any comment lines first. This means that a file that we
+load and then save may not be the same (e.g. if the original had
+comments scattered throughout, since our saved version will have all
+the comments at the beginning). We then iterate over every color in
+the \c{m_colors} map, writing them out in the \File{rgb.txt} file
+format.
+
+\section3 fileExit()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::fileExit
+\printuntil okToClear
+\skipto exit
+\printuntil }
+\printuntil }
+
+This is the second revision of this function. Now we only exit if the
+user has had the opportunity to save any unsaved changes. (We'll make
+a third and final version of this function later, when we deal with
+saving user settings.)
+
+Try making and running the program. If you have \File{rgb.txt} on your
+system try loading it and saving it under a new name for testing
+purposes. If you don't have this file, save the standard colors and
+use those. In the next section we'll cover adding and deleting colors
+so that you can create your own color files.
+
+\section2 Editing the Code: The Edit Options
+
+Adding a new color, finding a color and handling user options all
+require custom dialogs, so we'll defer them until chapter two when we
+deal with dialogs.
+
+\section3 editCut()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::editCut
+\printuntil Failed
+\printuntil }
+
+If the user is viewing the table view we delete the current row. We
+set the new current cell to be the one following the deleted row, or
+if the one we deleted was last, its predecessor. We mark the \e other
+view (the icon view) as dirty, to make sure that is updated if the
+user switches views. Similarly, if the user is viewing the icon view,
+we make the next (or previous if there is no next) item current and
+delete the one they are on. We then mark the table view as dirty. If
+we deleted a color (i.e. there was a current color in one of the
+views), we remove it from the \c{m_colors} map and mark the data as
+changed.
+
+\section3 editCopy()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::editCopy
+\printuntil statusBar
+\printuntil }
+
+In this function we retrieve the name of the color from the current
+table row (or current icon, depending on the view). We then set a \l
+QString to the text we want to copy into the clipboard and copy it.
+
 
 --------
-Frustratingly, we have not yet been able to see the icon view in
-action because there's been no code in place to switch views. We'll
-address this in this section by implementing the relevant functions
-and slots.
-
 
 [[DON'T FORGET TO TELL 'EM TO UNCOMMENT findForm and loadSettings in init() WHEN THEY ARE READY]]
 [[MAKE SURE I'VE COVERED EVERY FUNCTION]]
