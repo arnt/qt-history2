@@ -3030,6 +3030,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 */
 void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 {
+    d->buttonDown = FALSE;
     // delete and disconnect autoscroll timer, if we have one
     if ( d->scrollTimer ) {
 	disconnect( d->scrollTimer, SIGNAL(timeout()),
@@ -3120,10 +3121,10 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
 	}
 	d->highlighted = i;
     }
-    
+
     if ( !d->buttonDown )
 	return;
-    
+
     // check, if we need to scroll
     if ( vp.y() > visibleHeight() || vp.y() < 0 )
 	needAutoScroll = TRUE;
