@@ -734,8 +734,11 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 	LineTo( a[loopc].x()+offx, a[loopc].y()+offy );
     LineTo( a[0].x()+offx, a[0].y()+offy );
     CloseRgn( polyRegion );
+
     if( close && this->brush().style() != NoBrush) {
 	updateBrush();
+	if ( cpen.style() == NoPen )  // Inset all points, no frame will be painted.
+	    InsetRgn( polyRegion, 1, 1 );
 	if( this->brush().style() == SolidPattern ) {
 	    PaintRgn( polyRegion );
 	} else {
