@@ -62,8 +62,8 @@ QPolygon QPainterPrivate::draw_helper_xpolygon(const void *data, ShapeType shape
 
 void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shape, DrawOperation op)
 {
-//     printf("QPainter::drawHelper: winding=%d, shape=%d, op=%d\n",
-//            winding, shape, op);
+//     printf("QPainter::drawHelper: winding=%d, shape=%d, op=%d, emulation=%x\n",
+//            winding, shape, op, d->engine->emulationSpecifier);
 
     enum { Normal, PathBased, None } outlineMode = Normal;
     if (state->pen.style() == Qt::NoPen)
@@ -119,11 +119,20 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
                 q->restore();
         } else if (engine->emulationSpecifier & QPaintEngine::CoordTransform) {
             outlineMode = None;
-            QPolygon xformed = draw_helper_xpolygon(data, shape);
             q->save();
             q->resetMatrix();
-            engine->drawPolygon(xformed,
-                                   winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+            if (shape == PathShape) {
+                Q_ASSERT_X(engine->hasFeature(QPaintEngine::PainterPaths), "draw_helper",
+                           "PathShape is only used when engine supports painterpaths.");
+                QPainterPath pathCopy = *reinterpret_cast<const QPainterPath *>(data);
+                if (engine->emulationSpecifier & QPaintEngine::CoordTransform)
+                    pathCopy = pathCopy * state->matrix;
+                engine->drawPath(pathCopy);
+            } else {
+                QPolygon xformed = draw_helper_xpolygon(data, shape);
+                engine->drawPolygon(xformed,
+                                    winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+            }
             q->restore();
         } else {
             // Custom outlining only, do standard draw...
@@ -162,9 +171,18 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
             QBrush originalBrush = state->brush;
             q->setBrush(Qt::NoBrush);
             engine->updateState(state);
-            QPolygon xformed = draw_helper_xpolygon(data, shape);
-            engine->drawPolygon(xformed,
-                                   winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+            if (shape == PathShape) {
+                Q_ASSERT_X(engine->hasFeature(QPaintEngine::PainterPaths), "draw_helper",
+                           "PathShape is only used when engine supports painterpaths.");
+                QPainterPath pathCopy = *reinterpret_cast<const QPainterPath *>(data);
+                if (engine->emulationSpecifier & QPaintEngine::CoordTransform)
+                    pathCopy = pathCopy * state->matrix;
+                engine->drawPath(pathCopy);
+            } else {
+                QPolygon xformed = draw_helper_xpolygon(data, shape);
+                engine->drawPolygon(xformed,
+                                    winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+            }
             q->setBrush(originalBrush);
         } else if (outlineMode == PathBased) {
             QPainterPath path;
@@ -1386,9 +1404,14 @@ void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
 
     d->engine->updateState(d->state);
 
+    uint lineEmulation = d->engine->emulationSpecifier
+                         & (QPaintEngine::CoordTransform
+                            | QPaintEngine::PenWidthTransform
+                            | QPaintEngine::AlphaStroke);
+
     QLineF line(p1, p2);
-    if (d->engine->emulationSpecifier) {
-        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
+    if (lineEmulation) {
+        if (lineEmulation == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
             line += QPointF(d->state->matrix.dx(), d->state->matrix.dy());
         } else {
@@ -2073,8 +2096,12 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
 
     QPolygon pa = QPolygon::fromPointArray(a.mid(index, npoints));
 
-    if (d->engine->emulationSpecifier) {
-        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
+    uint lineEmulation = d->engine->emulationSpecifier
+                         & (QPaintEngine::CoordTransform
+                            | QPaintEngine::PenWidthTransform
+                            | QPaintEngine::AlphaStroke);
+    if (lineEmulation) {
+        if (lineEmulation == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
             pa.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
