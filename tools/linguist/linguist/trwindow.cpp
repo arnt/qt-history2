@@ -956,8 +956,9 @@ QPixmap * TrWindow::pxDanger = 0;
 enum Ending { End_None, End_FullStop, End_Interrobang, End_Colon,
 	      End_Ellipsis };
 
-static Ending ending( const QString& str )
+static Ending ending( QString str )
 {
+    str = str.simplifyWhiteSpace();
     int ch = 0;
     if ( !str.isEmpty() )
 	ch = str.right( 1 )[0].unicode();
@@ -1855,20 +1856,9 @@ void TrWindow::updateTranslation( const QString& translation )
     QListViewItem *item = slv->currentItem();
     if ( item != 0 ) {
 	MessageLVI *m = (MessageLVI *) item;
-
-	/*
-          Remove trailing '\n's, as they were probably inserted by
-          mistake. Don't dare to strip all white-space though, as some
-          idioms require them. Whether these idioms are recommendable
-          is beyond the scope of this comment.
-	*/
-	QString stripped = translation;
-	while ( stripped.endsWith(QChar('\n')) )
-            stripped.truncate( stripped.length() - 1 );
-
-	if ( stripped != m->translation() ) {
+	if ( translation != m->translation() ) {
 	    bool dngr;
-	    m->setTranslation( stripped );
+	    m->setTranslation( translation );
 	    if ( m->finished() &&
 		 (dngr = danger( m->sourceText(), m->translation(), TRUE )) ) {
 		numFinished -= 1;
