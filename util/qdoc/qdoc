@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#148 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#149 $
 #
 # this is a massive hack, written very quickly
 #
@@ -914,7 +914,8 @@ sub readfiles {
 	print H $doctype, "
 <html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>
 ", $module_long, " - ", $filename, " include file
-</title></head><body bgcolor=\"#ffffff\">
+</title><link rel=\"stylesheet\" href=\"style.css\">
+</head><body bgcolor=\"#ffffff\">
 <p>This is the verbatim text of the ", $filename," include file.  It is is
 provided only for illustration; the <a href=\"license.html\">copyright</a>
 remains with ", $company, "
@@ -970,7 +971,8 @@ remains with ", $company, "
 	print H $doctype, "
 <html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>
 ", $module_long, " - ", $filename, " example file
-</title></head><body bgcolor=\"#ffffff\">
+</title><link rel=\"stylesheet\" href=\"style.css\">
+</head><body bgcolor=\"#ffffff\">
 
 The example program on this page may be used, distributed and modified
 without limitation.
@@ -1204,7 +1206,8 @@ sub readc {
 	} elsif ( $doc =~ m@^\\defgroup\s+([\w\.-]+)\s+(.*?)\s*$@s ) {
 	    # it's a \defgroup
 	    $pages{$1} = "<title>" . $module_long .
-		" - group index</title></head><body bgcolor=\"#ffffff\">\n"
+		" - group index</title><link rel=\"stylesheet\" href=\"style.css\">
+</head><body bgcolor=\"#ffffff\">\n"
 		    . $2;
 	    $classes{$1} = "";
 	} elsif ($doc =~ m@^\\example\s+([\w\./]+)\s+(.*?)\s*$@s) {
@@ -1580,7 +1583,8 @@ sub printclass {
 
     print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\">\n<title>", $module_long, " - ", 
     $class, 
-    " Class</title>\n</head><body bgcolor=\"#ffffff\">\n",
+    " Class</title>\n<link rel=\"stylesheet\" href=\"style.css\">
+</head><body bgcolor=\"#ffffff\">\n",
     "<h1 align=center>", $name{$url}, " Class Reference</h1>\n<hr>\n";
 
     my ($i, $family);
@@ -1899,6 +1903,7 @@ sub classlist {
 			   $name{$url}, "</a>\n" );
 	}
     }
+    $result .= "</ul>";
     $result;
 }
 
@@ -1914,6 +1919,7 @@ sub annotatedclasslist {
 		if ( $capt{$url} =~ /\S/ );
 	}
     }
+    $result .= "</ul>";
     $result;
 }
 
@@ -1923,7 +1929,8 @@ sub classindex {
 	|| die "can't open $outputdir/classes.html for writing";
     print O $doctype, "
 <html>
-<head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Class List</title></head>
+<head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Class List</title><link rel=\"stylesheet\" href=\"style.css\">
+</head>
 <body bgcolor=\"#ffffff\">
 <h1 align=center>", $module, " Class Index</h1>
 <multicol cols=3>
@@ -1933,7 +1940,8 @@ sub classindex {
 	|| die "can't open $outputdir/annotated.html for writing";
     print P $doctype, "
 <html>
-<head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Class List</title></head>
+<head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Class List</title><link rel=\"stylesheet\" href=\"style.css\">
+</head>
 <body bgcolor=\"#ffffff\">
 <h1 align=center>Annotated ", $module, " Class Index</h1>
 <p>Here are the classes in ", $module, ", with brief descriptions:
@@ -1970,7 +1978,8 @@ sub headerfilelist {
 sub enumindex {
     open(O, "> $outputdir/enums.html")
 	|| die "can't open $outputdir/enums.html for writing";
-    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, ", enum type indexe</title></head><body bgcolor=\"#ffffff\">\n<h1 align=center>", $module, " enum type index</h1>\n<p>Here are the enums defined in ", $module, ":\n<ul compact>";
+    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, ", enum type indexe</title><link rel=\"stylesheet\" href=\"style.css\">
+</head><body bgcolor=\"#ffffff\">\n<h1 align=center>", $module, " enum type index</h1>\n<p>Here are the enums defined in ", $module, ":\n<ul compact>";
     foreach $url ( sort keys %type ) {
 	print O "<li><a href=\"", $url, "\">", $name{$url}, "</a>\n"
 	    if ($type{$url} eq "enum");
@@ -1985,7 +1994,8 @@ sub headerindex {
     local($filename);
     open(O, "> $outputdir/headers.html")
 	|| die "can't open $outputdir/headers.html for writing";
-    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - header file index</title></head><body bgcolor=\"#ffffff\">\n<h1 align=center>", $module, " header file index</h1>\n<p>Here are the header files that make up the ", $module, " API:\n<ul compact>";
+    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - header file index</title><link rel=\"stylesheet\" href=\"style.css\">
+</head><body bgcolor=\"#ffffff\">\n<h1 align=center>", $module, " header file index</h1>\n<p>Here are the header files that make up the ", $module, " API:\n<ul compact>";
     foreach $filename ( sort keys %headerfiles ) {
 	$_ = $filename;
 	s/\./-/;
@@ -2003,7 +2013,8 @@ sub exampleindex {
     local($filename);
     open(O, "> $outputdir/examples.html")
 	|| die "can't open $outputdir/examples.html for writing";
-    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Example Index</title></head><body bgcolor=\"#ffffff\">\n<h1 align=center>", $module, " Example Index</h1>\n<p>Here are some of the examples that are included with ", $module, ":\n<ul compact>";
+    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Example Index</title><link rel=\"stylesheet\" href=\"style.css\">
+</head><body bgcolor=\"#ffffff\">\n<h1 align=center>", $module, " Example Index</h1>\n<p>Here are some of the examples that are included with ", $module, ":\n<ul compact>";
     foreach $filename ( sort keys %examples ) {
 	$_ = $filename;
 	$htmlfilename = $filename;
@@ -2045,6 +2056,7 @@ sub classhierarchy {
 		!defined($classtree{$name{$_}}));
     }
     $result .= "</ul>";
+    $result;
 }
 
 sub classinheritance {
@@ -2057,7 +2069,7 @@ sub classinheritance {
 	$_ = $inheritance{$_};
 	s/,.*//s;
 	s/^\s*\w+\s+//s;
-	&doclassinheritance($_) unless (defined($classtree{$_}));
+	&classinheritance($_) unless (defined($classtree{$_}));
     }
 
     unless (defined($classtree{$class}) || $doc{$anchor{$class}} =~ /^\s*$/s) {
@@ -2075,7 +2087,7 @@ sub classinheritance {
 	    $result .= "</ul>\n";
 	}
     }
-    result;
+    $result;
 }
 
 
@@ -2087,7 +2099,8 @@ sub inheritanceindex {
 	|| die "can't open $outputdir/hierarchy.html for writing";
     print O $doctype, "
 <html>
-<head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Class Hierarchy</title></head>
+<head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Class Hierarchy</title><link rel=\"stylesheet\" href=\"style.css\">
+</head>
 <body bgcolor=\"#ffffff\">
 <h1 align=center>", $module, " Class Hierarchy</h1>
 
@@ -2160,7 +2173,8 @@ sub memberlists {
 	    $tail = "</ul>\n" . $address;
 	    print O $doctype, "
 <html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - ", $_, " member list
-</title></head><body bgcolor=\"#ffffff\">
+</title><link rel=\"stylesheet\" href=\"style.css\">
+</head><body bgcolor=\"#ffffff\">
 <h1 align=center>Complete Member List for ", $_, "</h1>
 <p>This is the complete list of member functions and enum types for 
 <a href=\"", $anchor{$_}, "\">", $_, "</a>, including all inherited members.
@@ -2228,7 +2242,8 @@ sub functionindex {
 	    }
 	}
     }
-    return $result . "\n</ul>\n";
+    $result . "\n</ul>";
+    $result;
 }
 
 sub functionlist {
@@ -2237,7 +2252,8 @@ sub functionlist {
     open(O, "> $outputdir/functions.html") || die "can't open functions.html";
     print O $doctype, "
 <html>
-<head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Member Function Index</title></head>
+<head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Member Function Index</title><link rel=\"stylesheet\" href=\"style.css\">
+</head>
 <body bgcolor=\"#ffffff\">
 <h1 align=center>", $module, " Member Function Index</h1>
 
@@ -2330,7 +2346,6 @@ chdir( $sourcedir );
 &makenames();
 &makearglinks();
 &processdocs();
-&writepages();
 &readfiles();
 &reimplementations();
 
@@ -2369,6 +2384,7 @@ while( $moreclassestoprint ) {
     }
 }
 
+&writepages();
 &inheritanceindex();
 &classindex();
 &headerindex();
