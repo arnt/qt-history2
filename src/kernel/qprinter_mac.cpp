@@ -240,6 +240,7 @@ void QPrinter::interpret(PMPageFormat *f)
     PMSessionValidatePageFormat(psession, *f, kPMDontWantBoolean);    
 }
 
+// shows the native mac print setup dialog
 bool QPrinter::printSetup()
 {
     if(!psession && PMCreateSession(&psession) != noErr)
@@ -258,6 +259,7 @@ bool QPrinter::printSetup()
     return FALSE;
 }
 
+// shows the native mac page setup dialog
 bool QPrinter::pageSetup()
 {
     if(!psession && PMCreateSession(&psession) != noErr)
