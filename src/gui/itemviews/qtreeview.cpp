@@ -281,7 +281,8 @@ void QTreeView::setColumnHidden(int column, bool hide)
 }
 
 /*!
-    Returns true if the \a column is hidden; otherwise returns false.
+    Returns true if the item in the given \a row of the \a parent is hidden;
+    otherwise returns false.
 
     \sa setRowHidden()
 */
