@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#6 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#7 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -38,7 +38,8 @@ int main( int argc, char **argv )
     QPixmap pix;
     pix.convertFromImage( img.smoothScale( 48, 48 ) );
 
-	QPixmap dbpix(dbicon);
+    QPixmap dbpix(dbicon);
+    QPixmap textpix(texticon);
 
     // example 1
     QTabWidget *tab = new QTabWidget();
@@ -65,7 +66,7 @@ int main( int argc, char **argv )
     QString home = QString(getenv("QTDIR")) + "/doc/html/index.html";
     w = new HelpWindow( home, ".", 0, "helpviewer" );
     tab->addTab( w, "Help Browser" );
-    frame.addCategory( tab, pix, "Text Drawing/Editing" );
+    frame.addCategory( tab, textpix, "Text Drawing/Editing" );
 
     a.setMainWidget( &frame );
     frame.show();
