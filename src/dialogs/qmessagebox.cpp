@@ -922,7 +922,7 @@ void QMessageBox::adjustSize()
 
     // if the box is a bit wider than its parent, and can be narrowed
     // down without trouble, do that.
-    if ( parentWidget() && parentWidget()->width() < w && 
+    if ( parentWidget() && parentWidget()->width() < w &&
 	 parentWidget()->width() > bw &&
 	 parentWidget()->width() > (w-labelSize.width()/3) ) {
 	int lw = labelSize.width() - ( w - parentWidget()->width() );
@@ -932,7 +932,7 @@ void QMessageBox::adjustSize()
 	labelSize = QSize( lw, lh );
     }
     label->resize( labelSize );
-    
+
     resize( w, h );
 }
 
@@ -1314,7 +1314,7 @@ static const char *textAboutQt =
 "<h3>About Qt</h3><p>This program uses Qt version " QT_VERSION_STR ", a "
 "multiplatform C++ GUI toolkit from Troll Tech. "
 "Qt provides single-source portability across Windows 95/98/NT/2000, "
-"Linux/X11, Solaris/X11, HP-UX/X11 and many other versions of Unix/X11.</p>"
+"Linux, Solaris, HP-UX and many other versions of Unix with X11.</p>"
 "<p>See <tt>http://www.troll.no/qt</tt> for more information.</p>";
 void QT_END_TEXT() { QMessageBox::aboutQt(0,"E" "g" "g"); }
 
