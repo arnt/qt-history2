@@ -90,9 +90,13 @@ void ActionListView::rmbMenu( QListViewItem *i, const QPoint &p )
     QPopupMenu *popup = new QPopupMenu( this );
     popup->insertItem( tr( "New &Action" ), 0 );
     popup->insertItem( tr( "New Action &Group" ), 1 );
+    popup->insertSeparator();
+    popup->insertItem( tr( "Delete Action" ), 2 );
     int res = popup->exec( p );
     if ( res == 0 )
 	emit insertAction();
     else if ( res == 1 )
 	emit insertActionGroup();
+    else if ( res == 2 )
+	emit deleteAction();
 }
