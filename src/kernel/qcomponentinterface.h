@@ -16,7 +16,7 @@ class Q_EXPORT QUnknownInterface
 {
     friend class QPlugIn;
 public:
-    QUnknownInterface( QUnknownInterface *parent = 0 );
+    QUnknownInterface( QUnknownInterface *parent = 0, const char* name = 0 );
     virtual ~QUnknownInterface();
 
     virtual QString interfaceID() const;
@@ -24,14 +24,17 @@ public:
     virtual bool initialize( QApplicationInterface* = 0 );
     virtual bool cleanUp( QApplicationInterface* = 0 );
 
-    virtual bool hasInterface( const QString& );
-    virtual QUnknownInterface* queryInterface( const QString& );
+    virtual bool hasInterface( const QString&, bool rec = TRUE ) const;
+    virtual QUnknownInterface* queryInterface( const QString&, bool rec = TRUE );
+    virtual QStringList interfaceList( bool rec = TRUE) const;
 
     bool release();
 
     QApplicationInterface *applicationInterface() const;
 
     QUnknownInterface *parent() const;
+
+    const char *name() const;
 
 protected:
     void insertChild( QUnknownInterface * );
@@ -43,12 +46,13 @@ private:
     QUnknownInterface* par;
     int refcount;
     QApplicationInterface *appInterface;
+    const char* objname;
 };
 
 class Q_EXPORT QPlugInInterface : public QUnknownInterface
 {
 public:
-    QPlugInInterface();
+    QPlugInInterface( const char* name = 0 );
 
     QString interfaceID() const;
 
@@ -61,7 +65,7 @@ public:
 class Q_EXPORT QApplicationInterface : public QPlugInInterface
 {
 public:
-    QApplicationInterface();
+    QApplicationInterface( const char* name = 0 );
     QString interfaceID() const;
 
     QString name() const;
@@ -79,7 +83,7 @@ template class Q_EXPORT QGuardedPtr<QObject>;
 class Q_EXPORT QApplicationComponentInterface : public QUnknownInterface
 {
 public:
-    QApplicationComponentInterface( QObject* c, QUnknownInterface *parent = 0  );
+    QApplicationComponentInterface( QObject* c, QUnknownInterface *parent, const char* name = 0 );
 
     QString interfaceID() const;
 

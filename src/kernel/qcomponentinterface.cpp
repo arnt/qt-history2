@@ -18,9 +18,10 @@ public:
   Constructs a QUnknownInterface with parent interface /a parent.
 */
 
-QUnknownInterface::QUnknownInterface( QUnknownInterface *parent )
+QUnknownInterface::QUnknownInterface( QUnknownInterface *parent, const char *name )
 : children( 0 ), par( parent ), refcount( 0 ), appInterface( 0 )
 {   
+    objname = name ? qstrdup(name) : 0;
     if ( par )
 	par->insertChild( this );
 }
@@ -170,10 +171,11 @@ bool QUnknownInterface::cleanUp( QApplicationInterface* )
 
 /*!
   Returns TRUE if this interface has a child interface with an interfaceID
-  \a request.
+  \a request. If \a rec is TRUE, this function will look for the requested interface
+  in the child interfaces, too.
 */
 
-bool QUnknownInterface::hasInterface( const QString &request )
+bool QUnknownInterface::hasInterface( const QString &request, bool rec ) const
 {
     if ( request.isEmpty() || request == interfaceID() )
 	return TRUE;
@@ -183,7 +185,7 @@ bool QUnknownInterface::hasInterface( const QString &request )
     while ( it.current() ) {
 	if ( it.current()->interfaceID() == request ) {
 	    return TRUE;
-	} else {
+	} else if ( rec ) {
 	    QUnknownInterface *iface;
 	    if ( ( iface = it.current()->queryInterface( request ) ) )
 		return iface;
@@ -194,12 +196,38 @@ bool QUnknownInterface::hasInterface( const QString &request )
 }
 
 /*!
-  Returns an interface that matches \a request. 
-  The function returns NULL if this interface doesn't have a child interface 
-  with the requested interfaceID. If \a request is null, this interface is returned.
+  Returns the list of interface IDs this interface can provide. If \a rec is TRUE, this function 
+  will return all interface IDs the child interfaces can provide, too.
 */
 
-QUnknownInterface* QUnknownInterface::queryInterface( const QString& request )
+QStringList QUnknownInterface::interfaceList( bool rec ) const
+{
+    QStringList list;
+
+    list << interfaceID();
+
+    QListIterator<QUnknownInterface> it( *children );
+    while ( it.current() ) {
+	if ( rec ) {
+	    QStringList clist = it.current()->interfaceList( rec );
+	    for ( QStringList::Iterator ct = clist.begin(); ct != clist.end(); ct++ )
+		list << *ct ;
+	} else {
+	    list << it.current()->interfaceID();
+	}
+    }
+
+    return list;
+}
+
+/*!
+  Returns an interface that matches \a request. If \a rec is TRUE, this function will 
+  look for the requested interface in the child interfaces, too.
+  The function returns NULL if this interface can't provide an interface 
+  with the requested interfaceID. If \a request is a null-string, this interface is returned.
+*/
+
+QUnknownInterface* QUnknownInterface::queryInterface( const QString& request, bool rec )
 { 
     if ( request.isEmpty() || request == interfaceID() )
 	return this;
@@ -213,7 +241,7 @@ QUnknownInterface* QUnknownInterface::queryInterface( const QString& request )
 	    if ( it.current()->ref() )
 		return it.current();
 	    return 0;
-	} else {
+	} else if ( rec ) {
 	    QUnknownInterface *iface;
 	    if ( ( iface = it.current()->queryInterface( request ) ) )
 		return iface;
@@ -244,8 +272,8 @@ QApplicationInterface* QUnknownInterface::applicationInterface() const
   Creates a QPlugInInterface. This is always a toplevel interface.
 */
 
-QPlugInInterface::QPlugInInterface()
-: QUnknownInterface( 0 )
+QPlugInInterface::QPlugInInterface( const char* name )
+: QUnknownInterface( 0, name )
 {
 }
 
@@ -309,8 +337,8 @@ QString QPlugInInterface::version() const
 /*!
   Creates an QApplicationInterface. This is always a toplevel interface.
 */
-QApplicationInterface::QApplicationInterface()
-: QPlugInInterface()
+QApplicationInterface::QApplicationInterface( const char* name )
+: QPlugInInterface( name )
 {
 }
 
@@ -363,13 +391,15 @@ QString QApplicationInterface::command() const
   \a object.
   Note that \a object must not be null.
 */
-QApplicationComponentInterface::QApplicationComponentInterface( QObject* object, QUnknownInterface *parent )
-: QUnknownInterface( parent )
+QApplicationComponentInterface::QApplicationComponentInterface( QObject* object, QUnknownInterface *parent, const char* name )
+: QUnknownInterface( parent, name )
 {
-#ifdef CHECK_RANGE
+#if defined(DEBUG)
+    if ( !parent )
+	qWarning( "QApplicationComponentInterfaces can't be toplevel!" );
     if ( !object )
 	qWarning( "Can't create interface with null-object!" );
-#endif CHECK_RANGE
+#endif //DEBUG
     comp = object;
 }
 
