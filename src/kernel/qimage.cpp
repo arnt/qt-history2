@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#153 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#154 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#153 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#154 $");
 
 
 /*!
@@ -1689,11 +1689,12 @@ bool QImage::isGrayscale() const
     switch (depth()) {
       case 32:
 	return allGray();
-      case 8:
+      case 8: {
 	for (int i=0; i<numColors(); i++)
 	    if (data->ctbl[i] != qRgb(i,i,i))
 		return FALSE;
 	return TRUE;
+      }
     }
     return FALSE;
 }
@@ -1805,10 +1806,10 @@ void pnmscale(const QImage& src, QImage& dst)
 		    a = as[col] + fracrowtofill * qAlpha( *xP );
 		    a /= SCALE;
 		    if ( a > maxval ) a = maxval;
-		    *nxP = qRgba( r, g, b, a );
+		    *nxP = qRgba( (int)r, (int)g, (int)b, (int)a );
 		    as[col] = HALFSCALE;
 		} else {
-		    *nxP = qRgb( r, g, b );
+		    *nxP = qRgb( (int)r, (int)g, (int)b );
 		}
 		rs[col] = gs[col] = bs[col] = HALFSCALE;
 	    }
@@ -1853,9 +1854,9 @@ void pnmscale(const QImage& src, QImage& dst)
 			a += fraccoltofill * qAlpha( *xP );
 			a /= SCALE;
 			if ( a > maxval ) a = maxval;
-			*nxP = qRgba( r, g, b, a );
+			*nxP = qRgba( (int)r, (int)g, (int)b, (int)a );
 		    } else {
-			*nxP = qRgb( r, g, b );
+			*nxP = qRgb( (int)r, (int)g, (int)b );
 		    }
 		    fraccolleft -= fraccoltofill;
 		    fraccoltofill = SCALE;
@@ -1893,9 +1894,9 @@ void pnmscale(const QImage& src, QImage& dst)
 		if (as) {
 		    a /= SCALE;
 		    if ( a > maxval ) a = maxval;
-		    *nxP = qRgba( r, g, b, a );
+		    *nxP = qRgba( (int)r, (int)g, (int)b, (int)a );
 		} else {
-		    *nxP = qRgb( r, g, b );
+		    *nxP = qRgb( (int)r, (int)g, (int)b );
 		}
 	    }
 	}
@@ -4042,7 +4043,7 @@ static void write_xpm_image( QImageIO * iio )
     // write palette
     QIntDictIterator<int> c( colorMap );
     while ( c.current() ) {
-	QRgb color = c.currentKey();
+	QRgb color = (QRgb)c.currentKey();
 	if ( image.hasAlphaBuffer() && color == (color & RGB_MASK) )
 	    line.sprintf( "\"%s c None\"",
 			  xpm_color_name( cpp, (int)c.current() ) );

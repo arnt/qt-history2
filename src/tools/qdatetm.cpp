@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#60 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#61 $
 **
 ** Implementation of date and time classes
 **
@@ -33,7 +33,7 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#60 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#61 $");
 
 
 static const uint FIRST_DAY	= 2361222;	// Julian day for 17520914
@@ -691,8 +691,8 @@ bool QTime::currentTime( QTime *ct )
     gettimeofday( &tv, 0 );
     time_t ltime = tv.tv_sec;
     tm *t = localtime( &ltime );
-    ct->ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
-	     1000*t->tm_sec + tv.tv_usec/1000;
+    ct->ds = (uint)( MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
+	            1000*t->tm_sec + tv.tv_usec/1000 );
     return (t->tm_hour== 0 && t->tm_min == 0);
 
 #else
