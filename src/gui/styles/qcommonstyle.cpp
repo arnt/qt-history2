@@ -1441,7 +1441,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
         if (const QStyleOptionSlider *scrollbar = qt_cast<const QStyleOptionSlider *>(opt)) {
             // Make a copy here and reset it for each primitive.
             QStyleOptionSlider newScrollbar = *scrollbar;
-            SFlags saveFlags = scrollbar->state;
+            StyleFlags saveFlags = scrollbar->state;
             if (scrollbar->minimum == scrollbar->maximum)
                 saveFlags |= Style_Enabled;
 
@@ -1618,8 +1618,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             menuarea = visualRect(querySubControlMetrics(cc, toolbutton, SC_ToolButtonMenu, widget),
                                   widget);
 
-            SFlags bflags = toolbutton->state,
-                   mflags = toolbutton->state;
+            StyleFlags bflags = toolbutton->state,
+                       mflags = toolbutton->state;
 
             if (toolbutton->activeSubControls & SC_ToolButton)
                 bflags |= Style_Down;
