@@ -1504,6 +1504,12 @@ QCoreVariant::Type QCoreVariant::nameToType(const char *name)
             return Invalid;
         if (strcmp(name, "QCString") == 0)
             return ByteArray;
+        if (strcmp(name, "Q_LLONG") == 0)
+            return LongLong;
+        if (strcmp(name, "Q_ULLONG") == 0)
+            return ULongLong;
+        if (strcmp(name, "QIconSet") == 0)
+            return Icon;
         for (int i = 1; i < ntypes; ++i) {
             if (strcmp(type_map[i], name) == 0)
                 return (Type)i;
