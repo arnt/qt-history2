@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#42 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -22,13 +22,13 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-#if defined(DEBUG)
+#if defined(DEBUG) && !defined(CHECK_MEMORY)
 #define  CHECK_MEMORY
 #include <qmemchk.h>
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#41 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#42 $";
 #endif
 
 
@@ -1412,6 +1412,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    QApplication::sendEvent( this, &e );
 	}
     }
+    return TRUE;
 }
 
 

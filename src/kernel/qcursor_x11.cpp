@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#5 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#5 $";
 #endif
 
 
@@ -106,9 +106,7 @@ void QCursor::initialize()			// initialize standard cursors
 
 void QCursor::cleanup()				// cleanup standard cursors
 {
-    Display *dpy = qXDisplay();
     int shape = ArrowCursor;
-    register QCursorData *d;
 #if defined(DEBUG)
     bool mc = memchkSetReporting( FALSE );	// get rid of stupid messages
 #endif
@@ -125,8 +123,7 @@ void QCursor::cleanup()				// cleanup standard cursors
 
 QCursor *QCursor::locate( int shape )		// get global cursor
 {
-    return shape >= ArrowCursor && shape <= SizeAllCursor ?
-	   cursorTable[shape] : 0;
+    return (uint)shape <= SizeAllCursor ? cursorTable[shape] : 0;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#10 $
 **
 ** Implementation of QPointArray class
 **
@@ -22,7 +22,7 @@ double qsincos( double, bool calcCos );		// def. in qptr_x11.cpp
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpntarry.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpntarry.cpp#10 $";
 #endif
 
 
@@ -429,8 +429,7 @@ QPointArray QPointArray::bezier()		// calculate Bezier curve
 	yvec[v] = y;
     }
     double xf, yf;
-    double *p1, *p2;
-    int i,b,k;
+    int	   i, b, k;
     QPointData *pd = p.data();
     for ( i=0; i<=m; i++ ) {			// for each Bezier point...
 	u = (double)i/m;

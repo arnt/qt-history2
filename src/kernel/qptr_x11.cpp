@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#43 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#42 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#43 $";
 #endif
 
 
@@ -308,6 +308,7 @@ static GC alloc_painter_gc( Display *dpy, Drawable hd )
 #if defined(CHECK_NULL)
     warning( "QPainter: Internal error; no available GC" );
 #endif
+    return XCreateGC( dpy, hd, 0, 0 );
 }
 
 static void free_painter_gc( Display *dpy, GC gc )
@@ -529,7 +530,7 @@ void QPainter::updatePen()			// update after changed pen
 	pdev->cmd( PDC_SETPEN, param );
 	return;
     }
-    char *dashes;				// custom pen dashes
+    char *dashes = 0;				// custom pen dashes
     int dash_len = 0;				// length of dash list
     int s = LineSolid;
     switch( cpen.style() ) {
@@ -608,8 +609,8 @@ static char *pat_tbl[] = {
     }
     bool custom = cbrush.style() == CustomPattern;
     char *pat = 0;				// pattern
-    int sz;					// defalt pattern size: sz*sz
-    int s = FillSolid;
+    int sz = 0;					// defalt pattern size: sz*sz
+    int s  = FillSolid;
     if ( cbrush.style() >= Pix1Pattern && cbrush.style() <= DiagCrossPattern ){
 	pat = pat_tbl[ cbrush.style()-Pix1Pattern ];
 	if ( cbrush.style() <= Pix5Pattern )
@@ -824,7 +825,7 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
 	  GXcopyInverted, GXorInverted, GXequiv, GXand, GXinvert };
     if ( !isActive() )
 	return;
-    if ( !(r >= CopyROP && r <= NotROP) ) {
+    if ( (uint)r > NotROP ) {
 #if defined(CHECK_RANGE)
 	warning( "QPainter::setRasterOp: Invalid ROP code" );
 #endif
@@ -2375,7 +2376,6 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     codelen = index;
 
     int     fascent  = fm.ascent();		// get font measurements
-    int     fdescent = fm.descent();
     int     fheight  = fm.height();
     QRegion save_rgn = crgn;			// save the current region
     int     xp, yp;

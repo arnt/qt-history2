@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#13 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#13 $";
 #endif
 
 
@@ -81,7 +81,7 @@ void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
     static short ropCodes[] =			// ROP translation table
 	{ GXcopy, GXor, GXxor, GXandInverted,
 	  GXcopyInverted, GXorInverted, GXequiv, GXand, GXinvert };
-    if ( !(rop >= CopyROP && rop <= NotROP) ) {
+    if ( rop > NotROP ) {
 #if defined(CHECK_RANGE)
 	warning( "QPaintDevice::bitBlt: Invalid ROP code" );
 #endif

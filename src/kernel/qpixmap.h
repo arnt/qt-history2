@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#8 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#9 $
 **
 ** Definition of QPixMap class
 **
@@ -17,7 +17,7 @@
 #include "qcolor.h"
 
 
-class QImageInfo;
+class QImageData;
 
 
 class QPixMap : public QPaintDevice		// pixmap class
@@ -26,7 +26,7 @@ friend class QPaintDevice;
 friend class QPainter;
 public:
     QPixMap( int w, int h, int depth=-1 );
-    QPixMap( const QImageInfo * );
+    QPixMap( const QImageData * );
    ~QPixMap();
 
     int	   width()  const { return sz.width(); }
@@ -43,8 +43,8 @@ public:
 
     void   fill( const QColor &fillColor=white );
 
-    void   createPixMap( const QImageInfo * );
-    void   getPixMap( QImageInfo * );
+    void   createPixMap( const QImageData * );
+    void   getPixMap( QImageData * );
     static QPixMap *grabWindow( WId, int x=0, int y=0, int w=-1, int h=-1 );
 
 protected:
