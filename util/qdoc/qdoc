@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#77 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#78 $
 #
 # this is a massive hack, written very quickly
 #
@@ -840,7 +840,6 @@ sub makenames {
 
     foreach ( sort keys %name ) {
 	if (($type{$_} ne "enum") && !($doc{$_} =~ /\S/s)) {
-	    print "Undocumented: ", $name{$_}, "\n";
 	    undef $name{$_};
 	    undef $type{$_};
 	}
