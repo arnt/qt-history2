@@ -192,8 +192,7 @@ public:
     STDMETHOD(LockInPlaceActive)(BOOL fLock);
     STDMETHOD(GetExtendedControl)(IDispatch** ppDisp);
     STDMETHOD(TransformCoords)(POINTL* pPtlHimetric, POINTF* pPtfContainer, DWORD dwFlags);
-    STDMETHOD(TranslateAcceleratorA)(LPMSG lpMsg, DWORD grfModifiers);
-    STDMETHOD(TranslateAcceleratorW)(LPMSG lpMsg, DWORD grfModifiers);
+    STDMETHOD(TranslateAccelerator)(LPMSG lpMsg, DWORD grfModifiers);
     STDMETHOD(OnFocus)(BOOL fGotFocus );
     STDMETHOD(ShowPropertyFrame)();
 
@@ -219,8 +218,7 @@ public:
     STDMETHOD(RemoveMenus( HMENU hmenuShared ));
     STDMETHOD(SetStatusText( LPCOLESTR pszStatusText ));
     STDMETHOD(EnableModeless( BOOL fEnable ));
-    STDMETHOD(TranslateAcceleratorA( LPMSG lpMsg, WORD grfModifiers ));
-    STDMETHOD(TranslateAcceleratorW( LPMSG lpMsg, WORD grfModifiers ));
+    STDMETHOD(TranslateAccelerator( LPMSG lpMsg, WORD grfModifiers ));
 
 // IOleInPlaceUIWindow
     STDMETHOD(GetBorder( LPRECT lprectBorder ));
@@ -322,9 +320,9 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 			if ( msg->wParam == VK_TAB ) { 
 			    // give the control a chance to move the focus
 			    // The control will call our TranslateAccelerator if it doesn't want the message
-			    site->inPlaceObject()->TranslateAcceleratorW( msg );
+			    site->inPlaceObject()->TranslateAccelerator(msg);
 			} else if (msg->message == WM_SYSKEYDOWN) {
-			    site->inPlaceObject()->TranslateAcceleratorW(msg);
+			    site->inPlaceObject()->TranslateAccelerator(msg);
 			} else if (msg->message == WM_KEYDOWN) {
 			    DWORD mod = 0;
 			    if (GetKeyState(VK_SHIFT) < 0)
@@ -334,9 +332,9 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 			    if (GetKeyState(VK_MENU) < 0)
 				mod |= 0x04; //KEYMOD_ALT;
 			    if (mod)
-				site->inPlaceObject()->TranslateAcceleratorW(msg);
+				site->inPlaceObject()->TranslateAccelerator(msg);
 			} else if (msg->message == WM_SYSKEYUP && msg->wParam == VK_MENU) {
-			    site->inPlaceObject()->TranslateAcceleratorW(msg);
+			    site->inPlaceObject()->TranslateAccelerator(msg);
 			}
 		    }
 		} else {
@@ -687,14 +685,12 @@ HRESULT WINAPI QAxHostWindow::TransformCoords(POINTL* /*pPtlHimetric*/, POINTF* 
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::TranslateAcceleratorA(LPMSG lpMsg, DWORD grfModifiers)
+HRESULT WINAPI QAxHostWindow::TranslateAccelerator(LPMSG lpMsg, DWORD grfModifiers)
 {
-    return TranslateAcceleratorW( lpMsg, grfModifiers );
-}
-
-HRESULT WINAPI QAxHostWindow::TranslateAcceleratorW(LPMSG lpMsg, DWORD grfModifiers)
-{
-    SendMessage( hostWidget()->winId(), lpMsg->message, lpMsg->wParam, lpMsg->lParam );
+    QT_WA_INLINE(
+        SendMessage(hostWidget()->winId(), lpMsg->message, lpMsg->wParam, lpMsg->lParam),
+        SendMessageA(hostWidget()->winId(), lpMsg->message, lpMsg->wParam, lpMsg->lParam)
+    );
     return S_OK;
 }
 
@@ -1083,14 +1079,9 @@ HRESULT WINAPI QAxHostWindow::EnableModeless( BOOL fEnable )
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::TranslateAcceleratorA( LPMSG lpMsg, WORD grfModifiers )
+HRESULT WINAPI QAxHostWindow::TranslateAccelerator( LPMSG lpMsg, WORD grfModifiers )
 {
-    return TranslateAcceleratorA( lpMsg, (DWORD)grfModifiers );
-}
-
-HRESULT WINAPI QAxHostWindow::TranslateAcceleratorW( LPMSG lpMsg, WORD grfModifiers )
-{
-    return TranslateAcceleratorW( lpMsg, (DWORD)grfModifiers );
+    return TranslateAccelerator( lpMsg, (DWORD)grfModifiers );
 }
 
 //**** IOleInPlaceUIWindow
