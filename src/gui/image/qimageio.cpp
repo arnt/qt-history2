@@ -35,7 +35,9 @@
 
 // handlers
 #include "private/qbmphandler_p.h"
+#ifndef QT_NO_IMAGEIO_PNG
 #include "private/qpnghandler_p.h"
+#endif
 #include "private/qppmhandler_p.h"
 #include "private/qxbmhandler_p.h"
 #include "private/qxpmhandler_p.h"
@@ -49,9 +51,12 @@ static QImageIOHandler *createHandler(QIODevice *device, const QByteArray &forma
     QImageIOHandler *handler = 0;
 
     if (format.isEmpty()) {
+#ifndef QT_NO_IMAGEIO_PNG
         if (QPngHandler::canLoadImage(device))
             handler = new QPngHandler;
-        else if (QBmpHandler::canLoadImage(device))
+        else
+#endif
+        if (QBmpHandler::canLoadImage(device))
             handler = new QBmpHandler;
         else if (QXpmHandler::canLoadImage(device))
             handler = new QXpmHandler;
@@ -60,9 +65,12 @@ static QImageIOHandler *createHandler(QIODevice *device, const QByteArray &forma
         else if (QXbmHandler::canLoadImage(device))
             handler = new QXbmHandler;
     } else {
+#ifndef QT_NO_IMAGEIO_PNG
         if (form == "png") {
             handler = new QPngHandler;
-        } else if (form == "bmp") {
+        } else
+#endif
+        if (form == "bmp") {
             handler = new QBmpHandler;
         } else if (form == "xpm") {
             handler = new QXpmHandler;
@@ -132,6 +140,9 @@ QImageIOPrivate::QImageIOPrivate(QImageIO *q_ptr)
     device = 0;
     deleteDevice = false;
     handler = 0;
+
+    gamma = 0.0;
+    quality = 0;
 }
 
 QImageIOPrivate::~QImageIOPrivate()
@@ -429,7 +440,10 @@ QByteArray QImageIO::imageFormatForDevice(QIODevice *device)
 QList<QByteArray> QImageIO::inputFormats()
 {
     QList<QByteArray> formats;
-    formats << "bmp" << "png" << "pbm" << "pgm" << "ppm" << "xbm" << "xpm";
+    formats << "bmp" << "pbm" << "pgm" << "ppm" << "xbm" << "xpm";
+#ifndef QT_NO_IMAGEIO_PNG
+    formats << "png";
+#endif
 
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();
@@ -447,7 +461,10 @@ QList<QByteArray> QImageIO::inputFormats()
 QList<QByteArray> QImageIO::outputFormats()
 {
     QList<QByteArray> formats;
-    formats << "bmp" << "png" << "ppm" << "xbm" << "xpm";
+    formats << "bmp" << "ppm" << "xbm" << "xpm";
+#ifndef QT_NO_IMAGEIO_PNG
+    formats << "png";
+#endif
 
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();

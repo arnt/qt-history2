@@ -54,27 +54,31 @@ SOURCES += \
         image/qxpmhandler.cpp
 
 # png support
-HEADERS += image/qpnghandler_p.h
-SOURCES += image/qpnghandler.cpp
+!contains(QT_CONFIG, no-png) {
+    HEADERS += image/qpnghandler_p.h
+    SOURCES += image/qpnghandler.cpp
 
-contains(QT_CONFIG, system-png) {
-    unix:LIBS  += -lpng
-    win32:LIBS += libpng.lib
+    contains(QT_CONFIG, system-png) {
+        unix:LIBS  += -lpng
+        win32:LIBS += libpng.lib
+    } else {
+        INCLUDEPATH  += ../3rdparty/libpng ../3rdparty/zlib
+        SOURCES	+= ../3rdparty/libpng/png.c \
+    	  ../3rdparty/libpng/pngerror.c \
+    	  ../3rdparty/libpng/pngget.c \
+    	  ../3rdparty/libpng/pngmem.c \
+    	  ../3rdparty/libpng/pngpread.c \
+    	  ../3rdparty/libpng/pngread.c \
+    	  ../3rdparty/libpng/pngrio.c \
+    	  ../3rdparty/libpng/pngrtran.c \
+    	  ../3rdparty/libpng/pngrutil.c \
+    	  ../3rdparty/libpng/pngset.c \
+    	  ../3rdparty/libpng/pngtrans.c \
+    	  ../3rdparty/libpng/pngwio.c \
+    	  ../3rdparty/libpng/pngwrite.c \
+    	  ../3rdparty/libpng/pngwtran.c \
+    	  ../3rdparty/libpng/pngwutil.c
+    }
 } else {
-    INCLUDEPATH  += ../3rdparty/libpng ../3rdparty/zlib
-    SOURCES	+= ../3rdparty/libpng/png.c \
-	  ../3rdparty/libpng/pngerror.c \
-	  ../3rdparty/libpng/pngget.c \
-	  ../3rdparty/libpng/pngmem.c \
-	  ../3rdparty/libpng/pngpread.c \
-	  ../3rdparty/libpng/pngread.c \
-	  ../3rdparty/libpng/pngrio.c \
-	  ../3rdparty/libpng/pngrtran.c \
-	  ../3rdparty/libpng/pngrutil.c \
-	  ../3rdparty/libpng/pngset.c \
-	  ../3rdparty/libpng/pngtrans.c \
-	  ../3rdparty/libpng/pngwio.c \
-	  ../3rdparty/libpng/pngwrite.c \
-	  ../3rdparty/libpng/pngwtran.c \
-	  ../3rdparty/libpng/pngwutil.c
+    DEFINES *= QT_NO_IMAGEIO_PNG
 }
