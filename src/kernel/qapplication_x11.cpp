@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#240 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#241 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#240 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#241 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2622,10 +2622,13 @@ struct PaintEventInfo {
 extern "C" {
 #endif
 
-static Bool isPaintEvent( Display *, XEvent *ev, XPointer a )
+static Bool isPaintOrScrollDoneEvent( Display *, XEvent *ev, XPointer a )
 {
     PaintEventInfo *info = (PaintEventInfo *)a;
-    if ( ev->type == Expose || ev->type == GraphicsExpose ) {
+    if ( ev->type == Expose || ev->type == GraphicsExpose
+      ||    ev->type == ClientMessage
+	 && ev->xclient.message_type == q_qt_scrolldone )
+    {
 	if ( ev->xexpose.window == info->window )
 	    return TRUE;
     } else if ( ev->type == ConfigureNotify && info->check ) {
@@ -2680,6 +2683,31 @@ void qt_insert_sip( QWidget* scrolled_widget, int dx, int dy )
 	(XEvent*)&client_message );
 }
 
+static
+bool translateBySips( QWidget* that, QRect& paintRect )
+{
+    if ( sip_list ) {
+	int dx=0, dy=0;
+	int sips=0;
+	for (QScrollInProgress* sip = sip_list->first();
+	    sip; sip=sip_list->next())
+	{
+	    if ( sip->scrolled_widget == that ) {
+		if ( sips ) {
+		    dx += sip->dx;
+		    dy += sip->dy;
+		}
+		sips++;
+	    }
+	}
+	if ( sips > 1 ) {
+	    paintRect.moveBy( dx, dy );
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
+
 bool QETWidget::translatePaintEvent( const XEvent *event )
 {
     QRect  paintRect( event->xexpose.x,	   event->xexpose.y,
@@ -2693,38 +2721,23 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     info.h	= height();
     info.check	= testWFlags(WType_TopLevel);
     info.config = 0;
-
-    if ( sip_list ) {
-	int dx=0, dy=0;
-	int sips=0;
-	for (QScrollInProgress* sip = sip_list->first();
-	    sip; sip=sip_list->next())
-	{
-	    if ( sip->scrolled_widget == this ) {
-		if ( sips ) {
-		    dx += sip->dx;
-		    dy += sip->dy;
-		}
-		sips++;
-	    }
-	}
-	if ( sips > 1 ) {
-	    paintRect.moveBy( dx, dy );
-	    // ##### TODO:  be really smart - rather than isPaintEvent below,
-	    // #####        also process applicable scroll-done messages.
-	    merging_okay = FALSE;
-	}
-    }
+    bool should_clip = translateBySips( this, paintRect );
 
     if ( merging_okay ) {
-	while ( XCheckIfEvent(dpy,&xevent,isPaintEvent,(XPointer)&info) 
+	while ( XCheckIfEvent(dpy,&xevent,isPaintOrScrollDoneEvent,(XPointer)&info) 
 	    && !qApp->x11EventFilter(&xevent) )	// send event through filter
 	{
 	    if ( !info.config ) {
-		paintRect = paintRect.unite( QRect(xevent.xexpose.x,
-						   xevent.xexpose.y,
-						   xevent.xexpose.width,
-						   xevent.xexpose.height) );
+		if ( xevent.type == Expose || xevent.type == GraphicsExpose ) {
+		    QRect exposure(xevent.xexpose.x,
+				   xevent.xexpose.y,
+				   xevent.xexpose.width,
+				   xevent.xexpose.height);
+		    should_clip |= translateBySips( this, exposure );
+		    paintRect = paintRect.unite( exposure );
+		} else {
+		    translateScrollDoneEvent( &xevent );
+		}
 	    }
 	}
     }
@@ -2739,6 +2752,12 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 	c->height = h;
 	translateConfigEvent( (XEvent*)c );	// will clear window
 	paintRect = QRect( 0, 0, w, h );
+    }
+
+    if ( should_clip ) {
+	paintRect = paintRect.intersect( rect() );
+	if ( paintRect.isEmpty() )
+	    return TRUE;
     }
 
     QPaintEvent e( paintRect );
