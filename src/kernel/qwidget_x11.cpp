@@ -2391,9 +2391,10 @@ void QWidget::updateFrameStrut() const
 
 void QWidget::createInputContext()
 {
-#ifndef NO_XIM
     QWidget *tlw = topLevelWidget();
     QTLWExtra *topdata = tlw->topData();
+
+#ifndef NO_XIM
     if (qt_xim) {
 	if (! topdata->xic) {
 	    QInputContext *qic = new QInputContext(tlw);

@@ -6,7 +6,7 @@
 #include <stdlib.h> // for wcstombs
 
 
-#if defined(Q_WS_X11) && !defined(NO_XIM)
+#if !defined(NO_XIM)
 
 // from qapplication_x11.cpp
 extern XIM	qt_xim;
@@ -131,9 +131,6 @@ extern "C" {
 }
 #endif // Q_C_CALLBACKS
 
-#endif // Q_WS_X11 && !NO_XIM
-
-
 // We create an XFontSet for use with input method stuff - since QFont is
 // now a logical font composed of several real XFonts, we need a way to
 // tell the input method server what font to use
@@ -166,6 +163,9 @@ static XFontSet xic_fontset(int pt)
     }
     return fixed_fontset;
 }
+
+#endif // !NO_XIM
+
 
 
 QInputContext::QInputContext(QWidget *widget)
@@ -325,18 +325,9 @@ bool QInputContext::isComposing() const
 }
 
 
-void QInputContext::setXFontSet(XFontSet fontset)
-{
-    if (qt_xim && ic) {
-	XVaNestedList attr = XVaCreateNestedList(0, XNFontSet, fontset, NULL);
-	XSetICValues(ic, XNPreeditAttributes, attr, 0);
-	XFree(attr);
-    }
-}
-
-
 void QInputContext::setComposePosition(int x, int y)
 {
+    #if !defined(NO_XIM)
     if (qt_xim && ic) {
 	XPoint point;
 	point.x = x;
@@ -344,11 +335,13 @@ void QInputContext::setComposePosition(int x, int y)
 
 	// XSetICValues(ic, XNSpotLocation, &point, 0);
     }
+    #endif // !NO_XIM
 }
 
 
 void QInputContext::setComposeArea(int x, int y, int w, int h)
 {
+#if !defined(NO_XIM)
     if (qt_xim && ic) {
 	XRectangle rect;
 	rect.x = x;
@@ -358,6 +351,7 @@ void QInputContext::setComposeArea(int x, int y, int w, int h)
 
 	// XSetICValues(ic, XNArea, &rect, 0);
     }
+#endif
 }
 
 
@@ -366,6 +360,7 @@ int QInputContext::lookupString(XKeyEvent *event, QCString &chars,
 {
     int count = 0;
 
+#if !defined(NO_XIM)
     if (qt_xim && ic) {
 	count = XmbLookupString(ic, event, chars.data(), chars.size(), key, status);
 
@@ -376,11 +371,14 @@ int QInputContext::lookupString(XKeyEvent *event, QCString &chars,
     }
 
     return count;
+#endif // NO_XIM
 }
 
 
 void QInputContext::setFocus()
 {
+#if !defined(NO_XIM)
     if (qt_xim && ic)
 	XSetICFocus(ic);
+#endif // !NO_XIM
 }

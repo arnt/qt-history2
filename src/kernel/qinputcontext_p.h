@@ -16,7 +16,6 @@ public:
     bool isComposing() const;
 
     void setFocus();
-    void setXFontSet(XFontSet);
     void setComposePosition(int, int);
     void setComposeArea(int, int, int, int);
     void reset();
@@ -24,11 +23,13 @@ public:
 
     void setText(const QString &);
     const QString &text() const;
+
+#if defined(Q_WS_X11)
     int lookupString(XKeyEvent *, QCString &, KeySym *, Status *) const;
-    XIC inputContext() const;
+#endif // Q_WS_X11
 
 private:
-    XIC ic;
+    void *ic;
     QString txt;
 };
 
