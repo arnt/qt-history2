@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#224 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#225 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#224 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#225 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -86,8 +86,8 @@ static char    *mwGeometry	= 0;		// main widget geometry
 static char    *mwTitle		= 0;		// main widget title
 static bool	mwIconic	= FALSE;	// main widget iconified
 static Display *appDpy		= 0;		// X11 application display
-static bool     foreign_display = FALSE;        // We didn't create display
 static char    *appDpyName	= 0;		// X11 display name
+static bool     appForeignDpy	= FALSE;        // we didn't create display
 static bool	appSync		= FALSE;	// X11 synchronization
 #if defined(DEBUG)
 static bool	appNoGrab	= FALSE;	// X11 grabbing enabled
@@ -200,15 +200,17 @@ static
 void qt_init_internal( int *argcptr, char **argv, Display *display )
 {
     if ( display ) {
-      // Qt treads lightly
 
-	foreign_display = TRUE;
+      // Qt part of other application	
+
+	appForeignDpy = TRUE;
 	appName = "Qt-subapplication";
-
-	appDpy = display;
+	appDpy  = display;
 	app_Xfd = -1;
+
     } else {
-      // Qt controls everything.
+
+      // Qt controls everything (default)
 
 	int argc = *argcptr;
 	int i, j;
@@ -420,7 +422,7 @@ void qt_cleanup()
     CLEANUP_GC(app_gc_tmp);
     CLEANUP_GC(app_gc_tmp_m);
 
-    if ( !foreign_display )
+    if ( !appForeignDpy )
 	XCloseDisplay( appDpy );		// close X display
     appDpy = 0;
 }
@@ -1421,7 +1423,7 @@ bool QApplication::processNextEvent( bool canWait )
 	return FALSE;
 
     static timeval zerotm;
-    timeval *tm = qt_wait_timer();			// wait for timer or X event
+    timeval *tm = qt_wait_timer();		// wait for timer or X event
     if ( !canWait ) {
 	if ( !tm )
 	    tm = &zerotm;
@@ -1475,8 +1477,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     QETWidget *widget = (QETWidget*)QWidget::find( event->xany.window );
 
-    if ( wPRmapper ) {			// just did a widget recreate?
-	if ( widget == 0 ) {		// not in std widget mapper
+    if ( wPRmapper ) {				// just did a widget recreate?
+	if ( widget == 0 ) {			// not in std widget mapper
 	    switch ( event->type ) {		// only for mouse/key events
 		case ButtonPress:
 		case ButtonRelease:
@@ -1499,7 +1501,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     if ( !widget )				// don't know this window
 	return -1;
 
-    if ( app_do_modal )			// modal event handling
+    if ( app_do_modal )				// modal event handling
 	if ( !qt_try_modal(widget, event) )
 	    return 1;
 
@@ -1536,7 +1538,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    }
 	    break;
 
-	case KeyPress:			// keyboard event
+	case KeyPress:				// keyboard event
 	case KeyRelease: {
 	    qt_x_clipboardtime = event->xkey.time;
 	    QWidget *g = QWidget::keyboardGrabber();
@@ -1552,7 +1554,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 
 	case GraphicsExpose:
-	case Expose:			// paint event
+	case Expose:				// paint event
 	    if ( widget->testWFlags( WState_DoHide ) ) {
 		 widget->setWFlags( WState_Visible );
 		 widget->hide();
@@ -1561,11 +1563,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    }
 	    break;
 
-	case ConfigureNotify:		// window move/resize event
+	case ConfigureNotify:			// window move/resize event
 	    widget->translateConfigEvent( event );
 	    break;
 
-	case FocusIn: {			// got focus
+	case FocusIn: {				// got focus
 	    QWidget *w = widget->focusWidget();
 	    if ( !w ) {
 		// set focus to some arbitrary widget with WTabToFocus
@@ -1578,7 +1580,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    }
 	    break;
 
-	case FocusOut:			// lost focus
+	case FocusOut:				// lost focus
 	    if ( focus_widget ) {
 		QFocusEvent out( Event_FocusOut );
 		QWidget *w = focus_widget;
@@ -1599,7 +1601,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    widget->clearWFlags( WState_Visible );
 	    break;
 
-	case MapNotify:			// window shown
+	case MapNotify:				// window shown
 	    widget->setWFlags( WState_Visible );
 	    break;
 
@@ -1611,14 +1613,14 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    }
 	    break;
 
-	case ReparentNotify:		// window manager reparents
+	case ReparentNotify:			// window manager reparents
 	    if ( event->xreparent.parent != appRootWin ) {
 		XWindowAttributes a1, a2;
 		while ( XCheckTypedWindowEvent( widget->x11Display(),
 						widget->winId(),
 						ReparentNotify,
 						event ) )
-		    ;			// skip old reparent events
+		    ;				// skip old reparent events
 		Window parent = event->xreparent.parent;
 		XGetWindowAttributes( widget->x11Display(),
 				      widget->winId(), &a1 );
@@ -1627,9 +1629,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		QRect *r = &widget->crect;
 		XWindowAttributes *a;
 		if ( a1.x == 0 && a1.y == 0 && (a2.x + a2.y > 0) )
-		    a = &a2;		// typical for mwm, fvwm
+		    a = &a2;			// typical for mwm, fvwm
 		else
-		    a = &a1;		// typical for twm, olwm
+		    a = &a1;			// typical for twm, olwm
 		a->x += a2.border_width;
 		a->y += a2.border_width;
 		widget->frect = QRect(QPoint(r->left()	 - a->x,
