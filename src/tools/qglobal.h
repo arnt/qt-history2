@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#117 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#118 $
 **
 ** Global type declarations and definitions
 **
@@ -39,6 +39,7 @@
 //   SCO	- SCO of some sort
 //   AIX	- AIX Unix
 //   UNIXWARE	- SCO UnixWare
+//   GNU	- GNU Hurd
 //   UNIX	- Any UNIX bsd/sysv system
 //
 
@@ -86,6 +87,8 @@
 #define _OS_LYNXOS_
 #elif defined(_UNIXWARE)
 #define _OS_UNIXWARE_
+#elif defined(__GNU__)
+#define _OS_GNU_
 #else
 #error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
 #endif
