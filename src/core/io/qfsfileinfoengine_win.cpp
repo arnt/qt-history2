@@ -159,6 +159,9 @@ QFSFileInfoEnginePrivate::doStat() const
 	tried_stat = true;
 	could_stat = true;
 
+        if (file.isEmpty())
+            return could_stat;
+
 	UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
 
 	int r;
@@ -169,17 +172,17 @@ QFSFileInfoEnginePrivate::doStat() const
 	});
 	if (r) {
 	    bool is_dir=false;
-	    if (file[0] == '/' && file[1] == '/'
-		|| file[0] == '\\' && file[1] == '\\')
+	    if (file.at(0) == '/' && file.at(1) == '/'
+		|| file.at(0) == '\\' && file.at(1) == '\\')
 	    {
 		// UNC - stat doesn't work for all cases (Windows bug)
-		int s = file.indexOf(file[0],2);
+		int s = file.indexOf(file.at(0),2);
 		if (s > 0) {
 		    // "\\server\..."
-		    s = file.indexOf(file[0],s+1);
+		    s = file.indexOf(file.at(0),s+1);
 		    if (s > 0) {
 			// "\\server\share\..."
-			if (file[s+1] != 0) {
+			if (file.at(s+1) != 0) {
 			    // "\\server\share\notfound"
 			} else {
 			    // "\\server\share\"
@@ -437,21 +440,23 @@ QFSFileInfoEngine::fileName(FileName file) const
 	}
 	return d->file.mid(slash + 1);
     } else if(file == DirPath) {
+        if (!d->file.size())
+            return d->file;
 	int slash = d->file.lastIndexOf('/');
 	if (slash == -1) {
-	    if (d->file[1] == ':') 
+	    if (d->file.at(1) == ':') 
 		return d->file.left(2);
 	    return QString::fromLatin1(".");
 	} else {
 	    if (!slash)
 		return QString::fromLatin1("/");
-	    if (slash == 2 && d->file[1] == ':')
+	    if (slash == 2 && d->file.at(1) == ':')
 		slash++;
 	    return d->file.left(slash);
 	}
     } else if(file == AbsoluteName || file == AbsoluteDirPath) {
         QString ret;
-        if(!d->file.length() || (d->file[0] != '/'
+        if(!d->file.length() || (d->file.at(0) != '/'
 				 && d->file.at(1) != ':')) {
             ret = QDir::currentDirPath();
             ret += '/';
@@ -505,10 +510,12 @@ QFSFileInfoEngine::fileName(FileName file) const
 bool
 QFSFileInfoEngine::isRelativePath() const
 {
-    if (d->file.length() >= 2)
-        return !((d->file[0].isLetter() && d->file[1] == ':') ||
-                 (d->file[0] == '\\' && d->file[1] == '\\') ||
-                 (d->file[0] == '/' && d->file[1] == '/'));                // drive, e.g. a:
+    qDebug("::isRelativePath() (%s:%d:%d)", d->file.latin1(), d->file.count(), d->file.size());
+    if (d->file.length() >= 2) {
+        return !((d->file.at(0).isLetter() && d->file.at(1) == ':') ||
+                 (d->file.at(0) == '\\' && d->file.at(1) == '\\') ||
+                 (d->file.at(0) == '/' && d->file.at(1) == '/'));                // drive, e.g. a:
+    }
     return true;
 }
 
