@@ -281,7 +281,7 @@ QWidgetList * qt_modal_stack=0; 		// stack of modal widgets
 
 // Definitions for posted events
 struct QPostEvent {
-    QPostEvent( QObject *r, QEvent *e ) { receiver=r; event=e; }
+    QPostEvent( QObject *r, QEvent *e ): receiver( r ), event( e ) {}
    ~QPostEvent()			{ delete event; }
     QObject  *receiver;
     QEvent   *event;
@@ -1540,18 +1540,20 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 	     ((QWidget*)receiver)->extra->posted_events )
 	    l = (QPostEventList*)(((QWidget*)receiver)->extra->posted_events);
 	QObject * c = ((QChildEvent*)event)->child();
-	QPostEventListIt it( *l );
 	QPostEvent * pe;
-	while( ( pe = it.current()) != 0 ) {
-	    ++it;
+	l->first();
+	while( ( pe = l->current()) != 0 ) {
 	    if ( pe->event && pe->receiver == receiver &&
 		 pe->event->type() == QEvent::ChildInserted &&
 		 ((QChildEvent*)pe->event)->child() == c ) {
 		pe->event->posted = FALSE;
 		delete pe->event;
 		pe->event = 0;
+		if ( l != postedEvents )
+		    l->remove();
 		return TRUE;
 	    }
+	    l->next();
 	}
     }
 
@@ -1898,13 +1900,14 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	    }
 	}
     }
-
+    
     // if no compression could be done, just append something
     receiver->pendEvent = TRUE;
     event->posted = TRUE;
     QPostEvent * pe = new QPostEvent( receiver, event );
     if ( l != &postedEvents )
 	(*l)->append( pe );
+    
     postedEvents->append( pe );
 }
 
@@ -1958,92 +1961,86 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 
     // okay.  here is the tricky loop.  be careful about optimizing
     // this, it looks the way it does for good reasons.
-
     while ( (pe=it.current()) != 0 ) {
 	++it;
-	bool lastEvent = (it.current() == 0);
-	if ( pe->receiver == 0 || pe->event == 0 ) {
-	    // already sent or deleted
-	    if ( !usingGlobalList )
+	if ( !pe->event )
+	    continue;   // already sent or deleted
+	if ( ( receiver == 0 || receiver == pe->receiver ) 	    // it's for the right receiver
+	     && ( event_type == 0 || event_type == pe->event->type() ) ) {  // and it's even the right type!
+	    
+	    // first, we diddle the event so that we can deliver
+	    // it, and that noone will try to touch it later.
+	    pe->event->posted = FALSE;
+	    QEvent * e = pe->event;
+	    QObject * r = pe->receiver;
+	    pe->event = 0;
+
+	    // next, update the data structure so that we're ready
+	    // for the next event.  the current version of this
+	    // can leave pendEvent set in a few cases where there
+	    // are no pending events, since pendEvent is never
+	    // cleared for non-QWidgets.
+
+	    if ( usingGlobalList ) {
+		// if we're delivering to something that has a
+		// local list, look for that list, and take
+		// whatever we're delivering out of it.
+		if ( r->isWidgetType() && ((QWidget*)r)->extra &&
+		     ((QWidget*)r)->extra->posted_events ) {
+		    QPostEventList* wl
+			= (QPostEventList*)
+			(((QWidget*)r)->extra->posted_events);
+		    wl->removeRef( pe );
+		    // and if possible, get rid of that list.
+		    // this is not ideal - we will create and
+		    // delete a list for each update() call.  it
+		    // would be better if we'd leave the list
+		    // empty here, and delete it somewhere else if
+		    // it isn't being used.
+		    if ( wl->isEmpty() ) {
+			delete wl;
+			((QWidget*)r)->extra->posted_events = 0;
+			r->pendEvent = FALSE;
+		    }
+		}
+	    } else {
+		// if it's a per-widget list, we do as for "wl"
+		// case above.  the global list is not touched,
+		// since we have to delete things from that AFTER
+		// the local one.
 		(*l)->removeRef( pe );
-	} else if ( receiver == 0 || receiver == pe->receiver ) {
-	    // it's for the right receiver
-	    if ( event_type == 0 || event_type == pe->event->type() ) {
-		// and it's even the right type!
-
-		// first, we diddle the event so that we can deliver
-		// it, and that noone will try to touch it later.
-		pe->event->posted = FALSE;
-		QEvent * e = pe->event;
-		QObject * r = pe->receiver;
-		pe->event = 0;
-
-		// next, update the data structure so that we're ready
-		// for the next event.  the current version of this
-		// can leave pendEvent set in a few cases where there
-		// are no pending events, since pendEvent is never
-		// cleared for non-QWidgets.
-
-		if ( usingGlobalList ) {
-		    // if we're delivering to something that has a
-		    // local list, look for that list, and take
-		    // whatever we're delivering out of it.
-		    if ( r->isWidgetType() && ((QWidget*)r)->extra &&
-			 ((QWidget*)r)->extra->posted_events ) {
-			QPostEventList* wl
-			    = (QPostEventList*)
-			    (((QWidget*)r)->extra->posted_events);
-			wl->removeRef( pe );
-			// and if possible, get rid of that list.
-			// this is not ideal - we will create and
-			// delete a list for each update() call.  it
-			// would be better if we'd leave the list
-			// empty here, and delete it somewhere else if
-			// it isn't being used.
-			if ( wl->isEmpty() ) {
-			    delete wl;
-			    ((QWidget*)r)->extra->posted_events = 0;
-			    r->pendEvent = FALSE;
-			}
-		    }
-		    // if we're using the global list, delivering to
-		    // everyone, and we're about to deliver the last
-		    // event, we can safely delete the global list.
-		    // and we do, to clean up our memory use, and so
-		    // that we can't get an infinite loop if the last
-		    // event handler were to post an event.
-		    if ( lastEvent && receiver == 0 ) {
-			QPostEventList * tmp = postedEvents;
-			postedEvents = 0;
-			delete tmp;
-		    }
-		} else {
-		    // if it's a per-widget list, we do as for "wl"
-		    // case above.  the global list is not touched,
-		    // since we have to delete things from that AFTER
-		    // the local one.
-		    (*l)->removeRef( pe );
-		    if ( (*l)->isEmpty() ) {
-			receiver->pendEvent = FALSE;
-			delete *l;
-			*l = 0;
-		    }
+		if ( (*l)->isEmpty() ) {
+		    receiver->pendEvent = FALSE;
+		    delete *l;
+		    *l = 0;
 		}
-
-		// after all that work, it's time to deliver the event.
-		if ( e->type() == QEvent::Paint && r->isWidgetType() ) {
-		    QWidget * w = (QWidget*)r;
-		    QPaintEvent * p = (QPaintEvent*)e;
-		    if ( w->isVisible() )
-			w->repaint( p->reg, p->erase );
-		} else {
-		    QApplication::sendEvent( r, e );
-		}
-		delete e;
-		// don't add anything below this point - the
-		// sendEvent() call probably invalidates any
-		// invariants this function depends on.
 	    }
+
+	    // after all that work, it's time to deliver the event.
+	    if ( e->type() == QEvent::Paint && r->isWidgetType() ) {
+		QWidget * w = (QWidget*)r;
+		QPaintEvent * p = (QPaintEvent*)e;
+		if ( w->isVisible() )
+		    w->repaint( p->reg, p->erase );
+	    } else {
+		QApplication::sendEvent( r, e );
+	    }
+	    delete e;
+	    // careful when adding anything below this point - the
+	    // sendEvent() call might invalidates any invariants this
+	    // function depends on.
+	}
+    }
+
+    // clear the global list, i.e. remove everything that was
+    // delivered yet.
+    if ( usingGlobalList ) {
+	postedEvents->first();
+	while( (pe=postedEvents->current()) != 0 ) {
+	    if ( !pe->event )
+		postedEvents->remove();
+	    else
+		postedEvents->next(); // might be a new one
 	}
     }
 }
@@ -2082,24 +2079,22 @@ void QApplication::removePostedEvents( QObject *receiver )
 	l->first();
 	QPostEvent * pe;
 	while( (pe=l->current()) != 0 ) {
-	    if ( pe->receiver == receiver && pe->event ) {
+	    if ( pe->event ) {
 		pe->event->posted = FALSE;
 		delete pe->event;
 		pe->event = 0;
 	    }
-	    l->next();
+	    l->remove();
 	}
 	delete l;
     } else {
 	postedEvents->first();
 	QPostEvent * pe;
 	while( (pe=postedEvents->current()) != 0 ) {
-	    if ( pe->receiver == receiver && pe->event ) {
-		pe->event->posted = FALSE;
-		delete pe->event;
-		pe->event = 0;
-	    }
-	    postedEvents->next();
+	    if ( pe->receiver == receiver && pe->event )
+		postedEvents->remove();
+	    else
+		postedEvents->next();
 	}
     }
     receiver->pendEvent = FALSE;
