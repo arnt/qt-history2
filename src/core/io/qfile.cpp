@@ -494,7 +494,7 @@ int QFile::ungetch( int ch )
 
     if ( isSequentialAccess() && !fh) {
 	// pipe or similar => we cannot ungetch, so do it manually
-	ungetchBuffer +=ch;
+	ungetchBuffer += QChar(ch);
 	return ch;
     }
 
@@ -620,17 +620,17 @@ void QFile::setDecodingFunction( DecoderFn f )
 }
 
 /*!
-    Returns a human readable description of the reason of an error that occurred
+    Returns a human-readable description of the reason of an error that occurred
     on the device. The error described by the string corresponds to changes of
     QIODevice::status(). If the status is reset, the error string is also reset.
 
     The returned strings are not translated with the QObject::tr() or
     QApplication::translate() functions. They are marked as translatable
-    strings in the context \c QFile. Before you show the string to the user you
-    should translate it first, e.g:
+    strings in the "QFile" context. Before you show the string to the user you
+    should translate it first, for example:
 
     \code
-	QFile f( "foo.txt" );
+	QFile f( "address.dat" );
 	if ( !f.open( IO_ReadOnly ) {
 	    QMessageBox::critical(
 		this,
