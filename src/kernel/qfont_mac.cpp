@@ -136,6 +136,10 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
     return QRect(0,0,len*maxWidth(),height());  // Temporary
 }
 
+void QFont::cleanup()
+{
+}
+
 Qt::HANDLE QFont::handle() const
 {
     if(d->req.dirty) {

@@ -117,6 +117,7 @@ static bool	    popupCloseDownMode = FALSE;
 
 typedef void (*VFPTR)();
 typedef QValueList<VFPTR> QVFuncList;
+static QVFuncList *postRList = 0;		// list of post routines
 
 void qt_install_preselect_handler( VFPTR );
 void qt_remove_preselect_handler( VFPTR );
@@ -257,7 +258,22 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 
 void qt_cleanup()
 {
+    if ( postRList ) {
+	QVFuncList::Iterator it = postRList->begin();
+	while ( it != postRList->end() ) {	// call post routines
+	    (**it)();
+	    postRList->remove( it );
+	    it = postRList->begin();
+	}
+	delete postRList;
+	postRList = 0;
+    }
+
     cleanupTimers();
+    QPixmapCache::clear();
+    QPainter::cleanup();
+    QFont::cleanup();
+    QColor::cleanup();
 }
 
 /*****************************************************************************
@@ -278,13 +294,28 @@ bool qt_wstate_iconified( WId )
     return FALSE;
 }
 
-void qAddPostRoutine( Q_CleanUpFunction )
+void qAddPostRoutine( Q_CleanUpFunction p)
 {
+    if ( !postRList ) {
+	postRList = new QVFuncList;
+	Q_CHECK_PTR( postRList );
+    }
+    postRList->prepend( p );
 }
 
 
-void qRemovePostRoutine( Q_CleanUpFunction )
+void qRemovePostRoutine( Q_CleanUpFunction p )
 {
+    if ( !postRList ) return;
+
+    QVFuncList::Iterator it = postRList->begin();
+
+    while ( it != postRList->end() ) {
+	if ( *it == p ) {
+	    postRList->remove( it );
+	    it = postRList->begin();
+	}
+    }
 }
 
 
@@ -854,100 +885,87 @@ static int sn_activate()
 
 bool QApplication::processNextEvent( bool canWait )
 {
-  int	   nevents = 0;
+    int	   nevents = 0;
 
-  if(qt_is_gui_used) {
-    sendPostedEvents();
-    EventRecord event;    
-    do {
+    if(qt_is_gui_used) {
+	sendPostedEvents();
+	EventRecord event;    
 	do {
-	if(app_exit_loop)
-	  return FALSE;
+	    do {
+		if(app_exit_loop)
+		    return FALSE;
 
-	GetNextEvent(everyEvent, &event);
-	nevents++;
-	if(macProcessEvent( (MSG *)(&event) ) == 1)
-	    return TRUE;
+		GetNextEvent(everyEvent, &event);
+		nevents++;
+		if(macProcessEvent( (MSG *)(&event) ) == 1)
+		    return TRUE;
 
-      } while(EventAvail(everyEvent, &event));
-     } while(EventAvail(everyEvent, &event));
-    sendPostedEvents(); //let them accumulate
-  } 
+	    } while(EventAvail(everyEvent, &event));
+	} while(EventAvail(everyEvent, &event));
+	sendPostedEvents(); //let them accumulate
+    } 
 
 #ifndef QT_NO_CLIPBOARD
-  //manufacture an event so the clipboard can see if it has changed
-  if(qt_clipboard) {
-      QEvent ev(QEvent::Clipboard);
-      QApplication::sendEvent(qt_clipboard, &ev);
-  }
-#endif
-  
-  if ( quit_now || app_exit_loop )
-    return FALSE;
-  sendPostedEvents();
-
-  static timeval zerotm;
-  timeval *tm = qt_wait_timer();		// wait for timer or X event
-  if ( !canWait ) {
-    if ( !tm )
-      tm = &zerotm;
-    tm->tv_sec  = 0;			// no time to wait
-    tm->tv_usec = 0;
-  }
-  if ( sn_highest >= 0 ) {			// has socket notifier(s)
-    if ( sn_read )
-      app_readfds = sn_readfds;
-    else
-      FD_ZERO( &app_readfds );
-    if ( sn_write )
-      app_writefds = sn_writefds;
-    if ( sn_except )
-      app_exceptfds = sn_exceptfds;
-  } else {
-    FD_ZERO( &app_readfds );
-  }
-
-  if ( qt_preselect_handler ) {
-    QVFuncList::Iterator end = qt_preselect_handler->end();
-    for ( QVFuncList::Iterator it = qt_preselect_handler->begin(); it != end; ++it )
-      (**it)();
-  }
-
-  //we don't need this for now, when we want to to socket's and stuff we'll need to massage this some.
-#if 0
-  printf("Doing select..\n");
-  int nsel = select( sn_highest + 1,
-		     (&app_readfds),
-		     (sn_write  ? &app_writefds  : 0),
-		     (sn_except ? &app_exceptfds : 0),
-		     tm );
-  printf("Done selecting..\n");
-#else
-  int nsel = 0;
-#endif
-
-
-  if ( qt_postselect_handler ) {
-    QVFuncList::Iterator end = qt_postselect_handler->end();
-    for ( QVFuncList::Iterator it = qt_postselect_handler->begin(); it != end; ++it )
-      (**it)();
-  }
-
-  if ( nsel == -1 ) {
-    if ( errno == EINTR || errno == EAGAIN ) {
-      errno = 0;
-      return (nevents > 0);
-    } else {
-      ; // select error
+    //manufacture an event so the clipboard can see if it has changed
+    if(qt_clipboard) {
+	QEvent ev(QEvent::Clipboard);
+	QApplication::sendEvent(qt_clipboard, &ev);
     }
-  } else if ( nsel > 0 && sn_highest >= 0 ) {
-    nevents += sn_activate();
-  }
-
-  nevents += qt_activate_timers();		// activate timers
-  //  qt_reset_color_avail();			// color approx. optimization
+#endif
   
-  return (nevents > 0);
+    if ( quit_now || app_exit_loop )
+	return FALSE;
+    sendPostedEvents();
+
+    static timeval zerotm;
+    timeval *tm = qt_wait_timer();		// wait for timer or X event
+    if ( !canWait || !tm ) {
+	if ( !tm )
+	    tm = &zerotm;
+	tm->tv_sec  = 0;			// no time to wait
+	tm->tv_usec = 0;
+    }
+    if ( sn_highest >= 0 ) {			// has socket notifier(s)
+	if ( sn_read )
+	    app_readfds = sn_readfds;
+	else
+	    FD_ZERO( &app_readfds );
+	if ( sn_write )
+	    app_writefds = sn_writefds;
+	if ( sn_except )
+	    app_exceptfds = sn_exceptfds;
+    } else {
+	FD_ZERO( &app_readfds );
+    }
+
+    if ( qt_preselect_handler ) {
+	QVFuncList::Iterator end = qt_preselect_handler->end();
+	for ( QVFuncList::Iterator it = qt_preselect_handler->begin(); it != end; ++it )
+	    (**it)();
+    }
+
+    int nsel = select( sn_highest + 1, (&app_readfds), (sn_write  ? &app_writefds  : 0), (sn_except ? &app_exceptfds : 0), tm );
+    if ( qt_postselect_handler ) {
+	QVFuncList::Iterator end = qt_postselect_handler->end();
+	for ( QVFuncList::Iterator it = qt_postselect_handler->begin(); it != end; ++it )
+	    (**it)();
+    }
+
+    if ( nsel == -1 ) {
+	if ( errno == EINTR || errno == EAGAIN ) {
+	    errno = 0;
+	    return (nevents > 0);
+	} else {
+	    ; // select error
+	}
+    } else if ( nsel > 0 && sn_highest >= 0 ) {
+	nevents += sn_activate();
+    }
+
+    nevents += qt_activate_timers();		// activate timers
+    //  qt_reset_color_avail();			// color approx. optimization
+  
+    return (nevents > 0);
 }
 
 /* key maps */
