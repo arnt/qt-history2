@@ -1624,6 +1624,23 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                         }
                     }
                 }
+            } else if(val.toLower() == "cat") {
+                if(arg_list.count() != 1) {
+                    fprintf(stderr, "%s:%d: fromfile(file) requires one arguments.\n",
+                            parser.file.latin1(), parser.line_no);
+                } else {
+                    QString file = arg_list[0];
+                    file = Option::fixPathToLocalOS(file);
+                    file.replace("\"", "");
+
+                    QFile qfile(file);
+                    if(qfile.open(IO_ReadOnly)) {
+                        QTextStream stream(&qfile);
+                        while(!stream.eof())
+                            replacement += stream.readLine().trimmed();
+                        qfile.close();
+                    }
+                }
             } else if(val.toLower() == "fromfile") {
                 if(arg_list.count() != 2) {
                     fprintf(stderr, "%s:%d: fromfile(file, variable) requires two arguments.\n",
