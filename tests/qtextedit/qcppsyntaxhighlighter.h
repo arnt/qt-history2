@@ -1,7 +1,7 @@
 #ifndef QCPPSYNTAXHIGHLIGHTER_H
 #define QCPPSYNTAXHIGHLIGHTER_H
 
-#include "qtexteditintern_h.cpp"
+#include "qtexteditintern_p.h"
 
 class QCppSyntaxHighlighter : public QTextEditSyntaxHighlighter
 {
@@ -29,7 +29,7 @@ private:
     QTextEditFormat *lastFormat;
     int lastFormatId;
     QIntDict<QTextEditFormat> formats;
-    
+
 };
 
 class QCppIndent : public QTextEditIndent
@@ -37,7 +37,7 @@ class QCppIndent : public QTextEditIndent
 public:
     QCppIndent( QTextEditDocument *d );
     void indent( QTextEditParag *parag, int *oldIndent, int *newIndent );
-    
+
 };
 
 #endif

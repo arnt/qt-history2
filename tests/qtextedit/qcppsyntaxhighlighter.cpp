@@ -1,5 +1,4 @@
 #include "qcppsyntaxhighlighter.h"
-#include "qtexteditintern_h.cpp"
 
 #include <qstring.h>
 #include <qstringlist.h>

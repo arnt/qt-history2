@@ -1,4 +1,4 @@
-#include "qtexteditintern_h.cpp"
+#include "qtexteditintern_p.h"
 #include "qtextedit.h"
 
 #include <qstringlist.h>
@@ -1654,7 +1654,7 @@ int QTextEditFormatterBreakWords::format( QTextEditParag *parag, int start )
 		break;
 	}
     }
-    
+
     y += h;
     return y;
 }

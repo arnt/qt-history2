@@ -11,7 +11,7 @@
 #include <qlineedit.h>
 
 #include "qtextedit.h"
-#include "qtexteditintern_h.cpp"
+#include "qtexteditintern_p.h"
 #include "qcppsyntaxhighlighter.h"
 
 //#define CPP_EDITOR
@@ -19,9 +19,9 @@
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-    
+
 public:
-    MainWindow() { 
+    MainWindow() {
 #ifndef CPP_EDITOR
 	lock = TRUE;
 	QFontDatabase db;
@@ -108,7 +108,7 @@ public:
 #endif
 	
     }
-    
+
     void setEdit( QTextEdit *e ) {
 	edit = e;
 	connect( edit, SIGNAL( currentFontChanged( const QFont & ) ),
@@ -120,7 +120,7 @@ public:
 	connect( edit, SIGNAL( currentParagTypeChanged( int ) ),
 		 this, SLOT( paragTypeChanged( int ) ) );
     }
-    
+
 private slots:
     void familyChanged( const QString &f ) {
 	if ( lock )
@@ -205,8 +205,8 @@ private slots:
 	lock = FALSE;
 	edit->viewport()->setFocus();
     }
-    
-    
+
+
     void fontChanged( const QFont &f ) {
 	if ( lock )
 	    return;
@@ -224,7 +224,7 @@ private slots:
 	pix.fill( c );
 	color->setPixmap( pix );
     }
-    
+
     void alignChanged( int a ) {
 	if ( lock )
 	    return;
@@ -234,7 +234,7 @@ private slots:
 	right->setOn( a == Qt::AlignRight );
 	lock = FALSE;
     }
-    
+
     void paragTypeChanged( int t ) {
 	if ( lock )
 	    return;
@@ -245,14 +245,14 @@ private slots:
 	    styleCombo->setCurrentItem( 1 );
 	lock = FALSE;
     }
-    
+
 private:
     QToolBar *tb;
     QComboBox *fontCombo, *sizeCombo, *styleCombo;
     QPushButton *bold, *italic, *underline, *color, *left, *center, *right;
     QTextEdit *edit;
     bool lock;
-    
+
 };
 
 int main( int argc, char ** argv )
@@ -264,9 +264,9 @@ int main( int argc, char ** argv )
 	fn = argv[ 1 ];
     if ( !QFile::exists( fn ) )
 	fn = "qtextedit.cpp";
-    
+
     MainWindow mw;
-    
+
 #ifndef CPP_EDITOR
     QTextEditDocument *d = new QTextEditDocument( fn, FALSE );
     QTextEdit ed( &mw, d );
@@ -284,7 +284,7 @@ int main( int argc, char ** argv )
     mw.setEdit( &ed );
 #endif
     ed.viewport()->setFocus();
-    
+
     a.setMainWidget( &mw );
     mw.resize( 600, 800 );
     mw.show();

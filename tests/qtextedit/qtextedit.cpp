@@ -1,5 +1,5 @@
 #include "qtextedit.h"
-#include "qtexteditintern_h.cpp"
+#include "qtexteditintern_p.h"
 
 #include <qpainter.h>
 #include <qpen.h>
@@ -42,7 +42,7 @@ QTextEdit::QTextEdit( QWidget *parent, QTextEditDocument *d )
     currentFormat = doc->formatCollection()->defaultFormat();
     currentAlignment = Qt::AlignLeft;
     currentParagType = QTextEditParag::Normal;
-    
+
     viewport()->setBackgroundMode( PaletteBase );
     resizeContents( 0, doc->lastParag() ?
 		    ( doc->lastParag()->paragId() + 1 ) * doc->formatCollection()->defaultFormat()->height() : 0 );
@@ -1199,7 +1199,7 @@ void QTextEdit::updateCurrentFormat()
 	emit currentFontChanged( currentFormat->font() );
 	emit currentColorChanged( currentFormat->color() );
     }
-    
+
     if ( currentAlignment != cursor->parag()->alignment() ) {
 	currentAlignment = cursor->parag()->alignment();
 	emit currentAlignmentChanged( currentAlignment );
