@@ -202,8 +202,8 @@ int ScopedTokenReplacement::findScopeOperator(TokenStream *tokenStream, int star
 {
    int tokenIndex=startTokenIndex;
    QByteArray tokenText;
-   //loop until we get a token containg text
-   while(tokenText.isEmpty()) {
+   //loop until we get a token containg text or we pass the start of the source
+   while(tokenText.isEmpty() && tokenIndex>0) {
        --tokenIndex;
        tokenText = tokenStream->tokenText(tokenIndex).trimmed();
    }
@@ -226,8 +226,8 @@ int ScopedTokenReplacement::getNextScopeToken(TokenStream *tokenStream, int star
     if (tokenIndex == -1)
         return -1;
     QByteArray tokenText;
-   //loop until we get a token containg text
-    while(tokenText.isEmpty()) {
+   //loop until we get a token containg text or we pass the start of the source
+    while(tokenText.isEmpty() && tokenIndex>0) {
        --tokenIndex;
        tokenText = tokenStream->tokenText(tokenIndex).trimmed();
     }
