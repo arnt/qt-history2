@@ -112,9 +112,11 @@ void Editor::newDoc()
 
 void Editor::load()
 {
+#if QT_FEATURE_FILEDIALOG
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )
 	load( fn, -1 );
+#endif    
 }
 
 void Editor::load( const QString& fileName, int code )
@@ -158,31 +160,38 @@ void Editor::load( const QString& fileName, int code )
 
 void Editor::openAsEncoding( int code )
 {
+#if QT_FEATURE_FILEDIALOG
     //storing filename (proper save) is left as an exercise...
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )
 	(void) load( fn, code );
+#endif
 }
 
 bool Editor::save()
 {
+#if QT_FEATURE_FILEDIALOG
     //storing filename (proper save) is left as an exercise...
     QString fn = QFileDialog::getSaveFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )
 	return saveAs( fn );
     return FALSE;
+#endif
 }
 
 void Editor::saveAsEncoding( int code )
 {
+#if QT_FEATURE_FILEDIALOG
     //storing filename (proper save) is left as an exercise...
     QString fn = QFileDialog::getSaveFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )
 	(void) saveAs( fn, code );
+#endif
 }
 
 void Editor::addEncoding()
 {
+#if QT_FEATURE_FILEDIALOG    
     QString fn = QFileDialog::getOpenFileName( QString::null, "*.map", this );
     if ( !fn.isEmpty() ) {
 	QFile f(fn);
@@ -205,6 +214,7 @@ void Editor::addEncoding()
 	    }
 	}
     }
+#endif
 }
 
 
@@ -235,6 +245,7 @@ bool Editor::saveAs( const QString& fileName, int code )
 
 void Editor::print()
 {
+#if QT_FEATURE_FILEDIALOG
     if ( printer.setup(this) ) {		// opens printer dialog
 	printer.setFullPage(TRUE);		// we'll set our own margins
 	QPainter p;
@@ -261,6 +272,7 @@ void Editor::print()
 	}
 	p.end();				// send job to printer
     }
+#endif
 }
 
 void Editor::resizeEvent( QResizeEvent * )
