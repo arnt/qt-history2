@@ -603,6 +603,15 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
         return;
     }
 
+    // Fall back to path implementation for gradient and alpha brushes..
+    if (d->brushStyle == Qt::LinearGradientPattern ||
+        d->brushStyle == Qt::SolidPattern && d->brush.color().alpha() != 255) {
+        QPainterPath p;
+        p.addEllipse(r);
+        drawPath(p);
+        return;
+    }
+
     int w = r.width();
     int h = r.height();
 
@@ -686,6 +695,15 @@ void QWin32PaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
             copy.setPoint(npoints-1, x2, y2);
             Polyline(d->hdc, (POINT*)(copy.data()), npoints);
         }
+        return;
+    }
+
+    // Fall back to path implementation for gradient and alpha brushes..
+    if (d->brushStyle == Qt::LinearGradientPattern ||
+        d->brushStyle == Qt::SolidPattern && d->brush.color().alpha() != 255) {
+        QPainterPath path;
+        path.addPolygon(p);
+        drawPath(path);
         return;
     }
 
@@ -2063,7 +2081,7 @@ void QGdiplusPaintEngine::updatePen(const QPen &pen)
     if (style == Qt::NoPen) {
         d->usePen = false;
     } else {
-        Q_ASSERT(style >= 0 && style < 5);
+        Q_ASSERT(style >= 0 && style <= 5);
         d->usePen = true;
 //         d->pen->SetDashStyle(qt_penstyle_map[style]);
         GdipSetPenDashStyle(d->pen, qt_penstyle_map[style]);
@@ -2280,7 +2298,7 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
         const QPainterPath::Element &elm = p.elementAt(i);
         switch (elm.type) {
         case QPainterPath::MoveToElement:
-            if (i>0 && start.x() == p.elementAt(i-1).x && start.y() == p.elementAt(i-1).y)
+            if (i>0 && start == prev)
                 GdipClosePathFigure(path);
             GdipStartPathFigure(path);
             start = prev = QPointF(elm.x, elm.y);
@@ -2309,8 +2327,7 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
 
     GdipSetPathFillMode(path, p.fillMode() == QPainterPath::Winding ? 1 : 0);
 
-    if (start.x() == p.elementAt(p.elementCount()-1).x
-        && start.y() == p.elementAt(p.elementCount()-1).y)
+    if (start == prev)
         GdipClosePathFigure(path);
 
     if (d->brush)
