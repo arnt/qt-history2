@@ -599,6 +599,7 @@ void QTextPieceTable::undoRedo(bool undo)
 	    break;
 	}
 	case UndoCommand::GroupFormatChange: {
+            PMDEBUG("   group format change");
             QTextFormatObject *object = c.object;
             int oldFormat = object->d_func()->index;
             object->d_func()->index = c.format;
@@ -648,6 +649,7 @@ void QTextPieceTable::appendUndoItem(QAbstractUndoItem *item)
 
 void QTextPieceTable::appendUndoItem(const UndoCommand &c)
 {
+    PMDEBUG("appendUndoItem, command=%d enabled=%d", c.command, undoEnabled);
     if (!undoEnabled)
         return;
     if (undoPosition < undoStack.size())

@@ -52,13 +52,15 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
 
             const int blockFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.blockFormat());
             const int charFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.charFormat());
+            Q_ASSERT(frag->size == 1);
+            QChar separator = pieceTable->buffer().at(frag->stringPosition);
 
             int idx = usedFormats.size();
             usedFormats.resize(idx + 2);
             usedFormats[idx++] = blockFormat;
             usedFormats[idx] = charFormat;
 
-            appendBlock(blockFormat, charFormat);
+            appendBlock(blockFormat, charFormat, separator);
             ++pos;
             Q_ASSERT(pos == currentBlock.position());
         }
@@ -85,8 +87,13 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
                 blockFormatIdx = formatIndexMap.value(b.blockFormat, -1);
             else
                 blockFormatIdx = formats->indexForFormat(cursor.blockFormat());
+            int formatIdx;
+            if (b.charFormat != -1)
+                formatIdx = formatIndexMap.value(b.charFormat, -1);
+            else
+                formatIdx = formats->indexForFormat(cursor.charFormat());
 
-            destPieceTable->insertBlock(cursor.position(), blockFormatIdx, formats->indexForFormat(QTextCharFormat()));
+            destPieceTable->insertBlock(b.separator, cursor.position(), blockFormatIdx, formatIdx);
         }
 
         Q_FOREACH(const TextFragment &f, b.fragments) {
@@ -109,9 +116,10 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
     destPieceTable->endEditBlock();
 }
 
-void QTextDocumentFragmentPrivate::appendBlock(int blockFormatIndex, int charFormatIndex)
+void QTextDocumentFragmentPrivate::appendBlock(int blockFormatIndex, int charFormatIndex, const QChar &separator)
 {
     Block b;
+    b.separator = separator.unicode();
     b.blockFormat = blockFormatIndex;
     b.charFormat = charFormatIndex;
     blocks.append(b);

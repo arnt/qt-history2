@@ -21,7 +21,7 @@ public:
 
     void insert(QTextCursor &cursor) const;
 
-    void appendBlock(int blockFormatIndex, int charFormatIndex);
+    void appendBlock(int blockFormatIndex, int charFormatIndex, const QChar &separator = QChar::ParagraphSeparator);
     void appendText(const QString &text, int formatIdx);
 
     void readFormatCollection(const QTextFormatCollection *collection, const QVarLengthArray<int> &formatIndices);
@@ -39,10 +39,11 @@ public:
 
     struct Block
     {
-        Block() : createBlockUponInsertion(true), blockFormat(-1), charFormat(-1) {}
+        Block() : createBlockUponInsertion(true), blockFormat(-1), charFormat(-1), separator(QChar::ParagraphSeparator) {}
         Q_INT8 createBlockUponInsertion;
         Q_INT32 blockFormat;
         Q_INT32 charFormat;
+        Q_UINT16 separator;
         FragmentVector fragments;
     };
     typedef QVector<Block> BlockVector;
@@ -67,9 +68,9 @@ inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate
 { return stream >> fragment.position >> fragment.size >> fragment.format; }
 
 inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentPrivate::Block &block)
-{ return stream << block.createBlockUponInsertion << block.blockFormat << block.charFormat << block.fragments; }
+{ return stream << block.createBlockUponInsertion << block.blockFormat << block.charFormat << block.separator << block.fragments; }
 inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate::Block &block)
-{ return stream >> block.createBlockUponInsertion >> block.blockFormat >> block.charFormat >> block.fragments; }
+{ return stream >> block.createBlockUponInsertion >> block.blockFormat >> block.charFormat >> block.separator >> block.fragments; }
 
 inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentPrivate &priv)
 { return stream << priv.formats << priv.formatGroups << priv.blocks << priv.localBuffer << priv.hasTitle << priv.title; }

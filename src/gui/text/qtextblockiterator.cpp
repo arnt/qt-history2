@@ -115,7 +115,10 @@ QTextCharFormat QTextBlockIterator::charFormat() const
         return QTextFormat().toCharFormat();
 
     const QTextPieceTable::FragmentMap &fm = pt->fragmentMap();
-    return pt->formatCollection()->charFormat(fm.fragment(fm.findNode(pt->blockMap().position(n)))->format);
+    int pos = pt->blockMap().position(n);
+    if (pos > 0)
+        --pos;
+    return pt->formatCollection()->charFormat(fm.find(pos)->format);
 }
 
 /*!
