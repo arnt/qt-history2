@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#442 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#443 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -44,6 +44,7 @@
 #include "qdatetime.h"
 #include "qtextcodec.h"
 #include "qdatastream.h"
+#include "qbuffer.h"
 #include <stdlib.h>
 #include <ctype.h>
 #include <locale.h>
@@ -503,19 +504,18 @@ static bool qt_set_desktop_properties()
 	return FALSE;
     }
 
-    debug("read desktop properties");
-
-    QCString properties;
+    QBuffer  properties;
+    properties.open( IO_WriteOnly );
     while (after > 0) {
 	XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties,
 			    offset, 256, FALSE, AnyPropertyType,
 			    &type, &format, &nitems, &after, (unsigned char**) &data );
-	properties += data;
-	offset += 256;
+	properties.writeBlock(data, nitems);
+	offset += nitems;
 	XFree(  (unsigned char*)data );
     }
 
-    QDataStream d( properties, IO_ReadOnly );
+    QDataStream d( properties.buffer(), IO_ReadOnly );
 
     QPalette pal;
     QFont font;
