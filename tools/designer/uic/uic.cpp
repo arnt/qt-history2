@@ -1143,7 +1143,7 @@ void Uic::createFormImpl( const QDomElement &e )
 		    QString conn = getDatabaseInfo( n, "connection" );
 		    QString tab = getDatabaseInfo( n, "table" );
 		    if ( !(conn == QString::null || tab == QString::null) ) {
-			out << indent << indent << "QSqlCursor* c = " << c << "->cursor();" << endl;
+			out << indent << indent << "QSqlCursor* c = " << c << "->defaultCursor();" << endl;
 			out << indent << indent << "if ( !c ) {" << endl;
 			if ( conn == "(default)" )
 			    out << indent << indent << indent << "c = new QSqlCursor( \"" << tab << "\" );" << endl;
