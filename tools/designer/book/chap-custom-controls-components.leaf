@@ -46,7 +46,7 @@ button is clicked.
 
 A custom widget may consist of one or more standard widgets placed
 together in a particular combination, or may be written from scratch. We
-will combine some \Class QPushButton widgets to form the
+will combine some \l QPushButton widgets to form the
 basis of our custom widget.
 
 We'll look at the header file,
@@ -60,7 +60,7 @@ We'll look at the header file,
 \index Q_OBJECT
 We include \File qwidget.h since we'll be deriving our
 custom widget from
-\Class QWidget. We declare a constructor where the
+\l QWidget. We declare a constructor where the
 widget will be created and the four signals we want our widget to emit.
 Since we're using signals we must also include the
 \c Q_OBJECT macro.
@@ -74,11 +74,11 @@ embedded \index .xpm
 \skipto Vcr::Vcr
 \printto connect
 
-We create a \Class QHBoxLayout in which we'll place the
+We create a \l QHBoxLayout in which we'll place the
 buttons. We've only shown the rewind button in the code above since all
 the others are identical except for the names of the buttons, pixmaps
 and signals. For each of the buttons we require we call the
-\Class QPushButton constructor passing it the
+\l QPushButton constructor passing it the
 appropriate embedded pixmap. We then add it to the layout. Finally we
 connect the button's \index clicked()
 \SignalOrSlot clicked() signal to the
@@ -228,9 +228,9 @@ We have two recommendations that you should consider when creating a
     plugin. In practice most custom widgets are created to add
     functionality rather than to compose widgets, so we will create our
     widget in code rather than using \QD to reflect this approach.
-    FileChooser consists of a \Class QLineEdit and a
-    \Class QPushButton. The \Class QLineEdit is used to hold a file or
-    directory name, the \Class QPushButton is used to launch a file
+    FileChooser consists of a \l QLineEdit and a
+    \l QPushButton. The \l QLineEdit is used to hold a file or
+    directory name, the \l QPushButton is used to launch a file
     dialog through which the user can choose a file or directory.
 
     \img filechooser.png
@@ -251,7 +251,7 @@ We have two recommendations that you should consider when creating a
 \skipto #include
 \printuntil class QPushButton
 
-	Our widget will be derived from \Class QWidget so we include
+	Our widget will be derived from \l QWidget so we include
 	the \File qwidget.h header file. We also forward declare the two
 	classes that our widget will be built from.
 
@@ -294,7 +294,7 @@ We have two recommendations that you should consider when creating a
 
 \printuntil };
 
-	A pointer to \Class QLineEdit and \Class QPushButton, as well
+	A pointer to \l QLineEdit and \l QPushButton, as well
 	as a Mode variable are held as private data.
 
 	\section3 Coding the Implementation
@@ -308,21 +308,21 @@ We have two recommendations that you should consider when creating a
 \printuntil {
 
 	The constructor passes the parent and name to its superclass,
-	\Class QWidget, and also initializes the private mode data, md,
+	\l QWidget, and also initializes the private mode data, md,
 	to File mode.
 
 \printto connect(
 
 	We begin by creating a horizontal box layout
-	(\Class {QHBoxLayout}) and add a \Class QLineEdit and a
-	\Class QPushButton to it.
+	(\l {QHBoxLayout}) and add a \l QLineEdit and a
+	\l QPushButton to it.
 
 \printto setFocusProxy
 
 	We connect the lineEdit's \index textChanged()
 \SignalOrSlot textChanged() signal to the custom
 	widget's \SignalOrSlot fileNameChanged() signal. This ensures that if the
-	user changes the text in the \Class QLineEdit this fact will be
+	user changes the text in the \l QLineEdit this fact will be
 	propagated via the custom widget's own signal. The button's
 	\index clicked()
 \SignalOrSlot clicked() signal is connected to the custom widget's
@@ -341,8 +341,8 @@ We have two recommendations that you should consider when creating a
 \printline }
 
 	The \Func setFileName() function sets the filename in the
-	\Class QLineEdit, and the \Func fileName() function returns the
-	filename from the \Class QLineEdit. The \Func setMode() and
+	\l QLineEdit, and the \Func fileName() function returns the
+	filename from the \l QLineEdit. The \Func setMode() and
 	\Func mode() functions (not shown) are similarly set and return the
 	given mode.
 
@@ -353,7 +353,7 @@ We have two recommendations that you should consider when creating a
 
 	When \Func chooseFile() is called it presents the user with a file
 	or directory dialog depending on the mode. If the user chooses a
-	file or directory the \Class QLineEdit is updated with the
+	file or directory the \l QLineEdit is updated with the
 	chosen file or directory and the \Func fileNameChanged() signal is
 	emitted.
 
@@ -402,7 +402,7 @@ We have two recommendations that you should consider when creating a
     they can be used generally to wrap any number of classes which can
     then be supplied within a stand-alone component. \QD can load any
     plugins that provide an interface which it understands: the
-    \Class WidgetInterface is such an interface and the one we'll use
+    \l WidgetInterface is such an interface and the one we'll use
     for our example. \QD also provides an application interface through
     which plugins can access its own functionality. We will demonstrate
     how to wrap a custom widget, (the FileChooser widget we created in
@@ -434,7 +434,7 @@ We have two recommendations that you should consider when creating a
 
     An \e {Interface Implementation} is a class that implements an
     interface. For example an interface implementation might implement
-    the \Class WidgetInterface interface.
+    the \l WidgetInterface interface.
 
     \endlist
 
@@ -442,20 +442,20 @@ We have two recommendations that you should consider when creating a
 
     In our example we wish to make a custom widget available through a
     plugin so we must derive the interface implementation from the
-    \Class WidgetInterface class. We must implement all the
-    \Class {WidgetInterface}'s pure virtual functions. In most cases the
+    \l WidgetInterface class. We must implement all the
+    \l {WidgetInterface}'s pure virtual functions. In most cases the
     implementations are simple and can easily be adapted from the
     example we present.
 
-    Within the context of the \Class WidgetInterface a \e feature is a
-    widget class that a \Class WidgetInterface implementation makes
-    available to applications. Since a \Class WidgetInterface
+    Within the context of the \l WidgetInterface a \e feature is a
+    widget class that a \l WidgetInterface implementation makes
+    available to applications. Since a \l WidgetInterface
     implementation can include any number of features most of the
     interface functions take the name of the feature, (the particular
     widget class we wish to access through the interface), as their
     first argument to distinguish which feature we are referring to.
 \endomit
-    A \QD custom widget plugin is always derived from \Class
+    A \QD custom widget plugin is always derived from \l
     QWidgetPlugin. The amout of code that needs to be written is
     minimal.
 
@@ -487,14 +487,14 @@ We have two recommendations that you should consider when creating a
     uses (or knows) the name of the class that actually provides the
     implementation so no name conflict can occur.
 
-	\section3 The \Class WidgetInterface Implementation
+	\section3 The \l WidgetInterface Implementation
 \endomit
-	\section3 The \Class CustomWidgetPlugin Implementation
+	\section3 The \l CustomWidgetPlugin Implementation
 
 	We have called our header file 
 \index plugin.h
 	\File plugin.h and we've
-	called our interface class \Class CustomWidgetPlugin since we
+	called our interface class \l CustomWidgetPlugin since we
 	will be using our plugin class to wrap our custom widgets. We
 	present the entire header file to give you an impression of the
 	scope of the implementation required. Most of the functions
@@ -557,7 +557,7 @@ We have two recommendations that you should consider when creating a
 	    but it can simply be copied into your own widget interface
 	    implementation. Change the class name to whatever class
 	    you've called your widget interface implementation. (It
-	    isn't implemented for us in the \Class WidgetInterface
+	    isn't implemented for us in the \l WidgetInterface
 	    class because some types of plugin need to specialise it.)
 
 \quotefile filechooser/plugin/plugin.cpp
@@ -577,7 +577,7 @@ We have two recommendations that you should consider when creating a
 	    \e {globally unique identifier}), which is passed to the
 	    function as \c uuid. The function also takes a pointer to a
 	    pointer to an
-	    \Class QUnknownInterface object, \c iface, and tries
+	    \l QUnknownInterface object, \c iface, and tries
 	    to assign a matching interface to it. If the interface
 	    implementation supports the requested interface the
 	    interface's reference count is incremented.
@@ -591,7 +591,7 @@ We have two recommendations that you should consider when creating a
 	    on responsibility for memory management to the containing
 	    widgets and ultimately to \c {QApplication} itself by
 	    parenting our widgets. Plugins are different because they
-	    wrap interfaces which are not \Class {QObject}s, so we cannot
+	    wrap interfaces which are not \l {QObject}s, so we cannot
 	    predict what their memory handling requirements are. This
 	    means that when you get a reference to a widget interface
 	    implementation object a reference count is incremented, and
@@ -713,8 +713,8 @@ We have two recommendations that you should consider when creating a
 	    Copy this function changing the class name to suit your
 	    widget interface implementation. It should return \c {TRUE}
 	    if your custom widget can contain other widgets, e.g. like
-	    \Class QFrame, or \c {FALSE} if it must not contain other
-	    widgets, e.g. like \Class QPushButton.
+	    \l QFrame, or \c {FALSE} if it must not contain other
+	    widgets, e.g. like \l QPushButton.
 
 	\section3 The Project File
 

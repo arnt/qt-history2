@@ -91,7 +91,7 @@ window. The Project Overview window lists the files and images
 associated with the project; to open any form (\File .ui file), or the
 code associated with it (in the \File .ui.h file), simply single click
 it. The Object Explorer window lists the current form's widgets and
-members. The Properties Editor/Sognal Handlers window is used to view
+members. The Properties Editor/Signal Handlers window is used to view
 and change the properties of forms and widgets. We will cover the use
 of \QD's windows, dialogs, menu options and tools as we create the
 example application.
@@ -183,7 +183,7 @@ can also add an action to a menu and to a toolbar.
 If the action has an on/off state, e.g. bold is on or off, when the user
 changes the state, for example by clicking a toolbar button, the state
 of everything associated with the action, e.g. menu items and toolbar
-buttons, are updated.
+buttons, is updated.
 
 Some actions should operate together like radio buttons. For example, if
 we have left align, center align and right align actions, only one
@@ -193,7 +193,7 @@ If the action group's \c {exclusive} property is TRUE then only one of
 the actions in the group can be on at any one time. If the user changes
 the state of an action in an action group where \c {exclusive} is TRUE,
 everything associated with the actions in the action group, e.g. menu
-items and toolbar buttons, are updated.
+items and toolbar buttons, is updated.
 
 \index Actions and Action Groups
 \QD can create actions and action groups visually, assign accelerators
@@ -399,13 +399,14 @@ the editUndo(), editRedo() and editPaste() slots. Later we'll see how
 to create new slots when we add further functionality to the
 application.
 
-We also need to delete these actions in Action Editor window. Right
-click the filePrintAction action, then click Delete Action from the
-popup menu. In the same way delete the editUndoAction, editRedoAction
-and editPasteAction actions.
+We also need to delete these actions in the Action Editor window.
+Right click the filePrintAction action, then click Delete Action from
+the popup menu. In the same way delete the editUndoAction,
+editRedoAction and editPasteAction actions.
 
-Finally, we need to delete the redundant separators in our form's menu
-that were caused by our deletion of the actions.
+Finally, we need to delete those separators in the form's menu
+that have become redundant because they separated actions that we've
+now deleted.
 
 Click the form's \Menu File menu. (Note, we're clicking our newly
 created form's \Menu File menu, not \QD's \Menu File menu!) There are
@@ -502,8 +503,9 @@ their preferred options. We'll prepare the way by creating a new menu
 for the view options and by adding a separator to the toolbar. 
 
 Click "new menu" on the menu bar and type "\&View" over
-the text. The \& (ampersand) makes the following letter a key
-accelerator (i.e., in this case Alt+V will pop up the View menu).
+the text. The \& (ampersand) causes the following character to be
+underlined and to become an Alt-accelerator (i.e., in this case Alt+V
+will pop up the View menu).
 
 \img mw-newmenuitem.png
 \caption The Menu Bar

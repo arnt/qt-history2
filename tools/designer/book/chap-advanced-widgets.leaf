@@ -126,7 +126,7 @@ blue arrow button.
 \caption Text Dialog
 
 This widget is a multi-line editor (superseding
-\Class {QMultiLineEdit}), which can display either plain
+\l {QMultiLineEdit}), which can display either plain
 text or rich text. The dialog presents a text edit in plain text mode.
 You can enter rich text by using HTML tags and attributes, for example,
 \code

@@ -151,9 +151,9 @@ the \Property{value} to "3".
 Now we need to relate each of the text labels to the corresponding
 widget. We do this by creating "buddies". 
 
-A widget that does not accept focus itself, e.g. a \Class QLabel, can
+A widget that does not accept focus itself, e.g. a \l QLabel, can
 have an accelerator that will pass the focus to its "buddy", e.g. a
-\Class QLineEdit, by setting the first widget's \Property{buddy} property to
+\l QLineEdit, by setting the first widget's \Property{buddy} property to
 the name of the buddy widget.
 
 \list

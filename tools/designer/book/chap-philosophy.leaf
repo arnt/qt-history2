@@ -206,14 +206,14 @@ via C++ inheritance as shown in the next figure:
 \omit replace with designer-ui-subclass.eps in lout version\endomit
 \img designer2.jpg
 
-Here the user wrote an additional class \Class FormImpl, which is split
-into the header file \File{formimpl.h} and the implementation file
-\File{formimpl.cpp}. The header file includes the \Cmd uic generated
-\File{form.h} and reimplements all the custom slots. This is possible
-because \Cmd uic generated custom slots are virtual. In addition to
-implementing custom slots, this approach gives the user a way to do
-extra initialization work in the constructor of the subclass, and
-extra cleanups in the destructor.
+Here the user wrote an additional class \Class FormImpl, which is
+split into the header file \File{formimpl.h} and the implementation
+file \File{formimpl.cpp}. The header file includes the \Cmd uic
+generated \File{form.h} and reimplements all the custom slots. This is
+possible because \Cmd uic generated custom slots are virtual. In
+addition to implementing custom slots, this approach gives the user a
+way to do extra initialization work in the constructor of the
+subclass, and extra cleanups in the destructor.
 
 Because of these benefits and its flexibility, this approach became
 the primary way of using \QD in Qt 2.x.
@@ -327,7 +327,7 @@ C++ editor plugin or using your own editor.
 
 We extracted the part of \QD that is responsible for
 loading and previewing a form into a library of its own,
-\File libqui. A new class \Class QWidgetFactory makes it possible
+\File libqui. A new class \l QWidgetFactory makes it possible
 to load \File{.ui} files at runtime and instantiate forms from them.
 
 This dynamic approach keeps the GUI design and the code separate and

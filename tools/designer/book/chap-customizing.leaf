@@ -392,7 +392,7 @@ that you have a good understanding of Makefiles.
 \File .cpp files for the
 compiler to compile. The \index .ui
 \File .ui files are processed by
-\Cmd uic. Classes which inherit from \Class QObject,
+\Cmd uic. Classes which inherit from \l QObject,
 e.g. those which use slots and signals, require an additional
 \index .cpp
 \File .cpp file to be generated. These files are
@@ -435,7 +435,7 @@ useful for command line users. Note also that the command line for \c
 -subdecl and for \c -subimpl are subtly different.
 
 For implementation files that contain classes which inherit from
-\Class QObject we must create moc files:
+\l QObject we must create moc files:
 \code
 moc myform.h -o moc_myform.cpp
 \endcode
@@ -599,13 +599,13 @@ as listed below:
 
     Ampersands (\&) in labels
 
-    Qt displays an ampersand when a \Class QLabel has no buddy.
-    (A buddy is a widget that accepts focus on behalf of a \Class QLabel.)
+    Qt displays an ampersand when a \l QLabel has no buddy.
+    (A buddy is a widget that accepts focus on behalf of a \l QLabel.)
     Glade allows GtkLabel widgets with an (underlined)
     accelerator key but with no buddy. This is an error since
     users expect underlined characters to be accelerators. In
     this situation, Qt displays the ampersand itself instead of
-    underlining the accelerator key. You should go over these \Class QLabel
+    underlining the accelerator key. You should go over these \l QLabel
     widgets and set their "\Property {buddy}" property.
 
     \i
@@ -613,7 +613,7 @@ as listed below:
     Layout placeholders
 
     GTK allows a layout position to be occupied by a placeholder. \QD
-    converts those placeholders into \Class {QLabel}s whose text is "?"
+    converts those placeholders into \l {QLabel}s whose text is "?"
     in red, so that you can find them and fix them manually.
 
     \i
@@ -625,13 +625,13 @@ as listed below:
     environment. Because Qt's scope is narrower, when \QD
     encounters a widget it cannot convert, it replaces it with a
     label that indicates the problem. For example, a
-    GnomePaperSelector will be replaced by a \Class QLabel whose text is
+    GnomePaperSelector will be replaced by a \l QLabel whose text is
     "GnomePaperSelector?" in red. If you are porting to KDE, you
     might want to use the corresponding KDE widget.
 
     Other GTK+/GNOME widgets are only supported in certain
     contexts. For example, the GnomeDruid can be embedded in
-    another widget, whereas the corresponding \Class QWizard class
+    another widget, whereas the corresponding \l QWizard class
     cannot.
 
     \i
@@ -640,16 +640,16 @@ as listed below:
 
     Glade supports editing of GnomeMessageBox, GtkFileSelection,
     GtkFontSelectionDialog and others. This is trivially achieved in
-    Qt by means of a \Class QMessageBox dialog, a \Class QFileDialog, a
-    \Class QFontDialog, etc., in C++ code.
+    Qt by means of a \l QMessageBox dialog, a \l QFileDialog, a
+    \l QFontDialog, etc., in C++ code.
 
     \i
 
     Stand-alone popup menus
 
-    \QD only supports popup menus inside a \Class QMainWindow. If you
+    \QD only supports popup menus inside a \l QMainWindow. If you
     need a stand-alone popup menu (presumably a context menu),
-    you can easily write code that does this using \Class QPopupMenu.
+    you can easily write code that does this using \l QPopupMenu.
 
     \i
 
@@ -674,10 +674,10 @@ as listed below:
     Packer layout
 
     GTK+ provides a class called GtkPacker that provides for exotic
-    layouts; Qt provides no \Class QPackerLayout and never will. \QD
-    will treat packer layouts as if they were vertical layouts and
-    you will probably have to change them to whatever combination of
-    layouts that produces the right effect.
+    layouts; Qt does not provide a \Class QPackerLayout and none is
+    planned. \QD will treat packer layouts as if they were vertical
+    layouts and you will probably have to change them to whatever
+    combination of layouts that produces the right effect.
 
     \i
 

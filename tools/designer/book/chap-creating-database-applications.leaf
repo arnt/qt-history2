@@ -3,8 +3,8 @@
 \index Databases
 \index SQL
 This chapter shows you how to use Qt's data-aware widgets from within
-\QD. It demonstrates \INS, \UPD and \DEL in both \Class {QDataTable}s
-(tables) and \Class {QDataBrowser}s (forms). It also shows how to code
+\QD. It demonstrates \INS, \UPD and \DEL in both \l {QDataTable}s
+(tables) and \l {QDataBrowser}s (forms). It also shows how to code
 Master-Detail relationships and Drilldown. A simple approach to foreign
 key handling is presented here; a more sophisticated approach is shown
 in the online SQL module documentation.
@@ -30,8 +30,8 @@ QPSQL7 (PostgreSQL 6 and 7) and QMYSQL3 (MySQL).
 Although you can use the Qt data-aware widgets to browse and edit data
 in SQL databases without having to write any SQL, a basic understanding
 of SQL is highly recommended. We assume that you have some familiarity with
-\c {SELECT}, \INS, \UPD and \DEL statements. We also assume a basic
-understanding of the concepts of normalisation and of primary and
+\c {SELECT}, \INS, \UPD, and \DEL statements. We also assume a basic
+understanding of the concepts of normalization and of primary and
 foreign keys. A standard text covering SQL databases is \e {An Introduction to Database Systems (7th ed.)} by C. J.
 Date, ISBN 0201385902.
 
@@ -39,11 +39,11 @@ Date, ISBN 0201385902.
 \index Databases!In-place Editing
 In the following text we describe the creation of a 'book' database
 application. The application demonstrates how to use
-\Class {QDataTable}s including in-place record editing and how to set
-up master-detail relationships between \Class {QDataTable}s. It also
-explains how to drill down from a \Class QDataTable to another
-widget, for example, to a \Class QDataBrowser or a \Class QDataView
-and how to perform record editing in a \Class QDataBrowser. A great
+\l {QDataTable}s including in-place record editing and how to set
+up master-detail relationships between \l {QDataTable}s. It also
+explains how to drill down from a \l QDataTable to another
+widget, for example, to a \l QDataBrowser or a \l QDataView
+and how to perform record editing in a \l QDataBrowser. A great
 deal of functionality is available from the classes directly in \QD
 although subclassing is always available for finer control. If you
 want to build the 'book' examples you will need to create the example
@@ -94,18 +94,18 @@ There are two aspects of database connections that we must consider.
 
     \section2 Setting Up Qt Designer's Connections
 
-	\img database-connections.png
-\caption Database Connections Dialog
+	\img databaseconnections.png
+\caption Edit Database Connections Dialog
 
 	Choose \Menu {Project|Database Connections} from the menu
-	bar. The \Dialog {Database Connections} dialog will appear. Click
+	bar. The \Dialog {Edit Database Connections} dialog will appear. Click
 	\Button {New Connection}. For applications that use a single
 	database it will probably be most convenient to use the default
 	connection name of '(default)'. If you use more than one
 	database then each one must be given a unique name. A driver must be
 	chosen from the Driver combo box. The database name may be
 	available in the Database Name combo box or may have to be typed
-	in. The database name, username, password and hostname should be
+	in. The database name, username, password, hostname and port should be
 	provided by your database system administrator. When the
 	Connection information has been completed click
 	\Button Connect. If the connection is made the connection
@@ -133,9 +133,9 @@ There are two aspects of database connections that we must consider.
 	project will be listed in the left hand list box. Click the
 	connection you wish to use and then click \Button Connect. This
 	connection will be used from now on, e.g. for previewing
-	\Class {QDataTable}s. Opening a project file also causes \QD to
+	\l {QDataTable}s. Opening a project file also causes \QD to
 	load in the list of forms associated with the project into the
-	Form List window. In most of the explanation that follows we
+	Project Overview window. In most of the explanation that follows we
 	will assume that you use project files and have clicked
 	\Button Connect so that there is always a connection available
 	when you work in
@@ -191,7 +191,7 @@ From \File {qt/tools/designer/examples/book/book1/main.cpp}
 	\index addDatabase()
 	All the examples presented in this chapter call
 	\Func createConnections() after creating the
-	\Class QApplication object in their \File main.cpp
+	\l QApplication object in their \File main.cpp
 	file and make use of the default connection. If you need to
 	connect to multiple databases use the two-argument form of
 	\Func addDatabase(), passing it both the name of the driver
@@ -214,18 +214,18 @@ From \File {qt/tools/designer/examples/book/book1/main.cpp}
 	applications that preview correctly in \QD will not run unless
 	you implement your own database connections function.
 
-\section1 Using \Class {QDataTable}
+\section1 Using \l {QDataTable}
 
-    \Class {QDataTable}s may be placed on any form to provide browsing
-    of database tables and views. \Class {QDataTable}s can also be used
+    \l {QDataTable}s may be placed on any form to provide browsing
+    of database tables and views. \l {QDataTable}s can also be used
     to update or delete records in-place, i.e. inside the cells
-    themselves. Inserting records via a \Class QDataTable usually
+    themselves. Inserting records via a \l QDataTable usually
     requires connecting to the \index primeInsert()
 \SignalOrSlot primeInsert() signal, so that we
     can generate primary keys for example, or provide default values.
     If we wish to present records using a form view (perhaps combining
     data from several tables and views) we might use several
-    \Class {QDataBrowser}s and \Class {QDataView}s.
+    \l {QDataBrowser}s and \l {QDataView}s.
 
     \section2 Quickly Viewing a Database Table
 
@@ -253,7 +253,7 @@ From \File {qt/tools/designer/examples/book/book1/main.cpp}
 	contact your database systems administrator for help.) Close the
 	dialog.
 
-	We will now create a new form with a \Class QDataTable that's
+	We will now create a new form with a \l QDataTable that's
 	connected to one of our database tables.
 
 	Click \Menu File|New. The \Dialog {New File} dialog presents us
@@ -262,14 +262,14 @@ From \File {qt/tools/designer/examples/book/book1/main.cpp}
 	\Menu File|Save. You will be prompted for a filename,
 	call it \File book.ui.
 
-	\section3 Setting up a \Class {QDataTable}
+	\section3 Setting up a \l {QDataTable}
 
 	    \index Databases!SQL Table Wizard
 \index Wizards!SQL Table
-To place a \Class QDataTable widget on the form either
-	    click \Menu Tools|Views|QDataTable or click the
-	    \Toolbutton QDataTable toolbar button. Click on the form and
-	    the SQL Table Wizard will appear.
+To place a \l QDataTable widget on the form either
+	    click \Menu Tools|Views|DataTable or click the
+	    \Toolbutton DataTable toolbar button. Click on the form and
+	    the Data Table Wizard will appear.
 
 	    \list 1
 		\i
@@ -277,20 +277,21 @@ To place a \Class QDataTable widget on the form either
 		    The \e {Database Connection and Table}
 		    wizard page is used to set up a connection if one
 		    doesn't exist and to choose the table or view for
-		    the \Class QDataTable. (See
+		    the \l QDataTable. (See
 		    \l {Setting Up Qt Designer's Connections}.)
 
 		    Click the connection you wish to use, listed in the
-		    left hand list box, e.g. "(default)". The available
-		    tables and views will appear in the right hand Table
-		    list box. Click the 'author' table and then click
-		    the \Button Next button.
+		    left hand Database Connection list box, e.g.
+		    "(default)". The available tables and views will
+		    appear in the right hand Table list box. Click the
+		    'author' table and then click the \Button Next
+		    button.
 
 		\i
 
 		    The \e {Displayed Fields} wizard page
 		    provides a means of selecting which fields should be
-		    displayed in the \Class QDataTable and in what
+		    displayed in the \l QDataTable and in what
 		    order. By default all fields except the primary key
 		    (if there is one) are in the Displayed Fields list
 		    box. The left- and right-pointing blue arrow buttons
@@ -307,7 +308,7 @@ To place a \Class QDataTable widget on the form either
 		    \index Properties!DataTable
 The \e {Table Properties} wizard page provides
 		    convenient access to some of the database-related
-		    properties of the \Class QDataTable.
+		    properties of the \l QDataTable.
 
 		    Make sure the Confirm Deletes checkbox is checked,
 		    then click \Button Next.
@@ -315,14 +316,14 @@ The \e {Table Properties} wizard page provides
 		\i
 
 		    The \e SQL wizard page is used to set the
-		    \Class {QDataTable}'s Filter and Sort properties. The
+		    \l {QDataTable}'s Filter and Sort properties. The
 		    Filter is an SQL \c {WHERE} clause (without
 		    the word 'WHERE'). For example, to only list authors
 		    whose surnames begin with 'P', we would enter
 		    \c {title LIKE 'P%'}. We'll leave
 		    the filter empty. The Available Fields list box
 		    lists all the fields. The Sort By list box lists the
-		    fields that the \Class QDataTable is to sort by and
+		    fields that the \l QDataTable is to sort by and
 		    the direction of their sorting (ASCending or
 		    DESCending). The left and right blue arrows are used
 		    to move fields between the two list boxes. The up
@@ -338,7 +339,7 @@ The \e {Table Properties} wizard page provides
 		    The \e Finish wizard page gives us the
 		    opportunity to go back and change any of our
 		    settings. We will be able to change them later
-		    through the \Class {QDataTable}'s properties so we
+		    through the \l {QDataTable}'s properties so we
 		    can finish with the wizard.
 
 		    Click \Button Finish.
@@ -351,7 +352,7 @@ The \e {Table Properties} wizard page provides
 	    display names, the fields they are based upon, and the order
 	    of appearance of the columns can be changed using the
 	    \Dialog {Edit Table} dialog (explained later) by right clicking the
-	    \Class QDataTable and left clicking \Button Edit.
+	    \l QDataTable and left clicking \Button Edit.
 
 	\section3 Laying out the Form
 
@@ -371,7 +372,7 @@ The \e {Table Properties} wizard page provides
 
 		    Click on the form and change its name to 'BookForm'
 		    and its caption to 'Book'. Click on the
-		    \Class QDataTable and change its name to
+		    \l QDataTable and change its name to
 		    'AuthorDataTable'.
 
 		\i
@@ -394,7 +395,7 @@ The \e {Table Properties} wizard page provides
 
 	    \endlist
 
-	    This example shows how easy it is to use \Class QDataTable
+	    This example shows how easy it is to use \l QDataTable
 	    to show the contents of a database table or view. You can
 	    use the application we've just built to update and delete
 	    author records. In the examples that follow we will cover
@@ -418,7 +419,7 @@ In most relational databases tables contain fields which
 
 	    \endsidebar
 
-    \section2 Inserting Records in \Class {QDataTable}s
+    \section2 Inserting Records in \l {QDataTable}s
 
 	\index Inserting Records
 \index Databases!Inserting Records
@@ -426,19 +427,19 @@ Record insertion into a relational database usually requires
 	the generation of a primary key value which uniquely
 	identifies the record in the table. Also we often want to
 	create default values for some fields to minimize the user's
-	work. We will create a slot to capture the \Class {QDataTable}s
+	work. We will create a slot to capture the \l {QDataTable}s
 	\index primeInsert()
 \SignalOrSlot primeInsert() signal and populate the
-	\Class QSqlRecord insertion buffer with a unique
+	\l QSqlRecord insertion buffer with a unique
 	primary key.
 
 	\list 1
 	    \i
 
 		Click \Menu Edit|Slots to invoke the
-		\Dialog {Edit Slots} dialog. Click \Menu {New Slot}, then enter
+		\Dialog {Edit Functions} dialog. Click \Menu {New Function}, then enter
 		the slot name \SignalOrSlot primeInsertAuthor(QSqlRecord*)
-		into the Slot Properties' Slot line edit box. Click
+		into the Function Properties' Function line edit box. Click
 		\OK.
 
 	    \i
@@ -453,8 +454,8 @@ Record insertion into a relational database usually requires
 
 	    \i
 
-		Click the Source tab of the Object Hierarchy window
-		(click \Menu {Window|Object Hierarchy} to make
+		Click the Members tab of the Object Explorer window
+		(click \Menu {Window|Views|Object Explorer} to make
 		the window visible if necessary). Click the
 		\SignalOrSlot primeInsertAuthor() slot and an editor window will
 		appear.
@@ -470,7 +471,7 @@ Record insertion into a relational database usually requires
 \printuntil }
 \printline }
 
-		A \Class QSqlQuery object is used to increment and
+		A \l QSqlQuery object is used to increment and
 		retrieve a unique 'sequence' number for the author
 		table. The signal passed us a pointer to the insertion
 		buffer and we then put the value we've retrieved,
@@ -506,17 +507,17 @@ Browsing is
 	press the \Key Del key to \DEL the
 	current record. All these operations take place
 	immediately. Users can be given the opportunity to confirm
-	their edits by setting the \Class {QDataTable}'s confirmEdits
+	their edits by setting the \l {QDataTable}'s confirmEdits
 	property to True. If the confirmEdits property is True then user
 	confirmation will be required for all insertions, updates and
 	deletes. For finer control you can set the confirmInsert,
 	confirmUpdate and confirmDelete properties individually.
 
-	\sidebar \Class QDataTable User Interface Interaction
+	\sidebar \l QDataTable User Interface Interaction
 
 	\index Databases!User Interface Interaction
 \index User Interface Interaction, Databases
-The default user-interface behaviour for \Class {QDataTable}s is as follows:
+The default user-interface behavior for \l {QDataTable}s is as follows:
 	    \list
 		\i
 
@@ -561,7 +562,7 @@ The default user-interface behaviour for \Class {QDataTable}s is as follows:
 
 	    \endlist
 
-	    You can change this default behaviour programmatically if
+	    You can change this default behavior programmatically if
 	    required.
 
 	\endsidebar
@@ -574,29 +575,29 @@ Databases often have pairs of tables that are related. For
 	example, an invoice table might list the numbers, dates and
 	customers for invoices, but not the actual invoice items, which
 	an invoice item table might store. In the 'book' application we
-	wish to have a \Class QDataTable that we can use to browse
-	through the authors table and a second \Class QDataTable to
+	wish to have a \l QDataTable that we can use to browse
+	through the authors table and a second \l QDataTable to
 	show the books they've written.
 
 	Open the book project if it isn't already open \QD. We will
-	modify this project to show two \Class {QDataTable}s that
+	modify this project to show two \l {QDataTable}s that
 	relate the author table to the book table.
 
 	\list 1
 	    \i
 
-		Click the author \Class QDataTable and then click the
+		Click the author \l QDataTable and then click the
 		\Toolbutton {Break Layout} toolbutton.
 
 	    \i
 
-		Resize the \Class QDataTable so that it only
+		Resize the DataTable so that it only
 		occupies the top half of the form.
 
 	    \i
 
-		Now click on the \Class QDataTable toolbutton and click
-		on the bottom half of the form. The SQL Table Wizard
+		Now click on the DataTable toolbutton and click
+		on the bottom half of the form. The Table Wizard
 		will appear. (This Wizard is explained in \l {Quickly
 		Viewing a Database Table}.)
 		\list 1
@@ -631,14 +632,14 @@ Databases often have pairs of tables that are related. For
 
 		    \i
 
-			Change this \Class {QDataTable}'s name to "BookDataTable".
+			Change this \l {QDataTable}'s name to "BookDataTable".
 
 		\endlist
 
 	    \i
 
-		\Key Shift+Click the top \Class QDataTable so that both
-		\Class {QDataTable}s are selected and then click the
+		\Key Shift+Click the top \l QDataTable so that both
+		\l {QDataTable}s are selected and then click the
 		\Toolbutton {Lay Out Vertically (in Splitter)} toolbar
 		button.
 
@@ -650,11 +651,11 @@ Databases often have pairs of tables that are related. For
 	\endlist
 
 	Preview the form by clicking \Menu {Preview|Preview Form}.
-	All the authors are displayed in the top \Class QDataTable
+	All the authors are displayed in the top \l QDataTable
 	and all the books are displayed in the bottom
-	\Class QDataTable. However we only want the books of the
+	\l QDataTable. However we only want the books of the
 	currently selected author showing in the bottom
-	\Class QDataTable. We will deal with this by filtering the
+	\l QDataTable. We will deal with this by filtering the
 	records in the book table according to the author selected in
 	the author table.
 
@@ -664,12 +665,12 @@ Databases often have pairs of tables that are related. For
 \img edit-dbtable-dialog.png
 \caption Edit Table Dialog
 
-	\Class {QDataTable}s are created and set up using the SQL Table
+	\l {QDataTable}s are created and set up using the SQL Table
 	Wizard. Like any other \QD widget their properties may be
 	changed in the Properties window. Some of the column and row
 	based properties can also be be changed using the \Dialog {Edit Table}
 	dialog. This dialog is invoked by right clicking the
-	\Class QDataTable and left clicking the \Menu Edit menu item.
+	\l QDataTable and left clicking the \Menu Edit menu item.
 	The right hand half of the \Dialog {Edit Table} dialog is where we choose
 	the fields we wish to display, their order and their labels. The
 	procedure for creating columns is as follows:
@@ -713,19 +714,19 @@ Databases often have pairs of tables that are related. For
 
 	\endsidebar
 
-	\section3 Filtering One \Class QDataTable by Another
+	\section3 Filtering One \l QDataTable by Another
 
 	    \index Databases!Relating Tables
 To filter the book table's records we need to capture the author
-	    \Class {QDataTable}'s \index currentChanged()
+	    \l {QDataTable}'s \index currentChanged()
 \Func currentChanged() signal and change the
 	    BookDataTable's filter accordingly.
 
 	    \list 1
 		\i
 
-		    Click \Menu Edit|Slots. In the \Dialog {Edit Slots}
-		    dialog click \Menu {New Slot} and enter a slot
+		    Click \Menu Edit|Slots. In the \Dialog {Edit Functions}
+		    dialog click \Menu {New Function} and enter a slot
 		    name of \SignalOrSlot newCurrentAuthor(QSqlRecord*).
 		    Click \OK.
 
@@ -739,8 +740,8 @@ To filter the book table's records we need to capture the author
 
 		\i
 
-		    Click the Source tab of the Object Hierarchy window
-		    (click \Menu {Window|Object Hierarchy} to make
+		    Click the Members tab of the Object Explorer window
+		    (click \Menu {Window|Views|Object Explorer} to make
 		    the window visible if necessary). Click the
 		    \SignalOrSlot newCurrentAuthor() slot and an editor window will
 		    appear.
@@ -756,7 +757,7 @@ To filter the book table's records we need to capture the author
 \printuntil }
 
 		All that's required now is to change the BookDataTable's
-		filter and refresh the \Class QDataTable to show the
+		filter and refresh the \l QDataTable to show the
 		results of the filter.
 
 	    \endlist
@@ -767,7 +768,7 @@ To filter the book table's records we need to capture the author
 \index Drilldown
 We can now browse and edit authors and see their books in the
 	    BookDataTable.  In the next section we explore
-	    \Class QDataBrowser, which will allow us to drill down to
+	    \l QDataBrowser, which will allow us to drill down to
 	    a dialog through which we can edit books. For now we will
 	    add some buttons to the main BookForm which we will use to
 	    invoke the book editing dialog.
@@ -811,14 +812,14 @@ QuitPushButton -- \&Quit
 
 	    \endlist
 
-\section1 Using \Class QDataBrowser and \Class {QDataView}
+\section1 Using \l QDataBrowser and \l {QDataView}
 
 \img book-dialog.png
 \caption The Book Application's Edit Books Dialog
 
-    \section2 Drilling Down to a Form using \Class {QDataBrowser}
+    \section2 Drilling Down to a Form using \l {QDataBrowser}
 
-	\section3 Setting up a \Class {QDataBrowser}
+	\section3 Setting up a \l {QDataBrowser}
 
 	\index Databases!Drilldown
 \index Drilldown
@@ -830,7 +831,7 @@ We will now create a new form to allow users to edit book
 	the name of the form to EditBookForm and its caption to 'Edit
 	Books'. Click the \Toolbutton Save toolbar button and call the
 	file \File editbook.ui. Now that we have the form we can add a
-	\Class QDataBrowser to show the book records.
+	\l QDataBrowser to show the book records.
 
 	\list 1
 	    \i
@@ -843,11 +844,11 @@ We will now create a new form to allow users to edit book
 		The \e {Database Connection and Table} wizard
 		page is used to set up a connection if one doesn't exist
 		and to choose the table or view for the
-		\Class QDataBrowser. (See \l {Setting
+		\l QDataBrowser. (See \l {Setting
 		Up Qt Designer's Connections}.)
 
 		Click the connection you wish to use, listed in the
-		Connection list box, e.g. "(default)". The available
+		Database Connection list box, e.g. "(default)". The available
 		tables and views will appear in the Table list
 		box. Click the book table and then click the
 		\Button Next button.
@@ -856,7 +857,7 @@ We will now create a new form to allow users to edit book
 
 		The \e {Displayed Fields} wizard page provides a
 		means of selecting which fields should be displayed in
-		the \Class QDataBrowser and in what order. By default
+		the \l QDataBrowser and in what order. By default
 		all fields except the primary key (if there is one) are
 		in the right hand Displayed Fields list box. The left
 		and right blue arrow buttons can be used to move fields
@@ -882,14 +883,14 @@ We will now create a new form to allow users to edit book
 	    \i
 
 		The \e SQL wizard page is used to set the
-		\Class {QDataBrowser}'s Filter and Sort properties. The
+		\l {QDataBrowser}'s Filter and Sort properties. The
 		Filter is an SQL \c {WHERE} clause (without the
 		word 'WHERE'). For example, to only list books that
 		cost less than 50 (of some currency, e.g. dollars), we
 		would enter \c {price < 50}. We will leave the
 		filter empty. The Available Fields list box lists all
 		the fields. The Sort By list box lists the fields that
-		the \Class QDataBrowser is to sort by and the
+		the \l QDataBrowser is to sort by and the
 		direction of their sorting (ASCending or
 		DESCending). The left and right blue arrows are used
 		to move fields between the two list boxes. The up and
@@ -910,9 +911,9 @@ We will now create a new form to allow users to edit book
 
 	    \i
 
-		The \Class QDataBrowser will now appear on the form.
+		The \l QDataBrowser will now appear on the form.
 		Resize the form to make it smaller. Click
-		the \Class QDataBrowser then click the \Button {Break
+		the \l QDataBrowser then click the \Button {Break
 		Layout} toolbar button. Click the buttons then click
 		the \Toolbutton {Break Layout} toolbar button. Add
 		another button called 'PushButtonClose' with the text
@@ -923,10 +924,10 @@ We will now create a new form to allow users to edit book
 		\Key Shift+Click the Insert, Update, Delete and Close
 		buttons, then click the \Button {Lay Out
 		Horizontally} toolbar button. Click the
-		\Class QDataBrowser, then click the \Button {Lay Out
+		\l QDataBrowser, then click the \Button {Lay Out
 		in a Grid} toolbar button. Finally click the form and
 		click the \Toolbutton {Lay Out Vertically} toolbar
-		button. Now click the \Class QDataBrowser and rename it
+		button. Now click the \l QDataBrowser and rename it
 		'BookDataBrowser'.
 
 	    \i
@@ -943,9 +944,9 @@ We will now create a new form to allow users to edit book
 
 	\endlist
 
-	\sidebar \Class QDataBrowser User Interface Interaction
+	\sidebar \l QDataBrowser User Interface Interaction
 
-	The user-interface behaviour for \Class {QDataBrowser}s
+	The user-interface behavior for \l {QDataBrowser}s
 	is created by connecting slots and signals. The slots provided are:
 	    \list
 		\i
@@ -985,9 +986,9 @@ We will now create a new form to allow users to edit book
 	    \endlist
 
 	If you use \QD's
-	\Class QDataBrowser wizard you will be given the option of
+	\l QDataBrowser wizard you will be given the option of
 	creating a default set of buttons for navigation and editing.
-	The behaviour of these buttons is set up using the slots
+	The behavior of these buttons is set up using the slots
 	described above to provide the following functionality:
 	    \list
 		\i
@@ -1048,8 +1049,8 @@ We now have a working form for editing book records. We need to
 		button's \index clicked()
 \SignalOrSlot clicked() signal to. Click on the Book
 		form to make it \QD's active form. Invoke the
-		\Dialog {Edit Slots}
-		dialog and create a new slot called \SignalOrSlot editClicked(). Now
+		\Dialog {Edit Functions}
+		dialog and create a new function called \SignalOrSlot editClicked(). Now
 		click \Menu{Edit|Connections}. Connect the Edit Books
 		button's clicked() signal to the form's editClicked()
 		slot. Clicked() slot. Click \OK to leave the
@@ -1057,7 +1058,7 @@ We now have a working form for editing book records. We need to
 
 	    \index Object Hierarchy
 
-	    \i  In the Object Hierarchy window click Source and then click
+	    \i  In the Object Explorer window click Members and then click
 		the \Func editClicked function. We need to change it to
 		the following:
 
@@ -1067,11 +1068,11 @@ We now have a working form for editing book records. We need to
 
 		We create our dialog as before. We also create a
 		cursor over the book table and set the dialog's
-		\Class QDataBrowser, BookDataBrowser, to use this new
-		cursor. We set the \Class {QDataBrowser}'s filter and
+		\l QDataBrowser, BookDataBrowser, to use this new
+		cursor. We set the \l {QDataBrowser}'s filter and
 		sort to those that applied to the main form's book
-		\Class QDataTable. We refresh the
-		\Class QDataBrowser and seek to the same record the
+		\l QDataTable. We refresh the
+		\l QDataBrowser and seek to the same record the
 		user was viewing on the main form. Then we exec the
 		dialog and delete it when the user has finished with
 		it. Finally we update the BookDataTable in the main
@@ -1081,10 +1082,10 @@ We now have a working form for editing book records. We need to
 	    \i
 
 		Because our code refers to a class declared in
-		\File editbook.h and to a \Class QDataBrowser
+		\File editbook.h and to a \l QDataBrowser
 		we need to add two additional include files. Click on
-		the BookForm, then click on the Source tab of the
-		Object Hierarchy window. Right click the 'Includes (In
+		the BookForm, then click on the Members tab of the
+		Object Explorer window. Right click the 'Includes (In
 		Declaration)' item and click New. Type in
 		\File "editbook.h". Now add a second include,
 		this time, \File \<qdatabrowser.h\>.
@@ -1096,10 +1097,10 @@ We now have a working form for editing book records. We need to
 	dialog. Although the dialog supports \UPD, \DEL and navigation over
 	the book table, we cannot edit the foreign keys nor perform
 	inserts. We will deal with insertion in the same way as we did
-	with the \Class QDataTable, then we will handle the foreign
+	with the \l QDataTable, then we will handle the foreign
 	key relationship to author.
 
-	\section3 Inserting into a \Class {QDataBrowser}
+	\section3 Inserting into a \l {QDataBrowser}
 
 	We will create a slot to receive the Edit Books form's
 	\index primeInsert()
@@ -1113,8 +1114,8 @@ We now have a working form for editing book records. We need to
 		create a new Slot called \SignalOrSlot primeInsertBook(QSqlRecord*).
 
 		Click \Menu Edit|Slots, then click the
-		\Button {New Slot} button and type the new slot name
-		in the Slot Properties Slot edit box. Click \OK.
+		\Button {New Function} button and type the new function name
+		in the Function Properties Function edit box. Click \OK.
 
 	    \i
 
@@ -1133,7 +1134,7 @@ We now have a working form for editing book records. We need to
 	    \i
 
 		In the
-		Object Hierarchy window click Source and then click the
+		Object Explorer window click Members and then click the
 		\SignalOrSlot primeInsertBook slot. We need to change
 		it to the following:
 
@@ -1152,7 +1153,7 @@ We now have a working form for editing book records. We need to
 
 	\endlist
 
-	\section3 Handling Foreign Keys in a \Class QDataBrowser
+	\section3 Handling Foreign Keys in a \l QDataBrowser
 
 	\index Foreign Keys
 \index Databases!Foreign Keys
@@ -1203,8 +1204,8 @@ Qt's SQL module provides two approaches to dealing with foreign
 	Create two new slots called
 	\Func beforeUpdateBook(QSqlRecord *buffer) and
 	\Func primeUpdateBook(QSqlRecord *buffer). (Click
-	\Menu Edit|Slots, then in the \Dialog {Edit Slots} dialog click New Slot
-	and enter the first new slot. Click New Slot again and enter the
+	\Menu Edit|Slots, then in the \Dialog {Edit Functions} dialog click New Function
+	and enter the first new slot. Click New Function again and enter the
 	second slot then click \OK.)
 
 	\i
@@ -1286,7 +1287,7 @@ Qt's SQL module provides two approaches to dealing with foreign
     fail and no author id will be inserted into the buffer causing the \INS
     to fail.  An alternative is to record
     the author id's as we populate the \Widget ComboBox and store them in a
-    \Class QMap which we can then look up as required. This approach
+    \l QMap which we can then look up as required. This approach
     requires changes to the \index init()
 \Func init(), \SignalOrSlot beforeUpdateBook() and
     \SignalOrSlot primeInsertBook() functions and the addition of a new function,
@@ -1298,8 +1299,8 @@ Qt's SQL module provides two approaches to dealing with foreign
 	    \i
 
 	    First we need to create a class variable to map author names
-	    to author id's. Click in the Source tab of the Object
-	    Hierarchy, then right click the Class Variables item and
+	    to author id's. Click in the Members tab of the Object
+	    Explorer, then right click the Class Variables item and
 	    click \Menu New. Type in
 	    'QMap\<QString,int\> authorMap;'.
 
@@ -1314,12 +1315,12 @@ Qt's SQL module provides two approaches to dealing with foreign
 \printline }
 
 	    After inserting each author's name into the \Widget ComboBox we
-	    populate a \Class QMap with the author's name and id.
+	    populate a \l QMap with the author's name and id.
 
 	    \i
 
 	    Instead of looking up the author's id in the database we
-	    look it up in the \Class QMap.
+	    look it up in the \l QMap.
 
 \quotefile book/book8/editbook.ui.h
 \skipto ::beforeUpdateBook
@@ -1335,7 +1336,7 @@ Qt's SQL module provides two approaches to dealing with foreign
 \printuntil }
 
 	    If the populate flag is TRUE, we store the author's name and
-	    id in the \Class QMap, otherwise we look up the given
+	    id in the \l QMap, otherwise we look up the given
 	    author name and set id appropriately.
 
 	    \i
@@ -1358,9 +1359,9 @@ Another approach which is especially useful if the same foreign key
 lookups are required in different parts of the application is to
 subclass a cursor and use this for our lookups. This is described in the
 \link http://doc.trolltech.com/sql.html Qt SQL Module documentation \endlink, particulary the section on subclassing
-\Class QSqlCursor.
+\l QSqlCursor.
 
 The 'book' example demonstrates the basic techniques needed for SQL
 programming with Qt. Additional information on the Qt SQL classes,
-especially the \Class QSqlQuery and \Class QSqlCursor classes is
+especially the \l QSqlQuery and \l QSqlCursor classes is
 provided in the \link http://doc.trolltech.com/sql.html Qt SQL Module documentation \endlink.

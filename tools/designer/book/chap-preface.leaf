@@ -70,7 +70,7 @@
     you can dynamically load dialogs from 
     \index .ui 
     \File .ui files
-    into your application using \Class QWidgetFactory and how to
+    into your application using \l QWidgetFactory and how to
     access the widgets and sub-widgets of these dialogs.
 
     \i Chapter six, \l{Creating Custom Widgets}, explains how you can
@@ -155,7 +155,7 @@
 	easy access as toolbar buttons, and also shows the names of
 	the widgets and takes up less space.
 
-	\i \Class QWidgetStack is now available as a container widget.
+	\i \l QWidgetStack is now available as a container widget.
 	The new example demonstrates its use.
 
 	\i \c .ui.h files may now contain arbitrary C++, including \c const
@@ -170,7 +170,7 @@
     \list
     \i The tool box widget used by \QD since Qt 3.1 is now available
     as a Qt widget for use in your own programs. The widget is called
-    \Class QToolBox.
+    \l QToolBox.
     \i The menu editor in \QD has been redesigned to
     make it easier to visually design application main windows.
     \i Numerous small improvements to usability have also been
