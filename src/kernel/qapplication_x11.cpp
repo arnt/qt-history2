@@ -259,6 +259,9 @@ Atom		*qt_net_supported_list	= 0;
 // list of virtual root windows
 Window		*qt_net_virtual_root_list	= 0;
 
+// client leader window
+Window qt_x11_wm_client_leader = 0;
+
 // function to update the workarea of the screen - in qdesktopwidget_x11.cpp
 extern void qt_desktopwidget_update_workarea();
 
@@ -1387,6 +1390,31 @@ void qt_get_net_virtual_roots()
     }
 }
 
+void qt_x11_create_wm_client_leader()
+{
+    if ( qt_x11_wm_client_leader ) return;
+
+    qt_x11_wm_client_leader =
+	XCreateSimpleWindow( QPaintDevice::x11AppDisplay(),
+			     QPaintDevice::x11AppRootWindow(),
+			     0, 0, 1, 1, 0, 0, 0 );
+
+    // set client leader property to itself
+    XChangeProperty( QPaintDevice::x11AppDisplay(),
+		     qt_x11_wm_client_leader, qt_wm_client_leader,
+		     XA_WINDOW, 32, PropModeReplace,
+		     (unsigned char *)&qt_x11_wm_client_leader, 1 );
+
+    // If we are session managed, inform the window manager about it
+    QCString session = qApp->sessionId().latin1();
+    if ( !session.isEmpty() ) {
+	XChangeProperty( QPaintDevice::x11AppDisplay(),
+			 qt_x11_wm_client_leader, qt_sm_client_id,
+			 XA_STRING, 8, PropModeReplace,
+			 (unsigned char *)session.data(), session.length() );
+    }
+}
+
 static void qt_check_focus_model()
 {
     Window fw = None;
@@ -2323,6 +2351,8 @@ void qt_cleanup()
     if ( qt_is_gui_used && !appForeignDpy )
 	XCloseDisplay( appDpy );		// close X display
     appDpy = 0;
+
+    qt_x11_wm_client_leader = 0;
 
     if ( QPaintDevice::x_appdepth_arr )
 	delete [] QPaintDevice::x_appdepth_arr;

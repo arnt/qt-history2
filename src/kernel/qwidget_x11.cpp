@@ -51,6 +51,10 @@
 // NOT REVISED
 
 // defined in qapplication_x11.cpp
+extern Window qt_x11_wm_client_leader;
+extern void qt_x11_create_wm_client_leader();
+
+// defined in qapplication_x11.cpp
 void qt_insert_sip( QWidget*, int, int );
 int  qt_sip_count( QWidget* );
 bool qt_wstate_iconified( WId );
@@ -456,7 +460,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	     testWFlags(WStyle_Tool) ) {
 	    if ( testWFlags( WStyle_StaysOnTop ) )
 		XSetTransientForHint( dpy, id, None );
-	    else  if ( p )
+	    else if ( p )
 		XSetTransientForHint( dpy, id, p->winId() );
 	    else				// application-modal
 		XSetTransientForHint( dpy, id, root_win );
@@ -528,15 +532,17 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	XChangeProperty( dpy, id,
 			 qt_window_role, XA_STRING, 8, PropModeReplace,
 			 (unsigned char *)name(), qstrlen( name() ) );
-	// If we are session managed, inform the window manager about it
-	QCString session = qApp->sessionId().latin1();
-	if ( !session.isEmpty() ) {
-	    XChangeProperty( dpy, id,
-			     qt_sm_client_id, XA_STRING, 8, PropModeReplace,
-			     (unsigned char *)session.data(), session.length() );
-	}
+
+	if ( !qt_x11_wm_client_leader )
+	    qt_x11_create_wm_client_leader();
+
+	// set client leader property
+	XChangeProperty( dpy, id, qt_wm_client_leader,
+			 XA_WINDOW, 32, PropModeReplace,
+			 (unsigned char *)&qt_x11_wm_client_leader, 1 );
     } else {
-	// non-toplevel widgets don't have a frame, so no need to update the strut
+	// non-toplevel widgets don't have a frame, so no need to
+	// update the strut
 	fstrut_dirty = 0;
     }
 
