@@ -3789,7 +3789,8 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     if ( u.isLocalFile() ) {
 	if ( !dir_.isEmpty() ) {
 	    QFileInfo f( u.path() );
-	    if ( f.isDir() ) {
+        if ( f.exists() ) 
+        if ( f.isDir() ) {
 		dialog->setDir( dir_ );
 		wd = dir_;
 	    }

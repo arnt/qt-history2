@@ -244,10 +244,14 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 	isel = fi.fileName();
     }
 
+    if ( !fi.exists() )
+    *initialDirectory = tr("%HOMEPATH%");
+
     QString title = caption;
     if ( title.isNull() )
 	title = tr("Open");
-
+    qDebug ("%s", initialDirectory->latin1() );
+    
     if ( qt_winver & WV_DOS_based ) {
 	// Use ANSI strings and API
 	OPENFILENAMEA* ofn = makeOFNA( parent, isel,
@@ -295,6 +299,9 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 	*initialDirectory = fi.dirPath( TRUE );
 	isel = fi.fileName();
     }
+
+    if ( !fi.exists() )
+    *initialDirectory = tr("%HOMEPATH%");
 
     QString title = caption;
     if ( title.isNull() )
@@ -348,6 +355,9 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
     if ( initialDirectory && !fi.isDir() ) {
 	*initialDirectory = fi.dirPath( TRUE );
     }
+
+    if ( !fi.exists() )
+    *initialDirectory = tr("%HOMEPATH%");
 
     QString title = caption;
     if ( title.isNull() )
