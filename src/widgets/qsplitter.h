@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#27 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#28 $
 **
 ** Defintion of  QSplitter class
 **
@@ -43,6 +43,7 @@ public:
     QSplitter( QWidget *parent=0, const char *name=0 );
     QSplitter( Orientation, QWidget *parent=0, const char *name=0 );
     ~QSplitter();
+
     virtual void setOrientation( Orientation );
     Orientation orientation() const { return orient; }
 
@@ -53,9 +54,6 @@ public:
 
     void moveToFirst( QWidget * );
     void moveToLast( QWidget * );
-
-    //void setHidden( QWidget *, bool );
-    //bool isHidden( QWidget *) const;
 
     void refresh() { recalc( TRUE ); }
     QSize sizeHint() const;

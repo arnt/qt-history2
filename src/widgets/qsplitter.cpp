@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#67 $
 **
 **  Splitter widget
 **
@@ -50,7 +50,6 @@ public:
     void setId( int i ) { myId = i; }
 
 protected:
-    //    void resizeEvent( QResizeEvent * );
     void paintEvent( QPaintEvent * );
     void mouseMoveEvent( QMouseEvent * );
     void mousePressEvent( QMouseEvent * );
@@ -64,11 +63,12 @@ private:
     QSplitter *s;
 };
 
+
 static int opaqueOldPos = -1; //### there's only one mouse, but this is a bit risky
 
 
 QSplitterHandle::QSplitterHandle( Qt::Orientation o,
-				      QSplitter *parent, const char* name )
+				  QSplitter *parent, const char * name )
     : QWidget( parent, name )
 {
     s = parent;
@@ -98,6 +98,7 @@ void QSplitterHandle::setOrientation( Qt::Orientation o )
     else
 	setCursor( splitVCursor );
 }
+
 
 void QSplitterHandle::mouseMoveEvent( QMouseEvent *e )
 {
@@ -171,7 +172,6 @@ public:
     QMultiLineEdit *ed = new QMultiLineEdit( split );
   \endcode
 
-
   In QSplitter the boundary can be either horizontal or vertical.  The
   default is horizontal (the children are side by side) and you
   can use setOrientation( QSplitter::Vertical ) to set it to vertical.
@@ -224,6 +224,8 @@ QSplitter::QSplitter( QWidget *parent, const char *name )
      orient = Horizontal;
      init();
 }
+
+
 /*!
   Creates splitter with orientation \a o.
 */
@@ -234,6 +236,7 @@ QSplitter::QSplitter( Orientation o, QWidget *parent, const char *name )
      orient = o;
      init();
 }
+
 
 /*!
   Destructs the splitter.
@@ -250,16 +253,17 @@ void QSplitter::init()
     data = new QSplitterData;
 }
 
+
 /*!
   \fn void QSplitter::refresh()
 
   Updates the splitter state. You should not need to call this
-  function during normal operations.
+  function during normal use of the splitter.
 */
 
 
 /*!  Sets the orientation to \a o.  By default the orientation is
-  horizontal (the two widgets are side by side).
+  horizontal (the widgets are side by side).
 
   \sa orientation()
 */
@@ -273,13 +277,13 @@ void QSplitter::setOrientation( Orientation o )
 
     QSplitterLayoutStruct *s = data->list.first();
     while ( s ) {
-	if ( s->isSplitter ) {
+	if ( s->isSplitter )
 	    ((QSplitterHandle*)s->wid)->setOrientation( o );
-	}
-	s = data->list.next();
+	s = data->list.next();  // ### next at end of loop, no iterator
     }
     recalc( isVisible() );
 }
+
 
 /*!
    \fn Orientation QSplitter::orientation() const
@@ -293,6 +297,7 @@ void QSplitter::resizeEvent( QResizeEvent * )
     doResize();
 }
 
+
 /*!
   Inserts the widget \a w at the end, or at the beginning if \a first is TRUE
 
@@ -300,6 +305,7 @@ void QSplitter::resizeEvent( QResizeEvent * )
   sure that \a w is not already in the splitter, and to call recalcId if needed.
   (If \a first is TRUE, then recalcId is very probably needed.)
 */
+
 QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
 {
     QSplitterLayoutStruct *s;
@@ -334,9 +340,11 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
     return s;
 }
 
+
 /*!
   Tells the splitter that a child widget has been inserted/removed.
 */
+
 void QSplitter::childEvent( QChildEvent *c )
 {
     if ( c->type() == QEvent::ChildInserted ) {
@@ -375,12 +383,13 @@ void QSplitter::childEvent( QChildEvent *c )
 	    p = s;
 	    s = data->list.next();
 	}
-
     }
 }
 
+
 /*!
-  Shows a rubber band at position \a p. If \a p is negative, the rubber band is removed.
+  Shows a rubber band at position \a p. If \a p is negative, the
+  rubber band is removed.
 */
 
 void QSplitter::setRubberband( int p )
@@ -409,10 +418,7 @@ void QSplitter::setRubberband( int p )
 }
 
 
-/*!
-  \reimp
-  Handles LayoutHint events
-*/
+/*! \reimp */
 
 bool QSplitter::event( QEvent *e )
 {
@@ -427,16 +433,20 @@ bool QSplitter::event( QEvent *e )
   \a w, \a h using painter \a p.
   \sa QStyle::drawSplitter
 */
-void QSplitter::drawSplitter( QPainter *p, QCOORD x, QCOORD y, QCOORD w, QCOORD h )
+
+void QSplitter::drawSplitter( QPainter *p,
+			      QCOORD x, QCOORD y, QCOORD w, QCOORD h )
 {
     style().drawSplitter( p, x, y, w, h, colorGroup(), orient );
 }
+
 
 /*!
   Returns the id of the splitter to the right of or below the widget \a w,
   or 0 if there is no such splitter.
   (ie. it is either not in this QSplitter, or it is at the end).
 */
+
 int QSplitter::idAfter( QWidget* w ) const
 {
     QSplitterLayoutStruct *s = data->list.first();
@@ -451,9 +461,11 @@ int QSplitter::idAfter( QWidget* w ) const
     return 0;
 }
 
+
 /*!
-  Moves the left/top edge of the splitter handle with id \a id as close as possible to
-  \a p which is the distance from the left (or top) edge of the widget.
+  Moves the left/top edge of the splitter handle with id \a id as
+  close as possible to \a p which is the distance from the left (or
+  top) edge of the widget.
 
   \sa idAfter()
 */
@@ -471,6 +483,7 @@ void QSplitter::moveSplitter( QCOORD p, int id )
     storeSizes();
 }
 
+
 void QSplitter::setG( QWidget *w, int p, int s )
 {
     if ( orient == Horizontal )
@@ -485,6 +498,7 @@ void QSplitter::setG( QWidget *w, int p, int s )
 
   \sa idAfter()
 */
+
 void QSplitter::moveBefore( int pos, int id, bool upLeft )
 {
     QSplitterLayoutStruct *s = data->list.at(id);
@@ -519,6 +533,7 @@ void QSplitter::moveBefore( int pos, int id, bool upLeft )
 
   \sa idAfter()
 */
+
 void QSplitter::moveAfter( int pos, int id, bool upLeft )
 {
     QSplitterLayoutStruct *s = data->list.at(id);
@@ -549,12 +564,12 @@ void QSplitter::moveAfter( int pos, int id, bool upLeft )
 }
 
 
-
 /*!
   Returns the valid range of the splitter with id \a id in \a min and \a max.
 
   \sa idAfter()
- */
+*/
+
 void QSplitter::getRange( int id, int *min, int *max )
 {
     int minB = 0;	//before
@@ -593,11 +608,13 @@ void QSplitter::getRange( int id, int *min, int *max )
 
 }
 
+
 /*!
   Returns the legal position closest to \a p of the splitter with id \a id.
 
   \sa idAfter()
 */
+
 int QSplitter::adjustPos( int p, int id )
 {
     int min = 0;
@@ -607,6 +624,7 @@ int QSplitter::adjustPos( int p, int id )
 
     return p;
 }
+
 
 void QSplitter::doResize()
 {
@@ -629,7 +647,8 @@ void QSplitter::doResize()
 	    a[i].stretch = s->sizer;
 	    a[i].maximumSize = pick( s->wid->maximumSize() );
 	    a[i].sizeHint = a[i].minimumSize = pick( minSize(s->wid) );
-	    //	    a[i].expansive = TRUE; 	//may not be necessary, but cannot hurt
+	    //a[i].expansive = TRUE; //may not be necessary, but cannot hurt
+	    // ### why keep that line, commented out?
 	}
     }
 
@@ -697,8 +716,7 @@ void QSplitter::recalc( bool update )
 
 
 /*!
-  Sets resize mode of \a w to \a mode.
-  \a mode can be one of:
+  Sets resize mode of \a w to \a mode. \a mode can be one of:
 
   \define QSplitter::ResizeMode
 
@@ -729,10 +747,12 @@ void QSplitter::setResizeMode( QWidget *w, ResizeMode mode )
 
   \sa setOpaqueResize()
 */
+
 bool QSplitter::opaqueResize() const
 {
     return data->opaque;
 }
+
 
 /*!
   Sets opaque resize to \a on. Opaque resize is initially turned off.
@@ -772,8 +792,8 @@ void QSplitter::moveToFirst( QWidget *w )
      if ( !found )
 	addWidget( w, TRUE );
      recalcId();
-     //     recalc( isVisible() );
 }
+
 
 /*!
   Moves \a w to the rightmost/bottom position.
@@ -801,8 +821,8 @@ void QSplitter::moveToLast( QWidget *w )
      if ( !found )
 	addWidget( w);
      recalcId();
-     //     recalc( isVisible() );
 }
+
 
 void QSplitter::recalcId()
 {
@@ -818,6 +838,7 @@ void QSplitter::recalcId()
 /*!
   Returns a size based on the child widgets.
 */
+
 QSize QSplitter::sizeHint() const
 {
     int l = 0;
@@ -876,12 +897,11 @@ QSize QSplitter::minimumSizeHint() const
 /*!
   Says that this widget wants to grow in both height and width.
 */
+
 QSizePolicy QSplitter::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }
-
-
 
 
 /*!
@@ -899,7 +919,7 @@ void QSplitter::storeSizes()
 }
 
 
-#if 0
+#if 0 // ### remove this code ASAP
 
 /*!
   Hides \a w if \a hide is TRUE, and updates the splitter.
@@ -964,7 +984,6 @@ QValueList<int> QSplitter::sizes() const
 	    list.append( s->sizer );
 	s = data->list.next();
     }
-
     return list;
 }
 
