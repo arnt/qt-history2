@@ -197,11 +197,6 @@ public slots:
     void helpAboutQt();
 
 private slots:
-    void propertyEditorHidden();
-    void hierarchyViewHidden();
-    void formListHidden();
-    void actionEditorHidden();
-
     void activeWindowChanged( QWidget *w );
     void updateUndoRedo( bool, bool, const QString &, const QString & );
 

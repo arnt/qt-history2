@@ -1134,8 +1134,6 @@ void MainWindow::setupPropertyEditor()
 					"<p>You can resize the columns of the editor by dragging the separators of the list "
 					"header.</p>") );
     propGeom = QRect( 0, 0, 300, 600 );
-    connect( propertyEditor, SIGNAL( hidden() ),
-	     this, SLOT( propertyEditorHidden() ) );
     actionWindowPropertyEditor->setOn( TRUE );
 }
 
@@ -1172,8 +1170,6 @@ void MainWindow::setupHierarchyView()
 				      "between the widgets in your form. You can use the clipboard functions using "
 				      "a context menu for each item in the view.</p>"
 				      "<p>The columns can be resized by dragging the separator in the list header.</p>" ) );
-    connect( hierarchyView, SIGNAL( hidden() ),
-	     this, SLOT( hierarchyViewHidden() ) );
     actionWindowHierarchyView->setOn( FALSE );
     dw->hide();
 }
@@ -1193,8 +1189,6 @@ void MainWindow::setupFormList()
 				  "<p>The Form List displays the filenames of all open forms, and a flag indicates "
 				  "which forms have been changed.</p>"
 				  "<p>The columns can be resized by dragging the separator in the list header.</p>") );
-    connect( formList, SIGNAL( hidden() ),
-	     this, SLOT( formListHidden() ) );
     actionWindowFormList->setOn( TRUE );
 }
 
@@ -1210,8 +1204,6 @@ void MainWindow::setupActionEditor()
     dw->setFixedExtentWidth( 300 );
     dw->setCaption( tr( "Action Editor" ) );
     QWhatsThis::add( actionEditor, tr("<b>The Action Editor</b><p>Todo Whatsthis</p>" ) );
-    connect( actionEditor, SIGNAL( hidden() ),
-	     this, SLOT( actionEditorHidden() ) );
     actionWindowActionEditor->setOn( FALSE );
     dw->hide();
 }
@@ -2512,6 +2504,8 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 		 this, SLOT( windowHierarchyView( bool ) ) );
 	connect( formList->parentWidget(), SIGNAL( visibilityChanged( bool ) ),
 		 this, SLOT( windowFormList( bool ) ) );
+	connect( actionEditor->parentWidget(), SIGNAL( visibilityChanged( bool ) ),
+		 this, SLOT( windowActionEditor( bool ) ) );
 	return TRUE;
     case QEvent::Wheel:
 	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
@@ -2634,26 +2628,6 @@ bool MainWindow::unregisterClient( FormWindow *w )
 	lastActiveFormWindow = 0;
 
     return TRUE;
-}
-
-void MainWindow::propertyEditorHidden()
-{
-    actionWindowPropertyEditor->setOn( FALSE );
-}
-
-void MainWindow::hierarchyViewHidden()
-{
-    actionWindowHierarchyView->setOn( FALSE );
-}
-
-void MainWindow::formListHidden()
-{
-    actionWindowFormList->setOn( FALSE );
-}
-
-void MainWindow::actionEditorHidden()
-{
-    actionWindowActionEditor->setOn( FALSE );
 }
 
 void MainWindow::activeWindowChanged( QWidget *w )
