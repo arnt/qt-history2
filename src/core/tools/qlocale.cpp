@@ -1723,6 +1723,27 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 
     All the methods in QLocale, with the exception of setDefaultLocale(),
     are reentrant.
+
+    The double-to-string and string-to-double conversion functions are
+    covered by the following licenses:
+
+    \legalese
+
+    Copyright (c) 1991 by AT&T.
+
+    Permission to use, copy, modify, and distribute this software for any
+    purpose without fee is hereby granted, provided that this entire notice
+    is included in all copies of any software which is or includes a copy
+    or modification of this software and in all copies of the supporting
+    documentation for such software.
+
+    THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
+    WARRANTY.  IN PARTICULAR, NEITHER THE AUTHOR NOR AT&T MAKES ANY
+    REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
+    OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+
+    This product includes software developed by the University of
+    California, Berkeley and its contributors.
 */
 
 /*!
@@ -3430,25 +3451,6 @@ static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base
 
 /*	From: NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp */
 /* $FreeBSD: src/lib/libc/stdlib/netbsd_strtod.c,v 1.2.2.2 2001/03/02 17:14:15 tegge Exp $	*/
-
-/****************************************************************
- *
- * The author of this software is David M. Gay.
- *
- * Copyright (c) 1991 by AT&T.
- *
- * Permission to use, copy, modify, and distribute this software for any
- * purpose without fee is hereby granted, provided that this entire notice
- * is included in all copies of any software which is or includes a copy
- * or modification of this software and in all copies of the supporting
- * documentation for such software.
- *
- * THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTY.  IN PARTICULAR, NEITHER THE AUTHOR NOR AT&T MAKES ANY
- * REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
- * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
- *
- ***************************************************************/
 
 /* Please send bug reports to
 	David M. Gay
