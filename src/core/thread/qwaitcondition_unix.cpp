@@ -149,7 +149,9 @@ QWaitCondition::~QWaitCondition()
 */
 void QWaitCondition::wakeOne()
 {
+    report_error(pthread_mutex_lock(&d->mutex), "QWaitCondition::wakeOne()", "mutex lock");
     report_error(pthread_cond_signal(&d->cond), "QWaitCondition::wakeOne()", "cv signal");
+    report_error(pthread_mutex_unlock(&d->mutex), "QWaitCondition::wakeOne()", "mutex unlock");
 }
 
 /*!
@@ -161,7 +163,9 @@ void QWaitCondition::wakeOne()
  */
 void QWaitCondition::wakeAll()
 {
+    report_error(pthread_mutex_lock(&d->mutex), "QWaitCondition::wakeAll()", "mutex lock");
     report_error(pthread_cond_broadcast(&d->cond), "QWaitCondition::wakeAll()", "cv broadcast");
+    report_error(pthread_mutex_unlock(&d->mutex), "QWaitCondition::wakeAll()", "mutex unlock");
 }
 
 /*!
@@ -214,8 +218,8 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
         code = pthread_cond_wait(&d->cond, &d->mutex);
     }
 
-    mutex->lock();
     report_error(pthread_mutex_unlock(&d->mutex), "QWaitCondition::wait()", "mutex unlock");
+    mutex->lock();
 
     if (code && code != ETIMEDOUT)
         report_error(code, "QWaitCondition::wait()", "cv wait");
