@@ -3372,12 +3372,11 @@ QBrush::QBrush()
 {
     static QBrushData* defBrushData = 0;
     if ( !defBrushData ) {
-	static QSingleCleanupHandler<QBrushData> defBrushCleanup;
+	static QSharedCleanupHandler<QBrushData> defBrushCleanup;
 	defBrushData = new QBrushData;
 	defBrushData->style = NoBrush;
 	defBrushData->color = Qt::black;
 	defBrushData->pixmap = 0;
-	defBrushData->ref();
 	defBrushCleanup.set( &defBrushData );
     }
     data = defBrushData;

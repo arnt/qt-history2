@@ -186,9 +186,8 @@ QColorGroup::QColorGroup()
 {
     static QColorGroupPrivate* defColorGroupData = 0;
     if ( !defColorGroupData ) {
-	static QSingleCleanupHandler<QColorGroupPrivate> defColorGroupCleanup;
+	static QSharedCleanupHandler<QColorGroupPrivate> defColorGroupCleanup;
 	defColorGroupData = new QColorGroupPrivate;
-	defColorGroupData->ref();
 	defColorGroupCleanup.set( &defColorGroupData );
     }
     d = defColorGroupData;
@@ -566,11 +565,10 @@ QPalette::QPalette()
 {
     static QPalData *defPalData = 0;
     if ( !defPalData ) {                // create common palette data
-        defPalData = new QPalData;      //   for the default palette
-        Q_CHECK_PTR( defPalData );
-	static QSingleCleanupHandler<QPalData> defPalCleanup;
+	defPalData = new QPalData;      //   for the default palette
+	static QSharedCleanupHandler<QPalData> defPalCleanup;
 	defPalCleanup.set( &defPalData );
-        defPalData->ser_no = palette_count++;
+	defPalData->ser_no = palette_count++;
     }
     data = defPalData;
     data->ref();

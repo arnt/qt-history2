@@ -53,7 +53,7 @@ class Q_EXPORT QSingleCleanupHandler
 {
 public:
     QSingleCleanupHandler() : object( 0 ) {}
-    ~QSingleCleanupHandler() { 
+    ~QSingleCleanupHandler() {
 	if ( object ) {
 	    delete *object;
 	    *object = 0;
@@ -61,6 +61,28 @@ public:
     }
     Type* set( Type **o ) {
 	object = o;
+	return *object;
+    }
+    void reset() { object = 0; }
+private:
+    Type **object;
+};
+
+template<class Type>
+class Q_EXPORT QSharedCleanupHandler
+{
+public:
+    QSharedCleanupHandler() : object( 0 ) {}
+    ~QSharedCleanupHandler() {
+	if ( object ) {
+	    if ( (*object)->deref() )
+		delete *object;
+	    *object = 0;
+	}
+    }
+    Type* set( Type **o ) {
+	object = o;
+	(*object)->ref();
 	return *object;
     }
     void reset() { object = 0; }
