@@ -1183,6 +1183,7 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
            msecs, errorString().latin1());
 #endif
         emit error(d->socketError);
+        close();
         return false;
     }
 
