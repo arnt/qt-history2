@@ -53,9 +53,9 @@ QRgb macGetRgba( QRgb initial, bool *ok, QWidget *parent, const char* )
 	}
     }
     RGBColor rgb, rgbout;
-    rgb.red = qRed(initial);
-    rgb.blue = qBlue(initial);
-    rgb.green = qGreen(initial);
+    rgb.red = qRed(initial) * 256;
+    rgb.blue = qBlue(initial) * 256;
+    rgb.green = qGreen(initial) * 256;
 #if 1
     Point place;
     place.h = p.h == -1 ? 0 : p.h;
@@ -98,7 +98,8 @@ QRgb macGetRgba( QRgb initial, bool *ok, QWidget *parent, const char* )
 	(*ok) = rval;
     if(!rval) 
 	return initial;
-    initial = qRgba(rgbout.red, rgbout.green, rgbout.blue, qAlpha(initial));
+    initial = qRgba(rgbout.red / 256, rgbout.green / 256, 
+		    rgbout.blue / 256, qAlpha(initial));
     return initial;
 }
 

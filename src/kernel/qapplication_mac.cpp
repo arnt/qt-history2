@@ -1305,21 +1305,25 @@ bool QApplication::do_mouse_down( Point *pt )
     QWidget *widget;
     short windowPart = qt_mac_find_window( pt->h, pt->v, &widget);
     mouse_down_unhandled = FALSE;
-    if(windowPart != inMenuBar && !widget) {
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
+    if( windowPart == inMenuBar) {
+	MenuSelect(*pt); //allow menu tracking
+	return FALSE;
+    } else
+#endif
+    if(!widget) {
 	mouse_down_unhandled = TRUE;
 	return FALSE;
     }
-    bool in_widget = FALSE;
 
+    bool in_widget = FALSE;
     switch( windowPart ) {
     case inDesk:
 	break;
     case inGoAway:
 	if( widget ) {
 	    widget->close();
-	} else {
-	    qWarning("Close for unknown widget");
-	}
+	} 
 	break;
     case 13: { //hide toolbars thing
 	if(widget) {
@@ -1350,10 +1354,11 @@ bool QApplication::do_mouse_down( Point *pt )
 		    }
 		}
 	    }
-	}
+	} 
 	break; }
     case inDrag:
     {
+	if(widget) {
 	    DragWindow( (WindowPtr)widget->handle(), *pt, 0 );
 	    QPoint np, op(widget->crect.x(), widget->crect.y());
 	    {
@@ -1366,10 +1371,11 @@ bool QApplication::do_mouse_down( Point *pt )
 		widget->crect = QRect( np, widget->crect.size());
 		QMoveEvent qme( np, op);
 	    }
-	}
-	break;
+	} 
+	break; }
     case inContent:
-	in_widget = TRUE;
+	if(widget) 
+	    in_widget = TRUE;
 	break;
     case inGrow:
     {
@@ -1412,11 +1418,6 @@ bool QApplication::do_mouse_down( Point *pt )
 		widget->showMaximized();
 	}
 	break;
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
-    case inMenuBar:
-	MenuSelect(*pt); //allow menu tracking
-	break;
-#endif
     default:
 	qDebug("Unhandled case in mouse_down.. %d", windowPart);
 	break;
@@ -1834,7 +1835,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		}
 	    }
 	    if(!app->do_mouse_down( &where )) {
-		if(!mouse_down_unhandled) {
+		if(mouse_down_unhandled) {
 		    handled_event = FALSE;
 		    break;
 		} 
@@ -2409,6 +2410,7 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 
 void QApplication::flush()
 {
+    sendPostedEvents();
     if(QWidgetList *list = qApp->topLevelWidgets()) {
 	for ( QWidget *widget = list->first(); widget; widget = list->next() ) {
 	    widget->propagateUpdates();
