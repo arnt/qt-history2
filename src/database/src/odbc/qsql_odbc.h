@@ -4,6 +4,7 @@
 #include <qmap.h>
 #include <qstring.h>
 #include <qsqldriver.h>
+#include <qsqlfield.h>
 #include <qsqlresult.h>
 #include <qsqlindex.h>
 
