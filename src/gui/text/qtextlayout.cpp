@@ -962,9 +962,6 @@ void QTextLine::layoutFixedColumnWidth(int numColumns)
 
 void QTextLine::layout_helper(int maxGlyphs)
 {
-    if(!eng->string.length())
-        return;
-
     QScriptLine &line = eng->lines[i];
 
     if (!eng->items.size()) {
@@ -1425,7 +1422,13 @@ float QTextLine::cursorToX(int *cursorPos, Edge edge) const
 
     if (!i && !eng->items.size()) {
         *cursorPos = 0;
-        return eng->lines[0].x;
+        const QScriptLine &line = eng->lines[0];
+        float x = line.x;
+        if (eng->textFlags & Qt::AlignRight)
+            x += line.width - line.textWidth;
+        else if (eng->textFlags & Qt::AlignHCenter)
+            x += (line.width - line.textWidth)/2;
+        return x;
     }
 
     const QScriptLine &line = eng->lines[i];
