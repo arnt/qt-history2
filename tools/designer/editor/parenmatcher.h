@@ -1,3 +1,23 @@
+ /**********************************************************************
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of Qt Designer.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
 #ifndef PARENMATCHER_H
 #define PARENMATCHER_H
 
@@ -7,7 +27,7 @@
 
 class QTextCursor;
 
-struct EDITOR_EXPORT Paren 
+struct EDITOR_EXPORT Paren
 {
     Paren() : type( Open ), chr( ' ' ), pos( -1 ) {}
     Paren( int t, const QChar &c, int p ) : type( (Type)t ), chr( c ), pos( p ) {}
@@ -23,13 +43,13 @@ class EDITOR_EXPORT ParenMatcher
 {
 public:
     ParenMatcher();
-    
+
     virtual bool match( QTextCursor *c );
-    
+
 private:
     bool checkOpenParen( QTextCursor *c );
     bool checkClosedParen( QTextCursor *c );
-    
+
 };
 
 #endif
