@@ -136,8 +136,12 @@ UnixMakefileGenerator::init()
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_PREBIND"];
     if(!project->isEmpty("QMAKE_INCDIR"))
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
-    if(!project->isEmpty("QMAKE_LIBDIR"))
+    if(!project->isEmpty("QMAKE_LIBDIR")) {
+	if ( !project->isEmpty("QMAKE_RPATH") )
+	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR", " " + var("QMAKE_RPATH"), 
+								  " " + var("QMAKE_RPATH"), "");
 	project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue( "QMAKE_LIBDIR", "-L", " -L", "" );
+    }
     if ( extern_libs && (project->isActiveConfig("qt") || project->isActiveConfig("opengl")) ) {
 	if(configs.findIndex("x11lib") == -1)
 	    configs.append("x11lib");
