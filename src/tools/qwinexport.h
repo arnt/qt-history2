@@ -217,5 +217,13 @@ QM_TEMPLATE_EXTERN_TABLE template class QM_EXPORT_TABLE QPtrVector<QTableItem>;
 //Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrVector<QTable>;
 #endif
 
+// qsqlextension template exports
+#if defined(Q_DEFINED_QSQLEXTENSION) && defined(Q_DEFINED_QMAP) && defined(Q_DEFINED_QVALUEVECTOR) && defined(Q_DEFINED_QSTRING) && !defined(Q_EXPORTED_QSQLEXTENSION_TEMPLATES)
+#define Q_EXPORTED_QSQLEXTENSION_TEMPLATES
+QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QMap<QString,Param>;
+QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QValueVector<Holder>;
+#endif
+
+
 // MOC_SKIP_END
 #endif // template defined

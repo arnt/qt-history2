@@ -82,11 +82,8 @@ struct Holder {
     int	    holderPos;
 };
 
-#if defined(Q_TEMPLATEDLL)
-QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QMap<QString,Param>;
-QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QMap<int,QString>;
-QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QValueVector<Holder>;
-#endif
+#define Q_DEFINED_QSQLEXTENSION
+#include "qwinexport.h"
 
 class QM_EXPORT_SQL QSqlExtension {
 public:
@@ -143,4 +140,5 @@ public:
 		       const QString& connOpts ) = 0;
 };
 #endif
+
 #endif

@@ -567,5 +567,6 @@ Q_INLINE_TEMPLATES QDataStream& operator<<( QDataStream& s, const QValueVector<T
 }
 #endif // QT_NO_DATASTREAM
 
-
-#endif
+#define Q_DEFINED_QVALUEVECTOR
+#include "qwinexport.h"
+#endif // QVALUEVECTOR_H
