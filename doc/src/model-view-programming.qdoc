@@ -143,7 +143,13 @@ advanced concepts are discussed later.
 To ensure that representation of the data in the model
 is kept separate from the way it is accessed, the concept of a
 \e{model index} is introduced. Each item of data is represented by a
-model index that is provided by the model when required.
+model index that is provided by the model when required, and that
+knows which model it belongs to.
+
+\code
+QAbstractItemModel *model = index.model();
+\endcode
+
 As a result, only the model needs to know how items are stored, and the
 type of data managed by the model can be defined fairly generally.
 
@@ -165,9 +171,9 @@ properties in detail.
 \section2 Rows and Columns
 
 In its most basic form, an item model can be accessed as a simple table
-in which items are located by their row and column numbers. This does
+in which items are located by their row and column numbers. \e{This does
 not mean that the data in the model has to be stored in a tabular
-structure; the use of row and column numbers is only a convention to
+structure} - the use of row and column numbers is only a convention to
 allow components to communicate with each other.
 We can retrieve information about any given item by specifying its row
 and column numbers to the model, and we receive an index that
@@ -196,12 +202,11 @@ model.
 \section2 Parents of Items
 
 A simple tabular model is ideal for representing items in a table, or
-for representing lists of items (i.e. where there is only one
-column). However, structures such as tree views require a more
-flexible interface to the items in the model. As a result, each item
-can also be the parent of another table of items, in much the same way
-that a top-level item in a tree view can contain another list of
-items.
+for representing lists of items in just a single column of a tabular structure.
+However, structures such as tree views require the model to expose a more
+flexible interface to the items within. As a result, each item can also be
+the parent of another table of items, in much the same way that a top-level
+item in a tree view can contain another list of items.
 
 When requesting an index for a model item, we must provide some
 information about the item's parent. Outside the model, the only way to
