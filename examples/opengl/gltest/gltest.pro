@@ -10,5 +10,4 @@ SOURCES		= glalpha.cpp \
 		  main.cpp
 TARGET		= gltest
 DEPENDPATH	= ../include
-unix:LIBS	= -lglut
 INTERFACES	= gltest.ui
