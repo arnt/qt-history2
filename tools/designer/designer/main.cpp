@@ -211,7 +211,7 @@ int main( int argc, char *argv[] )
     for ( int i = 1; i < a.argc(); ++i ) {
 	QString arg = a.argv()[ i ];
 	if ( arg[0] != '-' )
-	    mw->openFile( arg );
+	    mw->fileOpen( "", "", arg );
     }
 
     return a.exec();

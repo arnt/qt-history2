@@ -402,8 +402,7 @@ void FormList::contentsDropEvent( QDropEvent *e )
 	if ( !files.isEmpty() ) {
 	    for ( QStringList::Iterator it = files.begin(); it != files.end(); ++it ) {
 		QString fn = *it;
-		if ( QFileInfo( fn ).extension().lower() == "ui" )
-		    mainWindow->openFile( fn );
+		mainWindow->fileOpen( "", "", fn );
 	    }
 	}
     }

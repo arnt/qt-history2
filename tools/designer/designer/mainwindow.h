@@ -176,8 +176,8 @@ public slots:
     void fileNew();
     void fileNewProject();
     void fileCloseProject();
-    void fileOpen() { fileOpen( "", "" ); }
-    void fileOpen( const QString &filter, const QString &extension );
+    void fileOpen() { fileOpen( "", "", "" ); }
+    void fileOpen( const QString &filter, const QString &extension, const QString &filename = "" );
     bool fileSave();
     bool fileSaveAs();
     void fileSaveAll();

@@ -1073,7 +1073,7 @@ void MainWindow::fileCloseProject()
 }
 
 
-void MainWindow::fileOpen( const QString &filter, const QString &extension )
+void MainWindow::fileOpen( const QString &filter, const QString &extension, const QString &fn )
 {
     statusBar()->message( tr( "Select a file...") );
 
@@ -1102,7 +1102,10 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension )
 
 	QString filters = filterlist.join( ";;" );
 
-	filename = QFileDialog::getOpenFileName( QString::null, filters, this, 0, QString::null, &lastOpenFilter );
+	if ( fn.isEmpty() )
+	    filename = QFileDialog::getOpenFileName( QString::null, filters, this, 0, QString::null, &lastOpenFilter );
+	else
+	    filename = fn;
 	if ( !filename.isEmpty() ) {
 	    QFileInfo fi( filename );
 
