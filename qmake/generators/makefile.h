@@ -71,7 +71,7 @@ protected:
     struct Compiler
     {
         QStringList variable_in, variable_out;
-        QMakeSourceFileInfo::SourceFileType type;
+        SourceFileType type;
         enum CompilerFlags {
             CompilerNoCheckDeps  = 0x01,
             CompilerNoCheckExist = 0x02
