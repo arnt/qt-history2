@@ -3084,9 +3084,11 @@ void QWidget::show()
 	}
     }
 
-    if ( testWFlags(WStyle_Tool) ) {
+    if ( testWFlags(WStyle_Tool) || isPopup() ) {
 	raise();
-    } else if ( testWFlags(WType_TopLevel) && !isPopup() ) {
+    } 
+    
+    if ( testWFlags(WType_TopLevel) && !isPopup() ) {
 	while ( QApplication::activePopupWidget() )
 	    QApplication::activePopupWidget()->hide();
     }
