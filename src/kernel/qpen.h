@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpen.h#3 $
+** $Id: //depot/qt/main/src/kernel/qpen.h#4 $
 **
 ** Definition of QPen class
 **
@@ -26,6 +26,7 @@ class QPen
 friend class QPainter;
 public:
     QPen();
+    QPen( PenStyle );
     QPen( const QColor &color, uint width=0, PenStyle style=SolidLine );
     QPen( const QPen & );
    ~QPen();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbrush.h#4 $
+** $Id: //depot/qt/main/src/kernel/qbrush.h#5 $
 **
 ** Definition of QBrush class
 **
@@ -29,6 +29,7 @@ class QBrush
 friend class QPainter;
 public:
     QBrush();
+    QBrush( BrushStyle );
     QBrush( const QColor &, BrushStyle=SolidBrush );
     QBrush( const QColor &, QBitMap * );
     QBrush( const QBrush & );
