@@ -48,6 +48,6 @@
     <file name="searchfind.png">./images/searchfind.png</file>
     <file name="splash.png">./images/splash.png</file>
     <file name="undo.png">./images/undo.png</file>
-    <file name="whatsthis.xpm">./images/whatsthis.xpm</file>
+    <file name="whatsthis.png">./images/whatsthis.png</file>
 </qresource>
 </RCC>

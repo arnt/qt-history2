@@ -1483,7 +1483,7 @@ void TrWindow::setupMenuBar()
     aboutQtAct = helpp->addAction(tr("About &Qt"), this, SLOT(aboutQt()));
     helpp->addSeparator();
 
-    whatsThisAct = helpp->addAction(loadPixmap("whatsthis.xpm"), tr("&What's This?"),
+    whatsThisAct = helpp->addAction(loadPixmap("whatsthis.png"), tr("&What's This?"),
                                this, SLOT(onWhatsThis()));
 
     whatsThisAct->setShortcut(Qt::SHIFT + Qt::Key_F1);
@@ -1997,7 +1997,7 @@ QIcon TrWindow::loadPixmap(const QString &imageName)
         QPixmap enabledPix(":/images/" + imageName);
 
         QIcon s(enabledPix);
-        if (imageName != QLatin1String("whatsthis.xpm")) {
+        if (imageName != QLatin1String("whatsthis.png")) {
             QPixmap disabledPix(":/images/d_" + imageName);
             s.setPixmap(disabledPix, Qt::SmallIconSize, QIcon::Disabled);
         }

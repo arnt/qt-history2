@@ -88,12 +88,12 @@ QModelIndex PhraseModel::index(const Phrase phr) const
     return QAbstractTableModel::index(row,0);
 }
 
-int PhraseModel::rows() const
+int PhraseModel::rowCount() const
 {
     return plist.count();
 }
 
-int PhraseModel::columns() const
+int PhraseModel::columnCount() const
 {
     return 3;
 }

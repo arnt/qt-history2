@@ -84,7 +84,7 @@ void MessageModel::updateItem(QModelIndex indx)
     emit dataChanged(strtindx, endindx);
 }
 
-int MessageModel::rows() const
+int MessageModel::rowCount() const
 {
     if (cntxtItem != 0)
         return cntxtItem->messageItemsInList();
@@ -92,7 +92,7 @@ int MessageModel::rows() const
     return 0;
 }
 
-int MessageModel::columns() const
+int MessageModel::columnCount() const
 {
     return 3;
 }

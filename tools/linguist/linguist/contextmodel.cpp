@@ -134,12 +134,12 @@ void ContextModel::updateAll()
     emit rowsInserted(QModelIndex::Null, 0, cntxtList.count()-1);
 }
 
-int ContextModel::rows() const
+int ContextModel::rowCount() const
 {
     return cntxtList.count();
 }
 
-int ContextModel::columns() const
+int ContextModel::columnCount() const
 {
     return 3;
 }

@@ -63,8 +63,8 @@ public:
     void updateItem(QModelIndex indx);
 
     // from qabstracttablemodel
-    int rows() const;
-    int columns() const;
+    int rowCount() const;
+    int columnCount() const;
     QVariant data(const QModelIndex &index, int role = DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = DisplayRole) const;
 
