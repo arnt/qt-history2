@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#67 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#66 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#67 $");
 
 
 /*!
@@ -331,19 +331,27 @@ void QScrollBar::keyPressEvent( QKeyEvent *e )
     switch ( e->key() ) {
     case Key_Left:
 	if ( orient == Horizontal )
-	    setValue( value() - 1 );
+	    setValue( value() - lineStep() );
 	break;
     case Key_Right:
 	if ( orient == Horizontal )
-	    setValue( value() + 1 );
+	    setValue( value() + lineStep() );
 	break;
     case Key_Up:
 	if ( orient == Vertical )
-	    setValue( value() - 1 );
+	    setValue( value() - lineStep() );
 	break;
     case Key_Down:
 	if ( orient == Vertical )
-	    setValue( value() + 1 );
+	    setValue( value() + lineStep() );
+	break;
+    case Key_PageUp:
+	if ( orient == Vertical )
+	    setValue( value() - pageStep() );
+	break;
+    case Key_PageDown:
+	if ( orient == Vertical )
+	    setValue( value() + pageStep() );
 	break;
     case Key_Home:
 	setValue( minValue() );
