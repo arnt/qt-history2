@@ -161,6 +161,9 @@ static DomAction *createDomAction(const ActionListElt &elt)
 
 QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
+    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(parentWidget))
+        parentWidget = promoted->child();
+    
     QString className = ui_widget->attributeClass();
     if (!m_isMainWidget && className == QLatin1String("QWidget") && ui_widget->elementLayout().size()) {
         // ### check if elementLayout.size() == 1
@@ -194,6 +197,9 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 
 QLayout *QDesignerResource::create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget)
 {
+    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(parentWidget))
+        parentWidget = promoted->child();
+
     QLayout *l = Resource::create(ui_layout, layout, parentWidget);
 
     if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(l))
@@ -204,6 +210,9 @@ QLayout *QDesignerResource::create(DomLayout *ui_layout, QLayout *layout, QWidge
 
 QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget)
 {
+    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(parentWidget))
+        parentWidget = promoted->child();
+    
     if (ui_layoutItem->kind() == DomLayoutItem::Spacer) {
         QHash<QString, DomProperty*> properties = propertyMap(ui_layoutItem->elementSpacer()->elementProperty());
 
@@ -285,6 +294,9 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
 
 QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &_name)
 {
+    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(parentWidget))
+        parentWidget = promoted->child();
+
     QString name = _name;
     QString className = widgetName;
     if (m_isMainWidget)
@@ -314,6 +326,9 @@ QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *par
 
 QLayout *QDesignerResource::createLayout(const QString &layoutName, QObject *parent, const QString &name)
 {
+    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(parent))
+        parent = promoted->child();
+    
     QWidget *layoutBase = 0;
     QLayout *layout = qt_cast<QLayout*>(parent);
 

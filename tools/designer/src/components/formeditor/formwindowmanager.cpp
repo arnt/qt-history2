@@ -799,6 +799,7 @@ void FormWindowManager::endDrag(const QPoint &pos)
             foreach (AbstractDnDItem *item, m_drag_item_list) {
                 DomUI *dom_ui = item->domUi();
                 Q_ASSERT(dom_ui != 0);
+//                dumpUI(dom_ui);
 
                 QRect geometry = item->decoration()->geometry();
                 QWidget *widget = form->createWidget(dom_ui, geometry, parent);

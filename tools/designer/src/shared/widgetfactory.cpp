@@ -66,6 +66,9 @@ void WidgetFactory::loadPlugins()
 
 QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentWidget) const
 {
+    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(parentWidget))
+        parentWidget = promoted->child();
+    
     AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(parentWidget);
 
     QWidget *w = 0;

@@ -73,6 +73,24 @@ bool ObjectInspector::sortEntry(const QObject *a, const QObject *b)
     return a->objectName() < b->objectName();
 }
 
+static void dumpWidget(QWidget *w, QString &result, int nest)
+{
+    if (w == 0)
+        return;
+    result += QString("%1widget name='%2' class='%3' ptr=0x%4\n")
+                .arg(QString(nest*2, '-'))
+                .arg(w->objectName())
+                .arg(w->metaObject()->className())
+                .arg((uint)w, 0, 16);
+
+    QList<QObject*> child_list = w->children();
+    foreach (QObject *childobj, child_list) {
+        QWidget *childwgt = qt_cast<QWidget*>(childobj);
+        if (childwgt != 0)
+            dumpWidget(childwgt, result, nest + 1);
+    }
+}
+
 void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
 {
     if (m_ignoreUpdate)
@@ -96,6 +114,10 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
     QObject *rootObject = fw->mainContainer();
     workingList.append(qMakePair(new QTreeWidgetItem(m_treeWidget), rootObject));
 
+    QString s;
+    dumpWidget(fw->mainContainer(), s, 0);
+    qDebug() << "ObjectInspector::setFormWindow():\n" << s;
+    
     while (!workingList.isEmpty()) {
         QTreeWidgetItem *item = workingList.top().first;
         QObject *object = workingList.top().second;
@@ -104,10 +126,8 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
         QString objectName;
         if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(object))
             objectName = promoted->child()->objectName();
-        else
-            objectName = object->objectName()
-//                            + QString("(%1)").arg(object->metaObject()->className())
-            ;
+        else 
+            objectName = object->objectName();
             
         if (objectName.isEmpty())
             objectName = tr("<noname>");
