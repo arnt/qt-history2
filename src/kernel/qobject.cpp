@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#15 $
 **
 ** Implementation of QObject class
 **
@@ -15,15 +15,17 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#15 $";
 #endif
 
 
-// Timer functions, implemented in qapp_xxx.cpp
+// Event functions, implemented in qapp_xxx.cpp
 
 int   qStartTimer( long interval, QObject *obj );
 bool  qKillTimer( int id );
 bool  qKillTimer( QObject *obj );
+
+void  qRemovePostedEvents( QObject * );
 
 
 declare(QListM,QConnection);			// dictionary of connections
@@ -63,7 +65,8 @@ QObject::QObject( QObject *parent, const char *name )
     sigSender = 0;				// no sender yet
     isSignal = FALSE;				// assume not a signal object
     isWidget = FALSE;				// assume not a widget object
-    hasTimer = FALSE;				// no timers yet
+    pendTimer = FALSE;				// no timers yet
+    pendEvent = FALSE;				// no events yet
     blockSig = FALSE;				// not blocking signals
     if ( parentObj )				// add object to parent
 	parentObj->insertChild( this );
@@ -71,8 +74,10 @@ QObject::QObject( QObject *parent, const char *name )
 
 QObject::~QObject()
 {
-    if ( hasTimer )				// might be pending timers
-	qKillTimer( (QObject *)this );
+    if ( pendTimer )				// might be pending timers
+	qKillTimer( this );
+    if ( pendEvent )				// pending posted events
+	qRemovePostedEvents( this );
     if ( parentObj )				// remove it from parent object
 	parentObj->removeChild( this );
     register QObject *obj;
@@ -163,7 +168,7 @@ void QObject::blockSignals( bool b )
 
 int QObject::startTimer( long interval )	// start timer events
 {
-    hasTimer = TRUE;				// set timer flag
+    pendTimer = TRUE;				// set timer flag
     return qStartTimer( interval, (QObject *)this );
 }
 
