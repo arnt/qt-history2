@@ -108,8 +108,8 @@ static void readLocaleSettings()
 	*lTimeSep = data;
     }
 #else
-    lDateSep = "-";
-    lTimeSep = ":";
+    *lDateSep = "-";
+    *lTimeSep = ":";
 #endif
     QString d = QDate( 1999, 11, 22 ).toString( Qt::LocalDate );
     dpos = d.find( "22" );
@@ -135,7 +135,7 @@ static void readLocaleSettings()
 #ifndef Q_WS_WIN
 	QString sep = d.mid( QMIN( dpos, mpos ) + 2, QABS( dpos - mpos ) - 2 );
 	if ( d.contains( sep ) == 2 ) {
-	    lDateSep = sep;
+	    *lDateSep = sep;
 	}
 #endif
     }
@@ -149,7 +149,7 @@ static void readLocaleSettings()
     if ( dpos > -1 && dpos < mpos && mpos < ypos ) {
 	QString sep = t.mid( dpos + 2, mpos - dpos - 2 );
 	if ( sep == t.mid( mpos + 2, ypos - mpos - 2 ) ) {
-	    lTimeSep = sep;
+	    *lTimeSep = sep;
 	}
     }
 #endif
