@@ -6,3 +6,4 @@ Funksjonalitet som skal inn i 1.1
 	- bugen ved flere modale vinduer må fikses
 	- widget flaggene dokumenteres
 	- barnelista oppdateres ved raise() og lower()
+	- const char * og const char * i moc

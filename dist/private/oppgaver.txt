@@ -102,6 +102,11 @@ Funksjonalitet:
 
     QMenuBar bør kunne ha Help lengst til høyre.
 
+    Smelt sammen itemsystemet i menu og list box, legg inn et item som tar
+    både pixmap og text, folk skriker etter det. Multiseleksjon i listbox.
+
+
+
 Fra Andrew Pavlomanolakos <app@novanet.net.au>:
 > For menus I experimented with the following piece of code.
 > 
