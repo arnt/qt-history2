@@ -1375,7 +1375,8 @@ void QPainterPathStrokerPrivate::joinPoints(const QPointF &point, const QLineF &
     Q_ASSERT(elmCount >= 2);
     const QPainterPath::Element &back1 = stroke->elementAt(elmCount-1);
 
-    if (back1 == nextLine.p1()) // points connected already, don't join
+    // points connected already, don't join
+    if (qFuzzyCompare(back1.x, nextLine.x1()) && qFuzzyCompare(back1.y, nextLine.y1()))
         return;
 
     if (join == FlatJoin) {
