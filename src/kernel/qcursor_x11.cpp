@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#33 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#32 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#33 $")
 
 
 /*****************************************************************************
@@ -144,8 +144,7 @@ QCursor::QCursor()
 	CHECK_PTR( data );
 	data->cshape = 0;
 	data->hcurs = 0;
-    }
-    else {					// default arrow cursor
+    } else {					// default arrow cursor
 	data = arrowCursor.data;
 	data->ref();
     }
