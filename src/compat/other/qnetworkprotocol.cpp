@@ -1288,7 +1288,7 @@ void QHttpProtocol::operationGet(QNetworkOperation *op)
 
     bytesRead = 0;
     op->setState(StInProgress);
-    QUrl u(operationInProgress()->arg(0));
+    Q3Url u(operationInProgress()->arg(0));
     QHttpRequestHeader header("GET", u.encodedPathAndQuery(), 1, 0);
     header.setValue("Host", u.host());
     http.setHost(u.host(), u.port() != -1 ? u.port() : 80);
@@ -1308,7 +1308,7 @@ void QHttpProtocol::operationPut(QNetworkOperation *op)
 
     bytesRead = 0;
     op->setState(StInProgress);
-    QUrl u(operationInProgress()->arg(0));
+    Q3Url u(operationInProgress()->arg(0));
     QHttpRequestHeader header("POST", u.encodedPathAndQuery(), 1, 0);
     header.setValue("Host", u.host());
     http.setHost(u.host(), u.port() != -1 ? u.port() : 80);
@@ -1497,7 +1497,7 @@ void QFtpProtocol::operationRemove(QNetworkOperation *op)
     op->setState(StInProgress);
 
     ftp.cd((url()->path().isEmpty() ? QString("/") : url()->path()));
-    remove(QUrl(op->arg(0)).path().ascii());
+    remove(Q3Url(op->arg(0)).path().ascii());
 }
 
 /*!  \reimp
@@ -1516,7 +1516,7 @@ void QFtpProtocol::operationGet(QNetworkOperation *op)
 {
     op->setState(StInProgress);
 
-    QUrl u(op->arg(0));
+    Q3Url u(op->arg(0));
     ftp.get(u.path());
 }
 
@@ -1526,7 +1526,7 @@ void QFtpProtocol::operationPut(QNetworkOperation *op)
 {
     op->setState(StInProgress);
 
-    QUrl u(op->arg(0));
+    Q3Url u(op->arg(0));
     ftp.put(op->rawArg(1), u.path());
 }
 
@@ -1551,7 +1551,7 @@ bool QFtpProtocol::checkConnection(QNetworkOperation *op)
             case OpGet:
             case OpPut:
                 {
-                    QUrl u(op->arg(0));
+                    Q3Url u(op->arg(0));
                     ftp.connectToHost(u.host(), u.port() != -1 ? u.port() : 21);
                 }
                 break;

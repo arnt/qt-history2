@@ -3,7 +3,7 @@ QPRO_PWD = $$PWD
 DEFINES += QT_BUILD_NETWORK_LIB
 include(../qbase.pri)
 
-QT = core 
+QT = core compat
 
 # Qt network module
 

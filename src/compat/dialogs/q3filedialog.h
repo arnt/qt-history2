@@ -55,7 +55,7 @@ class Q_COMPAT_EXPORT Q3FilePreview
 {
 public:
     Q3FilePreview();
-    virtual void previewUrl(const QUrl &url) = 0;
+    virtual void previewUrl(const Q3Url &url) = 0;
 
 };
 
@@ -160,7 +160,7 @@ public:
     void setInfoPreview(QWidget *w, Q3FilePreview *preview);
     void setContentsPreview(QWidget *w, Q3FilePreview *preview);
 
-    QUrl url() const;
+    Q3Url url() const;
 
     void addFilter(const QString &filter);
 
@@ -252,7 +252,7 @@ private:
     void deleteFile(const QString &filename);
     void popupContextMenu(const QString &filename, bool withSort,
                            PopupAction &action, const QPoint &p);
-    void updatePreviews(const QUrl &u);
+    void updatePreviews(const Q3Url &u);
 
     QDir reserved; // was cwd
     QString fileName;

@@ -17,7 +17,7 @@
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qurl.h"
+#include "q3url.h"
 #include "qptrlist.h"
 #include "qnetworkprotocol.h"
 #include "qstringlist.h" // QString->QStringList conversion
@@ -28,7 +28,7 @@
 class QUrlInfo;
 class QUrlOperatorPrivate;
 
-class Q_COMPAT_EXPORT QUrlOperator : public QObject, public QUrl
+class Q_COMPAT_EXPORT QUrlOperator : public QObject, public Q3Url
 {
     friend class QNetworkProtocol;
 

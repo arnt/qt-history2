@@ -176,7 +176,7 @@ void QLocalFs::operationRemove(QNetworkOperation *op)
     qDebug("QLocalFs: operationRemove");
 #endif
     op->setState(StInProgress);
-    QString name = QUrl(op->arg(0)).path();
+    QString name = Q3Url(op->arg(0)).path();
     bool deleted = false;
 
     dir = QDir(url()->path());
@@ -237,7 +237,7 @@ void QLocalFs::operationGet(QNetworkOperation *op)
     qDebug("QLocalFs: operationGet");
 #endif
     op->setState(StInProgress);
-    QString from = QUrl(op->arg(0)).path();
+    QString from = Q3Url(op->arg(0)).path();
 
     QFile f(from);
     if (!f.open(IO_ReadOnly)) {
@@ -305,7 +305,7 @@ void QLocalFs::operationPut(QNetworkOperation *op)
     qDebug("QLocalFs: operationPut");
 #endif
     op->setState(StInProgress);
-    QString to = QUrl(op->arg(0)).path();
+    QString to = Q3Url(op->arg(0)).path();
 
     QFile f(to);
     if (!f.open(IO_WriteOnly)) {

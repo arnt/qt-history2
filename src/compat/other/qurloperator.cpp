@@ -262,7 +262,7 @@ public:
 */
 
 QUrlOperator::QUrlOperator()
-    : QUrl()
+    : Q3Url()
 {
 #ifdef QURLOPERATOR_DEBUG
     qDebug("QUrlOperator: cstr 1");
@@ -278,7 +278,7 @@ QUrlOperator::QUrlOperator()
 */
 
 QUrlOperator::QUrlOperator(const QString &url)
-    : QUrl(url)
+    : Q3Url(url)
 {
 #ifdef QURLOPERATOR_DEBUG
     qDebug("QUrlOperator: cstr 2");
@@ -292,7 +292,7 @@ QUrlOperator::QUrlOperator(const QString &url)
 */
 
 QUrlOperator::QUrlOperator(const QUrlOperator& url)
-    : QObject(), QUrl(url)
+    : QObject(), Q3Url(url)
 {
 #ifdef QURLOPERATOR_DEBUG
     qDebug("QUrlOperator: cstr 3");
@@ -314,7 +314,7 @@ QUrlOperator::QUrlOperator(const QUrlOperator& url)
 */
 
 QUrlOperator::QUrlOperator(const QUrlOperator& url, const QString& relUrl, bool checkSlash)
-    : QUrl(url, relUrl, checkSlash)
+    : Q3Url(url, relUrl, checkSlash)
 {
 #ifdef QURLOPERATOR_DEBUG
     qDebug("QUrlOperator: cstr 4");
@@ -688,7 +688,7 @@ bool QUrlOperator::isDir(bool *ok)
 /*!
     Tells the network protocol to get data from \a location or, if
     this is QString::null, to get data from the location to which this
-    URL points (see QUrl::fileName() and QUrl::encodedPathAndQuery()).
+    URL points (see Q3Url::fileName() and Q3Url::encodedPathAndQuery()).
     What happens then depends on the network protocol. The data()
     signal is emitted when data comes in. Because it's unlikely that
     all data will come in at once, it is common for multiple data()
@@ -739,9 +739,9 @@ bool QUrlOperator::isDir(bool *ok)
 
 const QNetworkOperation *QUrlOperator::get(const QString &location)
 {
-    QUrl u(*this);
+    Q3Url u(*this);
     if (!location.isEmpty())
-        u = QUrl(*this, location);
+        u = Q3Url(*this, location);
 
     if (!u.isValid())
         return 0;
@@ -796,9 +796,9 @@ const QNetworkOperation *QUrlOperator::get(const QString &location)
 
 const QNetworkOperation *QUrlOperator::put(const QByteArray &data, const QString &location)
 {
-    QUrl u(*this);
+    Q3Url u(*this);
     if (!location.isEmpty())
-        u = QUrl(*this, location);
+        u = Q3Url(*this, location);
 
     if (!u.isValid())
         return 0;
@@ -916,7 +916,7 @@ void QUrlOperator::deleteNetworkProtocol()
 
 void QUrlOperator::setPath(const QString& path)
 {
-    QUrl::setPath(path);
+    Q3Url::setPath(path);
     if (d->networkProtocol)
         d->networkProtocol->setUrl(this);
 }
@@ -927,7 +927,7 @@ void QUrlOperator::setPath(const QString& path)
 
 void QUrlOperator::reset()
 {
-    QUrl::reset();
+    Q3Url::reset();
     deleteNetworkProtocol();
     d->nameFilter = "*";
 }
@@ -938,7 +938,7 @@ void QUrlOperator::reset()
 
 bool QUrlOperator::parse(const QString &url)
 {
-    bool b = QUrl::parse(url);
+    bool b = Q3Url::parse(url);
     if (!b) {
         return b;
     }
@@ -955,7 +955,7 @@ bool QUrlOperator::parse(const QString &url)
 QUrlOperator& QUrlOperator::operator=(const QUrlOperator &url)
 {
     deleteNetworkProtocol();
-    QUrl::operator=(url);
+    Q3Url::operator=(url);
 
     QHash<QNetworkOperation *, QNetworkOperation *> getOpPutOpMap = d->getOpPutOpMap;
     QHash<QNetworkOperation *, QNetworkProtocol *> getOpPutProtMap = d->getOpPutProtMap;
@@ -981,7 +981,7 @@ QUrlOperator& QUrlOperator::operator=(const QUrlOperator &url)
 QUrlOperator& QUrlOperator::operator=(const QString &url)
 {
     deleteNetworkProtocol();
-    QUrl::operator=(url);
+    Q3Url::operator=(url);
     getNetworkProtocol();
     return *this;
 }
@@ -992,7 +992,7 @@ QUrlOperator& QUrlOperator::operator=(const QString &url)
 
 bool QUrlOperator::cdUp()
 {
-    bool b = QUrl::cdUp();
+    bool b = Q3Url::cdUp();
     if (d->networkProtocol)
         d->networkProtocol->setUrl(this);
     return b;

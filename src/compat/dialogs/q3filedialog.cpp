@@ -1058,7 +1058,7 @@ public:
 
     static bool fileExists(const QUrlOperator &url, const QString& name)
     {
-        QUrl u(url, Q3FileDialogPrivate::encodeFileName(name));
+        Q3Url u(url, Q3FileDialogPrivate::encodeFileName(name));
         if (u.isLocalFile()) {
             QFileInfo f(u.path());
             return f.exists();
@@ -1424,7 +1424,7 @@ void QFileListBox::changeDirDuringDrag()
     if (!currDropItem)
         return;
     changeDirTimer->stop();
-    QUrl u(filedialog->d->url, Q3FileDialogPrivate::encodeFileName(currDropItem->text()));
+    Q3Url u(filedialog->d->url, Q3FileDialogPrivate::encodeFileName(currDropItem->text()));
     filedialog->setDir(u);
     currDropItem = 0;
 #endif
@@ -1835,7 +1835,7 @@ void Q3FileDialogQFileListView::changeDirDuringDrag()
     if (!currDropItem)
         return;
     changeDirTimer->stop();
-    QUrl u(filedialog->d->url, Q3FileDialogPrivate::encodeFileName(currDropItem->text(0)));
+    Q3Url u(filedialog->d->url, Q3FileDialogPrivate::encodeFileName(currDropItem->text(0)));
     filedialog->setDir(u);
     currDropItem = 0;
 #endif // QT_NO_DRAGANDDROP
@@ -2181,7 +2181,7 @@ static QStringList makeFiltersList(const QString &filter)
     public:
         Preview(QWidget *parent=0) : QLabel(parent) {}
 
-        void previewUrl(const QUrl &u)
+        void previewUrl(const Q3Url &u)
         {
             QString path = u.path();
             QPixmap pix(path);
@@ -2752,7 +2752,7 @@ void Q3FileDialog::fileNameEditReturnPressed()
   Update the info and content preview widgets to display \a u.
 */
 
-void Q3FileDialog::updatePreviews(const QUrl &u)
+void Q3FileDialog::updatePreviews(const Q3Url &u)
 {
     if (d->infoPreviewer)
         d->infoPreviewer->previewUrl(u);
@@ -2783,7 +2783,7 @@ void Q3FileDialog::changeMode(int id)
         d->preview->hide();
     } else {
         if (files->currentItem())
-            updatePreviews(QUrl(d->url, files->currentItem()->text(0)));
+            updatePreviews(Q3Url(d->url, files->currentItem()->text(0)));
         if (btn == d->previewInfo)
             d->preview->raiseWidget(d->infoPreviewWidget);
         else
@@ -2832,12 +2832,12 @@ QString Q3FileDialog::selectedFile() const
 {
     QString s = d->currentFileName;
     // remove the protocol because we do not want to encode it...
-    QString prot = QUrl(s).protocol();
+    QString prot = Q3Url(s).protocol();
     if (!prot.isEmpty()) {
         prot += ":";
         s.remove(0, prot.length());
     }
-    QUrl u(prot + Q3FileDialogPrivate::encodeFileName(s));
+    Q3Url u(prot + Q3FileDialogPrivate::encodeFileName(s));
     if (u.isLocalFile()) {
         QString s = u.toString();
         if (s.left(5) == "file:")
@@ -2940,11 +2940,11 @@ QStringList Q3FileDialog::selectedFiles() const
         selectedFiles.truncate(selectedFiles.lastIndexOf('\"'));
         selectedLst = selectedLst.split(QString("\" "), selectedFiles);
         for (QStringList::Iterator it = selectedLst.begin(); it != selectedLst.end(); ++it) {
-            QUrl u;
+            Q3Url u;
             if ((*it)[0] == '\"') {
-                u = QUrl(d->url, Q3FileDialogPrivate::encodeFileName((*it).mid(1)));
+                u = Q3Url(d->url, Q3FileDialogPrivate::encodeFileName((*it).mid(1)));
             } else {
-                u = QUrl(d->url, Q3FileDialogPrivate::encodeFileName((*it)));
+                u = Q3Url(d->url, Q3FileDialogPrivate::encodeFileName((*it)));
             }
             if (u.isLocalFile()) {
                 QString s = u.toString();
@@ -2974,7 +2974,7 @@ void Q3FileDialog::setSelection(const QString & filename)
 {
     d->oldUrl = d->url;
     QString nf = d->url.nameFilter();
-    if (QUrl::isRelativeUrl(filename))
+    if (Q3Url::isRelativeUrl(filename))
         d->url = QUrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(filename));
     else
         d->url = QUrlOperator(filename);
@@ -3167,8 +3167,8 @@ void Q3FileDialog::setUrl(const QUrlOperator &url)
     QString nf = d->url.nameFilter();
 
     QString operatorPath = url.toString(false, false);
-    if (QUrl::isRelativeUrl(operatorPath)) {
-        d->url = QUrl(d->url, operatorPath);
+    if (Q3Url::isRelativeUrl(operatorPath)) {
+        d->url = Q3Url(d->url, operatorPath);
     } else {
         d->url = url;
     }
@@ -3648,7 +3648,7 @@ void Q3FileDialog::okClicked()
                      )
                 setDir(nameEdit->text());
             else if (nameEdit->text().left(3) == "../" || nameEdit->text().left(3) == "..\\")
-                setDir(QUrl(d->url.toString(), Q3FileDialogPrivate::encodeFileName(nameEdit->text())).toString());
+                setDir(Q3Url(d->url.toString(), Q3FileDialogPrivate::encodeFileName(nameEdit->text())).toString());
         }
         nameEdit->setText("");
     }
@@ -3853,7 +3853,7 @@ void Q3FileDialog::updateFileNameEdit(QListViewItem * newItem)
 
     if (mode() == ExistingFiles) {
         detailViewSelectionChanged();
-        QUrl u(d->url, Q3FileDialogPrivate::encodeFileName(((Q3FileDialogPrivate::File*)files->currentItem())->info.name()));
+        Q3Url u(d->url, Q3FileDialogPrivate::encodeFileName(((Q3FileDialogPrivate::File*)files->currentItem())->info.name()));
         QFileInfo fi(u.toString(false, false));
         if (!fi.isDir())
             emit fileHighlighted(u.toString(false, false));
@@ -3894,7 +3894,7 @@ void Q3FileDialog::detailViewSelectionChanged()
     nameEdit->setCursorPosition(str.length());
     okB->setEnabled(true);
     if (d->preview && d->preview->isVisible() && files->currentItem()) {
-        QUrl u = QUrl(d->url, Q3FileDialogPrivate::encodeFileName(((Q3FileDialogPrivate::File*)files->currentItem())->info.name()));
+        Q3Url u = Q3Url(d->url, Q3FileDialogPrivate::encodeFileName(((Q3FileDialogPrivate::File*)files->currentItem())->info.name()));
         updatePreviews(u);
     }
 }
@@ -3930,7 +3930,7 @@ void Q3FileDialog::listBoxSelectionChanged()
                 // ExistingFiles.  For better or for worse, this clones the behaivor of the
                 // "Details" view quite well.
                 if (mcitem->isSelected() && i != d->lastEFSelected) {
-                    QUrl u(d->url, Q3FileDialogPrivate::encodeFileName(((Q3FileDialogPrivate::File*)(mcitem)->i)->info.name()));
+                    Q3Url u(d->url, Q3FileDialogPrivate::encodeFileName(((Q3FileDialogPrivate::File*)(mcitem)->i)->info.name()));
                     d->lastEFSelected = i;
                     emit fileHighlighted(u.toString(false, false));
                 }
@@ -3950,8 +3950,8 @@ void Q3FileDialog::listBoxSelectionChanged()
     nameEdit->setCursorPosition(str.length());
     okB->setEnabled(true);
     if (d->preview && d->preview->isVisible() && j) {
-        QUrl u = QUrl(d->url,
-                       Q3FileDialogPrivate::encodeFileName(((Q3FileDialogPrivate::File*)((Q3FileDialogPrivate::MCItem*)j)->i)->info.name()));
+        Q3Url u = Q3Url(d->url,
+                        Q3FileDialogPrivate::encodeFileName(((Q3FileDialogPrivate::File*)((Q3FileDialogPrivate::MCItem*)j)->i)->info.name()));
         updatePreviews(u);
     }
 }
@@ -4415,7 +4415,7 @@ QString Q3FileDialog::getExistingDirectory(const QString & dir,
                 wd = dir_;
             }
         } else if (!wd.isEmpty()) {
-            QUrl tempUrl(wd);
+            Q3Url tempUrl(wd);
             QFileInfo f(tempUrl.path());
             if (f.isDir()) {
                 dlg->setDir(wd);
@@ -4425,7 +4425,7 @@ QString Q3FileDialog::getExistingDirectory(const QString & dir,
             if (theDir.isEmpty()) {
                 theDir = QDir::currentDirPath();
             } if (!theDir.isEmpty()) {
-                QUrl tempUrl(theDir);
+                Q3Url tempUrl(theDir);
                 QFileInfo f(tempUrl.path());
                 if (f.isDir()) {
                     wd = theDir;
@@ -4764,7 +4764,7 @@ void Q3FileDialog::keyPressEvent(QKeyEvent * ke)
         ke->ignore();
         if (d->paths->hasFocus()) {
             ke->accept();
-            if (d->url == QUrl(d->paths->currentText()))
+            if (d->url == Q3Url(d->paths->currentText()))
                 nameEdit->setFocus();
         } else if (d->types->hasFocus()) {
             ke->accept();
@@ -5567,12 +5567,12 @@ void Q3FileDialog::fixupNameEdit()
   \sa setUrl()
 */
 
-QUrl Q3FileDialog::url() const
+Q3Url Q3FileDialog::url() const
 {
     return d->url;
 }
 
-static bool isRoot(const QUrl &u)
+static bool isRoot(const Q3Url &u)
 {
 #if defined(Q_OS_UNIX)
     if (u.path() == "/")
@@ -5743,7 +5743,7 @@ void Q3FileDialog::dataTransferProgress(int bytesDone, int bytesTotal, QNetworkO
         return;
 
     QString label;
-    QUrl u(op->arg(0));
+    Q3Url u(op->arg(0));
     if (u.isLocalFile()) {
         label = u.path();
     } else {
@@ -5979,7 +5979,7 @@ void Q3FileDialog::setContentsPreviewEnabled(bool contents)
     public:
         Preview(QWidget *parent=0) : QLabel(parent) {}
 
-        void previewUrl(const QUrl &u)
+        void previewUrl(const Q3Url &u)
         {
             QString path = u.path();
             QPixmap pix(path);
@@ -6038,7 +6038,7 @@ void Q3FileDialog::setInfoPreview(QWidget *w, Q3FilePreview *preview)
     public:
         Preview(QWidget *parent=0) : QLabel(parent) {}
 
-        void previewUrl(const QUrl &u)
+        void previewUrl(const Q3Url &u)
         {
             QString path = u.path();
             QPixmap pix(path);
@@ -6177,7 +6177,7 @@ void Q3FileDialog::doMimeTypeLookup()
     if (item) {
         QFileInfo fi;
         if (d->url.isLocalFile()) {
-            fi.setFile(QUrl(d->url.path(), Q3FileDialogPrivate::encodeFileName(item->info.name())).path(false));
+            fi.setFile(Q3Url(d->url.path(), Q3FileDialogPrivate::encodeFileName(item->info.name())).path(false));
         } else
             fi.setFile(item->info.name()); // #####
         const QPixmap *p = iconProvider()->pixmap(fi);
@@ -6286,7 +6286,7 @@ Q3FilePreview::Q3FilePreview()
 }
 
 /*!
-  \fn void Q3FilePreview::previewUrl(const QUrl &url)
+  \fn void Q3FilePreview::previewUrl(const Q3Url &url)
 
   This function is called by Q3FileDialog if a preview
   for the \a url should be shown. Reimplement this

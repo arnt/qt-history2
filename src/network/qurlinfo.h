@@ -21,7 +21,7 @@
 #include "qiodevice.h"
 #endif // QT_H
 
-class QUrl;
+class Q3Url;
 class QUrlInfoPrivate;
 
 class Q_NETWORK_EXPORT QUrlInfo
@@ -38,7 +38,7 @@ public:
               const QString &group, QIODevice::Offset size, const QDateTime &lastModified,
               const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
               bool isWritable, bool isReadable, bool isExecutable);
-    QUrlInfo(const QUrl &url, int permissions, const QString &owner,
+    QUrlInfo(const Q3Url &url, int permissions, const QString &owner,
               const QString &group, QIODevice::Offset size, const QDateTime &lastModified,
               const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
               bool isWritable, bool isReadable, bool isExecutable);
