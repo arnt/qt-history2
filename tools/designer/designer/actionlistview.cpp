@@ -20,10 +20,12 @@
 
 #include "actionlistview.h"
 #include <qdragobject.h>
+#include <qheader.h>
 
 ActionListView::ActionListView( QWidget *parent, const char *name )
     : QListView( parent, name )
 {
+    header()->setFullSize( TRUE );
 }
 
 QDragObject *ActionListView::dragObject()
