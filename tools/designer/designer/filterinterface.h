@@ -20,7 +20,7 @@ Q_GUID(IID_ExportFilterInterface,
 interface ExportFilterInterface : public QUnknownInterface
 {
     virtual QStringList featureList() const = 0;
-    virtual QStringList export( const QString& filter, const QString& filename ) = 0;
+//    virtual QStringList export( const QString& filter, const QString& filename ) = 0;
 };
 
 #endif
