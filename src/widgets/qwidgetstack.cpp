@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#43 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -456,7 +456,5 @@ QSize QWidgetStack::minimumSizeHint() const
 		    size = size.expandedTo( ((QWidget *)o)->minimumSizeHint() );
 	}
     }
-    if ( size.isNull() )
-	return QSize(100,50); //### paul did not like this one
     return size;
 }
