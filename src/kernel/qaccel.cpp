@@ -474,9 +474,9 @@ bool QAccel::eventFilter( QObject *o, QEvent *e )
     if ( e->type() == QEvent::Reparent && ( d->watch == o || d->tlw == o ) ) {
 	repairEventFilter();
     } else  if ( d->enabled &&
-	 ( e->type() == QEvent::Accel ||
-	   e->type() == QEvent::AccelAvailable) &&
-	 d->watch && d->watch->isVisible() ) {
+                 ( e->type() == QEvent::Accel ||
+                   e->type() == QEvent::AccelAvailable) &&
+                 d->watch && d->watch->isVisible() ) {
 	QKeyEvent *k = (QKeyEvent *)e;
 	int key = k->key();
 	if ( k->state() & ShiftButton )
@@ -485,8 +485,31 @@ bool QAccel::eventFilter( QObject *o, QEvent *e )
 	    key |= CTRL;
 	if ( k->state() & AltButton )
 	    key |= ALT;
-	QAccelItem *item = find_key( d->aitems, key, k->text()[0] );
-	if ( key == Key_unknown )
+	QAccelItem *item;
+        if ( k->key() == Key_BackTab ) {
+            /*
+              In QApplication, we map shift+tab to shift+backtab.
+              This code here reverts the mapping in a way that keeps
+              backtab and shift+tab accelerators working, in that
+              order, meaning backtab has priority.
+            */
+            key &= ~SHIFT;
+            item = find_key( d->aitems, key, k->text()[0] );
+            if ( ! item ) {
+                if ( k->state() & ShiftButton )
+                    key |= SHIFT;
+                key = Key_Tab | ( key & MODIFIER_MASK );
+                item = find_key( d->aitems, key, k->text()[0] );
+            }
+        } else {
+            item = find_key( d->aitems, key, k->text()[0] );
+        }
+        if ( ! item && key == Key_BackTab ) {
+            if ( k->state() & ShiftButton )
+                key |= SHIFT;
+            item = find_key( d->aitems, key, k->text()[0] );
+        }
+        if ( key == Key_unknown )
 	    item = 0;
 #ifndef QT_NO_WHATSTHIS
 	bool b = QWhatsThis::inWhatsThisMode();

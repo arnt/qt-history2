@@ -4802,7 +4802,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
     xkeyevent.state &= ~qt_mode_switch_remove_mask;
 
     type = (event->type == XKeyPress)
-			? QEvent::KeyPress : QEvent::KeyRelease;
+           ? QEvent::KeyPress : QEvent::KeyRelease;
 #if defined(QT_NO_XIM)
 
     count = XLookupString( &xkeyevent, chars.data(), chars.size(), &key, 0 );
@@ -4975,8 +4975,11 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	default:
 	    break;
 	}
+
 	if ( code == Key_Tab &&
 	     (state & ShiftButton) == ShiftButton ) {
+            // map shift+tab to shift+backtab, QAccel knows about it
+            // and will handle it.
 	    code = Key_Backtab;
 	    chars[0] = 0;
 	}
