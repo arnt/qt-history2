@@ -1475,7 +1475,7 @@ public:
     inline QLayoutItem *takeCurrent() {
 	QLayoutItem *item = 0;
 
-	QBoxLayoutItem *b = data->list.takeAt( idx );
+	QBoxLayoutItem *b = data->list.size() > idx ? data->list.takeAt( idx ) : 0;
 	if ( b ) {
 	    item = b->item;
 	    b->item = 0;
