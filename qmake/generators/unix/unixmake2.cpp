@@ -69,7 +69,7 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
     }
 
     // pkg-config support
-    if(project->isActiveConfig("create_pc") && project->first("TEMPLATE") == "lib") 
+    if(project->isActiveConfig("create_pc") && project->first("TEMPLATE") == "lib")
 	writePkgConfigFile();
 
     writeHeader(t);
@@ -1322,6 +1322,7 @@ UnixMakefileGenerator::writeLibtoolFile()
 void
 UnixMakefileGenerator::writePkgConfigFile()
 {
+    // ### does make sense only for libqt so far
     QString lname = var("TARGET");
     int slsh = lname.findRev(Option::dir_sep);
     if(slsh != -1)
@@ -1337,12 +1338,11 @@ UnixMakefileGenerator::writePkgConfigFile()
     if(!ft.open(IO_WriteOnly))
 	return;
     QTextStream t(&ft);
-#if 0
-    t << "prefix=" << endl;
-    t << "exec_prefix=" << endl;
-    t << "libdir=" << endl;
-    t << "includedir=" << endl << endl;
-#endif
+
+    t << "prefix=" << qInstallPath() << endl;
+    t << "exec_prefix=${prefix}\n"
+      << "libdir=${exec_prefix}/lib\n"
+      << "includedir=${prefix}/include" << endl << endl;
 
     t << "Name: Qt" << endl;
     t << "Description: Qt GUI Library" << endl;
