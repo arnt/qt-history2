@@ -1824,6 +1824,19 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		return TRUE;
 	    }
 
+	    if ( ke->key() == Key_Tab ) {
+		if ( !itm || itm->editType() == QTableItem::OnTyping )
+		    endEdit( editRow, editCol, TRUE, edMode != Editing );
+		setCurrentCell( currentRow(), QMIN( numCols() - 1, currentColumn() + 1 ) );
+		itm = item( curRow, curCol );
+		if ( beginEdit( curRow, curCol, FALSE ) ) {
+		    edMode = Editing;
+		    editRow = curRow;
+		    editCol = curCol;
+		}
+		return TRUE;
+	    }
+	    
 	    if ( ( edMode == Replacing ||
 		   itm && itm->editType() == QTableItem::WhenCurrent ) &&
 		 ( ke->key() == Key_Up || ke->key() == Key_Prior ||
