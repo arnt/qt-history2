@@ -170,15 +170,19 @@ void QTextRow::paint(QPainter &painter, int _x, int _y)
 #if 0
     painter.drawText(xPos + _x, yPos + _y, reorderedText.toString() );
 #else
-    QString buffer;
-    QRichTextFormat *lastFormat = 0;
     QRichTextString::Char *chr;
     int cw;
     int i = 0;
     int bw = 0;
-    int startX = 0;
     int y = yPos + _y;
-    for ( ; i < reorderedText.length(); i++ ) {
+    int x = xPos + _x;
+    
+    QRichTextFormat *lastFormat = reorderedText.at(0).format;
+    int startX = reorderedText.at(0).x;
+    QString buffer = reorderedText.at(0).c;
+    bw = cw;
+	
+    for ( i = 1 ; i < reorderedText.length(); i++ ) {
 	chr = &reorderedText.at( i );
 	cw = chr->format->width( chr->c );
 
@@ -191,15 +195,6 @@ void QTextRow::paint(QPainter &painter, int _x, int _y)
 	}
 #endif	
 
-	// first time - start again...
-	if ( !lastFormat ) {
-	    lastFormat = chr->format;
-	    startX = chr->x;
-	    buffer += chr->c;
-	    bw = cw;
-	    continue;
-	}
-	
 #if 0
 	// check if selection state changed
 	bool selectionChange = FALSE;
@@ -214,7 +209,7 @@ void QTextRow::paint(QPainter &painter, int _x, int _y)
 	QColorGroup cg;
 	// if something (format, etc.) changed, draw what we have so far
 	if ( chr->format != lastFormat || buffer == "\t" || chr->c == '\t' ) { // ### || selectionChange ) {
-	    drawBuffer( painter, buffer, startX, y, bw, h, false, //drawSelections,
+	    drawBuffer( painter, buffer, startX + x, y, bw, h, false, //drawSelections,
 			     lastFormat, i, 0, 0, cg );
 			     //			     lastFormat, i, selectionStarts, selectionEnds, cg );
 	    buffer = chr->c;
@@ -240,7 +235,7 @@ void QTextRow::paint(QPainter &painter, int _x, int _y)
 #endif
 	//	drawParagBuffer( painter, buffer, startX, y, bw, h, drawSelections,
 	//		 lastFormat, i, selectionStarts, selectionEnds, cg );
-	drawBuffer( painter, buffer, startX, y, bw, h, false, 
+	drawBuffer( painter, buffer, startX + x, y, bw, h, false,
 			 lastFormat, i, 0, 0, QColorGroup() );
     }
 
@@ -343,7 +338,7 @@ struct QBidiRun {
 // collects one line of the paragraph and transforms it to visual order
 void QTextRow::bidiReorderLine()
 {
-    printf("doing BiDi reordering from %d to %d!\n", start, len+start);
+    //printf("doing BiDi reordering from %d to %d!\n", start, len+start);
 
     QList<QBidiRun> runs;
     runs.setAutoDelete(true);
@@ -768,7 +763,7 @@ void QTextRow::bidiReorderLine()
     uchar levelHigh = 0;
     QBidiRun *r = runs.first();
     while ( r ) {
-	printf("level = %d\n", r->level);
+	//printf("level = %d\n", r->level);
 	if ( r->level > levelHigh )
 	    levelHigh = r->level;
 	if ( r->level < levelLow )
@@ -922,7 +917,7 @@ QRect QTextArea::lineRect(int x, int y, int h) const
 
 void QTextArea::paint(QPainter &p, int x, int y)
 {
-    printf("QTextarea::paint\n");
+    //printf("QTextarea::paint\n");
     QListIterator<QParagraph> it(paragraphs);
     while(it.current()) {
 	(*it)->paint(p, x, y);
@@ -971,86 +966,13 @@ void QParagraph::layout()
 {
     int pos = 0;
     int lineLength = 0;
-#if 1
     QRichTextFormatterBreakWords formatter(area);
     formatter.format(this, 0);
-#else
-    while( (lineLength = findLineBreak(pos)) != 0 ) {
-	   addLine(pos, lineLength);
-	   pos += lineLength;
-    }
-#endif
-}
-
-
-int QParagraph::findLineBreak(int pos)
-{
-    printf("findLineBreak start=%d, text.length=%d\n", pos, text.length());
-    int start = pos;
-    QFontMetrics fm(QApplication::font());
-
-
-    int x = xPos;
-    int y = yPos;
-    if ( last ) {
-	x += last->x();
-	y += last->y() + last->height();
-    }
-    printf("new line at %d/%d\n", x, y);
-    QRect lineRect = area->lineRect(x, y);
-    int width = lineRect.width();
-    int pos2 = pos;
-
-    while(1) {
-	while(pos2 < text.length() && !(text.at(pos2).c.isSpace())) {
-	    pos2++;
-	}
-	
-	// we know the string is not going to get modified....
-	width -= fm.width(QConstString(const_cast<QChar *>(text.toString().unicode() + pos), pos2 - pos).string());
-	if(width < 0) return pos - start;
-	if(pos2 < text.length()) {
-	    width -= fm.width(' ');
-	    pos2++;	
-	    pos = pos2;
-	} else {
-	    return pos2 - start;
-	}
-    }
-}
-
-
-void QParagraph::addLine(int start, int length)
-{
-    printf("addline %d %d\n", start, length);
-    QTextRow *line = new QTextRow(text, start, length, last);
-
-    QFontMetrics fm(QApplication::font());
-    int height = fm.height();
-
-    int x = xPos;
-    int y = yPos;
-    if ( last ) {
-	x += last->x();
-	y += last->y() + last->height();
-    }
-    QRect r = area->lineRect(x, y, height);
-    bRect |= r;
-    // make is relative to the paragraph
-    r.moveBy( - xPos, -yPos );
-
-    line->setBoundingRect(r);
-
-    if( !first )
-	first = line;
-    if ( last )
-	last->setNextLine(line);
-    last = line;
 }
 
 void QParagraph::paint(QPainter &p, int x, int y)
 {
-    printf("QParagraph::paint\n");
+    //printf("QParagraph::paint\n");
     // #### add a check if we need to paint at all!!!
 
     x += xPos;
@@ -1420,7 +1342,7 @@ int QRichTextFormatterBreakWords::format( QParagraph *parag, int start )
 
     QRect lineRect = area->lineRect(parag->x() ,parag->y());
     int w = lineRect.width();
-    printf("new line at %d/%d\n", parag->x(), parag->y());
+    printf("new line at %d/%d width=%d\n", lineRect.x(), lineRect.y(), w);
     int h = 0;
     int x = 0;
 
@@ -1456,8 +1378,8 @@ int QRichTextFormatterBreakWords::format( QParagraph *parag, int start )
 		yPos += parag->lastRow()->y() + parag->lastRow()->height();	
 	    }
 	    lineRect = area->lineRect(xPos, yPos);
-	    int w = lineRect.width();
-	    printf("new line at %d/%d\n", xPos, yPos);
+	    w = lineRect.width();
+	    printf("new line at %d/%d width=%d\n", lineRect.x(), lineRect.y(), w);
 	    int h = 0;
 	    x  = 0;
 	    lastSpace = -1;

@@ -168,9 +168,6 @@ public:
 protected:
     virtual void layout();
 
-    int findLineBreak(int pos);
-    void addLine(int pos, int length);
-
 private:
     QTextArea *area;
     QTextRow *first;
