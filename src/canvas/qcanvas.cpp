@@ -2545,7 +2545,7 @@ QRect QCanvasItem::boundingRectAdvanced() const
   Since QCanvasSprite needs (and other uses of pixmaps often need) a
   hot spot, QCanvasPixmap provides one. When you create the
   QCanvasPixmap from a PNG file or from a QImage that has a
-  QImage::offset(), offset() is initialized appropriately, otherwise
+  QImage::offset(), the offset() is initialized appropriately, otherwise
   the constructor leaves it at (0,0). You can set it later using
   setOffset().
 
@@ -2616,21 +2616,21 @@ QCanvasPixmap::~QCanvasPixmap()
 /*!
   \fn int QCanvasPixmap::offsetX() const
 
-  Returns the X-offset of the pixmaps hot spot.
+  Returns the X-offset of the pixmap's hot spot.
 
   \sa setOffset()
 */
 /*!
   \fn int QCanvasPixmap::offsetY() const
 
-  Returns the Y-offset of the pixmaps hot spot.
+  Returns the Y-offset of the pixmap's hot spot.
 
   \sa setOffset()
 */
 /*!
   \fn void QCanvasPixmap::setOffset(int x, int y)
 
-  Sets the offset of the pixmaps hot spot to (\a x, \a y).
+  Sets the offset of the pixmap's hot spot to (\a x, \a y).
 */
 
 // ### this needs some more words. Lars
@@ -2639,17 +2639,30 @@ QCanvasPixmap::~QCanvasPixmap()
     \module canvas
 
   \brief The QCanvasPixmapArray class provides an array of
-  \link QCanvasPixmap QCanvasPixmaps \endlink.
+  QCanvasPixmaps.
 
   \module canvas
 
   This class is used by QCanvasSprite to hold an array of pixmaps. It
-  is used to implement animated sprites, images that change over time,
-  each pixmap in the array holding one frame.
+  is used to implement animated sprites, i.e. images that change over
+  time, with each pixmap in the array holding one frame.
+
+    Depending on the constructor you use you can load multiple pixmaps
+    into the array, either from a directory (specifying a wildcard
+    pattern for the files), or from a list of QPixmaps. You can also
+    read in a set of pixmaps after construction using readPixmaps().
+
+  Individual pixmaps can be set with setImage() and retrieved with
+  image(). The number of pixmaps in the array is returned by count().
+
+  QCanvasSprite uses an image's mask for collision detection. You
+  can change this by reading in a separate set of image masks using
+  readCollisionMasks().
+
 */
 
-/*!  Constructs an invalid array.  You will need to call readPixmaps()
-  before being able to use it further.
+/*!  Constructs an invalid array (see isValid()).  You will need to call
+ readPixmaps() before being able to use it further.
 */
 QCanvasPixmapArray::QCanvasPixmapArray()
 {
@@ -2662,14 +2675,14 @@ QCanvasPixmapArray::QCanvasPixmapArray()
   The \a fc parameter sets the number of frames to be loaded for this
   image. 
   
-  If \a fc is not 0, \a datafilenamepattern should contain "%1",
-  e.g. "foo%1.png".  The actual filenames are formed by replacing the
+  If \a fc is not 0, \a datafilenamepattern should contain "%1", e.g.
+  "foo%1.png". The actual filenames are formed by replacing the
   %1 with four-digit integers from 0 to (fc - 1), e.g. foo0000.png,
   foo0001.png, foo0002.png, etc.
 
-  If \a fc is 0, \a datafilenamepattern is asssumed to be a real
-  filename, and the image contained in this file will be loaded as the
-  first (and only) frame.
+  If \a fc is 0, \a datafilenamepattern is asssumed to be a filename,
+  and the image contained in this file will be loaded as the first (and
+  only) frame.
 
   If \a datafilenamepattern does not exist, is not readable, isn't an
   image, or some other error occurs, the array ends up empty.
@@ -2710,12 +2723,12 @@ QCanvasPixmapArray::QCanvasPixmapArray(QPtrList<QPixmap> list, QPtrList<QPoint> 
     }
 }
 
-/*! Constructs a QCanvasPixmapArray from the list of QPixmaps \a
+/*! Constructs a QCanvasPixmapArray from the list of QPixmaps in \a
   list. Each pixmap will get a hotspot according to the \a hotspots
-  array. If no hotspots are specified, they are assumed to be all at
-  (0/0).
+  array. If no hotspots are specified, each one is assumed to be at
+  position (0, 0).
   
-  In case of an error, isValid() will return FALSE.
+  If an error occurs, isValid() will return FALSE.
 */
 QCanvasPixmapArray::QCanvasPixmapArray(QValueList<QPixmap> list, QPointArray hotspots) :
     framecount(list.size()),
@@ -2754,17 +2767,20 @@ void QCanvasPixmapArray::reset()
 }
 
 /*!
-  If \a fc is not 0, \a filenamepattern should contain "%1",
-  e.g. "foo%1.png".  The actual filenames are formed by replacing the
-  %1 with four-digit integers from 0 to fc-1, e.g. foo0000.png,
+    Reads one or more pixmaps into the pixmap array.
+
+  If \a fc is not 0, \a datafilenamepattern should contain "%1", e.g.
+  "foo%1.png". The actual filenames are formed by replacing the
+  %1 with four-digit integers from 0 to (fc - 1), e.g. foo0000.png,
   foo0001.png, foo0002.png, etc.
 
-  If \a fc is 0, \a filenamepattern is asssumed to be a real
-  filename.
+  If \a fc is 0, \a datafilenamepattern is asssumed to be a filename,
+  and the image contained in this file will be loaded as the first (and
+  only) frame.
 
   If \a filenamepattern does not exist, is not readable, isn't an
   image, or some other error occurs, this function will return FALSE,
-  and the array will be flagged as invalid.
+  and isValid() will return FALSE. 
   
   \sa isValid()
 */
@@ -3884,12 +3900,17 @@ QPointArray QCanvasPolygon::areaPoints() const
     return poly;
 }
 
+// ### mark: Why don't we offer a constructor that lets the user set the
+// points -- that way for some uses just the constructor call would be
+// required?
 /*!
   \class QCanvasLine qcanvas.h
-  \brief The QCanvasLine class provides a simple line on a canvas.
+  \brief The QCanvasLine class provides a line on a canvas.
   \module canvas
 
-  The setPen() function
+    The line inherits functionality from QCanvasPolygonalItem, for
+    example the setPen() function. The start and end points of the line
+    are set with setPoints().
 */
 
 /*!
@@ -3926,7 +3947,7 @@ void QCanvasLine::setPen(QPen p)
 /*!
   \fn QPoint QCanvasLine::startPoint () const
 
-  Returns the start of the line.
+  Returns the start point of the line.
 
   \sa setPoints(), endPoint()
 */
@@ -3934,13 +3955,14 @@ void QCanvasLine::setPen(QPen p)
 /*!
   \fn QPoint QCanvasLine::endPoint () const
 
-  Returns the end of the line.
+  Returns the end point of the line.
 
   \sa setPoints(), startPoint()
 */
 
 /*!
-  Sets the ends of the line to (\a xa, \a ya) and (\a xb, \a yb).
+  Sets the line's start point to (\a xa, \a ya) and its end point to
+  (\a xb, \a yb).
 */
 void QCanvasLine::setPoints(int xa, int ya, int xb, int yb)
 {
@@ -4144,10 +4166,66 @@ void QCanvasRectangle::drawShape(QPainter & p)
 
 /*!
   \class QCanvasEllipse qcanvas.h
-  \brief The QCanvasEllipse class provides an ellipse with a movable center point.
+  \brief The QCanvasEllipse class provides an ellipse or ellipse segment canvas item.
   \module canvas
 
-  Paints an ellipse or "pie segment" with a QBrush.
+  A canvas item that paints an ellipse or ellipse segment with a QBrush. 
+  The ellipse's height, width, start angle and angle length can be set
+  at construction time. The size can be changed at runtime with
+  setSize(), and the angles can be changed (if you're displaying an
+  ellipse segment rather than a whole ellipse) with setAngles(). 
+
+    Note that angles are specified in
+    <small><sup>1</sup>/<sub>16</sub></small>ths of a degree.
+
+    <center><img src="qcanvasellipse.png" width="300" height="200" alt="Ellipse"></center>
+    If a start angle and angle length are set then an ellipse segment
+    will be drawn. The start angle is the angle from zero (shown in red
+    in the diagram). The length angle is the angle from the start angle
+    (shown in green on the diagram). The green segment is the segment of
+    the ellipse that would be drawn. If no start angle and length angle
+    are specified the entire ellipse is drawn.
+    
+*/
+/*! \base64 qcanvasellipse.png
+
+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
+
 */
 
 /*!
@@ -4173,9 +4251,12 @@ QCanvasEllipse::QCanvasEllipse(int width, int height, QCanvas* canvas) :
 
 // ### add a constructor taking degrees in float. 1/16 degrees is stupid. Lars
 /*!
-  Constructs a \a width by \a height pixel ellipse, centered at (0,0)
-  on \a canvas, starting at angle \a startangle, extending for angle
-  \a angle.  \a startangle and \a angle are in 1/16 degrees.
+  Constructs a \a width by \a height pixel ellipse, centered at (0,0) on
+  \a canvas. Only a segment of the ellipse is drawn, starting at angle
+  \a startangle, and extending for angle \a angle (the angle length).
+
+    Note that angles are specified in
+    <small><sup>1</sup>/<sub>16</sub></small>ths of a degree.
 */
 QCanvasEllipse::QCanvasEllipse(int width, int height,
     int startangle, int angle, QCanvas* canvas) :
@@ -4225,7 +4306,9 @@ void QCanvasEllipse::setSize(int width, int height)
 /*!
   \fn int QCanvasEllipse::angleStart() const
 
-  Returns the start angle in 1/16 degrees.  Initially this will be 0.
+  Returns the start angle in
+  <small><sup>1</sup>/<sub>16</sub></small>ths of a degree.  Initially
+  this will be 0.
 
   \sa setAngles(), angleLength()
 */
@@ -4233,17 +4316,20 @@ void QCanvasEllipse::setSize(int width, int height)
 /*!
   \fn int QCanvasEllipse::angleLength() const
 
-  Returns the length angle in 1/16 degrees.  Initially this will be
-  360*16 - ie. a solid ellipse.
+  Returns the length angle (the extent of the ellipse segment) in
+  <small><sup>1</sup>/<sub>16</sub></small>ths of a degree.  Initially
+  this will be 360*16 -- ie. a complete ellipse.
 
   \sa setAngles(), angleStart()
 */
 
 /*!
-  Sets the angles for the ellipse to start at \a start and continue
-  for \a length units.  Each unit is 1/16 of a degree. By default
-  the ellipse will start at 0 and have length 360*16 - ie. a solid
-  ellipse.
+  Sets the angles for the ellipse. The start angle is \a start and the
+  extent of the segment is \a length (the angle length) from the \a
+  start. The angles are specified in
+  <small><sup>1</sup>/<sub>16</sub></small>ths of a degree. By default
+  the ellipse will start at 0 and have an angle length of 360*16 -- ie.
+  a complete ellipse.
 
   \sa angleStart(), angleLength()
 */
