@@ -6,6 +6,17 @@
 
 QString QEnvironment::getEnv( QString varName, int envBlock )
 {
+    OSVERSIONINFOA osvi;
+
+    bool isWinMe = false;
+
+    osvi.dwOSVersionInfoSize = sizeof( OSVERSIONINFOA );
+    GetVersionExA( &osvi );
+    if( int( qWinVersion() ) & int( Qt::WV_98 ) ) {
+	if( osvi.dwMinorVersion == 90 )
+	    isWinMe = true;
+    }
+
     if( envBlock & PersistentEnv ) {
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	    HKEY env;
@@ -30,7 +41,7 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
 	    }
 	}
 	else { //  Win 9x
-	    if( int( qWinVersion() ) & int( Qt::WV_Me ) ) {	// Windows Me
+	    if( isWinMe ) {	// Windows Me
 		HKEY env;
 		DWORD size;
 		QByteArray buffer;
@@ -62,6 +73,17 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
 
 void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
 {
+    OSVERSIONINFOA osvi;
+
+    bool isWinMe = false;
+
+    osvi.dwOSVersionInfoSize = sizeof( OSVERSIONINFOA );
+    GetVersionExA( &osvi );
+    if( int( qWinVersion() ) & int( Qt::WV_98 ) ) {
+	if( osvi.dwMinorVersion == 90 )
+	    isWinMe = true;
+    }
+
     if( envBlock & PersistentEnv ) {
 	QMessageBox::information( NULL, "Environment", "Setting persistent env." );
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
@@ -85,7 +107,7 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
 	    }
 	}
 	else { // Win 9x
-	    if( int( qWinVersion() ) & int( Qt::WV_Me ) ) { // Win Me
+	    if( isWinMe ) { // Win Me
 		HKEY env;
 
 		QMessageBox::information( NULL, "Version", "Setting environment on Windows Me" );
