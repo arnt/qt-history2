@@ -3427,6 +3427,7 @@ bool QRegExp::exactMatch( const QString& str ) const
     }
 }
 
+#ifndef QT_NO_COMPAT
 /*! \obsolete
 
   Attempts to match in \a str, starting from position \a index.  Returns the
@@ -3471,6 +3472,7 @@ int QRegExp::match( const QString& str, int index, int *len,
 	*len = matchedLength();
     return pos;
 }
+#endif // QT_NO_COMPAT
 
 /*!
   Attempts to find a match in \a str from position \a start (0 by default).  If
