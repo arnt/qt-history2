@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.h#1 $
+** $Id: //depot/qt/main/src/widgets/qtableview.h#2 $
 **
 ** Definition of QTableView class
 **
@@ -73,7 +73,7 @@ protected:
     void	updateCell( int row, int column, bool erase=TRUE );
 
     QRect	cellUpdateRect() const;
-    QRect	windowRect()	 const;
+    QRect	viewRect()	 const;
 
     int		lastRowVisible() const;
     int		lastColVisible() const;
