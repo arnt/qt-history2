@@ -242,12 +242,18 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	    QValueList<Field> fieldMap = *widgetFactory->fieldMaps.find( table );
 	    QString conn = (*it)[ 0 ];
 	    QSqlCursor* c = 0;
-	    if ( conn.isEmpty() || conn == "(default)" )
+	    QSqlDatabase *db = 0;
+	    if ( conn.isEmpty() || conn == "(default)" ) {
+		db = QSqlDatabase::database();
 		c = new QSqlCursor( (*it)[ 1 ] );
-	    else
+	    } else {
+		db = QSqlDatabase::database( conn );
 		c = new QSqlCursor( (*it)[ 1 ], conn );
-	    table->setCursor( c, fieldMap.isEmpty(), TRUE );
-	    table->refresh();  //## don't like this, should be done automatically, or elsewhere?
+	    }
+	    if ( db ) {
+		table->setCursor( c, fieldMap.isEmpty(), TRUE );
+		table->refresh();  //## don't like this, should be done automatically, or elsewhere?
+	    }
 	}
 #endif
 
