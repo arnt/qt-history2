@@ -1877,9 +1877,7 @@ static void read_async_image(QImageIO *iio)
             if (d->isDirectAccess())
                 d->seek(startAt + totLen);
             else {
-                qFatal("just testing....");
-                // ### We have (probably) read too much from the stream into
-                // the buffer, and there is no way to put it back!
+                qFatal("We have probably read too much from the stream. No way to put it back!");
             }
             iio->setImage(decoder.image());
             iio->setStatus(0);
