@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#72 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#73 $
 **
 ** Macros and definitions related to QObject
 **
@@ -44,12 +44,19 @@
 
 
 #ifndef QT_NO_TRANSLATION
-#define QT_TR_FUNCTIONS \
+# ifndef QT_NO_TEXTCODEC
+// full set of tr functions
+#  define QT_TR_FUNCTIONS \
     static QString tr( const char *, const char * = 0 ); \
     static QString trUtf8( const char *, const char * = 0 );
+# else
+// no QTextCodec, no utf8
+#  define QT_TR_FUNCTIONS \
+    static QString tr( const char *, const char * = 0 );
+# endif
 #else
 // inherit the ones from QObject
-#define QT_TR_FUNCTIONS
+# define QT_TR_FUNCTIONS
 #endif
 
 // The following macros are our "extensions" to C++
