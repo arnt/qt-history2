@@ -744,7 +744,8 @@ void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
     if (!d)
         return;
 
-    QTextPieceTable::setBlockFormat(d->block(), format);
+    QTextBlockIterator it = d->block();
+    d->pieceTable->setBlockFormat(it, it, format, QTextPieceTable::SetFormat);
 }
 
 QTextBlockIterator QTextCursor::block() const

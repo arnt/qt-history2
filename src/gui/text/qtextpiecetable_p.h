@@ -150,7 +150,6 @@ public:
     const FragmentMap &fragmentMap() const { return fragments; }
 
     static const QTextBlock *block(const QTextBlockIterator &it) { return it.pt->blocks.fragment(it.n); }
-    static void setBlockFormat(const QTextBlockIterator &it, const QTextBlockFormat &format);
 
     inline QTextDocumentConfig *config() { return &docConfig; }
     inline const QTextDocumentConfig *config() const { return &docConfig; }

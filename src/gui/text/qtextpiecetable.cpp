@@ -505,7 +505,7 @@ bool QTextPieceTable::unite(uint f)
 void QTextPieceTable::undoRedo(bool undo)
 {
     PMDEBUG("%s, undoPosition=%d, undoStack size=%d", undo ? "undo:" : "redo:", undoPosition, undoStack.size());
-    if ((undo && undoPosition == 0) || (!undo && undoPosition == undoStack.size()))
+    if (!undoEnabled || (undo && undoPosition == 0) || (!undo && undoPosition == undoStack.size()))
         return;
 
     undoEnabled = false;
@@ -524,6 +524,7 @@ void QTextPieceTable::undoRedo(bool undo)
             insert_string(c.pos, c.strPos, c.length, c.format, (UndoCommand::Operation)c.operation);
             c.command = UndoCommand::Inserted;
         } else if (c.command == UndoCommand::CharFormatChanged) {
+            PMDEBUG("   charFormat: format %d (from %d, length %d)", c.format, c.pos, c.length);
             FragmentIterator it = find(c.pos);
             Q_ASSERT(!it.atEnd());
 
@@ -531,6 +532,7 @@ void QTextPieceTable::undoRedo(bool undo)
             setCharFormat(c.pos, c.length, formats->charFormat(c.format));
             c.format = oldFormat;
         } else if (c.command == UndoCommand::BlockFormatChanged) {
+            PMDEBUG("   blockformat: format %d pos %d", c.format, c.pos);
             QTextBlockIterator it = blocksFind(c.pos);
             Q_ASSERT(!it.atEnd());
 
@@ -715,37 +717,6 @@ int QTextPieceTable::previousCursorPosition(int position, QTextLayout::CursorMod
 
     return it.layout()->previousCursorPosition(position-start, mode) + start;
 }
-
-
-void QTextPieceTable::setBlockFormat(const QTextBlockIterator &it, const QTextBlockFormat &format)
-{
-    if (it.atEnd())
-        return;
-    const QTextBlock *b = it.pt->blocks.fragment(it.n);
-
-    int oldFormatIndex = b->format;
-    QTextBlockFormat oldFormat = it.pt->formats->blockFormat(oldFormatIndex);
-    QTextFormatGroup *oldGroup = oldFormat.group();
-    QTextFormatGroup *group = format.group();
-
-    b->format = it.pt->formats->indexForFormat(format);
-    b->invalidate();
-
-    if (it.pt->undoEnabled) {
-        UndoCommand c = { UndoCommand::BlockFormatChanged, true, UndoCommand::MoveCursor, oldFormatIndex,
-                          0, it.position(), { 1 } };
-
-        const_cast<QTextPieceTable *>(it.pt)->appendUndoItem(c);
-        Q_ASSERT(it.pt->undoPosition == it.pt->undoStack.size());
-    }
-    if (group != oldGroup) {
-        if (oldGroup)
-            oldGroup->removeBlock(it);
-        if (group)
-            group->insertBlock(it);
-    }
-}
-
 
 void QTextPieceTable::changeGroupFormat(QTextFormatGroup *group, int format)
 {
