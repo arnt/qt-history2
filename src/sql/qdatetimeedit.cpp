@@ -390,19 +390,18 @@ void QDateTimeEditBase::layoutArrows()
 
 /*!
   \class QDateEdit qdatetimeedit.h
-  \brief The QDateEdit class provides a spin-like box to edit dates
+  \brief The QDateEdit class provides a combined line edit box and spin box to edit dates
 
-  The QDateEdit class provides a spin-like box to edit dates.
+    The QDateEdit class provides a combined line edit box and spin box to edit dates
 
-  QDateEdit allows the user to edit the date by either using the
-  keyboard, or by using the arrow buttons to increase/decrease date
-  values.  The Tab key can be used to move from field to field within
-  the QDateEdit box.
+    QDateEdit allows the user to edit the date by using the keyboard or
+    the arrow keys to increase/decrease date values.  The Tab key can be
+    used to move from field to field within the QDateEdit box.
 
-  If illegal values are entered, these will be reverted to the last
-  known legal value. I.e if you enter 5000 for the day value, and
-  it was 12 before you stated editing, the value will be reverted to
-  12.
+    If illegal values are entered, they will be reverted to the last
+    known legal value. For example if the user enters 5000 for the day
+    value, and it was 12 before they stated editing, the value will be
+    reverted to 12.
 
  */
 
@@ -501,7 +500,12 @@ QDate QDateEdit::date() const
 
 /*!
 
-  Set the order the date should appear in the edit box.
+  Set the order in which each part of the date should appear in the edit
+  box. 
+
+  The year is signified with 'Y', the month with 'M' and the day with
+  'D'. For the US the format would probably be 'MDY', for Japan, 'YMD',
+  for Europe, 'DMY'.
 
   \sa order
 */
@@ -531,9 +535,12 @@ void QDateEdit::setOrder( const QString & fmt )
 
 /*!
 
-  Returns a string that indicates in which order the date appears in
-  the editor. I.e, "YMD" means that the date appears in the year -
-  month - day order.
+  Returns a string that indicates the order in which each part of the
+  date appears in the editor. 
+
+  The year is signified with 'Y', the month with 'M' and the day with
+  'D'. If the string 'MDY' was returned this would signify a month, day,
+  year ordering.
 
   \sa setOrder
 */
@@ -631,20 +638,19 @@ void QDateEdit::resizeEvent( QResizeEvent * )
 /*!
 
   \class QTimeEdit qdatetimeedit.h
-  \brief The QTimeEdit class provides a spin-like box to edit a given
-  time
+  \brief The QTimeEdit class provides a combined line edit box and spin box to edit times
 
-  The QTimeEdit class provides a spin-like box to edit a given time.
+  The QTimeEdit class provides a combined line edit box and spin box to edit times
 
-  QTimeEdit allows the user to edit the time by either using the
-  keyboard, or by using the arrow buttons to increase/decrease date
+  QTimeEdit allows the user to edit the time by using the
+  keyboard or the arrow buttons to increase/decrease time
   values.  The Tab key can be used to move from field to field within
   the QTimeEdit box.
 
   If illegal values are entered, these will be reverted to the last
-  known legal value. I.e if you enter 5000 for the hour value, and
-  it was 12 before you stated editing, the value will be reverted to
-  12.
+  known legal value. For example if the user entered 5000 for the hour
+  value, and it was 12 before they stated editing, the value will be
+  reverted to 12.
   */
 
 /*!
@@ -714,8 +720,10 @@ QTime QTimeEdit::time() const
 		  ed[2]->text().toInt() );
 }
 
-/*! \fn void valueChanged( const QTime& ) This signal is emitted every
-  time the time changes.  The argument is the new time.
+/*! \fn void valueChanged( const QTime& ) 
+
+    This signal is emitted every time the time changes.  The argument is
+    the new time.
 */
 
 /*! \reimp
@@ -770,8 +778,12 @@ void QTimeEdit::resizeEvent( QResizeEvent * )
 /*!
 
   \class QDateTimeEdit qdatetimeedit.h
-  \brief The QDateTimeEdit class provides a spin-like box to edit a given
-  datetime
+  \brief The QDateTimeEdit class provides a combined line edit box and spin box to edit datetimes
+
+  The QDateTimeEdit class provides a combined line edit box and spin box to edit datetimes
+
+  QDateTimeEdit consists of a QDateEdit and QTimeEdit widget placed side by
+  side and offers the functionality of both.
 
   \sa QDateEdit QTimeEdit
   */
