@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#228 $
+** $Id: //depot/qt/main/src/moc/moc.y#229 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -3027,7 +3027,7 @@ void generateDispatch()
 	    Argument* a = f->args->first();
 	    while ( a ) {
 		QCString type = a->leftType + ' ' + a->rightType;
-		fprintf( out, "pUType%s->get(o", uType( type ).data() );
+		fprintf( out, "pUType_%s->get(o", uType( type ).data() );
 		if ( offset > 0 )
 		    fprintf( out, "+%d", offset );
 		offset++;
@@ -3119,7 +3119,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#228 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#229 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -3170,6 +3170,7 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "#include <%sqcom.h>\n", (const char*)g->qtPath );
 	    fprintf( out, "#include <%sucom.h>\n", (const char*)g->qtPath );
 	    fprintf( out, "#include <%sutypes.h>\n", (const char*)g->qtPath );
+	    fprintf( out, "#include <%squtypes.h>\n", (const char*)g->qtPath );
 	}
 	fprintf( out, "#if !defined(Q_MOC_OUTPUT_REVISION) || (Q_MOC_OUTPUT_REVISION != %d)\n", formatRevision );
 	fprintf( out, "#error \"This file was generated using the moc from %s."
