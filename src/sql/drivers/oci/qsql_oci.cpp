@@ -1554,7 +1554,7 @@ QString QOCIDriver::formatValue( const QSqlField* field, bool ) const
 	    QString encStr = "UNISTR('";
 	    const QString srcStr = field->value().toString();
 	    for ( uint i = 0; i < srcStr.length(); ++i ) {
-		encStr += '\\' + QString::number( srcStr[i], 16 ).rightJustify( 4, '0' );
+		encStr += '\\' + QString::number( srcStr.at( i ).unicode(), 16 ).rightJustify( 4, '0' );
 	    }
 	    encStr += "')";
 	    return encStr;
