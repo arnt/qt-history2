@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#27 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#28 $
 **
 ** Implementation of QRegExp class
 **
@@ -18,7 +18,7 @@
 #include <malloc.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#27 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#28 $")
 
 
 /*----------------------------------------------------------------------------
@@ -545,7 +545,7 @@ static int char_val( char **str )		// get char value
 
 
 #if defined(DEBUG)
-static ushort *dump( ushort *p )		// DEBUG !!!
+static ushort *dump( ushort *p )
 {
     while ( *p != END ) {
 	if ( *p & CHR ) {
@@ -607,7 +607,7 @@ static ushort rxarray[ maxlen ];		// tmp regexp array
   \internal
   Compiles the regular expression and stores the result in rxdata.
   The 'error' flag is set to non-zero if an error is detected.
-  NOTE! This function is not reentrant!!!
+  NOTE! This function is not reentrant!
  ----------------------------------------------------------------------------*/
 
 void QRegExp::compile()
@@ -789,7 +789,7 @@ void QRegExp::compile()
     CHECK_PTR( rxdata );
     memcpy( rxdata, rxarray, len*sizeof(ushort) );
 #if defined(DEBUG)
-//  dump( rxdata );	// uncomment this line for debugging!!!
+//  dump( rxdata );	// uncomment this line for debugging
 #endif
 }
 

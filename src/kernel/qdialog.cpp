@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#22 $
 **
 ** Implementation of QDialog class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#22 $")
 
 
 /*!
@@ -133,7 +133,7 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 	    case Key_Enter:
 	    case Key_Return: {
 		if ( inherits("QMessageBox") ) {
-		    accept();			// ugle hack!!!
+		    accept();
 		}
 		QObjectList *list = queryList( "QPushButton" );
 		QObjectListIt it( *list );
