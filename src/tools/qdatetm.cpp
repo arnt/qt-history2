@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#25 $
 **
 ** Implementation of date and time classes
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#25 $";
 #endif
 
 
@@ -62,7 +62,7 @@ The QDate is based on the Gregorian (modern western)
 calendar. England adopted the Gregorian calendar on September 14th
 1752, which is the earliest date that is supported by QDate.  Using
 earlier dates will give undefined results. Some countries adopted
-the Gregorian calendar later than England, thus the week dat of
+the Gregorian calendar later than England, thus the week day of
 early dates might be incorrect for these countries (but correct for
 England).  The end of time is reached around 8000AD, by which time we
 expect Qt to be obsolete. */
@@ -241,6 +241,17 @@ bool QDate::setYMD( int y, int m, int d )	// set year, month, day
     return TRUE;
 }
 
+/*!
+  Sets the local date given the number of seconds that have passed
+  since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
+*/
+
+void QDate::setTime_t( ulong secsSince1Jan1970UTC )
+{
+    tm *t = localtime( (time_t*) &secsSince1Jan1970UTC );
+    jd = greg2jul( t->tm_year + 1900, t->tm_mon + 1, t->tm_mday );
+}
+
 
 /*!
 Returns this date plus \e ndays days.
@@ -267,7 +278,6 @@ long QDate::daysTo( const QDate &d ) const	// days difference
 {
     return d.jd - jd;
 }
-
 
 /*!
 Returns the current date.
@@ -468,6 +478,17 @@ bool QTime::setHMS( int h, int m, int s, int ms ) // set time of day
     return TRUE;
 }
 
+/*!
+  Sets the local time of day given the number of seconds that have passed
+  since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
+*/
+
+void QTime::setTime_t( ulong secsSince1Jan1970UTC )
+{
+    tm *t = localtime( (time_t*) &secsSince1Jan1970UTC );
+    ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
+	 1000*t->tm_sec;
+}
 
 /*!
 Returns the time plus \e nsecs seconds.
@@ -520,14 +541,26 @@ Returns the current time.
 
 QTime QTime::currentTime()			// get current time
 {
+    QTime ct;
+    currentTime( &ct );
+    return ct;
+}
+
+/*!
+  Fetches the current time and returns TRUE if the time is within one
+  minute after midnight, otherwise FALSE. The return value is used by
+  QDateTime::currentDateTime to ensure that the date there is correct.
+*/
+
+bool QTime::currentTime( QTime *ct )			// get current time
+{
 #if defined(_OS_MSDOS_)
 
-    QTime ct;
     _dostime_t t;
     _dos_gettime( &t );
-    ct.ds = MSECS_PER_HOUR*t.hour + MSECS_PER_MIN*t.minute +
+    ct->ds = MSECS_PER_HOUR*t.hour + MSECS_PER_MIN*t.minute +
 	    t.second*1000L + t.hsecond*10L;
-    return ct;
+    return ( t.hour== 0 && t.minute == 0 );
 
 #elif defined(_OS_OS2_)
 
@@ -536,7 +569,7 @@ QTime QTime::currentTime()			// get current time
     DosGetDateTime( &t );
     ct.ds = MSECS_PER_HOUR*t.hours + MSECS_PER_MIN*t.minutes +
 	    1000*t.seconds + 10*t.hundredths;
-    return ct;
+    return ( t.hours == 0 && t.minutes == 0 );
 
 #elif defined(UNIX)
 
@@ -551,8 +584,7 @@ QTime QTime::currentTime()			// get current time
     tm *t = localtime( &ltime );
     ct.ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
 	    1000*t->tm_sec + tv.tv_usec/1000;
-    return ct;
-
+    return ( t->tm_hour== 0 && t->tm_min == 0 );
 #else						// !! no millisec resolution
 
     QTime ct;
@@ -561,8 +593,7 @@ QTime QTime::currentTime()			// get current time
     tm *t = localtime( &ltime );
     ct.ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
 	    1000*t->tm_sec;
-    return ct;
-
+    return ( t->tm_hour== 0 && t->tm_min == 0 );
 #endif
 }
 
@@ -654,6 +685,18 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
 {
 }
 
+/*!
+  Sets the local date and time given the number of seconds that have passed
+  since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
+*/
+
+void QDateTime::setTime_t( ulong secsSince1Jan1970UTC )
+{
+    tm *tM = localtime( (time_t*) &secsSince1Jan1970UTC );
+    d.jd = QDate::greg2jul( tM->tm_year + 1900, tM->tm_mon + 1, tM->tm_mday );
+    t.ds = MSECS_PER_HOUR*tM->tm_hour + MSECS_PER_MIN*tM->tm_min +
+	    1000*tM->tm_sec;
+}
 
 /*!
 Returns the datetime as a string. The string format is
@@ -668,7 +711,6 @@ QString QDateTime::toString() const		// datetime to string
 		 d.monthName(d.month()), d.day(), (const char*)time, d.year());
     return buf;
 }
-
 
 /*!
 Returns the datetime plus \e ndays days.
@@ -771,7 +813,6 @@ bool QDateTime::operator>=( const QDateTime &dt ) const
     return d == dt.d ? t >= dt.t : FALSE;
 }
 
-
 /*!
 Returns the current datetime.
 \sa QDate::currentDate() and QTime::currentTime().
@@ -779,9 +820,12 @@ Returns the current datetime.
 
 QDateTime QDateTime::currentDateTime()		// get current datetime
 {
-    QDate dd = QDate::currentDate();
-    QTime tt = QTime::currentTime();
-    return QDateTime( dd, tt );
+    QDate cd = QDate::currentDate();
+    QTime ct;
+    if ( QTime::currentTime(&ct) )              // too close to midnight?
+        cd = QDate::currentDate();              // YES! time for some midnight
+                                                // voodoo, fetch date again
+    return QDateTime( cd, ct );
 }
 
 

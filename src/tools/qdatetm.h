@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.h#10 $
+** $Id: //depot/qt/main/src/tools/qdatetm.h#11 $
 **
 ** Definition of date and time classes
 **
@@ -22,6 +22,7 @@
 
 class QDate
 {
+friend class QDateTime;
 friend QDataStream &operator<<( QDataStream &, const QDate & );
 friend QDataStream &operator>>( QDataStream &, QDate & );
 public:
@@ -45,6 +46,7 @@ public:
     QString toString()	 const;			// date to string
 
     bool   setYMD( int y, int m, int d );	// set year, month, day
+    void   setTime_t( ulong secsSince1Jan1970UTC ); // set date
 
     QDate  addDays( long days )		const;	// add days
     long   daysTo( const QDate & )	const;	// days difference
@@ -93,6 +95,7 @@ public:
     QString toString()	 const;			// time to string
 
     bool   setHMS( int h, int m, int s, int ms=0 ); // set time of day
+    void   setTime_t( ulong secsSince1Jan1970UTC ); // set time of day
 
     QTime  addSecs( long secs )		const;	// add seconds
     long   secsTo( const QTime & )	const;	// seconds difference
@@ -112,6 +115,9 @@ public:
     void   start();				// start clock
     long   restart();				// restart clock
     long   elapsed();				// msecs since start/restart
+
+private:
+    static bool currentTime( QTime * );
 
 protected:
     ulong  ds;					// seconds
@@ -138,6 +144,7 @@ public:
     QTime  time()	const { return t; }	// get time
     void   setDate( QDate date ) { d=date; }	// set date
     void   setTime( QTime time ) { t=time; }	// set time
+    void   setTime_t( ulong secsSince1Jan1970UTC );// set date and time
 
     QString toString()	const;			// datetime to string
 
