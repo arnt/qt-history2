@@ -13685,7 +13685,7 @@ QString QString::arg( QChar a, int fieldwidth ) const
     \target arg-formats
 
     Argument \a a is formatted according to the \a fmt format specified,
-    which is \c g by default and can be any of the following:
+    which is 'g' by default and can be any of the following:
 
     \table
     \header \i Format \i Meaning
@@ -13696,9 +13696,9 @@ QString QString::arg( QChar a, int fieldwidth ) const
     \row \i \c G \i use \c E or \c f format, whichever is the most concise
     \endtable
 
-    In all cases the number of digits after the decimal point is equal
-    to the precision specified in \a prec. If the format is 'g' the
-    the zeroes that follow are removed.
+    With 'e', 'E', and 'f', \a prec is the number of digits after the
+    decimal point. With 'g' and 'G', \a prec is the maximum number of
+    significant digits (trailing zeroes are omitted).
 
     \code
 	double d = 12.34;
@@ -16330,8 +16330,9 @@ QString QString::number( uint n, int base )
     \row \i \c G \i use \c E or \c f format, whichever is the most concise
     \endtable
 
-    In all cases the number of digits after the decimal point is equal
-    to the precision specified in \a prec.
+    With 'e', 'E', and 'f', \a prec is the number of digits after the
+    decimal point. With 'g' and 'G', \a prec is the maximum number of
+    significant digits (trailing zeroes are omitted).
 
     \code
     double d = 12.34;
