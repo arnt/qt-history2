@@ -1,0 +1,160 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>Form3</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>Form3</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>297</width>
+            <height>215</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Qt Politician 1.0</string>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>11</number>
+        </property>
+        <property name="spacing">
+            <number>6</number>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>TextLabel4</cstring>
+            </property>
+            <property name="text">
+                <string>Select a country</string>
+            </property>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>Layout20</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>0</number>
+                </property>
+                <property name="spacing">
+                    <number>11</number>
+                </property>
+                <widget class="QListBox">
+                    <item>
+                        <property name="text">
+                            <string>Canada</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>France</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>Germany</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>Italy</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>Japan</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>Russia</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>United Kingdom</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>United States of America</string>
+                        </property>
+                    </item>
+                    <property name="name">
+                        <cstring>ListBox2</cstring>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>Layout17</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>PushButton9</cstring>
+                            </property>
+                            <property name="text">
+                                <string>OK</string>
+                            </property>
+                            <property name="default">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>PushButton9_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Cancel</string>
+                            </property>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>Spacer7</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Vertical</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>20</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>PushButton9_2_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Help</string>
+                            </property>
+                        </widget>
+                    </vbox>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
+</widget>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

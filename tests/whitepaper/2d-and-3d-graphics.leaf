@@ -121,11 +121,14 @@ the device. Qt supports the following paint devices:
 can be painted on a \Class QPixmap first, and then bit-blitted to a
 \Class QWidget to reduce flicker.
 
+  \index SVD
+  \index XML
   \index pictures
 
 \i A \Class {QPicture} is a vector image that can be scaled
 gracefully. The \Class QPicture class stores an image as a list of
-paint commands rather than as pixel data.
+paint commands rather than as pixel data. It supports the SVD XML
+format.
 
   \index printers
 
@@ -140,13 +143,94 @@ bar-graph example.
 
 \section2 Canvas
 
-The \Class QCanvas class provides a higher-level interface than
-\Class QPainter to on-screen 2D graphics.
+  \index canvas
+  \index animations
+  \index sprites
+
+
+
+The \Class QCanvas class provides a high-level interface to 2D
+graphics. It can handle a very large number of 'canvas items' that
+represent lines, rectangles, ellipses, texts, pixmaps, animated
+sprites, etc.
+
+  \index collision testing
+
+Canvas items are instances of \Class QCanvasItem subclasses. They are
+more lightweight than widgets, and they can be quickly moved, hidden,
+and shown. \Class QCanvas has efficient support for collision
+detection, and can list all the canvas items in a given area. \Class
+QCanvasItem can be subclassed to provide custom item types and to
+extend the functionality of existing types (e.g. \Class QCanvasText).
+
+\Class QCanvas objects are rendered by the \Class QCanvasView class.
+Many \Class QCanvasView objects can show the same \Class QCanvas, but
+with different translations, scales, rotations and shears.
+
+  \index data visualisation
+  \index games
+  \index graphs
+  \index visualisation
+
+\Class QCanvas is ideal for data visualisation. It has been used by
+customers for drawing road maps and for presenting graphs. It is also
+suitable for 2D games.
 
 \section1 3D Graphics
 
- * 3D example
+OpenGL is a standard API for rendering 3D graphics. Qt developers can
+use OpenGL to draw 3D graphics in their GUI applications. This is
+achieved by subclassing \Class QGLWidget, a \Class QWidget subclass,
+and drawing with standard OpenGL functions rather than with \Class
+QPainter.
+
+  \index GLUT
+
+Qt's OpenGL module is available on Windows, X11 and Macintosh, and
+uses the system's OpenGL library (including Mesa). Qt avantageously
+replaces GLUT as a cross-platform OpenGL-enabled toolkit.
+
+Qt developers can set the display format of an OpenGL rendering
+context: single or double buffering, depth buffer, RGBA or color
+index mode, alpha channel, overlays, etc. They can also set the
+colormap manually in color index mode.
+
+When using Qt, developers write in pure OpenGL. Qt also provides two
+convenience functions, \Func qglClearColor() and \Func qglColor(),
+that accept a \Class QColor argument and work in any mode.
+
+\section1 A 3D Example
+
+  \img box3d.png
+
+The following example draws a 3D box with sliders to rotate the box
+around the X, Y and Z axes.
+
+In \File box3d.h, we define \Class Box3D like this:
+
+  \quotefile box3d/box3d.h
+  \skipuntil #define
+  \printto #endif
+
+In \File box3d.cpp, we implement the functions declared in \File
+box3d.h:
+
+  \quotefile box3d/box3d.cpp
+  \skipto #include
+  \printuntil /* ... */
+  \skipuntil glEnd()
+  \skipto glEnd()
+  \printuntil }
+
+In \File main.cpp, we create a \Class Box3D instance.
+
+  \quotefile box3d/main.cpp
+  \skipto #include
+  \printuntil app.exec()
+  \printline }
 
 \ONLINES
-###
+\Online coordsys.html
+\Online canvas.html
+\Online opengl.html
 \ENDONLINES
