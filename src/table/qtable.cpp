@@ -4151,7 +4151,7 @@ struct SortableTableItem
 extern "C" {
 #endif
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 static int _cdecl cmpTableItems( const void *n1, const void *n2 )
 #else
 static int cmpTableItems( const void *n1, const void *n2 )

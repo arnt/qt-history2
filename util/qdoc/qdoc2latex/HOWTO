@@ -5,10 +5,11 @@ First you should have a set of master files desctibing the books you
 want to generate. These master files typically have a .q2l extension.
 Here's an example of such a file:
 
-    \book Qt Basic Controls
+    \title Qt Basic Controls
 
     \input basic-controls-preface.html
 
+    \book controls.book
     \class QCheckBox
     \class QComboBox
     \class QDial
@@ -26,9 +27,10 @@ is identical to that in qdoc. That is, a documentation called
 master file. \input is an exception; it includes documentation from
 the current directory, not from the qdoc-generated documentation. It
 is useful mainly for prefaces, as they have no on-line equivalent.
+\book is also an exception. It refers to a .book file.
 
-First, make sure you have the PNG images in the documentation
-directory by typing
+Make sure you have the PNG images in the documentation directory by
+typing
 
     cp $QTDIR/gif/*.png $QTDIR/doc/html
 
@@ -37,7 +39,12 @@ If you get
     /home/jasmin/qt/gif/*.png: No such file or directory
 
 it probably means that Qt's directories were rearranged and that
-everything is fine out of the box. All right. Now type
+everything is fine out of the box. Also make sure that the
+documentation in $QTDIR/doc/html is up-to-date and was generated with
+the command-line option --friendly. If you forget this step,
+qdoc2latex will complain for the HTML files that really need it.
+
+All right. Now type
 
     qdoc2latex $QTDIR/doc/html basic-controls.q2l
 
@@ -102,6 +109,9 @@ If you need help, ask Jasmin Blanchette (jasmin@trolltech.com) or
 Mark Summerfield (mark@trolltech.com).
 
 Quick Summary:
+
+    # Make the Qt documentation
+    qdoc --friendly
 
     # Make sure images are in the html directory, e.g.
     cp $QTDIR/gif/*.png $QTDIR/doc/html

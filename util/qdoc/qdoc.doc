@@ -30,7 +30,7 @@
    \i \link #commands Giving commands to qdoc \endlink
    \i \link #food Feeding qdoc \endlink
    \i \link #run Running qdoc\endlink
-   \i \link #join Joining the qdoc community\endlink
+   \i \link #join Joining the qdoc community \endlink
   \endlist
 
   \target commands
@@ -397,9 +397,9 @@
     C:\\windows\\desktop, since there are no such commands as
     \\windows or \\desktop.
 
-    Also, do not attempt to use \\&, \\<, \\> and \\\\ within
+    Also, do not attempt to use \\\&, \\\<, \\\> and \\\\ within
     \link #c \\c \endlink or \link #code \\code...\\endcode \endlink,
-    unless you want \\&, \\<, \\> or \\\\ to appear verbatim.
+    unless you want \\\&, \\\<, \\\> or \\\\ to appear verbatim.
 
    \i \target class
     <b>\\class</b> starts a class documentation unit.
@@ -744,7 +744,7 @@
     *&#47;</pre>
     \omit D. E. Knuth, TAOCP 1 3rd ed. p. 45 \endomit
     This will be rendered like this:
-    <blockquote>
+    \quote
       The properties of permutations are of great importance in
       the analysis of algorithms, and we will deduce many interesting
       facts about them later in this book. \footnote In fact,
@@ -752,7 +752,7 @@
       calling them "perms". As soon as Pratt's convention is
       established, textbooks of computer science will be somewhat
       shorter (and perhaps less expensive). \endfootnote
-    </blockquote>
+    \endquote
 
    \i \target box
     <b>\\box ... \\endbox</b> ...
@@ -903,7 +903,7 @@
     commands as well: \link #printto \\printto \endlink,
     \link #printuntil \\printuntil \endlink,
     \link #skipline \\skipline \endlink,
-     \link #skipto \\skipto \endlink and
+    \link #skipto \\skipto \endlink and
     \link #skipuntil \\skipuntil \endlink.
 
     qdoc ignores all meaningless white space C++ senso when looking
@@ -1391,7 +1391,7 @@
    \i \target --base
     <b>--base</b> (cf. \link #BASE BASE \endlink) sets the URL prefix
     to use when emitting editorial warnings. To get a
-    Netscape-friendly prefix, pass
+    Netscape-compatible prefix, pass
     "--base=file:/home/warwick/qt/doc/html" to qdoc (assuming that
     the documentation is in /home/warwick/qt/doc/html).
 
@@ -1407,6 +1407,12 @@
     <b>--false</b> (cf. \link #FALSE FALSE \endlink) specifies what
     atomic preprocessor predicates to consider as false. The syntax
     is similar to that of \link #--define --define \endlink.
+
+   \i \target --friendly
+    <b>--friendly</b> instructs qdoc to generate qdoc documentation
+    that is more readily parsed by qdoc2latex and possibly other
+    tools, but less appropriate for humans. Use "--friendly" or
+    "--friendly=yes" to enable it.
 
    \i \target --help
     <b>--help</b> displays the list of long options, together with the
@@ -1446,13 +1452,14 @@
     the include files and source files are read anyway.
 
    \i \target --output-dir
-    <b>--output-dir</b> sets the directory where qdoc puts the
-    generated documentation. Example:
-    "--output-dir=/home/warwick/qt/doc/html".
+    <b>--output-dir</b> (cf. \link #OUTPUTDIR OUTPUTDIR \endlink)
+    sets the directory where qdoc puts the generated documentation.
+    Example: "--output-dir=/home/warwick/qt/doc/html".
 
    \i \target --supervisor
-    <b>--supervisor</b> instructs qdoc to warn or not about changes in
-    the documentation since the previous run. Use "--supervisor" (or
+    <b>--supervisor</b> (cf. \link #SUPERVISOR SUPERVISOR \endlink)
+    instructs qdoc to warn or not about changes in the documentation
+    since the previous run. Use "--supervisor" (or
     "--supervisor=yes") to enable supervisor mode and
     "--supervisor=no" to disable it.
 
@@ -1467,13 +1474,13 @@
     manual.
 
    \i \target --warning-level
-    <b>--warning-level</b> sets the warning level (between 0 and 4).
-    Use "--warning-level=0" to get only errors, and
-    "--warning-level=4" to get important and unimportant warnings
-    alike. At level 4, you still might miss some warnings, if the
-    maximum number of warnings is reached (cf.
-    \link #--max-warnings --max-warnings \endlink and
-    \link #--max-similar --max-similar \endlink).
+    <b>--warning-level</b> (cf. \link #WARNINGLEVEL WARNINGLEVEL)
+    sets the warning level (between 0 and 4). Use "--warning-level=0"
+    to get only errors, and "--warning-level=4" to get important and
+    unimportant warnings alike. At level 4, you still might miss some
+    warnings, if the maximum number of warnings is reached (cf. \link
+    #--max-warnings --max-warnings \endlink and \link #--max-similar
+    --max-similar \endlink).
   \endlist
 
   The full list of short options can be obtained by running
@@ -1490,7 +1497,7 @@
 
   \section1 Joining the qdoc community
 
-  To join Badegakk (the qdoc user group), send your name and address
+  To join Badegakk, the qdoc user group, send your name and address
   with a $2.56 check to
   <blockquote>
     Badegakk<br>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -163,6 +163,7 @@ Q_UNUSED( destIsPixmap )
     }
 }
 
+#ifndef Q_OS_TEMP
 // For alpha blending, we must load the AlphaBlend() function at run time.
 #if !defined(AC_SRC_ALPHA)
 #define AC_SRC_ALPHA 0x01
@@ -178,6 +179,7 @@ static void cleanup_msimg32Lib()
 	msimg32Lib = 0;
     }
 }
+#endif
 
 /*
    Try to do an AlphaBlend(). If it fails for some reasons, use BitBlt()
@@ -185,6 +187,7 @@ static void cleanup_msimg32Lib()
 */
 void qt_AlphaBlend( HDC dst_dc, int dx, int dy, int sw, int sh, HDC src_dc, int sx, int sy, DWORD rop )
 {
+#ifndef Q_OS_TEMP
     BLENDFUNCTION blend = {
 	AC_SRC_OVER,
 	0,
@@ -210,8 +213,11 @@ void qt_AlphaBlend( HDC dst_dc, int dx, int dy, int sw, int sh, HDC src_dc, int 
 	if ( loadAlphaBlendFailed )
 	    alphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, sw, sh, blend );
 	else
-	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, rop );
+		BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, rop );
     }
+#else
+		BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, rop );
+#endif
 }
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,

@@ -35,9 +35,7 @@
 
 /*! \page HOWTO-framebuffer.html
 
-\title Enabling the Linux framebuffer
-
-\heading How to enable framebuffer support in the Linux kernel
+\title Enabling the Linux Framebuffer
 
 This is only a short guide.
 See \l file:/usr/src/linux/README and
@@ -45,18 +43,18 @@ See \l file:/usr/src/linux/README and
 There is also a detailed explanation at
 \l http://www.linuxdoc.org/HOWTO/Framebuffer-HOWTO.html.
 
-<ol>
-<li> Make sure that you have the Linux kernel source code in
+\list 1
+\i Make sure that you have the Linux kernel source code in
 \l file:/usr/src/linux/.
 
-<li> Log in as root and cd /usr/src/linux
+\i Log in as root and cd /usr/src/linux
 
-<li> Configure the kernel:
+\i Configure the kernel:
    
    Run:
-<pre>
-	make menuconfig
-</pre>
+\code
+    make menuconfig
+\endcode
 
    Select "Code maturity level options" and set "Prompt for
    development and/or incomplete code/drivers".
@@ -70,36 +68,32 @@ There is also a detailed explanation at
 
    When you are finished, chose exit and save.
 
-
-<li> Compile the kernel
+\i Compile the kernel
 
    First do:
-<pre>
-	make dep
-</pre>
+\code
+    make dep
+\endcode
    then:
-<pre>
-	make bzImage
-</pre>
+\code
+    make bzImage
+\endcode
 
-  The new kernel should now be in <tt>arch/i386/boot/bzImage</tt>
+  The new kernel should now be in arch/i386/boot/bzImage.
 
-<li> Copy the kernel to the boot directory:
-<pre>
-	cp arch/i386/boot/bzImage /boot/linux.vesafb
-</pre>
+\i Copy the kernel to the boot directory:
+\code
+    cp arch/i386/boot/bzImage /boot/linux.vesafb
+\endcode
 
-<li> Edit <tt>/etc/lilo.conf</tt>
+\i Edit /etc/lilo.conf.
 
-<i>
-  IMPORTANT: Keep a backup of /etc/lilo.conf, and have a rescue disk
-  available. If you make a mistake at this stage, the machine may not
-  boot.
-</i>
+  \warning Keep a backup of /etc/lilo.conf, and have a rescue disk
+  available. If you make a mistake here, the machine may not boot.
 
    The file /etc/lilo.conf specifies how the system boots. The precise
    contents of the file varies from system to system, this is one example:
-<pre>
+\code
 # LILO configuration file
 boot = /dev/hda3
 delay = 30 
@@ -108,14 +102,12 @@ image = /boot/vmlinuz
   label = Linux
   read-only # Non-UMSDOS filesystems should be mounted read-only for checking
 other=/dev/hda1
-        label=nt
-        table=/dev/hda
-</pre>
+	label=nt
+	table=/dev/hda
+\endcode
 
-<i>
-  IMPORTANT: Keep a backup of /etc/lilo.conf, and have a rescue disk
+  \warning Keep a backup of /etc/lilo.conf, and have a rescue disk
   available. If you make a mistake here, the machine may not boot.
-</i>
 
   Make a new "image" section that is a copy of the first one, but with
   image = /boot/linux.vesafb and label = Linux-vesafb. Place it just
@@ -125,7 +117,7 @@ other=/dev/hda1
   1024x768, 16 bpp.) 
 
   With the above example, lilo.conf would now be:
-<pre>
+\code
 # LILO configuration file
 boot = /dev/hda3
 delay = 30 
@@ -139,28 +131,22 @@ image = /boot/vmlinuz
   label = Linux
   read-only # Non-UMSDOS filesystems should be mounted read-only for checking
 other=/dev/hda1
-        label=nt
-        table=/dev/hda
-</pre>
+	label=nt
+	table=/dev/hda
+\endcode
 
-Do not change any lines in the file; just add new ones.
+Do not change any existing lines in the file; just add new ones.
 
-<li> Run lilo
+\i To make the new changes take effect, run the lilo program:
+\code
+    lilo
+\endcode
 
-   To make the new changes take effect, run the lilo program:
-<pre>
-	lilo
-</pre>
-
-<li> Reboot the system
-
-   You should now see a penguin logo while the system is booting.
+\i Reboot the system. You should now see a penguin logo while the
+   system is booting.
    (Or more than one on a multi-processor machine.)
 
-
-<li> Error recovery
-
-   If it does not boot properly with the new kernel, you can boot with
+\i If it does not boot properly with the new kernel, you can boot with
    the old kernel by entering the label of the old image section at
    the LILO prompt. (with the example lilo.conf file, the old label is
    Linux.)
@@ -169,12 +155,10 @@ Do not change any lines in the file; just add new ones.
    boot the machine using your rescue disk, restore /etc/lilo.conf from
    backup and re-run lilo.
 
-
-<li> Testing
-
-   Here's a short program that opens the frame buffer and draws a
+\i Testing: Here's a short program that opens the frame buffer and draws a
    gradient-filled red square.
-<pre>
+
+\code
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -252,6 +236,7 @@ int main()
     close(fbfd);
     return 0;
 }
-</pre>
+\endcode
+\endlist
 
 */

@@ -1,4 +1,4 @@
-\book Accessibility and Internationalization with Qt
+\title Accessibility and Internationalization with Qt
 
 \class QAccessible
 \class QAccessibleInterface

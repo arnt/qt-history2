@@ -365,6 +365,9 @@ private:
     void	killPStack();
 
 protected:
+#ifdef Q_OS_TEMP
+	QPoint	internalCurrentPos;
+#endif
 #if defined(Q_WS_WIN)
     QT_WIN_PAINTER_MEMBERS
 #elif defined(Q_WS_X11)

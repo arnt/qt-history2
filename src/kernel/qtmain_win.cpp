@@ -45,7 +45,11 @@ extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QArray<pchar> &);
 #if defined(NEEDS_QMAIN)
 int qMain( int, char ** );
 #else
+#ifdef Q_OS_TEMP
+extern "C" int __cdecl main( int, char ** );
+#else
 extern "C" int main( int, char ** );
+#endif
 #endif
 
 /*
@@ -54,12 +58,21 @@ extern "C" int main( int, char ** );
   application.
 */
 
+#ifdef Q_OS_TEMP
+int WINAPI WinMain( HINSTANCE instance, HINSTANCE prevInstance, 
+			  LPWSTR wCmdParam, int cmdShow )
+#else
 extern "C"
 int APIENTRY WinMain( HINSTANCE instance, HINSTANCE prevInstance,
 		      LPSTR  cmdParam, int cmdShow )
+#endif
 {
     int argc = 0;
     char* cmdp = 0;
+#ifdef Q_OS_TEMP
+	// ### cmdParams will be blank
+	LPSTR cmdParam = "";
+#endif
     if ( cmdParam ) {
 	cmdp = new char[ qstrlen( cmdParam ) + 1 ];
 	qstrcpy( cmdp, cmdParam );

@@ -756,6 +756,10 @@ void QListViewItem::startRename( int col )
 	r.setLeft( r.left() + lv->itemMargin() + ( depth() + ( lv->rootIsDecorated() ? 1 : 0 ) ) * lv->treeStepSize() - 1 );
     if ( pixmap( col ) )
 	r.setLeft( r.left() + pixmap( col )->width() );
+    if ( r.x() - lv->contentsX() < 0 )
+	r.setX( lv->contentsX() );
+    if ( r.width() > lv->visibleWidth() )
+	r.setWidth( lv->visibleWidth() );
     renameBox = new QLineEdit( lv->viewport() );
     renameBox->setFrameStyle( QFrame::Box | QFrame::Plain );
     renameBox->setText( text( col ) );
@@ -3171,6 +3175,10 @@ void QListView::handleSizeChange( int section, int os, int ns )
 						   ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() - 1 );
 	if ( currentItem()->pixmap( currentItem()->renameCol ) )
 	    r.setLeft( r.left() + currentItem()->pixmap( currentItem()->renameCol )->width() );
+	if ( r.x() - contentsX() < 0 )
+	    r.setX( contentsX() );
+	if ( r.width() > visibleWidth() )
+	    r.setWidth( visibleWidth() );
 	addChild( currentItem()->renameBox, r.x(), r.y() );
 	currentItem()->renameBox->resize( r.size() );
     }
@@ -3235,6 +3243,10 @@ void QListView::viewportResizeEvent( QResizeEvent *e )
 						   ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() - 1 );
 	if ( currentItem()->pixmap( currentItem()->renameCol ) )
 	    r.setLeft( r.left() + currentItem()->pixmap( currentItem()->renameCol )->width() );
+	if ( r.x() - contentsX() < 0 )
+	    r.setX( contentsX() );
+	if ( r.width() > visibleWidth() )
+	    r.setWidth( visibleWidth() );
 	addChild( currentItem()->renameBox, r.x(), r.y() );
 	currentItem()->renameBox->resize( r.size() );
     }
@@ -3707,7 +3719,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     if ( i == currentItem() && i && i->isSelected() && e->button() == LeftButton ) {
 	QRect r = itemRect( currentItem() );
 	r = QRect( viewportToContents( r.topLeft() ), r.size() );
-	d->pressedColumn = header()->sectionAt( contentsToViewport( e->pos() ).x() );
+	d->pressedColumn = header()->sectionAt(  e->pos().x() );
 	r.setLeft( header()->sectionPos( d->pressedColumn ) );
 	r.setWidth( header()->sectionSize( d->pressedColumn ) - 1 );
 	if ( d->pressedColumn == 0 )

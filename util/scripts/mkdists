@@ -821,7 +821,7 @@ for plat in mac win x11 embedded; do
 		[ -d $file ] && continue
 		match=`basename $file | sed "s,.*_,," | cut -d'.' -f1`
 		case $match in
-		unix|win|mac|x11|qws|mac9|wince)
+		unix|win|mac|x11|qws|mac9|wce)
 		    if [ "$match" != "$plat" ] && [ "$match" != "$plat2" ] && [ "$match" != "$plat3" ]; then
 			rm -f $file
 			echo $file | sed "s,^${PLATDIR},,g" >>$PLAT_RM_FILE

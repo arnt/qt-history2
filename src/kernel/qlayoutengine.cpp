@@ -35,16 +35,6 @@
 **
 **********************************************************************/
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It may change from version to
-// version without notice, or even be removed.
-//
-//
-
-
 #include "qlayoutengine_p.h"
 
 #ifndef QT_NO_LAYOUT
@@ -71,7 +61,7 @@ static inline int fRound( int i ) {
 */
 
 void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
-		      int space, int spacer )
+		int space, int spacer )
 {
     typedef int fixed;
     int cHint = 0;
@@ -83,8 +73,11 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
     bool wannaGrow = FALSE; // anyone who really wants to grow?
     //    bool canShrink = FALSE; // anyone who could be persuaded to shrink?
 
-    int i; //some hateful compilers do not handle for loops correctly
-    for ( i = start; i < start+count; i++ ) {
+    int i;
+    for ( i = start; i < start + count; i++ ) {
+#if 0 // ###
+	qDebug( "    stretch %d, sizeHint %d, maximumSize %d, minimumSize %d, expansive %s, empty %s", chain[i].stretch, chain[i].sizeHint, chain[i].maximumSize, chain[i].minimumSize, chain[i].expansive ? "true" : "false", chain[i].empty ? "true" : "false" );
+#endif
 	chain[i].done = FALSE;
 	cHint += chain[i].sizeHint;
 	cMin += chain[i].minimumSize;
@@ -92,7 +85,7 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 	sumStretch += chain[i].stretch;
 	if ( !chain[i].empty )
 	    spacerCount++;
-	wannaGrow = wannaGrow ||  chain[i].expansive;
+	wannaGrow = wannaGrow || chain[i].expansive;
     }
 
     int extraspace = 0;
@@ -148,10 +141,10 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
     } else { //extra space
 	int n = count;
 	int space_left = space - spacerCount*spacer;
-	//first give to the fixed ones, and handle non-expansiveness
-	for ( i = start; i < start+count; i++ ) {
-	    if ( !chain[i].done && ( chain[i].maximumSize <= chain[i].sizeHint
-				     || wannaGrow && !chain[i].expansive )) {
+	// first give to the fixed ones, and handle non-expansiveness
+	for ( i = start; i < start + count; i++ ) {
+	    if ( !chain[i].done && (chain[i].maximumSize <= chain[i].sizeHint
+				    || wannaGrow && !chain[i].expansive) ) {
 		chain[i].size = chain[i].sizeHint;
 		chain[i].done = TRUE;
 		space_left -= chain[i].sizeHint;
@@ -159,7 +152,7 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 		n--;
 	    }
 	}
-	extraspace =  space_left;
+	extraspace = space_left;
 	/*
 	  Do a trial distribution and calculate how much it is off.
 	  If there are more deficit pixels than surplus pixels,
@@ -170,7 +163,6 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 	  this principle, but unfortunately this comment is too
 	  small to contain it.
 	*/
-
 	int surplus, deficit;
 	do {
 	    surplus = deficit = 0;
@@ -186,7 +178,7 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 		    fp_w += (fp_space * chain[i].stretch) / sumStretch;
 		int w = fRound( fp_w );
 		chain[i].size = w;
-		fp_w -= toFixed( w ); //give the difference to the next
+		fp_w -= toFixed( w ); // give the difference to the next
 		if ( w < chain[i].sizeHint ) {
 		    deficit +=  chain[i].sizeHint - w;
 		} else if ( w > chain[i].maximumSize ) {
@@ -194,7 +186,7 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 		}
 	    }
 	    if ( deficit > 0 && surplus <= deficit ) {
-		//give to the ones that have too little
+		// give to the ones that have too little
 		for ( i = start; i < start+count; i++ ) {
 		    if ( !chain[i].done &&
 			 chain[i].size < chain[i].sizeHint ) {
@@ -207,7 +199,7 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 		}
 	    }
 	    if ( surplus > 0 && surplus >= deficit ) {
-		//take from the ones that have too much
+		// take from the ones that have too much
 		for ( i = start; i < start+count; i++ ) {
 		    if ( !chain[i].done &&
 			 chain[i].size > chain[i].maximumSize ) {
@@ -224,8 +216,8 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 	    extraspace = space_left;
     }
 
-    //as a last resort, we distribute the unwanted space equally
-    //among the spacers (counting the start and end of the chain).
+    // as a last resort, we distribute the unwanted space equally
+    // among the spacers (counting the start and end of the chain).
 
     //### should do a sub-pixel allocation of extra space
     int extra = extraspace / ( spacerCount + 2 );
@@ -238,4 +230,4 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
     }
 }
 
-#endif //QT_NO_LAYOUT
+#endif // QT_NO_LAYOUT

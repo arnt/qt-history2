@@ -1,4 +1,6 @@
 #include <iostream.h>
+#include <stdlib.h>
+
 #include <qapplication.h>
 #include <qvbox.h>
 #include <qpushbutton.h>

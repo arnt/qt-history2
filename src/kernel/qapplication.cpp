@@ -1898,6 +1898,26 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	}
 	break;
 #endif
+    case QEvent::ContextMenu:
+	{
+	    QWidget* w = (QWidget*)receiver;
+	    QContextMenuEvent *cevent = (QContextMenuEvent*) e;
+	    while ( w ) {
+		QContextMenuEvent *ce = new QContextMenuEvent( cevent->reason(), w->mapFromGlobal( cevent->globalPos() ), cevent->globalPos(), cevent->state() );
+		res = internalNotify( w, ce );
+
+		if ( ce->isAccepted() )
+		    cevent->accept();
+		else
+		    cevent->ignore();
+		delete ce;
+		if ( res || ce->isAccepted() || w->testWFlags( WNoMousePropagation ) )
+		    break;
+
+		w = w->parentWidget( TRUE );
+	    }
+	}
+	break;
     case QEvent::Tablet:
 	{
 	    QWidget *w = (QWidget*)receiver;
@@ -1926,26 +1946,6 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 			tablet->ignore();
 		    delete ev;
 		}
-	    }
-	}
-	break;
-    case QEvent::ContextMenu:
-	{
-	    QWidget* w = (QWidget*)receiver;
-	    QContextMenuEvent *cevent = (QContextMenuEvent*) e;
-	    while ( w ) {
-		QContextMenuEvent *ce = new QContextMenuEvent( cevent->reason(), w->mapFromGlobal( cevent->globalPos() ), cevent->globalPos(), cevent->state() );
-		res = internalNotify( w, ce );
-
-		if ( ce->isAccepted() )
-		    cevent->accept();
-		else
-		    cevent->ignore();
-		delete ce;
-		if ( res )
-		    break;
-
-		w = w->parentWidget( TRUE );
 	    }
 	}
 	break;

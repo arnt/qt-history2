@@ -55,6 +55,9 @@ STDAPI_(LPENUMFORMATETC)
 //
 //----------------------------------------------------------------------------
 {
+#ifdef Q_OS_TEMP
+  return NULL;
+#else
   LPMALLOC lpMalloc=NULL;
   DWORD dwSize;
   ULONG i;
@@ -100,7 +103,7 @@ errReturn:
     lpMalloc->lpVtbl->Release(lpMalloc);
 
   return NULL;
-
+#endif
 } /* OleStdEnumFmtEtc_Create()
    */
 
@@ -111,6 +114,9 @@ VOID
 //
 //----------------------------------------------------------------------------
 {
+#ifdef Q_OS_TEMP
+	return;
+#else
     LPMALLOC lpMalloc=NULL;
     ULONG i;
 
@@ -133,7 +139,7 @@ VOID
             lpMalloc->lpVtbl->Release(lpMalloc);
         }
     }
-
+#endif
 } /* OleStdEnumFmtEtc_Destroy()
    */
 
@@ -383,6 +389,9 @@ STDAPI_(BOOL) OleStdCopyFormatEtc(LPFORMATETC petcDest, LPFORMATETC petcSrc)
 */
 STDAPI_(void) OleStdFree(LPVOID pmem)
 {
+#ifdef Q_OS_TEMP
+	return;
+#else
     LPMALLOC pmalloc;
 
     if (pmem == NULL)
@@ -397,6 +406,7 @@ STDAPI_(void) OleStdFree(LPVOID pmem)
     if (pmalloc != NULL) {
         pmalloc->lpVtbl->Release(pmalloc);
     }
+#endif
 }
 
 /* OleStdMalloc
@@ -405,6 +415,9 @@ STDAPI_(void) OleStdFree(LPVOID pmem)
 */
 STDAPI_(LPVOID) OleStdMalloc(ULONG ulSize)
 {
+#ifdef Q_OS_TEMP
+	return NULL;
+#else
     LPVOID pout;
     LPMALLOC pmalloc;
 
@@ -419,6 +432,7 @@ STDAPI_(LPVOID) OleStdMalloc(ULONG ulSize)
     }
 
     return pout;
+#endif
 }
 
 

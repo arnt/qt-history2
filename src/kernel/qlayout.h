@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of layout classes
 **
@@ -43,8 +43,8 @@
 #endif // QT_H
 
 #ifndef QT_NO_LAYOUT
-class QLayoutArray;
-class QLayoutBox;
+class QGridLayoutData;
+class QGridLayoutBox;
 
 #if 0
 Q_OBJECT
@@ -109,7 +109,7 @@ protected:
     void add( QLayoutItem*, int row, int col );
 private:
     void init( int rows, int cols );
-    QLayoutArray *array;
+    QGridLayoutData *data;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -185,7 +185,7 @@ bool QLibraryPrivate::loadLibrary()
     if ( filename.find( ".dll" ) == -1 )
 	filename += ".dll";
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 	pHnd = LoadLibraryW( (TCHAR*)qt_winTchar( filename, TRUE) );
 #else
 #if defined(UNICODE)
@@ -223,7 +223,7 @@ void* QLibraryPrivate::resolveSymbol( const char* f )
     if ( !pHnd )
 	return 0;
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
     void* address = GetProcAddress( pHnd, (TCHAR*)qt_winTchar( f, TRUE) );
 #else
     void* address = GetProcAddress( pHnd, f );

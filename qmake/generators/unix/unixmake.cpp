@@ -345,11 +345,12 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		links << "$(TARGET0)";
 	    }else
 		links << "$(TARGET0)" << "$(TARGET1)" << "$(TARGET2)";
-	    target = Option::fixPathToTargetOS(destdir + target, FALSE);
 	} else {
 	    target = "$(TARGETA)";
 	}
     }
+    if(!destdir.isEmpty())
+	target = Option::fixPathToTargetOS(destdir + target, FALSE);
 
     QString targetdir = Option::fixPathToTargetOS(project->first("target.path"), FALSE);
     if(targetdir.right(1) != Option::dir_sep)
@@ -364,7 +365,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		int lslash = link.findRev(Option::dir_sep);
 		if(lslash != -1)
 		    link = link.right(link.length() - (lslash + 1));
-		ret += "\n\tln -sf " + targetdir + target + " " + targetdir + link;
+		ret += "\n\tln -sf " + target + " " + Option::fixPathToTargetOS(targetdir + link, FALSE);
 	    }
 	}
     }

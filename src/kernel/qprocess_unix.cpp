@@ -611,7 +611,30 @@ bool QProcess::start()
 	    ::close( fd[0] );
 	if ( fd[1] )
 	    ::fcntl( fd[1], F_SETFD, FD_CLOEXEC ); // close on exec shows sucess
+#if 1
 	::execvp( arglist[0], (char*const*)arglist ); // ### cast not nice
+#else
+	const char *envlist[3] = { "SNAFU=blubber", 0, 0 };
+
+	QCString ldLibrary = QString( "LD_LIBRARY_PATH=%1" ).arg( getenv( "LD_LIBRARY_PATH" ) ).local8Bit();
+	envlist[1] = ldLibrary;
+
+	if ( _arguments.count() > 0 ) {
+	    QString command = _arguments[0];
+	    if ( !command.contains( '/' ) ) {
+		QStringList pathList = QStringList::split( ':', getenv( "PATH" ) );
+		for (QStringList::Iterator it = pathList.begin(); it != pathList.end(); ++it ) {
+		    QFileInfo fileInfo( *it, command );
+		    if ( fileInfo.isExecutable() ) {
+			arglistQ[0] = fileInfo.filePath().local8Bit();
+			arglist[0] = arglistQ[0];
+			break;
+		    }
+		}
+	    }
+	}
+	::execve( arglist[0], (char*const*)arglist, (char*const*)envlist ); // ### casts not nice
+#endif
 	if ( fd[1] ) {
 	    char buf = 0;
 	    ::write( fd[1], &buf, 1 );

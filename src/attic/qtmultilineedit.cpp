@@ -113,13 +113,12 @@ public:
 };
 
 
-// NOT REVISED
 /*!
   \class QtMultiLineEdit qtmultilineedit.h
 
   \brief The QtMultiLineEdit widget is a simple editor for inputting text.
 
-  \ingroup advanced
+  \obsolete
 
   The QtMultiLineEdit widget provides multiple line text input and display.
   It is intended for moderate amounts of text. There are no arbitrary
@@ -131,7 +130,7 @@ public:
   dynamic wrapping according to the visible width or a fixed number of
   character or pixels is supported.
 
-  The widget can be used to display text by calling setReadOnly(TRUE)
+  The widget can be used to display text by calling setReadOnly(TRUE).
 
   The default key bindings are described in keyPressEvent(); they cannot
   be customized except by inheriting the class.

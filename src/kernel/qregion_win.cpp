@@ -81,20 +81,24 @@ QRegion::QRegion( const QRect &r, RegionType t )
 	if ( t == Rectangle ) {			// rectangular region
 	    data->rgn = CreateRectRgn( r.left(),	 r.top(),
 				       r.right()+1, r.bottom()+1 );
+#ifndef Q_OS_TEMP
 	} else if ( t == Ellipse ) {		// elliptic region
 	    data->rgn = CreateEllipticRgn( r.left(),    r.top(),
 					   r.right()+1, r.bottom()+1 );
+#endif
 	}
     }
 }
 
 QRegion::QRegion( const QPointArray &a, bool winding )
 {
+#ifndef Q_OS_TEMP
     data = new QRegionData;
     Q_CHECK_PTR( data );
     data->is_null = FALSE;
     data->rgn = CreatePolygonRgn( (POINT*)a.data(), a.size(),
 				  winding ? WINDING : ALTERNATE );
+#endif
 }
 
 QRegion::QRegion( const QRegion &r )
@@ -105,6 +109,7 @@ QRegion::QRegion( const QRegion &r )
 
 HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
 {
+#ifndef Q_OS_TEMP
     HRGN region=0;
     QImage image = bitmap.convertToImage();
     const int maxrect=256;
@@ -198,6 +203,9 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
     }
 
     return region;
+#else
+	return NULL;
+#endif
 }
 
 

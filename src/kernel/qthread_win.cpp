@@ -40,7 +40,7 @@
 #define _MT
 #endif
 
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
 #include <process.h>
 #endif
 
@@ -100,7 +100,7 @@ public:
 
 QMutexPrivate::QMutexPrivate()
 {
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 	handle = CreateMutex( NULL, FALSE, NULL );
 #else
 #if defined(UNICODE)
@@ -402,16 +402,16 @@ QWaitConditionPrivate::QWaitConditionPrivate()
 : waitersCount(0)
 {
 #if defined(UNICODE)
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	handle = CreateEvent( NULL, TRUE, FALSE, NULL );
 	single = CreateEvent( NULL, FALSE, FALSE, NULL );
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     } else 
 #endif
 #endif
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     {
 	handle = CreateEventA( NULL, TRUE, FALSE, NULL );
 	single = CreateEventA( NULL, FALSE, FALSE, NULL );
@@ -734,15 +734,15 @@ QSemaphore::QSemaphore( int maxcount )
     d = new QSemaphorePrivate;
     d->maxCount = maxcount;
 #if defined(UNICODE)
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	d->handle = CreateSemaphore( NULL, maxcount, maxcount, NULL );
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     } else 
 #endif
 #endif
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     {
 	d->handle = CreateSemaphoreA( NULL, maxcount, maxcount, NULL );
     }

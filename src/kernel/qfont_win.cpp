@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -41,6 +41,7 @@
 #include "qt_windows.h"
 #include "qapplication_p.h"
 #include "qcleanuphandler.h"
+#include "qwinfunctions.h"
 
 
 static HDC   shared_dc	    = 0;		// common dc for all fonts
@@ -210,10 +211,13 @@ bool QFont::dirty() const
     return DIRTY_FONT;
 }
 
+#ifndef Q_OS_TEMP
 static MAT2 *mat = 0;
+#endif
 
 QRect QFontPrivate::boundingRect( const QChar &ch )
 {
+#ifndef Q_OS_TEMP
     GLYPHMETRICS gm;
     memset( &gm, 0, sizeof(GLYPHMETRICS) );
     if ( !mat ) {
@@ -242,6 +246,7 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 	    qSystemWarning( "QFontPrivate: GetGlyphOutline failed error code=%d", GetLastError() );
 #endif
     }
+#endif
     return QRect();
 }
 
@@ -280,19 +285,25 @@ void QFontPrivate::initFontInfo()
     lineWidth = 1;
     actual = request;				// most settings are equal
 #ifdef UNICODE
+#ifndef Q_OS_TEMP
     if ( qt_winver & Qt::WV_NT_based ) {
+#endif
 	TCHAR n[64];
 	GetTextFaceW( fin->dc(), 64, n );
 	actual.family = qt_winQString(n);
 	actual.fixedPitch = !(fin->textMetricW()->tmPitchAndFamily & TMPF_FIXED_PITCH);
+#ifndef Q_OS_TEMP
     } else 
 #endif
+#endif
+#ifndef Q_OS_TEMP
     {
 	char an[64];
 	GetTextFaceA( fin->dc(), 64, an );
 	actual.family = QString::fromLocal8Bit(an);
 	actual.fixedPitch = !(fin->textMetricA()->tmPitchAndFamily & TMPF_FIXED_PITCH);
     }
+#endif
     actual.dirty = FALSE;
 }
 
@@ -320,12 +331,16 @@ void QFontPrivate::load()
 	fin->hfont = create( &fin->stockFont, fin->hdc );
 	SelectObject( fin->dc(), fin->hfont );
 	BOOL res;
+#ifdef Q_OS_TEMP
+    res = GetTextMetricsW( fin->dc(), &fin->tm.w );
+#else
 #ifdef UNICODE
 	if ( qt_winver & Qt::WV_NT_based )
 	    res = GetTextMetricsW( fin->dc(), &fin->tm.w );
 	else
 #endif
 	    res = GetTextMetricsA( fin->dc(), &fin->tm.a );
+#endif
 #ifndef Q_NO_DEBUG
 	if ( !res )
 	    qSystemWarning( "QFontPrivate: GetTextMetrics failed" );
@@ -364,6 +379,7 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
 	    f = deffnt;
 	else if ( fam == "system" )
 	    f = SYSTEM_FONT;
+#ifndef Q_OS_TEMP
 	else if ( fam == "system_fixed" )
 	    f = SYSTEM_FIXED_FONT;
 	else if ( fam == "ansi_fixed" )
@@ -374,6 +390,7 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
 	    f = DEVICE_DEFAULT_FONT;
 	else if ( fam == "oem_fixed" )
 	    f = OEM_FIXED_FONT;
+#endif
 	else if ( fam[0] == '#' )
 	    f = fam.right(fam.length()-1).toInt();
 	else
@@ -476,6 +493,7 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
     int strat = OUT_DEFAULT_PRECIS;
     if (  request.styleStrategy & QFont::PreferBitmap ) {
 	strat = OUT_RASTER_PRECIS;
+#ifndef Q_OS_TEMP
     } else if ( request.styleStrategy & QFont::PreferDevice ) {
 	strat = OUT_DEVICE_PRECIS;
     } else if ( request.styleStrategy & QFont::PreferOutline ) {
@@ -485,6 +503,7 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
 	    strat = OUT_TT_PRECIS;
     } else if ( request.styleStrategy & QFont::ForceOutline ) {
 	strat = OUT_TT_ONLY_PRECIS;
+#endif
     }
 
     lf.lfOutPrecision   = strat;
@@ -492,8 +511,10 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
     int qual = DEFAULT_QUALITY;
     if ( request.styleStrategy & QFont::PreferMatch )
 	qual = DRAFT_QUALITY;
+#ifndef Q_OS_TEMP
     else if ( request.styleStrategy & QFont::PreferQuality )
 	qual = PROOF_QUALITY;
+#endif
 
     lf.lfQuality	= qual;
 
@@ -502,12 +523,17 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
     HFONT hfont;
 
 #ifdef UNICODE
+#ifndef Q_OS_TEMP
     if ( qt_winver & Qt::WV_NT_based ) {
+#endif
 	memcpy(lf.lfFaceName,qt_winTchar( fam, TRUE ),
 	    sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
 	hfont = CreateFontIndirect( &lf );
+#ifndef Q_OS_TEMP
     } else 
 #endif
+#endif
+#ifndef Q_OS_TEMP
     {
 	// LOGFONTA and LOGFONTW are binary compatible
 	QCString lname = fam.local8Bit();
@@ -515,11 +541,14 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
 	    QMIN(lname.length()+1,32));  // 32 = Windows hard-coded
 	hfont = CreateFontIndirectA( (LOGFONTA*)&lf );
     }
+#endif
 
     if ( stockFont )
 	*stockFont = hfont == 0;
+#ifndef Q_OS_TEMP
     if ( hfont == 0 )
 	hfont = (HFONT)GetStockObject( ANSI_VAR_FONT );
+#endif
     return hfont;
 }
 
@@ -704,12 +733,16 @@ void *QFont::textMetric() const
 	Q_ASSERT( d->fin && d->fin->font() );
 #endif
     }
+#ifdef Q_OS_TEMP
+	return d->fin->textMetricW();
+#else
 #ifdef UNICODE
     if ( qt_winver & Qt::WV_NT_based )
 	return d->fin->textMetricW();
     else
 #endif
 	return d->fin->textMetricA();
+#endif
 }
 
 
@@ -721,6 +754,10 @@ void *QFontMetrics::textMetric() const
 {
     if ( painter ) {
 	return painter->textMetric();
+#ifdef Q_OS_TEMP
+	} else
+	return d->fin->textMetricW();
+#else
 #ifdef UNICODE
     } else if ( qt_winver & Qt::WV_NT_based ) {
 	return d->fin->textMetricW();
@@ -728,6 +765,7 @@ void *QFontMetrics::textMetric() const
     } else {
 	return d->fin->textMetricA();
     }
+#endif
 }
 
 #undef  TM
@@ -757,14 +795,19 @@ int QFontMetrics::descent() const
 bool QFontMetrics::inFont(QChar ch) const
 {
 #ifdef UNICODE
+#ifndef Q_OS_TEMP
     if ( qt_winver & Qt::WV_NT_based ) {
+#endif
 	TEXTMETRICW *f = TMW;
 	WCHAR ch16 = ch.unicode();
 	if( ch16 < f->tmFirstChar || ch16 > f->tmLastChar )
 	    return FALSE;
 	return !d->boundingRect( ch ).isEmpty();
+#ifndef Q_OS_TEMP
     } else
 #endif
+#endif
+#ifndef Q_OS_TEMP
     {
 	TEXTMETRICA *f = TMA;
 	if ( ch.row() || (WCHAR)ch.cell() < f->tmFirstChar
@@ -772,11 +815,15 @@ bool QFontMetrics::inFont(QChar ch) const
 	    return FALSE;
 	return !d->boundingRect( ch ).isEmpty();
     }
+#endif
 }
 
 
 int QFontMetrics::leftBearing(QChar ch) const
 {
+#ifdef Q_OS_TEMP
+	return 0;
+#else
     if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
 	ABC abc;
 #if defined(UNICODE)
@@ -811,11 +858,16 @@ int QFontMetrics::leftBearing(QChar ch) const
 	    return 0;
 	}
     }
+	return 0;
+#endif
 }
 
 
 int QFontMetrics::rightBearing(QChar ch) const
 {
+#ifdef Q_OS_TEMP
+	return 0;
+#else
     if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
 	ABC abc;
 #if defined(UNICODE)
@@ -851,6 +903,8 @@ int QFontMetrics::rightBearing(QChar ch) const
 	    return -TMX->tmOverhang;
 	}
     }
+	return 0;
+#endif
 }
 
 static ushort char_table[] = {
@@ -913,6 +967,9 @@ int QFontMetrics::minLeftBearing() const
 
 int QFontMetrics::minRightBearing() const
 {
+#ifdef Q_OS_TEMP
+	return 0;
+#else
     // Safely cast away const, as we cache bearings there.
     QFontDef* def = (QFontDef*)&d->actual;
 
@@ -985,6 +1042,7 @@ int QFontMetrics::minRightBearing() const
     }
 
     return def->rbearing;
+#endif
 }
 
 

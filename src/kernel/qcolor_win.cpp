@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QColor class for Win32
 **
@@ -187,7 +187,11 @@ int QColor::setPaletteEntries( const QRgb* pal, int numEntries, int base )
     }
 
     HDC dc = qt_display_dc();
+#ifndef Q_OS_TEMP
     UnrealizeObject( hpal );
+#else
+	GetStockObject( DEFAULT_PALETTE );
+#endif
     SelectPalette( dc, hpal, FALSE );
     RealizePalette( dc );
 
@@ -219,7 +223,9 @@ uint QColor::realizePal( QWidget *widget )
     HDC hdc = GetDC( widget->winId() );
     HPALETTE hpalT = SelectPalette( hdc, hpal, FALSE );
     uint i = RealizePalette( hdc );
+#ifndef Q_OS_TEMP
     UpdateColors( hdc );
+#endif
     SelectPalette( hdc, hpalT, FALSE );
     ReleaseDC( widget->winId(), hdc );
     return i;
@@ -275,7 +281,11 @@ uint QColor::alloc()
 			colArray[idx] = d.argb;
 			ctxArray[idx] = current_alloc_context;
 			HDC dc = qt_display_dc();
-			UnrealizeObject( hpal );
+#ifndef Q_OS_TEMP
+		    UnrealizeObject( hpal );
+#else
+			GetStockObject( DEFAULT_PALETTE );
+#endif
 			SelectPalette( dc, hpal, FALSE );
 			RealizePalette( dc );
 		    }

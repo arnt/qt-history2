@@ -1,4 +1,4 @@
-\book Threading with Qt
+\title Threading with Qt
 
 \page threads.html
 \class QMutex

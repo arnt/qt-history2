@@ -72,9 +72,22 @@ STDMETHODIMP CDSAddIn::OnConnection(IApplication* pApp, VARIANT_BOOL bFirstTime,
 	strCmdString.LoadString(IDS_ADDMOCSTEP_STRING);
 	VERIFY_OK(pApplication->AddCommand(CComBSTR(szAddMOCStep + strCmdString), CComBSTR(_T("QMsDevAddMOCStep")), 5, m_dwCookie, &bRet));
 
+	if ( bFirstTime == VARIANT_TRUE )
+	{
+	    CComBSTR bszKeystroke("CTRL+SHIFT+M");
+	    VERIFY_OK(pApplication->AddKeyBinding(bszKeystroke, CComBSTR(szAddMOCStep), CComBSTR("Text") ));
+	    VERIFY_OK(pApplication->AddKeyBinding(bszKeystroke, CComBSTR(szAddMOCStep), CComBSTR("Main") ));
+	}
 	LPCTSTR szAddUICStep = _T("Add UIC step");
 	strCmdString.LoadString(IDS_ADDUICSTEP_STRING);
 	VERIFY_OK(pApplication->AddCommand(CComBSTR(szAddUICStep + strCmdString), CComBSTR(_T("QMsDevAddUICStep")), 6, m_dwCookie, &bRet));
+
+	if ( bFirstTime == VARIANT_TRUE )
+	{
+	    CComBSTR bszKeystroke("CTRL+SHIFT+U");
+	    VERIFY_OK(pApplication->AddKeyBinding(bszKeystroke, CComBSTR(szAddUICStep), CComBSTR("Text") ));
+	    VERIFY_OK(pApplication->AddKeyBinding(bszKeystroke, CComBSTR(szAddUICStep), CComBSTR("Main") ));
+	}
 
 	LPCTSTR szCreateDSP = _T( "Generate DSP file" );
 	strCmdString.LoadString( IDS_GENERATEDSP_STRING );

@@ -57,7 +57,7 @@ with the implementation of the class (or it can be #included into the
 class's source file).
 
 Using the moc is introduced in \link t7.html chapter 7 \endlink of the
-Qt Tutorial.  Chapter 7 includes a simple \link t7-makefile.html
+Qt Tutorial.  Chapter 7 includes a simple \link t7/Makefile
 Makefile that uses the moc \endlink and of course source code that
 uses signals and slots. For more background information on moc, see <a
 href="templates.html">Why doesn't Qt use templates for signals and
@@ -317,7 +317,7 @@ the first inherited class is a QObject.
 #include or #define, it cannot find out which one of the base classes
 is a QObject.)
 
-\section2 Function pointers can not be arguments to signals or slots
+\section2 Function pointers cannot be arguments to signals or slots
 
 In most cases where you would consider that, we think inheritance is a
 better alternative.  Here is an example of illegal syntax:
@@ -327,26 +327,27 @@ better alternative.  Here is an example of illegal syntax:
         Q_OBJECT
 	...
     public slots:
-        void apply(void (*applyFunction)(QPtrList*, void*), char*); // illegal
+	// illegal
+	void apply( void (*apply)(List *, void *), char * );
     };
 \endcode
 
 You can work around this restriction like this:
 \code
-    typedef void (*ApplyFunctionType)(QPtrList*, void*);
+    typedef void (*ApplyFunctionType)( List *, void * );
 
     class SomeClass : public QObject {
         Q_OBJECT
 	...
     public slots:
-        void apply( ApplyFunctionType, char *);
+        void apply( ApplyFunctionType, char * );
     };
 \endcode
 
 It may sometimes be even better to replace the function pointer with
 inheritance and virtual functions, signals or slots.
 
-\section2 Friend declarations can not be placed in signals or slots sections
+\section2 Friend declarations cannot be placed in signals or slots sections
 
 Sometimes it will work, but in general, friend declarations can
 not be placed in signals or slots sections.  Put them in the good old
@@ -390,7 +391,7 @@ function which is overloaded?
 C++ ARM, section r.11.3
 \endomit
 
-\section2 Type macros can not be used for signal and slot arguments
+\section2 Type macros cannot be used for signal and slot parameters
 
 Since the moc does not expand #define, type macros that take an argument
 will not work in signals and slots. Here is an illegal example:
@@ -405,12 +406,12 @@ will not work in signals and slots. Here is an illegal example:
     class Whatever : public QObject {
 	...
     signals:
-        void someSignal( SIGNEDNESS(a) );
+        void someSignal( SIGNEDNESS(int) );
 	...
     };
 \endcode
 
-A #define without arguments will work as expected.
+A #define without parameters will work as expected.
 
 \section2 Nested classes cannot be in the signals or slots sections nor have
 signals or slots
@@ -422,22 +423,22 @@ Here's an example:
 	Q_OBJECT
     public:
         class B {
-	public slots: 	// illegal
+	public slots:   // illegal
 	    void b();
 	    ...
         };
     signals:
-        class B { 	// illegal
+        class B {       // illegal
 	    void b();
 	    ...
         }:
     };
 \endcode
 
-\section2 Constructors can not be used in signals or slots sections
+\section2 Constructors cannot be used in signals or slots sections
 
-It is a mystery to me why anyone would put a constructor on
-either the signals or slots sections.  You can not, anyway (except
+It is a mystery to us why anyone would put a constructor on
+either the signals or slots sections.  You can't, anyway (except
 that it happens to work in some cases).  Put them in private,
 protected or public sections, where they belong.  Here is an example
 of the illegal syntax:
@@ -451,37 +452,6 @@ of the illegal syntax:
 	...
     };
 \endcode
-
-\section2 Signals and slots may not have template arguments
-
-Declaring signals and slots with template-type parameters will not
-work as expected, even though the moc will not complain. Connecting the
-signal to the slot in the following example, the slot will not get
-executed when the signal is emitted:
-
-\code
-	...
-    public slots:
-	void MyWidget::setLocation( pair<int,int> location );
-	...
-    public signals:
-	void MyObject::moved( pair<int,int> location );
-\endcode
-
-However, you can work around this limitation by explicitly typedef'ing
-the parameter types, like this:
-
-\code
-    typedef pair<int,int> IntPair;
-	...
-    public slots:
-	void MyWidget::setLocation( IntPair location );
-	...
-    public signals:
-	void MyObject::moved( IntPair location );
-\endcode
-
-This will work as expected.
 
 \section2 Properties need to be declared before the public section that
 contains the respective get and set functions

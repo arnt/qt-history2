@@ -10,34 +10,8 @@
 #include "emitter.h"
 #include "messages.h"
 
-
-
-
-#include <qapplication.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-void myMessageOutput( QtMsgType type, const char *msg )
-{
-    switch ( type ) {
-        case QtDebugMsg:
-            fprintf( stderr, "Debug: %s\n", msg );
-            break;
-        case QtWarningMsg:
-            fprintf( stderr, "Warning: %s\n", msg );
-            abort();                        // dump core on purpose
-            break;
-        case QtFatalMsg:
-            fprintf( stderr, "Fatal: %s\n", msg );
-            abort();                        // dump core on purpose
-    }
-}
-
-
 int main( int argc, char **argv )
 {
-    qInstallMsgHandler( myMessageOutput ); // ###
-
     config = new Config( argc, argv );
 
     QDir dir( config->outputDir() );

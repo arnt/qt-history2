@@ -62,6 +62,9 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 	    case QMessageBox::Critical:
 		soundName = "SystemExclamation";
 		break;
+	    case QMessageBox::Information:
+		soundName = ".Default";
+		break;
 	    default:
 		soundName = "SystemAsterisk";
 		break;

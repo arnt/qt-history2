@@ -41,12 +41,11 @@
 #include "qdatetime.h"
 #include "qdatastream.h"
 #include "qregexp.h"
+#include "qwinfunctions.h"
 
 #include <stdio.h>
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
 #include <time.h>
-#else
-#include "qfunctions_wce.h"
 #endif
 
 #if defined(Q_OS_WIN32)

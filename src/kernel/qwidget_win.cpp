@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -174,7 +174,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN ;
 	if ( topLevel ) {
 	    if ( testWFlags(WStyle_NormalBorder) )
+#ifdef Q_OS_TEMP
+		;
+#else
 		style |= WS_THICKFRAME;
+#endif
 	    else if ( testWFlags(WStyle_DialogBorder) )
 		style |= WS_POPUP | WS_DLGFRAME;
 	    if ( testWFlags(WStyle_Title) )
@@ -193,13 +197,19 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
     if ( testWFlags(WStyle_Title) ) {
 #ifdef UNICODE
+#ifndef Q_OS_TEMP
 	if ( qt_winver & Qt::WV_NT_based ) {
+#endif
 	    title = (TCHAR*)qt_winTchar_new(QString::fromLatin1(qAppName()));
+#ifndef Q_OS_TEMP
 	} else
 #endif
+#endif
+#ifndef Q_OS_TEMP
 	{
 	    title95 = qAppName();
 	}
+#endif
     }
 
 	// The WState_Created flag is checked by translateConfigEvent() in
@@ -223,6 +233,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    qSystemWarning( "QWidget: Failed to set window procedure" );
 #endif
     } else if ( desktop ) {			// desktop widget
+#ifndef Q_OS_TEMP
 	id = GetDesktopWindow();
 	QWidget *otherDesktop = find( id );	// is there another desktop?
 	if ( otherDesktop && otherDesktop->testWFlags(WPaintDesktop) ) {
@@ -232,13 +243,18 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	} else {
 	    setWinId( id );
 	}
+//#else
+//    setWinId( id );
+#endif
     } else if ( topLevel ) {			// create top-level widget
 	if ( popup )
 	    parentw = 0;
 
 #ifdef UNICODE
+#ifndef Q_OS_TEMP
 	if ( qt_winver & Qt::WV_NT_based ) {
-	    // ### can this give problems due to the buffer in qt_winTchar????
+#endif
+		// ### can this give problems due to the buffer in qt_winTchar????
 	    TCHAR *cname = (TCHAR*)qt_winTchar(windowClassName,TRUE);
 	    if ( exsty )
 		id = CreateWindowEx( exsty, cname, title, style,
@@ -250,8 +266,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 				    CW_USEDEFAULT, CW_USEDEFAULT,
 				    CW_USEDEFAULT, CW_USEDEFAULT,
 				    parentw, 0, appinst, 0 );
+#ifndef Q_OS_TEMP
 	} else
 #endif
+#endif
+#ifndef Q_OS_TEMP
 	{
 	    if ( exsty )
 		id = CreateWindowExA( exsty, windowClassName.latin1(), title95, style,
@@ -264,6 +283,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 				    CW_USEDEFAULT, CW_USEDEFAULT,
 				    parentw, 0, appinst, 0 );
 	}
+#endif
 #ifndef Q_NO_DEBUG
 	if ( id == NULL )
 	    qSystemWarning( "QWidget: Failed to create window" );
@@ -273,16 +293,22 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100, SWP_NOACTIVATE );
     } else {					// create child widget
 #ifdef UNICODE
+#ifndef Q_OS_TEMP
 	if ( qt_winver & Qt::WV_NT_based ) {
-	    TCHAR *cname = (TCHAR*)qt_winTchar(windowClassName,TRUE);
+#endif
+		TCHAR *cname = (TCHAR*)qt_winTchar(windowClassName,TRUE);
 	    id = CreateWindow( cname, title, style, 0, 0, 100, 30,
 			    parentw, NULL, appinst, NULL );
+#ifndef Q_OS_TEMP
 	} else
 #endif
+#endif
+#ifndef Q_OS_TEMP
 	{
 	    id = CreateWindowA( windowClassName.latin1(), title95, style, 0, 0, 100, 30,
 			    parentw, NULL, appinst, NULL );
 	}
+#endif
 #ifndef Q_NO_DEBUG
 	if ( id == NULL )
 	    qSystemWarning( "QWidget: Failed to create window" );
@@ -499,17 +525,23 @@ void QWidget::setFontSys( QFont *f )
 
     HIMC imc = ImmGetContext( winId() ); // Can we store it?
 #ifdef UNICODE
+#ifndef Q_OS_TEMP
     if ( qt_winver & WV_NT_based ) {
+#endif
 	LOGFONT lf;
 	if ( GetObject( hf, sizeof(lf), &lf ) )
 	    ImmSetCompositionFont( imc, &lf );
+#ifndef Q_OS_TEMP
     } else
 #endif
+#endif
+#ifndef Q_OS_TEMP
     {
 	LOGFONTA lf;
 	if ( GetObjectA( hf, sizeof(lf), &lf ) )
 	    ImmSetCompositionFontA( imc, &lf );
     }
+#endif
     ImmReleaseContext( winId(), imc );
 }
 
@@ -636,12 +668,16 @@ void QWidget::setCaption( const QString &caption )
     if ( QWidget::caption() == caption )
 	return; // for less flicker
     topData()->caption = caption;
+#ifdef Q_OS_TEMP
+	SetWindowText( winId(), (TCHAR*)qt_winTchar(caption,TRUE) );
+#else
 #if defined(UNICODE)
     if ( qt_winver & WV_NT_based )
 	SetWindowText( winId(), (TCHAR*)qt_winTchar(caption,TRUE) );
     else
 #endif
 	SetWindowTextA( winId(), caption.local8Bit() );
+#endif
     QEvent e( QEvent::CaptionChange );
     QApplication::sendEvent( this, &e );
 }
@@ -718,7 +754,11 @@ QCursor *qt_grab_cursor()
 
 LRESULT CALLBACK qJournalRecordProc( int nCode, WPARAM wParam, LPARAM lParam )
 {
+#ifndef Q_OS_TEMP
     return CallNextHookEx( journalRec, nCode, wParam, lParam );
+#else
+	return 0;
+#endif
 }
 
 void QWidget::grabMouse()
@@ -726,9 +766,11 @@ void QWidget::grabMouse()
     if ( !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
+#ifndef Q_OS_TEMP
 	journalRec = SetWindowsHookExA( WH_JOURNALRECORD,
 				       (HOOKPROC)qJournalRecordProc,
 				       GetModuleHandleA(0), 0 );
+#endif
 	SetCapture( winId() );
 	mouseGrb = this;
     }
@@ -739,9 +781,11 @@ void QWidget::grabMouse( const QCursor &cursor )
     if ( !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
+#ifndef Q_OS_TEMP
 	journalRec = SetWindowsHookExA( WH_JOURNALRECORD,
 				       (HOOKPROC)qJournalRecordProc,
 				       GetModuleHandleA(0), 0 );
+#endif
 	SetCapture( winId() );
 	mouseGrbCur = new QCursor( cursor );
 	SetCursor( mouseGrbCur->handle() );
@@ -754,7 +798,9 @@ void QWidget::releaseMouse()
     if ( !qt_nograb() && mouseGrb == this ) {
 	ReleaseCapture();
 	if ( journalRec ) {
+#ifndef Q_OS_TEMP
 	    UnhookWindowsHookEx( journalRec );
+#endif
 	    journalRec = 0;
 	}
 	if ( mouseGrbCur ) {
@@ -834,8 +880,10 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	if ( r.isEmpty() )
 	    return; // nothing to do
 	QRegion reg = r;
+#ifndef Q_OS_TEMP
 	if ( reg.handle() )
 	    ValidateRgn( winId(), reg.handle() );
+#endif
 	QPaintEvent e( r, erase );
 	if ( r != rect() )
 	    qt_set_paintevent_clipping( this, r );
@@ -849,7 +897,9 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 void QWidget::repaint( const QRegion& reg, bool erase )
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+#ifndef Q_OS_TEMP
 	ValidateRgn( winId(), reg.handle() );
+#endif
 	QPaintEvent e( reg );
 	qt_set_paintevent_clipping( this, reg );
 	if ( erase )
@@ -877,10 +927,12 @@ void QWidget::showWindow()
 	int sm = SW_SHOW;
 	if ( isTopLevel() ) {
 	    switch ( topData()->showMode ) {
+#ifndef Q_OS_TEMP
 	    case 1:
 		sm = SW_SHOWMINIMIZED;
 		break;
-	    case 2:
+#endif
+		case 2:
 		sm = SW_SHOWMAXIMIZED;
 		break;
 	    default:
@@ -910,9 +962,12 @@ void QWidget::hideWindow()
 void QWidget::showMinimized()
 {
     if ( isTopLevel() ) {
+#ifndef Q_OS_TEMP
 	if ( isVisible() )
 	    ShowWindow( winId(), SW_SHOWMINIMIZED );
-	else {
+	else 
+#endif
+	{
 	    topData()->showMode = 1;
 	    show();
 	}
@@ -926,12 +981,20 @@ void QWidget::showMinimized()
 bool QWidget::isMinimized() const
 {
     // true for non-toplevels that have the minimized flag, e.g. MDI children
-    return IsIconic(winId()) || ( !isTopLevel() && testWState( WState_Minimized ) );
+    return 
+#ifndef Q_OS_TEMP
+		IsIconic(winId()) || 
+#endif
+		( !isTopLevel() && testWState( WState_Minimized ) );
 }
 
 bool QWidget::isMaximized() const
 {
-    return IsZoomed(winId()) || ( !isTopLevel() && testWState( WState_Maximized ) );
+    return 
+#ifndef Q_OS_TEMP
+		IsZoomed(winId()) || 
+#endif
+		( !isTopLevel() && testWState( WState_Maximized ) );
 }
 
 void QWidget::showMaximized()
@@ -1232,7 +1295,9 @@ void QWidget::scroll( int dx, int dy )
 {
     if ( testWState( WState_BlockUpdates ) )
 	return;
+#ifndef Q_OS_TEMP
     ScrollWindow( winId(), dx, dy, 0, 0 );
+#endif
     UpdateWindow( winId() );
 }
 
@@ -1245,7 +1310,9 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     wr.left = r.left();
     wr.bottom = r.bottom()+1;
     wr.right = r.right()+1;
+#ifndef Q_OS_TEMP
     ScrollWindow( winId(), dx, dy, &wr, &wr );
+#endif
     UpdateWindow( winId() );
 }
 
@@ -1372,7 +1439,9 @@ void QWidget::setMask( const QRegion &region )
 	fleft = topData()->fleft;
     }
     OffsetRgn(wr, fleft, ftop );
+#ifndef Q_OS_TEMP
     SetWindowRgn( winId(), wr, TRUE );
+#endif
 }
 
 void QWidget::setMask( const QBitmap &bitmap )
@@ -1387,12 +1456,16 @@ void QWidget::setMask( const QBitmap &bitmap )
 	fleft = topData()->fleft;
     }
     OffsetRgn(wr, fleft, ftop );
+#ifndef Q_OS_TEMP
     SetWindowRgn( winId(), wr, TRUE );
+#endif
 }
 
 void QWidget::clearMask()
 {
+#ifndef Q_OS_TEMP
     SetWindowRgn( winId(), 0, TRUE );
+#endif
 }
 
 void QWidget::setName( const char *name )

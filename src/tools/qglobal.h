@@ -643,11 +643,11 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 
 #if !defined(QT_CLEAN_NAMESPACE)
 // source compatibility with Qt 2.x
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
 #  if !defined(ASSERT)
 #    define ASSERT(x) Q_ASSERT(x)
 #  endif
-#endif // _WIN32_WCE
+#endif // Q_OS_TEMP
 #endif // QT_CLEAN_NAMESPACE
 
 

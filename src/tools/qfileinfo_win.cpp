@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QFileInfo class
 **
@@ -33,9 +33,12 @@
 #include "qfiledefs_p.h"
 #include "qdatetime.h"
 #include "qdir.h"
+#include "qwinfunctions.h"
 
 #include <windows.h>
+#ifndef Q_OS_TEMP
 #include <direct.h>
+#endif
 #include <tchar.h>
 #include <objbase.h>
 #include <shlobj.h>
@@ -111,6 +114,7 @@ bool QFileInfo::isSymLink() const
 
 QString QFileInfo::readLink() const
 {
+#ifndef Q_OS_TEMP // ### What's this about, does this need supporting on CE?
     IShellLink *psl;                            // pointer to IShellLink i/f
     HRESULT hres;
     WIN32_FIND_DATA wfd;
@@ -145,7 +149,11 @@ QString QFileInfo::readLink() const
         }
         psl->Release();
     }
+
     return fileLinked;
+#else
+    return QString();
+#endif
 }
 
 
@@ -211,7 +219,9 @@ QDateTime QFileInfo::lastRead() const
 
 void QFileInfo::doStat() const
 {
+#ifndef Q_OS_TEMP
     UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS);
+#endif
     QFileInfo *that = ((QFileInfo*)this);	// mutable function
     if ( !that->fic )
 	that->fic = new QFileInfoCache;
@@ -263,7 +273,9 @@ void QFileInfo::doStat() const
 	that->fic = 0;
     }
 
+#ifndef Q_OS_TEMP
     SetErrorMode(oldmode);
+#endif
 }
 
 QString QFileInfo::dirPath( bool absPath ) const

@@ -41,10 +41,11 @@
 #include "qguardedptr.h"
 #include "qclipboard.h"
 #include "qwhatsthis.h" // ######## dependency
-#include <ctype.h>
 #include "qt_windows.h"
 #include <windowsx.h>
 #include <limits.h>
+#include <string.h>
+#include <ctype.h>
 
 #if defined(__CYGWIN32__)
 #define __INSIDE_CYGWIN32__
@@ -246,7 +247,11 @@ static void set_winapp_name()
     static bool already_set = FALSE;
     if ( !already_set ) {
 	already_set = TRUE;
+#ifndef Q_OS_TEMP
 	GetModuleFileNameA( 0, appName, sizeof(appName) );
+#else
+	GetModuleFileName( 0, (unsigned short *)qt_winTchar(appName,TRUE), sizeof(appName) );
+#endif
 	const char *p = strrchr( appName, '\\' );	// skip path
 	if ( p )
 	    memmove( appName, p+1, qstrlen(p) );
@@ -355,6 +360,7 @@ static void qt_show_system_menu( QWidget* tlw)
 #define enabled (MF_BYCOMMAND | MF_ENABLED)
 #define disabled (MF_BYCOMMAND | MF_GRAYED)
 
+#ifndef Q_OS_TEMP
     EnableMenuItem( menu, SC_MINIMIZE, enabled);
     bool maximized  = IsZoomed( tlw->winId() );
 
@@ -365,6 +371,7 @@ static void qt_show_system_menu( QWidget* tlw)
     EnableMenuItem( menu, SC_MOVE, enabled);
     EnableMenuItem( menu, SC_CLOSE, enabled);
     EnableMenuItem( menu, SC_MINIMIZE, enabled);
+#endif
 
 #undef enabled
 #undef disabled
@@ -375,12 +382,16 @@ static void qt_show_system_menu( QWidget* tlw)
 				tlw->winId(),
 				0);
     if (ret)
+#ifdef Q_OS_TEMP
+	    DefWindowProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
+#else
 #if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based )
 	    DefWindowProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
 	else
 #endif
 	    DefWindowProcA(tlw->winId(), WM_SYSCOMMAND, ret, 0);
+#endif
 }
 
 extern QFont qt_LOGFONTtoQFont(LOGFONT& lf,bool scale);
@@ -395,6 +406,7 @@ static void qt_set_windows_resources()
     QFont messageFont;
     QFont statusFont;
 
+#ifndef Q_OS_TEMP
 #if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based ) {
 	// W or A version
@@ -417,6 +429,7 @@ static void qt_set_windows_resources()
 	messageFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMessageFont,TRUE);
 	statusFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfStatusFont,TRUE);
     }
+#endif
 
     QApplication::setFont( menuFont, TRUE, "QPopupMenu");
     QApplication::setFont( menuFont, TRUE, "QMenuBar");
@@ -578,17 +591,26 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     // Get the application name/instance if qWinMain() was not invoked
     set_winapp_name();
     if ( appInst == 0 ) {
+#ifdef Q_OS_TEMP
+		appInst = GetModuleHandle( 0 );
+#else
 #if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based )
 	    appInst = GetModuleHandle( 0 );
 	else
 #endif
 	    appInst = GetModuleHandleA( 0 );
+#endif
     }
 
+#ifdef Q_OS_TEMP
+    qt_winunicode = TRUE;
+#else
     // Tell tools/ modules.
     qt_winunicode = (qt_winver & Qt::WV_NT_based);
+#endif
 
+#ifndef Q_OS_TEMP
     // Initialize OLE/COM
     //	 S_OK means success and S_FALSE means that it has already
     //	 been initialized
@@ -599,6 +621,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 	qWarning( "Qt: Could not initialize OLE (error %x)", r );
 #endif
     }
+#endif
 
     // Misc. initialization
 
@@ -614,17 +637,23 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 	HFONT hfont = (HFONT)GetStockObject( DEFAULT_GUI_FONT );
 	QFont f("MS Sans Serif",8);
 #if defined(UNICODE)
+#ifndef Q_OS_TEMP
 	if ( qt_winver & Qt::WV_NT_based ) {
+#endif
 	    LOGFONT lf;
 	    if ( GetObject( hfont, sizeof(lf), &lf ) )
 		f = qt_LOGFONTtoQFont((LOGFONT&)lf,TRUE);
+#ifndef Q_OS_TEMP
 	} else 
 #endif
+#endif
+#ifndef Q_OS_TEMP
 	{
 	    LOGFONTA lf;
 	    if ( GetObjectA( hfont, sizeof(lf), &lf ) )
 		f = qt_LOGFONTtoQFont((LOGFONT&)lf,TRUE);
 	}
+#endif
 	QApplication::setFont( f );
     }
 
@@ -647,12 +676,16 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     if ( QApplication::desktopSettingsAware() )
 	qt_set_windows_resources();
 
+#ifdef Q_OS_TEMP
+	WM95_MOUSEWHEEL = RegisterWindowMessage(L"MSWHEEL_ROLLMSG");
+#else
 #if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based )
 	WM95_MOUSEWHEEL = RegisterWindowMessage(L"MSWHEEL_ROLLMSG");
     else
 #endif
 	WM95_MOUSEWHEEL = RegisterWindowMessageA("MSWHEEL_ROLLMSG");
+#endif
 }
 
 /*****************************************************************************
@@ -686,8 +719,10 @@ void qt_cleanup()
 	displayDC = 0;
     }
 
+#ifndef Q_OS_TEMP
   // Deinitialize OLE/COM
     OleUninitialize();
+#endif
 
     delete activeBeforePopup;
     activeBeforePopup = 0;
@@ -705,9 +740,17 @@ static void msgHandler( QtMsgType t, const char* str )
 	str = "(null)";
     QCString s = str;
     s += "\n";
+#ifndef Q_OS_TEMP
     OutputDebugStringA( s.data() );
+#else
+    OutputDebugString( (unsigned short *)qt_winTchar(s,TRUE) );
+#endif
     if ( t == QtFatalMsg )
+#ifndef Q_OS_TEMP
 	ExitProcess( 1 );
+#else
+	exit(1);
+#endif
 }
 
 
@@ -786,7 +829,11 @@ const QString qt_reg_winclass( int flags )	// register window class
     QString cname;
     if ( flags & Qt::WWinOwnDC ) {
 	cname = "QWidgetOwnDC";
+#ifndef Q_OS_TEMP
 	style = CS_OWNDC | CS_DBLCLKS;
+#else
+	style = CS_DBLCLKS;
+#endif
 	icon  = TRUE;
     } else if ( (flags & (Qt::WType_Popup|Qt::WStyle_Tool)) == 0 ) {
 	cname = "QWidget";
@@ -794,7 +841,11 @@ const QString qt_reg_winclass( int flags )	// register window class
 	icon  = TRUE;
     } else {
 	cname = "QPopup";
+#ifndef Q_OS_TEMP
 	style = CS_DBLCLKS | CS_SAVEBITS;
+#else
+	style = CS_DBLCLKS;
+#endif
 	if ( qt_winver == Qt::WV_XP )
 	    style |= 0x00020000;		// CS_DROPSHADOW
 	icon  = FALSE;
@@ -804,7 +855,9 @@ const QString qt_reg_winclass( int flags )	// register window class
 	return cname;
 
 #if defined(UNICODE)
+#ifndef Q_OS_TEMP
     if ( qt_winver & Qt::WV_NT_based ) {
+#endif
 	WNDCLASS wc;
 	wc.style	= style;
 	wc.lpfnWndProc	= (WNDPROC)QtWndProc;
@@ -815,8 +868,10 @@ const QString qt_reg_winclass( int flags )	// register window class
 	    TCHAR* irc = (TCHAR*)qt_winTchar( QString::fromLatin1("IDI_ICON1"),
 					      TRUE );
 	    wc.hIcon = LoadIcon( appInst, irc );
+#ifndef Q_OS_TEMP
 	    if ( !wc.hIcon )
 		wc.hIcon = LoadIcon( 0, IDI_APPLICATION );
+#endif
 	}
 	else {
 	    wc.hIcon = 0;
@@ -826,8 +881,11 @@ const QString qt_reg_winclass( int flags )	// register window class
 	wc.lpszMenuName	= 0;
 	wc.lpszClassName= (TCHAR*)qt_winTchar(cname,TRUE);
 	RegisterClass( &wc );
+#ifndef Q_OS_TEMP
     } else 
 #endif
+#endif
+#ifndef Q_OS_TEMP
     {
 	WNDCLASSA wc;
 	wc.style	= style;
@@ -849,6 +907,7 @@ const QString qt_reg_winclass( int flags )	// register window class
 	wc.lpszClassName= cname.latin1();
 	RegisterClassA( &wc );
     }
+#endif
 
     winclassNames->insert( cname.latin1(), (int*)1 );
     return cname;
@@ -861,6 +920,10 @@ static void unregWinClasses()
     QAsciiDictIterator<int> it(*winclassNames);
     const char *k;
     while ( (k = it.currentKey()) ) {
+#ifdef Q_OS_TEMP
+	    UnregisterClass( (TCHAR*)qt_winTchar(QString::fromLatin1(k),TRUE),
+			     (HINSTANCE)qWinAppInst() );
+#else
 #if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based ) {
 	    UnregisterClass( (TCHAR*)qt_winTchar(QString::fromLatin1(k),TRUE),
@@ -870,6 +933,7 @@ static void unregWinClasses()
 	{
 	    UnregisterClassA( k, (HINSTANCE)qWinAppInst() );
 	}
+#endif
 	++it;
     }
     delete winclassNames;
@@ -1105,7 +1169,11 @@ static void sn_init()
     if ( sn_win )
 	return;
     qAddPostRoutine( sn_cleanup );
+#ifdef Q_OS_TEMP
+    sn_msg = RegisterWindowMessage(L"QtSNEvent");
+#else
     sn_msg = RegisterWindowMessageA( "QtSNEvent" );
+#endif
     sn_win = qApp->mainWidget();		// use main widget, if any
     if ( !sn_win ) {				// create internal widget
 	sn_win = new QWidget(0,"QtSocketNotifier_Internal_Widget");
@@ -1158,6 +1226,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	if ( !dict->remove(sockfd) )		// did not find sockfd
 	    return FALSE;
     }
+#ifndef Q_OS_TEMP // ### This probably needs fixing 
     int sn_event = 0;
     if ( sn_read && sn_read->find(sockfd) )
 	sn_event |= FD_READ | FD_CLOSE | FD_ACCEPT;
@@ -1168,7 +1237,22 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
   // BoundsChecker may emit a warning for WSAAsyncSelect when sn_event == 0
   // This is a BoundsChecker bug and not a Qt bug
     WSAAsyncSelect( sockfd, sn_win->winId(), sn_event ? sn_msg : 0, sn_event );
-    return TRUE;
+#else
+/*
+	fd_set	rd,wt,ex;
+	FD_ZERO(&rd);
+	FD_ZERO(&wt);
+	FD_ZERO(&ex);
+    if ( sn_read && sn_read->find(sockfd) )
+		FD_SET( sockfd, &rd );
+    if ( sn_write && sn_write->find(sockfd) )
+		FD_SET( sockfd, &wt );
+    if ( sn_except && sn_except->find(sockfd) )
+		FD_SET( sockfd, &ex );
+//	select( 1, &rd, &wt, &ex, NULL );
+*/
+#endif
+	return TRUE;
 }
 
 
@@ -1306,33 +1390,45 @@ int QApplication::exec()
 static bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax, UINT wRemoveMsg )
 {
+#ifdef Q_OS_TEMP
+	return PeekMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
+#else
 #if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based )
 	return PeekMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
     else
 #endif
 	return PeekMessageA( msg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
+#endif
 }
 
 static bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax )
 {
+#ifdef Q_OS_TEMP
+	return GetMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
+#else
 #if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based )
 	return GetMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
     else
 #endif
 	return GetMessageA( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
+#endif
 }
 
 static bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
+#ifdef Q_OS_TEMP
+	return PostMessage( hWnd, msg, wParam, lParam );
+#else
 #if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based )
 	return PostMessage( hWnd, msg, wParam, lParam );
     else
 #endif
 	return PostMessageA( hWnd, msg, wParam, lParam );
+#endif
 }
 
 bool QApplication::processNextEvent( bool canWait )
@@ -1408,12 +1504,16 @@ bool QApplication::processNextEvent( bool canWait )
 #if defined(QT_THREAD_SUPPORT)
     qApp->lock();
 #endif
+#ifdef Q_OS_TEMP
+	DispatchMessage( &msg );		// send to QtWndProc
+#else
 #if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based )
 	DispatchMessage( &msg );		// send to QtWndProc
     else
 #endif
 	DispatchMessageA( &msg );		// send to QtWndProc
+#endif
     if ( configRequests )			// any pending configs?
 	qWinProcessConfigRequests();
     sendPostedEvents();
@@ -1485,6 +1585,10 @@ QString imestring_to_unicode(char *s, int len)
 {
     if ( len <= 0 )
 	return QString::null;
+#ifdef Q_OS_TEMP
+	QString res = QString( (QChar *)s, len/sizeof(QChar) );
+	return res;
+#else
 #ifdef UNICODE
     if ( qt_winver & Qt::WV_NT_based ) {
 	QString res = QString( (QChar *)s, len/sizeof(QChar) );
@@ -1500,6 +1604,7 @@ QString imestring_to_unicode(char *s, int len)
 	delete [] wc;
 	return res;
     }
+#endif
 }
 
 void qt_winEndImeComposition( QWidget *fw )
@@ -1532,18 +1637,18 @@ extern "C"
 LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			    LPARAM lParam )
 {
-    if ( inLoop ) {
-	qApp->sendPostedEvents( 0, QEvent::LayoutHint );
-	qApp->sendPostedEvents( 0, QEvent::ShowWindowRequest );
-    }
-    inLoop = TRUE;
-
     bool result = TRUE;
     QEvent::Type evt_type = QEvent::None;
     QETWidget *widget;
 
     if ( !qApp )				// unstable app state
 	goto do_default;
+
+    if ( inLoop && qApp->loopLevel() ) {
+	qApp->sendPostedEvents( 0, QEvent::LayoutHint );
+	qApp->sendPostedEvents( 0, QEvent::ShowWindowRequest );
+    }
+    inLoop = TRUE;
 
     MSG msg;
     msg.hwnd = hwnd;				// create MSG structure
@@ -1555,6 +1660,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	RETURN(0);
 
     switch ( message ) {
+
+#ifndef Q_OS_TEMP
     case WM_QUERYENDSESSION: {
 	if ( sm_smActive ) // bogus message from windows
 	    RETURN(TRUE);
@@ -1569,7 +1676,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	}
 	RETURN(!sm_cancel);
     }
-
     case WM_ENDSESSION: {
 	sm_smActive = FALSE;
 	sm_blockUserInput = FALSE;
@@ -1581,6 +1687,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 	RETURN(0);
     }
+#endif
 
     case WM_SETTINGCHANGE:
     case WM_SYSCOLORCHANGE:
@@ -1606,6 +1713,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
     if ( sn_msg && message == sn_msg ) {	// socket notifier message
 	int type = -1;
+#ifndef Q_OS_TEMP
 	switch ( WSAGETSELECTEVENT(lParam) ) {
 	case FD_READ:
 	case FD_CLOSE:
@@ -1620,6 +1728,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    type = 2;
 	    break;
 	}
+#endif
 	if ( type >= 0 )
 	    sn_activate_fd( wParam, type );
     } else {
@@ -1628,9 +1737,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    if ( qApp->activePopupWidget() != 0) { // in popup mode
 		POINT curPos;
 		DWORD ol_pos = GetMessagePos();
+#ifndef Q_OS_TEMP
 		curPos.x = GET_X_LPARAM(ol_pos);
 		curPos.y = GET_Y_LPARAM(ol_pos);
-
+#else
+		curPos.x = LOWORD(ol_pos);
+		curPos.y = HIWORD(ol_pos);
+#endif
 		QWidget* w = QApplication::widgetAt(curPos.x, curPos.y, TRUE );
 		if ( w )
 		    widget = (QETWidget*)w;
@@ -1679,6 +1792,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		result = widget->translateWheelEvent( msg );
 		break;
 
+#ifndef Q_OS_TEMP
 	    case WM_NCMOUSEMOVE:
 		{
 		    // span the application wide cursor over the
@@ -1696,8 +1810,10 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    curWin = 0;
 		}
 		break;
+#endif
 
 	    case WM_SYSCOMMAND:
+#ifndef Q_OS_TEMP
 		switch( wParam ) {
 		case SC_CONTEXTHELP:
 		    QWhatsThis::enterWhatsThisMode();
@@ -1724,7 +1840,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    result = FALSE;
 		    break;
 		}
+#endif
 		break;
+#ifndef Q_OS_TEMP
 	    case WM_NCLBUTTONDBLCLK:
 		if ( wParam == HTCAPTION ) {
 		    if ( widget->isMaximized() )
@@ -1734,7 +1852,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		}
 		result = FALSE;
 		break;
-	    case WM_PAINT:				// paint event
+#endif
+		case WM_PAINT:				// paint event
 		result = widget->translatePaintEvent( msg );
 		break;
 
@@ -1819,7 +1938,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		result = FALSE;
 		break;
 
-
+#ifndef Q_OS_TEMP
 	    case WM_GETMINMAXINFO:
 		if ( widget->xtra() ) {
 		    MINMAXINFO *mmi = (MINMAXINFO *)lParam;
@@ -1838,7 +1957,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		}
 		break;
 
-	    case WM_CONTEXTMENU:
+		case WM_CONTEXTMENU:
 		{
 		    // it's not VK_APPS or Shift+F10, but a click in the NC area
 		    if ( lParam != (int)0xffffffff ) {
@@ -1852,6 +1971,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    }
 		}
 		break;
+#endif
 
 	    case WM_IME_STARTCOMPOSITION:
 		{
@@ -1902,6 +2022,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    }
 		}
 		break;
+#ifndef Q_OS_TEMP
 	    case WM_CHANGECBCHAIN:
 	    case WM_DRAWCLIPBOARD:
 	    case WM_RENDERFORMAT:
@@ -1913,6 +2034,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		}
 		result = FALSE;
 		break;
+#endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	    case WM_GETOBJECT:
 		{
@@ -1970,12 +2092,16 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	RETURN(FALSE);
 
 do_default:
+#ifdef Q_OS_TEMP
+	RETURN( DefWindowProc(hwnd,message,wParam,lParam) )
+#else
 #if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based )
 	RETURN( DefWindowProc(hwnd,message,wParam,lParam) )
     else
 #endif
 	RETURN( DefWindowProcA(hwnd,message,wParam,lParam) )
+#endif
 }
 
 
@@ -2091,15 +2217,28 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
     }
 
     bool block_event = FALSE;
+#ifndef Q_OS_TEMP
     if ( type == WM_NCHITTEST ) {
       //block_event = TRUE;
 	// QApplication::beep();
-    } else if ( (type >= WM_MOUSEFIRST && type <= WM_MOUSELAST) ||
-	 (type >= WM_KEYFIRST	&& type <= WM_KEYLAST) || type == WM_NCMOUSEMOVE ) {
-      if ( type == WM_MOUSEMOVE || type == WM_NCMOUSEMOVE )
+    } else
+#endif	
+	if ( (type >= WM_MOUSEFIRST && type <= WM_MOUSELAST) ||
+	 (type >= WM_KEYFIRST	&& type <= WM_KEYLAST) 
+#ifndef Q_OS_TEMP
+			|| type == WM_NCMOUSEMOVE 
+#endif
+		) {
+      if ( type == WM_MOUSEMOVE 
+#ifndef Q_OS_TEMP
+			|| type == WM_NCMOUSEMOVE 
+#endif
+		)
 	  SetCursor( Qt::arrowCursor.handle() );
       block_event = TRUE;
-    } else if ( type == WM_MOUSEACTIVATE ){
+    }
+#ifndef Q_OS_TEMP
+	else if ( type == WM_MOUSEACTIVATE ){
       if ( !top->isActiveWindow() )
 	top->setActiveWindow();
       else
@@ -2107,6 +2246,7 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
       block_event = TRUE;
       ret = MA_NOACTIVATEANDEAT;
     }
+#endif
 
     return !block_event;
 }
@@ -2553,8 +2693,13 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 
 	POINT curPos;
 	DWORD ol_pos = GetMessagePos();
+#ifndef Q_OS_TEMP
 	curPos.x = GET_X_LPARAM(ol_pos);
 	curPos.y = GET_Y_LPARAM(ol_pos);
+#else
+	curPos.x = LOWORD(ol_pos);
+	curPos.y = HIWORD(ol_pos);
+#endif
 
 	if ( curPos.x == gpos.x && curPos.y == gpos.y )
 	    return TRUE;			// same global position
@@ -2570,8 +2715,13 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	pos.ry() = (short)curPos.y;
     } else {
 	DWORD ol_pos = GetMessagePos();
+#ifndef Q_OS_TEMP
 	gpos.x = GET_X_LPARAM(ol_pos);
 	gpos.y = GET_Y_LPARAM(ol_pos);
+#else
+	gpos.x = LOWORD(ol_pos);
+	gpos.y = HIWORD(ol_pos);
+#endif
 
 	pos = mapFromGlobal( QPoint(gpos.x, gpos.y) );
 
@@ -2679,10 +2829,10 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	}
 
 	if ( type == QEvent::MouseButtonRelease && button == RightButton ) {
-	    QContextMenuEvent e( QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y), state );
+	    QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
 	    QApplication::sendSpontaneousEvent( widget, &e );
 	    if ( !e.isAccepted() ) { // Only send mouse event when context event has not been processed
-		QMouseEvent e2( type, pos, QPoint(gpos.x,gpos.y), button, state );
+		QContextMenuEvent e2( QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y), state );
 		QApplication::sendSpontaneousEvent( widget, &e2 );
 	    }
 	} else {
@@ -2829,6 +2979,10 @@ static
 QChar wmchar_to_unicode(DWORD c)
 {
     // qt_winMB2QString is the generalization of this function.
+#ifdef Q_OS_TEMP
+	ushort uc = (ushort)c;
+	return QChar(uc&0xff,(uc>>8)&0xff);
+#else
 #if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based ) {
 	ushort uc = (ushort)c;
@@ -2844,12 +2998,17 @@ QChar wmchar_to_unicode(DWORD c)
 	    mb, -1, wc, 1);
 	return QChar(wc[0]);
     }
+#endif
 }
 
 static
 QChar imechar_to_unicode(DWORD c)
 {
     // qt_winMB2QString is the generalization of this function.
+#ifdef Q_OS_TEMP
+	ushort uc = (ushort)c;
+	return QChar(uc&0xff,(uc>>8)&0xff);
+#else
 #if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based ) {
 	ushort uc = (ushort)c;
@@ -2866,6 +3025,7 @@ QChar imechar_to_unicode(DWORD c)
 	    mb, -1, wc, 1);
 	return QChar(wc[0]);
     }
+#endif
 }
 
 bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
@@ -2987,6 +3147,9 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		else {
 		    if (t != WM_SYSKEYDOWN) {
 			UINT map;
+#ifdef Q_OS_TEMP
+			    map = MapVirtualKey( msg.wParam, 2 );
+#else
 #if defined(UNICODE)
 			if ( qt_winver & Qt::WV_NT_based ) {
 			    map = MapVirtualKey( msg.wParam, 2 );
@@ -2998,6 +3161,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 			    if ( map & 0x8000 )
 				map = (map^0x8000)|0x80000000;
 			}
+#endif
 			// If the high bit of the return value of
 			// MapVirtualKey is set, the key is a deadkey.
 			if ( !(map & 0x80000000) ) {
@@ -3221,18 +3385,25 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		}
 	    }
 	    QString txt;
+#ifndef Q_OS_TEMP
 	    if ( IsIconic(winId()) && !!iconText() )
 		txt = iconText();
-	    else if ( !caption().isNull() )
+	    else
+#endif
+		if ( !caption().isNull() )
 		txt = caption();
 
 	    if ( !!txt ) {
+#ifdef Q_OS_TEMP
+		    SetWindowText( winId(), (TCHAR*)qt_winTchar(txt,TRUE) );
+#else
 #if defined(UNICODE)
 		if ( qt_winver & Qt::WV_NT_based )
 		    SetWindowText( winId(), (TCHAR*)qt_winTchar(txt,TRUE) );
 		else
 #endif
 		    SetWindowTextA( winId(), txt.local8Bit() );
+#endif
 	    }
 	}
 	if ( msg.wParam != SIZE_MINIMIZED && oldSize != newSize) {
@@ -3298,7 +3469,9 @@ int QApplication::cursorFlashTime()
 
 void QApplication::setDoubleClickInterval( int ms )
 {
+#ifndef Q_OS_TEMP
     SetDoubleClickTime( ms );
+#endif
     mouse_double_click_time = ms;
 }
 
@@ -3316,12 +3489,16 @@ void QApplication::setWheelScrollLines( int n )
 #ifdef SPI_SETWHEELSCROLLLINES
     if ( n < 0 )
 	n = 0;
+#ifdef Q_OS_TEMP
+	SystemParametersInfo( SPI_SETWHEELSCROLLLINES, (uint)n, 0, 0 );
+#else
 #if defined(UNICODE)
     if ( qt_winver & WV_NT_based )
 	SystemParametersInfo( SPI_SETWHEELSCROLLLINES, (uint)n, 0, 0 );
     else
 #endif
 	SystemParametersInfoA( SPI_SETWHEELSCROLLLINES, (uint)n, 0, 0 );
+#endif
 #else
     wheel_scroll_lines = n;
 #endif
@@ -3331,12 +3508,16 @@ int QApplication::wheelScrollLines()
 {
 #ifdef SPI_GETWHEELSCROLLLINES
     uint i = 3;
+#ifdef Q_OS_TEMP
+	SystemParametersInfo( SPI_GETWHEELSCROLLLINES, sizeof( uint ), &i, 0 );
+#else
 #if defined(UNICODE)
     if ( qt_winver & WV_NT_based )
 	SystemParametersInfo( SPI_GETWHEELSCROLLLINES, sizeof( uint ), &i, 0 );
     else
 #endif
 	SystemParametersInfoA( SPI_GETWHEELSCROLLLINES, sizeof( uint ), &i, 0 );
+#endif
     if ( i > INT_MAX )
 	i = INT_MAX;
     return i;
@@ -3396,12 +3577,16 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	break;
 	}
 	BOOL onoff = enable;
+#ifdef Q_OS_TEMP
+	    SystemParametersInfo( api, 0, &onoff, 0 );
+#else
 #if defined(UNICODE)
 	if ( qt_winver & WV_NT_based )
 	    SystemParametersInfo( api, 0, &onoff, 0 );
 	else
 #endif
 	    SystemParametersInfoA( api, 0, &onoff, 0 );
+#endif
     }
 }
 
@@ -3442,12 +3627,16 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    api = SPI_GETUIEFFECTS;
 	    break;
 	}
+#ifdef Q_OS_TEMP
+	    SystemParametersInfo( api, 0, &enabled, 0 );
+#else
 #if defined(UNICODE)
 	if ( qt_winver & WV_NT_based )
 	    SystemParametersInfo( api, 0, &enabled, 0 );
 	else
 #endif
 	    SystemParametersInfoA( api, 0, &enabled, 0 );
+#endif
 	return enabled;
     } else {
 	switch( effect ) {

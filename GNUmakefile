@@ -4,7 +4,6 @@
 # Read PORTING for instructions how to port Qt to a new platform.
 
 SHELL=/bin/sh
-INSTALL_BIN_DIR=bin
 
 init: FORCE
 	@$(MAKE) QTDIR=`pwd` all
@@ -37,8 +36,7 @@ tools-install: sub-tools
 	cd tools; $(MAKE) install
 
 qmake-install: src-qmake
-	[ -d $(INSTALL_BIN_DIR) ] || mkdir -p $(INSTALL_BIN_DIR)
-	cp bin/qmake $(INSTALL_BIN_DIR)
+	cd qmake; $(MAKE) install
 
 src-qmake: symlinks FORCE
 	cd qmake; $(MAKE)

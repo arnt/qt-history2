@@ -340,7 +340,7 @@ static QGVector *sort_vec=0;			// current sort vector
 extern "C" {
 #endif
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 static int _cdecl cmp_vec( const void *n1, const void *n2 )
 #else
 static int cmp_vec( const void *n1, const void *n2 )

@@ -286,7 +286,10 @@ QString QDir::currentDirPath()
 }
 
 /*!
-  Returns the absolute path for the root directory ("/" under UNIX).
+  Returns the absolute path for the root directory.
+  
+  For UNIX operating systems this returns "/". For Windows file
+  systems this returns "c:/".
 
   \sa root() drives()
 */
@@ -379,12 +382,16 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	p += '/';
     p += QString::fromLatin1("*.*");
 
+#ifndef Q_OS_TEMP
     if ( qt_winunicode ) {
+#endif
 	ff = FindFirstFile((TCHAR*)qt_winTchar(p,TRUE),&finfo);
+#ifndef Q_OS_TEMP
     } else {
 	// Cast is safe, since char is at end of WIN32_FIND_DATA
 	ff = FindFirstFileA(qt_win95Name(p),(WIN32_FIND_DATAA*)&finfo);
     }
+#endif
     if ( ff == FF_ERROR ) {
 	// if it is a floppy disk drive, it might just not have a file on it
 	if ( plen > 1 && p[ 1 ] == ':' )
@@ -410,13 +417,17 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	if ( first )
 	    first = FALSE;
 	else {
+#ifndef Q_OS_TEMP
 	    if ( qt_winunicode ) {
+#endif
 		if ( !FindNextFile(ff,&finfo) )
 		    break;
+#ifndef Q_OS_TEMP
 	    } else {
 		if ( !FindNextFileA(ff,(WIN32_FIND_DATAA*)&finfo) )
 		    break;
 	    }
+#endif
 	}
 	int  attrib = finfo.dwFileAttributes;
 	bool isDir	= (attrib & IS_SUBDIR) != 0;

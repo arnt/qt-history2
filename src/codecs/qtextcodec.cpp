@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QTextCodec class
 **
@@ -63,10 +63,14 @@
 
 #include <stdlib.h>
 #include <ctype.h>
+#ifndef Q_OS_TEMP
 #include <locale.h>
+#endif
 #ifdef _XOPEN_UNIX
 #include <langinfo.h>
 #endif
+
+#include "qwinfunctions.h"
 
 static QPtrList<QTextCodec> * all = 0;
 static bool destroying_is_ok; // starts out as 0

@@ -174,12 +174,6 @@ protected:
     void moveEvent( QMoveEvent * );
     bool eventFilter( QObject *, QEvent * );
 
-    void mousePressEvent( QMouseEvent *e ) { e->accept(); }
-    void mouseReleaseEvent( QMouseEvent *e ) { e->accept(); }
-    void mouseMoveEvent( QMouseEvent *e ) { e->accept(); }
-    void mouseDoubleClickEvent( QMouseEvent *e ) { e->accept(); }
-    void contextMenuEvent( QContextMenuEvent *e ) { e->accept(); }
-
     bool focusNextPrevChild( bool );
 
 private:
@@ -227,7 +221,7 @@ public:
   Constructs a workspace with a \a parent and a \a name.
  */
 QWorkspace::QWorkspace( QWidget *parent, const char *name )
-    : QWidget( parent, name )
+    : QWidget( parent, name, WNoMousePropagation )
 {
     d = new QWorkspacePrivate;
     d->maxcontrols = 0;

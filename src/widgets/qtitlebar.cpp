@@ -173,7 +173,7 @@ void QTitleBar::getColors()
 	    irightc = ileftc;
 
 	    BOOL gradient;
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 		SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
 #else
 #if defined(UNICODE)

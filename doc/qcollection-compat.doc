@@ -35,7 +35,7 @@
 
 /*! \page qarray.html
 
-  \title QArray Class Reference [obsolete]
+  \title QArray Class Reference (obsolete)
 
   \code
 #include <qarray.h>\endcode
@@ -45,7 +45,7 @@
 
 /*! \page qcollection.html
 
-  \title QCollection Class Reference [obsolete]
+  \title QCollection Class Reference (obsolete)
 
   \code
 #include <qcollection.h>\endcode
@@ -55,7 +55,7 @@
 
 /*! \page qlist.html
 
-  \title QList Class Reference [obsolete]
+  \title QList Class Reference (obsolete)
 
   \code
 #include <qlist.h>\endcode
@@ -65,7 +65,7 @@
 
 /*! \page qlistiterator.html
 
-  \title QListIterator Class Reference [obsolete]
+  \title QListIterator Class Reference (obsolete)
 
   \code
 #include <qlist.h>\endcode
@@ -76,7 +76,7 @@
 
 /*! \page qqueue.html
 
-  \title QQueue Class Reference [obsolete]
+  \title QQueue Class Reference (obsolete)
 
   \code
 #include <qqueue.h>\endcode
@@ -86,7 +86,7 @@
 
 /*! \page qstack.html
 
-  \title QStack Class Reference [obsolete]
+  \title QStack Class Reference (obsolete)
 
   \code
 #include <qstack.h>\endcode
@@ -96,7 +96,7 @@
 
 /*! \page qvector.html
 
-  \title QVector Class Reference [obsolete]
+  \title QVector Class Reference (obsolete)
 
   \code
 #include <qvector.h>\endcode

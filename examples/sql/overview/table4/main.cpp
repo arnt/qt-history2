@@ -45,7 +45,7 @@ void StatusPicker::setStatusId( int statusid )
 
 
 void CustomTable::paintField( QPainter * p, const QSqlField* field,
-			    const QRect & cr, bool b)
+			      const QRect & cr, bool b)
 {
     if ( !field )
 	return;

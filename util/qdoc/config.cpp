@@ -93,7 +93,8 @@ Config::Config( int argc, char **argv )
     : maxSim( 16 ), maxAll( 64 ), wlevel( 2 ), bas( "" ), prod( "" ), co( "" ),
       vers( "" ), verssym( "" ), posth( "" ), foot( "" ), addr( "" ),
       styl( "" ), falsesym( QChar('0') ), internal( FALSE ), autoh( TRUE ),
-      super( FALSE ), dotHtml( ".html" ), membersDotHtml( "-members.html" )
+      super( FALSE ), frend( FALSE ), dotHtml( ".html" ),
+      membersDotHtml( "-members.html" )
 {
     QString confFilePath( "qdoc.conf" );
     int i;
@@ -223,6 +224,8 @@ Config::Config( int argc, char **argv )
 		setPattern( &defsym, val, plus );
 	    } else if ( opt == QString("--false") ) {
 		setPattern( &falsesym, val, plus );
+	    } else if ( opt == QString("--friendly") ) {
+		frend = isYes( val );
 	    } else if ( opt == QString("--help") ) {
 		showHelp();
 	    } else if ( opt == QString("--help-short") ) {
@@ -365,7 +368,7 @@ bool Config::isDef( const QString& symbol ) const
     return defsym.exactMatch( symbol );
 }
 
-bool Config::generateHtmlFile( const QString& fileName ) const
+bool Config::generateFile( const QString& fileName ) const
 {
     return onlyfn.exactMatch( fileName );
 }
@@ -423,6 +426,7 @@ void Config::showHelp()
 	    "  --base=<url>             Set documentation base URL\n"
 	    "  --define=<regexp>        Define preprocessor symbols\n"
 	    "  --false=<regexp>         Define false preprocessor predicates\n"
+	    "  --friendly=<yes|no>      Generate filter-friendly HTML [%s]\n"
 	    "  --help                   Display this information\n"
 	    "  --help-short             List short options\n"
 	    "  --internal=<yes|no>      Generate internal documentation [%s]\n"
@@ -433,7 +437,8 @@ void Config::showHelp()
 	    "  --supervisor=<yes|no>    Compare with previous run [%s]\n"
 	    "  --version                Display version of qdoc\n"
 	    "  --warning-level=<num>    Set warning level (0 to 4) [%d]\n",
-	    toYN(autoh), toYN(internal), maxSim, maxAll, toYN(super), wlevel );
+	    toYN(autoh), toYN(frend), toYN(internal), maxSim, maxAll,
+	    toYN(super), wlevel );
     exit( EXIT_SUCCESS );
 }
 

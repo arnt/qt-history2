@@ -4073,7 +4073,7 @@ QListBoxItem *QListBox::firstItem() const
 extern "C" {
 #endif
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 static int _cdecl cmpListBoxItems( const void *n1, const void *n2 )
 #else
 static int cmpListBoxItems( const void *n1, const void *n2 )

@@ -357,16 +357,16 @@ must return void and take no arguments.
 
 \c DESIGNABLE declares whether this property is suited for
 modification by a GUI designer program.  The default is \c true for
-writable properties, otherwise \c false. Instead of \c true or \c
-false, You may also specify a boolean member function.
+writable properties, otherwise \c false. Other than \c true or \c
+false, you can specify a boolean member function.
 
 \c SCRIPTABLE declares whether this property is suited for access by a
-scripting engine.  The default is \c true. Instead of \c true or \c false,
-You may also specify a boolean member function.
+scripting engine.  The default is \c true. Other than \c true or \c false,
+you can specify a boolean member function.
 
 \c STORED declares whether the property's value has to be remembered
 when storing an object's state.  Stored makes only sense for writable
-properties. The default value is \c true. Technically superfluent
+properties. The default value is \c true. Technically superfluous
 properties (like QPoint pos if QRect geometry is already a property)
 define this to be \c false.
 

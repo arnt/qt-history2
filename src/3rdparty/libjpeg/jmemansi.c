@@ -26,7 +26,7 @@ extern void free JPP((void *ptr));
 #define SEEK_SET  0		/* if not, assume 0 is correct */
 #endif
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 extern FILE *tmpfile( void );
 #endif
 

@@ -157,11 +157,10 @@ static bool matchCommand()
     yyPos += cmd.matchedLength();
 
     if ( cmd.cap(0) == QString("\\book") ) {
-	int k = titleEnd.search( yyIn.mid(yyPos) );
-	if ( k == -1 )
-	    k = yyIn.length() - yyPos;
-	(*yyCurrentBook).title = yyIn.mid( yyPos, k ).simplifyWhiteSpace();
-	yyPos += k;
+	t = getWord();
+	t.replace( QRegExp(QString("\\.book$")), QString::null );
+	t += QString( ".html" );
+	add( qdocOutputDir + t );
     } else if ( cmd.cap(0) == QString("\\class") ) {
 	add( qdocOutputDir + getWord().lower() + QString(".html") );
     } else if ( cmd.cap(0) == QString("\\defgroup") ) {
@@ -177,6 +176,12 @@ static bool matchCommand()
 	add( qdocOutputDir + getWord() );
     } else if ( cmd.cap(0) == QString("\\plainpage") ) {
 	add( qdocOutputDir + getWord() );
+    } else if ( cmd.cap(0) == QString("\\title") ) {
+	int k = titleEnd.search( yyIn.mid(yyPos) );
+	if ( k == -1 )
+	    k = yyIn.length() - yyPos;
+	(*yyCurrentBook).title = yyIn.mid( yyPos, k ).simplifyWhiteSpace();
+	yyPos += k;
     } else {
 	return FALSE;
     }
@@ -894,6 +899,11 @@ static bool emitBook( bool a4, bool letter, bool twoSided )
 	QString html = fileContents( *c );
 	if ( html.isEmpty() )
 	    return FALSE;
+	if ( html.find(QString("<!-- unfriendly -->")) != -1 ) {
+	    qWarning( "qdoc2latex error: File '%s' must be regenerated with"
+		      " qdoc option '--friendly'", (*c).latin1() );
+	    return FALSE;
+	}
 	if ( !emitChapter(html, (*c).mid(slash + 1)) )
 	    return FALSE;
 	++c;
@@ -940,6 +950,13 @@ static bool findANames()
 
 static void checkUnusedQdocFiles()
 {
+    /*
+      qbubble-members.html and qbubble-h.html are mostly irrelevant.
+      linguist-manual-2-3.html is a left-over from a previous run of
+      qdoc with --friendly=no.
+    */
+    QRegExp irrelevantFiles( QString(
+	".*-(?:members|h|[0-9]+(?:-[0-9]+)*)\\.html") );
     QStringList fileNameList;
     QStringList::Iterator f;
 
@@ -964,8 +981,7 @@ static void checkUnusedQdocFiles()
     int numAll = 0;
 
     while ( f != fileNameList.end() ) {
-	if ( !(*f).endsWith(QString("-members.html")) &&
-	     !(*f).endsWith(QString("-h.html")) ) {
+	if ( !irrelevantFiles.exactMatch(*f) ) {
 	    if ( yyUsedQdocFiles.contains(*f) ) {
 		numUsed++;
 	    } else {

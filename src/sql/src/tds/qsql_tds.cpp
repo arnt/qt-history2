@@ -877,7 +877,7 @@ QSqlIndex QTDSDriver::primaryIndex( const QString& tablename ) const
 
     QSqlIndex idx( tablename );
     if ( ( !isOpen() ) || ( tablename.isEmpty() ) )
-	return idx;
+	return QSqlIndex();
 
     QSqlQuery t = createQuery();
     t.exec( QString( "sp_helpindex '%1'" ).arg( tablename ) );
@@ -896,5 +896,4 @@ QSqlIndex QTDSDriver::primaryIndex( const QString& tablename ) const
 	idx.setName( t.value(0).toString().stripWhiteSpace() );
     }
     return idx;
-    return QSqlIndex();
 }

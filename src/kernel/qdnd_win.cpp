@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -44,6 +44,8 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
+#include "qwinfunctions.h"
+
 
 static HCURSOR *cursor = 0;
 static QDragObject *global_src = 0;
@@ -469,7 +471,12 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     acceptact = FALSE;
     allowed_effects |= DROPEFFECT_LINK;
     updatePixmap();
+#ifdef Q_OS_TEMP
+    HRESULT r = 0;
+	result_effect = 0;
+#else
     HRESULT r = DoDragDrop(obj, src, allowed_effects, &result_effect);
+#endif
     QDragResponseEvent e( r == DRAGDROP_S_DROP );
     QApplication::sendEvent( dragSource, &e );
     obj->Release();	// Will delete obj if refcount becomes 0
@@ -492,16 +499,20 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 void qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst )
 {
     dst->releaseQt();
+#ifndef Q_OS_TEMP
     CoLockObjectExternal(dst, FALSE, TRUE);
     RevokeDragDrop(widget->winId());
+#endif
     delete dst;
 }
 
 QOleDropTarget* qt_olednd_register( QWidget* widget )
 {
     QOleDropTarget* dst = new QOleDropTarget( widget );
+#ifndef Q_OS_TEMP
     RegisterDragDrop(widget->winId(), dst);
     CoLockObjectExternal(dst, TRUE, TRUE);
+#endif
     return dst;
 }
 
@@ -960,9 +971,11 @@ void QDragManager::updatePixmap()
 {
     if ( object ) {
 	if ( cursor ) {
+#ifndef Q_OS_TEMP
 	    for ( int i=0; i<n_cursor; i++ ) {
 		DestroyCursor(cursor[i]);
 	    }
+#endif
 	    delete [] cursor;
 	    cursor = 0;
 	}

@@ -43,6 +43,9 @@
 #include "qpushbutton.h"
 #include "qimage.h"
 #include "qapplication.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#include "qaccessible.h"
+#endif
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -1060,6 +1063,15 @@ void QMessageBox::keyPressEvent( QKeyEvent *e )
     QDialog::keyPressEvent( e );
 }
 
+/*!\reimp
+*/
+void QMessageBox::showEvent( QShowEvent *e )
+{
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::updateAccessibility( this, 0, QAccessible::Alert );
+#endif
+    QDialog::showEvent( e );
+}
 
 /*****************************************************************************
   Static QMessageBox functions

@@ -120,7 +120,7 @@ QPrinter::QPrinter( PrinterMode m )
     hdevnames = 0;
 
 #if defined(UNICODE)
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
         PRINTDLG pd;
@@ -129,11 +129,11 @@ QPrinter::QPrinter( PrinterMode m )
         pd.Flags = PD_RETURNDEFAULT | PD_RETURNDC;
         if ( PrintDlg( &pd ) != 0 )
             readPdlg( &pd );
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     } else 
 #endif
 #endif
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     {
         PRINTDLGA pd;
         memset( &pd, 0, sizeof(PRINTDLGA) );
@@ -566,9 +566,9 @@ bool QPrinter::setup( QWidget *parent )
 
     // Must handle the -A and -W versions separately; they're incompatible
 #if defined(UNICODE)
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif // _WIN32_WCE
+#endif // Q_OS_TEMP
         PRINTDLG pd;
         memset( &pd, 0, sizeof(PRINTDLG) );
         pd.lStructSize = sizeof(PRINTDLG);
@@ -626,11 +626,11 @@ bool QPrinter::setup( QWidget *parent )
             if ( result )                               // get values from dlg
                 readPdlg( &pd );
         }
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     } else 
-#endif // _WIN32_WCE
+#endif // Q_OS_TEMP
 #endif
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     {
         // Win95/98 A version; identical to the above!
         PRINTDLGA pd;
@@ -690,7 +690,7 @@ bool QPrinter::setup( QWidget *parent )
                 readPdlgA( &pd );
         }
     }
-#endif // _WIN32_WCE
+#endif // Q_OS_TEMP
 
     SetMapMode(hdc, MM_ANISOTROPIC);
     SetWindowExtEx(hdc, res, res, NULL);
@@ -773,7 +773,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                 ok = FALSE;
         }
 #if defined(UNICODE)
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
         if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
             DOCINFO di;
@@ -782,11 +782,11 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             di.lpszDocName = (TCHAR*)qt_winTchar(doc_name,TRUE);
             if ( ok && StartDoc(hdc, &di) == SP_ERROR )
                 ok = FALSE;
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
         } else 
 #endif
 #endif
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
 	{
             DOCINFOA di;
             memset( &di, 0, sizeof(DOCINFO) );

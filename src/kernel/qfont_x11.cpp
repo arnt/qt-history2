@@ -63,6 +63,7 @@
 
 #include <ctype.h> 
 #include <stdlib.h> 
+#include <time.h> 
 
 
 #if !defined(QT_NO_XFTFREETYPE) && defined(QT_NO_XFTNAMEUNPARSE)

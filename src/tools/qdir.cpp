@@ -998,6 +998,16 @@ QDir QDir::current()
 
 /*!
   Returns the home directory.
+
+    Under Windows NT/2000 the function forms the path by concatenating
+    the \c HOMEDRIVE and \c HOMEPATH environment variables. 
+
+    Under Windows 9x and non-Windows operating systems the \c HOME
+    environment variable is used.
+
+    If the environment variables aren't set, rootDirPath() is used
+    instead.
+
   \sa homeDirPath()
 */
 
@@ -1168,7 +1178,7 @@ int qt_cmp_si_sortSpec;
 extern "C" {
 #endif
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 int __cdecl qt_cmp_si( const void *n1, const void *n2 )
 #else
 int qt_cmp_si( const void *n1, const void *n2 )

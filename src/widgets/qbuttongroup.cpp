@@ -59,28 +59,28 @@
 
   An \link setExclusive() exclusive\endlink button group switches off
   all toggle buttons except the one that was clicked. A button group
-  is by default non-exclusive. All radio
+  is by default non-exclusive. By default, all radio
   buttons that are inserted will be
   mutually exclusive even if the button group is non-exclusive. (See
   setRadioButtonExclusive().)
 
   There are two ways of using a button group:
-  <ol>
-  <li>The button group is a parent widget of a number of buttons,
+  \list
+  \i The button group is a parent widget of a number of buttons,
   i.e., the button group is the parent argument in the button constructor.
   The buttons are assigned identifiers 0, 1, 2, etc. in the order they are
   created. A QButtonGroup can display a frame and a title because it inherits
   QGroupBox.
-  <li>The button group is an invisible widget and the contained buttons
+  \i The button group is an invisible widget and the contained buttons
   have some other parent widget.  A button must then be manually inserted
   using the insert() function with an identifier.
-  </ol>
+  \endlist
 
-    A button can be removed from the group with remove(). A pointer to a
-    button with a given id can be obtained using find(). The id of a
-    button is available using id(). A button can be set on with
-    setButton(). The number of buttons in the group is returned by
-    count().
+  A button can be removed from the group with remove(). A pointer to a
+  button with a given id can be obtained using find(). The id of a
+  button is available using id(). A button can be set on with
+  setButton(). The number of buttons in the group is returned by
+  count().
 
   <img src=qbttngrp-m.png> <img src=qbttngrp-w.png>
 
@@ -564,11 +564,9 @@ void QButtonGroup::moveFocus( int key )
 }
 
 
-/*!  Returns a pointer to the selected radio button in this group, if
-  one exists, or 0 if there is no selected radio button in this group.
-
-  <b>Warning: </b>In future versions of Qt, the selected toggle button
-  will be returned.
+/*!
+  Returns a pointer to the selected toggle button if exactly one
+  is selected; returns 0 otherwise.
 */
 
 QButton * QButtonGroup::selected() const
@@ -577,13 +575,17 @@ QButton * QButtonGroup::selected() const
 	return 0;
     QButtonListIt it( *buttons );
     QButtonItem *i;
-    while( (i=it.current()) != 0 ) {
+    QButton *candidate = 0;
+
+    while ( (i = it.current()) != 0 ) {
 	++it;
-	if ( i->button && i->button->inherits("QRadioButton") &&
-	     i->button->isToggleButton() && i->button->isOn() )
-	    return i->button;
+	if ( i->button && i->button->isToggleButton() && i->button->isOn() ) {
+	    if ( candidate != 0 )
+		return 0;
+	    candidate = i->button;
+	}
     }
-    return 0;
+    return candidate;
 }
 
 

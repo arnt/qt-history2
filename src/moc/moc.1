@@ -238,7 +238,7 @@ This bug is almost impossible to fix; since the
 does not expand
 #include or #define, it cannot find out which one of the base classes is a
 QObject.
-.SS "Function pointers can not be arguments to signals or slots."
+.SS "Function pointers cannot be arguments to signals or slots."
 In most cases where you would consider that, we think inheritance is a
 better alternative.  Here is an example of illegal syntax:
 .PP
@@ -248,7 +248,8 @@ class SomeClass : public QObject {
     Q_OBJECT
     ...
 public slots:
-    void apply(void (*ApplyFunction)(QList*, void*)); // illegal
+    // illegal
+    void apply( void (*apply)(List *, void *), void * );
 };
 .fi
 .in -4
@@ -257,21 +258,21 @@ You can work around this restriction like this:
 .PP
 .in +4
 .nf
-typedef void (*ApplyFunctionType)(QList*, void*);
+typedef void (*ApplyFunctionType)( List *, void * );
 
 class SomeClass : public QObject {
     Q_OBJECT
     ...
 public slots:
-    void apply( ApplyFunctionType );
+    void apply( ApplyFunctionType, char * );
 };
 .fi
 .in -4
 .PP
-(It may sometimes be even better to replace the function pointer with
-inheritance and virtual functions, signals or slots.)
-.SS "Friend declarations can not be placed in signals or slots sections"
-Sometimes it will work, but in general, friend declarations can not be
+It may sometimes be even better to replace the function pointer with
+inheritance and virtual functions, signals or slots.
+.SS "Friend declarations cannot be placed in signals or slots sections"
+Sometimes it will work, but in general, friend declarations cannot be
 placed in
 .B signals
 or
@@ -317,7 +318,7 @@ function which is overloaded?
 .IP
 - That is not legal C++.
 .\" Good idea, but look in the SEE ALSO section...
-.SS "Type macros can not be used for signal and slot arguments"
+.SS "Type macros cannot be used for signal and slot arguments"
 
 Since the
 .B moc
@@ -334,7 +335,7 @@ will not work in signals and slots. Here is an illegal example:
 class Whatever : public QObject {
     ...
 signals:
-    void someSignal( SIGNEDNESS(a) ); // illegal
+    void someSignal( SIGNEDNESS(int) ); // illegal
 };
 .PP
 A #define without arguments works.
@@ -362,12 +363,12 @@ signals:
 .fi
 .in -4
 .PP
-.SS "Constructors can not be used in signals or slots sections"
-It is a mystery to me why anyone would put a constructor on either the
+.SS "Constructors cannot be used in signals or slots sections"
+It is a mystery to us why anyone would put a constructor on either the
 .B signals
 or
 .B slots
-sections.  You can not, anyway (except that it happens to work in some
+sections.  You can't, anyway (except that it happens to work in some
 cases).  Put them in
 .BR private ", " protected
 or
@@ -385,42 +386,6 @@ public slots:
 };
 .fi
 .in -4
-.SS "Signals and slots may not have template arguments"
-.PP
-Declaring signals and slots with template-type parameters will not
-work as expected, even though the
-.B moc
-will not complain. Connecting the
-signal to the slot in the following example, the slot will not get
-executed when the signal is emitted:
-.PP
-.in +4
-.nf
-public slots:
-    void MyWidget::setLocation(pair<int,int> location); // illegal
-    ...
-public signals:
-    void MyObject::moved(pair<int,int> location); // illegal
-.fi
-.in -4
-.PP
-However, you can work around this limitation by explicitly typedef'ing
-the parameter types, like this:
-.PP
-.in +4
-.nf
-typedef pair<int,int> IntPair;	
-
-public slots:
-    void MyWidget::setLocation(IntPair location);
-    ...
-public signals:
-    void MyObject::moved(IntPair location);
-.fi
-.in -4
-.PP
-This will work as expected.
-
 .SS "Properties need to be declared before the public section that contains the respective get and set functions"
 .PP
 Declaring the first property within or after the public section that

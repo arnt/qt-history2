@@ -62,7 +62,7 @@ extern int qt_cmp_si_sortSpec;
 extern "C" {
 #endif
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 extern int __cdecl qt_cmp_si( const void *, const void * );
 #else
 extern int qt_cmp_si( const void *, const void * );

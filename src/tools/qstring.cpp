@@ -15350,7 +15350,7 @@ int QString::localeAwareCompare( const QString& s ) const
 #if defined(Q_WS_WIN)
 #if defined(UNICODE)
     int res;
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
 	TCHAR* s1 = new TCHAR[ length() + 1 ];
@@ -15366,11 +15366,11 @@ int QString::localeAwareCompare( const QString& s ) const
 	default:
 	    return 0;
 	}
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     } else
 #endif
 #endif
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     {
 	int res = CompareStringA( LOCALE_USER_DEFAULT, 0, local8Bit(), length(), s.local8Bit(), s.length() );
 	switch ( res ) {

@@ -110,7 +110,7 @@ extern "C" {
   candidate is big endian (it comes from a .qm file) whereas the target
   endianness depends on the system Qt is running on.
 */
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 static int __cdecl cmp_uint32_little( const void* target, const void* candidate )
 #else
 static int cmp_uint32_little( const void* target, const void* candidate )
@@ -124,7 +124,7 @@ static int cmp_uint32_little( const void* target, const void* candidate )
 	   : (int) t[0] - (int) c[3];
 }
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 static int __cdecl cmp_uint32_big( const void* target, const void* candidate )
 #else
 static int cmp_uint32_big( const void* target, const void* candidate )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -409,8 +409,10 @@ QImage QPixmap::convertToImage() const
     bool mcp = data->mcp;
     if ( mcp )					// disable multi cell
 	((QPixmap*)this)->freeCell();
+#ifndef Q_OS_TEMP
     GetDIBits( qt_display_dc(), DATA_HBM, 0, h, image.bits(), bmi,
 	       DIB_RGB_COLORS );
+#endif
     if ( data->hasRealAlpha ) {
 	// Windows has premultiplied alpha, so revert it
 	image.setAlphaBuffer( TRUE );
@@ -636,8 +638,30 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    b[i+2] = (b[i+2]*b[i+3]) / 255;
 	}
 	if ( hasRealAlpha ) {
+#ifndef Q_OS_TEMP
 	    SetDIBitsToDevice( dc, 0, sy, w, h, 0, 0, 0, h,
 		    b, bmi, DIB_RGB_COLORS );
+#else
+/*
+		// ####
+		int iXSrc = 0, iYSrc = 0, iXDest = 0, iYDest = sy;
+		void **ppvBits;
+		HDC hdcSrc = CreateCompatibleDC(dc);
+//		HBITMAP hBitmap = CreateCompatibleBitmap(dc, w, h);
+		HBITMAP hBitmap = CreateDIBSection(dc, bmi, DIB_RGB_COLORS, ppvBits, NULL, 0 );
+//		memcpy( ppvBits, image.bits(), l );
+		memcpy( *ppvBits, b, l );
+		HBITMAP hOldBitmap = (HBITMAP)SelectObject(hdcSrc, hBitmap);
+		BitBlt( dc, 0, sy, w, h, hdcSrc, 0, 0, SRCCOPY );
+		// Transfer pixels from the source rectangle to the destination rectangle.
+//		BitBlt (hdcSrc,      0,      0, w, h, dc, iXDest, iYDest, SRCCOPY);
+//		BitBlt (dc,     iXDest, iYDest, w, h, dc,  iXSrc,  iYSrc, SRCCOPY);
+		// Select the old bitmap back into the device context.
+		SelectObject(dc, hOldBitmap);
+		DeleteObject(hBitmap);
+		DeleteDC(hdcSrc);
+*/
+#endif
 	} else {
 	    data->hasRealAlpha = FALSE;
 	}
@@ -646,8 +670,24 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     if ( !data->hasRealAlpha ) {
 	// "else case" of the above if (but the above can change
 	// data->hasAlpha(), so we need another if for it)
+#ifndef Q_OS_TEMP
 	SetDIBitsToDevice( dc, 0, sy, w, h, 0, 0, 0, h,
 		image.bits(), bmi, DIB_RGB_COLORS );
+#else
+/*
+		// ####
+		int iXSrc = 0, iYSrc = 0, iXDest = 0, iYDest = sy;
+		void **ppvBits;
+		HDC hdcSrc = CreateCompatibleDC(dc);
+		HBITMAP hBitmap = CreateDIBSection(dc, bmi, DIB_RGB_COLORS, ppvBits, NULL, 0 );
+		memcpy( *ppvBits, image.bits(), image.numBytes() );
+		HBITMAP hOldBitmap = (HBITMAP)SelectObject(hdcSrc, hBitmap);
+		BitBlt( dc, 0, sy, w, h, hdcSrc, 0, 0, SRCCOPY );
+		SelectObject(dc, hOldBitmap);
+		DeleteObject(hBitmap);
+		DeleteDC(hdcSrc);
+*/
+#endif
 	if ( img.hasAlphaBuffer() ) {
 	    QBitmap m;
 	    m = img.createAlphaMask( conversion_flags );
@@ -731,7 +771,9 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    sy = 0;
 	}
 	QPixmap pm( w, h, depth(), NormalOptim );
+#ifndef Q_OS_TEMP	
 	SetStretchBltMode( pm.handle(), COLORONCOLOR );
+#endif
 	StretchBlt( pm.handle(), 0, 0, w, h,	// scale the pixmap
 		    dc, 0, sy, ws, hs, SRCCOPY );
 	if ( data->mask ) {
@@ -788,8 +830,12 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     bool mcp = data->mcp;
     if ( mcp )
 	((QPixmap*)this)->freeCell();
+#ifndef Q_OS_TEMP
     int result = GetDIBits( qt_display_dc(), DATA_HBM, 0, hs,
 			    sptr, bmi, DIB_RGB_COLORS );
+#else
+	int result = 0;
+#endif
     if ( mcp )
 	((QPixmap*)this)->allocCell();
 
@@ -926,8 +972,10 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     bmh->biWidth  = w;
     bmh->biHeight = -h;
     bmh->biSizeImage = dbytes;
+#ifndef Q_OS_TEMP
     SetDIBitsToDevice( pm.handle(), 0, 0, w, h, 0, 0, 0, h,
 		       dptr, bmi, DIB_RGB_COLORS );
+#endif
     delete [] bmi_data;
     delete [] dptr;
     if ( data->mask ) {

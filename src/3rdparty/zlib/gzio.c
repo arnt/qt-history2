@@ -10,10 +10,7 @@
 #include <stdio.h>
 
 #include "zutil.h"
-
-#ifdef _WIN32_WCE
-#include "qfunctions_wce.h"
-#endif
+#include "qwinfunctions.h"
 
 struct internal_state {int dummy;}; /* for buggy compilers */
 

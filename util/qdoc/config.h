@@ -40,11 +40,12 @@ public:
     const QString& style() const { return styl; }
     bool isTrue( const QString& condition ) const;
     bool isDef( const QString& symbol ) const;
-    bool generateHtmlFile( const QString& fileName ) const;
+    bool generateFile( const QString& fileName ) const;
     bool serialComma() const { return FALSE; }
     bool isInternal() const { return internal; }
     bool autoHrefs() const { return autoh; }
     bool supervisor() const { return super; }
+    bool friendly() const { return frend; }
 
 private:
 #if defined(Q_DISABLE_COPY)
@@ -85,6 +86,7 @@ private:
     bool internal;
     bool autoh;
     bool super;
+    bool frend;
 
     QString dotHtml;
     QString membersDotHtml;

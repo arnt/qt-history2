@@ -104,7 +104,7 @@ else
     if [ -f "$relpath/GNUmakefile" ]
     then
 	rm -f $outpath/Makefile
-	mv $relpath/GNUmakefile $outpath/Makefile
+	cp $relpath/GNUmakefile $outpath/Makefile
     fi
 
     touch .test.qt.
@@ -533,7 +533,7 @@ do
 	XINPUT=yes
 	;;
    -stl)
-	SL=yes
+	STL=yes
 	;;
    -no-stl)
 	STL=no

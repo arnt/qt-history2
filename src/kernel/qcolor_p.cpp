@@ -41,9 +41,7 @@
 #ifndef QT_NO_COLORNAMES
 
 #include <stdlib.h>
-#ifdef _WIN32_WCE
-#include "qfunctions_wce.h"
-#endif
+#include "qwinfunctions.h"
 
 #undef QRGB
 #define QRGB(r,g,b) (r*65536 + g*256 + b)
@@ -716,7 +714,7 @@ static const struct RGBData {
 extern "C" {
 #endif
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 static int __cdecl rgb_cmp( const void *d1, const void *d2 )
 #else
 static int rgb_cmp( const void *d1, const void *d2 )

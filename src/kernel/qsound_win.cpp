@@ -70,16 +70,16 @@ QAuServerWindows::~QAuServerWindows()
 void QAuServerWindows::play(const QString& filename)
 {
 #ifdef UNICODE
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     if ( qWinVersion() == Qt::WV_NT ) {
 #endif
 	PlaySoundW((TCHAR*)qt_winTchar(filename,TRUE),
 	    0,SND_FILENAME|SND_ASYNC);
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     } else
 #endif
 #endif
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     {
 	PlaySoundA(QFile::encodeName(filename).data(),
 	    0,SND_FILENAME|SND_ASYNC);

@@ -356,7 +356,7 @@ void DocEmitter::emitHtml() const
     while ( s != hlist.end() ) {
 	htmlFileName = config->verbatimHref( *s );
 
-	if ( config->generateHtmlFile(htmlFileName) ) {
+	if ( config->generateFile(htmlFileName) ) {
 	    QString headerFilePath =
 		    config->findDepth( *s, config->includeDirList() );
 	    if ( headerFilePath.isEmpty() )
@@ -375,7 +375,7 @@ void DocEmitter::emitHtml() const
     while ( ex != examples.end() ) {
 	htmlFileName = config->verbatimHref( (*ex)->fileName() );
 
-	if ( config->generateHtmlFile(htmlFileName) ) {
+	if ( config->generateFile(htmlFileName) ) {
 	    HtmlWriter out( htmlFileName );
 	    if ( (*ex)->title().isEmpty() )
 		out.setHeading( (*ex)->fileName() + QString(" Example File") );
@@ -395,7 +395,7 @@ void DocEmitter::emitHtml() const
 	    ClassDecl *classDecl = (ClassDecl *) *child;
 	    htmlFileName = config->classRefHref( classDecl->name() );
 
-	    if ( config->generateHtmlFile(htmlFileName) &&
+	    if ( config->generateFile(htmlFileName) &&
 		 (config->isInternal() || !classDecl->internal()) ) {
 		res->setCurrentClass( classDecl );
 		HtmlWriter out( htmlFileName );
@@ -441,7 +441,7 @@ void DocEmitter::emitHtml() const
 		*/
 		htmlFileName = config->defgroupHref( (*def)->name() );
 
-		if ( config->generateHtmlFile(htmlFileName) ) {
+		if ( config->generateFile(htmlFileName) ) {
 		    HtmlWriter out( htmlFileName );
 		    out.setHeading( (*def)->title() );
 		    (*def)->printHtml( out );
@@ -469,7 +469,7 @@ void DocEmitter::emitHtml() const
     while ( pa != pages.end() ) {
 	htmlFileName = (*pa)->fileName();
 
-	if ( config->generateHtmlFile(htmlFileName) ) {
+	if ( config->generateFile(htmlFileName) ) {
 	    HtmlWriter out( htmlFileName );
 	    out.setHeading( (*pa)->title() );
 	    (*pa)->printHtml( out );

@@ -616,7 +616,7 @@ static int cmp_item_size = 0;
 extern "C" {
 #endif
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 static int __cdecl cmp_arr( const void *n1, const void *n2 )
 #else
 static int cmp_arr( const void *n1, const void *n2 )

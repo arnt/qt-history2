@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QCursor class for Win32
 **
@@ -81,8 +81,10 @@ QCursorData::~QCursorData()
     if ( bm || bmm ) {
 	delete bm;
 	delete bmm;
+#ifndef Q_OS_TEMP
 	if ( hcurs )
 	    DestroyCursor( hcurs );
+#endif
     }
 }
 
@@ -444,9 +446,11 @@ void QCursor::update() const
 		x++;
 	    }
 	}
+#ifndef Q_OS_TEMP
 	data->hcurs = CreateCursor( qWinAppInst(), data->hx, data->hy,
 				    bbits.width(), bbits.height(),
 				    xBits, xMask );
+#endif
 	delete xBits;
 	delete xMask;
 	return;
@@ -458,6 +462,9 @@ void QCursor::update() const
 #endif
 	return;
     }
+#ifdef Q_OS_TEMP
+	data->hcurs = LoadCursorW( 0, (const TCHAR *)sh );
+#else
 #if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based )
 	// ### From MSDN:
@@ -466,4 +473,5 @@ void QCursor::update() const
     else
 #endif
 	data->hcurs = LoadCursorA( 0, (const char*)sh );
+#endif
 }

@@ -344,6 +344,7 @@ static bool matchBool( bool *b )
 static void parse( MetaTranslator *tor, const char *initialContext,
 		   const char *defaultContext )
 {
+    QMap<QCString, QCString> qualifiedContexts;
     QCString context;
     QCString text;
     QCString com;
@@ -384,6 +385,8 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 			context = prefix;
 		    prefix = (const char *) 0;
 
+		    if ( qualifiedContexts.contains(context) )
+			context = qualifiedContexts[context];
 		    tor->insert( MetaTranslatorMessage(context, text, com,
 						       QString::null, utf8) );
 		}
@@ -422,11 +425,23 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 	    if ( com.left(sizeof(MagicComment) - 1) == MagicComment ) {
 		com.remove( 0, sizeof(MagicComment) - 1 );
 		int k = com.find( ' ' );
-		if ( k >= 0 ) {
+		if ( k == -1 ) {
+		    context = com;
+		} else {
 		    context = com.left( k );
 		    com.remove( 0, k + 1 );
 		    tor->insert( MetaTranslatorMessage(context, "", com,
 						       QString::null, FALSE) );
+		}
+
+		/*
+		  Provide some backdoor for people using "using
+		  namespace".
+		*/
+		k = 0;
+		while ( (k = context.find(QString("::"), k)) != -1 ) {
+		    qualifiedContexts.insert( context.mid(k + 2), context );
+		    k++;
 		}
 	    }
 	    yyTok = getToken();

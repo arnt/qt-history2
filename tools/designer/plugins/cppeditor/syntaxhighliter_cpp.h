@@ -42,7 +42,7 @@ public:
     void process( QTextDocument *doc, QTextParag *string, int start, bool invalidate = TRUE );
     void updateStyles( const QMap<QString, ConfigStyle> &styles );
 
-    static QString keywords[];
+    static const char * const keywords[];
 
     QTextFormat *format( int id );
 

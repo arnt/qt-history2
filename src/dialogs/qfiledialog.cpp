@@ -79,7 +79,7 @@
 #include "qpainter.h"
 #include "qcleanuphandler.h"
 
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
 #include <time.h>
 #endif
 #include <ctype.h>
@@ -4616,7 +4616,7 @@ static QString getWindowsRegString( HKEY key, const char *subKey )
     QString s;
     char  buf[512];
     DWORD bsz = sizeof(buf);
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
     int r = RegQueryValueEx( key, (LPCTSTR)qt_winTchar(subKey, TRUE), 0, 0, (LPBYTE)buf, &bsz );
 #else
     int r = RegQueryValueExA( key, subKey, 0, 0, (LPBYTE)buf, &bsz );
@@ -4625,7 +4625,7 @@ static QString getWindowsRegString( HKEY key, const char *subKey )
 	s = buf;
     } else if ( r == ERROR_MORE_DATA ) {
 	char *ptr = new char[bsz+1];
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 	r = RegQueryValueEx( key, (LPCTSTR)qt_winTchar(subKey, TRUE), 0, 0, (LPBYTE)ptr, &bsz );
 #else
 	r = RegQueryValueExA( key, subKey, 0, 0, (LPBYTE)ptr, &bsz );
@@ -4654,7 +4654,7 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
     QString s;
     UINT res;
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
     // ---------- get default folder pixmap
     r = RegOpenKeyEx( HKEY_CLASSES_ROOT, 
 		       L"folder\\DefaultIcon",
@@ -4671,7 +4671,7 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 
 	QStringList lst = QStringList::split( ",", s );
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 	res = (UINT)ExtractIconEx( (LPCTSTR)qt_winTchar( lst[ 0 ].simplifyWhiteSpace(), TRUE ),
 			      lst[ 1 ].simplifyWhiteSpace().toInt(),
 			      0, &si, 1 );
@@ -4697,7 +4697,7 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 	RegCloseKey( k );
     }
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
     //------------------------------- get default file pixmap
     res = (UINT)ExtractIconEx( L"shell32.dll",
 			     0, 0, &si, 1 );
@@ -4720,7 +4720,7 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 	defaultFile = *fileIcon;
     }
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
     //------------------------------- get default exe pixmap
     res = (UINT)ExtractIconEx( L"shell32.dll",
 			  2, 0, &si, 1 );
@@ -4764,7 +4764,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	    return &( *it );
 
 	HKEY k, k2;
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 	int r = RegOpenKeyEx( HKEY_CLASSES_ROOT,
 			       (LPCTSTR)qt_winTchar(ext, TRUE),
 			       0, KEY_READ, &k );
@@ -4783,7 +4783,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	}
 	RegCloseKey( k );
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 	r = RegOpenKeyEx( HKEY_CLASSES_ROOT,
 			   (LPCTSTR)qt_winTchar( s + "\\DefaultIcon", TRUE ),
 			   0, KEY_READ, &k2 );
@@ -4814,7 +4814,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	    }
 	}
 
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 	res = (UINT)ExtractIconEx( (LPCTSTR)qt_winTchar(filepath, TRUE),
 			      lst[ 1 ].stripWhiteSpace().toInt(),
 			      NULL, &si, 1 );
@@ -4841,7 +4841,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
     } else {
 	HICON si;
 	UINT res;
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 	res = (UINT)ExtractIconEx( (LPCTSTR)qt_winTchar(fi.absFilePath(), TRUE),
 			      -1,
 			      0, 0, 1 );
@@ -4854,7 +4854,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	if ( res == 0 ) {
 	    return &defaultExe;
 	} else {
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 	    res = (UINT)ExtractIconEx( (LPCTSTR)qt_winTchar(fi.absFilePath(), TRUE),
 				  res - 1,
 				  0, &si, 1 );

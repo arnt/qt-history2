@@ -70,3 +70,14 @@ int main()
 	std::cout << std::endl << "stltest: Failure:" << rval << std::endl;
     return rval;
 }
+
+
+// something mean to see if the compiler and C++ standard lib are good enough
+template<class K, class T>
+class DummyClass
+{
+    // everything in std namespace ?
+    typedef std::bidirectional_iterator_tag i;
+    // typename implemented ?
+    typedef typename std::map<K,T>& m;
+};

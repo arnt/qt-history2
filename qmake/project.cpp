@@ -325,7 +325,7 @@ QMakeProject::read(QString project, QString pwd)
 		if(ofile.findRev(Option::dir_sep) != -1) {
 		    dir = ofile.left(ofile.findRev(Option::dir_sep));
 		    if(QDir::isRelativePath(dir))
-			dir.prepend(QDir::convertSeparators(start_dir));
+			dir.prepend(QDir::convertSeparators(start_dir) + QDir::separator());
 		}
 
 		while(!QFile::exists((cachefile = dir + QDir::separator() + Option::mkfile::cachefile))) {

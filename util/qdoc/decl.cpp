@@ -187,7 +187,7 @@ static void tangle( Decl *child, QMap<QString, Decl *> *membersp,
 		    QMap<QString, Decl *> *memberPropertiesp,
 		    QMap<QString, Decl *> *memberFunctionsp )
 {
-#if 0
+#if 1
     static int unique = 0;
 #endif
 
@@ -220,7 +220,7 @@ static void tangle( Decl *child, QMap<QString, Decl *> *membersp,
     }
 
     QString sortKey;
-#if 0
+#if 1
     sortKey.sprintf( "%.8x", unique++ );
 #else
     sortKey = child->sortName();

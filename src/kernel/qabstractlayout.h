@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of the abstract layout base class
 **
@@ -88,7 +88,7 @@ private:
 class Q_EXPORT QLayoutItem
 {
 public:
-    QLayoutItem( int alignment = 0 ) :align(alignment) {}
+    QLayoutItem( int alignment = 0 ) : align( alignment ) {}
     virtual ~QLayoutItem();
     virtual QSize sizeHint() const = 0;
     virtual QSize minimumSize() const = 0;
@@ -119,21 +119,21 @@ class Q_EXPORT QSpacerItem : public QLayoutItem
     QSpacerItem( int w, int h,
 		 QSizePolicy::SizeType hData=QSizePolicy::Minimum,
 		 QSizePolicy::SizeType vData= QSizePolicy::Minimum )
-	:width(w), height(h), sizeP(hData, vData )
-	{}
+	: width( w ), height( h ), sizeP( hData, vData ) {}
     void changeSize( int w, int h,
-		QSizePolicy::SizeType hData=QSizePolicy::Minimum,
-		QSizePolicy::SizeType vData=QSizePolicy::Minimum );
-    QSize sizeHint() const ;
-    QSize minimumSize() const ;
-    QSize maximumSize() const ;
+		     QSizePolicy::SizeType hData=QSizePolicy::Minimum,
+		     QSizePolicy::SizeType vData=QSizePolicy::Minimum );
+    QSize sizeHint() const;
+    QSize minimumSize() const;
+    QSize maximumSize() const;
     QSizePolicy::ExpandData expanding() const;
     bool isEmpty() const;
     void setGeometry( const QRect& );
     QRect geometry() const;
     QSpacerItem *spacerItem();
 private:
-    int width, height;
+    int width;
+    int height;
     QSizePolicy sizeP;
     QRect rect;
 };
@@ -142,15 +142,14 @@ private:
 class Q_EXPORT QWidgetItem : public QLayoutItem
 {
 public:
-    QWidgetItem( QWidget *w ) : wid(w) {}
-    QSize sizeHint() const ;
-    QSize minimumSize() const ;
-    QSize maximumSize() const ;
+    QWidgetItem( QWidget *w ) : wid( w ) {}
+    QSize sizeHint() const;
+    QSize minimumSize() const;
+    QSize maximumSize() const;
     QSizePolicy::ExpandData expanding() const;
     bool isEmpty() const;
-    void setGeometry( const QRect& ) ;
+    void setGeometry( const QRect& );
     QRect geometry() const;
-    //void invalidate();
     virtual QWidget *widget();
 
     bool hasHeightForWidth() const;
@@ -159,7 +158,6 @@ public:
     const QSize &widgetSizeHint() const;
 
 private:
-    //QSize cachedSizeHint;
     QWidget *wid;
 };
 
@@ -269,5 +267,5 @@ inline void QLayoutIterator::deleteCurrent()
 {
     delete takeCurrent();
 }
-#endif //QT_NO_LAYOUT
+#endif // QT_NO_LAYOUT
 #endif

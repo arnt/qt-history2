@@ -95,8 +95,8 @@ static bool si_bigEndian;
   The \a bigEndian is set to TRUE if this is a big-endian machine,
   or to FALSE if this is a little-endian machine.
 
-  In debug mode, this function calls qFatal() with a message if the computer is 
-  truly weird (i.e. different endianness for 16 bit and 32 bit integers), in 
+  In debug mode, this function calls qFatal() with a message if the computer is
+  truly weird (i.e. different endianness for 16 bit and 32 bit integers), in
   release mode it returns FALSE.
 */
 
@@ -183,9 +183,15 @@ int qWinVersion()
     static int t=0;
     if ( !t ) {
 	t=1;
+#ifdef Q_OS_TEMP
+	OSVERSIONINFOW osver;
+	osver.dwOSVersionInfoSize = sizeof(osver);
+	GetVersionEx( &osver );
+#else
 	OSVERSIONINFOA osver;
 	osver.dwOSVersionInfoSize = sizeof(osver);
 	GetVersionExA( &osver );
+#endif
 	switch ( osver.dwPlatformId ) {
 	case VER_PLATFORM_WIN32s:
 	    winver = Qt::WV_32s;
@@ -333,19 +339,19 @@ QCString p2qstring(const unsigned char *c) {
        QCString ret = arr;
        delete arr;
        return ret;
-} 
+}
 #endif
 
 
 #ifdef Q_OS_MAC9
 
-#include "qt_mac.h"
+// #include "qt_mac.h"
 
 extern bool	  qt_is_gui_used;
 static void mac_default_handler(const char *msg)
 {
       if(qt_is_gui_used)
-        DebugStr(p_str(msg));	
+        DebugStr(p_str(msg));
       else
          fprintf(stderr, msg);
 }
@@ -364,7 +370,7 @@ void qDebug( const char *msg, ... )
 	(*handler)( QtDebugMsg, buf );
     } else {
 #ifdef Q_OS_MAC9
-	vsprintf( buf, msg, ap );		
+	vsprintf( buf, msg, ap );
 	va_end( ap );
         mac_default_handler(buf);
 #else
@@ -391,7 +397,7 @@ void debug( const char *msg, ... )
 	(*handler)( QtDebugMsg, buf );
     } else {
 #ifdef Q_OS_MAC9
-	vsprintf( buf, msg, ap );		
+	vsprintf( buf, msg, ap );
 	va_end( ap );
         mac_default_handler(buf);
 #else
@@ -417,7 +423,7 @@ void qWarning( const char *msg, ... )
 	(*handler)( QtWarningMsg, buf );
     } else {
 #ifdef Q_OS_MAC9
-	vsprintf( buf, msg, ap );		
+	vsprintf( buf, msg, ap );
 	va_end( ap );
         mac_default_handler(buf);
 #else
@@ -445,7 +451,7 @@ void warning( const char *msg, ... )
 	(*handler)( QtWarningMsg, buf );
     } else {
 #ifdef Q_OS_MAC9
-	vsprintf( buf, msg, ap );		
+	vsprintf( buf, msg, ap );
 	va_end( ap );
         mac_default_handler(buf);
 #else
@@ -471,14 +477,14 @@ void qFatal( const char *msg, ... )
 	(*handler)( QtFatalMsg, buf );
     } else {
 #ifdef Q_OS_MAC9
-	vsprintf( buf, msg, ap );		
+	vsprintf( buf, msg, ap );
 	va_end( ap );
         mac_default_handler(buf);
 #else
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
-#endif    
+#endif
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 	abort();				// trap; generates core dump
 #else
@@ -503,14 +509,14 @@ void fatal( const char *msg, ... )
 	(*handler)( QtFatalMsg, buf );
     } else {
 #ifdef Q_OS_MAC9
-	vsprintf( buf, msg, ap );		
+	vsprintf( buf, msg, ap );
 	va_end( ap );
         mac_default_handler(buf);
 #else
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
-#endif    
+#endif
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 	abort();				// trap; generates core dump
 #else
@@ -522,8 +528,8 @@ void fatal( const char *msg, ... )
 /*!
   \relates QApplication
 
-  Prints the message \a msg and uses \a code to get a system 
-  specific error message. When \a code is -1 (default), the system's last 
+  Prints the message \a msg and uses \a code to get a system
+  specific error message. When \a code is -1 (default), the system's last
   error code will be used if possible.
   Use this method to handle failures in platform specific API calls.
 
@@ -540,6 +546,19 @@ void qSystemWarning( const char* msg, int code )
     if ( !code )
 	return;
 
+#ifdef Q_OS_TEMP
+    unsigned short *string;
+
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+			  NULL,
+			  code,
+			  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			  (LPTSTR)&string,
+			  0,
+			  NULL );
+
+    qWarning( "%s\n\tError code %d - %s (###may need fixing in qglobal.h)", msg, code, (const char *)string );
+#else
     char* string;
 
     FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
@@ -551,6 +570,7 @@ void qSystemWarning( const char* msg, int code )
 			  NULL );
 
     qWarning( "%s\n\tError code %d - %s", msg, code, (const char*)string );
+#endif
 
     LocalFree( (HLOCAL)string );
 #else

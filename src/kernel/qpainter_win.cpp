@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QPainter class for Win32
 **
@@ -399,6 +399,9 @@ void QPainter::updateFont()
     if ( hfont_old && killFont_old)
 	DeleteObject( hfont_old );
     if ( !textmet ) {
+#ifdef Q_OS_TEMP
+	    textmet = new char[sizeof(TEXTMETRICW)];
+#else
 #ifdef UNICODE
 	if ( qt_winver & WV_NT_based ) {
 	    textmet = new char[sizeof(TEXTMETRICW)];
@@ -407,21 +410,28 @@ void QPainter::updateFont()
 	{
 	    textmet = new char[sizeof(TEXTMETRICA)];
 	}
+#endif
     }
 #ifdef UNICODE
+#ifndef Q_OS_TEMP
     if ( qt_winver & WV_NT_based ) {
+#endif
 	if ( ownFont )
 	    GetTextMetricsW( hdc, (TEXTMETRICW*)textmet );
 	else
 	    memcpy( textmet, cfont.textMetric(), sizeof(TEXTMETRICW) );
+#ifndef Q_OS_TEMP
     } else
 #endif
+#endif
+#ifndef Q_OS_TEMP
     {
 	if ( ownFont )
 	    GetTextMetricsA( hdc, (TEXTMETRICA*)textmet );
 	else
 	    memcpy( textmet, cfont.textMetric(), sizeof(TEXTMETRICA) );
     }
+#endif
 }
 
 
@@ -474,6 +484,7 @@ void QPainter::updatePen()
 	case DashLine:
 	    s = PS_DASH;
 	    break;
+#ifndef Q_OS_TEMP
 	case DotLine:
 	    s = PS_DOT;
 	    break;
@@ -483,18 +494,22 @@ void QPainter::updatePen()
 	case DashDotDotLine:
 	    s = PS_DASHDOTDOT;
 	    break;
+#endif
 	default:
 	    s = PS_SOLID;
 #if defined(QT_CHECK_STATE)
 	    qWarning( "QPainter::updatePen: Invalid pen style" );
 #endif
     }
+#ifndef Q_OS_TEMP
     if ( (qt_winver & WV_NT_based) && cpen.width() > 1 ) {
 	LOGBRUSH lb;
 	lb.lbStyle = 0;
 	lb.lbColor = pix;
 	lb.lbHatch = 0;
-	int pst = PS_GEOMETRIC | s;
+	int pst = 
+		PS_GEOMETRIC | 
+		s;
 	switch ( cpen.capStyle() ) {
 	    case SquareCap:
 		pst |= PS_ENDCAP_SQUARE;
@@ -519,7 +534,9 @@ void QPainter::updatePen()
 	}
 	hpen = ExtCreatePen( pst, cpen.width(), &lb, 0, 0 );
     }
-    else {
+    else 
+#endif
+	{
 	hpen = CreatePen( s, cpen.width(), pix );
     }
     SetTextColor( hdc, pix );			// pen color is also text color
@@ -609,6 +626,7 @@ void QPainter::updateBrush()
 	}
 	hbrush = CreatePatternBrush( hbrushbm );
     } else {					// one of the hatch brushes
+#ifndef Q_OS_TEMP
 	int s;
 	switch ( bs ) {
 	    case HorPattern:
@@ -633,6 +651,7 @@ void QPainter::updateBrush()
 		s = HS_HORIZONTAL;
 	}
 	hbrush = CreateHatchBrush( s, pix );
+#endif
     }
 
     SelectObject( hdc, hbrush );
@@ -750,7 +769,12 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 		if ( w->isTopLevel() ) {
 		    int dx = w->geometry().x() - w->frameGeometry().x();
 		    int dy = w->geometry().y() - w->frameGeometry().y();
+#ifndef Q_OS_TEMP
 		    SetWindowOrgEx( hdc, -dx, -dy, 0 );
+#else
+//			MoveWindow( w->winId(), w->frameGeometry().x(), w->frameGeometry().y(), w->frameGeometry().width(), w->frameGeometry().height(), FALSE );
+//			MoveWindow( w->winId(), w->frameGeometry().x() - 50, w->frameGeometry().y() - 50, w->frameGeometry().width(), w->frameGeometry().height(), FALSE );
+#endif
 		}
 	    } else {
 		hdc = GetDC( w->winId() );
@@ -815,8 +839,10 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	SetBkColor( hdc, COLOR_VALUE(bg_col) );
 	SetBkMode( hdc, TRANSPARENT );
 	SetROP2( hdc, R2_COPYPEN );
+#ifndef Q_OS_TEMP
 	SetTextAlign( hdc, TA_BASELINE );
 	SetStretchBltMode( hdc, COLORONCOLOR );
+#endif
     }
     updatePen();
     updateBrush();
@@ -911,7 +937,9 @@ bool QPainter::end()
 
 void QPainter::flush()
 {
+#ifndef Q_OS_TEMP
     GdiFlush();
+#endif
 }
 
 
@@ -1009,6 +1037,7 @@ void QPainter::setBrushOrigin( int x, int y )
 
 void QPainter::nativeXForm( bool enable )
 {
+#ifndef Q_OS_TEMP
     XFORM m;
     if ( enable ) {
 	QWMatrix mtx;
@@ -1035,6 +1064,22 @@ void QPainter::nativeXForm( bool enable )
 	ModifyWorldTransform( hdc, &m, MWT_IDENTITY );
 	SetGraphicsMode( hdc, GM_COMPATIBLE );
     }
+#else
+    if ( enable ) {
+	QWMatrix mtx;
+	if ( testf(VxF) ) {
+	    mtx.translate( vx, vy );
+	    mtx.scale( 1.0*vw/ww, 1.0*vh/wh );
+	    mtx.translate( -wx, -wy );
+	    mtx = wxmat * mtx;
+	} else {
+	    mtx = wxmat;
+	}
+	SetViewportOrgEx( hdc, mtx.dx(), mtx.dy(), NULL );
+    } else {
+	SetViewportOrgEx( hdc, 0, 0, NULL );
+    }
+#endif
 }
 
 
@@ -1138,7 +1183,11 @@ void QPainter::drawPoint( int x, int y )
 	map( x, y, &x, &y );
     }
     if ( cpen.style() != NoPen )
+#ifndef Q_OS_TEMP
 	SetPixelV( hdc, x, y, COLOR_VALUE(cpen.data->color) );
+#else
+	SetPixel( hdc, x, y, COLOR_VALUE(cpen.data->color) );
+#endif
 }
 
 
@@ -1172,8 +1221,13 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
     }
     if ( cpen.style() != NoPen ) {
 	for (int i=0; i<npoints; i++) {
+#ifndef Q_OS_TEMP
 	    SetPixelV( hdc, pa[index+i].x(), pa[index+i].y(),
 		       COLOR_VALUE(cpen.data->color) );
+#else
+	    SetPixel( hdc, pa[index+i].x(), pa[index+i].y(),
+		       COLOR_VALUE(cpen.data->color) );
+#endif
 	}
     }
 }
@@ -1193,7 +1247,11 @@ void QPainter::moveTo( int x, int y )
 	}
 	map( x, y, &x, &y );
     }
+#ifndef Q_OS_TEMP
     MoveToEx( hdc, x, y, 0 );
+#else
+	internalCurrentPos = QPoint( x, y );
+#endif
 }
 
 
@@ -1211,9 +1269,20 @@ void QPainter::lineTo( int x, int y )
 	}
 	map( x, y, &x, &y );
     }
+#ifndef Q_OS_TEMP
     LineTo( hdc, x, y );
+#else
+	// PolyLine from internalCurrentPos to x, y.
+	POINT linePts[2] = { { internalCurrentPos.x(), internalCurrentPos.y() }, { x, y } };
+	Polyline( hdc, linePts, 2 );
+	internalCurrentPos = QPoint( x, y );
+#endif
     if ( cpen.style() != NoPen )
+#ifndef Q_OS_TEMP
 	SetPixelV( hdc, x, y, COLOR_VALUE(cpen.data->color) );
+#else
+	SetPixel( hdc, x, y, COLOR_VALUE(cpen.data->color) );
+#endif
 }
 
 
@@ -1258,8 +1327,16 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
     pts[1].x = x2;  pts[1].y = y2;
     Polyline( hdc, pts, 2 );
     if ( plot_pixel )
+#ifndef Q_OS_TEMP
 	SetPixelV( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
+#else
+	SetPixel( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
+#endif
+#ifndef Q_OS_TEMP
     MoveToEx( hdc, x2, y2, 0 );
+#else
+	internalCurrentPos = QPoint( x2, y2 );
+#endif
 }
 
 
@@ -1505,7 +1582,9 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 	    return; //### should we draw a point?
 	}
     }
+#ifndef Q_OS_TEMP
     Arc( hdc, x, y, x+w, y+h, xS, yS, xE, yE );
+#endif
 }
 
 
@@ -1567,7 +1646,9 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
     }
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
+#ifndef Q_OS_TEMP
     Pie( hdc, x, y, x+w, y+h, xS, yS, xE, yE );
+#endif
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
 }
@@ -1628,7 +1709,9 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
     }
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
+#ifndef Q_OS_TEMP
     Chord( hdc, x, y, x+w, y+h, xS, yS, xE, yE );
+#endif
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
 }
@@ -1688,11 +1771,23 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 		x2++;
 	    else
 		x2--;
-	} else if ( maybe_plot_pixel )		// draw last pixel
+	} else if ( maybe_plot_pixel ) {	// draw last pixel
+#ifndef Q_OS_TEMP
 	    SetPixelV( hdc, x2, y2, pixel );
+#else
+		SetPixel( hdc, x2, y2, pixel );
+#endif
+	}
 
-	MoveToEx( hdc, x1, y1, 0 );
-	LineTo( hdc, x2, y2 );
+#ifndef Q_OS_TEMP
+    MoveToEx( hdc, x1, y1, 0 );
+    LineTo( hdc, x2, y2 );
+#else
+	// PolyLine from x1, y1 to x2, y2.
+	POINT linePts[2] = { { x1, y1 }, { x2, y2 } };
+	Polyline( hdc, linePts, 2 );
+	internalCurrentPos = QPoint( x2, y2 );
+#endif
     }
 }
 
@@ -1753,7 +1848,11 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
     }
     if ( plot_pixel ) {
 	Polyline( hdc, (POINT*)(pa.data()+index), npoints );
+#ifndef Q_OS_TEMP
 	SetPixelV( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
+#else
+	SetPixel( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
+#endif
     } else {
 	pa.setPoint( index+npoints-1, x2, y2 );
 	Polyline( hdc, (POINT*)(pa.data()+index), npoints );
@@ -1800,15 +1899,19 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding, int index,
 	    }
 	}
     }
+#ifndef Q_OS_TEMP
     if ( winding )				// set to winding fill mode
 	SetPolyFillMode( hdc, WINDING );
+#endif
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
     Polygon( hdc, (POINT*)(pa.data()+index), npoints );
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
+#ifndef Q_OS_TEMP
     if ( winding )				// set to normal fill mode
 	SetPolyFillMode( hdc, ALTERNATE );
+#endif
 }
 
 
@@ -1841,7 +1944,9 @@ void QPainter::drawCubicBezier( const QPointArray &a, int index )
 	if ( txop != TxNone )
 	    pa = xForm( pa );
     }
+#ifndef Q_OS_TEMP
     PolyBezier( hdc, (POINT*)(pa.data()+index), 4 );
+#endif
 }
 
 
@@ -2099,7 +2204,11 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     if ( !isActive() )
 	return;
 
+#ifndef Q_OS_TEMP
     bool nat_xf = ( (qt_winver & WV_NT_based) && txop >= TxScale );
+#else
+	bool nat_xf = FALSE;
+#endif
 
     if ( len < 0 )
 	len = str.length();
@@ -2113,6 +2222,9 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	updateFont();
     bool force_bitmap = FALSE;//rop != CopyROP;
     if ( force_bitmap ) {
+#ifdef Q_OS_TEMP
+	    force_bitmap &= !(((TEXTMETRICW*)textmet)->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
+#else
 #ifdef UNICODE
 	if ( qt_winver & WV_NT_based ) {
 	    force_bitmap &= !(((TEXTMETRICW*)textmet)->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
@@ -2121,6 +2233,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	{
 	    force_bitmap &= !(((TEXTMETRICA*)textmet)->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
 	}
+#endif
     }
 
     if ( force_bitmap || testf(ExtDev|VxF|WxF) ) {
@@ -2285,14 +2398,20 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     } else {
 	// Doesn't work for non-TrueType fonts, but we dealt with those
 	// with the bitmap above.
+#ifndef Q_OS_TEMP
 	BeginPath(hdc);
+#endif
 	cfont.d->drawText( hdc, x, y, cache );
 	//TextOut( hdc, x, y, tc, len );
+#ifndef Q_OS_TEMP
 	EndPath(hdc);
+#endif
 	uint pix = COLOR_VALUE(cpen.data->color);
 	HBRUSH tbrush = CreateSolidBrush( pix );
 	SelectObject( hdc, tbrush );
+#ifndef Q_OS_TEMP
 	FillPath(hdc);
+#endif
 	SelectObject( hdc, hbrush );
     }
 
@@ -2308,10 +2427,14 @@ QPoint QPainter::pos() const
     QPoint p;
     if ( !isActive() )
 	return p;
+#ifndef Q_OS_TEMP
     POINT pt;
     if ( GetCurrentPositionEx( hdc, &pt ) ) {
 	p.rx() = pt.x;
 	p.ry() = pt.y;
     }
     return  p;
+#else
+	return internalCurrentPos;
+#endif
 }

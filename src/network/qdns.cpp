@@ -2178,7 +2178,7 @@ static QString getWindowsRegString( HKEY key, const char *subKey )
     QString s;
     char  buf[512];
     DWORD bsz = sizeof(buf);
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
     int r = RegQueryValueEx( key, (LPCTSTR)qt_winTchar(subKey,TRUE), 0, 0, (LPBYTE)buf, &bsz );
 #else
     int r = RegQueryValueExA( key, subKey, 0, 0, (LPBYTE)buf, &bsz );
@@ -2187,7 +2187,7 @@ static QString getWindowsRegString( HKEY key, const char *subKey )
 	s = buf;
     } else if ( r == ERROR_MORE_DATA ) {
 	char *ptr = new char[bsz+1];
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 	r = RegQueryValueEx( key, (LPCTSTR)qt_winTchar(subKey, TRUE), 0, 0, (LPBYTE)ptr, &bsz );
 #else
 	r = RegQueryValueExA( key, subKey, 0, 0, (LPBYTE)ptr, &bsz );
@@ -2215,7 +2215,7 @@ static void doResInit()
     HKEY k1, k2;
 
     bool gotNetworkParams = FALSE;
-#ifndef _WIN32_WCE
+#ifndef Q_OS_TEMP
     if ( QApplication::winVersion() == Qt::WV_98 ||
 	 QApplication::winVersion() == Qt::WV_2000 ||
 	 QApplication::winVersion() == Qt::WV_XP ) 
@@ -2224,7 +2224,7 @@ static void doResInit()
 	// for 98 and 2000 try the API call GetNetworkParams()
 	HINSTANCE hinstLib = LoadLibraryA( "iphlpapi" );
 	if ( hinstLib != 0 ) {
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 	    GNP getNetworkParams = (GNP) GetProcAddress( hinstLib, L"GetNetworkParams" );
 #else
 		GNP getNetworkParams = (GNP) GetProcAddress( hinstLib, "GetNetworkParams" );
@@ -2256,7 +2256,7 @@ static void doResInit()
 	    qWarning( "QDns: call GetNetworkParams() was unsuccessful!" );
     }
     if ( !gotNetworkParams ) {
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 	int r = RegOpenKeyEx( HKEY_LOCAL_MACHINE,
 			       L"System\\CurrentControlSet\\Services\\Tcpip\\"
 			       L"Parameters",
@@ -2274,7 +2274,7 @@ static void doResInit()
 	    searchList = getWindowsRegString( k1, "SearchList" );
 	    separator = ' ';
 	} else {
-#ifdef _WIN32_WCE
+#ifdef Q_OS_TEMP
 	    int r = RegOpenKeyEx( HKEY_LOCAL_MACHINE,
 				   L"System\\CurrentControlSet\\Services\\VxD\\"
 				   L"MSTCP",

@@ -26,7 +26,7 @@
 #include "qapplication.h"
 #include "qregexp.h"
 
-QString SyntaxHighlighter_CPP::keywords[] = {
+const char * const SyntaxHighlighter_CPP::keywords[] = {
     // C++ keywords
     "and",
     "and_eq",
@@ -112,7 +112,7 @@ QString SyntaxHighlighter_CPP::keywords[] = {
     "ulong",
     "emit",
     // end of array
-    QString::null
+    0
 };
 
 static QMap<int, QMap<QString, int > > *wordMap = 0;
@@ -146,8 +146,8 @@ SyntaxHighlighter_CPP::SyntaxHighlighter_CPP()
 
     wordMap = new QMap<int, QMap<QString, int> >;
     int len;
-    for ( int i = 0; keywords[ i ] != QString::null; ++i ) {
-	len = keywords[ i ].length();
+    for ( int i = 0; keywords[ i ]; ++i ) {
+	len = strlen( keywords[ i ] );
 	if ( !wordMap->contains( len ) )
 	    wordMap->insert( len, QMap<QString, int >() );
 	QMap<QString, int> &map = wordMap->operator[]( len );

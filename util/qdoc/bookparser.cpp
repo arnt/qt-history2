@@ -756,7 +756,8 @@ void Analyzer::processGranularity( int level )
     if ( !toc.isEmpty() )
 	::warning( 2, location(),
 		   "Granularity must be specified at beginning of file" );
-    granul = level;
+    if ( !config->friendly() )
+	granul = level;
 }
 
 void Analyzer::processSectionBegin( int level, int topLevel )
@@ -920,6 +921,8 @@ HtmlSynthetizer::HtmlSynthetizer( const QString& filePath,
     w.push( new HtmlWriter(outFileBase() + QString(".html")) );
     w.top()->setTitle( analyzer->title() );
     w.top()->setHeading( analyzer->title() );
+    if ( analyzer->granularity() != -1 )
+	w.top()->putsMeta( "<!-- unfriendly -->\n" );
 }
 
 void HtmlSynthetizer::processC( const QString& text )
@@ -1073,7 +1076,7 @@ void HtmlSynthetizer::processQuoteEnd()
 
 void HtmlSynthetizer::processSectionBegin( int level, int topLevel )
 {
-    w.top()->printfMeta( "<h%d>", level - topLevel + 1 );
+    w.top()->printfMeta( "<h%d>", level - topLevel + 2 );
     sectionCounter.advance( level - topLevel );
 
     if ( level <= analyzer()->granularity() ) {
@@ -1100,15 +1103,15 @@ void HtmlSynthetizer::processSectionHeadingEnd( int level, int topLevel )
 	w.top()->putsMeta( "</a>" );
     }
 
-    w.top()->printfMeta( "</h%d>\n", level - topLevel + 1 );
+    w.top()->printfMeta( "</h%d>\n", level - topLevel + 2 );
 
     if ( level <= analyzer()->granularity() ) {
 	w.push( new HtmlWriter(outFileBase() + sectionCounter.fileSuffix(n) +
 			       QString(".html")) );
 	w.top()->setTitle( heading.latin1() );
-	w.top()->printfMeta( "<h%d align=center>", level - topLevel + 1 );
+	w.top()->printfMeta( "<h%d align=center>", level - topLevel + 2 );
 	w.top()->putsMeta( heading.latin1() );
-	w.top()->printfMeta( "</h%d>\n", level - topLevel + 1 );
+	w.top()->printfMeta( "</h%d>\n", level - topLevel + 2 );
     }
 }
 

@@ -837,7 +837,8 @@ can easily be linked together with a \l QDataTable to display a detailled
 view of a record:
 
 \code
-    connect( myDataTable, SIGNAL( currentChanged( QSqlRecord* ) ), myDataView, SLOT( refresh( QSqlRecord* ) ) );
+    connect( myDataTable, SIGNAL( currentChanged( QSqlRecord* ) ), 
+	     myDataView, SLOT( refresh( QSqlRecord* ) ) );
 \endcode
 
 \target Editing_a_Record
@@ -1256,8 +1257,8 @@ today's date and default the quantity to 1. Finally we return a pointer
 to the buffer. The rest of the code is unchanged from the previous
 version.
 
-\target Appendix_1_Tables
-\section1 Appendix 1: The Example Tables
+\target Example_Tables
+\section1 The Example Tables
 
 The example tables used can be recreated with the following standard SQL.
 You may need to modify the SQL to match that used by your particular

@@ -278,7 +278,7 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 	   this with the proper region, as some of the area (usually offscreen) isn't actually processed here
 	   even though it is dirty, so for now this is mac9 only */
 	QRegion reg(rgn);
-        { //lookup the x and y, don't use qwidget because this callback and be called before its updated
+        { //lookup the x and y, don't use qwidget because this callback can be called before its updated
 	    Point px = { 0, 0 };
 	    QMacSavedPortInfo si(widget);
 	    LocalToGlobal(&px);
@@ -847,9 +847,6 @@ void QWidget::update()
 void QWidget::update( int x, int y, int w, int h )
 {
     if ( !testWState(WState_BlockUpdates) && testWState( WState_Visible ) && isVisible() ) {
-	if(!strcmp(className(), "QDesktopWidget"))
-	    qDebug("%s %s", name(), className());
-
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )

@@ -41,7 +41,6 @@
 #include "qpainter.h"
 
 
-// NOT REVISED
 /*!
   \class QLCDNumber qlcdnumber.h
 
@@ -49,17 +48,17 @@
 
   \ingroup basic
 
-  It can display a number in just about any size; displays in decimal,
-  hexadecimal, octal or binary notation; and is easy to connect to
-  data sources via the display() slot, which is overloaded to take any
+  It can display a number in just about any size. It can display decimal,
+  hexadecimal, octal or binary numbers. It is easy to connect to
+  data sources using the display() slot, which is overloaded to take any
   of five argument types.
 
-  There are also slots to change the \link setMode() notation mode
-  \endlink and \link setSmallDecimalPoint() decimal point mode. \endlink
+  There are also slots to change the base with setMode() and the
+  decimal point with setSmallDecimalPoint().
 
   QLCDNumber emits the overflow() signal when it is asked to display
   something beyond its range.  The range is set by setNumDigits(), but
-  setSmallDecimalPoint() too influences it.
+  setSmallDecimalPoint() also influences it.
 
   These digits and other symbols can be shown: 0/O, 1, 2, 3, 4, 5/S,
   6, 7, 8, 9/g, minus, decimal point, A, B, C, D, E, F, h, H, L, o, P,
@@ -67,9 +66,10 @@
   in the string) and space.  QLCDNumber substitutes spaces for illegal
   characters.
 
-  It is not possible to retrieve the contents of a QLCDNumber object.
-  If you need to, we recommend that you connect the signals that feed
-  the display() slot to another slot as well and store the value
+  It is not possible to retrieve the contents of a QLCDNumber object,
+  although you can retrieve the numeric value with value(). If you
+  really need the text, we recommend that you connect the signals that
+  feed the display() slot to another slot as well and store the value
   there.
 
   Incidentally, QLCDNumber is the very oldest part of Qt, tracing back
@@ -291,7 +291,7 @@ static const char *getSegments( char ch )               // gets list of segments
   to decimal, the decimal point mode to 'small' and the frame style to
   a raised box. The segmentStyle() is set to \c Outline.
 
-  The \e parent and \e name arguments are passed to the QFrame constructor.
+  The \a parent and \a name arguments are passed to the QFrame constructor.
 
   \sa setNumDigits(), setSmallDecimalPoint()
 */
@@ -305,11 +305,11 @@ QLCDNumber::QLCDNumber( QWidget *parent, const char *name )
 
 
 /*!
-  Constructs an LCD number, sets the number of digits to \e numDigits, the
+  Constructs an LCD number, sets the number of digits to \a numDigits, the
   base to decimal, the decimal point mode to 'small' and the frame style
   to a raised box.  The segmentStyle() is set to \c Outline.
 
-  The \e parent and \e name arguments are passed to the QFrame constructor.
+  The \a parent and \a name arguments are passed to the QFrame constructor.
 
   \sa setNumDigits(), setSmallDecimalPoint()
 */
@@ -403,8 +403,8 @@ void QLCDNumber::setNumDigits( int numDigits )
 
 
 /*!
-  Returns TRUE if \e num is too big to be displayed in its entirety,
-  FALSE otherwise.
+  Returns TRUE if \a num is too big to be displayed in its entirety;
+  otherwise returns FALSE.
   \sa display(), numDigits(), smallDecimalPoint()
 */
 
@@ -417,8 +417,8 @@ bool QLCDNumber::checkOverflow( int num ) const
 
 
 /*!
-  Returns TRUE if \e num is too big to be displayed in its entirety,
-  FALSE otherwise.
+  Returns TRUE if \a num is too big to be displayed in its entirety;
+  otherwise returns FALSE.
   \sa display(), numDigits(), smallDecimalPoint()
 */
 
@@ -432,11 +432,12 @@ bool QLCDNumber::checkOverflow( double num ) const
 
 /*!
   \property QLCDNumber::mode
-  \brief the current display mode
+  \brief the current display mode (number base)
 
-  Corresponds to the current display mode, which is one of \c BIN, \c OCT, \c DEC
-  and \c HEX. All four modes can display both integers, floating-point
-  numbers and strings (subject to character set limitations).
+  Corresponds to the current display mode, which is one of \c BIN, \c
+  OCT, \c DEC and \c HEX. All four modes can display both integers,
+  floating-point numbers and strings (subject to character set
+  limitations).
 
   \sa smallDecimalPoint(), setHexMode(), setDecMode(), setOctMode(), setBinMode()
 */
@@ -461,7 +462,7 @@ void QLCDNumber::setMode( Mode m )
   This property corresponds to the current value displayed by the
   LCDNumber.
 
-  If the displayed value is no number, the property has
+  If the displayed value is not a number, the property has
   a value of 0.
 */
 
@@ -488,7 +489,7 @@ void QLCDNumber::display( double num )
   This property corresponds to the nearest integer to the
   current value displayed by the LCDNumber.
 
-  If the displayed value is no number, the property has
+  If the displayed value is not a number, the property has
   a value of 0.
 */
 int QLCDNumber::intValue() const
@@ -532,7 +533,7 @@ void QLCDNumber::display( const QString &s )
 }
 
 /*!
-  Calls setMode( HEX ). Provided for convenience (e.g., for connecting
+  Calls setMode( HEX ). Provided for convenience (e.g. for connecting
   buttons to it).
 
   \sa setMode(), setDecMode(), setOctMode(), setBinMode(), mode()
@@ -545,7 +546,7 @@ void QLCDNumber::setHexMode()
 
 
 /*!
-  Calls setMode( DEC ). Provided for convenience (e.g., for connecting
+  Calls setMode( DEC ). Provided for convenience (e.g. for connecting
   buttons to it).
 
   \sa setMode(), setHexMode(), setOctMode(), setBinMode(), mode()
@@ -558,7 +559,7 @@ void QLCDNumber::setDecMode()
 
 
 /*!
-  Calls setMode( OCT ). Provided for convenience (e.g., for connecting
+  Calls setMode( OCT ). Provided for convenience (e.g. for connecting
   buttons to it).
 
   \sa setMode(), setHexMode(), setDecMode(), setBinMode(), mode()
@@ -571,7 +572,7 @@ void QLCDNumber::setOctMode()
 
 
 /*!
-  Calls setMode( BIN ). Provided for convenience (e.g., for connecting
+  Calls setMode( BIN ). Provided for convenience (e.g. for connecting
   buttons to it).
 
   \sa setMode(), setHexMode(), setDecMode(), setOctMode(), mode()
@@ -588,7 +589,8 @@ void QLCDNumber::setBinMode()
   \brief the style of the decimal point
 
   If TRUE the decimal point is drawn between two
-  digit positions. It is drawn in a digit position otherwise.
+  digit positions. Otherwise it occupies a digit position of its own,
+  i.e. is drawn in a digit position.
 
   The inter-digit space is made slightly wider when the decimal point
   is drawn between the digits.
@@ -603,7 +605,7 @@ void QLCDNumber::setSmallDecimalPoint( bool b )
 
 
 /*!
-  Draws the LCD number using painter \e p.  This function is called from
+  Draws the LCD number using painter \a p.  This function is called from
   QFrame::paintEvent().
 */
 
@@ -1089,12 +1091,12 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
   \property QLCDNumber::segmentStyle
   \brief the style of the LCDNumber
 
-  The style of the QLCDNumber can be one of
-  <ul>
-  <li>\c Outline gives raised segments filled with the background color.
-  <li>\c Filled gives raised segments filled with the foreground color.
-  <li>\c Flat gives flat segments filled with the foreground color.
-  </ul>
+  The style of the QLCDNumber is one of:
+  \list
+  \i \c Outline gives raised segments filled with the background color.
+  \i \c Filled gives raised segments filled with the foreground color.
+  \i \c Flat gives flat segments filled with the foreground color.
+  \endlist
 
   \c Outline and \c Filled will additionally use QColorGroup::light()
   and QColorGroup::dark() for shadow effects.

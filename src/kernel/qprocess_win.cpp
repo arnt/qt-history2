@@ -45,6 +45,7 @@
 #include "qtimer.h"
 #include "qt_windows.h"
 
+
 /***********************************************************************
  *
  * QProcessPrivate
@@ -211,6 +212,9 @@ bool QProcess::start()
     // Open the pipes.  Make non-inheritable copies of input write and output
     // read handles to avoid non-closable handles.
     SECURITY_ATTRIBUTES secAtt = { sizeof( SECURITY_ATTRIBUTES ), NULL, TRUE };
+#ifndef Q_OS_TEMP
+	// I guess there is no stdin stdout and stderr on PocketPC to dup
+	// CreatePipe and DupilcateHandle aren't avaliable for WinCE
     HANDLE tmpStdin, tmpStdout, tmpStderr;
     if ( !CreatePipe( &d->pipeStdin[0], &tmpStdin, &secAtt, 0 ) ) {
 	return FALSE;
@@ -245,6 +249,7 @@ bool QProcess::start()
     if ( !CloseHandle( tmpStderr ) ) {
 	return FALSE;
     }
+#endif
 
     // construct the arguments for CreateProcess()
     QString args;
@@ -259,7 +264,9 @@ bool QProcess::start()
     bool success;
     d->newPid();
 #if defined(UNICODE)
+#ifndef Q_OS_TEMP
     if ( qWinVersion() & WV_NT_based ) {
+#endif
 	STARTUPINFO startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
 	    (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
 	    0, 0, 0,
@@ -273,8 +280,11 @@ bool QProcess::start()
 		(TCHAR*)qt_winTchar(workingDir.absPath(),TRUE),
 		&startupInfo, d->pid );
 	delete[] commandLine;
+#ifndef Q_OS_TEMP
     } else
 #endif
+#endif
+#ifndef Q_OS_TEMP
     {
 	STARTUPINFOA startupInfo = { sizeof( STARTUPINFOA ), 0, 0, 0,
 	    (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
@@ -288,14 +298,17 @@ bool QProcess::start()
 		(const char*)workingDir.absPath().local8Bit(),
 		&startupInfo, d->pid );
     }
+#endif
     if  ( !success ) {
 	d->deletePid();
 	return FALSE;
     }
 
+#ifndef Q_OS_TEMP
     CloseHandle( d->pipeStdin[0] );
     CloseHandle( d->pipeStdout[1] );
     CloseHandle( d->pipeStderr[1] );
+#endif
 
     if ( ioRedirection || notifyOnExit ) {
 	d->lookup->start( 100 );
@@ -370,12 +383,16 @@ void QProcess::socketRead( int fd )
     } else {
 	return;
     }
+#ifndef Q_OS_TEMP
     // get the number of bytes that are waiting to be read
     unsigned long i, r;
     char dummy;
     if ( !PeekNamedPipe( dev, &dummy, 1, &r, &i, 0 ) ) {
 	return; // ### is it worth to dig for the reason of the error?
     }
+#else
+    unsigned long i = 1000;
+#endif
     if ( i > 0 ) {
 	QByteArray *buffer;
 	uint oldSize;

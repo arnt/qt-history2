@@ -51,9 +51,7 @@
 #include "qimageformatinterface.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
-#ifdef _WIN32_WCE
-#include "qfunctions_wce.h"
-#endif
+#include "qwinfunctions.h"
 #include <stdlib.h>
 #include <ctype.h>
 

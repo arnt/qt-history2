@@ -41,73 +41,71 @@
 #include "qmenubar.h"
 #include "qapplication.h"
 
-// NOT REVISED
 /*!
-  \class QLayoutItem qabstractlayout.h
-  \brief The QLayoutItem class provides an abstract item that a QLayout manipulates.
+  \class QLayoutItem
+  \brief The QLayoutItem class provides an abstract item that a
+  QLayout manipulates.
 
-  For custom layouts.
+  This is used by custom layouts.
 
   \sa QLayout
 */
 
 /*!
   \class QSpacerItem qabstractlayout.h
-  \brief The QSpacerItem class provides a blank space in a layout.
+  \brief The QSpacerItem class provides blank space in a layout.
 
-  For custom layouts.
+  This is used by custom layouts.
 
   \sa QLayout
 */
 
 /*!
-  \class QWidgetItem qabstractlayout.h
+  \class QWidgetItem
   \brief The QWidgetItem class is a layout item that represents a widget.
 
-  For custom layouts.
+  This is used by custom layouts.
 
   \sa QLayout
 */
 
 
-/*! \fn QLayoutItem::QLayoutItem (int alignment)
+/*! \fn QLayoutItem::QLayoutItem( int alignment )
   Constructs a layout item with an \a alignment
   that is a bitwise OR of Qt::AlignmentFlags.
-  Alignment may not be supported by all subclasses.
+  Alignment may not be supported by some subclasses.
  */
 
-/*! \fn int QLayoutItem::alignment () const
+/*! \fn int QLayoutItem::alignment() const
   Returns the alignment of this item.
 */
-
 
 /*! Sets the alignment of this item to \a a,
   which is a bitwise OR of Qt::AlignmentFlags.
 */
-
 void QLayoutItem::setAlignment( int a )
 {
-     align = a;
+    align = a;
 }
 
 
-/*! \fn  QSize QLayoutItem::maximumSize () const
+/*! \fn QSize QLayoutItem::maximumSize() const
   Implemented in subclasses to return the maximum size of this item.
 */
 
-/*! \fn QSize QLayoutItem::minimumSize () const
+/*! \fn QSize QLayoutItem::minimumSize() const
   Implemented in subclasses to return the minimum size of this item.
 */
 
-/*! \fn QSize QLayoutItem::sizeHint () const
+/*! \fn QSize QLayoutItem::sizeHint() const
   Implemented in subclasses to return the preferred size of this item.
 */
 
-/*! \fn QSizePolicy::ExpandData QLayoutItem::expanding () const
+/*! \fn QSizePolicy::ExpandData QLayoutItem::expanding() const
   Implemented in subclasses to return whether this item "wants" to expand.
 */
 
-/*! \fn void QLayoutItem::setGeometry (const QRect &r )
+/*! \fn void QLayoutItem::setGeometry( const QRect &r )
   Implemented in subclasses to set this item's geometry to \a r.
 */
 
@@ -115,23 +113,20 @@ void QLayoutItem::setAlignment( int a )
   \fn QRect QLayoutItem::geometry() const
 
   Returns the rectangle covered by this layout item.
- */
-
-
-
-/*! \fn virtual bool QLayoutItem::isEmpty () const
-  Implemented in subclasses to return whether this item is empty,
-  i.e., whether it contains any widgets.
 */
 
+/*! \fn virtual bool QLayoutItem::isEmpty() const
+  Implemented in subclasses to return whether this item is empty,
+  i.e. whether it contains any widgets.
+*/
 
-/*! \fn QSpacerItem::QSpacerItem (int w, int h, QSizePolicy::SizeType hData=QSizePolicy::Minimum, QSizePolicy::SizeType vData= QSizePolicy::Minimum)
-
+/*! \fn QSpacerItem::QSpacerItem( int w, int h, QSizePolicy::SizeType hData,
+				  QSizePolicy::SizeType vData )
   Constructs a spacer item with preferred width \a w, preferred height
   \a h, horizontal size policy \a hData and vertical size policy
   \a vData.
 
-  The default values give a gap that is able to stretch
+  The default values provide a gap that is able to stretch
   if nothing else wants the space.
 */
 
@@ -141,7 +136,7 @@ void QLayoutItem::setAlignment( int a )
   \a h, horizontal size policy \a hData and vertical size policy
   \a vData.
 
-  The default values give a gap that is able to stretch
+  The default values provide a gap that is able to stretch
   if nothing else wants the space.
 */
 void QSpacerItem::changeSize( int w, int h, QSizePolicy::SizeType hData,
@@ -155,7 +150,7 @@ void QSpacerItem::changeSize( int w, int h, QSizePolicy::SizeType hData,
 
 /*! \fn QWidgetItem::QWidgetItem (QWidget * w)
 
-  Creates an item containing \a w.
+  Creates an item containing widget \a w.
 */
 
  /*!
@@ -165,88 +160,59 @@ QLayoutItem::~QLayoutItem()
 {
 }
 
-
 /*!
   Invalidates any cached information in this layout item.
 */
-
 void QLayoutItem::invalidate()
 {
-
 }
-
-
-
 
 /*!
   If this item is a QLayout, return it as a QLayout; otherwise return 0.
   This function provides type-safe casting.
 */
-
 QLayout * QLayoutItem::layout()
 {
     return 0;
 }
 
-
-
-
 /*!
   If this item is a QSpacerItem, return it as a QSpacerItem; otherwise
   return 0.  This function provides type-safe casting.
-
 */
-
 QSpacerItem * QLayoutItem::spacerItem()
 {
     return 0;
 }
 
-
-
-
-/*!
-  \reimp
-*/
-
+/*! \reimp */
 QLayout * QLayout::layout()
 {
     return this;
 }
 
-
-/*!
-  \reimp
-*/
-
+/*! \reimp */
 QSpacerItem * QSpacerItem::spacerItem()
 {
     return this;
 }
 
-
-
-
 /*!
   If this item is a QWidgetItem, the managed widget is returned.
   The default implementation returns 0.
 */
-
 QWidget * QLayoutItem::widget()
 {
     return 0;
 }
 
-
 /*!
   Returns the widget managed by this item.
 */
-
 QWidget * QWidgetItem::widget()
 {
     return wid;
 }
-
 
 /*!
   Returns TRUE if this layout's preferred height depends on its
@@ -257,15 +223,10 @@ QWidget * QWidgetItem::widget()
 
   \sa heightForWidth(), QWidget::heightForWidth()
 */
-
 bool QLayoutItem::hasHeightForWidth() const
 {
     return FALSE;
 }
-
-
-
-
 
 /*!
   Returns an iterator over this item's QLayoutItem children.
@@ -280,8 +241,6 @@ QLayoutIterator QLayoutItem::iterator()
     return QLayoutIterator( 0 );
 }
 
-
-
 /*!
   Returns the preferred height for this layout item, given the width
   \a w.
@@ -294,21 +253,23 @@ QLayoutIterator QLayoutItem::iterator()
   Reimplement this function in layout managers that support
   height for width. A typical implementation will look like this:
   \code
-  int MyLayout::heightForWidth( int w ) const
-  {
-      if ( cache_dirty || cached_width != w ) {
-	  //Not all C++ compilers support "mutable" yet:
-	  MyLayout * mthis = (MyLayout*)this;
-	  int h = calculateHeightForWidth( w );
-	  mthis->cached_hfw = h;
-	  return h;
-      }
-      return cached_hfw;
-  }
+    int MyLayout::heightForWidth( int w ) const
+    {
+	if ( cache_dirty || cached_width != w ) {
+	    // not all C++ compilers support "mutable"
+	    MyLayout *that = (MyLayout*)this;
+	    int h = calculateHeightForWidth( w );
+	    that->cached_hfw = h;
+	    return h;
+	}
+	return cached_hfw;
+    }
   \endcode
 
   Caching is strongly recommended; without it layout will take
-  exponential time.  \sa hasHeightForWidth()
+  exponential time.
+
+  \sa hasHeightForWidth()
 */
 
 int QLayoutItem::heightForWidth( int /* w */ ) const
@@ -349,7 +310,7 @@ static QSize smartMinSize( const QWidgetItem *i )
     return s;
 }
 
-//returns the max size of a box containing \a w with alignment \a align.
+// Returns the max size of a box containing \a w with alignment \a align.
 static QSize smartMaxSize( const QWidgetItem *i, int align = 0 )
 {
     QWidget *w = ( (QWidgetItem*)i )->widget();
@@ -373,20 +334,15 @@ static QSize smartMaxSize( const QWidgetItem *i, int align = 0 )
     return s;
 }
 
-
-
-
 /*!
-  This function stores \a r so it can be returned by geometry().
+  This function stores the rect \a r so that it can be returned by
+  geometry().
 */
-void QSpacerItem::setGeometry( const QRect &r )
-{
-    rect = r;
-}
+void QSpacerItem::setGeometry( const QRect &r ) { rect = r; }
 
 /*!
-  Sets the geometry of this item's widget to be contained within \a r,
-  taking alignment and maximum size into account.
+  Sets the geometry of this item's widget to be contained within rect
+  \a r, taking alignment and maximum size into account.
 */
 void QWidgetItem::setGeometry( const QRect &r )
 {
@@ -415,47 +371,29 @@ void QWidgetItem::setGeometry( const QRect &r )
     else if ( !(align & Qt::AlignTop) )
 	y = y + ( r.height() - s.height() ) / 2;
 
-    if ( !wid->isHidden() && !wid->isTopLevel() )
+    if ( !isEmpty() )
 	wid->setGeometry( x, y, s.width(), s.height() );
 }
 
-
-
-/*!
-  \reimp
-*/
-
+/*! \reimp */
 QRect QSpacerItem::geometry() const
 {
     return rect;
 }
 
-
-/*!
-  \reimp
-*/
-
+/*! \reimp */
 QRect QWidgetItem::geometry() const
 {
     return wid->geometry();
 }
 
-
-/*!
-  \reimp
-*/
-
+/*! \reimp */
 QRect QLayout::geometry() const
 {
     return rect;
 }
 
-
-
-/*!
-  \reimp
-*/
-
+/*! \reimp */
 bool QWidgetItem::hasHeightForWidth() const
 {
     if ( isEmpty() )
@@ -465,14 +403,11 @@ bool QWidgetItem::hasHeightForWidth() const
     return wid->sizePolicy().hasHeightForWidth();
 }
 
-/*!
-  \reimp
-*/
-
+/*! \reimp */
 int QWidgetItem::heightForWidth( int w ) const
 {
     if ( isEmpty() )
-	return 0;
+	return 0; // ### -1?
     if ( wid->layout() )
 	return wid->layout()->totalHeightForWidth( w );
     return wid->heightForWidth( w );
@@ -489,18 +424,20 @@ QSizePolicy::ExpandData QSpacerItem::expanding() const
 /*!
   Returns whether this item's widget is expanding.
 */
-
 QSizePolicy::ExpandData QWidgetItem::expanding() const
 {
-    if ( isEmpty() || align&Qt::AlignHorizontal_Mask && align&Qt::AlignVertical_Mask )
+    if ( isEmpty() )
 	return QSizePolicy::NoDirection;
-    int e =  wid->layout() ? wid->layout()->expanding()
-	     : wid->sizePolicy().expanding();
-    if ( align&Qt::AlignHorizontal_Mask )
-	e = e & ~QSizePolicy::Horizontally;
-    else if  ( align&Qt::AlignVertical_Mask)
-	e = e & ~QSizePolicy::Vertically;
+    if ( (align & Qt::AlignHorizontal_Mask) &&
+	 (align & Qt::AlignVertical_Mask) )
+	return QSizePolicy::NoDirection;
 
+    int e = wid->layout() ? wid->layout()->expanding()
+	     : wid->sizePolicy().expanding();
+    if ( align & Qt::AlignHorizontal_Mask )
+	e = e & ~QSizePolicy::Horizontally;
+    else if ( align & Qt::AlignVertical_Mask)
+	e = e & ~QSizePolicy::Vertically;
     return (QSizePolicy::ExpandData)e;
 }
 
@@ -516,14 +453,12 @@ QSize QSpacerItem::minimumSize() const
 /*!
   Returns the minimum size of this item.
 */
-
 QSize QWidgetItem::minimumSize() const
 {
     if ( isEmpty() )
-	return QSize(0,0);
+	return QSize( 0, 0 );
     return smartMinSize( this );
 }
-
 
 /*!
   Returns the maximum size of this space item.
@@ -540,7 +475,7 @@ QSize QSpacerItem::maximumSize() const
 QSize QWidgetItem::maximumSize() const
 {
     if ( isEmpty() )
-	return QSize(0,0);
+	return QSize( 0, 0 );
     return smartMaxSize( this, align );
 }
 
@@ -552,29 +487,17 @@ QSize QSpacerItem::sizeHint() const
     return QSize( width, height );
 }
 
-///*!
-//  Invalidates any cached information.
-// */
-//void QWidgetItem::invalidate()
-//{
-//    cachedSizeHint = QSize();
-//}
-
 /*!
   Returns the preferred size of this item.
 */
 QSize QWidgetItem::sizeHint() const
 {
-    //if ( cachedSizeHint.isValid() )
-    //	return cachedSizeHint;
     QSize s;
     if ( isEmpty() )
-	s =  QSize(0,0);
+	s = QSize( 0, 0 );
     else
 	s = wid->sizeHint().boundedTo( wid->maximumSize() )
-	    .expandedTo( wid->minimumSize() ).expandedTo( QSize(1,1) );
-
-    //((QWidgetItem*)this)->cachedSizeHint = s; //mutable hack
+	    .expandedTo( wid->minimumSize() ).expandedTo( QSize(1, 1) );
     return s;
 }
 
@@ -587,34 +510,31 @@ bool QSpacerItem::isEmpty() const
 }
 
 /*!
-  Returns TRUE if the widget has been hidden, FALSE otherwise.
+  Returns TRUE if the widget has been hidden; otherwise returns FALSE.
 */
 bool QWidgetItem::isEmpty() const
 {
     return wid->isHidden() || wid->isTopLevel();
 }
 
-
-
-
 /*!
   \class QLayout qabstractlayout.h
-  \brief The QLayout class is the base class of geometry specifiers.
+  \brief The QLayout class is the base class of geometry managers.
 
   \ingroup geomanagement
 
-  This is an abstract base class. The concrete layout managers
-  QBoxLayout and QGridLayout inherit from this one.
+  This is an abstract base class inherited by the concrete classes,
+  QBoxLayout and QGridLayout.
 
   For users of QLayout subclasses or of QMainWindow there is seldom
-  need to use any of the basic functions provided by QLayout, such as
-  \l resizeMode or setMenuBar(). See the \link layout.html layout
+  any need to use the basic functions provided by QLayout, such as \l
+  resizeMode or setMenuBar(). See the \link layout.html layout
   overview page \endlink for more information.
 
-  To make your own layout manager, make a subclass of QGLayoutIterator
+  To make your own layout manager, subclass QGLayoutIterator
   and implement the functions addItem(), sizeHint(), setGeometry(), and
-  iterator(). You should also implement minimumSize(); otherwise your
-  layout will be resized to zero size if there is too little space. To
+  iterator(). You should also implement minimumSize() to ensure your
+  layout isn't resized to zero size if there is too little space. To
   support children whose height depend on their widths, implement
   hasHeightForWidth() and heightForWidth().
   See the \link customlayout.html custom layout page \endlink for an
@@ -626,14 +546,12 @@ bool QWidgetItem::isEmpty() const
 
 /*!
   Constructs a new top-level QLayout with main widget \a
-  parent.  \a parent may not be 0.
+  parent, and name \a name.  \a parent may not be 0.
 
-  \a border is the number of pixels between the edge of the widget and
-  the managed children.  \a space sets the value of spacing(), which
-  gives the spacing between widgets.  The default value for \a space
-  is -1, which means that the value of \a border is used.
-
-  \a name is the internal object name
+  The \a border is the number of pixels between the edge of the widget and
+  the managed children.  The \a space sets the value of spacing(), which
+  gives the spacing between the managed widgets. If \a space is -1
+  (the default), spacing is set to the value of \a border.
 
   There can be only one top-level layout for a widget. It is returned
   by QWidget::layout()
@@ -645,9 +563,9 @@ QLayout::QLayout( QWidget *parent, int border, int space, const char *name )
     init();
     if ( parent ) {
 	if ( parent->layout() ) {
-	    qWarning( "QLayout \"%s\" added to %s \"%s\","
-		     " which already had a layout.", QObject::name(),
-		     parent->className(), parent->name() );
+	    qWarning( "QLayout \"%s\" added to %s \"%s\", which already has a"
+		      " layout", QObject::name(), parent->className(),
+		      parent->name() );
 	    parent->removeChild( this );
 	} else {
 	    topLevel = TRUE;
@@ -683,12 +601,11 @@ void QLayout::init()
 }
 
 /*!
-  Constructs a new child QLayout and places it inside
-  \a parentLayout by using the default placement defined by
-  addItem().
+  Constructs a new child QLayout called \a name, and places it inside
+  \a parentLayout by using the default placement defined by addItem().
 
   If \a space is -1, this QLayout inherits \a parentLayout's
-  spacing(), otherwise \a space is used.
+  spacing(), otherwise the value of \a space is used.
 
 */
 
@@ -704,9 +621,9 @@ QLayout::QLayout( QLayout *parentLayout, int space, const char *name )
 
 
 /*!
-  Constructs a new child QLayout.
+  Constructs a new child QLayout called \a name.
   If \a space is -1, this QLayout inherits its parent's
-  spacing(); otherwise \a space is used.
+  spacing(); otherwise the value of \a space is used.
 
   This layout has to be inserted into another layout before geometry
   management will work.
@@ -723,7 +640,7 @@ QLayout::QLayout( int space, const char *name )
 
 
 /*! \fn void QLayout::addItem (QLayoutItem *item )
-    Implemented in subclasses to add \a item. How it is
+    Implemented in subclasses to add an \a item. How it is
     added is specific to each subclass.
 
     Note that the ownership of \a item is transferred to
@@ -737,11 +654,11 @@ QLayout::QLayout( int space, const char *name )
 
   A typical implementation will be:
   \code
-  QLayoutIterator MyLayout::iterator()
-  {
-      QGLayoutIterator *i = new MyLayoutIterator( internal_data );
-      return QLayoutIterator( i );
-  }
+    QLayoutIterator MyLayout::iterator()
+    {
+	QGLayoutIterator *i = new MyLayoutIterator( internal_data );
+	return QLayoutIterator( i );
+    }
   \endcode
   where MyLayoutIterator is a subclass of QGLayoutIterator.
 */
@@ -749,38 +666,30 @@ QLayout::QLayout( int space, const char *name )
 
 
 /*!
-  \fn void QLayout::add (QWidget * w)
+  \fn void QLayout::add (QWidget *w)
 
-  Adds \a w to this layout in a manner specific to the layout. This
-  function uses addItem.
+  Adds widget \a w to this layout in a manner specific to the layout.
+  This function uses addItem.
 */
 
 /*!
   \fn QMenuBar* QLayout::menuBar () const
   Returns the menu bar set for this layout, or a null pointer if no
   menu bar is set.
- */
-
-
+*/
 
 /*!
   \fn bool QLayout::isTopLevel () const
 
   Returns TRUE if this layout is a top-level layout, i.e., not a child
-  of another layout.
- */
-
-
+  of another layout; otherwise returns FALSE.
+*/
 
 /*!
   \property QLayout::margin
   \brief the width of the outside border of the layout
 
   For some layout classes this property has an effect only on
-  top-level layouts; QBoxLayout and QGridLayout support margins for
-  child layouts.
-
-  For some layout classes this propety has an effect only on
   top-level layouts; QBoxLayout and QGridLayout support margins for
   child layouts.
 
@@ -794,8 +703,6 @@ QLayout::QLayout( int space, const char *name )
 
   \sa margin
 */
-
-
 void QLayout::setMargin( int border )
 {
     outsideBorder = border;
@@ -805,7 +712,6 @@ void QLayout::setMargin( int border )
 	QApplication::postEvent( mainWidget(), lh );
     }
 }
-
 
 //##### bool recursive = FALSE ????
 void QLayout::setSpacing( int space )
@@ -817,8 +723,6 @@ void QLayout::setSpacing( int space )
 	QApplication::postEvent( mainWidget(), lh );
     }
 }
-
-
 
 
 /*!
@@ -841,7 +745,6 @@ QWidget * QLayout::mainWidget()
     }
 }
 
-
 /*!
   Returns TRUE if this layout is empty.
   The default implementation returns FALSE.
@@ -852,7 +755,7 @@ bool QLayout::isEmpty() const
 }
 
 /*!
-  Sets \a w's layout to \a l.
+  Sets widget \a w's layout to layout \a l.
 */
 
 void QLayout::setWidgetLayout( QWidget *w, QLayout *l )
@@ -860,22 +763,18 @@ void QLayout::setWidgetLayout( QWidget *w, QLayout *l )
     w->setLayout( l );
 }
 
-
-
 /*!
   This function is reimplemented in subclasses to
   perform layout.
 
-  The default implementation maintains the geometry() information.
+  The default implementation maintains the geometry() information
+  given by rect \a r.
   Reimplementors must call this function.
  */
 void QLayout::setGeometry( const QRect &r )
 {
     rect = r;
 }
-
-
-
 
 /*!
   Invalidates cached information. Reimplementations must call this.
@@ -885,7 +784,6 @@ void QLayout::invalidate()
 {
     rect = QRect();
 }
-
 
 // ###
 
@@ -920,8 +818,8 @@ static bool removeWidget( QLayoutItem *lay, QWidget *w )
 /*!
   Performs child widget layout when the parent widget is resized.
   Also handles removal of widgets and child layouts.
+  \a e is the event the occured on object \a o.
 */
-
 bool QLayout::eventFilter( QObject *o, QEvent *e )
 {
     if ( !enabled )
@@ -1003,15 +901,12 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	break;
     }
     return QObject::eventFilter( o, e );
-
 }
-
 
 /*!
   \internal
   Also takes margin() and menu bar into account.
 */
-
 int QLayout::totalHeightForWidth( int w ) const
 {
     if ( topLevel ) {
@@ -1076,7 +971,7 @@ QSize QLayout::totalSizeHint() const
     if ( menubar && !menubar->isTopLevel() )
 	h += menubar->heightForWidth( s.width() );
 #endif
-    return s + QSize(b,h);
+    return s + QSize( b, h );
 }
 
 
@@ -1108,9 +1003,6 @@ QSize QLayout::totalMaximumSize() const
     return s;
 }
 
-
-
-
 /*!
   Destroys the layout, deleting all child layouts.
   Geometry management stops when a top-level layout is deleted.
@@ -1121,8 +1013,8 @@ QSize QLayout::totalMaximumSize() const
 
 QLayout::~QLayout()
 {
-    //note that this function may be called during the QObject destructor,
-    //when the parent no longer is a QWidget.
+    // this function may be called during the QObject destructor,
+    // when the parent no longer is a QWidget
     if ( isTopLevel() && parent() && parent()->isWidgetType() &&
 	 ((QWidget*)parent())->layout() == this )
 	setWidgetLayout( (QWidget*)parent(), 0 );
@@ -1141,7 +1033,7 @@ void QLayout::deleteAllItems()
 
 /*!
   This function is called from addLayout functions in subclasses
-  to add \a l layout as a sublayout.
+  to add layout \a l as a sublayout.
 */
 void QLayout::addChildLayout( QLayout *l )
 {
@@ -1157,17 +1049,15 @@ void QLayout::addChildLayout( QLayout *l )
 }
 
 
-#if 1 // OBSOLETE
-/*!
+/*
   \obsolete
   Fixes the size of the main widget and distributes the available
   space to the child widgets. For widgets which should not be
   resizable, but where a QLayout subclass is used to set up the initial
   geometry.
 
-  As a special case, freeze(0,0) is equivalent to setResizeMode( \c Fixed )
+  As a special case, freeze(0, 0) is equivalent to setResizeMode(\c Fixed).
 */
-#endif
 
 void QLayout::freeze( int w, int h )
 {
@@ -1185,7 +1075,7 @@ void QLayout::freeze( int w, int h )
   Makes the geometry manager take account of the menu bar \a w. All
   child widgets are placed below the bottom edge of the menu bar.
 
-  A menu bar does its own geometry managing, never do addWidget()
+  A menu bar does its own geometry management: never do addWidget()
   on a QMenuBar.
 */
 
@@ -1252,20 +1142,16 @@ static void  invalidateRecursive( QLayoutItem *lay )
     }
 }
 
-
-
-
 /*!  Redoes the layout for mainWidget().  You should generally not
   need to call this because it is automatically called at the most appropriate
   times.
 
   However, if you set up a QLayout for a visible widget without
-  resizing that widget, you need to call this function in order to lay
+  resizing that widget, you will need to call this function in order to lay
   it out.
 
   \sa QWidget::updateGeometry()
 */
-
 bool QLayout::activate()
 {
     // Paul: If adding stuff to a QLayout for a widget causes
@@ -1278,10 +1164,8 @@ bool QLayout::activate()
     QWidget *mainW = mainWidget();
     if ( !mainW ) {
 #if defined( QT_CHECK_NULL )
-	    qWarning( "QLayout::activate(): %s \"%s\" does not have a "
-		      "main widget.",
-		     QObject::className(), QObject::name() );
-
+	qWarning( "QLayout::activate(): %s \"%s\" does not have a main widget.",
+		  QObject::className(), QObject::name() );
 #endif
 	return FALSE;
     }
@@ -1293,8 +1177,8 @@ bool QLayout::activate()
 #endif
     int b = marginImpl ? 0 : outsideBorder;
     setGeometry( QRect( b, mbh + b,
-			s.width() - 2*b,
-			s.height() - mbh - 2*b ) );
+			s.width() - 2 * b,
+			s.height() - mbh - 2 * b ) );
     if ( frozen )
 	mainWidget()->setFixedSize( totalSizeHint() ); //### will trigger resize
     else if ( autoMinimum )
@@ -1306,20 +1190,18 @@ bool QLayout::activate()
 }
 
 
-
-
-
 /*!
-  \class QSizePolicy qsizepolicy.h
-  \brief The QSizePolicy class is a layout attribute describing horizontal and vertical resizing.
+  \class QSizePolicy
+  \brief The QSizePolicy class is a layout attribute describing horizontal
+  and vertical resizing.
 
   The size policy of a widget is an expression of its willingness to
   be resized in various ways.
 
   Widgets that reimplement QWidget::sizePolicy() return a QSizePolicy
   describing the horizontal and vertical resizing policy best used
-  when laying out the widget.  Only <a href="#interesting">one of the
-  constructors</a> is of interest in most applications.
+  when laying out the widget.  Only \link #interesting one of the
+  constructors\endlink is of interest in most applications.
 
   QSizePolicy contains two independent SizeType objects; one describes
   the widgets's horizontal size policy, and the other describes its
@@ -1342,26 +1224,26 @@ The per-dimension sizing types used when constructing a QSizePolicy
 are
 
 \value Fixed  the QWidget::sizeHint() is the only acceptable alternative, so
-the widget can never grow or shrink (e.g., the vertical direction of a
+the widget can never grow or shrink (e.g. the vertical direction of a
 push button).
 
 \value Minimum  the sizeHint() is minimal, and sufficient. The
 widget can be expanded, but there is no advantage to it being
-larger (e.g., the horizontal direction of a push button).
+larger (e.g. the horizontal direction of a push button).
 
 \value Maximum  the sizeHint() is a maximum.  The widget can be
 shrunk any amount without detriment if other widgets need the space
-(e.g., a separator line).
+(e.g. a separator line).
 
 \value Preferred  the sizeHint() is best, but the widget can be
-shrunk below that and still be useful. The widget can be expanded, but
+shrunk and still be useful. The widget can be expanded, but
 there is no advantage to it being larger than sizeHint() (the default
 QWidget policy).
 
 \value Expanding  the sizeHint() is a sensible size, but the
-widget can be shrunk below that and still be useful. The widget can
+widget can be shrunk and still be useful. The widget can
 make use of extra space, so it should get as much space as
-possible (e.g., the horizontal direction of a slider).
+possible (e.g. the horizontal direction of a slider).
 
 In any case, QLayout never shrinks a widget below the
 QWidget::minimumSizeHint().
@@ -1395,7 +1277,7 @@ taller than sizeHint() says.
 /*!
   \fn QSizePolicy::QSizePolicy( SizeType hor, SizeType ver, bool hfw )
 
-  <a name="interesting"></a>
+  \target interesting
   This is the constructor normally used to return a value in the
   overridden \l QWidget::sizePolicy() function of a QWidget subclass.
 
@@ -1420,40 +1302,45 @@ Returns the vertical component of the size policy.
 
 
 /*! \fn bool QSizePolicy::mayShrinkHorizontally() const
-Returns TRUE if the widget can sensibly be narrower than its sizeHint().
+Returns TRUE if the widget can sensibly be narrower than its
+sizeHint(); otherwise returns FALSE.
 */
 
 
 /*! \fn bool QSizePolicy::mayShrinkVertically() const
-Returns TRUE if the widget can sensibly be lower than its sizeHint().
+Returns TRUE if the widget can sensibly be shorter than its sizeHint();
+otherwise returns FALSE.
 */
 
 
 /*! \fn bool QSizePolicy::mayGrowHorizontally() const
-Returns TRUE if the widget can sensibly be wider than its sizeHint().
+Returns TRUE if the widget can sensibly be wider than its sizeHint();
+otherwise returns FALSE.
 */
 
 
 /*! \fn bool QSizePolicy::mayGrowVertically() const
-Returns TRUE if the widget can sensibly be taller than its sizeHint().
+Returns TRUE if the widget can sensibly be taller than its sizeHint();
+otherwise returns FALSE.
 */
 
 /*! \fn QSizePolicy::ExpandData QSizePolicy::expanding() const
 Returns a value indicating whether the widget can make use of extra space
-(i.e., if it "wants" to grow) horizontally and/or vertically.
+(i.e. if it "wants" to grow) horizontally and/or vertically.
 */
 
 /*! \fn void QSizePolicy::setHorData( SizeType d )
-Sets the horizontal component of the size policy to \a d.
+Sets the horizontal component of the size policy to size type \a d.
 */
 
 
 /*! \fn void QSizePolicy::setVerData( SizeType d )
-Sets the vertical component of the size policy to \a d.
+Sets the vertical component of the size policy to size type \a d.
 */
 
 /*! \fn bool QSizePolicy::hasHeightForWidth() const
-Returns TRUE if the widget's preferred height depends on its width.
+Returns TRUE if the widget's preferred height depends on its width;
+otherwise returns FALSE.
 */
 
 
@@ -1463,13 +1350,11 @@ Sets the hasHeightForWidth() flag to \a b.
 
 
 /*! \fn bool QSizePolicy::operator==( const QSizePolicy &s ) const
-  Returns TRUE if this policy is equal to \a s, or FALSE if
-  they are different.
+  Returns TRUE if this policy is equal to \a s; otherwise returns FALSE.
 */
 
 /*! \fn bool QSizePolicy::operator!=( const QSizePolicy &s ) const
-  Returns TRUE if this policy is different from \a s, or FALSE if
-  they are equal.
+  Returns TRUE if this policy is different from \a s; otherwise returns FALSE.
 */
 
 
@@ -1477,7 +1362,8 @@ Sets the hasHeightForWidth() flag to \a b.
   \class QGLayoutIterator qabstractlayout.h
   \brief The QGLayoutIterator class is an abstract base class of internal layout iterators.
 
-  (This class is \e not OpenGL related.)
+  (This class is \e not OpenGL related, it just happens to start with
+  the letters QGL...)
 
   Subclass this class to create a custom layout. The functions that
   must be implemented are next(), current(), and takeCurrent().
@@ -1571,7 +1457,7 @@ QGLayoutIterator::~QGLayoutIterator()
 */
 
 /*! \fn QLayoutIterator::QLayoutIterator( const QLayoutIterator &i )
-  Creates a shallow copy of \a i; if the copy is modified, then the
+  Creates a shallow copy of \a i, i.e. if the copy is modified, then the
   original will also be modified.
 */
 
@@ -1661,8 +1547,9 @@ QLayout::ResizeMode QLayout::resizeMode() const
 /*! \fn bool QLayout::autoAdd() const
   Returns TRUE if this layout automatically grabs all new
   mainWidget()'s new children and adds them as defined by
-  addItem(). This has effect only for top-level layouts, i.e., layouts
-  that are direct children of their mainWidget().
+  addItem(); otherwise returns FALSE. This has effect only for
+  top-level layouts, i.e. layouts that are direct children of their
+  mainWidget().
 
   autoAdd() is disabled by default.
 
@@ -1670,7 +1557,8 @@ QLayout::ResizeMode QLayout::resizeMode() const
 */
 
 /*!
-  Sets autoAdd() if \a b is TRUE.
+    If \a b is TRUE auto-add is enabled; otherwise auto-add is
+    disabled.
 
   \sa autoAdd()
 */
@@ -1685,7 +1573,7 @@ void QLayout::setAutoAdd( bool b )
   \fn  bool QLayout::supportsMargin() const
 
   Returns TRUE if this layout supports \l QLayout::margin on non-top-level
-  layouts.
+  layouts; otherwise returns FALSE.
 
   \sa margin
 */
@@ -1725,7 +1613,7 @@ QRect QLayout::alignmentRect( const QRect &r ) const
     if ( expanding() & QSizePolicy::Horizontally || !(a & Qt::AlignHorizontal_Mask ) ) {
 	s.setWidth( r.width() );
     }
-    if ( expanding() & QSizePolicy::Vertically || !(a & Qt::AlignVertical_Mask )) {
+    if ( expanding() & QSizePolicy::Vertically || !(a & Qt::AlignVertical_Mask) ) {
 	s.setHeight( r.height() );
     } else if ( hasHeightForWidth() ) {
 	s.setHeight( QMIN( s.height(), heightForWidth(s.width()) ) );
@@ -1749,8 +1637,6 @@ QRect QLayout::alignmentRect( const QRect &r ) const
 
 }
 
-
-
 /*!
   Enables this layout if \a enable is TRUE, otherwise disables it.
 
@@ -1766,9 +1652,8 @@ void QLayout::setEnabled( bool enable)
     enabled = enable;
 }
 
-
 /*!
-  Returns whether or not this layout is enabled.
+  Returns whether this layout is enabled.
 
   \sa setEnabled()
  */
@@ -1777,5 +1662,4 @@ bool QLayout::isEnabled() const
     return enabled;
 }
 
-
-#endif //QT_NO_LAYOUT
+#endif // QT_NO_LAYOUT
