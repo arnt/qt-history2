@@ -65,20 +65,34 @@
 //this function really sucks, re-write me when you'r edone figuring out
 const unsigned char * p_str(const char * c)
 {
-    unsigned char * ret=new unsigned char[qstrlen(c)+2];
-    ret[0]=qstrlen(c);
+    static unsigned char * ret=NULL;
+    static int ret_len = 0;
+
+    int len = qstrlen(c);
+    if(len > ret_len) {
+	delete ret;
+	ret = new unsigned char[ret_len = (len+2)];
+    }
+    ret[0]=len;
     qstrcpy(((char *)ret)+1,c);
     return ret;
 }
 
 QPoint posInWindow(QWidget *w)
 {
-  int x = 0, y = 0;
-  for(QWidget *p = w; p && !p->isTopLevel(); p = p->parentWidget()) {
-    x += p->x();
-    y += p->y();
-  }
-  return QPoint(x, y);
+    if(w->isTopLevel())
+	return QPoint(0, 0);
+
+    if(w->posInTLChanged) {
+	int x = 0, y = 0;
+	if(w->parentWidget()) {
+	    QPoint p = posInWindow(w->parentWidget());
+	    x = p.x() + w->x();
+	    y = p.y() + w->y();
+	}
+	w->posInTL = QPoint(x, y);
+    }
+    return w->posInTL;
 }
 
 static void paint_children(QWidget * p,const QRegion& r)
@@ -86,11 +100,6 @@ static void paint_children(QWidget * p,const QRegion& r)
     if(!p || r.isEmpty())
 	return;
 
-#if 0
-    Rect rect;
-    SetRect( &rect, p->x(), p->y(), p->x()+p->width(), p->y()+p->height() );
-    InvalWindowRect( (WindowRef)p->topLevelWidget()->winId(), &rect );
-#else
     QApplication::postEvent(p,new QPaintEvent(r, !p->testWFlags(QWidget::WRepaintNoErase) ) );
 
     QObjectList * childObjects=(QObjectList*)p->children();
@@ -109,7 +118,6 @@ static void paint_children(QWidget * p,const QRegion& r)
 	    }
 	}
     }
-#endif
 }
 
 // Paint event clipping magic
@@ -301,6 +309,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     clearWState(WState_Visible);
     dirtyClippedRegion(TRUE);
     macDropEnabled = false;
+    posInTLChanged = TRUE;
 
     if ( destroyw ) 
 	DisposeWindow((WindowPtr)destroyw);
@@ -415,11 +424,13 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     for ( QObject *obj; (obj=it.current()); ++it ) {
 	if(obj->inherits("QAccel"))
 	    ((QAccel*)obj)->repairEventFilter();
-	if(obj->isWidgetType())
-	    ((QWidget*)obj)->hd = hd; //all my children hd's are now mine!
+	if(obj->isWidgetType()) {
+	    QWidget *w = (QWidget *)obj;
+	    w->hd = hd; //all my children hd's are now mine!
+	    w->posInTLChanged = TRUE;
+	}
     }
     delete accelerators;
-
     
     if ( !parent ) {
 	QFocusData *fd = focusData( TRUE );
@@ -876,18 +887,25 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     if ( isVisible() ) {
 	if ( isMove ) {
+	    posInTLChanged = TRUE;
+	    QObjectList	*objs = queryList();
+	    QObjectListIt it( *objs );
+	    for ( QObject *obj; (obj=it.current()); ++it ) 
+		if(obj->isWidgetType()) 			
+		    ((QWidget *)obj)->posInTLChanged = TRUE;
 	    QMoveEvent e( pos(), oldp );
 	    QApplication::sendEvent( this, &e );
-	    update();
 	}
 	if ( isResize ) {
 	    QResizeEvent e( size(), olds );
 	    QApplication::sendEvent( this, &e );
-	    update();
 	}
-	if( parentWidget() && (isMove || isResize) ) {
-	    QRegion upd = QRegion(r) | QRegion(( QRect(oldp, olds) ));
-	    paint_children( parentWidget(), upd );
+	if(isMove || isResize) {
+	    update();
+	    if( parentWidget()) {
+		QRegion upd = QRegion(r) | QRegion(( QRect(oldp, olds) ));
+		paint_children( parentWidget(), upd );
+	    }
 	}
     } else {
 	if ( isMove )
@@ -1213,28 +1231,37 @@ void QWidget::propagateUpdates(int , int , int w, int h)
 
 void QWidget::dirtyClippedRegion(bool tell_parent)
 {
-    if(extra)
-	extra->child_dirty = extra->clip_dirty = TRUE;
-    if(const QObjectList *chldnlst=children()) {
-	for(QObjectListIt it(*chldnlst); it.current(); ++it) {
-	    if((*it)->isWidgetType()) {
+    for(QWidget *widg = this; widg; widg = tell_parent ? widg->parentWidget() : NULL) {
+	if(widg->extra)
+	    widg->extra->child_dirty = TRUE;
+    }
+    QPoint widgp(posInWindow(this));
+    QRect widgr(widgp.x(), widgp.y(), width(), height());
+
+    if(QObjectList *chldn = topLevelWidget()->queryList()) {
+	QObjectListIt it( *chldn );
+	for ( QObject *obj; (obj=it.current()); ++it ) {
+	    if(obj->isWidgetType()) {
 		QWidget *w = (QWidget *)(*it);
-		if(w->isVisible() && w->extra && !w->isTopLevel()) {
-		    w->dirtyClippedRegion(FALSE);
+		if(!w->isTopLevel() && w->isVisible() && w->extra && !w->extra->clip_dirty) {
+		    QPoint wp(posInWindow(w));
+		    if(widgr.intersects(QRect(wp.x(), wp.y(), w->width(), w->height())))
+			w->extra->clip_dirty = TRUE;
 		}
+
+		if(w->extra && !w->isTopLevel() && w->isVisible()) 
+		    w->extra->child_dirty = w->extra->clip_dirty = TRUE;
 	    }
 	}
+	delete chldn;
     }
-
-    if(tell_parent && !isTopLevel() && parentWidget())
-	parentWidget()->dirtyClippedRegion(TRUE);
 }
 
 bool QWidget::isClippedRegionDirty()
 {
     if(!extra || extra->clip_dirty)
 	return TRUE;
-    if((parentWidget() && parentWidget()->isClippedRegionDirty()))
+    if(/*!isTopLevel() && */(parentWidget() && parentWidget()->isClippedRegionDirty()))
 	return TRUE;
     return FALSE;
 }
@@ -1285,19 +1312,19 @@ QRegion QWidget::clippedRegion(bool do_children)
 	//clip away my siblings
 	if(!isTopLevel() && parentWidget()) {
 	    if(const QObjectList *siblst = parentWidget()->children()) {
-		tmp = posInWindow(parentWidget()); //OPTIMIZE ME AWAY!! FIXME
 		//loop to this because its in zorder, and i don't care about people behind me
 		QObjectListIt it(*siblst);
 		for(it.toLast(); it.current() && it.current() != this; --it) {
 		    if((*it)->isWidgetType()) {
 			QWidget *sw = (QWidget *)(*it);
-			QRect sr(tmp.x()+sw->x(), tmp.y()+sw->y(), sw->width(), sw->height());
+			tmp = posInWindow(sw);
+			QRect sr(tmp.x(), tmp.y(), sw->width(), sw->height());
 			if(sw->topLevelWidget() == topLevelWidget() &&
 			   sw->isVisible() && extra->clip_sibs.contains(sr)) {
 			    QRegion sibrgn(sr);
 			    if(sw->extra && !sw->extra->mask.isNull()) {
 				mask = sw->extra->mask;
-				mask.translate(tmp.x()+sw->x(), tmp.y()+sw->y());
+				mask.translate(tmp.x(), tmp.y());
 				sibrgn &= mask;
 			    }
 			    extra->clip_sibs -= sibrgn;
@@ -1316,7 +1343,6 @@ QRegion QWidget::clippedRegion(bool do_children)
     QPoint mp = posInWindow(this);
     chldrgns.translate(mp.x(), mp.y());
     extra->clip_saved = extra->clip_sibs & chldrgns;
-
 
     if(do_children)
 	return extra->clip_saved;
