@@ -72,7 +72,7 @@ while [ "$line" -le "$lines" ]; do
       CLASS=`echo $LINE | sed 's, \?\(struct\|class\) *\([a-zA-Z0-9_]*\)[ :{]\?.*,\2,'`
       echo "$CLASS" >>$OUTPWD/class.exp
    elif echo $LINE | grep '.*[ *&]*[a-zA-Z0-9_]* *(' >/dev/null 2>&1; then
-      FUNC=`echo $LINE |  sed 's,.*[ &*]\(..*\) *(.*,\1,g'`
+      FUNC=`echo $LINE |  sed 's,.*[ &*]\(..*\) *(.*,\1,g' | sed 's, ,,g'`
       echo $FUNC | grep '^operator' >/dev/null 2>&1 || echo "$FUNC" >>$OUTPWD/other.exp
    elif echo $LINE | grep ";$" >/dev/null 2>&1; then
        INST="$LINE"
