@@ -1456,6 +1456,14 @@ const char* QNPInstance::argv(int i) const
 }
 
 /*!
+  Returns the mode of the plugin.
+*/
+QNPInstance::InstanceMode QNPInstance::mode() const
+{
+    return (QNPInstance::InstanceMode)pi->fMode;
+}
+
+/*!
   Returns the value of the named arguments, or 0 if no argument
   with that name appears in the &ltEMBED&gt; tag of this instance.
 */

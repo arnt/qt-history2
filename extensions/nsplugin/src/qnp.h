@@ -59,6 +59,8 @@ public:
     const char* argn(int) const;
     const char* argv(int) const;
     const char* arg(const char* name) const;
+    enum InstanceMode { Embed=1, Full=2, Background=3 };
+    InstanceMode mode() const;
 
     // The browser's name
     const char* userAgent() const;
