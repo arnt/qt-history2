@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#12 $
+** $Id: //depot/qt/main/src/xml/qdom.h#13 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -276,6 +276,7 @@ public:
 private:
     QDomDocumentType( QDomDocumentTypePrivate* );
 
+    friend class QDomImplementation;
     friend class QDomDocument;
     friend class QDomNode;
 };

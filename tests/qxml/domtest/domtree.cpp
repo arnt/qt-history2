@@ -276,6 +276,14 @@ QString DomTreeItem::contentString()
 		QDomDocumentType doctype = _node.toDocument().doctype();
 		s += "<h2>Document Type</h2>";
 		s += doctype.name();
+		if ( !doctype.publicId().isNull() ) {
+		    s += "<br/><b>public identifier:</b> ";
+		    s += doctype.publicId();
+		}
+		if ( !doctype.systemId().isNull() ) {
+		    s += "<br/><b>system identifier:</b> ";
+		    s += doctype.systemId();
+		}
 		s += "<hr/><h3>Entities</h3>";
 		QDomNamedNodeMap entities = doctype.entities();
 		if ( entities.length() > 0 ) {

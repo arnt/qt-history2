@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#34 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#35 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -236,6 +236,7 @@ public:
     QDomDocumentTypePrivate( QDomDocumentPrivate*, QDomNodePrivate* parent = 0 );
     QDomDocumentTypePrivate( QDomDocumentTypePrivate* n, bool deep );
     ~QDomDocumentTypePrivate();
+    void init();
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode( bool deep = TRUE );
@@ -252,6 +253,9 @@ public:
     // Variables
     QDomNamedNodeMapPrivate* entities;
     QDomNamedNodeMapPrivate* notations;
+    QString publicId;
+    QString systemId;
+    QString internalSubset;
 };
 
 class QDomDocumentFragmentPrivate : public QDomNodePrivate
@@ -516,7 +520,7 @@ public:
     // lexical handler
     bool startCDATA();
     bool endCDATA();
-    bool startDTD( const QString& name, const QString&, const QString& );
+    bool startDTD( const QString& name, const QString& publicId, const QString& systemId );
     bool comment( const QString& ch );
 
     // decl handler
@@ -666,11 +670,39 @@ bool QDomImplementation::hasFeature( const QString& feature, const QString& vers
 }
 
 /*!
-  fnord
+  Creates a document type node for the name \a qualifiedName.
+
+  \a publicId specifies the public identifier of the external subset; If you
+  specify QString::null as \a publicId, this means that the document type has
+  no public identifier.
+
+  Similar, you specify the system identifier of the external subset with \a
+  systemId. If you specify QString::null as \a systemId, this means that the
+  document type has no system identifier. Since you cannot have a public
+  identifier without a system identifier, the public identifier is set also to
+  QString::null in this case (the value of \a publicId is ignored).
+
+  Other features of a document type declaration are not supported by DOM level
+  2.
+
+  The only way you can use a document type that was created this way, is in
+  combination with the createDocument() function to create a QDomDocument with
+  this document type.
+
+  \sa createDocument();
 */
-QDomDocumentType QDomImplementation::createDocumentType( const QString& /*qualifiedName*/, const QString& /*publicId*/, const QString& /*systemId*/ )
+QDomDocumentType QDomImplementation::createDocumentType( const QString& qualifiedName, const QString& publicId, const QString& systemId )
 {
-    return QDomDocumentType();
+    QDomDocumentTypePrivate *dt = new QDomDocumentTypePrivate( 0 );
+    dt->name = qualifiedName;
+    if ( systemId.isNull() ) {
+	dt->publicId = QString::null;
+	dt->systemId = QString::null;
+    } else {
+	dt->publicId = publicId;
+	dt->systemId = systemId;
+    }
+    return QDomDocumentType( dt );
 }
 
 /*!
@@ -2557,22 +2589,13 @@ bool QDomNamedNodeMap::contains( const QString& name ) const
 QDomDocumentTypePrivate::QDomDocumentTypePrivate( QDomDocumentPrivate* doc, QDomNodePrivate* parent )
     : QDomNodePrivate( doc, parent )
 {
-    entities = new QDomNamedNodeMapPrivate( this );
-    notations = new QDomNamedNodeMapPrivate( this );
-
-    entities->setAppendToParent( TRUE );
-    notations->setAppendToParent( TRUE );
+    init();
 }
 
 QDomDocumentTypePrivate::QDomDocumentTypePrivate( QDomDocumentTypePrivate* n, bool deep )
     : QDomNodePrivate( n, deep )
 {
-    entities = new QDomNamedNodeMapPrivate( this );
-    notations = new QDomNamedNodeMapPrivate( this );
-
-    entities->setAppendToParent( TRUE );
-    notations->setAppendToParent( TRUE );
-
+    init();
     // Refill the maps with our new children
     QDomNodePrivate* p = first;
     while ( p ) {
@@ -2591,6 +2614,18 @@ QDomDocumentTypePrivate::~QDomDocumentTypePrivate()
 	delete entities;
     if ( notations->deref() )
 	delete notations;
+}
+
+void QDomDocumentTypePrivate::init()
+{
+    entities = new QDomNamedNodeMapPrivate( this );
+    notations = new QDomNamedNodeMapPrivate( this );
+    publicId = QString::null;
+    systemId = QString::null;
+    internalSubset = QString::null;
+
+    entities->setAppendToParent( TRUE );
+    notations->setAppendToParent( TRUE );
 }
 
 QDomNodePrivate* QDomDocumentTypePrivate::cloneNode( bool deep)
@@ -2791,27 +2826,42 @@ QDomNamedNodeMap QDomDocumentType::notations() const
 }
 
 /*!
-  fnord
+  Returns the public identifier of the external DTD subset, if there is any.
+  Otherwise this function returns QString::null.
+
+  \sa systemId() internalSubset() QDomImplementation::createDocumentType()
 */
 QString QDomDocumentType::publicId() const
 {
-    return QString::null;
+    if ( !impl )
+	return QString::null;
+    return IMPL->publicId;
 }
 
 /*!
-  fnord
+  Returns the system identifier of the external DTD subset, if there is any.
+  Otherwise this function returns QString::null.
+
+  \sa publicId() internalSubset() QDomImplementation::createDocumentType()
 */
 QString QDomDocumentType::systemId() const
 {
-    return QString::null;
+    if ( !impl )
+	return QString::null;
+    return IMPL->systemId;
 }
 
 /*!
-  fnord
+  Returns the internal subset of the document type, if there is any.
+  Otherwise this function returns QString::null.
+
+  \sa publicId() systemId()
 */
 QString QDomDocumentType::internalSubset() const
 {
-    return QString::null;
+    if ( !impl )
+	return QString::null;
+    return IMPL->internalSubset;
 }
 
 /*!
@@ -5864,9 +5914,11 @@ bool QDomHandler::endDocument()
     return TRUE;
 }
 
-bool QDomHandler::startDTD( const QString& name, const QString&, const QString&)
+bool QDomHandler::startDTD( const QString& name, const QString& publicId, const QString& systemId )
 {
     doc->doctype()->name = name;
+    doc->doctype()->publicId = publicId;
+    doc->doctype()->systemId = systemId;
     return TRUE;
 }
 

@@ -2,7 +2,7 @@
 
 <!-- This is a test-file for the DOM classes -->
 
-<!DOCTYPE a [
+<!DOCTYPE a SYSTEM "foo" [
     <!-- the DoctypeDecl part... -->
     <?foo bar?>
     <!ENTITY gnorf PUBLIC "gnorf_p" "gnorf_s">
