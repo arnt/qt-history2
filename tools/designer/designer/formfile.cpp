@@ -70,6 +70,7 @@ void FormFile::setFormWindow( FormWindow *f )
     fw = f;
     if ( fw )
 	fw->setFormFile( this );
+    parseCode( cod );
 }
 
 void FormFile::setEditor( SourceEditor *e )
@@ -427,6 +428,8 @@ void FormFile::setCodeEdited( bool b )
 
 void FormFile::parseCode( const QString &txt )
 {
+    if ( !formWindow() )
+	return;
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
     if ( !iface )
 	return;
