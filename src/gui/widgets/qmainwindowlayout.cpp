@@ -1893,31 +1893,34 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
 	}
 
 	if (pick(where, offset) < -magic_offset) { // move left/up
-	    TBDEBUG() << "left/up" << offset << l << where;
+	    TBDEBUG() << "left/up" << offset << "line: " << l << where;
 	    if (l > 0 && tb_layout_info.at(l-1).pos == where) { // is this the first line in this tb area?
 		tb_layout_info[l].list.removeAt(i);
 		if (tb_layout_info[l].list.size() == 0)
 		    tb_layout_info.removeAt(l);
 		if (tb_layout_info.at(l-1).pos == where) {
-		    TBDEBUG() << "br 1 appending to existing" << info.item->widget() << info.item->widget()->geometry();
+		    TBDEBUG() << "1. appending to existing" << info.item->widget() << info.item->widget()->geometry();
 		    tb_layout_info[l-1].list.append(info);
 		} else {
 		    ToolBarLineInfo line;
                     line.pos = where;
 		    line.list.append(info);
-		    TBDEBUG() << "br 2 new tb_line";
 		    tb_layout_info.insert(l, line);
+		    TBDEBUG() << "2. inserting new";
 		}
-	    } else if (tb_layout_info.at(l).list.size() > 1) {
+        } else if ((tb_layout_info.at(l).list.size() > 1)
+                   && ((l > 0 && tb_layout_info.at(l-1).pos == where)
+                       || where == BOTTOM || where == RIGHT))
+          {
 		tb_layout_info[l].list.removeAt(i);
 		ToolBarLineInfo line;
                 line.pos = where;
 		line.list.append(info);
 		tb_layout_info.insert(l, line);
-		TBDEBUG() << "br3 new tb line" << l << toolbar;
+		TBDEBUG() << "3. inserting new" << l << toolbar;
 	    }
 	} else if (pick(where, offset) > pick(where, info.size) + magic_offset) { // move right/down
-	    TBDEBUG() << "right/down" << offset;
+            TBDEBUG() << "right/down" << offset << "line: " << l;
 	    if (l < tb_layout_info.size()-1 && tb_layout_info.at(l+1).pos == where) {
 		tb_layout_info[l].list.removeAt(i);
 
@@ -1932,16 +1935,18 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
                     line.pos = where;
 		    line.list.append(info);
 		    tb_layout_info.insert(l, line);
-		    TBDEBUG() << "2. inserting new";
+		    TBDEBUG() << "2. inserting new line";
 		}
-	    } else if (tb_layout_info.at(l).list.size() > 1) { // can remove
+	    } else if ((tb_layout_info.at(l).list.size() > 1)
+                       && ((l < tb_layout_info.size()-1 && tb_layout_info.at(l+1).pos == where)
+                           || where == TOP || where == LEFT))
+            {
 		tb_layout_info[l].list.removeAt(i);
 		ToolBarLineInfo line;
                 line.pos = where;
 		line.list.append(info);
 		tb_layout_info.insert(l+1, line);
-		TBDEBUG() << "3. new line";
-
+		TBDEBUG() << "3. inserting new line";
 	    }
 	}
     } else {
