@@ -507,18 +507,18 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
 
 /*!  Copies the file \a from to \a to. If \a move is TRUE, the file is
   moved (copied and removed). \a from must point to a file and \a to
-  points to a directory (into which \a from is copied) unless \a toPath is
-  set to TRUE.  If \a toPath is set to TRUE then the \a to variable is
-  assumed to be the destination file path + file name.  The copying
-  is done using the get() and put() operations. If you want to be notified
-  about the progress of the operation, connect to the
-  dataTransferProgress() signal. Bear in mind that the get() and put()
-  operations emit this signal through the QUrlOperator. The number of
-  transferred bytes and the total bytes that you receive as arguments
-  in this signal do not relate to the the whole copy operation; they
-  relate first to the get() and then to the put() operation. Always
-  check what type of operation the signal comes from; this is given in
-  the signal's last argument.
+  points to a directory (into which \a from is copied) unless \a
+  toPath is set to FALSE.  If \a toPath is set to FALSE then the \a to
+  variable is assumed to be the absolute file path (destination file
+  path + file name).  The copying is done using the get() and put()
+  operations. If you want to be notified about the progress of the
+  operation, connect to the dataTransferProgress() signal. Bear in
+  mind that the get() and put() operations emit this signal through
+  the QUrlOperator. The number of transferred bytes and the total
+  bytes that you receive as arguments in this signal do not relate to
+  the the whole copy operation; they relate first to the get() and
+  then to the put() operation. Always check what type of operation the
+  signal comes from; this is given in the signal's last argument.
 
   At the end, finished() (with success or failure) is emitted, so
   check the state of the network operation object to see whether or
