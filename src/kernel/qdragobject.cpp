@@ -328,6 +328,11 @@ QDragObject::~QDragObject()
     The \a hotspot is the point on (or off) the pixmap that should be
     under the cursor as it is dragged. It is relative to the top-left
     pixel of the pixmap.
+
+    \warning We have seen problems with drag cursors on different
+    graphics hardware and driver software on Windows. Setting the
+    graphics acceleration in the display settings down one tick solved 
+    the problems in all cases.
 */
 void QDragObject::setPixmap(QPixmap pm, const QPoint& hotspot)
 {
