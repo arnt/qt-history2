@@ -273,6 +273,8 @@ static HANDLE openlock( const QString &name, int /*type*/ )
 
     return 0;
 
+    HANDLE fd = 0;
+
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
 	fd = CreateFileW( (TCHAR*)qt_winTchar(name, TRUE), GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
