@@ -1,0 +1,33 @@
+Qt 3.0 Beta3 is not binary compatible with Beta2, this means that any
+programs linked with Beta2 must be recompiled.
+
+Below you'll find a description of general changes in the Qt Library
+and Qt Designer followed by a detailed list of changes in the
+programming API.
+
+
+The Qt Library
+========================================
+
+
+
+Qt Designer
+========================================
+
+
+
+Qt Functions
+========================================
+
+QProcess
+--------
+
+ - The function hangUp() was renamed to tryTerminate() to make the purpose
+   more clear. Furthermore, under Unix the signal that is sent was changed
+   from SIGHUP to SIGTERM.
+
+New function:
+	void tryTerminate();
+
+Removed function:
+	void hangUp();

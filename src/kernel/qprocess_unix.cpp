@@ -532,7 +532,7 @@ void QProcess::consumeBufStderr( int consume )
   If the process is running, it is NOT terminated! Standard input, standard
   output and standard error of the process are closed.
 
-  \sa hangUp() kill()
+  \sa tryTerminate() kill()
 */
 QProcess::~QProcess()
 {
@@ -558,7 +558,7 @@ QProcess::~QProcess()
 
   You can write data to standard input of the process with
   writeToStdin(), you can close standard input with closeStdin() and you can
-  terminate the process hangUp() resp. kill().
+  terminate the process tryTerminate() resp. kill().
 
   You can call this function even when there already is a running
   process in this object. In this case, QProcess closes standard input
@@ -782,22 +782,22 @@ error:
 
   \sa kill() processExited()
 */
-void QProcess::hangUp() const
+void QProcess::tryTerminate() const
 {
     if ( d->proc != 0 )
-	::kill( d->proc->pid, SIGHUP );
+	::kill( d->proc->pid, SIGTERM );
 }
 
 /*!
   Terminates the process. This is not a safe way to end a process since the
-  process will not be able to do cleanup. hangUp() is a safer way to do it,
-  but processes might ignore a hangUp().
+  process will not be able to do cleanup. tryTerminate() is a safer way to do it,
+  but processes might ignore a tryTerminate().
 
   The function returns immediately: it does not wait until the process has
   finished. When the process really exited, the signal processExited() is
   emitted.
 
-  \sa hangUp() processExited()
+  \sa tryTerminate() processExited()
 */
 void QProcess::kill() const
 {

@@ -99,7 +99,7 @@
 
   You can test to see if a program is running with isRunning(). The
   program's process identifier is available from processIdentifier().
-  If you want to terminate a running program use hangUp(), but note
+  If you want to terminate a running program use tryTerminate(), but note
   that the program may ignore this. If you \e really want to terminate
   the program, without it having any chance to clean up, you can use
   kill().

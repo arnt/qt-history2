@@ -70,7 +70,7 @@ public:
     virtual bool start( QStringList *env=0 );
     virtual bool launch( const QString& buf, QStringList *env=0  );
     virtual bool launch( const QByteArray& buf, QStringList *env=0  );
-    void hangUp() const;
+    void tryTerminate() const;
     void kill() const;
 
     // inquire the status

@@ -376,7 +376,7 @@ bool QProcess::start( QStringList *env )
     return TRUE;
 }
 
-void QProcess::hangUp() const
+void QProcess::tryTerminate() const
 {
     // ### how to do it?
 }
