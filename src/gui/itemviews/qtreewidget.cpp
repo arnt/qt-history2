@@ -742,6 +742,9 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
 {
     if (parent)
         parent->appendChild(this);
+    QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
+    if (model)
+        model->emitRowsInserted(this);
 }
 
 /*!
@@ -755,6 +758,9 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after
         int i = parent->indexOfChild(after);
         parent->insertChild(i, this);
     }
+    QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
+    if (model)
+        model->emitRowsInserted(this);
 }
 
 /*!
