@@ -117,6 +117,8 @@ public:
 
 signals:
     void listInfo( const QUrlInfo& );
+    void newData( const QByteArray& );
+    void dataProgress( int );
 
 private slots:
     void slotConnected();
@@ -125,6 +127,7 @@ private slots:
 private:
     QFtpPI *pi;
     QString err;
+    int totalBytesRead;
 };
 
 class QFtpPI : public QObject
@@ -151,9 +154,7 @@ signals:
     void connectState( int );
     void finishedOk( const QString& );
     void error( const QString& );
-    void newData( const QByteArray& );
     void dataSize( int );
-    void dataProgress( int );
 
 private slots:
     void hostFound();
@@ -369,6 +370,7 @@ void QFtpDTP::slotConnected()
 #if defined(QFTPDTP_DEBUG)
     qDebug( "QFtpDTP connected" );
 #endif
+    totalBytesRead = 0;
 }
 
 void QFtpDTP::slotReadyRead()
@@ -379,9 +381,6 @@ void QFtpDTP::slotReadyRead()
 	return;
     }
 
-#if defined(QFTPDTP_DEBUG)
-    qDebug( "QFtpDTP slotReadyRead:" );
-#endif
     if ( pi->currentCommand().startsWith("LIST") ) {
 	while ( canReadLine() ) {
 	    QUrlInfo i;
@@ -400,7 +399,16 @@ void QFtpDTP::slotReadyRead()
 	    }
 	}
     } else {
-	// ### read and process...
+	QByteArray ba( bytesAvailable() );
+	Q_LONG bytesRead = readBlock( ba.data(), ba.size() );
+	if ( bytesRead < 0 ) {
+	    // ### error handling
+	    return;
+	}
+	ba.resize( bytesRead );
+	totalBytesRead += bytesRead;
+	emit dataProgress( totalBytesRead );
+	emit newData( ba );
     }
 }
 
@@ -815,13 +823,13 @@ void QFtp::init()
 	    SLOT(piFinishedOk( const QString& )) );
     connect( &d->pi, SIGNAL(error(const QString&)),
 	    SLOT(piError(const QString&)) );
-    connect( &d->pi, SIGNAL(newData(const QByteArray&)),
-	    SIGNAL(newData(const QByteArray&)) );
     connect( &d->pi, SIGNAL(dataSize(int)),
 	    SIGNAL(dataSize(int)) );
-    connect( &d->pi, SIGNAL(dataProgress(int)),
-	    SIGNAL(dataProgress(int)) );
 
+    connect( &d->pi.dtp, SIGNAL(newData(const QByteArray&)),
+	    SIGNAL(newData(const QByteArray&)) );
+    connect( &d->pi.dtp, SIGNAL(dataProgress(int)),
+	    SIGNAL(dataProgress(int)) );
     connect( &d->pi.dtp, SIGNAL(listInfo(const QUrlInfo&)),
 	    SIGNAL(listInfo(const QUrlInfo&)) );
 }
