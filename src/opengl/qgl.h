@@ -195,7 +195,7 @@ public:
 
 protected:
     virtual bool	chooseContext( const QGLContext* shareContext = 0 );
-    virtual void	doneCurrent();
+    virtual void	doneCurrent(); // ### 4.0: make this public - needed for multithreading stuff
 
 #if defined(Q_WS_WIN)
     virtual int		choosePixelFormat( void* pfd, HDC pdc );
