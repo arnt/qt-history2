@@ -585,9 +585,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    }
 	}
 
-	if(wclass == kFloatingWindowClass || 
-	   (!testWFlags(WShowModal) && dialog && parentWidget() && 
-	    !parentWidget()->topLevelWidget()->isDesktop())) //these dialogs don't hide
+	if(wclass == kFloatingWindowClass) //these dialogs don't hide
 	    ChangeWindowAttributes((WindowRef)id, 0, kWindowHideOnSuspendAttribute);
 #ifdef Q_WS_MACX
 	if(testWFlags(WStyle_StaysOnTop)) {
