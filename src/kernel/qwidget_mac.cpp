@@ -1070,7 +1070,7 @@ void QWidget::update()
 
 void QWidget::update( int x, int y, int w, int h )
 {
-    if ( !testWState(WState_BlockUpdates) && testWState( WState_Visible ) && isVisible() ) {
+    if ( !testWState(WState_BlockUpdates) && isVisible() ) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
