@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#19 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -589,7 +589,8 @@ const QNetworkOperation *QUrlOperator::put( const QByteArray &data )
 	return 0;
 
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpPut,
-						    data, 0, 0 );
+						    *this, QString::null, QString::null );
+    res->setRawArg2( data );
 
     if ( d->networkProtocol &&
 	 d->networkProtocol->supportedOperations() & QNetworkProtocol::OpGet ) {
