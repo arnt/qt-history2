@@ -268,7 +268,7 @@ public:
   is always one of these values.
 
   \value OpListChildren  List the children of a URL, e.g., of a directory.
-  \value OpMkdir  Create a directory.
+  \value OpMkDir  Create a directory.
   \value OpRemove  Remove a child (e.g., file).
   \value OpRename  Rename a child (e.g., file).
   \value OpGet  Get data from a location.
@@ -313,7 +313,7 @@ public:
 
   \value ErrListChildren  An error occurred while listing the children.
 
-  \value ErrMkdir  An error occurred when creating a directory.
+  \value ErrMkDir  An error occurred when creating a directory.
 
   \value ErrRemove  An error occurred while removing a child.
 
@@ -627,7 +627,7 @@ void QNetworkProtocol::processOperation( QNetworkOperation *op )
     case OpListChildren:
 	operationListChildren( op );
 	break;
-    case OpMkdir:
+    case OpMkDir:
 	operationMkDir( op );
 	break;
     case OpRemove:

@@ -92,10 +92,10 @@ void FtpMainWindow::setupLeftSide()
 
     QHBox *bottom = new QHBox( layout );
     bottom->setSpacing( 5 );
-    QPushButton *bMkdir = new QPushButton( tr( "New Directory" ), bottom );
+    QPushButton *bMkDir = new QPushButton( tr( "New Directory" ), bottom );
     QPushButton *bRemove = new QPushButton( tr( "Remove" ), bottom );
-    connect( bMkdir, SIGNAL( clicked() ),
-	     this, SLOT( slotLocalMkdir() ) );
+    connect( bMkDir, SIGNAL( clicked() ),
+	     this, SLOT( slotLocalMkDir() ) );
     connect( bRemove, SIGNAL( clicked() ),
 	     this, SLOT( slotLocalRemove() ) );
 
@@ -146,10 +146,10 @@ void FtpMainWindow::setupRightSide()
 
     QHBox *bottom = new QHBox( layout );
     bottom->setSpacing( 5 );
-    QPushButton *bMkdir = new QPushButton( tr( "New Directory" ), bottom );
+    QPushButton *bMkDir = new QPushButton( tr( "New Directory" ), bottom );
     QPushButton *bRemove = new QPushButton( tr( "Remove" ), bottom );
-    connect( bMkdir, SIGNAL( clicked() ),
-	     this, SLOT( slotRemoteMkdir() ) );
+    connect( bMkDir, SIGNAL( clicked() ),
+	     this, SLOT( slotRemoteMkDir() ) );
     connect( bRemove, SIGNAL( clicked() ),
 	     this, SLOT( slotRemoteRemove() ) );
 
@@ -353,7 +353,7 @@ void FtpMainWindow::slotLocalFinished( QNetworkOperation *op )
 
 	// do something depending in the error code
 	int ecode = op->errorCode();
-	if ( ecode == QNetworkProtocol::ErrListChlidren || ecode == QNetworkProtocol::ErrParse ||
+	if ( ecode == QNetworkProtocol::ErrListChildren || ecode == QNetworkProtocol::ErrParse ||
 	     ecode == QNetworkProtocol::ErrUnknownProtocol || ecode == QNetworkProtocol::ErrLoginIncorrect ||
 	     ecode == QNetworkProtocol::ErrValid || ecode == QNetworkProtocol::ErrHostNotFound ||
 	     ecode == QNetworkProtocol::ErrFileNotExisting ) {
@@ -406,7 +406,7 @@ void FtpMainWindow::slotRemoteFinished( QNetworkOperation *op )
 
 	// do something depending in the error code
 	int ecode = op->errorCode();
-	if ( ecode == QNetworkProtocol::ErrListChlidren || ecode == QNetworkProtocol::ErrParse ||
+	if ( ecode == QNetworkProtocol::ErrListChildren || ecode == QNetworkProtocol::ErrParse ||
 	     ecode == QNetworkProtocol::ErrUnknownProtocol || ecode == QNetworkProtocol::ErrLoginIncorrect ||
 	     ecode == QNetworkProtocol::ErrValid || ecode == QNetworkProtocol::ErrHostNotFound ||
 	     ecode == QNetworkProtocol::ErrFileNotExisting ) {
@@ -497,7 +497,7 @@ void FtpMainWindow::slotRemoteDataTransferProgress( int bytesDone, int bytesTota
     progressBar2->setProgress( bytesDone );
 }
 
-void FtpMainWindow::slotLocalMkdir()
+void FtpMainWindow::slotLocalMkDir()
 {
     // create a dir on the local filesystem
 
@@ -512,7 +512,7 @@ void FtpMainWindow::slotLocalRemove()
 {
 }
 
-void FtpMainWindow::slotRemoteMkdir()
+void FtpMainWindow::slotRemoteMkDir()
 {
     // create a dir on the remote filesystem (FTP server)
 

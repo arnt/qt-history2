@@ -132,7 +132,7 @@ signal could look like this
 void MyClass::slotOperationFinished( QNetworkOperation *op )
 {
     switch ( op->operation() ) {
-    case QNetworkProtocol::OpMkdir: {
+    case QNetworkProtocol::OpMkDir: {
         if ( op->state() == QNetworkProtocol::StFailed )
             qDebug( "Couldn't create directory %s", op->arg( 0 ).latin1() );
         else
@@ -344,7 +344,7 @@ which is constructed by or'ing together the correct values
 \code
     enum Operation {
         OpListChildren = 1,
-        OpMkdir = 2,
+        OpMkDir = 2,
         OpRemove = 4,
         OpRename = 8,
         OpGet = 32,
@@ -419,8 +419,8 @@ error. Following error codes are defined in \c QNetworkProtocol:
   <li>\c QNetworkProtocol::ErrParse - Parse error of the URL
   <li>\c QNetworkProtocol::ErrLoginIncorrect - You needed to login but the username and or password are wrong
   <li>\c QNetworkProtocol::ErrHostNotFound - The specified host (in the URL) couldn´t be found
-  <li>\c QNetworkProtocol::ErrListChlidren - An error occurred while listing the children
-  <li>\c QNetworkProtocol::ErrMkdir - An error occurred when creating a directory
+  <li>\c QNetworkProtocol::ErrListChildren - An error occurred while listing the children
+  <li>\c QNetworkProtocol::ErrMkDir - An error occurred when creating a directory
   <li>\c QNetworkProtocol::ErrRemove -An error occurred while removing a child
   <li>\c QNetworkProtocol::ErrRename - An error occurred while renaming a child
   <li>\c QNetworkProtocol::ErrGet - An error occurred while getting (retrieving) data

@@ -92,7 +92,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 	QString msg = tr( "Could not read directory\n" + url()->path() );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
-	op->setErrorCode( (int)ErrListChlidren );
+	op->setErrorCode( (int)ErrListChildren );
 	emit finished( op );
 	return;
     }
@@ -102,7 +102,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 	QString msg = tr( "Could not read directory\n" + url()->path() );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
-	op->setErrorCode( (int)ErrListChlidren );
+	op->setErrorCode( (int)ErrListChildren );
 	emit finished( op );
 	return;
     }
@@ -149,7 +149,7 @@ void QLocalFs::operationMkDir( QNetworkOperation *op )
 	QString msg = tr( "Could not create directory\n" + dirname );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
-	op->setErrorCode( (int)ErrMkdir );
+	op->setErrorCode( (int)ErrMkDir );
 	emit finished( op );
     }
 }
@@ -327,7 +327,7 @@ void QLocalFs::operationPut( QNetworkOperation *op )
 
 int QLocalFs::supportedOperations() const
 {
-    return OpListChildren | OpMkdir | OpRemove | OpRename | OpGet | OpPut;
+    return OpListChildren | OpMkDir | OpRemove | OpRename | OpGet | OpPut;
 }
 
 /*!

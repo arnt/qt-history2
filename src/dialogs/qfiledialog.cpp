@@ -5260,7 +5260,7 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	QMessageBox::critical( this, tr( "ERROR" ), op->protocolDetail() );
 
 	int ecode = op->errorCode();
-	if ( ecode == QNetworkProtocol::ErrListChlidren || ecode == QNetworkProtocol::ErrParse ||
+	if ( ecode == QNetworkProtocol::ErrListChildren || ecode == QNetworkProtocol::ErrParse ||
 	     ecode == QNetworkProtocol::ErrUnknownProtocol || ecode == QNetworkProtocol::ErrLoginIncorrect ||
 	     ecode == QNetworkProtocol::ErrValid || ecode == QNetworkProtocol::ErrHostNotFound ||
 	     ecode == QNetworkProtocol::ErrFileNotExisting ) {

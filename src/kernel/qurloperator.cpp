@@ -385,11 +385,11 @@ const QNetworkOperation *QUrlOperator::mkdir( const QString &dirname )
     if ( !checkValid() )
 	return 0;
 
-    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpMkdir,
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpMkDir,
 						    dirname, QString::null, QString::null );
 
     if ( d->networkProtocol &&
-	 d->networkProtocol->supportedOperations() & QNetworkProtocol::OpMkdir ) {
+	 d->networkProtocol->supportedOperations() & QNetworkProtocol::OpMkDir ) {
 	d->networkProtocol->addOperation( res );
 	return res;
     } else {

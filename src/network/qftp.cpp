@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qftp.cpp#21 $
+** $Id: //depot/qt/main/src/network/qftp.cpp#22 $
 **
 ** Implementation of QFtp class.
 **
@@ -285,7 +285,7 @@ void QFtp::close()
 
 int QFtp::supportedOperations() const
 {
-    return OpListChildren | OpMkdir | OpRemove | OpRename | OpGet | OpPut;
+    return OpListChildren | OpMkDir | OpRemove | OpRename | OpGet | OpPut;
 }
 
 /*!
@@ -643,7 +643,7 @@ void QFtp::okGoOn( int code, const QCString &data )
     case 226: // listing directory (in passive mode) finished and data socket closing
 	break;
     case 257: { // mkdir worked
-	if ( operationInProgress() && operationInProgress()->operation() == OpMkdir ) {
+	if ( operationInProgress() && operationInProgress()->operation() == OpMkDir ) {
 	    operationInProgress()->setState( StDone );
 	    // ######## todo get correct info
 	    QUrlInfo inf( operationInProgress()->arg( 0 ), 0, "", "", 0, QDateTime(),
@@ -809,7 +809,7 @@ void QFtp::dataConnected()
 #endif
 	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
     } break;
-    case OpMkdir: {
+    case OpMkDir: {
     } break;
     case OpRemove: {
     } break;
@@ -883,7 +883,7 @@ void QFtp::dataReadyRead()
 	emit dataTransferProgress( getDoneSize, getTotalSize, operationInProgress() );
 	// qDebug( "%s", s.data() );
     } break;
-    case OpMkdir: {
+    case OpMkDir: {
     } break;
     case OpRemove: {
     } break;

@@ -55,9 +55,9 @@ private slots:
     void slotRemoteFinished( QNetworkOperation * );
     void slotLocalDataTransferProgress( int, int, QNetworkOperation * );
     void slotRemoteDataTransferProgress( int, int, QNetworkOperation * );
-    void slotLocalMkdir();
+    void slotLocalMkDir();
     void slotLocalRemove();
-    void slotRemoteMkdir();
+    void slotRemoteMkDir();
     void slotRemoteRemove();
     void slotConnectionStateChanged( int, const QString &msg );
     
