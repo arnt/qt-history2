@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#28 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,7 +14,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#27 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#28 $")
 
 
 /*----------------------------------------------------------------------------
@@ -80,6 +80,16 @@ QLabel::QLabel( const char *text, QWidget *parent, const char *name )
     lpixmap    = 0;
     align      = AlignLeft | AlignVCenter | ExpandTabs;
     autoresize = FALSE;
+}
+
+/*----------------------------------------------------------------------------
+  Destroys the label.
+ ----------------------------------------------------------------------------*/
+
+QLabel::~QLabel()
+{
+    if ( lpixmap )
+	delete lpixmap;
 }
 
 

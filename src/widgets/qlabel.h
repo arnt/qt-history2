@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#13 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#14 $
 **
 ** Definition of QLabel widget class
 **
@@ -22,6 +22,7 @@ class QLabel : public QFrame
 public:
     QLabel( QWidget *parent=0, const char *name=0 );
     QLabel( const char *text, QWidget *parent=0, const char *name=0 );
+   ~QLabel();
 
     const char *text()		const	{ return ltext; }
     QPixmap    *pixmap()	const	{ return lpixmap; }
