@@ -1,8 +1,9 @@
-#ifndef QT_NO_PLUGIN
 
+#include "qapplication.h"
+
+#ifndef QT_NO_PLUGIN
 #include "qapplicationinterface.h"
 #include "qplugin.h"
-#include "qapplication.h"
 #include "qplugin_p.h"
 
 /*!
@@ -612,4 +613,4 @@ QStringList QPlugIn::featureList()
   \sa selectFeature, featureList, plugIn
 */
 
-#endif //QT_NO_PLUGIN
+#endif // QT_NO_PLUGIN
