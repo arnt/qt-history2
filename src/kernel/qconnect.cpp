@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnect.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qconnect.cpp#3 $
 **
 ** Implementation of QConnection class
 **
@@ -13,27 +13,14 @@
 #include "qconnect.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qconnect.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qconnect.cpp#3 $";
 #endif
 
 
-QConnection::QConnection( const QObject *object, QMember member )
+QConnection::QConnection( const QObject *object, QMember member,
+			  const char *memberName )
 {
     obj = (QObject *)object;
     mbr = member;
-}
-
-
-bool QConnection::connect( const QObject *object, QMember member )
-{						// connect object/member
-    obj = (QObject *)object;
-    mbr = member;
-    return TRUE;
-}
-
-bool QConnection::disconnect()			// disconnect from signal
-{
-    obj = 0;
-    mbr = 0;
-    return TRUE;
+    mbr_name = memberName;
 }
