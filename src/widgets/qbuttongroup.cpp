@@ -151,6 +151,8 @@ QButtonGroup::QButtonGroup( int strips, Orientation orientation,
 
 void QButtonGroup::init()
 {
+    setFontPropagation( NoChildren );
+    setPalettePropagation( NoChildren );
     buttons = new QButtonList;
     CHECK_PTR( buttons );
     buttons->setAutoDelete( TRUE );
