@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: dnd.doc,v 1.3 1999/05/26 11:54:07 warwick Exp $
+** $Id: dnd.doc,v 1.4 1999/05/26 11:55:03 warwick Exp $
 **
 ** Drag and drop documentation
 **
@@ -172,8 +172,7 @@ Qt toolkit - Drag and Drop
   For example,
   QTextDrag provides support for
    the "<tt>text/plain</tt>" MIME type (ordinary unformatted text), and
-   the Unicode formats "<tt>text/utf8</tt>" and "<tt>text/utf16</tt>"
-   (it offers them in the reverse order to that);
+   the Unicode formats "<tt>text/utf16</tt>" and "<tt>text/utf8</tt>";
   QImageDrag provides for "<tt>image/</tt><tt>*</tt>",
   where <tt>*</tt>
   is any \link QImageIO image format that Qt supports\endlink;
