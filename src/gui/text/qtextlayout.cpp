@@ -29,6 +29,22 @@
 
 #include "qfontengine_p.h"
 
+static qreal alignLine(QTextEngine *eng, const QScriptLine &line)
+{
+    qreal x = 0;
+    eng->justify(line);
+    if (!line.justified) {
+        int align = eng->option.alignment();
+        if (align & Qt::AlignJustify && eng->option.layoutDirection() == Qt::RightToLeft)
+            align = Qt::AlignRight;
+        if (align & Qt::AlignRight)
+            x = line.width - line.textWidth;
+        else if (align & Qt::AlignHCenter)
+            x = (line.width - line.textWidth)/2;
+    }
+    return x;
+}
+
 /*!
     \class QTextInlineObject
     \brief The QTextInlineObject class represents an inline object in
@@ -889,6 +905,15 @@ QRect QTextLine::rect() const
     return QRect(qRound(sl.x), qRound(sl.y), qRound(sl.width), qRound(sl.height()));
 }
 
+
+QRectF QTextLine::textRect() const
+{
+    const QScriptLine& sl = eng->lines[i];
+    qreal x = sl.x + alignLine(eng, sl);
+
+    return QRectF(x, sl.y, sl.textWidth, sl.height());
+}
+
 /*!
     Returns the line's x position.
 
@@ -1224,21 +1249,6 @@ static void drawMenuText(QPainter *p, qreal x, qreal y, const QScriptItem &si, Q
     gf.width = w;
 }
 
-static qreal alignLine(QTextEngine *eng, const QScriptLine &line)
-{
-    qreal x = 0;
-    eng->justify(line);
-    if (!line.justified) {
-        int align = eng->option.alignment();
-        if (align & Qt::AlignJustify && eng->option.layoutDirection() == Qt::RightToLeft)
-            align = Qt::AlignRight;
-        if (align & Qt::AlignRight)
-            x = line.width - line.textWidth;
-        else if (align & Qt::AlignHCenter)
-            x = (line.width - line.textWidth)/2;
-    }
-    return x;
-}
 /*!
     \internal
 

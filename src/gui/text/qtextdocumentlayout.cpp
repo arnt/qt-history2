@@ -622,47 +622,42 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
 
     QTextLine firstLine = bl.layout()->lineAt(0);
     Q_ASSERT(firstLine.isValid());
-    QPoint pos = offset
-                 + bl.layout()->rect().toRect().topLeft()
-                 + QPointF(firstLine.x(), firstLine.y()).toPoint();
-
+    QPoint pos = offset + bl.layout()->rect().toRect().topLeft();
+    Qt::LayoutDirection dir = blockFormat.layoutDirection();
     {
-        Qt::Alignment a = blockFormat.alignment();
-        if (a == Qt::AlignRight)
-            pos.rx() += qRound(firstLine.width() - firstLine.textWidth());
-        else if (a == Qt::AlignHCenter)
-            pos.rx() += qRound((firstLine.width() - firstLine.textWidth()) / 2);
+        QRectF textRect = firstLine.textRect();
+        pos += textRect.origin().toPoint();
+        if (dir == Qt::RightToLeft)
+            pos.rx() += qRound(textRect.width());
     }
 
     switch (style) {
-        case QTextListFormat::ListDecimal:
-        case QTextListFormat::ListLowerAlpha:
-        case QTextListFormat::ListUpperAlpha:
-            itemText = static_cast<QTextList *>(object)->itemText(bl);
-            size.setWidth(fontMetrics.width(itemText));
-            size.setHeight(fontMetrics.height());
-            break;
+    case QTextListFormat::ListDecimal:
+    case QTextListFormat::ListLowerAlpha:
+    case QTextListFormat::ListUpperAlpha:
+        itemText = static_cast<QTextList *>(object)->itemText(bl);
+        size.setWidth(fontMetrics.width(itemText));
+        size.setHeight(fontMetrics.height());
+        break;
 
-        case QTextListFormat::ListSquare:
-        case QTextListFormat::ListCircle:
-        case QTextListFormat::ListDisc:
-            size.setWidth(fontMetrics.lineSpacing() / 3);
-            size.setHeight(size.width());
-            break;
+    case QTextListFormat::ListSquare:
+    case QTextListFormat::ListCircle:
+    case QTextListFormat::ListDisc:
+        size.setWidth(fontMetrics.lineSpacing() / 3);
+        size.setHeight(size.width());
+        break;
 
-        case QTextListFormat::ListStyleUndefined:
-            return;
-        default: return;
+    case QTextListFormat::ListStyleUndefined:
+        return;
+    default: return;
     }
-
-    // ### RTL
 
     QRect r(pos, size);
 
-    r.translate( - size.width(),
-             (fontMetrics.height() / 2 - size.height() / 2));
-
-    r.translate(-fontMetrics.width(" "), 0);
+    int xoff = fontMetrics.width(QLatin1Char(' '));
+    if (dir == Qt::LeftToRight)
+        xoff = -xoff - size.width();
+    r.translate( xoff, (fontMetrics.height() / 2 - size.height() / 2));
 
     painter->save();
 
@@ -680,27 +675,27 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
     QBrush brush = context.palette.brush(QPalette::Text);
 
     switch (style) {
-        case QTextListFormat::ListDecimal:
-        case QTextListFormat::ListLowerAlpha:
-        case QTextListFormat::ListUpperAlpha:
-            painter->setFont(font);
-            painter->drawText(QPointF(r.left(), pos.y() + fontMetrics.ascent()), itemText);
-            break;
-        case QTextListFormat::ListSquare:
-            painter->fillRect(r, brush);
-            break;
-        case QTextListFormat::ListCircle:
-            painter->drawEllipse(r);
-            break;
-        case QTextListFormat::ListDisc:
-            painter->setBrush(brush);
-            painter->drawEllipse(r);
-            painter->setBrush(Qt::NoBrush);
-            break;
-        case QTextListFormat::ListStyleUndefined:
-            break;
-        default:
-            break;
+    case QTextListFormat::ListDecimal:
+    case QTextListFormat::ListLowerAlpha:
+    case QTextListFormat::ListUpperAlpha:
+        painter->setFont(font);
+        painter->drawText(QPointF(r.left(), pos.y() + fontMetrics.ascent()), itemText);
+        break;
+    case QTextListFormat::ListSquare:
+        painter->fillRect(r, brush);
+        break;
+    case QTextListFormat::ListCircle:
+        painter->drawEllipse(r);
+        break;
+    case QTextListFormat::ListDisc:
+        painter->setBrush(brush);
+        painter->drawEllipse(r);
+        painter->setBrush(Qt::NoBrush);
+        break;
+    case QTextListFormat::ListStyleUndefined:
+        break;
+    default:
+        break;
     }
 
     painter->restore();
@@ -1291,8 +1286,12 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
 
 //         qDebug() << "    layouting block at" << bl.position();
         const int cy = layoutStruct->y;
-        const int l = layoutStruct->x_left + blockFormat.leftMargin() + indent;
-        const int r = layoutStruct->x_right - blockFormat.rightMargin();
+        int l = layoutStruct->x_left + blockFormat.leftMargin();
+        int r = layoutStruct->x_right - blockFormat.rightMargin();
+        if (dir == Qt::RightToLeft)
+            r -= indent;
+        else
+            l += indent;
 
 //    tl->useDesignMetrics(true);
 //     tl->enableKerning(true);

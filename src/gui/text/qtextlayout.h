@@ -177,6 +177,7 @@ public:
     qreal descent() const;
     qreal height() const;
     qreal textWidth() const;
+    QRectF textRect() const;
 
     enum Edge {
         Leading,
