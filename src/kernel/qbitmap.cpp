@@ -190,7 +190,7 @@ QBitmap::QBitmap( const QBitmap &bitmap )
 
 #ifndef QT_NO_IMAGEIO
 /*!
-    Constructs a pixmap from the file \a fileName. If the file does
+    Constructs a bitmap from the file \a fileName. If the file does
     not exist or is of an unknown format, the bitmap becomes a null
     bitmap.
 
