@@ -123,17 +123,6 @@ fi
 QTDIR=${DISTDIR}/qt
 export QTDIR
 
-echo "Fixing copyright banner in .h and .cpp files.." >&2
-if [ "${disttype}" = "free" ]; then
-  fixcopyright=fixcopyright-free
-else
-  fixcopyright=fixcopyright-prof
-fi
-cd ${DISTDIR}/qt/src
-${curdir}/${fixcopyright} ${VERSION} tools/*.h tools/*.cpp kernel/*.h kernel/*.cpp widgets/*.h widgets/*.cpp dialogs/*.h dialogs/*.cpp
-cd ${DISTDIR}/qt/extensions
-${curdir}/${fixcopyright} ${VERSION} */src/q*.h */src/q*.cpp
-
 echo "Create symlinks for Qt header files.." >&2
 ${QTDIR}/bin/syncqt
 ###${curdir}/make_qt_dot_h > ${QTDIR}/include/qt.h
@@ -179,6 +168,17 @@ cd ${DISTDIR}/qt/src/kernel
 find . -name '*_x11.cpp' -o -name '*_win.cpp' -o -name '*_os2.cpp' \
 	| grep -v "_${platform}" | xargs rm -f
 
+echo "Fixing copyright banner in .h and .cpp files.." >&2
+if [ "${disttype}" = "free" ]; then
+  fixcopyright=fixcopyright-free
+else
+  fixcopyright=fixcopyright-prof
+fi
+cd ${DISTDIR}/qt/src
+${curdir}/${fixcopyright} ${VERSION} tools/*.h tools/*.cpp kernel/*.h kernel/*.cpp widgets/*.h widgets/*.cpp dialogs/*.h dialogs/*.cpp
+cd ${DISTDIR}/qt/extensions
+${curdir}/${fixcopyright} ${VERSION} */src/q*.h */src/q*.cpp
+
 echo "Generate lex and yacc files for moc..." >&2
 cd ${DISTDIR}/qt/src/moc
 make mocgen.cpp
@@ -204,10 +204,9 @@ if [ "${platform}" = "win" ]; then
   rm -rf makefiles
   rm -rf extensions/xt
   find . -name 'qtx11.*' | xargs rm -vf
-  echo "Converting Unix text files to DOS..." >&2
-  cd ${DISTDIR}
-  find qt -type f -print | fmt -1 | \
-	egrep -v '\.(gif|jpg|bmp|any|exe)$' | xargs ${curdir}/unix_to_dos
+
+  cd ${DISTDIR}/qt/src
+  mv win32.mak Makefile
 
   cd ${DISTDIR}/qt
   mkdir mkfiles
@@ -215,20 +214,30 @@ if [ "${platform}" = "win" ]; then
   echo "Build Makefiles for Borland C++" >&2
   export TMAKEPATH=${TMAKEDIR}/lib/win32-borland
   ${curdir}/buildmakefiles -win32
+  find . -name Makefile | xargs ${curdir}/unix_to_dos
   find . -name Makefile | xargs zip -r mkfiles/borland.zip
 
   echo "Build Makefiles for Microsoft Visual C++" >&2
   export TMAKEPATH=${TMAKEDIR}/lib/win32-msvc
   ${curdir}/buildmakefiles -win32
-  find . -name Makefile | xargs zip -r mkfiles/MSVC.zip
+  find . -name Makefile | xargs ${curdir}/unix_to_dos
+  find . -name Makefile | xargs zip -r mkfiles/msvc.zip
+
+  echo "Converting Unix text files to DOS..." >&2
+  cd ${DISTDIR}
+  find qt -type f -print | fmt -1 | \
+	egrep -v '\.(gif|jpg|bmp|any|exe|zip)$' | xargs ${curdir}/unix_to_dos
 fi
 
 if [ "${platform}" = "x11" ]; then
+
+  echo 'Removing more Windows-specific files...' >&2
   cd ${DISTDIR}/qt
   rm -f bin/*.bat
+  rm src/qtmain.pro src/win32.mak
   find . -name 'qtwin.*' | xargs rm -vf
-  echo 'Building top-level make files...' >&2
 
+  echo 'Building top-level make files...' >&2
   export UNIX_MKDIST_QT=1
   ( cd ${QTDIR}/src/moc; TMAKEPATH=$QTDIR/tmake:$TMAKEPATH tmake moc.pro >Makefile.in)
   ${QTDIR}/util/scripts/mkconfigs
@@ -263,7 +272,7 @@ fi
 echo "Copying the README, LICENSE etc. files..." >&2
 cd ${DISTDIR}/qt/dist
 cp [A-Z]* .. 2> /dev/null || true
-cp changes-${VERSION_SHORT}[0-9]* ..
+cp -f changes-${VERSION_SHORT}[0-9]* ..
 cd ${DISTDIR}/qt/dist/${disttype}
 tar cf - * | (cd ${DISTDIR}/qt ; tar xf -)
 cd ${DISTDIR}/qt/dist/${platform}
