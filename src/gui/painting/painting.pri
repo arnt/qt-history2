@@ -40,7 +40,7 @@ SOURCES += \
 	painting/qregion.cpp \
 	painting/qmatrix.cpp
 
-win32|x11 {
+win32 {
 	DEFINES += _STANDALONE_ QT_RASTER_PAINTENGINE
 	SOURCES += 					\
 	 	painting/qpaintengine_raster.cpp	\
