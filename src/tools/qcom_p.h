@@ -243,24 +243,6 @@ struct Q_EXPORT QComponentRegistrationInterface : public QUnknownInterface
     virtual bool    unregisterComponents() const = 0;
 };
 
-
-#ifndef Q_EXTERN_C
-#ifdef __cplusplus
-#define Q_EXTERN_C    extern "C"
-#else
-#define Q_EXTERN_C    extern
-#endif
-#endif
-
-// This macro expands to the default implementation of ucm_instantiate.
-#ifndef Q_CREATE_INSTANCE
-#    define Q_CREATE_INSTANCE( IMPLEMENTATION )		\
-	IMPLEMENTATION *i = new IMPLEMENTATION;		\
-	QUnknownInterface* iface = 0; 			\
-	i->queryInterface( IID_QUnknown, &iface );	\
-	return iface;
-#endif
-
 // internal class that wraps an initialized ulong
 struct Q_EXPORT QtULong
 {
@@ -286,8 +268,36 @@ public:		   \
 #ifndef Q_EXPORT_COMPONENT
 #if defined(QT_THREAD_SUPPORT)
 #define QT_THREADED_BUILD 1
+#define Q_UCM_FLAGS_STRING "11"
 #else
 #define QT_THREADED_BUILD 0
+#define Q_UCM_FLAGS_STRING "01"
+#endif
+
+#ifndef Q_EXTERN_C
+#ifdef __cplusplus
+#define Q_EXTERN_C    extern "C"
+#else
+#define Q_EXTERN_C    extern
+#endif
+#endif
+
+// this is duplicated at Q_UCM_VERIFICATION_DATA in qgplugin.h
+#define Q_UCM_VERIFICATION_DATA \
+	const char *ucm_instance_verification_data =			\
+            "pattern=UCM_INSTANCE_VERIFICATION_DATA\n"			\
+            "version="QT_VERSION_STR"\n"				\
+            "flags="Q_UCM_FLAGS_STRING"\n"				\
+	    "buildkey="QT_BUILD_KEY"\0";
+
+// This macro expands to the default implementation of ucm_instantiate.
+#ifndef Q_CREATE_INSTANCE
+#    define Q_CREATE_INSTANCE( IMPLEMENTATION )		\
+	Q_UCM_VERIFICATION_DATA				\
+	IMPLEMENTATION *i = new IMPLEMENTATION;		\
+	QUnknownInterface* iface = 0; 			\
+	i->queryInterface( IID_QUnknown, &iface );	\
+	return iface;
 #endif
 
 #define Q_UCM_QUERY \

@@ -16,17 +16,28 @@
 #endif
 
 #ifndef Q_EXPORT_PLUGIN
+#if defined(QT_THREAD_SUPPORT)
+#define QT_THREADED_BUILD 1
+#define Q_PLUGIN_FLAGS_STRING "11"
+#else
+#define QT_THREADED_BUILD 0
+#define Q_PLUGIN_FLAGS_STRING "01"
+#endif
+
+// this is duplicated at Q_UCM_VERIFICATION_DATA in qcom_p.h
+#define Q_PLUGIN_VERIFICATION_DATA \
+	const char *ucm_instance_verification_data =			\
+            "pattern=UCM_INSTANCE_VERIFICATION_DATA\n"			\
+            "version="QT_VERSION_STR"\n"				\
+            "flags="Q_PLUGIN_FLAGS_STRING"\n"				\
+	    "buildkey="QT_BUILD_KEY"\0";
+
 #define Q_PLUGIN_INSTANTIATE( IMPLEMENTATION )	\
 	{ \
 	    IMPLEMENTATION *i = new IMPLEMENTATION;	\
 	    return i->iface(); \
-	}
-
-#if defined(QT_THREAD_SUPPORT)
-#define QT_THREADED_BUILD 1
-#else
-#define QT_THREADED_BUILD 0
-#endif
+	} \
+        Q_PLUGIN_VERIFICATION_DATA
 
 #define Q_PLUGIN_QUERY \
 	{ \

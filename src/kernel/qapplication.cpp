@@ -1392,6 +1392,9 @@ void QApplication::setGlobalStrut( const QSize& strut )
     }
     \endcode
 
+  See the \link plugins-howto.html plugins documentation\endlink for a
+  description of how the library paths are used.
+
   \sa setLibraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
 */
 QStringList QApplication::libraryPaths()
