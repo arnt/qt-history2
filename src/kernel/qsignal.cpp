@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#31 $
 **
 ** Implementation of QSignal class
 **
@@ -137,13 +137,8 @@ const char *QSignal::className() const
 
 bool QSignal::connect( const QObject *receiver, const char *member )
 {
-    extern QCString qt_rmWS( const char *src );
-    if ( checkConnectArgs( SIGNAL(y(int)), receiver, qt_rmWS(member) ) )
-	return QObject::connect( (QObject *)this, SIGNAL(y(int)),
-				 receiver, member );
-    else
-	return QObject::connect( (QObject *)this, SIGNAL(x()),
-				 receiver, member );
+    return QObject::connect( (QObject *)this, SIGNAL(x(int)),
+			     receiver, member );
 }
 
 /*!
@@ -153,13 +148,8 @@ bool QSignal::connect( const QObject *receiver, const char *member )
 
 bool QSignal::disconnect( const QObject *receiver, const char *member )
 {
-    extern QCString qt_rmWS( const char *src );
-    if ( receiver && checkConnectArgs( SIGNAL(y(int)), receiver,  qt_rmWS(member) ) )
-	return QObject::disconnect( (QObject *)this, SIGNAL(y(int)),
-				    receiver, member );
-    else
-	return QObject::disconnect( (QObject *)this, SIGNAL(x()),
-				    receiver, member );
+    return QObject::disconnect( (QObject *)this, SIGNAL(x(int)),
+				receiver, member );
 }
 
 
@@ -189,8 +179,7 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 */
 void  QSignal::activate()
 {
-    activate_signal("y(int)", val );
-    activate_signal("x()");
+    activate_signal("x(int)", val );
 }
 
 /*!
@@ -209,19 +198,12 @@ int QSignal::parameter() const
     return val;
 }
 
-void QSignal::dummy()				// just for the meta object
+void QSignal::dummy(int)				// just for the meta object
 {						//   should never be called
 #if defined(CHECK_STATE)
     qWarning( "QSignal: Internal error" );
 #endif
 }
-void QSignal::dummy2(int)				// just for the meta object
-{						//   should never be called
-#if defined(CHECK_STATE)
-    qWarning( "QSignal: Internal error" );
-#endif
-}
-
 
 void QSignal::initMetaObject()			// initialize meta object
 {
@@ -230,17 +212,13 @@ void QSignal::initMetaObject()			// initialize meta object
     if ( !QObject::metaObject() )
 	QObject::initMetaObject();
 
-    typedef void(QSignal::*m2_t0)();
-    typedef void(QSignal::*m2_t1)(int);
+    typedef void(QSignal::*m2_t0)(int);
     m2_t0 v2_0 =  &QSignal::dummy;
-    m2_t1 v2_1 = &QSignal::dummy2;
-    QMetaData *signal_tbl = QMetaObject::new_metadata(2);
-    signal_tbl[0].name = "x()";
-    signal_tbl[1].name = "y(int)";
+    QMetaData *signal_tbl = QMetaObject::new_metadata(1);
+    signal_tbl[0].name = "x(int)";
     signal_tbl[0].ptr = *((QMember*)&v2_0);
-    signal_tbl[1].ptr = *((QMember*)&v2_1);
     metaObj = QMetaObject::new_metaobject(
         "QSignal", "QObject",
         0, 0,
-        signal_tbl, 2 );
+        signal_tbl, 1 );
 }
