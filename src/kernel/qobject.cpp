@@ -422,6 +422,8 @@ QObject::~QObject()
 		= d->connections->connections[i];
 	    if (c.receiver)
 		c.receiver->d->removeSender(this);
+ 	    if (c.types)
+ 		delete [] c.types;
 	}
 	qFree(d->connections);
 	d->connections = 0;
@@ -1537,11 +1539,17 @@ QObjectPrivate::Connections::Connection *QObjectPrivate::findConnection(int sign
 
 void QObjectPrivate::removeReceiver(QObject *receiver)
 {
-    if (connections) {
-	for (int i = 0; i < connections->count; ++i)
-	    if (connections->connections[i].receiver == receiver)
-		connections->connections[i].receiver = 0;
-    }
+    if (connections)
+	for (int i = 0; i < connections->count; ++i) {
+	    QObjectPrivate::Connections::Connection &c = connections->connections[i];
+	    if (c.receiver == receiver) {
+		c.receiver = 0;
+		if (c.types) {
+		    delete [] c.types;
+		    c.types = 0;
+		}
+	    }
+	}
 }
 
 
@@ -2043,6 +2051,10 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
 			       == c.member)))) {
 	    c.receiver->d->derefSender(s);
 	    c.receiver = 0;
+	    if (c.types) {
+		delete [] c.types;
+		c.types = 0;
+	    }
 	    success = true;
 	}
     }
@@ -2063,13 +2075,13 @@ void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
     if ((c = obj->d->findConnection(signal_index, i))) do {
 	nc = obj->d->findConnection(signal_index, i);
 	if (c->types) { // QueuedConnection
-	    int nargs = 0;
-	    while (c->types[nargs]) { ++nargs; }
-	    const QMetaType **types = new const QMetaType *[nargs + 1];
-	    void **args = new void *[nargs + 1];
+	    int nargs = 1; // include return type
+	    while (c->types[nargs-1]) { ++nargs; }
+	    const QMetaType **types = new const QMetaType *[nargs];
+	    void **args = new void *[nargs];
 	    types[0] = 0; // return type
 	    args[0] = 0; // return value
-	    for (int n = 1; n <= nargs; ++n)
+	    for (int n = 1; n < nargs; ++n)
 		args[n] = (types[n] = c->types[n-1])->copy(argv[n]);
 	    QKernelApplication::postEvent(c->receiver,
 					  new QMetaCallEvent((c->member & 1)
