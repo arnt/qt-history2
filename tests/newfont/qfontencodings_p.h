@@ -160,6 +160,29 @@ public:
     ushort shapedGlyph( const QString &str, int pos );
 };
 
+class QFontArabicUnicodeCodec : public QShapingCodec
+{
+public:
+    QFontArabicUnicodeCodec();
+
+    const char* name() const ;
+    //       Return the official name for the encoding.
+    int mibEnum() const ;
+    // Return the MIB enum for the encoding if it is listed in the
+    // IANA character-sets encoding file.
+
+    QString toUnicode(const char* chars, int len) const ;
+    // Converts len characters from chars to Unicode.
+    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+    // Converts lenInOut characters (of type QChar) from the start of
+    // the string uc, returning a QCString result, and also returning
+    // the length of the result in lenInOut.
+
+    int heuristicContentMatch(const char *, int) const;
+
+    ushort shapedGlyph( const QString &str, int pos );
+};
+
 
 
 #endif //QT_NO_CODECS

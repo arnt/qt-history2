@@ -842,7 +842,7 @@ QString QTextCodec::toUnicode(const char* chars) const
 unsigned short QTextCodec::characterFromUnicode(const QChar &character) const
 {
     QCString result = QTextCodec::fromUnicode(QString(character));
-    if (result.length() == 2)
+    if (result.size() > 2)
 	return (((unsigned short)(unsigned char) result[0] << 8) |
 		((unsigned short)(unsigned char) result[1]));
     return (unsigned short)(unsigned char) result[0];

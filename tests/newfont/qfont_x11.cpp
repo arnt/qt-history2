@@ -1435,6 +1435,8 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
     QTextCodec *codec = 0;
     if (script < QFontPrivate::UNICODE) {
 	codec = QTextCodec::codecForName(qt_x11encodings[script][qt_x11indices[script]]);
+    } else {
+	codec = QTextCodec::codecForName("ArabicUnicode");
     }
     
 #ifdef QFONTLOADER_DEBUG
@@ -1548,6 +1550,7 @@ void QFont::initialize()
     (void) new QFontGB2312Codec;
     (void) new QFontBig5Codec;
     (void) new QFontArabic68Codec;
+    (void) new QFontArabicUnicodeCodec;
 #endif
 
 }
@@ -2308,9 +2311,9 @@ int QFontMetrics::width( const QString &str, int len ) const
 		    } else {
 			if (f->max_byte1) {
 			    currw += XTextWidth16(f, (XChar2b *) mapped.data(),
-						  mapped.length() / 2);
+						  mapped.size() / 2);
 			} else {
-			    currw += XTextWidth(f, mapped.data(), mapped.length());
+			    currw += XTextWidth(f, mapped.data(), mapped.size()-1);
 			}
 
 			mapped.resize(0);
@@ -2351,10 +2354,10 @@ int QFontMetrics::width( const QString &str, int len ) const
 		    if (f->max_byte1) {
 			currw +=
 			    XTextWidth16(f, (XChar2b *) mapped.data(),
-					 mapped.length() / 2);
+					 mapped.size() / 2);
 		    } else {
 			currw +=
-			    XTextWidth(f, mapped.data(), mapped.length());
+			    XTextWidth(f, mapped.data(), mapped.size()-1);
 		    }
 		}
 	    }
@@ -2481,7 +2484,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 		    } else {
 			if (f->max_byte1) {
 			    XTextExtents16(f, (XChar2b *) mapped.data(),
-					   mapped.length() / 2, &unused, &unused,
+					   mapped.size() / 2, &unused, &unused,
 					   &unused, &immediate);
 
 			    overall.lbearing =
@@ -2492,7 +2495,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 			    overall.descent = QMAX(overall.descent, immediate.descent);
 			    overall.width += immediate.width;
 			} else {
-			    XTextExtents(f, mapped.data(), mapped.length(), &unused,
+			    XTextExtents(f, mapped.data(), mapped.size()-1, &unused,
 					 &unused, &unused, &immediate);
 
 			    overall.lbearing =
@@ -2547,7 +2550,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 		} else {
 		    if (f->max_byte1) {
 			XTextExtents16(f, (XChar2b *) mapped.data(),
-				       mapped.length() / 2, &unused, &unused, &unused,
+				       mapped.size() / 2, &unused, &unused, &unused,
 				       &immediate);
 
 			overall.lbearing = QMAX(overall.lbearing, immediate.lbearing);
@@ -2556,7 +2559,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 			overall.descent = QMAX(overall.descent, immediate.descent);
 			overall.width += immediate.width;
 		    } else {
-			XTextExtents(f, mapped.data(), mapped.length(), &unused,
+			XTextExtents(f, mapped.data(), mapped.size()-1, &unused,
 				     &unused, &unused, &immediate);
 
 			overall.lbearing = QMAX(overall.lbearing, immediate.lbearing);

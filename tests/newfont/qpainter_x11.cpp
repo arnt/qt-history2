@@ -2873,11 +2873,11 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 			    currx +=
 				XTextWidth16(f, (XChar2b *)
 					     truples[currt - 1].mapped.data(),
-					     truples[currt - 1].mapped.length() / 2);
+					     truples[currt - 1].mapped.size() / 2);
 			} else {
 			    currx +=
 				XTextWidth(f, truples[currt - 1].mapped.data(),
-					   truples[currt - 1].mapped.length());
+					   truples[currt - 1].mapped.size() -1);
 			}
 		    }
 		} else {
@@ -2923,10 +2923,10 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 		    if (f->max_byte1) {
 			currx += XTextWidth16(f, (XChar2b *)
 					      truples[currt - 1].mapped.data(),
-					      truples[currt - 1].mapped.length() / 2);
+					      truples[currt - 1].mapped.size() / 2);
 		    } else {
 			currx += XTextWidth(f, truples[currt - 1].mapped.data(),
-					    truples[currt - 1].mapped.length());
+					    truples[currt - 1].mapped.size() - 1);
 		    }
 		}
 	    }
@@ -2965,15 +2965,6 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 		    continue;
 		}
 
-		QString v = str;
-#ifdef QT_BIDI
-		v.compose();  // apply ligatures (for arabic, etc...)
-		v = v.visual(); // visual ordering
-
-		if (v.length < len)
-		    len = v.length();
-#endif
-
 		int l;
 		if (truples[j + 1].stroffset == -1) {
 		    l = len - truples[j].stroffset;
@@ -2984,7 +2975,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 		if (truples[j].mapped.isNull()) {
 		    if (f->max_byte1) {
 			XDrawString16(dpy, hd, gc, truples[j].xoffset, y,
-				      (XChar2b *) (v.unicode() + truples[j].stroffset),
+				      (XChar2b *) (str.unicode() + truples[j].stroffset),
 				      l);
 		    }
 		    // STOP: we want to use unicode, but don't have a multi-byte
@@ -2994,11 +2985,11 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 		    if (f->max_byte1) {
 			XDrawString16(dpy, hd, gc, truples[j].xoffset, y,
 				      (XChar2b *) truples[j].mapped.data(),
-				      truples[j].mapped.length() / 2);
+				      truples[j].mapped.size() / 2);
 		    } else {
 			XDrawString(dpy, hd, gc, truples[j].xoffset, y,
 				    truples[j].mapped.data(),
-				    truples[j].mapped.length());
+				    truples[j].mapped.size() - 1);
 		    }
 		}
 	    }
