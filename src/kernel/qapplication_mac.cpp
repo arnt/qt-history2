@@ -1994,7 +1994,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	//map it into qt keys
 	UInt32 state = 0L;
 	char chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript), 
-		   (modif & (shiftKey|rightShiftKey)) | keyc, &state);
+		   (modif & (shiftKey|rightShiftKey|alphaLock)) | keyc, &state);
 	if(!chr)
 	    break;
 	int mychar=get_key(chr, keyc);
@@ -2008,6 +2008,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    tmp_mod |= shiftKey;
 	if(modifiers & Qt::ControlButton)
 	    tmp_mod |= controlKey;
+	if(modif & alphaLock)
+	    tmp_mod |= alphaLock;
 	chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript), 
 			   tmp_mod | keyc, &state);
 
