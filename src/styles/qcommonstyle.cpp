@@ -854,10 +854,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	rect = itemRect(&p, cr, AlignAuto | AlignVCenter | ShowPrefix,
 			checkbox->isEnabled(), checkbox->pixmap(), checkbox->text());
 
-	rect.setLeft( rect.left() - 3 );
-	rect.setRight( rect.right() + 3 );
-	rect.setTop( rect.top() - 2 );
-	rect.setBottom( rect.bottom() + 2);
+	rect.addCoords( -3, -2, 3, 2 );
 	rect = rect.intersect(wrect);
 	break; }
 
@@ -883,10 +880,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 			radiobutton->isEnabled(), radiobutton->pixmap(),
 			radiobutton->text());
 
-	rect.setLeft( rect.left() - 3 );
-	rect.setRight( rect.right() + 3 );
-	rect.setTop( rect.top() - 2 );
-	rect.setBottom( rect.bottom() + 2);
+	rect.addCoords( -3, -2, 3, 2 );
 	rect = rect.intersect(wrect);
 	break; }
 
