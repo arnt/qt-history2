@@ -23,9 +23,7 @@
 #include "qws.h"
 
 #include <stdlib.h>
-
-#include <qstring.h>
-#include <qstringlist.h>
+#include <stdio.h>
 
 /*********************************************************************
  *
@@ -35,68 +33,99 @@
 
 QWSPropertyManager::QWSPropertyManager()
 {
+    properties.setAutoDelete( TRUE );
 }
 
-int QWSPropertyManager::atom( const QString &name )
+bool QWSPropertyManager::setProperty( int winId, int property, int mode, const char *data, int len )
 {
-    if ( atoms.contains( name ) )
-	return atoms[ name ];
-    return -1;
-}
-
-bool QWSPropertyManager::setProperty( int winId, int property, int mode, const QByteArray &data )
-{
-    PropertyKey k( winId, property );
-    if ( !properties.contains( k ) )
+    if ( !hasProperty( winId, property ) )
 	return FALSE;
-
-    Mode m = (Mode)mode;
-    switch ( m ) {
-    case PropReplace:
-	properties[ k ] = data.copy();
-	break;
-    case PropPrepend: {
-	QByteArray oldData = properties[ k ];
-	QByteArray newData = data.copy();
-	oldData.resize( oldData.size() + newData.size() );
-	memcpy( oldData.data() + oldData.size(), newData.data(), newData.size() );
-	properties[ k ] = oldData;
+    char *key = createKey( winId, property );
+    
+    switch ( mode ) {
+    case PropReplace: {
+	char *d = qstrdup( data );
+	Property *prop = new Property;
+	prop->len = len;
+	prop->data = d;
+	properties.replace( key, prop );
     } break;
     case PropAppend: {
-	QByteArray oldData = properties[ k ];
-	QByteArray newData = data.copy();
-	newData.resize( oldData.size() + newData.size() );
-	memcpy( newData.data() + newData.size(), oldData.data(), oldData.size() );
-	properties[ k ] = newData;
+	Property *orig = properties[ key ];
+	int origLen = 0;
+	if ( orig )
+	    origLen = orig->len;
+	char *d = new char[ len + origLen ];
+	Property *prop = new Property;
+	prop->len = len + origLen;
+	if ( orig )
+	    memcpy( &d[ 0 ], orig->data, origLen );
+	memcpy( &d[ origLen ], data, len );
+	properties.replace( key, prop );
+    } break;
+    case PropPrepend: {
+	Property *orig = properties[ key ];
+	int origLen = 0;
+	if ( orig )
+	    origLen = orig->len;
+	char *d = new char[ len + origLen ];
+	Property *prop = new Property;
+	prop->len = len + origLen;
+	memcpy( &d[ 0 ], data, len );
+	if ( orig )
+	    memcpy( &d[ len ], orig->data, origLen );
+	properties.replace( key, prop );
     } break;
     }
+    
+    qDebug( "QWSPropertyManager::setProperty: %d %d (%s) to %s", winId, property, key, 
+	    properties.find( key )->data );
+    
+    delete [] key;
 
     return TRUE;
 }
 
 bool QWSPropertyManager::hasProperty( int winId, int property )
 {
-    PropertyKey k( winId, property );
-    return (bool)properties.contains( k );
+    char *key = createKey( winId, property );
+    bool b = (bool)properties.find( key );
+    delete [] key;
+    return b;
 }
 
 bool QWSPropertyManager::removeProperty( int winId, int property )
 {
-    PropertyKey k( winId, property );
-    if ( !properties.contains( k ) )
+    char *key = createKey( winId, property );
+    if ( !properties.find( key ) )
 	return FALSE;
 
-    properties.remove( k );
+    qDebug( "QWSPropertyManager::removeProperty %d %d (%s)", winId, property, key );
+    properties.remove( key );
+    delete [] key;
     return TRUE;
 }
 
 bool QWSPropertyManager::addProperty( int winId, int property )
 {
-    PropertyKey k( winId, property );
-    if ( properties.contains( k ) )
+    char *key = createKey( winId, property );
+    if ( properties.find( key ) )
 	return FALSE;
 
-    properties[ k ] = QByteArray();
+    Property *prop = new Property;
+    prop->len = -1;
+    prop->data = 0;
+    properties.insert( key, prop );
+    qDebug( "QWSPropertyManager::addProperty: %d %d (%s)", winId, property, key );
     return TRUE;
 }
 
+char *QWSPropertyManager::createKey( int winId, int property ) const
+{
+    char *key = new char[ 21 ];
+    sprintf( key, "%010d%010d", winId, property );
+    key[ 20 ] = '\0';
+    qDebug( "QWSPropertyManager::createKey: %s", key );
+    
+    return key;
+}

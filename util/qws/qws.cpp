@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#17 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#18 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -284,12 +284,11 @@ void QWSServer::invokeSetProperty( QWSSetPropertyCommand *cmd )
     qDebug( "QWSServer::invokeSetProperty %d %d %d %s",
 	    cmd->simpleData.windowid, cmd->simpleData.property,
 	    cmd->simpleData.mode, cmd->data );
-    QCString ba( cmd->rawLen );
-    ba = cmd->data;
     if ( properties()->setProperty( cmd->simpleData.windowid,
 				    cmd->simpleData.property,
 				    cmd->simpleData.mode,
-				    ba ) ) {
+				    cmd->data,
+				    cmd->rawLen ) ) {
 	qDebug( "setting property successful" );
 	sendPropertyNotifyEvent( cmd->simpleData.property,
 				 QWSEvent::PropertyNewValue );
