@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#125 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#126 $
 **
 ** Implementation of QScrollView class
 **
@@ -1732,7 +1732,7 @@ void QScrollView::updateContents( const QRect& r )
 }
 
 /*!
-  \overload void QScrollView::repainttContents( int x, int y, int w, int h, bool erase )
+  \overload void QScrollView::repaintContents( int x, int y, int w, int h, bool erase )
 */
 void QScrollView::repaintContents( const QRect& r, bool erase )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#238 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#239 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -4437,7 +4437,7 @@ void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
 	return;
     }
 
-    // Now assume dst is 32-bit
+    // Now assume palette can be ignored
 
     if ( dst->depth() != src->depth() ) {
 	if ( sw == src->width() && sh == src->height() || dst->depth()==32 ) {
