@@ -48,7 +48,7 @@ void OutputWindow::setupError()
     errorView->addColumn( tr( "Location" ) );
     errorView->setResizeMode( QListView::LastColumn );
     errorView->setColumnWidth( 0, errorView->fontMetrics().width( "WARNING1234" ) );
-    errorView->setColumnWidth( 1, errorView->fontMetrics().width( "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ" ) );
+    errorView->setColumnWidth( 1, errorView->fontMetrics().width( "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOP" ) );
     errorView->setColumnWidth( 2, errorView->fontMetrics().width( "9999999" ) );
     errorView->setColumnAlignment( 2, Qt::AlignRight );
     errorView->setAllColumnsShowFocus( TRUE );
@@ -88,9 +88,10 @@ void OutputWindow::setErrorMessages( const QStringList &errors, const QValueList
     QStringList::ConstIterator mit = errors.begin();
     QValueList<int>::ConstIterator lit = lines.begin();
     QStringList::ConstIterator it = locations.begin();
+    QObject *o = locationObjects.first();
     QListViewItem *after = 0;
-    for ( ; lit != lines.end() && mit != errors.end(); ++lit, ++mit, ++it )
-	after = new ErrorItem( errorView, after, *mit, *lit, *it, 0 );
+    for ( ; lit != lines.end() && mit != errors.end(); ++lit, ++mit, ++it, o = locationObjects.next() )
+	after = new ErrorItem( errorView, after, *mit, *lit, *it, o );
     setCurrentPage( 1 );
 }
 
