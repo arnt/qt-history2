@@ -1558,7 +1558,9 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                 fr.setBottom(fr.bottom() + (y + h - QRect::rectangleMode()) - data->crect.bottom());
             }
             MoveWindow(winId(), fr.x(), fr.y(), fr.width(), fr.height(), true);
-            data->crect.setRect(x, y, w, h);
+            RECT rect;
+            GetClientRect(winId(), &rect);
+	    data->crect.setRect(x, y, rect.right - rect.left, rect.bottom - rect.top);
         } else {
             data->crect.setRect(x, y, w, h);
             d->setWSGeometry();
