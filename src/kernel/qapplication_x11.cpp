@@ -3444,17 +3444,15 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case UnmapNotify:			// window hidden
 	if ( widget->isTopLevel() && widget->isVisible() && !widget->isPopup() ) {
-	    widget->clearWState( WState_Visible );
 	    QHideEvent e;
 	    QApplication::sendSpontaneousEvent( widget, &e );
-	    widget->sendHideEventsToChildren( TRUE );
+	    widget->hideChildren( TRUE );
 	}
 	break;
 
     case MapNotify:				// window shown
-	if ( widget->isTopLevel() && !widget->isVisible()
-	     && !widget->isHidden() ) {	    widget->setWState( WState_Visible );
-	    widget->sendShowEventsToChildren( TRUE );
+	if ( widget->isTopLevel() ) {
+	    widget->showChildren( TRUE );
 	    QShowEvent e;
 	    QApplication::sendSpontaneousEvent( widget, &e );
 	}

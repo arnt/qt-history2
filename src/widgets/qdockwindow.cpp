@@ -1097,7 +1097,7 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
     }
 
     QDockArea *area = (QDockArea*)w;
-    if( area->isVisibleTo( 0 ) ) {
+    if( area->isVisible() ) {
 	state = InDock;
 	Orientation o = ( area ? area->orientation() :
 			  ( boxLayout()->direction() == QBoxLayout::LeftToRight ||

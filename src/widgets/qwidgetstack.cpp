@@ -279,7 +279,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
     if ( !w || w == invisible || w->parent() != this || w == topWidget)
 	return;
 
-    if ( !isVisibleTo(0) ) {
+    if ( !isVisible() ) {
 	topWidget = w;
 	return;
     }

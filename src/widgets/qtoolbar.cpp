@@ -268,9 +268,9 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
     (which looks like a right-pointing chevron, '&#187;') will appear
     at the right or bottom of the toolbar depending on its
     orientation. Clicking this button pops up a menu that shows the
-    'overflowing' items. QToolButtons are represented in the menu using 
-    their textLabel property, other QButton subclasses are represented 
-    using their text property, and QComboBoxes are represented as submenus, 
+    'overflowing' items. QToolButtons are represented in the menu using
+    their textLabel property, other QButton subclasses are represented
+    using their text property, and QComboBoxes are represented as submenus,
     with the caption text being used in the submenu item.
 
     Usually a toolbar will get precisely the space it needs. However,
@@ -527,7 +527,7 @@ bool QToolBar::event( QEvent * e )
 	if ( child && child->isWidgetType() && !((QWidget*)child)->isTopLevel() &&
 	     child->parent() == this && qstrcmp( "qt_dockwidget_internal", child->name() ) != 0 ) {
 	    boxLayout()->addWidget( (QWidget*)child );
-	    if ( isVisibleTo(0) && ((QWidget*)child)->testWState( WState_CreatedHidden ) ) {
+	    if ( isVisible() && ((QWidget*)child)->testWState( WState_CreatedHidden ) ) {
 		( (QWidget*)child )->show();
 		// We resize the toolbar in case it is too small to show all the icons
 		resize( sizeHint() );

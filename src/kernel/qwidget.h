@@ -117,7 +117,8 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( bool updatesEnabled READ isUpdatesEnabled WRITE setUpdatesEnabled DESIGNABLE false )
     Q_PROPERTY( bool visible READ isVisible )
     Q_PROPERTY( QRect visibleRect READ visibleRect )
-    Q_PROPERTY( bool hidden READ isHidden )
+    Q_PROPERTY( bool hidden READ isHidden WRITE setHidden DESIGNABLE false SCRIPTABLE false )
+    Q_PROPERTY( bool shown READ isShown WRITE setShown DESIGNABLE false SCRIPTABLE false )
     Q_PROPERTY( bool minimized READ isMinimized )
     Q_PROPERTY( bool maximized READ isMaximized )
     Q_PROPERTY( bool fullScreen READ isFullScreen )
@@ -341,7 +342,8 @@ public slots:
 
     virtual void	show();
     virtual void	hide();
-    void		toggleShowHide( bool show );
+    void		setShown( bool show );
+    void		setHidden( bool hide );
 #ifndef QT_NO_COMPAT
     void		iconify() { showMinimized(); }
 #endif
@@ -370,6 +372,7 @@ public:
     bool		isVisibleToTLW() const; // obsolete
     QRect		visibleRect() const;
     bool 		isHidden() const;
+    bool 		isShown() const;
     bool		isMinimized() const;
     bool		isMaximized() const;
     bool		isFullScreen() const;
@@ -579,8 +582,8 @@ private:
     void	 setWinId( WId );
     void	 showWindow();
     void	 hideWindow();
-    void	 sendShowEventsToChildren( bool spontaneous );
-    void	 sendHideEventsToChildren( bool spontaneous );
+    void	 showChildren( bool spontaneous );
+    void	 hideChildren( bool spontaneous );
     void	 reparentSys( QWidget *parent, WFlags, const QPoint &,  bool showIt);
     void	 createTLExtra();
     void	 createExtra();
@@ -815,6 +818,9 @@ inline bool QWidget::isVisibleToTLW() const // obsolete
 
 inline bool QWidget::isHidden() const
 { return testWState(WState_ForceHide); }
+
+inline bool QWidget::isShown() const
+{ return !testWState(WState_ForceHide); }
 
 inline void QWidget::move( const QPoint &p )
 { move( p.x(), p.y() ); }

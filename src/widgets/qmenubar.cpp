@@ -391,7 +391,7 @@ void QMenuBar::performDelayedContentsChanged()
 	if( !isHidden())
 	    hide();
     } else {
-	if( isHidden() && !fromFrameChange )
+	if( !isShown() && !fromFrameChange )
 	    show();
     }
 #endif

@@ -1764,7 +1764,7 @@ void FormWindow::showOrderIndicators()
 	int order = 1;
 	for ( QObject *o = l->first(); o; o = l->next() ) {
 	    QWidget* w = (QWidget*) o;
-	    if ( w->isVisibleTo( w->parentWidget() ) &&
+	    if ( w->isShown() &&
 		 insertedWidgets[ (void*)w ]  &&
 		 w->focusPolicy() != NoFocus ) {
 		OrderIndicator* ind = new OrderIndicator( order++, w, this );

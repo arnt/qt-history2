@@ -518,7 +518,7 @@ inline bool QWidgetMapper::remove( WId id )
   \i WState_Visible The widget is currently visible.
   \i WState_ForceHide The widget is explicitly hidden, i.e. it won't
   become visible unless you call show() on it. WState_ForceHide
-  implies WState_Visible.
+  implies !WState_Visible.
   \i WState_OwnCursor A cursor has been set for this widget.
   \i WState_MouseTracking Mouse tracking is enabled.
   \i WState_CompressKeys Compress keyboard events.
@@ -729,6 +729,7 @@ inline bool QWidgetMapper::remove( WId id )
     \value WState_ForceDisabled
     \value WState_Exposed
     \value WState_HasMouse
+    \value WState_CreatedHidden
 */
 
 
@@ -814,7 +815,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	if ( !parentWidget()->isEnabled() )
 	    setWState( WState_Disabled );
 	// new widgets do not show up in already visible parents
-	if ( parentWidget()->isVisibleTo( 0 ) )
+	if ( parentWidget()->isVisible() )
 	    setWState( WState_ForceHide | WState_CreatedHidden );
     }
     if ( ++instanceCounter > maxInstances )
@@ -860,7 +861,7 @@ QWidget::~QWidget()
     if ( hasFocus() )
 	clearFocus();
 
-    if ( isTopLevel() && !isHidden() && winId() )
+    if ( isTopLevel() && isShown() && winId() )
 	hide();
 
     // A parent widget must destroy all its children before destroying itself
@@ -3094,7 +3095,7 @@ void QWidget::clearFocus()
 bool QWidget::focusNextPrevChild( bool next )
 {
     QWidget* p = parentWidget();
-    if ( !testWFlags(WType_TopLevel) && p )
+    if ( !isTopLevel() && p )
 	return p->focusNextPrevChild(next);
 
     QFocusData *f = focusData( TRUE );
@@ -3103,9 +3104,10 @@ bool QWidget::focusNextPrevChild( bool next )
     QWidget *candidate = 0;
     QWidget *w = next ? f->focusWidgets.last() : f->focusWidgets.first();
     do {
+	QWidget* i = w;
 	if ( w && w != startingPoint &&
 	     ( ( w->focusPolicy() & TabFocus ) == TabFocus )
-	     && !w->focusProxy() && w->isVisible() && w->isEnabled())
+	     && !w->focusProxy() && w->isVisibleTo(this) && w->isEnabled())
 	    candidate = w;
 	w = next ? f->focusWidgets.prev() : f->focusWidgets.next();
     } while( w && !(candidate && w==startingPoint) );
@@ -3563,26 +3565,25 @@ void QWidget::setUpdatesEnabled( bool enable )
 
 void QWidget::show()
 {
-    bool sendLayoutHint = !isTopLevel() && isHidden();
+    if ( testWState(WState_Visible) )
+	return;
+
+    bool wasHidden = isHidden();
+    bool postLayoutHint = !isTopLevel() && wasHidden;
     clearWState( WState_ForceHide | WState_CreatedHidden );
 
-    if ( testWState(WState_Visible) )
-	return; // nothing to do
-    if ( !isTopLevel() && !parentWidget()->isVisibleTo( 0 ) ){
-	// we should become visible, but our parents are explicitly
-	// hidden. Don' worry, since we cleared the ForceHide flag,
-	// our immediate parent will call show() on us again during
-	// his own processing of show().
-	if ( sendLayoutHint ) {
-	    QEvent e( QEvent::ShowToParent );
-	    QApplication::sendEvent( this, &e );
-// 	    QApplication::postEvent( parentWidget(),
-// 				     new QEvent( QEvent::LayoutHint ) );
-	}
+    QEvent showToParentEvent( QEvent::ShowToParent );
+    QApplication::sendEvent( this, &showToParentEvent );
+
+    if ( !isTopLevel() && !parentWidget()->isVisible() ) {
+	// we should become visible, but one of our ancestors is
+	// explicitly hidden. Since we cleared the ForceHide flag, our
+	// immediate parent will call show() on us again during his
+	// own processing of show().
 	return;
     }
 
-    in_show = TRUE;
+    in_show = TRUE; // set qws recursion watch
 
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
 
@@ -3651,81 +3652,40 @@ void QWidget::show()
     if ( !testWState(WState_Polished) )
 	polish();
 
-    if ( children() ) {
-	QObjectListIt it(*children());
-	register QObject *object;
-	QWidget *widget;
-	while ( it ) {				// show all widget children
-	    object = it.current();		//   (except popups and other toplevels)
-	    ++it;
-	    if ( object->isWidgetType() ) {
-		widget = (QWidget*)object;
-		if ( !widget->isHidden() && !widget->isTopLevel() )
-		    widget->show();
-	    }
-	}
-    }
+    showChildren( FALSE );
 
-
-    bool sendShowWindowRequest = FALSE;
-    if ( sendLayoutHint )
+    if ( postLayoutHint )
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint) );
 
-    if ( !isTopLevel() && !parentWidget()->isVisible() ) {
-	// we should become visible, but somehow our parent is not
-	// visible, so we can't do that. Since it is not explicitly
-	// hidden (that we checked above with isVisibleTo(0) ), our
-	// window is not withdrawn, but may for example be iconfied or
-	// on another virtual desktop. Therefore we have to prepare
-	// for simply receiving a show event without show() beeing
-	// called again (see the call to sendShowEventsToChildren() in
-	// qapplication).
-	showWindow();
-	clearWState( WState_Visible );
-	if ( sendLayoutHint ) {
-	    QEvent e( QEvent::ShowToParent );
-	    QApplication::sendEvent( this, &e );
-	}
-    } else {
-	// Required for Mac, not sure whether we should always do that
-	if( isTopLevel() )
-	    QApplication::sendPostedEvents(0, QEvent::LayoutHint);
+    // Required for Mac, not sure whether we should always do that
+    if( isTopLevel() )
+	QApplication::sendPostedEvents(0, QEvent::LayoutHint);
 
-	QShowEvent e;
-	QApplication::sendEvent( this, &e );
+    QShowEvent e;
+    QApplication::sendEvent( this, &e );
 
-	if ( testWFlags(WShowModal) ) {
-	    // qt_enter_modal *before* show, otherwise the initial
-	    // stacking might be wrong
-	    qt_enter_modal( this );
-	}
-
-	bool winQNPChildWidget = FALSE;
-#if defined(_WS_WIN_)
-	if (parentWidget())
-	    winQNPChildWidget = parentWidget()->inherits("QNPWidget");
-#endif
-	// do not show the window directly, but post a showWindow
-	// request to reduce flicker with laid out widgets
-	if ( !isTopLevel() && sendLayoutHint
-	    && !winQNPChildWidget)   // ### Not sure why showWindow is needed for QNPWidget children, but is necessary
-	    sendShowWindowRequest = TRUE;
-	else
-	    showWindow();
-
-	if ( testWFlags(WType_Popup) )
-	    qApp->openPopup( this );
+    if ( testWFlags(WShowModal) ) {
+	// qt_enter_modal *before* show, otherwise the initial
+	// stacking might be wrong
+	qt_enter_modal( this );
     }
 
-    if ( sendShowWindowRequest )
+    // do not show the window directly, but post a show-window request
+    // to reduce flicker with widgets in layouts
+    if ( postLayoutHint )
 	QApplication::postEvent( this, new QEvent( QEvent::ShowWindowRequest ) );
+    else
+	showWindow();
+
+    if ( testWFlags(WType_Popup) )
+	qApp->openPopup( this );
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::ObjectShow );
 #endif
 
-    in_show = FALSE;
+    in_show = FALSE;  // reset qws recursion watch
 }
 
 /*! \fn void QWidget::iconify()
@@ -3765,25 +3725,25 @@ void QWidget::hide()
 
     hideWindow();
 
-    if ( !testWState(WState_Visible) ) {
-	QEvent e( QEvent::HideToParent );
+    QEvent hideToParentEvent( QEvent::HideToParent );
+    QApplication::sendEvent( this, &hideToParentEvent );
+
+    if ( testWState(WState_Visible) ) {
+	clearWState( WState_Visible );
+
+	// next bit tries to move the focus if the focus widget is now
+	// hidden.
+	if ( qApp && qApp->focusWidget() == this )
+	    focusNextPrevChild( TRUE );
+
+	QHideEvent e;
 	QApplication::sendEvent( this, &e );
-	// post layout hint for non toplevels. The parent widget check is
-	// necessary since the function is called in the destructor
-	if ( !isTopLevel() && parentWidget() )
-	    QApplication::postEvent( parentWidget(),
-				     new QEvent( QEvent::LayoutHint) );
-	return;
+	hideChildren( FALSE );
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	QAccessible::updateAccessibility( this, 0, QAccessible::ObjectHide );
+#endif
     }
-    clearWState( WState_Visible );
-
-    // next bit tries to move the focus if the focus widget is now
-    // hidden.
-    if ( qApp && qApp->focusWidget() == this )
-	focusNextPrevChild( TRUE );
-
-    QHideEvent e;
-    QApplication::sendEvent( this, &e );
 
     // post layout hint for non toplevels. The parent widget check is
     // necessary since the function is called in the destructor
@@ -3791,20 +3751,9 @@ void QWidget::hide()
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint) );
 
-    sendHideEventsToChildren( FALSE );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::ObjectHide );
-#endif
 }
 
-/*! Convenience slot to either show() or hide() the widget depending
- on \a show.
-
- \sa isHidden()
-*/
-
-void QWidget::toggleShowHide( bool show )
+void QWidget::setShown( bool show )
 {
     if ( show )
 	this->show();
@@ -3812,7 +3761,15 @@ void QWidget::toggleShowHide( bool show )
 	hide();
 }
 
-void QWidget::sendShowEventsToChildren( bool spontaneous )
+void QWidget::setHidden( bool hide )
+{
+    if ( hide )
+	this->hide();
+    else
+	show();
+}
+
+void QWidget::showChildren( bool spontaneous )
 {
      if ( children() ) {
 	QObjectListIt it(*children());
@@ -3823,21 +3780,22 @@ void QWidget::sendShowEventsToChildren( bool spontaneous )
 	    ++it;
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
-		if ( !widget->isTopLevel() && !widget->isVisible() && !widget->isHidden() ) {
-		    widget->setWState( WState_Visible );
-		    widget->sendShowEventsToChildren( spontaneous );
-		    QShowEvent e;
-		    if ( spontaneous )
+		if ( !widget->isTopLevel() && !widget->isHidden() ) {
+		    if ( spontaneous ) {
+			widget->setWState( WState_Visible );
+			widget->showChildren( spontaneous );
+			QShowEvent e;
 			QApplication::sendSpontaneousEvent( widget, &e );
-		    else
-			QApplication::sendEvent( widget, &e );
+		    } else {
+			widget->show();
+		    }
 		}
 	    }
 	}
     }
 }
 
-void QWidget::sendHideEventsToChildren( bool spontaneous )
+void QWidget::hideChildren( bool spontaneous )
 {
      if ( children() ) {
 	QObjectListIt it(*children());
@@ -3850,7 +3808,7 @@ void QWidget::sendHideEventsToChildren( bool spontaneous )
 		widget = (QWidget*)object;
 		if ( !widget->isTopLevel() && widget->isVisible() ) {
 		    widget->clearWState( WState_Visible );
-		    widget->sendHideEventsToChildren( spontaneous );
+		    widget->hideChildren( spontaneous );
 		    QHideEvent e;
 		    if ( spontaneous )
 			QApplication::sendSpontaneousEvent( widget, &e );
@@ -3972,7 +3930,7 @@ bool QWidget::close( bool alsoDelete )
     bool isMain = qApp->mainWidget() == this;
     bool checkLastWindowClosed = isTopLevel() && !isPopup();
     bool deleted = FALSE;
-    if ( !isHidden() ) {
+    if ( isShown() ) {
 	/* send close events to non-hidden widgets only. For others it
 	 does not makes sense to reject a close event, plus it makes
 	 it easy to get into endless loops. The prime example is
@@ -4055,19 +4013,20 @@ bool QWidget::close( bool alsoDelete )
     widget will never become visible, even if all its ancestors become
     visible, unless you show it.
 
-    Iconified top-level widgets also have hidden status, as well as
-    isMinimized() returning TRUE. Windows that exist on another
-    virtual desktop (on platforms that support this concept) also have
-    hidden status.
-
-    A widget that happens to be obscured by other windows on the
-    screen is considered to be visible.
-
     A widget receives show and hide events when its visibility status
     changes. Between a hide and a show event, there is no need to
     waste CPU cycles preparing or displaying information to the user.
     A video application, for example, might simply stop generating new
     frames.
+
+    A widget that happens to be obscured by other windows on the
+    screen is considered to be visible. The same applies to iconified
+    top-level widgets and windows that exist on another virtual
+    desktop (on platforms that support this concept). A widget
+    receives spontaneous show and hide events when its mapping status
+    is changed by the window system, e.g. a spontaneous hide event
+    when the user minimizes the window, and a spontaneous show event
+    when the window is restored again.
 
     \sa show(), hide(), isHidden(), isVisibleTo(), isMinimized(),
     showEvent(), hideEvent()
@@ -4085,23 +4044,23 @@ bool QWidget::close( bool alsoDelete )
     other windows on the screen, but could be physically visible if it
     or they were to be moved.
 
-    isVisibleTo(0) is very similar to isVisible(), with the exception
-    that it does not cover the iconfied-case or the situation where
-    the window exists on another virtual desktop.
+    isVisibleTo(0) is identical to isVisible().
 
     \sa show() hide() isVisible()
 */
 
 bool QWidget::isVisibleTo(QWidget* ancestor) const
 {
+    if ( !ancestor )
+	return isVisible();
     const QWidget * w = this;
     while ( w
 	    && !w->isHidden()
 	    && !w->isTopLevel()
 	    && w->parentWidget()
-	    && w->parentWidget()!=ancestor )
+	    && w->parentWidget() != ancestor )
 	w = w->parentWidget();
-    return !w->isHidden();
+    return isShown();
 }
 
 
@@ -4119,7 +4078,17 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
     If FALSE, the widget is visible or would become visible if all its
     ancestors became visible.
 
-    \sa hide(), show(), isVisible(), isVisibleTo()
+    \sa hide(), show(), isVisible(), isVisibleTo(), shown
+*/
+
+/*!
+    \property QWidget::shown
+    \brief whether the widget is shown
+
+    If TRUE, the widget is visible or would become visible if all its
+    ancestors became visible.
+
+    \sa hide(), show(), isVisible(), isVisibleTo(), hidden
 */
 
 /*!
@@ -4493,7 +4462,7 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case QEvent::ShowWindowRequest:
-	    if ( !isHidden() )
+	    if ( isShown() )
 		showWindow();
 	    break;
 
@@ -5543,7 +5512,7 @@ QWidget  *QWidget::childAt( const QPoint & p, bool includeThis ) const
 
 void QWidget::updateGeometry()
 {
-    if ( !isTopLevel() && !isHidden() )
+    if ( !isTopLevel() && isShown() )
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint ) );
 }

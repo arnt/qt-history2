@@ -383,8 +383,8 @@ QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, voi
 	    return noErr; }
 	case kEventWindowDrawContent: {
 	    if(QWidget *widget = QWidget::find((WId)wid)) {
-		widget->propagateUpdates(FALSE); 
-		return noErr; 
+		widget->propagateUpdates(FALSE);
+		return noErr;
 	    }
 	    break; }
 	}
@@ -662,7 +662,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	}
 #endif
 #if 0
-	//We cannot use a window content paint proc because it causes problems on 10.2 (it 
+	//We cannot use a window content paint proc because it causes problems on 10.2 (it
 	//is buggy). We have an outstanding issue with Apple right now.
 	InstallWindowContentPaintProc((WindowPtr)id, NewWindowPaintUPP(qt_erase), 0, this);
 #endif
@@ -717,7 +717,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	qt_root_win_widgets.removeRef(this);
     if ( testWState(WState_Created) ) {
 	dirtyClippedRegion(TRUE);
-	if(isVisibleTo(0))
+	if( isVisible() )
 	    qt_dirty_wndw_rgn("destroy",this, mac_rect(posInWindow(this), geometry().size()));
         clearWState( WState_Created );
         if ( children() ) {
@@ -799,7 +799,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
     QString capt= caption();
     widget_flags = f;
     clearWState( WState_Created | WState_Visible | WState_ForceHide );
-    if ( isTopLevel() || (!parent || parent->isVisibleTo( 0 ) ) )
+    if ( isTopLevel() || (!parent || parent->isVisible() ) )
 	setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
     if(dropable)
 	setAcceptDrops(FALSE);
@@ -1169,7 +1169,7 @@ void QWidget::showWindow()
 	    DisableMenuCommand(NULL, kHICommandQuit);
 #endif
 	setActiveWindow();
-    } else if(!parentWidget(TRUE) || parentWidget(TRUE)->isVisibleTo(0)) {
+    } else if(!parentWidget(TRUE) || parentWidget(TRUE)->isVisible()) {
 	qt_dirty_wndw_rgn("show",this, mac_rect(posInWindow(this), geometry().size()));
     }
 }
@@ -1209,7 +1209,7 @@ void QWidget::hideWindow()
 	    if(w && w->isVisible())
 		w->setActiveWindow();
 	}
-    } else if(!parentWidget(TRUE) || parentWidget(TRUE)->isVisibleTo(0)) { //strange!! ###
+    } else if(!parentWidget(TRUE) || parentWidget(TRUE)->isVisible()) { //strange!! ###
 	qt_dirty_wndw_rgn("hide",this, mac_rect(posInWindow(this), geometry().size()));
     }
     deactivateWidgetCleanup();
@@ -1234,13 +1234,12 @@ void QWidget::showMinimized()
     if(isMinimized())
 	return;
     if ( isTopLevel() ) {
-	if ( isVisible() ) {
+	if ( isVisible() && !isMinimized() ) {
 	    CollapseWindow((WindowPtr)hd, TRUE);
-        } else {
+	} else {
 	    topData()->showMode = 1;
 	    show();
-	    clearWState( WState_Visible );
-	    sendHideEventsToChildren(TRUE);
+	    hideChildren( FALSE );
 	}
     } else {
 	show();
@@ -1344,7 +1343,7 @@ void QWidget::raise()
 	    clp = clippedRegion(FALSE);
 	if ( p->childObjects && p->childObjects->findRef(this) >= 0 )
 	    p->childObjects->append( p->childObjects->take() );
-	if(isVisibleTo(0)) {
+	if(isVisible()) {
 	    dirtyClippedRegion(TRUE);
 	    clp ^= clippedRegion(FALSE);
 	    qt_dirty_wndw_rgn("raise",this, clp);
@@ -1365,7 +1364,7 @@ void QWidget::lower()
 	    clp = clippedRegion(FALSE);
 	if ( p->childObjects && p->childObjects->findRef(this) >= 0 )
 	    p->childObjects->insert( 0, p->childObjects->take() );
-	if(isVisibleTo(0)) {
+	if(isVisible()) {
 	    dirtyClippedRegion(TRUE);
 	    clp ^= clippedRegion(FALSE);
 	    qt_dirty_wndw_rgn("lower",this, clp);
@@ -1388,7 +1387,7 @@ void QWidget::stackUnder( QWidget *w )
 	clp = clippedRegion(FALSE);
     if ( loc >= 0 && p->childObjects && p->childObjects->findRef(this) >= 0 )
 	p->childObjects->insert( loc, p->childObjects->take() );
-    if(isVisibleTo(0)) {
+    if(isVisible()) {
 	dirtyClippedRegion(TRUE);
 	clp ^= clippedRegion(FALSE);
 	qt_dirty_wndw_rgn("stackUnder",this, clp);
@@ -1868,7 +1867,7 @@ void QWidget::propagateUpdates(bool update_rgn)
     if(update_rgn) {
 	QMacSavedPortInfo savedInfo(this);
 	GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, rgn.handle(TRUE));
-	if(rgn.isEmpty()) 
+	if(rgn.isEmpty())
 	    return;
 	rgn.translate(-topLevelWidget()->geometry().x(),
 		      -topLevelWidget()->geometry().y());

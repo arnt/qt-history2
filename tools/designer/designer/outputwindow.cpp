@@ -88,7 +88,7 @@ void debugMessageOutput( QtMsgType type, const char *msg )
     s += "\n";
 
     if ( type != QtFatalMsg ) {
-	if ( debugoutput && debugoutput->isVisibleTo( 0 ) )
+	if ( debugoutput && debugoutput->isVisible() )
 	    debugoutput->append( s );
 	else
 	    fprintf( stderr, s.latin1() );

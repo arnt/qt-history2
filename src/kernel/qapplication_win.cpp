@@ -3339,21 +3339,16 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		// being "hidden"
 		extra->topextra->iconic = 1;
 		if ( isVisible() ) {
-		    clearWState( WState_Visible );
 		    QHideEvent e;
 		    QApplication::sendSpontaneousEvent( this, &e );
-		    sendHideEventsToChildren( TRUE );
+		    hideChildren( TRUE );
 		}
 	    } else if ( extra->topextra->iconic ) {
 		// being shown
 		extra->topextra->iconic = 0;
-		if ( !isVisible() ) {
-		    setWState( WState_Visible );
-		    clearWState( WState_ForceHide );
-		    sendShowEventsToChildren( TRUE );
-		    QShowEvent e;
-		    QApplication::sendSpontaneousEvent( this, &e );
-		}
+		showChildren( TRUE );
+		QShowEvent e;
+		QApplication::sendSpontaneousEvent( this, &e );
 	    }
 	    QString txt;
 #ifndef Q_OS_TEMP

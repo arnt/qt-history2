@@ -318,7 +318,7 @@ void QSplitter::setOrientation( Orientation o )
 	    ((QSplitterHandle*)s->wid)->setOrientation( o );
 	s = data->list.next();
     }
-    recalc( isVisibleTo(0) );
+    recalc( isVisible() );
 }
 
 
@@ -368,7 +368,7 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
 	data->list.prepend( s );
     else
 	data->list.append( s );
-    if ( newHandle && isVisibleTo(0) )
+    if ( newHandle && isVisible() )
 	newHandle->show(); //will trigger sending of post events
     return s;
 }
@@ -395,7 +395,7 @@ void QSplitter::childEvent( QChildEvent *c )
 	    s = data->list.next();
 	}
 	addWidget( (QWidget*)c->child() );
-	recalc( isVisibleTo(0) );
+	recalc( isVisible() );
     } else if ( c->type() == QEvent::ChildRemoved ) {
 	QSplitterLayoutStruct *p = 0;
 	if ( data->list.count() > 1 )
@@ -465,7 +465,7 @@ bool QSplitter::event( QEvent *e )
 	data->firstShow = FALSE;
 	// fall through
     case QEvent::LayoutHint:
-	recalc( isVisibleTo(0) );
+	recalc( isVisible() );
 	break;
     default:
 	;
@@ -845,7 +845,7 @@ void QSplitter::recalc( bool update )
 	    if ( p && p->isSplitter ) {
 		// may trigger new recalc
 		if ( first || s->wid->isHidden() ) {
-		    p->wid->hide(); 
+		    p->wid->hide();
 		} else {
 		    p->wid->show();
 		}

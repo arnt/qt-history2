@@ -658,7 +658,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     QString capt= caption();
     widget_flags = f;
     clearWState( WState_Created | WState_Visible | WState_ForceHide );
-    if ( isTopLevel() || (!parent || parent->isVisibleTo( 0 ) ) )
+    if ( isTopLevel() || (!parent || parent->isVisible() ) )
 	setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
     create();
 
@@ -1535,13 +1535,12 @@ void QWidget::hideWindow()
 void QWidget::showMinimized()
 {
     if ( isTopLevel() ) {
-	if ( isVisible() )
+	if ( isVisible() && !isMinimized() )
 	    XIconifyWindow( x11Display(), winId(), x11Screen() );
 	else {
 	    topData()->showMode = 1;
 	    show();
-	    clearWState( WState_Visible );
-	    sendHideEventsToChildren(TRUE);
+	    hideChildren( FALSE );
 	}
     } else {
 	show();

@@ -349,7 +349,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
     // go through all widgets in the dock
     while ( ( dw = it.current() ) != 0 ) {
 	++it;
-	if ( !dw->isVisibleTo( parentWidget ) )
+	if ( dw->isHidden() )
 	    continue;
 	++visibleWindows;
 	// find position for the widget: This is the maximum of the

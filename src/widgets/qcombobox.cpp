@@ -1030,7 +1030,7 @@ void QComboBox::setAutoResize( bool enable )
 */
 QSize QComboBox::sizeHint() const
 {
-    if ( isVisibleTo(0) && d->sizeHint.isValid() )
+    if ( isVisible() && d->sizeHint.isValid() )
 	return d->sizeHint;
 
     constPolish();

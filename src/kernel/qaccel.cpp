@@ -196,7 +196,7 @@ bool Q_EXPORT qt_dispatchAccelEvent( QWidget* w, QKeyEvent*  e){
     Returns TRUE if the accel is in the current subwindow, else FALSE.
 */
 bool QAccelManager::correctSubWindow( QWidget* w, QAccelPrivate* d ) {
-    if ( !d->enabled || !d->watch || !d->watch->isVisibleTo(0) )
+    if ( !d->enabled || !d->watch || !d->watch->isVisible() )
 	return FALSE;
     QWidget* tlw = w->topLevelWidget();
     QWidget* wtlw = d->watch->topLevelWidget();
