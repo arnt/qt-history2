@@ -208,7 +208,7 @@ void Layout::undoLayout()
     }
     formWindow->selectWidget( layoutBase, FALSE );
     WidgetFactory::deleteLayout( layoutBase );
-    if ( parent != layoutBase ) {
+    if ( parent != layoutBase && !layoutBase->inherits( "QMainWindow" ) ) {
 	layoutBase->hide();
 	QString n = layoutBase->name();
 	n.prepend( "qt_dead_widget_" );
