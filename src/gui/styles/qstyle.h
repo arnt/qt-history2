@@ -683,6 +683,9 @@ public:
         //bool - small scrolling popups should fill the screen as scrolled
         SH_Menu_FillScreenWithScroll,
 
+        // int - a scale of 0 (transparent) to 255 (solid) indicating opacity of tip label.
+        SH_TipLabel_Opacity,
+
 #ifdef QT_COMPAT
         SH_UnderlineAccelerator = SH_UnderlineShortcut,
 #endif

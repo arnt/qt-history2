@@ -410,12 +410,7 @@ void QMacStyleQD::polish(QWidget* w)
         layout->setMargin(0);
     }
 #endif
-    else if(w->inherits("QTipLabel")) {   // QTipLabel is declared in qtooltip.cpp :-(
-        QLabel *label = static_cast<QLabel *>(w);
-        label->setFrameStyle(QFrame::NoFrame);
-        label->setLineWidth(1);
-        label->setWindowOpacity(0.95);
-    } else if(QRubberBand *rubber = qt_cast<QRubberBand*>(w)) {
+    else if(QRubberBand *rubber = qt_cast<QRubberBand*>(w)) {
         rubber->setWindowOpacity(0.25);
     } else if(QMenu *menu = qt_cast<QMenu*>(w)) {
         menu->setWindowOpacity(0.95);
@@ -751,6 +746,9 @@ int QMacStyleQD::styleHint(StyleHint sh, const QWidget *w,
         break;
     case SH_UnderlineShortcut:
         ret = false;
+        break;
+    case SH_TipLabel_Opacity:
+        ret = 242; // About 95%
         break;
     default:
         ret = QWindowsStyle::styleHint(sh, w, opt, d);

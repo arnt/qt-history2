@@ -582,6 +582,9 @@ int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const Q3StyleOpt
     case SH_UnderlineShortcut:
         ret = false;
         break;
+    case SH_TipLabel_Opacity:
+        ret = 242; // About 95%
+        break;
     default:
         ret = QWindowsStyle::styleHint(sh, widget, opt, d);
         break;

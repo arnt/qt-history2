@@ -2540,6 +2540,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const Q3StyleOption
         ret = true;
         break;
 
+    case SH_TipLabel_Opacity:
+        ret = 255;
+        break;
+
     default:
         ret = 0;
         break;

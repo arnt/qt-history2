@@ -1573,6 +1573,8 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     spinbox keypresses
     \value SH_SpinBox_ClickAutoRepeatRate autorepeat interval for
     spinbox mouse clicks
+    \value SH_TipLabel_Opacity An integer inticating the opacity for the tip
+    label, 0 is complete transparent, 255 is completely opaque.
 
     \sa styleHint()
 */

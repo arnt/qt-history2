@@ -10,14 +10,15 @@
 **
 ****************************************************************************/
 
-#include "qtooltip.h"
-#include "qlabel.h"
+#include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
 #include "qhash.h"
-#include "qapplication.h"
+#include "qlabel.h"
 #include "qpointer.h"
 #include "qtimer.h"
+#include "qtooltip.h"
+#include "qstyle.h"
 #include <private/qeffects_p.h>
 
 /*!
@@ -83,6 +84,7 @@ QTipLabel::QTipLabel(const QString& text, QWidget* parent)
     adjustSize();
     qApp->installEventFilter(this);
     hideTimer.start(10000, this);
+    setWindowOpacity(style().styleHint(QStyle::SH_TipLabel_Opacity) / 255.0);
 }
 
 QTipLabel::~QTipLabel()
