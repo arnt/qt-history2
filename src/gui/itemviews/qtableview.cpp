@@ -406,6 +406,8 @@ void QTableView::paintEvent(QPaintEvent *e)
                 option.state = state;
                 option.state |= (sels->isSelected(index)
                                  ? QStyle::Style_Selected : QStyle::Style_Default);
+                if ((model()->flags(index) & QAbstractItemModel::ItemIsEnabled) == 0)
+                    option.state &= ~QStyle::Style_Enabled;
                 option.state |= (focus && index == current
                                  ? QStyle::Style_HasFocus : QStyle::Style_Default);
                 painter.fillRect(colp, rowp, colw, rowh,

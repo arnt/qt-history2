@@ -36,9 +36,6 @@ void QTableItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
                               const QAbstractItemModel *model, const QModelIndex &index) const
 {
     QStyleOptionViewItem opt = option;
-    // enabled
-    if ((model->flags(index) & QAbstractItemModel::ItemIsEnabled) == 0)
-        opt.state &= ~QStyle::Style_Enabled;
     // set font
     QVariant value = model->data(index, QAbstractItemModel::FontRole);
     if (value.isValid())
@@ -316,11 +313,11 @@ bool QTableModel::isValid(const QModelIndex &index) const
 // item
 
 QTableWidgetItem::QTableWidgetItem(QTableWidget *view)
-    : itemFlags(QAbstractItemModel::ItemIsEditable
+    : view(view),
+      itemFlags(QAbstractItemModel::ItemIsEditable
                 |QAbstractItemModel::ItemIsSelectable
                 |QAbstractItemModel::ItemIsCheckable
-                |QAbstractItemModel::ItemIsEnabled),
-      view(view)
+                |QAbstractItemModel::ItemIsEnabled)
 {
 }
 

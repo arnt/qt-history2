@@ -35,9 +35,6 @@ void QTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
                               const QAbstractItemModel *model, const QModelIndex &index) const
 {
     QStyleOptionViewItem opt = option;
-    // enabled
-    if ((model->flags(index) & QAbstractItemModel::ItemIsEnabled) == 0)
-        opt.state &= ~QStyle::Style_Enabled;
     // set font
     QVariant value = model->data(index, QAbstractItemModel::FontRole);
     if (value.isValid())
@@ -485,7 +482,10 @@ QTreeWidgetItem::QTreeWidgetItem()
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
-    : view(view), par(0)
+    : view(view), par(0), itemFlags(QAbstractItemModel::ItemIsEditable
+                                    |QAbstractItemModel::ItemIsSelectable
+                                    |QAbstractItemModel::ItemIsCheckable
+                                    |QAbstractItemModel::ItemIsEnabled)
 {
     if (view)
         view->appendItem(this);

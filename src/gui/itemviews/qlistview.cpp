@@ -812,6 +812,8 @@ void QListView::paintEvent(QPaintEvent *e)
         option.state = state;
         option.state |= (selections && selections->isSelected(*it)
                          ? QStyle::Style_Selected : QStyle::Style_Default);
+        if ((model()->flags(*it) & QAbstractItemModel::ItemIsEnabled) == 0)
+            option.state &= ~QStyle::Style_Enabled;
         option.state |= (focus && current == *it ? QStyle::Style_HasFocus : QStyle::Style_Default);
         delegate->paint(&painter, option, d->model, *it);
     }

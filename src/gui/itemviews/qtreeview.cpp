@@ -523,6 +523,8 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
                      ? QStyle::Style_HasFocus : QStyle::Style_Default);
         opt.state |= (selectionModel()->isSelected(modelIndex)
                      ? QStyle::Style_Selected : QStyle::Style_Default);
+        if ((model()->flags(index) & QAbstractItemModel::ItemIsEnabled) == 0)
+            opt.state &= ~QStyle::Style_Enabled;
         if (headerSection == 0) {
             int i = d->indentation(d->current);
             opt.rect.setRect(reverse ? position : i + position, y, width - i, height);
@@ -1402,7 +1404,7 @@ void QTreeViewPrivate::updateVerticalScrollbar(int itemHeight)
     int factor = q->verticalFactor();
     int height = viewport->height();
     int itemCount = items.count();
-    
+
     // if we have no viewport or no items, there is nothing to do
     if (height <= 0 || itemCount <= 0 || itemHeight <= 0) {
         q->verticalScrollBar()->setRange(0, 0);
@@ -1429,7 +1431,7 @@ void QTreeViewPrivate::updateVerticalScrollbar(int itemHeight)
         if (itemSize > 0) // avoid division by zero
             max += (backtracking / itemSize) + 1;
     }
-    
+
     q->verticalScrollBar()->setRange(0, max);
 }
 

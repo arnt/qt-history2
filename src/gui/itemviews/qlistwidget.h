@@ -30,7 +30,7 @@ public:
 
     inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
     inline void setFlags(QAbstractItemModel::ItemFlags flags) { itemFlags = flags; }
-    
+
     inline QString text() const
         { return data(QAbstractItemModel::DisplayRole).toString(); }
     inline void setText(const QString &text)
@@ -75,7 +75,7 @@ public:
         { return data(QAbstractItemModel::CheckStateRole).toInt(); }
     inline void setChecked(const bool checked)
         { setData(QAbstractItemModel::CheckStateRole, checked); }
-    
+
     virtual QVariant data(int role) const;
     virtual void setData(int role, const QVariant &value);
     virtual bool operator<(const QListWidgetItem &other) const;
@@ -89,8 +89,8 @@ protected:
     };
 
     QVector<Data> values;
-    QAbstractItemModel::ItemFlags itemFlags;
     QListWidget *view;
+    QAbstractItemModel::ItemFlags itemFlags;
 };
 
 class QListWidgetPrivate;

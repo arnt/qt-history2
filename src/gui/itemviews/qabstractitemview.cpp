@@ -1559,17 +1559,16 @@ bool QAbstractItemView::isDragEnabled(const QModelIndex &) const
 }
 
 /*!
-    Returns QStyleOptionViewItem structure populated with the view's palette.
-    The structure contains information about whether the view is in the
-    \c Editing state.
+    Returns QStyleOptionViewItem structure populated with the view's
+    palette, font, state, alignments etc.
 */
 QStyleOptionViewItem QAbstractItemView::viewOptions() const
 {
     QStyleOptionViewItem option(0);
     option.palette = palette();
     option.font = font();
-    option.state = QStyle::Style_Enabled
-                   |(state() == Editing ? QStyle::Style_Editing : QStyle::Style_Default);
+    option.state = (isEnabled() ? QStyle::Style_Enabled : QStyle::Style_Default);
+    option.state |= (state() == Editing ? QStyle::Style_Editing : QStyle::Style_Default);
     option.decorationSize = QStyleOptionViewItem::Small;
     option.decorationPosition = QStyleOptionViewItem::Left;
     option.decorationAlignment = Qt::AlignCenter;
