@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#26 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#27 $
 **
 ** Definition of QFont class
 **
@@ -66,7 +66,7 @@ public:
     bool	operator==( const QFont & ) const;
     bool	operator!=( const QFont & ) const;
 
-    HANDLE	handle() const;
+    HANDLE	handle( HANDLE=0 ) const;
 
     static const QFont &defaultFont();
     static void setDefaultFont( const QFont & );
@@ -93,8 +93,8 @@ private:
     QFont( bool );
     void	init();
     void	detach();
-    void	updateFontInfo() const;
-    void	loadFont() const;
+    void	updateFontInfo()	const;
+    void	loadFont( HANDLE=0 )	const;
 
     friend class QFontMetrics;
     friend class QFontInfo;
