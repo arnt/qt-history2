@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#213 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#214 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -28,7 +28,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#213 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#214 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -435,6 +435,7 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
     QSize    s	    = size();
     QPixmap *bgp    = (QPixmap *)backgroundPixmap();
     QColor   bgc    = bg_col;			// save colors
+    const char* capt= caption();
     flags = f;
     clearWFlags( WState_Created | WState_Visible );
     create();
@@ -458,6 +459,10 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 	XSetWindowBackground( dpy, winid, bgc.pixel() );
     setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
+    if ( capt ) {
+	extra->caption = 0;
+	setCaption( capt );
+    }
     if ( showIt )
 	show();
     if ( old_winid )
