@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#256 $
+** $Id: //depot/qt/main/src/moc/moc.y#257 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -58,7 +58,7 @@ void yyerror( const char *msg );
 #include "qptrlist.h"
 #include "qasciidict.h"
 #include "qdict.h"
-#include "qptrstrlist.h"
+#include "qstrlist.h"
 #include "qdatetime.h"
 #include "qfile.h"
 #include <ctype.h>
@@ -229,7 +229,7 @@ public:
     }
 };
 
-class Enum : public QPtrStrList
+class Enum : public QStrList
 {
 public:
     QCString name;
@@ -1353,8 +1353,8 @@ class parser_reg {
     QCString propDesignable;				// "true", "false" or function or empty if not specified
     bool propOverride;				// Wether OVERRIDE was detected
 
-    QPtrStrList qtEnums;				// Used to store the contents of Q_ENUMS
-    QPtrStrList qtSets;				// Used to store the contents of Q_SETS
+    QStrList qtEnums;				// Used to store the contents of Q_ENUMS
+    QStrList qtSets;				// Used to store the contents of Q_SETS
 };
 FILE  *out;					// output file
 static parser_reg *g = NULL;
@@ -2280,7 +2280,7 @@ int generateEnums()
     for ( QPtrListIterator<Enum> it( g->enums ); it.current(); ++it, ++i ) {
 	fprintf( out, "    static const QMetaEnum::Item enum_%i[] = {\n", i );
 	int k = 0;
-	for( QPtrStrListIterator eit( *it.current() ); eit.current(); ++eit, ++k ) {
+	for( QStrListIterator eit( *it.current() ); eit.current(); ++eit, ++k ) {
 	    if ( k )
 		fprintf( out, ",\n" );
 	    fprintf( out, "\t{ \"%s\",  (int) %s::%s }", eit.current(), (const char*) g->className, eit.current() );
@@ -2640,7 +2640,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#256 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#257 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
