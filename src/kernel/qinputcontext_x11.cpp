@@ -42,8 +42,13 @@
 
 #include <stdlib.h>
 
+int compose_keycode = 0;
 
 #if !defined(QT_NO_XIM)
+
+#define XK_MISCELLANY
+#define XK_LATIN1
+#include <X11/keysymdef.h>
 
 // from qapplication_x11.cpp
 extern XIM	qt_xim;
@@ -96,7 +101,6 @@ extern "C" {
 	if (! qic->composing || ! qic->focusWidget) {
 	    // qDebug("compose event: invalid compose event %d %p",
 	    // qic->composing, qic->focusWidget);
-
 	    return 0;
 	}
 
@@ -129,23 +133,28 @@ extern "C" {
 	    else
 		qic->text.replace(drawstruct->chg_first, drawstruct->chg_length, s);
 	} else {
+	    if (drawstruct->chg_length == 0)
+		drawstruct->chg_length = -1;
+
 	    qic->text.remove(drawstruct->chg_first, drawstruct->chg_length);
 
-	    if (drawstruct->chg_length == 0 ||
-		(qic->text.isEmpty() && drawstruct->chg_length > 1)) {
-       		// user pressed return, send an IMEnd...
-		QIMEvent endevent(QEvent::IMEnd, qic->lastcompose, -1);
-		QApplication::sendEvent(qic->focusWidget, &endevent);
-		qic->focusWidget = 0;
-		return 0;
-	    } else if ( qic->text.isEmpty() &&
-			drawstruct->chg_first == 0 &&
-			drawstruct->chg_length == 1 ) {
-		// last char deleted, send an IMEnd with null string...
-		QIMEvent endevent(QEvent::IMEnd, QString::null, -1);
-		QApplication::sendEvent(qic->focusWidget, &endevent);
-		qic->focusWidget = 0;
-		return 0;
+	    KeySym sym = XKeycodeToKeysym(QPaintDevice::x11AppDisplay(),
+					  compose_keycode, 0);
+
+	    if ( qic->text.isEmpty() ) {
+		if ( sym == XK_Return ) {
+		    // qDebug("user pressed return, send an IMEnd...");
+		    QIMEvent endevent(QEvent::IMEnd, qic->lastcompose, -1);
+		    QApplication::sendEvent(qic->focusWidget, &endevent);
+		    qic->focusWidget = 0;
+		    return 0;
+		} else {
+		    // qDebug("last char deleted, send an IMEnd with null string...");
+		    QIMEvent endevent(QEvent::IMEnd, QString::null, -1);
+		    QApplication::sendEvent(qic->focusWidget, &endevent);
+		    qic->focusWidget = 0;
+		    return 0;
+		}
 	    }
 	}
 
@@ -318,6 +327,7 @@ void QInputContext::reset()
 	QIMEvent endevent(QEvent::IMEnd, lastcompose, -1);
 	QApplication::sendEvent(focusWidget, &endevent);
 	focusWidget = 0;
+	lastcompose = text = QString::null;
 
 	char *mb = XmbResetIC((XIC) ic);
 	if (mb)
@@ -389,7 +399,6 @@ int QInputContext::lookupString(XKeyEvent *event, QCString &chars,
 
     return count;
 }
-
 
 void QInputContext::setFocus()
 {

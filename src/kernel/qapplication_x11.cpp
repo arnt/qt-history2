@@ -3230,6 +3230,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
     }
 
     int xkey_keycode = event->xkey.keycode;
+    extern int compose_keycode; // in qinputcontext_x11.cpp
+    compose_keycode = xkey_keycode;
     if ( XFilterEvent( event, keywidget ? keywidget->topLevelWidget()->winId() : None ) ) {
 	if ( keywidget )
 	    composingKeycode = xkey_keycode; // ### not documented in xlib
