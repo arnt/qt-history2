@@ -1010,13 +1010,14 @@ void add_style( QtFontCharSet *charSet, const QString& styleName,
 	}
 	sn = sn.left(sn.length()-1); // chomp " "
     }
-
+#if 0
 debug("New font: %s %s%s %d",
 sn.latin1(),
 italic?" Italic":"",
 lesserItalic?" Oblique":"",
 weight
 );
+#endif
     QtFontStyle *style = charSet->styleDict.find( sn );
     if ( !style ) {
 	//qWarning( "New style[%s] for [%s][%s][%s]",
@@ -1031,8 +1032,11 @@ weight
 	style->weightDirty  = FALSE;
 	charSet->addStyle( style );
     }
+    //#### eiriken?
+#if 0
 else
 debug("Already got it");
+#endif
     style->setSmoothlyScalable();  // cowabunga
 }
 
@@ -1092,9 +1096,12 @@ void newWinFont( void * p )
     if ( styleName.isEmpty() ) {
 	// Not TTF, we enumerate the
 	// transformed fonts that Windows can generate.
+#if 0
 debug("%s with quality %x",familyName.latin1(),f->elfLogFont.lfQuality);
+#endif
 	add_style( charSet, styleName, FALSE, FALSE, weight );
 	add_style( charSet, styleName, FALSE, TRUE, weight );
+
 	if ( weight < QFont::DemiBold*10 ) {
 	    // Can make bolder
 	    add_style( charSet, styleName, FALSE, FALSE, QFont::Bold );
