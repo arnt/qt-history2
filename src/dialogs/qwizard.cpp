@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#34 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#35 $
 **
 ** Implementation of QWizard class.
 **
@@ -34,6 +34,9 @@
 #include "qpainter.h"
 #include "qaccel.h"
 
+#ifdef QT_BUILDER
+#include "qdom.h"
+#endif
 
 /*! \class QWizard qwizard.h
 
@@ -679,4 +682,45 @@ QWidget* QWizard::page( int pos ) const
 
     return d->pages[ pos ]->w;
 }
+
+bool QWizard::configure( const QDomElement& element )
+{
+    QDomElement r = element.firstChild().toElement();
+    for( ; !r.isNull(); r = r.nextSibling().toElement() )
+    {
+      if ( r.tagName() == "Page" )
+      {
+	QVariant prop = r.property( "title", QVariant::String );
+	if ( prop.isEmpty() )
+	  return FALSE;
+	QString title = prop.stringValue();
+
+	QDomElement c = r.firstChild().toElement();
+	for( ; !c.isNull(); c = c.nextSibling().toElement() )
+	{
+	  if ( c.tagName() == "Widget" )
+	  {
+	    QWidget* w = c.firstChild().toElement().toWidget( this );
+	    if ( !w )
+	      return FALSE;
+	    addPage( w, title );
+	  }
+	  else if ( c.tagName() == "Layout" )
+	  {
+	    QWidget* w = new QWidget( this );
+	    QLayout* l = c.firstChild().toElement().toLayout( w );
+	    if ( !l )
+	      return FALSE;
+	    addPage( w, title );
+	  }
+	}
+      }    
+    }  
+
+    if ( !QDialog::configure( element ) )
+      return FALSE;
+
+    return TRUE;
+}
+
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.h#13 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.h#14 $
 **
 ** Definition of the QWizard class.
 **
@@ -35,7 +35,7 @@
 class QWizardPrivate;
 class QWizardPagePrivate;
 class QWizard;
-
+class QDomElement;
 class QHBoxLayout;
 
 
@@ -60,6 +60,7 @@ public:
     QWidget * currentPage() const;
 #ifdef QT_BUILDER
     QWidget* page( int pos ) const;
+    virtual bool configure( const QDomElement& );
 #endif
 
     virtual bool appropriate( QWidget * ) const;
