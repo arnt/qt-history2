@@ -1599,7 +1599,8 @@ MakefileGenerator::writeHeader(QTextStream &t)
     t << "# Project:  " << fileFixify(project->projectFile()) << endl;
     t << "# Template: " << var("TEMPLATE") << endl;
     if(!project->isActiveConfig("build_pass"))
-        t << "# Command: " << build_args() << endl;
+        t << "# Command: " << build_args().replace("$(QMAKE)", 
+                      project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
     t << "#############################################################################" << endl;
     t << endl;
 }
