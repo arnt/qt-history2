@@ -3,6 +3,7 @@
 #include <qsqlfield.h>
 #include <qsqldatabase.h>
 #include <qsqldriver.h>
+#include <qsqlview.h>
 #include <qapplication.h>
 #include <stdio.h>
 
@@ -27,7 +28,7 @@ void TestCreateTable()
     qDebug("Table field list:" );
     QSqlFieldList fl = QSqlConnection::database()->fields( TABLE_NAME );
     for ( uint i = 0; i <fl.count(); ++i )
-	qDebug( fl.field(i).name() + (fl.field(i).isPrimaryIndex() ? QString(" primary index") : QString::null ) );
+	qDebug( fl.field(i)->name() + (fl.field(i)->isPrimaryIndex() ? QString(" primary index") : QString::null ) );
     qDebug("Done.");
 }
 
@@ -68,7 +69,7 @@ void TestSelect()
 	qDebug("Query (" + selRecs.query() + ") failed:" + selRecs.lastError().databaseText());
 
     qDebug("Random selection test..." + selRecs.query() );
-    //    for ( int i=0; i<TEST_RECS; ++i ){
+    for ( int i=0; i<TEST_RECS; ++i ){
 	while ( selRecs.next() )
 	    ; // go to end
 	if ( selRecs.isValid() )
@@ -102,11 +103,21 @@ void TestSelect()
 	// change the query to something else
 	selRecs.setQuery( "update " + TABLE_NAME + " set id=1 where id=1;");
 	qDebug("...after changed query");
-	
+
 	// now change it back
 	selRecs.setQuery( selQuery );
 	qDebug("...after restoring original query");
-	//    }
+    }
+    qDebug("Testing custom view...");
+    QSqlView v( TABLE_NAME, FALSE );
+    QSqlField f1("field1", 1, QVariant::String );
+    v.append( &f1 );
+    QSqlField f2("field3", 2, QVariant::Double );
+    v.append( &f2 );
+    v.select();
+    while ( v.next() )
+	;
+    
     qDebug("Done.");
 }
 
