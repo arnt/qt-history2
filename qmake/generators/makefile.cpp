@@ -326,7 +326,7 @@ MakefileGenerator::init()
                 continue;
             if(tmp_out.indexOf("$") == -1) {
                 if(project->variables().contains((*it) + ".variable_out"))
-                    project->variables()[project->variables().value((*it) + ".variable_out").first()] += tmp_out;
+                    project->variables()[project->variables().value((*it) + ".variable_out").first()] += Option::fixPathToTargetOS(tmp_out, false);
                 else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
                     project->variables()["OBJECTS"] += tmp_out; //auto link it in
             }
@@ -344,7 +344,7 @@ MakefileGenerator::init()
                 QString in = fileFixify(Option::fixPathToTargetOS((*input), false));
                 QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
                 if(project->variables().contains((*it) + ".variable_out"))
-                    project->variables()[project->variables().value((*it) + ".variable_out").first()] += out;
+                    project->variables()[project->variables().value((*it) + ".variable_out").first()] += Option::fixPathToTargetOS(out, false);
                 else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
                     project->variables()["OBJECTS"] += out; //auto link it in
             }
