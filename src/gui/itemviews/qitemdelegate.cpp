@@ -577,7 +577,6 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
             break;
         }
     } else if (event->type() == QEvent::FocusOut) {
-        qDebug("focus out");
         emit commitData(editor);
         emit closeEditor(editor, NoHint);
         return true;
