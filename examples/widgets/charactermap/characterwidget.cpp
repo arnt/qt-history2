@@ -65,15 +65,13 @@ void CharacterWidget::paintEvent(QPaintEvent *event)
         }
     }
 
+    QFontMetrics fontMetrics(displayFont);
     painter.setPen(QPen(Qt::black));
     for (int row = beginRow; row <= endRow; ++row) {
 
         for (int column = beginColumn; column <= endColumn; ++column) {
 
             int key = row*32 + column;
-
-            QFontMetrics fontMetrics(displayFont);
-
             painter.setClipRect(column*24, row*24, 24, 24);
 
             if (key == currentKey)
