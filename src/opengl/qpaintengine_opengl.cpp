@@ -42,7 +42,7 @@
 class QGLTexture {
 public:
     QGLTexture(GLuint id) : tx_id(id) {}
-    ~QGLTexture() { GLuint tx[1] = { tx_id }; glDeleteTextures(1, tx); }
+    ~QGLTexture() { glDeleteTextures(1, &tx_id); }
     inline  GLuint id() { return tx_id; }
 
 private:
@@ -707,18 +707,20 @@ void QOpenGLPaintEngine::bindTextureFromCache(const QPixmap &pm)
         int tx_w = nearest_gl_texture_size(pm.width());
         int tx_h = nearest_gl_texture_size(pm.height());
         QImage im = pm.toImage();
-        if (tx_w != pm.width() || tx_h !=  pm.height()) {
+        if (tx_w != pm.width() || tx_h !=  pm.height())
             tx = QGLWidget::convertToGLFormat(im.scale(tx_w, tx_h));
-        } else {
+        else
             tx = QGLWidget::convertToGLFormat(im);
-        }
 
         GLuint tx_id;
         glGenTextures(1, &tx_id);
         glBindTexture(GL_TEXTURE_2D, tx_id);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tx.width(), tx.height(), 0, GL_RGBA,
                      GL_UNSIGNED_BYTE, tx.bits());
-        d->txCache->insert(pm.serialNumber(), new QGLTexture(tx_id), tx.width()*tx.height()*4/1024);
+
+	// this assumes the size of a texture is always smaller than the max cache size
+	int cost = tx.width()*tx.height()*4/1024;
+	d->txCache->insert(pm.serialNumber(), new QGLTexture(tx_id), cost);
     }
 }
 
