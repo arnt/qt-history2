@@ -217,6 +217,7 @@ private slots:
     void	 doUpdateCurrent();
     
 private:
+    QString 	 fieldToString( const QSqlField * field );
     void         init();
     QWidget*     beginEdit ( int row, int col, bool replace );
     void         updateRow( int row );

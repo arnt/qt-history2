@@ -380,10 +380,11 @@ void QDataTable::adjustColumn( int col )
     if ( !cur->isActive() ) {
 	d->cur.refresh();
     }
-    int oldRow = currentRow(), w = fontMetrics().width( horizontalHeader()->label( col ) + "W" );
-    cur->first();
+    int oldRow = currentRow();
+    int w = fontMetrics().width( horizontalHeader()->label( col ) + "W" );
+    cur->seek( QSql::BeforeFirst );
     while ( cur->next() ) {
-	w = QMAX( w, fontMetrics().width( cur->value( indexOf( col ) ).toString() ) + 10 );
+	w = QMAX( w, fontMetrics().width( fieldToString( cur->field( indexOf( col ) ) ) ) + 10 );
     }
     setColumnWidth( col, w );
     cur->seek( oldRow );
@@ -1759,30 +1760,7 @@ void QDataTable::paintField( QPainter * p, const QSqlField* field,
 
     if ( !field )
 	return;
-    QString text;
-    if ( field->isNull() ) {
-	text = nullText();
-    } else {
-	const QVariant val = field->value();
-	switch ( val.type() ) {
-	case QVariant::Bool:
-	    text = val.toBool() ? d->trueTxt : d->falseTxt;
-	    break;
-	case QVariant::Date:
-	    text = val.toDate().toString( d->datefmt );
-	    break;
-	case QVariant::Time:
-	    text = val.toTime().toString( d->datefmt );
-	    break;
-	case QVariant::DateTime:
-	    text = val.toDateTime().toString( d->datefmt );
-	    break;
-	default:
-	    text = val.toString();
-	    break;
-	}
-    }
-    p->drawText( 2,2, cr.width()-4, cr.height()-4, fieldAlignment( field ), text );
+    p->drawText( 2,2, cr.width()-4, cr.height()-4, fieldAlignment( field ), fieldToString( field ) );
 }
 
 /*!
@@ -2115,6 +2093,37 @@ bool QDataTable::findBuffer( const QSqlIndex& idx, int atHint )
     if ( found )
 	setCurrentCell( cur->at(), currentColumn() );
     return found;
+}
+
+/*! \internal
+    Returns the string representation of a database field.
+*/
+QString QDataTable::fieldToString( const QSqlField * field )
+{
+    QString text;
+    if ( field->isNull() ) {
+	text = nullText();
+    } else {
+	QVariant val = field->value();
+	switch ( val.type() ) {
+	    case QVariant::Bool:
+		text = val.toBool() ? d->trueTxt : d->falseTxt;
+		break;
+	    case QVariant::Date:
+		text = val.toDate().toString( d->datefmt );
+		break;
+	    case QVariant::Time:
+		text = val.toTime().toString( d->datefmt );
+		break;
+	    case QVariant::DateTime:
+		text = val.toDateTime().toString( d->datefmt );
+		break;
+	    default:
+		text = val.toString();
+		break;
+	}
+    }
+    return text;
 }
 
 /*!
