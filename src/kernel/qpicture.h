@@ -60,7 +60,9 @@ public:
 
     bool	play( QPainter * );
 
+    bool	load( QIODevice *dev, const char *format = 0 );
     bool	load( const QString &fileName, const char *format = 0 );
+    bool	save( QIODevice *dev, const char *format = 0 );
     bool	save( const QString &fileName, const char *format = 0 );
 
     QRect boundingRect() const;

@@ -142,18 +142,13 @@ QSvgDevice::~QSvgDevice()
 }
 
 /*!
-  Loads and parses \a fileName into the device. Returns TRUE on
+  Loads and parses a graphic from \a dev into the device. Returns TRUE on
   success, or FALSE if errors were encountered.
 */
 
-bool QSvgDevice::load( const QString &fileName )
+bool QSvgDevice::load( QIODevice *dev )
 {
-    QFile f( fileName );
-    if ( !f.open( IO_ReadOnly ) ) {
-	qWarning( "QSvgDevice::load: Could not open input file" );
-	return FALSE;
-    }
-    return doc.setContent( &f );
+    return doc.setContent( dev );
 }
 
 /*!
@@ -298,6 +293,24 @@ bool QSvgDevice::save( const QString &fileName )
     if ( !f.open ( IO_WriteOnly ) )
 	return FALSE;
     QTextStream s( &f );
+    s.setEncoding( QTextStream::UnicodeUTF8 );
+    s << doc;
+
+    return TRUE;
+}
+
+/*!
+  \overload
+*/
+
+bool QSvgDevice::save( QIODevice *dev )
+{
+#if defined(CHECK_RANGE)
+    if ( !d->images.isEmpty() || !d->pixmaps.isEmpty() )
+	qWarning( "QSvgDevice::save: skipping external images" );
+#endif
+
+    QTextStream s( dev );
     s.setEncoding( QTextStream::UnicodeUTF8 );
     s << doc;
 

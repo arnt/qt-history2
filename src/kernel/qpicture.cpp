@@ -218,10 +218,22 @@ void QPicture::setData( const char* data, uint size )
 
 bool QPicture::load( const QString &fileName, const char *format )
 {
+    QFile f( fileName );
+    if ( !f.open(IO_ReadOnly) )
+	return FALSE;
+    return load( &f, format );
+}
+
+/*!
+  \overload
+ */
+
+bool QPicture::load( QIODevice *dev, const char *format )
+{
 #ifndef QT_NO_SVG
     if ( qstrcmp( format, "svg" ) == 0 ) {
 	QSvgDevice svg;
-	if ( !svg.load( fileName ) )
+	if ( !svg.load( dev ) )
 	    return FALSE;
  	QPainter p( this );
 	bool b = svg.play( &p );
@@ -235,13 +247,7 @@ bool QPicture::load( const QString &fileName, const char *format )
     }
 
     detach();
-    QByteArray a;
-    QFile f( fileName );
-    if ( !f.open(IO_ReadOnly) )
-	return FALSE;
-    a.resize( (uint)f.size() );
-    f.readBlock( a.data(), (uint)f.size() );	// read file into byte array
-    f.close();
+    QByteArray a = dev->readAll();
     d->pictb.setBuffer( a );			// set byte array in buffer
     return d->checkFormat();
 }
@@ -275,16 +281,35 @@ bool QPicture::save( const QString &fileName, const char *format )
 	return svg.save( fileName );
     }
 #endif
+
+    QFile f( fileName );
+    if ( !f.open(IO_WriteOnly) )
+	return FALSE;
+    return save( &f, format );
+}
+
+/*!
+  \overload
+ */
+
+bool QPicture::save( QIODevice *dev, const char *format )
+{
+#ifndef QT_NO_SVG
+    if ( qstrcmp( format, "svg" ) == 0 ) {
+	QSvgDevice svg;
+	QPainter p( &svg );
+	if ( !play( &p ) )
+	    return FALSE;
+	svg.setBoundingRect( boundingRect() );
+	return svg.save( dev );
+    }
+#endif
     if ( format ) {
 	qWarning( "QPicture::save: No such picture format: %s", format );
 	return FALSE;
     }
 
-    QFile f( fileName );
-    if ( !f.open( IO_WriteOnly ) )
-	return FALSE;
-    f.writeBlock( d->pictb.buffer().data(), d->pictb.buffer().size() );
-    f.close();
+    dev->writeBlock( d->pictb.buffer().data(), d->pictb.buffer().size() );
     return TRUE;
 }
 

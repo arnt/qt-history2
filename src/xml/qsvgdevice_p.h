@@ -79,7 +79,8 @@ public:
 
     QString toString() const;
 
-    bool load( const QString &fileName );
+    bool load( QIODevice *dev );
+    bool save( QIODevice *dev );
     bool save( const QString &fileName );
 
     QRect boundingRect() const;
