@@ -72,7 +72,7 @@ static const char * const qt_shortMonthNames[] = {
 	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
 	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
-	
+
 /*****************************************************************************
   Some static function used by QDate, QTime and QDateTime
  *****************************************************************************/
@@ -114,7 +114,7 @@ static QString getFmtString( const QString& f, const QTime* dt = 0, const QDate*
 	    buf = dt->hour() < 12 ? "AM" : "PM";
 	}
     }
-    	
+
     if ( dd ) {
 	if ( f == "d" ) {
 	    buf = QString::number( dd->day() );
@@ -158,7 +158,7 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
     QChar status = '0';
 
     for ( int i = 0; i < (int)f.length(); ++i ) {
-	
+
 	if ( f[ i ] == status ) {
 	    if ( ( ap ) && ( ( f[ i ] == 'P' ) || ( f[ i ] == 'p' ) ) )
 		status = '0';
@@ -181,15 +181,15 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
             } else {
                 buf += f[ i ];
                 status = '0';
-            }		
+            }
         }
     }
 
     buf += getFmtString( frm, dt, dd, ap );
 
     return buf;
-} 	
-	
+}
+
 /*****************************************************************************
   QDate member functions
  *****************************************************************************/
@@ -541,7 +541,7 @@ QString QDate::toString( Qt::DateFormat f ) const
 	    char buf[255];
 	    tt.tm_mday = day();
 	    tt.tm_mon = month() - 1;
-	    tt.tm_year = year() - 1900;	
+	    tt.tm_year = year() - 1900;
 	    // Get rid of a warning
 	    static const char * egcsWorkaround = "%x";
 	    if ( strftime( buf, sizeof(buf), egcsWorkaround, &tt ) )
@@ -949,7 +949,7 @@ void QDate::julianToGregorian( uint jd, int &y, int &m, int &d )
 
   \ingroup time
 
-  A QTime object contains a clock time, i.e., the number of hours,
+  A QTime object contains a clock time, i.e. the number of hours,
   minutes, seconds, and milliseconds since midnight. It can read the
   current time from the system clock and measure a span of elapsed
   time. It provides functions for comparing times and for manipulating
@@ -990,7 +990,7 @@ void QDate::julianToGregorian( uint jd, int &y, int &m, int &d )
   \fn QTime::QTime()
 
   Constructs the time 0 hours, minutes, seconds and milliseconds,
-  i.e., 00:00:00.000 (midnight). This is a valid time.
+  i.e. 00:00:00.000 (midnight). This is a valid time.
 
   \sa isValid()
 */
@@ -999,8 +999,8 @@ void QDate::julianToGregorian( uint jd, int &y, int &m, int &d )
   Constructs a time with hour \a h, minute \a m, seconds \a s and
   milliseconds \a ms.
 
-  \a h must be in the range 0-23, \a m and \a s must be in the range
-  0-59, and \a ms must be in the range 0-999.
+  \a h must be in the range 0..23, \a m and \a s must be in the range
+  0..59, and \a ms must be in the range 0..999.
 
   \sa isValid()
 */
@@ -1013,13 +1013,14 @@ QTime::QTime( int h, int m, int s, int ms )
 
 /*!
   \fn bool QTime::isNull() const
-  Returns TRUE if the time is equal to 00:00:00.000. A null time is valid.
+  Returns TRUE if the time is equal to 00:00:00.000; otherwise returns FALSE.
+  A null time is valid.
 
   \sa isValid()
 */
 
 /*!
-  Returns TRUE if the time is valid or FALSE if the time is invalid.
+  Returns TRUE if the time is valid; otherwise returns FALSE.
   The time 23:30:55.746 is valid, whereas 24:12:30 is invalid.
 
   \sa isNull()
@@ -1074,7 +1075,7 @@ int QTime::msec() const
     Returns the time as a string.  Milliseconds are not included.
   The \a f parameter determines the format of the string.
 
-  If \a f is Qt::TextDate, the string format is HH:MM:SS; e.g., 1
+  If \a f is Qt::TextDate, the string format is HH:MM:SS; e.g. 1
   second before midnight would be "23:59:59".
 
   If \a f is Qt::ISODate, the string format corresponds to the ISO
@@ -1094,7 +1095,7 @@ QString QTime::toString( Qt::DateFormat f ) const
 	    char buf[255];
 	    tt.tm_sec = second();
 	    tt.tm_min = minute();
-	    tt.tm_hour = hour();	
+	    tt.tm_hour = hour();
 	    if ( strftime( buf, sizeof(buf), "%X", &tt ) )
 		return QString::fromLocal8Bit( buf );
 	    return QString::null;
@@ -1109,27 +1110,27 @@ QString QTime::toString( Qt::DateFormat f ) const
 }
 #endif
 
-/*!  Returns the datetime as a string.  The \a format parameter determines
+/*!  Returns the time as a string.  The \a format parameter determines
   the format of the result string.
 
   These expressions may be used:
 
   \list
-  \i \e h - the hour without a leading zero (0-23 or 1-12 if AM/PM display)
-  \i \e hh - the hour with a leading zero (00-23 or 01-12 if AM/PM display)
-  \i \e m - the minute without a leading zero (0-59)
-  \i \e mm - the minute with a leading zero (00-59)
-  \i \e s - the second whithout a leading zero (0-59)
-  \i \e ss - the second whith a leading zero (00-59)
-  \i \e z - the milliseconds without leading zeroes (0-999)
-  \i \e zzz - the milliseconds with leading zeroes (000-999)
+  \i \e h - the hour without a leading zero (0..23 or 1..12 if AM/PM display)
+  \i \e hh - the hour with a leading zero (00..23 or 01..12 if AM/PM display)
+  \i \e m - the minute without a leading zero (0..59)
+  \i \e mm - the minute with a leading zero (00..59)
+  \i \e s - the second whithout a leading zero (0..59)
+  \i \e ss - the second whith a leading zero (00..59)
+  \i \e z - the milliseconds without leading zeroes (0..999)
+  \i \e zzz - the milliseconds with leading zeroes (000..999)
   \i \e AP - switch to AM/PM display. \e AP will be replaced by either "AM" or "PM".
-  \i \e ap - switch to AM/PM display. \e ap will be replaced by either "am" or "pm".
+  \i \e ap - switch to am/pm display. \e ap will be replaced by either "am" or "pm".
   \endlist
 
   All other input characters will be ignored.
 
-  Example format Strings (assumed that the QTime is 14:13:09)
+  Example format Strings (assuming that the QTime is 14:13:09.042)
 
   \list
   \i "hh:mm:ss.zzz"  will result in "14:13:09.042"
@@ -1148,9 +1149,9 @@ QString QTime::toString( const QString& format ) const
   Sets the time to hour \a h, minute \a m, seconds \a s and
   milliseconds \a ms.
 
-  \a h must be in the range 0-23, \a m and \a s must be in the range
-  0-59, and \a ms must be in the range 0-999. Returns TRUE if the set
-  time is valid, otherwise FALSE.
+  \a h must be in the range 0..23, \a m and \a s must be in the range
+  0..59, and \a ms must be in the range 0..999. Returns TRUE if the set
+  time is valid; otherwise returns FALSE.
 
   \sa isValid()
 */
@@ -1251,41 +1252,39 @@ int QTime::msecsTo( const QTime &t ) const
 /*!
   \fn bool QTime::operator==( const QTime &t ) const
 
-  Returns TRUE if this time is equal to \a t or FALSE if they are
-  different.
+  Returns TRUE if this time is equal to \a t; otherwise returns FALSE.
 */
 
 /*!
   \fn bool QTime::operator!=( const QTime &t ) const
 
-  Returns TRUE if this time is different from \a t or FALSE if they
-  are equal.
+  Returns TRUE if this time is different from \a t; otherwise returns FALSE.
 */
 
 /*!
   \fn bool QTime::operator<( const QTime &t ) const
 
-  Returns TRUE if this time is earlier than \a t, otherwise FALSE.
+  Returns TRUE if this time is earlier than \a t; otherwise returns FALSE.
 */
 
 /*!
   \fn bool QTime::operator<=( const QTime &t ) const
 
-  Returns TRUE if this time is earlier than or equal to \a t,
-  otherwise FALSE.
+  Returns TRUE if this time is earlier than or equal to \a t;
+  otherwise returns FALSE.
 */
 
 /*!
   \fn bool QTime::operator>( const QTime &t ) const
 
-  Returns TRUE if this time is later than \a t, otherwise FALSE.
+  Returns TRUE if this time is later than \a t; otherwise returns FALSE.
 */
 
 /*!
   \fn bool QTime::operator>=( const QTime &t ) const
 
-  Returns TRUE if this time is later than or equal to \a t, otherwise
-  FALSE.
+  Returns TRUE if this time is later than or equal to \a t; otherwise
+  returns FALSE.
 */
 
 
@@ -1317,7 +1316,7 @@ QTime QTime::fromString( const QString& s, Qt::DateFormat f )
 #endif
 	return QTime();
     }
-    
+
     int hour( s.mid( 0, 2 ).toInt() );
     int minute( s.mid( 3, 2 ).toInt() );
     int second( s.mid( 6, 2 ).toInt() );
@@ -1388,15 +1387,15 @@ bool QTime::currentTime( QTime *ct )
 
 /*!
     \overload
-  Returns TRUE if the specified time is valid, otherwise FALSE.
+  Returns TRUE if the specified time is valid; otherwise returns FALSE.
 
-  The time is valid if \a h is in the range 0-23, \a m and \a s are in
-  the range 0-59, and \a ms is in the range 0-999.
+  The time is valid if \a h is in the range 0..23, \a m and \a s are in
+  the range 0..59, and \a ms is in the range 0..999.
 
   Example:
   \code
-    QTime::isValid(21, 10, 30);		// returns TRUE
-    QTime::isValid(22, 5,  62);		// returns FALSE
+    QTime::isValid(21, 10, 30); // returns TRUE
+    QTime::isValid(22, 5,  62); // returns FALSE
   \endcode
 */
 
@@ -1411,9 +1410,9 @@ bool QTime::isValid( int h, int m, int s, int ms )
 
   \code
     QTime t;
-    t.start();				// start clock
+    t.start();                     // start clock
     ... // some lengthy task
-    qDebug( "%d\n", t.elapsed() );	// prints # msecs elapsed
+    qDebug( "%d\n", t.elapsed() ); // prints the number of msecs elapsed
   \endcode
 
   \sa restart(), elapsed(), currentTime()

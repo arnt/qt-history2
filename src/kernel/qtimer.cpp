@@ -39,7 +39,6 @@
 #include "qsignal.h"
 #include "qobjectlist.h"
 
-// NOT REVISED
 /*!
   \class QTimer qtimer.h
   \brief The QTimer class provides timer signals and single-shot timers.
@@ -50,7 +49,7 @@
   It uses \link QTimerEvent timer events\endlink internally to provide a
   more versatile timer.	 QTimer is very easy to use: create a QTimer, call
   start() to start it and connect its timeout() to the appropriate slots.
-  When the time is up it will emit timeout().
+  When the time is up it will emit the timeout() signal.
 
   Note that a QTimer object is destroyed automatically when its parent
   object is destroyed.
@@ -58,16 +57,19 @@
   Example:
   \code
     QTimer *timer = new QTimer( myObject );
-    connect( timer, SIGNAL(timeout()),
-	     myObject, SLOT(timerDone()) );
-    timer->start( 2000, TRUE );			// 2 seconds single-shot
+    connect( timer, SIGNAL(timeout()), myObject, SLOT(timerDone()) );
+    timer->start( 2000, TRUE ); // 2 seconds single-shot timer
   \endcode
+
+  You can also use the static singleShot() function to create a single
+  shot timer.
 
   As a special case, a QTimer with timeout 0 times out as soon as all
   the events in the window system's event queue have been processed.
 
   This can be used to do heavy work while providing a snappy
-  user interface: \code
+  user interface:
+  \code
     QTimer *t = new QTimer( myObject );
     connect( t, SIGNAL(timeout()), SLOT(processOneThing()) );
     t->start( 0, FALSE );
@@ -100,7 +102,7 @@ const int INV_TIMER = -1;			// invalid timer id
 /*!
   Constructs a timer with a \a parent and a \a name.
 
-  Notice that the destructor of the parent object will destroy this timer
+  Note that the destructor of the parent object will destroy this timer
   object.
 */
 
@@ -140,7 +142,7 @@ QTimer::~QTimer()
 
   Any pending timer will be stopped.
 
-  \sa stop(), changeInterval(), isActive()
+  \sa singleShot() stop(), changeInterval(), isActive()
 */
 
 int QTimer::start( int msec, bool sshot )
@@ -281,7 +283,7 @@ bool QSingleShotTimer::event( QEvent * )
     }
   \endcode
 
-  This sample program automatically terminates after 10 minutes (i.e.,
+  This sample program automatically terminates after 10 minutes (i.e.
   600000 milliseconds).
 
   The \a receiver is the receiving object and the \a member is the
@@ -297,6 +299,6 @@ void QTimer::singleShot( int msec, QObject *receiver, const char *member )
 	sst = new QSingleShotTimer;
     } else {					// use existing one
 	sst = (QSingleShotTimer *)sst_list->take( 0 );
-    }	
+    }
     sst->start(msec, receiver, member);
 }

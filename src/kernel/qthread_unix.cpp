@@ -285,8 +285,8 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
   it shares data with all the other threads within the process but
   executes independently in the way that a separate program does on
   a multitasking operating system. Instead of starting in main(),
-  however, QThreads begin executing in run(), which you inherit
-  to provide your code. For example:
+  QThreads begin executing in run(). You inherit run()
+  to include your code. For example:
 
   \code
   class MyThread : public QThread {
@@ -330,7 +330,7 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
 /*!
   This returns the thread handle of the currently executing thread.  The
   handle returned by this function is used for internal reasons and
-  should not be used in any application code.
+  should \e not be used in any application code.
   On Windows, the returned value is a pseudo handle for the current thread,
   and it cannot be used for numerical comparison.
 */
@@ -465,7 +465,7 @@ QThread::~QThread()
 
 
 /*!
-  Ends execution of the calling thread and wakes up any threads waiting
+  Ends the execution of the calling thread and wakes up any threads waiting
   for its termination.
 */
 void QThread::exit()
