@@ -422,7 +422,6 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 	QApplication::sendEvent( widget, &de );
 	macDndExtra->acceptfmt = de.isAccepted();
 	macDndExtra->acceptact = de.isActionAccepted();
-	return 0;
     } else {
 	if ( current_drag_widget && ((theMessage == kDragTrackingLeaveWindow) || 
 				     (widget != current_drag_widget))) {
@@ -444,6 +443,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 	}
     }
     QApplication::sendPostedEvents();
+    QApplication::flush();
     return 0;
 }
 static DragTrackingHandlerUPP qt_mac_tracking_handlerUPP = NULL;
