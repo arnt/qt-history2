@@ -189,18 +189,15 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
 
 void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
 {
-    QWSPaintEngine *qpe = 0;
-
     if (p->hasFeature(QPaintEngine::QwsPaintEngine)) {
-        qpe = static_cast<QWSPaintEngine*>(p);
-    } else {
-        // qDebug("QFontEngineFT::draw    devType %d ###########", p->paintDevice()->devType());
+        qWarning("QFontEngineFT::draw() QWSPaintEngine no longer supported");
+        return;
     }
 
-    Q_ASSERT(p->painterState()->txop < QPainterPrivate::TxScale);
-    if (p->painterState()->txop == QPainterPrivate::TxTranslate) {
+    //##### Q_ASSERT(p->d_func()->txop < QPainterPrivate::TxScale);
+    if (1) { //####### p->d_func()->txop == QPainterPrivate::TxTranslate) {
         QPoint tmpPt(x, y);
-        tmpPt = tmpPt * p->painterState()->matrix;
+        tmpPt = tmpPt * p->state->matrix();
         x = tmpPt.x();
         y = tmpPt.y();
     }
@@ -229,21 +226,6 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
 
     QGlyphLayout *glyphs = si.glyphs;
 
-#ifdef DEBUG_LOCKS
-    qDebug("unaccelerated drawText grab");
-#endif
-
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-//######## verify that we really need this!!!
-    if (qpe)
-        QWSDisplay::grab(); // we need it later, and grab-must-precede-lock
-#endif
-
-#ifdef DEBUG_LOCKS
-    qDebug("unaccelerated drawText lock");
-#endif
-
-
     if (si.flags & QTextItem::RightToLeft)
         glyphs += si.num_glyphs - 1;
     for(int i = 0; i < si.num_glyphs; i++) {
@@ -259,24 +241,10 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
         int myy = y + qRound(g->offset.y() - glyph->bearingy);
 
         if(glyph->width != 0 && glyph->height != 0 && glyph->pitch != 0) {
-            if (qpe) {
-                qpe->alphaPenBlt(glyph->data, glyph->pitch, glyph->mono, myx,myy,myw,glyph->height,0,0);
-            } else {
-                static_cast<QRasterPaintEngine*>(p)->alphaPenBlt(glyph->data, glyph->pitch, glyph->mono, myx,myy,myw,glyph->height);
-            }
+            static_cast<QRasterPaintEngine*>(p)->alphaPenBlt(glyph->data, glyph->pitch, glyph->mono, myx,myy,myw,glyph->height);
         }
         x += qRound(g->advance.x());
     }
-#ifdef DEBUG_LOCKS
-    qDebug("unaccelerated drawText unlock");
-#endif
-#ifdef DEBUG_LOCKS
-    qDebug("unaccelerated drawText ungrab");
-#endif
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    if (qpe)
-        QWSDisplay::ungrab();
-#endif
 }
 
 glyph_metrics_t QFontEngineFT::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
@@ -892,17 +860,14 @@ bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 
 void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
 {
-    QWSPaintEngine *qpe = 0;
-    if (!p->hasFeature(QPaintEngine::QwsPaintEngine)) {
-
-//        qDebug("QFontEngineQPF::draw   devType %d ###########", p->paintDevice()->devType());
-    } else {
-        qpe = static_cast<QWSPaintEngine*>(p);
+    if (p->hasFeature(QPaintEngine::QwsPaintEngine)) {
+        qWarning("QFontEngineQPF::draw() QWSPaintEngine no longer supported");
+        return;
     }
-    Q_ASSERT(p->painterState()->txop < QPainterPrivate::TxScale);
-    if (p->painterState()->txop == QPainterPrivate::TxTranslate) {
+//###    Q_ASSERT(p->painterState()->txop < QPainterPrivate::TxScale);
+    if (1) { //### p->painterState()->txop == QPainterPrivate::TxTranslate) {
         QPoint tmpPt(x, y);
-        tmpPt = tmpPt * p->painterState()->matrix;
+        tmpPt = tmpPt * p->state->matrix();
         x = tmpPt.x();
         y = tmpPt.y();
     }
@@ -943,10 +908,7 @@ void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
         int bpl = glyph->metrics->linestep;
 
         if(myw != 0 && myh != 0 && bpl != 0) {
-            if (qpe)
-                qpe->alphaPenBlt(glyph->data, bpl, mono, myx,myy,myw,myh,0,0);
-            else
-                static_cast<QRasterPaintEngine*>(p)->alphaPenBlt(glyph->data, bpl, mono, myx,myy,myw,myh);
+            static_cast<QRasterPaintEngine*>(p)->alphaPenBlt(glyph->data, bpl, mono, myx,myy,myw,myh);
         }
         x += qRound(g->advance.x());
     }

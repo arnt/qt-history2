@@ -94,11 +94,13 @@ void qt_draw_background(QPaintEngine * /*pe*/, int/* x*/, int /*y*/, int /*w*/, 
 QWSPaintEngine::QWSPaintEngine(QPaintEnginePrivate &dptr)
     : QPaintEngine(dptr, qt_decide_paintengine_features())
 {
+    qWarning("QWSPaintEngine: do not use this class");
 }
 
 QWSPaintEngine::QWSPaintEngine()
     : QPaintEngine(*(new QWSPaintEnginePrivate), qt_decide_paintengine_features())
 {
+//    qWarning("QWSPaintEngine: do not use this class");
 }
 
 QWSPaintEngine::~QWSPaintEngine()
@@ -109,6 +111,9 @@ QWSPaintEngine::~QWSPaintEngine()
 
 bool QWSPaintEngine::begin(QPaintDevice *pdev)
 {
+    //  qWarning("QWSPaintEngine::begin() I told you not to use this class!");
+
+
     if (isActive()) {                         // already active painting
         qWarning("QWSC::begin: Painter is already active."
                   "\n\tYou must end() the painter before a second begin()");
@@ -338,16 +343,21 @@ void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperati
 
 void QWSPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
+    qDebug("QWSPaintEngine::drawLines");
+#if 0
     if (state->pen.style() == Qt::NoPen)
         return;
     for (int i=0; i<lineCount; ++i) {
         d->gfx->drawLine(qRound(lines->x1()), qRound(lines->y1()), qRound(lines->x2()), qRound(lines->y2()));
         ++lines;
     }
+#endif
 }
 
 void QWSPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
+    qDebug("QWSPaintEngine::drawRects");
+#if 0
     for (int i=0; i<rectCount; ++i) {
         QRectF r = rects[i];
 
@@ -387,6 +397,7 @@ void QWSPaintEngine::drawRects(const QRectF *rects, int rectCount)
         if (w > 0 && h > 0)
             d->gfx->fillRect(x1, y1, w, h);
     }
+#endif
 }
 
 void QWSPaintEngine::drawPoints(const QPointF *points, int pointCount)
@@ -399,6 +410,8 @@ void QWSPaintEngine::drawPoints(const QPointF *points, int pointCount)
 
 void QWSPaintEngine::drawPolyInternal(const QPolygon &a, bool close)
 {
+    qDebug("QWSPaintEngine::drawPolyInternal");
+#if 0
     if (a.size() < 2 || !d->gfx)
         return;
 
@@ -420,10 +433,13 @@ void QWSPaintEngine::drawPolyInternal(const QPolygon &a, bool close)
         if (do_close)
             d->gfx->drawLine(x1,y1,x2,y2);
     }
+#endif
 }
 
 void QWSPaintEngine::drawEllipse(const QRectF &r)
 {
+    qDebug("QWSPaintEngine::drawEllipse");
+#if 0
     QPainterPath path;
 #ifndef QT_QWS_NO_STUPID_HACKS
     if (state->pen.style() == Qt::NoPen) {
@@ -438,10 +454,13 @@ void QWSPaintEngine::drawEllipse(const QRectF &r)
     path.addEllipse(r.x(), r.y(), r.width(), r.height());
     drawPolyInternal(path.toSubpathPolygons().at(0).toPolygon());
     }
+#endif
 }
 
 void QWSPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
+    qDebug("QWSPaintEngine::drawPolygon");
+#if 0
     QPolygon pa;
     pa.reserve(pointCount);
     for (int i=0; i<pointCount; ++i)
@@ -453,7 +472,7 @@ void QWSPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonD
     } else {
         d->gfx->drawPolygon(pa, (mode == WindingMode), 0, pa.size());
     }
-
+#endif
 }
 
 void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
@@ -589,6 +608,8 @@ void QWSPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx,int
 
 void QWSPaintEngine::tiledBlt(const QImage &src, int rx,int ry,int w,int h, int sx, int sy)
 {
+    qDebug("QWSPaintEngine::tiledBlt()");
+#if 0
     d->gfx->setSource(&src);
     d->gfx->setBrushOrigin(rx-sx, ry-sy);
     d->gfx->tiledBlt(rx, ry, w, h);
@@ -596,6 +617,7 @@ void QWSPaintEngine::tiledBlt(const QImage &src, int rx,int ry,int w,int h, int 
         d->gfx->setBrushOrigin(qRound(state->bgOrigin.x()), qRound(state->bgOrigin.y()));
     else
         d->gfx->setBrushOrigin(0, 0);
+#endif
 }
 
 //### This doesn't really belong here; we need qscreen_qws.cpp
