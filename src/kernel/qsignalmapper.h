@@ -42,6 +42,9 @@
 #include "qobject.h"
 #endif // QT_H
 
+class  QSignalMapperData;
+struct QSignalMapperRec;
+
 
 class Q_EXPORT QSignalMapper : public QObject {
     Q_OBJECT
@@ -61,10 +64,8 @@ public slots:
     void map();
 
 private:
-    class  Data;
-    Data* d;
-    struct MapperRec;
-    MapperRec* getRec( const QObject* );
+    QSignalMapperData* d;
+    QSignalMapperRec* getRec( const QObject* );
 
 private slots:
     void removeMapping();

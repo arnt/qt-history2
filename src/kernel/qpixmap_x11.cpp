@@ -54,6 +54,7 @@
 #endif
 
 #include "qbitmap.h"
+#include "qalphapixmap.h"
 #include "qpaintdevicemetrics.h"
 #include "qimage.h"
 #include "qwmatrix.h"
@@ -269,7 +270,7 @@ extern bool qt_use_xrender; // defined in qapplication_x11.cpp
   Initializes the pixmap data.
 */
 
-void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
+void QPixmap::init( int w, int h, int d, bool bitmap, bool alpha, Optimization optim )
 {
     static int serial = 0;
 
@@ -298,6 +299,8 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( d == 1 )				// monocrome pixmap
 	data->d = 1;
+    else if ( alpha && d == 8 ) // allow 8bit pixmaps for alpha channels
+	data->d = 8;
     else if ( d < 0 || d == dd )		// def depth pixmap
 	data->d = dd;
     if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
@@ -317,20 +320,27 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 #ifndef QT_NO_XRENDER
     if (qt_use_xrender) {
 	XRenderPictFormat *format;
-	if (data->d == 1) {
-	    XRenderPictFormat req;
+	XRenderPictFormat req;
+	ulong mask = PictFormatType | PictFormatDepth;
 
-	    req.type = PictTypeDirect;
-	    req.depth = 1;
+	req.type = PictTypeDirect;
+	req.depth = data->d;
+
+	if (data->d == 1) {
 	    req.direct.alpha = 0;
 	    req.direct.alphaMask = 1;
-	    format = XRenderFindFormat(x11Display(),
-				       (PictFormatType | PictFormatDepth |
-					PictFormatAlpha | PictFormatAlphaMask),
-				       &req, 0);
-	} else
-	    format = XRenderFindVisualFormat(x11Display(), (Visual *) x11Visual());
+	    mask |= PictFormatAlpha | PictFormatAlphaMask;
+	} else if (alpha && data->d == 8) {
+	    req.direct.alphaMask = 0xff;
+	    mask |= PictFormatAlphaMask;
+	} else {
+	    req.direct.redMask = 0xff;
+	    req.direct.greenMask = 0xff;
+	    req.direct.blueMask = 0xff;
+	    mask |= PictFormatRedMask | PictFormatGreenMask | PictFormatBlueMask;
+	}
 
+	format = XRenderFindFormat(x11Display(), mask, &req, 0);
 	if (format)
 	    rendhd = XRenderCreatePicture(x11Display(), hd, format, 0, 0);
     }
@@ -342,8 +352,8 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 void QPixmap::deref()
 {
     if ( data && data->deref() ) {			// last reference lost
-	if ( data->mask )
-	    delete data->mask;
+	delete data->mask;
+	delete data->alphapm;
 	if ( data->ximage )
 	    qSafeXDestroyImage( (XImage*)data->ximage );
 	if ( data->maskgc )
@@ -373,7 +383,7 @@ void QPixmap::deref()
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap)
     : QPaintDevice( QInternal::Pixmap )
 {						// for bitmaps only
-    init( 0, 0, 0, FALSE, defOptim );
+    init( 0, 0, 0, FALSE, FALSE, defOptim );
     if ( w <= 0 || h <= 0 )			// create null pixmap
 	return;
 
@@ -626,7 +636,7 @@ QImage QPixmap::convertToImage() const
     if ( image.isNull() )			// could not create image
 	return image;
 
-    const QBitmap* msk = mask();
+    const QPixmap* msk = mask();
 
     QImage alpha;
     if (msk) {
@@ -960,17 +970,19 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     bool force_mono = (dd == 1 || isQBitmap() ||
 		       (conversion_flags & ColorMode_Mask)==MonoOnly );
 
-#ifndef QT_NO_XRENDER
-    bool recreate_rendhd = (rendhd != 0);
-#endif // QT_NO_XRENDER
+    // get rid of the mask
+    delete data->mask;
+    data->mask = 0;
 
-    if ( data->mask ) {				// get rid of the mask
-	delete data->mask;
-	data->mask = 0;
-    }
-    if ( force_mono ) {				// must be monochrome
+    // get rid of alpha pixmap
+    delete data->alphapm;
+    data->alphapm = 0;
+
+    // must be monochrome
+    if ( force_mono ) {
 	if ( d != 1 ) {
-	    image = image.convertDepth( 1, conversion_flags );	// dither
+	    // dither
+	    image = image.convertDepth( 1, conversion_flags );
 	    d = 1;
 	}
     } else {					// can be both
@@ -1047,7 +1059,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 					    bits, w, h );
 
 #ifndef QT_NO_XRENDER
-	if (qt_use_xrender && recreate_rendhd) {
+	if (qt_use_xrender) {
 	    XRenderPictFormat *format;
 	    XRenderPictFormat req;
 
@@ -1465,30 +1477,37 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 				    w, h, dd );
 
 #ifndef QT_NO_XRENDER
-	if (qt_use_xrender && recreate_rendhd) {
+	if (qt_use_xrender) {
 	    XRenderPictFormat *format;
+	    XRenderPictFormat req;
+	    ulong mask;
 	    if (data->d == 1) {
-		XRenderPictFormat req;
-
 		req.type = PictTypeDirect;
 		req.depth = 1;
 		req.direct.alpha = 0;
 		req.direct.alphaMask = 1;
-		format = XRenderFindFormat(x11Display(),
-					   (PictFormatType | PictFormatDepth |
-					    PictFormatAlpha | PictFormatAlphaMask),
-					   &req, 0);
-	    } else
-		format = XRenderFindVisualFormat(x11Display(), (Visual *) x11Visual());
+		mask = (PictFormatType | PictFormatDepth | PictFormatAlpha |
+			PictFormatAlphaMask);
+	    } else {
+		req.type = PictTypeDirect;
+		req.depth = dd;
+		req.direct.redMask = 0xff;
+		req.direct.greenMask = 0xff;
+		req.direct.blueMask = 0xff;
+		mask = (PictFormatType | PictFormatDepth | PictFormatRedMask |
+			PictFormatGreenMask | PictFormatBlueMask);
+	    }
 
+	    format = XRenderFindFormat(x11Display(), mask, &req, 0);
 	    if (format)
-		rendhd = (HANDLE) XRenderCreatePicture(x11Display(), hd, format, 0, 0);
+		rendhd = XRenderCreatePicture(x11Display(), hd, format, 0, 0);
 	}
 #endif // QT_NO_XRENDER
 
     }
 
-    XPutImage( dpy, hd, qt_xget_readonly_gc( x11Screen(), FALSE  ), xi, 0, 0, 0, 0, w, h );
+    XPutImage( dpy, hd, qt_xget_readonly_gc( x11Screen(), FALSE  ),
+	       xi, 0, 0, 0, 0, w, h );
 
     if ( data->optim != BestOptim ) {		// throw away image
 	qSafeXDestroyImage( xi );
@@ -1501,9 +1520,43 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     data->d = dd;
 
     if ( img.hasAlphaBuffer() ) {
-	QBitmap m;
-	m = img.createAlphaMask( conversion_flags );
-	setMask( m );
+	bool domask = TRUE;
+
+#ifndef QT_NO_XRENDER
+	// ### only support 32bit images at the moment
+	if (qt_use_xrender && img.depth() == 32) {
+	    QAlphaPixmap alphapm(w, h);
+	    XImage *axi = XCreateImage(x11Display(), (Visual *) x11Visual(),
+				       8, ZPixmap, 0, 0, w, h, 8, 0);
+
+	    if (axi) {
+		domask = FALSE;
+
+		// the data is deleted by qSafeXDestroyImage
+		axi->data = (char *) malloc(h * axi->bytes_per_line);
+
+		char *aptr = axi->data;
+		int *iptr = (int *) image.bits();
+		int max = w * h;
+		for (int i = 0; i < max; i++)
+		    *aptr++ = *iptr++ >> 24; // squirt
+
+		GC gc = XCreateGC(x11Display(), alphapm.handle(), 0, 0);
+		XPutImage(dpy, alphapm.handle(), gc, axi, 0, 0, 0, 0, w, h);
+		XFreeGC(x11Display(), gc);
+
+		qSafeXDestroyImage(axi);
+
+		setAlphaPixmap(alphapm);
+	    }
+	}
+#endif // QT_NO_XRENDER
+
+	if (domask) {
+	    QBitmap m;
+	    m = img.createAlphaMask( conversion_flags );
+	    setMask( m );
+	}
     }
 
     return TRUE;
@@ -1952,3 +2005,35 @@ void QPixmap::x11SetScreen( int screen )
 }
 
 
+void QPixmap::setAlphaPixmap(const QAlphaPixmap &alpha)
+{
+
+#ifdef QT_CHECK_RANGE
+    if (! alpha.isNull() && alpha.depth() != 8) {
+	qWarning("QPixmap::setAlpha: pixmap is not 8bpp");
+	return;
+    }
+#endif // QT_CHECK_RANGE
+
+    detach();
+    delete data->alphapm;
+    data->alphapm = 0;
+
+    if (alpha.isNull())
+	return;
+
+    if (alpha.width() != width() && alpha.height() != height()) {
+#ifdef QT_CHECK_RANGE
+	qWarning("QPixmap::setAlpha: the pixmap and alpha pixmap must have "
+		 "the same size");
+#endif // QT_CHECK_RANGE
+
+	return;
+    }
+
+    QAlphaPixmap *newalphacopy = new QAlphaPixmap(alpha);
+#ifdef Q_WS_X11
+    newalphacopy->x11SetScreen(x11Screen());
+#endif // Q_WS_X11
+    data->alphapm = newalphacopy;
+}

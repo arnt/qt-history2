@@ -4,6 +4,7 @@ kernel {
 	KERNEL_P	= kernel
 	HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
+		  $$KERNEL_H/qalphapixmap.h \
 		  $$KERNEL_H/qapplication.h \
 		  $$KERNEL_P/qapplication_p.h \
 		  $$KERNEL_H/qasyncimageio.h \
@@ -115,7 +116,8 @@ kernel {
 		  $$KERNEL_CPP/qole_win.c
 	
 	unix:x11 {
-	      SOURCES += $$KERNEL_CPP/qapplication_x11.cpp \
+	      SOURCES += $$KERNEL_CPP/qalphapixmap_x11.cpp \
+			  $$KERNEL_CPP/qapplication_x11.cpp \
 		          $$KERNEL_CPP/qclipboard_x11.cpp \
 			  $$KERNEL_CPP/qcolor_x11.cpp \
 			  $$KERNEL_CPP/qcursor_x11.cpp \
