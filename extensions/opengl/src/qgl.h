@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#11 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#12 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -48,6 +48,7 @@ const char *qGLVersion();
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+
 class QPixmap;
 
 // Namespace class:
@@ -63,15 +64,14 @@ public:
 	StencilBuffer		= 0x0020,
 	StereoBuffers		= 0x0040,
 	DirectRendering		= 0x0080,
-	SingleBuffer		= ~DoubleBuffer,
-	NoDepthBuffer		= ~DepthBuffer,
-	ColorIndex		= ~Rgba,
-	NoAlphaChannel		= ~AlphaChannel,
-	NoAccumBuffer		= ~AccumBuffer,
-	NoStencilBuffer		= ~StencilBuffer,
-	NoStereoBuffers		= ~StereoBuffers,
-	IndirectRendering	= ~DirectRendering,
-	VoidOption		= 0
+	SingleBuffer            = DoubleBuffer  << 16,
+	NoDepthBuffer           = DepthBuffer   << 16,
+	ColorIndex              = Rgba          << 16,
+	NoAlphaChannel          = AlphaChannel  << 16,
+	NoAccumBuffer           = AccumBuffer   << 16,
+	NoStencilBuffer         = StencilBuffer << 16,
+	NoStereoBuffers         = StereoBuffers << 16,
+	IndirectRendering       = DirectRendering << 16
     };
 };
 
@@ -80,8 +80,8 @@ public:
 class QGLFormat : public QGL
 {
 public:
-    QGLFormat( bool doubleBuffer = TRUE );
-    QGLFormat( const FormatOption* options );
+    QGLFormat();
+    QGLFormat( int options );
 
     bool    		doubleBuffer() const;
     void    		setDoubleBuffer( bool enable );

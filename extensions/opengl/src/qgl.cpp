@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#30 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#31 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -132,8 +132,7 @@ const char *qGLVersion()
 /*!
   Constructs a QGLFormat object with the factory default settings:
   <ul>
-  <li> \link setDoubleBuffer() Double buffer:\endlink Enabled if
-  \a doubleBuffer is TRUE, otherwise single buffer.
+  <li> \link setDoubleBuffer() Double buffer:\endlink Enabled.
   <li> \link setDepth() Depth buffer:\endlink Enabled.
   <li> \link setRgba() RGBA:\endlink Enabled (i.e. color index disabled).
   <li> \link setAlpha() Alpha channel:\endlink Disabled.
@@ -144,13 +143,9 @@ const char *qGLVersion()
   </ul>
 */
 
-QGLFormat::QGLFormat( bool doubleBuffer )
+QGLFormat::QGLFormat()
 {
-    opts = 0;
-    setOption( doubleBuffer ? DoubleBuffer : SingleBuffer );
-    setOption( DepthBuffer );
-    setOption( Rgba );
-    setOption( DirectRendering );
+    opts = DoubleBuffer | DepthBuffer | Rgba | DirectRendering;
 }
 
 
@@ -158,21 +153,21 @@ QGLFormat::QGLFormat( bool doubleBuffer )
   Creates a QGLFormat object that is a copy of the current \link
   defaultFormat() application default format\endlink.
 
-  If \a options is not 0, this copy will be modified by setting all
-  the options specified in the \a options FormatOption array. The
-  array must be terminated with a VoidOption item (i.e. 0).
+  If \a options is not 0, this copy will be modified by these format options.
+  The \a options parameter must be FormatOption values OR'ed together.
   
   This constructor makes it easy to specify a certain desired format
   in classes derived from QGLWidget, for example:
   \code
-    // The rendering in MyGLWidget depends on using stencil buffer
-    QGL::FormatOption myOpts[] = { QGL::StencilBuffer, QGL::VoidOption };
-
+    // The rendering in MyGLWidget depends on using
+    // stencil buffer and alpha channel
     MyGLWidget::MyGLWidget( QWidget* parent, const char* name )
-        : QGLWidget( QGLFormat( myOpts ), parent, name )
+        : QGLWidget( QGLFormat( StencilBuffer | AlphaChannel ), parent, name )
     {
       if ( !format().stencil() )
         warning( "Could not get stencil buffer; results will be suboptimal" );
+      if ( !format().alphaChannel() )
+        warning( "Could not get alpha channel; results will be suboptimal" );
       ...
    }
   \endcode
@@ -184,15 +179,12 @@ QGLFormat::QGLFormat( bool doubleBuffer )
   \sa defaultFormat(), setOption()
 */
 
-QGLFormat::QGLFormat( const FormatOption* options )
+QGLFormat::QGLFormat( int options )
 {
+    uint newOpts = options;
     opts = defaultFormat().opts;
-    if ( options ) {
-	while ( *options ) {
-	    setOption( *options );
-	    options++;
-	}
-    }
+    opts |= ( newOpts & 0xffff );
+    opts &= ~( newOpts >> 16 );
 }
 
 
@@ -419,10 +411,10 @@ void QGLFormat::setDirectRendering( bool enable )
 
 void QGLFormat::setOption( FormatOption opt )
 {
-    if ( opt & 0x8000 )		// It's a no-opt
-	opts &= opt;
-    else
+    if ( opt & 0xffff )
 	opts |= opt;
+    else
+       opts &= ~( opt >> 16 );
 }
 
 
@@ -435,11 +427,12 @@ void QGLFormat::setOption( FormatOption opt )
 
 bool QGLFormat::testOption( FormatOption opt ) const
 {
-    if ( opt & 0x8000 )		// It's a no-opt
-	return (opts & ~opt) == 0;
+    if ( opt & 0xffff )
+       return ( opts & opt ) != 0;
     else
-	return (opts & opt) != 0;
+       return ( opts & ( opt >> 16 ) ) == 0;
 }
+
 
 
 /*!
@@ -550,7 +543,8 @@ struct CMapEntry {
 CMapEntry::~CMapEntry()
 {
     if ( alloc )
-	XFreeColormap( QPaintDevice::x__Display(), cmap );
+	XFreeColormap( QPaintDevice::x11AppDisplay(), cmap );
+    // (Assumes that the widgets' x11Display == x11AppDisplay )
 }
 
 static bool		    cmap_init = FALSE;
@@ -950,16 +944,16 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	if ( deviceIsPixmap() && !(realPfd.dwFlags & PFD_DRAW_TO_BITMAP) ) {
 #if defined(CHECK_NULL)
 	    warning( "QGLContext::chooseContext(): Failed to get pixmap rendering context." );
+#endif
 	    return FALSE;
 	}
-#endif
 	if ( deviceIsPixmap() && 
-	     (((QPixmap*)paintDevice)->depth() != realPfd.cColorBits ) )
+            (((QPixmap*)paintDevice)->depth() != realPfd.cColorBits ) ) {
 #if defined(CHECK_NULL)
 	    warning( "QGLContext::chooseContext(): Failed to get pixmap rendering context of suitable depth." );
+#endif
 	    return FALSE;
 	}
-#endif
 
     }
 
@@ -1536,7 +1530,7 @@ QGLWidget::~QGLWidget()
     delete glcx;
 #if defined(GLX_MESA_release_buffers)
     if ( doRelease )
-	glXReleaseBuffersMESA( dpy, winId() );
+	glXReleaseBuffersMESA( x11Display(), winId() );
 #endif
 }
 
@@ -1748,20 +1742,21 @@ void QGLWidget::setContext( QGLContext *context,
     XVisualInfo *vi = (XVisualInfo*)glcx->vi;
     XSetWindowAttributes a;
 
-    a.colormap = choose_cmap( dpy, vi );	// find best colormap
+    a.colormap = choose_cmap( x11Display(), vi );	// find best colormap
     a.background_pixel = backgroundColor().pixel();
     a.border_pixel = black.pixel();
-    Window p = RootWindow( dpy, DefaultScreen(dpy) );
+    Window p = RootWindow( x11Display(), DefaultScreen(x11Display()) ); //#
     if ( parentWidget() )
 	p = parentWidget()->winId();
-    Window w = XCreateWindow( dpy, p,  x(), y(), width(), height(),
+    Window w = XCreateWindow( x11Display(), p,  x(), y(), width(), height(),
 			      0, vi->depth, InputOutput,  vi->visual,
 			      CWBackPixel|CWBorderPixel|CWColormap, &a );
 
     Window *cmw;
     Window *cmwret;
     int count;
-    if ( XGetWMColormapWindows(dpy,topLevelWidget()->winId(),&cmwret,&count) ){
+    if ( XGetWMColormapWindows( x11Display(), topLevelWidget()->winId(),
+				&cmwret, &count ) ) {
 	cmw = new Window[count+1];
         memcpy( (char *)cmw, (char *)cmwret, sizeof(Window)*count );
 	XFree( (char *)cmwret );
@@ -1782,16 +1777,17 @@ void QGLWidget::setContext( QGLContext *context,
 
 #if defined(GLX_MESA_release_buffers)
     if ( oldcx && oldcx->windowCreated() )
-	glXReleaseBuffersMESA( dpy, winId() );
+	glXReleaseBuffersMESA( x11Display(), winId() );
 #endif
     create( w );
 
-    XSetWMColormapWindows( dpy, topLevelWidget()->winId(), cmw, count );
+    XSetWMColormapWindows( x11Display(), topLevelWidget()->winId(), cmw, 
+			   count );
     delete [] cmw;
 
     if ( visible )
 	show();
-    XFlush( dpy );
+    XFlush( x11Display() );
     glcx->setWindowCreated( TRUE );
 #endif // Q_GLX
 }
