@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#40 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#39 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#40 $";
 #endif
 
 
@@ -1091,7 +1091,7 @@ normal C++ functions and can be called normally; their only special
 feature is that signals can be connected to them.  Since slots are
 normal member functions with just a little extra spice, they have
 access rights like everyone else.  A slot's access right determines
-who can connect to it.
+who can connect to it.  A slot's arguments cannot have default values.
 
 <p>
 
