@@ -398,7 +398,7 @@ void qt_mac_update_os_settings()
 		    set_font = !(fnt == *oldfnt);
 	    }
 	    if(set_font) {
-		QApplication::setFont(fnt, TRUE, mac_widget_fonts[i].qt_class);
+		QApplication::setFont(fnt, mac_widget_fonts[i].qt_class);
 #ifdef DEBUG_PLATFORM_SETTINGS
 		qDebug("qt-internal: Font for %s [%s::%d::%d::%d]", mac_widget_fonts[i].qt_class,
 		       fnt.family().latin1(), fnt.pointSize(), fnt.bold(), fnt.italic());
@@ -467,7 +467,7 @@ void qt_mac_update_os_settings()
 		    set_palette = !(pal == *oldpal);
 	    }
 	    if(set_palette && pal != apppal) {
-		QApplication::setPalette(pal, TRUE, mac_widget_colours[i].qt_class);
+		QApplication::setPalette(pal, mac_widget_colours[i].qt_class);
 #ifdef DEBUG_PLATFORM_SETTINGS
 		qt_mac_debug_palette(pal, apppal, QString("Palette for ") + mac_widget_colours[i].qt_class);
 #endif
@@ -601,7 +601,7 @@ void qt_event_request_flush_updates()
 		cr.translate(-point.x(), -point.y());
 	    }
 	    if(!r.isEmpty())
-		widget->repaint(r & cr, !widget->testWFlags(Qt::WRepaintNoErase));
+		widget->repaint(r & cr);
 	}
     }
 }
@@ -908,7 +908,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 #endif // QT_DEBUG
 		if(arg == "-inputstyle") {
 		    if(++i < argc) {
-			QByteArray s = QByteArray(argv[i]).lower();
+			QString s = QString(argv[i]).toLower();
 			if(s == "onthespot")
 			    qt_mac_input_spot = QT_MAC_ONTHESPOT;
 			else if(s == "offthespot")
@@ -936,7 +936,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 	//special hack to change working directory to a resource fork when running from finder
 	if(p && !QDir::isRelativePath(p) && QDir::currentDirPath() == "/") {
 	    QString path = argv[0];
-	    int rfork = path.findRev(QString("/") + appName + ".app/");
+	    int rfork = path.lastIndexOf(QString("/") + appName + ".app/");
 	    if(rfork != -1)
 		QDir::setCurrent(path.left(rfork+1));
 	}
@@ -945,7 +945,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
     QMacMime::initialize();
 
     if(appName)
-	qApp->setName(appName);
+	qApp->setObjectName(appName);
     if(qt_is_gui_used) {
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	QMenuBar::initialize();
@@ -1743,7 +1743,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    if(qt_button_down)
 			widget = qt_button_down;
 		    else
-			widget = QApplication::widgetAt(where.x(), where.y(), true);
+			widget = QApplication::widgetAt(where.x(), where.y());
 		}
 		if(widget) {
 		    QPoint plocal(widget->mapFromGlobal(where));
@@ -1887,13 +1887,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    else if(mac_mouse_grabber)
 		widget = mac_mouse_grabber;
 	    else
-		widget = QApplication::widgetAt(where.h, where.v, true);
+		widget = QApplication::widgetAt(where.h, where.v);
 	}
 	if(!QMacBlockingFunction::blocking()) { //set the cursor up
 	    QCursor cursor(Qt::ArrowCursor);
 	    QWidget *cursor_widget = widget;
 	    if(cursor_widget && cursor_widget == qt_button_down && ekind == kEventMouseUp)
-		cursor_widget = QApplication::widgetAt(where.h, where.v, true);
+		cursor_widget = QApplication::widgetAt(where.h, where.v);
 	    if(cursor_widget) { //only over the app, do we set a cursor..
 		if(!qApp->d->cursor_list.isEmpty()) {
 		    cursor = qApp->d->cursor_list.first();
@@ -2936,14 +2936,14 @@ bool QApplication::qt_mac_apply_settings()
 		pal.setColor(QPalette::Disabled, (QPalette::ColorRole) i, QColor(strlist[i]));
 	}
 	if(pal != QApplication::palette())
-	    QApplication::setPalette(pal, TRUE);
+	    QApplication::setPalette(pal);
 
 	QFont font(QApplication::font());     // read new font
 	str = settings.readEntry("/qt/font");
 	if(!str.isNull() && !str.isEmpty()) {
 	    font.fromString(str);
 	    if(font != QApplication::font())
-		QApplication::setFont(font, TRUE);
+		QApplication::setFont(font);
 	}
 
 	// read new QStyle
