@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#12 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#13 $
 **
 ** Definition of QPainter class
 **
@@ -167,11 +167,23 @@ public:
 
     void	drawText( int x, int y, const char *str, int len = -1 );
     void	drawText( const QPoint &, const char *str, int len = -1 );
-    void	drawText( int x, int y, int w, int h, TextAlignment,
+    void	drawText( int x, int y, int w, int h, int flags,
 			  const char *str, int len = -1 );
-    void	drawText( const QRect &, TextAlignment,
+    void	drawText( const QRect &, int flags,
 			  const char *str, int len = -1 );
 
+  // Text drawing functions
+
+    QRect	calcRect( int x, int y, int w, int h, int flags,
+			  const char *str, int len = -1 );
+    QRect	calcRect( const QRect &, int flags,
+			  const char *str, int len = -1 );
+
+    int		tabStops() const	{ return tabstops; }
+    void	setTabStops( int );
+    int	       *tabArray() const	{ return tabarray; }
+    void	setTabArray( int * );
+    
 private:
     static void changedFont( const QFont *, bool );
     static void changedPen( const QPen *, bool );
@@ -201,6 +213,8 @@ private:
     QPen	cpen;				// current pen
     QBrush	cbrush;				// current brush
     QRegion	crgn;				// current region
+    int		tabstops;			// tab stops
+    int	       *tabarray;			// array of tab positions
     QCOOT	sx, sy, sw, sh;			// source rect
     QCOOT	tx, ty, tw, th;			// target rect
     QWorldMatrix *wxmat;			// world xform matrix
@@ -377,10 +391,16 @@ inline void QPainter::drawText( const QPoint &p, const char *s, int len )
     drawText( p.x(), p.y(), s, len );
 }
 
-inline void QPainter::drawText( const QRect &r, TextAlignment ta,
+inline void QPainter::drawText( const QRect &r, int tf,
 				const char *str, int len )
 {
-    drawText( r.x(), r.y(), r.width(), r.height(), ta, str, len );
+    drawText( r.x(), r.y(), r.width(), r.height(), tf, str, len );
+}
+
+inline QRect QPainter::calcRect( const QRect &r, int tf,
+				 const char *str, int len )
+{
+    return calcRect( r.x(), r.y(), r.width(), r.height(), tf, str, len );
 }
 
 #endif // inline functions
