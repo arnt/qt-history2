@@ -75,13 +75,21 @@ void DatabaseConnection::doConnect()
 	    project->addDatabaseConnection( conn );
 	    listConnections->insertItem( conn->name );
 	    listConnections->setCurrentItem( listConnections->count() - 1 );
+	    project->saveConnections();
 	} else {
 	    // ### error handling
 	    delete conn;
 	}
     } else { // sync // ### should this do something else? right now it just overwrites all info about the connection...
 	Project::DatabaseConnection *conn = project->databaseConnection( listConnections->currentText() );
+	conn->name = editName->text();
+	conn->driver = comboDriver->lineEdit()->text();
+	conn->dbName = comboDatabase->lineEdit()->text();
+	conn->username = editUsername->text();
+	conn->password = editPassword->text();
+	conn->hostname = editHostname->text();
 	conn->refreshCatalog();
+	project->saveConnections();
     }
 }
 

@@ -113,7 +113,7 @@ public:
     void saveConnections();
     void loadConnections();
 
-    void openDatabase( const QString &connection );
+    bool openDatabase( const QString &connection );
     void closeDatabase( const QString &connection );
 
     QObjectList *formList() const;

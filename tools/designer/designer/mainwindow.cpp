@@ -2002,17 +2002,37 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 {
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
 	e->save();
-    QApplication::setOverrideCursor( WaitCursor );
     if ( currentTool() == ORDER_TOOL )
 	resetTool();
 
     FormWindow *fw = formWindow();
     if ( !fw )
 	return 0;
-    if ( fw->project() ) {
-	QStringList lst = MetaDataBase::fakeProperty( fw, "database" ).toStringList();
-	fw->project()->openDatabase( lst[ 0 ] );
+
+    QStringList databases;
+    QPtrDictIterator<QWidget> wit( *fw->widgets() );
+    while ( wit.current() ) {
+	QStringList lst = MetaDataBase::fakeProperty( wit.current(), "database" ).toStringList();
+	if ( !lst.isEmpty() )
+	    databases << lst [ 0 ];
+	++wit;
     }
+
+    if ( fw->project() ) {
+	bool ok = TRUE;
+	QStringList::Iterator it;
+	for ( it = databases.begin(); it != databases.end(); ++it ) {
+	    if ( !fw->project()->openDatabase( *it ) )
+		ok = FALSE;
+	}
+	if ( !ok )
+		editDatabaseConnections();
+	// try again
+	for ( it = databases.begin(); it != databases.end(); ++it )
+	    fw->project()->openDatabase( *it );
+    }
+    QApplication::setOverrideCursor( WaitCursor );
+
     QCString s;
     QBuffer buffer( s );
     buffer.open( IO_WriteOnly );
@@ -2053,6 +2073,7 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 	    w->setStyle( style );
 	if ( palet )
 	    w->setPalette( *palet );
+
 	QObjectList *l = w->queryList( "QWidget" );
 	for ( QObject *o = l->first(); o; o = l->next() ) {
 	    if ( style )
@@ -2063,6 +2084,7 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 		o->setProperty( "autoEdit", QVariant( FALSE, 0 ) );
 	}
 	delete l;
+
 	w->move( fw->mapToGlobal( QPoint(0,0) ) );
 	((MainWindow*)w )->setWFlags( WDestructiveClose );
 	previewing = TRUE;

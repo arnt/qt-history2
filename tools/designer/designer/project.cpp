@@ -493,7 +493,6 @@ void Project::saveConnections()
 	conf.writeEntry( "Driver", conn->driver );
 	conf.writeEntry( "DatabaseName", conn->dbName );
 	conf.writeEntry( "Username", conn->username );
-	conf.writeEntry( "Password", conn->password ); // ##################### Critical: figure out how to save passwd
 	conf.writeEntry( "Hostname", conn->hostname );
     }
 
@@ -522,7 +521,7 @@ void Project::loadConnections()
 	conn->driver = conf.readEntry( "Driver" );
 	conn->dbName = conf.readEntry( "DatabaseName" );
 	conn->username = conf.readEntry( "Username" );
-	conn->password = conf.readEntry( "Password" );
+	conn->password = "";
 	conn->hostname = conf.readEntry( "Hostname" );
 	dbConnections.append( conn );
     }
@@ -532,14 +531,14 @@ void Project::loadConnections()
 can be closed again with closeDatabase().
 */
 
-void Project::openDatabase( const QString &connection )
+bool Project::openDatabase( const QString &connection )
 {
     DatabaseConnection *conn = databaseConnection( connection );
     if ( connection.isEmpty() && !conn )
 	conn = databaseConnection( "(default)" );
     if ( !conn )
-	return;
-    conn->open();
+	return FALSE;
+    return conn->open();
 }
 
 /*! Closes the database \a connection.
