@@ -194,15 +194,6 @@ void QBinTree<T>::init(const QRect &area, int depth, NodeType type, int index)
 */
 
 /*!
-  \enum QListView::IconSize
-
-  \value Automatic The icon size is Small if \l isWrapping is
-  true; otherwise the icon size is Large.
-  \value Small The icons in the items are rendered as small icons.
-  \value Large The icons in the items are rendered as large icons.
-*/
-
-/*!
   \enum QListView::ResizeMode
 
   \value Fixed The items will only be laid out the first time the view is shown.
