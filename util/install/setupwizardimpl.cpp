@@ -408,14 +408,20 @@ void SetupWizardImpl::showPage( QWidget* newPage )
     SetupWizard::showPage( newPage );
 
     if( newPage == introPage ) {
+#ifdef USE_ARCHIVES
+	QFile licenseFile( tmpPath + "/LICENSE" );
+#else
 	QFile licenseFile( "LICENSE" );
+#endif
 	if( licenseFile.open( IO_ReadOnly ) ) {
-	    QByteArray fileData;
+	    QByteArray fileData = licenseFile.readAll();
+/*
 	    QFileInfo fi( licenseFile );
 	    
 	    if( !fileData.resize( fi.size() ) )
 		qFatal( "Could not allocate memory for license text!" );
 	    licenseFile.readBlock( fileData.data(), fileData.size() );
+*/
 	    introText->setText( QString( fileData.data() ) );
 	}
 	setInstallStep( 1 );
@@ -600,21 +606,14 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	setInstallStep( 6 );
 	if( !filesCopied ) {
+	    filesDisplay->append( "Starting copy process\n" );
 #if defined (USE_ARCHIVES)
 	    fi.setFile( "qt.arq" );
 	    if( fi.exists() )
 		totalSize = fi.size();
 
-	    fi.setFile( "build.arq" );
-	    if( fi.exists() )
-		totalSize += fi.size();
-	    
-	    fi.setFile( "uninstall.arq" );
-	    if( fi.exists() )
-		totalSize += fi.size();
-
 	    if( installDocs->isChecked() ) {
-		fi.setFile( "doc.arq" );
+		fi.setFile( "docs.arq" );
 		if( fi.exists() ) 
 		    totalSize += fi.size();
 	    }
@@ -633,13 +632,9 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	    operationProgress->setTotalSteps( totalSize );
 
-	    filesDisplay->append( "Starting copy process\n" );
-	    readArchive( "build.arq", installPath->text() );
-	    readArchive( "uninstall.arq", shell.windowsFolderName );
-
 	    readArchive( "qt.arq", installPath->text() );
 	    if( installDocs->isChecked() )
-		readArchive( "doc.arq", installPath->text() );
+		readArchive( "docs.arq", installPath->text() );
 	    if( installExamples->isChecked() )
 		readArchive( "examples.arq", installPath->text() );
 	    if( installTutorials->isChecked() )
@@ -907,7 +902,7 @@ void SetupWizardImpl::readArchive( const QString& arcname, const QString& instal
 		    if( app ) {
 			app->processEvents();
 			operationProgress->setProgress( totalRead );
-			logFiles( dirName + "\\\n" );
+			logFiles( dirName + "\\" );
 		    }
 		}
 	    }
@@ -920,11 +915,6 @@ void SetupWizardImpl::readArchive( const QString& arcname, const QString& instal
 		
 		if( outFile.open( IO_WriteOnly ) ) {
 
-		    if( app ) {
-			app->processEvents();
-			operationProgress->setProgress( totalRead );
-			logFiles( fileName + "\n" );
-		    }
 		    // Try to count the files to get some sort of idea of compilation progress
 		    if( ( entryName.right( 4 ) == ".cpp" ) || ( entryName.right( 2 ) == ".h" ) )
 			filesToCompile++;
@@ -934,7 +924,13 @@ void SetupWizardImpl::readArchive( const QString& arcname, const QString& instal
 //		    qDebug( "%s", timeStamp.toString().latin1() );
 		    outStream.setDevice( &outFile );
 		    inStream >> entryLength;
-		    totalRead += sizeof( entryLength );
+		    if( app ) {
+			app->processEvents();
+			operationProgress->setProgress( totalRead );
+			logFiles( fileName );
+//			logFiles( QString( fileName + " (%1 bytes)" ).arg( entryLength )  );
+		    }
+		    totalRead += sizeof( entryLength ) + 8; // Use size 8 bytes for timeStamp
 		    inBuffer.resize( entryLength );
 		    inStream.readRawBytes( inBuffer.data(), entryLength );
 		    totalRead += entryLength;
