@@ -74,8 +74,8 @@
 */
 
 /*!
-    Constructs a text codec plugin. This is invoked automatically by
-    the \c Q_EXPORT_PLUGIN macro.
+    Constructs a text codec plugin with the given \a parent. This is
+    invoked automatically by the \c Q_EXPORT_PLUGIN macro.
 */
 QTextCodecPlugin::QTextCodecPlugin(QObject *parent)
     :QObject(parent)

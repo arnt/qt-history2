@@ -1559,7 +1559,7 @@ QDir::match(const QString &filter, const QString &fileName)
 
 /*!
     Removes all multiple directory separators "/" and resolves any
-    "."s or ".."s found in the path, \a in.
+    "."s or ".."s found in the path, \a path.
 
     Symbolic links are kept. This function does not return the
     canonical path, but rather the simplest version of the input.

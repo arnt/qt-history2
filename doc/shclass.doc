@@ -17,14 +17,13 @@
 
 \title Shared Classes
 
-\keyword reference counting
-\keyword implicit sharing
 \keyword explicit sharing
-\keyword implicitly shared
 \keyword explicitly shared
-\keyword explicit sharing
-\keyword shared implicitly
+\keyword implicit sharing
+\keyword implicitly shared
+\keyword reference counting
 \keyword shared explicitly
+\keyword shared implicitly
 
 Many C++ classes in Qt use \e explicit and \e implicit data sharing
 to maximize resource usage and minimize copying of data.
