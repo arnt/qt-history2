@@ -57,8 +57,8 @@ time warps) in the underlying operating system.
 
 \section1 Use of System APIs
 
-It is of course impossible for Trolltech to ensure that both of the
-window systems and all of the operating systems on which Qt runs are
-Year 2000 Compliant. However, Qt does not use any APIs that are known
-to have any Year 2000-related bugs, or seem at risk to have any.
+It is impossible for Trolltech to ensure that the window systems and
+operating systems supported by Qt are Year 2000 Compliant.
+However, Qt does not use any APIs that are known to have any Year
+2000-related bugs, or those that appear to be at risk.
 */
