@@ -148,7 +148,11 @@ protected:
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
 
+    void	keyPressEvent( QKeyEvent * );
+    void	keyReleaseEvent( QKeyEvent * );
+
 private:
+    void	handleColumnMove( int fromIdx, int toIdx );
     void adjustHeaderSize( int diff );
     void	init( int );
 

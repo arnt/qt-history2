@@ -87,6 +87,7 @@ public:
 	fullSize = -2;
 	pos_dirty = FALSE;
 	is_a_table_header = FALSE;
+	focusIdx = 0;
     }
 
 
@@ -111,7 +112,8 @@ public:
     int count;
     int lastPos;
     int fullSize;
-
+    int focusIdx;
+    
     int sectionAt( int pos ) {
 	// positions is sorted by index, not by section
 	if ( !count )
@@ -539,6 +541,88 @@ void QHeader::moveCell( int fromIdx, int toIdx )
 {
     moveSection( mapToSection(fromIdx), toIdx );
 }
+
+
+
+/*!
+  Move and signal and repaint.
+ */
+
+void QHeader::handleColumnMove( int fromIdx, int toIdx )
+{
+    int s = d->i2s[fromIdx];
+    if ( fromIdx < toIdx )
+	toIdx++; //Convert to 
+    QRect r = sRect( fromIdx );
+    r |= sRect( toIdx );
+    moveSection( s, toIdx );
+    update( r );
+    emit moved( fromIdx, toIdx );
+    emit indexChange( s, fromIdx, toIdx );
+}
+		      
+/*!
+  \reimp
+*/
+void QHeader::keyPressEvent( QKeyEvent *e )
+{
+    int i = d->focusIdx;
+    if ( e->key() == Key_Space ) {
+	//don't do it if we're doing something with the mouse
+	if ( state == Idle && d->clicks[ d->i2s[d->focusIdx]  ] ) {
+	    handleIdx = i;
+	    state = Pressed;
+	    repaint( sRect( handleIdx ) );
+	    emit pressed( d->i2s[i] );
+	}
+    } else if ( e->key() == Key_Right || e->key() == Key_Left ) {
+	int dir = e->key() == Key_Right ? 1 : -1;
+	int s = d->i2s[i];
+	if ( e->state() & ControlButton  && d->resize[s] ) {
+	    //resize
+	    int step = e->state() & ShiftButton ? dir : 10*dir;
+	    int c = d->positions[i] + d->sizes[s] +  step;
+	    handleColumnResize( i, c, TRUE );
+	} else 	if ( e->state() & (AltButton|MetaButton) && d->move ) {
+	    //move section
+	    int i2 = ( i + count() + dir ) % count();
+	    d->focusIdx = i2;
+	    handleColumnMove( i, i2 );
+	} else {
+	    //focus on different section
+	    QRect r = sRect( d->focusIdx );
+	    d->focusIdx = (d->focusIdx + count() + dir) % count();
+	    r |= sRect( d->focusIdx );
+	    update( r );
+	}
+    } else {
+	e->ignore();
+    }
+}
+
+/*!
+  \reimp
+*/
+void QHeader::keyReleaseEvent( QKeyEvent *e )
+{
+    switch ( e->key() ) {
+    case Key_Space:
+	//double check that this wasn't started with the mouse
+	if ( state == Pressed && handleIdx == d->focusIdx ) {
+	    repaint(sRect( handleIdx ), FALSE);
+	    int section = d->i2s[d->focusIdx];
+	    emit released( section );
+	    emit sectionClicked( handleIdx );
+	    emit clicked( section );
+	    state = Idle;
+	    handleIdx = -1;
+	}
+	break;
+    default:
+	e->ignore();
+    }
+}
+
 
 /*!
   \reimp
@@ -1464,6 +1548,11 @@ void QHeader::paintEvent( QPaintEvent *e )
 		*/
 		if ( i < count() || d->clicks[ mapToSection( count() - 1 ) ] )
 		    paintSection( &p, i, r );
+		if ( hasFocus() && d->focusIdx == i ) {
+		    QRect fr( r.x()+2, r.y()+2, r.width()-4, r.height()-4 );
+		    style().drawPrimitive( QStyle::PE_FocusRect, &p, fr, 
+					   colorGroup() );
+		}
 		if ( orient == Horizontal && r. right() >= e->rect().right() ||
 		     orient == Vertical && r. bottom() >= e->rect().bottom() )
 		    return;
