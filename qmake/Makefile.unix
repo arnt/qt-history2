@@ -1,6 +1,6 @@
 #qmake code
 OBJS=project.o main.o makefile.o unixmake2.o unixmake.o borland_bmake.o \
-     msvc_nmake.o msvc_dsp.o option.o winmakefile.o \
+     msvc_nmake.o msvc_dsp.o msvc_vcproj.o option.o winmakefile.o \
      projectgenerator.o metrowerks_xml.o  pbuilder_pbx.o
 
 #qt code
