@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#84 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#83 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#84 $";
 #endif
 
 
@@ -1394,7 +1394,7 @@ Enables or disables view transformations.
 
 void QPainter::setViewXForm( bool enable )	// set xform
 {
-    if ( !isActive() || onOff == testf(VxF) )
+    if ( !isActive() || enable == testf(VxF) )
 	return;
     setf( VxF, enable );
     if ( testf(ExtDev) ) {
@@ -1524,7 +1524,7 @@ void QPainter::setWorldMatrix( const Q2DMatrix &m, bool combine )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[2];
 	param[0].matrix = &wxmat;
-	param[1].ival = concat;
+	param[1].ival = combine;
 	pdev->cmd( PDC_SETWMATRIX, param );
 	return;
     }

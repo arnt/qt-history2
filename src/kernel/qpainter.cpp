@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#27 $
 **
 ** Implementation of QPainter class
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#27 $";
 #endif
 
 
@@ -30,32 +30,39 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#26 $";
 \class QPainter qpainter.h
 \brief The QPainter class paints on paint devices.
 
-The typical use of a painter is: <br>
-1. Open the painter on a device. <br>
-2..n Set some variables (e.g. font, pen color) and perform some paint
-  commands<br>
-n+1. Close the painter<br>
+The painter provides graphics rendering on any QPaintDevice object.
 
-Here is some code which draws some text (copied from QLabel, actually):
+Graphics can be transformed using view transformation, world transformation
+or a combination of these two.
+View transformation is a window/viewport transformation with translation
+and scaling.  World transformation is a full 2D transformation including
+rotation and shearing.
 
+The typical use of a painter is:
+<ol>
+<li> Call begin() to begin painting on a device.
+<li> Set a pen, a brush etc.
+<li> Perform the drawing.
+<li> Call end() to finish painting.
+</ol>
+
+Example of use:
 \code
-    QPainter paint;
-    paint.begin( this );
-    paint.eraseRect( contentsRect() );
-    paint.setPen( colorGroup().text() );
-    paint.drawText( contentsRect(), align, str );
-    paint.end();
+  QWidget  widget;
+  QPainter paint;
+  paint.begin( &widget );
+  paint.setPen( blue );
+  paint.drawText( 20, 20, 100, 100, AlignCenter, "The Text" );
+  paint.end();
 \endcode
-
-\sa QPaintDevice.
 */
 
 
 QPaintDevice *QPainter::pdev_ov = 0;
 
-/*! Redirects the paint-command stream from the device you tell
-  begin() to \e pd.  Some neat tricks become possible, but we think
-  it's not a good idea and will probably remove it shortly. */
+/*!
+Redirects all paint command to a a paint device \e pd. Careful here!
+*/
 
 bool QPainter::redirect( const QPaintDevice *pd )
 {
@@ -65,8 +72,6 @@ bool QPainter::redirect( const QPaintDevice *pd )
     return TRUE;
 }
 
-/*! Set a painter flag to \e v */
-
 void QPainter::setf( ushort b, bool v )		// set painter flag (internal)
 {
     if ( v )
@@ -75,8 +80,12 @@ void QPainter::setf( ushort b, bool v )		// set painter flag (internal)
 	clearf( b );
 }
 
-/*! Set the number of characters per tab stop.  Defaults to 8, like
-  any sane system.  \sa setTabArray(). */
+/*!
+Set the number of pixels per tab stop to a fixed number.
+
+Tab stops are used when drawing formatted text with \c ExpandTabs set.
+\sa setTabArray().
+*/
 
 void QPainter::setTabStops( int ts )		// set tab stops
 {
@@ -88,9 +97,12 @@ void QPainter::setTabStops( int ts )		// set tab stops
     }
 }
 
-/*! Set the tabs to a list of positions.  If you want to have tab
-  stops at positions, 1, 2, 3, 5, 8, 13, 21, 34 and 31, setTabArray()
-  is the function to use. \sa setTabStops(). */
+/*!
+Set an array containing the tab stops.
+
+The last tab stop must be 0 (terminates the array).
+\sa setTabStops().
+*/
 
 void QPainter::setTabArray( int *ta )		// set tab array
 {
@@ -137,33 +149,15 @@ struct QPState {				// painter state
 declare(QStackM,QPState);
 typedef QStackM(QPState) QPStateStack;
 
-/*! Deletes the stack of painter states.  \sa save() and restore(). */
 
 void QPainter::killPStack()
 {
     delete (QPStateStack *)ps_stack;
 }
 
-/*! Save the current painter state.  The painter state is the current
-
-\link    QFont	 font \endlink,
-\link    QPen	 pen \endlink,
-\link    QBrush	 brush \endlink,
-\link    QColor	 bgc \endlink,
-\link 	 bgm \endlink,
-\link    uchar	 pu \endlink,
-\link    bitBlt	 raster operation \endlink,
-\link    QPoint	 bro \endlink,
-\link    QRect	 wr, vr \endlink,
-\link    Q2DMatrix	 wm \endlink,
-\link vetikkehvor   	 vxf \endlink,
-whether world transform is being used,
-\link    QRegion clip region \endlink,
-whether clipping is used,
-\link setTabStops() the tab length \endlink and
-\link setTabArray() the tab stop array \endlink.
-
-\sa restore() and killPStack().
+/*!
+Saves the current painter state (pushes the state onto a stack).
+\sa restore().
 */
 
 void QPainter::save()				// save/push painter state
@@ -201,8 +195,10 @@ void QPainter::save()				// save/push painter state
     pss->push( ps );
 }
 
-/*! Restore the painter state from the stack.  The state is defined in
-the documentation for save(). \sa save() and killPStack(). */
+/*!
+Restores the current painter state (pops a saved state off the stack).
+\sa save().
+*/
 
 void QPainter::restore()			// restore/pop painter state
 {
@@ -258,31 +254,23 @@ void QPainter::restore()			// restore/pop painter state
 // Painter functions for drawing shadow effects.
 //
 
-/*! Draw a nicely shaded line.  The arguments may not reveal it, but
-  the line has to be either vertical or horizontal.  If the line is
-  horizontal (\e y1 == \e y2), the line is drawn with \e tColor (the
-  top color) at the y coordinate and \e bColor at the line below.  If
-  the line is vertical (\e x1 == \e x2) the line drawn with \e tColor
-  at the x coordinate and bColor at the next line to the right.  The
-  end pixels are treated specially.
+/*!
+Draw a horizontal (\e y1 == \e y2) or vertical (\e x1 == \e x2) shaded line.
 
-  You may consider the line to be illuminated from the top left corner
-  of the screen.
+The \e tColor argument specifies the top (or left) color and \e bColor
+specifies the bottom (or right) color.
 
-  If \e tColor is darker than \e bColor, the line will appear to be a
-  groove, and if \e bColor is darker then \e tColor, the line will
-  appear to be raised.
+The \e lw argument specifies the line width for each of the lines. It is
+not the total line width.
 
-  drawShadeLine() doesn't disturb the pen color.
+The \e mw argument specifies the width of a middle line drawn in \e mColor.
 
-  For the curious: If the line, as specified, isn't either vertical or
-  horizontal, the routine won't notice.  It only tests for one
-  alternative, and uses the other if the test fails.  (But I'm not
-  telling which :)
+If \e tColor is brighter that \e bColor, the line appears to be
+raised from the surface.  If \e tColor is darker that \e bColor, the line
+appears to be sunken into the surface.
 
-  \todo document mColor, mlw, lw
-
-  \sa drawShadeRect(), drawShadePanel(), drawLine(). */
+\sa drawShadeRect() and drawShadePanel().
+*/
 
 void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
 			      const QColor &tColor, const QColor &bColor,
@@ -318,7 +306,7 @@ void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
 	    drawPolyline( a );
 	}
     }
-    else {					// vertical line
+    else if ( x1 == x2 ) {			// vertical line
 	int x = x1 - tlw/2;
 	if ( y1 > y2 ) {			// swap y1 and y2
 	    int t = y1;
@@ -349,23 +337,12 @@ void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
 }
 
 
-/*! Draw a nicely shaded rectangle.  The outer size is given by \e x,
-  \e y, \e w and \e h.
+/*!
+Draw a shaded rectangle given by \e (x,y,w,h).
 
-  You may consider the rectangle to be illuminated from the top left
-  corner of the screen.
-
-  If \e tColor is darker than \e bColor, the rectangle will appear to
-  be below the screen "level", and if \e bColor is darker then \e
-  tColor, the rectangle will appear to be above it.
-
-  drawShadeRect() doesn't disturb the pen color.
-
-  \todo document mColor, mlw, lw
-
-  \sa drawShadeRect(), drawShadePanel(), drawLine(). */
-
-
+The arguments have the same meaning as for drawShadeLine().
+\sa drawShadeLine(), drawShadePanel()
+*/
 
 void QPainter::drawShadeRect( int x, int y, int w, int h,
 			      const QColor &tColor, const QColor &bColor,
@@ -419,6 +396,10 @@ void QPainter::drawShadeRect( int x, int y, int w, int h,
     setPen( oldPen );				// restore pen
 }
 
+
+/*!
+Draw a shaded panel given by \e (x,y,w,h).
+*/
 
 void QPainter::drawShadePanel( int x, int y, int w, int h,
 			       const QColor &tColor, const QColor &bColor,
@@ -479,9 +460,9 @@ void QPainter::drawShadePanel( int x, int y, int w, int h,
 // Convenience function for filling a rectangle.
 //
 
-/*! Convenience function for filling a rectangle.  Calls drawRect(x,
-y, w, h) with a black and the specified brush, and restores pen and
-brush afterwards. \sa QPen */
+/*!
+Fills the rectangle \e (x,y,w,h) with a \e color.
+*/
 
 void QPainter::fillRect( int x, int y, int w, int h, const QColor &color )
 {
@@ -500,105 +481,171 @@ void QPainter::fillRect( int x, int y, int w, int h, const QColor &color )
 // QPainter member functions (inline if DEBUG not defined)
 //
 
-/*! Sets the brush origin to \e p.  Changing the brush origin from
-  (0,0) to (1,1) and repainting will move the brush pattern one pixel
-  up and one pixel leftwards. */
+/*!
+Synonymous to setBrushOrigin(x,y).
+*/
 
 void QPainter::setBrushOrigin( const QPoint &p )
 {
     setBrushOrigin( p.x(), p.y() );
 }
 
-/*! Sets the coordinates of the widget to \e r.  This doesn't change
-  the widget in any way, it changes the coordinates you use to refer
-  to points within the widget.  Qt will translate to the underlying
-  window system's coordinates. \sa Q2DMatrix. */
+/*!
+Synonymous to setWindow(x,y,w,h).
+*/
 
 void QPainter::setWindow( const QRect &r )
 {
     setWindow( r.x(), r.y(), r.width(), r.height() );
 }
 
+/*!
+Synonymous to setViewport(x,y,w,h).
+*/
 
 void QPainter::setViewport( const QRect &r )
 {
     setViewport( r.x(), r.y(), r.width(), r.height() );
 }
 
+/*!
+Synonymous to setViewport(QRect).
+*/
+
 void QPainter::setClipRect( int x, int y, int w, int h )
 {
     setClipRect( QRect(x,y,w,h) );
 }
+
+/*!
+Synonymous to drawPoint(x,y).
+*/
 
 void QPainter::drawPoint( const QPoint &p )
 {
     drawPoint( p.x(), p.y() );
 }
 
+/*!
+Synonymous to moveTo(x,y).
+*/
+
 void QPainter::moveTo( const QPoint &p )
 {
     moveTo( p.x(), p.y() );
 }
+
+/*!
+Synonymous to lineTo(x,y).
+*/
 
 void QPainter::lineTo( const QPoint &p )
 {
     lineTo( p.x(), p.y() );
 }
 
+/*!
+Synonymous to drawLine(x1,y1,x2,y2).
+*/
+
 void QPainter::drawLine( const QPoint &p1, const QPoint &p2 )
 {
     drawLine( p1.x(), p1.y(), p2.x(), p2.y() );
 }
+
+/*!
+Synonymous to drawRect(x,y,w,h).
+*/
 
 void QPainter::drawRect( const QRect &r )
 {
     drawRect( r.x(), r.y(), r.width(), r.height() );
 }
 
+/*!
+Synonymous to drawRoundRect(x,y,w,h,xRnd,yRnd).
+*/
+
 void QPainter::drawRoundRect( const QRect &r, int xRnd, int yRnd )
 {
     drawRoundRect( r.x(), r.y(), r.width(), r.height(), xRnd, yRnd );
 }
+
+/*!
+Synonymous to drawEllipse(x,y,w,h).
+*/
 
 void QPainter::drawEllipse( const QRect &r )
 {
     drawEllipse( r.x(), r.y(), r.width(), r.height() );
 }
 
+/*!
+Synonymous to drawArc(x,y,w,h,a1,a2).
+*/
+
 void QPainter::drawArc( const QRect &r, int a1, int a2 )
 {
     drawArc( r.x(), r.y(), r.width(), r.height(), a1, a2 );
 }
+
+/*!
+Synonymous to drawPie(x,y,w,h,a1,a2).
+*/
 
 void QPainter::drawPie( const QRect &r, int a1, int a2 )
 {
     drawPie( r.x(), r.y(), r.width(), r.height(), a1, a2 );
 }
 
+/*!
+Synonymous to drawChord(x,y,w,h,a1,a2).
+*/
+
 void QPainter::drawChord( const QRect &r, int a1, int a2 )
 {
     drawChord( r.x(), r.y(), r.width(), r.height(), a1, a2 );
 }
+
+/*!
+Synonymous to drawPixmap(x,y,pm).
+*/
 
 void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 {
     drawPixmap( p.x(), p.y(), pm );
 }
 
+/*!
+Synonymous to fillRect(x,y,w,h,c).
+*/
+
 void QPainter::fillRect( const QRect &r, const QColor &c )
 {
     fillRect( r.x(), r.y(), r.width(), r.height(), c );
 }
+
+/*!
+Calls <code>fillRect( x, y, w, h, backgroundColor() )</code>.
+*/
 
 void QPainter::eraseRect( int x, int y, int w, int h )
 {
     fillRect( x, y, w, h, backgroundColor() );
 }
 
+/*!
+Synonymous to eraseRect(x,y,w,h).
+*/
+
 void QPainter::eraseRect( const QRect &r )
 {
     fillRect( r.x(), r.y(), r.width(), r.height(), backgroundColor() );
 }
+
+/*!
+Synonymous to drawShadeLine(x1,y1,x2,y2,...).
+*/
 
 void QPainter::drawShadeLine( const QPoint &p1, const QPoint &p2,
 			      const QColor &tc, const QColor &bc,
@@ -607,12 +654,20 @@ void QPainter::drawShadeLine( const QPoint &p1, const QPoint &p2,
     drawShadeLine( p1.x(), p1.y(), p2.x(), p2.y(), tc, bc, lw, mc, mlw );
 }
 
+/*!
+Synonymous to drawShadeRect(x1,y1,x2,y2,...).
+*/
+
 void QPainter::drawShadeRect( const QRect &r,
 			      const QColor &tc, const QColor &bc,
 			      int lw, const QColor &mc, int mlw )
 {
     drawShadeRect( r.x(), r.y(), r.width(), r.height(), tc, bc, lw, mc, mlw );
 }
+
+/*!
+Synonymous to drawShadePanel(x1,y1,x2,y2,...).
+*/
 
 void QPainter::drawShadePanel( const QRect &r,
 			       const QColor &tc, const QColor &bc,
@@ -621,16 +676,28 @@ void QPainter::drawShadePanel( const QRect &r,
     drawShadePanel( r.x(), r.y(), r.width(), r.height(), tc, bc, lw, fc, fill);
 }
 
+/*!
+Synonymous to drawText(x,y,...).
+*/
+
 void QPainter::drawText( const QPoint &p, const char *s, int len )
 {
     drawText( p.x(), p.y(), s, len );
 }
+
+/*!
+Synonymous to drawText(x,y,w,h,...).
+*/
 
 void QPainter::drawText( const QRect &r, int tf, const char *str, int len,
 			 QRect *br, char **i )
 {
     drawText( r.x(), r.y(), r.width(), r.height(), tf, str, len, br, i );
 }
+
+/*!
+Synonymous to boundingRect(x,y,w,h,...).
+*/
 
 QRect QPainter::boundingRect( const QRect &r, int tf,
 			      const char *str, int len, char **i )
@@ -646,7 +713,8 @@ QRect QPainter::boundingRect( const QRect &r, int tf,
 
 /*!
 \relates QPen
-Writes a pen to the stream. */
+Writes a pen to the stream.
+*/
 
 QDataStream &operator<<( QDataStream &s, const QPen &p )
 {
@@ -676,8 +744,7 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
 
 /*!
 \relates QBrush
-Writes a brush to the stream.  Predefined brushes only need one byte,
-custom brushes need the bitmap too.
+Writes a brush to the stream.
 */
 
 QDataStream &operator<<( QDataStream &s, const QBrush &b )
@@ -690,8 +757,7 @@ QDataStream &operator<<( QDataStream &s, const QBrush &b )
 
 /*!
 \relates QBrush
-Reads a brush from the stream.  Predefined brushes only need one byte,
-custom brushes need the bitmap too.
+Reads a brush from the stream.
 */
 
 QDataStream &operator>>( QDataStream &s, QBrush &b )
