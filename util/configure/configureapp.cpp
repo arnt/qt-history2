@@ -1032,10 +1032,6 @@ void Configure::generateMakefiles()
 	    if( dictionary[ "DEPENDENCIES" ] == "no" )
 		args << "-nodepend";
 
-	    // Temporary workaround to make linking with the ODBC driver compiled in work
-	    if ( dictionary[ "SQL_ODBC" ] == "yes" )
-		args << "\"LIBS+=odbc.lib\"";
-	    
 	    if( makefileName.right( 4 ) == ".dsp" )
 		args << "-t" << qmakeTemplate;
 	    else
