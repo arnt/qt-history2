@@ -69,6 +69,7 @@ void QAccessible::setRootObject(QObject *o)
     if (o)
 	QAccessible::queryAccessibleInterface(o, &iface);
     qSetRootObject(iface);
+    iface->release();
 }
 
 #endif
