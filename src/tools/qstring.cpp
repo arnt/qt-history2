@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#185 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#186 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -249,7 +249,9 @@ QT_STATIC_CONST_IMPL QChar QChar::replacement((ushort)0xfffd);
 QT_STATIC_CONST_IMPL QChar QChar::byteOrderMark((ushort)0xfeff);
 QT_STATIC_CONST_IMPL QChar QChar::byteOrderSwapped((ushort)0xfffe);
 
-#define Q2HELPER(x) x
+// Uncomment this to get some useful statistics.
+// #define Q2HELPER(x) x
+
 #ifdef Q2HELPER
 static int stat_construct_charstar=0;
 static int stat_construct_charstar_size=0;
