@@ -102,7 +102,7 @@ void WidgetDatabase::setupDataBase( int id )
     if ( dbcount )
 	return;
 #else
-    if ( dbcount && id < dbcount && id != -2 )
+    if ( dbcount && id != -2 )
 	return;
     if ( dbcount && !plugins_set_up ) {
 	setupPlugins();
