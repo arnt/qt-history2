@@ -700,13 +700,10 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 	QPaintEvent e( reg );
 	QApplication::sendEvent( this, &e );
 	qt_clear_paintevent_clipping( this );
-    }
-#if 0 //this is good for debugging and not much else, do not leave this in production
-    GWorldPtr cgworld;
-    GDHandle cghandle;
-    GetGWorld(&cgworld, &cghandle);
-    QDFlushPortBuffer(cgworld, (RgnHandle)reg.handle());
+#if 0
+	QDFlushPortBuffer(GetWindowPort((WindowPtr)handle()), NULL);
 #endif
+    }
 }
 
 void QWidget::showWindow()
