@@ -12,6 +12,9 @@ using Qt. See the qt/extensions/nsplugin directory in the distribution.
 The ImageIO extension library gives a framework for adding new image
 formats. See the qt/extensions/imageio directory.
 
+The OpenGL extension for Qt now resides in qt/extensions.
+
+
 ****************************************************************************
 *               Changes that might affect runtime behavior                 *
 ****************************************************************************
@@ -37,7 +40,6 @@ LC_NUMERIC which is set to the C locale. This means that input/output
 of floating point numbers will always use '.' as the decimal separator, 
 while all other locale dependant operations will use the default locale.
  
-
 ****************************************************************************
 *               Changes that might generate compile errors                 *
 *                        when compiling old code                           *
@@ -110,12 +112,14 @@ venerable message(): information(), warning(), critical() and about().
 
 QPopupMenu can now display icon and text in the same item.
 
-QPopupMenu::exec() to pop up a synchronous 
+QPopupMenu::exec() to pop up a synchronous popup menu.
 
 QListBox now supports multi selection.
 
 QWidget::setBackgroundMode() gives a powerful way of managing widget
 backgrounds, to reduce flicker.
+
+QWidget::setIcon() now works under both X11 and Windows.
 
 The file dialog now remembers the previously selected directory.
 
@@ -231,7 +235,7 @@ QTabBar::shape(void) const
 QTabBar::tab(int)
 QTabBar::tabList(void)
 QTabDialog::addTab(QWidget *, QTab *)
-QTabDialog::hasOKButton(void) const
+QTabDialog::hasOkButton(void) const
 QTabDialog::selected(char const *)
 QTabDialog::setTabBar(QTabBar *)
 QTabDialog::showPage(QWidget *)
