@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#36 $
 **
 ** Implementation of QAccel class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#36 $");
 
 
 /*!
@@ -98,7 +98,10 @@ QAccel::QAccel( QWidget *parent, const char *name )
     CHECK_PTR( aitems );
     aitems->setAutoDelete( TRUE );
     enabled = TRUE;
-    if ( parent && parent->isWidgetType() ) {	// install event filter
+    if ( parent ) {				// install event filter
+#if defined(CHECK_RANGE)
+	ASSERT( parent->isWidgetType() );
+#endif
 	tlw = parent->topLevelWidget();
 	tlw->installEventFilter( this );
 	connect( tlw, SIGNAL(destroyed()), SLOT(tlwDestroyed()) );
@@ -119,31 +122,6 @@ QAccel::~QAccel()
     if ( tlw )
 	tlw->removeEventFilter( this );
     delete aitems;
-}
-
-
-/*!  Make sure that the accelerator is watching the correct event
-  filter.  Used by QWidget::recreate().
-*/
-
-void QAccel::fixupEventFilter()
-{
-    QWidget * ntlw = 0;
-
-    if ( parent() && parent()->isWidgetType() )
-	ntlw = ((QWidget*)parent())->topLevelWidget();
-
-    if ( tlw != ntlw ) {
-	if ( tlw ) {
-	    tlw->removeEventFilter( this );
-	    disconnect( tlw, SIGNAL(destroyed()), this, SLOT(tlwDestroyed()) );
-	}
-	tlw = ntlw;
-	if ( tlw ) {
-	    tlw->installEventFilter( this );
-	    connect( tlw, SIGNAL(destroyed()), this, SLOT(tlwDestroyed()) );
-	}
-    }
 }
 
 
@@ -323,6 +301,36 @@ bool QAccel::disconnectItem( int id, const QObject *receiver,
     if ( item && item->signal )
 	return item->signal->disconnect( receiver, member );
     return FALSE;
+}
+
+
+/*!
+  Make sure that the accelerator is watching the correct event
+  filter.  Used by QWidget::recreate().
+*/
+
+void QAccel::repairEventFilter()
+{
+    QWidget *ntlw;
+    if ( parent() ) {
+#if defined(CHECK_RANGE)
+	ASSERT( parent()->isWidgetType() );
+#endif
+	ntlw = ((QWidget*)parent())->topLevelWidget();
+    } else {
+	ntlw = 0;
+    }
+    if ( tlw != ntlw ) {
+	if ( tlw ) {
+	    tlw->removeEventFilter( this );
+	    disconnect( tlw, SIGNAL(destroyed()), this, SLOT(tlwDestroyed()) );
+	}
+	tlw = ntlw;
+	if ( tlw ) {
+	    tlw->installEventFilter( this );
+	    connect( tlw, SIGNAL(destroyed()), this, SLOT(tlwDestroyed()) );
+	}
+    }
 }
 
 

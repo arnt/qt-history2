@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#191 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#192 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#191 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#192 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -448,10 +448,10 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 
     QObjectList	*accelerators = queryList( "QAccel" );
     QObjectListIt it( *accelerators );
-    QObject * o;
-    while ( (o=it.current()) != 0 ) {
+    QObject *obj;
+    while ( (obj=it.current()) != 0 ) {
 	++it;
-	((QAccel*)o)->fixupEventFilter();
+	((QAccel*)obj)->repairEventFilter();
     }
     delete accelerators;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#74 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#73 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#74 $");
 
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
@@ -314,10 +314,10 @@ void QWidget::recreate( QWidget *parent, WFlags, const QPoint &p,
 
     QObjectList	*accelerators = queryList( "QAccel" );
     QObjectListIt it( *accelerators );
-    QObject * o;
-    while ( (o=it.current()) != 0 ) {
+    QObject *obj;
+    while ( (obj=it.current()) != 0 ) {
 	++it;
-	((QAccel*)o)->fixupEventFilter();
+	((QAccel*)obj)->repairEventFilter();
     }
     delete accelerators;
 }
