@@ -1,5 +1,6 @@
 #!/bin/sh
 NIS=yes
+XPLATFORM=`basename $1`
 XCONFIG=$1/qmake.conf
 VERBOSE=$2
 shift 2
@@ -25,7 +26,13 @@ done
 [ "$VERBOSE" = "yes" ] && echo "NIS auto-detection..."
 
 # check for the NIS library
-LIBS=`sed -n -e '/^QMAKE_LIBS_NIS[	 ]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XCONFIG`
+# on Solaris it's -lnsl, it's not specified because X11 already links it
+if echo $XPLATFORM | grep '^solaris-' > /dev/null
+then
+    LIBS=nsl
+else
+    LIBS=`sed -n -e '/^QMAKE_LIBS_NIS[	 ]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XCONFIG`
+fi
 LIBDIRS="$IN_LIBDIRS /usr/lib /lib"
 if [ -z "$LIBS" ]
 then
