@@ -2717,10 +2717,13 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	grep "QMAKE_CXXFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,\$\$QMAKE_CFLAGS,\$(QMAKE_CFLAGS)," >>$mkfile
 	grep "QMAKE_LFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
 	EXTRA_CFLAGS="\$(QMAKE_CFLAGS)"
+	EXTRA_CXXFLAGS="\$(QMAKE_CXXFLAGS)"
 	EXTRA_LFLAGS="\$(QMAKE_LFLAGS)"
 	if [ "$CFG_DEBUG" = "yes" ]; then
             grep "QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
+            grep "QMAKE_CXXFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,\$\$QMAKE_CFLAGS_DEBUG,\$(QMAKE_CFLAGS_DEBUG),"  >>$mkfile
 	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QMAKE_CFLAGS_DEBUG)"
+	    EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS \$(QMAKE_CXXFLAGS_DEBUG)"
         fi
 	if [ "$PLATFORM_MAC" = "yes" ]; then
 	    echo "export MACOSX_DEPLOYMENT_TARGET = 10.2" >>$mkfile
@@ -2746,7 +2749,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
         echo >>$mkfile
 	sed -e "s,@SOURCE_PATH@,$relpath,g" -e "s,@BUILD_PATH@,$outpath,g" \
 	    -e "s,@QMAKE_CFLAGS@,$EXTRA_CFLAGS,g" -e "s,@QMAKE_LFLAGS@,$EXTRA_LFLAGS,g" \
-	    -e "s,@QMAKE_CXXFLAGS@,\$(QMAKE_CXXFLAGS),g" \
+	    -e "s,@QMAKE_CXXFLAGS@,$EXTRA_CXXFLAGS,g" \
 	    -e "s,@QT_INSTALL_BINS@,\$(INSTALL_ROOT)$QMAKE_BIN_DIR,g" \
 	    -e "s,@QT_INSTALL_DATA@,\$(INSTALL_ROOT)$QMAKE_DATA_DIR,g" \
 	    -e "s,@QMAKE_QTOBJS@,$EXTRA_SOURCES,g" -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
