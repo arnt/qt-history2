@@ -541,7 +541,7 @@ QPtrList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QStri
     QPtrList<QNetworkOperation> ops;
     ops.setAutoDelete( FALSE );
 
-    QUrlOperator *uFrom = new QUrlOperator( *this, from, TRUE );
+    QUrlOperator *uFrom = new QUrlOperator( *this, from );
     QUrlOperator *uTo = new QUrlOperator( to );
 
     // prepare some string for later usage

@@ -300,9 +300,12 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl, bool checkSlash )
 		    setFileName( rel );
 	    } else {
 		QString p = urlTmp.path();
-		if ( p.isEmpty() )
-		    p = "/";
-		if ( p.right( 1 ) != "/" )
+		if ( p.isEmpty() ) {
+		    // allow URLs like "file:foo"
+		    if ( !d->host.isEmpty() && !d->user.isEmpty() && !d->pass.isEmpty() )
+			p = "/";
+		}
+		if ( !p.isEmpty() && p.right(1)!="/" )
 		    p += "/";
 		p += rel;
 		d->path = p;
