@@ -461,13 +461,10 @@ public:
 	SectionIncludeTrailingSep  = 0x04,
 	SectionCaseInsensitiveSeps = 0x08
     };
-    QString     section( QChar sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const 
-	          { return section(QString(sep), start, end, flags); }
-    QString     section( char sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const
-	          { return section(QChar(sep), start, end, flags); }
+    QString     section( QChar sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const;
+    QString     section( char sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const;
 #ifndef QT_NO_CAST_ASCII
-    QString      section( const char *substr, int start, int end = 0xffffffff, int flags = SectionDefault ) const
-	          { return section(QString(substr), start, end, flags); }
+    QString      section( const char *substr, int start, int end = 0xffffffff, int flags = SectionDefault ) const;
 #endif
     QString     section( const QString &substr, int start, int end = 0xffffffff, int flags = SectionDefault ) const;
 #ifndef QT_NO_REGEXP
@@ -715,6 +712,17 @@ inline QString::~QString()
         d->deleteSelf();
     }
 }
+
+inline QString QString::section( QChar sep, int start, int end, int flags ) const 
+{ return section(QString(sep), start, end, flags); }
+
+inline QString QString::section( char sep, int start, int end, int flags ) const
+{ return section(QChar(sep), start, end, flags); }
+
+#ifndef QT_NO_CAST_ASCII
+inline QString QString::section( const char *substr, int start, int end, int flags ) const
+{ return section(QString(substr), start, end, flags); }
+#endif
 
 inline QString &QString::operator=( QChar c )
 { return *this = QString(c); }
