@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#429 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#430 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -14099,17 +14099,13 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
     int i = string.find( QRegExp("an"), 0 );     // i == 1
   \endcode
 
-  Finds the first occurrence of the constant regular expression \a rx,
-  starting at
-  position \a index. If \a index is -1, the search starts at the last
-  character; if -2, at the next to last character and so on.  (See
-  findRev() for searching backwards.)
+  Finds the first occurrence of the constant regular expression \a
+  rx, starting at position \a index. If \a index is -1, the search
+  starts at the last character; if -2, at the next to last character
+  and so on.  (See findRev() for searching backwards.)
 
   Returns the position of the first occurrence of \a rx or -1 if
   \a rx was not found.
-
-  Unlike QRegExp::search(), this function does not set
-  QRegExp::matchedLength(), QRegExp::capturedTexts() and friends.
 
   \sa findRev() replace() contains()
 */
@@ -14133,10 +14129,6 @@ int QString::find( const QRegExp &rx, int index ) const
   backwards.)
 
   Returns the position of \a rx or -1 if \a rx could not be found.
-
-  This function does not set QRegExp::matchedLength(),
-  QRegExp::capturedTexts() and friends. Use QRegExp::searchRev()
-  if you need to access both references.
 
   \sa find()
 */
@@ -14181,10 +14173,10 @@ int QString::contains( const QRegExp &rx ) const
 
   \code
     QString string = "banana";
-    string = string.replace( QRegExp("an"), "" );     // string == "ba"
+    string = string.replace( QRegExp("an"), "" ); // string == "ba"
   \endcode
 
-  Replaces \e every occurrence of the regexp \a rx in the string with \a str.
+  Replaces every occurrence of the regexp \a rx in the string with \a str.
   Returns a reference to the string.
 
   \sa find() findRev()
@@ -14281,7 +14273,7 @@ bye:
     return is_ok ? val : 0;
 }
 
-/*! Returns the string converted to an \c{unsigned long}
+/*! Returns the string converted to an \c {unsigned long}
   value to the base \a base.
 
   If \a ok is nonnull, and no conversion error occurred then \a *ok
@@ -14353,7 +14345,7 @@ short QString::toShort( bool *ok, int base ) const
     return (short)v;
 }
 
-/*! Returns the string converted to an \c{unsigned short} value
+/*! Returns the string converted to an \c {unsigned short} value
   to the base \a base.
 
   If \a ok is nonnull, and no conversion error occurred then \a *ok
@@ -14374,7 +14366,7 @@ ushort QString::toUShort( bool *ok, int base ) const
 
 /*!
   \code
-    QString str("FF");
+    QString str( "FF" );
     bool ok;
     int hex = str.toInt( &ok, 16 );     // hex == 255, ok == TRUE
     int dec = str.toInt( &ok, 10 );     // dec == 0, ok == FALSE
@@ -14907,8 +14899,8 @@ QString QString::fromUtf8( const char* utf8, int len )
     return codec ? codec->toUnicode( utf8, len ) : fromLatin1( utf8, len );
 }
 #endif // QT_NO_TEXTCODEC
-/*!
 
+/*!
   Returns the unicode string decoded from the first \a len characters of
   \a chars, ignoring the rest of \a chars.  If \a len is -1 then the
   length of \a chars is used.  If \a len is bigger than the length of

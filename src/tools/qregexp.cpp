@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#148 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#149 $
 **
 ** Implementation of QRegExp class
 **
@@ -62,7 +62,7 @@
   \ingroup misc
   \ingroup shared
 
-  Regular expressions, "regexps", provide a way to find patterns
+  Regular expressions, or "regexps", provide a way to find patterns
   within text. This is useful in many contexts, for example:
 
   \list 1
@@ -85,7 +85,7 @@
 
   We present a very brief introduction to regexps, a description of
   Qt's regexp language, some code examples, and finally the function
-  documentation. QRegExp is modelled on Perl's regexp engine and fully
+  documentation. QRegExp is modeled on Perl's regexp engine and fully
   supports Unicode. QRegExp may also be used in the weaker 'wildcard'
   (globbing) mode which works in a similar way to command shells. A
   good text on regexps is \e {Mastering Regular Expressions: Powerful
@@ -661,7 +661,7 @@
 
   \sa QRegExpValidator QString QStringList
 
-    <a name="member-function-documentation"/>
+  <a name="member-function-documentation"></a>
 */
 
 static const int NumBadChars = 128;
@@ -3395,9 +3395,12 @@ void QRegExp::setMinimal( bool minimal )
   <tt>bluebell</tt>, <tt>blutak</tt> and <tt>lightblue</tt>, match()
   returns FALSE and matchedLength() will return 4, 3 and 0 respectively.
 
+  Although const, this function sets matchedLength(), capturedTexts()
+  and pos().
+
   \sa search() searchRev() QRegExpValidator
 */
-bool QRegExp::exactMatch( const QString& str )
+bool QRegExp::exactMatch( const QString& str ) const
 {
 #ifndef QT_NO_REGEXP_CAPTURE
     priv->t = str;
@@ -3413,16 +3416,6 @@ bool QRegExp::exactMatch( const QString& str )
 	priv->captured[1] = eng->matchedLength();
 	return FALSE;
     }
-}
-
-/*! \overload
-
-  This version does not set matchedLength(), capturedTexts() and friends.
-*/
-bool QRegExp::exactMatch( const QString& str ) const
-{
-   return eng->match(str, 0, priv->min, TRUE)[0] == 0 &&
-	  eng->matchedLength() == (int) str.length();
 }
 
 /*! \obsolete
@@ -3493,9 +3486,12 @@ int QRegExp::match( const QString& str, int index, int *len,
     // pos will be 9, 14, 18 and finally 24; count will end up as 4
   \endcode
 
-  \sa searchRev() match() matchedLength() capturedTexts()
+  Although const, this function sets matchedLength(), capturedTexts()
+  and pos().
+
+  \sa searchRev() exactMatch()
 */
-int QRegExp::search( const QString& str, int start )
+int QRegExp::search( const QString& str, int start ) const
 {
     if ( start < 0 )
 	start += str.length();
@@ -3507,17 +3503,6 @@ int QRegExp::search( const QString& str, int start )
     return priv->captured[0];
 }
 
-/*! \overload
-
-  This version does not set matchedLength(), capturedTexts() and friends.
-*/
-int QRegExp::search( const QString& str, int start ) const
-{
-    if ( start < 0 )
-	start += str.length();
-    return eng->match( str, start, priv->min, FALSE )[0];
-}
-
 /*!
   Attempts to find a match backwards in \a str from position \a start.  If
   \a start is -1 (the default), the search starts at the last character; if -2,
@@ -3525,9 +3510,12 @@ int QRegExp::search( const QString& str, int start ) const
 
   Returns the position of the first match, or -1 if there was no match.
 
-  \sa search() matchedLength() capturedTexts()
+  Although const, this function sets matchedLength(), capturedTexts()
+  and pos().
+
+  \sa search() exactMatch()
 */
-int QRegExp::searchRev( const QString& str, int start )
+int QRegExp::searchRev( const QString& str, int start ) const
 {
     if ( start < 0 )
 	start += str.length();
@@ -3550,29 +3538,10 @@ int QRegExp::searchRev( const QString& str, int start )
     return -1;
 }
 
-/*! \overload
-
-  This version does not set matchedLength(), capturedText() and friends.
-*/
-int QRegExp::searchRev( const QString& str, int start ) const
-{
-    if ( start < 0 )
-	start += str.length();
-    if ( start < 0 || start > (int) str.length() )
-	return -1;
-
-    while ( start >= 0 ) {
-	if ( eng->match(str, start, priv->min, TRUE)[0] == start )
-	    return start;
-	start--;
-    }
-    return -1;
-}
-
 /*!
   Returns the length of the last matched string, or -1 if there was no match.
 
-  \sa match() search()
+  \sa exactMatch() search() searchRev()
 */
 int QRegExp::matchedLength()
 {
@@ -3622,7 +3591,7 @@ int QRegExp::matchedLength()
   capturedTexts()[2] is the text of the second and so on (corresponding
   to $1, $2, etc., in some other regexp languages).
 
-  \sa cap() pos()
+  \sa cap() pos() exactMatch() search() searchRev()
 */
 QStringList QRegExp::capturedTexts()
 {
@@ -3642,7 +3611,7 @@ QStringList QRegExp::capturedTexts()
 }
 
 /*! Returns the text captured by the \a nth subexpression. The entire match
-  has index 0 and the parenthesised subexpressions have indices starting
+  has index 0 and the parenthesized subexpressions have indices starting
   from 1 (excluding non-capturing parentheses).
 
   \code
@@ -3650,14 +3619,20 @@ QStringList QRegExp::capturedTexts()
     int pos = rxlen.search( "Length: 189cm" );
     if ( pos > -1 ) {
 	QString value = rxlen.cap( 1 ); // "189"
-	QString unit = rxlen.cap( 2 ); // "cm"
+	QString unit = rxlen.cap( 2 );  // "cm"
 	// ...
     }
   \endcode
 
-  <a name="cap_in_a_loop">
+  The order of elements matched by cap() is as follows. The first
+  element, cap(0), is the entire matching string. Each subsequent
+  element corresponds to the next capturing open left parentheses.
+  Thus cap(1) is the text of the first capturing parentheses, cap(2)
+  is the text of the second, and so on.
+
+  <a name="cap_in_a_loop"></a>
   Some patterns may lead to a number of matches which cannot be
-  determined in advance, for example:</a>
+  determined in advance, for example:
 
   \code
     QRegExp rx( "(\\d+)" );
@@ -3674,13 +3649,7 @@ QStringList QRegExp::capturedTexts()
     // list contains "12", "14", "99", "231", "7"
   \endcode
 
-  The order of elements matched by cap() is as follows. The first
-  element, cap( 0 ), is the entire matching string. Each subsequent
-  element corresponds to the next capturing open left parentheses. Thus
-  cap( 1 ) is the text of the first capturing parentheses, cap( 2 ) is
-  the text of the second and so on.
-
-  \sa search() pos() capturedTexts()
+  \sa capturedTexts() pos() exactMatch() search() searchRev()
 */
 QString QRegExp::cap( int nth )
 {
@@ -3708,7 +3677,7 @@ QString QRegExp::cap( int nth )
   cap(4) would return an empty string, pos(4) returns -1.) This is due
   to an implementation tradeoff.
 
-  \sa capturedTexts() cap()
+  \sa capturedTexts() exactMatch() search() searchRev()
 */
 int QRegExp::pos( int nth )
 {
@@ -3737,4 +3706,5 @@ void QRegExp::compile( bool caseSensitive )
     priv->captured.detach();
     priv->captured.fill( -1, 2 + 2 * eng->numCaptures() );
 }
-#endif //QT_NO_REGEXP
+
+#endif // QT_NO_REGEXP

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.h#37 $
+** $Id: //depot/qt/main/src/tools/qregexp.h#38 $
 **
 ** Definition of QRegExp class
 **
@@ -72,15 +72,12 @@ public:
     bool minimal() const;
     void setMinimal( bool minimal );
 
-    bool exactMatch( const QString& str );
     bool exactMatch( const QString& str ) const;
 #ifndef QT_NO_COMPAT
     int match( const QString& str, int index = 0, int *len = 0,
 	       bool indexIsStart = TRUE );
 #endif
-    int search( const QString& str, int start = 0 );
     int search( const QString& str, int start = 0 ) const;
-    int searchRev( const QString& str, int start = -1 );
     int searchRev( const QString& str, int start = -1 ) const;
     int matchedLength();
 #ifndef QT_NO_REGEXP_CAPTURE
