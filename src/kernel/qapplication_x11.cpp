@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#244 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#245 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -11,9 +11,7 @@
 
 #define select		_qt_hide_select
 #define gettimeofday	_qt_hide_gettimeofday
-#if !defined(_AIX)
-#define bzero		_qt_hide_bzero
-#endif
+
 #include "qglobal.h"
 #if defined(_OS_WIN32_)
 #include <windows.h>
@@ -60,14 +58,8 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif // _OS_WIN32 etc.
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
-#if defined(_AIX)
-#include <bzero.h>
-#else
-#undef bzero
-extern "C" void bzero(void *, size_t len);
-#endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#244 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#245 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -314,8 +306,8 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 		}
 		if ( s == "gdb" ) {
 		    appNoGrab = TRUE;
-		    debug( "Qt: gdb: -nograb added to command-line options"
-			   "\tUse the -dograb option to enforce grabbing" );
+		    debug( "Qt: gdb: -nograb added to command-line options.\n"
+			   "\t Use the -dograb option to enforce grabbing." );
 		}
 		f.close();
 	    }
@@ -2226,7 +2218,9 @@ static void initTimers()			// initialize timers
 {
     timerBitVec = new uchar[TimerBitVecLen];
     CHECK_PTR( timerBitVec );
-    memset( timerBitVec, 0, sizeof(uchar)*TimerBitVecLen );
+    int i;
+    for( i=0; i < TimerBitVecLen; i++ )
+	timerBitVec[i] = '\0';
     timerList = new TimerList;
     CHECK_PTR( timerList );
     timerList->setAutoDelete( TRUE );
