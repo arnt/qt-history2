@@ -64,6 +64,7 @@ protected slots:
 
 private:
     bool findFileInPaths( QString fileName, QStringList paths );
+    void setStaticEnabled( bool se );
 
 #if defined (USE_ARCHIVES)
     void readArchive( const QString& arcname, const QString& installPath );

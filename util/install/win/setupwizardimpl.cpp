@@ -980,6 +980,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	else
 	    setInstallStep( 5 );
 
+	setStaticEnabled( item->text(0) == "Static" && item->isOn() );
+
 	setBackEnabled( buildPage, false );
 
     } else if( newPage == progressPage ) {
@@ -1378,112 +1380,89 @@ void SetupWizardImpl::showPage( QWidget* newPage )
     }
 }
 
-void SetupWizardImpl::optionClicked( QListViewItem *i )
+void SetupWizardImpl::setStaticEnabled( bool se )
 {
-    if ( !i || i->rtti() != QCheckListItem::RTTI )
-	return;
-
-    QCheckListItem *item = (QCheckListItem*)i;
-    if ( item->type() != QCheckListItem::RadioButton )
-	return;
     bool enterprise = licenseInfo[ "PRODUCTS" ] == "qt-enterprise";
-
-    if ( item->text(0) == "Static" && item->isOn() ) {
-	if ( !QMessageBox::information( this, "Are you sure?", "It will not be possible to build components "
-				  "or plugins if you select the static build of the Qt library.\n"
-				  "New features, e.g souce code editing in Qt Designer, will not "
-				  "be available, "
-				  "\nand you or users of your software might not be able "
-				  "to use all or new features, e.g. new styles.\n\n"
-				  "Are you sure you want to build a static Qt library?",
-				  "No, I want to use the cool new stuff", "Yes" ) ) {
-		item->setOn( false );
-		if ( ( item = (QCheckListItem*)configList->findItem( "Shared", 0, 0 ) ) ) {
-		item->setOn( true );
-		configList->setCurrentItem( item );
+    if ( se ) {
+	if ( accOn->isOn() ) {
+	    accOn->setOn( false );
+	    accOff->setOn( true );
+	}
+	if ( bigCodecsOff->isOn() ) {
+	    bigCodecsOn->setOn( true );
+	    bigCodecsOff->setOn( false );
+	}
+	if ( mngPlugin->isOn() ) {
+	    mngDirect->setOn( true );
+	    mngPlugin->setOn( false );
+	    mngOff->setOn( false );
+	}
+	if ( pngPlugin->isOn() ) {
+	    pngDirect->setOn( true );
+	    pngPlugin->setOn( false );
+	    pngOff->setOn( false );
+	}
+	if ( jpegPlugin->isOn() ) {
+	    jpegDirect->setOn( true );
+	    jpegPlugin->setOn( false );
+	    jpegOff->setOn( false );
+	}
+	if ( sgiPlugin->isOn() ) {
+	    sgiPlugin->setOn( false );
+	    sgiDirect->setOn( true );
+	}
+	if ( cdePlugin->isOn() ) {
+	    cdePlugin->setOn( false );
+	    cdeDirect->setOn( true );
+	}
+	if ( motifplusPlugin->isOn() ) {
+	    motifplusPlugin->setOn( false );
+	    motifplusDirect->setOn( true );
+	}
+	if ( platinumPlugin->isOn() ) {
+	    platinumPlugin->setOn( false );
+	    platinumDirect->setOn( true );
+	}
+	if ( enterprise ) {
+	    if ( mysqlPlugin->isOn() ) {
+		mysqlPlugin->setOn( false );
+		mysqlDirect->setOn( true );
 	    }
-	} else {
-	    if ( accOn->isOn() ) {
-		accOn->setOn( false );
-		accOff->setOn( true );
+	    if ( ociPlugin->isOn() ) {
+		ociPlugin->setOn( false );
+		ociDirect->setOn( true );
 	    }
-	    if ( bigCodecsOff->isOn() ) {
-		bigCodecsOn->setOn( true );
-		bigCodecsOff->setOn( false );
+	    if ( odbcPlugin->isOn() ) {
+		odbcPlugin->setOn( false );
+		odbcDirect->setOn( true );
 	    }
-	    if ( mngPlugin->isOn() ) {
-		mngDirect->setOn( true );
-		mngPlugin->setOn( false );
-		mngOff->setOn( false );
+	    if ( psqlPlugin->isOn() ) {
+		psqlPlugin->setOn( false );
+		psqlDirect->setOn( true );
 	    }
-	    if ( pngPlugin->isOn() ) {
-		pngDirect->setOn( true );
-		pngPlugin->setOn( false );
-		pngOff->setOn( false );
-	    }
-	    if ( jpegPlugin->isOn() ) {
-		jpegDirect->setOn( true );
-		jpegPlugin->setOn( false );
-		jpegOff->setOn( false );
-	    }
-	    if ( sgiPlugin->isOn() ) {
-		sgiPlugin->setOn( false );
-		sgiDirect->setOn( true );
-	    }
-	    if ( cdePlugin->isOn() ) {
-		cdePlugin->setOn( false );
-		cdeDirect->setOn( true );
-	    }
-	    if ( motifplusPlugin->isOn() ) {
-		motifplusPlugin->setOn( false );
-		motifplusDirect->setOn( true );
-	    }
-	    if ( platinumPlugin->isOn() ) {
-		platinumPlugin->setOn( false );
-		platinumDirect->setOn( true );
-	    }
-	    if ( enterprise ) {
-		if ( mysqlPlugin->isOn() ) {
-		    mysqlPlugin->setOn( false );
-		    mysqlDirect->setOn( true );
-		}
-		if ( ociPlugin->isOn() ) {
-		    ociPlugin->setOn( false );
-		    ociDirect->setOn( true );
-		}
-		if ( odbcPlugin->isOn() ) {
-		    odbcPlugin->setOn( false );
-		    odbcDirect->setOn( true );
-		}
-		if ( psqlPlugin->isOn() ) {
-		    psqlPlugin->setOn( false );
-		    psqlDirect->setOn( true );
-		}
-		if ( tdsPlugin->isOn() ) {
-		    tdsPlugin->setOn( false );
-		    tdsDirect->setOn( true );
-		}
-	    }
-
-	    accOn->setEnabled( false );
-	    bigCodecsOff->setEnabled( false );
-	    mngPlugin->setEnabled( false );
-	    pngPlugin->setEnabled( false );
-	    jpegPlugin->setEnabled( false );
-	    sgiPlugin->setEnabled( false );
-	    cdePlugin->setEnabled( false );
-	    motifplusPlugin->setEnabled( false );
-	    platinumPlugin->setEnabled( false );
-	    if ( enterprise ) {
-		mysqlPlugin->setEnabled( false );
-		ociPlugin->setEnabled( false );
-		odbcPlugin->setEnabled( false );
-		psqlPlugin->setEnabled( false );
-		tdsPlugin->setEnabled( false );
+	    if ( tdsPlugin->isOn() ) {
+		tdsPlugin->setOn( false );
+		tdsDirect->setOn( true );
 	    }
 	}
-	return;
-    } else if ( item->text( 0 ) == "Shared" && item->isOn() ) {
+
+	accOn->setEnabled( false );
+	bigCodecsOff->setEnabled( false );
+	mngPlugin->setEnabled( false );
+	pngPlugin->setEnabled( false );
+	jpegPlugin->setEnabled( false );
+	sgiPlugin->setEnabled( false );
+	cdePlugin->setEnabled( false );
+	motifplusPlugin->setEnabled( false );
+	platinumPlugin->setEnabled( false );
+	if ( enterprise ) {
+	    mysqlPlugin->setEnabled( false );
+	    ociPlugin->setEnabled( false );
+	    odbcPlugin->setEnabled( false );
+	    psqlPlugin->setEnabled( false );
+	    tdsPlugin->setEnabled( false );
+	}
+    } else {
 	accOn->setEnabled( true );
 	bigCodecsOff->setEnabled( true );
 	mngPlugin->setEnabled( true );
@@ -1500,6 +1479,38 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 	    psqlPlugin->setEnabled( true );
 	    tdsPlugin->setEnabled( true );
 	}
+    }
+}
+
+void SetupWizardImpl::optionClicked( QListViewItem *i )
+{
+    if ( !i || i->rtti() != QCheckListItem::RTTI )
+	return;
+
+    QCheckListItem *item = (QCheckListItem*)i;
+    if ( item->type() != QCheckListItem::RadioButton )
+	return;
+
+    if ( item->text(0) == "Static" && item->isOn() ) {
+	if ( !QMessageBox::information( this, "Are you sure?", "It will not be possible to build components "
+				  "or plugins if you select the static build of the Qt library.\n"
+				  "New features, e.g souce code editing in Qt Designer, will not "
+				  "be available, "
+				  "\nand you or users of your software might not be able "
+				  "to use all or new features, e.g. new styles.\n\n"
+				  "Are you sure you want to build a static Qt library?",
+				  "No, I want to use the cool new stuff", "Yes" ) ) {
+		item->setOn( false );
+		if ( ( item = (QCheckListItem*)configList->findItem( "Shared", 0, 0 ) ) ) {
+		item->setOn( true );
+		configList->setCurrentItem( item );
+	    }
+	} else {
+	    setStaticEnabled( TRUE );
+	}
+	return;
+    } else if ( item->text( 0 ) == "Shared" && item->isOn() ) {
+	setStaticEnabled( FALSE );
     }
 }
 
