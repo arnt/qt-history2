@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#35 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -58,12 +58,12 @@ struct QUrlOperatorPrivate
   the functionality of registered network protocols. This means,
   depending of the protocol of the URL, it uses an fitting
   network protocol class for the operations. In detail, each of
-  the operation methodes of QUrlOperator creates a 
-  QNetworkOperation object which describes the operation and 
+  the operation methodes of QUrlOperator creates a
+  QNetworkOperation object which describes the operation and
   puts it into the operation queue of the used network protocol.
-  If no fitting protocol could be found (because no implementation 
-  of the needed network protocol is registered),  the url operator 
-  emits errors. Also not each protocol supports each operation - 
+  If no fitting protocol could be found (because no implementation
+  of the needed network protocol is registered),  the url operator
+  emits errors. Also not each protocol supports each operation -
   but the error  handling deals with this problem.
 
   A QUrlOperator can be used like this (for e.g. downloading a file)
@@ -71,17 +71,17 @@ struct QUrlOperatorPrivate
   QUrlOperator op;
   op.copy( "ftp://ftp.troll.no/qt/source/qt-2.0.2.tar.gz", "file:/tmp", FALSE );
   \endcode
-  
+
   Now, you also will connect to some signals of the QUrlOperator to get
   informed about success, errors, progress and more things.
-  
+
   Of course an implementation for the FTP protocol has to be registered for this example.
   In the Qt Network Extension Library there is an implementation of the
   FTP protocol.
-  
+
   For more information about the Qt Network Architecture take a look
   at the <a href="network.html">Qt Network Documentation</a>.
-  
+
   \sa QNetworkProtocol::QNetworkProtocol(), QNetworkOperation::QNetworkOperation()
 */
 
@@ -302,8 +302,8 @@ QUrlOperator::~QUrlOperator()
 }
 
 /*!
-  Starts listing the childs of this URL (e.g. of a directory). The signal 
-  start( QNetworkOperation *  is emitted, before the first entry is listed, 
+  Starts listing the childs of this URL (e.g. of a directory). The signal
+  start( QNetworkOperation *  is emitted, before the first entry is listed,
   and after the last one finished( QNetworkOperation * ) is emitted.
   For each new entry, the newChild( QUrlInfo &, QNetworkOperation * )
   signals is emitted.
@@ -311,11 +311,14 @@ QUrlOperator::~QUrlOperator()
   is emitted, so check the state of the network operation pointer!
 
   As the operation will not be executed immediately, a pointer to the
-  QNetworkOperation object, which is created by this method, is 
+  QNetworkOperation object, which is created by this method, is
   returned. This object contains all data about the operation and is
   is used to refer to this operation later (e.g. in the signals which are emitted
   by the QUrlOperator). The return value can be also 0 if the operation object
   couldn't be created.
+
+  This path of this QUrlOperator has to point to a directory and not to a file,
+  else this operation might not work!
 */
 
 const QNetworkOperation *QUrlOperator::listChildren()
@@ -352,15 +355,18 @@ const QNetworkOperation *QUrlOperator::listChildren()
   createdDirectory( QUrlInfo &, QNetworkOperation * ) with
   the information about the new child is emitted too.
   Also finished( QNetworkOperation * ) (on success or failure) is emitted,
-  after the operation has been processed, so check the state of the network 
+  after the operation has been processed, so check the state of the network
   operation object to see if the operation was successful or not.
 
   As the operation will not be executed immediately, a pointer to the
-  QNetworkOperation object, which is created by this method, is 
+  QNetworkOperation object, which is created by this method, is
   returned. This object contains all data about the operation and is
   is used to refer to this operation later (e.g. in the signals which are emitted
   by the QUrlOperator). The return value can be also 0 if the operation object
   couldn't be created.
+
+  This path of this QUrlOperator has to point to a directory and not to a file,
+  else this operation might not work!
 */
 
 const QNetworkOperation *QUrlOperator::mkdir( const QString &dirname )
@@ -397,11 +403,14 @@ const QNetworkOperation *QUrlOperator::mkdir( const QString &dirname )
   object to see if the operation was successful or not.
 
   As the operation will not be executed immediately, a pointer to the
-  QNetworkOperation object, which is created by this method, is 
+  QNetworkOperation object, which is created by this method, is
   returned. This object contains all data about the operation and is
   is used to refer to this operation later (e.g. in the signals which are emitted
   by the QUrlOperator). The return value can be also 0 if the operation object
   couldn't be created.
+
+  This path of this QUrlOperator has to point to a directory and not to a file,
+  else this operation might not work!
 */
 
 const QNetworkOperation *QUrlOperator::remove( const QString &filename )
@@ -435,15 +444,18 @@ const QNetworkOperation *QUrlOperator::remove( const QString &filename )
   If it has been successful the signal itemChanged( QNetworkOperation * )
   is emitted.
   Also finished( QNetworkOperation * ) (on success or failure) is emitted after
-  the operation has been processed, so check the state of the network operation 
+  the operation has been processed, so check the state of the network operation
   object to see if the operation was successful or not.
 
   As the operation will not be executed immediately, a pointer to the
-  QNetworkOperation object, which is created by this method, is 
+  QNetworkOperation object, which is created by this method, is
   returned. This object contains all data about the operation and is
   is used to refer to this operation later (e.g. in the signals which are emitted
   by the QUrlOperator). The return value can be also 0 if the operation object
   couldn't be created.
+
+  This path of this QUrlOperator has to point to a directory and not to a file,
+  else this operation might not work!
 */
 
 const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QString &newname )
@@ -479,10 +491,10 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
   The copying is done using get() and put() operations. If you want to get notified
   about the progress of the operation, connect to the dataTransferProgress()
   signal. But you have to know, that the get() and the put() operations emit
-  this signal through the QUrlOperator! So, the number of transferred and total bytes 
+  this signal through the QUrlOperator! So, the number of transferred and total bytes
   which you get as argument in this signal isn't related to the the whole copy operation, but
   first to the get() and then to the put() operation. So always check for the type of
-  the operation from which the signal comes (you get this by asking for the type of the 
+  the operation from which the signal comes (you get this by asking for the type of the
   QNetworkOperation pointer you also get as last argument of this signal).
 
   Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
@@ -619,7 +631,8 @@ bool QUrlOperator::isDir()
 }
 
 /*!
-  Tells the network protocol to get data from the location to which this
+  Tells the network protocol to get data from \a location or, if this
+  is QString::null, to get data from the location to which this
   URL points (see QUrl::fileName() and QUrl::encodedPathAndQuery()). What
   exactly happens then is depending on the network protocol.
   When data comes in, the data( const QByteArray &, QNetworkOperation * ) signal
@@ -629,17 +642,56 @@ bool QUrlOperator::isDir()
   Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
   so check the state of the network operation object to see if the
   operation was successful or not.
+
+  Now, if \a location is QString::null, the path of this QUrlOperator should point to a file 
+  when you use this operation. If \a location is not empty, it can be relative (a child of
+  the path to which the QUrlOperator points) or an absolute URL.
+  
+  E.g. for getting a webpage you might do something like
+  
+  \code
+  QUrlOperator op( "http://www.whatever.org/cgi-bin/search.pl?cmd=Hallo" );
+  op.get();
+  \endcode
+  
+  But as for the most other operations it is required that the path of the
+  QUrlOperator points to a directory, you could do following if you
+  want e.g. download a file
+  
+  \code
+  QUrlOperator op( "ftp://ftp.whatever.org/pub" );
+  // do some other stuff like op.listChildren() or op.mkdir( "new Dir" )
+  op.get( "a_file.txt" );
+  \code
+  
+  This will get the data of ftp://ftp.whatever.org/pub/a_file.txt.
+
+  But <b>never</b> do something like
+  
+  \code
+  QUrlOperator op( "http://www.whatever.org/cgi-bin" );
+  op.get( "search.pl?cmd=Hallo" );
+  \endcode
+  
+  This means if \a location is not empty and relative, it must not
+  contain any queries or references, just the name of a child. So,
+  if you need to specify a query or reference do it like in the first
+  example or specify the full URL as \a location.
   
   \sa copy()
  */
 
-const QNetworkOperation *QUrlOperator::get()
+const QNetworkOperation *QUrlOperator::get( const QString &location )
 {
     if ( !checkValid() )
 	return 0;
 
+    QUrl u( *this );
+    if ( !location.isEmpty() )
+	u = QUrl( *this, location );
+    
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet,
-						    *this,
+						    u,
 						    QString::null, QString::null );
 
     if ( d->networkProtocol &&
@@ -661,26 +713,54 @@ const QNetworkOperation *QUrlOperator::get()
 }
 
 /*!
-  Tells the network protocol to put \a data to the location to which the
+  Tells the network protocol to put \a data to \a location, or if this is
+  empty (QString::null) it puts the \a data to the location to which the
   URL points. What exaclty happens is depending on the network
   protocol. Also depending on the network protocol
-  after putting data some data might come back. In this case the 
+  after putting data some data might come back. In this case the
   data( const QByteArray &, QNetworkOperation * ) signal is emitted.
   During processing the operation the dataTransferProgress() is emitted.
   Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
   so check the state of the network operation object to see if the
   operation was successful or not.
+
+  Now, if \a location is QString::null, the path of this QUrlOperator should point to a file 
+  when you use this operation. If \a location is not empty, it can be relative (a child of
+  the path to which the QUrlOperator points) or an absolute URL.
   
+  E.g. for putting some data to a file you can do
+  
+  \code
+  QUrlOperator op( "ftp://ftp.whatever.com/home/me/filename" );
+  op.put( data );
+  \endcode
+  
+  But as for the most other operations it is required that the path of the
+  QUrlOperator points to a directory, you could do following if you
+  want e.g. upload data to a file
+  
+  \code
+  QUrlOperator op( "ftp://ftp.whatever.com/home/me" );
+  // do some other stuff like op.listChildren() or op.mkdir( "new Dir" )
+  op.put( data, "filename" );
+  \code
+  
+  This will upload the data to ftp://ftp.whatever.com/home/me/filename.
+
   \sa copy()
  */
 
-const QNetworkOperation *QUrlOperator::put( const QByteArray &data )
+const QNetworkOperation *QUrlOperator::put( const QByteArray &data, const QString &location )
 {
     if ( !checkValid() )
 	return 0;
 
+    QUrl u( *this );
+    if ( !location.isEmpty() )
+	u = QUrl( *this, location );
+
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpPut,
-						    *this, QString::null, QString::null );
+						    u, QString::null, QString::null );
     res->setRawArg2( data );
 
     if ( d->networkProtocol &&
