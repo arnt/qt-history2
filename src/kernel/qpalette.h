@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#16 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#17 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -73,14 +73,14 @@ public:
     bool	operator!=( const QPalette &p ) const
 					{ return !(operator==(p)); }
 
-    int		serialNumber() const	{ return data->ser_num; }
+    int		serialNumber() const	{ return data->ser_no; }
 
 private:
     struct QPalData : public QShared {		// palette data
 	QColorGroup normal;
 	QColorGroup disabled;
 	QColorGroup active;
-	int	    ser_num;
+	int	    ser_no;
     } *data;
 };
 

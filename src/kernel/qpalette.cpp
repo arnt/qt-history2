@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#4 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -12,7 +12,7 @@
 #include "qpalette.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#4 $");
 
 
 /*****************************************************************************
@@ -190,7 +190,7 @@ QPalette::QPalette()
 {
     data = new QPalData;
     CHECK_PTR( data );
-    data->ser_num = palette_count++;
+    data->ser_no = palette_count++;
 }
 
 /*!
@@ -202,7 +202,7 @@ QPalette::QPalette( const QColor &background )
 {
     data = new QPalData;
     CHECK_PTR( data );
-    data->ser_num = palette_count++;
+    data->ser_no = palette_count++;
     QColor bg = background, fg, base;
     int h, s, v;
     bg.hsv( &h, &s, &v );
@@ -229,7 +229,7 @@ QPalette::QPalette( const QColorGroup &normal, const QColorGroup &disabled,
 {
     data = new QPalData;
     CHECK_PTR( data );
-    data->ser_num = palette_count++;
+    data->ser_no = palette_count++;
     data->normal = normal;
     data->disabled = disabled;
     data->active = active;
@@ -293,7 +293,7 @@ QPalette QPalette::copy() const
 
 void QPalette::setNormal( const QColorGroup &g )
 {
-    data->ser_num = palette_count++;
+    data->ser_no = palette_count++;
     data->normal = g;
 }
 
@@ -310,7 +310,7 @@ void QPalette::setNormal( const QColorGroup &g )
 
 void QPalette::setDisabled( const QColorGroup &g )
 {
-    data->ser_num = palette_count++;
+    data->ser_no = palette_count++;
     data->disabled = g;
 }
 
@@ -327,7 +327,7 @@ void QPalette::setDisabled( const QColorGroup &g )
 
 void QPalette::setActive( const QColorGroup &g )
 {
-    data->ser_num = palette_count++;
+    data->ser_no = palette_count++;
     data->active = g;
 }
 
