@@ -1106,7 +1106,7 @@
 
     Remarks:
 
-    \list
+    \list 1
     \i  QMemArray::assign(const T *, uint) and QMemArray::duplicate(const T *, uint)
         can be replaced by QVector::resize() and qCopy().
 
@@ -1120,6 +1120,10 @@
         vector.resize(size);
         qCopy(data, data + size, vector.begin());
         \endcode
+
+    \i  QMemArray is an explicitly shared class, whereas QVector is
+        implicitly shared. See \l{Explicit Sharing} for more
+        information.
     \endlist
 
     \section1 QMimeSourceFactory
@@ -1161,7 +1165,8 @@
 
     \section1 QObjectList
 
-    ###
+    The QObjectList class is a synonym for QPtrList<QObject>. See the
+    \l{#qptrlist.section}{section on QPtrList<T>}.
 
     \section1 QPaintDevice
 
@@ -1188,10 +1193,14 @@
 
     \section1 QPointArray
 
-    QPointArray is now implicitly shared and is based on QVector. The
-    return type for the setPoints() and putPoints() functions is now void
-    instead of bool. isNull() is obsolete; use isEmpty() instead. copy()
-    is obsolete, use standard assignment instead.
+    In Qt 3, QPointArray inherited from QMemArray<QPoint>. In Qt 4,
+    it inherits from QVector<QPoint>. Everything mentioned in the
+    \l{qmemarray.section}{section on QMemArray<T>} apply for
+    QPointArray as well.
+
+    The QPointArray::setPoints() and QPointArray::putPoints()
+    functions returned a bool in Qt 3, indicating whether the array
+    was successfully resized or not. In Qt 4, they return void.
 
     \section1 QPopupMenu
 
@@ -1205,7 +1214,9 @@
 
     \section1 QPtrCollection<T>
 
-    ###
+    The QPtrCollection<T> abstract base class has been moved to the
+    \l{Qt 3 compatibility library}. There is no direct equivalent in
+    Qt 4.
 
     \section1 QPtrDict<T>
 
@@ -1230,6 +1241,7 @@
     To port QPtrDict<T> to Qt 4, read the \l{#qdict.section}{section
     on QDict<T>}, mentally substituting \c{void *} for QString.
 
+    \target qptrlist.section
     \section1 QPtrList<T>
 
     ###
