@@ -1559,7 +1559,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    break;
 
 	case WM_ERASEBKGND:			// erase window background
-	    widget->eraseWindowBackground((HDC)wParam);
+  	    if (!widget->testAttribute(QWidget::WA_PendingUpdate))
+		widget->eraseWindowBackground((HDC)wParam);
 	    RETURN(TRUE);
 	    break;
 
@@ -3164,6 +3165,8 @@ cleanup:
 bool QETWidget::translateConfigEvent( const MSG &msg )
 {
     if ( !testWState(WState_Created) )		// in QWidget::create()
+	return TRUE;
+    if (!isTopLevel())
 	return TRUE;
     setWState( WState_ConfigPending );		// set config flag
     QRect cr = geometry();

@@ -452,6 +452,7 @@ public:
 	WA_WindowModified,
 	WA_Resized,
 	WA_Moved,
+	WA_PendingUpdate,
 	WA_InvalidSize
     };
     void setAttribute(WidgetAttribute, bool = true);

@@ -801,15 +801,19 @@ void QWidget::setActiveWindow()
 
 void QWidget::update()
 {
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	InvalidateRect(winId(), 0, false);
+	setAttribute(WA_PendingUpdate);
+    }
 }
 
 void QWidget::update(const QRegion &rgn)
 {
     if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible)
-	if (!rgn.isEmpty())
+	if (!rgn.isEmpty()) {
 	    InvalidateRgn(winId(), rgn.handle(), false);
+	    setAttribute(WA_PendingUpdate);
+	}
 }
 
 void QWidget::update(int x, int y, int w, int h)
@@ -828,6 +832,7 @@ void QWidget::update(int x, int y, int w, int h)
 	else
 	    r.bottom = y + h;
 	InvalidateRect(winId(), &r, false);
+	setAttribute(WA_PendingUpdate);
     }
 }
 
@@ -895,6 +900,7 @@ extern void qt_erase_background( HDC, int, int, int, int, const QBrush &, int, i
 
 void QWidget::repaint(const QRegion& rgn)
 {
+    setAttribute(WA_PendingUpdate, false);
     if (testWState(WState_InPaintEvent))
 	qWarning("QWidget::repaint: recursive repaint detected.");
 
@@ -1341,8 +1347,22 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 	h = 1;
     QSize  oldSize( size() );
     QPoint oldPos( pos() );
-    if ( isMove == FALSE && oldSize.width()==w && oldSize.height()==h )
+
+    bool isResize = w != oldSize.width() || h != oldSize.height();
+
+    if ( !isMove && !isResize )
 	return;
+
+    if (isResize)
+	if (!testAttribute(WA_StaticContents))
+	    ValidateRgn(winId(), 0);
+	else if (!testWState(WState_InPaintEvent)) {
+	    QRegion region(0, 0, 1, 1);
+	    int result = GetUpdateRgn(winId(), region.handle(), false);
+	    if (result != NULLREGION && result != ERROR)
+		repaint(region);
+	}
+
     clearWState(WState_Maximized);
     if ( testWState(WState_ConfigPending) ) {	// processing config event
 	qWinRequestConfig( winId(), isMove ? 2 : 1, x, y, w, h );
@@ -1367,7 +1387,6 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 
     // Process events immediately rather than in translateConfigEvent to
     // avoid windows message process delay.
-    bool isResize = w != oldSize.width() || h != oldSize.height();
     if ( isVisible() ) {
 	if ( isMove && pos() != oldPos ) {
 	    QMoveEvent e( pos(), oldPos );
