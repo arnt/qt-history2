@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: example-Qt-message-extraction\n"
 "POT-Creation-Date: 1999-02-23 15:38+0200\n"
-"PO-Revision-Date: 1999-02-23 15:38+0200\n"
+"PO-Revision-Date: 2000-06-02 12:50+0200\n"
 "Last-Translator: Troll Tech AS <info@trolltech.com>\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
 
@@ -51,7 +51,7 @@ msgstr "Second"
 
 #: mywidget.cpp:37
 msgid "MyWidget::The Main Window"
-msgstr "Le fenêtre principale"
+msgstr "La fenêtre principale"
 
 #: mywidget.cpp:51
 msgid "MyWidget::Third"
