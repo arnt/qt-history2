@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#219 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#220 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -102,7 +102,7 @@ static void	dispatchTimer( uint, MSG * );
 static bool	activateTimer( uint );
 static void	activateZeroTimers();
 
-WindowsVersion	qt_winver = WV_NT;
+Q_EXPORT WindowsVersion qt_winver = WV_NT;
 
 QObject	       *qt_clipboard = 0;
 
