@@ -319,6 +319,7 @@ bool QAbstractScrollArea::event(QEvent *e)
     case QEvent::ContextMenu:
         if (static_cast<QContextMenuEvent *>(e)->reason() == QContextMenuEvent::Keyboard)
            return QFrame::event(e);
+        e->ignore();
         break;
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
@@ -481,8 +482,9 @@ void QAbstractScrollArea::wheelEvent(QWheelEvent *e)
 
     \sa QWidget::contextMenuEvent()
 */
-void QAbstractScrollArea::contextMenuEvent(QContextMenuEvent *)
+void QAbstractScrollArea::contextMenuEvent(QContextMenuEvent *e)
 {
+    e->ignore();
 }
 
 /*!
