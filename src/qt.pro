@@ -92,8 +92,6 @@ nas {
 sm:CONFIG += x11sm
 !x11sm:DEFINES += QT_NO_SM_SUPPORT
 
-!bigcodecs:DEFINES += QT_NO_BIG_CODECS
-
 cups {
 	# next few lines add cups support
 	DEFINES += QT_CUPS_SUPPORT
