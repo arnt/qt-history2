@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#16 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#17 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -41,9 +41,8 @@
 #include <string.h>
 
 #if defined(Q_OS_AIX)
-// What's up here? Please add comments!
-// Asking for BSD compatibility the AIX way before including <string.h>
-// or <sys/time.h> ought to be enough.
+// Please add comments! Which version of AIX? Why?
+// Adding #defines specifying BSD compatibility ought to be enough.
 #include <strings.h>
 #include <sys/select.h>
 #endif
@@ -58,7 +57,16 @@
 #include <sys/param.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_)
+// Needed for FIONREAD.
+// FIONREAD is #defined in <sys/filio.h>.
+// Have <sys/ioctl.h> include <sys/filio.h>.
+#define BSD_COMP
+#endif
 #include <sys/ioctl.h>
+#if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_)
+#undef BSD_COMP
+#endif
 #include <sys/file.h>
 #include <sys/time.h>
 #include <fcntl.h>
@@ -82,15 +90,6 @@
 #ifndef SOCK_STREAM
 #define SOCK_STREAM 2
 #endif
-#endif
-
-#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
-// This is probably not needed on Solaris:
-// - Just define BSD_COMP before including <sys/ioctl.h> if we specify
-//   Single Unix 1995 only.
-// - Do nothing if we ask for Single Unix 1998.
-// This should perhaps be included for all Unixware versions?
-#include <sys/filio.h>
 #endif
 
 #if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7) || defined(Q_OS_OS2EMX) || defined(Q_OS_QNX)
@@ -943,4 +942,5 @@ void QSocketDevice::fetchConnectionParameters()
     }
 }
 #endif //QT_NO_NETWORK
+
 

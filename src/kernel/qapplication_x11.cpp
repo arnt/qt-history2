@@ -98,11 +98,12 @@
 #if defined(Q_OS_UNIX)
 
 #if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
-#  define BSD_COMP // needed for FIONREAD
+// Needed for FIONREAD.
+// FIONREAD is #defined in <sys/filio.h>.
+// Have <sys/ioctl.h> include <sys/filio.h>.
+#  define BSD_COMP
 #endif
-
 #include <sys/ioctl.h>
-
 #if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
 #  undef BSD_COMP
 #endif
@@ -123,14 +124,19 @@ static int qt_thread_pipe[2];
 #endif
 
 #if defined(Q_OS_IRIX)
+// Please add comments! Which version of Irix?
+// Why <bstring.h> instead of <strings.h>?
 #include <bstring.h>
 #endif
 
 #if defined(Q_OS_AIX) || defined(Q_OS_UNIXWARE7)
+// Please add comments! Which version of AIX? Why?
 #include <strings.h>
 #endif
 
 #if defined(Q_OS_AIX) && defined(Q_CC_GNU)
+// Please add comments! Which version of AIX? Why?
+// Adding some #defines like the IBM compiler does ought to be enough.
 #include <sys/time.h>
 #include <sys/select.h>
 #include <unistd.h>
@@ -6027,3 +6033,4 @@ void QSessionManager::requestPhase2()
 
 
 #endif // QT_NO_SM_SUPPORT
+
