@@ -1224,6 +1224,7 @@ QObject *QObject::findChild_helper(const char *name, const QMetaObject &mo) cons
 
 void QObject::setParent(QObject *parent)
 {
+    Q_ASSERT(!isWidget);
     setParent_helper(parent);
 }
 

@@ -227,7 +227,7 @@ private:
     void findChildren_helper(const char *name, const QRegExp *re,
                              const QMetaObject &mo, QList<void*> *list) const;
     QObject *findChild_helper(const char *name, const QMetaObject &mo) const;
-    virtual void setParent_helper(QObject *);
+    void setParent_helper(QObject *);
     uint isWidget : 1;
     uint pendTimer : 1;
     uint blockSig : 1;
