@@ -34,16 +34,9 @@
 **
 **********************************************************************/
 
+#include "qsqlfield.h"
 #include "qcleanuphandler.h"
-#include "qwidget.h"
-#include "qlabel.h"
-#include "qlineedit.h"
-#include "qspinbox.h"
-#include "qcombobox.h"
-#include "qlayout.h"
-
 #include "qsqleditorfactory.h"
-#include "qdatetimeedit.h"
 
 #ifndef QT_NO_SQL
 
@@ -68,7 +61,7 @@
 */
 
 QSqlEditorFactory::QSqlEditorFactory ( QObject * parent, const char * name )
-    : QObject( parent, name )
+    : QEditorFactory( parent, name )
 {
 
 }
@@ -125,62 +118,10 @@ void QSqlEditorFactory::installDefaultFactory( QSqlEditorFactory * factory )
   \a variant.  If \a variant is invalid, 0 is returned.
 */
 
-QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & variant )
+QWidget * QSqlEditorFactory::createEditor( QWidget * parent, 
+					   const QVariant & variant )
 {
-    QWidget * w = 0;
-    switch( variant.type() ){
-	case QVariant::Invalid:
-	    w = 0;
-	    break;
-	case QVariant::Bool:
-	    w = new QComboBox( parent );
-	    ((QComboBox *) w)->insertItem( "False" );
-	    ((QComboBox *) w)->insertItem( "True" );
-	    break;
-	case QVariant::UInt:
-	case QVariant::Int:
-	    w = new QSpinBox( -999999, 999999, 1, parent );
-	    break;
-	case QVariant::String:
-	case QVariant::CString:
-	case QVariant::Double:
-	    w = new QLineEdit( parent );
-	    break;
-	case QVariant::Date:
-	    w = new QDateEdit( parent );
-	    break;
-	case QVariant::Time:
-	    w = new QTimeEdit( parent );
-	    break;
-	case QVariant::DateTime:
-	    w = new QDateTimeEdit( parent );
-	break;
-	case QVariant::Pixmap:
-	    w = new QLabel( parent );
-	    break;
-	case QVariant::Palette:
-	case QVariant::ColorGroup:
-	case QVariant::Color:
-	case QVariant::Font:
-	case QVariant::Brush:
-	case QVariant::Bitmap:
-	case QVariant::Cursor:
-	case QVariant::Map:
-	case QVariant::StringList:
-	case QVariant::Rect:
-	case QVariant::Size:
-	case QVariant::IconSet:
-	case QVariant::Point:
-	case QVariant::PointArray:
-	case QVariant::Region:
-	case QVariant::SizePolicy:
-	case QVariant::ByteArray:
-	default:
-	    w = new QWidget( parent );
-	    //	    w = new QLineEdit( parent );
-	    break;
-    }
-    return w;
+    return QEditorFactory::createEditor( parent, variant );
 }
 
 /*!
@@ -189,7 +130,8 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & va
 
 */
 
-QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QSqlField* field )
+QWidget * QSqlEditorFactory::createEditor( QWidget * parent, 
+					   const QSqlField * field )
 {
     QVariant v = field->value();
     return createEditor( parent, v );

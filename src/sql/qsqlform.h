@@ -60,12 +60,13 @@ template class Q_EXPORT QMap<QWidget*, QSqlField*>;
 class Q_EXPORT QSqlPropertyMap {
 public:
     QSqlPropertyMap();
+    virtual ~QSqlPropertyMap();
 
-    QVariant property( QWidget * widget );
-    void     setProperty( QWidget * widget, const QVariant & value );
+    QVariant      property( QWidget * widget );
+    virtual void  setProperty( QWidget * widget, const QVariant & value );
 
-    void     insert( const QString & classname, const QString & property );
-    void     remove( const QString & classname );
+    void insert( const QString & classname, const QString & property );
+    void remove( const QString & classname );
 
     static QSqlPropertyMap * defaultMap();
     static void installDefaultMap( QSqlPropertyMap * map );
@@ -78,19 +79,20 @@ class Q_EXPORT QSqlFormMap
 {
 public:
     QSqlFormMap();
-    ~QSqlFormMap();
+    virtual ~QSqlFormMap();
 
-    void        insert( QWidget * widget, QSqlField * field );
-    void        remove( QWidget * widget );
-    void        clear();
-    uint        count() const;
+    virtual void insert( QWidget * widget, QSqlField * field );
+    virtual void remove( QWidget * widget );
+    virtual void clear();
+    virtual void clearValues();
+    uint         count() const;
 
     QWidget *   widget( uint i ) const;
     QSqlField * widgetToField( QWidget * widget ) const;
     QWidget *   fieldToWidget( QSqlField * field ) const;
 
-    void        readRecord();
-    void        writeRecord();
+    void        readFields();
+    void        writeFields();
 
     void        installPropertyMap( QSqlPropertyMap * map );
 
@@ -108,8 +110,9 @@ public:
 	      QObject * parent = 0, const char * name = 0 );
     ~QSqlForm();
 
-    void associate( QWidget * widget, QSqlField * field );
-    void populate( QWidget * widget, QSqlRecord * fields, uint columns = 1 );
+    virtual void associate( QWidget * widget, QSqlField * field );
+    virtual void populate( QWidget * widget, QSqlRecord * fields, 
+			   uint columns = 1 );
 
     void setReadOnly( bool enable );
     bool isReadOnly() const;
@@ -118,9 +121,10 @@ public:
     void installPropertyMap( QSqlPropertyMap * map );
 
 public slots:
-    void readRecord();
-    void writeRecord();
-    void clear();
+    virtual void readFields();
+    virtual void writeFields();
+    virtual void clear();
+    virtual void clearValues();
 
 private:
     bool readOnly;

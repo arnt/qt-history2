@@ -110,7 +110,6 @@
 /*!
 
   Constructs a QSqlPropertyMap.
-
  */
 QSqlPropertyMap::QSqlPropertyMap()
 {
@@ -128,8 +127,15 @@ QSqlPropertyMap::QSqlPropertyMap()
 
 /*!
 
-  Returns thw property of \a widget as a QVariant.
+  Destroys the QSqlPropertyMap.
+ */
+QSqlPropertyMap::~QSqlPropertyMap()
+{
+}
 
+/*!
+
+  Returns thw property of \a widget as a QVariant.
 */
 QVariant QSqlPropertyMap::property( QWidget * widget )
 {
@@ -280,13 +286,25 @@ void QSqlFormMap::remove( QWidget * widget )
 
   Clears the values of all fields in the map.
 */
-void QSqlFormMap::clear()
+void QSqlFormMap::clearValues()
 {
     QMap< QWidget *, QSqlField * >::Iterator it;
     for( it = map.begin(); it != map.end(); ++it ){
 	(*it)->clear();
     }
-    readRecord();
+    readFields();
+}
+
+/*!
+
+  Clears the map of all fields.
+*/
+void QSqlFormMap::clear()
+{
+    QMap< QWidget *, QSqlField * >::Iterator it;
+    for( it = map.begin(); it != map.end(); ++it ){
+	map.remove( it );
+    }
 }
 
 /*!
@@ -347,7 +365,7 @@ QSqlField * QSqlFormMap::widgetToField( QWidget * widget ) const
   Update the widgets in the map with values from the associated fields.
 
 */
-void QSqlFormMap::readRecord()
+void QSqlFormMap::readFields()
 {
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
@@ -364,7 +382,7 @@ void QSqlFormMap::readRecord()
 
   Update the actual database fields with values from the widgets.
 */
-void QSqlFormMap::writeRecord()
+void QSqlFormMap::writeFields()
 {
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
@@ -416,7 +434,7 @@ void QSqlFormMap::writeRecord()
   form.associate( w, buf->field( 0 ) );
 
   // Now, update the contents of the form from the fields in the form.
-  form.readRecord();
+  form.readFields();
 
   // edit/save record, etc...
 
@@ -532,9 +550,9 @@ bool QSqlForm::isReadOnly() const
   Update the widgets in the form with values from the associated SQL
   fields.
 */
-void QSqlForm::readRecord()
+void QSqlForm::readFields()
 {
-    map.readRecord();
+    map.readFields();
 }
 
 /*!
@@ -542,19 +560,27 @@ void QSqlForm::readRecord()
   Update the associated SQL fields with the values of the editor
   widgets in the form.
 */
-void QSqlForm::writeRecord()
+void QSqlForm::writeFields()
 {
-    map.writeRecord();
+    map.writeFields();
 }
 
 /*!
 
   Clears the form, i.e. all field values are set to their empty state.
 */
+void QSqlForm::clearValues()
+{
+    map.clearValues();
+}
+
+/*!
+
+  Clears the form of all widgets.
+*/
 void QSqlForm::clear()
 {
     map.clear();
-    readRecord();
 }
 
 /*!
@@ -568,7 +594,7 @@ void QSqlForm::clear()
 
 void QSqlForm::populate( QWidget * widget, QSqlRecord * fields, uint columns )
 {
-    // ### Remove the children before populating?
+    // ### Remove the children from widget before populating?
 
     if( !widget || !fields ) return;
 
@@ -614,6 +640,6 @@ void QSqlForm::populate( QWidget * widget, QSqlRecord * fields, uint columns )
 	col++;
     }
 
-    readRecord();
+    readFields();
 }
 #endif // QT_NO_SQL

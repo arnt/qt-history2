@@ -38,23 +38,23 @@
 #define QSQLEDITORFACTORY_H
 
 #ifndef QT_H
-#include "qobject.h"
-#include "qvariant.h"
-#include "qsqlfield.h"
+#include "qeditorfactory.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
 
-class Q_EXPORT QSqlEditorFactory : public QObject
+class QSqlField;
+
+class Q_EXPORT QSqlEditorFactory : public QEditorFactory
 {
 public:
-    QSqlEditorFactory ( QObject * parent=0, const char * name=0 );
+    QSqlEditorFactory ( QObject * parent = 0, const char * name = 0 );
     ~QSqlEditorFactory();
     virtual QWidget * createEditor( QWidget * parent, const QVariant & variant );
     virtual QWidget * createEditor( QWidget * parent, const QSqlField * field );
 
     static QSqlEditorFactory * defaultFactory();
-    static void installDefaultFactory( QSqlEditorFactory * factory);
+    static void installDefaultFactory( QSqlEditorFactory * factory );
 };
 
 #endif // QT_NO_SQL
