@@ -5074,10 +5074,14 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	script = QFont::Han;
 
     QString searchname = xfontname;
+
+#ifdef Q_WS_X11
     // we need an extension here due to the fact that we use different
     // fonts for different scripts
     if ( xlfd && script >= QFont::Han && script <= QFont::Bopomofo ) 
 	xfontname += "/"+QString::number( script );
+#endif
+    
     //qDebug("looking for font %s in dict", xfontname.latin1() );
     p = priv->fonts.find(xfontname);
     if ( p )
