@@ -2164,56 +2164,9 @@ void QPopupMenu::updateRow( int row )
     }
     if ( !isVisible() )
 	return;
-    QPainter p(this);
-    QMenuItemListIt it(*mitems);
-    QMenuItem *mi;
-    QSize sz;
-    int r = 0;
-    int x = contentsRect().x();
-    int y = contentsRect().y();
-    if(d->scroll.scrollable) {
-	if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp)
-	    y += style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
-	if(d->scroll.topScrollableIndex) {
-	    for( ; (mi = it.current()) && r < d->scroll.topScrollableIndex; r++)
-		++it;
-	    if(!mi) {
-		r = 0;
-		it.toFirst();
-	    }
-	}
-    }
-    int itemw = contentsRect().width() / ncols;
-    while ( (mi=it.current()) ) {
-	if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown &&
-	   y >= contentsRect().height() - style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this)) {
-	    QStyle::SFlags flags = QStyle::Style_Down;
-	    if (isEnabled())
-		flags |= QStyle::Style_Enabled;
-	    int sh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
-	    style().drawControl(QStyle::CE_PopupMenuScroller, &p, this,
-				QRect(x, contentsRect().height() - sh, contentsRect().width(), sh),
-				colorGroup(), flags, QStyleOption(maxPMWidth));
-	    break;
-	}
-	++it;
-	int itemh = itemHeight( mi );
-
-	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
-				      QSize(0, itemh), QStyleOption(mi,maxPMWidth));
-	sz = sz.expandedTo(QSize(itemw, sz.height()));
-	itemw = sz.width();
-	itemh = sz.height();
-
-	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
-	    y = contentsRect().y();
-	    x +=itemw;
-	}
-	if ( r == row )
-	    drawItem(&p, tab, mi, r == actItem, x, y, itemw, itemh );
-	y += itemh;
-	++r;
-    }
+    QRect r = itemGeometry(row);
+    if(!r.isNull()) //can happen via the scroller
+	repaint(r);
 }
 
 
