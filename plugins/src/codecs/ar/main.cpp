@@ -1,25 +1,16 @@
-#include <qtextcodecinterface.h>
+#include <qtextcodecplugin.h>
 #include <qtextcodec.h>
 #include <qptrlist.h>
-#include <qapplication.h>
 
 #include <private/qfontcodecs_p.h>
 
 
-class ARTextCodecs : public QTextCodecFactoryInterface
+class ARTextCodecs : public QTextCodecPlugin
 {
 public:
     ARTextCodecs();
-    virtual ~ARTextCodecs();
 
-    // unknown interface
-    QRESULT queryInterface(const QUuid &, QUnknownInterface **);
-    Q_REFCOUNT
-
-    // feature list interface
-    QStringList featureList() const;
-
-    // text codec interface
+    QStringList keys() const;
     QTextCodec *createForMib( int );
     QTextCodec *createForName( const QString & );
 
@@ -32,30 +23,7 @@ ARTextCodecs::ARTextCodecs()
 {
 }
 
-
-ARTextCodecs::~ARTextCodecs()
-{
-}
-
-
-QRESULT ARTextCodecs::queryInterface(const QUuid &uuid, QUnknownInterface **iface)
-{
-    *iface = 0;
-
-    if (uuid == IID_QUnknown )
-	*iface = (QUnknownInterface *) this;
-    else if (uuid == IID_QFeatureList )
-	*iface = (QFeatureListInterface *) this;
-    else if (uuid == IID_QTextCodecFactory )
-	*iface = (QTextCodecFactoryInterface*) this;
-    else
-	return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-QStringList ARTextCodecs::featureList() const
+QStringList ARTextCodecs::keys() const
 {
     QStringList list;
     list << "iso8859-6.8x";
@@ -67,7 +35,6 @@ QTextCodec *ARTextCodecs::createForMib( int )
 {
     return 0;
 }
-
 
 QTextCodec *ARTextCodecs::createForName( const QString &name )
 {
@@ -93,7 +60,4 @@ QTextCodec *ARTextCodecs::createForName( const QString &name )
 }
 
 
-Q_EXPORT_COMPONENT()
-{
-    Q_CREATE_INSTANCE( ARTextCodecs );
-}
+Q_EXPORT_PLUGIN( ARTextCodecs )
