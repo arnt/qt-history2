@@ -121,8 +121,8 @@ other library. If you want the plugin to be loadable then one approach
 is to create a subdirectory under the application, e.g. \c
 appdir/plugins/designer, and place the plugin in that directory.
 
-<sup>*</sup><small>
-All references to \c{QTDIR} refer to the path where Qt was installed.
+<sup>*</sup><small> All references to \c{QTDIR} refer to the path
+where Qt was installed.  </small>
 
 \section1 Loading and Verifying Plugins
 
