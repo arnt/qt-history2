@@ -132,7 +132,7 @@ class Q4MenuBarPrivate : public QWidgetPrivate
     Q_DECLARE_PUBLIC(Q4MenuBar);
 public:
     Q4MenuBarPrivate() : itemsDirty(0), itemsWidth(0), shortcuts(0), currentAction(0), mouseDown(0),
-                         closePopupMode(0), popupState(0), keyboardState(0), altPressed(0)
+                         closePopupMode(0), defaultPopDown(1), popupState(0), keyboardState(0), altPressed(0)
 #ifdef Q_WS_MAC
                          , mac_menubar(0)
 #endif
@@ -159,7 +159,7 @@ public:
 
     //selection
     QMenuAction *currentAction;
-    uint mouseDown : 1, closePopupMode : 1;
+    uint mouseDown : 1, closePopupMode : 1, defaultPopDown;
     QMenuAction *actionAt(QPoint p) const;
     void setCurrentAction(QMenuAction *, bool =false, bool =false);
     void popupAction(QMenuAction *, bool);

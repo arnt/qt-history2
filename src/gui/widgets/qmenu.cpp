@@ -600,7 +600,9 @@ QAction *QMenu::activeAction() const
 
 void QMenu::clear() 
 {
-    qWarning("Must implement QMenu::clear()");
+    QList<QAction*> acts = actions();
+    for(int i = 0; i < acts.size(); i++)
+        removeAction(acts[i]);
 }
 
 int QMenu::columnCount() const
@@ -913,8 +915,8 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
 void QMenu::changeEvent(QEvent *e)
 {
     if(e->type() == QEvent::StyleChange) {
-        setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking));
         d->itemsDirty = 1;
+        setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking));
         if(isVisible())
             resize(sizeHint());
         if(style().styleHint(QStyle::SH_Menu_Scrollable, this)) {
@@ -1376,22 +1378,27 @@ void Q4MenuBarPrivate::popupAction(QMenuAction *action, bool activateFirst)
 {
     popupState = true;
     if(action && action->action->menu()) {
-        d->closePopupMode = 0;
+        closePopupMode = 0;
         activeMenu = action->action->menu();
         activeMenu->d->causedPopup = q;
         if(activeMenu->parent() != q)
             activeMenu->setParent(q, activeMenu->getWFlags());
+
+        QRect dh = QApplication::desktop()->availableGeometry();
         QRect adjustedActionRect = actionRect(action);
         QPoint pos(q->mapToGlobal(QPoint(adjustedActionRect.left(), adjustedActionRect.bottom())));
+        QSize popup_size = activeMenu->sizeHint();
         if(QApplication::reverseLayout()) {
-            pos.setX((pos.x()+adjustedActionRect.width())-activeMenu->sizeHint().width());
+            pos.setX((pos.x()+adjustedActionRect.width())-popup_size.width());
             if(pos.x() < 0)
                 pos.setX(0);
         } else {
-            const int off = pos.x()+d->activeMenu->sizeHint().width() - QApplication::desktop()->width();
+            const int off = pos.x()+popup_size.width() - dh.right();
             if(off > 0)
                 pos.setX(qMax(0, pos.x()-off));
         }
+        if(!defaultPopDown || (pos.y() + popup_size.height() > dh.bottom()))
+            pos.setY(qMax(dh.y(), q->mapToGlobal(QPoint(0, adjustedActionRect.top()-popup_size.height())).y()));
         activeMenu->popup(pos);
         if(activateFirst)
             activeMenu->d->setFirstActionActive();
@@ -1555,18 +1562,19 @@ QAction *Q4MenuBar::activeAction() const
 
 void Q4MenuBar::clear() 
 {
-    qWarning("Must implement Q4MenuBar::clear()");
+    QList<QAction*> acts = actions();
+    for(int i = 0; i < acts.size(); i++)
+        removeAction(acts[i]);
 }
 
 void Q4MenuBar::setDefaultUp(bool b)
 {
-    qWarning("Must implement Q4MenuBar::setDefaultUp(%d)", b);
+    d->defaultPopDown = !b;
 }
  
 bool Q4MenuBar::isDefaultUp() const
 {
-    qWarning("Must implement Q4MenuBar::isDefaultUp()");
-    return true;
+    return !d->defaultPopDown;
 }
 
 void Q4MenuBar::resizeEvent(QResizeEvent *)
@@ -1806,8 +1814,8 @@ Q4MenuBar::focusOutEvent(QFocusEvent *)
 void Q4MenuBar::changeEvent(QEvent *e)
 {
     if(e->type() == QEvent::StyleChange) {
-        setMouseTracking(style().styleHint(QStyle::SH_MenuBar_MouseTracking));
         d->itemsDirty = 1;
+        setMouseTracking(style().styleHint(QStyle::SH_MenuBar_MouseTracking));
     }
 }
 
