@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#4 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#5 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -30,6 +30,7 @@ class QGDict : public QCollection		// hash dictionary class
 friend class QGDictIterator;
 public:
     uint    count() const { return numItems; }	// return number of items
+    uint    size()  const { return vlen; }
     GCI	    look( const char *key, GCI, bool);	// find/insert item
 
     QDataStream &read( QDataStream & );		// read dict from stream
@@ -49,7 +50,7 @@ protected:
 
 private:
     Qbucket **vec;				// hash array
-    uint    size;				// size of array
+    uint    vlen;				// size of array
     uint    numItems;				// number of items
     uint    cases	: 1;			// case sensitive
     uint    copyk	: 1;			// copy keys

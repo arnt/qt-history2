@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#4 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#4 $";
 #endif
 
 
@@ -89,9 +89,9 @@ private:
 
 QGDict::QGDict( uint sz, bool cs, bool ck, bool th )
 {
-    vec = new Qbucket *[size = sz];		// allocate hash table
+    vec = new Qbucket *[vlen = sz];		// allocate hash table
     CHECK_PTR( vec );
-    memset( (char*)vec, 0, size*sizeof(Qbucket*) );
+    memset( (char*)vec, 0, vlen*sizeof(Qbucket*) );
     numItems = 0;
     cases = cs;
     copyk = ck;
@@ -121,7 +121,7 @@ GCI QGDict::look( const char *key, GCI d, bool ins )
     register Qbucket *n;
     int	 index;
     if ( trivial ) {				// when key is not a string
-	index = (int)(long(key) % size);	// don't call virtual hash func
+	index = (int)(long(key) % vlen);	// don't call virtual hash func
 	if ( !ins ) {				// find item in list
 	    for ( n=vec[index]; n; n=n->getNext() ) {
 		if ( n->getKey() == key )
@@ -131,7 +131,7 @@ GCI QGDict::look( const char *key, GCI d, bool ins )
 	}
     }
     else {					// key is a string
-	index = hashKey( key ) % size;
+	index = hashKey( key ) % vlen;
 	if ( !ins ) {				// find item in list
 	    for ( n=vec[index]; n; n=n->getNext() ) {
 		if ( (cases ? strcmp(n->getKey(),key)
@@ -162,9 +162,9 @@ bool QGDict::remove( const char *key )		// remove item from dictionary
     if ( numItems == 0 )			// nothing in dictionary
 	return FALSE;
     if ( trivial )
-	index = (int)(long(key) % size);
+	index = (int)(long(key) % vlen);
     else
-	index = hashKey( key ) % size;
+	index = hashKey( key ) % vlen;
     for ( n = vec[index]; n; n=n->getNext() ) { // find item in list
 	bool equal;
 	if ( trivial )
@@ -202,7 +202,7 @@ void QGDict::clear()				// delete all items
     if ( !numItems )
 	return;
     numItems = 0;				// disable remove() function
-    for ( uint j=0; j<size; j++ ) {		// destroy hash table
+    for ( uint j=0; j<vlen; j++ ) {		// destroy hash table
 	register Qbucket *n = vec[j];
 	while ( n ) {
 	    if ( copyk )
@@ -238,9 +238,9 @@ void QGDict::statistics() const			// show statistics
 	return;
     }
     real = 0.0;
-    ideal = (float)count()/(2.0*size)*(count()+2.0*size-1);
+    ideal = (float)count()/(2.0*size())*(count()+2.0*size()-1);
     uint i = 0;
-    while ( i<size ) {
+    while ( i<size() ) {
 	Qbucket *n = vec[i];
 	int b = 0;
 	while ( n ) {				// count number of buckets
@@ -258,7 +258,7 @@ void QGDict::statistics() const			// show statistics
 	debug( buf );
 	i++;
     }
-    debug( "Array size = %d", size );
+    debug( "Array size = %d", size() );
     debug( "# items    = %d", count() );
     debug( "Real dist  = %g", real );
     debug( "Rand dist  = %g", ideal );
@@ -307,7 +307,7 @@ QDataStream& QGDict::write( QDataStream &s ) const
 {						// write dict to stream
     s << count();				// write number of items
     uint i = 0;
-    while ( i<size ) {
+    while ( i<size() ) {
 	Qbucket *n = vec[i];
 	while ( n ) {				// write all buckets
 	    if ( trivial )
@@ -359,9 +359,9 @@ GCI QGDictIterator::toFirst()			// move to first item
     }
     register uint i = 0;
 #if defined(PARANOID_TEST)
-    while ( !dict->vec[i] && i < dict->size )	// paranoid test
+    while ( !dict->vec[i] && i < dict->size() )	// paranoid test
 	i++;
-    if ( i == dict->size ) {			// nothing found!?
+    if ( i == dict->size() ) {			// nothing found!?
 	debug( "QGDictIterator::toFirst: Internal error" );
 	return 0;
     }
@@ -410,9 +410,9 @@ GCI QGDictIterator::operator++()		// move to next item (prefix)
     if ( !curNode ) {				// no next bucket
 	register uint i = curIndex + 1;		// look from next vec element
 	register Qbucket **v = &dict->vec[i];
-	while ( i < dict->size && !(*v++) )
+	while ( i < dict->size() && !(*v++) )
 	    i++;
-	if ( i == dict->size ) {		// nothing found
+	if ( i == dict->size() ) {		// nothing found
 	    curNode = 0;
 	    return 0;
 	}
