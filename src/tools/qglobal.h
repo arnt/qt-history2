@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#20 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#21 $
 **
 ** Global type declarations and definitions
 **
@@ -228,6 +228,17 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #endif
 #endif // NO_WARNINGS
 
+//
+// we like RCS but do not like 'char ident[54] defined but not used'
+//
+
+#if !defined(DEBUG)
+#define RCSTAG(string)
+#elif defined(_CC_GNU_)
+#define RCSTAG(string) static char ident[] __attribute__ ((unused)) = string;
+#else
+#define RCSTAG(string)
+#endif
 
 void warning( const char *, ... )		// print message
 #if defined(_CC_GNU_)
