@@ -248,14 +248,13 @@ public:
 
     This class is used to create connections to SQL databases. It also
     provides transaction handling functions for those database drivers
-    that support transactions. The QSqlDatabase class
-    itself provides an abstract interface for accessing many types of
-    database backends.
-
-     Database-specific drivers are used internally to actually access
-     and manipulate data, (see QSqlDriver). Result set objects provide
-     the interface for executing and manipulating SQL queries (see
-     QSqlQuery).
+    that support transactions. 
+    
+    The QSqlDatabase class itself provides an abstract interface for
+    accessing many types of database backend. Database-specific drivers
+    are used internally to actually access and manipulate data, (see
+    QSqlDriver). Result set objects provide the interface for executing
+    and manipulating SQL queries (see QSqlQuery).
 
 */
 
@@ -279,7 +278,7 @@ QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& nam
 /*! Returns a pointer to the database connection named \a name.  The database
   connection must have been previously added with database().  If \a open is TRUE
   (the default) and the database connection is not already open it is
-  opened now.  If \a name does not exist in the list of database, 0 is
+  opened now.  If \a name does not exist in the list of databases, 0 is
   returned.  The pointer returned is owned by QSqlDatabase and should
   not be deleted.
 
@@ -449,7 +448,7 @@ QSqlQuery QSqlDatabase::exec( const QString & query ) const
 
 /*! Opens the database connection using the current connection values.  Returns
     TRUE on success, and FALSE if there was an error.  Error
-    information can be retrieved using lastError().
+    information can be retrieved using the lastError() function.
 
     \sa lastError()
 */
@@ -464,7 +463,7 @@ bool QSqlDatabase::open()
 
 /*! Opens the database connection using \a user name and \a password.  Returns
  TRUE on success, and FALSE if there was an error.  Error information
- can be retrieved using lastError().
+ can be retrieved using the lastError() function.
 
     \sa lastError()
 */
@@ -497,7 +496,7 @@ bool QSqlDatabase::isOpen() const
 
 /*! Return TRUE if there was an error opening the database connection,
     otherwise returns FALSE. Error information can be retrieved
-    using lastError().
+    using the lastError() function.
 
 */
 
@@ -669,7 +668,7 @@ QSqlIndex QSqlDatabase::primaryIndex( const QString& tablename ) const
 
 
 /*!  Returns a QSqlRecord populated with the names of all the fields in
-    the table (or view) \a name. The order in which the fields are
+    the table (or view) named \a tablename. The order in which the fields are
     returned is undefined.  If no such table (or view) exists, an empty
     list is returned.
 
