@@ -2856,16 +2856,14 @@ bool QXmlSimpleReader::parse( const QXmlInputSource *input, bool incremental )
 */
 bool QXmlSimpleReader::parseContinue()
 {
-    if ( d->parseStack == 0 ) {
+    if ( d->parseStack == 0 )
 	return FALSE;
-    }
-    if ( !d->parseStack->isEmpty() ) {
-	initData();
-	int state = state = d->parseStack->top()->state;
-	d->parseStack->remove();
-	return parseBeginOrContinue( state, TRUE );
-    }
-    return FALSE; // this should never happen
+    if ( d->parseStack->isEmpty() )
+	return TRUE;
+    initData();
+    int state = state = d->parseStack->top()->state;
+    d->parseStack->remove();
+    return parseBeginOrContinue( state, TRUE );
 }
 
 /*
