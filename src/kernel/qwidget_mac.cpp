@@ -552,7 +552,7 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 
 bool qt_mac_is_macsheet(QWidget *w, bool ignore_exclusion=FALSE)
 {
-#if defined(Q_WS_MACX)
+#if defined(Q_WS_MACX) && 0
     if(w && w->isTopLevel() && w->testWFlags(Qt::WStyle_DialogBorder) &&
        (ignore_exclusion || !w->testWFlags(Qt::WMacNotSheet)) && 
        w->parentWidget() && !w->parentWidget()->topLevelWidget()->isDesktop() &&
