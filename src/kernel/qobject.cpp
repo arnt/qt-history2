@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#63 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#62 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#63 $")
 
 
 /*----------------------------------------------------------------------------
@@ -293,6 +293,11 @@ QObject::~QObject()
 	    }
 	}
 	delete connections;
+	connections = 0;
+    }
+    if ( eventFilters ) {
+	delete eventFilters;
+	eventFilters = 0;
     }
     if ( childObjects ) {			// delete children objects
 	obj = childObjects->first();
@@ -303,7 +308,6 @@ QObject::~QObject()
 	}
 	delete childObjects;
     }
-    delete eventFilters;
 }
 
 
