@@ -112,7 +112,7 @@ public:
     int port;
     QString path;
     QByteArray query;
-    QByteArray fragment;
+    QString fragment;
 
     QByteArray encodedOriginal;
 
@@ -1804,7 +1804,7 @@ void QUrl::setFragment(const QString &fragment)
     detach();
     d->isValidated = false;
 
-    d->fragment = QUrl::toPercentEncoding(fragment);
+    d->fragment = fragment;
 }
 
 /*!
