@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#48 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#49 $
 **
 ** Definition of QPushButton class
 **
@@ -61,11 +61,8 @@ q_properties:
     bool	isMenuButton() const;
 
 public slots:
-#ifdef Q_PROPS
-    virtual void	setOn( bool ) q_prop;
-#else
     virtual void	setOn( bool );
-#endif
+
     void	toggle();
 
 protected:
