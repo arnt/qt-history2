@@ -100,6 +100,7 @@ Q_OUTOFLINE_TEMPLATE Q3MemArray<type>::operator QVector<type>() const
     QVector<type> vector;
     for (int i = 0; i < size(); ++i)
         vector.append(at(i));
+    return vector;
 
 }
 
