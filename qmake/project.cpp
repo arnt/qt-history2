@@ -40,6 +40,71 @@ struct parser_info {
     bool from_file;
 } parser;
 
+
+struct QMakeProject::ScopeIterator
+{
+    struct Parse {
+	QString text;
+	parser_info pi;
+	Parse(const QString &t) : text(t){ pi = ::parser; }
+    };
+    struct Test {
+	QString func;
+	QStringList args;
+	bool invert;
+	parser_info pi;
+	Test(const QString &f, QStringList &a, bool i) : func(f), args(a), invert(i) { pi = ::parser; }
+    };
+    ScopeIterator() : scope_level(1) { }
+    bool exec(QMakeProject *p);
+
+    int scope_level;
+    QList<Test> test;
+    QList<Parse> parser;
+    QString variable;
+    QStringList list;
+};
+bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
+{
+    bool ret = TRUE;
+    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+	//save state
+	QStringList va = p->variables()[variable];
+	parser_info pi = ::parser;
+	//do the iterations
+	p->variables()[variable] = (*it);
+	bool succeed = true;
+	for(QList<Test>::Iterator test_it = test.begin(); test_it != test.end(); ++test_it) {
+	    ::parser = (*test_it).pi;
+	    succeed = p->doProjectTest((*test_it).func, (*test_it).args, p->variables());
+	    if((*test_it).invert)
+		succeed = !succeed;
+	    if(!succeed)
+		break;
+	}
+	if(succeed) {
+	    for(QList<Parse>::Iterator parse_it = parser.begin(); parse_it != parser.end(); 
+		++parse_it) {
+		::parser = (*parse_it).pi;
+		if(!(ret = p->parse((*parse_it).text, p->variables())))
+		    break;
+	    }
+	}
+	//restore state
+	::parser = pi;
+	p->variables()[variable] = va;
+    }
+    return ret;
+}
+QMakeProject::ScopeBlock::~ScopeBlock()
+{
+#if 0
+    if(iterate)
+	delete iterate;
+#endif
+}
+
+
 static void qmake_error_msg(const char *msg)
 {
     fprintf(stderr, "%s:%d: %s\n", parser.file.latin1(), parser.line_no, msg);
@@ -198,7 +263,9 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 	    if(s[i] == '{') {
 		scope_blocks.push(ScopeBlock(TRUE));		
 	    } else if(s[i] == '}') {
-		scope_blocks.pop();
+		ScopeBlock sb = scope_blocks.pop();
+		if(sb.iterate)
+		    sb.iterate->exec(this);
 		if(!scope_blocks.top().ignore) {
 		    debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.latin1(),
 			      parser.line_no, scope_blocks.count()+1);
@@ -215,11 +282,43 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 	}
     }
 
+    if(ScopeIterator *it = scope_blocks.top().iterate) {
+	QString append;
+	const char *d = s.latin1();
+	bool iterate_finished = FALSE;
+	while(*d) {
+	    if((*d) == '}') {
+		it->scope_level--;
+		if(!it->scope_level) {
+		    iterate_finished = TRUE;
+		    break;
+		}
+	    } else if((*d) == '{') {
+		it->scope_level++;
+	    }
+	    append += *d;
+	    d++;
+	}
+	if(!append.isEmpty()) 
+	    scope_blocks.top().iterate->parser.append(ScopeIterator::Parse(append));
+	if(iterate_finished) {
+	    scope_blocks.top().iterate = 0;
+	    bool ret = it->exec(this);
+	    delete it;
+	    if(!ret)
+		return FALSE;
+	    s = QString(d);
+	} else {
+	    return TRUE;
+	}
+    }
+
     QString scope, var, op;
     QStringList val;
 #define SKIP_WS(d) while(*d && (*d == ' ' || *d == '\t')) d++
     const char *d = s.latin1();
     SKIP_WS(d);
+    ScopeIterator *iterator = 0;
     bool scope_failed = FALSE, else_line = FALSE, or_op=FALSE, start_scope=FALSE;
     int parens = 0, scope_count=0;
     while(*d) {
@@ -254,7 +353,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 	    var = "";
 
 	    bool test = scope_failed;
-	    if(scope.lower() == "else") {
+	    if(scope.lower() == "else") { //else is a builtin scope here as it modifies state
 		if(scope_count != 1 || scope_blocks.top().else_status == ScopeBlock::TestNone) {
 		    qmake_error_msg("Unexpected " + scope + " ('" + s + "')");
 		    return FALSE;
@@ -281,13 +380,56 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 			    return FALSE;
 			}
 			QString func = comp_scope.left(lparen);
-			test = doProjectTest(func, comp_scope.mid(lparen+1, rparen - lparen - 1), place);
-			if ( *d == ')' && !*(d+1) ) {
-			    if(invert_test)
-				test = !test;
-			    scope_blocks.top().else_status = 
-				(test ? ScopeBlock::TestFound : ScopeBlock::TestSeek);
-			    return TRUE;  /* assume we are done */
+			QStringList args = split_arg_list(comp_scope.mid(lparen+1, rparen - lparen - 1));
+			for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
+			    QString tmp = (*arit).stripWhiteSpace();
+			    if((tmp[0] == '\'' || tmp[0] == '"') && tmp.right(1) == tmp.left(1))
+				tmp = tmp.mid(1, tmp.length() - 2);
+			}
+			if(func == "for") { //for is a builtin function here, as it modifies state
+			    if(args.count() != 2) {
+				fprintf(stderr, "%s:%d: for(iterate, list) requires two arguments.\n", 
+					parser.file.latin1(), parser.line_no);
+				return FALSE;
+			    }
+
+			    iterator = new ScopeIterator;
+			    iterator->variable = args[0];
+			    QString arg1 = doVariableReplace(args[1], place);
+			    QStringList list = place[arg1];
+			    if(list.isEmpty()) {
+				int dotdot = arg1.find("..");
+				if(dotdot != -1) {
+				    bool ok;
+				    int start = arg1.left(dotdot).toInt(&ok);
+				    if(ok) {
+					int end = arg1.mid(dotdot+2).toInt(&ok);
+					if(ok) {
+					    if(start < end) {
+						for(int i = start; i <= end; i++)
+						    list << QString::number(i);
+					    } else {
+						for(int i = start; i >= end; i--)
+						    list << QString::number(i);
+					    }
+					}
+				    }
+				}
+			    }
+			    iterator->list = list;
+			    test = !invert_test;
+			} else if(iterator) {
+			    iterator->test.append(ScopeIterator::Test(func, args, invert_test));
+			    test = !invert_test;
+			} else {
+			    test = doProjectTest(func, args, place);
+			    if ( *d == ')' && !*(d+1) ) {
+				if(invert_test)
+				    test = !test;
+				scope_blocks.top().else_status = 
+				    (test ? ScopeBlock::TestFound : ScopeBlock::TestSeek);
+				return TRUE;  /* assume we are done */
+			    }
 			}
 		    } else {
 			test = isActiveConfig(comp_scope.stripWhiteSpace(), TRUE, &place);
@@ -311,7 +453,9 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 	    } else {
 		debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.latin1(),
 			  parser.line_no, scope_blocks.count());
-		scope_blocks.pop();
+		ScopeBlock sb = scope_blocks.pop();
+		if(sb.iterate)
+		    sb.iterate->exec(this);
 	    }
 	} else {
 	    var += *d;
@@ -324,11 +468,24 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 	scope_blocks.top().else_status = (!scope_failed ? ScopeBlock::TestFound : ScopeBlock::TestSeek);
     if(start_scope) {
 	ScopeBlock next_scope(scope_failed);
-	next_scope.else_status = (scope_failed ? ScopeBlock::TestSeek : ScopeBlock::TestFound);
-	scope_blocks.push(ScopeBlock(scope_failed));
+	next_scope.iterate = iterator;
+	if(iterator)
+	    next_scope.else_status = ScopeBlock::TestNone;
+	else if(scope_failed)
+	    next_scope.else_status = ScopeBlock::TestSeek;
+	else
+	    next_scope.else_status = ScopeBlock::TestFound;
+	scope_blocks.push(next_scope);
+
 	debug_msg(1, "Project Parser: %s:%d : Entering block %d (%d).", parser.file.latin1(),
 		  parser.line_no, scope_blocks.count(), scope_failed);
+    } else if(iterator) {
+	iterator->parser.append(var+QString(d));
+	bool ret = iterator->exec(this);
+	delete iterator;
+	return ret;
     }
+
     if((!scope_count && !var.isEmpty()) || (scope_count == 1 && else_line)) 
 	scope_blocks.top().else_status = ScopeBlock::TestNone;
     if(scope_failed)
@@ -350,16 +507,19 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     if(scope_blocks.count() > 1 && rbraces - lbraces == 1) {
 	debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.latin1(),
 		  parser.line_no, scope_blocks.count());
-	scope_blocks.pop();
+	ScopeBlock sb = scope_blocks.pop();
+	if(sb.iterate)
+	    sb.iterate->exec(this);
 	vals.truncate(vals.length()-1);
     } else if(rbraces != lbraces) {
 	warn_msg(WarnParser, "Possible braces mismatch {%s} %s:%d",
 		 vals.latin1(), parser.file.latin1(), parser.line_no);
     }
-    doVariableReplace(vals, place);
-
 #undef SKIP_WS
 
+    doVariableReplace(vals, place);
+    doVariableReplace(var, place); 
+    var = varMap(var); //backwards compatability
     if(!var.isEmpty() && Option::mkfile::do_preprocess) {
 	static QString last_file("*none*");
 	if(parser.file != last_file) {
@@ -368,7 +528,6 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 	}
 	fprintf(stdout, "%s %s %s\n", var.latin1(), op.latin1(), vals.latin1());
     }
-    var = varMap(var); //backwards compatability
 
     /* vallist is the broken up list of values */
     QStringList vallist = split_value_list(vals, (var == "DEPENDPATH" || var == "INCLUDEPATH"));
@@ -434,7 +593,6 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     }
     if(var == "REQUIRES") /* special case to get communicated to backends! */
 	doProjectCheckReqs(vallist, place);
-
     return TRUE;
 }
 
@@ -1290,23 +1448,51 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    fprintf(stderr, "%s:%d: member(var, start, end) requires three arguments.\n",
 			    parser.file.latin1(), parser.line_no);
 		} else {
+		    bool ok = true;
 		    const QStringList &var = place[varMap(arg_list.first())];
-		    int start = 0;
-		    if(arg_list.count() >= 2)
-			start = arg_list[1].toInt();
-		    if(start < 0)
-			start += var.count();
-		    int end = start;
-		    if(arg_list.count() == 3)
-			end = arg_list[2].toInt();
-		    if(end < 0)
-			end += var.count();
-		    if(end < start)
-			end = start;
-		    for(int i = start; i <= end && (int)var.count() >= i; i++) {
-			if(!replacement.isEmpty())
-			    replacement += " ";
-			replacement += var[i];
+		    int start = 0, end = 0;
+		    if(arg_list.count() >= 2) {
+			QString start_str = arg_list[1];
+			start = start_str.toInt(&ok);
+			if(!ok) {
+			    if(arg_list.count() == 2) {
+				int dotdot = start_str.find("..");
+				if(dotdot != -1) {
+				    start = start_str.left(dotdot).toInt(&ok);
+				    if(ok)
+					end = start_str.mid(dotdot+2).toInt(&ok);
+				}
+			    }
+			    if(!ok)
+				fprintf(stderr, "%s:%d: member() argument 2 (start) '%s' invalid.\n", 
+					parser.file.latin1(), parser.line_no, start_str.latin1());
+			} else {
+			    end = start;
+			    if(arg_list.count() == 3)
+				end = arg_list[2].toInt(&ok);
+			    if(!ok)
+				fprintf(stderr, "%s:%d: member() argument 3 (end) '%s' invalid.\n", 
+					parser.file.latin1(), parser.line_no, arg_list[2].latin1());
+			}
+		    }
+		    if(ok) {
+			if(start < 0)
+			    start += var.count();
+			if(end < 0)
+			    end += var.count();
+			if(start < end) {
+			    for(int i = start; i <= end && (int)var.count() >= i; i++) {
+				if(!replacement.isEmpty())
+				    replacement += " ";
+				replacement += var[i];
+			    }
+			} else {
+			    for(int i = start; i >= end && (int)var.count() >= i && i >= 0; i--) {
+				if(!replacement.isEmpty())
+				    replacement += " ";
+				replacement += var[i];
+			    }
+			}
 		    }
 		}
 	    } else if(val.lower() == "fromfile") {

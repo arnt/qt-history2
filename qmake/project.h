@@ -25,10 +25,14 @@ class QMakeProperty;
 
 class QMakeProject
 {
+    struct ScopeIterator;
+    friend struct ScopeIterator;
     struct ScopeBlock {
 	enum TestStatus { TestNone, TestFound, TestSeek };
-	ScopeBlock() : ignore(FALSE), else_status(TestNone) { }
-	ScopeBlock(bool i) : ignore(i), else_status(TestNone) { }
+	ScopeBlock() : iterate(0), ignore(FALSE), else_status(TestNone) { }
+	ScopeBlock(bool i) : iterate(0), ignore(i), else_status(TestNone) { }
+	~ScopeBlock();
+	QMakeProject::ScopeIterator *iterate;
 	uint ignore : 1, else_status : 2;
     };
     QStack<ScopeBlock> scope_blocks;

@@ -382,3 +382,21 @@ This function will succeed if the file \e filename (when parsed
 by qmake itself) contains the variable \e var with a value of 
 \e val. You may also not pass in a third argument (\e val) and the
 function will only test if \e var has been assigned to in the file.
+
+\section2 for( iterate, list )
+
+This special test function will cause a loop to be started that
+iterates over all values in \e list setting \e iterate to each
+value. As a convience if \e list is 1..10 then iterate will iterate
+over the values 1 through 10.
+
+The use of an else scope afer a condition line with a for() loop is
+disallowed. 
+
+For example:
+
+\code
+    LIST = 1 2 3
+    for(a, LIST):exists(file.$${a}):message(I see a file.$${a}!)
+\endcode
+

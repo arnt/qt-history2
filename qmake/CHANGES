@@ -5,6 +5,8 @@
 
    $$printf() added to allow easy expansion of complex strings (using %1..%n)
 
+   for() iteration has been introduced to do simple looping in a qmake script. 
+
 1.06b -
   
    support for reading and writing libtool (.la) files
