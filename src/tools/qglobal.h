@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#1 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#2 $
 **
 ** Global type declarations and definitions
 **
@@ -171,6 +171,9 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #define DEBUG					// display debug messages
 #endif
 
+#if !defined(KEEP_WARNINGS)
+#define NO_WARNINGS				// comment to get cc warnings
+#endif
 #if defined(NO_WARNINGS)
 #if defined(_CC_MSC_)
 #pragma warning(disable: 4759)
