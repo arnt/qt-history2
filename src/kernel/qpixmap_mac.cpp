@@ -127,7 +127,11 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 	    if(image.numColors() == 2) {
 		QRgb c0 = image.color(0);       // Auto: convert to best
 		QRgb c1 = image.color(1);
+#if 0
 		conv8 = QMIN(c0,c1) != qRgb(0,0,0) || QMAX(c0,c1) != qRgb(255,255,255);
+#else
+		conv8 = ((c0 == qRgb(0,0,0)) && c1 == qRgb(255,255,255));
+#endif
 	    } else {
 		// eg. 1-color monochrome images (they do exist).
 		conv8 = TRUE;
@@ -140,8 +144,8 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     }
 
     if(image.depth()==1) {
-	image.setColor(0, qRgba(255,255,255, 0));
-	image.setColor(1, qRgba(0,0,0, 0));
+	image.setColor(0, qRgba(255,255,255,0));
+	image.setColor(1, qRgba(0,0,0,0));
     }
 
     int w = image.width();
