@@ -890,7 +890,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
         }
         if ( c == PdcDrawPixmap || c == PdcDrawImage ) {
             QRect rect    = *p[0].rect;
-	    QPoint  pos( rect.x(), rect.y() );
+	    QPoint pos( rect.x(), rect.y() );
 	    QPixmap pixmap;
             QImage  image;
 
@@ -938,8 +938,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                     ys = ys * vr.height() / wr.height();
                 }
             }
-            int dw = qRound( xs * w );
-            int dh = qRound( ys * h );
+            int dw = qRound( xs * rect.width() );
+            int dh = qRound( ys * rect.height() );
             BITMAPINFO *bmi = getWindowsBITMAPINFO( pixmap, image );
             BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
             uchar *bits;
