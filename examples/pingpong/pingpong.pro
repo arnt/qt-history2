@@ -9,5 +9,7 @@ SOURCES		= cursors.cpp \
 		  main.cpp \
 		  pingpongfrontend.cpp \
 		  widgets.cpp
-INTERFACES	= matchdialogbase.ui
+INTERFACES	= matchdialogbase.ui \
+		  teameditorbase.ui \
+		  statisticsbase.ui
 unix:LIBS      += -lpthread

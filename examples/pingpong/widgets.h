@@ -4,6 +4,8 @@
 #include <qcombobox.h>
 #include <qmap.h>
 #include "cursors.h"
+#include "teameditorbase.h"
+#include "statisticsbase.h"
 
 class QSqlTable;
 class QLabel;
@@ -23,7 +25,7 @@ private:
     QMap< int, int > index2Id;
 };
 
-class TeamEditor : public QWidget
+class TeamEditor : public TeamEditorBase
 {
     Q_OBJECT
 
@@ -36,18 +38,13 @@ protected slots:
     void removePlayer();
 
 private:
-    QSqlTable * teamTable;
-    QSqlTable * playerTable;
-    QSqlTable * player2teamTable;
-
-    QLabel * player2teamLabel;
-    Player2TeamView player2teamView;
+    Player2TeamView   player2teamView;
     Player2TeamCursor player2teamCursor;
-    TeamCursor   teamCursor;
-    PlayerCursor playerCursor;
+    TeamCursor        teamCursor;
+    PlayerCursor      playerCursor;
 };
 
-class Statistics : public QWidget
+class Statistics : public StatisticsBase
 {
     Q_OBJECT
 public:
@@ -55,20 +52,6 @@ public:
 
 public slots:
     void update();
-
-private:
-    TeamPicker * teamPicker;
-    QLabel * setsWon;
-    QLabel * setsLost;
-    QLabel * matchesWon;
-    QLabel * matchesLost;
-    QLabel * winPercentage;
-    QLabel * lossPercentage;
-    QLabel * totalSets;
-    QLabel * totalMatches;
-    QLabel * hate;
-    QLabel * love;
-    QLabel * topTeam;
 };
 
 class HighscoreList : public QWidget

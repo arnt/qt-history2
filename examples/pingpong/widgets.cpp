@@ -43,57 +43,19 @@ void TeamPicker::setTeamId( int id )
 // TeamEditor class
 //
 TeamEditor::TeamEditor( QWidget * parent, const char * name )
-    : QWidget( parent, name )
+    : TeamEditorBase( parent, name )
 {
-    QGridLayout * g = new QGridLayout( this );
-
-    g->setMargin( 5 );
-    g->setSpacing( 5 );
-
-    QFont f = font();
-    f.setBold( TRUE );
-    QLabel * label = new QLabel( "All teams", this );
-    label->setFont( f );
-    g->addWidget( label, 0, 0 );
-    teamTable = new QSqlTable( this );
     teamCursor.select( teamCursor.index( "name" ) );
     teamTable->setCursor( &teamCursor );
     teamTable->setSorting( TRUE );
-    connect( teamTable, SIGNAL( currentChanged( const QSqlRecord * ) ),
-	     SLOT( updateTeamMembers( const QSqlRecord * ) ) );
-    g->addWidget( teamTable, 1, 0 );
 
-    label = new QLabel( "All players", this );
-    label->setFont( f );
-    g->addWidget( label, 0, 1 );
-    playerTable = new QSqlTable( this );
     playerCursor.select( playerCursor.index( "name" ) );
     playerTable->setCursor( &playerCursor );
     playerTable->setSorting( TRUE );
-    g->addWidget( playerTable, 1, 1 );
 
-    player2teamLabel = new QLabel( "Players on ?", this );
-    player2teamLabel->setFont( f );
-    g->addMultiCellWidget( player2teamLabel, 2, 2, 0, 1 );
-    player2teamTable = new QSqlTable( this );
     player2teamTable->setCursor( &player2teamView );
     player2teamTable->setReadOnly( TRUE );
     player2teamTable->setSorting( TRUE );
-    g->addWidget( player2teamTable, 3, 0 );
-    QFrame * buttonFrame = new QFrame( this );
-    QVBoxLayout * v = new QVBoxLayout( buttonFrame );
-
-    QPushButton * button = new QPushButton( "<< &Add",
-					    buttonFrame );
-    connect( button, SIGNAL( clicked() ), SLOT( addPlayer() ) );
-    v->addWidget( button );
-
-    button = new QPushButton( ">> &Remove", buttonFrame );
-    connect( button, SIGNAL( clicked() ), SLOT( removePlayer() ) );
-    v->addWidget( button );
-    v->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
-				 QSizePolicy::Expanding ) );
-    g->addWidget( buttonFrame, 3, 1 );
 
     QSqlRecord t = teamTable->currentFieldSelection();
     updateTeamMembers( &t );
@@ -145,85 +107,8 @@ void TeamEditor::removePlayer()
 //  Statistics class
 //
 Statistics::Statistics( QWidget * parent = 0, const char * name = 0 )
-    : QWidget( parent, name )
+    : StatisticsBase( parent, name )
 {
-    QGridLayout * g = new QGridLayout( this );
-    g->setSpacing( 5 );
-    g->setMargin( 5 );
-
-    QWidget * baseWidget = new QWidget( this );
-    QHBoxLayout * hbl = new QHBoxLayout( baseWidget );
-
-    QLabel * label = new QLabel( "Team name:", this );
-    g->addWidget( label, 0, 0 );
-    teamPicker = new TeamPicker( this );
-    hbl->addWidget( teamPicker );
-    hbl->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
-				   QSizePolicy::Minimum ) );
-    g->addLayout( hbl, 0, 1 );
-
-    label = new QLabel( "Sets won:", this );
-    g->addWidget( label, 1, 0 );
-    setsWon = new QLabel( "0", this );
-    g->addWidget( setsWon, 1, 1 );
-
-    label = new QLabel( "Matches won:", this );
-    g->addWidget( label, 2, 0 );
-    matchesWon = new QLabel( "0", this );
-    g->addWidget( matchesWon, 2, 1 );
-
-    label = new QLabel( "Winner percentage:", this );
-    g->addWidget( label, 3, 0 );
-    winPercentage = new QLabel( "0", this );
-    g->addWidget( winPercentage, 3, 1 );
-
-    QFrame * separator = new QFrame( this );
-    separator->setFrameStyle( QFrame::HLine | QFrame::Raised );
-    g->addMultiCellWidget( separator, 4, 4, 0, 1 );
-
-    label = new QLabel( "Sets lost:", this );
-    g->addWidget( label, 5, 0 );
-    setsLost = new QLabel( "0", this );
-    g->addWidget( setsLost, 5, 1 );
-
-    label = new QLabel( "Matches lost:", this );
-    g->addWidget( label, 6, 0 );
-    matchesLost = new QLabel( "0", this );
-    g->addWidget( matchesLost, 6, 1 );
-
-    label = new QLabel( "Loser percentage:", this );
-    g->addWidget( label, 7, 0 );
-    lossPercentage = new QLabel( "0 %", this );
-    g->addWidget( lossPercentage, 7, 1 );
-
-    separator = new QFrame( this );
-    separator->setFrameStyle( QFrame::HLine | QFrame::Raised );
-    g->addMultiCellWidget( separator, 8, 8, 0, 1 );
-
-    label = new QLabel( "Total sets played:", this );
-    g->addWidget( label, 9, 0 );
-    totalSets = new QLabel( "0", this );
-    g->addWidget( totalSets, 9, 1 );
-
-    label = new QLabel( "Total matches played:", this );
-    g->addWidget( label, 10, 0 );
-    totalMatches = new QLabel( "0", this );
-    g->addWidget( totalMatches, 10, 1 );
-
-    label = new QLabel( "Usually loses against:", this );
-    g->addWidget( label, 11, 0 );
-    hate = new QLabel( "None", this );
-    g->addWidget( hate, 11, 1 );
-
-    label = new QLabel( "Usually beats:", this );
-    g->addWidget( label, 12, 0 );
-    love = new QLabel( "None", this );
-    g->addWidget( love, 12, 1 );
-
-    g->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
-				 QSizePolicy::Expanding ) );
-
-    connect( teamPicker, SIGNAL( activated( int ) ), SLOT( update() ) );
     update();
 }
 
