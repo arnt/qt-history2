@@ -223,18 +223,13 @@ bool QWin32PrintEngine::begin(QPaintDevice *dev)
     }
 
     bool ok = d->state == QPrinter::Idle;
-//     if (ok && !d->hdc) {
-// 	setup(0);
-// 	if (!hdc)
-// 	    ok = false;
-//     }
     Q_ASSERT(d->hdc);
 
     // Assign the FILE: to get the query...
     if (d->fileName.isEmpty())
         d->fileName = d->port;
 
-//     QT_WA({
+    QT_WA({
 	DOCINFO di;
 	memset(&di, 0, sizeof(DOCINFO));
 	di.cbSize = sizeof(DOCINFO);
@@ -245,43 +240,38 @@ bool QWin32PrintEngine::begin(QPaintDevice *dev)
 	    qErrnoWarning("QWin32PrintEngine::begin: StartDoc failed");
 	    ok = false;
 	}
-//     } , {
-// 	DOCINFOA di;
-// 	memset(&di, 0, sizeof(DOCINFOA));
-// 	di.cbSize = sizeof(DOCINFOA);
-// 	QByteArray docNameA = doc_name.toLocal8Bit();
-// 	di.lpszDocName = docNameA.data();
-// 	QByteArray outfileA = output_filename.toLocal8Bit();
-// 	if (output_file && !output_filename.isEmpty())
-// 	    di.lpszOutput = outfileA.data();
-// 	if (ok && StartDocA(hdc, &di) == SP_ERROR)
-// 	    ok = false;
-//     });
+    } , {
+	DOCINFOA di;
+	memset(&di, 0, sizeof(DOCINFOA));
+	di.cbSize = sizeof(DOCINFOA);
+	QByteArray docNameA = d->docName.toLocal8Bit();
+	di.lpszDocName = docNameA.data();
+	QByteArray outfileA = d->fileName.toLocal8Bit();
+	if (d->printToFile && !d->fileName.isEmpty())
+	    di.lpszOutput = outfileA;
+	if (ok && StartDocA(d->hdc, &di) == SP_ERROR) {
+	    qErrnoWarning("QWin32PrintEngine::begin: StartDoc failed");
+	    ok = false;
+        }
+    });
 
-//     if (ok) {
-// 	reinit(); // initialize latest changes before StartPage
-        ok = StartPage(d->hdc) != SP_ERROR;
+    if (QSysInfo::WindowsVersion & Qt::WV_DOS_based) {
+	// StartPage resets DC on Win95/98
         d->setupPrinterMapping();
+        d->setupOriginMapping();
+    }
 
-//     }
-//     if (qWinVersion() & Qt::WV_DOS_based)
-// 	// StartPage resets DC on Win95/98
-        //d->setupPrinterMapping();
-
-        //d->setupOriginMapping();
-
-//     if (!ok) {
-// 	if (hdc) {
-// 	    DeleteDC(hdc);
-// 	    hdc = 0;
-// 	}
-// 	state = PST_IDLE;
-// 	return false;
-//     } else {
+    if (!ok) {
+	if (d->hdc) {
+	    DeleteDC(d->hdc);
+	    d->hdc = 0;
+	}
+	d->state = QPrinter::Idle;
+    } else {
 	d->state = QPrinter::Active;
-// 	painter = paint;
-//     }
-    return true;
+    }
+
+    return ok;
 
 }
 
