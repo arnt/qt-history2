@@ -13,12 +13,6 @@
 
 #include <limits.h>
 
-#if defined(QT_NO_REGEXP_CAPTURE) && !defined(QT_NO_REGEXP_BACKREF)
-#define QT_NO_REGEXP_BACKREF
-#endif
-
-//#undef DEBUG // ###
-
 /*
   WARNING!  Be sure to read qregexp.tex before modifying this file.  And drop an
   email to Jasmin Blanchette (jasmin@trolltech.com).
@@ -116,8 +110,9 @@
 
   If <b><em>E</em></b> and <b><em>F</em></b> are two regular expressions, you
   can also write <b><em>E</em>|<em>F</em></b> to match either <b><em>E</em></b>
-  or <b><em>F</em></b>.  Thus, <b>(min|max|opt)imum</b> matches either
-  <tt>minimum</tt>, <tt>maximum</tt> or <tt>optimum</tt>.
+  or <b><em>F</em></b>.  Thus, a mathematician might write
+  <b>(min|max|opt)imum</b> to match <tt>minimum</tt>, <tt>maximum</tt> or
+  <tt>optimum</tt>.
 
   In wildcard mode, there are only four primitives:
   <ul plain>
@@ -706,7 +701,7 @@ QArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
 {
     mmStr = &str;
     mmIn = str.unicode();
-    if ( mmIn == 0 )
+    if ( mmIn == 0 ) // ### cannot happen, right?
 	mmIn = &QChar::null;
     mmPos = pos;
     mmLen = str.length();
@@ -714,31 +709,25 @@ QArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
     mmMatchedLen = -1;
 
     bool matched = FALSE;
-    if ( valid ) {
-	if ( mmPos >= 0 && mmPos <= mmLen ) {
+    if ( valid && mmPos >= 0 && mmPos <= mmLen ) {
 #ifndef QT_NO_REGEXP_OPTIM
-	    if ( mmPos <= mmLen - minl ) {
-		if ( caretAnchored || oneTest ) {
-		    matched = testMatch();
-		} else {
-
-		    if ( useGoodStringHeuristic )
-			matched = goodStringMatch();
-		    else
-			matched = badCharMatch();
-		}
-	    }
-#else
-	    if ( oneTest )
+	if ( mmPos <= mmLen - minl ) {
+	    if ( caretAnchored || oneTest ) {
 		matched = testMatch();
-	    else
-		matched = bruteMatch();
-#endif
-	} else {
-#if defined(CHECK_RANGE)
-	    qWarning( "QRegExpEngine::match: Index %d out of range", mmPos );
-#endif
+	    } else {
+
+		if ( useGoodStringHeuristic )
+		    matched = goodStringMatch();
+		else
+		    matched = badCharMatch();
+	    }
 	}
+#else
+	if ( oneTest )
+	    matched = testMatch();
+	else
+	    matched = bruteMatch();
+#endif
     }
 
     if ( matched ) {
@@ -794,7 +783,7 @@ int QRegExpEngine::createState( int bref )
 #endif
 
 /*
-  The two following functions add a transition between all pairs of stantes
+  The two following functions add a transition between all pairs of states
   (i, j) where i is fond in from, and j is found in to.
 
   Cat-transitions are distinguished from plus-transitions for capturing
@@ -957,9 +946,12 @@ void QRegExpEngine::dump() const
     qDebug( "Case %ssensitive engine", cs ? "" : "in" );
     qDebug( "  States" );
     for ( i = 0; i < ns; i++ ) {
-	qDebug( "  %d in %d%s", i, s[i]->atom,
+	qDebug( "  %d%s", i,
 		i == InitialState ? " (initial)" :
 		i == FinalState ? " (final)" : "" );
+#ifndef QT_NO_REGEXP_CAPTURE
+	qDebug( "    in atom %d", s[i]->atom );
+#endif
 	int m = s[i]->match;
 	if ( (m & CharClassBit) != 0 ) {
 	    qDebug( "    match character class %d", m ^ CharClassBit );
@@ -1157,6 +1149,7 @@ bool QRegExpEngine::testAnchor( int i, int a, const int *capBegin )
 	}
     }
 #endif
+#ifndef QT_NO_REGEXP_CAPTURE
 #ifndef QT_NO_REGEXP_BACKREF
     for ( j = 0; j < nbrefs; j++ ) {
 	if ( (a & (Anchor_BackRef1Empty << j)) != 0 ) {
@@ -1164,6 +1157,7 @@ bool QRegExpEngine::testAnchor( int i, int a, const int *capBegin )
 		return FALSE;
 	}
     }
+#endif
 #endif
     return TRUE;
 }
@@ -1253,9 +1247,7 @@ bool QRegExpEngine::badCharMatch()
     }
     return FALSE;
 }
-
 #else
-
 bool QRegExpEngine::bruteMatch()
 {
     for ( mmPos = 0; mmPos <= mmLen; mmPos++ ) {
@@ -1297,7 +1289,7 @@ bool QRegExpEngine::testMatch()
     while ( ncur > 0 && i <= mmLen - mmPos && !match )
 #endif
     {
-	int ch = mmIn[mmPos + i].unicode();
+	int ch = ( i < mmLen - mmPos ) ? mmIn[mmPos + i].unicode() : 0;
 	for ( j = 0; j < ncur; j++ ) {
 	    int cur = mmCurStack[j];
 	    State *scur = s[cur];
@@ -1413,14 +1405,12 @@ bool QRegExpEngine::testMatch()
 #ifndef QT_NO_REGEXP_CAPTURE
 			capBegin = mmNextCapBegin + m * ncap;
 			capEnd = mmNextCapEnd + m * ncap;
-#endif
 
 		    /*
 		      Otherwise, we'll first maintain captures in temporary
 		      arrays, and decide at the end whether it's best to keep
 		      the previous capture zones or the new ones.
 		    */
-#ifndef QT_NO_REGEXP_CAPTURE
 		    } else {
 			capBegin = mmTempCapBegin;
 			capEnd = mmTempCapEnd;
@@ -2457,16 +2447,16 @@ void QRegExpEngine::parseAtom( Box *box )
 
 void QRegExpEngine::parseFactor( Box *box )
 {
-#define YYREDO() \
-	yyIn = in, yyPos0 = pos0, yyPos = pos, yyLen = len, yyCh = ch, \
-	*yyCharClass = charClass, yyMinRep = 0, yyMaxRep = 0, yyTok = tok
-
 #ifndef QT_NO_REGEXP_CAPTURE
     int atom = startAtom( yyMayCapture && yyTok == Tok_LeftParen );
 #else
     static const int atom = 0;
 #endif
 #ifndef QT_NO_REGEXP_QUANTIFIER
+#define YYREDO() \
+	yyIn = in, yyPos0 = pos0, yyPos = pos, yyLen = len, yyCh = ch, \
+	*yyCharClass = charClass, yyMinRep = 0, yyMaxRep = 0, yyTok = tok
+
     const QChar *in = yyIn;
     int pos0 = yyPos0;
     int pos = yyPos;
@@ -2895,13 +2885,10 @@ int QRegExp::matchedLength() const
 */
 QString QRegExp::capturedText( int nth ) const
 {
-    if ( nth < 0 || nth >= (int) priv->captured.size() / 2 ) {
-#if defined(CHECK_RANGE)
-	qWarning( "QRegExp::capturedText: Index %d out of range", nth );
-#endif
+    if ( nth < 0 || nth >= (int) priv->captured.size() / 2 )
 	return QString::null;
-    }
-    return capturedTexts()[nth];
+    else
+	return capturedTexts()[nth];
 }
 
 /*!  Returns a list of the captured text strings.
