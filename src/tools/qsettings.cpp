@@ -230,7 +230,7 @@ static HANDLE openlock( const QString &name, int type )
 
     // open the lockfile
     HANDLE fd = open( QFile::encodeName( lockfile ),
-		   O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
+		      O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
 
     if ( fd < 0 ) {
  	// failed to open the lock file, most likely because of permissions
@@ -243,7 +243,11 @@ static HANDLE openlock( const QString &name, int type )
     fl.l_start = 0;
     fl.l_len = 0;
     if ( fcntl( fd, F_SETLKW, &fl ) == -1 ) {
-	qWarning( "fcntl: %s", strerror( errno ) );
+	// the lock failed, so we should fail silently, so that people
+	// using filesystems that do not support locking don't see
+	// numerous warnings about a failed lock
+	close( fd );
+	fd = -1;
     }
 
     return fd;
@@ -265,9 +269,8 @@ static void closelock( HANDLE fd )
     fl.l_whence = SEEK_SET;
     fl.l_start = 0;
     fl.l_len = 0;
-    if ( fcntl( fd, F_SETLKW, &fl ) == -1 ) {
-	qWarning( "fcntl: %s", strerror( errno ) );
-    }
+    // ignore the return value, so that the unlock fails silently
+    (void) fcntl( fd, F_SETLKW, &fl );
 
     close( fd );
 }
