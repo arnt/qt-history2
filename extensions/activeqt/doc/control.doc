@@ -610,8 +610,8 @@
     \row \i \c -regserver \i Registers the server in the system registry
     \row \i \c -unregserver \i Unregisters the server from the system registry
     \row \i \c -activex \i Starts the application as an ActiveX server
-    \row \i \c{-dumpidl <file>} \i Writes the server's IDL to the
-    specified file
+    \row \i \c{-dumpidl <file> -version x.y} \i Writes the server's IDL to the
+    specified file. The type library will have version x.y
     \endtable
 
     In-process servers can be registered using the \c regsvr32 tool available
@@ -843,7 +843,7 @@
 
     Note that both keys and values are case sensitive.
 
-    The following declares a second version of a class that exposes only its
+    The following declares version 2.0 of a class that exposes only its
     own API, and is available in the "Insert Objects" dialog of Microsoft
     Office applications.
 
@@ -900,9 +900,9 @@
 
     If a single license key for the control is not sufficient (ie. you want 
     differnet developers to receive different license keys) you can specify an 
-    empty key to indicate that the control requires a license, and ### reimplement 
-    a function to verify that a license exists on the system (ie. through a 
-    license file).
+    empty key to indicate that the control requires a license, and reimplement 
+    \l QAxFactory::validateLicenseKey() to verify that a license exists on the 
+    system (ie. through a license file).
 
     \section2 More Interfaces
 

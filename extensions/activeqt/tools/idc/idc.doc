@@ -13,8 +13,9 @@
     \i Option
     \i Result
     \row
-    \i dll -idl idl
-    \i Writes the IDL of the server \e dll to the file \e idl
+    \i dll -idl idl -version x.y
+    \i Writes the IDL of the server \e dll to the file \e idl. The
+       type library wll have version x.y.
     \row
     \i dll -tlb tlb
     \i Replaces the type library in \e dll with \e tlb
