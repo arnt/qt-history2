@@ -789,7 +789,9 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 			     QFontPrivate::TextRun *cache )
 {
     const QChar *chars = str.unicode() + pos, *last = 0;
-    QFont::Script current = QFont::NoScript, tmp;
+    QFont::Script current = QFont::NoScript;
+    QFont::Script tmp = QFont::NoScript;
+
     int i, w = 0, pw = 0, lastlen = 0;
 
     // for non-spacing marks

@@ -2239,7 +2239,7 @@ QPSPrinterFontPrivate::QPSPrinterFontPrivate()
 
 unsigned short QPSPrinterFontPrivate::insertIntoSubset( unsigned short u )
 {
-    unsigned short retval;
+    unsigned short retval = 0;
     if ( subset.find(u) == subset.end() ) {
         if ( !downloaded ) { // we need to add to the page subset
             subset.insert( u, subsetCount ); // mark it as used
@@ -3294,7 +3294,7 @@ void QPSPrinterFontTTF::uni2glyphSetup()
 
   //fprintf(stderr,"cmap version %d (should be 0), %d maps\n",version,nmaps);
 
-  ULONG offset;
+  ULONG offset = 0;
   int i;
   for (i=0; i<nmaps; i++) {
     USHORT platform = getUSHORT(cmap+pos); pos+=2;

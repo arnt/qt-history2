@@ -464,7 +464,7 @@ ushort QFontArabic68Codec::characterFromUnicode( const QString &str, int pos ) c
     const QChar ch = QComplexText::shapedCharacter(str, pos);
     uchar r = ch.row();
     uchar c = ch.cell();
-    ushort data;
+    ushort data = 0;
     if ( r == 0 && c < 0x80 ) {
 	data = c;
     } else if ( r == 0xfe ) {

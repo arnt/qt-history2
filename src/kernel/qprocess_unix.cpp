@@ -806,7 +806,7 @@ void QProcess::socketRead( int fd )
     if ( fd == 0 )
 	return;
     const int bufsize = 4096;
-    QByteArray *buffer;
+    QByteArray *buffer = 0;
     uint oldSize;
     int n;
     if ( fd == d->proc->socketStdout ) {

@@ -4237,8 +4237,12 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
     int w = bi.biWidth,	 h = bi.biHeight,  nbits = bi.biBitCount;
     int t = bi.biSize,	 comp = bi.biCompression;
     int red_mask, green_mask, blue_mask;
-    int red_shift, green_shift, blue_shift;
-    int red_scale, green_scale, blue_scale;
+    int red_shift = 0;
+    int green_shift = 0;
+    int blue_shift = 0;
+    int red_scale = 0;
+    int green_scale = 0;
+    int blue_scale = 0;
 
     if ( !(nbits == 1 || nbits == 4 || nbits == 8 || nbits == 24 || nbits == 32) ||
 	bi.biPlanes != 1 || comp > BMP_BITFIELDS )
