@@ -30,7 +30,7 @@ QDesignerSettings::QDesignerSettings()
     QStringList paths = defaultFormTemplatePaths();
     foreach (QString path, paths) {
         if (!QDir::current().exists(path))
-            QDir::current().mkdir(path, QDir::Recursive);
+            QDir::current().mkpath(path);
     }
 }
 
