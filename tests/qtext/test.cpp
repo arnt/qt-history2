@@ -50,8 +50,9 @@ MyView::MyView()
     
     QString aStr = testStr1;
     aStr += aStr;
-
-    area->appendParagraph( QRichTextString(aStr, f) );
+    QRichTextString string(aStr, f);
+    printf("string has length %d\n", string.length());
+    area->appendParagraph( string ); 
 
     aStr = QString::fromUtf8(testStr);
 

@@ -61,6 +61,9 @@ public:
 
     QRichTextString();
     QRichTextString(const QString &str, QRichTextFormat *f);
+    QRichTextString(const QRichTextString &);
+    QRichTextString &operator = (const QRichTextString &);
+    
     QString toString() const;
 
     Char &at( int i ) const;
@@ -72,7 +75,7 @@ public:
     void append(Char c);
     void clear();
     void setLength(int newLen);
-    
+
     void setFormat( int index, QRichTextFormat *f, bool useCollection );
 
 private:
@@ -285,6 +288,26 @@ private:
 
 // =======================================================================
 
+inline QRichTextString::QRichTextString(const QRichTextString &other)
+{
+    cache = other.cache;
+    len = other.len;
+    maxLen = len;
+    data = new Char[len];
+    memcpy(data, other.data, len*sizeof(Char));    
+}
+    
+inline QRichTextString &QRichTextString::operator = (const QRichTextString &other)
+{
+    delete [] data;
+    cache = other.cache;
+    len = other.len;
+    maxLen = len;
+    data = new Char[len];
+    memcpy(data, other.data, len*sizeof(Char));    
+    return *this;
+}
+
 inline QRichTextString::Char &QRichTextString::at( int i ) const
 {
     return data[ i ];
@@ -302,9 +325,10 @@ inline int QRichTextString::length() const
 
 inline void QRichTextString::append(Char c)
 {
-    if(len + 1 >= maxLen) 
+    if(len + 1 >= maxLen)
 	setLength(2*maxLen);
     data[len] = c;
+    cache += c.c;
     len++;
 }
 
@@ -316,7 +340,7 @@ inline void QRichTextString::setLength(int newLen)
     data = newData;
     maxLen = newLen;
 }
-    
+
 
 inline void QRichTextString::clear()
 {

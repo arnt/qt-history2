@@ -99,6 +99,7 @@ void QRichTextString::insert( int index, const QString &s, QRichTextFormat *f )
 	data[ (int)index + i ].format = f;
     }
     cache.insert( index, s );
+    len += s.length();
 }
 
 void QRichTextString::truncate( int index )
@@ -163,10 +164,11 @@ QTextRow::~QTextRow()
 
 void QTextRow::paint(QPainter *p, int _x, int _y)
 {
+    printf("QTextRow::paint\n");
     // no rich text formatting....
     // ### no alignment
     // ### should be reordered text
-    //p->drawText(xPos + _x, yPos + _y, reorderedText );
+    p->drawText(xPos + _x, yPos + _y, reorderedText.toString() );
 }
 
 void QTextRow::setPosition(int _x, int _y)
@@ -819,6 +821,7 @@ QRect QTextArea::lineRect(int x, int y, int h) const
 
 void QTextArea::paint(QPainter *p, int x, int y)
 {
+    printf("QTextarea::paint\n");
     QListIterator<QParagraph> it(paragraphs);
     while(it.current()) {
 	(*it)->paint(p, x, y);
@@ -878,7 +881,7 @@ void QParagraph::layout()
 
 int QParagraph::findLineBreak(int pos)
 {
-    printf("findLineBreak\n");
+    printf("findLineBreak start=%d, text.length=%d\n", pos, text.length());
     int start = pos;
     QFontMetrics fm(QApplication::font());
 
@@ -942,6 +945,7 @@ void QParagraph::addLine(int start, int length)
 
 void QParagraph::paint(QPainter *p, int x, int y)
 {
+    printf("QParagraph::paint\n");
     // #### add a check if we need to paint at all!!!
 
     x += xPos;
