@@ -1119,8 +1119,14 @@ bool QApplication::processNextEvent( bool canWait )
 	return FALSE;
     }
 
-    if(canWait && !zero_timer_count)
+    if(canWait && !zero_timer_count) {
+#if 1
 	RunApplicationEventLoop();
+#else
+	EventRef event;
+	ReceiveNextEvent(0, 0, kEventDurationForever, FALSE, &event);
+#endif
+    }
 
 #if defined(QT_THREAD_SUPPORT)
     qApp->unlock( FALSE );
@@ -1670,6 +1676,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			}
 			qt_button_down = NULL;
 			mouse_button_state = 0;
+#ifdef DEBUG_MOUSE_MAPS
+			qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, 
+			       mouse_button_state);
+#endif
 		    } 
 		} else {
 		    handled_event = FALSE;
@@ -1694,10 +1704,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	if( (ekind == kEventMouseDown && mouse_button_state ) ||
 	    (ekind == kEventMouseUp && !mouse_button_state) ) {
 #ifdef DEBUG_MOUSE_MAPS
-	    qDebug("Dropping mouse event..");
+	    qDebug("Dropping mouse event.. %d %d", ekind == kEventMouseDown, mouse_button_state);
 #endif
-	    return 0;
-	}
+	    break;
+	} 
+#ifdef DEBUG_MOUSE_MAPS
+	else qDebug("Handling mouse: %d", ekind == kEventMouseDown);
+#endif
 
 	QEvent::Type etype = QEvent::None;
 	int keys;
@@ -1731,7 +1744,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		etype = QEvent::MouseButtonDblClick;
 	    else
 		etype = QEvent::MouseButtonPress;
-	    after_state  = button;
+	    after_state = button;
 	    break;
 	}
 	case kEventMouseUp:
@@ -1778,6 +1791,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	//although it looks hacky it is VERY intentional..
 	if ( widget && app_do_modal && !qt_try_modal(widget, event) ) {
 	    mouse_button_state = after_state;
+#ifdef DEBUG_MOUSE_MAPS
+	    qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, mouse_button_state);
+#endif
 	    return 1;
 	}
 
@@ -1820,10 +1836,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    special_close = TRUE;
 	    }
 	    if(special_close) { 	    //We will resend this event later, so just return
-		if(widget != popupwidget) // We've already sent the event to the correct widget
+		if(widget != popupwidget) { // We've already sent the event to the correct widget
 		    qt_replay_event = CopyEvent(event);
-		else 
+		} else {
 		    mouse_button_state = after_state;
+#ifdef DEBUG_MOUSE_MAPS
+		    qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, 
+			   mouse_button_state);
+#endif
+		}
 		break;
 	    }
 	}
@@ -1835,6 +1856,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    break;
 		} 
 		mouse_button_state = 0;
+#ifdef DEBUG_MOUSE_MAPS
+		qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, mouse_button_state);
+#endif
 		return 0;
 	    } else if(QWidget* w = widget) {
 		while(w->focusProxy())
@@ -1847,6 +1871,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    }
 	}
 	mouse_button_state = after_state;
+#ifdef DEBUG_MOUSE_MAPS
+	qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, mouse_button_state);
+#endif
 
 	switch(ekind) {
 	case kEventMouseDragged:

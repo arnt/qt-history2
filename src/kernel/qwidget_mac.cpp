@@ -335,32 +335,21 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 static QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *)
 {
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
-    bool handled_event = TRUE;
-    switch(eclass) {
-    case kEventClassWindow: {
+    if(eclass == kEventClassWindow && ekind == kEventWindowGetRegion) {
 	WindowRef wid;
 	GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
 			  sizeof(WindowRef), NULL, &wid);
-	if(ekind == kEventWindowGetRegion) {
-	    CallNextEventHandler(er, event);
-	    WindowRegionCode wcode;
-	    GetEventParameter(event, kEventParamWindowRegionCode, typeWindowRegionCode, NULL,
-			      sizeof(wcode), NULL, &wcode);
-	    RgnHandle rgn;
-	    GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, NULL,
-			      sizeof(rgn), NULL, &rgn);
-	    handled_event = qt_window_rgn((WId)wid, wcode, rgn, FALSE);
-	} else {
-	    handled_event = FALSE;
-	}
-	break; }
-    default:
-	handled_event = FALSE;
-	break;
+	CallNextEventHandler(er, event);
+	WindowRegionCode wcode;
+	GetEventParameter(event, kEventParamWindowRegionCode, typeWindowRegionCode, NULL,
+			  sizeof(wcode), NULL, &wcode);
+	RgnHandle rgn;
+	GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, NULL,
+			  sizeof(rgn), NULL, &rgn);
+	qt_window_rgn((WId)wid, wcode, rgn, FALSE);
+	return noErr; //we eat the event
     }
-    if(!handled_event) //let the event go through
-	return CallNextEventHandler(er, event);
-    return noErr; //we eat the event
+    return CallNextEventHandler(er, event); //let the event go through
 }
 static EventTypeSpec window_events[] = {
     { kEventClassWindow, kEventWindowGetRegion }
@@ -654,6 +643,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	mac_window_count--;
 	DisposeWindow((WindowPtr)destroyw);
     }
+#ifndef QMAC_NO_QUARTZ
+    if(ctx)
+	CGContextRelease(ctx);
+    ctx = NULL;
+#endif
 }
 
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
@@ -690,6 +684,11 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
             qt_leave_modal( this );
         else if ( testWFlags(WType_Popup) )
             qApp->closePopup( this );
+#ifndef QMAC_NO_QUARTZ
+	if(ctx)
+	    CGContextRelease(ctx);
+	ctx = NULL;
+#endif
 	if ( destroyWindow && isTopLevel() && hd && own_id) {
 	    mac_window_count--;
 	    if(window_event) {
@@ -1888,17 +1887,21 @@ bool QWidget::isClippedRegionDirty()
 }
 
 #ifndef QMAC_NO_QUARTZ
-CGContextRef QWidget::macCGClippedContext(bool do_children) const
+CGContextRef QWidget::macCGContext(bool do_children) const
 {
-    CGContextRef ctx = QPaintDevice::macCGContext();
+    QWidget *that = (QWidget*)this;
     if(!extra)
-	createExtra();
-    if(extra->clip_dirty || (do_children && extra->child_dirty) ||
-       (do_children && !extra->ctx_children_clipped)) {
-	extra->ctx_children_clipped = do_children;
-	QRegion reg = clippedRegion(do_children);
+	that->createExtra();
+    bool dirty = !ctx ||
+		 extra->clip_dirty || (do_children && extra->child_dirty) ||
+		 (do_children && !extra->ctx_children_clipped);
+    if(!ctx)
+	CreateCGContextForPort(GetWindowPort((WindowPtr)hd), &that->ctx);
+    if(dirty) {
 	Rect r;
 	ValidWindowRect((WindowPtr)hd, &r);
+	extra->ctx_children_clipped = do_children;
+	QRegion reg = that->clippedRegion(do_children);
 	ClipCGContextToRegion(ctx, &r, reg.handle(TRUE));
     }
     return ctx;
