@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#210 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#211 $
 **
 ** Implementation of QWidget class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#210 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#211 $");
 
 
 /*!
@@ -1563,7 +1563,7 @@ const QColorGroup &QWidget::colorGroup() const
 {
     if ( testWFlags(WState_Disabled) )
 	return pal.disabled();
-    else if ( qApp->focus_widget == this )
+    else if ( qApp->focus_widget == this && focusPolicy() != NoFocus )
 	return pal.active();
     else
 	return pal.normal();
