@@ -68,11 +68,13 @@ QSqlSelectCursor::QSqlSelectCursor( const QString& query, QSqlDatabase* db )
     d = new QSqlSelectCursorPrivate;
     d->query = query;
     setMode( ReadOnly );
-    exec( query );
+    if ( !query.isNull() )
+	exec( query );
 }
 
 /*! Constructs a copy of \a other */
 QSqlSelectCursor::QSqlSelectCursor( const QSqlSelectCursor& other )
+    : QSqlCursor( other )
 {
     d = new QSqlSelectCursorPrivate;
     d->query = other.d->query;
