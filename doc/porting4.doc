@@ -395,5 +395,9 @@ fileInfoList() and drives() now return a QList<QFileInfo> and not a
 QPtrList<QFileInfo> *. Code using these methods will have to be
 adapted.  
 
+\section1 QFtp and QHttp
+
+Both classes no longer subclass from QNetworkProtocol. They only provide
+the direct interface to FTP and HTTP.
 
 */
