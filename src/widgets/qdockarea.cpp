@@ -542,7 +542,8 @@ QDockArea::QDockArea( Orientation o, HandlePosition h, QWidget *parent, const ch
 
 QDockArea::~QDockArea()
 {
-    dockWindows.deleteAll();
+    while (!dockWindows.isEmpty())
+	delete dockWindows.takeFirst();
 }
 
 /*!

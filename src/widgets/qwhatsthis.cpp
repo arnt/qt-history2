@@ -472,7 +472,11 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
     if ( state == Waiting && qApp )
 	QApplication::restoreOverrideCursor();
 #endif
-    dict.deleteAll();
+    QHash<QWidget *, WhatsThisItem *>::ConstIterator it = dict.constBegin();
+    while (it != dict.constEnd()) {
+	delete it.value();
+	++it;
+    }
     wt = 0;
 }
 

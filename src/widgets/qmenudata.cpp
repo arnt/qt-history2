@@ -151,8 +151,10 @@ QMenuData::QMenuData()
 
 QMenuData::~QMenuData()
 {
-    if (mitemsAutoDelete)
-	mitems->deleteAll();
+    if (mitemsAutoDelete) {
+	while (!mitems->isEmpty())
+	    delete mitems->takeFirst();
+    }
     delete mitems;
     delete d;
 }
@@ -803,9 +805,12 @@ void QMenuData::clear()
 	if ( mi->popup_menu )
 	    menuDelPopup( mi->popup_menu );
     }
-    if (mitemsAutoDelete)
-	mitems->deleteAll();
-    mitems->clear();
+    if (mitemsAutoDelete) {
+	while (!mitems->isEmpty())
+	    delete mitems->takeFirst();
+    } else {
+	mitems->clear();
+    }
     if ( !QApplication::closingDown() )		// avoid trouble
 	menuContentsChanged();
 }

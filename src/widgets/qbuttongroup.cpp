@@ -15,7 +15,7 @@
 #include "qbuttongroup.h"
 #ifndef QT_NO_BUTTONGROUP
 #include "qbutton.h"
-#include "qlist.h"
+#include "qmap.h"
 #include "qapplication.h"
 #include "qradiobutton.h"
 #include "qevent.h"
@@ -85,22 +85,13 @@
     radiobuttons\endlink in the group are treated exclusively.
 */
 
-struct QButtonItem
-{
-    QButton *button;
-    int id;
-};
-
-// ### 4.0: get rid of QButtonList class
-class QButtonList : public QList<QButtonItem *>
+// ### 4.0: get rid of QButtonMap class
+class QButtonMap : public QMap<int, QButton *>
 {
 public:
-    QButtonList() {}
-    ~QButtonList() {}
+    QButtonMap() {}
+    ~QButtonMap() {}
 };
-
-
-typedef QListIterator<QButtonItem*> QButtonListIt;
 
 
 /*!
@@ -169,7 +160,7 @@ QButtonGroup::QButtonGroup( int strips, Orientation orientation,
 
 void QButtonGroup::init()
 {
-    buttons = new QButtonList;
+    buttons = new QButtonMap;
     excl_grp = FALSE;
     radio_excl = TRUE;
 }
@@ -178,14 +169,14 @@ void QButtonGroup::init()
 
 QButtonGroup::~QButtonGroup()
 {
-    QButtonList *tmp = buttons;
+    QButtonMap *tmp = buttons;
     buttons = 0;
-    for (int i = 0; i < tmp->size(); ++i) {
-	QButtonItem *bi = tmp->at(i);
-	if (bi)
-	    bi->button->setGroup(0);
+
+    QButtonMap::ConstIterator it = tmp->constBegin();
+    while (it != tmp->constEnd()) {
+	it.value()->setGroup(0);
+	++it;
     }
-    tmp->deleteAll();
     delete tmp;
 }
 
@@ -227,30 +218,24 @@ int QButtonGroup::insert( QButton *button, int id )
 	button->group()->remove( button );
 
     static int seq_no = -2;
-    QButtonItem *bi = new QButtonItem;
 
     if ( id < -1 )
-	bi->id = seq_no--;
+	id = seq_no--;
     else if ( id == -1 )
-	bi->id = buttons->count();
-    else
-	bi->id = id;
+	id = buttons->count();
 
-    bi->button = button;
     button->setGroup(this);
-    buttons->append( bi );
+    buttons->insert(id, button);
 
     connect( button, SIGNAL(pressed()) , SLOT(buttonPressed()) );
     connect( button, SIGNAL(released()), SLOT(buttonReleased()) );
     connect( button, SIGNAL(clicked()) , SLOT(buttonClicked()) );
     connect( button, SIGNAL(toggled(bool)) , SLOT(buttonToggled(bool)) );
 
-    if ( button->isToggleButton() && !button->isOn() &&
-	 selected() && (selected()->focusPolicy() & TabFocus) != 0 )
-	button->setFocusPolicy( (FocusPolicy)(button->focusPolicy() &
-					      ~TabFocus) );
-
-    return bi->id;
+    if (button->isToggleButton() && !button->isOn()
+	    && selected() && (selected()->focusPolicy() & TabFocus))
+	button->setFocusPolicy((FocusPolicy)(button->focusPolicy() & ~TabFocus));
+    return id;
 }
 
 /*!
@@ -269,18 +254,15 @@ int QButtonGroup::count() const
 
 void QButtonGroup::remove( QButton *button )
 {
-    if ( !buttons )
-	return;
-
-    QButtonItem *item = 0;
-    for (int i = 0; i < buttons->size(); ++i) {
-	item = buttons->at(i);
-	if (item && item->button == button) {
-	    delete buttons->takeAt(i);
+    QButtonMap::Iterator it = buttons->begin();
+    while (it != buttons->end()) {
+        if (it.value() == button) {
+	    buttons->erase(it);
 	    button->setGroup(0);
 	    button->disconnect(this);
-	    return;
+	    break;
 	}
+        ++it;
     }
 }
 
@@ -292,13 +274,7 @@ void QButtonGroup::remove( QButton *button )
 
 QButton *QButtonGroup::find( int id ) const
 {
-    QButtonItem *item = 0;
-    for (int i = 0; i < buttons->size(); ++i) {
-	item = buttons->at(i);
-	if (item && item->id == id)
-	    return item->button;
-    }
-    return 0;
+    return buttons->value(id);
 }
 
 
@@ -341,20 +317,11 @@ QButton *QButtonGroup::find( int id ) const
 
 void QButtonGroup::buttonPressed()
 {
-    // introduce a QButtonListIt if calling anything
-    int id = -1;
-    QButtonItem *item = 0;
-    QButton *senderButton = ::qt_cast<QButton*>(sender());		// object that sent the signal
+    QButton *senderButton = ::qt_cast<QButton*>(sender());
     Q_ASSERT(senderButton);
-    for (int i = 0; i < buttons->size(); ++i) {
-	item = buttons->at(i);
-	if (item && senderButton == item->button) {
-	    id = item->id;
-	    break;
-	}
-    }
-    if ( id != -1 )
-	emit pressed( id );
+    int senderId = id(senderButton);
+    if (senderId != -1)
+	emit pressed(senderId);
 }
 
 /*!
@@ -365,20 +332,11 @@ void QButtonGroup::buttonPressed()
 
 void QButtonGroup::buttonReleased()
 {
-    // introduce a QButtonListIt if calling anything
-    int id = -1;
-    QButtonItem *item = 0;
-    QButton *senderButton = ::qt_cast<QButton*>(sender());		// object that sent the signal
+    QButton *senderButton = ::qt_cast<QButton*>(sender());
     Q_ASSERT(senderButton);
-    for (int i = 0; i < buttons->size(); ++i) {
-	item = buttons->at(i);
-	if (item && senderButton == item->button) {
-	    id = item->id;
-	    break;
-	}
-    }
-    if ( id != -1 )
-	emit released( id );
+    int senderId = id(senderButton);
+    if (senderId != -1)
+	emit released(senderId);
 }
 
 /*!
@@ -389,22 +347,12 @@ void QButtonGroup::buttonReleased()
 
 void QButtonGroup::buttonClicked()
 {
-    int id = -1;
-    QButtonItem *item = 0;
-    QButton *senderButton = ::qt_cast<QButton*>(sender());		// object that sent the signal
+    QButton *senderButton = ::qt_cast<QButton*>(sender());
     Q_ASSERT(senderButton);
-    for (int i = 0; i < buttons->size(); ++i) {
-	item = buttons->at(i);
-	if (item && senderButton == item->button) {
-	    id = item->id;
-	    break;
-	}
-    }
-    
-    if ( id != -1 )
-	emit clicked( id );
+    int senderId = id(senderButton);
+    if (senderId != -1)
+	emit clicked(senderId);
 }
-
 
 /*!
   \internal
@@ -414,10 +362,9 @@ void QButtonGroup::buttonClicked()
 
 void QButtonGroup::buttonToggled( bool on )
 {
-    // introduce a QButtonListIt if calling anything
     if ( !on || !excl_grp && !radio_excl )
 	return;
-    QButton *senderButton = ::qt_cast<QButton*>(sender());		// object that sent the signal
+    QButton *senderButton = ::qt_cast<QButton*>(sender());
     Q_ASSERT( senderButton );
     Q_ASSERT( senderButton->isToggleButton() );
 
@@ -425,38 +372,37 @@ void QButtonGroup::buttonToggled( bool on )
 	return;
     
     bool hasTabFocus = false;
-    QButtonItem *item = 0;
-    int i;
 
-    for (i = 0; i < buttons->size(); ++i) {
-	item = buttons->at(i);
-	if (item && (excl_grp || ::qt_cast<QRadioButton*>(item->button))
-	    && (item->button->focusPolicy() & TabFocus)) {
+    QButtonMap::ConstIterator it = buttons->constBegin();
+    while (it != buttons->constEnd()) {
+	if ((excl_grp || ::qt_cast<QRadioButton*>(it.value()))
+		&& (it.value()->focusPolicy() & TabFocus)) {
 	    hasTabFocus = true;
 	    break;
 	}
-    }
-    
-    for (i = 0, item = 0; i < buttons->size(); ++i) {
-	item = buttons->at(i);
-	if (senderButton != item->button && item->button->isToggleButton()
-	     && item->button->isOn() && (excl_grp || qt_cast<QRadioButton*>(item->button)))
-	    item->button->setOn(false);
-	if ((excl_grp || ::qt_cast<QRadioButton*>(item->button))
-	    && item->button->isToggleButton() && hasTabFocus)
-	    item->button->setFocusPolicy((FocusPolicy)(item->button->focusPolicy()&~TabFocus));	
+        ++it;
     }
 
-    if ( hasTabFocus )
-	senderButton->setFocusPolicy((FocusPolicy)(senderButton->focusPolicy()|TabFocus));
+    it = buttons->constBegin();
+    while (it != buttons->constEnd()) {
+	if (senderButton != it.value() && it.value()->isToggleButton()
+		&& it.value()->isOn() && (excl_grp || qt_cast<QRadioButton *>(it.value())))
+	    it.value()->setOn(false);
+	if ((excl_grp || ::qt_cast<QRadioButton *>(it.value()))
+		&& it.value()->isToggleButton() && hasTabFocus)
+	    it.value()->setFocusPolicy((FocusPolicy)(it.value()->focusPolicy() & ~TabFocus));	
+	++it;
+    }
+    if (hasTabFocus)
+	senderButton->setFocusPolicy((FocusPolicy)(senderButton->focusPolicy() | TabFocus));
 }
 
 
 
 void QButtonGroup::setButton( int id )
 {
-    QButton * b = find( id );
-    if ( b )
+    QButton *b = find(id);
+    if (b)
 	b->setOn( TRUE );
 }
 
@@ -478,16 +424,11 @@ void QButtonGroup::setRadioButtonExclusive( bool on)
 void QButtonGroup::moveFocus( int key )
 {
     QWidget *f = qApp->focusWidget();
-
-    int i;
-    QButtonItem *item;
-    for (i = 0, item = 0; i < buttons->size(); ++i) {
-	item = buttons->at(i);
-	if (item && item->button == f )
-	    break;
-    }
-    
-    if ( !item || !item->button )
+    QButton *fb = ::qt_cast<QButton *>(f);
+    if (!fb)
+	return;
+    int fid = id(fb);
+    if (fid == -1)
 	return;
 
     QWidget * candidate = 0;
@@ -495,12 +436,10 @@ void QButtonGroup::moveFocus( int key )
 
     QPoint goal( f->mapToGlobal( f->geometry().center() ) );
 
-    for (i = 0, item = 0; i < buttons->size(); ++i) {
-	item = buttons->at(i);
-	if (!item || !item->button)
-	    break;
-	if (item->button != f && item->button->isEnabled()) {
-	    QPoint p(item->button->mapToGlobal(item->button->geometry().center()));
+    QButtonMap::ConstIterator it = buttons->constBegin();
+    while (it != buttons->constEnd()) {
+	if (it.value() != f && it.value()->isEnabled()) {
+	    QPoint p(it.value()->mapToGlobal(it.value()->geometry().center()));
 	    int score = (p.y() - goal.y())*(p.y() - goal.y()) +
 			(p.x() - goal.x())*(p.x() - goal.x());
 	    bool betterScore = score < bestScore || !candidate;
@@ -508,10 +447,10 @@ void QButtonGroup::moveFocus( int key )
 	    case Key_Up:
 		if ( p.y() < goal.y() && betterScore ) {
 		    if ( QABS( p.x() - goal.x() ) < QABS( p.y() - goal.y() ) ) {
-			candidate = item->button;
+			candidate = it.value();
 			bestScore = score;
-		    } else if ( item->button->x() == f->x() ) {
-			candidate = item->button;
+		    } else if ( it.value()->x() == f->x() ) {
+			candidate = it.value();
 			bestScore = score/2;
 		    }
 		}
@@ -519,10 +458,10 @@ void QButtonGroup::moveFocus( int key )
 	    case Key_Down:
 		if ( p.y() > goal.y() && betterScore ) {
 		    if ( QABS( p.x() - goal.x() ) < QABS( p.y() - goal.y() ) ) {
-			candidate = item->button;
+			candidate = it.value();
 			bestScore = score;
-		    } else if ( item->button->x() == f->x() ) {
-			candidate = item->button;
+		    } else if ( it.value()->x() == f->x() ) {
+			candidate = it.value();
 			bestScore = score/2;
 		    }
 		}
@@ -530,10 +469,10 @@ void QButtonGroup::moveFocus( int key )
 	    case Key_Left:
 		if ( p.x() < goal.x() && betterScore ) {
 		    if ( QABS( p.y() - goal.y() ) < QABS( p.x() - goal.x() ) ) {
-			candidate = item->button;
+			candidate = it.value();
 			bestScore = score;
-		    } else if ( item->button->y() == f->y() ) {
-			candidate = item->button;
+		    } else if ( it.value()->y() == f->y() ) {
+			candidate = it.value();
 			bestScore = score/2;
 		    }
 		}
@@ -541,16 +480,17 @@ void QButtonGroup::moveFocus( int key )
 	    case Key_Right:
 		if ( p.x() > goal.x() && betterScore ) {
 		    if ( QABS( p.y() - goal.y() ) < QABS( p.x() - goal.x() ) ) {
-			candidate = item->button;
+			candidate = it.value();
 			bestScore = score;
-		    } else if ( item->button->y() == f->y() ) {
-			candidate = item->button;
+		    } else if ( it.value()->y() == f->y() ) {
+			candidate = it.value();
 			bestScore = score/2;
 		    }
 		}
 		break;
 	    }
 	}
+        ++it;
     }
 
     QButton *buttoncand = qt_cast<QButton*>(candidate);
@@ -589,20 +529,15 @@ void QButtonGroup::moveFocus( int key )
 
 QButton *QButtonGroup::selected() const
 {
-    if ( !buttons )
-	return 0;
     QButton *candidate = 0;
-    QButtonItem *item = 0;
-    for (int i = 0; i < buttons->size(); ++i) {
-        item = buttons->at(i);
-	if (item
-	    && item->button
-	    && item->button->isToggleButton()
-	    && item->button->isOn()) {
- 	    if (candidate != 0)
+    QButtonMap::ConstIterator it = buttons->constBegin();
+    while (it != buttons->constEnd()) {
+	if (it.value()->isToggleButton() && it.value()->isOn()) {
+ 	    if (candidate)
  		return 0;
- 	    candidate = item->button;
+ 	    candidate = it.value();
 	}
+        ++it;
     }
     return candidate;
 }
@@ -633,13 +568,13 @@ int QButtonGroup::selectedId() const
     \sa selectedId();
 */
 
-int QButtonGroup::id( QButton * button ) const
+int QButtonGroup::id(QButton *button) const
 {
-    QButtonItem *item = 0;
-    for (int i = 0; i < buttons->size(); ++i) {
-	item = buttons->at(i);
-	if (item->button == button)
-	    return item->id;
+    QButtonMap::ConstIterator it = buttons->constBegin();
+    while (it != buttons->constEnd()) {
+	if (it.value() == button)
+	    return it.key();
+	++it;
     }
     return -1;
 }
@@ -652,12 +587,11 @@ bool QButtonGroup::event( QEvent * e )
 {
     if ( e->type() == QEvent::ChildInserted ) {
 	QChildEvent * ce = (QChildEvent *) e;
-	if ( radio_excl && qt_cast<QRadioButton*>(ce->child()) ) {
-	    QButton * button = (QButton *) ce->child();
-	    if ( button->isToggleButton() && !button->isOn() &&
-		 selected() && (selected()->focusPolicy() & TabFocus) != 0 )
-		button->setFocusPolicy( (FocusPolicy)(button->focusPolicy() &
-					      ~TabFocus) );
+	if (radio_excl) {
+	    QButton *button = qt_cast<QRadioButton*>(ce->child());
+	    if (button && button->isToggleButton() && !button->isOn()
+		    && selected() && (selected()->focusPolicy() & TabFocus))
+		button->setFocusPolicy((FocusPolicy)(button->focusPolicy() & ~TabFocus));
 	}
     }
     return QGroupBox::event( e );

@@ -22,7 +22,7 @@
 #ifndef QT_NO_BUTTONGROUP
 
 class QButton;
-class QButtonList;
+class QButtonMap;
 
 class Q_GUI_EXPORT QButtonGroup : public QGroupBox
 {
@@ -76,9 +76,10 @@ protected:
 
 private:
     void	init();
+
     bool	excl_grp;
     bool	radio_excl;
-    QButtonList *buttons; // ### 4.0: move to d-pointer
+    QButtonMap *buttons; // ### 4.0: move to d-pointer
 
 private:
 #if defined(Q_DISABLE_COPY)

@@ -138,7 +138,8 @@ QStatusBar::QStatusBar( QWidget * parent, const char *name )
 */
 QStatusBar::~QStatusBar()
 {
-    d->items.deleteAll();
+    while (!d->items.isEmpty())
+	delete d->items.takeFirst();
     delete d;
 }
 

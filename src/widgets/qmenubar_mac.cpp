@@ -101,8 +101,8 @@ public:
 	    DeleteMenu(GetMenuID(apple_menu));
 	    DisposeMenu(apple_menu);
 	}
-	popups.deleteAll();
-	popups.clear();
+	while (!popups.isEmpty())
+	    delete popups.takeFirst();
 	commands.clear();
 	if (mac_menubar) {
 	    DisposeMenuBar(mac_menubar);

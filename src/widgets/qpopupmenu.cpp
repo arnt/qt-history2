@@ -368,9 +368,12 @@ void QPopupMenu::performDelayedContentsChanged()
     }
     QPopupMenu* p = QMenuData::d->aPopup;
     if ( p && p->isVisible() ) {
-	if (p->mitemsAutoDelete)
-	    p->mitems->deleteAll();
-	p->mitems->clear();
+	if (p->mitemsAutoDelete) {
+	    while (!p->mitems->isEmpty())
+		delete p->mitems->takeFirst();
+	} else {
+	    p->mitems->clear();
+	}
 	for (int i = 0; i < mitems->size(); ++i) {
 	    QMenuItem *mi = mitems->at(i);
 	    if ( mi->id() != QMenuData::d->aInt && !mi->widget() )

@@ -1545,10 +1545,14 @@ QActionGroup::~QActionGroup()
     }
 
     delete d->separatorAction;
-    d->menubuttons.deleteAll();
-    d->comboboxes.deleteAll();
-    d->menuitems.deleteAll();
-    d->popupmenus.deleteAll();
+    while (!d->menubuttons.isEmpty())
+	delete d->menubuttons.takeFirst();
+    while (!d->comboboxes.isEmpty())
+	delete d->comboboxes.takeFirst();
+    while (!d->menuitems.isEmpty())
+	delete d->menuitems.takeFirst();
+    while (!d->popupmenus.isEmpty())
+	delete d->popupmenus.takeFirst();
     delete d;
 }
 

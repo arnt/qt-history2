@@ -286,7 +286,8 @@ QSplitter::QSplitter( Orientation o, QWidget *parent, const char *name )
 
 QSplitter::~QSplitter()
 {
-    d->list.deleteAll();
+    while (!d->list.isEmpty())
+	delete d->list.takeFirst();
     delete d;
 }
 

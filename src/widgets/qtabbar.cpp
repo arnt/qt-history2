@@ -346,7 +346,8 @@ QTabBar::~QTabBar()
     if ( d->toolTips )
 	delete d->toolTips;
 #endif
-    d->lstatic.deleteAll();
+    while (!d->lstatic.isEmpty())
+	delete d->lstatic.takeFirst();
     delete d;
 }
 

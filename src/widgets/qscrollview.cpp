@@ -205,7 +205,8 @@ public:
 
 inline QScrollViewData::~QScrollViewData()
 {
-    children.deleteAll();
+    while (!children.isEmpty())
+	delete children.takeFirst();
 }
 
 QSVChildRec* QScrollViewData::ancestorRec(QWidget* w)
