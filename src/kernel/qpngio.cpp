@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#25 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -968,7 +968,7 @@ int QPNGFormat::user_chunk(png_structp png, png_infop,
 	    char compression_method = *data++;
 	    const char* lang = (const char*)data;
 	    if ( !skip(length,data) ) return 0;
-	    const char* keyword_utf8 = (const char*)data;
+	    // const char* keyword_utf8 = (const char*)data;
 	    if ( !skip(length,data) ) return 0;
 	    const char* text_utf8 = (const char*)data;
 	    if ( !skip(length,data) ) return 0;
