@@ -26,7 +26,6 @@
 #include <qpainter.h>
 #include <qpointer.h>
 #include <qregexp.h>
-#include <qstatusbar.h>
 #include <quuid.h>
 #include <qwhatsthis.h>
 
@@ -1197,7 +1196,8 @@ HRESULT WINAPI QAxClientSite::RemoveMenus(HMENU /*hmenuShared*/)
 
 HRESULT WINAPI QAxClientSite::SetStatusText(LPCOLESTR pszStatusText)
 {
-    widget->setStatusText(BSTRToQString((BSTR)pszStatusText));
+    QStatusTipEvent tip(BSTRToQString((BSTR)pszStatusText));
+    QApplication::sendEvent(widget, &tip);
     return S_OK;
 }
 
@@ -1842,21 +1842,6 @@ void QAxWidget::connectNotify(const char *)
     QAxBase::connectNotify();
 }
 
-
-/*!
-    This function is called when the ActiveX control wants to display
-    the status message \a text on the application's status bar.
-
-    The default implementation searches for a QStatusBar object in this
-    QAxWidget's toplevel window, and calls message() on the first object
-    found. This function does nothing if there is no QStatusBar.
-*/
-void QAxWidget::setStatusText(const QString &text)
-{
-    QStatusBar *sb = qFindChild<QStatusBar*>(topLevelWidget());
-    if (sb)
-        sb->message(text);
-}
 
 /*!
     Reimplement this function to pass certain key events to the

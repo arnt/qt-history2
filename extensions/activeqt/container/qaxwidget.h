@@ -49,7 +49,6 @@ protected:
     void resizeEvent(QResizeEvent *);
 
     virtual bool translateKeyEvent(int message, int keycode) const;
-    virtual void setStatusText(const QString &text);
 
     void connectNotify(const char *signal);
 private:
