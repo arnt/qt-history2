@@ -57,7 +57,7 @@ typedef unsigned int __u32;
 #define QGfxRaster_VGA16   1
 
 #define GFX_8BPP_PIXEL(r,g,b)		gfx_screen->alloc(r,g,b)
-#define GFX_8BPP_PIXEL_CURSOR(r,g,b)	qt_screen->alloc(r,g,b)
+#define GFX_8BPP_PIXEL_CURSOR(r,g,b)	gfx_screen->alloc(r,g,b)
 
 #define MASK4BPP(x) (0xf0 >> (x))
 
@@ -1842,7 +1842,18 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_16(
 #if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
     unsigned int ret = 0;
     if ( sdepth == 16 ) {
-	unsigned short int hold = *((unsigned short int *)(*srcdata));
+	unsigned short int hold;
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+	if(srcbits==buffer) {
+	    unsigned int tmp=(unsigned int)(*srcdata);
+	    tmp = tmp & 0x1 ? tmp-1 : tmp+1;
+	    hold=*((unsigned short int *)tmp);
+	} else {
+#endif
+	hold = *((unsigned short int *)(*srcdata));
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+	}
+#endif
 	if(reverse) {
 	    (*srcdata)-=2;
 	} else {
