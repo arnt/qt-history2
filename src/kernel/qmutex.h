@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmutex.h#2 $
+** $Id: //depot/qt/main/src/kernel/qmutex.h#3 $
 **
 ** Definition of QMutex class
 **
@@ -27,7 +27,7 @@ class QMutex
 {
 public:
     QMutex( bool lock = FALSE );
-    QMutex( const QMutex & ) {}
+    QMutex( const QMutex & ) {} // ### is this right?
    ~QMutex();
 
     QMutex &operator=( const QMutex & );
