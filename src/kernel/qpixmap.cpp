@@ -311,6 +311,8 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 #elif defined(_WS_X11_)
 	hd = pixmap.hd;				// copy X11 drawable
 	copyX11Data( &pixmap );			// copy x11Data
+#elif defined(_WS_MAC_)
+	hd = pixmap.hd;
 #endif
     }
 }
@@ -383,6 +385,8 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 #elif defined(_WS_X11_)
 	hd = pixmap.hd;				// copy QPaintDevice drawable
 	copyX11Data( &pixmap );			// copy x11Data
+#elif defined(_WS_MAC_)
+	hd = pixmap.hd;
 #endif
     }
     return *this;
