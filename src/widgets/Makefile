@@ -25,6 +25,7 @@ SOURCES =	qbttngrp.cpp	qbutton.cpp	qchkbox.cpp	qcombo.cpp    \
 		qlined.cpp	qlistbox.cpp	qmenubar.cpp	qmenudta.cpp  \
 		qpopmenu.cpp	qpushbt.cpp	qradiobt.cpp	qrangect.cpp  \
 		qscrbar.cpp	qtablevw.cpp
+BETA	=
 OBJECTS =	qbttngrp.o	qbutton.o	qchkbox.o	qcombo.o      \
 		qframe.o	qgrpbox.o	qlabel.o	qlcdnum.o     \
 		qlined.o	qlistbox.o	qmenubar.o	qmenudta.o    \
@@ -70,6 +71,9 @@ showheaders:
 
 showsources:
 	@echo $(SOURCES)
+
+showbeta:
+	@echo $(BETA)
 
 moc: $(SRCMETA)
 

@@ -148,11 +148,14 @@ showdirs:
 showfiles:
 	set -e ; for d in $(DIRS); do $(MAKE) -C $$d showfiles ; done
 
+showheaders:
+	set -e ; for d in $(DIRS); do $(MAKE) -C $$d showheaders ; done
+
 showsources:
 	set -e ; for d in $(DIRS); do $(MAKE) -C $$d showsources ; done
 
-showheaders:
-	set -e ; for d in $(DIRS); do $(MAKE) -C $$d showheaders ; done
+showbeta:
+	set -e ; for d in $(DIRS); do $(MAKE) -C $$d showbeta ; done
 
 clean:
 	set -e ; for d in $(DIRS); do $(MAKE) -C $$d clean ; done

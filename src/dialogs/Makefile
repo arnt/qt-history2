@@ -17,6 +17,7 @@ CC	=	gcc
 
 HEADERS =	qfiledlg.h	qmsgbox.h	qprndlg.h
 SOURCES =	qfiledlg.cpp	qmsgbox.cpp	qprndlg.cpp
+BETA	=
 OBJECTS =	qfiledlg.o	qmsgbox.o	qprndlg.o
 SRCMETA =	mfiledlg.cpp	mmsgbox.cpp	mprndlg.cpp
 OBJMETA =	mfiledlg.o	mmsgbox.o	mprndlg.o
@@ -49,6 +50,9 @@ include:
 
 showheaders:
 	@echo $(HEADERS)
+
+showbeta:
+	@echo $(BETA)
 
 showsources:
 	@echo $(SOURCES)
