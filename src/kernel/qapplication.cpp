@@ -2297,7 +2297,7 @@ void QApplication::removeTranslator( QTranslator * mf )
   literal English strings to Korean, all that is needed is for the
   English strings to be passed through tr() and for translation files
   to be loaded. For details of internationalization, see the \link
-  i18n.html Qt Internationalization documentation\endlink.
+  i18n.html Qt internationalization documentation\endlink.
 
   Note also that some Qt built-in classes call tr() with various
   strings.  These strings are in English, so for a full translation, a

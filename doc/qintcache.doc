@@ -41,7 +41,7 @@
 /*!
   \class QIntCache qintcache.h
 
-  \brief The QIntCache class is a template class that provides a cache based on \c long keys.
+  \brief The QIntCache class is a template class that provides a cache based on long keys.
 
   \ingroup collection
   \ingroup tools
@@ -79,8 +79,7 @@
   There is a QIntCacheIterator which may be used to traverse the
   items in the cache in arbitrary order.
 
-  \sa QIntCacheIterator, QCache, QAsciiCache,
-      \link collection.html Collection Classes\endlink
+  \sa QIntCacheIterator, QCache, QAsciiCache
 */
 
 /*!

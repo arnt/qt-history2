@@ -54,8 +54,6 @@
   A collection is implemented using the \c Item (generic collection
   item) type, which is a \c void*.  The template classes that create
   the real collections cast the \c Item to the required type.
-
-  \sa \link collection.html Collection Classes\endlink
 */
 
 

@@ -40,7 +40,7 @@
 
 /*!
   \class QPtrDict qptrdict.h
-  \brief The QPtrDict class is a template class that provides a dictionary based on \c void* keys.
+  \brief The QPtrDict class is a template class that provides a dictionary based on void* keys.
 
   \ingroup collection
   \ingroup tools
@@ -166,8 +166,7 @@
   QPtrCollection::deleteItem() is called.  QPtrDict's default implementation
   is to delete the item if auto-deletion is enabled.
 
-  \sa QPtrDictIterator, QDict, QAsciiDict, QIntDict,
-      \link collection.html Collection Classes\endlink
+  \sa QPtrDictIterator, QDict, QAsciiDict, QIntDict
 */
 
 
@@ -432,7 +431,7 @@
   iterators that refer the removed item to point to the next item
   in the traversing order.
 
-  \sa QPtrDict, \link collection.html Collection Classes\endlink
+  \sa QPtrDict
 */
 
 /*!

@@ -300,7 +300,6 @@ public:
 
   \sa QTranslatorMessage QApplication::installTranslator()
   QApplication::removeTranslator() QObject::tr() QApplication::translate()
-  \link i18n.html Internationalization with Qt \endlink
 */
 
 /*! \enum QTranslator::SaveMode

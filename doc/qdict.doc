@@ -156,8 +156,7 @@
     and add it to the dictionary. Finally we create a QAction for each
     style.
 
-  \sa QDictIterator, QAsciiDict, QIntDict, QPtrDict,
-      \link collection.html Collection Classes\endlink
+  \sa QDictIterator, QAsciiDict, QIntDict, QPtrDict
 */
 
 
@@ -415,7 +414,7 @@
   iterate over the dictionary adding the string keys for those widgets
   which are derived from QPushButton, into a list.
 
-  \sa QDict, \link collection.html Collection Classes\endlink
+  \sa QDict
 */
 
 /*!

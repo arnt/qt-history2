@@ -63,7 +63,6 @@ public:
 
 /*!
   \class QSqlCursorManager qsqlmanager_p.h
-    \ingroup database
   \brief The QSqlCursorManager class manages a database cursor.
 
   \module sql

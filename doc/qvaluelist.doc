@@ -136,7 +136,7 @@
 	Joe earns 50000
   \endcode
 
-  As you can see, the latest changes to Joe's salary did not affect the value
+  Notice that the latest changes to Joe's salary did not affect the value
   in the list because the list created a copy of Joe's entry.
 
   There are several ways to find items in the list.  The begin() and
@@ -156,11 +156,11 @@
   \link qtl.html#qFind qFind()\endlink algorithm.  For example:
 
 \code
-  QValueList<int> list;
-  ...
-  QValueList<int>::iterator it = qFind( list.begin(), list.end(), 3 );
-  if ( it != list.end() )
-      // it points to the found element
+    QValueList<int> list;
+    ...
+    QValueList<int>::iterator it = qFind( list.begin(), list.end(), 3 );
+    if ( it != list.end() )
+	// it points to the found element
 \endcode
 
   It is safe to have multiple iterators on the list at the same time.
@@ -173,19 +173,19 @@
   things).  Use back() and front() with caution, for example:
 
 \code
-  QValueList<int> list;
-  list.push_back( 1 );
-  list.push_back( 2 );
-  list.push_back( 3 );
-  ...
-  if ( !list.empty() ) {
-      // OK: modify the first element
-      int& i = list.front();
-      i = 18;
-  }
-  ...
-  QValueList<double> dlist;
-  double d = dlist.back(); // WARNING: undefined (probably a crash)
+    QValueList<int> list;
+    list.push_back( 1 );
+    list.push_back( 2 );
+    list.push_back( 3 );
+    ...
+    if ( !list.empty() ) {
+	// OK, modify the first element
+	int& i = list.front();
+	i = 18;
+    }
+    ...
+    QValueList<double> dlist;
+    double d = dlist.back(); // undefined (probably a crash)
 \endcode
 
   Because QValueList is value-based there is no need to be careful about
@@ -219,12 +219,12 @@
 
   Example:
   \code
-	  QValueList<int> l;
-	  l.push_back( 5 );
-	  l.push_back( 8 );
-	  l.push_back( 3 );
-	  l.push_back( 4 );
-	  qHeapSort( l );
+    QValueList<int> l;
+    l.push_back( 5 );
+    l.push_back( 8 );
+    l.push_back( 3 );
+    l.push_back( 4 );
+    qHeapSort( l );
   \endcode
 
   \sa QValueListIterator
@@ -536,12 +536,12 @@
   Use the end() function instead.  For example:
 
 \code
-  QValueList<int> l;
-  ...
-  QValueList<int>::iterator it = l.end();
-  --it;
-  if ( it != end() )
-      // ...
+    QValueList<int> l;
+    ...
+    QValueList<int>::iterator it = l.end();
+    --it;
+    if ( it != end() )
+	// ...
 \endcode
 
 */
@@ -555,12 +555,12 @@
   Use the end() function instead.  For example:
 
 \code
-  QValueList<int> l;
-  ...
-  QValueList<int>::iterator it = l.end();
-  --it;
-  if ( it != end() )
-      // ...
+    QValueList<int> l;
+    ...
+    QValueList<int>::iterator it = l.end();
+    --it;
+    if ( it != end() )
+        // ...
 \endcode
 
 */
@@ -589,10 +589,10 @@
   example:
 
   \code
-  QValueList<int> l1;
-  QValueList<int> l2;
-  ...
-  std::copy( l2.begin(), l2.end(), std::back_inserter( l1 ) );
+    QValueList<int> l1;
+    QValueList<int> l2;
+    ...
+    std::copy( l2.begin(), l2.end(), std::back_inserter( l1 ) );
   \endcode
 
   Adds \a l to this list.
@@ -607,8 +607,8 @@
   The push_back() function should be used instead.  For example:
 
   \code
-  QValueList<int> l;
-  l.push_back( 1 );
+    QValueList<int> list;
+    list.push_back( 1 );
   \endcode
 
   Adds the value \a x to the end of the list.
@@ -640,8 +640,8 @@
   The push_back() function should be used instead.  For example:
 
   \code
-  QValueList<int> l;
-  l.push_back( 1 );
+    QValueList<int> list;
+    list.push_back( 1 );
   \endcode
 
 */
@@ -653,9 +653,9 @@
   The push_front() function should be used instead.  For example:
 
   \code
-  QValueList<int> l;
-  l.push_front( 2 );
-  l.push_front( 1 );
+    QValueList<int> list;
+    list.push_front( 2 );
+    list.push_front( 1 );
   \endcode
 
 */
@@ -762,7 +762,7 @@
 
   An iterator is a class for accessing the elements of a container
   classes - a generalization of the index in an array. A pointer into
-  a <code>const char *</code> and an index into an <code>int[]</code>
+  a "const char *" and an index into an "int[]"
   are both iterators, and the general idea is to provide that
   functionality for any data structure.
 
@@ -774,10 +774,10 @@
 
   Program output:
   \code
-	Bill earns 50000
-	Steve earns 80000
-	Ron earns 60000
-	Joe earns 50000
+    Bill earns 50000
+    Steve earns 80000
+    Ron earns 60000
+    Joe earns 50000
   \endcode
 
   The only way to access the elements in a QValueList is to use an
@@ -837,9 +837,9 @@
 
   Example:
   \code
-	QValueList<int>::Iterator it = list.begin();
-	for( ; it != end(); ++it )
-		it->show();
+    QValueList<int>::Iterator it = list.begin();
+    for( ; it != end(); ++it )
+	it->show();
   \endcode
 */
 
@@ -968,9 +968,9 @@
 
   Example:
   \code
-	QValueList<int>::Iterator it = list.begin();
-	for( ; it != end(); ++it )
-		it->show();
+    QValueList<int>::Iterator it = list.begin();
+    for( ; it != end(); ++it )
+	it->show();
   \endcode
 */
 

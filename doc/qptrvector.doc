@@ -70,7 +70,7 @@
   pointer values. Reimplement compareItems() in a subclass to get
   searching and sorting based on the item contents.
 
-  \sa \link collection.html Collection Classes\endlink, QMemArray
+  \sa QMemArray
 */
 
 /*!

@@ -33,7 +33,7 @@
 **
 **********************************************************************/
 
-/*! \page i18n.html
+/*! \defgroup i18n
 
 \title Internationalization with Qt
 
@@ -44,14 +44,13 @@ software to be used efficiently by all people of the world. This
 means adapting to user and locality preferences such as language,
 input techniques, character encodings and presentation conventions.
 
-
 \section1 Step by Step
 
 Writing cross-platform international software with Qt is a gentle,
 incremental process. Your software can become internationalized in
 the following stages:
 
-\section2 Use QString for all user-visible text
+\section2 Use QString for all User-visible Text
 
 Since QString uses the Unicode encoding internally, all the
 languages of the world can be processed transparently using
@@ -67,7 +66,7 @@ You're unlikely to notice that you are using Unicode -
 QString, and QChar are just like easier versions of the clumsy
 const char* and char from traditional C.
 
-\section2 Use \link QObject::tr() tr()\endlink for all literal text
+\section2 Use \link QObject::tr() tr()\endlink for all Literal Text
 
 Where your program uses \c {"quoted text"} for text that will
 be presented to the user, ensure it goes through the \l
@@ -144,7 +143,7 @@ might find QObject::trUtf8() more convenient than
 QObject::tr(). QObject::tr() depends on the
 QApplication::defaultCodec(), which makes it more fragile.
 
-\section2 Use QAccel::stringToKey() for accelerator values
+\section2 Use QAccel::stringToKey() for Accelerator Values
 
 Accelerator values such as Ctrl+Q or Alt+F need to be
 translated too. If you hardcode \c CTRL+Key_Q for "Quit" in
@@ -157,7 +156,7 @@ it. The correct idiom is
 		      QAccel::stringToKey(tr("Ctrl+Q", "File|Quit")) );
 \endcode
 
-\section2 Use QString::arg() for simple arguments
+\section2 Use QString::arg() for Simple Arguments
 
 The printf() style of inserting arguments in strings
 is a poor choice for internationalized text, as it is
@@ -175,7 +174,7 @@ functions offer a simple means for substituting arguments:
     }
 \endcode
 
-\section2 Produce translation
+\section2 Produce Translation
 
 Once you are using tr() sufficiently, you can start producing
 translations of the user-visible text in your program.
@@ -257,7 +256,7 @@ if you need to translate the Qt strings now (or some of them), put
 the translations in separate .ts and .qm files. This will simplify
 transition to the official Qt translations.
 
-\section2 Support encodings
+\section2 Support Encodings
 
 The QTextCodec class and the facilities in QTextStream make it easy
 to support many input and output encodings for your users' data. When
@@ -387,7 +386,7 @@ be too concerned with the actual limitations.
     </ul>
 </dl>
 
-\section1 Supporting more input methods
+\section1 Supporting More Input Methods
 
 While Trolltech doesn't have the resources or expertise in all the
 languages of the world to immediately include support in Qt, we are
@@ -457,13 +456,16 @@ and x-tt, as well as
 \link http://www.sun.com/software/white-papers/wp-unicode/ Unicode
 support in Solaris 7 \endlink.
 
-\section1 Notes about locales on X11
+\section1 Note about Locales on X11
 
 Many Unix distributions contain only partial support for some locales.
 For example, if you have a \c /usr/share/locale/ja_JP.EUC
 directory, this does not necessarily mean you can display Japanese text;
 you also need JIS encoded fonts (or Unicode fonts), and that
 \c /usr/share/locale/ja_JP.EUC directory needs to be complete.
-For best results, use complete locales from your OS vendor.
+For best results, use complete locales from your system vendor.
 
+\section1 Relevant Qt Classes
+
+These classes are relevant to internationalizing Qt applications.
 */

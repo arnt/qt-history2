@@ -67,7 +67,7 @@
   (cf. \link xml/tagreader-with-features/structureparser.cpp
   xml/tagreader-with-features/structureparser.cpp \endlink)
 
-  \sa QPtrList QPtrQueue \link collection.html Collection Classes\endlink
+  \sa QPtrList QPtrQueue
 */
 
 /*! \fn QPtrStack::QPtrStack () 

@@ -47,7 +47,7 @@
 
   Otherwise, this is as QPtrList.
 
-  \sa QPtrList, \link collection.html Collection Classes\endlink
+  \sa QPtrList
 */
 
 

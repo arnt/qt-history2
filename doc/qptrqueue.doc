@@ -52,7 +52,7 @@
   For compatibility with the QPtrCollection classes, current() and
   remove() are provided; both operate on the head().
 
-  \sa QPtrList QPtrStack \link collection.html Collection Classes\endlink
+  \sa QPtrList QPtrStack
 */
 
 /*! \fn QPtrQueue::QPtrQueue ()

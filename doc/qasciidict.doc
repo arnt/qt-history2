@@ -40,7 +40,7 @@
 
 /*!
   \class QAsciiDict qasciidict.h
-  \brief The QAsciiDict class is a template class that provides a dictionary based on \c char* keys.
+  \brief The QAsciiDict class is a template class that provides a dictionary based on char* keys.
 
   \ingroup collection
   \ingroup tools
@@ -139,8 +139,7 @@
   QPtrCollection::deleteItem() is called.  QAsciiDict's default implementation
   is to delete the item if auto-deletion is enabled.
 
-  \sa QAsciiDictIterator, QDict, QIntDict, QPtrDict,
-      \link collection.html Collection Classes\endlink
+  \sa QAsciiDictIterator, QDict, QIntDict, QPtrDict
 */
 
 
@@ -422,7 +421,7 @@
   updates all the iterators that are referring the removed item to point
   to the next item in the (arbitrary) traversal order.
 
-  \sa QAsciiDict, \link collection.html Collection Classes\endlink
+  \sa QAsciiDict
 */
 
 /*!

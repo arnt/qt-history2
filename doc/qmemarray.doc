@@ -65,45 +65,45 @@
   less copying of data.
 
   Example:
-\code
-#include <qmemarray.h>
-#include <stdio.h>
+  \code
+    #include <qmemarray.h>
+    #include <stdio.h>
 
-QMemArray<int> fib( int num ) // returns fibonacci array
-{
-    Q_ASSERT( num > 2 );
-    QMemArray<int> f( num ); // array of ints
+    QMemArray<int> fib( int num ) // returns fibonacci array
+    {
+	Q_ASSERT( num > 2 );
+	QMemArray<int> f( num ); // array of ints
 
-    f[0] = f[1] = 1; 
-    for ( int i = 2; i < num; i++ )
-	f[i] = f[i-1] + f[i-2];
+	f[0] = f[1] = 1;
+	for ( int i = 2; i < num; i++ )
+	    f[i] = f[i-1] + f[i-2];
 
-    return f;
-}
+	return f;
+    }
 
-int main()
-{
-    QMemArray<int> a = fib( 6 ); // get 6 first fibonaccis
-    for ( int i = 0; i < a.size(); i++ ) 
-	prinf( "%d: %d\n", i, a[i] );
+    int main()
+    {
+	QMemArray<int> a = fib( 6 ); // get 6 first fibonaccis
+	for ( int i = 0; i < a.size(); i++ )
+	    qDebug( "%d: %d", i, a[i] );
 
-    printf( "1 is found %d time(s)\n", a.contains(1) );
-    printf( "5 is found at index %d\n", a.find(5) );
+	qDebug( "1 is found %d times", a.contains(1) );
+	qDebug( "5 is found at index %d", a.find(5) );
 
-    return 0;
-}
-\endcode
+	return 0;
+    }
+  \endcode
 
   Program output:
   \code
-	0: 1
-	1: 1
-	2: 2
-	3: 3
-	4: 5
-	5: 8
-	1 is found 2 times
-	5 is found at index 4
+    0: 1
+    1: 1
+    2: 2
+    3: 3
+    4: 5
+    5: 8
+    1 is found 2 times
+    5 is found at index 4
   \endcode
 
   Note about using QMemArray for manipulating structs or classes:
@@ -114,20 +114,21 @@ int main()
   find the element. Example:
 
   \code
-struct MyStruct
-{
-    short i; // 2 bytes
-    char c;  // 1 byte
-};           // sizeof(MyStruct) may be padded to 4 bytes
+    // MyStruct may be padded to 4 or 8 bytes
+    struct MyStruct
+    {
+	short i; // 2 bytes
+	char c;  // 1 byte
+    };
 
-QMemArray<MyStruct> a(1);
-a[0].i = 5;
-a[0].c = 't';
+    QMemArray<MyStruct> a(1);
+    a[0].i = 5;
+    a[0].c = 't';
 
-MyStruct x;
-x.i = '5';
-x.c = 't';
-int i = a.find( x ); // May return -1 if the pad bytes differ
+    MyStruct x;
+    x.i = '5';
+    x.c = 't';
+    int i = a.find( x ); // may return -1 if the pad bytes differ
   \endcode
 
   To work around this, make sure that you use a struct where sizeof()
@@ -139,7 +140,7 @@ int i = a.find( x ); // May return -1 if the pad bytes differ
   resized with resize() and filled using fill().
 
   You can make a shallow copy of the array with assign() (or
-  operator=()) and a deep copy with duplicate(). 
+  operator=()) and a deep copy with duplicate().
 
   Search for values in the array with find() and contains(). For
   sorted arrays (see sort()) you can search using bsearch().
@@ -151,7 +152,7 @@ int i = a.find( x ); // May return -1 if the pad bytes differ
 */
 
 /*! \enum QMemArray::Iterator
-    A QMemArray iterator. 
+    A QMemArray iterator.
     \sa begin() end()
 */
 /*! \enum QMemArray::ConstIterator
@@ -480,8 +481,7 @@ int i = a.find( x ); // May return -1 if the pad bytes differ
 */
 
 /*!
-  \fn ConstIterator QMemArray::begin() const
-  \overload
+  \overload ConstIterator QMemArray::begin() const
   Returns a const iterator pointing at the beginning of this array.
   This iterator can be used in the same way as the iterators of
   QValueList and QMap, for example. In fact, not only does it behave
@@ -489,8 +489,7 @@ int i = a.find( x ); // May return -1 if the pad bytes differ
 */
 
 /*!
-  \fn ConstIterator QMemArray::end() const
-  \overload
+  \overload ConstIterator QMemArray::end() const
   Returns a const iterator pointing behind the last element of this array.
   This iterator can be used in the same way as the iterators of
   QValueList and QMap, for example. In fact, not only does it behave

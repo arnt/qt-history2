@@ -41,7 +41,7 @@
 /*!
   \class QAsciiCache qasciicache.h
 
-  \brief The QAsciiCache class is a template class that provides a cache based on \c char* keys.
+  \brief The QAsciiCache class is a template class that provides a cache based on char* keys.
 
   \ingroup collection
   \ingroup tools
@@ -84,8 +84,7 @@
   There is a QAsciiCacheIterator which may be used to traverse the
   items in the cache in arbitrary order.
 
-  \sa QAsciiCacheIterator, QCache, QIntCache,
-      \link collection.html Collection Classes\endlink
+  \sa QAsciiCacheIterator, QCache, QIntCache
 */
 
 /*!

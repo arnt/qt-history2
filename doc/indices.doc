@@ -666,13 +666,6 @@ These classes provide access to SQL databases.
 */
 
 
-/*! \defgroup i18n
-
-\title Internationalization
-
-These classes are relevant to internationalizing Qt applications.
-*/
-
 /*! \defgroup thread
 
 \title Threading

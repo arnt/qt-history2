@@ -89,8 +89,7 @@
   char* keys, use the QAsciiCache template.  A QCache has the same
   performace as a QAsciiCache.
 
-  \sa QCacheIterator, QAsciiCache, QIntCache,
-      \link collection.html Collection Classes\endlink
+  \sa QCacheIterator, QAsciiCache, QIntCache
 */
 
 /*!

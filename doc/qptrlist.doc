@@ -129,10 +129,10 @@
   compare pointers instead, for instance removeRef(const type*).
   These functions are somewhat faster than those that call compareItems().
 
-  The QStrList class in \l qstrlist.h is a list of \c char*.  It
+  The QStrList class defined in \l qstrlist.h is a list of \c char*.  It
   reimplements newItem(), deleteItem() and compareItems().
 
-  \sa QPtrListIterator, \link collection.html Collection Classes\endlink
+  \sa QPtrListIterator
 */
 
 
@@ -803,7 +803,7 @@
 	Ron
   \endcode
 
-  \sa QPtrList, \link collection.html collection classes\endlink
+  \sa QPtrList
 */
 
 /*!
@@ -930,7 +930,7 @@
 
 /*!
   \class QStrList qstrlist.h
-  \brief The QStrList class provides a doubly-linked list of \c char*.
+  \brief The QStrList class provides a doubly-linked list of char*.
 
   \ingroup collection
   \ingroup tools
@@ -998,20 +998,20 @@
 
 /*!
   \class QStrIList qstrlist.h
-  \brief The QStrIList class provides a doubly-linked list of \c char* with
-case-insensitive compare.
+  \brief The QStrIList class provides a doubly-linked list of char* with
+case-insensitive comparison.
 
   \ingroup collection
   \ingroup tools
 
   This class is a QPtrList\<char\> instance (a list of char*).
 
-  QStrIList is similar to QStrList except that it is case-insensitive.
-  The virtual compareItems() function is reimplemented and does a
-  case-insensitive string comparison.
+  QStrIList is identical to QStrList except that
+  the virtual compareItems() function is reimplemented to compare
+  strings case-insensitively.
   The inSort() function inserts strings in a sorted order.
 
-  The QStrListIterator class is an iterator for QStrList.
+  The QStrListIterator class works for QStrIList.
 */
 
 /*!

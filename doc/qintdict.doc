@@ -40,7 +40,7 @@
 
 /*!
   \class QIntDict qintdict.h
-  \brief The QIntDict class is a template class that provides a dictionary based on \c long keys.
+  \brief The QIntDict class is a template class that provides a dictionary based on long keys.
 
   \ingroup collection
   \ingroup tools
@@ -149,8 +149,7 @@
   QIntDict implements the \link operator[]() [] operator\endlink to look up
   an item.
 
-  \sa QIntDictIterator, QDict, QAsciiDict, QPtrDict,
-      \link collection.html Collection Classes\endlink
+  \sa QIntDictIterator, QDict, QAsciiDict, QPtrDict
 */
 
 
@@ -413,7 +412,7 @@
   iterators that refer the removed item to point to the next item
   in the traversing order.
 
-  \sa QIntDict, \link collection.html Collection Classes\endlink
+  \sa QIntDict
 */
 
 /*!
