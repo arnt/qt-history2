@@ -523,7 +523,7 @@ static bool isContinuationLine()
     YY_SAVE();
 
     if ( readLine() ) {
-	QChar last = yyLine[yyLine.length() - 1];
+	QChar last = yyLine[ (int)yyLine.length() - 1 ];
 	if ( separators.find(last) == -1 ) {
 	    /*
 	      It doesn't end with ';' or similar. If it's not
