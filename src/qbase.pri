@@ -44,6 +44,7 @@ sam_version_map:shared {
       }
    }
 }
+contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 
 #version overriding
 win32 {
