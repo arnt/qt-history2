@@ -464,6 +464,9 @@ public:
 	return first;
     }
 
+#if QT_VERSION >= 400
+#error "operator==() should be const"
+#endif
     bool operator==( const QValueVector<T>& x )
     {
 	return qEqual( begin(), end(), x.begin() );
@@ -510,7 +513,6 @@ inline QDataStream& operator<<( QDataStream& s, const QValueVector<T>& v )
     return s;
 }
 #endif // QT_NO_DATASTREAM
-
 
 
 #endif
