@@ -30,6 +30,7 @@
 #ifndef QGFXSHITE_H
 #define QGFXSHITE_H
 
+#ifndef QT_H
 #include <qgfx_qws.h>
 #include <qpoint.h>
 #include <qpen.h>
@@ -39,6 +40,7 @@
 #include <qfont.h>
 #include <qwsdisplay_qws.h>
 #include <qwsevent_qws.h>
+#endif // QT_H
 
 /* hacks to make it build */
 #ifndef QGFXRASTER_H
