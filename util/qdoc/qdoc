@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#22 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#23 $
 #
 # this is a massive hack, written very quickly
 #
@@ -110,12 +110,7 @@ sub processdocs {
 	if ($type{$url} eq "class") {
 	    $anchor{$class . "::" . $1} = $class . "#" . $1
 		while($def{$url} =~ /\benum\s*(\w+)\b/s);
-	} else {
-	    if ($type{$url} eq "fn" && $doc{$url} =~ /\\class\s/s) {
-		$doc{$url} = "";
-	    }
 	}
-
 
 	$doc = $doc{$url};
 
@@ -336,54 +331,53 @@ sub readc {
     $c = getfile($filename);
     print "code file: ", $filename, "\n" if ($debug);
 
-# eliminate all the string constants
-#   $c =~ s/\x22([^\\\x22]|\\.)*\x22//g; # \x22 is "
-
     study $c;
 
 # find all the defined functions
     while ($c =~ m@
-	   (?:/\*\![-\s]*      (?# documentation prologue 
-			       )
-	   ((?:(?:[^\*])|(?:\*[^/]))*)
-           \*/)\s*            (?# comment end 
-			       )
-# ([^\{;]+)\x7b
-	   \n\s*((?:[\w:]+\s*)*[\*\&\s])*(?# return type 
-			       )
-	   (?:(\w+)\s*::\s*)? (?# class name and :: 
-			       )
-	   ((?:\~?\w+)|       (?# function name, or *gasp* operator
-			       )
-            (?:operator(?:
-	     (?:[^\s\(]{1,3})|
-	     (?:\s+new)|
-	     (?:\s+delete))))\s*
-	   \(\s*([^\)]*?)\s*\) (?# arg list
-			       )
-           \s*(const)?\s*(?::[\s\w,\(\)]+)?\s*\x7b@gsx) {
-        my ($doc, $type, $class, $name, $args, $const);
-	print "url:\n" if ($debug);
+	   (?:/\*\![-\s]*
+	    ((?:[^\*]|(?:\*[^/]))*)
+	    \*/)\s*
+	   ((?:[^\{;\*]|(?:\*[^/]))+)\s*\x7b@gsx) {
+	my ($doc, $def);
 	$doc = $1;
-	$type = $2;
-	$class = $3;
-	$name = $4;
-	$args = $5;
-	$const = $6;
-	$all = $&;
-	if (!($type =~ /\bstatic\b/)) {
-	    if ($args =~ /[()]/) {
-		print STDERR "function prototype in argument\n", $all;
-	    } else {
-		my ($url);
-		$url = &manglefn($type, $class, $name, $args, $const);
-		$name{$url} = $class . "::" . $name;
-		$type{$url} = "fn";
-		$doc{$url} = $doc;
-		$class .= "::" if ($class ne "");
-		$const = " " . const if ($const ne "");
-		$def{$url} = $type." ".$class.$name."(".$args.")".$const;
-		print "    ", $url, "\n" if ($debug);
+	$def = $2;
+	print "url:\n" if ($debug);
+	if (!($doc =~ /\\class /) &&
+	    ($def =~ m@
+	     ((?:[\w:]+\s*)*[\*\&\s])*(?# return type 
+				       )
+	     (?:(\w+)\s*::\s*)? (?# class name and :: 
+				 )
+	     ((?:\~?\w+)|       (?# function name, or *gasp* operator
+				 )
+	      (?:operator(?:
+			  (?:[^\s\(]{1,3})|
+			  (?:\s+new)|
+			  (?:\s+delete))))\s*
+	     \(\s*([^\)]*?)\s*\) (?# arg list
+				  )
+	     \s*(const)?\s*(?::[\s\w,\(\)]+)?$@gsx)) {
+	    my ($type, $class, $name, $args, $const);
+	    $type = $1;
+	    $class = $2;
+	    $name = $3;
+	    $args = $4;
+	    $const = $5;
+	    if (!($type =~ /\bstatic\b/)) {
+		if ($args =~ /[()]/) {
+		    print STDERR "function prototype in argument\n", $def;
+		} else {
+		    my ($url);
+		    $url = &manglefn($type, $class, $name, $args, $const);
+		    $name{$url} = $class . "::" . $name;
+		    $type{$url} = "fn";
+		    $doc{$url} = $doc;
+		    $class .= "::" if ($class ne "");
+		    $const = " " . const if ($const ne "");
+		    $def{$url} = $type." ".$class.$name."(".$args.")".$const;
+		    print "    ", $url, "\n" if ($debug);
+		}
 	    }
 	}
     }
