@@ -29,10 +29,13 @@ class QAction;
 class Q_GUI_EXPORT QInputEvent : public QEvent
 {
 public:
-    QInputEvent(Type type);
+    QInputEvent(Type type, Qt::KeyboardModifiers modifiers = Qt::NoModifier);
     inline bool isAccepted() const { return accpt; }
     inline void accept() { accpt = TRUE; }
     inline void ignore() { accpt = FALSE; }
+    inline Qt::KeyboardModifiers modifiers() const {return modState; }
+protected:
+    Qt::KeyboardModifiers modState;
 private:
     bool accpt;
 };
@@ -60,19 +63,17 @@ public:
     inline int globalY() const { return g.y(); }
 #ifdef QT_COMPAT
     inline QT_COMPAT Qt::ButtonState state() const
-    { return Qt::ButtonState(int(mouseState)|int(keyState)); }
+    { return Qt::ButtonState(int(mouseState)|int(QInputEvent::modifiers())); }
     inline QT_COMPAT Qt::ButtonState stateAfter() const
     { return Qt::ButtonState(int(buttons())|int(modifiers())); }
 #endif
     inline Qt::MouseButton button() const { return b; }
     inline Qt::MouseButtons buttons() const { return mouseState^b; }
-    inline Qt::KeyboardModifiers modifiers() const { return keyState; }
 
 protected:
     QPoint p, g;
     Qt::MouseButton b;
     Qt::MouseButtons mouseState;
-    Qt::KeyboardModifiers keyState;
 };
 
 
@@ -104,7 +105,6 @@ public:
     { return static_cast<Qt::ButtonState>(int(buttons())|int(modifiers())); }
 #endif
     inline Qt::MouseButtons buttons() const { return mouseState; }
-    inline Qt::KeyboardModifiers modifiers() const { return keyState; }
 
     Qt::Orientation orientation() const { return o; }
 protected:
@@ -112,7 +112,6 @@ protected:
     QPoint g;
     int d;
     Qt::MouseButtons mouseState;
-    Qt::KeyboardModifiers keyState;
     Qt::Orientation o;
 };
 #endif
@@ -145,14 +144,12 @@ public:
     inline int minHiResY() const { return mHiResMinY; }
     inline int maxHiResX() const { return mHiResMaxX; }
     inline int maxHiResY() const { return mHiResMaxY; }
-    inline Qt::KeyboardModifiers modifiers() const { return mKeyState; }
 
 protected:
     QPoint mPos, mGPos, mHiResPos;
     int mHiResMinX, mHiResMaxX, mHiResMinY, mHiResMaxY;
     int mDev, mPress, mXT, mYT, mType, mPhy;
     int mMinPressure, mMaxPressure;
-    Qt::KeyboardModifiers mKeyState;
 };
 
 
@@ -167,7 +164,7 @@ public:
     inline QT_COMPAT_CONSTRUCTOR QKeyEvent(Type type, int key, int /*ascii*/,
                                            int modifiers, const QString& text = QString::null,
                                            bool autorep = FALSE, ushort count = 1)
-        : QInputEvent(type), txt(text), k(key), m((Qt::KeyboardModifiers)modifiers),
+        : QInputEvent(type, (Qt::KeyboardModifiers)modifiers), txt(text), k(key),
           c(count), autor(autorep)
     {
         if (key >= Qt::Key_Back && key <= Qt::Key_MediaLast)
@@ -175,7 +172,7 @@ public:
     }
     inline QT_COMPAT int ascii() const
     { return (txt.length() ? txt.unicode()->latin1() : 0); }
-    inline QT_COMPAT Qt::ButtonState state() const { return Qt::ButtonState(m); }
+    inline QT_COMPAT Qt::ButtonState state() const { return Qt::ButtonState(QInputEvent::modifiers()); }
     inline QT_COMPAT Qt::ButtonState stateAfter() const { return Qt::ButtonState(modifiers()); }
 #endif
     Qt::KeyboardModifiers modifiers() const;
@@ -186,7 +183,6 @@ public:
 protected:
     QString txt;
     int k;
-    Qt::KeyboardModifiers m;
     ushort c;
     uint autor:1;
 };

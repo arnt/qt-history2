@@ -33,8 +33,8 @@
 
     \internal
 */
-QInputEvent::QInputEvent(Type type)
-    : QEvent(type), accpt(true)
+QInputEvent::QInputEvent(Type type, Qt::KeyboardModifiers modifiers)
+    : QEvent(type), modState(modifiers), accpt(true)
 {}
 
 /*!
@@ -136,7 +136,7 @@ QInputEvent::QInputEvent(Type type)
 
 QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::MouseButton button,
                          Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers)
-    : QInputEvent(type), p(pos), b(button), mouseState(buttons), keyState(modifiers)
+    : QInputEvent(type, modifiers), p(pos), b(button), mouseState(buttons)
 {
     g = QCursor::pos();
 }
@@ -147,7 +147,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::ButtonState button, i
 {
     g = QCursor::pos();
     mouseState = Qt::MouseButtons(state & Qt::MouseButtonMask);
-    keyState = Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask);
+    modState = Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask);
 }
 
 QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
@@ -155,7 +155,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
     : QInputEvent(type), p(pos), g(globalPos), b((Qt::MouseButton)button)
 {
     mouseState = Qt::MouseButtons(state & Qt::MouseButtonMask);
-    keyState = Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask);
+    modState = Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask);
 }
 #endif
 
@@ -181,7 +181,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
 QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
                          Qt::MouseButton button, Qt::MouseButtons buttons,
                          Qt::KeyboardModifiers modifiers)
-    : QInputEvent(type), p(pos), g(globalPos), b(button), mouseState(buttons), keyState(modifiers)
+    : QInputEvent(type, modifiers), p(pos), g(globalPos), b(button), mouseState(buttons)
 {}
 
 /*!
@@ -335,8 +335,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
 QWheelEvent::QWheelEvent(const QPoint &pos, int delta,
                          Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers,
                          Qt::Orientation orient)
-    : QInputEvent(Wheel), p(pos), d(delta), mouseState(buttons),
-      keyState(modifiers), o(orient)
+    : QInputEvent(Wheel, modifiers), p(pos), d(delta), mouseState(buttons), o(orient)
 {
     g = QCursor::pos();
 }
@@ -347,7 +346,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientatio
 {
     g = QCursor::pos();
     mouseState = Qt::MouseButtons(state & Qt::MouseButtonMask);
-    keyState = Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask);
+    modState = Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask);
 }
 #endif
 
@@ -365,8 +364,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientatio
 QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta,
                          Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers,
                          Qt::Orientation orient)
-    : QInputEvent(Wheel), p(pos), g(globalPos), d(delta), mouseState(buttons),
-      keyState(modifiers), o(orient)
+    : QInputEvent(Wheel, modifiers), p(pos), g(globalPos), d(delta), mouseState(buttons), o(orient)
 {}
 
 #ifdef QT_COMPAT
@@ -375,7 +373,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, 
     : QInputEvent(Wheel), p(pos), g(globalPos), d(delta), o(orient)
 {
     mouseState = Qt::MouseButtons(state & Qt::MouseButtonMask);
-    keyState = Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask);
+    modState = Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask);
 }
 #endif
 #endif // QT_NO_WHEELEVENT
@@ -523,7 +521,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, 
 */
 QKeyEvent::QKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers, const QString& text,
                      bool autorep, ushort count)
-    : QInputEvent(type), txt(text), k(key), m(modifiers), c(count), autor(autorep)
+    : QInputEvent(type, modifiers), txt(text), k(key), c(count), autor(autorep)
 {
     if(key >= Qt::Key_Back && key <= Qt::Key_MediaLast)
         ignore();
@@ -569,14 +567,14 @@ QKeyEvent::QKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers, const 
 Qt::KeyboardModifiers QKeyEvent::modifiers() const
 {
     if (key() == Qt::Key_Shift)
-        return Qt::KeyboardModifiers(m^Qt::ShiftModifier);
+        return Qt::KeyboardModifiers(QInputEvent::modifiers()^Qt::ShiftModifier);
     if (key() == Qt::Key_Control)
-        return Qt::KeyboardModifiers(m^Qt::ControlModifier);
+        return Qt::KeyboardModifiers(QInputEvent::modifiers()^Qt::ControlModifier);
     if (key() == Qt::Key_Alt)
-        return Qt::KeyboardModifiers(m^Qt::AltModifier);
+        return Qt::KeyboardModifiers(QInputEvent::modifiers()^Qt::AltModifier);
     if (key() == Qt::Key_Meta)
-        return Qt::KeyboardModifiers(m^Qt::MetaModifier);
-    return m;
+        return Qt::KeyboardModifiers(QInputEvent::modifiers()^Qt::MetaModifier);
+    return QInputEvent::modifiers();
 }
 
 /*!
@@ -1592,7 +1590,7 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
                   int minX, int maxX, int minY, int maxY, int device,
                   int pressure, int minPressure, int maxPressure, int xTilt, int yTilt,
                   Qt::KeyboardModifiers keyState, const QPair<int,int> &uId)
-    : QInputEvent(t),
+    : QInputEvent(t, keyState),
       mPos(pos),
       mGPos(globalPos),
       mHiResPos(hiResPos),
@@ -1607,8 +1605,7 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
       mType(uId.first),
       mPhy(uId.second),
       mMinPressure(minPressure),
-      mMaxPressure(maxPressure),
-      mKeyState(keyState)
+      mMaxPressure(maxPressure)
 {
 }
 
