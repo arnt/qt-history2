@@ -423,6 +423,11 @@ bool QPainter::begin(QPaintDevice *pd, bool unclipped)
 	return false;
     }
 
+    QPaintDevice *rpd = redirected(pd, &d->redirection_offset);
+    if (rpd) {
+	pd = rpd;
+    }
+
     switch (pd->devType()) {
 	case QInternal::Widget:
 	{
@@ -465,11 +470,6 @@ bool QPainter::begin(QPaintDevice *pd, bool unclipped)
 
     if (d->state->ww == 0) // For compat with 3.x painter defaults
         d->state->ww = d->state->wh = d->state->vw = d->state->vh = 1024;
-
-    QPaintDevice *rpd = redirected(pd, &d->redirection_offset);
-    if (rpd) {
-	pd = rpd;
-    }
 
     d->state->bgOrigin -= d->redirection_offset;
     d->device = pd;
