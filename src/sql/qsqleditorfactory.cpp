@@ -40,6 +40,11 @@
 
 #include "qsqlfield.h"
 #include "qcleanuphandler.h"
+#include "qlabel.h"
+#include "qlineedit.h"
+#include "qspinbox.h"
+#include "qcombobox.h"
+#include "qdatetimeedit.h"
 
 /*!
     \class QSqlEditorFactory qsqleditorfactory.h
@@ -142,9 +147,67 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
 
 QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
 					   const QSqlField * field )
-{
-    QVariant v = field->value();
-    return createEditor( parent, v );
+{    
+    if ( !field ) {
+	return 0;
+    }
+    
+    QWidget * w = 0;
+    switch( field->type() ){
+	case QVariant::Invalid:
+	    w = 0;
+	    break;
+	case QVariant::Bool:
+	    w = new QComboBox( parent, "qt_editor_bool" );
+	    ((QComboBox *) w)->insertItem( "False" );
+	    ((QComboBox *) w)->insertItem( "True" );
+	    break;
+	case QVariant::UInt:
+	    w = new QSpinBox( 0, 2147483647, 1, parent, "qt_editor_spinbox" );
+	    break;
+	case QVariant::Int:
+	    w = new QSpinBox( -2147483647, 2147483647, 1, parent, "qt_editor_int" );
+	    break;
+	case QVariant::String:
+	case QVariant::CString:
+	case QVariant::Double:
+	    w = new QLineEdit( parent, "qt_editor_double" );
+	    ((QLineEdit*)w)->setFrame( FALSE );
+	    break;
+	case QVariant::Date:
+	    w = new QDateEdit( parent, "qt_editor_date" );
+	    break;
+	case QVariant::Time:
+	    w = new QTimeEdit( parent, "qt_editor_time" );
+	    break;
+	case QVariant::DateTime:
+	    w = new QDateTimeEdit( parent, "qt_editor_datetime" );
+	    break;
+	case QVariant::Pixmap:
+	    w = new QLabel( parent, "qt_editor_pixmap" );
+	    break;
+	case QVariant::Palette:
+	case QVariant::ColorGroup:
+	case QVariant::Color:
+	case QVariant::Font:
+	case QVariant::Brush:
+	case QVariant::Bitmap:
+	case QVariant::Cursor:
+	case QVariant::Map:
+	case QVariant::StringList:
+	case QVariant::Rect:
+	case QVariant::Size:
+	case QVariant::IconSet:
+	case QVariant::Point:
+	case QVariant::PointArray:
+	case QVariant::Region:
+	case QVariant::SizePolicy:
+	case QVariant::ByteArray:
+	default:
+	    w = new QWidget( parent, "qt_editor_default" );
+	    break;
+    }
+    return w;
 }
 
 #endif // QT_NO_SQL

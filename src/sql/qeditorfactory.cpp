@@ -35,12 +35,10 @@
 **********************************************************************/
 
 #include "qcleanuphandler.h"
-#include "qwidget.h"
 #include "qlabel.h"
 #include "qlineedit.h"
 #include "qspinbox.h"
 #include "qcombobox.h"
-#include "qlayout.h"
 
 #include "qeditorfactory.h"
 #include "qdatetimeedit.h"
