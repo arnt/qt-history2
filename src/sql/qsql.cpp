@@ -83,5 +83,5 @@
 /*!
     \fn QSql::QSql()
 
-    Constructs a Qt SQL namepsace class
+    Constructs a Qt SQL namespace class
 */
