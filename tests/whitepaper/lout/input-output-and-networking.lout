@@ -58,7 +58,7 @@ if ( file.open(IO_ReadOnly) ) {
 }
 @End @CP
 In practice, the above example would be written more concisely and
-easily using @Class QSettings @Xref{settings}.
+easily using @Class QSettings.
 @PP
 @Class QTextStream and @Class QDataStream operate on any @Class
 QIODevice subclass. Qt includes the @Class QFile, @Class QBuffer,
