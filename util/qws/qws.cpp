@@ -88,6 +88,11 @@ QWSClient::QWSClient( QObject* parent, int socket, int shmid,
     connect( this, SIGNAL(error(int)), this, SLOT(errorHandler(int)) );
 }
 
+QWSClient::~QWSClient()
+{
+}
+
+
 void QWSClient::closeHandler()
 {
     qDebug( "Client %p closed", this );
@@ -112,31 +117,6 @@ void QWSClient::errorHandler( int err )
     qDebug( "Client %p error %d (%s)", this, err, s.ascii() );
     isClosed = TRUE;
     emit connectionClosed();
-}
-
-void QWSClient::errorHandler( int err )
-{
-    QString s = "Unknown";
-    switch( err ) {
-    case ErrConnectionRefused:
-	s = "Connection Refused";
-	break;
-    case ErrHostNotFound:
-	s = "Host Not Found";
-	break;
-    case ErrSocketRead:
-	s = "Socket Read";
-	break;
-    }
-    qDebug( "Client %p error %d (%s)", this, err, s.ascii() );
-    isClosed = TRUE;
-    flush(); //####We need to clean out the pipes, this in not the the way.
-    emit connectionClosed();
-}
-
-int QWSClient::socket() const
-{
-    return s;
 }
 
 int QWSClient::socket() const
