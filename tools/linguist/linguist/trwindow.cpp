@@ -1672,7 +1672,14 @@ void TrWindow::revertSorting()
 void TrWindow::manual()
 {
     QStringList lst;
-    lst << "assistant" << "linguist-manual.html";
+#ifdef Q_OS_MACX
+    lst << QDir::cleanDirPath(QString(getenv("QTDIR")) + QDir::separator() +
+			      "bin" + QDir::separator() +
+			      "assistant.app/Contents/MacOS/assistant");
+#else
+    lst << "assistant";
+#endif
+    lst << "linguist-manual.html";
     QProcess proc( lst );
     proc.start();
 }

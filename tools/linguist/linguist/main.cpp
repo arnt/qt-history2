@@ -27,10 +27,22 @@
 extern void qt_wait_for_window_manager( QWidget * );
 #endif
 
+#ifdef Q_OS_MACX
+#include <stdlib.h>
+#include <qdir.h>
+#endif
+
 int main( int argc, char **argv )
 {
     QApplication app( argc, argv );
     QApplication::setOverrideCursor( Qt::waitCursor );
+
+#ifdef Q_OS_MACX
+    QString qdir = QDir::cleanDirPath(QDir::currentDirPath() + QDir::separator() +
+				      ".." + QDir::separator());
+    setenv("QTDIR", qdir.latin1(), 0);
+#endif
+
     QTranslator translator( 0 );
     translator.load( QString( "linguist_" ) + QTextCodec::locale(), "." );
     app.installTranslator( &translator );
