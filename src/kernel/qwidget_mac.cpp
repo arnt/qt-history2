@@ -306,7 +306,7 @@ bool qt_recreate_root_win() {
 bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 {
     QWidget *widget = QWidget::find((WId)id);
-    if (qMacVersion() == Qt::MV_Jaguar) {
+    if (qMacVersion() == Qt::MV_JAGUAR) {
 	switch(wcode) {
 	case kWindowOpaqueRgn:
 	case kWindowStructureRgn: {
