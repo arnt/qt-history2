@@ -44,6 +44,7 @@
 #include "qcolor.h"
 #include "qapplication.h"
 #include "qregion.h"
+#include "qbitmap.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -133,12 +134,13 @@ public:
 
 
 
-/*!  Constructs a dial called \a name with parent \a parent.
+/*!  Constructs a dial called \a name with parent \a parent. 
+    \a f is propagated to the QWidget constructor.
     It has the default range of a QRangeControl.
 */
 
-QDial::QDial( QWidget *parent, const char *name )
-    : QWidget( parent, name, WRepaintNoErase | WResizeNoErase ), QRangeControl()
+QDial::QDial( QWidget *parent, const char *name, WFlags f )
+    : QWidget( parent, name, f | WRepaintNoErase | WResizeNoErase ), QRangeControl()
 {
     d = new QDialPrivate;
     d->eraseAreaValid = FALSE;
@@ -376,6 +378,31 @@ void QDial::repaintScreen( const QRect *cr )
 	style().drawPrimitive( QStyle::PE_FocusRect, &p, br, colorGroup());
     }
     p.end();
+}
+
+/*!
+  \reimp
+*/
+void QDial::updateMask()
+{
+    QBitmap bm(width(),height());
+    bm.fill(color0);
+
+    QPainter p( &bm );
+    p.setPen( color1 );
+    p.setBrush( color1 );
+    QRect te = calcDial();
+    te.setWidth(te.width()+2);
+    te.setHeight(te.height()+2);
+    // erase background of dial
+    p.drawEllipse( te );
+
+    if ( d->showNotches ) {
+	calcLines();
+	p.drawLineSegments( d->lines );
+    }
+    
+    setMask( bm );
 }
 
 

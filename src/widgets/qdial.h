@@ -63,7 +63,7 @@ class Q_EXPORT QDial: public QWidget, public QRangeControl
     Q_PROPERTY( int value READ value WRITE setValue )
 	
 public:
-    QDial( QWidget *parent=0, const char *name=0 );
+    QDial( QWidget *parent=0, const char *name=0, WFlags f = 0 );
     QDial( int minValue, int maxValue, int pageStep, int value,
 	   QWidget *parent=0, const char *name=0 );
     ~QDial();
@@ -124,6 +124,8 @@ protected:
     void rangeChange();
 
     virtual void repaintScreen( const QRect *cr = 0 );
+
+    void updateMask();
 
 private:
     QDialPrivate * d;
