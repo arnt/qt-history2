@@ -442,6 +442,15 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	    drawPrimitive(PE_ButtonBevel, p, r, cg, Style_Enabled | Style_Raised);
 	break;
 
+    case PE_WindowFrame:
+	{
+	    QColorGroup popupCG = cg;
+	    popupCG.setColor( QColorGroup::Light, cg.background() );
+	    popupCG.setColor( QColorGroup::Midlight, cg.light() );
+	    qDrawWinPanel(p, r, popupCG, flags & Style_Sunken);
+	}
+	break;
+
     default:
 	if (pe >= PE_ArrowUp && pe <= PE_ArrowLeft) {
 	    QPointArray a;
@@ -940,6 +949,10 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 
     case PM_SplitterWidth:
 	ret = QMAX( 6, QApplication::globalStrut().width() );
+	break;
+
+    case PM_MDIFrameWidth:
+	ret = 3;
 	break;
 
     default:
