@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#79 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#80 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1280,9 +1280,8 @@ sub printclass {
 	$class = $name{$class} . "::";
 	$protection = lc $fndocs{$url};
 	$protection =~ s/s$//;
-	if ($protection eq "public") {
-	    $protection = "";
-	} else {
+	$protection =~ s/\s*public\s*//;
+	if ($protection ne "") {
 	    $protection = " <code>" . $protection . "</code>";
 	}
 	$_ = $def{$url};
