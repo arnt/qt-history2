@@ -3407,9 +3407,9 @@ done
 [ "$CFG_XRENDER" = "no" ]    && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XRENDER"
 [ "$CFG_XSHAPE" = "no" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SHAPE"
 
-# sort QCONFIG_FLAGS for neatness
-#QCONFIG_FLAGS=`echo $QCONFIG_FLAGS | sed 's/ /\\n/g' | sort`
-#QCONFIG_FLAGS=`echo $QCONFIG_FLAGS`
+# sort QCONFIG_FLAGS for neatness if we can
+[ '!' -z "$AWK" ] && QCONFIG_FLAGS=`echo $QCONFIG_FLAGS | $AWK '{ gsub(" ", "\n"); print }'`
+QCONFIG_FLAGS=`echo $QCONFIG_FLAGS`
 
 if [ -n "$QCONFIG_FLAGS" ]; then
     for cfg in $QCONFIG_FLAGS; do
