@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qpixmapcache.h"
-#include "qcache.h"
+#include "q3cache.h"
 #include "qobject.h"
 #include "qcleanuphandler.h"
 
@@ -98,12 +98,12 @@ static int cache_limit	  = 256;		// 256 KB cache limit
 static int cache_limit	  = 1024;		// 1024 KB cache limit
 #endif
 
-class QPMCache: public QObject, public QCache<QPixmap>
+class QPMCache: public QObject, public Q3Cache<QPixmap>
 {
 public:
     QPMCache():
 	QObject( 0, "global pixmap cache" ),
-	QCache<QPixmap>( cache_limit * 1024, cache_size ),
+	Q3Cache<QPixmap>( cache_limit * 1024, cache_size ),
 	id( 0 ), ps( 0 ), t( FALSE )
 	{
 	    setAutoDelete( TRUE );
@@ -149,7 +149,7 @@ void QPMCache::timerEvent( QTimerEvent * )
 
 bool QPMCache::insert( const QString& k, const QPixmap *d, int c, int p )
 {
-    bool r = QCache<QPixmap>::insert( k, d, c, p );
+    bool r = Q3Cache<QPixmap>::insert( k, d, c, p );
     if ( r && !id ) {
 	id = startTimer( 30000 );
 	t = FALSE;

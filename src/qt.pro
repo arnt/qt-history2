@@ -42,6 +42,7 @@ CODECS_CPP	= codecs
 WORKSPACE_CPP	= workspace
 XML_CPP	        = xml
 STYLES_CPP	= styles
+COMPAT_CPP	= compat
 EMBEDDED_CPP	= embedded
 
 win32 {
@@ -61,6 +62,7 @@ win32 {
 		XML_H		= $$XML_CPP
 		CANVAS_H	= $$CANVAS_CPP
 		STYLES_H	= $$STYLES_CPP
+		COMPAT_H	= $$COMPAT_CPP
 	} else {
 		WIN_ALL_H = ../include
 		SQL_H		= $$WIN_ALL_H
@@ -78,6 +80,7 @@ win32 {
 		XML_H		= $$WIN_ALL_H
 		CANVAS_H	= $$WIN_ALL_H
 		STYLES_H	= $$WIN_ALL_H
+		COMPAT_H	= $$WIN_ALL_H
 		CONFIG 		-= incremental
 	}
 
@@ -108,6 +111,7 @@ unix {
 	WORKSPACE_H	= $$WORKSPACE_CPP
 	XML_H		= $$XML_CPP
 	STYLES_H	= $$STYLES_CPP
+	COMPAT_H	= $$COMPAT_CPP
 	!embedded:!mac:CONFIG	   += x11 x11inc
 }
 
@@ -122,7 +126,7 @@ embedded {
 
 DEPENDPATH += ;$$NETWORK_H;$$KERNEL_H;$$WIDGETS_H;$$SQL_H;$$TABLE_H;$$DIALOGS_H;
 DEPENDPATH += $$ICONVIEW_H;$$OPENGL_H;$$THREAD_H;$$TOOLS_H;$$CODECS_H;
-DEPENDPATH += $$WORKSPACE_H;$$XML_H;$$CANVAS_H;$$STYLES_H
+DEPENDPATH += $$WORKSPACE_H;$$XML_H;$$CANVAS_H;$$STYLES_H;$$COMPAT_H
 embedded:DEPENDPATH += ;$$EMBEDDED_H
 
 thread {
@@ -191,5 +195,5 @@ wince-* {
 		   $$KERNEL_CPP/qimageformatplugin.cpp \
 		   $$STYLES_CPP/qstyleplugin.cpp \
 		   $$CODECS_CPP/qtextcodecplugin.cpp \
-		   $$WIDGETS_CPP/qwidgetplugin.cpp \
+		   $$WIDGETS_CPP/qwidgetplugin.cpp
 }

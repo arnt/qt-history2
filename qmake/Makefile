@@ -43,7 +43,7 @@ OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.
 #qt code
 QTOBJS=qchar.obj qstring.obj quuid.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qbytearray.obj qcstring.obj qdatastream.obj \
  	qgarray.obj qbuffer.obj qglist.obj qlist.obj qptrcollection.obj qfile.obj qfile_win.obj qregexp.obj qgvector.obj \
- 	qgcache.obj qbitarray.obj qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj \
+ 	qvector.obj qbitarray.obj qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj \
  	qstringlist.obj qmap.obj qlibrary.obj qlibrary_win.obj qconfig.obj qsettings.obj qsettings_win.obj qunicodetables.obj
 
 
@@ -133,8 +133,8 @@ qregexp.obj: ..\src\tools\qregexp.cpp
 qgvector.obj: ..\src\tools\qgvector.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qgvector.cpp
 
-qgcache.obj: ..\src\tools\qgcache.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qgcache.cpp
+qvector.obj: ..\src\tools\qvector.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qvector.cpp
 
 qbitarray.obj: ..\src\tools\qbitarray.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qbitarray.cpp

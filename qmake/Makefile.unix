@@ -25,7 +25,7 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp generators/makefile.cpp ge
 	   @SOURCE_PATH@/src/tools/qbuffer.cpp @SOURCE_PATH@/src/tools/qlist.cpp \
 	   @SOURCE_PATH@/src/tools/qptrcollection.cpp @SOURCE_PATH@/src/tools/qfile.cpp \
 	   @SOURCE_PATH@/src/tools/qfile_unix.cpp @SOURCE_PATH@/src/tools/qregexp.cpp \
-	   @SOURCE_PATH@/src/tools/qgvector.cpp @SOURCE_PATH@/src/tools/qgcache.cpp \
+	   @SOURCE_PATH@/src/tools/qgvector.cpp @SOURCE_PATH@/src/tools/qvector.cpp \
 	   @SOURCE_PATH@/src/tools/qbitarray.cpp @SOURCE_PATH@/src/tools/qdir.cpp \
 	   @SOURCE_PATH@/src/tools/quuid.cpp @SOURCE_PATH@/src/tools/qfileinfo_unix.cpp \
 	   @SOURCE_PATH@/src/tools/qdir_unix.cpp @SOURCE_PATH@/src/tools/qfileinfo.cpp \
@@ -128,8 +128,8 @@ qregexp.o: @SOURCE_PATH@/src/tools/qregexp.cpp
 qgvector.o: @SOURCE_PATH@/src/tools/qgvector.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qgvector.cpp
 
-qgcache.o: @SOURCE_PATH@/src/tools/qgcache.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qgcache.cpp
+qgcache.o: @SOURCE_PATH@/src/tools/qvector.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qvector.cpp
 
 qbitarray.o: @SOURCE_PATH@/src/tools/qbitarray.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qbitarray.cpp

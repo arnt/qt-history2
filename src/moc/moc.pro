@@ -32,7 +32,7 @@ SOURCES		= ../tools/qbuffer.cpp	    \
 		  ../tools/qtextstream.cpp  \
 		  ../tools/qbitarray.cpp    \
 		  ../tools/qmap.cpp         \
-		  ../tools/qgcache.cpp      \
+		  ../tools/qvector.cpp      \
 		  ../codecs/qtextcodec.cpp \
 		  ../codecs/qutfcodec.cpp
 

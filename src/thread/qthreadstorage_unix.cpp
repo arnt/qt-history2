@@ -213,12 +213,12 @@ bool QThreadStorageData::ensure_constructed(void (*func)(void *))
     termination).
 
     \code
-    QThreadStorage<QCache<SomeClass> *> caches;
+    QThreadStorage<QCache<QString, SomeClass> *> caches;
 
     void cacheObject( const QString &key, SomeClass *object )
     {
         if ( ! caches.hasLocalData() )
-	    caches.setLocalData( new QCache<SomeClass> );
+	    caches.setLocalData( new QCache<QString, SomeClass> );
 
 	caches.localData()->insert( key, object );
     }

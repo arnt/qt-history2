@@ -23,12 +23,12 @@ tools {
 		  $$TOOLS_P/qfiledefs_p.h \
 		  $$TOOLS_H/qfileinfo.h \
 		  $$TOOLS_H/qgarray.h \
-		  $$TOOLS_H/qgcache.h \
 		  $$TOOLS_H/qgdict.h \
 		  $$TOOLS_H/qgeneric.h \
 		  $$TOOLS_H/qglist.h \
 		  $$TOOLS_H/qglobal.h \
 		  $$TOOLS_H/qhash.h \
+		  $$TOOLS_H/qlinkedlist.h \
 		  $$TOOLS_H/qlist.h \
 		  $$TOOLS_P/qgpluginmanager_p.h \
 		  $$TOOLS_H/qgvector.h \
@@ -49,6 +49,8 @@ tools {
 		  $$TOOLS_H/qshared.h \
 		  $$TOOLS_H/qsortedlist.h \
 		  $$TOOLS_H/qptrstack.h \
+		  $$TOOLS_H/qstack.h \
+		  $$TOOLS_H/qstackarray.h \
 		  $$TOOLS_H/qstring.h \
 		  $$TOOLS_H/qstringlist.h \
 		  $$TOOLS_H/qstrlist.h \
@@ -102,11 +104,11 @@ tools {
 		  $$TOOLS_CPP/qfile.cpp \
 		  $$TOOLS_CPP/qfileinfo.cpp \
 		  $$TOOLS_CPP/qgarray.cpp \
-		  $$TOOLS_CPP/qgcache.cpp \
 		  $$TOOLS_CPP/qgdict.cpp \
 		  $$TOOLS_CPP/qglist.cpp \
 		  $$TOOLS_CPP/qglobal.cpp \
 		  $$TOOLS_CPP/qhash.cpp \
+		  $$TOOLS_CPP/qlinkedlist.cpp \
 		  $$TOOLS_CPP/qlist.cpp \
 		  $$TOOLS_CPP/qgpluginmanager.cpp \
 		  $$TOOLS_CPP/qgvector.cpp \
@@ -115,6 +117,7 @@ tools {
 		  $$TOOLS_CPP/qmap.cpp \
 		  $$TOOLS_CPP/qptrcollection.cpp \
 		  $$TOOLS_CPP/qregexp.cpp \
+		  $$TOOLS_CPP/qstack.cpp \
 		  $$TOOLS_CPP/qstring.cpp \
 		  $$TOOLS_CPP/qsettings.cpp \
 		  $$TOOLS_CPP/qstringlist.cpp \

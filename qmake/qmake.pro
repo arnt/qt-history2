@@ -29,7 +29,7 @@ SOURCES+=qchar.cpp qstring.cpp qtextstream.cpp \
 	 qbuffer.cpp qglist.cpp qlist.cpp\
 	 qptrcollection.cpp qfile.cpp \
 	 qregexp.cpp quuid.cpp \
-	 qgvector.cpp qgcache.cpp \
+	 qgvector.cpp qvector.cpp \
 	 qbitarray.cpp qdir.cpp \
 	 qfileinfo.cpp qdatetime.cpp \
 	 qstringlist.cpp qmap.cpp \
