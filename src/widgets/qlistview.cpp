@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#281 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#282 $
 **
 ** Implementation of QListView widget class
 **
@@ -2034,48 +2034,61 @@ void QListView::setColumnWidth( int column, int w )
     }
 }
 
+
 /*!
-  Returns the text for the heading of column \a c.
+  Returns the text of column \a c.
 */
+
 QString QListView::columnText( int c ) const
 {
     return d->h->label(c);
 }
 
 /*!
-  Returns the width of the heading of column \a c.
+  Returns the width of column \a c.
 */
+
 int QListView::columnWidth( int c ) const
 {
     return d->h->cellSize(c);
 }
 
+
+/*! \enum QListView::WidthMode
+
+  This enum type describes how the width of a column in the view
+  changes.  The currently defined modes are: <ul>
+
+  <li> \c Manual - the column width does not change automatically
+
+  <li> \c Maximum - the column is automatically sized according to the
+  widths of all items in the column.  (Note: The column never shrinks
+  in this case.)
+
+  </ul>
+
+  \sa setColumnWidth() setColumnWidthMode() columnWidth()
+*/
+
+
 /*!
-  Sets column \c to behave according to \a mode, which is one of:
-
-\define QListView::WidthMode
-
-  <ul>
-   <li> \c Manual - the column width does not change automatically
-   <li> \c Maximum - the column is automatically sized according to the
-	    widths of all items in the column.
-   </ul>
-
-   \bug doesn't shrink back yet when items shrink or close
-
-   </ul>
+  Sets column \c to behave according to \a mode.  The default depends
+  on whether the width argument to addColumn was positive or negative.
 
   \sa QListViewItem::width()
 */
+
 void QListView::setColumnWidthMode( int c, WidthMode mode )
 {
     d->column[c]->wmode = mode;
 }
 
+
 /*!
   Returns the currently set WidthMode for column \a c.
   \sa setColumnWidthMode()
 */
+
 QListView::WidthMode QListView::columnWidthMode( int c ) const
 {
     return d->column[c]->wmode;
@@ -2086,8 +2099,6 @@ QListView::WidthMode QListView::columnWidthMode( int c ) const
   Configures the logical column \a column to have alignment \a align.
   The alignment is ultimately passed to QListViewItem::paintCell()
   for each item in the view.
-
-  The display is automatically scheduled to be updated.
 */
 
 void QListView::setColumnAlignment( int column, int align )
@@ -2163,6 +2174,7 @@ void QListView::updateContents()
     ensureItemVisible( d->focusItem );
 }
 
+
 void QListView::updateGeometries()
 {
     int th = d->r->totalHeight();
@@ -2182,9 +2194,11 @@ void QListView::updateGeometries()
     }
 }
 
+
 /*!
   Updates the display when a section has changed size.
 */
+
 void QListView::handleSizeChange( int section, int os, int ns )
 {
     updateGeometries();
@@ -2195,12 +2209,12 @@ void QListView::handleSizeChange( int section, int os, int ns )
         dx = QMIN( os, ns ) - 1 - ( ( hasFocus() || viewport()->hasFocus() ) ? 1 : 0 );
 
     left += dx;
-    
+
         viewport()->repaint( left, 0, d->h->cellSize( d->h->mapToActual( section ) ) - dx,
                              visibleHeight(), FALSE );
     if ( viewport()->mapFromGlobal( QCursor::pos() ).x() < viewport()->width() ) {
-        viewport()->scroll( ns - os, 0, QRect( left + d->h->cellSize( d->h->mapToActual( section ) ) - dx, 0, 
-                                               visibleWidth() - ( left + d->h->cellSize( d->h->mapToActual( section ) ) - dx ), 
+        viewport()->scroll( ns - os, 0, QRect( left + d->h->cellSize( d->h->mapToActual( section ) ) - dx, 0,
+                                               visibleWidth() - ( left + d->h->cellSize( d->h->mapToActual( section ) ) - dx ),
                                                visibleHeight() ) );
     }
 }
@@ -2232,6 +2246,7 @@ void QListView::makeVisible()
     if ( d->focusItem )
         ensureItemVisible( d->focusItem );
 }
+
 
 /*!  Ensures that the header is correctly sized and positioned.
 */
@@ -2267,6 +2282,7 @@ void QListView::triggerUpdate()
     }
     d->timer->start( 0, TRUE );
 }
+
 
 /*!  Redirects events for the viewport to mousePressEvent(),
   keyPressEvent() and friends. */
@@ -2328,6 +2344,7 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
     return QScrollView::eventFilter( o, e );
 }
 
+
 /*! Returns a pointer to the listview containing this item.
 */
 
@@ -2340,6 +2357,7 @@ QListView * QListViewItem::listView() const
 	return 0;
     return ((QListViewPrivate::Root*)c)->theListView();
 }
+
 
 /*!
   Returns the depth of this item.

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#288 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#289 $
 **
 ** Implementation of QListBox widget class
 **
@@ -468,10 +468,10 @@ int QListBoxPixmap::width( const QListBox* ) const
   but unfortunately not everything.
 
   Each item in a QListBox contains a QListBoxItem.  One of the items
-can be the current item.  The highlighted() signal is emitted when the
-user highlights a new current item; selected() is emitted when the
-user double-clicks on an item or presses return when an item is
-highlighted.
+  can be the current item.  The highlighted() signal is emitted when
+  the user highlights a new current item; selected() is emitted when
+  the user double-clicks on an item or presses return when an item is
+  highlighted.
 
   If the user does not select anything, no signals are emitted and
   currentItem() returns -1.
@@ -528,6 +528,30 @@ highlighted.
   either just one or a range of contiguous items.
 */
 
+
+/*! \enum QListBox::LayoutMode
+
+  This enum type decides how QListBox lays out its rows and columns.
+  The two modes interact, of course.
+
+  The possible values for each mode are: <ul>
+
+  <li> \c FixedNumber - there is a fixed number of rows (or columns).
+
+  <li> \c FitToHeight - there are as many rows as will fit on-screen.
+  (Ditto with \c FitToWidth and columns.)
+
+  <li> \c Variable - there are as many rows as are required by the
+  column mode.  (Or as many columns as required by the row mode.)
+
+  </ul>
+
+  Example: When you call setRowMode( FitToHeight ), columnMode()
+  automatically becomes \c Variable to accomodate the row mode you've
+  set.
+*/
+
+
 /*!
   Constructs a list box.  The arguments are passed directly to the
   QScrollView constructor.
@@ -583,6 +607,14 @@ QListBox::~QListBox()
   \sa selected() currentItem() selectionChanged()
 */
 
+/*! \fn void QListBox::highlighted( QListBoxItem * )
+
+  This signal is emitted when the user highlights a new current item.
+  The argument is a pointer to the new current item.
+
+  \sa selected() currentItem() selectionChanged()
+*/
+
 /*! \fn void QListBox::highlighted( const QString &)
 
   This signal is emitted when the user highlights a new current item
@@ -597,6 +629,15 @@ QListBox::~QListBox()
   This signal is emitted when the user double-clicks on an item or
   presses return when an item is highlighted.  The argument is the
   index of the selected item.
+
+  \sa highlighted() selectionChanged()
+*/
+
+/*! \fn void QListBox::selected( QListBoxItem * )
+
+  This signal is emitted when the user double-clicks on an item or
+  presses return when an item is highlighted.  The argument is a
+  pointer to the new selected item.
 
   \sa highlighted() selectionChanged()
 */
@@ -1006,20 +1047,18 @@ int QListBox::currentItem() const
     return index( d->current );
 }
 
+
 /*!
   \fn QString QListBox::currentText() const
 
-  Equivalent to <tt>text(currentItem())</tt>, this function returns
-  the text of the current item.
+  Returns the text of the current item.
+
+  This is equivalent to text(currentItem()).
 */
 
-/*!
-  Sets the highlighted item to the item at position \a index in the list.
-  The highlighting is moved and the list box scrolled as necessary.
+/*! \overload
 
-  If autoUpdate() is enabled, the display is updated accordingly.
-
-  \sa currentItem()
+  This is a bit slower than the QListBoxItem * version.
 */
 
 void QListBox::setCurrentItem( int index )
@@ -1027,6 +1066,12 @@ void QListBox::setCurrentItem( int index )
     setCurrentItem( item( index ) );
 }
 
+
+/*!  Sets the highlighted item to the item at position \a index in the
+  list.  The highlighting is moved and the list box scrolled as necessary.
+
+  \sa currentItem()
+*/
 
 void QListBox::setCurrentItem( QListBoxItem * i )
 {
@@ -2520,10 +2565,10 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
     QWidget* vp = viewport();
     QPainter p( vp );
     QRegion r = e->region();
-    p.setClipRegion( r );
 
 #if 0
-    { // this stuff has been useful enough times that from now I'm
+    {
+	// this stuff has been useful enough times that from now I'm
 	//  leaving it in the source.
 	int i = 0;
 	debug( "%s/%s: %i rects", className(), name(), r.rects().size() );

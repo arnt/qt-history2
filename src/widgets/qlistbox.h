@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#96 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#97 $
 **
 ** Definition of QListBox widget class
 **
@@ -205,7 +205,6 @@ protected:
 
     void toggleCurrentItem();
 
-    void updateVector();
     void doLayout() const;
 
 #ifndef QT_NO_COMPAT // obsolete, provided for source compatibility
