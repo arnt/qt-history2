@@ -533,8 +533,8 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
 
 void QGenericTreeView::scrollContentsBy(int dx, int dy)
 {
-    if (dy) {
-        d->viewport->update();
+    if (dy) { // FIXME
+        QViewport::scrollContentsBy(dx, dy);
         return;
     }
     if (dx) {
@@ -550,7 +550,8 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
             hscroll = d->header->offset() - offset;
             d->header->setOffset(offset);
         }
-        d->viewport->scroll(hscroll, 0);
+        //d->viewport->scroll(hscroll, 0);
+        d->viewport->update();
     }
 }
 

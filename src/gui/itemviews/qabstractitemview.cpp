@@ -20,6 +20,7 @@
 #include <qpair.h>
 #include <qmenu.h>
 #include <qevent.h>
+#include <qeventloop.h>
 #include <qscrollbar.h>
 #include <qwhatsthis.h>
 #include <qtooltip.h>
@@ -232,7 +233,7 @@ void QAbstractItemView::edit(const QModelIndex &index)
 
 void QAbstractItemView::doItemsLayout()
 {
-    update();
+    d->viewport->update();
     // do nothing
 }
 
@@ -798,18 +799,25 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
 
     // FIXME: calling ensureItemVisible first before redrawing oldRect
     // make the view look slow, but since repaintItem does not update the rect
-    // immediately we get drawing errors because the contentview might be shifted
-
-    if (current.isValid() && isVisible())
-        ensureItemVisible(current);
-
-    if (old.isValid())
-        updateItem(old);
-    if (current.isValid()) {
-        updateItem(current);
-        // FIXME: the QWidget::scroll() will sometimes blit before we get the chance to repaint the old item
-        startEdit(current, QAbstractItemDelegate::CurrentChanged, 0);
+    // immediately we get drawing errors because the content  might be shifted
+    QRect area = d->viewport->clipRegion().boundingRect();
+    QRect oldRect = itemViewportRect(old);
+    if (old.isValid() && area.contains(oldRect)) {
+        update(oldRect);
+//         QApplication::eventLoop()->processEvents(QEventLoop::ExcludeUserInput
+//                                                  |QEventLoop::ExcludeSocketNotifiers);
+        //qApp->processOneEvent();
+        //qApp->processEvents();
     }
+
+    if (current.isValid()) {
+        QRect currentRect = itemViewportRect(current);
+        if (area.contains(currentRect))
+            update(currentRect);
+        else
+            ensureItemVisible(current);
+        startEdit(current, QAbstractItemDelegate::CurrentChanged, 0);
+    }   
 }
 
 void QAbstractItemView::fetchMore()

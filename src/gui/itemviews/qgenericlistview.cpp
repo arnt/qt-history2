@@ -388,9 +388,10 @@ void QGenericListView::ensureItemVisible(const QModelIndex &item)
     }
 }
 
-void QGenericListView::scrollContentsBy(int dx, int dy)
+void QGenericListView::scrollContentsBy(int /*dx*/, int /*dy*/)
 {
-    d->viewport->scroll(dx, dy);
+    //d->viewport->scroll(dx, dy);
+    d->viewport->update();
 }
 
 void QGenericListView::resizeContents(int w, int h)
