@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#5 $
 **
 ** Implementation of date and time classes
 **
 ** Author  : Haavard Nord
 ** Created : 940124
 **
-** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,13 +14,17 @@
 #include "qdstream.h"
 #include <stdio.h>
 #include <time.h>
-#if defined(UNIX)
+#if defined(_OS_MSDOS_)
+#include <dos.h>
+#elif defined(_OS_OS2_)
+#include <bsedos.h>
+#elif defined(UNIX)
 #include <sys/time.h>
 #include <unistd.h>
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#5 $";
 #endif
 
 
@@ -134,7 +138,7 @@ const char *QDate::dayName( uint weekday) const // name of week day
 }
 
 
-QString QDate::asString() const			// date as string
+QString QDate::toString() const			// date to string
 {
     QString buf;
     uint y, m, d;
@@ -283,7 +287,7 @@ uint QTime::msec() const			// 0..999
 }
 
 
-QString QTime::asString() const			// time as string
+QString QTime::toString() const			// time to string
 {
     QString buf;
     buf.sprintf( "%.2d:%.2d:%.2d", hour(), minute(), second() );
@@ -329,23 +333,52 @@ long QTime::msecsTo( const QTime &t ) const	// milliseconds difference
 }
 
 
+//
+// There are many ifdef's in the following function because millisecond
+// time isn't standardized.
+//
 QTime QTime::currentTime()			// get current time
 {
-    static long msdiff = -1;			// msec diff from GMT
-    struct timeval tv;
+#if defined(_OS_MSDOS_)
+
     QTime ct;
-    gettimeofday( &tv, 0 );
-    if ( msdiff == -1 ) {
-	++msdiff;
-	tm *t = localtime( &tv.tv_sec );
-	long ms = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
-	    	  1000L*t->tm_sec;
-	ct.ds = ms + (tv.tv_usec)/1000;
-	msdiff = ms - (tv.tv_sec % 86400L)*1000L;
-    }
-    else
-	ct.ds = (tv.tv_sec % 86400L)*1000L + msdiff + tv.tv_usec/1000L;
+    _dostime_t t;
+    _dos_gettime( &t );
+    ct.ds = MSECS_PER_HOUR*t.hour + MSECS_PER_MIN*t.minute +
+	    t.second*1000L + t.hsecond*10L;
     return ct;
+
+#elif defined(_OS_OS2_)
+
+    QTime ct;
+    DATETIME t;
+    DosGetDateTime( &t );
+    ct.ds = MSECS_PER_HOUR*t.hours + MSECS_PER_MIN*t.minutes +
+	    1000*t.seconds + 10*t.hundreths;
+    return ct;
+
+#elif defined(UNIX)
+
+    QTime ct;
+    struct timeval tv;
+    gettimeofday( &tv, 0 );
+    time_t ltime = tv.tv_sec; 
+    tm *t = localtime( &ltime );
+    ct.ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
+	    1000*t->tm_sec + tv.tv_usec/1000;
+    return ct;
+
+#else						// !! no millisec resolution
+
+    QTime ct;
+    time_t ltime;
+    ::time( &ltime );
+    tm *t = localtime( &ltime );
+    ct.ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
+	    1000*t->tm_sec;
+    return ct;
+
+#endif
 }
 
 bool QTime::isValid( uint h, uint m, uint s, uint ms ) // is valid time?
@@ -369,10 +402,10 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
 }
 
 
-QString QDateTime::asString() const		// datetime as string
+QString QDateTime::toString() const		// datetime to string
 {
     QString buf;
-    QString time = t.asString();
+    QString time = t.toString();
     buf.sprintf( "%s %s %d %s %d", d.dayName(d.dayOfWeek()),
 		 d.monthName(d.month()), d.day(), (const char*)time, d.year());
     return buf;
