@@ -6,6 +6,7 @@
 class QDateTimeEdit;
 class QDoubleSpinBox;
 class QGroupBox;
+class QLabel;
 
 class Window : public QWidget
 {
@@ -30,6 +31,7 @@ private:
     QGroupBox *spinBoxesGroup;
     QGroupBox *editsGroup;
     QGroupBox *doubleSpinBoxesGroup;
+    QLabel *meetingLabel;
 };
 
 #endif

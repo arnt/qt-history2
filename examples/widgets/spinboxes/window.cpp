@@ -74,20 +74,12 @@ void Window::createDateTimeEdits()
                        .arg(timeEdit->minimumTime().toString())
                        .arg(timeEdit->maximumTime().toString()));
 
-    QLabel *meetingLabel = new QLabel(editsGroup);
-    meetingEdit = new QDateTimeEdit(QDateTime::currentDateTime(), editsGroup);
-    meetingEdit->setDateRange(QDate(2004, 11, 1), QDate(2005, 11, 30));
-    meetingEdit->setTimeRange(QTime(0, 0, 0, 0), QTime(23, 59, 59, 999));
-
-    meetingLabel->setText(tr("Meeting time (between %0 %1 and %2 %3):")
-                          .arg(timeEdit->minimumDate().toString())
-                          .arg(timeEdit->minimumTime().toString())
-                          .arg(timeEdit->maximumDate().toString())
-                          .arg(timeEdit->maximumTime().toString()));
-    meetingLabel->setWordWrap(true);
-
     QLabel *formatLabel = new QLabel(tr("Format string for the meeting date "
-        "and time:"), editsGroup);
+                                        "and time:"), editsGroup);
+
+    QLabel *meetingLabel = new QLabel(editsGroup);
+    meetingLabel->setWordWrap(true);
+    meetingEdit = new QDateTimeEdit(QDateTime::currentDateTime(), editsGroup);
 
     QComboBox *formatComboBox = new QComboBox(editsGroup);
     formatComboBox->addItem("yyyy-MM-dd hh:mm:ss (zzz ms)");
@@ -95,10 +87,11 @@ void Window::createDateTimeEdits()
     formatComboBox->addItem("hh:mm:ss dd/MM/yyyy");
     formatComboBox->addItem("hh:mm:ss");
     formatComboBox->addItem("hh:mm ap");
-    meetingEdit->setDisplayFormat(formatComboBox->currentText());
 
     connect(formatComboBox, SIGNAL(activated(const QString &)),
             this, SLOT(setFormatString(const QString &)));
+
+    setFormatString(formatComboBox+>currentText());
 
     QVBoxLayout *editsLayout = new QVBoxLayout(editsGroup);
     editsLayout->addWidget(dateLabel);
@@ -114,6 +107,17 @@ void Window::createDateTimeEdits()
 void Window::setFormatString(const QString &formatString)
 {
     meetingEdit->setDisplayFormat(formatString);
+    if (meetingEdit->displayedSections() & QDateTimeEdit::DateSection_Mask) {
+        meetingEdit->setDateRange(QDate(2004, 11, 1), QDate(2005, 11, 30));
+        meetingLabel->setText(tr("Meeting date (between %0 and %1):")
+                              .arg(timeEdit->minimumDate().toString())
+                              .arg(timeEdit->maximumDate().toString()));
+    } else {
+        meetingEdit->setTimeRange(QTime(0, 7, 20, 0), QTime(21, 0, 0, 0));
+        meetingLabel->setText(tr("Meeting time (between %0 and %1):")
+                              .arg(timeEdit->minimumTime().toString())
+                              .arg(timeEdit->maximumTime().toString()));
+    }
 }
 
 void Window::createDoubleSpinBoxes()
