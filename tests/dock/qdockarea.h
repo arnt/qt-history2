@@ -4,8 +4,16 @@
 #include <qwidget.h>
 #include <qlist.h>
 
-class QDockWidgetData;
 class QDockWidget;
+class QSplitter;
+class QBoxLayout;
+
+struct QDockWidgetData
+{
+    QDockWidget *dockWidget;
+    int section;
+    int offset;
+};
 
 class QDockArea : public QWidget
 {
@@ -21,18 +29,17 @@ public:
 
 private:
     int findDockWidget( QDockWidget *w );
-
+    void setupLayout();
+    void setupHorizontalLayout();
+    void setupVerticalLayout();
+    
 private:
     Orientation orient;
     QList<QDockWidgetData> dockWidgets;
-
+    QBoxLayout *layout;
+    int sections;
+    
 };
 
-class QDockWidgetData
-{
-    friend class QDockArea;
-private:
-    QDockWidget *dockWidget;
-};
 #endif
 
