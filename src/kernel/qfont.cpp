@@ -617,7 +617,7 @@ void QFont::setPixelSize( int pixelSize )
 {
     if ( pixelSize <= 0 ) {
 #if defined(QT_CHECK_RANGE)
-	qWarning( "QFont::setPixelSize: Pixel size <= 0 (%f)", pixelSize );
+	qWarning( "QFont::setPixelSize: Pixel size <= 0 (%d)", pixelSize );
 #endif
 	return;
     }
