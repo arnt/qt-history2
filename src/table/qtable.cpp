@@ -590,9 +590,9 @@ bool QTableItem::isEnabled() const
 }
 
 /*!
-  \class QTableComboBoxItem qtable.h
+  \class QComboTableItem qtable.h
 
-  \brief The QTableComboBoxItem class implements a convenient class to
+  \brief The QComboTableItem class implements a convenient class to
   put combobox items in a QTable
 
   \module table
@@ -611,13 +611,13 @@ bool QTableItem::isEnabled() const
   editable specifies if the combobox should be editable or not.
 */
 
-QTableComboBoxItem::QTableComboBoxItem( QTable *table, const QStringList &list, bool editable )
+QComboTableItem::QComboTableItem( QTable *table, const QStringList &list, bool editable )
     : QTableItem( table, WhenCurrent, "" ), entries( list ), current( 0 ), edit( editable )
 {
     setReplaceable( FALSE );
 }
 
-void QTableComboBoxItem::setStringList( const QStringList &l )
+void QComboTableItem::setStringList( const QStringList &l )
 {
     entries = l;
     current = 0;
@@ -626,10 +626,10 @@ void QTableComboBoxItem::setStringList( const QStringList &l )
 
 /*! \reimp */
 
-QWidget *QTableComboBoxItem::createEditor() const
+QWidget *QComboTableItem::createEditor() const
 {
     // create an editor - a combobox in our case
-    ( (QTableComboBoxItem*)this )->cb = new QComboBox( edit, table()->viewport() );
+    ( (QComboTableItem*)this )->cb = new QComboBox( edit, table()->viewport() );
     cb->insertStringList( entries );
     cb->setCurrentItem( current );
     return cb;
@@ -637,7 +637,7 @@ QWidget *QTableComboBoxItem::createEditor() const
 
 /*! \reimp */
 
-void QTableComboBoxItem::setContentFromEditor( QWidget *w )
+void QComboTableItem::setContentFromEditor( QWidget *w )
 {
     if ( w->inherits( "QComboBox" ) ) {
 	QComboBox *cb = (QComboBox*)w;
@@ -651,7 +651,7 @@ void QTableComboBoxItem::setContentFromEditor( QWidget *w )
 
 /*! \reimp */
 
-void QTableComboBoxItem::paint( QPainter *p, const QColorGroup &cg,
+void QComboTableItem::paint( QPainter *p, const QColorGroup &cg,
 			   const QRect &cr, bool selected )
 {
     int w = cr.width();
@@ -670,7 +670,7 @@ void QTableComboBoxItem::paint( QPainter *p, const QColorGroup &cg,
 
 /*! Sets the item \a i of the list of entries to the current one */
 
-void QTableComboBoxItem::setCurrentItem( int i )
+void QComboTableItem::setCurrentItem( int i )
 {
     current = i;
     setText( currentText() );
@@ -680,7 +680,7 @@ void QTableComboBoxItem::setCurrentItem( int i )
 /*! Sets the string \a s to be the current one, of the list of entries
   contains this. */
 
-void QTableComboBoxItem::setCurrentItem( const QString &s )
+void QComboTableItem::setCurrentItem( const QString &s )
 {
     int i = entries.findIndex( s );
     if ( i != -1 )
@@ -689,48 +689,48 @@ void QTableComboBoxItem::setCurrentItem( const QString &s )
 
 /*! Rezurns the current item */
 
-int QTableComboBoxItem::currentItem() const
+int QComboTableItem::currentItem() const
 {
     return current;
 }
 
 /*! Returns the currently selected text. */
 
-QString QTableComboBoxItem::currentText() const
+QString QComboTableItem::currentText() const
 {
     return *entries.at( current );
 }
 
 /*! Returns the number of items in the list of entries. */
 
-int QTableComboBoxItem::count() const
+int QComboTableItem::count() const
 {
     return entries.count();
 }
 
 /*! Returns the text of the item \a i in the lits of entries */
 
-QString QTableComboBoxItem::text( int i ) const
+QString QComboTableItem::text( int i ) const
 {
     return *entries.at( i );
 }
 
 /*! Sets the combobox of this item to be editable if \a b is TRUE */
 
-void QTableComboBoxItem::setEditable( bool b )
+void QComboTableItem::setEditable( bool b )
 {
     edit = b;
 }
 
 /*! Returns whether the combobox of this item is editable */
 
-bool QTableComboBoxItem::isEditable() const
+bool QComboTableItem::isEditable() const
 {
     return edit;
 }
 
 /*!
-  \class QTableCheckBoxItem qtable.h
+  \class QCheckTableItem qtable.h
 
   \brief The QTableCheckoBoxItem class implements a convenient class to
   put checkbox items in a QTable
@@ -749,17 +749,17 @@ bool QTableComboBoxItem::isEditable() const
 
 */
 
-QTableCheckBoxItem::QTableCheckBoxItem( QTable *table, const QString &txt )
-    : QTableItem( table, WhenCurrent, txt )
+QCheckTableItem::QCheckTableItem( QTable *table, const QString &txt )
+    : QTableItem( table, WhenCurrent, txt ), checked( FALSE )
 {
 }
 
 /*! \reimp */
 
-QWidget *QTableCheckBoxItem::createEditor() const
+QWidget *QCheckTableItem::createEditor() const
 {
     // create an editor - a combobox in our case
-    ( (QTableCheckBoxItem*)this )->cb = new QCheckBox( table()->viewport() );
+    ( (QCheckTableItem*)this )->cb = new QCheckBox( table()->viewport() );
     cb->setChecked( checked );
     cb->setText( text() );
     cb->setBackgroundMode( table()->viewport()->backgroundMode() );
@@ -768,7 +768,7 @@ QWidget *QTableCheckBoxItem::createEditor() const
 
 /*! \reimp */
 
-void QTableCheckBoxItem::setContentFromEditor( QWidget *w )
+void QCheckTableItem::setContentFromEditor( QWidget *w )
 {
     if ( w->inherits( "QCheckBox" ) ) {
 	QCheckBox *cb = (QCheckBox*)w;
@@ -778,7 +778,7 @@ void QTableCheckBoxItem::setContentFromEditor( QWidget *w )
 
 /*! \reimp */
 
-void QTableCheckBoxItem::paint( QPainter *p, const QColorGroup &cg,
+void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
 				const QRect &cr, bool selected )
 {
     p->fillRect( 0, 0, cr.width(), cr.height(),
@@ -800,7 +800,7 @@ void QTableCheckBoxItem::paint( QPainter *p, const QColorGroup &cg,
 
 /*! Sets the item to be checked, of \a b is TRUE */
 
-void QTableCheckBoxItem::setChecked( bool b )
+void QCheckTableItem::setChecked( bool b )
 {
     checked = b;
     table()->updateCell( row(), col() );
@@ -808,7 +808,7 @@ void QTableCheckBoxItem::setChecked( bool b )
 
 /*! returns whether the item is checked or not */
 
-bool QTableCheckBoxItem::isChecked() const
+bool QCheckTableItem::isChecked() const
 {
     return checked;
 }

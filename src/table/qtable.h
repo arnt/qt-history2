@@ -150,10 +150,10 @@ private:
 
 };
 
-class Q_EXPORT QTableComboBoxItem : public QTableItem
+class Q_EXPORT QComboTableItem : public QTableItem
 {
 public:
-    QTableComboBoxItem( QTable *table, const QStringList &list, bool editable = FALSE );
+    QComboTableItem( QTable *table, const QStringList &list, bool editable = FALSE );
     virtual QWidget *createEditor() const;
     virtual void setContentFromEditor( QWidget *w );
     virtual void paint( QPainter *p, const QColorGroup &cg,
@@ -176,10 +176,10 @@ private:
 
 };
 
-class Q_EXPORT QTableCheckBoxItem : public QTableItem
+class Q_EXPORT QCheckTableItem : public QTableItem
 {
 public:
-    QTableCheckBoxItem( QTable *table, const QString &txt );
+    QCheckTableItem( QTable *table, const QString &txt );
     virtual QWidget *createEditor() const;
     virtual void setContentFromEditor( QWidget *w );
     virtual void paint( QPainter *p, const QColorGroup &cg,
