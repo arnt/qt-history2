@@ -9,12 +9,6 @@ BorderLayout::BorderLayout(QWidget *parent, int margin, int spacing)
     setSpacing(spacing);
 }
 
-BorderLayout::BorderLayout(QLayout *parent, int spacing)
-    : QLayout(parent)
-{
-    setSpacing(spacing);
-}
-
 BorderLayout::BorderLayout(int spacing)
 {
     setSpacing(spacing);
@@ -23,7 +17,9 @@ BorderLayout::BorderLayout(int spacing)
 
 BorderLayout::~BorderLayout()
 {
-    deleteAllItems();
+    QLayoutItem *l;
+    while ((l = takeAt(0)))
+        delete l;
 }
 
 void BorderLayout::addItem(QLayoutItem *item)
@@ -36,14 +32,19 @@ void BorderLayout::addWidget(QWidget *widget, Position position)
     add(new QWidgetItem(widget), position);
 }
 
-QSizePolicy::ExpandData BorderLayout::expanding() const
+Qt::Orientations BorderLayout::expandingDirections() const
 {
-    return QSizePolicy::BothDirections;
+    return Qt::Horizontal | Qt::Vertical;
 }
 
 bool BorderLayout::hasHeightForWidth() const
 {
     return false;
+}
+
+int BorderLayout::count() const
+{
+    return list.size();
 }
 
 QLayoutItem *BorderLayout::itemAt(int index) const

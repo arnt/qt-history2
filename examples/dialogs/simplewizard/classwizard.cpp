@@ -213,7 +213,7 @@ FirstPage::FirstPage(ClassWizard *wizard)
 
     QGridLayout *layout = new QGridLayout(this);
     layout->addWidget(topLabel, 0, 0, 1, 2);
-    layout->setRowSpacing(1, 10);
+    layout->setRowMinimumHeight(1, 10);
     layout->addWidget(classNameLabel, 2, 0);
     layout->addWidget(classNameLineEdit, 2, 1);
     layout->addWidget(baseClassLabel, 3, 0);
@@ -281,9 +281,9 @@ SecondPage::SecondPage(ClassWizard *wizard)
             baseIncludeLineEdit, SLOT(setEnabled(bool)));
 
     QGridLayout *layout = new QGridLayout(this);
-    layout->setColumnSpacing(0, 20);
+    layout->setColumnMinimumWidth(0, 20);
     layout->addWidget(topLabel, 0, 0, 1, 3);
-    layout->setRowSpacing(1, 10);
+    layout->setRowMinimumHeight(1, 10);
     layout->addWidget(commentCheckBox, 2, 0, 1, 3);
     layout->addWidget(protectCheckBox, 3, 0, 1, 3);
     layout->addWidget(macroNameLabel, 4, 1);
@@ -319,7 +319,7 @@ ThirdPage::ThirdPage(ClassWizard *wizard)
 
     QGridLayout *layout = new QGridLayout(this);
     layout->addWidget(topLabel, 0, 0, 1, 2);
-    layout->setRowSpacing(1, 10);
+    layout->setRowMinimumHeight(1, 10);
     layout->addWidget(outputDirLabel, 2, 0);
     layout->addWidget(outputDirLineEdit, 2, 1);
     layout->addWidget(headerLabel, 3, 0);

@@ -9,14 +9,14 @@ class FlowLayout : public QLayout
 {
 public:
     FlowLayout(QWidget *parent, int margin = 0, int spacing = -1);
-    FlowLayout(QLayout *parent, int spacing);
-    FlowLayout(int spacing);
+    FlowLayout(int spacing = -1);
     ~FlowLayout();
 
     void addItem(QLayoutItem *item);
-    QSizePolicy::ExpandData expanding() const;
+    Qt::Orientations expandingDirections() const;
     bool hasHeightForWidth() const;
     int heightForWidth(int) const;
+    int count() const;
     QLayoutItem *itemAt(int index) const;
     QSize minimumSize() const;
     void setGeometry(const QRect &rect);

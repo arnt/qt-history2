@@ -11,14 +11,14 @@ public:
     enum Position { West, North, South, East, Center };
 
     BorderLayout(QWidget *parent, int margin = 0, int spacing = -1);
-    BorderLayout(QLayout *parent, int spacing = -1);
     BorderLayout(int spacing = -1);
     ~BorderLayout();
 
     void addItem(QLayoutItem *item);
     void addWidget(QWidget *widget, Position position);
-    QSizePolicy::ExpandData expanding() const;
+    Qt::Orientations expandingDirections() const;
     bool hasHeightForWidth() const;
+    int count() const;
     QLayoutItem *itemAt(int index) const;
     QSize minimumSize() const;
     void setGeometry(const QRect &rect);

@@ -55,7 +55,7 @@ FindDialog::FindDialog(QWidget *parent)
     rightLayout->addStretch(1);
 
     QGridLayout *mainLayout = new QGridLayout(this);
-    mainLayout->setResizeMode(QLayout::Fixed);
+    mainLayout->setSizeConstraint(QLayout::SetFixedSize);
     mainLayout->addLayout(leftLayout, 0, 0);
     mainLayout->addLayout(rightLayout, 0, 1);
     mainLayout->addWidget(extension, 1, 0, 1, 2);

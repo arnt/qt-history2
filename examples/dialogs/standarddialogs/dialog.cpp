@@ -111,7 +111,7 @@ Dialog::Dialog(QWidget *parent)
 
     QGridLayout *layout = new QGridLayout(this);
     layout->setColumnStretch(1, 1);
-    layout->setColumnSpacing(1, 250);
+    layout->setColumnMinimumWidth(1, 250);
     layout->addWidget(integerButton, 0, 0);
     layout->addWidget(integerLabel, 0, 1);
     layout->addWidget(doubleButton, 1, 0);

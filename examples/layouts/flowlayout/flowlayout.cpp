@@ -9,12 +9,6 @@ FlowLayout::FlowLayout(QWidget *parent, int margin, int spacing)
     setSpacing(spacing);
 }
 
-FlowLayout::FlowLayout(QLayout *parent, int spacing)
-    : QLayout(parent)
-{
-    setSpacing(spacing);
-}
-
 FlowLayout::FlowLayout(int spacing)
 {
     setSpacing(spacing);
@@ -22,12 +16,19 @@ FlowLayout::FlowLayout(int spacing)
 
 FlowLayout::~FlowLayout()
 {
-    deleteAllItems();
+    QLayoutItem *item;
+    while ((item = takeAt(0)))
+        delete item;
 }
 
 void FlowLayout::addItem(QLayoutItem *item)
 {
     itemList.append(item);
+}
+
+int FlowLayout::count() const
+{
+    return itemList.size();
 }
 
 QLayoutItem *FlowLayout::itemAt(int index) const
@@ -43,9 +44,9 @@ QLayoutItem *FlowLayout::takeAt(int index)
         return 0;
 }
 
-QSizePolicy::ExpandData FlowLayout::expanding() const
+Qt::Orientations FlowLayout::expandingDirections() const
 {
-    return QSizePolicy::NoDirection;
+    return 0;
 }
 
 bool FlowLayout::hasHeightForWidth() const

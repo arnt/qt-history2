@@ -124,12 +124,12 @@ RegisterPage::RegisterPage(LicenseWizard *wizard)
 
     QGridLayout *layout = new QGridLayout(this);
     layout->addWidget(topLabel, 0, 0, 1, 2);
-    layout->setRowSpacing(1, 10);
+    layout->setRowMinimumHeight(1, 10);
     layout->addWidget(nameLabel, 2, 0);
     layout->addWidget(nameLineEdit, 2, 1);
     layout->addWidget(upgradeKeyLabel, 3, 0);
     layout->addWidget(upgradeKeyLineEdit, 3, 1);
-    layout->setRowSpacing(4, 10);
+    layout->setRowMinimumHeight(4, 10);
     layout->addWidget(bottomLabel, 5, 0, 1, 2);
     layout->setRowStretch(6, 1);
 }
@@ -181,7 +181,7 @@ DetailsPage::DetailsPage(LicenseWizard *wizard)
 
     QGridLayout *layout = new QGridLayout(this);
     layout->addWidget(topLabel, 0, 0, 1, 2);
-    layout->setRowSpacing(1, 10);
+    layout->setRowMinimumHeight(1, 10);
     layout->addWidget(companyLabel, 2, 0);
     layout->addWidget(companyLineEdit, 2, 1);
     layout->addWidget(emailLabel, 3, 0);
