@@ -51,7 +51,7 @@ public:
     public:
 	Invisible( QWidgetStack * parent ): QWidget( parent, "qt_invisible_widgetstack" )
 	{
-	    setBackgroundMode( PaletteBackground );//NoBackground );
+	    setBackgroundMode( NoBackground );
 	}
 	const char * className() const
 	{
@@ -327,7 +327,6 @@ void QWidgetStack::raiseWidget( QWidget * w )
 
     w->setGeometry( invisible->geometry() );
     w->show();
-    //QApplication::sendPostedEvents( w, QEvent::ShowWindowRequest );
 }
 
 
