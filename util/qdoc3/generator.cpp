@@ -729,7 +729,7 @@ void Generator::appendSortedNames(Text& text, const ClassNode *classe,
     while ( r != classes.end() ) {
         Text className;
 	appendFullName( className, (*r).node, classe, marker );
-        classMap[className.toString()] = className;
+        classMap[className.toString().toLower()] = className;
         ++r;
     }
 
