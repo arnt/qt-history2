@@ -17,8 +17,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>629</width>
-            <height>589</height>
+            <width>621</width>
+            <height>585</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -422,6 +422,9 @@ Some information should be included...</string>
                                         <vsizetype>5</vsizetype>
                                     </sizepolicy>
                                 </property>
+                                <property name="cursor">
+                                    <cursor>14</cursor>
+                                </property>
                             </widget>
                         </vbox>
                     </widget>
@@ -624,6 +627,9 @@ Some information should be included...</string>
                                 <property name="name">
                                     <cstring>GLAccum2</cstring>
                                 </property>
+                                <property name="cursor">
+                                    <cursor>14</cursor>
+                                </property>
                             </widget>
                         </vbox>
                     </widget>
@@ -774,7 +780,7 @@ Some information should be included...</string>
     int i;
     QListViewItem *item;
     QStringList list, listItem;
-    GLInfo info;
+    GLInfo info(this,"info");
     infoView-&gt;setText(info.getText());
     list = info.getViewList();
     for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {

@@ -101,7 +101,10 @@ void GLInfo::print_extension_list(const char *ext)
 
 void GLInfo::print_screen_info(Display *dpy, int scrnum)
 {
-   Window win;
+   Window root;
+   GLXContext ctx;
+   XVisualInfo *visinfo;
+   
    int attribSingle[] = {
       GLX_RGBA,
       GLX_RED_SIZE, 1,
@@ -115,14 +118,7 @@ void GLInfo::print_screen_info(Display *dpy, int scrnum)
       GLX_BLUE_SIZE, 1,
       GLX_DOUBLEBUFFER,
       None };
- 
-   XSetWindowAttributes attr;
-   unsigned long mask;
-   Window root;
-   GLXContext ctx;
-   XVisualInfo *visinfo;
-   int width = 100, height = 100;
- 
+   
    root = RootWindow(dpy, scrnum);
  
    visinfo = glXChooseVisual(dpy, scrnum, attribSingle);
@@ -133,24 +129,14 @@ void GLInfo::print_screen_info(Display *dpy, int scrnum)
          return;
       }
    }
- 
-   attr.background_pixel = 0;
-   attr.border_pixel = 0;
-   attr.colormap = XCreateColormap(dpy, root, visinfo->visual, AllocNone);
-   attr.event_mask = StructureNotifyMask | ExposureMask;
-   mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
-   win = XCreateWindow(dpy, root, 0, 0, width, height,
-                       0, visinfo->depth, InputOutput,
-                       visinfo->visual, mask, &attr);
- 
+   
    ctx = glXCreateContext( dpy, visinfo, NULL, GL_FALSE );
    if (!ctx) {
       fprintf(stderr, "Error: glXCreateContext failed\n");
-      XDestroyWindow(dpy, win);
       return;
-   }
+      }
    
-   if (glXMakeCurrent(dpy, win, ctx)) {
+   if (glXMakeCurrent(dpy, root, ctx)) {
       const char *serverVendor = glXQueryServerString(dpy, scrnum, GLX_VENDOR);
       const char *serverVersion = glXQueryServerString(dpy, scrnum, GLX_VERSION);
       const char *serverExtensions = glXQueryServerString(dpy, scrnum, GLX_EXTENSIONS);
@@ -200,12 +186,12 @@ void GLInfo::print_screen_info(Display *dpy, int scrnum)
       //printf("glu extensions:\n");
       //print_extension_list(gluExtensions);
    }
-   else {
+      else {
       fprintf(stderr, "Error: glXMakeCurrent failed\n");
    }
  
-      glXDestroyContext(dpy, ctx);
-   XDestroyWindow(dpy, win);
+   glXDestroyContext(dpy, ctx);
+   
 };
 
 const char * visual_class_name(int cls)
@@ -331,18 +317,18 @@ void GLInfo::print_visual_info(Display *dpy, int scrnum)
     XFree(visuals);
 }
 
-GLInfo::GLInfo()
+GLInfo::GLInfo(QWidget* parent, const char* name)
+    : QGLWidget(parent, name)
 {
     infotext = new QString("GLTest:\n");
     viewlist = new QStringList();
     char *displayName = NULL;
     Display *dpy;
     int numScreens, scrnum;
-    
- 
-    dpy = XOpenDisplay(displayName);
+     
+    dpy = this->x11Display();
     if (!dpy) {
-        fprintf(stderr, "Error: unable to open display %s\n", displayName);
+        qDebug("Error: unable to open display %s\n", displayName);
     }
  
     numScreens = ScreenCount(dpy);
@@ -357,9 +343,7 @@ GLInfo::GLInfo()
 	if (scrnum + 1 < numScreens)
 	    printf("\n\n");
     }
- 
-   XCloseDisplay(dpy);
- 
+  
 };
 
 QString GLInfo::getText()

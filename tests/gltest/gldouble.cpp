@@ -108,10 +108,7 @@ void GLDouble::animate()
 	}
 }
 
-void GLDouble::mousePressEvent( QMouseEvent *e )
+void GLDouble::mousePressEvent( QMouseEvent * )
 {
-    if( e->button() == LeftButton )
-        enableSpin = GL_TRUE;
-    else
-        enableSpin = GL_FALSE;
+        enableSpin = enableSpin ? GL_FALSE : GL_TRUE;
 }

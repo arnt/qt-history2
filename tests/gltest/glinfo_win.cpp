@@ -122,7 +122,8 @@ HWND CreateOpenGLWindow(char* title, int x, int y, int width, int height,
 	return hWnd;
 }
 
-GLInfo::GLInfo()
+GLInfo::GLInfo(QWidget* parent, const char* name)
+    : QGLWidget(parent, name)
 {
     infotext = new QString("GLTest:\n");
     viewlist = new QStringList();

@@ -13,6 +13,8 @@
 
 #include <qstring.h>
 #include <qstringlist.h>
+#include <qwidget.h>
+#include <qgl.h>
 
 #if defined(Q_WS_WIN)
 #include <qt_windows.h>
@@ -55,10 +57,12 @@ struct visual_attribs {
 };
 #endif
 
-class GLInfo
+class GLInfo : public QGLWidget
 {
+    Q_OBJECT
+
 public:
-    GLInfo();
+    GLInfo(QWidget* parent = 0, const char* name = 0);
     QString getText();
     QStringList getViewList();
 
@@ -66,6 +70,7 @@ protected:
     QString *infotext;
     QStringList *viewlist;
 #if defined(Q_WS_X11)
+    QWidget *parent;
     void print_screen_info(Display *dpy, int scrnum);
     void print_extension_list(const char *ext);
     void print_visual_info(Display *dpy, int scrnum);
