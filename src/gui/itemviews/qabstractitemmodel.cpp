@@ -360,7 +360,7 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 */
 
 /*!
-    \fn QModelIndex::QModelIndex(int row, int column, void *data)
+    \fn QModelIndex::QModelIndex(int row, int column, void *data, const QAbstractItemModel *model)
 
     \internal
 
