@@ -167,11 +167,14 @@ private:
     int readExponent();
     int getToken();
 
+    enum { Nonunique, Unique };
+
     int yyTok;
     LocalSQLEnvironment *yyEnv;
     LocalSQLProgram *yyProg;
     int yyNextLabel;
     bool yyOK;
+    QValueList<QStringList> yyNeedIndex[2];
     QMap<QString, int> yyOpenedTableMap;
     QMap<QString, int> yyAliasTableMap;
     QMap<QString, int> yyActiveTableMap;
@@ -190,6 +193,7 @@ private:
     int activateTable( const QString& tableName );
     void deactivateTables();
     void closeAllTables();
+    void createIndex( int tableId, const QStringList& columns, bool unique );
     void pourConstantsIntoCondition( QVariant *cond,
 				     QValueList<QVariant> *constants );
 
@@ -216,6 +220,7 @@ private:
     void matchCommitStatement();
     void matchDataType();
     QStringList matchColumnList();
+    void matchColumnDefOptions( const QString& column );
     void matchTableConstraintDef();
     void matchBaseTableElement();
     void matchBaseTableElementList();

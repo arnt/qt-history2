@@ -73,6 +73,8 @@ bool Parser::parse( const QString& commands, LocalSQLEnvironment *env )
     yyProg = env->program();
     yyNextLabel = -1;
     yyOK = TRUE;
+    yyNeedIndex[Nonunique].clear();
+    yyNeedIndex[Unique].clear();
     yyOpenedTableMap.clear();
     yyAliasTableMap.clear();
     yyActiveTableMap.clear();
@@ -89,7 +91,7 @@ enum { Tok_Eoi, Tok_Equal, Tok_NotEq, Tok_LessThan, Tok_GreaterThan,
        Tok_Colon, Tok_Semicolon, Tok_Name, Tok_IntNum, Tok_ApproxNum,
        Tok_String,
 
-       Tok_all, Tok_and, Tok_any, Tok_asc, Tok_avg, Tok_between,
+       Tok_all, Tok_and, Tok_any, Tok_as, Tok_asc, Tok_avg, Tok_between,
        Tok_by, Tok_character, Tok_check, Tok_close, Tok_commit,
        Tok_count, Tok_create, Tok_current, Tok_date, Tok_decimal,
        Tok_declare, Tok_default, Tok_delete, Tok_desc, Tok_distinct,
@@ -784,6 +786,17 @@ void Parser::closeAllTables()
     yyOpenedTableMap.clear();
 }
 
+void Parser::createIndex( int tableId, const QStringList& columns, bool unique )
+{
+    QStringList::ConstIterator col = columns.begin();
+    while ( col != columns.end() ) {
+	yyProg->append( new PushFieldDesc(tableId, *col) );
+	++col;
+    }
+    yyProg->append( new MakeList(columns.count()) );
+    yyProg->append( new CreateIndex(tableId, unique) );
+}
+
 void Parser::pourConstantsIntoCondition( QVariant *cond,
 					 QValueList<QVariant> *constants )
 {
@@ -1316,21 +1329,20 @@ QStringList Parser::matchColumnList()
 void Parser::matchTableConstraintDef()
 {
     switch ( yyTok ) {
-    case Tok_unique:
+    case Tok_check:
 	yyTok = getToken();
-	break;
-    case Tok_primary:
-	yyTok = getToken();
-	matchOrInsert( Tok_key, "'key'" );
 	matchOrInsert( Tok_LeftParen, "'('" );
-	matchColumnList();
+	matchSearchCondition();
 	matchOrInsert( Tok_RightParen, "')'" );
+	warning( "'check' clause unsupported (ignored)" );
 	break;
     case Tok_foreign:
 	yyTok = getToken();
 	matchOrInsert( Tok_key, "'key'" );
+	warning( "'foreign key' clause unsupported (will still create an"
+		 " index)" );
 	matchOrInsert( Tok_LeftParen, "'('" );
-	matchColumnList();
+	yyNeedIndex[Nonunique].append( matchColumnList() );
 	matchOrInsert( Tok_RightParen, "')'" );
 	matchOrInsert( Tok_references, "'references'" );
 	matchTable();
@@ -1340,10 +1352,19 @@ void Parser::matchTableConstraintDef()
 	    matchOrInsert( Tok_RightParen, "')'" );
 	}
 	break;
-    case Tok_check:
+    case Tok_primary:
+	yyTok = getToken();
+	matchOrInsert( Tok_key, "'key'" );
+	warning( "'primary key' clause unsupported (will still create an"
+		 " index)" );
+	matchOrInsert( Tok_LeftParen, "'('" );
+	yyNeedIndex[Unique].append( matchColumnList() );
+	matchOrInsert( Tok_RightParen, "')'" );
+	break;
+    case Tok_unique:
 	yyTok = getToken();
 	matchOrInsert( Tok_LeftParen, "'('" );
-	matchSearchCondition();
+	yyNeedIndex[Unique].append( matchColumnList() );
 	matchOrInsert( Tok_RightParen, "')'" );
 	break;
     default:
@@ -1351,13 +1372,70 @@ void Parser::matchTableConstraintDef()
     }
 }
 
+void Parser::matchColumnDefOptions( const QString& column )
+{
+    while ( TRUE ) {
+	switch ( yyTok ) {
+	case Tok_check:
+	    yyTok = getToken();
+	    matchOrInsert( Tok_LeftParen, "'('" );
+	    matchSearchCondition();
+	    matchOrInsert( Tok_RightParen, "')'" );
+	    warning( "'check' clause unsupported (ignored)" );
+	    break;
+	case Tok_default:
+	    yyTok = getToken();
+	    yyTok = getToken();
+	    warning( "'default' clause unsupported (ignored)" );
+	    break;
+	case Tok_foreign:
+	    yyTok = getToken();
+	    matchOrSkip( Tok_key, "'key'" );
+	    warning( "'foreign key' clause unsupported (will still create an"
+		     " index)" );
+	    yyNeedIndex[Nonunique].append( column );
+	    break;
+	case Tok_not:
+	    yyTok = getToken();
+	    matchOrSkip( Tok_null, "'null'" );
+	    warning( "'not null' clause unsupported (ignored)" );
+	    break;
+	case Tok_primary:
+	    yyTok = getToken();
+	    matchOrInsert( Tok_key, "'key'" );
+	    warning( "'primary key' clause unsupported (will still create an"
+		     " index)" );
+	    yyNeedIndex[Unique].append( column );
+	    break;
+	case Tok_references:
+	    yyTok = getToken();
+	    matchTable();
+	    if ( yyTok == Tok_LeftParen ) {
+		yyTok = getToken();
+		matchColumnList();
+		matchOrInsert( Tok_RightParen, "')'" );
+	    }
+	    warning( "'references' clause unsupported (ignored)" );
+	    break;
+	case Tok_unique:
+	    yyTok = getToken();
+	    yyNeedIndex[Unique].append( column );
+	    break;
+	default:
+	    return;
+	}
+    }
+}
+
 void Parser::matchBaseTableElement()
 {
     if ( yyTok == Tok_Name ) {
-	yyProg->append( new Push(yyLex) );
+	QString column = yyLex;
+	yyProg->append( new Push(column) );
 	yyTok = getToken();
 	matchDataType();
 	yyProg->append( new MakeList(4) );
+	matchColumnDefOptions( column );
     } else {
 	matchTableConstraintDef();
     }
@@ -1382,7 +1460,6 @@ void Parser::matchCreateStatement()
 {
     QString table;
     QStringList columns;
-    QStringList::Iterator col;
     bool unique = FALSE;
     int tableId;
 
@@ -1392,11 +1469,9 @@ void Parser::matchCreateStatement()
     case Tok_unique:
 	yyTok = getToken();
 	unique = TRUE;
-	if ( yyTok != Tok_index )
-	    error( "Expected 'index' after 'unique'" );
 	// fall through
     case Tok_index:
-	yyTok = getToken();
+	matchOrInsert( Tok_index, "'index'" );
 	if ( yyTok == Tok_Name ) {
 	    warning( "Index name '%s' ignored", yyLex );
 	    yyTok = getToken();
@@ -1405,16 +1480,8 @@ void Parser::matchCreateStatement()
 	tableId = activateTable( matchTable() );
 
 	matchOrInsert( Tok_LeftParen, "'('" );
-	columns = matchColumnList();
+	createIndex( tableId, matchColumnList(), unique );
 	matchOrInsert( Tok_RightParen, "')'" );
-
-	col = columns.begin();
-	while ( col != columns.end() ) {
-	    yyProg->append( new PushFieldDesc(tableId, *col) );
-	    ++col;
-	}
-	yyProg->append( new MakeList(columns.count()) );
-	yyProg->append( new CreateIndex(tableId, unique) );
 	break;
     case Tok_table:
 	yyTok = getToken();
@@ -1423,6 +1490,14 @@ void Parser::matchCreateStatement()
 	matchBaseTableElementList();
 	matchOrInsert( Tok_RightParen, "')'" );
 	yyProg->append( new Create(table) );
+
+	tableId = activateTable( table );
+	for ( int i = 0; i < 2; i++ ) {
+	    while ( !yyNeedIndex[i].isEmpty() ) {
+		createIndex( tableId, yyNeedIndex[i].first(), i == Unique );
+		yyNeedIndex[i].remove( yyNeedIndex[i].begin() );
+	    }
+	}
 	break;
     case Tok_view:
 	error( "Views are not supported" );

@@ -22,7 +22,7 @@
 --
 
 create table authors
-(id numeric,
+(id numeric foreign key,
  name char(30));
 
 insert into authors values (1, 'Selma Lagerlöf');
