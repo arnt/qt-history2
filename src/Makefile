@@ -65,13 +65,15 @@ moc: tools mochack
 mochack:
 	make -C moc
 
+# Evil workaround
+FORCE:
+
+
 #
 # Create a library, called from aout, aoutdbg, elf and elfdbg
 #
 
-FORCE:
-
-lib:
+lib: FORCE
 	$(RM) -f tools/*.o
 	$(RM) -f kernel/*.o
 	$(RM) -f widgets/*.o
