@@ -57,12 +57,19 @@ QPoint QDesignerDnDItem::hotSpot() const
 
 QDesignerDnDItem *QDesignerDnDItem::create(QWidget *widget, const QPoint &hotSpot)
 {
+    Q_UNUSED(widget);
+    Q_UNUSED(hotSpot);
+
     Q_ASSERT(0);
     return 0;
 }
 
 QDesignerDnDItem *QDesignerDnDItem::create(DomUI *ui, QWidget *widget, const QPoint &hotSpot)
 {
+    Q_UNUSED(ui);
+    Q_UNUSED(widget);
+    Q_UNUSED(hotSpot);
+
     Q_ASSERT(0);
     return 0;
 }

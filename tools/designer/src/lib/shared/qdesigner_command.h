@@ -148,7 +148,7 @@ public:
     virtual void undo();
 
 protected:
-    virtual bool mergeMeWith(QtCommand *other) { return false; }
+    virtual bool mergeMeWith(QtCommand *other) { Q_UNUSED(other); return false; }
 
 private:
     QString m_propertyName;
@@ -340,7 +340,7 @@ public:
     ToolBoxCommand(AbstractFormWindow *formWindow);
     virtual ~ToolBoxCommand();
 
-    virtual void init(QToolBox *toolBox);
+    void init(QToolBox *toolBox);
 
     virtual void removePage();
     virtual void addPage();
@@ -360,7 +360,7 @@ public:
     DeleteToolBoxPageCommand(AbstractFormWindow *formWindow);
     virtual ~DeleteToolBoxPageCommand();
 
-    virtual void init(QToolBox *toolBox);
+    void init(QToolBox *toolBox);
 
     virtual void redo();
     virtual void undo();
@@ -373,7 +373,7 @@ public:
     AddToolBoxPageCommand(AbstractFormWindow *formWindow);
     virtual ~AddToolBoxPageCommand();
 
-    virtual void init(QToolBox *toolBox);
+    void init(QToolBox *toolBox);
 
     virtual void redo();
     virtual void undo();
@@ -386,7 +386,7 @@ public:
     TabWidgetCommand(AbstractFormWindow *formWindow);
     virtual ~TabWidgetCommand();
 
-    virtual void init(QTabWidget *tabWidget);
+    void init(QTabWidget *tabWidget);
 
     virtual void removePage();
     virtual void addPage();
@@ -406,7 +406,7 @@ public:
     DeleteTabPageCommand(AbstractFormWindow *formWindow);
     virtual ~DeleteTabPageCommand();
 
-    virtual void init(QTabWidget *tabWidget);
+    void init(QTabWidget *tabWidget);
 
     virtual void redo();
     virtual void undo();
@@ -419,7 +419,7 @@ public:
     AddTabPageCommand(AbstractFormWindow *formWindow);
     virtual ~AddTabPageCommand();
 
-    virtual void init(QTabWidget *tabWidget);
+    void init(QTabWidget *tabWidget);
 
     virtual void redo();
     virtual void undo();
@@ -432,9 +432,7 @@ public:
     MoveTabPageCommand(AbstractFormWindow *formWindow);
     virtual ~MoveTabPageCommand();
 
-    using TabWidgetCommand::init;
-
-    virtual void init(QTabWidget *tabWidget, QWidget *page,
+    void init(QTabWidget *tabWidget, QWidget *page,
                       const QIcon &icon, const QString &label,
                       int index, int newIndex);
 
@@ -456,7 +454,7 @@ public:
     StackedWidgetCommand(AbstractFormWindow *formWindow);
     virtual ~StackedWidgetCommand();
 
-    virtual void init(QStackedWidget *stackedWidget);
+    void init(QStackedWidget *stackedWidget);
 
     virtual void removePage();
     virtual void addPage();
@@ -474,7 +472,7 @@ public:
     DeleteStackedWidgetPageCommand(AbstractFormWindow *formWindow);
     virtual ~DeleteStackedWidgetPageCommand();
 
-    virtual void init(QStackedWidget *stackedWidget);
+    void init(QStackedWidget *stackedWidget);
 
     virtual void redo();
     virtual void undo();
@@ -487,7 +485,7 @@ public:
     AddStackedWidgetPageCommand(AbstractFormWindow *formWindow);
     virtual ~AddStackedWidgetPageCommand();
 
-    virtual void init(QStackedWidget *stackedWidget);
+    void init(QStackedWidget *stackedWidget);
 
     virtual void redo();
     virtual void undo();
@@ -500,7 +498,7 @@ public:
     DockWidgetCommand(const QString &description, AbstractFormWindow *formWindow);
     virtual ~DockWidgetCommand();
 
-    virtual void init(QDockWidget *dockWidget);
+    void init(QDockWidget *dockWidget);
 
 protected:
     QPointer<QDockWidget> m_dockWidget;
@@ -512,9 +510,7 @@ class QT_SHARED_EXPORT SetDockWidgetWidgetCommand: public DockWidgetCommand
 public:
     SetDockWidgetWidgetCommand(AbstractFormWindow *formWindow);
 
-    using DockWidgetCommand::init;
-
-    virtual void init(QDockWidget *dockWidget, QWidget *widget);
+    void init(QDockWidget *dockWidget, QWidget *widget);
 
     virtual void undo();
     virtual void redo();
@@ -530,7 +526,7 @@ class QT_SHARED_EXPORT AddDockWidgetCommand: public AbstractFormWindowCommand
 public:
     AddDockWidgetCommand(AbstractFormWindow *formWindow);
 
-    virtual void init(QMainWindow *mainWindow, QDockWidget *dockWidget);
+    void init(QMainWindow *mainWindow, QDockWidget *dockWidget);
 
     virtual void undo();
     virtual void redo();

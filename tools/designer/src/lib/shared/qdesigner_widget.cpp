@@ -120,5 +120,10 @@ void QDesignerWidget::dragEnterEvent(QDragEnterEvent *)
 QDesignerLabel::QDesignerLabel(QWidget *parent)
     : QLabel(parent)
 {
-    qDebug() << "created QDesignerLabel";
 }
+
+void QDesignerLabel::setBuddy(QWidget *widget)
+{
+    QLabel::setBuddy(widget);
+}
+

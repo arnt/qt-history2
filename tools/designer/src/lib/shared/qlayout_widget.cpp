@@ -418,14 +418,13 @@ void QLayoutSupport::insertWidget(QWidget *widget, const QPair<int, int> &cell)
 
         case LayoutInfo::Grid: {
             int index = findItemAt(cell.first, cell.second);
-            qDebug() << "======> insert widget:" << widget << "index:" << index << "cell:" << cell.first << cell.second;
             Q_ASSERT(index != -1);
 
             insertWidget(index, widget);
         } break;
 
         default: {
-            qWarning("expected a layout here!");
+            qWarning() << "expected a layout here!";
             //Q_ASSERT(0);
         }
     } // end switch

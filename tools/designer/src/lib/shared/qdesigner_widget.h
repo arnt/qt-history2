@@ -76,9 +76,6 @@ class QT_SHARED_EXPORT QDesignerLabel : public QLabel
     Q_OBJECT
     Q_PROPERTY(QByteArray buddy READ buddy WRITE setBuddy)
 public:
-    using QLabel::buddy;
-    using QLabel::setBuddy;
-
     QDesignerLabel(QWidget *parent = 0);
 
     inline void setBuddy(const QByteArray &b)
@@ -89,6 +86,8 @@ public:
 
     inline QByteArray buddy() const
     { return myBuddy; }
+
+    void setBuddy(QWidget *widget);
 
 protected:
     void showEvent(QShowEvent *e)

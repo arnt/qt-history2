@@ -263,7 +263,7 @@ void ResetPropertyCommand::redo()
         obj = promoted->child();
 
     QVariant new_value;
-        
+
     if (m_propertySheet->reset(m_index)) {
         new_value = m_propertySheet->property(m_index);
     } else {
@@ -279,10 +279,10 @@ void ResetPropertyCommand::redo()
             else
                 new_value = m_oldValue; // Again, we just don't know
         }
-    
+
         m_propertySheet->setProperty(m_index, new_value);
     }
-                
+
     m_propertySheet->setChanged(m_index, false);
 
     if (m_propertyName == QLatin1String("geometry")) {
@@ -479,7 +479,7 @@ void DeleteWidgetCommand::init(QWidget *widget)
 
     m_formItem = formWindow()->core()->metaDataBase()->item(formWindow());
     m_tabOrderIndex = m_formItem->tabOrder().indexOf(widget);
-    
+
     setDescription(tr("Delete '%1'").arg(widget->objectName()));
 }
 
@@ -502,7 +502,7 @@ void DeleteWidgetCommand::redo()
         tab_order.removeAt(m_tabOrderIndex);
         m_formItem->setTabOrder(tab_order);
     }
-    
+
     formWindow()->emitSelectionChanged();
 }
 
@@ -534,7 +534,7 @@ void DeleteWidgetCommand::undo()
     } // end switch
 
     m_widget->show();
-    
+
     if (m_tabOrderIndex != -1) {
         QList<QWidget*> tab_order = m_formItem->tabOrder();
         tab_order.insert(m_tabOrderIndex, m_widget);

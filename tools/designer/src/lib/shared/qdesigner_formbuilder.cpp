@@ -62,7 +62,7 @@ QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *
 
     QWidget *widget = FormBuilder::createWidget(widgetName, parentWidget, name);
     if (!widget) {
-        qWarning("failed to create a widget for type %s", widgetName.toLatin1().constData());
+        // ### qWarning("failed to create a widget for type %s", widgetName.toLatin1().constData());
         widget = new QWidget(parentWidget);
         widget->setObjectName(name);
     }
@@ -82,3 +82,9 @@ bool QDesignerFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
 
     return false;
 }
+
+bool QDesignerFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
+{
+    return FormBuilder::addItem(ui_item, item, layout);
+}
+

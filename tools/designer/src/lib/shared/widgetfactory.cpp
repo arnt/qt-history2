@@ -126,7 +126,7 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
                 child->setParent(w, 0);
             }
         } else {
-            qDebug() << "widget" << widgetName << "not found! Created a generic custom widget";
+            // qDebug() << "widget" << widgetName << "not found! Created a generic custom widget";
 
             // step 1) create a new entry in widget database
             AbstractWidgetDataBaseItem *item = new WidgetDataBaseItem(widgetName, tr("%1 Widget").arg(widgetName));

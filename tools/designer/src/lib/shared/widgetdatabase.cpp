@@ -135,7 +135,7 @@ void WidgetDataBaseItem::setCustom(bool b)
 {
     m_custom = b;
 }
- 
+
 QString WidgetDataBaseItem::pluginPath() const
 {
     return m_pluginPath;
@@ -213,7 +213,7 @@ WidgetDataBase::WidgetDataBase(AbstractFormEditor *core, QObject *parent)
 
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QWidget")))->setContainer(true);
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QWidget")))->setForm(true);
-    
+
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QDialog")))->setContainer(true);
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QDialog")))->setForm(true);
 }
@@ -230,10 +230,10 @@ AbstractFormEditor *WidgetDataBase::core() const
 int WidgetDataBase::indexOfObject(QObject *object, bool /*resolveName*/) const
 {
     bool resolveName = true; // ### resolveName = false is ignored
-    
+
     if (resolveName)
         return AbstractWidgetDataBase::indexOfClassName(WidgetFactory::classNameOf(object));
-        
+
     return AbstractWidgetDataBase::indexOfObject(object, resolveName);
 }
 
@@ -245,26 +245,26 @@ AbstractWidgetDataBaseItem *WidgetDataBase::item(int index) const
 void WidgetDataBase::loadPlugins()
 {
     PluginManager *pluginManager = m_core->pluginManager();
-    
+
     QStringList plugins = pluginManager->registeredPlugins();
-    
+
     QMutableListIterator<AbstractWidgetDataBaseItem *> it(m_items);
     while (it.hasNext()) {
         AbstractWidgetDataBaseItem *item = it.next();
-        
+
         if (item->isCustom()) {
             it.remove();
             delete item;
         }
     }
-    
+
     foreach (QString plugin, plugins) {
         QObject *o = pluginManager->instance(plugin);
-        
+
         if (ICustomWidget *c = qobject_cast<ICustomWidget*>(o)) {
             if (!c->isInitialized())
                 c->initialize(core());
-                
+
             WidgetDataBaseItem *item = new WidgetDataBaseItem();
             item->setContainer(c->isContainer());
             item->setCustom(true);
@@ -276,8 +276,8 @@ void WidgetDataBase::loadPlugins()
             item->setToolTip(c->toolTip());
             item->setWhatsThis(c->whatsThis());
             item->setPluginPath(plugin);
-            
-            append(item);            
+
+            append(item);
         }
     }
 }
@@ -287,19 +287,17 @@ QList<QVariant> WidgetDataBase::defaultPropertyValues(const QString &name)
 //    qDebug() << "WidgetDataBase::defaultPropertyValues()" << name << "======================";
 
     QList<QVariant> result;
-    
+
     WidgetFactory factory(m_core);
     QWidget *w = factory.createWidget(name, 0);
     if (w == 0) {
-        qWarning("WidgetDataBase::defaultPropertyValues(): failed to create \"%s\"",
-                    name.toLatin1().constData());
+        //### qWarning("WidgetDataBase::defaultPropertyValues(): failed to create \"%s\"", name.toLatin1().constData());
         return result;
     }
 
     IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_core->extensionManager(), w);
     if (sheet == 0) {
-        qWarning("WidgetDataBase::defaultPropertyValues(): failed to create property sheet for \"%s\"",
-                    name.toLatin1().constData());
+        // ### qWarning("WidgetDataBase::defaultPropertyValues(): failed to create property sheet for \"%s\"", name.toLatin1().constData());
         delete w;
         return result;
     }
@@ -308,9 +306,9 @@ QList<QVariant> WidgetDataBase::defaultPropertyValues(const QString &name)
 //        qDebug() << i << sheet->propertyName(i) << sheet->property(i);
         result.append(sheet->property(i));
     }
-    
+
     delete w;
-        
+
     return result;
 }
 

@@ -13,11 +13,11 @@
 
 #include "pluginmanager.h"
 
-#include <QDir>
-#include <QFile>
-#include <QMap>
-#include <QPluginLoader>
-#include <QLibraryInfo>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QMap>
+#include <QtCore/QPluginLoader>
+#include <QtCore/QLibraryInfo>
 #include <QtCore/qdebug.h>
 
 static QStringList unique(const QStringList &list)
@@ -33,38 +33,25 @@ static QStringList unique(const QStringList &list)
     return m.keys();
 }
 
-static QString fixPath(const QString path)
-{
-    return QFileInfo(path).absoluteFilePath();
-}
-
-static QStringList fixPathList(const QStringList &pathList)
-{
-    QStringList result;
-    foreach (QString path, pathList)
-        result.append(fixPath(path));
-    return result;
-}
-
 PluginManager::PluginManager(QObject *parent)
     : QObject(parent)
 {
     QSettings settings;
-    
+
     settings.beginGroup(QLatin1String("PluginManager"));
-    
+
     if (!settings.contains(QLatin1String("PluginPaths"))) {
         // first time designer is run - set some defaults
-        QString path = QLibraryInfo::location(QLibraryInfo::PluginsPath) 
+        QString path = QLibraryInfo::location(QLibraryInfo::PluginsPath)
                             + QDir::separator() + QLatin1String("designer");
         settings.setValue(QLatin1String("PluginPaths"), QStringList() << path);
     }
-    
-    m_pluginPaths 
+
+    m_pluginPaths
         = unique(settings.value(QLatin1String("PluginPaths")).toStringList());
     m_disabledPlugins
         = unique(settings.value(QLatin1String("DisabledPlugins")).toStringList());
-    updateRegisteredPlugins();                    
+    updateRegisteredPlugins();
 
     settings.endGroup();
 }
@@ -98,7 +85,7 @@ QStringList PluginManager::findPlugins(const QString &path)
         QString fileName = dir.absoluteFilePath(plugin);
         result.append(fileName);
     }
-    
+
     return result;
 }
 
@@ -133,7 +120,7 @@ QObject *PluginManager::instance(const QString &plugin) const
 {
     if (m_disabledPlugins.contains(plugin))
         return 0;
-        
+
     QPluginLoader loader(plugin);
     if (loader.load())
         return loader.instance();
@@ -151,7 +138,7 @@ void PluginManager::updateRegisteredPlugins()
 void PluginManager::registerPath(const QString &path)
 {
     QStringList candidates = findPlugins(path);
-    
+
     foreach (QString plugin, candidates)
         registerPlugin(plugin);
 }
@@ -169,8 +156,6 @@ void PluginManager::registerPlugin(const QString &plugin)
 
 bool PluginManager::syncSettings()
 {
-    qDebug() << "PluginManager::syncSettings()";
-
     QSettings settings;
     settings.beginGroup("PluginManager");
     settings.setValue("PluginPaths", m_pluginPaths);

@@ -17,7 +17,7 @@
 #include "uilib_global.h"
 
 #include <resource.h>
-#include <QMap>
+#include <QtCore/QMap>
 
 class QAction;
 
@@ -26,11 +26,14 @@ class QT_UILIB_EXPORT FormBuilder: public Resource
 public:
     FormBuilder();
 
-    using Resource::create;
-    using Resource::createDom;
-    using Resource::addItem;
-
+protected:
+    virtual QWidget *create(DomUI *ui, QWidget *parentWidget);
     virtual QWidget *create(DomWidget *ui_widget, QWidget *parentWidget);
+    virtual QLayout *create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget);
+    virtual QLayoutItem *create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget);
+    virtual QAction *create(DomAction *ui_action, QObject *parent);
+    virtual QActionGroup *create(DomActionGroup *ui_action_group, QObject *parent);
+
     virtual QWidget *createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name);
     virtual QLayout *createLayout(const QString &layoutName, QObject *parent, const QString &name);
 

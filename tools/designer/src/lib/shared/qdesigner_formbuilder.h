@@ -36,10 +36,9 @@ public:
     { return m_core; }
 
 protected:
-    using FormBuilder::addItem;
-
     virtual QWidget *createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name);
     virtual bool addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget);
+    virtual bool addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout);
 
 private:
     AbstractFormEditor *m_core;

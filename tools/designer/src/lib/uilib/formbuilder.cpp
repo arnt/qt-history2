@@ -156,3 +156,27 @@ void FormBuilder::createConnections(DomConnections *ui_connections, QWidget *wid
     }
 }
 
+QWidget *FormBuilder::create(DomUI *ui, QWidget *parentWidget)
+{
+    return Resource::create(ui, parentWidget);
+}
+
+QLayout *FormBuilder::create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget)
+{
+    return Resource::create(ui_layout, layout, parentWidget);
+}
+
+QLayoutItem *FormBuilder::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget)
+{
+    return Resource::create(ui_layoutItem, layout, parentWidget);
+}
+
+QAction *FormBuilder::create(DomAction *ui_action, QObject *parent)
+{
+    return Resource::create(ui_action, parent);
+}
+
+QActionGroup *FormBuilder::create(DomActionGroup *ui_action_group, QObject *parent)
+{
+    return Resource::create(ui_action_group, parent);
+}
