@@ -3,7 +3,7 @@
 
     \quickify
 
-    \include scribblescripter/scribblescript.qsa?scribblescript.pro
+    \include scribblescripter/scribblescript.qsa?main.qs
 */
 
 /*
