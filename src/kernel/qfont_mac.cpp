@@ -261,7 +261,7 @@ Qt::HANDLE QFont::handle() const
     if ( ! d->engineData )
         d->load( QFont::NoScript );
     if (d->engineData && d->engineData->engine)
-	return (void*)((UInt32)((QFontEngineMac*)d->engineData->engine)->fnum);
+	return (Qt::HANDLE)((UInt32)((QFontEngineMac*)d->engineData->engine)->fnum);
     return 0;
 }
 

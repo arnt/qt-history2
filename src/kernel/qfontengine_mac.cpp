@@ -275,7 +275,6 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     if(!st)
 	return 0;
 
-    QCache<QString, int> cache;
     if(task & DRAW) {
 	RGBColor fcolor;
 	GetForeColor(&fcolor);
