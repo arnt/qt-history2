@@ -62,23 +62,21 @@ void Window::createDateTimeEdits()
                                                 editsGroup);
     dateEdit->setDateRange(QDate(2005, 1, 1), QDate(2010, 12, 31));
     dateLabel->setText(tr("Appointment date (between %0 and %1):")
-                       .arg(dateEdit->minimumDate().toString())
-                       .arg(dateEdit->maximumDate().toString()));
-    dateLabel->setWordWrap(true);
+                       .arg(dateEdit->minimumDate().toString(Qt::ISODate))
+                       .arg(dateEdit->maximumDate().toString(Qt::ISODate)));
 
     QLabel *timeLabel = new QLabel(editsGroup);
     QDateTimeEdit *timeEdit = new QDateTimeEdit(QTime::currentTime(),
                                                 editsGroup);
     timeEdit->setTimeRange(QTime(9, 0, 0, 0), QTime(16, 30, 0, 0));
     timeLabel->setText(tr("Appointment time (between %0 and %1):")
-                       .arg(timeEdit->minimumTime().toString())
-                       .arg(timeEdit->maximumTime().toString()));
+                       .arg(timeEdit->minimumTime().toString(Qt::ISODate))
+                       .arg(timeEdit->maximumTime().toString(Qt::ISODate)));
 
     QLabel *formatLabel = new QLabel(tr("Format string for the meeting date "
                                         "and time:"), editsGroup);
 
-    QLabel *meetingLabel = new QLabel(editsGroup);
-    meetingLabel->setWordWrap(true);
+    meetingLabel = new QLabel(editsGroup);
     meetingEdit = new QDateTimeEdit(QDateTime::currentDateTime(), editsGroup);
 
     QComboBox *formatComboBox = new QComboBox(editsGroup);
@@ -91,7 +89,7 @@ void Window::createDateTimeEdits()
     connect(formatComboBox, SIGNAL(activated(const QString &)),
             this, SLOT(setFormatString(const QString &)));
 
-    setFormatString(formatComboBox+>currentText());
+    setFormatString(formatComboBox->currentText());
 
     QVBoxLayout *editsLayout = new QVBoxLayout(editsGroup);
     editsLayout->addWidget(dateLabel);
@@ -107,24 +105,26 @@ void Window::createDateTimeEdits()
 void Window::setFormatString(const QString &formatString)
 {
     meetingEdit->setDisplayFormat(formatString);
-    if (meetingEdit->displayedSections() & QDateTimeEdit::DateSection_Mask) {
+    if (meetingEdit->displayedSections() & QDateTimeEdit::DateSections_Mask) {
         meetingEdit->setDateRange(QDate(2004, 11, 1), QDate(2005, 11, 30));
         meetingLabel->setText(tr("Meeting date (between %0 and %1):")
-                              .arg(timeEdit->minimumDate().toString())
-                              .arg(timeEdit->maximumDate().toString()));
+            .arg(meetingEdit->minimumDate().toString(Qt::ISODate))
+	    .arg(meetingEdit->maximumDate().toString(Qt::ISODate)));
     } else {
         meetingEdit->setTimeRange(QTime(0, 7, 20, 0), QTime(21, 0, 0, 0));
         meetingLabel->setText(tr("Meeting time (between %0 and %1):")
-                              .arg(timeEdit->minimumTime().toString())
-                              .arg(timeEdit->maximumTime().toString()));
+            .arg(meetingEdit->minimumTime().toString(Qt::ISODate))
+	    .arg(meetingEdit->maximumTime().toString(Qt::ISODate)));
     }
 }
 
 void Window::createDoubleSpinBoxes()
 {
-    doubleSpinBoxesGroup = new QGroupBox(tr("Double precision spinboxes"), this);
+    doubleSpinBoxesGroup = new QGroupBox(tr("Double precision spinboxes"), 
+					 this);
 
-    QLabel *precisionLabel = new QLabel(tr("Number of decimal places to show:"),
+    QLabel *precisionLabel = new QLabel(tr("Number of decimal places "
+                                           "to show:"),
                                         doubleSpinBoxesGroup);
     QSpinBox *precisionSpinBox = new QSpinBox(doubleSpinBoxesGroup);
     precisionSpinBox->setRange(0, 14);
