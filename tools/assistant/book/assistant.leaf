@@ -1,6 +1,4 @@
-\chapter Qt Assistant and the Qt Reference Documentation
-
-\section1 Introduction
+\chapter Introduction
 
 This document introduces \QA, a tool for presenting on-line
 documentation. It also introduces the Qt Reference Documentation which
@@ -13,7 +11,7 @@ divided into the following sections:
 \i Qt Assistant in More Detail
 \endlist
 
-\section1 Introduction to the Qt Reference Documentation
+\chapter Introduction to the Qt Reference Documentation
 
 The documentation for the Qt library is written in-line in the \File
 .cpp files by the developers themselves. The documentation team revise
@@ -68,7 +66,7 @@ describe various aspects of the Qt library; all these are linked from
 the reference documentation home page. There are also numerous example
 programs in $QTDIR/examples.
 
-\section1 The 1 Minute Guide to using Qt Assistant
+\chapter The 1 Minute Guide to using Qt Assistant
 
 Under Windows \QA is available as a menu option on the Qt menu. On
 Unix run \c{$QTDIR/bin/assistant} from an xterm.
@@ -111,9 +109,9 @@ interested in (or move to it using the \Key Up and \Key Down arrow
 keys and press \Key Enter). The relevant page will display in the
 documentation window. 
 
-\section1 Qt Assistant in More Detail
+\chapter Qt Assistant in More Detail
 
-\section2 The Sidebar
+\section1 The Sidebar
 
 The sidebar provides three ways of navigating documentation:
 \list 1
@@ -148,7 +146,7 @@ The Sidebar is a dock window, so you can drag it to the top, left,
 right or bottom of \QA's window, or you can drag it outside \QA to
 float it.
 
-\section2 The Toolbar
+\section1 The Toolbar
 
 The toolbar provides fast access to the most common actions.
 \list
@@ -164,8 +162,96 @@ option is \Menu Go|Home and the keyboard shortcut is \Key{Ctrl+Home}.
 \i \Toolbutton Copy copies any selected text to the clipboard. The menu
 option is \Menu Edit|Copy and the keyboard shortcut is \Key{Ctrl+C}.
 \i \Toolbutton{Find in Text} invokes the \Dialog{Find Text} dialog. The menu
-option is \Menu XXX and the keyboard shortcut is \Key{XXX}.
-
+option is \Menu{Edit|Find in Text} and the keyboard shortcut is \Key{Ctrl+F}.
+\i \Toolbutton{Print} invokes the \Dialog{Print} dialog. The menu
+option is \Menu{File|Print} and the keyboard shortcut is \Key{Ctrl+P}.
+\i \Toolbutton{Zoom in} increases the font size. The menu
+option is \Menu{View|Zoom in} and the keyboard shortcut is \Key{Ctrl++}.
+\i \Toolbutton{Zoom out} decreases the font size. The menu
+option is \Menu{View|Zoom out} and the keyboard shortcut is \Key{Ctrl+-}.
 \endlist
 
+The remaining toolbar buttons are bookmarks and will vary depending on
+your configuration.
+
+\section1 The Menus
+
+\section2 The File Menu
+
+\list
+\i \Menu{File|Print} invokes the \Dialog{Print} dialog.
+\i \Menu{File|Exit} terminates \QA.
+\endlist
+
+\section2 The Edit Menu
+
+\list
+\i \Menu{Edit|Copy} copies any selected text to the clipboard.
+\i \Menu{Edit|Find in Text} invokes the \Dialog{Find Text} dialog.
+\i \Menu{Edit|Settings} invokes the \Dialog{Settings} dialog.
+\endlist
+
+\section2 The View Menu
+
+\list
+\i \Menu{View|Zoom in} increases the font size.
+\i \Menu{View|Zoom out} decreases the font size.
+\i \Menu{View|Views|Sidebar} toggles the display of the Sidebar.
+\i \Menu{View|Views|Toolbar} toggles the display of the Toolbar.
+\i \Menu{View|Views|Line up} lines up the toolbar buttons in the
+Toolbar.
+\endlist
+
+\section2 The Go Menu
+
+\list
+\i \Menu{Go|Previous} display the previous page.
+\i \Menu{Go|Next} display the next page.
+\i \Menu{Go|home} go to the home page.
+\endlist
+This menu also has additional items; these are pre-defined bookmarks
+that vary depending on your configuration.
+
+\section2 The Bookmarks Menu
+
+\list
+\i \Menu{Bookmarks|Add} add the current page to the list of bookmarks.
+\endlist
+This menu may have additional items, i.e. any bookmarks that you have
+already made. If you want to delete a bookmark go to the Bookmarks tab
+on the Sidebar.
+
+\section1 The Dialogs
+
+\section2 The Print Dialog
+
+This dialog is platform-specific. It gives access to various printer
+options and can be used to print the current page.
+
+\section2 The Find Text Dialog
+
+This dialog is used to find text in the current page. Enter the text
+you want to find in the Find line edit. If you check the 'Whole words
+only' checkbox, the search will only consider whole words, i.e. if you
+search for 'spin' with this checkbox checked it will not match
+'spinbox', but will match 'spin'. If you check the 'Case sensitive'
+check box then, for example, 'spin' will match 'spin' but not 'Spin'.
+You can search Forward or Backward from your current position in the
+page by clicking one of the Direction radio buttons. Click the \Button
+Find button to search (or search again), and click the \Button Close
+button to finish.
+
+\section2 The Settings Dialog
+
+This dialog is used to set your preferences for \QA. You can change
+the base font used throughout by choosing a new font from the Font
+combobox. You can choose a new fixed-width font, e.g. used to show
+code snippets, by choosing a new font from the 'Fixed font' combobox.
+You can change the colour of hypertext links by clicking the 'Link
+color' color button. Uncheck the 'Underline links' checkbox if you
+don't want underlined links. Click \OK to confirm your changes or
+click \Button Cancel to keep the previous settings.
+
+\QA will remember your settings between sessions, including window
+sizes and positions, and which page(s) you have open.
 
