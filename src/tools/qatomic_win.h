@@ -26,10 +26,12 @@ inline T qAtomicSetPtr(T * volatile pointer, T value)
     return static_cast<T>(qAtomicSetPtr_helper((void**volatile)pointer, value));
 }
 
-template <typename T>
-inline bool qAtomicCompareAndSetPtr(T * volatile pointer, T compare, T value)
+#if defined(Q_CC_BOR)
+static bool qAtomicCompareAndSetPtr_helper(void ** volatile pointer, void *compare, void *value)
+#else
+inline bool qAtomicCompareAndSetPtr_helper(void ** volatile pointer, void *compare, void *value)
+#endif
 {
-    Q_ASSERT(sizeof(T) == 4);
     unsigned char result;
     __asm {
         mov ECX, pointer
@@ -39,6 +41,13 @@ inline bool qAtomicCompareAndSetPtr(T * volatile pointer, T compare, T value)
 	sete result
     }
     return (result != 0);
+}
+
+template <typename T>
+inline bool qAtomicCompareAndSetPtr(T * volatile pointer, T compare, T value)
+{
+    Q_ASSERT(sizeof(T) == 4);
+    return qAtomicCompareAndSetPtr_helper(pointer, compare, value);
 }
 
 #if defined(Q_CC_BOR)
