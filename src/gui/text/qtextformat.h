@@ -253,7 +253,7 @@ public:
 
     inline void setObjectType(int type)
     { setProperty(ObjectType, type); }
-    inline bool objectType() const
+    inline int objectType() const
     { return intProperty(ObjectType); }
 };
 
