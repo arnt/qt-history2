@@ -82,6 +82,7 @@ static bool syncPopup(MenuRef ret, QPopupMenu *d)
 		if(st != -1)
 		    text.remove(st, text.length()-st);
 	    }
+
 	    InsertMenuItemText(ret, no_ampersands(text), id);
 	    SetMenuItemCommandID(ret, id, item->id());
 
@@ -96,8 +97,23 @@ static bool syncPopup(MenuRef ret, QPopupMenu *d)
 		else
 		    DisableMenuItem(ret, id);
 		CheckMenuItem(ret, id, item->isChecked() ? true : false);
-		if(item->popup()) 
+		if(item->popup()) {
 		    SetMenuItemHierarchicalMenu(ret, id, createPopup(item->popup(), FALSE));
+		} else if(item->key() != Qt::Key_unknown) {
+		    int k = item->key();
+		    char mod = 0, charcode = 0;
+		    if ( (k & Qt::CTRL) == Qt::CTRL ) 
+			mod |= controlKey;
+		    if ( (k & Qt::ALT) == Qt::ALT ) 
+			mod |= optionKey;
+		    if ( (k & Qt::SHIFT) == Qt::SHIFT ) 
+			mod |= shiftKey;
+		    k &= ~(Qt::SHIFT | Qt::CTRL | Qt::ALT);
+		    charcode = (char)k;
+
+		    SetMenuItemModifiers(ret, id, mod);
+		    SetItemCmd(ret, id, charcode);
+		}
 	    }
 	    id++;
 	}
@@ -108,16 +124,8 @@ static bool syncPopup(MenuRef ret, QPopupMenu *d)
 static MenuRef createPopup(QPopupMenu *d, bool do_sync) 
 {
     MenuRef ret;
-#if 0
-    MenuDefSpec spec;
-    spec.defType = kMenuDefProcPtr;
-    spec.u.defProc = NewMenuDefUPP(macMenuItemProc);
-    if(CreateCustomMenu(&spec, textMenuProc, 0, &ret) != noErr)
+    if(CreateNewMenu(0, 0, &ret) != noErr)
 	return NULL;
-#else
-    if(CreateNewMenu(textMenuProc, 0, &ret) != noErr)
-	return NULL;
-#endif
 
     if(!pdict) {
 	pdict = new QIntDict<MacPopupBinding>();
@@ -126,6 +134,14 @@ static MenuRef createPopup(QPopupMenu *d, bool do_sync)
     short mid = (short)ret;
     SetMenuID(ret, mid);
     pdict->insert((int)mid, new MacPopupBinding(d, ret));
+
+#if 0
+    MenuDefSpec spec;
+    spec.defType = kMenuDefProcPtr;
+    spec.u.defProc = NewMenuDefUPP(macMenuItemProc);
+    SetMenuDefinition(ret, &spec);
+#endif
+
     if(do_sync)
 	syncPopup(ret, d);
     return ret;
@@ -155,17 +171,34 @@ static bool updateMenuBar(QMenuBar *mbar)
 /*!
   Internal function..
 */
-bool QMenuBar::activate(short id, short index)
+bool QMenuBar::activate(long msg)
 {
-    if(!pdict)
+#define	HiWrd(aLong)	(((aLong) >> 16) & 0xFFFF)
+#define	LoWrd(aLong)	((aLong) & 0xFFFF)
+    short id = HiWrd( msg ),  index = LoWrd( msg );
+
+    //This is a bit hacky, it will probably work in most cases, but I doubt it'll work forever FIXME!?
+    int cmd;
+    GetMenuItemCommandID(GetMenuHandle(id), index, (UInt32 *)&cmd);
+    if(cmd > 0) {
+	qApp->closeAllWindows();
+	HiliteMenu(0);
+	return TRUE;
+    }
+
+    if(!pdict) {
+	HiliteMenu(0);
 	return FALSE;
+    }
 
     if(MacPopupBinding *mpb = pdict->find((int)id)) {
 	MenuCommand cmd;
 	GetMenuItemCommandID(mpb->macpopup, index, &cmd);
 	mpb->qpopup->activateItemAt(mpb->qpopup->indexOf(cmd));
+	HiliteMenu(0);
 	return TRUE;
     }
+    HiliteMenu(0);
     return FALSE;
 }
 

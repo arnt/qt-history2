@@ -942,13 +942,8 @@ bool QApplication::do_mouse_down( Point *pt )
     case inMenuBar:
     {
 	long msg = MenuSelect(*pt);
-	if(msg) {
-#define	HiWrd(aLong)	(((aLong) >> 16) & 0xFFFF)
-#define	LoWrd(aLong)	((aLong) & 0xFFFF)
-	    short menuID = HiWrd( msg ),  menuItem = LoWrd( msg );
-	    QMenuBar::activate(menuID, menuItem);
-	}
-	HiliteMenu(0);
+	if(msg) 
+	    QMenuBar::activate(msg);
     }
 #endif
     break;
@@ -1297,6 +1292,24 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	QString mystr = QChar(mychar);
 
 	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
+
+#ifdef QMAC_QMENUBAR_NATIVE //In native menubar mode we offer the event to the menubar first..
+	if(etype == QEvent::KeyPress) {
+	    EventRecord erec;
+#if 1 //I shouldn't have to do this, but the conversion thingy won't work?.. 
+	    erec.what = keyDown;
+	    erec.modifiers = modif;
+	    erec.message = chr;
+#else
+	    ConvertEventRefToEventRecord(event, &erec);
+#endif
+	    long mi = MenuEvent(&erec);
+	    if(mi) {
+		QMenuBar::activate(mi);
+		break;
+	    } 
+	}
+#endif
 
 	if( mac_keyboard_grabber )
 	    widget = mac_keyboard_grabber;
