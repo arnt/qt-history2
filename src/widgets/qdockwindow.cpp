@@ -1351,6 +1351,18 @@ void QDockWindow::drawFrame( QPainter *p )
 }
 
 /*!
+  \reimp
+*/
+void QDockWindow::drawContents( QPainter *p )
+{
+    QStyle::SFlags flags = QStyle::Style_Default;
+    if ( titleBar->isActive() )
+	flags |= QStyle::Style_Active;
+    style().drawControl( QStyle::CE_DockWindowEmptyArea, p, this, 
+			 rect(), colorGroup(), flags );
+}
+
+/*!
     \property QDockWindow::resizeEnabled
     \brief whether the dock window is resizeable
 

@@ -992,7 +992,7 @@ void QAquaStyle::drawControl(ControlElement element,
 #endif
 	break; }
 
-    case CE_MenuBarBackground: 
+    case CE_MenuBarEmptyArea:
 	    p->fillRect(r, cg.brush(QColorGroup::Button));
 	    break;
 

@@ -157,6 +157,7 @@ protected:
     void contextMenuEvent( QContextMenuEvent *e );
 
     void drawFrame( QPainter * );
+    void drawContents( QPainter * );
 
     bool event( QEvent *e );
 

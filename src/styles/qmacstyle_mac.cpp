@@ -620,7 +620,7 @@ void QMacStyle::drawControl(ControlElement element,
 	((QMacPainter *)p)->setport();
 	DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, NULL, 0);
 	break; }
-    case CE_MenuBarBackground:
+    case CE_MenuBarEmptyArea:
 	p->fillRect(r, cg.brush(QColorGroup::Button));
 	((QMacPainter*)p)->setport();
 	DrawThemeMenuBarBackground(qt_glb_mac_rect(r, p, FALSE), kThemeMenuBarNormal,

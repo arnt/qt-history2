@@ -1090,7 +1090,7 @@ void QMenuBar::drawContents( QPainter *p )
 
     p->save();
     p->setClipRegion(reg);
-    style().drawControl(QStyle::CE_MenuBarBackground, p, this, contentsRect(), g);
+    style().drawControl(QStyle::CE_MenuBarEmptyArea, p, this, contentsRect(), g);
     p->restore();
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)

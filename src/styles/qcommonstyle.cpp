@@ -604,7 +604,7 @@ void QCommonStyle::drawControl( ControlElement element,
     activePainter = p;
 
     switch (element) {
-    case CE_MenuBarBackground: {
+    case CE_MenuBarEmptyArea: {
 	QRegion reg;
 	if(p->hasClipping()) //ick
 	    reg = p->clipRegion();
@@ -970,7 +970,6 @@ void QCommonStyle::drawControl( ControlElement element,
 	    break;
 	}
 #endif // QT_NO_TOOLBUTTON
-
     default:
 	break;
     }
