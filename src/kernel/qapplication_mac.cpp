@@ -587,6 +587,9 @@ static void repairTimer( const timeval &time )	// repair broken timer
 
 timeval *qt_wait_timer()
 {
+    //FIXME!!!!
+    return NULL;
+
     static timeval tm;
     bool first = TRUE;
     timeval currentTime;
