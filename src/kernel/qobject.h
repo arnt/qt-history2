@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#14 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#15 $
 **
 ** Definition of QObject class
 **
@@ -48,7 +48,7 @@ public:
     void	insertChild( QObject * );	// add child object
     void	removeChild( QObject * );	// remove child object
 
-    void	insertEventFilter( const QObject * );
+    void	installEventFilter( const QObject * );
     void	removeEventFilter( const QObject * );
 
     static bool	connect( QObject *sender, const char *signal,

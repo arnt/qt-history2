@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#16 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#16 $";
 #endif
 
 
@@ -218,7 +218,7 @@ void QObject::removeChild( QObject *obj )	// remove child object
 }
 
 
-void QObject::insertEventFilter( const QObject *obj )
+void QObject::installEventFilter( const QObject *obj )
 {						// add event filter object
     if ( !eventFilters ) {
 	eventFilters = new QObjectList;
