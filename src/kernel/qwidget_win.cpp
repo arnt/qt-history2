@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#214 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#215 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -763,6 +763,7 @@ void QWidget::showWindow()
 	ShowWindow( winId(), SW_SHOW );
     setWState( WState_Visible );
     clearWState( WState_ForceHide );
+    clearWState( WState_Withdrawn );
 
     QShowEvent e(FALSE);
     QApplication::sendEvent( this, &e );

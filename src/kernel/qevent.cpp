@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#99 $
 **
 ** Implementation of event classes
 **
@@ -1052,9 +1052,12 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
 /*!
   \fn bool QHideEvent::spontaneous () const
-  Returns TRUE if the event
-  originated outside the application - ie. the user hid the window via the
-  window manager controls.
+
+  Returns TRUE if the event originated outside the application -
+  ie. the user hid the window via the window manager controls, either
+  by iconifying the window or by switching to another virtual desktop where
+  the window isn't visible. The window will become hidden, but not withdrawn.
+  If the window was iconified, QWidget::isMinimized() is TRUE.
 */
 
 /*!

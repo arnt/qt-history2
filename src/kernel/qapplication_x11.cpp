@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#513 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#514 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -289,7 +289,7 @@ void qt_x11_intern_atom( const char *, Atom * );
 void qt_xembed_tab_focus( QWidget*, bool next );
 
 static QList<QWidget>* deferred_map_list = 0;
-void qt_deferred_map_cleanup()
+static void qt_deferred_map_cleanup()
 {
     delete deferred_map_list;
     deferred_map_list = 0;
@@ -2290,16 +2290,18 @@ int QApplication::x11ProcessEvent( XEvent* event )
     break;
 
     case UnmapNotify:			// window hidden
-	if ( widget->testWState( WState_Visible ) ) {
+	if ( widget->isVisible() ) {
 	    widget->clearWState( WState_Visible );
+	    widget->clearWState( WState_Withdrawn );
 	    QHideEvent e(TRUE);
 	    QApplication::sendEvent( widget, &e );
 	}
 	break;
 	
     case MapNotify:				// window shown
-	if ( !widget->testWState(WState_Visible) ) {
+	if ( !widget->isVisible() )  {
 	    widget->setWState( WState_Visible );
+	    widget->clearWState( WState_Withdrawn );
 	    QShowEvent e(TRUE);
 	    QApplication::sendEvent( widget, &e );
 	}

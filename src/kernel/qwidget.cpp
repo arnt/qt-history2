@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#429 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#430 $
 **
 ** Implementation of QWidget class
 **
@@ -534,7 +534,7 @@ QPalette default_palette( QWidget *parent )
   Example:
   \code
     QLabel *toolTip = new QLabel( 0, "myToolTip",
-				  WStyle_Customize | WStyle_NoBorder |
+			 	  WStyle_Customize | WStyle_NoBorder |
 				  WStyle_Tool );
   \endcode
 
@@ -548,7 +548,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 {
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
-    widget_state = 0;
+    widget_state = WState_Withdrawn;
     widget_flags = f;
     propagate_font = 0;
     propagate_palette = 0;
@@ -2837,12 +2837,12 @@ void QWidget::setUpdatesEnabled( bool enable )
   This is an internal function used by QWidget::hide().
 */
 
-static bool noVisibleTLW()
+static bool onlyWithdrawnTLW()
 {
     QWidgetList *list   = qApp->topLevelWidgets();
     QWidget     *widget = list->first();
     while ( widget ) {
-	if ( (widget->isVisible() || widget->isMinimized())
+	if ( !widget->testWState( Qt::WState_Withdrawn )
 	     && !widget->isDesktop() )
 	    break;
 	widget = list->next();
@@ -2973,16 +2973,19 @@ void QWidget::show()
 void QWidget::hide()
 {
     setWState( WState_ForceHide );
-    if ( !testWState(WState_Visible) )
+    if ( testWState(WState_Withdrawn) )
 	return;
-
+    
     if ( testWFlags(WType_Modal) )
 	qt_leave_modal( this );
     else if ( testWFlags(WType_Popup) )
 	qApp->closePopup( this );
 
     hideWindow();
+    setWState( WState_Withdrawn );
 
+   if ( !testWState(WState_Visible) )
+	return;
     clearWState( WState_Visible );
 
     // next bit tries to move the focus if the focus widget is now
@@ -3066,7 +3069,7 @@ bool QWidget::close( bool alsoDelete )
 	qApp->quit();
 
     if ( accept && wasTopLevel ) {			// last TLW closed?
-	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
+	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && onlyWithdrawnTLW() )
 	    emit qApp->lastWindowClosed();
     }
 
@@ -3280,13 +3283,15 @@ QSize QWidget::minimumSizeHint() const
   <dt>WState_ConfigPending<dd> A config (resize/move) event is pending.
   <dt>WState_Resized<dd> The widget has been resized.
   <dt>WState_AutoMask<dd> The widget has an automatic mask, see setAutoMask().
-  <dt>WState_Polished<dd> The widget has an auomatic mask, see setAutoMask().
+  <dt>WState_Polished<dd> The widget has been "polished" (i.e. late initializated ) by a QStyle.
   <dt>WState_DND<dd> The widget supports drag and drop, see setAcceptDrops().
   <dt>WState_USPositionX<dd> X11 only: Set the USPosition size hint.
   <dt>WState_PaletteSet<dd> The palette has been set.
   <dt>WState_PaletteFixed<dd> The widget has a fixed palette.
   <dt>WState_FontSet<dd> The font has been set.
   <dt>WState_FontFixed<dd> The widget has a fixed font.
+  <dt> WState_Withdrawn<dd> The widget is withdrawn, i.e. hidden from the 
+           window system by the program itself.
   </dl>
 
   Widget type flags:

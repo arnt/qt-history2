@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#373 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#374 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1204,6 +1204,7 @@ void QWidget::showWindow()
 {
     setWState( WState_Visible );
     clearWState( WState_ForceHide );
+    clearWState( WState_Withdrawn );
     QShowEvent e(FALSE);
     QApplication::sendEvent( this, &e );
     if ( testWFlags(WType_TopLevel) &&
@@ -1250,6 +1251,9 @@ void QWidget::showMinimized()
 {
     if ( testWFlags(WType_TopLevel) )
 	XIconifyWindow( x11Display(), winId(), x11Screen() );
+    //### if the window is mapped (i.e. not WState_Withdrawn) we have
+    // to show it with initial state Iconic! Right now the function only
+    // works for widgets that are already visible.
 }
 
 /*!
