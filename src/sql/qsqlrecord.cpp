@@ -137,7 +137,7 @@ QSqlRecordShared::~QSqlRecordShared()
     The QSqlRecord class encapsulates the functionality and
     characteristics of a database record (usually a table or view within
     the database). QSqlRecords support adding and removing fields as
-    well as setting and retrieving field values. Several  other
+    well as setting and retrieving field values. Several other
     functions are also provided which alter other characteristics of the
     record, for example, changing the display label associated with a
     particular field when displaying that field on screen.
@@ -325,7 +325,7 @@ const QSqlField* QSqlRecord::field( const QString& name ) const
     return &sh->d->fieldInfo( position( name ) )->field;
 }
 
-/*!  Appends a copy of the field \a field to the end of the record.
+/*!  Append a copy of field \a field to the end of the record.
 
 */
 
@@ -335,7 +335,7 @@ void QSqlRecord::append( const QSqlField& field )
     sh->d->append( field );
 }
 
-/*!  Inserts a copy of \a field at position \a pos.  If a field
+/*!  Insert a copy of \a field at position \a pos.  If a field
   already exists at \a pos, it is removed.
 */
 
@@ -367,7 +367,7 @@ void QSqlRecord::clear()
 }
 
 /*!  Returns TRUE if there are no fields in the record, otherwise
-  FALSE is returned.
+  returns FALSE.
 
 */
 
@@ -377,8 +377,8 @@ bool QSqlRecord::isEmpty() const
 }
 
 
-/*!  Returns TRUE if there is a field in the record with the field
-  name \a name, otherwise FALSE is returned.
+/*!  Returns TRUE if there is a field in the record called \a name,
+    otherwise returns FALSE.
 
 */
 
@@ -392,7 +392,7 @@ bool QSqlRecord::contains( const QString& name ) const
 }
 
 /*!  Clears the value of all fields in the record.  If \a nullify is
-  TRUE, each field is set to null.
+  TRUE, (it's default is FALSE), each field is set to null.
 
 */
 
@@ -409,7 +409,9 @@ void QSqlRecord::clearValues( bool nullify )
 }
 
 /*! Sets the generated flag for field \a name to \a generated.  If the
-  field does not exist, nothing happens.
+  field does not exist, nothing happens. Only fields that have \a
+  generated set to TRUE are included in the SQL that is generated, e.g.
+  by QSqlCursor.
 
   \sa isGenerated()
 */
@@ -423,7 +425,7 @@ void QSqlRecord::setGenerated( const QString& name, bool generated )
 }
 
 /*! Returns TRUE if the field \a name is to be generated (the
-  default), otherwise FALSE is returned.  If the field does not exist,
+  default), otherwise returns FALSE.  If the field does not exist,
   FALSE is returned.
 
   \sa setGenerated()
@@ -531,7 +533,7 @@ void QSqlRecord::setVisible( const QString& name, bool visible )
 }
 
 /*! Returns TRUE if the field \a name is visible (the default),
- otherwise FALSE is returned.  If the field does not exist, FALSE is
+ otherwise returns FALSE.  If the field does not exist, FALSE is
  returned.
 
  \sa setVisible()
@@ -546,11 +548,11 @@ bool QSqlRecord::isVisible( const QString& name ) const
     return sh->d->fieldInfo( position( name ) )->visible;
 }
 
-/*!  Returns a comma-separated list of all field names as a string.
-  Only generated fields are included in the list (see isGenerated() ).
-  This string is suitable, for example, for generating a SQL SELECT
-  statement.  If a \a prefix is specified, all fields are prefixed in
-  the form:
+/*!  Returns a comma-separated list of all the record's field names as a
+    string. Note that fields which have generated set to FALSE are \e
+    not included. (See isGenerated() ). The string is suitable, for
+    example, for generating SQL SELECT statements.  If a \a prefix is
+    specified, e.g. a table name, all fields are prefixed in the form:
 
   "\a prefix.\a fieldname"
 */
@@ -571,10 +573,10 @@ QString QSqlRecord::toString( const QString& prefix, const QString& sep ) const
 }
 
 /*!
-
-  Returns a list of all field names used in the Record.  Only
-  generated fields are included in the list (see isGenerated() ). If
-  \a prefix is supplied, all fields are prefixed in the form:
+  Returns a list of all the record's field names.  Note that fields
+  which have generated set to FALSE are \e not included. (See
+  isGenerated() ). If \a prefix is supplied, e.g. a table name, all
+  fields are prefixed in the form:
 
   "\a prefix.\a fieldname"
 
