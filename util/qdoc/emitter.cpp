@@ -124,7 +124,7 @@ void Emitter::nailDownDocs()
 		QString key = classDecl->name() + QChar( '/' ) + (*p).name();
 		QString link = config->classRefHref( classDecl->name() );
 		if ( (*p).name() == (*p).readFunction() )
-		    link += QChar( '#' ) + Decl::anchor( (*p).name() );
+		    link += QChar( '#' ) + Decl::ref( (*p).name() );
 
 		// avoid Q_OVERRIDE
 		if ( !(*p).readFunction().isEmpty() )

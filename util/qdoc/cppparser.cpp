@@ -708,7 +708,7 @@ static void matchDocsAndStuff( Emitter *emitter )
 			setLink( emitter, fn,
 				 config->classRefHref(
 					 decl->relatesContext()->name()) +
-					 QChar('#') + decl->anchor(),
+					 QChar('#') + decl->ref(),
 				 decl->fullName() );
 			deleteDoc = FALSE;
 

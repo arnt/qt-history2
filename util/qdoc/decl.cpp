@@ -35,7 +35,7 @@ static void printHtmlListEntry( HtmlWriter& out, const QString& funcName,
 {
     out.printfMeta( "<li><a href=\"%s#%s\">%s</a>\n",
 		    config->classRefHref(className).latin1(),
-		    Decl::anchor(funcName).latin1(), funcName.latin1() );
+		    Decl::ref(funcName).latin1(), funcName.latin1() );
 }
 
 static void printHtmlShortMembers( HtmlWriter& out,
@@ -78,7 +78,7 @@ static QString htmlShortName( const Decl *decl )
 		     decl->fullName().latin1() );
     } else if ( (config->isInternal() || !decl->internal()) &&
 		!decl->obsolete() ) {
-	html = QString( "<a href=\"#%1\">%2</a>" ).arg( decl->anchor() )
+	html = QString( "<a href=\"#%1\">%2</a>" ).arg( decl->ref() )
 	       .arg( html );
     }
     return html;
@@ -114,7 +114,7 @@ static void printHtmlLongMembers( HtmlWriter& out,
 				config->classRefHref(className).latin1() );
 		if ( (*m)->reimplements()->doc() != 0 )
 		    out.printfMeta( "#%s",
-				    (*m)->reimplements()->anchor().latin1() );
+				    (*m)->reimplements()->ref().latin1() );
 		out.printfMeta( ">%s</a>.\n", className.latin1() );
 	    }
 
@@ -143,7 +143,7 @@ static void printHtmlLongMembers( HtmlWriter& out,
 		    out.printfMeta( "<a href=\"%s\"",
 				    config->classRefHref(className).latin1() );
 		    if ( (*r)->doc() != 0 )
-			out.printfMeta( "#%s", (*r)->anchor().latin1() );
+			out.printfMeta( "#%s", (*r)->ref().latin1() );
 		    out.printfMeta( ">%s</a>", className.latin1() );
 		    out.puts( seps.pop() );
 		    ++r;
@@ -250,7 +250,7 @@ static void fillInImportantChildren( ClassDecl *classDecl,
     }
 }
 
-QString Decl::anchor( const QString& name )
+QString Decl::ref( const QString& name )
 {
     static QRegExp op( QString("^operator") );
     static QRegExp sp( QChar(' ') );
@@ -1067,6 +1067,9 @@ void ClassDecl::emitHtmlListOfAllMemberFunctions() const
 
     QString dtorName = QChar( '~' ) + name();
 
+    /*
+      Put the constructor and destructor first.
+    */
     if ( all.contains(name()) )
 	printHtmlListEntry( out, name(), name() );
     if ( all.contains(dtorName) )
@@ -1076,7 +1079,8 @@ void ClassDecl::emitHtmlListOfAllMemberFunctions() const
     while ( f != all.end() ) {
 	if ( (*f)->kind() == Decl::Function ) {
 	    FunctionDecl *funcDecl = (FunctionDecl *) *f;
-	    if ( !funcDecl->isConstructor() && !funcDecl->isDestructor() )
+	    if ( !funcDecl->isConstructor() && !funcDecl->isDestructor() &&
+		 funcDecl->context() == funcDecl->relatesContext() )
 		printHtmlListEntry( out, f.key(), funcDecl->context()->name() );
 	}
 	++f;
@@ -1175,7 +1179,7 @@ void FunctionDecl::setOverloadNumber( int no )
     ovo = no;
     if ( ovo != 1 && doc() != 0 )
 	doc()->setLink( config->classRefHref(relatesContext()->name()) +
-			QChar('#') + anchor(),
+			QChar('#') + ref(),
 			fullName() );
 }
 
@@ -1246,7 +1250,7 @@ void FunctionDecl::printHtmlLong( HtmlWriter& out ) const
 	printHtmlDataType( out, returnType(), context() );
 	out.putsMeta( " " );
     }
-    out.printfMeta( "<a name=\"%s\"></a>%s (", anchor().latin1(),
+    out.printfMeta( "<a name=\"%s\"></a>%s (", ref().latin1(),
 		    fullName().latin1() );
 
     ParameterIterator param = parameterBegin();
@@ -1332,7 +1336,7 @@ void EnumDecl::printHtmlShort( HtmlWriter& out ) const
 
 void EnumDecl::printHtmlLong( HtmlWriter& out ) const
 {
-    out.printfMeta( "<a name=\"%s\"></a><b>%s</b>", anchor().latin1(),
+    out.printfMeta( "<a name=\"%s\"></a><b>%s</b>", ref().latin1(),
 		    fullName().latin1() );
 }
 
@@ -1350,6 +1354,6 @@ void TypedefDecl::printHtmlShort( HtmlWriter& out ) const
 
 void TypedefDecl::printHtmlLong( HtmlWriter& out ) const
 {
-    out.printfMeta( "<a name=\"%s\"></a><b>%s</b>", anchor().latin1(),
+    out.printfMeta( "<a name=\"%s\"></a><b>%s</b>", ref().latin1(),
 		    fullName().latin1() );
 }

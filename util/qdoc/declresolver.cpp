@@ -43,19 +43,7 @@ QString DeclResolver::resolve( const QString& name ) const
     } else if ( y->kind() == Decl::Class ) {
 	return config->classRefHref( y->fullName() );
     } else {
-	if ( y->kind() == Decl::Function ) {
-	    const Decl * z = y;
-	    while ( z && z->internal() )
-		z = z->reimplements();
-	    if ( y->internal() && z && !z->internal() )
-		y = z;
-	    if ( y->internal() )
-		return QString::null;
-	}
-	QString t;
-	if ( y->relatesContext() != (Decl *) c )
-	    t = config->classRefHref( y->relatesContext()->fullName() );
-	return t + QChar( '#' ) + y->anchor();
+	return resolved( y );
     }
 }
 
@@ -67,10 +55,7 @@ QString DeclResolver::resolvefn( const QString& name ) const
     if ( y == 0 || y->kind() != Decl::Function ) {
 	return QString::null;
     } else {
-	QString t;
-	if ( y->relatesContext() != (Decl *) c )
-	    t = config->classRefHref( y->relatesContext()->fullName() );
-	return t + QChar( '#' ) + y->anchor();
+	return resolved( y );
     }
 }
 
@@ -100,4 +85,19 @@ bool DeclResolver::warnChangedSinceLastRun( const Location& loc,
     } else {
 	return FALSE;
     }
+}
+
+QString DeclResolver::resolved( const Decl *decl ) const
+{
+    if ( decl->kind() == Decl::Function ) {
+	while ( decl != 0 && decl->internal() )
+	    decl = decl->reimplements();
+    }
+
+    QString t;
+    if ( decl == 0 || decl->relatesContext() == r )
+	return QString::null;
+    if ( decl->relatesContext() != (Decl *) c )
+	t = config->classRefHref( decl->relatesContext()->fullName() );
+    return t + QChar( '#' ) + decl->ref();
 }

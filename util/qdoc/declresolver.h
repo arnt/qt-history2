@@ -45,6 +45,8 @@ private:
     DeclResolver& operator=( const DeclResolver& );
 #endif
 
+    QString resolved( const Decl *decl ) const;
+
     const Decl *r;
     const ClassDecl *c;
     StringSet eg;

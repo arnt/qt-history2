@@ -23,7 +23,7 @@ public:
     enum Kind { Root, Class, Function, Enum, EnumItem, Typedef };
     enum Access { Public, Protected, Private };
 
-    static QString anchor( const QString& name );
+    static QString ref( const QString& name );
 
     virtual ~Decl() { }
 
@@ -49,7 +49,7 @@ public:
     QString fullMangledName() const;
     virtual QString uniqueName() const;
     virtual QString sortName() const;
-    QString anchor() const { return anchor( uniqueName() ); }
+    QString ref() const { return ref( uniqueName() ); }
     const Location& location() const { return lo; }
     Decl *context() const { return c; }
     Decl *relatesContext() const { return relc; }
