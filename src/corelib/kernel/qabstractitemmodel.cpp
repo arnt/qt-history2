@@ -526,7 +526,7 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     and columnsAboutToBeRemoved() are emitted when the model's dimensions
     are changed.
 
-    If the model isSortable(), it can be sorted with sort(). To
+    If the model is sortable, it can be sorted with sort(). To
     customize sorting and searching, comparison functions can be
     reimplemented; for example, lessThan(), equal(), and
     greaterThan().
@@ -744,7 +744,7 @@ QAbstractItemModel::~QAbstractItemModel()
     \value TextColorRole       The text color used for items rendered with
                                the default delegate.
     \value CheckStateRole      This role is used to obtain the checked state of
-                               an item (see \l Qt::CheckedState).
+                               an item (see \l Qt::CheckState).
 
     Accessibility roles:
 
@@ -1022,8 +1022,6 @@ QAbstractItemModel::ItemFlags QAbstractItemModel::flags(const QModelIndex &index
     Sorts the model by \a column in the given \a order.
 
     The base class implementation does nothing.
-
-    \sa isSortable()
 */
 void QAbstractItemModel::sort(int column, Qt::SortOrder order)
 {
@@ -1048,13 +1046,15 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
 /*!
     \enum QAbstractItemModel::MatchFlag
 
+    This enum describes the type of matches that can be used when searching
+    for items in a model.
+
     \value MatchContains  The value is contained in the item.
     \value MatchFromStart The value matches the start of the item.
     \value MatchFromEnd   The value matches the end of the item.
     \value MatchExactly   The value matches the item exactly.
     \value MatchCase      The search is case sensitive.
     \value MatchWrap      The search wraps around.
-    \value MatchDefault   The default match, which is MatchFromStart|MatchWrap.
 */
 
 /*!
@@ -1507,7 +1507,7 @@ bool QAbstractTableModel::hasChildren(const QModelIndex &) const
     columnCount() is provided that informs views that there is only a single
     column of items in this model.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemView QAbstractTableView
+    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemView QAbstractTableModel
 
 */
 

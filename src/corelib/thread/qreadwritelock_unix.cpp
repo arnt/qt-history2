@@ -232,10 +232,10 @@ bool QReadWriteLock::tryLockForWrite()
 /*!
     Unlocks the lock.
 
-    Attempting to unlock a lock that i not locked is an error and will result
+    Attempting to unlock a lock that is not locked is an error, and will result
     in program termination.
 
-    \sa lock() trylock();
+    \sa lockForRead() lockForWrite() tryLockForRead() tryLockForWrite()
 */
 void QReadWriteLock::unlock()
 {
