@@ -617,6 +617,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	DrawThemeButton(qt_glb_mac_rect(ir, p, FALSE), kThemeListHeaderButton, 
 			&info, NULL, NULL, NULL, 0);
 	break; }
+    case PE_CheckListExclusiveIndicator:
     case PE_ExclusiveIndicatorMask:
     case PE_ExclusiveIndicator: {
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDrawIndicatorOnly };
@@ -627,18 +628,19 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	ThemeButtonKind bkind = kThemeRadioButton;
 	if(qt_mac_get_size_for_painter(p) == QAquaSizeSmall)
 	    bkind = kThemeSmallRadioButton;
-	if(pe == PE_ExclusiveIndicator) {
-	    ((QMacPainter *)p)->setport();
-	    DrawThemeButton(qt_glb_mac_rect(r, p), bkind, &info, NULL, NULL, NULL, 0);
-	} else {
+	if(pe == PE_ExclusiveIndicatorMask) {
 	    p->save();
 	    QRegion rgn;
 	    GetThemeButtonRegion(qt_glb_mac_rect(r, p), bkind, &info, rgn.handle(TRUE));
 	    p->setClipRegion(rgn);
 	    p->fillRect(r, color1);
 	    p->restore();
+	} else {
+	    ((QMacPainter *)p)->setport();
+	    DrawThemeButton(qt_glb_mac_rect(r, p), bkind, &info, NULL, NULL, NULL, 0);
 	}
 	break; }
+    case PE_CheckListIndicator:
     case PE_IndicatorMask:
     case PE_Indicator: {
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDrawIndicatorOnly };
@@ -651,11 +653,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	ThemeButtonKind bkind = kThemeCheckBox;
 	if(qt_mac_get_size_for_painter(p) == QAquaSizeSmall)
 	    bkind = kThemeSmallCheckBox;
-	if(pe == PE_Indicator) {
-	    ((QMacPainter *)p)->setport();
-	    DrawThemeButton(qt_glb_mac_rect(r, p), bkind,
-			    &info, NULL, NULL, NULL, 0);
-	} else {
+	if(pe == PE_IndicatorMask) {
 	    p->save();
 	    QRegion rgn;
 	    GetThemeButtonRegion(qt_glb_mac_rect(r, p), bkind,
@@ -663,6 +661,10 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	    p->setClipRegion(rgn);
 	    p->fillRect(r, color1);
 	    p->restore();
+	} else {
+	    ((QMacPainter *)p)->setport();
+	    DrawThemeButton(qt_glb_mac_rect(r, p), bkind,
+			    &info, NULL, NULL, NULL, 0);
 	}
 	break; }
     default:
@@ -1414,6 +1416,12 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     SInt32 ret = 0;
     switch(metric) {
+    case PM_CheckListButtonSize: {
+	ThemeMetric tm = kThemeMetricCheckBoxWidth;
+	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
+	    tm = kThemeMetricSmallCheckBoxWidth;
+	GetThemeMetric(tm, &ret);
+	break; }
     case PM_TabBarTabShiftHorizontal:
     case PM_TabBarTabShiftVertical:
 	ret = 0;
