@@ -156,6 +156,7 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 	    } else {
 		tc = 0;
 		emit doClose();
+		return;
 	    }
 	    break;
 	}
@@ -218,7 +219,7 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 		break;
 	    case QStyle::TitleCloseButton:
 		emit doClose();
-		break;
+		return;
 	    case QStyle::TitleLabel:
 		break;
 	    }
