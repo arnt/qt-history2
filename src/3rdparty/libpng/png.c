@@ -63,13 +63,13 @@ PNG_zTXt;
 C_EXTERN const int FARDATA png_pass_start[] = {0, 4, 0, 2, 0, 1, 0};
 
 /* offset to next interlace block */
-C_EXTERNconst int FARDATA png_pass_inc[] = {8, 8, 4, 4, 2, 2, 1};
+C_EXTERN const int FARDATA png_pass_inc[] = {8, 8, 4, 4, 2, 2, 1};
 
 /* start of interlace block in the y direction */
-C_EXTERNconst int FARDATA png_pass_ystart[] = {0, 0, 4, 0, 2, 0, 1};
+C_EXTERN const int FARDATA png_pass_ystart[] = {0, 0, 4, 0, 2, 0, 1};
 
 /* offset to next interlace block in the y direction */
-C_EXTERNconst int FARDATA png_pass_yinc[] = {8, 8, 8, 4, 4, 2, 2};
+C_EXTERN const int FARDATA png_pass_yinc[] = {8, 8, 8, 4, 4, 2, 2};
 
 /* width of interlace block (used in assembler routines only) */
 #ifdef PNG_HAVE_ASSEMBLER_COMBINE_ROW
