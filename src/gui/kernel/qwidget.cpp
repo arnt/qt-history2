@@ -3741,7 +3741,7 @@ void QWidgetPrivate::show_helper()
     // popup handling: new popups and tools need to be raised, and
     // exisiting popups must be closed.
     if (q->isWindow()) {
-        if ((q->windowType() == Qt::Tool) || (q->windowType() == Qt::Popup))
+        if ((q->windowType() == Qt::Tool) || (q->windowType() == Qt::Popup) || q->windowType() == Qt::ToolTip)
             q->raise();
         else
             while (QApplication::activePopupWidget()) {
