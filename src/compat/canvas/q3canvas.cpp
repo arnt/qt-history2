@@ -2963,6 +2963,8 @@ bool Q3CanvasPixmapArray::readPixmaps(const QString& datafilenamepattern,
 	QString r;
 	r.sprintf("%04d",i);
 	if (maskonly) {
+            if (!img[i]->collision_mask)
+                img[i]->collision_mask = new QImage();
 	    img[i]->collision_mask->load(
 		arg ? datafilenamepattern.arg(r) : datafilenamepattern);
 	    ok = ok
