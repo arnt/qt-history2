@@ -160,10 +160,15 @@ void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
 
   \ingroup model-view
 
-  This class is ised in much the same way as the QModelIndex class.
-  The difference is that it is safe to store a QPersistentModelIndex.
+  A QPersistentModelIndex is a model index that can be stored by an
+  application, and later used to access information in a model.
+  Unlike the QModelIndex class, it is safe to store a
+  QPersistentModelIndex since the model will ensure that references
+  to data will continue to be valid as long as that data exists within
+  the model.
 
   \sa QModelIndex
+      \link model-view-programming.html Model/View Programming\endlink
 */
 
 
@@ -360,7 +365,7 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
     at the index position.
     \endomit
 
-    \sa \link model-view-programming.html Model/View Programming\endlink.
+    \sa \link model-view-programming.html Model/View Programming\endlink
 */
 
 /*!

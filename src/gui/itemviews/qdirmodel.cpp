@@ -307,6 +307,12 @@ public:
 
 */
 
+/*!
+  Constructs a new directory model with the given \a parent. The model
+  initially contains information about the directory specified by
+  QDir::root().
+*/
+
 QDirModel::QDirModel(QObject *parent)
     : QAbstractItemModel(*new QDirModelPrivate, parent)
 {

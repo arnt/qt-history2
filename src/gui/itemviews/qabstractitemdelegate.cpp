@@ -76,8 +76,7 @@
 */
 
 /*!
-    Creates a new abstract item delegate for the given \a model and
-    with the parent \a parent.
+    Creates a new abstract item delegate with the given \a parent.
 */
 QAbstractItemDelegate::QAbstractItemDelegate(QObject *parent)
     : QObject(parent)
@@ -94,27 +93,29 @@ QAbstractItemDelegate::~QAbstractItemDelegate()
 }
 
 /*!
-    \fn void QAbstractItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const = 0;
+    \fn virtual void QAbstractItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QAbstractItemModel *model, const QModelIndex &index) const = 0;
 
     This pure abstract function must be reimplemented if you want to
-    provide custom rendering. The painter to paint on is given by \a
-    painter, the options by \a option, and the item by \a index.
+    provide custom rendering. Use the \a painter and style \a option to
+    render the item specified by the \a model and the item \a index.
 
     If you reimplement this you must also reimplement sizeHint().
 */
 
 /*!
-    \fn QSize QAbstractItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option, const QModelIndex &index) const = 0
+    \fn QSize QAbstractItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option, const QAbstractItemModel *model, const QModelIndex &index) const = 0
 
     This pure abstract function must be reimplemented if you want to
     provide custom rendering. The font metrics are given by \a
-    fontMetrics, the options by \a option, and the item by \a index.
+    fontMetrics, the options by \a option, the model by \a model, and the
+    model item by \a index.
 
     If you reimplement this you must also reimplement paint().
 */
 
 /*!
-    Returns the \c EditorType for the item at \a index.
+    Returns the \c EditorType for the item at the given \a index in the
+    \a model.
 
     If you provide an editor(), you will want to reimplement this
     function to return the \c EditorType appropriate to your editor().
@@ -126,8 +127,8 @@ QAbstractItemDelegate::EditorType QAbstractItemDelegate::editorType(const QAbstr
 }
 
 /*!
-    Returns the editor to be used for editing the data item at index
-    \a index in the model \a model. The action that caused the edit is
+    Returns the editor to be used for editing the data item at the
+    given \a index in the \a model. The action that caused the edit is
     given by \a action; see \c BeginEditAction. The editor's parent
     widget is given by \a parent, and the item options by \a option.
     Ownership is kept by the delegate. Subsequent calls to this
@@ -149,7 +150,7 @@ QWidget *QAbstractItemDelegate::editor(BeginEditAction, QWidget *, const QStyleO
 
 /*!
     Notifies the delegate that the given \a editor is no longer in use
-    for the item at the given \a index in the model \a model.
+    for the item at the given \a index in the \a model.
     The way the edit was completed is given by \a action;
     see \c EndEditAction. Typically the delegate should destroy the
     editor at this point.
@@ -182,7 +183,7 @@ void QAbstractItemDelegate::setEditorData(QWidget *,
 }
 
 /*!
-    Sets the data for the item at the given \a index in model \a model
+    Sets the data for the item at the given \a index in the \a model
     to the contents of the given \a editor.
 
     The base implementation does nothing. If you want custom editing
@@ -198,8 +199,8 @@ void QAbstractItemDelegate::setModelData(QWidget *,
 }
 
 /*!
-    Updates the geometry of the given \a editor for the item at
-    position \a index according to the rectangle specified in the \a
+    Updates the geometry of the \a editor for the item in the \a model
+    with the given \a index, according to the rectangle specified in the \a
     option. If the item has an internal layout, the editor will be
     laid out accordingly.
 

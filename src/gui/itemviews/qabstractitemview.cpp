@@ -208,7 +208,7 @@ void QAbstractItemViewPrivate::init()
 /*!
     \fn QModelIndex QAbstractItemView::itemAt(int x, int y) const = 0
 
-    Returns the model index of the item at point \a(x, y).
+    Returns the model index of the item at point (\a x, \a y).
 
     In the base class this is a pure virtual function.
 */
@@ -355,8 +355,10 @@ QAbstractItemView::~QAbstractItemView()
 }
 
 /*!
-  Sets the model that the view is presenting.
+  Sets the \a model for the view to present.
+  \omit
   This function will also create and set a new selection model.
+  \endomit
 */
 void QAbstractItemView::setModel(QAbstractItemModel *model)
 {
@@ -602,7 +604,7 @@ void QAbstractItemView::doItemsLayout()
 }
 
 /*!
-    \property QAbstractItemDelegate::beginEditActions
+    \property QAbstractItemView::beginEditActions
     \brief which actions will initiate item editing
 
     This property is an OR'ed flag of
@@ -1032,8 +1034,8 @@ void QAbstractItemView::timerEvent(QTimerEvent *e)
     Starts editing the item at \a index, creating an editor if
     necessary, and returns true if the view's \l{State} is now \c
     Editing; otherwise returns false. The action that initiated the
-    editing is given by \a action, and the event that was behind this
-    is given by \a event.
+    editing is specified by \a action, and the event that was behind this
+    is specified by \a event.
 
     \sa endEdit() QAbstractItemDelegate::releaseEditor()
 */
@@ -1559,7 +1561,7 @@ void QAbstractItemView::doAutoScroll()
     Reimplement this function to add your own selection behavior.
 
     This function is called on user input events like mouse and
-    keyboard events; the mouse button state is given by \a state, the
+    keyboard events; the mouse button state is specified by \a state, the
     index of the relevant item by \a index, the even type by \a type,
     and the key (if a key was pressed) by \a key.
 */

@@ -270,7 +270,7 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
     gridSize(). The items can be rendered large or small depending on
     their iconMode().
 
-    \sa \link model-view-programming.html Model/View Programming\endlink.
+    \sa \link model-view-programming.html Model/View Programming\endlink
 */
 
 /*!
@@ -315,7 +315,7 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 */
 
 /*!
-    Creates a new QGenericListView to view a model with the given \a parent.
+    Creates a new QGenericListView with the given \a parent to view a model.
     Use setModel() to set the model.
 */
 QGenericListView::QGenericListView(QWidget *parent)

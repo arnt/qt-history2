@@ -31,11 +31,11 @@
 
     \ingroup model-view
 
-    QGenericTreeView implements a tree representation of a
-    QAbstractItemView working on a QAbstractItemModel. This class is
-    used to provide standard hierarchical lists that were previously
-    provided by the \c QListView class, but using the more flexible
-    approach provided Qt's model-view architecture.
+    QGenericTreeView implements a tree representation of a QAbstractItemView
+    working on a QAbstractItemModel. This class is used to provide standard
+    hierarchical lists that were previously provided by the \c QListView
+    class, but using the more flexible approach provided by Qt's Model/View
+    architecture.
 
     It is simple to construct a tree view displaying data from a
     model. In the following example, the contents of a directory are
@@ -47,8 +47,8 @@
         tree->setModel(model);
     \endcode
 
-    The model-view architecture ensures that the contents of the tree
-    view are updated automatically as the model changes.
+    The Model/View architecture ensures that the contents of the tree view
+    are updated as the model changes.
 
     Items that have children can be in an expanded (children are
     visible) or collapsed (children are hidden) state. When this state
@@ -78,11 +78,6 @@
   \fn void QGenericTreeView::collapsed(const QModelIndex &index)
 
   This signal is emitted when the item specified by \a index is collapsed.
-*/
-
-/*!
-  \fn QSize QGenericTreeView::sizeHint() const
-  \reimp
 */
 
 /*!
@@ -642,6 +637,10 @@ QModelIndex QGenericTreeView::itemBelow(const QModelIndex &index) const
     int vi = d->viewIndex(index);
     return d->modelIndex(d->below(vi));
 }
+
+/*!
+  \reimp
+*/
 
 QSize QGenericTreeView::sizeHint() const
 {

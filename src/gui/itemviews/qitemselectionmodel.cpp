@@ -43,11 +43,27 @@ QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) cons
   \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
+/*!
+    \fn QItemSelection::QItemSelection()
+
+    Constructs an empty selection.
+*/
+
+/*!
+    Constructs an item selection for the given \a model that extends from the
+    top-left model item, given by the \a topLeft index, to the bottom-right
+    item, given by \a bottomRight.*/
+
 QItemSelection::QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                                const QAbstractItemModel *model)
 {
     select(topLeft, bottomRight, model);
 }
+
+/*!
+    Selects the range in the \a model that extends from the top-left model
+    item, given by the \a topLeft index, to the bottom-right item, given by
+    \a bottomRight.*/
 
 void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                             const QAbstractItemModel *model)
@@ -61,6 +77,11 @@ void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &botto
                bottomRight.row(), bottomRight.column()));
 }
 
+/*!
+    Returns true if the \a model contains the specified \a index; otherwise
+    returns false.
+*/
+
 bool QItemSelection::contains(const QModelIndex &index, const QAbstractItemModel *model) const
 {
     QList<QItemSelectionRange>::const_iterator it = begin();
@@ -69,6 +90,10 @@ bool QItemSelection::contains(const QModelIndex &index, const QAbstractItemModel
             return true;
     return false;
 }
+
+/*!
+    Returns the list of selected model index items for the given \a model.
+*/
 
 QModelIndexList QItemSelection::items(QAbstractItemModel *model) const
 {
@@ -83,8 +108,8 @@ QModelIndexList QItemSelection::items(QAbstractItemModel *model) const
   Merges the \a other selection with this QItemSelection using the
   \a command given. This method guarantees that no ranges are overlapping.
 
-  Note: Only QItemSelectionModel::Select,
-  QItemSelectionModel::Deselect and QItemSelectionModel::Toggle are
+  Note that only QItemSelectionModel::Select,
+  QItemSelectionModel::Deselect, and QItemSelectionModel::Toggle are
   supported.
 
   \sa split()

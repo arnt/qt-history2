@@ -243,7 +243,7 @@ QVariant QTreeModel::data(const QModelIndex &index, int role) const
 }
 
 /*!
-  Sets the data for the item given by the \a index and \a role
+  Sets the data for the item specified by the \a index and \a role
   to that referred to by the \a value.
 
   Returns true if successful; otherwise returns false.*/
