@@ -462,7 +462,7 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
 	return;
     }
 
-    int level = control.level();
+    int level = control.level;
 
     if(dir != QChar::DirON) {
 	// add level of run (cases I1 & I2)
@@ -500,7 +500,7 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
 	    item.analysis = usp_items[i].a;
 	    item.position = usp_items[i].iCharPos+start;
 	    item.analysis.bidiLevel = level;
-	    item.analysis.override = control.override();
+	    item.analysis.override = control.override;
 	    item.analysis.reserved = 0;
 	    items.append( item );
 	}
@@ -510,7 +510,7 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
 	    item.analysis = usp_items[i].a;
 	    item.position = usp_items[i].iCharPos+start;
 	    item.analysis.bidiLevel = level;
-	    item.analysis.override = control.override();
+	    item.analysis.override = control.override;
 
 	    int rstart = usp_items[i].iCharPos;
 	    int rstop = usp_items[i+1].iCharPos-1;
@@ -541,7 +541,7 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
 		items.append( item );
 		item.analysis = usp_items[i].a;
 		item.analysis.bidiLevel = level;
-		item.analysis.override = control.override();
+		item.analysis.override = control.override;
 		item.isSpace = item.isTab = item.isObject = FALSE;
 	    }
 	}
