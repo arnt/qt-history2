@@ -124,6 +124,53 @@ QKeySequence QAction::accel() const
 }
 #endif
 
+#ifdef QT_COMPAT
+QAction::QAction(QWidget* parent, const char* name)
+ : QObject(*(new QActionPrivate), parent)
+{
+    setObjectName(name);
+}
+QAction::QAction(const QString& text, QKeySequence accel, QWidget* parent, const char* name)
+ : QObject(*(new QActionPrivate), parent)
+{
+    d->text = text;
+    setAccel(accel);
+    setObjectName(name);
+}
+QAction::QAction(const QIconSet& icon, const QString &text, QKeySequence accel, QWidget* parent, const char* name)
+ : QObject(*(new QActionPrivate), parent)
+{
+    d->text = text;
+    setAccel(accel);
+    d->icons = new QIconSet(icon);
+    setObjectName(name);
+}
+
+QAction::QAction(QActionGroup* parent, const char* name)
+ : QObject(*(new QActionPrivate), parent)
+{
+    d->group = parent;
+    setObjectName(name);
+}
+QAction::QAction(const QString& text, QKeySequence accel, QActionGroup* parent, const char* name)
+ : QObject(*(new QActionPrivate), parent)
+{
+    d->group = parent;
+    d->text = text;
+    setAccel(accel);
+    setObjectName(name);
+}
+QAction::QAction(const QIconSet& icon, const QString &text, QKeySequence accel, QActionGroup* parent, const char* name)
+ : QObject(*(new QActionPrivate), parent)
+{
+    d->group = parent;
+    d->text = text;
+    setAccel(accel);
+    d->icons = new QIconSet(icon);
+    setObjectName(name);
+}
+#endif
+
 QAction::~QAction()
 {
 }
@@ -246,7 +293,7 @@ bool QAction::isChecked() const
     return d->checkable;
 }
 
-void QAction::setEnabled(bool b) 
+void QAction::setEnabled(bool b)
 {
     d->enabled = b;
     sendDataChanged();
@@ -295,7 +342,7 @@ QActionGroup::QActionGroup(QObject* parent) : QObject(*new QActionGroupPrivate, 
 {
 }
 
-QActionGroup::~QActionGroup() 
+QActionGroup::~QActionGroup()
 {
 }
 
@@ -358,7 +405,7 @@ bool QActionGroup::isEnabled() const
     return d->enabled;
 }
 
-QAction *QActionGroup::checked() const 
+QAction *QActionGroup::checked() const
 {
     return d->current;
 }
