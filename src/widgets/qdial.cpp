@@ -57,7 +57,7 @@ public:
     QRect eraseArea;
     bool eraseAreaValid;
     bool showNotches;
-    bool onlyFocus;
+    bool onlyOutside;
 
     QPointArray lines;
 };
@@ -124,7 +124,7 @@ QDial::QDial( QWidget *parent, const char *name )
     d = new QDialPrivate;
     d->eraseAreaValid = FALSE;
     d->showNotches = FALSE;
-    d->onlyFocus = FALSE;
+    d->onlyOutside = FALSE;
     setFocusPolicy( QWidget::WeakWheelFocus );
     setBackgroundMode( NoBackground );
 }
@@ -148,7 +148,7 @@ QDial::QDial( int minValue, int maxValue, int pageStep, int value,
     d = new QDialPrivate;
     d->eraseAreaValid = FALSE;
     d->showNotches = FALSE;
-    d->onlyFocus = FALSE;
+    d->onlyOutside = FALSE;
     setFocusPolicy( QWidget::WeakWheelFocus );
     setBackgroundMode( NoBackground );
 }
@@ -242,7 +242,7 @@ void QDial::repaintScreen( const QRect *cr )
     // calculate clip-region for erasing background
     if ( cr ) {
 	p.setClipRect( *cr );
-    } else if ( !d->onlyFocus && d->eraseAreaValid ) {
+    } else if ( !d->onlyOutside && d->eraseAreaValid ) {
 	QRegion reg = d->eraseArea;
 	double a;
 	reg = reg.subtract( calcArrow( a ) );
@@ -261,7 +261,7 @@ void QDial::repaintScreen( const QRect *cr )
 	p.setBackgroundMode( OpaqueMode );
     }
     // erase background of dial
-    if ( !d->onlyFocus )
+    if ( !d->onlyOutside )
 	p.drawEllipse( br );
 
     // erase remaining space around the dial
@@ -302,7 +302,7 @@ void QDial::repaintScreen( const QRect *cr )
 
     p.setPen( NoPen );
     p.setBrush( colorGroup().brush( QColorGroup::Button ) );
-    if ( !d->onlyFocus )
+    if ( !d->onlyOutside )
 	p.drawPolygon( arrow );
 
     a = angle( QPoint( width() / 2, height() / 2 ), arrow[ 0 ] );
@@ -434,9 +434,9 @@ void QDial::wheelEvent( QWheelEvent * )
 
 void QDial::focusInEvent( QFocusEvent * )
 {
-    d->onlyFocus = TRUE;
+    d->onlyOutside = TRUE;
     repaintScreen();
-    d->onlyFocus = FALSE;
+    d->onlyOutside = FALSE;
 }
 
 
@@ -446,9 +446,9 @@ void QDial::focusInEvent( QFocusEvent * )
 
 void QDial::focusOutEvent( QFocusEvent * )
 {
-    d->onlyFocus = TRUE;
+    d->onlyOutside = TRUE;
     repaintScreen();
-    d->onlyFocus = FALSE;
+    d->onlyOutside = FALSE;
 }
 
 /*!
@@ -614,7 +614,9 @@ void QDial::setNotchTarget( double target )
     d->lines.resize( 0 );
     d->target = target;
     d->eraseAreaValid = FALSE;
+    d->onlyOutside = TRUE;
     repaintScreen();
+    d->onlyOutside = FALSE;
 }
 
 
@@ -689,7 +691,9 @@ void QDial::setShowNotches( bool b )
 {
     d->showNotches = b;
     d->eraseAreaValid = FALSE;
+    d->onlyOutside = TRUE;
     repaintScreen();
+    d->onlyOutside = FALSE;
 }
 
 /*!
