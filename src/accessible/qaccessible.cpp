@@ -592,6 +592,7 @@ bool QAccessible::isActive()
     \sa RootObjectHandler, queryAccessibleInterface()
 */
 
+
 /*!
     \class QAccessibleInterface qaccessible.h
     \brief The QAccessibleInterface class defines an interface that exposes information
@@ -622,16 +623,43 @@ bool QAccessible::isActive()
 
     \section2 Relations and Navigation
 
-    childCount(), indexOfChild(), relationTo(), childAt(), navigate()
+    The functions childCount(), indexOfChild() and childAt() return the number
+    of children of an accessible object, and provide the index of a child object.
+    
+    The relationTo() function provides information about how two different objects
+    relate to each other, and navigate() allows traversing from one object to another
+    object with a given relation.
 
     \section2 Properties
 
-    text(), setText(), role(), state(), rect()
+    The central property of an accessible objects is which role() it has. Different
+    objects can have the same role, e.g. both the "Add line" element in a scrollbar and
+    the \c Ok button of a dialog have the same role "push buttons". The role implies
+    what kind of interaction the user can perform with the user interface element.
 
-    \section2 Actions
+    The state() property of an object is a combination of different state flags and
+    can describe both how the object differs from a "normal" state (ie. it might be 
+    unavailable), but also how it behaves, e.g. it might be selectable.
 
-    actionCount(), defaultAction(), actionText(), doAction()
-    setSelected(), clearSelection(), selection()
+    The text() property provides textual information about a given object. An object usually
+    has a name, but can provide extended information like description, help texts or 
+    information about keyboard accelerators is assigned to it. Some objects allow changing 
+    the text()  property through the setText() function, but usually this information is 
+    read-only.
+
+    \section2 Actions and Selection
+
+    To allow the user interacting with an accessible object the object has to expose
+    information about the actions that it can perform. An object that can perform actions
+    usually has a defaultAction() that can be an action predefined in the 
+    QAccessible::Actions enumeration, or a custom action. actionCount() returns the number
+    of custom actions supported by an accessible object, and actionText() returns textual
+    information about all actions (custom and predefined) an object can perform. doAction()
+    finally invokes an action.
+
+    Accessible objects that support selection for their child objects can change their 
+    selection using setSelected() and clearSelection(), and provide information about
+    the currently selected children with selection().
 
     \section2 Objects and children
 
