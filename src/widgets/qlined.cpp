@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#101 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#102 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#101 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#102 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -523,7 +523,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
   Handles the cursor blinking.
 */
 
-void QLineEdit::focusInEvent( QFocusEvent * e )
+void QLineEdit::focusInEvent( QFocusEvent * )
 {
     if ( style() == WindowsStyle && markAnchor == markDrag )
 	selectAll(); // calls repaint
