@@ -71,13 +71,29 @@ void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
 
     if ( e->button() == RightButton ) {
 	QPopupMenu menu( this );
-	menu.insertItem( tr( "Delete Item" ) );
-	if ( menu.exec( e->globalPos() ) != -1 ) {
+	const int ID_DELETE = 1;
+	const int ID_SEP = 2;
+	menu.insertItem( tr( "Delete Item" ), ID_DELETE );
+	menu.insertItem( tr( "Insert Separator" ), ID_SEP );
+	int res = menu.exec( e->globalPos() );
+	if ( res == ID_DELETE ) {
 	    QAction *a = *actionMap.find( (QWidget*)o );
 	    if ( !a )
 		return;
 	    actionList.remove( a );
 	    a->removeFrom( this );
+	} else if ( res == ID_SEP ) {
+	    calcIndicatorPos( e->pos() );
+	    QAction *a = new QAction( 0, "qt_separator_action" );
+	    int index = actionList.findRef( *actionMap.find( insertAnchor ) );
+	    if ( index != -1 && afterAnchor )
+		++index;
+	    if ( !insertAnchor )
+		index = 0;
+	    if ( index == -1 )
+		actionList.append( a );
+	    else
+		actionList.insert( index, a );
 	}
 	return;
     }
@@ -195,13 +211,16 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
 		++it;
 		if ( !o->inherits( "QAction" ) )
 		    continue;
-		QDesignerAction *ac = (QDesignerAction*)o;
-		actionMap.insert( ac->widget(), ac );
-		ac->widget()->installEventFilter( this );
-		if ( index == -1 )
-		    actionList.append( ac );
-		else
-		    actionList.insert( index + (i++), ac );
+		// ### fix for nested actiongroups
+		if ( o->inherits( "QDesignerAction" ) ) {
+		    QDesignerAction *ac = (QDesignerAction*)o;
+		    actionMap.insert( ac->widget(), ac );
+		    ac->widget()->installEventFilter( this );
+		    if ( index == -1 )
+			actionList.append( ac );
+		    else
+			actionList.insert( index + (i++), ac );
+		}
 	    }
 	}
 	reInsert();
