@@ -746,7 +746,8 @@ void QWidget::showWindow()
 	}
 
 	//handle transition
-	if(parentWidget() && testWFlags(WShowModal)) {
+	if(qApp->style().inherits("QAquaStyle") &&
+	   parentWidget() && testWFlags(WShowModal)) {
 	    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
 				      kWindowSheetTransitionEffect,
 				      kWindowShowTransitionAction, NULL);
