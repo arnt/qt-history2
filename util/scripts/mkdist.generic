@@ -166,7 +166,7 @@ rm -f syncqt*
 
 echo "Removing kernel .cpp files for other platforms..." >&2
 cd ${DISTDIR}/qt/src/kernel
-find . -name '*_x11.cpp' -o -name '*_win.cpp' -o -name '*_os2.cpp' \
+find . -name '*_x11.cpp' -o -name '*_win.cpp' -o -name '*_win.c' -o -name '*_os2.cpp' \
 	| grep -v "_${platform}" | xargs rm -f
 
 echo "Fixing copyright banner in .h and .cpp files.." >&2
