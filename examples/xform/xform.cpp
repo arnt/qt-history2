@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/xform/xform.cpp#3 $
+** $Id: //depot/qt/main/examples/xform/xform.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -42,6 +42,8 @@ public:
     XFormControl( QWidget *parent=0, const char *name=0 );
    ~XFormControl() {}
 
+    QWMatrix matrix();
+
 signals:
     void newMatrix( QWMatrix );
     void newText( const QString& );
@@ -52,6 +54,7 @@ private slots:
     void selectFont();
     void fontSelected( const QFont & );
     void changeMode(int);
+    void timerEvent(QTimerEvent*);
 private:
     Mode mode;
     QSlider	 *rotS;		       // Rotation angle scroll bar
@@ -68,7 +71,6 @@ private:
     QRadioButton *rb_pic;	       // Radio button for picture
     QFontDialog  *fd;		       // Standard font dialog
 };
-
 
 /*
   ShowXForm displays a text or a pixmap (QPixmap) using a coordinate
@@ -105,7 +107,7 @@ private:
 XFormControl::XFormControl( QWidget *parent, const char *name )
 	: QFrame( parent, name )
 {
-    mode = Text;
+    mode = Image;
 
     rotLCD	= new QLCDNumber( 4, this, "rotateLCD" );
     rotS	= new QSlider( QSlider::Horizontal, this,
@@ -147,9 +149,9 @@ XFormControl::XFormControl( QWidget *parent, const char *name )
     bg->insert(rb_pic,2);
     rb_txt->setGeometry( 10, 220, 100, 15 );
     rb_txt->setText( tr("Text") );
-    rb_txt->setChecked(TRUE);
     rb_img->setGeometry( 10, 235, 100, 15 );
     rb_img->setText( tr("Image") );
+    rb_img->setChecked(TRUE);
     rb_pic->setGeometry( 10, 250, 100, 15 );
     rb_pic->setText( tr("Picture") );
     connect( bg, SIGNAL(clicked(int)), SLOT(changeMode(int)) );
@@ -163,15 +165,49 @@ XFormControl::XFormControl( QWidget *parent, const char *name )
     f->setText( tr("Select font...") );
     connect( f, SIGNAL(clicked()), SLOT(selectFont()) );
 
-    magS    = 0;
+    magS = new QSlider( QSlider::Horizontal, this,
+			   "magnifySlider" );
+    magS->setGeometry( 10, 375, 100, 15 );
+    magS->setRange( 0, 800 );
+    connect( magS, SIGNAL(valueChanged(int)), SLOT(newMtx()) );
+    magS->setValue( 0 );
+    magLCD = new QLCDNumber( 4,this, "shearLCD" );
+    magLCD->setGeometry( 10, 305, 100, 60 );
+    magLCD->display( "100" );
+    connect( magS, SIGNAL(valueChanged(int)), magLCD, SLOT(display(int)));
+
     fd	    = 0;
+
+    startTimer(20); // start an initial animation
 }
+
+void XFormControl::timerEvent(QTimerEvent*)
+{
+    int v = magS->value();
+    v = (v+2)+v/10;
+    if ( v >= 200 ) {
+	v = 200;
+	killTimers();
+    }
+    magS->setValue(v);
+}
+
+
 
 /*
     Called whenever the user has changed one of the matrix parameters
     (i.e. rotate, shear or magnification)
 */
 void XFormControl::newMtx()
+{
+    emit newMatrix( matrix() );
+}
+
+/*
+    Calculates the matrix appropriate for the current controls,
+    and updates the displays.
+*/
+QWMatrix XFormControl::matrix()
 {
     QWMatrix m;
     if (mode != Text) {
@@ -197,7 +233,7 @@ void XFormControl::newMtx()
 	rot = rot + 360;
     tmp.sprintf( "%3i'", rot );
     rotLCD->display( tmp );
-    emit newMatrix( m );
+    return m;
 }
 
 
@@ -235,18 +271,6 @@ void XFormControl::changeMode(int m)
 {
     mode = (Mode)m;
 
-    if ( magS == 0 ) {
-	magS = new QSlider( QSlider::Horizontal, this,
-			       "magnifySlider" );
-	magS->setGeometry( 10, 375, 100, 15 );
-	magS->setRange( 0, 800 );
-	magS->setValue( 100 );
-	connect( magS, SIGNAL(valueChanged(int)), SLOT(newMtx()) );
-	magLCD = new QLCDNumber( 4,this, "shearLCD" );
-	magLCD->setGeometry( 10, 305, 100, 60 );
-	magLCD->display( "100" );
-	connect( magS, SIGNAL(valueChanged(int)), magLCD, SLOT(display(int)));
-    }
     emit newMode( m );
     newMtx();
     if ( mode == Text ) {
@@ -456,6 +480,8 @@ XFormCenter::XFormCenter( QWidget *parent, const char *name )
 		 SLOT(setFont(const QFont&)) );
     connect( xc, SIGNAL(newMode(int)), SLOT(newMode(int)) );
     sx->setText( "Troll" );
+    newMode( Image );
+    sx->setMatrix(xc->matrix());
 }
 
 
