@@ -28,7 +28,7 @@ MainWindow::MainWindow()
     statusBar();
     assistant = new QAssistantClient( QString::null, this );
 
-    QTable* table = new QTable( 2, 2, this );
+    QTable* table = new QTable( 2, 3, this );
     setCentralWidget( table );
     
     // populate table
@@ -44,6 +44,8 @@ MainWindow::MainWindow()
     
     table->setItem( 1, 1, checkItem1  );
     table->setItem( 0, 1, checkItem2 );
+
+    table->setText( 1, 2, "Text" );
     
     table->horizontalHeader()->setLabel( 0, " Combos" );
     table->horizontalHeader()->setLabel( 1, "Checkboxes" );
@@ -75,7 +77,7 @@ MainWindow::MainWindow()
 	SLOT(message(const QString&)) );
     connect( tipGroup, SIGNAL(removeTip()), statusBar(), SLOT(clear()) );
 
-    // setup tooltips
+    // set up tooltips
     QToolTip::add( assistantButton, tr ("Open Assistant"), tipGroup, "Opens Qt Assistant" );
 
     horizontalTip = new HeaderToolTip( table->horizontalHeader(), tipGroup );
@@ -83,7 +85,7 @@ MainWindow::MainWindow()
     
     cellTip = new TableToolTip( table, tipGroup );
 
-    // setup whats this
+    // set up whats this
     QWhatsThis::add ( assistantButton, "This is a toolbutton which opens Assistant" );
 
     HeaderWhatsThis *horizontalWhatsThis = new HeaderWhatsThis( table->horizontalHeader() );

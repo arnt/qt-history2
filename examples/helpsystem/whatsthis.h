@@ -22,11 +22,11 @@ class WhatsThis : public QObject, public QWhatsThis
 public:
     WhatsThis( QWidget *w, QWidget *watch = 0 );
 
-    bool clicked( const QString &href );
+    bool clicked( const QString &link );
     QWidget *parentWidget() const;
 
 signals:
-    void linkClicked( const QString &href );
+    void linkClicked( const QString &link );
 
 private:
     QWidget *widget;

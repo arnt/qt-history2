@@ -24,10 +24,10 @@ QWidget *WhatsThis::parentWidget() const
     return widget;
 }
 
-bool WhatsThis::clicked( const QString & href )
+bool WhatsThis::clicked( const QString &link )
 {
-    if ( !href.isEmpty() )
-	emit linkClicked( href );
+    if ( !link.isEmpty() )
+	emit linkClicked( link );
 
     return TRUE;
 }
@@ -37,13 +37,22 @@ HeaderWhatsThis::HeaderWhatsThis( QHeader *h )
 {
 }
 
-QString HeaderWhatsThis::text( const QPoint & )
+QString HeaderWhatsThis::text( const QPoint &p )
 {
     QHeader *header = (QHeader*)parentWidget();
 
-    QString orient = (header->orientation() == QObject::Horizontal) ? "horizontal" : "vertical";
+    QString orient;
+    int section;
+    if ( header->orientation() == QObject::Horizontal ) {
+	orient = "horizontal";
+	section = header->sectionAt( p.x() );
+    } else {
+	orient = "vertical";
+	section = header->sectionAt( p.y() );
+    }
     QString docsPath = qApp->applicationDirPath() + "/../../doc";
-    return QString("This is the %1 <a href=%2/html/qheader.html>header</a>.").
+    return QString("This is the %1. section in the %2 <a href=%2/html/qheader.html>header</a>.").
+	arg(section + 1).
 	arg(orient).
 	arg(docsPath);
 }
@@ -62,26 +71,26 @@ QString TableWhatsThis::text( const QPoint &p )
     int row = table->rowAt( cp.y() );
     int col = table->columnAt( cp.x() );
 
+    if ( row == -1 || col == -1 )
+	return "This is empty space.";
+
     QTableItem* i = table->item( row,col  );
     if ( !i )
-	return "This is empty space.";
+	return "This is an empty cell.";
 
     QString docsPath = qApp->applicationDirPath() + "/../../doc";
 
-    switch ( i->rtti() ) {
-    case 0: //QTableItem::RTTI
+    if ( QTableItem::RTTI == i->rtti() ) {
 	return QString("This is a <a href=%1/html/qtableitem.html>QTableItem</a>.").
 		       arg(docsPath);
-    case 1: //QComboTableItem::RTTI
+    } else if ( QComboTableItem::RTTI == i->rtti() ) {
 	return QString("This is a <a href=%1/html/qcombotableitem.html>QComboTableItem</a>."
 		       "<br>It can be used to provide multiple-choice items in a table.").
 		       arg(docsPath);
-    case 2: //QCheckTableItem::RTTI
+    } else if ( QCheckTableItem::RTTI == i->rtti() ) {
 	return QString("This is a <a href=%1/html/qchecktableitem.html>QCheckTableItem</a>."
 		       "<br>It provide <a href=%1/html/qcheckbox.html>checkboxes</a> in tables.").
 		       arg(docsPath).arg(docsPath);
-    default:
-	break;
     }
 
     return "This is a user defined table item.";

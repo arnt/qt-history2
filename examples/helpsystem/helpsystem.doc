@@ -9,13 +9,10 @@
   in an application.
 
   It uses QToolTip and QWhatsThis to provide both static and 
-  dynamic balloon help for the widgets in the application. 
-  QToolTipGroup is used to collect tool tips into 
-  related groups. Tool tips can display two texts: one in the tip 
-  and (optionally) one that is typically in a status bar.
-  QToolTipGroup provides a way to link tool tips to this status bar. 
-  QAssistantClient is used to display help pages using Qt 
-  Assistant. 
+  dynamic balloon help for the widgets in the application, and 
+  QToolTipGroup to display extended information for each tooltip
+  in the statusbar. QAssistantClient is used to display help 
+  pages using Qt Assistant. 
 
   The application has a user interface based on a 
   QMainWindow with a menubar, statusbar and a toolbar, and uses 
@@ -23,9 +20,6 @@
   \quotefile helpsystem/tooltip.h
   \skipto : public QToolTip
   \printuntil };
-  \printuntil };
-  \quotefile helpsystem/tooltip.cpp
-  \skipto HeaderToolTip::HeaderToolTip
 
   Two QToolTip subclasses implement dynamic tooltips for
   QHeader and QTable by reimplementing maybeTip(). The 
@@ -36,8 +30,13 @@
   passed as arguments. A QToolTipGroup can be provided as the
   second argument to show tooltips in, for example a statusbar.
 
+  \printuntil };
+
   The TableToolTip class keeps a reference to the QTable
   as a member for easier access of the QTable object later on.
+
+  \quotefile helpsystem/tooltip.cpp
+  \skipto HeaderToolTip::HeaderToolTip
   \printuntil }
 
   The HeaderToolTip constructor propagates the parameters
@@ -47,7 +46,9 @@
   The implementation of maybeTip() uses the QHeader API
   to get the section at the requested position and uses
   QToolTip::tip() to display the section's label in a
-  tooltip and to provide the text for the QToolTipGroup.
+  tooltip. The second string is used by QToolTipGroup and will
+  show up in the statusbar.
+
   \printuntil }
 
   Since QTable is a QScrollView all user interaction 
@@ -61,7 +62,7 @@
   to get information about the cell at the requested position. 
   The QTable API expects contents coordinates, and since the 
   requested point is relative to the viewport we need to translate
-  the coordinate before we can use QTable's functions.  
+  the coordinates before we can use QTable's functions.  
   \printuntil }
   \quotefile helpsystem/whatsthis.h
   \skipto class WhatsThis
@@ -111,7 +112,7 @@
   text() to make it possible to return texts depending on the 
   mouse click's position. All the other functionality is 
   already provided by the generic WhatsThis base class. We ensure
-  type safety here in the same manner as in the ToolTip classes.
+  type safety here in the same manner as in the tooltip classes.
   \printuntil }
 
   The HeaderWhatsThis constructor propagates the parameter to the 
@@ -120,32 +121,32 @@
 
   The implementation of text() uses the QHeader API to determine
   whether we have a horizontal or a vertical header and returns
-  a string which states the header's orientation. \footnote
-  Note that we have to give the scope's orientation
+  a string which states the header's orientation and section.
+  \footnote
+  Note that we have to explicitly scope the orientation
   (QObject or QWhatsThis) since HeaderWhatsThis uses multiple 
-  inheritance \endfootnote 
+  inheritance. \endfootnote 
   \printuntil }
 
   Since QTable is a scrollview and has a viewport() which receives
   the events, we propagate the table itself and the table's 
-  viewport() to the WhatsThis constructor 
+  viewport() to the WhatsThis constructor.
+  \printuntil }
+  \printuntil }
   \printuntil }
   \printuntil }
 
-  \quotefile helpsystem/mainwindow.h
-  \skipto class MainWindow
-  
   The implementation of text() uses the QTable API to get 
   information about the cell at the requested position. 
   The QTable API expects contents coordinates, so we need to 
-  translate the point as shown earlier for the ToolTip classes. 
+  translate the point as shown earlier for the tooltip classes. 
   We use the rtti() function to figure out the item's type 
-  and return a string according to this type. 
+  and return a string accordingly. 
+
+  \quotefile helpsystem/mainwindow.h
+  \skipto class MainWindow
   \printuntil };
 
-  \quotefile helpsystem/mainwindow.cpp
-  \skipto MainWindow::MainWindow
-   
   A QMainWindow is used to create a user interface that uses the 
   above classes in addition to Qt Assistant to provide context
   sensitive help in the application.
@@ -156,10 +157,13 @@
   because they are not QObjects and need to be deleted explicitly.
   The class has a reference to QAssistantClient as a 
   member as well, to allow easier access to Qt Assistant later on.
+
+  \quotefile helpsystem/mainwindow.cpp
+  \skipto MainWindow::MainWindow
   \printuntil assistant
   
   The MainWindow constructor creates an instance of 
-  QAssistantClient, it uses QString::null as the first argument
+  QAssistantClient using QString::null as the first argument
   so that the system path is used.
   \printto QWhatsThis::whatsThisButton
   
@@ -179,15 +183,15 @@
   tooltip on the Assistant toolbutton. Tooltip objects are created
   using the QToolTip subclasses, the constructor's first parameter
   specifies the widget we want to add dynamic tooltips for and the
-  second argument specifies the tool tip group they should belong 
+  second argument specifies the QToolTipGroup they should belong 
   to.
   \printto // connections
   
-  The WhatsThis help are set up. The static function add() adds 
-  What's this help for the toolbutton which opens Assistant. 
+  The WhatsThis help is set up. The static function add() adds 
+  What's This? help for the toolbutton which opens Assistant. 
   Instances of the two WhatsThis subclasses are created for the
-  widgets specified by the constructor's argument. What's this 
-  help is added for the menu items.
+  headers and the table. What's This? help is also added for the 
+  menu items.
   \printto MainWindow::~MainWindow
    
   Signals and slots are connected, so that the relevant pages will
@@ -201,8 +205,9 @@
   deleted when the widget is deleted.
   \printuntil }  
 
-  The assistantSlot() uses qInstallPathDocs to show the specified
-  page in Qt Assistant. 
+  The assistantSlot() uses applicationDirPath() to find the 
+  location of the documentation files and shows the specified page
+  in Qt Assistant.
   \quotefile helpsystem/main.cpp
   \skipto #include
   \printuntil }
@@ -210,7 +215,7 @@
   The main function is a standard implementation opening
   the application main window.
   
-To build the example go to the helpsystem directory
-(QTDIR/examples/helpsystem) run qmake to generate the makefile, 
-and use the make tool to build the library. 
+  To build the example go to the helpsystem directory
+  (QTDIR/examples/helpsystem) run qmake to generate the makefile, 
+  and use the make tool to build the library. 
 */
