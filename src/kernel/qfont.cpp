@@ -297,7 +297,16 @@ QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
  */
 QFont::QFont(const QString &family, int pointSize, int weight, bool italic, CharSet)
 {
-    (*this) = QFont(family, pointSize, weight, italic);
+    if (pointSize <= 0) pointSize = 1;
+
+    d = new QFontPrivate;
+    Q_CHECK_PTR( d );
+
+    d->request.family = family;
+    d->request.pointSize = pointSize * 10;
+    d->request.pixelSize = pixelSize();
+    d->request.weight = weight;
+    d->request.italic = italic;
 }
 
 
