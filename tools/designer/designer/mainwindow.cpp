@@ -644,11 +644,13 @@ QObjectList *MainWindow::runProject( bool execMain )
 
     QObjectList *l = new QObjectList;
     if ( iiface ) {
-	bool hasForms = FALSE;
+	// ####
+//	bool hasForms = FALSE;
 	for ( QPtrListIterator<FormFile> forms = currentProject->formFiles();
 	      forms.current(); ++forms ) {
 	    FormFile* f = forms.current();
-	    hasForms = TRUE;
+	    // ####
+//	    hasForms = TRUE;
 	    if ( !f->formWindow() )
 		continue;
 	    FormWindow* fw = f->formWindow();
