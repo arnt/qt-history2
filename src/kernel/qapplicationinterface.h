@@ -1,12 +1,12 @@
 #ifndef QAPPLICATIONINTERFACES_H
 #define QAPPLICATIONINTERFACES_H
 
-#ifndef QT_NO_PLUGIN
-
 #ifndef QT_H
 #include "qvariant.h"
 #include "qobject.h"
 #endif // QT_H
+
+#ifndef QT_NO_PLUGIN
 
 class QComponentInterface;
 

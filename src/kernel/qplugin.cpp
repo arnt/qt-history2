@@ -1,5 +1,5 @@
-#ifndef QT_NO_PLUGIN
 #include "qapplicationinterface.h"
+#ifndef QT_NO_PLUGIN
 #include "qapplication.h"
 #include "qplugin.h"
 #include "qplugin_p.h"
