@@ -313,7 +313,7 @@ public:
   \value ErrHostNotFound  The specified host (in the URL) couldn't be
   found.
 
-  \value ErrListChlidren  An error occured while listing the children.
+  \value ErrListChildren  An error occured while listing the children.
 
   \value ErrMkdir  An error occured when creating a directory.
 

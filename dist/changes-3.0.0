@@ -710,6 +710,9 @@ New static functions:
 	static void addFactory( QMimeSourceFactory *f );
 
 
+QNetworkProtocol:
+
+Spelling fix in Error::ErrListChildren enum.
 
 QRegExp
 

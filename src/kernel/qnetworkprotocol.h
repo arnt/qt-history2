@@ -112,7 +112,8 @@ public:
 	ErrLoginIncorrect,
 	ErrHostNotFound,
 	// protocol errors
-	ErrListChlidren,
+	ErrListChildren,
+	ErrListChlidren = ErrListChildren, // ### remove in 4.0
 	ErrMkdir,
 	ErrRemove,
 	ErrRename,
