@@ -258,7 +258,7 @@ void GearWidget::timerEvent(QTimerEvent*)
 
 int main( int argc, char **argv )
 {
-    QApplication::setColorMode( QApplication::CustomColors );
+    QApplication::setColorSpec( QApplication::CustomColor );
     QApplication a( argc, argv );
     GearWidget w;
     a.setMainWidget( &w );
