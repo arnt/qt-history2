@@ -644,12 +644,15 @@ void QToolButton::setTextLabel( const QString &newLabel )
 
 void QToolButton::setTextLabel( const QString &newLabel , bool tipToo )
 {
-#ifndef QT_NO_TOOLTIP
-    if ( tipToo )
-	QToolTip::add( this, newLabel );
-#endif
     if ( tl == newLabel )
 	return;
+
+#ifndef QT_NO_TOOLTIP
+    if ( tipToo ) {
+        QToolTip::remove( this );
+        QToolTip::add( this, newLabel );
+    }
+#endif
 
     tl = newLabel;
     if ( usesTextLabel() && isVisible() ) {
