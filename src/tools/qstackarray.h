@@ -55,6 +55,9 @@ public:
     inline operator T *() { return ptr; }
     inline operator const T *() const { return ptr; }
 
+    inline T *data() { return ptr; }
+    inline const T *data() const { return ptr; }
+    inline const T * constData() const { return ptr; }
 
 private:
     // disallow construction on the heap.
