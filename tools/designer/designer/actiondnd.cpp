@@ -359,7 +359,7 @@ void QDesignerToolBar::buttonContextMenuEvent( QContextMenuEvent *e, QObject *o 
 
 	AddActionToToolBarCommand *cmd = new AddActionToToolBarCommand(
 	    tr( "Add Separator to Toolbar '%1'" ).
-	    arg( a->name() ).arg( caption() ),
+	    arg( a->name() ),
 	    formWindow, a, this, index );
 	formWindow->commandHistory()->addCommand( cmd );
 	cmd->execute();
