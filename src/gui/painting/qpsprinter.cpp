@@ -1845,9 +1845,9 @@ void QPSPrinterFontTTF::drawText(QTextStream &stream, const QPoint &p, QTextEngi
                 glyph = glyph_for_unicode(useGlyphAsUnicode ? glyphs[i].glyph : text.unicode()[i].unicode());
 	    stream << toHex(mapUnicode(glyph));
             if (i != len-1) {
-                xyarray += (xo + glyphs[i].offset.x + glyphs[i+1].advance.x).toDouble();
+                xyarray += QByteArray::number((xo + glyphs[i].offset.x + glyphs[i+1].advance.x).toDouble());
                 xyarray += " ";
-                xyarray += (yo + glyphs[i].offset.y).toDouble();
+                xyarray += QByteArray::number((yo + glyphs[i].offset.y).toDouble());
                 xyarray += " ";
                 xo = -glyphs[i].offset.x;
                 yo = -glyphs[i].offset.y;
@@ -1863,9 +1863,9 @@ void QPSPrinterFontTTF::drawText(QTextStream &stream, const QPoint &p, QTextEngi
                 glyph = glyph_for_unicode(useGlyphAsUnicode ? glyphs[i].glyph : text.unicode()[i].unicode());
 	    stream << toHex(mapUnicode(glyph));
             if (i) {
-                xyarray += (xo + glyphs[i].offset.x + glyphs[i-1].advance.x).toDouble();
+                xyarray += QByteArray::number((xo + glyphs[i].offset.x + glyphs[i-1].advance.x).toDouble());
                 xyarray += " ";
-                xyarray += (yo + glyphs[i].offset.y).toDouble();
+                xyarray += QByteArray::number((yo + glyphs[i].offset.y).toDouble());
                 xyarray += " ";
                 xo = -glyphs[i].offset.x;
                 yo = -glyphs[i].offset.y;
