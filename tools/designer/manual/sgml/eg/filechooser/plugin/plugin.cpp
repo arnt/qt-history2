@@ -13,27 +13,27 @@ QStringList CustomWidgetInterface::featureList() const
     return list;
 }
 
-QWidget* CustomWidgetInterface::create( const QString &description, QWidget* parent, const char* name )
+QWidget* CustomWidgetInterface::create( const QString &feature, QWidget* parent, const char* name )
 {
     QWidget* w = 0;
 
-    if ( description == "FileChooser" )
+    if ( feature == "FileChooser" )
 	w = new FileChooser( parent, name );
 
     objects.add( w );
     return w;
 }
 
-QString CustomWidgetInterface::group( const QString& description ) const
+QString CustomWidgetInterface::group( const QString& feature ) const
 {
-    if ( description == "FileChooser" )
+    if ( feature == "FileChooser" )
 	return "Input";
     return QString::null;
 }
 
-QString CustomWidgetInterface::iconSet( const QString& description ) const
+QString CustomWidgetInterface::iconSet( const QString& feature ) const
 {
-    if ( description == "FileChooser" )
+    if ( feature == "FileChooser" )
 	return "lineedit.xpm";
     return QString::null;
 }
@@ -43,23 +43,23 @@ QIconSet CustomWidgetInterface::iconset( const QString& ) const
     return QIconSet();
 }
 
-QString CustomWidgetInterface::includeFile( const QString& description ) const
+QString CustomWidgetInterface::includeFile( const QString& feature ) const
 {
-    if ( description == "FileChooser" )
+    if ( feature == "FileChooser" )
 	return "filechooser.h";
     return QString::null;
 }
 
-QString CustomWidgetInterface::toolTip( const QString& description ) const
+QString CustomWidgetInterface::toolTip( const QString& feature ) const
 {
-    if ( description == "FileChooser" )
+    if ( feature == "FileChooser" )
 	return "File Chooser Widget";
     return QString::null;
 }
 
-QString CustomWidgetInterface::whatsThis( const QString& description ) const
+QString CustomWidgetInterface::whatsThis( const QString& feature ) const
 {
-    if ( description == "FileChooser" )
+    if ( feature == "FileChooser" )
 	return "A widget to choose a file or directory";
     return QString::null;
 }
