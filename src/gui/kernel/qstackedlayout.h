@@ -24,6 +24,7 @@ class Q_GUI_EXPORT QStackedLayout : public QLayout
     Q_DECLARE_PRIVATE(QStackedLayout)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
     QDOC_PROPERTY(int count READ count)
+
 public:
     QStackedLayout();
     explicit QStackedLayout(QWidget *parent);
@@ -44,8 +45,6 @@ public:
     QWidget *widget(int) const;
     int count() const;
 
-    void setCurrentIndex(int);
-
     // abstract virtual functions:
     void addItem(QLayoutItem *item);
     QSize sizeHint() const;
@@ -56,6 +55,9 @@ public:
 
 signals:
     void widgetRemoved(int index);
+
+public slots:
+    void setCurrentIndex(int);
 
 private:
     Q_DISABLE_COPY(QStackedLayout)
