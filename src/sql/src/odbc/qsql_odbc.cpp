@@ -1004,12 +1004,13 @@ QString QODBCDriver::formatValue( const QSqlField* field,
 	if ( field->value().toDateTime().isValid() ){
 	    QDate dt = field->value().toDateTime().date();
 	    QTime tm = field->value().toDateTime().time();	
+	    // Dateformat has to be "yyyy-MM-dd hh:mm:ss", with leading zeroes if month or day < 10
 	    r = "{ ts '" +
 		QString::number(dt.year()) + "-" +
-		QString::number(dt.month()) + "-" +
-		QString::number(dt.day()) + " " +
+		QString::number(dt.month()).rightJustify( 2, '0', TRUE ) + "-" +
+		QString::number(dt.day()).rightJustify( 2, '0', TRUE ) + " " +
 		tm.toString() +
-		"' }";		
+		"' }";
 	} else
 	    r = nullText();
     } else {
