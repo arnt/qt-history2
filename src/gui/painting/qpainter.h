@@ -84,7 +84,6 @@ public:
 
     void setBackground(const QBrush &bg);
     const QBrush &background() const;
-    const QPoint &backgroundOrigin() const;
 
     QRegion clipRegion(CoordinateMode = CoordDevice) const;
     void setClipRect(const QRect &, CoordinateMode = CoordDevice);

@@ -224,23 +224,16 @@ QFontInfo QPainter::fontInfo() const
 
 const QPoint &QPainter::brushOrigin() const
 {
-    return d->state->bgOrigin;
+    return d->state->bgOrigin + d->redirection_offset;
 }
 
 void QPainter::setBrushOrigin(int x, int y)
 {
     // ### updateBrush in gc probably does not deal with offset.
-    d->state->bgOrigin = QPoint(x, y);
+    d->state->bgOrigin = QPoint(x, y) - d->redirection_offset;
     if (d->engine)
 	d->engine->setDirty(QPaintEngine::DirtyBrush);
 }
-
-const QPoint &QPainter::backgroundOrigin() const
-{
-    // ### Port properly...
-    return d->state->bgOrigin;
-}
-
 
 const QBrush &QPainter::background() const
 {
