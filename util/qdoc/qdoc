@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#204 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#205 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1954,38 +1954,73 @@ sub reimplementations {
 
 
 sub classlist {
-    my $result, @classurls;
+    my $result, @classurls, @colindex, $tmp, $i, $done, $url;
 
     @classurls = sort grep {
 	(($type{$_} eq "class") && defined($documented{$_})) } keys %type;
 
     # Find longest common prefix (eg. "Q")
-    @n = map { $name{$_} } @classurls;
-    $prefix = "";
-    $prefix_length = 0;
-    $y = 1;
-    while ( $y ) {
-	$prefix=substr($n[0],0,$prefix_length+1);
-	map { $y=0 if $_ !~ /^$prefix/ } @n;
-	$prefix_length++ if $y;
-    }
-    $pl = "";
+    $prefix = $classurls[$#classurls-1];
+    $url = $classurls[0];
+    # shorten the assumed prefix until it is an actual prefix
+    $prefix =~ s/.$// while( $prefix ne substr( $url, 0, length $prefix ) );
+    $prefix_length = length $prefix;
 
-    $eot = "";
-    foreach $url ( @classurls ) {
-	$ex = defined( $extension{ $url } ) ? "*" : "";
-	$n = $name{$url};
-	$letter = uc(substr($n,$prefix_length,1));
-	if ( $pl ne $letter ) {
-	    # Start of block
-	    $result .= "$eot<table><tr><td valign=top><b>$letter</b><tr>\n";
-	    $eot = "</table>\n";
+    # find out where each column starts
+    $colindex[0] = 0;
+    $tmp = sprintf("%d",$#classurls/3-1); # end of first column - approximately
+    $tmp++ while( substr( $classurls[$tmp  ], $prefix_length, 1 ) eq
+		  substr( $classurls[$tmp+1], $prefix_length, 1 ) );
+    $colindex[1] = $tmp+1;
+    $tmp = sprintf( "%d", ($tmp+$#classurls)/2-1 ); # end of second column
+    $tmp++ while( substr( $classurls[$tmp  ], $prefix_length, 1 ) eq
+		  substr( $classurls[$tmp+1], $prefix_length, 1 ) );
+    $colindex[2] = $tmp+1;
+    $colindex[3] = $#classurls+1;
+
+    # build the table
+    $result = "<table>\n";
+    $i = 0;
+    $done = 0;
+    while( !$done ) {
+	my $col;
+	$done = 1;
+	$result = join( "", $result, "<tr>\n" );
+	foreach $col ( 0 .. $#colindex-1 ) {
+	    my $j;
+	    $j = $colindex[$col] + $i;
+	    $result = join( "", $result, "<td>" );
+	    $result = join( "", $result, "<b>",
+			    uc substr( $classurls[$j], $prefix_length, 1 ),
+			    "</b>" )
+	      if ( $j < $colindex[$col+1] &&
+		   ( $j == 0 || 
+		     ( substr( $classurls[$j-1], $prefix_length, 1 ) ne
+		       substr( $classurls[$j], $prefix_length, 1 ) ) ) );
+	    $result = join( "", $result, "</td>\n<td>" );
+	    if ( $j < $colindex[$col+1] ) {
+		my $ex, $n, $url;
+		$url = $classurls[$j];
+		print "$col $colindex[$col] $i $j $url\n";
+		$ex = defined( $extension{$url} ) ? "*" : "";
+		$n = $name{$url};
+		$result = join( "", $result, "<a href=\"", $url, "\">",
+				$n, $ex, "</a>" );
+		$done = 0;
+	    }
+	    $result = join( "", $result, "</td>\n" );
 	}
-	$result = join( "", $result, "<a href=\"", $url, "\">",
-		       $n, "</a>", $ex, "<br>\n" );
-	$pl = $letter;
+	$result = join( "", $result, "</tr>\n" );
+	$i++;
     }
-    "$result$eot";
+    $result = join( "", $result, "</table>\n" );
+
+    # strip it of unnecessary cells
+    $result =~ s-(?:<td>\s*</td>\s*)+</tr>-</tr>-gs;
+    $result =~ s-<tr>\s*</tr>\s*--gs;
+
+    # and return it
+    $result;
 }
 
 
@@ -2355,6 +2390,8 @@ if ( defined( @docdirs ) ) {
 
 chdir( "/tmp" );
 
+print "1\n";
+
 &templates();
 &preprocessdocs();
 &makenames();
@@ -2362,6 +2399,7 @@ chdir( "/tmp" );
 &processdocs();
 &readfiles();
 &reimplementations();
+
 
 foreach $c ( sort keys %doc ) {
     if ($type{$c} eq "class") {
