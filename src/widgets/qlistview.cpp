@@ -878,8 +878,12 @@ void QListViewItem::startRename( int col )
 	r.setLeft( r.left() + lv->itemMargin() + ( depth() + ( lv->rootIsDecorated() ? 1 : 0 ) ) * lv->treeStepSize() - 1 );
     if ( pixmap( col ) )
 	r.setLeft( r.left() + pixmap( col )->width() );
-    if ( r.x() - lv->contentsX() < 0 )
+    if ( r.x() - lv->contentsX() < 0 ) {
+	lv->scrollBy( r.x() - lv->contentsX(), 0 );
 	r.setX( lv->contentsX() );
+    } else if ( ( lv->contentsX() + lv->visibleWidth() ) < ( r.x() + r.width() ) ) {
+	lv->scrollBy( ( r.x() + r.width() ) - ( lv->contentsX() + lv->visibleWidth() ), 0 );
+    }
     if ( r.width() > lv->visibleWidth() )
 	r.setWidth( lv->visibleWidth() );
     renameBox = new QLineEdit( lv->viewport(), "qt_renamebox" );
@@ -7630,7 +7634,6 @@ void QListView::startRename()
 {
     if ( !currentItem() )
 	return;
-    ensureItemVisible( currentItem() );
     currentItem()->startRename( d->pressedColumn );
     d->buttonDown = FALSE;
 }
