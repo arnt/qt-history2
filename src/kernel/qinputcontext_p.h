@@ -1,17 +1,25 @@
 #ifndef QINPUTCONTEXT_P_H
 #define QINPUTCONTEXT_P_H
 
-#if defined(Q_WS_X11)
-
-#include "qwindowdefs.h"
-#include "qt_x11.h"
+#include <qglobal.h>
 
 class QKeyEvent;
 class QWidget;
+class QFont;
+
+#ifdef Q_WS_X11
+#include "qwindowdefs.h"
+#include "qt_x11.h"
+#endif
+
+#ifdef Q_WS_WIN
+#include <qt_windows.h>
+#endif
 
 class QInputContext
 {
 public:
+#ifdef Q_WS_X11
     QInputContext(QWidget *); // should be a toplevel widget
     ~QInputContext();
 
@@ -20,42 +28,30 @@ public:
     void setComposeArea(int, int, int, int);
     void reset();
 
-#if defined(Q_WS_X11)
     int lookupString(XKeyEvent *, QCString &, KeySym *, Status *) const;
     void setXFontSet(QFont *);
-#endif // Q_WS_X11
 
     void *ic;
     QString text, lastcompose;
     QWidget *focusWidget;
     bool composing;
-#ifdef    Q_WS_X11
     QFont font;
     XFontSet fontset;
 #endif // Q_WS_X11
-};
 
-#else if defined(Q_WS_WIN)
-
-#include <qt_windows.h>
-
-class QInputContext
-{
-public:
+#ifdef Q_WS_WIN
     static void init();
     static void shutdown();
 
     static void TranslateMessage( const MSG *msg);
     static LRESULT DefWindowProc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam );
 
-    static HIMC getContext( HWND wnd );
-    static void releaseContext( HWND wnd, HIMC imc );
-    static void notifyIME( HIMC imc, DWORD dwAction, DWORD dwIndex, DWORD dwValue );
-    static QString getCompositionString( HIMC imc, DWORD dwindex, int *pos = 0 );
-};
-
-
+    static void setFont( const QWidget *w, const QFont & );
+    static void setFocusHint( int x, int y, int w, int h, const QWidget *widget );
+    static bool startComposition();
+    static bool endComposition( QWidget *fw = 0 );
+    static bool composition( LPARAM lparam );
 #endif
-
+};
 
 #endif // QINPUTCONTEXT_P_H

@@ -329,9 +329,6 @@ static int	translateKeyCode( int );
 
 Qt::WindowsVersion qt_winver = Qt::WV_NT;
 
-static QString *imeComposition = 0;
-static int	imePosition    = 0;
-
 extern QCursor *qt_grab_cursor();
 
 #if defined(Q_WS_WIN)
@@ -912,7 +909,6 @@ void qt_cleanup()
 #endif
     delete activeBeforePopup;
     activeBeforePopup = 0;
-    delete imeComposition;
 }
 
 
@@ -1769,27 +1765,6 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
 }
 
 
-//#define Q_IME_DEBUG
-
-void qt_winEndImeComposition( QWidget *fw )
-{
-#ifdef Q_IME_DEBUG
-    qDebug("endComposition!");
-#endif
-    if ( !imeComposition || imeComposition->isNull() )
-	return;
-#ifdef Q_IME_DEBUG
-    qDebug("   sending im end event");
-#endif
-    QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
-    QApplication::sendEvent( fw, &e );
-    *imeComposition = QString::null;
-    imePosition = -1;
-    HIMC imc = QInputContext::getContext( fw->winId() );
-    QInputContext::notifyIME( imc, NI_COMPOSITIONSTR, CPS_CANCEL, 0 );
-    QInputContext::releaseContext( fw->winId(), imc );
-}
-
 //
 // QtWndProc() receives all messages from the main event loop
 //
@@ -2348,72 +2323,15 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 #endif
 
 	    case WM_IME_STARTCOMPOSITION:
-		{
-#ifdef Q_IME_DEBUG
-		    qDebug("startComposition" );
-#endif
-		    QWidget *fw = qApp->focusWidget();
-		    if ( fw ) {
-			QIMEvent e( QEvent::IMStart, QString::null, -1 );
-			result = qt_sendSpontaneousEvent( fw, &e );
-			imePosition = 0;
-		    }
-		}
+    		result = QInputContext::startComposition();
 		break;
 	    case WM_IME_ENDCOMPOSITION:
-		{
-#ifdef Q_IME_DEBUG
-		    qDebug( "endComposition" );
-#endif
-		    QWidget *fw = qApp->focusWidget();
-		    if ( fw && imePosition != -1 ) {
-			QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
-			result = qt_sendSpontaneousEvent( fw, &e );
-			*imeComposition = QString::null;
-			imePosition = -2;
-		    }
-		}
+		result = QInputContext::endComposition();
 		break;
 	    case WM_IME_COMPOSITION:
-		{
-#ifdef Q_IME_DEBUG
-		    qDebug("composition, lParam=%x", lParam);
-#endif
-		    QWidget *fw = qApp->focusWidget();
-		    if ( fw && imePosition != -2 ) {
-			if ( imePosition == -1 ) {
-			    // need to send a start event
-    			    QIMEvent e( QEvent::IMStart, QString::null, -1 );
-			    result = qt_sendSpontaneousEvent( fw, &e );
-			    imePosition = 0;
-			}
-			HIMC imc = QInputContext::getContext( fw->winId() ); // Should we store it?
-			if ( !imeComposition )
-			    imeComposition = new QString();
-			if (lParam & GCS_RESULTSTR ) {
-			    *imeComposition = QInputContext::getCompositionString( imc, GCS_RESULTSTR );
-			    imePosition = -1;
-			} else if ( lParam & GCS_COMPSTR ) {
-			    *imeComposition = QInputContext::getCompositionString( imc, GCS_COMPSTR );
-			}
-			if ( imePosition != -1 ) {
-			    if ( lParam & GCS_CURSORPOS ) {
-				QInputContext::getCompositionString( imc, GCS_CURSORPOS, &imePosition );
-			    } else if ( lParam & CS_NOMOVECARET ) {
-				imePosition = imeComposition->length();
-			    }
-			}
-#ifdef Q_IME_DEBUG
-			qDebug("imecomposition: cursor pos at %d", imePosition );
-#endif
-			QInputContext::releaseContext( fw->winId(), imc );
-			QIMEvent e( (lParam & GCS_RESULTSTR ? QEvent::IMEnd : QEvent::IMCompose), *imeComposition, imePosition );
-			if (lParam & GCS_RESULTSTR )
-			    *imeComposition = QString::null;
-			result = qt_sendSpontaneousEvent( fw, &e );
-		    }
-		}
+		result = QInputContext::composition( lParam );
 		break;
+
 #ifndef Q_OS_TEMP
 	    case WM_CHANGECBCHAIN:
 	    case WM_DRAWCLIPBOARD:

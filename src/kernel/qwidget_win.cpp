@@ -41,6 +41,7 @@
 #include "qt_windows.h"
 #include "qpaintdevicemetrics.h"
 #include "qcursor.h"
+#include <private/qinputcontext_p.h>
 
 #ifdef Q_OS_TEMP
 #include "sip.h"
@@ -48,9 +49,6 @@
 
 #if defined(QT_NON_COMMERCIAL)
 #include "qnc_win.h"
-#endif
-#if defined(__MINGW32__)
-#include <imm.h>
 #endif
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -559,32 +557,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
 void QWidget::setFontSys( QFont *f )
 {
-    HFONT hf;
-    if ( f )
-	hf = f->handle();
-    else
-	hf = font().handle();
-
-    HIMC imc = ImmGetContext( winId() ); // Can we store it?
-#ifdef UNICODE
-#ifndef Q_OS_TEMP
-    if ( qt_winver & WV_NT_based ) {
-#endif
-	LOGFONT lf;
-	if ( GetObject( hf, sizeof(lf), &lf ) )
-	    ImmSetCompositionFont( imc, &lf );
-#ifndef Q_OS_TEMP
-    } else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-    {
-	LOGFONTA lf;
-	if ( GetObjectA( hf, sizeof(lf), &lf ) )
-	    ImmSetCompositionFontA( imc, &lf );
-    }
-#endif
-    ImmReleaseContext( winId(), imc );
+    QInputContext::setFont( this, f ? *f : font() );
 }
 
 void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, QFont *f)
@@ -593,47 +566,17 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
     HideCaret( winId() );
     SetCaretPos( x, y );
 
-    if ( text ) {
-	// Translate x,y to be relative to the TLW
-	QPoint p(x,y);
-
-	COMPOSITIONFORM cf;
-	// ### need X-like inputStyle config settings
-	cf.dwStyle = CFS_FORCE_POSITION;
-	cf.ptCurrentPos.x = p.x();
-	cf.ptCurrentPos.y = p.y();
-
-	CANDIDATEFORM candf;
-	candf.dwIndex = 0;
-	candf.dwStyle = CFS_FORCE_POSITION;
-	candf.ptCurrentPos.x = p.x();
-	candf.ptCurrentPos.y = p.y() + height + 3;
-	candf.rcArea.left = 0;
-	candf.rcArea.top = 0;
-	candf.rcArea.right = 0;
-	candf.rcArea.bottom = 0;
-
-
-	HIMC imc = ImmGetContext( winId() ); // Should we store it?
-	ImmSetCompositionWindow( imc, &cf );
-	ImmSetCandidateWindow( imc, &candf );
-	ImmReleaseContext( winId(), imc );
-	if ( f ) {
-	    setFontSys( f );
-	}
-
-    }
+    if ( text )
+	QInputContext::setFocusHint( x, y, width, height, this );
+    setFontSys( f );
 
     if ( QRect( x, y, width, height ) != microFocusHint() )
 	extraData()->micro_focus_hint.setRect( x, y, width, height );
 }
 
-// defined in qapplication_win.cpp
-extern void qt_winEndImeComposition( QWidget *fw );
-
 void QWidget::resetInputContext()
 {
-    qt_winEndImeComposition( this );
+    QInputContext::endComposition( this );
 }
 
 void QWidget::setBackgroundColorDirect( const QColor &color )

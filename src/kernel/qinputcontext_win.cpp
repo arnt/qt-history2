@@ -1,4 +1,9 @@
 #include "qinputcontext_p.h"
+#include <qfont.h>
+#include <qwidget.h>
+#include <qapplication.h>
+
+//#define Q_IME_DEBUG
 
 extern Qt::WindowsVersion qt_winver;
 
@@ -80,7 +85,7 @@ public:
     virtual IFMETHOD RegisterWordW( HKL hKL, LPWSTR szReading, DWORD dwStyle, LPWSTR szRegister) = 0;
     virtual IFMETHOD ReleaseContext( HWND hWnd, HIMC hIMC) = 0;
     virtual IFMETHOD SetCandidateWindow( HIMC hIMC, CANDIDATEFORM __RPC_FAR *pCandidate) = 0;
-    virtual IFMETHOD dummy_SetCompositionFontA( ) = 0;
+    virtual IFMETHOD SetCompositionFontA( HIMC hIMC, LOGFONTA __RPC_FAR *plf ) = 0;
     virtual IFMETHOD SetCompositionFontW( HIMC hIMC, LOGFONTW __RPC_FAR *plf) = 0;
     virtual IFMETHOD dummy_SetCompositionStringA( ) = 0;
     virtual IFMETHOD SetCompositionStringW( HIMC hIMC, DWORD dwIndex, LPVOID pComp, DWORD dwCompLen, 
@@ -118,8 +123,8 @@ public:
 
 static IActiveIMMApp *aimm = 0;
 static IActiveIMMMessagePumpOwner *aimmpump = 0;
-
-//#define Q_IME_DEBUG
+static QString *imeComposition = 0;
+static int	imePosition    = 0;
 
 void QInputContext::init()
 {
@@ -150,9 +155,10 @@ void QInputContext::shutdown()
 	aimm = 0;
 	aimmpump = 0;
     }
+    delete imeComposition;
 }
 
-HIMC QInputContext::getContext( HWND wnd )
+static HIMC getContext( HWND wnd )
 {
     HIMC imc;
     if ( aimm )
@@ -163,31 +169,7 @@ HIMC QInputContext::getContext( HWND wnd )
     return imc;
 }
 
-void QInputContext::TranslateMessage( const MSG *msg)
-{
-    if ( !aimmpump || aimmpump->OnTranslateMessage( msg ) != S_OK )
-	::TranslateMessage( msg );
-}
-
-LRESULT QInputContext::DefWindowProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam )
-{
-    LRESULT retval;
-#ifdef Q_OS_TEMP
-    retval = DefWindowProc( hwnd, msg, wParam, lParam );
-#else
-    if ( !aimm || aimm->OnDefWindowProc( hwnd, msg, wParam, lParam, &retval ) != S_OK ) {
-#if defined(UNICODE)
-	if ( qt_winver & Qt::WV_NT_based )
-	    retval = ::DefWindowProc( hwnd, msg, wParam, lParam );
-	else
-#endif
-	    retval = ::DefWindowProcA( hwnd,msg, wParam, lParam );
-#endif
-    }
-    return retval;
-}
-
-void QInputContext::releaseContext( HWND wnd, HIMC imc )
+static void releaseContext( HWND wnd, HIMC imc )
 {
     if ( aimm )
 	aimm->ReleaseContext( wnd, imc );
@@ -195,7 +177,7 @@ void QInputContext::releaseContext( HWND wnd, HIMC imc )
 	ImmReleaseContext( wnd, imc );
 }
 
-void QInputContext::notifyIME( HIMC imc, DWORD dwAction, DWORD dwIndex, DWORD dwValue )
+static void notifyIME( HIMC imc, DWORD dwAction, DWORD dwIndex, DWORD dwValue )
 {
     if ( aimm )
 	aimm->NotifyIME( imc, dwAction, dwIndex, dwValue );
@@ -203,7 +185,7 @@ void QInputContext::notifyIME( HIMC imc, DWORD dwAction, DWORD dwIndex, DWORD dw
 	ImmNotifyIME( imc, dwAction, dwIndex, dwValue );
 }
 
-QString QInputContext::getCompositionString( HIMC imc, DWORD dwindex, int *pos )
+static QString getCompositionString( HIMC imc, DWORD dwindex, int *pos = 0 )
 {
     char buffer[256];
     LONG buflen = -1;
@@ -242,3 +224,184 @@ QString QInputContext::getCompositionString( HIMC imc, DWORD dwindex, int *pos )
     }
 }
 
+void QInputContext::TranslateMessage( const MSG *msg)
+{
+    if ( !aimmpump || aimmpump->OnTranslateMessage( msg ) != S_OK )
+	::TranslateMessage( msg );
+}
+
+LRESULT QInputContext::DefWindowProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam )
+{
+    LRESULT retval;
+#ifdef Q_OS_TEMP
+    retval = DefWindowProc( hwnd, msg, wParam, lParam );
+#else
+    if ( !aimm || aimm->OnDefWindowProc( hwnd, msg, wParam, lParam, &retval ) != S_OK ) {
+#if defined(UNICODE)
+	if ( qt_winver & Qt::WV_NT_based )
+	    retval = ::DefWindowProc( hwnd, msg, wParam, lParam );
+	else
+#endif
+	    retval = ::DefWindowProcA( hwnd,msg, wParam, lParam );
+#endif
+    }
+    return retval;
+}
+
+
+void QInputContext::setFont( const QWidget *w, const QFont &f )
+{
+    HFONT hf;
+    hf = f.handle();
+
+    HIMC imc = getContext( w->winId() );
+#ifdef Q_OS_TEMP
+    LOGFONT lf;
+    if ( GetObject( hf, sizeof(lf), &lf ) )
+	ImmSetCompositionFont( imc, &lf );
+#else
+#ifdef UNICODE
+    if ( qt_winver & Qt::WV_NT_based ) {
+	LOGFONT lf;
+	if ( GetObject( hf, sizeof(lf), &lf ) )
+	    if ( aimm )
+		aimm->SetCompositionFontW( imc, &lf );
+	    else
+		ImmSetCompositionFont( imc, &lf );
+    } else
+#endif
+    {
+	LOGFONTA lf;
+	if ( GetObjectA( hf, sizeof(lf), &lf ) )
+	    if ( aimm )
+		aimm->SetCompositionFontA( imc, &lf );
+	    else
+		ImmSetCompositionFontA( imc, &lf );
+    }
+#endif
+    releaseContext( w->winId(), imc );
+}
+
+
+void QInputContext::setFocusHint( int x, int y, int width, int height, const QWidget *w )
+{
+    COMPOSITIONFORM cf;
+    // ### need X-like inputStyle config settings
+    cf.dwStyle = CFS_FORCE_POSITION;
+    cf.ptCurrentPos.x = x;
+    cf.ptCurrentPos.y = y;
+
+    CANDIDATEFORM candf;
+    candf.dwIndex = 0;
+    candf.dwStyle = CFS_FORCE_POSITION;
+    candf.ptCurrentPos.x = x;
+    candf.ptCurrentPos.y = y + height + 3;
+    candf.rcArea.left = 0;
+    candf.rcArea.top = 0;
+    candf.rcArea.right = 0;
+    candf.rcArea.bottom = 0;
+
+
+    HIMC imc = getContext( w->winId() );
+    if ( aimm ) {
+	aimm->SetCompositionWindow( imc, &cf );
+	aimm->SetCandidateWindow( imc, &candf );
+    } else {
+	ImmSetCompositionWindow( imc, &cf );
+	ImmSetCandidateWindow( imc, &candf );
+    }
+    releaseContext( w->winId(), imc );
+}
+
+
+bool QInputContext::endComposition( QWidget *fw )
+{
+    bool result = TRUE;
+#ifdef Q_IME_DEBUG
+    qDebug("endComposition!");
+#endif
+
+    if ( !fw ) {
+	fw = qApp->focusWidget();
+	if ( fw && imePosition != -1 ) {
+	    QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
+	    result = qt_sendSpontaneousEvent( fw, &e );
+	    *imeComposition = QString::null;
+	    imePosition = -2;
+	}
+    } else {
+	if ( !imeComposition || imeComposition->isNull() )
+	    return TRUE;
+#ifdef Q_IME_DEBUG
+	qDebug("   sending im end event");
+#endif
+
+	QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
+	QApplication::sendEvent( fw, &e );
+	*imeComposition = QString::null;
+	imePosition = -1;
+
+    
+	HIMC imc = getContext( fw->winId() );
+	notifyIME( imc, NI_COMPOSITIONSTR, CPS_CANCEL, 0 );
+	releaseContext( fw->winId(), imc );
+    }
+    return result;
+}
+
+bool QInputContext::startComposition()
+{
+    bool result = TRUE;
+#ifdef Q_IME_DEBUG
+    qDebug("startComposition" );
+#endif
+    QWidget *fw = qApp->focusWidget();
+    if ( fw ) {
+	QIMEvent e( QEvent::IMStart, QString::null, -1 );
+	result = qt_sendSpontaneousEvent( fw, &e );
+	imePosition = 0;
+    }
+    return result;
+}
+
+bool QInputContext::composition( LPARAM lParam )
+{
+    bool result = TRUE;
+#ifdef Q_IME_DEBUG
+    qDebug("composition, lParam=%x", lParam);
+#endif
+    QWidget *fw = qApp->focusWidget();
+    if ( fw && imePosition != -2 ) {
+	if ( imePosition == -1 ) {
+	    // need to send a start event
+    	    QIMEvent e( QEvent::IMStart, QString::null, -1 );
+	    result = qt_sendSpontaneousEvent( fw, &e );
+	    imePosition = 0;
+	}
+	HIMC imc = getContext( fw->winId() ); // Should we store it?
+	if ( !imeComposition )
+	    imeComposition = new QString();
+	if (lParam & GCS_RESULTSTR ) {
+	    *imeComposition = getCompositionString( imc, GCS_RESULTSTR );
+	    imePosition = -1;
+	} else if ( lParam & GCS_COMPSTR ) {
+	    *imeComposition = getCompositionString( imc, GCS_COMPSTR );
+	}
+	if ( imePosition != -1 ) {
+	    if ( lParam & GCS_CURSORPOS ) {
+		getCompositionString( imc, GCS_CURSORPOS, &imePosition );
+	    } else if ( lParam & CS_NOMOVECARET ) {
+		imePosition = imeComposition->length();
+	    }
+	}
+#ifdef Q_IME_DEBUG
+	qDebug("imecomposition: cursor pos at %d", imePosition );
+#endif
+	releaseContext( fw->winId(), imc );
+	QIMEvent e( (lParam & GCS_RESULTSTR ? QEvent::IMEnd : QEvent::IMCompose), *imeComposition, imePosition );
+	if (lParam & GCS_RESULTSTR )
+	    *imeComposition = QString::null;
+	result = qt_sendSpontaneousEvent( fw, &e );
+    }
+    return result;
+}
