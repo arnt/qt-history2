@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.6 1997/08/06 15:03:12 hanord Exp $
+** $Id: indices.doc,v 2.7 1997/10/03 18:44:06 agulbra Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.6 1997/08/06 15:03:12 hanord Exp $";
+static char ident[] = "$Id: indices.doc,v 2.7 1997/10/03 18:44:06 agulbra Exp $";
 #endif
 
 /*! \page index.html
@@ -37,6 +37,9 @@ Tutorial and other documentation:
 <li><a href="tutorial.html">Tutorial</a>
 <li><a href="metaobjects.html">Signals and slots</a>
 <li><a href="debug.html">Debugging aids</a>
+<li><a href="http://www.troll.no/opengl/">OpenGL support for Qt</a>
+<li><a href="http://www.troll.no/imageio/">Image file format extensions</a>
+<li><a href="http://www.troll.no/nsplugin/">Writing Netscape plugins with Qt</a>
 <li><a href="headers.html">Header files</a>
 <li><a href="functions.html">Functions (long)</a>
 <li><a href="topicals.html">Other index pages</a>
@@ -46,20 +49,20 @@ Tutorial and other documentation:
 
 Some additional information:
 <ul>
-<li><a href="faq.html">FAQ</a>
-<li><a href="troll.html">Contact Troll Tech</a>
+<li><a href="http://www.troll.no/faq/">FAQs</a>
+<li><a href="http://www.troll.no/troll.html">Contact Troll Tech</a>
 <li><a href="license.html">License statement for Qt</a>
 </ul>
 
 <p>
 
-There is a mailing list for Qt users.  Send a message containing the
-single word "subscribe" to
-<a href="mailto:qt-interest-request@troll.no">qt-interest-request@troll.no</a>
-to join the list.  You will receive a receipt from the list server
-within a few minutes.  Or, if you just want to be notified of new
-releases, send a message containing just "subscribe" to
-<a href="mailto:qt-announce-request@troll.no">qt-announce-request@troll.no</a> and you will be added to the Qt-announce mailing list.
+There is a mailing list for Qt users,
+<a href="http://www.troll.no/qt-interest/">qt-interest</a>, with
+several hundred subscribers and 5-20 messages per day. If you just
+want to be notified of new releases, send a message containing just
+"subscribe" to
+<a href="mailto:qt-announce-request@troll.no">qt-announce-request@troll.no</a>
+and you will be added to the Qt-announce mailing list.
 
 */
 
