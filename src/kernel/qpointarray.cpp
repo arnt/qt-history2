@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#45 $
 **
 ** Implementation of QPointArray class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#45 $");
 
 /*!
   \class QPointVal qpntarry.h
@@ -456,6 +456,7 @@ static inline int fix_angle( int a )
   counter-clockwise while negative values mean clockwise direction.
   Zero degrees is at the 3'o clock position.
 */
+
 void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
 {
     a1 = fix_angle( a1 );
@@ -471,17 +472,10 @@ void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
     if ( a2 > 0 ) {
 	j = 0;
 	inc = 1;
-    }
-    else {
+    } else {
 	j = npts - 1;
 	inc = -1;
     }
-#if 0
-    if ( a1 == 90*16 ) {
-	debug( "a1=%d, a2=%d, a3=%d, size=%d, npts=%d, i=%d",
-	       a1,a2,a3,size(),npts,i);
-    }
-#endif
     while ( npts-- ) {
 	if ( i >= (int)size() )			// wrap index
 	    i = 0;
@@ -529,8 +523,7 @@ void QPointArray::makeEllipse( int xx, int yy, int w, int h )
 	if ( d1 < 0 ) {
 	    d1 = d1 + b2*(3.0+2*x);
 	    x++;
-	}
-	else {
+	} else {
 	    d1 = d1 + b2*(3.0+2*x) + 2.0*a2*(1-y);
 	    x++;
 	    y--;
@@ -545,8 +538,7 @@ void QPointArray::makeEllipse( int xx, int yy, int w, int h )
 	    d2 = d2 + 2.0*b2*(x+1) + a2*(3-2*y);
 	    x++;
 	    y--;
-	}
-	else {
+	} else {
 	    d2 = d2 + a2*(3-2*y);
 	    y--;
 	}
