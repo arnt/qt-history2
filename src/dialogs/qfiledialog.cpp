@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#257 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#258 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2114,7 +2114,7 @@ void QFileDialog::rereadDir()
 	QFileDialogPrivate::MCItem *i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
 	i->i = i2;	
     }
-    
+
     QFileInfoListIterator it( *filist );
     QFileInfo *fi;
     while ( (fi = it.current()) != 0 ) {
@@ -3233,10 +3233,10 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
         return TRUE;
     } else if ( ( o == d->moreFiles || o == d->moreFiles->viewport() ) &&
                 e->type() == QEvent::FocusIn ) {
-        if ( o == d->moreFiles->viewport() && !d->moreFiles->viewport()->hasFocus() ||
-             o == d->moreFiles && !d->moreFiles->hasFocus() )
-            ((QWidget*)o)->setFocus();
-        return TRUE;
+	if ( o == d->moreFiles->viewport() && !d->moreFiles->viewport()->hasFocus() ||
+	     o == d->moreFiles && !d->moreFiles->hasFocus() )
+	    ((QWidget*)o)->setFocus();
+        return FALSE;
     }
 
     return FALSE;
