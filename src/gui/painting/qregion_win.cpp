@@ -69,7 +69,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
 */
 QRegion::QRegion(const QPointArray &a, bool winding)
 {
-    if (a.isEmpty()) {
+    if (a.size() < 3) {
         d = &shared_empty;
         ++d->ref;
     } else {
