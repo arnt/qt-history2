@@ -43,7 +43,7 @@
 
 class UnixMakefileGenerator : public MakefileGenerator
 {
-    bool init_flag;
+    bool init_flag, include_deps;
 
     void writeMakeParts(QTextStream &);
     void writeSubdirs(QTextStream &);

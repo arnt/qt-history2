@@ -41,7 +41,7 @@
 #include <qregexp.h>
 #include <qfile.h>
 
-UnixMakefileGenerator::UnixMakefileGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(FALSE)
+UnixMakefileGenerator::UnixMakefileGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(FALSE), include_deps(FALSE)
 {
 
 }
@@ -187,7 +187,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     t << endl;
 
+
     /* rules */
+    t << "first: all" << endl; 
     t << "####### Implicit rules" << endl << endl;
     t << ".SUFFIXES: .cpp .cxx .cc .C .c" << endl << endl;
     t << ".cpp.o:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
@@ -195,6 +197,42 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << ".cc.o:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
     t << ".C.o:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
     t << ".c.o:\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
+
+    if(include_deps) {
+	QString cmd=var("QMAKE_CFLAGS_DEPS") + " ";
+	cmd += varGlue("DEFINES","-D"," -D","");
+	if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH")) 
+	    cmd += "-I" + project->first("QMAKE_ABSOLUTE_SOURCE_PATH") + " ";
+	cmd += " $(INCPATH) " + varGlue("DEPENDPATH", "-I", " -I", "");
+	QString odir;
+	if(!project->variables()["OBJECTS_DIR"].isEmpty())
+	    odir = project->first("OBJECTS_DIR");
+	t << "###### Dependancies" << endl << endl;
+	t << odir << ".deps/%.d: %.cpp\n\t" 
+	  << "@echo Creating depend for $<" << "\n\t"
+	  << "@[ -d $(@D) ] || mkdir -p $(@D)" << "\n\t"
+	  << "@$(CXX) " << cmd << " $< | sed \"s,^\\($(*F).o\\):," << odir << "\\1:,g\" >$@" << endl << endl;
+
+	t << odir << ".deps/%.d: %.c\n\t" 
+	  << "@echo Creating depend for $<" << "\n\t"
+	  << "@[ -d $(@D) ] || mkdir -p $(@D)" << "\n\t"
+	  << "@$(CC) " << cmd << " $< | sed \"s,^\\($(*F).o\\):," << odir << "\\1:,g\" >$@" << endl << endl;
+
+
+	QStringList &l = project->variables()["SOURCES"];
+	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	    if(!(*it).isEmpty()) {
+		QString d_file;
+		if((*it).right(2) == ".c") 
+		    d_file = (*it).left((*it).length() - 2);
+		else if((*it).right(Option::cpp_ext.length()) == Option::cpp_ext)
+		    d_file = (*it).left((*it).length() - Option::cpp_ext.length());
+		if(!d_file.isEmpty()) 
+		    t << "-include " << odir << ".deps/" << d_file << ".d" << endl;
+	    }
+	}
+    }
+
     t << "####### Build rules" << endl << endl;
     if(!project->variables()["SUBLIBS"].isEmpty()) {
 	t << "SUBLIBS= ";

@@ -203,6 +203,11 @@ UnixMakefileGenerator::init()
 	project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
 	project->variables()["HEADERS"].clear();
     }
+    if( project->isActiveConfig("GNUmake") && !project->isEmpty("QMAKE_CFLAGS_DEPS")) {
+	Option::mkfile::do_deps = FALSE; //do not generate deps
+	include_deps = TRUE;
+    }
+
     MakefileGenerator::init();
     if ( project->isActiveConfig("resource_fork") ) {
 	if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {

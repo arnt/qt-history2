@@ -14,6 +14,7 @@ relpath=`(cd $relpath; pwd)`
 outpath=$relpath
 
 #internal variables
+LAZY_DEPS_ALLOWED=yes
 PROFILECFLAGS=
 CONFIG_CMDLINE=`echo $@ | sed "s,-v,,g"` #cache the commandline for config.status
 QMAKE_SWITCHES=""
@@ -136,12 +137,15 @@ then
 else
     if ( make /dev/null ) >/dev/null 2>/dev/null
     then
-	MAKE=make
+        MAKE=make
     else
 	echo "You don't seem to have 'make' or 'gmake' in your PATH."
 	echo "Cannot proceed."
 	exit 1
     fi
+fi
+if [ "$LAZY_DEPS_ALLOWED" = "yes" ]; then
+    ${MAKE} --version | grep GNU >/dev/null 2>&1 && QMAKE_CONFIG="$QMAKE_CONFIG GNUmake"
 fi
 
 # Free edition - may only be used under the terms of the QPL or GPL.
@@ -375,6 +379,9 @@ QT_INSTALL_BINS=
 while [ -n "$1" ]
 do
    case $1 in
+   -no-lazydeps)
+        LAZY_DEPS_ALLOWED=no
+	;;
    -prefix)
 	shift
 	QT_INSTALL_PREFIX=$1
@@ -780,10 +787,10 @@ then
 	PLATFORM=unixware-g++
 	;;
      UnixWare:5*)
-	PLATFORM=unixware7-g++
-	#PLATFORM=unixware7-cc
+	#PLATFORM=unixware7-g++
+	PLATFORM=unixware7-cc
 	PLATFORM_NOTES="
-	    - Also available for UnixWare 7: unixware7-cc
+	    - Also available for UnixWare 7: unixware7-g++
 	"
 	;;
      *:3.2)
