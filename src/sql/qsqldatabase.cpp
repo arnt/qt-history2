@@ -61,7 +61,7 @@
 #include "qapplication.h"
 #include <stdlib.h>
 
-QT_STATIC_CONST_IMPL char * const QSqlDatabase::defaultDatabase = "qt_sql_default_database";
+QT_STATIC_CONST_IMPL char * const QSqlDatabase::defaultConnection = "qt_sql_default_connection";
 
 class QNullResult : public QSqlResult
 {
@@ -248,8 +248,8 @@ public:
 
     This class is used to create connections to SQL databases. It also
     provides transaction handling functions for those database drivers
-    that support transactions. 
-    
+    that support transactions.
+
     The QSqlDatabase class itself provides an abstract interface for
     accessing many types of database backend. Database-specific drivers
     are used internally to actually access and manipulate data, (see
@@ -548,7 +548,7 @@ bool QSqlDatabase::rollback()
 
 */
 
-void QSqlDatabase::setDatabaseName( const QString& name )
+void QSqlDatabase::setConnectionName( const QString& name )
 {
     d->dbname = name;
 }
@@ -585,7 +585,7 @@ void QSqlDatabase::setHostName( const QString& host )
 
 */
 
-QString QSqlDatabase::databaseName() const
+QString QSqlDatabase::connectionName() const
 {
     return d->dbname;
 }
