@@ -921,9 +921,6 @@ const char* QClipboardWatcher::format( int n ) const
 		that->formatList.append( "text/plain" );
 	    else
 		that->formatList.append(qt_xdnd_atom_to_str(target[i]));
-	    qDebug( "QClipboardWatcher::format: format %d %s for %s",
-		    i, formatList[i],
-		    XGetAtomName( QPaintDevice::x11AppDisplay(), target[i] ) );
 	}
     }
 
