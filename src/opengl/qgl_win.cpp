@@ -20,19 +20,20 @@
 #include <private/qgl_p.h>
 #include <qcolormap.h>
 #include <qvarlengtharray.h>
+#include <qdebug.h>
 
 #include <windows.h>
 
 typedef bool (APIENTRY *PFNWGLGETPIXELFORMATATTRIBIVARB)(HDC hdc,
 							 int iPixelFormat,
 							 int iLayerPlane,
-							 UINT nAttributes,
-							 const int * piAttributes,
+							 uint nAttributes,
+							 const int *piAttributes,
 							 int *piValues);
 typedef bool (APIENTRY *PFNWGLCHOOSEPIXELFORMATARB)(HDC hdc,
 						    const int *piAttribList,
-						    const FLOAT *pfAttribFList,
-						    UINT nMaxFormats,
+						    const float *pfAttribFList,
+						    uint nMaxFormats,
 						    int *piFormats,
 						    UINT *nNumFormats);
 static PFNWGLCHOOSEPIXELFORMATARB wglChoosePixelFormatARB = 0;
@@ -532,6 +533,63 @@ static QGLFormat pfdToQGLFormat(const PIXELFORMATDESCRIPTOR* pfd)
     return fmt;
 }
 
+static QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
+{
+    QGLFormat fmt;
+    QVarLengthArray<int> iAttributes(40);
+    QVarLengthArray<int> iValues(40);
+    int i = 0;
+    iAttributes[i++] = WGL_DOUBLE_BUFFER_ARB; // 0
+    iAttributes[i++] = WGL_DEPTH_BITS_ARB; // 1
+    iAttributes[i++] = WGL_PIXEL_TYPE_ARB; // 2
+    iAttributes[i++] = WGL_ALPHA_BITS_ARB; // 3
+    iAttributes[i++] = WGL_ACCUM_BITS_ARB; // 4
+    iAttributes[i++] = WGL_STENCIL_BITS_ARB; // 5
+    iAttributes[i++] = WGL_STEREO_ARB; // 6
+    iAttributes[i++] = WGL_ACCELERATION_ARB; // 7
+    iAttributes[i++] = WGL_SAMPLE_BUFFERS_ARB; // 8
+    iAttributes[i++] = WGL_SAMPLES_ARB; // 9
+    
+    if (wglGetPixelFormatAttribivARB(hdc, pfi, 0, i,
+				     iAttributes.constData(),
+				     iValues.data()))
+    {
+	fmt.setDoubleBuffer(iValues[0]);
+	fmt.setDepth(iValues[1]);
+	if (fmt.depth())
+	    fmt.setDepthBufferSize(iValues[1]);
+	fmt.setRgba(iValues[2] == WGL_TYPE_RGBA_ARB);
+	fmt.setAlpha(iValues[3]);
+	if (fmt.alpha())
+	    fmt.setAlphaBufferSize(iValues[3]);
+	fmt.setAccum(iValues[4]);
+	if (fmt.accum())
+	    fmt.setAccumBufferSize(iValues[4]);
+	fmt.setStencil(iValues[5]);
+	if (fmt.stencil())
+	    fmt.setStencilBufferSize(iValues[5]);
+	fmt.setStereo(iValues[6]);
+	fmt.setDirectRendering(iValues[7]);
+	fmt.setSampleBuffers(iValues[8]);
+	if (fmt.sampleBuffers())
+	    fmt.setSamples(iValues[9]);
+    }
+#if 0	
+    qDebug() << "values for pfi:" << pfi;
+    qDebug() << "0:" << fmt.doubleBuffer();
+    qDebug() << "1:" << fmt.depthBufferSize();
+    qDebug() << "2:" << fmt.rgba();
+    qDebug() << "3:" << fmt.alphaBufferSize();
+    qDebug() << "4:" << fmt.accumBufferSize();
+    qDebug() << "5:" << fmt.stencilBufferSize();
+    qDebug() << "6:" << fmt.stereo();
+    qDebug() << "7:" << fmt.directRendering();
+    qDebug() << "8:" << fmt.sampleBuffers();
+    qDebug() << "9:" << fmt.samples();
+#endif
+    return fmt;
+}
+
 #define d d_func()
 #define q q_func()
 
@@ -633,10 +691,14 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
             result = false;
             goto end;
         }
-        DescribePixelFormat(myDc, d->pixelFormatId, sizeof(PIXELFORMATDESCRIPTOR),
-                             &realPfd);
+
         bool overlayRequested = d->glFormat.hasOverlay();
-        d->glFormat = pfdToQGLFormat(&realPfd);
+	DescribePixelFormat(myDc, d->pixelFormatId, sizeof(PIXELFORMATDESCRIPTOR), &realPfd);
+	if (wglGetPixelFormatAttribivARB)
+	    d->glFormat = pfiToQGLFormat(myDc, d->pixelFormatId);
+	else
+	    d->glFormat = pfdToQGLFormat(&realPfd);
+
         d->glFormat.setOverlay(d->glFormat.hasOverlay() && overlayRequested);
 
         if (deviceIsPixmap() && !(realPfd.dwFlags & PFD_DRAW_TO_BITMAP)) {
@@ -765,7 +827,7 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 	    iAttributes[i++] = GL_TRUE;
 	}
 	if (d->glFormat.stereo()) {
-	    iAttributes[i++] = WGL_SUPPORT_OPENGL_ARB;
+	    iAttributes[i++] = WGL_STEREO_ARB;
 	    iAttributes[i++] = GL_TRUE;
 	}
 	if (d->glFormat.depth()) {
@@ -776,7 +838,7 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 	if (d->glFormat.rgba())
 	    iAttributes[i++] = WGL_TYPE_RGBA_ARB;
 	else
-	    iAttributes[i++] = WGL_TYPE_RGBA_ARB;
+	    iAttributes[i++] = WGL_TYPE_COLORINDEX_ARB;
 	if (d->glFormat.alpha()) {
 	    iAttributes[i++] = WGL_ALPHA_BITS_ARB;
 	    iAttributes[i++] = d->glFormat.alphaBufferSize() == -1 ? 8 : d->glFormat.alphaBufferSize();
@@ -789,10 +851,12 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 	    iAttributes[i++] = WGL_STENCIL_BITS_ARB;
 	    iAttributes[i++] = d->glFormat.stencilBufferSize() == -1 ? 8 : d->glFormat.stencilBufferSize();
 	}
+	int si = 0;
 	if (d->glFormat.sampleBuffers()) {
 	    iAttributes[i++] = WGL_SAMPLE_BUFFERS_ARB;
 	    iAttributes[i++] = GL_TRUE;
 	    iAttributes[i++] = WGL_SAMPLES_ARB;
+	    si = i;
 	    iAttributes[i++] = d->glFormat.samples() == -1 ? 16 : d->glFormat.samples();
 	}
 	iAttributes[i] = 0;
@@ -801,10 +865,10 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 	    valid = wglChoosePixelFormatARB(pdc, iAttributes.constData(), fAttributes, 1,
 					    &pixelFormat, &numFormats);
 	    if ((!valid || numFormats < 1) && d->glFormat.sampleBuffers())
-		iAttributes[i-1] /= 2;
+		iAttributes[si] /= 2; // try different no. samples - we aim for the best one
 	    else
 		break;
-	} while ((!valid || numFormats < 1) && iAttributes[i-1] > 1);
+	} while ((!valid || numFormats < 1) && iAttributes[si] > 1);
 	chosenPfi = pixelFormat;
     } else {
 	int pmDepth = deviceIsPixmap() ? ((QPixmap*)d->paintDevice)->depth() : 0;
@@ -1083,7 +1147,7 @@ void QGLWidgetPrivate::init(QGLContext *ctx, const QGLWidget* shareWidget)
     } else {
         q->setContext(ctx);
     }
-    q->setAttribute(Qt::WA_NoSystemBackground, true);
+    q->setAttribute(Qt::WA_NoSystemBackground);
 
     if (q->isValid() && q->context()->format().hasOverlay()) {
         olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), q);

@@ -29,6 +29,12 @@ class QMacWindowChangeEvent;
 class QGLFormatPrivate
 {
 public:
+    QGLFormatPrivate() {
+	opts = QGL::DoubleBuffer | QGL::DepthBuffer | QGL::Rgba | QGL::DirectRendering;
+	pln = 0;
+	depthSize = accumSize = stencilSize = alphaSize = -1;
+	numSamples = -1;
+    }
     QGL::FormatOptions opts;
     int pln;
     int depthSize;
