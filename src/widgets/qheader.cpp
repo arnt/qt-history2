@@ -1641,9 +1641,11 @@ void QHeader::resizeEvent( QResizeEvent *e )
 	    offs = 0;
     }
 
-    if ( e )
+    if ( e ) {
 	adjustHeaderSize( orientation() == Horizontal ? width() - e->oldSize().width() : height() - e->oldSize().height() );
-    else
+	if ( (orientation() == Horizontal && height() != e->oldSize().height()) || (orientation() == Vertical && width() != e->oldSize().width()) )
+	    update();
+    } else
 	adjustHeaderSize();
 }
 
@@ -1771,14 +1773,4 @@ bool QHeader::isStretchEnabled( int section ) const
 {
     return d->fullSize == section;
 }
-
-/*!
-    \internal
-*/
-void QHeader::fontChange( const QFont & oldFont )
-{
-    resize( sizeHint() );
-    QWidget::fontChange( oldFont );
-}
-
 #endif // QT_NO_HEADER
