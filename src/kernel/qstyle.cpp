@@ -983,7 +983,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \fn void QStyle::drawControlMask( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QStyleOption& opt = QStyleOption::Default ) const;
 
   Draw a bitmask for the ControlElement \a element using the painter
-  \a p in the area \r.  See drawControl() for an
+  \a p in the area \a r.  See drawControl() for an
   explanation of the use of the \a widget and \a opt arguments.
 
   The rect \a r should be in screen coordinates.

@@ -195,8 +195,14 @@ void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
 	np = ws->mapToGlobal( tmp );
     }
 
-    int w = np.x() - p.x() + s.width();
+    int w;
     int h = np.y() - p.y() + s.height();
+
+    if ( QApplication::reverseLayout() )
+	w = s.width() - ( np.x() - p.x() );
+    else
+	w = np.x() - p.x() + s.width();
+
     if ( w < 1 )
 	w = 1;
     if ( h < 1 )
@@ -208,12 +214,19 @@ void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
     if ( h < ms.height() )
 	h = ms.height();
     tlw->resize( w, h );
+    if ( QApplication::reverseLayout() && tlw->size() == QSize(w,h) )
+	tlw->move( tlw->x() + ( np.x()-p.x() ), tlw->y() );
 #ifdef Q_WS_WIN
     MSG msg;
     while( PeekMessage( &msg, winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ) )
       ;
 #endif
     QApplication::syncX();
+
+    if ( QApplication::reverseLayout() && tlw->size() == QSize(w,h) ) {
+	s.rwidth() = tlw->size().width();
+	p.rx() = np.x();
+    }
 }
 
 /*! \reimp */

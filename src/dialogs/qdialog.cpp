@@ -878,7 +878,10 @@ void QDialog::setSizeGripEnabled(bool enabled)
 	if ( enabled ) {
 	    d->resizer = new QSizeGrip( this, "QDialog::resizer" );
 	    d->resizer->adjustSize();
-	    d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() );
+	    if ( QApplication::reverseLayout() )
+		d->resizer->move( rect().bottomLeft() -d->resizer->rect().bottomLeft() );
+	    else		
+		d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() );
 	    d->resizer->raise();
 	    d->resizer->show();
 	} else {
@@ -895,8 +898,12 @@ void QDialog::setSizeGripEnabled(bool enabled)
 void QDialog::resizeEvent( QResizeEvent * )
 {
 #ifndef QT_NO_SIZEGRIP
-    if ( d->resizer )
-	d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() );
+    if ( d->resizer ) {
+	if ( QApplication::reverseLayout() )
+	    d->resizer->move( rect().bottomLeft() -d->resizer->rect().bottomLeft() );
+	else
+	    d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() );
+    }
 #endif
 }
 
