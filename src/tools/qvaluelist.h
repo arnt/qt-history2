@@ -441,7 +441,7 @@ public:
     iterator end() { detach(); return iterator( sh->node ); }
     const_iterator end() const { return const_iterator( sh->node ); }
     iterator insert( iterator it, const T& x ) { detach(); return sh->insert( it, x ); }
-    void remove( const T& x ) { detach(); sh->remove( x ); }
+    uint remove( const T& x ) { detach(); return sh->remove( x ); }
     void clear() { if ( sh->count == 1 ) sh->clear(); else { sh->deref(); sh = new QValueListPrivate<T>; } }
 
     QValueList<T>& operator<< ( const T& x )
