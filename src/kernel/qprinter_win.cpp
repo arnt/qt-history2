@@ -231,6 +231,10 @@ void QPrinter::readPdlg( void* pdv )
     from_pg = pd->nFromPage;
     to_pg = pd->nToPage;
     ncopies = pd->nCopies;
+    if ( hdc ) {
+       DeleteDC( hdc );
+       viewOffsetDone = FALSE;
+    }
     hdc	= pd->hDC;
     if ( pd->hDevMode ) {
 	DEVMODE* dm = (DEVMODE*)GlobalLock( pd->hDevMode );
@@ -276,6 +280,10 @@ void QPrinter::readPdlgA( void* pdv )
     to_pg = pd->nToPage;
     ncopies = pd->nCopies;
     hdc	= pd->hDC;
+    if ( hdc ) {
+       DeleteDC( hdc );
+       viewOffsetDone = FALSE;
+    }
     if ( pd->hDevMode ) {
 	DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd->hDevMode );
 	if ( dm ) {
@@ -318,12 +326,6 @@ bool QPrinter::setup( QWidget *parent )
 	parent = parent->topLevelWidget();
     else
 	parent = qApp->mainWidget();
-
-    if ( hdc ) {
-	DeleteDC( hdc );
-	hdc = 0;
-	viewOffsetDone = FALSE;
-    }
 
     bool result = FALSE;
 
