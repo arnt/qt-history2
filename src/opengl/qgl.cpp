@@ -1713,15 +1713,18 @@ API.
 
 <h2>Installation</h2>
 
-When you install Qt for X11, you must pass the <tt>-opengl</tt> option
-to the <tt>configure</tt> script, and you must have OpenGL installed
-on your system.
+When you install Qt for X11, the configure script will autodetect if
+OpenGL headers and libraries are installed on your system, and if so, it
+will include the Qt OpenGL module in the Qt library. (If your OpenGL
+headers or libraries are placed in a non-standard directory, you may need
+to change the SYSCONF_CXXFLAGS_OPENGL and/or SYSCONF_LFLAGS_OPENGL in the
+config file for your system (qt/configs/*) ).
 
-When you install Qt for Windows, Qt OpenGL support is included.
+When you install Qt for Windows, the Qt OpenGL module always included.
 
-The Qt OpenGL modules is not licensed for use with the
-Qt Professional Edition. Consider upgrading to the Qt Enterprise Edition
-if you require OpenGL support.
+The Qt OpenGL module is not licensed for use with the Qt Professional
+Edition. Consider upgrading to the Qt Enterprise Edition if you require
+OpenGL support.
 
 Note about using Mesa on X11: Mesa versions earlier than 3.1 would use the
 name "MesaGL" and "MesaGLU" for the libraries, instead of "GL" and
@@ -1754,5 +1757,4 @@ display format of a rendering context.
 </ul>
 
 Many applications need only the high-level QGLWidget class. The other QGL
-classes provide advanced features.
-*/
+classes provide advanced features.  */
