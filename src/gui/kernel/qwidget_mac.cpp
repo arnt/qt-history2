@@ -1203,7 +1203,7 @@ void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
      x->icon = 0;
     if(!pixmap.isNull())
         x->icon = new QPixmap(pixmap);
-    if(isTopLevel()) {
+    if(q->isTopLevel()) {
         if(qApp && qApp->mainWidget() == q) {
             if(pixmap.isNull()) {
                 RestoreApplicationDockTileImage();
