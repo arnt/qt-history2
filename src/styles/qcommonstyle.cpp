@@ -204,10 +204,10 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	if ( item->isEnabled() )
 	    p->setPen( QPen( cg.text(), 2 ) );
 	else
-	    p->setPen( QPen( lv->palette().color( QPalette::Disabled, QColorGroup::Text ), 
+	    p->setPen( QPen( lv->palette().color( QPalette::Disabled, QColorGroup::Text ),
 			     2 ) );
 	bool parentControl = FALSE;
-	if ( item->parent() && item->parent()->rtti() == 1  && 
+	if ( item->parent() && item->parent()->rtti() == 1  &&
 	     ((QCheckListItem*) item->parent())->type() == QCheckListItem::Controller )
 	    parentControl = TRUE;
 	if ( item->isSelected() && !lv->rootIsDecorated() && !parentControl ) {
@@ -649,7 +649,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    reg = p->clipRegion();
 	else
 	    reg = r;
-	((QWidget *)widget)->erase( reg ); 
+	((QWidget *)widget)->erase( reg );
 	break; }
     case CE_PushButton:
 	{
@@ -954,16 +954,28 @@ void QCommonStyle::drawControl( ControlElement element,
 		    pm = toolbutton->iconSet().pixmap( size, mode, state );
 
 		    if ( toolbutton->usesTextLabel() ) {
-			p->setFont( toolbutton->font() );
+			if ( toolbutton->textPosition() == QToolButton::Under ) {
+			    p->setFont( toolbutton->font() );
 
-			QRect pr = rect, tr = rect;
-			int fh = p->fontMetrics().height();
-			pr.addCoords( 0, 1, 0, -fh-3 );
-			tr.addCoords( 0, pr.bottom(), 0, -3 );
-			drawItem( p, pr, AlignCenter, cg, TRUE, &pm, QString::null );
-			drawItem( p, tr, AlignCenter | ShowPrefix, cg,
-				  flags & Style_Enabled, 0, toolbutton->textLabel(),
-				  toolbutton->textLabel().length(), &btext);
+			    QRect pr = rect, tr = rect;
+			    int fh = p->fontMetrics().height();
+			    pr.addCoords( 0, 1, 0, -fh-3 );
+			    tr.addCoords( 0, pr.bottom(), 0, -3 );
+			    drawItem( p, pr, AlignCenter, cg, TRUE, &pm, QString::null );
+			    drawItem( p, tr, AlignCenter | ShowPrefix, cg,
+				      flags & Style_Enabled, 0, toolbutton->textLabel(),
+				      toolbutton->textLabel().length(), &btext);
+			} else {
+			    p->setFont( toolbutton->font() );
+
+			    QRect pr = rect, tr = rect;
+			    pr.setWidth( pm.width() + 8 );
+			    tr.addCoords( pr.right(), 0, 0, 0 );
+			    drawItem( p, pr, AlignCenter, cg, TRUE, &pm, QString::null );
+			    drawItem( p, tr, AlignLeft | AlignVCenter | ShowPrefix, cg,
+				      flags & Style_Enabled, 0, toolbutton->textLabel(),
+				      toolbutton->textLabel().length(), &btext);
+			}
 		    } else
 			drawItem( p, rect, AlignCenter, cg, TRUE, &pm, QString::null );
 		}

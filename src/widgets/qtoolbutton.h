@@ -54,6 +54,7 @@ class QPopupMenu;
 class Q_EXPORT QToolButton : public QButton
 {
     Q_OBJECT
+    Q_ENUMS( TextPosition )
 
     Q_PROPERTY( QIconSet iconSet READ iconSet WRITE setIconSet )
     Q_PROPERTY( QIconSet onIconSet READ onIconSet WRITE setOnIconSet DESIGNABLE false STORED false )
@@ -63,11 +64,13 @@ class Q_EXPORT QToolButton : public QButton
     Q_PROPERTY( QString textLabel READ textLabel WRITE setTextLabel )
     Q_PROPERTY( int popupDelay READ popupDelay WRITE setPopupDelay )
     Q_PROPERTY( bool autoRaise READ autoRaise WRITE setAutoRaise )
+    Q_PROPERTY( TextPosition textPosition READ textPosition WRITE setTextPosition )
 
     Q_OVERRIDE( bool toggleButton WRITE setToggleButton )
     Q_OVERRIDE( bool on WRITE setOn )
 
 public:
+    enum TextPosition{ Right, Under };
     QToolButton( QWidget * parent, const char* name=0 );
 #ifndef QT_NO_TOOLBAR
     QToolButton( const QIconSet& s, const QString &textLabel,
@@ -108,6 +111,7 @@ public:
 
     void setAutoRaise( bool enable );
     bool autoRaise() const;
+    TextPosition textPosition() const;
 
 public slots:
     virtual void setUsesBigPixmap( bool enable );
@@ -119,6 +123,7 @@ public slots:
     virtual void setOn( bool enable );
     void toggle();
     void setTextLabel( const QString & );
+    void setTextPosition( TextPosition pos );
 
 protected:
     void mousePressEvent( QMouseEvent * );

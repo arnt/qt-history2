@@ -68,6 +68,7 @@ public:
     uint autoraise	    : 1;
     uint repeat		    : 1;
     uint discardNextMouseEvent : 1;
+    QToolButton::TextPosition textPos;
 };
 
 
@@ -174,6 +175,7 @@ QToolButton::QToolButton( ArrowType type, QWidget *parent, const char *name )
 void QToolButton::init()
 {
     d = new QToolButtonPrivate;
+    d->textPos = Under;
 #ifndef QT_NO_POPUPMENU
     d->delay = 600;
     d->popup = 0;
@@ -302,10 +304,20 @@ QSize QToolButton::sizeHint() const
     }
 
     if ( usesTextLabel() ) {
-     	h += 4 + fontMetrics().height();
-     	int tw = fontMetrics().width( textLabel() ) + fontMetrics().width("  ");
-     	if ( tw > w )
-     	    w = tw;
+	switch ( d->textPos ) {
+	case Under: {
+	    h += 4 + fontMetrics().height();
+	    int tw = fontMetrics().width( textLabel() ) + fontMetrics().width("  ");
+	    if ( tw > w )
+		w = tw;
+	} break;
+	case Right: {
+	    w += 4 + fontMetrics().width( textLabel() ) + fontMetrics().width("  ");
+	    int th = fontMetrics().height();
+	    if ( th > h )
+		h = th;
+	} break;
+	}
     }
 
 #ifndef QT_NO_POPUPMENU
@@ -939,6 +951,23 @@ bool QToolButton::isOnAndNoOnPixmap()
 	   ( s == 0 ||
 	    (s->isGenerated(QIconSet::Small, QIconSet::Normal, QIconSet::On) &&
 	     s->isGenerated(QIconSet::Large, QIconSet::Normal, QIconSet::On)) );
+}
+
+QToolButton::TextPosition QToolButton::textPosition() const
+{
+    return d->textPos;
+}
+
+/*! \property QToolButton::textPosition
+  \brief the position of the text label of this button.
+
+*/
+
+void QToolButton::setTextPosition( TextPosition pos )
+{
+    d->textPos = pos;
+    updateGeometry();
+    update();
 }
 
 #ifndef QT_NO_PALETTE
