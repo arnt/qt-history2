@@ -894,7 +894,7 @@ Q_LONG QIODevice::readLine(char *data, Q_ULONG maxlen)
 QString QIODevice::errorString() const
 {
     if (d->errStr.isEmpty()) {
-        const char *str;
+        const char *str = 0;
 
         switch (d->ioSt) {
         case Ok:
