@@ -106,7 +106,7 @@ QErrorMessage::~QErrorMessage()
 {
     if ( this == qtMessageHandler ) {
 	qtMessageHandler = 0;
-	QMsgHandler tmp = qInstallMsgHandler( 0 );
+	QtMsgHandler tmp = qInstallMsgHandler( 0 );
 	// in case someone else has later stuck in another...
 	if ( tmp != jump )
 	    qInstallMsgHandler( tmp );

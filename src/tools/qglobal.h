@@ -566,12 +566,12 @@ Q_EXPORT bool qt_check_pointer( bool c, const char *, int );
 
 enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };
 
-typedef void (*QMsgHandler)(QtMsgType, const char *);
-Q_EXPORT QMsgHandler qInstallMsgHandler( QMsgHandler );
+typedef void (*QtMsgHandler)(QtMsgType, const char *);
+Q_EXPORT QtMsgHandler qInstallMsgHandler( QtMsgHandler );
 
 // source compatibility with Qt 2.x
 #if !defined(QT_CLEAN_NAMESPACE)
-typedef QMsgHandler msg_handler;
+typedef QtMsgHandler msg_handler;
 #endif
 
 Q_EXPORT void qSuppressObsoleteWarnings( bool = TRUE );
