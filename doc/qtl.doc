@@ -177,9 +177,10 @@ of it to an OutputIterator, in this case a QTextOStreamIterator:
 	qCopy( l, QTextOStreamIterator( str ) );
 \endcode
 
-In addition, you can use any QTL iterator as the OutputIterator. Just
-make sure that the right hand of the iterator has as many elements present
-as you want to insert. The following example illustrates this:
+In addition, you can use any Qt template library iterator as the
+OutputIterator. Just make sure that the right hand of the iterator has
+as many elements present as you want to insert. The following example
+illustrates this:
 
 \code
 	QStringList l1, l2;
