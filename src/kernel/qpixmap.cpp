@@ -214,7 +214,10 @@ QPixmap::QPixmap( const QSize &size, int depth, Optimization optimization )
   Constructs a pixmap from the file \e fileName. If the file does not
   exist or is of an unknown format, the pixmap becomes a null pixmap.
 
-  The parameters are passed on to load().
+  The parameters are passed on to load(), i.e. the data in \e fileName
+  are not compiled into the binary. If \e fileName contains a relative
+  path (e.g. the filename only) the relevant file has to be found relative
+  to the runtime working directory.
 
   \sa isNull(), load(), loadFromData(), save(), imageFormat()
 */
@@ -231,7 +234,10 @@ QPixmap::QPixmap( const QString& fileName, const char *format,
   Constructs a pixmap from the file \e fileName. If the file does not
   exist or is of an unknown format, the pixmap becomes a null pixmap.
 
-  The parameters are passed on to load().
+  The parameters are passed on to load(). This means that the data
+  in \e fileName are not compiled into the binary. Thus you have to make
+  sure that \e fileName can be found from the working directory where
+  your application is called.
 
   \sa isNull(), load(), loadFromData(), save(), imageFormat()
 */
@@ -712,7 +718,7 @@ const char* QPixmap::imageFormat( const QString &fileName )
 
 
 /*!
-  Loads a pixmap from the file \e fileName.
+  Loads a pixmap from the file \e fileName at runtime.
   Returns TRUE if successful, or FALSE if the pixmap could not be loaded.
 
   If \e format is specified, the loader attempts to read the pixmap using the
