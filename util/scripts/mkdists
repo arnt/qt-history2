@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 REL_VERSION=0.0.0
 BRANCH=
@@ -107,7 +107,6 @@ MYNAME=`whoami`
 [ -z $MYNAME ] && MYNAME="shellssuck"
 DISTDIR="/tmp/qt-$BRANCH-$MYNAME-$$"
 
-
 #Checkout P4
 if [ -z $LOCAL_TREE ]; then
     if ! p4 fstat //depot/qt/$BRANCH/doc.conf 2>&1 | grep " depotFile " >/dev/null 2>&1 ; then
@@ -141,7 +140,7 @@ myexpr () {
 }
 
 #Remove non-dist files (tests-dir, util-dir, ... )
-echo "Cleaning up distributions.."
+echo "Removing unnecesary stuff.."
 FILES=`find $DISTDIR/qt/`
 for file in $FILES; do
     [ -d $file ] && continue
@@ -306,38 +305,24 @@ if [ "$type" != "-snapshot" ] && ! myexpr "$type" : "^-beta[0-9]*$"; then
     die "The qt version is $BRANCH$type, which confuses me terribly";
 fi
 
-#TBD
-#echo "Marking \$ID\$..."
-#sub idify {
-#    if ( -f $_ && ! -l $_ && -T $_ && open( I, "< $_" ) ) {
-#	my $f = <I>;
-#	my $o;
-#	close I;
-#	if ( defined( $f ) && $f =~ /\$Id(?::[^\$\n]*)?\$/s ) {
-#	    my ( $mday, $mon, $year, $d );
-#	    ($j,$j,$j,$mday,$mon,$year,$j,$j,$j) = localtime ( (stat($_))[9] );
-#	    $d = $File::Find::dir;
-#	    $d =~ s/^$qtdir/qt/;
-#	    $d = sprintf( "%s/%s   %s%s   edited %04d-%02d-%02d",
-#			  $d, $_, $version, $type, $year+1900, $mon+1, $mday );
-#	    $o = $f;
-#	    $f =~ s@\$Id(?::[^\$\n]*)?\$@\$Id\: $d \$@gsi;
-#	    if ( $f ne $o ) {
-#		my $x = ( -x $_ );
-#		chmod 0644, $_;
-#		open( O, "> $_" ) || die "could not write $File::Find::dir/$_";
-#		print O $f;
-#		close O;
-#		if ( $x ) {
-#		    chmod 0555, $_;
-#		} else {
-#		    chmod 0444, $_;
-#		}
-#	    }
-#	}
-#    }
-#}
-#find( \&idify, "$qtdir" );
+#fix $Id: //depot/qt/main/util/scripts/mkdists#52 $
+echo "Marking \$ID\$..."
+for a in `find $DISTDIR/qt`; do
+    if [ -f $a ] && [ ! -L $a ] && grep $a '\$Id.*\$' >/dev/null 2>&1; then
+	execut="no"
+	[ -x $a ] && execut="yes"
+
+	tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${version}${type}   edit FIXME"
+	sed "s,\$Id: //depot/qt/main/util/scripts/mkdists#52 $]*\$,$Id: //depot/qt/main/util/scripts/mkdists#52 ${tag_ID} $,g" $a >/tmp/tmpf
+	rm -f $a
+	mv /tmp/tmpf $a
+	if [ "$execut" = "yes" ]; then
+	    chmod 555 $a
+	else
+	    chmod 444 $a
+	fi
+    fi
+done
 
 #get include files
 mkdir -p "$DISTDIR/qt/include"
@@ -386,47 +371,18 @@ done
 # qt.h
 rm -f "$DISTDIR/qt/include/qt.h"
 
-#TBD
-# qt/src/moc stuff
-#open( I, "make -C $distdir/qt/src/moc -o moc.pro -o GNUmakefile mocgen.cpp |" ) || die "could not run make, stopped";
-#$_ = <I>; # do anything with the input?  no?
-#close I;
-#open( I, "< $distdir/qt/src/moc/lex.yy.c" ) || die "could not read lex.yy.c, stopped";
-#$_ = "/* Automatically generated at Trolltech by mkdists, Qt $version */\n" . <I>;
-#close I;
-#s/\n\#include\s+\<unistd\.h\>[^\n]*/\n\#if !defined(_OS_WIN32_)$&\n\#endif/g;
-#open( O, "> $distdir/qt/src/moc/lex.yy.c" ) || die "could not write lex.yy.c, stopped";
-#print O $_;
-#close O;
-#sleep 2; # Make very certain that mocgen.cpp has later timestamp than lex.yy.c
-#open( I, "< $distdir/qt/src/moc/mocgen.cpp" ) || die "could not read mocgen.cpp, stopped";
-#$_ = "/* Automatically generated at Trolltech by mkdists, Qt $version */\n" . <I>;
-#close I;
-#open( O, "> $distdir/qt/src/moc/mocgen.cpp" ) || die "could not write mocgen.cpp, stopped";
-#print O $_;
-#close O;
-
-#  qgif.h
-#$qgif = "$qtdir/src/kernel/qgif.h";
-#open( I, "< $qgif" ) || die "could not read $qgif, stopped";
-#$_ = <I>;
-#close I;
-#s/(\n\#define QT_BUILTIN_GIF_READER\s+)\S+/$1 0/g;
-#open( O, "> $qgif.new" ) || die "could not write $qgif.new, stopped";
-#print O $_;
-#close O;
-#unlink( $qgif );
-#rename( "$qgif.new", $qgif );
+#qgif.h
+qgif="$DISTDIR/src/kernel/qgif.h"
+if [ -e  "$qgif" ]; then
+    sed "s,\(\#define QT_BUILTIN_GIF_READ[ ]*\)$,\1 0,g" $qgif >/tmp/tmpf
+    mv /tmp/tmpf $qgif
+fi
 
 # changes files
-#$major = $version;
-#$major =~ s/^(\d+\.\d+).*/$1/;
-#opendir( D, "$distdir/qt/dist" );
-#foreach ( readdir( D ) ) {
-#    move( "$distdir/qt/dist/$_", "$distdir/qt/$_" ) if ( /^changes-$major\./ ||
-#						         0 );
-#}
-#closedir( D );
+major=`echo $BRANCH | sed "s,^\([0-9\.]\)*,\1,"`
+for a in `find $DISTDIR/qt/dist/ -name 'changes-${major}*'`; do
+    mv $a $DISTDIR/qt/`basename $a`
+done
 
 for plat in mac win x11 qws; do
     #handle commandline options
@@ -558,14 +514,15 @@ for plat in mac win x11 qws; do
     [ -d "$PLATDIR/src/sql" ] && rm -rf "$PLATDIR/src/sql"
 
     if [ "x$free" = "xyes" ]; then
+        echo "**** Doing free.. ****"
+
 	cd "$DISTDIR"
 	OLDPLATDIR=$PLATDIR
 	PLATNAME=`echo $PLATNAME | sed "s,commercial,free,"`
 	PLATDIR=$DISTDIR/$PLATNAME
 	mv "$OLDPLATDIR" "$PLATDIR"
-
-	echo "Doing free.."
-	#remove commercial licenses
+	
+        #remove commercial licenses
 	for a in `find $DISTDIR/qt/dist/commercial`; do
 	    FILE=`echo $a | sed "s,$DISTDIR/qt/dist/commercial,,"`
 	    [ -z $FILE ] && continue
@@ -596,17 +553,20 @@ for plat in mac win x11 qws; do
 	    else
 		[ -f $PLATDIR/$a_file ] && rm -f $a_file
 		cp -ar $DISTDIR/qt/dist/free/$a_file $PLATDIR/$a_file
-	    fi
-	done
-
-	#zip free editions
-	echo "Packing free..."
+            fi
+        done
+	
+        #tar free editions
+	echo "Packing..."
 	cd "$DISTDIR"
 	tar cf $OUT_TREE/${PLATNAME}.tar ${PLATNAME}
 	[ "$DO_GZIP" = "yes" ] && gzip -c $OUT_TREE/${PLATNAME}.tar >$OUT_TREE/${PLATNAME}.tar.gz
+	echo "*** Done with free ****"
     fi
+    echo "(cleaning up after package..)"
     rm -rf $PLATDIR
     echo "******** Done Packaging $plat *********"
 done
+echo "(mkdists cleanup..)"
 rm -rf $DISTDIR
 echo "mkdists done"
