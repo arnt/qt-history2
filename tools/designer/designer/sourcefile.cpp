@@ -37,6 +37,8 @@ SourceFile::SourceFile( const QString &fn, bool temp, Project *p )
     iface = 0;
     pro->addSourceFile( this );
     MetaDataBase::addEntry( this );
+    if ( !temp )
+	checkFileName();
 }
 
 SourceFile::~SourceFile()
@@ -85,6 +87,7 @@ bool SourceFile::saveAs()
 	return FALSE;
     fileNameTemp = FALSE;
     filename = pro->makeRelative( fn );
+    checkFileName();
     pro->setModified( TRUE );
     timeStamp.setFileName( pro->makeAbsolute( filename ) );
     if ( ed )
@@ -210,5 +213,25 @@ void SourceFile::checkTimeStamp()
 	load();
 	if ( ed )
 	    ed->editorInterface()->setText( txt );
+    }
+}
+
+void SourceFile::checkFileName()
+{
+    SourceFile *sf = pro->findSourceFile( filename, this );
+    if ( sf )
+	QMessageBox::warning( MainWindow::self, tr( "Invalid Filename" ),
+			      tr( "The project contains already a sourcefile with the\n"
+				  "filename '%1'. Please choose a new filename." ).arg( filename ) );
+    while ( sf ) {
+	LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
+	QString filter;
+	if ( iface )
+	    filter = iface->fileFilterList().join(";;");
+	QString fn;
+	while ( fn.isEmpty() )
+	    fn = QFileDialog::getSaveFileName( pro->makeAbsolute( filename ), filter );
+	filename = pro->makeRelative( fn );
+	sf = pro->findSourceFile( filename, this );
     }
 }

@@ -162,12 +162,12 @@ public:
     QPtrListIterator<SourceFile> sourceFiles() const { return QPtrListIterator<SourceFile>(sourcefiles); }
     void addSourceFile( SourceFile *sf );
     bool removeSourceFile( SourceFile *sf );
-    SourceFile* findSourceFile( const QString& filename ) const;
+    SourceFile* findSourceFile( const QString& filename, SourceFile *ignore = 0 ) const;
 
     QPtrListIterator<FormFile> formFiles() const { return QPtrListIterator<FormFile>(formfiles); }
     void addFormFile( FormFile *ff );
     bool removeFormFile( FormFile *ff );
-    FormFile* findFormFile( const QString& filename ) const;
+    FormFile* findFormFile( const QString& filename, FormFile *ignore = 0 ) const;
 
     void setIncludePath( const QString &platform, const QString &path );
     void setLibs( const QString &platform, const QString &path );

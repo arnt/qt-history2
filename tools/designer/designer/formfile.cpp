@@ -59,6 +59,8 @@ FormFile::FormFile( const QString &fn, bool temp, Project *p )
 	seperateSource = FALSE;
     pro->addFormFile( this );
     loadCode();
+    if ( !temp )
+	checkFileName();
 }
 
 FormFile::~FormFile()
@@ -228,6 +230,7 @@ bool FormFile::saveAs()
 	fn += ".ui";
     fileNameTemp = FALSE;
     filename = pro->makeRelative( fn );
+    checkFileName();
     pro->setModified( TRUE );
     timeStamp.setFileName( pro->makeAbsolute( codeFile() ) );
     if ( ed )
@@ -609,3 +612,23 @@ void FormFile::formWindowChangedSomehow()
     emit somethingChanged( this );
 }
 
+void FormFile::checkFileName()
+{
+    FormFile *ff = pro->findFormFile( filename, this );
+    if ( ff )
+	QMessageBox::warning( MainWindow::self, tr( "Invalid Filename" ),
+			      tr( "The project contains already a form with the\n"
+				  "filename '%1'. Please choose a new filename." ).arg( filename ) );
+    while ( ff ) {
+	QString fn;
+	while ( fn.isEmpty() )
+	    fn = QFileDialog::getSaveFileName( pro->makeAbsolute( fileName() ),
+					       tr( "Qt User-Interface Files (*.ui)" ) + ";;" +
+					       tr( "All Files (*)" ), MainWindow::self, 0,
+					       tr( "Save form '%1' as ....").
+					       arg( formWindow()->name() ),
+					       &MainWindow::self->lastSaveFilter );
+	filename = pro->makeRelative( fn );
+	ff = pro->findFormFile( filename, this );
+     }
+ }

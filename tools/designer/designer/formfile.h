@@ -54,7 +54,7 @@ public:
     SourceEditor *editor() const;
     QString fileName() const;
     QString absFileName() const;
-    
+
     bool supportsCodeFile() const { return !codeExtension().isEmpty(); }
     QString codeFile() const;
     QString code();
@@ -92,6 +92,7 @@ private:
     void setCodeModified( bool m );
     QString codeExtension() const;
     void parseCode( const QString &txt );
+    void checkFileName();
 
 private:
     QString filename;

@@ -38,7 +38,6 @@ public:
 
     void setText( const QString &s );
     void setModified( bool m );
-//     void setFileName( const QString &fn ) { filename = fn; save(); }
 
     bool save();
     bool saveAs();
@@ -59,6 +58,9 @@ public:
     SourceEditor *editor() const { return ed; }
 
     static QString createUnnamedFileName( const QString &extension );
+
+private:
+    void checkFileName();
 
 private:
     QString filename;

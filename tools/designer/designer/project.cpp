@@ -1025,22 +1025,22 @@ void Project::addSourceFile( SourceFile *sf )
 }
 
 
-SourceFile* Project::findSourceFile( const QString& filename ) const
+SourceFile* Project::findSourceFile( const QString& filename, SourceFile *ignore ) const
 {
     QPtrListIterator<SourceFile> it(sourcefiles);
     while ( it.current() ) {
-	if ( it.current()->fileName() == filename )
+	if ( it.current() != ignore && it.current()->fileName() == filename )
 	    return it.current();
 	++it;
     }
     return 0;
 }
 
-FormFile* Project::findFormFile( const QString& filename ) const
+FormFile* Project::findFormFile( const QString& filename, FormFile *ignore ) const
 {
     QPtrListIterator<FormFile> it(formfiles);
     while ( it.current() ) {
-	if ( it.current()->fileName() == filename )
+	if ( it.current() != ignore && it.current()->fileName() == filename )
 	    return it.current();
 	++it;
     }
