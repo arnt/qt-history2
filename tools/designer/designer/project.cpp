@@ -22,6 +22,7 @@
 #include "formwindow.h"
 #include "config.h"
 #include "designerappiface.h"
+#include "../interfaces/languageinterface.h"
 #include "pixmapcollection.h"
 #ifndef QT_NO_SQL
 #include "dbconnectionimpl.h"
@@ -293,6 +294,56 @@ static QString parse_part( const QString &part )
     return res;
 }
 
+QStringList parse_multiline_part( const QString &contents, const QString &key )
+{
+    QString lastWord;
+    int braceCount = 0;
+    for ( int i = 0; i < (int)contents.length(); ++i ) {
+	QChar c( contents[ i ] );
+	switch ( c ) {
+	case '{':
+	    braceCount++;
+	    lastWord = "";
+	    break;
+	case '}':
+	    braceCount--;
+	    lastWord = "";
+	    break;
+	case ' ': case '\t':
+	    lastWord = "";
+	    break;
+	default:
+	    lastWord += c;
+	}
+	qDebug( lastWord );
+	if ( lastWord == key && braceCount == 0 ) {
+	    QStringList lst;
+	    bool inName = FALSE;
+	    QString currName;
+	    for ( ; i < (int)contents.length(); ++i ) {
+		c = contents[ i ];
+		if ( ( c.isLetter() || c.isDigit() || c == '.' || c == '/' || c == '_' ) &&
+		     c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\' ) {
+		    if ( !inName )
+			currName = QString::null;
+		    currName += c;
+		    inName = TRUE;
+		} else {
+		    if ( inName ) {
+			inName = FALSE;
+			lst.append( currName );
+			if ( c == '\n' && i > 0 && contents[ (int)i - 1 ] != '\\' )
+			    break;
+		    }
+		}
+	    }
+	    return lst;
+	}
+    }
+
+    return QStringList();
+}
+
 void Project::parse()
 {
     QFile f( filename );
@@ -305,33 +356,9 @@ void Project::parse()
     QString fl( QFileInfo( filename ).baseName() );
     proName = fl[ 0 ].upper() + fl.mid( 1 );
 
-    int i = contents.find( "INTERFACES" );
-    if ( i != -1 ) {
-	QString part = contents.mid( i + QString( "INTERFACES" ).length() );
-	QStringList lst;
-	bool inName = FALSE;
-	QString currName;
-	for ( i = 0; i < (int)part.length(); ++i ) {
-	    QChar c = part[ i ];
-	    if ( ( c.isLetter() || c.isDigit() || c == '.' || c == '/' || c == '_' ) &&
-		 c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\' ) {
-		if ( !inName )
-		    currName = QString::null;
-		currName += c;
-		inName = TRUE;
-	    } else {
-		if ( inName ) {
-		    inName = FALSE;
-		    if ( currName.right( 3 ).lower() == ".ui" )
-			lst.append( currName );
-		}
-	    }
-	}
+    uifiles = parse_multiline_part( contents, "INTERFACES" );
 
-	uifiles = lst;
-    }
-
-    i = contents.find( "DBFILE" );
+    int i = contents.find( "DBFILE" );
     if ( i != -1 ) {
 	dbFile = "";
 	QString part = contents.mid( i + QString( "DBFILE" ).length() );
@@ -359,15 +386,17 @@ void Project::parse()
 	lang = parse_part( part );
     }
 
-    i = contents.find( "DESIGNER_SOURCES" );
-    if ( i != -1 ) {
-	QString part = contents.mid( i + QString( "DESIGNER_SOURCES" ).length() );
-	QString s = parse_part( part );
-	QStringList lst = QStringList::split( ' ', s );
-	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-	    SourceFile *f = new SourceFile( makeAbsolute( *it ) );
-	    sources.append( f );
-	    MetaDataBase::addEntry( f );
+    LanguageInterface *iface = MetaDataBase::languageInterface( lang );
+    if ( iface ) {
+	QStringList sourceKeys;
+	iface->sourceProjectKeys( sourceKeys );
+	for ( QStringList::Iterator spit = sourceKeys.begin(); spit != sourceKeys.end(); ++spit ) {
+	    QStringList lst = parse_multiline_part( contents, *spit );
+	    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+		SourceFile *f = new SourceFile( makeAbsolute( *it ) );
+		sources.append( f );
+		MetaDataBase::addEntry( f );
+	    }
 	}
     }
 
@@ -497,6 +526,22 @@ static void remove_contents( QString &contents, const QString &s )
     }
 }
 
+static void remove_multiline_contents( QString &contents, const QString &s )
+{
+    int i = contents.find( s );
+    int start = i;
+    bool lastWasBackspash = FALSE;
+    if ( i != -1 && ( i == 0 || contents[ i - 1 ] != '{' || contents[ i - 1 ] != ':' ) ) {
+	for ( ; i < (int)contents.length(); ++i ) {
+	    if ( contents[ i ] == '\n' && !lastWasBackspash )
+		break;
+	    lastWasBackspash = ( contents[ i ] == '\\' ||
+				 lastWasBackspash && ( contents[ i ] == ' ' || contents[ i ] == '\t' ) );
+	}
+	contents.remove( start, i - start + 1 );
+    }
+}
+
 void Project::save()
 {
     if ( proName == "<No Project>" || filename.isEmpty() )
@@ -512,44 +557,26 @@ void Project::save()
 	contents += "TEMPLATE\t= app\nCONFIG\t+= qt warn_on release\nTARGET\t= " + fixedProjectName() + "\n";
     }
 
-    int i = contents.find( "INTERFACES" );
-    if ( i != -1 ) {
-	int start = i;
-	int end = i;
-	i = contents.find( '\n', i );
-	if ( i == -1 ) {
-	    end = contents.length() - 1;
-	} else {
-	    end = i;
-	    int lastNl = i;
-	    for ( ; i < (int)contents.length(); ++i ) {
-		int j = contents.find( '\n', lastNl + 1 );
-		if ( i == -1 ) {
-		    end = contents.length() - 1;
-		    break;
-		} else {
-		    if ( contents.mid( lastNl, j - lastNl + 1 ).find( '=' ) == -1 )
-			lastNl = j;
-		    else
-			break;
-		}
-	    }
-	}
-	contents.remove( start, end - start + 1 );
-    }
+    remove_multiline_contents( contents, "INTERFACES" );
 
     if ( !uifiles.isEmpty() ) {
 	contents += "INTERFACES\t= ";
 	for ( QStringList::Iterator it = uifiles.begin(); it != uifiles.end(); ++it )
 	    contents += *it + " ";
-	contents += "\n";
+	contents += "\n\n";
     }
 
     remove_contents( contents, "DBFILE" );
     remove_contents( contents, "IMAGEFILE" );
     remove_contents( contents, "PROJECTNAME" );
     remove_contents( contents, "LANGUAGE" );
-    remove_contents( contents, "DESIGNER_SOURCES" );
+    LanguageInterface *iface = MetaDataBase::languageInterface( lang );
+    if ( iface ) {
+	QStringList sourceKeys;
+	iface->sourceProjectKeys( sourceKeys );
+	for ( QStringList::Iterator spit = sourceKeys.begin(); spit != sourceKeys.end(); ++spit )
+	    remove_multiline_contents( contents, *spit );
+    }
     remove_contents( contents, "{SOURCES+=" );
     if ( !dbFile.isEmpty() )
 	contents += "DBFILE\t= " + dbFile + "\n";
@@ -561,20 +588,31 @@ void Project::save()
 
     contents += "LANGUAGE\t= " + lang + "\n";
 
-    if ( !sources.isEmpty() ) {
-	contents += "DESIGNER_SOURCES\t=";
-	for ( SourceFile *f = sources.first(); f; f = sources.next() )
-	    contents += makeRelative( f->fileName() ) + " ";
-	contents += "\n";
+    if ( !sources.isEmpty() && iface ) {
+	QMap<QString, QStringList> soureToKey;
+	
+	for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
+	    QString key = iface->projectKeyForExtenstion( QFileInfo( f->fileName() ).extension() );
+	    QStringList lst = soureToKey[ key ];
+	    lst << makeRelative( f->fileName() );
+	    soureToKey.replace( key, lst );
+	}
+	
+	for ( QMap<QString, QStringList>::Iterator skit = soureToKey.begin();
+	      skit != soureToKey.end(); ++skit ) {
+	    contents += skit.key();
+	    contents += "\t= ";
+	    QStringList lst = *skit;
+	    for ( QStringList::Iterator sit = lst.begin(); sit != lst.end(); ++sit ) {
+		contents += *sit;
+		contents += " ";
+	    }
+	    contents += "\n\n";
+	}
     }
 
-    if ( !imageFile().isEmpty() ) {
-	contents += "{SOURCES+=" + imageFile();
-	if ( !sources.isEmpty() )
-	    contents += " $$DESIGNER_SOURCES}\n";
-	else
-	    contents += "}\n";
-    }
+    if ( !imageFile().isEmpty() )
+	contents += "{SOURCES+=" + imageFile() + "}\n";
 
     for ( QStringList::Iterator it = csList.begin(); it != csList.end(); ++it ) {
 	remove_contents( contents, *it );

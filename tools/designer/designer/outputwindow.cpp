@@ -40,12 +40,12 @@ void OutputWindow::setupError()
 
 void debugMessageOutput( QtMsgType type, const char *msg )
 {
-    QString s(msg);
+    QString s( msg );
 
     if ( type != QtFatalMsg ) {
-	if(debugToStderr)
-	    fprintf(stderr, s + "\n");
-	if ( debugoutput )
+	if( debugToStderr )
+	    fprintf( stderr, "%s\n", s.latin1() );
+	else if ( debugoutput )
 	    debugoutput->append( s + "\n" );
     } else {
 	fprintf( stderr, msg );

@@ -93,6 +93,8 @@ struct LanguageInterface : public QUnknownInterface
     virtual void setDefinitionEntries( const QString &definition, const QStringList &entries, QUnknownInterface *designerIface ) = 0;
     virtual bool supports( Support s ) const = 0;
     virtual void fileFilters( QMap<QString, QString> &extensionFilterMap ) const = 0;
+    virtual QString projectKeyForExtenstion( const QString &extension ) const = 0;
+    virtual void sourceProjectKeys( QStringList &keys ) const = 0;
     virtual QString cleanSignature( const QString &sig ) = 0;
     virtual void saveFormCode( const QString &form, const QString &filename,
 			       const QValueList<Function> &functions,

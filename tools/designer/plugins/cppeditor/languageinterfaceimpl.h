@@ -42,7 +42,9 @@ public:
     QString createArguments( const QStringList &args );
     QString createEmptyFunction();
     bool supports( Support s ) const;
-    void fileFilters( QMap<QString, QString> & ) const {}
+    void fileFilters( QMap<QString, QString> & ) const;
+    void sourceProjectKeys( QStringList &keys ) const;
+    QString projectKeyForExtenstion( const QString &extension ) const;
     QString cleanSignature( const QString &sig ) { return sig; } // #### implement me
     void saveFormCode( const QString &, const QString &,
 		       const QValueList<Function> &,
