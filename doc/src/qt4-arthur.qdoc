@@ -3,20 +3,21 @@
 
     \title The Arthur Paint System
 
-    This document describes Qt 4's approach to painting, and contrasts
-    it with the Qt 3 approach.
+    This document describes Qt 4's painting system, providing a
+    comparison between the approaches used by Qt when rendering
+    graphics in Qt 3 and Qt 4.
 
     \tableofcontents
 
     \section1 Architecture
 
     The Qt 4 Paint System is primarily based on the classes
-    QPainter, QPaintDevice and QPaintEngine. QPainter is the
-    class used to perform drawing operations, for example,
-    drawLine() and drawRect(). QPaintDevice is an object that
-    can be painted on using a QPainter. Both QWidget and
-    QPixmap are QPaintDevices. QPaintEngine is the painter's means
-    of drawing to a specific device type.
+    QPainter, QPaintDevice, and QPaintEngine. QPainter is the
+    class used to perform drawing operations, such as drawLine()
+    and drawRect(). QPaintDevice represents a device that can be
+    painted on using a QPainter; both QWidget and QPixmap are
+    QPaintDevices. QPaintEngine provides the interface that the
+    painter uses to draw onto different types of devices.
 
     \section2 A Look Back at Qt 3
 
@@ -32,31 +33,32 @@
     function. This allowed reimplementation of arbitrary devices, but
     the approach has some disadvantages which we have addressed in
     Qt 4. One of these is that an external device could not reuse any
-    functionality implemented in QPainter since QPainter is tied to
-    widget/pixmap painting on the current platform. Supporting
-    multiple device backends, such as OpenGL, was therefore
-    inconvenient and not very efficient.
+    functionality implemented in QPainter since QPainter was tied to
+    widget/pixmap painting on that platform. Supporting multiple
+    device backends, such as OpenGL, was therefore inconvenient and
+    not very efficient.
 
     This has led us to devise a more convenient and intuitive API for
     Qt 4.
 
     \section2 How Painting is Done in Qt 4
 
-    In Qt 4 we have introduced the abstract class QPaintEngine.
+    In Qt 4 we have introduced the QPaintEngine abstract class.
     Implementations of this class provide the concrete functionality
-    needed to draw to a specific device type. The class QPaintEngine
-    is only used internally by QPainter and QPaintDevice and is hidden
-    from application programmers, unless they reimplement their own
-    device type in their own QPaintEngine subclass. Qt currently
-    provides paint engines for the following platforms and API's:
+    needed to draw to specific device types. The QPaintEngine class
+    is only used internally by QPainter and QPaintDevice, and it is
+    hidden from application programmers unless they reimplement their own
+    device types for their own QPaintEngine subclasses. Qt currently
+    provides paint engines for the following platforms and APIs:
 
     \list
-    \o Pixel based engine used on Windows(tm) and for QImage on all platforms.
+    \o A pixel-based engine for the Windows platform that is
+       also used to draw onto QImages on all platforms
     \o OpenGL on all platforms
     \o PostScript on Linux, Unix, and Mac OS X
     \o QuickDraw and CoreGraphics on Mac OS X
     \o X11 and the X Render Extension on Linux and Unix systems
-    \o QVFb, VNC and LinuxFb on Qt/Embedded
+    \o QVFb, VNC, and LinuxFb on Qt/Embedded
     \endlist
 
     To implement support for a new backend, you must derive from
@@ -66,7 +68,7 @@
     should be used to draw on this particular device.
 
     The main benefit of this approach is that all painting follows the
-    same painting pipeline which means that adding support for new features
+    same painting pipeline. This means that adding support for new features
     and providing default implementations for unsupported ones has
     become much simpler.
 
@@ -89,9 +91,10 @@
 
     \o In Qt 4, rectangles are drawn as polygons instead of being handled specially.
        This makes transformations work correctly on rectangles for the first time
-       in Qt history, but has the inconvenient that it introduces off-by-one issues
-       in existing Qt applications. The Q3Painter class provides the old semantics
-       as a help to porting to Qt 4. (The Q3Painter documentation fully explains
+       in Qt history, but has the inconvenient side effect that it introduces
+       off-by-one issues in existing Qt applications. The Q3Painter class provides
+       the old painting behavior as a help to those who wish to port applications
+       to Qt 4 incrementally. (The Q3Painter documentation fully explains
        why we made this change.)
 
     \endlist
@@ -102,11 +105,10 @@
 
     With Qt 4 it is possible to fill shapes using gradient
     brushes. A gradient in this case is used to describe the transition
-    from one color at one point to another color at another point. A
+    from one color at a given point to different color at another point. A
     gradient can span from one color to another or over a
     number of colors by specifying multiple colors at positions in the
-    gradient area.. Qt 4 supports three types of gradients; Linear,
-    Radial and Conical.
+    gradient area. Qt 4 supports linear, radial, and conical gradients.
 
     Linear gradients are specified using two control points.
     Setting a linear gradient brush is done by creating a QLinearGradient
@@ -126,7 +128,7 @@
 
     \img diagonalGradient.png
 
-    Radial gradients are specified using a center, a radius and a
+    Radial gradients are specified using a center, a radius, and a
     focal point. Setting a radial brush is done by creating a QRadialGradient
     object and setting it as a brush.
 
@@ -178,7 +180,7 @@
     painter.drawRect(0, 0, width(), height()/2);
     \endcode
 
-    The code shown above produces the following output.
+    The code shown above produces the following output:
 
     \img alphafill.png
 
@@ -196,9 +198,9 @@
 
     \section2 Anti-Aliased Edges
 
-    On platforms where this is supported by the drawing API's, we
+    On platforms where this is supported by the native drawing API, we
     provide the option of turning on anti-aliased edges when drawing
-    primitives.
+    graphics primitives.
 
     \code
     // One line without anti-aliasing
@@ -209,34 +211,35 @@
     painter.drawLine(width()/2, 0, width()/2, height());
     \endcode
 
-    This produces the following output.
+    This produces the following output:
 
     \img antialiased.png
 
-    Antialiasing is supported when drawing to a QImage and on all
-    systems except X when XRender is not present.
+    Anti-aliasing is supported when drawing to a QImage and on all
+    systems, except on X11 when XRender is not present.
 
 
     \section2 Extensive Use of Native Graphics Operations
 
     In the Qt 4 Paint System we make more use of native graphics
     operations. The benefit we gain from this is that these operations
-    can potentially be performed in hardware which gives significant
-    speed improvements.
+    can potentially be performed in hardware, giving significant
+    speed improvements over many pure-software implementations.
 
-    Among these are native transformations (Mac OS X and OpenGL)
+    Among these are native transformations (Mac OS X and OpenGL),
     making painting with a world matrix much faster. Some pixmap
-    operations have also been moved closer to hardware.
+    operations have also been moved closer to the underlying
+    hardware implementations.
 
 
     \section2 Painter Paths
 
     A painter path is an object composed of a number of graphical
-    building blocks, such as rectangles, ellipses, lines and curves. A
-    painter path can be used for filling, outlining, and for clipping.
+    building blocks, such as rectangles, ellipses, lines, and curves.
+    A painter path can be used for filling, outlining, and for clipping.
     The main advantage of painter paths over normal drawing operations
     is that it is possible to build up non-linear shapes which can be
-    drawn later one go.
+    drawn later in one go.
 
     Building blocks can be joined in closed subpaths, such as a
     rectangle or an ellipse, or they can exist independently as unclosed
@@ -266,7 +269,7 @@
 
     In previous versions of Qt double-buffering was achieved by
     painting to an off-screen pixmap then copying the pixmap to the
-    screen. e.g.
+    screen. For example:
 
     \code
     QPixmap buffer(size());
@@ -289,8 +292,9 @@
     painter.end();
     \endcode
 
-    Double-buffering is turned on by default, but can be turned off by
-    setting the widget attribute Qt::WA_PaintOnScreen.
+    Double-buffering is turned on by default, but can be turned off for
+    individual widgets by setting the widget attribute
+    Qt::WA_PaintOnScreen.
 
     \code
     unbufferedWidget->setAttribute(Qt::WA_PaintOnScreen);
@@ -310,7 +314,7 @@
     Note that this feature is still in development and not yet
     supported on all platforms.
 
-    \section2 Custom filled Pens
+    \section2 Custom Filled Pens
 
     In Qt 4, it is possible to specify how an outline should be
     filled.  It can be a solid color or a QBrush, which makes it
@@ -330,16 +334,17 @@
 
     \img gradientText.png
 
-    \section2 QImage as a paint device
+    \section2 QImage as a Paint Device
 
-    A great improvement of Qt 4 over previous versions it that we now
-    provide a pixel based raster paint engine which allows users to
+    A great improvement of Qt 4 over previous versions it that it now
+    provides a pixel-based raster paint engine which allows users to
     open a painter on a QImage. The QImage paint engine supports the
-    full featureset of QPainter (paths, antialiasing, alphablending,
-    etc) and can be used on all platforms.
+    full feature set of QPainter (paths, antialiasing, alphablending,
+    etc.) and can be used on all platforms.
 
     One advantage of this is that it is possible to guarantee the
-    pixel exactness of any drawing operation independent of platform.
+    pixel exactness of any drawing operation in a platform-independent
+    way.
 
     Painting on an image is as simple as drawing on any other paint device.
 
