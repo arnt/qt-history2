@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#11 $
 **
 ** Implementation of QBitArray class
 **
@@ -17,7 +17,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarray.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarray.cpp#11 $";
 #endif
 
 
@@ -81,7 +81,7 @@ bool QBitArray::fill( bool v, int sz )		// fill bit array with value
 }
 
 
-void QBitArray::detach() const			// detach bit array
+void QBitArray::detach()			// detach bit array
 {
     int nbits = EXTRA(p)->nbits;
     this->duplicate( *this );
