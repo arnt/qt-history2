@@ -158,6 +158,7 @@ void QPainter::init()
     hd = 0;
     saved = 0;
     brush_style_pix = 0;
+    unclipped = FALSE;
 }
 
 
@@ -411,11 +412,13 @@ bool QPainter::begin( const QPaintDevice *pd )
     }
     offx = offy = wx = wy = vx = vy = 0;                      // default view origins
 
+    unclipped = FALSE;
     if ( pdev->devType() == QInternal::Widget ) {                    // device is a widget
         QWidget *w = (QWidget*)pdev;
 
 	initPaintDevice();
 
+	
         cfont = w->font();                      // use widget font
         cpen = QPen( w->foregroundColor() );    // use widget fg color
         if ( reinit ) {
@@ -425,7 +428,8 @@ bool QPainter::begin( const QPaintDevice *pd )
         bg_col = w->backgroundColor();          // use widget bg color
         ww = vw = w->width();                   // default view size
         wh = vh = w->height();
-        if ( w->testWFlags(WPaintUnclipped) ) // paint direct on device
+	unclipped = w->testWFlags(WPaintUnclipped);
+        if ( unclipped ) // paint direct on device
             setf( NoCache );
 
     } else if ( pdev->devType() == QInternal::Pixmap ) {             // device is a pixmap
@@ -1666,7 +1670,7 @@ void QPainter::initPaintDevice(bool force) {
 
 	if(!w->isVisible()) 
 	    clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible, this is hacky FIXME!!!
-        else if ( w->testWFlags(WPaintUnclipped) ) 
+        else if ( unclipped ) 
 	    clippedreg = w->clippedRegion(FALSE);	    //just clip my bounding rect
 	else if(!paintevents.isEmpty() && (*paintevents.current()) == pdev) 
 	    clippedreg = paintevents.current()->region();
