@@ -778,7 +778,7 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
 */
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
-    : QObject( parent, name ), QPaintDevice( QInternal::Widget )
+    : QObject( new QWidgetPrivate, parent, name ), QPaintDevice( QInternal::Widget )
 {
 #if defined(QT_CHECK_STATE) && !defined(Q_WS_WIN)
     if ( qApp->type() == QApplication::Tty ) {
@@ -841,6 +841,75 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     if ( ++instanceCounter > maxInstances )
     	maxInstances = instanceCounter;
 }
+
+/*! \internal
+  ######## remove code duplication
+*/
+QWidget::QWidget( QWidgetPrivate *d, QWidget* parent, const char* name, WFlags f)
+    : QObject( d, parent, name ), QPaintDevice( QInternal::Widget )
+{
+#if defined(QT_CHECK_STATE) && !defined(Q_WS_WIN)
+    if ( qApp->type() == QApplication::Tty ) {
+	qWarning( "QWidget: Cannot create a QWidget when no GUI "
+		  "is being used" );
+    }
+#endif
+
+    fstrut_dirty = 1;
+
+    isWidget = TRUE;				// is a widget
+    winid = 0;					// default attributes
+    widget_state = 0;
+    widget_flags = f;
+    focus_policy = 0;
+    own_font = 0;
+    own_palette = 0;
+    sizehint_forced = 0;
+    is_closing = 0;
+    in_show = 0;
+    in_show_maximized = 0;
+    im_enabled = FALSE;
+#ifndef QT_NO_LAYOUT
+    lay_out = 0;
+#endif
+    extra = 0;					// no extra widget info
+#ifndef QT_NO_PALETTE
+    bg_col = pal.active().background();		// default background color
+#endif
+    create();					// platform-dependent init
+#ifndef QT_NO_PALETTE
+    pal = isTopLevel() ? QApplication::palette() : parentWidget()->palette();
+#endif
+    if ( ! isTopLevel() )
+	fnt = parentWidget()->font();
+#if defined(Q_WS_X11)
+    fnt.x11SetScreen( x11Screen() );
+#endif // Q_WS_X11
+
+    if ( !isDesktop() )
+	setBackgroundFromMode(); //### parts of this are done in create but not all (see reparent(...) )
+    // make sure move/resize events are sent to all widgets
+    QApplication::postEvent( this, new QMoveEvent( crect.topLeft(),
+						   crect.topLeft() ) );
+    QApplication::postEvent( this, new QResizeEvent(crect.size(),
+						    crect.size()) );
+    if ( isTopLevel() ) {
+	setWState(WState_Hidden);
+	QFocusData *fd = focusData( TRUE );
+	if ( fd->focusWidgets.findRef(this) < 0 )
+	    fd->focusWidgets.append( this );
+    } else {
+	// propagate enabled state
+	if ( !parentWidget()->isEnabled() )
+	    setWState( WState_Disabled );
+	// new widgets do not show up in already visible parents
+	if (parentWidget()->isVisible())
+	    setWState(WState_Hidden);
+    }
+    if ( ++instanceCounter > maxInstances )
+    	maxInstances = instanceCounter;
+}
+
 
 /*!
     Destroys the widget.

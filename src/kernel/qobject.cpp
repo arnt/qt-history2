@@ -252,6 +252,23 @@ QObject::QObject( QObject *parent, const char *name )
 }
 
 
+
+QObject::QObject(QObjectPrivate *d, QObject *parent, const char *name)
+    :
+    isSignal( FALSE ),				// assume not a signal object
+    isWidget( FALSE ), 				// assume not a widget object
+    pendTimer( FALSE ),				// no timers yet
+    blockSig( FALSE ),      			// not blocking signals
+    wasDeleted( FALSE ),       			// double-delete catcher
+    objname( name ? qstrdup(name) : 0 ),        // set object name
+    parentObj( 0 ),				// no parent yet. It is set by insertChild()
+    postedEvents( 0 ), 				// no events posted
+    d(d)
+{
+    if ( parent )				// add object to parent
+	parent->insertChild( this );
+}
+
 /*!
     Destroys the object, deleting all its child objects.
 

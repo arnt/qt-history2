@@ -29,7 +29,7 @@
 
 #include "qobject_p.h"
 
-class QWidgetPrivate : public QObjectPrivate
+struct QWidgetPrivate : public QObjectPrivate
 {
 };
 

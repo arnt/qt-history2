@@ -114,6 +114,8 @@ public:
     QObjectUserData* userData(uint id) const;
 #endif // QT_NO_USERDATA
 
+    bool isAncestorOf(QObject *child) const;
+
 signals:
     void destroyed(QObject * = 0);
 
@@ -153,6 +155,8 @@ protected:
 	{ return QMetaObject::normalizedSignature(signalSlot); }
 #endif
 
+protected:
+    explicit QObject(QObjectPrivate *d, QObject *parent, const char *name);
 private:
     uint isSignal : 1;
     uint isWidget : 1;
@@ -180,6 +184,17 @@ private: // Disabled copy constructor and operator=
     QObject &operator=(const QObject &);
 #endif
 };
+
+inline bool QObject::isAncestorOf(QObject *child) const
+{
+    while (child) {
+	child = child->parentObj;
+	if (child == this)
+	    return true;
+    }
+    return false;
+}
+
 
 #ifndef QT_NO_USERDATA
 class Q_EXPORT QObjectUserData {

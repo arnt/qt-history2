@@ -34,6 +34,8 @@ class QFocusData;
 class QCursor;
 class QWSRegionManager;
 class QStyle;
+struct QWidgetPrivate;
+
 
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {
@@ -109,7 +111,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( bool inputMethodEnabled READ isInputMethodEnabled WRITE setInputMethodEnabled DESIGNABLE false SCRIPTABLE false )
 
 public:
-    Q_EXPLICIT QWidget( QWidget* parent=0, const char* name=0, WFlags f=0 );
+    explicit QWidget( QWidget* parent=0, const char* name=0, WFlags f=0 );
     ~QWidget();
 
     WId		 winId() const;
@@ -536,6 +538,8 @@ protected:
 private slots:
     void	 focusProxyDestroyed();
 
+protected:
+    explicit QWidget( QWidgetPrivate *d, QWidget* parent, const char* name, WFlags f);
 private:
     void	 setFontSys( QFont *f = 0 );
 #if defined(Q_WS_X11)
@@ -608,6 +612,7 @@ private:
     uint	 im_enabled : 1;
     QRect	 crect;
     QColor	 bg_col;
+    QWidget *next_focus;
 #ifndef QT_NO_PALETTE
     QPalette	 pal;
 #endif
