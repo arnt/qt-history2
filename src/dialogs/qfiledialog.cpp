@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#212 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#213 $
 **
 ** Implementation of QFileDialog class
 **
@@ -679,9 +679,9 @@ QString QFileDialogPrivate::File::text( int column ) const
 	    // use a static const char here, so that egcs will not see
 	    // the formatting string and give an incorrect warning.
 	    if ( t2 && strftime( a, 255, egcsWorkaround, t2 ) > 0 )
-            return QString::fromLatin1(a);
+		return QString::fromLatin1(a);
 	    else
-            return QString::fromLatin1("????");
+		return QString::fromLatin1("????");
 	}
     case 4:
         if ( info.isReadable() )

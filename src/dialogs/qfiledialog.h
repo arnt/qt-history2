@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#54 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#55 $
 **
 ** Definition of QFileDialog class
 **
@@ -258,13 +258,6 @@ private:
     QFileListView  *files;
 
     QLineEdit  *nameEdit; // also filter
-    void *unused1;
-    void *unused2;
-    void *unused3;
-    void *unused4;
-    void *unused5;
-    void *unused6;
-    void *unused7;
     QPushButton *okB;
     QPushButton *cancelB;
 
