@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#25 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#25 $";
 #endif
 
 
@@ -292,6 +292,8 @@ QPainter::~QPainter()
 #endif
 	end();
     }
+    if ( tabarray )				// delete tab array
+	delete tabarray;
     if ( ps_stack )
 	killPStack();
     list->remove( this );			// remove from painter list
