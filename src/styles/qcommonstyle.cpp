@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#34 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#35 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -608,9 +608,16 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
     case PO_ButtonCommand:
     case PO_ButtonBevel:
     case PO_ButtonTool:
-	qDrawShadePanel(p, r.x(), r.y(), r.width(), r.height(), cg,
-			flags & PStyle_Sunken, 1);
+	qDrawShadePanel(p, r.x(), r.y(), r.width(), r.height(),
+			cg, flags & PStyle_Sunken, 1);
 	break;
+
+    case PO_FocusRect: {
+	QPen oldPen = p->pen();
+	p->setPen(cg.dark());
+	p->drawRect(r);
+	p->setPen(oldPen);
+	break; }
     }
 }
 
@@ -642,9 +649,23 @@ void QCommonStyle::drawControl( ControlElement element,
     case CE_PushButtonLabel: {
 	QPushButton *button = (QPushButton *) widget;
 	QRect ir = r;
+
+	PFlags flags = PStyle_Default;
+	if (button->isEnabled())
+	    flags |= PStyle_Enabled;
+	if (button->isDown())
+	    flags |= PStyle_Sunken;
+
 	if (button->isDown())
 	    ir.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
 		      pixelMetric(PM_ButtonShiftVertical, widget));
+
+	if (button->isMenuButton()) {
+	    int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
+	    QRect ar(ir.right() - mbi, ir.y() + 2, mbi - 4, ir.height() - 4);
+	    drawPrimitive(PO_ArrowDown, p, ar, cg, flags);
+	    ir.setWidth(ir.width() - mbi);
+	}
 
 	if ( button->iconSet() && ! button->iconSet()->isNull() ) {
 	    QIconSet::Mode mode =
@@ -665,8 +686,8 @@ void QCommonStyle::drawControl( ControlElement element,
 	    ir.setWidth(ir.width() - pixw + 4);
 	}
 
-	drawItem(p, ir, AlignCenter, cg, button ? button->isEnabled() : true,
-		 button->pixmap(), button->text());
+	drawItem(p, ir, AlignCenter | ShowPrefix, cg,
+		 flags & PStyle_Enabled, button->pixmap(), button->text());
 	break; }
     }
 }
@@ -725,7 +746,7 @@ QCommonStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 /*!
   Returns a pixel metric.
 */
-int QCommonStyle::pixelMetric(PixelMetric m, const QWidget * widget) const
+int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 {
     int ret;
 
@@ -771,6 +792,8 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 				     const QSize &contentsSize,
 				     void *data ) const
 {
+    QSize sz(contentsSize);
+
     switch (contents) {
     case CT_PushButtonContents: {
 	QPushButton *button = (QPushButton *) widget;
@@ -788,10 +811,14 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    h += dbw;
 	}
 
-	return QSize(w, h); }
+	sz = QSize(w, h);
+	break; }
+
+    default:
+	break;
     }
 
-    return contentsSize;
+    return sz;
 }
 
 

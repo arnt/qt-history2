@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#45 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#46 $
 **
 ** Implementation of Windows-like style class
 **
@@ -136,7 +136,52 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 	break;
 
     default:
-	QCommonStyle::drawPrimitive(op, p, r, cg, flags, data);
+	if (op >= PO_ArrowUp && op <= PO_ArrowLeft) {
+	    QPointArray a;
+
+	    switch ( op ) {
+	    case PO_ArrowUp:
+		a.setPoints( 7, -4,1, 2,1, -3,0, 1,0, -2,-1, 0,-1, -1,-2 );
+		break;
+
+	    case PO_ArrowDown:
+		a.setPoints( 7, -4,-2, 2,-2, -3,-1, 1,-1, -2,0, 0,0, -1,1 );
+		break;
+
+	    case PO_ArrowRight:
+		a.setPoints( 7, -1,-3, -1,3, 0,-2, 0,2, 1,-1, 1,1, 2,0 );
+		break;
+
+	    case PO_ArrowLeft:
+		a.setPoints( 7, 1,-3, 1,3, 0,-2, 0,2, -1,-1, -1,1, -2,0 );
+		break;
+
+	    default:
+		break;
+	    }
+
+	    if (a.isNull())
+		return;
+
+	    QPen savePen = p->pen();                    // save current pen
+	    if ( flags & PStyle_Enabled ) {
+		a.translate( r.x() + r.width() / 2, r.y() + r.height() / 2 );
+		p->setPen( cg.buttonText() );
+		p->drawLineSegments( a, 0, 3 );         // draw arrow
+		p->drawPoint( a[6] );
+	    } else {
+		a.translate( r.x() + r.width() / 2 + 1, r.y() + r.height() / 2 + 1 );
+		p->setPen( cg.light() );
+		p->drawLineSegments( a, 0, 3 );         // draw arrow
+		p->drawPoint( a[6] );
+		a.translate( -1, -1 );
+		p->setPen( cg.mid() );
+		p->drawLineSegments( a, 0, 3 );         // draw arrow
+		p->drawPoint( a[6] );
+	    }
+	    p->setPen( savePen );                       // restore pen
+	} else
+	    QCommonStyle::drawPrimitive(op, p, r, cg, flags, data);
     }
 }
 
@@ -256,11 +301,15 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 	QPushButton *button = (QPushButton *) widget;
 	int w = sz.width(), h = sz.height();
 
-	if (w < 85 && ! button->pixmap() &&
-	    (button->isDefault() || button->autoDefault()))
-	    w = 80;
-	if (h <= 25)
-	    h = 22;
+	if (button->isDefault() || button->autoDefault()) {
+	    if (w < 85 && ! button->pixmap())
+		w = 80;
+	    if (h < 25)
+		h = 25;
+	} else {
+	    if (h < 23)
+		h = 23;
+	}
 
 	sz = QSize(w, h);
     }

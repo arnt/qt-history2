@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#87 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#88 $
 **
 ** Definition of QStyle class
 **
@@ -103,11 +103,12 @@ public:
 
 	PO_FocusRect,
 
+	PO_ArrowUp,
+	PO_ArrowDown,
+	PO_ArrowRight,
+	PO_ArrowLeft,
+
 	/*
-	  PO_ArrowUp,
-	  PO_ArrowDown,
-	  PO_ArrowRight,
-	  PO_ArrowLeft,
 	  PO_Panel,
 	  PO_PanelPopup,
 	  PO_PanelMenu,
