@@ -333,8 +333,8 @@ QT_LIBS=""
 QT_PNG=""
 QT_ZLIB=""
 [ "x$SM" = "xyes" ] && QT_LIBS="${QT_LIBS} -lICE -lSM"
-[ "x$ZLIB" = "xyes" ] && QT_PNG=' $(PNG_OBJECTS)'
-[ "x$LIBPNG" = "xyes" ] && QT_ZLIB=' $(ZLIB_OBJECTS)'
+[ "x$ZLIB" = "xyes" ] && QT_ZLIB=' $(ZLIB_OBJECTS)'
+[ "x$LIBPNG" = "xyes" ] && QT_PNG=' $(PNG_OBJECTS)'
 [ "x$ZLIB" = "xno" ] && QT_LIBS="${QT_LIBS} -lz"
 [ "x$LIBPNG" = "xno" ] && QT_LIBS="${QT_LIBS} -lpng"
 QT_LIBS="$QT_LIBS $L_FLAGS$l_FLAGS"
