@@ -446,6 +446,11 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     src_normal_palette=true;
     clutcols = 0;
     update_clip();
+
+#if defined(QWS_DEPTH_8)
+    // default colour map
+    setClut( qt_screen->clut(), qt_screen->numCols() );
+#endif
 }
 
 QGfxRasterBase::~QGfxRasterBase()
@@ -1042,13 +1047,35 @@ qgfx_vga16_set_write_planes(int mask)
 template<const int depth,const int type>
 inline void QGfxRaster<depth,type>::useBrush()
 {
-    pixel = cbrush.color().pixel();
+    if ( depth == 8 ) {	// ### What's the difference between srccol and pixel?
+	const QColor &tmp = cbrush.color();
+#if defined(QWS_DEPTH_8GRAYSCALE)
+	pixel = qGray(tmp.red(),tmp.green(),tmp.blue());
+#elif defined(QWS_DEPTH_8DIRECT)
+	pixel = (tmp.red() >> 5) << 5 | (tmp.green() >> 6) << 3 |
+	       (tmp.blue() >> 5);
+#else
+	pixel = closestMatch( tmp.red(), tmp.green(), tmp.blue() );
+#endif
+    } else
+	pixel = cbrush.color().pixel();
 }
 
 template<const int depth,const int type>
 inline void QGfxRaster<depth,type>::usePen()
 {
-    pixel = cpen.color().pixel();
+    if ( depth == 8 ) {	// ### What's the difference between srccol and pixel?
+	const QColor &tmp = cpen.color();
+#if defined(QWS_DEPTH_8GRAYSCALE)
+	pixel = qGray(tmp.red(),tmp.green(),tmp.blue());
+#elif defined(QWS_DEPTH_8DIRECT)
+	pixel = (tmp.red() >> 5) << 5 | (tmp.green() >> 6) << 3 |
+	       (tmp.blue() >> 5);
+#else
+	pixel = closestMatch( tmp.red(), tmp.green(), tmp.blue() );
+#endif
+    } else
+	pixel = cpen.color().pixel();
 }
 
 // Calculate packing values for 64-bit writes
@@ -1292,7 +1319,8 @@ void QGfxRaster<depth,type>::setSourcePen()
 static int match(QRgb a,QRgb b)
 {
     int ret;
-    /*
+
+#if defined(QWS_DEPTH_8)
     QColor tmp1(a);
     QColor tmp2(b);
     int h1,s1,v1;
@@ -1302,8 +1330,10 @@ static int match(QRgb a,QRgb b)
     ret=abs(h1-h2);
     ret+=abs(s1-s2);
     ret+=abs(v1-v2);
-    */
+#else
     ret=abs(qGray(a)-qGray(b));
+#endif
+
     return ret;
 }
 
