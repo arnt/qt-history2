@@ -1,7 +1,7 @@
 
 This is a general Qt/Mac guide, this will outline known issues in Qt/Mac:
 
-MacOSX:
+Mac OS X:
 
 Applications *must* be run out of a bundle (something like
 widgets.app/). Mac OS X needs this to dispatch events correctly, as well as
