@@ -110,8 +110,8 @@ void QWSHexDump::hexDump()
         if (wrapIndex && (wrapIndex % clustering == 0))
             *outstrm << " ";
 
-        outstrm->setWidth(2);
-        outstrm->setFill('0');
+        outstrm->setPadWidth(2);
+        outstrm->setPadChar('0');
         outstrm->setf(0, QTextStream::showbase);
         *outstrm << hex << c;
         dirty = true;
@@ -139,8 +139,8 @@ void QWSHexDump::sideviewDump(int at)
             *outstrm << " ";
 
         *outstrm << " [";
-        outstrm->setFill(' ');
-        outstrm->setWidth(wrap);
+        outstrm->setPadChar(' ');
+        outstrm->setPadWidth(wrap);
         outstrm->setf(QTextStream::left, QTextStream::adjustfield);
         *outstrm << sideview;
         *outstrm << "]";
