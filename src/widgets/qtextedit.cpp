@@ -1562,9 +1562,9 @@ void QTextEdit::drawCursor( bool visible )
 	 !viewport()->isUpdatesEnabled() ||
 	 !cursor->parag() ||
 	 !cursor->parag()->isValid() ||
-	 ( hasSelectedText() && !style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected )) || 
-	 ( visible && !hasFocus() && !viewport()->hasFocus() && !inDnD ) ||
-	 isReadOnly() )
+	 ( !style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ) && !selectedText().isEmpty() ) ||
+	 ( visible && !hasFocus() && !viewport()->hasFocus() && !inDnD ) || 
+	 isReadOnly() ) 
 	return;
 
     QPainter p( viewport() );
