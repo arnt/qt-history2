@@ -67,7 +67,7 @@ public:
 
     QThreadPrivate();
 
-    QList<QThreadEvent> myevents;
+    Q_EXPORT QList<QThreadEvent> myevents;
     QMutex myeventmutex;
 
 public slots:
