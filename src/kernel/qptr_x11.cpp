@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#163 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#164 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#163 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#164 $")
 
 
 /*****************************************************************************
@@ -360,22 +360,14 @@ static inline void release_gc( void *ref )
 
 
 /*****************************************************************************
-  QPainter tables etc.
+  QPainter member functions
  *****************************************************************************/
-
-static short ropCodes[] = {
-    GXcopy, GXor, GXxor, GXandInverted,
-    GXcopyInverted, GXorInverted, GXequiv, GXand, GXinvert };
 
 const TxNone	  = 0;				// transformation code
 const TxTranslate = 1;
 const TxScale	  = 2;
 const TxRotShear  = 3;
 
-
-/*****************************************************************************
-  QPainter member functions
- *****************************************************************************/
 
 /*----------------------------------------------------------------------------
   Internal function that initializes the painter.
@@ -1052,6 +1044,10 @@ void QPainter::setBackgroundMode( BGMode m )
 
 void QPainter::setRasterOp( RasterOp r )
 {
+    static short ropCodes[] = {
+	GXcopy, GXor, GXxor, GXandInverted,
+	GXcopyInverted, GXorInverted, GXequiv, GXand, GXinvert };
+
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
 	warning( "QPainter::setRasterOp: Call begin() first" );
@@ -1218,7 +1214,7 @@ void QPainter::map( int x, int y, int *rx, int *ry ) const
 /*----------------------------------------------------------------------------
   \internal
   Maps a rectangle from logical coordinates to device coordinates.
-  Cannot handle rotation and/or shear.
+  This internal function does not handle rotation and/or shear.
  ----------------------------------------------------------------------------*/
 
 void QPainter::map( int x, int y, int w, int h,
@@ -1507,7 +1503,7 @@ void QPainter::setClipRegion( const QRegion &rgn )
 
 void QPainter::drawPoint( int x, int y )
 {
-    if ( !isActive() )
+    if ( !isActive() || cpen.style() == NoPen )
 	return;
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
@@ -2350,10 +2346,11 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    if ( sx != 0 || sy != 0 ||
 		 sw != pixmap.width() || sh != pixmap.height() ) {
 		QPixmap tmp( sw, sh, pixmap.depth() );
-		bitBlt( &tmp, 0, 0, &pixmap, sx, sy, sw, sh );
+		bitBlt( &tmp, 0, 0, &pixmap, sx, sy, sw, sh, CopyROP, TRUE );
 		if ( pixmap.mask() ) {
 		    QBitmap mask( sw, sh );
-		    bitBlt( &mask, 0, 0, pixmap.mask(), sx, sy, sw, sh );
+		    bitBlt( &mask, 0, 0, pixmap.mask(), sx, sy, sw, sh,
+			    CopyROP, TRUE );
 		    tmp.setMask( mask );
 		}
 		drawPixmap( x, y, tmp );
@@ -2392,51 +2389,56 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	map( x, y, &x, &y );
     }
 
-    bool do_clip  = hasClipping();
-    bool depth1	  = pixmap.depth() == 1;
     QBitmap *mask = (QBitmap *)pixmap.mask();
 
-    if ( mask && !depth1 && !do_clip && rop == CopyROP ) {
-	bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh );
+    if ( mask && !hasClipping() ) {		// the simple way
+	bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop );
 	return;
     }
 
-    if ( depth1 )				// bitmap
-	XSetBackground( dpy, gc, bg_col.pixel() );
-
     if ( mask ) {				// pixmap has clip mask
-	if ( do_clip ) {			// combine with region
-	    QBitmap *comb = new QBitmap( mask->size() );
-	    comb->detach();
-	    GC cgc = qt_xget_temp_gc( TRUE );	// get temporary GC
-	    XSetForeground( dpy, cgc, color0.pixel() );
-	    XFillRectangle( dpy, comb->handle(), cgc, 0, 0,
-			    comb->width(), comb->height() );
-	    XSetBackground( dpy, cgc, color0.pixel() );
-	    XSetForeground( dpy, cgc, color1.pixel() );
-	    XSetRegion( dpy, cgc, crgn.handle() );
-	    XSetClipOrigin( dpy, cgc, -x+sx, -y+sy );
-	    XCopyPlane( dpy, mask->handle(), comb->handle(), cgc, 0, 0,
-			mask->width(), mask->height(), 0, 0, 1 );
-	    XSetClipMask( dpy, cgc, None );
-	    XSetClipOrigin( dpy, cgc, 0, 0 );	// restore tmp GC
-	    mask = comb;			// it's deleted below
-	}
+	// Implies that clipping is on
+	// Create a new mask that combines the mask with the clip region
+
+	QBitmap *comb = new QBitmap( sw, sh );
+	comb->detach();
+	GC cgc = qt_xget_temp_gc( TRUE );	// get temporary mono GC
+	XSetForeground( dpy, cgc, 0 );
+	XFillRectangle( dpy, comb->handle(), cgc, 0, 0, sw, sh );
+	XSetBackground( dpy, cgc, 0 );
+	XSetForeground( dpy, cgc, 1 );
+	XSetRegion( dpy, cgc, crgn.handle() );
+	XSetClipOrigin( dpy, cgc, -x, -y );
+	XSetFillStyle( dpy, cgc, FillOpaqueStippled );
+	XSetStipple( dpy, cgc, mask->handle() );
+	XSetTSOrigin( dpy, cgc, -sx, -sy );
+	XFillRectangle( dpy, comb->handle(), cgc, 0, 0, sw, sh );
+	XSetTSOrigin( dpy, cgc, 0, 0 );		// restore cgc
+	XSetFillStyle( dpy, cgc, FillSolid );
+	XSetClipOrigin( dpy, cgc, 0, 0 );
+	XSetClipMask( dpy, cgc, None );
+	mask = comb;				// it's deleted below
+
 	XSetClipMask( dpy, gc, mask->handle() );
-	XSetClipOrigin( dpy, gc, x-sx, y-sy );
+	XSetClipOrigin( dpy, gc, x, y );
     }
-    if ( depth1 )
-	XCopyPlane( dpy, pixmap.handle(), hd, gc, sx, sy, sw, sh, x, y, 1 );
-    else
+
+    if ( pixmap.depth() == 1 ) {
+	XSetBackground( dpy, gc, bg_col.pixel() );
+	XSetFillStyle( dpy, gc, FillOpaqueStippled );
+	XSetStipple( dpy, gc, pixmap.handle() );
+	XSetTSOrigin( dpy, gc, x-sx, y-sy );
+	XFillRectangle( dpy, hd, gc, x, y, sw, sh );
+	XSetTSOrigin( dpy, gc, 0, 0 );
+	XSetFillStyle( dpy, gc, FillSolid );
+    } else {
 	XCopyArea( dpy, pixmap.handle(), hd, gc, sx, sy, sw, sh, x, y );
+    }
+
     if ( mask ) {				// restore clipping
 	XSetClipOrigin( dpy, gc, 0, 0 );
-	if ( do_clip ) {
-	    XSetRegion( dpy, gc, crgn.handle() );
-	    delete mask;
-	}
-	else
-	    XSetClipMask( dpy, gc, None );
+	XSetRegion( dpy, gc, crgn.handle() );
+	delete mask;				// delete comb, created above
     }
 }
 

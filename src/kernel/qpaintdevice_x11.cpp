@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#55 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#54 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#55 $")
 
 
 /*----------------------------------------------------------------------------
@@ -299,10 +299,16 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	if ( ts == PDT_PIXMAP ) {
 	    pm = (QPixmap*)src;
 	    if ( sx != 0 || sy != 0 ||
-		 sw != pm->width() || sh != pm->height() ) {
-		QPixmap *pm_new = new QPixmap( sw, sh, pm->depth() );
-		bitBlt( pm_new, 0, 0, pm, sx, sy, sw, sh );
-		pm = pm_new;
+		 sw != pm->width() || sh != pm->height() || ignoreMask ) {
+		QPixmap *tmp = new QPixmap( sw, sh, pm->depth() );
+		bitBlt( tmp, 0, 0, pm, sx, sy, sw, sh, CopyROP, TRUE );
+		if ( pm->mask() && !ignoreMask ) {
+		    QBitmap mask( sw, sh );
+		    bitBlt( &mask, 0, 0, pm->mask(), sx, sy, sw, sh,
+			    CopyROP, TRUE );
+		    tmp->setMask( mask );
+		}
+		pm = tmp;
 	    }
 	    else
 		tmp_pm = FALSE;
@@ -314,7 +320,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	}
 	else {
 #if defined(CHECK_RANGE)
-	    warning( "bitBlt: Cannot bitBlt from device" );
+	    warning( "bitBlt: Internal error" );
 #endif
 	    return;
 	}
@@ -351,76 +357,101 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	return;
     }
 
-    bool copy_plane = FALSE;
-    bool mono = FALSE;
+    bool mono_src;
+    bool mono_dst;
+    QBitmap *mask;
 
-    QBitmap *mask = 0;
     if ( ts == PDT_PIXMAP ) {
-	copy_plane = ((QPixmap*)src)->depth() == 1;
-	mask = ((QPixmap*)src)->data->mask;
+	mono_src = ((QPixmap*)src)->depth() == 1;
+	mask = ignoreMask ? 0 : ((QPixmap*)src)->data->mask;
+    } else {
+	mono_src = FALSE;
+	mask = 0;
     }
     if ( td == PDT_PIXMAP ) {
-	bool single_plane = ((QPixmap*)dst)->depth() == 1;
-	if ( single_plane && !copy_plane ) {
-#if defined(CHECK_RANGE)
-		warning( "bitBlt: Incompatible destination pixmap" );
-#endif
-		return;			// dest is 1-bit pixmap, source is not
-	}
-	mono = copy_plane && single_plane;
-	copy_plane ^= single_plane;
+	mono_dst = ((QPixmap*)dst)->depth() == 1;
 	((QPixmap*)dst)->detach();		// changes shared pixmap
+    } else {
+	mono_dst = FALSE;
+    }
+
+    if ( mono_dst && !mono_src ) {	// dest is 1-bit pixmap, source is not
+#if defined(CHECK_RANGE)
+	warning( "bitBlt: Incompatible destination pixmap" );
+#endif
+	return;
     }
 
     GC gc;
 
-    if ( ignoreMask )				// don't use the mask
-	mask = 0;
-
-    if ( mask && !mono ) {			// fast masked blt
+    if ( mask && !mono_src ) {			// fast masked blt
 	gc = get_mask_gc( dpy, dst->handle(), mask->data->ser_no,
 			  mask->handle() );
 	XSetClipOrigin( dpy, gc, dx-sx, dy-sy );
-	mask = 0;
+	if ( rop != CopyROP )			// use non-default ROP code
+	    XSetFunction( dpy, gc, ropCodes[rop] );
+	XCopyArea( dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
+		   dx, dy );
+	if ( rop != CopyROP )			// restore ROP
+	    XSetFunction( dpy, gc, GXcopy );
+	return;
     }
-    else					// get a reusable GC
-	gc = qt_xget_temp_gc( mono );
-
-    XGCValues gcvals;
-    ulong     gcflags = 0;
-
-    if ( rop != CopyROP ) {			// use non-default ROP code
-	gcflags |= GCFunction;
-	gcvals.function = ropCodes[rop];
+    else {					// get a reusable GC
+	gc = qt_xget_temp_gc( mono_dst );
     }
-    if ( copy_plane || mono ) {
+
+    if ( rop != CopyROP )			// use non-default ROP code
+	XSetFunction( dpy, gc, ropCodes[rop] );
+
+    if ( mono_src ) {				// src is bitmap
+	XGCValues gcvals;
 	if ( td == PDT_WIDGET ) {		// set GC colors
 	    QWidget *w = (QWidget *)dst;
 	    gcvals.background = w->backgroundColor().pixel();
 	    gcvals.foreground = w->foregroundColor().pixel();
-	}
-	else {
+	} else if ( mono_dst ) {
+	    gcvals.background = 0;
+	    gcvals.foreground = 1;
+	} else {
 	    gcvals.background = white.pixel();
 	    gcvals.foreground = black.pixel();
 	}
-	gcflags = GCBackground | GCForeground;
+
+	gcvals.fill_style  = FillOpaqueStippled;
+	gcvals.stipple     = src->handle();
+	gcvals.ts_x_origin = dx - sx;
+	gcvals.ts_y_origin = dy - sy;
+
+	bool clipmask = FALSE;
+	if ( mask ) {
+	    if ( mask->handle() == src->handle() ) {
+		gcvals.fill_style = FillStippled;
+	    } else {
+		XSetClipMask( dpy, gc, mask->handle() );
+		XSetClipOrigin( dpy, gc, dx-sx, dy-sy );
+		clipmask = TRUE;
+	    }
+	}
+
+	XChangeGC( dpy, gc,
+		   GCBackground | GCForeground | GCFillStyle | GCStipple |
+		   GCTileStipXOrigin | GCTileStipYOrigin, &gcvals );
+
+	XFillRectangle( dpy,dst->handle(), gc, dx, dy, sw, sh );
+	XSetTSOrigin( dpy, gc, 0, 0 );
+	XSetFillStyle( dpy, gc, FillSolid );
+	if ( clipmask ) {
+	    XSetClipOrigin( dpy, gc, 0, 0 );
+	    XSetClipMask( dpy, gc, None );
+	}
     }
-    if ( gcflags )
-	XChangeGC( dpy, gc, gcflags, &gcvals );
-    if ( mask ) {
-	XSetClipMask( dpy, gc, mask->handle() );
-	XSetClipOrigin( dpy, gc, dx-sx, dy-sy );
-    }
-    if ( copy_plane )
-	XCopyPlane( dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
-		    dx, dy, 1 );
-    else
+    else {					// src is pixmap/widget
 	XCopyArea( dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
 		   dx, dy );
-    if ( rop != CopyROP )			// reset gc function
+    }
+
+    if ( rop != CopyROP )			// restore ROP
 	XSetFunction( dpy, gc, GXcopy );
-    if ( mask )
-	XSetClipMask( dpy, gc, None );
 }
 
 
