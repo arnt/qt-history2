@@ -5,7 +5,7 @@
 **
 ** Created : 931029
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -5175,6 +5175,10 @@ struct qt_auto_repeat_data
     bool error;
 };
 
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
 static Bool qt_keypress_scanner(Display *, XEvent *event, XPointer arg)
 {
     if (event->type != XKeyPress && event->type != XKeyRelease)
@@ -5212,6 +5216,10 @@ static Bool qt_keyrelease_scanner(Display *, XEvent *event, XPointer arg)
             event->xkey.window  == d->window &&
             event->xkey.keycode == d->keycode);
 }
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
 
 bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 {

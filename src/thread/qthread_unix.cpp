@@ -55,12 +55,22 @@ static QThreadInstance main_instance = {
 static QMutexPool *qt_thread_mutexpool = 0;
 
 
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
+typedef void*(*QtThreadCallback)(void*);
+
 static pthread_once_t storage_key_once = PTHREAD_ONCE_INIT;
 static pthread_key_t storage_key;
 static void create_storage_key()
 {
     pthread_key_create(&storage_key, NULL);
 }
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
 
 
 /**************************************************************************
@@ -367,7 +377,7 @@ void QThread::start(Priority priority)
     }
     d->args[0] = this;
     d->args[1] = d;
-    ret = pthread_create(&d->thread_id, &attr, QThreadInstance::start, d->args);
+    ret = pthread_create(&d->thread_id, &attr, (QtThreadCallback)QThreadInstance::start, d->args);
     pthread_attr_destroy(&attr);
 
     if (ret) {
