@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#30 $
 **
 ** Implementation of QProcess class
 **
@@ -282,7 +282,7 @@ int QProcess::exitStatus() const
 */
 QByteArray QProcess::readStdout()
 {
-    QByteArray buf = bufStdout;
+    QByteArray buf = bufStdout.copy();
     bufStdout.resize( 0 );
     return buf;
 }
@@ -298,7 +298,7 @@ QByteArray QProcess::readStdout()
 */
 QByteArray QProcess::readStderr()
 {
-    QByteArray buf = bufStderr;
+    QByteArray buf = bufStderr.copy();
     bufStderr.resize( 0 );
     return buf;
 }

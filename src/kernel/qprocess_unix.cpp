@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#52 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -797,21 +797,23 @@ void QProcess::socketRead( int fd )
     if ( fd == 0 )
 	return;
     const int bufsize = 4096;
-    QByteArray buffer;
+    QByteArray *buffer;
     uint oldSize;
     int n;
     if ( fd == d->socketStdout[0] ) {
-	buffer = bufStdout;
+	buffer = &bufStdout;
     } else {
-	buffer = bufStderr;
+	buffer = &bufStderr;
     }
 
     // read data
-    oldSize = buffer.size();
-    buffer.resize( oldSize + bufsize );
-    n = ::read( fd, buffer.data()+oldSize, bufsize );
+    oldSize = buffer->size();
+    buffer->resize( oldSize + bufsize );
+    n = ::read( fd, buffer->data()+oldSize, bufsize );
     if ( n > 0 )
-	buffer.resize( oldSize + n );
+	buffer->resize( oldSize + n );
+    else
+	buffer->resize( oldSize );
     // eof or error?
     if ( n == 0 || n == -1 ) {
 	if ( fd == d->socketStdout[0] ) {
@@ -838,23 +840,23 @@ void QProcess::socketRead( int fd )
     }
     // read all data that is available
     while ( n == bufsize ) {
-	oldSize = buffer.size();
-	buffer.resize( oldSize + bufsize );
-	n = ::read( fd, buffer.data()+oldSize, bufsize );
+	oldSize = buffer->size();
+	buffer->resize( oldSize + bufsize );
+	n = ::read( fd, buffer->data()+oldSize, bufsize );
 	if ( n > 0 )
-	    buffer.resize( oldSize + n );
+	    buffer->resize( oldSize + n );
     }
 
     if ( fd == d->socketStdout[0] ) {
 #if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::socketRead(): %d bytes read from stdout (%d)",
-		buffer.size()-oldSize, fd );
+		buffer->size()-oldSize, fd );
 #endif
 	emit readyReadStdout();
     } else {
 #if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::socketRead(): %d bytes read from stderr (%d)",
-		buffer.size()-oldSize, fd );
+		buffer->size()-oldSize, fd );
 #endif
 	emit readyReadStderr();
     }
