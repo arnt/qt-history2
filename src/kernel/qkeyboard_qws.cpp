@@ -115,6 +115,24 @@ private:
     QSocketNotifier *notifier;
 };
 
+class QWSiPaqButtonsHandler : public QWSKeyboardHandler
+{
+    Q_OBJECT
+public:
+    QWSiPaqButtonsHandler();
+    virtual ~QWSiPaqButtonsHandler();
+
+    bool isOpen() { return buttonFD > 0; }
+
+private slots:
+    void readKeyboardData();
+
+private:
+    QString terminalName;
+    int buttonFD;
+    QSocketNotifier *notifier;
+};
+
 class QWSVFbKeyboardHandler : public QWSKeyboardHandler
 {
     Q_OBJECT
@@ -179,7 +197,7 @@ QWSTtyKeyboardHandler::QWSTtyKeyboardHandler() : QWSKeyboardHandler()
 
     if ((kbdFD = open(terminalName, O_RDWR | O_NDELAY, 0)) < 0)
     {
-	printf("Cannot open %s\n", terminalName.latin1() );
+	qWarning("Cannot open %s\n", terminalName.latin1() );
     }
 
     // save for restore.
@@ -220,8 +238,6 @@ QWSTtyKeyboardHandler::QWSTtyKeyboardHandler() : QWSKeyboardHandler()
 	connect( notifier, SIGNAL(activated(int)),this,
 		 SLOT(readKeyboardData()) );
     }
-
-    printf("\033[?25l"); fflush(stdout); // VT100 cursor off
 }
 
 QWSTtyKeyboardHandler::~QWSTtyKeyboardHandler()
@@ -235,8 +251,6 @@ QWSTtyKeyboardHandler::~QWSTtyKeyboardHandler()
     }
     delete notifier;
     notifier = 0;
-
-    printf("\033[?25h"); fflush(stdout); // VT100 cursor on
 }
 
 
@@ -577,6 +591,66 @@ void QWSUsbKeyboardHandler::readKeyboardData()
 }
 
 /*
+ * iPAQ buttons driver
+ */
+
+QWSiPaqButtonsHandler::QWSiPaqButtonsHandler() : QWSKeyboardHandler()
+{
+    terminalName = "/dev/h3600_key";
+    buttonFD = -1;
+    notifier = 0;
+
+    if ((buttonFD = open(terminalName, O_RDWR | O_NDELAY, 0)) < 0) {
+	qFatal("Cannot open %s\n", terminalName.latin1());
+    } else {
+	notifier = new QSocketNotifier( buttonFD, QSocketNotifier::Read, this );
+	connect( notifier, SIGNAL(activated(int)),this,
+		 SLOT(readKeyboardData()) );
+    }
+}
+
+QWSiPaqButtonsHandler::~QWSiPaqButtonsHandler()
+{
+    if ( buttonFD > 0 ) {
+	::close( buttonFD );
+	buttonFD = -1;
+    }
+}
+
+void QWSiPaqButtonsHandler::readKeyboardData()
+{
+    uchar buf[1];
+    int n=read(buttonFD,buf,1);
+    if (n<0) {
+	qDebug("Keyboard read error %s",strerror(errno));
+    } else {
+	uint code = buf[0]&0x7f;
+	bool press = !(buf[0]&0x80);
+	const uint nbut = 10;
+	int keycode[nbut] = {
+	    Qt::Key_Escape, // audio
+	    0, // power
+	    Qt::Key_F1,
+	    Qt::Key_F2,
+	    Qt::Key_F3,
+	    Qt::Key_F4,
+	    Qt::Key_Up,
+	    Qt::Key_Right,
+	    Qt::Key_Left,
+	    Qt::Key_Down
+	};
+	if ( code < nbut ) {
+	    int k = keycode[code];
+	    if ( k ) {
+		server->processKeyEvent( 0, k, 0, press, false );
+	    } else {
+		qApp->quit();
+	    }
+	}
+    }
+}
+
+/*
  * vr41xx buttons driver
  */
 
@@ -588,7 +662,7 @@ QWSVr41xxButtonsHandler::QWSVr41xxButtonsHandler() : QWSKeyboardHandler()
 
     if ((buttonFD = open(terminalName, O_RDWR | O_NDELAY, 0)) < 0)
     {
-	printf("Cannot open %s\n", terminalName.latin1());
+	qWarning("Cannot open %s\n", terminalName.latin1());
     }
 
     if ( buttonFD >= 0 ) {
@@ -767,7 +841,11 @@ QWSKeyboardHandler *QWSServer::newKeyboardHandler( const QString &spec )
     QWSKeyboardHandler *handler = 0;
     
     if ( spec == "Buttons" ) {
+#ifdef QT_QWS_IPAQ
+	handler = new QWSiPaqButtonsHandler();
+#else
 	handler = new QWSVr41xxButtonsHandler();
+#endif
     } else if ( spec == "QVFbKeyboard" ) {
 	handler = new QWSVFbKeyboardHandler();
     } else if ( spec == "TTY" ) {
