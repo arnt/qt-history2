@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#228 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#229 $
 **
 ** Implementation of QListView widget class
 **
@@ -2645,7 +2645,7 @@ void QListView::mouseMoveEvent( QMouseEvent * e )
     if ( e->y() > viewport()->height() || e->y() < 0 )
 	needAutoScroll = TRUE;
 	
-    // if we need to scroll and no autoscroll timer is started, 
+    // if we need to scroll and no autoscroll timer is started,
     // connect the timer
     if ( needAutoScroll && !d->scrollTimer ) {
         d->scrollTimer = new QTimer( this );
@@ -2658,7 +2658,7 @@ void QListView::mouseMoveEvent( QMouseEvent * e )
 
     // if we don't need to autoscroll
     if ( !needAutoScroll ) {
-        // if there is a autoscroll timer, delete it 
+        // if there is a autoscroll timer, delete it
         if ( d->scrollTimer ) {
 	    disconnect( d->scrollTimer, SIGNAL(timeout()),
 			this, SLOT(doAutoScroll()) );
@@ -4417,11 +4417,18 @@ QListViewItemIterator &QListViewItemIterator::operator+=(int j)
   return *this;
 }
 
+/*!
+  \fn QListViewItemIterator& QListViewItemIterator::operator--()
+  Prefix -- makes the previous item in the QListViewItem tree of the QListView
+  of the iterator the current item and returns it. If the current item was the last first
+  in the QListView or null, null is returned.
+*/
+
 QListViewItemIterator &QListViewItemIterator::operator--()
 {
   if (!curr)
     return *this;
-  
+
   if (!curr->parent())
     { // we are in the first depth
       if (curr->listView())
@@ -4431,9 +4438,9 @@ QListViewItemIterator &QListViewItemIterator::operator--()
 	      QListViewItem *i = curr->listView()->firstChild();
 	      while(i && i->siblingItem != curr)
 		i = i->siblingItem;
-	      
+	
 	      curr = i;
-	      
+	
 	      if (i && i->firstChild())
 		{ // go to the last child of this item
 		  QListViewItemIterator it(curr->firstChild());
@@ -4449,19 +4456,19 @@ QListViewItemIterator &QListViewItemIterator::operator--()
 	      return *this;
 	    }
 	}
-      else 
+      else
 	return *this;
     }
   else
     {
       QListViewItem *parent = curr->parent();
-      
+
       if (curr != parent->firstChild())
 	{ // go to the previous sibling
 	  QListViewItem *i = parent->firstChild();
 	  while(i && i->siblingItem != curr)
 	    i = i->siblingItem;
-	  
+	
 	  curr = i;
 
 	  if (i && i->firstChild())
@@ -4470,7 +4477,7 @@ QListViewItemIterator &QListViewItemIterator::operator--()
 	      for(;it.current() && it.current()->parent() != parent;++it)
 		curr = it.current();
 	    }
-	  
+	
 	  return *this;
 	}
       else
@@ -4481,12 +4488,26 @@ QListViewItemIterator &QListViewItemIterator::operator--()
     }
 }
 
+/*!
+  \fn const QListViewItemIterator QListViewItemIterator::operator--(int)
+  Postfix -- makes the previous item in the QListViewItem tree of the QListView
+  of the iterator the current item and returns the item, which was the current one before.
+*/
+
 const QListViewItemIterator QListViewItemIterator::operator--(int)
 {
   QListViewItemIterator oldValue = *this;
   --(*this);
   return oldValue;
 }
+
+/*!
+  \fn QListViewItemIterator &QListViewItemIterator::operator-=(int j)
+  Sets the current item to the item \e j positions before the current item
+  in the QListViewItem hirarchie. If this item is above the first item, the
+  current item is set to null.
+  The new current item (or null, if the new current item is null) is returned.
+*/
 
 QListViewItemIterator &QListViewItemIterator::operator-=(int j)
 {
