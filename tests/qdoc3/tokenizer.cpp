@@ -9,7 +9,6 @@
 #include <string.h>
 
 #include "config.h"
-#include "messages.h"
 #include "tokenizer.h"
 
 /* qmake ignore Q_OBJECT */
@@ -116,9 +115,7 @@ int Tokenizer::getToken()
 		yyCh = getChar();
 
 		if ( yyCh == EOF )
-		    Messages::warning( yyTokLoc,
-				       Qdoc::tr("Unterminated C++ string"
-						" literal") );
+		    yyTokLoc.warning( tr("Unterminated C++ string literal") );
 		else
 		    return Tok_String;
 		break;
@@ -141,9 +138,8 @@ int Tokenizer::getToken()
 		} while ( yyCh != EOF && yyCh != '\'' );
 
 		if ( yyCh == EOF ) {
-		    Messages::warning( yyTokLoc,
-				       Qdoc::tr("Unterminated C++ character"
-						" literal") );
+		    yyTokLoc.warning( tr("Unterminated C++ character"
+					 " literal") );
 		} else {
 		    yyCh = getChar();
 		    return Tok_Number;
@@ -231,9 +227,7 @@ int Tokenizer::getToken()
 
 		    while ( !metAsterSlash ) {
 			if ( yyCh == EOF ) {
-			    Messages::warning( yyTokLoc,
-					       Qdoc::tr("Unterminated C++"
-							" comment") );
+			    yyTokLoc.warning( tr("Unterminated C++ comment") );
 			    break;
 			} else {
 			    if ( yyCh == '*' ) {
@@ -339,18 +333,15 @@ int Tokenizer::getToken()
 		yyCh = getChar();
 		return Tok_Tilde;
 	    default:
-		Messages::warning( yyTokLoc,
-				   Qdoc::tr("Hostile character 0x%1 in C++"
-					    " source")
-				   .arg(yyCh, 2, 16) );
+		yyTokLoc.warning( tr("Hostile character 0x%1 in C++ source")
+				  .arg(yyCh, 2, 16) );
 		yyCh = getChar();
 	    }
 	}
     }
 
     if ( yyPreprocessorSkipping.count() > 1 )
-	Messages::warning( yyTokLoc,
-			   Qdoc::tr("Expected #endif before end of file") );
+	yyTokLoc.warning( tr("Expected #endif before end of file") );
 
     strcpy( yyLex, "end-of-input" );
     yyLexLen = strlen( yyLex );
@@ -550,8 +541,7 @@ void Tokenizer::pushSkipping( bool skip )
 bool Tokenizer::popSkipping()
 {
     if ( yyPreprocessorSkipping.isEmpty() ) {
-	Messages::warning( yyTokLoc,
-			   Qdoc::tr("Unexpected #elif, #else or #endif") );
+	yyTokLoc.warning( tr("Unexpected #elif, #else or #endif") );
 	return TRUE;
     }
 

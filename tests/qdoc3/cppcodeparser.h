@@ -33,12 +33,12 @@ public:
 
 protected:
     virtual Set<QString> topicCommands();
-    virtual Node *processTopicCommand( Doc *doc, const QString& command,
+    virtual Node *processTopicCommand( const Doc& doc, const QString& command,
 				       const QString& arg );
     virtual Set<QString> otherMetaCommands();
-    virtual void processOtherMetaCommand( Doc *doc, const QString& command,
-					  const QString& arg,
-					  Node *node );
+    virtual void processOtherMetaCommand( const Doc& doc,
+					  const QString& command,
+					  const QString& arg, Node *node );
 
 private:
     void reset( Tree *tree );

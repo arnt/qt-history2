@@ -7,7 +7,7 @@
 
 #include <qstring.h>
 
-class Location;
+#include "location.h"
 
 class OpenedList
 {

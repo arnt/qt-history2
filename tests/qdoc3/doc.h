@@ -7,11 +7,11 @@
 
 #include <qstring.h>
 
+#include "location.h"
 #include "set.h"
 
 class Config;
 class DocPrivate;
-class Location;
 class Text;
 
 class Doc

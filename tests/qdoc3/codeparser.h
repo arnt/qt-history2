@@ -5,10 +5,10 @@
 #ifndef CODEPARSER_H
 #define CODEPARSER_H
 
+#include "location.h"
 #include "set.h"
 
 class Config;
-class Location;
 class Node;
 class QString;
 class Tree;

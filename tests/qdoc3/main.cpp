@@ -15,7 +15,6 @@
 #include "htmlgenerator.h"
 #include "loutgenerator.h"
 #include "mangenerator.h"
-#include "messages.h"
 #include "plaincodemarker.h"
 #include "qscodemarker.h"
 #include "qscodeparser.h"
@@ -51,19 +50,18 @@ static Tree *treeForLanguage( const QString& lang )
 
 static void printHelp()
 {
-    Messages::information(
-	    Qdoc::tr("Usage: qdoc [options] file1.qdoc...\n"
-		     "Options:\n"
-		     "    -help  Display this information and exit\n"
-		     "    -verbose\n"
-		     "           Explain what is being done\n"
-		     "    -version\n"
-		     "           Display version of qdoc and exit") );
+    Location::information( tr("Usage: qdoc [options] file1.qdoc...\n"
+			      "Options:\n"
+			      "    -help  Display this information and exit\n"
+			      "    -verbose\n"
+			      "           Explain what is being done\n"
+			      "    -version\n"
+			      "           Display version of qdoc and exit") );
 }
 
 static void printVersion()
 {
-    Messages::information( Qdoc::tr("qdoc version 3.0") );
+    Location::information( tr("qdoc version 3.0") );
 }
 
 static void processQdocFile( const QString& fileName )
@@ -71,7 +69,7 @@ static void processQdocFile( const QString& fileName )
     QPtrList<QTranslator> translators;
     translators.setAutoDelete( TRUE );
 
-    Config config( Qdoc::tr("qdoc") );
+    Config config( tr("qdoc") );
 
     int i = 0;
     while ( defaults[i].key != 0 ) {
@@ -80,18 +78,15 @@ static void processQdocFile( const QString& fileName )
 	i++;
     }
 
-    Messages::initialize( config );
     Location::initialize( config );
     config.load( fileName );
     Location::terminate();
-    Messages::terminate();
 
     QString prevCurrentDir = QDir::currentDirPath();
     QString dir = QFileInfo( fileName ).dirPath();
     if ( !dir.isEmpty() )
 	QDir::setCurrent( dir );
 
-    Messages::initialize( config );
     Location::initialize( config );
     Tokenizer::initialize( config );
     Doc::initialize( config );
@@ -104,9 +99,8 @@ static void processQdocFile( const QString& fileName )
     while ( fn != fileNames.end() ) {
 	QTranslator *translator = new QTranslator( 0 );
 	if ( !translator->load(*fn) )
-	    Messages::error( config.lastLocation(),
-			     Qdoc::tr("Cannot load translator '%1'")
-			     .arg(*fn) );
+	    config.lastLocation().error( tr("Cannot load translator '%1'")
+					 .arg(*fn) );
 	qApp->installTranslator( translator );
 	translators.append( translator );
 	++fn;
@@ -116,14 +110,13 @@ static void processQdocFile( const QString& fileName )
     Tree *tree = treeForLanguage( lang );
     CodeParser *codeParser = CodeParser::parserForLanguage( lang );
     if ( codeParser == 0 )
-	Messages::fatal( config.lastLocation(),
-			 Qdoc::tr("Cannot parse language '%1'").arg(lang) );
+	config.lastLocation().fatal( tr("Cannot parse language '%1'")
+				     .arg(lang) );
     CodeMarker *marker = CodeMarker::markerForLanguage( lang );
     if ( marker == 0 )
-	Messages::fatal( config.lastLocation(),
-			 Qdoc::tr("Cannot output documentation for"
-				  " language '%1'")
-			 .arg(lang) );
+	config.lastLocation().fatal( tr("Cannot output documentation for"
+					" language '%1'")
+				     .arg(lang) );
 
     QStringList headers = config.getAllFiles( CONFIG_HEADERS, CONFIG_HEADERDIRS,
 					      "*.h" );
@@ -149,9 +142,8 @@ static void processQdocFile( const QString& fileName )
     while ( f != formats.end() ) {
 	Generator *generator = Generator::generatorForFormat( *f );
 	if ( generator == 0 )
-	    Messages::fatal( config.lastLocation(),
-			     Qdoc::tr("Unknown documentation format '%1'")
-			     .arg(*f) );
+	    config.lastLocation().fatal( tr("Unknown documentation format '%1'")
+					 .arg(*f) );
 	generator->generateTree( tree, marker );
 	++f;
     }
@@ -162,7 +154,6 @@ static void processQdocFile( const QString& fileName )
     Doc::terminate();
     Tokenizer::terminate();
     Location::terminate();
-    Messages::terminate();
     QDir::setCurrent( prevCurrentDir );
 }
 

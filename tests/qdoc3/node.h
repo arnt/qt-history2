@@ -28,7 +28,7 @@ public:
 
     void setAccess( Access access ) { acc = access; }
     void setLocation( const Location& location ) { loc = location; }
-    void setDoc( const Doc& doc );
+    void setDoc( const Doc& doc, bool replace = FALSE );
     void setStatus( Status status ) { sta = status; }
 
     virtual bool isInnerNode() const = 0;

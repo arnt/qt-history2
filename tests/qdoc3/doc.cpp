@@ -11,8 +11,6 @@
 #include "codemarker.h"
 #include "config.h"
 #include "doc.h"
-#include "location.h"
-#include "messages.h"
 #include "openedlist.h"
 #include "quoter.h"
 #include "text.h"
@@ -647,11 +645,9 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    leaveParagraph();
 		    if ( openedLists.isEmpty() ) {
 #if 0
-			Messages::warning( location(),
-					   Qdoc::tr("Command '\\%1' outside"
-						    " '\\%2'")
-					   .arg(commandName(command))
-					   .arg(commandName(CMD_LIST)) );
+			location().warning( tr("Command '\\%1' outside '\\%2'")
+					    .arg(commandName(command))
+					    .arg(commandName(CMD_LIST)) );
 #endif
 		    } else {
 			if ( openedLists.top().isStarted() ) {
@@ -805,11 +801,10 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 			(*priv->metaCommandMap)[commandStr].append(
 				getRestOfLine() );
 		    } else {
-			Messages::warning( location(),
-					   Qdoc::tr("Unknown command '\\%1'")
-					   .arg(commandStr),
-					   detailsUnknownCommand(metaCommandSet,
-								 commandStr) );
+			location().warning(
+				tr("Unknown command '\\%1'").arg(commandStr),
+				detailsUnknownCommand(metaCommandSet,
+						      commandStr) );
 			enterParagraph();
 			append( Atom::UnknownCommand, commandStr );
 		    }
@@ -859,8 +854,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
     leaveParagraph();
 
     if ( openedCommands.top() != CMD_OMIT )
-	Messages::warning( location(),
-			   Qdoc::tr("Missing '\\%1'")
+	location().warning( tr("Missing '\\%1'")
 			   .arg(endCommandName(openedCommands.top())) );
     if ( priv->extra != 0 &&
 	 priv->extra->granularity < priv->extra->sectioningUnit )
@@ -885,8 +879,8 @@ QString DocParser::detailsUnknownCommand( const Set<QString>& metaCommandSet,
     }
 
     if ( aliasMap->contains(str) )
-	return Qdoc::tr( "The command '\\%1' was renamed '\\%2' in the"
-			 " configuration file. Use the new name." )
+	return tr( "The command '\\%1' was renamed '\\%2' in the configuration"
+		   " file. Use the new name." )
 	       .arg( str ).arg( (*aliasMap)[str] );
 
     int deltaBest = 666;
@@ -907,7 +901,7 @@ QString DocParser::detailsUnknownCommand( const Set<QString>& metaCommandSet,
     }
 
     if ( numBest == 1 && deltaBest <= 2 && str.length() >= 3 ) {
-	return Qdoc::tr( "Maybe you meant '\\%1'?" ).arg( best );
+	return tr( "Maybe you meant '\\%1'?" ).arg( best );
     } else {
 	return "";
     }
@@ -930,25 +924,19 @@ void DocParser::checkExpiry( const QString& date )
 	if ( expiryDate.isValid() ) {
 	    int days = expiryDate.daysTo( QDate::currentDate() );
 	    if ( days == 0 ) {
-		Messages::warning( location(),
-				   Qdoc::tr("Documentation expires today") );
+		location().warning( tr("Documentation expires today") );
 	    } else if ( days == 1 ) {
-		Messages::warning( location(),
-				   Qdoc::tr("Documentation expired"
-					    " yesterday") );
+		location().warning( tr("Documentation expired yesterday") );
 	    } else if ( days >= 2 ) {
-		Messages::warning( location(),
-				   Qdoc::tr("Documentation expired %1 days ago")
-				   .arg(days) );
+		location().warning( tr("Documentation expired %1 days ago")
+				    .arg(days) );
 	    }
 	} else {
-	    Messages::warning( location(),
-			       Qdoc::tr("Date '%1' invalid").arg(date) );
+	    location().warning( tr("Date '%1' invalid").arg(date) );
 	}
     } else {
-	Messages::warning( location(),
-			   Qdoc::tr("Date '%1' not in YYYY-MM-DD format")
-			   .arg(date) );
+	location().warning( tr("Date '%1' not in YYYY-MM-DD format")
+			    .arg(date) );
     }
 }
 
@@ -977,10 +965,8 @@ void DocParser::insertBaseName( const QString& baseName )
 void DocParser::insertTarget( const QString& target )
 {
     if ( targetMap.contains(target) ) {
-	Messages::warning( location(),
-			   Qdoc::tr("Duplicate target name '%1'").arg(target) );
-	Messages::warning( targetMap[target],
-			   Qdoc::tr("(The previous occurrence is here)") );
+	location().warning( tr("Duplicate target name '%1'").arg(target) );
+	targetMap[target].warning( tr("(The previous occurrence is here)") );
     } else {
 	targetMap.insert( target, location() );
 	append( Atom::Target, target );
@@ -992,8 +978,7 @@ void DocParser::include( const QString& /* fileName */ )
 #if notyet // ###
     QFile inFile( "src/" + fileName );
     if ( !inFile.open(IO_ReadOnly) ) {
-	Messages::error( location(),
-			 Qdoc::tr("Cannot open leaf file '%1'").arg(fileName) );
+	location().error( tr("Cannot open leaf file '%1'").arg(fileName) );
     } else {
 	QString s = inFile.readAll();
 	s.prepend( "\\location {" + Location(fileName).toString() + "}" );
@@ -1012,9 +997,8 @@ void DocParser::startFormat( const QString& format, int command )
     QMap<int, QString>::ConstIterator f = pendingFormats.begin();
     while ( f != pendingFormats.end() ) {
 	if ( *f == format ) {
-	    Messages::warning( location(),
-			       Qdoc::tr("Cannot nest '\\%1' commands")
-			       .arg(commandName(command)) );
+	    location().warning( tr("Cannot nest '\\%1' commands")
+				.arg(commandName(command)) );
 	    return;
 	}
 	++f;
@@ -1079,9 +1063,8 @@ bool DocParser::openCommand( int command )
     if ( ok ) {
 	openedCommands.push( command );
     } else {
-	Messages::warning( location(),
-			   Qdoc::tr("Cannot use '\\%1' within '\\%2'")
-			   .arg(commandName(command)).arg(commandName(top)) );
+	location().warning( tr("Cannot use '\\%1' within '\\%2'")
+			    .arg(commandName(command)).arg(commandName(top)) );
     }
     return ok;
 }
@@ -1104,16 +1087,14 @@ bool DocParser::closeCommand( int endCommand )
 
 	if ( contains ) {
 	    while ( endCommandOf(openedCommands.top()) != endCommand ) {
-		Messages::warning( location(),
-				   Qdoc::tr("Missing '\\%1' before '\\%2'")
-				   .arg(endCommandName(openedCommands.top()))
-				   .arg(commandName(endCommand)) );
+		location().warning( tr("Missing '\\%1' before '\\%2'")
+				    .arg(endCommandName(openedCommands.top()))
+				    .arg(commandName(endCommand)) );
 		openedCommands.pop();
 	    }
 	} else {
-	    Messages::warning( location(),
-			       Qdoc::tr("Missing '\\%1'")
-			       .arg(commandName(endCommand)) );
+	    location().warning( tr("Missing '\\%1'")
+				.arg(commandName(endCommand)) );
 	}
 	return FALSE;
     }
@@ -1125,23 +1106,20 @@ void DocParser::startSection( Doc::SectioningUnit unit, int command )
 
     if ( currentSectioningUnit == Doc::Book ) {
 	if ( unit > Doc::Section1 )
-	    Messages::warning( location(),
-			       Qdoc::tr("Unexpected '\\%1' without '\\%2'")
-			       .arg(commandName(command))
-			       .arg(commandName(CMD_SECTION1)) );
+	    location().warning( tr("Unexpected '\\%1' without '\\%2'")
+				.arg(commandName(command))
+				.arg(commandName(CMD_SECTION1)) );
 	currentSectioningUnit = (Doc::SectioningUnit) ( unit - 1 );
 	priv->constructExtra();
 	priv->extra->sectioningUnit = currentSectioningUnit;
     }
 
     if ( unit <= priv->extra->sectioningUnit ) {
-	Messages::warning( location(),
-			   Qdoc::tr("Unexpected '\\%1' in this documentation")
-			   .arg(commandName(command)) );
+	location().warning( tr("Unexpected '\\%1' in this documentation")
+			    .arg(commandName(command)) );
     } else if ( unit - currentSectioningUnit > 1 ) {
-	Messages::warning( location(),
-			   Qdoc::tr("Unexpected '\\%1' at this point")
-			   .arg(commandName(command)) );
+	location().warning( tr("Unexpected '\\%1' at this point")
+			    .arg(commandName(command)) );
     } else {
 	if ( currentSectioningUnit >= unit )
 	    endSection( unit, command );
@@ -1159,13 +1137,11 @@ void DocParser::endSection( int unit, int endCommand )
     leaveParagraph();
 
     if ( unit < priv->extra->sectioningUnit ) {
-	Messages::warning( location(),
-			   Qdoc::tr("Unexpected '\\%1' in this documentation")
-			   .arg(commandName(endCommand)) );
+	location().warning( tr("Unexpected '\\%1' in this documentation")
+			    .arg(commandName(endCommand)) );
     } else if ( unit > currentSectioningUnit ) {
-	Messages::warning( location(),
-			   Qdoc::tr("Unexpected '\\%1' at this point")
-			   .arg(commandName(endCommand)) );
+	location().warning( tr("Unexpected '\\%1' at this point")
+			    .arg(commandName(endCommand)) );
     } else {
 	while ( currentSectioningUnit >= unit ) {
 	    int delta = currentSectioningUnit - priv->extra->sectioningUnit;
@@ -1208,9 +1184,8 @@ void DocParser::parseAlso()
 	    pos++;
 	    skipSpacesOrOneEndl();
 	} else if ( in[pos] != '\n' ) {
-	    Messages::warning( location(),
-			       Qdoc::tr("Missing comma in '\\%1'")
-			       .arg(commandName(CMD_ALSO)) );
+	    location().warning( tr("Missing comma in '\\%1'")
+				.arg(commandName(CMD_ALSO)) );
 	}
     }
 }
@@ -1264,7 +1239,7 @@ void DocParser::leaveParagraph()
 	    endHeading();
 	} else {
 	    if ( !pendingFormats.isEmpty() ) {
-		Messages::warning( location(), Qdoc::tr("Missing '}'") );
+		location().warning( tr("Missing '}'") );
 		pendingFormats.clear();
 	    }
 
@@ -1287,15 +1262,12 @@ void DocParser::quoteFromFile( int /* command */ )
 
     QString filePath = Config::findFile( exampleFiles, exampleDirs, fileName );
     if ( filePath.isEmpty() ) {
-	Messages::warning( location(),
-			   Qdoc::tr("Cannot find example file '%1'")
-			   .arg(fileName) );
+	location().warning( tr("Cannot find example file '%1'").arg(fileName) );
     } else {
 	QFile inFile( filePath );
 	if ( !inFile.open(IO_ReadOnly) ) {
-	    Messages::warning( location(),
-			       Qdoc::tr("Cannot open example file '%1'")
-			       .arg(filePath) );
+	    location().warning( tr("Cannot open example file '%1'")
+				.arg(filePath) );
 	} else {
 	    QTextStream inStream( &inFile );
 	    code = untabifyEtc( inStream.read() );
@@ -1326,9 +1298,7 @@ Doc::SectioningUnit DocParser::getSectioningUnit()
     } else if ( name == "section4" ) {
 	return Doc::Section4;
     } else {
-	Messages::warning( location(),
-			   Qdoc::tr("Invalid sectioning unit '%1'")
-			   .arg(name) );
+	location().warning( tr("Invalid sectioning unit '%1'").arg(name) );
 	return Doc::Book;
     }
 }
@@ -1392,7 +1362,7 @@ QString DocParser::getArgument( bool code )
 	    }
 	}
 	if ( delimDepth > 0 )
-	    Messages::warning( location(), Qdoc::tr("Missing '}'") );
+	    location().warning( tr("Missing '}'") );
     } else {
 	while ( pos < (int) in.length() &&
 		(delimDepth > 0 || (delimDepth == 0 && !in[pos].isSpace())) ) {
@@ -1483,9 +1453,7 @@ QString DocParser::getUntilEnd( int command )
     int end = rx.search( in, pos );
 
     if ( end == -1 ) {
-	Messages::warning( location(),
-			   Qdoc::tr("Missing '\\%1'")
-			   .arg(commandName(endCommand)) );
+	location().warning( tr("Missing '\\%1'").arg(commandName(endCommand)) );
 	pos = (int) in.length();
     } else {
 	t = in.mid( pos, end - pos );
@@ -1710,12 +1678,11 @@ void Doc::initialize( const Config& config )
     while ( c != commands.end() ) {
 	QString alias = config.getString( CONFIG_ALIAS + Config::dot + *c );
 	if ( reverseAliasMap.contains(alias) ) {
-	    Messages::warning( config.lastLocation(),
-			       Qdoc::tr("Command name '\\%1' cannot stand"
-					" for both '\\%2' and '\\%3'")
-			       .arg(alias)
-			       .arg(reverseAliasMap[alias])
-			       .arg(*c) );
+	    config.lastLocation().warning( tr("Command name '\\%1' cannot stand"
+					      " for both '\\%2' and '\\%3'")
+					   .arg(alias)
+					   .arg(reverseAliasMap[alias])
+					   .arg(*c) );
 	} else {
 	    reverseAliasMap.insert( alias, *c );
 	}
@@ -1729,7 +1696,7 @@ void Doc::initialize( const Config& config )
 	commandDict->replace( cmds[i].alias, &cmds[i].no );
 
 	if ( cmds[i].no != i )
-	    Messages::internalError( Qdoc::tr("command %1 missing").arg(i) );
+	    Location::internalError( tr("command %1 missing").arg(i) );
 	i++;
     }
 
@@ -1759,18 +1726,18 @@ void Doc::initialize( const Config& config )
 		    macro->numParams = m;
 		} else if ( macro->numParams != m ) {
 		    if ( !silent ) {
-			QString other = Qdoc::tr( "default" );
+			QString other = tr( "default" );
 			if ( macro->defaultDef.isEmpty() )
 			    other = macro->otherDefs.begin().key();
-			Messages::warning( config.lastLocation(),
-					   Qdoc::tr("Macro '\\%1' takes"
-						    " inconsistent number of"
-						    " arguments (%2 %3, %4 %5)")
-					   .arg(*n)
-					   .arg(*f)
-					   .arg(m)
-					   .arg(other)
-					   .arg(macro->numParams) );
+			config.lastLocation().warning( tr("Macro '\\%1' takes"
+							  " inconsistent number"
+							  " of arguments (%2"
+							  " %3, %4 %5)")
+						       .arg(*n)
+						       .arg(*f)
+						       .arg(m)
+						       .arg(other)
+						       .arg(macro->numParams) );
 			silent = TRUE;
 		    }
 		    if ( macro->numParams < m )

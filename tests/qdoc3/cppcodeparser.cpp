@@ -9,7 +9,6 @@
 
 #include "codechunk.h"
 #include "cppcodeparser.h"
-#include "messages.h"
 #include "tokenizer.h"
 #include "tree.h"
 
@@ -67,9 +66,7 @@ void CppCodeParser::parseHeaderFile( const Location& location,
 {
     FILE *in = fopen( QFile::encodeName(filePath), "r" );
     if ( in == 0 ) {
-	Messages::error( location,
-			 Qdoc::tr("Cannot open C++ header file '%1'")
-			 .arg(filePath) );
+	location.error( tr("Cannot open C++ header file '%1'").arg(filePath) );
 	return;
     }
 
@@ -87,9 +84,7 @@ void CppCodeParser::parseSourceFile( const Location& location,
 {
     FILE *in = fopen( QFile::encodeName(filePath), "r" );
     if ( in == 0 ) {
-	Messages::error( location,
-			 Qdoc::tr("Cannot open C++ source file '%1'")
-			 .arg(filePath) );
+	location.error( tr("Cannot open C++ source file '%1'").arg(filePath) );
 	return;
     }
 
@@ -126,7 +121,8 @@ Set<QString> CppCodeParser::topicCommands()
 			  << COMMAND_TYPEDEF;
 }
 
-Node *CppCodeParser::processTopicCommand( Doc *doc, const QString& command,
+Node *CppCodeParser::processTopicCommand( const Doc& doc,
+					  const QString& command,
 					  const QString& arg )
 {
     if ( command == COMMAND_FN ) {
@@ -139,26 +135,23 @@ Node *CppCodeParser::processTopicCommand( Doc *doc, const QString& command,
 	    makeFunctionNode( "void " + arg, &path, &clone );
 
 	if ( clone == 0 ) {
-	    Messages::warning( doc->location(),
-			       Qdoc::tr("Invalid syntax in '\\%1'")
-			       .arg(COMMAND_FN) );
+	    doc.location().warning( tr("Invalid syntax in '\\%1'")
+				    .arg(COMMAND_FN) );
 	} else {
 	    func = tre->findFunctionNode( path, clone );
 	    if ( func == 0 ) {
 		if ( path.isEmpty() && !lastPath.isEmpty() )
 		    func = tre->findFunctionNode( lastPath, clone );
 		if ( func == 0 ) {
-		    Messages::warning( doc->location(),
-				       Qdoc::tr("Cannot resolve '%1' in '\\%2'")
-				       .arg(clone->name() + "()")
-				       .arg(COMMAND_FN) );
+		    doc.location().warning( tr("Cannot resolve '%1' in '\\%2'")
+					    .arg(clone->name() + "()")
+					    .arg(COMMAND_FN) );
 		} else {
-		    Messages::warning( doc->location(),
-				       Qdoc::tr("Missing '%1::' for '%2' in"
-						" '\\%3'")
-				       .arg(lastPath.join("::"))
-				       .arg(clone->name() + "()")
-				       .arg(COMMAND_FN) );
+		    doc.location().warning( tr("Missing '%1::' for '%2' in"
+					       " '\\%3'")
+					    .arg(lastPath.join("::"))
+					    .arg(clone->name() + "()")
+					    .arg(COMMAND_FN) );
 		}
 	    } else {
 		lastPath = path;
@@ -170,22 +163,12 @@ Node *CppCodeParser::processTopicCommand( Doc *doc, const QString& command,
 	}
 	return func;
     } else if ( nodeTypeMap.contains(command) ) {
-	QStringList args = QStringList::split( ' ', arg );
-	Node *node = 0;
-
-	if ( args.isEmpty() ) {
-	    Messages::warning( doc->location(),
-			       Qdoc::tr("Expected name after '\\%1'")
-			       .arg(command) );
-	} else {
-	    QString name = args[0];
-	    QStringList path = QStringList::split( "::", name );
-	    node = tre->findNode( path, nodeTypeMap[command] );
-	    if ( node == 0 )
-		Messages::warning( doc->location(),
-				   Qdoc::tr("Cannot resolve '%1' specified with"
-					    " '\\%1'")
-				   .arg(name).arg(command) );
+	QStringList path = QStringList::split( "::", arg );
+	Node *node = tre->findNode( path, nodeTypeMap[command] );
+	if ( node == 0 ) {
+	    doc.location().warning( tr("Cannot resolve '%1' specified with"
+				       " '\\%2'")
+				    .arg(arg).arg(command) );
 	    lastPath = path;
 	}
 	return node;
@@ -209,7 +192,8 @@ Set<QString> CppCodeParser::otherMetaCommands()
 				<< COMMAND_RELATED;
 }
 
-void CppCodeParser::processOtherMetaCommand( Doc *doc, const QString& command,
+void CppCodeParser::processOtherMetaCommand( const Doc& doc,
+					     const QString& command,
 					     const QString& arg,
 					     Node *node )
 {
@@ -221,27 +205,24 @@ void CppCodeParser::processOtherMetaCommand( Doc *doc, const QString& command,
 	} else if ( node != 0 && node->parent()->parent() == 0 ) {
 	    /* global function ... */
 	} else {
-	    Messages::warning( doc->location(),
-			       Qdoc::tr("Ignored '\\%1'")
-			       .arg(COMMAND_INHEADERFILE) );
+	    doc.location().warning( tr("Ignored '\\%1'")
+				    .arg(COMMAND_INHEADERFILE) );
 	}
     } else if ( command == COMMAND_OVERLOAD ) {
 	if ( node != 0 && node->type() == Node::Function ) {
 	    ((FunctionNode *) node)->setOverload( TRUE );
 	} else {
-	    Messages::warning( doc->location(),
-			       Qdoc::tr("Ignored '\\%1'")
-			       .arg(COMMAND_OVERLOAD) );
+	    doc.location().warning( tr("Ignored '\\%1'")
+				    .arg(COMMAND_OVERLOAD) );
 	}
     } else if ( command == COMMAND_REIMP ) {
 	if ( node != 0 && node->type() == Node::Function ) {
 	    ((FunctionNode *) node)->setReimplementation( TRUE );
 	} else {
-	    Messages::warning( doc->location(),
-			       Qdoc::tr("Ignored '\\%1'").arg(COMMAND_REIMP) );
+	    doc.location().warning( tr("Ignored '\\%1'").arg(COMMAND_REIMP) );
 	}
     } else {
-	processCommonMetaCommand( doc->location(), command, arg, node );
+	processCommonMetaCommand( doc.location(), command, arg, node );
     }
 }
 
@@ -868,8 +849,7 @@ bool CppCodeParser::matchDocsAndStuff()
 		if ( matchFunctionDecl(0, &path, &clone) ) {
 		    func = tre->findFunctionNode( path, clone );
 		    if ( func == 0 ) {
-			Messages::warning( doc.location(),
-					   Qdoc::tr("Cannot tie this"
+			doc.location().warning( tr("Cannot tie this"
 						    " documentation to"
 						    " anything") );
 		    } else {
@@ -883,7 +863,7 @@ bool CppCodeParser::matchDocsAndStuff()
 		QStringList::ConstIterator a = args.begin();
 		while ( a != args.end() ) {
 		    Doc nodeDoc = doc;
-		    Node *node = processTopicCommand( &nodeDoc, command, *a );
+		    Node *node = processTopicCommand( nodeDoc, command, *a );
 		    if ( node != 0 ) {
 			nodes.append( node );
 			docs.append( nodeDoc );
@@ -902,7 +882,7 @@ bool CppCodeParser::matchDocsAndStuff()
 			args = (*d).metaCommandArgs( *c );
 			QStringList::ConstIterator a = args.begin();
 			while ( a != args.end() ) {
-			    processOtherMetaCommand( &*d, *c, *a, *n );
+			    processOtherMetaCommand( *d, *c, *a, *n );
 			    ++a;
 			}
 			++c;

@@ -6,7 +6,6 @@
 #include <qregexp.h>
 
 #include "mangenerator.h"
-#include "messages.h"
 #include "node.h"
 #include "tree.h"
 

@@ -19,23 +19,22 @@ public:
     virtual void parseSourceFile( const Location& location,
 				  const QString& filePath, Tree *tree );
 
-    const FunctionNode *findFunctionNode( const QString& synopsis, Tree *tree );
+    FunctionNode *findFunctionNode( const QString& synopsis, Tree *tree );
 
 protected:
     virtual Set<QString> topicCommands();
-    virtual Node *processTopicCommand( Doc *doc, const QString& command,
+    virtual Node *processTopicCommand( const Doc& doc, const QString& command,
 				       const QString& arg );
 
 private:
     ClassNode *tryClass( const QString& className );
-    void quickifyClass( ClassNode *quickClass, const ClassNode *qtClass,
-			const ClassNode *wrapperClass );
+    void quickifyClass( ClassNode *quickClass, ClassNode *qtClass,
+			ClassNode *wrapperClass );
 
-    void quickifyFunction( ClassNode *quickClass, const ClassNode *qtClass,
-			   const FunctionNode *func,
-			   QMap<QString, int> *blackList );
-    void quickifyProperty( ClassNode *quickClass, const ClassNode *qtClass,
-			   const PropertyNode *property,
+    void quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
+			   FunctionNode *func, QMap<QString, int> *blackList );
+    void quickifyProperty( ClassNode *quickClass, ClassNode *qtClass,
+			   PropertyNode *property,
 			   QMap<QString, int> *blackList );
     void quickifyDoc( Node *quickNode, const Doc& qtDoc );
     QString quickifiedDataType( const QString& leftType,

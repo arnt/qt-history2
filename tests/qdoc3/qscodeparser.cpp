@@ -4,12 +4,15 @@
 
 #include <qregexp.h>
 
-#include "messages.h"
 #include "qscodeparser.h"
 #include "tree.h"
 
+#define COMMAND_JUSTLIKEQT          Doc::alias( "justlikeqt" )
 #define COMMAND_QUICKCLASS          Doc::alias( "quickclass" )
 #define COMMAND_QUICKFN             Doc::alias( "quickfn" )
+#define COMMAND_QUICKIFIED          Doc::alias( "quickified" )
+#define COMMAND_QUICKPROPERTY       Doc::alias( "quickproperty" )
+#define COMMAND_REPLACE             Doc::alias( "replace" )
 
 QsCodeParser::QsCodeParser( Tree *cppTree )
     : cppTre( cppTree ), qsTre( 0 )
@@ -39,8 +42,8 @@ void QsCodeParser::parseSourceFile( const Location& location,
     CppCodeParser::parseSourceFile( location, filePath, tree );
 }
 
-const FunctionNode *QsCodeParser::findFunctionNode( const QString& synopsis,
-						    Tree *tree )
+FunctionNode *QsCodeParser::findFunctionNode( const QString& synopsis,
+					      Tree *tree )
 {
     /*
       This is a quick and dirty implementation. It will be rewritten
@@ -51,10 +54,9 @@ const FunctionNode *QsCodeParser::findFunctionNode( const QString& synopsis,
     QRegExp paramRegExp( "\\s*([A-Za-z0-9_]+)(?:\\s+[A-Za-z0-9_]+)?\\s*" );
 
     if ( funcRegExp.exactMatch(synopsis) ) {
-	const ClassNode *classNode =
-		(const ClassNode *) tree->findNode( funcRegExp.cap(1),
-						    Node::Class );
-	if ( classNode == 0 )
+	ClassNode *classe = (ClassNode *) tree->findNode( funcRegExp.cap(1),
+							  Node::Class );
+	if ( classe == 0 )
 	    return 0;
 
 	FunctionNode clone( 0, funcRegExp.cap(2) );
@@ -70,7 +72,7 @@ const FunctionNode *QsCodeParser::findFunctionNode( const QString& synopsis,
 	    }
 	    ++p;
 	}
-	return classNode->findFunctionNode( &clone );
+	return classe->findFunctionNode( &clone );
     } else {
 	return 0;
     }
@@ -79,74 +81,86 @@ const FunctionNode *QsCodeParser::findFunctionNode( const QString& synopsis,
 Set<QString> QsCodeParser::topicCommands()
 {
     return CppCodeParser::topicCommands() << COMMAND_QUICKCLASS
-					  << COMMAND_QUICKFN;
+					  << COMMAND_QUICKFN
+					  << COMMAND_QUICKPROPERTY;
 }
 
-Node *QsCodeParser::processTopicCommand( Doc *doc, const QString& command,
+Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 					 const QString& arg )
 {
-    ClassNode *wrapperNode = 0;
-    ClassNode *qtNode = 0;
+    ClassNode *wrapperClass = 0;
+    ClassNode *qtClass = 0;
 
     if ( command == COMMAND_QUICKCLASS ) {
-	QString qtClass = "Q" + arg;
+	QString qtClassName = "Q" + arg;
 
-	if ( (wrapperNode = tryClass("Quick" + arg + "Interface")) != 0 ) {
-	    if ( (qtNode = tryClass(qtClass)) == 0 ) {
-		Messages::warning( doc->location(),
-				   Qdoc::tr("Cannot find Qt class '%1'"
-					    " corresponding to '%2'")
-				   .arg(qtClass).arg(wrapperNode->name()) );
+	if ( (wrapperClass = tryClass("Quick" + arg + "Interface")) != 0 ) {
+	    if ( (qtClass = tryClass(qtClassName)) == 0 ) {
+		doc.location().warning( tr("Cannot find Qt class '%1'"
+					   " corresponding to '%2'")
+					.arg(qtClassName)
+					.arg(wrapperClass->name()) );
 		return 0;
 	    }
-	} else if ( (wrapperNode = tryClass("Quick" + arg)) != 0 ) {
-	    qtNode = tryClass( qtClass );
-	    if ( qtNode == 0 ) {
-		qtNode = wrapperNode;
-		wrapperNode = 0;
+	} else if ( (wrapperClass = tryClass("Quick" + arg)) != 0 ) {
+	    qtClass = tryClass( qtClassName );
+	    if ( qtClass == 0 ) {
+		qtClass = wrapperClass;
+		wrapperClass = 0;
 	    }
-	} else if ( (wrapperNode = tryClass("Quick" + arg + "Ptr")) != 0 ) {
+	} else if ( (wrapperClass = tryClass("Quick" + arg + "Ptr")) != 0 ) {
 	    QRegExp ptrToQtType( "(Q[A-Za-z0-9_]+)\\s*\\*" );
 	    FunctionNode *ctor =
-		    wrapperNode->findFunctionNode( wrapperNode->name() );
+		    wrapperClass->findFunctionNode( wrapperClass->name() );
 	    if ( ctor != 0 && !ctor->parameters().isEmpty() &&
 		 ptrToQtType.exactMatch(ctor->parameters().first().leftType()) )
-		qtClass = ptrToQtType.cap( 1 );
+		qtClassName = ptrToQtType.cap( 1 );
 
-	    if ( (qtNode = tryClass(qtClass)) == 0 ) {
-		Messages::warning( doc->location(),
-				   Qdoc::tr("Cannot find Qt class '%1'"
-					    " corresponding to '%2'")
-				   .arg(qtClass).arg(wrapperNode->name()) );
+	    if ( (qtClass = tryClass(qtClassName)) == 0 ) {
+		doc.location().warning( tr("Cannot find Qt class '%1'"
+					   " corresponding to '%2'")
+					.arg(qtClassName)
+					.arg(wrapperClass->name()) );
 		return 0;
 	    }
-	} else if ( (wrapperNode = tryClass("Q" + arg + "Ptr")) != 0 ) {
-	    if ( (qtNode = tryClass(qtClass)) == 0 ) {
-		Messages::warning( doc->location(),
-				   Qdoc::tr("Cannot find Qt class '%1'"
-					    " corresponding to '%2'")
-				   .arg(qtClass).arg(wrapperNode->name()) );
+	} else if ( (wrapperClass = tryClass("Q" + arg + "Ptr")) != 0 ) {
+	    if ( (qtClass = tryClass(qtClassName)) == 0 ) {
+		doc.location().warning( tr("Cannot find Qt class '%1'"
+					   " corresponding to '%2'")
+					.arg(qtClassName)
+					.arg(wrapperClass->name()) );
 		return 0;
 	    }
 	} else {
-	    qtNode = tryClass( qtClass );
-	    if ( qtNode == 0 ) {
-		Messages::warning( doc->location(),
-				   Qdoc::tr("Cannot find C++ class"
-					    " corresponding to Qt Script class"
-					    " '%1'")
-				   .arg(arg) );
+	    qtClass = tryClass( qtClassName );
+	    if ( qtClass == 0 ) {
+		doc.location().warning( tr("Cannot find C++ class"
+					   " corresponding to Qt Script class"
+					   " '%1'")
+					.arg(arg) );
 		return 0;
 	    }
 	}
 
-	ClassNode *quickNode = new ClassNode( qsTre->root(), arg );
-	quickifyClass( quickNode, qtNode, wrapperNode );
-	return quickNode;
+	ClassNode *quickClass = new ClassNode( qsTre->root(), arg );
+	quickifyClass( quickClass, qtClass, wrapperClass );
+	quickifyDoc( quickClass, doc );
+	return 0;
     } else if ( command == COMMAND_QUICKFN ) {
-	return (FunctionNode *) findFunctionNode( arg, qsTre );
+	FunctionNode *quickFunc = findFunctionNode( arg, qsTre );
+	quickifyDoc( quickFunc, doc );
+	return 0;
+    } else if ( command == COMMAND_QUICKPROPERTY ) {
+	QStringList path = QStringList::split( ".", arg );
+	PropertyNode *quickProperty =
+		(PropertyNode *) qsTre->findNode( path, Node::Property );
+	if ( quickProperty == 0 )
+	    doc.location().warning( tr("Cannot resolve '%1' specified with"
+				       " '\\%2'")
+				    .arg(arg).arg(command) );
+	return 0;
     } else {
-	return CppCodeParser::processTopicCommand( doc, command, arg );
+	return 0;
     }
 }
 
@@ -155,9 +169,8 @@ ClassNode *QsCodeParser::tryClass( const QString& className )
     return (ClassNode *) cppTre->findNode( className, Node::Class );
 }
 
-void QsCodeParser::quickifyClass( ClassNode *quickClass,
-				  const ClassNode *qtClass,
-				  const ClassNode *wrapperClass )
+void QsCodeParser::quickifyClass( ClassNode *quickClass, ClassNode *qtClass,
+				  ClassNode *wrapperClass )
 {
     QMap<QString, int> blackList;
 
@@ -170,10 +183,10 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass,
 	if ( (*c)->access() == Node::Public &&
 	     (*c)->status() == Node::Commendable ) {
 	    if ( (*c)->type() == Node::Function )  {
-		const FunctionNode *func = (const FunctionNode *) *c;
+		FunctionNode *func = (FunctionNode *) *c;
 		quickifyFunction( quickClass, qtClass, func, &blackList );
 	    } else if ( (*c)->type() == Node::Property ) {
-		const PropertyNode *property = (const PropertyNode *) *c;
+		PropertyNode *property = (PropertyNode *) *c;
 		quickifyProperty( quickClass, qtClass, property, &blackList );
 	    }
 	}
@@ -181,9 +194,8 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass,
     }
 }
 
-void QsCodeParser::quickifyFunction( ClassNode *quickClass,
-				     const ClassNode *qtClass,
-				     const FunctionNode *func,
+void QsCodeParser::quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
+				     FunctionNode *func,
 				     QMap<QString, int> *blackList )
 {
     if ( func->metaness() != FunctionNode::Plain &&
@@ -202,8 +214,8 @@ void QsCodeParser::quickifyFunction( ClassNode *quickClass,
 	}
 
 	if ( func->doc().isEmpty() ) {
-	    if ( func->parent() != (const InnerNode *) qtClass ) {
-		const FunctionNode *qtFunc = qtClass->findFunctionNode( func );
+	    if ( func->parent() != (InnerNode *) qtClass ) {
+		FunctionNode *qtFunc = qtClass->findFunctionNode( func );
 		if ( qtFunc != 0 && !qtFunc->doc().isEmpty() )
 		    quickifyDoc( quickFunc, qtFunc->doc() );
 	    }
@@ -214,8 +226,8 @@ void QsCodeParser::quickifyFunction( ClassNode *quickClass,
 }
 
 void QsCodeParser::quickifyProperty( ClassNode *quickClass,
-				     const ClassNode * /* qtClass */,
-				     const PropertyNode *property,
+				     ClassNode * /* qtClass */,
+				     PropertyNode *property,
 				     QMap<QString, int> *blackList )
 {
     PropertyNode *quickProperty =
@@ -238,7 +250,7 @@ void QsCodeParser::quickifyProperty( ClassNode *quickClass,
 
 void QsCodeParser::quickifyDoc( Node *quickNode, const Doc& qtDoc )
 {
-    quickNode->setDoc( qtDoc );
+    quickNode->setDoc( qtDoc, TRUE );
 }
 
 QString QsCodeParser::quickifiedDataType( const QString& leftType,

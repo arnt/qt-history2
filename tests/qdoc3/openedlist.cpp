@@ -5,7 +5,6 @@
 #include <qregexp.h>
 
 #include "atom.h"
-#include "messages.h"
 #include "openedlist.h"
 
 static const char roman[] = "m\2d\5c\2l\5x\2v\5i";
@@ -34,8 +33,7 @@ OpenedList::OpenedList( const Location& location, const QString& hint )
 	pref = hintSyntax.cap( 1 );
 	suff = hintSyntax.cap( 3 );
     } else if ( !hint.isEmpty() ) {
-	Messages::warning( location,
-			   Qdoc::tr("Unrecognized list style '%1'").arg(hint) );
+	location.warning( tr("Unrecognized list style '%1'").arg(hint) );
     }
     nex = ini - 1;
 }

@@ -3,7 +3,6 @@
 */
 
 #include "codeparser.h"
-#include "messages.h"
 #include "node.h"
 
 #define COMMAND_DEPRECATED          Doc::alias( "deprecated" )
@@ -107,8 +106,6 @@ void CodeParser::processCommonMetaCommand( const Location& location,
     }
 
     if ( noNode )
-	Messages::warning( location,
-			   Qdoc::tr("Cannot use '\\%1' in stand-alone"
-				    " documentation")
-			   .arg(command) );
+	location.warning( tr("Cannot use '\\%1' in stand-alone documentation")
+			  .arg(command) );
 }

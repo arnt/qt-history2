@@ -13,12 +13,10 @@ HEADERS += atom.h \
            location.h \
 	   loutgenerator.h \
 	   mangenerator.h \
-           messages.h \
            node.h \
            openedlist.h \
 	   pagegenerator.h \
 	   plaincodemarker.h \
-           qdoc.h \
 	   qscodemarker.h \
 	   qscodeparser.h \
            quoter.h \
@@ -27,6 +25,7 @@ HEADERS += atom.h \
 	   sgmlgenerator.h \
 	   text.h \
 	   tokenizer.h \
+	   tr.h \
 	   tree.h
 SOURCES += atom.cpp \
 	   bookgenerator.cpp \
@@ -43,7 +42,6 @@ SOURCES += atom.cpp \
 	   loutgenerator.cpp \
 	   mangenerator.cpp \
            main.cpp \
-           messages.cpp \
            node.cpp \
            openedlist.cpp \
 	   pagegenerator.cpp \

@@ -9,10 +9,10 @@
 #include <qtextstream.h>
 
 #include "generator.h"
+#include "location.h"
 
 class ClassNode;
 class InnerNode;
-class Location;
 class NamespaceNode;
 
 class PageGenerator : public Generator

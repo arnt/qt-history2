@@ -4,7 +4,6 @@
 
 #include "codemarker.h"
 #include "htmlgenerator.h"
-#include "messages.h"
 #include "node.h"
 #include "separator.h"
 #include "tree.h"

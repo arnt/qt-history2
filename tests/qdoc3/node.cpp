@@ -2,7 +2,6 @@
   node.cpp
 */
 
-#include "messages.h"
 #include "node.h"
 
 Node::~Node()
@@ -11,13 +10,11 @@ Node::~Node()
 	par->removeChild( this );
 }
 
-void Node::setDoc( const Doc& doc )
+void Node::setDoc( const Doc& doc, bool replace )
 {
-    if ( !d.isEmpty() ) {
-	Messages::warning( doc.location(),
-			   Qdoc::tr("Overrides a previous doc") );
-	Messages::warning( d.location(),
-			   Qdoc::tr("(The previous doc is here)") );
+    if ( !d.isEmpty() && !replace ) {
+	doc.location().warning( tr("Overrides a previous doc") );
+	d.location().warning( tr("(The previous doc is here)") );
     }
     d = doc;
 }

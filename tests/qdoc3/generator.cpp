@@ -8,7 +8,6 @@
 #include "config.h"
 #include "doc.h"
 #include "generator.h"
-#include "messages.h"
 #include "node.h"
 #include "separator.h"
 
@@ -69,21 +68,20 @@ void Generator::initialize( const Config& config )
 {
     outDir = config.getString( CONFIG_OUTPUTDIR );
     if ( outDir.isEmpty() )
-	Messages::fatal( config.lastLocation(),
-			 Qdoc::tr("No output directory specified in"
-				  " configuration file") );
+	config.lastLocation().fatal( tr("No output directory specified in"
+					" configuration file") );
 
     QDir dirInfo;
     if ( dirInfo.exists(outDir) ) {
 	if ( !removeDirContents(outDir) )
-	    Messages::error( config.lastLocation(),
-			     Qdoc::tr("Cannot empty output directory '%1'")
-			     .arg(outDir) );
+	    config.lastLocation().error( tr("Cannot empty output directory"
+					    " '%1'")
+					 .arg(outDir) );
     } else {
 	if ( !dirInfo.mkdir(outDir) )
-	    Messages::fatal( config.lastLocation(),
-			     Qdoc::tr("Cannot create output directory '%1'")
-			     .arg(outDir) );
+	    config.lastLocation().fatal( tr("Cannot create output directory"
+					    " '%1'")
+					 .arg(outDir) );
     }
 
     QValueList<Generator *>::ConstIterator g = generators.begin();
@@ -335,7 +333,7 @@ Text Generator::sectionHeading( const Atom *sectionLeft )
 
 void Generator::unknownAtom( const Atom *atom )
 {
-    Messages::internalError( Qdoc::tr("Unknown atom type '%1' in %2 generator")
+    Location::internalError( tr("Unknown atom type '%1' in %2 generator")
 			     .arg(atom->typeString()).arg(format()) );
 }
 

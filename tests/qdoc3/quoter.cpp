@@ -4,7 +4,6 @@
 
 #include <qregexp.h>
 
-#include "messages.h"
 #include "quoter.h"
 
 Quoter::Quoter()
@@ -72,9 +71,7 @@ QString Quoter::quoteLine( const Location& docLocation, const QString& command,
     }
 
     if ( pattern.isEmpty() ) {
-	Messages::warning( docLocation,
-			   Qdoc::tr("Missing pattern after '\\%1'")
-			   .arg(command) );
+	docLocation.warning( tr("Missing pattern after '\\%1'").arg(command) );
 	return "";
     }
 
@@ -82,11 +79,9 @@ QString Quoter::quoteLine( const Location& docLocation, const QString& command,
 	return getLine();
     } else {
 	if ( !silent ) {
-	    Messages::warning( docLocation,
-			       Qdoc::tr("Command '\\%1' failed").arg(command) );
-	    Messages::warning( codeLocation,
-			       Qdoc::tr("Pattern '%1' didn't match here")
-			       .arg(pattern) );
+	    docLocation.warning( tr("Command '\\%1' failed").arg(command) );
+	    docLocation.warning( tr("Pattern '%1' didn't match here")
+				 .arg(pattern) );
 	    silent = TRUE;
 	}
 	return "";
@@ -145,15 +140,13 @@ bool Quoter::match( const Location& docLocation, const QString& pattern,
 	 pattern.length() > 2 ) {
 	QString t = pattern.mid( 1, pattern.length() - 2 );
 	if ( t.contains("(?:^|[^/])/") > 0 )
-	    Messages::warning( docLocation,
-			       Qdoc::tr("Unescaped '/' in regular expression"
-					" '%1'").arg(t) );
+	    docLocation.warning( tr("Unescaped '/' in regular expression '%1'")
+				 .arg(t) );
 	t.replace( QRegExp("\\\\/"), "/" );
 	QRegExp rx( t );
 	if ( !silent && !rx.isValid() ) {
-	    Messages::warning( docLocation,
-			       Qdoc::tr("Invalid regular expression '%1'")
-			       .arg(t) );
+	    docLocation.warning( tr("Invalid regular expression '%1'")
+				 .arg(t) );
 	    silent = TRUE;
 	}
 	return str.find( rx ) != -1 || trimWhiteSpace( str ).find( rx ) != -1;
@@ -166,14 +159,11 @@ void Quoter::failedAtEnd( const Location& docLocation, const QString& command )
 {
     if ( !silent ) {
 	if ( codeLocation.pathAndFileName().isEmpty() ) {
-	    Messages::warning( docLocation,
-			       Qdoc::tr("Unexpected '\\%1'").arg(command) );
+	    docLocation.warning( tr("Unexpected '\\%1'").arg(command) );
 	} else {
-	    Messages::warning( docLocation,
-			       Qdoc::tr("Command '\\%1' failed at end of file"
-					    " '%2'")
-			      .arg(command)
-			      .arg(codeLocation.pathAndFileName()) );
+	    docLocation.warning( tr("Command '\\%1' failed at end of file '%2'")
+				 .arg(command)
+				 .arg(codeLocation.pathAndFileName()) );
 	}
 	silent = TRUE;
     }

@@ -4,7 +4,6 @@
 
 #include <qfile.h>
 
-#include "messages.h"
 #include "pagegenerator.h"
 #include "tree.h"
 
@@ -33,9 +32,8 @@ void PageGenerator::beginSubPage( const Location& location,
 {
     QFile *outFile = new QFile( outputDir() + "/" + fileName );
     if ( !outFile->open(IO_WriteOnly) )
-	Messages::fatal( location,
-			 Qdoc::tr("Cannot open output file '%1'")
-			 .arg(outFile->name()) );
+	location.fatal( tr("Cannot open output file '%1'")
+			.arg(outFile->name()) );
     outStreamStack.push( new QTextStream(outFile) );
 }
 

@@ -7,7 +7,6 @@
 #include <qregexp.h>
 
 #include "config.h"
-#include "messages.h"
 
 /*! \class Config
 
@@ -185,12 +184,11 @@ void Config::load( Location location, const QString& fileName )
     static int depth = 0;
 
     if ( depth++ > 16 )
-	Messages::fatal( location, Qdoc::tr("Too many nested includes") );
+	location.fatal( tr("Too many nested includes") );
 
     QFile fin( fileName );
     if ( !fin.open(IO_ReadOnly) )
-	Messages::fatal( location,
-			 Qdoc::tr("Cannot open file '%1'").arg(fileName) );
+	location.fatal( tr("Cannot open file '%1'").arg(fileName) );
 
     QString text = fin.readAll();
     text += "\n\n";
@@ -222,7 +220,7 @@ void Config::load( Location location, const QString& fileName )
 		      text[i] == '.' );
 
 	    if ( !keySyntax.exactMatch(key) )
-		Messages::fatal( location, Qdoc::tr("Bad key syntax") );
+		location.fatal( tr("Bad key syntax") );
 
 	    SKIP_SPACES();
 
@@ -230,7 +228,7 @@ void Config::load( Location location, const QString& fileName )
 		QString includeFile;
 
 		if ( text[i] != '(' )
-		    Messages::fatal( location, Qdoc::tr("Bad include syntax") );
+		    location.fatal( tr("Bad include syntax") );
 		ADVANCE();
 		SKIP_SPACES();
 		while ( !text[i].isSpace() && text[i] != '#' ) {
@@ -239,11 +237,11 @@ void Config::load( Location location, const QString& fileName )
 		}
 		SKIP_SPACES();
 		if ( text[i] != ')' )
-		    Messages::fatal( location, Qdoc::tr("Bad include syntax") );
+		    location.fatal( tr("Bad include syntax") );
 		ADVANCE();
 		SKIP_SPACES();
 		if ( text[i] != '#' && text[i] != '\n' )
-		    Messages::fatal( location, Qdoc::tr("Trailing garbage") );
+		    location.fatal( tr("Trailing garbage") );
 
 		load( location,
 		      QFileInfo(QFileInfo(fileName).dir(), includeFile)
@@ -254,8 +252,7 @@ void Config::load( Location location, const QString& fileName )
 		    ADVANCE();
 		}
 		if ( text[i] != '=' )
-		    Messages::fatal( location, Qdoc::tr("Expected '=' or '+='"
-							" after key") );
+		    location.fatal( tr("Expected '=' or '+=' after key") );
 		ADVANCE();
 		SKIP_SPACES();
 		value.append( "" );
@@ -291,25 +288,22 @@ void Config::load( Location location, const QString& fileName )
 			if ( !var.isEmpty() ) {
 			    char *val = getenv( var.latin1() );
 			    if ( val == 0 ) {
-				Messages::fatal( location,
-						 Qdoc::tr("Environment variable"
-							  " '%1' undefined")
-						 .arg(var) );
+				location.fatal( tr("Environment variable '%1'"
+						   " undefined")
+						.arg(var) );
 			    } else {
 				value.last().append( QString(val) );
 			    }
 			}
 		    } else {
 			if ( !inQuote && text[i] == '=' )
-			    Messages::fatal( location,
-					     Qdoc::tr("Unexpected '='") );
+			    location.fatal( tr("Unexpected '='") );
 			value.last().append( text[i] );
 			ADVANCE();
 		    }
 		}
 		if ( inQuote )
-		    Messages::fatal( location,
-				     Qdoc::tr("Unterminated string") );
+		    location.fatal( tr("Unterminated string") );
 		value.remove( "" );
 
 		if ( plus ) {
@@ -325,7 +319,7 @@ void Config::load( Location location, const QString& fileName )
 		}
 	    }
 	} else {
-	    Messages::fatal( location, Qdoc::tr("Bad key syntax") );
+	    location.fatal( tr("Bad key syntax") );
 	}
     }
     depth--;
