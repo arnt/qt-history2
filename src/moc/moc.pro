@@ -1,4 +1,3 @@
-TEMPLATE    =	moc.t
 LEXINPUT    =	moc.l
 YACCINPUT   =	moc.y
 INCLUDEPATH =	.;../../include
