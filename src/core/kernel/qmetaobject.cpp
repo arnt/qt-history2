@@ -380,7 +380,7 @@ int QMetaObject::indexOfSignal(const char *signal) const
         m = m->d.superdata;
     }
 #ifndef QT_NO_DEBUG
-    if (i >= 0 && m->d.superdata) {
+    if (i >= 0 && m && m->d.superdata) {
         int conflict = m->d.superdata->indexOfMember(signal);
         if (conflict >= 0)
             qWarning("QMetaObject::indexOfSignal:%s: Conflict with %s::%s",
