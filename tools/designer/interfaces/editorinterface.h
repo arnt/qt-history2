@@ -74,7 +74,9 @@ struct EditorInterface : public QUnknownInterface
     virtual void setContext( QObjectList *toplevels, QObject *this_ ) = 0;
     virtual void setError( int line ) = 0;
     virtual void setStep( int line ) = 0;
+    virtual void setStackFrame( int line ) = 0;
     virtual void clearStep() = 0;
+    virtual void clearStackFrame() = 0;
     virtual void readSettings() = 0;
     virtual void setModified( bool m ) = 0;
     virtual bool isModified() const = 0;

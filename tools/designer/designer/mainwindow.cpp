@@ -470,7 +470,7 @@ QObjectList *MainWindow::runProject()
 			if ( it == qwf_functions->end() )
 			    continue;
 			if ( !piface->check( *it, error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
-			    showSourceLine( it.key(), line[ 0 ] - 1, TRUE );
+			    showSourceLine( it.key(), line[ 0 ] - 1, Error );
 			    oWindow->setErrorMessages( error, line );
 			    piface->release();
 			    QApplication::restoreOverrideCursor();
@@ -482,7 +482,7 @@ QObjectList *MainWindow::runProject()
 			QStringList error;
 			QValueList<int> line;
 			if ( !piface->check( f->text(), error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
-			    showSourceLine( f, line[ 0 ] - 1, TRUE );
+			    showSourceLine( f, line[ 0 ] - 1, Error );
 			    oWindow->setErrorMessages( error, line );
 			    piface->release();
 			    QApplication::restoreOverrideCursor();
@@ -511,6 +511,7 @@ QObjectList *MainWindow::runProject()
 	interpreterPluginManager->queryInterface( lang, &iiface );
 	if ( iiface ) {
 	    iiface->onShowDebugStep( this, SLOT( showDebugStep( QObject *, int ) ) );
+	    iiface->onShowStackFrame( this, SLOT( showStackFrame( QObject *, int ) ) );
 	    iiface->onShowError( this, SLOT( showErrorMessage( QObject *, int, const QString & ) ) );
 	    iiface->onFinish( this, SLOT( finishedRun() ) );
 	}
@@ -2935,7 +2936,14 @@ void MainWindow::showDebugStep( QObject *o, int line )
 	e->clearStep();
     if ( !o || line == -1 )
 	return;
-    showSourceLine( o, line, FALSE );
+    showSourceLine( o, line, Step );
+}
+
+void MainWindow::showStackFrame( QObject *o, int line )
+{
+    if ( !o || line == -1 )
+	return;
+    showSourceLine( o, line, StackFrame );
 }
 
 void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &errorMessage )
@@ -2946,7 +2954,7 @@ void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &err
     QStringList l2;
     l2 << errorMessage;
     oWindow->setErrorMessages( l2, l, TRUE );
-    showSourceLine( o, errorLine, TRUE );
+    showSourceLine( o, errorLine, Error );
 }
 
 void MainWindow::finishedRun()
@@ -2958,6 +2966,7 @@ void MainWindow::finishedRun()
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	if ( e->project() == currentProject )
 	    e->editorInterface()->setMode( EditorInterface::Editing );
+	e->clearStackFrame();
     }
 }
 
@@ -2973,7 +2982,7 @@ void MainWindow::enableAll( bool enable )
     delete l;
 }
 
-void MainWindow::showSourceLine( QObject *o, int line, bool error )
+void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 {
     QString lang = currentProject->language();
     QWidgetList windows = workspace->windowList();
@@ -2998,10 +3007,17 @@ void MainWindow::showSourceLine( QObject *o, int line, bool error )
 		continue;
 	    if ( QString( fw->name() ) == QString( o->name() ) ) {
 		if ( se ) {
-		    if ( error )
+		    switch ( lm ) {
+		    case Error:
 			se->editorInterface()->setError( line );
-		    else
+			break;
+		    case Step:
 			se->editorInterface()->setStep( line );
+			break;
+		    case StackFrame:
+			se->editorInterface()->setStackFrame( line );
+			break;
+		    }
 		    return;
 		} else {
 		    fw->setFocus();
@@ -3009,10 +3025,17 @@ void MainWindow::showSourceLine( QObject *o, int line, bool error )
 		    qApp->processEvents();
 		    se = editSource( (bool)FALSE );
 		    if ( se ) {
-			if ( error )
+			switch ( lm ) {
+			case Error:
 			    se->editorInterface()->setError( line );
-			else
+			    break;
+			case Step:
 			    se->editorInterface()->setStep( line );
+			    break;
+			case StackFrame:
+			    se->editorInterface()->setStackFrame( line );
+			    break;
+			}
 			return;
 		    }
 		}
@@ -3020,10 +3043,17 @@ void MainWindow::showSourceLine( QObject *o, int line, bool error )
 	} else if ( se ) {
 	    if ( o != sf )
 		continue;
-	    if ( error )
+	    switch ( lm ) {
+	    case Error:
 		se->editorInterface()->setError( line );
-	    else
+		break;
+	    case Step:
 		se->editorInterface()->setStep( line );
+		break;
+	    case StackFrame:
+		se->editorInterface()->setStackFrame( line );
+		break;
+	    }
 	    return;
 	}
     }
@@ -3034,10 +3064,17 @@ void MainWindow::showSourceLine( QObject *o, int line, bool error )
 	    if ( f == o ) {
 		SourceEditor *se = editSource( f );
 		if ( se ) {
-		    if ( error )
+		    switch ( lm ) {
+		    case Error:
 			se->editorInterface()->setError( line );
-		    else
+			break;
+		    case Step:
 			se->editorInterface()->setStep( line );
+			break;
+		    case StackFrame:
+			se->editorInterface()->setStackFrame( line );
+			break;
+		    }
 		}
 		return;
 	    }
@@ -3049,10 +3086,17 @@ void MainWindow::showSourceLine( QObject *o, int line, bool error )
     qApp->processEvents(); // give all views the chance to get the formwindow
     SourceEditor *se = editSource();
     if ( se ) {
-	if ( error )
+	switch ( lm ) {
+	case Error:
 	    se->editorInterface()->setError( line );
-	else
+	    break;
+	case Step:
 	    se->editorInterface()->setStep( line );
+	    break;
+	case StackFrame:
+	    se->editorInterface()->setStackFrame( line );
+	    break;
+	}
     }
     mblockNewForms = FALSE;
 }

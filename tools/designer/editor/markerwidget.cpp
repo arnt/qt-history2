@@ -247,9 +247,31 @@ static const char * step_xpm[] = {
 "                  6.7.          ",
 "                                "};
 
+static const char *stack_frame_xpm[]={
+"16 16 2 1",
+". c None",
+"# c #00c000",
+"................",
+".###............",
+".#####..........",
+".#######........",
+".#########......",
+".###########....",
+".#############..",
+".##############.",
+".##############.",
+".#############..",
+".###########....",
+".#########......",
+".#######........",
+".#####..........",
+".###............",
+"................"};
+
 static QPixmap *errorPixmap = 0;
 static QPixmap *breakpointPixmap = 0;
 static QPixmap *stepPixmap = 0;
+static QPixmap *stackFrame = 0;
 
 MarkerWidget::MarkerWidget( ViewManager *parent )
     : QWidget( parent, 0, WRepaintNoErase | WStaticContents | WResizeNoErase ), viewManager( parent )
@@ -258,6 +280,7 @@ MarkerWidget::MarkerWidget( ViewManager *parent )
 	errorPixmap = new QPixmap( error_xpm );
 	breakpointPixmap = new QPixmap( breakpoint_xpm );
 	stepPixmap = new QPixmap( step_xpm );
+	stackFrame = new QPixmap( stack_frame_xpm );
     }
 }
 
@@ -329,8 +352,12 @@ void MarkerWidget::paintEvent( QPaintEvent * )
 	    }
 	    if ( paragData->step )
 		painter.drawPixmap( 3, p->rect().y() +
-				    ( p->rect().height() - breakpointPixmap->height() ) / 2 -
+				    ( p->rect().height() - stepPixmap->height() ) / 2 -
 				    yOffset, *stepPixmap );
+	    if ( paragData->stackFrame )
+		painter.drawPixmap( 3, p->rect().y() +
+				    ( p->rect().height() - stackFrame->height() ) / 2 -
+				    yOffset, *stackFrame );
 	}
 	p = p->next();
     }

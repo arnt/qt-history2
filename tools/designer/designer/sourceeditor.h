@@ -69,6 +69,7 @@ public:
     int numLines() const;
     void saveBreakPoints();
     void clearStep();
+    void clearStackFrame();
     void resetBreakPoints();
 
     QString text() const;

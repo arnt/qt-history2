@@ -269,6 +269,11 @@ void SourceEditor::clearStep()
     iFace->clearStep();
 }
 
+void SourceEditor::clearStackFrame()
+{
+    iFace->clearStackFrame();
+}
+
 void SourceEditor::resetBreakPoints()
 {
     iFace->setBreakPoints( MetaDataBase::breakPoints( formWindow ) );

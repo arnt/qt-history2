@@ -52,6 +52,7 @@ struct InterpreterInterface : public QUnknownInterface
 
     virtual void onShowDebugStep( QObject *obj, const char *slot ) = 0;
     virtual void onShowError( QObject *obj, const char *slot ) = 0;
+    virtual void onShowStackFrame( QObject *obj, const char *slot ) = 0;
     virtual void onFinish( QObject *obj, const char *slot ) = 0;
 };
 

@@ -45,7 +45,9 @@ public:
 
     void setError( int line );
     void setStep( int line );
+    void setStackFrame( int line );
     void clearStep();
+    void clearStackFrame();
     void setBreakPoints( const QValueList<int> &l );
     QValueList<int> breakPoints() const;
 

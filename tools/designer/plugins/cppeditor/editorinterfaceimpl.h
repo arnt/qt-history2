@@ -71,6 +71,8 @@ public:
     void breakPoints( QValueList<int> & ) const {}
     void setBreakPoints( const QValueList<int> & ) {}
     void onBreakPointChange( QObject *receiver, const char *slot );
+    void clearStackFrame() {}
+    void setStackFrame( int ) {}
 
 protected:
     bool eventFilter( QObject*, QEvent* );

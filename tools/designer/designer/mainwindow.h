@@ -161,6 +161,7 @@ public slots:
     void updateProperties( QObject *w );
     void showDialogHelp();
     void showDebugStep( QObject *o, int line );
+    void showStackFrame( QObject *o, int line );
     void showErrorMessage( QObject *o, int line, const QString &errorMessage );
     void finishedRun();
     void breakPointsChanged();
@@ -306,7 +307,8 @@ private:
     void openProject( const QString &fn );
 
     void addRecentlyOpened( const QString &fn, QStringList &lst );
-    void showSourceLine( QObject *o, int line, bool error );
+    enum LineMode { Error, Step, StackFrame };
+    void showSourceLine( QObject *o, int line, LineMode lm );
     SourceEditor *editSource( bool resetSame );
     QWidget *findRealForm( QWidget *w );
 

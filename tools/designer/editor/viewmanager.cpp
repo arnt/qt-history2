@@ -147,6 +147,33 @@ void ViewManager::clearStep()
     markerWidget->doRepaint();
 }
 
+void ViewManager::setStackFrame( int line )
+{
+    QTextParag *p = ( (Editor*)curView )->document()->paragAt( line );
+    if ( p ) {
+	( (Editor*)curView )->makeFunctionVisible( p );
+	ParagData *paragData = (ParagData*)p->extraData();
+	if ( !paragData )
+	    paragData = new ParagData;
+ 	paragData->stackFrame = TRUE;
+	p->setExtraData( paragData );
+	markerWidget->doRepaint();
+	( (Editor*)curView )->setCursorPosition( line, 0 );
+	( (Editor*)curView )->viewport()->setFocus();
+    }
+}
+
+void ViewManager::clearStackFrame()
+{
+    QTextParag *p = ( (Editor*)curView )->document()->firstParag();
+    while ( p ) {
+	if ( p->extraData() )
+	    ( (ParagData*)p->extraData() )->stackFrame = FALSE;
+	p = p->next();
+    }
+    markerWidget->doRepaint();
+}
+
 void ViewManager::resizeEvent( QResizeEvent *e )
 {
     QWidget::resizeEvent( e );
