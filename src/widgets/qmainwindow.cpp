@@ -2095,8 +2095,12 @@ void QMainWindow::setDockMenuEnabled( bool b )
 
     This function is called internally when necessary, e.g. when the
     user right clicks a dock area (providing isDockMenuEnabled()
-    returns TRUE). You can reimplement this function if you wish to
-    customize the behaviour.
+    returns TRUE).
+\omit
+### Qt 4.0
+    You can reimplement this function if you wish to customize the
+    behaviour.
+\endomit
 
     The menu items representing the toolbars and dock windows are
     checkable. The visible dock windows are checked and the hidden
@@ -2138,9 +2142,11 @@ QPopupMenu *QMainWindow::createDockWindowMenu( DockWindows dockWindows ) const
     dock menu of the mainwindow. The default implementation
     initializes the menu with all dock windows and toolbars in this
     slot.
-
+\omit
+### Qt 4.0
     If you want to do small adjustments to the menu, you can do it in
     this slot; or you can reimplement createDockWindowMenu().
+\endomit
 */
 
 void QMainWindow::menuAboutToShow()
@@ -2212,10 +2218,16 @@ void QMainWindow::menuAboutToShow()
     and possibly customized. Returns TRUE if the menu is shown;
     otherwise returns FALSE.
 
+    If you want a custom menu, reimplement this function. You can
+    create the menu from scratch or call createDockWindowMenu() and
+    modify the result.
+\omit
+### Qt 4.0
     The default implementation uses the dock window menu which gets
     created by createDockWindowMenu(). You can reimplement
     createDockWindowMenu() if you want to use your own specialized
     popup menu.
+\endomit
 */
 
 bool QMainWindow::showDockMenu( const QPoint &globalPos )
