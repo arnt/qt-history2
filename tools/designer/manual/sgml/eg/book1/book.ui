@@ -8,63 +8,62 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>766</width>
-            <height>376</height>
+            <width>588</width>
+            <height>474</height>
         </rect>
     </property>
     <property name="caption">
         <string>Book</string>
     </property>
-    <widget class="QSqlTable">
-        <column>
-            <property name="text">
-                <string>Title</string>
-            </property>
-            <property name="field">
-                <string>title</string>
-            </property>
-        </column>
-        <column>
-            <property name="text">
-                <string>AuthorID</string>
-            </property>
-            <property name="field">
-                <string>authorid</string>
-            </property>
-        </column>
-        <column>
-            <property name="text">
-                <string>Price</string>
-            </property>
-            <property name="field">
-                <string>price</string>
-            </property>
-        </column>
-        <column>
-            <property name="text">
-                <string>Format</string>
-            </property>
-            <property name="field">
-                <string>format</string>
-            </property>
-        </column>
+    <vbox>
         <property name="name">
-            <cstring>BookSqlTable</cstring>
+            <cstring>unnamed</cstring>
         </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>10</y>
-                <width>750</width>
-                <height>350</height>
-            </rect>
+        <property name="margin">
+            <number>11</number>
         </property>
-        <property name="database" stdset="0">
-            <stringlist>
-                <string>(default)</string>
-                <string>book_view</string>
-            </stringlist>
+        <property name="spacing">
+            <number>6</number>
         </property>
-    </widget>
+        <widget class="QDataTable">
+            <column>
+                <property name="text">
+                    <string>Forename</string>
+                </property>
+                <property name="field">
+                    <string>forename</string>
+                </property>
+            </column>
+            <column>
+                <property name="text">
+                    <string>Surname</string>
+                </property>
+                <property name="field">
+                    <string>surname</string>
+                </property>
+            </column>
+            <property name="name">
+                <cstring>DataTable1</cstring>
+            </property>
+            <property name="confirmDelete">
+                <bool>true</bool>
+            </property>
+            <property name="sort">
+                <stringlist>
+                    <string>surname ASC</string>
+                    <string>forename ASC</string>
+                </stringlist>
+            </property>
+            <property name="database" stdset="0">
+                <stringlist>
+                    <string>(default)</string>
+                    <string>author</string>
+                </stringlist>
+            </property>
+        </widget>
+    </vbox>
 </widget>
+<connections>
+    <slot access="protected" language="C++">init()</slot>
+</connections>
 </UI>
