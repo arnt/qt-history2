@@ -47,8 +47,7 @@ main(int argc, char **argv)
                     error = "Missing prefix path";
                     break;
                 }
-                prefix = argv[++i];
-                prefix = prefix.replace('\\', '/');
+                prefix = QDir::cleanPath(argv[++i]);
                 if(prefix.isEmpty() || prefix[0] != '/') 
                     error = "Prefix must start with a /";
             } else if(opt == "compress") {
