@@ -2433,12 +2433,10 @@ HRESULT WINAPI QAxServerBase::Unfreeze( DWORD dwFreeze )
 */
 HRESULT WINAPI QAxServerBase::SetAdvise( DWORD /*aspects*/, DWORD /*advf*/, IAdviseSink *pAdvSink )
 {
-    if ( !pAdvSink && m_spAdviseSink )
-	m_spAdviseSink->Release();
+    if ( m_spAdviseSink ) m_spAdviseSink->Release();
 
     m_spAdviseSink = pAdvSink;
-    if ( m_spAdviseSink )
-	m_spAdviseSink->AddRef();
+    if ( m_spAdviseSink ) m_spAdviseSink->AddRef();
     return S_OK;
 }
 
@@ -2933,10 +2931,8 @@ HRESULT WINAPI QAxServerBase::Advise( IAdviseSink* pAdvSink, DWORD* pdwConnectio
 */
 HRESULT WINAPI QAxServerBase::Close( DWORD dwSaveOption )
 {
-    if ( m_hWndCD ) {
-	if ( m_spClientSite )
-	    m_spClientSite->OnShowWindow( FALSE );
-    }
+    if ( dwSaveOption != OLECLOSE_NOSAVE && m_spClientSite )
+	m_spClientSite->SaveObject();
     if ( isInPlaceActive ) {
 	HRESULT hr = InPlaceDeactivate();
 	if (FAILED(hr))
@@ -2946,12 +2942,15 @@ HRESULT WINAPI QAxServerBase::Close( DWORD dwSaveOption )
 	if ( IsWindow(m_hWndCD) )
 	    DestroyWindow(m_hWndCD);
 	m_hWndCD = 0;
+	if ( m_spClientSite )
+	    m_spClientSite->OnShowWindow( FALSE );
     }
 
     if ( m_spInPlaceSite ) m_spInPlaceSite->Release();
     m_spInPlaceSite = 0;
-    if ( m_spAdviseSink ) m_spAdviseSink->Release();
-    m_spAdviseSink = 0;
+
+    if ( m_spAdviseSink )
+	m_spAdviseSink->OnClose();
     return S_OK;
 }
 
@@ -3215,12 +3214,10 @@ HRESULT WINAPI QAxServerBase::IsUpToDate()
 */
 HRESULT WINAPI QAxServerBase::SetClientSite( IOleClientSite* pClientSite )
 {
-    if ( !pClientSite && m_spClientSite )
-	m_spClientSite->Release();
+    if ( m_spClientSite ) m_spClientSite->Release();
 
     m_spClientSite = pClientSite;
-    if ( m_spClientSite )
-	m_spClientSite->AddRef();
+    if ( m_spClientSite ) m_spClientSite->AddRef();
     return S_OK;
 }
 
