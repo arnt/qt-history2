@@ -45,6 +45,7 @@ public:
     virtual void setPixmap(const QString& abs_name, const QPixmap& pm);
     virtual void setData(const QString& abs_name, QMimeSource* data);
     virtual void setFilePath(const QStringList&);
+    inline  void setFilePath(const QString &path) { setFilePath(QStringList(path)); }
     virtual QStringList filePath() const;
     void addFilePath(const QString&);
     virtual void setExtensionType(const QString& ext, const char* mimetype);
