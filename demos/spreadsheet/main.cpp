@@ -211,7 +211,7 @@ private:
 SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     : QMainWindow(parent)
 {
-    toolBar = new QToolBar(this);
+    addToolBar(toolBar = new QToolBar());
 
     sumAction = toolBar->addAction(QPixmap(":/images/sum.xpm"), tr("Sum"));
     sumAction->setShortcut(Qt::CTRL|Qt::Key_S);
