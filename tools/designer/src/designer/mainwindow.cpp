@@ -446,8 +446,10 @@ void MainWindow::setupMenuBar()
                    );
     act->setShortcutContext(Qt::ShortcutOnApplication);
     menu->addSeparator();
+#if 0  // Need special help page first.
     act = menu->addAction(tr("What's New in Designer?"), this, SLOT(showTheNewStuff()));
     act->setShortcutContext(Qt::ShortcutOnApplication);
+#endif
 #ifndef Q_WS_MAC // No need to show this on the mac since it is merged away.
     menu->addSeparator();
 #endif
@@ -1045,7 +1047,9 @@ void MainWindow::onActivated(QWidget *w)
 
 void MainWindow::showDesignerHelp()
 {
-    QMessageBox::warning(0, tr("No Help For You"), tr("Please write a manual for me."));
+    QMessageBox::warning(0, tr("Designer Help"), tr("The Qt Designer Documentation is located in:"
+                "\n$QTDIR/doc/html/designer-manual.html"
+                "\n\nAutomation for showing this is under way."));
 }
 
 void MainWindow::showTheNewStuff()
