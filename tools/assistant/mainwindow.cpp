@@ -33,6 +33,8 @@
 #include <qpaintdevicemetrics.h>
 #include <qfontdatabase.h>
 #include <qwhatsthis.h>
+#include <qtextdocumentfragment.h>
+#include <qabstracttextdocumentlayout.h>
 
 #include <qprinter.h>
 #include <qprintdialog.h>
@@ -310,12 +312,12 @@ void MainWindow::on_actionGoHome_triggered()
 
 void MainWindow::on_actionFilePrint_triggered()
 {
-    /* ### FIXME (Simon)
-    QPrinter printer(QPrinter::HighResolution);
+    // ### change back to highres, when it works
+    QPrinter printer(QPrinter::ScreenResolution);
     printer.setFullPage(true);
 
-    QPrintDialog dlg(&printer, this);
-    if (dlg.exec()) {
+    QPrintDialog *dlg = new QPrintDialog(&printer, this);
+    if (dlg->exec() == QDialog::Accepted) {
         QPainter p;
         if (!p.begin(&printer))
             return;
@@ -324,29 +326,41 @@ void MainWindow::on_actionFilePrint_triggered()
         qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
 
         QPaintDeviceMetrics metrics(p.device());
+        const int dpiy = metrics.logicalDpiY();
+        const int margin = int((2/2.54)*dpiy); // 2 cm margins
+        QRect body(margin, margin, metrics.width() - 2*margin, metrics.height() - 2*margin);
         QTextBrowser *browser = tabs->currentBrowser();
-        int dpiy = metrics.logicalDpiY();
-        int margin = (int) ((2/2.54)*dpiy);
-        QRect body(margin,
-                    margin,
-                    metrics.width() - 2 * margin,
-                    metrics.height() - 2 * margin);
-        QSimpleRichText richText(browser->text(), browser->QWidget::font(), browser->context(),
-                                  browser->styleSheet(), browser->mimeSourceFactory(),
-                                  body.height(), Qt::black, false);
-        richText.setWidth(&p, body.width());
-        QRect view(body);
+        QFont font(browser->font());
+
+        QTextDocument doc;
+        QTextCursor(&doc).insertFragment(QTextDocumentFragment(browser->document()));
+        QAbstractTextDocumentLayout *layout = doc.documentLayout();
+        layout->setDefaultFont(font);
+        layout->setPageSize(QSize(body.width(), INT_MAX));
+
+        QRect view(0, 0, body.width(), body.height());
+        p.translate(body.left(), body.top());
+
         int page = 1;
         do {
             qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
 
-            richText.draw(&p, body.left(), body.top(), view, palette());
+            QAbstractTextDocumentLayout::PaintContext ctx;
+            ctx.palette = palette();
+            p.setClipRect(view);
+            layout->draw(&p, ctx);
+
+            p.setClipping(false);
+            p.setFont(font);
+            p.drawText(view.right() - p.fontMetrics().width(QString::number(page)),
+                       view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page));
+
             view.moveBy(0, body.height());
             p.translate(0 , -body.height());
-            p.drawText(view.right() - p.fontMetrics().width(QString::number(page)),
-                        view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page));
-            if (view.top() >= richText.height())
+
+            if (view.top() >= layout->sizeUsed().height())
                 break;
+
             printer.newPage();
             page++;
         } while (true);
@@ -354,7 +368,7 @@ void MainWindow::on_actionFilePrint_triggered()
         qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
         qApp->restoreOverrideCursor();
     }
-    */
+    delete dlg;
 }
 
 void MainWindow::updateBookmarkMenu()
