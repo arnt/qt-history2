@@ -482,8 +482,7 @@ bool QLibraryPrivate::isPlugin()
     pluginState = IsNotAPlugin; // be pessimistic
 
     bool warn = true;
-    if ((qt_version > QT_VERSION) || (debug != QLIBRARY_AS_DEBUG) ||
-                ((QT_VERSION & 0xff0000) > (qt_version & 0xff0000))) {
+    if ((qt_version > QT_VERSION) || ((QT_VERSION & 0xff0000) > (qt_version & 0xff0000))) {
         if (warn)
             qWarning("In %s:\n"
                      "  Plugin uses incompatible Qt library (%d.%d.%d) [%s]",
@@ -498,6 +497,8 @@ bool QLibraryPrivate::isPlugin()
                      (const char*) QFile::encodeName(fileName),
                      QT_BUILD_KEY,
                      key.isEmpty() ? "<null>" : (const char *) key);
+    } else if(debug != QLIBRARY_AS_DEBUG) {
+        //don't issue a qWarning since we will hopefully find a non-debug? --Sam
     } else {
         pluginState = IsAPlugin;
     }
