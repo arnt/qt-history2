@@ -635,19 +635,17 @@ void Project::save( bool onlyProjectFile )
     }
 
     remove_multiline_contents( contents, "IMAGES" );
-    if ( !pixCollection->isEmpty() ) {
+     if ( !pixCollection->isEmpty() ) {
 	contents += "IMAGES\t= ";
 	QValueList<PixmapCollection::Pixmap> pixmaps = pixCollection->pixmaps();
 	for ( QValueList<PixmapCollection::Pixmap>::Iterator it = pixmaps.begin();
 	      it != pixmaps.end(); ++it ) {
-	    contents += makeRelative( (*it).absname ) +
-	       (++it != pixmaps.end() ? " \\\n\t" : "");
-	    --it;
+		  contents += makeRelative( (*it).absname );
+		  contents += ++it != pixmaps.end() ? " \\\n\t" : "";
+		  --it;
 	}
-
-	contents += "\n";
     }
-
+    
     remove_contents( contents, "{SOURCES+=" ); // ### compatibility with early 3.0 betas
     remove_contents( contents, "DBFILE" );
     remove_contents( contents, "LANGUAGE" );
