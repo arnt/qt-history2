@@ -350,6 +350,7 @@ public:
 
     inline QDrag::DropActions possibleActions() const { return act; }
     inline QDrag::DropAction proposedAction() const { return default_action; }
+    inline void acceptProposedAction() { drop_action = default_action; accept(); }
 
     inline QDrag::DropAction dropAction() const { return drop_action; }
     void setDropAction(QDrag::DropAction action);
