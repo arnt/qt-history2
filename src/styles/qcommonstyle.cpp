@@ -316,17 +316,6 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	qDrawShadePanel(p, r, cg, FALSE, lw, &cg.brush(QColorGroup::Button));
 	break; }
 
-    case PO_MenuBarItem: {
-	QMenuItem *mi;
-
-	if ( data ) {
-	    mi = (QMenuItem *) data[0];
-	    drawItem( p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, cg,
-		      mi->isEnabled(), mi->pixmap(), mi->text(), -1,
-		      &cg.buttonText() );
-	}
-	break; }
-
     case PO_SizeGrip: {
 	p->save();
 
@@ -465,251 +454,271 @@ void QCommonStyle::drawControl( ControlElement element,
 	flags |= PStyle_Enabled;
 
     switch (element) {
-    case CE_PushButton: {
-	QPushButton *button = (QPushButton *) widget;
+    case CE_PushButton:
+	{
+	    QPushButton *button = (QPushButton *) widget;
 
-	if (button->isOn())
-	    flags |= PStyle_On;
-	if (button->isDown())
-	    flags |= PStyle_Down;
-	else if (! button->isFlat() && ! (flags & PStyle_Sunken))
-	    flags |= PStyle_Raised;
+	    if (button->isOn())
+		flags |= PStyle_On;
+	    if (button->isDown())
+		flags |= PStyle_Down;
+	    else if (! button->isFlat() && ! (flags & PStyle_Sunken))
+		flags |= PStyle_Raised;
 
-	drawPrimitive(PO_ButtonCommand, p, r, cg, flags, data);
-	break; }
-
-    case CE_PushButtonLabel: {
-	QPushButton *button = (QPushButton *) widget;
-	QRect ir = r;
-
-	if (button->isDown() || button->isOn()) {
-	    flags |= PStyle_Sunken;
-	    ir.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
-		      pixelMetric(PM_ButtonShiftVertical, widget));
+	    drawPrimitive(PO_ButtonCommand, p, r, cg, flags, data);
+	    break;
 	}
 
-	if (button->isMenuButton()) {
-	    int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
-	    QRect ar(ir.right() - mbi, ir.y() + 2, mbi - 4, ir.height() - 4);
-	    drawPrimitive(PO_ArrowDown, p, ar, cg, flags, data);
-	    ir.setWidth(ir.width() - mbi);
-	}
+    case CE_PushButtonLabel:
+	{
+	    QPushButton *button = (QPushButton *) widget;
+	    QRect ir = r;
 
-	if ( button->iconSet() && ! button->iconSet()->isNull() ) {
-	    QIconSet::Mode mode =
-		button->isEnabled() ? QIconSet::Normal : QIconSet::Disabled;
-	    if ( mode == QIconSet::Normal && button->hasFocus() )
-		mode = QIconSet::Active;
-
-	    QIconSet::State state = QIconSet::Off;
-	    if ( button->isToggleButton() && button->isOn() )
-		state = QIconSet::On;
-
-	    QPixmap pixmap = button->iconSet()->pixmap( QIconSet::Small, mode, state );
-	    int pixw = pixmap.width();
-	    int pixh = pixmap.height();
-	    p->drawPixmap( ir.x() + 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap );
-
-	    ir.moveBy(pixw + 4, 0);
-	    ir.setWidth(ir.width() - pixw + 4);
-	}
-
-	drawItem(p, ir, AlignCenter | ShowPrefix, cg,
-		 flags & PStyle_Enabled, button->pixmap(), button->text());
-
-	if (button->hasFocus())
-	    drawPrimitive(PO_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
-			  cg, flags);
-	break; }
-
-    case CE_CheckBox: {
-	// many people expect to checkbox to be square, do that here.
-	QRect ir = r;
-
-	if (r.width() < r.height()) {
-	    ir.setTop(r.top() + (r.height() - r.width()) / 2);
-	    ir.setHeight(r.width());
-	} else if (r.height() < r.width()) {
-	    ir.setLeft(r.left() + (r.width() - r.height()) / 2);
-	    ir.setWidth(r.height());
-	}
-	QCheckBox *checkbox = (QCheckBox *) widget;
-
-	if (checkbox->isDown())
-	    flags |= PStyle_Down;
-	if (checkbox->state() == QButton::On)
-	    flags |= PStyle_On;
-	else if (checkbox->state() == QButton::Off)
-	    flags |= PStyle_Off;
-	else if (checkbox->state() == QButton::NoChange)
-	    flags |= PStyle_NoChange;
-
-	drawPrimitive(PO_Indicator, p, ir, cg, flags, data);
-	break; }
-
-    case CE_CheckBoxLabel: {
-	QCheckBox *checkbox = (QCheckBox *) widget;
-
-	drawItem(p, r, AlignAuto | AlignVCenter | ShowPrefix, cg,
-		 flags & PStyle_Enabled, checkbox->pixmap(), checkbox->text());
-
-	if (checkbox->hasFocus())
-	    drawPrimitive(PO_FocusRect, p, subRect(SR_CheckBoxFocusRect, widget),
-			  cg, flags);
-	break; }
-
-    case CE_RadioButton: {
-	// many people expect to checkbox to be square, do that here.
-	QRect ir = r;
-
-	if (r.width() < r.height()) {
-	    ir.setTop(r.top() + (r.height() - r.width()) / 2);
-	    ir.setHeight(r.width());
-	} else if (r.height() < r.width()) {
-	    ir.setLeft(r.left() + (r.width() - r.height()) / 2);
-	    ir.setWidth(r.height());
-	}
-	QRadioButton *radiobutton = (QRadioButton *) widget;
-
-	if (radiobutton->isDown())
-	    flags |= PStyle_Down;
-	if (radiobutton->state() == QButton::On)
-	    flags |= PStyle_On;
-	else if (radiobutton->state() == QButton::Off)
-	    flags |= PStyle_Off;
-
-	drawPrimitive(PO_ExclusiveIndicator, p, ir, cg, flags, data);
-	break; }
-
-    case CE_RadioButtonLabel: {
-	QRadioButton *radiobutton = (QRadioButton *) widget;
-
-	drawItem(p, r, AlignAuto | AlignVCenter | ShowPrefix, cg,
-		 flags & PStyle_Enabled, radiobutton->pixmap(), radiobutton->text());
-
-	if (radiobutton->hasFocus())
-	    drawPrimitive(PO_FocusRect, p, subRect(SR_RadioButtonFocusRect, widget),
-			  cg, flags);
-	break; }
-
-    case CE_TabBarTab: {
-	QTabBar * tb = (QTabBar *) widget;
-	if ( tb->shape() == QTabBar::TriangularAbove ||
-	     tb->shape() == QTabBar::TriangularBelow ) {
-	    // triangular, above or below
-	    int y;
-	    int x;
-	    QPointArray a( 10 );
-	    a.setPoint( 0, 0, -1 );
-	    a.setPoint( 1, 0, 0 );
-	    y = r.height()-2;
-	    x = y/3;
-	    a.setPoint( 2, x++, y-1 );
-	    a.setPoint( 3, x++, y );
-	    a.setPoint( 3, x++, y++ );
-	    a.setPoint( 4, x, y );
-
-	    int i;
-	    int right = r.width() - 1;
-	    for ( i = 0; i < 5; i++ )
-		a.setPoint( 9-i, right - a.point( i ).x(), a.point( i ).y() );
-
-	    if ( tb->shape() == QTabBar::TriangularAbove )
-		for ( i = 0; i < 10; i++ )
-		    a.setPoint( i, a.point(i).x(),
-				r.height() - 1 - a.point( i ).y() );
-
-	    a.translate( r.left(), r.top() );
-
-	    if ( how & CStyle_Selected )
-		p->setBrush( cg.base() );
-	    else
-		p->setBrush( cg.background() );
-	    p->setPen( cg.foreground() );
-	    p->drawPolygon( a );
-	    p->setBrush( NoBrush );
-	}
-	break; }
-
-    case CE_TabBarLabel: {
-	QTabBar * tb = (QTabBar *) widget;
-	if ( !tb || !data )
-	    return;
-	QTab * t = (QTab *) data[0];
-	bool has_focus = *((bool *) data[1]);
-
-	QRect tr = r;
-	if ( t->identifier() == tb->currentTab() )
-	    tr.setBottom( tr.bottom() -
-			  pixelMetric( QStyle::PM_DefaultFrameWidth, tb ) );
-
-	drawItem( p, tr, AlignCenter | ShowPrefix, cg, tb->isEnabled() &&
-		  t->isEnabled(), 0, t->text() );
-
-	if ( has_focus )
-	    drawPrimitive( PO_FocusRect, p, r, cg );
-	break; }
-
-    case CE_ProgressBar: {
-	QProgressBar *progressbar = (QProgressBar *) widget;
-
-	qDrawShadePanel(p, r, cg, TRUE, 1, &cg.brush(QColorGroup::Background));
-
-	if (! progressbar->totalSteps()) {
-	    // draw busy indicator
-	    int w = r.width();
-	    int x = progressbar->progress() % (w * 2);
-	    if (x > w)
-		x = 2 * w - x;
-	    x += r.x();
-	    p->setPen( QPen(cg.highlight(), 4) );
-	    p->drawLine(x, r.y() + 1, x, r.height() - 2);
-	} else {
-	    const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, widget);
-	    int u = (r.width() - 4) / unit_width;
-	    int p_v = progressbar->progress();
-	    int t_s = progressbar->totalSteps();
-
-	    if ( u > 0 && p_v >= INT_MAX / u && t_s >= u ) {
-		// scale down to something usable.
-		p_v /= u;
-		t_s /= u;
+	    if (button->isDown() || button->isOn()) {
+		flags |= PStyle_Sunken;
+		ir.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
+			  pixelMetric(PM_ButtonShiftVertical, widget));
 	    }
 
-	    int nu = ( u * p_v + t_s / 2 ) / t_s;
-	    if (nu * unit_width > r.width() - 4)
-		nu--;
-
-	    // Draw nu units out of a possible u of unit_width width, each
-	    // a rectangle bordered by background color, all in a sunken panel
-	    // with a percentage text display at the end.
-	    int x = 0;
-	    for (int i=0; i<nu; i++) {
-		p->fillRect(r.x() + x + 3, r.y() + 3, unit_width - 2, r.height() - 6,
-			    cg.brush(QColorGroup::Highlight));
-		x += unit_width;
+	    if (button->isMenuButton()) {
+		int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
+		QRect ar(ir.right() - mbi, ir.y() + 2, mbi - 4, ir.height() - 4);
+		drawPrimitive(PO_ArrowDown, p, ar, cg, flags, data);
+		ir.setWidth(ir.width() - mbi);
 	    }
+
+	    if ( button->iconSet() && ! button->iconSet()->isNull() ) {
+		QIconSet::Mode mode =
+		    button->isEnabled() ? QIconSet::Normal : QIconSet::Disabled;
+		if ( mode == QIconSet::Normal && button->hasFocus() )
+		    mode = QIconSet::Active;
+
+		QIconSet::State state = QIconSet::Off;
+		if ( button->isToggleButton() && button->isOn() )
+		    state = QIconSet::On;
+
+		QPixmap pixmap = button->iconSet()->pixmap( QIconSet::Small, mode, state );
+		int pixw = pixmap.width();
+		int pixh = pixmap.height();
+		p->drawPixmap( ir.x() + 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap );
+
+		ir.moveBy(pixw + 4, 0);
+		ir.setWidth(ir.width() - pixw + 4);
+	    }
+
+	    drawItem(p, ir, AlignCenter | ShowPrefix, cg,
+		     flags & PStyle_Enabled, button->pixmap(), button->text());
+
+	    if (button->hasFocus())
+		drawPrimitive(PO_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
+			      cg, flags);
+	    break;
 	}
 
-	break; }
+    case CE_CheckBox:
+	{
+	    // many people expect to checkbox to be square, do that here.
+	    QRect ir = r;
 
-    case CE_ProgressBarLabel: {
-	QProgressBar *progressbar = (QProgressBar *) widget;
-	drawItem(p, r, AlignCenter | SingleLine, cg, progressbar->isEnabled(), 0,
-		 progressbar->progressString());
+	    if (r.width() < r.height()) {
+		ir.setTop(r.top() + (r.height() - r.width()) / 2);
+		ir.setHeight(r.width());
+	    } else if (r.height() < r.width()) {
+		ir.setLeft(r.left() + (r.width() - r.height()) / 2);
+		ir.setWidth(r.height());
+	    }
+	    QCheckBox *checkbox = (QCheckBox *) widget;
 
-	// MOTIF CODE:
-	// if ( !hasExtraIndicator && percentage_visible && total_steps ) {
-	// paint.setPen( colorGroup().highlightedText() );
-	// paint.setClipRect( bar.x(), bar.y(), x+2, bar.height() );
-	// paint.drawText( bar, AlignCenter | SingleLine, progress_str );
-	// if ( progress_val != total_steps ) {
-	// paint.setClipRect( bar.x() + x+2, bar.y(), bar.width() - x - 2, bar.height() );
-	// paint.setPen( colorGroup().highlight() );
-	// paint.drawText( bar, AlignCenter | SingleLine, progress_str );
-	// }
+	    if (checkbox->isDown())
+		flags |= PStyle_Down;
+	    if (checkbox->state() == QButton::On)
+		flags |= PStyle_On;
+	    else if (checkbox->state() == QButton::Off)
+		flags |= PStyle_Off;
+	    else if (checkbox->state() == QButton::NoChange)
+		flags |= PStyle_NoChange;
 
-	break; }
+	    drawPrimitive(PO_Indicator, p, ir, cg, flags, data);
+	    break;
+	}
+
+    case CE_CheckBoxLabel:
+	{
+	    QCheckBox *checkbox = (QCheckBox *) widget;
+
+	    drawItem(p, r, AlignAuto | AlignVCenter | ShowPrefix, cg,
+		     flags & PStyle_Enabled, checkbox->pixmap(), checkbox->text());
+
+	    if (checkbox->hasFocus())
+		drawPrimitive(PO_FocusRect, p, subRect(SR_CheckBoxFocusRect, widget),
+			      cg, flags);
+	    break;
+	}
+
+    case CE_RadioButton:
+	{
+	    // many people expect to checkbox to be square, do that here.
+	    QRect ir = r;
+
+	    if (r.width() < r.height()) {
+		ir.setTop(r.top() + (r.height() - r.width()) / 2);
+		ir.setHeight(r.width());
+	    } else if (r.height() < r.width()) {
+		ir.setLeft(r.left() + (r.width() - r.height()) / 2);
+		ir.setWidth(r.height());
+	    }
+	    QRadioButton *radiobutton = (QRadioButton *) widget;
+
+	    if (radiobutton->isDown())
+		flags |= PStyle_Down;
+	    if (radiobutton->state() == QButton::On)
+		flags |= PStyle_On;
+	    else if (radiobutton->state() == QButton::Off)
+		flags |= PStyle_Off;
+
+	    drawPrimitive(PO_ExclusiveIndicator, p, ir, cg, flags, data);
+	    break;
+	}
+
+    case CE_RadioButtonLabel:
+	{
+	    QRadioButton *radiobutton = (QRadioButton *) widget;
+
+	    drawItem(p, r, AlignAuto | AlignVCenter | ShowPrefix, cg,
+		     flags & PStyle_Enabled, radiobutton->pixmap(), radiobutton->text());
+
+	    if (radiobutton->hasFocus())
+		drawPrimitive(PO_FocusRect, p, subRect(SR_RadioButtonFocusRect, widget),
+			      cg, flags);
+	    break;
+	}
+
+    case CE_TabBarTab:
+	{
+	    QTabBar * tb = (QTabBar *) widget;
+	    if ( tb->shape() == QTabBar::TriangularAbove ||
+		 tb->shape() == QTabBar::TriangularBelow ) {
+		// triangular, above or below
+		int y;
+		int x;
+		QPointArray a( 10 );
+		a.setPoint( 0, 0, -1 );
+		a.setPoint( 1, 0, 0 );
+		y = r.height()-2;
+		x = y/3;
+		a.setPoint( 2, x++, y-1 );
+		a.setPoint( 3, x++, y );
+		a.setPoint( 3, x++, y++ );
+		a.setPoint( 4, x, y );
+
+		int i;
+		int right = r.width() - 1;
+		for ( i = 0; i < 5; i++ )
+		    a.setPoint( 9-i, right - a.point( i ).x(), a.point( i ).y() );
+
+		if ( tb->shape() == QTabBar::TriangularAbove )
+		    for ( i = 0; i < 10; i++ )
+			a.setPoint( i, a.point(i).x(),
+				    r.height() - 1 - a.point( i ).y() );
+
+		a.translate( r.left(), r.top() );
+
+		if ( how & CStyle_Selected )
+		    p->setBrush( cg.base() );
+		else
+		    p->setBrush( cg.background() );
+		p->setPen( cg.foreground() );
+		p->drawPolygon( a );
+		p->setBrush( NoBrush );
+	    }
+	    break;
+	}
+
+    case CE_TabBarLabel:
+	{
+	    QTabBar * tb = (QTabBar *) widget;
+	    if ( !tb || !data )
+		return;
+	    QTab * t = (QTab *) data[0];
+	    bool has_focus = *((bool *) data[1]);
+
+	    QRect tr = r;
+	    if ( t->identifier() == tb->currentTab() )
+		tr.setBottom( tr.bottom() -
+			      pixelMetric( QStyle::PM_DefaultFrameWidth, tb ) );
+
+	    drawItem( p, tr, AlignCenter | ShowPrefix, cg, tb->isEnabled() &&
+		      t->isEnabled(), 0, t->text() );
+
+	    if ( has_focus )
+		drawPrimitive( PO_FocusRect, p, r, cg );
+	    break;
+	}
+
+    case CE_ProgressBar:
+	{
+	    QProgressBar *progressbar = (QProgressBar *) widget;
+
+	    qDrawShadePanel(p, r, cg, TRUE, 1, &cg.brush(QColorGroup::Background));
+
+	    if (! progressbar->totalSteps()) {
+		// draw busy indicator
+		int w = r.width();
+		int x = progressbar->progress() % (w * 2);
+		if (x > w)
+		    x = 2 * w - x;
+		x += r.x();
+		p->setPen( QPen(cg.highlight(), 4) );
+		p->drawLine(x, r.y() + 1, x, r.height() - 2);
+	    } else {
+		const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, widget);
+		int u = (r.width() - 4) / unit_width;
+		int p_v = progressbar->progress();
+		int t_s = progressbar->totalSteps();
+
+		if ( u > 0 && p_v >= INT_MAX / u && t_s >= u ) {
+		    // scale down to something usable.
+		    p_v /= u;
+		    t_s /= u;
+		}
+
+		int nu = ( u * p_v + t_s / 2 ) / t_s;
+		if (nu * unit_width > r.width() - 4)
+		    nu--;
+
+		// Draw nu units out of a possible u of unit_width width, each
+		// a rectangle bordered by background color, all in a sunken panel
+		// with a percentage text display at the end.
+		int x = 0;
+		for (int i=0; i<nu; i++) {
+		    p->fillRect(r.x() + x + 3, r.y() + 3, unit_width - 2, r.height() - 6,
+				cg.brush(QColorGroup::Highlight));
+		    x += unit_width;
+		}
+	    }
+
+	    break;
+	}
+
+    case CE_ProgressBarLabel:
+	{
+	    QProgressBar *progressbar = (QProgressBar *) widget;
+	    drawItem(p, r, AlignCenter | SingleLine, cg, progressbar->isEnabled(), 0,
+		     progressbar->progressString());
+	    break;
+	}
+
+    case CE_MenuBarItem:
+	{
+	    if (! data)
+		break;
+
+	    QMenuItem *mi = (QMenuItem *) data[0];
+	    drawItem( p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, cg,
+		      mi->isEnabled(), mi->pixmap(), mi->text(), -1,
+		      &cg.buttonText() );
+	    break;
+	}
 
     default:
 	break;

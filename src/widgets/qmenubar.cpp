@@ -833,7 +833,7 @@ int QMenuBar::calculateRects( int max_width )
 
     if ( update ) {
 	if ( separator >= 0 ) {
-	    int moveBy = max_width - x;
+	    int moveBy = max_width - x - frameWidth();
 	    rightSide = x;
 	    while( --i >= separator ) {
 		irects[i].moveBy( moveBy, 0 );
@@ -942,9 +942,6 @@ void QMenuBar::drawContents( QPainter *p )
     if ( !irects )
 	return;
 
-    // Draw the menu bar contents in the current style
-    // style().drawPrimitive( QStyle::PO_PanelMenuBar, p, rect(), g );
-
     for ( int i=0; i<(int)mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
 	if ( !mi->text().isNull() || mi->pixmap() ) {
@@ -954,7 +951,7 @@ void QMenuBar::drawContents( QPainter *p )
 	    e = mi->isEnabled();
 	    if ( e )
 		g = isEnabled() ? ( isActiveWindow() ? palette().active() :
-		    palette().inactive() ) : palette().disabled();
+				    palette().inactive() ) : palette().disabled();
 	    else
 		g = palette().disabled();
 	    reg = reg.subtract( r );
@@ -963,38 +960,34 @@ void QMenuBar::drawContents( QPainter *p )
 	    buffer.painter()->setPen( p->pen() );
 	    buffer.painter()->setBrush( p->brush() );
 
-	    void * data[1];
+	    void *data[1];
 	    data[0] = (void *) mi;
-	    QStyle::PFlags flags = QStyle::PStyle_Default;
-
+	    QStyle::CFlags flags = QStyle::CStyle_Default;
 	    if ( i == actItem )
-		flags |= QStyle::PStyle_On;
+		flags |= QStyle::CStyle_Active;
 	    if ( actItemDown )
-		flags |= QStyle::PStyle_Down;
-	    if ( hasFocus() || hasmouse || popupvisible )
-		flags |= QStyle::PStyle_HasFocus;
-
-	    style().drawPrimitive( QStyle::PO_MenuBarItem, buffer.painter(),
-				   r, g, flags, data );
+		flags |= QStyle::CStyle_Selected;
+	    if (hasFocus() || hasmouse || popupvisible)
+		flags |= QStyle::CStyle_HasFocus;
+	    style().drawControl(QStyle::CE_MenuBarItem, buffer.painter(), this,
+				r, g, flags, data);
 	}
     }
 
-    // should not be necessary since the call to draw the
-    // PO_MenuBarPanel should take care of this
-//    erase( reg );
+    erase( reg );
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
-	    if ( !mac_eaten_menubar ) {
+    if ( !mac_eaten_menubar ) {
 #endif
-		GUIStyle gs = style().guiStyle();
-		if ( mseparator == InWindowsStyle && gs == WindowsStyle ) {
-		    p->setPen( g.light() );
-		    p->drawLine( 0, height()-1, width()-1, height()-1 );
-		    p->setPen( g.dark() );
-		    p->drawLine( 0, height()-2, width()-1, height()-2 );
-		}
+	GUIStyle gs = style().guiStyle();
+	if ( mseparator == InWindowsStyle && gs == WindowsStyle ) {
+	    p->setPen( g.light() );
+	    p->drawLine( 0, height()-1, width()-1, height()-1 );
+	    p->setPen( g.dark() );
+	    p->drawLine( 0, height()-2, width()-1, height()-2 );
+	}
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
-	    }
+    }
 #endif
 }
 

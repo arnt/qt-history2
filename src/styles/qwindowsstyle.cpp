@@ -308,32 +308,6 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 	    break;
 	}
 
-    case PO_MenuBarItem:
-	{
-	    bool active = flags & PStyle_On;
-	    bool hasFocus = flags & PStyle_HasFocus;
-	    bool down = flags & PStyle_Down;
-	    QRect pr = r;
-
-	    p->fillRect( r, cg.brush( QColorGroup::Button ) );
-	    if ( active || hasFocus ) {
-		QBrush b = cg.brush( QColorGroup::Button );
-		if ( active && down )
-		    p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
-		if ( active && hasFocus )
-		    qDrawShadeRect( p, r.x(), r.y(), r.width(), r.height(),
-				    cg, active && down, 1, 0, &b );
-		if ( active && down ) {
-		    // ### fix me!
-		    //		pr.addCoords( 2, 2, -2, -2 );
-		    pr.setRect( r.x()+2, r.y()+2, r.width()-2, r.height()-2 );
-		    p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
-		}
-	    }
-	    QCommonStyle::drawPrimitive( PO_MenuBarItem, p, pr, cg, flags, data );
-	    break;
-	}
-
     case PO_Panel:
     case PO_PanelPopup:
 	{
@@ -824,6 +798,32 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    }
 #endif
 
+	    break;
+	}
+
+    case CE_MenuBarItem:
+	{
+	    bool active = how & CStyle_Active;
+	    bool hasFocus = how & CStyle_HasFocus;
+	    bool down = how & CStyle_Selected;
+	    QRect pr = r;
+
+	    p->fillRect( r, cg.brush( QColorGroup::Button ) );
+	    if ( active || hasFocus ) {
+		QBrush b = cg.brush( QColorGroup::Button );
+		if ( active && down )
+		    p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
+		if ( active && hasFocus )
+		    qDrawShadeRect( p, r.x(), r.y(), r.width(), r.height(),
+				    cg, active && down, 1, 0, &b );
+		if ( active && down ) {
+		    // ### fix me!
+		    // pr.addCoords( 2, 2, -2, -2 );
+		    pr.setRect( r.x()+2, r.y()+2, r.width()-2, r.height()-2 );
+		    p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
+		}
+	    }
+	    QCommonStyle::drawControl(element, p, widget, r, cg, how, data);
 	    break;
 	}
 

@@ -113,8 +113,6 @@ public:
 
 	PO_Splitter,
 
-	PO_MenuBarItem,
-
 	PO_Panel,
 	PO_PanelPopup,
 	PO_PanelMenuBar,
@@ -190,12 +188,15 @@ public:
 	CE_ProgressBar,
 	CE_ProgressBarLabel,
 
-	CE_PopupMenuItem
+	CE_PopupMenuItem,
+	CE_MenuBarItem
     };
 
     enum ControlElementFlags{
 	CStyle_Default = 		0x00000000,
-	CStyle_Selected =	 	0x00000001
+	CStyle_Selected =	 	0x00000001,
+	CStyle_HasFocus =		0x00000002,
+	CStyle_Active =			0x00000004
     };
     typedef uint CFlags;
 

@@ -252,17 +252,6 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	    break;
 	}
 
-    case PO_MenuBarItem:
-	{
-	    if ( flags & PStyle_On )  // active item
-		qDrawShadePanel( p, r, cg, FALSE, motifItemFrame,
-				 &cg.brush(QColorGroup::Button) );
-	    else  // other item
-		p->fillRect( r, cg.brush(QColorGroup::Button) );
-	    QCommonStyle::drawPrimitive( op, p, r, cg, flags, data );
-	    break;
-	}
-
     case PO_ArrowUp:
     case PO_ArrowDown:
     case PO_ArrowRight:
@@ -1047,6 +1036,17 @@ void QMotifStyle::drawControl( ControlElement element,
 	    break;
 	}
 #endif // QT_NO_POPUPMENU
+
+    case CE_MenuBarItem:
+ 	{
+ 	    if ( how & CStyle_Active )  // active item
+ 		qDrawShadePanel( p, r, cg, FALSE, motifItemFrame,
+ 				 &cg.brush(QColorGroup::Button) );
+ 	    else  // other item
+ 		p->fillRect( r, cg.brush(QColorGroup::Button) );
+	    QCommonStyle::drawControl( element, p, widget, r, cg, how, data );
+ 	    break;
+ 	}
 
     default:
 	QCommonStyle::drawControl( element, p, widget, r, cg, how, data );
