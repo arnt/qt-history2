@@ -398,12 +398,22 @@ void QFontPrivate::load()
 
 QRect QFontPrivate::boundingRect( const QChar &ch )
 {
-    return QRect(0, 0, 1204, 768); //take that
+    QGlyphMetrics *metrics = memorymanager->lockGlyphMetrics(fin->handle(), ch);
+    return QRect( metrics->bearingx, metrics->bearingy, metrics->width, metrics->height );
 }
 
 int QFontPrivate::textWidth( const QString &str, int pos, int len )
 {
-    return 1000;
+    int i;
+    int width = 0;
+    const QChar *ch = str.unicode() + pos;
+    for( i = 0; i < len; i++ ) {
+	if ( ch->combiningClass() == 0 ) {
+	    width += memorymanager->lockGlyphMetrics(fin->handle(), *ch )->width;
+	}
+	++ch;
+    }
+    return width;
 }
 
 /*****************************************************************************

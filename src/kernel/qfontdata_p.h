@@ -462,15 +462,15 @@ public:
 #endif // Q_WS_X11
 
 #ifdef Q_WS_WIN
-	~QFontPrivate() { if( fin ) fin->deref(); }
-	void load();
-	void initFontInfo();
-	HFONT create( bool *stockFont, HDC hdc = 0, bool VxF = FALSE );
-	QFontStruct *fin;
-	HDC currHDC;
-
-	int textWidth( HDC hdc, const QString &str, int pos, int len, TextRun *cache );
-	void drawText( HDC hdc, int x, int y, TextRun *cache );
+    ~QFontPrivate() { if( fin ) fin->deref(); }
+    void load();
+    void initFontInfo();
+    HFONT create( bool *stockFont, HDC hdc = 0, bool VxF = FALSE );
+    QFontStruct *fin;
+    HDC currHDC;
+    
+    int textWidth( HDC hdc, const QString &str, int pos, int len, TextRun *cache );
+    void drawText( HDC hdc, int x, int y, TextRun *cache );
 #endif // Q_WS_WIN
 
 #ifdef Q_WS_QWS
