@@ -129,6 +129,7 @@ public:
     QVariant(const QMap<QString,QVariant> &map);
 #endif
 
+#ifndef QT_KERNEL_APP
 #ifndef QT_NO_COMPAT
     QVariant(const QColorGroup &cg);
 #endif
@@ -150,7 +151,8 @@ public:
     QVariant(const QKeySequence &keysequence);
 #endif
     QVariant(const QPen &pen);
-    QVariant(QSizePolicy sp);
+    QVariant(const QSizePolicy &sp);
+#endif // QT_KERNEL_APP
 
     QVariant& operator=(const QVariant &other);
     bool operator==(const QVariant &other) const;
@@ -187,6 +189,7 @@ public:
     QMap<QString,QVariant> toMap() const;
 #endif
 
+#ifndef QT_KERNEL_APP
     QFont toFont() const;
     QPixmap toPixmap() const;
     const QImage toImage() const;
@@ -209,6 +212,7 @@ public:
 #endif
     QPen toPen() const;
     QSizePolicy toSizePolicy() const;
+#endif // QT_KERNEL_APP
 
     int &asInt();
     uint &asUInt();
@@ -230,6 +234,7 @@ public:
     QMap<QString,QVariant> &asMap();
 #endif
 
+#ifndef QT_KERNEL_APP
     QFont &asFont();
     QPixmap &asPixmap();
     QImage &asImage();
@@ -252,6 +257,7 @@ public:
 #endif
     QPen &asPen();
     QSizePolicy &asSizePolicy();
+#endif //QT_KERNEL_APP
 
 #ifndef QT_NO_DATASTREAM
     void load(QDataStream &ds);
@@ -318,6 +324,7 @@ private:
 
     Private *create(Type t, const void *v);
     inline void cleanUp(Private *p) { handler->clear(p); delete p; }
+    void *castOrDetach(Type t);
 };
 
 
@@ -368,11 +375,143 @@ inline QVariant::QVariant(bool val)
 inline QVariant::QVariant(double val)
 { d = create(Double, &val); }
 
+
+inline int &QVariant::asInt()
+{ return *static_cast<int *>(castOrDetach(Int)); }
+inline uint &QVariant::asUInt()
+{ return *static_cast<uint *>(castOrDetach(UInt)); }
+inline Q_LLONG &QVariant::asLongLong()
+{ return *static_cast<Q_LLONG *>(castOrDetach(LongLong)); }
+inline Q_ULLONG &QVariant::asULongLong()
+{ return *static_cast<Q_ULLONG *>(castOrDetach(ULongLong)); }
+inline bool &QVariant::asBool()
+{ return *static_cast<bool *>(castOrDetach(Bool)); }
+inline double &QVariant::asDouble()
+{ return *static_cast<double *>(castOrDetach(Double)); }
+inline QString& QVariant::asString()
+{ return *static_cast<QString *>(castOrDetach(String)); }
+#ifndef QT_NO_STRINGLIST
+inline QStringList& QVariant::asStringList()
+{ return *static_cast<QStringList *>(castOrDetach(StringList)); }
+#endif
+inline QDate& QVariant::asDate()
+{ return *static_cast<QDate *>(castOrDetach(Date)); }
+inline QTime& QVariant::asTime()
+{ return *static_cast<QTime *>(castOrDetach(Time)); }
+inline QDateTime& QVariant::asDateTime()
+{ return *static_cast<QDateTime *>(castOrDetach(DateTime)); }
+inline QByteArray& QVariant::asByteArray()
+{ return *static_cast<QByteArray *>(castOrDetach(ByteArray)); }
+inline QBitArray& QVariant::asBitArray()
+{ return *static_cast<QBitArray *>(castOrDetach(BitArray)); }
+#ifndef QT_NO_TEMPLATE_VARIANT
+inline QList<QVariant>& QVariant::asList()
+{ return *static_cast<QList<QVariant> *>(castOrDetach(List)); }
+inline QMap<QString, QVariant>& QVariant::asMap()
+{ return *static_cast<QMap<QString, QVariant> *>(castOrDetach(Map)); }
+#endif
+
 inline QVariant::Type QVariant::type() const
 { return d->type; }
-
 inline bool QVariant::isValid() const
 { return d->type != Invalid; }
+
+
+#ifndef QT_KERNEL_APP
+
+inline QVariant::QVariant(const QFont &val)
+{ d = create(Font, &val); }
+inline QVariant::QVariant(const QPixmap &val)
+{ d = create(Pixmap, &val); }
+inline QVariant::QVariant(const QImage &val)
+{ d = create(Image, &val); }
+inline QVariant::QVariant(const QBrush &val)
+{ d = create(Brush, &val); }
+inline QVariant::QVariant(const QPoint &val)
+{ d = create(Point, &val); }
+inline QVariant::QVariant(const QRect &val)
+{ d = create(Rect, &val); }
+inline QVariant::QVariant(const QSize &val)
+{ d = create(Size, &val); }
+inline QVariant::QVariant(const QColor &val)
+{ d = create(Color, &val); }
+#ifndef QT_NO_PALETTE
+inline QVariant::QVariant(const QPalette &val)
+{ d = create(Palette, &val); }
+#ifndef QT_NO_COMPAT
+inline QVariant::QVariant(const QColorGroup &val)
+{ d = create(ColorGroup, &val); }
+#endif
+#endif //QT_NO_PALETTE
+#ifndef QT_NO_ICONSET
+inline QVariant::QVariant(const QIconSet &val)
+{ d = create(IconSet, &val); }
+#endif //QT_NO_ICONSET
+inline QVariant::QVariant(const QRegion &val)
+{ d = create(Region, &val); }
+inline QVariant::QVariant(const QBitmap& val)
+{ d = create(Bitmap, &val); }
+inline QVariant::QVariant(const QCursor &val)
+{ d = create(Cursor, &val); }
+inline QVariant::QVariant(const QPointArray &val)
+{ d = create(PointArray, &val); }
+#ifndef QT_NO_ACCEL
+inline QVariant::QVariant(const QKeySequence &val)
+{ d = create(KeySequence, &val); }
+#endif
+inline QVariant::QVariant(const QPen &val)
+{ d = create(Pen, &val); }
+inline QVariant::QVariant(const QSizePolicy &val)
+{ d = create(SizePolicy, &val); }
+
+
+inline QFont& QVariant::asFont()
+{ return *static_cast<QFont *>(castOrDetach(Font)); }
+inline QPixmap& QVariant::asPixmap()
+{ return *static_cast<QPixmap *>(castOrDetach(Pixmap)); }
+inline QImage& QVariant::asImage()
+{ return *static_cast<QImage *>(castOrDetach(Image)); }
+inline QBrush& QVariant::asBrush()
+{ return *static_cast<QBrush *>(castOrDetach(Brush)); }
+inline QPoint& QVariant::asPoint()
+{ return *static_cast<QPoint *>(castOrDetach(Point)); }
+inline QRect& QVariant::asRect()
+{ return *static_cast<QRect *>(castOrDetach(Rect)); }
+inline QSize& QVariant::asSize()
+{ return *static_cast<QSize *>(castOrDetach(Size)); }
+inline QColor& QVariant::asColor()
+{ return *static_cast<QColor *>(castOrDetach(Color)); }
+#ifndef QT_NO_PALETTE
+inline QPalette& QVariant::asPalette()
+{ return *static_cast<QPalette *>(castOrDetach(Palette)); }
+#ifndef QT_NO_COMPAT
+inline QColorGroup& QVariant::asColorGroup()
+{ return *static_cast<QColorGroup *>(castOrDetach(ColorGroup)); }
+#endif
+#endif
+#ifndef QT_NO_ICONSET
+inline QIconSet& QVariant::asIconSet()
+{ return *static_cast<QIconSet *>(castOrDetach(IconSet)); }
+#endif
+inline QPointArray& QVariant::asPointArray()
+{ return *static_cast<QPointArray *>(castOrDetach(PointArray)); }
+inline QBitmap& QVariant::asBitmap()
+{ return *static_cast<QBitmap *>(castOrDetach(Bitmap)); }
+inline QRegion& QVariant::asRegion()
+{ return *static_cast<QRegion *>(castOrDetach(Region)); }
+inline QCursor& QVariant::asCursor()
+{ return *static_cast<QCursor *>(castOrDetach(Cursor)); }
+inline QSizePolicy& QVariant::asSizePolicy()
+{ return *static_cast<QSizePolicy *>(castOrDetach(SizePolicy)); }
+#ifndef QT_NO_ACCEL
+inline QKeySequence& QVariant::asKeySequence()
+{ return *static_cast<QKeySequence *>(castOrDetach(KeySequence)); }
+#endif
+inline QPen& QVariant::asPen()
+{ return *static_cast<QPen *>(castOrDetach(Pen)); }
+
+#endif // QT_KERNEL_APP
+
 
 
 #ifndef QT_NO_DATASTREAM

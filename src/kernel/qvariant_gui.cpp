@@ -650,164 +650,113 @@ const QVariant::Handler qt_gui_variant_handler = {
 
 
 /*!
+  \fn QVariant::QVariant(const QFont &val)
+
     Constructs a new variant with a font value, \a val.
 */
-QVariant::QVariant(const QFont &val)
-{
-    d = create(Font, &val);
-}
 
 /*!
+  \fn QVariant::QVariant(const QPixmap &val)
+
     Constructs a new variant with a pixmap value, \a val.
 */
-QVariant::QVariant(const QPixmap &val)
-{
-    d = create(Pixmap, &val);
-}
-
 
 /*!
+  \fn QVariant::QVariant(const QImage &val)
+
     Constructs a new variant with an image value, \a val.
 
     Because QImage is explicitly shared, you may need to pass a deep
     copy to the variant using QImage::copy(), e.g. if you intend
     changing the image you've passed later on.
 */
-QVariant::QVariant(const QImage &val)
-{
-    d = create(Image, &val);
-}
 
 /*!
+  \fn QVariant::QVariant(const QBrush &val)
+
     Constructs a new variant with a brush value, \a val.
 */
-QVariant::QVariant(const QBrush &val)
-{
-    d = create(Brush, &val);
-}
 
 /*!
+  \fn QVariant::QVariant(const QPoint &val)
+
     Constructs a new variant with a point value, \a val.
 */
-QVariant::QVariant(const QPoint &val)
-{
-    d = create(Point, &val);
-}
 
 /*!
+  \fn QVariant::QVariant(const QRect &val)
+
     Constructs a new variant with a rect value, \a val.
 */
-QVariant::QVariant(const QRect &val)
-{
-    d = create(Rect, &val);
-}
 
 /*!
+  \fn QVariant::QVariant(const QSize &val)
+
     Constructs a new variant with a size value, \a val.
 */
-QVariant::QVariant(const QSize &val)
-{
-    d = create(Size, &val);
-}
 
 /*!
+  \fn QVariant::QVariant(const QColor &val)
+
     Constructs a new variant with a color value, \a val.
 */
-QVariant::QVariant(const QColor &val)
-{
-    d = create(Color, &val);
-}
 
-#ifndef QT_NO_PALETTE
 /*!
+  \fn QVariant::QVariant(const QPalette &val)
+
     Constructs a new variant with a color palette value, \a val.
 */
-QVariant::QVariant(const QPalette &val)
-{
-    d = create(Palette, &val);
-}
 
-#ifndef QT_NO_COMPAT
-QVariant::QVariant(const QColorGroup &val)
-{
-    d = create(ColorGroup, &val);
-}
-#endif
-
-#endif //QT_NO_PALETTE
-#ifndef QT_NO_ICONSET
 /*!
+  \fn QVariant::QVariant(const QIconSet &val)
+
     Constructs a new variant with an icon set value, \a val.
 */
-QVariant::QVariant(const QIconSet &val)
-{
-    d = create(IconSet, &val);
-}
-#endif //QT_NO_ICONSET
 /*!
+  \fn QVariant::QVariant(const QRegion &val)
+
     Constructs a new variant with a region value, \a val.
 */
-QVariant::QVariant(const QRegion &val)
-{
-    d = create(Region, &val);
-}
 
 /*!
+  \fn QVariant::QVariant(const QBitmap& val)
+
     Constructs a new variant with a bitmap value, \a val.
 */
-QVariant::QVariant(const QBitmap& val)
-{
-    d = create(Bitmap, &val);
-}
 
 /*!
+  \fn QVariant::QVariant(const QCursor &val)
+
     Constructs a new variant with a cursor value, \a val.
 */
-QVariant::QVariant(const QCursor &val)
-{
-    d = create(Cursor, &val);
-}
 
 /*!
+  \fn QVariant::QVariant(const QPointArray &val)
+
     Constructs a new variant with a point array value, \a val.
 
     Because QPointArray is explicitly shared, you may need to pass a
     deep copy to the variant using QPointArray::copy(), e.g. if you
     intend changing the point array you've passed later on.
 */
-QVariant::QVariant(const QPointArray &val)
-{
-    d = create(PointArray, &val);
-}
-
-
-#ifndef QT_NO_ACCEL
 
 /*!
+  \fn QVariant::QVariant(const QKeySequence &val)
+
     Constructs a new variant with a key sequence value, \a val.
 */
-QVariant::QVariant(const QKeySequence &val)
-{
-    d = create(KeySequence, &val);
-}
-
-#endif
 
 /*!
+  \fn QVariant::QVariant(const QPen &val)
+
     Constructs a new variant with a pen value, \a val.
 */
-QVariant::QVariant(const QPen &val)
-{
-    d = create(Pen, &val);
-}
 
 /*!
+  \fn QVariant::QVariant(QSizePolicy val)
+
     Constructs a new variant with a size policy value, \a val.
 */
-QVariant::QVariant(QSizePolicy val)
-{
-    d = create(SizePolicy, &val);
-}
 
 #define Q_VARIANT_TO(f) \
 Q##f QVariant::to##f() const { \
@@ -1065,34 +1014,3 @@ QSizePolicy QVariant::toSizePolicy() const
 
     return QSizePolicy();
 }
-
-
-#define Q_VARIANT_AS( f ) Q##f& QVariant::as##f() { \
-   if ( d->type != f ) *this = QVariant( to##f() ); else detach(); return *static_cast<Q##f*>(d->value.ptr);}
-
-Q_VARIANT_AS(Font)
-Q_VARIANT_AS(Pixmap)
-Q_VARIANT_AS(Image)
-Q_VARIANT_AS(Brush)
-Q_VARIANT_AS(Point)
-Q_VARIANT_AS(Rect)
-Q_VARIANT_AS(Size)
-Q_VARIANT_AS(Color)
-#ifndef QT_NO_PALETTE
-Q_VARIANT_AS(Palette)
-#ifndef QT_NO_COMPAT
-Q_VARIANT_AS(ColorGroup)
-#endif
-#endif
-#ifndef QT_NO_ICONSET
-Q_VARIANT_AS(IconSet)
-#endif
-Q_VARIANT_AS(PointArray)
-Q_VARIANT_AS(Bitmap)
-Q_VARIANT_AS(Region)
-Q_VARIANT_AS(Cursor)
-Q_VARIANT_AS(SizePolicy)
-#ifndef QT_NO_ACCEL
-Q_VARIANT_AS(KeySequence)
-#endif
-Q_VARIANT_AS(Pen)

@@ -1684,19 +1684,6 @@ QList<QVariant> QVariant::toList() const
 #endif
 
 
-#define Q_VARIANT_AS( f ) Q##f& QVariant::as##f() { \
-   if ( d->type != f ) *this = QVariant( to##f() ); else detach(); return *static_cast<Q##f*>(d->value.ptr);}
-
-Q_VARIANT_AS(String)
-#ifndef QT_NO_STRINGLIST
-Q_VARIANT_AS(StringList)
-#endif
-Q_VARIANT_AS(Date)
-Q_VARIANT_AS(Time)
-Q_VARIANT_AS(DateTime)
-Q_VARIANT_AS(ByteArray)
-Q_VARIANT_AS(BitArray)
-
 /*!
     \fn QString& QVariant::asString()
 
@@ -1982,97 +1969,44 @@ Q_VARIANT_AS(BitArray)
 */
 
 /*!
+  \fn int &QVariant::asInt()
+
     Returns the variant's value as int reference.
 */
-int &QVariant::asInt()
-{
-    if (d->type != Int) {
-	detach();
-	int i = toInt();
-	handler->clear(d);
-	d->value.i = i;
-	d->type = Int;
-    }
-    return d->value.i;
-}
 
 /*!
+  \fn uint &QVariant::asUInt()
+
     Returns the variant's value as unsigned int reference.
 */
-uint &QVariant::asUInt()
-{
-    if (d->type != UInt) {
-	detach();
-	uint u = toUInt();
-	handler->clear(d);
-	d->value.u = u;
-	d->type = UInt;
-    }
-    return d->value.u;
-}
 
 /*!
+  \fn Q_LLONG &QVariant::asLongLong()
+
     Returns the variant's value as long long reference.
 */
-Q_LLONG &QVariant::asLongLong()
-{
-    if (d->type != LongLong) {
-	detach();
-	Q_LLONG ll = toLongLong();
-	handler->clear(d);
-	d->value.ll = ll;
-	d->type = LongLong;
-    }
-    return d->value.ll;
-}
 
 /*!
+  \fn Q_ULLONG &QVariant::asULongLong()
+
     Returns the variant's value as unsigned long long reference.
 */
-Q_ULLONG &QVariant::asULongLong()
-{
-    if (d->type != ULongLong) {
-	detach();
-	Q_ULLONG ull = toULongLong();
-	handler->clear(d);
-	d->value.ull = ull;
-	d->type = ULongLong;
-    }
-    return d->value.ull;
-}
 
 /*!
+  \fn bool &QVariant::asBool()
+
     Returns the variant's value as bool reference.
 */
-bool &QVariant::asBool()
-{
-    if (d->type != Bool) {
-	detach();
-	bool b = toBool();
-	handler->clear(d);
-	d->value.b = b;
-	d->type = Bool;
-    }
-    return d->value.b;
-}
 
 /*!
+  \fn double &QVariant::asDouble()
+
     Returns the variant's value as double reference.
 */
-double &QVariant::asDouble()
-{
-    if (d->type != Double) {
-	detach();
-	double dbl = toDouble();
-	handler->clear(d);
-	d->value.d = dbl;
-	d->type = Double;
-    }
-    return d->value.d;
-}
 
-#ifndef QT_NO_TEMPLATE_VARIANT
 /*!
+  \fn QList<QVariant>& QVariant::asList()
+
     Returns the variant's value as variant list reference.
 
     Note that if you want to iterate over the list, you should iterate
@@ -2086,14 +2020,10 @@ double &QVariant::asDouble()
     }
     \endcode
 */
-QList<QVariant>& QVariant::asList()
-{
-    if (d->type != List)
-	*this = QVariant(toList());
-    return *static_cast<QList<QVariant> *>(d->value.ptr);
-}
 
 /*!
+  \fn QMap<QString, QVariant>& QVariant::asMap()
+
     Returns the variant's value as variant map reference.
 
     Note that if you want to iterate over the map, you should iterate
@@ -2107,13 +2037,6 @@ QList<QVariant>& QVariant::asList()
     }
     \endcode
 */
-QMap<QString, QVariant>& QVariant::asMap()
-{
-    if (d->type != Map)
-	*this = QVariant(toMap());
-    return *static_cast<QMap<QString, QVariant> *>(d->value.ptr);
-}
-#endif
 
 /*!
     Returns true if the variant's type can be cast to the requested
@@ -2166,7 +2089,8 @@ bool QVariant::cast(Type t)
 
     Private *x = create(t, 0);
     x = qAtomicSetPtr(&d, x);
-    handler->cast(x, t, data(), 0);
+    if (c)
+	handler->cast(x, t, data(), 0);
     if (!--x->ref)
 	cleanUp(x);
     return c;
@@ -2242,6 +2166,18 @@ void* QVariant::data()
     default:
 	return d->value.ptr;
     }
+}
+
+
+/*! \internal
+ */
+void *QVariant::castOrDetach(Type t)
+{
+    if ( d->type != t )
+	cast(t);
+    else
+	detach();
+    return data();
 }
 
 /*!
