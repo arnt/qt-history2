@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qserversocket.h#2 $
+** $Id: //depot/qt/main/extensions/network/src/qserversocket.h#3 $
 **
 ** Implementation of Network Extension Library
 **
@@ -45,6 +45,8 @@ public:
     int		 port() const;
     QSocket *socket() const;
     void	 setPort( int port );
+
+    bool start(int backlog=4);
 
     virtual void newConnection( int socket );
 

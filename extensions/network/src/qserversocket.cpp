@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qserversocket.cpp#2 $
+** $Id: //depot/qt/main/extensions/network/src/qserversocket.cpp#3 $
 **
 ** Implementation of Network Extension Library
 **
@@ -28,9 +28,10 @@
 
 class QServerSocketPrivate {
 public:
-    QServerSocketPrivate() { socket=0; }
+    QServerSocketPrivate() { socket=0; sn=0; }
     QSocketDevice *socket;
     QSocketAddress addr;
+    QSocketNotifier *sn;
 };
 
 
@@ -48,6 +49,7 @@ public:
 
 /*!
   Creates a server socket object, but does not start any server yet.
+  The server is not started until start() is called.
 
   The \a parent and \a name arguments are passed on as usual
   to the QObject constructor.
@@ -61,8 +63,8 @@ QServerSocket::QServerSocket( QObject *parent, const char *name )
 
 
 /*!
-  Creates a server socket object, ands starts a server on the
-  given \a port.
+  Creates a server socket object, that will server the
+  given \a port. The server is not started until start() is called.
 
   The \a parent and \a name arguments are passed on as usual
   to the QObject constructor.
@@ -75,6 +77,25 @@ QServerSocket::QServerSocket( int port, QObject *parent,
     d = new QServerSocketPrivate;
     d->socket = new QSocketDevice;
     d->addr = QSocketAddress( port );
+}
+
+/*!
+  Starts servicing the configured port(). \a backlog is the number of
+  clients which may successfully attempt connect while the server is busy
+  (the slower your server, and the more clients you are expecting, the
+  higher this number must be if you wish to avoid failed connections).
+
+  Returns TRUE if the server succeeds in binding to the required resources.
+*/
+bool QServerSocket::start(int backlog)
+{
+    if ( !d->socket->bind( d->addr ) )
+	return FALSE;
+    d->socket->listen( backlog );
+    d->sn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read, this );
+    connect( d->sn, SIGNAL(activated(int)),
+	     this, SLOT(incomingConnection(int)) );
+    return TRUE;
 }
 
 /*!
@@ -123,4 +144,7 @@ bool QServerSocket::accept( const QSocketAddress & ) const
 
 void QServerSocket::incomingConnection( int socket )
 {
+    QSocketAddress addr;
+    int fd=d->socket->accept(&addr);
+    newConnection(fd);
 }
