@@ -98,10 +98,11 @@ QMutexPool::~QMutexPool()
 }
 
 /*!
-  Returns a QMutex from the pool.
+  Returns a QMutex from the pool.  All mutexes in the pool are
+  recursive mutexes.
 
-  QMutexPool uses the value \a key to determine
-  which mutex is retured from the pool.
+  QMutexPool uses the value \a key to determine which mutex is
+  retured from the pool.
 */
 QMutex *QMutexPool::get( void *address )
 {
@@ -115,7 +116,7 @@ QMutex *QMutexPool::get( void *address )
 	// we need to check once again that the mutex hasn't been created, since
 	// 2 threads could be trying to create a mutex as the same index...
 	if ( ! d[index] ) {
-	    d[index] = new QMutex;
+	    d[index] = new QMutex( TRUE );
 	}
     }
     return d[index];
