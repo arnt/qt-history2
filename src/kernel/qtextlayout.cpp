@@ -305,7 +305,7 @@ QTextLayout::Result QTextLayout::addCurrentItem()
     QScriptItem &current = d->items[d->currentItem];
     d->shape( d->currentItem );
     d->widthUsed += current.width;
-//     qDebug("trying to add item %d with width %d, remaining %d", d->currentItem, current.width, d->lineWidth-d->widthUsed );
+//      qDebug("trying to add item %d with width %d, remaining %d", d->currentItem, current.width, d->lineWidth-d->widthUsed );
 
     d->currentItem++;
 
@@ -315,7 +315,7 @@ QTextLayout::Result QTextLayout::addCurrentItem()
 QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 					  int *ascent, int *descent, int *lineLeft, int *lineRight )
 {
-//     qDebug("endLine x=%d, y=%d, first=%d, current=%d", x,  y, d->firstItemInLine, d->currentItem );
+//     qDebug("endLine x=%d, y=%d, first=%d, current=%d lw=%d wu=%d", x,  y, d->firstItemInLine, d->currentItem, d->lineWidth, d->widthUsed );
     if ( d->firstItemInLine == -1 )
 	return LineEmpty;
 
@@ -359,7 +359,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 		int lastGlyph = 0;
 		int tmpItemWidth = 0;
 
-// 		qDebug("looking for break in item %d", i );
+//   		qDebug("looking for break in item %d", i );
 
 		for ( int pos = 0; pos < length; pos++ ) {
 // 		    qDebug("advance=%d, tmpWidth=%d, softbreak=%d, whitespace=%d",
@@ -380,7 +380,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 			    itemWidth = 0;
 			breakItem = i;
 			breakPosition = pos;
-// 			qDebug("found possible break at item %d, position %d (absolute=%d), tmpWidth=%d, tmpItemWidth=%d", breakItem, breakPosition, d->items[breakItem].position+breakPosition, tmpWidth, tmpItemWidth );
+//  			qDebug("found possible break at item %d, position %d (absolute=%d), tmpWidth=%d, tmpItemWidth=%d", breakItem, breakPosition, d->items[breakItem].position+breakPosition, tmpWidth, tmpItemWidth );
 			breakGlyph = glyph;
 			w += tmpWidth + tmpItemWidth;
 			itemWidth += tmpItemWidth;
@@ -393,20 +393,22 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 		while ( lastGlyph < si->num_glyphs )
 		    tmpItemWidth += advances[lastGlyph++];
 		tmpWidth += tmpItemWidth;
-		if ( w + tmpWidth > d->lineWidth )
+		if ( w + tmpWidth > d->lineWidth ) {
+		    d->widthUsed = w;
 		    goto found;
+		}
 	    }
 	}
 
     found:
 	// no valid break point found
 	if ( breakPosition == -1 ) {
-// 	    qDebug("no valid linebreak found, returning empty line");
+//  	    qDebug("no valid linebreak found, returning empty line");
 	    d->currentItem = d->firstItemInLine;
 	    return LineEmpty;
 	}
 
-//  	qDebug("linebreak at item %d, position %d, glyph %d", breakItem, breakPosition, breakGlyph );
+//  	qDebug("linebreak at item %d, position %d, glyph %d wu=%d", breakItem, breakPosition, breakGlyph, d->widthUsed );
 	// split the line
 	if ( breakPosition > 0 ) {
 // 	    int length = d->length( breakItem );
@@ -432,6 +434,13 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 	    d->currentItem = breakItem+1;
 	} else {
 	    d->currentItem = breakItem;
+	    if ( d->currentItem > d->firstItemInLine && d->items[d->currentItem-1].isSpace ) {
+		int i = d->currentItem-1;
+		while ( i > d->firstItemInLine && d->items[i].isSpace ) {
+		    numSpaceItems++;
+		    d->widthUsed -= d->items[i--].width;
+		}
+	    }
 	}
     }
 
