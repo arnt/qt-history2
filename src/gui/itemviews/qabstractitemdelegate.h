@@ -60,12 +60,9 @@ public:
 
     QAbstractItemModel *model() const;
 
-    enum EditType {
-        NoEditType,
-        PersistentWidget,
-        WidgetOnTyping,
-        WidgetWhenCurrent,
-        NoWidget
+    enum EditorType {
+        Widget,
+        Events
     };
 
     enum StartEditAction {
@@ -90,7 +87,7 @@ public:
                            const QModelIndex &index) const = 0;
 
     // editing
-    virtual EditType editType(const QModelIndex &index) const;
+    virtual EditorType editorType(const QModelIndex &index) const;
     virtual QWidget *editor(StartEditAction action, QWidget *parent,
                             const QItemOptions &options, const QModelIndex &index);
     virtual void setModelData(QWidget *editor, const QModelIndex &index) const;

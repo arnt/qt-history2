@@ -110,9 +110,9 @@ QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QItemOption
     return pixmapRect.unite(textRect).size();
 }
 
-QItemDelegate::EditType QItemDelegate::editType(const QModelIndex &) const
+QItemDelegate::EditorType QItemDelegate::editorType(const QModelIndex &) const
 {
-    return WidgetOnTyping;
+    return Widget;
 }
 
 QWidget *QItemDelegate::editor(StartEditAction action, QWidget *parent,
@@ -121,7 +121,7 @@ QWidget *QItemDelegate::editor(StartEditAction action, QWidget *parent,
     if (index.type() != QModelIndex::View)
         return 0;
     if (action & (EditKeyPressed | AnyKeyPressed | DoubleClicked | AlwaysEdit)
-        || (options.focus && editType(index) == WidgetWhenCurrent)) {
+        || (options.focus && editorType(index) == Widget)) {
         QLineEdit *lineEdit = new QLineEdit(parent);
         lineEdit->setFrame(false);
         lineEdit->setText(model()->data(index, QAbstractItemModel::Edit).toString());

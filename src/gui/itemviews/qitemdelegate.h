@@ -18,7 +18,7 @@ public:
                    const QModelIndex &index) const;
 
     // editing
-    QAbstractItemDelegate::EditType editType(const QModelIndex &item) const;
+    QAbstractItemDelegate::EditorType editorType(const QModelIndex &item) const;
     QWidget *editor(QAbstractItemDelegate::StartEditAction action, QWidget *parent,
                     const QItemOptions &options, const QModelIndex &item);
 

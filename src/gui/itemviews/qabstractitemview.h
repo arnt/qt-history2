@@ -86,10 +86,12 @@ public:
     inline QModelIndex itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
     virtual QModelIndex itemAt(int x, int y) const = 0;
 
-    QSize itemSizeHint(const QModelIndex &item) const;
+    QSize itemSizeHint(const QModelIndex &index) const;
 
     virtual int rowSizeHint(int row) const;
     virtual int columnSizeHint(int column) const;
+
+    void setPersistentEditor(const QModelIndex &index, QWidget *editor = 0);
 
 public slots:
     virtual void setRoot(const QModelIndex &index);

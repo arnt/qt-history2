@@ -20,7 +20,7 @@ public:
 
     QWidget *createEditor(QAbstractItemDelegate::StartEditAction action,
                           QEvent *event, const QModelIndex &index);
-    QWidget *persistentEditor(const QModelIndex &index);// const;
+    QWidget *persistentEditor(const QModelIndex &index) const;
     void setPersistentEditor(QWidget *editor, const QModelIndex &index);
 
     QAbstractItemModel *model;

@@ -32,7 +32,7 @@
     To provide custom editing, there are two approaches that can be
     used. The first approach is to create an editor widget and display
     it directly on top of the item. To do this you must reimplement
-    editor() and editType() to provide your editor widget to the
+    editor() and editorType() to provide your editor widget to the
     delegate, setModelData() so that the delegate can update the
     item's content from the editor, setEditorData() to populate the
     editor with the item's initial value, or when the item's value is
@@ -43,19 +43,14 @@
 */
 
 /*!
-    \enum QAbstractItemDelegate::EditType
+    \enum QAbstractItemDelegate::EditorType
 
     This enum describes what must be done to create an editor for an
     item.
 
-    \value NoEditType The default if there is no editor().
-    \value PersistentWidget The editor() is always in place.
-    \value WidgetOnTyping The editor() appears as soon as the user
-    begins typing.
-    \value WidgetWhenCurrent The editor() appears as soon as the focus
-    moves to the item.
-    \value NoWidget There is no editor() widget; usually used if
-    event() is reimplemented.
+    \value Widget The editor() is a widget.
+    \value Event There is no editor() widget; used if event() is
+    reimplemented.
 */
 
 /*!
@@ -141,14 +136,14 @@ QAbstractItemModel *QAbstractItemDelegate::model() const
 }
 
 /*!
-    Returns the \c EditType for the item at \a index.
+    Returns the \c EditorType for the item at \a index.
 
     If you provide an editor(), you will want to reimplement this
-    function to return the \c EditType appropriate to your editor().
+    function to return the \c EditorType appropriate to your editor().
 */
-QAbstractItemDelegate::EditType QAbstractItemDelegate::editType(const QModelIndex &) const
+QAbstractItemDelegate::EditorType QAbstractItemDelegate::editorType(const QModelIndex &) const
 {
-    return QAbstractItemDelegate::NoEditType;
+    return QAbstractItemDelegate::Events;
 }
 
 /*!
@@ -164,7 +159,7 @@ QAbstractItemDelegate::EditType QAbstractItemDelegate::editType(const QModelInde
     The base implementation returns 0. If you want custom editing you
     will need to reimplement this function.
 
-    \sa editType() setModelData() setEditorData() releaseEditor()
+    \sa editorType() setModelData() setEditorData() releaseEditor()
 */
 QWidget *QAbstractItemDelegate::editor(StartEditAction, QWidget *,
         const QItemOptions&, const QModelIndex &)
@@ -179,7 +174,7 @@ QWidget *QAbstractItemDelegate::editor(StartEditAction, QWidget *,
     The base implementation does nothing. If you want custom editing
     you will need to reimplement this function.
 
-    \sa editType() editor() setEditorData() releaseEditor()
+    \sa editorType() editor() setEditorData() releaseEditor()
 */
 void QAbstractItemDelegate::setModelData(QWidget *, const QModelIndex &) const
 {
@@ -193,7 +188,7 @@ void QAbstractItemDelegate::setModelData(QWidget *, const QModelIndex &) const
     The base implementation does nothing. If you want custom editing
     you will need to reimplement this function.
 
-    \sa editType() editor() setModelData() releaseEditor()
+    \sa editorType() editor() setModelData() releaseEditor()
 */
 void QAbstractItemDelegate::setEditorData(QWidget *, const QModelIndex &) const
 {
@@ -217,7 +212,7 @@ void QAbstractItemDelegate::updateEditorGeometry(QWidget *, const QItemOptions &
     The base implementation does nothing. If you want custom editing
     you will probably need to reimplement this function.
 
-    \sa editType() editor() setEditorData() setModelData()
+    \sa editorType() editor() setEditorData() setModelData()
 */
 void QAbstractItemDelegate::releaseEditor(EndEditAction, QWidget *, const QModelIndex &)
 {
@@ -230,7 +225,7 @@ void QAbstractItemDelegate::releaseEditor(EndEditAction, QWidget *, const QModel
 
     The base implementation returns false (indicating that it has not
     handled the event). If you reimplement this you should reimplement
-    editType() to return \c NoWidget.
+    editorType() to return \c NoWidget.
 */
 bool QAbstractItemDelegate::event(QEvent *, const QModelIndex &)
 {
