@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#9 $
 **
 ** Implementation of QTextCodec class
 **
@@ -602,16 +602,13 @@ debug("name = \"%s\"   MEMORY=%2.2fK",n.data(),(float)mem/1024);
 	QString result;
 	QMultiByteUnicodeTable* multibyte=to_unicode_multibyte;
 	if ( multibyte ) {
-debug("multibyte toUnicode");
 	    while (len--) {
 		QMultiByteUnicodeTable& mb = multibyte[*uchars];
 		if ( mb.multibyte ) {
 		    // Chained multi-byte
-debug("CHAIN ON %02x",*uchars);
 		    multibyte = mb.multibyte;
 		} else {
 		    result += QChar(mb.unicode);
-debug(" -> %04x",mb.unicode);
 		    multibyte=to_unicode_multibyte;
 		}
 		uchars++;
