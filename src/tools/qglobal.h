@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#37 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#38 $
 **
 ** Global type declarations and definitions
 **
@@ -39,8 +39,7 @@
 #define _OS_WIN32_
 #elif defined(sun) || defined(__sun) || defined(__sun__)
 #define _OS_SUN_
-// solaris isn't defined anywhere?
-#if defined(solaris) || defined(__SVR4)
+#if defined(_OS_SUN_) && defined(__SVR4)
 #define _OS_SOLARIS_
 #undef _OS_SUN_
 #endif
