@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/display.cpp#3 $
+** $Id: //depot/qt/main/examples/demo/display.cpp#4 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -47,12 +47,11 @@ void Screen::animate()
 {
     if ( step == 0 )
 	return;
-    
+
     int t = t0;
     int p = pos0;
     if ( step < 0 ) {
 	t += MaxSamples + step;
-	p = (p + MaxSamples + step) % MaxSamples;
     } else {
 	t -= step;
 	p -= step;
@@ -72,7 +71,7 @@ void Screen::animate()
     pos0 = (pos0 - step) % MaxSamples;
     if ( pos0 < 0 )
 	pos0 += MaxSamples;
-    
+
     scroll( step, 0, QRect( FrameWidth, FrameWidth, MaxSamples, Range ));
 }
 
@@ -86,14 +85,11 @@ void Screen::drawContents( QPainter *p )
     QRect r = p->hasClipping() ?
 	      p->clipRegion().boundingRect() : contentsRect();
 
-    int x0 = ( r.left() < FrameWidth ) ? FrameWidth : r.left();
-    int x1 = ( r.right() < MaxSamples+FrameWidth-1 ) ?
-	     r.right() : MaxSamples+FrameWidth-1;
-    int vp = ( x0 - FrameWidth + pos0 ) % MaxSamples;
+    int vp = ( r.left() - FrameWidth + pos0 ) % MaxSamples;
     int y0 = FrameWidth + Range/2;
 
-    for ( int x = x0; x <= x1; x++ ) {
-	p->drawLine( x, y0 + yval[ vp ], x, Range + FrameWidth );
+    for ( int x = r.left(); x <= r.right(); x++ ) {
+	p->drawLine( x, y0 + yval[ vp ], x, r.bottom());
 	vp = ++vp % MaxSamples;
     }
 }
@@ -113,7 +109,7 @@ Curve::Curve( QWidget *parent, const char *name )
     pal.setActive( grp );
     pal.setInactive( grp );
     setPalette( pal );
-    
+
     setFixedSize( 2*(Radius+FrameWidth), 2*(Radius+FrameWidth) );
 
     shift = 0;
@@ -158,8 +154,8 @@ DisplayWidget::DisplayWidget( QWidget *parent, const char *name )
     dial->setFixedSize( screen->height(), screen->height() );
     dial->setNotchesVisible( TRUE );
     dial->setRange( -10, 10 );
-    dial->setValue( 2 );
-    screen->setStep( 2 );
+    dial->setValue( 1 );
+    screen->setStep( dial->value() );
     connect( dial, SIGNAL( valueChanged( int )),
 	     screen, SLOT( setStep( int )));
     hbox->addWidget( screen );
@@ -174,10 +170,10 @@ DisplayWidget::DisplayWidget( QWidget *parent, const char *name )
     lcd = new QLCDNumber( 2, this );
     lcd->setFixedSize( 100, 100 );
     lcdval = 0;
-    
+
     bar = new QProgressBar( 10, this );
     tbar = 0;
-    
+
     vbox->addWidget( curve );
     vbox->addWidget( spin );
     vbox->addWidget( lcd );
