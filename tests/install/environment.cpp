@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <qnamespace.h>
-#include <qmessagebox.h>
+#include <qfile.h>
+#include <qtextstream.h>
 
 QString QEnvironment::getEnv( QString varName, int envBlock )
 {
@@ -41,28 +42,7 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
 	    }
 	}
 	else { //  Win 9x
-	    if( isWinMe ) {	// Windows Me
-		HKEY env;
-		DWORD size;
-		QByteArray buffer;
-		QString value;
-
-		if( RegOpenKeyExA( HKEY_LOCAL_MACHINE, "System\\CurrentControlSet\\Control\\SessionManager\\Environment", 0, KEY_READ, &env ) == ERROR_SUCCESS ) {
-		    RegQueryValueExA( env, varName.latin1(), 0, NULL, NULL, &size );
-		    buffer.resize( size );
-		    RegQueryValueExA( env, varName.latin1(), 0, NULL, (unsigned char*)buffer.data(), &size );
-		    value = buffer.data();
-		    RegCloseKey( env );
-		    return value;
-		}
-	    }
-	    else {
-		// Windows 95 and 98 does not have the notion of persistent environment.
-		// This is taken care of by the autoexec.bat file at startup, and we do not
-		// have any control over how this file is formatted.
-		// This may be supported later, though...
-		return QString( getenv( varName ) );
-	    }
+	    // Persistent environment on Windows 9x is not fully supported yet.
 	}
     }
     if( envBlock & LocalEnv ) {
@@ -85,9 +65,7 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
     }
 
     if( envBlock & PersistentEnv ) {
-	QMessageBox::information( NULL, "Environment", "Setting persistent env." );
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
-	    QMessageBox::information( NULL, "Version", "Setting environment on Windows NT" );
 
 	    HKEY env;
 	    QByteArray buffer;
@@ -107,24 +85,16 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
 	    }
 	}
 	else { // Win 9x
-	    if( isWinMe ) { // Win Me
-		HKEY env;
+	    QFile autoexec( "c:\\autoexec.bat" );
+	    QTextStream ostream( &autoexec );
 
-		QMessageBox::information( NULL, "Version", "Setting environment on Windows Me" );
-
-		if( RegOpenKeyExA( HKEY_LOCAL_MACHINE, "System\\CurrentControlSet\\Control\\SessionManager\\Environment", 0, KEY_WRITE, &env ) == ERROR_SUCCESS ) {
-		    RegSetValueExA( env, varName.latin1(), 0, REG_EXPAND_SZ, (const unsigned char*)varValue.latin1(), varValue.length() );
-		    RegCloseKey( env );
-		}
-	    }
-	    else {
-		// Writing to Windows 9X Autoexec.bat file is not implemented yet.
-		QMessageBox::information( NULL, "Version", "Settings environment on Windows 9x" );
+	    if( autoexec.open( IO_Append | IO_ReadWrite | IO_Translate ) ) {
+		ostream << "set " << varName.latin1() << "=" << varValue.latin1() << endl;
+		autoexec.close();
 	    }
 	}
     }
     if( envBlock & LocalEnv ) {
-	QMessageBox::information( NULL, "Environment", "Setting local environment" );
 	putenv( varName + QString( "=" ) + varValue );
     }
 }

@@ -35,7 +35,6 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     setNextEnabled( introPage, false );
     setBackEnabled( progressPage, false );
     setNextEnabled( progressPage, false );
-//    setNextEnabled( environmentPage, false );
     setBackEnabled( buildPage, false );
     setNextEnabled( buildPage, false );
     setFinishEnabled( finishPage, true );
@@ -84,23 +83,6 @@ void SetupWizardImpl::clickedSystem( int sys )
 {
     sysID = sys;
 }
-
-/*
-void SetupWizardImpl::clickedEnvironmentButton()
-{
-    QStringList args;
-
-    args += QEnvironment::getRegistryString( "Software\\Mmicrosoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++", "ProductDir", QEnvironment::LocalMachine );
-    env.setArguments( args );
-    connect( &env, SIGNAL( processExited() ), this, SLOT( envDone() ) );
-    env.start();
-}
-
-void SetupWizardImpl::envDone()
-{
-    setNextEnabled( environmentPage, true );
-}
-*/
 
 void SetupWizardImpl::licenseAccepted( )
 {
@@ -403,11 +385,11 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	devSysPath->setEnabled( sysID == 0 );
 	devSysPathButton->setEnabled( sysID == 0 );
 	QString devdir = QEnvironment::getEnv( "MSDevDir" );
-//	if( !devdir.length() ) {
+	if( !devdir.length() ) {
 	    int envSpec = QEnvironment::LocalEnv;
 	    QString vsCommonDir, msDevDir, msVCDir, osDir;
 
-	    if( QMessageBox::warning( NULL, "Environment", "The Visual C++ environment variables has not been set\nDo you want to do this now?", "Yes", "No", QString::null, 0, 1 ) == 0 )
+	    if( QMessageBox::warning( this, "Environment", "The Visual C++ environment variables has not been set\nDo you want to do this now?", "Yes", "No", QString::null, 0, 1 ) == 0 )
 		envSpec |= QEnvironment::PersistentEnv;
 
 	    vsCommonDir = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup", "VsCommonDir", QEnvironment::LocalMachine );
@@ -434,7 +416,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    lib.prepend( msVCDir + "\\LIB" );
 	    lib.prepend( msVCDir + "\\MFC\\LIB" );
 	    QEnvironment::putEnv( "LIB", lib.join( ";" ), envSpec );
-//	}
+	}
 	if( sysID == 0 )
 	    devSysPath->setText( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine ) );
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) )   // On NT we also have a common folder
@@ -493,7 +475,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    if( installTutorials->isChecked() )
 		readArchive( "tutorial.arq", installPath->text() );
 #else
-//	    copyFiles( QDir::currentDirPath(), installPath->text(), true );
+	    copyFiles( QDir::currentDirPath(), installPath->text(), true );
 
 	    QFile inFile( installPath->text() + "\\bin\\quninstall.exe" );
 	    QFile outFile( shell.windowsFolderName + "\\quninstall.exe" );
@@ -620,14 +602,6 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    --sqlsrcDirIterator;
 	}
     }
-/*
-    else if( newPage == environmentPage ) {
-	QString vsCommonDir = QEnvironment::getEnv( "VSCommonDir" );
-
-	if( vsCommonDir.length() )
-	    next();
-    }
-*/
     else if( newPage == buildPage ) {
 	QStringList args;
 	QStringList entries;

@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>493</width>
-            <height>345</height>
+            <width>489</width>
+            <height>343</height>
         </rect>
     </property>
     <property name="caption">
@@ -838,12 +838,6 @@
         <slot>licenseAccepted()</slot>
     </connection>
     <connection>
-        <sender>SetupWizard</sender>
-        <signal>selected(const QString&amp;)</signal>
-        <receiver>SetupWizard</receiver>
-        <slot>pageChanged(const QString&amp;)</slot>
-    </connection>
-    <connection>
         <sender>installPathButton</sender>
         <signal>clicked()</signal>
         <receiver>SetupWizard</receiver>
@@ -861,15 +855,14 @@
         <receiver>SetupWizard</receiver>
         <slot>clickedDevSysPath()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
     <slot access="public" language="C++">clickedDevSysPath()</slot>
+    <slot access="public" language="C++">clickedEnvironmentButton()</slot>
     <slot access="public" language="C++">clickedFolderPath()</slot>
     <slot access="public" language="C++">clickedPath()</slot>
     <slot access="public" language="C++">clickedSystem(int)</slot>
+    <slot access="protected" language="C++">destroy()</slot>
     <slot access="public" language="C++">licenseAccepted()</slot>
-    <slot access="public" language="C++">clickedEnvironmentButton()</slot>
-    <slot access="public" language="C++">pageChanged(const QString&amp;)</slot>
+    <slot access="protected" language="C++">init()</slot>
 </connections>
 <tabstops>
     <tabstop>introText</tabstop>
