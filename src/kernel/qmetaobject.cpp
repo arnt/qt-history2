@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#49 $
 **
 ** Implementation of QMetaObject class
 **
@@ -456,7 +456,10 @@ QStringList QMetaObject::propertyNames()
 {
   QStringList l;
   for( int i = 0; i < nPropData; ++i )
+  {
+    qDebug("Adding prop %s\n", propData[i].name );
     l.append( propData[i].name );
+  }
 
   if ( superclass )
   {
@@ -464,11 +467,14 @@ QStringList QMetaObject::propertyNames()
     l += super;
   }
   
+  if ( l.count() < 2 )
+    return l;
+
   qBubbleSort( l );
 
   // Remove dups
   QStringList::Iterator it = l.begin();
-  QString old = *it++;
+  QString old = *(it++);
   while( it != l.end() )
   {
     if ( old == *it )

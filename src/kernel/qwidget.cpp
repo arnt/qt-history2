@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#453 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#454 $
 **
 ** Implementation of QWidget class
 **
@@ -38,6 +38,9 @@
 #include "qt_windows.h"
 #endif
 
+#ifdef QT_BUILDER
+#include "qdom.h"
+#endif // QT_BUILDER
 
 /*!
   \class QWidget qwidget.h
@@ -4283,3 +4286,30 @@ void QWidget::setStyle( QStyle *style )
 	styleChange( old );
     }
 }
+
+#ifdef QT_BUILDER
+
+bool QWidget::configure( const QDomElement& element )
+{
+  QDomElement e = element.firstChild().toElement();
+  for( ; !e.isNull(); e = e.nextSibling().toElement() )
+  {
+    if ( e.tagName() == "Widget" )
+    {
+      if ( !e.firstChild().toElement().toWidget( this ) )
+	return FALSE;
+    }
+    else if ( e.tagName() == "Layout" )
+    {
+      if ( !( e.firstChild().toElement().toLayout( this ) ) )
+	return FALSE;
+    }
+  }
+  
+  if ( !QObject::configure( element ) )
+    return FALSE;
+
+  return TRUE;
+}
+
+#endif // QT_BUILDER

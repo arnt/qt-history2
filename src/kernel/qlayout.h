@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#43 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#44 $
 **
 ** Definition of layout classes
 **
@@ -32,6 +32,7 @@
 
 class QLayoutArray;
 class QLayoutBox;
+class QDomElement;
 
 class Q_EXPORT QGridLayout : public QLayout
 {
@@ -39,7 +40,7 @@ class Q_EXPORT QGridLayout : public QLayout
 public:
     QGridLayout( QWidget *parent, int nRows = 1, int nCols = 1, int border=0,
 		 int space = -1, const char *name=0 );
-    QGridLayout( int nRows, int nCols, int space = -1,
+    QGridLayout( int nRows = 1, int nCols = 1, int space = -1,
 		 const char *name=0 );
     QGridLayout( QLayout *parentLayout, int nRows = 1, int nCols = 1,
 		 int space = -1, const char *name=0 );
@@ -79,6 +80,11 @@ public:
     void setOrigin( Corner );
     QLayoutIterator iterator();
     void setGeometry( const QRect& );
+
+#ifdef QT_BUILDER
+    virtual bool QGridLayout::configure( const QDomElement& _resource );
+#endif // QT_BUILDER
+
 protected:
     bool findWidget( QWidget* w, int *r, int *c );
     void add( QLayoutItem*, int row, int col );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#236 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#237 $
 **
 ** Definition of QWidget class
 **
@@ -43,7 +43,7 @@ class QLayout;
 struct QWExtra;
 class QFocusData;
 class QStyle;
-
+class QDomElement;
 
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {
@@ -311,6 +311,9 @@ public:
     static QWidget *	find( WId );
     static QWidgetMapper *wmapper();
 
+#ifdef QT_BUILDER
+    bool configure( const QDomElement& element );
+#endif
     // Event handlers
 
 protected:

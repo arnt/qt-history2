@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#207 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#208 $
 **
 ** Implementation of QObject class
 **
@@ -34,6 +34,7 @@
 #ifdef QT_BUILDER
 #include "qvariant.h"
 #include "qpixmap.h"
+#include "qdom.h"
 #endif // QT_BUILDER
 
 /*! \class Qt qnamespace.h
@@ -2755,6 +2756,199 @@ bool QObject::property( const char *_name, QVariant* _value ) const
       ASSERT( 0 );
     return TRUE;
   }
+
+  return FALSE;
+}
+
+bool QObject::configure( const QDomElement& element )
+{
+  QMetaObject* m = queryMetaObject();
+  if ( !m )
+    return FALSE;
+
+  // Process props
+  QStringList props = m->propertyNames();
+  QStringList::Iterator it = props.begin();
+  for( ; it != props.end(); ++it )
+  {
+    QMetaProperty* p = queryMetaObject()->property( *it, TRUE );
+    if ( p && !p->readonly )
+    {
+      qDebug("Trying property %s\n", (*it).latin1());
+      setProperty( p, element );
+    }
+  }
+
+  QDomElement e = element.firstChild().toElement();
+  for( ; !e.isNull(); e = e.nextSibling().toElement() )
+  {
+    if ( e.tagName() == "Connection" )
+    {
+      QString signal = e.attribute( "signal" ).prepend("2");
+      QString slot;
+      if ( e.hasAttribute( "slot" ) )
+	slot = e.attribute("slot").prepend("1");
+      else if ( e.hasAttribute( "transmitter" ) )
+	slot = e.attribute("transmitter").prepend("2");
+      else
+	return FALSE;
+
+      QString tmp = e.attribute( "sender" );
+      QObject *sender;
+      if ( tmp == name() )
+	sender = this;
+      else if ( !tmp.isEmpty() )
+	sender = child( tmp );
+      else
+	sender = this;
+      tmp = e.attribute( "receiver" );
+      QObject *receiver;
+      if ( tmp == name() )
+	receiver = this;
+      else if ( !tmp.isEmpty() )
+	receiver = child( tmp );
+      else
+	receiver = this;
+      
+      if ( !sender || !receiver )
+	return FALSE;
+
+      connect( sender, signal, receiver, slot );
+    }
+  }
+  
+  return TRUE;
+}
+
+bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
+{
+  QVariant::Type type = QVariant::nameToType( p->type );
+  QString name( p->name );
+
+  switch( type )
+  {
+  case QVariant::String:
+    { 
+      if ( name == "name" )
+	return setProperty( name, QVariant( element.attribute( "name" ) ) );
+
+      QDomElement n = element.namedItem( name ).toElement();
+      if ( !n.isNull() )
+	return setProperty( name, QVariant( n.text() ) );
+
+      return FALSE;
+    }
+    case QVariant::Bool:
+      {    
+	if ( element.hasAttribute( name ) )
+	  return setProperty( name, QVariant( (bool)element.attribute( name ).toInt() ) );
+	return FALSE;
+      }
+    case QVariant::Int:
+      {    
+	if ( element.hasAttribute( name ) )
+	  return setProperty( name, QVariant( element.attribute( name ).toInt() ) );
+	return FALSE;
+      }
+    case QVariant::Double:
+      {    
+	if ( element.hasAttribute( name ) )
+	  return setProperty( name, QVariant( element.attribute( name ).toDouble() ) );
+	return FALSE;
+      }
+    case QVariant::Color:
+      {    
+	if ( element.hasAttribute( name ) )
+	  return setProperty( name, QVariant( QColor( element.attribute( name ) ) ) );
+	return FALSE;
+      }
+    case QVariant::Font:
+      {    
+	QDomElement n = element.namedItem( name ).toElement();
+	if ( n.isNull() )
+	  return FALSE;
+	
+	return setProperty( name, n.toFont() );
+      }
+    case QVariant::Rect:
+      {    
+	QDomElement n = element.namedItem( name ).toElement();
+	if ( n.isNull() )
+	  return FALSE;
+	
+	return setProperty( name, n.toRect() );
+      }
+    case QVariant::Size:
+      {    
+	QDomElement n = element.namedItem( name ).toElement();
+	if ( n.isNull() )
+	  return FALSE;
+	
+	return setProperty( name, n.toSize() );
+      }
+    case QVariant::Point:
+      {    
+	QDomElement n = element.namedItem( name ).toElement();
+	if ( n.isNull() )
+	  return FALSE;
+	
+	return setProperty( name, n.toPoint() );
+      }
+    case QVariant::StringList:
+      {    
+	QDomElement n = element.namedItem( name ).toElement();
+	if ( n.isNull() )
+	  return FALSE;
+
+	QStringList lst;
+	QDomElement e = n.firstChild().toElement();
+	for( ; !e.isNull(); e = e.nextSibling().toElement() )
+	  if ( e.tagName() == "StringItem" )
+	    lst.append( e.text() );
+
+	return setProperty( name, QVariant( lst ) );
+      }
+    case QVariant::IntList:
+      {    
+	QDomElement n = element.namedItem( name ).toElement();
+	if ( n.isNull() )
+	  return FALSE;
+
+	QValueList<int> lst;
+	QDomElement e = n.firstChild().toElement();
+	for( ; !e.isNull(); e = e.nextSibling().toElement() )
+	  if ( e.tagName() == "IntItem" )
+	    lst.append( e.attribute( "value" ).toInt() );
+
+	return setProperty( name, QVariant( lst ) );
+      }
+    case QVariant::DoubleList:
+      {    
+	QDomElement n = element.namedItem( name ).toElement();
+	if ( n.isNull() )
+	  return FALSE;
+
+	QValueList<double> lst;
+	QDomElement e = n.firstChild().toElement();
+	for( ; !e.isNull(); e = e.nextSibling().toElement() )
+	  if ( e.tagName() == "DoubleItem" )
+	    lst.append( e.attribute( "value" ).toInt() );
+
+	return setProperty( name, QVariant( lst ) );
+      } 
+    case QVariant::Pixmap:
+    case QVariant::Brush:
+    case QVariant::Palette:
+    case QVariant::ColorGroup:
+    case QVariant::Image:
+      //##### TODO
+      break;
+    case QVariant::Custom:
+    case QVariant::NTypes:
+    case QVariant::Empty:
+      // Do nothing
+      break;
+    } 
 
   return FALSE;
 }

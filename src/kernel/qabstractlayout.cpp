@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#67 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -1582,4 +1582,28 @@ void QLayout::setAutoAdd( bool b )
 }
 
 
+#ifdef QT_BUILDER
 
+/*!
+  Returns TRUE if the passed string could be mapped to an alignment flag ( Qt::AlignXXXX ).
+  This functionality is needed by several layout classes so it is provided in the basic
+  QLayout class for convenience.
+*/
+bool QLayout::stringToAlign( const QString& tmp, int* _align )
+{
+    if ( tmp == "top" )
+      *_align = Qt::AlignTop;
+    else if ( tmp == "bottom" )
+      *_align = Qt::AlignBottom;
+    else if ( tmp == "center" )
+      *_align = Qt::AlignCenter;
+    else if ( tmp == "left" )
+      *_align = Qt::AlignLeft;
+    else if ( tmp == "right" )
+      *_align = Qt::AlignRight;
+    else
+      return false;
+    return true;
+}
+
+#endif

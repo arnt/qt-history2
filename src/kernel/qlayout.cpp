@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#115 $
 **
 ** Implementation of layout classes
 **
@@ -31,6 +31,9 @@
 
 #include "qlayoutengine.h"
 
+#ifdef QT_BUILDER
+#include "qdom.h"
+#endif // QT_BUILDER
 
 // This cannot be a subclass of QLayoutItem, since it can contain different item classes.
 class QLayoutBox
@@ -1256,6 +1259,114 @@ void QGridLayout::invalidate()
     array->setDirty();
 }
 
+#ifdef QT_BUILDER
+
+bool QGridLayout::configure( const QDomElement& element )
+{
+  int r = 0;
+
+  QDomElement row = element.firstChild().toElement();
+  for( ; !row.isNull(); row = row.nextSibling().toElement() )
+  {
+    if ( row.tagName() == "Row" )
+    {
+      if ( row.hasAttribute( "size" ) )
+	addRowSpacing( r, row.attribute( "size" ).toInt() );
+      if ( row.hasAttribute( "stretch" ) )
+	setRowStretch( r, row.attribute( "stretch" ).toInt() );
+
+      int c = 0;
+
+      QDomElement cell = row.firstChild().toElement();
+      for( ; !cell.isNull(); cell = cell.nextSibling().toElement() )
+      {
+	if ( cell.tagName() == "Cell" )
+        {
+	  debug("QGridLayout child at %i %i", r, c );
+
+	  int multicol = 1;
+	  int multirow = 1;
+	  if ( cell.hasAttribute( "multicol" ) )
+	    multicol = cell.attribute( "multicol" ).toInt();
+	  if ( multicol < 1 )
+	    return FALSE;
+	  if ( cell.hasAttribute( "multirow" ) )
+	    multirow = cell.attribute( "multirow" ).toInt();
+	  if ( multirow < 1 )
+	    return FALSE;
+	  int align = 0;
+	  int x,y;
+	  if ( stringToAlign( cell.attribute( "valign" ), &y ) )
+	  {
+	    if ( y == Qt::AlignCenter )
+	      y = Qt::AlignVCenter;
+	    align |= y & ( Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop );
+	  }
+	  if ( stringToAlign( cell.attribute( "halign" ), &x ) )
+	  {
+	    if ( x == Qt::AlignCenter )
+	      x = Qt::AlignHCenter;
+	    align |= x & ( Qt::AlignHCenter | Qt::AlignLeft | Qt::AlignRight );
+	  }
+
+	  QWidget* w = 0;
+	  QLayout* l = 0;
+	  QDomElement child = cell.firstChild().toElement();
+	  QDomElement res = child.firstChild().toElement();
+	  if ( child.tagName() == "Widget" )
+	  {
+	    w = res.toWidget( mainWidget() );
+	    if ( !w )
+	      return FALSE;
+	  }
+	  else if ( cell.tagName() == "Layout" )
+	  {
+	    l = res.toLayout();
+	    if ( !l )
+	      return FALSE;
+	  }
+	  // Unknown tag ?
+	  else if ( !cell.isNull() )
+	    return FALSE;
+
+	  if ( w )
+	  {
+	    if ( multicol != 1 || multirow != 1 )
+	      addMultiCellWidget( w, r, r + multirow - 1, c, c + multicol - 1, align );
+	    else
+	      addWidget( w, r, c, align );
+	    w->configure( res );
+	  }
+	  else if ( l )
+	  {
+	    if ( multicol != 1 || multirow != 1 )
+	      addMultiCell( l, r, r + multirow - 1, c, c + multicol - 1, align );
+	    else
+	      addLayout( l, r, c );
+	    l->configure( res );
+	  }
+
+	  if ( cell.hasAttribute( "size" ) )
+	    addColSpacing( c, cell.attribute( "size" ).toInt() );
+	  if ( cell.hasAttribute( "stretch" ) )
+	    setColStretch( c, cell.attribute( "stretch" ).toInt() );
+	  
+	  ++c;
+	}
+	else
+	  return FALSE;
+      }
+      ++r;
+    }
+  }
+
+  if ( !QLayout::configure( element ) )
+    return FALSE;
+
+  return TRUE;
+}
+
+#endif QT_BUILDER
 
 /*!
   \reimp
