@@ -3589,7 +3589,6 @@ void QWidget::internalShow()
 	// do this before sending the posted resize events. Otherwise
 	// the layout would catch the resize event and may expand the
 	// minimum size.
-	qDebug("show internal, give %s initial size = %d/%d", className(), s.width(), s.height());
 	if (!s.isEmpty())
 	    resize(s);
 #endif // Q_OS_TEMP
