@@ -1608,7 +1608,13 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		    if(!project->isActiveConfig("debug") &&
 		       !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
 			target += QString("\t") + var("QMAKE_STRIP") + " \"" + root + fileFixify(dst + wild) + "\"\n";
-		    uninst.append(QString("-$(DEL_FILE) -r") + " \"" + root + fileFixify(dst + wild) + "\"");
+		    uninst.append(
+#ifdef Q_WS_WIN
+		    QString("-$(DEL_FILE)")
+#else
+		    QString("-$(DEL_FILE) -r")
+#endif
+		    + " \"" + root + fileFixify(dst + wild) + "\"");
 		    continue;
 		}
 		QString dirstr = QDir::currentDirPath(), f = wild; 		    //wild
@@ -1621,7 +1627,13 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		    dirstr += Option::dir_sep;
 		if(!uninst.isEmpty())
 		    uninst.append("\n\t");
-		uninst.append(QString("-$(DEL_FILE) -r") + " " + root + fileFixify(dst + f) + "");
+		uninst.append(
+#ifdef Q_WS_WIN
+		    QString("-$(DEL_FILE)")
+#else
+		    QString("-$(DEL_FILE) -r")
+#endif
+		    + " " + root + fileFixify(dst + f) + "");
 
 		QDir dir(dirstr, f);
 		for(uint x = 0; x < dir.count(); x++) {
@@ -1644,7 +1656,13 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 
 	if(!target.isEmpty()) {
 	    t << "install_" << (*it) << ": " << "\n\t"
-	      << "@test -d " << root + dst << " || mkdir -p " << root + dst << "\n\t"
+	      << "@$(CHK_DIR_EXISTS) " << root + dst << 
+#ifdef Q_WS_WIN	      
+	      " $(MKDIR) " 
+#else
+	      " || $(MKDIR) "
+#endif
+	      << root + dst << "\n\t"
 	      << target << endl << endl;
 	    all_installs += QString("install_") + (*it) + " ";
 	    if(!uninst.isEmpty()) {

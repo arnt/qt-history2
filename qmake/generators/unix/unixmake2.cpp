@@ -135,6 +135,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "SYMLINK  = " << var("QMAKE_SYMBOLIC_LINK") << endl;
     t << "DEL_DIR  = " << var("QMAKE_DEL_DIR") << endl;
     t << "MOVE     = " << var("QMAKE_MOVE") << endl;
+    t << "CHK_DIR_EXISTS= " << var("QMAKE_CHK_DIR_EXISTS") << endl;
+    t << "MKDIR    = " << var("QMAKE_MKDIR") << endl;
     t << endl;
 
     t << "####### Output directory" << endl << endl;
