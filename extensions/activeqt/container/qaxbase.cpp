@@ -369,34 +369,42 @@ private:
     long ref;
 };
 
-class QAxMetaObject
+class QAxMetaObject : public QMetaObject
 {
 public:
-    QAxMetaObject()
-	: metaObject( 0 ), enums( 0 ), numEnums( 0 )
+    QAxMetaObject( const char * const class_name, QMetaObject *superclass,
+		 const QMetaData * const slot_data, int n_slots,
+		 const QMetaData * const signal_data, int n_signals,
+#ifndef QT_NO_PROPERTIES
+		 const QMetaProperty *const prop_data, int n_props,
+		 const QMetaEnum *const enum_data, int n_enums,
+#endif
+		 const QClassInfo *const class_info, int n_info )
+    : QMetaObject( class_name, superclass, slot_data, n_slots,
+		   signal_data, n_signals,
+#ifndef QT_NO_PROPERTIES
+		   prop_data, n_props,
+		   enum_data, n_enums,
+#endif
+		   class_info, n_info ), enums( enum_data ), numEnums( n_enums )
     {
     }
 
     ~QAxMetaObject()
     {
-	if ( !metaObject )
-	    return;
-
-	QMetaObject *metaobj = metaObject;
-
 	int i;
 	// clean up class info
-	for ( i = 0; i < metaobj->numClassInfo(); ++i ) {
-	    QClassInfo *info = (QClassInfo*)metaobj->classInfo( i );
+	for ( i = 0; i < numClassInfo(); ++i ) {
+	    QClassInfo *info = (QClassInfo*)classInfo( i );
 	    delete [] (char*)info->name;
 	    delete [] (char*)info->value;
 	}
-	if ( metaobj->numClassInfo() )
-	    delete [] (QClassInfo*)metaobj->classInfo( 0 );
+	if ( numClassInfo() )
+	    delete [] (QClassInfo*)classInfo( 0 );
 
 	// clean up slot info
-	for ( i = 0; i < metaobj->numSlots(); ++i ) {
-	    const QMetaData *slot_data = metaobj->slot( i );
+	for ( i = 0; i < numSlots(); ++i ) {
+	    const QMetaData *slot_data = slot( i );
 	    QUMethod *slot = (QUMethod*)slot_data->method;
 	    if ( slot ) {
 		delete [] (char*)slot->name;
@@ -418,12 +426,12 @@ public:
 	    }
 	    delete [] (char*)slot_data->name;
 	}
-	if ( metaobj->numSlots() )
-	    delete [] (QMetaData*)metaobj->slot( 0 );
+	if ( numSlots() )
+	    delete [] (QMetaData*)slot( 0 );
 
 	// clean up signal info
-	for ( i = PredefSignals; i < metaobj->numSignals(); ++i ) { // 0 and 1 are static signals
-	    const QMetaData *signal_data = metaobj->signal( i );
+	for ( i = PredefSignals; i < numSignals(); ++i ) { // 0 and 1 are static signals
+	    const QMetaData *signal_data = signal( i );
 	    QUMethod *signal = (QUMethod*)signal_data->method;
 	    if ( signal ) {
 		delete [] (char*)signal->name;
@@ -445,17 +453,17 @@ public:
 	    }
 	    delete [] (char*)signal_data->name;
 	}
-	if ( metaobj->numSignals() )
-	    delete [] (QMetaData*)metaobj->signal( 0 );
+	if ( numSignals() )
+	    delete [] (QMetaData*)signal( 0 );
 
 	// clean up properties
-	for ( i = 0; i < metaobj->numProperties(); ++i ) {
-	    const QMetaProperty *property = metaobj->property( i );
-	    delete [] (char*)property->n;
-	    delete [] (char*)property->t;
+	for ( i = 0; i < numProperties(); ++i ) {
+	    const QMetaProperty *prop = property( i );
+	    delete [] (char*)prop->n;
+	    delete [] (char*)prop->t;
 	}
-	if ( metaobj->numProperties() )
-	    delete [] (QMetaProperty*)metaobj->property( 0 );
+	if ( numProperties() )
+	    delete [] (QMetaProperty*)property( 0 );
 
 	// clean up enums
 	if ( enums ) {
@@ -469,13 +477,9 @@ public:
 	    }
 	    delete [] (QMetaEnum*)enums;
 	}
-	delete metaobj;
-	metaObject = 0;
     }
 
-    QMetaObject *metaObject;
-
-    QMetaEnum *enums;
+    const QMetaEnum *const enums;
     int numEnums;
 };
 
@@ -1079,7 +1083,7 @@ static inline void QStringToQUType( const QString& type, QUParameter *param, con
 QMetaObject *QAxBase::metaObject() const
 {
     if ( d->metaobj )
-	return d->metaobj->metaObject;
+	return d->metaobj;
     QMetaObject* parentObject = parentMetaObject();
 
     // some signals and properties are always there
@@ -1193,11 +1197,9 @@ QMetaObject *QAxBase::metaObject() const
 	d->metaobj = metaObjectCache()->find( coClassID );
 	if ( d->metaobj ) {
 	    d->cachedMetaObject = TRUE;
-	    return d->metaobj->metaObject;
+	    return d->metaobj;
 	}
     }
-    d->metaobj = new QAxMetaObject;
-
     IDispatch *disp = d->dispatch();
     ITypeLib *typelib = 0;
     if ( disp ) {
@@ -1289,8 +1291,6 @@ QMetaObject *QAxBase::metaObject() const
 	    ++index;
 	    ++enum_it;
 	}
-	d->metaobj->enums = enum_data;
-	d->metaobj->numEnums = enumlist.count();
 
 	// read type information
 	while ( info ) {
@@ -1405,7 +1405,7 @@ QMetaObject *QAxBase::metaObject() const
 
 			    prop = new QMetaProperty;
 			    proplist.insert( function, prop );
-			    prop->meta = (QMetaObject**)&(d->metaobj->metaObject);
+			    prop->meta = (QMetaObject**)&(d->metaobj);
 			    prop->_id = -1;
 			    if ( !ptype.isEmpty() )
 				prop->enumData = enumDict.find( ptype );
@@ -1614,7 +1614,7 @@ QMetaObject *QAxBase::metaObject() const
 		    if ( !prop ) {
 			prop = new QMetaProperty;
 			proplist.insert( variableName, prop );
-			prop->meta = (QMetaObject**)&d->metaobj->metaObject;
+			prop->meta = (QMetaObject**)&d->metaobj;
 			prop->_id = -1;
 			if ( !variableType.isEmpty() )
 			    prop->enumData = enumDict.find( variableType );
@@ -1946,7 +1946,7 @@ QMetaObject *QAxBase::metaObject() const
 	prop_data[index].flags = props_tbl[index].flags;
 	prop_data[index]._id = props_tbl[index]._id;
 	prop_data[index].enumData = props_tbl[index].enumData;
-	prop_data[index].meta = (QMetaObject**)&d->metaobj->metaObject;
+	prop_data[index].meta = (QMetaObject**)&d->metaobj;
 
 	++index;
     }
@@ -1983,7 +1983,7 @@ QMetaObject *QAxBase::metaObject() const
 #endif
 
     // put the metaobject together
-    d->metaobj->metaObject = QMetaObject::new_metaobject(
+    d->metaobj = new QAxMetaObject(
 	className(), parentObject,
 	slot_data, slotlist.count(),
 	signal_data, signallist.count()+PredefSignals,
@@ -2000,9 +2000,14 @@ QMetaObject *QAxBase::metaObject() const
 	d->cachedMetaObject = TRUE;
     }
 
-    return d->metaobj->metaObject;
+    return d->metaobj;
 }
 
+/*!
+    Returns a rich text string with documentation for the
+    wrapped COM object. Dump the string to an HTML-file,
+    or use it in e.g. a QTextView widget.
+*/
 QString QAxBase::generateDocumentation()
 {
     if ( isNull() )
