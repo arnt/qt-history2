@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#151 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#152 $
 **
 ** Implementation of QMenuBar class
 **
@@ -222,7 +222,7 @@ void QMenuBar::menuContentsChanged()
 {
     setupAccelerators();
     badSize = TRUE;				// might change the size
-    if ( isVisible() ) {
+    if ( isVisibleToTLW() ) {
 	calculateRects();
 	repaint();
     }
@@ -550,6 +550,9 @@ void QMenuBar::hide()
 void QMenuBar::fontChange( const QFont & f )
 {
     badSize = TRUE;
+    updateGeometry();
+    if ( isVisibleToTLW() )
+	calculateRects();
     QWidget::fontChange( f );
 }
 
