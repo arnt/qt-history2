@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qbuilder.cpp#4 $
+** $Id: //depot/qt/main/src/dialogs/qbuilder.cpp#5 $
 **
 ** Implementation of QBuilder class
 **
@@ -259,8 +259,8 @@ QBuilder::QBuilder() :
     QVBox* vbox = new QVBox(this);
     d = new QBuilderPrivate(vbox);
     QHBox* hbox = new QHBox(vbox);
-    new QLabel("Class\nstuff\nhere",hbox);
-    new QLabel("Object\nstuff\nhere",hbox);
+    (void)new QLabel("Class\nstuff\nhere",hbox);
+    (void)new QLabel("Object\nstuff\nhere",hbox);
 
     setCentralWidget(vbox);
 
