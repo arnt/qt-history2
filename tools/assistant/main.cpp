@@ -185,17 +185,30 @@ int main( int argc, char ** argv )
 	    } else if ( QString( argv[i] ).lower() == "-removecontentfile" ) {
 		INDEX_CHECK( "Missing content file!" );
 		Config *c = Config::loadConfig( QString::null );
-		QFileInfo file( argv[i+1] );
-		if( !file.exists() ) {
-		    fprintf( stderr, "Could not locate content file: '%s'\n",
-			     file.absFilePath().latin1() );
-		    fflush( stderr );
-		    return 1;
-		}
 		Profile *profile = c->profile();
-		profile->removeDocFileEntry( file.absFilePath() );
-		c->setDocRebuild( TRUE );
-		c->save();
+		QStringList entries = profile->docs.grep(argv[i+1]);
+		if (entries.count() == 0) {
+		    fprintf(stderr, "Could not locate content file: '%s'\n",
+			    argv[i+1]);
+		    fflush(stderr);
+		    return 1;
+		} else if (entries.count() > 1) {
+		    fprintf(stderr, "More than one entry matching file name found, "
+			"please specify full path to file");
+		    fflush(stderr);
+		    return 1;
+		} else {
+		    QFileInfo file(entries[0]);
+		    if( !file.exists() ) {
+			fprintf( stderr, "Could not locate content file: '%s'\n",
+			    file.absFilePath().latin1() );
+			fflush( stderr );
+			return 1;
+		    }
+		    profile->removeDocFileEntry( file.absFilePath() );
+		    c->setDocRebuild( TRUE );
+		    c->save();
+		}
 		return 0;
 	    } else if ( QString( argv[i] ).lower() == "-hidesidebar" ) {
 		hideSidebar = TRUE;
