@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.h#7 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.h#8 $
 **
 ** Definition of QTabWidget class
 **
@@ -31,9 +31,9 @@
 #include "qiconset.h"
 #endif // QT_H
 
-class  QTabBar;
+class QTabBar;
 class QTabWidgetData;
-struct QTab;
+class QTab;
 class QWidgetStack;
 
 

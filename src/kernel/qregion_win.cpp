@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#48 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -288,6 +288,8 @@ QRegion QRegion::winCombine( const QRegion &r, int op ) const
 	default:
 #if defined(CHECK_RANGE)
 	    warning( "QRegion: Internal error in winCombine" );
+#else
+	    ;
 #endif
     }
 

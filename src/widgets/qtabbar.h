@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#25 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#26 $
 **
 ** Definition of QTabBar class
 **
@@ -34,8 +34,9 @@
 struct QTabPrivate;
 
 
-struct Q_EXPORT QTab
+class Q_EXPORT QTab
 {
+public:
     QTab():  enabled( TRUE ), id( 0 ), iconset(0) {}
     virtual ~QTab();
 

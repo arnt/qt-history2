@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvaluelist.h#12 $
+** $Id: //depot/qt/main/src/tools/qvaluelist.h#13 $
 **
 ** Definition of QValueList class
 **
@@ -30,6 +30,10 @@
 #include "qshared.h"
 #include "qdatastream.h"
 #endif // QT_H
+
+#if defined(_CC_MSVC_)
+#pragma warning(disable:4284) // "return type for operator -> is not a UDT"
+#endif
 
 template <class T>
 struct QValueListNode

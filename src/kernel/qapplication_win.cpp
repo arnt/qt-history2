@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#268 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#269 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -587,7 +587,11 @@ Q_EXPORT HDC qt_display_dc()			// get display DC
 
 bool qt_nograb()				// application no-grab option
 {
+#if defined(DEBUG)
     return appNoGrab;
+#else
+    return FALSE;
+#endif
 }
 
 
