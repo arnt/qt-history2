@@ -82,6 +82,7 @@ public:
     void destroyRegion(int winId);
     void requestFocus(int winId, bool get);
     void setAltitude(int winId, int altitude, bool fixed = false);
+    void setOpacity(int winId, int opacity);
     int takeId();
     void setSelectionOwner(int winId, const QTime &time);
     void convertSelection(int winId, int selectionProperty, const QString &mimeTypes);

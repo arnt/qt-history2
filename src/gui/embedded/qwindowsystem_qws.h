@@ -88,6 +88,7 @@ private:
     void setName(const QString &n);
     void setCaption(const QString &c);
 
+    bool isOpaque() const {return opacity == 255;}
 //    void addAllocation(QWSRegionManager *, const QRegion &);
 //    void removeAllocation(QWSRegionManager *, const QRegion &);
 
@@ -117,6 +118,7 @@ private:
     QRegion exposed;
     int last_focus_time;
     QWSBackingStore *backingStore;
+    uchar opacity;
     QWSWindowData *d;
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT QRegion requested() const { return requested_region; }
@@ -309,6 +311,7 @@ private:
 #endif
     void move_region(const QWSRegionMoveCommand *);
     void set_altitude(const QWSChangeAltitudeCommand *);
+    void set_opacity(const QWSSetOpacityCommand *);
     void request_focus(const QWSRequestFocusCommand *);
     void request_region(int, int, QRegion);
     void destroy_region(const QWSRegionDestroyCommand *);
@@ -336,6 +339,7 @@ private:
     void invokeRegionMove(const QWSRegionMoveCommand *cmd, QWSClient *client);
     void invokeRegionDestroy(const QWSRegionDestroyCommand *cmd, QWSClient *client);
     void invokeSetAltitude(const QWSChangeAltitudeCommand *cmd, QWSClient *client);
+    void invokeSetOpacity(const QWSSetOpacityCommand *cmd, QWSClient *client);
 #ifndef QT_NO_QWS_PROPERTIES
     void invokeAddProperty(QWSAddPropertyCommand *cmd);
     void invokeSetProperty(QWSSetPropertyCommand *cmd);
@@ -464,7 +468,7 @@ private:
 //    void notifyModified(QWSWindow *active = 0);
 //    void syncRegions(QWSWindow *active = 0);
 
-    void compose(int index, QRegion exposed, QRegion &blend, int changing);
+    void compose(int index, QRegion exposed, QRegion &blend, QPixmap &blendbuffer, int changing);
 
     void setCursor(QWSCursor *curs);
 

@@ -904,7 +904,7 @@ void QWidgetPrivate::createTLExtra()
         createExtra();
     if (!extra->topextra) {
         QTLWExtra* x = extra->topextra = new QTLWExtra;
-#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined (Q_WS_QWS)
         x->opacity = 255;
 #endif
 #ifndef QT_NO_WIDGET_TOPEXTRA

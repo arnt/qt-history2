@@ -180,9 +180,7 @@ void QWSWindow::bltToScreen(const QRegion &globalrgn)
 #endif
 }
 
-
-
-void QWSServer::compose(int level, QRegion exposed, QRegion &blend, int changing_level)
+void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &blendbuffer, int changing_level)
 {
     bool above_changing = level < changing_level; //0 is topmost
 
@@ -192,26 +190,65 @@ void QWSServer::compose(int level, QRegion exposed, QRegion &blend, int changing
     bool opaque = true;
 
     if (win) {
-        // opaque = win->isOpaque();
+        opaque = win->isOpaque();
         if (opaque) {
             exposedBelow = exposed - win->requested_region;
             if (above_changing)
                 blend -= win->requested_region;
         } else {
             blend += exposed & win->requested_region;
+            exposedBelow = exposed;
         }
-        if (!exposedBelow.isEmpty())
-            compose(level+1, exposedBelow, blend, changing_level);
     }
-    if (!win || exposedBelow.isEmpty()) {
-        //create blend buffer
+    if (win && !exposedBelow.isEmpty()) {
+        compose(level+1, exposedBelow, blend, blendbuffer, changing_level);
+    } else {
+        QSize blendSize = blend.boundingRect().size();
+        if (!blendSize.isNull())
+            blendbuffer = QPixmap(blendSize);
     }
     if (!win) {
         paintBackground(exposed-blend);
-        //buffer.paintBackground(exposed&blend);
+        //buffer.paintBackground(
     } else if (!above_changing) {
         win->bltToScreen(exposed-blend);
         //win->bltTobuffer(exposed&blend);
+    }
+    QRegion blendRegion = exposed&blend;
+    if (win)
+        blendRegion &= win->requested_region;
+    if (!blendRegion.isEmpty()) {
+        QPainter p(&blendbuffer);
+        QRegion clipRgn = blendRegion;
+        QPoint blendOffset = blend.boundingRect().topLeft();
+        clipRgn.translate(-blendOffset);
+        p.setClipRegion(clipRgn); //or should we translate the painter instead???
+        if (!win) {
+            if (!bgImage) {
+                p.fillRect(clipRgn.boundingRect(), *bgColor);
+            } // else ### do bgImage
+
+        } else {
+            uchar opacity = win->opacity;
+            QPixmap *buf = win->backingStore->pixmap();
+            QPoint topLeft = win->requested_region.boundingRect().topLeft();
+            Q_ASSERT (buf && !buf->isNull());
+            if (opacity == 255) {
+                p.drawPixmap(topLeft-blendOffset,*buf);
+            } else {
+                QPixmap yuck(blendRegion.boundingRect().size());
+                yuck.fill(QColor(0,0,0,opacity));
+ //@@@@@ Use the gfx instead ....
+                QPainter pp;
+                pp.begin(&yuck);
+                pp.setCompositionMode(QPainter::CompositionMode_SourceIn);
+                pp.drawPixmap(topLeft-blendRegion.boundingRect().topLeft(), *buf);
+                pp.end();
+
+                p.drawPixmap(blendRegion.boundingRect().topLeft()-blendOffset, yuck);
+
+            }
+        }
     }
 }
 
@@ -1094,6 +1131,11 @@ void QWSServer::doClient(QWSClient *client)
             invokeSetAltitude((QWSChangeAltitudeCommand*)cs->command,
                                cs->client);
             break;
+        case QWSCommand::SetOpacity:
+            invokeSetOpacity((QWSSetOpacityCommand*)cs->command,
+                               cs->client);
+            break;
+
 #ifndef QT_NO_QWS_CURSOR
         case QWSCommand::DefineCursor:
             invokeDefineCursor((QWSDefineCursorCommand*)cs->command, cs->client);
@@ -1749,7 +1791,6 @@ void QWSServer::invokeRegion(QWSRegionCommand *cmd, QWSClient *client)
 
     changingw->backingStore->attach(cmd->simpleData.shmid, region.boundingRect().size());
 
-
 //     if (!region.isEmpty())
 //         changingw->setNeedAck(true);
     setWindowRegion(changingw, region);
@@ -1888,6 +1929,27 @@ void QWSServer::setFocus(QWSWindow* changingw, bool gain)
             focusw->focus(1);
         emit windowEvent(focusw, Active);
     }
+}
+
+
+
+void QWSServer::invokeSetOpacity(const QWSSetOpacityCommand *cmd,
+                                   QWSClient *client)
+{
+    int winId = cmd->simpleData.windowid;
+    int opacity = cmd->simpleData.opacity;
+
+    QWSWindow* changingw = findWindow(winId, 0);
+
+    if (!changingw) {
+        qWarning("invokeSetOpacity: Invalid window handle %d", winId);
+        client->sendRegionModifyEvent(winId, QRegion(), true);
+        return;
+    }
+
+    int altitude = windows.indexOf(changingw);
+    changingw->opacity = opacity;
+    exposeRegion(changingw->requested_region, altitude);
 }
 
 void QWSServer::invokeSetAltitude(const QWSChangeAltitudeCommand *cmd,
@@ -2448,8 +2510,18 @@ void QWSServer::exposeRegion(QRegion r, int changing)
     if (r.isEmpty())
         return;
 
-    QRegion blend;
-    compose(0, r, blend, changing);
+    QRegion blendRegion;
+    QPixmap blendBuffer;
+    compose(0, r, blendRegion, blendBuffer, changing);
+    if (!blendBuffer.isNull()) {
+        //bltToScreen
+        QPoint topLeft = blendRegion.boundingRect().topLeft();
+
+        gfx->setClipRegion(blendRegion, Qt::ReplaceClip);
+        gfx->setSource(&blendBuffer);
+        gfx->setAlphaType(QGfx::IgnoreAlpha);
+        gfx->blt(topLeft.x(),topLeft.y(), blendBuffer.width(), blendBuffer.height(), 0, 0);
+    }
 #if 0
     r &= screenRegion;
 
@@ -2642,6 +2714,13 @@ void QWSServer::set_altitude(const QWSChangeAltitudeCommand *cmd)
     QWSClient *serverClient = clientMap[-1];
     invokeSetAltitude(cmd, serverClient);
 }
+
+void QWSServer::set_opacity(const QWSSetOpacityCommand *cmd)
+{
+    QWSClient *serverClient = clientMap[-1];
+    invokeSetOpacity(cmd, serverClient);
+}
+
 
 void QWSServer::request_focus(const QWSRequestFocusCommand *cmd)
 {

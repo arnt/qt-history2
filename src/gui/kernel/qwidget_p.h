@@ -74,7 +74,7 @@ struct QTLWExtra {
 #endif
     short incw, inch; // size increments
     ulong fleft, fright, ftop, fbottom; // frame strut
-#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
     uint opacity : 8; // Stores opacity level on Windows/Mac OS X.
 #endif
 #if defined(Q_WS_WIN)

@@ -969,6 +969,20 @@ void QWSDisplay::setAltitude(int winId, int alt, bool fixed)
 //    d->waitForRegionAck();
 }
 
+void QWSDisplay::setOpacity(int winId, int opacity)
+{
+    QWSSetOpacityCommand cmd;
+    cmd.simpleData.windowid = winId;
+    cmd.simpleData.opacity = opacity;
+    if (d->directServerConnection()) {
+        qwsServer->set_opacity(&cmd);
+    } else {
+        d->sendCommand(cmd);
+    }
+}
+
+
+
 void QWSDisplay::requestFocus(int winId, bool get)
 {
     QWSRequestFocusCommand cmd;
@@ -1019,6 +1033,7 @@ void QWSDisplay::requestRegion(int winId, int shmid, QRegion r)
 
         QWSRegionCommand cmd;
         cmd.simpleData.windowid = winId;
+//        cmd.simpleData.opaque = ####;
         cmd.simpleData.shmid = shmid;
         cmd.simpleData.nrectangles = ra.count();
         cmd.setData(reinterpret_cast<char *>(ra.data()), ra.count() * sizeof(QRect), false);

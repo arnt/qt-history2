@@ -216,6 +216,9 @@ QDebug &operator<<(QDebug &dbg, QWSCommand::Type tp)
         case QWSCommand::ChangeAltitude:
             typeStr = "ChangeAltitude";
             break;
+        case QWSCommand::SetOpacity:
+            typeStr = "SetOpacity";
+            break;
         case QWSCommand::DefineCursor:
             typeStr = "DefineCursor";
             break;
@@ -469,6 +472,9 @@ QWSCommand *QWSCommand::factory(int type)
         break;
     case QWSCommand::ChangeAltitude:
         command = new QWSChangeAltitudeCommand;
+        break;
+    case QWSCommand::SetOpacity:
+        command = new QWSSetOpacityCommand;
         break;
     case QWSCommand::DefineCursor:
         command = new QWSDefineCursorCommand;

@@ -92,6 +92,7 @@ struct QWSCommand : QWSProtocolItem
         ConvertSelection,
         RequestFocus,
         ChangeAltitude,
+        SetOpacity,
         DefineCursor,
         SelectCursor,
         PositionCursor,
@@ -200,12 +201,26 @@ struct QWSRegionCommand : public QWSCommand
     struct SimpleData {
         int windowid;
         int shmid;
+        bool opaque;
         int nrectangles;
     } simpleData;
 
     QRect *rectangles;
 
 };
+
+struct QWSSetOpacityCommand : public QWSCommand
+{
+    QWSSetOpacityCommand() :
+        QWSCommand(QWSCommand::Region, sizeof(simpleData),
+                    reinterpret_cast<char*>(&simpleData)) {}
+
+    struct SimpleData {
+        int windowid;
+        uchar opacity;
+    } simpleData;
+};
+
 
 struct QWSRegionMoveCommand : public QWSCommand
 {
@@ -300,6 +315,7 @@ struct QWSRepaintRegionCommand : public QWSCommand
 
     struct SimpleData {
         int windowid;
+        bool opaque;
         int nrectangles;
     } simpleData;
 
