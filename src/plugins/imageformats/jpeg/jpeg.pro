@@ -1,7 +1,6 @@
-TEMPLATE = lib
 TARGET  += qjpeg
+include(../../qpluginbase.pri)
 
-CONFIG  += qt plugin
 DESTDIR  = $$QT_BUILD_TREE/plugins/imageformats
 
 VERSION = 1.0.0

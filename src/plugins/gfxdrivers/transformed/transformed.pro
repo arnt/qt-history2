@@ -1,11 +1,9 @@
-TEMPLATE = lib
 TARGET	 = qgfxtransformed
+include(../../qpluginbase.pri)
 
-CONFIG  += qt warn_off plugin
 DESTDIR	 = $$QT_BUILD_TREE/plugins/gfxdrivers
 
 DEFINES	+= QT_QWS_TRANSFORMED
-unix:OBJECTS_DIR = .obj
 
 HEADERS		= ../../../../include/Qt/qgfxtransformed_qws.h
 SOURCES		= main.cpp \

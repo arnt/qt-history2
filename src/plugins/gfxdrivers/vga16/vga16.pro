@@ -1,11 +1,9 @@
-TEMPLATE = lib
 TARGET	 = qgfxvga16
+include(../../qpluginbase.pri)
 
-CONFIG  += qt warn_off plugin
 DESTDIR	 = $$QT_BUILD_TREE/plugins/gfxdrivers
 
 DEFINES	+= QT_QWS_VGA16
-unix:OBJECTS_DIR = .obj
 
 HEADERS		= ../../../../include/Qt/qgfxvga16_qws.h
 SOURCES		= main.cpp \

@@ -1,9 +1,7 @@
-TEMPLATE = lib
 TARGET  += qpng
+include(../../qpluginbase.pri)
 
-CONFIG += qt plugin
 DESTDIR = $$QT_BUILD_TREE/plugins/imageformats
-VERSION = 1.0.0
 
 QTDIR_build:REQUIRES = "!contains(QT_CONFIG, no-png)" "!contains(QT_CONFIG, png)"
 
@@ -49,7 +47,6 @@ contains(QT_CONFIG, system-png) {
 
 contains(QT_CONFIG, system-zlib):unix:LIBS += -lz
 contains(QT_CONFIG, system-zlib):mac:LIBS += -lz
-
 
 target.path += $$plugins.path/imageformats
 INSTALLS += target

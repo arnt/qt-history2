@@ -1,6 +1,4 @@
-TEMPLATE = lib
-
-CONFIG  += plugin console
+include(../../qpluginbase.pri)
 QT  = core sql
 DESTDIR  = $$QT_BUILD_TREE/plugins/sqldrivers
 

@@ -1,11 +1,9 @@
-TEMPLATE = lib
 TARGET	 = qgfxmatrox
+include(../../qpluginbase.pri)
 
-CONFIG  += qt warn_off plugin
 DESTDIR	 = $$QT_BUILD_TREE/plugins/gfxdrivers
 
 DEFINES	+= QT_QWS_MATROX
-unix:OBJECTS_DIR = .obj
 
 HEADERS		= ../../../../include/Qt/qgfxmatrox_qws.h \
 		  ../../../../include/Qt/qgfxmatroxdefs_qws.h

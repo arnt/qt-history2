@@ -6,14 +6,10 @@ SOURCES		= main.cpp \
 		  ../../../sql/drivers/tds/qsql_tds.cpp
 
 unix {
-	OBJECTS_DIR	= .obj
-	!contains( LIBS, .*sybdb.* ) {
-	    LIBS 	*= -lsybdb
-	}
+    !contains( LIBS, .*sybdb.* ):LIBS 	*= -lsybdb
 }
 
 win32 {
-	OBJECTS_DIR		= obj
 	!win32-borland:LIBS 	*= NTWDBLIB.LIB
 	win32-borland:LIBS 	*= $(BCB)/lib/PSDK/NTWDBLIB.LIB
 #	win32-msvc: {
@@ -25,4 +21,4 @@ win32 {
 #	}
 }
 
-include(../common.pri)
+include(../qsqldriverbase.pri)

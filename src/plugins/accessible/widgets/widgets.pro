@@ -1,7 +1,6 @@
-TEMPLATE = lib
 TARGET  = qtwidgets
+include(../../qpluginbase.pri)
 
-CONFIG  += qt dll plugin
 DESTDIR  = $$QT_BUILD_TREE/plugins/accessible
 VERSION  = 1.0.0
 

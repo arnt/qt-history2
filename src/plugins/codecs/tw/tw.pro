@@ -1,7 +1,7 @@
-TEMPLATE = lib
 TARGET   = qtwcodecs
+include(../../qpluginbase.pri)
 
-CONFIG  += qt warn_on plugin
+CONFIG  += warn_on
 DESTDIR  = $$QT_BUILD_TREE/plugins/codecs
 
 QTDIR_build:REQUIRES = "!contains(QT_CONFIG, bigcodecs)"

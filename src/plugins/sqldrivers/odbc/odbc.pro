@@ -11,16 +11,14 @@ mac {
 }
 
 unix {
-	OBJECTS_DIR	= .obj
 	!contains( LIBS, .*odbc.* ) {
 	    LIBS 	*= -lodbc
 	}
 }
 
 win32 {
-	OBJECTS_DIR		= obj
 	!win32-borland:LIBS	*= -lodbc32
     	win32-borland:LIBS	*= $(BCB)/lib/PSDK/odbc32.lib
 }
 
-include(../common.pri)
+include(../qsqldriverbase.pri)

@@ -5,15 +5,11 @@ SOURCES		= main.cpp \
 		  ../../../sql/drivers/mysql/qsql_mysql.cpp
 
 unix {
-	OBJECTS_DIR = .obj
-
 	!contains( LIBS, .*mysql.* ) {
 	    LIBS    *= -lmysqlclient
 	}
 }
 win32 {
-	OBJECTS_DIR = obj
-        
         !contains(LIBS, .*mysql.*) {
 	    LIBS    *= libmysql.lib
         }
@@ -26,4 +22,4 @@ win32 {
 #	}
 }
 
-include(../common.pri)
+include(../qsqldriverbase.pri)

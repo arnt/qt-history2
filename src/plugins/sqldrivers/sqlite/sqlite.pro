@@ -4,21 +4,6 @@ HEADERS		= ../../../sql/drivers/sqlite/qsql_sqlite.h
 SOURCES		= smain.cpp \
 		  ../../../sql/drivers/sqlite/qsql_sqlite.cpp
 
-unix {
-	OBJECTS_DIR = .obj
-}
-
-win32 {
-	OBJECTS_DIR = obj
-#	win32-msvc: {
-#		LIBS *= delayimp.lib
-#		QMAKE_LFLAGS += /DELAYLOAD:libsqlite.dll
-#	}
-#	win32-borland: {
-#		QMAKE_LFLAGS += /dlibsqlite.dll
-#	}
-}
-
 !contains( LIBS, .*sqlite.* ) {
     INCLUDEPATH += ../../../3rdparty/sqlite
     DEFINES += SQLITE_UTF8
@@ -68,4 +53,4 @@ win32 {
                ../../../3rdparty/sqlite/where.c
 }
 
-include(../common.pri)
+include(../qsqldriverbase.pri)

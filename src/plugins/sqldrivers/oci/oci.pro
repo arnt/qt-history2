@@ -5,7 +5,6 @@ SOURCES		= main.cpp \
 		  ../../../sql/drivers/oci/qsql_oci.cpp
 
 win32 {
-	OBJECTS_DIR	= obj
 	LIBS	*= -loci
 #	win32-msvc: {
 #		LIBS *= delayimp.lib
@@ -16,8 +15,6 @@ win32 {
 #	}
 }
 unix {
-	OBJECTS_DIR	= .obj
-
 	!contains( LIBS, .*clnts.* ) {
 	    LIBS	*= -lclntsh
 	    LIBS	*= -lwtc8
@@ -28,4 +25,4 @@ macx {
         QMAKE_LFLAGS += -Wl,-flat_namespace,-U,_environ
 }
 
-include(../common.pri)
+include(../qsqldriverbase.pri)

@@ -5,7 +5,6 @@ SOURCES		= main.cpp \
 		  ../../../sql/drivers/db2/qsql_db2.cpp
 
 unix {
-	OBJECTS_DIR	= .obj
 	!contains( LIBS, .*db2.* ) {
 	    LIBS 	*= -ldb2
 	}
@@ -16,4 +15,4 @@ win32 {
 	}
 }
 
-include(../common.pri)
+include(../qsqldriverbase.pri)

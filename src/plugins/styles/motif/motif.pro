@@ -1,15 +1,11 @@
-TEMPLATE = lib
 TARGET	 = qmotifstyle
+include(../../qpluginbase.pri)
 
-CONFIG  += qt warn_off plugin
 DESTDIR	 = $$QT_BUILD_TREE/plugins/styles
 
 HEADERS		= ../../../gui/styles/qmotifstyle.h
 SOURCES		= main.cpp \
 		  ../../../gui/styles/qmotifstyle.cpp
-
-unix:OBJECTS_DIR	= .obj
-win32:OBJECTS_DIR	= obj
 
 target.path += $$plugins.path/styles
 INSTALLS += target
