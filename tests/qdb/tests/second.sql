@@ -21,6 +21,6 @@
 --    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 --
 
-select a.id, b.id, a.name, b.address
-from authors a, publishers b
-where a.id = 1 and a.id <= b.id;
+select soundex(name)
+from authors
+where id > 0;

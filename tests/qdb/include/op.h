@@ -29,6 +29,7 @@
 #include "environment.h"
 #include "sqlinterpreter.h"
 #include <qvariant.h>
+#include <math.h>
 
 /* Base class for all ops.
 */
@@ -41,7 +42,6 @@ public:
 	: p1( P1 ), p2( P2 ), p3( P3 ), lab( 0 )
     {
     }
-
     ~Op();
     void setLabel( int L ) { lab = L; }
     int label() const { return lab; }
@@ -83,7 +83,6 @@ class Noop : public Op
 public:
     Noop( const QString& comment = QString::null )
 	: Op( comment ) {}
-    ~Noop() {}
     QString name() const { return "noop"; }
     int exec( LocalSQLEnvironment* )
     {
@@ -117,7 +116,6 @@ public:
 	: Op( P1, P2, P3 )
     {
     }
-    ~Push() {}
     QString name() const { return "push"; }
     int exec( LocalSQLEnvironment* env )
     {
@@ -133,17 +131,10 @@ public:
 
 /* Pushes a 'separator' value onto the stack.
 */
-
 class PushSeparator : public Op
 {
 public:
-    PushSeparator( const QVariant& P1,
-	  const QVariant& P2 = QVariant(),
-	  const QVariant& P3 = QVariant() )
-	: Op( P1, P2, P3 )
-    {
-    }
-    ~PushSeparator() {}
+    PushSeparator() {}
     QString name() const { return "pushseparator"; }
     int exec( LocalSQLEnvironment* env )
     {
@@ -152,23 +143,37 @@ public:
     }
 };
 
-
-/* Pop the top two elements from the stack, add them together, and
-   push the result (which is of type double) back onto the stack.
-*/
-class Add : public Op
+class BinOp : public Op
 {
 public:
-    Add() {}
-    QString name() const { return "add"; }
+    BinOp() {}
     int exec( LocalSQLEnvironment* env )
     {
 	if ( !checkStack(env, 2) )
 	    return 0;
 	QVariant v2 = env->stack()->pop();
 	QVariant v1 = env->stack()->pop();
-	env->stack()->push( v1.toDouble() + v2.toDouble() );
+	env->stack()->push( bin(v1, v2) );
 	return 1;
+    }
+
+protected:
+    virtual QVariant bin( const QVariant& v1, const QVariant& v2 ) = 0;
+};
+
+/* Pop the top two elements from the stack, add them together, and
+   push the result (which is of type double) back onto the stack.
+*/
+class Add : public BinOp
+{
+public:
+    Add() {}
+    QString name() const { return "add"; }
+
+protected:
+    QVariant bin( const QVariant& v1, const QVariant& v2 )
+    {
+	return v1.toDouble() + v2.toDouble();
     }
 };
 
@@ -176,38 +181,32 @@ public:
    stack) from the second (the next on stack) and push the result
    (which is of type double) back onto the stack.
 */
-class Subtract : public Op
+class Subtract : public BinOp
 {
 public:
     Subtract() {}
     QString name() const { return "subtract"; }
-    int exec( LocalSQLEnvironment* env )
+
+protected:
+    QVariant bin( const QVariant& v1, const QVariant& v2 )
     {
-	if ( !checkStack(env, 2) )
-	    return 0;
-	QVariant v2 = env->stack()->pop();
-	QVariant v1 = env->stack()->pop();
-	env->stack()->push( v1.toDouble() - v2.toDouble() );
-	return 1;
+	return v1.toDouble() - v2.toDouble();
     }
 };
 
 /* Pop the top two elements from the stack, multiply them together,
  and push the result (which is of type double) back onto the stack.
 */
-class Multiply : public Op
+class Multiply : public BinOp
 {
 public:
     Multiply() {}
     QString name() const { return "multiply"; }
-    int exec( LocalSQLEnvironment* env )
+
+protected:
+    QVariant bin( const QVariant& v1, const QVariant& v2 )
     {
-	if ( !checkStack(env, 2) )
-	    return 0;
-	QVariant v2 = env->stack()->pop();
-	QVariant v1 = env->stack()->pop();
-	env->stack()->push( v1.toDouble() * v2.toDouble() );
-	return 1;
+	return v1.toDouble() * v2.toDouble();
     }
 };
 
@@ -217,30 +216,124 @@ public:
  invalid variant back on the stack, will issue a warning, and most
  likely cause another error down the line.
 */
-class Divide : public Op
+class Divide : public BinOp
 {
 public:
     Divide() {}
     QString name() const { return "divide"; }
-    int exec( LocalSQLEnvironment* env )
+
+protected:
+    QVariant bin( const QVariant& v1, const QVariant& v2 )
     {
-	if ( !checkStack(env, 2) )
-	    return 0;
-	QVariant v2 = env->stack()->pop();
-	QVariant v1 = env->stack()->pop();
-	if ( v2.toDouble() == 0 ) {
-	    error( env, "division by zero" );
-	    env->stack()->push( QVariant() );
-	} else
-	    env->stack()->push( v1.toDouble() / v2.toDouble() );
-	return 1;
+	if ( v2.toDouble() == 0 )
+	    return QVariant();
+	else
+	    return v1.toDouble() / v2.toDouble();
     }
 };
 
-class CompOp : public Op
+class Mod : public BinOp
 {
 public:
-    CompOp( int trueLab, int falseLab )
+    Mod() {}
+    QString name() const { return "mod"; }
+
+protected:
+    QVariant bin( const QVariant& v1, const QVariant& v2 )
+    {
+	if ( v2.toDouble() == 0 )
+	    return QVariant();
+	else
+	    return fmod( v1.toDouble(), v2.toDouble() );
+    }
+};
+
+class Power : public BinOp
+{
+public:
+    Power() {}
+    QString name() const { return "power"; }
+
+protected:
+    QVariant bin( const QVariant& v1, const QVariant& v2 )
+    {
+	return pow( v1.toDouble(), v2.toDouble() );
+    }
+};
+
+class UnOp : public Op
+{
+public:
+    UnOp() {}
+    int exec( LocalSQLEnvironment* env )
+    {
+	if ( !checkStack(env, 1) )
+	    return 0;
+	QVariant v1 = env->stack()->pop();
+	env->stack()->push( un(v1) );
+	return 1;
+    }
+
+protected:
+    virtual QVariant un( const QVariant& v1 ) = 0;
+};
+
+class Abs : public UnOp
+{
+public:
+    Abs() {}
+    QString name() const { return "abs"; }
+
+private:
+    QVariant un( const QVariant& v1 )
+    {
+	return fabs( v1.toDouble() );
+    }
+};
+
+class Ceil : public UnOp
+{
+public:
+    Ceil() {}
+    QString name() const { return "ceil"; }
+
+private:
+    QVariant un( const QVariant& v1 )
+    {
+	return ceil( v1.toDouble() );
+    }
+};
+
+class Floor : public UnOp
+{
+public:
+    Floor() {}
+    QString name() const { return "floor"; }
+
+private:
+    QVariant un( const QVariant& v1 )
+    {
+	return floor( v1.toDouble() );
+    }
+};
+
+class Sign : public UnOp
+{
+public:
+    Sign() {}
+    QString name() const { return "sign"; }
+
+private:
+    QVariant un( const QVariant& v1 )
+    {
+	return v1.toDouble() == 0.0 ? 0 : v1.toDouble() < 0.0 ? -1 : 1;
+    }
+};
+
+class PredOp : public Op
+{
+public:
+    PredOp( int trueLab, int falseLab )
 	: Op( trueLab, falseLab ) {}
     int exec( LocalSQLEnvironment* env )
     {
@@ -259,11 +352,11 @@ protected:
 /* Pop the top two elements from the stack.  If they are equal, then
  jump to instruction P1.  Otherwise, continue to the next instruction.
 */
-class Eq : public CompOp
+class Eq : public PredOp
 {
 public:
     Eq( int trueLab, int falseLab )
-	: CompOp( trueLab, falseLab ) {}
+	: PredOp( trueLab, falseLab ) {}
     QString name() const { return "eq"; }
     bool pred( const QVariant& v1, const QVariant& v2 )
     {
@@ -275,11 +368,11 @@ public:
  on stack) is less than the first (top of stack), then jump to
  instruction P1.  Otherwise, continue to the next instruction.
 */
-class Lt : public CompOp
+class Lt : public PredOp
 {
 public:
     Lt( int trueLab, int falseLab )
-	: CompOp( trueLab, falseLab ) {}
+	: PredOp( trueLab, falseLab ) {}
     QString name() const { return "lt"; }
     bool pred( const QVariant& v1, const QVariant& v2 )
     {
@@ -287,11 +380,11 @@ public:
     }
 };
 
-class In : public CompOp
+class In : public PredOp
 {
 public:
     In( int trueLab, int falseLab )
-	: CompOp( trueLab, falseLab ) {}
+	: PredOp( trueLab, falseLab ) {}
     QString name() const { return "in"; }
     bool pred( const QVariant& v1, const QVariant& v2 )
     {
@@ -328,6 +421,180 @@ public:
 	QRegExp regexp( p1.toString() );
 	env->program()->setCounter( regexp.exactMatch(str) ? p2.toInt()
 				    : p3.toInt() );
+	return 1;
+    }
+};
+
+class Upper : public Op
+{
+public:
+    Upper() { }
+    QString name() const { return "upper"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	QString str = env->stack()->pop().toString();
+	env->stack()->push( str.upper() );
+	return 1;
+    }
+};
+
+class Lower : public Op
+{
+public:
+    Lower() { }
+    QString name() const { return "lower"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	QString str = env->stack()->pop().toString();
+	env->stack()->push( str.lower() );
+	return 1;
+    }
+};
+
+class Length : public Op
+{
+public:
+    Length() { }
+    QString name() const { return "length"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	QString str = env->stack()->pop().toString();
+	env->stack()->push( str.length() );
+	return 1;
+    }
+};
+
+class Substring : public Op
+{
+public:
+    Substring() { }
+    QString name() const { return "substring"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	QString str = env->stack()->pop().toString();
+	int start = env->stack()->pop().toInt();
+	int len = env->stack()->pop().toInt();
+	env->stack()->push( str.mid(start, len) );
+	return 1;
+    }
+};
+
+class Translate : public Op
+{
+public:
+    Translate() { }
+    QString name() const { return "translate"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	QString str = env->stack()->pop().toString();
+	QString from = env->stack()->pop().toString();
+	QString to = env->stack()->pop().toString();
+	QString out;
+
+	for ( int i = 0; i < (int) str.length(); i++ ) {
+	    QChar ch = str[i];
+	    int k = from.find( ch );
+	    if ( k == -1 )
+		out += ch;
+	    else if ( k < (int) to.length() )
+		out += to[k];
+	}
+	env->stack()->push( out );
+	return 1;
+    }
+};
+
+class Replace : public Op
+{
+public:
+    Replace() { }
+    QString name() const { return "replace"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	QString str = env->stack()->pop().toString();
+	QString before = env->stack()->pop().toString();
+	QString after = env->stack()->pop().toString();
+
+	if ( before.length() > 0 ) {
+	    int k = 0;
+	    while ( (k = str.find(before, k)) != -1 ) {
+		str.replace( k, before.length(), after );
+		k += after.length();
+	    }
+	}
+	env->stack()->push( str );
+	return 1;
+    }
+};
+
+class Soundex : public Op
+{
+public:
+    Soundex() { }
+    QString name() const { return "soundex"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	/*
+	  This is not really Soundex, but some vendor seems to
+	  implement it that way.
+	*/
+	QString str = env->stack()->pop().toString().upper();
+	str.replace( QRegExp("[^a-zA-Z]"), QString::null );
+	QString x;
+
+	if ( str.length() > 0 ) {
+	    x = str[0];
+	    int i = 1;
+	    while ( i < (int) str.length() && (int) x.length() < 4 ) {
+		int code = 0;
+
+		switch ( str[i].cell() ) {
+		case 'a':
+		case 'e':
+		case 'h':
+		case 'i':
+		case 'o':
+		case 'u':
+		case 'w':
+		case 'y':
+		    break;
+		case 'b':
+		case 'f':
+		case 'p':
+		case 'v':
+		    code = 1;
+		    break;
+		case 'c':
+		case 'g':
+		case 'j':
+		case 'k':
+		case 'q':
+		case 's':
+		case 'x':
+		case 'z':
+		    code = 2;
+		    break;
+		case 'd':
+		case 't':
+		    code = 3;
+		    break;
+		case 'l':
+		    code = 4;
+		    break;
+		case 'm':
+		case 'n':
+		    code = 5;
+		    break;
+		case 'r':
+		    code = 6;
+		}
+		if ( code != 0 && code != x[x.length() - 1].cell() - '0' )
+		    x += QChar( code + '0' );
+	    }
+	    while ( x.length() < 4 )
+		x += QChar( '0' );
+	}
+	env->stack()->push( x );
 	return 1;
     }
 };
@@ -1106,26 +1373,36 @@ public:
     }
 };
 
+class PushGroupOp : public Op
+{
+public:
+    PushGroupOp( int id, uint P2, LocalSQLResultSet::GroupSetAction action )
+	: Op( id, P2 ), act( action ) {}
+    int exec( LocalSQLEnvironment* env )
+    {
+	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
+	QVariant v;
+	if ( !res->groupSetAction(act, p2.toUInt(), v) )
+	    return FALSE;
+	env->stack()->push( v );
+	return TRUE;
+    }
+
+private:
+    LocalSQLResultSet::GroupSetAction act;
+};
+
 /* Push the value of field number P2 from the current group of the
    result set identified by 'id' on to the top of the stack.  The result set
    must be positioned on a valid group (see NextGroup).
 */
 
-class PushGroupValue : public Op
+class PushGroupValue : public PushGroupOp
 {
 public:
-    PushGroupValue( int id, uint P2 )
-	: Op( id, P2 ) {}
+    PushGroupValue( int id, const QVariant& P2 )
+	: PushGroupOp( id, P2, LocalSQLResultSet::Value ) {}
     QString name() const { return "pushgroupvalue"; }
-    int exec( LocalSQLEnvironment* env )
-    {
-	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
-	QVariant v;
-	if ( !res->groupSetAction( LocalSQLResultSet::Value, p2.toUInt(), v ) )
-	    return FALSE;
-	env->stack()->push( v );
-	return TRUE;
-    }
 };
 
 /* Push the count of field P2 from the current group of the
@@ -1133,21 +1410,12 @@ public:
    must be positioned on a valid group (see NextGroup).
 */
 
-class PushGroupCount : public Op
+class PushGroupCount : public PushGroupOp
 {
 public:
     PushGroupCount( int id, uint P2 )
-	: Op( id, P2 ) {}
+	: PushGroupOp( id, P2, LocalSQLResultSet::Count ) {}
     QString name() const { return "pushgroupcount"; }
-    int exec( LocalSQLEnvironment* env )
-    {
-	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
-	QVariant v;
-	if ( !res->groupSetAction( LocalSQLResultSet::Count, p2.toUInt(), v ) )
-	    return FALSE;
-	env->stack()->push( v );
-	return TRUE;
-    }
 };
 
 /* Push the sum of field P2 from the current group of the
@@ -1155,21 +1423,12 @@ public:
    must be positioned on a valid group (see NextGroup).
 */
 
-class PushGroupSum : public Op
+class PushGroupSum : public PushGroupOp
 {
 public:
     PushGroupSum( int id, uint P2 )
-	: Op( id, P2 ) {}
+	: Op( id, P2, LocalSQLResultSet::Sum ) {}
     QString name() const { return "pushgroupsum"; }
-    int exec( LocalSQLEnvironment* env )
-    {
-	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
-	QVariant v;
-	if ( !res->groupSetAction( LocalSQLResultSet::Sum, p2.toUInt(), v ) )
-	    return FALSE;
-	env->stack()->push( v );
-	return TRUE;
-    }
 };
 
 /* Push the avg of field P2 from the current group of the
@@ -1177,21 +1436,12 @@ public:
    must be positioned on a valid group (see NextGroup).
 */
 
-class PushGroupAvg : public Op
+class PushGroupAvg : public PushGroupOp
 {
 public:
     PushGroupAvg( int id, uint P2 )
-	: Op( id, P2 ) {}
+	: PushGroupOp( id, P2, LocalSQLResultSet::Avg ) {}
     QString name() const { return "pushgroupavg"; }
-    int exec( LocalSQLEnvironment* env )
-    {
-	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
-	QVariant v;
-	if ( !res->groupSetAction( LocalSQLResultSet::Avg, p2.toUInt(), v ) )
-	    return FALSE;
-	env->stack()->push( v );
-	return TRUE;
-    }
 };
 
 /* Push the max of field P2 from the current group of the
@@ -1199,44 +1449,25 @@ public:
    must be positioned on a valid group (see NextGroup).
 */
 
-class PushGroupMax : public Op
+class PushGroupMax : public PushGroupOp
 {
 public:
     PushGroupMax( int id, uint P2 )
-	: Op( id, P2 ) {}
+	: PushGroupOp( id, P2, LocalSQLResultSet::Max ) {}
     QString name() const { return "pushgroupmax"; }
-    int exec( LocalSQLEnvironment* env )
-    {
-	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
-	QVariant v;
-	if ( !res->groupSetAction( LocalSQLResultSet::Max, p2.toUInt(), v ) )
-	    return FALSE;
-	env->stack()->push( v );
-	return TRUE;
-    }
 };
-
 
 /* Push the min of field P2 from the current group of the
    result set identified by 'id' on to the top of the stack.  The result set
    must be positioned on a valid group (see NextGroup).
 */
 
-class PushGroupMin : public Op
+class PushGroupMin : public PushGroupOp
 {
 public:
     PushGroupMin( int id, uint P2 )
-	: Op( id, P2 ) {}
+	: PushGroupOp( id, P2, LocalSQLResultSet::Min ) {}
     QString name() const { return "pushgroupmin"; }
-    int exec( LocalSQLEnvironment* env )
-    {
-	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
-	QVariant v;
-	if ( !res->groupSetAction( LocalSQLResultSet::Min, p2.toUInt(), v ) )
-	    return FALSE;
-	env->stack()->push( v );
-	return TRUE;
-    }
 };
 
 #endif

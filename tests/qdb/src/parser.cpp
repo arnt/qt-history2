@@ -80,6 +80,9 @@ bool Parser::parse( const QString& commands, LocalSQLEnvironment *env )
     yyActiveTableMap.clear();
     yyActiveTableIds.clear();
     yyLookedUpColumnMap.clear();
+    yyFields.clear();
+    yyNumColumnOccs = 0;
+    yyNumAggregateOccs = 0;
 
     matchSql();
     return yyOK;
@@ -91,19 +94,30 @@ enum { Tok_Eoi, Tok_Equal, Tok_NotEq, Tok_LessThan, Tok_GreaterThan,
        Tok_Colon, Tok_Semicolon, Tok_Name, Tok_IntNum, Tok_ApproxNum,
        Tok_String,
 
-       Tok_all, Tok_and, Tok_any, Tok_as, Tok_asc, Tok_avg, Tok_between,
-       Tok_by, Tok_character, Tok_check, Tok_close, Tok_commit,
-       Tok_count, Tok_create, Tok_current, Tok_date, Tok_decimal,
-       Tok_declare, Tok_default, Tok_delete, Tok_desc, Tok_distinct,
-       Tok_double, Tok_drop, Tok_escape, Tok_float, Tok_for,
-       Tok_foreign, Tok_from, Tok_group, Tok_having, Tok_in,
-       Tok_index, Tok_insert, Tok_integer, Tok_into, Tok_is, Tok_key,
-       Tok_like, Tok_max, Tok_min, Tok_not, Tok_null, Tok_numeric,
-       Tok_of, Tok_on, Tok_or, Tok_order, Tok_precision, Tok_primary,
-       Tok_real, Tok_references, Tok_rollback, Tok_select, Tok_set,
-       Tok_smallint, Tok_some, Tok_sum, Tok_table, Tok_to, Tok_union,
-       Tok_unique, Tok_update, Tok_user, Tok_values, Tok_varchar, Tok_view,
-       Tok_where, Tok_with, Tok_work };
+       Tok_abs, Tok_all, Tok_and, Tok_any, Tok_as, Tok_asc, Tok_avg,
+       Tok_between, Tok_by, Tok_ceil, Tok_character, Tok_check,
+       Tok_close, Tok_commit, Tok_count, Tok_create, Tok_current,
+       Tok_date, Tok_decimal, Tok_declare, Tok_default, Tok_delete,
+       Tok_desc, Tok_distinct, Tok_double, Tok_drop, Tok_escape,
+       Tok_float, Tok_floor, Tok_for, Tok_foreign, Tok_from,
+       Tok_group, Tok_having, Tok_in, Tok_index, Tok_insert,
+       Tok_integer, Tok_into, Tok_is, Tok_key, Tok_length, Tok_like,
+       Tok_lower, Tok_max, Tok_min, Tok_mod, Tok_not, Tok_null,
+       Tok_numeric, Tok_of, Tok_on, Tok_or, Tok_order, Tok_power,
+       Tok_precision, Tok_primary, Tok_real, Tok_references,
+       Tok_replace, Tok_rollback, Tok_select, Tok_set, Tok_sign,
+       Tok_smallint, Tok_some, Tok_soundex, Tok_substring, Tok_sum,
+       Tok_table, Tok_to, Tok_translate, Tok_union, Tok_unique,
+       Tok_update, Tok_upper, Tok_user, Tok_values, Tok_varchar,
+       Tok_view, Tok_where, Tok_with, Tok_work };
+
+enum { Node_Abs, Node_Add, Node_And, Node_Avg, Node_Ceil, Node_Count,
+       Node_Divide, Node_Eq, Node_Field, Node_Floor, Node_GreaterEq,
+       Node_In, Node_Length, Node_LessThan, Node_Like, Node_Lower,
+       Node_Max, Node_Min, Node_Mod, Node_Multiply, Node_Not,
+       Node_NotEq, Node_Or, Node_Power, Node_Replace, Node_Sign,
+       Node_Soundex, Node_Star, Node_Substring, Node_Subtract,
+       Node_Sum, Node_Translate, Node_Upper };
 
 #define HASH( first, omitted, last ) \
     ( ((((first) << 5) | (omitted)) << 7) | (last) )
@@ -209,7 +223,6 @@ int Parser::getToken()
 
 	    int h = HASH( tolower(yyLex[0]), yyLexLen - 2,
 			  tolower(yyLex[yyLexLen - 1]) );
-
 	    switch ( h ) {
 	    case HASH( 'a', 1, 'c' ):
 		CHECK( "asc" );
@@ -223,6 +236,9 @@ int Parser::getToken()
 	    case HASH( 'a', 1, 'l' ):
 		CHECK( "all" );
 		return Tok_all;
+	    case HASH( 'a', 1, 's' ):
+		CHECK( "abs" );
+		return Tok_abs;
 	    case HASH( 'a', 1, 'y' ):
 		CHECK( "any" );
 		return Tok_any;
@@ -232,6 +248,9 @@ int Parser::getToken()
 	    case HASH( 'b', 5, 'n' ):
 		CHECK( "between" );
 		return Tok_between;
+	    case HASH( 'c', 2, 'l' ):
+		CHECK( "ceil" );
+		return Tok_ceil;
 	    case HASH( 'c', 2, 'r' ):
 		CHECK( "char" );
 		return Tok_character;
@@ -294,6 +313,9 @@ int Parser::getToken()
 	    case HASH( 'f', 1, 'r' ):
 		CHECK( "for" );
 		return Tok_for;
+	    case HASH( 'f', 3, 'r' ):
+		CHECK( "floor" );
+		return Tok_floor;
 	    case HASH( 'f', 5, 'n' ):
 		CHECK( "foreign" );
 		return Tok_foreign;
@@ -333,6 +355,15 @@ int Parser::getToken()
 	    case HASH( 'l', 2, 'e' ):
 		CHECK( "like" );
 		return Tok_like;
+	    case HASH( 'l', 3, 'r' ):
+		CHECK( "lower" );
+		return Tok_lower;
+	    case HASH( 'l', 4, 'h' ):
+		CHECK( "length" );
+		return Tok_length;
+	    case HASH( 'm', 1, 'd' ):
+		CHECK( "mod" );
+		return Tok_mod;
 	    case HASH( 'm', 1, 'n' ):
 		CHECK( "min" );
 		return Tok_min;
@@ -360,6 +391,9 @@ int Parser::getToken()
 	    case HASH( 'o', 3, 'r' ):
 		CHECK( "order" );
 		return Tok_order;
+	    case HASH( 'p', 3, 'r' ):
+		CHECK( "power" );
+		return Tok_power;
 	    case HASH( 'p', 5, 'y' ):
 		CHECK( "primary" );
 		return Tok_primary;
@@ -369,6 +403,9 @@ int Parser::getToken()
 	    case HASH( 'r', 2, 'l' ):
 		CHECK( "real" );
 		return Tok_real;
+	    case HASH( 'r', 5, 'e' ):
+		CHECK( "replace" );
+		return Tok_replace;
 	    case HASH( 'r', 6, 'k' ):
 		CHECK( "rollback" );
 		return Tok_rollback;
@@ -381,27 +418,42 @@ int Parser::getToken()
 	    case HASH( 's', 1, 't' ):
 		CHECK( "set" );
 		return Tok_set;
-	    case HASH( 's', 4, 't' ):
-		CHECK( "select" );
-		return Tok_select;
-	    case HASH( 's', 6, 't' ):
-		CHECK( "smallint" );
-		return Tok_smallint;
 	    case HASH( 's', 2, 'e' ):
 		CHECK( "some" );
 		return Tok_some;
+	    case HASH( 's', 2, 'n' ):
+		CHECK( "sign" );
+		return Tok_sign;
+	    case HASH( 's', 4, 't' ):
+		CHECK( "select" );
+		return Tok_select;
+	    case HASH( 's', 5, 'x' ):
+		CHECK( "soundex" );
+		return Tok_soundex;
+	    case HASH( 's', 6, 't' ):
+		CHECK( "smallint" );
+		return Tok_smallint;
+	    case HASH( 's', 7, 'g' ):
+		CHECK( "substring" );
+		return Tok_substring;
 	    case HASH( 't', 0, 'o' ):
 		CHECK( "to" );
 		return Tok_to;
 	    case HASH( 't', 3, 'e' ):
 		CHECK( "table" );
 		return Tok_table;
+	    case HASH( 't', 7, 'e' ):
+		CHECK( "translate" );
+		return Tok_translate;
 	    case HASH( 'u', 2, 'r' ):
 		CHECK( "user" );
 		return Tok_user;
 	    case HASH( 'u', 3, 'n' ):
 		CHECK( "union" );
 		return Tok_union;
+	    case HASH( 'u', 3, 'r' ):
+		CHECK( "upper" );
+		return Tok_upper;
 	    case HASH( 'u', 4, 'e' ):
 		if ( yyLex[1] == 'n' ) {
 		    CHECK( "unique" );
@@ -526,9 +578,9 @@ void Parser::lookupNames( QVariant *expr )
 {
     if ( expr->type() == QVariant::List ) {
 	QValueList<QVariant>::Iterator v = expr->asList().begin();
-	int tok = (*v).toInt();
+	int node = (*v).toInt();
 
-	if ( tok == Tok_Name ) {
+	if ( node == Node_Field ) {
 	    QValueList<QVariant>::Iterator updateMe = ++v;
 	    QString tableName = (*updateMe).toString();
 	    QString columnName = (*++v).toString();
@@ -544,13 +596,14 @@ void Parser::lookupNames( QVariant *expr )
 			int aliasId = -( yyLookedUpColumnMap.count() + 1 );
 			id = yyLookedUpColumnMap.insert( columnName, aliasId );
 
-			QMap<QString, int>::ConstIterator t =
-				yyActiveTableMap.begin();
-			while ( t != yyActiveTableMap.end() ) {
+			yyProg->append( new PushSeparator );
+			QValueList<int>::ConstIterator t =
+				yyActiveTableIds.begin();
+			while ( t != yyActiveTableIds.end() ) {
 			    yyProg->append( new Push(*t) );
 			    ++t;
 			}
-			yyProg->append( new MakeList(numTables) );
+			yyProg->append( new MakeList );
 			yyProg->append( new LookupUnique(columnName, aliasId) );
 		    }
 		    *updateMe = *id;
@@ -576,7 +629,71 @@ void Parser::lookupNames( QVariant *expr )
     }
 }
 
-void Parser::emitExpr( const QVariant& expr, bool fieldValues, int trueLab,
+void Parser::lookupNames( QValueList<QVariant> *exprs )
+{
+    QValueList<QVariant>::Iterator e = exprs->begin();
+    while ( e != exprs->end() ) {
+	lookupNames( &*e );
+	++e;
+    }
+}
+
+QVariant Parser::exprTypeInfo( const QVariant& expr )
+{
+    if ( expr.type() == QVariant::List ) {
+	QValueList<QVariant>::ConstIterator v = expr.listBegin();
+	int node = (*v).toInt();
+
+	switch ( node ) {
+	/*
+	  Arithmetic functions.
+	*/
+	case Node_Abs:
+	case Node_Add:
+	case Node_Ceil:
+	case Node_Divide:
+	case Node_Floor:
+	case Node_Mod:
+	case Node_Multiply:
+	case Node_Power:
+	case Node_Sign:
+	case Node_Subtract:
+	    return (int) QVariant::Double;
+
+	/*
+	  String functions.
+	*/
+	case Node_Length:
+	    return (int) QVariant::Double;
+	case Node_Lower:
+	case Node_Replace:
+	case Node_Soundex:
+	case Node_Substring:
+	case Node_Translate:
+	case Node_Upper:
+	    return (int) QVariant::String;
+
+	/*
+	  Aggregate functions.
+	*/
+	case Node_Avg:
+	case Node_Max:
+	case Node_Min:
+	case Node_Sum:
+	    return expr.toList()[1];
+	case Node_Count:
+	    return (int) QVariant::Double;
+	case Node_Field:
+	    return expr;
+	default:
+	    return (int) QVariant::Invalid;
+	}
+    } else {
+	return (int) expr.type();
+    }
+}
+
+void Parser::emitExpr( const QVariant& expr, bool group, int trueLab,
 		       int falseLab )
 {
     /*
@@ -585,73 +702,145 @@ void Parser::emitExpr( const QVariant& expr, bool fieldValues, int trueLab,
     */
     if ( expr.type() == QVariant::List ) {
 	QValueList<QVariant>::ConstIterator v = expr.listBegin();
-	int tok = (*v).toInt();
+	int node = (*v).toInt();
 	LocalSQLOp *op = 0;
 	int tableId;
 	QString field;
 	int nextCond;
+	int i;
 
-	switch ( tok ) {
-	case Tok_Name:
+	switch ( node ) {
+    	case Node_Avg:
+	    field = (*++v).toString();
+	    yyProg->append( new PushGroupAvg(0, field) );
+	    break;
+	case Node_And:
+	    nextCond = yyNextLabel--;
+	    emitExpr( *++v, group, nextCond, falseLab );
+	    yyProg->appendLabel( nextCond );
+	    emitExpr( *++v, group, trueLab, falseLab );
+	    break;
+	case Node_Count:
+	    field = (*++v).toString();
+	    yyProg->append( new PushGroupCount(0, field) );
+	    break;
+	case Node_Field:
 	    tableId = (*++v).toInt();
 	    field = (*++v).toString();
-	    if ( fieldValues )
-		yyProg->append( new PushFieldValue(tableId, field) );
+	    if ( group )
+		yyProg->append( new PushGroupValue(tableId, field) );
 	    else
-		yyProg->append( new PushFieldDesc(tableId, field) );
+		yyProg->append( new PushFieldValue(tableId, field) );
 	    break;
-	case Tok_and:
-	    nextCond = yyNextLabel--;
-	    emitExpr( *++v, fieldValues, nextCond, falseLab );
-	    yyProg->appendLabel( nextCond );
-	    emitExpr( *++v, fieldValues, trueLab, falseLab );
-	    break;
-	case Tok_in:
-	    emitExpr( *++v, fieldValues );
+	case Node_In:
+	    emitExpr( *++v, group );
 	    yyProg->append( new Push(*++v) );
 	    yyProg->append( new In(trueLab, falseLab) );
 	    break;
-	case Tok_like:
-	    emitExpr( *++v, fieldValues );
+	case Node_Like:
+	    emitExpr( *++v, group );
 	    yyProg->append( new Like((*++v).toString(), trueLab, falseLab) );
 	    break;
-	case Tok_not:
-	    emitExpr( *++v, fieldValues, falseLab, trueLab );
+	case Node_Max:
+	    field = (*++v).toString();
+	    yyProg->append( new PushGroupMax(0, field) );
 	    break;
-	case Tok_or:
+	case Node_Min:
+	    field = (*++v).toString();
+	    yyProg->append( new PushGroupMin(0, field) );
+	    break;
+	case Node_Not:
+	    emitExpr( *++v, group, falseLab, trueLab );
+	    break;
+	case Node_Or:
 	    nextCond = yyNextLabel--;
-	    emitExpr( *++v, fieldValues, trueLab, nextCond );
+	    emitExpr( *++v, group, trueLab, nextCond );
 	    yyProg->appendLabel( nextCond );
-	    emitExpr( *++v, fieldValues, trueLab, falseLab );
+	    emitExpr( *++v, group, trueLab, falseLab );
+	    break;
+	case Node_Star:
+	    for ( i = 0; i < (int) yyActiveTableIds.count(); i++ ) {
+		tableId = yyActiveTableIds[i];
+		if ( group )
+		    error( "Invalid use of '*'" );		
+		else
+		    yyProg->append( new PushStarValue(tableId) );
+	    }
+	    break;
+	case Node_Sum:
+	    field = (*++v).toString();
+	    yyProg->append( new PushGroupSum(0, field) );
 	    break;
 	default:
-	    emitExpr( *++v, fieldValues );
-	    emitExpr( *++v, fieldValues );
+	    ++v;
+	    while ( v != expr.listEnd() ) {
+		emitExpr( *v, group );
+		++v;
+	    }
 
-	    switch ( tok ) {
-	    case Tok_Equal:
+	    switch ( node ) {
+	    case Node_Eq:
 		op = new Eq( trueLab, falseLab );
 		break;
-	    case Tok_NotEq:
+	    case Node_NotEq:
 		op = new Eq( falseLab, trueLab );
 		break;
-	    case Tok_LessThan:
+	    case Node_LessThan:
 		op = new Lt( trueLab, falseLab );
 		break;
-	    case Tok_GreaterEq:
+	    case Node_GreaterEq:
 		op = new Lt( falseLab, trueLab );
 		break;
-	    case Tok_Plus:
+	    case Node_Add:
 		op = new Add;
 		break;
-	    case Tok_Minus:
+	    case Node_Subtract:
 		op = new Subtract;
 		break;
-	    case Tok_Aster:
+	    case Node_Multiply:
 		op = new Multiply;
 		break;
-	    case Tok_Div:
+	    case Node_Divide:
 		op = new Divide;
+		break;
+	    case Node_Abs:
+		op = new Abs;
+		break;
+	    case Node_Ceil:
+		op = new Ceil;
+		break;
+	    case Node_Floor:
+		op = new Floor;
+		break;
+	    case Node_Length:
+		op = new Length;
+		break;
+	    case Node_Lower:
+		op = new Lower;
+		break;
+	    case Node_Mod:
+		op = new Mod;
+		break;
+	    case Node_Power:
+		op = new Power;
+		break;
+	    case Node_Replace:
+		op = new Replace;
+		break;
+	    case Node_Sign:
+		op = new Sign;
+		break;
+	    case Node_Soundex:
+		op = new Soundex;
+		break;
+	    case Node_Substring:
+		op = new Substring;
+		break;
+	    case Node_Translate:
+		op = new Translate;
+		break;
+	    case Node_Upper:
+		op = new Upper;
 	    }
 	    yyProg->append( op );
 	}
@@ -660,16 +849,42 @@ void Parser::emitExpr( const QVariant& expr, bool fieldValues, int trueLab,
     }
 }
 
-void Parser::emitCondition( const QVariant& cond,
+void Parser::emitWhere( QVariant *cond, QValueList<QVariant> *constants,
+			const QValueList<QVariant>& selectColumns,
+			const QStringList& selectColumnNames )
+{
+    QValueList<QVariant> optimizableConstants;
+    QValueList<QVariant> unoptimizableConstants;
+
+    lookupNames( cond );
+
+    // ### this could be done earlier and better
+    QValueList<QVariant>::Iterator c = constants->begin();
+    while ( c != constants->end() ) {
+	lookupNames( &*c );
+	int tableId = (*c).asList()[1].asList()[1].toInt();
+	if ( tableId < 0 )
+	    unoptimizableConstants.append( *c );
+	else
+	    optimizableConstants.append( *c );
+	++c;
+    }
+    pourConstantsIntoCondition( cond, &unoptimizableConstants );
+    emitWhereLoop( *cond, optimizableConstants, selectColumns,
+		   selectColumnNames );
+}
+
+void Parser::emitWhereLoop( const QVariant& cond,
 			    const QValueList<QVariant>& constants,
-			    const QValueList<QVariant>& columnsToSave,
-			    int level )
+			    const QValueList<QVariant>& selectColumns,
+			    const QStringList& selectColumnNames, int level )
 {
     int tableId = yyActiveTableIds[level];
     int lastLevel = (int) yyActiveTableIds.count() - 1;
-    bool saving = !columnsToSave.isEmpty();
+    bool saving = !selectColumns.isEmpty();
 
-#define NEED_A_LOOP() ( cond.isValid() || lastLevel > 0 )
+ // ### all columns must be simple
+    bool needLoop = ( cond.isValid() || lastLevel > 0 );
 
     QValueList<QVariant> constantsForLevel;
     if ( yyActiveTableIds.count() == 1 ) {
@@ -683,79 +898,124 @@ void Parser::emitCondition( const QVariant& cond,
 	}
     }
 
-    if ( NEED_A_LOOP() && constantsForLevel.isEmpty() ) {
+    if ( needLoop && constantsForLevel.isEmpty() ) {
 	yyProg->append( new MarkAll(tableId) );
     } else {
-	emitConstants( constantsForLevel );
-	if ( saving && !NEED_A_LOOP() ) {
-	    emitExprList( columnsToSave, FALSE );
-	    yyProg->append( new MakeList(2) );
+	if ( saving && !needLoop ) {
+	    yyProg->append( new PushSeparator );
+	    emitConstants( constantsForLevel );
+	    emitFieldDescs( selectColumns, selectColumnNames );
+	    yyProg->append( new MakeList );
 	    yyProg->append( new RangeSave(tableId, 0) );
 	} else {
+	    emitConstants( constantsForLevel );
 	    yyProg->append( new RangeMark(tableId) );
 	}
     }
 
-    int nextRecord = yyNextLabel--;
-    int endRecords = yyNextLabel--;
+    if ( needLoop ) {
+	int next = yyNextLabel--;
+	int end = yyNextLabel--;
 
-    if ( NEED_A_LOOP() ) {
 	if ( saving && level == 0 ) {
-	    emitExprList( columnsToSave, FALSE );
+	    emitFieldDescs( selectColumns, selectColumnNames );
 	    yyProg->append( new CreateResult(0) );
 	}
 
-	//	yyProg->append( new RewindMarked(tableId) );
-	yyProg->appendLabel( nextRecord );
-	yyProg->append( new NextMarked(tableId, endRecords) );
+	yyProg->appendLabel( next );
+	yyProg->append( new NextMarked(tableId, end) );
 
 	if ( level == lastLevel ) {
 	    if ( saving ) {
-		int saveRecord = yyNextLabel--;
-		emitExpr( cond, TRUE, saveRecord, nextRecord );
-		yyProg->appendLabel( saveRecord );
-		emitExprList( columnsToSave, TRUE );
+		int save = yyNextLabel--;
+		emitExpr( cond, FALSE, save, next );
+		yyProg->appendLabel( save );
+		emitExprList( selectColumns, FALSE );
 		yyProg->append( new SaveResult(0) );
 	    } else {
-		int unmarkRecord = yyNextLabel--;
-		emitExpr( cond, TRUE, nextRecord, unmarkRecord );
-		yyProg->appendLabel( unmarkRecord );
+		int unmark = yyNextLabel--;
+		emitExpr( cond, FALSE, next, unmark );
+		yyProg->appendLabel( unmark );
 		yyProg->append( new Unmark(tableId) );
 	    }
 	} else {
-	    emitCondition( cond, constants, columnsToSave, level + 1 );
+	    emitWhereLoop( cond, constants, selectColumns, selectColumnNames,
+			   level + 1 );
 	}
-
-	yyProg->append( new Goto(nextRecord) );
-	yyProg->appendLabel( endRecords );
-	// yyProg->append( new Noop );
+	yyProg->append( new Goto(next) );
+	yyProg->appendLabel( end );
     }
 }
 
-void Parser::emitExprList( const QValueList<QVariant>& exprs, bool fieldValues )
+void Parser::emitExprList( const QValueList<QVariant>& exprs, bool group )
 {
+    yyProg->append( new PushSeparator );
     QValueList<QVariant>::ConstIterator e = exprs.begin();
     while ( e != exprs.end() ) {
-	emitExpr( *e, fieldValues );
+	emitExpr( *e, group );
 	++e;
     }
-    yyProg->append( new MakeList(exprs.count()) );
+    yyProg->append( new MakeList );
 }
 
 void Parser::emitConstants( const QValueList<QVariant>& constants )
 {
     QValueList<QVariant>::ConstIterator v = constants.begin();
+
+    yyProg->append( new PushSeparator );
     while ( v != constants.end() ) {
 	QValueList<QVariant>::ConstIterator w = (*v).listBegin();
 	QValueList<QVariant> nameExpr = (*++w).toList();
 	QVariant valueExpr = *++w;
 
-	emitExpr( nameExpr, FALSE );
-	emitExpr( valueExpr, FALSE );
-	yyProg->append( new MakeList(2) );
+	yyProg->append( new PushSeparator );
+	emitExpr( nameExpr );
+	emitExpr( valueExpr );
+	yyProg->append( new MakeList );
 	++v;
     }
-    yyProg->append( new MakeList(constants.count()) );
+    yyProg->append( new MakeList );
+}
+
+void Parser::emitFieldDesc( const QVariant& column, const QString& columnName )
+{
+    yyProg->append( new PushSeparator );
+    QVariant borrowFrom;
+    int i;
+
+    if ( column.type() == QVariant::List &&
+	 column.toList()[0].toInt() == Tok_Aster ) {
+	for ( i = 0; i < (int) yyActiveTableIds.count(); i++ ) {
+	    int tableId = yyActiveTableIds[i];
+	    yyProg->append( new PushStarDesc(tableId) );
+	}
+    } else {
+	yyProg->append( new Push(columnName) );
+	borrowFrom = exprTypeInfo( column );
+	if ( borrowFrom.type() == QVariant::List ) {
+	    int id = borrowFrom.asList()[1].toInt();
+	    QString name = borrowFrom.asList()[2].toString();
+	    yyProg->append( new PushFieldDataInfo(id, name) );
+	} else {
+	    yyProg->append( new Push(borrowFrom.type()) );
+	    yyProg->append( new Push(0) );
+	    yyProg->append( new Push(0) );
+	}
+    }
+    yyProg->append( new MakeList );
+}
+
+void Parser::emitFieldDescs( const QValueList<QVariant>& columns,
+			     const QStringList& columnNames )
+{
+    QValueList<QVariant>::ConstIterator col = columns.begin();
+    QStringList::ConstIterator nam = columnNames.begin();
+
+    while ( col != columns.end() ) {
+	emitFieldDesc( *col, *nam );
+	++col;
+	++nam;
+    }
 }
 
 int Parser::activateTable( const QString& tableName )
@@ -789,11 +1049,13 @@ void Parser::closeAllTables()
 void Parser::createIndex( int tableId, const QStringList& columns, bool unique )
 {
     QStringList::ConstIterator col = columns.begin();
+
+    yyProg->append( new PushSeparator );
     while ( col != columns.end() ) {
 	yyProg->append( new PushFieldDesc(tableId, *col) );
 	++col;
     }
-    yyProg->append( new MakeList(columns.count()) );
+    yyProg->append( new MakeList );
     yyProg->append( new CreateIndex(tableId, unique) );
 }
 
@@ -807,7 +1069,7 @@ void Parser::pourConstantsIntoCondition( QVariant *cond,
     while ( c != constants->end() ) {
 	if ( cond->isValid() ) {
 	    QValueList<QVariant> andExpr;
-	    andExpr.append( (int) Tok_and );
+	    andExpr.append( (int) Node_And );
 	    andExpr.append( *c );
 	    andExpr.append( *cond );
 	    *cond = andExpr;
@@ -869,14 +1131,17 @@ QVariant Parser::matchColumnRef()
     }
 
     QValueList<QVariant> expr;
-    expr.append( (int) Tok_Name );
+    expr.append( (int) Node_Field );
     expr.append( tableName );
     expr.append( columnName );
+    yyNumColumnOccs++;
     return expr;
 }
 
-QVariant Parser::matchFunctionRefArguments()
+QVariant Parser::matchAggregateArgument()
 {
+    QVariant arg;
+
     matchOrInsert( Tok_LeftParen, "'('" );
     if ( yyTok == Tok_Aster ) {
 	yyTok = getToken();
@@ -884,7 +1149,28 @@ QVariant Parser::matchFunctionRefArguments()
 	matchScalarExpr();
     }
     matchOrInsert( Tok_RightParen, "')'" );
-    return QVariant();
+    return QVariant(); // #####
+}
+
+void Parser::matchFunctionArguments( int numArguments,
+				     QValueList<QVariant> *expr )
+{
+    int met = 0;
+
+    matchOrInsert( Tok_LeftParen, "'('" );
+    if ( yyTok != Tok_RightParen ) {
+	while ( TRUE ) {
+	    expr->append( matchScalarExpr() );
+	    met++;
+
+	    if ( yyTok != Tok_Comma )
+		break;
+	    yyTok = getToken();
+	}
+    }
+    matchOrInsert( Tok_RightParen, "')'" );
+    if ( met != numArguments )
+	error( "Met %d arguments where %d where expected", met, numArguments );
 }
 
 QVariant Parser::matchPrimaryExpr()
@@ -919,38 +1205,97 @@ QVariant Parser::matchPrimaryExpr()
 	right = yyStr;
 	yyTok = getToken();
 	break;
-    case Tok_avg:
-	yyTok = getToken();
-	matchFunctionRefArguments();
-	// ###
-	break;
-    case Tok_count:
-	yyTok = getToken();
-	matchFunctionRefArguments();
-	// ###
-	break;
-    case Tok_max:
-	yyTok = getToken();
-	matchFunctionRefArguments();
-	// ###
-	break;
-    case Tok_min:
-	yyTok = getToken();
-	matchFunctionRefArguments();
-	// ###
-	break;
-    case Tok_sum:
-	yyTok = getToken();
-	matchFunctionRefArguments();
-	// ###
-	break;
     default:
-	error( "Met '%s' where primary expression was expected", yyLex );
+	switch ( yyTok ) {
+	case Tok_avg:
+	    node = Node_Avg;
+	    n = 0;
+	    break;
+	case Tok_count:
+	    node = Node_Count;
+	    n = 0;
+	    break;
+	case Tok_max:
+	    node = Node_Max;
+	    n = 0;
+	    break;
+	case Tok_min:
+	    node = Node_Min;
+	    n = 0;
+	    break;
+	case Tok_sum:
+	    node = Node_Sum;
+	    n = 0;
+	    break;
+	case Tok_abs:
+	    node = Node_Abs;
+	    n = 1;
+	    break;
+	case Tok_ceil:
+	    node = Node_Ceil;
+	    n = 1;
+	    break;
+	case Tok_floor:
+	    node = Node_Floor;
+	    n = 1;
+	    break;
+	case Tok_length:
+	    node = Node_Length;
+	    n = 1;
+	    break;
+	case Tok_lower:
+	    node = Node_Lower;
+	    n = 1;
+	    break;
+	case Tok_sign:
+	    node = Node_Sign;
+	    n = 1;
+	    break;
+	case Tok_soundex:
+	    node = Node_Soundex;
+	    n = 1;
+	    break;
+	case Tok_upper:
+	    node = Node_Upper;
+	    n = 1;
+	    break;
+	case Tok_mod:
+	    node = Node_Mod;
+	    n = 2;
+	    break;
+	case Tok_power:
+	    node = Node_Power;
+	    n = 2;
+	    break;
+	case Tok_replace:
+	    node = Node_Replace;
+	    n = 3;
+	    break;
+	case Tok_substring:
+	    node = Node_Substring;
+	    n = 3;
+	    break;
+	case Tok_translate:
+	    node = Node_Translate;
+	    n = 3;
+	    break;
+	default:
+	    error( "Met '%s' where primary expression was expected", yyLex );
+	}
+
+	yyTok = getToken();
+	right.asList().append( node );
+	if ( n == 0 ) {
+	    right.asList().append( matchAggregateArgument() );
+	    yyNumAggregateOccs++;	
+	} else {
+	    matchFunctionArguments( 3, &right.asList() );
+	}
     }
 
     if ( uminus ) {
 	QValueList<QVariant> uminusExp;
-	uminusExp.append( (int) Tok_Minus );
+	uminusExp.append( (int) Node_Subtract );
 	uminusExp.append( 0 );
 	uminusExp.append( right );
 	right = uminusExp;
@@ -965,7 +1310,8 @@ QVariant Parser::matchMultiplicativeExpr()
     left = matchPrimaryExpr();
     while ( yyTok == Tok_Aster || yyTok == Tok_Div ) {
 	QValueList<QVariant> multExp;
-	multExp.append( yyTok );
+	int node = yyTok == Tok_Aster ? Node_Multiply : Node_Divide;
+	multExp.append( node );
 	multExp.append( left );
 	yyTok = getToken();
 	multExp.append( matchPrimaryExpr() );
@@ -981,7 +1327,8 @@ QVariant Parser::matchScalarExpr()
     left = matchMultiplicativeExpr();
     while ( yyTok == Tok_Plus || yyTok == Tok_Minus ) {
 	QValueList<QVariant> scalExp;
-	scalExp.append( yyTok );
+	int node = yyTok == Tok_Plus ? Node_Plus : Node_Minus;
+	scalExp.append( node );
 	scalExp.append( left );
 	yyTok = getToken();
 	scalExp.append( matchMultiplicativeExpr() );
@@ -1025,16 +1372,16 @@ QVariant Parser::matchBetween( const QVariant& left )
     QValueList<QVariant> pred;
     QValueList<QVariant> subPred;
 
-    pred.append( (int) Tok_and );
+    pred.append( (int) Node_And );
     yyTok = getToken();
-    subPred.append( (int) Tok_GreaterEq );
+    subPred.append( (int) Node_GreaterEq );
     subPred.append( left );
     subPred.append( matchScalarExpr() );
     subPred.append( pred );
     matchOrInsert( Tok_and, "'and'" );
 
     subPred.clear();
-    subPred.append( (int) Tok_GreaterEq );
+    subPred.append( (int) Node_GreaterEq );
     subPred.append( matchScalarExpr() );
     subPred.append( left );
     pred.append( subPred );
@@ -1045,7 +1392,7 @@ QVariant Parser::matchIn( const QVariant& left )
 {
     QValueList<QVariant> pred;
 
-    pred.append( yyTok );
+    pred.append( (int) Node_In );
     yyTok = getToken();
     matchOrInsert( Tok_LeftParen, "'('" );
     pred.append( left );
@@ -1058,7 +1405,7 @@ QVariant Parser::matchLike( const QVariant& left )
 {
     QValueList<QVariant> pred;
 
-    pred.append( yyTok );
+    pred.append( (int) Node_Like );
     yyTok = getToken();
     pred.append( left );
     pred.append( matchAtom() );
@@ -1078,7 +1425,7 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 
     switch ( yyTok ) {
     case Tok_Equal:
-	pred.append( yyTok );
+	pred.append( (int) Node_Equal );
 	yyTok = getToken();
 	right = matchScalarExpr();
 	pred.append( left );
@@ -1090,22 +1437,32 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 	}
 	break;
     case Tok_NotEq:
+	pred.append( (int) Node_NotEq );
+	yyTok = getToken();
+	pred.append( left );
+	pred.append( matchScalarExpr() );
+	break;
     case Tok_LessThan:
+	pred.append( (int) Node_LessThan );
+	yyTok = getToken();
+	pred.append( left );
+	pred.append( matchScalarExpr() );
+	break;
     case Tok_GreaterEq:
-	pred.append( yyTok );
+	pred.append( (int) Node_GreaterEq );
 	yyTok = getToken();
 	pred.append( left );
 	pred.append( matchScalarExpr() );
 	break;
     case Tok_GreaterThan:
 	yyTok = getToken();
-	pred.append( (int) Tok_LessThan );
+	pred.append( (int) Node_LessThan );
 	pred.append( matchScalarExpr() );
 	pred.append( left );
 	break;
     case Tok_LessEq:
 	yyTok = getToken();
-	pred.append( (int) Tok_GreaterEq );
+	pred.append( (int) Node_GreaterEq );
 	pred.append( matchScalarExpr() );
 	pred.append( left );
 	break;
@@ -1152,7 +1509,7 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 
     if ( unot ) {
 	QValueList<QVariant> unotExp;
-	unotExp.append( (int) Tok_not );
+	unotExp.append( (int) Node_Not );
 	unotExp.append( pred );
 	pred = unotExp;
     }
@@ -1169,7 +1526,7 @@ QVariant Parser::matchPrimarySearchCondition( QValueList<QVariant> *constants )
     } else if ( yyTok == Tok_not ) {
 	QValueList<QVariant> notExpr;
 
-	notExpr.append( yyTok );
+	notExpr.append( (int) Node_Not );
 	yyTok = getToken();
 	notExpr.append( matchSearchCondition() );
 	return notExpr;
@@ -1189,7 +1546,7 @@ QVariant Parser::matchAndSearchCondition( QValueList<QVariant> *constants )
 	if ( right.isValid() ) {
 	    if ( left.isValid() ) {
 		QValueList<QVariant> andCond;
-		andCond.append( (int) Tok_and );
+		andCond.append( (int) Node_And );
 		andCond.append( left );
 		andCond.append( right );
 		left = andCond;
@@ -1214,7 +1571,7 @@ QVariant Parser::matchSearchCondition( QValueList<QVariant> *constants )
 	pourConstantsIntoCondition( &left, constants );
 	do {
 	    QValueList<QVariant> cond;
-	    cond.append( yyTok );
+	    cond.append( (int) Node_Or );
 	    yyTok = getToken();
 	    cond.append( left );
 	    cond.append( matchAndSearchCondition() );
@@ -1224,31 +1581,45 @@ QVariant Parser::matchSearchCondition( QValueList<QVariant> *constants )
     return left;
 }
 
-void Parser::matchOptWhereClause( const QValueList<QVariant>& columnsToSave )
+QVariant Parser::matchOptWhereClause( QValueList<QVariant> *constants )
 {
     QVariant cond;
-    QValueList<QVariant> constants;
-    QValueList<QVariant> optimizableConstants;
-    QValueList<QVariant> unoptimizableConstants;
 
     if ( yyTok == Tok_where ) {
 	yyTok = getToken();
-	cond = matchSearchCondition( &constants );
-
-	lookupNames( &cond );
-	QValueList<QVariant>::Iterator c = constants.begin();
-	while ( c != constants.end() ) {
-	    lookupNames( &*c );
-	    int tableId = (*c).asList()[1].asList()[1].toInt();
-	    if ( tableId < 0 )
-		unoptimizableConstants.append( *c );
-	    else
-		optimizableConstants.append( *c );
-	    ++c;
-	}
-	pourConstantsIntoCondition( &cond, &unoptimizableConstants );
+	cond = matchSearchCondition( constants );
     }
-    emitCondition( cond, optimizableConstants, columnsToSave );
+    return cond;
+}
+
+QValueList<QVariant> Parser::matchOptGroupByClause()
+{
+    QValueList<QVariant> columns;
+
+    if ( yyTok == Tok_group ) {
+	yyTok = getToken();
+	matchOrInsert( Tok_by, "'by'" );
+
+	while ( TRUE ) {
+	    columns.append( matchColumnRef() );
+
+	    if ( yyTok != Tok_Comma )
+		break;
+	    yyTok = getToken();
+	}
+    }
+    return columns;
+}
+
+QVariant Parser::matchOptHavingClause()
+{
+    QVariant cond;
+
+    if ( yyTok == Tok_having ) {
+	yyTok = getToken();
+	cond = matchSearchCondition();
+    }
+    return cond;
 }
 
 void Parser::matchCommitStatement()
@@ -1302,8 +1673,8 @@ void Parser::matchDataType()
 	}
 	break;
     default:
-	error( "Met '%s' where 'character', 'date', 'decimal', 'double', 'integer', "
-	       "'float', 'numeric' or 'varchar' was expected",
+	error( "Met '%s' where 'character', 'date', 'decimal', 'double',"
+	       " 'float', 'integer', 'numeric' or 'varchar' was expected",
 	       yyLex );
     }
 
@@ -1431,10 +1802,13 @@ void Parser::matchBaseTableElement()
 {
     if ( yyTok == Tok_Name ) {
 	QString column = yyLex;
+
+	yyProg->append( new PushSeparator );
 	yyProg->append( new Push(column) );
 	yyTok = getToken();
 	matchDataType();
-	yyProg->append( new MakeList(4) );
+	yyProg->append( new MakeList );
+
 	matchColumnDefOptions( column );
     } else {
 	matchTableConstraintDef();
@@ -1443,17 +1817,15 @@ void Parser::matchBaseTableElement()
 
 void Parser::matchBaseTableElementList()
 {
-    int n = 0;
-
+    yyProg->append( new PushSeparator );
     while ( TRUE ) {
 	matchBaseTableElement();
-	n++;
 
 	if ( yyTok != Tok_Comma )
 	    break;
 	yyTok = getToken();
     }
-    yyProg->append( new MakeList(n) );
+    yyProg->append( new MakeList );
 }
 
 void Parser::matchCreateStatement()
@@ -1509,12 +1881,14 @@ void Parser::matchCreateStatement()
 
 void Parser::matchDeleteStatement()
 {
+    QVariant cond;
+    QValueList<QVariant> constants;
     QString table;
 
     yyTok = getToken();
     matchOrInsert( Tok_from, "'from'" );
     int tableId = activateTable( matchTable() );
-    matchOptWhereClause();
+    cond = matchOptWhereClause( &constants );
     yyProg->append( new DeleteMarked(tableId) );
 }
 
@@ -1533,18 +1907,20 @@ void Parser::matchInsertExpr()
     } else {
 	QVariant expr = matchScalarExpr();
 	lookupNames( &expr );
-	emitExpr( expr, TRUE );
+	emitExpr( expr );
     }
 }
 
 void Parser::matchInsertExprList( const QStringList& columns )
 {
     QStringList::ConstIterator col = columns.begin();
-    int n = 0;
+    int columnNo = 0;
 
+    yyProg->append( new PushSeparator );
     while ( TRUE ) {
+	yyProg->append( new PushSeparator );
 	if ( columns.isEmpty() ) {
-	    yyProg->append( new Push(n) );
+	    yyProg->append( new Push(columnNo) );
 	} else {
 	    if ( col == columns.end() ) {
 		error( "Met more values than columns" );
@@ -1554,8 +1930,8 @@ void Parser::matchInsertExprList( const QStringList& columns )
 	    }
 	}
 	matchInsertExpr();
-	yyProg->append( new MakeList(2) );
-	n++;
+	yyProg->append( new MakeList );
+	columnNo++;
 
 	if ( yyTok != Tok_Comma )
 	    break;
@@ -1563,7 +1939,7 @@ void Parser::matchInsertExprList( const QStringList& columns )
     }
     if ( col != columns.end() )
 	error( "Met fewer values than columns" );
-    yyProg->append( new MakeList(n) );
+    yyProg->append( new MakeList );
 }
 
 void Parser::matchInsertStatement()
@@ -1613,14 +1989,13 @@ void Parser::matchOrderByClause()
     yyTok = getToken();
     matchOrInsert( Tok_by, "'by'" );
 
-    int n = 0;
     while ( TRUE ) {
 	QVariant column;
 	bool descending = FALSE;
 
 	switch ( yyTok ) {
 	case Tok_IntNum:
-	    column.asList().append( (int) Tok_Name );
+	    column.asList().append( (int) Node_Field );
 	    column.asList().append( QString::null );
 	    column.asList().append( yyNum - 1 ); // FORTRAN vs. C
 	    yyTok = getToken();
@@ -1632,8 +2007,10 @@ void Parser::matchOrderByClause()
 	    error( "Met '%s' where a numeral or column reference was expected",
 		   yyLex );
 	}
+
+	yyProg->append( new PushSeparator );
 	lookupNames( &column );
-	emitExpr( column, FALSE );
+	emitExpr( column );
 
 	switch ( yyTok ) {
 	case Tok_desc:
@@ -1643,27 +2020,43 @@ void Parser::matchOrderByClause()
 	    yyTok = getToken();
 	}
 	yyProg->append( new Push((int) descending) );
-	yyProg->append( new MakeList(2) );
-	n++;
+	yyProg->append( new MakeList );
 
 	if ( yyTok != Tok_Comma )
 	    break;
 	yyTok = getToken();
     }
-    yyProg->append( new MakeList(n) );
+    yyProg->append( new MakeList );
     yyProg->append( new Sort(0) );
 }
 
 void Parser::matchSelectStatement()
 {
-    QValueList<QVariant> columnsToSave;
+    QValueList<QVariant> selectColumns;
+    QStringList selectColumnNames;
+    QValueList<QVariant> groupByColumns;
+    QVariant whereCond;
+    QValueList<QVariant> whereConstants;
+    QVariant havingCond;
+
+    yyFields.clear();
+    yyNumColumnOccs = 0;
+    yyNumAggregateOccs = 0;
 
     yyTok = getToken();
     if ( yyTok == Tok_Aster ) {
+	QValueList<QVariant> aster;
 	yyTok = getToken();
+	aster.append( (int) Node_Aster );
+	selectColumns.append( aster );
+	selectColumnNames.append( QString::null );
+	yyNumColumnOccs++;
     } else {
 	while ( TRUE ) {
-	    columnsToSave.append( matchScalarExpr() );
+	    int start = yyPos - 1;
+	    selectColumns.append( matchScalarExpr() );
+	    int end = yyPos - 1;
+	    selectColumnNames.append( yyIn.mid(start, end - start) );
 
 	    if ( yyTok != Tok_Comma )
 		break;
@@ -1672,16 +2065,51 @@ void Parser::matchSelectStatement()
     }
 
     matchFromClause();
+    lookupNames( &selectColumns );
 
-    QValueList<QVariant>::Iterator c = columnsToSave.begin();
-    while ( c != columnsToSave.end() ) {
-	lookupNames( &*c );
-	++c;
+    whereCond = matchOptWhereClause( &whereConstants );
+
+    groupByColumns = matchOptGroupByClause();
+    lookupNames( &groupByColumns );
+
+    havingCond = matchOptHavingClause();
+
+    if ( havingCond.isValid() && yyNumAggregateOccs == 0 )
+	error( "Cannot have 'having' clause in such simple queries" );
+
+    if ( yyNumColumnOccs * yyNumAggregateOccs != 0 ) {
+	error( "Cannot mix aggregates and columns" );
+	yyNumAggregateOccs = 0;
     }
 
-    matchOptWhereClause( columnsToSave );
     if ( yyTok == Tok_order )
 	matchOrderByClause();
+
+    if ( groupByColumns.isEmpty() && yyNumAggregateOccs == 0 ) {
+	emitWhere( &whereCond, &whereConstants, selectColumns );
+    } else {
+	emitWhere( &whereCond, &whereConstants, yyFields );
+
+	int next = yyNextLabel--;
+	int save = yyNextLabel--;
+	int end = yyNextLabel--;
+
+	emitFieldDescs( selectColumns, selectColumnNames );
+	yyProg->append( new CreateResult(1) );
+
+//	emitFieldDescs( groupByColumns );
+	yyProg->append( new MakeGroupSet(1, 0) );
+	yyProg->appendLabel( next );
+	yyProg->append( new NextGroupSet(0, end) );
+
+	emitExpr( havingCond, TRUE, save, next );
+	yyProg->appendLabel( save );
+	emitExprList( selectColumns, TRUE );
+	yyProg->append( new SaveResult(1) );
+
+	yyProg->append( new Goto(next) );
+	yyProg->appendLabel( end );
+    }
 }
 
 void Parser::matchUpdateStatement()
@@ -1713,24 +2141,26 @@ void Parser::matchUpdateStatement()
 
     matchOptWhereClause();
 
-    int nextMarkedRecord = yyNextLabel--;
-    int endRecords = yyNextLabel--;
+    int next = yyNextLabel--;
+    int end = yyNextLabel--;
 
-    //    yyProg->append( new RewindMarked(tableId) );
-    yyProg->appendLabel( nextMarkedRecord );
-    yyProg->append( new NextMarked(tableId, endRecords) );
+    yyProg->appendLabel( next );
+    yyProg->append( new NextMarked(tableId, end) );
 
     QMap<QString, QVariant>::ConstIterator as = assignments.begin();
+
+    yyProg->append( new PushSeparator );
     while ( as != assignments.end() ) {
+	yyProg->append( new PushSeparator );
 	yyProg->append( new PushFieldDesc(tableId, as.key()) );
-	emitExpr( *as, TRUE );
-	yyProg->append( new MakeList(2) );
+	emitExpr( *as );
+	yyProg->append( new MakeList );
 	++as;
     }
-    yyProg->append( new MakeList(assignments.count()) );
+    yyProg->append( new MakeList );
     yyProg->append( new Update(tableId) );
-    yyProg->append( new Goto(nextMarkedRecord) );
-    yyProg->appendLabel( endRecords );
+    yyProg->append( new Goto(next) );
+    yyProg->appendLabel( end );
 }
 
 void Parser::matchManipulativeStatement()

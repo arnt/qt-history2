@@ -68,6 +68,8 @@ Program::~Program()
 
 void Program::appendLabel( int lab )
 {
+    if ( d->pendingLabel < 0 )
+	append( new Noop ); // placeholder to carry the other label
     d->pendingLabel = lab;
 }
 
