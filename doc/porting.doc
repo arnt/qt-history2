@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.28 1999/03/03 15:29:04 ettrich Exp $
+** $Id: porting.doc,v 1.29 1999/03/04 12:49:24 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -104,7 +104,12 @@ template-based classes instead. I.e. the Q_DECLARE macro and
 qgeneric.h are obsolete. Replace e.g. Q_DECLARE(QCache,QPixmap) with
 QCache<QPixmap>.
 
+<p> The GCI global typedef is replaced by QCollection::Item.  Only if you
+make your own subclasses of the undocumented generic collection classes
+will you have GCI in you code.  This change is to avoid collisions with
+other namespaces.
 
+<p> The GCF global typedef is removed (it was not used in Qt).
 
 <h3>QApplication</h3>
 
@@ -375,7 +380,7 @@ can be removed.  Activate() is no longer necessary.
 
 <p>
 QMultiLineEdit::textWidth(QString*)
-changed to QMultiLineEdit::textWidth(QString)
+changed to QMultiLineEdit::textWidth(const QString&)
  Should be no problem.
 
 
