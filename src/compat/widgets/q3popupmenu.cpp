@@ -1612,7 +1612,7 @@ bool Q3PopupMenu::event(QEvent *e)
         }
     break; }
 #ifndef QT_NO_ACCESSIBILITY
-    case QEvent::Accessibility: {
+    case QEvent::AccessibilityHelp: {
         QAccessibleEvent *ev = static_cast<QAccessibleEvent *>(e);
         if (ev->child() > 0 && ev->textType() == QAccessibleEvent::Help) {
             ev->setValue(whatsThis(idAt(ev->child())));

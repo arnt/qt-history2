@@ -294,7 +294,7 @@ public:
     enum TextType { Description, Help };
 
     inline QAccessibleEvent(TextType textType, int child)
-        : QEvent(Accessibility), t(textType), c(child) {}
+        : QEvent(AccessibilityHelp), t(textType), c(child) {}
     inline TextType textType() const { return t; }
     inline int child() const { return c; }
     inline QString value() const { return val; }

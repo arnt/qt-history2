@@ -126,6 +126,7 @@ public:
 #endif
 
         WhatsThisClicked = 118,
+        AccessibilityHelp = 119,                // accessibility help request
 
 #ifdef QT_COMPAT
         CaptionChange = WindowTitleChange,

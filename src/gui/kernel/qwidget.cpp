@@ -4801,7 +4801,7 @@ bool QWidget::event(QEvent *e)
         break;
 #endif
 #ifndef QT_NO_ACCESSIBILITY
-    case QEvent::Accessibility: {
+    case QEvent::AccessibilityHelp: {
         QAccessibleEvent *ev = static_cast<QAccessibleEvent *>(e);
         if (ev->child())
             return false;

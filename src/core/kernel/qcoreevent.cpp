@@ -68,6 +68,8 @@
     \value None  Not an event.
 
     \value Accessibility      Accessibility information is requested.
+    \value AccessibilityHelp  Used to query for additional information about complex widgets.
+                              \l{QAccessibleEvent}
     \value ActionChanged      An action has been changed.
     \value ActionAdded        A new action has been added.
     \value ActionRemoved      An action has been removed.
