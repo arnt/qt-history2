@@ -394,6 +394,7 @@ QObject::~QObject()
 	return;
     }
     wasDeleted = 1;
+    blockSig = 0; // unblock signals to keep QGuardedPtr happy
     emit destroyed( this );
     emit destroyed();
     if ( objname )
