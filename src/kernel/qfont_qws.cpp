@@ -497,13 +497,17 @@ int QFontMetrics::lineSpacing() const
 
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
-    QChar ch = QComplexText::shapedCharacter( str, pos );
-    return (ch != 0) ? width(ch) : 0; 
+    QChar ch = str[pos];
+    if ( ch.combiningClass() > 0 ) return 0;
+
+    ch = QComplexText::shapedCharacter( str, pos );
+    return ch.unicode() ? width(ch) : 0; 
 }
 
 int QFontMetrics::width( QChar ch ) const
 {
-    qObsolete( "QFontMetrics", "width" );
+    if ( ch.combiningClass() > 0 ) return 0;
+    
     return memorymanager->lockGlyphMetrics(((QFontMetrics*)this)->internal()->handle(),ch)->advance;
 }
 

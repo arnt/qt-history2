@@ -2853,11 +2853,6 @@ int QFontMetrics::lineSpacing() const
 
 
 /*!
-  \obsolete
-  This function will produce incorrect results for arabic characters, as
-  the glyph shaping occuring in these languages ca not be taken into account.
-  Use \a charWidth() instead.
-
   <img src="bearings.png" align=right> Returns the logical width of a
   \e ch in pixels.  This is a distance appropriate for drawing a
   subsequent character after \e ch.
@@ -2868,12 +2863,17 @@ int QFontMetrics::lineSpacing() const
   the characters.  Notice that the bearings of "f" in this particular
   font are both negative, while the bearings of "o" are both positive.
 
-  \sa boundingRect()
+  Warning: This function will produce incorrect results for arabic characters
+  or non spacing marks in the middle of a string , as
+  the glyph shaping  and positioning of marks  that happens when processing
+  strings can not be taken into account.
+  Use \a charWidth() instead if you aren't looking for the width of isolated
+  characters.
+
+  \sa boundingRect(), charWidth()
 */
 int QFontMetrics::width(QChar ch) const
 {
-    qObsolete( "QFontMetrics", "width" );
-
     if ( ch.combiningClass() > 0 ) return 0;
     
     QFontPrivate::Script script = d->scriptForChar(ch);

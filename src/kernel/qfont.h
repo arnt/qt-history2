@@ -270,11 +270,6 @@ private:
 };
 
 
-#ifndef QT_NO_COMPAT
-
-
-#endif
-
 inline bool QFont::bold() const
 { return weight() > Normal; }
 
