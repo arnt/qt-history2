@@ -730,7 +730,7 @@ static void qt_set_windows_resources()
 // need to get default font?
 extern bool qt_app_has_font;
 
-void qt_init( QApplicationPrivate *priv, QApplication::Type )
+void qt_init( QApplicationPrivate *priv, int )
 {
 
 #if defined(QT_DEBUG)
@@ -939,7 +939,7 @@ bool qt_nograb()				// application no-grab option
 
 static QAsciiDict<int> *winclassNames = 0;
 
-const QString qt_reg_winclass( int flags )	// register window class
+const QString qt_reg_winclass( Qt::WFlags flags )	// register window class
 {
     if ( !winclassNames ) {
 	winclassNames = new QAsciiDict<int>;
@@ -955,7 +955,7 @@ const QString qt_reg_winclass( int flags )	// register window class
 	style = CS_DBLCLKS;
 #endif
 	icon  = TRUE;
-    } else if ( ((Qt::WType_Popup|Qt::WStyle_Tool) & flags) == 0 ) {
+    } else if ( (flags & (Qt::WType_Popup|Qt::WStyle_Tool)) == 0 ) {
 	cname = "QWidget";
 	style = CS_DBLCLKS;
 	icon  = TRUE;

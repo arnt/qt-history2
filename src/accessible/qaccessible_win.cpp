@@ -228,7 +228,7 @@ HRESULT STDMETHODCALLTYPE QWindowsEnumerate::Next( unsigned long  celt, VARIANT 
     ULONG l;
     for ( l = 0; l < celt; l++ ) {
 	VariantInit( &rgVar[l] );
-	if ( (current+1) > array.size() ) {
+	if ( (current+1) > (ULONG)array.size() ) {
 	    *pCeltFetched = l;
 	    return S_FALSE;
 	}
@@ -250,7 +250,7 @@ HRESULT STDMETHODCALLTYPE QWindowsEnumerate::Reset()
 HRESULT STDMETHODCALLTYPE QWindowsEnumerate::Skip( unsigned long celt )
 {
     current += celt;
-    if ( current > array.size() ) {
+    if ( current > (ULONG)array.size() ) {
 	current = array.size();
 	return S_FALSE;
     }
@@ -1025,7 +1025,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetWindow(HWND *phwnd)
     *phwnd = 0;
     if (!accessible->isValid())
 	return E_UNEXPECTED;
-    
+
     QObject *o = accessible->object();
     if (!o->isWidgetType())
 	return E_FAIL;
@@ -1034,7 +1034,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetWindow(HWND *phwnd)
     return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE QWindowsAccessible::ContextSensitiveHelp(BOOL fEnterMode)
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::ContextSensitiveHelp(BOOL)
 {
     return S_OK;
 }

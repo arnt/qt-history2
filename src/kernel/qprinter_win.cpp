@@ -1398,8 +1398,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                     QColor bg = paint->backgroundColor();
                     QColor fg = paint->pen().color();
                     image.convertDepth( 8 );
-		    if( image.color( 0 ) == Qt::black.rgb() &&
-			image.color( 1 ) == Qt::white.rgb() ) {
+		    if( image.color( 0 ) == QColor(Qt::black).rgb() &&
+			image.color( 1 ) == QColor(Qt::white).rgb() ) {
 			image.setColor( 1, bg.rgb() );
 			image.setColor( 0, fg.rgb() );
 		    } else {

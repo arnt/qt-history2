@@ -19,6 +19,7 @@
 #include "qglobal.h"
 #endif // QT_H
 
+
 class Q_EXPORT Qt {
 #ifdef Q_MOC_RUN
     Q_OBJECT
@@ -910,5 +911,12 @@ public:
 	CompatibilityMode = 0x20
     };
 };
+
+// MOC_SKIP_BEGIN
+Q_TEMPLATE_EXTERN template class Q_EXPORT QFlags<Qt::WidgetState>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QFlags<Qt::WindowFlags>;
+// MOC_SKIP_END
+
+
 
 #endif // QNAMESPACE_H

@@ -258,7 +258,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     bool nat_xf = (qt_winver & Qt::WV_NT_based) && p->txop >= QPainter::TxScale;
 
     bool force_bitmap = p->rop != QPainter::CopyROP;
-    force_bitmap |= p->txop >= QPainter::TxScale 
+    force_bitmap |= p->txop >= QPainter::TxScale
 		    && !(QT_WA_INLINE( tm.w.tmPitchAndFamily, tm.a.tmPitchAndFamily ) & (TMPF_VECTOR|TMPF_TRUETYPE));
 
     double scale = 1.;
@@ -336,8 +336,8 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 		HBRUSH b = CreateSolidBrush( COLOR_VALUE(p->cpen.color()) );
 		COLORREF tc, bc;
 		b = (HBRUSH)SelectObject( hdc, b );
-		tc = SetTextColor( hdc, COLOR_VALUE(Qt::black) );
-		bc = SetBkColor( hdc, COLOR_VALUE(Qt::white) );
+		tc = SetTextColor( hdc, COLOR_VALUE(QColor(Qt::black)) );
+		bc = SetBkColor( hdc, COLOR_VALUE(QColor(Qt::white)) );
 		HDC wx_dc;
 		int wx_sy;
 		if ( wx_bm.isMultiCellPixmap() ) {
@@ -386,7 +386,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	}
 	HFONT hf = QT_WA_INLINE( CreateFontIndirectW( &lf ), CreateFontIndirectA( (LOGFONTA*)&lf ) );
 	SelectObject( hdc, hf );
-    }    
+    }
 
     unsigned int options =  ttf ? ETO_GLYPH_INDEX : 0;
 
@@ -692,7 +692,7 @@ bool QFontEngineWin::canRender( const QChar *string,  int len )
 {
     if ( symbol ) {
 	while( len-- ) {
-	    if ( getGlyphIndex( cmap, string->unicode() ) == 0 ) { 
+	    if ( getGlyphIndex( cmap, string->unicode() ) == 0 ) {
 		if( string->unicode() < 0x100 ) {
 		    if(getGlyphIndex( cmap, string->unicode()+0xf000) == 0)
     			return FALSE;

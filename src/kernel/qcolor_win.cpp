@@ -133,12 +133,6 @@ void QColor::initialize()
 	qSystemWarning( "QColor: Failed to create logical palette" );
     free ( pal );
 
-    // make sure "black" and "white" are initialized
-    initGlobalColors();
-
-    ((QColor*)(&Qt::black))->alloc();
-    ((QColor*)(&Qt::white))->alloc();
-
     SelectPalette( dc, hpal, FALSE );
     RealizePalette( dc );
 }

@@ -79,7 +79,7 @@ static QWidget *qt_tablet_widget = 0;
 #define GWLP_WNDPROC GWL_WNDPROC
 #endif
 
-const QString qt_reg_winclass( int );		// defined in qapplication_win.cpp
+const QString qt_reg_winclass( Qt::WFlags flags );		// defined in qapplication_win.cpp
 void	    qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst ); // dnd_win
 QOleDropTarget* qt_olednd_register( QWidget* widget );
 

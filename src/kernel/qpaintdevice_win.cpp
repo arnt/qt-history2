@@ -356,7 +356,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     } else if ( mask ) {
 	if ( src_pm->data->selfmask ) {
 	    uint   c = dst->paintingActive() ? qt_bitblt_foreground
-					     : Qt::black.pixel();
+					     : QColor(Qt::black).pixel();
 	    DWORD ropCodes[] = {
 		0x00b8074a, // PSDPxax,  CopyROP,
 		0x00ba0b09, // DPSnao,   OrROP,
@@ -378,8 +378,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    HBRUSH b = CreateSolidBrush( c );
 	    COLORREF tc, bc;
 	    b = (HBRUSH)SelectObject( dst_dc, b );
-	    tc = SetTextColor( dst_dc, Qt::black.pixel() );
-	    bc = SetBkColor( dst_dc, Qt::white.pixel() );
+	    tc = SetTextColor( dst_dc, QColor(Qt::black).pixel() );
+	    bc = SetBkColor( dst_dc, QColor(Qt::white).pixel() );
 	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
 	    SetBkColor( dst_dc, bc );
 	    SetTextColor( dst_dc, tc );

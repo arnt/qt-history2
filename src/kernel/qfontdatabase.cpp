@@ -803,7 +803,11 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 */
 QFontEngine *
 QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
-			 const QFontDef &request, int force_encoding_id )
+			 const QFontDef &request, int
+#ifdef Q_WS_X11
+			 force_encoding_id
+#endif
+			 )
 {
     if ( !db )
 	initializeDb();
@@ -823,7 +827,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	}
 
 #ifdef Q_WS_WIN
-	if (!fp->paintdevice) 
+	if (!fp->paintdevice)
 #endif
 	{
 	    QFontCache::Key key( request, script, fp->screen );
@@ -941,7 +945,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	fe = new QFontEngineBox( request.pixelSize );
 
-	if ( fp 
+	if ( fp
 #ifdef Q_WS_WIN
 	    && !fp->paintdevice
 #endif
@@ -991,7 +995,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	    fe = new QFontEngineBox( request.pixelSize );
 
-	    if ( fp 
+	    if ( fp
 #ifdef Q_WS_WIN
 	    && !fp->paintdevice
 #endif
@@ -1041,7 +1045,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	fe->fontDef.stretch       = best_style->key.stretch;
 	fe->fontDef.ignorePitch   = FALSE;
 
-	if ( fp 
+	if ( fp
 #ifdef Q_WS_WIN
 	    && !fp->paintdevice
 #endif
@@ -1065,7 +1069,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	    fe = new QFontEngineBox( request.pixelSize );
 
-	    if ( fp 
+	    if ( fp
 #ifdef Q_WS_WIN
 		&& !fp->paintdevice
 #endif

@@ -170,7 +170,7 @@ QByteArray QGb18030Codec::fromUnicode(const QString& uc, int& lenInOut) const
 	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
 	    // ASCII
 	    *cursor++ = ch.cell();
-	} else if (ch.unicode() & 0xd8 == 0xd8) {
+	} else if ((ch.unicode() & 0xd8) == 0xd8) {
 	    unsigned short high = ch.unicode();
 	    // surrogates area. check for correct encoding
 	    // we need at least one more character, first the high surrogate, then the low one

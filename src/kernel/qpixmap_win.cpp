@@ -1050,7 +1050,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     if ( depth1 )
 	memset( dptr, 0xff, dbytes );
     else if ( bpp == 8 )
-	memset( dptr, white.pixel(), dbytes );
+	memset( dptr, QColor(white).pixel(), dbytes );
     else if ( data->realAlphaBits )
 	memset( dptr, 0x00, dbytes );
     else
