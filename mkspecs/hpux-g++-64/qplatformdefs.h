@@ -14,6 +14,7 @@
 
 
 #include <pthread.h>
+#define _REENTRANT
 #include <dirent.h>
 #include <fcntl.h>
 #include <grp.h>
