@@ -144,7 +144,8 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 
     fillConnectionsList();
     connectButton->setEnabled( FALSE );
-    buttonAddSlot->setEnabled( receiver == fw->mainContainer() );
+    buttonAddSlot->setEnabled( receiver == fw->mainContainer() &&
+			       formWindow->project()->language() == "C++" );
 }
 
 ConnectionEditor::~ConnectionEditor()
@@ -361,7 +362,8 @@ void ConnectionEditor::receiverChanged( const QString &s )
 	++it;
     }
     signalChanged();
-    buttonAddSlot->setEnabled( receiver == formWindow->mainContainer() );
+    buttonAddSlot->setEnabled( receiver == formWindow->mainContainer() &&
+			       formWindow->project()->language() == "C++" );
     connectButton->setEnabled( slotBox->currentItem() != -1 );
     if ( connectButton->isEnabled() )
 	updateConnectButtonState();
