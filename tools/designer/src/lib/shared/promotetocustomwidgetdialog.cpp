@@ -35,6 +35,8 @@ PromoteToCustomWidgetDialog::PromoteToCustomWidgetDialog(AbstractWidgetDataBase 
         AbstractWidgetDataBaseItem *item = db->item(i);
         if (!item->isPromoted())
             continue;
+        if (item->extends() != base_class_name)
+            continue;
         m_promoted_list.append(qMakePair(item->name(), item->includeFile()));
         m_class_name_input->addItem(item->name());
     }

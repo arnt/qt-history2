@@ -103,7 +103,8 @@ QDesignerWidget::~QDesignerWidget()
 
 void QDesignerWidget::paintEvent(QPaintEvent *e)
 {
-    if (m_formWindow->hasFeature(AbstractFormWindow::GridFeature)) {
+    if (m_formWindow->hasFeature(AbstractFormWindow::GridFeature)
+        && m_formWindow->currentTool() == 0) {
         paintGrid(this, m_formWindow, e, need_frame);
     } else {
         QWidget::paintEvent(e);
