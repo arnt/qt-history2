@@ -163,3 +163,95 @@ New functions:
 	void setUserData( uint id, QObjectUserData* data )
 	QObjectUserData* userData( uint id ) const
 
+QPaintDevice
+------------------
+New functions:
+	static Qt::HANDLE x11AppRootWindow()
+	static int x11AppDepth( int screen )
+	static int x11AppCells( int screen )
+	static Qt::HANDLE x11AppRootWindow( int screen )
+	static Qt::HANDLE x11AppColormap( int screen )
+	static void *x11AppVisual( int screen )
+	static bool x11AppDefaultColormap( int screen )
+	static bool x11AppDefaultVisual( int screen )
+	static int x11AppDpiX( int )
+	static int x11AppDpiY( int )
+	static void x11SetAppDpiX( int, int )
+	static void x11SetAppDpiY( int, int )
+
+QPicture
+------------------
+New functions:
+	void setBoundingRect( const QRect &r )
+
+
+QPixmap
+------------------
+New functions:
+	bool hasAlpha() const
+	static QPixmap fromMimeSource( const QString& abs_name )
+
+QPrinter
+------------------
+New functions:
+	void setMargins( uint top, uint left, uint bottom, uint right )
+	void margins( uint *top, uint *left, uint *bottom, uint *right ) const
+
+QSessionManager
+------------------
+New functions:
+	QString sessionKey() const
+
+QStyleOption
+------------------
+New functions:
+	QStyleOption(QCheckListItem* i)
+	QCheckListItem* checkListItem() const
+
+New enums values:
+	PE_CheckListController, PE_CheckListIndicator, PE_CheckListExclusiveIndicator, PE_PanelGroupBox
+	CE_MenuBarBackground
+	PM_CheckListButtonSize
+	CT_TabBarTab, CT_Slider, CT_Header, CT_LineEdit
+	SH_GroupBox_TextLabelVerticalAlignment
+
+QThread
+------------------
+New functions:
+	void terminate()
+
+QTranslator
+------------------
+New functions:
+	bool load( const uchar *data, int len )
+
+QVariant
+------------------
+New functions:
+	QVariant( const QPen& )
+	const QPen toPen() const
+	QPen& asPen()
+
+New enum values:
+	KeySequence, KeySequence, Pen
+
+QWidget
+------------------
+New functions:
+	QPoint backgroundOffset() const
+	bool isFullScreen() const
+	void setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE )
+
+New enum values:
+	AncestorOrigin
+
+QWMatrix
+------------------
+New functions:
+	QPointArray mapToPolygon( const QRect &r ) const
+	double det() const
+	static void setTransformationMode( QWMatrix::TransformationMode m );
+	static TransformationMode transformationMode();
+
+New enum:
+	TransformationMode { Points, Areas }
