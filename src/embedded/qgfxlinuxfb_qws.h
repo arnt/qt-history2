@@ -84,11 +84,13 @@ protected:
 
     bool canaccel;
     int dataoffset;
+    int cacheStart;
 
 private:
 
     void delete_entry(int);
     void insert_entry(int,int,int);
+    void setupOffScreen();
 
     int fd;
     int startupw;
