@@ -46,6 +46,8 @@
 
 #if defined(_OS_UNIX_)
 #include <unistd.h>
+#else
+#include <io.h>
 #endif
 #include <stdlib.h>
 #include <sys/types.h>
