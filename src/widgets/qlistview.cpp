@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#92 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#91 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#92 $");
 
 
 const int Unsorted = 16383;
@@ -117,6 +117,8 @@ struct QListViewPrivate
     QString currentPrefix;
     QTime currentPrefixTime;
 
+    // whether to select or deselect during this mouse press.
+    bool select;
 };
 
 
@@ -1957,7 +1959,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
     QListViewItem * i = itemAt( e->pos() );
     if ( !i )
 	return;
-    
+
     if ( (i->isExpandable() || i->children()) &&
 	 d->h->mapToLogical( d->h->cellAt( e->pos().x() ) ) == 0 ) {
 	int x1 = e->pos().x() +
@@ -1978,9 +1980,11 @@ void QListView::mousePressEvent( QMouseEvent * e )
 	    }
 	}
     }
+    
+    d->select = isMultiSelection() ? !i->isSelected() : TRUE;
 
     if ( i->isSelectable() )
-	setSelected( i, isMultiSelection() ? !i->isSelected() : TRUE );
+	setSelected( i, d->select );
 
     i->activate();
 
@@ -2022,9 +2026,7 @@ void QListView::mouseReleaseEvent( QMouseEvent * e )
 	return;
 
     if ( i->isSelectable() )
-	setSelected( i, d->currentSelected
-		     ? d->currentSelected->isSelected()
-		     : TRUE );
+	setSelected( i, d->select );
 
     setCurrentItem( i ); // repaints
 
@@ -2071,13 +2073,20 @@ void QListView::mouseMoveEvent( QMouseEvent * e )
     if ( !i )
 	return;
 
-    if ( i->isSelectable() )
-	setSelected( i, d->currentSelected
-		     ? d->currentSelected->isSelected()
-		     : TRUE );
+    if ( isMultiSelection() && d->currentSelected ) {
+	// also (de)select the ones in between
+	QListViewItem * b = d->currentSelected;
+	bool below = ( itemPos( i ) > itemPos( b ) );
+	while( b && b != i ) {
+	    if ( b->isSelectable() )
+		setSelected( b, d->select );
+	    b = below ? b->itemBelow() : b->itemAbove();
+	}
+    }
 
-    setCurrentItem( i ); // repaints
-    return;
+    setSelected( i, d->select );
+
+    setCurrentItem( i );
 }
 
 
