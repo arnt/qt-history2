@@ -46,9 +46,9 @@ public:
     };
 
     QCoreVariant value(int i) const;
-    inline QCoreVariant value(const QString &name) const { return value(position(name)); }
+    inline QCoreVariant value(const QString &name) const { return value(indexOf(name)); }
     void setValue(int i, const QCoreVariant &val);
-    inline void setValue(const QString &name, const QCoreVariant &val) { setValue(position(name), val); }
+    inline void setValue(const QString &name, const QCoreVariant &val) { setValue(indexOf(name), val); }
     virtual QSqlIndex primaryIndex(bool prime = true) const;
     virtual QSqlIndex index(const QStringList& fieldNames) const;
     QSqlIndex index(const QString& fieldName) const;

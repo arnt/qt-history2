@@ -494,7 +494,7 @@ void QSqlCursor::remove(int pos)
 
 void QSqlCursor::setGenerated(const QString& name, bool generated)
 {
-    int pos = position(name);
+    int pos = indexOf(name);
     if (pos == -1)
         return;
     QSqlRecord::setGenerated(name, generated);
@@ -763,7 +763,7 @@ int QSqlCursor::mode() const
 
 void QSqlCursor::setCalculated(const QString& name, bool calculated)
 {
-    int pos = position(name);
+    int pos = indexOf(name);
     if (pos < 0)
         return;
     d->infoBuffer[pos].setCalculated(calculated);
@@ -780,7 +780,7 @@ void QSqlCursor::setCalculated(const QString& name, bool calculated)
 
 bool QSqlCursor::isCalculated(const QString& name) const
 {
-    int pos = position(name);
+    int pos = indexOf(name);
     if (pos < 0)
         return false;
     return d->infoBuffer[pos].isCalculated();
@@ -798,7 +798,7 @@ bool QSqlCursor::isCalculated(const QString& name) const
 
 void QSqlCursor::setTrimmed(const QString& name, bool trim)
 {
-    int pos = position(name);
+    int pos = indexOf(name);
     if (pos < 0)
         return;
     d->infoBuffer[pos].setTrim(trim);
@@ -816,7 +816,7 @@ void QSqlCursor::setTrimmed(const QString& name, bool trim)
 
 bool QSqlCursor::isTrimmed(const QString& name) const
 {
-    int pos = position(name);
+    int pos = indexOf(name);
     if (pos < 0)
         return false;
     return d->infoBuffer[pos].isTrim();
