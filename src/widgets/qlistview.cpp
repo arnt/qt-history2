@@ -4198,7 +4198,8 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 		style().querySubControl( QStyle::CC_ListView,
 					 this, QPoint(x1, e->pos().y()),
 					 QStyleOption(i) );
-	    if( ctrl == QStyle::SC_ListViewExpand) {
+	    if( ctrl == QStyle::SC_ListViewExpand && 
+		e->type() == style().styleHint(QStyle::SH_ListViewExpand_SelectMouseType, this)) {
 		d->buttonDown = FALSE;
 		if ( e->button() == LeftButton ) {
 		    bool close = i->isOpen();
@@ -4300,7 +4301,8 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 
  emit_signals:
 
-    if ( i && vp.x() + contentsX() < itemMargin() + ( i->depth() + ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() )
+    if ( i && !d->buttonDown && 
+	 vp.x() + contentsX() < itemMargin() + ( i->depth() + ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() )
 	i = 0;
     d->pressedItem = i;
 
@@ -4392,6 +4394,47 @@ void QListView::contentsMouseReleaseEventEx( QMouseEvent * e )
     QListViewItem *i = itemAt( vp );
     if ( i && !i->isEnabled() )
 	return;
+
+    if ( i && i == d->pressedItem && (i->isExpandable() || i->childCount()) && 
+	 !d->h->mapToLogical( d->h->cellAt( vp.x() ) ) && e->button() == LeftButton && 
+	 e->type() == style().styleHint(QStyle::SH_ListViewExpand_SelectMouseType, this)) {
+	QPtrListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
+	while( it.current() && it.current()->i != i )
+	    ++it;
+	if ( it.current() ) {
+	    int x1 = vp.x() + d->h->offset() - d->h->cellPos( d->h->mapToActual( 0 ) ) - 
+		     (treeStepSize() * (it.current()->l - 1));
+	    QStyle::SubControl ctrl = style().querySubControl( QStyle::CC_ListView,
+							       this, QPoint(x1, e->pos().y()),
+							       QStyleOption(i) );
+	    if( ctrl == QStyle::SC_ListViewExpand ) {
+		bool close = i->isOpen();
+		setOpen( i, !close );
+		// ### Looks dangerous, removed because of reentrance problems
+		// qApp->processEvents();
+		if ( !d->focusItem ) {
+		    d->focusItem = i;
+		    repaintItem( d->focusItem );
+		    emit currentChanged( d->focusItem );
+		}
+		if ( close ) {
+		    bool newCurrent = FALSE;
+		    QListViewItem *ci = d->focusItem;
+		    while ( ci ) {
+			if ( ci->parent() && ci->parent() == i ) {
+			    newCurrent = TRUE;
+			    break;
+			}
+			ci = ci->parent();
+		    }
+		    if ( newCurrent )
+			setCurrentItem( i );
+		    d->ignoreDoubleClick = TRUE;
+		}
+	    }
+	}
+    }
+
     if ( i == d->pressedItem && i && i->isSelected() && e->button() == LeftButton && d->startEdit ) {
 	QRect r = itemRect( currentItem() );
 	r = QRect( viewportToContents( r.topLeft() ), r.size() );
