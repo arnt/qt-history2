@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#41 $
 **
 ** Implementation of QMenuData class
 **
@@ -15,7 +15,7 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#40 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#41 $")
 
 
 /*----------------------------------------------------------------------------
@@ -243,10 +243,18 @@ void QMenuData::setAllDirty( bool dirty )
 
   Example:
   \code
+    QMenuBar   *mainMenu = new QMenuBar;
     QPopupMenu *fileMenu = new QPopupMenu;
     fileMenu->insert( "New",  myView, SLOT(newFile()), CTRL+Key_N );
     fileMenu->insert( "Open", myView, SLOT(open()),    CTRL+Key_O );
+    mainMenu->insert( "File", fileMenu );
   \endcode
+
+  In the example above, pressing CTRL+N or selecting "open" from the
+  menu activates the myView->open() function.
+
+  Note that accelerators only work for QPopupMenu items that live in a
+  menu bar. For stand-alone popup menus, use an independent QAccel object.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qkeycode.h
@@ -435,8 +443,7 @@ void QMenuData::clear()
 
 /*----------------------------------------------------------------------------
   Returns the accelerator key that has been defined for the menu item \e id,
-  or 0 if there is no accelerator key.
-
+  or 0 if it has no accelerator key.
   \sa setAccel(), QAccel, qkeycode.h
  ----------------------------------------------------------------------------*/
 
@@ -457,20 +464,23 @@ int QMenuData::accel( int id ) const
   menu item, for instance, \c CTRL + \c Key_O generates "Ctrl+O".  The
   text is formatted differently for different platforms.
 
-  Notice that accelerators only work for QMenuBar items and QPopupMenu
-  items that live in a menu bar. For stand-alone popup menus, use an
-  independent QAccel object.
+  Note that accelerators only work for QPopupMenu items that live in a
+  menu bar. For stand-alone popup menus, use an independent QAccel object.
 
   Example:
   \code
-    QPopupMenu *fm = new QPopupMenu;		// file sub menu
-    fm->insertItem( "Open Document", 67 );	// add "Open" item
-    fm->setAccel( CTRL + Key_O, 67 );
-    fm->insertItem( "Quit", 69 );		// add "Quit" item
-    fm->setAccel( CTRL + ALT + Key_Delete, 69 );
+    QMenuBar   *mainMenu = new QMenuBar;
+    QPopupMenu *fileMenu = new QPopupMenu;	// file sub menu
+    fileMenu->insertItem( "Open Document", 67 );// add "Open" item
+    fileMenu->setAccel( CTRL + Key_O, 67 );
+    fileMenu->insertItem( "Quit", 69 );		// add "Quit" item
+    fileMenu->setAccel( CTRL + ALT + Key_Delete, 69 );
+    mainMenu->insertItem( "File", fileMenu );	// add the file menu
   \endcode
 
-  \sa accel(), QAccel, qkeycode.h
+  You can also specify the accelerator in the insertItem() function.
+
+  \sa accel(), insertItem(), QAccel, qkeycode.h
  ----------------------------------------------------------------------------*/
 
 void QMenuData::setAccel( int key, int id )
