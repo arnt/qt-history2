@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#49 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#50 $
 **
 ** Implementation of QBuffer class
 **
@@ -33,9 +33,10 @@
 
   \ingroup io
 
-  QBuffer allows reading and writing a memory buffer.
-  It has an associated QByteArray which holds the buffer data. The
-  size() of the buffer is automatically adjusted as data is written.
+  QBuffer allows reading and writing a memory buffer. It is normally
+  used together with a QTextStream or a QDataStream.  QBuffer has an
+  associated QByteArray which holds the buffer data. The size() of the
+  buffer is automatically adjusted as data is written.
 
   The constructor \c QBuffer(QByteArray) creates a QBuffer with an
   existing byte array.  The byte array can also be set with setBuffer().
@@ -46,7 +47,7 @@
   (read-only,write-only, etc.).  close() closes the buffer. The buffer
   must be closed before reopening or calling setBuffer().
 
-  The common way to use QBuffer is through QDataStream or QTextStream
+  The common way to use QBuffer is through \l QDataStream or \l QTextStream
   which have constructors that take a QBuffer parameter. For
   convenience, there are also QDataStream and QTextStream constructors
   that take a QByteArray parameter.  These constructors create and open
