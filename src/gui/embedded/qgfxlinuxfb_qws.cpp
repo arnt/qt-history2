@@ -183,26 +183,31 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
     if((vinfo.bits_per_pixel==8) || (vinfo.bits_per_pixel==4)) {
         screencols= (vinfo.bits_per_pixel==8) ? 256 : 16;
         int loopc;
-        startcmap = new fb_cmap;
-        startcmap->start=0;
-        startcmap->len=screencols;
-        startcmap->red=(unsigned short int *)
+        fb_cmap startcmap;
+        startcmap.start=0;
+        startcmap.len=screencols;
+        startcmap.red=(unsigned short int *)
                  malloc(sizeof(unsigned short int)*screencols);
-        startcmap->green=(unsigned short int *)
+        startcmap.green=(unsigned short int *)
                    malloc(sizeof(unsigned short int)*screencols);
-        startcmap->blue=(unsigned short int *)
+        startcmap.blue=(unsigned short int *)
                   malloc(sizeof(unsigned short int)*screencols);
-        startcmap->transp=(unsigned short int *)
+        startcmap.transp=(unsigned short int *)
                     malloc(sizeof(unsigned short int)*screencols);
         if (ioctl(fd,FBIOGETCMAP,startcmap)) {
             perror("reading fb cmap");
-            qWarning("Error reading palette from framebuffer");
+            qWarning("Error reading palette from framebuffer, using default palette");
+            createPalette(startcmap, vinfo, finfo);
         }
         for(loopc=0;loopc<screencols;loopc++) {
-            screenclut[loopc]=qRgb(startcmap->red[loopc] >> 8,
-                                   startcmap->green[loopc] >> 8,
-                                   startcmap->blue[loopc] >> 8);
+            screenclut[loopc]=qRgb(startcmap.red[loopc] >> 8,
+                                   startcmap.green[loopc] >> 8,
+                                   startcmap.blue[loopc] >> 8);
         }
+        free(startcmap.red);
+        free(startcmap.green);
+        free(startcmap.blue);
+        free(startcmap.transp);
     } else {
         screencols=0;
     }
@@ -237,6 +242,130 @@ static void writeTerm(const char* termctl, int sizeof_termctl)
             ::close(tty);
         }
         dev++;
+    }
+}
+
+void QLinuxFbScreen::createPalette(fb_cmap &cmap, fb_var_screeninfo &vinfo, fb_fix_screeninfo &finfo)
+{
+    if((vinfo.bits_per_pixel==8) || (vinfo.bits_per_pixel==4)) {
+        screencols= (vinfo.bits_per_pixel==8) ? 256 : 16;
+        cmap.start=0;
+        cmap.len=screencols;
+        cmap.red=(unsigned short int *)
+                 malloc(sizeof(unsigned short int)*screencols);
+        cmap.green=(unsigned short int *)
+                   malloc(sizeof(unsigned short int)*screencols);
+        cmap.blue=(unsigned short int *)
+                  malloc(sizeof(unsigned short int)*screencols);
+        cmap.transp=(unsigned short int *)
+                    malloc(sizeof(unsigned short int)*screencols);
+
+        if (screencols==16) {
+            if (finfo.type == FB_TYPE_PACKED_PIXELS) {
+                // We'll setup a grayscale cmap for 4bpp linear
+                int val = 0;
+                for (int idx = 0; idx < 16; ++idx, val += 17) {
+                    cmap.red[idx] = (val<<8)|val;
+                    cmap.green[idx] = (val<<8)|val;
+                    cmap.blue[idx] = (val<<8)|val;
+                    screenclut[idx]=qRgb(val, val, val);
+                }
+            } else {
+                // Default 16 colour palette
+                // Green is now trolltech green so certain images look nicer
+                //                             black  d_gray l_gray white  red  green  blue cyan magenta yellow
+                unsigned char reds[16]   = { 0x00, 0x7F, 0xBF, 0xFF, 0xFF, 0xA2, 0x00, 0xFF, 0xFF, 0x00, 0x7F, 0x7F, 0x00, 0x00, 0x00, 0x82 };
+                unsigned char greens[16] = { 0x00, 0x7F, 0xBF, 0xFF, 0x00, 0xC5, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x7F };
+                unsigned char blues[16]  = { 0x00, 0x7F, 0xBF, 0xFF, 0x00, 0x11, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0x7F, 0x7F, 0x7F, 0x00, 0x00 };
+
+                for (int idx = 0; idx < 16; ++idx) {
+                    cmap.red[idx] = ((reds[idx]) << 8)|reds[idx];
+                    cmap.green[idx] = ((greens[idx]) << 8)|greens[idx];
+                    cmap.blue[idx] = ((blues[idx]) << 8)|blues[idx];
+                    cmap.transp[idx] = 0;
+                    screenclut[idx]=qRgb(reds[idx], greens[idx], blues[idx]);
+                }
+            }
+        } else {
+            if (grayscale) {
+                // Build grayscale palette
+                int i;
+                for(i=0;i<screencols;++i) {
+                    int bval = screencols == 256 ? i : (i << 4);
+                    ushort val = (bval << 8) | bval;
+                    cmap.red[i] = val;
+                    cmap.green[i] = val;
+                    cmap.blue[i] = val;
+                    cmap.transp[i] = 0;
+                    screenclut[i] = qRgb(bval,bval,bval);
+                }
+            } else {
+                // 6x6x6 216 color cube
+                int idx = 0;
+                for(int ir = 0x0; ir <= 0xff; ir+=0x33) {
+                    for(int ig = 0x0; ig <= 0xff; ig+=0x33) {
+                        for(int ib = 0x0; ib <= 0xff; ib+=0x33) {
+                            cmap.red[idx] = (ir << 8)|ir;
+                            cmap.green[idx] = (ig << 8)|ig;
+                            cmap.blue[idx] = (ib << 8)|ib;
+                            cmap.transp[idx] = 0;
+                            screenclut[idx]=qRgb(ir, ig, ib);
+                            ++idx;
+                        }
+                    }
+                }
+                // Fill in rest with 0
+                for (int loopc=0; loopc<40; ++loopc) {
+                    screenclut[idx]=0;
+                    ++idx;
+                }
+                screencols=idx;
+            }
+        }
+    } else if(finfo.visual==FB_VISUAL_DIRECTCOLOR) {
+        cmap.start=0;
+        int rbits=0,gbits=0,bbits=0;
+        switch (vinfo.bits_per_pixel) {
+        case 8:
+            rbits=vinfo.red.length;
+            gbits=vinfo.green.length;
+            bbits=vinfo.blue.length;
+            if(rbits==0 && gbits==0 && bbits==0) {
+                // cyber2000 driver bug hack
+                rbits=3;
+                gbits=3;
+                bbits=2;
+            }
+            break;
+        case 15:
+            rbits=5;
+            gbits=5;
+            bbits=5;
+            break;
+        case 16:
+            rbits=5;
+            gbits=6;
+            bbits=5;
+            break;
+        case 24: case 32:
+            rbits=gbits=bbits=8;
+            break;
+        }
+        screencols=cmap.len=1<<qMax(rbits,qMax(gbits,bbits));
+        cmap.red=(unsigned short int *)
+                 malloc(sizeof(unsigned short int)*256);
+        cmap.green=(unsigned short int *)
+                   malloc(sizeof(unsigned short int)*256);
+        cmap.blue=(unsigned short int *)
+                  malloc(sizeof(unsigned short int)*256);
+        cmap.transp=(unsigned short int *)
+                    malloc(sizeof(unsigned short int)*256);
+        for(unsigned int i = 0x0; i < cmap.len; i++) {
+            cmap.red[i] = i*65535/((1<<rbits)-1);
+            cmap.green[i] = i*65535/((1<<gbits)-1);
+            cmap.blue[i] = i*65535/((1<<bbits)-1);
+            cmap.transp[i] = 0;
+        }
     }
 }
 
@@ -316,143 +445,18 @@ bool QLinuxFbScreen::initDevice()
             sentry.type=MTRR_TYPE_WRCOMB;
             if(ioctl(mfd,MTRRIOC_ADD_ENTRY,&sentry)==-1) {
                 //printf("Couldn't add mtrr entry for %lx %lx, %s\n",
-                       //sentry.base,sentry.size,strerror(errno));
+                //sentry.base,sentry.size,strerror(errno));
             }
         }
     }
 #endif
-
-    if((vinfo.bits_per_pixel==8) || (vinfo.bits_per_pixel==4)) {
-        screencols= (vinfo.bits_per_pixel==8) ? 256 : 16;
+    {
         fb_cmap cmap;
-        cmap.start=0;
-        cmap.len=screencols;
-        cmap.red=(unsigned short int *)
-                 malloc(sizeof(unsigned short int)*screencols);
-        cmap.green=(unsigned short int *)
-                   malloc(sizeof(unsigned short int)*screencols);
-        cmap.blue=(unsigned short int *)
-                  malloc(sizeof(unsigned short int)*screencols);
-        cmap.transp=(unsigned short int *)
-                    malloc(sizeof(unsigned short int)*screencols);
-
-        if (screencols==16) {
-            if (finfo.type == FB_TYPE_PACKED_PIXELS) {
-                // We'll setup a grayscale cmap for 4bpp linear
-                int val = 0;
-                for (int idx = 0; idx < 16; idx++, val += 17) {
-                    cmap.red[idx] = (val<<8)|val;
-                    cmap.green[idx] = (val<<8)|val;
-                    cmap.blue[idx] = (val<<8)|val;
-                    screenclut[idx]=qRgb(val, val, val);
-                }
-            } else {
-                // Default 16 colour palette
-                // Green is now trolltech green so certain images look nicer
-                //                             black  d_gray l_gray white  red  green  blue cyan magenta yellow
-                unsigned char reds[16]   = { 0x00, 0x7F, 0xBF, 0xFF, 0xFF, 0xA2, 0x00, 0xFF, 0xFF, 0x00, 0x7F, 0x7F, 0x00, 0x00, 0x00, 0x82 };
-                unsigned char greens[16] = { 0x00, 0x7F, 0xBF, 0xFF, 0x00, 0xC5, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x7F };
-                unsigned char blues[16]  = { 0x00, 0x7F, 0xBF, 0xFF, 0x00, 0x11, 0xFF, 0x00, 0xFF, 0xFF, 0x00, 0x7F, 0x7F, 0x7F, 0x00, 0x00 };
-
-                for (int idx = 0; idx < 16; idx++) {
-                    cmap.red[idx] = ((reds[idx]) << 8)|reds[idx];
-                    cmap.green[idx] = ((greens[idx]) << 8)|greens[idx];
-                    cmap.blue[idx] = ((blues[idx]) << 8)|blues[idx];
-                    cmap.transp[idx] = 0;
-                    screenclut[idx]=qRgb(reds[idx], greens[idx], blues[idx]);
-                }
-            }
-        } else {
-            if (grayscale) {
-                // Build grayscale palette
-                int i;
-                for(i=0;i<screencols;i++) {
-                    int bval = screencols == 256 ? i : (i << 4);
-                    ushort val = (bval << 8) | bval;
-                    cmap.red[i] = val;
-                    cmap.green[i] = val;
-                    cmap.blue[i] = val;
-                    cmap.transp[i] = 0;
-                    screenclut[i] = qRgb(bval,bval,bval);
-                }
-            } else {
-                // 6x6x6 216 color cube
-                int idx = 0;
-                for(int ir = 0x0; ir <= 0xff; ir+=0x33) {
-                    for(int ig = 0x0; ig <= 0xff; ig+=0x33) {
-                        for(int ib = 0x0; ib <= 0xff; ib+=0x33) {
-                            cmap.red[idx] = (ir << 8)|ir;
-                            cmap.green[idx] = (ig << 8)|ig;
-                            cmap.blue[idx] = (ib << 8)|ib;
-                            cmap.transp[idx] = 0;
-                            screenclut[idx]=qRgb(ir, ig, ib);
-                            idx++;
-                        }
-                    }
-                }
-                // Fill in rest with 0
-                for (int loopc=0; loopc<40; loopc++) {
-                    screenclut[idx]=0;
-                    idx++;
-                }
-                screencols=idx;
-            }
-        }
-
+        createPalette(cmap, vinfo, finfo);
         if (ioctl(fd,FBIOPUTCMAP,&cmap)) {
             perror("writing fb cmap");
             qWarning("Error writing palette to framebuffer");
         }
-        free(cmap.red);
-        free(cmap.green);
-        free(cmap.blue);
-        free(cmap.transp);
-    } else if(finfo.visual==FB_VISUAL_DIRECTCOLOR) {
-        fb_cmap cmap;
-        cmap.start=0;
-        int rbits=0,gbits=0,bbits=0;
-        switch (vinfo.bits_per_pixel) {
-          case 8:
-                rbits=vinfo.red.length;
-                gbits=vinfo.green.length;
-                bbits=vinfo.blue.length;
-                if(rbits==0 && gbits==0 && bbits==0) {
-                    // cyber2000 driver bug hack
-                    rbits=3;
-                    gbits=3;
-                    bbits=2;
-                }
-                break;
-          case 15:
-                rbits=5;
-                gbits=5;
-                bbits=5;
-                break;
-          case 16:
-                rbits=5;
-                gbits=6;
-                bbits=5;
-                break;
-          case 24: case 32:
-                rbits=gbits=bbits=8;
-                break;
-        }
-        screencols=cmap.len=1<<qMax(rbits,qMax(gbits,bbits));
-        cmap.red=(unsigned short int *)
-                 malloc(sizeof(unsigned short int)*256);
-        cmap.green=(unsigned short int *)
-                   malloc(sizeof(unsigned short int)*256);
-        cmap.blue=(unsigned short int *)
-                  malloc(sizeof(unsigned short int)*256);
-        cmap.transp=(unsigned short int *)
-                    malloc(sizeof(unsigned short int)*256);
-        for(unsigned int i = 0x0; i < cmap.len; i++) {
-            cmap.red[i] = i*65535/((1<<rbits)-1);
-            cmap.green[i] = i*65535/((1<<gbits)-1);
-            cmap.blue[i] = i*65535/((1<<bbits)-1);
-            cmap.transp[i] = 0;
-        }
-        ioctl(fd,FBIOPUTCMAP,&cmap);
         free(cmap.red);
         free(cmap.green);
         free(cmap.blue);
