@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#26 $
 **
 ** Implementation of QGGeometry class
 **
@@ -12,9 +12,10 @@
 #include "qgmanagr.h"
 #include "qlist.h"
 #include "qmenubar.h"
+#include "qapp.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#26 $");
 
 
 
@@ -781,6 +782,8 @@ bool QGManager::eventFilter( QObject *o, QEvent *e )
     case Event_ChildRemoved: {
 	QChildEvent *c = (QChildEvent*)e;
 	remove( c->child() );
+	QEvent *lh = new QEvent( Event_LayoutHint );
+	QApplication::postEvent( o, lh );
 	break;
     }
     case Event_LayoutHint:
