@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#85 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#84 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#85 $";
 #endif
 
 
@@ -959,43 +959,11 @@ void QWidget::setSizeIncrement( int w, int h )
     }
 }
 
-/*!
-  Erases the specified area \e (x,y,w,h) in the widget without generating
-  a \link paintEvent() paint event\endlink.
+/*! \overload void QWidget::erase()
 
-  Child widgets are not affected.
+  This version uses the entire widget. */
 
-  \sa repaint()
-*/
-
-/*!
-  \fn void QWidget::erase()
-  Erases the the widget contents without generating
-  a \link paintEvent() paint event\endlink.
-
-  Child widgets are not affected.
-
-  \sa repaint()
-*/
-
-/*!
-  Erases the specified area \e (x,y,w,h) in the widget without generating
-  a \link paintEvent() paint event\endlink.
-
-  Child widgets are not affected.
-
-  \sa repaint()
-*/
-
-/*!
-  \fn void QWidget::erase( const QRect &r )
-  Erases the specified area \e r in the widget without generating
-  a \link paintEvent() paint event\endlink.
-
-  Child widgets are not affected.
-
-  \sa repaint()
-*/
+/*! \overload void QWidget::erase( const QRect &r ) */
 
 /*!
   Erases the specified area \e (x,y,w,h) in the widget without generating
