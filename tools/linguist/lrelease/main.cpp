@@ -35,7 +35,7 @@ static void printUsage()
 {
     fprintf( stderr, "Usage:\n"
 	      "    lrelease [options] project-file\n"
-	      "    lrelease [options] ts-files\n"
+	      "    lrelease [options] ts-files [-qm qm-file]\n"
 	      "Options:\n"
 	      "    -help  Display this information and exit\n"
 	      "    -nocompress\n"
