@@ -10,8 +10,8 @@ HEADERS		= qplugin.h \
 		  qwidgetplugin.h \
 		  qwidgetinterface.h \
 		  plugmainwindow.h \
-		  qapplicationinterfaces.h
-		  qcleanuphandler.h \
+		  qapplicationinterfaces.h \
+		  qcleanuphandler.h
 		  
 SOURCES		= main.cpp \
 		  qplugin.cpp \
