@@ -227,7 +227,9 @@ QStringList qt_mac_get_open_file_names(const QFileDialogArgs &args, QString *pwd
     NavDialogCreationOptions options;
     NavGetDefaultDialogCreationOptions(&options);
     options.modality = kWindowModalityAppModal;
-    options.optionFlags |= kNavDontConfirmReplacement | kNavSupportPackages;
+    options.optionFlags |= kNavSupportPackages;
+    if (args.options & QFileDialog::DontConfirmOverwrite)
+        options.optionFlags |= kNavDontConfirmReplacement;
     if (args.mode == QFileDialog::ExistingFiles)
         options.optionFlags |= kNavAllowMultipleFiles;
     if (!args.caption.isEmpty())
@@ -357,7 +359,8 @@ QString qt_mac_get_save_file_name(const QFileDialogArgs &args, QString *pwd,
     NavDialogCreationOptions options;
     NavGetDefaultDialogCreationOptions(&options);
     static const int w = 450, h = 350;
-    options.optionFlags |= kNavDontConfirmReplacement;
+    if (args.options & QFileDialog::DontConfirmOverwrite)
+        options.optionFlags |= kNavDontConfirmReplacement;
     options.modality = kWindowModalityAppModal;
     options.location.h = options.location.v = -1;
     if (!args.directory.isEmpty())
