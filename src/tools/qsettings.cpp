@@ -973,6 +973,11 @@ bool QSettings::sync()
 	while (pit != d->searchPaths.end()) {
 	    QString filebase = it.key().lower().replace(QRegExp("\\s+"), "_");
 	    QFileInfo di(*pit);
+	    if ( !di.exists() ) {
+		QDir dir;
+		dir.mkdir( *pit );
+	    }
+
 	    QFileInfo fi((*pit++) + "/" + filebase + "rc");
 
 	    if ((fi.exists() && fi.isFile() && fi.isWritable()) ||
