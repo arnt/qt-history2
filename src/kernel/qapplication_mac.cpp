@@ -169,7 +169,7 @@ static EventRef qt_replay_event = NULL;
 static QMAC_PASCAL void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
 {
     if(msg == kDMNotifyEvent) {
-	if(QDesktopWidget *dw = qApp->desktop()) 
+	if(QDesktopWidget *dw = qApp->desktop())
 	    QApplication::postEvent(dw, new QResizeEvent(dw->size(), dw->size()));
     }
 }
@@ -611,7 +611,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child)
     //find the tld
     QWidget *widget;
     qt_mac_find_window( x, y, &widget);
-    if(!widget) 
+    if(!widget)
 	return 0;
 
     //find the child
@@ -1529,7 +1529,7 @@ bool QApplication::do_mouse_down(Point *pt)
 	return TRUE; //just return and let the event loop process
     } else if(windowPart != inGoAway && windowPart != inCollapseBox) {
 	widget->raise();
-	if(widget->isTopLevel() && !widget->isDesktop() && !widget->isPopup() && 
+	if(widget->isTopLevel() && !widget->isDesktop() && !widget->isPopup() &&
 	   (widget->isModal() || !widget->inherits("QDockWindow")))
 	    widget->setActiveWindow();
     }
@@ -1545,7 +1545,8 @@ bool QApplication::do_mouse_down(Point *pt)
     case inDesk:
 	break;
     case inGoAway:
-	widget->close();
+	if(TrackBox( (WindowPtr)widget->handle(), *pt, windowPart))
+	    widget->close();
 	break;
     case inToolbarButton: { //hide toolbars thing
 	if(const QObjectList *chldrn = widget->children()) {
@@ -1627,10 +1628,12 @@ bool QApplication::do_mouse_down(Point *pt)
 	widget->showMinimized();
 	break;
     case inZoomIn:
-	widget->showNormal();
+	if(TrackBox((WindowPtr)widget->handle(), *pt, windowPart)) 
+	    widget->showNormal();
 	break;
     case inZoomOut:
-	widget->showMaximized();
+	if(TrackBox((WindowPtr)widget->handle(), *pt, windowPart))
+	    widget->showMaximized();
 	break;
     default:
 	qDebug("Unhandled case in mouse_down.. %d", windowPart);
@@ -1773,7 +1776,7 @@ QMAC_PASCAL OSStatus
 QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
 {
     QuitApplicationEventLoop();
-    
+
     QApplication *app = (QApplication *)data;
     if (app->macEventFilter(event)) //someone else ate it
 	return noErr; 
@@ -1850,7 +1853,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    QApplication::sendEvent( widget, &qme );
 		    if(qme.isAccepted()) { //once this happens the events before are pitched
 			if(qt_button_down && mouse_button_state) {
-			    QMouseEvent qme( QEvent::MouseButtonRelease, plocal, where, 
+			    QMouseEvent qme( QEvent::MouseButtonRelease, plocal, where,
 					     mouse_button_state, mouse_button_state );
 			    QApplication::sendSpontaneousEvent( qt_button_down, &qme );
 			}
@@ -1858,10 +1861,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			mouse_button_state = 0;
 			qt_mac_dblclick.active = FALSE;
 #ifdef DEBUG_MOUSE_MAPS
-			qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, 
+			qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__,
 			       mouse_button_state);
 #endif
-		    } 
+		    }
 		} else {
 		    handled_event = FALSE;
 		}
@@ -1888,7 +1891,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    qDebug("Dropping mouse event.. %d %d", ekind == kEventMouseDown, mouse_button_state);
 #endif
 	    break;
-	} 
+	}
 #ifdef DEBUG_MOUSE_MAPS
 	else qDebug("Handling mouse: %d", ekind == kEventMouseDown);
 #endif
@@ -1921,14 +1924,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(qt_mac_dblclick.active) {
 		if(qt_mac_dblclick.use_qt_time_limit) {
 		    EventTime now = GetEventTime(event);
-		    if(qt_mac_dblclick.last_time != -2 && 
+		    if(qt_mac_dblclick.last_time != -2 &&
 		       now - qt_mac_dblclick.last_time <= doubleClickInterval())
 			etype = QEvent::MouseButtonDblClick;
 		} else {
 		    UInt32 count;
 		    GetEventParameter(event, kEventParamClickCount, typeUInt32, NULL,
 				      sizeof(count), NULL, &count);
-		    if(!(count % 2) && qt_mac_dblclick.last_modifiers == keys && 
+		    if(!(count % 2) && qt_mac_dblclick.last_modifiers == keys &&
 		       qt_mac_dblclick.last_button == button)
 			etype = QEvent::MouseButtonDblClick;
 		}
@@ -2038,7 +2041,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		} else {
 		    mouse_button_state = after_state;
 #ifdef DEBUG_MOUSE_MAPS
-		    qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, 
+		    qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__,
 			   mouse_button_state);
 #endif
 		}
@@ -2051,7 +2054,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		if(mouse_down_unhandled) {
 		    handled_event = FALSE;
 		    break;
-		} 
+		}
 		mouse_button_state = 0;
 #ifdef DEBUG_MOUSE_MAPS
 		qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, mouse_button_state);
@@ -2060,9 +2063,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    } else if(QWidget* w = widget) {
 		while(w->focusProxy())
 		    w = w->focusProxy();
-		QWidget *tlw = w->topLevelWidget(); 
+		QWidget *tlw = w->topLevelWidget();
 		tlw->raise();
-		if(tlw->isTopLevel() && !tlw->isDesktop() && !tlw->isPopup() && 
+		if(tlw->isTopLevel() && !tlw->isDesktop() && !tlw->isPopup() &&
 		   (tlw->isModal() || !tlw->inherits("QDockWindow")))
 		    tlw->setActiveWindow();
 	    }
@@ -2078,9 +2081,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	{
 	    if ((QWidget *)qt_mouseover != widget) {
 #ifdef DEBUG_MOUSE_MAPS
-		qDebug("Entering: %s (%s), Leaving %s (%s)", 
+		qDebug("Entering: %s (%s), Leaving %s (%s)",
 		       widget ? widget->className() : "none", widget ? widget->name() : "",
-		       qt_mouseover ? qt_mouseover->className() : "none", 
+		       qt_mouseover ? qt_mouseover->className() : "none",
 		       qt_mouseover ? qt_mouseover->name() : "");
 #endif
 		qt_dispatchEnterLeave(widget, qt_mouseover);
@@ -2093,7 +2096,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		remove_context_timer = FALSE;
 		if(!mac_context_timerUPP)
 		    mac_context_timerUPP = NewEventLoopTimerUPP(qt_context_timer_callbk);
-		InstallEventLoopTimer(GetMainEventLoop(), 2, 0, mac_context_timerUPP, 
+		InstallEventLoopTimer(GetMainEventLoop(), 2, 0, mac_context_timerUPP,
 				      widget, &mac_context_timer);
 	    }
 	    qt_button_down = widget;
@@ -2140,7 +2143,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		switch(ekind) {
 		case kEventMouseDown: event_desc = "MouseButtonPress"; break;
 		case kEventMouseUp: event_desc = "MouseButtonRelease"; break;
-		case kEventMouseDragged: 
+		case kEventMouseDragged:
 		case kEventMouseMoved: event_desc = "MouseMove"; break;
 		case kEventMouseWheelMoved: event_desc = "MouseWheelMove"; break;
 		}
@@ -2213,20 +2216,20 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    QIMEvent imend(QEvent::IMEnd, text, 1);
 		    QApplication::sendSpontaneousEvent(widget, &imend);
 		}
-	    } 
+	    }
 	    if(!handled_event)
 		return -1;
 	}
 	break;
     case kEventClassKeyboard: {
 	UInt32 modif;
-	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL, 
+	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL,
 			  sizeof(modif), NULL, &modif);
 
 	/*unfortunatly modifiers changed event looks quite different, so I have a separate
 	  code path */
 	if(ekind == kEventRawKeyModifiersChanged) {
-	    int changed_modifiers = keyboard_modifiers_state ^ modif, 
+	    int changed_modifiers = keyboard_modifiers_state ^ modif,
 		   last_modifiers = keyboard_modifiers_state,
 			modifiers = get_modifiers(last_modifiers);
 	    keyboard_modifiers_state = modif;
@@ -2271,13 +2274,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #ifdef DEBUG_KEY_MAPS
 		qDebug("KeyEvent (modif): Sending %s to %s::%s: %d - %d",
 		       etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
-		       widget ? widget->className() : "none", widget ? widget->name() : "", 
+		       widget ? widget->className() : "none", widget ? widget->name() : "",
 		       key, modifiers);
 #endif
 		QKeyEvent ke(etype, key, 0, modifiers, "", FALSE, 0);
 		QApplication::sendSpontaneousEvent(widget,&ke);
 	    }
-	    break; 
+	    break;
 	}
 
 	int modifiers = get_modifiers(modif);
@@ -2285,7 +2288,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
 	//map it into qt keys
 	UInt32 state = 0L;
-	char chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript), 
+	char chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
 		   (modif & (shiftKey|rightShiftKey|alphaLock)) | keyc, &state);
 	if(!chr)
 	    break;
@@ -2302,7 +2305,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    tmp_mod |= controlKey;
 	if(modif & alphaLock)
 	    tmp_mod |= alphaLock;
-	chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript), 
+	chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
 			   tmp_mod | keyc, &state);
 
 	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
@@ -2316,7 +2319,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
 	    bool key_event = TRUE;
 	    if(etype == QEvent::KeyPress && !mac_keyboard_grabber) {
-		QKeyEvent aa(QEvent::AccelOverride, mychar, chr, modifiers, 
+		QKeyEvent aa(QEvent::AccelOverride, mychar, chr, modifiers,
 			     mystr, ekind == kEventRawKeyRepeat, mystr.length());
 		aa.ignore();
 		QApplication::sendSpontaneousEvent(widget, &aa);
@@ -2334,21 +2337,21 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			key_event = FALSE;
 		    } else {
 			HICommand hic;
-			if(IsMenuKeyEvent(NULL, event, kNilOptions, 
+			if(IsMenuKeyEvent(NULL, event, kNilOptions,
 					  &hic.menu.menuRef, &hic.menu.menuItemIndex)) {
 			    hic.attributes = kHICommandFromMenu;
-			    if(GetMenuItemCommandID(hic.menu.menuRef, hic.menu.menuItemIndex, 
+			    if(GetMenuItemCommandID(hic.menu.menuRef, hic.menu.menuItemIndex,
 						    &hic.commandID))
 			       qDebug("Shouldn't happen.. %s:%d", __FILE__, __LINE__);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //In native menubar mode we offer the event to the menubar...
-			    if(QMenuBar::activateCommand(hic.commandID) || 
+			    if(QMenuBar::activateCommand(hic.commandID) ||
 			       QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex)) {
 #ifdef DEBUG_KEY_MAPS
 				qDebug("KeyEvent: Consumed by Menubar(1)");
 #endif
 
 				key_event = FALSE;
-			    } else 
+			    } else
 #endif
 			    if(!ProcessHICommand(&hic)) {
 #ifdef DEBUG_KEY_MAPS
@@ -2371,7 +2374,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		if(modifiers & Qt::AltButton) {
 		    mystr = QString();
 		    chr = 0;
-		} 
+		}
 #ifdef DEBUG_KEY_MAPS
 		qDebug("KeyEvent: Sending %s to %s::%s: %04x %c %s %d",
 		       etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
@@ -2387,19 +2390,19 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    qDebug("KeyEvent: No widget could be found to accept the KeyPress");
 #endif
 	    HICommand hic;
-	    if(IsMenuKeyEvent(NULL, event, kNilOptions, 
+	    if(IsMenuKeyEvent(NULL, event, kNilOptions,
 			      &hic.menu.menuRef, &hic.menu.menuItemIndex)) {
 		hic.attributes = kHICommandFromMenu;
-		if(GetMenuItemCommandID(hic.menu.menuRef, hic.menu.menuItemIndex, 
+		if(GetMenuItemCommandID(hic.menu.menuRef, hic.menu.menuItemIndex,
 					&hic.commandID))
 		    qDebug("Shouldn't happen.. %s:%d", __FILE__, __LINE__);
-#if !defined(QMAC_QMENUBAR_NO_NATIVE) 
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
 		if(QMenuBar::activateCommand(hic.commandID) ||
 		   QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex)) {
 #ifdef DEBUG_KEY_MAPS
 		    qDebug("KeyEvent: Consumed by Menubar(2)");
 #endif
-		} else 
+		} else
 #endif
 		    if(!ProcessHICommand(&hic)) {
 #ifdef DEBUG_KEY_MAPS
@@ -2420,9 +2423,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			  sizeof(WindowRef), NULL, &wid);
 	widget = QWidget::find((WId)wid);
 	if(!widget) {
-	    if(ekind == kEventWindowShown ) 
+	    if(ekind == kEventWindowShown )
 		unhandled_dialogs.insert((void *)wid, (void *)1);
-	    else if(ekind == kEventWindowHidden) 
+	    else if(ekind == kEventWindowHidden)
 		unhandled_dialogs.remove((void *)wid);
 	    handled_event = FALSE;
 	    break;
@@ -2433,10 +2436,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    widget->propagateUpdates();
 	} else if(ekind == kEventWindowBoundsChanged) {
 	    UInt32 flags;
-	    GetEventParameter(event, kEventParamAttributes, typeUInt32, NULL, 
+	    GetEventParameter(event, kEventParamAttributes, typeUInt32, NULL,
 			      sizeof(flags), NULL, &flags);
 	    Rect nr;
-	    GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, NULL, 
+	    GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, NULL,
 			      sizeof(nr), NULL, &nr);
 	    if((flags & kWindowBoundsChangeOriginChanged)) {
 		int ox = widget->crect.x(), oy = widget->crect.y();
@@ -2506,20 +2509,20 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	if(ekind == kEventMenuOpening) {
 	    Boolean first;
-	    GetEventParameter(event, kEventParamMenuFirstOpen, typeBoolean, 
+	    GetEventParameter(event, kEventParamMenuFirstOpen, typeBoolean,
 			      NULL, sizeof(first), NULL, &first);
 	    if(first) {
 		MenuRef mr;
-		GetEventParameter(event, kEventParamDirectObject, typeMenuRef, 
+		GetEventParameter(event, kEventParamDirectObject, typeMenuRef,
 				  NULL, sizeof(mr), NULL, &mr);
 		QMenuBar::macUpdatePopup(mr);
 	    }
 	} else if(ekind == kEventMenuTargetItem) {
 	    MenuRef mr;
-	    GetEventParameter(event, kEventParamDirectObject, typeMenuRef, 
+	    GetEventParameter(event, kEventParamDirectObject, typeMenuRef,
 			      NULL, sizeof(mr), NULL, &mr);
 	    MenuItemIndex idx;
-	    GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex, 
+	    GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex,
 			      NULL, sizeof(idx), NULL, &idx);
 	    QMenuBar::activate(mr, idx, TRUE);
 	} else {
@@ -2541,9 +2544,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	handled_event = FALSE;
 	if(ekind == kEventAppleEvent) {
 	    OSType aeID, aeClass;
-	    GetEventParameter(event, kEventParamAEEventClass, typeType, 
+	    GetEventParameter(event, kEventParamAEEventClass, typeType,
 			      NULL, sizeof(aeClass), NULL, &aeClass);
-	    GetEventParameter(event, kEventParamAEEventID, typeType, 
+	    GetEventParameter(event, kEventParamAEEventID, typeType,
 			      NULL, sizeof(aeID), NULL, &aeID);
 	    if(aeClass == kCoreEventClass) {
 		switch(aeID) {
@@ -2554,18 +2557,18 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    break;
 		default:
 		    break;
-		}      
+		}
 	    }
 	}
 	break;
     case kEventClassCommand:
 	if(ekind == kEventCommandProcess) {
 	    HICommand cmd;
-	    GetEventParameter(event, kEventParamDirectObject, typeHICommand, 
+	    GetEventParameter(event, kEventParamDirectObject, typeHICommand,
 			      NULL, sizeof(cmd), NULL, &cmd);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
-	    if(!QMenuBar::activateCommand(cmd.commandID) && 
-	       !QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex)) 
+	    if(!QMenuBar::activateCommand(cmd.commandID) &&
+	       !QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex))
 		handled_event = FALSE;
 #else
 	    if(cmd.commandID == kHICommandQuit) {
@@ -2630,8 +2633,8 @@ bool QApplication::hasPendingEvents()
   reimplement this function, you get direct access to all Carbon Events
   that are received from the MacOS.
 
-  Return TRUE if you want to stop the event from being processed, or
-  return FALSE for normal event dispatching.
+  Return TRUE if you want to stop the event from being processed.
+  Return FALSE for normal event dispatching.
 */
 bool QApplication::macEventFilter(EventRef)
 {
@@ -2842,7 +2845,7 @@ bool QApplication::qt_mac_apply_settings()
 			 QColor(strlist[i]));
     }
 
-    if ( pal != QApplication::palette()) 
+    if ( pal != QApplication::palette())
 	QApplication::setPalette(pal, TRUE);
 
     QFont font(QApplication::font());
