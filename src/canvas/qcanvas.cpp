@@ -250,7 +250,7 @@ void QCanvasClusterizer::add(const QRect& rect)
     }
 
     // NB: clusters do not intersect (or intersection will
-    //     overwrite).  This is a result of the above algorithm,
+    //     overwrite). This is a result of the above algorithm,
     //     given the assumption that (x,y) are ordered topleft
     //     to bottomright.
 
@@ -312,7 +312,7 @@ private:
     \ingroup graphics
     \ingroup images
 
-  QCanvasItemList is a QValueList of pointers to QCanvasItems. This
+  QCanvasItemList is a QValueList of pointers to \l{QCanvasItem}s. This
   class is used by some methods in QCanvas that need to return a list of
   canvas items.
 
@@ -345,8 +345,8 @@ void QCanvasItemList::drawUnique( QPainter& painter )
 class QCanvasChunk {
 public:
     QCanvasChunk() : changed(TRUE) { }
-    // Other code assumes lists are not deleted.  Assignment is also
-    // done on ChunkRecs.  So don't add that sort of thing here.
+    // Other code assumes lists are not deleted. Assignment is also
+    // done on ChunkRecs. So don't add that sort of thing here.
 
     void sort()
     {
@@ -446,15 +446,16 @@ widgets.
 \i It's easy to detect overlapping items (collision detection).
 
 \i The canvas can be larger than a widget. A million-by-million canvas
-is perfectly possible. Although a widget might be very inefficient at
-this size and some window systems might not support it at all, QCanvas
-scales well. Even with a billion pixels and a million items finding a
-particular canvas item, detecting collisions, etc. is still fast.
+is perfectly possible. At such a size a widget might be very
+inefficient, and some window systems might not support it at all,
+whereas QCanvas scales well. Even with a billion pixels and a million
+items, finding a particular canvas item, detecting collisions, etc.,
+is still fast.
 
 \i Two or more QCanvasView objects can view the same canvas.
 
 \i An arbitrary transformation matrix can be set on each QCanvasView
-which makes it easy to zoom, rotate or sheer the viewed canvas.
+which makes it easy to zoom, rotate or shear the viewed canvas.
 
 \i Widgets provide a lot more functionality, such as input (QKeyEvent,
 QMouseEvent etc.) and layout management (QGridLayout etc.).
@@ -463,15 +464,15 @@ QMouseEvent etc.) and layout management (QGridLayout etc.).
 
 A canvas consists of a background, a number of canvas items organized by
 x, y and z coordinates, and a foreground. A canvas item's z coordinate
-may be treated as a layer number -- canvas items with higher z
-coordinate will appear in front of canvas items with a lower z
-coordinate.
+may be treated as a layer number -- canvas items with a higher z
+coordinate appear in front of canvas items with a lower z coordinate.
 
 The background is white by default, but can be set to a different color
 using setBackgroundColor(), or to a repeated pixmap using
 setBackgroundPixmap() or to a mosaic of smaller pixmaps using
-setTiles(). Individual tiles can be set with setTile(). As usual, there
-are corresponding get functions like backgroundColor().
+setTiles(). Individual tiles can be set with setTile(). There
+are corresponding get functions, e.g. backgroundColor() and
+backgroundPixmap().
 
 Note that QCanvas does not inherit from QWidget, even though it has some
 functions which provide the same functionality as those in QWidget. One
@@ -488,14 +489,14 @@ objects that inherit QCanvasItem. Each canvas item has a position on the
 canvas (x, y coordinates) and a height (z coordinate), all of which are
 held as floating-point numbers. Moving canvas items also have x and y
 velocities. It's possible for a canvas item to be outside the canvas
-(for example QCanvasItem::x() is greater than width()).  When a canvas
+(for example QCanvasItem::x() is greater than width()). When a canvas
 item is off the canvas, onCanvas() returns FALSE and the canvas
 disregards the item. (Canvas items off the canvas do not slow down any
-common operations on the canvas.)
+of the common operations on the canvas.)
 
 Canvas items can be moved with QCanvasItem::move(). The advance()
 function moves all QCanvasItem::animated() canvas items and
-setAdvancePeriod() makes QCanvas move them by itself on a periodic
+setAdvancePeriod() makes QCanvas move them automatically on a periodic
 basis. In the context of the QCanvas classes, to `animate' a canvas item
 is to set it in motion, i.e. using QCanvasItem::setVelocity(). Animation
 of a canvas item itself, i.e. items which change over time, is enabled
@@ -510,26 +511,27 @@ periodic updates using setUpdatePeriod(). If you have moving objects on
 the canvas, you need to call advance() every time the objects should
 move one step further. Periodic calls to advance() can be forced using
 setAdvancePeriod(). The advance() function will call
-QCanvasItem::advance() on every item that is QCanvasItem::animated() and
-trigger an update of the affected areas afterwards. (A canvas item that
-is `animated' is simply a canvas item that is in motion.)
+QCanvasItem::advance() on every item that is \link
+QCanvasItem::animated() animated\endlink and trigger an update of the
+affected areas afterwards. (A canvas item that is `animated' is simply
+a canvas item that is in motion.)
 
-QCanvas organizes its canvas items into \e chunks - areas on the canvas
-that are used to speed up most operations.  Many operations start by
-eliminating most chunks (i.e. those which haven't changed) and then
-process only the canvas items that are in the few interesting (i.e.
-changed) chunks. A valid chunk, validChunk(), is one
-which is on the canvas.
+QCanvas organizes its canvas items into \e chunks; these are areas on
+the canvas that are used to speed up most operations. Many operations
+start by eliminating most chunks (i.e. those which haven't changed)
+and then process only the canvas items that are in the few interesting
+(i.e. changed) chunks. A valid chunk, validChunk(), is one which is on
+the canvas.
 
 The chunk size is a key factor to QCanvas's speed: if there are too many
 chunks, the speed benefit of grouping canvas items into chunks is
 reduced. If the chunks are too large, it takes too long to process each
-one.  The QCanvas constructor picks a hopefully suitable size, but you
+one. The QCanvas constructor picks a hopefully suitable size, but you
 can call retune() to change it at any time. The chunkSize() function
 returns the current chunk size.
 
 The canvas items always make sure they're in the right chunks; all you
-need to make sure of is that the canvas uses the right chunk size.  A
+need to make sure of is that the canvas uses the right chunk size. A
 good rule of thumb is that the size should be a bit smaller than the
 average canvas item size. If you have moving objects, the chunk size
 should be a bit smaller than the average size of the moving items.
@@ -570,11 +572,12 @@ void QCanvas::init(int w, int h, int chunksze, int mxclusters)
     debug_redraw_areas = FALSE;
 }
 
-/*! Create a QCanvas with no size. \a parent and \a name have the
-  usual QObject meaning.
+/*!
+    Create a QCanvas with no size. \a parent and \a name are passed to
+    the QObject superclass.
 
-  You \e must call resize() at some time after creation to be able to
-  use the canvas.
+  \warning You \e must call resize() at some time after creation to be
+  able to use the canvas.
 */
 QCanvas::QCanvas( QObject* parent, const char* name )
     : QObject( parent, name )
@@ -592,7 +595,7 @@ QCanvas::QCanvas(int w, int h)
 
 /*!
   Constructs a QCanvas which will be composed of
-  \a h tiles horizontally and \a v tiles vertically.  Each tile
+  \a h tiles horizontally and \a v tiles vertically. Each tile
   will be an image \a tilewidth by \a tileheight pixels taken from
   pixmap \a p.
 
@@ -607,9 +610,9 @@ QCanvas::QCanvas(int w, int h)
   \endtable
 
   The QCanvas is initially sized to show exactly the given number
-  of tiles horizontally and vertically.  If it is resized to be larger,
+  of tiles horizontally and vertically. If it is resized to be larger,
   the entire matrix of tiles will be repeated as much as necessary to
-  cover the area.  If it is smaller, tiles to
+  cover the area. If it is smaller, tiles to
   the right and bottom will not be visible.
 
   \sa setTiles()
@@ -717,13 +720,15 @@ void QCanvas::resize(int w, int h)
 /*!
   \fn void QCanvas::resized()
 
-  This signal is emitted whenever the canvas is resized.  Each QCanvasView
+  This signal is emitted whenever the canvas is resized. Each QCanvasView
   connects to this signal to keep the scrollview size correct.
 */
 
-/*!  Change the efficiency tuning parameters to \a mxclusters clusters,
-    each of size \a chunksze.  This is a slow operation if there are many
-    objects on the canvas.
+/*!
+
+Change the efficiency tuning parameters to \a mxclusters clusters,
+each of size \a chunksze. This is a slow operation if there are many
+objects on the canvas.
 
 The canvas is divided into chunks which are rectangular areas of the canvas
 \a chunksze wide by \a chunksze high. Use a chunk size which is about
@@ -739,13 +744,13 @@ Internally, a canvas uses a low-resolution "chunk matrix" to keep
 track of all the items in the canvas. A 64x64 chunk matrix is the
 default for a 1024x1024 pixel canvas, where each chunk collects canvas
 items in a 16x16 pixel square. This default is also affected by
-setTiles(). You can tune this default with this function, for example
+setTiles(). You can tune this default with this function. For example
 if you have a very large canvas and want to trade off speed for memory
 then you might set the chunk size to 32 or 64.
 
 The \a mxclusters argument is the number of rectangular groups of chunks
-that will be separately drawn.  If the canvas has a large number of
-small, dispersed items, this should be about that number.  Our testing
+that will be separately drawn. If the canvas has a large number of
+small, dispersed items, this should be about that number. Our testing
 suggests that a large number of clusters is almost always best.
 
 */
@@ -784,53 +789,70 @@ void QCanvas::retune(int chunksze, int mxclusters)
 
 /*!
   \fn int QCanvas::width() const
+
   Returns the width of the canvas, in pixels.
 */
 
 /*!
   \fn int QCanvas::height() const
+
   Returns the height of the canvas, in pixels.
 */
 
 /*!
   \fn QSize QCanvas::size() const
+
   Returns the size of the canvas, in pixels.
 */
 
 /*!
   \fn QRect QCanvas::rect() const
+
   Returns a rectangle the size of the canvas.
 */
 
 
 /*!
   \fn bool QCanvas::onCanvas( int x, int y ) const
+
   Returns TRUE if the pixel position (\a x, \a y) is on the canvas;
   otherwise returns FALSE.
+
+  \sa validChunk()
 */
 
 /*!
-  \fn bool QCanvas::onCanvas( const QPoint& p ) const
-  \overload
+  \overload bool QCanvas::onCanvas( const QPoint& p ) const
+
   Returns TRUE if the pixel position \a p is on the canvas;
   otherwise returns FALSE.
+
+  \sa validChunk()
 */
 
 /*!
   \fn bool QCanvas::validChunk( int x, int y ) const
+
   Returns TRUE if the chunk position (\a x, \a y) is on the canvas;
   otherwise returns FALSE.
+
+  \sa onCanvas()
 */
 
 /*!
-  \fn bool QCanvas::validChunk( const QPoint& p ) const
-  \overload
-  Returns whether the chunk position \a p is on the canvas.
+  \overload bool QCanvas::validChunk( const QPoint& p ) const
+
+  Returns TRUE if the chunk position \a p is on the canvas; otherwise
+  returns FALSE.
+
+  \sa onCanvas()
 */
 
 /*!
   \fn int QCanvas::chunkSize() const
+
   Returns the chunk size of the canvas.
+
   \sa retune()
 */
 
@@ -843,7 +865,7 @@ Tells if the points ( \a x1, \a y1 ) and ( \a x2, \a y2 ) are within the same ch
 /*!
 \internal
 This method adds an the item \a item to the list of QCanvasItem objects
-in the QCanvas.  The QCanvasItem class calls this.
+in the QCanvas. The QCanvasItem class calls this.
 */
 void QCanvas::addItem(QCanvasItem* item)
 {
@@ -873,7 +895,7 @@ void QCanvas::removeAnimation(QCanvasItem* item)
 /*!
 \internal
 This method removes the item \a item from the list of QCanvasItem objects
-in this QCanvas.  The QCanvasItem class calls this.
+in this QCanvas. The QCanvasItem class calls this.
 */
 void QCanvas::removeItem(QCanvasItem* item)
 {
@@ -883,7 +905,7 @@ void QCanvas::removeItem(QCanvasItem* item)
 /*!
 \internal
 This method adds the view \a view to the list of QCanvasView objects
-viewing this QCanvas.  The QCanvasView class calls this.
+viewing this QCanvas. The QCanvasView class calls this.
 */
 void QCanvas::addView(QCanvasView* view)
 {
@@ -895,7 +917,7 @@ void QCanvas::addView(QCanvasView* view)
 /*!
 \internal
 This method removes the view \a view from the list of QCanvasView objects
-viewing this QCanvas.  The QCanvasView class calls this.
+viewing this QCanvas. The QCanvasView class calls this.
 */
 void QCanvas::removeView(QCanvasView* view)
 {
@@ -926,7 +948,7 @@ void QCanvas::setAdvancePeriod(int ms)
 /*!
   Sets the canvas to call update() every \a ms milliseconds. Any
   previous setting by setAdvancePeriod() or setUpdatePeriod() is
-  cancelled.
+  overridden.
 
   If \a ms is less than 0 automatic updating will be stopped.
 */
@@ -944,19 +966,21 @@ void QCanvas::setUpdatePeriod(int ms)
     }
 }
 
-/*!  Moves all QCanvasItem::animated() canvas items on the canvas and
- refreshes all changes to all views of the canvas. (An `animated' item
- is an item that is in motion, see setVelocity().)
+/*!
 
-  The advance is done in two phases.  In phase 0, the
+  Moves all QCanvasItem::animated() canvas items on the canvas and
+  refreshes all changes to all views of the canvas. (An `animated'
+  item is an item that is in motion; see setVelocity().)
+
+  The advance takes place in two phases. In phase 0, the
   QCanvasItem::advance() function of each QCanvasItem::animated() canvas
   item is called with paramater 0. Then all these canvas items are
   called again, with parameter 1. In phase 0, the canvas items should
   not change position, merely examine other items on the canvas for
   which special processing is required, such as collisions between
   items. In phase 1, all canvas items should change positions, ignoring
-  any other items on the canvas.  This two-phase approach allows for
-  considerations of "fairness", though no QCanvasItem subclasses
+  any other items on the canvas. This two-phase approach allows for
+  considerations of "fairness", although no QCanvasItem subclasses
   supplied with Qt do anything interesting in phase 0.
 
   The canvas can be configured to call this function periodically with
@@ -1095,7 +1119,7 @@ void QCanvas::update()
 /*!
   Marks the whole canvas as changed.
   All views of the canvas will be entirely redrawn when
-  update() is next called.
+  update() is called next.
 */
 void QCanvas::setAllChanged()
 {
@@ -1104,7 +1128,7 @@ void QCanvas::setAllChanged()
 
 /*!
   Marks \a area as changed. This area will be redrawn in all views
-  showing it when update() is next called.
+  that are showing it when update() is called next.
 */
 void QCanvas::setChanged(const QRect& area)
 {
@@ -1130,7 +1154,7 @@ void QCanvas::setChanged(const QRect& area)
 
 /*!
   Marks \a area as \e unchanged. The area will \e not be redrawn in the
-  views for the next update(), unless it is marked and changed again
+  views for the next update(), unless it is marked or changed again
   before the next call to update().
 */
 void QCanvas::setUnchanged(const QRect& area)
@@ -1378,8 +1402,8 @@ This method to informs the QCanvas that a given chunk is
 
 (\a x,\a y) is a chunk location.
 
-The sprite classes call this.  Any new derived class of QCanvasItem
-must do so too.  SetChangedChunkContaining can be used instead.
+The sprite classes call this. Any new derived class of QCanvasItem
+must do so too. SetChangedChunkContaining can be used instead.
 */
 void QCanvas::setChangedChunk(int x, int y)
 {
@@ -1396,7 +1420,7 @@ pixel is `dirty' and needs to be redrawn in the next Update.
 
 (\a x,\a y) is a pixel location.
 
-The item classes call this.  Any new derived class of QCanvasItem must
+The item classes call this. Any new derived class of QCanvasItem must
 do so too. SetChangedChunk can be used instead.
 */
 void QCanvas::setChangedChunkContaining(int x, int y)
@@ -1410,7 +1434,7 @@ void QCanvas::setChangedChunkContaining(int x, int y)
 /*!
 \internal
 This method adds the QCanvasItem \a g to the list of those which need to be
-drawn if the given chunk at location ( \a x, \a y ) is redrawn.  Like
+drawn if the given chunk at location ( \a x, \a y ) is redrawn. Like
 SetChangedChunk and SetChangedChunkContaining, this method marks the
 chunk as `dirty'.
 */
@@ -1424,7 +1448,7 @@ void QCanvas::addItemToChunk(QCanvasItem* g, int x, int y)
 /*!
 \internal
 This method removes the QCanvasItem \a g from the list of those which need to
-be drawn if the given chunk at location ( \a x, \a y ) is redrawn.  Like
+be drawn if the given chunk at location ( \a x, \a y ) is redrawn. Like
 SetChangedChunk and SetChangedChunkContaining, this method marks the chunk
 as `dirty'.
 */
@@ -1439,7 +1463,7 @@ void QCanvas::removeItemFromChunk(QCanvasItem* g, int x, int y)
 /*!
 \internal
 This method adds the QCanvasItem \a g to the list of those which need to be
-drawn if the chunk containing the given pixel ( \a x, \a y ) is redrawn.  Like
+drawn if the chunk containing the given pixel ( \a x, \a y ) is redrawn. Like
 SetChangedChunk and SetChangedChunkContaining, this method marks the
 chunk as `dirty'.
 */
@@ -1490,7 +1514,7 @@ void QCanvas::setBackgroundColor( const QColor& c )
 	bgcolor = c;
 	QCanvasView* view=d->viewList.first();
 	while ( view != 0 ) {
-	    /* XXX this doesn't look right.  Shouldn't this
+	    /* XXX this doesn't look right. Shouldn't this
 	       be more like setBackgroundPixmap? : Ian */
 	    view->viewport()->setEraseColor( bgcolor );
 	    view=d->viewList.next();
@@ -1500,7 +1524,7 @@ void QCanvas::setBackgroundColor( const QColor& c )
 }
 
 /*!
-  Returns the pixmap set by setBackgroundPixmap().  By default,
+  Returns the pixmap set by setBackgroundPixmap(). By default,
   this is a null pixmap.
 
   \sa setBackgroundPixmap(), backgroundColor()
@@ -1529,7 +1553,7 @@ void QCanvas::setBackgroundPixmap( const QPixmap& p )
 /*!
   This virtual function is called for all updates of the canvas.
   It renders any background graphics using the painter \a painter, in the
-  area \a clip.  If the canvas has a background
+  area \a clip. If the canvas has a background
   pixmap or a tiled background, that graphic is used, otherwise the
   canvas is cleared using the background color.
 
@@ -1608,7 +1632,7 @@ void QCanvas::setDoubleBuffering(bool y)
 
 
 /*!  Sets the QCanvas to be composed of \a h tiles horizontally and \a
-  v tiles vertically.  Each tile will be an image \a tilewidth by \a
+  v tiles vertically. Each tile will be an image \a tilewidth by \a
   tileheight pixels from pixmap \a p.
 
   The pixmap \a p is a list of tiles, arranged left to right, (and in
@@ -1622,7 +1646,7 @@ void QCanvas::setDoubleBuffering(bool y)
   \endtable
 
   If the canvas is larger than the matrix of tiles, the entire matrix
-  is repeated as necessary to cover the whole canvas.  If it is smaller,
+  is repeated as necessary to cover the whole canvas. If it is smaller,
   tiles to the right and bottom are not visible.
 
   The width and height of \a p must be a multiple of \a tilewidth and
@@ -1688,7 +1712,7 @@ void QCanvas::setTiles( QPixmap p,
 
 
 /*!  Sets the tile at (\a x, \a y) to use tile number \a tilenum,
-  which is an index into the tile pixmaps.  The canvas will update
+  which is an index into the tile pixmaps. The canvas will update
   appropriately when update() is next called.
 
   The images are taken from the pixmap set by setTiles() and are
@@ -1735,7 +1759,7 @@ class QCanvasItemExtra {
 A variety of subclasses provide immediately usable behaviour; this class
 is a pure abstract superclass providing the behaviour that is shared
 among all the concrete canvas item classes. QCanvasItem is not intended
-for direct subclassing.  It is much easier to subclass one of its
+for direct subclassing. It is much easier to subclass one of its
 subclasses, e.g. QCanvasPolygonalItem (the commonest base class),
 QCanvasRectangle, QCanvasSprite, QCanvasEllipse or QCanvasText.
 
@@ -1841,13 +1865,13 @@ QCanvasItemExtra& QCanvasItem::extra()
 
 /*! \fn double QCanvasItem::x() const
 
-  Returns the horizontal position of the canvas item.  Note that
+  Returns the horizontal position of the canvas item. Note that
   subclasses often have an origin other than the top-left corner.
 */
 
 /*! \fn double QCanvasItem::y() const
 
-  Returns the vertical position of the canvas item.  Note that
+  Returns the vertical position of the canvas item. Note that
   subclasses often have an origin other than the top-left corner.
 */
 
@@ -1871,7 +1895,7 @@ QCanvasItemExtra& QCanvasItem::extra()
 
 /*! \fn void QCanvasItem::setZ(double z)
 
-  Sets the z index of the canvas item to \a z.  Higher-z items obscure
+  Sets the z index of the canvas item to \a z. Higher-z items obscure
   (are in front of) lower-z items.
 
   \sa z(), move()
@@ -2031,7 +2055,7 @@ void QCanvasItem::hide()
 }
 
 /*!  Makes the canvas item visible if \a yes is TRUE, or invisible if \a
- yes is FALSE.  The change takes effect when QCanvas::update() is next
+ yes is FALSE. The change takes effect when QCanvas::update() is next
  called.
 */
 void QCanvasItem::setVisible(bool yes)
@@ -2078,7 +2102,7 @@ void QCanvasItem::setVisible(bool yes)
   redrawn when QCanvas::update() is next called.
 
   The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem subclasses do
-  not make use of this value.  The setSelected() function is supplied
+  not make use of this value. The setSelected() function is supplied
   because many applications need it, but it is up to you how you use the
   isSelected() value.
 */
@@ -2104,7 +2128,7 @@ void QCanvasItem::setSelected(bool yes)
   redrawn when QCanvas::update() is next called.
 
   The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem subclasses do
-  not make use of this value.  The setEnabled() function is supplied
+  not make use of this value. The setEnabled() function is supplied
   because many applications need it, but it is up to you how you use the
   isEnabled() value.
 */
@@ -2130,7 +2154,7 @@ void QCanvasItem::setEnabled(bool yes)
   redrawn when QCanvas::update() is next called.
 
   The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem subclasses do
-  not make use of this value.  The setActive() function is supplied
+  not make use of this value. The setActive() function is supplied
   because many applications need it, but it is up to you how you use the
   isActive() value.
 */
@@ -2516,7 +2540,7 @@ QCanvasItemList QCanvas::collisions(const QRect& r) const
   \overload
 
   Returns a list of canvas items which intersect with the chunks listed
-  in \a chunklist, excluding \a item.  If \a exact is TRUE, only only
+  in \a chunklist, excluding \a item. If \a exact is TRUE, only only
   those which actually QCanvasItem::collidesWith() \a item are returned,
   otherwise canvas items are included just for being in the chunks.
 
@@ -3286,7 +3310,7 @@ void QCanvasSprite::draw(QPainter& painter)
 
 /*!
   Constructs a QCanvasView with parent \a parent, and name \a name,
-  using the widget flags \a f.  The canvas view is not associated with a
+  using the widget flags \a f. The canvas view is not associated with a
   canvas, so you will need to call setCanvas() to display a canvas.
 */
 QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
@@ -3371,7 +3395,7 @@ const QWMatrix &QCanvasView::inverseWorldMatrix() const
 }
 
 /*!
-  Sets the transformation matrix of the QCanvasView to \a wm.  The
+  Sets the transformation matrix of the QCanvasView to \a wm. The
   matrix must be invertible (i.e. if you create a world matrix that
   zooms out by 2 times, then the inverse of this matrix is one that will
   zoom in by 2 times).
@@ -3507,7 +3531,7 @@ QSize QCanvasView::sizeHint() const
 
   Derived classes should try to define as small an area as possible to
   maximize efficiency, but the polygon must \e definitely be contained
-  completely within the polygonal area.  Calculating the exact
+  completely within the polygonal area. Calculating the exact
   requirements is usually difficult, but if you allow a small
   overestimate it can be easy and quick, while still getting almost all
   of QCanvasPolygonalItem's speed.
@@ -4021,7 +4045,7 @@ QCanvasSpline::~QCanvasSpline()
 
   If \a close is TRUE, then the first point in \a ctrl will be re-used
   as the last point, and the number of control points must be a
-  multiple of 3.  If \a close is FALSE, one additional control point
+  multiple of 3. If \a close is FALSE, one additional control point
   is required, and the number of control points must be one of (4, 7,
   11, ...).
 
@@ -4093,7 +4117,7 @@ void QCanvasSpline::recalcPoly()
 /*!
   \fn QPointArray QCanvasPolygonalItem::areaPoints() const
 
-  Returns the points bounding the shape.  Note that the returned
+  Returns the points bounding the shape. Note that the returned
   points are \e outside the object, not touching it.
 */
 
@@ -4503,7 +4527,7 @@ void QCanvasEllipse::setSize(int width, int height)
 /*!
   \fn int QCanvasEllipse::angleStart() const
 
-  Returns the start angle in 16ths of a degree.  Initially
+  Returns the start angle in 16ths of a degree. Initially
   this will be 0.
 
   \sa setAngles(), angleLength()
@@ -4513,7 +4537,7 @@ void QCanvasEllipse::setSize(int width, int height)
   \fn int QCanvasEllipse::angleLength() const
 
   Returns the length angle (the extent of the ellipse segment) in
-  16ths of a degree.  Initially this will be 360 * 16 (a complete
+  16ths of a degree. Initially this will be 360 * 16 (a complete
   ellipse).
 
   \sa setAngles(), angleStart()
@@ -4650,7 +4674,7 @@ void QCanvasText::setRect()
 
 
 /*!
-  Sets the alignment flags to \a f.  These are a bitwise OR of the
+  Sets the alignment flags to \a f. These are a bitwise OR of the
   flags available to QPainter::drawText() -- see Qt::AlignmentFlags.
 
   \sa setFont() setColor()
@@ -4677,7 +4701,7 @@ QString QCanvasText::text() const
 
 
 /*!
-  Sets the text item's text to \a t.  The text may contain newlines.
+  Sets the text item's text to \a t. The text may contain newlines.
 
   \sa text(), setFont(), setColor() setTextFlags()
 */
@@ -4816,7 +4840,7 @@ Type Identification is very useful in these classes as it allows
 a QCanvas to be an efficient indexed storage mechanism.
 
 Make your derived classes return their own values for rtti(), so that you
-can distinguish between objects returned by QCanvas::at().  You should
+can distinguish between objects returned by QCanvas::at(). You should
 use values greater than 1000 to allow extensions to this class.
 
 Overuse of this functionality can damage it's extensibility.
@@ -5071,7 +5095,7 @@ void QCanvasSprite::move(double x, double y) { QCanvasItem::move(x,y); }
 /*! \fn void QCanvasSprite::move(double nx, double ny, int nf)
 
   Set the position of the sprite to \a nx, \a ny and the current
-  frame to \a nf.  \a nf will be ignored if it is larger than
+  frame to \a nf. \a nf will be ignored if it is larger than
   frameCount() or smaller than 0.
 */
 void QCanvasSprite::move(double nx, double ny, int nf)

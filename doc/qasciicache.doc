@@ -190,8 +190,9 @@
   \fn bool QAsciiCache::insert( const char *k, const type *d, int c, int p )
 
   Inserts the item \a d into the cache using key \a k, and with a cost
-  of \a c. Returns TRUE if the item is successfully inserted;
-  otherwise returns FALSE.
+  of \a c. Returns TRUE if the item is successfully inserted.
+  Returns FALSE if the item is not inserted, for example, if the cost
+  of the item exceeds maxCost().
 
   The cache's size is limited, and if the total cost is too high,
   QAsciiCache will remove old, least recently used items until there is
