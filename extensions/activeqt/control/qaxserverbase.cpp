@@ -2466,7 +2466,9 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		    return res;
 	    }
 
-	    const QMetaProperty property = mo->property(index);
+	    QMetaProperty property;
+            if (index < mo->propertyCount())
+                property = mo->property(index);
 	    if (!property.isWritable())
 		return DISP_E_MEMBERNOTFOUND;
 	    if (!pDispParams->cArgs)
