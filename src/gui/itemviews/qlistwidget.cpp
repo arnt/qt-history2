@@ -120,53 +120,104 @@ void QListModel::append(const QListWidgetItem &item)
 
 /*!
     \class QListWidgetItem
+    \brief The QListWidgetItem class holds a single list widget data
+    item.
+
+    ###
 */
 
 /*!
     \fn QListWidgetItem::QListWidgetItem()
+
+    Creates a new list widget item that isEditable() and
+    isSelectable(), but which has no text() or iconSet().
 */
 
 /*!
     \fn QListWidgetItem::~QListWidgetItem()
+
+    Destructs this list widget item.
 */
 
 /*!
     \fn QString QListWidgetItem::text() const
+
+    Returns this list widget item's text.
+
+    \sa setText()
 */
 
 /*!
     \fn QIconSet QListWidgetItem::iconSet() const
+
+    Returns this list widget item's iconset.
+
+    \sa setIconSet()
 */
 
 /*!
     \fn bool QListWidgetItem::isEditable() const
+
+    Returns true if this list widget item is editable; otherwise
+    returns false.
+
+    \sa setEditable()
 */
 
 /*!
     \fn bool QListWidgetItem::isSelectable() const
+
+    Returns true if this list widget item is selectable; otherwise
+    returns false.
+
+    \sa setSelectable()
 */
 
 /*!
     \fn void QListWidgetItem::setText(const QString &text)
+
+    Sets this list widget item's \a text.
+
+    \sa text()
 */
 
 /*!
     \fn void QListWidgetItem::setIconSet(const QIconSet &iconSet)
+
+    Sets this list widget item's \a iconSet.
+
+    \sa iconSet()
 */
 
 /*!
     \fn void QListWidgetItem::setEditable(bool editable)
+
+    If \a editable is true, this list widget item can be edited;
+    otherwise it cannot be edited.
+
+    \sa isEditable()
 */
 
 /*!
     \fn void QListWidgetItem::setSelectable(bool selectable)
+
+    If \a selectable is true, this list widget item can be selected;
+    otherwise it cannot be selected.
+
+    \sa isSelectable()
 */
 
 /*!
-    \fn bool QListWidgetItem::operator !=(const QListWidgetItem &other)
+    \fn bool QListWidgetItem::operator!=(const QListWidgetItem &other) const
+
+    Returns true if this list widget item and the \a other list widget
+    item have at least one role for which their values differ;
+    otherwise returns false.
 */
 
 /*!
+    Returns true if this list widget item and the \a other list widget
+    item have the same values for every role; otherwise returns false.
 */
 
 bool QListWidgetItem::operator ==(const QListWidgetItem &other) const
@@ -185,6 +236,9 @@ bool QListWidgetItem::operator ==(const QListWidgetItem &other) const
 }
 
 /*!
+    Returns the data for this list widget item's \a role.
+
+    \sa setData()
 */
 
 QVariant QListWidgetItem::data(int role) const
@@ -198,6 +252,9 @@ QVariant QListWidgetItem::data(int role) const
 }
 
 /*!
+    Sets the data for this list widget item's \a role to \a value.
+
+    \sa data()
 */
 
 void QListWidgetItem::setData(int role, const QVariant &value)
@@ -234,9 +291,16 @@ QListWidget::QListWidget(QWidget *parent, const char* name)
 
 /*!
     \class QListWidget
+    \brief The QListWidget class provides a list or icon view with a
+    predefined model.
+
+    \mainclass
+
+    ###
 */
 
 /*!
+    Constructs a new QListWidget with the given \a parent.
 */
 
 QListWidget::QListWidget(QWidget *parent)
@@ -247,6 +311,7 @@ QListWidget::QListWidget(QWidget *parent)
 }
 
 /*!
+    Destructs this list widget.
 */
 
 QListWidget::~QListWidget()
@@ -254,6 +319,9 @@ QListWidget::~QListWidget()
 }
 
 /*!
+    Sets the \a{row}-th item's \a text.
+
+    \sa text() setItem()
 */
 
 void QListWidget::setText(int row, const QString &text)
@@ -262,6 +330,9 @@ void QListWidget::setText(int row, const QString &text)
 }
 
 /*!
+    Sets the \a{row}-th item's \a iconSet.
+
+    \sa iconSet() setItem()
 */
 
 void QListWidget::setIconSet(int row, const QIconSet &iconSet)
@@ -270,6 +341,9 @@ void QListWidget::setIconSet(int row, const QIconSet &iconSet)
 }
 
 /*!
+    Returns the text for the \a{row}-th item.
+
+    \sa item() iconSet() setItem()
 */
 
 QString QListWidget::text(int row) const
@@ -278,6 +352,9 @@ QString QListWidget::text(int row) const
 }
 
 /*!
+    Returns the iconset for the \a{row}-th item.
+
+    \sa item() text() setItem()
 */
 
 QIconSet QListWidget::iconSet(int row) const
@@ -286,6 +363,9 @@ QIconSet QListWidget::iconSet(int row) const
 }
 
 /*!
+    Returns the \a{row}-th item.
+
+    \sa text() iconSet() setItem()
 */
 
 QListWidgetItem QListWidget::item(int row) const
@@ -294,6 +374,9 @@ QListWidgetItem QListWidget::item(int row) const
 }
 
 /*!
+    Sets the list's \a{row}-th \a item.
+
+    \sa appendItem()
 */
 
 void QListWidget::setItem(int row, const QListWidgetItem &item)
@@ -302,6 +385,9 @@ void QListWidget::setItem(int row, const QListWidgetItem &item)
 }
 
 /*!
+    Appends the given \a item to the list.
+
+    \sa setItem()
 */
 
 void QListWidget::appendItem(const QListWidgetItem &item)

@@ -64,6 +64,7 @@ private:
   \brief The QTreeModel class manages the items stored in a tree view.
 
   \ingroup model-view
+    \mainclass
 
 
 */

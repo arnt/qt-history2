@@ -28,9 +28,8 @@
 
     \title Qt's Main Classes
 
-    These are the most frequently used Qt classes.
-    For the complete list (including XML, networking and container
-    classes), see \link classes.html Qt's Classes \endlink.
+    These are the most frequently used Qt classes. For the complete
+    list see \link classes.html Qt's Classes \endlink.
 
     \generatelist mainclasses
 */

@@ -1073,6 +1073,7 @@ QString QHttpRequestHeader::toString() const
 
     \ingroup io
     \module network
+    \mainclass
 
     This class provides two different interfaces: one is the
     QNetworkProtocol interface that allows you to use HTTP through the

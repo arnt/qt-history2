@@ -52,6 +52,7 @@ static Rec &getRec(QObject *signalMapper, QHash<const QObject *, Rec> &hash, con
     \brief The QSignalMapper class bundles signals from identifiable senders.
 
     \ingroup io
+    \mainclass
 
     This class collects a set of parameterless signals, and re-emits
     them with integer or string parameters corresponding to the object

@@ -430,6 +430,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     \brief The QTextCursor class offers an API to access and modify QTextDocuments.
 
     \ingroup text
+    \mainclass
 
     A QTextCursor is an object that can be used to access and
     manipulate a QTextDocument. It embodies both a cursor position and

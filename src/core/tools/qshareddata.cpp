@@ -42,6 +42,7 @@
 
     \reentrant
     \ingroup misc
+    \mainclass
 
     QSharedDataPointer\<T\> makes it easier to write your own
     implicitly shared classes. It handles reference counting behind

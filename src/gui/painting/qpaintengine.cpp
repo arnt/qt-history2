@@ -631,9 +631,9 @@ void QPaintEngine::updateRenderHints(QPainter::RenderHints /*hints*/)
 
 
 /*!
-    This function is called when the engine needs to be update with
-    the new clip path \path. The value of \a enabled determines
-    if the clippath should be enabled or not.
+    This function is called when the engine needs to be updated with
+    the new clip \a path. The value of \a enabled signifies whether or
+    not the clippath should be enabled.
 */
 void QPaintEngine::updateClipPath(const QPainterPath &path, bool enabled)
 {

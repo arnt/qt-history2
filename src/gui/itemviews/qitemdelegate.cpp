@@ -73,6 +73,7 @@ static const char * const checked_xpm[] = {
     data items from a model.
 
     \ingroup model-view
+    \mainclass
 
     A QItemDelegate can be used to provide an editor for an item view class
     that is subclassed from QAbstractItemView. Using a delegate for this

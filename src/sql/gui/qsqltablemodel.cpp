@@ -114,7 +114,6 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
   for a single database table.
 
   \ingroup database
-  \mainclass
   \module sql
 
   QSqlTableModel is a data model that provides data from a database

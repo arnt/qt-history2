@@ -711,6 +711,7 @@ void QSocketPrivate::connectToNextAddress()
 
     \ingroup io
     \module network
+    \mainclass
 
     QSocket provides a totally non-blocking QIODevice, modifying and
     extending the API of QIODevice with socket-specific code.

@@ -21,7 +21,6 @@
     \brief The QPoint class defines a point in the plane.
 
     \ingroup multimedia
-    \mainclass
 
     A point is specified by an x coordinate and a y coordinate.
 

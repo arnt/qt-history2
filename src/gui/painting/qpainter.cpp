@@ -178,6 +178,10 @@ void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &bru
     }
     \endcode
 
+    If you need to draw a complex shape, especially if you need to do
+    so repeatedly, consider creating a QPainterPath and drawing it
+    using drawPath().
+
     Usage is simple, and there are many settings you can use:
 
     \list

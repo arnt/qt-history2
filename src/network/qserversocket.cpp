@@ -32,6 +32,7 @@ public:
 
     \ingroup io
     \module network
+    \mainclass
 
     This class is a convenience class for accepting incoming TCP
     connections. You can specify the port or have QServerSocket pick

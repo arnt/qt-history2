@@ -36,6 +36,7 @@
     by shortcuts.
 
     \ingroup misc
+    \mainclass
 
     A key sequence consists of up to four keyboard codes, each
     optionally combined with modifiers, such as \c Qt::SHIFT, \c Qt::CTRL, \c

@@ -29,6 +29,7 @@
     \brief The QShortcut class is used to create keyboard shortcuts.
 
     \ingroup events
+    \mainclass
 
     The QShortcut class provides a way of connecting keyboard shortcuts
     to Qt's \link signalsandslots.html signal/slot \endlink mechanism,

@@ -349,6 +349,7 @@ void QTableWidgetItem::setData(int role, const QVariant &value)
     predefined QTableModel model.
 
     \ingroup model-view
+    \mainclass
 
     If you want a table that uses your own data model you should
     subclass QTableView rather than this class.

@@ -90,6 +90,7 @@ static const int default_height = 30;
     \brief The QHeaderView class provides a header row or header column for item views.
 
     \ingroup model-view
+    \mainclass
 
     A QHeaderView displays the headers used in item views such as the
     QTableView and QTreeView classes. It takes the place of

@@ -683,6 +683,7 @@ const QVariant::Handler qt_gui_variant_handler = {
 
     \ingroup objectmodel
     \ingroup misc
+    \mainclass
 
     This class is derived from QCoreVariant. It includes all the types
     from QCoreVariant and additional types which make sense for GUI

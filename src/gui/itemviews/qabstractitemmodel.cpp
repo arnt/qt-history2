@@ -359,6 +359,7 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
     \brief The QModelIndex class is used to locate data in a data model.
 
     \ingroup model-view
+    \mainclass
 
     This class is used as an index into item models derived from
     QAbstractItemModel. The index is used by item views, delegates, and
@@ -368,6 +369,10 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
     An invalid model index can be constructed with the zero argument form of
     the QModelIndex() constructor. This is useful when referring to top-level
     items in a model.
+
+    Model indexes can become invalid over time so they should be used
+    immediately and then discarded. If you need to keep a model index
+    over time use a QPersistentModelIndex.
 
     A model index has a row(), a column(), and a type().
 

@@ -610,6 +610,7 @@ void QTextEditPrivate::adjustScrollbars()
     both plain and rich text.
 
     \ingroup text
+    \mainclass
 
     \tableofcontents
 

@@ -96,6 +96,7 @@ QString QText::escape(const QString& plain)
     viewed and edited using a QTextEdit.
 
     \ingroup text
+    \mainclass
 
     A text document can be thought of as a list of strings and their
     associated formats. A format can contain "references" to objects,

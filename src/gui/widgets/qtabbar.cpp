@@ -113,6 +113,7 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     \brief The QTabBar class provides a tab bar, e.g. for use in tabbed dialogs.
 
     \ingroup advanced
+    \mainclass
 
     QTabBar is straightforward to use; it draws the tabs using one of
     the predefined \link QTabBar::Shape shapes\endlink, and emits a

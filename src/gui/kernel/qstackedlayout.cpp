@@ -36,6 +36,7 @@ public:
 
     \ingroup geomanagement
     \ingroup appearance
+    \mainclass
 
     QStackedLayout places all the widgets it is responsible for on top of each
     other, so only the top one is visible to the user at any one time.

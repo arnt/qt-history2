@@ -45,6 +45,7 @@ public:
     \ingroup organizers
     \ingroup geomanagement
     \ingroup appearance
+    \mainclass
 
     All the horizontal box's child widgets will be placed on top of
     each other, and only the top one will be visible to the user. This

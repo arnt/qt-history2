@@ -33,6 +33,7 @@
 
     \ingroup multimedia
     \ingroup shared
+    \mainclass
 
     A picture serializes painter commands to an IO device in a
     platform-independent format. For example, a picture created under

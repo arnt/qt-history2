@@ -19,6 +19,7 @@
     \reentrant
     \ingroup io
     \ingroup misc
+    \mainclass
 
     It can parse and construct URLs in both encoded and unencoded
     form. QUrl also has support for internationalized domain names
