@@ -430,6 +430,9 @@ void QTextEditPrivate::setCursorPosition(int pos, QTextCursor::MoveMode mode)
     Q_Q(QTextEdit);
     cursor.setPosition(pos, mode);
     q->ensureCursorVisible();
+
+    if (mode != QTextCursor::KeepAnchor)
+        selectedWordOnDoubleClick = QTextCursor();
 }
 
 void QTextEditPrivate::update(const QRect &contentsRect)
@@ -563,6 +566,64 @@ void QTextEditPrivate::setBlinkingCursorEnabled(bool enable)
     else
         cursorBlinkTimer.stop();
     update(cursorRect());
+}
+
+void QTextEditPrivate::extendWordwiseSelection(int suggestedNewPosition, qreal mouseXPosition)
+{
+    Q_Q(QTextEdit);
+
+    // if inside the initial selected word keep that
+    if (suggestedNewPosition >= selectedWordOnDoubleClick.selectionStart()
+        && suggestedNewPosition <= selectedWordOnDoubleClick.selectionEnd()) {
+        q->setTextCursor(selectedWordOnDoubleClick);
+        return;
+    }
+
+    QTextCursor curs = selectedWordOnDoubleClick;
+    curs.setPosition(suggestedNewPosition, QTextCursor::KeepAnchor);
+
+    if (!curs.movePosition(QTextCursor::StartOfWord))
+        return;
+    const int wordStartPos = curs.position();
+
+    const int blockPos = curs.block().position();
+    const QPointF blockCoordinates = curs.block().layout()->position()
+                                     + doc->documentLayout()->frameBoundingRect(curs.currentFrame()).topLeft();
+
+    QTextLine line = currentTextLine(curs);
+    if (!line.isValid())
+        return;
+
+    const qreal wordStartX = line.cursorToX(curs.position() - blockPos) + blockCoordinates.x();
+
+    if (!curs.movePosition(QTextCursor::EndOfWord))
+        return;
+    const int wordEndPos = curs.position();
+
+    const QTextLine otherLine = currentTextLine(curs);
+    if (otherLine.from() != line.from()
+        || wordEndPos == wordStartPos)
+        return;
+
+    const qreal wordEndX = line.cursorToX(curs.position() - blockPos) + blockCoordinates.x();
+
+    if (mouseXPosition < wordStartX || mouseXPosition > wordEndX)
+        return;
+
+    // keep the already selected word even when moving to the left
+    // (#39164)
+    if (suggestedNewPosition < selectedWordOnDoubleClick.position())
+        cursor.setPosition(selectedWordOnDoubleClick.selectionEnd());
+    else
+        cursor.setPosition(selectedWordOnDoubleClick.selectionStart());
+
+    const qreal differenceToStart = mouseXPosition - wordStartX;
+    const qreal differenceToEnd = wordEndX - mouseXPosition;
+
+    if (differenceToStart < differenceToEnd)
+        setCursorPosition(wordStartPos, QTextCursor::KeepAnchor);
+    else
+        setCursorPosition(wordEndPos, QTextCursor::KeepAnchor);
 }
 
 /*!
@@ -1584,8 +1645,6 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
 
-    d->cursorOnDoubleClick = QTextCursor();
-
     if (!(e->button() & Qt::LeftButton))
         return;
 
@@ -1623,7 +1682,10 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
             }
 #endif
             if (e->modifiers() & Qt::ShiftModifier) {
-                d->setCursorPosition(cursorPos, QTextCursor::KeepAnchor);
+                if (d->selectedWordOnDoubleClick.hasSelection())
+                    d->extendWordwiseSelection(cursorPos, pos.x());
+                else
+                    d->setCursorPosition(cursorPos, QTextCursor::KeepAnchor);
             } else {
                 d->setCursorPosition(cursorPos);
             }
@@ -1644,7 +1706,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
     if (!(e->buttons() & Qt::LeftButton))
         return;
 
-    if (!(d->mousePressed || d->cursorOnDoubleClick.hasSelection()))
+    if (!(d->mousePressed || d->selectedWordOnDoubleClick.hasSelection()))
         return;
 
     if (d->mightStartDrag) {
@@ -1671,64 +1733,10 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
     if (newCursorPos == -1)
         return;
 
-    if (d->cursorOnDoubleClick.hasSelection()) {
-
-        // if inside the initial selected word keep that
-        if (newCursorPos >= d->cursorOnDoubleClick.selectionStart()
-            && newCursorPos <= d->cursorOnDoubleClick.selectionEnd()) {
-            setTextCursor(d->cursorOnDoubleClick);
-            return;
-        }
-
-        QTextCursor curs = d->cursorOnDoubleClick;
-        curs.setPosition(newCursorPos, QTextCursor::KeepAnchor);
-
-        if (!curs.movePosition(QTextCursor::StartOfWord))
-            goto quit;
-        const int wordStartPos = curs.position();
-
-        const int blockPos = curs.block().position();
-        const QPointF blockCoordinates = curs.block().layout()->position()
-                                         + d->doc->documentLayout()->frameBoundingRect(curs.currentFrame()).topLeft();
-
-        QTextLine line = currentTextLine(curs);
-        if (!line.isValid())
-            goto quit;
-
-        const qreal wordStartX = line.cursorToX(curs.position() - blockPos) + blockCoordinates.x();
-
-        if (!curs.movePosition(QTextCursor::EndOfWord))
-            goto quit;
-        const int wordEndPos = curs.position();
-
-        const QTextLine otherLine = currentTextLine(curs);
-        if (otherLine.from() != line.from()
-            || wordEndPos == wordStartPos)
-            goto quit;
-
-        const qreal wordEndX = line.cursorToX(curs.position() - blockPos) + blockCoordinates.x();
-
-        if (mouseX < wordStartX || mouseX > wordEndX)
-            goto quit;
-
-        // keep the already selected word even when moving to the left
-        // (#39164)
-        if (newCursorPos < d->cursorOnDoubleClick.position())
-            d->cursor.setPosition(d->cursorOnDoubleClick.selectionEnd());
-        else
-            d->cursor.setPosition(d->cursorOnDoubleClick.selectionStart());
-
-        const qreal differenceToStart = mouseX - wordStartX;
-        const qreal differenceToEnd = wordEndX - mouseX;
-
-        if (differenceToStart < differenceToEnd)
-            newCursorPos = wordStartPos;
-        else
-            newCursorPos = wordEndPos;
-    }
-
-    d->setCursorPosition(newCursorPos, QTextCursor::KeepAnchor);
-quit:
+    if (d->selectedWordOnDoubleClick.hasSelection())
+        d->extendWordwiseSelection(newCursorPos, mouseX);
+    else
+        d->setCursorPosition(newCursorPos, QTextCursor::KeepAnchor);
 
     d->updateCurrentCharFormatAndSelection();
     d->viewport->update();
@@ -1739,8 +1747,6 @@ quit:
 void QTextEdit::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
-
-    d->cursorOnDoubleClick = QTextCursor();
 
     d->autoScrollTimer.stop();
 
@@ -1787,7 +1793,7 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
         d->viewport->update();
     }
 
-    d->cursorOnDoubleClick = d->cursor;
+    d->selectedWordOnDoubleClick = d->cursor;
 
     d->trippleClickPoint = e->globalPos();
     d->trippleClickTimer.start(qApp->doubleClickInterval(), this);
