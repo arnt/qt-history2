@@ -372,7 +372,7 @@ void QDockWindowHandle::keyPressEvent( QKeyEvent *e )
 	return;
     if ( e->key() == Key_Control ) {
 	ctrlDown = TRUE;
-	dockWindow->handleMove( QCursor::pos() - offset, QCursor::pos(), !opaque );
+	dockWindow->handleMove( mapFromGlobal(QCursor::pos()) - offset, QCursor::pos(), !opaque );
     }
 }
 
@@ -382,7 +382,7 @@ void QDockWindowHandle::keyReleaseEvent( QKeyEvent *e )
 	return;
     if ( e->key() == Key_Control ) {
 	ctrlDown = FALSE;
-	dockWindow->handleMove( QCursor::pos() - offset, QCursor::pos(), !opaque );
+	dockWindow->handleMove( mapFromGlobal(QCursor::pos()) - offset, QCursor::pos(), !opaque );
     }
 }
 
@@ -408,7 +408,7 @@ void QDockWindowHandle::mouseMoveEvent( QMouseEvent *e )
     if ( !mousePressed || e->pos() == offset )
 	return;
     ctrlDown = ( e->state() & ControlButton ) == ControlButton;
-    dockWindow->handleMove( e->globalPos() - offset, e->globalPos(), !opaque );
+    dockWindow->handleMove( e->pos() - offset, e->globalPos(), !opaque );
     if ( opaque )
 	dockWindow->updatePosition( e->globalPos() );
 }
@@ -964,8 +964,7 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
     QWidget *w = areaAt( gp );
     if ( titleBar->ctrlDown || horHandle->ctrlDown || verHandle->ctrlDown )
 	w = 0;
-    QPoint offset( mapFromGlobal( pos ) );
-    currRect.moveBy( offset.x(), offset.y() );
+    currRect.moveBy( pos.x(), pos.y() );
     if ( !w || !w->inherits( "QDockArea" ) ) {
 	if ( startOrientation != Horizontal )
 	    swapRect( currRect, Horizontal, startOffset, (QDockArea*)w );
@@ -975,7 +974,7 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
 #ifdef MAC_DRAG_HACK
 	    dr.moveBy(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
 #endif
-	unclippedPainter->drawRect( dr );
+	    unclippedPainter->drawRect( dr );
 	}
 	state = OutsideDock;
 	return;
