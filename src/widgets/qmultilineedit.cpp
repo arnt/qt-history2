@@ -183,7 +183,7 @@ int QMultiLineEdit::lineLength( int row ) const
 {
     if ( row < 0 || row > numLines() )
 	return -1;
-    return document()->paragAt( row )->length();
+    return document()->paragAt( row )->length() - 1;
 }
 
 
