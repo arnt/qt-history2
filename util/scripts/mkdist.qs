@@ -57,12 +57,38 @@ var platformKeep = new Array();
 var editionRemove = new Array();
 var editionKeep = new Array();
 
-platformRemove["win"] = [ new RegExp("_x11"),
-			  new RegExp("^dist") ];
+platformRemove["win"] = [ new RegExp("^dist"),
+			  new RegExp("_x11"),
+			  new RegExp("_unix"),
+			  new RegExp("_qws"),
+			  new RegExp("_wce"),
+			  new RegExp("_mac"),
+			  new RegExp("_qnx4"),
+			  new RegExp("_qnx6"),
+			  new RegExp("^bin/syncqt") ];
 platformKeep["win"] = [ new RegExp(".") ];
-platformRemove["x11"] = [ new RegExp("_win"),
-			  new RegExp("^dist") ];
+
+platformRemove["x11"] = [ new RegExp("^dist"),
+			  new RegExp("_win"),
+			  new RegExp("_qws"),
+			  new RegExp("_wce"),
+			  new RegExp("_mac"),
+			  new RegExp("_qnx4"),
+			  new RegExp("_qnx6"),
+			  new RegExp("^bin/syncqt"),
+			  new RegExp("^bin/configure.exe") ];
 platformKeep["x11"] = [ new RegExp(".") ];
+
+platformRemove["mac"] = [ new RegExp("^dist"),
+			  new RegExp("_win"),
+			  new RegExp("_qws"),
+			  new RegExp("_wce"),
+			  new RegExp("_x11"),
+			  new RegExp("_qnx4"),
+			  new RegExp("_qnx6"),
+			  new RegExp("^bin/syncqt"),
+			  new RegExp("^bin/configure.exe") ];
+platformKeep["mac"] = [ new RegExp(".") ];
 
 editionRemove["commercial"] = [ new RegExp("GPL") ];
 editionKeep["commercial"] = [ new RegExp(".") ];
@@ -75,7 +101,7 @@ editionKeep["preview"] = [ new RegExp(".") ];
 print("Initializing...");
 parseArgc();
 initialize();
-print("Checking tools...", 2);
+print("Checking tools...");
 checkTools();
 print("Building qdoc...");
 buildQdoc();
@@ -92,11 +118,12 @@ for (var p in validPlatforms) {
   	    print("Packaging %1-%2...".arg(platform).arg(edition));
   	    indentation+=tabSize;
 
-  	    // copy checkoutDir to platDir
+  	    // copy checkoutDir to platDir and set permissions
   	    print("Copying checkout...");
   	    var platName = "qt-%1-%2-%3".arg(platform).arg(edition).arg(options["version"]);
   	    var platDir = distDir + "/" + platName;
   	    Process.execute(["cp", "-r", checkoutDir, platDir]);
+	    Process.execute(["chmod", "-R", "ug+w", platDir]);
 
 	    //copying dist files
 	    print("Copying dist files...");
@@ -408,7 +435,6 @@ function compress(packageDir, platform, edition)
     } else {
 	var tarFile = outputDir + "/" + packageName + ".tar";
 	Process.execute(["tar", "-cf", tarFile, packageName]);
-	print(Process.stdout + Process.stderr);
 	if (!File.exists(tarFile))
 	    throw "Failed to produce %1.".arg(tarFile);
 	
@@ -437,13 +463,13 @@ function getFileList(rootDir)
     var result = new Array();
 
     // add files to result
-    var files = dir.entryList("*", Dir.Files);
+    var files = dir.entryList("*", Dir.Files | Dir.Hidden | Dir.System, Dir.Name);
     for (var f in files)
 	result.push(files[f]);
 
     // expand dirs to absolute path
     var dirs = new Array();
-    var tempDirs = dir.entryList("*", Dir.Dirs);
+    var tempDirs = dir.entryList("*", Dir.Dirs | Dir.Hidden | Dir.System, Dir.Name);
     for (var t in tempDirs) {
 	if (tempDirs[t] != "." && tempDirs[t] != "..")
 	    dirs.push(dir.absFilePath(tempDirs[t]));
@@ -455,12 +481,12 @@ function getFileList(rootDir)
  	result.push(dirs[i].right(dirs[i].length - rootLength));
 
 	// add files
-	var files = dir.entryList("*", Dir.Files);
+	var files = dir.entryList("*", Dir.Files | Dir.Hidden | Dir.System, Dir.Name);
 	for (var f in files)
 	    result.push(dir.absFilePath(files[f]).right(dir.absFilePath(files[f]).length - rootLength));
 
 	// adds subDirs to dirs
-	tempDirs = dir.entryList("*", Dir.Dirs);
+	tempDirs = dir.entryList("*", Dir.Dirs | Dir.Hidden | Dir.System, Dir.Name);
 	for (var t in tempDirs) {
 	    if (tempDirs[t] != "." && tempDirs[t] != "..")
 		dirs.push(dir.absFilePath(tempDirs[t]));
