@@ -23,6 +23,7 @@
 #include <qdebug.h>
 #include <qvarlengtharray.h>
 #include <limits.h>
+#include <qstyle.h>
 
 #include "qabstracttextdocumentlayout_p.h"
 
@@ -1268,8 +1269,10 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
 
     LDEBUG << "layoutBlock from=" << layoutFrom << "to=" << layoutTo;
 
-    QTextOption option(blockFormat.alignment());
-    option.setLayoutDirection(blockFormat.layoutDirection());
+    Qt::LayoutDirection dir = blockFormat.layoutDirection();
+    Qt::Alignment align = QStyle::visualAlignment(dir, blockFormat.alignment());
+    QTextOption option(align);
+    option.setLayoutDirection(dir);
     if (d->blockTextFlags & Qt::TextSingleLine || blockFormat.nonBreakableLines())
         option.setWrapMode(QTextOption::ManualWrap);
     tl->setTextOption(option);
