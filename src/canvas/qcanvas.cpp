@@ -15,28 +15,27 @@
 #include "qcanvas.h"
 #ifndef QT_NO_CANVAS
 #include "qapplication.h"
-#include "qdesktopwidget.h"
 #include "qbitmap.h"
+#include "qdesktopwidget.h"
+#include "qhash.h"
 #include "qimage.h"
-#include "qptrdict.h"
+#include "qlist.h"
 #include "qpainter.h"
 #include "qpolygonscanner.h"
 #include "qtimer.h"
 #include "qtl.h"
-#include "qptrlist.h"
 
 #include <stdlib.h>
 
 class QCanvasData {
 public:
-    QCanvasData() :
-	itemDict(1013), animDict(503)
+    QCanvasData()
     {
     }
 
-    QPtrList<QCanvasView> viewList;
-    QPtrDict<void> itemDict;
-    QPtrDict<void> animDict;
+    QList<QCanvasView*> viewList;
+    QHash<QCanvasItem*, bool> itemDict;
+    QHash<QCanvasItem*, bool> animDict;
 };
 
 class QCanvasViewData {
@@ -637,9 +636,8 @@ QCanvas::QCanvas( QPixmap p,
 
 void qt_unview(QCanvas* c)
 {
-    for (QCanvasView* view=c->d->viewList.first(); view != 0; view=c->d->viewList.next()) {
-	view->viewing = 0;
-    }
+    for (int i = 0; i < c->d->viewList.size(); ++i)
+	c->d->viewList.at(i)->viewing = 0;
 }
 
 /*!
@@ -680,9 +678,9 @@ QCanvasChunk& QCanvas::chunkContaining(int x, int y) const
 QCanvasItemList QCanvas::allItems()
 {
     QCanvasItemList list;
-    for (QPtrDictIterator<void> it=d->itemDict; it.currentKey(); ++it) {
-	list.prepend((QCanvasItem*)it.currentKey());
-    }
+    for (QHash<QCanvasItem*, bool>::ConstIterator it = d->itemDict.begin();
+	 it != d->itemDict.end(); ++it)
+	list.prepend(it.key());
     return list;
 }
 
@@ -696,12 +694,13 @@ void QCanvas::resize(int w, int h)
     if (awidth==w && aheight==h)
 	return;
 
-    QCanvasItem* item;
-    QPtrList<QCanvasItem> hidden;
-    for (QPtrDictIterator<void> it=d->itemDict; it.currentKey(); ++it) {
-	if (((QCanvasItem*)it.currentKey())->isVisible()) {
-	    ((QCanvasItem*)it.currentKey())->hide();
-	    hidden.append(((QCanvasItem*)it.currentKey()));
+    QList<QCanvasItem*> hidden;
+    for (QHash<QCanvasItem*, bool>::ConstIterator it = d->itemDict.begin();
+	 it != d->itemDict.end(); ++it) {
+	QCanvasItem *item = it.key();
+	if (item->isVisible()) {
+	    item->hide();
+	    hidden.append(item);
 	}
     }
 
@@ -719,9 +718,8 @@ void QCanvas::resize(int w, int h)
     delete [] chunks;
     chunks=newchunks;
 
-    for (item=hidden.first(); item != 0; item=hidden.next()) {
-	item->show();
-    }
+    for (int i = 0; i<hidden.size(); ++i)
+	hidden.at(i)->show();
 
     setAllChanged();
 
@@ -773,14 +771,15 @@ void QCanvas::retune(int chunksze, int mxclusters)
     maxclusters=mxclusters;
 
     if ( chunksize!=chunksze ) {
-	QPtrList<QCanvasItem> hidden;
-	for (QPtrDictIterator<void> it=d->itemDict; it.currentKey(); ++it) {
-	    if (((QCanvasItem*)it.currentKey())->isVisible()) {
-		((QCanvasItem*)it.currentKey())->hide();
-		hidden.append(((QCanvasItem*)it.currentKey()));
+	QList<QCanvasItem*> hidden;
+	for (QHash<QCanvasItem*, bool>::ConstIterator it = d->itemDict.begin();
+	     it != d->itemDict.end(); ++it) {
+	    QCanvasItem *item = it.key();
+	    if (item->isVisible()) {
+		item->hide();
+		hidden.append(item);
 	    }
 	}
-
 	chunksize=chunksze;
 
 	int nchwidth=(awidth+chunksize-1)/chunksize;
@@ -795,9 +794,8 @@ void QCanvas::retune(int chunksze, int mxclusters)
 	delete [] chunks;
 	chunks=newchunks;
 
-	for (QCanvasItem* item=hidden.first(); item != 0; item=hidden.next()) {
-	    item->show();
-	}
+	for (int i = 0; i < hidden.size(); ++i)
+	    hidden.at(i)->show();
     }
 }
 
@@ -885,7 +883,7 @@ in the QCanvas. The QCanvasItem class calls this.
 */
 void QCanvas::addItem(QCanvasItem* item)
 {
-    d->itemDict.insert((void*)item,(void*)1);
+    d->itemDict.insert(item,true);
 }
 
 /*!
@@ -895,7 +893,7 @@ to be moved. The QCanvasItem class calls this.
 */
 void QCanvas::addAnimation(QCanvasItem* item)
 {
-    d->animDict.insert((void*)item,(void*)1);
+    d->animDict.insert(item,true);
 }
 
 /*!
@@ -905,7 +903,7 @@ which are no longer to be moved. The QCanvasItem class calls this.
 */
 void QCanvas::removeAnimation(QCanvasItem* item)
 {
-    d->animDict.remove((void*)item);
+    d->animDict.remove(item);
 }
 
 /*!
@@ -915,7 +913,7 @@ in this QCanvas. The QCanvasItem class calls this.
 */
 void QCanvas::removeItem(QCanvasItem* item)
 {
-    d->itemDict.remove((void*)item);
+    d->itemDict.remove(item);
 }
 
 /*!
@@ -937,7 +935,7 @@ viewing this QCanvas. The QCanvasView class calls this.
 */
 void QCanvas::removeView(QCanvasView* view)
 {
-    d->viewList.removeRef(view);
+    d->viewList.remove(view);
 }
 
 /*!
@@ -1006,19 +1004,17 @@ void QCanvas::setUpdatePeriod(int ms)
 */
 void QCanvas::advance()
 {
-    QPtrDictIterator<void> it=d->animDict;
-    while ( it.current() ) {
-	QCanvasItem* i = (QCanvasItem*)(void*)it.currentKey();
-	++it;
+    for (QHash<QCanvasItem*, bool>::ConstIterator it = d->animDict.begin();
+	 it != d->animDict.end(); ++it) {
+	QCanvasItem* i = it.key();
 	if ( i )
 	    i->advance(0);
     }
     // we expect the dict contains the exact same items as in the
     // first pass.
-    it.toFirst();
-    while ( it.current() ) {
-	QCanvasItem* i = (QCanvasItem*)(void*)it.currentKey();
-	++it;
+    for (QHash<QCanvasItem*, bool>::ConstIterator it = d->animDict.begin();
+	 it != d->animDict.end(); ++it) {
+	QCanvasItem* i = it.key();
 	if ( i )
 	    i->advance(1);
     }
@@ -1114,16 +1110,14 @@ void QCanvas::drawViewArea( QCanvasView* view, QPainter* p, const QRect& vr, boo
 */
 void QCanvas::update()
 {
-    QCanvasClusterizer clusterizer(d->viewList.count());
+    QCanvasClusterizer clusterizer(d->viewList.size());
 #ifndef QT_NO_TRANSFORMATIONS
-    QPtrList<QRect> doneareas;
+    QList<QRect*> doneareas;
     doneareas.setAutoDelete(TRUE);
 #endif
 
-    QPtrListIterator<QCanvasView> it(d->viewList);
-    QCanvasView* view;
-    while( (view=it.current()) != 0 ) {
-	++it;
+    for (int i = 0; i < 0; ++i) {
+	QCanvasView *view = d->viewList.at(i);
 #ifndef QT_NO_TRANSFORMATIONS
 	QWMatrix wm = view->worldMatrix();
 #endif
@@ -1146,15 +1140,14 @@ void QCanvas::update()
 	}
     }
 
-    it.toFirst();
-    while( (view=it.current()) != 0 ) { //### inefficient??? (was painting outside paintevent)
-	++it;
+    for (int i = 0; i < 0; ++i) {  //### inefficient??? (was painting outside paintevent)
+	QCanvasView *view = d->viewList.at(i);
 	for (int i=0; i<clusterizer.clusters(); i++)
 	    view->repaint(clusterizer[i]);
     }
 #ifndef QT_NO_TRANSFORMATIONS
-    for ( QRect* r=doneareas.first(); r != 0; r=doneareas.next() )
-	setUnchanged(*r);
+    for (int i = 0; i < doneareas.size(); ++i)
+	setUnchanged(*doneareas.at(i));
 #endif
 }
 
@@ -1417,7 +1410,8 @@ void QCanvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buffe
 
     trtr -= area.topLeft();
 
-    for (QCanvasView* view=d->viewList.first(); view; view=d->viewList.next()) {
+    for (int i = 0; i < d->viewList.size(); ++i) {
+	QCanvasView* view = d->viewList.at(i);
 #ifndef QT_NO_TRANSFORMATIONS
 	if ( !view->worldMatrix().isIdentity() )
 	    continue; // Cannot paint those here (see callers).
@@ -1561,12 +1555,10 @@ void QCanvas::setBackgroundColor( const QColor& c )
 {
     if ( bgcolor != c ) {
 	bgcolor = c;
-	QCanvasView* view=d->viewList.first();
-	while ( view != 0 ) {
+	for (int i = 0; i < d->viewList.size(); ++i) {
 	    /* XXX this doesn't look right. Shouldn't this
 	       be more like setBackgroundPixmap? : Ian */
-	    view->viewport()->setEraseColor( bgcolor );
-	    view=d->viewList.next();
+	    d->viewList.at(i)->viewport()->setEraseColor( bgcolor );
 	}
 	setAllChanged();
     }
@@ -1592,10 +1584,8 @@ QPixmap QCanvas::backgroundPixmap() const
 void QCanvas::setBackgroundPixmap( const QPixmap& p )
 {
     setTiles(p, 1, 1, p.width(), p.height());
-    QCanvasView* view = d->viewList.first();
-    while ( view != 0 ) {
-	view->updateContents();
-	view = d->viewList.next();
+    for (int i = 0; i < d->viewList.size(); ++i) {
+	d->viewList.at(i)->updateContents();
     }
 }
 
@@ -2669,7 +2659,7 @@ QCanvasItemList QCanvas::collisions(const QRect& r) const
 QCanvasItemList QCanvas::collisions(const QPointArray& chunklist,
 	    const QCanvasItem* item, bool exact) const
 {
-    QPtrDict<void> seen;
+    QHash<QCanvasItem *, bool> seen;
     QCanvasItemList result;
     for (int i=0; i<(int)chunklist.count(); i++) {
 	int x = chunklist[i].x();
@@ -2679,8 +2669,8 @@ QCanvasItemList QCanvas::collisions(const QPointArray& chunklist,
 	    for (QCanvasItemList::ConstIterator it=l->begin(); it!=l->end(); ++it) {
 		QCanvasItem *g=*it;
 		if ( g != item ) {
-		    if ( !seen.find(g) ) {
-			seen.replace(g,(void*)1);
+		    if ( !seen.contains(g) ) {
+			seen.insert(g, true);
 			if ( !exact || item->collidesWith(g) )
 			    result.append(g);
 		    }
@@ -4228,7 +4218,7 @@ bool QCanvasSpline::closed() const
 
 void QCanvasSpline::recalcPoly()
 {
-    QPtrList<QPointArray> segs;
+    QList<QPointArray*> segs;
     segs.setAutoDelete(TRUE);
     int n=0;
     for (int i=0; i<(int)bez.count()-1; i+=3) {
@@ -4246,7 +4236,8 @@ void QCanvasSpline::recalcPoly()
     }
     QPointArray p(n+1);
     n=0;
-    for (QPointArray* seg = segs.first(); seg; seg = segs.next()) {
+    for (int i = 0; i < segs.size(); ++i) {
+	QPointArray* seg = segs.at(i);
 	for (int i=0; i<(int)seg->count()-1; i++)
 	    p[n++] = seg->point(i);
 	if ( n == (int)p.count()-1 )

@@ -97,8 +97,8 @@ public:
 
     //    QPoint center() { return boundingRect().center(); }
 private:
-    QPtrList<EdgeItem> inList;
-    QPtrList<EdgeItem> outList;
+    QList<EdgeItem*> inList;
+    QList<EdgeItem*> outList;
 };
 
 
@@ -138,17 +138,11 @@ void NodeItem::moveBy(double dx, double dy)
 {
     QCanvasEllipse::moveBy( dx, dy );
 
-    QPtrListIterator<EdgeItem> it1( inList );
-    EdgeItem *edge;
-    while (( edge = it1.current() )) {
-	++it1;
-	edge->setToPoint( int(x()), int(y()) );
-    }
-    QPtrListIterator<EdgeItem> it2( outList );
-    while (( edge = it2.current() )) {
-	++it2;
-	edge->setFromPoint( int(x()), int(y()) );
-    }
+    for (int i = 0; i < inList.size(); ++i)
+	inList.at(i)->setToPoint( int(x()), int(y()) );
+
+    for (int i = 0; i < outList.size(); ++i)
+	outList.at(i)->setFromPoint( int(x()), int(y()) );
 }
 
 NodeItem::NodeItem( QCanvas *canvas )
