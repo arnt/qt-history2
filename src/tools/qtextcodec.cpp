@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#26 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#27 $
 **
 ** Implementation of QTextCodec class
 **
@@ -1207,7 +1207,7 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
     }
     if ( len <0 || len > (int)uc.length() )
 	len = uc.length();
-    char * r = new char[len];
+    QCString r( len );
     int i;
     int u;
     for( i=0; i<len; i++ ) {
