@@ -525,7 +525,7 @@ bool QPSQLDriver::hasFeature( DriverFeature f ) const
     case QuerySize:
 	return TRUE;
     case BLOB:
-	return FALSE;
+	return pro >= QPSQLDriver::Version71;
     case Unicode:
 	return d->isUtf8;
     default:
