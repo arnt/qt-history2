@@ -79,18 +79,18 @@ QModelIndexList QItemSelection::items(QAbstractItemModel *model) const
 }
 
 /*!
-  Merges selection \a other with this QItemSelection using the \a selectionCommand.
+  Merges selection \a other with this QItemSelection using the \a command.
   This method guarantees that no ranges are overlapping.
 
   Note: Only QItemSelectionModel::Select,
   QItemSelectionModel::Deselect and QItemSelectionModel::Toggle are
   supported.
 */
-void QItemSelection::merge(const QItemSelection &other, int selectionCommand)
+void QItemSelection::merge(const QItemSelection &other, QItemSelectionModel::SelectionFlags command)
 {
-    if (!(selectionCommand & QItemSelectionModel::Select ||
-          selectionCommand & QItemSelectionModel::Deselect ||
-          selectionCommand & QItemSelectionModel::Toggle) ||
+    if (!(command & QItemSelectionModel::Select ||
+          command & QItemSelectionModel::Deselect ||
+          command & QItemSelectionModel::Toggle) ||
         other.isEmpty())
         return;
 
@@ -115,7 +115,7 @@ void QItemSelection::merge(const QItemSelection &other, int selectionCommand)
             }
         }
         // only split newSelection if Toggle is specified
-        for (int n = 0; (selectionCommand & QItemSelectionModel::Toggle) && n < newSelection.count();) {
+        for (int n = 0; (command & QItemSelectionModel::Toggle) && n < newSelection.count();) {
             if (newSelection.at(n).intersects(intersections.at(i))) {
                 split(newSelection.at(n), intersections.at(i), &newSelection);
                 newSelection.removeAt(n);
@@ -125,7 +125,7 @@ void QItemSelection::merge(const QItemSelection &other, int selectionCommand)
         }
     }
     // do not add newSelection for Deselect
-    if (!(selectionCommand & QItemSelectionModel::Deselect))
+    if (!(command & QItemSelectionModel::Deselect))
         operator+=(newSelection);
 }
 
@@ -164,14 +164,14 @@ void QItemSelection::split(const QItemSelectionRange &range,
 */
 
 QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection &selection,
-                                                           int selectionCommand) const
+                                                           QItemSelectionModel::SelectionFlags command) const
 {
-    if (selection.isEmpty() && !((selectionCommand & QItemSelectionModel::Rows) ||
-                                 (selectionCommand & QItemSelectionModel::Columns)))
+    if (selection.isEmpty() && !((command & QItemSelectionModel::Rows) ||
+                                 (command & QItemSelectionModel::Columns)))
         return selection;
 
     QItemSelection expanded;
-    if (selectionCommand & QItemSelectionModel::Rows) {
+    if (command & QItemSelectionModel::Rows) {
         for (int i=0; i<selection.count(); ++i)
             expanded.append(QItemSelectionRange(selection.at(i).parent(),
                                                 selection.at(i).top(),
@@ -179,7 +179,7 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
                                                 selection.at(i).bottom(),
                                                 model->columnCount(selection.at(i).parent())-1));
     }
-    if (selectionCommand & QItemSelectionModel::Columns) {
+    if (command & QItemSelectionModel::Columns) {
         for (int i=0; i<selection.count(); ++i)
             expanded.append(QItemSelectionRange(selection.at(i).parent(),
                                                 0,
@@ -211,7 +211,7 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
   selected items are the items part of the current interactive
   selection (for example with rubber-band selection or keyboard-shift
   selections). To update the current selected items use the
-  QItemSelectionModel::Current selectionCommand or'ed with any of the
+  QItemSelectionModel::Current command or'ed with any of the
   other SelectionCommands. If you omit the
   QItemSelectionModel::Current command, a new current selection will
   be started and the previous one added to the commited selected
@@ -250,14 +250,14 @@ QItemSelectionModel::~QItemSelectionModel()
 }
 
 /*!
-  Selects the index \a item using \a selectionCommand and emits selectionChanged().
+  Selects the index \a item using \a command and emits selectionChanged().
 
   \sa QItemSelectionModel::SelectionCommand
 */
-void QItemSelectionModel::select(const QModelIndex &index, int selectionCommand)
+void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags command)
 {
     QItemSelection selection(index, index, model());
-    select(selection, selectionCommand);
+    select(selection, command);
 }
 
 /*!
@@ -295,13 +295,13 @@ void QItemSelectionModel::select(const QModelIndex &index, int selectionCommand)
 */
 
 /*!
-  Selects the itemselection \a selection using \a selectionCommand and emits selectionChanged().
+  Selects the itemselection \a selection using \a command and emits selectionChanged().
 
   \sa QItemSelectionModel::SelectionCommand
 */
-void QItemSelectionModel::select(const QItemSelection &selection, int selectionCommand)
+void QItemSelectionModel::select(const QItemSelection &selection, SelectionFlags command)
 {
-    if (selectionCommand == NoUpdate)
+    if (command == NoUpdate)
         return;
 
     // store old selection
@@ -310,24 +310,24 @@ void QItemSelectionModel::select(const QItemSelection &selection, int selectionC
     old.merge(d->currentSelection, d->currentCommand);
 
     // expand selection according to SelectionBehavior
-    if (selectionCommand & Rows || selectionCommand & Columns)
-        sel = d->expandSelection(sel, selectionCommand);
+    if (command & Rows || command & Columns)
+        sel = d->expandSelection(sel, command);
 
     // clear ranges and currentSelection
-    if (selectionCommand & Clear) {
+    if (command & Clear) {
         d->ranges.clear();
         d->currentSelection.clear();
     }
 
     // merge and clear currentSelection if Current was not set (ie. start new currentSelection)
-    if (!(selectionCommand & Current)) {
+    if (!(command & Current)) {
         d->ranges.merge(d->currentSelection, d->currentCommand);
         d->currentSelection.clear();
     }
 
     // update currentSelection
-    if (selectionCommand & Toggle || selectionCommand & Select || selectionCommand & Deselect) {
-        d->currentCommand = selectionCommand;
+    if (command & Toggle || command & Select || command & Deselect) {
+        d->currentCommand = command;
         d->currentSelection = sel;
     }
 
@@ -362,13 +362,13 @@ void QItemSelectionModel::clear()
   it is independent of any selected items, although a selected item
   can also be the current item.
 
-  Depending on the \a selectionCommand a selection can also be performed.
+  Depending on the \a command a selection can also be performed.
   \sa select()
 */
-void QItemSelectionModel::setCurrentItem(const QModelIndex &index, int selectionCommand)
+void QItemSelectionModel::setCurrentItem(const QModelIndex &index, SelectionFlags command)
 {
-    if (selectionCommand != NoUpdate)
-        select(index, selectionCommand); // select item
+    if (command != NoUpdate)
+        select(index, command); // select item
     if (index == d->currentItem)
         return;
     QModelIndex old = d->currentItem;

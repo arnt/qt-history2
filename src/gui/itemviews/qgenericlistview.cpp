@@ -740,7 +740,7 @@ QRect QGenericListView::itemRect(const QModelIndex &item) const
     return d->indexToListViewItem(item).rect();
 }
 
-void QGenericListView::setSelection(const QRect &rect, int selectionCommand)
+void QGenericListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
     QRect crect(rect.left() + horizontalScrollBar()->value(),
                 rect.top() + verticalScrollBar()->value(),
@@ -769,7 +769,7 @@ void QGenericListView::setSelection(const QRect &rect, int selectionCommand)
     if (tl.isValid() && br.isValid())
         selection.select(tl, br, model());
 
-    selectionModel()->select(selection, selectionCommand);
+    selectionModel()->select(selection, command);
 }
 
 QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) const

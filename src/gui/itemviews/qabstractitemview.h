@@ -32,6 +32,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_DECLARE_PRIVATE(QAbstractItemView)
     Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
     Q_PROPERTY(bool autoScroll READ autoScroll WRITE setAutoScroll)
+    Q_ENUMS(SelectionMode SelectionBehaviour)
 
 public:
 
@@ -133,7 +134,7 @@ protected:
     virtual int horizontalOffset() const = 0;
     virtual int verticalOffset() const = 0;
 
-    virtual void setSelection(const QRect&, int command) = 0;
+    virtual void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command) = 0;
     virtual QRect selectionViewportRect(const QItemSelection &selection) const = 0;
 
     virtual bool startEdit(const QModelIndex &item,
@@ -141,10 +142,10 @@ protected:
     virtual void endEdit(const QModelIndex &item, bool accept);
     QWidget *currentEditor() const;
 
-    virtual int selectionCommand(Qt::ButtonState state,
-                                 const QModelIndex &index = QModelIndex(),
-                                 QEvent::Type type = QEvent::None,
-                                 Qt::Key key = Qt::Key_unknown) const;
+    virtual QItemSelectionModel::SelectionFlags selectionCommand(Qt::ButtonState state,
+                                                                 const QModelIndex &index = QModelIndex(),
+                                                                 QEvent::Type type = QEvent::None,
+                                                                 Qt::Key key = Qt::Key_unknown) const;
 
     virtual bool supportsDragAndDrop() const;
     virtual QDragObject *dragObject();

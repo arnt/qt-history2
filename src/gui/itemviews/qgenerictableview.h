@@ -79,7 +79,7 @@ protected:
     int verticalOffset() const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);
 
-    void setSelection(const QRect &rect, int command);
+    void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
     QRect selectionViewportRect(const QItemSelection &selection) const;
 
     void updateGeometries();

@@ -102,7 +102,7 @@ public:
         User = 32
     };
 
-    enum ItemMatch {
+    enum Match {
         MatchContains = 0,
         MatchFromStart = 1,
         MatchFromEnd = 2,
@@ -112,7 +112,7 @@ public:
         MatchDefault = MatchFromStart | MatchWrap
     };
 
-    Q_DECLARE_FLAGS(ItemMatchFlags, ItemMatch);
+    Q_DECLARE_FLAGS(MatchFlags, Match);
 
     QAbstractItemModel(QObject *parent = 0);
     virtual ~QAbstractItemModel();
@@ -165,7 +165,7 @@ public:
     virtual QModelIndex buddy(const QModelIndex &index) const;
 
     virtual QModelIndexList match(const QModelIndex &start, int role, const QVariant &value,
-                                  int hits = 1, ItemMatchFlags flags = MatchDefault) const;
+                                  int hits = 1, MatchFlags flags = MatchDefault) const;
 public slots:
     virtual void fetchMore();
 
@@ -189,6 +189,6 @@ protected:
     friend class QPersistentModelIndexData;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::ItemMatchFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::MatchFlags);
 
 #endif

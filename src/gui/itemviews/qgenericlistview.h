@@ -100,7 +100,7 @@ protected:
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);
     QRect itemRect(const QModelIndex &item) const;
 
-    void setSelection(const QRect &rect, int selectionCommand);
+    void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
     QRect selectionViewportRect(const QItemSelection &selection) const;
 
     bool supportsDragAndDrop() const;

@@ -484,7 +484,7 @@ void QGenericComboBox::ensureItemVisible(const QModelIndex &item)
     }
 }
 
-void QGenericComboBox::setSelection(const QRect &rect, int command)
+void QGenericComboBox::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
     if (rect.intersects(d->viewport->rect()))
         selectionModel()->select(QItemSelection(currentItem(), currentItem(), model()), command);

@@ -489,7 +489,7 @@ QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorA
     return current;
 }
 
-void QGenericTreeView::setSelection(const QRect &rect, int command)
+void QGenericTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
     int start = d->viewIndex(itemAt(rect.left(), rect.top()));
     int stop = d->viewIndex(itemAt(rect.right(), rect.bottom()));

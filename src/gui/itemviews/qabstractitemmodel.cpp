@@ -813,7 +813,7 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
 }
 
 /*!
-    \enum QAbstractItemModel::ItemMatch
+    \enum QAbstractItemModel::Match
 
     \value MatchContains The value is contained in the item.
     \value MatchFromStart The value matches the start of the item.
@@ -831,11 +831,11 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
     row or \a start, depending on whether \a MatchWrap is specified or
     not.
 
-    \sa QAbstractItemModel::ItemMatch
+    \sa QAbstractItemModel::Match
 */
 QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
                                           const QVariant &value, int hits,
-                                          QAbstractItemModel::ItemMatchFlags flags) const
+                                          QAbstractItemModel::MatchFlags flags) const
 {
     QString val = value.toString();
 

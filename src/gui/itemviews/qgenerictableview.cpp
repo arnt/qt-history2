@@ -314,7 +314,7 @@ QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursor
     return QModelIndex();
 }
 
-void QGenericTableView::setSelection(const QRect &rect, int command)
+void QGenericTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
     QModelIndex tl = itemAt(rect.left(), rect.top());
     QModelIndex br = itemAt(rect.right(), rect.bottom());

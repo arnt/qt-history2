@@ -849,7 +849,10 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 
         if (newCurrent != current && newCurrent.isValid()) {
             QPoint offset(horizontalOffset(), verticalOffset());
-            int command = selectionCommand(e->state(), newCurrent, e->type(), (Key)e->key());
+            QItemSelectionModel::SelectionFlags command = selectionCommand(e->state(),
+                                                                           newCurrent,
+                                                                           e->type(),
+                                                                           (Key)e->key());
             if (e->state() & Qt::ShiftButton && d->selectionMode != SingleSelection) {
                 d->selectionModel->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
                 QRect rect(d->pressedPosition - offset, itemViewportRect(newCurrent).center());
@@ -1502,12 +1505,12 @@ void QAbstractItemView::doAutoScroll()
   This function is called on user input events like mouse and
   keyboard events.
 */
-int QAbstractItemView::selectionCommand(Qt::ButtonState state,
-                                        const QModelIndex &item,
-                                        QEvent::Type type,
-                                        Key key) const
+QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(Qt::ButtonState state,
+                                                                        const QModelIndex &item,
+                                                                        QEvent::Type type,
+                                                                        Key key) const
 {
-    int behavior = 0;
+    QItemSelectionModel::SelectionFlags behavior = QItemSelectionModel::NoUpdate;
     switch (d->selectionBehavior) {
     case SelectRows:
         behavior = QItemSelectionModel::Rows;

@@ -82,7 +82,7 @@ protected:
     int horizontalOffset() const;
     int verticalOffset() const;
 
-    void setSelection(const QRect&, int command);
+    void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command);
     QRect selectionViewportRect(const QItemSelection &selection) const;
 
     void paintEvent(QPaintEvent *e);

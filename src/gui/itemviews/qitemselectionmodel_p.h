@@ -11,7 +11,8 @@ public:
         : model(0), currentCommand(QItemSelectionModel::NoUpdate) {}
 
     void init();
-    QItemSelection expandSelection(const QItemSelection &selection, int selectionCommand) const;
+    QItemSelection expandSelection(const QItemSelection &selection,
+                                   QItemSelectionModel::SelectionFlags command) const;
     
     inline void remove(QList<QItemSelectionRange> &r)
     {
@@ -24,7 +25,7 @@ public:
     QItemSelection ranges;
     QItemSelection currentSelection;
     QPersistentModelIndex currentItem;
-    int currentCommand;
+    QItemSelectionModel::SelectionFlags currentCommand;
 };
 
 #endif

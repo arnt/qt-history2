@@ -74,31 +74,14 @@ private:
     int t, l, b, r;
 };
 
-class QItemSelectionModel;
-
-class QItemSelection : public QList<QItemSelectionRange>
-{
-public:
-    QItemSelection() {}
-    QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-                   const QAbstractItemModel *model);
-    void select(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-                const QAbstractItemModel *model);
-    bool contains(const QModelIndex &item, const QAbstractItemModel *model) const;
-    QModelIndexList items(QAbstractItemModel *model) const;
-    void merge(const QItemSelection &other, int selectionCommand);
-    static void split(const QItemSelectionRange &range, const QItemSelectionRange &other,
-                      QItemSelection *result);
-};
-
+class QItemSelection;
 class QItemSelectionModelPrivate;
 
 class Q_GUI_EXPORT QItemSelectionModel : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QItemSelectionModel)
-
-    Q_FLAGS(SelectionCommand);
+    Q_FLAGS(SelectionCommand)
 
 public:
 
@@ -116,11 +99,13 @@ public:
         ClearAndSelect = Clear | Select
     };
 
+    Q_DECLARE_FLAGS(SelectionFlags, SelectionCommand);
+
     QItemSelectionModel(QAbstractItemModel *model, QObject *parent = 0);
     virtual ~QItemSelectionModel();
 
     QModelIndex currentItem() const;
-    void setCurrentItem(const QModelIndex &index, int selectionCommand);
+    void setCurrentItem(const QModelIndex &index, SelectionFlags command);
 
     bool isSelected(const QModelIndex &index) const;
     bool isRowSelected(int row, const QModelIndex &parent) const;
@@ -130,8 +115,8 @@ public:
     QModelIndexList selectedItems() const;
 
 public slots:    
-    virtual void select(const QModelIndex &index, int selectionCommand);
-    virtual void select(const QItemSelection &selection, int selectionCommand);
+    virtual void select(const QModelIndex &index, SelectionFlags command);
+    virtual void select(const QItemSelection &selection, SelectionFlags command);
     virtual void clear();
 
 signals:
@@ -142,6 +127,23 @@ protected:
     QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model,
                         QObject *parent = 0);
     void emitSelectionChanged(const QItemSelection &oldSelection, const QItemSelection &newSelection);
+};
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QItemSelectionModel::SelectionFlags);
+
+class QItemSelection : public QList<QItemSelectionRange>
+{
+public:
+    QItemSelection() {}
+    QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight,
+                   const QAbstractItemModel *model);
+    void select(const QModelIndex &topLeft, const QModelIndex &bottomRight,
+                const QAbstractItemModel *model);
+    bool contains(const QModelIndex &item, const QAbstractItemModel *model) const;
+    QModelIndexList items(QAbstractItemModel *model) const;
+    void merge(const QItemSelection &other, QItemSelectionModel::SelectionFlags command);
+    static void split(const QItemSelectionRange &range, const QItemSelectionRange &other,
+                      QItemSelection *result);
 };
 
 #endif
