@@ -1209,7 +1209,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	// ...
 	p.end(); // stops drawing on myPixmap
 	p.begin( this );
-	p.drawPixmap( myPixmap );
+	p.drawPixmap( 0, 0, myPixmap );
     \endcode
 
     Since you can't draw a QPixmap while it is being painted, it is
