@@ -537,8 +537,8 @@ void MainWindow::setupToolActions()
 
     connect( actionToolsCustomWidget, SIGNAL( activated() ), this, SLOT( toolsCustomWidget() ) );
 
-    for ( int i = 0; i < WidgetDatabase::numWidgetGroups(); ++i ) {
-	QString grp = WidgetDatabase::widgetGroup( i );
+    for ( int j = 0; j < WidgetDatabase::numWidgetGroups(); ++j ) {
+	QString grp = WidgetDatabase::widgetGroup( j );
 	if ( !WidgetDatabase::isGroupVisible( grp ) ||
 	     WidgetDatabase::isGroupEmpty( grp ) )
 	    continue;
@@ -2748,7 +2748,6 @@ void MainWindow::readConfig()
     restoreConfig = config.readBoolEntry( "RestoreWorkspace", TRUE );
     docPath = config.readEntry( "DocPath", docPath );
     int num;
-    int i;
 
     config.setGroup( "General" );
     if ( restoreConfig ) {
@@ -2805,9 +2804,9 @@ void MainWindow::readConfig()
 
     config.setGroup( "CustomWidgets" );
     num = config.readNumEntry( "num" );
-    for ( i = 0; i < num; ++i ) {
+    for ( int j = 0; j < num; ++j ) {
 	MetaDataBase::CustomWidget *w = new MetaDataBase::CustomWidget;
-	QStringList l = config.readListEntry( "Widget" + QString::number( i ), ',' );
+	QStringList l = config.readListEntry( "Widget" + QString::number( j ), ',' );
 	w->className = l[ 0 ];
 	w->includeFile = l[ 1 ];
 	w->includePolicy = (MetaDataBase::CustomWidget::IncludePolicy)l[ 2 ].toInt();

@@ -779,7 +779,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	for ( i = 0; i < (int) nl.length(); i++ ) {
 	    n = nl.item(i).toElement();
 	    QStringList list = DomTool::propertiesOfType( n, "font" );
-	    for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
+	    for ( it = list.begin(); it != list.end(); ++it )
 		createExclusiveProperty( n, *it );
 	}
 	out << "    }" << endl;
