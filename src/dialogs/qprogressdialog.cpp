@@ -545,7 +545,7 @@ void QProgressDialog::setProgress( int progress )
     bar()->setProgress(progress);
 
     if ( d->shown_once ) {
-	if (testWFlags(WType_Modal))
+	if (testWFlags(WShowModal))
 	    qApp->processEvents();
     } else {
 	if ( progress == 0 ) {
