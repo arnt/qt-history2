@@ -8,7 +8,7 @@ $Id$
 
   \title A tiny SAX2 parser
  
-  This example presents a small \link xml.html#sax SAX2 \endlink
+  This example presents a small \link xml.html#sax2 SAX2 \endlink
   reader that outputs the names of all elements in an
   XML document on the command line. The element names are 
   indented corresponding to their nesting

@@ -247,7 +247,7 @@ and other features.
 \target sax2Namespaces
 \section2 Namespace support via features
 
-As we have seen in the \link #features previous section \endlink
+As we have seen in the \link #sax2Features previous section \endlink
 we can configure the behavior of the reader when it comes to namespace
 processing. This is done by setting and unsetting the 
 \e http://xml.org/sax/features/namespaces and
@@ -490,8 +490,8 @@ Introduction to the Qt XML module. \endlink
 
 Parts of the Qt XML module documentation assume that you are
 familiar with XML namespaces. Here we present a brief introduction;
-skip to \link #conventions "Qt XML
-documentation conventions" \endlink if you know this material.
+skip to \link #namespacesConventions Qt XML
+documentation conventions \endlink if you know this material.
 
 Namespaces are a concept introduced into XML to allow a more modular design.
 With their help data processing software can easily
@@ -570,7 +570,7 @@ XML namespace there is
 no collision between the attribute \e title (that belongs to the
 \e author element) and for example the \e title element within a \e chapter.
 
-Lets clarify matters with an example:
+Let's clarify matters with an example:
 \code
 <document xmlns:book = 'http://trolltech.com/fnord/book/'
           xmlns      = 'http://trolltech.com/fnord/' >
