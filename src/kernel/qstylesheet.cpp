@@ -1489,19 +1489,19 @@ bool QStyleSheet::mightBeRichText( const QString& text)
     if ( text.isEmpty() )
 	return FALSE;
     int start = 0;
-    
+
     while ( start < int(text.length()) && text[start].isSpace() )
 	++start;
     if ( text.mid( start, 5 ).lower() == "<!doc" )
 	return TRUE;
     int open = start;
     while ( open < int(text.length()) && text[open] != '<'
-	    && text[open] != '\n' && text[open] != '&')
-	++open;
-    if ( text[open] == '&' ) {
-	if ( text.mid(open+1,3) == "lt;" )
+	    && text[open] != '\n' ) {
+	if ( text[open] == '&' &&  text.mid(open+1,3) == "lt;" )
 	    return TRUE; // support desperate attempt of user to see <...>
-    } else if ( text[open] == '<' ) {
+	++open;
+    }
+    if ( text[open] == '<' ) {
 	int close = text.find('>', open);
 	if ( close > -1 ) {
 	    QString tag;
