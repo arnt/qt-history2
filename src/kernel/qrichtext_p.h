@@ -72,9 +72,9 @@
 #include "qpainter.h"
 #include "qlayout.h"
 #include "qobject.h"
-#include <limits.h>
-#include <qcomplextext_p.h>
+#include "qcomplextext_p.h"
 #include "qapplication.h"
+#include <limits.h>
 #endif // QT_H
 
 #ifndef QT_NO_RICHTEXT

@@ -45,8 +45,9 @@
 #include "qfile.h"
 #include "qdatastream.h"
 #include "qpaintdevicemetrics.h"
+
 #ifndef QT_NO_SVG
-#include <qsvgdevice_p.h>
+#include "../xml/qsvgdevice_p.h"
 #endif
 
 /*!

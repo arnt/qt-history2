@@ -39,7 +39,7 @@
 
 #ifndef QT_NO_RICHTEXT
 
-#include <qrichtext_p.h>
+#include "qrichtext_p.h"
 #include "qlayout.h"
 #include "qpainter.h"
 #include "qcleanuphandler.h"
