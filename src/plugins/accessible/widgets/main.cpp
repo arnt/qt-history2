@@ -13,7 +13,7 @@
 #include <qaccessible.h>
 #include <q3toolbar.h>
 
-class AccessibleFactory : public QAccessiblePlugin, public QAccessible
+class AccessibleFactory : public QAccessiblePlugin
 {
 public:
     AccessibleFactory();
