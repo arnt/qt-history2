@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#23 $
 **
 ** Implementation of something useful
 **
@@ -18,10 +18,11 @@
 #include "qstrlist.h"
 #include "qapp.h"
 #include "qpixmap.h"
+#include "qkeycode.h"
 
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#23 $");
 
 
 struct QListViewPrivate
@@ -73,6 +74,9 @@ struct QListViewPrivate
     int bottomPixel;
 
     bool multi;
+
+    // TRUE if the widget should take notice of mouseReleaseEvent
+    bool buttonDown;
 };
 
 
@@ -748,6 +752,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
                 p->translate( r.left(), r.top() );
 		current->i->paintCell( p, colorGroup(),
 				       d->h->mapToLogical( c ), r.width(),
+				       hasFocus() &&
 				       current->i == d->currentSelected );
 		p->restore();
 		x += cs;
@@ -927,6 +932,15 @@ void QListView::insertItem( QListViewItem * i )
 
 void QListView::clear()
 {
+    if ( d->drawables )
+	d->drawables->clear();
+
+    d->currentSelected = 0;
+    contentsResize( d->h->width(), viewport()->height() ); // ### ?
+
+    // if it's down its downness makes no sense, so undown it
+    d->buttonDown = FALSE;
+
     QListViewItem *c = (QListViewItem *)d->r->firstChild();
     QListViewItem *n;
     while( c ) {
@@ -1009,6 +1023,9 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
     switch( e->type() ) {
     case Event_MouseButtonPress:
 	mousePressEvent( me );
+	break;
+    case Event_MouseButtonDblClick:
+	mouseDoubleClickEvent( me );
 	break;
     case Event_MouseMove:
 	mouseMoveEvent( me );
@@ -1175,6 +1192,8 @@ void QListView::mousePressEvent( QMouseEvent * e )
     if ( !e )
 	return;
 
+    d->buttonDown = TRUE;
+
     QListViewItem * i = itemAt( e->pos() );
     if ( !i )
 	return;
@@ -1202,6 +1221,9 @@ void QListView::mouseReleaseEvent( QMouseEvent * e )
     if ( !e )
 	return;
 
+    if ( !d->buttonDown )
+	return;
+
     QListViewItem * i = itemAt( e->pos() );
     if ( !i )
 	return;
@@ -1215,7 +1237,27 @@ void QListView::mouseReleaseEvent( QMouseEvent * e )
     }
 
     setCurrentItem( i ); // repaints
+
     return;
+}
+
+
+/*!  Processes mouse double-click events on behalf of the viewed
+  widget; eventFilter() calls this function.  Note that the
+  coordinates in \a e is in the coordinate system of viewport(). */
+
+void QListView::mouseDoubleClickEvent( QMouseEvent * e )
+{
+    if ( !e )
+	return;
+
+    // ensure that the next mouse moves and eventual release is
+    // ignored.
+    d->buttonDown = FALSE;
+
+    QListViewItem * i = itemAt( e->pos() );
+    if ( i )
+	emit doubleClicked( i );
 }
 
 
@@ -1225,7 +1267,7 @@ void QListView::mouseReleaseEvent( QMouseEvent * e )
 
 void QListView::mouseMoveEvent( QMouseEvent * e )
 {
-    if ( !e )
+    if ( !e || !d->buttonDown )
 	return;
 
     QListViewItem * i = itemAt( e->pos() );
@@ -1276,9 +1318,64 @@ void QListView::focusOutEvent( QFocusEvent * )
   this function as handling this widget's keyboard input.
 */
 
-void QListView::keyPressEvent( QKeyEvent * )
+void QListView::keyPressEvent( QKeyEvent * e )
 {
-    return;
+    if ( !e )
+	return; // subclass bug
+
+    if ( !currentItem() )
+	return;
+
+    QListViewItem * i = currentItem();
+
+    if ( isMultiSelection() && e->ascii() == ' ' ) {
+	setSelected( i, i->isSelected() );
+	e->accept();
+	return;
+    }
+
+    int y = 0;
+
+    switch( e->key() ) {
+    case Key_Enter:
+    case Key_Return:
+	emit returnPressed( currentItem() );
+	// ### do not accept to work around QDialog breakage
+	// ### e->accept();
+	return;
+    case Key_Down:
+	y = itemRect( i ).bottom() + 1 - contentsY();
+	break;
+    case Key_Up:
+	y = itemRect( i ).top() - 1 - contentsY();
+	break;
+    case Key_Next:
+	y = itemRect( i ).center().y() + viewport()->height() - contentsY();
+	verticalScrollBar()->addPage();
+	break;
+    case Key_Prior:
+	y = itemRect( i ).center().y() - viewport()->height() - contentsY();
+	verticalScrollBar()->subtractPage();
+	break;
+    default:
+	return;
+    }
+
+    if ( y < 0 )
+	y = 0;
+    else if ( y >= d->r->totalHeight() )
+	y = d->r->totalHeight()-1;
+
+    ensureVisible( viewport()->width()/2 - contentsX(), y );
+
+    i = itemAt( QPoint( 0, y ) );
+    if ( !isMultiSelection() && i != d->currentSelected ) {
+	if ( d->currentSelected )
+	    d->currentSelected->setSelected( FALSE );
+	i->setSelected( TRUE );
+    }
+
+    setCurrentItem( i );
 }
 
 
@@ -1297,7 +1394,7 @@ QListViewItem * QListView::itemAt( QPoint screenPos ) const
     QListViewPrivate::DrawableItem * c = d->drawables->first();
     int g = screenPos.y() - contentsY();
 
-    while( c && c->i && c->y + c->i->height() < g )
+    while( c && c->i && c->y + c->i->height() <= g )
 	c = d->drawables->next();
 
     return (c && c->y <= g) ? c->i : 0;
@@ -1334,7 +1431,7 @@ bool QListView::isMultiSelection() const
   If the list view is in single-selection mode and \a selected is
   TRUE, the present selected item is unselected.  Unlike
   QListViewItem::setSelected(), this function updates the list view as
-  necessary.
+  necessary and emits the selectionChanged() signals.
 
   \sa isSelected() setMultiSelection() isMultiSelection()
 */
@@ -1344,16 +1441,23 @@ void QListView::setSelected( QListViewItem * item, bool selected )
     if ( !item || item->isSelected() == selected )
 	return;
 
+    QRect r( 0,0, -1,-1 );
+
     if ( selected && !isMultiSelection() && d->currentSelected ) {
 	d->currentSelected->setSelected( FALSE );
-	viewport()->repaint( itemRect( d->currentSelected ) );
+	r = r.unite( itemRect( d->currentSelected ) );
     }
 
     if ( item->isSelected() != selected ) {
 	item->setSelected( selected );
 	d->currentSelected = item;
-	viewport()->repaint( itemRect( item ) );
+	r = r.unite( itemRect( item ) );
     }
+
+    viewport()->repaint( r );
+    if ( !isMultiSelection() )
+	emit selectionChanged( item );
+    emit selectionChanged();
 }
 
 
@@ -1369,9 +1473,9 @@ bool QListView::isSelected( QListViewItem * i ) const
 }
 
 
-/*!  Sets \a i to be the current highlighted item.  This highlighted
-  item is used for keyboard navigation and focus indication; it
-  doesn't mean anything else.
+/*!  Sets \a i to be the current highlighted item and repaints
+  appropriately.  This highlighted item is used for keyboard
+  navigation and focus indication; it doesn't mean anything else.
 
   \sa currentItem()
 */
@@ -1384,8 +1488,9 @@ void QListView::setCurrentItem( QListViewItem * i )
     if ( prev && prev != i )
 	r = itemRect( prev );
     viewport()->repaint( i ? r.unite( itemRect( i ) ) : r );
-    if ( prev != i )
+    if ( i != prev )
 	emit currentChanged( i );
+
 }
 
 

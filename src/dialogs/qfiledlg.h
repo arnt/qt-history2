@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#11 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#12 $
 **
 ** Definition of QFileDialog class
 **
@@ -16,6 +16,7 @@ struct QFileDialogPrivate;
 class QLineEdit;
 class QPushButton;
 class QListView;
+class QListViewItem;
 
 #include "qdir.h"
 #include "qdialog.h"
@@ -59,6 +60,10 @@ private slots:
     void fileHighlighted( int );
     void dirSelected( int );
     void pathSelected( int ); 
+
+    void updateFileNameEdit( QListViewItem *);
+    void selectDirectoryOrFile( QListViewItem * );
+    void fileNameEditDone();
 
     void okClicked();
     void filterClicked(); // not used

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#10 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#11 $
 **
 ** Definition of 
 **
@@ -121,12 +121,16 @@ signals:
     void selectionChanged( QListViewItem * );
     void currentChanged( QListViewItem * );
 
+    void doubleClicked( QListViewItem * );
+    void returnPressed( QListViewItem * );
+
 protected:
     bool eventFilter( QObject * o, QEvent * );
 
     void mousePressEvent( QMouseEvent * e );
     void mouseReleaseEvent( QMouseEvent * e );
     void mouseMoveEvent( QMouseEvent * e );
+    void mouseDoubleClickEvent( QMouseEvent * e );
 
     void focusInEvent( QFocusEvent * e );
     void focusOutEvent( QFocusEvent * e );
