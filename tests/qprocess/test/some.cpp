@@ -99,6 +99,7 @@ Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int 
 
 void Some::procInit( bool start, int com )
 {
+    proc->setArguments( QStringList() );
     switch ( com ) {
     case 1:
 	proc->addArgument( QDir::current().absFilePath( "some" ) );
