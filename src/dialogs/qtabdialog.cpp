@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#96 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#97 $
 **
 ** Implementation of QTabDialog class
 **
@@ -64,8 +64,6 @@
   and keyboard accelerator for it. <li> Set up the buttons for the tab
   dialog (Apply, Cancel and so on). <li> Connect to the
   signals and slots. </ol>
-
-  The pref.cpp example does all this.
 
   If you don't call addTab(), the page you have created will not be
   visible.  Please don't confuse the object name you supply to the
