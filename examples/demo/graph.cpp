@@ -377,7 +377,7 @@ QSize FigureEditor::sizeHint() const
     return QSize( 600, 400 );
 }
 
-void FigureEditor::resizeEvent( QResizeEvent* e ) 
+void FigureEditor::resizeEvent( QResizeEvent* e )
 {
     if ( canvas() )
 	canvas()->resize( QMAX( 590, contentsRect().width()), QMAX(390, contentsRect().height() ));
@@ -407,8 +407,8 @@ void FigureEditor::initialize()
     srand( QTime::currentTime().msec() );
     int nodecount = 0;
 
-    int rows = 4;
-    int cols = 4;
+    int rows = 3;
+    int cols = 3;
 
     QArray<NodeItem*> lastRow(cols);
     for ( int r = 0; r < rows; r++ ) {
