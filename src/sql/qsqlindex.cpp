@@ -162,7 +162,7 @@ QString QSqlIndex::toString( const QString& prefix, const QString& sep, bool ver
 {
     QString s;
     bool comma = FALSE;
-    for ( uint i = 0; i < count(); ++i ) {
+    for ( int i = 0; i < count(); ++i ) {
 	if( comma )
 	    s += sep + " ";
 	s += createField( i, prefix, verbose );
@@ -199,7 +199,7 @@ QString QSqlIndex::toString( const QString& prefix, const QString& sep, bool ver
 QStringList QSqlIndex::toStringList( const QString& prefix, bool verbose ) const
 {
     QStringList s;
-    for ( uint i = 0; i < count(); ++i )
+    for ( int i = 0; i < count(); ++i )
 	s += createField( i, prefix, verbose );
     return s;
 }

@@ -1053,7 +1053,7 @@ bool QDataBrowser::currentEdited()
     if ( !cur->isActive() || !cur->isValid() )
 	return FALSE;
     writeFields();
-    for ( uint i = 0; i < cur->count(); ++i ) {
+    for ( int i = 0; i < cur->count(); ++i ) {
 	if ( cur->value(i) != buf->value(i) )
 	    return TRUE;
     }

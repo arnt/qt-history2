@@ -231,21 +231,22 @@ void QSqlForm::clear()
 /*!
     Returns the number of widgets in the form.
 */
-uint QSqlForm::count() const
+int QSqlForm::count() const
 {
-    return (uint)d->map.count();
+    return d->map.count();
 }
 
 /*!
     Returns the \a{i}-th widget in the form. Useful for traversing
     the widgets in the form.
 */
-QWidget * QSqlForm::widget( uint i ) const
+QWidget * QSqlForm::widget( int i ) const
 {
     QMap< QWidget *, QSqlField * >::ConstIterator it;
-    uint cnt = 0;
+    int cnt = 0;
 
-    if( i > d->map.count() ) return 0;
+    if( i > (int)d->map.count() ) 
+	return 0;
     for( it = d->map.begin(); it != d->map.end(); ++it ){
 	if( cnt++ == i )
 	    return it.key();

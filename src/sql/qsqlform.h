@@ -44,9 +44,9 @@ public:
 
     virtual void insert( QWidget * widget, const QString& field );
     virtual void remove( const QString& field );
-    uint         count() const;
+    int         count() const;
 
-    QWidget *   widget( uint i ) const;
+    QWidget *   widget( int i ) const;
     QSqlField * widgetToField( QWidget * widget ) const;
     QWidget *   fieldToWidget( QSqlField * field ) const;
 

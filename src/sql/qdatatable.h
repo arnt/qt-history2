@@ -67,8 +67,8 @@ public:
 			    const QString& label = QString::null,
 			    int width = -1,
 			    const QIconSet& iconset = QIconSet() );
-    virtual void removeColumn( uint col );
-    virtual void setColumn( uint col, const QString& fieldName,
+    virtual void removeColumn( int col );
+    virtual void setColumn( int col, const QString& fieldName,
 			    const QString& label = QString::null,
 			    int width = -1,
 			    const QIconSet& iconset = QIconSet() );
@@ -171,7 +171,7 @@ protected:
     void         endEdit( int row, int col, bool accept, bool replace );
     QWidget *    createEditor( int row, int col, bool initFromCell ) const;
     void         activateNextCell();
-    int          indexOf( uint i ) const; // ### make this public in 4.0
+    int          indexOf( int i ) const; // ### make this public in 4.0
     void         reset();
     void         setSize( QSqlCursor* sql );
     void         repaintCell( int row, int col );

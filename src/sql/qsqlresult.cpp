@@ -457,7 +457,7 @@ bool QSqlResult::exec()
 	    val = d->values[ holder ].value;
 	    QSqlField f( "", val.type() );
 	    f.setValue( val );
-	    query = query.replace( (uint)d->holders[ i ].holderPos,
+	    query = query.replace( d->holders[ i ].holderPos,
 				   holder.length(), driver()->formatValue( &f ) );
 	}
     } else {

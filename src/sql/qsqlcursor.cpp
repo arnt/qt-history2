@@ -363,7 +363,7 @@ QString QSqlCursor::toString( const QString& prefix, const QString& sep ) const
     QString pfix =  prefix.isEmpty() ? QString::null : prefix + ".";
     bool comma = FALSE;
 
-    for ( uint i = 0; i < count(); ++i ) {
+    for ( int i = 0; i < count(); ++i ) {
 	const QString fname = fieldName( i );
 	if ( isGenerated( i ) ) {
 	    if( comma )
@@ -482,7 +482,7 @@ void QSqlCursor::setGenerated( int i, bool generated )
 QSqlIndex QSqlCursor::primaryIndex( bool setFromCursor ) const
 {
     if ( setFromCursor ) {
-	for ( uint i = 0; i < d->priIndx.count(); ++i ) {
+	for ( int i = 0; i < d->priIndx.count(); ++i ) {
 	    const QString fn = d->priIndx.fieldName( i );
 	    if ( contains( fn ) )
 		d->priIndx.setValue( i, value( fn ) );
@@ -879,7 +879,7 @@ QString QSqlCursor::toString( QSqlRecord* rec, const QString& prefix, const QStr
     static QString blank( " " );
     QString filter;
     bool separator = FALSE;
-    for ( uint j = 0; j < count(); ++j ) {
+    for ( int j = 0; j < count(); ++j ) {
 	QSqlField* f = rec->field( j );
 	if ( rec->isGenerated( j ) ) {
 	    if ( separator )
@@ -910,7 +910,7 @@ QString QSqlCursor::toString( const QSqlIndex& i, QSqlRecord* rec, const QString
 {
     QString filter;
     bool separator = FALSE;
-    for( uint j = 0; j < i.count(); ++j ){
+    for( int j = 0; j < i.count(); ++j ){
 	if ( rec->isGenerated( j ) ) {
 	    if( separator ) {
 		filter += " " + sep + " " ;
@@ -1024,7 +1024,7 @@ int QSqlCursor::insert( bool invalidate )
 QSqlRecord* QSqlCursor::editBuffer( bool copy )
 {
     if ( copy ) {
-	for(uint i = 0; i < d->editBuffer.count(); i++) {
+	for(int i = 0; i < d->editBuffer.count(); i++) {
 	    if ( QSqlRecord::isNull( i ) ) {
 		d->editBuffer.setNull( i );
 	    } else {
@@ -1368,8 +1368,8 @@ void QSqlCursor::sync()
 {
     if ( isActive() && isValid() && d->lastAt != at() ) {
 	d->lastAt = at();
-	uint i = 0;
-	uint j = 0;
+	int i = 0;
+	int j = 0;
 	bool haveCalculatedFields = FALSE;
 	for ( ; i < count(); ++i ) {
 	    if ( !haveCalculatedFields && d->infoBuffer[i].isCalculated() ) {

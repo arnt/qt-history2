@@ -231,7 +231,7 @@ static bool index_matches( const QSqlCursor* cur, const QSqlRecord* buf,
 			   const QSqlIndex& idx )
 {
     bool indexEquals = FALSE;
-    for ( uint i = 0; i < idx.count(); ++i ) {
+    for ( int i = 0; i < idx.count(); ++i ) {
 	const QString fn( idx.field(i)->name() );
 	if ( cur->value( fn ) == buf->value( fn ) )
 	    indexEquals = TRUE;
@@ -283,7 +283,7 @@ static void debug_datamanager_buffer( const QString& msg, QSqlRecord* cursor )
 {
     qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     qDebug( "%s", msg.latin1() );
-    for ( uint j = 0; j < cursor->count(); ++j ) {
+    for ( int j = 0; j < cursor->count(); ++j ) {
 	qDebug( "%s", (cursor->field(j)->name() + " type:"
 		       + QString(cursor->field(j)->value().typeName())
 		       + " value:" + cursor->field(j)->value().toString())

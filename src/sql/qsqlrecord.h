@@ -74,7 +74,7 @@ public:
     bool                 contains( const QString& name ) const;
     virtual void         clear();
     virtual void         clearValues( bool nullify = FALSE );
-    uint                 count() const;
+    int                 count() const;
     virtual QString      toString( const QString& prefix = QString::null,
 				   const QString& sep = "," ) const;
     virtual QStringList  toStringList( const QString& prefix = QString::null ) const;

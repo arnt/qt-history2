@@ -107,7 +107,7 @@ public:
 	    return &fi[i];
 	return 0;
     }
-    uint count() const
+    int count() const
     {
 	return cnt;
     }
@@ -117,7 +117,7 @@ public:
     }
 private:
     QVector< info > fi;
-    uint		 cnt;
+    int		 cnt;
 };
 
 QSqlRecordShared::~QSqlRecordShared()
@@ -271,7 +271,7 @@ QString QSqlRecord::fieldName( int i ) const
 
 int QSqlRecord::position( const QString& name ) const
 {
-    for ( uint i = 0; i < count(); ++i ) {
+    for ( int i = 0; i < count(); ++i ) {
 	if ( fieldName(i).upper() == name.upper() )
 	    return i;
     }
@@ -398,7 +398,7 @@ bool QSqlRecord::isEmpty() const
 
 bool QSqlRecord::contains( const QString& name ) const
 {
-    for ( uint i = 0; i < count(); ++i ) {
+    for ( int i = 0; i < count(); ++i ) {
 	if ( fieldName(i).upper() == name.upper() )
 	    return TRUE;
     }
@@ -569,7 +569,7 @@ QString QSqlRecord::toString( const QString& prefix, const QString& sep ) const
 {
     QString pflist;
     bool comma = FALSE;
-    for ( uint i = 0; i < count(); ++i ){
+    for ( int i = 0; i < count(); ++i ){
 	if ( isGenerated( field(i)->name() ) ) {
 	    if( comma )
 		pflist += sep + " ";
@@ -594,7 +594,7 @@ QString QSqlRecord::toString( const QString& prefix, const QString& sep ) const
 QStringList QSqlRecord::toStringList( const QString& prefix ) const
 {
     QStringList s;
-    for ( uint i = 0; i < count(); ++i ) {
+    for ( int i = 0; i < count(); ++i ) {
 	if ( isGenerated( field(i)->name() ) )
 	    s += createField( i, prefix );
     }
@@ -617,7 +617,7 @@ QString QSqlRecord::createField( int i, const QString& prefix ) const
     Returns the number of fields in the record.
 */
 
-uint QSqlRecord::count() const
+int QSqlRecord::count() const
 {
     return sh->d->count();
 }
@@ -676,7 +676,7 @@ void QSqlRecord::setValue( const QString& name, const QVariant& val )
 */
 QSqlRecordInfo::QSqlRecordInfo( const QSqlRecord& other )
 {
-    for ( uint i = 0; i < other.count(); ++i ) {
+    for ( int i = 0; i < other.count(); ++i ) {
 	push_back( QSqlFieldInfo( *(other.field( i )), other.isGenerated( i ) ) );
     }
 }

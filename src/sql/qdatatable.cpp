@@ -54,7 +54,7 @@ public:
 
     QString nullTxt;
     bool nullTxtChanged;
-    typedef QList< uint > ColIndex;
+    typedef QList< int > ColIndex;
     ColIndex colIndex;
     bool haveAllRows;
     bool continuousEdit;
@@ -89,7 +89,7 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
 {
     qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     qDebug(msg);
-    for ( uint j = 0; j < cursor->count(); ++j ) {
+    for ( int j = 0; j < cursor->count(); ++j ) {
 	qDebug(cursor->field(j)->name() + " type:" + QString(cursor->field(j)->value().typeName()) + " value:" + cursor->field(j)->value().toString() );
     }
 }
@@ -303,7 +303,7 @@ void QDataTable::addColumn( const QString& fieldName,
     \sa setSqlCursor() refresh()
 */
 
-void QDataTable::setColumn( uint col, const QString& fieldName,
+void QDataTable::setColumn( int col, const QString& fieldName,
 			    const QString& label,
 			    int width,
 			    const QIconSet& iconset )
@@ -322,7 +322,7 @@ void QDataTable::setColumn( uint col, const QString& fieldName,
     \sa QSqlField
 */
 
-void QDataTable::removeColumn( uint col )
+void QDataTable::removeColumn( int col )
 {
     if ( d->fld.begin() + (int)col != d->fld.end() ) {
 	d->fld.remove( d->fld.at( col ) );
@@ -357,7 +357,7 @@ void QDataTable::setColumnWidth( int col, int w )
 void QDataTable::adjustColumn( int col )
 {
     QSqlCursor * cur = sqlCursor();
-    if ( !cur || cur->count() <= (uint)col )
+    if ( !cur || cur->count() <= col )
 	return;
     if ( !cur->isActive() ) {
 	d->cur.refresh();
@@ -1252,7 +1252,7 @@ void QDataTable::find( const QString & str, bool caseSensitive, bool backwards )
 
     QSqlCursor * r = sqlCursor();
     QString tmp, text;
-    uint  row = currentRow(), startRow = row,
+    int  row = currentRow(), startRow = row,
 	  col = backwards ? currentColumn() - 1 : currentColumn() + 1;
     bool  wrap = TRUE, found = FALSE;
 
@@ -1299,7 +1299,7 @@ void QDataTable::find( const QString & str, bool caseSensitive, bool backwards )
 	    r->first();
 	    row = 0;
 	} else {
-	    if( startRow != (uint) (numRows() - 1) ){
+	    if( startRow != (int) (numRows() - 1) ){
 		startRow = numRows() - 1;
 	    } else {
 		wrap = FALSE;
@@ -1360,7 +1360,7 @@ void QDataTable::reset()
     is displayed in column \a i.
 */
 
-int QDataTable::indexOf( uint i ) const
+int QDataTable::indexOf( int i ) const
 {
     if ( (int)i < d->colIndex.size() )
 	return d->colIndex.at( i );
@@ -1818,7 +1818,7 @@ void QDataTable::setSqlCursor( QSqlCursor* cursor, bool autoPopulate, bool autoD
 	    d->fldWidth.clear();
 	    d->fldIcon.clear();
 	    d->fldHidden.clear();
-	    for ( uint i = 0; i < sqlCursor()->count(); ++i ) {
+	    for ( int i = 0; i < sqlCursor()->count(); ++i ) {
 		addColumn( sqlCursor()->field( i )->name(), sqlCursor()->field( i )->name() );
 		setColumnReadOnly( i, sqlCursor()->field( i )->isReadOnly() );
 	    }
