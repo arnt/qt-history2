@@ -37,7 +37,7 @@
 #include "qgfxdriverinterface_p.h"
 #include "qgfx_qws.h"
 
-/*!   \class QGfxDriverPlugin qimageformatplugin.h
+/*!   \class QGfxDriverPlugin qgfxdriverplugin_qws.h
   \brief The QGfxDriverPlugin class provides an abstract base for
   graphics driver plugins.
   \ingroup plugins
@@ -54,7 +54,7 @@
 
 /*! \fn QStringList QGfxDriverPlugin::keys() const
 
-  Returns the list of image formats this plugin supports.
+  Returns the list of graphics drivers this plugin supports.
 
   \sa create()
 */
@@ -125,7 +125,7 @@ QScreen* QGfxDriverPluginPrivate::create( const QString& driver, int displayId )
 }
 
 /*!
-  Constructs an image format plugin. This is invoked automatically by
+  Constructs a graphics driver plugin. This is invoked automatically by
   the Q_EXPORT_PLUGIN macro.
 */
 QGfxDriverPlugin::QGfxDriverPlugin()
@@ -134,7 +134,7 @@ QGfxDriverPlugin::QGfxDriverPlugin()
 }
 
 /*!
-  Destroys the image format plugin.
+  Destroys the graphics driver plugin.
 
   You never have to call this explicitly. Qt destroys a plugin
   automatically when it is no longer used.
