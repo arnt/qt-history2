@@ -1,41 +1,41 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#3 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#4 $
 **
-** Definition of QMetaFile class
+** Definition of QPicture class
 **
 ** Author  : Haavard Nord
 ** Created : 940729
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
-#ifndef QMETAFIL_H
-#define QMETAFIL_H
+#ifndef QPICTURE_H
+#define QPICTURE_H
 
 #include "qpaintd.h"
 #include "qbuffer.h"
 
 
-class QMetaFile : public QPaintDevice		// metafile class
+class QPicture : public QPaintDevice		// picture class
 {
 public:
-    QMetaFile();
-   ~QMetaFile();
+    QPicture();
+   ~QPicture();
 
-    bool play( QPainter * );
+    bool	play( QPainter * );
 
-    bool load( const char *fileName );		// read from file
-    bool save( const char *fileName );		// write to file
+    bool	load( const char *fileName );	// read from file
+    bool	save( const char *fileName );	// write to file
 
 public:
-    bool cmd( int, QPDevCmdParam * );
+    bool	cmd( int, QPDevCmdParam * );
 
 private:
-    QBuffer mfbuf;
-    long    trecs;
-    bool exec( QPainter *, QDataStream &s, long );
+    QBuffer	mfbuf;
+    long	trecs;
+    bool	exec( QPainter *, QDataStream &s, long );
 };
 
 
-#endif // QMETAFIL_H
+#endif // QPICTURE_H
