@@ -195,8 +195,10 @@ QGridLayoutData::QGridLayoutData( int nRows, int nCols )
 
 QGridLayoutData::~QGridLayoutData()
 {
-    things.deleteAll();
-    multi.deleteAll();
+    while (!things.isEmpty())
+	delete things.takeFirst();
+    while (!multi.isEmpty())
+	delete multi.takeFirst();
     delete hfwData;
 }
 
@@ -1419,7 +1421,7 @@ class QBoxLayoutData
 {
 public:
     QBoxLayoutData() : hfwWidth(-1), dirty(true) { }
-    ~QBoxLayoutData() { list.deleteAll(); }
+    ~QBoxLayoutData();
 
     void setDirty() {
 	geomArray.clear();
@@ -1440,6 +1442,12 @@ public:
     uint hasHfw : 1;
     uint dirty : 1;
 };
+
+QBoxLayoutData::~QBoxLayoutData()
+{
+    while (!list.isEmpty())
+	delete list.takeFirst();
+}
 
 class QBoxLayoutIterator : public QGLayoutIterator
 {
