@@ -1,4 +1,3 @@
-//depot/qt/main/tools/designer/src/components/buddyeditor/buddyeditor.cpp#3 - edit change 165263 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -14,7 +13,7 @@
 
 #include "buddyeditor.h"
 
-#include <formwindow.h>
+#include <abstractformwindow.h>
 
 #include <qtundo.h>
 #include <qdesigner_command.h>
@@ -44,7 +43,7 @@ void BuddyConnection::inserted()
         qWarning("BuddyConnection::inserted(): not a label");
         return;
     }
-    SetPropertyCommand command(buddyEditor()->form());
+    SetPropertyCommand command(buddyEditor()->formWindow());
     command.init(source, QLatin1String("buddy"), target->objectName());
     command.redo();
 }
@@ -56,7 +55,7 @@ void BuddyConnection::removed()
         qWarning("BuddyConnection::removed(): not a label");
         return;
     }
-    SetPropertyCommand command(buddyEditor()->form());
+    SetPropertyCommand command(buddyEditor()->formWindow());
     command.init(source, QLatin1String("buddy"), QString());
     command.redo();
 }
@@ -65,10 +64,10 @@ void BuddyConnection::removed()
 ** BuddyEditor
 */
 
-BuddyEditor::BuddyEditor(FormWindow *form, QWidget *parent)
+BuddyEditor::BuddyEditor(AbstractFormWindow *form, QWidget *parent)
     : ConnectionEdit(parent, form)
 {
-    m_form = form;
+    m_formWindow = form;
 }
 
 QWidget *BuddyEditor::widgetAt(const QPoint &pos) const
@@ -94,4 +93,9 @@ Connection *BuddyEditor::createConnection(QWidget *source, QWidget *destination)
 {
     Connection *con = new BuddyConnection(this, source, destination);
     return con;
+}
+
+AbstractFormWindow *BuddyEditor::formWindow() const
+{
+    return m_formWindow;
 }
