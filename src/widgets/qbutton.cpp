@@ -466,12 +466,10 @@ void QButton::setText( const QString &text )
 {
     if ( btext == text )
 	return;
-#ifndef QT_NO_ACCEL
-    if( !d || !d->a || !QAccel::shortcutKey( btext ).isEmpty() )
-	setAccel( QAccel::shortcutKey( text ) );
-
-#endif
     btext = text;
+#ifndef QT_NO_ACCEL
+    setAccel( QAccel::shortcutKey( text ) );
+#endif
 
     if ( bpixmap ) {
 	delete bpixmap;
@@ -507,11 +505,10 @@ void QButton::setPixmap( const QPixmap &pixmap )
     if ( bpixmap->depth() == 1 && !bpixmap->mask() )
 	bpixmap->setMask( *((QBitmap *)bpixmap) );
     if ( !btext.isNull() ) {
-#ifndef QT_NO_ACCEL
-	if( !d || !d->a || !QAccel::shortcutKey( btext ).isEmpty() )
-	    setAccel( QKeySequence() );
-#endif
 	btext = QString::null;
+#ifndef QT_NO_ACCEL
+	setAccel( QKeySequence() );
+#endif
     }
     if ( autoresize && newSize )
 	adjustSize();
