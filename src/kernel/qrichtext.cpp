@@ -231,7 +231,7 @@ QTextCursor::QTextCursor( QTextDocument *d )
 {
     nested = FALSE;
     idx = 0;
-    string = doc->firstParag();
+    string = doc ? doc->firstParag() : 0;
     tmpIndex = -1;
 }
 
@@ -259,6 +259,8 @@ int QTextCursor::totalOffsetY() const
 
 void QTextCursor::gotoIntoNested( const QPoint &globalPos )
 {
+    if ( !doc )
+	return;
     push();
     ox = 0;
     int bl, y;
@@ -325,7 +327,7 @@ void QTextCursor::insert( const QString &s, bool checkNewLine )
     string->format( -1, TRUE );
     if ( h != string->rect().height() )
 	invalidateNested();
-    else if ( doc->parent() )
+    else if ( doc && doc->parent() )
 	doc->nextDoubleBuffered = TRUE;
 }
 
@@ -371,6 +373,8 @@ void QTextCursor::push()
 
 void QTextCursor::pop()
 {
+    if ( !doc )
+	return;
     idx = indices.pop();
     string = parags.pop();
     ox = xOffsets.pop();
@@ -391,7 +395,7 @@ void QTextCursor::place( const QPoint &pos, QTextParag *s )
     QRect r;
     while ( s ) {
 	r = s->rect();
-	r.setWidth( doc->width() );
+	r.setWidth( doc ? doc->width() : QWIDGETSIZE_MAX );
 	if ( r.contains( pos ) )
 	    break;
 	s = s->next();
@@ -445,7 +449,7 @@ void QTextCursor::place( const QPoint &pos, QTextParag *s )
 
     setIndex( last, FALSE );
 
-    if ( parag()->at( last )->isCustom && parag()->at( last )->customItem()->isNested() ) {
+    if ( doc && parag()->at( last )->isCustom && parag()->at( last )->customItem()->isNested() ) {
 	gotoIntoNested( pos );
 	QPoint p( pos.x() - offsetX(), pos.y() - offsetY() );
 	place( p, document()->firstParag() );
@@ -454,6 +458,8 @@ void QTextCursor::place( const QPoint &pos, QTextParag *s )
 
 void QTextCursor::processNesting( Operation op )
 {
+    if ( !doc )
+	return;
     push();
     ox = 0;
     int bl, y;
@@ -644,17 +650,19 @@ void QTextCursor::gotoLineStart()
 void QTextCursor::gotoHome()
 {
     tmpIndex = -1;
-    string = doc->firstParag();
+    if ( doc )
+	string = doc->firstParag();
     idx = 0;
 }
 
 void QTextCursor::gotoEnd()
 {
-    if ( !doc->lastParag()->isValid() )
+    if ( doc && !doc->lastParag()->isValid() )
 	return;
 
     tmpIndex = -1;
-    string = doc->lastParag();
+    if ( doc )
+	string = doc->lastParag();
     idx = string->length() - 1;
 }
 
@@ -670,7 +678,7 @@ void QTextCursor::gotoPageUp( QTextView *view )
 	s = s->prev();
     }
 
-    if ( !s )
+    if ( !s && doc )
 	s = doc->firstParag();
 
     string = s;
@@ -689,7 +697,7 @@ void QTextCursor::gotoPageDown( QTextView *view )
 	s = s->next();
     }
 
-    if ( !s )
+    if ( !s && doc )
 	s = doc->lastParag();
 
     if ( !s->isValid() )
@@ -760,6 +768,8 @@ bool QTextCursor::atParagEnd()
 
 void QTextCursor::splitAndInsertEmtyParag( bool ind, bool updateIds )
 {
+    if ( !doc )
+	return;
     tmpIndex = -1;
     QTextFormat *f = 0;
     if ( doc->useFormatCollection() ) {
@@ -843,7 +853,7 @@ bool QTextCursor::remove()
 	string->format( -1, TRUE );
 	if ( h != string->rect().height() )
 	    invalidateNested();
-	else if ( doc->parent() )
+	else if ( doc && doc->parent() )
 	    doc->nextDoubleBuffered = TRUE;
 	return FALSE;
     } else if ( string->next() ) {
@@ -863,7 +873,7 @@ void QTextCursor::killLine()
     string->format( -1, TRUE );
     if ( h != string->rect().height() )
 	invalidateNested();
-    else if ( doc->parent() )
+    else if ( doc && doc->parent() )
 	doc->nextDoubleBuffered = TRUE;
 }
 
@@ -2891,10 +2901,10 @@ void QTextParag::drawParagBuffer( QPainter &painter, const QString &buffer, int 
 
     if ( drawSelections ) {
 	for ( int j = 0; j < numSelections; ++j ) {
-	    if ( doc && i > selectionStarts[ j ] && i <= selectionEnds[ j ] ) {
-		if ( doc->invertSelectionText( j ) )
+	    if ( i > selectionStarts[ j ] && i <= selectionEnds[ j ] ) {
+		if ( !doc || doc->invertSelectionText( j ) )
 		    painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
-		painter.fillRect( startX, lastY, bw, h, doc->selectionColor( j ) );
+		painter.fillRect( startX, lastY, bw, h, doc ? doc->selectionColor( j ) : cg.color( QColorGroup::Highlight ) );
 	    }
 	}
     }
@@ -3884,7 +3894,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	    continue;
 	}
 
-	if ( isWrapEnabled() && 
+	if ( isWrapEnabled() &&
 	     wrapAtColumn() == -1 && x + ww > w || wrapAtColumn() != -1 && col >= wrapAtColumn() ) {
 	    x = doc ? parag->document()->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 	    if ( x != left )
