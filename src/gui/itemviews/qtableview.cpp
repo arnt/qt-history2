@@ -337,6 +337,8 @@ void QTableViewItem::setData(int role, const QVariant &value)
     \brief The QTableView class provides a table view that uses the
     predefined QTableModel model.
 
+    \ingroup model-view
+
     If you want a table that uses your own data model you should
     subclass QGenericTableView rather than this class.
 

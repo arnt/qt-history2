@@ -323,7 +323,11 @@ public:
 /*!
   \class QTreeView qtreeview.h
 
-  \brief Tree view implementation using the QTreeModel by default
+  \brief The QTreeView class provides a tree view that uses the
+  predefined QTreeModel model.
+
+  \ingroup model-view
+
 */
 
 QTreeView::QTreeView(QWidget *parent)

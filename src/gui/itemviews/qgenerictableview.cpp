@@ -28,6 +28,8 @@
 
   \brief Table view implementation
 
+  \ingroup model-view
+
   This class implements a table representation of a QGenericItemView working
   on a QAbstractItemModel.
 */

@@ -96,6 +96,8 @@ void QAbstractItemViewPrivate::init()
     \brief The QAbstractItemView class is the base class for every
     view that uses a QAbstractItemModel.
 
+    \ingroup model-view
+
     This class is a QViewport subclass that provides all the
     functionality common to all views, such as keyboard and mouse
     support for editing items, scrolling, and selection control; (but

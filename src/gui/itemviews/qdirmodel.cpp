@@ -256,6 +256,8 @@ public:
 
   \brief data model for browsing the local filesystem.
 
+  \ingroup model-view
+
   This class provides access to the local filesystem,
   and provides functions for renaming and removing files
   and directories, and creating new directories.

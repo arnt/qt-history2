@@ -72,6 +72,8 @@ static const int default_height = 30;
 
   \brief This class provides a header row or column, for itemviews.
 
+  \ingroup model-view
+
 */
 
 QGenericHeader::QGenericHeader(QAbstractItemModel *model, Orientation o, QWidget *parent)

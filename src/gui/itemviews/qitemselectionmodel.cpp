@@ -31,6 +31,8 @@ QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) cons
 
   \brief QItemSelection stores the top-left and bottom-right QModelIndexs in a selection range
 
+  \ingroup model-view
+
 */
 
 QItemSelection::QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight,
@@ -186,6 +188,8 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
 
   \brief QItemSelectionModel keeps track of a views selected items and
   it's current item.
+
+  \ingroup model-view
 
   QItemSelectionModel keeps track of a view, or several views,
   selected items. It also keeps track of a views current item.

@@ -28,7 +28,10 @@
 /*!
   \class QGenericTreeViewItem qgenerictreeview.cpp
 
-  This class implements a QViewItem working on a QGenericTreeView.
+  \brief This class implements a QViewItem working on a QGenericTreeView.
+
+  \ingroup model-view
+
 */
 
 /*!
@@ -40,6 +43,8 @@
   \class QGenericTreeView qgenerictreeview.h
 
   \brief Tree view implementation
+
+  \ingroup model-view
 
   This class implements a tree representation of a QGenericItemView working
   on a QAbstractItemModel.

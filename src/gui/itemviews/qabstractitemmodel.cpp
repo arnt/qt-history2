@@ -213,6 +213,8 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 
     \brief The QModelIndex class is used to locate data in a data model.
 
+    \ingroup model-view
+
     This class is used as an index into QAbstractItemModel derived
     data models. The index is used by item views, delegates and
     selection models to locate an item in the model. QModelIndex
@@ -320,6 +322,8 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 
     \brief The QAbstractItemModel class provides an abstract model of
     a set of arbitrary data.
+
+    \ingroup model-view
 
     The underlying data model is a hierarchy of rows. If you don't
     make use of the hierarchy, then the model is a simple table of

@@ -25,6 +25,8 @@
     \brief The QAbstractItemDelegate class is used to display and edit
     data items from a model.
 
+    \ingroup model-view
+
     To render an item in a custom way, reimplement paint() and sizeHint().
 
     To provide custom editing, there are two approaches that can be
