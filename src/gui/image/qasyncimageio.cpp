@@ -718,7 +718,7 @@ void QGIFFormat::disposePrevious(QImage& img, QImageConsumer* consumer)
             consumer->changed(QRect(l, t, r-l+1, b-t+1));
         break;
       case RestoreImage: {
-        if (frame > 0) {
+        if (frame >= 0) {
             QRgb** line = (QRgb **)img.jumpTable();
             for (int ln=t; ln<=b; ln++) {
                 memcpy(line[ln]+l,
