@@ -402,6 +402,24 @@ QStyleOptionTab::QStyleOptionTab(int version)
     \sa position
 */
 
+
+/*! \enum QStyleOptionTab::SelectedPosition
+
+    \value NotAdjacent The tab is not adjacent to a selected tab (or is the selected tab).
+    \value NextIsSelected The next tab (typically the tab on the right) is selected.
+    \value PreviousIsSelected The previous tab (typically the tab on the left) is selected.
+
+    \sa selectedPosition
+*/
+
+/*!
+    \property QStyleOptionTab::selectedPosition
+
+    \brief The position of the selected tab in relation to this tab. Some styles
+    need to draw a tab differently depending on whether or not it is adjacent
+    to the selected tab.
+*/
+
 /*!
     \property QStyleOptionTab::shape
     \brief The tab shape used to draw the tab.

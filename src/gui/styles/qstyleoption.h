@@ -168,6 +168,7 @@ public:
     QDOC_PROPERTY(QIcon icon)
     QDOC_PROPERTY(int row)
     QDOC_PROPERTY(TabPosition position)
+    QDOC_PROPERTY(SelectedPosition selectedPosition)
 
 protected:
     QStyleOptionTab(int version);
