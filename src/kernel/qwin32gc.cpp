@@ -435,6 +435,12 @@ void QWin32GC::drawRect(int x, int y, int w, int h)
 	++h;
     }
 
+    // Due to inclusive rectangles when using GM_ADVANCED
+#ifndef NO_NATIVE_XFORM
+    --w;
+    --h;
+#endif
+
     if (d->nocolBrush) {
 	SetTextColor(d->hdc, d->bColor);
 	Rectangle(d->hdc, x, y, x+w, y+h);
@@ -917,39 +923,39 @@ void QWin32GC::updatePen(QPainterState *state)
 	    qWarning("QPainter::updatePen: Invalid pen style");
     }
 #ifndef Q_OS_TEMP
-//     if ((state->pen.width() != 0) || state->pen.width() > 1) &&
-// 	 (qt_winver & WV_NT_based || d->pStyle == SolidLine)) {
-// 	LOGBRUSH lb;
-// 	lb.lbStyle = 0;
-// 	lb.lbColor = d->pColor;
-// 	lb.lbHatch = 0;
-// 	int pst = PS_GEOMETRIC | s;
-// // 	qFatal( "not supported... yet.." );
-// 	switch (state->pen.capStyle()) {
-// 	    case SquareCap:
-// 		pst |= PS_ENDCAP_SQUARE;
-// 		break;
-// 	    case RoundCap:
-// 		pst |= PS_ENDCAP_ROUND;
-// 		break;
-// 	    case FlatCap:
-// 		pst |= PS_ENDCAP_FLAT;
-// 		break;
-// 	}
-// 	switch (state->pen.joinStyle()) {
-// 	    case BevelJoin:
-// 		pst |= PS_JOIN_BEVEL;
-// 		break;
-// 	    case RoundJoin:
-// 		pst |= PS_JOIN_ROUND;
-// 		break;
-// 	    case MiterJoin:
-// 		pst |= PS_JOIN_MITER;
-// 		break;
-// 	}
-// 	d->hpen = ExtCreatePen(pst, d->pWidth, &lb, 0, 0);
-//     }
-//     else
+    if (((state->pen.width() != 0) || state->pen.width() > 1) &&
+	 (qt_winver & WV_NT_based || d->pStyle == SolidLine)) {
+	LOGBRUSH lb;
+	lb.lbStyle = 0;
+	lb.lbColor = d->pColor;
+	lb.lbHatch = 0;
+	int pst = PS_GEOMETRIC | s;
+// 	qFatal( "not supported... yet.." );
+	switch (state->pen.capStyle()) {
+	    case SquareCap:
+		pst |= PS_ENDCAP_SQUARE;
+		break;
+	    case RoundCap:
+		pst |= PS_ENDCAP_ROUND;
+		break;
+	    case FlatCap:
+		pst |= PS_ENDCAP_FLAT;
+		break;
+	}
+	switch (state->pen.joinStyle()) {
+	    case BevelJoin:
+		pst |= PS_JOIN_BEVEL;
+		break;
+	    case RoundJoin:
+		pst |= PS_JOIN_ROUND;
+		break;
+	    case MiterJoin:
+		pst |= PS_JOIN_MITER;
+		break;
+	}
+	d->hpen = ExtCreatePen(pst, d->pWidth, &lb, 0, 0);
+    }
+    else
 #endif
     {
 	d->hpen = CreatePen(s, state->pen.width(), d->pColor);
