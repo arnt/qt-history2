@@ -37,6 +37,10 @@
 #include "qdebug.h"
 #include <limits.h>
 
+#ifdef Q_WS_X11
+#include "qx11info_x11.h"
+#endif
+
 // old constants that might still be useful...
 static const int motifItemFrame         = 2;    // menu item frame width
 static const int motifSepHeight         = 2;    // separator item height
@@ -2355,7 +2359,14 @@ QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *w
 
 QPalette QMotifStyle::standardPalette()
 {
+#ifdef Q_WS_X11
+    QColor background(0xcf, 0xcf, 0xcf);
+    if (QX11Info::appDepth() <= 8)
+        background = QColor(0xc0, 0xc0, 0xc0);
+#else
     QColor background = QColor(0xcf, 0xcf, 0xcf);
+#endif
+
     QColor light = background.light();
     QColor mid = QColor(0xa6, 0xa6, 0xa6);
     QColor dark = QColor(0x79, 0x7d, 0x79);
