@@ -157,8 +157,8 @@ int main( int argc, char **argv )
                 loadTsFile( tor, argv[i], verbose );
             }
         } else {
-            QString oldDir = QDir::currentDirPath();
-            QDir::setCurrent( QFileInfo(argv[i]).dirPath() );
+            QString oldDir = QDir::currentPath();
+            QDir::setCurrent( QFileInfo(argv[i]).path() );
 
             QMap<QString, QString> tagMap = proFileTagMap( fullText );
             QMap<QString, QString>::Iterator it;

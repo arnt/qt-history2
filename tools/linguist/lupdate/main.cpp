@@ -129,8 +129,8 @@ int main( int argc, char **argv )
             f.close();
         }
 
-        QString oldDir = QDir::currentDirPath();
-        QDir::setCurrent( QFileInfo(argv[i]).dirPath() );
+        QString oldDir = QDir::currentPath();
+        QDir::setCurrent( QFileInfo(argv[i]).path() );
 
         if ( standardSyntax ) {
             fetchedTor = MetaTranslator();
