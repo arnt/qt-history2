@@ -2413,6 +2413,7 @@ void QFileDialog::init()
 
 void QFileDialog::fileNameEditReturnPressed()
 {
+    d->oldUrl = d->url;
     if ( !isDirectoryMode( d->mode ) ) {
 	okClicked();
     } else {
@@ -2750,7 +2751,6 @@ void QFileDialog::setDir( const QDir &dir )
 
 void QFileDialog::setUrl( const QUrlOperator &url )
 {
-    d->oldUrl = d->url;
     QString nf = d->url.nameFilter();
     d->url = QUrl( d->url, url.toString( FALSE, FALSE ) );
     d->url.setNameFilter( nf );
