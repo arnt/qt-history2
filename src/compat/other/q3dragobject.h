@@ -30,7 +30,7 @@ class QTextDrag;
 class QImage;
 class QPixmap;
 
-class Q_GUI_EXPORT QDragObject : public QObject, public QMimeSource {
+class Q_COMPAT_EXPORT QDragObject : public QObject, public QMimeSource {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QDragObject)
 public:
@@ -60,7 +60,7 @@ private:
     Q_DISABLE_COPY(QDragObject)
 };
 
-class Q_GUI_EXPORT QStoredDrag: public QDragObject {
+class Q_COMPAT_EXPORT QStoredDrag: public QDragObject {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QStoredDrag)
 public:
@@ -79,7 +79,7 @@ private:
     Q_DISABLE_COPY(QStoredDrag)
 };
 
-class Q_GUI_EXPORT QTextDrag: public QDragObject {
+class Q_COMPAT_EXPORT QTextDrag: public QDragObject {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextDrag)
 public:
@@ -104,7 +104,7 @@ private:
     Q_DISABLE_COPY(QTextDrag)
 };
 
-class Q_GUI_EXPORT QImageDrag: public QDragObject {
+class Q_COMPAT_EXPORT QImageDrag: public QDragObject {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QImageDrag)
 public:
@@ -129,7 +129,7 @@ private:
 };
 
 
-class Q_GUI_EXPORT QUriDrag: public QStoredDrag {
+class Q_COMPAT_EXPORT QUriDrag: public QStoredDrag {
     Q_OBJECT
 
 public:
@@ -155,7 +155,7 @@ private:
     Q_DISABLE_COPY(QUriDrag)
 };
 
-class Q_GUI_EXPORT QColorDrag : public QStoredDrag
+class Q_COMPAT_EXPORT QColorDrag : public QStoredDrag
 {
     Q_OBJECT
     QColor color;
