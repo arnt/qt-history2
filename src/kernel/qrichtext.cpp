@@ -2990,8 +2990,8 @@ bool QTextDocument::find( QTextCursor& cursor, const QString &expr, bool cs, boo
 		int end = res + expr.length();
 		if ( res == -1 || ( !forward && start < res ) )
 		    break;
-		if ( !wo || ( ( res == 0 || s[ res - 1 ].isSpace() || s[ res - 1 ].isPunct() ) &&
-			      ( end == (int)s.length() || s[ end ].isSpace() || s[ end ].isPunct() ) ) ) {
+		if (!wo || ((res == 0 || !s[res-1].isLetterOrNumber())
+			    && (end == (int)s.length() || !s[end].isLetterOrNumber()) ) ) {
 		    removeSelection( Standard );
 		    cursor.setIndex( forward ? end : res );
 		    setSelectionStart( Standard, cursor );
