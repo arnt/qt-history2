@@ -120,7 +120,9 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
 #ifdef Q_OS_UNIX
     qt_application_thread_id = QThread::currentThread();
 #endif
-    QThreadData::setCurrent(mainData());
+    QThreadData *data = mainData();
+    data->id = 0;
+    QThreadData::setCurrent(data);
 }
 
 QCoreApplicationPrivate::~QCoreApplicationPrivate()
@@ -134,6 +136,7 @@ QCoreApplicationPrivate::~QCoreApplicationPrivate()
     QMutexLocker locker(&data->postEventList.mutex);
     data->postEventList.clear();
     data->postEventList.offset = 0;
+    data->id = -1;
 }
 
 void QCoreApplicationPrivate::createEventDispatcher()

@@ -20,6 +20,7 @@
 #include "qmetaobject.h"
 #include <qregexp.h>
 #include <qthread.h>
+#include <private/qthread_p.h>
 #include <qdebug.h>
 #include <qhash.h>
 #include <qreadwritelock.h>
@@ -522,7 +523,12 @@ QObject::QObject(QObject *parent)
     : d_ptr(new QObjectPrivate)
 {
     d_ptr->q_ptr = this;
-    d->thread = parent ? parent->d->thread : QThread::currentQThread();
+    if (parent) {
+        d->thread = parent->d->thread;
+    } else {
+        QThreadData *data = QThreadData::current();
+        d->thread = data ? data->id : 0;
+    }
     setParent(parent);
 }
 
@@ -537,7 +543,12 @@ QObject::QObject(QObject *parent, const char *name)
     : d_ptr(new QObjectPrivate)
 {
     d_ptr->q_ptr = this;
-    d->thread = parent ? parent->d->thread : QThread::currentQThread();
+    if (parent) {
+        d->thread = parent->d->thread;
+    } else {
+        QThreadData *data = QThreadData::current();
+        d->thread = data ? data->id : 0;
+    }
     setParent(parent);
     setObjectName(QString::fromAscii(name));
 }
@@ -557,7 +568,12 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
         }
         // no events sent here, this is done at the end of the QWidget constructor
     } else {
-        d->thread = parent ? parent->d->thread : QThread::currentQThread();
+        if (parent) {
+            d->thread = parent->d->thread;
+        } else {
+            QThreadData *data = QThreadData::current();
+            d->thread = data ? data->id : 0;
+        }
         setParent(parent);
     }
 }
@@ -603,9 +619,13 @@ QObject::~QObject()
 
     if (d->pendTimer) {
         // have pending timers
-        QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(d->thread);
-        if (eventDispatcher)
-            eventDispatcher->unregisterTimers(this);
+        QThread *thr = thread();
+        if (thr || d->thread == 0) {
+            // don't unregister timers in the wrong thread
+            QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thr);
+            if (eventDispatcher)
+                eventDispatcher->unregisterTimers(this);
+        }
     }
 
     d->eventFilters.clear();
@@ -980,7 +1000,7 @@ bool QObject::blockSignals(bool block)
 /*!
  */
 QThread *QObject::thread() const
-{ return d->thread; }
+{ return QThreadPrivate::threadForId(d->thread); }
 
 //
 // The timer flag hasTimer is set when startTimer is called.
@@ -1045,8 +1065,14 @@ QThread *QObject::thread() const
 
 int QObject::startTimer(int interval)
 {
+    QThread *thr = thread();
+    if (!thr && d->thread != 0) {
+        qWarning("QTimer can only be used with a valid thread");
+        return 0;
+    }
+
     d->pendTimer = true;                                // set timer flag
-    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(d->thread);
+    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thr);
     if (!eventDispatcher) {
         qWarning("QTimer can only be used with threads started with QThread");
         return 0;
@@ -1065,7 +1091,13 @@ int QObject::startTimer(int interval)
 
 void QObject::killTimer(int id)
 {
-    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(d->thread);
+    QThread *thr = thread();
+    if (!thr && d->thread != 0) {
+        qWarning("QTimer can only be used with a valid thread");
+        return;
+    }
+
+    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thread());
     if (!eventDispatcher) {
         qWarning("QTimer can only be used with threads started with QThread");
     } else {
@@ -2185,13 +2217,13 @@ public:
 };
 
 static void activate(QPublicObject * const sender, int signal_index, void **argv,
-                     const QThread * const currentQThread,
+                     int currentQThreadId,
                      QConnectionList::Hash::const_iterator it,
                      const QConnectionList::Hash::const_iterator end)
 {
     const int at = it.value();
     if (++it != end && it.key() == sender)
-        activate(sender, signal_index, argv, currentQThread, it, end);
+        activate(sender, signal_index, argv, currentQThreadId, it, end);
 
     QConnectionList * const list = ::connectionList();
     const QConnection &c = list->connections.at(at);
@@ -2203,7 +2235,7 @@ static void activate(QPublicObject * const sender, int signal_index, void **argv
     // determine if this connection should be sent immediately or
     // put into the event queue
     if ((c.type == Qt::AutoConnection
-         && (currentQThread != sender->d->thread || receiver->d->thread != sender->d->thread))
+         && (currentQThreadId != sender->d->thread || receiver->d->thread != sender->d->thread))
         || (c.type == Qt::QueuedConnection)) {
         ::queued_activate(sender, c, argv);
         return;
@@ -2252,8 +2284,9 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
         return;
     void *empty_argv[] = { 0 };
     ++list->invariant;
+    QThreadData *data = QThreadData::current();
     ::activate(static_cast<QPublicObject *>(obj), signal_index, argv ? argv : empty_argv,
-               QThread::currentQThread(), it, list->sendersHash.end());
+               data ? data->id : 0, it, list->sendersHash.end());
     --list->invariant;
 }
 

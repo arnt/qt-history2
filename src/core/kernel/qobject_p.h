@@ -43,8 +43,8 @@ public:
     QObjectPrivate(int version = QObjectPrivateVersion);
     virtual ~QObjectPrivate();
 
-    // pointer to the thread that owns the object
-    QThread *thread;
+    // id of the thread that owns the object
+    int thread;
 
     // object currently activating the object
     QObject *currentSender;

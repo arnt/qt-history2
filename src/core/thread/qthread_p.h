@@ -71,6 +71,7 @@ public:
 
     static QThreadData *get(QThread *thread);
 
+    int id;
     QAbstractEventDispatcher *eventDispatcher;
     QStack<QEventLoop *> eventLoops;
     QPostEventList postEventList;
@@ -91,6 +92,8 @@ public:
     bool terminated;
 
     uint stackSize;
+
+    static QThread *threadForId(int id);
 
 #ifdef Q_OS_UNIX
     pthread_t thread_id;

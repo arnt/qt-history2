@@ -15,6 +15,7 @@
 #include "qthreadstorage.h"
 #include "qmutex.h"
 #include "qmutexpool_p.h"
+#include "qreadwritelock.h"
 
 #include <qeventloop.h>
 #include <qhash.h>
@@ -27,15 +28,17 @@
 */
 
 QThreadData::QThreadData()
-    : eventDispatcher(0), tls(0)
+    : id(-1), eventDispatcher(0), tls(0)
 { }
 
 QThreadData::~QThreadData()
 {
     for (int i = 0; i < postEventList.size(); ++i) {
         const QPostEvent &pe = postEventList.at(i);
-        pe.event->posted = false;
-        delete pe.event;
+        if (pe.event) {
+            pe.event->posted = false;
+            delete pe.event;
+        }
     }
 }
 
@@ -61,8 +64,30 @@ QThreadPrivate::QThreadPrivate()
     terminationEnabled = true;
     terminatePending = false;
 #endif
+
+    static QBasicAtomic idCounter = Q_ATOMIC_INIT(1);
+    for (;;) {
+        data.id = idCounter;
+        if (idCounter.testAndSet(data.id, data.id + 1))
+            break;
+    }
 }
 
+struct QThreadIdHash {
+    QReadWriteLock lock;
+    QHash<int, QThread *> table;
+};
+
+Q_GLOBAL_STATIC(QThreadIdHash, threadIdHash)
+
+/*! \internal
+ */
+QThread *QThreadPrivate::threadForId(int id)
+{
+    QThreadIdHash *idHash = threadIdHash();
+    QReadWriteLockLocker locker(&idHash->lock, QReadWriteLock::ReadAccess);
+    return idHash->table.value(id);
+}
 
 /*!
     \class QThread qthread.h
@@ -166,7 +191,12 @@ QThreadPrivate::QThreadPrivate()
 */
 QThread::QThread(QObject *parent)
     : QObject(*(new QThreadPrivate), parent)
-{ }
+{
+    Q_D(QThread);
+    QThreadIdHash *idHash = threadIdHash();
+    QReadWriteLockLocker locker(&idHash->lock, QReadWriteLock::WriteAccess);
+    idHash->table.insert(d->data.id, this);
+}
 
 /*!
     QThread destructor.
@@ -179,9 +209,15 @@ QThread::QThread(QObject *parent)
 QThread::~QThread()
 {
     Q_D(QThread);
-    QMutexLocker locker(&d->mutex);
-    if (d->running && !d->finished)
-        qWarning("QThread object destroyed while thread is still running.");
+    {
+        QMutexLocker locker(&d->mutex);
+        if (d->running && !d->finished)
+            qWarning("QThread object destroyed while thread is still running.");
+    }
+
+    QThreadIdHash *idHash = threadIdHash();
+    QReadWriteLockLocker locker(&idHash->lock, QReadWriteLock::WriteAccess);
+    idHash->table.remove(d->data.id);
 }
 
 /*!
