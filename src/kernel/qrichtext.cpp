@@ -2683,7 +2683,7 @@ void QTextDocument::removeSelectedText( int id, QTextCursor *cursor )
 	cursor->setValid( FALSE );
 
     bool didGoLeft = FALSE;
-    if (  c1.index() == 0 ) {
+    if (  c1.index() == 0 && c1.parag() != fParag ) {
 	cursor->gotoPreviousLetter();
 	if ( cursor->isValid() )
 	    didGoLeft = TRUE;
