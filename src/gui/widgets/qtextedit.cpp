@@ -345,23 +345,6 @@ void QTextEditPrivate::placeCursor(const QPoint &pos)
     selectionChanged();
 }
 
-void QTextEditPrivate::ensureCursorVisible()
-{
-    QTextBlock block = cursor.block();
-    QTextLayout *layout = block.layout();
-    QPoint layoutPos = layout->position();
-    const int relativePos = cursor.position() - block.position();
-    QTextLine line = layout->findLine(relativePos);
-    if (!line.isValid())
-        return;
-
-    int x = layoutPos.x() + line.cursorToX(relativePos);
-    int y = layoutPos.y() + line.y();
-    int height = line.ascent() + line.descent();
-    const int width = 1;
-    q->ensureVisible(x, y + (height / 2), width, (height / 2) + 2);
-}
-
 void QTextEditPrivate::setCursorPosition(int pos, QTextCursor::MoveMode mode)
 {
     cursor.setPosition(pos, mode);
@@ -1255,6 +1238,26 @@ void QTextEdit::append(const QString &text)
 
     if (atBottom)
         setContentsPos(contentsX(), contentsHeight() - visibleHeight());
+}
+/*!
+    Ensures that the cursor is visible by scrolling the text edit if
+    necessary.
+*/
+void QTextEdit::ensureCursorVisible()
+{
+    QTextBlock block = d->cursor.block();
+    QTextLayout *layout = block.layout();
+    QPoint layoutPos = layout->position();
+    const int relativePos = d->cursor.position() - block.position();
+    QTextLine line = layout->findLine(relativePos);
+    if (!line.isValid())
+        return;
+
+    int x = layoutPos.x() + line.cursorToX(relativePos);
+    int y = layoutPos.y() + line.y();
+    int height = line.ascent() + line.descent();
+    const int width = 1;
+    ensureVisible(x, y + (height / 2), width, (height / 2) + 2);
 }
 
 #include "moc_qtextedit.cpp"

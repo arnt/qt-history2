@@ -95,6 +95,8 @@ public:
 
     void append(const QString &text);
 
+    void ensureCursorVisible();
+
 public slots:
     void setFontPointSize(float size);
     void setFontFamily(const QString &family);
@@ -247,6 +249,16 @@ public:
     inline QT_COMPAT bool underline() const { return fontUnderline(); }
     inline QT_COMPAT QString family() const { return fontFamily(); }
     inline QT_COMPAT int pointSize() const { return (int)(fontPointSize()+0.5); }
+
+    inline QT_COMPAT void setCursorPosition(int para, int index)
+    {
+        QTextCursor c = cursor();
+        c.moveTo(QTextCursor::Start);
+        c.moveTo(QTextCursor::NextBlock, QTextCursor::MoveAnchor, para);
+        c.moveTo(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, index);
+        setCursor(c);
+    }
+
 #endif
 };
 
