@@ -12,6 +12,7 @@
 #include <qmenubar.h>
 #include <qstatusbar.h>
 #include <qsplitter.h>
+#include <qregexp.h>
 #if defined(_OS_WIN32_)
 #include <direct.h>
 #else
