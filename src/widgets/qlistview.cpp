@@ -6826,7 +6826,7 @@ bool QListView::rootIsDecorated() const
 
 void QListView::ensureItemVisible( const QListViewItem * i )
 {
-    if ( !i )
+    if ( !i || !i->isVisible() )
 	return;
 
     QListViewItem *parent = i->parent();
