@@ -39,15 +39,14 @@ class QSqlModelPrivate: public QAbstractItemModelPrivate
 {
     Q_DECLARE_PUBLIC(QSqlModel);
 public:
-    QSqlModelPrivate(): lastRowIndex(-1), atEnd(false) {}
+    QSqlModelPrivate(): atEnd(false) {}
 
-    void prefetch();
+    void prefetch(int);
 
     mutable QSqlQuery query;
     mutable QSqlError error;
     QModelIndex bottom;
     QSqlRecord rec;
-    int lastRowIndex;
     uint atEnd : 1;
     QVector<QVariant> headers;
     QVarLengthArray<int, 56> colOffsets; // used to calculate dataIndex of columns

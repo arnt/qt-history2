@@ -20,26 +20,30 @@
 #include "qsqlmodel_p.h"
 
 #define d d_func()
+#define q q_func()
 
 #define QSQL_PREFETCH 15 // ### make this configurable
 
-void QSqlModelPrivate::prefetch()
+void QSqlModelPrivate::prefetch(int limit)
 {
-    int limit = lastRowIndex + QSQL_PREFETCH;
-    if (!query.seek(lastRowIndex)) {
-        d->error = query.lastError();
+    if (atEnd || limit <= bottom.row())
         return;
+
+    QModelIndex oldBottom = q->createIndex(bottom.row(), 0);
+
+    // try to seek directly
+    if (query.seek(limit)) {
+        bottom = q->createIndex(limit, bottom.column());
+    } else {
+        // fetch as far as we can
+        if (!query.last())
+            error = query.lastError();
+        else
+            bottom = q->createIndex(query.at(), bottom.column());
+        atEnd = true; // this is the end.
     }
-    while (lastRowIndex < limit) {
-        if (!query.next()) {
-            // hooray - found the end of the result set
-            bottom = q_func()->createIndex(lastRowIndex, bottom.column());
-            atEnd = true;
-            return;
-        }
-        ++lastRowIndex;
-    }
-    bottom = q_func()->createIndex(lastRowIndex, bottom.column());
+    if (bottom.row() > oldBottom.row())
+        emit q->contentsInserted(oldBottom, bottom);
 }
 
 QSqlModel::QSqlModel(QObject *parent)
@@ -60,19 +64,14 @@ QSqlModel::~QSqlModel()
  */
 void QSqlModel::fetchMore()
 {
-    if (d->atEnd)
-        return;
-    QModelIndex idx = createIndex(d->bottom.row(), 0);
-    d->prefetch();
-    if (idx.row() != d->bottom.row())
-        emit contentsInserted(idx, d->bottom);
+    d->prefetch(d->bottom.row() + QSQL_PREFETCH);
 }
 
 /*! \reimp
  */
 int QSqlModel::rowCount(const QModelIndex &) const
 {
-    return d->lastRowIndex + 1;
+    return d->bottom.row() + 1;
 }
 
 /*! \reimp
@@ -104,7 +103,7 @@ QVariant QSqlModel::data(const QModelIndex &item, int role) const
 
     if (item.type() == QModelIndex::HorizontalHeader) {
         QVariant val = d->headers.value(item.column());
-        if (val.type() != QVariant::Invalid)
+        if (val.isValid())
             return val;
         return d->rec.fieldName(item.column());
     }
@@ -118,6 +117,9 @@ QVariant QSqlModel::data(const QModelIndex &item, int role) const
     if (!d->rec.isGenerated(item.column()))
         return v;
     QModelIndex dItem = dataIndex(item);
+    if (dItem.row() > d->bottom.row())
+        const_cast<QSqlModelPrivate *>(d)->prefetch(dItem.row());
+
     if (!d->query.seek(dItem.row())) {
         d->error = d->query.lastError();
         return v;
@@ -145,7 +147,6 @@ void QSqlModel::setQuery(const QSqlQuery &query)
         emit contentsRemoved(index(0, 0), d->bottom);
     if (!query.isActive() || query.isForwardOnly()) {
         d->atEnd = true;
-        d->lastRowIndex = 0;
         d->bottom = QModelIndex();
         if (query.isForwardOnly())
             d->error = QSqlError("Forward-only queries cannot be used in a data model",
@@ -156,12 +157,9 @@ void QSqlModel::setQuery(const QSqlQuery &query)
     }
     if (d->query.driver()->hasFeature(QSqlDriver::QuerySize)) {
         d->atEnd = true;
-        d->lastRowIndex = d->query.size();
-        d->bottom = createIndex(d->lastRowIndex, d->rec.count() - 1);
+        d->bottom = createIndex(d->query.size(), d->rec.count() - 1);
     } else {
-        d->lastRowIndex = 0;
         d->bottom = createIndex(0, d->rec.count() - 1);
-//        d->prefetch();
     }
     emit contentsInserted(index(0, 0), d->bottom);
 }
