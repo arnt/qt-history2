@@ -1895,7 +1895,7 @@ QList<QPair<QString, QString> > QUrl::queryItems() const
 bool QUrl::hasQueryItem(const QString &key) const
 {
     if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
-    
+
     QList<QPair<QString, QString> > items = queryItems();
     QList<QPair<QString, QString> >::ConstIterator it = items.constBegin();
     while (it != items.constEnd()) {
@@ -1916,7 +1916,7 @@ bool QUrl::hasQueryItem(const QString &key) const
 QString QUrl::queryItemValue(const QString &key) const
 {
     if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
-    
+
     QList<QPair<QString, QString> > items = queryItems();
     QList<QPair<QString, QString> >::ConstIterator it = items.constBegin();
     while (it != items.constEnd()) {
@@ -1966,7 +1966,7 @@ void QUrl::removeQueryItem(const QString &key)
     QList<QPair<QString, QString> >::Iterator it = items.begin();
     while (it != items.end()) {
         if ((*it).first == key) {
-            items.remove(it);
+            items.erase(it);
             break;
         }
         ++it;
@@ -1989,7 +1989,7 @@ void QUrl::removeAllQueryItems(const QString &key)
     QList<QPair<QString, QString> >::Iterator it = items.begin();
     while (it != items.end()) {
         if ((*it).first == key) {
-            it = items.remove(it);
+            it = items.erase(it);
             continue;
         }
         ++it;
