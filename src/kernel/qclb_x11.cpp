@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclb_x11.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qclb_x11.cpp#13 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_x11.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_x11.cpp#13 $");
 
 
 /*****************************************************************************
@@ -235,7 +235,7 @@ void *QClipboard::data( const char *format ) const
 	QTime now = QTime::currentTime();
 	if ( started > now )			// crossed midnight
 	    started = now;
-	if ( started.msecsTo(started) > 5000 ) {
+	if ( started.msecsTo(now) > 5000 ) {
 	    return 0;
 	}
     }
