@@ -462,43 +462,51 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 /*!
     \class QAbstractItemModel qabstractitemmodel.h
 
-    \brief The QAbstractItemModel class provides an abstract model of
-    a set of arbitrary data.
+    \brief The QAbstractItemModel class provides the abstract interface for
+    item model classes.
 
     \ingroup model-view
 
-    The underlying data model is a hierarchy of tables. If you don't
-    make use of the hierarchy, then the model is a simple table of
-    rows and columns. Each item has a unique index specified by a
-    QModelIndex.
+    The QAbstractItemModel class defines the standard interface that
+    item models must use to be able to interoperate with other
+    components in the model/view architecture. It is not supposed to
+    be instantiated directly. Instead, you should subclass it to create
+    new models.
+
+    If you need a model to use with a QListView or a QTableView, you
+    should consider subclassing QAbstractListModel or QAbstractTableModel
+    instead of this class.
+
+    The underlying data model is exposed to views and delegates as
+    a hierarchy of tables. If you don't make use of the hierarchy,
+    then the model is a simple table of rows and columns. Each item
+    has a unique index specified by a QModelIndex.
 
     Every item has an index(), and possibly a sibling() index; child
     items have a parent() index. hasChildren() is true for items that
     have children. Each item has a number of data elements associated
     with them, each with a particular \c Role. Data elements are set
     individually with setData(), or for all roles with setItemData().
-    Data is retrieved with data() (for an element with a given role),
-    or with itemData() (for every role's element data). Items can be
-    queried with isSelectable() and isEditable(). An item can be
-    searched for using match().
-
-    To customize sorting and searching, comparison functions can be
-    reimplemented, for example, lessThan(), equal(), and
-    greaterThan().
+    Data is retrieved from an item with data() (for a single role),
+    or with itemData() (for every role). Items can be queried with
+    isSelectable() and isEditable(). An item can be searched for using
+    match().
 
     The model has a rowCount() and a columnCount() for each level of
-    the hierarchy, and indexes for the topLeft() and bottomRight().
-    Sometimes it is difficult to determine the size of a model (for
-    example, if it is being delivered via a data stream), in which
-    case it may be necessary to implement fetchMore(). If the model
-    isSortable(), it can be sorted with sort().
-
+    the hierarchy.
     Rows and columns can be inserted and removed with insertRow(),
     insertColumn(), removeRow(), and removeColumn().
 
-    The model emits signals to indicate changes, for example,
-    dataChanged(), rowsInserted(), columnsInserted(), rowsRemoved()
-    and columnsRemoved().
+    The model emits signals to indicate changes. For example,
+    dataChanged() is emitted whenever the contents of the model are
+    changed; rowsInserted(), columnsInserted(), rowsRemoved(),
+    and columnsRemoved() are emitted when the model's dimensions
+    are changed.
+
+    If the model isSortable(), it can be sorted with sort(). To
+    customize sorting and searching, comparison functions can be
+    reimplemented; for example, lessThan(), equal(), and
+    greaterThan().
 
     When subclassing QAbstractItemModel, at the very least you must
     implement index(), parent(), rowCount(), columnCount(), and data().
@@ -627,14 +635,16 @@ QAbstractItemModel::~QAbstractItemModel()
     it, each with its own role. The roles are used when visualizing
     and editing the items in the views.
 
-    \value DisplayRole The data rendered as text.
-    \value DecorationRole The data rendered as an icon.
-    \value EditRole The data in a form suitable for editing in an item editor.
-    \value ToolTipRole The data displayed in the item's tooltip.
-    \value StatusTipRole The data displayed in the status bar.
-    \value WhatsThisRole The data displayed for the item in "What's This?"
-    mode.
-    \value UserRole The first custom role defined by the user.
+    \value DisplayRole    The data to be rendered as text.
+    \value DecorationRole The data to be rendered as an icon.
+    \value EditRole       The data in a form suitable for editing in an
+                          editor.
+    \value ToolTipRole    The data displayed in the item's tooltip.
+    \value StatusTipRole  The data displayed in the status bar.
+    \value WhatsThisRole  The data displayed for the item in "What's This?"
+                          mode.
+    \value UserRole       The first role that can be used for
+                          application-specific purposes.
 */
 
 /*!
@@ -922,13 +932,13 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &) const
 /*!
     \enum QAbstractItemModel::MatchFlag
 
-    \value MatchContains The value is contained in the item.
+    \value MatchContains  The value is contained in the item.
     \value MatchFromStart The value matches the start of the item.
-    \value MatchFromEnd The value matches the end of the item.
-    \value MatchExactly The value matches the item exactly.
-    \value MatchCase The search is case sensitive.
-    \value MatchWrap The search wraps around.
-    \value MatchDefault The default match, which is MatchFromStart|MatchWrap.
+    \value MatchFromEnd   The value matches the end of the item.
+    \value MatchExactly   The value matches the item exactly.
+    \value MatchCase      The search is case sensitive.
+    \value MatchWrap      The search wraps around.
+    \value MatchDefault   The default match, which is MatchFromStart|MatchWrap.
 */
 
 /*!
@@ -1095,23 +1105,23 @@ QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 
 /*!
     \class QAbstractTableModel
-    \brief The QAbstractTableModel class provides a default model to use with
-    the QTableView class.
+    \brief The QAbstractTableModel class provides an abstract model that can be
+    subclassed to create table models.
 
     \ingroup model-view
 
-    A QAbstractTableModel is a ready-made model for use with the generic view
-    widgets. In particular, it is intended for use with QTableView.
-    The model provides a two-dimensional model in which data can be stored,
-    containing a number of rows and columns.
+    QAbstractTableModel provides a standard interface for models that represent
+    their data as a two-dimensional array of items. It is not used directly,
+    but must be subclassed.
 
-    If you need to represent a simple list of items, and only need a model to
-    contain a single column of data, the QAbstractListModel may be more
-    appropriate. For hierarchical lists, for use with QTreeView, it is
-    necessary to subclass QAbstractItemModel.
+    Since the model provides a more specialized interface than
+    QAbstractItemModel, it is not suitable for use with tree views, although
+    it can be used to provide data to a QListView. If you need to represent
+    a simple list of items, and only need a model to contain a single column
+    of data, subclassing the QAbstractListModel may be more appropriate.
 
     The rowCount() and columnCount() functions return the dimensions of the
-    table. To retrieve a model index corresponding to an item in the mode, use
+    table. To retrieve a model index corresponding to an item in the model, use
     index() and provide only the row and column numbers.
 
     When subclassing QAbstractTableModel, you must implement rowCount(),
@@ -1225,35 +1235,37 @@ int QAbstractTableModel::columnCount(const QModelIndex &parent) const
 
 /*!
     \class QAbstractListModel
-    \brief The QAbstractListModel class provides a default model to use with the
-    QListView class.
+    \brief The QAbstractListModel class provides an abstract model that can be
+    subclassed to create one-dimensional list models.
 
     \ingroup model-view
 
-    A QAbstractListModel is used to store a list of items, typically for
-    display in a list view. Since the model represents a simple non-hierarchical
-    sequence of items, it is not suitable for use with a tree view; you will
-    need to subclass QAbstractItemModel for that purpose.
+    QAbstractListModel provides a standard interface for models that represent
+    their data as a simple non-hierarchical sequence of items. It is not used
+    directly, but must be subclassed.
 
-    If you need to use a number of list models to manage data, it may be more
-    appropriate to use the QAbstractTableModel class.
+    Since the model provides a more specialized interface than
+    QAbstractItemModel, it is not suitable for use with tree views; you will
+    need to subclass QAbstractItemModel if you want to provide a model for
+    that purpose. If you need to use a number of list models to manage data,
+    it may be more appropriate to subclass QAbstractTableModel class instead.
 
-    QAbstractListModel is not used directly, but must be subclassed. For example,
-    we can implement a simple QStringList-based model that provides a list of
-    strings to a QListView widget. In such a case, we only need to
-    implement the rowCount() function to return the number of items in the list,
-    and the data() function to retrieve items from the list.
-
+    Simple models can be created by subclassing this class and implementing
+    the minimum number of required functions. For example, we could implement
+    a simple read-only QStringList-based model that provides a list of strings
+    to a QListView widget. In such a case, we only need to implement the
+    rowCount() function to return the number of items in the list, and the
+    data() function to retrieve items from the list.
 
     Since the model represents a one-dimensional structure, the rowCount()
-    function returns the number of items in the model. The columnCount() function
-    is implemented for interoperability with all kinds of views, but
+    function returns the total number of items in the model. The columnCount()
+    function is implemented for interoperability with all kinds of views, but
     by default informs views that the model contains only one column.
 
-    When subclassing QAbstractListModel, you must provide an implementation
-    of the rowCount() function. A default implementation of columnCount()
-    is provided that informs views that there is only a single column of
-    items in this model.
+    When subclassing QAbstractListModel, you must provide implementations
+    of the rowCount() and data() functions. A default implementation of
+    columnCount() is provided that informs views that there is only a single
+    column of items in this model.
 
     \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemView QAbstractTableView
 
