@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#32 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#33 $
 **
 ** Definition of QFont class
 **
@@ -110,10 +110,10 @@ private:
 };
 
 
-bool QFont::bold() const
+inline bool QFont::bold() const
 { return weight() > Normal; }
 
-void QFont::setBold( bool enable )
+inline void QFont::setBold( bool enable )
 { setWeight( enable ? Bold : Normal ); }
 
 
