@@ -833,13 +833,14 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 	qt_clear_paintevent_clipping( this );
 	clearWState( WState_InPaintEvent );
 
-#if 1	//When repaint is called the user probably expects a screen update?
-	QPoint p(posInWindow(this));
-	QRegion clean(reg);
-	clean.translate(p.x(), p.y());
-	clean &= clippedRegion();
-	if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd)))
+#ifdef Q_WS_MACX //When repaint is called the user probably expects a screen update?
+	if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd))) {
+	    QPoint p(posInWindow(this));
+            QRegion clean(reg);
+	    clean.translate(p.x(), p.y());
+	    clean &= clippedRegion();
 	    QDFlushPortBuffer(GetWindowPort((WindowPtr)hd), (RgnHandle)clean.handle());
+	}
 #endif
     }
 }
