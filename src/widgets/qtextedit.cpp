@@ -865,7 +865,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 {
     changeIntervalTimer->stop();
     interval = 10;
-
+    bool unknown = FALSE;
     if ( isReadOnly() ) {
 	if ( !handleReadOnlyKeyEvent( e ) )
 	    QScrollView::keyPressEvent( e );
@@ -1013,8 +1013,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		    insert( e->text(), TRUE, FALSE );
 		}
 		break;
-	    }
-	    if ( e->state() & ControlButton ) {
+	    } else if ( e->state() & ControlButton ) {
 		switch ( e->key() ) {
 		case Key_C: case Key_F16: // Copy key on Sun keyboards
 		    copy();
@@ -1088,10 +1087,14 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		    del();
 		    break;
 #endif
+		default:
+		    unknown = FALSE;
+		    break;
 		}
-		break;
+	    } else {
+		unknown = TRUE;
 	    }
-	}
+        }
     }
 
     emit cursorPositionChanged( cursor );
@@ -1099,6 +1102,8 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
     if ( clearUndoRedoInfo )
 	clearUndoRedo();
     changeIntervalTimer->start( 100, TRUE );
+    if ( unknown )
+	e->ignore();
 }
 
 /*! \reimp */
