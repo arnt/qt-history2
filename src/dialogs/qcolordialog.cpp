@@ -107,12 +107,18 @@ class QColorWell : public QWellArray
 public:
     QColorWell( QWidget *parent, int r, int c, QRgb *vals )
 	:QWellArray( parent, "" ), values( vals ) { setDimension(r,c); setWFlags( WResizeNoErase ); }
+    QSizePolicy sizePolicy() const;
 protected:
     void drawContents( QPainter *, int row, int col, const QRect& );
     void drawContents( QPainter *p ) { QWellArray::drawContents(p); }
 private:
     QRgb *values;
 };
+
+QSizePolicy QColorWell::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+}
 
 void QColorWell::drawContents( QPainter *p, int row, int col, const QRect &r )
 {
