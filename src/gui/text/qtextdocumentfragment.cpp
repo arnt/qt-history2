@@ -382,6 +382,7 @@ QTextHTMLImporter::QTextHTMLImporter(QTextDocumentFragmentPrivate *_d, const QSt
     : d(_d), indent(0)
 {
     parse(html);
+//    dumpHtml();
 }
 
 void QTextHTMLImporter::import()
@@ -521,11 +522,11 @@ void QTextHTMLImporter::import()
 void QTextHTMLImporter::closeTag(int i)
 {
     const bool atLastNode = (i == count() - 1);
-    const QTextHtmlParserNode *node = &at(i);
-    const int grandParent = atLastNode ? 0 : at(node->parent).parent;
     const QTextHtmlParserNode *closedNode = &at(i - 1);
+    const int endDepth = atLastNode ? - 1 : depth(i) - 1;
+    int depth = this->depth(i - 1);
 
-    while (closedNode->parent != grandParent || (atLastNode && closedNode != &at(0))) {
+    while (depth > endDepth) {
         if (closedNode->tag == QLatin1String("tr")) {
             Q_ASSERT(!tables.isEmpty());
 
@@ -560,6 +561,7 @@ void QTextHTMLImporter::closeTag(int i)
         }
 
         closedNode = &at(closedNode->parent);
+        --depth;
     }
 }
 
