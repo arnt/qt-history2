@@ -117,9 +117,9 @@
     \code
 	accelerator->insertItem( QKeySequence("M") );
     \endcode
-    can be triggered with both the key 'M', and with 'Shift + M',
-    unless a second accelerator is defined for the 'Shift + M'
-    combination. 
+    can be triggered with both the 'M' key, and with Shift+M,
+    unless a second accelerator is defined for the Shift+M
+    combination.
 
 
     Example:
@@ -691,9 +691,13 @@ void QAccel::setItemEnabled( int id, bool enable )
     \endcode
 
     Of course, you can also send a signal as \a member.
-    When a slot is connected to a specific accelerator item, the
-    signal is only sent to this item and not to the accelerator
-    group. Thus, the signal \c activated(int id) is not emitted.
+
+    Normally accelerators are connected to slots which then receive
+    the \c activated(int id) signal with the id of the accelerator
+    item that was activated. If you choose to connect a specific
+    accelerator item using this function, the \c activated() signal is
+    emitted if the associated key sequence is pressed but no \c
+    activated(int id) signal is emitted.
 
     \sa disconnectItem()
 */
