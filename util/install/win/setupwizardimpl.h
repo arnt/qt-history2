@@ -9,9 +9,47 @@
 #include <qmap.h>
 #include <qptrdict.h>
 #include <qwizard.h>
+#include <qlistview.h>
 
 class QCheckListItem;
 class QListView;
+
+class CheckListItem : public QCheckListItem
+{
+public:
+    CheckListItem(QListView *listview, const QString &text, Type = RadioButtonController);
+    CheckListItem(QCheckListItem *parent, const QString &text, Type = RadioButtonController);
+
+    void setHelpText(const QString &help, QTextView *display);
+    void setWarningText(const QString &warning, CheckListItem *conflict = 0);
+    void addRequiredFiles(const QString &file);
+    void setRequiredFileLocation(const QString &location);
+
+    void setOpen(bool on);
+    void setOn(bool on);
+    void setCritical(bool on);
+
+    int rtti() const;
+    static int RTTI;
+
+    void displayHelp();
+    bool verify() const;
+
+    void paintCell( QPainter *, const QColorGroup & cg, int column, int width, int alignment );
+
+protected:
+    bool testAndWarn();
+    void activate();
+
+private:
+    QString help_text;
+    QString warning_text;
+    QTextView *help_display;
+    QStringList required_files;    
+    QString file_location;
+    CheckListItem *conflict_with;
+    bool critical;
+};
 
 class SetupWizardImpl : public QWizard
 {
@@ -21,6 +59,8 @@ public:
 
     void showPage( QWidget* );
     void stopProcesses();
+
+    void optionClicked( CheckListItem * );
 
 signals:
     void wizardPages( const QPtrList<Page>& );
@@ -69,12 +109,9 @@ private slots:
     void readAssistantOutput();
     void readAssistantError();
     void timerFired();
-    void optionSelected( QListViewItem * );
-    void optionClicked( QListViewItem * );
     void configPageChanged();
     void archiveMsg(const QString &);
     void licenseChanged();
-    void clickedSkipBuild();
     bool verifyConfig();
 
 private:
@@ -91,15 +128,11 @@ private:
 
     void prepareEnvironment();
 
-    bool findFile( const QString &fileName );
-    bool findFileInPaths( const QString &fileName, const QStringList &paths );
-
     void makeDone( bool error );
 
     void setStaticEnabled( bool se );
     void setJpegDirect( bool jd );
     void readLicenseAgreement();
-    bool findXPSupport();
 
     bool copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel );
     int totalRead;
@@ -121,7 +154,8 @@ private:
 #if defined(Q_OS_WIN32)
     void installIcons( const QString& iconFolder, const QString& dirName, bool common );
 #endif
-    void doFinalIntegration();
+    void doIDEIntegration();
+    void doStartMenuIntegration();
     void logFiles( const QString& entry, bool close = FALSE );
     void logOutput( const QString& entry, bool close = FALSE );
 
@@ -136,46 +170,50 @@ private:
     int timeCounter;
     QStringList allModules;
 
-    QCheckListItem *accOn, *accOff;
-    QCheckListItem *bigCodecsOn, *bigCodecsOff;
-    QCheckListItem *tabletOn, *tabletOff;
-    QCheckListItem *advancedSTL, *advancedExceptions, *advancedRTTI;
+    CheckListItem *accOn, *accOff;
+    CheckListItem *bigCodecsOn, *bigCodecsOff;
+    CheckListItem *tabletOn, *tabletOff;
+    CheckListItem *advancedSTL, *advancedExceptions, *advancedRTTI;
 
-    QCheckListItem /* *mngPresent, */ *mngDirect, *mngPlugin, *mngOff;
-    QCheckListItem /* *jpegPresent, */ *jpegDirect, *jpegPlugin, *jpegOff;
-    QCheckListItem /* *pngPresent, */ *pngDirect, *pngPlugin, *pngOff;
-    QCheckListItem *gifDirect, *gifOff;
+    CheckListItem /* *mngPresent, */ *mngDirect, *mngPlugin, *mngOff;
+    CheckListItem /* *jpegPresent, */ *jpegDirect, *jpegPlugin, *jpegOff;
+    CheckListItem /* *pngPresent, */ *pngDirect, *pngPlugin, *pngOff;
+    CheckListItem *gifDirect, *gifOff;
 
-    QCheckListItem *sgiDirect, *sgiPlugin, *sgiOff;
-    QCheckListItem *cdeDirect, *cdePlugin, *cdeOff;
-    QCheckListItem *motifplusDirect, *motifplusPlugin, *motifplusOff;
-    QCheckListItem *platinumDirect, *platinumPlugin, *platinumOff;
-    QCheckListItem *motifDirect, *motifPlugin, *motifOff;
-    QCheckListItem *xpDirect, *xpPlugin, *xpOff;
+    CheckListItem *sgiDirect, *sgiPlugin, *sgiOff;
+    CheckListItem *cdeDirect, *cdePlugin, *cdeOff;
+    CheckListItem *motifplusDirect, *motifplusPlugin, *motifplusOff;
+    CheckListItem *platinumDirect, *platinumPlugin, *platinumOff;
+    CheckListItem *motifDirect, *motifPlugin, *motifOff;
+    CheckListItem *xpDirect, *xpPlugin, *xpOff;
 
-    QCheckListItem *mysqlDirect, *mysqlPlugin, *mysqlOff;
-    QCheckListItem *ociDirect, *ociPlugin, *ociOff;
-    QCheckListItem *odbcDirect, *odbcPlugin, *odbcOff;
-    QCheckListItem *psqlDirect, *psqlPlugin, *psqlOff;
-    QCheckListItem *tdsDirect, *tdsPlugin, *tdsOff;
-    QCheckListItem *db2Direct, *db2Plugin, *db2Off;
+    CheckListItem *mysqlDirect, *mysqlPlugin, *mysqlOff;
+    CheckListItem *ociDirect, *ociPlugin, *ociOff;
+    CheckListItem *odbcDirect, *odbcPlugin, *odbcOff;
+    CheckListItem *psqlDirect, *psqlPlugin, *psqlOff;
+    CheckListItem *tdsDirect, *tdsPlugin, *tdsOff;
+    CheckListItem *db2Direct, *db2Plugin, *db2Off;
+    CheckListItem *sqliteDirect, *sqlitePlugin, *sqliteOff;
+    CheckListItem *ibaseDirect, *ibasePlugin, *ibaseOff;
     
-    QCheckListItem *zlibDirect, *zlibSystem, *zlibOff;
+    CheckListItem *zlibDirect, *zlibSystem, *zlibOff;
 
-    QCheckListItem *dspOff, *dspOn;
-    QCheckListItem *vcprojOff, *vcprojOn;
+    CheckListItem *dspOff, *dspOn;
+    CheckListItem *vcprojOff, *vcprojOn;
 
-    QCheckListItem *staticItem;
+    CheckListItem *staticItem;
 
 #if defined(EVAL) || defined(EDU)
-    QCheckListItem *mysqlPluginInstall;
-    QCheckListItem *ociPluginInstall;
-    QCheckListItem *odbcPluginInstall;
-    QCheckListItem *psqlPluginInstall;
-    QCheckListItem *tdsPluginInstall;
-    QCheckListItem *db2PluginInstall;
+    CheckListItem *mysqlPluginInstall;
+    CheckListItem *ociPluginInstall;
+    CheckListItem *odbcPluginInstall;
+    CheckListItem *psqlPluginInstall;
+    CheckListItem *tdsPluginInstall;
+    CheckListItem *db2PluginInstall;
+    CheckListItem *sqlitePluginInstall;
+    CheckListItem *ibasePluginInstall;
 #elif defined(NON_COMMERCIAL)
-    QCheckListItem *sqlitePluginInstall;
+    CheckListItem *sqlitePluginInstall;
 #endif
 
     // wizard pages

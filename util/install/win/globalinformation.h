@@ -18,16 +18,15 @@ public:
 #endif
 
     enum SysId {
-	MSVC	= 0,
-	Borland	= 1,
-	GCC	= 2,
-	MACX	= 3,
-	MSVCNET = 4,
-	MinGW   = 5,
-	Watcom  = 6,
-	Intel	= 7,
-	Other   = 8
-
+	MSVCNET = 0,
+	MSVC	= 1,
+	Borland	= 2,
+	MinGW   = 3,
+	Other   = 4,
+	Watcom  = 5,
+	Intel	= 6,
+	GCC	= 7,
+	MACX	= 8
     };
     void setSysId( SysId );
     SysId sysId() const;

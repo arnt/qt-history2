@@ -217,6 +217,7 @@ OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
       shortTitleStr("Choose options")
 {
     connect( installPathButton, SIGNAL(clicked()), SLOT(choosePath()));
+    sysGroup->setButton(globalInformation.sysId());
 #if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
     sysOther->hide();
     sysOtherCombo->hide();
@@ -228,7 +229,6 @@ OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
 	    QString( globalInformation.qtVersionStr() ).replace( QRegExp("\\s"), "" ).replace( QRegExp("-"), "" )
 	    );
     installPath->setValidator( new InstallPathValidator( this ) );
-    connect( sysMsvcNet, SIGNAL(toggled(bool)), installNETIntegration, SLOT(setEnabled(bool)) );
 #elif defined(Q_OS_MAC)
     // ### the replace for Windows is done because qmake has problems with
     // spaces and Borland has problems with "-" in the filenames -- I don't

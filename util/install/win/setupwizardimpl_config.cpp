@@ -22,6 +22,179 @@
 #include <qarchive.h>
 #include <qvalidator.h>
 #include <qdatetime.h>
+#include <qpainter.h>
+
+bool findFile(const QString &);
+
+CheckListItem::CheckListItem(QListView *listview, const QString &text, Type type)
+: QCheckListItem(listview, text, type), help_display(0), conflict_with(0), critical(false)
+{
+    if (type == RadioButtonController || type == CheckBoxController)
+	setOpen(true);
+}
+
+CheckListItem::CheckListItem(QCheckListItem *parent, const QString &text, Type type)
+: QCheckListItem(parent, text, type), help_display(0), conflict_with(0), critical(false)
+{
+    if (type == RadioButtonController || type == CheckBoxController)
+	setOpen(true);
+}
+
+int CheckListItem::RTTI = 666;
+
+int CheckListItem::rtti() const
+{
+    return RTTI;
+}
+
+void CheckListItem::setHelpText(const QString &help, QTextView *display)
+{
+    help_text = help;
+    help_display = display;
+}
+
+void CheckListItem::setWarningText(const QString &warning, CheckListItem *conflict)
+{
+    conflict_with = conflict;
+    warning_text = warning;
+}
+
+void CheckListItem::addRequiredFiles(const QString &file)
+{
+    QStringList files = QStringList::split(",", file);
+    for (QStringList::ConstIterator it = files.begin(); it != files.end(); ++it) {
+	QString f(*it);
+	required_files << f;
+	if (!findFile(f)) {
+	    if (type() == QCheckListItem::RadioButtonController
+		|| type() == QCheckListItem::CheckBoxController) {
+		setOpen(false);
+	    } else {
+		setOn(false);
+		setEnabled(false);
+	    }
+	}
+    }
+}
+
+void CheckListItem::setRequiredFileLocation(const QString &location)
+{
+    file_location = location;
+}
+
+bool CheckListItem::verify() const
+{
+    if (text(0) == "Off")
+	return TRUE;
+
+    if (!required_files.count()) {
+	if (parent() && parent()->rtti() == RTTI)
+	    return ((CheckListItem*)parent())->verify();
+	return TRUE;
+    }
+
+    QStringList::ConstIterator it;
+    for (it = required_files.begin(); it != required_files.end(); ++it) {
+	QString file(*it);
+	if (!findFile(file))
+	    return FALSE;
+    }
+    return TRUE;
+}
+
+bool CheckListItem::testAndWarn()
+{
+    if (!warning_text.isEmpty()) {
+	if (!conflict_with || conflict_with->isOn()) {
+	    int r = QMessageBox::warning(listView()->topLevelWidget(), "Warning",
+			warning_text + "<br>Select anyway?", "Yes", "No" );
+	    return r == 0;
+	} else {
+	    return TRUE;
+	}
+    }
+
+    QStringList files(required_files);
+    if (!required_files.count() && text(0) != "Off") {
+	if (parent() && parent()->rtti() == RTTI)
+	    return ((CheckListItem*)parent())->testAndWarn();
+	return TRUE;
+    }
+
+    if (!verify()) {
+	QString message = QString("The option '%1' is <b>not verified</b> by the installer. One or more of the following "
+		    "files could not be located on the system:<br><br>"
+		    "%2<br><br>"
+		    "Continuing with this option selected might <b>break the installation</b> process.")
+		    .arg(text(0)).arg(required_files.join(", "));
+	if (!file_location.isEmpty()) {
+	    message += QString("<br>The requested files are %1 and need to be installed "
+		               "in the INCLUDE, PATH and LIBS environment as appropriate.<br>").arg(file_location);
+	}
+
+	int r = QMessageBox::warning(listView()->topLevelWidget(), "Option not Verified",
+		    message + "<br>Select anyway?", "Yes", "No" );
+	return r == 0;
+    }
+    return TRUE;
+}
+
+void CheckListItem::displayHelp()
+{
+    if (help_display) {
+	help_display->setText(help_text);
+	return;
+    }
+    QListViewItem *p = parent();
+    if (p && p->rtti() == RTTI)
+	((CheckListItem*)p)->displayHelp();
+}
+
+void CheckListItem::setOn(bool on)
+{
+    if (on && (type() == RadioButton || type() == CheckBox) && !testAndWarn())
+	return;
+    QCheckListItem::setOn(on);
+
+    SetupWizardImpl* wizard = qt_cast<SetupWizardImpl*>(listView()->topLevelWidget());
+    if (wizard && listView()->isVisible() && listView()->isUpdatesEnabled())
+	wizard->optionClicked(this);
+}
+
+void CheckListItem::activate()
+{
+    displayHelp();
+    QCheckListItem::activate();
+}
+
+void CheckListItem::setOpen(bool on)
+{
+    if (on && listView()->isVisible()) {
+	if (!testAndWarn())
+	    return;
+	displayHelp();
+    }
+    QCheckListItem::setOpen(on);
+}
+
+void CheckListItem::setCritical(bool on)
+{
+    if (critical == on)
+	return;
+
+    critical = on;
+    repaint();
+}
+
+void CheckListItem::paintCell( QPainter *p, const QColorGroup & cg, int column, int width, int alignment )
+{
+    QColorGroup group(cg);
+    if (critical)
+	group.setColor(QColorGroup::Text, red);
+    QCheckListItem::paintCell(p, group, column, width, alignment);
+}
+
+
 
 void SetupWizardImpl::setStaticEnabled( bool se )
 {
@@ -99,6 +272,14 @@ void SetupWizardImpl::setStaticEnabled( bool se )
 		db2Plugin->setOn( false );
 		db2Direct->setOn( true );
 	    }
+	    if ( sqlitePlugin->isOn() ) {
+		sqlitePlugin->setOn( false );
+		sqliteDirect->setOn( true );
+	    }
+	    if ( ibasePlugin->isOn() ) {
+		ibasePlugin->setOn( false );
+		ibaseDirect->setOn( true );
+	    }
 	}
 	accOn->setEnabled( false );
 	bigCodecsOff->setEnabled( false );
@@ -119,6 +300,8 @@ void SetupWizardImpl::setStaticEnabled( bool se )
 	    psqlPlugin->setEnabled( false );
 	    tdsPlugin->setEnabled( false );
 	    db2Plugin->setEnabled( false );
+	    sqlitePlugin->setEnabled( false );
+	    ibasePlugin->setEnabled( false );
 	}
     } else {
 	accOn->setEnabled( true );
@@ -139,6 +322,8 @@ void SetupWizardImpl::setStaticEnabled( bool se )
 	    psqlPlugin->setEnabled( true );
 	    tdsPlugin->setEnabled( true );
 	    db2Plugin->setEnabled( true );
+	    sqlitePlugin->setEnabled( true );
+	    ibasePlugin->setEnabled( true );
 	}
     }
     setJpegDirect( mngDirect->isOn() );
@@ -163,88 +348,43 @@ void SetupWizardImpl::setJpegDirect( bool jd )
     }
 }
 
-void SetupWizardImpl::optionClicked( QListViewItem *i )
+void SetupWizardImpl::optionClicked( CheckListItem *item )
 {
-    if ( !i || i->rtti() != QCheckListItem::RTTI )
-	return;
-
-    QCheckListItem *item = (QCheckListItem*)i;
-    if ( item->type() != QCheckListItem::RadioButton )
+    if ( !item || item->type() != CheckListItem::RadioButton )
 	return;
 
     if ( item->text(0) == "Static" && item->isOn() ) {
 	setStaticEnabled( TRUE );
-	if ( QMessageBox::information( this, "Are you sure?", "It will not be possible to build components "
-				  "or plugins if you select the static build of the Qt library.\n"
-				  "New features, e.g souce code editing in Qt Designer, will not "
-				  "be available, "
-				  "\nand you or users of your software might not be able "
-				  "to use all or new features, e.g. new styles.\n\n"
-				  "Are you sure you want to build a static Qt library?",
-				  "OK", "Revert" ) ) {
-		item->setOn( FALSE );
-		if ( ( item = (QCheckListItem*)configPage->configList->findItem( "Shared", 0, 0 ) ) ) {
-		item->setOn( TRUE );
-		configPage->configList->setCurrentItem( item );
-		setStaticEnabled( FALSE );
-	    }
-	}
 	return;
     } else if ( item->text( 0 ) == "Shared" && item->isOn() ) {
 	setStaticEnabled( FALSE );
-	if( ( (QCheckListItem*)configPage->configList->findItem( "Non-threaded", 0, 0 ) )->isOn() ) {
-	    if( QMessageBox::information( this, "Are you sure?", "Single-threaded, shared configurations "
-								 "may cause instabilities because of runtime "
-								 "library conflicts.", "OK", "Revert" ) ) {
-		item->setOn( FALSE );
-		if( ( item = (QCheckListItem*)configPage->configList->findItem( "Static", 0, 0 ) ) ) {
-		    item->setOn( TRUE );
-		    configPage->configList->setCurrentItem( item );
-		    setStaticEnabled( TRUE );
-		}
-	    }
-	}
-    }
-    else if( item->text( 0 ) == "Non-threaded" && item->isOn() ) {
-	if( ( (QCheckListItem*)configPage->configList->findItem( "Shared", 0, 0 ) )->isOn() ) {
-	    if( QMessageBox::information( this, "Are you sure?", "Single-threaded, shared configurations "
-								 "may cause instabilities because of runtime "
-								 "library conflicts.", "OK", "Revert" ) ) {
-		item->setOn( FALSE );
-		if( (item = (QCheckListItem*)configPage->configList->findItem( "Threaded", 0, 0 ) ) ) {
-		    item->setOn( TRUE );
-		    configPage->configList->setCurrentItem( item );
-		}
-	    }
-	}
+	return;
     } else if ( item==mngDirect || item==mngPlugin || item==mngOff ) {
 	setJpegDirect( mngDirect->isOn() );
     } else if ( item==db2Direct && odbcDirect->isOn() ) {
 	if ( odbcPlugin->isEnabled() )
-	    odbcPlugin->setOn(TRUE);
+	    odbcPlugin->QCheckListItem::setOn(TRUE);
 	else 
-	    odbcOff->setOn(TRUE);
+	    odbcOff->QCheckListItem::setOn(TRUE);
     } else if ( item==odbcDirect && db2Direct->isOn() ) {
 	if ( db2Plugin->isEnabled() )
-	    db2Plugin->setOn(TRUE);
+	    db2Plugin->QCheckListItem::setOn(TRUE);
 	else 
-	    db2Off->setOn(TRUE);
+	    db2Off->QCheckListItem::setOn(TRUE);
     }
 }
+
 
 void SetupWizardImpl::configPageChanged()
 {
     if ( configPage->configList->isVisible() ) {
 	configPage->configList->setSelected( configPage->configList->currentItem(), true );
-	optionSelected( configPage->configList->currentItem() );
     } else if ( configPage->advancedList->isVisible() ) {
 	configPage->advancedList->setSelected( configPage->advancedList->currentItem(), true );
-	optionSelected( configPage->advancedList->currentItem() );
     }
 #if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
     else if ( configPage->installList->isVisible() ) {
 	configPage->installList->setSelected( configPage->installList->currentItem(), true );
-	optionSelected( configPage->installList->currentItem() );
     }
 #endif
 }
@@ -508,7 +648,7 @@ void SetupWizardImpl::cleanDone()
     else if ( entry == "Off" )
 	args += "-no-style-windows";
 
-    entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows XP", "Off", &settingsOK );
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows XP", "Direct", &settingsOK );
     if ( entry == "Direct" )
 	args += "-qt-style-windowsxp";
     else if ( entry == "Plugin" )
@@ -516,7 +656,7 @@ void SetupWizardImpl::cleanDone()
     else if ( entry == "Off" )
 	args += "-no-style-windowsxp";
 
-    entry = settings.readEntry( "/Trolltech/Qt/Styles/Motif", "Direct", &settingsOK );
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/Motif", "Plugin", &settingsOK );
     if ( entry == "Direct" )
 	args += "-qt-style-motif";
     else if ( entry == "Plugin" )
@@ -524,7 +664,7 @@ void SetupWizardImpl::cleanDone()
     else if ( entry == "Off" )
 	args += "-no-style-motif";
 
-    entry = settings.readEntry( "/Trolltech/Qt/Styles/Platinum", "Direct", &settingsOK );
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/Platinum", "Plugin", &settingsOK );
     if ( entry == "Direct" )
 	args += "-qt-style-platinum";
     else if ( entry == "Plugin" )
@@ -532,7 +672,7 @@ void SetupWizardImpl::cleanDone()
     else if ( entry == "Off" )
 	args += "-no-style-platinum";
 
-    entry = settings.readEntry( "/Trolltech/Qt/Styles/MotifPlus", "Direct", &settingsOK );
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/MotifPlus", "Plugin", &settingsOK );
     if ( entry == "Direct" )
 	args += "-qt-style-motifplus";
     else if ( entry == "Plugin" )
@@ -540,7 +680,7 @@ void SetupWizardImpl::cleanDone()
     else if ( entry == "Off" )
 	args += "-no-style-motifplus";
 
-    entry = settings.readEntry( "/Trolltech/Qt/Styles/CDE", "Direct", &settingsOK );
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/CDE", "Plugin", &settingsOK );
     if ( entry == "Direct" )
 	args += "-qt-style-cde";
     else if ( entry == "Plugin" )
@@ -548,7 +688,7 @@ void SetupWizardImpl::cleanDone()
     else if ( entry == "Off" )
 	args += "-no-style-cde";
 
-    entry = settings.readEntry( "/Trolltech/Qt/Styles/SGI", "Direct", &settingsOK );
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/SGI", "Plugin", &settingsOK );
     if ( entry == "Direct" )
 	args += "-qt-style-sgi";
     else if ( entry == "Plugin" )
@@ -619,9 +759,9 @@ void SetupWizardImpl::cleanDone()
 		outStream << installDir.absPath().left(2) << endl;
 	    outStream << "cd %QTDIR%" << endl;
 
-	    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make nmake make" );
+	    QString makeCmd = globalInformation.text(GlobalInformation::MakeTool);
 	    if ( globalInformation.reconfig() )
-		outStream << makeCmds[ globalInformation.sysId() ].latin1() << " clean" << endl;
+		outStream << makeCmd.latin1() << " clean" << endl;
 	    
 	    // There is a limitation on Windows 9x regarding the length of the
 	    // command line. So rather use the configure.cache than specifying
@@ -641,13 +781,13 @@ void SetupWizardImpl::cleanDone()
 		outStream << args.join( " " ) << endl;
 	    }
 
-	    outStream << makeCmds[ globalInformation.sysId() ].latin1() << endl;
+	    outStream << makeCmd.latin1() << endl;
 	    outFile.close();
 	}
 	logOutput( "Doing the final integration steps..." );
 	// No need to redo the integration step
 	if ( !globalInformation.reconfig() )
-	    doFinalIntegration();
+	    doIDEIntegration();
 	buildPage->compileProgress->setTotalSteps( buildPage->compileProgress->totalSteps() );
 	showPage( finishPage );
     }
@@ -837,67 +977,112 @@ void SetupWizardImpl::prepareEnvironment()
 
 void SetupWizardImpl::showPageConfig()
 {
+    if (autoContTimer.isActive()) {
+	autoContTimer.stop();
+	timeCounter = 30;
+	nextButton()->setText("Next >");
+    }
 #if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
     setBackEnabled( buildPage, false );
 
     static bool alreadyInitialized = FALSE;
     if ( !alreadyInitialized ) {
 	configPage->installList->setSorting( -1 );
+	configPage->installList->setUpdatesEnabled(FALSE);
 
-	QCheckListItem *item;
-	QCheckListItem *folder;
+	CheckListItem *item;
+	CheckListItem *folder;
 
-	folder = new QCheckListItem ( configPage->installList, "Database drivers" );
-	folder->setOpen( true );
+	folder = new CheckListItem( configPage->installList, "Database drivers" );
 
 #if !defined(NON_COMMERCIAL)
 #if !defined(Q_OS_MACX)
-	item = new QCheckListItem( folder, "DB2", QCheckListItem::CheckBox );
-	item->setOn( findFile( "db2cli.dll" ) );
+	item = new CheckListItem( folder, "DB2", QCheckListItem::CheckBox );
+	item->addRequiredFile("db2cli.dll");
 	db2PluginInstall = item;
+	db2PluginInstall->setHelpText( tr(
+		    "Installs the DB2 driver. This driver can "
+		    "be used to access DB2 databases."
+		    "<p><font color=\"red\">Choosing this option requires "
+		    "that the DB2 Client is installed and set up. "
+		    "The driver depends on the db2cli.dll.</font></p>"
+		    ), configPage->explainOption );
 
-	item = new QCheckListItem( folder, "TDS", QCheckListItem::CheckBox );
-	item->setOn( findFile( "ntwdblib.dll" ) );
+	item = new CheckListItem( folder, "TDS", QCheckListItem::CheckBox );
+	item->addRequiredFile("ntwdblib.dll");
 	tdsPluginInstall = item;
+	tdsPluginInstall->setHelpText( tr(
+		    "Installs the TDS driver to access Sybase Adaptive "
+		    "Server and Microsoft SQL Server (it is recommended "
+		    "to rather use ODBC instead of TDS where applicable). "
+		    "<p><font color=\"red\">Choosing this option requires "
+		    "that the ntwdblib.dll is available.</font></p>"
+		    ), configPage->explainOption );
 
-	item = new QCheckListItem( folder, "Oracle (OCI)", QCheckListItem::CheckBox );
-	item->setOn( findFile( "oci.dll" ) );
+	item = new CheckListItem( folder, "Oracle (OCI)", QCheckListItem::CheckBox );
+	item->addRequiredFile( "oci.dll" );
 	ociPluginInstall = item;
+	ociPluginInstall->setHelpText( tr(
+		    "<p>Installs the Oracale Call Interface (OCI) driver.</p> "
+		    "<p><font color=\"red\">Choosing this option requires "
+		    "that the Oracle Client is installed and set up. "
+		    "The driver depends on the oci.dll.</font></p>"
+		    ), configPage->explainOption );
 #endif
 
 	if ( globalInformation.sysId() != GlobalInformation::Borland ) {
 	    // I was not able to make Postgres work with Borland
-	    item = new QCheckListItem( folder, "PostgreSQL", QCheckListItem::CheckBox );
+	    item = new CheckListItem( folder, "PostgreSQL", QCheckListItem::CheckBox );
 	    item->setOn( TRUE );
 	    psqlPluginInstall = item;
+	    psqlPluginInstall->setHelpText( tr(
+			"Installs the PostgreSQL 7.1 driver. This driver can "
+			"be used to access PostgreSQL 6 databases as well "
+			"as PostgreSQL 7 databases."
+			), configPage->explainOption );
 	} else {
 	    psqlPluginInstall = 0;
 	}
 
-	item = new QCheckListItem( folder, "MySQL", QCheckListItem::CheckBox );
+	item = new CheckListItem( folder, "MySQL", QCheckListItem::CheckBox );
 	item->setOn( TRUE );
 	mysqlPluginInstall = item;
+	mysqlPluginInstall->setHelpText( tr(
+		    "Installs the MySQL 3.x database driver."
+		    ), configPage->explainOption );
 
 #if !defined(Q_OS_MAC)
-	item = new QCheckListItem( folder, "ODBC", QCheckListItem::CheckBox );
+	item = new CheckListItem( folder, "ODBC", QCheckListItem::CheckBox );
 	item->setOn( findFile( "odbc32.dll" ) );
 	odbcPluginInstall = item;
+	odbcPluginInstall->setHelpText( tr(
+		    "Installs the Open Database Connectivity (ODBC) driver. "
+		    "This driver depends on the odbc32.dll which should be "
+		    "available on all modern Windows installations."
+		    ), configPage->explainOption );
 #endif
 #else
-	item = new QCheckListItem( folder, "SQLite", QCheckListItem::CheckBox );
+	item = new CheckListItem( folder, "SQLite", QCheckListItem::CheckBox );
 	item->setOn( TRUE );
 	sqlitePluginInstall = item;
+    	sqlitePluginInstall->setHelpText( tr(
+		    "Installs the SQLite driver.\n"
+		    "This driver is an in-process SQL database "
+		    "driver. It is needed for some of the "
+		    "examples used in the book."
+		    ), configPage->explainOption );
 #endif
 
+	configPage->installList->setUpdatesEnabled(TRUE);
 	alreadyInitialized = TRUE;
     }
-
-    optionSelected( 0 );
 #else
 
     prepareEnvironment();
 
     bool enterprise = licenseInfo[ "PRODUCTS" ] == "qt-enterprise";
+    configPage->configList->setUpdatesEnabled(FALSE);
+    configPage->advancedList->setUpdatesEnabled(FALSE);
 
     if( configPage->configList->childCount() ) {
 	QListViewItem* current = configPage->configList->firstChild();
@@ -918,19 +1103,21 @@ void SetupWizardImpl::showPageConfig()
     QSettings settings;
     configPage->configList->setSorting( -1 );
     configPage->advancedList->setSorting( -1 );
-    QCheckListItem *item;
-    QCheckListItem *folder;
+    CheckListItem *item;
+    CheckListItem *folder;
     QStringList::Iterator it;
 
     // general
-    folder = new QCheckListItem ( configPage->configList, "Modules" );
-    folder->setOpen( true );
-
+    folder = new CheckListItem ( configPage->configList, "Modules" );
+    folder->setHelpText(tr("<p>Some of these modules are optional."
+			   "<p>You can deselect the modules that you "
+			   "don't require for your development."
+			   "<p>By default, all modules are selected."), configPage->explainOption);
     bool settingsOK;
     QStringList entries = settings.readListEntry( "/Trolltech/Qt/Modules", ',', &settingsOK );
     QStringList licensedModules = QStringList::split( " ", "network canvas table xml opengl sql" );
     for( it = licensedModules.begin(); it != licensedModules.end(); ++it ) {
-	item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
+	item = new CheckListItem( folder, (*it), QCheckListItem::CheckBox );
 	bool on = entries.isEmpty() || entries.find( *it ) != entries.end();
 	item->setOn( enterprise && on );
 	item->setEnabled( enterprise );
@@ -940,7 +1127,7 @@ void SetupWizardImpl::showPageConfig()
 
     licensedModules = QStringList::split( " ", "iconview workspace" );
     for( it = licensedModules.begin(); it != licensedModules.end(); ++it ) {
-	item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
+	item = new CheckListItem( folder, (*it), QCheckListItem::CheckBox );
 	bool on = entries.isEmpty() || entries.find( *it ) != entries.end();
 	item->setOn( on );
 	allModules << *it;
@@ -948,337 +1135,420 @@ void SetupWizardImpl::showPageConfig()
 
     QStringList requiredModules = QStringList::split( " ", "styles dialogs widgets tools kernel" );
     for( it = requiredModules.begin(); it != requiredModules.end(); ++it ) {
-	item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
+	item = new CheckListItem( folder, (*it), QCheckListItem::CheckBox );
 	bool on = entries.isEmpty() || entries.find( *it ) != entries.end();
 	item->setOn( on );
 	item->setEnabled( false );
 	allModules << *it;
     }
 
-    
-    folder = new QCheckListItem ( configPage->configList, "Threading" );
-    folder->setOpen( true );
+    folder = new CheckListItem ( configPage->configList, "Threading" );
+    folder->setHelpText(tr("<p>Build the Qt library with or without thread support."
+			   "<p>By default, threading is supported. Some classes will "
+			   "not be available without thread support."), configPage->explainOption);
     QString entry = settings.readEntry( "/Trolltech/Qt/Threading", "Threaded", &settingsOK );
-    item = new QCheckListItem( folder, "Threaded", QCheckListItem::RadioButton );
+    item = new CheckListItem( folder, "Threaded", QCheckListItem::RadioButton );
     item->setOn( entry == "Threaded" );
-    item = new QCheckListItem( folder, "Non-threaded", QCheckListItem::RadioButton );
+    item = new CheckListItem( folder, "Non-threaded", QCheckListItem::RadioButton );
     item->setOn( entry == "Non-threaded" );
+    CheckListItem *singleThreaded = item;
 
-    folder = new QCheckListItem ( configPage->configList, "Library" );
-    folder->setOpen( true );
+    folder = new CheckListItem ( configPage->configList, "Library" );
+    folder->setHelpText(tr("<p>Build a shared or a static Qt library."
+			   "<p>A shared Qt library makes it necessary to "
+			   "distribute the Qt DLL together with your software. "
+			   "Applications and libraries linked against a shared Qt library "
+			   "are small and can make use of components and plugins."
+			   "<p>All applications created with a static "
+			   "library will be at least 1.5MB big. "
+			   "<font color=\"red\">It is not possible to "
+			   "build or use any components or plugins with a "
+			   "static Qt library!</font>"), configPage->explainOption);
     entry = settings.readEntry( "/Trolltech/Qt/Library", "Shared", &settingsOK );
-    staticItem = new QCheckListItem( folder, "Static", QCheckListItem::RadioButton );
+    staticItem = new CheckListItem( folder, "Static", QCheckListItem::RadioButton );
+    staticItem->setWarningText("<p>It will not be possible to build components "
+			       "or plugins if you select the static build of the Qt library."
+			       "<p>New features, e.g souce code editing in Qt Designer, will not "
+			       "be available, and you or users of your software might not be able "
+			       "to use all or new features, e.g. new styles.");
+
     staticItem->setOn( entry == "Static" );
-    item = new QCheckListItem( folder, "Shared", QCheckListItem::RadioButton );
+    item = new CheckListItem( folder, "Shared", QCheckListItem::RadioButton );
+    item->setWarningText("<p>Single-threaded, shared configurations "
+			 "may cause instabilities because of runtime "
+			 "library conflicts.", singleThreaded);
+    singleThreaded->setWarningText("<p>Single-threaded, shared configurations "
+			 "may cause instabilities because of runtime "
+			 "library conflicts.", item);
     item->setOn( entry == "Shared" );
 
-    folder = new QCheckListItem ( configPage->configList, "Build" );
-    folder->setOpen( true );
+    folder = new CheckListItem ( configPage->configList, "Build" );
+    folder->setHelpText(tr("<p>Build a Qt library with or without debug symbols."
+			   "<p>Use the debug build of the Qt library to enhance "
+			   "debugging of your application. The release build "
+			   "is both smaller and faster."), configPage->explainOption);
     entry = settings.readEntry( "/Trolltech/Qt/Build", "Release", &settingsOK );
-    item = new QCheckListItem( folder, "Debug", QCheckListItem::RadioButton );
+    item = new CheckListItem( folder, "Debug", QCheckListItem::RadioButton );
     item->setOn( entry == "Debug" );
-    item = new QCheckListItem( folder, "Release", QCheckListItem::RadioButton );	
+    item = new CheckListItem( folder, "Release", QCheckListItem::RadioButton );	
     item->setOn( entry == "Release" );
 
     // Advanced options
+    folder = new CheckListItem( configPage->advancedList, "zlib" );
+    folder->setHelpText(tr("Qt supports the 3rd party zlib library either by compiling it into "
+			   "Qt, or by linking against the library supplied with the system."), 
+			   configPage->explainOption);
     entry = settings.readEntry( "/Trolltech/Qt/zlib", "Direct", &settingsOK );
-    folder = new QCheckListItem( configPage->advancedList, "zlib" );
-    folder->setOpen( true );
-    zlibOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    zlibOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     zlibOff->setOn( entry == "Off" );
-    zlibSystem = new QCheckListItem( folder, "System", QCheckListItem::RadioButton );
+    zlibSystem = new CheckListItem( folder, "System", QCheckListItem::RadioButton );
     zlibSystem->setOn( entry == "System" );
-    zlibDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    zlibDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     zlibDirect->setOn( entry == "Direct" );
+    zlibSystem->addRequiredFiles("libz.lib");
 
     if ( globalInformation.sysId() == GlobalInformation::MSVC ) {
 	entry = settings.readEntry( "/Trolltech/Qt/DSP Generation", "On", &settingsOK );
-	folder = new QCheckListItem( configPage->advancedList, "DSP Generation" );
-	folder->setOpen( true );
-	dspOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	folder = new CheckListItem( configPage->advancedList, "DSP Generation" );
+	folder->setHelpText(tr("qmake can generate the Visual Studio 6 project files (dsp) as well "
+			       "as makefiles when Qt is being configured."),
+			       configPage->explainOption);
+	dspOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
 	dspOff->setOn( entry == "Off" );
-	dspOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
+	dspOn = new CheckListItem( folder, "On", QCheckListItem::RadioButton );
 	dspOn->setOn( entry == "On" );
     } else if ( globalInformation.sysId() == GlobalInformation::MSVCNET ) {
 	entry = settings.readEntry( "/Trolltech/Qt/VCPROJ Generation", "On", &settingsOK );
-	folder = new QCheckListItem( configPage->advancedList, "VCPROJ Generation" );
-	folder->setOpen( true );
-	vcprojOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	folder = new CheckListItem( configPage->advancedList, "VCPROJ Generation" );
+	folder->setHelpText(tr("qmake can generate the Visual Studio.NET project files (vcproj) as well "
+			       "as makefiles when Qt is being configured."),
+			       configPage->explainOption);
+	vcprojOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
 	vcprojOff->setOn( entry == "Off" );
-	vcprojOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
+	vcprojOn = new CheckListItem( folder, "On", QCheckListItem::RadioButton );
 	vcprojOn->setOn( entry == "On" );
     }
     
-    QCheckListItem *imfolder = new QCheckListItem( configPage->advancedList, "Image Formats" );
-    imfolder->setOpen( true );
+    CheckListItem *imfolder = new CheckListItem( configPage->advancedList, "Image Formats" );
+    imfolder->setHelpText(tr("<p>Qt ships with support for a wide range of common image formats. "
+			     "<p>Standard formats are always included in Qt, and some more special formats "
+			     "can be left out from the Qt library itself and provided by a plugin instead."),
+			     configPage->explainOption);
 
-    folder = new QCheckListItem( imfolder, "GIF" );
-    folder->setOpen( true );
+    folder = new CheckListItem( imfolder, "GIF" );
+    folder->setHelpText(tr("<p>Support for GIF images in Qt."
+			   "<p><font color=\"red\">If you are in a country "
+			   "which recognizes software patents and in which "
+			   "Unisys holds a patent on LZW compression and/or "
+			   "decompression and you want to use GIF, Unisys "
+			   "may require you to license the technology. Such "
+			   "countries include Canada, Japan, the USA, "
+			   "France, Germany, Italy and the UK.</font>"),
+			   configPage->explainOption);
     entry = settings.readEntry( "/Trolltech/Qt/Image Formats/GIF", "Off", &settingsOK );
-    gifOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    gifOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     gifOff->setOn( entry == "Off" );
-    gifDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    gifDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     gifDirect->setOn( entry == "Direct" );
 
-    folder = new QCheckListItem( imfolder, "MNG" );
-    folder->setOpen( true );
+    folder = new CheckListItem( imfolder, "MNG" );
+    folder->setHelpText(tr("<p>Qt can support the \"Multiple-Image Network Graphics\" format."
+			   "<p>MNG support can be compiled into Qt, provided by a plugin ",
+			   "or turned off completely."),
+			   configPage->explainOption);
     entry = settings.readEntry( "/Trolltech/Qt/Image Formats/MNG", "Plugin", &settingsOK );
 #if 0
     // ### disable using system MNG for now -- please someone take a closer look
     entryPresent = settings.readEntry( "/Trolltech/Qt/Image Formats/MNG Present", "No", &settingsOK );
-    mngPresent = new QCheckListItem( folder, "Present", QCheckListItem::CheckBox );
+    mngPresent = new CheckListItem( folder, "Present", QCheckListItem::CheckBox );
     mngPresent->setOn( entry == "Yes" );
 #endif
-    mngOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    mngOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     mngOff->setOn( entry == "Off" );
-    mngPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    mngPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
     mngPlugin->setOn( entry == "Plugin" );
-    mngDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    mngDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     mngDirect->setOn( entry == "Direct" );
 
-    folder = new QCheckListItem( imfolder, "JPEG" );
-    folder->setOpen( true );
+    folder = new CheckListItem( imfolder, "JPEG" );
+    folder->setHelpText(tr("<p>Qt can support the \"Joint Photographic Experts Group\" format."
+			   "<p>JPEG support can be compiled into Qt, provided by a plugin ",
+			   "or turned off completely."),
+			   configPage->explainOption);
     entry = settings.readEntry( "/Trolltech/Qt/Image Formats/JPEG", "Plugin", &settingsOK );
 #if 0
     // ### disable using system JPEG for now -- please someone take a closer look
     entryPresent = settings.readEntry( "/Trolltech/Qt/Image Formats/JPEG Present", "No", &settingsOK );
-    jpegPresent = new QCheckListItem( folder, "Present", QCheckListItem::CheckBox );
+    jpegPresent = new CheckListItem( folder, "Present", QCheckListItem::CheckBox );
     jpegPresent->setOn( entry == "Yes" );
 #endif
-    jpegOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    jpegOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     jpegOff->setOn( entry == "Off" );
-    jpegPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    jpegPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
     jpegPlugin->setOn( entry == "Plugin" );
-    jpegDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
+    jpegDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
     jpegDirect->setOn( entry == "Direct" );
 
-    folder = new QCheckListItem( imfolder, "PNG" );
-    folder->setOpen( true );
+    folder = new CheckListItem( imfolder, "PNG" );
+    folder->setHelpText(tr("<p>Qt can support the \"Portable Network Graphics\" format."
+			   "<p>PNG support can be compiled into Qt, provided by a plugin ",
+			   "or turned off completely."),
+			   configPage->explainOption);
     entry = settings.readEntry( "/Trolltech/Qt/Image Formats/PNG", "Direct", &settingsOK );
 #if 0
     // ### disable using system PNG for now -- please someone take a closer look
     entryPresent = settings.readEntry( "/Trolltech/Qt/Image Formats/PNG Present", "No", &settingsOK );
-    pngPresent = new QCheckListItem( folder, "Present", QCheckListItem::CheckBox );
+    pngPresent = new CheckListItem( folder, "Present", QCheckListItem::CheckBox );
     pngPresent->setOn( entry == "Yes" );
 #endif
-    pngOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    pngOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     pngOff->setOn( entry == "Off" );
     // PNG is required by the build system (ie. we use PNG), so don't allow it to be turned off
     pngOff->setEnabled( FALSE );
-    pngPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    pngPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
     pngPlugin->setOn( entry == "Plugin" );
-    pngDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
+    pngDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
     pngDirect->setOn( entry == "Direct" );
 
-    QCheckListItem *sqlfolder = new QCheckListItem( configPage->advancedList, "Sql Drivers" );
-    sqlfolder->setOpen( true );
+    CheckListItem *sqlfolder = new CheckListItem( configPage->advancedList, "Sql Drivers" );
+    sqlfolder->setHelpText(tr("<p>Select the SQL Drivers you want to support."
+			      "<p>SQL Drivers can be built into Qt or built as plugins to be more flexible "
+			      "for later extensions."
+			      "<p><font color=#FF0000>You must have the appropriate client libraries "
+			      "and header files installed correctly before you can build the Qt SQL drivers.</font>"),
+			   configPage->explainOption);
 
-    folder = new QCheckListItem( sqlfolder, "DB2" );
-    folder->setOpen( findFile( "db2cli.lib" ) && findFile( "sqlcli1.h" ) );
+    folder = new CheckListItem( sqlfolder, "iBase" );
+    folder->addRequiredFiles("ibase.h");
+    if (globalInformation.sysId() == GlobalInformation::Borland)
+	folder->addRequiredFiles("gds32.lib");
+    else
+	folder->addRequiredFiles("gds32_ms.lib");
+
+    entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/iBase", "Off", &settingsOK );
+    ibaseOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    ibaseOff->setOn( true );
+    ibaseOff->setEnabled( enterprise );
+    ibasePlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    ibasePlugin->setOn( entry == "Plugin" && folder->verify() && enterprise );
+    ibasePlugin->setEnabled( enterprise );
+    ibaseDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    ibaseDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
+    ibaseDirect->setEnabled( enterprise );
+
+    folder = new CheckListItem( sqlfolder, "DB2" );
+    folder->addRequiredFiles("db2cli.lib,sqlcli1.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/DB2", "Off", &settingsOK );
-    db2Off = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
-    db2Off->setOn( entry == "Off" );
+    db2Off = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    db2Off->setOn( true );
     db2Off->setEnabled( enterprise );
-    db2Plugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-    db2Plugin->setOn( entry == "Plugin" );
+    db2Plugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    db2Plugin->setOn( entry == "Plugin" && folder->verify() && enterprise );
     db2Plugin->setEnabled( enterprise );
-    db2Direct = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-    db2Direct->setOn( entry == "Direct" );
+    db2Direct = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    db2Direct->setOn( entry == "Direct" && folder->verify() && enterprise );
     db2Direct->setEnabled( enterprise );
-    if ( !enterprise )
-	db2Off->setOn( true );
 
-    folder = new QCheckListItem( sqlfolder, "TDS" );
-    folder->setOpen( findFile( "ntwdblib.lib" ) && findFile( "sqldb.h" ) );
+    folder = new CheckListItem( sqlfolder, "TDS" );
+    folder->addRequiredFiles("ntwdblib.lib,sqldb.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/TDS", "Off", &settingsOK );
-    tdsOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
-    tdsOff->setOn( entry == "Off" );
+    tdsOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    tdsOff->setOn( true );
     tdsOff->setEnabled( enterprise );
-    tdsPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-    tdsPlugin->setOn( entry == "Plugin" );
+    tdsPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    tdsPlugin->setOn( entry == "Plugin" && folder->verify() && enterprise );
     tdsPlugin->setEnabled( enterprise );
-    tdsDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-    tdsDirect->setOn( entry == "Direct" );
+    tdsDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    tdsDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     tdsDirect->setEnabled( enterprise );
-    if ( !enterprise )
-	tdsOff->setOn( true );
 
-    folder = new QCheckListItem( sqlfolder, "PostgreSQL" );
-    folder->setOpen( findFile( "libpqdll.lib" ) && findFile( "libpq-fe.h" ) );
+    folder = new CheckListItem( sqlfolder, "PostgreSQL" );
+    folder->addRequiredFiles("libpqdll.lib,libpq-fe.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/PostgreSQL", "Off", &settingsOK );
-    psqlOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
-    psqlOff->setOn( entry == "Off" );
+    psqlOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    psqlOff->setOn( true );
     psqlOff->setEnabled( enterprise );
-    psqlPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-    psqlPlugin->setOn( entry == "Plugin" );
+    psqlPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    psqlPlugin->setOn( entry == "Plugin" && folder->verify() && enterprise );
     psqlPlugin->setEnabled( enterprise );
-    psqlDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-    psqlDirect->setOn( entry == "Direct" );
+    psqlDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    psqlDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     psqlDirect->setEnabled( enterprise );
-    if ( !enterprise )
-	psqlOff->setOn( true );
 
-    folder = new QCheckListItem( sqlfolder, "OCI" );
-    folder->setOpen( findFile( "oci.lib" ) && findFile( "oci.h" ) );
+    folder = new CheckListItem( sqlfolder, "OCI" );
+    folder->addRequiredFiles("oci.lib,oci.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/OCI", "Off", &settingsOK );
-    ociOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
-    ociOff->setOn( entry == "Off" );
+    ociOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    ociOff->setOn( true );
     ociOff->setEnabled( enterprise );
-    ociPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-    ociPlugin->setOn( entry == "Plugin" );
+    ociPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    ociPlugin->setOn( entry == "Plugin" && folder->verify() && enterprise );
     ociPlugin->setEnabled( enterprise );
-    ociDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-    ociDirect->setOn( entry == "Direct" );
+    ociDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    ociDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     ociDirect->setEnabled( enterprise );
-    if ( !enterprise )
-	ociOff->setOn( true );
 
-    folder = new QCheckListItem( sqlfolder, "MySQL" );
-    folder->setOpen( findFile( "libmysql.lib" ) && findFile( "mysql.h" ) );
+    folder = new CheckListItem( sqlfolder, "MySQL" );
+    folder->addRequiredFiles("libmysql.lib,mysql.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/MySQL", "Off", &settingsOK );
-    mysqlOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
-    mysqlOff->setOn( entry == "Off" );
+    mysqlOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    mysqlOff->setOn( true );
     mysqlOff->setEnabled( enterprise );
-    mysqlPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-    mysqlPlugin->setOn( entry == "Plugin" );
+    mysqlPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    mysqlPlugin->setOn( entry == "Plugin" && folder->verify() && enterprise );
     mysqlPlugin->setEnabled( enterprise );
-    mysqlDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-    mysqlDirect->setOn( entry == "Direct" );
+    mysqlDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    mysqlDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     mysqlDirect->setEnabled( enterprise );
-    if ( !enterprise )
-	mysqlOff->setOn( true );
 
-    folder = new QCheckListItem( sqlfolder, "ODBC" );
-    folder->setOpen( findFile( "odbc32.lib" ) && findFile( "sql.h" ) );
+    folder = new CheckListItem( sqlfolder, "SQLite" );
+    entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/SQLite", "Off", &settingsOK );
+    sqliteOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    sqliteOff->setOn( true );
+    sqliteOff->setEnabled( enterprise );
+    sqlitePlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    sqlitePlugin->setOn( entry == "Plugin" && folder->verify() && enterprise );
+    sqlitePlugin->setEnabled( enterprise );
+    sqliteDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    sqliteDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
+    sqliteDirect->setEnabled( enterprise );
+
+    folder = new CheckListItem( sqlfolder, "ODBC" );
+    folder->addRequiredFiles("odbc32.lib,sql.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/ODBC", "Off", &settingsOK );
-    odbcOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
-    odbcOff->setOn( entry == "Off" );
+    odbcOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    odbcOff->setOn( true );
     odbcOff->setEnabled( enterprise );
-    odbcPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-    odbcPlugin->setOn( entry == "Plugin" );
+    odbcPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    odbcPlugin->setOn( entry == "Plugin" && folder->verify() && enterprise );
     odbcPlugin->setEnabled( enterprise );
-    odbcDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-    odbcDirect->setOn( entry == "Direct" );
+    odbcDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    odbcDirect->setOn( entry == "Direct" && folder->verify() && enterprise );
     odbcDirect->setEnabled( enterprise );
-    if ( !enterprise )
-	odbcOff->setOn( true );
 
-    QCheckListItem *stfolder = new QCheckListItem( configPage->advancedList, "Styles" );
-    stfolder->setOpen( true );
+    CheckListItem *stfolder = new CheckListItem( configPage->advancedList, "Styles" );
+    stfolder->setHelpText(tr("Select support for the various GUI styles that Qt supports." ),configPage->explainOption);
 
-    folder = new QCheckListItem( stfolder, "SGI" );
-    folder->setOpen( true );
-    entry = settings.readEntry( "/Trolltech/Qt/Styles/SGI", "Direct", &settingsOK );
-    sgiOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    folder = new CheckListItem( stfolder, "SGI" );
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/SGI", "Plugin", &settingsOK );
+    sgiOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     sgiOff->setOn( entry == "Off" );
-    sgiPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );	    
+    sgiPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );	    
     sgiPlugin->setOn( entry == "Plugin" );
-    sgiDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    sgiDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     sgiDirect->setOn( entry == "Direct" );
 
-    folder = new QCheckListItem( stfolder, "CDE" );
-    folder->setOpen( true );
-    entry = settings.readEntry( "/Trolltech/Qt/Styles/CDE", "Direct", &settingsOK );
-    cdeOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    folder = new CheckListItem( stfolder, "CDE" );
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/CDE", "Plugin", &settingsOK );
+    cdeOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     cdeOff->setOn( entry == "Off" );
-    cdePlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    cdePlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
     cdePlugin->setOn( entry == "Plugin" );
-    cdeDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    cdeDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     cdeDirect->setOn( entry == "Direct" );
 
-    folder = new QCheckListItem( stfolder, "MotifPlus" );
-    folder->setOpen( true );
-    entry = settings.readEntry( "/Trolltech/Qt/Styles/MotifPlus", "Direct", &settingsOK );
-    motifplusOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    folder = new CheckListItem( stfolder, "MotifPlus" );
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/MotifPlus", "Plugin", &settingsOK );
+    motifplusOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     motifplusOff->setOn( entry == "Off" );
-    motifplusPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );	    
+    motifplusPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );	    
     motifplusPlugin->setOn( entry == "Plugin" );
-    motifplusDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    motifplusDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     motifplusDirect->setOn( entry == "Direct" );
 
-    folder = new QCheckListItem( stfolder, "Platinum" );
-    folder->setOpen( true );
-    entry = settings.readEntry( "/Trolltech/Qt/Styles/Platinum", "Direct", &settingsOK );
-    platinumOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    folder = new CheckListItem( stfolder, "Platinum" );
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/Platinum", "Plugin", &settingsOK );
+    platinumOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     platinumOff->setOn( entry == "Off" );
-    platinumPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    platinumPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
     platinumPlugin->setOn( entry == "Plugin" );
-    platinumDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
+    platinumDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
     platinumDirect->setOn( entry == "Direct" );
 
-    folder = new QCheckListItem( stfolder, "Motif" );
-    folder->setOpen( true );
-    entry = settings.readEntry( "/Trolltech/Qt/Styles/Motif", "Direct", &settingsOK );
-    motifOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    folder = new CheckListItem( stfolder, "Motif" );
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/Motif", "Plugin", &settingsOK );
+    motifOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     motifOff->setOn( entry == "Off" );
-    motifPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    motifPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
     motifPlugin->setOn( entry == "Plugin" );
-    motifDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    motifDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     motifDirect->setOn( entry == "Direct" );
 
-    bool canXPStyle = findXPSupport();
-    folder = new QCheckListItem( stfolder, "Windows XP" );
-    folder->setOpen( canXPStyle );
-    entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows XP", canXPStyle ? "Plugin" : "Off", &settingsOK );
-    xpOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
-    xpOff->setOn( entry == "Off" || !canXPStyle );
-    xpPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-    xpPlugin->setOn( entry == "Plugin" && canXPStyle );
+    folder = new CheckListItem( stfolder, "Windows XP" );
+    folder->addRequiredFiles("uxtheme.h");
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows XP", "Direct", &settingsOK );
+    xpOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    xpOff->setOn( entry == "Off" );
+    xpPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    xpPlugin->setOn( entry == "Plugin" && folder->verify() );
     xpPlugin->setEnabled( true );
-    xpDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-    xpDirect->setOn( entry == "Direct" && canXPStyle );
+    xpDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    xpDirect->setOn( entry == "Direct" && folder->verify() );
     xpDirect->setEnabled( true );
 
-    folder = new QCheckListItem( stfolder, "Windows" );
-    folder->setOpen( true );
+    folder = new CheckListItem( stfolder, "Windows" );
     entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows", "Direct", &settingsOK );
-    item = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    item = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     item->setEnabled( false );
     item->setOn( entry == "Off" );
-    item = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    item = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
     item->setEnabled( false );
     item->setOn( entry == "Plugin" );
-    item = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    item = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     item->setOn( entry == "Direct" );
 
     entries = settings.readListEntry( "/Trolltech/Qt/Advanced C++", ',', &settingsOK );
-    folder = new QCheckListItem( configPage->advancedList, "Advanced C++" );
-    folder->setOpen( true );
-    advancedRTTI = new QCheckListItem( folder, "RTTI", QCheckListItem::CheckBox );
+    folder = new CheckListItem( configPage->advancedList, "Advanced C++" );
+    folder->setHelpText(tr("Qt can be built with exception handling, STL support and RTTI support "
+			   "enabled or disabled. Qt itself doesn't use any of those features."
+			   "The default is to disable all advanced C++ features."),
+			   configPage->explainOption);
+    advancedRTTI = new CheckListItem( folder, "RTTI", QCheckListItem::CheckBox );
     advancedRTTI->setOn( entries.contains( "RTTI" ) );
-    advancedExceptions = new QCheckListItem( folder, "Exceptions", QCheckListItem::CheckBox );
+    advancedExceptions = new CheckListItem( folder, "Exceptions", QCheckListItem::CheckBox );
     advancedExceptions->setOn( entries.contains( "Exceptions" ) );
-    advancedSTL = new QCheckListItem( folder, "STL", QCheckListItem::CheckBox );
+    advancedSTL = new CheckListItem( folder, "STL", QCheckListItem::CheckBox );
     advancedSTL->setOn( entries.contains( "STL" ) );
 
-    folder = new QCheckListItem( configPage->advancedList, "Tablet Support" );
-    folder->setOpen( true );
+    folder = new CheckListItem( configPage->advancedList, "Tablet Support" );
+    folder->setHelpText(tr("Qt can support the Wacom brand tablet device."), configPage->explainOption);
+    folder->addRequiredFiles("wintab.h,wintab.lib");
+    folder->setRequiredFileLocation("available at http://www.pointing.com/FTP.HTM");
     entry = settings.readEntry( "/Trolltech/Qt/Tablet Support", "Off", &settingsOK );
-    tabletOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    tabletOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     tabletOff->setOn( entry == "Off" );
-    tabletOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
-    tabletOn->setOn( entry == "On" );
+    tabletOn = new CheckListItem( folder, "On", QCheckListItem::RadioButton );
+    tabletOn->setOn( entry == "On" && folder->verify() );
 
-    folder = new QCheckListItem( configPage->advancedList, "Accessibility" );
-    folder->setOpen( true );
+    folder = new CheckListItem( configPage->advancedList, "Accessibility" );
+    folder->setHelpText(tr("<p>Accessibility means making software usable and accessible to a wide "
+			   "range of users, including those with disabilities."
+			   "This feature is only available with a shared Qt library."),
+			   configPage->explainOption);
     entry = settings.readEntry( "/Trolltech/Qt/Accessibility", "On", &settingsOK );
-    accOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    accOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     accOff->setOn( entry == "Off" );
-    accOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
+    accOn = new CheckListItem( folder, "On", QCheckListItem::RadioButton );
     accOn->setOn( entry == "On" );
 
     entry = settings.readEntry( "/Trolltech/Qt/Big Textcodecs", "On", &settingsOK );
-    folder = new QCheckListItem( configPage->advancedList, "Big Textcodecs" );
-    folder->setOpen( true );
-    bigCodecsOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    folder = new CheckListItem( configPage->advancedList, "Big Textcodecs" );
+    folder->setHelpText(tr("Textcodecs provide translations between text encodings. For "
+			   "languages and script systems with many characters it is necessary "
+			   "to have big data tables that provide the translation. Those codecs "
+			   "can be left out of the Qt library and will be loaded on demand.\n"
+			   "Having the codecs in a plugin is not available with a static Qt "
+			   "library."), configPage->explainOption);
+    bigCodecsOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     bigCodecsOff->setOn( entry == "Off" );
-    bigCodecsOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );	
+    bigCodecsOn = new CheckListItem( folder, "On", QCheckListItem::RadioButton );	
     bigCodecsOn->setOn( entry == "On" );
-
-    optionSelected( 0 );
 
     setStaticEnabled( staticItem->isOn() );
     setJpegDirect( mngDirect->isOn() );
+
+    configPage->configList->setUpdatesEnabled(TRUE);
+    configPage->advancedList->setUpdatesEnabled(TRUE);
 
     setBackEnabled( buildPage, false );
 #endif
@@ -1315,363 +1585,32 @@ void SetupWizardImpl::showPageBuild()
 
 }
 
-// Please note that file exists tests should also be
-// added to the verifyConfig() function below..
-void SetupWizardImpl::optionSelected( QListViewItem *i )
+static bool verifyHelper(QListView *listview, bool result)
 {
-    if ( !i ) {
-	configPage->explainOption->setText( "" );
-	return;
-    }
+    QListViewItemIterator it(listview);
+    while (it.current()) {
+	QListViewItem *item = it.current();
+	++it;
+	if (item->rtti() != CheckListItem::RTTI)
+	    continue;
 
-    if ( i->rtti() != QCheckListItem::RTTI )
-	return;
+	CheckListItem *checkItem = (CheckListItem*)item;
+	if (!checkItem->isOn())
+	    continue;
 
-#if defined(EVAL) || defined(EDU)
-    if ( i == mysqlPluginInstall ) {
-	configPage->explainOption->setText( tr(
-		    "Installs the MySQL 3.x database driver."
-		    ) );
+	bool r = checkItem->verify();
+	checkItem->setCritical(!r);
+	if (result) result = r;
     }
-    if ( i == ociPluginInstall ) {
-	configPage->explainOption->setText( tr(
-		    "<p>Installs the Oracale Call Interface (OCI) driver.</p> "
-		    "<p><font color=\"red\">Choosing this option requires "
-		    "that the Oracle Client is installed and set up. "
-		    "The driver depends on the oci.dll.</font></p>"
-		    ) );
-    }
-    if ( i == odbcPluginInstall ) {
-	configPage->explainOption->setText( tr(
-		    "Installs the Open Database Connectivity (ODBC) driver. "
-		    "This driver depends on the odbc32.dll which should be "
-		    "available on all modern Windows installations."
-		    ) );
-    }
-    if ( i == psqlPluginInstall ) {
-	configPage->explainOption->setText( tr(
-		    "Installs the PostgreSQL 7.1 driver. This driver can "
-		    "be used to access PostgreSQL 6 databases as well "
-		    "as PostgreSQL 7 databases."
-		    ) );
-    }
-    if ( i == tdsPluginInstall ) {
-	configPage->explainOption->setText( tr(
-		    "Installs the TDS driver to access Sybase Adaptive "
-		    "Server and Microsoft SQL Server (it is recommended "
-		    "to rather use ODBC instead of TDS where applicable). "
-		    "<p><font color=\"red\">Choosing this option requires "
-		    "that the ntwdblib.dll is available.</font></p>"
-		    ) );
-    }
-    if ( i == db2PluginInstall ) {
-	configPage->explainOption->setText( tr(
-		    "Installs the DB2 driver. This driver can "
-		    "be used to access DB2 databases."
-		    "<p><font color=\"red\">Choosing this option requires "
-		    "that the DB2 Client is installed and set up. "
-		    "The driver depends on the db2cli.dll.</font></p>"
-		    ) );
-    }
-    return; // ### at the moment, the other options are not available in the evaluation version
-#elif defined(NON_COMMERCIAL)
-    if ( i == sqlitePluginInstall ) {
-	configPage->explainOption->setText( tr(
-		    "Installs the SQLite driver.\n"
-		    "This driver is an in-process SQL database "
-		    "driver. It is needed for some of the "
-		    "examples used in the book."
-		    ) );
-    }
-    return;
-#endif
-    if( mysqlDirect && ( i == mysqlDirect->parent() || i == mysqlDirect || i == mysqlPlugin ) && 
-	!(findFile( "libmysql.lib" ) && findFile( "mysql.h" ) ) )
-	QMessageBox::warning( this, "Client libraries needed", "The MySQL driver may not build and link properly because\n"
-				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
-    if( ociDirect && ( i == ociDirect->parent() || i == ociDirect || i == ociPlugin ) && 
-	!(findFile( "oci.lib" ) && findFile( "oci.h" ) ) )
-	QMessageBox::warning( this, "Client libraries needed", "The OCI driver may not build and link properly because\n"
-				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
-    if( odbcDirect && ( i == odbcDirect->parent() || i == odbcDirect || i == odbcPlugin ) && 
-	!(findFile( "odbc32.lib" ) && findFile( "sql.h" ) ) )
-	QMessageBox::warning( this, "Client libraries needed", "The ODBC driver may not build and link properly because\n"
-				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
-    if( psqlDirect && ( i == psqlDirect->parent() || i == psqlDirect || i == psqlPlugin ) && 
-	!(findFile( "libpqdll.lib" ) && findFile( "libpq-fe.h" ) ) )
-	QMessageBox::warning( this, "Client libraries needed", "The PostgreSQL driver may not build and link properly because\n"
-				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
-    if ( tdsDirect && ( i == tdsDirect->parent() || i == tdsDirect || i == tdsPlugin ) &&
-	!(findFile( "ntwdblib.lib" ) && findFile( "sqldb.h" ) ) )
-	QMessageBox::warning( this, "Client libraries needed", "The TDS driver may not build and link properly because\n"
-				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
-    if ( db2Direct && ( i == db2Direct->parent() || i == db2Direct || i == db2Plugin ) &&
-	!(findFile( "db2cli.lib" ) && findFile( "sqlcli1.h" ) ) )
-	QMessageBox::warning( this, "Client libraries needed", "The DB2 driver may not build and link properly because\n"
-				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
-    if ( ( i == xpPlugin || i == xpDirect || i == xpPlugin->parent() ) && !findXPSupport() ) {
-	QMessageBox::warning( this, "Platform SDK needed", "The Windows XP style requires a Platform SDK with support for\n"
-							   "Windows XP to be installed properly. The required libraries and\n"
-							   "headers were not found in the LIB and INCLUDE environment variable paths." );
-    }
-    if ( ( i == tabletOn->parent() || i == tabletOn ) && !findFile( "wintab.h" ) ) {
-	QMessageBox::warning( this, "SDK required", "Qt may not build and link properly because\n"
-				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
-    }
-
-    if ( i->text(0) == "Required" ) {
-	configPage->explainOption->setText( tr("These modules are a necessary part of the Qt library. "
-				   "They can not be disabled.") );
-    } else if ( i->parent() && i->parent()->text(0) == "Required" ) {
-	configPage->explainOption->setText( tr("This module is a necessary part of the Qt library. "
-				   "It can not be disabled.") ); 
-    } else if ( i->text(0) == "Modules" ) {
-	configPage->explainOption->setText( tr("Some of these modules are optional. "
-				   "You can deselect the modules that you "
-				   "don't require for your development.\n"
-				   "By default, all modules are selected.") );
-    } else if ( i->parent() && i->parent()->text(0) == "Modules" ) {
-	QString moduleText;
-	// ### have some explanation of the module here
-	configPage->explainOption->setText( tr("Some of these modules are optional. "
-				   "You can deselect the modules that you "
-				   "don't require for your development.\n"
-				   "By default, all modules are selected.") );
-    } else if ( i->text(0) == "Threading" ) {
-	configPage->explainOption->setText( tr("Build the Qt library with or without thread support. "
-			    "By default, threading is supported.") );
-    } else if ( i->parent() && i->parent()->text(0) == "Threading" ) {
-	if ( i->text(0) == "Threaded" ) {
-	    configPage->explainOption->setText("Select this option if you want to be able to use threads "
-				   "in your application.");
-	} else {
-	    configPage->explainOption->setText("Select this option if you do not need thread support.\n"
-				   "Some classes will not be available without thread support.");
-	}
-    } else if ( i->text(0) == "Build" ) {
-	configPage->explainOption->setText( tr("<p>Use the debug build of the Qt library to enhance "
-				   "debugging of your application. The release build "
-				   "is both smaller and faster.</p>") );
-    } else if ( i->text(0) == "Debug" ) {
-	configPage->explainOption->setText( tr("<p>A debug build will include debug information in the "
-	                           "Qt library and tools.  This will facilitate debugging "
-				   "of your application.</p>") );
-    } else if ( i->text(0) == "Release" ) {
-	configPage->explainOption->setText( tr("<p>A release build will build the library and tools without "
-				   "debugging information.  The resulting code is suited for "
-				   "a release, and is both smaller and faster.</p>") );
-    } else if ( i->text(0) == "Library" ) {
-	configPage->explainOption->setText( "Build a static or a shared Qt library." );
-    } else if ( i->parent() && i->parent()->text( 0 ) == "Library" ) {
-	if ( i->text(0) == "Static" ) {
-	    configPage->explainOption->setText( tr("<p>Build the Qt library as a static library."
-				       "All applications created with a static "
-				       "library will be at least 1.5MB big.</p>"
-				       "<p><font color=\"red\">It is not possible to "
-				       "build or use any components or plugins with a "
-				       "static Qt library!</font></p>") );
-	} else {
-	    configPage->explainOption->setText("<p>A shared Qt library makes it necessary to "
-				   "distribute the Qt DLL together with your software.</p>"
-				   "<p>Applications and libraries linked against a shared Qt library "
-				   "are small and can make use of components and plugins.</p>" );
-	}
-    } else if ( i->text( 0 ) == "Sql Drivers" ) {
-	configPage->explainOption->setText("Select the SQL Drivers you want to support. "
-				"<font color=#FF0000>You must have the appropriate client libraries "
-				"and header files installed correctly before you can build the Qt SQL drivers.</font>" );
-    } else if ( ( i->parent() && i->parent()->text( 0 )== "Sql Drivers" )
-	||  ( i->parent() && i->parent()->parent() && i->parent()->parent()->text( 0 )== "Sql Drivers" ) ) {
-	configPage->explainOption->setText( "Select the SQL Drivers you want to support. "
-			        "<font color=#FF0000>You must have the appropriate client libraries "
-				"and header files installed correctly before you can build the Qt SQL drivers.</font> "
-				"Selected SQL Drivers will be integrated into Qt. \nYou can also "
-				"build every SQL Driver as a plugin to be more flexible for later "
-				"extensions. Building a plugin is not supported in the installer at "
-				"this point. You will have to do it manually after the installation "
-				"succeeded. Read the help files in QTDIR\\plugins\\src\\sqldrivers for "
-				"further instructions." );
-    } else if ( i->text( 0 ) == "Styles" ) {
-	configPage->explainOption->setText( QString("Select support for the various GUI styles that Qt has emulation for." ) );
-    } else if ( ( i->parent() && i->parent()->text( 0 ) == "Styles" ) 
-	||  ( i->parent() && i->parent()->parent() && i->parent()->parent()->text( 0 )== "Styles" ) ) {
-	QString styleName = (i->parent()->text( 0 ) == "Styles") ? i->text( 0 ) : i->parent()->text( 0 );
-	if ( styleName == "Windows" ) {
-	    configPage->explainOption->setText( QString("The %1 style is builtin to the Qt library.").arg( styleName ) );
-	} else {
-	    configPage->explainOption->setText( QString("Selects support for the %1 style. The style can be built "
-				    "as a plugin, or builtin to the library, or not at all.").arg( styleName ) );
-	}
-    } else if ( i == accOff ) {
-	configPage->explainOption->setText( "Turns off accessibility support. People who need accessibility "
-				"clients will not be able to use your software." );
-    } else if ( i == accOn ) {
-	configPage->explainOption->setText( "Enables your Qt software to be used with accessibility clients, "
-				"like a magnifier or narrator tool. The accessibility information "
-				"for the Qt widgets is provided by a plugin on demand and can be "
-				"exchanged or extended easily." );
-    } else if ( i->text(0) == "Accessibility" ) {
-	configPage->explainOption->setText( "Accessibility means making software usable and accessible to a wide "
-				"range of users, including those with disabilities.\n"
-				"This feature relies on components and is not available with a static "
-				"Qt library." );
-    } else if ( i == bigCodecsOff ) {
-	configPage->explainOption->setText( "All big textcodecs are provided by plugins and get loaded on demand." );
-    } else if ( i == bigCodecsOn ) {
-	configPage->explainOption->setText( "The big textcodecs are compiled into the Qt library." );
-    } else if ( i->text(0) == "Big Textcodecs" ) {
-	configPage->explainOption->setText( "Textcodecs provide translations between text encodings. For "
-				"languages and script systems with many characters it is necessary "
-				"to have big data tables that provide the translation. Those codecs "
-				"can be left out of the Qt library and will be loaded on demand.\n"
-				"Having the codecs in a plugin is not available with a static Qt "
-				"library." );
-    } else if ( i->text(0) == "Tablet Support" ) {
-	configPage->explainOption->setText( "Qt can support the Wacom brand tablet device." );
-    } else if ( i == tabletOff ) {
-	configPage->explainOption->setText( "Support for the Wacom tablet is disabled. This is the default option." );
-    } else if ( i == tabletOn ) {
-	configPage->explainOption->setText( "This option builds in support for Wacom(c) tablets.\n"
-				"To use a supported tablet, you must have built the Wintab SDK available "
-				"at http://www.pointing.com/FTP.HTM and have your INCLUDE and LIBRARY path "
-				"set appropriately." );
-    } else if ( i->text(0) == "Advanced C++" ) {
-	configPage->explainOption->setText( "Qt can be built with exception handling, STL support and RTTI support "
-		                "enabled or disabled.\n"
-				"The default is to disable all advanced C++ features." );
-    } else if ( i == advancedSTL ) {
-	configPage->explainOption->setText( "This option builds Qt with exception handling and STL support enabled. "
-				"Depending on your compiler, this might cause slower execution, larger "
-				"binaries, or compiler issues." );
-    } else if ( i == advancedExceptions ) {
-	configPage->explainOption->setText( "This option builds Qt with exception handling enabled. "
-				"Depending on your compiler, this might cause slower execution, larger "
-				"binaries, or compiler issues." );
-    } else if ( i == advancedRTTI ) {
-	configPage->explainOption->setText( "This option builds Qt with runtime type information (RTTI). "
-				"Depending on your compiler, this might cause slower execution, larger "
-				"binaries, or compiler issues." );
-    } else if ( i->text(0) == "Image Formats" ) {
-	configPage->explainOption->setText( "Qt ships with support for a wide range of common image formats. "
-				"Standard formats are always included in Qt, and some more special formats "
-				"can be left out from the Qt library itself and provided by a plugin instead." );
-    } else if ( i == gifOff ) {
-	configPage->explainOption->setText( "Turn off support for GIF images." );
-    } else if ( i == gifDirect ) {
-	configPage->explainOption->setText( "<p>Support for GIF images is compiled into Qt.</p>"
-				"<p><font color=\"red\">If you are in a country "
-				"which recognizes software patents and in which "
-				"Unisys holds a patent on LZW compression and/or "
-				"decompression and you want to use GIF, Unisys "
-				"may require you to license the technology. Such "
-				"countries include Canada, Japan, the USA, "
-				"France, Germany, Italy and the UK.</font></p>" );
-    } else if ( i->text(0) == "GIF" ) {
-	configPage->explainOption->setText( "Qt supports the \"Graphics Interchange Format\".");
-    } else if ( i == mngPlugin ) {
-	configPage->explainOption->setText( "Support for MNG images is provided by a plugin that is loaded on demand." );
-    } else if ( i == mngOff ) {
-	configPage->explainOption->setText( "Turn off support for MNG images." );
-    } else if ( i == mngDirect ) {
-	configPage->explainOption->setText( "Support for MNG images is compiled into Qt. This requires JPEG support compiled into Qt as well." );
-#if 0
-    } else if ( i == mngPresent ) {
-	configPage->explainOption->setText( "Support for MNG images is provided by linking against an existing libmng." );
-#endif
-    } else if ( i->text(0) == "MNG" ) {
-	configPage->explainOption->setText( "Qt supports the \"Multiple-Image Network Graphics\" format either "
-				"by compiling the mng sources "
-				"into Qt, or by loading a plugin on demand." );
-    } else if ( i == jpegPlugin ) {
-	configPage->explainOption->setText( "Support for JPEG images is provided by a plugin that is loaded on demand." );
-    } else if ( i == jpegOff ) {
-	configPage->explainOption->setText( "Turn off support for JPEG images." );
-    } else if ( i == jpegDirect ) {
-	configPage->explainOption->setText( "Support for JPEG images is compiled into Qt." );
-#if 0
-    } else if ( i == jpegPresent ) {
-	configPage->explainOption->setText( "Support for JPEG images is provided by linking against an existing libjpeg." );
-#endif
-    } else if ( i->text(0) == "JPEG" ) {
-	configPage->explainOption->setText( "Qt supports the \"Joint Photographic Experts Group\" format either "
-				"by compiling the jpeg sources "
-				"into Qt, or by loading a plugin on demand." );
-    } else if ( i == pngPlugin ) {
-	configPage->explainOption->setText( "Support for PNG images is provided by a plugin that is loaded on demand." );
-    } else if ( i == pngOff ) {
-	configPage->explainOption->setText( "<p>Turn off support for PNG images.</p>"
-				"<p><font color=\"red\">Qt Designer, Qt Assistant and Qt Linguist use "
-				"the imageformat PNG. If you choose this option, the images in these "
-				"programs will be missing.</font></p>" );
-    } else if ( i == pngDirect ) {
-	configPage->explainOption->setText( "Support for PNG images is compiled into Qt." );
-#if 0
-    } else if ( i == pngPresent ) {
-	configPage->explainOption->setText( "Support for PNG images is provided by linking against an existing libpng." );
-#endif
-    } else if ( i->text(0) == "PNG" ) {
-	configPage->explainOption->setText( "Qt supports the \"Portable Network Graphics\" format either "
-				"by compiling the png support "
-				"into Qt, or by loading a plugin on demand." );
-    } else if ( i->text(0) == "zlib" ) {
-	configPage->explainOption->setText( "Qt supports the 3rd party zlib library either by compiling it into "
-					    "Qt, or by linking against the library supplied with the system." );
-    } else if ( i == zlibDirect ) {
-	configPage->explainOption->setText( "Support for the 3rd party zlib library is compiled into Qt." );
-    } else if ( i == zlibSystem ) {
-	configPage->explainOption->setText( "Support for the 3rd party zlib library is provided by linking against "
-					    "an existing zlib.lib" );
-    } else if ( i == zlibOff ) {
-	configPage->explainOption->setText( "Turn off support for the 3rd party zlib library" );
-    } else if ( i->text(0) == "DSP Generation" ) {
-	configPage->explainOption->setText( "qmake will generate the Visual Studio 6 project files (dsp) as well as "
-					    "makefiles for the pro files when Qt is being configured." );
-    } else if ( i == dspOn ) {
-	configPage->explainOption->setText( "Visual Studio 6 project file (dsp) generation is turned on" );
-    } else if ( i == dspOff ) {
-	configPage->explainOption->setText( "Visual Studio 6 project file (dsp) generation is turned off" );
-    } else if ( i->text(0) == "VCPROJ Generation" ) {
-	configPage->explainOption->setText( "qmake will generate the Visual Studio .NET project files (vcproj) as well as "
-					    "makefiles for the pro files when Qt is being configured." );
-    } else if ( i == vcprojOn ) {
-	configPage->explainOption->setText( "Visual Studio .NET project file (vcproj) generation is turned on" );
-    } else if ( i == vcprojOff ) {
-	configPage->explainOption->setText( "Visual Studio .NET project file (vcproj) generation is turned off" );
-    }
+    return result;
 }
 
 bool SetupWizardImpl::verifyConfig()
 {
     bool result = TRUE;
 #if !defined(EVAL) && !defined(EDU) && !defined(NON_COMMERCIAL)
-    if( mysqlOff && !mysqlOff->isOn() && !(findFile( "libmysql.lib" ) && findFile( "mysql.h" ) ) ) {
-	mysqlOff->parent()->setText( 0, mysqlOff->parent()->text(0).append( " <--" ) );
-	result = FALSE;
-    }
-    if( ociOff && !ociOff->isOn() && !(findFile( "oci.lib" ) && findFile( "oci.h" ) ) ) {
-	ociOff->parent()->setText( 0, ociOff->parent()->text(0).append( " <--" ) );
-	result = FALSE;
-    }
-    if( odbcOff && !odbcOff->isOn() && !(findFile( "odbc32.lib" ) && findFile( "sql.h" ) ) ) {
-	odbcOff->parent()->setText( 0, odbcOff->parent()->text(0).append( " <--" ) );
-	result = FALSE;
-    }
-    if( psqlOff && !psqlOff->isOn() && !(findFile( "libpqdll.lib" ) && findFile( "libpq-fe.h" ) ) ) {
-	psqlOff->parent()->setText( 0, psqlOff->parent()->text(0).append( " <--" ) );
-	result = FALSE;
-    }
-    if( tdsOff && !tdsOff->isOn() && !(findFile( "ntwdblib.lib" ) && findFile( "sqldb.h" ) ) ) {
-	tdsOff->parent()->setText( 0, tdsOff->parent()->text(0).append( " <--" ) );
-	result = FALSE;
-    }
-    if( xpOff && !xpOff->isOn() && !findXPSupport() ) {
-	xpOff->parent()->setText( 0, xpOff->parent()->text(0).append( " <--" ) );
-	result = FALSE;
-    }
-    if ( tabletOn->isOn() && !findFile( "wintab.h" ) ) {
-	tabletOn->parent()->setText( 0, tabletOn->parent()->text(0).append( " <--" ) );
-	result = FALSE;
-    }
+    result = verifyHelper(configPage->configList, result);
+    result = verifyHelper(configPage->advancedList, result);
 #endif
     return result;
 }

@@ -5,11 +5,11 @@ GlobalInformation::GlobalInformation() :
     _reconfig( FALSE )
 {
 #if defined(Q_OS_WIN32)
-    _sysId = MSVC;
+    _sysId = Borland;
 #elif defined(Q_OS_MAC)
     _sysId = MACX;
 #else
-    _sysId = GCC;
+    _sysId = MingW32;
 #endif
 }
 
@@ -69,7 +69,7 @@ QString GlobalInformation::text(Text t) const
 	    str = "Microsoft Visual Studio 6.0";
 	else if (t == Mkspec)
 	    str = "win32-msvc";
-	else
+	else if (t == MakeTool)
 	    str = "nmake.exe";
 	break;
     case MSVCNET:
@@ -77,63 +77,49 @@ QString GlobalInformation::text(Text t) const
 	    str = "Microsoft Visual Studio .NET";
 	else if (t == Mkspec)
 	    str = "win32-msvc.net";
-	else
+	else if (t == MakeTool)
 	    str = "nmake.exe";
 	break;
     case Watcom:
-	if (t ==  IDE)
-	    str = "Watcom compiler";
-	else if (t == Mkspec)
+	if (t == Mkspec)
 	    str = "win32-watcom";
-	else
+	else if (t == MakeTool)
 	    str = "nmake.exe"; //?
 	break;
     case Intel:
-	if (t ==  IDE)
-	    str = "Intel compiler";
-	else if (t == Mkspec)
+	if (t == Mkspec)
 	    str = "win32-icc";
-	else
+	else if (t == MakeTool)
 	    str = "nmake.exe";
 	break;
     case GCC:
-	if (t ==  IDE)
-	    str = "GNU C++";
-	else if (t == Mkspec)
+	if (t == Mkspec)
 	    str = "win32-g++";
-	else
+	else if (t == MakeTool)
 	    str = "gmake.exe";
 	break;
     case MACX:
-	if (t ==  IDE)
-	    str = "MAC X buildtool";
 	if (t == Mkspec)
 	    str = "mac-g++";
-	else
+	else if (t == MakeTool)
 	    str = "make";
 	break;
     case MinGW:
-	if (t ==  IDE)
-	    str = "MinGW C++";
-	else if (t == Mkspec)
+	if (t == Mkspec)
 	    str = "win32-g++";
-	else
+	else if (t == MakeTool)
 	    str = "mingw32-make.exe";
 	break;
     case Borland:
-	if (t == IDE)
-	    str = "Borland C++ Builder";
-	else if (t == Mkspec)
+	if (t == Mkspec)
 	    str = "win32-borland";
-	else
+	else if (t == MakeTool)
 	    str = "make.exe";
 	break;
     default:
-	if (t ==  IDE)
-	    str = "IDE";
-	else if (t == Mkspec)
+	if (t == Mkspec)
 	    str = "Custom";
-	else
+	else if (t == MakeTool)
 	    str = "make.exe";
 	break;
     }

@@ -26,8 +26,8 @@
 #include <qlayout.h>
 
 #include <keyinfo.h>
-
 #if defined(Q_OS_WIN32)
+
 #include <process.h>
 #endif
 
@@ -49,12 +49,6 @@
 #include "pages/sidedecorationimpl.h"
 
 #define FILESTOCOPY 4582
-
-#define MSVCNET_BUTTON 0
-#define MSVC_BUTTON    2
-#define BORLAND_BUTTON 3
-#define MINGW_BUTTON   5
-#define OTHER_BUTTON   4
 
 static const char* const logo_data[] = {
 "32 32 238 2",
@@ -329,6 +323,46 @@ static const char* const logo_data[] = {
 "QtQtQtQtQtQtQtQtQtQtQtQtQt#ubQbwa8#u.#QtQtQtQtQtQtQt#ubRbO#uQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQt#u#u#uQtQtQtQtQtQtQtQtQtQt#u#uQtQtQt"};
 
+static bool findFileInPaths( const QString &fileName, const QStringList &paths )
+{
+	QDir d;
+	for( QStringList::ConstIterator it = paths.begin(); it != paths.end(); ++it ) {
+	    // Remove any leading or trailing ", this is commonly used in the environment
+	    // variables
+	    QString path = (*it);
+	    if ( path.startsWith( "\"" ) )
+		path = path.right( path.length() - 1 );
+	    if ( path.endsWith( "\"" ) )
+		path = path.left( path.length() - 1 );
+	    if( d.exists( path + QDir::separator() + fileName ) )
+		return true;
+	}
+	return false;
+}
+
+bool findFile( const QString &fileName )
+{
+    QString file = fileName.lower();
+    QStringList paths;
+#if defined(Q_OS_WIN32)
+    QRegExp split( "[;,]" );
+#else
+    QRegExp split( "[:]" );
+#endif
+    if ( file.endsWith( ".h" ) ) {
+	if ( globalInformation.sysId() == GlobalInformation::Borland )
+	    return TRUE;
+	paths = QStringList::split( split, QEnvironment::getEnv( "INCLUDE" ) );
+    } else if ( file.endsWith( ".lib" ) ) {
+	if ( globalInformation.sysId() == GlobalInformation::Borland )
+	    return TRUE;
+	paths = QStringList::split( split, QEnvironment::getEnv( "LIB" ) );
+    } else {
+	paths = QStringList::split( split, QEnvironment::getEnv( "PATH" ) );
+    }
+    return findFileInPaths( file, paths );
+}
+
 static bool createDir( const QString& fullPath )
 {
     QStringList hierarchy = QStringList::split( QDir::separator(), fullPath );
@@ -416,38 +450,6 @@ SetupWizardImpl::SetupWizardImpl( QWidget* parent, const char* name, bool modal,
 	    archiveHeader = ar.readArchiveHeader();
 	}
     }
-#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
-    int sysGroupButton = MSVC_BUTTON;
-#else
-    int sysGroupButton = BORLAND_BUTTON;
-#endif
-
-#if defined(Q_OS_WIN32)
-    // First check for MSVC 6.0
-    QString regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++", "ProductDir", QEnvironment::LocalMachine );
-    if (!regValue.isEmpty())
-	sysGroupButton = MSVC_BUTTON;
-
-    // MSVC.NET 7.0 & 7.1 takes presedence over 6.0
-    regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0", "InstallDir", QEnvironment::LocalMachine );
-    if (regValue.isEmpty())
-	regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.1", "InstallDir", QEnvironment::LocalMachine );
-    if (!regValue.isEmpty())
-	sysGroupButton = MSVCNET_BUTTON;
-#endif
-
-    if ( archiveHeader ) {
-	QString qt_version_str = archiveHeader->description();
-	if ( !qt_version_str.isEmpty() )
-	    globalInformation.setQtVersionStr( qt_version_str );
-
-#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
-	if ( archiveHeader->findExtraData( "compiler" ) == "borland" ) {
-	    sysGroupButton = BORLAND_BUTTON;
-	}
-#endif
-	delete archiveHeader;
-    }
 
 #if defined(QSA)
     ResourceLoader rcLoaderQsa( "QSA_ARQ", 500 );
@@ -465,26 +467,49 @@ SetupWizardImpl::SetupWizardImpl( QWidget* parent, const char* name, bool modal,
     }
 #endif
 
+#if defined(Q_OS_WIN32)
+    // First check for MSVC 6.0
+    QString regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++", "ProductDir", QEnvironment::LocalMachine );
+    if (!regValue.isEmpty())
+	globalInformation.setSysId(GlobalInformation::MSVC);
+
+    // MSVC.NET 7.0 & 7.1 takes presedence over 6.0
+    regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0", "InstallDir", QEnvironment::LocalMachine );
+    if (regValue.isEmpty())
+	regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.1", "InstallDir", QEnvironment::LocalMachine );
+    if (!regValue.isEmpty())
+	globalInformation.setSysId(GlobalInformation::MSVCNET);
+#endif
+
+    if ( archiveHeader ) {
+	QString qt_version_str = archiveHeader->description();
+	if ( !qt_version_str.isEmpty() )
+	    globalInformation.setQtVersionStr( qt_version_str );
+
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
+	if ( archiveHeader->findExtraData( "compiler" ) != "borland" )
+	    globalInformation.setSysId(GlobalInformation::MSVC);
+#endif
+	delete archiveHeader;
+    }
+
     initPages();
     initConnections();
-    if ( optionsPage ) {
-	optionsPage->sysGroup->setButton( sysGroupButton );
-	clickedSystem( sysGroupButton );
+
+    if (optionsPage) {
 #if defined(QSA)
 	optionsPage->installPath->setText(
-		QString( "C:\\Qt_QSA\\Qt" ) +
-		QString( globalInformation.qtVersionStr() ).replace( QRegExp("\\s"), "" ).replace( QRegExp("-"), "" )
-		);
+	    QString( "C:\\Qt_QSA\\Qt" ) +
+	    QString( globalInformation.qtVersionStr() ).replace( QRegExp("\\s"), "" ).replace( QRegExp("-"), "" )
+	    );
 #endif
     }
     if ( optionsPageQsa ) {
-	optionsPageQsa->sysGroup->setButton( sysGroupButton );
-	clickedSystem( sysGroupButton );
 #if defined(QSA)
 	optionsPageQsa->installPath->setText(
-		QString( "C:\\Qt_QSA\\QSA" ) +
-		QString( globalInformation.qsaVersionStr() ).replace( QRegExp("\\s"), "" ).replace( QRegExp("-"), "" )
-		);
+	    QString( "C:\\Qt_QSA\\QSA" ) +
+	    QString( globalInformation.qsaVersionStr() ).replace( QRegExp("\\s"), "" ).replace( QRegExp("-"), "" )
+	    );
 #endif
     }
     readLicense( QDir::homeDirPath() + "/.qt-license" );
@@ -631,7 +656,6 @@ void SetupWizardImpl::initConnections()
     if ( optionsPage ) {
 	connect( optionsPage->sysGroup, SIGNAL(clicked(int)), SLOT(clickedSystem(int)));
 	connect( optionsPage->sysOtherCombo, SIGNAL(activated(int)), SLOT(sysOtherComboChanged(int)));
-	connect( optionsPage->skipBuild, SIGNAL(clicked()), SLOT(clickedSkipBuild()));
     }
     if ( foldersPage ) {
 	connect( foldersPage->folderPathButton, SIGNAL(clicked()), SLOT(clickedFolderPath()));
@@ -647,18 +671,6 @@ void SetupWizardImpl::initConnections()
 	connect( licensePage->key, SIGNAL(textChanged(const QString&)), SLOT(licenseChanged()));
     }
     if ( configPage ) {
-	connect( configPage->configList, SIGNAL(clicked(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
-	connect( configPage->configList, SIGNAL(spacePressed(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
-	connect( configPage->configList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
-
-	connect( configPage->advancedList, SIGNAL(clicked(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
-	connect( configPage->advancedList, SIGNAL(spacePressed(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
-	connect( configPage->advancedList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
-
-#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
-	connect( configPage->installList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
-#endif
-
 	connect( configPage->configTabs, SIGNAL(currentChanged(QWidget*)), SLOT(configPageChanged()));
     }
     if ( buildPage ) {
@@ -698,40 +710,20 @@ void SetupWizardImpl::clickedDevSysPath()
 	foldersPage->devSysPath->setText( dest );
 }
 
-void SetupWizardImpl::sysOtherComboChanged( int ) 
+void SetupWizardImpl::sysOtherComboChanged(int index)
 {
-#ifndef Q_OS_MAC
-    if (optionsPage->sysOtherCombo->currentText() == "win32-g++" )
-	clickedSystem(MINGW_BUTTON);
-    else
-	clickedSystem(OTHER_BUTTON);
-#endif
+    clickedSystem(GlobalInformation::Other);
 }
 
 void SetupWizardImpl::clickedSystem( int sys )
 {
 #ifndef Q_OS_MAC
-    switch ( sys ) {
-	case MSVCNET_BUTTON:
-	    globalInformation.setSysId( GlobalInformation::MSVCNET );
-	    break;
-	case MSVC_BUTTON:
-	    globalInformation.setSysId( GlobalInformation::MSVC );
-	    break;
-	case BORLAND_BUTTON:
-	    globalInformation.setSysId( GlobalInformation::Borland );
-	    break;
-	case MINGW_BUTTON:
-	    globalInformation.setSysId( GlobalInformation::MinGW );
-	    break;
-	case OTHER_BUTTON:
-	    if (optionsPage->sysOtherCombo->currentText() == "win32-g++" )
-		globalInformation.setSysId( GlobalInformation::MinGW );
-	    else
-                globalInformation.setSysId( GlobalInformation::Other );
-	    break;
-	default:
-	    break;
+    globalInformation.setSysId( GlobalInformation::SysId(sys) );
+    if (sys == GlobalInformation::Other) {
+	if (optionsPage->sysOtherCombo->currentText() == "win32-icc")
+	    globalInformation.setSysId(GlobalInformation::Intel);
+	else if (optionsPage->sysOtherCombo->currentText() == "win32-watcom")
+	    globalInformation.setSysId(GlobalInformation::Watcom);
     }
     if (!isVisible())
 	return;
@@ -880,7 +872,7 @@ void SetupWizardImpl::assistantDone()
     } else if ( count == 1 ) {
 	contentFile = "qt-script-for-applications.xml";
     } else {
-	doFinalIntegration();
+	doIDEIntegration);
 	return;
     }
     ++count;
@@ -899,25 +891,23 @@ void SetupWizardImpl::assistantDone()
 	assistantDone();
     }
 #else
-    doFinalIntegration();
+    doIDEIntegration();
 #endif
 }
 
-void SetupWizardImpl::doFinalIntegration()
+void SetupWizardImpl::doIDEIntegration()
 {
 #if defined(Q_OS_WIN32)
-    // install the precompiled MS integration
     QDir installDir( optionsPage->installPath->text() );
-    if ( globalInformation.sysId() == GlobalInformation::MSVC ) {
-	QDir addinsDir( foldersPage->devSysPath->text() );
-	addinsDir.cd( "Common/MSDev98/Addins" );
-	if ( copyFile( installDir.filePath("qmsdev.dll"), addinsDir.filePath("qmsdev.dll") ) ) {
-	    installDir.remove( "qmsdev.dll" );
-	}
-	installDir.remove( "QMsNetSetup.msi" );
-	installDir.remove( "Makefile.win32-g++" );
-    } else if ( globalInformation.sysId() == GlobalInformation::MSVCNET ){
-	if ( optionsPage->installNETIntegration->isChecked() ) {
+    if ( optionsPage->installIDEIntegration->isChecked() && optionsPage->installIDEIntegration->isEnabled() ) {
+	// install the precompiled MS integration
+	if ( globalInformation.sysId() == GlobalInformation::MSVC ) {
+	    QDir addinsDir( foldersPage->devSysPath->text() );
+	    addinsDir.cd( "Common/MSDev98/Addins" );
+	    if ( copyFile( installDir.filePath("qmsdev.dll"), addinsDir.filePath("qmsdev.dll") ) ) {
+		installDir.remove( "qmsdev.dll" );
+	    }
+	} else if ( globalInformation.sysId() == GlobalInformation::MSVCNET ){
 	    QString filepath = installDir.filePath("QMsNetSetup.msi");
 	    filepath = filepath.replace( '/', '\\' );
 
@@ -939,100 +929,115 @@ void SetupWizardImpl::doFinalIntegration()
 				      "script,\nlocated at " + filepath );
 	    }
 	}
-	installDir.remove( "qmsdev.dll" );
+
+	QFile *autoexp  = 0;
+	QFile *usertype = 0;
+	switch( globalInformation.sysId() ) {
+	    case GlobalInformation::MSVC:
+		autoexp = new QFile( foldersPage->devSysPath->text() + "\\Common\\MsDev98\\bin\\autoexp.dat" );
+		usertype = new QFile( foldersPage->devSysPath->text() + "\\Common\\MsDev98\\bin\\usertype.dat" );
+		break;
+	    case GlobalInformation::MSVCNET:
+		autoexp = new QFile( foldersPage->devSysPath->text() + "\\Common7\\Packages\\Debugger\\autoexp.dat" );
+		usertype = new QFile( foldersPage->devSysPath->text() + "\\Common7\\Packages\\Debugger\\usertype.dat" );
+		break;
+	}
+
+	if ( autoexp ) {
+	    QString autoExpContents;
+	    if ( !autoexp->exists() ) {
+		autoexp->open( IO_WriteOnly );
+	    } else {
+		// First try to open the file to search for existing installations
+		autoexp->open( IO_ReadOnly );
+		autoExpContents = QString::fromLatin1(autoexp->readAll().data());
+		autoexp->close();
+		if ( autoExpContents.find( "; Trolltech Qt" ) == -1 )
+		    autoexp->open(IO_WriteOnly | IO_Translate);
+	    }
+	    if( autoexp->isOpen() ) {
+		bool written = FALSE;
+		QTextStream outstream( autoexp );
+		QStringList entries = QStringList::split("\r\n", autoExpContents, TRUE);
+		for (QStringList::Iterator entry = entries.begin(); entry != entries.end(); ++entry) {
+		    QString e(*entry);
+		    outstream << e << endl;
+		    if (!written && e.startsWith("[AutoExpand]")) {
+			outstream << endl;
+			outstream << "; Trolltech Qt" << endl;
+			outstream << "QString=<d->unicode,su> len=<d->len,u>" << endl;
+			outstream << "QCString =<shd->data, s>" << endl;
+			outstream << "QPoint =x=<xp> y=<yp>" << endl;
+			outstream << "QRect =x1=<x1> y1=<y1> x2=<x2> y2=<y2>" << endl;
+			outstream << "QSize =width=<wd> height=<ht>" << endl;
+			outstream << "QWMatrix =m11=<_m11> m12=<_m12> m21=<_m21> m22=<_m22> dx=<_dx> dy=<_dy>" << endl;
+			outstream << "QVariant =Type=<d->typ> value=<d->value>" << endl;
+			outstream << "QValueList<*> =Count=<sh->nodes>" << endl;
+			outstream << "QPtrList<*> =Count=<numNodes>" << endl;
+			outstream << "QGuardedPtr<*> =ptr=<priv->obj>" << endl;
+			outstream << "QEvent =type=<t>" << endl;
+			outstream << "QObject =class=<metaObj->classname,s> name=<objname,s>" << endl;
+			written = TRUE;
+		    }
+		}
+		autoexp->close();
+	    }
+	    delete autoexp;
+	}
+
+	if ( usertype ) {
+	    if ( !usertype->exists() ) {
+		usertype->open( IO_WriteOnly | IO_Translate );
+	    } else {
+		usertype->open( IO_ReadOnly );
+		QString existingUserType = usertype->readAll();
+		usertype->close();
+		if ( existingUserType.find( "Q_OBJECT" ) == -1 )
+		    usertype->open(IO_WriteOnly | IO_Append | IO_Translate);
+	    }
+	    if ( usertype->isOpen() ) {
+		QTextStream outstream( usertype );
+		outstream << endl;
+		outstream << "Q_OBJECT" << endl;
+		outstream << "Q_PROPERTY" << endl;
+		outstream << "Q_ENUMS" << endl;
+		outstream << "Q_SETS" << endl;
+		outstream << "Q_CLASSINFO" << endl;
+		outstream << "emit" << endl;
+		outstream << "TRUE" << endl;
+		outstream << "FALSE" << endl;
+		outstream << "SIGNAL" << endl;
+		outstream << "SLOT" << endl;
+		outstream << "signals:" << endl;
+		outstream << "slots:" << endl;
+		usertype->close();
+	    }
+	    delete usertype;
+	}
+    }
+
+    if ( globalInformation.sysId() != GlobalInformation::MinGW )
 	installDir.remove( "Makefile.win32-g++" );
-    } else {
+    if (globalInformation.sysId() != GlobalInformation::MSVC)
 	installDir.remove( "qmsdev.dll" );
+    if (globalInformation.sysId() != GlobalInformation::MSVCNET)
 	installDir.remove( "QMsNetSetup.msi" );
-	if ( globalInformation.sysId() != GlobalInformation::MinGW )
-	    installDir.remove( "Makefile.win32-g++" );
-    }
+#endif
 
-    QString dirName, examplesName, tutorialsName;
-    bool common( foldersPage->folderGroups->currentItem() == 0 );
-    QString qtDir = QEnvironment::getEnv( "QTDIR" );
+    doStartMenuIntegration();
+}
 
-    QFile *autoexp  = 0;
-    QFile *usertype = 0;
-    switch( globalInformation.sysId() ) {
-	case GlobalInformation::MSVC:
-	    autoexp = new QFile( foldersPage->devSysPath->text() + "\\Common\\MsDev98\\bin\\autoexp.dat" );
-	    usertype = new QFile( foldersPage->devSysPath->text() + "\\Common\\MsDev98\\bin\\usertype.dat" );
-	    break;
-	case GlobalInformation::MSVCNET:
-	    autoexp = new QFile( foldersPage->devSysPath->text() + "\\Common7\\Packages\\Debugger\\autoexp.dat" );
-	    usertype = new QFile( foldersPage->devSysPath->text() + "\\Common7\\Packages\\Debugger\\usertype.dat" );
-	    break;
-    }
-
-    // #### TODO: support debug description autoexp.dat for VS.2003
-    if ( autoexp ) {
-	if ( !autoexp->exists() ) {
-	    autoexp->open( IO_WriteOnly );
-	} else {
-	    autoexp->open( IO_ReadOnly );
-	    QString existingUserType = autoexp->readAll();
-	    autoexp->close();
-	    if ( existingUserType.find( "; Trolltech Qt" ) == -1 )
-		autoexp->open( IO_WriteOnly | IO_Append );
-	}
-	if( autoexp->isOpen() ) { // First try to open the file to search for existing installations
-	    QTextStream outstream( autoexp );
-	    outstream << endl;
-	    outstream << "; Trolltech Qt" << endl;
-	    outstream << "QString=<d->unicode,su> len=<d->len,u>" << endl;
-	    outstream << "QCString =<shd->data, s>" << endl;
-	    outstream << "QPoint =x=<xp> y=<yp>" << endl;
-	    outstream << "QRect =x1=<x1> y1=<y1> x2=<x2> y2=<y2>" << endl;
-	    outstream << "QSize =width=<wd> height=<ht>" << endl;
-	    outstream << "QWMatrix =m11=<_m11> m12=<_m12> m21=<_m21> m22=<_m22> dx=<_dx> dy=<_dy>" << endl;
-	    outstream << "QVariant =Type=<d->typ> value=<d->value>" << endl;
-	    outstream << "QValueList<*> =Count=<sh->nodes>" << endl;
-	    outstream << "QPtrList<*> =Count=<numNodes>" << endl;
-	    outstream << "QGuardedPtr<*> =ptr=<priv->obj>" << endl;
-	    outstream << "QEvent =type=<t>" << endl;
-	    outstream << "QObject =class=<metaObj->classname,s> name=<objname,s>" << endl;
-	    autoexp->close();
-	}
-        delete autoexp;
-    }
-
-    if ( usertype ) {
-	if ( !usertype->exists() ) {
-	    usertype->open( IO_WriteOnly );
-	} else {
-	    usertype->open( IO_ReadOnly );
-	    QString existingUserType = usertype->readAll();
-	    usertype->close();
-	    if ( existingUserType.find( "Q_OBJECT" ) == -1 )
-		usertype->open( IO_WriteOnly | IO_Append );
-	}
-	if ( usertype->isOpen() ) {
-	    QTextStream outstream( usertype );
-	    outstream << endl;
-	    outstream << "Q_OBJECT" << endl;
-	    outstream << "Q_PROPERTY" << endl;
-	    outstream << "Q_ENUMS" << endl;
-	    outstream << "emit" << endl;
-	    outstream << "TRUE" << endl;
-	    outstream << "FALSE" << endl;
-	    outstream << "SIGNAL" << endl;
-	    outstream << "SLOT" << endl;
-	    outstream << "signals:" << endl;
-	    outstream << "slots:" << endl;
-	    usertype->close();
-	}
-        delete usertype;
-    }
-
-    //### the next stuff should be a separate function, and only called
-    //### when user selected "create icons blah"
-
-
+void SetupWizardImpl::doStartMenuIntegration()
+{
+#if defined(Q_OS_WIN32)
     /*
     ** Set up our icon folder and populate it with shortcuts.
     ** Then move to the next page.
     */
+    QString dirName, examplesName, tutorialsName;
+    bool common( foldersPage->folderGroups->currentItem() == 0 );
+    QString qtDir = QEnvironment::getEnv( "QTDIR" );
+
     dirName = shell.createFolder( foldersPage->folderPath->text(), common );
     shell.createShortcut( dirName, common, "Qt Designer", qtDir + "\\bin\\designer.exe", "GUI designer", "", qtDir );
 #if !defined(EVAL) && !defined(EDU) && !defined(NON_COMMERCIAL)
@@ -1298,9 +1303,9 @@ void SetupWizardImpl::saveSet( QListView* list )
     while ( it.current() ) {
 	QListViewItem *itm = it.current();
 	++it;
-	if ( itm->rtti() != QCheckListItem::RTTI )
+	if ( itm->rtti() != CheckListItem::RTTI )
 	    continue;
-	QCheckListItem *item = (QCheckListItem*)itm;
+	CheckListItem *item = (CheckListItem*)itm;
 	if ( item->type() == QCheckListItem::RadioButton ) {
 	    if ( item->isOn() ) {
 		QString folder;
@@ -1321,9 +1326,9 @@ void SetupWizardImpl::saveSet( QListView* list )
 		--it;
 	    QString c = p->text( 0 );
 	    while ( ( itm = it.current() ) &&
-		itm->rtti() == QCheckListItem::RTTI &&
-		item->type() == QCheckListItem::CheckBox ) {
-		item = (QCheckListItem*)itm;
+		itm->rtti() == CheckListItem::RTTI &&
+		item->type() == CheckListItem::CheckBox ) {
+		item = (CheckListItem*)itm;
 		++it;
 		if ( item->isOn() )
 		    lst << item->text( 0 );
@@ -1338,14 +1343,11 @@ void SetupWizardImpl::saveSet( QListView* list )
 
 void SetupWizardImpl::showPage( QWidget* newPage )
 {
-    // ### not allowing illegal options would be smarter...
-    if ( currentPage() == configPage
-	 && newPage == progressPage
-	 && !verifyConfig() ) {
-	QMessageBox::warning( this, "Invalid Configuration",
-			      "One or more of your selected options do not fullfill given\n"
-			      "prerequisites. These options are marked with \"<--\"." );
-	return;
+    if ( currentPage() == configPage && newPage == progressPage && !verifyConfig() ) {
+	if (QMessageBox::warning( this, "Configuration with Warnings",
+			      "One or more of the selected options could not be verified by the installer.\n"
+			      "Do you want to continue?", "Yes", "No" ))
+	    return;
     }
 
     QWizard::showPage( newPage );
@@ -1379,6 +1381,12 @@ void SetupWizardImpl::showPageLicense()
 
 void SetupWizardImpl::showPageOptions()
 {
+    static bool done = FALSE;
+    if (done)
+	return;
+
+    done = TRUE;
+
     // First make sure that the current license information is saved
     if( !globalInformation.reconfig() )
 	writeLicense( QDir::homeDirPath() + "/.qt-license" );
@@ -1431,11 +1439,11 @@ void SetupWizardImpl::showPageOptions()
 
 void SetupWizardImpl::showPageFolders()
 {
-    //### trigger test for compiler installation (in clickedSystem)
-
-    foldersPage->devSysLabel->setText(globalInformation.text(GlobalInformation::IDE) + " path");
-    foldersPage->devSysPath->setEnabled( (globalInformation.sysId() == GlobalInformation::MSVC) || (globalInformation.sysId() == GlobalInformation::MSVCNET) );
-    foldersPage->devSysPathButton->setEnabled( (globalInformation.sysId() == GlobalInformation::MSVC) || (globalInformation.sysId() == GlobalInformation::MSVCNET) );
+    QString ideName = globalInformation.text(GlobalInformation::IDE);
+    foldersPage->devSysLabel->setText( ideName + " path");
+    foldersPage->devSysLabel->setShown(!ideName.isEmpty());
+    foldersPage->devSysPath->setShown(!ideName.isEmpty());
+    foldersPage->devSysPathButton->setShown(!ideName.isEmpty());
 #if defined(Q_OS_WIN32)
     if( globalInformation.sysId() == GlobalInformation::MSVC ) {
 	QString devPath = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine );
@@ -1595,25 +1603,14 @@ void SetupWizardImpl::showPageProgress()
 	    QDir windowsFolderDir( shell.windowsFolderName );
 #  if !defined(EVAL) && !defined(EDU) && !defined(NON_COMMERCIAL)
 	    {
-		//#### there is a static copyFile function...
 		// move $QTDIR/install.exe to $QTDIR/bin/install.exe
 		// This is done because install.exe is also used to reconfigure Qt
 		// (and this expects install.exe in bin). We can't move install.exe
 		// to bin in first place, since for the snapshots, we don't have
 		// the .arq archives.
-		QFile inFile( installDir.filePath("install.exe") );
-		QFile outFile( installDir.filePath("bin/install.exe") );
-
-		if( inFile.exists() ) {
-		    if( inFile.open( IO_ReadOnly ) ) {
-			if( outFile.open( IO_WriteOnly ) ) {
-			    outFile.writeBlock( inFile.readAll() );
-			    outFile.close();
-			    inFile.close();
-			    inFile.remove();
-			}
-		    }
-		}
+		QString inFile( installDir.filePath("install.exe") );
+		copyFile(inFile, installDir.filePath("bin/install.exe"));
+		QFile::remove(inFile);
 	    }
 #  endif
 	    {
@@ -1621,19 +1618,9 @@ void SetupWizardImpl::showPageProgress()
 		// This is necessary since the uninstaller deletes all files in
 		// the installation directory (and therefore can't delete
 		// itself).
-		QFile inFile( installDir.filePath("bin/quninstall.exe") );
-		QFile outFile( windowsFolderDir.filePath("quninstall.exe") );
-
-		if( inFile.exists() ) {
-		    if( inFile.open( IO_ReadOnly ) ) {
-			if( outFile.open( IO_WriteOnly ) ) {
-			    outFile.writeBlock( inFile.readAll() );
-			    outFile.close();
-			    inFile.close();
-			    inFile.remove();
-			}
-		    }
-		}
+		QString inFile( installDir.filePath("bin/quninstall.exe") );
+		copyFile(inFile, windowsFolderDir.filePath("quninstall.exe"));
+		QFile::remove(inFile);
 	    }
 #endif
 #if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
@@ -2228,46 +2215,6 @@ void SetupWizardImpl::clickedLicenseFile()
 
 }
 
-bool SetupWizardImpl::findFile( const QString &fileName )
-{
-    QString file = fileName.lower();
-    QStringList paths;
-#if defined(Q_OS_WIN32)
-    QRegExp split( "[;,]" );
-#else
-    QRegExp split( "[:]" );
-#endif
-    if ( file.endsWith( ".h" ) ) {
-	if ( globalInformation.sysId() == GlobalInformation::Borland )
-	    return TRUE;
-	paths = QStringList::split( split, QEnvironment::getEnv( "INCLUDE" ) );
-    } else if ( file.endsWith( ".lib" ) ) {
-	if ( globalInformation.sysId() == GlobalInformation::Borland )
-	    return TRUE;
-	paths = QStringList::split( split, QEnvironment::getEnv( "LIB" ) );
-    } else {
-	paths = QStringList::split( split, QEnvironment::getEnv( "PATH" ) );
-    }
-    return findFileInPaths( file, paths );
-}
-
-bool SetupWizardImpl::findFileInPaths( const QString &fileName, const QStringList &paths )
-{
-	QDir d;
-	for( QStringList::ConstIterator it = paths.begin(); it != paths.end(); ++it ) {
-	    // Remove any leading or trailing ", this is commonly used in the environment
-	    // variables
-	    QString path = (*it);
-	    if ( path.startsWith( "\"" ) )
-		path = path.right( path.length() - 1 );
-	    if ( path.endsWith( "\"" ) )
-		path = path.left( path.length() - 1 );
-	    if( d.exists( path + QDir::separator() + fileName ) )
-		return true;
-	}
-	return false;
-}
-
 void SetupWizardImpl::readLicenseAgreement()
 {
     // Intropage
@@ -2310,11 +2257,6 @@ void SetupWizardImpl::readLicenseAgreement()
     delete rcLoader;
 }
 
-bool SetupWizardImpl::findXPSupport()
-{
-    return findFile( "uxtheme.h" );
-}
-
 void SetupWizardImpl::accept()
 {
 #if defined(Q_OS_WIN32)
@@ -2331,14 +2273,4 @@ void SetupWizardImpl::accept()
     }
 #endif
     QDialog::accept();
-}
-
-void SetupWizardImpl::clickedSkipBuild()
-{
-    //### use setDisabled(TRUE)
-    bool enable = !optionsPage->skipBuild->isChecked();
-    optionsPage->installTools->setEnabled( enable );
-    optionsPage->installExtensions->setEnabled( enable );
-    optionsPage->installExamples->setEnabled( enable );
-    optionsPage->installTutorials->setEnabled( enable );
 }
