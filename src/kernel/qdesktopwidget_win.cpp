@@ -427,8 +427,16 @@ int QDesktopWidget::screenNumber( const QPoint &point ) const
 */
 void QDesktopWidget::resizeEvent( QResizeEvent * )
 {
+    QMemArray<QRect> oldrects = *d->rects;
     delete d;
     d = new QDesktopWidgetPrivate( this );
+
+    for ( int i = 0; i < d->screenCount; ++i ) {
+	QRect oldrect = oldrects[i];
+	QRect newrect = d->rects->at(i);
+	if ( oldrect != newrect )
+	    emit resized( i );
+    }
 }
 
 /*! \fn void QDesktopWidget::insertChild( QObject *child )
