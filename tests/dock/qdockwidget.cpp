@@ -247,6 +247,17 @@ static void swapRect( QRect &r, Qt::Orientation o, const QPoint &offset )
     r.setHeight( w );
 }
 
+static QWidget *widgetAt( const QPoint &gp )
+{
+    QWidget *w = qApp->widgetAt( gp, TRUE );
+    while ( w ) {
+	if ( w->inherits( "QDockArea" ) )
+	    return w;
+	w = w->parentWidget();
+    }
+    return 0;
+}
+
 void QDockWidget::handleMoveOutsideDock( const QPoint &pos, const QPoint &gp )
 {
     if ( !unclippedPainter )
@@ -254,7 +265,7 @@ void QDockWidget::handleMoveOutsideDock( const QPoint &pos, const QPoint &gp )
 
     unclippedPainter->drawRect( currRect );
     currRect = QRect( realWidgetPos( this ), size() );
-    QWidget *w = qApp->widgetAt( gp );
+    QWidget *w = widgetAt( gp );
     QPoint offset( mapFromGlobal( pos ) );
     currRect.moveBy( offset.x(), offset.y() );
     if ( !w || !w->inherits( "QDockArea" ) ) {

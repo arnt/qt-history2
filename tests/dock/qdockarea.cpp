@@ -132,6 +132,7 @@ QDockArea::QDockArea( Orientation o, QWidget *parent, const char *name )
 {
     insertedSplitters.setAutoDelete( TRUE );
     dockWidgets.setAutoDelete( TRUE );
+    setMinimumSize( 3, 3 );
 }
 
 void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &, const QRect &, bool swap )
@@ -193,7 +194,7 @@ void QDockArea::setupLayout()
 	layout = new QBoxLayout( this, QBoxLayout::TopToBottom );
     else
 	layout = new QBoxLayout( this, QBoxLayout::LeftToRight );
-    
+
     QVector<QBoxLayout> layouts;
     layouts.resize( sections );
     QVector<QBoxLayout> splitters;
