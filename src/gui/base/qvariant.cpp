@@ -1149,6 +1149,7 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
 	dbg.nospace() << v.toPen();
 	break;
     default:
+        dbg.nospace() << static_cast<QCoreVariant>(v);
         break;
     }
     return dbg.space();
