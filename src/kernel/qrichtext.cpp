@@ -2255,7 +2255,7 @@ QString QTextDocument::richText() const
     while ( p ) {
 	listDepth = p->listDepth();
 	if ( listDepth < pastListDepth )  {
-	    for ( int i = listDepth+1; i <= pastListDepth; i++ )
+	    for ( int i = pastListDepth; i > listDepth; i-- )
 		s += list_is_ordered( listStyles[i] ) ? "</ol>" : "</ul>";
 	    s += '\n';
 	} else if ( listDepth > pastListDepth ) {
