@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#36 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#35 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#36 $")
 
 
 /*****************************************************************************
@@ -384,7 +384,7 @@ typedef declare(QListM,QCursor) QCursorList;
 
 static QCursorList *cursorStack = 0;
 
-void QApplication::setCursor( const QCursor &cursor, bool replace )
+void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 {
     if ( !cursorStack ) {
 	cursorStack = new QCursorList;
@@ -398,7 +398,7 @@ void QApplication::setCursor( const QCursor &cursor, bool replace )
     cursorStack->append( app_cursor );
 }
 
-void QApplication::restoreCursor()
+void QApplication::restoreOverrideCursor()
 {
     if ( !cursorStack )				// no cursor stack
 	return;

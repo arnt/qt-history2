@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#41 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#42 $
 **
 ** Definition of QApplication class
 **
@@ -32,9 +32,15 @@ public:
     static GUIStyle style();
     static void	    setStyle( GUIStyle );
 
+    static QCursor *overrideCursor();
+    static void	    setOverrideCursor( const QCursor &, bool replace=FALSE );
+    static void	    restoreOverrideCursor();
+
+#if defined(OBSOLETE)
     static QCursor *cursor();
     static void	    setCursor( const QCursor &, bool replace=FALSE );
     static void	    restoreCursor();
+#endif
 
     static QPalette *palette();
     static void	    setPalette( const QPalette &, bool updateAllWidgets=FALSE);
@@ -121,10 +127,27 @@ inline GUIStyle QApplication::style()
     return app_style;
 }
 
-inline QCursor *QApplication::cursor()
+inline QCursor *QApplication::overrideCursor()
 {
     return app_cursor;
 }
+
+#if defined(OBSOLETE)
+inline QCursor *QApplication::cursor()
+{
+    return overrideCursor();
+}
+
+inline void QApplication::setCursor( const QCursor &c, bool replace=FALSE )
+{
+    setOverrideCursor( c, replace );
+}
+
+inline void QApplication::restoreCursor()
+{
+    restoreOverrideCursor();
+}
+#endif
 
 inline QFont *QApplication::font()
 {

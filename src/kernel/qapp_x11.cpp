@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#146 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#147 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -45,7 +45,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#146 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#147 $")
 
 
 /*****************************************************************************
@@ -608,41 +608,45 @@ typedef declare(QListM,QCursor) QCursorList;
 static QCursorList *cursorStack = 0;
 
 /*----------------------------------------------------------------------------
-  \fn QCursor *QApplication::cursor()
-  Returns the active application cursor.
+  \fn QCursor *QApplication::overrideCursor()
+  Returns the active application override cursor.
 
   This function returns 0 if no application cursor has been defined (i.e. the
   internal cursor stack is empty).
 
-  \sa setCursor(), restoreCursor()
+  \sa setOverrideCursor(), restoreOverrideCursor()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Sets the application cursor to \e cursor.
+  Sets the application override cursor to \e cursor.
 
-  Application cursor are intended for showing the user that the application
-  is in a special state, for example during an operation that might take some
-  time.
+  Application override cursor are intended for showing the user that the
+  application is in a special state, for example during an operation that
+  might take some time.
 
   This cursor will be displayed in all application widgets until
-  restoreCursor() or another setCursor() is called.
+  restoreOverrideCursor() or another setOverrideCursor() is called.
 
-  Application cursors are stored on an internal stack.	setCursor() pushes
-  the cursor onto the stack, and restoreCursor() pops the active cursor off
-  the stack.  Every setCursor() must have an corresponding restoreCursor(),
-  otherwise the stack will get out of sync.
+  Application cursors are stored on an internal stack. setOverrideCursor()
+  pushes the cursor onto the stack, and restoreOverrideCursor() pops the
+  active cursor off the stack.  Every setOverrideCursor() must have an
+  corresponding restoreOverrideCursor(), otherwise the stack will get out
+  of sync. overrideCursor() returns 0 if the cursor stack is empty.
+
+  If \e replace is TRUE, the new cursor will replace the last override
+  cursor.
 
   Example:
   \code
-    QApplication::setCursor( waitCursor );
-    calculate_mandelbrot();			// lunch time...
-    QApplication::restoreCursor();
+    QApplication::setOverrideCursor( waitCursor );
+    calculateHugeMandelbrot();			// lunch time...
+    QApplication::restoreOverrideCursor();
   \endcode
 
-  \sa cursor(), restoreCursor(), QWidget::setCursor()
+  \sa overrideCursor(), restoreOverrideCursor(), QWidget::setCursor()
  ----------------------------------------------------------------------------*/
 
-void QApplication::setCursor( const QCursor &cursor, bool replace )
+void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 {
     if ( !cursorStack ) {
 	cursorStack = new QCursorList;
@@ -665,22 +669,22 @@ void QApplication::setCursor( const QCursor &cursor, bool replace )
 }
 
 /*----------------------------------------------------------------------------
-  Restores the effect of setCursor().
+  Restores the effect of setOverrideCursor().
 
-  If setCursor() has been called twice, calling restoreCursor() will activate
-  the first cursor set.	 Calling restoreCursor() a second time will give
-  the widgets their old cursors back.
+  If setOverrideCursor() has been called twice, calling
+  restoreOverrideCursor() will activate the first cursor set.  Calling
+  this function a second time restores the original widgets cursors.
 
-  Application cursors are stored on an internal stack.	setCursor() pushes
-  the cursor onto the stack, and restoreCursor() pops the active cursor
-  off the stack.  Every setCursor() must have an corresponding
-  restoreCursor(), otherwise the stack will get out of sync.  cursor()
-  returns 0 if the cursor stack is empty.
+  Application cursors are stored on an internal stack. setOverrideCursor()
+  pushes the cursor onto the stack, and restoreOverrideCursor() pops the
+  active cursor off the stack.  Every setOverrideCursor() must have an
+  corresponding restoreOverrideCursor(), otherwise the stack will get out
+  of sync. overrideCursor() returns 0 if the cursor stack is empty.
 
-  \sa setCursor(), cursor().
+  \sa setOverrideCursor(), overrideCursor().
  ----------------------------------------------------------------------------*/
 
-void QApplication::restoreCursor()
+void QApplication::restoreOverrideCursor()
 {
     if ( !cursorStack )				// no cursor stack
 	return;
