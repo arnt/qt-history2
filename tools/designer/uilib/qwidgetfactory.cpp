@@ -472,7 +472,7 @@ QWidget *QWidgetFactory::createFromUiFile( QDomDocument doc, QObject *connector,
     if ( !menubar.isNull() )
 	loadMenuBar( menubar );
 
-    if ( !connections.isNull() )
+    if ( connector && !connections.isNull() )
 	loadConnections( connections, connector );
     if ( w && name && qstrlen( name ) > 0 )
 	w->setName( name );
