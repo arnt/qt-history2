@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#16 $
 **
 ** Implementation of MIME support
 **
@@ -176,6 +176,10 @@ QMimeSourceFactory::QMimeSourceFactory() :
     setExtensionType("htm", "text/html;charset=iso8859-1");
     setExtensionType("html", "text/html;charset=iso8859-1");
     setExtensionType("txt", "text/plain");
+    setExtensionType("xpm", "image/x-xpm");
+    setExtensionType("jpg", "image/jpeg");
+    setExtensionType("jpeg", "image/jpeg");
+    setExtensionType("png", "image/png");
     setExtensionType("xml", "text/xml;charset=utf8");
 }
 
@@ -290,10 +294,30 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
 /*!
   Sets a list of directories which will be searched when named data
   is requested.
+
+  \sa filePath()
 */
 void QMimeSourceFactory::setFilePath( const QStringList& path )
 {
     d->path = path;
+}
+
+/*!
+  Returns the currently set search paths.
+*/
+QStringList QMimeSourceFactory::filePath() const
+{
+  return d->path;
+}
+
+/*!
+  Adds another search path.
+  
+  \sa setFilePath()
+*/
+void QMimeSourceFile::addFilePath( const QString& p )
+{
+  d->path += p;
 }
 
 /*!
