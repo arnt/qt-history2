@@ -57,7 +57,6 @@ int main(int argc, char *argv[])
     }
 
     splitter.setWindowIcon(QPixmap(":/images/interview.png"));
-    app.setMainWidget(&splitter);
     splitter.resize(800, 450);
     splitter.show();
 

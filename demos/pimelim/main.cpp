@@ -83,7 +83,6 @@ int main(int argc, char **argv)
     bar->addAction(QPixmap(":/images/delete.png"), "Delete Current Entry", hub, SLOT(deleteCurrent()));
 
     addData(model);
-    app.setMainWidget(&w);
     w.setWindowIcon(QPixmap(":/images/interview.png"));
     w.show();
     

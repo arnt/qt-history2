@@ -42,7 +42,6 @@ int main(int argc, char *argv[])
     list->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     page.setWindowIcon(QPixmap(":/images/interview.png"));
-    app.setMainWidget(&page);
     page.show();
 
     return app.exec();
