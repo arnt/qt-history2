@@ -3,13 +3,12 @@
 
 #include <qlist.h>
 #include <qguardedptr.h>
-#include <qpixmap.h>
 
 template<class Type>
-class Q_EXPORT QCleanUpHandler
+class Q_EXPORT QGuardedCleanUpHandler
 {
 public:
-    ~QCleanUpHandler()
+    ~QGuardedCleanUpHandler()
     {
 	QListIterator<QGuardedPtr<Type> > it( cleanUpObjects );
 	while ( it.current() ) {
@@ -40,37 +39,41 @@ private:
     QList<QGuardedPtr<Type> > cleanUpObjects;
 };
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class Q_EXPORT QList<QPixmap>;
-// MOC_SKIP_END
-#endif
-
-class Q_EXPORT QCleanUpHandler<QPixmap>
+template<class Type>
+class Q_EXPORT QCleanUpHandler
 {
 public:
     ~QCleanUpHandler()
     {
-	QListIterator<QPixmap> it( cleanUpObjects );
+	QListIterator<Type> it( cleanUpObjects );
 	while ( it.current() ) {
-	    QPixmap* object = it.current();
+	    Type* object = it.current();
 	    ++it;
+	    qDebug("Cleaning up object %p", object );
 	    delete object;
 	}
     }
 
-    void addCleanUp( const QPixmap* pixmap ) 
+    void addCleanUp( Type* object ) 
     {
-	cleanUpObjects.insert( 0, pixmap );
+	cleanUpObjects.insert( 0, object );
+	qDebug("Cleanup object %p added", object );
     }
 
     bool clean() 
     {
-	return !cleanUpObjects.count();
+	QListIterator<Type> it( cleanUpObjects );
+	while ( it.current() ) {
+	    Type* object = it.current();
+	    ++it;
+	    if ( *guard )
+		return FALSE;
+	}
+	return TRUE;
     }
 
 private:
-    QList<QPixmap> cleanUpObjects;
+    QList<Type> cleanUpObjects;
 };
 
 #endif //QCLEANUPHANDLER_H

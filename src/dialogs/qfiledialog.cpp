@@ -441,9 +441,6 @@ static QPixmap * previewContentsViewIcon = 0;
 static QPixmap * previewInfoViewIcon = 0;
 static QPixmap *goBackIcon = 0;
 static QFileIconProvider * fileIconProvider = 0;
-
-// Move these two guys to some private class... 
-// why do we need them on the heap anyway?
 static QSize *lastSize = 0;
 static QString * workingDirectory = 0;
 
@@ -453,18 +450,13 @@ static bool sortAscending = TRUE;
 static bool detailViewMode = FALSE;
 
 QCleanUpHandler<QPixmap> qfd_cleanup_pixmap;
-QCleanUpHandler<QFileIconProvider> qfd_cleanup_fip;
+QGuardedCleanUpHandler<QFileIconProvider> qfd_cleanup_fip;
+QCleanUpHandler<QSize> qfd_cleanup_size;
+QCleanUpHandler<QString> qfd_cleanup_string;
 
 static bool isDirectoryMode( int m )
 {
     return m == QFileDialog::Directory || m == QFileDialog::DirectoryOnly;
-}
-
-static void cleanup() {
-    delete workingDirectory;
-    workingDirectory = 0;
-    delete lastSize;
-    lastSize = 0;
 }
 
 #if defined(_WS_WIN_)
@@ -490,8 +482,8 @@ private:
 
 static void makeVariables() {
     if ( !openFolderIcon ) {
-	qAddPostRoutine( cleanup );
 	workingDirectory = new QString( QDir::currentDirPath() );
+	qfd_cleanup_string.addCleanUp( workingDirectory );
 
 	openFolderIcon = new QPixmap( (const char **)open_xpm);
 	qfd_cleanup_pixmap.addCleanUp( openFolderIcon );
@@ -2403,6 +2395,7 @@ void QFileDialog::init()
 	    resize( s );
 	}
 	lastSize = new QSize;
+	qfd_cleanup_size.addCleanUp( lastSize );
 	*lastSize = size();
     } else
 	resize( *lastSize );
