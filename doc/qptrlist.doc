@@ -769,6 +769,48 @@
     will be undefined.
 */
 
+/*!
+    \enum QPtrList::iterator
+
+    \internal
+*/
+
+/*!
+    \enum QPtrList::Iterator
+
+    \internal
+*/
+
+/*!
+    \enum QPtrList::ConstIterator
+
+    \internal
+*/
+
+/*!
+    \enum QPtrList::const_iterator
+
+    \internal
+*/
+
+/*!
+    \fn QPtrList::constBegin() const
+
+    \internal
+*/
+
+/*!
+    \fn QPtrList::constEnd() const
+
+    \internal
+*/
+
+/*!
+    \fn QPtrList::erase(Iterator)
+
+    \internal
+*/
+
 
 /*****************************************************************************
   QPtrListIterator documentation
