@@ -553,10 +553,15 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const char *type, bool
     QAxBase:
         - internalProperty(ReadProperty)
 */
-bool QVariantToVoidStar(const QVariant &var, void *data)
+bool QVariantToVoidStar(const QVariant &var, void *data, const char *type)
 {
     if (!data)
         return true;
+
+    if (!qstrcmp(type, "QVariant")) {
+        *(QVariant*)data = var;
+        return true;
+    }
 
     switch (var.type()) {
     case QVariant::String:

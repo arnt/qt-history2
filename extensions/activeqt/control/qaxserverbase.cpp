@@ -2002,10 +2002,10 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 				    bool out;
 				    QByteArray ptype = paramType(ptypes.at(p), &out);
 				    if (out)
-					QVariantToVoidStar(VARIANTToQVariant(dispParams.rgvarg[pcount - p - 1], ptype), argv[p+1]);
+					QVariantToVoidStar(VARIANTToQVariant(dispParams.rgvarg[pcount - p - 1], ptype), argv[p+1], ptype);
 				}
 				if (pretval)
-				    QVariantToVoidStar(VARIANTToQVariant(retval, type), argv[0]);
+				    QVariantToVoidStar(VARIANTToQVariant(retval, type), argv[0], type);
 			    }
 			    disp->Release();
 			}
