@@ -42,10 +42,15 @@ QString cfstring2qstring(CFStringRef); //qglobal.cpp
   Internal variables and functions
  *****************************************************************************/
 static EventHandlerRef access_proc_handler = NULL;
+static HIObjectClassRef widget_create_class = NULL;
 static EventHandlerUPP access_proc_handlerUPP = NULL;
-static EventHandlerUPP access_create_widget_proc_handlerUPP = NULL;
 static CFStringRef qt_mac_static_class_str = NULL;
 static EventTypeSpec events[] = {
+    { kEventClassHIObject,  kEventHIObjectConstruct },
+    { kEventClassHIObject,  kEventHIObjectInitialize },
+    { kEventClassHIObject,  kEventHIObjectDestruct },
+    { kEventClassHIObject,  kEventHIObjectPrintDebugInfo },
+
     { kEventClassAccessibility,  kEventAccessibleGetChildAtPoint },
     { kEventClassAccessibility,  kEventAccessibleGetFocusedChild },
     { kEventClassAccessibility,  kEventAccessibleGetAllAttributeNames },
@@ -73,41 +78,6 @@ enum {
     kEventParamQWidget = 'qwid',   /* typeQWidget */
     typeQWidget = 1  /* QWidget *  */
 };
-QMAC_PASCAL OSStatus
-qt_mac_access_create_widget(EventHandlerCallRef next_ref, EventRef event, void *data)
-{
-    QAccessibleWidgetWrapper *wrap = (QAccessibleWidgetWrapper*)data;
-
-    bool handled_event = TRUE;
-    UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
-    switch(eclass) {
-    case kEventClassHIObject: {
-	if(ekind == kEventHIObjectConstruct) {
-	    QAccessibleWidgetWrapper *w = (QAccessibleWidgetWrapper*)malloc(sizeof(QAccessibleWidgetWrapper));
-	    memset(w, '\0', sizeof(QAccessibleWidgetWrapper));
-	    SetEventParameter(event, kEventParamHIObjectInstance, typeVoidPtr, sizeof(w), &w);
-	} else if(ekind == kEventHIObjectInitialize) {
-	    OSStatus err = CallNextEventHandler(next_ref, event);
-	    if(err != noErr)
-		return err;
-	    GetEventParameter(event, kEventParamQWidget, typeQWidget, NULL,
-			      sizeof(wrap->widget), NULL, &wrap->widget);
-	} else if(ekind == kEventHIObjectDestruct) {
-	    free(wrap);
-	} else if(ekind == kEventHIObjectPrintDebugInfo) {
-	    qDebug("%s::%s", wrap->widget->className(), wrap->widget->name());
-	} else {
-	    handled_event = FALSE;
-	}
-	break; }
-    default:
-	handled_event = FALSE;
-	break;
-    }
-    if(!handled_event) //let the event go through
-	return eventNotHandledErr;
-    return noErr; //we eat the event
-}
 static QWidget *qt_mac_find_access_widget(HIObjectRef objref) 
 {
     if(QAccessibleWidgetWrapper *wrap = (QAccessibleWidgetWrapper*)HIObjectDynamicCast(objref, qt_mac_class_str()))
@@ -122,24 +92,24 @@ AXUIElementRef qt_mac_find_uielement(QWidget *w)
 {
     QWExtra *extra = w->extraData();
     if(!extra->access) {
-	if(!access_create_widget_proc_handlerUPP) {
-	    access_create_widget_proc_handlerUPP = NewEventHandlerUPP(qt_mac_access_create_widget);
-	    static EventTypeSpec create_widget_events[] = {
-		{ kEventClassHIObject,  kEventHIObjectConstruct },
-		{ kEventClassHIObject,  kEventHIObjectInitialize },
-		{ kEventClassHIObject,  kEventHIObjectDestruct },
-		{ kEventClassHIObject,  kEventHIObjectPrintDebugInfo }
-	    };
-	    HIObjectRegisterSubclass(qt_mac_class_str(), NULL, 0, access_create_widget_proc_handlerUPP, 
-				     GetEventTypeCount(create_widget_events), create_widget_events, NULL, NULL);
+	if(!widget_create_class) {
+	    OSStatus err = HIObjectRegisterSubclass(qt_mac_class_str(), NULL, 
+						    0, access_proc_handlerUPP, GetEventTypeCount(events), 
+						    events, NULL, &widget_create_class);
+	    if(err != noErr) {
+		qDebug("That shouldn't happen! %ld", err);
+		return 0;
+	    }
 	}
 	EventRef event;
         CreateEvent(NULL, kEventClassHIObject, kEventHIObjectInitialize, GetCurrentEventTime(),
 		    kEventAttributeUserEvent, &event);
 	SetEventParameter(event, kEventParamQWidget, typeQWidget, sizeof(w), &w);
 	HIObjectRef obj;
-	if(HIObjectCreate(qt_mac_class_str(), event, &obj) == noErr) 
+	if(HIObjectCreate(qt_mac_class_str(), event, &obj) == noErr) {
+	    HIObjectSetAccessibilityIgnored(obj, false);
 	    extra->access = AXUIElementCreateWithHIObjectAndIdentifier(obj, w->winId());
+	}
 	ReleaseEvent(event);
     }
     return extra->access;
@@ -156,10 +126,9 @@ static HIObjectRef qt_mac_find_hiobject(QWidget *w)
 
 void QAccessible::initialize()
 {
-    if(!AXAPIEnabled()) {
-	qDebug("bugger..");
+    if(!AXAPIEnabled()) //no point in any of this code..
 	return;
-    }
+
     if(!access_proc_handler) {
 	access_proc_handlerUPP = NewEventHandlerUPP(QAccessible::globalEventProcessor);
 	InstallEventHandler(GetApplicationEventTarget(), access_proc_handlerUPP,
@@ -176,10 +145,6 @@ void QAccessible::cleanup()
 	DisposeEventHandlerUPP(access_proc_handlerUPP);
 	access_proc_handlerUPP = NULL;
     }
-    if(access_create_widget_proc_handlerUPP) {
-	DisposeEventHandlerUPP(access_create_widget_proc_handlerUPP);
-	access_create_widget_proc_handlerUPP = NULL;
-    }
     if(qt_mac_static_class_str) {
 	CFRelease(qt_mac_static_class_str);
 	qt_mac_static_class_str = 0;
@@ -188,10 +153,14 @@ void QAccessible::cleanup()
 
 void QAccessible::updateAccessibility(QObject *, int, Event)
 {
+    if(!AXAPIEnabled()) //no point in any of this code..
+	return;
+
+
 }
 
 QMAC_PASCAL OSStatus
-QAccessible::globalEventProcessor(EventHandlerCallRef, EventRef event, void *)
+QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, void *data)
 {
     bool handled_event = TRUE;
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
@@ -211,21 +180,158 @@ QAccessible::globalEventProcessor(EventHandlerCallRef, EventRef event, void *)
 		GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, NULL,
 				  sizeof(where), NULL, &where);
 		if(widget) 
-		    widget = widget->childAt(where.h, where.v); //should be doings this through the interface..
+		    widget = widget->childAt(widget->mapFromGlobal(QPoint(where.h, where.v))); //FIXME!!
 		else 
 		    widget = QApplication::widgetAt(where.h, where.v);
-		AXUIElementRef element = qt_mac_find_uielement(widget);
-		SetEventParameter(event, kEventParamAccessibleChild, typeCFTypeRef, sizeof(element), &element);
+		if(widget) {
+		    AXUIElementRef element = qt_mac_find_uielement(widget);
+		    SetEventParameter(event, kEventParamAccessibleChild, typeCFTypeRef, sizeof(element), &element);
+		}
+	    } else if(!widget) { //the below are not mine then..
+		handled_event = FALSE;
 	    } else if(ekind == kEventAccessibleGetAllAttributeNames) {
+		CFMutableArrayRef attrs;
+		GetEventParameter(event, kEventParamAccessibleAttributeNames, typeCFMutableArrayRef, NULL,
+				  sizeof(attrs), NULL, &attrs);
+		CFArrayAppendValue(attrs, kAXChildrenAttribute);
+		CFArrayAppendValue(attrs, kAXParentAttribute);
+	        CFArrayAppendValue(attrs, kAXPositionAttribute);
+                CFArrayAppendValue(attrs, kAXSizeAttribute);
+                CFArrayAppendValue(attrs, kAXRoleDescriptionAttribute);
+		CFArrayAppendValue(attrs, kAXValueAttribute);
+                CFArrayAppendValue(attrs, kAXHelpAttribute);
+                CFArrayAppendValue(attrs, kAXRoleAttribute);
+		CFArrayAppendValue(attrs, kAXEnabledAttribute);
+		CFArrayAppendValue(attrs, kAXExpandedAttribute);
+		CFArrayAppendValue(attrs, kAXSelectedAttribute);
+		CFArrayAppendValue(attrs, kAXFocusedAttribute);
+		CFArrayAppendValue(attrs, kAXSelectedChildrenAttribute);
+		if(widget->isTopLevel()) {
+		    CFArrayAppendValue(attrs, kAXMainAttribute);
+		    CFArrayAppendValue(attrs, kAXFocusedAttribute);
+		    CFArrayAppendValue(attrs, kAXMinimizedAttribute);
+		    CFArrayAppendValue(attrs, kAXCloseButtonAttribute);
+		    CFArrayAppendValue(attrs, kAXZoomButtonAttribute);
+		    CFArrayAppendValue(attrs, kAXMinimizeButtonAttribute);
+		    CFArrayAppendValue(attrs, kAXToolbarButtonAttribute);
+		    CFArrayAppendValue(attrs, kAXGrowAreaAttribute);
+		}
 	    } else if(ekind == kEventAccessibleGetNamedAttribute) {
+		CFStringRef str;
+		GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
+				  sizeof(str), NULL, &str);
+		if(CFStringCompare(str, kAXChildrenAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXParentAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXPositionAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXSizeAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXValueAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXHelpAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXRoleAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXEnabledAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXExpandedAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXSelectedAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXSelectedChildrenAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXMainAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXCloseButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXZoomButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXToolbarButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXGrowAreaAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXMinimizedAttribute, 0) == kCFCompareEqualTo) {
+		} else {
+		    qDebug("Unknown [kEventAccessibleGetNamedAttribute]: %s", cfstring2qstring(str).latin1());
+		}
 	    } else if(ekind == kEventAccessibleSetNamedAttribute) {
+		CFStringRef str;
+		GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
+				  sizeof(str), NULL, &str);
+		if(CFStringCompare(str, kAXChildrenAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXParentAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXPositionAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXSizeAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXValueAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXHelpAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXRoleAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXEnabledAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXExpandedAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXSelectedAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXSelectedChildrenAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXMainAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXCloseButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXZoomButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXToolbarButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXGrowAreaAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXMinimizedAttribute, 0) == kCFCompareEqualTo) {
+		} else {
+		    qDebug("Unknown [kEventAccessibleSetNamedAttribute]: %s", cfstring2qstring(str).latin1());
+		}
 	    } else if(ekind == kEventAccessibleIsNamedAttributeSettable) {
+		CFStringRef str;
+		GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
+				  sizeof(str), NULL, &str);
+		if(CFStringCompare(str, kAXChildrenAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXParentAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXPositionAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXSizeAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXValueAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXHelpAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXRoleAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXEnabledAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXExpandedAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXSelectedAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXSelectedChildrenAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXMainAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXCloseButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXZoomButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXToolbarButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXGrowAreaAttribute, 0) == kCFCompareEqualTo) {
+		} else 	if(CFStringCompare(str, kAXMinimizedAttribute, 0) == kCFCompareEqualTo) {
+		} else {
+		    qDebug("Unknown [kEventAccessibleIsNamedAttributeSettable]: %s", cfstring2qstring(str).latin1());
+		}
 	    } else if(ekind == kEventAccessibleGetAllActionNames) {
+		qDebug("get all action names..");
 	    } else if(ekind == kEventAccessiblePerformNamedAction) {
+		qDebug("perofmr named action..");
 	    } else if(ekind == kEventAccessibleGetNamedActionDescription) {
+		qDebug("get action desc..");
 	    } else {
 		handled_event = FALSE;
 	    }
+	}
+	break; }
+    case kEventClassHIObject: {
+	QAccessibleWidgetWrapper *wrap = (QAccessibleWidgetWrapper*)data;
+	if(ekind == kEventHIObjectConstruct) {
+	    QAccessibleWidgetWrapper *w = (QAccessibleWidgetWrapper*)malloc(sizeof(QAccessibleWidgetWrapper));
+	    memset(w, '\0', sizeof(QAccessibleWidgetWrapper));
+	    SetEventParameter(event, kEventParamHIObjectInstance, typeVoidPtr, sizeof(w), &w);
+	} else if(ekind == kEventHIObjectInitialize) {
+	    OSStatus err = CallNextEventHandler(next_ref, event);
+	    if(err != noErr)
+		return err;
+	    GetEventParameter(event, kEventParamQWidget, typeQWidget, NULL,
+			      sizeof(wrap->widget), NULL, &wrap->widget);
+	} else if(ekind == kEventHIObjectDestruct) {
+	    free(wrap);
+	} else if(ekind == kEventHIObjectPrintDebugInfo) {
+	    qDebug("%s::%s", wrap->widget->className(), wrap->widget->name());
+	} else {
+	    handled_event = FALSE;
 	}
 	break; }
     default:
