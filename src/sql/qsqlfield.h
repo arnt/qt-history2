@@ -64,7 +64,7 @@ public:
     bool               isNull() const { return nul; }
     void               setReadOnly( bool readOnly ) { ro = readOnly; }
     bool               isReadOnly() const { return ro; }
-    void               clear();    
+    void               clear();
     QVariant::Type     type() const { return val.type(); }
 
 private:

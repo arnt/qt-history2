@@ -40,16 +40,48 @@
 
 /*!
     \class QSqlField qsqlfield.h
-    \brief Class used for manipulating SQL database fields
+    \brief Manipulates SQL database fields.
 
     \module sql
+    
+    QSqlField represents the characteristics of a single column in a
+    database table or view, such as the data type and column name. A
+    field also contains the value of the database column, which can be
+    viewed or changed.
+    
+    Field data values are stored as a QVariant type.  All
+    database-specific data types are mapped by the drivers to a
+    corresponding QVariant type.  Attempts to change a field value to
+    an incompatible type are not permitted.  For example:
+    
+    \code
+    QSqlField f( "myfield", QVariant::Int );
+    f.setValue( QPixmap() );  // will not work
+    \endcode
+    
+    However, the field will attempt to cast certain data types to the
+    field data type where possible:
+    
+    \code
+    QSqlField f( "myfield", QVariant::Int );
+    f.setValue( QString("123") ); // casts QString to int
+    \endcode
+    
+    QSqlField objects are rarely created explicitly in application
+    code.  Rather, use \l QSqlRecord and \l QSqlCursor which already
+    contain a list of fields.  For example:
+    
+    \code
+    QSqlCursor c( "Employee" );          // create cursor using the 'Employee' table
+    QSqlField* f = c.field( "name" );    // use the 'name' field
+    f->setValue( "Dave" );               // set field value 
+    ...
+    \endcode
+    
 */
 
-
-/*!  Constructs an empty SQL field using the field name \a fieldName,
-  field type \a type.
-
-  \sa setReadOnly()
+/*!  Constructs an empty field using the name \a fieldName and type \a
+  type.
 
 */
 
@@ -59,11 +91,17 @@ QSqlField::QSqlField( const QString& fieldName, QVariant::Type type )
     val.cast( type );
 }
 
+/*! Constructs a copy of \a other.
+*/
+
 QSqlField::QSqlField( const QSqlField& other )
     : nm( other.nm ), val( other.val ), ro( other.ro ), nul( other.nul )
 {
 }
 
+/*! Sets the field equal to \a other.
+*/
+   
 QSqlField& QSqlField::operator=( const QSqlField& other )
 {
     nm = other.nm;
@@ -73,6 +111,18 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
     return *this;
 }
 
+/*! Returns TRUE if the field is equal to \a other, otherwise FALSE is
+  returned.  Fields are considered equal when the following field
+  properties are the same:
+  
+  <ul>
+  <li> \c name()
+  <li> \c isNull()
+  <li> \c value()
+  <li> \c isReadOnly()
+  </ul>
+  
+*/
 bool QSqlField::operator==(const QSqlField& other) const
 {
     return ( nm == other.nm &&
@@ -80,7 +130,6 @@ bool QSqlField::operator==(const QSqlField& other) const
 	     ro == other.ro &&
 	     nul == other.nul );
 }
-
 
 /*!
   Destroys the object and frees any allocated resources.
@@ -93,19 +142,24 @@ QSqlField::~QSqlField()
 
 
 /*! \fn QVariant QSqlField::value() const
-  Returns the internal value of the field.
+  
+  Returns the internal value of the field as a QVariant.
+  
 */
 
-/*!  If the field is not read-only, sets the value of the field to \a
-  value. If the data type of \a value differs from the field's current
-  data type, an attempt is made to cast it to the proper type.  This
-  preserves the data type of the field in the face of assigning,
-  e.g. a QString to an integer data type.  For example:
+/*!  Sets the value of the field to \a value. If the field is
+  read-only (isReadOnly() returns TRUE), nothing happens.  If the data
+  type of \a value differs from the field's current data type, an
+  attempt is made to cast it to the proper type.  This preserves the
+  data type of the field in the face of assigning, e.g. a QString to
+  an integer data type.  For example:
 
-  QSqlCursor myCursor( "classroom" );                     // classroom table
+  \code
+  QSqlCursor myCursor( "Employee" );                      // 'Employee' table
   QSqlField* myField = myCursor.field( "student_count" ); // an integer field
   ...
-  myField->setValue( myLineEdit->text() ); // cast the line edit to an integer
+  myField->setValue( myLineEdit->text() );                // cast the line edit test to an integer
+  \endcode
 
   \sa isReadOnly()
 
@@ -128,7 +182,8 @@ void QSqlField::setValue( const QVariant& value )
 
 /*! \fn void QSqlField::clear()
 
-  Clears the value of the field, if the field is not read-only,
+  Clears the value of the field.  If the field is read-only, nothing
+  happens,
 */
 
 void QSqlField::clear()
@@ -141,36 +196,43 @@ void QSqlField::clear()
 }
 
 /*! \fn void QSqlField::setName( const QString& name )
-  Sets the name of the field to \a name,
+  
+  Sets the name of the field to \a name.
 */
 
 /*! \fn QString QSqlField::name() const
+  
   Returns the name of the field.
 */
 
 /*! \fn QVariant::Type QSqlField::type() const
+  
   Returns the field type.
 */
 
 /*! \fn void QSqlField::setReadOnly( bool readOnly )
+  
   Sets the read only flag of the field's value to \a readOnly.
 
   \sa setValue()
 */
 
 /*! \fn bool QSqlField::isReadOnly() const
+  
   Returns TRUE if the field's value is read only, otherwise FALSE.
 */
 
 /*! \fn void QSqlField::setNull( bool n )
 
-  Sets the null flag of the field to \a n, if the field is not
-  read-only.  If \a n is TRUE, the field is also cleared with clear().
+  Sets the null flag of the field to \a n.  If the field is read-only,
+  nothing happens.  If \a n is TRUE, the field is also cleared with
+  clear().
 
   \sa isReadOnly()
 */
 
 /*! \fn bool QSqlField::isNull() const
+  
   Returns TRUE if the field is currently null, otherwise FALSE.
 */
 
