@@ -136,7 +136,7 @@ inline QColor::QColor( int r, int g, int b )
 }
 
 inline QColor::QColor( const char *name )
-{ setNamedColor( QString(name) ); }
+{ setNamedColor( QLatin1String(name) ); }
 
 inline QColor::QColor( const QString& name )
 { setNamedColor( name ); }
