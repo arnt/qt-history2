@@ -804,7 +804,7 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
                 return;
         } else {
             stroker.setWidth(width);
-            stroker.setCurveThreshold(width/ (2 * 10 * d->matrix.m11() * d->matrix.m22()));
+            stroker.setCurveThreshold(1 / (10 * d->matrix.m11() * d->matrix.m22()));
             stroke = stroker.createStroke(path);
             d->outlineMapper->setMatrix(d->matrix, d->txop);
             if (stroke.isEmpty())
