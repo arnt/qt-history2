@@ -283,6 +283,11 @@ QVariant QPSQLResult::data( int i )
     const QString val = ( d->isUtf8 && ptype != BYTEAOID ) ? 
 			QString::fromUtf8( PQgetvalue( d->result, at(), i ) ) :
 			QString::fromLocal8Bit( PQgetvalue( d->result, at(), i ) );
+    if ( PQgetisnull( d->result, at(), i ) ) {
+	QVariant v;
+	v.cast( type );
+	return v;
+    }
     switch ( type ) {
     case QVariant::Bool:
 	{
@@ -290,11 +295,7 @@ QVariant QPSQLResult::data( int i )
 	    return ( b );
 	}
     case QVariant::String:
-	if ( PQgetisnull( d->result, at(), i ) ) {
-	    return QVariant( QString() );
-	} else {
-	    return QVariant( val );
-	}
+	return QVariant( val );
     case QVariant::LongLong:
 	if ( val[0] == '-' )
 	    return QVariant( val.toLongLong() );
