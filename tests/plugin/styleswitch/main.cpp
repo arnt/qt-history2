@@ -11,7 +11,7 @@
 class TestComponent : public QObject, 
 		      public ActionInterface, 
 		      public QLibraryInterface, 
-		      public QComponentServerInterface,
+		      public QComponentRegistrationInterface,
 		      public QComponentInformationInterface,
 		      public QComponentFactoryInterface
 {
@@ -86,8 +86,8 @@ QRESULT TestComponent::queryInterface( const QUuid &uuid, QUnknownInterface **if
 	*iface = (ActionInterface*)this;
     else if ( uuid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
-    else if ( uuid == IID_QComponentServer )
-	*iface = (QComponentServerInterface*)this;
+    else if ( uuid == IID_QComponentRegistration )
+	*iface = (QComponentRegistrationInterface*)this;
     else if ( uuid == IID_QComponentFactory )
 	*iface = (QComponentFactoryInterface*)this;
     else
