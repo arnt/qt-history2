@@ -203,6 +203,7 @@ public:
 	PE_PanelTabWidget,
 
 	PE_WindowFrame,
+	PE_PopupMenuScroller,
 
 	PE_CheckListController,
 	PE_CheckListIndicator,
@@ -441,6 +442,7 @@ public:
 	PM_IndicatorHeight,
 	PM_ExclusiveIndicatorWidth,
 	PM_ExclusiveIndicatorHeight,
+	PM_PopupMenuScrollerHeight,
 	PM_CheckListButtonSize,
 
 	// do not add any values below/greater than this
@@ -572,6 +574,9 @@ public:
 
 	//bool - richtext selections extend the full width of the docuemnt
 	SH_RichText_FullWidthSelection,
+
+	//bool - popupmenu supports scrolling instead of multicolumn mode
+	SH_PopupMenu_Scrollable,
 
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000

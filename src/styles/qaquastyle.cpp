@@ -580,8 +580,10 @@ void QAquaStyle::polish( QWidget * w )
 	w->font().setPixelSize(10);
 	((QTitleBar*)w)->setAutoRaise(TRUE);
     }
+#ifdef Q_WS_MACX
     if( w->inherits("QPopupMenu")  && w->parentWidget() && w->parentWidget()->inherits("QComboBox") )
 	((QPopupMenu*)w)->setFrameStyle(QFrame::NoFrame);
+#endif
 }
 
 /*! \reimp */
@@ -644,6 +646,12 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 				   const QStyleOption& opt ) const
 {
     switch( pe ) {
+    case PE_PopupMenuScroller: {
+	const int w = 10, x = (r.width() / 2) - (w / 2), 
+		  h = 10, y = (r.height() / 2) - (h / 2);
+	drawPrimitive((flags & Style_Down) ? PE_ArrowDown : PE_ArrowUp, p, 
+		      QRect(r.x() + x, r.y() + y, w, h), cg, flags, opt);
+	break; }
     case PE_PanelLineEdit:
 	//Top
 	p->setPen(QColor(120, 124, 120));
@@ -1360,6 +1368,9 @@ int QAquaStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     int ret = 0;
     switch(metric) {
+    case PM_PopupMenuScrollerHeight:
+	ret = 20;
+	break;
     case PM_DefaultFrameWidth:
 	if(widget && 
 	   (widget->isTopLevel() || !widget->parentWidget() || widget->parentWidget()->isTopLevel()) &&  
@@ -2079,6 +2090,9 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, const QStyleOption &op
 {
     int ret = 0;
     switch(sh) {
+    case SH_PopupMenu_Scrollable:
+	ret = TRUE;
+	break;
     case SH_ScrollView_FrameOnlyAroundContents:
 	ret = TRUE;
 	break;

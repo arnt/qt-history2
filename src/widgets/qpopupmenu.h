@@ -44,7 +44,7 @@
 #endif // QT_H
 
 #ifndef QT_NO_POPUPMENU
-
+class QPopupMenuPrivate;
 
 class Q_EXPORT QPopupMenu : public QFrame, public QMenuData
 {
@@ -125,6 +125,7 @@ private slots:
     void	modalActivation( int );
 
     void	subMenuTimer();
+    void	subScrollTimer();
     void	allowAnimation();
     void     toggleTearOff();
 
@@ -153,7 +154,7 @@ private:
     void	updateAccel( QWidget * );
     void	enableAccel( bool );
 #endif
-    QMenuItem  *selfItem;
+    QPopupMenuPrivate  *d;
 #ifndef QT_NO_ACCEL
     QAccel     *autoaccel;
 #endif

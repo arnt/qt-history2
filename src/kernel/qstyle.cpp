@@ -656,6 +656,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value PE_ProgressBarChunk  section of a progress bar indicator; see
   also QProgressBar.
 
+  \value PE_PopupMenuScroller scrolling areas in a popumenu when the
+  style supports scrolling.
 
   \value PE_ListViewController controller part of a listview item
   \value PE_ListViewIndicator checkbox part of a listview item
@@ -1381,6 +1383,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value PM_ExclusiveIndicatorWidth  width of a radio button indicator.
   \value PM_ExclusiveIndicatorHeight  height of a radio button indicator.
 
+  \value PM_PopupMenuScrollerHeight height of the scroller area in a popupmenu.
   \value PM_CheckListButtonSize area (width/height) of the checkbox/radiobutton in a 
                 QCheckListItem
 
@@ -1578,6 +1581,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value SH_RichText_FullWidthSelection whether richtext selections should 
            extend the full width of the document.
+
+    \value SH_PopupMenu_Scrollable whether popupmenu's must support
+           scrolling.
 
     \value SH_CustomBase  base value for custom ControlElements.  All values above
            this are reserved for custom use.  Therefore, custom values must be

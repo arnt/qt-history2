@@ -1398,12 +1398,12 @@ void QComboBox::popup()
     if( !d->usingListBox() || style().styleHint(QStyle::SH_ComboBox_Popup) ) {
 	if(d->usingListBox()) {
 	    if(!d->popup()) {
-		d->setPopupMenu( new QComboBoxPopup( this, "in-combo" ), FALSE );
-		d->popup()->setFont( font() );
-		connect( d->popup(), SIGNAL(activated(int)),
-			 SLOT(internalActivate(int)) );
-		connect( d->popup(), SIGNAL(highlighted(int)),
-			 SLOT(internalHighlight(int)) );
+		QComboBoxPopup *p = new QComboBoxPopup( this, "in-combo" );
+		d->setPopupMenu( p, FALSE );
+		p->setFont( font() );
+		connect( p, SIGNAL(activated(int)), SLOT(internalActivate(int)) );
+		connect( p, SIGNAL(highlighted(int)), SLOT(internalHighlight(int)) );
+		p->setFrameStyle( QFrame::Panel | QFrame::Raised );
 	    }
 	    d->popup()->clear();
 	    for(unsigned int i = 0; i < d->listBox()->count(); i++)
