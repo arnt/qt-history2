@@ -5101,11 +5101,11 @@ int QTextEdit::wrapColumnOrWidth() const
 
     This enum defines where text can be wrapped in word wrap mode.
 
-    \value AtWhiteSpace  Break lines at whitespace, e.g. spaces or
-    newlines.
+    \value AtWhiteSpace Don't use this deprecated value (it is a
+    synonym for \c AtWordBoundary which you should use instead).  
     \value Anywhere  Break anywhere, including within words.
-    \value AtWordBoundary Don't use this deprecated value (it is a
-    synonym for \c AtWhiteSpace which you should use instead).
+    \value AtWordBoundary Break lines at word boundaries, e.g. spaces or
+    newlines
     \value AtWordOrDocumentBoundary Break lines at whitespace, e.g.
     spaces or newlines if possible. Break it anywhere otherwise.
 

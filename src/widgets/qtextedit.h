@@ -166,8 +166,8 @@ public:
     };
 
     enum WrapPolicy {
-	AtWordBoundary, // AtWordBoundary is deprecated
-	AtWhiteSpace = AtWordBoundary,
+	AtWordBoundary,
+	AtWhiteSpace = AtWordBoundary, // AtWhiteSpace is deprecated
 	Anywhere,
 	AtWordOrDocumentBoundary
     };
