@@ -825,11 +825,11 @@ void QObject::blockSignals( bool block )
     }
 \endcode
 
-  There is practically no upper limit for the interval value (more
-  than one year is possible).  The accuracy depends on the underlying
-  operating system. Windows 95 has 55-millisecond (18.2 times per
-  second) accuracy; other systems that we have tested (Unix, Windows
-  NT) can handle 1-millisecond intervals.
+  There is practically no upper limit for the interval value (more than one
+  year is possible).  Note that QTimer's accuracy depends on the underlying
+  operating system and hardware.  Most platforms support an accuracy of
+  20ms; some provide more.  If Qt is unable to deliver the requested number
+  of timer clicks, it will silently discard some.
 
   The QTimer class provides a high-level programming interface with
   one-shot timers and timer signals instead of events.
