@@ -204,7 +204,7 @@ Option::parseCommandLine(int argc, char **argv)
 	    } else if(opt == "d") {
 		Option::debug_level++;
 	    } else if(opt == "version" || opt == "v" || opt == "-version") {
-		fprintf(stderr, "Qmake version: %s\n", qmake_version());
+		fprintf(stderr, "Qmake version: %s (Qt %s)\n", qmake_version(), QT_VERSION_STR);
 		fprintf(stderr, "Qmake is free software from Trolltech AS.\n");
 		return FALSE;
 	    } else if(opt == "h" || opt == "help") {
