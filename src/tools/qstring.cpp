@@ -12371,7 +12371,6 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
     char *a = new char[l+1];
     char *result = a;
     while (l--) {
-	const char c = uc->latin1();
 	*a++ = (uc->unicode() > 0xff) ? '?' : (char)uc->unicode();
 	uc++;
     }
