@@ -347,13 +347,13 @@ QPainter*  QTextFormat::painter()
 void QTextFormat::applyFont( const QFont &f )
 {
     QFontMetrics fm( pntr->fontMetrics() );
-    if (   !pntr_fm
+    if ( !pntr_fm
 	|| pntr_fm->painter != pntr
 	|| pntr_fm->d != fm.d
 	|| !pntr->font().isCopyOf( f ) ) {
 	pntr->setFont( f );
 	delete pntr_fm;
-	pntr_fm = new QFontMetrics( fm );
+	pntr_fm = new QFontMetrics( pntr->fontMetrics() );
 	pntr_ldg = pntr_fm->leading();
 	pntr_asc = pntr_fm->ascent()+(pntr_ldg+1)/2;
 	pntr_hei = pntr_fm->lineSpacing();
